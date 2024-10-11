@@ -1,0 +1,631 @@
+# Copyright (c) 2021 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+group("ark_js_moduletest") {
+  testonly = true
+  test_list = [
+    "addelementinternal",
+    "allocatearraybuffer",
+    "array",
+    "arrayfindlast",
+    "arrayflat",
+    "arrayflatmap",
+    "arrayfindindex",
+    "arrayfindlastindex",
+    "arrayforeach",
+    "arrayfrom",
+    "arrayjoin",
+    "arraymap",
+
+    # (issue 18938)
+    #"arraypop",
+    "arraytoreversed",
+    "arraytospliced",
+    "arraywith",
+    "arraysort",
+    "arrayspread",
+    "arrayprotochange",
+    "arrayshift",
+    "arrayslice",
+    "arraysplice",
+    "arktoolsgetundetectable",
+    "arktoolshavesamemap",
+    "assignproxy",
+    "async",
+    "asyncgenerator",
+    "barrier",
+    "bigint",
+    "bindfunction",
+    "bitwiseop",
+    "builtins",
+    "callframe",
+    "calltype",
+    "changelistener",
+    "class",
+    "clampedarray",
+    "compareobjecthclass",
+    "concurrent",
+    "container",
+    "createarray",
+    "createobject",
+    "dataproperty",
+    "datecase",
+    "datecompare",
+    "dateparse",
+    "decodeuricomponent",
+    "definefield",
+    "definefunc",
+    "deleteobjproperty",
+    "div",
+    "dynamicimport",
+    "dyninstruction",
+    "ecmastringtable",
+    "equal",
+    "errorhelper",
+    "errorcause",
+    "flatten",
+    "forawaitof",
+    "forin",
+    "forin_delete_property",
+    "forin_dictionary_mode",
+    "forin_empty_prototype",
+    "forin_enum_cache",
+    "forin_non_empty_prototype",
+    "forin_primitive",
+    "forin_special_object",
+    "fortest",
+    "funcprotochangeobjectandnew",
+    "functionapply",
+    "generator",
+    "getpropertybyindex",
+    "getunmappedargs",
+    "global",
+    "globalaccessor",
+    "globalrecord",
+    "globalthis",
+    "helloworld",
+    "instanceofic",
+    "intl",
+    "jsonparser",
+    "jsonstringifier",
+    "ldmodulensbyic",
+    "lexicalenv",
+    "linkedhashtable",
+    "loadicbyname",
+    "loadicbyvalue",
+    "localelowercase",
+    "mapforeach",
+    "mapget",
+    "memleakobjectcreate",
+    "merge",
+    "module",
+    "moduleImportJson",
+    "moduleLazyImport",
+    "moduleTopLevelAwait",
+    "moduleUseCjs",
+    "multiargs",
+    "multiprotoic",
+    "negintmin",
+    "newobjdynrange",
+    "object",
+    "objectcloneproperties",
+    "objectdefineproperties",
+    "objectgetownproperty",
+    "objecthasownproperty",
+    "objectkeys",
+    "objoperate",
+    "objseal",
+    "promise",
+    "propertydetector",
+    "protobuf",
+    "proxy",
+    "regressproxy",
+    "rangeerror",
+    "regexpcallthrow",
+    "regexpflagd",
+    "regressfunction",
+    "regexpmaxindex",
+    "regress",
+    "regressmathmaxmin",
+
+    #"regressdatetime",
+    "regressdefineproperty",
+    "regresssstring",
+    "require",
+    "setobjectwithproto",
+    "spreadoperator",
+    "stackoverflow",
+    "storeglobalvarIC",
+    "storeicbyname",
+    "storeicbyvalue",
+    "string",
+    "stringfromcharcode",
+    "stringlocalecompare",
+    "stringreplace",
+    "stringreplaceall",
+    "stringsplit",
+    "stubbuilder",
+    "throwdyn",
+    "throwerror",
+    "trycatch",
+    "typearray",
+    "typedarrayat",
+    "typedarrayfill",
+    "typedarrayfilter",
+    "typedarrayfindlast",
+    "typedarrayfrom",
+    "typedarraynan",
+    "typedarraysort",
+    "typedarraysubarray",
+    "typedarraytosorted",
+    "typedarraywith",
+    "typedarrayjoin",
+    "watch",
+    "weakcollectionswithsymbol",
+    "wrapperclassfunc",
+    "yieldstar",
+    "esmnestedimportcjs",
+    "regexp",
+    "deregistermodule",
+    "getpropertybyic",
+    "regressbufferdetach",
+    "regressdate",
+    "regresssuper",
+    "objectfreeze",
+    "sharedcheck",
+    "sharedarray",
+    "sharedtypedarray",
+    "sharedcollectionsexception",
+    "definesendableclass",
+    "sendableenv",
+    "sendablefunc",
+    "sendablecontext",
+    "sendableclassuseimport",
+    "sharedmodule",
+    "sharedset",
+    "sharedmap",
+    "sharedJSON",
+    "sharedic",
+    "sendable",
+  ]
+
+  deps = []
+  foreach(test, test_list) {
+    deps += [ "${test}:${test}Action" ]
+    if (!is_debug) {
+      deps += [ "${test}:${test}ContextAction" ]
+    }
+  }
+
+  if (!is_debug) {
+    release_test_list = [
+      "multiconstpoolclass",
+      "multiconstpoolconstructor",
+      "multiconstpoolfunc",
+      "multiconstpoolobj",
+    ]
+
+    foreach(test, release_test_list) {
+      deps += [
+        "${test}:${test}Action",
+        "${test}:${test}ContextAction",
+      ]
+    }
+  }
+}
+
+group("ark_js_assert_moduletest") {
+  testonly = true
+  assert_test_list = [ "addpropertybyname" ]
+
+  deps = []
+  foreach(test, assert_test_list) {
+    deps += [ "${test}:${test}AssertAction" ]
+    if (!is_debug) {
+      deps += [ "${test}:${test}ContextAssertAction" ]
+    }
+  }
+
+  if (!is_debug) {
+    release_test_assert_list = [
+      "hugearray",
+      "hugeictest",
+      "multiconstpoolarray",
+    ]
+
+    foreach(test, release_test_assert_list) {
+      deps += [
+        "${test}:${test}AssertAction",
+        "${test}:${test}ContextAssertAction",
+      ]
+    }
+  }
+}
+
+group("ark_asm_test") {
+  testonly = true
+  test_list = [
+    "addelementinternal",
+    "allocatearraybuffer",
+    "allocatesizeoverflow",
+    "array",
+    "arrayfindlast",
+    "arrayfill",
+    "arrayflat",
+    "arrayflatmap",
+    "arrayfindlastindex",
+    "arrayfindindex",
+    "arrayforeach",
+    "arrayjoin",
+    "arraymap",
+
+    # (issue 18938)
+    #"arraypop",
+    "arraysort",
+    "arrayspread",
+    "arrayprotochange",
+    "arrayshift",
+    "arrayslice",
+    "assignproxy",
+    "barrier",
+    "bigint",
+    "bindfunction",
+    "bitwiseop",
+    "builtins",
+    "callframe",
+    "calltype",
+    "changelistener",
+    "class",
+    "compareobjecthclass",
+    "concurrent",
+    "container",
+    "createobject",
+    "dataproperty",
+    "dateparse",
+    "datetimezone",
+
+    # "datetimezonetitleid",
+    "decodeuricomponent",
+    "definefield",
+    "definefunc",
+    "deleteobjproperty",
+    "div",
+    "dynamicimport",
+    "dyninstruction",
+    "ecmastringtable",
+    "elements_kind",
+    "equal",
+    "errorcause",
+    "flatten",
+    "forin",
+    "forin_delete_property",
+    "forin_dictionary_mode",
+    "forin_empty_prototype",
+    "forin_enum_cache",
+    "forin_non_empty_prototype",
+    "forin_primitive",
+    "forin_special_object",
+    "fortest",
+    "funcprotochangeobjectandnew",
+    "functionapply",
+    "generator",
+    "getunmappedargs",
+    "global",
+    "globalaccessor",
+    "globalrecord",
+    "globalthis",
+    "helloworld",
+    "ictest",
+    "instanceofic",
+    "intl",
+    "jsonparser",
+    "jsonstringifier",
+    "ldmodulensbyic",
+    "lexicalenv",
+    "linkedhashtable",
+    "loadicbyvalue",
+    "mapforeach",
+    "mapget",
+    "module",
+    "multiargs",
+    "multiprotoic",
+    "negintmin",
+    "newobjdynrange",
+    "number",
+    "objectcloneproperties",
+    "objecthasownproperty",
+    "objectkeys",
+    "objoperate",
+    "objseal",
+    "promise",
+    "propertydetector",
+    "proxy",
+    "rangeerror",
+    "regexpcallthrow",
+    "regexpflagd",
+    "regressparseInt",
+    "setobjectwithproto",
+    "spreadoperator",
+    "stackoverflow",
+    "string",
+    "stringreplace",
+    "stringreplaceall",
+    "stringrepeat",
+    "stringsplit",
+    "stubbuilder",
+    "throwdyn",
+    "throwerror",
+    "trycatch",
+    "typedarrayat",
+    "typedarrayfill",
+    "typedarrayfilter",
+    "typedarrayfindlast",
+    "typedarrayfrom",
+    "typedarraynan",
+    "typedarraysort",
+    "typedarraytosorted",
+    "typedarraywith",
+    "watch",
+    "weakcollectionswithsymbol",
+    "wrapperclassfunc",
+    "yieldstar",
+    "regexp",
+    "deregistermodule",
+    "getpropertybyic",
+    "sharedcheck",
+    "sharedarray",
+    "sharedtypedarray",
+    "sharedcollectionsexception",
+    "definesendableclass",
+    "sendableenv",
+    "sendablefunc",
+    "sendablecontext",
+    "sendableclassuseimport",
+    "sharedmodule",
+    "sharedset",
+    "sharedmap",
+    "sharedJSON",
+    "sharedic",
+    "sendable",
+  ]
+
+  deps = []
+  foreach(test, test_list) {
+    deps += [ "${test}:${test}AsmAction" ]
+    if (!is_debug) {
+      deps += [ "${test}:${test}AsmContextAction" ]
+    }
+  }
+
+  if (!is_debug) {
+    release_test_list = [
+      "asmstackoverflow",
+      "arrayRelease",
+      "supercallRelease",
+      "multiconstpoolclass",
+      "multiconstpoolconstructor",
+      "multiconstpoolfunc",
+      "multiconstpoolobj",
+    ]
+
+    foreach(test, release_test_list) {
+      deps += [
+        "${test}:${test}AsmAction",
+        "${test}:${test}AsmContextAction",
+      ]
+    }
+  }
+}
+
+group("ark_asm_assert_test") {
+  testonly = true
+  assert_test_list = [ "addpropertybyname" ]
+  deps = []
+
+  foreach(test, assert_test_list) {
+    deps += [ "${test}:${test}AsmAssertAction" ]
+    if (!is_debug) {
+      deps += [ "${test}:${test}AsmContextAssertAction" ]
+    }
+  }
+
+  if (!is_debug) {
+    release_test_assert_list = [
+      "hugearray",
+      "hugeictest",
+      "multiconstpoolarray",
+    ]
+
+    foreach(test, release_test_assert_list) {
+      deps += [
+        "${test}:${test}AsmAssertAction",
+        "${test}:${test}AsmContextAssertAction",
+      ]
+    }
+  }
+}
+
+group("ark_asm_single_step_test") {
+  testonly = true
+  test_list = [
+    "addelementinternal",
+    "allocatearraybuffer",
+    "allocatesizeoverflow",
+    "arrayfindindex",
+    "arrayfindlast",
+    "arrayflat",
+    "arrayflatmap",
+    "arrayfindlastindex",
+    "arrayforeach",
+    "arrayjoin",
+    "arraymap",
+
+    # (issue 18938)
+    #"arraypop",
+    "arrayprotochange",
+    "arrayshift",
+    "arrayslice",
+    "arrayspread",
+    "assignproxy",
+    "barrier",
+    "bigint",
+    "bindfunction",
+    "bitwiseop",
+    "callframe",
+    "calltype",
+    "changelistener",
+    "class",
+    "compareobjecthclass",
+    "concurrent",
+    "container",
+    "createobject",
+    "dataproperty",
+    "decodeuricomponent",
+    "definefield",
+    "dynamicimport",
+    "dyninstruction",
+    "ecmastringtable",
+    "errorcause",
+    "forin",
+    "forin_delete_property",
+    "forin_dictionary_mode",
+    "forin_empty_prototype",
+    "forin_enum_cache",
+    "forin_non_empty_prototype",
+    "forin_primitive",
+    "forin_special_object",
+    "fortest",
+    "funcprotochangeobjectandnew",
+    "functionapply",
+    "generator",
+    "getunmappedargs",
+    "global",
+    "globalaccessor",
+    "globalrecord",
+    "globalthis",
+    "helloworld",
+    "instanceofic",
+    "jsonparser",
+    "jsonstringifier",
+    "ldmodulensbyic",
+    "lexicalenv",
+    "loadicbyvalue",
+    "mapforeach",
+    "mapget",
+    "module",
+    "multiargs",
+    "multiprotoic",
+    "negintmin",
+    "newobjdynrange",
+    "objectcloneproperties",
+    "objecthasownproperty",
+    "objectkeys",
+    "objoperate",
+    "objseal",
+    "promise",
+    "propertydetector",
+    "proxy",
+    "rangeerror",
+    "regexpcallthrow",
+    "regexpflagd",
+    "setobjectwithproto",
+    "spreadoperator",
+    "stackoverflow",
+    "string",
+    "stringreplace",
+    "stringreplaceall",
+    "stringsplit",
+    "stubbuilder",
+    "throwdyn",
+    "throwerror",
+    "trycatch",
+    "typedarrayat",
+    "typedarrayfill",
+    "typedarrayfilter",
+    "typedarrayfindlast",
+    "typedarrayfrom",
+    "typedarraynan",
+    "typedarraysort",
+    "typedarraytosorted",
+    "typedarraywith",
+    "watch",
+    "weakcollectionswithsymbol",
+    "yieldstar",
+    "getpropertybyic",
+    "regressarraybuffer",
+    "sharedcheck",
+    "sharedarray",
+    "sharedtypedarray",
+    "sharedcollectionsexception",
+    "definesendableclass",
+    "sendableenv",
+    "sendablefunc",
+    "sendablecontext",
+    "sendableclassuseimport",
+    "sharedmodule",
+    "sharedic",
+    "sharedset",
+    "sharedmap",
+    "sharedJSON",
+    "sendable",
+  ]
+
+  deps = []
+  foreach(test, test_list) {
+    deps += [ "${test}:${test}AsmSingleStepAction" ]
+    if (!is_debug) {
+      deps += [ "${test}:${test}AsmSingleStepContextAction" ]
+    }
+  }
+  if (!is_debug) {
+    release_test_list = [
+      "asmstackoverflow",
+      "arrayRelease",
+      "supercallRelease",
+      "multiconstpoolclass",
+      "multiconstpoolconstructor",
+      "multiconstpoolfunc",
+      "multiconstpoolobj",
+    ]
+
+    foreach(test, release_test_list) {
+      deps += [
+        "${test}:${test}AsmSingleStepAction",
+        "${test}:${test}AsmSingleStepContextAction",
+      ]
+    }
+  }
+}
+
+group("ark_asm_single_step_assert_test") {
+  testonly = true
+  assert_test_list = [ "addpropertybyname" ]
+
+  deps = []
+  foreach(test, assert_test_list) {
+    deps += [ "${test}:${test}AsmSingleStepAssertAction" ]
+    if (!is_debug) {
+      deps += [ "${test}:${test}AsmSingleStepContextAssertAction" ]
+    }
+  }
+  if (!is_debug) {
+    release_test_assert_list = [ "multiconstpoolarray" ]
+
+    foreach(test, release_test_assert_list) {
+      deps += [
+        "${test}:${test}AsmSingleStepAssertAction",
+        "${test}:${test}AsmSingleStepContextAssertAction",
+      ]
+    }
+  }
+}

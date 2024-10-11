@@ -1,0 +1,304 @@
+# Copyright (c) 2021 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+import("napi.gni")
+
+config("ace_napi_config") {
+  include_dirs = [
+    ".",
+    "interfaces/inner_api",
+    "interfaces/kits",
+    "native_engine",
+    "native_engine/impl/ark",
+  ]
+  defines = []
+  cflags_cc = []
+  if (is_mingw || is_mac || is_linux) {
+    defines += [ "PREVIEW" ]
+  }
+
+  if (is_arkui_x) {
+    include_dirs += [
+      "//third_party/node/src",
+      "//third_party/libuv/include",
+    ]
+  }
+
+  if (current_os == "ohos" && current_cpu == "x86_64") {
+    defines += [ "SIMULATOR" ]
+  }
+  if (is_ohos) {
+    defines += [ "OHOS_PLATFORM" ]
+    if (use_musl && !is_asan) {
+      defines += [ "HOOK_ENABLE" ]
+    }
+  } else if (is_mingw) {
+    defines += [ "WINDOWS_PLATFORM" ]
+    cflags_cc += [ "-std=c++17" ]
+  } else if (is_mac) {
+    defines += [ "MAC_PLATFORM" ]
+  } else if (is_linux) {
+    defines += [ "LINUX_PLATFORM" ]
+    cflags_cc += [ "-std=c++17" ]
+  } else if (is_arkui_x && target_os == "ios") {
+    defines += [ "IOS_PLATFORM" ]
+  } else if (is_arkui_x && target_os == "android") {
+    defines += [ "ANDROID_PLATFORM" ]
+  }
+}
+
+config("module_manager_config") {
+  include_dirs = [ "module_manager" ]
+}
+
+ohos_source_set("ace_napi_static") {
+  defines = []
+  public_configs = [ ":ace_napi_config" ]
+  deps = []
+  external_deps = []
+  configs = []
+
+  sources = napi_sources
+
+  if (current_cpu == "arm64") {
+    defines += [ "_ARM64_" ]
+  }
+  if (is_ohos && !is_arkui_x) {
+    external_deps += [ "faultloggerd:libunwinder" ]
+  }
+  if (is_arkui_x) {
+    if (napi_enable_container_scope) {
+      external_deps += [ "ace_engine:ace_container_scope_static" ]
+      defines += [ "ENABLE_CONTAINER_SCOPE" ]
+    }
+    if (target_os == "android") {
+      libs = [ "log" ]
+    }
+  } else if (!is_mingw && !is_mac && !is_linux && is_ohos_standard_system) {
+    external_deps += [
+      "c_utils:utils",
+      "eventhandler:libeventhandler",
+      "ffrt:libffrt",
+      "hilog:libhilog",
+      "hitrace:hitrace_meter",
+      "hitrace:libhitracechain",
+      "init:libbegetutil",
+    ]
+
+    # macro in runtime_core in full repo will effect build napi
+    if (ohos_indep_compiler_enable) {
+      external_deps += [ "runtime_core:libarkbase_static" ]
+    }
+
+    defines += [
+      "ENABLE_HITRACE",
+      "ENABLE_EVENT_HANDLER",
+      "ENABLE_FFRT",
+    ]
+    if (product_name != "ohos-sdk" && napi_enable_container_scope) {
+      deps += [ "ace_engine:ace_container_scope" ]
+      defines += [ "ENABLE_CONTAINER_SCOPE" ]
+    }
+  }
+
+  # Use static libuv and icu for cross build
+  if (is_arkui_x) {
+    deps += [
+      "${ets_runtime_path}:libark_jsruntime_static",
+      "//third_party/bounds_checking_function:libsec_static",
+      "//third_party/icu/icu4c:static_icui18n",
+      "//third_party/icu/icu4c:static_icuuc",
+      "//third_party/libuv:uv_static",
+    ]
+    configs += [ "${ets_runtime_path}:ark_jsruntime_public_config" ]
+  } else {
+    external_deps += [
+      "ets_runtime:libark_jsruntime",
+      "icu:shared_icui18n",
+      "icu:shared_icuuc",
+      "libuv:uv",
+      "node:node_header_notice",
+    ]
+  }
+
+  cflags_cc = [ "-Wno-missing-braces" ]
+
+  if (is_ohos && is_clang && enhanced_opt) {
+    if (napi_feature_enable_pgo) {
+      cflags_cc += [
+        "-fprofile-use=" +
+            rebase_path("${napi_feature_pgo_path}/libace_napi.profdata",
+                        root_build_dir),
+        "-Wno-error=backend-plugin",
+        "-Wno-profile-instr-out-of-date",
+        "-Wno-profile-instr-unprofiled",
+      ]
+    }
+  }
+
+  subsystem_name = "arkui"
+  part_name = "napi"
+}
+
+if (is_arkui_x) {
+  ohos_static_library("ace_napi") {
+    deps = [ ":ace_napi_static" ]
+    public_configs = [ ":ace_napi_config" ]
+    subsystem_name = "arkui"
+    part_name = "napi"
+  }
+} else {
+  ohos_shared_library("ace_napi") {
+    deps = [ ":ace_napi_static" ]
+    external_deps = [
+      "bounds_checking_function:libsec_shared",
+      "hilog:libhilog",
+    ]
+    public_configs = [
+      ":ace_napi_config",
+      ":module_manager_config",
+    ]
+    public_external_deps = [
+      "libuv:uv",
+      "node:node_header_notice",
+    ]
+
+    subsystem_name = "arkui"
+    innerapi_tags = [ "platformsdk" ]
+    part_name = "napi"
+
+    if (is_ohos && is_clang && enhanced_opt) {
+      if (napi_feature_enable_pgo) {
+        ldflags = [ "-Wl,-mllvm,-align-all-functions=4" ]
+
+        if (target_cpu == "arm64") {
+          ldflags += [ "-Wl,--aarch64-inline-plt" ]
+        }
+      }
+    }
+  }
+}
+
+#cj_ffi
+config("ffi_bind_native_config") {
+  include_dirs = [ "interfaces/inner_api/cjffi/native" ]
+  cflags_cc = [ "-std=c++17" ]
+}
+
+ohos_shared_library("cj_bind_native") {
+  public_configs = [ ":ffi_bind_native_config" ]
+
+  branch_protector_ret = "pac_ret"
+
+  cflags_cc = [
+    "-fdata-sections",
+    "-ffunction-sections",
+  ]
+
+  sources = [
+    "interfaces/inner_api/cjffi/native/cj_fn_invoker.cpp",
+    "interfaces/inner_api/cjffi/native/ffi_remote_data.cpp",
+  ]
+
+  include_dirs = [ "interfaces/inner_api/cjffi" ]
+
+  external_deps = [ "hilog:libhilog" ]
+  public_external_deps = [ "c_utils:utils" ]
+
+  innerapi_tags = [ "platformsdk" ]
+  subsystem_name = "arkui"
+  part_name = "napi"
+}
+
+ohos_source_set("cj_bind_ffi_source") {
+  sources = [
+    "interfaces/inner_api/cjffi/cj_ffi/cj_common_ffi.cpp",
+    "interfaces/inner_api/cjffi/cj_ffi/cj_data_ffi.cpp",
+  ]
+
+  public_deps = [ ":cj_bind_native" ]
+
+  include_dirs = [
+    "interfaces/inner_api/cjffi/cj_ffi",
+    "interfaces/inner_api/cjffi/native",
+    "interfaces/inner_api/cjffi",
+  ]
+
+  subsystem_name = "arkui"
+  part_name = "napi"
+}
+
+config("ffi_bind_ffi_public_config") {
+  include_dirs = [
+    "interfaces/inner_api/cjffi/cj_ffi",
+    "interfaces/inner_api/cjffi/native",
+    "interfaces/inner_api/cjffi",
+  ]
+  cflags_cc = [ "-std=c++17" ]
+}
+
+group("cj_ffi_libraries") {
+  deps = [ ":cj_bind_ffi" ]
+}
+
+ohos_shared_library("cj_bind_ffi") {
+  public_configs = [ ":ffi_bind_ffi_public_config" ]
+  branch_protector_ret = "pac_ret"
+
+  cflags_cc = [
+    "-fvisibility=hidden",
+    "-fdata-sections",
+    "-ffunction-sections",
+  ]
+  deps = [
+    ":cj_bind_ffi_source",
+    ":cj_bind_native",
+  ]
+
+  external_deps = []
+
+  if (is_standard_system) {
+    external_deps += [ "c_utils:utils" ]
+  }
+  innerapi_tags = [ "platformsdk" ]
+  subsystem_name = "arkui"
+  part_name = "napi"
+}
+
+group("napi_packages") {
+  deps = [
+    ":ace_napi",
+    "interfaces/inner_api/cjffi/ark_interop:ark_interop",
+  ]
+  if (target_cpu == "arm64") {
+    deps += [ "jsvm:libjsvm" ]
+  }
+}
+
+if (!build_ohos_ndk && !is_arkui_x && !ohos_indep_compiler_enable) {
+  group("napi_packages_test") {
+    testonly = true
+
+    deps = [
+      "sample/native_module_calc:calc",
+      "sample/native_module_calc:number",
+      "sample/native_module_callback:callback",
+      "sample/native_module_demo:demo",
+      "sample/native_module_netserver:netserver",
+      "sample/native_module_storage:storage",
+      "test/fuzztest:fuzztest",
+      "test/unittest:unittest",
+    ]
+  }
+}

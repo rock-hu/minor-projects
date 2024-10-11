@@ -1,0 +1,37 @@
+# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//foundation/arkui/ace_engine/test/unittest/ace_unittest.gni")
+
+ace_unittest("gestures_test_ng") {
+  type = "new"
+  module_output = "gestures"
+  sources = [
+    "click_recognizer_test_ng.cpp",
+    "exclusive_recognizer_test_ng.cpp",
+    "gesture_group_test_ng.cpp",
+    "gesture_recognizer_test_ng.cpp",
+    "gesture_referee_test_ng.cpp",
+    "gestures_common_test_ng.cpp",
+    "long_press_recognizer_test_ng.cpp",
+    "multi_fingers_recognizer_test_ng.cpp",
+    "pan_recognizer_test_ng.cpp",
+    "parallel_recognizer_test_ng.cpp",
+    "pinch_recognizer_test_ng.cpp",
+    "recognizer_group_test_ng.cpp",
+    "rotation_recognizer_test_ng.cpp",
+    "sequenced_recognizer_test_ng.cpp",
+    "swipe_recognizer_test_ng.cpp",
+    "tap_gesture_test_ng.cpp",
+  ]
+}

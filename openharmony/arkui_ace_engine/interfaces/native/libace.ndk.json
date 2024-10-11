@@ -1,0 +1,2370 @@
+[
+    {
+        "first_introduced": "8",
+        "name": "OH_NativeXComponent_GetXComponentId"
+    },
+    {
+        "first_introduced": "8",
+        "name": "OH_NativeXComponent_GetXComponentSize"
+    },
+    {
+        "first_introduced": "8",
+        "name": "OH_NativeXComponent_RegisterCallback"
+    },
+    {
+        "first_introduced": "8",
+        "name": "OH_NativeXComponent_GetTouchEvent"
+    },
+    {
+        "first_introduced": "8",
+        "name": "OH_NativeXComponent_GetXComponentOffset"
+    },
+    {
+        "first_introduced": "9",
+        "name": "OH_NativeXComponent_GetMouseEvent"
+    },
+    {
+        "first_introduced": "9",
+        "name": "OH_NativeXComponent_RegisterMouseEventCallback"
+    },
+    {
+        "first_introduced": "9",
+        "name": "OH_NativeXComponent_GetTouchPointToolType"
+    },
+    {
+        "first_introduced": "9",
+        "name": "OH_NativeXComponent_GetTouchPointTiltX"
+    },
+    {
+        "first_introduced": "9",
+        "name": "OH_NativeXComponent_GetTouchPointTiltY"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_NativeXComponent_GetTouchPointWindowX"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_NativeXComponent_GetTouchPointWindowY"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_NativeXComponent_GetTouchPointDisplayX"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_NativeXComponent_GetTouchPointDisplayY"
+    },
+    {
+        "first_introduced": "10",
+        "name": "OH_NativeXComponent_RegisterFocusEventCallback"
+    },
+    {
+        "first_introduced": "10",
+        "name": "OH_NativeXComponent_RegisterKeyEventCallback"
+    },
+    {
+        "first_introduced": "10",
+        "name": "OH_NativeXComponent_RegisterBlurEventCallback"
+    },
+    {
+        "first_introduced": "10",
+        "name": "OH_NativeXComponent_GetKeyEvent"
+    },
+    {
+        "first_introduced": "10",
+        "name": "OH_NativeXComponent_GetKeyEventAction"
+    },
+    {
+        "first_introduced": "10",
+        "name": "OH_NativeXComponent_GetKeyEventCode"
+    },
+    {
+        "first_introduced": "10",
+        "name": "OH_NativeXComponent_GetKeyEventSourceType"
+    },
+    {
+        "first_introduced": "10",
+        "name": "OH_NativeXComponent_GetKeyEventDeviceId"
+    },
+    {
+        "first_introduced": "10",
+        "name": "OH_NativeXComponent_GetKeyEventTimestamp"
+    },
+    {
+        "first_introduced": "10",
+        "name": "OH_NativeXComponent_GetHistoricalPoints"
+    },
+    {
+        "first_introduced": "11",
+        "name": "OH_NativeXComponent_SetExpectedFrameRateRange"
+    },
+    {
+        "first_introduced": "11",
+        "name": "OH_NativeXComponent_RegisterOnFrameCallback"
+    },
+    {
+        "first_introduced": "11",
+        "name": "OH_NativeXComponent_UnregisterOnFrameCallback"
+    },
+    {
+        "first_introduced": "11",
+        "name": "OH_NativeXComponent_AttachNativeRootNode"
+    },
+    {
+        "first_introduced": "11",
+        "name": "OH_NativeXComponent_DetachNativeRootNode"
+    },
+    {
+        "first_introduced": "11",
+        "name": "OH_ArkUI_GetNativeAPI"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GetNodeHandleFromNapiValue"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GestureEvent_GetActionType"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GestureEvent_GetRawInputEvent"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_LongPress_GetRepeatCount"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PanGesture_GetVelocity"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PanGesture_GetVelocityY"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PanGesture_GetVelocityX"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PanGesture_GetOffsetX"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PanGesture_GetOffsetY"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_SwipeGesture_GetAngle"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_SwipeGesture_GetVelocity"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_RotationGesture_GetAngle"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PinchGesture_GetScale"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PinchGesture_GetCenterX"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PinchGesture_GetCenterY"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GestureEvent_GetNode"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GetResponseRecognizersFromInterruptInfo"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_SetGestureRecognizerEnabled"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GetGestureRecognizerEnabled"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GetGestureRecognizerState"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GetGestureEventTargetInfo"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GestureEventTargetInfo_IsScrollBegin"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GestureEventTargetInfo_IsScrollEnd"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GetPanGestureDirectionMask"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_IsBuiltInGesture"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GetGestureTag"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GetGestureBindNodeId"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_IsGestureRecognizerValid"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ParallelInnerGestureEvent_GetUserData"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ParallelInnerGestureEvent_GetCurrentRecognizer"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ParallelInnerGestureEvent_GetConflictRecognizers"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_SetArkUIGestureRecognizerDisposeNotify"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_NativeXComponent_RegisterUIInputEventCallback"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_UIInputEvent_GetType"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_UIInputEvent_GetEventTime"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PointerEvent_GetX"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PointerEvent_GetY"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PointerEvent_GetWindowX"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PointerEvent_GetWindowY"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PointerEvent_GetDisplayX"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PointerEvent_GetDisplayY"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AxisEvent_GetVerticalAxisValue"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AxisEvent_GetHorizontalAxisValue"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AxisEvent_GetPinchAxisScaleValue"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_NativeXComponent_SetNeedSoftKeyboard"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_NativeXComponent_RegisterSurfaceShowCallback"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_NativeXComponent_RegisterSurfaceHideCallback"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_NativeXComponent_RegisterOnTouchInterceptCallback"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_QueryModuleInterface"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_NativeXComponent_GetTouchEventSourceType"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_LayoutConstraint_Create"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_LayoutConstraint_Copy"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_LayoutConstraint_Dispose"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeCustomEvent_GetLayoutConstraintInMeasure"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeCustomEvent_GetPositionInLayout"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeCustomEvent_GetDrawContextInDraw"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeCustomEvent_GetEventTargetId"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeCustomEvent_GetUserData"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeCustomEvent_GetNodeHandle"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeCustomEvent_GetEventType"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_LayoutConstraint_GetMaxWidth"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_LayoutConstraint_GetMinWidth"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_LayoutConstraint_GetMaxHeight"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_LayoutConstraint_GetMinHeight"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_LayoutConstraint_GetPercentReferenceWidth"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_LayoutConstraint_GetPercentReferenceHeight"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_LayoutConstraint_SetMaxWidth"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_LayoutConstraint_SetMinWidth"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_LayoutConstraint_SetMaxHeight"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_LayoutConstraint_SetMinHeight"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_LayoutConstraint_SetPercentReferenceWidth"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_LayoutConstraint_SetPercentReferenceHeight"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DrawContext_GetCanvas"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DrawContext_GetSize"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_UIInputEvent_GetAction"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_UIInputEvent_GetSourceType"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_UIInputEvent_GetToolType"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PointerEvent_GetPointerCount"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PointerEvent_GetPointerId"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PointerEvent_GetXByIndex"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PointerEvent_GetYByIndex"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PointerEvent_GetWindowXByIndex"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PointerEvent_GetWindowYByIndex"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PointerEvent_GetDisplayXByIndex"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PointerEvent_GetDisplayYByIndex"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PointerEvent_GetPressure"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PointerEvent_GetTiltX"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PointerEvent_GetTiltY"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PointerEvent_GetTouchAreaWidth"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PointerEvent_GetTouchAreaHeight"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PointerEvent_GetHistorySize"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PointerEvent_GetHistoryEventTime"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PointerEvent_GetHistoryPointerCount"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PointerEvent_GetHistoryPointerId"
+    },    
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PointerEvent_GetHistoryX"
+    },    
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PointerEvent_GetHistoryY"
+    },    
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PointerEvent_GetHistoryWindowX"
+    },    
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PointerEvent_GetHistoryWindowY"
+    },    
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PointerEvent_GetHistoryDisplayX"
+    },    
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PointerEvent_GetHistoryDisplayY"
+    },    
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PointerEvent_GetHistoryPressure"
+    },    
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PointerEvent_GetHistoryTiltX"
+    },    
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PointerEvent_GetHistoryTiltY"
+    },    
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PointerEvent_GetHistoryTouchAreaWidth"
+    },    
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PointerEvent_GetHistoryTouchAreaHeight"
+    },    
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeEvent_GetEventType"
+    },    
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeEvent_GetTargetId"
+    },    
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeEvent_GetNodeHandle"
+    },    
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeEvent_GetInputEvent"
+    },    
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeEvent_GetNodeComponentEvent"
+    },    
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeEvent_GetStringAsyncEvent"
+    },    
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeEvent_GetUserData"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_QueryModuleInterfaceByName"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GetModuleInterface"
+    },
+    {
+        "first_introduced": "12",    
+        "name": "OH_ArkUI_NodeAdapter_Create"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeAdapter_Dispose"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeAdapter_SetTotalNodeCount"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeAdapter_GetTotalNodeCount"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeAdapter_RegisterEventReceiver"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeAdapter_UnregisterEventReceiver"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeAdapter_ReloadAllItems"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeAdapter_ReloadItem"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeAdapter_RemoveItem"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeAdapter_InsertItem"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeAdapter_MoveItem"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeAdapter_GetAllItems"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeAdapterEvent_GetUserData"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeAdapterEvent_GetType"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeAdapterEvent_GetRemovedNode"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeAdapterEvent_GetItemIndex"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeAdapterEvent_GetHostNode"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeAdapterEvent_SetItem"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeAdapterEvent_SetNodeId"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimateOption_Create"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimateOption_Dispose"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimateOption_GetDuration"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimateOption_GetTempo"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimateOption_GetCurve"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimateOption_GetDelay"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimateOption_GetIterations"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimateOption_GetPlayMode"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimateOption_GetExpectedFrameRateRange"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimateOption_SetDuration"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimateOption_SetTempo"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimateOption_SetCurve"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimateOption_SetDelay"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimateOption_SetIterations"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimateOption_SetPlayMode"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimateOption_SetExpectedFrameRateRange"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GetContextFromNapiValue"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_NativeXComponent_GetNativeXComponent"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PointerEvent_SetInterceptHitTestMode"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeContent_AddNode"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeContent_InsertNode"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeContent_RemoveNode"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeContent_RegisterCallback"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeContentEvent_GetEventType"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeContentEvent_GetNodeContentHandle"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeContent_SetUserData"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeContent_GetUserData"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GetNodeContentFromNapiValue"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_MouseEvent_GetMouseButton"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_MouseEvent_GetMouseAction"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_WaterFlowSectionOption_Create"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_WaterFlowSectionOption_Dispose"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_WaterFlowSectionOption_SetSize"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_WaterFlowSectionOption_SetItemCount"
+    },    
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_WaterFlowSectionOption_SetCrossCount"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_WaterFlowSectionOption_SetColumnGap"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_WaterFlowSectionOption_SetRowGap"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_WaterFlowSectionOption_SetMargin"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_WaterFlowSectionOption_GetSize"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_WaterFlowSectionOption_GetItemCount"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_WaterFlowSectionOption_GetCrossCount"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_WaterFlowSectionOption_GetColumnGap"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_WaterFlowSectionOption_GetRowGap"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_WaterFlowSectionOption_GetMargin"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_WaterFlowSectionOption_RegisterGetItemMainSizeCallbackByIndex"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_WaterFlowSectionOption_RegisterGetItemMainSizeCallbackByIndexWithUserData"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GuidelineOption_Create"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GuidelineOption_Dispose"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GuidelineOption_SetId"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GuidelineOption_SetDirection"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GuidelineOption_SetPositionStart"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GuidelineOption_SetPositionEnd"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GuidelineOption_GetId"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GuidelineOption_GetDirection"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GuidelineOption_GetPositionStart"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GuidelineOption_GetPositionEnd"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_BarrierOption_Create"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_BarrierOption_Dispose"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_BarrierOption_SetId"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_BarrierOption_SetDirection"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_BarrierOption_SetReferencedId"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_BarrierOption_GetId"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_BarrierOption_GetDirection"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_BarrierOption_GetReferencedId"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_BarrierOption_GetReferencedIdSize"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AlignmentRuleOption_Create"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AlignmentRuleOption_Dispose"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AlignmentRuleOption_SetStart"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AlignmentRuleOption_SetEnd"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AlignmentRuleOption_SetCenterHorizontal"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AlignmentRuleOption_SetTop"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AlignmentRuleOption_SetBottom"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AlignmentRuleOption_SetCenterVertical"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AlignmentRuleOption_SetBiasHorizontal"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AlignmentRuleOption_SetBiasVertical"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AlignmentRuleOption_GetStartId"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AlignmentRuleOption_GetStartAlignment"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AlignmentRuleOption_GetEndId"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AlignmentRuleOption_GetEndAlignment"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AlignmentRuleOption_GetCenterIdHorizontal"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AlignmentRuleOption_GetCenterAlignmentHorizontal"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AlignmentRuleOption_GetTopId"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AlignmentRuleOption_GetTopAlignment"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AlignmentRuleOption_GetBottomId"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AlignmentRuleOption_GetBottomAlignment"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AlignmentRuleOption_GetCenterIdVertical"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AlignmentRuleOption_GetCenterAlignmentVertical"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AlignmentRuleOption_GetBiasHorizontal"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AlignmentRuleOption_GetBiasVertical"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_SwiperIndicator_Create"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_SwiperIndicator_Dispose"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_SwiperIndicator_SetStartPosition"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_SwiperIndicator_GetStartPosition"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_SwiperIndicator_SetTopPosition"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_SwiperIndicator_GetTopPosition"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_SwiperIndicator_SetEndPosition"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_SwiperIndicator_GetEndPosition"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_SwiperIndicator_SetBottomPosition"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_SwiperIndicator_GetBottomPosition"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_SwiperIndicator_SetItemWidth"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_SwiperIndicator_GetItemWidth"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_SwiperIndicator_SetItemHeight"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_SwiperIndicator_GetItemHeight"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_SwiperIndicator_SetSelectedItemHeight"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_SwiperIndicator_GetSelectedItemHeight"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_SwiperIndicator_SetSelectedItemWidth"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_SwiperIndicator_GetSelectedItemWidth"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_SwiperIndicator_SetMask"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_SwiperIndicator_GetMask"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_SwiperIndicator_SetColor"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_SwiperIndicator_GetColor"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_SwiperIndicator_SetSelectedColor"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_SwiperIndicator_GetSelectedColor"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_SwiperIndicator_SetMaxDisplayCount"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_SwiperIndicator_GetMaxDisplayCount"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DrawableDescriptor_CreateFromPixelMap"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DrawableDescriptor_CreateFromAnimatedPixelMap"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DrawableDescriptor_Dispose"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DrawableDescriptor_GetStaticPixelMap"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DrawableDescriptor_GetAnimatedPixelMapArray"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DrawableDescriptor_GetAnimatedPixelMapArraySize"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DrawableDescriptor_SetAnimationDuration"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DrawableDescriptor_GetAnimationDuration"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DrawableDescriptor_SetAnimationIteration"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DrawableDescriptor_GetAnimationIteration"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GestureInterruptInfo_GetSystemFlag"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GestureInterruptInfo_GetRecognizer"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GestureInterruptInfo_GetGestureEvent"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GestureInterruptInfo_GetSystemRecognizerType"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GetDrawableDescriptorFromNapiValue"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GetDrawableDescriptorFromResourceNapiValue"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_StyledString_Create"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_StyledString_Destroy"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_StyledString_PushTextStyle"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_StyledString_AddText"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_StyledString_PopTextStyle"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_StyledString_CreateTypography"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_StyledString_AddPlaceholder"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ListItemSwipeActionItem_Create"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ListItemSwipeActionItem_Dispose"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ListItemSwipeActionItem_SetContent"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ListItemSwipeActionItem_SetActionAreaDistance"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ListItemSwipeActionItem_GetActionAreaDistance"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ListItemSwipeActionItem_SetOnEnterActionArea"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ListItemSwipeActionItem_SetOnAction"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ListItemSwipeActionItem_SetOnExitActionArea"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ListItemSwipeActionItem_SetOnStateChange"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ListItemSwipeActionOption_Create"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ListItemSwipeActionOption_Dispose"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ListItemSwipeActionOption_SetStart"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ListItemSwipeActionOption_SetEnd"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ListItemSwipeActionOption_SetEdgeEffect"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ListItemSwipeActionOption_GetEdgeEffect"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ListItemSwipeActionOption_SetOnOffsetChange"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_CreateFromNapiDrawable"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ImageAnimatorFrameInfo_CreateFromString"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ImageAnimatorFrameInfo_CreateFromDrawableDescriptor"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ImageAnimatorFrameInfo_Dispose"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ImageAnimatorFrameInfo_SetWidth"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ImageAnimatorFrameInfo_GetWidth"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ImageAnimatorFrameInfo_SetHeight"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ImageAnimatorFrameInfo_GetHeight"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ImageAnimatorFrameInfo_SetTop"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ImageAnimatorFrameInfo_GetTop"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ImageAnimatorFrameInfo_SetLeft"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ImageAnimatorFrameInfo_GetLeft"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ImageAnimatorFrameInfo_SetDuration"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ImageAnimatorFrameInfo_GetDuration"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AccessibilityState_Create"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AccessibilityState_Dispose"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AccessibilityState_SetDisabled"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AccessibilityState_IsDisabled"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AccessibilityState_SetSelected"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AccessibilityState_IsSelected"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AccessibilityState_SetCheckedState"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AccessibilityState_GetCheckedState"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AccessibilityValue_Create"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AccessibilityValue_Dispose"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AccessibilityValue_SetMin"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AccessibilityValue_GetMin"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AccessibilityValue_SetMax"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AccessibilityValue_GetMax"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AccessibilityValue_SetCurrent"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AccessibilityValue_GetCurrent"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AccessibilityValue_SetText"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AccessibilityValue_GetText"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeUtils_GetLayoutSize"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeUtils_GetLayoutPosition"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeUtils_GetLayoutPositionInWindow"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeUtils_GetLayoutPositionInScreen"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeUtils_GetPositionWithTranslateInWindow"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeUtils_GetPositionWithTranslateInScreen"
+    },
+    {
+        "first_introduced": "14",
+        "name": "OH_ArkUI_NodeUtils_AddCustomProperty"
+    },
+    {
+        "first_introduced": "14",
+        "name": "OH_ArkUI_NodeUtils_RemoveCustomProperty"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ListChildrenMainSizeOption_Create"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ListChildrenMainSizeOption_Dispose"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ListChildrenMainSizeOption_SetDefaultMainSize"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ListChildrenMainSizeOption_GetDefaultMainSize"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ListChildrenMainSizeOption_Resize"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ListChildrenMainSizeOption_Splice"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ListChildrenMainSizeOption_UpdateSize"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ListChildrenMainSizeOption_GetMainSize"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_List_CloseAllSwipeActions"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ListItemSwipeActionItem_SetOnEnterActionAreaWithUserData"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ListItemSwipeActionItem_SetOnActionWithUserData"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ListItemSwipeActionItem_SetOnExitActionAreaWithUserData"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ListItemSwipeActionItem_SetOnStateChangeWithUserData"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_ListItemSwipeActionOption_SetOnOffsetChangeWithUserData"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimateOption_SetICurve"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimateOption_GetICurve"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_KeyframeAnimateOption_Create"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_KeyframeAnimateOption_Dispose"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_KeyframeAnimateOption_SetDelay"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_KeyframeAnimateOption_SetIterations"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_KeyframeAnimateOption_RegisterOnFinishCallback"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_KeyframeAnimateOption_SetDuration"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_KeyframeAnimateOption_SetCurve"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_KeyframeAnimateOption_RegisterOnEventCallback"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_KeyframeAnimateOption_GetDelay"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_KeyframeAnimateOption_GetIterations"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_KeyframeAnimateOption_GetDuration"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_KeyframeAnimateOption_GetCurve"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimatorOption_Create"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimatorOption_Dispose"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimatorOption_SetDuration"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimatorOption_SetDelay"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimatorOption_SetIterations"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimatorOption_SetFill"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimatorOption_SetDirection"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimatorOption_SetCurve"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimatorOption_SetBegin"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimatorOption_SetEnd"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimatorOption_SetExpectedFrameRateRange"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimatorOption_SetKeyframe"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimatorOption_SetKeyframeCurve"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimatorOption_GetDuration"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimatorOption_GetDelay"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimatorOption_GetIterations"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimatorOption_GetFill"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimatorOption_GetDirection"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimatorOption_GetCurve"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimatorOption_GetBegin"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimatorOption_GetEnd"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimatorOption_GetExpectedFrameRateRange"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimatorOption_GetKeyframeTime"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimatorOption_GetKeyframeValue"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimatorOption_GetKeyframeCurve"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimatorEvent_GetUserData"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimatorOnFrameEvent_GetUserData"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimatorOnFrameEvent_GetValue"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimatorOption_RegisterOnFrameCallback"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimatorOption_RegisterOnFinishCallback"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimatorOption_RegisterOnCancelCallback"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AnimatorOption_RegisterOnRepeatCallback"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_Animator_ResetAnimatorOption"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_Animator_Play"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_Animator_Finish"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_Animator_Pause"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_Animator_Cancel"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_Animator_Reverse"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_Curve_CreateCurveByType"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_Curve_CreateStepsCurve"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_Curve_CreateCubicBezierCurve"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_Curve_CreateSpringCurve"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_Curve_CreateSpringMotion"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_Curve_CreateResponsiveSpringMotion"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_Curve_CreateInterpolatingSpring"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_Curve_CreateCustomCurve"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_Curve_DisposeCurve"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeEvent_GetNumberValue"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeEvent_GetStringValue"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeEvent_SetReturnNumberValue"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_PointerEvent_SetStopPropagation"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_CreateOpacityTransitionEffect"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_CreateTranslationTransitionEffect"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_CreateScaleTransitionEffect"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_CreateRotationTransitionEffect"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_CreateMovementTransitionEffect"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_CreateAsymmetricTransitionEffect"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_TransitionEffect_Dispose"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_TransitionEffect_Combine"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_TransitionEffect_SetAnimation"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GetContextByNode"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GetNavigationId"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GetNavDestinationName"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GetNavStackLength"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GetNavDestinationNameByIndex"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GetNavDestinationId"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GetNavDestinationState"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GetNavDestinationIndex"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GetNavDestinationParam"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GetRouterPageIndex"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GetRouterPageName"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GetRouterPagePath"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GetRouterPageState"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_GetRouterPageId"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_RegisterSystemColorModeChangeEvent"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_UnregisterSystemColorModeChangeEvent"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_RegisterSystemFontStyleChangeEvent"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_UnregisterSystemFontStyleChangeEvent"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_SystemFontStyleEvent_GetFontSizeScale"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_SystemFontStyleEvent_GetFontWeightScale"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeEvent_GetDragEvent"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeEvent_GetPreDragStatus"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DragEvent_DisableDefaultDropAnimation"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DragEvent_SetSuggestedDropOperation"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DragEvent_GetDropOperation"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DragEvent_SetDragResult"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DragEvent_SetData"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DragEvent_GetUdmfData"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DragEvent_GetDataTypeCount"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DragEvent_GetDataTypes"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DragEvent_GetDragResult"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DragEvent_GetPreviewTouchPointX"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DragEvent_GetPreviewTouchPointY"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DragEvent_GetPreviewRectWidth"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DragEvent_GetPreviewRectHeight"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DragEvent_GetTouchPointXToWindow"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DragEvent_GetTouchPointYToWindow"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DragEvent_GetTouchPointXToDisplay"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DragEvent_GetTouchPointYToDisplay"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DragEvent_GetVelocityX"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DragEvent_GetVelocityY"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DragEvent_GetVelocity"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DragEvent_GetModifierKeyStates"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_SetDragEventStrictReportWithNode"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_SetDragEventStrictReportWithContext"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_SetNodeAllowedDropDataTypes"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DisallowNodeAnyDropDataTypes"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_AllowNodeAllDropDataTypes"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_SetNodeDraggable"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_SetNodeDragPreview"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_CreateDragPreviewOption"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DragPreviewOption_Dispose"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DragPreviewOption_SetScaleMode"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DragPreviewOption_SetDefaultShadowEnabled"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DragPreviewOption_SetDefaultRadiusEnabled"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DragPreviewOption_SetNumberBadgeEnabled"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DragPreviewOption_SetBadgeNumber"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DragPreviewOption_SetDefaultAnimationBeforeLiftingEnabled"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_SetNodeDragPreviewOption"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_CreateDragActionWithNode"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_CreateDragActionWithContext"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DragAction_Dispose"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DragAction_SetPointerId"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DragAction_SetPixelMaps"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DragAction_SetTouchPointX"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DragAction_SetTouchPointY"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DragAction_SetData"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DragAction_SetDragPreviewOption"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DragAction_RegisterStatusListener"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DragAction_UnregisterStatusListener"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DragAndDropInfo_GetDragStatus"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DragAndDropInfo_GetDragEvent"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_StartDrag"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DialogDismissEvent_SetShouldBlockDismiss"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DialogDismissEvent_GetUserData"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_DialogDismissEvent_GetDismissReason"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeCustomEvent_GetCustomSpanMeasureInfo"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeCustomEvent_SetCustomSpanMetrics"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_NodeCustomEvent_GetCustomSpanDrawInfo"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_CustomSpanMeasureInfo_Create"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_CustomSpanMeasureInfo_Dispose"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_CustomSpanMeasureInfo_GetFontSize"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_CustomSpanMetrics_Create"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_CustomSpanMetrics_Dispose"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_CustomSpanMetrics_SetWidth"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_CustomSpanMetrics_SetHeight"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_CustomSpanDrawInfo_Create"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_CustomSpanDrawInfo_Dispose"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_CustomSpanDrawInfo_GetXOffset"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_CustomSpanDrawInfo_GetLineTop"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_CustomSpanDrawInfo_GetLineBottom"
+    },
+    {
+        "first_introduced": "12",
+        "name": "OH_ArkUI_CustomSpanDrawInfo_GetBaseline"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityProviderRegisterCallback"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_SendAccessibilityAsyncEvent"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AddAndGetAccessibilityElementInfo"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityElementInfoSetParentId"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityElementInfoSetComponentType"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityElementInfoSetContents"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityElementInfoSetHintText"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityElementInfoSetAccessibilityText"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityElementInfoSetAccessibilityDescription"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityElementInfoSetChildNodeIds"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityElementInfoSetOperationActions"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityElementInfoSetScreenRect"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityElementInfoSetCheckable"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityElementInfoSetChecked"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityElementInfoSetFocusable"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityElementInfoSetFocused"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityElementInfoSetVisible"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityElementInfoSetAccessibilityFocused"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityElementInfoSetSelected"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityElementInfoSetClickable"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityElementInfoSetLongClickable"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityElementInfoSetEnabled"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityElementInfoSetIsPassword"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityElementInfoSetScrollable"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityElementInfoSetEditable"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityElementInfoSetIsHint"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityElementInfoSetRangeInfo"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityElementInfoSetGridInfo"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityElementInfoSetGridItemInfo"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityElementInfoSetSelectedTextStart"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityElementInfoSetSelectedTextEnd"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityElementInfoSetCurrentItemIndex"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityElementInfoSetStartItemIndex"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityElementInfoSetEndItemIndex"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityElementInfoSetItemCount"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityElementInfoSetAccessibilityOffset"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityElementInfoSetAccessibilityGroup"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityElementInfoSetAccessibilityLevel"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityElementInfoSetZIndex"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityElementInfoSetAccessibilityOpacity"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityElementInfoSetBackgroundColor"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityElementInfoSetBackgroundImage"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityElementInfoSetBlur"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityElementInfoSetHitTestBehavior"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_CreateAccessibilityEventInfo"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_DestoryAccessibilityEventInfo"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityEventSetEventType"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityEventSetTextAnnouncedForAccessibility"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityEventSetRequestFocusId"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityEventSetElementInfo"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_FindAccessibilityActionArgumentByKey"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_CreateAccessibilityElementInfo"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_DestoryAccessibilityElementInfo"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_NativeXComponent_GetNativeAccessibilityProvider"
+    },
+    {
+        "first_introduced": "13",
+        "name": "OH_ArkUI_AccessibilityElementInfoSetElementId"
+    }
+]

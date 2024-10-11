@@ -1,0 +1,79 @@
+# Copyright (c) 2023 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import(
+    "//foundation/arkui/ace_engine/frameworks/core/components_ng/components.gni")
+
+if (is_ohos_standard_system) {
+  config("window_scene_config") {
+    visibility = [ ":*" ]
+    defines = [ "SUPPORT_GRAPHICS" ]
+    cflags = []
+    if (ace_engine_feature_asbng_path_enable) {
+      defines += [ "ATOMIC_SERVICE_ATTRIBUTION_ENABLE" ]
+      cflags +=
+          [ "-DACE_ENGINE_PLUGIN_PATH=\"${ace_engine_feature_asbng_path}\"" ]
+    }
+  }
+}
+
+build_component_ng("window_scene") {
+  sources = [
+    "helper/window_scene_helper.cpp",
+    "root/root_scene_model.cpp",
+    "scene/input_scene.cpp",
+    "scene/panel_scene.cpp",
+    "scene/system_window_scene.cpp",
+    "scene/transform_scene.cpp",
+    "scene/window_event_process.cpp",
+    "scene/window_node.cpp",
+    "scene/window_pattern.cpp",
+    "scene/window_scene.cpp",
+    "scene/window_scene_layout_manager.cpp",
+    "scene/window_scene_model.cpp",
+    "screen/screen_model.cpp",
+    "screen/screen_node.cpp",
+    "screen/screen_pattern.cpp",
+  ]
+
+  if (ace_engine_feature_asbng_path_enable) {
+    sources += [ "scene/atomicservice_basic_engine_plugin.cpp" ]
+  }
+
+  standard_input_deps = [
+    "hilog:libhilog",
+    "imf:inputmethod_client",
+    "input:libmmi-client",
+  ]
+
+  if (is_ohos_standard_system) {
+    configs = [ ":window_scene_config" ]
+
+    # The path of libwm should take priority over graphic_2d
+    external_deps = [ "window_manager:libwm" ]
+    external_deps += [
+      "ability_runtime:app_manager",
+      "c_utils:utils",
+      "ffrt:libffrt",
+      "graphic_2d:librender_service_client",
+      "hilog:libhilog",
+      "init:libbegetutil",
+      "input:libmmi-client",
+      "ipc:ipc_single",
+      "window_manager:scene_session",
+      "window_manager:scene_session_manager",
+      "window_manager:screen_session",
+      "window_manager:screen_session_manager_client",
+    ]
+  }
+}

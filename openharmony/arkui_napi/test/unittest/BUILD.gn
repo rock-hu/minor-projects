@@ -1,0 +1,158 @@
+# Copyright (c) 2021 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//foundation/arkui/napi/napi.gni")
+
+import("//build/test.gni")
+import("//foundation/ability/form_fwk/form_fwk.gni")
+import("//foundation/arkui/ace_engine/ace_config.gni")
+import("//foundation/arkui/napi/test/unittest/ut.gni")
+
+if (is_standard_system) {
+  module_output_path = "ace_engine/napi"
+} else {
+  module_output_path = "ace_engine_full/napi"
+}
+
+ohos_unittest("test_ark_unittest") {
+  module_out_path = module_output_path
+
+  include_dirs = ark_include
+
+  cflags = [ "-g3" ]
+
+  sources = [
+    "engine/test_ark.cpp",
+    "test_napi.cpp",
+    "test_sendable_napi.cpp",
+  ]
+
+  defines = [ "NAPI_TEST" ]
+
+  deps = ark_deps
+
+  deps += [ "../..:ace_napi" ]
+
+  external_deps = [
+    "bounds_checking_function:libsec_shared",
+    "c_utils:utils",
+  ]
+
+  external_deps += [ "hilog:libhilog" ]
+  external_deps += [ "ets_runtime:libark_jsruntime" ]
+}
+
+ohos_unittest("test_ark_unittest_threadsafe") {
+  module_out_path = module_output_path
+
+  include_dirs = ark_include
+
+  cflags = [ "-g3" ]
+
+  sources = [
+    "engine/test_ark.cpp",
+    "test_napi_threadsafe.cpp",
+  ]
+
+  defines = [ "NAPI_TEST" ]
+
+  deps = ark_deps
+  deps += [ "../..:ace_napi" ]
+
+  external_deps = [ "bounds_checking_function:libsec_shared" ]
+
+  external_deps += [
+    "eventhandler:libeventhandler",
+    "hilog:libhilog",
+  ]
+  external_deps += [ "ets_runtime:libark_jsruntime" ]
+}
+
+ohos_unittest("test_ark_api_allowlist") {
+  module_out_path = module_output_path
+
+  include_dirs = ark_include
+
+  cflags = [ "-g3" ]
+
+  sources = [
+    "engine/test_ark.cpp",
+    "test_ark_api_allowlist.cpp",
+  ]
+
+  defines = [ "NAPI_TEST" ]
+
+  deps = ark_deps
+  deps += [ "../..:ace_napi" ]
+  deps += [ "${form_render_service_path}/..:formrender" ]
+
+  external_deps = [ "bounds_checking_function:libsec_shared" ]
+
+  external_deps += [ "hilog:libhilog" ]
+  external_deps += [ "ets_runtime:libark_jsruntime" ]
+}
+
+group("unittest") {
+  testonly = true
+  deps = [
+    ":test_ark_api_allowlist",
+    ":test_ark_unittest",
+    ":test_ark_unittest_threadsafe",
+    "cj_native:cj_native_unittest",
+  ]
+  if (target_cpu == "arm64") {
+    deps += [ "jsvm:jsvm_unittest" ]
+  }
+}
+
+#jerry tdd test for phone running
+group("jerry_tdd_test_run") {
+  testonly = true
+  deps = [ "//third_party/jerryscript/tests/unit-core:jerry_tdd_test" ]
+}
+
+#jerry es2015 test for phone running
+group("jerry_jstest_es2015") {
+  testonly = true
+  deps = [ "//third_party/jerryscript/tests/jerry:jerry_js_test_es2015" ]
+}
+
+#jerry es2015 test for host running
+group("jerry_host_jstest_es2015") {
+  testonly = true
+  deps = [
+    "//third_party/jerryscript/tests/jerry:jerry_host_js_test_es2015",
+    "//third_party/jerryscript/tests/unit-core:jerry_tdd_host_test",
+  ]
+}
+
+#jerry es5.1 test for phone running
+group("jerry_jstest_es5.1") {
+  testonly = true
+  deps = [ "//third_party/jerryscript/tests/jerry:jerry_js_test_es5.1" ]
+}
+
+#jerry es5.1 test for host running
+group("jerry_host_jstest_es5.1") {
+  testonly = true
+  deps = [
+    "//third_party/jerryscript/tests/jerry:jerry_host_js_test_es5.1",
+    "//third_party/jerryscript/tests/unit-core:jerry_tdd_host_test",
+  ]
+}
+
+#jerry tdd test for host running
+group("jerry_tdd_host_test_run") {
+  testonly = true
+  deps = [ "//third_party/jerryscript/tests/unit-core:jerry_tdd_host_test" ]
+}

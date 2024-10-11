@@ -1,0 +1,43 @@
+class a1 {
+    data: string[] = ["a", "b", "c", "d", "e"];
+    public e1(): number {
+        return this.data.length;
+    }
+    public getData(u1: number): string {
+        return this.data[u1];
+    }
+}
+class b1 {
+    create(p1: string, q1: any, r1: any, s1: any, t1: any): void { }
+    ;
+}
+let c1: b1 = new b1();
+class d1 {
+    constructor(n1, o1) {
+        this.source = new a1();
+        this.f1(n1);
+    }
+    f1(m1) {
+        if (m1.source !== undefined) {
+            this.source = m1.source;
+        }
+    }
+    g1() { }
+    ;
+    private source: a1;
+    h1() {
+        this.g1();
+        {
+            const e1 = (i1, j1?: number) => {
+                const k1 = i1;
+                {
+                    const l1 = () => {
+                    };
+                    l1();
+                }
+            };
+            const f1 = (g1: string, h1?: number) => h1?.toString() + g1;
+            c1.create("1", this, this.source, e1, f1);
+        }
+    }
+}

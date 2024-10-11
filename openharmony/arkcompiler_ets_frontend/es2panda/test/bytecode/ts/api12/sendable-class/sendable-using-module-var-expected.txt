@@ -1,0 +1,37 @@
+.language ECMAScript
+
+slotNum = 0x0
+.function any .#~A=#A(any a0, any a1, any a2) {
+label_1: 
+label_0: 
+	callruntime.ldsendableexternalmodulevar 0x0
+	throw.undefinedifholewithname a
+	lda a2
+	return
+label_2: 
+}
+
+slotNum = 0x0
+.function any .#~A>#B(any a0, any a1, any a2) {
+label_1: 
+label_0: 
+	callruntime.ldsendableexternalmodulevar 0x0
+	throw.undefinedifholewithname a
+	ldundefined
+	returnundefined
+label_2: 
+}
+
+slotNum = 0x1
+.function any .func_main_0(any a0, any a1, any a2) {
+label_1: 
+label_0: 
+	ldhole
+	sta v0
+	callruntime.definesendableclass 0x0, .#~A=#A, _3, 0x0, v0
+	ldundefined
+	returnundefined
+label_2: 
+}
+
+

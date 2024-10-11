@@ -1,0 +1,84 @@
+# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+group("fuzztest") {
+  testonly = true
+  deps = []
+
+  deps += [
+    "agent:fuzztest",
+    "backend:fuzztest",
+    "base:fuzztest",
+    "connectserver_fuzzer:fuzztest",
+    "connectserverrunserver_fuzzer:fuzztest",
+    "connectserverrunserversocketfd1_fuzzer:fuzztest",
+    "connectserversendmessage_fuzzer:fuzztest",
+    "connectserverstopserver_fuzzer:fuzztest",
+    "dispatcher:fuzztest",
+    "dispatchprotocolmessage_fuzzer:fuzztest",
+    "initializedebugger_fuzzer:fuzztest",
+    "protocolhandler_fuzzer:fuzztest",
+    "protocolhandlercreateerrorreply_fuzzer:fuzztest",
+    "protocolhandlerdispatch_fuzzer:fuzztest",
+    "protocolhandlerget_fuzzer:fuzztest",
+    "protocolhandlernotif_fuzzer:fuzztest",
+    "protocolhandlerprocess_fuzzer:fuzztest",
+    "protocolhandlerresponse_fuzzer:fuzztest",
+    "protocolhandlerrun_fuzzer:fuzztest",
+    "protocolhandlersendreply_fuzzer:fuzztest",
+    "pttypesbreakpointparseid_fuzzer:fuzztest",
+    "pttypesbreakpointtostring_fuzzer:fuzztest",
+    "pttypesexceptiondetails_fuzzer:fuzztest",
+    "pttypesexceptiondetailscolumn_fuzzer:fuzztest",
+    "pttypesexceptiondetailscreate_fuzzer:fuzztest",
+    "pttypesexceptiondetailsexception_fuzzer:fuzztest",
+    "pttypesexceptiondetailsexceptionid_fuzzer:fuzztest",
+    "pttypesexceptiondetailsexecutioncontextid_fuzzer:fuzztest",
+    "pttypesexceptiondetailsline_fuzzer:fuzztest",
+    "pttypesexceptiondetailsscriptid_fuzzer:fuzztest",
+    "pttypesexceptiondetailstext_fuzzer:fuzztest",
+    "pttypesexceptiondetailstojson_fuzzer:fuzztest",
+    "pttypesexceptiondetailsurl_fuzzer:fuzztest",
+    "pttypesinternalpropertydesp_fuzzer:fuzztest",
+    "pttypesinternalpropertydespcreate_fuzzer:fuzztest",
+    "pttypesinternalpropertydespname_fuzzer:fuzztest",
+    "pttypesinternalpropertydesptojson_fuzzer:fuzztest",
+    "pttypesinternalpropertydespvalue_fuzzer:fuzztest",
+    "pttypesobjectremoteobject_fuzzer:fuzztest",
+    "pttypesprimitiveremoteobject_fuzzer:fuzztest",
+    "pttypesprivatepropertydesp_fuzzer:fuzztest",
+    "pttypesprivatepropertydespcreate_fuzzer:fuzztest",
+    "pttypesprivatepropertydespget_fuzzer:fuzztest",
+    "pttypesprivatepropertydespname_fuzzer:fuzztest",
+    "pttypesprivatepropertydespset_fuzzer:fuzztest",
+    "pttypesprivatepropertydesptojson_fuzzer:fuzztest",
+    "pttypesprivatepropertydespvalue_fuzzer:fuzztest",
+    "pttypesremoteobject_fuzzer:fuzztest",
+    "pttypesremoteobjectdescription_fuzzer:fuzztest",
+    "pttypesremoteobjectgetclassname_fuzzer:fuzztest",
+    "pttypesremoteobjectgetsubtype_fuzzer:fuzztest",
+    "pttypesremoteobjectgettype_fuzzer:fuzztest",
+    "pttypesremoteobjectgetvalue_fuzzer:fuzztest",
+    "pttypesremoteobjecthasclassname_fuzzer:fuzztest",
+    "pttypesremoteobjecthassubtype_fuzzer:fuzztest",
+    "pttypesremoteobjectobjectid_fuzzer:fuzztest",
+    "pttypesremoteobjectsetclassname_fuzzer:fuzztest",
+    "pttypesremoteobjectsetsubtype_fuzzer:fuzztest",
+    "pttypesremoteobjectsettype_fuzzer:fuzztest",
+    "pttypesremoteobjectsetvalue_fuzzer:fuzztest",
+    "pttypesremoteobjectunserializablevalue_fuzzer:fuzztest",
+    "pttypesstringremoteobject_fuzzer:fuzztest",
+    "pttypessymbolremoteobject_fuzzer:fuzztest",
+    "wsserver:fuzztest",
+  ]
+}

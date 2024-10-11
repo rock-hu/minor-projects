@@ -1,0 +1,6831 @@
+/*
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "core/components_ng/pattern/web/web_pattern.h"
+
+#include <securec.h>
+#include <algorithm>
+#include <string_ex.h>
+#include <vector>
+
+#include "display_manager.h"
+#include "file_uri.h"
+#include "image_source.h"
+#include "input_method_controller.h"
+#include "parameters.h"
+
+#if !defined(PREVIEW) && !defined(ACE_UNITTEST) && defined(OHOS_PLATFORM)
+#include "interfaces/inner_api/ui_session/ui_session_manager.h"
+#endif
+#include "auto_fill_type.h"
+#include "page_node_info.h"
+
+#include "adapter/ohos/capability/html/span_to_html.h"
+#include "base/geometry/ng/offset_t.h"
+#include "base/geometry/rect.h"
+#include "base/image/file_uri_helper.h"
+#include "base/mousestyle/mouse_style.h"
+#include "base/utils/date_util.h"
+#include "base/utils/linear_map.h"
+#include "base/utils/time_util.h"
+#include "base/utils/utils.h"
+#include "core/common/ace_engine_ext.h"
+#include "core/common/ai/data_detector_mgr.h"
+#include "core/common/ai/image_analyzer_manager.h"
+#include "core/common/ai/image_analyzer_mgr.h"
+#include "core/common/ime/input_method_manager.h"
+#include "core/common/udmf/udmf_client.h"
+#include "core/common/udmf/unified_data.h"
+#include "core/common/vibrator/vibrator_utils.h"
+#include "core/components/dialog/dialog_theme.h"
+#include "core/components/picker/picker_data.h"
+#include "core/components/text_overlay/text_overlay_theme.h"
+#include "core/components/web/resource/web_delegate.h"
+#include "core/components/web/web_property.h"
+#include "core/components_ng/base/view_stack_processor.h"
+#include "core/components_ng/pattern/dialog/dialog_pattern.h"
+#include "core/components_ng/pattern/linear_layout/linear_layout_pattern.h"
+#include "core/components_ng/pattern/list/list_pattern.h"
+#include "core/components_ng/pattern/menu/menu_view.h"
+#include "core/components_ng/pattern/menu/wrapper/menu_wrapper_pattern.h"
+#include "core/components_ng/pattern/overlay/overlay_manager.h"
+#include "core/components_ng/pattern/refresh/refresh_pattern.h"
+#include "core/components_ng/pattern/select_overlay/select_overlay_pattern.h"
+#include "core/components_ng/pattern/swiper/swiper_pattern.h"
+#include "core/components_ng/pattern/text/text_pattern.h"
+#include "core/components_ng/pattern/text_field/text_field_manager.h"
+#include "core/components_ng/pattern/web/web_event_hub.h"
+#include "core/event/key_event.h"
+#include "core/event/touch_event.h"
+#include "core/pipeline_ng/pipeline_context.h"
+#include "frameworks/base/utils/system_properties.h"
+#include "frameworks/core/components_ng/base/ui_node.h"
+
+namespace OHOS::Ace::NG {
+namespace {
+const std::string IMAGE_POINTER_CONTEXT_MENU_PATH = "etc/webview/ohos_nweb/context-menu.svg";
+const std::string IMAGE_POINTER_ALIAS_PATH = "etc/webview/ohos_nweb/alias.svg";
+const std::string AUTO_FILL_VIEW_DATA_PAGE_URL = "autofill_viewdata_origin_pageurl";
+const std::string AUTO_FILL_VIEW_DATA_OTHER_ACCOUNT = "autofill_viewdata_other_account";
+const std::string WEB_INFO_PC = "8";
+const std::string WEB_INFO_TABLET = "4";
+const std::string WEB_INFO_PHONE = "2";
+const std::string WEB_INFO_DEFAULT = "1";
+constexpr int32_t UPDATE_WEB_LAYOUT_DELAY_TIME = 20;
+constexpr int32_t AUTOFILL_DELAY_TIME = 200;
+constexpr int32_t IMAGE_POINTER_CUSTOM_CHANNEL = 4;
+constexpr int32_t TOUCH_EVENT_MAX_SIZE = 5;
+constexpr int32_t KEYEVENT_MAX_NUM = 1000;
+constexpr float SELECT_MENE_HEIGHT = 140.0f;
+constexpr int32_t RESERVED_DEVICEID = 0xAAAAAAFF;
+const LinearEnumMapNode<OHOS::NWeb::CursorType, MouseFormat> g_cursorTypeMap[] = {
+    { OHOS::NWeb::CursorType::CT_CROSS, MouseFormat::CROSS },
+    { OHOS::NWeb::CursorType::CT_HAND, MouseFormat::HAND_POINTING },
+    { OHOS::NWeb::CursorType::CT_IBEAM, MouseFormat::TEXT_CURSOR },
+    { OHOS::NWeb::CursorType::CT_WAIT, MouseFormat::LOADING },
+    { OHOS::NWeb::CursorType::CT_HELP, MouseFormat::HELP },
+    { OHOS::NWeb::CursorType::CT_EASTRESIZE, MouseFormat::WEST_EAST },
+    { OHOS::NWeb::CursorType::CT_NORTHRESIZE, MouseFormat::NORTH_SOUTH },
+    { OHOS::NWeb::CursorType::CT_NORTHEASTRESIZE, MouseFormat::NORTH_EAST_SOUTH_WEST },
+    { OHOS::NWeb::CursorType::CT_NORTHWESTRESIZE, MouseFormat::NORTH_WEST_SOUTH_EAST },
+    { OHOS::NWeb::CursorType::CT_SOUTHRESIZE, MouseFormat::NORTH_SOUTH },
+    { OHOS::NWeb::CursorType::CT_SOUTHEASTRESIZE, MouseFormat::NORTH_WEST_SOUTH_EAST },
+    { OHOS::NWeb::CursorType::CT_SOUTHWESTRESIZE, MouseFormat::NORTH_EAST_SOUTH_WEST },
+    { OHOS::NWeb::CursorType::CT_WESTRESIZE, MouseFormat::WEST_EAST },
+    { OHOS::NWeb::CursorType::CT_NORTHSOUTHRESIZE, MouseFormat::NORTH_SOUTH },
+    { OHOS::NWeb::CursorType::CT_EASTWESTRESIZE, MouseFormat::WEST_EAST },
+    { OHOS::NWeb::CursorType::CT_NORTHEASTSOUTHWESTRESIZE, MouseFormat::NORTH_EAST_SOUTH_WEST },
+    { OHOS::NWeb::CursorType::CT_NORTHWESTSOUTHEASTRESIZE, MouseFormat::NORTH_WEST_SOUTH_EAST },
+    { OHOS::NWeb::CursorType::CT_COLUMNRESIZE, MouseFormat::RESIZE_LEFT_RIGHT },
+    { OHOS::NWeb::CursorType::CT_ROWRESIZE, MouseFormat::RESIZE_UP_DOWN },
+    { OHOS::NWeb::CursorType::CT_MIDDLEPANNING, MouseFormat::MIDDLE_BTN_NORTH_SOUTH_WEST_EAST },
+    { OHOS::NWeb::CursorType::CT_EASTPANNING, MouseFormat::MIDDLE_BTN_EAST },
+    { OHOS::NWeb::CursorType::CT_NORTHPANNING, MouseFormat::MIDDLE_BTN_NORTH },
+    { OHOS::NWeb::CursorType::CT_NORTHEASTPANNING, MouseFormat::MIDDLE_BTN_NORTH_EAST },
+    { OHOS::NWeb::CursorType::CT_NORTHWESTPANNING, MouseFormat::MIDDLE_BTN_NORTH_WEST },
+    { OHOS::NWeb::CursorType::CT_SOUTHPANNING, MouseFormat::MIDDLE_BTN_SOUTH },
+    { OHOS::NWeb::CursorType::CT_SOUTHEASTPANNING, MouseFormat::MIDDLE_BTN_SOUTH_EAST },
+    { OHOS::NWeb::CursorType::CT_SOUTHWESTPANNING, MouseFormat::MIDDLE_BTN_SOUTH_WEST },
+    { OHOS::NWeb::CursorType::CT_WESTPANNING, MouseFormat::MIDDLE_BTN_WEST },
+    { OHOS::NWeb::CursorType::CT_MOVE, MouseFormat::CURSOR_MOVE },
+    { OHOS::NWeb::CursorType::CT_VERTICALTEXT, MouseFormat::HORIZONTAL_TEXT_CURSOR },
+    { OHOS::NWeb::CursorType::CT_CELL, MouseFormat::CURSOR_CROSS },
+    { OHOS::NWeb::CursorType::CT_PROGRESS, MouseFormat::RUNNING },
+    { OHOS::NWeb::CursorType::CT_NODROP, MouseFormat::CURSOR_FORBID },
+    { OHOS::NWeb::CursorType::CT_COPY, MouseFormat::CURSOR_COPY },
+    { OHOS::NWeb::CursorType::CT_NONE, MouseFormat::CURSOR_NONE },
+    { OHOS::NWeb::CursorType::CT_NOTALLOWED, MouseFormat::CURSOR_FORBID },
+    { OHOS::NWeb::CursorType::CT_ZOOMIN, MouseFormat::ZOOM_IN },
+    { OHOS::NWeb::CursorType::CT_ZOOMOUT, MouseFormat::ZOOM_OUT },
+    { OHOS::NWeb::CursorType::CT_GRAB, MouseFormat::HAND_OPEN },
+    { OHOS::NWeb::CursorType::CT_GRABBING, MouseFormat::HAND_GRABBING },
+    { OHOS::NWeb::CursorType::CT_MIDDLE_PANNING_VERTICAL, MouseFormat::MIDDLE_BTN_NORTH_SOUTH },
+    { OHOS::NWeb::CursorType::CT_MIDDLE_PANNING_HORIZONTAL, MouseFormat::MIDDLE_BTN_NORTH_SOUTH_WEST_EAST },
+};
+
+constexpr Dimension OPTION_MARGIN = 8.0_vp;
+constexpr Dimension CALIBERATE_X = 4.0_vp;
+constexpr Color SELECTED_OPTION_FONT_COLOR = Color(0xff0a59f7);
+constexpr Color SELECTED_OPTION_BACKGROUND_COLOR = Color(0x19254FF7);
+
+constexpr Dimension SELECT_HANDLE_DEFAULT_HEIGHT = 16.0_vp;
+constexpr int32_t HALF = 2;
+
+bool ParseDateTimeJson(const std::string& timeJson, NWeb::DateTime& result)
+{
+    auto sourceJson = JsonUtil::ParseJsonString(timeJson);
+    if (!sourceJson || sourceJson->IsNull()) {
+        return false;
+    }
+
+    auto year = sourceJson->GetValue("year");
+    if (year && year->IsNumber()) {
+        result.year = year->GetInt();
+    }
+    auto month = sourceJson->GetValue("month");
+    if (month && month->IsNumber()) {
+        result.month = month->GetInt();
+    }
+    auto day = sourceJson->GetValue("day");
+    if (day && day->IsNumber()) {
+        result.day = day->GetInt();
+    }
+    auto hour = sourceJson->GetValue("hour");
+    if (hour && hour->IsNumber()) {
+        result.hour = hour->GetInt();
+    }
+    auto minute = sourceJson->GetValue("minute");
+    if (minute && minute->IsNumber()) {
+        result.minute = minute->GetInt();
+    }
+    return true;
+}
+
+std::string ParseTextJsonValue(const std::string& textJson)
+{
+    auto sourceJson = JsonUtil::ParseJsonString(textJson);
+    if (!sourceJson || sourceJson->IsNull()) {
+        return "";
+    }
+    auto value = sourceJson->GetValue("value");
+    if (value && value->IsString()) {
+        return value->GetString();
+    }
+    return "";
+}
+
+const std::map<std::string, AceAutoFillType> NWEB_AUTOFILL_TYPE_TO_ACE = {
+    {OHOS::NWeb::NWEB_AUTOFILL_STREET_ADDRESS, AceAutoFillType::ACE_FULL_STREET_ADDRESS},
+    {OHOS::NWeb::NWEB_AUTOFILL_ADDRESS_LEVEL_3, AceAutoFillType::ACE_DISTRICT_ADDRESS},
+    {OHOS::NWeb::NWEB_AUTOFILL_ADDRESS_LEVEL_2, AceAutoFillType::ACE_CITY_ADDRESS},
+    {OHOS::NWeb::NWEB_AUTOFILL_ADDRESS_LEVEL_1, AceAutoFillType::ACE_PROVINCE_ADDRESS},
+    {OHOS::NWeb::NWEB_AUTOFILL_COUNTRY, AceAutoFillType::ACE_COUNTRY_ADDRESS},
+    {OHOS::NWeb::NWEB_AUTOFILL_NAME, AceAutoFillType::ACE_PERSON_FULL_NAME},
+    {OHOS::NWeb::NWEB_AUTOFILL_FAMILY_NAME, AceAutoFillType::ACE_PERSON_LAST_NAME},
+    {OHOS::NWeb::NWEB_AUTOFILL_GIVEN_NAME, AceAutoFillType::ACE_PERSON_FIRST_NAME},
+    {OHOS::NWeb::NWEB_AUTOFILL_TEL_NATIONAL, AceAutoFillType::ACE_PHONE_NUMBER},
+    {OHOS::NWeb::NWEB_AUTOFILL_TEL, AceAutoFillType::ACE_FULL_PHONE_NUMBER},
+    {OHOS::NWeb::NWEB_AUTOFILL_TEL_COUNTRY_CODE, AceAutoFillType::ACE_PHONE_COUNTRY_CODE},
+    {OHOS::NWeb::NWEB_AUTOFILL_EMAIL, AceAutoFillType::ACE_EMAIL_ADDRESS},
+    {OHOS::NWeb::NWEB_AUTOFILL_CC_NUMBER, AceAutoFillType::ACE_BANK_CARD_NUMBER},
+    {OHOS::NWeb::NWEB_AUTOFILL_ID_CARD_NUMBER, AceAutoFillType::ACE_ID_CARD_NUMBER},
+    {OHOS::NWeb::NWEB_AUTOFILL_DETAIL_INFO_WITHOUT_STREET, AceAutoFillType::ACE_DETAIL_INFO_WITHOUT_STREET},
+    {OHOS::NWeb::NWEB_AUTOFILL_FORMAT_ADDRESS, AceAutoFillType::ACE_FORMAT_ADDRESS},
+    {OHOS::NWeb::NWEB_AUTOFILL_NICKNAME, AceAutoFillType::ACE_NICKNAME},
+    {OHOS::NWeb::NWEB_AUTOFILL_USERNAME, AceAutoFillType::ACE_USER_NAME},
+    {OHOS::NWeb::NWEB_AUTOFILL_PASSWORD, AceAutoFillType::ACE_PASSWORD},
+    {OHOS::NWeb::NWEB_AUTOFILL_NEW_PASSWORD, AceAutoFillType::ACE_NEW_PASSWORD},
+};
+
+const std::map<AceAutoFillType, std::string> ACE_AUTOFILL_TYPE_TO_NWEB = {
+    {AceAutoFillType::ACE_FULL_STREET_ADDRESS, OHOS::NWeb::NWEB_AUTOFILL_STREET_ADDRESS},
+    {AceAutoFillType::ACE_DISTRICT_ADDRESS, OHOS::NWeb::NWEB_AUTOFILL_ADDRESS_LEVEL_3},
+    {AceAutoFillType::ACE_CITY_ADDRESS, OHOS::NWeb::NWEB_AUTOFILL_ADDRESS_LEVEL_2},
+    {AceAutoFillType::ACE_PROVINCE_ADDRESS, OHOS::NWeb::NWEB_AUTOFILL_ADDRESS_LEVEL_1},
+    {AceAutoFillType::ACE_COUNTRY_ADDRESS, OHOS::NWeb::NWEB_AUTOFILL_COUNTRY},
+    {AceAutoFillType::ACE_PERSON_FULL_NAME, OHOS::NWeb::NWEB_AUTOFILL_NAME},
+    {AceAutoFillType::ACE_PERSON_LAST_NAME, OHOS::NWeb::NWEB_AUTOFILL_FAMILY_NAME},
+    {AceAutoFillType::ACE_PERSON_FIRST_NAME, OHOS::NWeb::NWEB_AUTOFILL_GIVEN_NAME},
+    {AceAutoFillType::ACE_PHONE_NUMBER, OHOS::NWeb::NWEB_AUTOFILL_TEL_NATIONAL},
+    {AceAutoFillType::ACE_FULL_PHONE_NUMBER, OHOS::NWeb::NWEB_AUTOFILL_TEL},
+    {AceAutoFillType::ACE_PHONE_COUNTRY_CODE, OHOS::NWeb::NWEB_AUTOFILL_TEL_COUNTRY_CODE},
+    {AceAutoFillType::ACE_EMAIL_ADDRESS, OHOS::NWeb::NWEB_AUTOFILL_EMAIL},
+    {AceAutoFillType::ACE_BANK_CARD_NUMBER, OHOS::NWeb::NWEB_AUTOFILL_CC_NUMBER},
+    {AceAutoFillType::ACE_ID_CARD_NUMBER, OHOS::NWeb::NWEB_AUTOFILL_ID_CARD_NUMBER},
+    {AceAutoFillType::ACE_DETAIL_INFO_WITHOUT_STREET, OHOS::NWeb::NWEB_AUTOFILL_DETAIL_INFO_WITHOUT_STREET},
+    {AceAutoFillType::ACE_FORMAT_ADDRESS, OHOS::NWeb::NWEB_AUTOFILL_FORMAT_ADDRESS},
+    {AceAutoFillType::ACE_NICKNAME, OHOS::NWeb::NWEB_AUTOFILL_NICKNAME},
+    {AceAutoFillType::ACE_USER_NAME, OHOS::NWeb::NWEB_AUTOFILL_USERNAME},
+    {AceAutoFillType::ACE_PASSWORD, OHOS::NWeb::NWEB_AUTOFILL_PASSWORD},
+    {AceAutoFillType::ACE_NEW_PASSWORD, OHOS::NWeb::NWEB_AUTOFILL_NEW_PASSWORD},
+};
+
+const std::map<std::string, OHOS::NWeb::NWebAutofillEvent> NWEB_AUTOFILL_EVENTS = {
+    {OHOS::NWeb::NWEB_AUTOFILL_EVENT_SAVE, OHOS::NWeb::NWebAutofillEvent::SAVE},
+    {OHOS::NWeb::NWEB_AUTOFILL_EVENT_FILL, OHOS::NWeb::NWebAutofillEvent::FILL},
+    {OHOS::NWeb::NWEB_AUTOFILL_EVENT_UPDATE, OHOS::NWeb::NWebAutofillEvent::UPDATE},
+    {OHOS::NWeb::NWEB_AUTOFILL_EVENT_CLOSE, OHOS::NWeb::NWebAutofillEvent::CLOSE},
+};
+
+std::string GetWebDebugBackGroundColor()
+{
+    return OHOS::system::GetParameter("web.debug.surfaceNodeBackgroundColor", "");
+}
+} // namespace
+
+constexpr int32_t SINGLE_CLICK_NUM = 1;
+constexpr int32_t DOUBLE_CLICK_NUM = 2;
+constexpr int32_t TRIPLE_CLICK_NUM = 3;
+constexpr double DEFAULT_DBCLICK_INTERVAL = 0.5;
+constexpr double DEFAULT_DBCLICK_OFFSET = 2.0;
+constexpr double DEFAULT_AXIS_RATIO = -0.06;
+constexpr double DEFAULT_WEB_WIDTH = 100.0;
+constexpr double DEFAULT_WEB_HEIGHT = 80.0;
+constexpr Dimension TOOLTIP_BORDER_WIDTH = 1.0_vp;
+constexpr Dimension TOOLTIP_FONT_SIZE = 14.0_vp;
+constexpr Dimension TOOLTIP_PADDING = 8.0_vp;
+constexpr float TOOLTIP_MAX_PORTION = 0.35f;
+constexpr float TOOLTIP_MARGIN = 10.0f;
+constexpr float TOOLTIP_DELAY_MS = 1000;
+constexpr uint32_t ADJUST_WEB_DRAW_LENGTH = 3000;
+constexpr int32_t FIT_CONTENT_LIMIT_LENGTH = 8000;
+const std::string PATTERN_TYPE_WEB = "WEBPATTERN";
+const std::string DEFAULT_WEB_TEXT_ENCODING_FORMAT = "UTF-8";
+constexpr int32_t SYNC_SURFACE_QUEUE_SIZE = 8;
+constexpr int32_t ASYNC_SURFACE_QUEUE_SIZE_FOR_PHONE = 5;
+constexpr int32_t ASYNC_SURFACE_QUEUE_SIZE_FOR_OTHERS = 4;
+constexpr uint32_t DEBUG_DRAGMOVEID_TIMER = 30;
+int64_t last_height_ = 0L;
+int64_t last_width_ = 0L;
+bool g_dragWindowFlag = false;
+// web feature params
+constexpr char VISIBLE_ACTIVE_ENABLE[] = "persist.web.visible_active_enable";
+constexpr char MEMORY_LEVEL_ENABEL[] = "persist.web.memory_level_enable";
+const std::vector<std::string> SYNC_RENDER_SLIDE {V2::LIST_ETS_TAG, V2::SCROLL_ETS_TAG};
+
+constexpr int32_t DEFAULT_PINCH_FINGER = 2;
+constexpr double DEFAULT_PINCH_DISTANCE = 6.0;
+constexpr double DEFAULT_PINCH_SCALE = 1.0;
+constexpr double DEFAULT_PINCH_SCALE_MAX = 5.0;
+constexpr double DEFAULT_PINCH_SCALE_MIN = 0.1;
+constexpr int32_t STATUS_ZOOMIN = 1;
+constexpr int32_t STATUS_ZOOMOUT = 2;
+constexpr int32_t ZOOM_ERROR_COUNT_MAX = 5;
+constexpr double ZOOMIN_PUBLIC_ERRAND = 0.4444;
+constexpr int32_t ZOOM_CONVERT_NUM = 10;
+constexpr int32_t POPUP_CALCULATE_RATIO = 2;
+
+constexpr char ACCESSIBILITY_GENERIC_CONTAINER[] = "genericContainer";
+constexpr char ACCESSIBILITY_IMAGE[] = "image";
+constexpr char ACCESSIBILITY_PARAGRAPH[] = "paragraph";
+constexpr char WEB_NODE_URL[] = "url";
+
+const std::string IS_HINT_TYPE = "{\"isHint2Type\": true}";
+const std::string STRING_LF = "\n";
+
+#define WEB_ACCESSIBILITY_DELAY_TIME 100
+
+class WebAccessibilityChildTreeCallback : public AccessibilityChildTreeCallback {
+public:
+    WebAccessibilityChildTreeCallback(const WeakPtr<WebPattern> &weakPattern, int64_t accessibilityId)
+        : AccessibilityChildTreeCallback(accessibilityId), weakPattern_(weakPattern)
+    {}
+
+    ~WebAccessibilityChildTreeCallback() override = default;
+
+    bool OnRegister(uint32_t windowId, int32_t treeId) override
+    {
+        auto pattern = weakPattern_.Upgrade();
+        if (pattern == nullptr) {
+            return false;
+        }
+        if (isReg_) {
+            return true;
+        }
+        if (!pattern->OnAccessibilityChildTreeRegister()) {
+            return false;
+        }
+        pattern->SetAccessibilityState(true);
+        isReg_ = true;
+        return true;
+    }
+
+    bool OnDeregister() override
+    {
+        auto pattern = weakPattern_.Upgrade();
+        if (pattern == nullptr) {
+            return false;
+        }
+        if (!isReg_) {
+            return true;
+        }
+        if (!pattern->OnAccessibilityChildTreeDeregister()) {
+            return false;
+        }
+        pattern->SetAccessibilityState(false);
+        isReg_ = false;
+        return true;
+    }
+
+    bool OnSetChildTree(int32_t childWindowId, int32_t childTreeId) override
+    {
+        auto pattern = weakPattern_.Upgrade();
+        if (pattern == nullptr) {
+            return false;
+        }
+        pattern->OnSetAccessibilityChildTree(childWindowId, childTreeId);
+        return true;
+    }
+
+    bool OnDumpChildInfo(const std::vector<std::string>& params, std::vector<std::string>& info) override
+    {
+        return false;
+    }
+
+    void OnClearRegisterFlag() override
+    {
+        auto pattern = weakPattern_.Upgrade();
+        if (pattern == nullptr) {
+            return;
+        }
+        isReg_ = false;
+    }
+
+private:
+    bool isReg_ = false;
+    WeakPtr<WebPattern> weakPattern_;
+};
+
+WebPattern::WebPattern() = default;
+
+WebPattern::WebPattern(const std::string& webSrc, const RefPtr<WebController>& webController, RenderMode renderMode,
+    bool incognitoMode, const std::string& sharedRenderProcessToken)
+    : webSrc_(std::move(webSrc)), webController_(webController), renderMode_(renderMode), incognitoMode_(incognitoMode),
+      sharedRenderProcessToken_(sharedRenderProcessToken)
+{
+    InitAiEngine();
+}
+
+WebPattern::WebPattern(const std::string& webSrc, const SetWebIdCallback& setWebIdCallback, RenderMode renderMode,
+    bool incognitoMode, const std::string& sharedRenderProcessToken)
+    : webSrc_(std::move(webSrc)), setWebIdCallback_(setWebIdCallback), renderMode_(renderMode),
+      incognitoMode_(incognitoMode), sharedRenderProcessToken_(sharedRenderProcessToken)
+{
+    InitAiEngine();
+}
+
+WebPattern::~WebPattern()
+{
+    TAG_LOGI(AceLogTag::ACE_WEB, "NWEB ~WebPattern start");
+    UninitTouchEventListener();
+    if (delegate_) {
+        TAG_LOGD(AceLogTag::ACE_WEB, "NWEB ~WebPattern delegate_ start SetAudioMuted");
+        delegate_->SetAudioMuted(true);
+    }
+
+    if (observer_) {
+        TAG_LOGD(AceLogTag::ACE_WEB, "NWEB ~WebPattern observer_ start NotifyDestory");
+        observer_->NotifyDestory();
+    }
+    if (isActive_) {
+        TAG_LOGD(AceLogTag::ACE_WEB, "NWEB ~WebPattern isActive_ start OnInActive");
+        OnInActive();
+    }
+    if (imageAnalyzerManager_) {
+        imageAnalyzerManager_->ReleaseImageAnalyzer();
+    }
+    UninitializeAccessibility();
+}
+
+void WebPattern::ShowContextSelectOverlay(const RectF& firstHandle, const RectF& secondHandle,
+    TextResponseType responseType, bool handleReverse)
+{
+    if (contextSelectOverlay_) {
+        contextSelectOverlay_->ProcessOverlay({ .animation = true });
+    }
+}
+
+void WebPattern::CloseContextSelectionMenu()
+{
+    if (contextSelectOverlay_ && contextSelectOverlay_->IsCurrentMenuVisibile()) {
+        contextSelectOverlay_->CloseOverlay(true, CloseReason::CLOSE_REASON_NORMAL);
+    }
+}
+
+void WebPattern::OnContextMenuShow(const std::shared_ptr<BaseEventInfo>& info)
+{
+    TAG_LOGI(AceLogTag::ACE_WEB, "WebPattern OnContextMenuShow");
+    auto *eventInfo = TypeInfoHelper::DynamicCast<ContextMenuEvent>(info.get());
+    CHECK_NULL_VOID(eventInfo);
+    if (!contextSelectOverlay_) {
+        contextSelectOverlay_ = AceType::MakeRefPtr<WebContextSelectOverlay>(WeakClaim(this));
+    }
+    contextMenuParam_ = eventInfo->GetParam();
+    CHECK_NULL_VOID(contextMenuParam_);
+    contextMenuResult_ = eventInfo->GetContextMenuResult();
+    CHECK_NULL_VOID(contextMenuResult_);
+    ShowContextSelectOverlay(RectF(), RectF());
+}
+
+void WebPattern::OnContextMenuHide()
+{
+    TAG_LOGI(AceLogTag::ACE_WEB, "WebPattern OnContextMenuHide");
+    CloseContextSelectionMenu();
+}
+
+bool WebPattern::NeedSoftKeyboard() const
+{
+    if (delegate_) {
+        return delegate_->NeedSoftKeyboard();
+    }
+    return false;
+}
+
+void WebPattern::OnAttachToMainTree()
+{
+    TAG_LOGI(AceLogTag::ACE_WEB, "OnAttachToMainTree WebId %{public}d", GetWebId());
+    InitSlideUpdateListener();
+    // report component is in foreground.
+    delegate_->OnRenderToForeground();
+}
+
+void WebPattern::OnDetachFromMainTree()
+{
+    TAG_LOGI(AceLogTag::ACE_WEB, "OnDetachFromMainTree WebId %{public}d", GetWebId());
+    // report component is in background.
+    delegate_->OnRenderToBackground();
+}
+
+void WebPattern::OnAttachToFrameNode()
+{
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto pipeline = PipelineContext::GetCurrentContext();
+    CHECK_NULL_VOID(pipeline);
+    SetRotation(pipeline->GetTransformHint());
+
+    host->GetRenderContext()->SetClipToFrame(true);
+    if (!renderContextForSurface_) {
+        renderContextForSurface_ = RenderContext::Create();
+        static RenderContext::ContextParam param = { RenderContext::ContextType::HARDWARE_SURFACE,
+            "RosenWeb" };
+        CHECK_NULL_VOID(renderContextForSurface_);
+        renderContextForSurface_->InitContext(false, param);
+    }
+
+    if (!renderContextForPopupSurface_) {
+        renderContextForPopupSurface_ = RenderContext::Create();
+        CHECK_NULL_VOID(renderContextForPopupSurface_);
+        static RenderContext::ContextParam popupParam  = { RenderContext::ContextType::HARDWARE_SURFACE,
+            "RosenWebPopup" };
+        renderContextForPopupSurface_->InitContext(false, popupParam);
+    }
+    host->GetLayoutProperty()->UpdateMeasureType(MeasureType::MATCH_PARENT);
+    pipeline->AddNodesToNotifyMemoryLevel(host->GetId());
+
+    auto callbackId = pipeline->RegisterTransformHintChangeCallback([weak = WeakClaim(this)](uint32_t transform) {
+        auto pattern = weak.Upgrade();
+        if (pattern) {
+            TAG_LOGD(AceLogTag::ACE_WEB, "OnAttach to frame node, set transform:%{public}u", transform);
+            pattern->SetRotation(transform);
+        }
+    });
+    UpdateTransformHintChangedCallbackId(callbackId);
+#if !defined(PREVIEW) && !defined(ACE_UNITTEST) && defined(OHOS_PLATFORM)
+    if (UiSessionManager::GetInstance().GetWebFocusRegistered()) {
+        auto callback = [](int64_t accessibilityId, const std::string data) {
+            UiSessionManager::GetInstance().ReportWebUnfocusEvent(accessibilityId, data);
+        };
+        RegisterTextBlurCallback(callback);
+    }
+#endif
+}
+
+void WebPattern::OnDetachFromFrameNode(FrameNode* frameNode)
+{
+    CHECK_NULL_VOID(delegate_);
+    isFocus_ = false;
+    delegate_->OnBlur();
+    OnQuickMenuDismissed();
+
+    auto id = frameNode->GetId();
+    auto pipeline = AceType::DynamicCast<PipelineContext>(PipelineBase::GetCurrentContext());
+    CHECK_NULL_VOID(pipeline);
+    pipeline->RemoveWindowStateChangedCallback(id);
+    pipeline->RemoveWindowSizeChangeCallback(id);
+    pipeline->RemoveNodesToNotifyMemoryLevel(id);
+
+    if (HasTransformHintChangedCallbackId()) {
+        pipeline->UnregisterTransformHintChangedCallback(transformHintChangedCallbackId_.value_or(-1));
+    }
+#if !defined(PREVIEW) && !defined(ACE_UNITTEST) && defined(OHOS_PLATFORM)
+    if (UiSessionManager::GetInstance().GetWebFocusRegistered()) {
+        UnRegisterTextBlurCallback();
+    }
+#endif
+}
+
+void WebPattern::SetRotation(uint32_t rotation)
+{
+    if (renderMode_ == RenderMode::SYNC_RENDER || rotation_ == rotation) {
+        return;
+    }
+    rotation_ = rotation;
+    CHECK_NULL_VOID(renderSurface_);
+    renderSurface_->SetTransformHint(rotation);
+}
+
+void WebPattern::InitEvent()
+{
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto eventHub = host->GetEventHub<WebEventHub>();
+    CHECK_NULL_VOID(eventHub);
+
+    auto gestureHub = eventHub->GetOrCreateGestureEventHub();
+    CHECK_NULL_VOID(gestureHub);
+
+    InitTouchEvent(gestureHub);
+    InitDragEvent(gestureHub);
+    InitPanEvent(gestureHub);
+    if (GetWebInfoType() == WebInfoType::TYPE_2IN1) {
+        InitPinchEvent(gestureHub);
+    }
+
+    auto inputHub = eventHub->GetOrCreateInputEventHub();
+    CHECK_NULL_VOID(inputHub);
+    InitMouseEvent(inputHub);
+    InitHoverEvent(inputHub);
+
+    auto focusHub = eventHub->GetOrCreateFocusHub();
+    CHECK_NULL_VOID(focusHub);
+    InitFocusEvent(focusHub);
+}
+
+void WebPattern::InitConfigChangeCallback(const RefPtr<PipelineContext> &context)
+{
+    auto langTask = [weak = AceType::WeakClaim(this)]() {
+        auto WebPattern = weak.Upgrade();
+        CHECK_NULL_VOID(WebPattern);
+        WebPattern->UpdateLocale();
+    };
+    context->SetConfigChangedCallback(GetHost()->GetId(), std::move(langTask));
+}
+
+void WebPattern::InitFeatureParam()
+{
+    isVisibleActiveEnable_ = system::GetBoolParameter(VISIBLE_ACTIVE_ENABLE, true);
+    isMemoryLevelEnable_ = system::GetBoolParameter(MEMORY_LEVEL_ENABEL, true);
+}
+
+void WebPattern::InitPanEvent(const RefPtr<GestureEventHub>& gestureHub)
+{
+    if (panEvent_) {
+        return;
+    }
+    auto actionStartTask = [weak = WeakClaim(this)](const GestureEvent& event) {
+        auto pattern = weak.Upgrade();
+        CHECK_NULL_VOID(pattern);
+        // Determine if there is already a fixed nested scroll mode.
+        if (!pattern->GetIsFixedNestedScrollMode() || !pattern->GetNestedScrollParent()) {
+            pattern->SetParentScrollable();
+        }
+        pattern->UpdateTouchpadSlidingStatus(event);
+        pattern->GetParentAxis();
+    };
+    auto actionUpdateTask = [weak = WeakClaim(this)](const GestureEvent& event) {
+        auto pattern = weak.Upgrade();
+        CHECK_NULL_VOID(pattern);
+        pattern->HandleDragMove(event);
+    };
+    auto actionEndTask = [weak = WeakClaim(this)](const GestureEvent& info) {
+        auto pattern = weak.Upgrade();
+        CHECK_NULL_VOID(pattern);
+
+        auto parent = pattern->GetNestedScrollParent();
+        if (parent) {
+            parent->OnScrollDragEndRecursive();
+        }
+        pattern->HandleFlingMove(info);
+    };
+    auto actionCancelTask = [weak = WeakClaim(this)]() { return; };
+    PanDirection panDirection;
+    panDirection.type = PanDirection::ALL;
+    panEvent_ = MakeRefPtr<PanEvent>(
+        std::move(actionStartTask), std::move(actionUpdateTask), std::move(actionEndTask), std::move(actionCancelTask));
+    gestureHub->AddPanEvent(panEvent_, panDirection, DEFAULT_PAN_FINGER, DEFAULT_PAN_DISTANCE);
+    gestureHub->SetPanEventType(GestureTypeName::WEBSCROLL);
+    gestureHub->SetOnGestureJudgeNativeBegin([](const RefPtr<NG::GestureInfo>& gestureInfo,
+                                                const std::shared_ptr<BaseGestureEvent>& info) -> GestureJudgeResult {
+            if (!gestureInfo) {
+                // info is null, default case to continue
+                return GestureJudgeResult::CONTINUE;
+            }
+            if (gestureInfo->GetType() != GestureTypeName::WEBSCROLL) {
+                // not web pan event type, continue
+                return GestureJudgeResult::CONTINUE;
+            }
+            auto inputEventType = gestureInfo->GetInputEventType();
+            if (inputEventType == InputEventType::AXIS) {
+                // axis event type of web pan, dispatch to panEvent to process
+                return GestureJudgeResult::CONTINUE;
+            } else if (inputEventType == InputEventType::MOUSE_BUTTON) {
+                // mouse button event type of web pan, dispatch to DragEvent to process
+                return GestureJudgeResult::REJECT;
+            }
+            // In other cases, the panEvent is used by default
+            return GestureJudgeResult::CONTINUE;
+        });
+}
+
+void WebPattern::HandleFlingMove(const GestureEvent& event)
+{
+    if ((event.GetInputEventType() == InputEventType::AXIS) &&
+        (event.GetSourceTool() == SourceTool::TOUCHPAD)) {
+        CHECK_NULL_VOID(delegate_);
+        std::vector<int32_t> pressedCodes;
+        auto gesturePressedCodes = event.GetPressedKeyCodes();
+        for (auto pCode : gesturePressedCodes) {
+            pressedCodes.push_back(static_cast<int32_t>(pCode));
+        }
+        auto localLocation = event.GetLocalLocation();
+        delegate_->WebHandleTouchpadFlingEvent(localLocation.GetX(), localLocation.GetY(),
+                                               event.GetVelocity().GetVelocityX(),
+                                               event.GetVelocity().GetVelocityY(),
+                                               pressedCodes);
+    }
+}
+
+void WebPattern::HandleDragMove(const GestureEvent& event)
+{
+    if (event.GetInputEventType() == InputEventType::AXIS) {
+        CHECK_NULL_VOID(delegate_);
+        auto localLocation = event.GetLocalLocation();
+        std::vector<int32_t> pressedCodes;
+        auto gesturePressedCodes = event.GetPressedKeyCodes();
+        for (auto pCode : gesturePressedCodes) {
+            pressedCodes.push_back(static_cast<int32_t>(pCode));
+        }
+        // this ratio is only for axisEvent delta because delta no need to change in web.
+        auto axisOffsetRatio = (LINE_HEIGHT_DESKTOP * LINE_NUMBER_DESKTOP / MOUSE_WHEEL_DEGREES).ConvertToPx();
+        delegate_->WebHandleAxisEvent(localLocation.GetX(), localLocation.GetY(),
+            event.GetDelta().GetX() * DEFAULT_AXIS_RATIO * axisOffsetRatio,
+            event.GetDelta().GetY() * DEFAULT_AXIS_RATIO * axisOffsetRatio, pressedCodes);
+    }
+}
+
+void WebPattern::InitPinchEvent(const RefPtr<GestureEventHub>& gestureHub)
+{
+    if (pinchGesture_) {
+        if (gestureHub->WillRecreateGesture()) {
+            gestureHub->AddGesture(pinchGesture_);
+        }
+        return;
+    }
+    auto actionStartTask = [weak = WeakClaim(this)](const GestureEvent& event) {
+        if (event.GetSourceTool() == SourceTool::TOUCHPAD) {
+            auto pattern = weak.Upgrade();
+            CHECK_NULL_VOID(pattern);
+            pattern->startPageScale_ = pattern->pageScale_;
+            TAG_LOGD(AceLogTag::ACE_WEB, "InitPinchEvent actionStartTask startPageScale: %{public}f",
+                pattern->startPageScale_);
+
+            pattern->startPinchScale_ = event.GetScale();
+            pattern->preScale_ = pattern->startPinchScale_;
+            pattern->zoomOutSwitch_ = false;
+            pattern->zoomStatus_ = 0;
+            pattern->zoomErrorCount_ = 0;
+            TAG_LOGD(AceLogTag::ACE_WEB, "InitPinchEvent actionStartTask startPinchScale: %{public}f",
+                pattern->startPinchScale_);
+        }
+    };
+    auto actionUpdateTask = [weak = WeakClaim(this)](const GestureEvent& event) {
+        ACE_SCOPED_TRACE("WebPattern::InitPinchEvent actionUpdateTask");
+        if (event.GetSourceTool() == SourceTool::TOUCHPAD) {
+            auto pattern = weak.Upgrade();
+            CHECK_NULL_VOID(pattern);
+            TAG_LOGD(AceLogTag::ACE_WEB, "InitPinchEvent actionUpdateTask event scale:%{public}f: ", event.GetScale());
+            pattern->HandleScaleGestureChange(event);
+        }
+    };
+    auto actionEndTask = [weak = WeakClaim(this)](const GestureEvent& event) { return; };
+    auto actionCancelTask = [weak = WeakClaim(this)]() { return; };
+
+    pinchGesture_ = MakeRefPtr<PinchGesture>(DEFAULT_PINCH_FINGER, DEFAULT_PINCH_DISTANCE);
+    pinchGesture_->SetPriority(GesturePriority::Parallel);
+    pinchGesture_->SetOnActionStartId(actionStartTask);
+    pinchGesture_->SetOnActionUpdateId(actionUpdateTask);
+    pinchGesture_->SetOnActionEndId(actionEndTask);
+    pinchGesture_->SetOnActionCancelId(actionCancelTask);
+    gestureHub->AddGesture(pinchGesture_);
+}
+
+bool WebPattern::CheckZoomStatus(const double& curScale)
+{
+    int32_t curScaleNew = (int32_t)(curScale * 100);
+    int32_t preScaleNew = (int32_t)(preScale_ * 100);
+
+    // check zoom status
+    if ((zoomStatus_ == STATUS_ZOOMOUT && curScaleNew - preScaleNew < 0) && zoomErrorCount_ < ZOOM_ERROR_COUNT_MAX) {
+        zoomErrorCount_++;
+        TAG_LOGI(AceLogTag::ACE_WEB, "CheckZoomStatus zoomStatus = zoomout && curScale < preScale,"
+                                     "ignore date.");
+        return false;
+    } else if ((zoomStatus_ == STATUS_ZOOMIN && curScaleNew - preScaleNew > 0) &&
+               zoomErrorCount_ < ZOOM_ERROR_COUNT_MAX) {
+        zoomErrorCount_++;
+        TAG_LOGI(AceLogTag::ACE_WEB, "CheckZoomStatus zoomStatus = zoomin && curScale >= preScale,"
+                                     "ignore date.");
+        return false;
+    } else {
+        // nothing
+    }
+    return true;
+}
+
+bool WebPattern::ZoomOutAndIn(const double& curScale, double& scale)
+{
+    int32_t curScaleNew = (int32_t)(curScale * 100);
+    int32_t preScaleNew = (int32_t)(preScale_ * 100);
+
+    // zoom out
+    if (GreatOrEqual(curScale, preScale_)) {
+        if (GreatOrEqual(preScale_, DEFAULT_PINCH_SCALE)) {
+            // start page scale > 1
+            if (GreatOrEqual(curScale, DEFAULT_PINCH_SCALE) && !zoomOutSwitch_) {
+                scale = curScale * startPageScale_;
+
+                TAG_LOGD(AceLogTag::ACE_WEB, "ZoomOutAndIn curScale * pageScale_= %{public}f", scale);
+            } else {
+                TAG_LOGD(AceLogTag::ACE_WEB, "ZoomOutAndIn curScale < DEFAULT_PINCH_SCALE");
+                scale = pageScale_ + (curScale - startPinchScale_);
+            }
+        } else {
+            // The scale is from 0.4 to 0.5, the scale conversion should be from 1.0 to 1.1
+            // once
+            if (zoomStatus_ == STATUS_ZOOMIN) {
+                TAG_LOGI(AceLogTag::ACE_WEB, "ZoomOutAndIn Switch from zoomin to zoomout.");
+                // must be page scale form 0.4 to 1
+                scale = pageScale_;
+                // reset
+                startPinchScale_ = preScale_;
+                zoomOutSwitch_ = true;
+            } else {
+                TAG_LOGD(AceLogTag::ACE_WEB, "ZoomOutAndIn zoomStatus_ = STATUS_ZOOMOUT curScale < 1.0");
+                scale = pageScale_ + (curScale - startPinchScale_);
+            }
+        }
+        zoomStatus_ = STATUS_ZOOMOUT;
+        // zoom in
+    } else {
+        // from zoonout to zoomin
+        if (zoomStatus_ == STATUS_ZOOMOUT) {
+            TAG_LOGI(AceLogTag::ACE_WEB, "ZoomOutAndIn Switch from zoomout to zoomin.");
+            // reset
+            startPinchScale_ = preScale_;
+            zoomOutSwitch_ = false;
+        }
+
+        if (curScaleNew == preScaleNew) {
+            TAG_LOGI(AceLogTag::ACE_WEB, "ZoomOutAndIn curScaleNew == preScaleNew");
+            return false;
+        }
+
+        scale = curScale;
+
+        zoomStatus_ = STATUS_ZOOMIN;
+    }
+    return true;
+}
+
+void WebPattern::HandleScaleGestureChange(const GestureEvent& event)
+{
+    CHECK_NULL_VOID(delegate_);
+
+    double curScale = event.GetScale();
+    if (NearEqual(curScale, preScale_)) {
+        TAG_LOGI(AceLogTag::ACE_WEB, "HandleScaleGestureChange curScale == preScale");
+        return;
+    }
+
+    TAG_LOGD(AceLogTag::ACE_WEB,
+        "HandleScaleGestureChange curScale:%{public}f, preScale: %{public}f, "
+        "zoomStatus: %{public}d, pageScale: %{public}f, startPinchScale: %{public}f, startPageScale: %{public}f",
+        curScale, preScale_, zoomStatus_, pageScale_, startPinchScale_, startPageScale_);
+
+    if (!CheckZoomStatus(curScale)) {
+        return;
+    }
+
+    zoomErrorCount_ = 0;
+
+    double scale = 0.0;
+    if (!ZoomOutAndIn(curScale, scale)) {
+        return;
+    }
+
+    TAG_LOGD(AceLogTag::ACE_WEB, "HandleScaleGestureChange ZoomOutAndIn return scale:%{public}f", scale);
+
+    double newScale = GetNewScale(scale);
+
+    double centerX = event.GetPinchCenter().GetX();
+    double centerY = event.GetPinchCenter().GetY();
+    auto frameNode = GetHost();
+    CHECK_NULL_VOID(frameNode);
+    auto offset = frameNode->GetOffsetRelativeToWindow();
+    TAG_LOGD(AceLogTag::ACE_WEB,
+        "HandleScaleGestureChange curScale:%{public}f pageScale: %{public}f newScale: %{public}f centerX: "
+        "%{public}f centerY: %{public}f offset X: %{public}f offset Y: %{public}f",
+        curScale, scale, newScale, centerX, centerY, offset.GetX(), offset.GetY());
+    delegate_->ScaleGestureChange(newScale, centerX - offset.GetX(), centerY - offset.GetY());
+
+    preScale_ = curScale;
+    if (LessNotEqual(scale, DEFAULT_PINCH_SCALE)) {
+        pageScale_ = DEFAULT_PINCH_SCALE;
+        TAG_LOGI(AceLogTag::ACE_WEB, "HandleScaleGestureChange pageScale < DEFAULT_PINCH_SCALE");
+    } else {
+        pageScale_ = scale;
+    }
+}
+
+double WebPattern::getZoomOffset(double& scale) const
+{
+    double offset = DEFAULT_PINCH_SCALE - scale;
+    if (LessOrEqual(offset, 0.0)) {
+        TAG_LOGE(AceLogTag::ACE_WEB, "getZoomOffset curScale < preScale");
+        return 0.0;
+    }
+    return offset * ZOOM_CONVERT_NUM * ZOOMIN_PUBLIC_ERRAND;
+}
+
+double WebPattern::GetNewScale(double& scale) const
+{
+    if (GreatOrEqual(scale, DEFAULT_PINCH_SCALE_MAX)) {
+        scale = DEFAULT_PINCH_SCALE_MAX;
+
+        TAG_LOGE(AceLogTag::ACE_WEB, "GetNewScale scale > DEFAULT_PINCH_SCALE_MAX");
+        return DEFAULT_PINCH_SCALE;
+    }
+
+    double newScale = 0.0;
+    if (GreatOrEqual(scale, DEFAULT_PINCH_SCALE)) {
+        // In order to achieve a sequence similar to scale, eg. 1.1, 1.2, 1.3
+        if (zoomStatus_ == STATUS_ZOOMOUT) {
+            newScale = scale / pageScale_;
+            // scale > 1.0 when scale form zoomout to zoomin
+        } else if (zoomStatus_ == STATUS_ZOOMIN) {
+            scale = startPageScale_ * scale;
+            if (GreatNotEqual(scale, 0.0)) {
+                newScale = scale / pageScale_;
+            } else {
+                newScale = DEFAULT_PINCH_SCALE_MIN;
+                scale = DEFAULT_PINCH_SCALE;
+
+                TAG_LOGE(AceLogTag::ACE_WEB, "GetNewScale scale < 0.0");
+            }
+        }
+
+        // scale max
+        if (GreatOrEqual(newScale, DEFAULT_PINCH_SCALE_MAX)) {
+            newScale = DEFAULT_PINCH_SCALE_MAX;
+            scale = DEFAULT_PINCH_SCALE_MAX;
+
+            TAG_LOGI(AceLogTag::ACE_WEB, "GetNewScale newScale > DEFAULT_PINCH_SCALE_MAX");
+        }
+    } else {
+        TAG_LOGD(AceLogTag::ACE_WEB, "GetNewScale getZoomOffset:%{public}f", getZoomOffset(scale));
+
+        scale = startPageScale_ - getZoomOffset(scale);
+        if (GreatNotEqual(scale, 0.0)) {
+            newScale = scale / pageScale_;
+        } else {
+            newScale = DEFAULT_PINCH_SCALE_MIN;
+            scale = DEFAULT_PINCH_SCALE;
+
+            TAG_LOGE(AceLogTag::ACE_WEB, "GetNewScale scale < 0.0");
+        }
+
+        TAG_LOGD(AceLogTag::ACE_WEB,
+            "GetNewScale scale: %{public}f, newScale: %{public}f, pageScale: %{public}f, startPageScale: %{public}f",
+            scale, newScale, pageScale_, startPageScale_);
+    }
+
+    // scale min
+    if (LessNotEqual(newScale, DEFAULT_PINCH_SCALE_MIN)) {
+        newScale = DEFAULT_PINCH_SCALE_MIN;
+        scale = DEFAULT_PINCH_SCALE;
+
+        TAG_LOGE(AceLogTag::ACE_WEB, "GetNewScale newScale < DEFAULT_PINCH_SCALE_MIN");
+    }
+
+    return newScale;
+}
+
+void WebPattern::InitTouchEvent(const RefPtr<GestureEventHub>& gestureHub)
+{
+    if (touchEvent_) {
+        return;
+    }
+
+    auto touchTask = [weak = WeakClaim(this)](const TouchEventInfo& info) {
+        auto pattern = weak.Upgrade();
+        CHECK_NULL_VOID(pattern);
+        pattern->OnTooltip("");
+        if (info.GetChangedTouches().empty()) {
+            return;
+        }
+
+        // only handle touch event
+        if (info.GetSourceDevice() != SourceType::TOUCH) {
+            return;
+        }
+        pattern->touchEventInfo_ = info;
+        pattern->isMouseEvent_ = false;
+        const auto& changedPoint = info.GetChangedTouches().front();
+        if (changedPoint.GetTouchType() == TouchType::DOWN ||
+            changedPoint.GetTouchType() == TouchType::UP) {
+            if (pattern->touchEventQueue_.size() < TOUCH_EVENT_MAX_SIZE) {
+                pattern->touchEventQueue_.push(info);
+            }
+        }
+
+        if (changedPoint.GetTouchType() == TouchType::DOWN) {
+            pattern->HandleTouchDown(info, false);
+            return;
+        }
+        if (changedPoint.GetTouchType() == TouchType::MOVE) {
+            pattern->HandleTouchMove(info, false);
+            return;
+        }
+        if (changedPoint.GetTouchType() == TouchType::UP) {
+            pattern->HandleTouchUp(info, false);
+            return;
+        }
+        if (changedPoint.GetTouchType() == TouchType::CANCEL) {
+            pattern->HandleTouchCancel(info);
+            return;
+        }
+    };
+    touchEvent_ = MakeRefPtr<TouchEventImpl>(std::move(touchTask));
+    gestureHub->AddTouchEvent(touchEvent_);
+}
+
+void WebPattern::InitMouseEvent(const RefPtr<InputEventHub>& inputHub)
+{
+    if (mouseEvent_) {
+        return;
+    }
+
+    auto mouseTask = [weak = WeakClaim(this)](MouseInfo& info) {
+        auto pattern = weak.Upgrade();
+        CHECK_NULL_VOID(pattern);
+        pattern->HandleMouseEvent(info);
+    };
+
+    mouseEvent_ = MakeRefPtr<InputEvent>(std::move(mouseTask));
+    inputHub->AddOnMouseEvent(mouseEvent_);
+}
+
+void WebPattern::InitHoverEvent(const RefPtr<InputEventHub>& inputHub)
+{
+    if (hoverEvent_) {
+        return;
+    }
+
+    auto hoverTask = [weak = WeakClaim(this)](bool isHover) {
+        auto pattern = weak.Upgrade();
+        CHECK_NULL_VOID(pattern);
+        MouseInfo info;
+        info.SetAction(isHover ? MouseAction::HOVER : MouseAction::HOVER_EXIT);
+        pattern->SetMouseHoverExit(!isHover);
+        if (!isHover) {
+            TAG_LOGI(AceLogTag::ACE_WEB,
+                "Set cursor to pointer when mouse pointer is leave.");
+            pattern->OnCursorChange(OHOS::NWeb::CursorType::CT_POINTER, nullptr);
+        }
+        pattern->WebOnMouseEvent(info);
+    };
+
+    hoverEvent_ = MakeRefPtr<InputEvent>(std::move(hoverTask));
+    inputHub->AddOnHoverEvent(hoverEvent_);
+}
+
+void WebPattern::HandleMouseEvent(MouseInfo& info)
+{
+    isMouseEvent_ = true;
+    WebOnMouseEvent(info);
+
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto eventHub = host->GetEventHub<WebEventHub>();
+    CHECK_NULL_VOID(eventHub);
+    auto mouseEventCallback = eventHub->GetOnMouseEvent();
+    CHECK_NULL_VOID(mouseEventCallback);
+    mouseEventCallback(info);
+}
+
+void WebPattern::WebOnMouseEvent(const MouseInfo& info)
+{
+    if (mouseEventDeviceId_ != info.GetDeviceId()) {
+        mouseEventDeviceId_ = info.GetDeviceId();
+    }
+    CHECK_NULL_VOID(delegate_);
+    auto localLocation = info.GetLocalLocation();
+    if ((mouseHoveredX_ != localLocation.GetX()) ||
+        (mouseHoveredY_ != localLocation.GetY()) ||
+        (info.GetAction() == MouseAction::PRESS) ||
+        (info.GetButton() == MouseButton::LEFT_BUTTON) ||
+        (info.GetButton() == MouseButton::RIGHT_BUTTON)) {
+        OnTooltip("");
+    }
+    if (info.GetAction() == MouseAction::PRESS) {
+        delegate_->OnContextMenuHide("");
+        WebRequestFocus();
+    }
+
+    // set touchup false when using mouse
+    isTouchUpEvent_ = false;
+    if (info.GetButton() == MouseButton::LEFT_BUTTON && info.GetAction() == MouseAction::RELEASE) {
+        if (isReceivedArkDrag_) {
+            TAG_LOGI(AceLogTag::ACE_WEB, "DragDrop Do not reset drag action when dragging,"
+                "drop/cancel/end event will do this");
+            return;
+        }
+        ResetDragAction();
+    }
+    isHoverExit_ = false;
+    if (info.GetAction() == MouseAction::HOVER_EXIT) {
+        TAG_LOGI(AceLogTag::ACE_WEB,
+            "Set cursor to pointer when mouse pointer is hover exit.");
+        isHoverExit_ = true;
+        OnCursorChange(OHOS::NWeb::CursorType::CT_POINTER, nullptr);
+    }
+    int32_t clickNum = HandleMouseClickEvent(info);
+
+    WebSendMouseEvent(info, clickNum);
+
+    if (info.GetAction() == MouseAction::MOVE) {
+        mouseHoveredX_ = localLocation.GetX();
+        mouseHoveredY_ = localLocation.GetY();
+    }
+}
+
+void WebPattern::WebSendMouseEvent(const MouseInfo& info, int32_t clickNum)
+{
+    std::vector<int32_t> pressedCodes {};
+    std::vector<KeyCode> keyCode = info.GetPressedKeyCodes();
+    for (auto pCode : keyCode) {
+        pressedCodes.push_back(static_cast<int32_t>(pCode));
+    }
+
+    std::shared_ptr<NWebMouseEventImpl> mouseEvent =
+        std::make_shared<NWebMouseEventImpl>(info.GetLocalLocation().GetX(), info.GetLocalLocation().GetY(),
+        static_cast<int32_t>(info.GetButton()), static_cast<int32_t>(info.GetAction()),
+        clickNum, pressedCodes);
+    delegate_->WebOnMouseEvent(mouseEvent);
+}
+
+void WebPattern::ResetDragAction()
+{
+    auto frameNode = GetHost();
+    CHECK_NULL_VOID(frameNode);
+    frameNode->SetDraggable(false);
+    auto eventHub = frameNode->GetEventHub<WebEventHub>();
+    CHECK_NULL_VOID(eventHub);
+    auto gestureHub = eventHub->GetOrCreateGestureEventHub();
+    CHECK_NULL_VOID(gestureHub);
+    gestureHub->ResetDragActionForWeb();
+
+    if (!isDragging_) {
+        return;
+    }
+
+    isDragging_ = false;
+    isReceivedArkDrag_ = false;
+    // cancel drag action to avoid web kernel can't process other input event
+    CHECK_NULL_VOID(delegate_);
+    delegate_->HandleDragEvent(0, 0, DragAction::DRAG_CANCEL);
+    gestureHub->CancelDragForWeb();
+}
+
+Offset WebPattern::GetDragOffset() const
+{
+    Offset webDragOffset;
+    int x = 0;
+    int y = 0;
+    if (delegate_ && delegate_->dragData_) {
+        delegate_->dragData_->GetDragStartPosition(x, y);
+    }
+
+    webDragOffset.SetX(x);
+    webDragOffset.SetY(y);
+
+    return webDragOffset;
+}
+
+SizeF WebPattern::GetDragPixelMapSize() const
+{
+    SizeF pixelMapSize;
+    int32_t width = 0;
+    int32_t height = 0;
+    RefPtr<PixelMap> pixelMap = nullptr;
+    if (delegate_) {
+        pixelMap = delegate_->GetDragPixelMap();
+    }
+    if (pixelMap) {
+        width = pixelMap->GetWidth();
+        height = pixelMap->GetHeight();
+    }
+    pixelMapSize = SizeF(width, height);
+    return pixelMapSize;
+}
+
+int32_t WebPattern::HandleMouseClickEvent(const MouseInfo& info)
+{
+    if (info.GetButton() != MouseButton::LEFT_BUTTON || info.GetAction() != MouseAction::PRESS) {
+        return SINGLE_CLICK_NUM;
+    }
+    auto localLocation = info.GetLocalLocation();
+    MouseClickInfo clickInfo;
+    clickInfo.x = localLocation.GetX();
+    clickInfo.y = localLocation.GetY();
+    clickInfo.start = info.GetTimeStamp();
+    if (mouseClickQueue_.empty()) {
+        mouseClickQueue_.push(clickInfo);
+        return SINGLE_CLICK_NUM;
+    }
+    std::chrono::duration<float> timeout_ = clickInfo.start - mouseClickQueue_.back().start;
+    double offsetX = clickInfo.x - mouseClickQueue_.back().x;
+    double offsetY = clickInfo.y - mouseClickQueue_.back().y;
+    double offset = sqrt(offsetX * offsetX + offsetY * offsetY);
+    if (timeout_.count() < DEFAULT_DBCLICK_INTERVAL && offset < DEFAULT_DBCLICK_OFFSET) {
+        if (mouseClickQueue_.size() == SINGLE_CLICK_NUM) {
+            mouseClickQueue_.push(clickInfo);
+            return DOUBLE_CLICK_NUM;
+        } else if (mouseClickQueue_.size() == DOUBLE_CLICK_NUM) {
+            mouseClickQueue_.push(clickInfo);
+            return TRIPLE_CLICK_NUM;
+        } else if (mouseClickQueue_.size() == TRIPLE_CLICK_NUM) {
+            mouseClickQueue_.pop();
+            mouseClickQueue_.push(clickInfo);
+            return TRIPLE_CLICK_NUM;
+        }
+    }
+    if (mouseClickQueue_.size()) {
+        std::queue<MouseClickInfo> empty;
+        swap(empty, mouseClickQueue_);
+        mouseClickQueue_.push(clickInfo);
+    }
+    return SINGLE_CLICK_NUM;
+}
+
+bool WebPattern::HandleDoubleClickEvent(const MouseInfo& info)
+{
+    if (info.GetButton() != MouseButton::LEFT_BUTTON || info.GetAction() != MouseAction::PRESS) {
+        return false;
+    }
+    auto localLocation = info.GetLocalLocation();
+    MouseClickInfo clickInfo;
+    clickInfo.x = localLocation.GetX();
+    clickInfo.y = localLocation.GetY();
+    clickInfo.start = info.GetTimeStamp();
+    if (mouseClickQueue_.empty()) {
+        mouseClickQueue_.push(clickInfo);
+        return false;
+    }
+    std::chrono::duration<float> timeout_ = clickInfo.start - mouseClickQueue_.back().start;
+    double offsetX = clickInfo.x - mouseClickQueue_.back().x;
+    double offsetY = clickInfo.y - mouseClickQueue_.back().y;
+    double offset = sqrt(offsetX * offsetX + offsetY * offsetY);
+    if (timeout_.count() < DEFAULT_DBCLICK_INTERVAL && offset < DEFAULT_DBCLICK_OFFSET) {
+        SendDoubleClickEvent(clickInfo);
+        std::queue<MouseClickInfo> empty;
+        swap(empty, mouseClickQueue_);
+        return true;
+    }
+    if (mouseClickQueue_.size() == 1) {
+        mouseClickQueue_.push(clickInfo);
+        return false;
+    }
+    mouseClickQueue_.pop();
+    mouseClickQueue_.push(clickInfo);
+    return false;
+}
+
+void WebPattern::SendDoubleClickEvent(const MouseClickInfo& info)
+{
+    CHECK_NULL_VOID(delegate_);
+    delegate_->OnMouseEvent(info.x, info.y, MouseButton::LEFT_BUTTON, MouseAction::PRESS, DOUBLE_CLICK_NUM);
+}
+
+bool WebPattern::GenerateDragDropInfo(NG::DragDropInfo& dragDropInfo)
+{
+    if (delegate_) {
+        dragDropInfo.pixelMap = delegate_->GetDragPixelMap();
+    }
+
+    if (dragDropInfo.pixelMap) {
+        isW3cDragEvent_ = true;
+        return true;
+    }
+
+    return false;
+}
+
+NG::DragDropInfo WebPattern::HandleOnDragStart(const RefPtr<OHOS::Ace::DragEvent>& info)
+{
+    isDragging_ = true;
+    isReceivedArkDrag_ = true;
+    NG::DragDropInfo dragDropInfo;
+    if (GenerateDragDropInfo(dragDropInfo)) {
+        auto frameNode = GetHost();
+        CHECK_NULL_RETURN(frameNode, dragDropInfo);
+        CHECK_NULL_RETURN(delegate_, dragDropInfo);
+        CHECK_NULL_RETURN(delegate_->dragData_, dragDropInfo);
+        // get drag pixel map successfully, disable next drag util received web kernel drag callback
+        frameNode->SetDraggable(false);
+        RefPtr<UnifiedData> aceUnifiedData = UdmfClient::GetInstance()->CreateUnifiedData();
+        std::string fileName = delegate_->dragData_->GetImageFileName();
+        std::string plainContent = delegate_->dragData_->GetFragmentText();
+        std::string htmlContent = delegate_->dragData_->GetFragmentHtml();
+        std::string linkUrl = delegate_->dragData_->GetLinkURL();
+        std::string linkTitle = delegate_->dragData_->GetLinkTitle();
+        if (!fileName.empty()) {
+            OnDragFileNameStart(aceUnifiedData, fileName);
+        } else {
+            TAG_LOGW(AceLogTag::ACE_WEB, "DragDrop event start, dragdata has no image file uri, just pass");
+        }
+        if (!plainContent.empty()) {
+            isDragEndMenuShow_ = true;
+            UdmfClient::GetInstance()->AddPlainTextRecord(aceUnifiedData, plainContent);
+        }
+        if (!htmlContent.empty()) {
+            isDragEndMenuShow_ = true;
+            UdmfClient::GetInstance()->AddHtmlRecord(aceUnifiedData, htmlContent, "");
+        }
+        if (!linkUrl.empty()) {
+            isDragEndMenuShow_ = false;
+            UdmfClient::GetInstance()->AddLinkRecord(aceUnifiedData, linkUrl, linkTitle);
+            TAG_LOGI(AceLogTag::ACE_WEB, "web DragDrop event Start, linkUrl size:%{public}zu", linkUrl.size());
+        }
+        info->SetData(aceUnifiedData);
+        HandleOnDragEnter(info);
+        return dragDropInfo;
+    }
+    return dragDropInfo;
+}
+
+void WebPattern::OnDragFileNameStart(const RefPtr<UnifiedData>& aceUnifiedData, const std::string& fileName)
+{
+    isDragEndMenuShow_ = false;
+    std::string fullName;
+    if (delegate_->tempDir_.empty()) {
+        fullName = "/data/storage/el2/base/haps/entry/temp/dragdrop/" + fileName;
+    } else {
+        fullName = delegate_->tempDir_ + "/dragdrop/" + fileName;
+    }
+    AppFileService::ModuleFileUri::FileUri fileUri(fullName);
+    TAG_LOGI(AceLogTag::ACE_WEB, "web DragDrop event Start, FileUri:%{public}s, image path:%{public}s",
+        fileUri.ToString().c_str(), fullName.c_str());
+    std::vector<std::string> urlVec;
+    std::string udmfUri = fileUri.ToString();
+    urlVec.emplace_back(udmfUri);
+    UdmfClient::GetInstance()->AddFileUriRecord(aceUnifiedData, urlVec);
+}
+
+void WebPattern::HandleOnDropMove(const RefPtr<OHOS::Ace::DragEvent>& info)
+{
+    if (!isDragging_) {
+        return;
+    }
+
+    if (!isW3cDragEvent_) {
+        return;
+    }
+
+    CHECK_NULL_VOID(delegate_);
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto pipelineContext = host->GetContextRefPtr();
+    CHECK_NULL_VOID(pipelineContext);
+    auto viewScale = pipelineContext->GetViewScale();
+    int32_t globalX = static_cast<int32_t>(info->GetX()) * viewScale;
+    int32_t globalY = static_cast<int32_t>(info->GetY()) * viewScale;
+    auto offset = GetCoordinatePoint();
+    globalX = static_cast<int32_t>(globalX - offset.value_or(OffsetF()).GetX());
+    globalY = static_cast<int32_t>(globalY - offset.value_or(OffsetF()).GetY());
+    delegate_->HandleDragEvent(globalX, globalY, DragAction::DRAG_OVER);
+}
+
+void WebPattern::InitCommonDragDropEvent(const RefPtr<GestureEventHub>& gestureHub)
+{
+    auto frameNode = GetHost();
+    CHECK_NULL_VOID(frameNode);
+    auto eventHub = frameNode->GetEventHub<WebEventHub>();
+    CHECK_NULL_VOID(eventHub);
+
+    isDisableDrag_ = false;
+    // disable drag
+    frameNode->SetDraggable(false);
+    // init common drag drop event
+    gestureHub->InitDragDropEvent();
+    InitWebEventHubDragDropStart(eventHub);
+    InitWebEventHubDragDropEnd(eventHub);
+    InitWebEventHubDragMove(eventHub);
+    TAG_LOGI(AceLogTag::ACE_WEB, "DragDrop WebEventHub init drag event ok");
+}
+
+void WebPattern::InitWebEventHubDragDropStart(const RefPtr<WebEventHub>& eventHub)
+{
+    auto onDragStartId = [weak = WeakClaim(this)](const RefPtr<OHOS::Ace::DragEvent>& info,
+                             const std::string& extraParams) -> NG::DragDropInfo {
+        TAG_LOGI(AceLogTag::ACE_WEB, "DragDrop WebEventHub drag start,"
+            " x:%{public}lf, y:%{public}lf", info->GetX(), info->GetY());
+        NG::DragDropInfo dragDropInfo;
+        auto pattern = weak.Upgrade();
+        if (pattern) {
+            TAG_LOGI(AceLogTag::ACE_WEB,
+                "DragDrop event WebEventHub onDragStartId, x:%{public}lf, y:%{public}lf, webId:%{public}d",
+                info->GetX(), info->GetY(), pattern->GetWebId());
+            pattern->dropX_ = 0;
+            pattern->dropY_ = 0;
+            return pattern->HandleOnDragStart(info);
+        }
+        return dragDropInfo;
+    };
+
+    auto onDragEnterId = [weak = WeakClaim(this)](const RefPtr<OHOS::Ace::DragEvent>& info,
+                             const std::string& extraParams) {
+        TAG_LOGI(AceLogTag::ACE_WEB, "DragDrop WebEventHub drag enter,"
+            " x:%{public}lf, y:%{public}lf", info->GetX(), info->GetY());
+        auto pattern = weak.Upgrade();
+        CHECK_NULL_VOID(pattern);
+        TAG_LOGI(AceLogTag::ACE_WEB,
+            "DragDrop event WebEventHub onDragEnterId, x:%{public}lf, y:%{public}lf, webId:%{public}d",
+            info->GetX(), info->GetY(), pattern->GetWebId());
+        pattern->isW3cDragEvent_ = true;
+        pattern->isDragging_ = true;
+        pattern->isReceivedArkDrag_ = true;
+        pattern->dropX_ = 0;
+        pattern->dropY_ = 0;
+        return pattern->HandleOnDragEnter(info);
+    };
+
+    // set custom OnDragStart function
+    eventHub->SetOnDragStart(std::move(onDragStartId));
+    eventHub->SetOnDragEnter(std::move(onDragEnterId));
+}
+
+void WebPattern::InitWebEventHubDragMove(const RefPtr<WebEventHub>& eventHub)
+{
+    auto onDragMoveId = [weak = WeakClaim(this)](const RefPtr<OHOS::Ace::DragEvent>& info,
+                             const std::string& extraParams) {
+        static uint32_t dragMoveCnt = 0;
+        if ((dragMoveCnt % DEBUG_DRAGMOVEID_TIMER) == 0) {
+            TAG_LOGI(AceLogTag::ACE_WEB, "DragDrop  WebEventHub drag move,"
+                " x:%{public}lf, y:%{public}lf", info->GetX(), info->GetY());
+        }
+        auto pattern = weak.Upgrade();
+        CHECK_NULL_VOID(pattern);
+        if ((dragMoveCnt++ % DEBUG_DRAGMOVEID_TIMER) == 0) {
+            TAG_LOGI(AceLogTag::ACE_WEB,
+                "DragDrop event WebEventHub onDragMoveId, x:%{public}lf, y:%{public}lf, webId:%{public}d",
+                info->GetX(), info->GetY(), pattern->GetWebId());
+        }
+        if (!pattern->isDragging_) {
+            return;
+        }
+
+        // update drag status
+        info->SetResult(pattern->GetDragAcceptableStatus());
+
+        pattern->HandleOnDropMove(info);
+    };
+    // set custom OnDragStart function
+    eventHub->SetOnDragMove(std::move(onDragMoveId));
+}
+
+void WebPattern::InitWebEventHubDragDropEnd(const RefPtr<WebEventHub>& eventHub)
+{
+    auto onDragDropId = [weak = WeakClaim(this)](const RefPtr<OHOS::Ace::DragEvent>& info,
+                             const std::string& extraParams) {
+        TAG_LOGI(AceLogTag::ACE_WEB, "DragDrop WebEventHub drag drop,"
+            " x:%{public}lf, y:%{public}lf", info->GetX(), info->GetY());
+        auto pattern = weak.Upgrade();
+        CHECK_NULL_VOID(pattern);
+        TAG_LOGI(AceLogTag::ACE_WEB,
+            "DragDrop event WebEventHub onDragDropId, x:%{public}lf, y:%{public}lf, webId:%{public}d",
+            info->GetX(), info->GetY(), pattern->GetWebId());
+        if (!pattern->isDragging_) {
+            return;
+        }
+        pattern->dropX_ = info->GetX();
+        pattern->dropY_ = info->GetY();
+        pattern->HandleOnDragDrop(info);
+    };
+
+    auto onDragLeaveId = [weak = WeakClaim(this)](const RefPtr<OHOS::Ace::DragEvent>& info,
+                             const std::string& extraParams) {
+        TAG_LOGI(AceLogTag::ACE_WEB, "DragDrop WebEventHub drag leave,"
+            " x:%{public}lf, y:%{public}lf", info->GetX(), info->GetY());
+        auto pattern = weak.Upgrade();
+        CHECK_NULL_VOID(pattern);
+        TAG_LOGI(AceLogTag::ACE_WEB,
+            "DragDrop event WebEventHub onDragLeaveId, x:%{public}lf, y:%{public}lf, webId:%{public}d",
+            info->GetX(), info->GetY(), pattern->GetWebId());
+        pattern->HandleOnDragLeave(info->GetX(), info->GetY());
+    };
+
+    auto onDragEndId = [weak = WeakClaim(this)](const RefPtr<OHOS::Ace::DragEvent>& info) {
+        TAG_LOGI(AceLogTag::ACE_WEB, "DragDrop WebEventHub drag end,"
+            " x:%{public}lf, y:%{public}lf", info->GetX(), info->GetY());
+        auto pattern = weak.Upgrade();
+        CHECK_NULL_VOID(pattern);
+        TAG_LOGI(AceLogTag::ACE_WEB,
+            "DragDrop event WebEventHub onDragEndId, x:%{public}lf, y:%{public}lf, webId:%{public}d",
+            info->GetX(), info->GetY(), pattern->GetWebId());
+        pattern->HandleDragEnd(pattern->dropX_, pattern->dropY_);
+    };
+    // set custom OnDragStart function
+    eventHub->SetOnDragEnd(std::move(onDragEndId));
+    eventHub->SetOnDragLeave(std::move(onDragLeaveId));
+    eventHub->SetOnDrop(std::move(onDragDropId));
+}
+
+bool WebPattern::IsImageDrag()
+{
+    if (delegate_) {
+        return delegate_->IsImageDrag();
+    }
+    return false;
+}
+
+DragRet WebPattern::GetDragAcceptableStatus()
+{
+    OHOS::NWeb::NWebDragData::DragOperation status = delegate_->GetDragAcceptableStatus();
+    if (status == OHOS::NWeb::NWebDragData::DragOperation::DRAG_OPERATION_MOVE ||
+        status == OHOS::NWeb::NWebDragData::DragOperation::DRAG_OPERATION_LINK) {
+        return DragRet::DRAG_DEFAULT;
+    } else if (status == OHOS::NWeb::NWebDragData::DragOperation::DRAG_OPERATION_COPY) {
+        return DragRet::DRAG_DEFAULT;
+    }
+    return DragRet::DRAG_DEFAULT;
+}
+
+bool WebPattern::NotifyStartDragTask()
+{
+    if (isDisableDrag_ || isTouchUpEvent_) {
+        TAG_LOGW(AceLogTag::ACE_WEB, "DragDrop disable drag in web. isDisableDrag_:%{public}d,"
+            "isTouchUpEvent_:%{public}d", isDisableDrag_, isTouchUpEvent_);
+        return false;
+    }
+    isDragging_ = true;
+    auto frameNode = GetHost();
+    CHECK_NULL_RETURN(frameNode, false);
+    auto eventHub = frameNode->GetEventHub<WebEventHub>();
+    CHECK_NULL_RETURN(eventHub, false);
+    auto gestureHub = eventHub->GetOrCreateGestureEventHub();
+    CHECK_NULL_RETURN(gestureHub, false);
+    CHECK_NULL_RETURN(delegate_, false);
+    delegate_->OnContextMenuHide("");
+    // received web kernel drag callback, enable drag
+    frameNode->SetDraggable(true);
+    gestureHub->SetPixelMap(delegate_->GetDragPixelMap());
+    if (!isMouseEvent_) {
+        // mouse drag does not need long press action
+        gestureHub->StartLongPressActionForWeb();
+    }
+    TAG_LOGI(AceLogTag::ACE_WEB, "DragDrop enable drag and start drag task for web,"
+        "is mouse event: %{public}d", isMouseEvent_);
+    gestureHub->StartDragTaskForWeb();
+    return true;
+}
+
+void WebPattern::InitDragEvent(const RefPtr<GestureEventHub>& gestureHub)
+{
+    if (dragEvent_) {
+        return;
+    }
+
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto eventHub = host->GetEventHub<WebEventHub>();
+    CHECK_NULL_VOID(eventHub);
+
+    auto userOnDragStartFunc = eventHub->GetOnDragStart();
+    if (userOnDragStartFunc) {
+        isDisableDrag_ = true;
+        return;
+    }
+
+    InitCommonDragDropEvent(gestureHub);
+
+    auto actionStartTask = [weak = WeakClaim(this)](const GestureEvent& info) {
+        int32_t x = info.GetGlobalPoint().GetX();
+        int32_t y = info.GetGlobalPoint().GetY();
+        auto pattern = weak.Upgrade();
+        CHECK_NULL_VOID(pattern);
+        TAG_LOGI(AceLogTag::ACE_WEB,
+            "DragDrop event gestureHub actionStartTask x:%{public}d, y:%{public}d, webId:%{public}d",
+            x, y, pattern->GetWebId());
+        pattern->HandleDragStart(x, y);
+    };
+
+    auto actionUpdateTask = [weak = WeakClaim(this)](const GestureEvent& info) {
+        return;
+    };
+
+    auto actionEndTask = [weak = WeakClaim(this)](const GestureEvent& info) {
+        int32_t x = info.GetGlobalPoint().GetX();
+        int32_t y = info.GetGlobalPoint().GetY();
+        auto pattern = weak.Upgrade();
+        CHECK_NULL_VOID(pattern);
+        TAG_LOGI(AceLogTag::ACE_WEB,
+            "DragDrop event gestureHub actionEndTask x:%{public}d, y:%{public}d, webId:%{public}d",
+            x, y, pattern->GetWebId());
+        pattern->HandleDragEnd(x, y);
+    };
+
+    auto actionCancelTask = [weak = WeakClaim(this)]() {
+    };
+
+    dragEvent_ = MakeRefPtr<DragEvent>(
+        std::move(actionStartTask), std::move(actionUpdateTask), std::move(actionEndTask), std::move(actionCancelTask));
+    gestureHub->SetCustomDragEvent(dragEvent_, { PanDirection::ALL }, DEFAULT_PAN_FINGER, DEFAULT_PAN_DISTANCE);
+}
+
+void WebPattern::HandleDragStart(int32_t x, int32_t y)
+{
+    TAG_LOGI(AceLogTag::ACE_WEB,
+        "DragDrop event gestureHub actionStart, isW3cDragEvent_:%{public}d", (int)isW3cDragEvent_);
+}
+
+void WebPattern::HandleOnDragEnter(const RefPtr<OHOS::Ace::DragEvent>& info)
+{
+    if (!delegate_) {
+        return;
+    }
+
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto pipelineContext = host->GetContextRefPtr();
+    CHECK_NULL_VOID(pipelineContext);
+    int32_t globalX = static_cast<int32_t>(info->GetX());
+    int32_t globalY = static_cast<int32_t>(info->GetY());
+    auto viewScale = pipelineContext->GetViewScale();
+    auto offset = GetCoordinatePoint();
+    int32_t localX = static_cast<int32_t>(globalX - offset.value_or(OffsetF()).GetX()) * viewScale;
+    int32_t localY = static_cast<int32_t>(globalY - offset.value_or(OffsetF()).GetY()) * viewScale;
+
+    // fake drag data when enter
+    delegate_->GetOrCreateDragData();
+    // use summary to set fake data
+    ClearDragData();
+    delegate_->HandleDragEvent(localX, localY, DragAction::DRAG_ENTER);
+    // RequestFocus to show the carret frame_caret
+    WebRequestFocus();
+}
+
+void WebPattern::HandleOnDragDropLink(RefPtr<UnifiedData> aceData)
+{
+    CHECK_NULL_VOID(aceData);
+    CHECK_NULL_VOID(delegate_);
+    CHECK_NULL_VOID(delegate_->dragData_);
+    // hyperlink
+    std::string linkUrl;
+    std::string linkTitle;
+    UdmfClient::GetInstance()->GetLinkRecord(aceData, linkUrl, linkTitle);
+    if (!linkUrl.empty()) {
+        delegate_->dragData_->SetLinkURL(linkUrl);
+        delegate_->dragData_->SetLinkTitle(linkTitle);
+        TAG_LOGI(AceLogTag::ACE_WEB,
+            "DragDrop event WebEventHub onDragDropId, linkUrl size:%{public}zu", linkUrl.size());
+    } else {
+        TAG_LOGW(AceLogTag::ACE_WEB,
+            "DragDrop event WebEventHub onDragDropId, linkUrl is empty");
+    }
+}
+
+void WebPattern::HandleOnDragDropFile(RefPtr<UnifiedData> aceData)
+{
+    CHECK_NULL_VOID(aceData);
+    CHECK_NULL_VOID(delegate_);
+    CHECK_NULL_VOID(delegate_->dragData_);
+    // file
+    std::vector<std::string> urlVec;
+    UdmfClient::GetInstance()->GetFileUriRecord(aceData, urlVec);
+    TAG_LOGI(AceLogTag::ACE_WEB, "DragDrop event WebEventHub onDragDropId,"
+        "url array size is:%{public}zu", urlVec.size());
+    delegate_->dragData_->ClearImageFileNames();
+    for (std::string url : urlVec) {
+        TAG_LOGI(AceLogTag::ACE_WEB, "DragDrop event WebEventHub onDragDropId,"
+            "url get from udmf:%{public}zu", url.length());
+        AppFileService::ModuleFileUri::FileUri fileUri(url);
+        TAG_LOGI(AceLogTag::ACE_WEB, "DragDrop event WebEventHub onDragDropId,"
+            "fileUri ToString:%{public}zu", fileUri.ToString().length());
+        std::string uriRealPath = FileUriHelper::GetRealPath(url);
+        if (!uriRealPath.empty() && access(uriRealPath.c_str(), F_OK) == 0) { // file exist
+            TAG_LOGI(AceLogTag::ACE_WEB, "DragDrop event WebEventHub onDragDropId,"
+            "url real path:%{public}zu", uriRealPath.length());
+            delegate_->dragData_->SetFileUri(uriRealPath);
+        } else {
+            TAG_LOGW(AceLogTag::ACE_WEB, "DragDrop event WebEventHub onDragDropId,"
+                "url is empty or not exist, uriRealPath:%{public}zu", uriRealPath.length());
+        }
+    }
+}
+
+void WebPattern::HandleOnDragDrop(const RefPtr<OHOS::Ace::DragEvent>& info)
+{
+    isDragging_ = false;
+    isReceivedArkDrag_ = false;
+    isW3cDragEvent_ = false;
+    CHECK_NULL_VOID(delegate_);
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto pipelineContext = host->GetContextRefPtr();
+    CHECK_NULL_VOID(pipelineContext);
+    auto viewScale = pipelineContext->GetViewScale();
+    auto offset = GetCoordinatePoint();
+    int32_t localX = static_cast<int32_t>(info->GetX() - offset.value_or(OffsetF()).GetX()) * viewScale;
+    int32_t localY = static_cast<int32_t>(info->GetY() - offset.value_or(OffsetF()).GetY()) * viewScale;
+
+    RefPtr<UnifiedData> aceData = info->GetData();
+    // get data from ace(from udmf), and send it to chromium
+    if (aceData && aceData->GetSize() >= 1) {
+        TAG_LOGI(AceLogTag::ACE_WEB,
+            "DragDrop event WebEventHub onDragDropId, size:%{public}" PRId64 "", aceData->GetSize());
+        CHECK_NULL_VOID(delegate_->dragData_);
+        // plain text
+        std::vector<std::string> plains = UdmfClient::GetInstance()->GetPlainTextRecords(aceData);
+        if (!plains.empty() && !plains[0].empty()) {
+            std::string plain = plains[0];
+            delegate_->dragData_->SetFragmentText(plain);
+            TAG_LOGI(AceLogTag::ACE_WEB,
+                "DragDrop event WebEventHub onDragDropId, plain size:%{public}zu", plain.size());
+        }
+        // html
+        std::string htmlContent;
+        std::string plainContent;
+        UdmfClient::GetInstance()->GetHtmlRecord(aceData, htmlContent, plainContent);
+        if (!htmlContent.empty()) {
+            delegate_->dragData_->SetFragmentHtml(htmlContent);
+            TAG_LOGI(AceLogTag::ACE_WEB,
+                "DragDrop event WebEventHub onDragDropId, htmlContent size:%{public}zu", htmlContent.size());
+        }
+        // spanstring
+        std::vector<uint8_t> spanString = UdmfClient::GetInstance()->GetSpanStringRecord(aceData);
+        if (!spanString.empty()) {
+            std::string htmlStr = OHOS::Ace::SpanToHtml::ToHtml(spanString);
+            delegate_->dragData_->SetFragmentHtml(htmlStr);
+            TAG_LOGI(AceLogTag::ACE_WEB,
+                "DragDrop event WebEventHub onDragDropId, spanstring to html success, html size:%{public}zu",
+                htmlStr.size());
+        }
+        // link
+        HandleOnDragDropLink(aceData);
+        // file
+        HandleOnDragDropFile(aceData);
+    } else {
+        TAG_LOGW(AceLogTag::ACE_WEB, "DragDrop event WebEventHub onDragDropId get data failed");
+    }
+
+    delegate_->HandleDragEvent(localX, localY, DragAction::DRAG_DROP);
+}
+
+void WebPattern::HandleOnDragLeave(int32_t x, int32_t y)
+{
+    CHECK_NULL_VOID(delegate_);
+    isDragging_ = false;
+    isW3cDragEvent_ = false;
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto pipelineContext = host->GetContextRefPtr();
+    CHECK_NULL_VOID(pipelineContext);
+    auto viewScale = pipelineContext->GetViewScale();
+    auto offset = GetCoordinatePoint();
+    int32_t localX = static_cast<int32_t>(x - offset.value_or(OffsetF()).GetX());
+    int32_t localY = static_cast<int32_t>(y - offset.value_or(OffsetF()).GetY());
+    delegate_->HandleDragEvent(localX * viewScale, localY * viewScale, DragAction::DRAG_LEAVE);
+}
+
+void WebPattern::HandleDragEnd(int32_t x, int32_t y)
+{
+    CHECK_NULL_VOID(delegate_);
+
+    isDragging_ = false;
+    isReceivedArkDrag_ = false;
+    isW3cDragEvent_ = false;
+    ClearDragData();
+
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto pipelineContext = host->GetContextRefPtr();
+    CHECK_NULL_VOID(pipelineContext);
+    auto viewScale = pipelineContext->GetViewScale();
+    auto offset = GetCoordinatePoint();
+    int32_t localX = static_cast<int32_t>(x - offset.value_or(OffsetF()).GetX()) * viewScale;
+    int32_t localY = static_cast<int32_t>(y - offset.value_or(OffsetF()).GetY()) * viewScale;
+    if (x == 0 && y == 0) {
+        delegate_->HandleDragEvent(0, 0, DragAction::DRAG_END);
+    } else {
+        delegate_->HandleDragEvent(localX, localY, DragAction::DRAG_END);
+    }
+}
+
+void WebPattern::HandleDragCancel()
+{
+    auto frameNode = GetHost();
+    CHECK_NULL_VOID(frameNode);
+    // disable drag
+    frameNode->SetDraggable(false);
+    CHECK_NULL_VOID(delegate_);
+    isDragging_ = false;
+    isReceivedArkDrag_ = false;
+    isW3cDragEvent_ = false;
+    ClearDragData();
+    delegate_->HandleDragEvent(0, 0, DragAction::DRAG_CANCEL);
+}
+
+void WebPattern::ClearDragData()
+{
+    CHECK_NULL_VOID(delegate_);
+    std::string plain = "";
+    std::string htmlContent = "";
+    std::string linkUrl = "";
+    std::string linkTitle = "";
+    if (delegate_->dragData_) {
+        delegate_->dragData_->SetFragmentText(plain);
+        delegate_->dragData_->SetFragmentHtml(htmlContent);
+        delegate_->dragData_->SetLinkURL(linkUrl);
+        delegate_->dragData_->SetLinkTitle(linkTitle);
+    }
+}
+
+void WebPattern::InitFocusEvent(const RefPtr<FocusHub>& focusHub)
+{
+    auto focusTask = [weak = WeakClaim(this)]() {
+        auto pattern = weak.Upgrade();
+        CHECK_NULL_VOID(pattern);
+        pattern->HandleFocusEvent();
+    };
+    focusHub->SetOnFocusInternal(focusTask);
+
+    auto blurTask = [weak = WeakClaim(this)](const BlurReason& blurReason) {
+        auto pattern = weak.Upgrade();
+        CHECK_NULL_VOID(pattern);
+        pattern->HandleBlurEvent(blurReason);
+    };
+    focusHub->SetOnBlurReasonInternal(blurTask);
+
+    auto keyTask = [weak = WeakClaim(this)](const KeyEvent& keyEvent) -> bool {
+        auto pattern = weak.Upgrade();
+        CHECK_NULL_RETURN(pattern, false);
+        return pattern->HandleKeyEvent(keyEvent);
+    };
+    focusHub->SetOnKeyEventInternal(keyTask);
+}
+
+void WebPattern::HandleFocusEvent()
+{
+    TAG_LOGI(AceLogTag::ACE_WEB, "WebPattern::HandleFocusEvent webId:%{public}d, needOnFocus: %{public}d.", GetWebId(),
+        needOnFocus_);
+    CHECK_NULL_VOID(delegate_);
+    isFocus_ = true;
+    if (needOnFocus_) {
+        delegate_->OnFocus();
+    } else {
+        delegate_->OnFocus(OHOS::NWeb::FocusReason::FOCUS_DEFAULT);
+        needOnFocus_ = true;
+    }
+}
+
+void WebPattern::HandleBlurEvent(const BlurReason& blurReason)
+{
+    TAG_LOGI(AceLogTag::ACE_WEB,
+        "HandleBlurEvent webId:%{public}d, selectPopupMenuShowing: %{public}d, isReceivedArkDrag: %{public}d",
+        GetWebId(), selectPopupMenuShowing_, isReceivedArkDrag_);
+    CHECK_NULL_VOID(delegate_);
+    isFocus_ = false;
+
+    if (isReceivedArkDrag_) {
+        return;
+    }
+    if (!selectPopupMenuShowing_) {
+        delegate_->SetBlurReason(static_cast<OHOS::NWeb::BlurReason>(blurReason));
+        delegate_->OnBlur();
+    }
+    OnQuickMenuDismissed();
+    CloseContextSelectionMenu();
+    if (!isVisible_ && isActive_ && IsDialogNested()) {
+        TAG_LOGI(AceLogTag::ACE_WEB, "HandleBlurEvent, dialog nested blur but invisible while active, set inactive.");
+        OnInActive();
+    }
+    HideMagnifier();
+}
+
+bool WebPattern::HandleKeyEvent(const KeyEvent& keyEvent)
+{
+    bool ret = false;
+
+    auto host = GetHost();
+    CHECK_NULL_RETURN(host, ret);
+    auto eventHub = host->GetEventHub<WebEventHub>();
+    CHECK_NULL_RETURN(eventHub, ret);
+
+    KeyEventInfo info(keyEvent);
+    auto keyEventCallback = eventHub->GetOnKeyEvent();
+    if (keyEventCallback) {
+        keyEventCallback(info);
+    }
+
+    auto preKeyEventCallback = eventHub->GetOnPreKeyEvent();
+    if (preKeyEventCallback) {
+        ret = preKeyEventCallback(info);
+        if (ret) {
+            return ret;
+        }
+    }
+
+    ret = WebOnKeyEvent(keyEvent);
+    return ret;
+}
+
+void WebPattern::ClearKeyEventByKeyCode(int32_t keyCode)
+{
+    auto keyEvent = webKeyEvent_.begin();
+    for (; keyEvent != webKeyEvent_.end();) {
+        if (static_cast<int32_t>(keyEvent->code) == keyCode) {
+            keyEvent = webKeyEvent_.erase(keyEvent);
+        } else {
+            ++keyEvent;
+        }
+    }
+
+    if (webKeyEvent_.size() >= KEYEVENT_MAX_NUM) {
+        webKeyEvent_.clear();
+        TAG_LOGW(AceLogTag::ACE_WEB,
+            "WebPattern::ClearKeyEventByKeyCode clear all keyevent.");
+    } else {
+        TAG_LOGW(AceLogTag::ACE_WEB,
+            "WebPattern::ClearKeyEventByKeyCode clear all tab keyevent.");
+    }
+}
+
+bool WebPattern::WebOnKeyEvent(const KeyEvent& keyEvent)
+{
+    CHECK_NULL_RETURN(delegate_, false);
+    if (webKeyEvent_.size() >= KEYEVENT_MAX_NUM) {
+        ClearKeyEventByKeyCode(static_cast<int32_t>(KeyCode::KEY_TAB));
+    }
+    TAG_LOGD(AceLogTag::ACE_WEB,
+        "WebPattern::WebOnKeyEvent keyEvent:%{public}s", keyEvent.ToString().c_str());
+    webKeyEvent_.push_back(keyEvent);
+    std::vector<int32_t> pressedCodes;
+    for (auto pCode : keyEvent.pressedCodes) {
+        pressedCodes.push_back(static_cast<int32_t>(pCode));
+    }
+    return delegate_->WebOnKeyEvent(static_cast<int32_t>(keyEvent.code),
+        static_cast<int32_t>(keyEvent.action), pressedCodes);
+}
+
+void WebPattern::KeyboardReDispatch(
+    const std::shared_ptr<OHOS::NWeb::NWebKeyEvent>& event, bool isUsed)
+{
+    CHECK_NULL_VOID(event);
+    auto container = Container::Current();
+    CHECK_NULL_VOID(container);
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto pipelineContext = host->GetContext();
+    CHECK_NULL_VOID(pipelineContext);
+    auto taskExecutor = pipelineContext->GetTaskExecutor();
+    CHECK_NULL_VOID(taskExecutor);
+    auto keyEvent = webKeyEvent_.rbegin();
+    for (; keyEvent != webKeyEvent_.rend(); ++keyEvent) {
+        if (static_cast<int32_t>(keyEvent->code) == event->GetKeyCode() &&
+            static_cast<int32_t>(keyEvent->action) == event->GetAction()) {
+            break;
+        }
+    }
+    if (keyEvent == webKeyEvent_.rend()) {
+        TAG_LOGW(AceLogTag::ACE_WEB,
+            "KeyEvent is not find keycode:%{public}d, action:%{public}d", event->GetKeyCode(), event->GetAction());
+        return;
+    }
+    if (!isUsed) {
+        taskExecutor->PostTask([context = AceType::WeakClaim(pipelineContext),
+            event = *keyEvent] () {
+            auto pipelineContext = context.Upgrade();
+            CHECK_NULL_VOID(pipelineContext);
+            TAG_LOGD(AceLogTag::ACE_WEB,
+                "WebPattern::KeyboardReDispatch key:%{public}s", event.ToString().c_str());
+            pipelineContext->ReDispatch(const_cast<KeyEvent&>(event));
+            },
+            TaskExecutor::TaskType::UI, "ArkUIWebKeyboardReDispatch");
+    }
+    TAG_LOGD(AceLogTag::ACE_WEB,
+        "WebPattern::KeyboardReDispatch erase key:%{public}s", keyEvent->ToString().c_str());
+    webKeyEvent_.erase((++keyEvent).base());
+}
+
+void WebPattern::WebRequestFocus()
+{
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto eventHub = host->GetEventHub<WebEventHub>();
+    CHECK_NULL_VOID(eventHub);
+    auto focusHub = eventHub->GetOrCreateFocusHub();
+    CHECK_NULL_VOID(focusHub);
+
+    focusHub->RequestFocusImmediately();
+}
+
+void WebPattern::UpdateContentOffset(const RefPtr<LayoutWrapper>& dirty)
+{
+    CHECK_NULL_VOID(dirty);
+    auto geometryNode = dirty->GetGeometryNode();
+    CHECK_NULL_VOID(geometryNode);
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto renderContext = host->GetRenderContext();
+    CHECK_NULL_VOID(renderContext);
+    auto paddingOffset = geometryNode->GetPaddingOffset();
+    auto webContentSize = geometryNode->GetContentSize();
+
+    auto positionProperty = renderContext->GetPropertyOfPosition();
+    renderContext->SetBounds(
+        paddingOffset.GetX() +  positionProperty.GetX(), paddingOffset.GetY() + positionProperty.GetY(),
+        webContentSize.Width(), webContentSize.Height());
+}
+
+bool WebPattern::OnDirtyLayoutWrapperSwap(const RefPtr<LayoutWrapper>& dirty, const DirtySwapConfig& config)
+{
+    if (!config.contentSizeChange || isInWindowDrag_) {
+        if (isLayoutModeChanged) {
+            isLayoutModeChanged = false;
+        } else {
+            return false;
+        }
+    }
+    CHECK_NULL_RETURN(delegate_, false);
+    CHECK_NULL_RETURN(dirty, false);
+
+    Size drawSize = Size(1, 1);
+    auto frameNode = GetHost();
+    CHECK_NULL_RETURN(frameNode, false);
+    auto renderContext = frameNode->GetRenderContext();
+    CHECK_NULL_RETURN(renderContext, false);
+    auto rect = renderContext->GetPaintRectWithoutTransform();
+    drawSize = Size(rect.Width(), rect.Height());
+    if (drawSize.IsInfinite() || drawSize.IsEmpty()) {
+        return false;
+    }
+
+    if (GreatOrEqual(drawSize.Width(), Infinity<double>())) {
+        drawSize.SetWidth(DEFAULT_WEB_WIDTH);
+    }
+    if (GreatOrEqual(drawSize.Height(), Infinity<double>())) {
+        drawSize.SetHeight(DEFAULT_WEB_HEIGHT);
+    }
+
+    drawSize_ = drawSize;
+    drawSizeCache_ = drawSize_;
+    auto offset = Offset(GetCoordinatePoint()->GetX(), GetCoordinatePoint()->GetY());
+    if (!CheckSafeAreaIsExpand()) {
+        TAG_LOGI(AceLogTag::ACE_WEB, "Not safe area, drawsize_ : %{public}s, web id : %{public}d",
+            drawSize_.ToString().c_str(), GetWebId());
+        ACE_SCOPED_TRACE("WebPattern::OnDirtyLayoutWrapperSwap, drawsize_ : %s,  web id : %d",
+            drawSize_.ToString().c_str(), GetWebId());
+        if (isVirtualKeyBoardShow_ == VkState::VK_SHOW) {
+            auto pipeline = PipelineContext::GetCurrentContext();
+            CHECK_NULL_RETURN(pipeline, false);
+            ProcessVirtualKeyBoard(pipeline->GetRootWidth(), pipeline->GetRootHeight(), lastKeyboardHeight_);
+        }
+        delegate_->SetBoundsOrResize(drawSize_, offset, isKeyboardInSafeArea_);
+        IsNeedResizeVisibleViewport();
+        isKeyboardInSafeArea_ = false;
+    } else {
+        TAG_LOGD(AceLogTag::ACE_WEB, "OnDirtyLayoutWrapperSwap safeArea is set, no need setbounds");
+    }
+    if (offlineWebInited_ && !offlineWebRendered_) {
+        TAG_LOGI(AceLogTag::ACE_WEB,
+            "OnDirtyLayoutWrapperSwap; WebPattern is Offline Mode, WebId:%{public}d", GetWebId());
+        offlineWebRendered_ = true;
+        delegate_->ShowWebView();
+    }
+
+    // first update size to load url.
+    if (!isUrlLoaded_) {
+        isUrlLoaded_ = true;
+        if (webSrc_) {
+            delegate_->LoadUrl();
+        } else if (webData_) {
+            delegate_->LoadDataWithRichText();
+        }
+    }
+    return false;
+}
+
+void WebPattern::BeforeSyncGeometryProperties(const DirtySwapConfig& config)
+{
+    auto frameNode = GetHost();
+    CHECK_NULL_VOID(frameNode);
+    auto renderContext = frameNode->GetRenderContext();
+    CHECK_NULL_VOID(renderContext);
+    auto rect = renderContext->GetPaintRectWithoutTransform();
+    auto heightBeforeUpdate = rect.Height();
+    if (isResizeContentAvoid_ && frameNode->SelfExpansive()) {
+        rect.SetHeight(heightAfterAvoid_);
+        renderContext->UpdatePaintRect(rect);
+        rect.SetHeight(heightBeforeUpdate);
+    }
+    
+    if (!config.contentSizeChange || isInWindowDrag_) {
+        return;
+    }
+    auto drawSize = Size(rect.Width(), rect.Height());
+    if (drawSize.IsInfinite() || drawSize.IsEmpty()) {
+        return;
+    }
+
+    if (GreatOrEqual(drawSize.Width(), Infinity<double>())) {
+        drawSize.SetWidth(DEFAULT_WEB_WIDTH);
+    }
+    if (GreatOrEqual(drawSize.Height(), Infinity<double>())) {
+        drawSize.SetHeight(DEFAULT_WEB_HEIGHT);
+    }
+
+    TAG_LOGD(AceLogTag::ACE_WEB, "BeforeSync, drawsize_ : %{public}s", drawSize.ToString().c_str());
+    if (layoutMode_ != WebLayoutMode::FIT_CONTENT) {
+        drawSize_ = drawSize;
+        drawSizeCache_ = drawSize_;
+    }
+}
+
+void WebPattern::UpdateLayoutAfterKeyboardShow(int32_t width, int32_t height, double keyboard, double oldWebHeight)
+{
+    lastKeyboardHeight_ = keyboard;
+    if (isVirtualKeyBoardShow_ != VkState::VK_SHOW) {
+        return;
+    }
+
+    TAG_LOGI(AceLogTag::ACE_WEB,
+        "KeyboardShow height:%{public}d, keyboard:%{public}f, offset:%{public}f, oldWebHeight:%{public}f",
+        height, keyboard, GetCoordinatePoint()->GetY(), oldWebHeight);
+    if (CheckSafeAreaKeyBoard()) {
+        TAG_LOGI(AceLogTag::ACE_WEB, "CheckSafeAreaKeyBoard, no need resize");
+        return;
+    }
+    if (GreatOrEqual(height, keyboard + GetCoordinatePoint()->GetY())) {
+        double newHeight = height - keyboard - GetCoordinatePoint()->GetY();
+        if (NearEqual(newHeight, oldWebHeight)) {
+            return;
+        }
+        bool isUpdate = true;
+        if (keyBoardAvoidMode_ == WebKeyboardAvoidMode::RESIZE_VISUAL) {
+            visibleViewportSize_.SetWidth(drawSize_.Width());
+            visibleViewportSize_.SetHeight(newHeight);
+            isUpdate = false;
+        } else if (keyBoardAvoidMode_ == WebKeyboardAvoidMode::OVERLAYS_CONTENT) {
+            return;
+        } else {
+            TAG_LOGI(AceLogTag::ACE_WEB, "KeyboardShow newHeight: %{public}f", newHeight);
+            drawSize_.SetHeight(newHeight);
+            visibleViewportSize_.SetWidth(-1.0);
+            visibleViewportSize_.SetHeight(-1.0);
+            isResizeContentAvoid_ = true;
+            heightAfterAvoid_ = newHeight;
+        }
+        UpdateWebLayoutSize(width, height, true, isUpdate);
+    }
+}
+
+void WebPattern::OnAreaChangedInner()
+{
+    auto offset = GetCoordinatePoint().value_or(OffsetF());
+    auto resizeOffset = Offset(offset.GetX(), offset.GetY());
+
+    auto frameNode = GetHost();
+    CHECK_NULL_VOID(frameNode);
+    auto renderContext = frameNode->GetRenderContext();
+    CHECK_NULL_VOID(renderContext);
+    auto geometryNode = frameNode->GetGeometryNode();
+    CHECK_NULL_VOID(geometryNode);
+    auto rect = renderContext->GetPaintRectWithoutTransform();
+    auto size = Size(rect.Width(), rect.Height());
+    delegate_->OnAreaChange({ resizeOffset.GetX(), resizeOffset.GetY(), size.Width(), size.Height() });
+    if (CheckSafeAreaIsExpand() &&
+        ((size.Width() != areaChangeSize_.Width()) || (size.Height() != areaChangeSize_.Height()))) {
+        TAG_LOGD(AceLogTag::ACE_WEB, "OnAreaChangedInner setbounds: height:%{public}f, offsetY:%{public}f",
+            size.Height(), resizeOffset.GetY());
+        areaChangeSize_ = size;
+        drawSize_ = size;
+        drawSizeCache_ = drawSize_;
+        TAG_LOGD(AceLogTag::ACE_WEB, "Safe area, drawsize_ : %{public}s", drawSize_.ToString().c_str());
+        delegate_->SetBoundsOrResize(drawSize_, resizeOffset, isKeyboardInSafeArea_);
+        IsNeedResizeVisibleViewport();
+        isKeyboardInSafeArea_ = false;
+    }
+    if (layoutMode_ == WebLayoutMode::NONE && renderMode_ == RenderMode::ASYNC_RENDER) {
+        drawSize_ = size;
+        if (webOffset_ == offset) {
+            return;
+        }
+    }
+    if (offset != webOffset_) {
+        webOffset_ = offset;
+        UpdateTouchHandleForOverlay();
+    }
+    if (isInWindowDrag_)
+        return;
+    TAG_LOGD(AceLogTag::ACE_WEB, "Normal state, drawsize_ : %{public}s", drawSize_.ToString().c_str());
+    delegate_->SetBoundsOrResize(drawSize_, resizeOffset, isKeyboardInSafeArea_);
+    IsNeedResizeVisibleViewport();
+    isKeyboardInSafeArea_ = false;
+    if (renderMode_ == RenderMode::SYNC_RENDER) {
+        UpdateSlideOffset();
+    }
+}
+
+void WebPattern::OnWebSrcUpdate()
+{
+    if (delegate_ && isUrlLoaded_) {
+        delegate_->LoadUrl();
+    }
+}
+
+void WebPattern::OnWebDataUpdate()
+{
+    if (delegate_ && isUrlLoaded_) {
+        delegate_->LoadDataWithRichText();
+    }
+}
+
+void WebPattern::OnJsEnabledUpdate(bool value)
+{
+    if (delegate_) {
+        delegate_->UpdateJavaScriptEnabled(value);
+    }
+}
+
+void WebPattern::OnMediaPlayGestureAccessUpdate(bool value)
+{
+    if (delegate_) {
+        delegate_->UpdateMediaPlayGestureAccess(value);
+    }
+}
+
+void WebPattern::OnFileAccessEnabledUpdate(bool value)
+{
+    if (delegate_) {
+        delegate_->UpdateAllowFileAccess(value);
+    }
+}
+
+void WebPattern::OnOnLineImageAccessEnabledUpdate(bool value)
+{
+    if (delegate_) {
+        delegate_->UpdateBlockNetworkImage(!value);
+    }
+}
+
+void WebPattern::OnDomStorageAccessEnabledUpdate(bool value)
+{
+    if (delegate_) {
+        delegate_->UpdateDomStorageEnabled(value);
+    }
+}
+
+void WebPattern::OnImageAccessEnabledUpdate(bool value)
+{
+    if (delegate_) {
+        delegate_->UpdateLoadsImagesAutomatically(value);
+    }
+}
+
+void WebPattern::OnMixedModeUpdate(MixedModeContent value)
+{
+    if (delegate_) {
+        delegate_->UpdateMixedContentMode(value);
+    }
+}
+
+void WebPattern::OnZoomAccessEnabledUpdate(bool value)
+{
+    if ((layoutMode_ == WebLayoutMode::FIT_CONTENT) || isEmbedModeEnabled_) {
+        TAG_LOGI(
+            AceLogTag::ACE_WEB, "When layoutMode is fit-content or EmbedMode is on, Not allow to update zoom access.");
+        return;
+    }
+    if (delegate_) {
+        delegate_->UpdateSupportZoom(value);
+    }
+}
+
+void WebPattern::OnGeolocationAccessEnabledUpdate(bool value)
+{
+    if (delegate_) {
+        delegate_->UpdateGeolocationEnabled(value);
+    }
+}
+
+void WebPattern::OnUserAgentUpdate(const std::string& value)
+{
+    if (delegate_) {
+        delegate_->UpdateUserAgent(value);
+    }
+}
+
+void WebPattern::OnCacheModeUpdate(WebCacheMode value)
+{
+    if (delegate_) {
+        delegate_->UpdateCacheMode(value);
+    }
+}
+
+void WebPattern::OnDarkModeUpdate(WebDarkMode mode)
+{
+    if (delegate_) {
+        delegate_->UpdateDarkMode(mode);
+    }
+}
+
+void WebPattern::OnOverScrollModeUpdate(int mode)
+{
+    if (delegate_) {
+        delegate_->UpdateOverScrollMode(mode);
+    }
+}
+
+void WebPattern::OnCopyOptionModeUpdate(int32_t mode)
+{
+    if (delegate_) {
+        delegate_->UpdateCopyOptionMode(mode);
+    }
+}
+
+void WebPattern::OnMetaViewportUpdate(bool value)
+{
+    if (delegate_) {
+        delegate_->UpdateMetaViewport(value);
+    }
+}
+
+void WebPattern::OnForceDarkAccessUpdate(bool access)
+{
+    if (delegate_) {
+        delegate_->UpdateForceDarkAccess(access);
+    }
+}
+
+void WebPattern::OnAudioResumeIntervalUpdate(int32_t resumeInterval)
+{
+    if (delegate_) {
+        delegate_->UpdateAudioResumeInterval(resumeInterval);
+    }
+}
+
+void WebPattern::OnAudioExclusiveUpdate(bool audioExclusive)
+{
+    if (delegate_) {
+        delegate_->UpdateAudioExclusive(audioExclusive);
+    }
+}
+
+void WebPattern::OnOverviewModeAccessEnabledUpdate(bool value)
+{
+    if (delegate_) {
+        delegate_->UpdateOverviewModeEnabled(value);
+    }
+}
+
+void WebPattern::OnFileFromUrlAccessEnabledUpdate(bool value)
+{
+    if (delegate_) {
+        delegate_->UpdateFileFromUrlEnabled(value);
+    }
+}
+
+void WebPattern::OnDatabaseAccessEnabledUpdate(bool value)
+{
+    if (delegate_) {
+        delegate_->UpdateDatabaseEnabled(value);
+    }
+}
+
+void WebPattern::OnTextZoomRatioUpdate(int32_t value)
+{
+    if (delegate_) {
+        delegate_->UpdateTextZoomRatio(value);
+    }
+}
+
+void WebPattern::OnWebDebuggingAccessEnabledUpdate(bool value)
+{
+    if (delegate_) {
+        delegate_->UpdateWebDebuggingAccess(value);
+    }
+}
+
+void WebPattern::OnPinchSmoothModeEnabledUpdate(bool value)
+{
+    if (delegate_) {
+        delegate_->UpdatePinchSmoothModeEnabled(value);
+    }
+}
+
+void WebPattern::OnBackgroundColorUpdate(int32_t value)
+{
+    UpdateBackgroundColorRightNow(value);
+    if (delegate_) {
+        delegate_->UpdateBackgroundColor(value);
+    }
+}
+
+void WebPattern::OnInitialScaleUpdate(float value)
+{
+    if ((layoutMode_ == WebLayoutMode::FIT_CONTENT) || isEmbedModeEnabled_) {
+        TAG_LOGI(AceLogTag::ACE_WEB, "When layoutMode is fit-content or EmbedMode is on, Not allow to update scale.");
+        return;
+    }
+    if (delegate_) {
+        delegate_->UpdateInitialScale(value);
+    }
+}
+
+void WebPattern::OnMultiWindowAccessEnabledUpdate(bool value)
+{
+    if (delegate_) {
+        delegate_->UpdateMultiWindowAccess(value);
+    }
+}
+
+void WebPattern::OnAllowWindowOpenMethodUpdate(bool value)
+{
+    if (delegate_) {
+        delegate_->UpdateAllowWindowOpenMethod(value);
+    }
+}
+
+void WebPattern::OnWebCursiveFontUpdate(const std::string& value)
+{
+    if (delegate_) {
+        delegate_->UpdateWebCursiveFont(value);
+    }
+}
+
+void WebPattern::OnWebFantasyFontUpdate(const std::string& value)
+{
+    if (delegate_) {
+        delegate_->UpdateWebFantasyFont(value);
+    }
+}
+
+void WebPattern::OnWebFixedFontUpdate(const std::string& value)
+{
+    if (delegate_) {
+        delegate_->UpdateWebFixedFont(value);
+    }
+}
+
+void WebPattern::OnWebSansSerifFontUpdate(const std::string& value)
+{
+    if (delegate_) {
+        delegate_->UpdateWebSansSerifFont(value);
+    }
+}
+
+void WebPattern::OnWebSerifFontUpdate(const std::string& value)
+{
+    if (delegate_) {
+        delegate_->UpdateWebSerifFont(value);
+    }
+}
+
+void WebPattern::OnWebStandardFontUpdate(const std::string& value)
+{
+    if (delegate_) {
+        delegate_->UpdateWebStandardFont(value);
+    }
+}
+
+void WebPattern::OnDefaultFixedFontSizeUpdate(int32_t value)
+{
+    if (delegate_) {
+        delegate_->UpdateDefaultFixedFontSize(value);
+    }
+}
+
+void WebPattern::OnDefaultFontSizeUpdate(int32_t value)
+{
+    if (delegate_) {
+        delegate_->UpdateDefaultFontSize(value);
+    }
+}
+
+void WebPattern::OnMinFontSizeUpdate(int32_t value)
+{
+    if (delegate_) {
+        delegate_->UpdateMinFontSize(value);
+    }
+}
+
+void WebPattern::OnMinLogicalFontSizeUpdate(int32_t value)
+{
+    if (delegate_) {
+        delegate_->UpdateMinLogicalFontSize(value);
+    }
+}
+
+void WebPattern::OnBlockNetworkUpdate(bool value)
+{
+    if (delegate_) {
+        delegate_->UpdateBlockNetwork(value);
+    }
+}
+
+void WebPattern::OnHorizontalScrollBarAccessEnabledUpdate(bool value)
+{
+    if (delegate_) {
+        delegate_->UpdateHorizontalScrollBarAccess(value);
+    }
+}
+
+void WebPattern::OnVerticalScrollBarAccessEnabledUpdate(bool value)
+{
+    if (delegate_) {
+        delegate_->UpdateVerticalScrollBarAccess(value);
+    }
+}
+
+void WebPattern::OnOverlayScrollbarEnabledUpdate(bool enable)
+{
+    if (delegate_) {
+        delegate_->UpdateOverlayScrollbarEnabled(enable);
+    }
+}
+
+void WebPattern::OnNativeEmbedModeEnabledUpdate(bool value)
+{
+    if (delegate_) {
+        delegate_->UpdateNativeEmbedModeEnabled(value);
+    }
+}
+
+void WebPattern::OnNativeEmbedRuleTagUpdate(const std::string& tag)
+{
+    if (delegate_) {
+        delegate_->UpdateNativeEmbedRuleTag(tag);
+    }
+}
+
+void WebPattern::OnNativeEmbedRuleTypeUpdate(const std::string& type)
+{
+    if (delegate_) {
+        delegate_->UpdateNativeEmbedRuleType(type);
+    }
+}
+
+void WebPattern::OnTextAutosizingUpdate(bool isTextAutosizing)
+{
+    if (delegate_) {
+        delegate_->UpdateTextAutosizing(isTextAutosizing);
+    }
+}
+
+void WebPattern::OnKeyboardAvoidModeUpdate(const WebKeyboardAvoidMode& mode)
+{
+    keyBoardAvoidMode_ = mode;
+}
+
+void WebPattern::OnEnabledHapticFeedbackUpdate(bool enable)
+{
+    isEnabledHapticFeedback_ = enable;
+}
+
+bool WebPattern::IsRootNeedExportTexture()
+{
+    auto host = GetHost();
+    CHECK_NULL_RETURN(host, false);
+    bool isNeedExportTexture = false;
+    for (auto parent = host->GetParent(); parent != nullptr; parent = parent->GetParent()) {
+        RefPtr<FrameNode> frameNode = AceType::DynamicCast<FrameNode>(parent);
+        if (!frameNode) {
+            continue;
+        }
+        isNeedExportTexture = frameNode->IsNeedExportTexture();
+        if (isNeedExportTexture) {
+            return isNeedExportTexture;
+        }
+    }
+    return isNeedExportTexture;
+}
+
+void WebPattern::OnAttachContext(PipelineContext *context)
+{
+    nodeAttach_ = true;
+    auto pipelineContext = Claim(context);
+    int32_t newId = pipelineContext->GetInstanceId();
+    instanceId_ = newId;
+    if (delegate_) {
+        delegate_->OnAttachContext(pipelineContext);
+    }
+
+    if (observer_) {
+        observer_->OnAttachContext(pipelineContext);
+    }
+
+    if (updateInstanceIdCallback_) {
+        updateInstanceIdCallback_(newId);
+    }
+
+    if (renderSurface_) {
+        renderSurface_->SetInstanceId(newId);
+    }
+
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    int32_t nodeId = host->GetId();
+    auto dragDropManager = pipelineContext->GetDragDropManager();
+    if (dragDropManager) {
+        dragDropManager->AddDragFrameNode(host->GetId(), AceType::WeakClaim(AceType::RawPtr(host)));
+    }
+
+    pipelineContext->AddWindowStateChangedCallback(nodeId);
+    pipelineContext->AddWindowSizeChangeCallback(nodeId);
+    pipelineContext->AddOnAreaChangeNode(nodeId);
+    RegisterVisibleAreaChangeCallback(pipelineContext);
+    needUpdateWeb_= true;
+    RegistVirtualKeyBoardListener(pipelineContext);
+    InitConfigChangeCallback(pipelineContext);
+    InitializeAccessibility();
+}
+
+void WebPattern::OnDetachContext(PipelineContext *contextPtr)
+{
+    nodeAttach_ = false;
+    auto context = AceType::Claim(contextPtr);
+    CHECK_NULL_VOID(context);
+
+    auto host = GetHost();
+    int32_t nodeId = host->GetId();
+    UninitializeAccessibility();
+    context->RemoveWindowStateChangedCallback(nodeId);
+    context->RemoveWindowSizeChangeCallback(nodeId);
+    context->RemoveOnAreaChangeNode(nodeId);
+    context->RemoveVisibleAreaChangeNode(nodeId);
+    context->RemoveVirtualKeyBoardCallback(nodeId);
+    context->RemoveConfigChangedCallback(nodeId);
+
+    if (delegate_) {
+        delegate_->OnDetachContext();
+    }
+
+    if (observer_) {
+        observer_->OnDetachContext();
+    }
+
+    auto dragDropManager = context->GetDragDropManager();
+    if (dragDropManager) {
+        dragDropManager->RemoveDragFrameNode(nodeId);
+    }
+
+    scrollableParentInfo_.hasParent = true;
+    scrollableParentInfo_.parentIds.clear();
+    if (selectOverlayProxy_) {
+        StopListenSelectOverlayParentScroll(host);
+        auto selectOverlayManager = context->GetSelectOverlayManager();
+        if (selectOverlayManager) {
+            selectOverlayManager->DestroySelectOverlay(selectOverlayProxy_);
+        }
+        selectOverlayProxy_ = nullptr;
+    }
+
+    if (tooltipId_ != -1) {
+        auto overlayManager = context->GetOverlayManager();
+        if (overlayManager) {
+            overlayManager->RemoveIndexerPopupById(tooltipId_);
+        }
+        tooltipId_ = -1;
+    }
+}
+
+void WebPattern::SetUpdateInstanceIdCallback(std::function<void(int32_t)>&& callback)
+{
+    updateInstanceIdCallback_ = callback;
+}
+
+void WebPattern::OnScrollBarColorUpdate(const std::string& value)
+{
+    if (delegate_) {
+        delegate_->UpdateScrollBarColor(value);
+    }
+}
+
+void WebPattern::OnDefaultTextEncodingFormatUpdate(const std::string& value)
+{
+    if (delegate_) {
+        delegate_->UpdateDefaultTextEncodingFormat(value);
+    }
+}
+
+void WebPattern::OnNativeVideoPlayerConfigUpdate(const std::tuple<bool, bool>& config)
+{
+    if (delegate_) {
+        delegate_->UpdateNativeVideoPlayerConfig(
+            std::get<0>(config), std::get<1>(config));
+    }
+}
+
+void WebPattern::RegistVirtualKeyBoardListener(const RefPtr<PipelineContext> &pipelineContext)
+{
+    if (!needUpdateWeb_) {
+        return;
+    }
+    pipelineContext->SetVirtualKeyBoardCallback(GetHost()->GetId(),
+        [weak = AceType::WeakClaim(this)](int32_t width, int32_t height, double keyboard) {
+            auto webPattern = weak.Upgrade();
+            CHECK_NULL_RETURN(webPattern, false);
+            return webPattern->ProcessVirtualKeyBoard(width, height, keyboard);
+        });
+    needUpdateWeb_ = false;
+}
+
+void WebPattern::InitEnhanceSurfaceFlag()
+{
+    if (SystemProperties::GetExtSurfaceEnabled()) {
+        isEnhanceSurface_ = true;
+    } else {
+        isEnhanceSurface_ = false;
+    }
+}
+
+void WebPattern::OnColorConfigurationUpdate()
+{
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    if (magnifierController_) {
+        magnifierController_->SetColorModeChange(true);
+        host->MarkDirtyNode(PROPERTY_UPDATE_RENDER);
+    }
+}
+
+void WebPattern::OnModifyDone()
+{
+    Pattern::OnModifyDone();
+    // called in each update function.
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto renderContext = host->GetRenderContext();
+    CHECK_NULL_VOID(renderContext);
+    renderContext->SetHandleChildBounds(true);
+    if (!delegate_) {
+        // first create case,
+        delegate_ = AceType::MakeRefPtr<WebDelegate>(PipelineContext::GetCurrentContext(), nullptr, "",
+            Container::CurrentId());
+        instanceId_ = Container::CurrentId();
+        CHECK_NULL_VOID(delegate_);
+        observer_ = AceType::MakeRefPtr<WebDelegateObserver>(delegate_, PipelineContext::GetCurrentContext());
+        CHECK_NULL_VOID(observer_);
+        delegate_->SetObserver(observer_);
+        delegate_->SetRenderMode(renderMode_);
+        delegate_->SetFitContentMode(layoutMode_);
+        InitEnhanceSurfaceFlag();
+        delegate_->SetNGWebPattern(Claim(this));
+        delegate_->SetEnhanceSurfaceFlag(isEnhanceSurface_);
+        delegate_->SetPopup(isPopup_);
+        delegate_->SetParentNWebId(parentNWebId_);
+        delegate_->SetBackgroundColor(GetBackgroundColorValue(
+            static_cast<int32_t>(renderContext->GetBackgroundColor().value_or(Color::WHITE).GetValue())));
+        if (isEnhanceSurface_) {
+            auto drawSize = Size(1, 1);
+            delegate_->SetDrawSize(drawSize);
+            delegate_->InitOHOSWeb(PipelineContext::GetCurrentContext());
+        } else {
+            auto drawSize = Size(1, 1);
+            delegate_->SetDrawSize(drawSize);
+            int32_t instanceId = Container::CurrentId();
+            CHECK_NULL_VOID(renderSurface_);
+            CHECK_NULL_VOID(popupRenderSurface_);
+            CHECK_NULL_VOID(renderContextForSurface_);
+            CHECK_NULL_VOID(renderContextForPopupSurface_);
+            renderSurface_->SetInstanceId(instanceId);
+            popupRenderSurface_->SetInstanceId(instanceId);
+            renderSurface_->SetRenderContext(host->GetRenderContext());
+            if (renderMode_ == RenderMode::SYNC_RENDER) {
+                renderSurface_->SetIsTexture(true);
+                renderSurface_->SetPatternType(PATTERN_TYPE_WEB);
+                renderSurface_->SetSurfaceQueueSize(SYNC_SURFACE_QUEUE_SIZE);
+            } else {
+                renderSurface_->SetIsTexture(false);
+                renderSurface_->SetSurfaceQueueSize(GetBufferSizeByDeviceType());
+                renderSurface_->SetRenderContext(renderContextForSurface_);
+            }
+            popupRenderSurface_->SetIsTexture(false);
+            popupRenderSurface_->SetSurfaceQueueSize(GetBufferSizeByDeviceType());
+            popupRenderSurface_->SetRenderContext(renderContextForPopupSurface_);
+            renderContext->AddChild(renderContextForSurface_, 0);
+            renderContext->AddChild(renderContextForPopupSurface_, 1);
+            popupRenderSurface_->InitSurface();
+            popupRenderSurface_->SetTransformHint(rotation_);
+            popupRenderSurface_->UpdateSurfaceConfig();
+            renderSurface_->InitSurface();
+            renderSurface_->SetTransformHint(rotation_);
+            TAG_LOGD(AceLogTag::ACE_WEB, "OnModify done, set rotation %{public}u", rotation_);
+            renderSurface_->UpdateSurfaceConfig();
+            delegate_->InitOHOSWeb(PipelineContext::GetCurrentContext(), renderSurface_);
+#if defined(ENABLE_ROSEN_BACKEND)
+            delegate_->SetPopupSurface(popupRenderSurface_);
+#endif
+            if (renderMode_ == RenderMode::ASYNC_RENDER) {
+                std::string surfaceId = renderSurface_->GetUniqueId();
+                delegate_->SetSurfaceId(surfaceId);
+                TAG_LOGD(AceLogTag::ACE_WEB, "[getSurfaceId] set surfaceId is %{public}s", surfaceId.c_str());
+            }
+        }
+        UpdateJavaScriptOnDocumentStart();
+        UpdateJavaScriptOnDocumentEnd();
+        bool isApiGteTwelve =
+            AceApplicationInfo::GetInstance().GreatOrEqualTargetAPIVersion(PlatformVersion::VERSION_TWELVE);
+        delegate_->UpdateBackgroundColor(GetBackgroundColorValue(
+            static_cast<int32_t>(renderContext->GetBackgroundColor().value_or(Color::WHITE).GetValue())));
+        delegate_->UpdateJavaScriptEnabled(GetJsEnabledValue(true));
+        delegate_->UpdateBlockNetworkImage(!GetOnLineImageAccessEnabledValue(true));
+        delegate_->UpdateLoadsImagesAutomatically(GetImageAccessEnabledValue(true));
+        delegate_->UpdateMixedContentMode(GetMixedModeValue(MixedModeContent::MIXED_CONTENT_NEVER_ALLOW));
+        isEmbedModeEnabled_ = GetNativeEmbedModeEnabledValue(false);
+        if ((layoutMode_ == WebLayoutMode::FIT_CONTENT) || isEmbedModeEnabled_) {
+            delegate_->UpdateSupportZoom(false);
+        } else {
+            delegate_->UpdateSupportZoom(GetZoomAccessEnabledValue(true));
+        }
+        delegate_->UpdateDomStorageEnabled(GetDomStorageAccessEnabledValue(false));
+        delegate_->UpdateGeolocationEnabled(GetGeolocationAccessEnabledValue(true));
+        delegate_->UpdateCacheMode(GetCacheModeValue(WebCacheMode::DEFAULT));
+        if (webData_) {
+            // Created a richtext component
+            delegate_->SetRichtextIdentifier(webData_);
+            delegate_->UpdateDarkMode(GetDarkModeValue(WebDarkMode::Auto));
+            delegate_->UpdateForceDarkAccess(GetForceDarkAccessValue(true));
+            delegate_->UpdateOverviewModeEnabled(GetOverviewModeAccessEnabledValue(false));
+        } else {
+            delegate_->UpdateDarkMode(GetDarkModeValue(WebDarkMode::Off));
+            delegate_->UpdateForceDarkAccess(GetForceDarkAccessValue(false));
+            delegate_->UpdateOverviewModeEnabled(GetOverviewModeAccessEnabledValue(true));
+        }
+        delegate_->UpdateAudioResumeInterval(GetAudioResumeIntervalValue(-1));
+        delegate_->UpdateAudioExclusive(GetAudioExclusiveValue(true));
+        delegate_->UpdateFileFromUrlEnabled(GetFileFromUrlAccessEnabledValue(false));
+        delegate_->UpdateDatabaseEnabled(GetDatabaseAccessEnabledValue(false));
+        delegate_->UpdateTextZoomRatio(GetTextZoomRatioValue(DEFAULT_TEXT_ZOOM_RATIO));
+        delegate_->UpdateWebDebuggingAccess(GetWebDebuggingAccessEnabledValue(false));
+        delegate_->UpdateMediaPlayGestureAccess(GetMediaPlayGestureAccessValue(true));
+        delegate_->UpdatePinchSmoothModeEnabled(GetPinchSmoothModeEnabledValue(false));
+        delegate_->UpdateMultiWindowAccess(GetMultiWindowAccessEnabledValue(false));
+        delegate_->UpdateWebCursiveFont(GetWebCursiveFontValue(DEFAULT_CURSIVE_FONT_FAMILY));
+        delegate_->UpdateWebFantasyFont(GetWebFantasyFontValue(DEFAULT_FANTASY_FONT_FAMILY));
+        delegate_->UpdateWebFixedFont(GetWebFixedFontValue(DEFAULT_FIXED_fONT_FAMILY));
+        delegate_->UpdateWebSansSerifFont(GetWebSansSerifFontValue(DEFAULT_SANS_SERIF_FONT_FAMILY));
+        delegate_->UpdateWebSerifFont(GetWebSerifFontValue(DEFAULT_SERIF_FONT_FAMILY));
+        delegate_->UpdateWebStandardFont(GetWebStandardFontValue(DEFAULT_STANDARD_FONT_FAMILY));
+        delegate_->UpdateDefaultFixedFontSize(GetDefaultFixedFontSizeValue(DEFAULT_FIXED_FONT_SIZE));
+        delegate_->UpdateDefaultFontSize(GetDefaultFontSizeValue(DEFAULT_FONT_SIZE));
+        delegate_->UpdateDefaultTextEncodingFormat(GetDefaultTextEncodingFormatValue(DEFAULT_WEB_TEXT_ENCODING_FORMAT));
+        delegate_->UpdateMinFontSize(GetMinFontSizeValue(DEFAULT_MINIMUM_FONT_SIZE));
+        delegate_->UpdateMinLogicalFontSize(GetMinLogicalFontSizeValue(DEFAULT_MINIMUM_LOGICAL_FONT_SIZE));
+        delegate_->UpdateHorizontalScrollBarAccess(GetHorizontalScrollBarAccessEnabledValue(true));
+        delegate_->UpdateVerticalScrollBarAccess(GetVerticalScrollBarAccessEnabledValue(true));
+        delegate_->UpdateScrollBarColor(GetScrollBarColorValue(DEFAULT_SCROLLBAR_COLOR));
+        delegate_->UpdateOverlayScrollbarEnabled(GetOverlayScrollbarEnabledValue(false));
+        delegate_->UpdateOverScrollMode(GetOverScrollModeValue(OverScrollMode::NEVER));
+        delegate_->UpdateCopyOptionMode(GetCopyOptionModeValue(static_cast<int32_t>(CopyOptions::Distributed)));
+        delegate_->UpdateTextAutosizing(GetTextAutosizingValue(true));
+        delegate_->UpdateAllowFileAccess(GetFileAccessEnabledValue(isApiGteTwelve ? false : true));
+        if (GetMetaViewport()) {
+            delegate_->UpdateMetaViewport(GetMetaViewport().value());
+        }
+        if (GetBlockNetwork()) {
+            delegate_->UpdateBlockNetwork(GetBlockNetwork().value());
+        }
+        if (GetUserAgent()) {
+            delegate_->UpdateUserAgent(GetUserAgent().value());
+        }
+        if (GetInitialScale()) {
+            delegate_->UpdateInitialScale(GetInitialScale().value());
+        }
+        isAllowWindowOpenMethod_ = SystemProperties::GetAllowWindowOpenMethodEnabled();
+        delegate_->UpdateAllowWindowOpenMethod(GetAllowWindowOpenMethodValue(isAllowWindowOpenMethod_));
+        delegate_->UpdateNativeEmbedModeEnabled(GetNativeEmbedModeEnabledValue(false));
+        delegate_->UpdateNativeEmbedRuleTag(GetNativeEmbedRuleTagValue(""));
+        delegate_->UpdateNativeEmbedRuleType(GetNativeEmbedRuleTypeValue(""));
+
+        std::tuple<bool, bool> config = GetNativeVideoPlayerConfigValue({false, false});
+        delegate_->UpdateNativeVideoPlayerConfig(std::get<0>(config), std::get<1>(config));
+
+        delegate_->UpdateSmoothDragResizeEnabled(GetSmoothDragResizeEnabledValue(false));
+    }
+
+    if (!GetBackgroundColor()) {
+        UpdateBackgroundColorRightNow(GetDefaultBackgroundColor().GetValue());
+    }
+
+    // Initialize events such as keyboard, focus, etc.
+    InitEvent();
+    // Initialize web params.
+    InitFeatureParam();
+    InitializeAccessibility();
+    InitMagnifier();
+    // Initialize scrollupdate listener
+    if (renderMode_ == RenderMode::SYNC_RENDER) {
+        auto task = [weak = AceType::WeakClaim(this)]() {
+            auto webPattern = weak.Upgrade();
+            CHECK_NULL_VOID(webPattern);
+            webPattern->InitSlideUpdateListener();
+        };
+        PostTaskToUI(std::move(task), "ArkUIWebInitSlideUpdateListener");
+    }
+
+    auto embedEnabledTask = [weak = AceType::WeakClaim(this)]() {
+        auto webPattern = weak.Upgrade();
+        CHECK_NULL_VOID(webPattern);
+        if (webPattern->IsRootNeedExportTexture() && webPattern->delegate_) {
+            webPattern->delegate_->UpdateNativeEmbedModeEnabled(false);
+        }
+    };
+    PostTaskToUI(std::move(embedEnabledTask), "ArkUIWebUpdateNativeEmbedModeEnabled");
+
+    auto pipelineContext = PipelineContext::GetCurrentContext();
+    CHECK_NULL_VOID(pipelineContext);
+    if (nodeAttach_) {
+        pipelineContext->AddOnAreaChangeNode(host->GetId());
+    }
+    // offline mode
+    if (host->GetNodeStatus() != NodeStatus::NORMAL_NODE) {
+        InitInOfflineMode();
+    }
+}
+
+void WebPattern::InitInOfflineMode()
+{
+    if (offlineWebInited_) {
+        return;
+    }
+    TAG_LOGI(AceLogTag::ACE_WEB, "Web offline mode type, webId:%{public}d", GetWebId());
+    delegate_->OnRenderToBackground();
+    offlineWebInited_ = true;
+    isActive_ = false;
+    isVisible_ = false;
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    int width = 0;
+    int height = 0;
+    auto layoutProperty = host->GetLayoutProperty();
+    CHECK_NULL_VOID(layoutProperty);
+    auto& calcLayout = layoutProperty->GetCalcLayoutConstraint();
+    if (calcLayout) {
+        width = calcLayout->selfIdealSize ?
+            calcLayout->selfIdealSize->Width()->GetDimension().ConvertToPx() : 0;
+        height = calcLayout->selfIdealSize ?
+            calcLayout->selfIdealSize->Height()->GetDimension().ConvertToPx() : 0;
+    }
+    bool isUnSetSize = (width == 0) && (height == 0);
+    auto defaultDisplay = OHOS::Rosen::DisplayManager::GetInstance().GetDefaultDisplay();
+    if (isUnSetSize && defaultDisplay) {
+        width = defaultDisplay->GetWidth();
+        height = defaultDisplay->GetHeight();
+    }
+    Size drawSize = Size(width, height);
+    Offset offset = Offset(0, 0);
+    TAG_LOGD(AceLogTag::ACE_WEB, "InitInOfflineMode drawsize_ : %{public}s", drawSize_.ToString().c_str());
+    delegate_->SetBoundsOrResize(drawSize, offset);
+
+    if (!isUrlLoaded_) {
+        isUrlLoaded_ = true;
+        if (webSrc_) {
+            delegate_->LoadUrl();
+        } else if (webData_) {
+            delegate_->LoadDataWithRichText();
+        }
+    }
+    delegate_->HideWebView();
+    CloseContextSelectionMenu();
+}
+
+bool WebPattern::IsNeedResizeVisibleViewport()
+{
+    if (visibleViewportSize_.Width() < 0 || visibleViewportSize_.Height() < 0 ||
+        isVirtualKeyBoardShow_ != VkState::VK_SHOW || NearZero(lastKeyboardHeight_)) {
+        return false;
+    }
+    auto context = PipelineContext::GetCurrentContext();
+    CHECK_NULL_RETURN(context, false);
+    int32_t height = context->GetRootRect().Height();
+    auto y = GetCoordinatePoint()->GetY();
+    if (GreatOrEqual(height, lastKeyboardHeight_ + y)) {
+        double newHeight = height - lastKeyboardHeight_ - y;
+        if (GreatOrEqual(newHeight, drawSize_.Height()) ||
+            NearEqual(newHeight, drawSize_.Height())) {
+            visibleViewportSize_.SetWidth(-1.0);
+            visibleViewportSize_.SetHeight(-1.0);
+        } else {
+            return false;
+        }
+    } else {
+        visibleViewportSize_.SetWidth(-1.0);
+        visibleViewportSize_.SetHeight(-1.0);
+    }
+    delegate_->ResizeVisibleViewport(visibleViewportSize_, false);
+    return true;
+}
+
+bool WebPattern::ProcessVirtualKeyBoardHide(int32_t width, int32_t height, bool safeAreaEnabled)
+{
+    isResizeContentAvoid_ = false;
+    isKeyboardInSafeArea_ = false;
+    if (layoutMode_ == WebLayoutMode::FIT_CONTENT) {
+        TAG_LOGI(AceLogTag::ACE_WEB, "ProcessVirtualKeyBoardHide layoutMode is FIT_CONTENT");
+        isVirtualKeyBoardShow_ = VkState::VK_HIDE;
+        return true;
+    }
+    if (safeAreaEnabled) {
+        isVirtualKeyBoardShow_ = VkState::VK_HIDE;
+        return false;
+    }
+    if (isVirtualKeyBoardShow_ != VkState::VK_SHOW) {
+        return false;
+    }
+    drawSize_.SetSize(drawSizeCache_);
+    visibleViewportSize_.SetWidth(-1.0);
+    visibleViewportSize_.SetHeight(-1.0);
+    UpdateWebLayoutSize(width, height, false);
+    isVirtualKeyBoardShow_ = VkState::VK_HIDE;
+    return true;
+}
+
+bool WebPattern::ProcessVirtualKeyBoardShow(int32_t width, int32_t height, double keyboard, bool safeAreaEnabled)
+{
+    if (IsDialogNested()) {
+        TAG_LOGI(AceLogTag::ACE_WEB, "ProcessVirtualKeyBoardShow, dialog nested, web don't consume keyboard event.");
+        isKeyboardInSafeArea_ = true;
+        return false;
+    }
+    if (isVirtualKeyBoardShow_ != VkState::VK_SHOW) {
+        drawSizeCache_.SetSize(drawSize_);
+    }
+    if (drawSizeCache_.Height() <= (height - keyboard - GetCoordinatePoint()->GetY())) {
+        TAG_LOGI(AceLogTag::ACE_WEB, "ProcessVirtualKeyBoardShow not obstruct");
+        isVirtualKeyBoardShow_ = VkState::VK_SHOW;
+        return !safeAreaEnabled;
+    }
+    if (height - GetCoordinatePoint()->GetY() < keyboard) {
+        TAG_LOGI(AceLogTag::ACE_WEB, "ProcessVirtualKeyBoardShow Complete occlusion");
+        isVirtualKeyBoardShow_ = VkState::VK_SHOW;
+        return true;
+    }
+    if (!delegate_->NeedSoftKeyboard()) {
+        TAG_LOGI(AceLogTag::ACE_WEB, "ProcessVirtualKeyBoardShow not NeedSoftKeyboard");
+        return false;
+    }
+    isVirtualKeyBoardShow_ = VkState::VK_SHOW;
+    if (layoutMode_ == WebLayoutMode::FIT_CONTENT) {
+        TAG_LOGI(AceLogTag::ACE_WEB, "ProcessVirtualKeyBoardShow layoutMode is FIT_CONTENT");
+        lastKeyboardHeight_ = keyboard;
+        return true;
+    }
+    if (safeAreaEnabled) {
+        isKeyboardInSafeArea_ = true;
+        lastKeyboardHeight_ = keyboard;
+        return false;
+    }
+    auto frameNode = GetHost();
+    CHECK_NULL_RETURN(frameNode, false);
+    frameNode->MarkDirtyNode(PROPERTY_UPDATE_MEASURE_SELF);
+    auto context = PipelineContext::GetCurrentContext();
+    CHECK_NULL_RETURN(context, false);
+    auto taskExecutor = context->GetTaskExecutor();
+    CHECK_NULL_RETURN(taskExecutor, false);
+    taskExecutor->PostDelayedTask(
+        [weak = WeakClaim(this), width, height, keyboard, oldWebHeight = drawSize_.Height()]() {
+            auto webPattern = weak.Upgrade();
+            CHECK_NULL_VOID(webPattern);
+            webPattern->UpdateLayoutAfterKeyboardShow(width, height, keyboard, oldWebHeight);
+        },
+        TaskExecutor::TaskType::UI, UPDATE_WEB_LAYOUT_DELAY_TIME, "ArkUIWebUpdateLayoutAfterKeyboardShow");
+    return true;
+}
+
+bool WebPattern::ProcessVirtualKeyBoard(int32_t width, int32_t height, double keyboard)
+{
+    CHECK_NULL_RETURN(delegate_, false);
+    delegate_->SetVirtualKeyBoardArg(width, height, keyboard);
+
+    auto host = GetHost();
+    CHECK_NULL_RETURN(host, false);
+    auto pipelineContext = host->GetContextRefPtr();
+    CHECK_NULL_RETURN(pipelineContext, false);
+    auto safeAreaManager = pipelineContext->GetSafeAreaManager();
+    CHECK_NULL_RETURN(safeAreaManager, false);
+    bool keyboardSafeAreaEnabled = safeAreaManager->KeyboardSafeAreaEnabled();
+    TAG_LOGI(AceLogTag::ACE_WEB,
+        "ProcessVirtualKeyBoard width:%{public}d, height:%{public}d, keyboard:%{public}f, safeArea:%{public}d",
+        width, height, keyboard, keyboardSafeAreaEnabled);
+
+    if (!isFocus_ || !isVisible_) {
+        UpdateOnFocusTextField(false);
+        ProcessVirtualKeyBoardHide(width, height, keyboardSafeAreaEnabled);
+        return false;
+    }
+    UpdateOnFocusTextField(!NearZero(keyboard));
+    if (NearZero(keyboard)) {
+        return ProcessVirtualKeyBoardHide(width, height, keyboardSafeAreaEnabled);
+    }
+    return ProcessVirtualKeyBoardShow(width, height, keyboard, keyboardSafeAreaEnabled);
+}
+
+void WebPattern::UpdateWebLayoutSize(int32_t width, int32_t height, bool isKeyboard, bool isUpdate)
+{
+    CHECK_NULL_VOID(delegate_);
+    if (delegate_->ShouldVirtualKeyboardOverlay()) {
+        TAG_LOGW(AceLogTag::ACE_WEB, "VirtualKeyboard Overlaycontent is true and does not require resizing");
+        return;
+    }
+    auto frameNode = GetHost();
+    CHECK_NULL_VOID(frameNode);
+    auto rect = frameNode->GetGeometryNode()->GetFrameRect();
+    auto offset = Offset(GetCoordinatePoint()->GetX(), GetCoordinatePoint()->GetY());
+
+    // Scroll focused node into view when keyboard show.
+    TAG_LOGI(AceLogTag::ACE_WEB, "UpdateWebLayoutSize drawsize_ : %{public}s, web id : %{public}d",
+        drawSize_.ToString().c_str(), GetWebId());
+    delegate_->SetBoundsOrResize(drawSize_, offset, isKeyboard);
+    delegate_->ResizeVisibleViewport(visibleViewportSize_, isKeyboard);
+
+    if (isUpdate) {
+        rect.SetSize(SizeF(drawSize_.Width(), drawSize_.Height()));
+        frameNode->GetRenderContext()->SyncGeometryProperties(rect);
+        frameNode->MarkDirtyNode(PROPERTY_UPDATE_MEASURE_SELF | PROPERTY_UPDATE_RENDER);
+    }
+}
+
+void WebPattern::HandleTouchDown(const TouchEventInfo& info, bool fromOverlay)
+{
+    isTouchUpEvent_ = false;
+    InitTouchEventListener();
+    CHECK_NULL_VOID(delegate_);
+    Offset touchOffset = Offset(0, 0);
+    std::list<TouchInfo> touchInfos;
+    if (!ParseTouchInfo(info, touchInfos)) {
+        return;
+    }
+    for (auto& touchPoint : touchInfos) {
+        if (fromOverlay) {
+            touchPoint.x -= webOffset_.GetX();
+            touchPoint.y -= webOffset_.GetY();
+            TAG_LOGI(AceLogTag::ACE_WEB,
+                "SelectOverlay touch down add id:%{public}d.", touchPoint.id);
+            touchOverlayInfo_.push_back(touchPoint);
+        }
+        delegate_->HandleTouchDown(touchPoint.id, touchPoint.x, touchPoint.y, fromOverlay);
+        if (overlayCreating_) {
+            imageAnalyzerManager_->UpdateOverlayTouchInfo(touchPoint.x, touchPoint.y, TouchType::DOWN);
+        }
+    }
+    if (!touchInfos.empty() && !GetNativeEmbedModeEnabledValue(false)) {
+        WebRequestFocus();
+    }
+}
+
+void WebPattern::HandleTouchUp(const TouchEventInfo& info, bool fromOverlay)
+{
+    isTouchUpEvent_ = true;
+    UninitTouchEventListener();
+    CHECK_NULL_VOID(delegate_);
+    if (!isReceivedArkDrag_) {
+        ResetDragAction();
+    }
+    HideMagnifier();
+    std::list<TouchInfo> touchInfos;
+    if (!ParseTouchInfo(info, touchInfos)) {
+        return;
+    }
+    for (auto& touchPoint : touchInfos) {
+        if (fromOverlay) {
+            touchPoint.x -= webOffset_.GetX();
+            touchPoint.y -= webOffset_.GetY();
+            DelTouchOverlayInfoByTouchId(touchPoint.id);
+        }
+        if (!overlayCreating_) {
+            delegate_->HandleTouchUp(touchPoint.id, touchPoint.x, touchPoint.y, fromOverlay);
+        } else {
+            if (imageAnalyzerManager_) {
+                imageAnalyzerManager_->UpdateOverlayTouchInfo(touchPoint.x, touchPoint.y, TouchType::UP);
+                overlayCreating_ = false;
+                delegate_->HandleTouchCancel();
+            }
+        }
+    }
+}
+
+RectF WebPattern::ChangeHandleHeight(
+    const std::shared_ptr<SelectOverlayInfo>& info, const GestureEvent& event, bool isFirst)
+{
+    auto touchOffset = event.GetLocalLocation();
+    auto handle = isFirst ? info->firstHandle : info->secondHandle;
+    auto handleHeight = SELECT_HANDLE_DEFAULT_HEIGHT.ConvertToPx();
+    handleHeight = std::min(static_cast<float>(handleHeight), handle.paintRect.Height());
+    bool isTouchHandleCircle = isFirst ?
+        LessNotEqual(touchOffset.GetY(), handle.paintRect.Top()) :
+        GreatNotEqual(touchOffset.GetY(), handle.paintRect.Bottom());
+    if (isFirst) {
+        if (!isTouchHandleCircle) {
+            handle.paintRect.SetTop(static_cast<float>(touchOffset.GetY()) - handleHeight / HALF);
+        }
+        handle.paintRect.SetHeight(handleHeight);
+        info->firstHandle = handle;
+        info->firstHandle.isCircleShow = false;
+    } else {
+        auto handleOffsetY = isTouchHandleCircle
+                            ? handle.paintRect.Bottom() - handleHeight
+                            : static_cast<float>(touchOffset.GetY()) - handleHeight / HALF;
+        handle.paintRect.SetTop(handleOffsetY);
+        handle.paintRect.SetOffset(OffsetF(handle.paintRect.GetX(),
+            handle.paintRect.GetY() + handle.paintRect.Height() - handleHeight));
+        handle.paintRect.SetHeight(handleHeight);
+        info->secondHandle = handle;
+        info->secondHandle.isCircleShow = false;
+    }
+    return handle.paintRect;
+}
+
+void WebPattern::HandleTouchClickEventFromOverlay(const GestureEvent& info)
+{
+    CHECK_NULL_VOID(delegate_);
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto focusHub = host->GetOrCreateFocusHub();
+    CHECK_NULL_VOID(focusHub);
+    if (!focusHub->IsFocusable() || info.GetSourceDevice() == SourceType::MOUSE) {
+        return;
+    }
+    if (IsSelectOverlayDragging()) {
+        TAG_LOGI(AceLogTag::ACE_WEB, "HandleTouchClickEvent fail when handle dragging.");
+        return;
+    }
+    if (!IsTouchHandleValid(insertHandle_)) {
+        return;
+    }
+    auto globalLocation = info.GetGlobalLocation();
+    TouchInfo touchPoint;
+    touchPoint.id = 0;
+    touchPoint.x = globalLocation.GetX() - webOffset_.GetX();
+    touchPoint.y = globalLocation.GetY() - webOffset_.GetY();
+    auto pipeline = host->GetContext();
+    CHECK_NULL_VOID(pipeline);
+    auto theme = pipeline->GetTheme<TextOverlayTheme>();
+    CHECK_NULL_VOID(theme);
+    float hotZone = theme->GetHandleHotZoneRadius().ConvertToPx();
+    RectF edgeRect(insertHandle_->GetX() - hotZone / 2,
+                   insertHandle_->GetY() - insertHandle_->GetEdgeHeight(),
+                   hotZone,
+                   insertHandle_->GetEdgeHeight());
+    bool isInRegion = edgeRect.IsInRegion({touchPoint.x, touchPoint.y});
+    TAG_LOGI(AceLogTag::ACE_WEB, "point.x:%{public}f. y:%{public}f, isInRegion:%{public}d",
+        touchPoint.x, touchPoint.y, isInRegion);
+    TAG_LOGI(AceLogTag::ACE_WEB, "edgeRect:%{public}s", edgeRect.ToString().c_str());
+    delegate_->HandleTouchDown(touchPoint.id, touchPoint.x, touchPoint.y, !isInRegion);
+    delegate_->HandleTouchUp(touchPoint.id, touchPoint.x, touchPoint.y, !isInRegion);
+}
+
+void WebPattern::OnSelectHandleStart(const GestureEvent& event, bool isFirst)
+{
+    CHECK_NULL_VOID(selectOverlayProxy_);
+    CHECK_NULL_VOID(delegate_);
+    SetCurrentStartHandleDragging(isFirst);
+    SetSelectOverlayDragging(true);
+
+    auto pipeline = PipelineContext::GetCurrentContext();
+    CHECK_NULL_VOID(pipeline);
+    auto manager = pipeline->GetSelectOverlayManager();
+    CHECK_NULL_VOID(manager);
+    auto node = manager->GetSelectOverlayNode(selectOverlayProxy_->GetSelectOverlayId());
+    CHECK_NULL_VOID(node);
+    auto pattern = node->GetPattern<SelectOverlayPattern>();
+    CHECK_NULL_VOID(pattern);
+    const std::shared_ptr<SelectOverlayInfo>& info = pattern->GetSelectOverlayInfo();
+    RectF handleRect = ChangeHandleHeight(info, event, isFirst);
+    
+    TouchInfo touchPoint;
+    touchPoint.id = 0;
+    touchPoint.x = handleRect.GetX() - webOffset_.GetX();
+    touchPoint.y = handleRect.GetY() - webOffset_.GetY() + handleRect.Height() / HALF;
+    TAG_LOGI(AceLogTag::ACE_WEB, "OnSelectHandleStart touch down add id:%{public}d.", touchPoint.id);
+    touchOverlayInfo_.push_back(touchPoint);
+    delegate_->HandleTouchDown(touchPoint.id, touchPoint.x, touchPoint.y, true);
+    if (overlayCreating_) {
+        imageAnalyzerManager_->UpdateOverlayTouchInfo(touchPoint.x, touchPoint.y, TouchType::DOWN);
+    }
+    if (!GetNativeEmbedModeEnabledValue(false)) {
+        WebRequestFocus();
+    }
+}
+
+void WebPattern::OnSelectHandleDone(const RectF& handleRect, bool isFirst)
+{
+    SetSelectOverlayDragging(false);
+    CHECK_NULL_VOID(delegate_);
+    TouchInfo touchPoint;
+    touchPoint.id = 0;
+    touchPoint.x = handleRect.GetX() - webOffset_.GetX();
+    touchPoint.y = handleRect.GetY() - webOffset_.GetY() + handleRect.Height() / HALF;
+    DelTouchOverlayInfoByTouchId(touchPoint.id);
+    if (!overlayCreating_) {
+        delegate_->HandleTouchUp(touchPoint.id, touchPoint.x, touchPoint.y, true);
+    } else if (imageAnalyzerManager_) {
+        imageAnalyzerManager_->UpdateOverlayTouchInfo(touchPoint.x, touchPoint.y, TouchType::UP);
+        overlayCreating_ = false;
+        delegate_->HandleTouchCancel();
+    }
+    UpdateTouchHandleForOverlay(true);
+    if (!IsQuickMenuShow()) {
+        ChangeVisibilityOfQuickMenu();
+    }
+    if (startSelectionHandle_ && endSelectionHandle_) {
+        auto offset = GetCoordinatePoint().value_or(OffsetF());
+        auto size = GetHostFrameSize().value_or(SizeF());
+        TAG_LOGI(AceLogTag::ACE_WEB, "OnSelectHandleDone offset(%{public}f,%{public}f) size(%{public}f,%{public}f)"
+            "start(%{public}d,%{public}d) end(%{public}d,%{public}d)", offset.GetX(), offset.GetY(),
+            size.Width(), size.Height(), startSelectionHandle_->GetX(), startSelectionHandle_->GetY(),
+            endSelectionHandle_->GetX(), endSelectionHandle_->GetY());
+    }
+    WebOverlayType overlayType = GetTouchHandleOverlayType(insertHandle_, startSelectionHandle_, endSelectionHandle_);
+    if (overlayType == SELECTION_OVERLAY && !IsSelectInfoValid()) {
+        TAG_LOGI(AceLogTag::ACE_WEB, "Close handles and menu.");
+        CloseSelectOverlay();
+        SelectCancel();
+    }
+}
+
+void WebPattern::OnMagnifierHandleMove(const RectF& handleRect, bool isFirst)
+{
+    auto localX = handleRect.GetX() - webOffset_.GetX() + handleRect.Width() / HALF;
+    auto localY = handleRect.GetY() - webOffset_.GetY() + handleRect.Height() / HALF;
+    ShowMagnifier(localX, localY);
+}
+
+void WebPattern::OnSelectHandleMove(const RectF& handleRect, bool isFirst)
+{
+    auto pipeline = PipelineContext::GetCurrentContext();
+    CHECK_NULL_VOID(pipeline);
+    auto manager = pipeline->GetDragDropManager();
+    CHECK_NULL_VOID(manager);
+    if (isDragging_ || manager->IsDragged()) {
+        return;
+    }
+    CHECK_NULL_VOID(delegate_);
+    TouchInfo touchPoint;
+    touchPoint.id = 0;
+    touchPoint.x = handleRect.GetX() - webOffset_.GetX();
+    touchPoint.y = handleRect.GetY() - webOffset_.GetY() + handleRect.Height() / HALF;
+    if (overlayCreating_) {
+        imageAnalyzerManager_->UpdateOverlayTouchInfo(touchPoint.x, touchPoint.y, TouchType::MOVE);
+    } else {
+        std::vector<std::shared_ptr<OHOS::NWeb::NWebTouchPointInfo>> touch_point_infos;
+        std::shared_ptr<OHOS::NWeb::NWebTouchPointInfo> touch_point_info =
+            std::make_shared<NWebTouchPointInfoImpl>(touchPoint.id, touchPoint.x, touchPoint.y);
+        touch_point_infos.emplace_back(touch_point_info);
+        delegate_->HandleTouchMove(touch_point_infos, true);
+    }
+}
+
+void WebPattern::HandleTouchMove(const TouchEventInfo& info, bool fromOverlay)
+{
+    if (isDragging_) {
+        return;
+    }
+    auto pipeline = PipelineContext::GetCurrentContext();
+    CHECK_NULL_VOID(pipeline);
+    auto manager = pipeline->GetDragDropManager();
+    CHECK_NULL_VOID(manager);
+    if (manager->IsDragged()) {
+        return;
+    }
+    CHECK_NULL_VOID(delegate_);
+    std::list<TouchInfo> touchInfos;
+
+    touchEventInfoList_.emplace_back(info);
+    for (const auto& touchEventInfo : touchEventInfoList_) {
+        ParseTouchInfo(touchEventInfo, touchInfos);
+    }
+
+    if (touchInfos.empty()) {
+        return;
+    }
+    if (!info.GetTouchEventsEnd()) {
+        return;
+    }
+    touchEventInfoList_.clear();
+
+    touchInfos.sort([](const TouchInfo &point1, const TouchInfo &point2) {
+        return point1.id < point2.id;
+    });
+
+    std::vector<std::shared_ptr<OHOS::NWeb::NWebTouchPointInfo>> touch_point_infos;
+    for (auto& touchPoint : touchInfos) {
+        if (fromOverlay) {
+            touchPoint.x -= webOffset_.GetX();
+            touchPoint.y -= webOffset_.GetY();
+        }
+        if (magnifierController_ && magnifierController_->GetMagnifierNodeExist()) {
+            ShowMagnifier(touchPoint.x, touchPoint.y);
+        }
+        std::shared_ptr<OHOS::NWeb::NWebTouchPointInfo> touch_point_info =
+            std::make_shared<NWebTouchPointInfoImpl>(touchPoint.id, touchPoint.x, touchPoint.y);
+        touch_point_infos.emplace_back(touch_point_info);
+        if (overlayCreating_) {
+            imageAnalyzerManager_->UpdateOverlayTouchInfo(touchPoint.x, touchPoint.y, TouchType::MOVE);
+        }
+    }
+
+    if (!overlayCreating_) {
+        delegate_->HandleTouchMove(touch_point_infos, fromOverlay);
+    }
+}
+
+void WebPattern::HandleTouchCancel(const TouchEventInfo& info)
+{
+    UninitTouchEventListener();
+    if (IsRootNeedExportTexture()) {
+        HandleTouchUp(info, false);
+    }
+    CHECK_NULL_VOID(delegate_);
+    delegate_->HandleTouchCancel();
+    if (overlayCreating_) {
+        imageAnalyzerManager_->UpdateOverlayTouchInfo(0, 0, TouchType::CANCEL);
+        overlayCreating_ = false;
+    }
+    HideMagnifier();
+}
+
+bool WebPattern::ParseTouchInfo(const TouchEventInfo& info, std::list<TouchInfo>& touchInfos)
+{
+    auto context = PipelineContext::GetCurrentContext();
+    CHECK_NULL_RETURN(context, false);
+    auto viewScale = context->GetViewScale();
+    if (info.GetChangedTouches().empty()) {
+        return false;
+    }
+    for (const auto& point : info.GetChangedTouches()) {
+        TouchInfo touchInfo;
+        touchInfo.id = point.GetFingerId();
+        const Offset& location = point.GetLocalLocation();
+        touchInfo.x = static_cast<float>(location.GetX() * viewScale);
+        touchInfo.y = static_cast<float>(location.GetY() * viewScale);
+        touchInfos.emplace_back(touchInfo);
+    }
+    return true;
+}
+
+void WebPattern::RequestFullScreen()
+{
+    isFullScreen_ = true;
+}
+
+void WebPattern::ExitFullScreen()
+{
+    isFullScreen_ = false;
+}
+
+bool WebPattern::IsTouchHandleValid(std::shared_ptr<OHOS::NWeb::NWebTouchHandleState> handle)
+{
+    return (handle != nullptr) && (handle->IsEnable());
+}
+
+void WebPattern::CheckHandles(SelectHandleInfo& handleInfo,
+    const std::shared_ptr<OHOS::NWeb::NWebTouchHandleState>& handle)
+{
+    CHECK_NULL_VOID(handle);
+    auto pipeline = PipelineBase::GetCurrentContext();
+    CHECK_NULL_VOID(pipeline);
+    int y = static_cast<int32_t>(handle->GetY() / pipeline->GetDipScale());
+    int edgeHeight = static_cast<int32_t>(handle->GetEdgeHeight() / pipeline->GetDipScale()) - 1;
+    if (handle->GetAlpha() <= 0 || y < edgeHeight) {
+        handleInfo.isShow = false;
+        return;
+    }
+
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    float viewPortY = handle->GetViewPortY();
+    RectF visibleRect;
+    RectF visibleInnerRect;
+    RectF frameRect;
+    host->GetVisibleRectWithClip(visibleRect, visibleInnerRect, frameRect);
+    visibleInnerRect.SetRect(visibleInnerRect.GetX(), visibleInnerRect.GetY() + viewPortY - 1,
+        visibleInnerRect.Width(), visibleInnerRect.Height() - viewPortY + 1);
+    auto paintRect = handleInfo.paintRect;
+    PointF bottomPoint = { paintRect.Left(), paintRect.Bottom() };
+    PointF topPoint = { paintRect.Left(), paintRect.Top() };
+    handleInfo.isShow = (visibleInnerRect.IsInRegion(bottomPoint) && visibleInnerRect.IsInRegion(topPoint));
+}
+
+WebOverlayType WebPattern::GetTouchHandleOverlayType(std::shared_ptr<OHOS::NWeb::NWebTouchHandleState> insertHandle,
+    std::shared_ptr<OHOS::NWeb::NWebTouchHandleState> startSelectionHandle,
+    std::shared_ptr<OHOS::NWeb::NWebTouchHandleState> endSelectionHandle)
+{
+    if (IsTouchHandleValid(insertHandle) && !IsTouchHandleValid(startSelectionHandle) &&
+        !IsTouchHandleValid(endSelectionHandle)) {
+        return INSERT_OVERLAY;
+    }
+
+    if (!IsTouchHandleValid(insertHandle) && IsTouchHandleValid(startSelectionHandle) &&
+        IsTouchHandleValid(endSelectionHandle)) {
+        return SELECTION_OVERLAY;
+    }
+
+    return INVALID_OVERLAY;
+}
+
+std::optional<OffsetF> WebPattern::GetCoordinatePoint()
+{
+    auto frameNode = GetHost();
+    CHECK_NULL_RETURN(frameNode, std::nullopt);
+    return frameNode->GetTransformRelativeOffset();
+}
+
+RectF WebPattern::ComputeTouchHandleRect(std::shared_ptr<OHOS::NWeb::NWebTouchHandleState> touchHandle)
+{
+    CHECK_NULL_RETURN(touchHandle, RectF());
+    RectF paintRect;
+    auto offset = GetCoordinatePoint().value_or(OffsetF());
+    auto size = GetHostFrameSize().value_or(SizeF());
+    float edgeHeight = touchHandle->GetEdgeHeight();
+    float x = touchHandle->GetX();
+    float y = touchHandle->GetY();
+    if (x > size.Width()) {
+        x = offset.GetX() + size.Width();
+    } else {
+        x = x + offset.GetX();
+    }
+
+    if (y < 0) {
+        y = offset.GetY();
+    } else if (y > size.Height()) {
+        y = offset.GetY() + size.Height();
+    } else {
+        y = y + offset.GetY();
+        y = y - edgeHeight;
+    }
+
+    paintRect.SetOffset({ x, y });
+    paintRect.SetSize({ SelectHandleInfo::GetDefaultLineWidth().ConvertToPx(), edgeHeight });
+    return paintRect;
+}
+
+void WebPattern::DelTouchOverlayInfoByTouchId(int32_t touchId)
+{
+    std::list<TouchInfo>::iterator iter;
+    for (iter = touchOverlayInfo_.begin(); iter != touchOverlayInfo_.end();) {
+        if (iter->id == touchId) {
+            TAG_LOGI(AceLogTag::ACE_WEB,
+                "SelectOverlay del touch overlay info by id:%{public}d", iter->id);
+            iter = touchOverlayInfo_.erase(iter);
+        } else {
+            ++iter;
+        }
+    }
+}
+
+void WebPattern::CloseSelectOverlay()
+{
+    auto pipeline = PipelineContext::GetCurrentContext();
+    CHECK_NULL_VOID(pipeline);
+    selectTemporarilyHidden_ = false;
+    selectTemporarilyHiddenByScroll_ = false;
+    if (selectOverlayProxy_) {
+        TAG_LOGI(AceLogTag::ACE_WEB, "Close Select Overlay Now");
+        SetSelectOverlayDragging(false);
+        StopListenSelectOverlayParentScroll(GetHost());
+        selectOverlayProxy_->Close();
+        pipeline->GetSelectOverlayManager()->DestroySelectOverlay(selectOverlayProxy_);
+        selectOverlayProxy_ = nullptr;
+
+        for (auto& touchOverlayInfo : touchOverlayInfo_) {
+            TAG_LOGI(AceLogTag::ACE_WEB,
+                "SelectOverlay send touch up id:%{public}d", touchOverlayInfo.id);
+            delegate_->HandleTouchUp(touchOverlayInfo.id, touchOverlayInfo.x, touchOverlayInfo.y, true);
+            HideMagnifier();
+        }
+        touchOverlayInfo_.clear();
+    }
+}
+
+void WebPattern::OnParentScrollStartOrEndCallback(bool isEnd)
+{
+    CHECK_NULL_VOID(selectOverlayProxy_);
+    auto pipeline = PipelineContext::GetCurrentContext();
+    CHECK_NULL_VOID(pipeline);
+    auto manager = pipeline->GetSelectOverlayManager();
+    CHECK_NULL_VOID(manager);
+    auto overlayId = selectOverlayProxy_->GetSelectOverlayId();
+    if (!manager->HasSelectOverlay(overlayId)) {
+        return;
+    }
+
+    if (selectOverlayProxy_->IsSingleHandle()) {
+        if (!isEnd) {
+            selectOverlayProxy_->UpdateSelectMenuInfo([](SelectMenuInfo& menuInfo) {
+                menuInfo.menuIsShow = false;
+            });
+        }
+        return;
+    }
+    selectTemporarilyHiddenByScroll_ = !isEnd;
+    if (selectTemporarilyHidden_) {
+        return;
+    }
+    HideHandleAndQuickMenuIfNecessary(selectTemporarilyHiddenByScroll_, true);
+}
+
+void WebPattern::RegisterSelectOverlayParentScrollCallback(int32_t parentId, int32_t callbackId)
+{
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto context = host->GetContext();
+    CHECK_NULL_VOID(context);
+    auto manager = context->GetSelectOverlayManager();
+    CHECK_NULL_VOID(manager);
+    auto scrollCallback = [weak = WeakClaim(this)](Axis axis, float offset, int32_t source) {
+        auto client = weak.Upgrade();
+        CHECK_NULL_VOID(client);
+        if (source == SCROLL_FROM_START) {
+            client->OnParentScrollStartOrEndCallback(false);
+        } else if (source == -1) {
+            client->OnParentScrollStartOrEndCallback(true);
+        }
+    };
+    manager->RegisterScrollCallback(parentId, callbackId, scrollCallback);
+}
+
+void WebPattern::StartListenSelectOverlayParentScroll(const RefPtr<FrameNode>& host)
+{
+    if (!scrollableParentInfo_.hasParent) {
+        TAG_LOGI(AceLogTag::ACE_WEB, "has no scrollable parent");
+        return;
+    }
+    CHECK_NULL_VOID(host);
+    auto context = host->GetContext();
+    CHECK_NULL_VOID(context);
+    auto hostId = host->GetId();
+    if (!scrollableParentInfo_.parentIds.empty()) {
+        for (const auto& scrollId : scrollableParentInfo_.parentIds) {
+            RegisterSelectOverlayParentScrollCallback(scrollId, hostId);
+        }
+        return;
+    }
+    auto parent = host->GetParent();
+    while (parent && parent->GetTag() != V2::PAGE_ETS_TAG) {
+        auto parentNode = AceType::DynamicCast<FrameNode>(parent);
+        if (parentNode) {
+            auto pattern = parentNode->GetPattern<ScrollablePattern>();
+            if (pattern) {
+                scrollableParentInfo_.parentIds.emplace_back(parentNode->GetId());
+                RegisterSelectOverlayParentScrollCallback(parentNode->GetId(), hostId);
+            }
+        }
+        parent = parent->GetParent();
+    }
+    scrollableParentInfo_.hasParent = !scrollableParentInfo_.parentIds.empty();
+    TAG_LOGI(AceLogTag::ACE_WEB, "find scrollable parent %{public}d", scrollableParentInfo_.hasParent);
+}
+
+void WebPattern::StopListenSelectOverlayParentScroll(const RefPtr<FrameNode>& host)
+{
+    CHECK_NULL_VOID(host);
+    auto context = host->GetContext();
+    CHECK_NULL_VOID(context);
+    auto manager = context->GetSelectOverlayManager();
+    CHECK_NULL_VOID(manager);
+    manager->RemoveScrollCallback(host->GetId());
+}
+
+void WebPattern::RegisterSelectOverlayCallback(SelectOverlayInfo& selectInfo,
+    std::shared_ptr<OHOS::NWeb::NWebQuickMenuParams> params,
+    std::shared_ptr<OHOS::NWeb::NWebQuickMenuCallback> callback)
+{
+    CHECK_NULL_VOID(delegate_);
+    auto copyOption = delegate_->GetCopyOptionMode();
+    quickMenuCallback_ = callback;
+    uint32_t flags = static_cast<uint32_t>(params->GetEditStateFlags());
+    if ((flags & OHOS::NWeb::NWebQuickMenuParams::QM_EF_CAN_CUT)
+        && (copyOption != OHOS::NWeb::NWebPreference::CopyOptionMode::NONE)) {
+        selectInfo.menuCallback.onCut = [weak = AceType::WeakClaim(this), callback]() {
+            CHECK_NULL_VOID(callback);
+            callback->Continue(
+                OHOS::NWeb::NWebQuickMenuParams::QM_EF_CAN_CUT, OHOS::NWeb::MenuEventFlags::EF_LEFT_MOUSE_BUTTON);
+        };
+    } else {
+        selectInfo.menuInfo.showCut = false;
+    }
+    if ((flags & OHOS::NWeb::NWebQuickMenuParams::QM_EF_CAN_COPY)
+        && (copyOption != OHOS::NWeb::NWebPreference::CopyOptionMode::NONE)) {
+        selectInfo.menuCallback.onCopy = [weak = AceType::WeakClaim(this), callback]() {
+            CHECK_NULL_VOID(callback);
+            callback->Continue(
+                OHOS::NWeb::NWebQuickMenuParams::QM_EF_CAN_COPY, OHOS::NWeb::MenuEventFlags::EF_LEFT_MOUSE_BUTTON);
+        };
+    } else {
+        selectInfo.menuInfo.showCopy = false;
+    }
+    if (flags & OHOS::NWeb::NWebQuickMenuParams::QM_EF_CAN_PASTE) {
+        selectInfo.menuCallback.onPaste = [weak = AceType::WeakClaim(this), callback]() {
+            CHECK_NULL_VOID(callback);
+            callback->Continue(
+                OHOS::NWeb::NWebQuickMenuParams::QM_EF_CAN_PASTE, OHOS::NWeb::MenuEventFlags::EF_LEFT_MOUSE_BUTTON);
+        };
+    } else {
+        selectInfo.menuInfo.showPaste = false;
+    }
+    if (flags & OHOS::NWeb::NWebQuickMenuParams::QM_EF_CAN_SELECT_ALL) {
+        selectInfo.menuCallback.onSelectAll = [weak = AceType::WeakClaim(this), callback]() {
+            CHECK_NULL_VOID(callback);
+            callback->Continue(OHOS::NWeb::NWebQuickMenuParams::QM_EF_CAN_SELECT_ALL,
+                OHOS::NWeb::MenuEventFlags::EF_LEFT_MOUSE_BUTTON);
+        };
+    } else {
+        selectInfo.menuInfo.showCopyAll = false;
+    }
+
+    StartListenSelectOverlayParentScroll(GetHost());
+}
+
+void WebPattern::RegisterSelectOverlayEvent(SelectOverlayInfo& selectInfo)
+{
+    selectInfo.onHandleMoveDone = [weak = AceType::WeakClaim(this)](const RectF& rectF, bool isFirst) {
+        auto webPattern = weak.Upgrade();
+        CHECK_NULL_VOID(webPattern);
+        webPattern->HideMagnifier();
+        webPattern->OnSelectHandleDone(rectF, isFirst);
+    };
+    selectInfo.onTouchDown = [weak = AceType::WeakClaim(this)](const TouchEventInfo& info) {};
+    selectInfo.onTouchUp = [weak = AceType::WeakClaim(this)](const TouchEventInfo& info) {};
+    selectInfo.onTouchMove = [weak = AceType::WeakClaim(this)](const TouchEventInfo& info) {};
+    selectInfo.onClick = [weak = AceType::WeakClaim(this)](const GestureEvent& info, bool isFirst) {
+        auto webPattern = weak.Upgrade();
+        CHECK_NULL_VOID(webPattern);
+        webPattern->HandleTouchClickEventFromOverlay(info);
+    };
+    selectInfo.onHandleMove = [weak = AceType::WeakClaim(this)](const RectF& handleRect, bool isFirst) {
+        auto webPattern = weak.Upgrade();
+        CHECK_NULL_VOID(webPattern);
+        webPattern->OnSelectHandleMove(handleRect, isFirst);
+        webPattern->OnMagnifierHandleMove(handleRect, isFirst);
+    };
+    selectInfo.onHandleMoveStart = [weak = AceType::WeakClaim(this)](const GestureEvent& event, bool isFirst) {
+        auto webPattern = weak.Upgrade();
+        CHECK_NULL_VOID(webPattern);
+        webPattern->OnSelectHandleStart(event, isFirst);
+    };
+    selectInfo.checkIsTouchInHostArea =
+    [weak = AceType::WeakClaim(this)](const PointF& touchPoint) -> bool {
+        return true;
+    };
+}
+
+RectF WebPattern::ComputeMouseClippedSelectionBounds(int32_t x, int32_t y, int32_t w, int32_t h)
+{
+    auto offset = GetCoordinatePoint().value_or(OffsetF());
+    float selectX = offset.GetX() + x;
+    float selectY = offset.GetY();
+    float selectWidth = w;
+    float selectHeight = h;
+    if (LessOrEqual(GetHostFrameSize().value_or(SizeF()).Height(), y)) {
+        selectY += GetHostFrameSize().value_or(SizeF()).Height();
+    } else if (y + h <= 0) {
+        selectY -= h;
+    } else {
+        selectY += y;
+    }
+    return RectF(selectX, selectY, selectWidth, selectHeight);
+}
+
+void WebPattern::UpdateClippedSelectionBounds(int32_t x, int32_t y, int32_t w, int32_t h)
+{
+    selectArea_ = ComputeMouseClippedSelectionBounds(x, y, w, h);
+    if (selectOverlayProxy_ && isQuickMenuMouseTrigger_) {
+        selectOverlayProxy_->UpdateSelectArea(selectArea_);
+    }
+}
+
+void WebPattern::SelectCancel() const
+{
+    if (isReceivedArkDrag_) {
+        return;
+    }
+    CHECK_NULL_VOID(quickMenuCallback_);
+    quickMenuCallback_->Cancel();
+}
+
+bool WebPattern::IsSelectInfoValid()
+{
+    auto info = GetSelectInfo();
+    return !info.empty() && info != STRING_LF;
+}
+
+std::string WebPattern::GetSelectInfo() const
+{
+    CHECK_NULL_RETURN(delegate_, std::string());
+    return delegate_->GetSelectInfo();
+}
+
+void  WebPattern::OnSelectionMenuOptionsUpdate(const WebMenuOptionsParam& webMenuOption)
+{
+    menuOptionParam_ = std::move(webMenuOption.menuOption);
+    for (auto& menuOption : menuOptionParam_) {
+        std::function<void(const std::string&)> action = std::move(menuOption.action);
+        menuOption.action = [weak = AceType::WeakClaim(this), action] (
+                                const std::string selectInfo) {
+            auto webPattern = weak.Upgrade();
+            CHECK_NULL_VOID(webPattern);
+            webPattern->SelectCancel();
+            std::string selectStr = webPattern->GetSelectInfo();
+            if (action) {
+                action(selectStr);
+            }
+        };
+    }
+}
+
+void WebPattern::UpdateEditMenuOptions(
+    const NG::OnCreateMenuCallback&& onCreateMenuCallback,
+    const NG::OnMenuItemClickCallback&& onMenuItemClick)
+{
+    onCreateMenuCallback_ = std::move(onCreateMenuCallback);
+    onMenuItemClick_ = std::move(onMenuItemClick);
+}
+
+void WebPattern::UpdateRunQuickMenuSelectInfo(SelectOverlayInfo& selectInfo,
+    std::shared_ptr<OHOS::NWeb::NWebQuickMenuParams> params,
+    std::shared_ptr<OHOS::NWeb::NWebTouchHandleState> insertTouchHandle,
+    std::shared_ptr<OHOS::NWeb::NWebTouchHandleState> beginTouchHandle,
+    std::shared_ptr<OHOS::NWeb::NWebTouchHandleState> endTouchHandle)
+{
+    selectInfo.hitTestMode = HitTestMode::HTMDEFAULT;
+    isQuickMenuMouseTrigger_ = false;
+    if (selectInfo.isSingleHandle) {
+        selectInfo.firstHandle.paintRect = ComputeTouchHandleRect(insertTouchHandle);
+        CheckHandles(selectInfo.firstHandle, insertTouchHandle);
+        selectInfo.secondHandle.isShow = false;
+    } else {
+        selectInfo.firstHandle.paintRect = ComputeTouchHandleRect(beginTouchHandle);
+        selectInfo.secondHandle.paintRect = ComputeTouchHandleRect(endTouchHandle);
+        CheckHandles(selectInfo.firstHandle, beginTouchHandle);
+        CheckHandles(selectInfo.secondHandle, endTouchHandle);
+        QuickMenuIsNeedNewAvoid(selectInfo, params, beginTouchHandle, endTouchHandle);
+        if (!(onCreateMenuCallback_ && onMenuItemClick_)) {
+            selectInfo.menuOptionItems = menuOptionParam_;
+        }
+    }
+    selectInfo.menuInfo.menuIsShow = true;
+    selectInfo.handleReverse = false;
+    if (onCreateMenuCallback_ && onMenuItemClick_) {
+        selectInfo.onCreateCallback.onCreateMenuCallback = onCreateMenuCallback_;
+        selectInfo.onCreateCallback.onMenuItemClick = onMenuItemClick_;
+        auto textRange = [](int32_t& start, int32_t& end) {
+            start = -1;
+            end = -1;
+        };
+        selectInfo.onCreateCallback.textRangeCallback = textRange;
+    }
+}
+
+void WebPattern::HideHandleAndQuickMenuIfNecessary(bool hide, bool isScroll)
+{
+    WebOverlayType overlayType = GetTouchHandleOverlayType(insertHandle_, startSelectionHandle_, endSelectionHandle_);
+    TAG_LOGI(AceLogTag::ACE_WEB,
+        "HideHandleAndQuickMenuIfNecessary hide:%{public}d, overlayType:%{public}d, isScroll:%{public}d",
+        hide, overlayType, isScroll);
+    if (overlayType != SELECTION_OVERLAY) {
+        return;
+    }
+    SelectHandleInfo firstInfo;
+    SelectHandleInfo secondInfo;
+    if (!isScroll) {
+        selectTemporarilyHidden_ = hide;
+        if (selectTemporarilyHiddenByScroll_) {
+            return;
+        }
+    }
+    if (hide) {
+        if (selectOverlayProxy_) {
+            selectOverlayProxy_->ShowOrHiddenMenu(true, true);
+            firstInfo.isShow = false;
+            firstInfo.paintRect = ComputeTouchHandleRect(startSelectionHandle_);
+            secondInfo.isShow = false;
+            secondInfo.paintRect = ComputeTouchHandleRect(endSelectionHandle_);
+            selectOverlayProxy_->UpdateFirstAndSecondHandleInfo(firstInfo, secondInfo);
+        }
+    } else {
+        if (!selectOverlayProxy_ || selectOverlayProxy_->IsMenuShow()) {
+            return;
+        }
+        firstInfo.paintRect = ComputeTouchHandleRect(startSelectionHandle_);
+        secondInfo.paintRect = ComputeTouchHandleRect(endSelectionHandle_);
+        CheckHandles(firstInfo, startSelectionHandle_);
+        CheckHandles(secondInfo, endSelectionHandle_);
+        if (firstInfo.isShow || secondInfo.isShow) {
+            selectOverlayProxy_->SetIsNewAvoid(false);
+        } else if (dropParams_) {
+            bool isNewAvoid = false;
+            auto selectArea = ComputeClippedSelectionBounds(
+                dropParams_, startSelectionHandle_, endSelectionHandle_, isNewAvoid);
+            selectOverlayProxy_->SetIsNewAvoid(isNewAvoid);
+            selectOverlayProxy_->UpdateSelectArea(selectArea);
+        }
+        selectOverlayProxy_->UpdateFirstAndSecondHandleInfo(firstInfo, secondInfo);
+        selectOverlayProxy_->ShowOrHiddenMenu(false);
+    }
+}
+
+void WebPattern::ChangeVisibilityOfQuickMenu()
+{
+    CHECK_NULL_VOID(selectOverlayProxy_);
+    WebOverlayType overlayType = GetTouchHandleOverlayType(insertHandle_, startSelectionHandle_, endSelectionHandle_);
+    if (overlayType == SELECTION_OVERLAY && !selectTemporarilyHidden_ && !selectTemporarilyHiddenByScroll_) {
+        bool isMenuShow = selectOverlayProxy_->IsMenuShow();
+        selectOverlayProxy_->ShowOrHiddenMenu(isMenuShow);
+        TAG_LOGI(AceLogTag::ACE_WEB, "Current menu display status is %{public}d.", isMenuShow);
+    }
+}
+
+bool WebPattern::IsQuickMenuShow()
+{
+    CHECK_NULL_RETURN(selectOverlayProxy_, false);
+    return selectOverlayProxy_->IsMenuShow();
+}
+
+bool WebPattern::RunQuickMenu(std::shared_ptr<OHOS::NWeb::NWebQuickMenuParams> params,
+    std::shared_ptr<OHOS::NWeb::NWebQuickMenuCallback> callback)
+{
+    CHECK_NULL_RETURN(params, false);
+    std::shared_ptr<OHOS::NWeb::NWebTouchHandleState> insertTouchHandle =
+        params->GetTouchHandleState(OHOS::NWeb::NWebTouchHandleState::TouchHandleType::INSERT_HANDLE);
+    std::shared_ptr<OHOS::NWeb::NWebTouchHandleState> beginTouchHandle =
+        params->GetTouchHandleState(OHOS::NWeb::NWebTouchHandleState::TouchHandleType::SELECTION_BEGIN_HANDLE);
+    std::shared_ptr<OHOS::NWeb::NWebTouchHandleState> endTouchHandle =
+        params->GetTouchHandleState(OHOS::NWeb::NWebTouchHandleState::TouchHandleType::SELECTION_END_HANDLE);
+    WebOverlayType overlayType = GetTouchHandleOverlayType(insertTouchHandle, beginTouchHandle, endTouchHandle);
+    if (overlayType == INVALID_OVERLAY) {
+        return false;
+    }
+    if (params->GetIsLongPressActived()) {
+        ShowMagnifier(params->GetSelectX(), params->GetSelectY());
+        return false;
+    }
+    if (selectOverlayProxy_) {
+        CloseSelectOverlay();
+    }
+    selectTemporarilyHidden_ = false;
+    selectTemporarilyHiddenByScroll_ = false;
+    auto pipeline = PipelineContext::GetCurrentContext();
+    CHECK_NULL_RETURN(pipeline, false);
+    SelectOverlayInfo selectInfo;
+    RegisterSelectOverLayOnClose(selectInfo);
+    selectInfo.isSingleHandle = (overlayType == INSERT_OVERLAY);
+    UpdateRunQuickMenuSelectInfo(selectInfo, params, insertTouchHandle, beginTouchHandle, endTouchHandle);
+    if (isQuickMenuMouseTrigger_) {
+        return false;
+    }
+    RegisterSelectOverlayCallback(selectInfo, params, callback);
+    RegisterSelectOverlayEvent(selectInfo);
+    selectOverlayProxy_ = pipeline->GetSelectOverlayManager()->CreateAndShowSelectOverlay(selectInfo, WeakClaim(this));
+    if (selectInfo.isNewAvoid && selectOverlayProxy_) {
+        selectOverlayProxy_->ShowOrHiddenMenu(false);
+    }
+    if (selectOverlayProxy_) {
+        selectOverlayProxy_->SetHandleReverse(false);
+    }
+    dropParams_ = params;
+    selectMenuInfo_ = selectInfo.menuInfo;
+    insertHandle_ = insertTouchHandle;
+    startSelectionHandle_ = beginTouchHandle;
+    endSelectionHandle_ = endTouchHandle;
+    if (selectOverlayProxy_) {
+        DestroyAnalyzerOverlay();
+        return true;
+    }
+    return false;
+}
+
+void WebPattern::ShowMagnifier(int centerOffsetX, int centerOffsetY)
+{
+    if (magnifierController_) {
+        OffsetF localOffset = OffsetF(centerOffsetX, centerOffsetY);
+        magnifierController_->SetLocalOffset(localOffset);
+    }
+}
+
+void WebPattern::HideMagnifier()
+{
+    if (magnifierController_) {
+        magnifierController_->RemoveMagnifierFrameNode();
+    }
+}
+
+OffsetF WebPattern::GetTextPaintOffset() const
+{
+    auto frameNode = GetHost();
+    CHECK_NULL_RETURN(frameNode, OffsetF());
+    return frameNode->GetTransformRelativeOffset();
+}
+
+void WebPattern::RegisterSelectOverLayOnClose(SelectOverlayInfo& selectInfo)
+{
+    selectInfo.onClose = [weak = AceType::WeakClaim(this)] (bool isGlobalTouchEvent) {
+        if (!isGlobalTouchEvent) {
+            return;
+        }
+        TAG_LOGI(AceLogTag::ACE_WEB, "globalTouchEvent, close web select overLayer.");
+        auto webPattern = weak.Upgrade();
+        CHECK_NULL_VOID(webPattern);
+        webPattern->CloseSelectOverlay();
+        webPattern->SelectCancel();
+    };
+}
+
+RectF WebPattern::ComputeClippedSelectionBounds(
+    std::shared_ptr<OHOS::NWeb::NWebQuickMenuParams> params,
+    std::shared_ptr<OHOS::NWeb::NWebTouchHandleState> startHandle,
+    std::shared_ptr<OHOS::NWeb::NWebTouchHandleState> endHandle,
+    bool& isNewAvoid)
+{
+    auto pipeline = PipelineBase::GetCurrentContext();
+    CHECK_NULL_RETURN(pipeline, RectF());
+    auto host = GetHost();
+    CHECK_NULL_RETURN(host, RectF());
+
+    float selectX = params->GetSelectX();
+    float selectY = params->GetSelectY();
+    float selectWidth = params->GetSelectWidth();
+    float selectHeight = params->GetSelectXHeight();
+    float viewPortX = static_cast<float>((startHandle->GetViewPortX() + endHandle->GetViewPortX())) / 2;
+    float viewPortY = static_cast<float>((startHandle->GetViewPortY() + endHandle->GetViewPortY())) / 2;
+    auto offset = GetCoordinatePoint().value_or(OffsetF());
+
+    RectF visibleRect;
+    RectF visibleInnerRect;
+    RectF frameRect;
+    host->GetVisibleRectWithClip(visibleRect, visibleInnerRect, frameRect);
+    auto visibleTop = visibleInnerRect.Top();
+    auto visibleBottom = visibleInnerRect.Bottom();
+
+    isNewAvoid = true;
+    if (LessOrEqual(visibleBottom, selectY + viewPortY + offset.GetY()) ||
+        LessOrEqual(selectY + selectHeight + offset.GetY(), visibleTop)) {
+        TAG_LOGI(AceLogTag::ACE_WEB, "Selected area not visible, Do not display menu");
+        isNewAvoid = false;
+        return RectF();
+    } else if (LessOrEqual(selectY + offset.GetY(), visibleTop) &&
+        LessOrEqual(visibleBottom, selectY + viewPortY + selectHeight + offset.GetY())) {
+        TAG_LOGI(AceLogTag::ACE_WEB, "Center menu display");
+        return RectF(offset.GetX(), offset.GetY(), drawSize_.Width(), drawSize_.Height());
+    }
+
+    auto theme = pipeline->GetTheme<TextOverlayTheme>();
+    float radius = theme ? theme->GetHandleHotZoneRadius().ConvertToPx() : 0.0;
+    if (LessOrEqual(visibleBottom, selectY + viewPortY + startHandle->GetEdgeHeight() + offset.GetY())) {
+        selectX = startHandle->GetX() + offset.GetX();
+        selectY = startHandle->GetY() + offset.GetY() - radius - startHandle->GetEdgeHeight() - SELECT_MENE_HEIGHT;
+        selectWidth = SelectHandleInfo::GetDefaultLineWidth().ConvertToPx();
+    } else if (LessOrEqual(selectY + selectHeight - endHandle->GetEdgeHeight() + offset.GetY(), visibleTop)) {
+        selectX = endHandle->GetX() + offset.GetX();
+        selectY = endHandle->GetY() + offset.GetY() + radius;
+        selectWidth = SelectHandleInfo::GetDefaultLineWidth().ConvertToPx();
+    } else {
+        selectX = selectX + viewPortX + offset.GetX();
+        selectY = selectY + viewPortY + offset.GetY() - SELECT_MENE_HEIGHT - radius;
+        if (selectY < offset.GetY()) {
+            selectY = offset.GetY();
+        }
+    }
+    TAG_LOGI(AceLogTag::ACE_WEB, "SelectionBounds pos: (%{public}f, %{public}f)", selectX, selectY);
+    return RectF(selectX, selectY, selectWidth, SELECT_MENE_HEIGHT);
+}
+
+void WebPattern::QuickMenuIsNeedNewAvoid(
+    SelectOverlayInfo& selectInfo,
+    std::shared_ptr<OHOS::NWeb::NWebQuickMenuParams> params,
+    std::shared_ptr<OHOS::NWeb::NWebTouchHandleState> startHandle,
+    std::shared_ptr<OHOS::NWeb::NWebTouchHandleState> endHandle)
+{
+    isQuickMenuMouseTrigger_ = false;
+    if (!selectInfo.firstHandle.isShow && !selectInfo.secondHandle.isShow) {
+        selectInfo.isNewAvoid = true;
+        if ((startHandle->GetEdgeHeight() == 0 && startHandle->GetTouchHandleId() == -1) &&
+            (endHandle->GetEdgeHeight() == 0 && endHandle->GetTouchHandleId() == -1)) {
+            isQuickMenuMouseTrigger_ = true;
+            selectInfo.selectArea =
+                ComputeMouseClippedSelectionBounds(params->GetSelectX(),
+                                                   params->GetSelectY(),
+                                                   params->GetSelectWidth(),
+                                                   params->GetSelectXHeight());
+            selectArea_ = selectInfo.selectArea;
+        } else {
+            selectInfo.selectArea =
+                ComputeClippedSelectionBounds(params, startHandle, endHandle, selectInfo.isNewAvoid);
+        }
+    }
+}
+
+void WebPattern::OnQuickMenuDismissed()
+{
+    CloseSelectOverlay();
+}
+
+void WebPattern::DumpViewDataPageNode(RefPtr<ViewDataWrap> viewDataWrap, bool needsRecordData)
+{
+    TAG_LOGI(AceLogTag::ACE_WEB, "called");
+    CHECK_NULL_VOID(viewDataWrap);
+    for (const auto& nodeInfo : pageNodeInfo_) {
+        if (nodeInfo) {
+            viewDataWrap->AddPageNodeInfoWrap(nodeInfo);
+        }
+    }
+    viewDataWrap->SetPageUrl(viewDataCommon_.pageUrl);
+    viewDataWrap->SetUserSelected(viewDataCommon_.isUserSelected);
+    viewDataWrap->SetOtherAccount(viewDataCommon_.isOtherAccount);
+
+    auto pipelineContext = PipelineContext::GetCurrentContext();
+    CHECK_NULL_VOID(pipelineContext);
+    auto rect = pipelineContext->GetDisplayWindowRectInfo();
+    NG::RectF rectF;
+    rectF.SetRect(rect.Left(), rect.Top(), rect.Width(), rect.Height());
+    viewDataWrap->SetPageRect(rectF);
+}
+
+void WebPattern::NotifyFillRequestSuccess(RefPtr<ViewDataWrap> viewDataWrap,
+    RefPtr<PageNodeInfoWrap> nodeWrap, AceAutoFillType autoFillType)
+{
+    TAG_LOGI(AceLogTag::ACE_WEB, "called");
+    CHECK_NULL_VOID(viewDataWrap);
+    auto nodeInfoWraps = viewDataWrap->GetPageNodeInfoWraps();
+    auto jsonNode = JsonUtil::Create(true);
+    AceAutoFillType focusType = AceAutoFillType::ACE_UNSPECIFIED;
+    for (const auto& nodeInfoWrap : nodeInfoWraps) {
+        if (nodeInfoWrap == nullptr) {
+            continue;
+        }
+        auto type = nodeInfoWrap->GetAutoFillType();
+        // white list check
+        if (ACE_AUTOFILL_TYPE_TO_NWEB.count(type) != 0) {
+            std::string key = ACE_AUTOFILL_TYPE_TO_NWEB.at(type);
+            if (nodeInfoWrap->GetMetadata() != IS_HINT_TYPE) {
+                jsonNode->Put(key.c_str(), nodeInfoWrap->GetValue().c_str());
+            } else {
+                auto json = JsonUtil::Create(true);
+                json->Put(OHOS::NWeb::NWEB_VIEW_DATA_KEY_PLACEHOLDER.c_str(), nodeInfoWrap->GetId());
+                json->Put(OHOS::NWeb::NWEB_VIEW_DATA_KEY_VALUE.c_str(), nodeInfoWrap->GetValue().c_str());
+                jsonNode->Put(key.c_str(), std::move(json));
+            }
+        }
+        if (nodeInfoWrap->GetIsFocus()) {
+            focusType = type;
+        }
+    }
+    auto pageUrl = viewDataWrap->GetPageUrl();
+    jsonNode->Put(AUTO_FILL_VIEW_DATA_PAGE_URL.c_str(), pageUrl.c_str());
+    auto otherAccount = viewDataWrap->GetOtherAccount();
+    jsonNode->Put(AUTO_FILL_VIEW_DATA_OTHER_ACCOUNT.c_str(), otherAccount);
+    delegate_->NotifyAutoFillViewData(jsonNode->ToString());
+
+    // shift focus after autofill
+    if (focusType != AceAutoFillType::ACE_UNSPECIFIED && !isPasswordFill_) {
+        for (const auto& nodeInfo : pageNodeInfo_) {
+            if (nodeInfo && nodeInfo->GetAutoFillType() == focusType) {
+                TouchEventInfo info("autofill");
+                TouchLocationInfo location("autofill", 0);
+                auto rectF = nodeInfo->GetPageNodeRect();
+                location.SetLocalLocation(Offset(rectF.GetX() + (rectF.Width() / POPUP_CALCULATE_RATIO),
+                    rectF.GetY() + (rectF.Height() / POPUP_CALCULATE_RATIO)));
+                info.AddChangedTouchLocationInfo(std::move(location));
+                HandleTouchDown(info, false);
+                HandleTouchUp(info, false);
+                break;
+            }
+        }
+    }
+}
+
+void WebPattern::NotifyFillRequestFailed(int32_t errCode, const std::string& fillContent, bool isPopup)
+{
+    TAG_LOGI(AceLogTag::ACE_WEB, "called, errCode:%{public}d", errCode);
+    if (isPasswordFill_) {
+        delegate_->AutofillCancel(fillContent);
+    }
+}
+
+void WebPattern::ParseViewDataNumber(const std::string& key, int32_t value,
+    RefPtr<PageNodeInfoWrap> node, RectT<float>& rect, float viewScale)
+{
+    CHECK_NULL_VOID(viewScale > FLT_EPSILON);
+    CHECK_NULL_VOID(node);
+    if (key == OHOS::NWeb::NWEB_VIEW_DATA_KEY_FOCUS) {
+        node->SetIsFocus(static_cast<bool>(value));
+    } else if (key == OHOS::NWeb::NWEB_VIEW_DATA_KEY_RECT_X) {
+        rect.SetLeft(value / viewScale);
+    } else if (key == OHOS::NWeb::NWEB_VIEW_DATA_KEY_RECT_Y) {
+        rect.SetTop(value / viewScale);
+    } else if (key == OHOS::NWeb::NWEB_VIEW_DATA_KEY_RECT_W) {
+        rect.SetWidth(value / viewScale);
+    } else if (key == OHOS::NWeb::NWEB_VIEW_DATA_KEY_RECT_H) {
+        rect.SetHeight(value / viewScale);
+    }
+}
+
+void ParseViewDataString(const std::string& key,
+    const std::string& value, RefPtr<PageNodeInfoWrap> node)
+{
+    CHECK_NULL_VOID(node);
+    if (key == OHOS::NWeb::NWEB_VIEW_DATA_KEY_VALUE) {
+        node->SetValue(value);
+    } else if (key == OHOS::NWeb::NWEB_VIEW_DATA_KEY_PLACEHOLDER) {
+        node->SetPlaceholder(value);
+    }
+}
+
+HintToTypeWrap WebPattern::GetHintTypeAndMetadata(const std::string& attribute, RefPtr<PageNodeInfoWrap> node)
+{
+    HintToTypeWrap hintToTypeWrap;
+    auto placeholder = node->GetPlaceholder();
+    if (NWEB_AUTOFILL_TYPE_TO_ACE.count(attribute) != 0) {
+        AceAutoFillType type = NWEB_AUTOFILL_TYPE_TO_ACE.at(attribute);
+        if (node->GetIsFocus()) {
+            if (type == AceAutoFillType::ACE_USER_NAME || type == AceAutoFillType::ACE_PASSWORD ||
+                type == AceAutoFillType::ACE_NEW_PASSWORD) {
+                TAG_LOGI(AceLogTag::ACE_WEB, "The form is login fill form");
+                isPasswordFill_ = true;
+            }
+        }
+        hintToTypeWrap.autoFillType = type;
+    } else if (!placeholder.empty()) {
+        // try hint2Type
+        auto host = GetHost();
+        CHECK_NULL_RETURN(host, hintToTypeWrap);
+        auto container = Container::Current();
+        if (container == nullptr) {
+            container = Container::GetActive();
+        }
+        CHECK_NULL_RETURN(container, hintToTypeWrap);
+        hintToTypeWrap = container->PlaceHolderToType(placeholder);
+    }
+    return hintToTypeWrap;
+}
+
+void WebPattern::ParseNWebViewDataNode(std::unique_ptr<JsonValue> child,
+    std::vector<RefPtr<PageNodeInfoWrap>>& nodeInfos, int32_t nodeId)
+{
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto pipelineContext = host->GetContextRefPtr();
+    CHECK_NULL_VOID(pipelineContext);
+    float viewScale = pipelineContext->GetViewScale();
+    CHECK_NULL_VOID(viewScale > FLT_EPSILON);
+
+    RefPtr<PageNodeInfoWrap> node = PageNodeInfoWrap::CreatePageNodeInfoWrap();
+    std::string attribute = child->GetKey();
+
+    RectT<float> rect;
+    int32_t len = child->GetArraySize();
+    for (int32_t index = 0; index < len; index++) {
+        auto object = child->GetArrayItem(index);
+        if (object == nullptr || !object->IsObject()) {
+            continue;
+        }
+        for (auto child = object->GetChild(); child && !child->IsNull(); child = child->GetNext()) {
+            if (child->IsString()) {
+                ParseViewDataString(child->GetKey(), child->GetString(), node);
+            } else if (child->IsNumber()) {
+                ParseViewDataNumber(child->GetKey(), child->GetInt(), node, rect, viewScale);
+            }
+        }
+    }
+
+    HintToTypeWrap hintToTypeWrap = GetHintTypeAndMetadata(attribute, node);
+    auto type = hintToTypeWrap.autoFillType;
+    if (type != AceAutoFillType::ACE_UNSPECIFIED) {
+        node->SetAutoFillType(type);
+        node->SetMetadata(hintToTypeWrap.metadata);
+    } else {
+        return;
+    }
+
+    NG::RectF rectF;
+    rectF.SetRect(rect.GetX(), rect.GetY(), rect.Width(), rect.Height());
+    node->SetPageNodeRect(rectF);
+    node->SetId(nodeId);
+    node->SetDepth(-1);
+    nodeInfos.emplace_back(node);
+}
+
+void WebPattern::ParseNWebViewDataCommonField(std::unique_ptr<JsonValue> child, ViewDataCommon& viewDataCommon)
+{
+    std::string key = child->GetKey();
+    if (child->IsString() && key == OHOS::NWeb::NWEB_AUTOFILL_EVENT_TYPE) {
+        std::string eventType = child->GetString();
+        if (NWEB_AUTOFILL_EVENTS.count(eventType) != 0) {
+            OHOS::NWeb::NWebAutofillEvent event = NWEB_AUTOFILL_EVENTS.at(eventType);
+            viewDataCommon.eventType = event;
+        }
+    }
+    if (child->IsString() && key == OHOS::NWeb::NWEB_AUTOFILL_PAGE_URL) {
+        viewDataCommon.pageUrl = child->GetString();
+    }
+    if (child->IsBool() && key == OHOS::NWeb::NWEB_AUTOFILL_IS_USER_SELECTED) {
+        viewDataCommon.isUserSelected = child->GetBool();
+    }
+    if (child->IsBool() && key == OHOS::NWeb::NWEB_AUTOFILL_IS_OTHER_ACCOUNT) {
+        viewDataCommon.isOtherAccount = child->GetBool();
+    }
+    if (child->IsString() && key == OHOS::NWeb::NWEB_AUTOFILL_EVENT_SOURCE) {
+        viewDataCommon.source = child->GetString();
+    }
+}
+
+void WebPattern::ParseNWebViewDataJson(const std::shared_ptr<OHOS::NWeb::NWebMessage>& viewDataJson,
+    std::vector<RefPtr<PageNodeInfoWrap>>& nodeInfos, ViewDataCommon& viewDataCommon)
+{
+    nodeInfos.clear();
+    auto sourceJson = JsonUtil::ParseJsonString(viewDataJson->GetString());
+    if (sourceJson == nullptr || sourceJson->IsNull()) {
+        return;
+    }
+
+    int32_t nodeId = 1;
+    int32_t len = sourceJson->GetArraySize();
+    for (int32_t index = 0; index < len; index++) {
+        auto object = sourceJson->GetArrayItem(index);
+        if (object == nullptr || !object->IsObject()) {
+            continue;
+        }
+        auto child = object->GetChild();
+        if (child == nullptr || child->IsNull()) {
+            continue;
+        }
+        if (child->IsArray()) {
+            ParseNWebViewDataNode(std::move(child), nodeInfos, nodeId);
+            nodeId++;
+        } else {
+            ParseNWebViewDataCommonField(std::move(child), viewDataCommon);
+        }
+    }
+}
+
+AceAutoFillType WebPattern::GetFocusedType()
+{
+    AceAutoFillType type = AceAutoFillType::ACE_UNSPECIFIED;
+    for (const auto& nodeInfo : pageNodeInfo_) {
+        if (nodeInfo && nodeInfo->GetIsFocus()) {
+            type = static_cast<AceAutoFillType>(nodeInfo->GetAutoFillType());
+            break;
+        }
+    }
+    return type;
+}
+
+bool WebPattern::HandleAutoFillEvent(const std::shared_ptr<OHOS::NWeb::NWebMessage>& viewDataJson)
+{
+    TAG_LOGI(AceLogTag::ACE_WEB, "AutoFillEvent");
+    viewDataCommon_ = {};
+    isPasswordFill_ = false;
+    ParseNWebViewDataJson(viewDataJson, pageNodeInfo_, viewDataCommon_);
+
+    if (isPasswordFill_ && viewDataCommon_.source != OHOS::NWeb::NWEB_AUTOFILL_FOR_LOGIN) {
+        TAG_LOGI(AceLogTag::ACE_WEB,
+            "Handle autofill event failed! The form contains a login node, but the soruce is incorrect.");
+        return false;
+    }
+
+    auto eventType = viewDataCommon_.eventType;
+
+    if (eventType == OHOS::NWeb::NWebAutofillEvent::FILL) {
+        auto host = GetHost();
+        CHECK_NULL_RETURN(host, false);
+        auto context = host->GetContext();
+        CHECK_NULL_RETURN(context, false);
+        auto taskExecutor = context->GetTaskExecutor();
+        CHECK_NULL_RETURN(taskExecutor, false);
+        bool fillRet = taskExecutor->PostDelayedTask(
+            [weak = WeakClaim(this)] () {
+                auto pattern = weak.Upgrade();
+                CHECK_NULL_RETURN(pattern, false);
+                return pattern->RequestAutoFill(pattern->GetFocusedType());
+            },
+            TaskExecutor::TaskType::UI, AUTOFILL_DELAY_TIME, "ArkUIWebHandleAutoFillEvent");
+        return fillRet;
+    }
+
+    if (eventType == OHOS::NWeb::NWebAutofillEvent::SAVE) {
+        return RequestAutoSave();
+    } else if (eventType == OHOS::NWeb::NWebAutofillEvent::UPDATE) {
+        return UpdateAutoFillPopup();
+    } else if (eventType == OHOS::NWeb::NWebAutofillEvent::CLOSE) {
+        return CloseAutoFillPopup();
+    }
+
+    return false;
+}
+
+bool WebPattern::RequestAutoFill(AceAutoFillType autoFillType)
+{
+    TAG_LOGI(AceLogTag::ACE_WEB, "RequestAutoFill");
+    auto host = GetHost();
+    CHECK_NULL_RETURN(host, false);
+    auto context = host->GetContext();
+    CHECK_NULL_RETURN(context, false);
+    auto instanceId = context->GetInstanceId();
+    CHECK_NULL_RETURN(instanceId, false);
+    ContainerScope scope(instanceId);
+
+    auto offset = GetCoordinatePoint().value_or(OffsetF());
+    for (auto& nodeInfo : pageNodeInfo_) {
+        auto rect = nodeInfo->GetPageNodeRect();
+        NG::RectF rectF;
+        rectF.SetRect(rect.GetX() + offset.GetX(), rect.GetY()+ offset.GetY(), rect.Width(), rect.Height());
+        nodeInfo->SetPageNodeRect(rectF);
+    }
+
+    auto container = Container::Current();
+    if (container == nullptr) {
+        container = Container::GetActive();
+    }
+    CHECK_NULL_RETURN(container, false);
+    isAutoFillClosing_ = false;
+    bool isPopup = false;
+    return container->RequestAutoFill(host, autoFillType, false, isPopup, autoFillSessionId_, false);
+}
+
+bool WebPattern::RequestAutoSave()
+{
+    TAG_LOGI(AceLogTag::ACE_WEB, "RequestAutoSave");
+    auto host = GetHost();
+    CHECK_NULL_RETURN(host, false);
+    auto context = host->GetContext();
+    CHECK_NULL_RETURN(context, false);
+    auto instanceId = context->GetInstanceId();
+    CHECK_NULL_RETURN(instanceId, false);
+    ContainerScope scope(instanceId);
+    auto container = Container::Current();
+    if (container == nullptr) {
+        container = Container::GetActive();
+    }
+    CHECK_NULL_RETURN(container, false);
+    return container->RequestAutoSave(host, nullptr, nullptr, false);
+}
+
+bool WebPattern::UpdateAutoFillPopup()
+{
+    TAG_LOGI(AceLogTag::ACE_WEB, "UpdateAutoFillPopup");
+    if (isAutoFillClosing_) {
+        return false;
+    }
+    auto host = GetHost();
+    CHECK_NULL_RETURN(host, false);
+    auto context = host->GetContext();
+    CHECK_NULL_RETURN(context, false);
+    auto instanceId = context->GetInstanceId();
+    CHECK_NULL_RETURN(instanceId, false);
+    ContainerScope scope(instanceId);
+    auto container = Container::Current();
+    if (container == nullptr) {
+        container = Container::GetActive();
+    }
+    CHECK_NULL_RETURN(container, false);
+    return container->UpdatePopupUIExtension(host, autoFillSessionId_, false);
+}
+
+bool WebPattern::CloseAutoFillPopup()
+{
+    TAG_LOGI(AceLogTag::ACE_WEB, "CloseAutoFillPopup");
+    auto host = GetHost();
+    CHECK_NULL_RETURN(host, false);
+    auto context = host->GetContext();
+    CHECK_NULL_RETURN(context, false);
+    auto instanceId = context->GetInstanceId();
+    CHECK_NULL_RETURN(instanceId, false);
+    ContainerScope scope(instanceId);
+    auto container = Container::Current();
+    if (container == nullptr) {
+        container = Container::GetActive();
+    }
+    CHECK_NULL_RETURN(container, false);
+    isAutoFillClosing_ = true;
+    return container->ClosePopupUIExtension(autoFillSessionId_);
+}
+
+void WebPattern::UpdateSelectHandleInfo()
+{
+    bool needReverse = IsSelectHandleReverse();
+    SelectHandleInfo handleInfo;
+    if (!needReverse) {
+        if (!isCurrentStartHandleDragging_) {
+            handleInfo.paintRect = ComputeTouchHandleRect(startSelectionHandle_);
+            CheckHandles(handleInfo, startSelectionHandle_);
+            selectOverlayProxy_->UpdateFirstSelectHandleInfo(handleInfo);
+        } else {
+            handleInfo.paintRect = ComputeTouchHandleRect(endSelectionHandle_);
+            CheckHandles(handleInfo, endSelectionHandle_);
+            selectOverlayProxy_->UpdateSecondSelectHandleInfo(handleInfo);
+        }
+    } else {
+        if (!isCurrentStartHandleDragging_) {
+            handleInfo.paintRect = ComputeTouchHandleRect(endSelectionHandle_);
+            CheckHandles(handleInfo, endSelectionHandle_);
+            selectOverlayProxy_->UpdateFirstSelectHandleInfo(handleInfo);
+        } else {
+            handleInfo.paintRect = ComputeTouchHandleRect(startSelectionHandle_);
+            CheckHandles(handleInfo, startSelectionHandle_);
+            selectOverlayProxy_->UpdateSecondSelectHandleInfo(handleInfo);
+        }
+    }
+}
+
+bool WebPattern::IsSelectHandleReverse()
+{
+    if (startSelectionHandle_->GetTouchHandleType() ==
+        OHOS::NWeb::NWebTouchHandleState::SELECTION_BEGIN_HANDLE &&
+        endSelectionHandle_->GetTouchHandleType() ==
+        OHOS::NWeb::NWebTouchHandleState::SELECTION_BEGIN_HANDLE) {
+        return true;
+    } else if (startSelectionHandle_->GetTouchHandleType() ==
+        OHOS::NWeb::NWebTouchHandleState::SELECTION_END_HANDLE &&
+        endSelectionHandle_->GetTouchHandleType() ==
+        OHOS::NWeb::NWebTouchHandleState::SELECTION_END_HANDLE) {
+        return true;
+    }
+    return false;
+}
+
+void WebPattern::OnTouchSelectionChanged(std::shared_ptr<OHOS::NWeb::NWebTouchHandleState> insertHandle,
+    std::shared_ptr<OHOS::NWeb::NWebTouchHandleState> startSelectionHandle,
+    std::shared_ptr<OHOS::NWeb::NWebTouchHandleState> endSelectionHandle)
+{
+    WebOverlayType overlayType = GetTouchHandleOverlayType(insertHandle, startSelectionHandle, endSelectionHandle);
+    if (overlayType == INVALID_OVERLAY) {
+        CloseSelectOverlay();
+        return;
+    }
+    auto pipeline = PipelineContext::GetCurrentContext();
+    CHECK_NULL_VOID(pipeline);
+    insertHandle_ = insertHandle;
+    startSelectionHandle_ = startSelectionHandle;
+    endSelectionHandle_ = endSelectionHandle;
+    if (selectTemporarilyHidden_ || selectTemporarilyHiddenByScroll_) {
+        TAG_LOGD(AceLogTag::ACE_WEB, "select menu temporarily hidden");
+        return;
+    }
+    if (!selectOverlayProxy_) {
+        if (overlayType == INSERT_OVERLAY) {
+            SelectOverlayInfo selectInfo;
+            selectInfo.isSingleHandle = true;
+            selectInfo.firstHandle.paintRect = ComputeTouchHandleRect(insertHandle_);
+            CheckHandles(selectInfo.firstHandle, insertHandle_);
+            selectInfo.secondHandle.isShow = false;
+            selectInfo.menuInfo.menuDisable = true;
+            selectInfo.menuInfo.menuIsShow = false;
+            selectInfo.hitTestMode = HitTestMode::HTMDEFAULT;
+            selectInfo.isHandleLineShow = false;
+            RegisterSelectOverlayEvent(selectInfo);
+            selectOverlayProxy_ =
+                pipeline->GetSelectOverlayManager()->CreateAndShowSelectOverlay(selectInfo, WeakClaim(this));
+        }
+    } else {
+        if (overlayType == INSERT_OVERLAY) {
+            UpdateTouchHandleForOverlay();
+        } else {
+            UpdateSelectHandleInfo();
+            if (!IsSelectOverlayDragging()) {
+                UpdateTouchHandleForOverlay();
+            }
+        }
+    }
+}
+
+bool WebPattern::OnCursorChange(const OHOS::NWeb::CursorType& type, std::shared_ptr<OHOS::NWeb::NWebCursorInfo> info)
+{
+    TAG_LOGD(AceLogTag::ACE_WEB, "OnCursorChange type: %{public}d", type);
+    if (mouseEventDeviceId_ == RESERVED_DEVICEID) {
+        TAG_LOGD(AceLogTag::ACE_WEB, "OnCursorChange this device id is reserved.");
+        return false;
+    }
+    if (isHoverExit_ && type == OHOS::NWeb::CursorType::CT_NONE) {
+        TAG_LOGD(AceLogTag::ACE_WEB, "OnCursorChange reciving unexpected hide command");
+        return false;
+    }
+    auto pipeline = PipelineContext::GetCurrentContext();
+    CHECK_NULL_RETURN(pipeline, false);
+    auto windowId = pipeline->GetWindowId();
+    auto mouseStyle = MouseStyle::CreateMouseStyle();
+    int32_t curPointerStyle = 0;
+    if (mouseStyle->GetPointerStyle(windowId, curPointerStyle) == -1) {
+        return false;
+    }
+
+    if ((type == OHOS::NWeb::CursorType::CT_CONTEXTMENU) || (type == OHOS::NWeb::CursorType::CT_ALIAS)) {
+        UpdateLocalCursorStyle(windowId, type);
+    } else if (type == OHOS::NWeb::CursorType::CT_CUSTOM) {
+        UpdateCustomCursor(windowId, info);
+    } else {
+        MouseFormat pointStyle = MouseFormat::DEFAULT;
+        int64_t idx = BinarySearchFindIndex(g_cursorTypeMap, ArraySize(g_cursorTypeMap), type);
+        if (idx >= 0) {
+            pointStyle = g_cursorTypeMap[idx].value;
+        }
+        mouseStyle->SetPointerVisible(pointStyle);
+        if (static_cast<int32_t>(pointStyle) != curPointerStyle) {
+            mouseStyle->SetPointerStyle(windowId, pointStyle);
+        }
+    }
+    return true;
+}
+
+void WebPattern::UpdateLocalCursorStyle(int32_t windowId, const OHOS::NWeb::CursorType& type)
+{
+    std::shared_ptr<Media::PixelMap> pixelMap;
+    auto mouseStyle = MouseStyle::CreateMouseStyle();
+    if (type == NWeb::CursorType::CT_CONTEXTMENU) {
+        MouseFormat pointStyle = MouseFormat::CONTEXT_MENU;
+        pixelMap = CreatePixelMapFromString(IMAGE_POINTER_CONTEXT_MENU_PATH);
+        mouseStyle->SetMouseIcon(windowId, pointStyle, pixelMap);
+    } else if (type == NWeb::CursorType::CT_ALIAS) {
+        MouseFormat pointStyle = MouseFormat::ALIAS;
+        pixelMap = CreatePixelMapFromString(IMAGE_POINTER_ALIAS_PATH);
+        mouseStyle->SetMouseIcon(windowId, pointStyle, pixelMap);
+    }
+}
+
+void WebPattern::UpdateCustomCursor(int32_t windowId, std::shared_ptr<OHOS::NWeb::NWebCursorInfo> info)
+{
+    int32_t x = 0;
+    int32_t y = 0;
+    int32_t width = 0;
+    int32_t height = 0;
+    uint8_t *buff = nullptr;
+    if (info) {
+        x = info->GetX();
+        y = info->GetY();
+        buff = info->GetBuff();
+        width = info->GetWidth();
+        height = info->GetHeight();
+    }
+    Media::InitializationOptions opt;
+    opt.size.width = width;
+    opt.size.height = height;
+    opt.editable = true;
+    auto pixelMap = Media::PixelMap::Create(opt);
+    CHECK_NULL_VOID(pixelMap);
+    uint64_t bufferSize = static_cast<uint64_t>(width * height * IMAGE_POINTER_CUSTOM_CHANNEL);
+    uint32_t status = pixelMap->WritePixels(static_cast<const uint8_t*>(buff), bufferSize);
+    if (status != 0) {
+        TAG_LOGE(AceLogTag::ACE_WEB, "write pixel map failed %{public}u", status);
+        return;
+    }
+    std::shared_ptr<Media::PixelMap> cursorPixelMap(pixelMap.release());
+    CHECK_NULL_VOID(cursorPixelMap);
+    auto mouseStyle = MouseStyle::CreateMouseStyle();
+    CHECK_NULL_VOID(mouseStyle);
+    mouseStyle->SetCustomCursor(windowId, x, y, cursorPixelMap);
+}
+
+std::shared_ptr<OHOS::Media::PixelMap> WebPattern::CreatePixelMapFromString(const std::string& filePath)
+{
+    OHOS::Media::SourceOptions opts;
+    opts.formatHint = "image/svg+xml";
+    uint32_t errCode = 0;
+    auto imageSource = OHOS::Media::ImageSource::CreateImageSource(filePath, opts, errCode);
+    CHECK_NULL_RETURN(imageSource, nullptr);
+    std::set<std::string> formats;
+    errCode = imageSource->GetSupportedFormats(formats);
+    Media::DecodeOptions decodeOpts;
+    std::shared_ptr<OHOS::Media::PixelMap> pixelMap = imageSource->CreatePixelMap(decodeOpts, errCode);
+    CHECK_NULL_RETURN(pixelMap, nullptr);
+
+    return pixelMap;
+}
+
+void WebPattern::OnTooltip(const std::string& tooltip)
+{
+    auto pipeline = PipelineContext::GetCurrentContext();
+    CHECK_NULL_VOID(pipeline);
+    auto overlayManager = pipeline->GetOverlayManager();
+    CHECK_NULL_VOID(overlayManager);
+    tooltipTimestamp_ = GetSysTimestamp();
+    auto tooltipTimestamp = tooltipTimestamp_;
+
+    if (tooltipId_ != -1) {
+        overlayManager->RemoveIndexerPopupById(tooltipId_);
+        tooltipId_ = -1;
+    }
+    auto tooltipText = tooltip;
+    OHOS::Ace::StringUtils::TrimStrLeadingAndTrailing(tooltipText);
+    if (tooltipText == "" || mouseHoveredX_ < 0 || mouseHoveredY_ < 0) {
+        return;
+    }
+    ShowTooltip(tooltipText, tooltipTimestamp);
+}
+
+void WebPattern::OnPopupSize(int32_t x, int32_t y, int32_t width, int32_t height)
+{
+    CHECK_NULL_VOID(renderContextForPopupSurface_);
+    TAG_LOGI(AceLogTag::ACE_WEB,
+        "Web %{public}d popup window resize to (x:%{public}d, y:%{public}d, width:%{public}d, height:%{public}d)",
+        GetWebId(), x, y, width, height);
+    renderContextForPopupSurface_->SetBounds(x, y, width, height);
+}
+
+void WebPattern::OnPopupShow(bool show)
+{
+    if (!show) {
+        CHECK_NULL_VOID(renderContextForPopupSurface_);
+        renderContextForPopupSurface_->SetBounds(0, 0, 0, 0);
+    }
+    
+    TAG_LOGI(AceLogTag::ACE_WEB, "Web %{public}d show popup window %{public}d", GetWebId(), show);
+    auto pipeline = GetContext();
+    CHECK_NULL_VOID(pipeline);
+    pipeline->RequestFrame();
+}
+
+void WebPattern::AttachCustomKeyboard()
+{
+    TAG_LOGI(AceLogTag::ACE_WEB, "WebCustomKeyboard AttachCustomKeyboard enter");
+    CHECK_NULL_VOID(customKeyboardBuilder_);
+    auto frameNode = GetHost();
+    CHECK_NULL_VOID(frameNode);
+    auto pipeline = PipelineContext::GetCurrentContextSafely();
+    CHECK_NULL_VOID(pipeline);
+    auto overlayManager = pipeline->GetOverlayManager();
+    CHECK_NULL_VOID(overlayManager);
+    overlayManager->SetCustomKeyboardOption(true);
+    overlayManager->BindKeyboard(customKeyboardBuilder_, frameNode->GetId());
+    keyboardOverlay_ = overlayManager;
+    keyboardOverlay_->AvoidCustomKeyboard(frameNode->GetId(), 0);
+    TAG_LOGI(AceLogTag::ACE_WEB, "WebCustomKeyboard AttachCustomKeyboard end");
+}
+
+void WebPattern::CloseCustomKeyboard()
+{
+    TAG_LOGI(AceLogTag::ACE_WEB, "WebCustomKeyboard CloseCustomKeyboard enter");
+    auto frameNode = GetHost();
+    CHECK_NULL_VOID(frameNode);
+    CHECK_NULL_VOID(keyboardOverlay_);
+    keyboardOverlay_->CloseKeyboard(frameNode->GetId());
+    TAG_LOGI(AceLogTag::ACE_WEB, "WebCustomKeyboard CloseCustomKeyboard end");
+}
+
+void WebPattern::HandleShowTooltip(const std::string& tooltip, int64_t tooltipTimestamp)
+{
+    if ((tooltipTimestamp_ != tooltipTimestamp) || (tooltip == "")) {
+        return;
+    }
+    auto pipeline = PipelineContext::GetCurrentContext();
+    CHECK_NULL_VOID(pipeline);
+    auto overlayManager = pipeline->GetOverlayManager();
+    CHECK_NULL_VOID(overlayManager);
+    if (tooltipId_ == -1) {
+        tooltipId_ = ElementRegister::GetInstance()->MakeUniqueId();
+    }
+    auto tooltipNode = FrameNode::GetOrCreateFrameNode(V2::TEXT_ETS_TAG, tooltipId_,
+        []() { return AceType::MakeRefPtr<TextPattern>(); });
+    CHECK_NULL_VOID(tooltipNode);
+
+    auto textRenderContext = tooltipNode->GetRenderContext();
+    CHECK_NULL_VOID(textRenderContext);
+    auto textLayoutProperty = tooltipNode->GetLayoutProperty<TextLayoutProperty>();
+    CHECK_NULL_VOID(textLayoutProperty);
+    textLayoutProperty->UpdateContent(tooltip);
+
+    BorderWidthProperty borderWidth;
+    borderWidth.SetBorderWidth(TOOLTIP_BORDER_WIDTH);
+    textLayoutProperty->UpdateBorderWidth(borderWidth);
+    textLayoutProperty->UpdateFontSize(TOOLTIP_FONT_SIZE);
+    textLayoutProperty->UpdatePadding({ CalcLength(TOOLTIP_PADDING),
+        CalcLength(TOOLTIP_PADDING), CalcLength(TOOLTIP_PADDING), CalcLength(TOOLTIP_PADDING) });
+    textLayoutProperty->UpdateCalcMaxSize(CalcSize(CalcLength(Dimension(
+        pipeline->GetCurrentRootWidth() * TOOLTIP_MAX_PORTION)), std::nullopt));
+    UpdateTooltipContentColor(tooltipNode);
+
+    OffsetF tooltipOffset;
+    CalculateTooltipOffset(tooltipNode, tooltipOffset);
+    textRenderContext->UpdatePosition(OffsetT<Dimension>(Dimension(tooltipOffset.GetX()),
+        Dimension(tooltipOffset.GetY())));
+
+    BorderColorProperty borderColor;
+    borderColor.SetColor(Color::BLACK);
+    textRenderContext->UpdateBorderColor(borderColor);
+    overlayManager->ShowIndexerPopup(tooltipId_, tooltipNode);
+}
+
+void WebPattern::UpdateTooltipContentColor(const RefPtr<FrameNode>& textNode)
+{
+    CHECK_NULL_VOID(textNode);
+    auto textRenderContext = textNode->GetRenderContext();
+    CHECK_NULL_VOID(textRenderContext);
+    auto textLayoutProperty = textNode->GetLayoutProperty<TextLayoutProperty>();
+    CHECK_NULL_VOID(textLayoutProperty);
+
+    if (Color::BLACK == GetSystemColor()) {
+        textLayoutProperty->UpdateTextColor(Color::WHITE);
+        textRenderContext->UpdateBackgroundColor(Color::BLACK);
+    } else {
+        textLayoutProperty->UpdateTextColor(Color::BLACK);
+        textRenderContext->UpdateBackgroundColor(Color::WHITE);
+    }
+}
+
+void WebPattern::ShowTooltip(const std::string& tooltip, int64_t tooltipTimestamp)
+{
+    auto tooltipTask = [weak = WeakClaim(this), tooltip, tooltipTimestamp]() {
+        auto pattern = weak.Upgrade();
+        CHECK_NULL_VOID(pattern);
+        pattern->HandleShowTooltip(tooltip, tooltipTimestamp);
+    };
+
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto context = host->GetContext();
+    CHECK_NULL_VOID(context);
+
+    auto taskExecutor = context->GetTaskExecutor();
+    CHECK_NULL_VOID(taskExecutor);
+
+    taskExecutor->PostDelayedTask(tooltipTask, TaskExecutor::TaskType::UI, TOOLTIP_DELAY_MS, "ArkUIWebShowTooltip");
+}
+
+void WebPattern::CalculateTooltipOffset(RefPtr<FrameNode>& tooltipNode, OffsetF& tooltipOffset)
+{
+    auto textLayoutWrapper = tooltipNode->CreateLayoutWrapper(true);
+    CHECK_NULL_VOID(textLayoutWrapper);
+    textLayoutWrapper->Measure(std::nullopt);
+    auto textGeometryNode = textLayoutWrapper->GetGeometryNode();
+    CHECK_NULL_VOID(textGeometryNode);
+    auto textWidth = textGeometryNode->GetMarginFrameSize().Width();
+    auto textHeight = textGeometryNode->GetMarginFrameSize().Height();
+
+    auto offset = GetCoordinatePoint().value_or(OffsetF());
+    auto offsetX = offset.GetX() + mouseHoveredX_ + TOOLTIP_MARGIN;
+    auto offsetY = offset.GetY() + mouseHoveredY_ + TOOLTIP_MARGIN;
+    auto pipeline = PipelineContext::GetCurrentContext();
+    CHECK_NULL_VOID(pipeline);
+    if (GreatNotEqual(offsetX + textWidth, pipeline->GetCurrentRootWidth())) {
+        offsetX = pipeline->GetCurrentRootWidth() - textWidth;
+    }
+    if (GreatNotEqual(offsetY + textHeight, pipeline->GetCurrentRootHeight())) {
+        offsetY = pipeline->GetCurrentRootHeight() - textHeight;
+    }
+    tooltipOffset.SetX(offsetX);
+    tooltipOffset.SetY(offsetY);
+    TAG_LOGI(AceLogTag::ACE_WEB,
+        "CalculateTooltipOffset [Tooltip] width: %{public}f height: %{public}f offset:(%{public}f, %{public}f)"
+        " [Web] width: %{public}f height: %{public}f offset:(%{public}f, %{public}f)",
+        textWidth, textHeight, offsetX, offsetY, drawSize_.Width(), drawSize_.Height(), offset.GetX(), offset.GetY());
+}
+
+void WebPattern::OnSelectPopupMenu(std::shared_ptr<OHOS::NWeb::NWebSelectPopupMenuParam> params,
+    std::shared_ptr<OHOS::NWeb::NWebSelectPopupMenuCallback> callback)
+{
+    CHECK_NULL_VOID(params);
+    CHECK_NULL_VOID(callback);
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto eventHub = host->GetEventHub<WebEventHub>();
+    CHECK_NULL_VOID(eventHub);
+    auto context = PipelineContext::GetCurrentContext();
+    CHECK_NULL_VOID(context);
+    auto overlayManager = context->GetOverlayManager();
+    CHECK_NULL_VOID(overlayManager);
+
+    auto id = host->GetId();
+    std::vector<SelectParam> selectParam;
+    for (auto& item : params->GetMenuItems()) {
+        selectParam.push_back({
+            item->GetLabel(), ""
+        });
+    }
+    auto menu = MenuView::Create(selectParam, id, host->GetTag());
+    CHECK_NULL_VOID(menu);
+    auto menuWrapperPattern = menu->GetPattern<MenuWrapperPattern>();
+    CHECK_NULL_VOID(menuWrapperPattern);
+    auto destructor = [weak = WeakClaim(this), id]() {
+        auto pattern = weak.Upgrade();
+        CHECK_NULL_VOID(pattern);
+        auto pipeline = NG::PipelineContext::GetCurrentContext();
+        CHECK_NULL_VOID(pipeline);
+        auto manager = pipeline->GetOverlayManager();
+        CHECK_NULL_VOID(manager);
+        pattern->SetSelectPopupMenuShowing(false);
+        manager->DeleteMenu(id);
+    };
+    eventHub->SetOnDisappear(destructor);
+
+    WebPattern::InitSelectPopupMenuView(menu, callback, params, context->GetDipScale());
+    menuWrapperPattern->RegisterMenuDisappearCallback([weak = WeakClaim(this), callback]() {
+        auto pattern = weak.Upgrade();
+        CHECK_NULL_VOID(pattern);
+        callback->Cancel();
+        pattern->SetSelectPopupMenuShowing(false);
+    });
+    auto offset = GetSelectPopupPostion(params->GetSelectMenuBound());
+    TAG_LOGI(AceLogTag::ACE_WEB, "OnSelectPopupMenu offset:(%{public}f, %{public}f)", offset.GetX(), offset.GetY());
+    selectPopupMenuShowing_ = true;
+    overlayManager->ShowMenu(id, offset, menu);
+}
+
+void WebPattern::NotifyForNextTouchEvent()
+{
+    TAG_LOGI(AceLogTag::ACE_WEB, "WebPattern::NotifyForNextTouchEvent");
+    CHECK_NULL_VOID(delegate_);
+    delegate_->NotifyForNextTouchEvent();
+}
+
+void WebPattern::InitTouchEventListener()
+{
+    TAG_LOGD(AceLogTag::ACE_WEB, "WebPattern::InitTouchEventListener");
+    if (touchEventListener_) {
+        return;
+    }
+    touchEventListener_ = std::make_shared<TouchEventListener>();
+    touchEventListener_->SetPatternToListener(AceType::WeakClaim(this));
+
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto context = host->GetContext();
+    CHECK_NULL_VOID(context);
+
+    context->RegisterTouchEventListener(touchEventListener_);
+}
+
+void WebPattern::UninitTouchEventListener()
+{
+    TAG_LOGD(AceLogTag::ACE_WEB, "WebPattern::UninitTouchEventListener");
+    touchEventListener_ = nullptr;
+
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto context = host->GetContext();
+    CHECK_NULL_VOID(context);
+    context->UnregisterTouchEventListener(AceType::WeakClaim(this));
+}
+
+void WebPattern::OnDateTimeChooserPopup(std::shared_ptr<OHOS::NWeb::NWebDateTimeChooser> chooser,
+    const std::vector<std::shared_ptr<OHOS::NWeb::NWebDateTimeSuggestion>>& suggestions,
+    std::shared_ptr<NWeb::NWebDateTimeChooserCallback> callback)
+{
+    if (!chooser) {
+        return;
+    }
+
+    bool result = false;
+    if (suggestions.size() != 0) {
+        result = ShowDateTimeSuggestionDialog(chooser, suggestions, callback);
+    } else if (chooser->GetType() == NWeb::DTC_TIME) {
+        result = ShowTimeDialog(chooser, suggestions, callback);
+    } else {
+        result = ShowDateTimeDialog(chooser, suggestions, callback);
+    }
+    if (!result) {
+        callback->Continue(false, OHOS::NWeb::DateTime());
+    }
+}
+
+DialogProperties WebPattern::GetDialogProperties(const RefPtr<DialogTheme>& theme)
+{
+    DialogProperties properties;
+    if (GetWebInfoType() == WebInfoType::TYPE_MOBILE) {
+        properties.alignment = DialogAlignment::BOTTOM;
+    } else {
+        properties.alignment = DialogAlignment::CENTER;
+    }
+    properties.customStyle = false;
+    properties.offset = DimensionOffset(Offset(0, -theme->GetMarginBottom().ConvertToPx()));
+    return properties;
+}
+
+bool WebPattern::ShowDateTimeDialog(std::shared_ptr<OHOS::NWeb::NWebDateTimeChooser> chooser,
+    const std::vector<std::shared_ptr<OHOS::NWeb::NWebDateTimeSuggestion>>& suggestions,
+    std::shared_ptr<NWeb::NWebDateTimeChooserCallback> callback)
+{
+    auto container = Container::Current();
+    CHECK_NULL_RETURN(container, false);
+    auto pipelineContext = AccessibilityManager::DynamicCast<NG::PipelineContext>(container->GetPipelineContext());
+    CHECK_NULL_RETURN(pipelineContext, false);
+    auto executor = pipelineContext->GetTaskExecutor();
+    CHECK_NULL_RETURN(executor, false);
+    auto context = AccessibilityManager::DynamicCast<NG::PipelineContext>(pipelineContext);
+    auto overlayManager = context ? context->GetOverlayManager() : nullptr;
+    CHECK_NULL_RETURN(overlayManager, false);
+    auto theme = pipelineContext->GetTheme<DialogTheme>();
+    CHECK_NULL_RETURN(theme, false);
+    NG::DatePickerSettingData settingData;
+    settingData.isLunar = false;
+    settingData.showTime = chooser->GetType() == NWeb::DTC_DATETIME_LOCAL;
+    settingData.useMilitary = true;
+    DialogProperties properties = GetDialogProperties(theme);
+    std::map<std::string, PickerDate> datePickerProperty;
+    std::map<std::string, PickerTime> timePickerProperty;
+    OHOS::NWeb::DateTime minimum = chooser->GetMinimum();
+    OHOS::NWeb::DateTime maximum = chooser->GetMaximum();
+    OHOS::NWeb::DateTime dialogValue = chooser->GetDialogValue();
+    settingData.datePickerProperty["start"] = PickerDate(minimum.year, minimum.month + 1, minimum.day);
+    settingData.datePickerProperty["end"] = PickerDate(maximum.year, maximum.month + 1, maximum.day);
+    if (chooser->GetHasSelected()) {
+        int32_t day = (dialogValue.day == 0) ? 1 : dialogValue.day;
+        settingData.datePickerProperty["selected"] = PickerDate(dialogValue.year, dialogValue.month + 1, day);
+    }
+    std::map<std::string, NG::DialogEvent> dialogEvent;
+    std::map<std::string, NG::DialogGestureEvent> dialogCancelEvent;
+    dialogEvent["acceptId"] = [callback](const std::string& info) {
+        OHOS::NWeb::DateTime result;
+        bool success = ParseDateTimeJson(info, result);
+        callback->Continue(success, result);
+    };
+    dialogCancelEvent["cancelId"] =
+        [callback](const GestureEvent&) { callback->Continue(false, OHOS::NWeb::DateTime()); };
+    overlayManager->RegisterOnHideDialog([callback] { callback->Continue(false, OHOS::NWeb::DateTime()); });
+    executor->PostTask(
+        [properties, settingData, dialogEvent, dialogCancelEvent, weak = WeakPtr<NG::OverlayManager>(overlayManager)] {
+            auto overlayManager = weak.Upgrade();
+            CHECK_NULL_VOID(overlayManager);
+            overlayManager->ShowDateDialog(properties, settingData, dialogEvent, dialogCancelEvent);
+        },
+        TaskExecutor::TaskType::UI, "ArkUIWebShowDateDialog");
+    return true;
+}
+
+bool WebPattern::ShowTimeDialog(std::shared_ptr<OHOS::NWeb::NWebDateTimeChooser> chooser,
+    const std::vector<std::shared_ptr<OHOS::NWeb::NWebDateTimeSuggestion>>& suggestions,
+    std::shared_ptr<NWeb::NWebDateTimeChooserCallback> callback)
+{
+    auto container = Container::Current();
+    CHECK_NULL_RETURN(container, false);
+    auto pipelineContext = AccessibilityManager::DynamicCast<NG::PipelineContext>(container->GetPipelineContext());
+    CHECK_NULL_RETURN(pipelineContext, false);
+    auto executor = pipelineContext->GetTaskExecutor();
+    CHECK_NULL_RETURN(executor, false);
+    auto theme = pipelineContext->GetTheme<DialogTheme>();
+    CHECK_NULL_RETURN(theme, false);
+    auto context = AccessibilityManager::DynamicCast<NG::PipelineContext>(pipelineContext);
+    auto overlayManager = context ? context->GetOverlayManager() : nullptr;
+    CHECK_NULL_RETURN(overlayManager, false);
+    NG::TimePickerSettingData settingData;
+    settingData.isUseMilitaryTime = true;
+    DialogProperties properties = GetDialogProperties(theme);
+    std::map<std::string, PickerTime> timePickerProperty;
+    OHOS::NWeb::DateTime minimum = chooser->GetMinimum();
+    OHOS::NWeb::DateTime maximum = chooser->GetMaximum();
+    OHOS::NWeb::DateTime dialogValue = chooser->GetDialogValue();
+    timePickerProperty["start"] = PickerTime(minimum.hour, minimum.minute, minimum.second);
+    timePickerProperty["selected"] = PickerTime(maximum.hour, maximum.minute, maximum.second);
+    if (chooser->GetHasSelected()) {
+        timePickerProperty["selected"] = PickerTime(dialogValue.hour, dialogValue.minute, dialogValue.second);
+    }
+    std::map<std::string, NG::DialogEvent> dialogEvent;
+    std::map<std::string, NG::DialogGestureEvent> dialogCancelEvent;
+    dialogEvent["acceptId"] = [callback](const std::string& info) {
+        OHOS::NWeb::DateTime result;
+        bool success = ParseDateTimeJson(info, result);
+        callback->Continue(success, result);
+    };
+    dialogCancelEvent["cancelId"] =
+        [callback](const GestureEvent&) { callback->Continue(false, OHOS::NWeb::DateTime()); };
+    overlayManager->RegisterOnHideDialog([callback] { callback->Continue(false, OHOS::NWeb::DateTime()); });
+    executor->PostTask(
+        [properties, settingData, timePickerProperty, dialogEvent, dialogCancelEvent,
+            weak = WeakPtr<NG::OverlayManager>(overlayManager)] {
+            auto overlayManager = weak.Upgrade();
+            CHECK_NULL_VOID(overlayManager);
+            overlayManager->ShowTimeDialog(properties, settingData, timePickerProperty, dialogEvent, dialogCancelEvent);
+        },
+        TaskExecutor::TaskType::UI, "ArkUIWebShowTimeDialog");
+    return true;
+}
+
+bool WebPattern::ShowDateTimeSuggestionDialog(std::shared_ptr<OHOS::NWeb::NWebDateTimeChooser> chooser,
+    const std::vector<std::shared_ptr<OHOS::NWeb::NWebDateTimeSuggestion>>& suggestions,
+    std::shared_ptr<NWeb::NWebDateTimeChooserCallback> callback)
+{
+    auto container = Container::Current();
+    CHECK_NULL_RETURN(container, false);
+    auto pipelineContext = AccessibilityManager::DynamicCast<NG::PipelineContext>(container->GetPipelineContext());
+    CHECK_NULL_RETURN(pipelineContext, false);
+    auto executor = pipelineContext->GetTaskExecutor();
+    CHECK_NULL_RETURN(executor, false);
+    auto theme = pipelineContext->GetTheme<DialogTheme>();
+    CHECK_NULL_RETURN(theme, false);
+    auto context = AccessibilityManager::DynamicCast<NG::PipelineContext>(pipelineContext);
+    auto overlayManager = context ? context->GetOverlayManager() : nullptr;
+    CHECK_NULL_RETURN(overlayManager, false);
+    NG::TextPickerSettingData settingData;
+    if (memset_s(&settingData, sizeof(NG::TextPickerSettingData), 0, sizeof(NG::TextPickerSettingData)) != EOK) {
+        return false;
+    }
+    std::map<std::string, OHOS::NWeb::DateTime> suggestionMap;
+    for (size_t i = 0; i < suggestions.size(); i++) {
+        settingData.rangeVector.push_back({ "", suggestions[i]->GetLocalizedValue() });
+        settingData.values.push_back(suggestions[i]->GetLocalizedValue());
+        suggestionMap.emplace(std::make_pair(suggestions[i]->GetLocalizedValue(), suggestions[i]->GetValue()));
+    }
+    settingData.columnKind = NG::TEXT;
+    settingData.selected = chooser->GetSuggestionIndex();
+    DialogProperties properties = GetDialogProperties(theme);
+    std::map<std::string, NG::DialogTextEvent> dialogEvent;
+    std::map<std::string, NG::DialogGestureEvent> dialogCancelEvent;
+    dialogEvent["acceptId"] = [suggestionMap, callback](const std::string& info) {
+        std::string value = ParseTextJsonValue(info);
+        if (suggestionMap.find(value) != suggestionMap.end()) {
+            callback->Continue(true, suggestionMap.at(value));
+        } else {
+            callback->Continue(false, OHOS::NWeb::DateTime());
+        }
+    };
+    dialogCancelEvent["cancelId"] =
+        [callback](const GestureEvent&) { callback->Continue(false, OHOS::NWeb::DateTime()); };
+    overlayManager->RegisterOnHideDialog([callback] { callback->Continue(false, OHOS::NWeb::DateTime()); });
+    executor->PostTask(
+        [properties, settingData, dialogEvent, dialogCancelEvent,
+            weak = WeakPtr<NG::OverlayManager>(overlayManager)] {
+            auto overlayManager = weak.Upgrade();
+            CHECK_NULL_VOID(overlayManager);
+            overlayManager->ShowTextDialog(properties, settingData, dialogEvent, dialogCancelEvent);
+        },
+        TaskExecutor::TaskType::UI, "ArkUIWebShowTextDialog");
+    return true;
+}
+
+void WebPattern::OnDateTimeChooserClose() {}
+
+void WebPattern::InitSelectPopupMenuViewOption(const std::vector<RefPtr<FrameNode>>& options,
+    const std::shared_ptr<OHOS::NWeb::NWebSelectPopupMenuCallback>& callback,
+    const std::shared_ptr<OHOS::NWeb::NWebSelectPopupMenuParam>& params,
+    const double& dipScale)
+{
+    int32_t optionIndex = -1;
+    int32_t width = params->GetSelectMenuBound() ? params->GetSelectMenuBound()->GetWidth() : 0;
+    auto items = params->GetMenuItems();
+    int32_t selectedIndex = params->GetSelectedItem();
+    TAG_LOGD(AceLogTag::ACE_WEB, "InitSelectPopupMenuViewOption selectedIndex:%{public}d", selectedIndex);
+
+    for (auto &&option : options) {
+        optionIndex++;
+        CHECK_NULL_VOID(option);
+        auto optionPattern = option->GetPattern<OptionPattern>();
+        CHECK_NULL_VOID(optionPattern);
+        auto optionPaintProperty = option->GetPaintProperty<OptionPaintProperty>();
+        CHECK_NULL_VOID(optionPaintProperty);
+        optionPaintProperty->SetIdealWidthForWeb(width - OPTION_MARGIN.ConvertToPx());
+        optionPattern->SetFontSize(Dimension(params->GetItemFontSize() * dipScale));
+        if (selectedIndex == optionIndex) {
+            optionPattern->SetFontColor(SELECTED_OPTION_FONT_COLOR);
+            optionPattern->SetBgColor(SELECTED_OPTION_BACKGROUND_COLOR);
+            optionPattern->UpdateNextNodeDivider(false);
+            optionPaintProperty->UpdateNeedDivider(false);
+        }
+        auto hub = option->GetEventHub<OptionEventHub>();
+        CHECK_NULL_VOID(hub);
+        if (optionIndex >= 0 && static_cast<uint32_t>(optionIndex) < items.size()) {
+            hub->SetEnabled(items[optionIndex]->GetIsEnabled());
+            auto focusHub = option->GetFocusHub();
+            if (focusHub) {
+                focusHub->SetEnabled(items[optionIndex]->GetIsEnabled());
+            }
+        }
+        auto selectCallback = [callback](int32_t index) {
+            std::vector<int32_t> indices { static_cast<int32_t>(index) };
+            callback->Continue(indices);
+        };
+        hub->SetOnSelect(std::move(selectCallback));
+        option->MarkModifyDone();
+    }
+}
+
+void WebPattern::InitSelectPopupMenuView(RefPtr<FrameNode>& menuWrapper,
+    std::shared_ptr<OHOS::NWeb::NWebSelectPopupMenuCallback> callback,
+    std::shared_ptr<OHOS::NWeb::NWebSelectPopupMenuParam> params,
+    const double& dipScale)
+{
+    auto menu = AceType::DynamicCast<FrameNode>(menuWrapper->GetChildAtIndex(0));
+    CHECK_NULL_VOID(menu);
+    auto menuPattern = menu->GetPattern<MenuPattern>();
+    CHECK_NULL_VOID(menuPattern);
+
+    InitSelectPopupMenuViewOption(menuPattern->GetOptions(), callback, params, dipScale);
+}
+
+OffsetF WebPattern::GetSelectPopupPostion(std::shared_ptr<OHOS::NWeb::NWebSelectMenuBound> bound)
+{
+    auto offset = GetCoordinatePoint().value_or(OffsetF());
+    if (bound) {
+        offset.AddX(bound->GetX());
+        offset.AddY(bound->GetY() + bound->GetHeight());
+    }
+    if (Container::GreatOrEqualAPIVersion(PlatformVersion::VERSION_ELEVEN)) {
+        offset.AddX(-CALIBERATE_X.ConvertToPx());
+    }
+    return offset;
+}
+
+void WebPattern::UpdateTouchHandleForOverlay(bool fromOverlay)
+{
+    WebOverlayType overlayType = GetTouchHandleOverlayType(insertHandle_, startSelectionHandle_, endSelectionHandle_);
+    CHECK_NULL_VOID(selectOverlayProxy_);
+    if (overlayType == INVALID_OVERLAY) {
+        CloseSelectOverlay();
+        return;
+    }
+    SelectHandleInfo firstHandleInfo;
+    SelectHandleInfo secondHandleInfo;
+    if (overlayType == INSERT_OVERLAY) {
+        if (!fromOverlay) {
+            selectOverlayProxy_->ShowOrHiddenMenu(true, true);
+        }
+        firstHandleInfo.paintRect = ComputeTouchHandleRect(insertHandle_);
+        CheckHandles(firstHandleInfo, insertHandle_);
+        firstHandleInfo.needLayout = true;
+        selectOverlayProxy_->UpdateFirstSelectHandleInfo(firstHandleInfo);
+    } else {
+        if (selectTemporarilyHidden_ || selectTemporarilyHiddenByScroll_) {
+            return;
+        }
+        firstHandleInfo.paintRect = ComputeTouchHandleRect(startSelectionHandle_);
+        secondHandleInfo.paintRect = ComputeTouchHandleRect(endSelectionHandle_);
+        CheckHandles(firstHandleInfo, startSelectionHandle_);
+        CheckHandles(secondHandleInfo, endSelectionHandle_);
+        if (firstHandleInfo.isShow || secondHandleInfo.isShow) {
+            selectOverlayProxy_->SetIsNewAvoid(false);
+        }
+        selectOverlayProxy_->UpdateFirstSelectHandleInfo(firstHandleInfo);
+        selectOverlayProxy_->UpdateSecondSelectHandleInfo(secondHandleInfo);
+        selectMenuInfo_.menuIsShow = selectOverlayProxy_->IsMenuShow();
+        selectOverlayProxy_->UpdateSelectMenuInfo(selectMenuInfo_);
+        selectOverlayProxy_->SetHandleReverse(false);
+    }
+}
+
+void WebPattern::UpdateLocale()
+{
+    CHECK_NULL_VOID(delegate_);
+    delegate_->UpdateLocale();
+}
+
+void WebPattern::OnWindowShow()
+{
+    TAG_LOGI(AceLogTag::ACE_WEB, "WebPattern::OnWindowShow WebId : %{public}d", GetWebId());
+    CHECK_NULL_VOID(delegate_);
+    delegate_->OnRenderToForeground();
+    delegate_->OnOnlineRenderToForeground();
+
+    if (isWindowShow_ || !isVisible_) {
+        return;
+    }
+
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto layoutProperty = host->GetLayoutProperty();
+    CHECK_NULL_VOID(layoutProperty);
+    componentVisibility_ = layoutProperty->GetVisibility().value_or(VisibleType::GONE);
+    // When the visibility of web component is invisible, the window notification is not processed
+    if (componentVisibility_ == VisibleType::INVISIBLE) {
+        ACE_SCOPED_TRACE("WebPattern::OnWindowShow visibility of web component is invisible, WebId %d", GetWebId());
+        return;
+    }
+    delegate_->ShowWebView();
+    isWindowShow_ = true;
+}
+
+void WebPattern::OnWindowHide()
+{
+    TAG_LOGI(AceLogTag::ACE_WEB, "WebPattern::OnWindowHide WebId : %{public}d", GetWebId());
+    CHECK_NULL_VOID(delegate_);
+    delegate_->OnRenderToBackground();
+
+    if (!isWindowShow_ || !isVisible_) {
+        return;
+    }
+
+    CHECK_NULL_VOID(delegate_);
+    delegate_->HideWebView();
+    CloseContextSelectionMenu();
+    needOnFocus_ = false;
+    isWindowShow_ = false;
+}
+
+void WebPattern::OnWindowSizeChanged(int32_t width, int32_t height, WindowSizeChangeReason type)
+{
+    switch (type) {
+        case WindowSizeChangeReason::DRAG_START:
+        case WindowSizeChangeReason::DRAG:
+        case WindowSizeChangeReason::DRAG_END: {
+            g_dragWindowFlag = true;
+            WindowDrag(width, height);
+            break;
+        }
+        default:
+            g_dragWindowFlag = false;
+            last_height_ = 0;
+            last_width_ = 0;
+            break;
+    }
+}
+
+void WebPattern::WindowDrag(int32_t width, int32_t height)
+{
+    if (delegate_) {
+        bool isSmoothDragResizeEnabled = delegate_->GetIsSmoothDragResizeEnabled();
+        if (!isSmoothDragResizeEnabled) {
+            return;
+        }
+        if (last_height_ == 0 && last_width_ == 0) {
+            last_height_ = height;
+            last_width_ = width;
+        }
+        if (!GetPendingSizeStatus() && g_dragWindowFlag) {
+            int64_t pre_height = height - last_height_;
+            int64_t pre_width = width - last_width_;
+            delegate_->DragResize(width, height, pre_height, pre_width);
+            last_height_ = height;
+            last_width_ = width;
+        }
+    }
+}
+
+void WebPattern::OnSmoothDragResizeEnabledUpdate(bool value)
+{
+    if (delegate_) {
+        delegate_->UpdateSmoothDragResizeEnabled(value);
+    }
+}
+
+void WebPattern::OnCompleteSwapWithNewSize()
+{
+    if (!isInWindowDrag_ || !isWaiting_)
+        return;
+
+    ACE_SCOPED_TRACE("WebPattern::OnCompleteSwapWithNewSize");
+    isWaiting_ = false;
+}
+
+void WebPattern::OnResizeNotWork()
+{
+    if (!isInWindowDrag_ || !isWaiting_)
+        return;
+
+    ACE_SCOPED_TRACE("WebPattern::OnResizeNotWork");
+    isWaiting_ = false;
+}
+
+void WebPattern::UpdateOnFocusTextField(bool isFocus)
+{
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto context = PipelineContext::GetCurrentContext();
+    CHECK_NULL_VOID(context);
+    auto textFieldManager = DynamicCast<TextFieldManagerNG>(context->GetTextFieldManager());
+    CHECK_NULL_VOID(textFieldManager);
+    isFocus ? textFieldManager->SetOnFocusTextField(WeakClaim(this))
+            : textFieldManager->ClearOnFocusTextField(host->GetId());
+}
+
+bool WebPattern::OnBackPressed()
+{
+    auto host = GetHost();
+    CHECK_NULL_RETURN(host, false);
+    TAG_LOGI(AceLogTag::ACE_WEB, "Web %{public}d receives back press event", host->GetId());
+    if (IsVirtualKeyBoardShow()) {
+        CloseSelectOverlay();
+        SelectCancel();
+        TAG_LOGI(AceLogTag::ACE_WEB, "Request close soft keyboard.");
+        auto inputMethod = MiscServices::InputMethodController::GetInstance();
+        CHECK_NULL_RETURN(inputMethod, false);
+        inputMethod->HideTextInput();
+        inputMethod->Close();
+        CHECK_NULL_RETURN(delegate_, true);
+        delegate_->CloseCustomKeyboard();
+        return true;
+    }
+    return false;
+}
+
+bool WebPattern::OnBackPressedForFullScreen() const
+{
+    if (!isFullScreen_) {
+        return false;
+    }
+
+    TAG_LOGI(AceLogTag::ACE_WEB, "FullScreenBackPressEvent Received");
+    CHECK_NULL_RETURN(fullScreenExitHandler_, false);
+    auto webFullScreenExitHandler = fullScreenExitHandler_->GetHandler();
+    CHECK_NULL_RETURN(webFullScreenExitHandler, false);
+    webFullScreenExitHandler->ExitFullScreen();
+    return true;
+}
+
+void WebPattern::SetFullScreenExitHandler(const std::shared_ptr<FullScreenEnterEvent>& fullScreenExitHandler)
+{
+    fullScreenExitHandler_ = fullScreenExitHandler;
+}
+
+void WebPattern::OnInActive()
+{
+    TAG_LOGI(AceLogTag::ACE_WEB,
+        "WebPattern::OnInActive webId:%{public}d, isActive:%{public}d", GetWebId(), isActive_);
+    if (!isActive_) {
+        return;
+    }
+
+    CHECK_NULL_VOID(delegate_);
+    delegate_->OnInactive();
+    isActive_ = false;
+}
+
+void WebPattern::OnActive()
+{
+    TAG_LOGI(AceLogTag::ACE_WEB,
+        "WebPattern::OnActive webId:%{public}d, isActive:%{public}d", GetWebId(), isActive_);
+    if (isActive_) {
+        return;
+    }
+
+    CHECK_NULL_VOID(delegate_);
+    delegate_->OnActive();
+    isActive_ = true;
+}
+
+void WebPattern::OnVisibleAreaChange(bool isVisible)
+{
+    bool isDialogNested = IsDialogNested();
+    ACE_SCOPED_TRACE("WebPattern::OnVisibleAreaChange, webId: %d, isVisible: %d", GetWebId(), isVisible);
+    TAG_LOGI(AceLogTag::ACE_WEB,
+        "WebPattern::OnVisibleAreaChange webId:%{public}d, isVisible:%{public}d, old_isVisible:%{public}d, "
+        "isVisibleActiveEnable:%{public}d, isDialogNested:%{public}d, isFocus:%{public}d",
+        GetWebId(), isVisible, isVisible_, isVisibleActiveEnable_, isDialogNested, isFocus_);
+    if (isVisible_ == isVisible) {
+        return;
+    }
+
+    isVisible_ = isVisible;
+    if (!isVisible_) {
+        CloseSelectOverlay();
+        SelectCancel();
+        DestroyAnalyzerOverlay();
+        isDragEndMenuShow_ = false;
+        if (isVisibleActiveEnable_ && (!isDialogNested || !isFocus_)) {
+            OnInActive();
+        }
+    } else {
+        if (isVisibleActiveEnable_) {
+            OnActive();
+        }
+    }
+}
+
+Color WebPattern::GetDefaultBackgroundColor()
+{
+    auto darkMode = GetDarkModeValue(webData_ ? (WebDarkMode::Auto) : (WebDarkMode::Off));
+    if (GetForceDarkAccessValue(false) &&
+        (darkMode == WebDarkMode::On || ((darkMode == WebDarkMode::Auto) && (GetSystemColor() == Color::BLACK)))) {
+        return Color::BLACK;
+    } else {
+        return Color::WHITE;
+    }
+}
+
+void WebPattern::UpdateBackgroundColorRightNow(int32_t color)
+{
+    Color bkColor = Color(static_cast<uint32_t>(color));
+    std::string debugBkgroundColor = GetWebDebugBackGroundColor();
+    if (debugBkgroundColor != "none") {
+        // debugBkgroundColor : #FFFFFFFF ARGB format
+        bkColor = Color::ColorFromString(debugBkgroundColor);
+        TAG_LOGI(AceLogTag::ACE_WEB, "WebPattern::UpdateBackgroundColorRightNow, use debug background color," \
+            " color=%{public}s, web id = %{public}d", bkColor.ToString().c_str(), GetWebId());
+    }
+
+    TAG_LOGI(AceLogTag::ACE_WEB, "WebPattern::UpdateBackgroundColorRightNow, color=%{public}s, web id = %{public}d",
+        bkColor.ToString().c_str(), GetWebId());
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto renderContext = host->GetRenderContext();
+    CHECK_NULL_VOID(renderContext);
+    renderContext->UpdateBackgroundColor(bkColor);
+    CHECK_NULL_VOID(renderContextForSurface_);
+    renderContextForSurface_->UpdateBackgroundColor(bkColor);
+}
+
+Color WebPattern::GetSystemColor() const
+{
+    Color color = Color::WHITE;
+    auto appMgrClient = std::make_shared<AppExecFwk::AppMgrClient>();
+    CHECK_NULL_RETURN(appMgrClient, color);
+    if (appMgrClient->ConnectAppMgrService()) {
+        return color;
+    }
+    auto systemConfig = OHOS::AppExecFwk::Configuration();
+    appMgrClient->GetConfiguration(systemConfig);
+    auto colorMode = systemConfig.GetItem(OHOS::AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE);
+    if (colorMode == OHOS::AppExecFwk::ConfigurationInner::COLOR_MODE_DARK) {
+        return Color::BLACK;
+    }
+    if (colorMode == OHOS::AppExecFwk::ConfigurationInner::COLOR_MODE_LIGHT) {
+        return Color::WHITE;
+    }
+    TAG_LOGW(AceLogTag::ACE_WEB, "no system color mode is found.");
+    return color;
+}
+
+void WebPattern::OnNotifyMemoryLevel(int32_t level)
+{
+    if (!isMemoryLevelEnable_) {
+        return;
+    }
+    CHECK_NULL_VOID(delegate_);
+    delegate_->NotifyMemoryLevel(level);
+}
+
+int WebPattern::GetWebId()
+{
+    if (delegate_) {
+        return delegate_->GetWebId();
+    }
+    return -1;
+}
+
+ScrollResult WebPattern::HandleScroll(float offset, int32_t source, NestedState state, float velocity)
+{
+    // If no parent object is specified, the nearest nested scrollable parent is used by default.
+    return HandleScroll(GetNestedScrollParent(), offset, source, state);
+}
+
+ScrollResult WebPattern::HandleScroll(RefPtr<NestableScrollContainer> parent, float offset,
+    int32_t source, NestedState state)
+{
+    TAG_LOGD(AceLogTag::ACE_WEB,
+        "WebPattern::HandleScroll scroll direction: %{public}d, find parent component: %{public}d",
+        expectedScrollAxis_,
+        (parent != nullptr));
+    if (parent) {
+        if (isTouchpadSliding_) {
+            source = SCROLL_FROM_UPDATE;
+        } else {
+            source = isMouseEvent_ ? SCROLL_FROM_AXIS : source;
+        }
+        return parent->HandleScroll(offset, source, state);
+    }
+    return { 0.0f, false };
+}
+
+bool WebPattern::HandleScrollVelocity(float velocity, const RefPtr<NestableScrollContainer>& child)
+{
+    // If no parent object is specified, the nearest nested scrollable parent is used by default.
+    return HandleScrollVelocity(GetNestedScrollParent(), velocity);
+}
+
+bool WebPattern::HandleScrollVelocity(RefPtr<NestableScrollContainer> parent, float velocity)
+{
+    CHECK_NULL_RETURN(parent, false);
+    if (InstanceOf<SwiperPattern>(parent)) {
+        // When scrolling to the previous SwiperItem, that item needs to be visible. Update the offset slightly to make
+        // it visible before calling HandleScrollVelocity.
+        float tweak = (velocity > 0.0f) ? 1.0f : -1.0f;
+        parent->HandleScroll(tweak, SCROLL_FROM_UPDATE, NestedState::CHILD_SCROLL);
+    }
+    TAG_LOGI(AceLogTag::ACE_WEB, "WebPattern::HandleScrollVelocity, to parent scroll velocity=%{public}f", velocity);
+    if (parent->HandleScrollVelocity(velocity)) {
+        return true;
+    }
+    return false;
+}
+
+void WebPattern::OnScrollStartRecursive(float position, float velocity)
+{
+    // If only one position value is passed, it will be notified to the nearest nested scrollable parent.
+    OnScrollStartRecursive(std::vector({ position }));
+}
+
+void WebPattern::OnScrollStartRecursive(std::vector<float> positions)
+{
+    TAG_LOGI(AceLogTag::ACE_WEB, "WebPattern::OnScrollStartRecursive");
+    SetIsNestedInterrupt(false);
+    auto it = positions.begin();
+    for (auto parentMap : parentsMap_) {
+        auto parent = parentMap.second.Upgrade();
+        if (parent && it < positions.end()) {
+            parent->OnScrollStartRecursive(*it);
+        }
+        it++;
+    }
+    isFirstFlingScrollVelocity_ = true;
+    isNeedUpdateScrollAxis_ = true;
+    isScrollStarted_ = true;
+}
+
+void WebPattern::OnAttachToBuilderNode(NodeStatus nodeStatus)
+{
+    TAG_LOGD(AceLogTag::ACE_WEB, "WebPattern::OnAttachToBuilderNode");
+    if (nodeStatus != NodeStatus::NORMAL_NODE) {
+        InitInOfflineMode();
+    }
+}
+
+void WebPattern::OnScrollEndRecursive(const std::optional<float>& velocity)
+{
+    TAG_LOGI(AceLogTag::ACE_WEB, "WebPattern::OnScrollEndRecursive");
+    CHECK_EQUAL_VOID(isScrollStarted_, false);
+    for (auto parentMap : parentsMap_) {
+        auto parent = parentMap.second.Upgrade();
+        if (parent) {
+            parent->OnScrollEndRecursive(std::nullopt);
+        }
+    }
+    isScrollStarted_ = false;
+    SetIsNestedInterrupt(false);
+}
+
+void WebPattern::OnOverScrollFlingVelocity(float xVelocity, float yVelocity, bool isFling)
+{
+    if (isNeedUpdateScrollAxis_) {
+        TAG_LOGE(AceLogTag::ACE_WEB, "WebPattern::OnOverScrollFlingVelocity scrollAxis has not been updated");
+        return;
+    }
+    float velocity = (expectedScrollAxis_ == Axis::HORIZONTAL) ? xVelocity : yVelocity;
+    OnOverScrollFlingVelocityHandler(velocity, isFling);
+
+    if (isFling && Positive(velocity)) {
+        isFlingReachEdge_.atStart = true;
+    } else if (isFling && Negative(velocity)) {
+        isFlingReachEdge_.atEnd = true;
+    }
+}
+
+void WebPattern::OnOverScrollFlingVelocityHandler(float velocity, bool isFling)
+{
+    auto it = parentsMap_.find(expectedScrollAxis_);
+    CHECK_EQUAL_VOID(it, parentsMap_.end());
+    auto parent = it->second;
+    ScrollResult result = { 0.f, true };
+    auto remain = 0.f;
+    if (!isFling) {
+        if (scrollState_) {
+            if (CheckOverParentScroll(velocity, NestedScrollMode::SELF_FIRST)) {
+                result = HandleScroll(parent.Upgrade(), -velocity, SCROLL_FROM_UPDATE, NestedState::CHILD_SCROLL);
+                remain = result.remain;
+            } else if (InstanceOf<RefreshPattern>(parent.Upgrade()) &&
+                       CheckOverParentScroll(velocity, NestedScrollMode::PARENT_FIRST)) {
+                remain = -velocity;
+            }
+            if (!NearZero(remain)) {
+                HandleScroll(parent.Upgrade(), remain, SCROLL_FROM_UPDATE, NestedState::CHILD_OVER_SCROLL);
+            }
+        }
+    } else {
+        if (CheckParentScroll(velocity, NestedScrollMode::SELF_FIRST)) {
+            if (isFirstFlingScrollVelocity_) {
+                HandleScrollVelocity(parent.Upgrade(), velocity);
+                isFirstFlingScrollVelocity_ = false;
+            }
+        }
+    }
+}
+
+void WebPattern::OnScrollState(bool scrollState)
+{
+    scrollState_ = scrollState;
+    if (!scrollState) {
+        OnScrollEndRecursive(std::nullopt);
+    } else {
+        GetParentAxis();
+        OnScrollStartRecursive(std::vector<float>({ 0.0, 0.0 }));
+        if (imageAnalyzerManager_) {
+            imageAnalyzerManager_->UpdateOverlayStatus(
+                false,
+                0,
+                0,
+                0,
+                0);
+        }
+    }
+}
+
+void WebPattern::SetLayoutMode(WebLayoutMode mode)
+{
+    if (layoutMode_ == mode) {
+        return;
+    }
+    layoutMode_ = mode;
+    TAG_LOGI(AceLogTag::ACE_WEB, "web layoutMode is: %{public}d.", layoutMode_);
+    if (isLayoutModeInit_) {
+        isLayoutModeChanged = true;
+        auto frameNode = GetHost();
+        CHECK_NULL_VOID(frameNode);
+        frameNode->MarkDirtyNode(PROPERTY_UPDATE_LAYOUT | PROPERTY_UPDATE_MEASURE | PROPERTY_UPDATE_RENDER);
+    }
+    isLayoutModeInit_ = true;
+}
+
+void WebPattern::SetRenderMode(RenderMode renderMode)
+{
+    if (isRenderModeInit_) {
+        TAG_LOGI(AceLogTag::ACE_WEB, "renderMode not allow to change.");
+        return;
+    }
+    renderMode_ = renderMode;
+    TAG_LOGI(AceLogTag::ACE_WEB, "renderMode is %{public}d", renderMode_);
+    isRenderModeInit_ = true;
+}
+
+void WebPattern::GetParentAxis()
+{
+    auto parent = GetNestedScrollParent();
+    if (parent) {
+        axis_ = parent->GetAxis();
+        parentsMap_ = { { axis_, parent } };
+        auto oppositeParent = SearchParent(axis_ == Axis::HORIZONTAL ? Axis::VERTICAL : Axis::HORIZONTAL);
+        if (oppositeParent) {
+            parentsMap_.emplace(oppositeParent->GetAxis(), oppositeParent);
+        }
+    } else {
+        auto verticalParent = SearchParent(Axis::VERTICAL);
+        auto horizontalParent = SearchParent(Axis::HORIZONTAL);
+        if (verticalParent) {
+            parentsMap_.emplace(verticalParent->GetAxis(), verticalParent);
+        }
+        if (horizontalParent) {
+            parentsMap_.emplace(horizontalParent->GetAxis(), horizontalParent);
+        }
+    }
+}
+
+RefPtr<NestableScrollContainer> WebPattern::SearchParent()
+{
+    return SearchParent(Axis::NONE);
+}
+
+RefPtr<NestableScrollContainer> WebPattern::SearchParent(Axis scrollAxis)
+{
+    auto host = GetHost();
+    CHECK_NULL_RETURN(host, nullptr);
+    for (auto parent = host->GetParent(); parent != nullptr; parent = parent->GetParent()) {
+        RefPtr<FrameNode> frameNode = AceType::DynamicCast<FrameNode>(parent);
+        if (!frameNode) {
+            continue;
+        }
+        auto pattern = frameNode->GetPattern<NestableScrollContainer>();
+        if (!pattern ||
+            (!AceApplicationInfo::GetInstance().GreatOrEqualTargetAPIVersion(PlatformVersion::VERSION_TWELVE) &&
+                InstanceOf<RefreshPattern>(pattern))) {
+            continue;
+        }
+        if (scrollAxis == Axis::NONE || scrollAxis == pattern->GetAxis()) {
+            return pattern;
+        }
+    }
+    return nullptr;
+}
+
+void WebPattern::SetNestedScrollExt(const NestedScrollOptionsExt &nestedScroll)
+{
+    NestedScrollOptions nestedOpt = {
+        .forward = NestedScrollMode::SELF_FIRST,
+        .backward = NestedScrollMode::SELF_FIRST,
+    };
+    if (nestedScroll.scrollUp == nestedScroll.scrollLeft) {
+        nestedOpt.backward = nestedScroll.scrollUp;
+    }
+    if (nestedScroll.scrollDown == nestedScroll.scrollRight) {
+        nestedOpt.forward = nestedScroll.scrollDown;
+    }
+    auto pattern = ViewStackProcessor::GetInstance()->GetMainFrameNodePattern<NestableScrollContainer>();
+    if (pattern) {
+        pattern->SetNestedScroll(nestedOpt);
+    }
+    TAG_LOGD(
+        AceLogTag::ACE_WEB, "SetNestedScrollExt nestedScroll: %{public}s", nestedScroll.ToString().c_str());
+    nestedScroll_ = nestedScroll;
+}
+
+bool WebPattern::IsDialogNested()
+{
+    auto host = GetHost();
+    CHECK_NULL_RETURN(host, false);
+    for (auto parent = host->GetParent(); parent != nullptr; parent = parent->GetParent()) {
+        RefPtr<FrameNode> frameNode = AceType::DynamicCast<FrameNode>(parent);
+        if (!frameNode) {
+            continue;
+        }
+        if (frameNode->GetPattern<DialogPattern>()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void WebPattern::OnRootLayerChanged(int width, int height)
+{
+    if ((rootLayerWidth_ == width) && (rootLayerHeight_ == height)) {
+        return;
+    }
+    TAG_LOGI(AceLogTag::ACE_WEB, "OnRootLayerChanged width : %{public}d, height : %{public}d", width, height);
+    rootLayerWidth_ = width;
+    rootLayerHeight_ = height;
+    if (layoutMode_ != WebLayoutMode::FIT_CONTENT) {
+        return;
+    }
+    rootLayerChangeSize_ = Size(width, height);
+    ReleaseResizeHold();
+}
+
+void WebPattern::ReleaseResizeHold()
+{
+    if (layoutMode_ != WebLayoutMode::FIT_CONTENT) {
+        return;
+    }
+    drawSize_.SetSize(rootLayerChangeSize_);
+    auto frameNode = GetHost();
+    CHECK_NULL_VOID(frameNode);
+    frameNode->MarkDirtyNode(PROPERTY_UPDATE_LAYOUT | PROPERTY_UPDATE_MEASURE | PROPERTY_UPDATE_RENDER);
+}
+bool WebPattern::FilterScrollEvent(const float x, const float y, const float xVelocity, const float yVelocity)
+{
+    if (isNeedUpdateScrollAxis_) {
+        expectedScrollAxis_ = (x != 0 || y != 0)
+            ? (abs(x) > abs(y) ? Axis::HORIZONTAL : Axis::VERTICAL)
+            : (abs(xVelocity) > abs(yVelocity) ? Axis::HORIZONTAL : Axis::VERTICAL);
+        // if there is a parent component in the sliding direction, there is no need to update the direction.
+        if (parentsMap_.find(expectedScrollAxis_) != parentsMap_.end()) {
+            isNeedUpdateScrollAxis_ = false;
+            TAG_LOGI(AceLogTag::ACE_WEB,
+                "WebPattern::FilterScrollEvent updateScrollAxis, x=%{public}f, y=%{public}f, "
+                "vx=%{public}f, vy=%{public}f, scrolAxis=%{public}d",
+                x,
+                y,
+                xVelocity,
+                yVelocity,
+                static_cast<int32_t>(expectedScrollAxis_));
+        }
+    }
+    float offset = expectedScrollAxis_ == Axis::HORIZONTAL ? x : y;
+    float velocity = expectedScrollAxis_ == Axis::HORIZONTAL ? xVelocity : yVelocity;
+    bool isConsumed = offset != 0 ? FilterScrollEventHandleOffset(offset) : FilterScrollEventHandlevVlocity(velocity);
+    return isConsumed;
+}
+
+bool WebPattern::FilterScrollEventHandleOffset(const float offset)
+{
+    auto it = parentsMap_.find(expectedScrollAxis_);
+    CHECK_EQUAL_RETURN(it, parentsMap_.end(), false);
+    auto parent = it->second;
+    if (CheckParentScroll(offset, NestedScrollMode::PARENT_FIRST)) {
+        auto result = HandleScroll(parent.Upgrade(), offset, SCROLL_FROM_UPDATE, NestedState::CHILD_SCROLL);
+        if (!NearZero(result.remain)) {
+            UpdateFlingReachEdgeState(offset, false);
+        }
+        CHECK_EQUAL_RETURN(isParentReachEdge_ && result.reachEdge, true, false);
+        isParentReachEdge_ = result.reachEdge;
+        CHECK_NULL_RETURN(delegate_, false);
+        expectedScrollAxis_ == Axis::HORIZONTAL ? delegate_->ScrollByRefScreen(-result.remain, 0)
+                                                : delegate_->ScrollByRefScreen(0, -result.remain);
+        return true;
+    } else if (CheckParentScroll(offset, NestedScrollMode::PARALLEL)) {
+        HandleScroll(parent.Upgrade(), offset, SCROLL_FROM_UPDATE, NestedState::CHILD_SCROLL);
+    } else if (CheckParentScroll(offset, NestedScrollMode::SELF_FIRST)) {
+        if (parent.Upgrade() && parent.Upgrade()->NestedScrollOutOfBoundary()) {
+            HandleScroll(parent.Upgrade(), offset, SCROLL_FROM_UPDATE, NestedState::CHILD_OVER_SCROLL);
+            return true;
+        }
+    }
+    UpdateFlingReachEdgeState(offset, false);
+    return false;
+}
+
+bool WebPattern::CheckParentScroll(const float &directValue, const NestedScrollMode &scrollMode)
+{
+    auto nestedScroll = GetNestedScrollExt();
+    return (directValue > 0 && nestedScroll.scrollUp == scrollMode &&
+            expectedScrollAxis_ != Axis::HORIZONTAL) ||
+        (directValue > 0 && nestedScroll.scrollLeft == scrollMode &&
+            expectedScrollAxis_ == Axis::HORIZONTAL) ||
+        (directValue < 0 && nestedScroll.scrollDown == scrollMode &&
+            expectedScrollAxis_ != Axis::HORIZONTAL) ||
+        (directValue < 0 && nestedScroll.scrollRight == scrollMode &&
+            expectedScrollAxis_ == Axis::HORIZONTAL);
+}
+
+bool WebPattern::CheckOverParentScroll(const float &directValue, const NestedScrollMode &scrollMode)
+{
+    auto nestedScroll = GetNestedScrollExt();
+    return (directValue < 0 && nestedScroll.scrollUp == scrollMode &&
+            expectedScrollAxis_ != Axis::HORIZONTAL) ||
+        (directValue < 0 && nestedScroll.scrollLeft == scrollMode &&
+            expectedScrollAxis_ == Axis::HORIZONTAL) ||
+        (directValue > 0 && nestedScroll.scrollDown == scrollMode &&
+            expectedScrollAxis_ != Axis::HORIZONTAL) ||
+        (directValue > 0 && nestedScroll.scrollRight == scrollMode &&
+            expectedScrollAxis_ == Axis::HORIZONTAL);
+}
+
+bool WebPattern::FilterScrollEventHandlevVlocity(const float velocity)
+{
+    auto it = parentsMap_.find(expectedScrollAxis_);
+    CHECK_EQUAL_RETURN(it, parentsMap_.end(), false);
+    auto parent = it->second;
+    if (CheckParentScroll(velocity, NestedScrollMode::PARENT_FIRST)) {
+        if (isParentReachEdge_ &&
+            ((Negative(velocity) && !isFlingReachEdge_.atEnd) || (Positive(velocity) && !isFlingReachEdge_.atStart))) {
+            return false;
+        }
+        return HandleScrollVelocity(parent.Upgrade(), velocity);
+    } else if (CheckParentScroll(velocity, NestedScrollMode::PARALLEL)) {
+        HandleScrollVelocity(parent.Upgrade(), velocity);
+    }
+    UpdateFlingReachEdgeState(velocity, false);
+    return false;
+}
+
+void WebPattern::UpdateFlingReachEdgeState(const float value, bool status)
+{
+    if (isFlingReachEdge_.atStart && Negative(value)) {
+        isFlingReachEdge_.atStart = status;
+    } else if (isFlingReachEdge_.atEnd && Positive(value)) {
+        isFlingReachEdge_.atEnd = status;
+    }
+}
+
+bool WebPattern::IsDefaultFocusNodeExist()
+{
+    auto pipeline = PipelineContext::GetCurrentContext();
+    CHECK_NULL_RETURN(pipeline, false);
+    auto focusManager = pipeline->GetFocusManager();
+    CHECK_NULL_RETURN(focusManager, false);
+    auto focusView =  focusManager->GetLastFocusView().Upgrade();
+    CHECK_NULL_RETURN(focusView, false);
+    auto focusHub = focusView->GetFocusHub();
+    CHECK_NULL_RETURN(focusHub, false);
+    bool result = focusHub->GetChildFocusNodeByType();
+    return result;
+}
+
+void WebPattern::InitSlideUpdateListener()
+{
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    for (auto parent = host->GetParent(); parent != nullptr; parent = parent->GetParent()) {
+        bool hasTargetParent =
+            std::find(SYNC_RENDER_SLIDE.begin(), SYNC_RENDER_SLIDE.end(), parent->GetTag()) == SYNC_RENDER_SLIDE.end();
+        if (hasTargetParent) {
+            continue;
+        }
+        RefPtr<FrameNode> frameNode = AceType::DynamicCast<FrameNode>(parent);
+        CHECK_NULL_VOID(frameNode);
+        if (parent->GetTag() == V2::LIST_ETS_TAG) {
+            auto pattern = frameNode->GetPattern<ListPattern>();
+            CHECK_NULL_VOID(pattern);
+            syncAxis_ = pattern->GetAxis();
+        } else {
+            auto pattern = frameNode->GetPattern<ScrollPattern>();
+            CHECK_NULL_VOID(pattern);
+            syncAxis_ = pattern->GetAxis();
+        }
+        CHECK_NULL_VOID(renderSurface_);
+        renderSurface_->SetWebSlideAxis(syncAxis_);
+    }
+}
+
+void WebPattern::UpdateSlideOffset()
+{
+    switch (syncAxis_) {
+        case Axis::HORIZONTAL:
+            CalculateHorizontalDrawRect();
+            break;
+        case Axis::VERTICAL:
+            CalculateVerticalDrawRect();
+            break;
+        default :
+            break;
+    }
+}
+
+void WebPattern::CalculateHorizontalDrawRect()
+{
+    fitContentOffset_ = OffsetF(GetCoordinatePoint()->GetX(), GetCoordinatePoint()->GetY());
+    CHECK_NULL_VOID(renderSurface_);
+    renderSurface_->SetWebOffset(fitContentOffset_.GetX());
+    if (fitContentOffset_.GetX() >= 0) {
+        if (isNeedReDrawRect_) {
+            SetDrawRect(0, 0, ADJUST_WEB_DRAW_LENGTH + ADJUST_WEB_DRAW_LENGTH, drawRectHeight_);
+        }
+        isNeedReDrawRect_ = false;
+        return;
+    }
+
+    int32_t stepGear = (-fitContentOffset_.GetX()) / ADJUST_WEB_DRAW_LENGTH;
+    int32_t width = ADJUST_WEB_DRAW_LENGTH * 2 + stepGear;
+    int32_t height = std::min(static_cast<int32_t>(drawSize_.Height()), FIT_CONTENT_LIMIT_LENGTH);
+    int32_t x = ADJUST_WEB_DRAW_LENGTH * stepGear;
+    int32_t y = 0;
+    renderSurface_->SetWebMessage({ x, 0 });
+    TAG_LOGD(AceLogTag::ACE_WEB, "SetDrawRect x : %{public}d, y : %{public}d, width : %{public}d, height : %{public}d",
+        x, y, width, height);
+    SetDrawRect(x, y, width, height);
+    isNeedReDrawRect_ = true;
+}
+
+void WebPattern::CalculateVerticalDrawRect()
+{
+    fitContentOffset_ = OffsetF(GetCoordinatePoint()->GetX(), GetCoordinatePoint()->GetY());
+    CHECK_NULL_VOID(renderSurface_);
+    renderSurface_->SetWebOffset(fitContentOffset_.GetY());
+    if (fitContentOffset_.GetY() >= 0) {
+        if (isNeedReDrawRect_) {
+            SetDrawRect(0, 0, drawRectWidth_, ADJUST_WEB_DRAW_LENGTH + ADJUST_WEB_DRAW_LENGTH);
+        }
+        isNeedReDrawRect_ = false;
+        return;
+    }
+
+    int32_t stepGear = (-fitContentOffset_.GetY()) / ADJUST_WEB_DRAW_LENGTH;
+    int32_t width = std::min(static_cast<int32_t>(drawSize_.Width()), FIT_CONTENT_LIMIT_LENGTH);
+    int32_t height = ADJUST_WEB_DRAW_LENGTH * 2 + stepGear;
+    int32_t x = 0;
+    int32_t y = ADJUST_WEB_DRAW_LENGTH * stepGear;
+    renderSurface_->SetWebMessage({ 0, y });
+    TAG_LOGD(AceLogTag::ACE_WEB, "SetDrawRect x : %{public}d, y : %{public}d, width : %{public}d, height : %{public}d",
+        x, y, width, height);
+    SetDrawRect(x, y, width, height);
+    isNeedReDrawRect_ = true;
+}
+
+void WebPattern::PostTaskToUI(const std::function<void()>&& task, const std::string& name) const
+{
+    CHECK_NULL_VOID(task);
+    auto container = Container::Current();
+    CHECK_NULL_VOID(container);
+    auto pipelineContext = AccessibilityManager::DynamicCast<NG::PipelineContext>(container->GetPipelineContext());
+    CHECK_NULL_VOID(pipelineContext);
+    auto taskExecutor = pipelineContext->GetTaskExecutor();
+    CHECK_NULL_VOID(taskExecutor);
+    taskExecutor->PostTask(task, TaskExecutor::TaskType::UI, name);
+}
+
+void WebPattern::SetDrawRect(int32_t x, int32_t y, int32_t width, int32_t height)
+{
+    if ((drawRectWidth_ == width) && (drawRectHeight_ == height)) {
+        return;
+    }
+    drawRectWidth_ = width;
+    drawRectHeight_ = height;
+    CHECK_NULL_VOID(delegate_);
+    delegate_->SetDrawRect(x, y, width, height);
+}
+
+bool WebPattern::GetPendingSizeStatus()
+{
+    if (delegate_) {
+        return delegate_->GetPendingSizeStatus();
+    }
+    return false;
+}
+
+RefPtr<NodePaintMethod> WebPattern::CreateNodePaintMethod()
+{
+    auto paint = MakeRefPtr<WebPaintMethod>(renderSurface_);
+    return paint;
+}
+
+void WebPattern::JavaScriptOnDocumentStart(const ScriptItems& scriptItems)
+{
+    onDocumentStartScriptItems_ = std::make_optional<ScriptItems>(scriptItems);
+    if (delegate_) {
+        UpdateJavaScriptOnDocumentStart();
+        delegate_->JavaScriptOnDocumentStart();
+    }
+}
+
+void WebPattern::JavaScriptOnDocumentEnd(const ScriptItems& scriptItems)
+{
+    onDocumentEndScriptItems_ = std::make_optional<ScriptItems>(scriptItems);
+    if (delegate_) {
+        UpdateJavaScriptOnDocumentEnd();
+        delegate_->JavaScriptOnDocumentEnd();
+    }
+}
+
+void WebPattern::UpdateJavaScriptOnDocumentStart()
+{
+    if (delegate_ && onDocumentStartScriptItems_.has_value()) {
+        delegate_->SetJavaScriptItems(onDocumentStartScriptItems_.value(), ScriptItemType::DOCUMENT_START);
+        onDocumentStartScriptItems_ = std::nullopt;
+    }
+}
+
+void WebPattern::UpdateJavaScriptOnDocumentEnd()
+{
+    if (delegate_ && onDocumentEndScriptItems_.has_value()) {
+        delegate_->SetJavaScriptItems(onDocumentEndScriptItems_.value(), ScriptItemType::DOCUMENT_END);
+        onDocumentEndScriptItems_ = std::nullopt;
+    }
+}
+
+std::shared_ptr<NWeb::NWebAccessibilityNodeInfo> WebPattern::GetAccessibilityNodeById(int64_t accessibilityId)
+{
+    if (!accessibilityState_) {
+        return nullptr;
+    }
+    CHECK_NULL_RETURN(delegate_, nullptr);
+    return delegate_->GetAccessibilityNodeInfoById(accessibilityId);
+}
+
+std::shared_ptr<NWeb::NWebAccessibilityNodeInfo> WebPattern::GetFocusedAccessibilityNode(
+    int64_t accessibilityId, bool isAccessibilityFocus)
+{
+    if (!accessibilityState_) {
+        return nullptr;
+    }
+    CHECK_NULL_RETURN(delegate_, nullptr);
+    return delegate_->GetFocusedAccessibilityNodeInfo(accessibilityId, isAccessibilityFocus);
+}
+
+
+std::shared_ptr<NWeb::NWebAccessibilityNodeInfo> WebPattern::GetAccessibilityNodeByFocusMove(int64_t accessibilityId,
+    int32_t direction)
+{
+    if (!accessibilityState_) {
+        return nullptr;
+    }
+    CHECK_NULL_RETURN(delegate_, nullptr);
+    return delegate_->GetAccessibilityNodeInfoByFocusMove(accessibilityId, direction);
+}
+
+bool WebPattern::ExecuteAction(int64_t accessibilityId, AceAction action,
+    const std::map<std::string, std::string>& actionArguments) const
+{
+    CHECK_NULL_RETURN(delegate_, false);
+    if (!accessibilityState_) {
+        return false;
+    }
+    return delegate_->ExecuteAction(accessibilityId, action, actionArguments);
+}
+
+void WebPattern::SetAccessibilityState(bool state)
+{
+    CHECK_NULL_VOID(delegate_);
+    focusedAccessibilityId_ = -1;
+    if (!state) {
+        if (AceApplicationInfo::GetInstance().IsAccessibilityEnabled()
+            || inspectorAccessibilityEnable_ || textBlurAccessibilityEnable_) {
+                return;
+        }
+        accessibilityState_ = state;
+        delegate_->SetAccessibilityState(state);
+        return;
+    }
+
+    if (accessibilityState_ != state) {
+        accessibilityState_ = state;
+        delegate_->SetAccessibilityState(state);
+    }
+}
+
+void WebPattern::UpdateFocusedAccessibilityId(int64_t accessibilityId)
+{
+    if (!accessibilityState_) {
+        return;
+    }
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto renderContext = host->GetRenderContext();
+    CHECK_NULL_VOID(renderContext);
+
+    if (accessibilityId > 0) {
+        focusedAccessibilityId_ = accessibilityId;
+    }
+    RectT<int32_t> rect;
+    if (focusedAccessibilityId_ <= 0 || !GetAccessibilityFocusRect(rect, focusedAccessibilityId_)) {
+        renderContext->ResetAccessibilityFocusRect();
+        renderContext->UpdateAccessibilityFocus(false);
+        return;
+    }
+
+    renderContext->UpdateAccessibilityFocusRect(rect);
+    renderContext->UpdateAccessibilityFocus(true);
+}
+
+void WebPattern::ClearFocusedAccessibilityId()
+{
+    if (!accessibilityState_) {
+        return;
+    }
+
+    focusedAccessibilityId_ = -1;
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto renderContext = host->GetRenderContext();
+    CHECK_NULL_VOID(renderContext);
+    renderContext->ResetAccessibilityFocusRect();
+    renderContext->UpdateAccessibilityFocus(false);
+}
+
+std::shared_ptr<Rosen::RSNode> WebPattern::GetSurfaceRSNode() const
+{
+    CHECK_NULL_RETURN(renderContextForSurface_, nullptr);
+    auto rosenRenderContext = AceType::DynamicCast<NG::RosenRenderContext>(renderContextForSurface_);
+    CHECK_NULL_RETURN(rosenRenderContext, nullptr);
+    return rosenRenderContext->GetRSNode();
+}
+
+bool WebPattern::GetAccessibilityFocusRect(RectT<int32_t>& paintRect, int64_t accessibilityId) const
+{
+    if (!accessibilityState_) {
+        return false;
+    }
+    CHECK_NULL_RETURN(delegate_, false);
+    std::shared_ptr<OHOS::NWeb::NWebAccessibilityNodeInfo> info =
+        delegate_->GetAccessibilityNodeInfoById(accessibilityId);
+    if (!info) {
+        return false;
+    }
+
+    paintRect.SetRect(info->GetRectX(), info->GetRectY(), info->GetRectWidth(), info->GetRectHeight());
+    return true;
+}
+
+void WebPattern::SetTouchEventInfo(const TouchEvent& touchEvent,
+    TouchEventInfo& touchEventInfo, const std::string& embedId)
+{
+    CHECK_NULL_VOID(delegate_);
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto offset = host->GetTransformRelativeOffset();
+
+    TouchEventInfo tempTouchInfo = touchEventInfo_;
+    if (touchEvent.type == TouchType::DOWN || touchEvent.type == TouchType::UP) {
+        while (!touchEventQueue_.empty()) {
+            if (touchEventQueue_.front().GetChangedTouches().front().GetFingerId() == touchEvent.id) {
+                tempTouchInfo = touchEventQueue_.front();
+                touchEventQueue_.pop();
+                break;
+            } else {
+                touchEventQueue_.pop();
+            }
+        }
+    }
+    auto pos = delegate_->GetPosition(embedId);
+    touchEventInfo.SetSourceDevice(tempTouchInfo.GetSourceDevice());
+    touchEventInfo.SetTarget(tempTouchInfo.GetTarget());
+    touchEventInfo.SetForce(tempTouchInfo.GetForce());
+    touchEventInfo.SetSourceTool(tempTouchInfo.GetSourceTool());
+    touchEventInfo.SetTargetDisplayId(tempTouchInfo.GetTargetDisplayId());
+    touchEventInfo.SetDeviceId(tempTouchInfo.GetDeviceId());
+
+    TouchLocationInfo changedInfo("onTouch", touchEvent.id);
+    changedInfo.SetLocalLocation(Offset(touchEvent.x, touchEvent.y));
+    changedInfo.SetGlobalLocation(Offset(touchEvent.x + offset.GetX() + pos.GetX(),
+        touchEvent.y + offset.GetY() + pos.GetY()));
+    changedInfo.SetScreenLocation(Offset(touchEvent.x + offset.GetX() + pos.GetX(),
+        touchEvent.y + offset.GetY() + pos.GetY()));
+    changedInfo.SetTouchType(touchEvent.type);
+
+    SetTouchLocationInfo(touchEvent, changedInfo, tempTouchInfo, touchEventInfo);
+
+    touchEventInfo.AddChangedTouchLocationInfo(std::move(changedInfo));
+}
+
+void WebPattern::SetTouchLocationInfo(const TouchEvent& touchEvent, const TouchLocationInfo& changedInfo,
+    const TouchEventInfo& tempTouchInfo, TouchEventInfo& touchEventInfo)
+{
+    float scaleX = 0.0f;
+    float scaleY = 0.0f;
+    const std::list<TouchLocationInfo>& touchList = tempTouchInfo.GetTouches();
+    for (const TouchLocationInfo& location : touchList) {
+        if (touchEvent.id == location.GetFingerId()) {
+            const OHOS::Ace::Offset& localLocation = location.GetLocalLocation();
+            scaleX = localLocation.GetX() - touchEvent.x;
+            scaleY = localLocation.GetY() - touchEvent.y;
+        }
+    }
+    for (const TouchLocationInfo& location : touchList) {
+        TouchLocationInfo info("onTouch", location.GetFingerId());
+        if (touchEvent.id == location.GetFingerId()) {
+            info.SetGlobalLocation(changedInfo.GetGlobalLocation());
+            info.SetLocalLocation(changedInfo.GetLocalLocation());
+            info.SetScreenLocation(changedInfo.GetScreenLocation());
+            info.SetTouchType(changedInfo.GetTouchType());
+        } else {
+            const OHOS::Ace::Offset& localLocation = location.GetLocalLocation();
+            const OHOS::Ace::Offset& globalLocation = location.GetGlobalLocation();
+            const OHOS::Ace::Offset& screenLocation = location.GetScreenLocation();
+            info.SetGlobalLocation(Offset(globalLocation.GetX() - scaleX, globalLocation.GetY() - scaleY));
+            info.SetLocalLocation(Offset(localLocation.GetX() - scaleX, localLocation.GetY() - scaleY));
+            info.SetScreenLocation(Offset(screenLocation.GetX() - scaleX, screenLocation.GetY() - scaleY));
+            info.SetTouchType(location.GetTouchType());
+        }
+        touchEventInfo.AddTouchLocationInfo(std::move(info));
+    }
+}
+
+void WebPattern::RegisterVisibleAreaChangeCallback(const RefPtr<PipelineContext> &pipeline)
+{
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto callback = [weak = WeakClaim(this)](bool visible, double ratio) {
+        auto webPattern = weak.Upgrade();
+        CHECK_NULL_VOID(webPattern);
+        if (!visible && !NearZero(ratio)) {
+            TAG_LOGI(AceLogTag::ACE_WEB, "Fiterate not visible when ratio=%{public}f", ratio);
+            return;
+        }
+        webPattern->OnVisibleAreaChange(visible);
+    };
+    std::vector<double> ratioList = {0.0, 1.0};
+    pipeline->AddVisibleAreaChangeNode(host, ratioList, callback, false, true);
+}
+
+bool WebPattern::CheckSafeAreaIsExpand()
+{
+    auto host = GetHost();
+    CHECK_NULL_RETURN(host, false);
+    auto layoutProperty = host->GetLayoutProperty();
+    CHECK_NULL_RETURN(layoutProperty, false);
+    auto &&opts = layoutProperty->GetSafeAreaExpandOpts();
+    CHECK_NULL_RETURN(opts, false);
+    if ((opts->type & SAFE_AREA_TYPE_SYSTEM) || (opts->type & SAFE_AREA_TYPE_KEYBOARD)) {
+        return true;
+    }
+    return false;
+}
+
+bool WebPattern::CheckSafeAreaKeyBoard()
+{
+    auto host = GetHost();
+    CHECK_NULL_RETURN(host, false);
+    auto layoutProperty = host->GetLayoutProperty();
+    CHECK_NULL_RETURN(layoutProperty, false);
+    auto &&opts = layoutProperty->GetSafeAreaExpandOpts();
+    CHECK_NULL_RETURN(opts, false);
+    if ((opts->type & SAFE_AREA_TYPE_KEYBOARD) && (opts->edges & SAFE_AREA_EDGE_BOTTOM)) {
+        TAG_LOGI(AceLogTag::ACE_WEB, "SafeArea type is KEYBOARD.");
+        return true;
+    }
+    return false;
+}
+
+std::vector<int8_t> WebPattern::GetWordSelection(const std::string& text, int8_t offset)
+{
+    return DataDetectorMgr::GetInstance().GetWordSelection(text, offset);
+}
+
+bool WebPattern::Backward()
+{
+    if (!delegate_) {
+        TAG_LOGE(AceLogTag::ACE_WEB, "delegate is null");
+        return false;
+    }
+    if (delegate_->AccessBackward()) {
+        delegate_->Backward();
+        return true;
+    }
+    return false;
+}
+
+void WebPattern::SuggestionSelected(int32_t index)
+{
+    TAG_LOGI(AceLogTag::ACE_WEB, "WebPattern::SuggestionSelected index:%{public}d", index);
+    CHECK_NULL_VOID(delegate_);
+    delegate_->SuggestionSelected(index);
+}
+
+void WebPattern::OnShowAutofillPopup(
+    const float offsetX, const float offsetY, const std::vector<std::string>& menu_items)
+{
+    TAG_LOGI(AceLogTag::ACE_WEB, "WebPattern::OnShowAutofillPopup");
+    isShowAutofillPopup_ = true;
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto id = host->GetId();
+    std::vector<SelectParam> selectParam;
+    for (auto& item : menu_items) {
+        selectParam.push_back({ item, "" });
+    }
+    auto menu = MenuView::Create(selectParam, id, host->GetTag());
+    auto context = PipelineContext::GetCurrentContext();
+    CHECK_NULL_VOID(context);
+    auto menuContainer = AceType::DynamicCast<FrameNode>(menu->GetChildAtIndex(0));
+    CHECK_NULL_VOID(menuContainer);
+    auto menuPattern = menuContainer->GetPattern<MenuPattern>();
+    CHECK_NULL_VOID(menuPattern);
+    auto options = menuPattern->GetOptions();
+    for (auto && option : options) {
+        auto selectCallback = [weak = WeakClaim(this)](int32_t index) {
+            auto webPattern = weak.Upgrade();
+            CHECK_NULL_VOID(webPattern);
+            webPattern->SuggestionSelected(index);
+        };
+        auto optionNode = AceType::DynamicCast<FrameNode>(option);
+        if (optionNode) {
+            auto hub = optionNode->GetEventHub<OptionEventHub>();
+            auto optionPattern = optionNode->GetPattern<OptionPattern>();
+            if (!hub || !optionPattern) {
+                continue;
+            }
+            hub->SetOnSelect(std::move(selectCallback));
+            optionNode->MarkModifyDone();
+        }
+    }
+    auto overlayManager = context->GetOverlayManager();
+    CHECK_NULL_VOID(overlayManager);
+    auto offset = GetCoordinatePoint().value_or(OffsetF());
+    offset.AddX(offsetX);
+    offset.AddY(offsetY);
+    menu->GetOrCreateFocusHub()->SetFocusable(false);
+    overlayManager->DeleteMenu(id);
+    overlayManager->ShowMenu(id, offset, menu);
+}
+
+void WebPattern::OnHideAutofillPopup()
+{
+    TAG_LOGI(AceLogTag::ACE_WEB, "WebPattern::OnHideAutofillPopup");
+    if (!isShowAutofillPopup_) {
+        return;
+    }
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto id = host->GetId();
+    auto context = PipelineContext::GetCurrentContext();
+    CHECK_NULL_VOID(context);
+    auto eventHub = host->GetEventHub<WebEventHub>();
+    auto destructor = [weak = WeakClaim(this), id]() {
+        auto pattern = weak.Upgrade();
+        CHECK_NULL_VOID(pattern);
+        auto pipeline = NG::PipelineContext::GetCurrentContext();
+        CHECK_NULL_VOID(pipeline);
+        auto overlayManager = pipeline->GetOverlayManager();
+        CHECK_NULL_VOID(overlayManager);
+        overlayManager->DeleteMenu(id);
+    };
+    CHECK_NULL_VOID(eventHub);
+    eventHub->SetOnDisappear(destructor);
+    isShowAutofillPopup_ = false;
+}
+
+void WebPattern::CloseKeyboard()
+{
+    InputMethodManager::GetInstance()->CloseKeyboard();
+}
+
+WebInfoType WebPattern::GetWebInfoType()
+{
+    std::string factoryLevel;
+    if (delegate_) {
+        factoryLevel = delegate_->GetWebInfoType();
+    }
+    if (factoryLevel == WEB_INFO_PHONE || factoryLevel == WEB_INFO_DEFAULT) {
+        return WebInfoType::TYPE_MOBILE;
+    } else if (factoryLevel == WEB_INFO_TABLET) {
+        return WebInfoType::TYPE_TABLET;
+    } else if (factoryLevel == WEB_INFO_PC) {
+        return WebInfoType::TYPE_2IN1;
+    }
+    return WebInfoType::TYPE_UNKNOWN;
+}
+
+void WebPattern::JsonNodePutDefaultValue(std::unique_ptr<OHOS::Ace::JsonValue>& jsonNode,
+    WebAccessibilityType key, bool value)
+{
+    if (!value) {
+        return;
+    }
+    jsonNode->Put(EnumTypeToString(key).c_str(), 1);
+}
+
+void WebPattern::JsonNodePutDefaultValue(std::unique_ptr<OHOS::Ace::JsonValue>& jsonNode,
+    WebAccessibilityType key, std::string value)
+{
+    if (value.empty()) {
+        return;
+    }
+    jsonNode->Put(EnumTypeToString(key).c_str(), value.c_str());
+}
+
+void WebPattern::JsonNodePutDefaultValue(std::unique_ptr<OHOS::Ace::JsonValue>& jsonNode,
+    WebAccessibilityType key, int32_t value, int32_t defaultValue)
+{
+    if (value == defaultValue) {
+        return;
+    }
+    jsonNode->Put(EnumTypeToString(key).c_str(), value);
+}
+
+std::string WebPattern::EnumTypeToString(WebAccessibilityType type)
+{
+    return std::to_string(static_cast<int>(type));
+}
+
+std::string WebPattern::VectorIntToString(std::vector<int64_t>&& vec)
+{
+    std::string vecStr;
+    uint32_t vecLen = vec.size();
+    if (vecLen < 1) {
+        return vecStr;
+    }
+
+    for (uint32_t i = 0; i < vecLen - 1; ++i) {
+        vecStr += std::to_string(vec[i]) + " ";
+    }
+    return vecStr + std::to_string(vec[vecLen - 1]);
+}
+
+void WebPattern::WebNodeInfoToJsonValue(std::shared_ptr<OHOS::Ace::JsonValue>& jsonNodeArray,
+    std::shared_ptr<OHOS::NWeb::NWebAccessibilityNodeInfo> webNodeInfo, std::string& nodeTag)
+{
+    auto jsonNode = JsonUtil::Create(true);
+    jsonNode->Put(WEB_NODE_URL, delegate_ ? delegate_->GetUrl().c_str() : "");
+    jsonNode->Put(EnumTypeToString(WebAccessibilityType::ID).c_str(), webNodeInfo->GetAccessibilityId());
+    if (webNodeInfo->GetSelectionEnd() != 0) {
+        jsonNode->Put(EnumTypeToString(WebAccessibilityType::SEL_START).c_str(), webNodeInfo->GetSelectionStart());
+        jsonNode->Put(EnumTypeToString(WebAccessibilityType::SEL_END).c_str(), webNodeInfo->GetSelectionEnd());
+    }
+    JsonNodePutDefaultValue(jsonNode, WebAccessibilityType::INPUT_TYPE, webNodeInfo->GetInputType(), -1);
+    JsonNodePutDefaultValue(jsonNode, WebAccessibilityType::LIVE_REGION, webNodeInfo->GetLiveRegion(), -1);
+    JsonNodePutDefaultValue(jsonNode, WebAccessibilityType::HINT, webNodeInfo->GetHint());
+    JsonNodePutDefaultValue(jsonNode, WebAccessibilityType::CONTENT, webNodeInfo->GetContent());
+    JsonNodePutDefaultValue(jsonNode, WebAccessibilityType::ERROR, webNodeInfo->GetError());
+    JsonNodePutDefaultValue(jsonNode, WebAccessibilityType::CHILD_IDS, VectorIntToString(webNodeInfo->GetChildIds()));
+    JsonNodePutDefaultValue(jsonNode, WebAccessibilityType::PARENT_ID, webNodeInfo->GetParentId(), -1);
+    JsonNodePutDefaultValue(jsonNode, WebAccessibilityType::GRID_ROWS, webNodeInfo->GetGridRows(), -1);
+    JsonNodePutDefaultValue(jsonNode, WebAccessibilityType::GRID_COLS, webNodeInfo->GetGridColumns(), -1);
+    JsonNodePutDefaultValue(jsonNode, WebAccessibilityType::GRID_SEL_MODE, webNodeInfo->GetGridSelectedMode(), -1);
+    JsonNodePutDefaultValue(jsonNode, WebAccessibilityType::GRID_ITEM_ROW, webNodeInfo->GetGridItemRow(), -1);
+    JsonNodePutDefaultValue(jsonNode, WebAccessibilityType::GRID_ITEM_ROW_SPAN, webNodeInfo->GetGridItemRowSpan(), -1);
+    JsonNodePutDefaultValue(jsonNode, WebAccessibilityType::GRID_ITEM_COL, webNodeInfo->GetGridItemColumn(), -1);
+    JsonNodePutDefaultValue(jsonNode, WebAccessibilityType::GRID_ITEM_COL_SPAN,
+        webNodeInfo->GetGridItemColumnSpan(), -1);
+    JsonNodePutDefaultValue(jsonNode, WebAccessibilityType::PAGE_ID, webNodeInfo->GetPageId(), -1);
+
+    if (webNodeInfo->GetRectWidth() != 0 || webNodeInfo->GetRectHeight() != 0) {
+        jsonNode->Put(EnumTypeToString(WebAccessibilityType::RECTX).c_str(), webNodeInfo->GetRectX());
+        jsonNode->Put(EnumTypeToString(WebAccessibilityType::RECTY).c_str(), webNodeInfo->GetRectY());
+        jsonNode->Put(EnumTypeToString(WebAccessibilityType::RECT_WIDTH).c_str(), webNodeInfo->GetRectWidth());
+        jsonNode->Put(EnumTypeToString(WebAccessibilityType::RECT_HEIGHT).c_str(), webNodeInfo->GetRectHeight());
+    }
+
+    JsonNodePutDefaultValue(jsonNode, WebAccessibilityType::HEADING, webNodeInfo->GetIsHeading());
+    JsonNodePutDefaultValue(jsonNode, WebAccessibilityType::CHECKED, webNodeInfo->GetIsChecked());
+    JsonNodePutDefaultValue(jsonNode, WebAccessibilityType::EDITABLE, webNodeInfo->GetIsEditable());
+    JsonNodePutDefaultValue(jsonNode, WebAccessibilityType::ENABLED, webNodeInfo->GetIsEnabled());
+    JsonNodePutDefaultValue(jsonNode, WebAccessibilityType::FOCUSED, webNodeInfo->GetIsFocused());
+    JsonNodePutDefaultValue(jsonNode, WebAccessibilityType::SELECTED, webNodeInfo->GetIsSelected());
+    JsonNodePutDefaultValue(jsonNode, WebAccessibilityType::CHECKABLE, webNodeInfo->GetIsCheckable());
+    JsonNodePutDefaultValue(jsonNode, WebAccessibilityType::CLICKABLE, webNodeInfo->GetIsClickable());
+    JsonNodePutDefaultValue(jsonNode, WebAccessibilityType::FOCUSABLE, webNodeInfo->GetIsFocusable());
+    JsonNodePutDefaultValue(jsonNode, WebAccessibilityType::SCROLLABLE, webNodeInfo->GetIsScrollable());
+    JsonNodePutDefaultValue(jsonNode, WebAccessibilityType::PASSWORD, webNodeInfo->GetIsPassword());
+    JsonNodePutDefaultValue(jsonNode, WebAccessibilityType::VISIBLE, webNodeInfo->GetIsVisible());
+    JsonNodePutDefaultValue(jsonNode, WebAccessibilityType::PLURAL_LINE, webNodeInfo->GetIsPluralLineSupported());
+    JsonNodePutDefaultValue(jsonNode, WebAccessibilityType::POPUP, webNodeInfo->GetIsPopupSupported());
+    JsonNodePutDefaultValue(jsonNode, WebAccessibilityType::DELETABLE, webNodeInfo->GetIsDeletable());
+    JsonNodePutDefaultValue(jsonNode, WebAccessibilityType::FOCUS, webNodeInfo->GetIsAccessibilityFocus());
+    jsonNodeArray->PutRef(nodeTag.c_str(), std::move(jsonNode));
+}
+
+void WebPattern::GetWebAllInfosImpl(WebNodeInfoCallback cb, int32_t webId)
+{
+    std::shared_ptr<OHOS::NWeb::NWebAccessibilityNodeInfo> rootWebNode;
+    if (delegate_) {
+        rootWebNode = delegate_->GetAccessibilityNodeInfoById(-1);
+    }
+    CHECK_NULL_VOID(rootWebNode);
+
+    auto jsonNodeArray = static_cast<std::shared_ptr<JsonValue> >(JsonUtil::Create(true));
+    std::queue<uint64_t> que;
+    for (auto id: rootWebNode->GetChildIds()) {
+        que.push(id);
+    }
+
+    int nodeCount = 0;
+    while (!que.empty()) {
+        uint64_t tmp = que.front();
+        que.pop();
+        auto webNodeInfo = delegate_->GetAccessibilityNodeInfoById(tmp);
+        CHECK_NULL_VOID(webNodeInfo);
+        auto componentType = webNodeInfo->GetComponentType();
+        if (componentType.compare(ACCESSIBILITY_GENERIC_CONTAINER) != 0
+            && componentType.compare(ACCESSIBILITY_PARAGRAPH) != 0
+            && componentType.compare(ACCESSIBILITY_IMAGE) != 0) {
+            WebNodeInfoToJsonValue(jsonNodeArray, webNodeInfo, componentType);
+        }
+        for (auto id: webNodeInfo->GetChildIds()) {
+            que.push(id);
+        }
+        nodeCount++;
+    }
+    TAG_LOGD(AceLogTag::ACE_WEB, "Current web info node count: %{public}d", nodeCount);
+    cb(jsonNodeArray, webId);
+    inspectorAccessibilityEnable_ = false;
+    SetAccessibilityState(false);
+}
+
+void WebPattern::GetAllWebAccessibilityNodeInfos(WebNodeInfoCallback cb, int32_t webId)
+{
+    CHECK_NULL_VOID(cb);
+    inspectorAccessibilityEnable_ = true;
+    SetAccessibilityState(true);
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto pipelineContext = host->GetContext();
+    CHECK_NULL_VOID(pipelineContext);
+    auto taskExecutor = pipelineContext->GetTaskExecutor();
+    taskExecutor->PostDelayedTask([weak = WeakClaim(this), cb, webId] () {
+        auto pattern = weak.Upgrade();
+        auto startTime = std::chrono::high_resolution_clock::now();
+        pattern->GetWebAllInfosImpl(cb, webId);
+        auto nowTime = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double, std::milli> diff =
+            std::chrono::duration_cast<std::chrono::milliseconds>(nowTime - startTime);
+        TAG_LOGD(AceLogTag::ACE_WEB, "GetAllAccessibilityInfo time cost: %{public}f", diff.count());
+        },
+        TaskExecutor::TaskType::UI, WEB_ACCESSIBILITY_DELAY_TIME, "GetAllWebAccessibilityNodeInfos");
+}
+
+void WebPattern::RegisterWebComponentClickCallback(WebComponentClickCallback&& callback)
+{
+    CHECK_NULL_VOID(callback);
+    webComponentClickCallback_ = std::move(callback);
+    textBlurAccessibilityEnable_ = true;
+    SetAccessibilityState(true);
+}
+
+void WebPattern::UnregisterWebComponentClickCallback()
+{
+    webComponentClickCallback_ = nullptr;
+    textBlurAccessibilityEnable_ = false;
+    SetAccessibilityState(false);
+}
+
+void WebPattern::RequestFocus()
+{
+    WebRequestFocus();
+}
+
+void WebPattern::OnRebuildFrame()
+{
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto renderContext = host->GetRenderContext();
+    CHECK_NULL_VOID(renderContext);
+    CHECK_NULL_VOID(renderContextForSurface_);
+    renderContext->AddChild(renderContextForSurface_, 0);
+    CHECK_NULL_VOID(renderContextForPopupSurface_);
+    renderContext->AddChild(renderContextForPopupSurface_, 1);
+}
+
+void WebPattern::CreateOverlay(const RefPtr<OHOS::Ace::PixelMap>& pixelMap, int offsetX, int offsetY, int rectWidth,
+    int rectHeight, int pointX, int pointY)
+{
+    if (!imageAnalyzerManager_) {
+        imageAnalyzerManager_ = std::make_shared<ImageAnalyzerManager>(GetHost(), ImageAnalyzerHolder::WEB);
+    }
+    TAG_LOGI(AceLogTag::ACE_WEB,
+        "CreateOverlay, offsetX=%{public}d, offsetY=%{public}d, width=%{public}d, height=%{public}d", offsetX, offsetY,
+        rectWidth, rectHeight);
+    auto callback = [weak = AceType::WeakClaim(this)]() {
+        auto webPattern = weak.Upgrade();
+        CHECK_NULL_VOID(webPattern);
+        webPattern->OnTextSelected();
+    };
+    imageAnalyzerManager_->DestroyAnalyzerOverlay();
+    auto selectedTask = [weak = AceType::WeakClaim(this)](bool isSelected) {
+        auto webPattern = weak.Upgrade();
+        CHECK_NULL_VOID(webPattern);
+        TAG_LOGI(AceLogTag::ACE_WEB, "WebPattern::CreateOverlay selectedTask=%{public}d", isSelected);
+        webPattern->SetImageOverlaySelectedStatus(isSelected);
+        if (isSelected) {
+            webPattern->CloseSelectOverlay();
+            webPattern->SelectCancel();
+        }
+    };
+    imageAnalyzerManager_->SetNotifySelectedCallback(std::move(selectedTask));
+    imageAnalyzerManager_->UpdatePressOverlay(
+        pixelMap, offsetX, offsetY, rectWidth, rectHeight, pointX, pointY, std::move(callback));
+    imageAnalyzerManager_->CreateAnalyzerOverlay(nullptr);
+}
+
+void WebPattern::OnOverlayStateChanged(int offsetX, int offsetY, int rectWidth, int rectHeight)
+{
+    if (imageAnalyzerManager_) {
+        TAG_LOGI(AceLogTag::ACE_WEB,
+            "OnOverlayStateChanged, offsetX=%{public}d, offsetY=%{public}d, width=%{public}d, height=%{public}d",
+            offsetX, offsetY, rectWidth, rectHeight);
+        imageAnalyzerManager_->UpdateOverlayStatus(true, offsetX, offsetY, rectWidth, rectHeight);
+    }
+}
+
+void WebPattern::OnTextSelected()
+{
+    CHECK_NULL_VOID(delegate_);
+    delegate_->OnTextSelected();
+    overlayCreating_ = true;
+}
+
+void WebPattern::DestroyAnalyzerOverlay()
+{
+    if (imageAnalyzerManager_ && imageAnalyzerManager_->IsOverlayCreated()) {
+        imageAnalyzerManager_->DestroyAnalyzerOverlay();
+        delegate_->OnDestroyImageAnalyzerOverlay();
+    }
+    overlayCreating_ = false;
+    imageOverlayIsSelected_ = false;
+}
+
+bool WebPattern::OnAccessibilityHoverEvent(const PointF& point)
+{
+    CHECK_NULL_RETURN(delegate_, false);
+    auto host = GetHost();
+    CHECK_NULL_RETURN(host, false);
+    auto pipelineContext = host->GetContextRefPtr();
+    CHECK_NULL_RETURN(pipelineContext, false);
+    auto viewScale = pipelineContext->GetViewScale();
+    int32_t globalX = static_cast<int32_t>(point.GetX()) * viewScale;
+    int32_t globalY = static_cast<int32_t>(point.GetY()) * viewScale;
+    auto offset = GetCoordinatePoint().value_or(OffsetF());
+    globalX = static_cast<int32_t>(globalX - offset.GetX());
+    globalY = static_cast<int32_t>(globalY - offset.GetY());
+    delegate_->HandleAccessibilityHoverEvent(globalX, globalY);
+    return true;
+}
+
+void WebPattern::RegisterTextBlurCallback(TextBlurCallback&& callback)
+{
+    CHECK_NULL_VOID(callback);
+    textBlurCallback_ = std::move(callback);
+    textBlurAccessibilityEnable_ = true;
+    SetAccessibilityState(true);
+}
+
+void WebPattern::UnRegisterTextBlurCallback()
+{
+    textBlurCallback_ = nullptr;
+    textBlurAccessibilityEnable_ = false;
+    SetAccessibilityState(false);
+}
+
+void WebPattern::InitAiEngine()
+{
+    static bool isInit = false;
+    if (isInit) {
+        return;
+    }
+    auto context = PipelineContext::GetCurrentContextSafely();
+    CHECK_NULL_VOID(context);
+    auto uiTaskExecutor = SingleTaskExecutor::Make(context->GetTaskExecutor(), TaskExecutor::TaskType::BACKGROUND);
+    uiTaskExecutor.PostTask(
+        [&, instanceId = context->GetInstanceId()] {
+            ContainerScope scope(instanceId);
+            TAG_LOGI(AceLogTag::ACE_WEB, "ArkWeb init data detector.");
+            DataDetectorMgr::GetInstance().GetWordSelection("ArkWeb", 0);
+        },
+        "ArkWebTextInitDataDetect");
+    uiTaskExecutor.PostTask(
+        [&, instanceId = context->GetInstanceId()] {
+            ContainerScope scope(instanceId);
+            void* overlayData = nullptr;
+            ImageAnalyzerInnerConfig analyzerUIConfig;
+            analyzerUIConfig.createAIEngine = true;
+            TAG_LOGI(AceLogTag::ACE_WEB, "ArkWeb init AI Engine.");
+            ImageAnalyzerMgr::GetInstance().UpdateInnerConfig(&overlayData, &analyzerUIConfig);
+        },
+        "ArkWebTextInitAIEngine");
+    isInit = true;
+}
+
+void WebPattern::InitMagnifier()
+{
+    magnifierController_ = MakeRefPtr<MagnifierController>(WeakClaim(this));
+}
+
+void WebPattern::InitializeAccessibility()
+{
+    ContainerScope scope(instanceId_);
+    if (accessibilityChildTreeCallback_[instanceId_]) {
+        return;
+    }
+    auto frameNode = frameNode_.Upgrade();
+    CHECK_NULL_VOID(frameNode);
+    int64_t accessibilityId = frameNode->GetAccessibilityId();
+    auto pipeline = PipelineContext::GetCurrentContext();
+    CHECK_NULL_VOID(pipeline);
+    auto accessibilityManager = pipeline->GetAccessibilityManager();
+    CHECK_NULL_VOID(accessibilityManager);
+    accessibilityChildTreeCallback_[instanceId_] = std::make_shared<WebAccessibilityChildTreeCallback>(
+        WeakClaim(this), frameNode->GetAccessibilityId());
+    accessibilityManager->RegisterAccessibilityChildTreeCallback(accessibilityId,
+        accessibilityChildTreeCallback_[instanceId_]);
+    if (accessibilityManager->IsRegister()) {
+        accessibilityChildTreeCallback_[instanceId_]->OnRegister(pipeline->GetWindowId(),
+            accessibilityManager->GetTreeId());
+    }
+}
+
+void WebPattern::UninitializeAccessibility()
+{
+    ContainerScope scope(instanceId_);
+    auto frameNode = frameNode_.Upgrade();
+    CHECK_NULL_VOID(frameNode);
+    int64_t accessibilityId = frameNode->GetAccessibilityId();
+    auto pipeline = PipelineContext::GetCurrentContext();
+    CHECK_NULL_VOID(pipeline);
+    auto accessibilityManager = pipeline->GetAccessibilityManager();
+    CHECK_NULL_VOID(accessibilityManager);
+    if (accessibilityManager->IsRegister()) {
+        CHECK_NULL_VOID(accessibilityChildTreeCallback_[instanceId_]);
+        accessibilityChildTreeCallback_[instanceId_]->OnDeregister();
+    }
+    accessibilityManager->DeregisterAccessibilityChildTreeCallback(accessibilityId);
+    accessibilityChildTreeCallback_.erase(instanceId_);
+}
+
+void WebPattern::OnSetAccessibilityChildTree(int32_t childWindowId, int32_t childTreeId)
+{
+    treeId_ = childTreeId;
+    auto frameNode = frameNode_.Upgrade();
+    CHECK_NULL_VOID(frameNode);
+    auto accessibilityProperty = frameNode->GetAccessibilityProperty<AccessibilityProperty>();
+    if (accessibilityProperty != nullptr) {
+        accessibilityProperty->SetChildWindowId(childWindowId);
+        accessibilityProperty->SetChildTreeId(childTreeId);
+    }
+}
+
+bool WebPattern::OnAccessibilityChildTreeRegister()
+{
+    ContainerScope scope(instanceId_);
+    auto pipeline = PipelineContext::GetCurrentContext();
+    CHECK_NULL_RETURN(pipeline, false);
+    auto accessibilityManager = pipeline->GetAccessibilityManager();
+    CHECK_NULL_RETURN(accessibilityManager, false);
+    auto frameNode = frameNode_.Upgrade();
+    CHECK_NULL_RETURN(frameNode, false);
+    int64_t accessibilityId = frameNode->GetAccessibilityId();
+    return accessibilityManager->RegisterWebInteractionOperationAsChildTree(accessibilityId, WeakClaim(this));
+}
+
+bool WebPattern::OnAccessibilityChildTreeDeregister()
+{
+    ContainerScope scope(instanceId_);
+    auto pipeline = PipelineContext::GetCurrentContext();
+    CHECK_NULL_RETURN(pipeline, false);
+    auto accessibilityManager = pipeline->GetAccessibilityManager();
+    CHECK_NULL_RETURN(accessibilityManager, false);
+    return accessibilityManager->DeregisterWebInteractionOperationAsChildTree(treeId_);
+}
+
+int32_t WebPattern::GetBufferSizeByDeviceType()
+{
+    return (SystemProperties::GetDeviceType() == DeviceType::PHONE) ? ASYNC_SURFACE_QUEUE_SIZE_FOR_PHONE :
+        ASYNC_SURFACE_QUEUE_SIZE_FOR_OTHERS;
+}
+
+void WebPattern::StartVibraFeedback(const std::string& vibratorType)
+{
+    if (isEnabledHapticFeedback_) {
+        NG::VibratorUtils::StartVibraFeedback(vibratorType);
+    }
+}
+
+void WebPattern::UpdateTouchpadSlidingStatus(const GestureEvent& event)
+{
+    isTouchpadSliding_ = false;
+    if ((event.GetInputEventType() == InputEventType::AXIS) &&
+        (event.GetSourceTool() == SourceTool::TOUCHPAD)) {
+        isTouchpadSliding_ = true;
+    }
+}
+
+bool WebPattern::CloseImageOverlaySelection()
+{
+    if (imageOverlayIsSelected_) {
+        TAG_LOGI(AceLogTag::ACE_WEB, "WebPattern::CloseImageOverlaySelection");
+        DestroyAnalyzerOverlay();
+        return true;
+    }
+    return false;
+}
+} // namespace OHOS::Ace::NG

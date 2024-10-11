@@ -1,0 +1,54 @@
+{
+  "name": "@ohos/ui_appearance",
+  "description": "Provide ui_appearance management.",
+  "version": "3.2",
+  "license": "Apache License 2.0",
+  "publishAs": "code-segment",
+  "segment": {
+    "destPath": "foundation/arkui/ui_appearance"
+  },
+  "dirs": {},
+  "scripts": {},
+  "component": {
+    "name": "ui_appearance",
+    "subsystem": "arkui",
+    "syscap": [
+      "SystemCapability.ArkUI.UiAppearance"
+    ],
+    "features": [
+    ],
+    "adapted_system_type": [
+      "standard"
+    ],
+    "rom":"300KB",
+    "ram":"1024KB",
+    "deps": {
+      "components": [
+        "ability_runtime",
+        "ability_base",
+        "access_token",
+        "c_utils",
+        "hicollie",
+        "hilog",
+        "init",
+        "ipc",
+        "napi",
+        "safwk",
+        "samgr",
+        "os_account",
+        "common_event_service"
+      ],
+      "third_party": []
+    },
+    "build": {
+      "sub_component": [
+        "//foundation/arkui/ui_appearance:ui_appearance_packages"
+      ],
+      "inner_kits": [
+      ],
+      "test": [
+        "//foundation/arkui/ui_appearance/test/unittest:ui_appearance_test"
+      ]
+    }
+  }
+}

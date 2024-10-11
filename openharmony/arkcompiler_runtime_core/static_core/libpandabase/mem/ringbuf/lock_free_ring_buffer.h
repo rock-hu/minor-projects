@@ -1,0 +1,149 @@
+/*
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#ifndef PANDA_LIBPANDABASE_MEM_RING_BUF_LOCK_FREE_BUFFER
+#define PANDA_LIBPANDABASE_MEM_RING_BUF_LOCK_FREE_BUFFER
+
+#include <atomic>
+#include <cinttypes>
+#include <thread>
+#include "coherency_line_size.h"
+#include "libpandabase/utils/math_helpers.h"
+
+namespace ark::mem {
+/// Lock-free single-producer single-consumer ring-buffer. Push can take infinite amount of time if buffer is full.
+template <typename T, size_t RING_BUFFER_SIZE>
+class LockFreeBuffer {
+public:
+    static_assert(RING_BUFFER_SIZE > 0U, "0 is invalid size for ring buffer");
+    static_assert(ark::helpers::math::IsPowerOfTwo(RING_BUFFER_SIZE));
+    static constexpr size_t RING_BUFFER_SIZE_MASK = RING_BUFFER_SIZE - 1;
+    static_assert(RING_BUFFER_SIZE_MASK > 0);
+
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
+    LockFreeBuffer()
+    {
+        // Atomic with release order reason: threads should see correct initialization
+        tailIndex_.store(0, std::memory_order_release);
+        // Atomic with release order reason: threads should see correct initialization
+        headIndex_.store(0, std::memory_order_release);
+        CheckInvariant();
+    }
+
+    bool TryPush(const T val)
+    {
+        CheckInvariant();
+        // Atomic with acquire order reason: push should get the latest value
+        const auto currentTail = tailIndex_.load(std::memory_order_acquire);
+        const auto nextTail = Increment(currentTail);
+        // Atomic with acquire order reason: push should get the latest value
+        auto localHead = headIndex_.load(std::memory_order_acquire);
+        if (nextTail != localHead) {
+            ASSERT(currentTail < RING_BUFFER_SIZE);
+            buffer_[currentTail] = val;
+            // Atomic with release order reason: to allow pop to see the latest value
+            tailIndex_.store(nextTail, std::memory_order_release);
+            return true;
+        }
+        return false;
+    }
+
+    void Push(const T val)
+    {
+        // NOLINTNEXTLINE(readability-braces-around-statements)
+        while (!TryPush(val)) {
+        };
+    }
+
+    bool IsEmpty()
+    {
+        CheckInvariant();
+        // Atomic with acquire order reason: get the latest value
+        auto localHead = headIndex_.load(std::memory_order_acquire);
+        // Atomic with acquire order reason: get the latest value
+        auto localTail = tailIndex_.load(std::memory_order_acquire);
+        bool isEmpty = (localHead == localTail);
+        return isEmpty;
+    }
+
+    bool TryPop(T *pval)
+    {
+        CheckInvariant();
+
+        // Atomic with acquire order reason: get the latest value
+        auto currentHead = headIndex_.load(std::memory_order_acquire);
+        // Atomic with acquire order reason: get the latest value
+        if (currentHead == tailIndex_.load(std::memory_order_acquire)) {
+            return false;
+        }
+
+        *pval = buffer_[currentHead];
+        size_t newValue = Increment(currentHead);
+        // Atomic with release order reason: let others threads to see the latest value
+        headIndex_.store(newValue, std::memory_order_release);
+        return true;
+    }
+
+    T Pop()
+    {
+        T ret;
+        // NOLINTNEXTLINE(readability-braces-around-statements)
+        while (!TryPop(&ret)) {
+        }
+        return ret;
+    }
+
+    static constexpr uint32_t GetTailIndexOffset()
+    {
+        return MEMBER_OFFSET(Self, tailIndex_);
+    }
+
+    static constexpr uint32_t GetHeadIndexOffset()
+    {
+        return MEMBER_OFFSET(Self, headIndex_);
+    }
+
+    static constexpr uint32_t GetBufferOffset()
+    {
+        return MEMBER_OFFSET(Self, buffer_);
+    }
+
+private:
+    using Self = LockFreeBuffer<T, RING_BUFFER_SIZE>;
+
+    alignas(ark::COHERENCY_LINE_SIZE) std::atomic<size_t> tailIndex_;
+    std::atomic<size_t> headIndex_;
+    alignas(ark::COHERENCY_LINE_SIZE) std::array<T, RING_BUFFER_SIZE> buffer_;
+
+    size_t Increment(size_t n)
+    {
+        return (n + 1) & RING_BUFFER_SIZE_MASK;
+    }
+
+    void CheckInvariant()
+    {
+#ifndef NDEBUG
+        // Atomic with acquire order reason: get the latest value
+        [[maybe_unused]] auto localHead = headIndex_.load(std::memory_order_acquire);
+        ASSERT(localHead < RING_BUFFER_SIZE);
+
+        // Atomic with acquire order reason: get the latest value
+        [[maybe_unused]] auto localTail = tailIndex_.load(std::memory_order_acquire);
+        ASSERT(localTail < RING_BUFFER_SIZE);
+#endif
+    }
+};
+}  // namespace ark::mem
+#endif

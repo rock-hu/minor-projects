@@ -1,0 +1,220 @@
+# Copyright (c) 2021-2024 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+import("//foundation/arkui/ace_engine/ace_config.gni")
+import("//foundation/arkui/ace_engine/build/ace_ext.gni")
+
+# build static
+template("ace_osal_ohos_source_set") {
+  forward_variables_from(invoker, "*")
+
+  ohos_source_set(target_name) {
+    subsystem_name = ace_engine_subsystem
+    part_name = ace_engine_part
+    defines += invoker.defines
+    if (defined(vendor_configs.use_ext_surface) &&
+        vendor_configs.use_ext_surface) {
+      defines += [ "EXT_SURFACE_ENABLE" ]
+    }
+    if (is_ohos_standard_system) {
+      external_deps = [
+        "hilog:libhilog",
+        "hitrace:hitrace_meter",
+        "imf:inputmethod_client",
+        "init:libbeget_proxy",
+        "init:libbegetutil",
+      ]
+      configs = [ "$ace_root:ace_config" ]
+    } else {
+      external_deps = [
+        "hilog:libhilog",
+        "hitrace:hitrace_meter",
+        "init:libbegetutil",
+      ]
+
+      configs = [ "$ace_root:ace_config" ]
+    }
+
+    sources = [
+      "ace_checker.cpp",
+      "ace_engine_ext.cpp",
+      "ace_trace.cpp",
+      "ai_write_adapter.cpp",
+      "anr_thread.cpp",
+      "app_bar_helper_impl.cpp",
+      "data_detector_adapter.cpp",
+      "data_detector_loader.cpp",
+      "data_detector_mgr.cpp",
+      "display_info_utils.cpp",
+      "download_manager_ohos.cpp",
+      "event_report.cpp",
+      "exception_handler.cpp",
+      "frame_report.cpp",
+      "image_analyzer_adapter_impl.cpp",
+      "image_analyzer_loader.cpp",
+      "image_analyzer_manager.cpp",
+      "image_analyzer_mgr.cpp",
+      "input_method_manager_ohos.cpp",
+      "layout_inspector.cpp",
+      "log_wrapper.cpp",
+      "modal_ui_extension_impl.cpp",
+      "ressched_report.cpp",
+      "socperf_client_impl.cpp",
+      "stylus_detector_default.cpp",
+      "stylus_detector_loader.cpp",
+      "stylus_detector_mgr.cpp",
+      "system_properties.cpp",
+      "thp_extra_manager_impl.cpp",
+      "trace_id_impl.cpp",
+      "view_data_wrap_ohos.cpp",
+      "want_wrap_ohos.cpp",
+      "window_utils.cpp",
+    ]
+
+    external_deps += [
+      "ability_runtime:app_manager",
+      "i18n:intl_util",
+      "init:libbegetutil",
+    ]
+
+    if (is_ohos_standard_system) {
+      sources += [
+        "resource_adapter_impl.cpp",
+        "resource_adapter_impl_v2.cpp",
+        "resource_convertor.cpp",
+        "resource_theme_style.cpp",
+      ]
+      deps = []
+
+      if (defined(global_parts_info) &&
+          defined(global_parts_info.resourceschedule_soc_perf)) {
+        external_deps += [ "soc_perf:socperf_client" ]
+        defines += [ "SOC_PERF_ENABLE" ]
+      }
+
+      if (defined(global_parts_info) && defined(
+              global_parts_info.resourceschedule_resource_schedule_service)) {
+        external_deps += [ "resource_schedule_service:ressched_client" ]
+        defines += [ "RESOURCE_SCHEDULE_SERVICE_ENABLE" ]
+      }
+
+      if (defined(resourceschedule_ffrt_support) &&
+          resourceschedule_ffrt_support) {
+        sources += [ "long_frame_report_impl.cpp" ]
+        external_deps += [ "ffrt:libffrt" ]
+      }
+
+      external_deps += [
+        "ability_base:view_data",
+        "ability_base:want",
+        "ability_runtime:abilitykit_native",
+        "graphic_2d:libframe_analyzer",
+        "image_framework:image",
+        "input:libmmi-client",
+        "napi:ace_napi",
+        "resource_management:global_resmgr",
+      ]
+      if (defined(config.accessibility_support) &&
+          config.accessibility_support) {
+        sources += [
+          "js_accessibility_manager.cpp",
+          "js_third_accessibility_hover_ng.cpp",
+          "js_third_provider_interaction_operation.cpp",
+        ]
+        deps += [ "$ace_root/frameworks/bridge/common/accessibility:bridge_accessibility_$platform" ]
+        external_deps += [
+          "accessibility:accessibility_common",
+          "accessibility:accessibilityclient",
+          "accessibility:accessibilityconfig",
+        ]
+      } else {
+        sources += [ "fake_accessibility_manager.cpp" ]
+      }
+      if (frame_trace_support) {
+        sources += [ "frame_trace_adapter_impl.cpp" ]
+        external_deps += [ "frame_aware_sched:frame_trace_intf" ]
+        defines += [ "FRAME_TRACE_ENABLE" ]
+      } else {
+        sources += [ "frame_trace_adapter_fake_impl.cpp" ]
+      }
+    } else {
+      external_deps += [ "multimedia_image:image" ]
+    }
+    sources += [
+      "background_task_helper_ohos.cpp",
+      "drawing_color_filter_ohos.cpp",
+      "drawing_lattice_ohos.cpp",
+      "file_uri_helper_ohos.cpp",
+      "image_packer_ohos.cpp",
+      "image_source_ohos.cpp",
+      "input_manager.cpp",
+      "mouse_style_ohos.cpp",
+      "navigation_route_ohos.cpp",
+      "page_url_checker_ohos.cpp",
+      "pixel_map_ohos.cpp",
+      "system_bar_style_ohos.cpp",
+    ]
+    external_deps += [
+      "ability_runtime:abilitykit_native",
+      "ability_runtime:app_manager",
+      "ability_runtime:wantagent_innerkits",
+      "app_file_service:fileuri_native",
+      "background_task_mgr:bgtaskmgr_innerkits",
+      "bundle_framework:appexecfwk_core",
+      "graphic_2d:2d_graphics",
+      "graphic_2d:drawing_napi_impl",
+      "graphic_2d:librender_service_client",
+      "hicollie:libhicollie",
+      "hisysevent:libhisysevent",
+      "hitrace:libhitracechain",
+      "safwk:system_ability_fwk",
+      "samgr:samgr_proxy",
+      "window_manager:libdm",
+      "window_manager:libwm",
+      "window_manager:scene_session",
+      "window_manager:window_native_kit",
+    ]
+
+    if (defined(config.hichecker_exists) && config.hichecker_exists) {
+      external_deps += [ "hichecker:libhichecker" ]
+    }
+    deps += [
+      "$ace_root/interfaces/inner_api/drawable_descriptor:drawable_descriptor",
+    ]
+
+    if (ability_runtime_graphics) {
+      external_deps += [ "image_framework:image_native" ]
+    }
+  }
+}
+
+foreach(item, ace_platforms) {
+  platform = item.name
+  if (platform == "ohos" || platform == "ohos_ng") {
+    ace_osal_ohos_source_set("ace_osal_ohos_${platform}") {
+      platform = item.name
+      assert(defined(platform) && platform != "", "platform must be defined")
+      defines = []
+      config = {
+      }
+
+      if (defined(item.config)) {
+        config = item.config
+      }
+      if (defined(config.defines)) {
+        defines = config.defines
+      }
+    }
+  }
+}

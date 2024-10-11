@@ -1,0 +1,285 @@
+# Copyright (c) 2021-2024 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+# http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+intrinsics_namespace: irtoc
+
+# WARNING: 'class_name' field should be `Irtoc` for all Irtoc intrinsics. If it needs to be changed, fix `is_irtoc?`
+# method in `compiler_intrinsics.rb` file
+
+intrinsics:
+- name: SlowPathEntry
+  class_name: Irtoc
+  method_name:
+  space: core
+  static: true
+  builtin: true
+  codegen_arch: [amd64, arm64, arm32]
+  codegen_func: "CreateIrtocIntrinsic"
+  llvm_codegen_func: EmitSlowPathEntry
+  signature:
+    ret: void
+    args: []
+  description: Invoke slow path of the entrypoint from the irtoc'ed entrypoint
+  clear_flags: [require_state, can_throw, heap_inv]
+
+- name: SaveRegistersEp
+  class_name: Irtoc
+  method_name:
+  space: core
+  static: true
+  codegen_arch: [amd64, arm64, arm32]
+  codegen_func: "CreateIrtocIntrinsic"
+  llvm_codegen_func: EmitNothing
+  signature:
+    ret: void
+    args: []
+  description: Save registers before native call
+  clear_flags: [require_state, can_throw, heap_inv]
+
+- name: RestoreRegistersEp
+  class_name: Irtoc
+  method_name:
+  space: core
+  static: true
+  codegen_arch: [amd64, arm64, arm32]
+  codegen_func: "CreateIrtocIntrinsic"
+  llvm_codegen_func: EmitNothing
+  signature:
+    ret: void
+    args: []
+  description: Restore registers after native call
+  clear_flags: [require_state, can_throw, heap_inv]
+
+- name: Unreachable
+  class_name: Irtoc
+  method_name:
+  space: core
+  static: true
+  codegen_arch: [amd64, arm64, arm32]
+  codegen_func: "CreateIrtocIntrinsic"
+  llvm_codegen_func: EmitUnreachable
+  signature:
+    ret: void
+    args: []
+  description: Encode trap instruction
+  set_flags: [terminator]
+  clear_flags: [require_state, can_throw, heap_inv]
+
+- name: TailCall
+  class_name: Irtoc
+  method_name:
+  space: core
+  static: true
+  codegen_arch: [ amd64, arm64, arm32 ]
+  codegen_func: "CreateIrtocIntrinsic"
+  llvm_codegen_func: EmitTailCall
+  signature:
+    ret: void
+    args: []
+  description: Make a tail call
+  set_flags: [terminator, no_dst]
+  clear_flags: [require_state, can_throw, heap_inv]
+
+- name: InterpreterReturn
+  class_name: Irtoc
+  method_name:
+  space: core
+  static: true
+  codegen_arch: [amd64, arm64, arm32]
+  codegen_func: "CreateIrtocIntrinsic"
+  llvm_codegen_func: EmitInterpreterReturn
+  signature:
+    ret: void
+    args: []
+  clear_flags: [require_state, can_throw, heap_inv]  
+  description: Restore registers on return bytecode
+
+- name: LoadAcquireMarkWordExclusive
+  class_name: Irtoc
+  method_name:
+  space: core
+  static: true
+  builtin: true
+  codegen_arch: [arm64, arm32]
+  codegen_func: "CreateIrtocIntrinsic"
+  llvm_codegen_func: EmitExclusiveLoadWithAcquire
+  signature:
+      ret: void
+      args: []
+  clear_flags: [runtime_call, require_state, can_throw, heap_inv]
+  description: Encode load mark word with acquire semantics for exclusive use
+
+- name: StoreReleaseMarkWordExclusive
+  class_name: Irtoc
+  method_name:
+  space: core
+  static: true
+  builtin: true
+  codegen_arch: [arm64, arm32]
+  codegen_func: "CreateIrtocIntrinsic"
+  llvm_codegen_func: EmitExclusiveStoreWithRelease
+  signature:
+      ret: void
+      args: []
+  clear_flags: [runtime_call, require_state, can_throw, heap_inv]
+  description: Encode store mark word that was loaded for exclusive use with release semantics
+
+- name: CompareAndSetMarkWord
+  class_name: Irtoc
+  method_name:
+  space: core
+  static: true
+  builtin: true
+  codegen_arch: [amd64]
+  codegen_func: "CreateIrtocIntrinsic"
+  # llvm_codegen_func: unused for arm64
+  signature:
+      ret: void
+      args: []
+  clear_flags: [runtime_call, require_state, can_throw, heap_inv]
+  description: Encode store mark word using compare and swap
+
+- name: DataMemoryBarrierFull
+  class_name: Irtoc
+  method_name:
+  space: core
+  static: true
+  builtin: true
+  codegen_arch: [arm64, amd64]
+  codegen_func: "CreateIrtocIntrinsic"
+  llvm_codegen_func: EmitMemoryFenceFull
+  signature:
+      ret: void
+      args: []
+  clear_flags: [runtime_call, require_state, can_throw, heap_inv]
+  description: InnerShareable Full (ACQUIRE + RELEASE) barrier. Ensures the order of memory accesses before and after the barrier.
+
+- name: CompressEightUtf16ToUtf8CharsUsingSimd
+  class_name: Irtoc
+  method_name:
+  space: core
+  static: true
+  builtin: true
+  codegen_arch: [arm64]
+  codegen_func: "CreateIrtocIntrinsic"
+  llvm_codegen_func: EmitCompressEightUtf16ToUtf8CharsUsingSimd
+  signature:
+      ret: void
+      args: []
+  clear_flags: [runtime_call, require_state, can_throw, heap_inv]
+  description: Compresses eight Utf16 chars (16 bytes) to Utf8 chars (8 bytes) using SIMD instructions
+
+- name: CompressSixteenUtf16ToUtf8CharsUsingSimd
+  class_name: Irtoc
+  method_name:
+  space: core
+  static: true
+  builtin: true
+  codegen_arch: [arm64]
+  codegen_func: "CreateIrtocIntrinsic"
+  llvm_codegen_func: EmitCompressSixteenUtf16ToUtf8CharsUsingSimd
+  signature:
+      ret: void
+      args: []
+  clear_flags: [runtime_call, require_state, can_throw, heap_inv]
+  description: Compresses sixteen Utf16 chars (32 bytes) to Utf8 chars (16 bytes) using SIMD instructions
+
+- name: WriteTlabStatsSafe
+  class_name: Irtoc
+  method_name:
+  space: core
+  static: true
+  builtin: true
+  codegen_arch: [arm64, arm32, amd64]
+  codegen_func: "CreateIrtocIntrinsic"
+  llvm_codegen_func: EmitWriteTlabStatsSafe
+  signature: # the signature is fake
+      ret: void
+      args: []
+  clear_flags: [runtime_call, require_state, can_throw, heap_inv]
+  description: calls WriteTlabStats function from inside the IrToc
+
+- name: ReverseBytesU64
+  class_name: Irtoc
+  method_name:
+  space: core
+  static: true
+  builtin: true
+  codegen_arch: [arm64, amd64]
+  codegen_func: "CreateIrtocIntrinsic"
+  llvm_codegen_func: EmitReverseBytes
+  signature:
+      ret: u64
+      args: [ u64 ]
+  clear_flags: [runtime_call, require_state, can_throw, heap_inv]
+  description: Reverse bytes in dword
+
+- name: ReverseBytesU32
+  class_name: Irtoc
+  method_name:
+  space: core
+  static: true
+  builtin: true
+  codegen_arch: [arm64, amd64]
+  codegen_func: "CreateIrtocIntrinsic"
+  llvm_codegen_func: EmitReverseBytes
+  signature:
+      ret: u32
+      args: [ u32 ]
+  clear_flags: [runtime_call, require_state, can_throw, heap_inv]
+  description: Reverse bytes in word
+
+- name: ReverseHalfWords
+  class_name: Irtoc
+  method_name:
+  space: core
+  static: true
+  builtin: true
+  codegen_arch: [arm64, amd64]
+  codegen_func: "CreateIrtocIntrinsic"
+  llvm_codegen_func: EmitReverseHalfWords
+  signature:
+      ret: f64
+      args: [ f64 ]
+  clear_flags: [runtime_call, require_state, can_throw, heap_inv]
+  description: Reverse half-words in the double word
+
+- name: ExpandU8ToU16
+  class_name: Irtoc
+  method_name:
+  space: core
+  static: true
+  builtin: true
+  codegen_arch: [arm64, amd64]
+  codegen_func: "CreateIrtocIntrinsic"
+  llvm_codegen_func: EmitExpandU8U16
+  signature:
+      ret: f64
+      args: [ f64 ]
+  clear_flags: [runtime_call, require_state, can_throw, heap_inv]
+  description: Expand the the lower 4 u8 into 4 u16
+
+- name: AtomicByteOr
+  class_name: Irtoc
+  method_name:
+  space: core
+  static: true
+  builtin: true
+  codegen_arch: [arm64, arm32, amd64]
+  codegen_func: "CreateIrtocIntrinsic"
+  llvm_codegen_func: EmitAtomicByteOr
+  signature:
+      ret: void
+      args: [ u64, u8 ]
+  clear_flags: [runtime_call, require_state, can_throw, heap_inv]
+  description: Atomic bit set on byte in memory, without return

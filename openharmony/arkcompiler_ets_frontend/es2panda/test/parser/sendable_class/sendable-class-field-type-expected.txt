@@ -1,0 +1,509 @@
+.language ECMAScript
+
+slotNum = 0x4
+.function any .#%#City(any a0, any a1, any a2, any a3) {
+label_1: 
+label_0: 
+	lda.str BEIJING
+	sta v0
+	lda.str beijing
+	stobjbyvalue 0x0, a3, v0
+	lda.str SHANGHAI
+	sta v0
+	lda.str shanghai
+	stobjbyvalue 0x2, a3, v0
+	ldundefined
+	returnundefined
+label_2: 
+}
+
+slotNum = 0x1
+.function any .#*#Test(any a0, any a1, any a2) {
+label_1: 
+label_0: 
+	ldhole
+	sta v0
+	callruntime.definesendableclass 0x0, .#*@2~@1=#Pet, _3, 0x0, v0
+	ldundefined
+	returnundefined
+label_2: 
+}
+
+slotNum = 0x0
+.function any .#*@2~@1=#Pet(any a0, any a1, any a2) {
+label_1: 
+label_0: 
+	lda a2
+	return
+label_2: 
+}
+
+slotNum = 0x0
+.function any .#~@0=#Person(any a0, any a1, any a2) {
+label_1: 
+label_0: 
+	lda a2
+	return
+label_2: 
+}
+
+slotNum = 0x7
+.function any .func_main_0(any a0, any a1, any a2) {
+label_4: 
+label_0: 
+	ldundefined
+	sta v0
+	definefunc 0x0, .#*#Test, 0x0
+	definefunc 0x1, .#%#City, 0x1
+	sta v1
+	lda v0
+	callruntime.istrue 0x2
+	jnez label_3
+label_2: 
+	createemptyobject
+	sta v0
+label_3: 
+	lda v1
+	callarg1 0x4, v0
+	ldhole
+	sta v0
+	callruntime.definesendableclass 0x6, .#~@0=#Person, _5, 0x0, v0
+	ldundefined
+	returnundefined
+label_5: 
+}
+
+
+======> literal array buffer <======
+------------------------------------
+slot _0
+{
+  index: 0
+    tag: 0
+    val: 5
+},
+{
+  index: 1
+    tag: 5
+    val: Person
+},
+{
+  index: 2
+    tag: 0
+    val: 5
+},
+{
+  index: 3
+    tag: 5
+    val: Pet
+},
+{
+  index: 4
+    tag: 0
+    val: 5
+},
+{
+  index: 5
+    tag: 5
+    val: Test
+},
+------------------------------------
+slot _1
+{
+  index: 0
+    tag: 2
+    val: 1
+},
+{
+  index: 1
+    tag: 5
+    val: ./test1
+},
+{
+  index: 2
+    tag: 2
+    val: 1
+},
+{
+  index: 3
+    tag: 5
+    val: Country
+},
+{
+  index: 4
+    tag: 5
+    val: Country
+},
+{
+  index: 5
+    tag: 9
+    val: 0
+},
+{
+  index: 6
+    tag: 2
+    val: 0
+},
+{
+  index: 7
+    tag: 2
+    val: 0
+},
+{
+  index: 8
+    tag: 2
+    val: 0
+},
+{
+  index: 9
+    tag: 2
+    val: 0
+},
+------------------------------------
+slot _2
+{
+  index: 0
+    tag: 0
+    val: 5
+},
+{
+  index: 1
+    tag: 5
+    val: name
+},
+{
+  index: 2
+    tag: 0
+    val: 2
+},
+{
+  index: 3
+    tag: 2
+    val: 2
+},
+{
+  index: 4
+    tag: 0
+    val: 5
+},
+{
+  index: 5
+    tag: 5
+    val: color
+},
+{
+  index: 6
+    tag: 0
+    val: 2
+},
+{
+  index: 7
+    tag: 2
+    val: 160
+},
+{
+  index: 8
+    tag: 0
+    val: 5
+},
+{
+  index: 9
+    tag: 5
+    val: weight
+},
+{
+  index: 10
+    tag: 0
+    val: 2
+},
+{
+  index: 11
+    tag: 2
+    val: 32
+},
+{
+  index: 12
+    tag: 0
+    val: 2
+},
+{
+  index: 13
+    tag: 2
+    val: 3
+},
+------------------------------------
+slot _3
+{
+  index: 0
+    tag: 0
+    val: 2
+},
+{
+  index: 1
+    tag: 2
+    val: 0
+},
+{
+  index: 2
+    tag: 0
+    val: 24
+},
+{
+  index: 3
+    tag: 24
+    val: _2
+},
+------------------------------------
+slot _4
+{
+  index: 0
+    tag: 0
+    val: 5
+},
+{
+  index: 1
+    tag: 5
+    val: name
+},
+{
+  index: 2
+    tag: 0
+    val: 2
+},
+{
+  index: 3
+    tag: 2
+    val: 2
+},
+{
+  index: 4
+    tag: 0
+    val: 5
+},
+{
+  index: 5
+    tag: 5
+    val: age
+},
+{
+  index: 6
+    tag: 0
+    val: 2
+},
+{
+  index: 7
+    tag: 2
+    val: 1
+},
+{
+  index: 8
+    tag: 0
+    val: 5
+},
+{
+  index: 9
+    tag: 5
+    val: mother
+},
+{
+  index: 10
+    tag: 0
+    val: 2
+},
+{
+  index: 11
+    tag: 2
+    val: 8
+},
+{
+  index: 12
+    tag: 0
+    val: 5
+},
+{
+  index: 13
+    tag: 5
+    val: father
+},
+{
+  index: 14
+    tag: 0
+    val: 2
+},
+{
+  index: 15
+    tag: 2
+    val: 8
+},
+{
+  index: 16
+    tag: 0
+    val: 5
+},
+{
+  index: 17
+    tag: 5
+    val: num
+},
+{
+  index: 18
+    tag: 0
+    val: 2
+},
+{
+  index: 19
+    tag: 2
+    val: 16
+},
+{
+  index: 20
+    tag: 0
+    val: 5
+},
+{
+  index: 21
+    tag: 5
+    val: child
+},
+{
+  index: 22
+    tag: 0
+    val: 2
+},
+{
+  index: 23
+    tag: 2
+    val: 72
+},
+{
+  index: 24
+    tag: 0
+    val: 5
+},
+{
+  index: 25
+    tag: 5
+    val: country
+},
+{
+  index: 26
+    tag: 0
+    val: 2
+},
+{
+  index: 27
+    tag: 2
+    val: 32
+},
+{
+  index: 28
+    tag: 0
+    val: 5
+},
+{
+  index: 29
+    tag: 5
+    val: city
+},
+{
+  index: 30
+    tag: 0
+    val: 2
+},
+{
+  index: 31
+    tag: 2
+    val: 3
+},
+{
+  index: 32
+    tag: 0
+    val: 5
+},
+{
+  index: 33
+    tag: 5
+    val: pos
+},
+{
+  index: 34
+    tag: 0
+    val: 2
+},
+{
+  index: 35
+    tag: 2
+    val: 8
+},
+{
+  index: 36
+    tag: 0
+    val: 5
+},
+{
+  index: 37
+    tag: 5
+    val: mix
+},
+{
+  index: 38
+    tag: 0
+    val: 2
+},
+{
+  index: 39
+    tag: 2
+    val: 43
+},
+{
+  index: 40
+    tag: 0
+    val: 5
+},
+{
+  index: 41
+    tag: 5
+    val: hair
+},
+{
+  index: 42
+    tag: 0
+    val: 2
+},
+{
+  index: 43
+    tag: 2
+    val: 32
+},
+{
+  index: 44
+    tag: 0
+    val: 2
+},
+{
+  index: 45
+    tag: 2
+    val: 11
+},
+------------------------------------
+slot _5
+{
+  index: 0
+    tag: 0
+    val: 2
+},
+{
+  index: 1
+    tag: 2
+    val: 0
+},
+{
+  index: 2
+    tag: 0
+    val: 24
+},
+{
+  index: 3
+    tag: 24
+    val: _4
+},

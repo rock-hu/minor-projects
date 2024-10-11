@@ -1,0 +1,451 @@
+# Copyright (c) 2021 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+group("ark_aot_js_test") {
+  testonly = true
+  test_list = [
+    "asyncfunctionenter",
+    "bigint_typed_array_constructors",
+    "call_default_args",
+    "constructor_returns_non_object",
+    "tryldglobalbyname",
+    "dynamicimport",
+    "formatrangetoparts",
+    "module",
+    "undefined",
+    "cjs",
+    "for_await_of",
+    "dead_code_elimination",
+    "equal",
+    "js_string_equal",
+    "js_string_add",
+    "regressioncase",
+    "definefieldbyname",
+    "definefieldbyname2",
+    "induction_variable",
+  ]
+
+  deps = []
+  foreach(test, test_list) {
+    deps += [ "${test}:${test}AotAction" ]
+    if (!is_debug) {
+      deps += [ "${test}:${test}AotContextAction" ]
+    }
+  }
+}
+
+group("ark_aot_js_assert_test") {
+  testonly = true
+  deps = []
+  test_assert_list = [ "emptyif" ]
+  foreach(test, test_assert_list) {
+    deps += [ "${test}:${test}AotAssertAction" ]
+    if (!is_debug) {
+      deps += [ "${test}:${test}AotContextAssertAction" ]
+    }
+  }
+}
+
+group("ark_aot_ts_test") {
+  testonly = true
+  test_list = [
+    "add",
+    "array",
+    "array_foreach_inline",
+    "ashr",
+    "asyncgenerator",
+    "asyncgeneratormultiloop",
+    "asyncgeneratorrest",
+    "async_context",
+    "async_env",
+    "await",
+    "await_loop",
+    "bc_builder",
+    "bind",
+    "binaryop_special_value",
+    "builtinmath",
+    "builtin_math1",
+    "builtin_math2",
+    "builtins_decode_uri_component",
+    "builtins_string",
+    "call_builtin_objects",
+    "call_same_bytecode_func",
+    "callithisrange",
+    "calls",
+    "classstatic",
+    "class_method_signature",
+    "closeiterator",
+    "combined_pass",
+    "compiler_test",
+    "constpool",
+    "construct_deopt_frame_stack_overflow",
+    "continue_from_finally",
+    "copyrestargs",
+    "createarray_meta_data",
+    "createarrayimm16",
+    "createarraywithbuffer",
+    "createemptyarray",
+    "createemptyobject",
+    "creategeneratorobj",
+    "createiterresultobj",
+    "createobjecthavingmethod",
+    "createobjectwithbuffer",
+    "createobjectwithexcludedkeys",
+    "createregexpwithliteral",
+    "dec",
+    "default_supers",
+    "defineasyncfunc",
+    "defineclasswithbuffer",
+    "defineclass",
+    "definefunc",
+    "definefunc_variable_args",
+    "definegeneratorfunc",
+    "definegettersetterbyvalue",
+    "definemethod",
+    "definencfunc",
+    "delobjprop",
+    "deopt",
+    "deopt_clear_aotflags",
+    "destructuring",
+    "div",
+    "duplicatefunctions",
+    "duplicatekey",
+    "elements_kind",
+    "elements_kind_update",
+    "shr_overflow",
+    "equal_nan",
+    "exception_case1",
+    "exception_case10",
+    "exception_case11",
+    "exception_case12",
+    "exception_case13",
+    "exception_case2",
+    "exception_case3",
+    "exception_case4",
+    "exception_case5",
+    "exception_case6",
+    "exception_case7",
+    "exception_case8",
+    "exception_case9",
+    "exp",
+    "extends_builtins",
+    "fast_call_builtins",
+    "frame_iteration",
+    "frame_states",
+    "forin_delete_property",
+    "forin_dictionary_mode",
+    "forin_empty_prototype",
+    "forin_enum_cache",
+    "forin_non_empty_prototype",
+    "forin_special_object",
+    "forloop",
+    "framestatesalloc",
+    "framestatesasync",
+    "framestatesphi",
+    "framestates_elimination",
+    "generatormerge",
+    "generatorcontinuefinally",
+    "getiterator",
+    "getiteratornext",
+    "getnextpropname",
+    "getpropiterator",
+    "getresumemode",
+    "gettemplateobject",
+    "getunmappedargs",
+    "global_this_ts",
+    "generic_instance_type_literal",
+    "helloaot",
+    "helloconcurrent",
+    "ic",
+    "inc",
+    "inline",
+    "inline_array_exception",
+    "instanceof",
+    "isfalse",
+    "isin",
+    "isomorphism",
+    "istrue",
+    "jsonstringify",
+    "large_func",
+    "large_func_acc",
+    "ldbigint",
+    "ldconst",
+    "ldfunctionpref",
+    "ldglobalvar",
+    "ldobjbyname",
+    "ldobjbyname_typed_path",
+    "ldobjbyvalue",
+    "ldstlexvar",
+    "ldsuperbyname",
+    "load_local_module_var",
+    "logic_op",
+    "loop_peeling",
+    "loop_phi",
+    "loop_with_variable_exchange",
+    "loops",
+    "map",
+    "mod",
+    "modules",
+    "mono_builtin",
+    "mul",
+    "multi_module_compilation",
+    "neg",
+    "nested_if_try_emptycatch",
+    "nested_try_emptycatch",
+    "nested_try_emptycatch_finally",
+    "new",
+    "newlexenv",
+    "newobjrange",
+    "newobjspread",
+    "not",
+    "not_equal",
+    "numberspeculativeretype",
+    "operations_stub_test",
+    "optimization",
+    "optimized_call",
+    "or",
+    "ordinaryhasinstance",
+    "pgo_aot_call_deopt_bridge",
+    "pgo_aot_newobj",
+    "pgo_array_prototype",
+    "pgo_builtins",
+    "pgo_call",
+    "pgo_call_builtin_ctor",
+    "pgo_call_js",
+    "pgo_float32array_construct",
+    "pgo_class_operation",
+    "pgo_class_prototype",
+    "pgo_constant_value_deopt",
+    "pgo_constructor_number",
+    "pgo_element_transition",
+    "pgo_elimination_loadconstoffset",
+    "pgo_fast_call_bridge",
+    "pgo_fast_call_deopt_bridge",
+    "pgo_forof_array",
+    "pgo_forof_map",
+    "pgo_forof_set",
+    "pgo_forof_string",
+    "pgo_forof_typed_array",
+    "pgo_force_ic",
+    "pgo_function_prototype",
+    "pgo_gettersetter",
+    "pgo_extrainfomap_expand",
+    "pgo_extrainfomap_gc",
+    "pgo_inherited_function_operation",
+    "pgo_ldobjbyvalue_array",
+    "pgo_ldobjbyvalue_string",
+    "pgo_retype",
+    "pgo_length",
+    "pgo_loop_peeling",
+    "pgo_math",
+    "pgo_math_round",
+    "pgo_objectliteral_operation",
+    "pgo_object_prototype",
+    "pgo_profiletypeinfo",
+    "pgo_call_deopt_js",
+    "pgo_call_recursive_js",
+
+    #"pgo_call_with_repetitive_method_id",
+    "pgo_char_to_string_deopt",
+    "pgo_on_heap",
+    "pgo_store_deopt",
+    "pgo_track_type",
+    "poplexenv",
+    "proxy",
+    "privateproperty",
+    "privateproperty_js",
+    "resumegenerator",
+    "rodata",
+    "setobjectwithproto",
+    "set",
+    "shl",
+    "shr",
+    "specialloops",
+    "starrayspread",
+    "statesplit",
+    "stclasstoglobalrecord",
+    "stconsttoglobalrecord",
+    "stglobalvar",
+    "stlettoglobalrecord",
+    "stobjbyindex",
+    "stobjbyname",
+    "stobjbyvalue",
+    "stownbyindex",
+    "stownbyname",
+    "stownbynamewithnameset",
+    "stownbyvalue",
+    "stownbyvaluewithnameset",
+    "strictequal",
+    "strictnotequal",
+    "string",
+    "string_add",
+    "string_equal",
+    "string_localecompare",
+    "stsuperbyname",
+    "sub",
+    "supercall",
+    "supercallspread",
+    "supercallforward",
+    "suspendgenerator",
+    "suspendgeneratorbranch",
+    "suspendgeneratorfor",
+    "suspendgeneratorphi",
+    "suspendgeneratorreturn",
+    "suspendgeneratorthrow",
+    "throw",
+    "throwifsupernotcorrectcall",
+    "throwundefindeifhole",
+    "tonumber",
+    "tonumeric",
+    "try",
+    "try_catch_finally",
+    "try_emptycatch_forloop",
+    "try_emptycatch_nested",
+    "try_emptycatch_switch_case",
+    "try_forloop_emptycatch",
+    "tryldglobalbyname_global_object",
+    "tryldglobalbyname_global_record",
+    "trystglobalbynameprefid32",
+    "ts_hclass_generator",
+    "typedarray",
+    "typedarray_load_store",
+    "typedarrayfill",
+    "typedarraymap",
+    "typeof",
+    "unaryop_special_value",
+    "useless_gate_elimination",
+    "xor",
+    "sharedcheck",
+    "sharedarray",
+    "sharedcollectionsexception",
+    "sharedmap",
+    "sharedJSON",
+    "sharedset",
+    "definesendableclass",
+    "sendableenv",
+    "sendablefunc",
+    "sendablecontext",
+    "createarraywithbuffer2",
+    "builtins_number",
+    "builtins_number2",
+    "builtins_parseint",
+    "constructor",
+    "proxy_fast_call",
+    "shared_module",
+    "func_profile_type_info",
+    "sendable",
+    "webkit_call_convention",
+    "retype_isnan",
+  ]
+
+  if (!is_debug) {
+    test_list += [
+      "pgo_function_operation",
+      "proxy2",
+
+      #"lexenv_specialization",
+      #"lexenv_specialization_multi_inline",
+      #"lexenv_specialization_noopt",
+      #"loop_hoist",
+      #"pgo_call_deopt",
+      #"ts_inline",
+      #"ts_inline_accessor",
+      #"ts_inline_accessor_deopt",
+      #"ts_inline_accessor_extends",
+      #"ts_inline_accessor_same_name",
+      #"ts_inline_accessor_symbol",
+      #"ts_inline_change_target",
+      #"ts_inline_deopt",
+      #"ts_inline_deopt_loop",
+      #"ts_inline_exception1",
+      #"ts_inline_exception2",
+      #"ts_inline_exception3",
+      #"ts_inline_exception4",
+      #"ts_inline_exception5",
+      #"ts_inline_exception6",
+      #"ts_inline_exception7",
+      #"ts_inline_exception8",
+      #"ts_inline_extends",
+      #"ts_inline_loop",
+      #"ts_inline_max_call",
+      #"ts_multi_inline",
+      #"ts_multi_inline_deopt",
+      #"ts_multi_inline_max_call",
+      #"ts_multi_inline_recursive",
+    ]
+  }
+
+  deps = [ "builtin_inlining:ark_aot_builtin_inlining_test" ]
+
+  foreach(test, test_list) {
+    deps += [ "${test}:${test}AotAction" ]
+    if (!is_debug) {
+      deps += [ "${test}:${test}AotContextAction" ]
+    }
+  }
+
+  if (is_debug) {
+    debug_test_list = [
+      # builtins_stub test only print log in debug mode
+      "builtins_array",
+      "builtins_stub",
+    ]
+    foreach(test, debug_test_list) {
+      deps += [ "${test}:${test}AotAction" ]
+    }
+  }
+}
+
+group("ark_aot_ts_assert_test") {
+  testonly = true
+
+  deps = []
+  assert_test_list = [
+    "and",
+    "array_bounds_check_elimination",
+    "check_dump",
+    "empty",
+  ]
+  foreach(test, assert_test_list) {
+    deps += [ "${test}:${test}AotAssertAction" ]
+    if (!is_debug) {
+      deps += [ "${test}:${test}AotContextAssertAction" ]
+    }
+  }
+}
+
+group("ark_aot_test") {
+  testonly = true
+  deps = [
+    ":ark_aot_js_assert_test",
+    ":ark_aot_js_test",
+    ":ark_aot_ts_assert_test",
+    ":ark_aot_ts_test",
+    "analyze_property:analyze_property_test",
+    "aot_compatibility_test:aot_compatibility_test",
+    "aot_multi_constantpool_test:aot_multi_constantpool_test",
+    "aot_type_test:aot_type_test",
+    "object:object_test",
+    "vtable:vtable_test",
+  ]
+
+  if (is_mac) {
+    deps -= [
+      ":ark_aot_js_assert_test",
+      ":ark_aot_js_test",
+      ":ark_aot_ts_assert_test",
+      ":ark_aot_ts_test",
+      "aot_type_test:aot_type_test",
+    ]
+  }
+}
