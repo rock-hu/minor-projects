@@ -1,0 +1,42 @@
+{
+  "scripts": {
+    "build": "webpack --mode=development --env builder=Community  --progress && npm run postbuild",
+    "release": "webpack --mode=production --env builder=Community && npm run postbuild",
+    "postbuild": "./node_modules/.bin/ncc build ./dist/index.js -o ./out -m",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "log4js": "6.7.1",
+    "minimatch": "^10.0.1",
+    "ts-node": "^10.9.1"
+  },
+  "devDependencies": {
+    "@types/eslint": "^7.13.0",
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^20.11.26",
+    "@vercel/ncc": "^0.33.1",
+    "babel-preset-env": "^1.7.0",
+    "clean-webpack-plugin": "^4.0.0",
+    "commander": "^12.1.0",
+    "ts-loader": "^9.5.1",
+    "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.2.0",
+    "tsconfig-paths-webpack-plugin": "^4.1.0",
+    "typescript": "^5.6.2",
+    "vite-tsconfig-paths": "^4.3.1",
+    "vitest": "^1.5.1",
+    "webpack": "^5.75.0",
+    "webpack-cli": "^5.0.1",
+    "webpack-dev-server": "^4.7.3",
+    "webpack-node-externals": "^2.5.0"
+  },
+  "name": "homecheck",
+  "version": "1.0.0",
+  "description": "该项目（homecheck）专为提升代码质量而设计，能高效识别代码缺陷并提出方案；其核心功能是对应用工程项目执行静态代码分析，评估代码在安全性、性能等方面上的表现，精准定位问题及其在代码中的位置。",
+  "main": "webpack.config.js",
+  "directories": {
+    "test": "test"
+  },
+  "author": "",
+  "license": "ISC"
+}

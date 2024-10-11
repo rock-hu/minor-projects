@@ -1,0 +1,11 @@
+{
+  "license": "Apache License 2.0",
+  "devDependencies": {
+    "@ohos/hypium": "1.0.6"
+  },
+  "name": "base64",
+  "description": "example description",
+  "repository": {},
+  "version": "2.0.1",
+  "dependencies": {}
+}

@@ -1,0 +1,48 @@
+{
+  "projectName": "TestProject",
+  "ohosSdkPath": "D:\\DevEco Studio\\sdk\\default\\openharmony\\ets",
+  "hmsSdkPath": "D:\\DevEco Studio\\sdk\\default\\hms\\ets",
+  "projectPath": "D:\\arkProject",
+  "product": "default",
+  "files": [
+    "**/*.ets",
+    "**/*.ts"
+  ],
+  "ignored": [
+    "**/AppScope/**/*",
+    "**/common/**/*",
+    "**/feature/**/*",
+    "**/hvigor/**/*",
+    "**/product/**/*",
+    "**/signature/**/*",
+    "**/node_modules/**/*",
+    "**/build/**/*"
+  ],
+  "ignoreFiles": [
+    {
+      "filePath": "xxx",
+      "disableLine": [
+        {
+          "line": 1,
+          "rules": [
+            "rule1",
+            "rule2"
+          ]
+        },
+        {}
+      ]
+    },
+    {
+      "filePath": "abc"
+    }
+  ],
+  "excluded": [
+    "**/*.ts"
+  ],
+  "rules": [
+    "@performance/timezone-interface-check:3",
+    "@performance/foreach-args-check:1"
+  ],
+  "ruleSet": [],
+  "overrides": []
+}

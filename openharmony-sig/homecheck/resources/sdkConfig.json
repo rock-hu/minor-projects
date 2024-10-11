@@ -1,0 +1,24 @@
+{
+  "sdks": [
+    {
+      "name": "ohosSdk",
+      "path": "./resources/ohosSdk",
+      "moduleName": ""
+    },
+    {
+      "name": "hmsSdk",
+      "path": "./resources/hmsSdk",
+      "moduleName": ""
+    },
+    {
+      "name": "lottie",
+      "path": "./resources/thirdPartModules/lottie",
+      "moduleName": ""
+    },
+    {
+      "name": "moment",
+      "path": "./resources/thirdPartModules/moment",
+      "moduleName": ""
+    }
+  ]
+}
