@@ -1,0 +1,16 @@
+{
+  "string": [
+    {
+      "name": "reason_internet",
+      "value": "Used to access the Internet for network performance analysis scenarios"
+    },
+    {
+      "name": "reason_get_network_info",
+      "value": "Used to retrieve network information for network performance analysis scenarios"
+    },
+    {
+      "name": "reason_set_network_info",
+      "value": "Used to set network information for network performance analysis scenarios"
+    }
+  ]
+}

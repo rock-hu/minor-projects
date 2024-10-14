@@ -23,6 +23,21 @@ cd ..
 rm -rf REPO.git
 ```
 
+```bash
+#!/bin/bash
+while IFS="," read -r host organization repository
+do
+   echo $host $organization $repository
+   mkdir $organization
+   cd $organization
+   rm -rf ${repository}
+   git clone git@$host:$organization/$repository.git
+   # git clone https://${host}/${organization}/${repository}.git
+   rm -rf ${repository}/.git 
+   cd ..
+done < harmonyos_samples.csv
+```
+
 
 [harmonyos_samples/projects](https://gitee.com/organizations/harmonyos_samples/projects)
 [harmonyos_codelabs/projects](https://gitee.com/organizations/harmonyos_codelabs/projects)

@@ -1,0 +1,8 @@
+{
+  "string": [
+    {
+      "name": "network_permission",
+      "value": "Used for subscribing to network status scenarios to obtain network information."
+    }
+  ]
+}

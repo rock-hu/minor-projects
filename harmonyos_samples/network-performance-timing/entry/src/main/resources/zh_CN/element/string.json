@@ -1,0 +1,16 @@
+{
+  "string": [
+    {
+      "name": "reason_internet",
+      "value": "用于网络性能分析场景使用Internet网络"
+    },
+    {
+      "name": "reason_get_network_info",
+      "value": "用于网络性能分析场景获取网络信息"
+    },
+    {
+      "name": "reason_set_network_info",
+      "value": "用于网络性能分析场景设置网络信息"
+    }
+  ]
+}

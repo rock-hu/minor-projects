@@ -1,0 +1,260 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "module description"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "description"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "CryptoCollection"
+    },
+    {
+      "name": "total_count",
+      "value": "%d types in total"
+    },
+    {
+      "name": "encrypt_sample",
+      "value": "Encryption sample"
+    },
+    {
+      "name": "text_encrypted",
+      "value": "Text to be encrypted"
+    },
+    {
+      "name": "after_encryption",
+      "value": "After Encryption"
+    },
+    {
+      "name": "detail",
+      "value": "detail"
+    },
+    {
+      "name": "encrypt_btn",
+      "value": "Encryption and decryption"
+    },
+    {
+      "name": "signature_btn",
+      "value": "Signature verification"
+    },
+    {
+      "name": "message_btn",
+      "value": "Message summary"
+    },
+    {
+      "name": "code_btn",
+      "value": "MessageAuthenticationCode"
+    },
+    {
+      "name": "text_message_code",
+      "value": "Enter the data to be hashed."
+    },
+    {
+      "name": "message_code_result",
+      "value": "Calculation result:"
+    },
+    {
+      "name": "text_signature",
+      "value": "Entering Data to Be Signed"
+    },
+    {
+      "name": "signature_result",
+      "value": "Signature verification result:"
+    },
+    {
+      "name": "Signed",
+      "value": "Signed"
+    },
+    {
+      "name": "signature_verification",
+      "value": "Signature verification"
+    },
+    {
+      "name": "text_summary",
+      "value": "Enter the data to be summarized."
+    },
+    {
+      "name": "summary_result",
+      "value": "Summary Results:"
+    },
+    {
+      "name": "SHA256",
+      "value": "SHA256 calculation summary"
+    },
+    {
+      "name": "SHA256Segments",
+      "value": "Summary of SHA256 segmentation calculation"
+    },
+    {
+      "name": "MD5",
+      "value": "MD5 calculation summary"
+    },
+    {
+      "name": "SM3",
+      "value": "SM3 calculation summary"
+    },
+    {
+      "name": "empty",
+      "value": ""
+    },
+    {
+      "name": "calculate_code",
+      "value": "AES128|SHA256 Calculates the message authentication code"
+    },
+    {
+      "name": "calculate_seg_code",
+      "value": "AES128|SHA256 Segmental calculation of message authentication code"
+    },
+    {
+      "name": "rsa_pkcs1",
+      "value": "RSA PKCS1 mode signature check"
+    },
+    {
+      "name": "rsa_pkcs1_seg",
+      "value": "RSA PKCS1 mode segmented signature check"
+    },
+    {
+      "name": "rsa_pass",
+      "value": "Signature verification in RSA PASS mode"
+    },
+    {
+      "name": "ecdsa",
+      "value": "ECDSA Key verifies the signature"
+    },
+    {
+      "name": "sm2",
+      "value": "SM2 Key verifies the signature"
+    },
+    {
+      "name": "AES_GCM",
+      "value": "AES Encryption and decryption in GCM mode"
+    },
+    {
+      "name": "AES_GCM_encryption",
+      "value": "AES Encryption in GCM mode"
+    },
+    {
+      "name": "AES_GCM_decryption",
+      "value": "AES Decryption in GCM mode"
+    },
+    {
+      "name": "AES_CBC",
+      "value": "AES Encryption and decryption in CBC mode"
+    },
+    {
+      "name": "AES_CBC_encryption",
+      "value": "AES Encryption in CBC mode\""
+    },
+    {
+      "name": "AES_CBC_decryption",
+      "value": "AES Decryption in CBC mode"
+    },
+    {
+      "name": "AES_EBC",
+      "value": "AES Encryption and decryption in ECB mode"
+    },
+    {
+      "name": "AES_EBC_encryption",
+      "value": "AES Encryption in ECB mode"
+    },
+    {
+      "name": "AES_EBC_decryption",
+      "value": "AES Decryption in ECB mode"
+    },
+    {
+      "name": "3DES_EBC",
+      "value": "3DES ECB mode encryption and decryption"
+    },
+    {
+      "name": "3DES_EBC_encryption",
+      "value": "3DES ECB mode encryption"
+    },
+    {
+      "name": "3DES_EBC_decryption",
+      "value": "3DES ECB mode decryption"
+    },
+    {
+      "name": "SM4_EBC",
+      "value": "SM4 ECB mode encryption and decryption"
+    },
+    {
+      "name": "SM4_EBC_encryption",
+      "value": "SM4 ECB mode encryption"
+    },
+    {
+      "name": "SM4_EBC_decryption",
+      "value": "SM4 ECB mode decryption"
+    },
+    {
+      "name": "SM4_CBC",
+      "value": "SM4 Encryption and decryption in CBC mode"
+    },
+    {
+      "name": "SM4_CBC_encryption",
+      "value": "SM4 Encryption in CBC mode"
+    },
+    {
+      "name": "SM4_CBC_decryption",
+      "value": "SM4 Decryption in CBC mode"
+    },
+    {
+      "name": "RSA_PKCS1",
+      "value": "Encryption and decryption in RSA PKCS1 mode"
+    },
+    {
+      "name": "RSA_PKCS1_encryption",
+      "value": "Encryption in RSA PKCS1 mode"
+    },
+    {
+      "name": "RSA_PKCS1_decryption",
+      "value": "Decryption in RSA PKCS1 mode"
+    },
+    {
+      "name": "RSA_PKCS1_OAEP",
+      "value": "Encryption and decryption in RSA PKCS1_OAEP mode"
+    },
+    {
+      "name": "RSA_PKCS1_OAEP_encryption",
+      "value": "Encryption in RSA PKCS1_OAEP mode"
+    },
+    {
+      "name": "RSA_PKCS1_OAEP_decryption",
+      "value": "Decryption in RSA PKCS1_OAEP mode"
+    },
+    {
+      "name": "SM2_crypto",
+      "value": "SM2 Asymmetric key encryption and decryption"
+    },
+    {
+      "name": "SM2_crypto_encryption",
+      "value": "SM2 Asymmetric key encryption"
+    },
+    {
+      "name": "SM2_crypto_decryption",
+      "value": "SM2 Asymmetric key decryption"
+    },
+    {
+      "name": "rsa_dissymmetry_pkcs1",
+      "value": "RSA PKCS1 Asymmetric key segmentation encryption and decryption"
+    },
+    {
+      "name": "rsa_dissymmetry_pkcs1_encryption",
+      "value": "RSA PKCS1 Asymmetric key segmentation encryption"
+    },
+    {
+      "name": "rsa_dissymmetry_pkcs1_decryption",
+      "value": "RSA PKCS1 Asymmetric key segmentation decryption"
+    },
+    {
+      "name": "encrypted_text",
+      "value": "Encrypted text"
+    },
+    {
+      "name": "decrypted_text",
+      "value": "Decrypted text"
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "module description"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "description"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "LandscapePortraitToggle"
+    },
+    {
+      "name": "comment_content1",
+      "value": "It feels very good.,The next one is ready to get Mate X3.,I like the split-screen function of the folding screen very much.,Finally, you can watch short videos while chatting!"
+    },
+    {
+      "name": "comment_content2",
+      "value": "Love this picture, it's amazing! It turned out to be taken by a mobile phone, which is amazing!"
+    },
+    {
+      "name": "comment_content3",
+      "value": "The press conference is about to start, so I'm looking forward to it"
+    },
+    {
+      "name": "related_title1",
+      "value": "Huawei's flagship new product is released, and we will see you there"
+    },
+    {
+      "name": "related_title2",
+      "value": "Huawei's philanthropic journey contributes to sustainable development"
+    },
+    {
+      "name": "related_title3",
+      "value": "Huawei's whole-home intelligence brings you the home of the future"
+    },
+    {
+      "name": "related_list",
+      "value": "Related List"
+    },
+    {
+      "name": "more",
+      "value": "More"
+    },
+    {
+      "name": "all_comment",
+      "value": "All Comment"
+    }
+  ]
+}

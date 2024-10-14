@@ -1,0 +1,8 @@
+{
+  "string": [
+    {
+      "name": "network_permission",
+      "value": "用于订阅网络状态场景获取网络信息"
+    }
+  ]
+}
