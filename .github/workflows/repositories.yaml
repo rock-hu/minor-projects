@@ -1,0 +1,16 @@
+name: repositories
+on:
+  push:
+    branches:
+      - master    
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}      
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./repositories.sh
+      - run: git config --global user.email "rock.c.c.hu@gmail.com"
+      - run: git config --global user.name "Rock Hu"
+      - run: git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
