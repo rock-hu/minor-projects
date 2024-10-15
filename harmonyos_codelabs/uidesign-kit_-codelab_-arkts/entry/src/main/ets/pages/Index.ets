@@ -6,7 +6,7 @@ struct Index {
   build() {
     Column() {
       Row() {
-        Button('分层图标处理')
+        Button($r('app.string.process_layered_icon'))
           .onClick(() => {
             router.pushUrl({ url: 'pages/GetHdsLayeredIcon' })
           })
@@ -16,7 +16,7 @@ struct Index {
       .margin({ top: 30, bottom: 30 })
 
       Row() {
-        Button('单层图标处理')
+        Button($r('app.string.process_single_layer_icon'))
           .onClick(() => {
             router.pushUrl({ url: 'pages/GetHdsIcon' })
           })

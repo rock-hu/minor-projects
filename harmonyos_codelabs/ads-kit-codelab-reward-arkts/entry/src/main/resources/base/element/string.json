@@ -1,0 +1,28 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "module description"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "description"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "RewardedAdsDemo"
+    },
+    {
+      "name": "ads_demo_title",
+      "value": "RewardedAdsDemo"
+    },
+    {
+      "name": "request_reward_ad_btn",
+      "value": "Request rewarded ad"
+    },
+    {
+      "name": "app_tracking_permission_reason",
+      "value": "The app obtains this information to recommend content that you may be interested in."
+    }
+  ]
+}

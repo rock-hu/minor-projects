@@ -342,7 +342,7 @@
     },
     {
       "name": "distribute_reason",
-      "value": "need_distribute"
+      "value": "Allow the ability to exchange data between different devices in distributed connectivity scenarios."
     }
   ]
 }

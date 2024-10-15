@@ -50,7 +50,7 @@
     },
     {
       "name": "dependency_reason",
-      "value": "用于发起网络数据请求"
+      "value": "允许应用在新闻数据加载场景使用Internet网络。"
     }
   ]
 }

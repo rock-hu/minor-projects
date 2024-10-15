@@ -1,0 +1,7 @@
+{
+  "src": [
+    "pages/AdsServicePage",
+    "pages/SplashFullScreenAdPage",
+    "pages/SplashHalfScreenAdPage"
+  ]
+}

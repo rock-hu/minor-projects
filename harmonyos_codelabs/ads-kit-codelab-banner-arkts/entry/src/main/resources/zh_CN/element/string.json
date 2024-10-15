@@ -1,0 +1,28 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "模块描述"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "description"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "BannerAdsDemo"
+    },
+    {
+      "name": "banner_ads_demo_title",
+      "value": "BannerAdsDemo"
+    },
+    {
+      "name": "request_banner_ad_btn",
+      "value": "Banner广告"
+    },
+    {
+      "name": "app_tracking_permission_reason",
+      "value": "应用获知此信息，用于向您推荐可能感兴趣的内容"
+    }
+  ]
+}

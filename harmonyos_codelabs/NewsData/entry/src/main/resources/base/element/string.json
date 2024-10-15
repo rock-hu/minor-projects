@@ -50,7 +50,7 @@
     },
     {
       "name": "dependency_reason",
-      "value": "Used to initiate network data requests."
+      "value": "Allow applications to use the Internet network in news data loading scenarios."
     }
   ]
 }

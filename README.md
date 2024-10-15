@@ -1,7 +1,5 @@
 # minor-projects
 
-
-
 [Importing an external Git repository using the command line](https://docs.github.com/en/migrations/importing-source-code/using-the-command-line-to-import-source-code/importing-an-external-git-repository-using-the-command-line) 
 
 ```
@@ -38,6 +36,4 @@ do
 done < harmonyos_samples.csv
 ```
 
-
-[harmonyos_samples/projects](https://gitee.com/organizations/harmonyos_samples/projects)
-[harmonyos_codelabs/projects](https://gitee.com/organizations/harmonyos_codelabs/projects)
+![](docs/images/workflows.png)

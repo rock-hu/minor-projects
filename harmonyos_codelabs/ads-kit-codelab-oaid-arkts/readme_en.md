@@ -1,0 +1,52 @@
+# Identifier Service Sample Code (HarmonyOS ArkTS)
+## Contents
+
+* [Overview](#Overview)
+* [Installation](#Installation)
+* [How to Use](#How-to-Use)
+* [Sample Code](#Sample-Code)
+* [Constraints](#Constraints)
+
+
+## Overview
+This demo shows how to obtain and reset Open Anonymous Device IDs (OAIDs) through APIs provided by Identifier Service.
+
+## Installation
+Install the demo on a phone running HarmonyOS.
+
+### Required Permissions
+
+To obtain the OAID, you need to request the activity tracking permission:
+**[ohos.permission.APP_TRACKING_CONSENT]**  
+For details, please visit the following website: <https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V5/permissions-for-all-V5#ohospermissionapp_tracking_consent>.
+
+## Related Concepts
+* OAID
+
+  An Open Anonymous Device Identifier (OAID) is a non-permanent device identifier. It allows for personalized ads to be provided to users while ensuring the protection of their personal data privacy. Additionally, it allows third-party tracking platforms to offer conversion attribution analysis to advertisers.
+
+## How to Use
+
+1. Before running this demo, you need to:
+    * Configure app signing.
+
+2. Access the app home screen. The OAID can be obtained by default during the first access to the app. If **Activity tracking for this app** is set to **Deny**, the obtained OAID will be an empty string that consists of all zeros.
+
+3. Tap **Get OAID By Promise**. The OAID is displayed in the text box.
+
+4. Tap **Get OAID By Async Callback**. The OAID is displayed in the text box.
+
+## Sample Code
+### Identifier Service
+The sample code includes the following file for you to obtain the OAID:
+
+1). Index.ets
+Demo UI of Identifier Service, which can be used to obtain the OAID.
+<br>Code location: **entry\src\main\ets\pages\Index.ets**<br>
+
+## Constraints
+
+1. This sample is only supported on Huawei phones, tablets, and 2-in-1 devices with standard systems.
+2. The HarmonyOS version must be HarmonyOS NEXT Developer Beta1 or later.
+3. The DevEco Studio version must be DevEco Studio NEXT Developer Beta1 or later.
+4. The HarmonyOS SDK version must be HarmonyOS NEXT Developer Beta1 or later.

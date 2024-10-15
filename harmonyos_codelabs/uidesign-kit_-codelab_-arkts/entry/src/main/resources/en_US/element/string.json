@@ -11,6 +11,14 @@
     {
       "name": "EntryAbility_label",
       "value": "UIDesignKit"
+    },
+    {
+      "name": "process_layered_icon",
+      "value": "Process layered icon"
+    },
+    {
+      "name": "process_single_layer_icon",
+      "value": "Process single-layer icon"
     }
   ]
 }
