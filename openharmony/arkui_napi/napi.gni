@@ -43,7 +43,6 @@ if (is_mingw) {
 declare_args() {
   napi_enable_container_scope = false
   napi_enable_memleak_debug = true
-  force_scope = false
 
   # Enable pgo for building
   napi_feature_enable_pgo = false
@@ -53,3 +52,5 @@ declare_args() {
 }
 
 is_ohos_standard_system = is_standard_system && !is_arkui_x
+
+module_output_path = "arkcompiler/napi"

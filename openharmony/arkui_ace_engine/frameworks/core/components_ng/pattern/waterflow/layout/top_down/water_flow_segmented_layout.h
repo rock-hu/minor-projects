@@ -67,7 +67,7 @@ public:
         overScroll_ = value;
     }
 
-    bool AppendCacheItem(LayoutWrapper* host, int32_t itemIdx, int64_t deadline) override;
+    bool PreloadItem(LayoutWrapper* host, int32_t itemIdx, int64_t deadline) override;
 
 private:
     /**
@@ -76,6 +76,13 @@ private:
      * @param frameSize of WaterFlow component.
      */
     void Init(const SizeF& frameSize);
+
+    /**
+     * @brief check if any items in view have changed height.
+     *
+     * @return index of the first dirty item. -1 if no dirty item found.
+     */
+    int32_t CheckDirtyItem() const;
 
     /**
      * @brief init regular WaterFlow with a single segment.
@@ -153,6 +160,8 @@ private:
      * @return new offset after jumping.
      */
     float SolveJumpOffset(const WaterFlowLayoutInfo::ItemInfo& item) const;
+
+    void SyncPreloadItem(LayoutWrapper* host, int32_t itemIdx) override;
 
     RefPtr<WaterFlowSections> sections_;
 

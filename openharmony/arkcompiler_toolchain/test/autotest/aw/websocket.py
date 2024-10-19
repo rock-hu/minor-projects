@@ -90,7 +90,7 @@ class WebSocket(object):
         logging.info(f'[==>] Connect server send message: {message}')
         return True
 
-    async def main_task(self, taskpool, websocket, procedure, pid):
+    async def main_task(self, taskpool, procedure, pid):
         # the async queue must be initialized in task
         self.to_send_msg_queue_for_connect_server = asyncio.Queue()
         self.received_msg_queue_for_connect_server = asyncio.Queue()
@@ -101,7 +101,7 @@ class WebSocket(object):
         taskpool.submit(self._receiver_of_connect_server(connect_server_client,
                                                          self.received_msg_queue_for_connect_server,
                                                          taskpool, pid))
-        taskpool.submit(procedure(websocket))
+        taskpool.submit(procedure(self))
 
     def _connect_connect_server(self):
         client = connect(f'ws://localhost:{self.connect_server_port}',
@@ -131,7 +131,10 @@ class WebSocket(object):
                         num_debugger_server_client < self.debugger_server_connection_threshold):
                     instance_id = response['instanceId']
 
-                    Fport.fport_debugger_server(self.debugger_server_port, pid, instance_id)
+                    port = Fport.fport_debugger_server(self.debugger_server_port, pid, instance_id)
+                    assert port > 0, logging.error('Failed to fport debugger server for 3 times, '
+                                                   'the port is very likely occupied')
+                    self.debugger_server_port = port
                     debugger_server_client = await self._connect_debugger_server()
                     logging.info(f'InstanceId: {instance_id}, port: {self.debugger_server_port}, '
                                  f'debugger server connected')

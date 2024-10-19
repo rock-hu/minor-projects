@@ -12,11 +12,11 @@
 # limitations under the License.
 
 coretypes:
-- managed_class: panda.String
-  mirror_class: coretypes::String
-
 - managed_class: std.core.Object
   mirror_class: ark::ets::EtsObject
+
+- managed_class: std.core.Class
+  mirror_class: ark::ets::EtsClass
 
 - managed_class: std.core.String
   mirror_class: ark::ets::EtsString
@@ -380,7 +380,6 @@ intrinsics:
     impl: ark::ets::intrinsics::StdMathTan
     safe_intrinsic: true
 
-
   - name: StdMathTanh
     space: ets
     class_name: std.math.ETSGLOBAL
@@ -658,7 +657,7 @@ intrinsics:
     method_name: getChars
     static: false
     signature:
-      ret: u16\\[
+      ret: u16[]
       args:
         - i32
         - i32
@@ -666,6 +665,24 @@ intrinsics:
     codegen_func: CreateStringGetCharsTlab
     codegen_arch: [arm64, amd64]
     llvm_codegen_func: EmitStringGetCharsTlab
+    need_param_locations: true
+    clear_flags: [ ]
+    set_flags: [ ]
+
+  - name: StdCoreStringGetBytes
+    space: ets
+    class_name: std.core.String
+    method_name: getBytes
+    static: false
+    signature:
+      ret: i8[]
+      args:
+        - i32
+        - i32
+    impl: ark::ets::intrinsics::StdCoreStringGetBytes
+    codegen_func: CreateStringGetBytesTlab
+    codegen_arch: [arm64, amd64]
+    llvm_codegen_func: EmitStringGetBytesTlab
     need_param_locations: true
     clear_flags: [ ]
     set_flags: [ ]
@@ -1286,6 +1303,31 @@ intrinsics:
     codegen_arch: [arm64, amd64]
 
 #################
+# escompat.Math #
+#################
+  - name: EscompatMathMax
+    space: ets
+    class_name: escompat.Math
+    method_name: max
+    static: true
+    signature:
+      ret: f64
+      args: [f64, f64]
+    impl: ark::intrinsics::MaxF64
+    safe_intrinsic: true
+
+  - name: EscompatMathMin
+    space: ets
+    class_name: escompat.Math
+    method_name: min
+    static: true
+    signature:
+      ret: f64
+      args: [f64, f64]
+    impl: ark::intrinsics::MinF64
+    safe_intrinsic: true
+
+#################
 # escompat.Date #
 #################
   - name: EscompatDateNow
@@ -1901,7 +1943,6 @@ intrinsics:
       args: []
     impl: ark::ets::intrinsics::StdCoreStackTraceProvisionStackTrace
     clear_flags: [ no_dce ]
-
 
   - name: StdCoreExit
     space: ets
@@ -3196,6 +3237,82 @@ intrinsics:
     clear_flags: [ no_dce ]
     set_flags: [ no_nullptr ]
 
+####################
+# std.core.Class #
+####################
+  - name: StdCoreClassGetNameInternal
+    space: ets
+    class_name: std.core.Class
+    method_name: getNameInternal
+    static: false
+    signature:
+      ret: std.core.String
+      args: [ ]
+    impl: ark::ets::intrinsics::StdCoreClassGetNameInternal
+
+  - name: StdCoreClassOf
+    space: ets
+    class_name: std.core.Class
+    method_name: of
+    static: true
+    signature:
+      ret: std.core.Class
+      args: [ std.core.Object ]
+    impl: ark::ets::intrinsics::StdCoreClassOf
+
+  - name: StdCoreClassOfCaller
+    space: ets
+    class_name: std.core.Class
+    method_name: ofCaller
+    static: true
+    signature:
+      ret: std.core.Class
+      args: [ ]
+    impl: ark::ets::intrinsics::StdCoreClassOfCaller
+
+  - name: StdCoreClassInitialize
+    space: ets
+    class_name: std.core.Class
+    method_name: initialize
+    static: false
+    signature:
+      ret: void
+      args: [ ]
+    impl: ark::ets::intrinsics::StdCoreClassInitialize
+
+  - name: StdCoreClassCreateInstance
+    space: ets
+    class_name: std.core.Class
+    method_name: createInstance
+    static: false
+    signature:
+      ret: std.core.Object
+      args: [ ]
+    impl: ark::ets::intrinsics::StdCoreClassCreateInstance
+
+  - name: StdCoreClassGetDescriptor
+    space: ets
+    class_name: std.core.Class
+    method_name: getDescriptor
+    static: false
+    signature:
+      ret: std.core.String
+      args: [ ]
+    impl: ark::ets::intrinsics::StdCoreClassGetDescriptor
+
+####################
+# std.core.RuntimeLinker #
+####################
+  - name: StdCoreRuntimeLinkerLoadClassInternal
+    space: ets
+    class_name: std.core.RuntimeLinker
+    method_name: loadClassInternal
+    static: true
+    signature:
+      ret: std.core.Class
+      args: [ std.core.Class, std.core.String, u1]
+    impl: ark::ets::intrinsics::StdCoreRuntimeLinkerLoadClassInternal
+
 ###################
 # std.core.RegExp #
 ###################
@@ -3589,7 +3706,6 @@ intrinsics:
     codegen_func: CreateCharIsWhiteSpace
     llvm_codegen_func: EmitCharIsWhiteSpace
 
-
 ###################
 # std.core.Value  #
 ###################
@@ -3954,8 +4070,6 @@ intrinsics:
       args: [ std.core.Object, std.core.String, f64 ]
     impl: ark::ets::intrinsics::ValueAPISetFieldByNameDouble
 
-
-
   - name: ValueAPIGetArrayLength
     space: ets
     class_name: std.core.ETSGLOBAL
@@ -4055,7 +4169,6 @@ intrinsics:
       ret: void
       args: [ std.core.Object, i64, f64 ]
     impl: ark::ets::intrinsics::ValueAPISetElementDouble
-
 
   - name: ValueAPIGetElementObject
     space: ets

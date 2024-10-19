@@ -31,6 +31,10 @@
 #include <list>
 #include <memory>
 
+#if defined(ENABLE_FFRT_INTERFACES)
+#include "ecmascript/platform/ffrt_mutex.h"
+#endif
+
 namespace panda::ecmascript {
 class Runtime {
 public:
@@ -65,7 +69,11 @@ public:
     template<class Callback>
     void GCIterateThreadList(const Callback &cb)
     {
+#if defined(ENABLE_FFRT_INTERFACES)
+        FFRTLockHolder lock(threadsLock_);
+#else
         LockHolder lock(threadsLock_);
+#endif
         GCIterateThreadListWithoutLock(cb);
     }
 
@@ -160,6 +168,10 @@ public:
 
     void ProcessNativeDeleteInSharedGC(const WeakRootVisitor &visitor);
 
+    void ProcessSharedNativeDelete(const WeakRootVisitor &visitor);
+    void InvokeSharedNativePointerCallbacks();
+    void PushToSharedNativePointerList(JSNativePointer *pointer);
+
     inline bool CreateStringCacheTable(uint32_t size)
     {
         constexpr int32_t MAX_SIZE = 150;
@@ -224,6 +236,7 @@ public:
 private:
     static constexpr int32_t WORKER_DESTRUCTION_COUNT = 3;
     static constexpr int32_t MIN_GC_TRIGGER_VM_COUNT = 4;
+    static constexpr uint32_t MAX_SUSPEND_RETRIES = 5000;
     Runtime() = default;
     ~Runtime();
     void SuspendAllThreadsImpl(JSThread *current);
@@ -253,8 +266,18 @@ private:
         return sharedConstpoolCount_++;
     }
 
+    std::vector<std::pair<NativePointerCallback, std::pair<void *, void *>>> &GetSharedNativePointerCallbacks()
+    {
+        return sharedNativePointerCallbacks_;
+    }
+
+#if defined(ENABLE_FFRT_INTERFACES)
+    FFRTMutex threadsLock_;
+    FFRTConditionVariable threadSuspendCondVar_;
+#else
     Mutex threadsLock_;
     ConditionVariable threadSuspendCondVar_;
+#endif
     Mutex serializeLock_;
     std::list<JSThread*> threads_;
     uint32_t suspendNewCount_ {0};
@@ -289,6 +312,9 @@ private:
     // for string cache
     JSTaggedValue *externalRegisteredStringTable_ {nullptr};
     uint32_t registeredStringTableSize_ = 0;
+
+    // for shared native pointer
+    std::vector<std::pair<NativePointerCallback, std::pair<void *, void *>>> sharedNativePointerCallbacks_ {};
 
     friend class EcmaVM;
     friend class JSThread;

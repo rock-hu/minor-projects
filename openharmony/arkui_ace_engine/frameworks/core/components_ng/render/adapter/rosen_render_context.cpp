@@ -755,6 +755,9 @@ void RosenRenderContext::OnForegroundColorStrategyUpdate(const ForegroundColorSt
 DataReadyNotifyTask RosenRenderContext::CreateBgImageDataReadyCallback()
 {
     auto task = [weak = WeakClaim(this)](const ImageSourceInfo& sourceInfo) {
+        if (SystemProperties::GetDebugEnabled()) {
+            TAG_LOGD(AceLogTag::ACE_IMAGE, "backgroundImageDataReady src = %{private}s", sourceInfo.ToString().c_str());
+        }
         auto rosenRenderContext = weak.Upgrade();
         CHECK_NULL_VOID(rosenRenderContext);
         auto imageSourceInfo = rosenRenderContext->GetBackgroundImage().value_or(ImageSourceInfo(""));
@@ -769,6 +772,10 @@ DataReadyNotifyTask RosenRenderContext::CreateBgImageDataReadyCallback()
 LoadSuccessNotifyTask RosenRenderContext::CreateBgImageLoadSuccessCallback()
 {
     auto task = [weak = WeakClaim(this)](const ImageSourceInfo& sourceInfo) {
+        if (SystemProperties::GetDebugEnabled()) {
+            TAG_LOGD(
+                AceLogTag::ACE_IMAGE, "backgroundImageLoadSuccess src = %{private}s", sourceInfo.ToString().c_str());
+        }
         auto ctx = weak.Upgrade();
         CHECK_NULL_VOID(ctx);
         auto imageSourceInfo = ctx->GetBackgroundImage().value_or(ImageSourceInfo(""));
@@ -1992,8 +1999,6 @@ RectF RosenRenderContext::GetPaintRectWithTransform()
     auto oldSize = rect.GetSize();
     auto newSize = SizeF(oldSize.Width() * scale[0], oldSize.Height() * scale[1]);
     rect.SetSize(newSize);
-    transInfo_ = { scale[0], scale[1], centerPos.GetX(), centerPos.GetY(), rect.GetX(), rect.GetY(), translate[0],
-        translate[1], degree };
     // calculate skew
     SkewRect(skew[0], skew[1], rect);
     // calculate rotate
@@ -2026,11 +2031,6 @@ RectF RosenRenderContext::GetPaintRectWithTransform()
     }
     gRect = rect;
     return rect;
-}
-
-std::vector<double> RosenRenderContext::GetTrans()
-{
-    return transInfo_;
 }
 
 std::pair<RectF, bool> RosenRenderContext::GetPaintRectWithTranslate()
@@ -4718,8 +4718,10 @@ void RosenRenderContext::ClipWithRRect(const RectF& rectF, const RadiusF& radius
 void RosenRenderContext::SetContentClip(const std::variant<RectF, RefPtr<ShapeRect>>& rect)
 {
     CHECK_NULL_VOID(rsNode_);
+    std::optional<RectF> contentClipRect;
     if (std::holds_alternative<RectF>(rect)) {
         const auto& rectF = std::get<RectF>(rect);
+        contentClipRect = rectF;
         rsNode_->SetCustomClipToFrame(
             { rectF.GetX(), rectF.GetY(), rectF.GetX() + rectF.Width(), rectF.GetY() + rectF.Height() });
     } else if (std::holds_alternative<RefPtr<ShapeRect>>(rect)) {
@@ -4735,7 +4737,17 @@ void RosenRenderContext::SetContentClip(const std::variant<RectF, RefPtr<ShapeRe
             helper::DrawingDimensionToPx(shape->GetWidth(), paintRect_.GetSize(), LengthMode::HORIZONTAL);
         const float height =
             helper::DrawingDimensionToPx(shape->GetHeight(), paintRect_.GetSize(), LengthMode::VERTICAL);
+        contentClipRect = RectF(x, y, width, height);
         rsNode_->SetCustomClipToFrame({ x, y, x + width, y + height });
+    }
+    if (contentClipRect.has_value()) {
+        auto hasChanged = (contentClipRect.value() != contentClipRect_);
+        contentClipRect_ = contentClipRect.value();
+        if (hasChanged) {
+            auto frameNode = GetHost();
+            CHECK_NULL_VOID(frameNode);
+            frameNode->AddFrameNodeChangeInfoFlag(FRAME_NODE_CONTENT_CLIP_CHANGE);
+        }
     }
 }
 

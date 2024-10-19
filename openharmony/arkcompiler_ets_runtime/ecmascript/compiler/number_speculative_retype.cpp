@@ -346,6 +346,7 @@ GateRef NumberSpeculativeRetype::VisitGate(GateRef gate)
         case OpCode::ARRAY_SORT:
         case OpCode::FINISH_ALLOCATE:
         case OpCode::IS_CALLABLE_CHECK:
+        case OpCode::GET_EXCEPTION:
             return VisitOthers(gate);
         default:
             return Circuit::NullGate();
@@ -600,6 +601,7 @@ GateRef NumberSpeculativeRetype::ConvertTaggedToNJSValue(GateRef gate, TypeInfo 
         case TypeInfo::INT1:
             return CheckAndConvertToBool(gate, GateType::BooleanType());
         case TypeInfo::INT32:
+        case TypeInfo::UINT32:
             return CheckAndConvertToInt32(gate, GateType::NumberType());
         case TypeInfo::FLOAT64:
             return CheckAndConvertToFloat64(gate, GateType::NumberType());

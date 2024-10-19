@@ -338,6 +338,23 @@ public:
     void SetMachineCodeOutOfMemoryError(JSThread *thread, size_t size, std::string functionName);
     void SetAppFreezeFilterCallback(AppFreezeFilterCallback cb);
 
+#ifndef NDEBUG
+    bool TriggerCollectionOnNewObjectEnabled() const
+    {
+        return triggerCollectionOnNewObject_;
+    };
+
+    void EnableTriggerCollectionOnNewObject()
+    {
+        triggerCollectionOnNewObject_ = true;
+    }
+
+    void DisableTriggerCollectionOnNewObject()
+    {
+        triggerCollectionOnNewObject_ = false;
+    }
+#endif
+
 protected:
     void FatalOutOfMemoryError(size_t size, std::string functionName);
 
@@ -400,6 +417,9 @@ protected:
     bool shouldVerifyHeap_ {false};
     bool isVerifying_ {false};
     int32_t recursionDepth_ {0};
+#ifndef NDEBUG
+    bool triggerCollectionOnNewObject_ {true};
+#endif
 };
 
 class SharedHeap : public BaseHeap {
@@ -787,6 +807,9 @@ public:
 
     void DumpHeapSnapshotBeforeOOM(bool isFullGC, JSThread *thread);
 
+    inline void ProcessSharedNativeDelete(const WeakRootVisitor& visitor);
+    inline void PushToSharedNativePointerList(JSNativePointer* pointer);
+
     class SharedGCScope {
     public:
         SharedGCScope();
@@ -810,6 +833,7 @@ private:
 
     void ForceCollectGarbageWithoutDaemonThread(TriggerGCType gcType, GCReason gcReason, JSThread *thread);
     inline TaggedObject *AllocateInSOldSpace(JSThread *thread, size_t size);
+    inline void InvokeSharedNativePointerCallbacks();
     struct SharedHeapSmartGCStats {
         /**
          * For SmartGC.
@@ -865,6 +889,8 @@ private:
     size_t incNativeSizeTriggerSharedGC_ {0};
     std::atomic<size_t> nativeSizeAfterLastGC_ {0};
     bool inHeapProfiler_ {false};
+    CVector<JSNativePointer *> sharedNativePointerList_;
+    std::mutex sNativePointerListMutex_;
 };
 
 class Heap : public BaseHeap {
@@ -1438,7 +1464,8 @@ public:
 
     bool GlobalNativeSizeLargerThanLimit() const
     {
-        return GetGlobalNativeSize() >= globalSpaceNativeLimit_;
+        size_t overshoot = InSensitiveStatus() ? nativeSizeOvershoot_ : 0;
+        return GetGlobalNativeSize() >= globalSpaceNativeLimit_ + overshoot;
     }
 
     bool GlobalNativeSizeLargerThanLimitForIdle() const
@@ -1490,10 +1517,8 @@ public:
     void ProcessGCListeners();
 
     inline void ProcessNativeDelete(const WeakRootVisitor& visitor);
-    inline void ProcessSharedNativeDelete(const WeakRootVisitor& visitor);
     inline void ProcessReferences(const WeakRootVisitor& visitor);
     inline void PushToNativePointerList(JSNativePointer* pointer, bool isConcurrent);
-    inline void PushToSharedNativePointerList(JSNativePointer* pointer);
     inline void RemoveFromNativePointerList(const JSNativePointer* pointer);
     inline void ClearNativePointerList();
 
@@ -1526,6 +1551,14 @@ private:
     void ThresholdReachedDump();
 #endif
     void CleanCallBack();
+    void IncreasePendingAsyncNativeCallbackSize(size_t bindingSize)
+    {
+        pendingAsyncNativeCallbackSize_ += bindingSize;
+    }
+    void DecreasePendingAsyncNativeCallbackSize(size_t bindingSize)
+    {
+        pendingAsyncNativeCallbackSize_ -= bindingSize;
+    }
     class ParallelGCTask : public Task {
     public:
         ParallelGCTask(int32_t id, Heap *heap, ParallelGCTaskPhase taskPhase)
@@ -1692,6 +1725,7 @@ private:
     bool fullMarkRequested_ {false};
     bool oldSpaceLimitAdjusted_ {false};
     bool enableIdleGC_ {false};
+    std::atomic_bool isCSetClearing_ {false};
     HeapMode mode_ { HeapMode::NORMAL };
 
     /*
@@ -1706,6 +1740,8 @@ private:
     size_t globalSpaceNativeLimit_ {0};
     size_t nativeSizeTriggerGCThreshold_ {0};
     size_t incNativeSizeTriggerGC_ {0};
+    size_t nativeSizeOvershoot_ {0};
+    size_t asyncClearNativePointerThreshold_ {0};
     size_t nativeSizeAfterLastGC_ {0};
     size_t nativeBindingSizeAfterLastGC_ {0};
     size_t newAllocatedSharedObjectSize_ {0};
@@ -1715,6 +1751,7 @@ private:
     size_t recordNativeSize_ {0};
     // Record heap object size before enter sensitive status
     size_t recordObjSizeBeforeSensitive_ {0};
+    size_t pendingAsyncNativeCallbackSize_ {0};
     MemGrowingType memGrowingtype_ {MemGrowingType::HIGH_THROUGHPUT};
 
     // parallel evacuator task number.
@@ -1740,7 +1777,6 @@ private:
 
     CVector<JSNativePointer *> nativePointerList_;
     CVector<JSNativePointer *> concurrentNativePointerList_;
-    CVector<JSNativePointer *> sharedNativePointerList_;
 
     friend panda::test::HProfTestHelper;
     friend panda::test::GCTest_CallbackTask_Test;

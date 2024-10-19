@@ -299,7 +299,10 @@ void UIExtensionPattern::UpdateWant(const AAFwk::Want& want)
         CHECK_NULL_VOID(host);
         host->RemoveChildAtIndex(0);
         host->MarkDirtyNode(PROPERTY_UPDATE_MEASURE);
+        SetCurPlaceholderType(PlaceholderType::NONE);
         NotifyDestroy();
+        // reset callback, in order to register childtree call back again when onConnect to new ability
+        ResetAccessibilityChildTreeCallback();
     }
 
     isKeyAsync_ = want.GetBoolParam(ABILITY_KEY_ASYNC, false);
@@ -453,6 +456,7 @@ void UIExtensionPattern::OnDisconnect(bool isAbnormal)
     CHECK_NULL_VOID(host);
     host->RemoveChildAtIndex(0);
     host->MarkDirtyNode(PROPERTY_UPDATE_MEASURE);
+    SetCurPlaceholderType(PlaceholderType::NONE);
 }
 
 void UIExtensionPattern::OnSyncGeometryNode(const DirtySwapConfig& config)
@@ -944,7 +948,7 @@ void UIExtensionPattern::FireOnReleaseCallback(int32_t releaseCode)
     }
     // Release the session.
     if (sessionWrapper_ && sessionWrapper_->IsSessionValid()) {
-        sessionWrapper_->DestroySession();
+        sessionWrapper_->OnReleaseDone();
     }
 }
 
@@ -1176,6 +1180,23 @@ void UIExtensionPattern::OnAccessibilityDumpChildInfo(
     sessionWrapper_->TransferAccessibilityDumpChildInfo(params, info);
 }
 
+void UIExtensionPattern::ResetAccessibilityChildTreeCallback()
+{
+    CHECK_NULL_VOID(accessibilityChildTreeCallback_);
+    auto instanceId = GetInstanceIdFromHost();
+    ContainerScope scope(instanceId);
+    auto ngPipeline = NG::PipelineContext::GetCurrentContext();
+    CHECK_NULL_VOID(ngPipeline);
+    auto frontend = ngPipeline->GetFrontend();
+    CHECK_NULL_VOID(frontend);
+    auto accessibilityManager = frontend->GetAccessibilityManager();
+    CHECK_NULL_VOID(accessibilityManager);
+    accessibilityManager->DeregisterAccessibilityChildTreeCallback(
+        accessibilityChildTreeCallback_->GetAccessibilityId());
+    accessibilityChildTreeCallback_.reset();
+    accessibilityChildTreeCallback_ = nullptr;
+}
+
 void UIExtensionPattern::OnMountToParentDone()
 {
     UIEXT_LOGI("OnMountToParentDone.");
@@ -1387,6 +1408,40 @@ void UIExtensionPattern::DumpInfo(std::unique_ptr<JsonValue>& json)
         sessionWrapper_->NotifyUieDump(params, dumpInfo);
         for (std::string info : dumpInfo) {
             json->Put("UI Extension info: ", info.c_str());
+        }
+    }
+}
+
+void UIExtensionPattern::DumpOthers()
+{
+    CHECK_NULL_VOID(sessionWrapper_);
+    auto container = Platform::AceContainer::GetContainer(instanceId_);
+    CHECK_NULL_VOID(container);
+    std::vector<std::string> params = container->GetUieParams();
+    // Use -nouie to choose not dump extra uie info
+    if (std::find(params.begin(), params.end(), NO_EXTRA_UIE_DUMP) != params.end()) {
+        UIEXT_LOGI("Not Support Dump Extra UIE Info");
+    } else {
+        if (params.back() == "-json") {
+            params.insert(params.end() - 1, std::to_string(getpid()));
+            if (!container->IsUIExtensionWindow()) {
+                params.insert(params.end() - 1, PID_FLAG);
+            }
+        } else {
+            if (!container->IsUIExtensionWindow()) {
+                params.push_back(PID_FLAG);
+            }
+            params.push_back(std::to_string(getpid()));
+        }
+        std::vector<std::string> dumpInfo;
+        sessionWrapper_->NotifyUieDump(params, dumpInfo);
+        for (std::string info : dumpInfo) {
+            std::stringstream ss(info);
+            std::string line;
+            DumpLog::GetInstance().Print("\n------ UIExtension Dump ------");
+            while (getline(ss, line, ';')) {
+                DumpLog::GetInstance().Print(line);
+            }
         }
     }
 }

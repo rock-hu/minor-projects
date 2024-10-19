@@ -621,7 +621,16 @@ class ObjectFactory;
     V(FunctionToString,               FUNCTION_TO_STRING_INDEX,              "[object Function]")           \
     V(DateToString,                   DATE_TO_STRING_INDEX,                  "[object Date]")               \
     V(ErrorToString,                  ERROR_TO_STRING_INDEX,                 "[object Error]")              \
-    V(RegExpToString,                 REGEXP_TO_STRING_INDEX,                "[object RegExp]")
+    V(RegExpToString,                 REGEXP_TO_STRING_INDEX,                "[object RegExp]")             \
+    V(EdenGcCause,                    EDEN_GC_CAUSE,                         "eden")                        \
+    V(YoungGcCause,                   YOUNG_GC_CAUSE,                        "young")                       \
+    V(OldGcCause,                     OLD_GC_CAUSE,                          "old")                         \
+    V(FullGcCause,                    FULL_GC_CAUSE,                         "full")                        \
+    V(AppSpawnFullGcCause,            APP_SPAWN_FULL_GC_CAUSE,               "app_spawn_full")              \
+    V(SharedGcCause,                    SHARED_GC_CAUSE,                       "shared")                      \
+    V(SharedFullGcCause,                SHARED_FULL_GC_CAUSE,                  "shared_full")                 \
+    V(AppSpawnSharedFullGcCause,      APP_SPAWN_SHARED_FULL_GC_CAUSE,        "app_spawn_shared_full")       \
+    V(SymbolLeftParentheses,          SYMBOL_LEFT_PARENTHESES,               "Symbol(")
 
 /* GlobalConstant */
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)

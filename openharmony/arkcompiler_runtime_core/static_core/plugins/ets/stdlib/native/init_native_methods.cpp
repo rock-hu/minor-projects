@@ -15,11 +15,14 @@
 
 #include "plugins/ets/stdlib/native/init_native_methods.h"
 #include "plugins/ets/stdlib/native/escompat/Process.h"
+#include "plugins/ets/stdlib/native/etsstdlib.h"
 
 namespace ark::ets::stdlib {
 void InitNativeMethods(EtsEnv *env)
 {
     RegisterProcessNativeMethods(env);
+    // NOTE (ikorobkov): EtsNapiOnLoad needs to implement issue #18135
+    EtsNapiOnLoad(env);
 }
 
 }  // namespace ark::ets::stdlib

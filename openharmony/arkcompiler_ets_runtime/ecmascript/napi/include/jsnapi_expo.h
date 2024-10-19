@@ -99,8 +99,8 @@ struct HmsMap {
 using WeakRefClearCallBack = void (*)(void *);
 using WeakFinalizeTaskCallback = std::function<void()>;
 using NativePointerCallback = void (*)(void *env, void* data, void* hint);
+using NativePointerCallbackFinishNotify = std::function<void(size_t totalBindSize_)>;
 using NativePointerCallbackData = std::pair<NativePointerCallback, std::tuple<void*, void*, void*>>;
-using NativePointerTaskCallback = std::function<void(std::vector<NativePointerCallbackData>& callbacks)>;
 using TriggerGCData = std::pair<void*, uint8_t>;
 using TriggerGCTaskCallback = std::function<void(TriggerGCData& data)>;
 using StartIdleMonitorCallback = std::function<void()>;
@@ -136,6 +136,78 @@ using QueueType = ecmascript::job::QueueType;
 #else
 #define ECMA_ASSERT(cond) static_cast<void>(0)
 #endif
+
+class ECMA_PUBLIC_API AsyncNativeCallbacksPack {
+public:
+    AsyncNativeCallbacksPack() = default;
+    ~AsyncNativeCallbacksPack() = default;
+    AsyncNativeCallbacksPack(AsyncNativeCallbacksPack&&) = default;
+    AsyncNativeCallbacksPack& operator=(AsyncNativeCallbacksPack&&) = default;
+    AsyncNativeCallbacksPack(const AsyncNativeCallbacksPack &) = default;
+    AsyncNativeCallbacksPack &operator=(const AsyncNativeCallbacksPack &) = default;
+
+    void Clear()
+    {
+        callBacks_.clear();
+        totalBindingSize_ = 0;
+        notify_ = nullptr;
+    }
+
+    bool TotallyEmpty() const
+    {
+        return callBacks_.empty() && totalBindingSize_ == 0 && notify_ == nullptr;
+    }
+
+    bool Empty() const
+    {
+        return callBacks_.empty();
+    }
+
+    void RegisterFinishNotify(NativePointerCallbackFinishNotify notify)
+    {
+        notify_ = notify;
+    }
+
+    size_t GetNumCallBacks() const
+    {
+        return callBacks_.size();
+    }
+
+    void ProcessAll()
+    {
+        for (auto &iter : callBacks_) {
+            NativePointerCallback callback = iter.first;
+            std::tuple<void*, void*, void*> &param = iter.second;
+            if (callback != nullptr) {
+                callback(std::get<0>(param), std::get<1>(param), std::get<2>(param)); // 2 is the param.
+            }
+        }
+        NotifyFinish();
+    }
+
+    size_t GetTotalBindingSize() const
+    {
+        return totalBindingSize_;
+    }
+
+    void AddCallback(NativePointerCallbackData callback, size_t bindingSize)
+    {
+        callBacks_.emplace_back(callback);
+        totalBindingSize_ += bindingSize;
+    }
+private:
+    void NotifyFinish() const
+    {
+        if (notify_ != nullptr) {
+            notify_(totalBindingSize_);
+        }
+    }
+
+    std::vector<NativePointerCallbackData> callBacks_ {};
+    size_t totalBindingSize_ {0};
+    NativePointerCallbackFinishNotify notify_ {nullptr};
+};
+using NativePointerTaskCallback = std::function<void(AsyncNativeCallbacksPack *callbacksPack)>;
 
 template<typename T>
 class ECMA_PUBLIC_API Local {  // NOLINT(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
@@ -1448,12 +1520,11 @@ public:
     };
 
     enum class ECMA_PUBLIC_API TRIGGER_IDLE_GC_TYPE : uint8_t {
-        OLD_GC = 1,
+        LOCAL_CONCURRENT_MARK = 1,
+        LOCAL_REMARK = 1 << 1,
         FULL_GC = 1 << 2,
-        SHARED_GC = 1 << 3,
+        SHARED_CONCURRENT_MARK = 1 << 3,
         SHARED_FULL_GC = 1 << 4,
-        LOCAL_CONCURRENT_MARK = 1 << 5,
-        LOCAL_REMARK = 1 << 6,
     };
 
     enum class ECMA_PUBLIC_API MemoryReduceDegree : uint8_t {
@@ -1510,6 +1581,7 @@ public:
     static bool ExecuteModuleFromBuffer(EcmaVM *vm, const void *data, int32_t size, const std::string &file);
     static Local<ObjectRef> GetExportObject(EcmaVM *vm, const std::string &file, const std::string &key);
     static Local<ObjectRef> GetExportObjectFromBuffer(EcmaVM *vm, const std::string &file, const std::string &key);
+    static Local<ObjectRef> GetExportObjectFromOhmUrl(EcmaVM *vm, const std::string &ohmUrl, const std::string &key);
     static Local<ObjectRef> ExecuteNativeModule(EcmaVM *vm, const std::string &key);
     static Local<ObjectRef> GetModuleNameSpaceFromFile(EcmaVM *vm, const std::string &file,
                                                        const std::string &module_path);
@@ -1533,6 +1605,9 @@ public:
      */
     static bool ExecuteModuleBufferSecure(EcmaVM *vm, uint8_t *data, int32_t size, const std::string &filename = "",
                                           bool needUpdate = false);
+
+    static bool ExecuteSecureWithOhmUrl(EcmaVM *vm, uint8_t *data, int32_t size, const std::string &srcFilename,
+                                        const std::string &ohmUrl);
 
     // ObjectRef Operation
     static Local<ObjectRef> GetGlobalObject(const EcmaVM *vm);
@@ -1620,6 +1695,7 @@ public:
     static bool IsBundle(EcmaVM *vm);
     static void SetBundle(EcmaVM *vm, bool value);
     static bool IsNormalizedOhmUrlPack(EcmaVM *vm);
+    static bool IsOhmUrl(const std::string &srcName);
     static void SetAssetPath(EcmaVM *vm, const std::string &assetPath);
     static void SetMockModuleList(EcmaVM *vm, const std::map<std::string, std::string> &list);
     static void SetPkgNameList(EcmaVM *vm, const std::map<std::string, std::string> &list);

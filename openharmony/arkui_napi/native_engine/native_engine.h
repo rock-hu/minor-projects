@@ -475,6 +475,27 @@ public:
 
     virtual bool IsCrossThreadCheckEnabled() const = 0;
 
+    bool IsInDestructor() const
+    {
+        return isInDestructor_;
+    }
+
+    static NativeEngine* GetMainThreadEngine()
+    {
+        std::lock_guard<std::mutex> lock(g_mainThreadEngineMutex_);
+        return g_mainThreadEngine_;
+    }
+
+    static void SetMainThreadEngine(NativeEngine* engine)
+    {
+        if (g_mainThreadEngine_ == nullptr) {
+            std::lock_guard<std::mutex> lock(g_mainThreadEngineMutex_);
+            if (g_mainThreadEngine_ == nullptr) {
+                g_mainThreadEngine_ = engine;
+            }
+        }
+    }
+
 private:
     void InitUvField();
     void CreateDefaultFunction(void);
@@ -562,11 +583,14 @@ private:
 
     std::mutex loopRunningMutex_;
     bool isLoopRunning_ = false;
+    bool isInDestructor_ {false};
 
     // protect alived engine set and last engine id
     static std::mutex g_alivedEngineMutex_;
     static std::unordered_set<NativeEngine*> g_alivedEngine_;
     static uint64_t g_lastEngineId_;
+    static std::mutex g_mainThreadEngineMutex_;
+    static NativeEngine* g_mainThreadEngine_;
 };
 
 class TryCatch : public panda::TryCatch {

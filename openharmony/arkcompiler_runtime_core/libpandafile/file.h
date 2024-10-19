@@ -430,9 +430,9 @@ public:
         class_hash_table_ = class_hash_table;
     }
 
-    bool ValidateChecksum() const;
+    bool ValidateChecksum(uint32_t *cal_checksum_out = nullptr) const;
 
-    void ThrowIfWithCheck(bool cond, const std::string& msg, const std::string& tag = "") const;
+    void ThrowIfWithCheck(bool cond, const std::string_view& msg, const std::string_view& tag = "") const;
 
     static constexpr const char *INVALID_FILE_OFFSET = "Invalid file offset";
     static constexpr const char *NULL_INDEX_HEADER = "index_header is null";

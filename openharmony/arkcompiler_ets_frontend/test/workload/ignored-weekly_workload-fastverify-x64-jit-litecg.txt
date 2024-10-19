@@ -1,14 +1,24 @@
 ## Issue 18417
+##18485
+raytrace
+
+##18483
+typescript-compiler
+
+##18486
+pdfjs
+
+##18417
 box2d
 
 ##18488
 splay-latancy
 
-##18490
+##19246
 hash-map
 
-##18490
+##19216
 wsl
 
-##18490
+##19246
 mandreel

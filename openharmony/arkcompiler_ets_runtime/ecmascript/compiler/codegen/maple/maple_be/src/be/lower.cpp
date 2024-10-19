@@ -159,7 +159,12 @@ void CGLowerer::LowerCallStmt(StmtNode &stmt, StmtNode *&nextStmt, BlockNode &ne
     }
 
     if (newStmt->GetOpCode() == OP_call || newStmt->GetOpCode() == OP_icall || newStmt->GetOpCode() == OP_icallproto) {
-        newStmt = LowerCall(static_cast<CallNode &>(*newStmt), nextStmt, newBlk, retty, uselvar);
+        auto &callNode = static_cast<NaryStmtNode&>(*newStmt);
+        for (size_t i = 0; i < callNode.GetNopndSize(); ++i) {
+            BaseNode *newOpnd = LowerExpr(callNode, *callNode.GetNopndAt(i), newBlk);
+            callNode.SetOpnd(newOpnd, i);
+        }
+        newStmt = &callNode;
     }
     newStmt->SetSrcPos(stmt.GetSrcPos());
     newBlk.AddStatement(newStmt);
@@ -354,10 +359,6 @@ BlockNode *CGLowerer::LowerCallAssignedStmt(StmtNode &stmt, bool uselvar)
                 return blockNode;
             }
             IntrinsiccallNode &intrincall = static_cast<IntrinsiccallNode &>(stmt);
-            auto intrinsicID = intrincall.GetIntrinsic();
-            if (IntrinDesc::intrinTable[intrinsicID].IsAtomic()) {
-                return LowerIntrinsiccallAassignedToAssignStmt(intrincall);
-            }
             newCall = GenIntrinsiccallNode(stmt, funcCalled, handledAtLowerLevel, intrincall);
             p2nRets = &intrincall.GetReturnVec();
             static_cast<IntrinsiccallNode *>(newCall)->SetReturnVec(*p2nRets);
@@ -383,11 +384,6 @@ BlockNode *CGLowerer::LowerCallAssignedStmt(StmtNode &stmt, bool uselvar)
 
 BlockNode *CGLowerer::LowerIntrinsiccallToIntrinsicop(StmtNode &stmt)
 {
-    IntrinsiccallNode &intrinCall = static_cast<IntrinsiccallNode &>(stmt);
-    auto intrinsicID = intrinCall.GetIntrinsic();
-    if (IntrinDesc::intrinTable[intrinsicID].IsAtomic()) {
-        return LowerIntrinsiccallAassignedToAssignStmt(intrinCall);
-    }
     return nullptr;
 }
 
@@ -519,43 +515,6 @@ BlockNode *CGLowerer::LowerBlock(BlockNode &block)
         newBlk->AddStatement(node);
     }
     return newBlk;
-}
-
-StmtNode *CGLowerer::LowerCall(CallNode &callNode, StmtNode *&nextStmt, BlockNode &newBlk, MIRType *retTy, bool uselvar)
-{
-    /*
-     * nextStmt in-out
-     * call $foo(constval u32 128)
-     * dassign %jlt (dread agg %%retval)
-     */
-
-    for (size_t i = 0; i < callNode.GetNopndSize(); ++i) {
-        BaseNode *newOpnd = LowerExpr(callNode, *callNode.GetNopndAt(i), newBlk);
-        callNode.SetOpnd(newOpnd, i);
-    }
-
-    DassignNode *dassignNode = nullptr;
-    if ((nextStmt != nullptr) && (nextStmt->GetOpCode() == OP_dassign)) {
-        dassignNode = static_cast<DassignNode *>(nextStmt);
-    }
-
-    /* if nextStmt is not a dassign stmt, return */
-    if (dassignNode == nullptr) {
-        return &callNode;
-    }
-
-    if (!uselvar && retTy && beCommon.GetTypeSize(retTy->GetTypeIndex().GetIdx()) <= k16ByteSize) {
-        /* return structure fitting in one or two regs. */
-        return &callNode;
-    }
-
-    if (callNode.op == OP_icall || callNode.op == OP_icallproto) {
-        if (retTy == nullptr) {
-            return &callNode;
-        }
-    }
-
-    return &callNode;
 }
 
 void CGLowerer::LowerTypePtr(BaseNode &node) const
@@ -913,18 +872,7 @@ StmtNode *CGLowerer::LowerIntrinsiccall(IntrinsiccallNode &intrincall, BlockNode
     for (size_t i = 0; i < intrincall.GetNumOpnds(); ++i) {
         intrincall.SetOpnd(LowerExpr(intrincall, *intrincall.Opnd(i), newBlk), i);
     }
-    CHECK_FATAL(intrnID != INTRN_MPL_CLEAR_STACK, "unsupported intrinsic");
-    if (intrnID == INTRN_C_va_start) {
-        return &intrincall;
-    }
-    if (intrnID == maple::INTRN_C___builtin_division_exception) {
-        return &intrincall;
-    }
     IntrinDesc *intrinDesc = &IntrinDesc::intrinTable[intrnID];
-    if (intrinDesc->IsSpecial() || intrinDesc->IsAtomic()) {
-        /* For special intrinsics we leave them to CGFunc::SelectIntrinsicCall() */
-        return &intrincall;
-    }
     /* default lowers intrinsic call to real function call. */
     MIRSymbol *st = GlobalTables::GetGsymTable().CreateSymbol(kScopeGlobal);
     CHECK_FATAL(intrinDesc->name != nullptr, "intrinsic's name should not be nullptr");
@@ -957,7 +905,6 @@ PUIdx CGLowerer::GetBuiltinToUse(BuiltinFunctionID id) const
 bool CGLowerer::IsIntrinsicCallHandledAtLowerLevel(MIRIntrinsicID intrinsic) const
 {
     switch (intrinsic) {
-        case INTRN_MPL_ATOMIC_EXCHANGE_PTR:
         // js
         case INTRN_ADD_WITH_OVERFLOW:
         case INTRN_SUB_WITH_OVERFLOW:

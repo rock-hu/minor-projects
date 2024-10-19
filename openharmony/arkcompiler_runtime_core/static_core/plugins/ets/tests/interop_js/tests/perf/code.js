@@ -17,12 +17,12 @@
 const o = { a: 1, b: '2', c: {} };
 
 exports.GetObject = function () {
-	return o;
+    return o;
 };
 exports.GetNumber = function () {
-	return 24;
+    return 24;
 };
 exports.GetString = function () {
-	return 'abc';
+    return 'abc';
 };
 exports.Nop = function () {};

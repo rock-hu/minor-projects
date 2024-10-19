@@ -19,6 +19,7 @@
 #include "ecmascript/checkpoint/thread_state_transition.h"
 #include "ecmascript/jit/jit.h"
 #include "ecmascript/jspandafile/program_object.h"
+#include "ecmascript/mem/heap-inl.h"
 #include "ecmascript/mem/mem_map_allocator.h"
 namespace panda::ecmascript {
 using PGOProfilerManager = pgo::PGOProfilerManager;
@@ -133,7 +134,11 @@ void Runtime::DestroyIfLastVm()
 
 void Runtime::RegisterThread(JSThread* newThread)
 {
+#if defined(ENABLE_FFRT_INTERFACES)
+    FFRTLockHolder lock(threadsLock_);
+#else
     LockHolder lock(threadsLock_);
+#endif
     ASSERT(std::find(threads_.begin(), threads_.end(), newThread) == threads_.end());
     threads_.emplace_back(newThread);
     // send all current suspended requests to the new thread
@@ -145,7 +150,11 @@ void Runtime::RegisterThread(JSThread* newThread)
 // Note: currently only called when thread is to be destroyed.
 void Runtime::UnregisterThread(JSThread* thread)
 {
+#if defined(ENABLE_FFRT_INTERFACES)
+    FFRTLockHolder lock(threadsLock_);
+#else
     LockHolder lock(threadsLock_);
+#endif
     ASSERT(std::find(threads_.begin(), threads_.end(), thread) != threads_.end());
     ASSERT(!thread->IsInRunningState());
     threads_.remove(thread);
@@ -176,45 +185,64 @@ void Runtime::ResumeAll(JSThread *current)
 void Runtime::SuspendAllThreadsImpl(JSThread *current)
 {
     SuspendBarrier barrier;
-    {
-        LockHolder lock(threadsLock_);
-        while (suspendNewCount_ != 0) {
-            // Someone has already suspended all threads.
-            // Wait until it finishes.
-            threadSuspendCondVar_.Wait(&threadsLock_);
-        }
-        suspendNewCount_++;
-        if (threads_.size() == 1) {
-            ASSERT(current == mainThread_ || current->IsDaemonThread());
-            return;
-        }
-        if (threads_.size() < 1) {
-            return;
-        }
-        barrier.Initialize(threads_.size() - 1);
-        for (auto i: threads_) {
-            if (i == current) {
-                continue;
+    for (uint32_t iterCount = 1U;; ++iterCount) {
+        {
+#if defined(ENABLE_FFRT_INTERFACES)
+            FFRTLockHolder lock(threadsLock_);
+#else
+            LockHolder lock(threadsLock_);
+#endif
+            if (suspendNewCount_ == 0) {
+                suspendNewCount_++;
+                if (threads_.size() == 1) {
+                    ASSERT(current == mainThread_ || current->IsDaemonThread());
+                    return;
+                }
+                if (threads_.size() < 1) {
+                    return;
+                }
+                barrier.Initialize(threads_.size() - 1);
+                for (const auto& thread: threads_) {
+                    if (thread == current) {
+                        continue;
+                    }
+                    thread->SuspendThread(+1, &barrier);
+                    // The two flags, SUSPEND_REQUEST and ACTIVE_BARRIER, are set by Suspend-Thread guarded by
+                    // suspendLock_, so the target thread-I may do not see these two flags in time. As a result, it
+                    // can switch its state freely without responding to the ACTIVE_BARRIER flag and the
+                    // suspend-thread will always wait it. However, as long as it sees the flags, the actions of
+                    // passing barrier will be triggered. When the thread-I switches from NON_RUNNING to RUNNING,
+                    // it will firstly pass the barrier and then be blocked by the SUSPEND_REQUEST flag. If the
+                    // thread-I switches from RUNNING to NON_RUNNING, it will switch the state and then act on the
+                    // barrier. If the thread-I go to checkpoint in RUNNING state, it will act on the barrier
+                    // and be blocked by SUSPEND_REQUEST flag.
+                    if (thread->IsSuspended()) {
+                        // Because of the multi-threads situation, currently thread-I may be in RUNNING state or is
+                        // goding to be RUNNING state even inside this branch. In both scenarios, for instance of
+                        // RUNNING state, according to the modification order of atomic-variable stateAndFlags_,
+                        // thread-I will see the SUSPEND_REQUEST and ACTIVE_BARRIER and act on them before switching
+                        // to RUNNING. Besides, notice the using of suspendLock_ inside PassSuspendBarrier(), there
+                        // is not data-race for passing barrier.
+                        thread->PassSuspendBarrier();
+                    }
+                }
+                break;
             }
-            i->SuspendThread(+1, &barrier);
-
-            // The two flags, SUSPEND_REQUEST and ACTIVE_BARRIER, are set by Suspend-Thread guarded by suspendLock_, so
-            // the target thread-I may do not see these two flags in time. As a result, it can switch its state freely
-            // without responding to the ACTIVE_BARRIER flag and the suspend-thread will always wait it. However,
-            // as long as it sees the flags, the actions of passing barrier will be triggered. When the thread-I
-            // switches from NON_RUNNING to RUNNING, it will firstly pass the barrier and then be blocked by the
-            // SUSPEND_REQUEST flag. If the thread-I switches from RUNNING to NON_RUNNING, it will switch the state and
-            // then act on the barrier. If the thread-I go to checkpoint in RUNNING state, it will act on the barrier
-            // and be blocked by SUSPEND_REQUEST flag.
-
-            if (i->IsSuspended()) {
-                // Because of the multi-threads situation, currently thread-I may be in RUNNING state or is goding to
-                // be RUNNING state even inside this branch. In both scenarios, for instance of RUNNING state,
-                // according to the modification order of atomic-variable stateAndFlags_, thread-I will see the
-                // SUSPEND_REQUEST and ACTIVE_BARRIER and act on them before switching to RUNNING. Besides, notice the
-                // using of suspendLock_ inside PassSuspendBarrier(), there is not data-race for passing barrier.
-                i->PassSuspendBarrier();
+        }
+        if (iterCount < MAX_SUSPEND_RETRIES) {
+#if defined(ENABLE_FFRT_INTERFACES)
+            FFRTLockHolder lock(threadsLock_);
+#else
+            LockHolder lock(threadsLock_);
+#endif
+            if (suspendNewCount_ != 0) {
+                // Someone has already suspended all threads.
+                // Wait until it finishes.
+                threadSuspendCondVar_.Wait(&threadsLock_);
             }
+        } else {
+            LOG_ECMA(FATAL) << "Too many SuspendAll retries!";
+            UNREACHABLE();
         }
     }
     barrier.Wait();
@@ -222,7 +250,11 @@ void Runtime::SuspendAllThreadsImpl(JSThread *current)
 
 void Runtime::ResumeAllThreadsImpl(JSThread *current)
 {
+#if defined(ENABLE_FFRT_INTERFACES)
+    FFRTLockHolder lock(threadsLock_);
+#else
     LockHolder lock(threadsLock_);
+#endif
     if (suspendNewCount_ > 0) {
         suspendNewCount_--;
     }
@@ -230,9 +262,9 @@ void Runtime::ResumeAllThreadsImpl(JSThread *current)
         // Signal to waiting to suspend threads
         threadSuspendCondVar_.Signal();
     }
-    for (auto i : threads_) {
-        if (i != current) {
-            i->ResumeThread(true);
+    for (const auto& thread : threads_) {
+        if (thread != current) {
+            thread->ResumeThread(true);
         }
     }
 }
@@ -348,5 +380,28 @@ void Runtime::EraseUnusedConstpool(const JSPandaFile *jsPandaFile, int32_t index
         auto context = thread->GetCurrentEcmaContext();
         context->EraseUnusedConstpool(jsPandaFile, index, constpoolIndex);
     });
+}
+
+void Runtime::ProcessSharedNativeDelete(const WeakRootVisitor &visitor)
+{
+    SharedHeap::GetInstance()->ProcessSharedNativeDelete(visitor);
+}
+
+void Runtime::PushToSharedNativePointerList(JSNativePointer *pointer)
+{
+    SharedHeap::GetInstance()->PushToSharedNativePointerList(pointer);
+}
+
+void Runtime::InvokeSharedNativePointerCallbacks()
+{
+    auto &callbacks = GetSharedNativePointerCallbacks();
+    while (!callbacks.empty()) {
+        auto callbackPair = callbacks.back();
+        callbacks.pop_back();
+        ASSERT(callbackPair.first != nullptr && callbackPair.second.first != nullptr &&
+               callbackPair.second.second != nullptr);
+        auto callback = callbackPair.first;
+        (*callback)(nullptr, callbackPair.second.first, callbackPair.second.second);
+    }
 }
 }  // namespace panda::ecmascript
