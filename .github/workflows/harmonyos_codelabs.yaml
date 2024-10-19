@@ -23,5 +23,5 @@ jobs:
       - run: git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
       - run: git status
       - run: git add .
-      - run: git commit -m ${{ github.action }} - ${{ github.run_number }}
+      - run: git commit -m "${{ github.run_number }}"
       - run: git push
