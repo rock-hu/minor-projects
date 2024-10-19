@@ -6,6 +6,9 @@ on:
   push:
     branches:
       - master    
+    paths:
+      - 'openharmony-sig.csv'      
+
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   GITEE_USERNAME: ${{ secrets.GITEE_USERNAME }}
@@ -19,9 +22,7 @@ jobs:
       - run: git config --global user.email "rock.c.c.hu@gmail.com"
       - run: git config --global user.name "Rock Hu"
       - run: git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
-      - name: Commit changes
-        uses: EndBug/add-and-commit@v9
-        with:
-          author_name: Rock Hu
-          author_email: rock.c.c.hu@gmail.com
-          message: "${{ github.action }} - ${{ github.run_number }}"      
+      - run: git status
+      - run: git add .
+      - run: git commit -m ${{ github.action }} - ${{ github.run_number }}
+      - run: git push 

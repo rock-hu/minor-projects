@@ -6,6 +6,7 @@ do
    cd $organization
    rm -rf ${repository}
    # git clone git@$host:$organization/$repository.git
+   echo "git clone ${host}/${organization}/${repository} ..."
    git clone https://${GITEE_USERNAME}:${GITEE_TOKEN}@${host}/${organization}/${repository}.git
    rm -rf ${repository}/.git 
    cd ..

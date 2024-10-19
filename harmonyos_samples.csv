@@ -8,10 +8,6 @@ gitee.com,harmonyos_samples,network-manager
 gitee.com,harmonyos_samples,CustomizeKeyboard
 gitee.com,harmonyos_samples,DynamicComponent
 gitee.com,harmonyos_samples,hmosworld
-gitee.com,harmonyos_samples,
-gitee.com,harmonyos_samples,
-gitee.com,harmonyos_samples,
-gitee.com,harmonyos_samples,
 gitee.com,harmonyos_samples,crypto-framework
 gitee.com,harmonyos_samples,crypto-collection
 gitee.com,harmonyos_samples,network-boost-kit-sample-code-arkts
@@ -29,3 +25,14 @@ gitee.com,harmonyos_samples,cipher
 gitee.com,harmonyos_samples,certificate-framework
 gitee.com,harmonyos_samples,navigation-router
 gitee.com,harmonyos_samples,exception-handling
+gitee.com,harmonyos_samples,BestPracticeSnippets
+gitee.com,harmonyos_samples,ability-start-mode
+gitee.com,harmonyos_samples,location-service
+gitee.com,harmonyos_samples,web-user-agent
+gitee.com,harmonyos_samples,run-js-in-web
+gitee.com,harmonyos_samples,list-optimization
+gitee.com,harmonyos_samples,ContinuePublish
+gitee.com,harmonyos_samples,multi-hap
+gitee.com,harmonyos_samples,component-collection
+gitee.com,harmonyos_samples,DataCache
+gitee.com,harmonyos_samples,animation-collection
