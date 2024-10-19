@@ -26,3 +26,4 @@ jobs:
       - run: git add .
       - run: git commit -m "${{ github.run_number }}"
       - run: git push 
+      - run: ls -l      
