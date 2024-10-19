@@ -36,4 +36,7 @@ do
 done < harmonyos_samples.csv
 ```
 
+
+[Accessing contextual information about workflow runs](https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/accessing-contextual-information-about-workflow-runs)
+
 ![](docs/images/workflows.png)
