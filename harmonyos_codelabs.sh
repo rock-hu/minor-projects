@@ -10,4 +10,4 @@ do
    git clone https://${GITEE_USERNAME}:${GITEE_TOKEN}@${host}/${organization}/${repository}.git
    rm -rf ${repository}/.git 
    cd ..
-done < harmonyos_samples.csv
+done < harmonyos_codelabs.csv

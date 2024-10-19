@@ -1,49 +1,19 @@
 # minor-projects
 
-[Importing an external Git repository using the command line](https://docs.github.com/en/migrations/importing-source-code/using-the-command-line-to-import-source-code/importing-an-external-git-repository-using-the-command-line) 
+```mermaid
+flowchart LR
 
+Action[GitHub Action] --> Push[On push]
+Action[GitHub Action] --> Schdule[On schedule]
+GitHub --> CSV
+CSV --> Action
+Calendar --> Action
 ```
-gitee.com,harmonyos_codelabs,network-boost-kit-codelab-arkts
-gitee.com,harmonyos_samples,scan-kit_-sample-code_-clientdemo_-arkts
-```
-
-```bash
-git clone --bare https://external-host.com/EXTUSER/REPO.git
-```
-
-```bash
-cd REPO.git
-git push --mirror https://github.com/USER/REPO.git
-```
-
-```bash
-cd ..
-rm -rf REPO.git
-```
-
-```bash
-#!/bin/bash
-while IFS="," read -r host organization repository
-do
-   echo $host $organization $repository
-   mkdir $organization
-   cd $organization
-   rm -rf ${repository}
-   git clone git@$host:$organization/$repository.git
-   # git clone https://${host}/${organization}/${repository}.git
-   rm -rf ${repository}/.git 
-   cd ..
-done < harmonyos_samples.csv
-```
-
 
 ## github actionis    
 
-[Accessing contextual information about workflow runs](https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/accessing-contextual-information-about-workflow-runs)
-
-
 ### badges    
-|                    | on schedule                                                                                        | on push                                                                                                     |
+|                    | on push                                                                                            | on schedule                                                                                                 |
 | ------------------ | -------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | harmonyos_codelabs | ![](https://github.com/rock-hu/minor-projects/actions/workflows/harmonyos_codelabs.yaml/badge.svg) | ![](https://github.com/rock-hu/minor-projects/actions/workflows/harmonyos_codelabs-schedule.yaml/badge.svg) |
 | harmonyos_samples  | ![](https://github.com/rock-hu/minor-projects/actions/workflows/harmonyos_samples.yaml/badge.svg)  | ![](https://github.com/rock-hu/minor-projects/actions/workflows/harmonyos_samples-schedule.yaml/badge.svg)  |
@@ -51,19 +21,11 @@ done < harmonyos_samples.csv
 | openharmony-sig    | ![](https://github.com/rock-hu/minor-projects/actions/workflows/openharmony-sig.yaml/badge.svg)    | ![](https://github.com/rock-hu/minor-projects/actions/workflows/openharmony-sig-schedule.yaml/badge.svg)    |
 
 
--rw-rw-r-- 1 rock rock 1685 10月 19 13:39 harmonyos_codelabs.csv
--rw-rw-r-- 1 rock rock 1749 10月 19 13:40 harmonyos_samples.csv
--rw-rw-r-- 1 rock rock  456 10月 19 13:41 openharmony.csv
--rw-rw-r-- 1 rock rock  302 10月 19 13:38 openharmony-sig.csv
-
-
-
 ### on schedule    
 ```yml
 
 name: harmonyos_codelabs-schedule
 on:
-  # https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows
   schedule:
     - cron: "0 0 * * 1"
 env:
@@ -91,7 +53,6 @@ jobs:
 ```yml
 name: harmonyos_codelabs
 on:
-  # https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows
   push:
     branches:
       - master
@@ -118,4 +79,26 @@ jobs:
 
 ```
 
+### harmonyos_codelabs.sh    
+```bash
+#!/bin/bash
+while IFS="," read -r host organization repository
+do
+   echo $host $organization $repository
+   mkdir $organization
+   cd $organization
+   rm -rf ${repository}
+   echo "git clone ${host}/${organization}/${repository} ..."
+   git clone https://${GITEE_USERNAME}:${GITEE_TOKEN}@${host}/${organization}/${repository}.git
+   rm -rf ${repository}/.git 
+   cd ..
+done < harmonyos_codelabs.csv
+```
+
+
+## harmonyos_codelabs.csv    
+```
+gitee.com,harmonyos_codelabs,httpsrequest
+gitee.com,harmonyos_codelabs,mapkit_codelab_demo
+```
 
