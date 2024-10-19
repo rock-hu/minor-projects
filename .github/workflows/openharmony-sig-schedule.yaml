@@ -1,11 +1,8 @@
-name: openharmony-sig
+name: openharmony-sig-schedule
 on:
   # https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows
-  push:
-    branches:
-      - master
-    paths:
-      - "openharmony-sig.csv"
+  schedule:
+    - cron: "0 4 * * 1"
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

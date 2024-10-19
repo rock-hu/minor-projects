@@ -1,11 +1,8 @@
-name: openharmony-sig
+name: openharmony-schedule
 on:
   # https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows
-  push:
-    branches:
-      - master
-    paths:
-      - "openharmony-sig.csv"
+  schedule:
+    - cron: "0 6 * * 1"
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -16,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: ./openharmony-sig.sh
+      - run: ./openharmony.sh
       - run: git config --global user.email "rock.c.c.hu@gmail.com"
       - run: git config --global user.name "Rock Hu"
       - run: git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git

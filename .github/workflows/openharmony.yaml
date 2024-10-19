@@ -1,13 +1,11 @@
 name: openharmony
 on:
-# https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows
-  schedule:
-    - cron: '0 6 * * 1'
+  # https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows
   push:
     branches:
-      - master    
+      - master
     paths:
-      - 'openharmony.csv'      
+      - "openharmony.csv"
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -25,5 +23,5 @@ jobs:
       - run: git status
       - run: git add .
       - run: git commit -m "${{ github.run_number }}"
-      - run: git push  
-      - run: ls -l      
+      - run: git push
+      - run: ls -l
