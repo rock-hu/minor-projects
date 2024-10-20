@@ -202,9 +202,9 @@ void RNInstanceArkTS::startSurface(
       layoutContext.viewportOffset = {viewportOffsetX, viewportOffsetY};
       layoutContext.pointScaleFactor = pixelRatio;
       surfaceHandler->constraintLayout(layoutConstraints, layoutContext);
-      LOG(INFO) << "startSurface::starting: surfaceId=" << surfaceId;
+      DLOG(INFO) << "startSurface::starting: surfaceId=" << surfaceId;
       surfaceHandler->start();
-      LOG(INFO) << "startSurface::started surfaceId=" << surfaceId;
+      DLOG(INFO) << "startSurface::started surfaceId=" << surfaceId;
       auto mountingCoordinator = surfaceHandler->getMountingCoordinator();
       mountingCoordinator->setMountingOverrideDelegate(m_animationDriver);
     } catch (const std::exception& e) {
@@ -227,7 +227,9 @@ void rnoh::RNInstanceArkTS::setSurfaceProps(
   });
 }
 
-void rnoh::RNInstanceArkTS::stopSurface(react::Tag surfaceId) {
+void rnoh::RNInstanceArkTS::stopSurface(
+    react::Tag surfaceId,
+    std::function<void()> onStop) {
   taskExecutor->runTask(TaskThread::JS, [=] {
     auto it = surfaceHandlers.find(surfaceId);
     if (it == surfaceHandlers.end()) {
@@ -235,10 +237,11 @@ void rnoh::RNInstanceArkTS::stopSurface(react::Tag surfaceId) {
       return;
     }
     auto surfaceHandle = it->second;
-    LOG(INFO) << "stopSurface: stopping " << surfaceId;
+    DLOG(INFO) << "stopSurface: stopping " << surfaceId;
     try {
       surfaceHandle->stop();
-      LOG(INFO) << "stopSurface: stopped " << surfaceId;
+      onStop();
+      DLOG(INFO) << "stopSurface: stopped " << surfaceId;
     } catch (const std::exception& e) {
       LOG(ERROR) << "stopSurface: failed - " << e.what() << "\n";
       throw e;
@@ -405,7 +408,7 @@ void RNInstanceArkTS::handleArkTSMessage(
 void RNInstanceArkTS::synchronouslyUpdateViewOnUIThread(
     facebook::react::Tag tag,
     folly::dynamic props) {
-  LOG(WARNING)
+  DLOG(WARNING)
       << "RNInstance::synchronouslyUpdateViewOnUIThread is not supported in ArkTS architecture";
 };
 
@@ -425,7 +428,7 @@ TurboModule::Shared RNInstanceArkTS::getTurboModule(const std::string& name) {
     if (rnohTurboModule != nullptr) {
       return rnohTurboModule;
     } else {
-      DLOG(ERROR) << "TurboModule '" << name
+      LOG(ERROR) << "TurboModule '" << name
                   << "' should extend rnoh::TurboModule";
       return nullptr;
     }

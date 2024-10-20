@@ -21,6 +21,8 @@ class TextAreaNodeDelegate {
 };
 
 class TextAreaNode : public TextInputNodeBase {
+ private:
+  bool m_autofocus{false};
  protected:
   TextAreaNodeDelegate* m_textAreaNodeDelegate;
 
@@ -71,6 +73,10 @@ class TextAreaNode : public TextInputNodeBase {
   void setshowSoftInputOnFocus(int32_t enable);
     
   void setInputFilter(std::string const& inputFilter);
+
+  void setAutoFocus(bool const &autoFocus);
+
+  bool getTextFocusStatus();
 
   std::string getTextContent() override;
 };

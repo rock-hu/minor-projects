@@ -163,7 +163,7 @@ export struct RNApp {
     const stopTracing = this.logger.clone("cleanUp").startTracing()
     this.shouldShow = false
     if (this.shouldDestroyRNInstance) {
-      this.rnohCoreContext!.destroyAndUnregisterRNInstance(this.rnInstance)
+      await this.rnohCoreContext!.destroyAndUnregisterRNInstance(this.rnInstance)
     }
     this.cleanUpCallbacks.forEach(cleanUp => cleanUp())
     stopTracing()

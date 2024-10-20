@@ -14,8 +14,10 @@
 #include "RNOH/Inspector.h"
 #include "RNOH/LogSink.h"
 #include "RNOH/Performance/HarmonyReactMarker.h"
+#include "RNOH/Performance/OHReactMarkerListener.h"
 #include "RNOH/RNInstance.h"
 #include "RNOH/RNInstanceCAPI.h"
+#include "RNOH/TaskExecutor/NapiTaskRunner.h"
 #include "RNOH/TaskExecutor/ThreadTaskRunner.h"
 #include "RNOH/UITicker.h"
 #include "RNOH/arkui/ArkUINodeRegistry.h"
@@ -26,10 +28,21 @@ std::unordered_map<size_t, std::shared_ptr<RNInstanceInternal>> rnInstanceById;
 auto uiTicker = std::make_shared<UITicker>();
 static auto cleanupRunner = std::make_unique<ThreadTaskRunner>("RNOH_CLEANUP");
 
+napi_value invoke(napi_env env, std::function<napi_value()> operation) {
+  ArkJS arkJS(env);
+  try {
+    return arkJS.createResult(Ok<napi_value>(operation()));
+  } catch (...) {
+    return arkJS.createResult(Err<napi_value>(std::current_exception()));
+  }
+}
+
 static napi_value onInit(napi_env env, napi_callback_info info) {
-  HarmonyReactMarker::setLogPerfMarkerIfNeeded();
+  HarmonyReactMarker::setLogMarkerIfNeeded();
+  HarmonyReactMarker::addListener(OHReactMarkerListener::getInstance());
   LogSink::initializeLogging();
   auto logVerbosityLevel = 0;
+
 #ifdef LOG_VERBOSITY_LEVEL
   FLAGS_v = LOG_VERBOSITY_LEVEL;
   logVerbosityLevel = LOG_VERBOSITY_LEVEL;
@@ -137,7 +150,7 @@ static napi_value createReactNativeInstance(
           {
             auto lock = std::lock_guard<std::mutex>(rnInstanceByIdMutex);
             if (rnInstanceById.find(instanceId) == rnInstanceById.end()) {
-              LOG(WARNING) << "RNInstance with the following id " +
+              DLOG(WARNING) << "RNInstance with the following id " +
                       std::to_string(instanceId) + " does not exist";
               return;
             }
@@ -153,7 +166,7 @@ static napi_value createReactNativeInstance(
           {
             auto lock = std::lock_guard<std::mutex>(rnInstanceByIdMutex);
             if (rnInstanceById.find(instanceId) == rnInstanceById.end()) {
-              LOG(WARNING) << "RNInstance with the following id " +
+              DLOG(WARNING) << "RNInstance with the following id " +
                       std::to_string(instanceId) + " does not exist";
               return;
             }
@@ -330,7 +343,7 @@ static napi_value startSurface(napi_env env, napi_callback_info info) {
 static napi_value stopSurface(napi_env env, napi_callback_info info) {
   ArkJS arkJs(env);
   try {
-    auto args = arkJs.getCallbackArgs(info, 2);
+    auto args = arkJs.getCallbackArgs(info, 3);
     size_t instanceId = arkJs.getDouble(args[0]);
     auto lock = std::lock_guard<std::mutex>(rnInstanceByIdMutex);
     auto it = rnInstanceById.find(instanceId);
@@ -339,8 +352,13 @@ static napi_value stopSurface(napi_env env, napi_callback_info info) {
     }
     auto& rnInstance = it->second;
     facebook::react::Tag surfaceId = arkJs.getDouble(args[1]);
+    auto n_onStopRef = arkJs.createNapiRef(args[2]);
     DLOG(INFO) << "stopSurface: surfaceId=" << surfaceId << "\n";
-    rnInstance->stopSurface(surfaceId);
+    rnInstance->stopSurface(
+        surfaceId, [env, n_onStopRef = std::move(n_onStopRef)]() {
+          ArkJS arkJS(env);
+          arkJS.call(arkJS.getReferenceValue(n_onStopRef), {});
+        });
   } catch (...) {
     ArkTSBridge::getInstance()->handleError(std::current_exception());
   }
@@ -471,6 +489,20 @@ static napi_value updateState(napi_env env, napi_callback_info info) {
   return arkJs.getUndefined();
 }
 
+static napi_value logMarker(napi_env env, napi_callback_info info) {
+  return invoke(env, [&] {
+    ArkJS arkJS(env);
+    auto args = arkJS.getCallbackArgs(info, 2);
+    auto markerId = arkJS.getString(args[0]);
+    auto rnInstanceId = std::to_string(arkJS.getDouble(args[1])).c_str();
+    HarmonyReactMarker::logMarker(markerId, rnInstanceId);
+    return arkJS.getNull();
+  });
+}
+
+/**
+ * @thread: MAIN/WORKER
+ */
 static napi_value onArkTSMessage(napi_env env, napi_callback_info info) {
   ArkJS arkJs(env);
   try {
@@ -663,6 +695,14 @@ static napi_value Init(napi_env env, napi_value exports) {
       {"setSurfaceDisplayMode",
        nullptr,
        setSurfaceDisplayMode,
+       nullptr,
+       nullptr,
+       nullptr,
+       napi_default,
+       nullptr},
+      {"logMarker",
+       nullptr,
+       logMarker,
        nullptr,
        nullptr,
        nullptr,

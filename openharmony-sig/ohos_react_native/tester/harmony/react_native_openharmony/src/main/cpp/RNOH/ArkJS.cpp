@@ -184,6 +184,27 @@ napi_value ArkJS::createFromRNOHError(rnoh::RNOHError const& e) {
   return this->createFromDynamic(errData);
 }
 
+napi_value ArkJS::createResult(const rnoh::Result<napi_value>& result) {
+  if (!result.isOk()) {
+    auto resultBuilder =
+        this->createObjectBuilder().addProperty("ok", this->getNull());
+    try {
+      std::rethrow_exception(result.unwrapErr());
+    } catch (const rnoh::RNOHError& e) {
+      resultBuilder.addProperty("err", this->createFromRNOHError(e));
+    } catch (const facebook::jsi::JSError& e) {
+      resultBuilder.addProperty("err", this->createFromJSError(e));
+    } catch (const std::exception& e) {
+      resultBuilder.addProperty("err", this->createFromException(e));
+    }
+    return resultBuilder.build();
+  }
+  return this->createObjectBuilder()
+      .addProperty("ok", result.unwrap())
+      .addProperty("err", this->getNull())
+      .build();
+}
+
 napi_value ArkJS::getReferenceValue(napi_ref ref) {
   napi_value result;
   auto status = napi_get_reference_value(m_env, ref, &result);
@@ -201,6 +222,15 @@ napi_ref ArkJS::createReference(napi_value value) {
 void ArkJS::deleteReference(napi_ref reference) {
   auto status = napi_delete_reference(m_env, reference);
   this->maybeThrowFromStatus(status, "Couldn't delete a reference");
+}
+
+napi_value ArkJS::getReferenceValue(NapiRef const& ref) {
+  RNOH_ASSERT(ref.m_env == m_env);
+  return getReferenceValue(ref.m_ref.get());
+}
+
+NapiRef ArkJS::createNapiRef(napi_value value) {
+  return {m_env, createReference(value)};
 }
 
 std::function<napi_value(napi_env, std::vector<napi_value>)>*

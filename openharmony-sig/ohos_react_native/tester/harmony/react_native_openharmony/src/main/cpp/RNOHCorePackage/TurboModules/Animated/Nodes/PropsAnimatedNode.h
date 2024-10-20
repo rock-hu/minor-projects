@@ -35,7 +35,7 @@ class PropsAnimatedNode : public AnimatedNode {
 
   std::optional<PropUpdate> updateView() {
     if (m_viewTag == std::nullopt) {
-      LOG(WARNING)
+      DLOG(WARNING)
           << "PropsAnimatedNode::updateView() called on unconnected node";
       return std::nullopt;
     }

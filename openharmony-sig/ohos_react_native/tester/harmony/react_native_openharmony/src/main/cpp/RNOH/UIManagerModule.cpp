@@ -42,7 +42,7 @@ facebook::jsi::Value UIManagerModule::getConstantsForViewManager(
     size_t count) {
   auto& self = static_cast<UIManagerModule&>(turboModule);
   std::string name = args[0].asString(rt).utf8(rt);
-//  LOG(INFO) << "getConstantsForViewManager: " << name;
+  DLOG(INFO) << "getConstantsForViewManager: " << name;
   auto componentJSIBinder = self.m_componentJSIBinderByName[name];
   if (componentJSIBinder) {
     return componentJSIBinder->createBindings(rt);

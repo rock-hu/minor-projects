@@ -50,11 +50,11 @@ export class SurfaceHandle {
     this.running = true
   }
 
-  public stop() {
+  public async stop() {
     if (this.destroyed) {
       throw new Error("stop called on a destroyed surface");
     }
-    this.napiBridge.stopSurface(this.rnInstance.getId(), this.tag);
+    await this.napiBridge.stopSurface(this.rnInstance.getId(), this.tag);
     this.running = false
   }
 

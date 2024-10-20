@@ -13,7 +13,7 @@ std::once_flag ArkTSBridge::initFlag;
 
 ArkTSBridge::ArkTSBridge(napi_env env, napi_ref napiBridgeRef)
     : m_arkJs(ArkJS(env)), m_arkTSBridgeRef(napiBridgeRef) {
-  LOG(INFO) << "ArkTSBridge::ArkTSBridge";
+  DLOG(INFO) << "ArkTSBridge::ArkTSBridge";
 }
 
 void ArkTSBridge::initializeInstance(

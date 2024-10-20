@@ -133,7 +133,7 @@ void InterpolationAnimatedNode::update() {
       break;
     }
     default:
-      LOG(WARNING) << "Unknown output type";
+      DLOG(WARNING) << "Unknown output type";
   }
 }
 

@@ -20,6 +20,8 @@
 #include "hermes/executor/HermesExecutorFactory.h"
 #include "RNOH/SchedulerDelegate.h"
 #include "RNOH/RNInstance.h"
+#include "RNOH/Performance/HarmonyReactMarker.h"
+#include "TaskExecutor/TaskExecutor.h"
 
 using namespace facebook;
 namespace rnoh {
@@ -31,7 +33,7 @@ rnoh::RNInstanceCAPI::~RNInstanceCAPI() {
   }
   // clear non-thread-safe objects on the main thread
   // by moving them into a task
-  taskExecutor->runTask(
+  taskExecutor->runSyncTask(
       TaskThread::MAIN,
       [mountingManager = std::move(m_mountingManager),
         componentInstanceRegistry = std::move(m_componentInstanceRegistry),
@@ -50,11 +52,8 @@ TaskExecutor::Shared RNInstanceCAPI::getTaskExecutor() {
 
 void RNInstanceCAPI::start() {
   DLOG(INFO) << "RNInstanceCAPI::start";
-  auto sharedInstance = std::static_pointer_cast<RNInstanceCAPI>(shared_from_this());
-  this->unsubscribeUITickListener =
-      this->m_uiTicker->subscribe(m_id, [sharedInstance](long long timestamp){ 
-      sharedInstance->taskExecutor->runTask(
-        TaskThread::MAIN, [sharedInstance, timestamp](){ sharedInstance->onUITick(timestamp); }); });
+  HarmonyReactMarker::logMarker(
+      HarmonyReactMarker::HarmonyReactMarkerId::CREATE_REACT_CONTEXT_START);
   this->initialize();
   m_turboModuleProvider = this->createTurboModuleProvider();
   this->initializeScheduler(m_turboModuleProvider);
@@ -103,11 +102,15 @@ void RNInstanceCAPI::initialize() {
   m_jsQueue = std::make_shared<MessageQueueThread>(this->taskExecutor);
   auto moduleRegistry =
       std::make_shared<react::ModuleRegistry>(std::move(modules));
+      HarmonyReactMarker::logMarker(
+      HarmonyReactMarker::HarmonyReactMarkerId::REACT_BRIDGE_LOADING_START);
   this->instance->initializeBridge(
       std::move(instanceCallback),
       std::move(jsExecutorFactory),
       m_jsQueue,
       std::move(moduleRegistry));
+      HarmonyReactMarker::logMarker(
+      HarmonyReactMarker::HarmonyReactMarkerId::REACT_BRIDGE_LOADING_END);
 }
 
 void RNInstanceCAPI::initializeScheduler(
@@ -269,15 +272,15 @@ void rnoh::RNInstanceCAPI::updateState(
 void rnoh::RNInstanceCAPI::synchronouslyUpdateViewOnUIThread(
     facebook::react::Tag tag,
     folly::dynamic props) {
-  // DLOG(INFO) << "RNInstanceCAPI::synchronouslyUpdateViewOnUIThread";
+  DLOG(INFO) << "RNInstanceCAPI::synchronouslyUpdateViewOnUIThread";
 
   RNOH_ASSERT(taskExecutor->getCurrentTaskThread() == TaskThread::MAIN);
 
   auto componentInstance = m_componentInstanceRegistry->findByTag(tag);
   if (componentInstance == nullptr) {
-    // LOG(ERROR)
-    //     << "RNInstanceCAPI::synchronouslyUpdateViewOnUIThread: could not find componentInstance for tag: "
-    //     << tag;
+    LOG(ERROR)
+        << "RNInstanceCAPI::synchronouslyUpdateViewOnUIThread: could not find componentInstance for tag: "
+        << tag;
     return;
   }
 
@@ -286,13 +289,21 @@ void rnoh::RNInstanceCAPI::synchronouslyUpdateViewOnUIThread(
       scheduler->findComponentDescriptorByHandle_DO_NOT_USE_THIS_IS_BROKEN(
           componentHandle);
   if (componentDescriptor == nullptr) {
-    // LOG(ERROR)
-    //     << "RNInstanceCAPI::synchronouslyUpdateViewOnUIThread: could not find componentDescriptor for tag: "
-    //     << tag;
+    LOG(ERROR)
+        << "RNInstanceCAPI::synchronouslyUpdateViewOnUIThread: could not find componentDescriptor for tag: "
+        << tag;
     return;
   }
 
+  HarmonyReactMarker::logMarker(
+      HarmonyReactMarker::HarmonyReactMarkerId::
+          FABRIC_UPDATE_UI_MAIN_THREAD_START,
+      tag);
   m_mountingManager->updateView(tag, std::move(props), *componentDescriptor);
+  HarmonyReactMarker::logMarker(
+      HarmonyReactMarker::HarmonyReactMarkerId::
+          FABRIC_UPDATE_UI_MAIN_THREAD_END,
+      tag);
 }
 
 facebook::react::ContextContainer const&
@@ -331,8 +342,12 @@ void RNInstanceCAPI::onUITick(long long timestamp) {
     this->scheduler->animationTick();
   }
   if( this->m_uiTicker != nullptr){
-    long long vsyncPeriod;
-    this->m_uiTicker->getVsyncPeriod(&vsyncPeriod);
+    long long vsyncPeriod = 0;
+    auto ret = this->m_uiTicker->getVsyncPeriod(&vsyncPeriod);
+    if( ret != 0){
+        LOG(ERROR)<<"failed to get vsyncPeriod";
+        return;  
+    }
     schedulerTransactionByVsync(timestamp, vsyncPeriod);   
   }
 }
@@ -373,7 +388,7 @@ TurboModule::Shared RNInstanceCAPI::getTurboModule(const std::string& name) {
     if (rnohTurboModule) {
       return rnohTurboModule;
     } else {
-      DLOG(ERROR) << "TurboModule '" << name
+      LOG(ERROR) << "TurboModule '" << name
                   << "' should extend rnoh::TurboModule";
       return nullptr;
     }
@@ -388,6 +403,7 @@ void RNInstanceCAPI::createSurface(
   m_surfaceById.emplace(
       surfaceId,
       std::make_shared<XComponentSurface>(
+          taskExecutor,
           scheduler,
           m_componentInstanceRegistry,
           m_componentInstanceFactory,
@@ -450,13 +466,15 @@ void RNInstanceCAPI::setSurfaceProps(
   it->second->setProps(std::move(props));
 }
 
-void RNInstanceCAPI::stopSurface(facebook::react::Tag surfaceId) {
+void RNInstanceCAPI::stopSurface(
+    facebook::react::Tag surfaceId,
+    std::function<void()> onStop) {
   DLOG(INFO) << "RNInstanceCAPI::stopSurface";
   auto it = m_surfaceById.find(surfaceId);
   if (it == m_surfaceById.end()) {
     return;
   }
-  it->second->stop();
+  it->second->stop(std::move(onStop));
 }
 
 void RNInstanceCAPI::destroySurface(facebook::react::Tag surfaceId) {

@@ -18,7 +18,7 @@ inline ArkUI_BorderStyle convertReactBorderStyleToArk(
     case facebook::react::BorderStyle::Dashed:
       return ArkUI_BorderStyle::ARKUI_BORDER_STYLE_DASHED;
     default:
-      LOG(WARNING) << "Invalid BorderStyle";
+      DLOG(WARNING) << "Invalid BorderStyle";
       return ArkUI_BorderStyle::ARKUI_BORDER_STYLE_SOLID;
   }
 }
@@ -249,7 +249,7 @@ inline bool convertImportantForAutofill(
   } else if (string == "yes" || string == "yesExcludeDescendants") {
     return true;
   } else {
-    LOG(WARNING) << "Invalid ImportantForAutofill";
+    DLOG(WARNING) << "Invalid ImportantForAutofill";
     return true;
   }
 }

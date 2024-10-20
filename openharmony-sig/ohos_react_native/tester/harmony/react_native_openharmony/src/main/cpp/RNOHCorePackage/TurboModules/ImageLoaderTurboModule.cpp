@@ -13,7 +13,7 @@ rnoh::ImageLoaderTurboModule::ImageLoaderTurboModule(
       ARK_METHOD_METADATA(getCacheFilePath, 1),
       ARK_ASYNC_METHOD_METADATA(getSize, 1),
       ARK_ASYNC_METHOD_METADATA(getSizeWithHeaders, 2),
-      ARK_ASYNC_METHOD_METADATA(prefetchImage, 2),
+      ARK_ASYNC_METHOD_METADATA(prefetchImage, 1),
       ARK_METHOD_METADATA(abortPrefetch, 1),
       ARK_ASYNC_METHOD_METADATA(prefetchImageWithMetadata, 3),
       ARK_ASYNC_METHOD_METADATA(queryCache, 1)};

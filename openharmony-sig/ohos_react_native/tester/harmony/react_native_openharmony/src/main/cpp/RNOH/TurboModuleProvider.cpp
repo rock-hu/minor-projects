@@ -57,7 +57,7 @@ void TurboModuleProvider::installJSBindings(
 std::shared_ptr<react::TurboModule> TurboModuleProvider::getTurboModule(
     std::string const& moduleName) {
   if (m_cache.contains(moduleName)) {
-//    LOG(INFO) << "Cache hit. Providing '" << moduleName << "' Turbo Module";
+    DLOG(INFO) << "Cache hit. Providing '" << moduleName << "' Turbo Module";
     return m_cache[moduleName];
   }
   auto turboModule = m_createTurboModule(moduleName, m_jsInvoker, m_scheduler);

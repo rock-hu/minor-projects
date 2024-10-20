@@ -1,6 +1,7 @@
 #pragma once
 
 #include <react/renderer/scheduler/SchedulerDelegate.h>
+#include <react/utils/Telemetry.h>
 #include "RNOH/MountingManager.h"
 #include "RNOH/TaskExecutor/TaskExecutor.h"
 
@@ -30,14 +31,16 @@ class SchedulerDelegate final : public facebook::react::SchedulerDelegate {
   void schedulerDidRequestPreliminaryViewAllocation(
     SurfaceId surfaceId,
     const ShadowNode& shadowView) override{
-        if(m_preAllocationBuffer){
-            m_preAllocationBuffer->push(shadowView);
+        auto preAllocationBuffer = m_preAllocationBuffer.lock();
+        if(preAllocationBuffer){
+            preAllocationBuffer->push(shadowView);
         }
     }
 
  void schedulerDidViewAllocationByVsync(long long timestamp, long long period) {
-         if(m_preAllocationBuffer){
-            m_preAllocationBuffer->flushByVsync(timestamp, period);
+         auto preAllocationBuffer = m_preAllocationBuffer.lock();
+         if(preAllocationBuffer){
+            preAllocationBuffer->flushByVsync(timestamp, period);
         }
   }
 
@@ -71,10 +74,12 @@ class SchedulerDelegate final : public facebook::react::SchedulerDelegate {
           }
         });
   }
+  void logTransactionTelemetryMarkers(
+      facebook::react::MountingTransaction const& transaction);
 
   MountingManager::Weak m_mountingManager;
   TaskExecutor::Shared m_taskExecutor;
-  PreAllocationBuffer::Shared m_preAllocationBuffer;
+  PreAllocationBuffer::Weak m_preAllocationBuffer;
 };
 
 }; // namespace rnoh

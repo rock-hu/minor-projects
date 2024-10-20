@@ -12,6 +12,16 @@
 #include "TextMeasureRegistry.h"
 
 namespace rnoh {
+static std::mutex m_fontFileContentByFontNameMtx;
+static std::unordered_map<std::string, std::vector<uint8_t>>
+    m_fontFileContentByFontName;
+
+static std::mutex m_fontCollectionMtx;
+static SharedFontCollection m_fontCollection;
+
+static std::mutex m_defaultFontFamilyNameMtx;
+static std::string m_defaultFontFamilyName;
+
 class TextMeasurer : public facebook::react::TextLayoutManagerDelegate {
  public:
   TextMeasurer(
@@ -46,6 +56,8 @@ class TextMeasurer : public facebook::react::TextLayoutManagerDelegate {
     const std::string name,
     const std::string fontFilePathRelativeToRawfileDir
   );
+  SharedFontCollection getFontCollection();
+  std::string getDefaultFontFamilyName();
 
  private:
   
@@ -69,7 +81,5 @@ class TextMeasurer : public facebook::react::TextLayoutManagerDelegate {
   float m_scale = 1.0;
   int m_rnInstanceId = 0;
   bool m_halfleading = false;
-  std::string m_defaultFontFamilyName;
-  static UniqueFontCollection m_fontCollection;
 };
 } // namespace rnoh

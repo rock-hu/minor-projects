@@ -43,22 +43,10 @@ class MountingManagerCAPI final : public MountingManager {
         m_arkTsMountingManager(std::move(arkTsMountingManager)),
         m_arkTsComponentNames(std::move(arkTsComponentNames)) ,
         m_preAllocationBuffer(std::move(preAllocationBuffer)),
-        m_featureFlagRegistry(std::move(featureFlagRegistry)) {
-        m_preAllocationBuffer->setPreAllocDelegate(
-        [this](
-            facebook::react::Tag tag,facebook::react::ComponentHandle componentHandle,std::string componentName) {
-          auto componentInstance = m_componentInstanceFactory->create(tag, componentHandle, componentName);
-          if (componentInstance != nullptr) {
-            m_componentInstanceRegistry->insert(componentInstance);
-          } else {
-//            LOG(ERROR) << "Couldn't create CppComponentInstance for: " << componentName;
-          }
-        });
-  };
+        m_featureFlagRegistry(std::move(featureFlagRegistry)) {};
     
     ~MountingManagerCAPI() {
-    VLOG(1) << "~MountingManagerCAPI";
-    m_preAllocationBuffer->setPreAllocDelegate(nullptr);
+    DLOG(INFO) << "~MountingManagerCAPI";
   }
 
   PreAllocationBuffer::Shared getPreAllocationBuffer() override{

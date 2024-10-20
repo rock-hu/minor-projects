@@ -156,25 +156,7 @@ export class RemoteImageLoader {
     this.abortPrefetchByUrl.delete(requestId);
   }
 
-  private addRequestListener(downloadTask: request.DownloadTask, requestId: number, uri: string): void {
-    let progressCallback = (receiveSize: number, totalSize) => {
-      this.abortPrefetchByUrl.set(requestId, {uri: uri, downloadTask: downloadTask});
-    };
-
-    let failCallback = (err: number) => {
-      this.abortPrefetchByUrl.delete(requestId);
-    };
-
-    let completeCallback = () => {
-      this.abortPrefetchByUrl.delete(requestId);
-    };
-
-    downloadTask.on('progress', progressCallback);
-    downloadTask.on('fail', failCallback);
-    downloadTask.on('complete', completeCallback);
-  }
-
-  public async prefetch(uri: string, requestId: number): Promise<boolean> {
+  public async prefetch(uri: string): Promise<boolean> {
     if (this.diskCache.has(uri)) {
       return true;
     }
@@ -188,7 +170,7 @@ export class RemoteImageLoader {
       this.memoryCache.remove(uri);
     }
 
-    const promise = this.downloadFile(uri, requestId);
+    const promise = this.downloadFile(uri);
     this.activePrefetchByUrl.set(uri, promise);
     promise.finally(() => {
       this.activePrefetchByUrl.delete(uri);
@@ -197,34 +179,30 @@ export class RemoteImageLoader {
     return await promise;
   }
 
-  private async downloadFile(uri: string, requestId: number): Promise<boolean> {
+  private async performDownload(config: request.DownloadConfig): Promise<boolean> {
+    return await new Promise(async (resolve, reject) => {
+      const downloadTask = await request.downloadFile(this.context, config);
+      downloadTask.on("complete", () => resolve(true));
+      downloadTask.on("fail", (err: number) => reject(`Failed to download the task. Code: ${err}`));
+    })
+  }
+
+  private async downloadFile(uri: string): Promise<boolean> {
     const path = this.diskCache.getLocation(uri);
+    const tempPath = path + '_tmp';
 
     try {
-      await request.downloadFile(this.context, { url: uri, filePath: path }).then((data: request.DownloadTask) => {
-        this.addRequestListener(data, requestId, uri)
-      });
+      // Download to a temporary location to avoid risks of corrupted files from incomplete downloads,
+      // as request.downloadFile does not clean up failed downloads automatically.
+      if (fs.accessSync(tempPath)){
+        await fs.unlink(tempPath);
+      }
+      await this.performDownload({ url: uri, filePath: tempPath });
+      // Move the file to the final location and remove the temporary file
+      await fs.moveFile(tempPath, path);
       this.diskCache.set(uri);
     } catch (e) {
-      // request.downloadFile does not allow overwriting,
-      // so we create a temp file and override the old one manually
-      if (e.code === request.EXCEPTION_FILEPATH) {
-        try {
-          const tempPath = path + '_temp';
-          await request.downloadFile(this.context, {
-            url: uri,
-            filePath: tempPath,
-          }).then((data: request.DownloadTask) => {
-            this.addRequestListener(data, requestId, uri)
-          });
-          await fs.moveFile(tempPath, path);
-          this.diskCache.set(uri);
-        } catch (e1) {
-          return Promise.reject('Failed to fetch the image');
-        }
-      } else {
-        return Promise.reject('Failed to fetch the image');
-      }
+      return Promise.reject(e);
     }
     return true;
   }

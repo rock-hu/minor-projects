@@ -91,7 +91,12 @@ class RNInstanceCAPI : public RNInstanceInternal,
         m_componentInstanceFactory(componentInstanceFactory),
         m_arkTSChannel(std::move(arkTSChannel)),
         m_arkTSMessageHandlers(std::move(arkTSMessageHandlers)),
-        m_nativeResourceManager(std::move(nativeResourceManager)) {}
+        m_nativeResourceManager(std::move(nativeResourceManager)) {
+          this->unsubscribeUITickListener =
+              this->m_uiTicker->subscribe(m_id, [this](long long timestamp){ 
+              this->taskExecutor->runTask(
+                TaskThread::MAIN, [this, timestamp](){ this->onUITick(timestamp); }); });
+        }
 
  ~RNInstanceCAPI() noexcept override;
 
@@ -124,7 +129,8 @@ class RNInstanceCAPI : public RNInstanceInternal,
       folly::dynamic&& initialProps) override;
   void setSurfaceProps(facebook::react::Tag surfaceId, folly::dynamic&& props)
       override;
-  void stopSurface(facebook::react::Tag surfaceId) override;
+  void stopSurface(facebook::react::Tag surfaceId, std::function<void()> onStop)
+      override;
   void destroySurface(facebook::react::Tag surfaceId) override;
   void setSurfaceDisplayMode(
       facebook::react::Tag surfaceId,

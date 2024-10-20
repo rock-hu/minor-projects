@@ -76,6 +76,25 @@ export const ImageTest = () => {
         }}
       />
       <TestCase.Logical
+        itShould="fail when retrieving image size for an invalid uri"
+        fn={({expect}) => {
+          return new Promise((resolve, reject) => {
+            Image.getSize(
+              INVALID_IMAGE_URL,
+              () => {
+                reject(
+                  'retrieving the size of an image with invalid uri should fail, but it returned a success',
+                );
+              },
+              e => {
+                expect(e).to.not.be.undefined;
+                resolve();
+              },
+            );
+          });
+        }}
+      />
+      <TestCase.Logical
         itShould="retrieve base64 image size"
         fn={({expect}) => {
           return new Promise((resolve, reject) => {

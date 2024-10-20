@@ -52,7 +52,7 @@ class ComponentInstanceFactory {
         .componentName = componentName,
         .dependencies = m_dependencies};
 
-    LOG(WARNING) << "Creating FallbackComponentInstance for: " << componentName
+    DLOG(INFO) << "Creating FallbackComponentInstance for: " << componentName
                  << ""
                     ""
                  << tag;

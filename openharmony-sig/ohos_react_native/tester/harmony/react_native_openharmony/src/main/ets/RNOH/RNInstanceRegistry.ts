@@ -2,7 +2,7 @@ import font from '@ohos.font';
 import type { RNInstance, RNInstanceOptions } from './RNInstance';
 import { RNInstanceImpl } from './RNInstance';
 import type { NapiBridge } from './NapiBridge';
-import type { RNOHContext } from './RNOHContext';
+import type { TurboModuleContext } from './TurboModule'
 import type { RNOHLogger } from './RNOHLogger';
 import type { DevToolsController } from './DevToolsController';
 import { HttpClientProvider } from './HttpClientProvider';
@@ -16,7 +16,7 @@ export class RNInstanceRegistry {
     private logger: RNOHLogger,
     private napiBridge: NapiBridge,
     private devToolsController: DevToolsController,
-    private createRNOHContext: (rnInstance: RNInstance) => RNOHContext,
+    private createUITurboModuleContext: (rnInstance: RNInstance) => TurboModuleContext,
     private httpClientProvider: HttpClientProvider,
     private defaultHttpClient: HttpClient | undefined, // TODO: remove "undefined" when HttpClientProvider is removed
     private resourceManager: resourceManager.ResourceManager,
@@ -42,7 +42,7 @@ export class RNInstanceRegistry {
       this.napiBridge,
       this.getDefaultProps(),
       this.devToolsController,
-      this.createRNOHContext,
+      this.createUITurboModuleContext,
       options.enableDebugger ?? false,
       options.enableBackgroundExecutor ?? false,
       options.enableNDKTextMeasuring ?? false,

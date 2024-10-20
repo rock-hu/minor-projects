@@ -1202,8 +1202,8 @@ function InternalTextInput(props: Props): React.Node {
                 inputRef.current,
                 mostRecentEventCount,
                 '',
-                0,
-                0,
+                -1,
+                -1,
               );
             }
           },

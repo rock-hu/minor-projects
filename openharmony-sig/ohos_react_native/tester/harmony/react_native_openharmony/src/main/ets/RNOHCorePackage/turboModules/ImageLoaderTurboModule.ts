@@ -30,7 +30,7 @@ export class ImageLoaderTurboModule extends TurboModule {
       const imageInfo = await imageSource.getImageSource().getImageInfo()
       return [imageInfo.size.width, imageInfo.size.height]
     } else {
-      return [0,0]
+      throw 'Cannot get the size of an image for an empty URI'
     }
   }
 
@@ -54,8 +54,8 @@ export class ImageLoaderTurboModule extends TurboModule {
     return Promise.resolve({ width: imageInfo.size.width, height: imageInfo.size.height})
   }
 
-  public async prefetchImage(uri: string, requestId: number): Promise<boolean> {
-    return this.imageLoader.prefetch(uri, requestId);
+  public async prefetchImage(uri: string): Promise<boolean> {
+    return this.imageLoader.prefetch(uri);
   }
 
   public abortPrefetch(requestId: number): void {

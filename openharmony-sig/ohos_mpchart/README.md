@@ -2694,24 +2694,24 @@ Return Value
 
 Defines base class of the bar chart.
 
-| API                   | Description                                              |
-| ------------------------- | -------------------------------------------------- |
-| calcMinMax                | Calculates the maximum and minimum values of coordinates.                            |
-| calculateOffsets          | Calculates the chart offsets.                                  |
-| drawGridBackground        | Draws the chart background.                                    |
-| getAxis                   | Obtains the Y-axis object based on the Y-axis position.                          |
-| getAxisLeft               | Obtains the left Y-axis object.                                   |
-| getAxisRight              | Obtains the right Y-axis object.                                   |
-| getMinOffset              | Obtains the minimum offset value.                                |
-| getRendererLeftYAxis      | Obtains the left Y-axis renderer.                                 |
-| getRendererRightYAxis     | Obtains the right Y-axis renderer.                                 |
-| getRendererXAxis          | Obtains the X-axis renderer.                                   |
-| setLongPressCursorEnabled | Sets whether to display the cursor when a chart is long-pressed on.                            |
-| getLongPressCursorEnabled | Obtains whether the cursor is displayed when a chart is long-pressed on.                            |
-| setLongPressDuration      | Sets the response duration for a long press event.                                |
-| getLongPressDuration      | Obtains the response duration of a long press.                                |
-| setSwipeEnabled           | Sets whether to enable the capability to respond to swipe gestures. This API is used together with **setLongPressCursorEnabled**.    |
-| getSwipeEnabled           | Obtains whether the capability to respond to swipe gestures is enabled. This API is used together with **setLongPressCursorEnabled**.|
+| API                   | Description                                                                                                                           |
+| ------------------------- |---------------------------------------------------------------------------------------------------------------------------------------|
+| calcMinMax                | Calculates the maximum and minimum values of coordinates.                                                                             |
+| calculateOffsets          | Calculates the chart offsets.                                                                                                         |
+| drawGridBackground        | Draws the chart background.                                                                                                           |
+| getAxis                   | Obtains the Y-axis object based on the Y-axis position.                                                                               |
+| getAxisLeft               | Obtains the left Y-axis object.                                                                                                       |
+| getAxisRight              | Obtains the right Y-axis object.                                                                                                      |
+| getMinOffset              | Obtains the minimum offset value.                                                                                                     |
+| getRendererLeftYAxis      | Obtains the left Y-axis renderer.                                                                                                     |
+| getRendererRightYAxis     | Obtains the right Y-axis renderer.                                                                                                    |
+| getRendererXAxis          | Obtains the X-axis renderer.                                                                                                          |
+| setLongPressCursorEnabled | Sets whether to display the pointer when a chart is long-pressed on.                                                                  |
+| getLongPressCursorEnabled | Obtains whether the pointer is displayed when a chart is long-pressed on.                                                              |
+| setLongPressDuration      | Sets the response duration for a long press event.                                                                                    |
+| getLongPressDuration      | Obtains the response duration of a long press.                                                                                        |
+| setSwipeEnabled           | Sets whether to enable the capability to respond to swipe gestures. This API is used together with **setLongPressCursorEnabled**.     |
+| getSwipeEnabled           | Obtains whether the capability to respond to swipe gestures is enabled. This API is used together with **setLongPressCursorEnabled**. |
 
 **1.calcMinMax**
 
@@ -2831,7 +2831,7 @@ Return Value
 
 public setLongPressCursorEnabled(enabled: boolean): void;
 
-Sets whether to display the cursor when a chart is long-pressed on.
+Sets whether to display the pointer when a chart is long-pressed on.
 
 Parameters
 
@@ -2845,15 +2845,15 @@ Return value: none
 
 public getLongPressCursorEnabled(): boolean;
 
-Obtains whether the cursor is displayed when a chart is long-pressed on.
+Obtains whether the pointer is displayed when a chart is long-pressed on.
 
 Parameter: none
 
 Return Value
 
-| Type     | Description       |
-|---------|-----------|
-| boolean | Identifier of whether the cursor is displayed when the chart is long-pressed on.|
+| Type     | Description                                                                       |
+|---------|-----------------------------------------------------------------------------------|
+| boolean | Identifier of whether the pointer is displayed when the chart is long-pressed on. |
 
 **13.setLongPressDuration**
 

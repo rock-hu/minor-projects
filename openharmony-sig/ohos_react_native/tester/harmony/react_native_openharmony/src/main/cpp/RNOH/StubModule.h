@@ -14,7 +14,7 @@ class StubModule : public facebook::react::TurboModule {
   facebook::jsi::Value get(
       facebook::jsi::Runtime& runtime,
       const facebook::jsi::PropNameID& propName) override {
-    LOG(INFO) << "StubModule " << name_ << " get " << propName.utf8(runtime)
+    DLOG(INFO) << "StubModule " << name_ << " get " << propName.utf8(runtime)
               << "\n";
     return this->TurboModule::get(runtime, propName);
   }
@@ -23,7 +23,7 @@ class StubModule : public facebook::react::TurboModule {
       facebook::jsi::Runtime& runtime,
       const facebook::jsi::PropNameID& name,
       const facebook::jsi::Value& value) override {
-    LOG(INFO) << "StubModule " << name_ << " set " << name.utf8(runtime) << " "
+    DLOG(INFO) << "StubModule " << name_ << " set " << name.utf8(runtime) << " "
               << value.toString(runtime).utf8(runtime) << "\n";
   }
 };

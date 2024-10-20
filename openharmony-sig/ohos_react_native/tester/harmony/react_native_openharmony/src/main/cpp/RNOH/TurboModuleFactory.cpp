@@ -1,4 +1,6 @@
 #include "RNOH/TurboModuleFactory.h"
+#include "Assert.h"
+#include "RNOH/Performance/HarmonyReactMarker.h"
 #include "RNOH/RNInstance.h"
 #include "RNOH/RNOHError.h"
 #include "RNOH/StubModule.h"
@@ -27,7 +29,7 @@ TurboModuleFactory::SharedTurboModule TurboModuleFactory::create(
     std::shared_ptr<MessageQueueThread> jsQueue,
     std::shared_ptr<facebook::react::Scheduler> scheduler,
     std::weak_ptr<RNInstance> instance) const {
-//  LOG(INFO) << "Providing Turbo Module: " << name;
+ DLOG(INFO) << "Providing Turbo Module: " << name;
   Context ctx{
       {.jsInvoker = jsInvoker, .instance = instance},
       .env = m_env,
@@ -38,9 +40,16 @@ TurboModuleFactory::SharedTurboModule TurboModuleFactory::create(
       .jsQueue = jsQueue,
       .scheduler = scheduler};
   if (name == "UIManager") {
-    return std::make_shared<UIManagerModule>(
+    HarmonyReactMarker::logMarker(HarmonyReactMarker::HarmonyReactMarkerId::
+                                      CREATE_UI_MANAGER_MODULE_START);
+    auto uiManagerModule = std::make_shared<UIManagerModule>(
         ctx, name, std::move(m_componentBinderByString));
+    HarmonyReactMarker::logMarker(
+        HarmonyReactMarker::HarmonyReactMarkerId::CREATE_UI_MANAGER_MODULE_END);
+    return uiManagerModule;
   } else {
+    HarmonyReactMarker::logMarker(
+        HarmonyReactMarker::HarmonyReactMarkerId::CREATE_MODULE_START);
     auto result = this->delegateCreatingTurboModule(ctx, name);
     if (result != nullptr) {
       auto arkTSTurboModule =
@@ -53,7 +62,12 @@ TurboModuleFactory::SharedTurboModule TurboModuleFactory::create(
                           .append("' on the ArkTS side.")),
             {"Have you linked a package that provides this turbo module on the ArkTS side?"});
       }
+      HarmonyReactMarker::logMarker(
+          HarmonyReactMarker::HarmonyReactMarkerId::CREATE_MODULE_END);
       return result;
+    } else {
+      HarmonyReactMarker::logMarker(
+          HarmonyReactMarker::HarmonyReactMarkerId::CREATE_MODULE_END);
     }
   }
 
@@ -64,12 +78,21 @@ TurboModuleFactory::SharedTurboModule
 TurboModuleFactory::delegateCreatingTurboModule(
     Context ctx,
     const std::string& name) const {
+  HarmonyReactMarker::logMarker(
+      HarmonyReactMarker::HarmonyReactMarkerId::INITIALIZE_MODULE_START,
+      name.c_str());
   for (auto delegate : m_delegates) {
     auto result = delegate->createTurboModule(ctx, name);
     if (result != nullptr) {
+      HarmonyReactMarker::logMarker(
+          HarmonyReactMarker::HarmonyReactMarkerId::INITIALIZE_MODULE_END,
+          name.c_str());
       return result;
     }
   }
+  HarmonyReactMarker::logMarker(
+      HarmonyReactMarker::HarmonyReactMarkerId::INITIALIZE_MODULE_END,
+      name.c_str());
   return nullptr;
 }
 
@@ -106,6 +129,6 @@ TurboModuleFactory::SharedTurboModule
 TurboModuleFactory::handleUnregisteredModuleRequest(
     Context ctx,
     const std::string& name) const {
-  LOG(WARNING) << "Turbo Module '" << name << "' not found.";
+  DLOG(WARNING) << "Turbo Module '" << name << "' not found.";
   return nullptr;
 }

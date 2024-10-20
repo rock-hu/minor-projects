@@ -1,3 +1,4 @@
+import { UIContext } from '@kit.ArkUI'
 import type { DescriptorRegistry } from './DescriptorRegistry';
 import type { RNComponentCommandReceiver } from './RNComponentCommandHub';
 import { RNInstance, RNInstanceImpl } from './RNInstance';
@@ -97,3 +98,20 @@ export class RNOHContext extends RNOHCoreContext {
     this.markReadiness = () => coreContext.markReadiness()
   }
 }
+
+export class UITurboModuleContext extends RNOHContext {
+  getUIContext: () => UIContext | null;
+
+  constructor(rnohContext: RNOHContext) {
+    super(
+      rnohContext.reactNativeVersion,
+      rnohContext.rnInstance as RNInstanceImpl,
+      rnohContext,
+    )
+    this.getUIContext = () => {
+      return rnohContext.rnInstance.getUIContext();
+    }
+  }
+}
+
+export class TurboModuleContext extends UITurboModuleContext {}

@@ -15,6 +15,20 @@ import display from '@ohos.display';
 
 export type CppFeatureFlag = "ENABLE_NDK_TEXT_MEASURING" | "C_API_ARCH"
 
+type RawRNOHError = {
+  message: string,
+  stacktrace?: string[],
+  suggestions?: string[]
+}
+
+type Result<TOK = null> = {
+  ok: TOK,
+  err: null
+} | {
+  ok: null,
+  err: RawRNOHError
+}
+
 
 export interface ArkTSBridgeHandler {
   getDisplayMetrics: () => DisplayMetrics
@@ -31,6 +45,27 @@ export class NapiBridge {
   constructor(logger: RNOHLogger) {
     this.libRNOHApp = libRNOHApp;
     this.logger = logger.clone("NapiBridge")
+  }
+
+  private unwrapResult<TOk = null>(result: Result<TOk>): TOk {
+    if (result.err) {
+      throw this.unwrapError(result)
+    }
+    return result.ok
+  }
+
+  private unwrapError(result: Result<unknown>): RNOHError {
+    if (!result.err) {
+      throw new RNOHError({
+        whatHappened: "Called unwrapError on result which doesn't have error",
+        howCanItBeFixed: []
+      })
+    }
+    return new RNOHError({
+      whatHappened: result.err.message,
+      howCanItBeFixed: (result.err.suggestions ?? []),
+      customStack: (result.err.stacktrace ?? []).join("\n"),
+    })
   }
 
   onInit(shouldCleanUpRNInstances: boolean): { isDebugModeEnabled: boolean } {
@@ -198,10 +233,16 @@ export class NapiBridge {
     instanceId: number,
     surfaceTag: number,
   ) {
+    let resolveWait = () => {}
+    const wait = new Promise((resolve) => {
+      resolveWait = () => resolve(undefined)
+    })
     this.libRNOHApp?.destroySurface(
       instanceId,
-      surfaceTag
+      surfaceTag,
+      () => resolveWait
     );
+    await wait;
   }
 
   setSurfaceDisplayMode(instanceId: number, surfaceTag: Tag, displayMode: DisplayMode): void {
@@ -247,4 +288,11 @@ export class NapiBridge {
   postMessageToCpp(name: string, payload: any) {
     this.libRNOHApp?.onArkTSMessage(name, payload)
   }
+   
+  logMarker(markerId: string, rnInstanceId: number) {
+    const result = this.libRNOHApp?.logMarker(markerId, rnInstanceId)
+    return this.unwrapResult(result)
+  }
+
+
 }

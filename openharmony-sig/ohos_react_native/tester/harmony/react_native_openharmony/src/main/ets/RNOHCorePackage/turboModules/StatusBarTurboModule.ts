@@ -78,6 +78,7 @@ export class StatusBarTurboModule extends TurboModule {
   constructor(protected ctx: TurboModuleContext) {
     super(ctx);
     this.setConstants();
+    this.onWindowAvoidAreaChange();
   }
 
   private async setConstants() {
@@ -93,6 +94,19 @@ export class StatusBarTurboModule extends TurboModule {
     } catch (exception) {
       this.ctx.logger.error('Failed to obtain the avoid area  (currentHeight). Cause:' + JSON.stringify(exception));
     }
+  }
+
+  private async onWindowAvoidAreaChange(){
+    const windowInstance = await window.getLastWindow(this.ctx.uiAbilityContext);
+    windowInstance.on('avoidAreaChange',(data) => {
+      if(data.type === window.AvoidAreaType.TYPE_SYSTEM){
+        const scaledStatusBarHeight = px2vp(data.area.topRect.height);
+        this.constants = {
+          DEFAULT_BACKGROUND_COLOR: '#00000000',
+          HEIGHT: scaledStatusBarHeight,
+        }
+      }
+    })
   }
 
   getConstants(): StatusBarConstants {

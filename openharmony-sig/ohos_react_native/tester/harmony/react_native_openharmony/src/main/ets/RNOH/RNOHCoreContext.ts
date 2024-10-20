@@ -40,10 +40,10 @@ export class RNOHCoreContext {
         return result
       },
       // destroyAndUnregisterRNInstance
-      (rnInstance) => {
+      async (rnInstance) => {
         const stopTracing = logger.clone("destroyAndUnregisterRNInstance").startTracing()
         if (rnInstance instanceof RNInstanceImpl) {
-          rnInstance.onDestroy()
+          await rnInstance.onDestroy()
         }
         rnInstanceRegistry.deleteInstance(rnInstance.getId())
         stopTracing()

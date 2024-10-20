@@ -44,7 +44,7 @@ class TextInputComponentInstance
 
   bool m_focused{false};
   bool m_shouldIgnoreNextChangeEvent = false;
-  
+
   int32_t m_selectionStart = -1;
   int32_t m_selectionEnd = -1;
 

@@ -17,11 +17,14 @@ namespace rnoh {
  * Wraps the `react::SurfaceHandle` and attaches the root component of the
  * React Native `Surface` to the native `XComponent`
  */
-class XComponentSurface : public Surface {
+class XComponentSurface
+    : public Surface,
+      public std::enable_shared_from_this<XComponentSurface> {
  public:
   using Shared = std::shared_ptr<XComponentSurface>;
 
   XComponentSurface(
+      TaskExecutor::Shared taskExecutor,
       std::shared_ptr<facebook::react::Scheduler> scheduler,
       ComponentInstanceRegistry::Shared componentInstanceRegistry,
       ComponentInstanceFactory::Shared const& componentInstanceFactory,
@@ -58,7 +61,7 @@ class XComponentSurface : public Surface {
       std::shared_ptr<facebook::react::LayoutAnimationDriver> const&
           animationDriver);
   void setProps(folly::dynamic const& props);
-  void stop();
+  void stop(std::function<void()> onStop);
   void setDisplayMode(facebook::react::DisplayMode displayMode);
     
   Surface::LayoutContext getLayoutContext() override;  
@@ -72,6 +75,7 @@ class XComponentSurface : public Surface {
   facebook::react::SurfaceHandler m_surfaceHandler;
   std::unique_ptr<TouchEventHandler> m_touchEventHandler;
   ThreadGuard m_threadGuard{};
+  TaskExecutor::Shared m_taskExecutor;
 };
 
 } // namespace rnoh

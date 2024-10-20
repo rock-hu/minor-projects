@@ -23,6 +23,7 @@ class TextInputNodeDelegate {
 class TextInputNode : public TextInputNodeBase {
  private:
   uint32_t m_caretColorValue;
+  bool m_autofocus{false};
  protected:
   TextInputNodeDelegate* m_textInputNodeDelegate;
 
@@ -84,6 +85,10 @@ class TextInputNode : public TextInputNodeBase {
   void setshowSoftInputOnFocus(int32_t enable);
 
   void setInputFilter(std::string const& inputFilter);
+
+  void setAutoFocus(bool const &autoFocus);
+
+  bool getTextFocusStatus();
 
   std::string getTextContent() override;
 };

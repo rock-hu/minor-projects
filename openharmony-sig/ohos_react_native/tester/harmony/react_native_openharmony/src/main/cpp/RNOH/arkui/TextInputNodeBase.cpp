@@ -30,15 +30,6 @@ void TextInputNodeBase::setFocusable(bool const& focusable) {
       m_nodeHandle, NODE_FOCUSABLE, &item));
 }
 
-void TextInputNodeBase::setAutoFocus(bool autoFocus) {
-  ArkUI_NumberValue value = {.i32 = static_cast<int32_t>(autoFocus)};
-  ArkUI_AttributeItem item = {&value, 1};
-  maybeThrow(NativeNodeApi::getInstance()->setAttribute(
-      m_nodeHandle, NODE_DEFAULT_FOCUS, &item));
-  maybeThrow(NativeNodeApi::getInstance()->setAttribute(
-      m_nodeHandle, NODE_FOCUS_STATUS, &item));
-}
-
 void TextInputNodeBase::setResponseRegion(
     facebook::react::Point const& position,
     facebook::react::Size const& size) {

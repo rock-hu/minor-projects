@@ -25,7 +25,7 @@ export interface Spec extends TurboModule {
     height: number,
     ...
   }>;
-  +prefetchImage: (uri: string, requestId: number) => Promise<boolean>;
+  +prefetchImage: (uri: string) => Promise<boolean>;
   +prefetchImageWithMetadata?: (
     uri: string,
     queryRootName: string,

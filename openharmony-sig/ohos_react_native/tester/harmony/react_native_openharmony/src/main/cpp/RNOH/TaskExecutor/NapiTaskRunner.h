@@ -10,40 +10,26 @@
 #include <queue>
 #include <thread>
 
-#include "AbstractTaskRunner.h"
 #include "DefaultExceptionHandler.h"
+#include "EventLoopTaskRunner.h"
 
 namespace rnoh {
 
-class NapiTaskRunner : public AbstractTaskRunner {
+class NapiTaskRunner : public EventLoopTaskRunner {
  public:
   NapiTaskRunner(
       napi_env env,
       ExceptionHandler exceptionHandler = defaultExceptionHandler);
   ~NapiTaskRunner() override;
 
-  NapiTaskRunner(const NapiTaskRunner&) = delete;
-  NapiTaskRunner& operator=(const NapiTaskRunner&) = delete;
-
-  void runAsyncTask(Task&& task) override;
-  void runSyncTask(Task&& task) override;
-
   bool isOnCurrentThread() const override;
 
-  void setExceptionHandler(ExceptionHandler handler) override;
+ protected:
+  void executeTask() override;
+  napi_env m_env;
+  uv_loop_t* getLoop(napi_env env) const;
 
- private:
-  napi_env env;
-  uv_loop_t* getLoop() const;
-
-  uv_async_t* asyncHandle;
-  std::mutex tasksMutex;
-  std::queue<Task> tasksQueue;
-  std::thread::id threadId;
-  std::condition_variable cv;
-  std::shared_ptr<std::atomic_bool> running =
-      std::make_shared<std::atomic_bool>(true);
-  ExceptionHandler exceptionHandler;
+  std::thread::id m_threadId;
 };
 
 } // namespace rnoh

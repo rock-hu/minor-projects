@@ -1,4 +1,6 @@
 #include "MountingManagerCAPI.h"
+#include <cxxreact/SystraceSection.h>
+#include "RNOH/Performance/HarmonyReactMarker.h"
 
 namespace rnoh {
 
@@ -49,6 +51,9 @@ void MountingManagerCAPI::didMount(MutationList const& mutations) {
     auto validMutations = getValidMutations(mutations);
     m_arkTsMountingManager->didMount(validMutations);
  
+  HarmonyReactMarker::logMarker(
+      HarmonyReactMarker::HarmonyReactMarkerId::FABRIC_BATCH_EXECUTION_START); 
+  m_preAllocationBuffer->clear();
   for (auto const& mutation : mutations) {
     try {
       this->handleMutation(mutation);
@@ -58,6 +63,8 @@ void MountingManagerCAPI::didMount(MutationList const& mutations) {
     }
   }
   this->finalizeMutationUpdates(mutations);
+  HarmonyReactMarker::logMarker(
+      HarmonyReactMarker::HarmonyReactMarkerId::FABRIC_BATCH_EXECUTION_END);
 }
 
 facebook::react::ShadowViewMutationList MountingManagerCAPI::getValidMutations(
@@ -174,29 +181,26 @@ void MountingManagerCAPI::updateComponentWithShadowView(
 }
 
 void MountingManagerCAPI::handleMutation(Mutation const& mutation) {
- //    VLOG(1) << "Mutation (type:" << this->getMutationNameFromType(mutation.type)
-//            << "; componentName: "
-//            << (mutation.newChildShadowView.componentName != nullptr
-//                    ? mutation.newChildShadowView.componentName
-//                    : "null")
-//            << "; newTag: " << mutation.newChildShadowView.tag
-//            << "; index: " << mutation.index
-//            << "; oldTag: " << mutation.oldChildShadowView.tag
-//            << "; parentTag: " << mutation.parentShadowView.tag << ")";
+    DLOG(INFO) << "Mutation (type:" << getMutationNameFromType(mutation.type)
+           << "; componentName: "
+           << (mutation.newChildShadowView.componentName != nullptr
+                   ? mutation.newChildShadowView.componentName
+                   : "null")
+           << "; newTag: " << mutation.newChildShadowView.tag
+           << "; index: " << mutation.index
+           << "; oldTag: " << mutation.oldChildShadowView.tag
+           << "; parentTag: " << mutation.parentShadowView.tag << ")";
     switch (mutation.type) {
       case facebook::react::ShadowViewMutation::Create: {
         auto newChild = mutation.newChildShadowView;
         auto componentInstance =
-              m_componentInstanceRegistry->findByTag(newChild.tag);
+              m_preAllocationBuffer->getComponentInstance(newChild.tag, newChild.componentHandle, newChild.componentName);
         if (componentInstance == nullptr) {
-          componentInstance = m_componentInstanceFactory->create(
-              newChild.tag, newChild.componentHandle, newChild.componentName);
-          if (componentInstance == nullptr) {
-//            LOG(INFO) << "Couldn't create CppComponentInstance for: " << newChild.componentName;
-            return;
-          }
-          m_componentInstanceRegistry->insert(componentInstance);
+          LOG(ERROR) << "Couldn't create CppComponentInstance for: "
+                     << newChild.componentName;
+          return;
         }
+        m_componentInstanceRegistry->insert(componentInstance);
         updateComponentWithShadowView(componentInstance, newChild);
         break;
       }
@@ -240,7 +244,7 @@ void MountingManagerCAPI::handleMutation(Mutation const& mutation) {
               std::size_t parentIndex = parentComponentInstance->getIndex();
               //  mutation.newChildShadowView is old data
               facebook::react::ShadowView parentShadowView = parentComponentInstance->getShadowView();
-              LOG(INFO) << "need update text node, parent tag=" << parentComponentInstance->getTag()
+              DLOG(INFO) << "need update text node, parent tag=" << parentComponentInstance->getTag()
                 << ", grandParentTag tag=" << grandParentTag << ", parent index=" << parentIndex
                 << ", child index=" << mutation.index;
               auto grandParentComponentInstance = m_componentInstanceRegistry->findByTag(grandParentTag);

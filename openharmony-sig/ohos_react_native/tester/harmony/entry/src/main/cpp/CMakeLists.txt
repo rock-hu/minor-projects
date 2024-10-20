@@ -11,6 +11,7 @@ set(CMAKE_CXX_FLAGS "-fstack-protector-strong -Wl,-z,relro,-z,now,-z,noexecstack
 set(WITH_HITRACE_SYSTRACE 1) # for other CMakeLists.txt files to use
 add_compile_definitions(WITH_HITRACE_SYSTRACE)
 
+
 add_subdirectory("${RNOH_CPP_DIR}" ./rn)
 
 # RNOH_BEGIN: manual_package_linking_1

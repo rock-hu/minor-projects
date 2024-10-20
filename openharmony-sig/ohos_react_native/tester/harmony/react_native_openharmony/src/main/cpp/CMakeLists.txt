@@ -407,8 +407,12 @@ add_library(rnoh SHARED
     "${RNOH_CPP_DIR}/RNOH/TextMeasureRegistry.cpp"
     "${RNOH_CPP_DIR}/RNOH/TaskExecutor/TaskExecutor.cpp"
     "${RNOH_CPP_DIR}/RNOH/TaskExecutor/NapiTaskRunner.cpp"
+    "${RNOH_CPP_DIR}/RNOH/TaskExecutor/EventLoopTaskRunner.cpp"
     "${RNOH_CPP_DIR}/RNOH/TaskExecutor/ThreadTaskRunner.cpp"
     "${RNOH_CPP_DIR}/RNOH/TaskExecutor/DefaultExceptionHandler.cpp"
+    "${RNOH_CPP_DIR}/RNOH/TaskExecutor/uv/Async.cpp"
+    "${RNOH_CPP_DIR}/RNOH/TaskExecutor/uv/Timer.cpp"
+    "${RNOH_CPP_DIR}/RNOH/TaskExecutor/uv/EventLoop.cpp"
     "${RNOH_CPP_DIR}/RNOHCorePackage/TurboModules/AccessibilityManagerTurboModule.cpp"
     "${RNOH_CPP_DIR}/RNOHCorePackage/TurboModules/AlertManagerTurboModule.cpp"
     "${RNOH_CPP_DIR}/RNOHCorePackage/TurboModules/AppearanceTurboModule.cpp"
@@ -485,6 +489,7 @@ add_library(rnoh SHARED
     "${RNOH_CPP_DIR}/RNOHCorePackage/ComponentInstances/CustomNodeComponentInstance.cpp"
     "${RNOH_CPP_DIR}/RNOH/Performance/NativeTracing.cpp"
     "${RNOH_CPP_DIR}/RNOH/Performance/HarmonyReactMarker.cpp"
+    "${RNOH_CPP_DIR}/RNOH/Performance/OHReactMarkerListener.cpp"
 )
 target_include_directories(rnoh PUBLIC
     "${RNOH_CPP_DIR}"

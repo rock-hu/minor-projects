@@ -18,8 +18,6 @@ class TextInputNodeBase : public ArkUINode {
 
   void setFocusable(bool const& focusable);
 
-  void setAutoFocus(bool autoFocus);
-
   void setResponseRegion(
       facebook::react::Point const& position,
       facebook::react::Size const& size);

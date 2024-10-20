@@ -1,93 +1,53 @@
 #include "HarmonyReactMarker.h"
 
 namespace rnoh {
-void HarmonyReactMarker::setLogPerfMarkerIfNeeded() {
+
+std::vector<HarmonyReactMarker::HarmonyReactMarkerListener*>
+    HarmonyReactMarker::listeners = {};
+
+void HarmonyReactMarker::setLogMarkerIfNeeded() {
   static std::once_flag flag{};
   std::call_once(flag, []() {
-    ReactMarker::logTaggedMarkerImpl = HarmonyReactMarker::logPerfMarker;
-    ReactMarker::logTaggedMarkerBridgelessImpl =
-        HarmonyReactMarker::logPerfMarker;
+    ReactMarker::logTaggedMarkerImpl = HarmonyReactMarker::logMarker;
+    ReactMarker::logTaggedMarkerBridgelessImpl = HarmonyReactMarker::logMarker;
     ReactMarker::getAppStartTimeImpl = HarmonyReactMarker::getAppStartTime;
   });
 }
 
-std::string makeMessage(const std::string& marker, const std::string& tag) {
-  std::string message = "ReactMarker::" + marker;
-  if (!tag.empty()) {
-    message += "::Tag::";
-    message += tag;
-  }
-  return message;
-};
-
-int32_t getMessageId(const std::string& message) {
-  std::hash<std::string> hasher;
-  size_t hash = hasher(message);
-  // Ensure the hash fits into int32_t. We don't care that much about collisions
-  int32_t small_hash = hash ^ (hash >> 32);
-  return small_hash;
-};
-
-void HarmonyReactMarker::logMarker(const std::string& marker) {
-  auto message = makeMessage(marker, "");
-  OH_HiTrace_StartTrace(message.c_str());
-  OH_HiTrace_FinishTrace();
+void HarmonyReactMarker::logMarker(const HarmonyReactMarkerId markerId) {
+  logMarker(markerId, "");
 }
 
-void HarmonyReactMarker::logMarkerStart(
-    const std::string& marker,
-    const std::string& tag) {
-  auto message = makeMessage(marker, tag);
-  OH_HiTrace_StartAsyncTrace(message.c_str(), getMessageId(message.c_str()));
+void HarmonyReactMarker::logMarker(
+    const HarmonyReactMarkerId markerId,
+    facebook::react::Tag tag) {
+  logMarker(markerId, std::to_string(tag).c_str());
 }
 
-void HarmonyReactMarker::logMarkerFinish(
-    const std::string& marker,
-    const std::string& tag) {
-  auto message = makeMessage(marker, tag);
-  OH_HiTrace_FinishAsyncTrace(message.c_str(), getMessageId(message.c_str()));
+void HarmonyReactMarker::logMarker(
+    const HarmonyReactMarkerId markerId,
+    const char* tag) {
+  logMarker(markerId, tag, facebook::react::JSExecutor::performanceNow());
 }
 
-void HarmonyReactMarker::logPerfMarker(
+void HarmonyReactMarker::logMarker(
+    const std::string& markerId,
+    const char* tag) {
+  logMarker(harmonyMarkerIdForString(markerId), tag);
+}
+
+void HarmonyReactMarker::logMarker(
     const ReactMarker::ReactMarkerId markerId,
     const char* tag) {
-  // Block performance marker for better performance
-  return;
-  switch (markerId) {
-    case ReactMarker::RUN_JS_BUNDLE_START:
-      HarmonyReactMarker::logMarkerStart("RUN_JS_BUNDLE", tag);
-      break;
-    case ReactMarker::RUN_JS_BUNDLE_STOP:
-      HarmonyReactMarker::logMarkerFinish("RUN_JS_BUNDLE", tag);
-      break;
-    case ReactMarker::CREATE_REACT_CONTEXT_STOP:
-      HarmonyReactMarker::logMarker("CREATE_REACT_CONTEXT_END");
-      break;
-    case ReactMarker::JS_BUNDLE_STRING_CONVERT_START:
-      HarmonyReactMarker::logMarkerStart(
-          "loadApplicationScript_StringConvert", "");
-      break;
-    case ReactMarker::JS_BUNDLE_STRING_CONVERT_STOP:
-      HarmonyReactMarker::logMarkerFinish(
-          "loadApplicationScript_StringConvert", "");
-      break;
-    case ReactMarker::NATIVE_MODULE_SETUP_START:
-      HarmonyReactMarker::logMarkerStart("NATIVE_MODULE_SETUP", tag);
-      break;
-    case ReactMarker::NATIVE_MODULE_SETUP_STOP:
-      HarmonyReactMarker::logMarkerFinish("NATIVE_MODULE_SETUP", tag);
-      break;
-    case ReactMarker::REGISTER_JS_SEGMENT_START:
-      HarmonyReactMarker::logMarkerStart("REGISTER_JS_SEGMENT", tag);
-      break;
-    case ReactMarker::REGISTER_JS_SEGMENT_STOP:
-      HarmonyReactMarker::logMarkerFinish("REGISTER_JS_SEGMENT", tag);
-      break;
-    case ReactMarker::NATIVE_REQUIRE_START:
-    case ReactMarker::NATIVE_REQUIRE_STOP:
-    case ReactMarker::REACT_INSTANCE_INIT_START:
-    case ReactMarker::REACT_INSTANCE_INIT_STOP:
-      break;
+  logMarker(harmonyMarkerIdForReactMarkerId(markerId), tag);
+}
+
+void HarmonyReactMarker::logMarker(
+    const HarmonyReactMarkerId markerId,
+    const char* tag,
+    const double timestamp) {
+  for (auto listener : listeners) {
+    listener->logMarker(markerId, tag, timestamp);
   }
 }
 
@@ -97,6 +57,63 @@ void HarmonyReactMarker::setAppStartTime(double appStartTime) {
 
 double HarmonyReactMarker::getAppStartTime() {
   return sAppStartTime;
+}
+
+void HarmonyReactMarker::addListener(HarmonyReactMarkerListener& listener) {
+  listeners.push_back(&listener);
+}
+
+void HarmonyReactMarker::removeListener(HarmonyReactMarkerListener& listener) {
+  listeners.erase(
+      std::remove(listeners.begin(), listeners.end(), &listener),
+      listeners.end());
+}
+
+HarmonyReactMarker::HarmonyReactMarkerId
+HarmonyReactMarker::harmonyMarkerIdForReactMarkerId(
+    const ReactMarker::ReactMarkerId markerId) {
+  switch (markerId) {
+    case ReactMarker::ReactMarkerId::RUN_JS_BUNDLE_START:
+      return HarmonyReactMarkerId::RUN_JS_BUNDLE_START;
+    case ReactMarker::ReactMarkerId::RUN_JS_BUNDLE_STOP:
+      return HarmonyReactMarkerId::RUN_JS_BUNDLE_STOP;
+    case ReactMarker::ReactMarkerId::CREATE_REACT_CONTEXT_STOP:
+      return HarmonyReactMarkerId::CREATE_REACT_CONTEXT_STOP;
+    case ReactMarker::ReactMarkerId::JS_BUNDLE_STRING_CONVERT_START:
+      return HarmonyReactMarkerId::JS_BUNDLE_STRING_CONVERT_START;
+    case ReactMarker::ReactMarkerId::JS_BUNDLE_STRING_CONVERT_STOP:
+      return HarmonyReactMarkerId::JS_BUNDLE_STRING_CONVERT_STOP;
+    case ReactMarker::ReactMarkerId::NATIVE_MODULE_SETUP_START:
+      return HarmonyReactMarkerId::NATIVE_MODULE_SETUP_START;
+    case ReactMarker::ReactMarkerId::NATIVE_MODULE_SETUP_STOP:
+      return HarmonyReactMarkerId::NATIVE_MODULE_SETUP_STOP;
+    case ReactMarker::ReactMarkerId::REGISTER_JS_SEGMENT_START:
+      return HarmonyReactMarkerId::REGISTER_JS_SEGMENT_START;
+    case ReactMarker::ReactMarkerId::REGISTER_JS_SEGMENT_STOP:
+      return HarmonyReactMarkerId::REGISTER_JS_SEGMENT_STOP;
+    case ReactMarker::ReactMarkerId::NATIVE_REQUIRE_START:
+      return HarmonyReactMarkerId::NATIVE_REQUIRE_START;
+    case ReactMarker::ReactMarkerId::NATIVE_REQUIRE_STOP:
+      return HarmonyReactMarkerId::NATIVE_REQUIRE_STOP;
+    case ReactMarker::ReactMarkerId::REACT_INSTANCE_INIT_START:
+      return HarmonyReactMarkerId::REACT_INSTANCE_INIT_START;
+    case ReactMarker::ReactMarkerId::REACT_INSTANCE_INIT_STOP:
+      return HarmonyReactMarkerId::REACT_INSTANCE_INIT_STOP;
+  }
+}
+
+HarmonyReactMarker::HarmonyReactMarkerId
+HarmonyReactMarker::harmonyMarkerIdForString(const std::string& markerId) {
+  if (markerId == "CREATE_REACT_CONTEXT_START") {
+    return HarmonyReactMarkerId::CREATE_REACT_CONTEXT_START;
+  }
+  if (markerId == "DOWNLOAD_START") {
+    return HarmonyReactMarkerId::DOWNLOAD_START;
+  }
+  if (markerId == "DOWNLOAD_END") {
+    return HarmonyReactMarkerId::DOWNLOAD_END;
+  }
+  throw std::invalid_argument("Unknown markerId: " + markerId);
 }
 
 } // namespace rnoh

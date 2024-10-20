@@ -192,7 +192,7 @@ export class NetworkingTurboModule extends TurboModule {
     if (this.isEncodedURI(str)) {
       return str;
     }
-    return encodeURI(str);
+    return str.replace(/[\u4e00-\u9fa5]/g, (char) => encodeURIComponent(char));
   }
   
 

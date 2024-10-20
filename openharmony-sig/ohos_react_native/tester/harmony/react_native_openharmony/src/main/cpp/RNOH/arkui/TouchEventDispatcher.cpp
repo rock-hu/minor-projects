@@ -195,19 +195,26 @@ void TouchEventDispatcher::dispatchTouchEvent(
   facebook::react::Touches cancelTouches;
 
   for (auto activeTouch : activeTouchPoints) {
-    Point touchPoint{
-        .x = static_cast<facebook::react::Float>(activeTouch.nodeX),
-        .y = static_cast<facebook::react::Float>(activeTouch.nodeY)};
-    auto touchTarget = findTargetForTouchPoint(touchPoint, rootTarget).first;
-
     if (action == UI_TOUCH_EVENT_ACTION_DOWN) {
+      auto [touchTarget, touchPoint] = findTargetForTouchPoint(
+          Point{
+              .x = static_cast<facebook::react::Float>(activeTouch.nodeX),
+              .y = static_cast<facebook::react::Float>(activeTouch.nodeY)},
+          rootTarget);
+      if (touchTarget == nullptr) {
+        continue;
+      }
       if (isParentHandlingTouches(touchTarget, rootTarget)) {
         continue;
       }
-      registerTargetForTouch(activeTouch, rootTarget);
-    } else if (
-        m_touchTargetByTouchId.find(activeTouch.id) !=
-        m_touchTargetByTouchId.end()) {
+      registerTargetForTouch(activeTouch, touchTarget);
+    } else if (auto touchTargetEntry =
+                   m_touchTargetByTouchId.find(activeTouch.id);
+               touchTargetEntry != m_touchTargetByTouchId.end()) {
+      auto touchTarget = touchTargetEntry->second.lock();
+      if (touchTarget == nullptr) {
+        continue;
+      }
       auto hasCancelled = maybeCancelPreviousTouchEvent(
           timestampSeconds, touchTarget, rootTarget);
       if (hasCancelled) {
@@ -224,7 +231,7 @@ void TouchEventDispatcher::dispatchTouchEvent(
     }
     auto eventTarget = it->second.lock();
     if (eventTarget == nullptr) {
-      LOG(WARNING) << "Target for current touch event has been deleted";
+      DLOG(WARNING) << "Target for current touch event has been deleted";
       m_touchTargetByTouchId.erase(it);
       continue;
     }
@@ -283,17 +290,13 @@ void TouchEventDispatcher::dispatchTouchEvent(
 
 TouchTarget::Shared TouchEventDispatcher::registerTargetForTouch(
     TouchPoint activeTouch,
-    TouchTarget::Shared const& rootTarget) {
+    TouchTarget::Shared const& touchTarget) {
   auto id = activeTouch.id;
   if (m_touchTargetByTouchId.find(id) != m_touchTargetByTouchId.end()) {
     LOG(ERROR) << "Touch with id " << id << " already exists";
     return nullptr;
   }
 
-  Point touchPoint{
-      .x = static_cast<facebook::react::Float>(activeTouch.nodeX),
-      .y = static_cast<facebook::react::Float>(activeTouch.nodeY)};
-  auto touchTarget = findTargetForTouchPoint(touchPoint, rootTarget).first;
   if (touchTarget) {
     m_touchTargetByTouchId.emplace(activeTouch.id, touchTarget);
     VLOG(2) << "Touch with id " << id << " started on target with tag "
@@ -337,53 +340,59 @@ void TouchEventDispatcher::sendEvent(
     facebook::react::Touches const& touches,
     facebook::react::Touches const& changedTouches,
     int32_t action) {
-  std::unordered_map<int, facebook::react::Touches> touchByTargetId;
+  std::unordered_map<TouchTarget::Shared, facebook::react::Touches>
+      touchesByTarget;
 
   for (auto const& touch : changedTouches) {
-    auto touchTargetTag = touch.target;
-    auto targetIter = touchByTargetId.find(touchTargetTag);
-    if (targetIter == touchByTargetId.end()) {
-      facebook::react::Touches targetTouches;
-      targetTouches.insert(touch);
-      touchByTargetId.emplace(touchTargetTag, targetTouches);
-    } else {
-      targetIter->second.insert(touch);
+    auto touchTargetIt = m_touchTargetByTouchId.find(touch.identifier);
+    if (touchTargetIt == m_touchTargetByTouchId.end()) {
+      LOG(ERROR) << "Touch with id " << touch.identifier
+                 << " has no target associated with it";
+      continue;
+    }
+
+    auto touchTarget = touchTargetIt->second.lock();
+    if (touchTarget == nullptr) {
+      m_touchTargetByTouchId.erase(touchTargetIt);
+      continue;
+    }
+
+    touchesByTarget[touchTarget].insert(touch);
+
+    if (action == UI_TOUCH_EVENT_ACTION_UP ||
+        action == UI_TOUCH_EVENT_ACTION_CANCEL) {
+      m_touchTargetByTouchId.erase(touch.identifier);
     }
   }
 
   for (auto const& touch : touches) {
-    auto touchTargetTag = touch.target;
-    auto targetIter = touchByTargetId.find(touchTargetTag);
-    if (targetIter != touchByTargetId.end()) {
+    auto touchTargetIt = m_touchTargetByTouchId.find(touch.identifier);
+    if (touchTargetIt == m_touchTargetByTouchId.end()) {
+      LOG(ERROR) << "Touch with id " << touch.identifier
+                 << " has no target associated with it";
+      continue;
+    }
+
+    auto touchTarget = touchTargetIt->second.lock();
+    if (touchTarget == nullptr) {
+      m_touchTargetByTouchId.erase(touchTargetIt);
+      continue;
+    }
+    auto targetIter = touchesByTarget.find(touchTarget);
+    if (targetIter != touchesByTarget.end()) {
       targetIter->second.insert(touch);
     }
   }
 
-  for (auto const& targetTouches : touchByTargetId) {
-    auto it =
-        m_touchTargetByTouchId.find(targetTouches.second.begin()->identifier);
-    if (it == m_touchTargetByTouchId.end()) {
-      continue;
-    }
-    auto eventTarget = it->second.lock();
-    if (eventTarget == nullptr) {
-      m_touchTargetByTouchId.erase(it);
-      continue;
-    }
-
+  for (auto const& [eventTarget, targetTouches] : touchesByTarget) {
     facebook::react::TouchEvent touchEvent{
         .touches = touches,
         .changedTouches = changedTouches,
-        .targetTouches = targetTouches.second};
+        .targetTouches = targetTouches};
 
     if (action == UI_TOUCH_EVENT_ACTION_MOVE &&
         canIgnoreMoveEvent(touchEvent)) {
-      VLOG(2) << "Should ignore current touchEvent";
       continue;
-    }
-
-    if (action == UI_TOUCH_EVENT_ACTION_UP) {
-      m_touchTargetByTouchId.erase(targetTouches.second.begin()->identifier);
     }
 
     m_previousEvent = touchEvent;
