@@ -2,7 +2,7 @@ name: harmonyos_samples-schedule
 on:
   # https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows
   schedule:
-    - cron: "0 2 * * 1"
+    - cron: "0 3 * * 1"
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -19,6 +19,6 @@ jobs:
       - run: git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
       - run: git status
       - run: git add .
-      - run: git commit -m "${{ github.run_number }}"
+      - run: git commit -m "harmonyos_samples-schedule - ${{ github.run_number }}"
       - run: git push
       - run: ls -l

@@ -2,7 +2,7 @@ name: openharmony-sig-schedule
 on:
   # https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows
   schedule:
-    - cron: "0 4 * * 1"
+    - cron: "0 9 * * 1"
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -19,6 +19,6 @@ jobs:
       - run: git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
       - run: git status
       - run: git add .
-      - run: git commit -m "${{ github.run_number }}"
+      - run: git commit -m "openharmony-sig-schedule - ${{ github.run_number }}"
       - run: git push
       - run: ls -l
