@@ -17,7 +17,7 @@ Calendar --> Action
 | ------------------ | -------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | harmonyos_codelabs | ![](https://github.com/rock-hu/minor-projects/actions/workflows/harmonyos_codelabs.yaml/badge.svg) | ![](https://github.com/rock-hu/minor-projects/actions/workflows/harmonyos_codelabs-schedule.yaml/badge.svg) |
 | harmonyos_samples  | ![](https://github.com/rock-hu/minor-projects/actions/workflows/harmonyos_samples.yaml/badge.svg)  | ![](https://github.com/rock-hu/minor-projects/actions/workflows/harmonyos_samples-schedule.yaml/badge.svg)  |
-| openharmony        | ![](https://github.com/rock-hu/minor-projects/actions/workflows/openharmony.yaml/badge.svg)        | ![](https://github.com/rock-hu/minor-projects/actions/workflows/openharmony.yaml/badge.svg)                 |
+| openharmony        | ![](https://github.com/rock-hu/minor-projects/actions/workflows/openharmony.yaml/badge.svg)        | ![](https://github.com/rock-hu/minor-projects/actions/workflows/openharmony-schedule.yaml/badge.svg)                 |
 | openharmony-sig    | ![](https://github.com/rock-hu/minor-projects/actions/workflows/openharmony-sig.yaml/badge.svg)    | ![](https://github.com/rock-hu/minor-projects/actions/workflows/openharmony-sig-schedule.yaml/badge.svg)    |
 
 
