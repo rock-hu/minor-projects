@@ -4,9 +4,25 @@
 
 Scan Kit is a basic capability provided by the HarmonyOS SDK. It provides functions including directly accessing content through scanning, generating barcode images, scanning barcodes using the default UI, scanning barcodes using a custom UI, and recognizing barcodes based on images.
 
-|           **App Home Page**            |               **Barcode Image Generation UI**               |              **Default Barcode Scan UI**             |              **Custom Barcode Scan UI**             |             **Saved Image-Based Barcode Recognition UI**             |          **Scan-to-Access UI**           |
-|:--------------------------------------:|:---------------------------------------:|:--------------------------------------:|:-------------------------------------:|:-------------------------------------:|:----------------------------------------:|
-| ![](entry/src/screenshots/home_en.jpg) | ![](entry/src/screenshots/generate_en.jpg) | ![](entry/src/screenshots/default_en.jpg) | ![](entry/src/screenshots/custom_en.jpg) | ![](entry/src/screenshots/detect_en.jpg) | ![](entry/src/screenshots/access_en.jpg) |
+<table>
+  <tr>
+    <th width=16.5%>App Home Page</th>
+    <th width=16.5%>Barcode Image Generation UI</th>
+    <th width=16.5%>Default Barcode Scan UI</th>
+    <th width=16.5%>Custom Barcode Scan UI</th>
+    <th width=16.5%>Saved Image-Based Barcode Recognition UI</th>
+    <th width=16.5%>Scan-to-Access UI</th>
+  </tr>
+  <tr>
+    <td><img src='entry/src/screenshots/home_en.jpg'></td>
+    <td><img src='entry/src/screenshots/generate_en.jpg'></td>
+    <td><img src='entry/src/screenshots/default_en.jpg'></td>
+    <td><img src='entry/src/screenshots/custom_en.jpg'></td>
+    <td><img src='entry/src/screenshots/detect_en.jpg'></td>
+    <td><img src='entry/src/screenshots/access_en.jpg'></td>
+  </tr>
+</table>
+
 
 ## Required Permissions
 

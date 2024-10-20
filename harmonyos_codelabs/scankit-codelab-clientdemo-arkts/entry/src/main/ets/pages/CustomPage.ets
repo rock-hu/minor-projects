@@ -435,30 +435,7 @@ struct CustomScanPage {
           hilog.error(0x0001, TAG, `Failed to resetFocus. Code: ${error.code}, message: ${error.message}`);
         }
       }, 200);
-    }).gesture(PinchGesture({ fingers: 2 })
-      .onActionStart((event: GestureEvent) => {
-        hilog.info(0x0001, TAG, 'Pinch start');
-      })
-      .onActionUpdate((event: GestureEvent) => {
-        if (event) {
-          this.scaleValue = event.scale;
-        }
-      })
-      .onActionEnd((event: GestureEvent) => {
-        // Whether the scanning result has been obtained.
-        if (this.scanCodeRectLength > 0) {
-          return;
-        }
-        // Obtain the two-finger zoom ratio and set the zoom ratio.
-        try {
-          let zoom = customScan.getZoom();
-          this.pinchValue = this.scaleValue * zoom;
-          customScan.setZoom(this.pinchValue);
-          hilog.info(0x0001, TAG, 'Pinch end');
-        } catch (error) {
-          hilog.error(0x0001, TAG, `Failed to setZoom. Code: ${error.code}, message: ${error.message}`);
-        }
-      }))
+    })
   }
 
   // Scanning result returned in a callback.

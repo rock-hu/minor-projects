@@ -1,6 +1,7 @@
 import { router, window } from '@kit.ArkUI';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { Want, UIAbility, AbilityConstant } from '@kit.AbilityKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 export default class EntryAbility extends UIAbility {
   private page: string = 'pages/Index';
@@ -21,14 +22,14 @@ export default class EntryAbility extends UIAbility {
   onWindowStageCreate(windowStage: window.WindowStage): void {
     hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onWindowStageCreate');
     windowStage.getMainWindow().then((windowObj: window.Window) => {
-      try {
-        windowObj.setWindowLayoutFullScreen(true, () => {
-          hilog.info(0x0000, 'testTag', 'setWindowLayoutFullScreen Succeed!');
-        });
-      } catch (error) {
-        hilog.error(0x0000, 'testTag', 'Failed to setWindowLayoutFullScreen. Cause: %{public}s',
-          JSON.stringify(error) ?? '');
-      }
+      windowObj.setWindowLayoutFullScreen(true).catch((error: BusinessError) => {
+        if (error) {
+          hilog.error(0x0000, 'testTag', 'Failed to setWindowLayoutFullScreen. Cause: %{public}s',
+            JSON.stringify(error) ?? '');
+          return;
+        }
+        hilog.info(0x0000, 'testTag', 'setWindowLayoutFullScreen Succeed!');
+      })
     });
 
     windowStage.loadContent(this.page, (error, data) => {
