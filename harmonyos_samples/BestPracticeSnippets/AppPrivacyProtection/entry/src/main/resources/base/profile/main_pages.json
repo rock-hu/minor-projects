@@ -1,0 +1,8 @@
+{
+  "src": [
+    "pages/Index",
+    "pages/ApproximatelyLocationDemo",
+    "pages/LocationButtonDemo",
+    "pages/PickerDemo"
+  ]
+}

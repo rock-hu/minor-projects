@@ -1,0 +1,364 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "module description"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "description"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "AnimationCollection"
+    },
+    {
+      "name": "common_bar_chart_height",
+      "value": "30%"
+    },
+    {
+      "name": "common_text_height",
+      "value": "30%"
+    },
+    {
+      "name": "common_text_width",
+      "value": "35%"
+    },
+    {
+      "name": "divider_height",
+      "value": "26%"
+    },
+    {
+      "name": "common_stack_height",
+      "value": "50%"
+    },
+    {
+      "name": "common_stack_width",
+      "value": "100%"
+    },
+    {
+      "name": "common_navigation_height",
+      "value": "60%"
+    },
+    {
+      "name": "common_navigation_width",
+      "value": "90%"
+    },
+    {
+      "name": "search_placeholder",
+      "value": "Please enter your search..."
+    },
+    {
+      "name": "memo_counts",
+      "value": "8 notes"
+    },
+    {
+      "name": "memo_title",
+      "value": "All notes"
+    },
+    {
+      "name": "shared_desc",
+      "value": "Swipe the list to the last browsing history"
+    },
+    {
+      "name": "near_message",
+      "value": "People Nearby"
+    },
+    {
+      "name": "friendMomentsPage_share",
+      "value": "Share"
+    },
+    {
+      "name": "friends_circle_likes",
+      "value": "Like"
+    },
+    {
+      "name": "friendMomentsPage_message",
+      "value": "Review"
+    },
+    {
+      "name": "jump_to_history",
+      "value": "Jump to a location you haven't seen yet"
+    },
+    {
+      "name": "jump_to_top",
+      "value": "Jump To Top"
+    },
+    {
+      "name": "jump_text_one",
+      "value": "This is message number %d��"
+    },
+    {
+      "name": "text_welcome",
+      "value": "welcome!!!"
+    },
+    {
+      "name": "text_new_user_registration",
+      "value": "new users enjoy a special gift package!"
+    },
+    {
+      "name": "text_load",
+      "value": "sign in / sign up"
+    },
+    {
+      "name": "text_shopping",
+      "value": "shopping area"
+    },
+    {
+      "name": "text_happy",
+      "value": "entertainment District"
+    },
+    {
+      "name": "text_relaxation",
+      "value": "recreation Area"
+    },
+    {
+      "name": "text_mine",
+      "value": "mine"
+    },
+    {
+      "name": "sound_hound",
+      "value": "identify song"
+    },
+    {
+      "name": "is_listening",
+      "value": "Listening..."
+    },
+    {
+      "name": "click_to_listen",
+      "value": "click to start identifying songs"
+    },
+    {
+      "name": "width_ninety_percent",
+      "value": "90%"
+    },
+    {
+      "name": "width_full",
+      "value": "100%"
+    },
+    {
+      "name": "name_page_one",
+      "value": "拼车"
+    },
+    {
+      "name": "name_page_two",
+      "value": "打车"
+    },
+    {
+      "name": "name_page_three",
+      "value": "赚钱"
+    },
+    {
+      "name": "name_page_four",
+      "value": "公交车"
+    },
+    {
+      "name": "first_prompt",
+      "value": "6折起"
+    },
+    {
+      "name": "sec_prompt",
+      "value": "8折起"
+    },
+    {
+      "name": "five_fr",
+      "value": "1fr 1fr 1fr 1fr 1fr"
+    },
+    {
+      "name": "two_fr",
+      "value": "1fr 1fr"
+    },
+    {
+      "name": "function_tool_bar",
+      "value": "功能栏"
+    },
+    {
+      "name": "search_background_color",
+      "value": "#E7E9E8"
+    },
+    {
+      "name": "main_page_top_borderRadius",
+      "value": "8"
+    },
+    {
+      "name": "search_height",
+      "value": "40"
+    },
+    {
+      "name": "search_history",
+      "value": "Search History"
+    },
+    {
+      "name": "search_history_font_size2",
+      "value": "16"
+    },
+    {
+      "name": "search_history_delete_size",
+      "value": "20"
+    },
+    {
+      "name": "search_delete_title",
+      "value": " Confirm Delete All History"
+    },
+    {
+      "name": "delete_back",
+      "value": "cancel"
+    },
+    {
+      "name": "button_text_color",
+      "value": "#0000FF"
+    },
+    {
+      "name": "delete_ok",
+      "value": "confirm"
+    },
+    {
+      "name": "search_history_text_padding_margin1",
+      "value": "16"
+    },
+    {
+      "name": "search_divider_height",
+      "value": "1"
+    },
+    {
+      "name": "search_history_font_size3",
+      "value": "14"
+    },
+    {
+      "name": "search_list_text_color",
+      "value": "#F5F6F8"
+    },
+    {
+      "name": "search_history_text_padding_margin3",
+      "value": "6"
+    },
+    {
+      "name": "search_back_size_margin",
+      "value": "20"
+    },
+    {
+      "name": "search_history_text_padding_margin4",
+      "value": "10"
+    },
+    {
+      "name": "search_history_text_padding_margin2",
+      "value": "12"
+    },
+    {
+      "name": "search_list_image_width",
+      "value": "16"
+    },
+    {
+      "name": "main_page_padding",
+      "value": "12"
+    },
+    {
+      "name": "main_page_padding_top",
+      "value": "40"
+    },
+    {
+      "name": "swiper_stack_width",
+      "value": "310"
+    },
+    {
+      "name": "swiper_stack_height1",
+      "value": "130"
+    },
+    {
+      "name": "swiper_stack_height2",
+      "value": "180"
+    },
+    {
+      "name": "main_page_swiper_height",
+      "value": "200"
+    },
+    {
+      "name": "main_page_padding2",
+      "value": "12"
+    },
+    {
+      "name": "main_page_padding5",
+      "value": "8"
+    },
+    {
+      "name": "bottom_title_height",
+      "value": "36"
+    },
+    {
+      "name": "digital_scroll_animation_ticket",
+      "value": "Pull down the train ticket"
+    },
+    {
+      "name": "digital_scroll_animation_today",
+      "value": "Today is"
+    },
+    {
+      "name": "digital_scroll_animation_get_ticket",
+      "value": "persons provide ticket grabbing services."
+    },
+    {
+      "name": "digital_scroll_animation_comma",
+      "value": ","
+    },
+    {
+      "name": "max_size",
+      "value": "100%"
+    },
+    {
+      "name": "card_swiper_full_size",
+      "value": "100%"
+    },
+    {
+      "name": "card_swiper_photo_preview_width",
+      "value": "90%"
+    },
+    {
+      "name": "card_swiper_tablet_preview_width",
+      "value": "45%"
+    },
+    {
+      "name": "voting_component_voting_theme_image_text",
+      "value": "大家冬天喜欢早起还是晚起呀"
+    },
+    {
+      "name": "voting_component_mid_text_left",
+      "value": "P"
+    },
+    {
+      "name": "voting_component_mid_text_right",
+      "value": "K"
+    },
+    {
+      "name": "voting_component_first_stack_width",
+      "value": "80%"
+    },
+    {
+      "name": "voting_component_parent_column_height",
+      "value": "100%"
+    },
+    {
+      "name": "voting_component_parent_column_width",
+      "value": "100%"
+    },
+    {
+      "name": "voting_component_bottom_text_suffix",
+      "value": "人参与"
+    },
+    {
+      "name": "voting_component_mid_gap_mark_anchor",
+      "value": "50vp"
+    },
+    {
+      "name": "voting_notice",
+      "value": "点击上方按钮，选择你的观点"
+    },
+    {
+      "name": "reason",
+      "value": "Allow the application to prompt scene control motor vibration on the login page."
+    },
+    {
+      "name": "voice_record_dynamic_effect_app_name",
+      "value": "Allow the use of microphones in cloud recording and sound animation scenarios."
+    }
+  ]
+}

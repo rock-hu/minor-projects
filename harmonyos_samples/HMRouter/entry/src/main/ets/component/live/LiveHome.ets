@@ -44,13 +44,6 @@ export class VideoSrc {
 @HMLifecycle({lifecycleName: 'liveHomeLifecycle'})
 export class LiveHomeLifecycle implements IHMLifecycle {
   videoSrc: VideoSrc = new VideoSrc($rawfile('camera-ais.mp4'));
-  onPrepare(): void {
-    this.videoSrc.src = $rawfile('camera-ais.mp4');
-    let param = HMRouterMgr.getCurrentParam();
-    if(param) {
-      this.videoSrc.src = $rawfile(param as string);
-    }
-  }
 
   onShown(ctx: HMLifecycleContext): void {
     window.getLastWindow(getContext(this), (err, data) => {

@@ -1,0 +1,44 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "module description"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "description"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "WebUserAgent"
+    },
+    {
+      "name": "user_agent",
+      "value": "Custom User Agents: %s"
+    },
+    {
+      "name": "default_agent",
+      "value": "Default User Agent: %s"
+    },
+    {
+      "name": "refresh",
+      "value": "Refresh"
+    },
+    {
+      "name": "get_agent",
+      "value": "Get Custom User Agents"
+    },
+    {
+      "name": "set_agent",
+      "value": "Set Custom User Agents"
+    },
+    {
+      "name": "get_default_agent",
+      "value": "Get Default User Agent"
+    },
+    {
+      "name": "reason_internet",
+      "value": "Used for setting and retrieving User Agent information"
+    }
+  ]
+}

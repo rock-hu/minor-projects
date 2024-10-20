@@ -11,6 +11,7 @@ struct GetHdsLayeredIcon {
   resManager: resourceManager.ResourceManager | undefined = undefined;
   layeredDrawableDescriptor: LayeredDrawableDescriptor | undefined = undefined;
   @State layeredIconsResult: Array<hdsDrawable.ProcessedIcon> = [];
+  @State layeredIconAsyncResult: image.PixelMap | null = null;
 
   build() {
     Column() {
@@ -21,6 +22,20 @@ struct GetHdsLayeredIcon {
           .margin(5)
 
         Image(this.getHdsLayeredIconWithBorder())
+          .width(48)
+          .height(48)
+      }
+      .margin({
+        top: 20
+      })
+
+      Column() {
+        Text('getHdsLayeredIconAsync')
+          .fontWeight(FontWeight.Bold)
+          .fontSize(16)
+          .margin(5)
+
+        Image(this.layeredIconAsyncResult)
           .width(48)
           .height(48)
       }
@@ -65,6 +80,7 @@ struct GetHdsLayeredIcon {
     this.layeredDrawableDescriptor = (this.resManager.getDrawableDescriptor($r('app.media.drawable')
       .id)) as LayeredDrawableDescriptor;
     this.getHdsLayeredIcons();
+    this.getHdsLayeredIconAsync();
   }
 
   private getHdsLayeredIconWithBorder(): image.PixelMap | null {
@@ -87,14 +103,14 @@ struct GetHdsLayeredIcon {
     let options: hdsDrawable.Options = {
       size: 48,
       hasBorder: true,
-      parallelNumber: 4,
+      parallelNumber: 4
     };
 
     let layeredIcons: Array<hdsDrawable.LayeredIcon> = [];
     for (let i = 0; i < 10; i++) {
       layeredIcons.push({
         bundleName: `${this.bundleName}-${i}`,
-        layeredDrawableDescriptor: this.layeredDrawableDescriptor,
+        layeredDrawableDescriptor: this.layeredDrawableDescriptor
       });
     }
 
@@ -111,6 +127,22 @@ struct GetHdsLayeredIcon {
       let message = (err as BusinessError).message;
       let code = (err as BusinessError).code;
       console.error(`getHdsLayeredIcons failed, code: ${code}, message: ${message}`);
+    }
+  }
+
+  private getHdsLayeredIconAsync(): void {
+    try {
+      hdsDrawable.getHdsLayeredIconAsync(this.bundleName, this.layeredDrawableDescriptor, 48, true)
+        .then((data: image.PixelMap) => {
+          this.layeredIconAsyncResult = data;
+        })
+        .catch((err: BusinessError) => {
+          console.error(`getHdsLayeredIconAsync return error, code: ${err.code}, msg: ${err.message}`);
+        });
+    } catch (err) {
+      let message = (err as BusinessError).message;
+      let code = (err as BusinessError).code;
+      console.error(`getHdsLayeredIconAsync failed, code: ${code}, message: ${message}`);
     }
   }
 }

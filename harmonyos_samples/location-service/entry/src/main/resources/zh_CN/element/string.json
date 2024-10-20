@@ -1,0 +1,48 @@
+{
+  "string": [
+    {
+      "name": "entry_desc",
+      "value": "位置服务"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "位置服务"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "位置服务"
+    },
+    {
+      "name": "location_permission",
+      "value": "允许应用在定位场景中前台运行时获取位置信息"
+    },
+    {
+      "name": "internet_permission",
+      "value": "允许应用在定位场景中使用网络"
+    },
+    {
+      "name": "fuzzy_location_permission",
+      "value": "允许应用在定位场景中获取设备模糊位置信息"
+    },
+    {
+      "name": "you_geocoded_location",
+      "value": "你的逆地理编码结果："
+    },
+    {
+      "name": "get_cache_location",
+      "value": "获取缓存位置"
+    },
+    {
+      "name": "get_current_location",
+      "value": "获取当前位置"
+    },
+    {
+      "name": "continuous_positioning",
+      "value": "持续定位"
+    },
+    {
+      "name": "language",
+      "value": "zh"
+    }
+  ]
+}

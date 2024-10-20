@@ -19,6 +19,7 @@ import { CommonConstants } from '../common/constants/CommonConstants';
 import { LiveConstants } from '../common/constants/LiveConstants';
 import { ResourceUtil } from '../common/utils/ResourceUtil';
 import { LiveProduct, LiveViewModel } from '../viewmodel/LiveViewModel';
+import { LiveHomeLifecycle } from './LiveHome';
 
 @Component
 export struct LiveShopList {
@@ -111,11 +112,20 @@ export struct LiveShopList {
           $r('app.float.shop_width'));
         }
         .onClick(() => {
-          this.currentProductIndex = index;
-          if(index === 0) {
-            HMRouterMgr.push({pageUrl: 'liveHome', param: 'camera-ais.mp4'});
+          this.currentProductIndex = index
+          let lifecycle = HMRouterMgr.getCurrentLifecycleOwner()?.getLifecycle() as LiveHomeLifecycle
+          if (index == 0) {
+            HMRouterMgr.push({ pageUrl: 'liveHome' }, {
+              onArrival: () => {
+                lifecycle.videoSrc.src = $rawfile('camera-ais.mp4')
+              }
+            })
           } else {
-            HMRouterMgr.push({pageUrl: 'liveHome', param: 'sellpoint-1.mp4'});
+            HMRouterMgr.push({ pageUrl: 'liveHome' }, {
+              onArrival: () => {
+                lifecycle.videoSrc.src = $rawfile('sellpoint-1.mp4')
+              }
+            })
           }
         });
       }, (item: LiveProduct, index: number) => index + JSON.stringify(item));

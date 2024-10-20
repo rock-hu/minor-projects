@@ -11,6 +11,14 @@
     {
       "name": "EntryAbility_label",
       "value": "UIDesignKit"
+    },
+    {
+      "name": "process_layered_icon",
+      "value": "分层图标处理"
+    },
+    {
+      "name": "process_single_layer_icon",
+      "value": "单层图标处理"
     }
   ]
 }

@@ -12,6 +12,7 @@ struct GetHdsIcon {
   layeredDrawableDescriptor: LayeredDrawableDescriptor | undefined = undefined;
   drawableDescriptor: DrawableDescriptor | undefined = undefined;
   @State iconsResult: Array<hdsDrawable.ProcessedIcon> = [];
+  @State iconAsyncResult: image.PixelMap | null = null;
 
   build() {
     Column() {
@@ -22,6 +23,20 @@ struct GetHdsIcon {
           .margin(5)
 
         Image(this.getHdsIconWithBorder())
+          .width(48)
+          .height(48)
+      }
+      .margin({
+        top: 20
+      })
+
+      Column() {
+        Text('getHdsIconAsync')
+          .fontWeight(FontWeight.Bold)
+          .fontSize(16)
+          .margin(5)
+
+        Image(this.iconAsyncResult)
           .width(48)
           .height(48)
       }
@@ -71,6 +86,7 @@ struct GetHdsIcon {
       (this.resManager?.getDrawableDescriptor($r('app.media.normal_icon'))) as DrawableDescriptor;
 
     this.getHdsIcons();
+    this.getHdsIconAsync();
   }
 
   private getHdsIconWithBorder(): image.PixelMap | null {
@@ -82,6 +98,25 @@ struct GetHdsIcon {
       let code = (err as BusinessError).code;
       console.error(`getHdsIcon failed, code: ${code}, message: ${message}`);
       return null;
+    }
+  }
+
+  private getHdsIconAsync(): void {
+    try {
+      hdsDrawable.getHdsIconAsync(this.bundleName, this.drawableDescriptor?.getPixelMap(), 48,
+        this.layeredDrawableDescriptor?.getMask().getPixelMap(), true)
+        .then((data: image.PixelMap) => {
+          this.iconAsyncResult = data;
+        })
+        .catch((err: BusinessError) => {
+          this.iconAsyncResult = null;
+          console.error(`getHdsIconAsync return error, code: ${err.code}, msg: ${err.message}`);
+        });
+    } catch (err) {
+      this.iconAsyncResult = null;
+      let message = (err as BusinessError).message;
+      let code = (err as BusinessError).code;
+      console.error(`getHdsIconAsync failed, code: ${code}, message: ${message}`);
     }
   }
 
@@ -99,14 +134,14 @@ struct GetHdsIcon {
     let options: hdsDrawable.Options = {
       size: 48,
       hasBorder: true,
-      parallelNumber: 4,
+      parallelNumber: 4
     };
 
     let icons: Array<hdsDrawable.Icon> = [];
     for (let i = 0; i < 10; i++) {
       icons.push({
         bundleName: `${this.bundleName}-${i}`,
-        pixelMap: this.drawableDescriptor.getPixelMap(),
+        pixelMap: this.drawableDescriptor.getPixelMap()
       })
     }
 

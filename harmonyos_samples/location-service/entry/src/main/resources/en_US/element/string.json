@@ -1,0 +1,48 @@
+{
+  "string": [
+    {
+      "name": "entry_desc",
+      "value": "Location Service"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "Location Service"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "Location Service"
+    },
+    {
+      "name": "location_permission",
+      "value": "Allow the app to obtain location information when running in the foreground during location scenarios"
+    },
+    {
+      "name": "internet_permission",
+      "value": "Allow applications to use networks in localization scenarios"
+    },
+    {
+      "name": "fuzzy_location_permission",
+      "value": "Allow the app to obtain fuzzy device location information during location scenarios"
+    },
+    {
+      "name": "you_geocoded_location",
+      "value": "Your inverse geocoding results:"
+    },
+    {
+      "name": "get_cache_location",
+      "value": "Obtain Cached Location"
+    },
+    {
+      "name": "get_current_location",
+      "value": "Obtain Current Location"
+    },
+    {
+      "name": "continuous_positioning",
+      "value": "Obtain Continuous Location"
+    },
+    {
+      "name": "language",
+      "value": "en"
+    }
+  ]
+}
