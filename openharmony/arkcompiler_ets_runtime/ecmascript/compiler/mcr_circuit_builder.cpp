@@ -120,6 +120,10 @@ GateRef CircuitBuilder::StableArrayCheck(GateRef gate, ElementsKind kind, ArrayM
 
 GateRef CircuitBuilder::ElementsKindCheck(GateRef receiver, ElementsKind kind, ArrayMetaDataAccessor::Mode mode)
 {
+    // If elements kind is hole, no ElementsKindCheck is required.
+    if (Elements::IsHole(kind)) {
+        return Circuit::NullGate();
+    }
     auto currentLabel = env_->GetCurrentLabel();
     auto currentControl = currentLabel->GetControl();
     auto currentDepend = currentLabel->GetDepend();
@@ -403,7 +407,7 @@ GateRef CircuitBuilder::ConvertFloat64ToInt32(GateRef gate)
     return Convert(gate, ValueType::FLOAT64, ValueType::INT32);
 }
 
-GateRef CircuitBuilder::CheckFloat64AndConvertToInt32(GateRef gate)
+GateRef CircuitBuilder::CheckFloat64ConvertToInt32Legally(GateRef gate)
 {
     return CheckAndConvert(gate, ValueType::FLOAT64, ValueType::INT32);
 }
@@ -1740,6 +1744,19 @@ GateRef CircuitBuilder::StringFromSingleCharCode(GateRef gate)
     GateRef ret =
         GetCircuit()->NewGate(circuit_->StringFromSingleCharCode(), MachineType::I64,
             { currentControl, currentDepend, gate }, GateType::AnyType());
+    currentLabel->SetControl(ret);
+    currentLabel->SetDepend(ret);
+    return ret;
+}
+
+GateRef CircuitBuilder::StringCharCodeAt(GateRef thisValue, GateRef posTag)
+{
+    auto currentLabel = env_->GetCurrentLabel();
+    auto currentControl = currentLabel->GetControl();
+    auto currentDepend = currentLabel->GetDepend();
+    GateRef ret =
+        GetCircuit()->NewGate(circuit_->StringCharCodeAt(), MachineType::I64,
+            { currentControl, currentDepend, thisValue, posTag }, GateType::AnyType());
     currentLabel->SetControl(ret);
     currentLabel->SetDepend(ret);
     return ret;

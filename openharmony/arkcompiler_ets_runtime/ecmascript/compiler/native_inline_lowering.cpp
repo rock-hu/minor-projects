@@ -86,6 +86,9 @@ void NativeInlineLowering::RunNativeInlineLowering()
             case BuiltinsStubCSigns::ID::StringFromCharCode:
                 TryInlineStringFromCharCode(gate, argc, skipThis);
                 break;
+            case BuiltinsStubCSigns::ID::StringCharCodeAt:
+                TryInlineStringCharCodeAt(gate, argc, skipThis);
+                break;
             case BuiltinsStubCSigns::ID::StringSubstring:
                 TryInlineStringSubstring(gate, argc, skipThis);
                 break;
@@ -433,6 +436,32 @@ void NativeInlineLowering::TryInlineStringFromCharCode(GateRef gate, size_t argc
 
     GateRef ret = builder_.StringFromSingleCharCode(tacc.GetArg0());
     acc_.ReplaceGate(gate, builder_.GetState(), builder_.GetDepend(), ret);
+}
+
+void NativeInlineLowering::TryInlineStringCharCodeAt(GateRef gate, size_t argc, bool skipThis)
+{
+    // only inline number input, string input will be deoptimized
+    if (!skipThis) {
+        return;
+    }
+
+    GateRef thisValue = acc_.GetValueIn(gate, 0);
+    GateRef posTag = (argc == 0) ? (builder_.Int32(0)) : (acc_.GetValueIn(gate, 1));
+    GateRef func = acc_.GetValueIn(gate, argc + 1);
+    Environment env(gate, circuit_, &builder_);
+    if (!Uncheck()) {
+        builder_.CallTargetCheck(gate, func,
+                                 builder_.IntPtr(static_cast<int64_t>(BuiltinsStubCSigns::ID::StringCharCodeAt)),
+                                 {thisValue});
+        builder_.EcmaStringCheck(thisValue);
+    }
+
+    if (EnableTrace()) {
+        AddTraceLogs(gate, BuiltinsStubCSigns::ID::StringCharCodeAt);
+    }
+
+    GateRef ret = builder_.StringCharCodeAt(thisValue, posTag);
+    acc_.ReplaceHirAndDeleteIfException(gate, builder_.GetStateDepend(), ret);
 }
 
 void NativeInlineLowering::TryInlineStringSubstring(GateRef gate, size_t argc, bool skipThis)
@@ -1477,7 +1506,8 @@ void NativeInlineLowering::TryInlineIndexOfIncludes(GateRef gate, size_t argc, B
         builder_.CallTargetCheck(gate, acc_.GetValueIn(gate, argc + 1), builder_.IntPtr(static_cast<int64_t>(id)));
     }
     builder_.BuiltinPrototypeHClassCheck(thisArray, BuiltinTypeId::ARRAY, kind, false);
-    builder_.StableArrayCheck(thisArray, kind, ArrayMetaDataAccessor::Mode::LOAD_ELEMENT);
+    builder_.StableArrayCheck(thisArray, kind, ArrayMetaDataAccessor::Mode::CALL_BUILTIN_METHOD);
+    builder_.ElementsKindCheck(thisArray, kind, ArrayMetaDataAccessor::Mode::CALL_BUILTIN_METHOD);
     GateRef ret = Circuit::NullGate();
     GateRef callID = builder_.Int32(static_cast<int32_t>(id));
     GateRef arrayKind = builder_.Int32(static_cast<int32_t>(kind));
@@ -1536,7 +1566,8 @@ void NativeInlineLowering::TryInlineArrayForEach(GateRef gate, size_t argc, Buil
         builder_.CallTargetCheck(gate, acc_.GetValueIn(gate, argc + 1), builder_.IntPtr(static_cast<int64_t>(id)));
     }
     builder_.BuiltinPrototypeHClassCheck(thisValue, BuiltinTypeId::ARRAY, kind, false);
-    builder_.StableArrayCheck(thisValue, kind, ArrayMetaDataAccessor::Mode::LOAD_ELEMENT);
+    builder_.StableArrayCheck(thisValue, kind, ArrayMetaDataAccessor::Mode::CALL_BUILTIN_METHOD);
+    builder_.ElementsKindCheck(thisValue, kind, ArrayMetaDataAccessor::Mode::CALL_BUILTIN_METHOD);
     GateRef callBackFn = acc_.GetValueIn(gate, 1);
     builder_.IsCallableCheck(callBackFn);
     if (EnableTrace()) {
@@ -1574,7 +1605,8 @@ void NativeInlineLowering::TryInlineArrayFindOrFindIndex(GateRef gate,
     GateRef ret = Circuit::NullGate();
 
     builder_.BuiltinPrototypeHClassCheck(thisValue, BuiltinTypeId::ARRAY, kind, false);
-    builder_.StableArrayCheck(thisValue, kind, ArrayMetaDataAccessor::Mode::LOAD_ELEMENT);
+    builder_.StableArrayCheck(thisValue, kind, ArrayMetaDataAccessor::Mode::CALL_BUILTIN_METHOD);
+    builder_.ElementsKindCheck(thisValue, kind, ArrayMetaDataAccessor::Mode::CALL_BUILTIN_METHOD);
     GateRef callBackFn = acc_.GetValueIn(gate, 1);
     builder_.IsCallableCheck(callBackFn);
     if (EnableTrace()) {
@@ -1609,7 +1641,8 @@ void NativeInlineLowering::TryInlineArrayFilter(GateRef gate, size_t argc, Built
         builder_.CallTargetCheck(gate, acc_.GetValueIn(gate, argc + 1), builder_.IntPtr(static_cast<int64_t>(id)));
     }
     builder_.BuiltinPrototypeHClassCheck(thisValue, BuiltinTypeId::ARRAY, kind, false);
-    builder_.StableArrayCheck(thisValue, kind, ArrayMetaDataAccessor::Mode::LOAD_ELEMENT);
+    builder_.StableArrayCheck(thisValue, kind, ArrayMetaDataAccessor::Mode::CALL_BUILTIN_METHOD);
+    builder_.ElementsKindCheck(thisValue, kind, ArrayMetaDataAccessor::Mode::CALL_BUILTIN_METHOD);
     GateRef callBackFn = acc_.GetValueIn(gate, 1);
     builder_.IsCallableCheck(callBackFn);
     if (EnableTrace()) {
@@ -1645,7 +1678,8 @@ void NativeInlineLowering::TryInlineArrayMap(GateRef gate, size_t argc, Builtins
         builder_.CallTargetCheck(gate, acc_.GetValueIn(gate, argc + 1), builder_.IntPtr(static_cast<int64_t>(id)));
     }
     builder_.BuiltinPrototypeHClassCheck(thisValue, BuiltinTypeId::ARRAY, kind, false);
-    builder_.StableArrayCheck(thisValue, kind, ArrayMetaDataAccessor::Mode::LOAD_ELEMENT);
+    builder_.StableArrayCheck(thisValue, kind, ArrayMetaDataAccessor::Mode::CALL_BUILTIN_METHOD);
+    builder_.ElementsKindCheck(thisValue, kind, ArrayMetaDataAccessor::Mode::CALL_BUILTIN_METHOD);
     GateRef callBackFn = acc_.GetValueIn(gate, 1);
     builder_.IsCallableCheck(callBackFn);
     if (EnableTrace()) {
@@ -1681,7 +1715,8 @@ void NativeInlineLowering::TryInlineArraySome(GateRef gate, size_t argc, Builtin
         builder_.CallTargetCheck(gate, acc_.GetValueIn(gate, argc + 1), builder_.IntPtr(static_cast<int64_t>(id)));
     }
     builder_.BuiltinPrototypeHClassCheck(thisValue, BuiltinTypeId::ARRAY, kind, false);
-    builder_.StableArrayCheck(thisValue, kind, ArrayMetaDataAccessor::Mode::LOAD_ELEMENT);
+    builder_.StableArrayCheck(thisValue, kind, ArrayMetaDataAccessor::Mode::CALL_BUILTIN_METHOD);
+    builder_.ElementsKindCheck(thisValue, kind, ArrayMetaDataAccessor::Mode::CALL_BUILTIN_METHOD);
     GateRef callBackFn = acc_.GetValueIn(gate, 1);
     builder_.IsCallableCheck(callBackFn);
     if (EnableTrace()) {
@@ -1715,7 +1750,8 @@ void NativeInlineLowering::TryInlineArrayEvery(GateRef gate, size_t argc, Builti
         builder_.CallTargetCheck(gate, acc_.GetValueIn(gate, argc + 1), builder_.IntPtr(static_cast<int64_t>(id)));
     }
     builder_.BuiltinPrototypeHClassCheck(thisValue, BuiltinTypeId::ARRAY, kind, false);
-    builder_.StableArrayCheck(thisValue, kind, ArrayMetaDataAccessor::Mode::LOAD_ELEMENT);
+    builder_.StableArrayCheck(thisValue, kind, ArrayMetaDataAccessor::Mode::CALL_BUILTIN_METHOD);
+    builder_.ElementsKindCheck(thisValue, kind, ArrayMetaDataAccessor::Mode::CALL_BUILTIN_METHOD);
     GateRef callBackFn = acc_.GetValueIn(gate, 1);
     builder_.IsCallableCheck(callBackFn);
     if (EnableTrace()) {
@@ -1743,7 +1779,8 @@ void NativeInlineLowering::TryInlineArrayPop(GateRef gate, size_t argc, Builtins
     GateRef thisValue = acc_.GetValueIn(gate, 0);
     ElementsKind kind = acc_.TryGetArrayElementsKind(thisValue);
     builder_.BuiltinPrototypeHClassCheck(thisValue, BuiltinTypeId::ARRAY, kind, false);
-    builder_.StableArrayCheck(thisValue, kind, ArrayMetaDataAccessor::Mode::LOAD_ELEMENT);
+    builder_.StableArrayCheck(thisValue, kind, ArrayMetaDataAccessor::Mode::CALL_BUILTIN_METHOD);
+    builder_.ElementsKindCheck(thisValue, kind, ArrayMetaDataAccessor::Mode::CALL_BUILTIN_METHOD);
     if (EnableTrace()) {
         AddTraceLogs(gate, id);
     }
@@ -1760,7 +1797,8 @@ void NativeInlineLowering::TryInlineArraySlice(GateRef gate, size_t argc, Builti
     GateRef thisValue = acc_.GetValueIn(gate, 0);
     ElementsKind kind = acc_.TryGetArrayElementsKind(thisValue);
     builder_.BuiltinPrototypeHClassCheck(thisValue, BuiltinTypeId::ARRAY, kind, false);
-    builder_.StableArrayCheck(thisValue, kind, ArrayMetaDataAccessor::Mode::LOAD_ELEMENT);
+    builder_.StableArrayCheck(thisValue, kind, ArrayMetaDataAccessor::Mode::CALL_BUILTIN_METHOD);
+    builder_.ElementsKindCheck(thisValue, kind, ArrayMetaDataAccessor::Mode::CALL_BUILTIN_METHOD);
     GateRef frameState = acc_.GetFrameState(gate);
     if (!Uncheck()) {
         builder_.CallTargetCheck(gate, acc_.GetValueIn(gate, argc + 1), builder_.IntPtr(static_cast<int64_t>(id)));
@@ -1812,7 +1850,8 @@ void NativeInlineLowering::TryInlineArraySort(GateRef gate, size_t argc, Builtin
     GateRef ret = Circuit::NullGate();
 
     builder_.BuiltinPrototypeHClassCheck(thisValue, BuiltinTypeId::ARRAY, kind, false);
-    builder_.StableArrayCheck(thisValue, kind, ArrayMetaDataAccessor::Mode::LOAD_ELEMENT);
+    builder_.StableArrayCheck(thisValue, kind, ArrayMetaDataAccessor::Mode::CALL_BUILTIN_METHOD);
+    builder_.ElementsKindCheck(thisValue, kind, ArrayMetaDataAccessor::Mode::CALL_BUILTIN_METHOD);
     ret = builder_.ArraySort(thisValue, builder_.UndefineConstant());
     acc_.ReplaceHirAndDeleteIfException(gate, builder_.GetStateDepend(), ret);
 }

@@ -185,6 +185,7 @@ namespace panda::ecmascript {
     V(NumberHelperStringToDouble)              \
     V(GetStringToListCacheArray)               \
     V(FastArraySort)                           \
+    V(FastArraySortString)                     \
     V(StringToNumber)                          \
     V(StringGetStart)                          \
     V(StringGetEnd)                            \
@@ -196,6 +197,7 @@ namespace panda::ecmascript {
     V(AddElementInternal)                       \
     V(HeapAlloc)                                \
     V(AllocateInYoung)                          \
+    V(AllocateInOld)                            \
     V(AllocateInSOld)                           \
     V(AllocateInSNonMovable)                    \
     V(TypedArraySpeciesCreate)                  \

@@ -269,6 +269,16 @@ public:
         isVerifying_ = verifying;
     }
 
+    void SetGCState(bool inGC)
+    {
+        inGC_ = inGC;
+    }
+
+    bool InGC() const
+    {
+        return inGC_;
+    }
+
     void NotifyHeapAliveSizeAfterGC(size_t size)
     {
         heapAliveSizeAfterGC_ = size;
@@ -372,6 +382,7 @@ protected:
                 LOG_GC(FATAL) << "Recursion in HeapCollectGarbage(isShared=" << static_cast<int>(heapType_)
                               << ") Constructor, depth: " << heap_->recursionDepth_;
             }
+            heap_->SetGCState(true);
         }
         ~RecursionScope()
         {
@@ -379,6 +390,7 @@ protected:
                 LOG_GC(FATAL) << "Recursion in HeapCollectGarbage(isShared=" << static_cast<int>(heapType_)
                               << ") Destructor, depth: " << heap_->recursionDepth_;
             }
+            heap_->SetGCState(false);
         }
     private:
         BaseHeap *heap_ {nullptr};
@@ -416,6 +428,7 @@ protected:
     // ONLY used for heap verification.
     bool shouldVerifyHeap_ {false};
     bool isVerifying_ {false};
+    bool inGC_ {false};
     int32_t recursionDepth_ {0};
 #ifndef NDEBUG
     bool triggerCollectionOnNewObject_ {true};
@@ -1114,11 +1127,13 @@ public:
     // Old
     inline TaggedObject *AllocateOldOrHugeObject(JSHClass *hclass);
     inline TaggedObject *AllocateOldOrHugeObject(JSHClass *hclass, size_t size);
+    inline TaggedObject *AllocateOldOrHugeObject(size_t size);
     // Non-movable
     inline TaggedObject *AllocateNonMovableOrHugeObject(JSHClass *hclass);
     inline TaggedObject *AllocateNonMovableOrHugeObject(JSHClass *hclass, size_t size);
     inline TaggedObject *AllocateClassClass(JSHClass *hclass, size_t size);
     // Huge
+    inline TaggedObject *AllocateHugeObject(size_t size);
     inline TaggedObject *AllocateHugeObject(JSHClass *hclass, size_t size);
     // Machine code
     inline TaggedObject *AllocateMachineCodeObject(JSHClass *hclass, size_t size, MachineCodeDesc *desc = nullptr);
@@ -1501,6 +1516,16 @@ public:
         return gcType_ == TriggerGCType::YOUNG_GC || gcType_ == TriggerGCType::EDEN_GC;
     }
 
+    bool IsProcessingRset() const
+    {
+        return isProcessingRset_;
+    }
+
+    void SetProcessingRset(bool processing)
+    {
+        isProcessingRset_ = processing;
+    }
+
     void EnableEdenGC();
 
     void TryEnableEdenGC();
@@ -1528,7 +1553,6 @@ public:
     }
 
 private:
-    inline TaggedObject *AllocateHugeObject(size_t size);
 
     static constexpr int MIN_JSDUMP_THRESHOLDS = 85;
     static constexpr int MAX_JSDUMP_THRESHOLDS = 95;
@@ -1725,6 +1749,7 @@ private:
     bool fullMarkRequested_ {false};
     bool oldSpaceLimitAdjusted_ {false};
     bool enableIdleGC_ {false};
+    bool isProcessingRset_ {false};
     std::atomic_bool isCSetClearing_ {false};
     HeapMode mode_ { HeapMode::NORMAL };
 

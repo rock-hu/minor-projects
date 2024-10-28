@@ -75,7 +75,7 @@ panda_isa_gen(
         SOURCE ${GENERATED_DIR}
         REQUIRES ${PANDA_ROOT}/assembler/asm_isapi.rb
         DESTINATION ${GENERATED_DIR}
-        EXTRA_DEPENDENCIES inst_templates_merge
+        EXTRA_DEPENDENCIES inst_templates_merge ${INST_TEMPLATES_GEN_YAML}
         )
 
 panda_gen(DATA ${PANDA_BINARY_ROOT}/runtime/intrinsics.yaml
@@ -243,7 +243,7 @@ set(COMPILER_SOURCES
         ${INST_BUILDER_GEN}
         ${IRTOC_IR_INLINE_GEN}
 )
-if (NOT PANDA_TARGET_WINDOWS AND NOT PANDA_TARGET_MACOS)
+if (NOT PANDA_TARGET_MACOS)
     list(APPEND COMPILER_SOURCES
         compile_method.cpp
         optimizer/code_generator/disassembly.cpp

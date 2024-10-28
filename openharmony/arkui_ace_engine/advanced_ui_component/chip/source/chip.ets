@@ -1083,11 +1083,11 @@ export struct ChipComponent {
               .onBlur(() => {
                 this.suffixIconOnFocus = false
               })
-
           }
           .backgroundColor(Color.Transparent)
           .borderRadius(0)
           .padding(0)
+          .size(this.getSuffixIconSize())
           .accessibilityText(this.getSuffixIconAccessibilityText())
           .accessibilityDescription(this.getSuffixIconAccessibilityDescription())
           .accessibilityLevel(this.getSuffixIconAccessibilityLevel())

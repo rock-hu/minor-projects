@@ -134,6 +134,7 @@ private:
     GateRef VisitDateGetTime(GateRef gate);
     GateRef VisitDateNow(GateRef gate);
     GateRef VisitArrayIncludesIndexOf(GateRef gate);
+    GateRef VisitStringCharCodeAt(GateRef gate);
 
     void ConvertForNumberBinaryOp(GateRef gate);
     void ConvertForNumberCompareOp(GateRef gate);
@@ -149,7 +150,7 @@ private:
     double GetDoubleValueFromConst(GateRef gate);
 
     GateRef CheckAndConvertToInt32(GateRef gate, GateType gateType, ConvertSupport support = ConvertSupport::ENABLE,
-                                   OpType type = OpType::NORMAL);
+                                   OpType type = OpType::NORMAL, bool needCheckFloat64 = true);
     GateRef CheckTaggedAndConvertToInt32(GateRef gate, GateType gateType, OpType type);
     GateRef CheckBoundAndConvertToInt32(GateRef gate,
                                         ConvertSupport support = ConvertSupport::ENABLE,

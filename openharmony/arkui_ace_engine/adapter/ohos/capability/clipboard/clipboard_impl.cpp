@@ -623,6 +623,15 @@ void ClipboardImpl::ProcessSpanStringData(std::vector<std::vector<uint8_t>>& arr
         if (pasteDataRecord == nullptr) {
             continue;
         }
+#ifdef SYSTEM_CLIPBOARD_SUPPORTED
+        std::vector<std::string> types = { SPAN_STRING_TAG, OHOS::MiscServices::MIMETYPE_TEXT_URI,
+            OHOS::MiscServices::MIMETYPE_PIXELMAP, OHOS::MiscServices::MIMETYPE_TEXT_PLAIN,
+            OHOS::MiscServices::MIMETYPE_TEXT_HTML };
+        auto validTypes = pasteDataRecord->GetValidMimeTypes(types);
+        if (validTypes.size() > 1) {
+            isMultiTypeRecord = true;
+        }
+#endif
         auto hasSpanString = false;
         auto entryPtr = pasteDataRecord->GetEntryByMimeType(SPAN_STRING_TAG);
         if (entryPtr) {
@@ -632,7 +641,7 @@ void ClipboardImpl::ProcessSpanStringData(std::vector<std::vector<uint8_t>>& arr
             arrays.emplace_back(*spanStringBuffer);
             hasSpanString = true;
         }
-        if (pasteDataRecord->GetHtmlText() != nullptr && hasSpanString) {
+        if (pasteDataRecord->GetHtmlText() != nullptr && !hasSpanString) {
             auto htmlText = pasteDataRecord->GetHtmlText();
             HtmlToSpan toSpan;
             auto spanStr = toSpan.ToSpanString(*htmlText);
@@ -645,7 +654,6 @@ void ClipboardImpl::ProcessSpanStringData(std::vector<std::vector<uint8_t>>& arr
         if (pasteDataRecord->GetPlainText() != nullptr) {
             auto textData = pasteDataRecord->GetPlainText();
             text.append(*textData);
-            isMultiTypeRecord = !(*textData).empty() && hasSpanString;
         }
     }
 }

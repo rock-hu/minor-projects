@@ -11,3 +11,9 @@ Matrix_test
 #20145
 validator_test
 
+#19246
+asn-one_test
+
+#19246
+pdfview_test
+mathjs_test

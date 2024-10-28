@@ -173,14 +173,10 @@ void BuiltinsArrayStubBuilder::Unshift(GateRef glue, GateRef thisValue, GateRef 
     Label isHeapObject(env);
     Label isJsArray(env);
     Label isStableJsArray(env);
-    Label isGeneric(env);
     Label notOverRange(env);
     Label numNotEqualZero(env);
     Label numLessThanOrEqualThree(env);
-    Label loopHead(env);
-    Label next(env);
-    Label loopEnd(env);
-    Label loopExit(env);
+    Label afterCopy(env);
     Label grow(env);
     Label setValue(env);
     Label matchCls(env);
@@ -207,69 +203,48 @@ void BuiltinsArrayStubBuilder::Unshift(GateRef glue, GateRef thisValue, GateRef 
     // 3 : max param num
     BRANCH(Int64LessThanOrEqual(numArgs, IntPtr(3)), &numLessThanOrEqualThree, slowPath);
     Bind(&numLessThanOrEqualThree);
+    GateRef capacity = ZExtInt32ToInt64(GetLengthOfTaggedArray(GetElementsArray(thisValue)));
+    BRANCH(Int64GreaterThan(newLen, capacity), &grow, &setValue);
+    Bind(&grow);
     {
-        DEFVARIABLE(elements, VariableType::JS_ANY(), GetElementsArray(thisValue));
-        GateRef capacity = ZExtInt32ToInt64(GetLengthOfTaggedArray(*elements));
-        BRANCH(Int64GreaterThan(newLen, capacity), &grow, &setValue);
-        Bind(&grow);
+        GrowElementsCapacity(glue, thisValue, TruncInt64ToInt32(newLen));
+        Jump(&setValue);
+    }
+    Bind(&setValue);
+    {
+        Label elementsKindEnabled(env);
+        GateRef elements = GetElementsArray(thisValue);
+        GateRef arrayStart = GetDataPtrInTaggedArray(elements);
+        GateRef moveTo = PtrAdd(arrayStart, PtrMul(numArgs, IntPtr(JSTaggedValue::TaggedTypeSize())));
+        GateRef isElementsKindEnabled = IsEnableElementsKind(glue);
+        Label isIntOrNumber(env);
+        Label isTagged(env);
+        BRANCH_NO_WEIGHT(isElementsKindEnabled, &elementsKindEnabled, &isTagged);
+        Bind(&elementsKindEnabled);
         {
-            elements = CallRuntime(glue, RTSTUB_ID(JSObjectGrowElementsCapacity), {thisValue, IntToTaggedInt(newLen)});
-            Jump(&setValue);
-        }
-        Bind(&setValue);
-        {
-            DEFVARIABLE(fromKey, VariableType::INT64(), Int64Sub(thisLen, Int64(1)));
-            DEFVARIABLE(toKey, VariableType::INT64(), Int64Sub(newLen, Int64(1)));
-            DEFVARIABLE(ele, VariableType::JS_ANY(), Hole());
-            Label eleIsHole(env);
-            Label hasProperty(env);
-            Label notHasProperty(env);
-            Label hasException0(env);
-            Label notHasException0(env);
-            Jump(&loopHead);
-            LoopBegin(&loopHead);
+            GateRef kind = GetElementsKindFromHClass(LoadHClass(thisValue));
+            GateRef isInt = LogicAndBuilder(env)
+                            .And(Int32GreaterThanOrEqual(kind, Int32(static_cast<int32_t>(ElementsKind::INT))))
+                            .And(Int32LessThanOrEqual(kind, Int32(static_cast<int32_t>(ElementsKind::HOLE_INT))))
+                            .Done();
+            GateRef isNumber = LogicAndBuilder(env)
+                               .And(Int32GreaterThanOrEqual(kind, Int32(static_cast<int32_t>(ElementsKind::NUMBER))))
+                               .And(Int32LessThanOrEqual(kind, Int32(static_cast<int32_t>(ElementsKind::HOLE_NUMBER))))
+                               .Done();
+            GateRef isIntOrNumberKind = LogicOrBuilder(env).Or(isInt).Or(isNumber).Done();
+            BRANCH_NO_WEIGHT(isIntOrNumberKind, &isIntOrNumber, &isTagged);
+            Bind(&isIntOrNumber);
             {
-                BRANCH(Int64GreaterThanOrEqual(*fromKey, Int64(0)), &next, &loopExit);
-                Bind(&next);
-                {
-                    ele = GetTaggedValueWithElementsKind(thisValue, *fromKey);
-                    BRANCH(TaggedIsHole(*ele), &eleIsHole, &notHasException0);
-                    Bind(&eleIsHole);
-                    {
-                        GateRef hasProp = CallRuntime(glue, RTSTUB_ID(HasProperty),
-                            { thisValue, IntToTaggedInt(*fromKey) });
-                        BRANCH(TaggedIsTrue(hasProp), &hasProperty, &notHasProperty);
-                        Bind(&hasProperty);
-                        {
-                            ele = FastGetPropertyByIndex(glue, thisValue, TruncInt64ToInt32(*fromKey),
-                                ProfileOperation());
-                            BRANCH(HasPendingException(glue), &hasException0, &notHasException0);
-                            Bind(&hasException0);
-                            {
-                                result->WriteVariable(Exception());
-                                Jump(exit);
-                            }
-                        }
-                        Bind(&notHasProperty);
-                        {
-                            SetValueWithElementsKind(glue, thisValue, Hole(), *toKey, Boolean(false),
-                                Int32(static_cast<uint32_t>(ElementsKind::NONE)));
-                            Jump(&loopEnd);
-                        }
-                    }
-                    Bind(&notHasException0);
-                    {
-                        SetValueWithElementsKind(glue, thisValue, *ele, *toKey, Boolean(false),
-                            Int32(static_cast<uint32_t>(ElementsKind::NONE)));
-                        Jump(&loopEnd);
-                    }
-                }
+                ArrayCopy<MustOverlap>(glue, arrayStart, moveTo, TruncInt64ToInt32(thisLen),
+                                       MemoryAttribute::NoBarrier());
+                Jump(&afterCopy);
             }
-            Bind(&loopEnd);
-            fromKey = Int64Sub(*fromKey, Int64(1));
-            toKey = Int64Sub(*toKey, Int64(1));
-            LoopEnd(&loopHead);
-            Bind(&loopExit);
+            Bind(&isTagged);
+            {
+                ArrayCopy<MustOverlap>(glue, arrayStart, moveTo, TruncInt64ToInt32(thisLen));
+                Jump(&afterCopy);
+            }
+            Bind(&afterCopy);
             {
                 GateRef value0 = GetCallArg0(numArgs);
                 // 0 : the first Element position
@@ -1544,17 +1519,42 @@ GateRef BuiltinsArrayStubBuilder::DoSort(GateRef glue, GateRef receiver, GateRef
                 Bind(&afterGettingmiddleValue);
                 {
                     Label isInt(env);
+                    Label notInt(env);
+                    Label exchangeIndex(env);
                     GateRef middleVal = *middleValue;
                     GateRef presentVal = *presentValue;
-                    BRANCH(LogicAndBuilder(env).And(TaggedIsInt(middleVal)).And(TaggedIsInt(presentVal)).Done(),
-                        &isInt, slowPath);
+                    DEFVARIABLE(compareResult, VariableType::INT32(), Int32(0));
+                    GateRef intBool = LogicAndBuilder(env)
+                                        .And(TaggedIsInt(middleVal))
+                                        .And(TaggedIsInt(presentVal))
+                                        .Done();
+                    BRANCH(intBool, &isInt, &notInt);
                     Bind(&isInt);
                     {
-                        GateRef compareResult =
+                        compareResult =
                             CallNGCRuntime(glue, RTSTUB_ID(FastArraySort), {*middleValue, *presentValue});
+                        Jump(&exchangeIndex);
+                    }
+                    Bind(&notInt);
+                    {
+                        Label isString(env);
+                        GateRef strBool = LogicAndBuilder(env)
+                                        .And(TaggedIsString(middleVal))
+                                        .And(TaggedIsString(presentVal))
+                                        .Done();
+                        BRANCH(strBool, &isString, slowPath);
+                        Bind(&isString);
+                        {
+                            compareResult = CallNGCRuntime(glue,
+                                RTSTUB_ID(FastArraySortString), {glue, *middleValue, *presentValue});
+                            Jump(&exchangeIndex);
+                        }
+                    }
+                    Bind(&exchangeIndex);
+                    {
                         Label less0(env);
                         Label greater0(env);
-                        BRANCH(Int32LessThanOrEqual(compareResult, Int32(0)), &less0, &greater0);
+                        BRANCH(Int32LessThanOrEqual(*compareResult, Int32(0)), &less0, &greater0);
                         Bind(&greater0);
                         {
                             endIndex = middleIndex;
@@ -1910,7 +1910,7 @@ void BuiltinsArrayStubBuilder::FastReverse(GateRef glue, GateRef thisValue, Gate
 }
 
 void BuiltinsArrayStubBuilder::ToReversed(GateRef glue, GateRef thisValue, [[maybe_unused]] GateRef numArgs,
-    Variable *result, Label *exit, Label *slowPath)
+                                          Variable* result, Label* exit, Label* slowPath)
 {
     auto env = GetEnvironment();
     Label isHeapObject(env);
@@ -1928,141 +1928,126 @@ void BuiltinsArrayStubBuilder::ToReversed(GateRef glue, GateRef thisValue, [[may
     Bind(&isStability);
     BRANCH(IsJsCOWArray(thisValue), slowPath, &notCOWArray);
     Bind(&notCOWArray);
+    Label newArrayIsTagged(env);
+    Label notChange(env);
+    GateRef isElementsKindEnabled = IsEnableElementsKind(glue);
+    DEFVARIABLE(newHClass, VariableType::JS_ANY(), LoadHClass(thisValue));
+    GateRef kind = GetElementsKindFromHClass(LoadHClass(thisValue));
+    BRANCH_NO_WEIGHT(LogicAndBuilder(env).And(isElementsKindEnabled).And(ElementsKindHasHole(kind)).Done(),
+                     &newArrayIsTagged, &notChange);
+    Bind(&newArrayIsTagged);
+    {
+        // If the kind has hole, we know it must be transited to TAGGED kind;
+        // There will be no hole in the new array because hole will be converted to undefined.
+        newHClass = GetGlobalConstantValue(VariableType::JS_ANY(), glue, ConstantIndex::ELEMENT_TAGGED_HCLASS_INDEX);
+        Jump(&notChange);
+    }
 
+    Bind(&notChange);
     GateRef thisArrLen = GetArrayLength(thisValue);
-    GateRef receiver = NewArray(glue, Int32(0));
+    GateRef receiver = NewEmptyArrayWithHClass(glue, *newHClass);
     GrowElementsCapacity(glue, receiver, thisArrLen);
     SetArrayLength(glue, receiver, thisArrLen);
-    result->WriteVariable(DoReverse(glue, thisValue, receiver, Boolean(true), result, exit));
+
+    Label afterReverse(env);
+    Label isIntOrNumber(env);
+    Label notIntOrNumber(env);
+    Label isTagged(env);
+    Label isHoleOrIntOrNumber(env);
+    Label elementsKindEnabled(env);
+    BRANCH_NO_WEIGHT(isElementsKindEnabled, &elementsKindEnabled, &isTagged);
+    Bind(&elementsKindEnabled);
+    {
+        GateRef intOrNumber = LogicOrBuilder(env)
+                              .Or(Int32Equal(kind, Int32(static_cast<int32_t>(ElementsKind::INT))))
+                              .Or(Int32Equal(kind, Int32(static_cast<int32_t>(ElementsKind::NUMBER))))
+                              .Done();
+        BRANCH_NO_WEIGHT(intOrNumber, &isIntOrNumber, &notIntOrNumber);
+        Bind(&notIntOrNumber);
+        {
+            GateRef holeOrIntOrNumber = LogicOrBuilder(env)
+                                        .Or(Int32Equal(kind, Int32(static_cast<int32_t>(ElementsKind::HOLE_INT))))
+                                        .Or(Int32Equal(kind, Int32(static_cast<int32_t>(ElementsKind::HOLE_NUMBER))))
+                                        .Done();
+            BRANCH_NO_WEIGHT(holeOrIntOrNumber, &isHoleOrIntOrNumber, &isTagged);
+        }
+    }
+    Bind(&isTagged);
+    {
+        // The old array and new array are both TaggedArray, so load and store the element directly.
+        // And barrier is needed.
+        DoReverse(glue, thisValue, receiver, true, false, MemoryAttribute::Default());
+        Jump(&afterReverse);
+    }
+    Bind(&isIntOrNumber);
+    {
+        // The old array and new array are both MutantTaggedArray, so load and store the element directly.
+        // And barrier is not needed.
+        DoReverse(glue, thisValue, receiver, false, false, MemoryAttribute::NoBarrier());
+        Jump(&afterReverse);
+    }
+    Bind(&isHoleOrIntOrNumber);
+    {
+        // The old array is mutant, but new array is TaggedArray, so load the value from old array with
+        // elements kind. And set it to new array directly, And barrier is not needed.
+        DoReverse(glue, thisValue, receiver, true, true, MemoryAttribute::NoBarrier());
+        Jump(&afterReverse);
+    }
+    Bind(&afterReverse);
+    result->WriteVariable(receiver);
     Jump(exit);
 }
 
-GateRef BuiltinsArrayStubBuilder::DoReverse(GateRef glue, GateRef thisValue, GateRef receiver,
-    GateRef receiverState, Variable *result, Label *exit)
+void BuiltinsArrayStubBuilder::DoReverse(GateRef glue, GateRef fromArray, GateRef toArray, bool holeToUndefined,
+                                         bool getWithKind, MemoryAttribute mAttr)
 {
     auto env = GetEnvironment();
     Label entry(env);
     env->SubCfgEntry(&entry);
-    DEFVARIABLE(i, VariableType::INT64(), Int64(0));
-    DEFVARIABLE(j, VariableType::INT64(), Int64Sub(ZExtInt32ToInt64(GetArrayLength(thisValue)), Int64(1)));
-    Label loopHead(env);
-    Label loopEnd(env);
-    Label next(env);
     Label loopExit(env);
+    Label begin(env);
+    Label body(env);
+    Label endLoop(env);
 
-    Jump(&loopHead);
-    LoopBegin(&loopHead);
+    GateRef fromElements = GetElementsArray(fromArray);
+    GateRef toElements = GetElementsArray(toArray);
+    GateRef thisArrLen = GetArrayLength(fromArray);
+    DEFVARIABLE(index, VariableType::INT32(), Int32(0));
+    GateRef endIndex = Int32Sub(thisArrLen, Int32(1));
+    Jump(&begin);
+    LoopBegin(&begin);
     {
-        DEFVARIABLE(lower, VariableType::JS_ANY(), Hole());
-        DEFVARIABLE(upper, VariableType::JS_ANY(), Hole());
-        Label lowerValueIsHole(env);
-        Label afterGettingLower(env);
-        Label lowerHasProperty(env);
-        Label lowerHasException0(env);
-        Label upperValueIsHole(env);
-        Label afterGettingUpper(env);
-        Label upperHasProperty(env);
-        Label upperHasException0(env);
-        Label receiverIsNew(env);
-        Label receiverIsOrigin(env);
-        Label lowerIsHole(env);
-        Label lowerIsNotHole(env);
-        Label dealWithUpper(env);
-        Label upperIsHole(env);
-        Label upperIsNotHole(env);
-        BRANCH(Int64LessThanOrEqual(*i, *j), &next, &loopExit);
-        Bind(&next);
+        BRANCH_LIKELY(Int32UnsignedLessThan(*index, thisArrLen), &body, &loopExit);
+        Bind(&body);
         {
-            lower = GetTaggedValueWithElementsKind(thisValue, *i);
-            BRANCH(TaggedIsHole(*lower), &lowerValueIsHole, &afterGettingLower);
-            Bind(&lowerValueIsHole);
-            {
-                GateRef lowerHasProp = CallRuntime(glue, RTSTUB_ID(HasProperty), { thisValue, IntToTaggedInt(*i) });
-                BRANCH(TaggedIsTrue(lowerHasProp), &lowerHasProperty, &afterGettingLower);
-                Bind(&lowerHasProperty);
+            GateRef toIndex = Int32Sub(endIndex, *index);
+            // The old array and new array are both TaggedArray, so load and store the element directly.
+            // And barrier is needed.
+            GateRef value = getWithKind ? GetTaggedValueWithElementsKind(fromArray, *index)
+                                        : GetValueFromTaggedArray(fromElements, *index);
+            if (holeToUndefined) {
+                Label isHole(env);
+                Label isNotHole(env);
+                BRANCH_UNLIKELY(TaggedIsHole(value), &isHole, &isNotHole);
+                Bind(&isHole);
                 {
-                    lower = FastGetPropertyByIndex(glue, thisValue, TruncInt64ToInt32(*i), ProfileOperation());
-                    BRANCH(HasPendingException(glue), &lowerHasException0, &afterGettingLower);
-                    Bind(&lowerHasException0);
-                    {
-                        result->WriteVariable(Exception());
-                        Jump(exit);
-                    }
+                    // The return value of toReversed() is never sparse.
+                    // Empty slots become undefined in the returned array.
+                    SetValueToTaggedArray(VariableType::JS_ANY(), glue, toElements, toIndex, Undefined(),
+                                          MemoryAttribute::NoBarrier());
+                    Jump(&endLoop);
                 }
+                Bind(&isNotHole);
             }
-            Bind(&afterGettingLower);
-            {
-                upper = GetTaggedValueWithElementsKind(thisValue, *j);
-                BRANCH(TaggedIsHole(*upper), &upperValueIsHole, &afterGettingUpper);
-                Bind(&upperValueIsHole);
-                {
-                    GateRef upperHasProp = CallRuntime(glue, RTSTUB_ID(HasProperty), { thisValue, IntToTaggedInt(*j) });
-                    BRANCH(TaggedIsTrue(upperHasProp), &upperHasProperty, &afterGettingUpper);
-                    Bind(&upperHasProperty);
-                    {
-                        upper = FastGetPropertyByIndex(glue, thisValue, TruncInt64ToInt32(*j), ProfileOperation());
-                        BRANCH(HasPendingException(glue), &upperHasException0, &afterGettingUpper);
-                    }
-                    Bind(&upperHasException0);
-                    {
-                        result->WriteVariable(Exception());
-                        Jump(exit);
-                    }
-                }
-                Bind(&afterGettingUpper);
-                {
-                    BRANCH(receiverState, &receiverIsNew, &receiverIsOrigin);
-                    Bind(&receiverIsNew);
-                    {
-                        BRANCH(TaggedIsHole(*lower), &lowerIsHole, &lowerIsNotHole);
-                        Bind(&lowerIsHole);
-                        {
-                            SetValueWithElementsKind(glue, receiver, Undefined(), *j, Boolean(true),
-                                Int32(static_cast<uint32_t>(ElementsKind::NONE)));
-                            Jump(&dealWithUpper);
-                        }
-                        Bind(&lowerIsNotHole);
-                        {
-                            SetValueWithElementsKind(glue, receiver, *lower, *j, Boolean(true),
-                                Int32(static_cast<uint32_t>(ElementsKind::NONE)));
-                            Jump(&dealWithUpper);
-                        }
-                        Bind(&dealWithUpper);
-                        {
-                            BRANCH(TaggedIsHole(*upper), &upperIsHole, &upperIsNotHole);
-                            Bind(&upperIsHole);
-                            {
-                                SetValueWithElementsKind(glue, receiver, Undefined(), *i, Boolean(true),
-                                    Int32(static_cast<uint32_t>(ElementsKind::NONE)));
-                                Jump(&loopEnd);
-                            }
-                            Bind(&upperIsNotHole);
-                            {
-                                SetValueWithElementsKind(glue, receiver, *upper, *i, Boolean(true),
-                                    Int32(static_cast<uint32_t>(ElementsKind::NONE)));
-                                Jump(&loopEnd);
-                            }
-                        }
-                    }
-                    Bind(&receiverIsOrigin);
-                    {
-                        SetValueWithElementsKind(glue, receiver, *upper, *i, Boolean(false),
-                            Int32(static_cast<uint32_t>(ElementsKind::NONE)));
-                        SetValueWithElementsKind(glue, receiver, *lower, *j, Boolean(false),
-                            Int32(static_cast<uint32_t>(ElementsKind::NONE)));
-                        Jump(&loopEnd);
-                    }
-                }
-            }
+            SetValueToTaggedArray(VariableType::JS_ANY(), glue, toElements, toIndex, value, mAttr);
+            Jump(&endLoop);
         }
     }
-    Bind(&loopEnd);
-    i = Int64Add(*i, Int64(1));
-    j = Int64Sub(*j, Int64(1));
-    LoopEnd(&loopHead);
+    Bind(&endLoop);
+    index = Int32Add(*index, Int32(1));
+    LoopEnd(&begin);
     Bind(&loopExit);
     env->SubCfgExit();
-    return receiver;
 }
 
 GateRef BuiltinsArrayStubBuilder::IsJsArrayWithLengthLimit(GateRef glue, GateRef object,
@@ -2508,6 +2493,16 @@ GateRef BuiltinsArrayStubBuilder::IsConcatSpreadable(GateRef glue, GateRef obj)
     return res;
 }
 
+void BuiltinsArrayStubBuilder::InitializeArray(GateRef glue, GateRef count, Variable* result, GateRef intialHClass)
+{
+    GateRef lengthOffset = IntPtr(JSArray::LENGTH_OFFSET);
+    Store(VariableType::INT32(), glue, result->ReadVariable(), lengthOffset, TruncInt64ToInt32(count));
+    GateRef accessor = GetGlobalConstantValue(VariableType::JS_ANY(), glue, ConstantIndex::ARRAY_LENGTH_ACCESSOR);
+    SetPropertyInlinedProps(glue, result->ReadVariable(), intialHClass, accessor,
+                            Int32(JSArray::LENGTH_INLINE_PROPERTY_INDEX));
+    SetExtensibleToBitfield(glue, result->ReadVariable(), true);
+}
+
 GateRef BuiltinsArrayStubBuilder::NewArray(GateRef glue, GateRef count)
 {
     auto env = GetEnvironment();
@@ -2526,11 +2521,7 @@ GateRef BuiltinsArrayStubBuilder::NewArray(GateRef glue, GateRef count)
     BRANCH(TaggedIsException(*result), &exit, &setProperties);
     Bind(&setProperties);
     {
-        GateRef lengthOffset = IntPtr(JSArray::LENGTH_OFFSET);
-        Store(VariableType::INT32(), glue, *result, lengthOffset, TruncInt64ToInt32(count));
-        GateRef accessor = GetGlobalConstantValue(VariableType::JS_ANY(), glue, ConstantIndex::ARRAY_LENGTH_ACCESSOR);
-        SetPropertyInlinedProps(glue, *result, intialHClass, accessor, Int32(JSArray::LENGTH_INLINE_PROPERTY_INDEX));
-        SetExtensibleToBitfield(glue, *result, true);
+        InitializeArray(glue, count, &result, intialHClass);
         Jump(&exit);
     }
     Bind(&exit);
@@ -2538,6 +2529,35 @@ GateRef BuiltinsArrayStubBuilder::NewArray(GateRef glue, GateRef count)
     env->SubCfgExit();
     return res;
 }
+
+// new an empty array, the length is zero, but with specific hclass,
+GateRef BuiltinsArrayStubBuilder::NewEmptyArrayWithHClass(GateRef glue, GateRef hclass)
+{
+    #if ECMASCRIPT_ENABLE_ELEMENTSKIND_ALWAY_GENERIC
+    hclass = GetGlobalConstantValue(VariableType::JS_ANY(), glue, ConstantIndex::ELEMENT_HOLE_TAGGED_HCLASS_INDEX);
+    #endif
+    // New an array with zero length.
+    auto env = GetEnvironment();
+    Label entry(env);
+    env->SubCfgEntry(&entry);
+    DEFVARIABLE(result, VariableType::JS_POINTER(), Undefined());
+    Label exit(env);
+    Label setProperties(env);
+    NewObjectStubBuilder newBuilder(this);
+    newBuilder.SetParameters(glue, Int32(0));
+    result = newBuilder.NewEmptyJSArrayWithHClass(hclass);
+    BRANCH(TaggedIsException(*result), &exit, &setProperties);
+    Bind(&setProperties);
+    {
+        InitializeArray(glue, Int32(0), &result, hclass);
+        Jump(&exit);
+    }
+    Bind(&exit);
+    auto res = *result;
+    env->SubCfgExit();
+    return res;
+}
+
 
 void BuiltinsArrayStubBuilder::Includes(GateRef glue, GateRef thisValue, GateRef numArgs,
     Variable *result, Label *exit, Label *slowPath)

@@ -998,7 +998,7 @@ ecma_platform_source += [
   "ecmascript/platform/common/map.cpp",
   "ecmascript/platform/common/mutex.cpp",
   "ecmascript/platform/common/filesystem.cpp",
-  "ecmascript/platform/common/ffrt_adapter.cpp",
+  "ecmascript/platform/common/ffrt.cpp",
 ]
 
 config("include_llvm") {
@@ -1027,10 +1027,17 @@ config("include_llvm") {
       }
     } else {
       if (host_cpu == "arm64" && host_os == "linux") {
-        include_dirs = [
-          "//prebuilts/ark_tools/ark_js_prebuilts/llvm_prebuilts_linux_aarch64/llvm/include",
-          "//prebuilts/ark_tools/ark_js_prebuilts/llvm_prebuilts_linux_aarch64/build/include",
-        ]
+        if (current_os == "ohos") {
+          include_dirs = [
+            "//prebuilts/ark_tools/ark_js_prebuilts/llvm_prebuilts_aarch64/llvm/include",
+            "//prebuilts/ark_tools/ark_js_prebuilts/llvm_prebuilts_aarch64/build/include",
+          ]
+        } else {
+          include_dirs = [
+            "//prebuilts/ark_tools/ark_js_prebuilts/llvm_prebuilts_linux_aarch64/llvm/include",
+            "//prebuilts/ark_tools/ark_js_prebuilts/llvm_prebuilts_linux_aarch64/build/include",
+          ]
+        }
       } else {
         if (current_cpu == "arm64") {
           include_dirs = [

@@ -271,6 +271,7 @@ public:
     GateRef ElementsKindIsIntOrHoleInt(GateRef kind);
     GateRef ElementsKindIsNumOrHoleNum(GateRef kind);
     GateRef ElementsKindIsHeapKind(GateRef kind);
+    GateRef ElementsKindHasHole(GateRef kind);
 
     GateRef LoadBuiltinObject(size_t offset);
 
@@ -389,9 +390,9 @@ public:
     }
 
     // **************************** High IR ******************************
-    GateRef CreateArray(ElementsKind kind, uint32_t arraySize, GateRef elementsLength);
+    GateRef CreateArray(ElementsKind kind, uint32_t arraySize, GateRef elementsLength, RegionSpaceFlag flag);
     GateRef CreateArrayWithBuffer(ElementsKind kind, ArrayMetaDataAccessor::Mode mode, GateRef cpId,
-                                  GateRef constPoolIndex);
+                                  GateRef constPoolIndex, RegionSpaceFlag flag);
     GateRef CreateArguments(ElementsKind kind, CreateArgumentsAccessor::Mode mode, GateRef restIdx);
     GateRef Construct(GateRef hirGate, std::vector<GateRef> args);
     GateRef CallNew(GateRef hirGate, std::vector<GateRef> args, bool needPushArgv = false);
@@ -622,7 +623,7 @@ public:
     GateRef CheckHoleDoubleAndConvertToInt32(GateRef gate);
     GateRef CheckHoleIntAndConvertToFloat64(GateRef gate);
     GateRef CheckHoleDoubleAndConvertToFloat64(GateRef gate);
-    GateRef CheckFloat64AndConvertToInt32(GateRef gate);
+    GateRef CheckFloat64ConvertToInt32Legally(GateRef gate);
     GateRef StartAllocate();
     GateRef FinishAllocate(GateRef value);
 
@@ -766,6 +767,7 @@ public:
         GateRef charSize, VariableType type);
     void SetRawHashcode(GateRef glue, GateRef str, GateRef rawHashcode, GateRef isInteger);
     GateRef StringFromSingleCharCode(GateRef gate);
+    GateRef StringCharCodeAt(GateRef thisValue, GateRef posTag);
     GateRef StringSubstring(GateRef thisValue, GateRef startTag, GateRef endTag);
     GateRef StringSubStr(GateRef thisValue, GateRef intStart, GateRef lengthTag);
     GateRef StringSlice(GateRef thisValue, GateRef startTag, GateRef endTag);

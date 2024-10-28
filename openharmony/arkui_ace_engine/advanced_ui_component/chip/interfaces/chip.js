@@ -1762,6 +1762,7 @@ export class d1 extends ViewPU {
             Button.backgroundColor(Color.Transparent);
             Button.borderRadius(0);
             Button.padding(0);
+            Button.size(this.getSuffixIconSize());
             Button.accessibilityText(this.getSuffixIconAccessibilityText());
             Button.accessibilityDescription(
               this.getSuffixIconAccessibilityDescription()

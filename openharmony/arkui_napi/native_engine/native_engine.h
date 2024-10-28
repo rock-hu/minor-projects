@@ -218,7 +218,7 @@ public:
         lastError_.message = nullptr;
         lastError_.reserved = nullptr;
     }
-    void EncodeToUtf8(napi_value value, char* buffer, int32_t* written, size_t bufferSize, int32_t* nchars);
+    void EncodeToUtf8(napi_value value, char* buffer, uint32_t* written, size_t bufferSize, int32_t* nchars);
     void EncodeToChinese(napi_value value, std::string& buffer, const std::string& encoding);
     NativeEngine(NativeEngine&) = delete;
     virtual NativeEngine& operator=(NativeEngine&) = delete;
@@ -592,6 +592,8 @@ private:
     static std::mutex g_mainThreadEngineMutex_;
     static NativeEngine* g_mainThreadEngine_;
 };
+
+bool DumpHybridStack(const EcmaVM* vm, std::string &stack, uint32_t ignored = 0, int32_t deepth = -1);
 
 class TryCatch : public panda::TryCatch {
 public:

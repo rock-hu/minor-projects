@@ -703,6 +703,11 @@ inline GateRef StubBuilder::ElementsKindIsHeapKind(GateRef kind)
     return env_->GetBuilder()->ElementsKindIsHeapKind(kind);
 }
 
+inline GateRef StubBuilder::ElementsKindHasHole(GateRef kind)
+{
+    return env_->GetBuilder()->ElementsKindHasHole(kind);
+}
+
 inline GateRef StubBuilder::TaggedIsUndefined(GateRef x)
 {
     return env_->GetBuilder()->TaggedIsUndefined(x);
@@ -2324,6 +2329,11 @@ inline GateRef StubBuilder::GetValueFromTaggedArray(GateRef array, GateRef index
     GateRef offset = PtrMul(ZExtInt32ToPtr(index), IntPtr(JSTaggedValue::TaggedTypeSize()));
     GateRef dataOffset = PtrAdd(offset, IntPtr(TaggedArray::DATA_OFFSET));
     return Load(VariableType::JS_ANY(), array, dataOffset);
+}
+
+inline GateRef StubBuilder::GetDataPtrInTaggedArray(GateRef array)
+{
+    return PtrAdd(array, IntPtr(TaggedArray::DATA_OFFSET));
 }
 
 inline GateRef StubBuilder::GetUnsharedConstpoolIndex(GateRef constpool)
