@@ -18,7 +18,7 @@ export struct GridItemDrag {
   @State numbers: string[] = Array.from({ length: 15 }, (item: string, i: number) => i.toString());
   @State dragIndex: number = -1;
 
-  // 自定义拖拽过程中显示的内容
+  // Customize the content displayed during dragging
   @Builder
   pixelMapBuilder(item: string) {
     Text(item)

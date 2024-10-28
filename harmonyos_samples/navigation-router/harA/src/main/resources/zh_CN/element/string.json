@@ -19,6 +19,10 @@
     {
       "name": "to_hara_pageA2",
       "value": "跳转到HarA的A2页面"
+    },
+    {
+      "name": "param",
+      "value": "传入的参数："
     }
   ]
 }

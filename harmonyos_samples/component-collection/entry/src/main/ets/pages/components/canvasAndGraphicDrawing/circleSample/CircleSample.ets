@@ -21,7 +21,7 @@ import { CircleControlPanel } from './ChangePanel';
 @Extend(Column)
 function cardStyle() {
   .backgroundColor($r('app.color.white'))
-  //参考规范 卡片：16vp
+  //Reference Specification Card: 16vp
   .borderRadius(16)
   .width('100%')
   .padding(12)
@@ -43,7 +43,7 @@ struct CircleSample {
       TitleBar({ title: $r('app.string.circle_title') })
       Column() {
         Column() {
-          // 绘制一个直径为100的圆,宽高设置不一致时以短边为直径
+          // Draw a circle width a diameter of 100. If the width and height are inconsistent, the short side is used as the diameter.
           Circle()
             .width(this.circleRadius)
             .height(this.circleRadius)

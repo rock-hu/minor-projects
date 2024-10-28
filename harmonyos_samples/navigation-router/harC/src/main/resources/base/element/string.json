@@ -6,11 +6,11 @@
     },
     {
       "name": "to_harb_pageB2",
-      "value": "ToHarBPageB2"
+      "value": "Go to HarC's C1 page"
     },
     {
       "name": "to_harc_pageC2",
-      "value": "ToHarCPageC2"
+      "value": "Go to HarC's C2 page"
     }
   ]
 }

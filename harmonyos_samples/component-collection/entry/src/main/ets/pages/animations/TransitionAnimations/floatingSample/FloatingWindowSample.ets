@@ -23,26 +23,26 @@ const TAG = '[FloatingWindowPage]';
 @Entry
 @Component
 struct FloatingWindowSample {
-  private diameter: number = 120; // 触摸点相对偏移量
-  @State positionX: number = 50; // 组件位置X
-  @State positionY: number = 500; // 组件位置Y
-  @State displayHalfWidth: number = 0; // 屏幕一半的宽
-  @State displayHalfHeight: number = 0; // 屏幕一半的高
-  @State moveStartX: number = 0; // X方向起始点
-  @State moveStartY: number = 0; // Y方向起始点
-  @State moveEndX: number = 0; // X方向终点
-  @State moveEndY: number = 0; // Y方向终点
-  @State moveSumLengthX: number = 0; // X方向移动距离总和
-  @State moveSumLengthY: number = 0; // Y方向移动距离总和
-  @State moveStartTime: number = 0; // 触摸开始时间
-  @State moveEndTime: number = 0; // 触摸结束时间
+  private diameter: number = 120; // Relative offset of touch point
+  @State positionX: number = 50; // Component Position X
+  @State positionY: number = 500; // Component Position Y
+  @State displayHalfWidth: number = 0; // Half the screen width
+  @State displayHalfHeight: number = 0; // Half the screen height
+  @State moveStartX: number = 0; // X direction starting point
+  @State moveStartY: number = 0; // Y direction starting point
+  @State moveEndX: number = 0; // X direction end point
+  @State moveEndY: number = 0; // Y direction end point
+  @State moveSumLengthX: number = 0; // Total moving distance in X direction
+  @State moveSumLengthY: number = 0; // Total moving distance in Y direction
+  @State moveStartTime: number = 0; // Touch start time
+  @State moveEndTime: number = 0; // Touch end time
 
   aboutToAppear() {
     display.getAllDisplays((err, data) => {
-      // 拿到屏幕宽高的一半，作为判断基准值
+      // Get half of the screen width and height as the reference value
       this.displayHalfWidth = data[0].width / 2;
       this.displayHalfHeight = data[0].height / 2;
-      // 将拿到的px转为vp
+      // Convert the obtained px to vp
       Logger.info(TAG, `aboutToAppear getAllDisplays data 1 width:${this.displayHalfWidth}, height:${this.displayHalfHeight}`);
       this.displayHalfWidth = px2vp(this.displayHalfWidth);
       this.displayHalfHeight = px2vp(this.displayHalfHeight);
@@ -65,44 +65,44 @@ struct FloatingWindowSample {
           .position({ x: this.positionX, y: this.positionY })
           .onTouch((event: TouchEvent) => {
             if (event.type === TouchType.Down) {
-              this.moveStartX = event.touches[0].windowX; // 按下时获取X坐标初始值
-              this.moveStartY = event.touches[0].windowY; // 按下时获取Y坐标初始值
-              this.moveStartTime = Date.now(); // 按下时开始时间
-              this.moveSumLengthX = 0; // 按下时初始化x方向移动距离
-              this.moveSumLengthY = 0; // 按下时初始化y方向移动距离
+              this.moveStartX = event.touches[0].windowX; // Get the initial value of the X coordinate when pressed
+              this.moveStartY = event.touches[0].windowY; // Get the initial value of the Y coordinate when pressed
+              this.moveStartTime = Date.now(); // Press to start time
+              this.moveSumLengthX = 0; // Initialize the X direction movement distance when pressed
+              this.moveSumLengthY = 0; // Initialize the Y direction movement distance when pressed
             }
             if (event.type === TouchType.Move) {
-              this.moveEndX = event.touches[0].windowX; // X方向移动的当前位置
-              this.moveEndY = event.touches[0].windowY; // Y方向移动的当前位置
-              this.moveSumLengthX += Math.abs(this.moveEndX - this.moveStartX); // 每一次移动计算相对于上一次X方向位置的距离
-              this.moveSumLengthY += Math.abs(this.moveEndY - this.moveStartY); // 每一次移动计算相对于上一次Y方向位置的距离
+              this.moveEndX = event.touches[0].windowX; // Current position of X direction movement
+              this.moveEndY = event.touches[0].windowY; // Current position of Y direction movement
+              this.moveSumLengthX += Math.abs(this.moveEndX - this.moveStartX); // Each movement calculates the distance relative to the previous X position
+              this.moveSumLengthY += Math.abs(this.moveEndY - this.moveStartY); // Each movement calculates the distance relative to the previous Y position
               this.moveStartX = this.moveEndX;
               this.moveStartY = this.moveEndY;
               Logger.info(TAG, `move ing, moveSumLengthX:${this.moveSumLengthX}, moveSumLengthY:${this.moveSumLengthY}`);
 
-              // 跟手过程，使用responsiveSpringMotion曲线
+              // Hand-following process, using responsiveSpringMotion curve
               animateTo({ curve: curves.responsiveSpringMotion() }, () => {
-                // 减去半径，以使球的中心运动到手指位置
+                // Subtract the radius to move the center of the ball to the finger position
                 this.positionX = event.touches[0].windowX - this.diameter / 2;
                 this.positionY = event.touches[0].windowY - this.diameter / 2 - 120;
                 Logger.info(TAG, `move end, animateTo x:${this.positionX}, y:${this.positionY}`);
               })
             } else if (event.type === TouchType.Up) {
               this.moveEndTime = Date.now();
-              let moveDiffTime = this.moveEndTime - this.moveStartTime; // 最后一秒移动的距离
-              // 距离
+              let moveDiffTime = this.moveEndTime - this.moveStartTime; // Distance traveled in the last second
+              // distance
               let s = Math.sqrt((this.moveSumLengthX * this.moveSumLengthX) + (this.moveSumLengthY * this.moveSumLengthY));
-              // 时间
+              // time
               let t = moveDiffTime;
-              // 速度
+              // speed
               let v = s / t;
               Logger.info(TAG, `moveEnd, moveSumLengthX:${this.moveSumLengthX}, moveSumLengthY:${this.moveSumLengthY}, moveDiffTime:${moveDiffTime}`);
               Logger.info(TAG, `moveEnd, s:${s}, t:${t}, v:${v}`);
 
-              // 离手时，使用springMotion曲线，且将移动时速度赋值给离手时速度
+              // When leaving the hand, use the springMotion curve and assign the moving speed to the leaving speed
               animateTo({ curve: curves.springMotion(), tempo: v }, () => {
                 if (this.positionX >= this.displayHalfWidth) {
-                  // 如果划到右边，则定位至屏幕右边减去自身宽度80，再减去10留出间隙
+                  // If you scroll to the right, it will be positioned to the right side of the screen minus its own width 80, and then minus 10 to leave a gap
                   this.positionX = this.displayHalfWidth * 2 - 90;
                 } else {
                   this.positionX = 10;

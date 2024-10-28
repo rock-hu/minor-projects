@@ -7,14 +7,6 @@
     {
       "name": "to_index",
       "value": "返回首页"
-    },
-    {
-      "name": "to_hara",
-      "value": "跳转到HarA"
-    },
-    {
-      "name": "to_harb",
-      "value": "跳转到HarB"
     }
   ]
 }

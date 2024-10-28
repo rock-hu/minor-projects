@@ -19,8 +19,9 @@ import { window } from '@kit.ArkUI';
 import { http } from '@kit.NetworkKit';
 import { DataCache } from '@hadss/datacache';
 import { util } from '@kit.ArkTS';
-import { URL, PAGE_SIZE, IMAGE_BASE64_PREFIX } from '../common/constant/CommonConstants';
+import { PAGE_SIZE, IMAGE_BASE64_PREFIX } from '../common/constant/CommonConstants';
 import { ResData } from '../common/types/CommonTypes';
+import { getUrl } from '../common/utils/Refresh';
 
 export default class EntryAbility extends UIAbility {
   storage: LocalStorage = new LocalStorage();
@@ -29,7 +30,7 @@ export default class EntryAbility extends UIAbility {
   onCreate(): void {
     this.getCache().then((cache) => {
       if (!cache) {
-        this.net.request(`${URL}pageNum=1&pageSize=${PAGE_SIZE}`).then((data) => {
+        this.net.request(`${getUrl(this.context)}pageNum=1&pageSize=${PAGE_SIZE}`).then((data) => {
           const _res: ResData[] = JSON.parse(data.result as string).data;
           this.storage.setOrCreate('List', _res);
           this.setCache(_res);
@@ -69,7 +70,7 @@ export default class EntryAbility extends UIAbility {
       })
     })
     await Promise.all(_arr);
-    // 存储时间，单位s，例如有效期为2天
+    // storage time, in seconds, for example, with a validity period of 2 days
     dataCache.put('List', data, 2 * 24 * 60 * 60);
   }
 }

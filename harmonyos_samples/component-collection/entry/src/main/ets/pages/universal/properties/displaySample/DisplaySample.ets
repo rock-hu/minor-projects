@@ -77,7 +77,7 @@ struct Page {
           .height(2)
           .position({ y: 48 })
       }
-    }.width(48)
+    }.width(88)
     .height(56)
   }
 
@@ -198,7 +198,7 @@ struct Page {
                       this.offsetX = value;
                     })
                     .layoutWeight(1)
-                }.width('100%')
+                }.width('90%')
 
                 Row({ space: 20 }) {
                   Text($r('app.string.y_offset'))
@@ -208,7 +208,7 @@ struct Page {
                       this.offsetY = value;
                     })
                     .layoutWeight(1)
-                }.width('100%')
+                }.width('90%')
               }.cardStyle()
             }.padding(12)
           }
@@ -277,7 +277,7 @@ struct Page {
                   })
                 Text('1')
                   .fontSize(15)
-              }.width('100%')
+              }.width('90%')
               .padding({ left: 5, right: 15 })
             }.cardStyle()
           }.width('100%')

@@ -17,7 +17,7 @@ import { ImageAndName } from '../pages/Index';
 
 @Component
 export default struct ThemeDesktop {
-  @Link themeDatas: Array<ImageAndName>
+  @Link themeDatas: Array<ImageAndName>;
 
   build() {
     Grid() {

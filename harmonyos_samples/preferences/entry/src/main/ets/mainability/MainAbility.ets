@@ -21,15 +21,15 @@ const TAG: string = '[MainAbility]';
 
 export default class MainAbility extends UIAbility {
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
-    Logger.info(TAG, 'MainAbility onCreate is called')
+    Logger.info(TAG, 'MainAbility onCreate is called');
   }
 
   onDestroy() {
-    Logger.info(TAG, 'MainAbility onDestroy is called')
+    Logger.info(TAG, 'MainAbility onDestroy is called');
   }
 
   onWindowStageCreate(windowStage: window.WindowStage): void {
-    Logger.info(TAG, 'MainAbility onWindowStageCreate is called')
+    Logger.info(TAG, 'MainAbility onWindowStageCreate is called');
     windowStage.loadContent('pages/Index', (err, data) => {
       if (err.code) {
         Logger.error(TAG, `Failed to load the content. Cause:${JSON.stringify(err) ?? ''}`);
@@ -40,14 +40,14 @@ export default class MainAbility extends UIAbility {
   }
 
   onWindowStageDestroy() {
-    Logger.info(TAG, 'MainAbility onWindowStageDestroy is called')
+    Logger.info(TAG, 'MainAbility onWindowStageDestroy is called');
   }
 
   onForeground() {
-    Logger.info(TAG, 'MainAbility onForeground is called')
+    Logger.info(TAG, 'MainAbility onForeground is called');
   }
 
   onBackground() {
-    Logger.info(TAG, 'MainAbility onBackground is called')
+    Logger.info(TAG, 'MainAbility onBackground is called');
   }
-};
+}

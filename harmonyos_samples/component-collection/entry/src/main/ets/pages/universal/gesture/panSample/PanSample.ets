@@ -17,7 +17,7 @@ import { TitleBar } from '../../../../common/TitleBar';
 import { getStringData } from '../../../../data/ResourceDataHandle';
 import ShowToast from '../../../../util/ShowToast';
 
-const LEFT_UP_X = -110; // 限定距离
+const LEFT_UP_X = -110; // Limited distance
 const RIGHT_UP_X = 110;
 const LEFT_UP_Y = -118;
 const RIGHT_UP_Y = 118;
@@ -59,7 +59,7 @@ struct PanExample {
           .padding(20)
           .margin(50)
           .border({ width: 3 })
-          .translate({ x: this.offsetX, y: this.offsetY, z: 0 })// 左右拖动触发该手势事件
+          .translate({ x: this.offsetX, y: this.offsetY, z: 0 })// Drag left or right to trigger this gesture event
           .gesture(
             PanGesture(this.panOption)
               .onActionStart((event: GestureEvent) => {
@@ -104,7 +104,7 @@ struct PanExample {
         .buttonStyle(0)
         .onClick(() => {
           this.flag = !this.flag;
-          // 将PanGesture手势事件触发条件改为双指以任意方向拖动
+          // Change the trigger condition of PanGesture event to dragging with two fingers in any direction
           this.panOption.setDirection(PanDirection.All);
           this.panOption.setFingers(2);
           if (this.flag === false) {

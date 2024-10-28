@@ -44,15 +44,15 @@ struct PolylineSample {
       TitleBar({ title: $r('app.string.polyline_title') })
       Column() {
         Column() {
-          // 在 100 * 100 的矩形框中绘制一段折线，起点(0, 0)，经过(20,60)，到达终点(100, 100)
+          // Draw a polyline in a 100 * 100 rectangular box, starting from (0, 0), passing through (20,60), and reaching the end point (100, 100)
           Polyline({ width: 100, height: 100 })
             .points([[this.polylineFirstX, this.polylineFirstY], [this.polylineSecondX, this.polylineSecondY], [this.polylineThirdX, this.polylineThirdY]])
             .fillOpacity(0)
             .stroke(this.stroke)
             .strokeWidth(this.strokeWidth)
             .strokeDashArray([this.strokeDashArray])
-            .strokeOpacity(this.strokeOpacity / 100)// 设置折线拐角处为圆弧
-            .strokeLineJoin(LineJoinStyle.Round)// 设置折线两端为半圆
+            .strokeOpacity(this.strokeOpacity / 100)// Set the corners of the polyline to arcs
+            .strokeLineJoin(LineJoinStyle.Round)// Set both ends of the polyline to semicircles
             .strokeLineCap(LineCapStyle.Round)
         }.cardStyle()
         .height('35%')

@@ -81,7 +81,7 @@ struct MenuSample {
       }
       .id('menu_scroll')
       .onClick(() => {
-        // 点击时关闭菜单
+        // Close menu on click
         ShowToast.shortToast($r('app.string.global_menu_close'));
         ContextMenu.close();
       })

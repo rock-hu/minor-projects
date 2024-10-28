@@ -314,7 +314,6 @@ export default class Constants {
    */
   static readonly Z_INDEX_SMALL: number = 0;
 
-
   /**
    * Vertical spacing between elements in a vertical layout.
    */

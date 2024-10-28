@@ -43,7 +43,7 @@ struct PanExample {
         .padding(20)
         .border({ width: 3 })
         .scale({ x: this.scaleValue, y: this.scaleValue, z: 1 })
-        // 三指捏合触发该手势事件
+        // Three-finger pinch triggers this gesture event
         .gesture(
           PinchGesture({ fingers: 3, distance: 5 })
             .onActionStart((event: GestureEvent) => {

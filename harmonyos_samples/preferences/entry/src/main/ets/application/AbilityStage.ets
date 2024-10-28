@@ -18,6 +18,6 @@ import Logger from '../model/Logger';
 
 export default class MyAbilityStage extends AbilityStage {
   onCreate() {
-    Logger.info('[AbilityStage]', 'MyAbilityStage onCreate')
+    Logger.info('[AbilityStage]', 'MyAbilityStage onCreate');
   }
 }

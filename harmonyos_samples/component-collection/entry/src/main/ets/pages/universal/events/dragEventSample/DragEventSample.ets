@@ -41,7 +41,7 @@ function columnStyle() {
 @Entry
 @Component
 struct DragEventSample {
-  // 是否可接收
+  // Receivable
   @State isAreaValid: boolean = false;
   @State backgroundBlur: boolean = false;
   @State hideLeftIcon: boolean = true;
@@ -51,7 +51,7 @@ struct DragEventSample {
   @State leftIconWidth: number = 64;
   @State rightIconWidth: number = 64;
 
-  // 自定义拖拽过程中显示的内容
+  // Customize the content displayed during dragging
   @Builder
   pixelMapBuilder() {
     Stack({ alignContent: Alignment.TopEnd }) {
@@ -114,7 +114,7 @@ struct DragEventSample {
           IntroductionTitle({ introduction: $r('app.string.drag_drop_action_tips') })
           Stack() {
             Row() {
-              // 左侧绿色可接收区域
+              // Green acceptable area on the left
               Row() {
                 Stack({ alignContent: Alignment.TopEnd }) {
                   Image($r('app.media.icon'))
@@ -158,7 +158,7 @@ struct DragEventSample {
 
               Blank()
 
-              // 右侧红色不可接收区域
+              // The red unacceptable area on the right
               Row() {
                 Stack({ alignContent: Alignment.TopEnd }) {
                   Image($r('app.media.icon'))
@@ -201,11 +201,11 @@ struct DragEventSample {
             }
             .rowStyle()
 
-            // 模糊层
+            // Fuzzy Layer
             Row() {
               Blank()
 
-              // 中间拖拽图标
+              // Middle drag icon
               Column() {
                 if (this.hideLeftIcon) {
                   Row() {
@@ -218,7 +218,7 @@ struct DragEventSample {
                   .bindContextMenu(this.menuBuilder(), ResponseType.LongPress)
                   .onDragStart(() => {
                     this.backgroundBlur = false;
-                    // 拖拽时关闭菜单
+                    // Close menu while dragging
                     ContextMenu.close();
                     return this.pixelMapBuilder;
                   })

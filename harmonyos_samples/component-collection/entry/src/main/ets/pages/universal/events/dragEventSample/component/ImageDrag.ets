@@ -17,7 +17,7 @@
 export struct ImageDrag {
   @State visible: boolean = true;
 
-  // 自定义拖拽过程中显示的内容
+  // Customize the content displayed during dragging
   @Builder
   pixelMapBuilder() {
     Image($r('app.media.icon'))

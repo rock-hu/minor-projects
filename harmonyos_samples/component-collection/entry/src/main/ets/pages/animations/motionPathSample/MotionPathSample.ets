@@ -35,7 +35,7 @@ struct MotionPathSample {
             })
             .onClick(() => {
               animateTo({ duration: 4000, curve: Curve.Linear }, () => {
-                this.toggle = !this.toggle; // 通过this.toggle变化组件的位置
+                this.toggle = !this.toggle; // Change the position of the component through this.toggle
               })
             })
             .id('motion_click')

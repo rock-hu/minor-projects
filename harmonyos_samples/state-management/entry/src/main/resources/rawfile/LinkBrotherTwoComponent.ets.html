@@ -43,14 +43,14 @@ LinkBrotherTwoComponent.ets</font>
 <span class="s5">@</span><span class="s1">Component</span>
 <span class="s1">export struct LinkBrotherTwoComponent </span><span class="s4">{</span>
   <span class="s5">@</span><span class="s1">State selectColors</span><span class="s3">: </span><span class="s1">ColorType</span><span class="s6">[] </span><span class="s3">= </span><span class="s1">COLOR_SELECT_DATA</span><span class="s3">;</span>
-  <span class="s0">// 和父组件、子组件A双向同步圆形颜色</span>
+  <span class="s0">// Bidirectional synchronous circular color with parent component and child component A</span>
   <span class="s5">@</span><span class="s1">Link circleColor</span><span class="s3">: </span><span class="s1">Resource</span><span class="s3">;</span>
-  <span class="s0">// 和父组件、子组件A双向同步Select的Index值</span>
+  <span class="s0">// Index value of bidirectional synchronization Select with parent component and child component A</span>
   <span class="s5">@</span><span class="s1">Link currentSelectIndex</span><span class="s3">: </span><span class="s1">number</span><span class="s3">;</span>
 
   <span class="s1">build</span><span class="s6">() </span><span class="s4">{</span>
     <span class="s1">Column</span><span class="s6">(</span><span class="s4">{ </span><span class="s1">space</span><span class="s3">: </span><span class="s7">10 </span><span class="s4">}</span><span class="s6">) </span><span class="s4">{</span>
-      <span class="s0">// 点击查看源码</span>
+      <span class="s0">// Click to view source code</span>
       <span class="s1">ViewCodeText</span><span class="s6">(</span><span class="s4">{ </span><span class="s1">webSrc</span><span class="s3">: </span><span class="s1">$rawfile</span><span class="s6">(</span><span class="s2">'ParentChildPartialContentSyncCode.ets.html'</span><span class="s6">) </span><span class="s4">}</span><span class="s6">)</span>
       <span class="s1">Text</span><span class="s6">(</span><span class="s1">$r</span><span class="s6">(</span><span class="s2">'app.string.link_brothers_title'</span><span class="s6">))</span>
         <span class="s3">.</span><span class="s1">fontColor</span><span class="s6">(</span><span class="s1">$r</span><span class="s6">(</span><span class="s2">'app.color.tips_font_color'</span><span class="s6">))</span>
@@ -68,7 +68,7 @@ LinkBrotherTwoComponent.ets</font>
           <span class="s3">.</span><span class="s1">selectedOptionFont</span><span class="s6">(</span><span class="s4">{ </span><span class="s1">size</span><span class="s3">: </span><span class="s1">$r</span><span class="s6">(</span><span class="s2">'app.float.select_font_size'</span><span class="s6">) </span><span class="s4">}</span><span class="s6">)</span>
           <span class="s3">.</span><span class="s1">optionFont</span><span class="s6">(</span><span class="s4">{ </span><span class="s1">size</span><span class="s3">: </span><span class="s1">$r</span><span class="s6">(</span><span class="s2">'app.float.select_font_size'</span><span class="s6">) </span><span class="s4">}</span><span class="s6">)</span>
           <span class="s3">.</span><span class="s1">onSelect</span><span class="s6">((</span><span class="s1">index</span><span class="s3">: </span><span class="s1">number</span><span class="s6">) </span><span class="s3">=&gt; </span><span class="s4">{</span>
-            <span class="s0">// 此组件@Link声明的数据页面更新，兄弟组件@Link的数据页面同步更新</span>
+            <span class="s0">// The data page declared by @Link of this component is updated, and the data page of the brother component @Link is updated simultaneously</span>
             <span class="s1">this</span><span class="s3">.</span><span class="s1">currentSelectIndex </span><span class="s3">= </span><span class="s1">index</span><span class="s3">;</span>
             <span class="s1">this</span><span class="s3">.</span><span class="s1">circleColor </span><span class="s3">= </span><span class="s1">this</span><span class="s3">.</span><span class="s1">selectColors</span><span class="s6">[</span><span class="s1">index</span><span class="s6">]</span><span class="s3">.</span><span class="s1">color</span><span class="s3">;</span>
           <span class="s4">}</span><span class="s6">)</span>

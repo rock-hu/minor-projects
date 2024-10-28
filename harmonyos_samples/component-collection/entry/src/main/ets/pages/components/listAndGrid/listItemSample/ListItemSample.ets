@@ -45,7 +45,7 @@ struct RowSample {
   @Builder
   swipeAction(index: number) {
     Flex({ direction: FlexDirection.Row, justifyContent: FlexAlign.SpaceAround }) {
-      Button(`删除`)
+      Button($r('app.string.swipe_action_button'))
         .onClick(() => {
           this.numberArray.splice(index, 1);
         })
@@ -71,7 +71,7 @@ struct RowSample {
             }
             .selectable(this.selectable)
             .onSelect((b) => {
-              this.output = b === true ? `进入鼠标框选范围` : `移除鼠标框选范围`;
+              this.output = b === true ? getContext(this).resourceManager.getStringSync($r('app.string.enter_range')) : getContext(this).resourceManager.getStringSync($r('app.string.remove_range'));
             })
             .swipeAction({
               end: this.swipeAction(index)
@@ -89,7 +89,7 @@ struct RowSample {
       .width('100%')
       .flexGrow(0)
 
-      // 状态栏
+      // Status Bar
       IntroductionTitle({ introduction: $r('app.string.list_item_introduction_drag') })
       Column() {
         Text(this.output)
@@ -105,7 +105,7 @@ struct RowSample {
       .flexGrow(0)
 
       Scroll() {
-        // 控制面板
+        // Control Panel
         Column() {
           IntroductionTitle({ introduction: $r('app.string.list_item_introduction_properties') })
           Column() {

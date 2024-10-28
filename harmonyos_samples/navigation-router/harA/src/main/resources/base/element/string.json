@@ -6,19 +6,23 @@
     },
     {
       "name": "to_harb_pageB1",
-      "value": "ToHarBPageB1"
+      "value": "Go to HarB's B1 page"
     },
     {
       "name": "to_harb_pageB2",
-      "value": "ToHarBPageB2"
+      "value": "Go to HarB's B2 page"
     },
     {
       "name": "to_hara_pageA1",
-      "value": "ToHarAPageA1"
+      "value": "Go to HarA's A1 page"
     },
     {
       "name": "to_hara_pageA2",
-      "value": "ToHarAPageA2"
+      "value": "Go to HarA's A2 page"
+    },
+    {
+      "name": "param",
+      "value": "Passed-in parameters:"
     }
   ]
 }

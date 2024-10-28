@@ -22,8 +22,9 @@ class Utils {
   static rect_bottom: number;
   static rect_value: Record<string, Object>;
 
-  // 获取组件所占矩形区域坐标
+  // Get the coordinates of the rectangular area occupied by the component
   static getComponentRect(key: string) {
+    // This interface is only used for testing your application. It is not recommended due to its long time.
     let strJson = getInspectorByKey(key);
     let obj: Record<string, Object> = JSON.parse(strJson);
     let rectInfo: Record<string, Object> = JSON.parse('[' + obj.$rect + ']');
@@ -80,7 +81,8 @@ struct ComponentIDSample {
             .onClick(() => {
               this.text = getStringData($r('app.string.component_id_click_text'));
               setTimeout(() => {
-                // 向id为"longClick"的组件发送长按事件
+                // Send a long click event to the component with id "longClick"
+                // This interface is only used for testing your application. It is not recommended due to its long time.
                 sendEventByKey(getStringData($r('app.string.componentId_longClick')), 11, '');
               }, 2000);
             })
@@ -92,23 +94,24 @@ struct ComponentIDSample {
               LongPressGesture().onActionEnd(() => {
                 this.text = getStringData($r('app.string.component_id_longClick_text'));
                 setTimeout(() => {
-                  // 获取id为"onTouch"组件的矩形区域坐标
+                  // Get the coordinates of the rectangular area the component with id "onTouch"
                   let rect = Utils.getComponentRect(getStringData($r('app.string.componentId_onTouch')));
                   let touchPoint: TouchObject = {
                     id: 1,
-                    displayX: rect.left + (rect.right - rect.left) / 2, // 组件中心点x坐标
-                    displayY: rect.top + (rect.bottom - rect.top) / 2, // 组件中心点y坐标
-                    windowX: rect.left + (rect.right - rect.left) / 2, // 组件中心点x坐标
-                    windowY: rect.top + (rect.bottom - rect.top) / 2, // 组件中心点y坐标
-                    x: rect.left + (rect.right - rect.left) / 2, // 组件中心点x坐标
-                    y: rect.top + (rect.bottom - rect.top) / 2, // 组件中心点y坐标
+                    displayX: rect.left + (rect.right - rect.left) / 2, // Component center point x coordinate
+                    displayY: rect.top + (rect.bottom - rect.top) / 2, // Component center point y coordinate
+                    windowX: rect.left + (rect.right - rect.left) / 2, // Component center point x coordinate
+                    windowY: rect.top + (rect.bottom - rect.top) / 2, // Component center point y coordinate
+                    x: rect.left + (rect.right - rect.left) / 2, // Component center point x coordinate
+                    y: rect.top + (rect.bottom - rect.top) / 2, // Component center point y coordinate
                     type: TouchType.Down,
-                    screenX: rect.left + (rect.right - rect.left) / 2, // 组件中心点x坐标
-                    screenY: rect.top + (rect.right - rect.left) / 2, // 组件中心点y坐标
+                    screenX: rect.left + (rect.right - rect.left) / 2, // Component center point x coordinate
+                    screenY: rect.top + (rect.right - rect.left) / 2, // Component center point y coordinate
                   };
-                  sendTouchEvent(touchPoint); // 发送触摸事件
+                  // This interface is only used for testing your application. It is not recommended due to its long time.
+                  sendTouchEvent(touchPoint); // Send touch events
                   touchPoint.type = TouchType.Up;
-                  sendTouchEvent(touchPoint); // 发送触摸事件
+                  sendTouchEvent(touchPoint); // Send touch events
                 }, 2000);
               }))
             .id('longClick')
@@ -118,19 +121,19 @@ struct ComponentIDSample {
             .onClick(() => {
               this.text = getStringData($r('app.string.component_id_onTouch_text'))
               setTimeout(() => {
-                // 获取id为"onMouse"组件的矩形区域坐标
+                // Get the coordinates of the rectangular area of the component with id "onMouse"
                 let rect = Utils.getComponentRect(getStringData($r('app.string.componentId_onMouse')));
                 let mouseEvent: MouseEvent = {
                   button: MouseButton.Left,
                   action: MouseAction.Press,
-                  displayX: rect.left + (rect.right - rect.left) / 2, // 组件中心点x坐标
-                  displayY: rect.top + (rect.bottom - rect.top) / 2, // 组件中心点y坐标
-                  windowY: rect.top + (rect.bottom - rect.top) / 2, // 组件中心点y坐标
-                  windowX: rect.left + (rect.right - rect.left) / 2, // 组件中心点x坐标
-                  x: rect.left + (rect.right - rect.left) / 2, // 组件中心点x坐标
-                  y: rect.top + (rect.bottom - rect.top) / 2, // 组件中心点y坐标
-                  screenX: rect.left + (rect.right - rect.left) / 2, // 组件中心点x坐标
-                  screenY: rect.top + (rect.bottom - rect.top) / 2, // 组件中心点y坐标
+                  displayX: rect.left + (rect.right - rect.left) / 2, // Component center point x coordinate
+                  displayY: rect.top + (rect.bottom - rect.top) / 2, // Component center point y coordinate
+                  windowY: rect.top + (rect.bottom - rect.top) / 2, // Component center point y coordinate
+                  windowX: rect.left + (rect.right - rect.left) / 2, // Component center point x coordinate
+                  x: rect.left + (rect.right - rect.left) / 2, // Component center point x coordinate
+                  y: rect.top + (rect.bottom - rect.top) / 2, // Component center point y coordinate
+                  screenX: rect.left + (rect.right - rect.left) / 2, // Component center point x coordinate
+                  screenY: rect.top + (rect.bottom - rect.top) / 2, // Component center point y coordinate
                   timestamp: 1,
                   target: {
                     area: {
@@ -152,7 +155,8 @@ struct ComponentIDSample {
                   tiltY: 1,
                   sourceTool: SourceTool.Unknown
                 } as MouseEvent;
-                sendMouseEvent(mouseEvent); // 发送鼠标事件
+                // This interface is only used for testing your application. It is not recommended due to its long time.
+                sendMouseEvent(mouseEvent); // Send mouse events
               }, 2000)
             })
             .id('onTouch')
@@ -172,7 +176,8 @@ struct ComponentIDSample {
                   timestamp: 0,
                   intentionCode: 2
                 } as KeyEvent;
-                sendKeyEvent(keyEvent); // 发送按键事件
+                // This interface is only used for testing your application. It is not recommended due to its long time.
+                sendKeyEvent(keyEvent); // Send key events
               }, 2000)
             })
             .id('onMouse')

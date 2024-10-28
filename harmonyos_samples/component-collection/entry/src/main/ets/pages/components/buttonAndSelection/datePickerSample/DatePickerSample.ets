@@ -20,7 +20,7 @@ import { TitleBar } from '../../../../common/TitleBar';
 struct DatePickerSample {
   @State isLunar: boolean = false;
   @State selectDate: string = '2022-10-30';
-  // 当前日期选择器组件的日期
+  // The current data of the date picker component
   private currentPickerDate: Date = new Date('2022-10-30');
   ;
 

@@ -31,7 +31,7 @@ import { MeasureText } from '@kit.ArkUI';
 function leftTitleStyle() {
   .fontColor($r('app.color.sub_title_color'))
   .fontSize(14)
-  .height(22)
+  .height(44)
   .alignSelf(ItemAlign.Start)
   .margin({ left: 12, top: 12 })
 }
@@ -419,7 +419,7 @@ struct Interaction {
                   }).id('test_customButton')
               }.cardStyle()
             }.width('100%')
-            .padding(12)
+            .padding({left: 12, right: 12, top: 12, bottom: 80})
           }
         }.tabBar(this.tabbarTitle($r('app.string.popup_window'), 1))
 
@@ -671,7 +671,7 @@ struct Interaction {
             }
           }.height('100%')
           .width('100%')
-          .padding(20)
+          .padding({left: 20, right: 20, top: 40, bottom: 20})
         }.tabBar(this.tabbarTitle($r('app.string.menu'), 5))
 
         TabContent() {
@@ -774,7 +774,7 @@ struct Interaction {
                 }.width('100%')
               }.cardStyle()
             }.width('100%')
-            .padding(12)
+            .padding({left: 12, right: 12, top: 40, bottom: 80})
           }
         }.tabBar(this.tabbarTitle($r('app.string.multimode_input'), 7))
       }

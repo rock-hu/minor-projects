@@ -53,6 +53,18 @@
       "value": "Clear"
     },
     {
+      "name": "homepage",
+      "value": "Home"
+    },
+    {
+      "name": "recommendation",
+      "value": "Recommended"
+    },
+    {
+      "name": "fileName",
+      "value": "newsData_en"
+    },
+    {
       "name": "reason_get_network_info",
       "value": "Allow the app to obtain data network information during cold start scenarios"
     },

@@ -6,23 +6,23 @@
     },
     {
       "name": "to_harb_pageB2",
-      "value": "ToHarBPageB2"
+      "value": "Go to HarB's B2 page"
     },
     {
       "name": "to_harb_pageB3",
-      "value": "ToHarBPageB3"
+      "value": "Go to HarB's B3 page"
     },
     {
       "name": "to_harc_pageC1",
-      "value": "ToHarCPageC1"
+      "value": "Go to HarC's C1 page"
     },
     {
       "name": "direct_to_harb_pageB1",
-      "value": "DirectToHarBPageB1"
+      "value": "Go to HarB's B1 page directly"
     },
     {
       "name": "pop_to_pre_page",
-      "value": "PopToPrePage"
+      "value": "Return to previous page"
     }
   ]
 }

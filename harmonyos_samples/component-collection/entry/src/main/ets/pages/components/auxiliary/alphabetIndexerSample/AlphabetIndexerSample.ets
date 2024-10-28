@@ -195,15 +195,15 @@ struct AlphabetIndexerSample {
 
           Blank()
           AlphabetIndexer({ arrayValue: this.value, selected: 0 })
-            .selectedColor(this.selectTextColor)// 选中项文本颜色
-            .popupColor(this.popupColor)// 弹出框文本颜色
-            .selectedBackgroundColor(this.selectBackgroundColor)// 选中项背景颜色
-            .popupBackground(this.popupBackgroundColor)// 弹出框背景颜色
-            .usingPopup(this.needPopup)// 是否显示弹出框
-            .selectedFont({ size: 16, weight: FontWeight.Bolder })// 选中项字体样式
-            .popupFont({ size: 30, weight: FontWeight.Bolder })// 弹出框内容的字体样式
-            .itemSize(28)// 每一项的尺寸大小
-            .alignStyle(IndexerAlign.Right)// 弹出框在索引条左侧弹出
+            .selectedColor(this.selectTextColor)// Selected item text color
+            .popupColor(this.popupColor)// Popup text color
+            .selectedBackgroundColor(this.selectBackgroundColor)// Selected item background color
+            .popupBackground(this.popupBackgroundColor)// Popup box background color
+            .usingPopup(this.needPopup)// Whether to display a popup box
+            .selectedFont({ size: 16, weight: FontWeight.Bolder })// Selected item font style
+            .popupFont({ size: 30, weight: FontWeight.Bolder })// The font style of the popup content
+            .itemSize(28)// The size of each time
+            .alignStyle(IndexerAlign.Right)// The popup box pops up on the left side of the index bar
             .onSelect((index: number) => {
               Logger.info(`${this.value[index]} Selected!`);
             })
@@ -212,7 +212,7 @@ struct AlphabetIndexerSample {
               if (this.value[index] === 'A') {
                 this.currentSelectIndex = 0;
                 this.scroller.scrollToIndex(0);
-                return this.arrayA; // 当选中A时，弹出框里面的提示文本列表显示A对应的列表arrayA，选中B、C、L时也同样
+                return this.arrayA; // When A is selected, the prompt text list in the popup box shows the list arrayA corresponding to A. The same is true when B, C, and L are selected.
               } else if (this.value[index] === 'B') {
                 this.currentSelectIndex = 1;
                 this.scroller.scrollToIndex(this.arrayA.length);
@@ -226,7 +226,7 @@ struct AlphabetIndexerSample {
                 this.scroller.scrollToIndex(this.arrayA.length + this.arrayB.length + this.arrayC.length);
                 return this.arrayL;
               } else {
-                return []; // 选中其余子母项时，提示文本列表为空
+                return []; // When other sub-items are selected, the prompt text list is empty
               }
             })
             .onPopupSelect((index: number) => {

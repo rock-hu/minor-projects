@@ -79,6 +79,7 @@ struct RestoreIdExample {
                 ListItem() {
                   Button(item)
                     .buttonStyle(0)
+                    .width('90%')
                 }
               }, (item: string) => item)
             }

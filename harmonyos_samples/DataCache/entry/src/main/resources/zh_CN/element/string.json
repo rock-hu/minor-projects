@@ -53,6 +53,18 @@
       "value": "清除"
     },
     {
+      "name": "homepage",
+      "value": "首页"
+    },
+    {
+      "name": "recommendation",
+      "value": "推荐"
+    },
+    {
+      "name": "fileName",
+      "value": "newsData"
+    },
+    {
       "name": "reason_get_network_info",
       "value": "允许应用在冷启动场景获取数据网络信息"
     },

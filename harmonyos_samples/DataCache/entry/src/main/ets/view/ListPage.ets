@@ -17,7 +17,7 @@ import * as Const from '../common/constant/CommonConstants';
 import Item from './NewsItem';
 import ListModel from '../model/ListModel';
 import { ResData, Refresh } from '../common/types/CommonTypes';
-import { loadMore, refreshing, refreshState } from '../common/utils/Refresh';
+import { getUrl, loadMore, refreshing, refreshState } from '../common/utils/Refresh';
 
 @Component
 export default struct ListPage {
@@ -25,6 +25,7 @@ export default struct ListPage {
   @State newsModel: ListModel = new ListModel();
   @Watch('getInitData') @LocalStorageLink('List') List: ResData[] = [];
   @LocalStorageLink('Fail') isFail: boolean = false;
+  context = getContext();
 
   getInitData() {
     this.newsModel.currentPage = 1;
@@ -117,7 +118,7 @@ export default struct ListPage {
         this.newsModel.startIndex = start;
         this.newsModel.endIndex = end;
 
-        loadMore(this.newsModel);
+        loadMore(this.newsModel, getUrl(this.context));
       })
     }
     .width(Const.FULL_WIDTH)
@@ -125,7 +126,7 @@ export default struct ListPage {
       refreshState(this.newsModel, state);
     })
     .onRefreshing(() => {
-      refreshing(this.newsModel).finally(() => {
+      refreshing(this.newsModel, getUrl(this.context)).finally(() => {
         this.isRefresh = false;
       });
     })

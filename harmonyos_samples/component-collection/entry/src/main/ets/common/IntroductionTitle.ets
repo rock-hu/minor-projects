@@ -22,7 +22,7 @@ export struct IntroductionTitle {
       .fontSize(18)
       .width('100%')
       .direction(Direction.Ltr)
-      .margin({ left: 26, top: 8, bottom: 8 })
+      .margin({ left: 26, top: 8, bottom: 8, right: 26})
       .fontColor($r('app.color.font_color_shallow'))
   }
 }

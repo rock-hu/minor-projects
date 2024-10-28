@@ -38,12 +38,12 @@ struct FlexSample {
           Row() {
             Flex() {
               Text($r('app.string.flex_basis_100'))
-                .flexBasis(100)// 这里表示宽度为100vp
+                .flexBasis(100)// It means the width is 100vp
                 .height(100)
                 .backgroundColor(0xF5DEB3)
                 .textAlign(TextAlign.Center)
               Text($r('app.string.flex_basis_auto'))
-                .flexBasis(getStringData($r('app.string.flex_auto')))// 这里表示宽度保持原本设置的60%的宽度
+                .flexBasis(getStringData($r('app.string.flex_auto')))// It means that the width remains 60% of the original width.
                 .width('60%')
                 .height(100)
                 .backgroundColor(0xD2B48C)
@@ -60,12 +60,12 @@ struct FlexSample {
           Row() {
             Flex() {
               Text($r('app.string.flex_grow_2'))
-                .flexGrow(2)// 父容器分配给该Text的宽度为剩余宽度的2/3
+                .flexGrow(2)// The width of the parent container allocated to the Text is 2/3 of the remaining width
                 .height(100)
                 .backgroundColor(0xF5DEB3)
                 .textAlign(TextAlign.Center)
               Text($r('app.string.flex_grow_1'))
-                .flexGrow(1)// 父容器分配给该Text的宽度为剩余宽度的1/3
+                .flexGrow(1)// The width of the parent container allocated to the Text is 1/3 of the remaining width
                 .height(100)
                 .backgroundColor(0xD2B48C)
                 .textAlign(TextAlign.Center)
@@ -86,7 +86,7 @@ struct FlexSample {
                 .height(100)
                 .backgroundColor(0xF5DEB3)
                 .textAlign(TextAlign.Center)
-              Text($r('app.string.flex_shrink_default'))// 默认值为1
+              Text($r('app.string.flex_shrink_default'))// The default value is 1
                 .width('40%')
                 .height(100)
                 .backgroundColor(0xD2B48C)
@@ -140,7 +140,7 @@ struct FlexSample {
                 .height(100)
                 .backgroundColor(0xF5DEB3)
                 .textAlign(TextAlign.Center)
-              Text($r('app.string.flex_layoutWeight'))// 默认值为1
+              Text($r('app.string.flex_layoutWeight'))// The default value is 1
                 .layoutWeight(1)
                 .height(100)
                 .backgroundColor(0xD2B48C)

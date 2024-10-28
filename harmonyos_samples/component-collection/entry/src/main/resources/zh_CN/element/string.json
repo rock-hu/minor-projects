@@ -561,6 +561,10 @@
       "value": "图标按钮"
     },
     {
+      "name": "button_with_icon_en",
+      "value": "图标按钮"
+    },
+    {
       "name": "button_custom_bg_color",
       "value": "自定义颜色"
     },
@@ -2565,11 +2569,11 @@
     },
     {
       "name": "flex",
-      "value": "flex布局"
+      "value": "Flex布局"
     },
     {
       "name": "flex_flexBasis",
-      "value": "flexBasis"
+      "value": "FlexBasis"
     },
     {
       "name": "flex_flexGrow",
@@ -2693,7 +2697,7 @@
     },
     {
       "name": "transform_translate_text",
-      "value": "平移 x: 40, y: 40, z: 20"
+      "value": "平移 x: 40, \ny: 40, z: 20"
     },
     {
       "name": "transform_scale_text",
@@ -3265,7 +3269,7 @@
     },
     {
       "name": "flex_argument_wrap",
-      "value": "修改本 flex 的 wrap"
+      "value": "修改本flex的wrap"
     },
     {
       "name": "flex_argument_wrap_no_wrap",
@@ -3281,11 +3285,11 @@
     },
     {
       "name": "flex_introduction_direction",
-      "value": "修改全部 Flex 的 direction"
+      "value": "修改全部Flex的direction"
     },
     {
       "name": "flex_argument_justifycontent",
-      "value": "修改本 Flex 的 justifyContent"
+      "value": "修改本Flex的\njustifyContent"
     },
     {
       "name": "flex_argument_justifycontent_start",
@@ -3313,7 +3317,7 @@
     },
     {
       "name": "flex_argument_alignItems",
-      "value": "修改本 Flex 的 alignItems"
+      "value": "修改本Flex的alignItems"
     },
     {
       "name": "flex_argumen_alignItems_auto",
@@ -3341,7 +3345,7 @@
     },
     {
       "name": "flex_argument_alignContent",
-      "value": "修改本 Flex 的 alignContent"
+      "value": "修改本Flex的\nalignContent"
     },
     {
       "name": "gridrow_title",
@@ -3717,7 +3721,7 @@
     },
     {
       "name": "list_properties_chain_animation",
-      "value": "chainAnimation(需要 edgeEffect 为 Spring)"
+      "value": "chainAnimation\n(需要 edgeEffect 为 Spring)"
     },
     {
       "name": "list_properties_multi_selectable",
@@ -3857,7 +3861,7 @@
     },
     {
       "name": "swiper_properties_duration",
-      "value": "滑动切换的动画时长(单位: ms)"
+      "value": "滑动切换的动画时长\n(单位: ms)"
     },
     {
       "name": "swiper_properties_loop",
@@ -3869,7 +3873,7 @@
     },
     {
       "name": "swiper_properties_interval",
-      "value": "自动播放的时间间隔(单位: ms)"
+      "value": "自动播放的时间间隔\n(单位: ms)"
     },
     {
       "name": "swiper_controller_next",
@@ -3965,7 +3969,7 @@
     },
     {
       "name": "tabs_arguments_controller",
-      "value": "(TabsController)切换到指定索引"
+      "value": "TabsController\n切换到指定索引"
     },
     {
       "name": "tab_content_title",
@@ -4390,6 +4394,118 @@
     {
       "name": "navigator_return_message",
       "value": "hello! 这是第一个页面传过来的参数"
+    },
+    {
+      "name": "side_bar_type_embed",
+      "value": "嵌入"
+    },
+    {
+      "name": "side_bar_type_overlay",
+      "value": "覆盖"
+    },
+    {
+      "name": "side_bar_type_auto",
+      "value": "自动"
+    },
+    {
+      "name": "swipe_action_button",
+      "value": "删除"
+    },
+    {
+      "name": "enter_range",
+      "value": "进入鼠标框选范围"
+    },
+    {
+      "name": "remove_range",
+      "value": "移除鼠标框选范围"
+    },
+    {
+      "name": "status_bar_desc1",
+      "value": "当前 initialIndex 为"
+    },
+    {
+      "name": "status_bar_desc2",
+      "value": "修改 initialIndex 后请再次进去本页面查看效果"
+    },
+    {
+      "name": "prop_bluefont",
+      "value": "#409EFF"
+    },
+    {
+      "name": "prop_orangefont",
+      "value": "#E6A23C"
+    },
+    {
+      "name": "prop_pinkfont",
+      "value": "#F56C6C"
+    },
+    {
+      "name": "size_transition_flex",
+      "value": "Flex"
+    },
+    {
+      "name": "size_transition_grid_item",
+      "value": "GridItem"
+    },
+    {
+      "name": "size_transition_list_item",
+      "value": "ListItem"
+    },
+    {
+      "name": "size_transition_swiper_item",
+      "value": "SwiperItem"
+    },
+    {
+      "name": "size_transition_font_size",
+      "value": "FontSize"
+    },
+    {
+      "name": "size_transition_expansion_tabContent",
+      "value": "TabContent"
+    },
+    {
+      "name": "choose_please",
+      "value": "请选择"
+    },
+    {
+      "name": "H1_title",
+      "value": "<h1 style=\"text-align: center;\">h1标题</h1>"
+    },
+    {
+      "name": "H1_italic",
+      "value": "<h1 style=\"text-align: center;\"><i>h1斜体</i></h1>"
+    },
+    {
+      "name": "H1_underline",
+      "value": "<h1 style=\"text-align: center;\"><u>h1下划线</u></h1>"
+    },
+    {
+      "name": "H2_title",
+      "value": "<h2 style=\"text-align: center;\">h2标题</h2>"
+    },
+    {
+      "name": "H3_title",
+      "value": "<h3 style=\"text-align: center;\">h3标题</h3>"
+    },
+    {
+      "name": "P_common",
+      "value": "<p style=\"text-align: center;\">p常规</p><hr/>"
+    },
+    {
+      "name": "font_title_desc",
+      "value": "<div style=\"width: 500px;height: 500px;border: 1px solid;margin: 0auto;\">"
+    },
+    {
+      "name": "font_title",
+      "value": "<p style=\"font-size: 35px;text-align: center;font-weight: bold; color: rgb(24,78,228)\">字体大小35px,行高45px</p>"
+    },
+    {
+      "name": "font_content_desc",
+      "value": "<p style=\"background-color: #e5e5e5;line-height: 45px;font-size: 35px;text-indent: 2em;\">"
+    },
+    {
+      "name": "font_content",
+      "value": "<p>这是一段文字这是一段文字这是一段文字这是一段文字这是一段文字这是一段文字这是一段文字这是一段文字这是一段文字</p>"
     },
     {
       "name": "reason_get_bundle_info",

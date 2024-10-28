@@ -30,9 +30,9 @@ struct ComponentTransitionSample {
         Column() {
           Row() {
             if (this.flag) {
-              // Image的显示和消失配置为不同的过渡效果
-              // 出现时从指定的x方向scale为0、y方向scale为1的状态变为默认的x、y方向scale都为1的状态
-              // 消失时从默认的旋转角为0变为绕z轴顺时针旋转180°的状态
+              // The appearance and disappearance of the Image are configured with different transition effects
+              // When it appears, the specified x-direction scale is 0 and the y-direction scale is 1, which changes to default x- and y-direction scales are both 1
+              // When it disappears, the default rotation angle changes from 0 to 180° clockwise around the z axis.
               Image($r('app.media.img_love'))
                 .width(200)
                 .height(200)
@@ -53,13 +53,13 @@ struct ComponentTransitionSample {
               .width('90%')
               .margin({ top: 16 })
               .onClick(() => {
-                // 点击Button控制Image的显示和消失
+                // Click the Button to control the display and disappearance of the Image
                 if (this.flag) {
                   this.show = $r('app.string.component_transition_show');
                 } else {
                   this.show = $r('app.string.component_transition_hide');
                 }
-                // 使用TransitionOptions指定transition时，必须配合animateTo才能产生动画
+                // When using TransitionOptions to specify transition, you must use animate to produce animation
                 animateTo({ duration: 1000 }, () => {
                   this.flag = !this.flag;
                 })

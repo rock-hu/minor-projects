@@ -40,7 +40,7 @@ class ChildInfo {
 @Entry
 @Component
 struct LayoutExample {
-  // 显示容器大小
+  // Display container size
   private container: ContainerInfo[] = [
     { label: getStringData($r('app.string.layout_constrain_big_container')), size: '100%' },
     { label: getStringData($r('app.string.layout_constrain_middle_container')), size: '50%' },
@@ -63,13 +63,13 @@ struct LayoutExample {
       Row() {
         Row({ space: 5 }) {
           ForEach(this.childrenOne, (item: string) => {
-            // 组件宽度 = 组件高度*1.5 = 90
+            // Component width = component height*1.5 = 90
             Text(item)
               .backgroundColor(0xbbb2cb)
               .fontSize(20)
               .aspectRatio(1.5)
               .height(60)
-            // 组件高度 = 组件宽度/1.5 = 60/1.5 = 40
+            // Component height = component width/1.5 = 60/1.5 = 40
             Text(item)
               .backgroundColor(0xbbb2cb)
               .fontSize(20)
@@ -86,17 +86,17 @@ struct LayoutExample {
       IntroductionTitle({ introduction: $r('app.string.layout_constrain_displayPriority') })
       Row() {
         Column() {
-          // 切换父级容器大小
+          // Toggle parent container size
           Button(this.container[this.currentIndex].label).backgroundColor(0x317aff)
             .onClick(() => {
               this.currentIndex = (this.currentIndex + 1) % this.container.length;
             })
             .margin({ bottom: 5 })
             .id('layout_btn')
-          // 通过变量设置Flex父容器宽度
+          // Set the Flex parent container width through variables
           Flex({ justifyContent: FlexAlign.SpaceBetween }) {
             ForEach(this.children, (item: ChildInfo) => {
-              // 使用displayPriority给子组件绑定显示优先级
+              // Use displayPriority to bind display priority to child components
               Text(item.text)
                 .width(50)
                 .height(60)

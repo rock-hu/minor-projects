@@ -20,7 +20,7 @@ import Logger from '../common/Logger';
 import Constant from '../common/Constants';
 
 const TAG = '[Sample_StartMode]';
-const eventId = Constant.DEFAULT_ONE; // 设置一个Id，用来emitter传输
+const eventId = Constant.DEFAULT_ONE;
 
 interface Data {
   context: Context;
@@ -59,14 +59,15 @@ export default class SingletonAbility extends UIAbility {
     if (want && want.parameters) {
       let eventData: emitter.EventData = {
         data: {
-          "foodItemId": null
+          'foodItemId': null
         }
       }
       let innerEvent: emitter.InnerEvent = {
         eventId,
         priority: emitter.EventPriority.HIGH
       }
-      // 对获取到的id进行判断，等于0的话，赋值为1，传到前端，前端根据此id获取对应的数据
+      // If the obtained ID is equal to 0, it is assigned a value of 1 and passed to the front-end,
+      // which retrieves the corresponding data based on this ID.
       if (want.parameters.foodItemId == 0) {
         want.parameters.foodItemId = 1;
         eventData.data!.foodItemId = want.parameters.foodItemId;

@@ -51,7 +51,7 @@ struct FocusControlSample {
                 .width(165)
                 .height(40)
                 .fontColor(Color.White)
-                .focusOnTouch(true) // 该Button组件点击后可获焦
+                .focusOnTouch(true) // The Button component can be focused after clicking
               Row({ space: 5 }) {
                 Button()
                   .width(80)
@@ -61,13 +61,13 @@ struct FocusControlSample {
                   .width(80)
                   .height(40)
                   .fontColor(Color.White)
-                  .focusOnTouch(true) // 该Button组件点击后可获焦
+                  .focusOnTouch(true) // The Button component can be focused after clicking
               }
             }
             .borderWidth(2)
             .borderColor(Color.Red)
             .borderStyle(BorderStyle.Dashed)
-            .tabIndex(1) // 该Column组件为按TAB键走焦的第一个获焦的组件
+            .tabIndex(1) // This Column component is the first component that is focused when TAB key is pressed
             Column({ space: 5 }) {
               Button($r('app.string.focus_control_group2'))
                 .width(165)
@@ -82,13 +82,13 @@ struct FocusControlSample {
                   .width(80)
                   .height(40)
                   .fontColor(Color.White)
-                  .groupDefaultFocus(true) // 该Button组件上级Column组件获焦时获焦
+                  .groupDefaultFocus(true) // The Button component gains focus when the parent Column component gains focus
               }
             }
             .borderWidth(2)
             .borderColor(Color.Green)
             .borderStyle(BorderStyle.Dashed)
-            .tabIndex(2) // 该Column组件为按TAB键走焦的第二个获焦的组件
+            .tabIndex(2) // This Column component if the second component that gains focus when the TAB key is pressed
           }
           .width('50%')
 
@@ -99,7 +99,7 @@ struct FocusControlSample {
               .onChange((value: string) => {
                 this.inputValue = value;
               })
-              .defaultFocus(true) // 该TextInput组件为页面的初始默认焦点
+              .defaultFocus(true) // The TestInput component is the initial default focus of the page
             Button($r('app.string.focus_control_group3'))
               .width(165)
               .height(40)
@@ -109,7 +109,7 @@ struct FocusControlSample {
           .borderWidth(2)
           .borderColor(Color.Orange)
           .borderStyle(BorderStyle.Dashed)
-          .tabIndex(3) // 该Column组件为按TAB键走焦的第三个获焦的组件
+          .tabIndex(3) // This Column component is the third component that is focused when the TAB key is pressed
         }
         .alignItems(VerticalAlign.Top)
         .rowStyle()
@@ -119,13 +119,13 @@ struct FocusControlSample {
           Column({ space: 20 }) {
             Row({ space: 16 }) {
               Button(this.idList[0])
-                .width(200)
+                .width(150)
                 .height(40)
                 .fontColor(Color.White)
                 .key(this.idList[0])
                 .focusable(false)
               Button(this.idList[1])
-                .width(200)
+                .width(150)
                 .height(40)
                 .fontColor(Color.White)
                 .key(this.idList[1])
@@ -133,12 +133,12 @@ struct FocusControlSample {
 
             Row({ space: 16 }) {
               Button(this.idList[2])
-                .width(200)
+                .width(150)
                 .height(40)
                 .fontColor(Color.White)
                 .key(this.idList[2])
               Button(this.idList[3])
-                .width(200)
+                .width(150)
                 .height(40)
                 .fontColor(Color.White)
                 .key(this.idList[3])
@@ -161,7 +161,7 @@ struct FocusControlSample {
                 .height(40)
                 .fontColor(Color.White)
                 .onClick(() => {
-                  let res: boolean = focusControl.requestFocus(this.selectId); // 使选中的this.selectId的组件获焦
+                  let res: boolean = focusControl.requestFocus(this.selectId); // Focus the selected component of this.selectId
                   if (res) {
                     ShowToast.shortToast($r('app.string.focus_control_success'));
                   } else {

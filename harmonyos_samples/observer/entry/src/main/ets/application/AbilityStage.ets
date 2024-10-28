@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 import { AbilityStage } from '@kit.AbilityKit';
-import Logger from '../modle/Logger'
+import Logger from '../modle/Logger';
 
-const TAG: string = 'MyAbilityStage'
+const TAG: string = 'MyAbilityStage';
 
 export default class MyAbilityStage extends AbilityStage {
   onCreate() {
-    Logger.info(TAG, '[Demo] MyAbilityStage onCreate')
+    Logger.info(TAG, '[Demo] MyAbilityStage onCreate');
   }
 }

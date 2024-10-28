@@ -18,7 +18,7 @@
     },
     {
       "name": "encrypt_sample",
-      "value": "Encryption sample"
+      "value": "Crypto framework sample"
     },
     {
       "name": "text_encrypted",
@@ -26,7 +26,7 @@
     },
     {
       "name": "after_encryption",
-      "value": "After Encryption"
+      "value": "Encrypted data"
     },
     {
       "name": "detail",
@@ -34,19 +34,19 @@
     },
     {
       "name": "encrypt_btn",
-      "value": "Encryption and decryption"
+      "value": "Encryption/Decryption"
     },
     {
       "name": "signature_btn",
-      "value": "Signature verification"
+      "value": "Signing & signature verification"
     },
     {
       "name": "message_btn",
-      "value": "Message summary"
+      "value": "MD"
     },
     {
       "name": "code_btn",
-      "value": "MessageAuthenticationCode"
+      "value": "MAC"
     },
     {
       "name": "text_message_code",
@@ -62,15 +62,15 @@
     },
     {
       "name": "signature_result",
-      "value": "Signature verification result:"
+      "value": "Verification result:"
     },
     {
       "name": "Signed",
-      "value": "Signed"
+      "value": "Sign"
     },
     {
       "name": "signature_verification",
-      "value": "Signature verification"
+      "value": "Verify signature"
     },
     {
       "name": "text_summary",
@@ -78,23 +78,23 @@
     },
     {
       "name": "summary_result",
-      "value": "Summary Results:"
+      "value": "Result:"
     },
     {
       "name": "SHA256",
-      "value": "SHA256 calculation summary"
+      "value": "MD with SHA256"
     },
     {
       "name": "SHA256Segments",
-      "value": "Summary of SHA256 segmentation calculation"
+      "value": "MD with SHA256 segmentation calculation"
     },
     {
       "name": "MD5",
-      "value": "MD5 calculation summary"
+      "value": "MD with MD5"
     },
     {
       "name": "SM3",
-      "value": "SM3 calculation summary"
+      "value": "MD with SM3"
     },
     {
       "name": "empty",
@@ -102,151 +102,71 @@
     },
     {
       "name": "calculate_code",
-      "value": "AES128|SHA256 Calculates the message authentication code"
+      "value": "MAC with AES128|SHA256"
     },
     {
       "name": "calculate_seg_code",
-      "value": "AES128|SHA256 Segmental calculation of message authentication code"
+      "value": "MAC with AES128|SHA256 Segmental calculation"
     },
     {
       "name": "rsa_pkcs1",
-      "value": "RSA PKCS1 mode signature check"
+      "value": "RSA PKCS1"
     },
     {
       "name": "rsa_pkcs1_seg",
-      "value": "RSA PKCS1 mode segmented signature check"
+      "value": "RSA PKCS1 segmented"
     },
     {
       "name": "rsa_pass",
-      "value": "Signature verification in RSA PASS mode"
+      "value": "RSA PASS"
     },
     {
       "name": "ecdsa",
-      "value": "ECDSA Key verifies the signature"
+      "value": "ECDSA"
     },
     {
       "name": "sm2",
-      "value": "SM2 Key verifies the signature"
+      "value": "SM2"
     },
     {
       "name": "AES_GCM",
-      "value": "AES Encryption and decryption in GCM mode"
-    },
-    {
-      "name": "AES_GCM_encryption",
-      "value": "AES Encryption in GCM mode"
-    },
-    {
-      "name": "AES_GCM_decryption",
-      "value": "AES Decryption in GCM mode"
+      "value": "AES GCM"
     },
     {
       "name": "AES_CBC",
-      "value": "AES Encryption and decryption in CBC mode"
-    },
-    {
-      "name": "AES_CBC_encryption",
-      "value": "AES Encryption in CBC mode\""
-    },
-    {
-      "name": "AES_CBC_decryption",
-      "value": "AES Decryption in CBC mode"
+      "value": "AES CBC"
     },
     {
       "name": "AES_EBC",
-      "value": "AES Encryption and decryption in ECB mode"
-    },
-    {
-      "name": "AES_EBC_encryption",
-      "value": "AES Encryption in ECB mode"
-    },
-    {
-      "name": "AES_EBC_decryption",
-      "value": "AES Decryption in ECB mode"
+      "value": "AES ECB"
     },
     {
       "name": "3DES_EBC",
-      "value": "3DES ECB mode encryption and decryption"
-    },
-    {
-      "name": "3DES_EBC_encryption",
-      "value": "3DES ECB mode encryption"
-    },
-    {
-      "name": "3DES_EBC_decryption",
-      "value": "3DES ECB mode decryption"
+      "value": "3DES ECB"
     },
     {
       "name": "SM4_EBC",
-      "value": "SM4 ECB mode encryption and decryption"
-    },
-    {
-      "name": "SM4_EBC_encryption",
-      "value": "SM4 ECB mode encryption"
-    },
-    {
-      "name": "SM4_EBC_decryption",
-      "value": "SM4 ECB mode decryption"
+      "value": "SM4 ECB"
     },
     {
       "name": "SM4_CBC",
-      "value": "SM4 Encryption and decryption in CBC mode"
-    },
-    {
-      "name": "SM4_CBC_encryption",
-      "value": "SM4 Encryption in CBC mode"
-    },
-    {
-      "name": "SM4_CBC_decryption",
-      "value": "SM4 Decryption in CBC mode"
+      "value": "SM4 CBC"
     },
     {
       "name": "RSA_PKCS1",
-      "value": "Encryption and decryption in RSA PKCS1 mode"
-    },
-    {
-      "name": "RSA_PKCS1_encryption",
-      "value": "Encryption in RSA PKCS1 mode"
-    },
-    {
-      "name": "RSA_PKCS1_decryption",
-      "value": "Decryption in RSA PKCS1 mode"
+      "value": "RSA PKCS1"
     },
     {
       "name": "RSA_PKCS1_OAEP",
-      "value": "Encryption and decryption in RSA PKCS1_OAEP mode"
-    },
-    {
-      "name": "RSA_PKCS1_OAEP_encryption",
-      "value": "Encryption in RSA PKCS1_OAEP mode"
-    },
-    {
-      "name": "RSA_PKCS1_OAEP_decryption",
-      "value": "Decryption in RSA PKCS1_OAEP mode"
+      "value": "RSA PKCS1_OAEP"
     },
     {
       "name": "SM2_crypto",
-      "value": "SM2 Asymmetric key encryption and decryption"
-    },
-    {
-      "name": "SM2_crypto_encryption",
-      "value": "SM2 Asymmetric key encryption"
-    },
-    {
-      "name": "SM2_crypto_decryption",
-      "value": "SM2 Asymmetric key decryption"
+      "value": "SM2"
     },
     {
       "name": "rsa_dissymmetry_pkcs1",
-      "value": "RSA PKCS1 Asymmetric key segmentation encryption and decryption"
-    },
-    {
-      "name": "rsa_dissymmetry_pkcs1_encryption",
-      "value": "RSA PKCS1 Asymmetric key segmentation encryption"
-    },
-    {
-      "name": "rsa_dissymmetry_pkcs1_decryption",
-      "value": "RSA PKCS1 Asymmetric key segmentation decryption"
+      "value": "RSA PKCS1 Asymmetric key"
     },
     {
       "name": "encrypted_text",
@@ -255,6 +175,14 @@
     {
       "name": "decrypted_text",
       "value": "Decrypted text"
+    },
+    {
+      "name": "encrypt",
+      "value": "Encrypt"
+    },
+    {
+      "name": "decrypt",
+      "value": "Decrypt"
     }
   ]
 }

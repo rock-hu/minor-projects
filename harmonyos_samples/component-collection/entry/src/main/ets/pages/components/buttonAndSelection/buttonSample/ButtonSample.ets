@@ -148,7 +148,7 @@ struct ButtonSample {
                 Image($r('app.media.ic_button_loading'))
                   .size({ width: 18, height: 18 })
                   .margin({ left: 6, right: 6 })
-                Text($r('app.string.button_with_icon'))
+                Text($r('app.string.button_with_icon_en'))
                   .fontSize(16)
                   .fontColor(Color.White)
               }

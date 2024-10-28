@@ -60,7 +60,12 @@ struct Index {
               .textAlign(TextAlign.Start)
               .width('100%')
           }
-          .margin({ top: '8vp', left: '16vp', right: '16vp', bottom: '21vp' })
+          .margin({
+            top: '8vp',
+            left: '16vp',
+            right: '16vp',
+            bottom: '21vp'
+          })
         }
         .height('139vp')
         .backgroundColor($r('app.color.text_bg_color'))
@@ -92,7 +97,12 @@ struct Index {
               .textAlign(TextAlign.Start)
               .width('100%')
           }
-          .margin({ top: '8vp', left: '16vp', right: '16vp', bottom: '21vp' })
+          .margin({
+            top: '8vp',
+            left: '16vp',
+            right: '16vp',
+            bottom: '21vp'
+          })
         }
         .height('139vp')
         .backgroundColor($r('app.color.text_bg_color'))
@@ -124,7 +134,12 @@ struct Index {
               .textAlign(TextAlign.Start)
               .width('100%')
           }
-          .margin({ top: '8vp', left: '16vp', right: '16vp', bottom: '21vp' })
+          .margin({
+            top: '8vp',
+            left: '16vp',
+            right: '16vp',
+            bottom: '21vp'
+          })
         }
         .height('139vp')
         .backgroundColor($r('app.color.text_bg_color'))
@@ -138,64 +153,68 @@ struct Index {
 
       Column() {
         Row() {
-          Button({ type: ButtonType.Capsule, stateEffect: false }) {
-            Text($r('app.string.display_data'))
-              .fontSize($r('sys.float.ohos_id_text_size_body1'))
-              .fontColor($r('app.color.button_display_title_color'))
-              .padding({ top: '9vp', left: '16vp', right: '16vp', bottom: '9vp' })
-          }
-          .width('48%')
-          .backgroundColor($r('app.color.button_display_bg_color'))
-          .margin({ right: '12vp' })
-          .id('dataDispalyButton')
-          .onClick(() => {
-            this.certFramework.dataDisplay((result: resultInfo) => {
-              this.certTextInfo = result.certInfo;
-              this.originTextInfo = result.originInfo;
-              this.signTextInfo = result.signatureInfo;
+          Button($r('app.string.display_data'), { type: ButtonType.Capsule, stateEffect: false })
+            .fontColor($r('app.color.button_display_title_color'))
+            .padding({
+              top: '9vp',
+              left: '16vp',
+              right: '16vp',
+              bottom: '9vp'
             })
-          })
+            .width('48%')
+            .backgroundColor($r('app.color.button_display_bg_color'))
+            .margin({ right: '12vp' })
+            .id('dataDispalyButton')
+            .onClick(() => {
+              this.certFramework.dataDisplay((result: resultInfo) => {
+                this.certTextInfo = result.certInfo;
+                this.originTextInfo = result.originInfo;
+                this.signTextInfo = result.signatureInfo;
+              })
+            })
 
-          Button({ type: ButtonType.Capsule, stateEffect: false }) {
-            Text($r('app.string.verify'))
-              .fontSize($r('sys.float.ohos_id_text_size_body1'))
-              .fontColor($r('app.color.button_verify_title_color'))
-              .padding({ top: '9vp', left: '16vp', right: '16vp', bottom: '9vp' })
-          }
-          .width('48%')
-          .backgroundColor($r('app.color.button_verify_bg_color'))
-          .id('verifyButton')
-          .onClick(() => {
-            this.certFramework.verify((result: boolean) => {
-              if (result == true) {
-                Logger.info(TAG, 'verify: PASS!!!');
-                try {
-                  promptAction.showToast(
-                    {
-                      message: $r('app.string.verify_success'),
-                      duration: 2000,
-                      bottom: 122
-                    }
-                  )
-                } catch (err) {
-                  Logger.error(TAG, `show result failed, ${JSON.stringify(err)}`);
-                }
-              } else {
-                Logger.info(TAG, 'verify: FAILED!!!');
-                try {
-                  promptAction.showToast(
-                    {
-                      message: $r('app.string.verify_fail'),
-                      duration: 2000,
-                      bottom: 122
-                    }
-                  )
-                } catch (err) {
-                  Logger.error(TAG, `show result failed, ${JSON.stringify(err)}`);
-                }
-              }
+          Button($r('app.string.verify'), { type: ButtonType.Capsule, stateEffect: false })
+            .fontColor($r('app.color.button_verify_title_color'))
+            .padding({
+              top: '9vp',
+              left: '16vp',
+              right: '16vp',
+              bottom: '9vp'
             })
-          })
+            .width('48%')
+            .backgroundColor($r('app.color.button_verify_bg_color'))
+            .id('verifyButton')
+            .onClick(() => {
+              this.certFramework.verify((result: boolean) => {
+                if (result == true) {
+                  Logger.info(TAG, 'verify: PASS!!!');
+                  try {
+                    promptAction.showToast(
+                      {
+                        message: $r('app.string.verify_success'),
+                        duration: 2000,
+                        bottom: 122
+                      }
+                    )
+                  } catch (err) {
+                    Logger.error(TAG, `show result failed, ${JSON.stringify(err)}`);
+                  }
+                } else {
+                  Logger.info(TAG, 'verify: FAILED!!!');
+                  try {
+                    promptAction.showToast(
+                      {
+                        message: $r('app.string.verify_fail'),
+                        duration: 2000,
+                        bottom: 122
+                      }
+                    )
+                  } catch (err) {
+                    Logger.error(TAG, `show result failed, ${JSON.stringify(err)}`);
+                  }
+                }
+              })
+            })
         }
         .margin({ left: '24vp', right: '24vp' })
       }
@@ -206,38 +225,42 @@ struct Index {
 
       Column() {
         Row() {
-          Button({ type: ButtonType.Capsule, stateEffect: false }) {
-            Text($r('app.string.modify_origin_data'))
-              .fontSize($r('sys.float.ohos_id_text_size_body1'))
-              .fontColor($r('app.color.button_modify_origin_data_title_color'))
-              .padding({ top: '9.25vp', left: '20vp', right: '20vp', bottom: '8.75vp' })
-          }
-          .width('48%')
-          .backgroundColor($r('app.color.button_modify_origin_data_bg_color'))
-          .margin({ right: '12vp' })
-          .id('modifyOriginDataButton')
-          .onClick(() => {
-            this.certFramework.modifyOriginData((result: resultInfo) => {
-              this.originTextInfo = result.originInfo;
-              this.signTextInfo = result.signatureInfo;
+          Button($r('app.string.modify_origin_data'), { type: ButtonType.Capsule, stateEffect: false })
+            .fontColor($r('app.color.button_modify_origin_data_title_color'))
+            .padding({
+              top: '9.25vp',
+              left: '20vp',
+              right: '20vp',
+              bottom: '8.75vp'
             })
-          })
+            .width('48%')
+            .backgroundColor($r('app.color.button_modify_origin_data_bg_color'))
+            .margin({ right: '12vp' })
+            .id('modifyOriginDataButton')
+            .onClick(() => {
+              this.certFramework.modifyOriginData((result: resultInfo) => {
+                this.originTextInfo = result.originInfo;
+                this.signTextInfo = result.signatureInfo;
+              })
+            })
 
-          Button({ type: ButtonType.Capsule, stateEffect: false }) {
-            Text($r('app.string.modify_signature_data'))
-              .fontSize($r('sys.float.ohos_id_text_size_body1'))
-              .fontColor($r('app.color.button_modify_signature_data_title_color'))
-              .padding({ top: '9.25vp', left: '20vp', right: '20vp', bottom: '8.75vp' })
-          }
-          .width('48%')
-          .backgroundColor($r('app.color.button_modify_signature_data_bg_color'))
-          .id('modifySignatureDataButton')
-          .onClick(() => {
-            this.certFramework.modifySignatureData((result: resultInfo) => {
-              this.originTextInfo = result.originInfo;
-              this.signTextInfo = result.signatureInfo;
+          Button($r('app.string.modify_signature_data'), { type: ButtonType.Capsule, stateEffect: false })
+            .fontColor($r('app.color.button_modify_signature_data_title_color'))
+            .padding({
+              top: '9.25vp',
+              left: '20vp',
+              right: '20vp',
+              bottom: '8.75vp'
             })
-          })
+            .width('48%')
+            .backgroundColor($r('app.color.button_modify_signature_data_bg_color'))
+            .id('modifySignatureDataButton')
+            .onClick(() => {
+              this.certFramework.modifySignatureData((result: resultInfo) => {
+                this.originTextInfo = result.originInfo;
+                this.signTextInfo = result.signatureInfo;
+              })
+            })
         }
         .margin({ left: '24vp', right: '24vp' })
       }

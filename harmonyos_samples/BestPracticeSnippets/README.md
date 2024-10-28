@@ -6,6 +6,7 @@
 * [AppPrivacyProtection：应用隐私保护](AppPrivacyProtection)
 * [MultiWindowPractice： 智慧多窗开发实践](MultiWindowPractice)
 * [PreHttpRequestUseFiles：Image白块解决指导](PreHttpRequestUseFiles)
+* [AvoidTimeComsume：主线程耗时操作优化指导](AvoidTimeComsume)
 
 ## 使用说明
 

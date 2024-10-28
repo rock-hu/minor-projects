@@ -7,7 +7,7 @@
 ### 效果预览
 | 首页                                               |
 |--------------------------------------------------|
-| ![](screenshots/devices/zh/position_service.jpg) |
+| ![](screenshots/devices/position_service.jpg) |
 
 使用说明：
 

@@ -13,17 +13,17 @@
  * limitations under the License.
  */
 
-import Logger from '../modle/Logger'
-import { router } from '@kit.ArkUI'
-import DetailData from '../modle/DetailData'
-import { data,radio,observer } from '@kit.TelephonyKit'
+import { data, radio, observer } from '@kit.TelephonyKit';
+import { router } from '@kit.ArkUI';
+import Logger from '../modle/Logger';
+import DetailData from '../modle/DetailData';
 
-const TAG: string = 'Index'
-let detailData: DetailData = new DetailData()
+const TAG: string = 'Index';
+let detailData: DetailData = new DetailData();
 
 class Value {
-  state: data.DataConnectState = data.DataConnectState.DATA_STATE_UNKNOWN
-  network: radio.RadioTechnology = radio.RadioTechnology.RADIO_TECHNOLOGY_UNKNOWN
+  state: data.DataConnectState = data.DataConnectState.DATA_STATE_UNKNOWN;
+  network: radio.RadioTechnology = radio.RadioTechnology.RADIO_TECHNOLOGY_UNKNOWN;
 }
 
 @Entry
@@ -35,53 +35,53 @@ struct Index {
     $r('app.string.cellular_data_connection_state_change'),
     $r('app.string.cellular_data_flow_change'),
     $r('app.string.sim_state_change')
-  ]
+  ];
   networkStateChangeCallback = (data: observer.NetworkState) => {
-    Logger.info(TAG, `on networkStateChange, data: ${JSON.stringify(data)}`)
-    detailData.networkState = data as observer.NetworkState
-  }
+    Logger.info(TAG, `on networkStateChange, data: ${JSON.stringify(data)}`);
+    detailData.networkState = data as observer.NetworkState;
+  };
   signalInfoChangeCallback = (data: Array<radio.SignalInformation>) => {
-    Logger.info(TAG, `on signalInfoChange, data: ${JSON.stringify(data)}`)
-    detailData.signalInformation = data
-  }
+    Logger.info(TAG, `on signalInfoChange, data: ${JSON.stringify(data)}`);
+    detailData.signalInformation = data;
+  };
   cellularDataConnectionStateChangeCallback = (data: Value) => {
-    Logger.info(TAG, `on cellularDataConnectionStateChange, data: ${JSON.stringify(data)}`)
-    detailData.dataConnectState = data.state
-    detailData.ratType = data.network
-  }
+    Logger.info(TAG, `on cellularDataConnectionStateChange, data: ${JSON.stringify(data)}`);
+    detailData.dataConnectState = data.state;
+    detailData.ratType = data.network;
+  };
   cellularDataFlowChangeCallback = (data: data.DataFlowType) => {
-    Logger.info(TAG, `on cellularDataFlowChange, data: ${JSON.stringify(data)}`)
-    detailData.dataFlowType = data
-  }
+    Logger.info(TAG, `on cellularDataFlowChange, data: ${JSON.stringify(data)}`);
+    detailData.dataFlowType = data;
+  };
   simStateChangeCallback = (data: observer.SimStateData) => {
-    Logger.info(TAG, `on simStateChange, data: ${JSON.stringify(data)}`)
-    detailData.simStateData = data
-  }
+    Logger.info(TAG, `on simStateChange, data: ${JSON.stringify(data)}`);
+    detailData.simStateData = data;
+  };
 
   onChangeCallback(index: number, isOn: boolean) {
     switch (index) {
       case 0:
-          isOn ? observer.on('networkStateChange', this.networkStateChangeCallback) :
-        observer.off('networkStateChange', this.networkStateChangeCallback)
-        break
+        isOn ? observer.on('networkStateChange', this.networkStateChangeCallback) :
+          observer.off('networkStateChange', this.networkStateChangeCallback);
+        break;
       case 1:
-          isOn ? observer.on('signalInfoChange', this.signalInfoChangeCallback) :
-        observer.off('signalInfoChange', this.signalInfoChangeCallback)
-        break
+        isOn ? observer.on('signalInfoChange', this.signalInfoChangeCallback) :
+          observer.off('signalInfoChange', this.signalInfoChangeCallback);
+        break;
       case 2:
-          isOn ? observer.on('cellularDataConnectionStateChange', this.cellularDataConnectionStateChangeCallback) :
-        observer.off('cellularDataConnectionStateChange', this.cellularDataConnectionStateChangeCallback)
-        break
+        isOn ? observer.on('cellularDataConnectionStateChange', this.cellularDataConnectionStateChangeCallback) :
+          observer.off('cellularDataConnectionStateChange', this.cellularDataConnectionStateChangeCallback);
+        break;
       case 3:
-          isOn ? observer.on('cellularDataFlowChange', this.cellularDataFlowChangeCallback) :
-        observer.off('cellularDataFlowChange', this.cellularDataFlowChangeCallback)
-        break
+        isOn ? observer.on('cellularDataFlowChange', this.cellularDataFlowChangeCallback) :
+          observer.off('cellularDataFlowChange', this.cellularDataFlowChangeCallback);
+        break;
       case 4:
-          isOn ? observer.on('simStateChange', this.simStateChangeCallback) :
-        observer.off('simStateChange', this.simStateChangeCallback)
-        break
+        isOn ? observer.on('simStateChange', this.simStateChangeCallback) :
+          observer.off('simStateChange', this.simStateChangeCallback);
+        break;
       default:
-        break
+        break;
     }
   }
 
@@ -103,36 +103,41 @@ struct Index {
             Row() {
               Text(item)
                 .fontSize(20)
+                .width('90%')
               Blank()
               Toggle({ type: ToggleType.Switch, isOn: false })
                 .size({ width: 28, height: 16 })
                 .selectedColor('#0D9FFB')
                 .onChange((isOn: boolean) => {
-                  this.onChangeCallback(index, isOn)
+                  this.onChangeCallback(index, isOn);
                 })
                 .id('switch' + (index + 1))
             }
+            .justifyContent(FlexAlign.SpaceBetween)
             .width('100%')
-            .margin({bottom: 12 })
+            .margin({ bottom: 12 })
           }
           .width('100%')
         })
       }
       .width('100%')
       .height('70%')
-      .padding({ left: 10, right: 10 })
+      .padding({
+        left: 10,
+        right: 10
+      })
 
       Button($r('app.string.details'))
         .id('seeDetails')
         .width('40%')
         .onClick(() => {
-          Logger.info(TAG, `detailData is = ${JSON.stringify(detailData)}`)
+          Logger.info(TAG, `detailData is = ${JSON.stringify(detailData)}`);
           router.pushUrl({
             url: 'pages/Detail',
             params: {
               detailData: detailData
             }
-          })
+          });
         })
     }
     .width('100%')

@@ -72,7 +72,7 @@ struct BadgeSample {
           IntroductionTitle({ introduction: $r('app.string.badge_max') })
           Row() {
             Badge({
-              count: 10, // 设置提醒消息数100
+              count: 10, // Set the number of reminder messages to 100
               style: {
                 color: 0xFFFFFF,
                 fontSize: 16,
@@ -84,7 +84,7 @@ struct BadgeSample {
             .badgeStyle()
 
             Badge({
-              count: 100, // 设置提醒消息数100
+              count: 100, // Set the number of reminder messages to 100
               style: {
                 color: 0xFFFFFF,
                 fontSize: 16,
@@ -100,7 +100,7 @@ struct BadgeSample {
           IntroductionTitle({ introduction: $r('app.string.badge_location') })
           Row() {
             Badge({
-              count: 1, // 设置提醒消息数
+              count: 1, // Set the number of reminder messages
               position: BadgePosition.Left,
               style: {
                 color: 0xFFFFFF,
@@ -113,7 +113,7 @@ struct BadgeSample {
             .badgeStyle()
 
             Badge({
-              count: 1, // 设置提醒消息数
+              count: 1, // Set the number of reminder messages
               position: BadgePosition.RightTop,
               style: {
                 color: 0xFFFFFF,
@@ -126,7 +126,7 @@ struct BadgeSample {
             .badgeStyle()
 
             Badge({
-              count: 1, // 设置提醒消息数
+              count: 1, // Set the number of reminder messages
               position: BadgePosition.Right,
               style: {
                 color: 0xFFFFFF,

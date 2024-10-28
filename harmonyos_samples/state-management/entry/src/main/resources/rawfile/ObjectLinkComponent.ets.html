@@ -39,12 +39,12 @@ ObjectLinkComponent.ets</font>
 
 <span class="s5">@</span><span class="s1">Component</span>
 <span class="s1">export struct ObjectLinkComponent </span><span class="s2">{</span>
-  <span class="s0">// 使用@ObjectLink修饰，与父组件中元素同步</span>
+  <span class="s0">// Decorated with @ObjectLink to synchronize with elements in the parent component</span>
   <span class="s5">@</span><span class="s1">ObjectLink childObjectData</span><span class="s4">: </span><span class="s1">ClassObject</span><span class="s4">;</span>
 
   <span class="s1">build</span><span class="s6">() </span><span class="s2">{</span>
     <span class="s1">Column</span><span class="s6">(</span><span class="s2">{ </span><span class="s1">space</span><span class="s4">: </span><span class="s7">10 </span><span class="s2">}</span><span class="s6">) </span><span class="s2">{</span>
-      <span class="s0">// 点击查看源码</span>
+      <span class="s0">// Click to view source code</span>
       <span class="s1">ViewCodeText</span><span class="s6">(</span><span class="s2">{ </span><span class="s1">webSrc</span><span class="s4">: </span><span class="s1">$rawfile</span><span class="s6">(</span><span class="s3">'ObjectLinkComponent.ets.html'</span><span class="s6">) </span><span class="s2">}</span><span class="s6">)</span>
 
       <span class="s1">Text</span><span class="s6">(</span><span class="s1">$r</span><span class="s6">(</span><span class="s3">'app.string.partial_sync_text'</span><span class="s6">))</span>
@@ -63,7 +63,7 @@ ObjectLinkComponent.ets</font>
           <span class="s4">.</span><span class="s1">layoutWeight</span><span class="s6">(</span><span class="s7">1</span><span class="s6">)</span>
           <span class="s4">.</span><span class="s1">id</span><span class="s6">(</span><span class="s3">'childAttribute'</span><span class="s6">)</span>
           <span class="s4">.</span><span class="s1">onChange</span><span class="s6">((</span><span class="s1">value</span><span class="s4">: </span><span class="s1">string</span><span class="s6">) </span><span class="s4">=&gt; </span><span class="s2">{</span>
-            <span class="s0">// 子组件对象属性更新，父元素同步</span>
+            <span class="s0">// Child component object properties are updated and parent elements are synchronized</span>
             <span class="s1">this</span><span class="s4">.</span><span class="s1">childObjectData</span><span class="s4">.</span><span class="s1">attributeType </span><span class="s4">= </span><span class="s1">value</span>
           <span class="s2">}</span><span class="s6">)</span>
       <span class="s2">}</span>

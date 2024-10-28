@@ -18,7 +18,7 @@ export struct ListItemDrag {
   @State numbers: string[] = ['one', 'two', 'three', 'four', 'five', 'six'];
   @State dragIndex: number = -1;
 
-  // 自定义拖拽过程中显示的内容
+  // Customize the content displayed during dragging
   @Builder
   pixelMapBuilder(item: string) {
     Text(item)

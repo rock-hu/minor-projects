@@ -33,7 +33,7 @@ struct FocusEventSample {
       Scroll() {
         Column({ space: 16 }) {
           IntroductionTitle({ introduction: $r('app.string.focus_event_description') })
-          // 通过外接键盘的Tab可以让焦点在三个按钮间移动，按钮获焦时颜色变化，失焦时变回原背景色
+          // The focus can be moved between the three buttons by pressing Tab on an external keyboard. The color of a button changes when it is in focus, and returns to the original background color when it loses focus
           Button($r('app.string.focus_event_button_one'))
             .backgroundColor(this.oneButtonColor)
             .width('100%')

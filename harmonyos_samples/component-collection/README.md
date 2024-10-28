@@ -80,7 +80,7 @@
 │  │  │  │  ├──systemIcon                              // 系统图标
 │  │  │  │  │  └──SystemIcon.ets         
 │  │  │  │  └──AnimationData.ets                  
-│  │  ├──components                                       
+│  │  ├──components                                    // 组件   
 │  │  │  ├──auxiliary                                  // 辅助
 │  │  │  │  ├──alphabetIndexerSample
 │  │  │  │  │  └──AlphabetIndexerSample.ets            // 字母索引条
@@ -288,7 +288,7 @@
 │  │  │  │  └────webSample
 │  │  │  │     └──WebSample.ets                        // 网页
 │  │  │  └──ComponentData.ets
-│  │  ├──globalMethods                                 // 详情页面
+│  │  ├──globalMethods                                 // 全局方法
 │  │  │  ├──dialogs
 │  │  │  │  ├──actionSheetDialogSample
 │  │  │  │  │  └──ActionSheetDialogSample.ets          // 列表选择弹窗
@@ -306,7 +306,7 @@
 │  │  │  │  └──timeDialogSample
 │  │  │  │     └──TimeDialogSample.ets                 // 时间选择弹窗
 │  │  │  └──GlobalMethodData.ets
-│  │  ├──universal                                     // 详情页面
+│  │  ├──universal                                     // 通用
 │  │  │  ├──events
 │  │  │  │  ├──areaChangeEventSample
 │  │  │  │  │  └──AreaChangeEventSample.ets            // 组件区域变化事件

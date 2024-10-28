@@ -58,10 +58,10 @@ struct SideBarContainerSample {
     Flex({ direction: FlexDirection.Column, justifyContent: FlexAlign.Start, alignItems: ItemAlign.Center }) {
       TitleBar({ title: $r('app.string.sidebarcontainer_title') })
       IntroductionTitle({ introduction: $r('app.string.sidebarcontainer_drag_divider') })
-      // 展示区
+      // Exhibition Area
       Column() {
         SideBarContainer(this.sbcType) {
-          // 侧边栏
+          // Sidebar
           Column({ space: 20 }) {
             Button() {
               Text($r('app.string.sidebarcontainer_sidebar_text_one'))
@@ -79,7 +79,7 @@ struct SideBarContainerSample {
           .borderWidth({ right: 1 })
           .borderColor({ right: $r('app.color.font_color_red') })
 
-          // 内容区
+          // Content Area
           Column() {
             Scroll() {
               Text(this.state == true ? $r('app.string.sidebarcontainer__is_show_true') : $r('app.string.sidebarcontainer__is_show_false'))
@@ -113,7 +113,7 @@ struct SideBarContainerSample {
       .backgroundStyle()
       .height(400)
 
-      // 控制面板
+      // Control Panel
       Scroll() {
         Column() {
           IntroductionTitle({ introduction: $r('app.string.sidebarcontainer_argument') })

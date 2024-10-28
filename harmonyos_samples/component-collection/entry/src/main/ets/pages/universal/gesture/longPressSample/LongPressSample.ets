@@ -56,18 +56,18 @@ struct TapGestureExample {
         .width('100%')
 
         Button($r('app.string.long_press_text'))
-          .buttonStyle(0)// 单指长按文本触发该手势事件
+          .buttonStyle(0)// Long press the text with one finger to trigger this gesture event
           .gesture(
             LongPressGesture({
               fingers: 1,
               duration: 500,
               repeat: true
-            })// 由于repeat设置为true，长按动作存在时会连续触发，触发间隔为duration（默认值500ms）
+            })// Since repeat is set to true, the long press action will be triggered continuously when it exists, and the trigger interval is duration (the default value is 500ms)
               .onAction((event: GestureEvent) => {
                 if (event.repeat) {
                   this.count++;
                 }
-              })// 长按动作一结束触发
+              })// Triggered once the long press action ends
               .onActionEnd(() => {
                 this.count = 0;
               })

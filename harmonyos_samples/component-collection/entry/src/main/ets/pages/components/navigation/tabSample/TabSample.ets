@@ -102,7 +102,7 @@ struct TabSample {
       .flexGrow(0)
 
       Scroll() {
-        // 控制面板
+        // Control Panel
         Column() {
           IntroductionTitle({ introduction: $r('app.string.tabs_introduction_arguments') })
           Column() {

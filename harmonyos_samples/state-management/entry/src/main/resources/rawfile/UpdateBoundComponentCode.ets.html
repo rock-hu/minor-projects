@@ -38,16 +38,16 @@ UpdateBoundComponentCode.ets</font>
 
 <span class="s4">@</span><span class="s1">Component</span>
 <span class="s1">export struct UpdateBoundComponentCode </span><span class="s2">{</span>
-  <span class="s0">// 组件内状态变量</span>
+  <span class="s0">// State variables within a component</span>
   <span class="s4">@</span><span class="s1">State titleName</span><span class="s5">: </span><span class="s1">string </span><span class="s5">= </span><span class="s3">'title'</span><span class="s5">;</span>
-  <span class="s0">// 组件内private变量</span>
+  <span class="s0">// private variables within a component</span>
   <span class="s1">private content</span><span class="s5">: </span><span class="s1">string </span><span class="s5">= </span><span class="s3">'content'</span><span class="s5">;</span>
-  <span class="s0">// 组件内变量更新的次数</span>
+  <span class="s0">// The number of times variables within the component are updated</span>
   <span class="s1">private updateCount</span><span class="s5">: </span><span class="s1">number </span><span class="s5">= </span><span class="s6">0</span><span class="s5">;</span>
 
   <span class="s1">build</span><span class="s7">() </span><span class="s2">{</span>
     <span class="s1">Column</span><span class="s7">(</span><span class="s2">{ </span><span class="s1">space</span><span class="s5">: </span><span class="s6">10 </span><span class="s2">}</span><span class="s7">) </span><span class="s2">{</span>
-      <span class="s0">// 点击查看源码</span>
+      <span class="s0">// Click to view source code</span>
       <span class="s1">ViewCodeText</span><span class="s7">(</span><span class="s2">{</span><span class="s1">webSrc</span><span class="s5">: </span><span class="s1">$rawfile</span><span class="s7">(</span><span class="s3">'UpdateBoundComponentCode.ets.html'</span><span class="s7">)</span><span class="s2">}</span><span class="s7">)</span>
 
       <span class="s1">Column</span><span class="s7">() </span><span class="s2">{</span>
@@ -59,7 +59,7 @@ UpdateBoundComponentCode.ets</font>
           <span class="s1">Text</span><span class="s7">(</span><span class="s1">$r</span><span class="s7">(</span><span class="s3">'app.string.only_update_title'</span><span class="s7">))</span>
             <span class="s5">.</span><span class="s1">fontColor</span><span class="s7">(</span><span class="s1">$r</span><span class="s7">(</span><span class="s3">'app.color.button_text_color'</span><span class="s7">))</span>
             <span class="s5">.</span><span class="s1">fontSize</span><span class="s7">(</span><span class="s1">$r</span><span class="s7">(</span><span class="s3">'app.float.button_text_size'</span><span class="s7">))</span>
-          <span class="s1">Text</span><span class="s7">(</span><span class="s3">`</span><span class="s2">${</span><span class="s1">this</span><span class="s5">.</span><span class="s1">titleName</span><span class="s2">}</span><span class="s3">`</span><span class="s7">) </span><span class="s0">// titleName为状态变量，绑定Text组件</span>
+          <span class="s1">Text</span><span class="s7">(</span><span class="s3">`</span><span class="s2">${</span><span class="s1">this</span><span class="s5">.</span><span class="s1">titleName</span><span class="s2">}</span><span class="s3">`</span><span class="s7">) </span><span class="s0">// titleName is a state variable, bound to the Text component</span>
             <span class="s5">.</span><span class="s1">fontColor</span><span class="s7">(</span><span class="s1">$r</span><span class="s7">(</span><span class="s3">'app.color.button_text_color'</span><span class="s7">))</span>
             <span class="s5">.</span><span class="s1">fontSize</span><span class="s7">(</span><span class="s6">20</span><span class="s7">)</span>
         <span class="s2">}</span>
@@ -75,7 +75,7 @@ UpdateBoundComponentCode.ets</font>
           <span class="s1">Text</span><span class="s7">(</span><span class="s1">$r</span><span class="s7">(</span><span class="s3">'app.string.only_update_content'</span><span class="s7">))</span>
             <span class="s5">.</span><span class="s1">fontColor</span><span class="s7">(</span><span class="s1">$r</span><span class="s7">(</span><span class="s3">'app.color.button_text_color'</span><span class="s7">))</span>
             <span class="s5">.</span><span class="s1">fontSize</span><span class="s7">(</span><span class="s1">$r</span><span class="s7">(</span><span class="s3">'app.float.button_text_size'</span><span class="s7">))</span>
-          <span class="s1">Text</span><span class="s7">(</span><span class="s3">`</span><span class="s2">${</span><span class="s1">this</span><span class="s5">.</span><span class="s1">content</span><span class="s2">}</span><span class="s3">`</span><span class="s7">) </span><span class="s0">// content为private，绑定Text组件</span>
+          <span class="s1">Text</span><span class="s7">(</span><span class="s3">`</span><span class="s2">${</span><span class="s1">this</span><span class="s5">.</span><span class="s1">content</span><span class="s2">}</span><span class="s3">`</span><span class="s7">) </span><span class="s0">// content is private and bound to the Text component</span>
             <span class="s5">.</span><span class="s1">fontColor</span><span class="s7">(</span><span class="s1">$r</span><span class="s7">(</span><span class="s3">'app.color.button_text_color'</span><span class="s7">))</span>
             <span class="s5">.</span><span class="s1">fontSize</span><span class="s7">(</span><span class="s6">20</span><span class="s7">)</span>
         <span class="s2">}</span>
@@ -90,7 +90,7 @@ UpdateBoundComponentCode.ets</font>
       <span class="s1">Column</span><span class="s7">() </span><span class="s2">{</span>
         <span class="s1">Button</span><span class="s7">(</span><span class="s1">$r</span><span class="s7">(</span><span class="s3">'app.string.update_title_content'</span><span class="s7">))</span>
           <span class="s5">.</span><span class="s1">onClick</span><span class="s7">(() </span><span class="s5">=&gt; </span><span class="s2">{</span>
-            <span class="s0">// 点击更新@State和Private声明的变量，更新策略为：@State和Private的数据发生变化，@State变量绑定的组件更新，Private变量绑定的组件不更新。</span>
+            <span class="s0">// Click to update the variables declared by @State and Private. The update policy is: When the data of @State and Private changes, the component bound by @State variable is updated, while the component bound by Private variable is not updated</span>
             <span class="s1">this</span><span class="s5">.</span><span class="s1">updateCount</span><span class="s5">++;</span>
             <span class="s1">this</span><span class="s5">.</span><span class="s1">content </span><span class="s5">= </span><span class="s3">`content </span><span class="s2">${</span><span class="s1">this</span><span class="s5">.</span><span class="s1">updateCount</span><span class="s2">}</span><span class="s3">`</span><span class="s5">;</span>
             <span class="s1">this</span><span class="s5">.</span><span class="s1">titleName </span><span class="s5">= </span><span class="s3">`title </span><span class="s2">${</span><span class="s1">this</span><span class="s5">.</span><span class="s1">updateCount</span><span class="s2">}</span><span class="s3">`</span><span class="s5">;</span>

@@ -12,24 +12,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { UIAbility,AbilityConstant,Want } from '@kit.AbilityKit'
-import { window } from '@kit.ArkUI'
-import Logger from '../modle/Logger'
+import { UIAbility,AbilityConstant,Want } from '@kit.AbilityKit';
+import { window } from '@kit.ArkUI';
+import Logger from '../modle/Logger';
 
-const TAG: string = 'MainAbility'
+const TAG: string = 'MainAbility';
 
 export default class MainAbility extends UIAbility {
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
-    Logger.info(TAG, '[Demo] MainAbility onCreate')
+    Logger.info(TAG, '[Demo] MainAbility onCreate');
   }
 
   onDestroy() {
-    Logger.info(TAG, '[Demo] MainAbility onDestroy')
+    Logger.info(TAG, '[Demo] MainAbility onDestroy');
   }
 
   onWindowStageCreate(windowStage: window.WindowStage): void{
     // Main window is created, set main page for this ability
-    Logger.info(TAG, '[Demo] MainAbility onWindowStageCreate')
+    Logger.info(TAG, '[Demo] MainAbility onWindowStageCreate');
 
     windowStage.loadContent('pages/Index', (err, data) => {
       if (err.code) {
@@ -42,16 +42,16 @@ export default class MainAbility extends UIAbility {
 
   onWindowStageDestroy() {
     // Main window is destroyed, release UI related resources
-    Logger.info(TAG, '[Demo] MainAbility onWindowStageDestroy')
+    Logger.info(TAG, '[Demo] MainAbility onWindowStageDestroy');
   }
 
   onForeground() {
     // Ability has brought to foreground
-    Logger.info(TAG, '[Demo] MainAbility onForeground')
+    Logger.info(TAG, '[Demo] MainAbility onForeground');
   }
 
   onBackground() {
     // Ability has back to background
-    Logger.info(TAG, '[Demo] MainAbility onBackground')
+    Logger.info(TAG, '[Demo] MainAbility onBackground');
   }
-};
+}

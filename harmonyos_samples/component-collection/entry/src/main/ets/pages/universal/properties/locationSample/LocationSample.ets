@@ -96,7 +96,7 @@ struct LocationSample {
               .width('90%')
               .direction(Direction.Ltr)
 
-              // 父容器设置direction为Direction.Rtl，子元素从右到左排列
+              // The parent container sets direction to Direction.Rtl, and the child elements are arranged from right to left
               Row() {
                 Text($r('app.string.text_picker_text_banana'))
                   .height(50)

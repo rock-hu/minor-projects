@@ -6,9 +6,9 @@
 
 ### 效果预览
 
-| 主页                               |子组件同步父组件部分内容|爷孙组件之间状态同步|应用内全局数据与UI之间的状态同步|
-|----------------------------------|--------------------------------|--------------------------------|--------------------------------|
-| ![](screenshots/device/Home.png) |![](screenshots/device/ParentChildPartialContentSync.png)|![](screenshots/device/DeepNestComponent.png)|![](screenshots/device/ApplyGlobalDataSync.png)|
+| 主页                               | 子组件同步父组件部分内容                                              | 爷孙组件之间状态同步                                    | 应用内全局数据与UI之间的状态同步                               |
+|----------------------------------|-----------------------------------------------------------|-----------------------------------------------|-------------------------------------------------|
+| ![](screenshots/device/Home.png) | ![](screenshots/device/ParentChildPartialContentSync.png) | ![](screenshots/device/DeepNestComponent.png) | ![](screenshots/device/ApplyGlobalDataSync.png) |
 
 使用说明
 
@@ -76,7 +76,7 @@
 │  │     │  │  ├──ConsumeBrotherTwoComponent.ets               // @Consume状态变量组件
 │  │     │  │  ├──LinkBrotherOneComponent.ets                  // @Link状态变量组件
 │  │     │  │  ├──LinkBrotherTwoComponent.ets                  // @Link状态变量组件
-│  │     │  │  ├──ProvideFatherComponent.ets                   // @Privide状态变量组件
+│  │     │  │  ├──ProvideFatherComponent.ets                   // @Provide状态变量组件
 │  │     │  │  └──StateFatherComponent.ets                     // @State状态变量组件
 │  │     │  ├──data     
 │  │     │  │  └──ColorData.ets                                // 颜色数据
@@ -128,17 +128,40 @@
 
 ### 具体实现
 
-* 查看源码：通过private controller: webView.WebviewController = new webView.WebviewController()声明一个状态变量，使用this.controller.loadUrl(url)来打开web页面，查看对应的源码。
+* 查看源码：通过private controller: webView.WebviewController = new webView.WebviewController()
+  声明一个状态变量，使用this.controller.loadUrl(url)来打开web页面，查看对应的源码。
 * 基本类型：使用@State声明一个Resource类型的circleColor状态变量，然后通过点击事件根据circleColor的id来改变圆形颜色。
-* 数组类型：使用@State声明一个数组arrayTypeData状态变量，数据元素为new ArrayDataType()，通过arrayTypeData.push()方法来新增元素数据，arrayTypeData.splice()方法删除元素，更新指定new ArrayDataType()来实现更新某一个元素数据。
-* 类对象类型：使用@Observed声明一个属性类ChildClass，然后声明一个对象类ParentClass，并将对象的其中一个属性类型设置为属性类，使用@State声明一个类对象数据状态变量classObjectData，更新对象可以通过new ParentClass()生成一个对象并赋值来实现，更新对象属性可以通过this.classObjectData.attribute++来实现，更新对象属性的属性可以通过@ObjectLink声明一个状态变量并更新此状态变量的对象属性来实现。
+* 数组类型：使用@State声明一个数组arrayTypeData状态变量，数据元素为new ArrayDataType()，通过arrayTypeData.push()
+  方法来新增元素数据，arrayTypeData.splice()方法删除元素，更新指定new ArrayDataType()来实现更新某一个元素数据。
+*
+类对象类型：使用@Observed声明一个属性类ChildClass，然后声明一个对象类ParentClass，并将对象的其中一个属性类型设置为属性类，使用@State声明一个类对象数据状态变量classObjectData，更新对象可以通过new
+ParentClass()
+生成一个对象并赋值来实现，更新对象属性可以通过this.classObjectData.attribute++来实现，更新对象属性的属性可以通过@ObjectLink声明一个状态变量并更新此状态变量的对象属性来实现。
 * 只更新所绑定的组件：使用@State和Private声明一个titleName和content状态变量，通过点击事件修改这两个状态变量。
-* 单、双向同步：父组件使用@State声明一个状态变量circleColor并作为参数给子组件A和子组件B，子组件A通过@Prop接收，子组件B通过@Link来接收，通过点击事件中的this.circleColor = COLOR_DATA.PINK来更改颜色。
-* 子组件同步父组件部分内容：父组件中使用@State声明一个数组状态变量parentData，@Observed声明数组元素的类，父组件向子组件传递parentData的某一个元素数据，子组件通过@ObjectLink来接收，父组件通过this.childObject.attributeType = value来修改元素数据，子组件同步更新，子组件同样通过this.childObjectData.attributeType = value来修改子组件的数据，父组件同步更新。
-* 爷孙组件之间状态同步：爷组件通过@State声明一个控制圆形颜色的状态变量circleColor和控制当前Select组件Index的状态变量currentSelectIndex，逐层传递给子组件给孙组件，通过@Link接收，爷组件通过onSelect事件来修改circleColor和currentSelectIndex，孙组件同样通过onSelect事件来修改circleColor和currentSelectIndex，然后爷组件通过@Provide声明一个控制圆形颜色的状态变量consumeCircleColor和控制当前Select组件Index的状态变量currentSelectIndex，孙组件通过@Consume来接收，爷组件通过onSelect事件来修改circleColor和currentSelectIndex，孙组件同样通过onSelect事件来修改circleColor和currentSelectIndex。
-* 兄弟组件之间状态同步：父组件通过@State声明一个控制圆形颜色的状态变量circleColor和控制当前Select组件Index的状态变量currentSelectIndex，传递给子组件A和子组件B，两者通过@Link接收，子组件A通过onSelect事件来修改circleColor和currentSelectIndex，子组件B同样通过onSelect事件来修改circleColor和currentSelectIndex；然后父组件通过@Provide声明一个控制圆形颜色的状态变量consumeCircleColor和控制当前Select组件Index的状态变量currentSelectIndex，子组件A和子组件B通过@Consume来接收，子组件A通过onSelect事件来修改circleColor和currentSelectIndex，，子组件B同样通过onSelect事件来修改circleColor和currentSelectIndex。
-* 应用内全局数据与UI之间的状态同步：主页、Ability1页面和Ability2页面通过@StorageLink声明一个控制夜间模式的状态变量currentModelStatus，在主页面通过onChange事件中的AppStorage.SetOrCreate<boolean>('currentModelStatus', this.currentModelStatus)来更改夜间模式的状态，，在Ability1页面和Ability页面通过onClick事件中的this.currentModelStatus = !this.currentModelStatus，主页和Ability2页面通过@StorageLink声明一个控制字体大小的状态变量contentFontSize，Ability1页面通过@StorageProp声明一个控制字体大小的状态变量contentFontSize，主页使用onChange事件中的this.contentFontSize = value和AppStorage.SetOrCreate<number>('contentFontSize', this.contentFontSize)来更改内容字体的大小，Ability1通过onChange事件中的this.contentFontSize = value来修改内容字体大小。
-* Ability内全局数据与UI之间的状态同步：在Entry当中声明一个storage，并通过this.storage.setOrCreate<boolean>('currentModelStatus', true)和this.storage.setOrCreate<number>('contentFontSize', 18)来设置夜间模式状态变量currentModelStatus和字体大小状态变量contentFontSize，然后主页、Page1页面、Page2页面和跨Ability页面通过@LocalStorageLink声明一个控制夜间模式的状态变量currentModelStatus，在主页面通过onChange事件中的this.currentModelStatus = isOn来更改夜间模式的状态，Page1页面、Page2页面和跨Ability页面通过onClick事件中的this.currentModelStatus = !this.currentModelStatus来更改夜间模式的状态，主页、Page1页面和跨Ability页面通过@LocalStorageLink声明一个控制字体大小的状态变量contentFontSize，Page1页面通过@LocalStorageProp声明一个控制字体大小的状态变量contentFontSize，主页使用onChange事件中的this.contentFontSize = value和AppStorage.SetOrCreate<number>('contentFontSize', this.contentFontSize)来更改内容字体的大小，Page2通过onChange事件中的this.contentFontSize = value来修改内容字体大小。
+*
+单、双向同步：父组件使用@State声明一个状态变量circleColor并作为参数给子组件A和子组件B，子组件A通过@Prop接收，子组件B通过@Link来接收，通过点击事件中的this.circleColor =
+COLOR_DATA.PINK来更改颜色。
+*
+子组件同步父组件部分内容：父组件中使用@State声明一个数组状态变量parentData，@Observed声明数组元素的类，父组件向子组件传递parentData的某一个元素数据，子组件通过@ObjectLink来接收，父组件通过this.childObject.attributeType =
+value来修改元素数据，子组件同步更新，子组件同样通过this.childObjectData.attributeType = value来修改子组件的数据，父组件同步更新。
+*
+爷孙组件之间状态同步：爷组件通过@State声明一个控制圆形颜色的状态变量circleColor和控制当前Select组件Index的状态变量currentSelectIndex，逐层传递给子组件给孙组件，通过@Link接收，爷组件通过onSelect事件来修改circleColor和currentSelectIndex，孙组件同样通过onSelect事件来修改circleColor和currentSelectIndex，然后爷组件通过@Provide声明一个控制圆形颜色的状态变量consumeCircleColor和控制当前Select组件Index的状态变量currentSelectIndex，孙组件通过@Consume来接收，爷组件通过onSelect事件来修改circleColor和currentSelectIndex，孙组件同样通过onSelect事件来修改circleColor和currentSelectIndex。
+*
+兄弟组件之间状态同步：父组件通过@State声明一个控制圆形颜色的状态变量circleColor和控制当前Select组件Index的状态变量currentSelectIndex，传递给子组件A和子组件B，两者通过@Link接收，子组件A通过onSelect事件来修改circleColor和currentSelectIndex，子组件B同样通过onSelect事件来修改circleColor和currentSelectIndex；然后父组件通过@Provide声明一个控制圆形颜色的状态变量consumeCircleColor和控制当前Select组件Index的状态变量currentSelectIndex，子组件A和子组件B通过@Consume来接收，子组件A通过onSelect事件来修改circleColor和currentSelectIndex，，子组件B同样通过onSelect事件来修改circleColor和currentSelectIndex。
+*
+应用内全局数据与UI之间的状态同步：主页、Ability1页面和Ability2页面通过@StorageLink声明一个控制夜间模式的状态变量currentModelStatus，在主页面通过onChange事件中的AppStorage.SetOrCreate<boolean>('
+currentModelStatus', this.currentModelStatus)
+来更改夜间模式的状态，，在Ability1页面和Ability页面通过onClick事件中的this.currentModelStatus = !
+this.currentModelStatus，主页和Ability2页面通过@StorageLink声明一个控制字体大小的状态变量contentFontSize，Ability1页面通过@StorageProp声明一个控制字体大小的状态变量contentFontSize，主页使用onChange事件中的this.contentFontSize =
+value和AppStorage.SetOrCreate<number>('contentFontSize', this.contentFontSize)
+来更改内容字体的大小，Ability1通过onChange事件中的this.contentFontSize = value来修改内容字体大小。
+* Ability内全局数据与UI之间的状态同步：在Entry当中声明一个storage，并通过this.storage.setOrCreate<boolean>('
+  currentModelStatus', true)和this.storage.setOrCreate<number>('contentFontSize', 18)
+  来设置夜间模式状态变量currentModelStatus和字体大小状态变量contentFontSize，然后主页、Page1页面、Page2页面和跨Ability页面通过@LocalStorageLink声明一个控制夜间模式的状态变量currentModelStatus，在主页面通过onChange事件中的this.currentModelStatus =
+  isOn来更改夜间模式的状态，Page1页面、Page2页面和跨Ability页面通过onClick事件中的this.currentModelStatus = !
+  this.currentModelStatus来更改夜间模式的状态，主页、Page1页面和跨Ability页面通过@LocalStorageLink声明一个控制字体大小的状态变量contentFontSize，Page1页面通过@LocalStorageProp声明一个控制字体大小的状态变量contentFontSize，主页使用onChange事件中的this.contentFontSize =
+  value和AppStorage.SetOrCreate<number>('contentFontSize', this.contentFontSize)
+  来更改内容字体的大小，Page2通过onChange事件中的this.contentFontSize = value来修改内容字体大小。
 
 ### 相关权限
 

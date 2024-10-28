@@ -18,23 +18,26 @@ import { BuilderNameConstants, buildRouterModel, RouterModule, RouterNameConstan
 export function harBuilder(value: object) {
   NavDestination() {
     Column() {
-      Text(`传入的参数：${JSON.stringify(value)}`)
+      Text() {
+        Span($r('app.string.param'))
+        Span(JSON.stringify(value))
+      }
         .margin(20)
-      Button($r("app.string.to_index"), { stateEffect: true, type: ButtonType.Capsule })
+      Button($r('app.string.to_index'), { stateEffect: true, type: ButtonType.Capsule })
         .width('80%')
         .height(40)
         .margin(20)
         .onClick(() => {
           RouterModule.clear(RouterNameConstants.ENTRY_HAP);
         })
-      Button($r("app.string.to_hara_pageA2"), { stateEffect: true, type: ButtonType.Capsule })
+      Button($r('app.string.to_hara_pageA2'), { stateEffect: true, type: ButtonType.Capsule })
         .width('80%')
         .height(40)
         .margin(20)
         .onClick(() => {
           buildRouterModel(RouterNameConstants.ENTRY_HAP, BuilderNameConstants.HARA_A2);
         })
-      Button($r("app.string.to_harb_pageB1"), { stateEffect: true, type: ButtonType.Capsule })
+      Button($r('app.string.to_harb_pageB1'), { stateEffect: true, type: ButtonType.Capsule })
         .width('80%')
         .height(40)
         .margin(20)

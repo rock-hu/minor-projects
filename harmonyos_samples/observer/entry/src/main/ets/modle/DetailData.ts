@@ -12,34 +12,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { radio,call,data,observer } from '@kit.TelephonyKit'
+import { radio,call,data,observer } from '@kit.TelephonyKit';
 
 export default class DetailData {
-  //网络注册状态
-  public networkState: radio.NetworkState
-  //网络信号强度信息
-  public signalInformation: Array<radio.SignalInformation>
-  //通话状态
-  public callState?: call.CallState
-  //电话号码
-  public callNumber?: string
-  //蜂窝数据链路连接状态
-  public dataConnectState?: data.DataConnectState
-  //无线接入技术
-  public ratType?: radio.RadioTechnology
-  //蜂窝数据流类型
-  public dataFlowType: data.DataFlowType
-  //SIM卡类型和状态
-  public simStateData: observer.SimStateData
+  // Network registration status
+  public networkState: radio.NetworkState;
+  // Network signal strength information
+  public signalInformation: Array<radio.SignalInformation>;
+  public callState?: call.CallState;
+  public callNumber?: string;
+  // Cellular data link connection status
+  public dataConnectState?: data.DataConnectState;
+  // Wireless access technology
+  public ratType?: radio.RadioTechnology;
+  // Cellular data stream type
+  public dataFlowType: data.DataFlowType;
+  // SIM card type and status
+  public simStateData: observer.SimStateData;
 
   constructor() {
-    this.networkState = undefined
-    this.signalInformation = undefined
-    this.callState = undefined
-    this.callNumber = undefined
-    this.dataConnectState = undefined
-    this.ratType = undefined
-    this.dataFlowType = undefined
-    this.simStateData = undefined
+    this.networkState = undefined;
+    this.signalInformation = undefined;
+    this.callState = undefined;
+    this.callNumber = undefined;
+    this.dataConnectState = undefined;
+    this.ratType = undefined;
+    this.dataFlowType = undefined;
+    this.simStateData = undefined;
   }
 }

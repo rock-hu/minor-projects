@@ -157,7 +157,7 @@ struct AnimationSample {
               duration: 1200,
               curve: Curve.Friction,
               delay: 500,
-              iterations: -1, // -1为无限播放
+              iterations: -1, // -1 for unlimited playback
               playMode: PlayMode.Alternate,
               tempo: 10
             })

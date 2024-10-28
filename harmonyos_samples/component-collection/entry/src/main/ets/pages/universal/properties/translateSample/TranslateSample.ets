@@ -88,7 +88,7 @@ struct TranslateSample {
           ForEach(this.componentSliders, (item: AxisInfo) => {
             Row() {
               if (item.isXAxis) {
-                // -20和20为平移的区间
+                // -20 and 20 are the intervals of translation
                 CommonItemSlider({ changeValue: $containerTranslateX, min: -20, max: 20, name: item.axisName })
               } else {
                 CommonItemSlider({ changeValue: $containerTranslateY, min: -20, max: 20, name: item.axisName })

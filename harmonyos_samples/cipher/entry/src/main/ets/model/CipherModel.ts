@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-import { cryptoFramework } from "@kit.CryptoArchitectureKit";
+import { cryptoFramework } from '@kit.CryptoArchitectureKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 import { buffer, util } from '@kit.ArkTS';
 import Logger from './Logger';
-import { BusinessError } from '@kit.BasicServicesKit';
 
 const TAG: string = '[CipherModel]'
 const AES_ENCRYPT_KEY: string = '5QXzAbJj0TJN9OQNvxFhhw==';
@@ -74,16 +74,16 @@ export class CipherModel {
     let pubKeyBlob: cryptoFramework.DataBlob = { data: pubKey };
     rsaGenerator.convertKey(pubKeyBlob, null, (err, keyPair) => {
       if (err) {
-        Logger.error("convertKey: error." + (err as BusinessError).code);
+        Logger.error('convertKey: error.' + (err as BusinessError).code);
         return;
       }
       cipher.init(cryptoFramework.CryptoMode.ENCRYPT_MODE, keyPair.pubKey, null, (err, data) => {
         let input: cryptoFramework.DataBlob = { data: this.stringToUint8Array(message) };
         cipher.doFinal(input, (err, data) => {
-          Logger.info(TAG, "EncryptOutPut is " + data.data);
-          let result = that.encodeToStringSync(data.data)
-          Logger.info(TAG, "result is " + result);
-          callback(result)
+          Logger.info(TAG, 'EncryptOutPut is ' + data.data);
+          let result = that.encodeToStringSync(data.data);
+          Logger.info(TAG, 'result is ' + result);
+          callback(result);
         })
       })
     })
@@ -97,7 +97,7 @@ export class CipherModel {
     let priKeyBlob: cryptoFramework.DataBlob = { data: priKey };
     rsaGenerator.convertKey(null, priKeyBlob, (err, keyPair) => {
       if (err) {
-        Logger.error(TAG, "convertKey: error." + (err as BusinessError).code);
+        Logger.error(TAG, 'convertKey: error.' + (err as BusinessError).code);
         return;
       }
       cipher.init(cryptoFramework.CryptoMode.DECRYPT_MODE, keyPair.priKey, null, (err, data) => {
@@ -106,16 +106,16 @@ export class CipherModel {
           let input: cryptoFramework.DataBlob = { data: newMessage };
           cipher.doFinal(input, (err, data) => {
             if (err) {
-              Logger.error(TAG, "cipher doFinal." + (err as BusinessError).code);
+              Logger.error(TAG, 'cipher doFinal.' + (err as BusinessError).code);
               return;
             }
-            Logger.info(TAG, "DecryptOutPut is " + data.data);
+            Logger.info(TAG, 'DecryptOutPut is ' + data.data);
             let result = this.uint8ArrayToString(data.data);
-            Logger.info(TAG, "result is " + result);
+            Logger.info(TAG, 'result is ' + result);
             callback(result)
           })
         } catch (err) {
-          Logger.info(TAG, "cipher init error: " + (err as BusinessError).code);
+          Logger.info(TAG, 'cipher init error: ' + (err as BusinessError).code);
           return err;
         }
       })
@@ -130,15 +130,15 @@ export class CipherModel {
     let pubKeyBlob: cryptoFramework.DataBlob = { data: pubKey };
     aesGenerator.convertKey(pubKeyBlob, (err, symKey) => {
       if (err) {
-        console.error("convertKey: error." + (err as BusinessError).code);
+        console.error('convertKey: error.' + (err as BusinessError).code);
         return;
       }
       cipher.init(cryptoFramework.CryptoMode.ENCRYPT_MODE, symKey, null, (err, data) => {
         let input: cryptoFramework.DataBlob = { data: this.stringToUint8Array(message) };
         cipher.doFinal(input, (err, data) => {
-          Logger.info(TAG, "EncryptOutPut is " + data.data);
+          Logger.info(TAG, 'EncryptOutPut is ' + data.data);
           let result = that.encodeToStringSync(data.data)
-          Logger.info(TAG, "result is " + result);
+          Logger.info(TAG, 'result is ' + result);
           callback(result)
         })
       })
@@ -153,7 +153,7 @@ export class CipherModel {
     let pubKeyBlob: cryptoFramework.DataBlob = { data: pubKey };
     aesGenerator.convertKey(pubKeyBlob, (err, symKey) => {
       if (err) {
-        console.error("convertKey: error." + (err as BusinessError).code);
+        console.error('convertKey: error.' + (err as BusinessError).code);
         return;
       }
       cipher.init(cryptoFramework.CryptoMode.DECRYPT_MODE, symKey, null, (err, data) => {
@@ -162,16 +162,16 @@ export class CipherModel {
           let input: cryptoFramework.DataBlob = { data: newMessage };
           cipher.doFinal(input, (err, data) => {
             if (err) {
-              Logger.error(TAG, "cipher doFinal." + (err as BusinessError).code);
+              Logger.error(TAG, 'cipher doFinal.' + (err as BusinessError).code);
               return;
             }
-            Logger.info(TAG, "DecryptOutPut is " + data?.data);
+            Logger.info(TAG, 'DecryptOutPut is ' + data?.data);
             let result = this.uint8ArrayToString(data?.data)
-            Logger.info(TAG, "result is " + result);
+            Logger.info(TAG, 'result is ' + result);
             callback(result)
           })
         } catch (err) {
-          Logger.info(TAG, "cipher init error: " + (err as BusinessError).code);
+          Logger.info(TAG, 'cipher init error: ' + (err as BusinessError).code);
           return err;
         }
       })

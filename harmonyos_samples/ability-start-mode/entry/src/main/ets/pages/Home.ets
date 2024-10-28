@@ -25,7 +25,7 @@ struct Home {
 
   build() {
     Column() {
-      Text($r("app.string.startMode"))
+      Text($r('app.string.startMode'))
         .width(Constant.FULL_PERCENT)
         .height(Constant.TEN_PERCENT)
         .fontWeight(Constant.FONT_WEIGHT_MD)
@@ -38,22 +38,22 @@ struct Home {
               Column() {
                 if (index === Constant.DEFAULT_ZERO) {
                   FoodListComp({
-                    modeIntro: $r("app.string.multiton"),
+                    modeIntro: $r('app.string.multiton'),
                     modeName: 'multiton',
                     foodsList: item,
                     foodListIndex: index
                   })
                 } else if (index === Constant.DEFAULT_ONE) {
                   FoodListComp({
-                    modeIntro: $r("app.string.specified"),
+                    modeIntro: $r('app.string.specified'),
                     modeName: 'specified',
                     foodsList: item,
                     foodListIndex: index
                   })
                 } else {
                   FoodListComp({
-                    modeIntro: $r("app.string.singleton"),
-                    modeName: 'sinleton',
+                    modeIntro: $r('app.string.singleton'),
+                    modeName: 'singleton',
                     foodsList: item,
                     foodListIndex: index
                   })
@@ -89,10 +89,6 @@ struct FoodListComp {
           .fontWeight(Constant.FONT_WEIGHT_MD)
           .fontColor($r('app.color.font_color_normal1'))
 
-        Text(` ${this.modeName}`)
-          .fontSize($r('app.integer.font_size_normal_sm1'))
-          .fontWeight(Constant.FONT_WEIGHT_MD)
-          .fontColor($r('app.color.font_color_normal1'))
         Blank()
       }
       .width(Constant.FULL_PERCENT)
@@ -102,10 +98,9 @@ struct FoodListComp {
         top: $r('app.integer.padding_normal_sm1')
       })
 
-      ForEach(this.foodsList, (item: FoodInfo, index) => {
+      ForEach(this.foodsList, (item: FoodInfo) => {
         FoodListItem({
           foodItem: item,
-          foodItemIndex: index,
           modeName: this.modeName,
           foodListIndex: this.foodListIndex
         })

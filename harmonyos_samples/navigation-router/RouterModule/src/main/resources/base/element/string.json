@@ -6,15 +6,7 @@
     },
     {
       "name": "to_index",
-      "value": "ToIndex"
-    },
-    {
-      "name": "to_hara",
-      "value": "ToHarA"
-    },
-    {
-      "name": "to_harb",
-      "value": "ToHarB"
+      "value": "Return to back page"
     }
   ]
 }

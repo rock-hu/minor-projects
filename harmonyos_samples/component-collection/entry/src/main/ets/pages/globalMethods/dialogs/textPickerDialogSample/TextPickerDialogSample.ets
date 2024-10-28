@@ -62,7 +62,7 @@ struct TextDialogSample {
                   range: this.fruits,
                   selected: this.select,
                   onAccept: (value: TextPickerResult) => {
-                    // 设置select为按下确定按钮时候的选中项index，这样当弹窗再次弹出时显示选中的是上一次确定的选项
+                    // Set select to the index of the item selected when the OK button is pressed, so that when the popup window pops up again, the last selected option is displayed
                     ShowToast.shortToast(String(value.index));
                   },
                   onCancel: () => {

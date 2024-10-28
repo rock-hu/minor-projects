@@ -29,14 +29,14 @@ function animatableWidth(size: number) {
 @Component
 struct SystemIcon {
   @State sliderValue: number = 100;
-  @State centralDiameter: number = 12; // 中心圆直径
-  @State lineWidth: number = 6; // 线条宽度
+  @State centralDiameter: number = 12; // Center circle diameter
+  @State lineWidth: number = 6; // Line width
 
   build() {
     Column() {
       TitleBar({ title: $r('app.string.System_icon') })
       Stack() {
-        // 亮度条件组件
+        // Brightness condition component
         Stack() {
           Slider({
             value: this.sliderValue,
@@ -65,9 +65,9 @@ struct SystemIcon {
               }
             })
 
-          // 亮度图标
+          // Brightness icon
           Stack() {
-            // 中心圆
+            // Center circle
             Text()
               .animatableWidthAndHeight(this.centralDiameter)
               .animation({ duration: 500, curve: "ease" })
@@ -100,7 +100,7 @@ struct SystemIcon {
     .backgroundColor($r('app.color.background_shallow_grey'))
   }
 
-  // 线条组件
+  // Line components
   @Builder
   lineComponent(angle: number) {
     Row({ space: 20 }) {

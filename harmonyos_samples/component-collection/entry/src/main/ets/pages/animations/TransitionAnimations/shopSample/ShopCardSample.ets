@@ -53,7 +53,7 @@ struct ShopCardSample {
               .transition({ type: TransitionType.Insert })
               .transition({ type: TransitionType.Delete })
               .onClick(e => {
-                // 使用TransitionOptions指定transition时，必须配合animateTo才能产生动画
+                // When using TransitionOptions to specify transition，you must use animateTo to produce animation
                 animateTo({ duration: 350 }, () => {
                   this.isUnfold = true;
                 })
@@ -69,7 +69,7 @@ struct ShopCardSample {
               .transition({ type: TransitionType.Insert, translate: { y: 0 } })
               .transition({ type: TransitionType.Delete })
               .onClick(e => {
-                // 使用TransitionOptions指定transition时，必须配合animateTo才能产生动画
+                // When using TransitionOptions to specify transition，you must use animateTo to produce animation
                 animateTo({ duration: 350 }, () => {
                   this.isUnfold = false;
                 })

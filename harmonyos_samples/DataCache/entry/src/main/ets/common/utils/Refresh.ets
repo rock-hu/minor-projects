@@ -38,10 +38,15 @@ export function refreshState(that: ListModel, state: number): void {
   }
 }
 
-export function refreshing(that: ListModel,): Promise<void> {
+export function getUrl(context: Context): string {
+  const FILENAME = context.resourceManager.getStringSync($r('app.string.fileName').id);
+  return `https://devecostudio-drcn.op.hicloud.com/solution/v1/getSceneMockData?scene=newsData&fileName=${FILENAME}.json&`;
+}
+
+export function refreshing(that: ListModel, url: string): Promise<void> {
   that.currentPage = 1;
   return http.createHttp()
-    .request(`${Const.URL}pageNum=${that.currentPage}&pageSize=${that.pageSize}`)
+    .request(`${url}pageNum=${that.currentPage}&pageSize=${that.pageSize}`)
     .then((res) => {
       const data: ResData[] = JSON.parse(res.result as string).data;
       if (data.length === that.pageSize) {
@@ -56,10 +61,10 @@ export function refreshing(that: ListModel,): Promise<void> {
     });
 }
 
-export function loadMore(that: ListModel): void {
+export function loadMore(that: ListModel, url: string): void {
   if (that.hasMore && that.endIndex === that.newsData.length) {
     http.createHttp()
-      .request(`${Const.URL}pageNum=${that.currentPage}&pageSize=${that.pageSize}`)
+      .request(`${url}pageNum=${that.currentPage}&pageSize=${that.pageSize}`)
       .then((res) => {
         if (Const.TOTAL_COUNT === that.newsData.length) {
           that.hasMore = false;

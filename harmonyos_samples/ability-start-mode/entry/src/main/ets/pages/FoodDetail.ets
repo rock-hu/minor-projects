@@ -22,7 +22,8 @@ import { getFoodsData } from '../model/DataUtil';
 import Constant from '../common/Constants';
 
 const TAG = '[Sample_StartMode]';
-const eventId = Constant.DEFAULT_ONE; // 设置一个Id，用来emitter传输
+// Set an ID for emitter transmission.
+const eventId = Constant.DEFAULT_ONE;
 let abilityWant: Want = getContextData();
 
 interface EventHub {
@@ -38,7 +39,7 @@ interface InnerEvent {
 }
 
 interface EventData {
-  "foodItemId": number;
+  'foodItemId': number;
 }
 
 interface Event {
@@ -52,7 +53,7 @@ function cardStyle() {
     top: $r('app.integer.padding_normal'),
     right: $r('app.integer.padding_normal'),
     left: $r('app.integer.padding_normal')
-  }) // 这里的具体数值单位默认为vp
+  })
   .backgroundColor($r('app.color.white'))
   .borderRadius(Constant.BORDER_RADIUS_NORMAL_DOUBLE)
 }
@@ -290,12 +291,12 @@ struct StartModeCard {
     let innerEvent: InnerEvent = { eventId };
     emitter.on(innerEvent, (eventData: emitter.EventData) => {
       this.foodItemId = eventData.data?.foodItemId;
-      // 判断数据的id值是否为0
+      // Determine if the ID value of the data is 0.
       if (this.foodItemId == Constant.DEFAULT_ZERO) {
-        this.foodInfo = getFoodsData()[this.foodListIndex][this.foodItemId + Constant.DEFAULT_ONE]; // 这里的1指的是下一条数据
+        this.foodInfo = getFoodsData()[this.foodListIndex][this.foodItemId + Constant.DEFAULT_ONE];
         this.foodData = [getFoodsData()[this.foodListIndex][this.foodItemId]];
       } else {
-        this.foodInfo = getFoodsData()[this.foodListIndex][this.foodItemId - Constant.DEFAULT_ONE]; // 这里的1指的是上一条数据
+        this.foodInfo = getFoodsData()[this.foodListIndex][this.foodItemId - Constant.DEFAULT_ONE];
         this.foodData = [getFoodsData()[this.foodListIndex][this.foodItemId]];
       }
     });
@@ -389,40 +390,43 @@ struct StartModeCard {
 
 @Entry
 @Component
-export struct FoodDetail {
+struct FoodDetail {
   @State foodInfo: FoodInfo = new FoodInfo();
   @State MultitonFoodData: FoodInfo[] = [];
   @State specifiedFoodData: FoodInfo[] = [];
   @State singletonFoodData: FoodInfo[] = [];
-  @State foodItemId: number = Constant.DEFAULT_ZERO; // 接受want传过来的foodItemId,并根据此Id去筛选数据，初始值为0
+  // Accept the foodItemId sent by want and filter the data based on this Id, with an initial value of 0.
+  @State foodItemId: number = Constant.DEFAULT_ZERO;
   private foodData: Array<FoodInfo>[] = getFoodsData();
   private modeName: string | undefined = '';
   private foodListIndex: number = Constant.DEFAULT_ZERO;
 
   async aboutToAppear() {
-    this.foodItemId = Number(await abilityWant.parameters?.foodItemId);
-    this.modeName = await abilityWant.parameters?.modeName.toString();
-    this.foodListIndex = Number(await abilityWant.parameters?.foodListIndex);
+    this.foodItemId = Number(abilityWant.parameters?.foodItemId);
+    this.modeName = abilityWant.parameters?.modeName.toString();
+    this.foodListIndex = Number(abilityWant.parameters?.foodListIndex);
     this.foodInfo = this.foodData[this.foodListIndex].filter(item => {
       return this.foodItemId == item.id;
     })[Constant.DEFAULT_ZERO];
     if (this.modeName === 'multiton') {
-      // 判断数据的id值是否为0
+      // Determine if the ID value of the data is 0.
       if (this.foodItemId == Constant.DEFAULT_ZERO) {
-        this.foodItemId = Constant.DEFAULT_ONE; // 这里的1为了查找id为1的数据
+        // Here, 1 is used to search for data with ID 1.
+        this.foodItemId = Constant.DEFAULT_ONE;
         this.MultitonFoodData = [this.foodData[this.foodListIndex][this.foodItemId]];
       } else {
-        this.foodItemId = Constant.DEFAULT_ZERO; // 这里的0为了查找id为0的数据
+        // Here, 0 is used to search for data with ID 0.
+        this.foodItemId = Constant.DEFAULT_ZERO;
         this.MultitonFoodData = [this.foodData[this.foodListIndex][this.foodItemId]];
       }
     } else if (this.modeName == 'specified') {
       this.specifiedFoodData = this.foodData[this.foodListIndex];
     } else {
       if (this.foodItemId == Constant.DEFAULT_ZERO) {
-        this.foodItemId = Constant.DEFAULT_ONE; // 这里的1为了查找id为1的数据
+        this.foodItemId = Constant.DEFAULT_ONE;
         this.singletonFoodData = [this.foodData[this.foodListIndex][this.foodItemId]];
       } else {
-        this.foodItemId = Constant.DEFAULT_ZERO; // 这里的0为了查找id为0的数据
+        this.foodItemId = Constant.DEFAULT_ZERO;
         this.singletonFoodData = [this.foodData[this.foodListIndex][this.foodItemId]];
       }
     }
@@ -437,7 +441,7 @@ export struct FoodDetail {
           ContentTable({ foodInfo: $foodInfo })
           CaloriesProgress({ foodInfo: $foodInfo })
         }
-        .clip(new Rect()
+        .clipShape(new Rect()
           .width(Constant.FULL_PERCENT)
           .height(Constant.FULL_PERCENT)
           .radiusWidth(Constant.SPACE_FIFTEEN)

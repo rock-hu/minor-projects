@@ -94,7 +94,7 @@ struct SwiperSample {
       .flexGrow(0)
 
       Scroll() {
-        // 控制面板
+        // Control Panel
         Column() {
           IntroductionTitle({ introduction: $r('app.string.swiper_introduction_arguments') })
           Column() {

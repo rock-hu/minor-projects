@@ -14,12 +14,12 @@
  */
 
 import { hilog } from '@kit.PerformanceAnalysisKit';
+
 const DOMAIN: number = 0xF811;
 const PREFIX = 'Sample_Preferences';
 const FORMAT = '%{public}s, %{public}s';
 
 class Logger {
-
   debug(...args: any[]) {
     hilog.debug(DOMAIN, PREFIX, FORMAT, args);
   }

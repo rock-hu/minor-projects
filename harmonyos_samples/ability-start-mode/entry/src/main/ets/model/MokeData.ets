@@ -50,7 +50,7 @@ export const fruitsFoods: Array<FoodInfo> = [
     image: $r('app.media.walnut'),
     categoryId: CategoryId.Nut,
     calories: 646,
-    protein: 14.9,
+    protein: 4.9,
     fat: 58.8,
     carbohydrates: 19.1,
     vitaminC: 1.0

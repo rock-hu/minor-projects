@@ -56,14 +56,14 @@ struct PattternLockSample {
           .regularColor(this.regularColor)
           .autoReset(true)
           .onPatternComplete((input: Array<number>) => {
-            // 输入的密码长度小于5时，提示重新输入
+            // If the length of the entered password is less than 5, you will prompted to re-enter it
             if (input === null || input === undefined || input.length < 5) {
               this.message = 'The password length needs to be greater than 5, please enter again.';
               return;
             }
-            // 判断密码长度是否大于0
+            // Determine whether password length if greater than 0
             if (this.passwords.length > 0) {
-              // 判断两次输入的密码是否相同，相同则提示密码设置成功，否则提示重新输入
+              // Determine whether the passwords entered twice are the same. If they are the same, it indicates that the password setting is successful. Otherwise, it prompts you to re-enter the password
               if (this.passwords.toString() === input.toString()) {
                 this.passwords = input;
                 this.message = 'Set password successfully: ' + this.passwords.toString();
@@ -71,13 +71,13 @@ struct PattternLockSample {
                 this.message = 'Inconsistent passwords, please enter again.';
               }
             } else {
-              // 提示第二次输入密码
+              // Prompt to enter password for the second time
               this.passwords = input;
               this.message = "Please enter again.";
             }
           })
         Button('Reset PatternLock').margin(30).onClick(() => {
-          // 重置密码锁
+          // Reset password lock
           this.patternLockController.reset();
           this.passwords = [];
           this.message = 'Please input password';

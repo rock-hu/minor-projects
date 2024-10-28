@@ -34,7 +34,7 @@ function rowStyle() {
   .padding(6)
   .width('100%')
   .borderRadius(24)
-  .margin({ top: 12, bottom: 12 })
+  .margin({ top: 12, bottom: 12, right: 12 })
 }
 
 @Entry

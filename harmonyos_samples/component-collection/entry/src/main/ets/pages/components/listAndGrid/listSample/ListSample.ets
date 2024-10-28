@@ -96,11 +96,10 @@ struct ListSample {
       .width('100%')
       .flexGrow(0)
 
-      // 状态栏
+      // Status bar
       IntroductionTitle({ introduction: $r('app.string.list_introduction_state') })
       Column() {
-        Text(`当前 initialIndex 为:${this.initIndex}
-修改 initialIndex 后请再次进入本页面查看效果`)
+        Text(getContext(this).resourceManager.getStringSync($r('app.string.status_bar_desc1')) + String(this.initIndex) + getContext(this).resourceManager.getStringSync($r('app.string.status_bar_desc2')))
           .textAlign(TextAlign.Center)
           .fontColor(Color.Red)
       }
@@ -111,10 +110,10 @@ struct ListSample {
       .justifyContent(FlexAlign.Center)
       .flexGrow(0)
 
-      // 控制面板
+      // Control Panel
       Scroll() {
         Column() {
-          // 参数
+          // Parameter
           IntroductionTitle({ introduction: $r('app.string.list_introduction_arguments') })
           Column() {
             ArgumentsControlPanel({
@@ -124,7 +123,7 @@ struct ListSample {
           }
           .backgroundStyle()
 
-          // 属性
+          // Property
           IntroductionTitle({ introduction: $r('app.string.list_introduction_properties') })
           Column() {
             PropertiesControlPanel({

@@ -80,7 +80,7 @@ struct RatingSample {
           }
           .onInc(() => {
             if (this.rating < this.stars)
-              this.rating += 0.5; // 评分0.5
+              this.rating += 0.5; // rating 0.5
           })
           .onDec(() => {
             if (this.rating > 0)
@@ -98,7 +98,7 @@ struct RatingSample {
             Text(this.stars.toString())
           }
           .onInc(() => {
-            if (this.stars <= 8) // 总分为8
+            if (this.stars <= 8) // Total score: 8
               this.stars++;
           })
           .onDec(() => {

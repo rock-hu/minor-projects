@@ -42,28 +42,28 @@ StateFatherComponent.ets</font>
 
 <span class="s5">@</span><span class="s1">Component</span>
 <span class="s1">export struct StateFatherComponent </span><span class="s2">{</span>
-  <span class="s0">// 共同父组件使用@State初始化圆形颜色</span>
+  <span class="s0">// The co-parent component initializes the circular color using @State</span>
   <span class="s5">@</span><span class="s1">State circleColor</span><span class="s4">: </span><span class="s1">Resource </span><span class="s4">= </span><span class="s1">$r</span><span class="s6">(</span><span class="s3">'app.color.circle_blue'</span><span class="s6">)</span><span class="s4">;</span>
-  <span class="s0">// 初始化一个颜色数组</span>
+  <span class="s0">// Initializes a color array</span>
   <span class="s5">@</span><span class="s1">State selectColors</span><span class="s4">: </span><span class="s1">ColorType</span><span class="s6">[] </span><span class="s4">= </span><span class="s1">COLOR_SELECT_DATA</span><span class="s4">;</span>
-  <span class="s0">// 初始化当前Select的Index为0</span>
+  <span class="s0">// Initializes the Index of the current Select to 0</span>
   <span class="s5">@</span><span class="s1">State currentSelectIndex</span><span class="s4">: </span><span class="s1">number </span><span class="s4">= </span><span class="s7">0</span><span class="s4">;</span>
 
   <span class="s1">build</span><span class="s6">() </span><span class="s2">{</span>
     <span class="s1">Column</span><span class="s6">(</span><span class="s2">{ </span><span class="s1">space</span><span class="s4">: </span><span class="s7">10 </span><span class="s2">}</span><span class="s6">) </span><span class="s2">{</span>
-      <span class="s0">// 点击查看源码</span>
+      <span class="s0">// Click to view source code</span>
       <span class="s1">ViewCodeText</span><span class="s6">(</span><span class="s2">{ </span><span class="s1">webSrc</span><span class="s4">: </span><span class="s1">$rawfile</span><span class="s6">(</span><span class="s3">'ParentChildPartialContentSyncCode.ets.html'</span><span class="s6">) </span><span class="s2">}</span><span class="s6">)</span>
       <span class="s1">Text</span><span class="s6">(</span><span class="s1">$r</span><span class="s6">(</span><span class="s3">'app.string.parent_titleone'</span><span class="s6">))</span>
         <span class="s4">.</span><span class="s1">fontSize</span><span class="s6">(</span><span class="s1">$r</span><span class="s6">(</span><span class="s3">'app.float.tips_font_size'</span><span class="s6">))</span>
         <span class="s4">.</span><span class="s1">fontColor</span><span class="s6">(</span><span class="s1">$r</span><span class="s6">(</span><span class="s3">'app.color.tips_font_color'</span><span class="s6">))</span>
         <span class="s4">.</span><span class="s1">width</span><span class="s6">(</span><span class="s3">'100%'</span><span class="s6">)</span>
         <span class="s4">.</span><span class="s1">textAlign</span><span class="s6">(</span><span class="s1">TextAlign</span><span class="s4">.</span><span class="s1">Center</span><span class="s6">)</span>
-      <span class="s0">// 和父组件双向同步子组件A</span>
+      <span class="s0">// Bidirectional synchronous component A with parent component</span>
       <span class="s1">LinkBrotherOneComponent</span><span class="s6">(</span><span class="s2">{</span>
         <span class="s1">circleColor</span><span class="s4">: </span><span class="s1">$circleColor</span><span class="s4">,</span>
         <span class="s1">currentSelectIndex</span><span class="s4">: </span><span class="s1">$currentSelectIndex</span>
       <span class="s2">}</span><span class="s6">)</span>
-      <span class="s0">// 和父组件双向同步子组件B</span>
+      <span class="s0">// Bidirectional synchronous component B with parent component</span>
       <span class="s1">LinkBrotherTwoComponent</span><span class="s6">(</span><span class="s2">{</span>
         <span class="s1">circleColor</span><span class="s4">: </span><span class="s1">$circleColor</span><span class="s4">,</span>
         <span class="s1">currentSelectIndex</span><span class="s4">: </span><span class="s1">$currentSelectIndex</span>

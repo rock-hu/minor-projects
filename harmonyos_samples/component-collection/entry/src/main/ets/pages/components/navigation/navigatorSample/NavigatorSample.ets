@@ -31,7 +31,7 @@ struct NavigationSample {
           .width('100%')
           .textAlign(TextAlign.Center)
           .id(`navigator_001`)
-      }.params({ text: this.Text }) // 传参数到Detail页面
+      }.params({ text: this.Text }) // Pass parameters to the Detail page
       .margin({bottom:12})
     }
     .padding({ left: LEFT_PADDING, right: RIGHT_PADDING })

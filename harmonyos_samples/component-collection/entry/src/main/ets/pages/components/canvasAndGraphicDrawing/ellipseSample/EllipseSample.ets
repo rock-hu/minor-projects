@@ -43,7 +43,7 @@ struct EllipseSample {
       TitleBar({ title: $r('app.string.ellipse_title') })
       Column() {
         Column() {
-          // 绘制一个 150 * 80 的椭圆
+          // Draw a 150 * 80 ellipse
           Ellipse()
             .size({ width: this.ellipseWidth, height: this.ellipseHeight })
             .fill(this.fill)

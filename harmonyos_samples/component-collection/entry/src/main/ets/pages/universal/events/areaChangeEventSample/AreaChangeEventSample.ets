@@ -45,8 +45,8 @@ struct AreaChangeEventSample {
   private areaBottom: number = 0;
   private motionStartingCheckingTimer: number = 0;
   private motionTimer: number = 0;
-  private xDirection: number = 1; // 1 为正方向，-1 为负方向
-  private yDirection: number = 1; // 1 为正方向，-1 为负方向
+  private xDirection: number = 1; // 1 is positive direction, -1 is negative direction
+  private yDirection: number = 1; // 1 is positive direction, -1 is negative direction
 
   onPageShow() {
     this.startMotionControlling()
@@ -129,7 +129,7 @@ struct AreaChangeEventSample {
       return;
     }
 
-    // 再以当前运动方向生成新的方向
+    // Then generate a new direction based on the current movement direction
     if (reachedSide === AreaSideName.LEFT || reachedSide === AreaSideName.RIGHT) {
       this.xDirection = this.xDirection * -1;
     } else {

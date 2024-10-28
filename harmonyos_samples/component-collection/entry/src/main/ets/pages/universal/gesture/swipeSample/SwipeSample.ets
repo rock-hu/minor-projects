@@ -38,7 +38,7 @@ struct SwipeExample {
         .width(300)
         .height(150)
         .rotate({ angle: this.rotateAngle })
-        // 单指竖直方向滑动时触发该事件
+        // This event is triggered when a single finger slides vertically
         .gesture(
           SwipeGesture({ direction: SwipeDirection.All, fingers: 1, speed: 100 })
             .onAction((event: GestureEvent) => {

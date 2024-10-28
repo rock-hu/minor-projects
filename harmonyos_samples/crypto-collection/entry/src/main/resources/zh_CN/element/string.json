@@ -133,120 +133,40 @@
       "value": "AES GCM模式加解密"
     },
     {
-      "name": "AES_GCM_encryption",
-      "value": "AES GCM模式加密"
-    },
-    {
-      "name": "AES_GCM_decryption",
-      "value": "AES GCM模式解密"
-    },
-    {
       "name": "AES_CBC",
       "value": "AES CBC模式加解密"
-    },
-    {
-      "name": "AES_CBC_encryption",
-      "value": "AES CBC模式加密"
-    },
-    {
-      "name": "AES_CBC_decryption",
-      "value": "AES CBC模式解密"
     },
     {
       "name": "AES_EBC",
       "value": "AES ECB模式加解密"
     },
     {
-      "name": "AES_EBC_encryption",
-      "value": "AES ECB模式加密"
-    },
-    {
-      "name": "AES_EBC_decryption",
-      "value": "AES ECB模式解密"
-    },
-    {
       "name": "3DES_EBC",
       "value": "3DES ECB模式加解密"
-    },
-    {
-      "name": "3DES_EBC_encryption",
-      "value": "3DES ECB模式加密"
-    },
-    {
-      "name": "3DES_EBC_decryption",
-      "value": "3DES ECB模式解密"
     },
     {
       "name": "SM4_EBC",
       "value": "SM4 ECB模式加解密"
     },
     {
-      "name": "SM4_EBC_encryption",
-      "value": "SM4 ECB模式加密"
-    },
-    {
-      "name": "SM4_EBC_decryption",
-      "value": "SM4 ECB模式解密"
-    },
-    {
       "name": "SM4_CBC",
       "value": "SM4 CBC模式加解密"
-    },
-    {
-      "name": "SM4_CBC_encryption",
-      "value": "SM4 CBC模式加密"
-    },
-    {
-      "name": "SM4_CBC_decryption",
-      "value": "SM4 CBC模式解密"
     },
     {
       "name": "RSA_PKCS1",
       "value": "RSA PKCS1模式加解密"
     },
     {
-      "name": "RSA_PKCS1_encryption",
-      "value": "RSA PKCS1模式加密"
-    },
-    {
-      "name": "RSA_PKCS1_decryption",
-      "value": "RSA PKCS1模式解密"
-    },
-    {
       "name": "RSA_PKCS1_OAEP",
       "value": "RSA PKCS1_OAEP模式加解密"
-    },
-    {
-      "name": "RSA_PKCS1_OAEP_encryption",
-      "value": "RSA PKCS1_OAEP模式加密"
-    },
-    {
-      "name": "RSA_PKCS1_OAEP_decryption",
-      "value": "RSA PKCS1_OAEP模式解密"
     },
     {
       "name": "SM2_crypto",
       "value": "SM2 非对称密钥加解密"
     },
     {
-      "name": "SM2_crypto_encryption",
-      "value": "SM2 非对称密钥加密"
-    },
-    {
-      "name": "SM2_crypto_decryption",
-      "value": "SM2 非对称密钥解密"
-    },
-    {
       "name": "rsa_dissymmetry_pkcs1",
       "value": "RSA PKCS1非对称密钥分段加解密"
-    },
-    {
-      "name": "rsa_dissymmetry_pkcs1_encryption",
-      "value": "RSA PKCS1非对称密钥分段加密"
-    },
-    {
-      "name": "rsa_dissymmetry_pkcs1_decryption",
-      "value": "RSA PKCS1非对称密钥分段解密"
     },
     {
       "name": "encrypted_text",
@@ -255,6 +175,14 @@
     {
       "name": "decrypted_text",
       "value": "已解密文本"
+    },
+    {
+      "name": "encrypt",
+      "value": "加密"
+    },
+    {
+      "name": "decrypt",
+      "value": "解密"
     }
   ]
 }

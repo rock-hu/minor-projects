@@ -47,14 +47,14 @@ ProvideGrandfatherComponent.ets</font>
 <span class="s6">@</span><span class="s1">Component</span>
 <span class="s1">export struct ProvideGrandfatherComponent </span><span class="s4">{</span>
   <span class="s6">@</span><span class="s1">State selectColors</span><span class="s3">: </span><span class="s1">ColorType</span><span class="s5">[] </span><span class="s3">= </span><span class="s1">COLOR_SELECT_DATA</span><span class="s3">;</span>
-  <span class="s0">// 初始化爷组件@Provide的原型颜色</span>
+  <span class="s0">// Initializes the prototype color of the master component @Provide</span>
   <span class="s6">@</span><span class="s1">Provide consumeCircleColor</span><span class="s3">: </span><span class="s1">Resource </span><span class="s3">= </span><span class="s1">$r</span><span class="s5">(</span><span class="s2">'app.color.circle_blue'</span><span class="s5">)</span><span class="s3">;</span>
-  <span class="s0">// 初始化Select组件的Index</span>
+  <span class="s0">// Initializes the Index of the Select component</span>
   <span class="s6">@</span><span class="s1">Provide currentSelectIndex</span><span class="s3">: </span><span class="s1">number </span><span class="s3">= </span><span class="s7">0</span><span class="s3">;</span>
 
   <span class="s1">build</span><span class="s5">() </span><span class="s4">{</span>
     <span class="s1">Column</span><span class="s5">() </span><span class="s4">{</span>
-      <span class="s0">// 点击查看源码</span>
+      <span class="s0">// Click to view source code</span>
       <span class="s1">ViewCodeText</span><span class="s5">(</span><span class="s4">{ </span><span class="s1">webSrc</span><span class="s3">:  </span><span class="s1">$rawfile</span><span class="s5">(</span><span class="s2">'ProvideAndConsumeSync.ets.html'</span><span class="s5">) </span><span class="s4">}</span><span class="s5">)</span>
       <span class="s1">Text</span><span class="s5">(</span><span class="s1">$r</span><span class="s5">(</span><span class="s2">'app.string.deepnest_parent_titletwo'</span><span class="s5">))</span>
         <span class="s3">.</span><span class="s1">fontSize</span><span class="s5">(</span><span class="s1">$r</span><span class="s5">(</span><span class="s2">'app.float.tips_font_size'</span><span class="s5">))</span>
@@ -72,7 +72,7 @@ ProvideGrandfatherComponent.ets</font>
           <span class="s3">.</span><span class="s1">optionFont</span><span class="s5">(</span><span class="s4">{ </span><span class="s1">size</span><span class="s3">: </span><span class="s1">$r</span><span class="s5">(</span><span class="s2">'app.float.tips_font_size'</span><span class="s5">) </span><span class="s4">}</span><span class="s5">)</span>
           <span class="s3">.</span><span class="s1">id</span><span class="s5">(</span><span class="s2">'grandfatherCompB'</span><span class="s5">)</span>
           <span class="s3">.</span><span class="s1">onSelect</span><span class="s5">((</span><span class="s1">index</span><span class="s3">: </span><span class="s1">number</span><span class="s5">) </span><span class="s3">=&gt; </span><span class="s4">{</span>
-            <span class="s0">// 爷组件@Provide声明的数据页面更新，孙组件@Consume关联的变量同步更新</span>
+            <span class="s0">// The data page declared by master component @Provide is updated, and the associated variables of master component @Consume are updated synchronously</span>
             <span class="s1">this</span><span class="s3">.</span><span class="s1">currentSelectIndex </span><span class="s3">= </span><span class="s1">index</span><span class="s3">;</span>
             <span class="s1">this</span><span class="s3">.</span><span class="s1">consumeCircleColor </span><span class="s3">= </span><span class="s1">this</span><span class="s3">.</span><span class="s1">selectColors</span><span class="s5">[</span><span class="s1">index</span><span class="s5">]</span><span class="s3">.</span><span class="s1">color</span><span class="s3">;</span>
           <span class="s4">}</span><span class="s5">)</span>
@@ -82,7 +82,7 @@ ProvideGrandfatherComponent.ets</font>
       <span class="s4">}</span><span class="s3">.</span><span class="s1">justifyContent</span><span class="s5">(</span><span class="s1">FlexAlign</span><span class="s3">.</span><span class="s1">SpaceAround</span><span class="s5">)</span>
       <span class="s3">.</span><span class="s1">width</span><span class="s5">(</span><span class="s2">'100%'</span><span class="s5">)</span>
       <span class="s3">.</span><span class="s1">margin</span><span class="s5">(</span><span class="s4">{ </span><span class="s1">bottom</span><span class="s3">: </span><span class="s7">6 </span><span class="s4">}</span><span class="s5">)</span>
-      <span class="s0">// 子组件</span>
+      <span class="s0">// subcomponent</span>
       <span class="s1">ConsumeChildComp</span><span class="s5">()</span>
     <span class="s4">}</span><span class="s3">.</span><span class="s1">padding</span><span class="s5">(</span><span class="s7">10</span><span class="s5">)</span>
     <span class="s3">.</span><span class="s1">border</span><span class="s5">(</span><span class="s4">{ </span><span class="s1">radius</span><span class="s3">: </span><span class="s1">$r</span><span class="s5">(</span><span class="s2">'app.float.component_radius'</span><span class="s5">)</span><span class="s3">, </span><span class="s1">color</span><span class="s3">: </span><span class="s1">Color</span><span class="s3">.</span><span class="s1">Grey</span><span class="s3">, </span><span class="s1">width</span><span class="s3">: </span><span class="s1">$r</span><span class="s5">(</span><span class="s2">'app.float.border_width'</span><span class="s5">) </span><span class="s4">}</span><span class="s5">)</span>
@@ -100,7 +100,7 @@ ProvideGrandfatherComponent.ets</font>
         <span class="s3">.</span><span class="s1">width</span><span class="s5">(</span><span class="s2">'100%'</span><span class="s5">)</span>
         <span class="s3">.</span><span class="s1">textAlign</span><span class="s5">(</span><span class="s1">TextAlign</span><span class="s3">.</span><span class="s1">Center</span><span class="s5">)</span>
         <span class="s3">.</span><span class="s1">height</span><span class="s5">(</span><span class="s1">$r</span><span class="s5">(</span><span class="s2">'app.float.button_height'</span><span class="s5">))</span>
-      <span class="s0">// 双向同步孙组件</span>
+      <span class="s0">// Bidirectional synchronous sun module</span>
       <span class="s1">ConsumeDescendentComponent</span><span class="s5">()</span>
     <span class="s4">}</span>
     <span class="s3">.</span><span class="s1">padding</span><span class="s5">(</span><span class="s7">10</span><span class="s5">)</span>

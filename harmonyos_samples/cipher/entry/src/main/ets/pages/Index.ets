@@ -62,8 +62,8 @@ struct Index {
               })
             })
         }
-      }.height('94%')
-
+      }
+      .height('94%')
     }
     .width('100%')
     .height('100%')
@@ -74,6 +74,7 @@ struct Index {
 class DataModel {
   flag: boolean = true;
 }
+
 let paramsInfo: DataModel = {
   flag: true
 };

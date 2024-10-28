@@ -6,7 +6,7 @@
     },
     {
       "name": "MainAbility_desc",
-      "value": "订阅监听网络状态、信号状态、通话状态、蜂窝数据、sim状态等事件"
+      "value": "Subscribe to monitor network status, signal status, call status, cellular data, SIM status, and other events"
     },
     {
       "name": "network_permission",
@@ -14,7 +14,7 @@
     },
     {
       "name": "read_call_permission",
-      "value": "获取通话状态权限"
+      "value": "Obtain call status permission"
     },
     {
       "name": "MainAbility_label",
@@ -22,143 +22,139 @@
     },
     {
       "name": "details",
-      "value": "查看详情"
+      "value": "View details"
     },
     {
       "name": "network_state_change",
-      "value": "订阅网络状态变化事件"
+      "value": "Network status change"
     },
     {
       "name": "signal_info_change",
-      "value": "订阅信号状态变化事件"
-    },
-    {
-      "name": "callState_change",
-      "value": "订阅通话状态变化事件"
+      "value": "Signal status change"
     },
     {
       "name": "cellular_data_connection_state_change",
-      "value": "订阅蜂窝数据链路连接状态"
+      "value": "Cellular data link connection"
     },
     {
       "name": "cellular_data_flow_change",
-      "value": "订阅蜂窝数据业务的数据流状态"
+      "value": "Cellular data service data flow status"
     },
     {
       "name": "sim_state_change",
-      "value": "订阅sim状态更改事件"
+      "value": "SIM card status change"
     },
     {
       "name": "detail",
-      "value": "详细信息"
+      "value": "detailed information"
     },
     {
       "name": "network_registration_status",
-      "value": "网络注册状态"
+      "value": "Network registration status"
     },
     {
       "name": "network_state_long_operator_name",
-      "value": "注册网络的长运营商名称:"
+      "value": "Register the long operator name for the network:"
     },
     {
       "name": "network_state_short_operator_name",
-      "value": "注册网络的短运营商名称:"
+      "value": "Register the short operator name for the network:"
     },
     {
       "name": "plmn_numeric",
-      "value": "注册网络的PLMN码:"
+      "value": "Register the PLMN code for the network:"
     },
     {
       "name": "is_roaming",
-      "value": "是否处于漫游状态:"
+      "value": "Is it in roaming mode:"
     },
     {
       "name": "reg_state",
-      "value": "设备的网络注册状态:"
+      "value": "The network registration status of the device:"
     },
     {
       "name": "cfg_tech",
-      "value": "设备的无线接入技术:"
+      "value": "Wireless access technology for devices:"
     },
     {
       "name": "nsa_state",
-      "value": "设备的NSA网络注册状态:"
+      "value": "NSA network registration status of the device:"
     },
     {
       "name": "is_ca_active",
-      "value": "CA的状态:"
+      "value": "The status of CA:"
     },
     {
       "name": "is_emergency",
-      "value": "此设备是否只允许拨打紧急呼叫:"
+      "value": "Does this device only allow emergency calls to be made:"
     },
     {
       "name": "signal_information",
-      "value": "网络信号强度"
+      "value": "Network signal strength"
     },
     {
       "name": "signal_type",
-      "value": "网络信号强度类型:"
+      "value": "Network signal strength type:"
     },
     {
       "name": "signal_level",
-      "value": "网络信号强度等级:"
+      "value": "Network signal strength level:"
     },
     {
       "name": "call_state",
-      "value": "通话状态"
+      "value": "Call status"
     },
     {
       "name": "call_state_code",
-      "value": "通话状态码:"
+      "value": "Call status code:"
     },
     {
       "name": "phone_number",
-      "value": "电话号码:"
+      "value": "Phone number::"
     },
     {
       "name": "cellular_data",
-      "value": "蜂窝数据"
+      "value": "Cellular data"
     },
     {
       "name": "cellular_data_connection_state",
-      "value": "蜂窝数据链路连接状态:"
+      "value": "Cellular data link connection status:"
     },
     {
       "name": "cellular_data_flow_type",
-      "value": "蜂窝数据流类型:"
+      "value": "Cellular data stream type:"
     },
     {
       "name": "sim_card_status",
-      "value": "sim卡状态"
+      "value": "SIM card status"
     },
     {
       "name": "card_type",
-      "value": "SIM卡类型:"
+      "value": "SIM card type:"
     },
     {
       "name": "sim_status",
-      "value": "SIM卡状态:"
+      "value": "SIM card status:"
     },
     {
       "name": "lock_reason",
-      "value": "SIM卡锁类型:"
+      "value": "SIM card lock type:"
     },
     {
       "name": "REG_STATE_NO_SERVICE",
-      "value": "设备不能使用任何服务"
+      "value": "The device cannot use any services"
     },
     {
       "name": "REG_STATE_IN_SERVICE",
-      "value": "设备可以正常使用业务"
+      "value": "The device can be used normally for business purposes"
     },
     {
       "name": "REG_STATE_EMERGENCY_CALL_ONLY",
-      "value": "设备只能使用紧急呼叫业务"
+      "value": "The device can only use emergency call services"
     },
     {
       "name": "REG_STATE_POWER_OFF",
-      "value": "蜂窝无线电已关闭"
+      "value": "Cellular radio has been turned off"
     },
     {
       "name": "NA",
@@ -166,287 +162,271 @@
     },
     {
       "name": "RADIO_TECHNOLOGY_UNKNOWN",
-      "value": "未知无线接入技术"
+      "value": "Unknown wireless access technology"
     },
     {
       "name": "RADIO_TECHNOLOGY_GSM",
-      "value": "无线接入技术GSM"
+      "value": "Wireless Access Technology GSM"
     },
     {
       "name": "RADIO_TECHNOLOGY_1XRTT",
-      "value": "无线接入技术1XRTT"
+      "value": "Wireless access technology 1XRTT"
     },
     {
       "name": "RADIO_TECHNOLOGY_WCDMA",
-      "value": "无线接入技术WCDMA"
+      "value": "Wireless Access Technology WCDMA"
     },
     {
       "name": "RADIO_TECHNOLOGY_HSPA",
-      "value": "无线接入技术HSPA"
+      "value": "Wireless access technology HSPA"
     },
     {
       "name": "RADIO_TECHNOLOGY_HSPAP",
-      "value": "无线接入技术HSPAP"
+      "value": "Wireless Access Technology HSPAP"
     },
     {
       "name": "RADIO_TECHNOLOGY_TD_SCDMA",
-      "value": "无线接入技术TDSCDMA"
+      "value": "Wireless Access Technology TDSCDMA"
     },
     {
       "name": "RADIO_TECHNOLOGY_EVDO",
-      "value": "无线接入技术EVDO"
+      "value": "Wireless Access Technology EVDO"
     },
     {
       "name": "RADIO_TECHNOLOGY_EHRPD",
-      "value": "无线接入技术EHRPD"
+      "value": "Wireless Access Technology EHRPD"
     },
     {
       "name": "RADIO_TECHNOLOGY_LTE",
-      "value": "无线接入技术LTE"
+      "value": "Wireless access technology LTE"
     },
     {
       "name": "RADIO_TECHNOLOGY_LTE_CA",
-      "value": "无线接入技术LTE_CA"
+      "value": "Wireless Access Technology LTE-CA"
     },
     {
       "name": "RADIO_TECHNOLOGY_IWLAN",
-      "value": "无线接入技术IWLAN"
+      "value": "Wireless Access Technology IWLAN"
     },
     {
       "name": "RADIO_TECHNOLOGY_NR",
-      "value": "无线接入技术NR"
+      "value": "Wireless Access Technology NR"
     },
     {
       "name": "NSA_STATE_NOT_SUPPORT",
-      "value": "设备在不支持NSA的LTE小区下处于空闲状态或连接状态"
+      "value": "The device is idle or connected in LTE cells that do not support NSA"
     },
     {
       "name": "NSA_STATE_NO_DETECT",
-      "value": "在支持NSA但不支持NR覆盖检测的LTE小区下，设备处于空闲状态"
+      "value": "In LTE cells that support NSA but do not support NR coverage detection，and the device is in an idle state"
     },
     {
       "name": "NSA_STATE_CONNECTED_DETECT",
-      "value": "设备在LTE小区下连接到LTE网络支持NSA和NR覆盖检测"
+      "value": "Devices connected to LTE networks in LTE cells support NSA and NR coverage detection"
     },
     {
       "name": "NSA_STATE_IDLE_DETECT",
-      "value": "支持NSA和NR覆盖检测的LTE小区下设备处于空闲状态"
+      "value": "Devices in LTE cells that support NSA and NR coverage detection are idle"
     },
     {
       "name": "NSA_STATE_DUAL_CONNECTED",
-      "value": "设备在支持NSA的LTE小区下连接到LTE + NR网络"
+      "value": "The device is connected to an LTE + NR network in an LTE cell that supports NSA"
     },
     {
       "name": "NSA_STATE_SA_ATTACHED",
-      "value": "设备在5GC附着时在NG-RAN小区下空闲或连接到NG-RAN小区"
+      "value": "The device is idle or connected to the NG-RAN cell when attached to 5GC"
     },
     {
       "name": "NETWORK_TYPE_UNKNOWN",
-      "value": "未知网络类型"
+      "value": "Unknown network type"
     },
     {
       "name": "NETWORK_TYPE_GSM",
-      "value": "网络类型为GSM"
+      "value": "The network type is GSM"
     },
     {
       "name": "NETWORK_TYPE_CDMA",
-      "value": "网络类型为CDMA"
+      "value": "The network type is CDMA"
     },
     {
       "name": "NETWORK_TYPE_WCDMA",
-      "value": "网络类型为WCDMA"
+      "value": "The network type is WCDMA"
     },
     {
       "name": "NETWORK_TYPE_TDSCDMA",
-      "value": "网络类型为TDSCDMA"
+      "value": "The network type is TDSCDMA"
     },
     {
       "name": "NETWORK_TYPE_LTE",
-      "value": "网络类型为LTE"
+      "value": "The network type is LTE"
     },
     {
       "name": "NETWORK_TYPE_NR",
-      "value": "网络类型为5G NR"
+      "value": "The network type is 5G NR"
     },
     {
       "name": "CALL_STATE_UNKNOWN",
-      "value": "无效状态"
+      "value": "invalid state"
     },
     {
       "name": "CALL_STATE_IDLE",
-      "value": "没有正在进行的呼叫"
+      "value": "There are no ongoing calls"
     },
     {
       "name": "CALL_STATE_RINGING",
-      "value": "来电正在振铃或等待"
+      "value": "The call is ringing or waiting"
     },
     {
       "name": "CALL_STATE_OFFHOOK",
-      "value": "至少有一个呼叫处于拨号、通话中或呼叫保持状态，并且没有新的来电振铃或等待"
+      "value": "At least one call is in dial-up, on call, or call hold status, and there are no new incoming calls ringing or waiting"
     },
     {
       "name": "DATA_STATE_UNKNOWN",
-      "value": "蜂窝数据链路未知"
-    },
-    {
-      "name": "DATA_STATE_DISCONNECTED",
-      "value": "蜂窝数据链路断开"
-    },
-    {
-      "name": "DATA_STATE_CONNECTING",
-      "value": "正在连接蜂窝数据链路"
-    },
-    {
-      "name": "DATA_STATE_CONNECTED",
-      "value": "蜂窝数据链路已连接"
-    },
-    {
-      "name": "DATA_STATE_SUSPENDED",
-      "value": "蜂窝数据链路被挂起"
+      "value": "Unknown cellular data link"
     },
     {
       "name": "DATA_FLOW_TYPE_NONE",
-      "value": "没有上行或下行数据"
+      "value": "No upstream or downstream data"
     },
     {
       "name": "DATA_FLOW_TYPE_DOWN",
-      "value": "只有下行数据"
+      "value": "Only downlink data is available"
     },
     {
       "name": "DATA_FLOW_TYPE_UP",
-      "value": "只有上行数据"
+      "value": "Only upstream data"
     },
     {
       "name": "DATA_FLOW_TYPE_UP_DOWN",
-      "value": "有上下行数据"
+      "value": "There is up and down data available"
     },
     {
       "name": "DATA_FLOW_TYPE_DORMANT",
-      "value": "没有上下行数据，底层链路处于休眠状态"
+      "value": "There is no upstream or downstream data, and the underlying link is in sleep mode"
     },
     {
       "name": "UNKNOWN_CARD",
-      "value": "未知类型"
+      "value": "unknown type"
     },
     {
       "name": "SINGLE_MODE_SIM_CARD",
-      "value": "单SIM卡"
+      "value": "Single SIM card"
     },
     {
       "name": "SINGLE_MODE_USIM_CARD",
-      "value": "单USIM卡"
+      "value": "Single USIM card"
     },
     {
       "name": "SINGLE_MODE_RUIM_CARD",
-      "value": "单RUIM卡"
+      "value": "Single RUIM card"
     },
     {
       "name": "DUAL_MODE_CG_CARD",
-      "value": "双卡模式C+G"
+      "value": "Dual card mode C+G"
     },
     {
       "name": "CT_NATIONAL_ROAMING_CARD",
-      "value": "中国电信内部漫游卡"
+      "value": "China Telecom Internal Roaming Card"
     },
     {
       "name": "CU_DUAL_MODE_CARD",
-      "value": "中国联通双模卡"
+      "value": "China Unicom dual-mode card"
     },
     {
       "name": "DUAL_MODE_TELECOM_LTE_CARD",
-      "value": "双模式电信LTE卡"
+      "value": "Dual mode telecommunications LTE card"
     },
     {
       "name": "DUAL_MODE_UG_CARD",
-      "value": "双模式UG卡"
+      "value": "Dual mode UG card"
     },
     {
       "name": "SINGLE_MODE_ISIM_CARD",
-      "value": "单一ISIM卡类型"
+      "value": "Single ISIM card type"
     },
     {
       "name": "SIM_STATE_UNKNOWN",
-      "value": "SIM卡状态未知"
+      "value": "SIM card status unknown"
     },
     {
       "name": "SIM_STATE_NOT_PRESENT",
-      "value": "卡槽中没有插入SIM卡"
+      "value": "There is no SIM inserted into the card slot."
     },
     {
       "name": "SIM_STATE_LOCKED",
-      "value": "SIM卡被PIN、PUK或网络锁锁定"
+      "value": "SIM locked by PIN, PUK or network lock."
     },
     {
       "name": "SIM_STATE_NOT_READY",
-      "value": "SIM卡在位但无法正常工作"
+      "value": "SIM in place but unable to function properly."
     },
     {
       "name": "SIM_STATE_READY",
-      "value": "SIM卡在位且工作正常"
+      "value": "SIM in place and working properly."
     },
     {
       "name": "SIM_STATE_LOADED",
-      "value": "SIM卡在位且所有卡文件加载完毕"
+      "value": "SIM in place and all card files loaded."
     },
     {
       "name": "SIM_NONE",
-      "value": "无锁"
+      "value": "None Lock"
     },
     {
       "name": "SIM_PIN",
-      "value": "PIN锁"
+      "value": "PIN"
     },
     {
       "name": "SIM_PUK",
-      "value": "PUK锁"
+      "value": "Network PUK"
     },
     {
       "name": "SIM_PN_PIN",
-      "value": "网络PIN锁"
+      "value": "Network PIN"
     },
     {
       "name": "SIM_PN_PUK",
-      "value": "网络PUK锁"
+      "value": "Network PUK lock"
     },
     {
       "name": "SIM_PU_PIN",
-      "value": "子网PIN锁"
+      "value": "Subnet PIN"
     },
     {
       "name": "SIM_PU_PUK",
-      "value": "子网PUK锁"
+      "value": "Subnet PUK"
     },
     {
       "name": "SIM_PP_PIN",
-      "value": "服务提供商PIN锁"
+      "value": "Service provider PIN"
     },
     {
       "name": "SIM_PP_PUK",
-      "value": "服务提供商PUK锁"
+      "value": "Service provider PUK"
     },
     {
       "name": "SIM_PC_PIN",
-      "value": "组织PIN锁"
+      "value": "PC PIN"
     },
     {
       "name": "SIM_PC_PUK",
-      "value": "组织PUK锁"
+      "value": "PC PUK"
     },
     {
       "name": "SIM_SIM_PIN",
-      "value": "SIM PIN锁"
+      "value": "SIM PIN"
     },
     {
       "name": "SIM_SIM_PUK",
-      "value": "SIM PUK锁"
+      "value": "SIM PUK"
     },
     {
       "name": "yes",
-      "value": "是"
+      "value": "Yes"
     },
     {
       "name": "no",
-      "value": "否"
+      "value": "No"
     }
   ]
 }

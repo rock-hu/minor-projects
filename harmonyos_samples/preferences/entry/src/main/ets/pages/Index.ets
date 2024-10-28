@@ -20,39 +20,39 @@ import ThemeDesktop from '../common/ThemeDesktop';
 
 export interface ImageAndName {
   image: Resource;
-  name: string;
+  name: ResourceStr;
 }
 
 const THEMES: Array<ImageAndName>[] = [
   [
-    { image: $r('app.media.dialer'), name: '电话' },
-    { image: $r('app.media.shopping'), name: '商城' },
-    { image: $r('app.media.notes'), name: '备忘录' },
-    { image: $r('app.media.settings'), name: '设置' },
-    { image: $r('app.media.camera'), name: '相机' },
-    { image: $r('app.media.gallery'), name: '相册' },
-    { image: $r('app.media.music'), name: '音乐' },
-    { image: $r('app.media.video'), name: '视频' },
+    { image: $r('app.media.dialer'), name: $r('app.string.dialer') },
+    { image: $r('app.media.shopping'), name: $r('app.string.shopping') },
+    { image: $r('app.media.notes'), name: $r('app.string.notes') },
+    { image: $r('app.media.settings'), name: $r('app.string.settings') },
+    { image: $r('app.media.camera'), name: $r('app.string.camera') },
+    { image: $r('app.media.gallery'), name: $r('app.string.album') },
+    { image: $r('app.media.music'), name: $r('app.string.music') },
+    { image: $r('app.media.video'), name: $r('app.string.video') },
   ],
   [
-    { image: $r('app.media.simplicityCall'), name: '电话' },
-    { image: $r('app.media.simplicityShop'), name: '商城' },
-    { image: $r('app.media.simplicityNotes'), name: '备忘录' },
-    { image: $r('app.media.simplicitySetting'), name: '设置' },
-    { image: $r('app.media.simplicityCamera'), name: '相机' },
-    { image: $r('app.media.simplicityPhotos'), name: '相册' },
-    { image: $r('app.media.simplicityMusic'), name: '音乐' },
-    { image: $r('app.media.simplicityVideo'), name: '视频' },
+    { image: $r('app.media.simplicityCall'), name: $r('app.string.dialer') },
+    { image: $r('app.media.simplicityShop'), name: $r('app.string.shopping') },
+    { image: $r('app.media.simplicityNotes'), name: $r('app.string.notes') },
+    { image: $r('app.media.simplicitySetting'), name: $r('app.string.settings') },
+    { image: $r('app.media.simplicityCamera'), name: $r('app.string.camera') },
+    { image: $r('app.media.simplicityPhotos'), name: $r('app.string.album') },
+    { image: $r('app.media.simplicityMusic'), name: $r('app.string.music') },
+    { image: $r('app.media.simplicityVideo'), name: $r('app.string.video') },
   ],
   [
-    { image: $r('app.media.pwcall'), name: '电话' },
-    { image: $r('app.media.pwshop'), name: '商城' },
-    { image: $r('app.media.pwnotes'), name: '备忘录' },
-    { image: $r('app.media.pwsetting'), name: '设置' },
-    { image: $r('app.media.pwcamera'), name: '相机' },
-    { image: $r('app.media.pwphotos'), name: '相册' },
-    { image: $r('app.media.pwmusic'), name: '音乐' },
-    { image: $r('app.media.pwvideo'), name: '视频' },
+    { image: $r('app.media.pwcall'), name: $r('app.string.dialer') },
+    { image: $r('app.media.pwshop'), name: $r('app.string.shopping') },
+    { image: $r('app.media.pwnotes'), name: $r('app.string.notes') },
+    { image: $r('app.media.pwsetting'), name: $r('app.string.settings') },
+    { image: $r('app.media.pwcamera'), name: $r('app.string.camera') },
+    { image: $r('app.media.pwphotos'), name: $r('app.string.album') },
+    { image: $r('app.media.pwmusic'), name: $r('app.string.music') },
+    { image: $r('app.media.pwvideo'), name: $r('app.string.video') },
   ]
 ]
 const TAG: string = '[Index]';
@@ -67,9 +67,9 @@ struct Index {
   @State themeDatas: Array<ImageAndName> = [];
 
   async aboutToAppear() {
-    //从内存中获取轻量级存储db文件
+    // Retrieve lightweight storage db files from memory.
     await this.getPreferencesFromStorage()
-    //从轻量级存储db文件中获取键名为theme的键值
+    // Retrieve the key value with the name 'theme' from the lightweight storage db file.
     this.nowTheme = await this.getPreference()
     console.info(`nowTheme__get ${this.nowTheme}`)
     emitter.emit({ eventId: 0, priority: 0 }, {

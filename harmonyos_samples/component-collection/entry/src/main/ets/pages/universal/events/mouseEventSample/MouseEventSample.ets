@@ -46,7 +46,7 @@ struct MouseEventSample {
           .width('90%')
           .height(40)
           .onHover((isHover: boolean) => {
-            // 通过onHover事件动态修改按钮在是否有鼠标悬浮时的文本内容与背景颜色
+            // Dynamically modify the text content and background color of a button when the mouse is hovering through the onHover event
             if (isHover) {
               this.hoverText = $r('app.string.mouse_event_hover_description');
             } else {

@@ -39,8 +39,9 @@ export function getContextData(): Want {
   Logger.info(TAG, 'UtilPage getContextData start');
   let context = getContext(that);
   let data: EventData = new EventData();
-  context.eventHub.emit("getAbilityData", data);
-  contextCaller = data.context as AbilityContext; // 拿到全局的context，即类似globalThis.mainAbilityContext
+  context.eventHub.emit('getAbilityData', data);
+  // Obtain the global context, which is similar to globalThis.mainAbilityContext.
+  contextCaller = data.context as AbilityContext;
   want = data.launchWant as Want;
   Logger.info(TAG, 'UtilPage contextCaller ' + JSON.stringify(contextCaller));
   return want;

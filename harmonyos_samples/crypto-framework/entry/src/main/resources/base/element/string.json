@@ -34,7 +34,7 @@
     },
     {
       "name": "text_context",
-      "value": "Text Context"
+      "value": "File content"
     },
     {
       "name": "encrypt",
@@ -42,7 +42,7 @@
     },
     {
       "name": "encrypted_context",
-      "value": "Encrypted Context"
+      "value": "Encrypted content"
     },
     {
       "name": "decrypt",
@@ -50,7 +50,7 @@
     },
     {
       "name": "decrypted_context",
-      "value": "Decrypted Context"
+      "value": "Decrypted content"
     },
     {
       "name": "generate_rsa_key_randomly",

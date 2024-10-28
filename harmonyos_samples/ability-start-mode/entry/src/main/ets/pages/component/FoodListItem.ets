@@ -20,10 +20,8 @@ import Constant from '../../common/Constants';
 @Component
 export struct FoodListItem {
   private foodItem: FoodInfo = new FoodInfo();
-  private foodItemIndex: number = Constant.DEFAULT_ZERO;
   private modeName: string = '';
   private foodListIndex: number = Constant.DEFAULT_ZERO;
-
 
   cateData() {
     if (this.modeName === 'multiton') {

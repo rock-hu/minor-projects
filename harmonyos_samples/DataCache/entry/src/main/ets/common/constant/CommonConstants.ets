@@ -15,11 +15,6 @@
 
 import { TabType } from '../types/CommonTypes';
 
-/**
- * The host address of the online server.
- */
-export const URL: string = 'https://devecostudio-drcn.op.hicloud.com/solution/v1/getSceneMockData?scene=newsData&fileName=newsData.json&';
-
 export const TOTAL_COUNT = 20;
 export const IMAGE_BASE64_PREFIX = 'data:image/png;base64,';
 export const PAGE_SIZE: number = 5;
@@ -41,8 +36,8 @@ export const CLEAR_PADDING = 16;
 export const CLEAR_BORDER_WIDTH = 1;
 
 export const TAB_TYPES: Array<TabType> = [
-  { id: 0, name: '首页' },
-  { id: 1, name: '推荐' }
+  { id: 0, name: $r('app.string.homepage') },
+  { id: 1, name: $r('app.string.recommendation') }
 ];
 
 export const enum PageState {

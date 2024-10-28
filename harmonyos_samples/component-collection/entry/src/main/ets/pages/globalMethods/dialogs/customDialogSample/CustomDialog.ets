@@ -35,7 +35,7 @@ export struct UpgradeDialog {
         })
     }
     .margin(20)
-    .height(380)
+    .height(450)
     .borderRadius(24)
     .padding({ top: 20, bottom: 32 })
     .backgroundColor($r('app.color.background_shallow_grey'))
@@ -56,6 +56,7 @@ export struct UpgradeDialog {
           .fontColor($r('app.color.font_color_shallow'))
           .constraintSize({ maxWidth: 280 })
       }
+      .margin({ right: 120})
       .alignItems(HorizontalAlign.Start)
     }
     .width('100%')

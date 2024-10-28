@@ -62,27 +62,27 @@ export class CryptoViewModel {
 
   public static getCryptoList(): CryptoItem[] {
     let cryptoList: CryptoItem[] = [];
-    cryptoList.push(new CryptoItem($r('app.string.AES_GCM'), $r('app.string.AES_GCM_encryption'),
-      $r('app.string.AES_GCM_encryption'), 'AES_GCM'));
-    cryptoList.push(new CryptoItem($r('app.string.AES_CBC'), $r('app.string.AES_CBC_encryption'),
-      $r('app.string.AES_CBC_encryption'), 'AES_CBC'));
-    cryptoList.push(new CryptoItem($r('app.string.AES_EBC'), $r('app.string.AES_EBC_encryption'),
-      $r('app.string.AES_EBC_encryption'), 'AES_ECB'));
-    cryptoList.push(new CryptoItem($r('app.string.3DES_EBC'), $r('app.string.3DES_EBC_encryption'),
-      $r('app.string.3DES_EBC_encryption'), '3DES_ECB'));
-    cryptoList.push(new CryptoItem($r('app.string.SM4_EBC'), $r('app.string.SM4_EBC_encryption'),
-      $r('app.string.SM4_EBC_encryption'), 'SM4_ECB'));
-    cryptoList.push(new CryptoItem($r('app.string.SM4_CBC'), $r('app.string.SM4_CBC_encryption'),
-      $r('app.string.SM4_CBC_encryption'), 'SM4_CBC'));
-    cryptoList.push(new CryptoItem($r('app.string.RSA_PKCS1'), $r('app.string.RSA_PKCS1_encryption'),
-      $r('app.string.RSA_PKCS1_encryption'), 'RSA_PKCS1'));
-    cryptoList.push(new CryptoItem($r('app.string.RSA_PKCS1_OAEP'), $r('app.string.RSA_PKCS1_OAEP_encryption'),
-      $r('app.string.RSA_PKCS1_OAEP_encryption'),
+    cryptoList.push(new CryptoItem($r('app.string.AES_GCM'), $r('app.string.encrypt'),
+      $r('app.string.decrypt'), 'AES_GCM'));
+    cryptoList.push(new CryptoItem($r('app.string.AES_CBC'), $r('app.string.encrypt'),
+      $r('app.string.decrypt'), 'AES_CBC'));
+    cryptoList.push(new CryptoItem($r('app.string.AES_EBC'), $r('app.string.encrypt'),
+      $r('app.string.decrypt'), 'AES_ECB'));
+    cryptoList.push(new CryptoItem($r('app.string.3DES_EBC'), $r('app.string.encrypt'),
+      $r('app.string.decrypt'), '3DES_ECB'));
+    cryptoList.push(new CryptoItem($r('app.string.SM4_EBC'), $r('app.string.encrypt'),
+      $r('app.string.decrypt'), 'SM4_ECB'));
+    cryptoList.push(new CryptoItem($r('app.string.SM4_CBC'), $r('app.string.encrypt'),
+      $r('app.string.decrypt'), 'SM4_CBC'));
+    cryptoList.push(new CryptoItem($r('app.string.RSA_PKCS1'), $r('app.string.encrypt'),
+      $r('app.string.decrypt'), 'RSA_PKCS1'));
+    cryptoList.push(new CryptoItem($r('app.string.RSA_PKCS1_OAEP'), $r('app.string.encrypt'),
+      $r('app.string.decrypt'),
       'RSA_PKCS1_OAEP'));
-    cryptoList.push(new CryptoItem($r('app.string.SM2_crypto'), $r('app.string.SM2_crypto_encryption'),
-      $r('app.string.SM2_crypto_encryption'), 'SM2'));
+    cryptoList.push(new CryptoItem($r('app.string.SM2_crypto'), $r('app.string.encrypt'),
+      $r('app.string.decrypt'), 'SM2'));
     cryptoList.push(new CryptoItem($r('app.string.rsa_dissymmetry_pkcs1'),
-      $r('app.string.rsa_dissymmetry_pkcs1_encryption'), $r('app.string.rsa_dissymmetry_pkcs1_encryption'),
+      $r('app.string.decrypt'), $r('app.string.encrypt'),
       'RSA_PKCS1_BIG'));
     return cryptoList;
   }

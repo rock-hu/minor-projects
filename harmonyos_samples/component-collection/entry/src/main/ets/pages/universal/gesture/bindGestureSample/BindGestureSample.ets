@@ -56,7 +56,7 @@ struct BindExample {
         .margin({ left: 12, right: 12 })
         .width('100%')
 
-        Button($r('app.string.bind_click'))// 设置为priorityGesture时，点击文本会忽略Text组件的TapGesture手势事件，优先识别父组件Column的TapGesture手势事件
+        Button($r('app.string.bind_click'))// When set to priorityGesture, clicking on the text will ignore the TapGesture gesture event of the Text component and give priority to the TapGesture gesture event of the parent component Column
           .priorityGesture(
             TapGesture()
               .onAction((event: GestureEvent) => {
@@ -81,7 +81,7 @@ struct BindExample {
 
         Row() {
           Button($r('app.string.bind_click'))
-            .buttonStyle(0)// 设置为parallelGesture时，点击文本会同时触发子组件Text与父组件Column的TapGesture手势事件
+            .buttonStyle(0)// When set to parallelGesture, clicking on the text will trigger the TapGesture gesture event of both the child component Text and the parent component Column
             .gesture(
               TapGesture()
                 .onAction(() => {

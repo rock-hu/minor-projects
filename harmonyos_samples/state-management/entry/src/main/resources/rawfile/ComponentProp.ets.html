@@ -39,12 +39,12 @@ ComponentProp.ets</font>
 
 <span class="s4">@</span><span class="s1">Component</span>
 <span class="s1">export struct ChildCompProp </span><span class="s2">{</span>
-  <span class="s0">// 圆形颜色，和父组件中的状态变量单向同步，只支持基础类型</span>
+  <span class="s0">// Circular color, unidirectional synchronization with state variables in the parent component, support only base types</span>
   <span class="s4">@</span><span class="s1">Prop circleColor</span><span class="s5">: </span><span class="s1">string</span><span class="s5">;</span>
 
   <span class="s1">build</span><span class="s6">() </span><span class="s2">{</span>
     <span class="s1">Column</span><span class="s6">(</span><span class="s2">{ </span><span class="s1">space</span><span class="s5">: </span><span class="s7">10 </span><span class="s2">}</span><span class="s6">) </span><span class="s2">{</span>
-      <span class="s0">// 点击查看源码</span>
+      <span class="s0">// Click to view source code</span>
       <span class="s1">ViewCodeText</span><span class="s6">(</span><span class="s2">{ </span><span class="s1">webSrc</span><span class="s5">: </span><span class="s1">$rawfile</span><span class="s6">(</span><span class="s3">'ComponentProp.ets.html'</span><span class="s6">) </span><span class="s2">}</span><span class="s6">)</span>
       <span class="s1">Text</span><span class="s6">(</span><span class="s1">$r</span><span class="s6">(</span><span class="s3">'app.string.child_component'</span><span class="s6">))</span>
         <span class="s5">.</span><span class="s1">fontSize</span><span class="s6">(</span><span class="s1">$r</span><span class="s6">(</span><span class="s3">'app.float.tips_font_size'</span><span class="s6">))</span>
@@ -56,7 +56,7 @@ ComponentProp.ets</font>
         <span class="s5">.</span><span class="s1">fontSize</span><span class="s6">(</span><span class="s1">$r</span><span class="s6">(</span><span class="s3">'app.float.tips_font_size'</span><span class="s6">))</span>
         <span class="s5">.</span><span class="s1">width</span><span class="s6">(</span><span class="s3">'100%'</span><span class="s6">)</span>
         <span class="s5">.</span><span class="s1">textAlign</span><span class="s6">(</span><span class="s1">TextAlign</span><span class="s5">.</span><span class="s1">Center</span><span class="s6">)</span>
-      <span class="s0">// 绑定@Link变量的Circle组件</span>
+      <span class="s0">// The Circle component that binds the @Link variable</span>
       <span class="s1">Circle</span><span class="s6">()</span>
         <span class="s5">.</span><span class="s1">size</span><span class="s6">(</span><span class="s2">{ </span><span class="s1">width</span><span class="s5">: </span><span class="s1">$r</span><span class="s6">(</span><span class="s3">'app.float.circle_size'</span><span class="s6">)</span><span class="s5">, </span><span class="s1">height</span><span class="s5">: </span><span class="s1">$r</span><span class="s6">(</span><span class="s3">'app.float.circle_size'</span><span class="s6">) </span><span class="s2">}</span><span class="s6">)</span>
         <span class="s5">.</span><span class="s1">fill</span><span class="s6">(</span><span class="s1">this</span><span class="s5">.</span><span class="s1">circleColor</span><span class="s6">)</span>
@@ -72,7 +72,7 @@ ComponentProp.ets</font>
       <span class="s5">.</span><span class="s1">type</span><span class="s6">(</span><span class="s1">ButtonType</span><span class="s5">.</span><span class="s1">Capsule</span><span class="s6">)</span>
       <span class="s5">.</span><span class="s1">backgroundColor</span><span class="s6">(</span><span class="s1">$r</span><span class="s6">(</span><span class="s3">'app.color.button_background_color'</span><span class="s6">))</span>
       <span class="s5">.</span><span class="s1">onClick</span><span class="s6">(() </span><span class="s5">=&gt; </span><span class="s2">{</span>
-        <span class="s0">// 点击更新子组件@Prop声明的变量，此子组件更新，父组件以及@Link声明的子组件变量不同步</span>
+        <span class="s0">// Click to update the variable declared by the child component @Prop. The child component updates, the parent component and the child component variables declared by @Link are not synchronized</span>
         <span class="s1">this</span><span class="s5">.</span><span class="s1">circleColor </span><span class="s5">= </span><span class="s1">COLOR_DATA</span><span class="s5">.</span><span class="s1">BLUE</span><span class="s5">;</span>
       <span class="s2">}</span><span class="s6">)</span>
     <span class="s2">}</span>

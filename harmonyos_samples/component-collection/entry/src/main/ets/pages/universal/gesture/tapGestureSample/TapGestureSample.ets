@@ -59,7 +59,7 @@ struct TapGestureExample {
         .justifyContent(FlexAlign.Center)
         .rowStyle()
 
-        // 单指双击文本触发手势事件
+        // Double-click the text with one finger to trigger a gesture event
         Button($r('app.string.double_click'))
           .buttonStyle(0)
           .id('tap_click')

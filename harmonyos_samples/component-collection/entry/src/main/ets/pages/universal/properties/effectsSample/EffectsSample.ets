@@ -97,7 +97,7 @@ struct Effects {
           .height(2)
           .position({ y: 48 })
       }
-    }.width(48)
+    }.width(88)
     .height(56)
   }
 

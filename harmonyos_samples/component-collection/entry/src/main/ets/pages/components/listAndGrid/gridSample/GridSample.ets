@@ -81,7 +81,7 @@ struct GridSample {
       .flexGrow(0)
 
       Scroll() {
-        // 控制面板
+        // Control Panel
         Column() {
           Column() {
             ArgumentsControlPanel(

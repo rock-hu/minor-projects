@@ -43,11 +43,11 @@ StoragePropAbilityPage.ets</font>
 <span class="s5">@</span><span class="s1">Component</span>
 <span class="s1">struct StoragePropAbilityPage </span><span class="s2">{</span>
   <span class="s5">@</span><span class="s1">State title</span><span class="s4">: </span><span class="s1">Resource </span><span class="s4">= </span><span class="s1">$r</span><span class="s6">(</span><span class="s3">'app.string.abilityone_page'</span><span class="s6">)</span><span class="s4">;</span>
-  <span class="s0">// 初始化Slider最小值</span>
+  <span class="s0">// Initializes the Slider minimum</span>
   <span class="s1">private minFontSize</span><span class="s4">: </span><span class="s1">number </span><span class="s4">= </span><span class="s7">10</span><span class="s4">;</span>
-  <span class="s0">// 和主页、Ability2页面双向同步夜间模式状态</span>
+  <span class="s0">// Bidirectional synchronization of night mode status with home page and Ability2 page</span>
   <span class="s5">@</span><span class="s1">StorageLink</span><span class="s6">(</span><span class="s3">'currentModelStatus'</span><span class="s6">) </span><span class="s1">currentModelStatus</span><span class="s4">: </span><span class="s1">boolean </span><span class="s4">= </span><span class="s1">true</span><span class="s4">;</span>
-  <span class="s0">// 和主页、Ability2页面单向同步内容字体大小</span>
+  <span class="s0">// Unidirectional synchronization of content font size with home page and Ability2 page</span>
   <span class="s5">@</span><span class="s1">StorageProp</span><span class="s6">(</span><span class="s3">'contentFontSize'</span><span class="s6">) </span><span class="s1">contentFontSize</span><span class="s4">: </span><span class="s1">number </span><span class="s4">= </span><span class="s7">18</span><span class="s4">;</span>
 
   <span class="s1">build</span><span class="s6">() </span><span class="s2">{</span>
@@ -59,7 +59,7 @@ StoragePropAbilityPage.ets</font>
       <span class="s2">}</span>
       <span class="s1">CodeView</span><span class="s6">(</span><span class="s2">{ </span><span class="s1">title</span><span class="s4">: </span><span class="s1">$title</span><span class="s4">, </span><span class="s1">isShowTitle</span><span class="s4">: </span><span class="s1">false </span><span class="s2">}</span><span class="s6">) </span><span class="s2">{</span>
         <span class="s1">Column</span><span class="s6">(</span><span class="s2">{ </span><span class="s1">space</span><span class="s4">: </span><span class="s7">20 </span><span class="s2">}</span><span class="s6">) </span><span class="s2">{</span>
-          <span class="s0">// 查看源码</span>
+          <span class="s0">// View source code</span>
           <span class="s1">ViewCodeText</span><span class="s6">(</span><span class="s2">{ </span><span class="s1">webSrc</span><span class="s4">: </span><span class="s1">$rawfile</span><span class="s6">(</span><span class="s3">'StoragePropAbilityPage.ets.html'</span><span class="s6">) </span><span class="s2">}</span><span class="s6">)</span>
           <span class="s1">Text</span><span class="s6">(</span><span class="s1">$r</span><span class="s6">(</span><span class="s3">'app.string.both_data_binding'</span><span class="s6">))</span>
             <span class="s4">.</span><span class="s1">fontSize</span><span class="s6">(</span><span class="s1">this</span><span class="s4">.</span><span class="s1">contentFontSize</span><span class="s6">)</span>
@@ -82,7 +82,7 @@ StoragePropAbilityPage.ets</font>
           <span class="s4">.</span><span class="s1">type</span><span class="s6">(</span><span class="s1">ButtonType</span><span class="s4">.</span><span class="s1">Capsule</span><span class="s6">)</span>
           <span class="s4">.</span><span class="s1">backgroundColor</span><span class="s6">(</span><span class="s1">$r</span><span class="s6">(</span><span class="s3">'app.color.button_background_color'</span><span class="s6">))</span>
           <span class="s4">.</span><span class="s1">onClick</span><span class="s6">(() </span><span class="s4">=&gt; </span><span class="s2">{</span>
-            <span class="s0">// 更新控制夜间模式状态的变量数据，@StorageLink和@StorageProp关联的数据变量刷新</span>
+            <span class="s0">// The variables that control the night mode status are updated. The data variables associated with @StorageLink and @StorageProp are refreshed</span>
             <span class="s1">this</span><span class="s4">.</span><span class="s1">currentModelStatus </span><span class="s4">= !</span><span class="s1">this</span><span class="s4">.</span><span class="s1">currentModelStatus</span><span class="s4">;</span>
           <span class="s2">}</span><span class="s6">)</span>
 
@@ -91,7 +91,7 @@ StoragePropAbilityPage.ets</font>
             <span class="s4">.</span><span class="s1">fontColor</span><span class="s6">(</span><span class="s1">this</span><span class="s4">.</span><span class="s1">currentModelStatus </span><span class="s4">? </span><span class="s1">$r</span><span class="s6">(</span><span class="s3">'app.color.color_white'</span><span class="s6">) </span><span class="s4">: </span><span class="s1">$r</span><span class="s6">(</span><span class="s3">'app.color.tips_font_color'</span><span class="s6">))</span>
             <span class="s4">.</span><span class="s1">width</span><span class="s6">(</span><span class="s3">'100%'</span><span class="s6">)</span>
             <span class="s4">.</span><span class="s1">textAlign</span><span class="s6">(</span><span class="s1">TextAlign</span><span class="s4">.</span><span class="s1">Center</span><span class="s6">)</span>
-          <span class="s0">// slider模块控制字体大小</span>
+          <span class="s0">// The slider module controls the font size</span>
           <span class="s1">Column</span><span class="s6">() </span><span class="s2">{</span>
             <span class="s1">Text</span><span class="s6">(</span><span class="s1">$r</span><span class="s6">(</span><span class="s3">'app.string.fontSize_text'</span><span class="s6">))</span>
               <span class="s4">.</span><span class="s1">fontSize</span><span class="s6">(</span><span class="s1">this</span><span class="s4">.</span><span class="s1">contentFontSize</span><span class="s6">)</span>
@@ -110,10 +110,10 @@ StoragePropAbilityPage.ets</font>
               <span class="s2">}</span><span class="s6">)</span>
                 <span class="s4">.</span><span class="s1">showTips</span><span class="s6">(</span><span class="s1">true</span><span class="s6">)</span>
                 <span class="s4">.</span><span class="s1">onChange</span><span class="s6">((</span><span class="s1">value</span><span class="s4">: </span><span class="s1">number</span><span class="s4">, </span><span class="s1">mode</span><span class="s4">: </span><span class="s1">SliderChangeMode</span><span class="s6">) </span><span class="s4">=&gt; </span><span class="s2">{</span>
-                  <span class="s0">// 更新控制字体大小的变量数据，@StorageLink关联的数据变量不刷新同步</span>
+                  <span class="s0">// Variable data controlling font size was updated. Data variables associated with @StorageLink were not updated and synchronized</span>
                   <span class="s1">this</span><span class="s4">.</span><span class="s1">contentFontSize </span><span class="s4">= </span><span class="s1">value</span><span class="s4">;</span>
                 <span class="s2">}</span><span class="s6">)</span>
-              <span class="s0">// toFixed(0)将滑动条返回值处理为整数精度</span>
+              <span class="s0">// toFixed(0) treats the slider return value to integer precision</span>
               <span class="s1">Text</span><span class="s6">(</span><span class="s1">this</span><span class="s4">.</span><span class="s1">contentFontSize</span><span class="s4">.</span><span class="s1">toFixed</span><span class="s6">(</span><span class="s7">0</span><span class="s6">))</span>
                 <span class="s4">.</span><span class="s1">fontColor</span><span class="s6">(</span><span class="s1">this</span><span class="s4">.</span><span class="s1">currentModelStatus </span><span class="s4">? </span><span class="s1">$r</span><span class="s6">(</span><span class="s3">'app.color.color_white'</span><span class="s6">) </span><span class="s4">: </span><span class="s1">$r</span><span class="s6">(</span><span class="s3">'app.color.tips_font_color'</span><span class="s6">))</span>
                 <span class="s4">.</span><span class="s1">fontSize</span><span class="s6">(</span><span class="s1">$r</span><span class="s6">(</span><span class="s3">'app.float.tips_font_size'</span><span class="s6">))</span>

@@ -34,7 +34,7 @@ struct ShapeCropSample {
       TitleBar({ title: $r('app.string.shape_crop') })
       IntroductionTitle({ introduction: $r('app.string.shape_crop_clip') })
       Row() {
-        // 用一个200px直径的圆对图片进行裁剪
+        // Crop the image with a 200px diameter circle
         Image($r('app.media.ic_scenery1'))
           .clipShape(new Circle({ width: 200, height: 200 }))
           .width(350)
@@ -44,7 +44,7 @@ struct ShapeCropSample {
 
       IntroductionTitle({ introduction: $r('app.string.shape_crop_mask') })
       Row() {
-        // 给图片添加了一个200px*200px的圆形遮罩
+        // Add a 200px*200px circular mask to the image
         Image($r('app.media.ic_scenery1'))
           .maskShape(new Circle({ width: 200, height: 200 }).fill(Color.Gray))
           .width(350)

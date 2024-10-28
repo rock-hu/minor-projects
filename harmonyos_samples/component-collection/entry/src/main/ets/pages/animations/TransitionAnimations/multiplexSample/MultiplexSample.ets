@@ -16,22 +16,22 @@ import { ScrollItem } from './ScrollItem';
 import { MultiplexModel } from './MultiplexModel';
 import { TitleBar } from '../../../../common/TitleBar';
 
-const MARGIN_BETWEEN: number = 15; // 间距
-const SELECT_SIZE: number = 0.6; // 当前选中大小
-const UNSELECT_SIZE: number = 0.5; // 未选中大小
+const MARGIN_BETWEEN: number = 15; // Spacing
+const SELECT_SIZE: number = 0.6; // Current selected size
+const UNSELECT_SIZE: number = 0.5; // Unselected size
 
 @Entry
 @Component
 struct MultiplexSample {
   private scroller: Scroller = new Scroller();
-  private currentX: number = 0; // 当前X轴位置
-  private startScroll: boolean = false; // 开始滑动
+  private currentX: number = 0; // Current X-axis position
+  private startScroll: boolean = false; // Start sliding
   @StorageProp('windowWidth') windowWidth: number = 480;
   @StorageProp('windowHeight') windowHeight: number = 720;
   @State resources: Array<MultiplexModel> = new Array<MultiplexModel>();
-  @State currentModel: MultiplexModel = new MultiplexModel('', $r('app.media.img_test_1')); // 当前item
-  @State onceXOffset: number = 0; // 本次滑动X轴距离
-  @State @Watch('scrollIndexUpdated') scrollIndex: number = 0; // 当前滑动item下标
+  @State currentModel: MultiplexModel = new MultiplexModel('', $r('app.media.img_test_1')); // Current item
+  @State onceXOffset: number = 0; // The X-axis distance of this slide
+  @State @Watch('scrollIndexUpdated') scrollIndex: number = 0; // Current sliding item index
 
   aboutToAppear() {
     this.resources.push(new MultiplexModel('1', $r('app.media.img_test_1')));
@@ -97,7 +97,7 @@ struct MultiplexSample {
       }
       .id('scroll')
       .scrollable(ScrollDirection.Horizontal)
-      .scrollBar(BarState.Off) // 滚动条常驻显示
+      .scrollBar(BarState.Off) // Scroll bar always displayed
       .edgeEffect(EdgeEffect.None)
       .onWillScroll((xOffset: number, yOffset: number) => {
         this.currentX += xOffset;

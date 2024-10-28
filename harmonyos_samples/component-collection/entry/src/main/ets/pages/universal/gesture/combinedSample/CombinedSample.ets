@@ -17,7 +17,7 @@ import { TitleBar } from '../../../../common/TitleBar';
 import { getStringData } from '../../../../data/ResourceDataHandle';
 import ShowToast from '../../../../util/ShowToast';
 
-const LEFT_UP_X = -80; // 限定距离
+const LEFT_UP_X = -80; // Limited distance
 const RIGHT_UP_X = 80;
 const LEFT_UP_Y = -130;
 const RIGHT_UP_Y = 130;
@@ -49,7 +49,7 @@ struct CombinedExample {
         .margin(20)
         .border({ width: 3, style: this.borderStyles })
         .gesture(
-          // 以下组合手势为顺序识别，当长按手势事件未正常触发时则不会触发拖动手势事件
+          // The following combination gesture are recognized in sequence. If the long press gesture event is not triggered normally, the drag gesture event will not be triggered
           GestureGroup(GestureMode.Sequence,
             LongPressGesture({ repeat: true })
               .onAction((event: GestureEvent) => {

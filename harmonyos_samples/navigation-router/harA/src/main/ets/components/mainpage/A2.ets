@@ -18,14 +18,14 @@ import { BuilderNameConstants, buildRouterModel, RouterModule, RouterNameConstan
 export function harBuilder(value: object) {
   NavDestination() {
     Column() {
-      Button($r("app.string.to_harb_pageB2"), { stateEffect: true, type: ButtonType.Capsule })
+      Button($r('app.string.to_harb_pageB2'), { stateEffect: true, type: ButtonType.Capsule })
         .width('80%')
         .height(40)
         .margin(20)
         .onClick(() => {
           buildRouterModel(RouterNameConstants.ENTRY_HAP, BuilderNameConstants.HARB_B2);
         })
-      Button($r("app.string.to_hara_pageA1"), { stateEffect: true, type: ButtonType.Capsule })
+      Button($r('app.string.to_hara_pageA1'), { stateEffect: true, type: ButtonType.Capsule })
         .width('80%')
         .height(40)
         .margin(20)

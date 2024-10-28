@@ -57,7 +57,7 @@ struct TextAreaSample {
             .copyOption(this.copyOptions)
             .borderRadius(16)
             .width('100%')
-            .height(80)
+            .height(85)
             .fontSize(20)
             .enableKeyboardOnFocus(false)
             .onChange(() => {

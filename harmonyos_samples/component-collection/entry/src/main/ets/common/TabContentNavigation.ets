@@ -148,7 +148,7 @@ struct ThirdLevelNavigation {
           })
         }
       }
-      // 整体字符串折行会被识别出来，导致功能异常，只能放在单独一行，1和0分别为首页标题层级index
+      // The whole string will be recognized as line break, causing malfunction. It can only be placed in a single line. 1 and 0 are the index of the home page title level.
       .id(`secondLevelMenu${this.secondLevelCategoryIndex}${this.secondLevelCategoryIndex === 1 ? 0 : this.ThirdLevelNavigationIndex}`)
     }
   }

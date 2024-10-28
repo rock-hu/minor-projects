@@ -35,7 +35,7 @@ struct EntryHap {
 
   build() {
     Navigation(this.entryHapRouter) {
-      Button($r("app.string.to_hara_pageA1"), { stateEffect: true, type: ButtonType.Capsule })
+      Button($r('app.string.to_hara_pageA1'), { stateEffect: true, type: ButtonType.Capsule })
         .width('80%')
         .height(40)
         .margin(20)
@@ -44,14 +44,14 @@ struct EntryHap {
             origin: 'Entry'
           }));
         })
-      Button($r("app.string.to_hara_pageA2"), { stateEffect: true, type: ButtonType.Capsule })
+      Button($r('app.string.to_hara_pageA2'), { stateEffect: true, type: ButtonType.Capsule })
         .width('80%')
         .height(40)
         .margin(20)
         .onClick(() => {
           buildRouterModel(RouterNameConstants.ENTRY_HAP, BuilderNameConstants.HARA_A2);
         })
-      Button($r("app.string.to_harb_pageB1"), { stateEffect: true, type: ButtonType.Capsule })
+      Button($r('app.string.to_harb_pageB1'), { stateEffect: true, type: ButtonType.Capsule })
         .width('80%')
         .height(40)
         .margin(20)

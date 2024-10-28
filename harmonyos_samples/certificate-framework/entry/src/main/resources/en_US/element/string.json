@@ -2,51 +2,51 @@
   "string": [
     {
       "name": "module_desc",
-      "value": "Certificate Framework"
+      "value": "Certificate framework"
     },
     {
       "name": "EntryAbility_desc",
-      "value": "Certificate Framework"
+      "value": "Certificate framework"
     },
     {
       "name": "EntryAbility_label",
-      "value": "Certificate Framework"
+      "value": "Certificate framework"
     },
     {
       "name": "certificate_data",
-      "value": "Certificate Data"
+      "value": "Certificate"
     },
     {
       "name": "origin_data",
-      "value": "Origin Data"
+      "value": "Raw data"
     },
     {
       "name": "signature_data",
-      "value": "Signature Data"
+      "value": "Signature"
     },
     {
       "name": "display_data",
-      "value": "Display Data"
+      "value": "Show data"
     },
     {
       "name": "verify",
-      "value": "Verify"
+      "value": "Verify signature"
     },
     {
       "name": "modify_origin_data",
-      "value": "Modify Origin Data"
+      "value": "Modify raw data"
     },
     {
       "name": "modify_signature_data",
-      "value": "Modify Signature Data"
+      "value": "Modify signature"
     },
     {
       "name": "verify_success",
-      "value": "Verify Success"
+      "value": "Verification successful"
     },
     {
       "name": "verify_fail",
-      "value": "Verify Fail"
+      "value": "Verification failed"
     }
   ]
 }

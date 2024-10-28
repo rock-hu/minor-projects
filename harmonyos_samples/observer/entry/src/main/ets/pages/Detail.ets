@@ -13,296 +13,296 @@
  * limitations under the License.
  */
 
-import DetailData from '../modle/DetailData'
-import { router } from '@kit.ArkUI'
-import Logger from '../modle/Logger'
-import { radio } from '@kit.TelephonyKit'
+import { radio } from '@kit.TelephonyKit';
+import { router } from '@kit.ArkUI';
+import DetailData from '../modle/DetailData';
+import Logger from '../modle/Logger';
 
-const TAG: string = 'Detail'
+const TAG: string = 'Detail';
 
 @Entry
 @Component
 struct Detail {
-  @State detailData: DetailData = new DetailData()
+  @State detailData: DetailData = new DetailData();
 
   aboutToAppear() {
-    this.detailData = (router.getParams() as DetailData)['detailData']
-    Logger.info(TAG, `this.detailData = ${JSON.stringify(this.detailData)}`)
+    this.detailData = (router.getParams() as DetailData)['detailData'];
+    Logger.info(TAG, `this.detailData = ${JSON.stringify(this.detailData)}`);
   }
 
   regState(regStateValue: number) {
     switch (regStateValue) {
       case 0:
-        return $r('app.string.REG_STATE_NO_SERVICE')
-        break
+        return $r('app.string.REG_STATE_NO_SERVICE');
+        break;
       case 1:
-        return $r('app.string.REG_STATE_IN_SERVICE')
-        break
+        return $r('app.string.REG_STATE_IN_SERVICE');
+        break;
       case 2:
-        return $r('app.string.REG_STATE_EMERGENCY_CALL_ONLY')
-        break
+        return $r('app.string.REG_STATE_EMERGENCY_CALL_ONLY');
+        break;
       case 3:
-        return $r('app.string.REG_STATE_POWER_OFF')
-        break
+        return $r('app.string.REG_STATE_POWER_OFF');
+        break;
       default:
-        return 'NA'
-        break
+        return 'NA';
+        break;
     }
   }
 
   radioTechnology(radioTechnologyValue: number) {
     switch (radioTechnologyValue) {
       case 0:
-        return $r('app.string.RADIO_TECHNOLOGY_UNKNOWN')
-        break
+        return $r('app.string.RADIO_TECHNOLOGY_UNKNOWN');
+        break;
       case 1:
-        return $r('app.string.RADIO_TECHNOLOGY_GSM')
-        break
+        return $r('app.string.RADIO_TECHNOLOGY_GSM');
+        break;
       case 2:
-        return $r('app.string.RADIO_TECHNOLOGY_1XRTT')
-        break
+        return $r('app.string.RADIO_TECHNOLOGY_1XRTT');
+        break;
       case 3:
-        return $r('app.string.RADIO_TECHNOLOGY_WCDMA')
-        break
+        return $r('app.string.RADIO_TECHNOLOGY_WCDMA');
+        break;
       case 4:
-        return $r('app.string.RADIO_TECHNOLOGY_HSPA')
-        break
+        return $r('app.string.RADIO_TECHNOLOGY_HSPA');
+        break;
       case 5:
-        return $r('app.string.RADIO_TECHNOLOGY_HSPAP')
-        break
+        return $r('app.string.RADIO_TECHNOLOGY_HSPAP');
+        break;
       case 6:
-        return $r('app.string.RADIO_TECHNOLOGY_TD_SCDMA')
-        break
+        return $r('app.string.RADIO_TECHNOLOGY_TD_SCDMA');
+        break;
       case 7:
-        return $r('app.string.RADIO_TECHNOLOGY_EVDO')
-        break
+        return $r('app.string.RADIO_TECHNOLOGY_EVDO');
+        break;
       case 8:
-        return $r('app.string.RADIO_TECHNOLOGY_EHRPD')
-        break
+        return $r('app.string.RADIO_TECHNOLOGY_EHRPD');
+        break;
       case 9:
-        return $r('app.string.RADIO_TECHNOLOGY_LTE')
-        break
+        return $r('app.string.RADIO_TECHNOLOGY_LTE');
+        break;
       case 10:
-        return $r('app.string.RADIO_TECHNOLOGY_LTE_CA')
-        break
+        return $r('app.string.RADIO_TECHNOLOGY_LTE_CA');
+        break;
       case 11:
-        return $r('app.string.RADIO_TECHNOLOGY_IWLAN')
-        break
+        return $r('app.string.RADIO_TECHNOLOGY_IWLAN');
+        break;
       case 12:
-        return $r('app.string.RADIO_TECHNOLOGY_NR')
-        break
+        return $r('app.string.RADIO_TECHNOLOGY_NR');
+        break;
       default:
-        return 'NA'
-        break
+        return 'NA';
+        break;
     }
   }
 
   nsaState(nsaStateValue: number) {
     switch (nsaStateValue) {
       case 1:
-        return $r('app.string.NSA_STATE_NOT_SUPPORT')
-        break
+        return $r('app.string.NSA_STATE_NOT_SUPPORT');
+        break;
       case 2:
-        return $r('app.string.NSA_STATE_NO_DETECT')
-        break
+        return $r('app.string.NSA_STATE_NO_DETECT');
+        break;
       case 3:
-        return $r('app.string.NSA_STATE_CONNECTED_DETECT')
-        break
+        return $r('app.string.NSA_STATE_CONNECTED_DETECT');
+        break;
       case 4:
-        return $r('app.string.NSA_STATE_IDLE_DETECT')
-        break
+        return $r('app.string.NSA_STATE_IDLE_DETECT');
+        break;
       case 5:
-        return $r('app.string.NSA_STATE_DUAL_CONNECTED')
-        break
+        return $r('app.string.NSA_STATE_DUAL_CONNECTED');
+        break;
       case 6:
-        return $r('app.string.NSA_STATE_SA_ATTACHED')
-        break
+        return $r('app.string.NSA_STATE_SA_ATTACHED');
+        break;
       default:
-        return 'NA'
-        break
+        return 'NA';
+        break;
     }
   }
 
   networkType(networkTypeValue: number) {
     switch (networkTypeValue) {
       case 0:
-        return $r('app.string.NETWORK_TYPE_UNKNOWN')
-        break
+        return $r('app.string.NETWORK_TYPE_UNKNOWN');
+        break;
       case 1:
-        return $r('app.string.NETWORK_TYPE_GSM')
-        break
+        return $r('app.string.NETWORK_TYPE_GSM');
+        break;
       case 2:
-        return $r('app.string.NETWORK_TYPE_CDMA')
-        break
+        return $r('app.string.NETWORK_TYPE_CDMA');
+        break;
       case 3:
-        return $r('app.string.NETWORK_TYPE_WCDMA')
-        break
+        return $r('app.string.NETWORK_TYPE_WCDMA');
+        break;
       case 4:
-        return $r('app.string.NETWORK_TYPE_TDSCDMA')
-        break
+        return $r('app.string.NETWORK_TYPE_TDSCDMA');
+        break;
       case 5:
-        return $r('app.string.NETWORK_TYPE_LTE')
-        break
+        return $r('app.string.NETWORK_TYPE_LTE');
+        break;
       case 6:
-        return $r('app.string.NETWORK_TYPE_NR')
-        break
+        return $r('app.string.NETWORK_TYPE_NR');
+        break;
       default:
-        return 'NA'
-        break
+        return 'NA';
+        break;
     }
   }
 
   callState(callStateValue: number) {
     switch (callStateValue) {
       case -1:
-        return $r('app.string.CALL_STATE_UNKNOWN')
-        break
+        return $r('app.string.CALL_STATE_UNKNOWN');
+        break;
       case 0:
-        return $r('app.string.CALL_STATE_IDLE')
-        break
+        return $r('app.string.CALL_STATE_IDLE');
+        break;
       case 1:
-        return $r('app.string.CALL_STATE_RINGING')
-        break
+        return $r('app.string.CALL_STATE_RINGING');
+        break;
       case 2:
-        return $r('app.string.CALL_STATE_OFFHOOK')
-        break
+        return $r('app.string.CALL_STATE_OFFHOOK');
+        break;
       default:
-        return 'NA'
-        break
+        return 'NA';
+        break;
     }
   }
 
   dataFlowType(dataFlowTypeValue: number) {
     switch (dataFlowTypeValue) {
       case 0:
-        return $r('app.string.DATA_FLOW_TYPE_NONE')
-        break
+        return $r('app.string.DATA_FLOW_TYPE_NONE');
+        break;
       case 1:
-        return $r('app.string.DATA_FLOW_TYPE_DOWN')
-        break
+        return $r('app.string.DATA_FLOW_TYPE_DOWN');
+        break;
       case 2:
-        return $r('app.string.DATA_FLOW_TYPE_UP')
-        break
+        return $r('app.string.DATA_FLOW_TYPE_UP');
+        break;
       case 3:
-        return $r('app.string.DATA_FLOW_TYPE_UP_DOWN')
-        break
+        return $r('app.string.DATA_FLOW_TYPE_UP_DOWN');
+        break;
       case 4:
-        return $r('app.string.DATA_FLOW_TYPE_DORMANT')
-        break
+        return $r('app.string.DATA_FLOW_TYPE_DORMANT');
+        break;
       default:
-        return 'NA'
-        break
+        return 'NA';
+        break;
     }
   }
 
   cardType(cardTypeValue: number) {
     switch (cardTypeValue) {
       case -1:
-        return $r('app.string.UNKNOWN_CARD')
-        break
+        return $r('app.string.UNKNOWN_CARD');
+        break;
       case 10:
-        return $r('app.string.SINGLE_MODE_SIM_CARD')
-        break
+        return $r('app.string.SINGLE_MODE_SIM_CARD');
+        break;
       case 20:
-        return $r('app.string.SINGLE_MODE_USIM_CARD')
-        break
+        return $r('app.string.SINGLE_MODE_USIM_CARD');
+        break;
       case 30:
-        return $r('app.string.SINGLE_MODE_RUIM_CARD')
-        break
+        return $r('app.string.SINGLE_MODE_RUIM_CARD');
+        break;
       case 40:
-        return $r('app.string.DUAL_MODE_CG_CARD')
-        break
+        return $r('app.string.DUAL_MODE_CG_CARD');
+        break;
       case 41:
-        return $r('app.string.CT_NATIONAL_ROAMING_CARD')
-        break
+        return $r('app.string.CT_NATIONAL_ROAMING_CARD');
+        break;
       case 42:
-        return $r('app.string.CU_DUAL_MODE_CARD')
-        break
+        return $r('app.string.CU_DUAL_MODE_CARD');
+        break;
       case 43:
-        return $r('app.string.DUAL_MODE_TELECOM_LTE_CARD')
-        break
+        return $r('app.string.DUAL_MODE_TELECOM_LTE_CARD');
+        break;
       case 50:
-        return $r('app.string.DUAL_MODE_UG_CARD')
-        break
+        return $r('app.string.DUAL_MODE_UG_CARD');
+        break;
       case 60:
-        return $r('app.string.SINGLE_MODE_ISIM_CARD')
-        break
+        return $r('app.string.SINGLE_MODE_ISIM_CARD');
+        break;
       default:
-        return 'NA'
-        break
+        return 'NA';
+        break;
     }
   }
 
   simState(simStateValue: number) {
     switch (simStateValue) {
       case 0:
-        return $r('app.string.SIM_STATE_UNKNOWN')
-        break
+        return $r('app.string.SIM_STATE_UNKNOWN');
+        break;
       case 1:
-        return $r('app.string.SIM_STATE_NOT_PRESENT')
-        break
+        return $r('app.string.SIM_STATE_NOT_PRESENT');
+        break;
       case 2:
-        return $r('app.string.SIM_STATE_LOCKED')
-        break
+        return $r('app.string.SIM_STATE_LOCKED');
+        break;
       case 3:
-        return $r('app.string.SIM_STATE_NOT_READY')
-        break
+        return $r('app.string.SIM_STATE_NOT_READY');
+        break;
       case 4:
-        return $r('app.string.SIM_STATE_READY')
-        break
+        return $r('app.string.SIM_STATE_READY');
+        break;
       case 5:
-        return $r('app.string.SIM_STATE_LOADED')
-        break
+        return $r('app.string.SIM_STATE_LOADED');
+        break;
       default:
-        return 'NA'
-        break
+        return 'NA';
+        break;
     }
   }
 
   lockReason(lockReasonValue: number) {
     switch (lockReasonValue) {
       case 0:
-        return $r('app.string.SIM_NONE')
-        break
+        return $r('app.string.SIM_NONE');
+        break;
       case 1:
-        return $r('app.string.SIM_PIN')
-        break
+        return $r('app.string.SIM_PIN');
+        break;
       case 2:
-        return $r('app.string.SIM_PUK')
-        break
+        return $r('app.string.SIM_PUK');
+        break;
       case 3:
-        return $r('app.string.SIM_PN_PIN')
-        break
+        return $r('app.string.SIM_PN_PIN');
+        break;
       case 4:
-        return $r('app.string.SIM_PN_PUK')
-        break
+        return $r('app.string.SIM_PN_PUK');
+        break;
       case 5:
-        return $r('app.string.SIM_PU_PIN')
-        break
+        return $r('app.string.SIM_PU_PIN');
+        break;
       case 6:
-        return $r('app.string.SIM_PU_PUK')
-        break
+        return $r('app.string.SIM_PU_PUK');
+        break;
       case 7:
-        return $r('app.string.SIM_PP_PIN')
-        break
+        return $r('app.string.SIM_PP_PIN');
+        break;
       case 8:
-        return $r('app.string.SIM_PP_PUK')
-        break
+        return $r('app.string.SIM_PP_PUK');
+        break;
       case 9:
-        return $r('app.string.SIM_PC_PIN')
-        break
+        return $r('app.string.SIM_PC_PIN');
+        break;
       case 10:
-        return $r('app.string.SIM_PC_PUK')
-        break
+        return $r('app.string.SIM_PC_PUK');
+        break;
       case 11:
-        return $r('app.string.SIM_SIM_PIN')
-        break
+        return $r('app.string.SIM_SIM_PIN');
+        break;
       case 12:
-        return $r('app.string.SIM_SIM_PUK')
-        break
+        return $r('app.string.SIM_SIM_PUK');
+        break;
       default:
-        return 'NA'
-        break
+        return 'NA';
+        break;
     }
   }
 
@@ -325,12 +325,11 @@ struct Detail {
           .margin({ left: 20 })
           .size({ width: 30, height: 30 })
           .onClick(() => {
-            router.back()
+            router.back();
           })
           .id('back')
         Text($r('app.string.detail'))
           .fontSize(30)
-          .margin({ left: '26%' })
           .fontColor(Color.White)
       }
       .width('100%')
@@ -343,18 +342,21 @@ struct Detail {
             Text($r('app.string.network_registration_status'))
               .fontSize(20)
             if (this.detailData?.networkState) {
-              this.textComponent($r('app.string.network_state_long_operator_name'), this.detailData?.networkState.longOperatorName)
-              this.textComponent($r('app.string.network_state_short_operator_name'), this.detailData?.networkState.shortOperatorName)
-              this.textComponent($r('app.string.plmn_numeric'), this.detailData?.networkState.plmnNumeric)
-              this.textComponent($r('app.string.is_roaming'), JSON.stringify(this.detailData?.networkState.isRoaming))
-              this.textComponent($r('app.string.reg_state'), this.regState(this.detailData?.networkState.regState))
-              this.textComponent($r('app.string.cfg_tech'), this.radioTechnology(this.detailData?.networkState.cfgTech))
-              this.textComponent($r('app.string.nsa_state'), this.nsaState(this.detailData?.networkState.nsaState))
-              this.textComponent($r('app.string.is_ca_active'), JSON.stringify(this.detailData?.networkState.isCaActive))
-              this.textComponent($r('app.string.is_emergency'), JSON.stringify(this.detailData?.networkState.isEmergency))
+              this.textComponent($r('app.string.network_state_long_operator_name'), this.detailData?.networkState.longOperatorName);
+              this.textComponent($r('app.string.network_state_short_operator_name'), this.detailData?.networkState.shortOperatorName);
+              this.textComponent($r('app.string.plmn_numeric'), this.detailData?.networkState.plmnNumeric);
+              this.textComponent($r('app.string.is_roaming'), JSON.stringify(this.detailData?.networkState.isRoaming));
+              this.textComponent($r('app.string.reg_state'), this.regState(this.detailData?.networkState.regState));
+              this.textComponent($r('app.string.cfg_tech'), this.radioTechnology(this.detailData?.networkState.cfgTech));
+              this.textComponent($r('app.string.nsa_state'), this.nsaState(this.detailData?.networkState.nsaState));
+              this.textComponent($r('app.string.is_ca_active'), JSON.stringify(this.detailData?.networkState.isCaActive));
+              this.textComponent($r('app.string.is_emergency'), JSON.stringify(this.detailData?.networkState.isEmergency));
             }
           }
-          .margin({ top: 10, left: 20 })
+          .margin({
+            top: 10,
+            left: 20
+          })
           .alignItems(HorizontalAlign.Start)
 
           Column() {
@@ -362,15 +364,15 @@ struct Detail {
               .fontSize(20)
             if (this.detailData?.signalInformation) {
               ForEach(this.detailData?.signalInformation, (item: radio.SignalInformation) => {
-                this.textComponent($r('app.string.signal_type'), this.networkType(item.signalType))
-                this.textComponent($r('app.string.signal_level'), JSON.stringify(item.signalLevel))
+                this.textComponent($r('app.string.signal_type'), this.networkType(item.signalType));
+                this.textComponent($r('app.string.signal_level'), JSON.stringify(item.signalLevel));
               }, (item: radio.SignalInformation) => JSON.stringify(item.signalLevel))
             }
-            else{
-
-            }
           }
-          .margin({ top: 10, left: 20 })
+          .margin({
+            top: 10,
+            left: 20
+          })
           .alignItems(HorizontalAlign.Start)
 
           Column() {
@@ -378,19 +380,25 @@ struct Detail {
               .fontSize(20)
             this.textComponent($r('app.string.cellular_data_flow_type'), this.dataFlowType(this.detailData?.dataFlowType))
           }
-          .margin({ top: 10, left: 20 })
+          .margin({
+            top: 10,
+            left: 20
+          })
           .alignItems(HorizontalAlign.Start)
 
           Column() {
             Text($r('app.string.sim_card_status'))
               .fontSize(20)
             if (this.detailData?.simStateData) {
-              this.textComponent($r('app.string.card_type'), this.cardType(this.detailData?.simStateData.type))
-              this.textComponent($r('app.string.sim_status'), this.simState(this.detailData?.simStateData.state))
-              this.textComponent($r('app.string.lock_reason'), this.lockReason(this.detailData?.simStateData.reason))
+              this.textComponent($r('app.string.card_type'), this.cardType(this.detailData?.simStateData.type));
+              this.textComponent($r('app.string.sim_status'), this.simState(this.detailData?.simStateData.state));
+              this.textComponent($r('app.string.lock_reason'), this.lockReason(this.detailData?.simStateData.reason));
             }
           }
-          .margin({ top: 10, left: 20 })
+          .margin({
+            top: 10,
+            left: 20
+          })
           .alignItems(HorizontalAlign.Start)
         }
         .width('100%')

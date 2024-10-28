@@ -42,15 +42,15 @@ ClassObjectTypeCode.ets</font>
 
 <span class="s6">@</span><span class="s1">Component</span>
 <span class="s1">export struct ClassObjectTypeCode </span><span class="s4">{</span>
-  <span class="s0">// 对象类型状态变量初始化</span>
+  <span class="s0">// Object type state variable initialization</span>
   <span class="s6">@</span><span class="s1">State classObjectData</span><span class="s3">: </span><span class="s1">ParentClass </span><span class="s3">= </span><span class="s1">new ParentClass</span><span class="s5">(</span><span class="s1">getResourceString</span><span class="s5">(</span><span class="s1">context</span><span class="s3">, </span><span class="s1">$r</span><span class="s5">(</span><span class="s2">'app.string.class_attribute'</span><span class="s5">))</span><span class="s3">, </span><span class="s7">1</span><span class="s3">,</span>
     <span class="s1">new ChildClass</span><span class="s5">(</span><span class="s1">getResourceString</span><span class="s5">(</span><span class="s1">context</span><span class="s3">, </span><span class="s1">$r</span><span class="s5">(</span><span class="s2">'app.string.class_child_attribute'</span><span class="s5">))</span><span class="s3">, </span><span class="s7">2</span><span class="s5">))</span><span class="s3">;</span>
-  <span class="s0">// 更新对象的次数</span>
+  <span class="s0">// The number of times an object was updated</span>
   <span class="s1">private clickedCount</span><span class="s3">: </span><span class="s1">number </span><span class="s3">= </span><span class="s7">0</span><span class="s3">;</span>
 
   <span class="s1">build</span><span class="s5">() </span><span class="s4">{</span>
     <span class="s1">Column</span><span class="s5">(</span><span class="s4">{ </span><span class="s1">space</span><span class="s3">: </span><span class="s7">10 </span><span class="s4">}</span><span class="s5">) </span><span class="s4">{</span>
-      <span class="s0">// 点击查看源码</span>
+      <span class="s0">// Click to view source code</span>
       <span class="s1">ViewCodeText</span><span class="s5">(</span><span class="s4">{ </span><span class="s1">webSrc</span><span class="s3">: </span><span class="s1">$rawfile</span><span class="s5">(</span><span class="s2">'ClassObjectTypeCode.ets.html'</span><span class="s5">) </span><span class="s4">}</span><span class="s5">)</span>
       <span class="s1">Column</span><span class="s5">(</span><span class="s4">{ </span><span class="s1">space</span><span class="s3">: </span><span class="s7">15 </span><span class="s4">}</span><span class="s5">) </span><span class="s4">{</span>
         <span class="s1">Row</span><span class="s5">() </span><span class="s4">{</span>
@@ -87,10 +87,10 @@ ClassObjectTypeCode.ets</font>
       <span class="s3">.</span><span class="s1">width</span><span class="s5">(</span><span class="s2">'100%'</span><span class="s5">)</span>
       <span class="s3">.</span><span class="s1">backgroundColor</span><span class="s5">(</span><span class="s1">$r</span><span class="s5">(</span><span class="s2">'app.color.component_background_pink'</span><span class="s5">))</span>
       <span class="s3">.</span><span class="s1">padding</span><span class="s5">(</span><span class="s7">10</span><span class="s5">)</span>
-      <span class="s0">// 点击更新对象</span>
+      <span class="s0">// Click Update object</span>
       <span class="s1">Button</span><span class="s5">(</span><span class="s1">$r</span><span class="s5">(</span><span class="s2">&quot;app.string.class_type_update_object&quot;</span><span class="s5">))</span>
         <span class="s3">.</span><span class="s1">onClick</span><span class="s5">(() </span><span class="s3">=&gt; </span><span class="s4">{</span>
-          <span class="s0">// 更新对象，把新的对象直接赋值给状态变量</span>
+          <span class="s0">// Update the object, assigning the new object directly to the state variable</span>
           <span class="s1">this</span><span class="s3">.</span><span class="s1">clickedCount</span><span class="s3">++;</span>
           <span class="s1">let objectTitle</span><span class="s3">: </span><span class="s1">string </span><span class="s3">= </span><span class="s1">getResourceString</span><span class="s5">(</span><span class="s1">context</span><span class="s3">, </span><span class="s1">$r</span><span class="s5">(</span><span class="s2">'app.string.class_attribute'</span><span class="s5">)) </span><span class="s3">+ </span><span class="s1">this</span><span class="s3">.</span><span class="s1">clickedCount</span><span class="s3">;</span>
           <span class="s1">let attributeTitle</span><span class="s3">: </span><span class="s1">string </span><span class="s3">= </span><span class="s1">getResourceString</span><span class="s5">(</span><span class="s1">context</span><span class="s3">, </span><span class="s1">$r</span><span class="s5">(</span><span class="s2">'app.string.class_child_attribute'</span><span class="s5">))</span>
@@ -106,7 +106,7 @@ ClassObjectTypeCode.ets</font>
         <span class="s3">.</span><span class="s1">buttonStyle</span><span class="s5">()</span>
       <span class="s1">Button</span><span class="s5">(</span><span class="s1">$r</span><span class="s5">(</span><span class="s2">&quot;app.string.class_type_update_attribute&quot;</span><span class="s5">))</span>
         <span class="s3">.</span><span class="s1">onClick</span><span class="s5">(() </span><span class="s3">=&gt; </span><span class="s4">{</span>
-          <span class="s0">// 点击更新对象的属性</span>
+          <span class="s0">// Click Update object properties</span>
           <span class="s1">this</span><span class="s3">.</span><span class="s1">classObjectData</span><span class="s3">.</span><span class="s1">attribute</span><span class="s3">++;</span>
         <span class="s4">}</span><span class="s5">)</span>
         <span class="s3">.</span><span class="s1">id</span><span class="s5">(</span><span class="s2">'updateObjectAttribute'</span><span class="s5">)</span>
@@ -116,7 +116,7 @@ ClassObjectTypeCode.ets</font>
         <span class="s3">.</span><span class="s1">buttonStyle</span><span class="s5">()</span>
       <span class="s1">Button</span><span class="s5">(</span><span class="s1">$r</span><span class="s5">(</span><span class="s2">&quot;app.string.class_type_update_child_attribute&quot;</span><span class="s5">))</span>
         <span class="s3">.</span><span class="s1">onClick</span><span class="s5">(() </span><span class="s3">=&gt; </span><span class="s4">{</span>
-          <span class="s0">// 点击更新对象属性的属性</span>
+          <span class="s0">// Click the properties of Update object properties</span>
           <span class="s1">this</span><span class="s3">.</span><span class="s1">classObjectData</span><span class="s3">.</span><span class="s1">child</span><span class="s3">.</span><span class="s1">attribute</span><span class="s3">++;</span>
         <span class="s4">}</span><span class="s5">)</span>
         <span class="s3">.</span><span class="s1">id</span><span class="s5">(</span><span class="s2">'updateAttributeOfAttribute'</span><span class="s5">)</span>
@@ -131,10 +131,10 @@ ClassObjectTypeCode.ets</font>
   <span class="s4">}</span>
 <span class="s4">}</span>
 
-<span class="s0">// 对象中属性的组件</span>
+<span class="s0">// The component of the property in the object</span>
 <span class="s6">@</span><span class="s1">Component</span>
 <span class="s1">struct ChildObjectComp </span><span class="s4">{</span>
-  <span class="s0">// 使用@ObjectLink修饰，与父组件同步对象的属性</span>
+  <span class="s0">// Use @ObjectLink to synchronize the object's properties with the parent component</span>
   <span class="s6">@</span><span class="s1">ObjectLink childObject</span><span class="s3">: </span><span class="s1">ChildClass</span><span class="s3">;</span>
 
   <span class="s1">build</span><span class="s5">() </span><span class="s4">{</span>
@@ -164,7 +164,7 @@ ClassObjectTypeCode.ets</font>
   <span class="s3">.</span><span class="s1">backgroundColor</span><span class="s5">(</span><span class="s1">$r</span><span class="s5">(</span><span class="s2">'app.color.button_background_color'</span><span class="s5">))</span>
 <span class="s4">}</span>
 
-<span class="s0">// 要更新对象属性的属性，对象属性的类需要使用@Observed修饰</span>
+<span class="s0">// To update the attributes of an object attribute, the class of the object attribute needs to be modified with @Observed</span>
 <span class="s6">@</span><span class="s1">Observed</span>
 <span class="s1">class ChildClass </span><span class="s4">{</span>
   <span class="s1">public title</span><span class="s3">: </span><span class="s1">string</span><span class="s3">;</span>

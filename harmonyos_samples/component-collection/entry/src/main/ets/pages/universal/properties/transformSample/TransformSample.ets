@@ -26,7 +26,7 @@ function rowStyle() {
   .margin({ left: 12, right: 12 })
 }
 
-// 创建一个四阶矩阵
+// Create a fourth-order matrix
 let matrix: matrix4.Matrix4Transit = matrix4.init([1.0, 0.0, 0.0, 0.0,
   0.0, 1.0, 0.0, 0.0,
   0.0, 0.0, 1.0, 0.0,
@@ -89,7 +89,7 @@ struct TransformSample {
           Row() {
             Column() {
               Row() {
-                // 矩阵变换前
+                // Before matrix transformation
                 Image($r('app.media.ic_scenery1'))
                   .width('40%')
                   .height(100)
@@ -99,7 +99,7 @@ struct TransformSample {
                   .margin({ left: 20 })
               }
 
-              // 先平移x轴200px，再缩放两倍x轴，得到矩阵变换后的效果图
+              // Translate the x-axis by 200px, then scale twice the x-axis to get the effect after matrix transformation
               Image($r('app.media.ic_scenery1'))
                 .transform(this.matrix3.combine(this.matrix4))
                 .width('40%')

@@ -37,7 +37,7 @@ struct RotationExample {
         .padding(20)
         .border({ width: 3 })
         .rotate({ angle: this.angle })
-        // 双指旋转触发该手势事件
+        // Two-finger rotation triggers this gesture event
         .gesture(
           RotationGesture({ fingers: 2 })
             .onActionStart((event: GestureEvent) => {

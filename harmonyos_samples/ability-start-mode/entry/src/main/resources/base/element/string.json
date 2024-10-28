@@ -2,19 +2,19 @@
   "string": [
     {
       "name": "startMode",
-      "value": "Startup Mode"
+      "value": "Launch mode"
     },
     {
       "name": "multiton",
-      "value": "Common multi-instance"
+      "value": "Multiton"
     },
     {
       "name": "specified",
-      "value": "Specifying Multiple Instances"
+      "value": "Specified"
     },
     {
       "name": "singleton",
-      "value": "Single Instance"
+      "value": "Singleton"
     },
     {
       "name": "otherFoods",
@@ -150,7 +150,7 @@
     },
     {
       "name": "food_name_ice_cream",
-      "value": "IceCream"
+      "value": "Ice cream"
     },
     {
       "name": "food_name_onion",

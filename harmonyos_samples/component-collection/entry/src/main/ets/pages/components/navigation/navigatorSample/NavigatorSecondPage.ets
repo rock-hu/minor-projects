@@ -20,7 +20,7 @@ import { LEFT_PADDING, RIGHT_PADDING } from '../../ComponentData';
 @Entry
 @Component
 struct DetailExample {
-  // 接收Navigator.ets的传参
+  // Receive the parameters passed by Navigator.ets
   private text: string = (router.getParams() as Record<string, Object>)['text'] as string;
 
   build() {

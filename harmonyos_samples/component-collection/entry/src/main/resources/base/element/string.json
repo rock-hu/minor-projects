@@ -36,6 +36,7 @@
       "name": "prop_background",
       "value": "Background"
     },
+    
     {
       "name": "prop_foreground",
       "value": "Foreground"
@@ -158,7 +159,7 @@
     },
     {
       "name": "information_presentation_and_dynamic_effects",
-      "value": "Information presentation and dynamic effects"
+      "value": "Information presentation and\ndynamic effects"
     },
     {
       "name": "blank_and_divider",
@@ -386,19 +387,19 @@
     },
     {
       "name": "set_background_image_size",
-      "value": "Set background image size"
+      "value": "Set background\nimage size"
     },
     {
       "name": "set_background_image_position",
-      "value": "Set background image position"
+      "value": "Set background\nimage position"
     },
     {
       "name": "set_background_blur_style_color_mode",
-      "value": "Set background blur style color mode"
+      "value": "Set background blur\nstyle color mode"
     },
     {
       "name": "set_background_blur_style_adaptive_color",
-      "value": "Set background blur style adaptive color"
+      "value": "Set background blur\nstyle adaptive color"
     },
     {
       "name": "blur_style_system",
@@ -440,6 +441,7 @@
       "name": "background_image_size_contain",
       "value": "Contain"
     },
+
     {
       "name": "background_image_position_top_start",
       "value": "TopStart"
@@ -472,10 +474,12 @@
       "name": "background_image_position_bottom",
       "value": "Bottom"
     },
+
     {
       "name": "background_image_position_bottom_end",
       "value": "BottomEnd"
     },
+
     {
       "name": "background_image",
       "value": "Set background image"
@@ -638,11 +642,11 @@
     },
     {
       "name": "button_confirm",
-      "value": "Confirm"
+      "value": "Confirm "
     },
     {
       "name": "button_type_capsule",
-      "value": "Capsule"
+      "value": "Capsule "
     },
     {
       "name": "button_type_normal",
@@ -650,7 +654,7 @@
     },
     {
       "name": "button_type_circle",
-      "value": "Circle"
+      "value": "Circle "
     },
     {
       "name": "button_state_effect",
@@ -658,11 +662,11 @@
     },
     {
       "name": "button_state_effect_true",
-      "value": "Has effect"
+      "value": "Has effect "
     },
     {
       "name": "button_state_effect_false",
-      "value": "No effect"
+      "value": "No effect "
     },
     {
       "name": "button_disable_style",
@@ -674,15 +678,19 @@
     },
     {
       "name": "button_border_radius",
-      "value": " Rounded button"
+      "value": " Rounded button "
     },
     {
       "name": "button_with_icon",
-      "value": "Icon button"
+      "value": "Icon button "
+    },
+    {
+      "name": "button_with_icon_en",
+      "value": "Icon\nbutton"
     },
     {
       "name": "button_custom_bg_color",
-      "value": "Custom color"
+      "value": "Custom color "
     },
     {
       "name": "button_click",
@@ -1502,7 +1510,7 @@
     },
     {
       "name": "text_area_set_text_selection",
-      "value": "Set Text Selection"
+      "value": "Set Text\nSelection"
     },
     {
       "name": "text_area_set_text_selection_start_select_error",
@@ -1514,11 +1522,11 @@
     },
     {
       "name": "text_input_set_text_selection_start_select",
-      "value": "Start Select:"
+      "value": "Start:"
     },
     {
       "name": "text_input_set_text_selection_end_select",
-      "value": "End Select:"
+      "value": "End:"
     },
     {
       "name": "avoiding_input_method_testing",
@@ -1894,7 +1902,7 @@
     },
     {
       "name": "hueRotate_change",
-      "value": "HueRoate"
+      "value": "Hue\nRoate"
     },
     {
       "name": "color_blend_change",
@@ -1902,15 +1910,15 @@
     },
     {
       "name": "spherical_effect_change",
-      "value": "sphericalEffect"
+      "value": "spherical\nEffect"
     },
     {
       "name": "light_up_effect_change",
-      "value": "lightUpEffect"
+      "value": "lightUp\nEffect"
     },
     {
       "name": "pixel_stretch_effect_change",
-      "value": "pixelStretchEffect"
+      "value": "pixelStretch\nEffect"
     },
     {
       "name": "z_index",
@@ -2699,8 +2707,7 @@
     {
       "name": "animate_over",
       "value": "AnimateOver"
-    },
-    {
+    },{
       "name": "interaction_showpopup",
       "value": "Show Popup"
     },
@@ -2714,11 +2721,11 @@
     },
     {
       "name": "action_sheet_dialog_click_content",
-      "value": "点击内容"
+      "value": "Click Content"
     },
     {
       "name": "text_picker_click_text",
-      "value": "点击文字"
+      "value": "Click Text"
     },
     {
       "name": "global_menu",
@@ -2726,31 +2733,31 @@
     },
     {
       "name": "global_menu_create_way",
-      "value": "创建方式"
+      "value": "Create Way"
     },
     {
       "name": "global_menu_click_right",
-      "value": "右击"
+      "value": "Right Click"
     },
     {
       "name": "global_menu_long_press",
-      "value": "长按"
+      "value": "Long Press"
     },
     {
       "name": "global_menu_close",
-      "value": "点击关闭菜单"
+      "value": "Click to close the menu"
     },
     {
       "name": "general_mount",
-      "value": "挂载卸载事件"
+      "value": "Mount unmount events"
     },
     {
       "name": "general_mount_toast",
-      "value": "挂载图片"
+      "value": "Mount the image"
     },
     {
       "name": "general_unmount_toast",
-      "value": "卸载图片"
+      "value": "Unmount the image"
     },
     {
       "name": "general_mount_text",
@@ -2802,7 +2809,7 @@
     },
     {
       "name": "size_size_description_one",
-      "value": "宽高为100vp"
+      "value": "Width and height are 100vp"
     },
     {
       "name": "size_size_description_two",
@@ -2834,27 +2841,27 @@
     },
     {
       "name": "keyPress_event",
-      "value": "按压事件"
+      "value": "Press Event"
     },
     {
       "name": "focus_event_description",
-      "value": "按压外接键盘Tab键获取焦点，再按上下键切换焦点"
+      "value": "Press the Tab key on the external keyboard to get the focus, then press the up and down keys to switch the focus"
     },
     {
       "name": "focus_event_button_one",
-      "value": "第一个按钮"
+      "value": "The first button"
     },
     {
       "name": "focus_event_button_two",
-      "value": "第二个按钮"
+      "value": "The second button"
     },
     {
       "name": "focus_event_button_three",
-      "value": "第三个按钮"
+      "value": "The third button"
     },
     {
       "name": "focus_event_toast_text",
-      "value": "触发焦点"
+      "value": "Trigger Focus"
     },
     {
       "name": "press_event_toast_text",
@@ -2866,19 +2873,19 @@
     },
     {
       "name": "mouse_event_move_description",
-      "value": "使用外接鼠标移入按钮"
+      "value": "Move into the button with an external mouse"
     },
     {
       "name": "mouse_event_click_description",
-      "value": "使用外接鼠标点击按钮"
+      "value": "Click the button with an external mouse"
     },
     {
       "name": "mouse_event_hover_description",
-      "value": "鼠标移入"
+      "value": "The mouse is hovering"
     },
     {
       "name": "mouse_event_onHover_description",
-      "value": "鼠标未移入"
+      "value": "The mouse is not hovering"
     },
     {
       "name": "mouse_event_onMouse_text",
@@ -2926,19 +2933,19 @@
     },
     {
       "name": "scroll_event",
-      "value": "组件可见区域变化事件"
+      "value": "Component visible area change event"
     },
     {
       "name": "scroll_event_description",
-      "value": "滑动列表使图片消失和显示"
+      "value": "Slide the list to make the picture disappear and appear"
     },
     {
       "name": "scroll_event_toast_visible",
-      "value": "爱心图片完全可见"
+      "value": "The heart image is fully visible"
     },
     {
       "name": "scroll_event_toast_invisible",
-      "value": "爱心图片完全消失"
+      "value": "The heart image is completely disappeared"
     },
     {
       "name": "location_settings",
@@ -2946,27 +2953,27 @@
     },
     {
       "name": "location_settings_align",
-      "value": "对齐方式"
+      "value": "Alignment"
     },
     {
       "name": "location_settings_direction",
-      "value": "水平布局"
+      "value": "Horizontal Layout"
     },
     {
       "name": "location_settings_position",
-      "value": "绝对定位"
+      "value": "Absolute Positioning"
     },
     {
       "name": "location_settings_markAnchor",
-      "value": "设置锚点"
+      "value": "Set mark anchor"
     },
     {
       "name": "location_settings_offset",
-      "value": "相对定位"
+      "value": "Relative Position"
     },
     {
       "name": "location_settings_alignRules",
-      "value": "对齐规则"
+      "value": "Align Rules"
     },
     {
       "name": "location_settings_bottom_end",
@@ -2990,27 +2997,27 @@
     },
     {
       "name": "layout_constrain",
-      "value": "布局约束"
+      "value": "Layout Constrain"
     },
     {
       "name": "layout_constrain_aspectRatio",
-      "value": "组件宽高比"
+      "value": "Layout constrain aspect ratio"
     },
     {
       "name": "layout_constrain_displayPriority",
-      "value": "组件优先级"
+      "value": "Layout constrain display priority"
     },
     {
       "name": "layout_constrain_big_container",
-      "value": "大型容器"
+      "value": "Large Container"
     },
     {
       "name": "layout_constrain_middle_container",
-      "value": "中型容器"
+      "value": "Medium Container"
     },
     {
       "name": "layout_constrain_small_container",
-      "value": "小型容器"
+      "value": "Small Container"
     },
     {
       "name": "layout_constrain_children_one",
@@ -3042,11 +3049,11 @@
     },
     {
       "name": "flex",
-      "value": "flex"
+      "value": "Flex"
     },
     {
       "name": "flex_flexBasis",
-      "value": "flexBasis"
+      "value": "FlexBasis"
     },
     {
       "name": "flex_flexGrow",
@@ -3114,7 +3121,7 @@
     },
     {
       "name": "picture_border",
-      "value": "图片边框设置"
+      "value": "Picture border settings"
     },
     {
       "name": "scale",
@@ -3134,75 +3141,75 @@
     },
     {
       "name": "transform_init",
-      "value": "创建四阶矩阵"
+      "value": "Create a fourth-order matrix"
     },
     {
       "name": "transform_copy",
-      "value": "矩阵复制"
+      "value": "Matrix Copy"
     },
     {
       "name": "transform_combine",
-      "value": "矩阵效果叠加"
+      "value": "Matrix effect combine"
     },
     {
       "name": "transform_invert",
-      "value": "矩阵效果反转"
+      "value": "Matrix effect inversion"
     },
     {
       "name": "transform_translate",
-      "value": "矩阵平移效果"
+      "value": "Matrix translation effect"
     },
     {
       "name": "transform_scale",
-      "value": "矩阵缩放效果"
+      "value": "Matrix scaling effect"
     },
     {
       "name": "transform_rotate",
-      "value": "矩阵旋转效果"
+      "value": "Matrix rotation effect"
     },
     {
       "name": "transform_transformPoint",
-      "value": "矩阵坐标点转换效果"
+      "value": "Matrix coordinate point conversion effect"
     },
     {
       "name": "transform_combine_text",
-      "value": "x平移20，x放大两倍"
+      "value": "x translates 20,\nx magnifies twice"
     },
     {
       "name": "transform_translate_text",
-      "value": "平移 x: 40, y: 40, z: 20"
+      "value": "Translation\nx: 40, y: 40,\nz: 20"
     },
     {
       "name": "transform_scale_text",
-      "value": "宽高缩小一倍"
+      "value": "Reduce width and height\nby half"
     },
     {
       "name": "transform_rotate_text",
-      "value": "旋转30度"
+      "value": "Rotate 30 degrees"
     },
     {
       "name": "transform_transformPoint_before",
-      "value": "矩阵变换后的坐标：[50,50]"
+      "value": "Coordinates after matrix transformation: [50,50]"
     },
     {
       "name": "transform_transformPoint_after",
-      "value": "矩阵变换后的坐标：[100,0]"
+      "value": "Coordinates after matrix transformation: [100,0]"
     },
     {
       "name": "shape_crop",
-      "value": "形状裁剪"
+      "value": "Shape Crop"
     },
     {
       "name": "shape_crop_clip",
-      "value": "裁剪"
+      "value": "Crop"
     },
     {
       "name": "shape_crop_mask",
-      "value": "遮盖"
+      "value": "Cover"
     },
     {
       "name": "grid_settings",
-      "value": "栅格设置"
+      "value": "Grid Settings"
     },
     {
       "name": "grid_settings_sm",
@@ -3222,11 +3229,11 @@
     },
     {
       "name": "focus_control",
-      "value": "焦点控制"
+      "value": "Focus Control"
     },
     {
       "name": "focus_control_tab",
-      "value": "按外接键盘Tab键切换焦点"
+      "value": "Press the Tab key on the external keyboard to switch focus"
     },
     {
       "name": "focus_control_lastPageId",
@@ -3234,11 +3241,11 @@
     },
     {
       "name": "focus_control_success",
-      "value": "请求成功"
+      "value": "Request Success"
     },
     {
       "name": "focus_control_failed",
-      "value": "请求失败"
+      "value": "Request Failed"
     },
     {
       "name": "focus_control_group1",
@@ -3258,11 +3265,11 @@
     },
     {
       "name": "focus_control_request_focus",
-      "value": "选择水果请求聚焦"
+      "value": "Selected fruit request focus"
     },
     {
       "name": "component_id",
-      "value": "组件标识"
+      "value": "Component Identification"
     },
     {
       "name": "component_id_onKeyTab",
@@ -3302,31 +3309,31 @@
     },
     {
       "name": "component_blurred",
-      "value": "组件背景模糊"
+      "value": "Component background blur"
     },
     {
       "name": "component_blurred_thin",
-      "value": "薄材料"
+      "value": "Thin Materials"
     },
     {
       "name": "restore_id",
-      "value": "分布式迁移标识"
+      "value": "Distributed migration identifier"
     },
     {
       "name": "gesture_process",
-      "value": "手势处理"
+      "value": "Gesture process"
     },
     {
       "name": "bind_gesture_methods",
-      "value": "绑定手势方法"
+      "value": "Bind gesture method"
     },
     {
       "name": "bind_gesture_priorityGesture",
-      "value": "priorityGesture会忽略text,优先识别父组件column"
+      "value": "priorityGesture will ignore text and prioritize parent component column"
     },
     {
       "name": "bind_gesture_parallelGesture",
-      "value": "parallelGesture识别父子组件column，text"
+      "value": "parallelGesture identifies parent and child components column, text"
     },
     {
       "name": "bind_gesture_tapGesture",
@@ -3342,7 +3349,7 @@
     },
     {
       "name": "double_click",
-      "value": "单指双击触发"
+      "value": "Single finger double click trigger"
     },
     {
       "name": "onAction",
@@ -3350,7 +3357,7 @@
     },
     {
       "name": "long_press",
-      "value": "单指长按文本"
+      "value": "Long press the text with on finger"
     },
     {
       "name": "long_press_cancel",
@@ -3358,27 +3365,27 @@
     },
     {
       "name": "long_press_text",
-      "value": "请单指长按我"
+      "value": "Long press me"
     },
     {
       "name": "pan_text",
-      "value": "双指任意方式拖动黑色框"
+      "value": "Drag the black frame with two fingers in any way"
     },
     {
       "name": "pan_text_one",
-      "value": "单指左右拖动黑色框"
+      "value": "Drag the black frame left or right with one finger"
     },
     {
       "name": "pan_start",
-      "value": "开始"
+      "value": "Start"
     },
     {
       "name": "pan_end",
-      "value": "结束"
+      "value": "End"
     },
     {
       "name": "pan_button",
-      "value": "修改PanGesture触发条件"
+      "value": "Modify the PanGesture trigger condition"
     },
     {
       "name": "pan_offset",
@@ -3390,7 +3397,7 @@
     },
     {
       "name": "pinch_description",
-      "value": "三指捏合黑色框"
+      "value": "Pinch the black  frame with three fingers"
     },
     {
       "name": "pinch_scale",
@@ -3402,7 +3409,7 @@
     },
     {
       "name": "rotation_description",
-      "value": "双指旋转黑色框"
+      "value": "Rotate the black box with two fingers"
     },
     {
       "name": "rotation_text",
@@ -3410,7 +3417,7 @@
     },
     {
       "name": "swipe_description",
-      "value": "单指任一方向快速滑动黑色框"
+      "value": "Quickly slide the black box with one finger in either direction"
     },
     {
       "name": "swipe_text_speed",
@@ -3422,7 +3429,7 @@
     },
     {
       "name": "combinded_description",
-      "value": "先长按再拖动黑色框"
+      "value": "Long press and then drag the black box"
     },
     {
       "name": "combinded_pan_start",
@@ -3462,11 +3469,11 @@
     },
     {
       "name": "transform_translate_invert",
-      "value": "放大两倍反转(缩小两倍)"
+      "value": "Zoom in twice and reverse (zoom out twice)"
     },
     {
       "name": "key_press_description",
-      "value": "按压外接键盘Tab键，再按压任意键"
+      "value": "Press the external keyboard Tab key, and then press any key"
     },
     {
       "name": "key_press_keyType",
@@ -3510,7 +3517,7 @@
     },
     {
       "name": "bind_click",
-      "value": "点击我"
+      "value": "Click me"
     },
     {
       "name": "action_sheet_dialog",
@@ -3518,7 +3525,7 @@
     },
     {
       "name": "action_sheet_click_sheets",
-      "value": "点击选项内容"
+      "value": "Click options content"
     },
     {
       "name": "text_picker_text_peach",
@@ -3542,11 +3549,11 @@
     },
     {
       "name": "text_picker_dialog",
-      "value": "TextPickerDialog 文本滑动选择器弹窗"
+      "value": "TextPickerDialog"
     },
     {
       "name": "text_picker_show",
-      "value": "显示文本弹窗"
+      "value": "Show test dialog"
     },
     {
       "name": "row_title",
@@ -3602,11 +3609,11 @@
     },
     {
       "name": "row_justifycontent_description",
-      "value": "Spindle alignment format"
+      "value": "Spindle alignment\nformat"
     },
     {
       "name": "row_alignitems_description",
-      "value": "Cross axis alignment format"
+      "value": "Cross axis alignment\nformat"
     },
     {
       "name": "row_introduction_tips",
@@ -3686,11 +3693,11 @@
     },
     {
       "name": "column_justifycontent_description",
-      "value": "Spindle alignment format"
+      "value": "Spindle alignment\nformat"
     },
     {
       "name": "column_alignitems_description",
-      "value": "Cross axis alignment format"
+      "value": "Cross axis alignment\nformat"
     },
     {
       "name": "column_introduction_tips",
@@ -3742,7 +3749,7 @@
     },
     {
       "name": "sidebarcontainer_argument_type",
-      "value": "The sidebar shows the type"
+      "value": "The sidebar shows\nthe type"
     },
     {
       "name": "sidebarcontainer_type_embed",
@@ -3770,7 +3777,7 @@
     },
     {
       "name": "sidebarcontainer_position_title",
-      "value": "The sidebar shows the location"
+      "value": "The sidebar shows\nthe location"
     },
     {
       "name": "sidebarcontainer_sidebar_show_position_start",
@@ -3790,7 +3797,7 @@
     },
     {
       "name": "sidebarcontainer_auto_hide",
-      "value": "Whether the sidebar is hidden in its smallest state"
+      "value": "Whether the sidebar is hidden in its\nsmallest state"
     },
     {
       "name": "sidebarcontainer_divider_width",
@@ -3902,7 +3909,7 @@
     },
     {
       "name": "flex_argument_wrap",
-      "value": "Modify the wrap for this flex"
+      "value": "Modify the wrap for\nthis flex"
     },
     {
       "name": "flex_argument_wrap_no_wrap",
@@ -3918,11 +3925,11 @@
     },
     {
       "name": "flex_introduction_direction",
-      "value": "Change the direction of all flex"
+      "value": "Change the direction of\nall flex"
     },
     {
       "name": "flex_argument_justifycontent",
-      "value": "Revised this Flex justifyContent"
+      "value": "Revised this Flex\njustifyContent"
     },
     {
       "name": "flex_argument_justifycontent_start",
@@ -3950,7 +3957,7 @@
     },
     {
       "name": "flex_argument_alignItems",
-      "value": "Modify alignItems in this Flex"
+      "value": "Modify alignItems in\nthis Flex"
     },
     {
       "name": "flex_argumen_alignItems_auto",
@@ -3978,7 +3985,7 @@
     },
     {
       "name": "flex_argument_alignContent",
-      "value": "Modify the alignContent of this Flex"
+      "value": "Modify the alignContent\nof this Flex"
     },
     {
       "name": "gridrow_title",
@@ -4082,7 +4089,7 @@
     },
     {
       "name": "image_renderMode_change",
-      "value": "RenderModeChange"
+      "value": "RenderMode\nChange"
     },
     {
       "name": "image_repeat_xy",
@@ -4230,23 +4237,23 @@
     },
     {
       "name": "patternlock_active_color",
-      "value": "PatternLockActiveColor"
+      "value": "Pattern Lock Active\nColor"
     },
     {
       "name": "patternlock_path_color",
-      "value": "PatternLockParhColor"
+      "value": "Pattern Lock Path\nColor"
     },
     {
       "name": "patternlock_select_color",
-      "value": "PatternLockSelectColor"
+      "value": "Pattern Lock Select\nColor"
     },
     {
       "name": "patternlock_regular_color",
-      "value": "PatternLockRegularColor"
+      "value": "Pattern Lock Regular\nColor"
     },
     {
       "name": "patternlock_side_length",
-      "value": "PatternLockSideLengh"
+      "value": "PatternLockSideLength"
     },
     {
       "name": "patternlock_circle_radius",
@@ -4262,15 +4269,15 @@
     },
     {
       "name": "search_textalign_change",
-      "value": "SearchTextAlignChange"
+      "value": "Search Text Align\nChange"
     },
     {
       "name": "search_placeholder_change",
-      "value": "SearchPlaceholderChange"
+      "value": "Search Place holder\nChange"
     },
     {
       "name": "search_copyOption_change",
-      "value": "SearchCopyOptionChange"
+      "value": "Search Copy Option\nChange"
     },
     {
       "name": "search_change",
@@ -4398,7 +4405,7 @@
     },
     {
       "name": "list_item_introduction_properties",
-      "value": "修改 ListItem 的属性"
+      "value": "Modify the properties of ListItem"
     },
     {
       "name": "grid_title",
@@ -4410,7 +4417,7 @@
     },
     {
       "name": "grid_properties_columns_template",
-      "value": "Control the proportion of the third column"
+      "value": "Control the third column"
     },
     {
       "name": "grid_properties_columns_gap",
@@ -4442,7 +4449,7 @@
     },
     {
       "name": "grid_properties_rows_template",
-      "value": "Control the proportion of the third rows"
+      "value": "Control the third row"
     },
     {
       "name": "grid_item_introduction",
@@ -4450,19 +4457,19 @@
     },
     {
       "name": "grid_item_row_start",
-      "value": "Change the start line number"
+      "value": "Change the start\nline number"
     },
     {
       "name": "grid_item_row_end",
-      "value": "Modify the end line number"
+      "value": "Modify the end\nline number"
     },
     {
       "name": "grid_item_column_start",
-      "value": "Change the start column number"
+      "value": "Change the start\ncolumn number"
     },
     {
       "name": "grid_item_column_end",
-      "value": "Modify the end column number"
+      "value": "Modify the end\ncolumn number"
     },
     {
       "name": "swiper_title",
@@ -4482,7 +4489,7 @@
     },
     {
       "name": "swiper_properties_disable_swipe",
-      "value": "Disable swipe left or right to switch function"
+      "value": "Disable left and right swipe switch"
     },
     {
       "name": "swiper_properties_item_space",
@@ -4494,7 +4501,7 @@
     },
     {
       "name": "swiper_properties_duration",
-      "value": "Duration of slide switching animation (unit: ms)"
+      "value": "Slide switch animation\n(unit: ms)"
     },
     {
       "name": "swiper_properties_loop",
@@ -4506,7 +4513,7 @@
     },
     {
       "name": "swiper_properties_interval",
-      "value": "Interval of automatic playback (unit: ms)"
+      "value": "Autoplay interval\n(unit: ms)"
     },
     {
       "name": "swiper_controller_next",
@@ -4602,7 +4609,7 @@
     },
     {
       "name": "tabs_arguments_controller",
-      "value": "Switches to the specified index"
+      "value": "Switches to the\nspecified index"
     },
     {
       "name": "tab_content_title",
@@ -4654,7 +4661,7 @@
     },
     {
       "name": "shape_title",
-      "value": "shape"
+      "value": "Shape"
     },
     {
       "name": "circle_change",
@@ -4886,7 +4893,7 @@
     },
     {
       "name": "path_commands_select",
-      "value": "PathCommandsSelect"
+      "value": "PathCommands"
     },
     {
       "name": "path_fill",
@@ -5299,6 +5306,70 @@
     {
       "name": "navigator_return_message",
       "value": "hello! This is a param form the first page"
+    },
+    {
+      "name": "swipe_action_button",
+      "value": "Delete"
+    },
+    {
+      "name": "enter_range",
+      "value": "Enter the mouse selection range"
+    },
+    {
+      "name": "remove_range",
+      "value": "Remove the mouse selection"
+    },
+    {
+      "name": "status_bar_desc1",
+      "value": "The current initialIndex is "
+    },
+    {
+      "name": "status_bar_desc2",
+      "value": " after modifying initialIndex, please enter this page again to view the effect"
+    },
+    {
+      "name": "choose_please",
+      "value": "Choice"
+    },
+    {
+      "name": "H1_title",
+      "value": "<h1 style=\"text-align: center;\">h1 Title</h1>"
+    },
+    {
+      "name": "H1_italic",
+      "value": "<h1 style=\"text-align: center;\"><i>h1 Italic</i></h1>"
+    },
+    {
+      "name": "H1_underline",
+      "value": "<h1 style=\"text-align: center;\"><u>h1 Underline</u></h1>"
+    },
+    {
+      "name": "H2_title",
+      "value": "<h2 style=\"text-align: center;\">h2 Title</h2>"
+    },
+    {
+      "name": "H3_title",
+      "value": "<h3 style=\"text-align: center;\">h3 Title</h3>"
+    },
+    {
+      "name": "P_common",
+      "value": "<p style=\"text-align: center;\">p Common</p><hr/>"
+    },
+    {
+      "name": "font_title_desc",
+      "value": "<div style=\"width: 500px;height: 500px;border: 1px solid;margin: 0auto;\">"
+    },
+    {
+      "name": "font_title",
+      "value": "<p style=\"font-size: 35px;text-align: center;font-weight: bold; color: rgb(24,78,228)\">font-size 35px,line-height 45px</p>"
+    },
+    {
+      "name": "font_content_desc",
+      "value": "<p style=\"background-color: #e5e5e5;line-height: 45px;font-size: 35px;text-indent: 2em;\">"
+    },
+    {
+      "name": "font_content",
+      "value": "<p>This is a paragraph of text. This is a paragraph of text. This is a paragraph of text. This is a paragraph of text. This is a paragraph of text. This is a paragraph of text. This is a paragraph of text. This is a paragraph of text. This is a paragraph of text. </p>"
     },
     {
       "name": "reason_get_bundle_info",

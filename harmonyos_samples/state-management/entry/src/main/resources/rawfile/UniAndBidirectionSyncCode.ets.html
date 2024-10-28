@@ -37,7 +37,7 @@ UniAndBidirectionSyncCode.ets</font>
 <span class="s1">import </span><span class="s2">{ </span><span class="s1">ChildCompProp </span><span class="s2">} </span><span class="s1">from </span><span class="s3">'./ComponentProp'</span>
 <span class="s1">import </span><span class="s2">{ </span><span class="s1">ViewCodeText </span><span class="s2">} </span><span class="s1">from </span><span class="s3">'../../../../../commoncomponents/ViewCodeText'</span>
 
-<span class="s0">// 初始化圆形的可设置颜色</span>
+<span class="s0">// Initializes a configurable color for the circle</span>
 <span class="s1">export const COLOR_DATA </span><span class="s4">= </span><span class="s2">{</span>
   <span class="s1">GREY</span><span class="s4">: </span><span class="s3">'#eebebeba'</span><span class="s4">,</span>
   <span class="s1">BLUE</span><span class="s4">: </span><span class="s3">'#4A90E2'</span><span class="s4">,</span>
@@ -47,13 +47,13 @@ UniAndBidirectionSyncCode.ets</font>
 
 <span class="s5">@</span><span class="s1">Component</span>
 <span class="s1">export struct UniAndBidirectionSyncCode </span><span class="s2">{</span>
-  <span class="s0">// 初始化圆形颜色的状态变量</span>
+  <span class="s0">// Initializes the state variable for the color of the circle</span>
   <span class="s5">@</span><span class="s1">State circleColor</span><span class="s4">: </span><span class="s1">string </span><span class="s4">= </span><span class="s1">COLOR_DATA</span><span class="s4">.</span><span class="s1">GREY</span><span class="s4">;</span>
 
   <span class="s1">build</span><span class="s6">() </span><span class="s2">{</span>
     <span class="s1">Column</span><span class="s6">(</span><span class="s2">{ </span><span class="s1">space</span><span class="s4">: </span><span class="s7">10 </span><span class="s2">}</span><span class="s6">) </span><span class="s2">{</span>
       <span class="s1">Column</span><span class="s6">(</span><span class="s2">{ </span><span class="s1">space</span><span class="s4">: </span><span class="s7">10 </span><span class="s2">}</span><span class="s6">) </span><span class="s2">{</span>
-        <span class="s0">// 点击查看源码</span>
+        <span class="s0">// Click to view source code</span>
         <span class="s1">ViewCodeText</span><span class="s6">(</span><span class="s2">{ </span><span class="s1">webSrc</span><span class="s4">: </span><span class="s1">$rawfile</span><span class="s6">(</span><span class="s3">'UniAndBidirectionSyncCode.ets.html'</span><span class="s6">) </span><span class="s2">}</span><span class="s6">)</span>
         <span class="s1">Text</span><span class="s6">(</span><span class="s1">$r</span><span class="s6">(</span><span class="s3">'app.string.parent_component'</span><span class="s6">))</span>
           <span class="s4">.</span><span class="s1">fontSize</span><span class="s6">(</span><span class="s1">$r</span><span class="s6">(</span><span class="s3">'app.float.tips_font_size'</span><span class="s6">))</span>
@@ -68,7 +68,7 @@ UniAndBidirectionSyncCode.ets</font>
         <span class="s1">Circle</span><span class="s6">()</span>
           <span class="s4">.</span><span class="s1">size</span><span class="s6">(</span><span class="s2">{ </span><span class="s1">width</span><span class="s4">: </span><span class="s1">$r</span><span class="s6">(</span><span class="s3">'app.float.circle_size'</span><span class="s6">)</span><span class="s4">, </span><span class="s1">height</span><span class="s4">: </span><span class="s1">$r</span><span class="s6">(</span><span class="s3">'app.float.circle_size'</span><span class="s6">) </span><span class="s2">}</span><span class="s6">)</span>
           <span class="s4">.</span><span class="s1">fill</span><span class="s6">(</span><span class="s1">this</span><span class="s4">.</span><span class="s1">circleColor</span><span class="s6">)</span>
-        <span class="s0">// 点击更新父组件的圆形颜色变量，父组件更新，子组件@Link以及@Prop继承的变量同步</span>
+        <span class="s0">// Click Update parent component circular color variable, parent component update, child component @Link and @Prop inherited variables sync</span>
         <span class="s1">Button</span><span class="s6">() </span><span class="s2">{</span>
           <span class="s1">Text</span><span class="s6">(</span><span class="s1">$r</span><span class="s6">(</span><span class="s3">&quot;app.string.uni_and_bidirection_sync_btn&quot;</span><span class="s6">))</span>
             <span class="s4">.</span><span class="s1">fontColor</span><span class="s6">(</span><span class="s1">$r</span><span class="s6">(</span><span class="s3">'app.color.button_text_color'</span><span class="s6">))</span>
@@ -84,9 +84,9 @@ UniAndBidirectionSyncCode.ets</font>
           <span class="s1">this</span><span class="s4">.</span><span class="s1">circleColor </span><span class="s4">= </span><span class="s1">COLOR_DATA</span><span class="s4">.</span><span class="s1">PINK</span><span class="s4">;</span>
         <span class="s2">}</span><span class="s6">)</span>
       <span class="s2">}</span>
-      <span class="s0">// 单向同步子组件</span>
+      <span class="s0">// Unidirectional synchronous component</span>
       <span class="s1">ChildCompProp</span><span class="s6">(</span><span class="s2">{ </span><span class="s1">circleColor</span><span class="s4">: </span><span class="s1">this</span><span class="s4">.</span><span class="s1">circleColor </span><span class="s2">}</span><span class="s6">)</span>
-      <span class="s0">// 双向同步子组件</span>
+      <span class="s0">// Bidirectional synchronous component</span>
       <span class="s1">ChildCompLink</span><span class="s6">(</span><span class="s2">{ </span><span class="s1">circleColor</span><span class="s4">: </span><span class="s1">$circleColor </span><span class="s2">}</span><span class="s6">)</span>
     <span class="s2">}</span>
     <span class="s4">.</span><span class="s1">padding</span><span class="s6">(</span><span class="s7">10</span><span class="s6">)</span>

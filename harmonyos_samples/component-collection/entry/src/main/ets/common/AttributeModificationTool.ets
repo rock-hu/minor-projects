@@ -123,7 +123,7 @@ export struct CommonItemSelect {
   private selectIndex: number = 0;
   private fontSize: Font = { size: 15, weight: FontWeight.Medium };
   private isItemStyle: boolean = true;
-  private text: string = "请选择";
+  private text: string = getContext(this).resourceManager.getStringSync($r('app.string.choose_please'));
 
   aboutToAppear() {
     this.selects.forEach((selects, index) => {

@@ -88,7 +88,7 @@ struct GridItemSample {
       .flexGrow(0)
 
       Scroll() {
-        // 控制面板
+        // Control Panel
         Column() {
           IntroductionTitle({ introduction: $r('app.string.grid_item_introduction') })
           Column() {

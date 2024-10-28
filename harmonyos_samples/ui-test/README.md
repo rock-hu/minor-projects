@@ -77,7 +77,7 @@
 │  │  │  │  ├──PointMatrixEvent.test.ets          // 矩阵事件自动化脚本
 │  │  │  │  ├──ScreenCapEvent.test.ets            // 捕获屏幕事件自动化脚本
 │  │  │  │  ├──ScrollerEvent.test.ets             // 滑动事件自动化脚本
-│  │  │  │  └──ScrollerEvent.test.ets             // 滑块事件自动化脚本
+│  │  │  │  └──SwipeEvent.test.ets                // 滑块事件自动化脚本
 │  │  │  └──window
 │  │  │     ├──MoveToEvent.test.ets               // 移动事件自动化脚本
 │  │  │     ├──ReSizeWindow.test.ets              // 窗口大小自动化脚本

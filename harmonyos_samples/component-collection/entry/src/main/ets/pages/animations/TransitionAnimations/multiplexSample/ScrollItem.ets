@@ -21,12 +21,12 @@ export struct ScrollItem {
   private onDelete: (id: string) => void = () => {
   };
   @StorageProp('windowHeight') windowHeight: number = 720;
-  @State offsetX: number = 0; // X轴滑动距离
-  @State offsetY: number = 0; // Y轴滑动距离
-  @State scaleX: number = 1; // 缩放比例
-  @State angle: number = 0; // 旋转角度
-  @State translateY: number = 0; // Y轴移动距离
-  @State sx: number = 1; // 滑动系数
+  @State offsetX: number = 0; // X-axis sliding distance
+  @State offsetY: number = 0; // Y-axis sliding distance
+  @State scaleX: number = 1; // Scaling
+  @State angle: number = 0; // Rotation Angle
+  @State translateY: number = 0; // Y-axis movement distance
+  @State sx: number = 1; // Sliding coefficient
 
   build() {
     Column() {
@@ -107,7 +107,7 @@ export struct ScrollItem {
   }
 
   /**
-   * 还原
+   * Restore
    */
   restore() {
     let that = this;
@@ -120,7 +120,7 @@ export struct ScrollItem {
   }
 
   /**
-   * 删除
+   * Delete
    */
   delete() {
     let that = this;
