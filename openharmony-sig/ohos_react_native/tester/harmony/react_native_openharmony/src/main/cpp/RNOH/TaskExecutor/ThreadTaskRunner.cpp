@@ -13,7 +13,8 @@ ThreadTaskRunner::ThreadTaskRunner(
     uv::EventLoop eventLoop;
     {
       std::unique_lock lock(mtx);
-      this->m_wrappedTaskRunner = std::make_unique<EventLoopTaskRunner>(eventLoop.handle(), exceptionHandler);
+      this->m_wrappedTaskRunner = std::make_unique<EventLoopTaskRunner>(
+          name, eventLoop.handle(), exceptionHandler);
       cv.notify_one();
     }
     eventLoop.run();

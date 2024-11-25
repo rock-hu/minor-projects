@@ -25,7 +25,7 @@ class ImageComponentNapiBinder : public ViewComponentNapiBinder {
         }
 
         auto rawProps = props->rawProps;
-        auto loadingIndicatorSrc = rawProps['loadingIndicatorSource'];
+        auto loadingIndicatorSrc = rawProps["loadingIndicatorSource"];
 
         return propsObjBuilder.addProperty("uri", imageSource.uri)
             .addProperty("resizeMode", static_cast<int>(props->resizeMode))

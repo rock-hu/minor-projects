@@ -14,7 +14,7 @@
  */
 import {
     ArkAssignStmt, ArkClass, ArkFile, ArkInstanceInvokeExpr, ArkMethod, ArkStaticInvokeExpr,
-    Constant, FunctionType, Local, MethodSignature, Scene, Stmt, Value
+    Constant, DEFAULT_ARK_CLASS_NAME, FunctionType, Local, MethodSignature, Scene, Stmt, Value
 } from "@ArkAnalyzer/src";
 import { BaseChecker } from "../BaseChecker";
 import { CheckerStorage } from "../../object/CheckerStorage";
@@ -35,8 +35,8 @@ export default class TimezoneInterfaceCheck extends BaseChecker {
     private readonly description = 'Suggestion: Use I18n APIs correctly to obtain or set the time zone.';
     private readonly setTimeZoneSignature = '@ohosSdk/api/@ohos.i18n.d.ts: i18n.Calendar.setTimeZone(string)';
     private readonly thirdPartySignature: string[] = [
-        '@ohosSdk/api/@ohos.systemDateTime.d.ts: systemDateTime._DEFAULT_ARK_CLASS.setTimezone()',
-        '@moment/@hview/moment.d.ts: moment.Moment.utcOffset(number|string, boolean)'];
+        '@ohosSdk/api/@ohos.systemDateTime.d.ts: systemDateTime.' + DEFAULT_ARK_CLASS_NAME + '.setTimezone()',
+        '@moment/@hview/moment.d.ts: moment.Moment.utcOffset()'];
     check(scene: Scene, filePath: string, rule?: Rule): IssueReport[] {
         this.gSeverity = rule ? rule.alert : 3;
         let issueReport: IssueReport[] = [];
@@ -47,7 +47,7 @@ export default class TimezoneInterfaceCheck extends BaseChecker {
             for (let clazz of arkFile.getClasses()) {
                 this.classProcess(clazz, scene, issueReport);
             }
-            for (let namespace of arkFile.getNamespaces()) {
+            for (let namespace of arkFile.getAllNamespacesUnderThisFile()) {
                 for (let clazz of namespace.getClasses()) {
                     this.classProcess(clazz, scene, issueReport);
                 }
@@ -80,7 +80,7 @@ export default class TimezoneInterfaceCheck extends BaseChecker {
             const invokeSignature = invokeExpr.getMethodSignature();
             let invokeSignatureStr = invokeSignature.toString();
             if (busyMethods.has(invokeSignature) ||
-                invokeSignatureStr.includes('@_UnknownProjectName/_UnknowFileName')) {
+                invokeSignatureStr.includes('@_UnknownProjectName/_UnknownFileName')) {
                 continue;
             }
             let clazz = arkMethod.getDeclaringArkClass();
@@ -230,7 +230,7 @@ export default class TimezoneInterfaceCheck extends BaseChecker {
         }
         let originalPosition = stmt.getOriginPositionInfo();
         let lineNum = originalPosition.getLineNo();
-        let orgStmt = stmt.getCfg()?.getDeclaringMethod().getBody()?.getStmtToOriginalStmt().get(stmt);
+        let orgStmt = stmt.getOriginalText();
         let startColumn = -1;
         let endColumn = -1;
         if (orgStmt !== undefined) {

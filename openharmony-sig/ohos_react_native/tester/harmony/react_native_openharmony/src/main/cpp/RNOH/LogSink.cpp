@@ -12,13 +12,15 @@ std::string getThreadSymbol() {
   pthread_getname_np(pthread_self(), c_threadName, sizeof(c_threadName));
   auto threadName = std::string(c_threadName);
   if (threadName == "RNOH_JS") {
-    return "__█";
+    return "__█__";
   } else if (threadName == "RNOH_BACKGROUND") {
-    return "_█_";
+    return "_█___";
   } else if (threadName == "RNOH_CLEANUP") {
-    return "___█";
+    return "____█";
+  } else if (threadName == "WorkerThread") {
+    return "___█_";
   } else {
-    return "█__";
+    return "█____";
   }
 }
 

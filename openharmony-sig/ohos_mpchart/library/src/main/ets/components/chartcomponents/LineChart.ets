@@ -20,14 +20,19 @@ import { EventType } from '../listener/EventControl';
 @ComponentV2
 export default struct LineChart {
   @Param model: LineChartModel | null = null;
-  private setting: RenderingContextSettings = new RenderingContextSettings(true);
-  private context2D: CanvasRenderingContext2D = new CanvasRenderingContext2D(this.setting);
+  @Param antiAliasing: boolean = true;
+  private setting: RenderingContextSettings | null = null;
+  private context2D: CanvasRenderingContext2D | null = null;
   private highlightSetting: RenderingContextSettings = new RenderingContextSettings(true);
   private highlightContext2D: CanvasRenderingContext2D = new CanvasRenderingContext2D(this.highlightSetting);
   @Param customUiInfo: CustomUiInfo | null = null;
   // 默认长按显示自定义ui
   @Param customUiTriggerEvent: EventType = EventType.LongPress;
-  @Local isPinching: boolean = false;
+
+  aboutToAppear(): void {
+    this.setting = new RenderingContextSettings(this.antiAliasing);
+    this.context2D = new CanvasRenderingContext2D(this.setting);
+  }
 
   @Monitor('model')
   invalidate(){
@@ -73,7 +78,7 @@ export default struct LineChart {
       Stack({ alignContent: Alignment.TopStart }) {
         Canvas(this.context2D)
           .onReady(() => {
-            if (this.model) {
+            if (this.model && this.context2D) {
               this.model.setContext2D(this.context2D);
               this.model.onDraw(this.context2D);
             }
@@ -84,21 +89,13 @@ export default struct LineChart {
             }
           })
           .onTouch((event) => {
-            if (!this.isPinching) {
               this.model?.onTouchEvent(event);
-            }
           })
           .hitTestBehavior(this.model?.getTouchEnabled()? this.model?.getHitTestMode(): HitTestMode.None)
           .priorityGesture(GestureGroup(GestureMode.Exclusive,
             SwipeGesture()
               .onAction((event: GestureEvent) => {
                 if (event && this.model) {
-                  this.model.onSingleTapUp(false, event);
-                  if (this.customUiTriggerEvent === EventType.SingleTap &&
-                  this.model.eventControl.eventIsEnable(EventType.SingleTap) && this.model.getTouchEnabled()
-                  ) {
-                    this.calcCustomUiInfo(event)
-                  }
                   if (this.model.isDragDecelerationEnabled()) {
                     this.model.computeScroll(event);
                   }
@@ -153,25 +150,21 @@ export default struct LineChart {
               .onActionStart((event?: GestureEvent) => {
                 if (this.model && event) {
                   this.model.onPinch(false, 'Start', event);
-                  this.isPinching = true;
                 }
               })
               .onActionUpdate((event?: GestureEvent) => {
                 if (this.model && event) {
                   this.model.onPinch(false, 'Update', event);
-                  this.isPinching = true;
                 }
               })
               .onActionEnd((event?: GestureEvent) => {
                 if (this.model && event) {
                   this.model.onPinch(false, 'End', event);
-                  this.isPinching = false;
                 }
               })
               .onActionCancel((event?: GestureEvent) => {
                 if (this.model && event) {
                   this.model.onPinch(false, 'Cancel', event);
-                  this.isPinching = false;
                 }
               })
           ))

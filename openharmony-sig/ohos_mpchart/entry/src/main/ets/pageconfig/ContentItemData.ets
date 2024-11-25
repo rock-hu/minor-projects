@@ -42,6 +42,7 @@ export default class ContentItemData {
     ContentItemData.itemData.push(new ContentItem("Colorful", "Colorful line chart.", "pages/lineCharts/ColorfulPage"));
     ContentItemData.itemData.push(new ContentItem("Performance  ", "Render 30.000 data points smoothly.", "pages/lineCharts/PerformanceAxisPage"));
     ContentItemData.itemData.push(new ContentItem("Filled  ", "Colored area between two lines.", "pages/lineCharts/FilledAxisPage"));
+    ContentItemData.itemData.push(new ContentItem("SetAlphaPage  ", "Set Alpha", "pages/lineCharts/SetAlphaPage"));
     //Bar Charts
     ContentItemData.itemData.push(new ContentItem("Bar Charts"));
 

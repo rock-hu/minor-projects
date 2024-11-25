@@ -79,7 +79,7 @@ class RNInstance {
   virtual void postMessageToArkTS(
       const std::string& name,
       folly::dynamic const& payload) = 0;
-  virtual void callFunction(
+  virtual void callJSFunction(
       std::string&& module,
       std::string&& method,
       folly::dynamic&& params) = 0;
@@ -102,18 +102,32 @@ class RNInstanceInternal : public RNInstance,
   virtual void createSurface(
       facebook::react::Tag surfaceId,
       std::string const& moduleName) = 0;
+  virtual facebook::react::Size measureSurface(
+      facebook::react::Tag surfaceId,
+      float minWidth,
+      float minHeight,
+      float maxWidth,
+      float maxHeight,
+      float viewportOffsetX,
+      float viewportOffsetY,
+      float pixelRatio,
+      bool isRTL) = 0;
   virtual void updateSurfaceConstraints(
       facebook::react::Tag surfaceId,
-      float width,
-      float height,
+      float minWidth,
+      float minHeight,
+      float maxWidth,
+      float maxHeight,
       float viewportOffsetX,
       float viewportOffsetY,
       float pixelRatio,
       bool isRTL) = 0;
   virtual void startSurface(
       facebook::react::Tag surfaceId,
-      float width,
-      float height,
+      float minWidth,
+      float minHeight,
+      float maxWidth,
+      float maxHeight,
       float viewportOffsetX,
       float viewportOffsetY,
       float pixelRatio,
@@ -144,6 +158,9 @@ class RNInstanceInternal : public RNInstance,
       folly::dynamic const& payload) = 0;
   virtual void setBundlePath(std::string const& path) = 0;
   virtual std::string getBundlePath() = 0;
+  virtual void registerFont(
+      std::string const& fontFamily,
+      std::string const& fontFilePath) = 0;
 };
 
 } // namespace rnoh

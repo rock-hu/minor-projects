@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-import { Decorator } from '../base/Decorator';
 import { ArkExport, ExportInfo, ExportType } from './ArkExport';
 import { ArkClass } from './ArkClass';
 import { ArkFile } from './ArkFile';
@@ -21,11 +20,13 @@ import { ArkMethod } from './ArkMethod';
 import { ClassSignature, NamespaceSignature } from './ArkSignature';
 import { ALL } from "../common/TSConst";
 import { getColNo, getLineNo, LineCol, setCol, setLine } from '../base/Position';
+import { ArkBaseModel } from './ArkBaseModel';
+import { ArkError } from '../common/ArkError';
 
 /**
  * @category core/model
  */
-export class ArkNamespace implements ArkExport {
+export class ArkNamespace extends ArkBaseModel implements ArkExport {
     private code: string = ''
     private lineCol: LineCol = 0;
 
@@ -34,7 +35,6 @@ export class ArkNamespace implements ArkExport {
 
     private declaringInstance!: ArkFile | ArkNamespace;
 
-    private modifiers: Set<string | Decorator> = new Set<string | Decorator>();
     private exportInfos: Map<string, ExportInfo> = new Map<string, ExportInfo>();
 
     private defaultClass!: ArkClass;
@@ -48,6 +48,7 @@ export class ArkNamespace implements ArkExport {
     private anonymousClassNumber: number = 0;
 
     constructor() {
+        super();
     }
 
     public addNamespace(namespace: ArkNamespace) {
@@ -131,18 +132,6 @@ export class ArkNamespace implements ArkExport {
         this.declaringArkNamespace = declaringArkNamespace;
     }
 
-    public getModifiers() {
-        return this.modifiers;
-    }
-
-    public addModifier(name: string | Decorator) {
-        this.modifiers.add(name);
-    }
-
-    public containsModifier(name: string) {
-        return this.modifiers.has(name);
-    }
-
     public getClass(classSignature: ClassSignature): ArkClass | null {
         const className = classSignature.getClassName();
         return this.getClassWithName(className);
@@ -158,10 +147,6 @@ export class ArkNamespace implements ArkExport {
 
     public addArkClass(arkClass: ArkClass) {
         this.classes.set(arkClass.getName(), arkClass);
-    }
-
-    public isExported(): boolean {
-        return this.containsModifier('ExportKeyword');
     }
 
     public getExportInfos(): ExportInfo[] {
@@ -219,18 +204,28 @@ export class ArkNamespace implements ArkExport {
         return namespaces;
     }
 
-    public getDecorators(): Decorator[] {
-        return Array.from(this.modifiers).filter((item) => {
-            return item instanceof Decorator;
-        }) as Decorator[];
-    }
-
     public getAnonymousClassNumber() {
         return this.anonymousClassNumber++;
     }
 
     getExportType(): ExportType {
         return ExportType.NAME_SPACE;
+    }
+
+    public removeArkClass(arkClass: ArkClass): boolean {
+        let rtn = this.classes.delete(arkClass.getName());
+        rtn &&= this.getDeclaringArkFile().getScene().removeClass(arkClass);
+        return rtn;
+    }
+
+    public removeNamespace(namespace: ArkNamespace): boolean {
+        let rtn = this.namespaces.delete(namespace.getName());
+        rtn &&= this.getDeclaringArkFile().getScene().removeNamespace(namespace);
+        return rtn;
+    }
+
+    public validate(): ArkError {
+        return this.validateFields(['declaringArkFile', 'declaringInstance', 'namespaceSignature', 'defaultClass']);
     }
 }
 

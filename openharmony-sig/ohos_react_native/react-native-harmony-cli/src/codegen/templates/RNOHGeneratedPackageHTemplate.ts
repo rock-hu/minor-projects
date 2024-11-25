@@ -9,6 +9,7 @@ const TEMPLATE = `
  *
  * @generatorVersion: 1
  */
+
 #pragma once
 
 #include "RNOH/Package.h"

@@ -209,6 +209,9 @@ export class DefaultHttpClient implements HttpClient {
           (err, data) => {
             responseCode = data;
             if (err) {
+              if (err.code === 201) {
+                this.logger?.clone('requestInStream').error('Permission denied. Check if \'ohos.permission.INTERNET\' has been granted');
+              }
               cleanup();
               reject({
                 error: err,

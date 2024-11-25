@@ -24,14 +24,17 @@ BlobTurboModule::BlobTurboModule(
  */
 void BlobTurboModule::release(std::string blobId) {
   m_ctx.taskExecutor->runTask(
-      TaskThread::MAIN, [ctx = m_ctx, name = name_, blobId]() {
+      m_ctx.turboModuleThread, [ctx = m_ctx, name = name_, blobId]() {
         std::string methodName = "release";
         try {
-          ArkJS arkJs(ctx.env);
+          ArkJS arkJS(ctx.env);
+          if (!ctx.arkTSTurboModuleInstanceRef) {
+            return;
+          }
           std::vector<napi_value> napiArgs;
-          napiArgs.push_back(arkJs.createString(blobId));
+          napiArgs.push_back(arkJS.createString(blobId));
           auto napiTurboModuleObject =
-              arkJs.getObject(ctx.arkTSTurboModuleInstanceRef);
+              arkJS.getObject(ctx.arkTSTurboModuleInstanceRef);
           napiTurboModuleObject.call(methodName, napiArgs);
         } catch (const std::exception& e) {
           LOG(ERROR) << "Exception thrown while calling " << name

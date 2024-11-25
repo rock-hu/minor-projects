@@ -1,9 +1,9 @@
 #pragma once
 
 #include <ReactCommon/TurboModule.h>
+#include <glog/logging.h>
 #include <memory>
-
-#include "glog/logging.h"
+#include "RNOH/ArkTSMessageHub.h"
 
 namespace rnoh {
 
@@ -14,6 +14,7 @@ class TurboModule : public facebook::react::TurboModule {
   struct Context {
     std::shared_ptr<facebook::react::CallInvoker> jsInvoker;
     std::weak_ptr<RNInstance> instance;
+    std::shared_ptr<ArkTSMessageHub> arkTSMessageHub;
   };
 
   using Shared = std::shared_ptr<TurboModule>;

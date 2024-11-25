@@ -23,6 +23,7 @@ import { PrinterBuilder } from '../../save/PrinterBuilder';
 import { BaseEdge, BaseNode, BaseGraph, NodeID } from './BaseGraph';
 import { CGStat } from '../common/Statistics';
 import { ContextID } from '../pointerAnalysis/Context';
+import { UNKNOWN_FILE_NAME } from '../../core/common/Const';
 
 export type Method = MethodSignature;
 export type CallSiteID = number;
@@ -78,7 +79,6 @@ export class CallGraphEdge extends BaseEdge {
 
     constructor(src: CallGraphNode, dst: CallGraphNode) {
         super(src, dst, 0);
-        //this.callSiteID = csID;
     }
 
     public addDirectCallSite(stmt: Stmt) {
@@ -101,11 +101,11 @@ export class CallGraphEdge extends BaseEdge {
             return ''
         }
 
-        if (indirectCallNums != 0 && directCallNums == 0) {
+        if (indirectCallNums !== 0 && directCallNums === 0) {
             return "color=red";
-        } else if (specialCallNums != 0) {
+        } else if (specialCallNums !== 0) {
             return "color=yellow";
-        } else if (indirectCallNums == 0 && directCallNums != 0) {
+        } else if (indirectCallNums === 0 && directCallNums !== 0) {
             return "color=black";
         } else {
             return "color=black";
@@ -115,7 +115,7 @@ export class CallGraphEdge extends BaseEdge {
 
 export class CallGraphNode extends BaseNode {
     private method: Method;
-    private isSdkMethod: boolean = false;
+    private ifSdkMethod: boolean = false;
     private isBlank: boolean = false;
 
     constructor(id: number, m: Method, k: CallGraphNodeKind = CallGraphNodeKind.real) {
@@ -128,11 +128,11 @@ export class CallGraphNode extends BaseNode {
     }
 
     public setSdkMethod(v: boolean): void {
-        this.isSdkMethod = v;
+        this.ifSdkMethod = v;
     }
 
-    public getIsSdkMethod(): boolean {
-        return this.isSdkMethod
+    public isSdkMethod(): boolean {
+        return this.ifSdkMethod
     }
 
     public get isBlankMethod(): boolean {
@@ -191,8 +191,8 @@ export class CallGraph extends BaseGraph {
         let id: NodeID = this.nodeNum;
         let cgNode = new CallGraphNode(id, method, kind);
         // check if sdk method
-        cgNode.setSdkMethod(this.scene.getSdkArkFilesMap().has(
-            method.getDeclaringClassSignature().getDeclaringFileSignature().toString()
+        cgNode.setSdkMethod(this.scene.hasSdkFile(
+            method.getDeclaringClassSignature().getDeclaringFileSignature()
         ));
 
         let arkMethod = this.scene.getMethod(method);
@@ -220,7 +220,7 @@ export class CallGraph extends BaseGraph {
             throw new Error();
         }
         let n = this.methodToCGNodeMap.get(method.toString());
-        if (n == undefined) {
+        if (n === undefined) {
             // The method can't be found
             // means the method has no implementation, or base type is unclear to find it
             // Create a virtual CG Node
@@ -252,7 +252,7 @@ export class CallGraph extends BaseGraph {
 
         // TODO: check if edge exists 
         let callEdge = this.getCallEdgeByPair(callerNode.getID(), calleeNode.getID());
-        if (callEdge == undefined) {
+        if (callEdge === undefined) {
             callEdge = new CallGraphEdge(callerNode, calleeNode);
             callEdge.getSrcNode().addOutgoingEdge(callEdge);
             callEdge.getDstNode().addIncomingEdge(callEdge);
@@ -294,7 +294,7 @@ export class CallGraph extends BaseGraph {
         let calleeNode = this.getNode(calleeID) as CallGraphNode;
 
         let callEdge = this.getCallEdgeByPair(callerNode.getID(), calleeNode.getID());
-        if (callEdge == undefined) {
+        if (callEdge === undefined) {
             callEdge = new CallGraphEdge(callerNode, calleeNode);
             callEdge.getSrcNode().addOutgoingEdge(callEdge);
             callEdge.getDstNode().addIncomingEdge(callEdge);
@@ -339,7 +339,7 @@ export class CallGraph extends BaseGraph {
 
     public getMethodByFuncID(id: FuncID): Method | null {
         let node = this.getNode(id);
-        if (node != undefined) {
+        if (node !== undefined) {
             return (node as CallGraphNode).getMethod();
         }
         //return undefined;
@@ -408,5 +408,17 @@ export class CallGraph extends BaseGraph {
 
     public getDummyMainFuncID(): FuncID | undefined {
         return this.dummyMainMethodID;
+    }
+
+    public isUnknownMethod(funcID: FuncID): boolean {
+        let method = this.getMethodByFuncID(funcID);
+
+        if (method) {
+            if (!(method.getDeclaringClassSignature().getDeclaringFileSignature().getFileName() === UNKNOWN_FILE_NAME)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

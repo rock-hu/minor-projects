@@ -1,7 +1,7 @@
 import http from '@ohos.net.http'
 import util from "@ohos.util";
 
-import { TurboModule } from "../../../RNOH/TurboModule";
+import { AnyThreadTurboModule, WorkerTurboModule } from "../../../RNOH/TurboModule";
 import { NetworkEventsDispatcher } from './NetworkEventDispatcher';
 import ArrayList from '@ohos.util.ArrayList';
 import { BlobMetadata } from '../Blob';
@@ -64,9 +64,11 @@ export type ResponseBodyHandler = {
  * It also exposes handlers which can be used to customize how requests are handled.
  */
 
-export class NetworkingTurboModule extends TurboModule {
+export class NetworkingTurboModule extends AnyThreadTurboModule {
   public static readonly NAME = 'Networking';
-  private networkEventDispatcher: NetworkEventsDispatcher = new NetworkEventsDispatcher(this.ctx.rnInstance)
+  private networkEventDispatcher: NetworkEventsDispatcher = new NetworkEventsDispatcher((eventName, params) => {
+    this.ctx.rnInstance.emitDeviceEvent(eventName, params)
+  })
   private base64Helper: util.Base64Helper = new util.Base64Helper();
   private uriHandlers: ArrayList<UriHandler> = new ArrayList();
   private requestCancellersById: Map<number, CancelRequestCallback> = new Map();
@@ -154,7 +156,7 @@ export class NetworkingTurboModule extends TurboModule {
       const byteArray = textEncoder.encodeInto(base64);
       return byteArray.buffer;
     }
-    if (!Object.keys(data).length) {
+    if (Object.keys(data).length === 0) {
       return undefined;
     }
     return data;
@@ -175,7 +177,7 @@ export class NetworkingTurboModule extends TurboModule {
   }
 
   async clearCookies(callback: (didDeleteAnyCookies: boolean) => void) {
-    const didDeleteAnyCookies = await this.ctx.rnInstance.httpClient.clearCookies();
+    const didDeleteAnyCookies = await this.ctx.httpClient.clearCookies();
     callback(didDeleteAnyCookies);
   }
 
@@ -194,16 +196,25 @@ export class NetworkingTurboModule extends TurboModule {
     }
     return str.replace(/[\u4e00-\u9fa5]/g, (char) => encodeURIComponent(char));
   }
-  
 
-  async sendRequest(query: Query, callback: (requestId: number) => void) {
-    const httpClient = this.ctx.rnInstance.httpClient;
+  async sendRequest(query: Query, onRequestRegistered: (requestId: number) => void) {
+    const httpClient = this.ctx.httpClient;
     const requestId = this.createId();
+    onRequestRegistered(requestId);
     for (const handler of this.uriHandlers) {
       if (handler.supports(query)) {
-        const response = handler.fetch(query);
-        this.networkEventDispatcher.dispatchDidReceiveNetworkData(requestId, response);
-        this.networkEventDispatcher.dispatchDidCompleteNetworkResponse(requestId);
+        try {
+          const response = await handler.fetch(query);
+          this.networkEventDispatcher.dispatchDidReceiveNetworkResponse(requestId, 200, {}, query.url)
+          this.networkEventDispatcher.dispatchDidReceiveNetworkData(requestId, response);
+          this.networkEventDispatcher.dispatchDidCompleteNetworkResponse(requestId);
+        } catch (error) {
+          this.networkEventDispatcher.dispatchDidReceiveNetworkResponse(requestId, 400, {},
+            query.url)
+          this.networkEventDispatcher.dispatchDidCompleteNetworkResponseWithError(requestId,
+            error.toString(), false);
+        }
+
         return;
       }
     }
@@ -257,7 +268,6 @@ export class NetworkingTurboModule extends TurboModule {
         sendProgress.totalLength)
     };
 
-
     const { cancel, promise } = httpClient.sendRequest(this.getEncodedURI(query.url),
       {
         method: this.REQUEST_METHOD_BY_NAME[query.method],
@@ -299,7 +309,6 @@ export class NetworkingTurboModule extends TurboModule {
     });
 
 
-    callback(requestId)
   }
 
   abortRequest(requestId: number) {

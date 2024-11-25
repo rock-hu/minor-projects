@@ -1,6 +1,7 @@
 #ifndef native_ArkJS_H
 #define native_ArkJS_H
 
+#include <folly/Function.h>
 #include <folly/dynamic.h>
 #include <jsi/jsi.h>
 #include <react/renderer/graphics/Color.h>
@@ -18,7 +19,6 @@
 
 class RNOHNapiObjectBuilder;
 class RNOHNapiObject;
-class NapiRef;
 
 class ArkJS {
  public:
@@ -58,8 +58,6 @@ class ArkJS {
 
   void deleteReference(napi_ref reference);
 
-  NapiRef createNapiRef(napi_value value);
-
   napi_value createSingleUseCallback(
       std::function<void(std::vector<folly::dynamic>)>&& callback);
 
@@ -72,9 +70,10 @@ class ArkJS {
 
   napi_value createArray(std::vector<napi_value>);
 
-  std::vector<napi_value> createFromDynamics(std::vector<folly::dynamic>);
+  std::vector<napi_value> createFromDynamics(
+      std::vector<folly::dynamic> const&);
 
-  napi_value createFromDynamic(folly::dynamic);
+  napi_value createFromDynamic(folly::dynamic const&);
 
   napi_value createFromException(std::exception const&);
 
@@ -96,8 +95,6 @@ class ArkJS {
 
   napi_value getReferenceValue(napi_ref ref);
 
-  napi_value getReferenceValue(NapiRef const& ref);
-
   std::vector<napi_value> getCallbackArgs(napi_callback_info info);
 
   std::vector<napi_value> getCallbackArgs(
@@ -106,7 +103,7 @@ class ArkJS {
 
   RNOHNapiObject getObject(napi_value object);
 
-  RNOHNapiObject getObject(napi_ref object);
+  RNOHNapiObject getObject(napi_ref objectRef);
 
   napi_value getObjectProperty(napi_value object, std::string const& key);
 
@@ -158,16 +155,16 @@ class RNOHNapiObject {
   napi_value call(
       std::string const& key,
       std::array<napi_value, args_count> args) {
-    return m_arkJs.call(this->getProperty(key), args, m_object);
+    return m_arkJS.call(this->getProperty(key), args, m_object);
   }
 
   napi_value call(std::string const& key, std::vector<napi_value> args) {
-    return m_arkJs.call(this->getProperty(key), args, m_object);
+    return m_arkJS.call(this->getProperty(key), args, m_object);
   }
 
   napi_value
   call(std::string const& key, const napi_value* args, int argsCount) {
-    return m_arkJs.call(this->getProperty(key), args, argsCount, m_object);
+    return m_arkJS.call(this->getProperty(key), args, argsCount, m_object);
   }
 
   napi_value getProperty(std::string const& key);
@@ -177,7 +174,7 @@ class RNOHNapiObject {
   std::vector<std::pair<napi_value, napi_value>> getKeyValuePairs();
 
  private:
-  ArkJS m_arkJs;
+  ArkJS m_arkJS;
   napi_value m_object;
 
   friend class RNOHNapiObjectBuilder;
@@ -220,7 +217,7 @@ class RNOHNapiObjectBuilder {
   napi_value build();
 
  private:
-  ArkJS m_arkJs;
+  ArkJS m_arkJS;
   napi_env m_env;
   napi_value m_object;
   std::vector<std::pair<std::string, napi_value>> m_properties;
@@ -234,45 +231,8 @@ class Promise {
   Promise& catch_(std::function<void(std::vector<folly::dynamic>)>&& callback);
 
  private:
-  ArkJS m_arkJs;
+  ArkJS m_arkJS;
   napi_value m_value;
-};
-
-class NapiRef final {
- public:
-  NapiRef() = default;
-
-  // rule of five constructors
-  NapiRef(NapiRef const&) = default;
-  NapiRef& operator=(NapiRef const&) = default;
-
-  NapiRef(NapiRef&&) = default;
-  NapiRef& operator=(NapiRef&&) = default;
-
-  ~NapiRef() = default;
-
-  operator bool() const {
-    return m_ref != nullptr;
-  }
-
- private:
-  class Deleter {
-   public:
-    void operator()(napi_ref ref) const {
-      m_threadGuard.assertThread();
-      napi_delete_reference(m_env, ref);
-    }
-
-    napi_env m_env;
-    rnoh::ThreadGuard m_threadGuard;
-  };
-
-  NapiRef(napi_env env, napi_ref ref) : m_env(env), m_ref(ref, Deleter{env}) {}
-
-  napi_env m_env{};
-  std::shared_ptr<napi_ref__> m_ref{nullptr};
-
-  friend class ArkJS;
 };
 
 #endif // native_ArkJS_H

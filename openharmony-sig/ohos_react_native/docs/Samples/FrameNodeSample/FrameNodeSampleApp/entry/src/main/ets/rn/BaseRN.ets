@@ -23,9 +23,14 @@ export struct BaseRN {
   moduleName: string = '';
   initProps: Record<string, string> = {};
   bundlePath: string = '';
-  @State isBundleReady: boolean = true;
+  @State isBundleReady: boolean = false;
 
   aboutToAppear() {
+    LoadManager.loadBundle(this.rnInstance, this.bundlePath, this.useBundleCache).then(() => {
+      this.isBundleReady = true;
+    }).catch((err: Error) => {
+      console.log('BaseRN.ets aboutToAppear 加载失败')
+    })
   }
 
   build() {

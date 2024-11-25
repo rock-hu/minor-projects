@@ -1,4 +1,4 @@
-import { Corners, Descriptor, Edges, RNComponentContext, RNOHContext, TransformMatrix } from '../../../RNOH';
+import { Corners, Descriptor, Edges, RNComponentContext, RNOHContext, RNOHError, TransformMatrix } from '../../../RNOH';
 import { ViewBaseProps, ViewRawProps } from './types';
 import { ViewDescriptorWrapper, ViewDescriptorWrapperBase } from './ViewDescriptorWrapper';
 import { RNViewManager } from '../../componentManagers';
@@ -76,12 +76,13 @@ export class RNViewBaseAttributeModifier extends BaseAttributeModifier<ViewDescr
       right: "#FF000000",
       bottom: "#FF000000"
     })
-    this.maybeAssignAttribute<Corners<number | undefined>>((dw => dw.borderRadius), (val) => instance.borderRadius(val), {
-      topLeft: undefined,
-      topRight: undefined,
-      bottomLeft: undefined,
-      bottomRight: undefined
-    })
+    this.maybeAssignAttribute<Corners<number | undefined>>((dw => dw.borderRadius), (val) => instance.borderRadius(val),
+      {
+        topLeft: undefined,
+        topRight: undefined,
+        bottomLeft: undefined,
+        bottomRight: undefined
+      })
     this.maybeAssignAttribute((dw => dw.borderStyle), (val) => {
       let borderStyle: BorderStyle = BorderStyle.Solid
       switch (val) {
@@ -99,7 +100,9 @@ export class RNViewBaseAttributeModifier extends BaseAttributeModifier<ViewDescr
     }, "solid")
     this.maybeAssignAttribute(dw => dw.opacity, val => instance.opacity(val), 1)
     this.maybeAssignAttribute(dw => dw.rawTransformationMatrix, val => {
-      if (!val) return;
+      if (!val) {
+        return;
+      }
       const rawTransformationMatrix = val.slice()
       rawTransformationMatrix[12] = vp2px(rawTransformationMatrix[12]);
       rawTransformationMatrix[13] = vp2px(rawTransformationMatrix[13]);
@@ -114,7 +117,8 @@ export class RNViewBaseAttributeModifier extends BaseAttributeModifier<ViewDescr
     this.maybeAssignAttribute(dw => dw.accessibilityGroup, val => instance.accessibilityGroup(val), false)
     this.maybeAssignAttribute(dw => dw.accessibilityText, val => instance.accessibilityText(val), undefined)
     this.maybeAssignAttribute(dw => dw.accessibilityLevel, val => instance.accessibilityLevel(val), "auto")
-    this.maybeAssignAttribute(dw => dw.accessibilityDescription, val => instance.accessibilityDescription(val), undefined)
+    this.maybeAssignAttribute(dw => dw.accessibilityDescription, val => instance.accessibilityDescription(val),
+      undefined)
 
   }
 }
@@ -137,12 +141,11 @@ export struct RNViewBase {
     const descriptor = this.ctx.descriptorRegistry.getDescriptor<ViewBaseDescriptor>(this.tag)
     if (!this.componentManager) {
       this.componentManager = new RNViewManager(this.tag, this.ctx)
-      this.unregisterComponentManager = this.ctx.componentManagerRegistry.registerComponentManager(this.tag, this.componentManager)
+      this.unregisterComponentManager =
+        this.ctx.componentManagerRegistry.registerComponentManager(this.tag, this.componentManager)
     }
     this.onDescriptorChange(descriptor)
     this.maybeLogStartUpTime()
-    const parentTag = descriptor.parentTag;
-    this.componentManager.setParentTag(parentTag);
     this.unregisterDescriptorChangesListener = this.ctx.descriptorRegistry.subscribeToDescriptorChanges(this.tag,
       (newDescriptor) => {
         this.onDescriptorChange(newDescriptor)
@@ -151,24 +154,37 @@ export struct RNViewBase {
   }
 
   private onDescriptorChange(descriptor: ViewBaseDescriptor) {
-    if(!descriptor) {
-      this.ctx!.logger.fatal(`RNViewBase with tag ${this.tag} got undefined descriptor.`);
+    if (!descriptor) {
+      this.ctx.logger.error(new RNOHError({
+        whatHappened: `Received undefined descriptor. (tag = ${this.tag})`,
+        howCanItBeFixed: []
+      }))
+      return;
     }
-
-    let descriptorWrapper = this.ctx.descriptorRegistry.findDescriptorWrapperByTag<ViewDescriptorWrapperBase>(descriptor?.tag)
+    let descriptorWrapper =
+      this.ctx.descriptorRegistry.findDescriptorWrapperByTag<ViewDescriptorWrapperBase>(descriptor.tag)
 
     if (descriptor && this.isWrappingPullToRefresh(descriptor)) {
       let parentTag = descriptor.parentTag ?? this.tag;
       let parentDescriptor = this.ctx.descriptorRegistry.getDescriptor(parentTag);
 
-      // Set layout metrics of PullToRefeshView to current RNView
+      // Set layout metrics of PullToRefreshView to current RNView
       descriptor.layoutMetrics = parentDescriptor.layoutMetrics
     }
 
     if (!descriptorWrapper || !(descriptorWrapper instanceof ViewDescriptorWrapperBase)) {
       descriptorWrapper = new ViewDescriptorWrapperBase(descriptor)
     }
-
+    if (!descriptorWrapper) {
+      this.ctx.logger.error(new RNOHError({
+        whatHappened: `Couldn't get or create DescriptorWrapper. (tag = ${this.tag})`,
+        howCanItBeFixed: []
+      }))
+      return;
+    }
+    if (descriptorWrapper.parentTag) {
+      this.componentManager.setParentTag(descriptorWrapper.parentTag);
+    }
     if (this.ctx instanceof RNComponentContext) {
       this.rnViewAttributeModifier = new RNViewBaseAttributeModifier(descriptorWrapper, this.ctx)
     }

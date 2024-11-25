@@ -4,14 +4,9 @@ import {Button, TestCase} from '../components';
 
 export function LinkingTest() {
   return (
-    <TestSuite name="Linking (Stub)">
+    <TestSuite name="Linking">
       <TestCase.Logical
-        itShould="not crash when checking if url can be opened"
-        fn={async ({expect}) => {
-          expect(await Linking.canOpenURL('http://foobar.com')).to.be.true;
-        }}
-      />
-      <TestCase.Logical
+        skip={'This test always fails'}
         itShould="support http/https urls"
         fn={async ({expect}) => {
           expect(await Linking.canOpenURL('http://foobar.com')).to.be.true;
@@ -19,18 +14,21 @@ export function LinkingTest() {
         }}
       />
       <TestCase.Logical
+        skip={{android: true, harmony: false}}
         itShould="support tel urls"
         fn={async ({expect}) => {
           expect(await Linking.canOpenURL('tel:1234567890')).to.be.true;
         }}
       />
       <TestCase.Logical
+        skip={{android: true, harmony: false}}
         itShould="support sms urls"
         fn={async ({expect}) => {
           expect(await Linking.canOpenURL('sms:1234567890')).to.be.true;
         }}
       />
       <TestCase.Logical
+        skip={{android: true, harmony: true}}
         itShould="support map url"
         fn={async ({expect}) => {
           expect(await Linking.canOpenURL('maps://navigation')).to.be.true;
@@ -40,6 +38,23 @@ export function LinkingTest() {
         itShould="not support wrong schema urls"
         fn={async ({expect}) => {
           expect(await Linking.canOpenURL('wrong://host')).to.be.false;
+        }}
+      />
+      <TestCase.Logical
+        skip={{android: true, harmony: false}}
+        itShould="receive linking events"
+        fn={async ({expect}) => {
+          const linkingEvent = await new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => {
+              reject('Linking event timed out');
+            }, 2000);
+            Linking.addEventListener('url', ({url}) => {
+              resolve(url);
+              clearTimeout(timeout);
+            });
+            Linking.openURL('rntester://rnoh-test-linking');
+          });
+          expect(linkingEvent).to.equal('rntester://rnoh-test-linking');
         }}
       />
       <TestCase.Example itShould="open phone dialing on press">

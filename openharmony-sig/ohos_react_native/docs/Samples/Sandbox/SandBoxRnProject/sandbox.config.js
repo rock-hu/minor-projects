@@ -1,18 +1,21 @@
 const {mergeConfig, getDefaultConfig} = require('@react-native/metro-config');
-const {createHarmonyMetroConfig} = require('react-native-harmony/metro.config');
-const path = require('path');
-const projectRootPath = path.join(__dirname);
-const moduleId = require('./build/multibundle/moduleId');
+const {createHarmonyMetroConfig} = require('@react-native-oh/react-native-harmony/metro.config');
 
 const config = {
-    serializer: {
-        createModuleIdFactory: moduleId.createModuleIdFactoryWrap(
-            projectRootPath,
-            'Sandbox',
-        ),
-    },
+  transformer: {
+    getTransformOptions: async () => ({
+      transform: {
+        experimentalImportSupport: false,
+        inlineRequires: true,
+      },
+    }),
+  },
 };
 
-module.exports = mergeConfig(getDefaultConfig(__dirname), createHarmonyMetroConfig({
-    reactNativeHarmonyPackageName: 'react-native-harmony',
-}), config);
+module.exports = mergeConfig(
+  getDefaultConfig(__dirname),
+  createHarmonyMetroConfig({
+    reactNativeHarmonyPackageName: '@react-native-oh/react-native-harmony',
+  }),
+  config,
+);

@@ -6,7 +6,7 @@ export function ErrorHandlingTest() {
   return (
     <TestSuite name="ErrorHandling">
       <ErrorBoxTestCase
-        itShould="display error box with 'ERROR_MESSAGE' on the red background and a native stack of that error"
+        itShould="display error box with 'ERROR_MESSAGE' on the red background, a native stack of that error and '(rnInstanceName=app_name, rnInstanceId=0)' in the details"
         errorData={{whatHappened: 'ERROR_MESSAGE', howCanItBeFixed: []}}
       />
       <ErrorBoxTestCase

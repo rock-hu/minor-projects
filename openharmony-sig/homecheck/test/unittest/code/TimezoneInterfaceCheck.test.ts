@@ -29,33 +29,33 @@ beforeAll(() => {
     issueReports = new TimezoneInterfaceCheck().check(myScene, '');
 })
 
-describe('timezoneInterfaceTest', () => {
-    test('timezoneInterfaceTest_001', () => {
+describe('TimezoneInterfaceCheckTest', () => {
+    test('TimezoneInterfaceCheckTest_001', () => {
         const detectFile: string = path.join(realPath, 'ets', 'TimezoneNoReport1.ets');
         let detectFileReports = issueReports.filter((issueReport) => issueReport.filePath === detectFile);
         assert.equal(detectFileReports.length, 0, 'The number of reported line should equal 0.');
     })
 
-    test('timezoneInterfaceTest_002', () => {
+    test('TimezoneInterfaceCheckTest_002', () => {
         const detectFile: string = path.join(realPath, 'ets', 'TimezoneNoReport2.ets');
         let detectFileReports = issueReports.filter((issueReport) => issueReport.filePath === detectFile);
         assert.equal(detectFileReports.length, 0, 'The number of reported line should equal 0.');
     })
 
-    test('timezoneInterfaceTest_003', () => {
+    test('TimezoneInterfaceCheckTest_003', () => {
         const detectFile: string = path.join(realPath, 'ets', 'TimezoneNoReport3.ets');
         let detectFileReports = issueReports.filter((issueReport) => issueReport.filePath === detectFile);
         assert.equal(detectFileReports.length, 0, 'The number of reported line should equal 0.');
     })
 
-    test('timezoneInterfaceTest_004', () => {
+    test('TimezoneInterfaceCheckTest_004', () => {
         const detectFile: string = path.join(realPath, 'ets', 'TimezoneReport1.ets');
         let detectFileReports = issueReports.filter((issueReport) => (issueReport.filePath === detectFile)
         && issueReport.defect.fixKey.includes('21%15%25'));
         expect(detectFileReports.length).toBe(1);
     })
 
-    test('timezoneInterfaceTest_005', () => {
+    test('TimezoneInterfaceCheckTest_005', () => {
         const detectFile: string = path.join(realPath, 'ets', 'TimezoneReport2.ets');
         let expectReportList = ['18%10%18', '19%10%18', '20%10%18', '21%10%18'];
         let detectFileReports = issueReports.filter((issueReport) => issueReport.filePath === detectFile);

@@ -41,7 +41,7 @@ std::string ImageComponentInstance::FindLocalCacheByUri(std::string const& uri) 
     return uri;
   }
 
-  auto cache = arkTsTurboModule->callSync("getCacheFilePath", {uri});
+  auto cache = arkTsTurboModule->callSync("getPrefetchResult", {uri});
   if (!cache.isString()) {
     return uri;
   }

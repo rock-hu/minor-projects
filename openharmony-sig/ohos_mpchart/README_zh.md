@@ -2265,7 +2265,7 @@ WaterfallChart({ model: this.model })
    ```
 
 ## 接口说明
-**一、ChartModel**
+### **一、ChartModel**
 
 所有图表配置构建类的基类。
 
@@ -2690,7 +2690,7 @@ public getHitTestMode(): HitTestMode
 |-------| ----------- |
 | HitTestMode | 触摸测试类型 |
 
-**二、BarLineChartBaseModel**
+### **二、BarLineChartBaseModel**
 
 柱状图基础类
 
@@ -2911,7 +2911,7 @@ public getSwipeEnabled(): boolean;
 |---------|-----------|
 | boolean | 手势滑动响应能力标识。 |
 
-**三、ComponentBase**
+### **三、ComponentBase**
 
 图表部件基础类。
 
@@ -3022,7 +3022,7 @@ public getYOffset(): number;
 | ------ | --------------------------------- |
 | number | 获取Y轴距离图表内容区域的Offset。 |
 
-**四、AxisBase**
+### **四、AxisBase**
 
 坐标轴基类。
 
@@ -3147,7 +3147,7 @@ public setValueFormatter(formatter: IAxisValueFormatter): void ;
 | --------- | ------------------- | ---- | ---------------------- |
 | formatter | IAxisValueFormatter | 是   | 设置数据的格式转换器。 |
 
-**五、XAxis**
+### **五、XAxis**
 
 X轴对象。
 
@@ -3327,8 +3327,7 @@ public isDrawCustomLabels(): boolean
 
 参数：无
 
-
-**六、YAxis**
+### **六、YAxis**
 
 Y轴对象。
 
@@ -3558,7 +3557,8 @@ export interface DashPathEffectConfig {
 }
 ```
 
-**六、自定义MarkerView传入**
+### **七、自定义MarkerView传入**
+
 ```typescript
 
 @State customUiInfo: CustomUiInfo = new CustomUiInfo(90, 50);
@@ -3595,7 +3595,7 @@ BarChart({ model: this.model,
    customUiInfo: this.customUiInfo,
 })
 ```
-**七、WaterfallDataSet**
+### **八、WaterfallDataSet**
 
 瀑布图数据类
 
@@ -3628,7 +3628,7 @@ public getDotsColors(): Array<string | number> {
 |-----------------------------| --------------------------- |
 | Array<string &#124; number> | 返回包含所有高亮点颜色的数组。 |
 
-**八、ChartData**
+### **九、ChartData**
 
 图表数据类
 
@@ -3661,9 +3661,15 @@ public isHighlightByXDistance(): boolean
 |---------|--------|
 | boolean | 是否仅通过X轴距离来判断是否高亮点的布尔值 |
 
-**九、BarLineScatterCandleBubbleDataSet**
+### **十、BarLineScatterCandleBubbleDataSet**
 
 Bar,Line,Scatter,Candle,Bubble五种图表数据的抽象基类
+
+| 方法名            | 描述                           |
+| ----------------- | ------------------------------ |
+| setHighLightColor | 设置用于绘制高亮指示器的颜色。 |
+| getHighLightColor | 获取用于绘制高亮指示器的颜色。 |
+| copyTo            | 复制数据到指定的dataSet。      |
 
 **1.setHighLightColor**
 
@@ -3693,7 +3699,7 @@ public getHighLightColor(): number;
 
 protected copyTo(barLineScatterCandleBubbleDataSet: BarLineScatterCandleBubbleDataSet<T>): void
 
-复制数据到指定的dataSet
+复制数据到指定的dataSet。
 
 参数：
 
@@ -3701,7 +3707,22 @@ protected copyTo(barLineScatterCandleBubbleDataSet: BarLineScatterCandleBubbleDa
 | --------------------------------- | ------------------------------------ | ---- | ----------------------- |
 | barLineScatterCandleBubbleDataSet | BarLineScatterCandleBubbleDataSet<T> | 是   | 复制数据到指定的dataSet |
 
-**十、LineScatterCandleRadarDataSet**
+### **十一、LineScatterCandleRadarDataSet**
+
+| 方法名                                | 描述                                                  |
+| ------------------------------------- | ----------------------------------------------------- |
+| setDrawHorizontalHighlightIndicator   | 设置启用/禁用水平突出显示指示器。                     |
+| setDrawVerticalHighlightIndicator     | 设置启用/禁用垂直突出显示指示器。                     |
+| setDrawHighlightIndicators            | 设置启用/禁用水平和垂直突出显示指示器。               |
+| isVerticalHighlightIndicatorEnabled   | 获取是否启用垂直突出显示指示器。                      |
+| isHorizontalHighlightIndicatorEnabled | 获取是否启用水平突出显示指示器。                      |
+| setHighlightLineWidth                 | 设置高亮线的宽度，单位是vp。                          |
+| getHighlightLineWidth                 | 获取高亮线的宽度。                                    |
+| enableDashedHighlightLine             | 允许以虚线模式绘制高亮线，例如“------”。              |
+| disableDashedHighlightLine            | 禁用以虚线模式绘制的高亮线。                          |
+| isDashedHighlightLineEnabled          | 如果高亮线启用了虚线效果，则返回true，否则返回false。 |
+| getDashPathEffectHighlight            | 获取虚线效果。                                        |
+| copyTo                                | 拷贝数据至指定dataset。                               |
 
 **1.setDrawHorizontalHighlightIndicator**
 
@@ -3849,37 +3870,37 @@ protected copyTo(lineScatterCandleRadarDataSet: LineScatterCandleRadarDataSet<T>
 
 ## 常见问题
 
-**1.如果去除图例?**
+### **1.如果去除图例?**
 
 ```typescript
 this.model.getLegend()?.setEnabled(false);
 ```
 
-**2.如果去除右下角Description字样？**
+### **2.如果去除右下角Description字样？**
 
 ```typescript
 this.model.getDescription()?.setEnabled(false);
 ```
 
-**3 . 如何隐藏 Y 轴线？**
+### **3 . 如何隐藏 Y 轴线？**
 
 ```typescript
 this.model.getAxisLeft().setEnabled(false) //隐藏左边Y轴轴线，此时标签数字也隐藏
 ```
 
-**4.如果想隐藏轴线但是想显示数字标签？**
+### **4.如果想隐藏轴线但是想显示数字标签？**
 
 ```typescript
 this.model.getAxisRight().setDrawAxisLine(false);
 ```
 
-**5.如何控制 Y 轴线数据标签个数?**
+### **5.如何控制 Y 轴线数据标签个数?**
 
 ```typescript
 this.model.getAxisLeft().setLabelCount(8, false);//设置了8个
 ```
 
-**6.如何设置轴线颜色，宽度等信息?**
+### **6.如何设置轴线颜色，宽度等信息?**
 
 ```typescript
 let leftAxis = this.model.getAxisLeft();
@@ -3890,7 +3911,7 @@ leftAxis.setTextSize(20);//设置y轴标签字体大小
 leftAxis.setDrawGridLines(true);//设置显示网格线
 ```
 
-**7.如何自定义坐标轴标签?**
+### **7.如何自定义坐标轴标签?**
 
 如果不想用坐标轴本身的阿拉伯数字标签，也可以自定义坐标轴标签，实现方法是通过创建自定义类实现 IAxisValueFormatter 接口，修改其中的 getFormattedValue 方法，最后调用坐标轴对象的 setValueFormatter 方法就可以实现自定义坐标轴标签。
 
@@ -3913,7 +3934,7 @@ class MyAxisValueFormatter implements IAxisValueFormatter {
 this.topAxis.setValueFormatter(new TopAxisValueFormatter())
 ```
 
-**8.图表的缩放、触摸等交互设置如何关闭或打开？**
+### **8.图表的缩放、触摸等交互设置如何关闭或打开？**
 
 ```typescript
 setTouchEnabled(enabled: boolean)//允许打开或者关闭与图表的所有触摸交互的情况。
@@ -3929,7 +3950,7 @@ setHighlightIndicatorEnabled(enabled: boolean)//如果设置为true， 选中数
 setVisibleXRangeMaximum(maxXRange： number) //设置x轴最多显示数据条数，（要在设置数据源后调用，否则是无效的）
 ```
 
-**9.x轴和y轴的个性化样式是怎么设置？**
+### **9.x轴和y轴的个性化样式是怎么设置？**
 
 1）通过如下代码获取到 x 轴/y 轴对象。
 
@@ -3976,6 +3997,14 @@ setSpaceTop(percent: number)//设置在图表上最高处的值相比轴上最�
 setSpaceBottom(percent: number)//设置在图表上最低处的值相比轴上最低处值的底部空间（总轴范围的百分比）。
 setPosition(pos: YAxisLabelPosition)//设置轴标签应该被绘制的位置。INSIDE\_CHART或者OUTSIDE\_CHART中的一个。
 ```
+
+### 10.线形图的选中横竖线怎么关闭？
+
+可以根据需要选择性地关闭水平和垂直高亮线。通过数据集（`DataSet`）的以下方法进行配置：
+
+- `setDrawHighlightIndicators(boolean)`：启用或禁用高亮指示器（同时关闭水平和垂直高亮线）。
+- `setDrawVerticalHighlightIndicator(boolean)`：启用或禁用垂直高亮线。
+- `setDrawHorizontalHighlightIndicator(boolean)`：启用或禁用水平高亮线。
 
 ## 常见自定义图表
 

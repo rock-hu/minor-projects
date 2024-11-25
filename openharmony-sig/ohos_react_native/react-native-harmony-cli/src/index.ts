@@ -6,6 +6,7 @@ import {
   commandCreateMetroConstantsHarmony,
   commandCodegenHarmony,
   commandVerifyPackageHarmony,
+  commandCodegenLibHarmony,
 } from './commands';
 
 export const config = {
@@ -16,5 +17,6 @@ export const config = {
     commandCreateMetroConstantsHarmony,
     commandCodegenHarmony,
     commandVerifyPackageHarmony,
+    commandCodegenLibHarmony,
   ],
 } satisfies Partial<Config>;

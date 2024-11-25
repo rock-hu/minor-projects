@@ -9,26 +9,11 @@
 ​ SampleApp默认为CAPI版本，该版本需要设置`RNOH_C_API_ARCH`环境变量的值为`1`。如何设置环境变量，您可以参考[配置CAPI版本环境变量](..//../zh-cn/环境搭建.md#set_capi_path)。
 
 **React Native工程配置：**
-前提：
-1. 将 rnoh-react-native-harmony-xx.tgz 放到 SampleProject/react-native-harmony 文件夹下；
-2. 将 rnoh-react-native-harmony-cli-xx.tgz 放到 SampleProject/react-native-harmony-cli 文件夹下；
-3. 在使用`npm`命令前，先根据文档指示到对应目录下执行`cmd`，打开终端，再执行相应指令。
-注意事项:
-尽量缩短工程路径，路径较长执行命令易报错。
+1. 在 `SampleProject/MainProject` 目录下执行 **npm i @react-native-oh/react-native-harmony@x.x.x** 安装依赖；
 
-- 切换到`SampleProject/MainProject`目录，执行安装依赖的命令：
-  
-  ```bash
-  npm i
-  ```
+2. 运行 **npm run dev:all** 生成本地bundle。执行以下命令，完成后会在`SampleApp/entry/src/main/resources/rawfile`目录下生成一个名为`bundle`和`assets`的文件夹；
 
-- 生成本地bundle。执行以下命令，完成后会在`SampleApp/entry/src/main/resources/rawfile`目录下生成一个名为`bundle`和`assets`的文件夹：
-  
-  ```bash
-  npm run dev:all
-  ```
-
-- 使用Metro生成bundle。如果您想使用Metro服务实时更新bundle，请连接真机，分别执行以下命令：
+3. 使用Metro生成bundle。如果您想使用Metro服务实时更新bundle，请连接真机，分别执行以下命令：
   
   ```bash
   hdc rport tcp:8081 tcp:8081
@@ -37,9 +22,9 @@
 
 **鸿蒙工程配置：**
 
-- 将发布文件中的`react_native_openharmony-xxx.har`复制到`SampleApp/libs`目录下，然后执行`File` > `Sync and Refresh Project`安装依赖包。
-- 如果您使用本地bundle，请将bundle和assets文件复制到`SampleApp/entry/src/main/resources/ rawfile`目录下。
-- 连接真机，在DevEco Studio中打开`File` > `Project Structure的Signing Configs`进行应用签名，签名成功后运行`SampleApp`工程。
+1. 在 `entry/oh-package.json5` 中指定 `react-native-openharmony` 的版本。
+2. 用 DevEco Studio 打开 `SampleApp` 执行 **Sync and Refresh Project**。
+3. 点击右上角的 **run** 启动项目。
 
 ## 工程内容介绍
 

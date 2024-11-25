@@ -38,6 +38,7 @@ class TurboModuleProvider
       std::shared_ptr<facebook::react::CallInvoker>,
       std::shared_ptr<facebook::react::Scheduler>)>
       m_createTurboModule;
+  std::mutex m_cacheMtx{};
   facebook::butter::
       map<std::string, std::shared_ptr<facebook::react::TurboModule>>
           m_cache;

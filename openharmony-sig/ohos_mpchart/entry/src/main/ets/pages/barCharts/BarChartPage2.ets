@@ -63,12 +63,14 @@ struct BarChartPage2 {
 
   @Monitor("seekBarX.value")
   seekBarXValueWatch(): void {
-    this.setData(this.seekBarX.getValue(), this.seekBarY.getValue());
+    const xValue = this.seekBarX.getValue();
+    const yValue = this.seekBarY.getValue();
+    this.setData(xValue == 0? 5: xValue, yValue == 0? 100: yValue);
   }
 
   @Monitor("seekBarY.value")
   seekBarYValueWatch(): void {
-    this.setData(this.seekBarX.getValue(), this.seekBarY.getValue());
+    this.seekBarXValueWatch();
   }
 
   //标题栏菜单回调

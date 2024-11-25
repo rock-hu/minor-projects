@@ -80,10 +80,12 @@ void TextInputNode::onNodeEvent(
         m_nodeHandle, NODE_FOCUS_STATUS, &item));
     }
   } else if (eventType == ArkUI_NodeEventType::NODE_EVENT_ON_DISAPPEAR) {
-    ArkUI_NumberValue value = {.i32 = static_cast<int32_t>(0)};
-    ArkUI_AttributeItem item = {&value, 1};
-    maybeThrow(NativeNodeApi::getInstance()->setAttribute(
-      m_nodeHandle, NODE_FOCUS_STATUS, &item));
+    if (getTextFocusStatus() == true){
+      ArkUI_NumberValue value = {.i32 = static_cast<int32_t>(0)};
+      ArkUI_AttributeItem item = {&value, 1};
+      maybeThrow(NativeNodeApi::getInstance()->setAttribute(
+        m_nodeHandle, NODE_FOCUS_STATUS, &item));
+    }
   }
 }
 
@@ -234,9 +236,11 @@ void TextInputNode::setFont(
         allowFontScaling = textAttributes.allowFontScaling.value();
   }
   if (!allowFontScaling) {
-        float scale = ArkTSBridge::getInstance()
-                            ->getFontSizeScale();
-        fontSize /= scale;
+    maybeThrow(NativeNodeApi::getInstance()->setLengthMetricUnit(
+        m_nodeHandle, ArkUI_LengthMetricUnit::ARKUI_LENGTH_METRIC_UNIT_VP));
+  } else {
+    maybeThrow(NativeNodeApi::getInstance()->setLengthMetricUnit(
+        m_nodeHandle, ArkUI_LengthMetricUnit::ARKUI_LENGTH_METRIC_UNIT_FP));
   }
 
   std::array<ArkUI_NumberValue, 3> value = {

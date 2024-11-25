@@ -21,6 +21,7 @@ export class ShareTurboModule extends TurboModule {
     try {
       const want = {
         action: 'ohos.want.action.sendData',
+        uri: 'file://',
         type: 'text/plain',
         parameters: {
           [wantConstant.Params.SHARE_ABSTRACT_KEY]: content.message,

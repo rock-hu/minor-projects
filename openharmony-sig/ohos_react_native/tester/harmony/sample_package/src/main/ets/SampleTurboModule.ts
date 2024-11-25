@@ -112,7 +112,7 @@ export class SampleTurboModule extends TurboModule implements TM.GeneratedSample
     extraData?: any
     customStack?: string
   }) {
-    this.ctx.logger.error(new RNOHError(data))
+    this.ctx.reportRNOHError(new RNOHError(data))
   }
 
   throwExceptionArk() {

@@ -1,4 +1,4 @@
-import { TurboModule, TurboModuleContext } from '../../../RNOH/TurboModule';
+import { AnyThreadTurboModule } from '../../../RNOH/TurboModule';
 import util from '@ohos.util';
 import fs from '@ohos.file.fs';
 import { ContentHandler, WebSocketTurboModule } from '../WebSocketTurboModule';
@@ -12,7 +12,7 @@ import { BlobRegistry } from './BlobRegistry';
  * Reading the data stored in Blobs is implemented by FileReaderTurboModule.
  */
 
-export class BlobTurboModule extends TurboModule {
+export class BlobTurboModule extends AnyThreadTurboModule {
   public static readonly NAME = 'BlobModule';
   private blobRegistry: BlobRegistry = new BlobRegistry()
 
@@ -111,11 +111,11 @@ export class BlobTurboModule extends TurboModule {
 
 
   private getWebSocketModule(): WebSocketTurboModule {
-    return this.ctx.rnInstance.getTurboModule(WebSocketTurboModule.NAME);
+    return this.ctx.rnInstance.getTurboModule<WebSocketTurboModule>(WebSocketTurboModule.NAME);
   }
 
   private getNetworkingModule(): NetworkingTurboModule {
-    return this.ctx.rnInstance.getTurboModule(NetworkingTurboModule.NAME);
+    return this.ctx.rnInstance.getTurboModule<NetworkingTurboModule>(NetworkingTurboModule.NAME);
   }
 
   findByUri(uri: string): Blob | null {

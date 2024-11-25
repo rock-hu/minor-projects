@@ -18,8 +18,14 @@ import WaterfallChartModel from '../charts/WaterfallChartModel';
 @ComponentV2
 export default struct WaterfallChart {
   @Param model: WaterfallChartModel | null = null;
-  private setting: RenderingContextSettings = new RenderingContextSettings(true);
-  private context2D: CanvasRenderingContext2D = new CanvasRenderingContext2D(this.setting);
+  antiAliasing: boolean = true;
+  private setting: RenderingContextSettings | null = null;
+  private context2D: CanvasRenderingContext2D | null = null;
+
+  aboutToAppear() {
+    this.setting = new RenderingContextSettings(this.antiAliasing);
+    this.context2D = new CanvasRenderingContext2D(this.setting);
+  }
 
   @Monitor('model')
   invalidate() {
@@ -30,7 +36,7 @@ export default struct WaterfallChart {
     Column() {
       Canvas(this.context2D)
         .onReady(() => {
-          if (this.model) {
+          if (this.model && this.context2D) {
             this.model.setContext2D(this.context2D);
             this.model.onDraw(this.context2D);
           }

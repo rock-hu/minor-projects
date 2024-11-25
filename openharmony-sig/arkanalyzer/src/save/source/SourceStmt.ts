@@ -47,6 +47,8 @@ import {
 } from './SourceUtils';
 import { ValueUtil } from '../../core/common/ValueUtil';
 import { ClassCategory } from '../../core/model/ArkClass';
+import { modifiers2stringArray } from '../../core/model/ArkBaseModel';
+import { ArkMetadataKind } from '../../core/model/ArkMetadata';
 
 const logger = Logger.getLogger(LOG_MODULE_TYPE.ARKANALYZER, 'SourceStmt');
 const IGNOR_TYPES = new Set<string>(['any', 'Map', 'Set']);
@@ -105,10 +107,15 @@ export abstract class SourceStmt implements Dump {
     protected afterDump(): void {}
 
     protected dumpTs(): string {
+        let content: string[] = [];
+        let comments = this.original.getMetadata(ArkMetadataKind.LEADING_COMMENTS) as string[] || [];
+        comments.forEach((v) => {
+            content.push(`${this.printer.getIndent()}${v}\n`);
+        });
         if (this.text.length > 0) {
-            return `${this.printer.getIndent()}${this.text}\n`;
+            content.push( `${this.printer.getIndent()}${this.text}\n`);
         }
-        return ``;
+        return content.join('');
     }
 
     protected get printer(): ArkCodeBuffer {
@@ -162,8 +169,8 @@ export class SourceAssignStmt extends SourceStmt {
         this.rightOp = (this.original as ArkAssignStmt).getRightOp();
 
         if (
-            (this.leftOp instanceof Local && this.leftOp.getName() == 'this') ||
-            (this.rightOp instanceof Constant && this.rightOp.getValue() == 'undefined') ||
+            (this.leftOp instanceof Local && this.leftOp.getName() === 'this') ||
+            (this.rightOp instanceof Constant && this.rightOp.getValue() === 'undefined') ||
             this.rightOp instanceof ArkParameterRef
         ) {
             this.setText('');
@@ -193,13 +200,13 @@ export class SourceAssignStmt extends SourceStmt {
         }
 
         if (
-            (this.leftOp instanceof ArkInstanceFieldRef && this.leftOp.getBase().getName() == 'this') ||
+            (this.leftOp instanceof ArkInstanceFieldRef && this.leftOp.getBase().getName() === 'this') ||
             this.leftOp instanceof ArkStaticFieldRef
         ) {
             this.context.setTempCode(this.leftOp.getFieldName(), this.rightCode);
         }
 
-        if (this.dumpType == undefined) {
+        if (this.dumpType === undefined) {
             this.setText(`${this.leftCode} = ${this.rightCode}`);
             this.dumpType = AssignStmtDumpType.TEMP_REPLACE;
         }
@@ -221,7 +228,7 @@ export class SourceAssignStmt extends SourceStmt {
     }
 
     protected beforeDump(): void {
-        if (this.dumpType != AssignStmtDumpType.TEMP_REPLACE) {
+        if (this.dumpType !== AssignStmtDumpType.TEMP_REPLACE) {
             return;
         }
 
@@ -258,7 +265,7 @@ export class SourceAssignStmt extends SourceStmt {
     }
 
     protected afterDump(): void {
-        if (this.dumpType == AssignStmtDumpType.COMPONENT_CREATE) {
+        if (this.dumpType === AssignStmtDumpType.COMPONENT_CREATE) {
             this.printer.incIndent();
         }
     }
@@ -288,17 +295,17 @@ export class SourceAssignStmt extends SourceStmt {
             if (stmt instanceof ArkInvokeStmt && (stmt.getInvokeExpr() as ArkInstanceInvokeExpr)) {
                 let instanceInvokeExpr = stmt.getInvokeExpr() as ArkInstanceInvokeExpr;
                 if (
-                    'constructor' == instanceInvokeExpr.getMethodSignature().getMethodSubSignature().getMethodName() &&
-                    instanceInvokeExpr.getBase().getName() == (this.leftOp as Local).getName()
+                    'constructor' === instanceInvokeExpr.getMethodSignature().getMethodSubSignature().getMethodName() &&
+                    instanceInvokeExpr.getBase().getName() === (this.leftOp as Local).getName()
                 ) {
                     let args: string[] = [];
                     instanceInvokeExpr.getArgs().forEach((v) => {
                         args.push(this.transformer.valueToString(v));
                     });
 
-                    if (originType == CLASS_CATEGORY_COMPONENT) {
+                    if (originType === CLASS_CATEGORY_COMPONENT) {
                         this.rightCode = `${this.transformer.typeToString(this.rightOp.getType())}(${args.join(', ')})`;
-                    } else if (originType == ClassCategory.TYPE_LITERAL || originType == ClassCategory.OBJECT) {
+                    } else if (originType === ClassCategory.TYPE_LITERAL || originType === ClassCategory.OBJECT) {
                         this.rightCode = `${this.transformer.literalObjectToString(
                             this.rightOp.getType() as ClassType
                         )}`;
@@ -315,9 +322,9 @@ export class SourceAssignStmt extends SourceStmt {
             }
         }
 
-        if (originType == CLASS_CATEGORY_COMPONENT) {
+        if (originType === CLASS_CATEGORY_COMPONENT) {
             this.rightCode = `${this.transformer.typeToString(this.rightOp.getType())}()`;
-        } else if (originType == ClassCategory.TYPE_LITERAL || originType == ClassCategory.OBJECT) {
+        } else if (originType === ClassCategory.TYPE_LITERAL || originType === ClassCategory.OBJECT) {
             this.rightCode = `${this.transformer.typeToString(this.rightOp.getType())}`;
         } else {
             this.rightCode = `new ${this.transformer.typeToString(this.rightOp.getType())}()`;
@@ -337,7 +344,7 @@ export class SourceAssignStmt extends SourceStmt {
             let stmt = this.context.getStmtReader().next();
             if (stmt instanceof ArkAssignStmt) {
                 let left = stmt.getLeftOp();
-                if (left instanceof ArkArrayRef && left.getBase().getName() == localName) {
+                if (left instanceof ArkArrayRef && left.getBase().getName() === localName) {
                     arrayExpr.addInitValue(this.transformer.valueToString(stmt.getRightOp()));
                 } else {
                     this.context.getStmtReader().rollback();
@@ -460,7 +467,7 @@ export class SourceWhileStmt extends SourceStmt {
     /**
      * $temp2 = $temp1.next()
      * $temp3 = $temp2.done()
-     * if $temp3 == true
+     * if $temp3 === true
      *  $temp4 = $temp2.value
      *  $temp5 = <> cast
      * @returns
@@ -474,7 +481,7 @@ export class SourceWhileStmt extends SourceStmt {
             return false;
         }
 
-        if (!(this.isLocalTempValue(temp3) && op2 instanceof Constant && (op2 as Constant).getValue() == 'true')) {
+        if (!(this.isLocalTempValue(temp3) && op2 instanceof Constant && (op2 as Constant).getValue() === 'true')) {
             return false;
         }
 
@@ -488,7 +495,7 @@ export class SourceWhileStmt extends SourceStmt {
             return false;
         }
 
-        if (done.getFieldSignature().toString() != '@ES2015/BuiltinClass: IteratorResult.done') {
+        if (done.getFieldSignature().toString() !== '@ES2015/BuiltinClass: IteratorResult.done') {
             return false;
         }
 
@@ -507,7 +514,7 @@ export class SourceWhileStmt extends SourceStmt {
             return false;
         }
 
-        if (next.getMethodSignature().getMethodSubSignature().getMethodName() != 'next') {
+        if (next.getMethodSignature().getMethodSubSignature().getMethodName() !== 'next') {
             return false;
         }
 
@@ -526,12 +533,12 @@ export class SourceWhileStmt extends SourceStmt {
             return false;
         }
 
-        if (iterator.getMethodSignature().getMethodSubSignature().getMethodName() != 'iterator') {
+        if (iterator.getMethodSignature().getMethodSubSignature().getMethodName() !== 'iterator') {
             return false;
         }
 
         let successors = this.block.getSuccessors();
-        if (successors.length != 2) {
+        if (successors.length !== 2) {
             return false;
         }
 
@@ -576,7 +583,7 @@ export class SourceWhileStmt extends SourceStmt {
             if (!(ref instanceof ArkArrayRef)) {
                 break;
             }
-            if (ref.getBase().getName() != valueName) {
+            if (ref.getBase().getName() !== valueName) {
                 break;
             }
             let name = (stmt.getLeftOp() as Local).getName();
@@ -615,7 +622,7 @@ export class SourceWhileStmt extends SourceStmt {
             }
             if (
                 SourceUtils.isDeIncrementStmt(stmt, NormalBinaryOperator.Addition) &&
-                (stmt.getLeftOp() as Local).getName() == value.getName()
+                (stmt.getLeftOp() as Local).getName() === value.getName()
             ) {
                 this.context.setSkipStmt(stmt);
                 return `${value.getName()}++`;
@@ -623,7 +630,7 @@ export class SourceWhileStmt extends SourceStmt {
 
             if (
                 SourceUtils.isDeIncrementStmt(stmt, NormalBinaryOperator.Subtraction) &&
-                (stmt.getLeftOp() as Local).getName() == value.getName()
+                (stmt.getLeftOp() as Local).getName() === value.getName()
             ) {
                 this.context.setSkipStmt(stmt);
                 return `${value.getName()}--`;
@@ -845,7 +852,12 @@ export class SourceTypeAliasStmt extends SourceStmt {
     }
 
     public transfer2ts(): void {
-        this.setText(`type ${this.aliasType.getName()} = ${this.transformer.typeToString(this.aliasType.getOriginalType())};`);
+        let modifier = '';
+        let modifiersArray: string[] = modifiers2stringArray(this.aliasType.getModifiers());
+        if (modifiersArray.length > 0) {
+            modifier = `${modifiersArray.join(' ')} `;
+        }
+        this.setText(`${modifier}type ${this.aliasType.getName()} = ${this.transformer.typeToString(this.aliasType.getOriginalType())};`);
     }
 }
 

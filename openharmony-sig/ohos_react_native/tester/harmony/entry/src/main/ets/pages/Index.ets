@@ -10,10 +10,10 @@ import {
   TraceJSBundleProviderDecorator,
   RNOHCoreContext
 } from '@rnoh/react-native-openharmony';
-import { PropsDisplayer, SampleView, GeneratedSampleView } from 'rnoh-sample-package';
+import { PropsDisplayer, SampleView, GeneratedSampleView, CodegenLibSampleArkTSComponent } from 'rnoh-sample-package';
 import { createRNPackages } from '../RNPackagesFactory';
 
-const arkTsComponentNames: Array<string> = [SampleView.NAME, GeneratedSampleView.NAME, PropsDisplayer.NAME];
+const arkTsComponentNames: Array<string> = [SampleView.NAME, GeneratedSampleView.NAME, PropsDisplayer.NAME, CodegenLibSampleArkTSComponent.NAME];
 @Builder
 export function buildCustomRNComponent(ctx: ComponentBuilderContext) {
   // There seems to be a problem with the placement of ArkTS components in mixed mode. Nested Stack temporarily avoided.
@@ -32,6 +32,12 @@ export function buildCustomRNComponent(ctx: ComponentBuilderContext) {
     }
     if (ctx.componentName === GeneratedSampleView.NAME) {
       GeneratedSampleView({
+        ctx: ctx.rnComponentContext,
+        tag: ctx.tag
+      })
+    }
+    if (ctx.componentName === CodegenLibSampleArkTSComponent.NAME) {
+      CodegenLibSampleArkTSComponent({
         ctx: ctx.rnComponentContext,
         tag: ctx.tag
       })
@@ -74,13 +80,14 @@ struct Index {
         }
         RNApp({
           rnInstanceConfig: {
+            name: "app_name",
             createRNPackages,
             enableNDKTextMeasuring: true,
             enableBackgroundExecutor: false,
             enableCAPIArchitecture: true,
             arkTsComponentNames: arkTsComponentNames,
             fontResourceByFontFamily: {
-              'Pacifico-Regular': $rawfile("fonts/Pacifico-Regular.ttf"),
+              // NOTE: you can provide fonts in `RNInstanceConfig` ahead of time, when creating the RN application
               "StintUltraCondensed-Regular": $rawfile('fonts/StintUltraCondensed-Regular.ttf'),
             }
           },
@@ -89,6 +96,9 @@ struct Index {
           wrappedCustomRNComponentBuilder: wrappedCustomRNComponentBuilder,
           onSetUp: (rnInstance) => {
             rnInstance.enableFeatureFlag("ENABLE_RN_INSTANCE_CLEAN_UP")
+            // NOTE: you can provide fonts dynamically at runtime by calling `RNInstance.registerFont`
+            rnInstance.registerFont('Pacifico-Regular', $rawfile("fonts/Pacifico-Regular.ttf"))
+            // rnInstance.registerFont('Pacifico-Regular', "/data/storage/el2/base/files/Pacifico-Regular.ttf");
           },
           jsBundleProvider: new TraceJSBundleProviderDecorator(
             new AnyJSBundleProvider([

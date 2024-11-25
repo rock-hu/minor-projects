@@ -1,11 +1,9 @@
 #pragma once
-#include <ReactCommon/CallbackWrapper.h>
 #include <ReactCommon/TurboModuleUtils.h>
 #include <jsi/JSIDynamic.h>
 #include <jsi/jsi.h>
 #include <react/renderer/scheduler/Scheduler.h>
-#include <variant>
-#include "napi/native_api.h"
+#include "TaskExecutor/TaskExecutor.h"
 
 #include "ArkJS.h"
 #include "RNOH/EventDispatcher.h"
@@ -13,6 +11,10 @@
 #include "RNOH/TaskExecutor/TaskExecutor.h"
 #include "RNOH/TurboModule.h"
 
+/**
+ * @internal
+ * Used by codegen.
+ */
 #define ARK_METHOD_CALLER(name)                        \
   [](facebook::jsi::Runtime& rt,                       \
      facebook::react::TurboModule& turboModule,        \
@@ -22,6 +24,10 @@
         .call(rt, #name, args, count);                 \
   }
 
+/**
+ * @internal
+ * Used by codegen.
+ */
 #define ARK_ASYNC_METHOD_CALLER(name)                  \
   [](facebook::jsi::Runtime& rt,                       \
      facebook::react::TurboModule& turboModule,        \
@@ -31,6 +37,10 @@
         .callAsync(rt, #name, args, count);            \
   }
 
+/**
+ * @internal
+ * Used by codegen.
+ */
 #define ARK_SCHEDULE_METHOD_CALLER(name)        \
   [](facebook::jsi::Runtime& rt,                \
      facebook::react::TurboModule& turboModule, \
@@ -41,16 +51,28 @@
     return facebook::jsi::Value::undefined();   \
   }
 
+/**
+ * @internal
+ * Used by codegen.
+ */
 #define ARK_METHOD_METADATA(name, argc)      \
   {                                          \
 #name, { argc, ARK_METHOD_CALLER(name) } \
   }
 
+/**
+ * @internal
+ * Used by codegen.
+ */
 #define ARK_ASYNC_METHOD_METADATA(name, argc)      \
   {                                                \
 #name, { argc, ARK_ASYNC_METHOD_CALLER(name) } \
   }
 
+/**
+ * @internal
+ * Used by codegen.
+ */
 #define ARK_SCHEDULE_METHOD_METADATA(name, argc)      \
   {                                                   \
 #name, { argc, ARK_SCHEDULE_METHOD_CALLER(name) } \
@@ -58,12 +80,17 @@
 
 namespace rnoh {
 
+/**
+ * @internal
+ * Used by codegen.
+ */
 class ArkTSTurboModule : public TurboModule {
  public:
   struct Context : public TurboModule::Context {
     napi_env env;
     napi_ref arkTSTurboModuleInstanceRef;
-    std::shared_ptr<TaskExecutor> taskExecutor;
+    TaskThread turboModuleThread;
+    TaskExecutor::Shared taskExecutor;
     std::shared_ptr<EventDispatcher> eventDispatcher;
     std::shared_ptr<MessageQueueThread> jsQueue;
     std::shared_ptr<facebook::react::Scheduler> scheduler;
@@ -99,12 +126,12 @@ class ArkTSTurboModule : public TurboModule {
       std::shared_ptr<facebook::react::CallInvoker> jsInvoker,
       const facebook::jsi::Value* jsiArgs,
       size_t argsCount);
-    
+  
   Context getContext() {
     return m_ctx;    
   }
 
- protected:  
+ protected:
   Context m_ctx;
 };
 } // namespace rnoh

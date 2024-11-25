@@ -1,9 +1,9 @@
-import { TurboModule } from '../../../RNOH/TurboModule';
+import { AnyThreadTurboModule } from '../../../RNOH/TurboModule';
 import { BlobTurboModule } from './BlobTurboModule';
 import { BlobMetadata as BlobMetadata } from './types';
 import util from '@ohos.util';
 
-export class FileReaderTurboModule extends TurboModule {
+export class FileReaderTurboModule extends AnyThreadTurboModule {
   public static readonly NAME = 'FileReaderModule';
 
   private base64Helper = new util.Base64Helper();

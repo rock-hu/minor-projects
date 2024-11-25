@@ -43,16 +43,30 @@ class XComponentSurface
 
   void attachNativeXComponent(OH_NativeXComponent* nativeXComponent);
 
+  facebook::react::Size measure(
+      float minWidth,
+      float minHeight,
+      float maxWidth,
+      float maxHeight,
+      float viewportOffsetX,
+      float viewportOffsetY,
+      float pixelRatio,
+      bool isRTL);
+
   void updateConstraints(
-      float width,
-      float height,
+      float minWidth,
+      float minHeight,
+      float maxWidth,
+      float maxHeight,
       float viewportOffsetX,
       float viewportOffsetY,
       float pixelRatio,
       bool isRTL);
   void start(
-      float width,
-      float height,
+      float minWidth,
+      float minHeight,
+      float maxWidth,
+      float maxHeight,
       float viewportOffsetX,
       float viewportOffsetY,
       float pixelRatio,

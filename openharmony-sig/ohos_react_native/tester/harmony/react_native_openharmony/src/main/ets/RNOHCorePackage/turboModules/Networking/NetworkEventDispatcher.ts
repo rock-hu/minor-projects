@@ -1,7 +1,5 @@
-import { RNInstance } from '../../../RNOH/ts';
-
 export class NetworkEventsDispatcher {
-  constructor(private rnInstance: RNInstance) {
+  constructor(private onEmitDeviceEvent: (eventName: string, params: any) => void) {
   }
 
   dispatchDidReceiveNetworkData(requestId: number, data: string | Object) {
@@ -33,6 +31,6 @@ export class NetworkEventsDispatcher {
   }
 
   private sendEvent(eventName: string, body: Object) {
-    this.rnInstance.emitDeviceEvent(eventName, body)
+    this.onEmitDeviceEvent(eventName, body)
   }
 }

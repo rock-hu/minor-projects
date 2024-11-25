@@ -11,14 +11,22 @@ import type { InspectorInstance, DisplayMetrics } from './types'
 import { FatalRNOHError, RNOHError } from "./RNOHError"
 import type { FrameNodeFactory } from "./RNInstance"
 import ohosResourceManager from '@ohos.resourceManager';
+import { AnyThreadTurboModule, UITurboModule,
+  UITurboModuleContext,
+  WorkerTurboModule, WorkerTurboModuleContext } from './TurboModule';
 import display from '@ohos.display';
 
-export type CppFeatureFlag = "ENABLE_NDK_TEXT_MEASURING" | "C_API_ARCH"
+export type CppFeatureFlag = "ENABLE_NDK_TEXT_MEASURING" | "C_API_ARCH" | "WORKER_THREAD_ENABLED"
 
 type RawRNOHError = {
   message: string,
   stacktrace?: string[],
   suggestions?: string[]
+}
+
+type envINFO = {
+  isDebugModeEnabled: boolean,
+  envId: number
 }
 
 type Result<TOK = null> = {
@@ -29,13 +37,13 @@ type Result<TOK = null> = {
   err: RawRNOHError
 }
 
-
 export interface ArkTSBridgeHandler {
   getDisplayMetrics: () => DisplayMetrics
   handleError: (rnohError: RNOHError) => void
   getFoldStatus: () => display.FoldStatus
   getIsSplitScreenMode: () => boolean
   getFontSizeScale: () => number
+  getMetadata: (name: string) => string
 }
 
 export class NapiBridge {
@@ -68,7 +76,8 @@ export class NapiBridge {
     })
   }
 
-  onInit(shouldCleanUpRNInstances: boolean): { isDebugModeEnabled: boolean } {
+
+  onInit(shouldCleanUpRNInstances: boolean, arkTSBridgeHandler: ArkTSBridgeHandler) : envINFO {
     if (!this.libRNOHApp) {
       const err = new FatalRNOHError({
         whatHappened: "Couldn't create bindings between ETS and CPP. libRNOHApp is undefined.",
@@ -77,43 +86,64 @@ export class NapiBridge {
       this.logger.fatal(err)
       throw err
     }
-    return this.libRNOHApp?.onInit(shouldCleanUpRNInstances)
+    return this.libRNOHApp?.onInit(shouldCleanUpRNInstances, {
+      handleError: (err: RawRNOHError) => {
+        arkTSBridgeHandler.handleError(new RNOHError({
+          whatHappened: err.message,
+          howCanItBeFixed: (err.suggestions ?? []),
+          customStack: (err.stacktrace ?? []).join("\n"),
+        }))
+      },
+      getDisplayMetrics: () => arkTSBridgeHandler.getDisplayMetrics(),
+      getFoldStatus: () => arkTSBridgeHandler.getFoldStatus(),
+      getIsSplitScreenMode: () => arkTSBridgeHandler.getIsSplitScreenMode(),
+      getFontSizeScale: () => arkTSBridgeHandler.getFontSizeScale(),
+      getMetadata: (name: string) => arkTSBridgeHandler.getMetadata(name),
+    } satisfies ArkTSBridgeHandler)
+  }
+
+  registerWorkerTurboModuleProvider(turboModuleProvider: TurboModuleProvider<WorkerTurboModule | AnyThreadTurboModule>,
+    rnInstanceId: number) {
+    this.libRNOHApp?.registerWorkerTurboModuleProvider(turboModuleProvider, rnInstanceId)
   }
 
   getNextRNInstanceId(): number {
-    return this.libRNOHApp?.getNextRNInstanceId()
+    return this.libRNOHApp?.getNextRNInstanceId();
   }
 
   setBundlePath(instanceId: number, path: string): void {
     this.libRNOHApp?.setBundlePath(instanceId, path);
   }
 
-  createReactNativeInstance(instanceId: number,
-                            turboModuleProvider: TurboModuleProvider,
-                            frameNodeFactoryRef: { frameNodeFactory: FrameNodeFactory | null },
-                            mutationsListener: (mutations: Mutation[]) => void,
-                            componentCommandsListener: (tag: Tag,
-                                                        commandName: string,
-                                                        args: unknown) => void,
-                            onCppMessage: (type: string, payload: any) => void,
-                            shouldEnableDebugger: boolean,
-                            shouldEnableBackgroundExecutor: boolean,
-                            cppFeatureFlags: CppFeatureFlag[],
-                            resourceManager: ohosResourceManager.ResourceManager,
-                            arkTsComponentNames: Array<string>,
-    fontFamilyNameByFontPathRelativeToRawfileDir: Record<string, string>
+  onCreateRNInstance(
+    envId: number,
+    instanceId: number,
+    turboModuleProvider: TurboModuleProvider<UITurboModule | AnyThreadTurboModule>,
+    frameNodeFactoryRef: { frameNodeFactory: FrameNodeFactory | null },
+    mutationsListener: (mutations: Mutation[]) => void,
+    componentCommandsListener: (tag: Tag,
+      commandName: string,
+      args: unknown) => void,
+    onCppMessage: (type: string, payload: any) => void,
+    shouldEnableDebugger: boolean,
+    shouldEnableBackgroundExecutor: boolean,
+    cppFeatureFlags: CppFeatureFlag[],
+    resourceManager: ohosResourceManager.ResourceManager,
+    arkTsComponentNames: Array<string>,
+    fontPathByFontFamily: Record<string, string>
   ) {
     const cppFeatureFlagStatusByName = cppFeatureFlags.reduce((acc, cppFeatureFlag) => {
       acc[cppFeatureFlag] = true
       return acc
     }, {} as Record<CppFeatureFlag, boolean>)
-    this.libRNOHApp?.createReactNativeInstance(
+    this.libRNOHApp?.onCreateRNInstance(
       instanceId,
       turboModuleProvider,
       mutationsListener,
       componentCommandsListener,
       onCppMessage,
-      (attributedString: AttributedString, paragraphAttributes: ParagraphAttributes, layoutConstraints: LayoutConstrains) => {
+      (attributedString: AttributedString, paragraphAttributes: ParagraphAttributes,
+       layoutConstraints: LayoutConstrains) => {
         try {
           const stopTracing = this.logger.clone("measureParagraph").startTracing()
           const result = measureParagraph(attributedString, paragraphAttributes, layoutConstraints)
@@ -130,16 +160,18 @@ export class NapiBridge {
       frameNodeFactoryRef,
       resourceManager,
       arkTsComponentNames,
-      fontFamilyNameByFontPathRelativeToRawfileDir,
+      fontPathByFontFamily,
+      envId
     );
   }
 
-  destroyReactNativeInstance(instanceId: number) {
-    this.libRNOHApp?.destroyReactNativeInstance(instanceId)
+  onDestroyRNInstance(instanceId: number) {
+    this.libRNOHApp?.onDestroyRNInstance(instanceId)
   }
 
   emitComponentEvent(instanceId: number, tag: Tag, eventEmitRequestHandlerName: string, payload: any) {
-    this.libRNOHApp?.emitComponentEvent(instanceId, tag, eventEmitRequestHandlerName, payload);
+    this.libRNOHApp?.emitComponentEvent(instanceId, tag, eventEmitRequestHandlerName,
+      payload);
   }
 
   loadScript(instanceId: number, bundle: ArrayBuffer, sourceURL: string): Promise<void> {
@@ -153,8 +185,10 @@ export class NapiBridge {
   startSurface(
     instanceId: number,
     surfaceTag: number,
-    initialSurfaceWidth: number,
-    initialSurfaceHeight: number,
+    surfaceMinWidth: number,
+    surfaceMinHeight: number,
+    surfaceMaxWidth: number,
+    surfaceMaxHeight: number,
     surfaceOffsetX: number,
     surfaceOffsetY: number,
     pixelRatio: number,
@@ -163,8 +197,10 @@ export class NapiBridge {
     this.libRNOHApp?.startSurface(
       instanceId,
       surfaceTag,
-      initialSurfaceWidth,
-      initialSurfaceHeight,
+      surfaceMinWidth,
+      surfaceMinHeight,
+      surfaceMaxWidth,
+      surfaceMaxHeight,
       surfaceOffsetX,
       surfaceOffsetY,
       pixelRatio,
@@ -176,8 +212,10 @@ export class NapiBridge {
   updateSurfaceConstraints(
     instanceId: number,
     surfaceTag: number,
-    surfaceWidth: number,
-    surfaceHeight: number,
+    surfaceMinWidth: number,
+    surfaceMinHeight: number,
+    surfaceMaxWidth: number,
+    surfaceMaxHeight: number,
     surfaceOffsetX: number,
     surfaceOffsetY: number,
     pixelRatio: number,
@@ -186,13 +224,42 @@ export class NapiBridge {
     this.libRNOHApp?.updateSurfaceConstraints(
       instanceId,
       surfaceTag,
-      surfaceWidth,
-      surfaceHeight,
+      surfaceMinWidth,
+      surfaceMinHeight,
+      surfaceMaxWidth,
+      surfaceMaxHeight,
       surfaceOffsetX,
       surfaceOffsetY,
       pixelRatio,
       isRTL
     );
+  }
+
+  measureSurface(
+    instanceId: number,
+    surfaceTag: number,
+    surfaceMinWidth: number,
+    surfaceMinHeight: number,
+    surfaceMaxWidth: number,
+    surfaceMaxHeight: number,
+    surfaceOffsetX: number,
+    surfaceOffsetY: number,
+    pixelRatio: number,
+    isRTL: boolean,
+  ) {
+    const result = this.libRNOHApp?.measureSurface(
+      instanceId,
+      surfaceTag,
+      surfaceMinWidth,
+      surfaceMinHeight,
+      surfaceMaxWidth,
+      surfaceMaxHeight,
+      surfaceOffsetX,
+      surfaceOffsetY,
+      pixelRatio,
+      isRTL
+    );
+    return result.ok
   }
 
   createSurface(
@@ -223,26 +290,29 @@ export class NapiBridge {
     instanceId: number,
     surfaceTag: number,
   ) {
+    let resolveWait = () => {
+    }
+    const wait = new Promise<void>((resolve) => {
+      resolveWait = () => {
+        resolve()
+      }
+    })
     this.libRNOHApp?.stopSurface(
       instanceId,
-      surfaceTag
+      surfaceTag,
+      () => resolveWait()
     );
+    await wait;
   }
 
   async destroySurface(
     instanceId: number,
     surfaceTag: number,
   ) {
-    let resolveWait = () => {}
-    const wait = new Promise((resolve) => {
-      resolveWait = () => resolve(undefined)
-    })
     this.libRNOHApp?.destroySurface(
       instanceId,
-      surfaceTag,
-      () => resolveWait
+      surfaceTag
     );
-    await wait;
   }
 
   setSurfaceDisplayMode(instanceId: number, surfaceTag: Tag, displayMode: DisplayMode): void {
@@ -281,18 +351,24 @@ export class NapiBridge {
       },
       getFoldStatus: () => handler.getFoldStatus(),
       getIsSplitScreenMode: () => handler.getIsSplitScreenMode(),
-      getFontSizeScale: () => handler.getFontSizeScale()
+      getFontSizeScale: () => handler.getFontSizeScale(),
+      getMetadata: (name: string) => handler.getMetadata(name)
     });
   }
 
   postMessageToCpp(name: string, payload: any) {
     this.libRNOHApp?.onArkTSMessage(name, payload)
   }
-   
+
   logMarker(markerId: string, rnInstanceId: number) {
-    const result = this.libRNOHApp?.logMarker(markerId, rnInstanceId)
-    return this.unwrapResult(result)
+    this.libRNOHApp?.logMarker(markerId, rnInstanceId)
   }
 
-
+  registerFont(instanceId: number, fontFamily: string, path: string) {
+    return this.libRNOHApp?.registerFont(instanceId, fontFamily, path);
+  }
+  getNativeNodeIdByTag(instanceId: number, tag: Tag): string | undefined {
+    const result = this.libRNOHApp?.getNativeNodeIdByTag(instanceId, tag)
+    return result
+  }
 }

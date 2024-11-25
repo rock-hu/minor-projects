@@ -14,10 +14,12 @@
  */
 
 import { LineColPosition } from '../base/Position';
-import { Decorator } from '../base/Decorator';
 import { ArkFile } from './ArkFile';
 import { ArkSignature, ClassSignature, LocalSignature, MethodSignature, NamespaceSignature } from './ArkSignature';
 import { DEFAULT } from "../common/TSConst";
+import { ArkBaseModel, ModifierType } from './ArkBaseModel';
+import { ArkError } from '../common/ArkError';
+import { ArkMetadataKind } from './ArkMetadata';
 
 
 export type ExportSignature = NamespaceSignature | ClassSignature | MethodSignature | LocalSignature;
@@ -32,8 +34,8 @@ export enum ExportType {
 }
 
 export interface ArkExport extends ArkSignature {
-
-    getModifiers(): Set<string | Decorator>;
+    getModifiers(): number;
+    containsModifier(modifierType: ModifierType): boolean;
 
     getName(): string;
 
@@ -54,9 +56,7 @@ export interface FromInfo {
 /**
  * @category core/model
  */
-export class ExportInfo implements FromInfo {
-
-    private modifiers: Set<string | Decorator> = new Set();
+export class ExportInfo extends ArkBaseModel implements FromInfo {
     private _default?: boolean;
     private nameBeforeAs?: string;
     private exportClauseName: string = '';
@@ -70,6 +70,7 @@ export class ExportInfo implements FromInfo {
     private declaringArkFile!: ArkFile;
 
     private constructor() {
+        super();
     }
 
     public getFrom(): string | undefined {
@@ -109,13 +110,9 @@ export class ExportInfo implements FromInfo {
             return this.nameBeforeAs === DEFAULT;
         }
         if (this._default === undefined) {
-            this._default = this.modifiers?.has('DefaultKeyword');
+            this._default = this.containsModifier(ModifierType.DEFAULT);
         }
         return this._default;
-    }
-
-    public getModifiers(): Set<string | Decorator> {
-        return this.modifiers;
     }
 
     public getOriginTsPosition(): LineColPosition {
@@ -148,18 +145,8 @@ export class ExportInfo implements FromInfo {
             return this;
         }
 
-        public addModifier(name: string | Decorator): ArkExportBuilder {
-            if (!this.exportInfo.modifiers) {
-                this.exportInfo.modifiers = new Set<string | Decorator>();
-            }
-            this.exportInfo.modifiers.add(name);
-            return this;
-        }
-
-        public modifiers(modifiers: Set<string | Decorator>): ArkExportBuilder {
-            if (modifiers) {
-                modifiers.forEach(m => this.addModifier(m));
-            }
+        public modifiers(modifiers: number): ArkExportBuilder {
+            this.exportInfo.modifiers = modifiers;
             return this;
         }
 
@@ -190,9 +177,19 @@ export class ExportInfo implements FromInfo {
             return this;
         }
 
+        public setLeadingComments(comments: string[]): ArkExportBuilder {
+            if (comments.length > 0) {
+                this.exportInfo.setMetadata(ArkMetadataKind.LEADING_COMMENTS, comments);
+            }
+            return this;
+        }
+
         public build(): ExportInfo {
             return this.exportInfo;
         }
     };
 
+    public validate(): ArkError {
+        return this.validateFields(['declaringArkFile']);
+    }
 }

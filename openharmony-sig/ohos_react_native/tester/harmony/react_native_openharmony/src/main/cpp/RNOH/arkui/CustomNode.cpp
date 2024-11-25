@@ -40,6 +40,10 @@ CustomNode::CustomNode()
       m_nodeHandle, ARKUI_NODE_CUSTOM_EVENT_ON_MEASURE, 89, userCallback_));
   maybeThrow(NativeNodeApi::getInstance()->registerNodeCustomEvent(
       m_nodeHandle, ARKUI_NODE_CUSTOM_EVENT_ON_LAYOUT, 90, userCallback_));
+  ArkUI_NumberValue value[] = {{.i32 = 1}};
+  ArkUI_AttributeItem item = {.value = value, .size = 1};
+  maybeThrow(NativeNodeApi::getInstance() -> setAttribute(
+    m_nodeHandle, NODE_FOCUSABLE, &item));
 }
 
 void CustomNode::onMeasure(ArkUI_NodeCustomEventType eventType) {

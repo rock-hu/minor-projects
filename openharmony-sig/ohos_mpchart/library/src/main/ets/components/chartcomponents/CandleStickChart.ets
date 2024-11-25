@@ -19,9 +19,10 @@ import { BarLineBaseChart } from './BarLineBaseChart';
 @ComponentV2
 export struct CandleStickChart {
   @Param model: CandleStickChartModel | null = null;
+  antiAliasing: boolean = true;
 
   build() {
-    BarLineBaseChart({model: this.model})
+    BarLineBaseChart({ model: this.model, antiAliasing: this.antiAliasing })
   }
 }
 

@@ -16,9 +16,13 @@ export default class EntryAbility extends RNAbility {
     super.onPrepareRNInstance(rnohCoreContext)
     const rnInstance: RNInstance = await rnohCoreContext.createAndRegisterRNInstance({
       createRNPackages,
-      enableCAPIArchitecture: true
+      enableCAPIArchitecture: true,
+      backPressHandler: () => {
+      },
+      name: "app_name"
     })
-    rnInstance.runJSBundle(new AnyJSBundleProvider([new MetroJSBundleProvider(), new ResourceJSBundleProvider(this.context.resourceManager, 'bundle.harmony.js')]))
+    rnInstance.runJSBundle(new AnyJSBundleProvider([new MetroJSBundleProvider(),
+      new ResourceJSBundleProvider(this.context.resourceManager, 'bundle.harmony.js')]))
     AppStorage.setOrCreate("AppRNInstance", rnInstance);
 
     const surfaceByAppKey: Record<string, SurfaceHandle> = {};
@@ -27,5 +31,9 @@ export default class EntryAbility extends RNAbility {
 
   protected getPagePath() {
     return 'pages/Index';
+  }
+
+  getRNOHWorkerScriptUrl() {
+    return "multi_surface/ets/workers/RNOHWorker.ets"
   }
 }

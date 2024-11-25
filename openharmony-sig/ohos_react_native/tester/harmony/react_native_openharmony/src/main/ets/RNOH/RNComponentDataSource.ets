@@ -1,5 +1,5 @@
 import { DescriptorWrapper, Tag } from "./DescriptorBase"
-import { RNComponentContext } from './RNComponentContext';
+import { RNComponentContext } from './EtsRNOHContext';
 import { RNOHLogger } from "./RNOHLogger"
 
 export class RNComponentDataSource implements IDataSource {

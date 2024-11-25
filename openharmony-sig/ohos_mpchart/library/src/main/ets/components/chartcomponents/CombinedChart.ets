@@ -19,9 +19,10 @@ import { BarLineBaseChart } from './BarLineBaseChart';
 @ComponentV2
 export default struct CombinedChart {
   @Param model: CombinedChartModel | null = null;
+  antiAliasing: boolean = true;
 
   build() {
-    BarLineBaseChart({model: this.model})
+    BarLineBaseChart({ model: this.model, antiAliasing: this.antiAliasing })
   }
 }
 

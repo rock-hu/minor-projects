@@ -28,9 +28,7 @@ export function autoFix(issueReport:IssueReport, scene:Scene) {
     let fileName = path.relative(realProjectDir, filePath);
 
     // const fileName = path.basename(filePath);
-    let fileSignature = new FileSignature();
-    fileSignature.setProjectName(projectName)
-    fileSignature.setFileName(fileName)
+    let fileSignature = new FileSignature(projectName, fileName);
 
     let arkFile: ArkFile | null = scene.getFile(fileSignature);
     if (arkFile){

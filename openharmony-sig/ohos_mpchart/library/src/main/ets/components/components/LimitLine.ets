@@ -29,7 +29,7 @@ export default class LimitLine extends ComponentBase {
   /** the width of the limit line */
   private mLineWidth: number = 2.0;
   /** the color of the limit line */
-  private mLineColor: number = ChartColor.rgb(237, 91, 91);
+  private mLineColor: number | string = ChartColor.rgb(237, 91, 91);
   /** the style of the label text */
   private mTextStyle: Style = Style.FILL_AND_STROKE;
   /** label string that is drawn next to the limit line */
@@ -87,7 +87,7 @@ export default class LimitLine extends ComponentBase {
    *
    * @param color
    */
-  public setLineColor(color: number) {
+  public setLineColor(color: number | string) {
     this.mLineColor = color;
   }
 
@@ -96,7 +96,7 @@ export default class LimitLine extends ComponentBase {
    *
    * @return
    */
-  public getLineColor(): number {
+  public getLineColor(): number | string {
     return this.mLineColor;
   }
 

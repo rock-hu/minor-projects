@@ -180,8 +180,9 @@ target_include_directories(folly_futures PUBLIC
 target_compile_options(folly_futures PRIVATE
     ${folly_compile_options}
     "-Wno-nullability-completeness"
-    "-std=c++17"
 )
+target_compile_features(folly_futures PUBLIC cxx_std_17)
+
 target_sources(folly_futures PRIVATE
     "${patches_dir}/folly/Demangle.cpp"
     "${folly_src_dir}/ExceptionString.cpp"
@@ -333,7 +334,7 @@ target_include_directories(hermes_executor_common PRIVATE
 )
 # add_react_common_subdir(hermes/inspector)
 add_react_common_subdir(react/renderer/runtimescheduler)
-add_react_common_subdir(react/debug)
+add_subdirectory(${REACT_COMMON_PATCH_DIR}/react/debug)
 add_react_common_subdir(react/config)
 add_react_common_subdir(react/renderer/animations)
 add_react_common_subdir(react/renderer/attributedstring)
@@ -345,7 +346,7 @@ add_react_common_subdir(react/renderer/templateprocessor)
 add_react_common_subdir(react/renderer/uimanager)
 add_react_common_subdir(react/renderer/core)
 add_react_common_subdir(react/renderer/graphics)
-add_react_common_subdir(react/renderer/debug)
+add_subdirectory(${REACT_COMMON_PATCH_DIR}/react/renderer/debug)
 add_react_common_subdir(react/renderer/imagemanager)
 add_react_common_subdir(react/renderer/components/view)
 #add_react_common_subdir(react/renderer/components/switch)
@@ -451,9 +452,6 @@ add_library(rnoh SHARED
     "${RNOH_CPP_DIR}/RNOHCorePackage/TurboModules/Animated/Drivers/SpringAnimationDriver.cpp"
     "${RNOH_CPP_DIR}/RNOHCorePackage/TurboModules/Animated/Drivers/DecayAnimationDriver.cpp"
     "${RNOH_CPP_DIR}/RNOHCorePackage/TurboModules/Animated/Drivers/EventAnimationDriver.cpp"
-    "${RNOH_CPP_DIR}/RNOHCorePackage/TurboModules/uv/Async.cpp"
-    "${RNOH_CPP_DIR}/RNOHCorePackage/TurboModules/uv/EventLoop.cpp"
-    "${RNOH_CPP_DIR}/RNOHCorePackage/TurboModules/uv/Timer.cpp"
     "${RNOH_CPP_DIR}/RNOHCorePackage/TurboModules/I18nManagerTurboModule.cpp"
     "${RNOH_CPP_DIR}/RNOHCorePackage/EventEmitRequestHandlers/TouchEventEmitRequestHandler.cpp"
     "${RNOH_CPP_DIR}/RNOH/arkui/NativeNodeApi.cpp"
@@ -531,8 +529,8 @@ target_link_libraries(rnoh PUBLIC
 target_compile_options(rnoh PUBLIC
     ${folly_compile_options}
     -DRAW_PROPS_ENABLED
-    -std=c++17
 )
+target_compile_features(rnoh PUBLIC cxx_std_17)
 
 if("$ENV{RNOH_C_API_ARCH}" STREQUAL "1")
     message("Experimental C-API architecture enabled")

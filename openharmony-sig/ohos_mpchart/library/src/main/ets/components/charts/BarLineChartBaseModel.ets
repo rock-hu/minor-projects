@@ -348,7 +348,7 @@ extends Chart<T> implements BarLineScatterCandleBubbleDataProvider {
 
     // if highlighting is enabled
     if (this.valuesToHighlight() && this.mIndicesToHighlight)
-      this.mRenderer.drawHighlighted(context2D, this.mIndicesToHighlight);
+      this.mRenderer.drawHighlighted(context2D, this.mIndicesToHighlight, false);
 
     // Removes clipping rectangle
     context2D.restore();
@@ -747,6 +747,9 @@ extends Chart<T> implements BarLineScatterCandleBubbleDataProvider {
   }
 
   public onTouchEvent(event: TouchEvent): void {
+    if (event.touches.length >= 2) {
+      return;
+    }
     // check if touch gestures are enabled
     if (!this.mTouchEnabled) {
       return;

@@ -13,15 +13,30 @@
  * limitations under the License.
  */
 
+import AvoidEmptyCallbackCheck from "./performance/AvoidEmptyCallbackCheck";
+import CachemodeCheck from "./performance/CachemodeCheck";
 import LoggerFactory from "src/utils/LoggerFactory";
 import ForeachArgsCheck from "./performance/ForEachArgsCheck";
 import TimezoneInterfaceCheck from "./performance/TimezoneInterfaceCheck";
-
+import UnionTypeArrayCheck from "./performance/UnionTypeArrayCheck";
+import SparseArrayCheck from "./performance/SparseArrayCheck";
+import NumberInitCheck from "./performance/NumberInitCheck";
+import HighFrequencyLogCheck from "./performance/HighFrequencyLogCheck";
+import StartWindowIconCheck from "./performance/StartWindowIconCheck";
+import WaterFlowUpdateDataCheck from "./performance/WaterFlowUpdateDataCheck";
 const logger = LoggerFactory.getLogger('ProxyChecker');
 
 const Checkers: any = {
-    TimezoneInterfaceCheck,
+    AvoidEmptyCallbackCheck,
+    CachemodeCheck,
     ForeachArgsCheck,
+    TimezoneInterfaceCheck,
+    UnionTypeArrayCheck,
+    SparseArrayCheck,
+    NumberInitCheck,
+    HighFrequencyLogCheck,
+    StartWindowIconCheck,
+    WaterFlowUpdateDataCheck
 };
 
 export class ProxyChecker {

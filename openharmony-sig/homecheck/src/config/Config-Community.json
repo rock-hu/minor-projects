@@ -40,8 +40,16 @@
     "**/*.ts"
   ],
   "rules": [
+    "@performance/avoid-empty-callback-check:3",
+    "@performance/cachemode-check:1",
+    "@performance/foreach-args-check:1",
     "@performance/timezone-interface-check:3",
-    "@performance/foreach-args-check:1"
+    "@performance/union-type-array-check:3",
+    "@performance/sparse-array-check:3",
+    "@performance/number-init-check:1",
+    "@performance/high-frequency-log-check:3",
+    "@performance/start-window-icon-check:3",
+    "@performance/waterflow-data-preload-check:3"
   ],
   "ruleSet": [],
   "overrides": []

@@ -4,9 +4,9 @@
 
 ### 基本介绍
 
-`RNAbility`继承ArkUI的[UIAbility](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-app-ability-uiability-V5)，封装了启动RN的必要操作，如不同生命周期状态的处理、订阅系统环境变量的变化等，应用程序开发人员应该扩展这个类，使用方法可参考如下代码：
+`RNAbility` 继承 ArkUI 的[UIAbility](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-app-ability-uiability-V5)，封装了启动 **RN** 的必要操作，如不同生命周期状态的处理、订阅系统环境变量的变化等，应用程序开发人员应该扩展这个类，使用方法可参考如下代码：
 
-```ts
+```typescript
 import {RNAbility} from '@rnoh/react-native-openharmony';
 
 export default class EntryAbility extends RNAbility {
@@ -21,7 +21,7 @@ export default class EntryAbility extends RNAbility {
 
 #### createLogger
 
-```ts
+```typescript
 protected createLogger(): RNOHLogger
 ```
 
@@ -31,7 +31,7 @@ protected createLogger(): RNOHLogger
 protected async onPrepareRNInstance(rnohCoreContext: RNOHCoreContext): void
 ```
 
-如果要在Ability中创建`RNInstance`和加载包，可重写此方法。`RNAbility`在加载内容之前等待此方法完成。这种方法减少了在隐藏启动屏幕后可能出现的闪烁，并且RN应用程序已准备就绪。
+如果要在 Ability 中创建 `RNInstance` 和加载包，可重写此方法。`RNAbility` 在加载内容之前等待此方法完成。这种方法减少了在隐藏启动屏幕后可能出现的闪烁，并且 **RN** 应用程序已准备就绪。
 
 ##### 参数
 
@@ -73,7 +73,7 @@ protected async onWindowStageSetup(windowStage: window.WindowStage): void
 protected abstract getPagePath(): string
 ```
 
-获取入口页面路径，该路径在module.json5中定义。扩展类必须实现该方法。
+获取入口页面路径，该路径在 module.json5 中定义。扩展类必须实现该方法。
 
 #### defaultBackPressHandler
 
@@ -89,9 +89,9 @@ protected defaultBackPressHandler(): void
 onCreate(want: Want): void
 ```
 
-Create状态为在应用加载过程中，`UIAbility`实例创建完成时触发，系统会调用[onCreate()](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-app-ability-uiability-V5#uiabilityoncreate)回调。可以在该回调中进行页面初始化操作，例如变量定义资源加载等，用于后续的UI展示。
+Create 状态为在应用加载过程中，`UIAbility` 实例创建完成时触发，系统会调用[onCreate()](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-app-ability-uiability-V5#uiabilityoncreate)回调。可以在该回调中进行页面初始化操作，例如变量定义资源加载等，用于后续的UI展示。
 
-此处实现为创建`RNInstancesCoordinator`、`RNOHCoreContext`实例，并通过调用[`AppStorage.setOrCreate()`](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/ts-state-management-V5#setorcreate10)将`RNOHCoreContext`存储到应用全局。
+此处实现为创建 `RNInstancesCoordinator`、`RNOHCoreContext` 实例，并通过调用[`AppStorage.setOrCreate()`](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/ts-state-management-V5#setorcreate10)将 `RNOHCoreContext` 存储到应用全局。
 
 ##### 参数
 
@@ -102,11 +102,11 @@ Create状态为在应用加载过程中，`UIAbility`实例创建完成时触发
 
 #### onCreateDefaultHttpClient
 
-```ts
+```typescript
 protected onCreateDefaultHttpClient(): undefined | HttpClient
 ```
 
-返回RNInstances共享的HttpClient。
+返回 `RNInstances` 共享的 HttpClient。
 
 #### onDestroy
 
@@ -114,9 +114,9 @@ protected onCreateDefaultHttpClient(): undefined | HttpClient
 onDestroy(): void
 ```
 
-Destroy状态在UIAbility实例销毁时触发。可以在[onDestroy()](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-app-ability-uiability-V5#uiabilityondestroy)回调中进行系统资源的释放、数据的保存等操作。
+Destroy 状态在 UIAbility 实例销毁时触发。可以在[onDestroy()](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-app-ability-uiability-V5#uiabilityondestroy)回调中进行系统资源的释放、数据的保存等操作。
 
-这里最终会调用所有已注册RNInstance的onDestroy方法，统一销毁。
+这里最终会调用所有已注册 `RNInstance`的 `onDestroy` 方法，统一销毁。
 
 #### onWindowStageCreate
 
@@ -124,7 +124,7 @@ Destroy状态在UIAbility实例销毁时触发。可以在[onDestroy()](https://
 onWindowStageCreate(windowStage: window.WindowStage): void
 ```
 
-UIAbility实例创建完成之后，在进入Foreground之前，系统会创建一个WindowStage。WindowStage创建完成后会进入[`onWindowStageCreate()`](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-app-ability-uiability-V5#uiabilityonwindowstagecreate)回调，可以在该回调中设置UI加载、设置WindowStage的事件订阅。
+UIAbility 实例创建完成之后，在进入 Foreground 之前，系统会创建一个 WindowStage。WindowStage 创建完成后会进入[`onWindowStageCreate()`](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-app-ability-uiability-V5#uiabilityonwindowstagecreate)回调，可以在该回调中设置 UI 加载、设置 WindowStage 的事件订阅。
 
 ##### 参数
 
@@ -166,9 +166,9 @@ onConfigurationUpdate(config: AbilityConfiguration.Configuration): void
 onForeground(): void
 ```
 
-[`onForeground`](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-app-ability-uiability-V5#uiabilityonforeground)在UIAbility`实例切换至前台时触发。
+[`onForeground`](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-app-ability-uiability-V5#uiabilityonforeground)在 `UIAbility` 实例切换至前台时触发。
 
-此处会将`RNInstancesCoordinator`中的`appState`变量设置为"FOREGROUND"。
+此处会将 `RNInstancesCoordinator` 中的 `appState` 变量设置为 "FOREGROUND"。
 
 #### onBackground
 
@@ -176,17 +176,17 @@ onForeground(): void
 onBackground(): void
 ```
 
-[`onBackground`](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-app-ability-uiability-V5#uiabilityonbackground)在`UIAbility`实例切换至后台时触发。
+[`onBackground`](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-app-ability-uiability-V5#uiabilityonbackground)在 `UIAbility` 实例切换至后台时触发。
 
-此处会将`RNInstancesCoordinator`中的`appState`变量设置为"BACKGROUND"。
+此处会将 `RNInstancesCoordinator` 中的 `appState` 变量设置为 "BACKGROUND"。
 
-`RNAbility`旨在将大部分代码移动到RNOH方面，以提高稳定性。如果需要更自由的实现方式，可以使用`RNInstancesCoordinator`，本节主要介绍了`RNAbility`的接口类型。
+`RNAbility` 旨在将大部分代码移动到 **RNOH** 方面，以提高稳定性。如果需要更自由的实现方式，可以使用 `RNInstancesCoordinator`，本节主要介绍了 `RNAbility` 的接口类型。
 
 ## RNApp
 
 ### 基本介绍
 
-`RNApp`是用于启动和管理`RNInstance`和`RNSurface`的模块，封装了创建与启动单个`RNInstance`和单个`RNSuface`的行为，同时您也不需要考虑在什么时间加载JS Bundle，如果您的应用只需要单`RNInstance`，同时只需要单`RNSurface`，您可以通过`RNApp`来创建您的RN应用，从而免去一系列繁琐的操作，达到即开即用的效果。对于具有多个Surface的应用程序，可以考虑使用`RNSurface`，本节主要介绍了`RNApp`的接口类型以及使用方式。
+`RNApp` 是用于启动和管理 `RNInstance` 和 `RNSurface` 的模块，封装了创建与启动单个 `RNInstance` 和单个 `RNSuface` 的行为，同时您也不需要考虑在什么时间加载 JS Bundle，如果您的应用只需要单 `RNInstance`，同时只需要单 `RNSurface`，您可以通过 `RNApp` 来创建您的 **RN** 应用，从而免去一系列繁琐的操作，达到即开即用的效果。对于具有多个 Surface 的应用程序，可以考虑使用 `RNSurface`，本节主要介绍了 `RNApp` 的接口类型以及使用方式。
 
 ### 关键参数
 
@@ -203,11 +203,11 @@ onBackground(): void
 
 #### onSetUp
 
-```typescript
+```javascript
 onSetUp: (rnInstance: RNInstance) => Promise<void> | void = () => Promise.resolve()
 ```
 
-在Surface可见且`RNInstance`可用之前，调用`RNInstance`中想要执行的方法。
+在Surface可见且 `RNInstance` 可用之前，调用 `RNInstance` 中想要执行的方法。
 
 ##### 参数
 
@@ -217,7 +217,7 @@ onSetUp: (rnInstance: RNInstance) => Promise<void> | void = () => Promise.resolv
 
 ### 具体使用说明
 
-```typescript
+```javascript
 RNApp({
   // 用于指定React Native 实例的配置
   rnInstanceConfig: {
@@ -262,15 +262,15 @@ RNApp({
 
 ### 基本介绍
 
-`RNSurface`是React Native的根容器，它是一个Native View，用于将React Native组件渲染到Native UI中。`RNSurface`主要负责将组件树渲染到屏幕上。在基于ArkUI C-API的适配方案中，rootView是一个`XComponent`，用于占位，并挂载C-API的组件。本节主要介绍了`RNSurface`的接口类型以及使用方式。
+`RNSurface` 是 React Native 的根容器，它是一个 Native View，用于将 React Native 组件渲染到Native UI 中。`RNSurface` 主要负责将组件树渲染到屏幕上。在基于 ArkUI C-API 的适配方案中，rootView 是一个 `XComponent`，用于占位，并挂载 C-API 的组件。本节主要介绍了 `RNSurface` 的接口类型以及使用方式。
 
-其中，Surface的创建需要调用`RNInstance`的[createSurface](#createsurface)，并且会在`RNInstance`触发`onDestory`的时候销毁。Surface会在RNSurface的`onAreaChange`中启动（执行start），需要注意的是，startSurface需要在loadJSbundle完成后执行，否则会导致页面白屏。您可以通过`RNInstance`的[getBundleExecutionStatus](#getbundleexecutionstatus)获取bundle加载状态，确保时序的正确性。
+其中，Surface 的创建需要调用 `RNInstance` 的[createSurface](#createsurface)，并且会在 `RNInstance` 触发 `onDestory` 的时候销毁。Surface 会在 `RNSurface` 的 `onAreaChange` 中启动（执行 start ），需要注意的是，startSurface 需要在 loadJSbundle 完成后执行，否则会导致页面白屏。您可以通过 `RNInstance` 的[getBundleExecutionStatus](#getbundleexecutionstatus)获取 bundle 加载状态，确保时序的正确性。
 
 ### 关键参数
 
 | 参数名        | 类型                              | 必填 | 说明            |
 | ------------- | --------------------------------- | ---- | --------------- |
-| ctx           | [RNOHContext \| RNComponentContext](#rncomponentcontext) | 是   | RN组件上下文。    |
+| ctx           | [RNOHContext \| RNComponentContext](#rncomponentcontext) | 是   | **RN** 组件上下文。    |
 | surfaceConfig | [SurfaceConfig](#surfaceconfig)                     | 是   | surface配置参数。 |
 
 ### 具体使用说明
@@ -284,39 +284,76 @@ RNSurface({
   } as SurfaceConfig2,
 })
 ```
+
+`RNSurface` 默认情况下会尽可能地填充可用区域，但也可以通过一些方法使其成为自适应容器，由内容决定其高度（宽度仍会尽可能地填充可用区域）。
+要使用自适应的 `RNSurface`，移除对应 JS Bundle 中根容器 AppContainer 的样式中的 flex: 1 属性即可。
+
+#### 方法一
+
+在打包需要使用自适应 `RNSurface` 特性的 JS Bundle 时，本地修改 `node_modules\react-native\Libraries\ReactNative\AppContainer.js` 中 AppContainer 的样式。
+
+```diff
+const styles = StyleSheet.create({
+  appContainer: {
+-    flex: 1,
+  },
+});
+```
+
+#### 方法二
+
+直接修改 JS Bundle 中 AppContainer 的样式。
+
+```diff
+  AppContainer.getDerivedStateFromError = undefined;
+  var styles = _StyleSheet.default.create({
+    appContainer: {
+-      flex: 1
+    }
+  });
+  module.exports = AppContainer;
+```
+
 ### SurfaceConfig
 
-`SurfaceConfig`拥有两个子类：`SurfaceConfig1`、`SurfaceConfig2`，开发者在使用的时候可以根据需要分别选择不同的config：
+`SurfaceConfig` 拥有两个子类： `SurfaceConfig1`、 `SurfaceConfig2`，开发者在使用的时候可以根据需要分别选择不同的 config：
 
 #### SurfaceConfig1
 
 | 参数名 | 类型 | 必填 | 说明 |
 | --- | --- | --- | --- |
-| surfaceHandle | SurfaceHandle | 是 | 表示RNSurface的句柄，可由[createSurface](#createsurface)创建。 |
+| surfaceHandle | SurfaceHandle | 是 | 表示 `RNSurface` 的句柄，可由[createSurface](#createsurface)创建。 |
 
 #### SurfaceConfig2
 
 | 参数名 | 类型 | 必填 | 说明 |
 | --- | --- | --- | --- |
-| appKey | string | 是 | 开发者在JS侧使用`AppRegistry.registerComponent`注册的名称。 |
+| appKey | string | 是 | 开发者在 JS 侧使用 `AppRegistry.registerComponent` 注册的名称。 |
 | initialProps | Record<string, any> | 是 | React Native应用的初始化原生参数。 |
+
+### updateViewRootTag
+
+```javascript
+ public updateViewRootTag: ((rnInstance:RNInstance, rootViewTag: number) => void) | undefined;
+```
+返回该 `RNSurface` 对应的 `RNInstance` 以及 rootViewTag。
 
 
 ## RNInstance
 
 ### 基本介绍
 
-`RNInstance`是React Native的实例，在使用RN框架的时候，一定要创建和启动一个或多个`RNInstance`。`RNInstance`负责管理React Native的生命周期，维护React Native组件树，本节主要介绍了`RNInstance`的接口类型以及使用方式。
+`RNInstance` 是 React Native 的实例，在使用 **RN** 框架的时候，一定要创建和启动一个或多个`RNInstance`。`RNInstance` 负责管理 React Native 的生命周期，维护 React Native 组件树，本节主要介绍了 `RNInstance` 的接口类型以及使用方式。
 
 ### RNInstance创建、销毁流程
 
 #### 创建
 
-我们一般使用`RNOHCoreContext`中的`createAndRegisterRNInstance`方法来创建和注册`RNInstance`，下面是详细步骤：
+我们一般使用 `RNOHCoreContext` 中的 `createAndRegisterRNInstance` 方法来创建和注册 `RNInstance`，下面是详细步骤：
 
-1. 应用启动执行`RNAbility`中的onCreate方法，创建了`RNInstancesCoordinator`对象实例。该类为`RNInstance`的协调者，引导React Native并将设备事件转发给`RNInstance`，且这个类是为`UIAbility`的使用而创建的。
+1. 应用启动执行 `RNAbility` 中的 `onCreate` 方法，创建了 `RNInstancesCoordinator` 对象实例。该类为 `RNInstance` 的协调者，引导 React Native 并将设备事件转发给 `RNInstance`，且这个类是为 `UIAbility` 的使用而创建的。
 
-    ```typescript
+    ```javascript
     this.rnInstancesCoordinator = RNInstancesCoordinator.create({
       fontSizeScale: this.context.config.fontSizeScale,
       logger: this.createLogger(),
@@ -334,9 +371,9 @@ RNSurface({
     AppStorage.setOrCreate('RNOHCoreContext', this.rnInstancesCoordinator.getRNOHCoreContext())
     ```
 
-    这时会把`RNOHCoreContext`存储到应用全局，后续可通过`AppStorage.get`方法获取`RNOHCoreContext`实例对象。
+    这时会把 `RNOHCoreContext` 存储到应用全局，后续可通过 `AppStorage.get` 方法获取 `RNOHCoreContext` 实例对象。
 
-2. 在`RNApp`初始化时，会调用`RNOHCoreContext`中的`createAndRegisterRNInstance`方法来创建和注册`RNInstance`。
+2. 在 `RNApp` 初始化时，会调用 `RNOHCoreContext` 中的 `createAndRegisterRNInstance` 方法来创建和注册 `RNInstance`。
 
     ```typescript
     private getOrCreateRNInstance(): Promise<RNInstance> {
@@ -348,9 +385,7 @@ RNSurface({
         return this.rnohCoreContext!.createAndRegisterRNInstance(options as RNInstanceOptions)
       }
     }
-
     ...
-
     this.rnInstance = await this.getOrCreateRNInstance()
     ```
 
@@ -372,9 +407,9 @@ RNSurface({
 
 #### 销毁
 
-`RNApp`执行aboutToDisappear时，会调用`RNOHCoreContext`的`destroyAndUnregisterRNInstance`方法来销毁`RNInstance`。
+`RNApp` 执行 `aboutToDisappear` 时，会调用 `RNOHCoreContext` 的 `destroyAndUnregisterRNInstance` 方法来销毁 `RNInstance`。
 
-```typescript
+```javascript
 aboutToDisappear() {
   this.cleanUp()
 }
@@ -414,7 +449,7 @@ private async cleanUp() {
 
 #### subscribeToLifecycleEvents
 
-```typescript
+```javascript
 subscribeToLifecycleEvents: <TEventName extends keyof LifecycleEventArgsByEventName>(
   eventName: TEventName,
   listener: (...args: LifecycleEventArgsByEventName[TEventName]) => void
@@ -436,7 +471,7 @@ subscribeToLifecycleEvents: <TEventName extends keyof LifecycleEventArgsByEventN
 callRNFunction(moduleName: string, functionName: string, args: unknown[]): void
 ```
 
-回调React js端的函数。
+回调 React js 端的函数。
 
 ###### 参数
 
@@ -452,7 +487,7 @@ callRNFunction(moduleName: string, functionName: string, args: unknown[]): void
 emitDeviceEvent(eventName: string, payload: any): void
 ```
 
-向React js端的RCTDeviceEventEmitter模块的emit发送事件件。
+向 React js 端的 `RCTDeviceEventEmitter` 模块的 emit 发送事件件。
 
 ##### 参数
 
@@ -467,7 +502,7 @@ emitDeviceEvent(eventName: string, payload: any): void
 emitComponentEvent(tag: Tag, eventName: string, payload: any): void
 ```
 
-发送组件事件，该事件由C++端的`EventEmitRequestHandler`接收。该处理程序调用组件的EventEmitter上的适当方法。
+发送组件事件，该事件由 C++ 端的 `EventEmitRequestHandler` 接收。该处理程序调用组件的 EventEmitter 上的适当方法。
 
 ##### 参数
 
@@ -483,7 +518,7 @@ emitComponentEvent(tag: Tag, eventName: string, payload: any): void
 getBundleExecutionStatus(bundleURL: string) : BundleExecutionStatus | undefined
 ```
 
-获取bundle执行状态，`RNApp`用来避免两次加载相同的包。
+获取 bundle 执行状态，`RNApp` 用来避免两次加载相同的包。
 
 ##### 参数
 
@@ -493,7 +528,7 @@ getBundleExecutionStatus(bundleURL: string) : BundleExecutionStatus | undefined
 
 ##### 返回类型：BundleExecutionStatus | undefined
 
-BundleExecutionStatusmei枚举类型。
+BundleExecutionStatus 枚举类型。
 
 | 枚举值  | 说明   |
 | ------- | ------ |
@@ -506,7 +541,7 @@ BundleExecutionStatusmei枚举类型。
 enableFeatureFlag(featureFlagName: FeatureFlagName): void
 ```
 
-启用特性标志。它可能会在将来被删除，因为通常在创建`RNInstance`时需要提供特性标志。
+启用特性标志。它可能会在将来被删除，因为通常在创建 `RNInstance` 时需要提供特性标志。
 
 ##### 参数
 
@@ -557,7 +592,7 @@ runJSBundle(jsBundleProvider: JSBundleProvider): Promise<void>;
 getTurboModule<T extends TurboModule>(name: string): T
 ```
 
-获取对应TurboModule实例。
+获取对应 TurboModule 实例。
 
 ##### 参数
 
@@ -571,7 +606,7 @@ getTurboModule<T extends TurboModule>(name: string): T
 createSurface(appKey: string): SurfaceHandle
 ```
 
-由`RNSurface`使用，会在React Native中创建一个Surface。
+由 `RNSurface` 使用，会在 React Native 中创建一个 Surface。
 
 ##### 参数
 
@@ -585,7 +620,7 @@ createSurface(appKey: string): SurfaceHandle
 updateState(componentName: string, tag: Tag, state: unknown): void
 ```
 
-向ComponentNapiBinder.h::updateState发送状态更新请求，更新C++端状态。
+向 ComponentNapiBinder.h::updateState 发送状态更新请求，更新 C++ 端状态。
 
 ##### 参数
 
@@ -601,7 +636,7 @@ updateState(componentName: string, tag: Tag, state: unknown): void
 bindComponentNameToDescriptorType(componentName: string, descriptorType: string)
 ```
 
-将Descriptor类型和组件名进行关联，用于将核心组件替换为自定义组件。
+将 Descriptor 类型和组件名进行关联，用于将核心组件替换为自定义组件。
 
 ##### 参数
 
@@ -616,7 +651,7 @@ bindComponentNameToDescriptorType(componentName: string, descriptorType: string)
 getComponentNameFromDescriptorType(descriptorType: string): string
 ```
 
-根据Descriptor类型获取组件名称。
+根据 Descriptor 类型获取组件名称。
 
 ##### 参数
 
@@ -626,11 +661,11 @@ getComponentNameFromDescriptorType(descriptorType: string): string
 
 #### blockComponentsGestures
 
-```typescript
+```javascript
 blockComponentsGestures(targetComponentTag: Tag): (() => void)
 ```
 
-阻止targetComponent及其祖先中的手势。由react-native-gesture-handler在`RNScrollView`或其他可滚动组件中平移时使用。
+阻止 targetComponent 及其祖先组件中的手势。由 react-native-gesture-handler 在 `RNScrollView` 或其他可滚动组件中平移时使用。
 
 ##### 参数
 
@@ -648,7 +683,7 @@ blockComponentsGestures(targetComponentTag: Tag): (() => void)
 getInitialBundleUrl(): string | undefined
 ```
 
-返回第一个加载的JS Bundle URL。SourceCodeTurboModule使用这个方法来生成正确的堆栈跟踪。有些应用将它们捆绑包分开来提高启动性能，因此有了“初始”这个词。
+返回第一个加载的 JS Bundle URL。SourceCodeTurboModule 使用这个方法来生成正确的堆栈跟踪。有些应用将它们捆绑包分开来提高启动性能，因此有了“初始”这个词。
 
 #### getAssetsDest
 
@@ -656,7 +691,7 @@ getInitialBundleUrl(): string | undefined
 getAssetsDest(): string
 ```
 
-返回assets资源的路径。
+返回 assets 资源的路径。
 
 #### postMessageToCpp
 
@@ -664,7 +699,7 @@ getAssetsDest(): string
 postMessageToCpp(name: string, payload: any)
 ```
 
-ArkTS向C++端发送消息。由`ArkTSMessageHub:Observer`或`ArkTSMessageHandler`处理。
+ArkTS 向 C++ 端发送消息。由 `ArkTSMessageHub:Observer` 或 `ArkTSMessageHandler` 处理。
 
 ##### 参数
 
@@ -673,55 +708,70 @@ ArkTS向C++端发送消息。由`ArkTSMessageHub:Observer`或`ArkTSMessageHandle
 | name    | string | 是   | 消息名称。   |
 | payload | any    | 是   | 发送的数据。 |
 
+#### registerFont
+
+```typescript
+registerFont(fontFamily: string, fontResource: Resource | string): void
+```
+
+注册字体。
+
+###### 参数
+
+| 参数名       | 类型      | 必填 | 说明                                   |
+| ------------ | --------- | ---- | -------------------------------------- |
+| fontFamily   | string    | 是   | 字体名。                   |
+| fontResource | Resource / string    | 是   | 字体资源对象，或字体资源文件的沙箱路径。 |
+
 ## RNOHCoreContext
 
 ### 基本介绍
 
-`RNOHCoreContext`提供可跨`RNInstances`共享的依赖项和实用程序。还包括创建和销毁`RNInstance`的方法，对于特定于`RNInstance`的方法。本节主要介绍了`RNOHCoreContext`的接口类型。
+`RNOHCoreContext` 提供可跨 `RNInstances` 共享的依赖项和实用程序。还包括创建和销毁`RNInstance` 的方法，对于特定于 `RNInstance` 的方法。本节主要介绍了 `RNOHCoreContext` 的接口类型。
 
 ### 关键参数
 
 | 参数名                 | 类型                    | 说明                                                         |
 | ---------------------- | ----------------------- | ------------------------------------------------------------ |
 | uiAbilityContext       | common.UIAbilityContext | `UIAbility`的上下文。                                          |
-| safeAreaInsetsProvider | SafeAreaInsetsProvider  | SafeAreaInsets提供者，SafeAreaInsets提供了与屏幕边缘的距离，可以用来避免在状态栏、缺口或瀑布边缘下面呈现的内容。 |
-| isDebugModeEnabled     | boolean                 | React Native是否使用Debug模式。                                |
+| safeAreaInsetsProvider | SafeAreaInsetsProvider  | SafeAreaInsets 提供者，SafeAreaInsets 提供了与屏幕边缘的距离，可以用来避免在状态栏、缺口或瀑布边缘下面呈现的内容。 |
+| isDebugModeEnabled     | boolean                 | React Native 是否使用 Debug 模式。                                |
 | launchUri              | string \| undefined     | ArkUI::Want::uri，应用自己的uri。                              |
 
 ### 关键方法
 
 #### createAndRegisterRNInstance
 
-```typescript
+```javascript
 createAndRegisterRNInstance: (options: RNInstanceOptions, frameNodeFactory?: FrameNodeFactory) => Promise<RNInstance>
 ```
 
-创建RNInstance并将其注册到RNOH的内部注册表中。
+创建 `RNInstance` 并将其注册到 **RNOH** 的内部注册表中。
 
 ##### 参数
 
 | 参数名           | 类型              | 必填 | 说明                        |
 | ---------------- | ----------------- | ---- | --------------------------- |
-| options          | RNInstanceOptions | 是   | `RNInstance`的参数选项。      |
-| frameNodeFactory | FrameNodeFactory  | 是   | 由`RNSurface`实例化的内部类。 |
+| options          | RNInstanceOptions | 是   | `RNInstance` 的参数选项。      |
+| frameNodeFactory | FrameNodeFactory  | 是   | 由 `RNSurface` 实例化的内部类。 |
 
 #### destroyAndUnregisterRNInstance
 
-```typescript
+```javascript
 destroyAndUnregisterRNInstance: (rnInstance: RNInstance) => void
 ```
 
-销毁`RNInstance`并从RNOH的内部注册表中注销。
+销毁 `RNInstance` 并从 **RNOH** 的内部注册表中注销。
 
 ##### 参数
 
 | 参数名     | 类型       | 必填 | 说明                 |
 | ---------- | ---------- | ---- | -------------------- |
-| rnInstance | RNInstance | 是   | 要销毁的`RNInstance`。 |
+| rnInstance | RNInstance | 是   | 要销毁的 `RNInstance`。 |
 
 #### getDisplayMetrics
 
-```typescript
+```javascript
 getDisplayMetrics: () => DisplayMetrics
 ```
 
@@ -729,7 +779,7 @@ getDisplayMetrics: () => DisplayMetrics
 
 #### getUIAbilityState
 
-```typescript
+```javascript
 getUIAbilityState: () => UIAbilityState
 ```
 
@@ -737,15 +787,22 @@ getUIAbilityState: () => UIAbilityState
 
 #### dispatchBackPress
 
-```typescript
+```javascript
 dispatchBackPress: () => void
 ```
+用 root ArkUI 组件的 `onBackPress` 调用，目前这是 BackPress 的唯一响应方式。
 
-用root ArkUI组件的onBackPress调用，目前这是BackPress的唯一响应方式。
+#### reportRNOHError
+
+| 参数名     | 类型       | 必填 | 说明                 |
+| ---------- | ---------- | ---- | -------------------- |
+| rnohError | RNOHError | 是   | 上报的错误 |
+
+上报 **RNOH** 错误用于监听。
 
 ## RNComponentContext
 
-`RNComponentContext`是React Native for OpenHarmony构造组件时使用的上下文信息，是`RNOHContext`的子类。
+`RNComponentContext` 是 React Native for OpenHarmony 构造组件时使用的上下文信息，是 `RNOHContext` 的子类。
 
 ### constructor
 
@@ -753,34 +810,34 @@ dispatchBackPress: () => void
 | ------- | -------- | ---- | -------- |
 | rnohContext | RNOHContext | 是 | 用于组件或TurboModule使用的上下文信息。 |
 | wrappedCustomRNComponentBuilder | WrappedCustomRNComponentBuilder | 是 | 用于构造ArkTS侧自定义组件的构造器。 |
-| wrappedRNComponentBuilder | WrappedRNComponentBuilder | 是 | 用于构造ArkTS侧RN子组件的构造器。 |
-| rnComponentDataSourceFactoriesByDescriptorType | Map<string, RNComponentDataSourceFactory> | 是 | 用来存储LazyForEach的DataSource对象。 |
+| wrappedRNComponentBuilder | WrappedRNComponentBuilder | 是 | 用于构造 ArkTS 侧 **RN** 子组件的构造器。 |
+| rnComponentDataSourceFactoriesByDescriptorType | Map<string, RNComponentDataSourceFactory> | 是 | 用来存储 LazyForEach 的 DataSource 对象。 |
 
 ## JSBundleProvider
 
 ### 基础介绍
 
-JS Bundle提供者，用于初始化bundle信息，获取bundle具体内容。本节主要介绍了`RNOHCoreContext`的接口类型。
+JS Bundle 提供者，用于初始化 bundle 信息，获取 bundle 具体内容。本节主要介绍了 `RNOHCoreContext` 的接口类型。
 
 ### 类型
 
 #### AnyJSBundleProvider
 
-所有bundle的加载器，从小到大依次加载。
+所有 bundle 的加载器，从小到大依次加载。
 
 ##### 参数
 
 | 参数名            | 类型               | 必填 | 说明                                                 |
 | ----------------- | ------------------ | ---- | ---------------------------------------------------- |
-| jsBundleProviders | JSBundleProvider[] | 是   | JSBundleProvider数组，可以传入多个JS Bundle Provider。 |
+| jsBundleProviders | JSBundleProvider[] | 是   | JSBundleProvider 数组，可以传入多个 JS Bundle Provider。 |
 
 #### MetroJSBundleProvider
 
-使用Metro服务加载bundle。
+使用 Metro 服务加载 bundle。
 
 #### FileJSBundleProvider
 
-从沙箱目录下加载bundle。
+从沙箱目录下加载 bundle。
 
 ##### 参数
 
@@ -791,13 +848,13 @@ JS Bundle提供者，用于初始化bundle信息，获取bundle具体内容。�
 
 #### ResourceJSBundleProvider
 
-从资源文件中加载bundle，专指resources/rawfile下的bundle文件。
+从资源文件中加载 bundle，专指 `resources/rawfile` 下的 bundle 文件。
 
 | 参数名          | 类型                                                         | 必填 | 说明         |
 | --------------- | ------------------------------------------------------------ | ---- | ------------ |
 | resourceManager | [resmgr.ResourceManager](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/resourcemanager-V5) | 是   | 资源管理对象。 |
 | path            | string                                                       | 是   | bundle文件名。 |
-| appKeys         | string[]                                                     | 否   | 开发者在JS侧使用`AppRegistry.registerComponent`注册的名称。     |
+| appKeys         | string[]                                                     | 否   | 开发者在 JS 侧使用 `AppRegistry.registerComponent` 注册的名称。     |
 
 #### 
 
@@ -805,24 +862,24 @@ JS Bundle提供者，用于初始化bundle信息，获取bundle具体内容。�
 
 ### 基本介绍
 
-`RNAbility`旨在将大部分代码移动到RNOH方面，以提高稳定性。这类项目不使用`RNAbility`和`RNApp`。为此，React Native for OpenHarmony提供了`RNInstancesCoordinator`给开发者，旨在更加灵活的控制RN的启动， 
+`RNAbility` 旨在将大部分代码移动到 **RNOH** 方面，以提高稳定性。这类项目不使用 `RNAbility` 和 `RNApp`。为此，React Native for OpenHarmony 提供了 `RNInstancesCoordinator` 给开发者，旨在更加灵活的控制 **RN** 的启动， 
 
 ### 方法
 
 #### create
 
-```TypeScript
+```typescript
 static create(dependencies: RNInstancesCoordinatorDependencies, options?: RNInstancesCoordinatorOptions)
 ```
 
-根据给定的`RNInstancesCoordinatorDependencies`与`RNInstancesCoordinatorOptions`返回`RNInstancesCoordinator`的对象。
+根据给定的 `RNInstancesCoordinatorDependencies` 与 `RNInstancesCoordinatorOptions` 返回 `RNInstancesCoordinator` 的对象。
 
 ##### 参数
 
 | 参数名 | 类型 | 必填 | 说明 |
 | --- | --- | --- | --- |
-| dependencies | [RNInstancesCoordinatorDependencies](#rninstancescoordinatordependencies) | 是 | 用于构建RNInstancesCoordinator时使用的依赖。 |
-| options | [RNInstancesCoordinatorOptions](#rninstancescoordinatoroptions) | 否 | 构建RNInstancesCoordinator时使用的选项。 |
+| dependencies | [RNInstancesCoordinatorDependencies](#rninstancescoordinatordependencies) | 是 | 用于构建 `RNInstancesCoordinator` 时使用的依赖。 |
+| options | [RNInstancesCoordinatorOptions](#rninstancescoordinatoroptions) | 否 | 构建 `RNInstancesCoordinator` 时使用的选项。 |
 
 #### onDestroy
 
@@ -830,7 +887,7 @@ static create(dependencies: RNInstancesCoordinatorDependencies, options?: RNInst
 rnInstancesCoordinator?.onDestroy(): void
 ```
 
-onDestroy方法在UIAbility实例销毁时调用，进入RN。可以在[onDestroy()](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-app-ability-uiability-V5#uiabilityondestroy)回调中进行系统资源的释放、数据的保存等操作。
+`onDestroy` 方法在 UIAbility 实例销毁时调用，进入 **RN**。可以在[onDestroy()](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-app-ability-uiability-V5#uiabilityondestroy)回调中进行系统资源的释放、数据的保存等操作。
 
 #### getBuildMode
 
@@ -846,7 +903,7 @@ rnInstancesCoordinator?.getBuildMode(): BuildMode
 ```typescript
 rnInstancesCoordinator?.getRNOHCoreContext(): RNOHCoreContext
 ```
-获取RNInstancesCoordinator实例的RNOHCoreContext；
+获取 **RNInstancesCoordinator** 实例的 **RNOHCoreContext**；
 
 #### onForeground
 
@@ -854,25 +911,25 @@ rnInstancesCoordinator?.getRNOHCoreContext(): RNOHCoreContext
 rnInstancesCoordinator?.onForeground(): void
 ```
 
-开发者应在[`onForeground`](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-app-ability-uiability-V5#uiabilityonforeground)在UIAbility实例切换至前台时调用该方法，向React侧通知应用已经从后台切换至前台。
+开发者应在[`onForeground`](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-app-ability-uiability-V5#uiabilityonforeground)在 `UIAbility` 实例切换至前台时调用该方法，向 React 侧通知应用已经从后台切换至前台。
 
 #### onBackground
 
 ```typescript
 rnInstancesCoordinator?.onBackground(): void
 ```
-开发者应在[`onBackground`](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-app-ability-uiability-V5#uiabilityonbackground)在`UIAbility`实例切换至后台时调用该方法，向React侧通知应用已经从前台切换至后台。
+开发者应在[`onBackground`](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-app-ability-uiability-V5#uiabilityonbackground)在`UIAbility`实例切换至后台时调用该方法，向 React 侧通知应用已经从前台切换至后台。
 
 #### onWindowStageChange
 
 ```typescript
 rnInstancesCoordinator?.onWindowStageChange(windowStageEvent: window.WindowStageEventType): void
 ```
-开发者需要监听[windowStageEvent](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-window-V5#onwindowstageevent9)事件，并调用该方法，向React侧通知WindowStage生命周期变化。
+开发者需要监听[windowStageEvent](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-window-V5#onwindowstageevent9)事件，并调用该方法，向 React 侧通知 WindowStage 生命周期变化。
 
 | 参数名 | 类型 | 必填 | 说明 |
 | --- | --- | --- | --- |
-| windowStageEvent | [WindowStageEventType](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-window-V5#windowstageeventtype9) | 是 | WindowStage类型。 |
+| windowStageEvent | [WindowStageEventType](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-window-V5#windowstageeventtype9) | 是 | WindowStage 类型。 |
 
 #### onWindowSizeChange
 
@@ -880,7 +937,7 @@ rnInstancesCoordinator?.onWindowStageChange(windowStageEvent: window.WindowStage
 rnInstancesCoordinator?.onWindowSizeChange(windowSize: window.Size): void
 ```
 
-开发者需要监听[windowSizeChange](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-window-V5#onwindowsizechange7)事件，并调用该方法，向React侧通知窗口尺寸变化。
+开发者需要监听[windowSizeChange](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-window-V5#onwindowsizechange7)事件，并调用该方法，向 React 侧通知窗口尺寸变化。
 
 | 参数名 | 类型 | 必填 | 说明 |
 | --- | --- | --- | --- |
@@ -903,7 +960,7 @@ rnInstancesCoordinator?.onConfigurationUpdate(systemConfiguration: AbilityConfig
 ```typescript
 rnInstancesCoordinator?.onMemoryLevel(memoryLevel: number): void
 ```
-开发者应在内存到达不同级别时，调用该方法，向React Native通知。
+开发者应在内存到达不同级别时，调用该方法，向 React Native 通知。
 | 参数名 | 类型 | 必填 | 说明 |
 | --- | --- | --- | --- |
 | memoryLevel | [AbilityConstant.MemoryLevel](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-app-ability-abilityconstant-V5#abilityconstantmemorylevel) | 是 | 通知 React Native 内存级别发生改变。 |
@@ -913,23 +970,23 @@ rnInstancesCoordinator?.onMemoryLevel(memoryLevel: number): void
 ```typescript
 rnInstancesCoordinator?.onNewWant(want: Want, launchParam: AbilityConstant.LaunchParam): void
 ```
-开发者需要在UIAbility实例已经启动并在前台运行过，由于某些原因切换到后台，再次启动该UIAbility实例时会回调执行的UIAbility.onNewWant中调用该方法。
+开发者需要在 UIAbility 实例已经启动并在前台运行过，由于某些原因切换到后台，再次启动该 UIAbility 实例时会回调执行的 UIAbility.onNewWant 中调用该方法。
 
 | 参数名 | 类型 | 必填 | 说明 |
 | --- | --- | --- | --- |
-| want | [Want](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-app-ability-want-V5) | 是 | Want类型参数，如ability名称，包名等。 | 
-| launchParam | [AbilityConstant.LaunchParam](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-app-ability-abilityconstant-V5#abilityconstantlaunchparam) | 是 | UIAbility启动的原因、上次异常退出的原因信息。 |
+| want | [Want](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-app-ability-want-V5) | 是 | Want 类型参数，如 ability 名称，包名等。 | 
+| launchParam | [AbilityConstant.LaunchParam](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-app-ability-abilityconstant-V5#abilityconstantlaunchparam) | 是 | UIAbility 启动的原因、上次异常退出的原因信息。 |
 
 
 #### RNInstancesCoordinatorDependencies
 
 | 参数名 | 类型 | 必填 | 说明 |
 | --- | --- | --- | --- |
-| fontSizeScale | number \| undefined | 是 | 字体大小缩放比例。 |
+| fontSizeScale | number \| undefined | 是 | 字体大小缩放比例，值为 1 的时候为正常大小字体，小于1缩小，大于 1 放大。 |
 | logger | RNOHLogger | 是 | 用于打印日志。 |
-| uiAbilityContext | [UIAbilityContext](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-inner-application-uiabilitycontext-V5) | 是 | 使用 React Native 的 Ability的上下文信息。 |
-| rnohWorkerScriptUrl | string | 否 | 部分TurboModule需要启动Worker线程才可以正常启用，需要设置该属性，启用对应name的RNInstance的Worker线程。 |
-| defaultBackPressHandler | Function | 是 | React侧执行的`exitApp`的原生侧实现。 |
+| uiAbilityContext | [UIAbilityContext](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-inner-application-uiabilitycontext-V5) | 是 | 使用 React Native 的 Ability 的上下文信息。 |
+| rnohWorkerScriptUrl | string | 否 | 部分TurboModule需要启动Worker线程才可以正常启用，需要设置该属性，启用对应 name 的 `RNInstance` 的 Worker 线程。 |
+| defaultBackPressHandler | Function | 是 | React 侧执行的 `exitApp` 的原生侧实现。 |
 
 #### RNInstancesCoordinatorOptions
 
@@ -937,5 +994,5 @@ rnInstancesCoordinator?.onNewWant(want: Want, launchParam: AbilityConstant.Launc
 | --- | --- | --- | --- |
 | launchURI | string | 否 | `Linking.getInitialURL()`获取到的初始URL。 |
 | onGetPackagerClientConfig | (buildMode: BuildMode) => JSPackagerClientConfig \| undefined | 否 | 返回Metro配置的函数。 | 
-| defaultHttpClient | [HttpClient](https://developer.huawei.com/consumer/cn/doc/system-References/network-httpclient-0000001073658008) | 否 | 用于在RN与原生混合的应用中，重用Cookies或打印日志。 |
-| disableCleaningRNInstances | boolean | 否 | 是否启用CleanUP线程，清理RN实例。 | 
+| defaultHttpClient | [HttpClient](https://developer.huawei.com/consumer/cn/doc/system-References/network-httpclient-0000001073658008) | 否 | 用于在 **RN** 与原生混合的应用中，重用 Cookies 或打印日志。 |
+| disableCleaningRNInstances | boolean | 否 | 是否启用 CleanUP 线程，清理 **RN** 实例。 | 

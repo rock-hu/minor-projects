@@ -9,6 +9,7 @@ const TEMPLATE = `
  *
  * @generatorVersion: 1
  */
+
 #pragma once
 
 #include <react/renderer/core/ConcreteComponentDescriptor.h>
@@ -18,7 +19,7 @@ const TEMPLATE = `
 namespace facebook {
 namespace react {
 
-extern const char {{name}}ComponentName[] = "{{name}}";
+constexpr char {{name}}ComponentName[] = "{{name}}";
 
 class {{name}}Props : public ViewProps {
   public:

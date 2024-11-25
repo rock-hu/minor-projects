@@ -1,8 +1,29 @@
-## 3.1.0-rc.1
+## 4.0.0-rc.0
 - 合入3.0.9至3.0.11的修改，修改打印日志方法
+- incorporating modifications from 3.0.12 to 3.0.15
 
 ## 3.1.0-rc.0
 - 升级状态管理器V2
+
+## 3.0.15
+- Fix the issue of sliding stuttering in the setLongPressCursorEnabled scenario
+
+## 3.0.14
+- Fix the issue where LineChart and BarChart cannot slide in the sliding component
+
+## 3.0.13
+- 修复HorizontalBarChart的limitLine不显示和文字较粗的问题
+- 修复拖动图表后高亮线消失的问题
+- 允许设置图表是否抗锯齿
+
+## 3.0.12
+- 修复 onChartTranslate 回调方法中调用model.getLowestVisibleX结果不对的问题。
+
+## 3.0.12-rc.0
+- 修改透明度不正确的问题
+- 修复while循环卡住的问题
+- 修改日志打印方法
+- 优化二维矩阵变化方法mapPoints的执行速度
 
 ## 3.0.11
 - 增加图表设置触摸测试类型接口：setHitTestMode

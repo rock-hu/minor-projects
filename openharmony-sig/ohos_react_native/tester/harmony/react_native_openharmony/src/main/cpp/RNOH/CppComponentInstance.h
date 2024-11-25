@@ -2,6 +2,7 @@
  * Used only in C-API based Architecture.
  */
 #pragma once
+#include <arkui/native_type.h>
 #include <RNOH/arkui/NativeNodeApi.h>
 #include <react/renderer/components/view/TouchEventEmitter.h>
 #include <react/renderer/components/view/ViewProps.h>
@@ -220,6 +221,11 @@ class CppComponentInstance : public ComponentInstance {
       facebook::react::LayoutMetrics const& layoutMetrics) {
     this->getLocalRootArkUINode().setLayoutRect(
       layoutMetrics.frame.origin, layoutMetrics.frame.size, layoutMetrics.pointScaleFactor);
+    if (layoutMetrics.layoutDirection != m_layoutMetrics.layoutDirection) {
+      ArkUI_Direction direction =
+          convertLayoutDirection(layoutMetrics.layoutDirection);
+      this->getLocalRootArkUINode().setDirection(direction);
+    }
     markBoundingBoxAsDirty();
   }
 
@@ -418,7 +424,7 @@ class CppComponentInstance : public ComponentInstance {
   virtual void onStateChanged(SharedConcreteState const& state){};
 
   virtual void onEventEmitterChanged(
-      SharedConcreteEventEmitter const& eventEmitter){};
+      SharedConcreteEventEmitter const& /*eventEmitter*/){};
 
   void calculateBoundingBox() {
     auto newBoundingBox = getHitRect();
@@ -522,6 +528,19 @@ class CppComponentInstance : public ComponentInstance {
   SharedConcreteEventEmitter m_eventEmitter;
   std::optional<facebook::react::Rect> m_boundingBox;
   bool m_isClipping = false;
+  
+    static ArkUI_Direction convertLayoutDirection(
+      facebook::react::LayoutDirection layoutDirection) {
+    switch (layoutDirection) {
+      using facebook::react::LayoutDirection;
+      case LayoutDirection::LeftToRight:
+        return ArkUI_Direction::ARKUI_DIRECTION_LTR;
+      case facebook::react::LayoutDirection::RightToLeft:
+        return ArkUI_Direction::ARKUI_DIRECTION_RTL;
+      default:
+        return ArkUI_Direction::ARKUI_DIRECTION_AUTO;
+    }
+  }
 };
 
 inline facebook::react::Rect transformRectAroundPoint(

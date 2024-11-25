@@ -1,11 +1,12 @@
 import { AbsolutePath } from '../../core';
 import { CodeGenerator } from '../core';
 import {
-  ComponentCodeGeneratorCAPI,
+  CppComponentCodeGenerator,
   LibraryData,
-} from './ComponentCodeGeneratorCAPI';
+} from './CppComponentCodeGenerator';
 import { NativeModuleCodeGenerator } from './NativeModuleCodeGenerator';
-import { GlueCodeDataV2 } from './GlueCodeGenerator';
+import { GlueCodeDataV2 } from './AppBuildTimeGlueCodeGenerator';
+import { SharedComponentCodeGenerator } from './SharedComponentCodeGenerator';
 
 /**
  * Generates code for libraries built on top of RNOH's C-API architecture.
@@ -15,7 +16,8 @@ export class UberGeneratorV2 implements CodeGenerator<LibraryData[]> {
 
   constructor(
     private cppOutputPath: AbsolutePath,
-    private etsOutputPath: AbsolutePath
+    private etsOutputPath: AbsolutePath,
+    private codegenNoticeLines: string[]
   ) {}
 
   getGlueCodeData(): GlueCodeDataV2 {
@@ -25,20 +27,26 @@ export class UberGeneratorV2 implements CodeGenerator<LibraryData[]> {
   generate(npmPackagesInfo: LibraryData[]) {
     const fileContentByPath: Map<AbsolutePath, string> = new Map();
 
-    npmPackagesInfo.forEach(({ name, uberSchema }) => {
-      this.glueCodeData.set(name, { components: [], turboModules: [] });
-      const libraryGlueCodeData = this.glueCodeData.get(name)!;
-      const libraryCppOutput = this.cppOutputPath.copyWithNewSegment(name);
-      const componentCodeGeneratorCAPI = new ComponentCodeGeneratorCAPI(
+    npmPackagesInfo.forEach(({ libraryCppName, uberSchema }) => {
+      this.glueCodeData.set(libraryCppName, {
+        components: [],
+        turboModules: [],
+      });
+      const libraryGlueCodeData = this.glueCodeData.get(libraryCppName)!;
+      const libraryCppOutput =
+        this.cppOutputPath.copyWithNewSegment(libraryCppName);
+      const sharedComponentCodeGenerator = new SharedComponentCodeGenerator(
         (filename) => {
           return libraryCppOutput.copyWithNewSegment(
             'react',
             'renderer',
             'components',
-            name,
+            libraryCppName,
             filename
           );
-        },
+        }
+      );
+      const cppComponentCodeGenerator = new CppComponentCodeGenerator(
         (filename) => {
           return libraryCppOutput.copyWithNewSegment(
             'RNOH',
@@ -46,17 +54,24 @@ export class UberGeneratorV2 implements CodeGenerator<LibraryData[]> {
             'components',
             filename
           );
-        }
+        },
+        this.codegenNoticeLines
       );
-      componentCodeGeneratorCAPI
-        .generate({ name, uberSchema })
+      cppComponentCodeGenerator
+        .generate({ libraryCppName, uberSchema })
         .forEach((fileContent, path) => {
           fileContentByPath.set(path, fileContent);
         });
-      componentCodeGeneratorCAPI
+      cppComponentCodeGenerator
         .getGlueCodeData()
         .forEach((componentGlueCodeData) => {
           libraryGlueCodeData.components.push(componentGlueCodeData);
+        });
+
+      sharedComponentCodeGenerator
+        .generate({ libraryCppName, uberSchema })
+        .forEach((fileContent, path) => {
+          fileContentByPath.set(path, fileContent);
         });
 
       for (const [_fileName, specSchema] of uberSchema
@@ -70,7 +85,8 @@ export class UberGeneratorV2 implements CodeGenerator<LibraryData[]> {
               'turbo_modules'
             ),
             this.etsOutputPath.copyWithNewSegment('turboModules'),
-            2
+            this.codegenNoticeLines,
+            '../../ts'
           );
           nativeModuleCodeGenerator
             .generate(specSchema)

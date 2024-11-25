@@ -112,16 +112,30 @@ class RNInstanceCAPI : public RNInstanceInternal,
       std::string const& moduleName) override;
   void updateSurfaceConstraints(
       facebook::react::Tag surfaceId,
-      float width,
-      float height,
+      float minWidth,
+      float minHeight,
+      float maxWidth,
+      float maxHeight,
+      float viewportOffsetX,
+      float viewportOffsetY,
+      float pixelRatio,
+      bool isRTL) override;
+  facebook::react::Size measureSurface(
+      facebook::react::Tag surfaceId,
+      float minWidth,
+      float minHeight,
+      float maxWidth,
+      float maxHeight,
       float viewportOffsetX,
       float viewportOffsetY,
       float pixelRatio,
       bool isRTL) override;
   void startSurface(
       facebook::react::Tag surfaceId,
-      float width,
-      float height,
+      float minWidth,
+      float minHeight,
+      float maxWidth,
+      float maxHeight,
       float viewportOffsetX,
       float viewportOffsetY,
       float pixelRatio,
@@ -135,7 +149,7 @@ class RNInstanceCAPI : public RNInstanceInternal,
   void setSurfaceDisplayMode(
       facebook::react::Tag surfaceId,
       facebook::react::DisplayMode displayMode) override;
-  void callFunction(
+  void callJSFunction(
       std::string&& module,
       std::string&& method,
       folly::dynamic&& params) override;
@@ -187,6 +201,9 @@ class RNInstanceCAPI : public RNInstanceInternal,
     
   std::optional<Surface::Weak> getSurfaceByRootTag(
       facebook::react::Tag rootTag) override;
+  void registerFont(
+      std::string const& fontFamily,
+      std::string const& fontFilePath) override;
     
 
  protected:

@@ -16,6 +16,7 @@
 export const CONSTRUCTOR_NAME = 'constructor';
 export const SUPER_NAME = 'super';
 export const THIS_NAME = 'this';
+export const GLOBAL_THIS: string = 'globalThis'
 
 export const DEFAULT = 'default';
 
@@ -25,7 +26,13 @@ export const IMPORT = 'import';
 
 // ast const
 export const DECLARE_KEYWORD = 'DeclareKeyword';
-export const ABSTRACT_KEYWORD = 'AbstractKeyword';
-export const STATIC_KEYWORD = 'StaticKeyword';
+export const NULL_KEYWORD = 'null';
+export const UNDEFINED_KEYWORD = 'undefined';
+export const ANY_KEYWORD = 'any';
+export const UNKNOWN_KEYWORD = 'unknown';
+export const BOOLEAN_KEYWORD = 'boolean';
+export const NUMBER_KEYWORD = 'number';
+export const STRING_KEYWORD = 'string';
+export const VOID_KEYWORD = 'void';
+export const NEVER_KEYWORD = 'never';
 
-export const TEMP_LOCAL_PREFIX = '$temp';

@@ -94,6 +94,7 @@ export default class MarkerView implements IMarker {
 
     c.fillStyle = Color.Black;
     c.textAlign = 'center';
+    c.font = "normal normal 14vp"
     c.fillText(text, left, top - 3 * padding);
     c.closePath();
     c.restore();

@@ -33,6 +33,10 @@ type FindSpecSchemaByType<
  * Contains component and turbo module (NativeModule) schemas. The "Uber" word is used here to highlight that SpecSchemas don't extend this class.
  */
 export class UberSchema implements ValueObject {
+  static fromSpecFilePaths(specPaths: AbsolutePath[]): UberSchema {
+    return new UberSchema(createRawUberSchemaFromSpecFilePaths(specPaths));
+  }
+
   static fromCodegenConfig(codegenConfig: CodegenConfig): UberSchema {
     try {
       return new UberSchema(

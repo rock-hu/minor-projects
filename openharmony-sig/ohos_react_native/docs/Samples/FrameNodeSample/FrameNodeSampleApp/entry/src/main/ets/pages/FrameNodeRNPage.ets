@@ -7,7 +7,7 @@ import { Params } from './BuilderType';
 export default struct FrameNodeRNPage {
   @State message: string = 'Hello World, FrameNodeRNPage';
   private instance: RNInstance = LoadManager.cpInstance
-  private bundlePath = 'bundle/bundle.harmony.js'
+  private bundlePath = 'bundle/bundle.harmony.bundle'
   private moduleName = 'App'
   @StorageLink('isMetroAvailable') isMetroAvailable: boolean = false
   private params: Params = {

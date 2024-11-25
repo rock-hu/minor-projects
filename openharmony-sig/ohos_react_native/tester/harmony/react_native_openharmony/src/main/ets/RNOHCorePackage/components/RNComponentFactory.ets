@@ -4,7 +4,7 @@ import {
   RNComponentContext,
   DescriptorWrapper,
   CustomComponentBuilder,
-  ComponentBuilderContextImpl,
+  ComponentBuilderContext,
   DescriptorEssence,
 } from "../../RNOH"
 import { buildRNView, RNView } from "./RNView"
@@ -65,7 +65,7 @@ export function buildRNComponent(ctx: RNComponentContext, descriptorWrapper: Des
       tag: descriptorWrapper.tag,
     })
   } else if (ctx.rnInstance.getComponentNameFromDescriptorType(descriptorWrapper.type_) !== '') {
-    ctx.wrappedCustomRNComponentBuilder.builder(new ComponentBuilderContextImpl(
+    ctx.wrappedCustomRNComponentBuilder.builder(new ComponentBuilderContext(
       ctx,
       ctx,
       descriptorWrapper.tag,
@@ -154,7 +154,7 @@ export struct RNComponentFactory {
         tag: this.tag,
       })
     } else if (this.componentName !== '' && this.ctx instanceof RNComponentContext) {
-      this.buildCustomComponent(new ComponentBuilderContextImpl(
+      this.buildCustomComponent(new ComponentBuilderContext(
         this.ctx,
         this.ctx,
         this.tag,

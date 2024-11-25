@@ -312,7 +312,7 @@ export default class XAxisRendererHorizontalBarChart extends XAxisRenderer {
           //							pts[1] - yOffset + labelLineHeight, mLimitLinePaint);
           Utils.resetContext2DWithoutLine(c, this.mLimitLinePaint);
           c.beginPath();
-          c.strokeText(label, this.mViewPortHandler.contentRight() - xOffset,
+          c.fillText(label, this.mViewPortHandler.contentRight() - xOffset,
             pts[1] - yOffset + labelLineHeight);
           c.closePath();
 

@@ -7,7 +7,7 @@
   "main": "",
   "version": "1.0.0",
   "dependencies": {
-    "@rnoh/react-native-openharmony": "file:../libs/react_native_openharmony-5.0.0.601.har",
+    "@rnoh/react-native-openharmony": "X.X.X",
     "@react-native-oh-tpl/react-native-pager-view": "file:../libs/pager_view.har"
   }
 }

@@ -4,6 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
+// RNOH patch — apply fix from https://github.com/facebook/react-native/pull/43410/files
 
 #include "TurboModuleBinding.h"
 
@@ -23,9 +24,10 @@ namespace react {
  */
 
 TurboModuleBinding::TurboModuleBinding(
+    jsi::Runtime& runtime,
     TurboModuleBindingMode bindingMode,
     TurboModuleProviderFunctionType &&moduleProvider)
-    : bindingMode_(bindingMode), moduleProvider_(std::move(moduleProvider)) {}
+    : runtime_(runtime), bindingMode_(bindingMode), moduleProvider_(std::move(moduleProvider)) {}
 
 void TurboModuleBinding::install(
     jsi::Runtime &runtime,
@@ -39,7 +41,7 @@ void TurboModuleBinding::install(
           jsi::PropNameID::forAscii(runtime, "__turboModuleProxy"),
           1,
           [binding =
-               TurboModuleBinding(bindingMode, std::move(moduleProvider))](
+               TurboModuleBinding(runtime, bindingMode, std::move(moduleProvider))](
               jsi::Runtime &rt,
               const jsi::Value &thisVal,
               const jsi::Value *args,
@@ -54,7 +56,7 @@ void TurboModuleBinding::install(
 }
 
 TurboModuleBinding::~TurboModuleBinding() {
-  LongLivedObjectCollection::get().clear();
+  LongLivedObjectCollection::get(runtime_).clear();
 }
 
 jsi::Value TurboModuleBinding::getModule(

@@ -20,13 +20,13 @@ export class ScopeUtils {
     public static whereIsTemp(stmt: Stmt) {
         let def = stmt.getDef();
         if (def instanceof Local) {
-            if (def.getName().includes('$')) {
+            if (def.getName().includes('%')) {
                 return TempLocation.LEFT;
             }
         }
         if (stmt instanceof ArkAssignStmt) {
             let right = stmt.getRightOp();
-            if (right instanceof Local && right.getName().includes('$')) {
+            if (right instanceof Local && right.getName().includes('%')) {
                 return TempLocation.RIGHT;
             }
         }
@@ -34,7 +34,7 @@ export class ScopeUtils {
     }
 
     public static isDeclaringStmt(defName: string, stmt: Stmt) {
-        const text = stmt.getCfg()?.getDeclaringMethod().getBody()?.getStmtToOriginalStmt().get(stmt)?.toString();
+        const text = stmt.getOriginalText();
         if (text) {
             if (text.includes('let ' + defName) || text.includes('const ' + defName) || text.includes('var ' + defName)) {
                 const c = text[text.indexOf(' ' + defName) + defName.length + 1];
@@ -47,7 +47,7 @@ export class ScopeUtils {
     }
 
     public static getScopeType(stmt: Stmt) {
-        let text = stmt.getCfg()?.getDeclaringMethod().getBody()?.getStmtToOriginalStmt().get(stmt)?.toString();
+        let text = stmt.getOriginalText();
         if (text !== undefined) {
             if (text.startsWith('for(') || text.startsWith('for(')) {
                 return ScopeType.FOR_CONDITION_TYPE;

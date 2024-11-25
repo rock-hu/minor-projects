@@ -1,6 +1,5 @@
 import { router } from '@kit.ArkUI';
 import {
-  ResourceJSBundleProvider,
   RNOHCoreContext,
   RNInstance,
   RNComponentContext,
@@ -37,9 +36,6 @@ struct Index {
     );
 
     LoadManager.cpInstance = cpInstance;
-    await cpInstance.runJSBundle(new ResourceJSBundleProvider(getContext().resourceManager,
-      'bundle/bundle.harmony.js'));
-    instanceMap.set('CPReactInstance', cpInstance);
 
     return instanceMap;
   }

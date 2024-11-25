@@ -19,9 +19,10 @@ import PieRadarBaseChart from './PieRadarBaseChart';
 @ComponentV2
 export default struct PieChart {
   @Param model: PieChartModel | null = null;
+  antiAliasing: boolean = true;
 
   build() {
-    PieRadarBaseChart({model: this.model})
+    PieRadarBaseChart({ model: this.model, antiAliasing: this.antiAliasing })
   }
 }
 

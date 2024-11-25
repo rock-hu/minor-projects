@@ -319,6 +319,7 @@ export function TouchHandlingTest() {
         }}
       />
       <TestCase.Manual
+        modal
         itShould="take into account offset added by RefreshControl while refreshing - press 0 while refreshing to pass"
         initialState={undefined as number | undefined}
         arrange={({setState}) => {

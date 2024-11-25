@@ -25,19 +25,20 @@ import Logger, { LOG_MODULE_TYPE } from '../../utils/logger';
 import { FileUtils, ModulePath } from '../../utils/FileUtils';
 import path from 'path';
 import { Sdk } from '../../Config';
-import { transfer2UnixPath } from '../../utils/pathTransfer';
-import { ALL, DEFAULT, TEMP_LOCAL_PREFIX, THIS_NAME } from './TSConst';
+import { ALL, DEFAULT, THIS_NAME } from './TSConst';
 import { buildDefaultExportInfo } from '../model/builder/ArkExportBuilder';
 import { API_INTERNAL, COMPONENT_ATTRIBUTE, COMPONENT_INSTANCE, COMPONENT_PATH } from './EtsConst';
 import { ClassType, UnclearReferenceType } from '../base/Type';
 import { Scene } from '../../Scene';
+import { checkAndUpdateMethod } from '../model/builder/ArkMethodBuilder';
+import { DEFAULT_ARK_CLASS_NAME, TEMP_LOCAL_PREFIX } from './Const';
 
 export class ModelUtils {
     public static implicitArkUIBuilderMethods: Set<ArkMethod> = new Set();
 
     public static getMethodSignatureFromArkClass(arkClass: ArkClass, methodName: string): MethodSignature | null {
         for (const arkMethod of arkClass.getMethods()) {
-            if (arkMethod.getName() == methodName) {
+            if (arkMethod.getName() === methodName) {
                 return arkMethod.getSignature();
             }
         }
@@ -45,7 +46,7 @@ export class ModelUtils {
     }
 
     public static getClassWithNameInNamespaceRecursively(className: string, ns: ArkNamespace): ArkClass | null {
-        if (className == '') {
+        if (className === '') {
             return null;
         }
         let res: ArkClass | null = null;
@@ -89,7 +90,7 @@ export class ModelUtils {
      *  search class within the file that contain the given method
      */
     public static getClassWithName(className: string, thisClass: ArkClass): ArkClass | null {
-        if (thisClass.getName() == className) {
+        if (thisClass.getName() === className) {
             return thisClass;
         }
         let classSearched = thisClass.getDeclaringArkNamespace()?.getClassWithName(className);
@@ -124,7 +125,7 @@ export class ModelUtils {
     /** search method within the file that contain the given method */
     public static getMethodWithName(methodName: string, startFrom: ArkMethod): ArkMethod | null {
         if (!methodName.includes('.')) {
-            if (startFrom.getName() == methodName) {
+            if (startFrom.getName() === methodName) {
                 return startFrom;
             }
 
@@ -196,7 +197,7 @@ export class ModelUtils {
 
         const thisNamespace = thisClass.getDeclaringArkNamespace();
         if (thisNamespace) {
-            const defaultClass = thisNamespace.getClassWithName('_DEFAULT_ARK_CLASS');
+            const defaultClass = thisNamespace.getClassWithName(DEFAULT_ARK_CLASS_NAME);
             if (defaultClass) {
                 const method = defaultClass.getMethodWithName(methodName);
                 if (method) {
@@ -208,7 +209,7 @@ export class ModelUtils {
     }
 
     public static getStaticMethodInFileWithName(methodName: string, arkFile: ArkFile): ArkMethod | null {
-        const defaultClass = arkFile.getClasses().find(cls => cls.getName() == '_DEFAULT_ARK_CLASS') || null;
+        const defaultClass = arkFile.getClasses().find(cls => cls.getName() === DEFAULT_ARK_CLASS_NAME) || null;
         if (defaultClass) {
             let method = defaultClass.getMethodWithName(methodName);
             if (method) {
@@ -272,9 +273,9 @@ export class ModelUtils {
 
         if (
             !isArkUIBuilderMethod &&
-            arkMethod.getName() == 'build' &&
+            arkMethod.getName() === 'build' &&
             arkMethod.getDeclaringArkClass().hasComponentDecorator() &&
-            !arkMethod.containsModifier('StaticKeyword')
+            !arkMethod.isStatic()
         ) {
             const fileName = arkMethod.getDeclaringArkClass().getDeclaringArkFile().getName();
             if (fileName.endsWith('.ets')) {
@@ -379,14 +380,16 @@ export class ModelUtils {
                         entry.setSignature(signature);
                         arkExport.getMethods().forEach(m => {
                             const ms = m.getSignature();
-                            m.setSignature(new MethodSignature(signature, ms.getMethodSubSignature()));
+                            m.setDeclareSignatures(new MethodSignature(signature, ms.getMethodSubSignature()));
+                            checkAndUpdateMethod(m, entry);
                             entry.addMethod(m);
                         });
                         const attr = globalMap.get(name + COMPONENT_ATTRIBUTE);
                         if (attr instanceof ArkClass) {
                             attr.getMethods().forEach(m => {
                                 const ms = m.getSignature();
-                                m.setSignature(new MethodSignature(signature, ms.getMethodSubSignature()));
+                                m.setDeclareSignatures(new MethodSignature(signature, ms.getMethodSubSignature()));
+                                checkAndUpdateMethod(m, entry);
                                 entry.addMethod(m);
                             });
                         }
@@ -401,8 +404,8 @@ export class ModelUtils {
 
 
 const logger = Logger.getLogger(LOG_MODULE_TYPE.ARKANALYZER, 'ModelUtils');
-let moduleMap: Map<string, ModulePath> | undefined = undefined;
-const fileSuffixArray = ['.ets: ', '.ts: ', '.d.ets: ', '.d.ts: '];
+let moduleMap: Map<string, ModulePath> | undefined;
+const fileSuffixArray = ['.ets', '.ts', '.d.ets', '.d.ts'];
 
 /**
  * find arkFile by from info
@@ -430,7 +433,7 @@ export function getArkFile(im: FromInfo): ArkFile | null | undefined {
     //sdk path
     const scene = im.getDeclaringArkFile().getScene();
     for (const sdk of scene.getProjectSdkMap().values()) {
-        const arkFile = getArkFileFormMap(processSdkPath(sdk, from), scene.getSdkArkFilesMap());
+        const arkFile = getArkFileFormMap(sdk.name, processSdkPath(sdk, from), scene);
         if (arkFile) {
             return arkFile;
         }
@@ -511,7 +514,6 @@ export function findArkExportInFile(name: string, declaringArkFile: ArkFile): Ar
 }
 
 function processSdkPath(sdk: Sdk, formPath: string): string {
-    const sdkName = sdk.name;
     let dir;
     if (formPath.startsWith('@ohos.') || formPath.startsWith('@hms.') || formPath.startsWith('@system.')) {
         dir = 'api';
@@ -524,9 +526,9 @@ function processSdkPath(sdk: Sdk, formPath: string): string {
         if (FileUtils.isDirectory(originPath)) {
             formPath = path.join(formPath, FileUtils.getIndexFileName(originPath));
         }
-        return `@${sdkName}/${formPath}`;
+        return `${formPath}`;
     }
-    return `@${sdkName}/${dir}/${formPath}`;
+    return `${dir}/${formPath}`;
 }
 
 function getArkFileFromScene(im: FromInfo, originPath: string) {
@@ -540,23 +542,20 @@ function getArkFileFromScene(im: FromInfo, originPath: string) {
         return scene.getFile(fromSignature);
     }
     const projectName = im.getDeclaringArkFile().getProjectName();
-    const filePath = `@${projectName}/${fileName}`;
-    if (projectName !== scene.getProjectName()) {
-        return getArkFileFormMap(filePath, scene.getSdkArkFilesMap());
-    }
-    return getArkFileFormMap(filePath, scene.getFilesMap());
+    return getArkFileFormMap(projectName, fileName, scene);
 }
 
-function getArkFileFormMap(filePath: string, map: Map<string, ArkFile>) {
+function getArkFileFormMap(projectName: string, filePath: string, scene: Scene): ArkFile | null {
     if (/\.e?ts$/.test(filePath)) {
-        return map.get(transfer2UnixPath(filePath) + ': ');
+        return scene.getFile(new FileSignature(projectName, filePath));
     }
     for (const suffix of fileSuffixArray) {
-        const arkFile = map.get(transfer2UnixPath(filePath) + suffix);
+        const arkFile = scene.getFile(new FileSignature(projectName, filePath + suffix));
         if (arkFile) {
             return arkFile;
         }
     }
+    return null;
 }
 
 

@@ -23,6 +23,7 @@ import { SourceUtils } from './SourceUtils';
 import { INSTANCE_INIT_METHOD_NAME, STATIC_INIT_METHOD_NAME } from '../../core/common/Const';
 import { ArkNamespace } from '../../core/model/ArkNamespace';
 import { FieldCategory } from '../../core/model/ArkField';
+import { ArkMetadataKind } from '../../core/model/ArkMetadata';
 
 /**
  * @category save
@@ -47,16 +48,18 @@ export class SourceClass extends SourceBase {
 
     public dump(): string {
         this.printer.clear();
-
-        if (this.cls.getCategory() == ClassCategory.OBJECT) {
+        (this.cls.getMetadata(ArkMetadataKind.LEADING_COMMENTS) as string[] || []).forEach((comment) => {
+            this.printer.writeIndent().writeLine(comment);
+        });
+        if (this.cls.getCategory() === ClassCategory.OBJECT) {
             return this.dumpObject();
         }
 
-        if (this.cls.getCategory() == ClassCategory.TYPE_LITERAL) {
+        if (this.cls.getCategory() === ClassCategory.TYPE_LITERAL) {
             return this.dumpTypeLiteral();
         }
 
-        this.printDecorator(this.cls.getModifiers());
+        this.printDecorator(this.cls.getDecorators());
         // print export class name<> + extends c0 implements x1, x2 {
         this.printer
             .writeIndent()
@@ -117,7 +120,7 @@ export class SourceClass extends SourceBase {
                 this.printer.write(`: ${instanceInitializer.get(field.getName())}`);
             }
 
-            if (index != array.length - 1) {
+            if (index !== array.length - 1) {
                 this.printer.write(`, `);
             }
         });
@@ -136,7 +139,7 @@ export class SourceClass extends SourceBase {
                 this.printer.write(`'${name}': ${this.transformer.typeToString(field.getType())}`);
             }
 
-            if (index != array.length - 1) {
+            if (index !== array.length - 1) {
                 this.printer.write(`, `);
             }
         });
@@ -165,10 +168,10 @@ export class SourceClass extends SourceBase {
         let staticInitializer = this.parseFieldInitMethod(STATIC_INIT_METHOD_NAME);
         let items: Dump[] = [];
         for (let field of this.cls.getFields()) {
-            if (field.getCategory() == FieldCategory.GET_ACCESSOR) {
+            if (field.getCategory() === FieldCategory.GET_ACCESSOR) {
                 continue;
             }
-            if (field.getModifiers().has('StaticKeyword')) {
+            if (field.isStatic()) {
                 items.push(new SourceField(field, this.printer.getIndent(), staticInitializer));
             } else {
                 items.push(new SourceField(field, this.printer.getIndent(), instanceInitializer));
@@ -179,7 +182,7 @@ export class SourceClass extends SourceBase {
 
     private parseFieldInitMethod(name: string): Map<string, string> {
         let method = this.cls.getMethodWithName(name);
-        if (!method || method?.getBody() == undefined) {
+        if (!method || method?.getBody() === undefined) {
             return new Map<string, string>();
         }
 

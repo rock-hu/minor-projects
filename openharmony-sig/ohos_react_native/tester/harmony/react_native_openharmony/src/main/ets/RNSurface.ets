@@ -5,6 +5,7 @@ import {
   Descriptor,
   DisplayMode,
   RNComponentContext,
+  RNInstance,
   RNInstanceImpl,
   RNOHContext,
   RNOHError,
@@ -12,13 +13,12 @@ import {
 } from './RNOH';
 import {
   ViewBaseProps,
-  ViewDescriptorWrapper,
-  ViewDescriptorWrapperBase,
   ViewRawProps
 } from './RNOHCorePackage/components/RNViewBase';
 import { TouchDispatcher } from './RNOH/TouchDispatcher';
 import { SurfaceHandle, SurfaceProps } from './RNOH/SurfaceHandle';
 import { I18nManagerTurboModule } from './RNOHCorePackage/turboModules';
+import type { SurfaceContext } from './RNOH/RNInstance';
 
 interface RootViewState {}
 
@@ -35,6 +35,27 @@ export interface SurfaceConfig2 extends SurfaceConfig {
   initialProps: SurfaceProps,
 }
 
+interface RootComponentDimensionsChangedPayload {
+  surfaceId: number,
+  width: number,
+  height: number
+}
+
+interface Size {
+  width: number
+  height: number
+}
+
+/**
+ * @api
+ */
+interface Constraints {
+  minWidth?: number
+  minHeight?: number
+  maxWidth?: number
+  maxHeight?: number
+}
+
 /**
  * @api: RN_APP_DEVELOPER
  */
@@ -49,17 +70,30 @@ export struct RNSurface {
    */
   public surfaceConfig!: SurfaceConfig;
   /**
+   * Not Required,
+   * Used to return the corresponding RNInstance and root tag for this 
+   * specific RNSurface. 
+   */
+  public updateViewRootTag: ((rnInstance:RNInstance, rootViewTag: number) => void) | undefined;
+  /**
+   * Optional
+   * If provided, those constraints will be used instead of those provided by ArkUI. Useful, if maxWidth or maxHeight
+   * must be different than the default values with .width(...) and .height(...).
+   *
+   * NOTE: you may need to remove "flex: 1" style from AppContainer in your JS bundle to adjust RNSurface to its content.
+   * In RN@0.72.5, this is not possible without patching RN code. RN@0.75.0 introduced a new method:
+   * AppRegistry.setRootViewStyleProvider which should allow removing that flex without creating the patch.
+   */
+  public constraints: Constraints | undefined = undefined
+  /**
    * Required if ctx isn't RNComponentContext
    * @deprecated: provide RNComponentContext to RNSurface::ctx instead
    */
   @BuilderParam buildCustomComponent: (ctx: ComponentBuilderContext) => void;
   // -------------------------------------------------------------------------------------------------------------------
-  private surfaceWidth: number = 0;
-  private surfaceHeight: number = 0;
   private surfaceOffsetX: number = 0;
   private surfaceOffsetY: number = 0;
-  @State private descriptor: RootDescriptor = Object() as RootDescriptor;
-  @State private descriptorWrapper: ViewDescriptorWrapperBase | undefined = undefined
+  @State private rootComponentSize: Size | undefined = undefined;
   @State private shouldStartSurface: boolean = false;
   private surfaceHandle!: SurfaceHandle;
   private cleanUpCallbacks: (() => void)[] = [];
@@ -71,7 +105,7 @@ export struct RNSurface {
   aboutToAppear() {
     this.logger = this.ctx.logger.clone("RNSurface")
     if (!(this.ctx instanceof RNComponentContext)) {
-      this.logger.error(new RNOHError({
+      this.ctx.reportRNOHError(new RNOHError({
         whatHappened: "RNSurface received RNOHContext instead of RNComponentContext. Custom RN components won't be visible.",
         howCanItBeFixed: ["Provide RNComponentContext instead of RNOHContext"]
       }))
@@ -92,12 +126,14 @@ export struct RNSurface {
       this.shouldStopSurface = true;
     }
     const tag = this.surfaceHandle.getTag();
-    this.onUpdateComponent(this.ctx.rnInstance.descriptorRegistry.getDescriptor(tag))
+    this.updateViewRootTag && this.updateViewRootTag(this.ctx.rnInstance, tag);
     this.touchDispatcher = new TouchDispatcher(tag, this.ctx.rnInstance, this.ctx.logger)
-    this.cleanUpCallbacks.push(this.ctx.descriptorRegistry.subscribeToDescriptorChanges(
-      tag,
-      (newDescriptor) => this.onUpdateComponent(newDescriptor)
-    ))
+    this.cleanUpCallbacks.push(this.ctx.rnInstance.cppEventEmitter.subscribe("RNOH::ROOT_COMPONENT_DIMENSIONS_CHANGED",
+      (payload: RootComponentDimensionsChangedPayload) => {
+        if (payload.surfaceId === this.surfaceHandle.getTag()) {
+          this.rootComponentSize = { width: payload.width, height: payload.height }
+        }
+      }))
     stopTracing()
   }
 
@@ -121,48 +157,57 @@ export struct RNSurface {
 
   }
 
-  onUpdateComponent(newDescriptor: Descriptor) {
-    this.descriptor = newDescriptor as RootDescriptor
-    this.descriptorWrapper = new ViewDescriptorWrapper(newDescriptor)
-  }
-
-  handleAreaChange(_oldValue: Area, newValue: Area) {
-    const stopTracing = this.logger.clone("handleAreaChange").startTracing()
-    this.surfaceWidth = newValue.width as number
-    this.surfaceHeight = newValue.height as number
-    this.surfaceOffsetX = newValue.globalPosition.x as number
-    this.surfaceOffsetY = newValue.globalPosition.y as number
-    this.updateSurfaceConstraints()
-    stopTracing()
-  }
-
-  updateSurfaceConstraints() {
-    let isRTL = this.ctx.rnInstance.getTurboModule<I18nManagerTurboModule>('I18nManager').getConstants()
+  updateSurfaceConstraints(constraints: Constraints): Size {
+    const isRTL = this.ctx.rnInstance.getTurboModule<I18nManagerTurboModule>('I18nManager').getConstants()
       .isRTL;
-
+    const surfaceContext: SurfaceContext = {
+      minWidth: this.constraints?.minWidth ?? constraints?.minWidth ?? 0,
+      minHeight: this.constraints?.minHeight ?? constraints?.minHeight ?? 0,
+      maxWidth: this.constraints?.maxWidth ?? constraints?.maxWidth ?? 0,
+      maxHeight: this.constraints?.maxHeight ?? constraints?.maxHeight ?? 0,
+      surfaceOffsetX: this.surfaceOffsetX,
+      surfaceOffsetY: this.surfaceOffsetY,
+      pixelRatio: vp2px(1),
+      isRTL,
+    }
     if (this.shouldStartSurface) {
       this.surfaceHandle.setDisplayMode(DisplayMode.Visible)
-      this.surfaceHandle.start(
-        {
-          width: this.surfaceWidth,
-          height: this.surfaceHeight,
-          surfaceOffsetX: this.surfaceOffsetX,
-          surfaceOffsetY: this.surfaceOffsetY,
-          pixelRatio: vp2px(1),
-          isRTL,
-        },
-        this.initialProps)
+      this.surfaceHandle.start(surfaceContext, this.initialProps)
       this.shouldStartSurface = false
     } else {
-      this.surfaceHandle.updateConstraints({
-        width: this.surfaceWidth,
-        height: this.surfaceHeight,
-        surfaceOffsetX: this.surfaceOffsetX,
-        surfaceOffsetY: this.surfaceOffsetY,
-        pixelRatio: vp2px(1),
-        isRTL,
-      });
+      this.surfaceHandle.updateConstraints(surfaceContext);
     }
+    return this.surfaceHandle.measure(surfaceContext)
+  }
+
+  override onMeasureSize(selfLayoutInfo: GeometryInfo, children: Array<Measurable>,
+    constraint: ConstraintSizeOptions): SizeResult {
+    const measuredSize =
+      this.updateSurfaceConstraints({
+        minWidth: constraint.maxWidth as number, // NOTE: width: 100% doesn't work on the root component hence maxWidth is used here
+        minHeight: constraint.minHeight as number,
+        maxWidth: constraint.maxWidth as number,
+        maxHeight: constraint.maxHeight as number,
+      })
+    const newSize: Size =
+      { width: measuredSize.width || selfLayoutInfo.width, height: measuredSize.height || selfLayoutInfo.height }
+    children.forEach((child) => {
+      child.measure({
+        minHeight: newSize.height,
+        minWidth: newSize.width,
+        maxWidth: newSize.width,
+        maxHeight: newSize.height
+      })
+    })
+    return newSize
+  }
+
+  override onPlaceChildren(selfLayoutInfo: GeometryInfo, children: Array<Layoutable>,
+    constraint: ConstraintSizeOptions) {
+    // If this method is not overridden, child components aren't visible.
+    children.forEach((child) => {
+      child.layout({ x: 0, y: 0 })
+    })
   }
 
   handleTouch(event: TouchEvent) {
@@ -180,14 +225,12 @@ export struct RNSurface {
           type: "node",
           libraryname: 'rnoh_app'
         })
-          .width("100%")
-          .height("100%")
       } else {
         if (this.ctx instanceof RNComponentContext) {
           RNView({
             ctx: this.ctx,
             tag: this.surfaceHandle.getTag()
-          }) // THIS LINE IS WRONG!!!! WE MUST ALLOW REPLACING ROOT VIEW
+          }) //  NOTE: This is wrong. RNOH should allow replacing RootComponent.
         } else {
           RNComponentFactory({
             ctx: this.ctx,
@@ -197,9 +240,15 @@ export struct RNSurface {
         }
       }
     }
-    .width("100%")
-    .height("100%")
-    .onAreaChange((oldArea, newArea) => this.handleAreaChange(oldArea, newArea))
+    /**
+     * width and height are used here only to trigger layout calculations. Actual values are set in onMeasureSize method.
+     */
+    .width(this.rootComponentSize?.width)
+    .height(this.rootComponentSize?.height)
+    .onAreaChange((oldArea, newArea) => {
+      this.surfaceOffsetX = newArea.globalPosition.x as number
+      this.surfaceOffsetY = newArea.globalPosition.y as number
+    })
     .onTouch((e) => this.handleTouch(e))
   }
 }

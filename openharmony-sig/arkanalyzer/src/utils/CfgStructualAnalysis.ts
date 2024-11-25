@@ -96,7 +96,7 @@ export class AbstractFlowGraph {
                 let node = this.nodes[i];
                 let nset = new Set<AbstractNode>();
                 let rtype = this.identifyRegionType(node, nset);
-                if (rtype != undefined) {
+                if (rtype !== undefined) {
                     let p = this.reduce(rtype, nset);
                     if (p) {
                         if (nset.has(this.entry)) {
@@ -163,12 +163,16 @@ export class AbstractFlowGraph {
         let dom = this.buildDominator();
         let loops: Set<AbstractNode>[] = [];
         for (const header of this.nodes) {
-            let innermost: Set<AbstractNode> | undefined = undefined;
+            let innermost: Set<AbstractNode> | undefined;
             let longest: number = 0;
 
             let backEdges = this.getBackEdges(dom, header);
-            if (backEdges.size == 0) {
+            if (backEdges.size === 0) {
                 continue;
+            }
+
+            if (this.isSelfLoopNode(header)) {
+                loops.push(new Set<AbstractNode>([header]));
             }
 
             for (const start of backEdges) {
@@ -188,7 +192,7 @@ export class AbstractFlowGraph {
         let domin = new Map<AbstractNode, Set<AbstractNode>>();
         domin.set(this.entry, new Set<AbstractNode>([this.entry]));
         for (const node of this.nodes) {
-            if (node != this.entry) {
+            if (node !== this.entry) {
                 domin.set(node, new Set<AbstractNode>(this.nodes));
             }
         }
@@ -197,7 +201,7 @@ export class AbstractFlowGraph {
         while (change) {
             change = false;
             for (const node of this.nodes) {
-                if (node == this.entry) {
+                if (node === this.entry) {
                     continue;
                 }
                 let t = new Set<AbstractNode>(domin.get(node)!);
@@ -246,10 +250,29 @@ export class AbstractFlowGraph {
         return loop;
     }
 
+    private isSelfLoopNode(node: AbstractNode): boolean {
+        let inSucc = false;
+        let inPred = false;
+
+        for (const pred of node.getPred()) {
+            if (pred === node) {
+                inPred = true;
+            }
+        }
+
+        for (const succ of node.getSucc()) {
+            if (succ === node) {
+                inSucc = true;
+            }
+        }
+
+        return inSucc && inPred;
+    }
+
     private isForLoopIncNode(node: AbstractNode): boolean {
         for (const loop of this.loopMap.values()) {
-            if (loop.getType() == RegionType.FOR_LOOP_REGION) {
-                if (node == (loop as ForLoopRegion).inc) {
+            if (loop.getType() === RegionType.FOR_LOOP_REGION) {
+                if (node === (loop as ForLoopRegion).inc) {
                     return true;
                 }
             }
@@ -267,12 +290,12 @@ export class AbstractFlowGraph {
 
     private isIfRegion(node: AbstractNode, nodeSet: Set<AbstractNode>): boolean {
         nodeSet.clear();
-        if (node.getSucc().length != 2) {
+        if (node.getSucc().length !== 2) {
             return false;
         }
         let m = node.getSucc()[0];
         let n = node.getSucc()[1];
-        if (m.getSucc().length == 1 && m.getSucc()[0] == n) {
+        if (m.getSucc().length === 1 && m.getSucc()[0] === n) {
             nodeSet.add(node).add(m);
             return true;
         }
@@ -282,7 +305,7 @@ export class AbstractFlowGraph {
 
     private isIfExitRegion(node: AbstractNode, nodeSet: Set<AbstractNode>): boolean {
         nodeSet.clear();
-        if (node.getSucc().length != 2) {
+        if (node.getSucc().length !== 2) {
             return false;
         }
         let m = node.getSucc()[0];
@@ -296,18 +319,18 @@ export class AbstractFlowGraph {
 
     private isIfElseRegion(node: AbstractNode, nodeSet: Set<AbstractNode>): boolean {
         nodeSet.clear();
-        if (node.getSucc().length != 2) {
+        if (node.getSucc().length !== 2) {
             return false;
         }
         let m = node.getSucc()[0];
         let n = node.getSucc()[1];
         if (
-            (m.getSucc().length == 1 &&
-                n.getSucc().length == 1 &&
-                m.getPred().length == 1 &&
-                n.getPred().length == 1 &&
-                m.getSucc()[0] == n.getSucc()[0]) ||
-            (m.getSucc().length == 0 && n.getSucc().length == 0)
+            (m.getSucc().length === 1 &&
+                n.getSucc().length === 1 &&
+                m.getPred().length === 1 &&
+                n.getPred().length === 1 &&
+                m.getSucc()[0] === n.getSucc()[0]) ||
+            (m.getSucc().length === 0 && n.getSucc().length === 0)
         ) {
             nodeSet.add(node).add(m).add(n);
             return true;
@@ -319,7 +342,7 @@ export class AbstractFlowGraph {
     private isBlockRegion(node: AbstractNode, nodeSet: Set<AbstractNode>): boolean {
         let n = node;
         let p = true;
-        let s = n.getSucc().length == 1;
+        let s = n.getSucc().length === 1;
         nodeSet.clear();
 
         let blocks = [];
@@ -327,8 +350,8 @@ export class AbstractFlowGraph {
             nodeSet.add(n);
             blocks.push(n);
             n = n.getSucc()[0];
-            p = n.getPred().length == 1;
-            s = n.getSucc().length == 1;
+            p = n.getPred().length === 1;
+            s = n.getSucc().length === 1;
         }
 
         if (p && this.isValidInBlocks(n)) {
@@ -339,7 +362,7 @@ export class AbstractFlowGraph {
         }
 
         n = node;
-        p = n.getPred().length == 1;
+        p = n.getPred().length === 1;
         s = true;
         while (p && s && this.isValidInBlocks(n)) {
             if (!nodeSet.has(n)) {
@@ -350,8 +373,8 @@ export class AbstractFlowGraph {
             if (nodeSet.has(n)) {
                 break;
             }
-            p = n.getPred().length == 1;
-            s = n.getSucc().length == 1;
+            p = n.getPred().length === 1;
+            s = n.getSucc().length === 1;
         }
 
         if (s && this.isValidInBlocks(n)) {
@@ -380,7 +403,7 @@ export class AbstractFlowGraph {
             return true;
         }
 
-        if (m.getSucc().length == 1 && this.isExitLoop(m.getSucc()[0], this.structBlocks.get(loop)!)) {
+        if (m.getSucc().length === 1 && this.isExitLoop(m.getSucc()[0], this.structBlocks.get(loop)!)) {
             nodeSet.add(node).add(m);
             return true;
         }
@@ -398,7 +421,7 @@ export class AbstractFlowGraph {
         }
 
         if (
-            m.getSucc().length == 1 &&
+            m.getSucc().length === 1 &&
             loop.control.has(m.getSucc()[0]) &&
             !loop.control.has(n) &&
             !this.isIfElseRegion(node, nodeSet)
@@ -412,7 +435,7 @@ export class AbstractFlowGraph {
     private isWhileRegion(node: AbstractNode, nodeSet: Set<AbstractNode>, loop: NaturalLoopRegion): boolean {
         nodeSet.clear();
         let m = node.getSucc()[0];
-        if (loop.header == node && m.getSucc().length == 1 && m.getPred().length == 1 && m.getSucc()[0] == node) {
+        if (loop.header === node && m.getSucc().length === 1 && m.getPred().length === 1 && m.getSucc()[0] === node) {
             nodeSet.add(node).add(m);
             return true;
         }
@@ -421,13 +444,13 @@ export class AbstractFlowGraph {
 
     private isForRegion(node: AbstractNode, nodeSet: Set<AbstractNode>, loop: NaturalLoopRegion): boolean {
         nodeSet.clear();
-        if (loop.header == node && loop.getType() == RegionType.FOR_LOOP_REGION) {
+        if (loop.header === node && loop.getType() === RegionType.FOR_LOOP_REGION) {
             let forLoop = loop as ForLoopRegion;
             let blocks = node.getSucc()[0];
             if (
-                forLoop.inc.getPred().length == 1 &&
-                forLoop.inc.getPred()[0] == blocks &&
-                blocks.getSucc().length == 1
+                forLoop.inc.getPred().length === 1 &&
+                forLoop.inc.getPred()[0] === blocks &&
+                blocks.getSucc().length === 1
             ) {
                 nodeSet.add(node).add(forLoop.inc).add(blocks);
                 return true;
@@ -438,9 +461,9 @@ export class AbstractFlowGraph {
 
     private isDoWhileRegion(node: AbstractNode, nodeSet: Set<AbstractNode>, loop: NaturalLoopRegion): boolean {
         nodeSet.clear();
-        if (loop.back == node && loop.getType() == RegionType.DO_WHILE_LOOP_REGION) {
+        if (loop.back === node && loop.getType() === RegionType.DO_WHILE_LOOP_REGION) {
             let blocks = node.getPred()[0];
-            if (blocks.getSucc().length == 1 && blocks.getSucc()[0] == node && node.getSucc()[0] == blocks) {
+            if (blocks.getSucc().length === 1 && blocks.getSucc()[0] === node && node.getSucc()[0] === blocks) {
                 nodeSet.add(blocks).add(node);
                 return true;
             }
@@ -461,10 +484,13 @@ export class AbstractFlowGraph {
 
         if (new Set(node.getPred()).has(node) && new Set(node.getSucc()).has(node)) {
             nodeSet.add(node);
+            if (inLoop) {
+                return region?.getType();
+            }
             return RegionType.SELF_LOOP_REGION;
         }
 
-        if (node.getSucc().length != 2) {
+        if (node.getSucc().length !== 2) {
             return undefined;
         }
 
@@ -511,8 +537,12 @@ export class AbstractFlowGraph {
     private cyclicRegionType(nodeSet: Set<AbstractNode>): RegionType {
         let nodes = Array.from(nodeSet);
         let header = nodes[0];
-        if (nodeSet.size == 1) {
-            return RegionType.SELF_LOOP_REGION;
+        if (nodeSet.size === 1) {
+            let tail = nodes[0].getBlock()?.getTail();
+            if (tail instanceof ArkIfStmt) {
+                return RegionType.DO_WHILE_LOOP_REGION;
+            }
+            return RegionType.WHILE_LOOP_REGION;
         }
 
         let back = nodes[1];
@@ -529,10 +559,10 @@ export class AbstractFlowGraph {
         }
 
         // for
-        if (back.getSucc().length == 1 && back.getBlock()?.getStmts()?.length == 1) {
+        if (back.getSucc().length === 1 && back.getBlock()?.getStmts()?.length === 1) {
             let isForLoop = true;
             for (const pred of header.getPred()) {
-                if (nodeSet.has(pred) && pred != back) {
+                if (nodeSet.has(pred) && pred !== back) {
                     isForLoop = false;
                 }
             }
@@ -572,29 +602,29 @@ export class AbstractFlowGraph {
 
     private createRegion(rtype: RegionType, nodeSet: Set<AbstractNode>): Region | undefined {
         let node: Region | undefined;
-        if (rtype == RegionType.BLOCK_REGION) {
+        if (rtype === RegionType.BLOCK_REGION) {
             node = new BlockRegion(nodeSet);
-        } else if (rtype == RegionType.IF_ELSE_REGION) {
+        } else if (rtype === RegionType.IF_ELSE_REGION) {
             node = new IfElseRegion(nodeSet);
-        } else if (rtype == RegionType.IF_REGION) {
+        } else if (rtype === RegionType.IF_REGION) {
             node = new IfRegion(nodeSet);
-        } else if (rtype == RegionType.IF_THEN_EXIT_REGION) {
+        } else if (rtype === RegionType.IF_THEN_EXIT_REGION) {
             node = new IfExitRegion(nodeSet);
-        } else if (rtype == RegionType.IF_THEN_BREAK_REGION) {
+        } else if (rtype === RegionType.IF_THEN_BREAK_REGION) {
             node = new IfBreakRegion(nodeSet);
-        } else if (rtype == RegionType.IF_THEN_CONTINUE_REGION) {
+        } else if (rtype === RegionType.IF_THEN_CONTINUE_REGION) {
             node = new IfContinueRegion(nodeSet);
-        } else if (rtype == RegionType.SELF_LOOP_REGION) {
+        } else if (rtype === RegionType.SELF_LOOP_REGION) {
             node = new SelfLoopRegion(nodeSet);
-        } else if (rtype == RegionType.WHILE_LOOP_REGION) {
+        } else if (rtype === RegionType.WHILE_LOOP_REGION) {
             let whileLoop = new WhileLoopRegion(nodeSet);
             this.loopMap.set(whileLoop.header, whileLoop);
             node = whileLoop;
-        } else if (rtype == RegionType.FOR_LOOP_REGION) {
+        } else if (rtype === RegionType.FOR_LOOP_REGION) {
             let forLoop = new ForLoopRegion(nodeSet);
             this.loopMap.set(forLoop.header, forLoop);
             node = forLoop;
-        } else if (rtype == RegionType.DO_WHILE_LOOP_REGION) {
+        } else if (rtype === RegionType.DO_WHILE_LOOP_REGION) {
             let doWhileLoop = new DoWhileLoopRegion(nodeSet);
             this.loopMap.set(doWhileLoop.header, doWhileLoop);
             node = doWhileLoop;
@@ -626,9 +656,6 @@ export class AbstractFlowGraph {
 
     private setIntersect(a: Set<AbstractNode>, b: Set<AbstractNode>): Set<AbstractNode> {
         let r = new Set<AbstractNode>();
-        if (b == undefined) {
-            debugger;
-        }
         for (const n of b) {
             if (a.has(n)) {
                 r.add(n);
@@ -639,11 +666,11 @@ export class AbstractFlowGraph {
     }
 
     private isSetEqual(a: Set<AbstractNode>, b: Set<AbstractNode>): boolean {
-        if (a.size != b.size) {
+        if (a.size !== b.size) {
             return false;
         }
 
-        return this.setIntersect(a, b).size == a.size;
+        return this.setIntersect(a, b).size === a.size;
     }
 }
 
@@ -701,7 +728,7 @@ class AbstractNode {
 
     public replaceSucc(src: AbstractNode, dst: AbstractNode) {
         for (let i = 0; i < this.succNodes.length; i++) {
-            if (this.succNodes[i] == src) {
+            if (this.succNodes[i] === src) {
                 this.succNodes[i] = dst;
                 break;
             }
@@ -710,7 +737,7 @@ class AbstractNode {
 
     public removeSucc(src: AbstractNode) {
         for (let i = 0; i < this.predNodes.length; i++) {
-            if (this.succNodes[i] == src) {
+            if (this.succNodes[i] === src) {
                 this.succNodes.splice(i, 1);
                 break;
             }
@@ -727,7 +754,7 @@ class AbstractNode {
 
     public replacePred(src: AbstractNode, dst: AbstractNode) {
         for (let i = 0; i < this.predNodes.length; i++) {
-            if (this.predNodes[i] == src) {
+            if (this.predNodes[i] === src) {
                 this.predNodes[i] = dst;
                 break;
             }
@@ -736,7 +763,7 @@ class AbstractNode {
 
     public removePred(src: AbstractNode) {
         for (let i = 0; i < this.predNodes.length; i++) {
-            if (this.predNodes[i] == src) {
+            if (this.predNodes[i] === src) {
                 this.predNodes.splice(i, 1);
                 break;
             }
@@ -823,7 +850,11 @@ abstract class NaturalLoopRegion extends Region {
         super(nset, type);
         let nodes = Array.from(nset);
         this.header = nodes[0];
-        this.back = nodes[1];
+        if (nset.size > 1) {
+            this.back = nodes[1];
+        } else {
+            this.back = nodes[0];
+        }
         this.control = new Set([this.header]);
     }
 
@@ -844,7 +875,7 @@ abstract class NaturalLoopRegion extends Region {
             }
         }
 
-        if (succNodes.size == 0) {
+        if (succNodes.size === 0) {
             return;
         }
 
@@ -869,9 +900,9 @@ abstract class NaturalLoopRegion extends Region {
             for (const succ of node.getSucc()) {
                 if (
                     !this.nset.has(succ) &&
-                    succ != this.getExitNode() &&
-                    succ.getSucc().length == 1 &&
-                    succ.getSucc()[0] == this.getExitNode()
+                    succ !== this.getExitNode() &&
+                    succ.getSucc().length === 1 &&
+                    succ.getSucc()[0] === this.getExitNode()
                 ) {
                     this.nset.add(succ);
                 }
@@ -890,14 +921,14 @@ class SelfLoopRegion extends NaturalLoopRegion {
 
     public replace() {
         for (let pred of this.header.getPred()) {
-            if (pred != this.header) {
+            if (pred !== this.header) {
                 pred.replaceSucc(this.header, this);
                 this.addPred(pred);
             }
         }
 
         for (let succ of this.header.getSucc()) {
-            if (succ != this.header) {
+            if (succ !== this.header) {
                 succ.replacePred(this.header, this);
                 this.addSucc(succ);
             }
@@ -916,7 +947,9 @@ class WhileLoopRegion extends NaturalLoopRegion {
 
     public traversal(callback: TraversalCallback) {
         this.header.traversal(callback, CodeBlockType.WHILE);
-        this.back.traversal(callback, CodeBlockType.NORMAL);
+        if (this.header !== this.back) {
+            this.back.traversal(callback, CodeBlockType.NORMAL);
+        }
         callback(undefined, CodeBlockType.COMPOUND_END);
     }
 
@@ -934,7 +967,9 @@ class DoWhileLoopRegion extends NaturalLoopRegion {
 
     public traversal(callback: TraversalCallback) {
         callback(undefined, CodeBlockType.DO);
-        this.header.traversal(callback, CodeBlockType.NORMAL);
+        if (this.header !== this.back) {
+            this.header.traversal(callback, CodeBlockType.NORMAL);
+        }
         this.back.traversal(callback, CodeBlockType.DO_WHILE);
     }
 
@@ -955,7 +990,7 @@ class ForLoopRegion extends NaturalLoopRegion {
     public traversal(callback: TraversalCallback) {
         this.header.traversal(callback, CodeBlockType.FOR);
         for (const node of this.nset) {
-            if (node != this.header && node != this.inc) {
+            if (node !== this.header && node !== this.inc) {
                 node.traversal(callback, CodeBlockType.NORMAL);
             }
         }
@@ -982,7 +1017,7 @@ class IfRegion extends Region {
         this.replaceContitionPred();
 
         for (let succ of this.then.getSucc()) {
-            if (succ != this.then) {
+            if (succ !== this.then) {
                 succ.replacePred(this.then, this);
                 succ.removePred(this.contition);
                 this.addSucc(succ);
@@ -998,7 +1033,7 @@ class IfRegion extends Region {
 
     protected replaceContitionPred(): void {
         for (let pred of this.contition.getPred()) {
-            if (pred != this.contition) {
+            if (pred !== this.contition) {
                 pred.replaceSucc(this.contition, this);
                 this.addPred(pred);
             }
@@ -1082,14 +1117,14 @@ class IfElseRegion extends Region {
 
     public replace() {
         for (let pred of this.contition.getPred()) {
-            if (pred != this.contition) {
+            if (pred !== this.contition) {
                 pred.replaceSucc(this.contition, this);
                 this.addPred(pred);
             }
         }
 
         for (let succ of this.then.getSucc()) {
-            if (succ != this.then) {
+            if (succ !== this.then) {
                 succ.replacePred(this.then, this);
                 succ.removePred(this.else);
                 this.addSucc(succ);

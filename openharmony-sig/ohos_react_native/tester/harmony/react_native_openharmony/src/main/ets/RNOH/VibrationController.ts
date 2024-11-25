@@ -10,17 +10,20 @@ export class VibrationController {
 
   public vibrate(pattern: number) {
     vibrator.startVibration({
-        type: 'time',
-        duration: pattern,
-      }, {
-        id: 0,
-        usage: 'simulateReality'
-      }, (error) => {
-        if (error) {
-          this.logger.error('RNOH Vibration::vibrate error', error);
-          return;
+      type: 'time',
+      duration: pattern,
+    }, {
+      id: 0,
+      usage: 'simulateReality'
+    }, (error) => {
+      const logger = this.logger.clone('vibrate');
+      if (error) {
+        if (error.code === 201) {
+          logger?.error('Permission denied. Check if \'ohos.permission.VIBRATE\' has been granted');
         }
-      });
+        logger.error(error);
+      }
+    });
   }
 
   public cancel() {

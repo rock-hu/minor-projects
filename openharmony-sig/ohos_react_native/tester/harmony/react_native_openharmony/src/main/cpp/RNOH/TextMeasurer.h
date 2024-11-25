@@ -12,15 +12,6 @@
 #include "TextMeasureRegistry.h"
 
 namespace rnoh {
-static std::mutex m_fontFileContentByFontNameMtx;
-static std::unordered_map<std::string, std::vector<uint8_t>>
-    m_fontFileContentByFontName;
-
-static std::mutex m_fontCollectionMtx;
-static SharedFontCollection m_fontCollection;
-
-static std::mutex m_defaultFontFamilyNameMtx;
-static std::string m_defaultFontFamilyName;
 
 class TextMeasurer : public facebook::react::TextLayoutManagerDelegate {
  public:
@@ -34,7 +25,7 @@ class TextMeasurer : public facebook::react::TextLayoutManagerDelegate {
         m_measureTextFnRef(measureTextFnRef),
         m_taskExecutor(taskExecutor),
         m_featureFlagRegistry(featureFlagManager),
-        m_rnInstanceId(id){}
+        m_rnInstanceId(id) {}
   facebook::react::TextMeasurement measure(
       facebook::react::AttributedString attributedString,
       facebook::react::ParagraphAttributes paragraphAttributes,
@@ -54,7 +45,7 @@ class TextMeasurer : public facebook::react::TextLayoutManagerDelegate {
   void registerFont(
     std::weak_ptr<NativeResourceManager> weakResourceManager,
     const std::string name,
-    const std::string fontFilePathRelativeToRawfileDir
+    const std::string fontFilePath
   );
   SharedFontCollection getFontCollection();
   std::string getDefaultFontFamilyName();
@@ -81,5 +72,13 @@ class TextMeasurer : public facebook::react::TextLayoutManagerDelegate {
   float m_scale = 1.0;
   int m_rnInstanceId = 0;
   bool m_halfleading = false;
+  std::mutex m_fontCollectionMtx;
+  SharedFontCollection m_fontCollection;
+  std::mutex m_fontFileContentByFontFamilyMtx;
+  std::unordered_map<std::string, std::vector<uint8_t>>
+    m_fontFileContentByFontFamily;
+
+  std::mutex m_defaultFontFamilyNameMtx;
+  std::string m_defaultFontFamilyName;
 };
 } // namespace rnoh

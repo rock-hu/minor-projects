@@ -13,16 +13,17 @@ void CustomNodeComponentInstance::onChildInserted(
     ComponentInstance::Shared const& childComponentInstance, std::size_t index) {
   CppComponentInstance::onChildInserted(childComponentInstance, index);
   if (m_props->removeClippedSubviews && !m_parent.expired()) {
-  } else {
-    m_customNode.insertChild(
-        childComponentInstance->getLocalRootArkUINode(), index);
+    return;
   }
+  m_customNode.insertChild(
+        childComponentInstance->getLocalRootArkUINode(), index);
 }
 
 void CustomNodeComponentInstance::onChildRemoved(
     ComponentInstance::Shared const& childComponentInstance)
 {
   CppComponentInstance::onChildRemoved(childComponentInstance);
+  m_childrenClippedState.erase(childComponentInstance->getTag());
   getLocalRootArkUINode().removeChild(childComponentInstance->getLocalRootArkUINode());
 }
 
@@ -48,9 +49,7 @@ void CustomNodeComponentInstance::onHoverOut() {
 
 void CustomNodeComponentInstance::onPropsChanged(SharedConcreteProps const& props) {
   CppComponentInstance::onPropsChanged(props);
-  if (props->removeClippedSubviews) {
-    updateClippedSubviews(true);
-  } else if (!m_childrenClippedState.empty()) {
+  if (!props->removeClippedSubviews && !m_childrenClippedState.empty()) {
     restoreClippedSubviews();
   }
 }
@@ -70,9 +69,11 @@ bool CustomNodeComponentInstance::isViewClipped(
 void CustomNodeComponentInstance::restoreClippedSubviews() {
   size_t i = 0;
   for (const auto& child : m_children) {
-    if (m_childrenClippedState[i]) {
+    auto tag = child->getTag();
+    if (auto it = m_childrenClippedState.find(tag);
+        it != m_childrenClippedState.end() && it->second) {
       m_customNode.insertChild(child->getLocalRootArkUINode(), i);
-      m_childrenClippedState[i] = false;
+      it->second = false;
     }
     i++;
   }
@@ -94,41 +95,26 @@ void CustomNodeComponentInstance::updateClippedSubviews(bool childrenChange) {
 
   m_previousOffset = currentOffset;
 
-  bool remakeVector = false;
-  if (childrenChange || m_childrenClippedState.empty()) {
-    m_childrenClippedState.clear();
-    remakeVector = true;
-  }
-
-  size_t i = 0;
   size_t nextChildIndex = 0;
   for (const auto& child : m_children) {
+    auto tag = child->getTag();
     bool childClipped = isViewClipped(child, currentOffset, parentBoundingBox);
+    auto it = m_childrenClippedState.find(tag);
+    bool wasChildClipped =
+        it == m_childrenClippedState.end() || it->second != childClipped;
 
-    if (remakeVector) {
-      m_customNode.removeChild(child->getLocalRootArkUINode());
-      m_childrenClippedState.push_back(childClipped);
-
-      if (!childClipped) {
-        m_customNode.insertChild(child->getLocalRootArkUINode(), -1);
-        child->getLocalRootArkUINode().markDirty();
-      }
-    }
-
-    if (m_childrenClippedState[i] != childClipped) {
-      m_childrenClippedState[i] = childClipped;
-
+    if (wasChildClipped) {
+      m_childrenClippedState.insert_or_assign(tag, childClipped);
       if (childClipped) {
         m_customNode.removeChild(child->getLocalRootArkUINode());
       } else {
         m_customNode.insertChild(child->getLocalRootArkUINode(), nextChildIndex);
-        child->getLocalRootArkUINode().markDirty();
-        nextChildIndex++;
       }
-    } else if (!childClipped) {
+    }
+
+    if (!childClipped) {
       nextChildIndex++;
     }
-    i++;
   }
 }
 

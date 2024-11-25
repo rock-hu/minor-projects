@@ -17,19 +17,20 @@ import ts from 'ohos-typescript';
 import { LineColPosition } from '../../base/Position';
 import { ImportInfo } from '../ArkImport';
 import { buildModifiers } from './builderUtils';
-import { Decorator } from '../../base/Decorator';
+import { IRUtils } from '../../common/IRUtils';
+import { ArkFile } from '../ArkFile';
 
 
-export function buildImportInfo(node: ts.ImportEqualsDeclaration | ts.ImportDeclaration, sourceFile: ts.SourceFile): ImportInfo[] {
+export function buildImportInfo(node: ts.ImportEqualsDeclaration | ts.ImportDeclaration, sourceFile: ts.SourceFile, arkFile: ArkFile): ImportInfo[] {
     if (ts.isImportDeclaration(node)) {
-        return buildImportDeclarationNode(node, sourceFile);
+        return buildImportDeclarationNode(node, sourceFile, arkFile);
     } else if (ts.isImportEqualsDeclaration(node)) {
-        return buildImportEqualsDeclarationNode(node, sourceFile);
+        return buildImportEqualsDeclarationNode(node, sourceFile, arkFile);
     }
     return [];
 }
 
-function buildImportDeclarationNode(node: ts.ImportDeclaration, sourceFile: ts.SourceFile): ImportInfo[] {
+function buildImportDeclarationNode(node: ts.ImportDeclaration, sourceFile: ts.SourceFile, arkFile: ArkFile): ImportInfo[] {
     const originTsPosition = LineColPosition.buildFromNode(node, sourceFile);
     const tsSourceCode = node.getText(sourceFile);
 
@@ -39,11 +40,9 @@ function buildImportDeclarationNode(node: ts.ImportDeclaration, sourceFile: ts.S
         importFrom = node.moduleSpecifier.text;
     }
 
-    const modifiers: Set<string | Decorator> = new Set<string | Decorator>();
+    let modifiers = 0;
     if (node.modifiers) {
-        buildModifiers(node, sourceFile).forEach((modifier) => {
-            modifiers.add(modifier);
-        });
+        modifiers = buildModifiers(node);
     }
 
     // just like: import '../xxx'
@@ -53,6 +52,7 @@ function buildImportDeclarationNode(node: ts.ImportDeclaration, sourceFile: ts.S
         let importInfo = new ImportInfo();
         importInfo.build(importClauseName, importType, importFrom, originTsPosition, modifiers);
         importInfo.setTsSourceCode(tsSourceCode);
+        IRUtils.setLeadingComments(importInfo, node, sourceFile, arkFile.getScene().getOptions());
         importInfos.push(importInfo);
     }
 
@@ -63,6 +63,7 @@ function buildImportDeclarationNode(node: ts.ImportDeclaration, sourceFile: ts.S
         let importInfo = new ImportInfo();
         importInfo.build(importClauseName, importType, importFrom, originTsPosition, modifiers);
         importInfo.setTsSourceCode(tsSourceCode);
+        IRUtils.setLeadingComments(importInfo, node, sourceFile, arkFile.getScene().getOptions());
         importInfos.push(importInfo);
     }
 
@@ -77,11 +78,13 @@ function buildImportDeclarationNode(node: ts.ImportDeclaration, sourceFile: ts.S
                         let importInfo = new ImportInfo();
                         importInfo.build(importClauseName, importType, importFrom, originTsPosition, modifiers, element.propertyName.text);
                         importInfo.setTsSourceCode(tsSourceCode);
+                        IRUtils.setLeadingComments(importInfo, node, sourceFile, arkFile.getScene().getOptions());
                         importInfos.push(importInfo);
                     } else {
                         let importInfo = new ImportInfo();
                         importInfo.build(importClauseName, importType, importFrom, originTsPosition, modifiers);
                         importInfo.setTsSourceCode(tsSourceCode);
+                        IRUtils.setLeadingComments(importInfo, node, sourceFile, arkFile.getScene().getOptions());
                         importInfos.push(importInfo);
                     }
                 }
@@ -98,6 +101,7 @@ function buildImportDeclarationNode(node: ts.ImportDeclaration, sourceFile: ts.S
             let nameBeforeAs = '*';
             importInfo.build(importClauseName, importType, importFrom, originTsPosition, modifiers, nameBeforeAs);
             importInfo.setTsSourceCode(tsSourceCode);
+            IRUtils.setLeadingComments(importInfo, node, sourceFile, arkFile.getScene().getOptions());
             importInfos.push(importInfo);
         }
     }
@@ -105,17 +109,15 @@ function buildImportDeclarationNode(node: ts.ImportDeclaration, sourceFile: ts.S
     return importInfos;
 }
 
-function buildImportEqualsDeclarationNode(node: ts.ImportEqualsDeclaration, sourceFile: ts.SourceFile): ImportInfo[] {
+function buildImportEqualsDeclarationNode(node: ts.ImportEqualsDeclaration, sourceFile: ts.SourceFile, arkFile: ArkFile): ImportInfo[] {
     const originTsPosition = LineColPosition.buildFromNode(node, sourceFile);
     const tsSourceCode = node.getText(sourceFile);
 
     let importInfos: ImportInfo[] = [];
     let importType = 'EqualsImport';
-    const modifiers: Set<string | Decorator> = new Set<string | Decorator>();
+    let modifiers = 0;
     if (node.modifiers) {
-        buildModifiers(node, sourceFile).forEach((modifier) => {
-            modifiers.add(modifier);
-        });
+        modifiers = buildModifiers(node);
     }
     if (node.moduleReference && ts.isExternalModuleReference(node.moduleReference) &&
         node.moduleReference.expression && ts.isStringLiteral(node.moduleReference.expression)) {
@@ -124,6 +126,7 @@ function buildImportEqualsDeclarationNode(node: ts.ImportEqualsDeclaration, sour
         let importInfo = new ImportInfo();
         importInfo.build(importClauseName, importType, importFrom, originTsPosition, modifiers);
         importInfo.setTsSourceCode(tsSourceCode);
+        IRUtils.setLeadingComments(importInfo, node, sourceFile, arkFile.getScene().getOptions());
         importInfos.push(importInfo);
     }
     return importInfos;

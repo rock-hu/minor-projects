@@ -15,34 +15,34 @@
 
 export const ArrowFunction_Expect_IR = {
     methods: [{
-        name: '_DEFAULT_ARK_METHOD',
+        name: '%dflt',
         stmts: [
             {
-                text: 'this = this: @function/ArrowFunctionTest.ts: _DEFAULT_ARK_CLASS',
+                text: 'this = this: @function/ArrowFunctionTest.ts: %dflt',
                 operandOriginalPositions: [
                     null, null,
                 ],
             },
             {
-                text: 'func1 = AnonymousMethod-_DEFAULT_ARK_METHOD-0',
+                text: 'func1 = %AM0',
                 operandOriginalPositions: [
                     [16, 5, 16, 10], [16, 13, 16, 29],
                 ],
             },
             {
-                text: 'func2 = AnonymousMethod-_DEFAULT_ARK_METHOD-1',
+                text: 'func2 = %AM1',
                 operandOriginalPositions: [
                     [17, 5, 17, 10], [17, 13, 20, 2],
                 ],
             },
             {
-                text: 'func3 = AnonymousMethod-_DEFAULT_ARK_METHOD-2',
+                text: 'func3 = %AM2',
                 operandOriginalPositions: [
                     [21, 5, 21, 10], [21, 13, 21, 26],
                 ],
             },
             {
-                text: 'func4 = AnonymousMethod-_DEFAULT_ARK_METHOD-3',
+                text: 'func4 = %AM3',
                 operandOriginalPositions: [
                     [22, 5, 22, 10], [22, 13, 22, 31],
                 ],
@@ -53,10 +53,10 @@ export const ArrowFunction_Expect_IR = {
             },
         ],
     }, {
-        name: 'AnonymousMethod-_DEFAULT_ARK_METHOD-0',
+        name: '%AM0',
         stmts1: [
             'i = parameter0: number',
-            'this = this: @function/ArrowFunctionTest.ts: _DEFAULT_ARK_CLASS',
+            'this = this: @function/ArrowFunctionTest.ts: %dflt',
             'return i',
         ],
         stmts: [
@@ -67,7 +67,7 @@ export const ArrowFunction_Expect_IR = {
                 ],
             },
             {
-                text: 'this = this: @function/ArrowFunctionTest.ts: _DEFAULT_ARK_CLASS',
+                text: 'this = this: @function/ArrowFunctionTest.ts: %dflt',
                 operandOriginalPositions: [
                     null, null,
                 ],
@@ -80,16 +80,16 @@ export const ArrowFunction_Expect_IR = {
             },
         ],
     }, {
-        name: 'AnonymousMethod-_DEFAULT_ARK_METHOD-1',
+        name: '%AM1',
         stmts1: [
-            'this = this: @function/ArrowFunctionTest.ts: _DEFAULT_ARK_CLASS',
+            'this = this: @function/ArrowFunctionTest.ts: %dflt',
             'i = 0',
             'i = i + 1',
             'return',
         ],
         stmts: [
             {
-                text: 'this = this: @function/ArrowFunctionTest.ts: _DEFAULT_ARK_CLASS',
+                text: 'this = this: @function/ArrowFunctionTest.ts: %dflt',
                 operandOriginalPositions: [
                     null, null,
                 ],
@@ -112,37 +112,37 @@ export const ArrowFunction_Expect_IR = {
             },
         ],
     }, {
-        name: 'AnonymousMethod-_DEFAULT_ARK_METHOD-2',
+        name: '%AM2',
         stmts1: [
-            'this = this: @function/ArrowFunctionTest.ts: _DEFAULT_ARK_CLASS',
-            '$temp0 = staticinvoke <@_UnknownProjectName/_UnknownFileName: .func2()>()',
-            'return $temp0',
+            'this = this: @function/ArrowFunctionTest.ts: %dflt',
+            '%0 = staticinvoke <@%unk/%unk: .func2()>()',
+            'return %0',
         ],
         stmts: [
             {
-                text: 'this = this: @function/ArrowFunctionTest.ts: _DEFAULT_ARK_CLASS',
+                text: 'this = this: @function/ArrowFunctionTest.ts: %dflt',
                 operandOriginalPositions: [
                     null, null,
                 ],
             },
             {
-                text: '$temp0 = staticinvoke <@_UnknownProjectName/_UnknownFileName: .func2()>()',
+                text: '%0 = staticinvoke <@%unk/%unk: .func2()>()',
                 operandOriginalPositions: [
                     [21, 19, 21, 26], [21, 19, 21, 26],
                 ],
             },
             {
-                text: 'return $temp0',
+                text: 'return %0',
                 operandOriginalPositions: [
                     [21, 19, 21, 26],
                 ],
             },
         ],
     }, {
-        name: 'AnonymousMethod-_DEFAULT_ARK_METHOD-3',
+        name: '%AM3',
         stmts1: [
             'i = parameter0: number',
-            'this = this: @function/ArrowFunctionTest.ts: _DEFAULT_ARK_CLASS',
+            'this = this: @function/ArrowFunctionTest.ts: %dflt',
             'i = i + 1',
             'return i',
         ],
@@ -154,7 +154,7 @@ export const ArrowFunction_Expect_IR = {
                 ],
             },
             {
-                text: 'this = this: @function/ArrowFunctionTest.ts: _DEFAULT_ARK_CLASS',
+                text: 'this = this: @function/ArrowFunctionTest.ts: %dflt',
                 operandOriginalPositions: [
                     null, null,
                 ],
@@ -173,4 +173,180 @@ export const ArrowFunction_Expect_IR = {
             },
         ],
     }],
+};
+
+export const OverloadMethod_Expect_IR = {
+    methodDeclareLines: [16, 17],
+    methodDeclareSignatures: [
+        {
+            toString: '@function/OverloadFunctionTest.ts: %dflt.overloadedFunction1(number)',
+            methodSubSignature: {
+                returnType: 'string'
+            }
+        },
+        {
+            toString: '@function/OverloadFunctionTest.ts: %dflt.overloadedFunction1(string)',
+            methodSubSignature: {
+                returnType: 'number'
+            }
+        }
+
+    ],
+    line: 18,
+    methodSignature: {
+        toString: '@function/OverloadFunctionTest.ts: %dflt.overloadedFunction1(any)',
+        methodSubSignature: {
+            returnType: 'any'
+        }
+    },
+    body: {
+        locals: {
+            x: {
+                name: 'x'
+            }
+        }
+    }
+};
+
+export const OverloadClassMethod_Expect_IR = {
+    methodDeclareLines: [29, 30, 31],
+    methodDeclareSignatures: [
+        {
+            toString: '@function/OverloadFunctionTest.ts: OverloadClass.overloadedFunction2(number, number)',
+            methodSubSignature: {
+                returnType: 'string'
+            }
+        },
+        {
+            toString: '@function/OverloadFunctionTest.ts: OverloadClass.overloadedFunction2(string, string)',
+            methodSubSignature: {
+                returnType: 'number'
+            }
+        },
+        {
+            toString: '@function/OverloadFunctionTest.ts: OverloadClass.overloadedFunction2(string, string)',
+            methodSubSignature: {
+                returnType: 'string'
+            }
+        }
+    ],
+    line: 33,
+    methodSignature: {
+        toString: '@function/OverloadFunctionTest.ts: OverloadClass.overloadedFunction2(number|string, number|string)',
+        methodSubSignature: {
+            returnType: 'string|number'
+        }
+    },
+    body: {
+        locals: {
+            x: {
+                name: 'x'
+            }
+        }
+    }
+};
+
+export const OverloadNamespaceMethod_Expect_IR = {
+    methodDeclareLines: [45, 46, 47],
+    methodDeclareSignatures: [
+        {
+            toString: '@function/OverloadFunctionTest.ts: overloadNamespace.%dflt.overloadedFunction3(number)',
+            methodSubSignature: {
+                returnType: 'string'
+            }
+        },
+        {
+            toString: '@function/OverloadFunctionTest.ts: overloadNamespace.%dflt.overloadedFunction3(string)',
+            methodSubSignature: {
+                returnType: 'number'
+            }
+        },
+        {
+            toString: '@function/OverloadFunctionTest.ts: overloadNamespace.%dflt.overloadedFunction3(string)',
+            methodSubSignature: {
+                returnType: 'boolean'
+            }
+        }
+    ],
+    line: null,
+    methodSignature: null
+};
+
+export const OverloadInterfaceMethod_Expect_IR = {
+    methodDeclareLines: [51, 52],
+    methodDeclareSignatures: [
+        {
+            toString: '@function/OverloadFunctionTest.ts: OverloadInterface.overloadedFunction4(number)',
+            methodSubSignature: {
+                returnType: 'number'
+            }
+        },
+        {
+            toString: '@function/OverloadFunctionTest.ts: OverloadInterface.overloadedFunction4(string)',
+            methodSubSignature: {
+                returnType: 'string'
+            }
+        }
+    ],
+    line: null,
+    methodSignature: null,
+};
+
+export const NoOverloadMethod_Expect_IR = {
+    methodDeclareLines: [55],
+    methodDeclareSignatures: [
+        {
+            toString: '@function/OverloadFunctionTest.ts: %dflt.function5(string)',
+            methodSubSignature: {
+                returnType: 'number'
+            }
+        }
+    ],
+    line: null,
+    methodSignature: null
+};
+
+export const NoOverloadMethodWithBody_Expect_IR = {
+    methodDeclareLines: [57],
+    methodDeclareSignatures: [
+        {
+            toString: '@function/OverloadFunctionTest.ts: %dflt.function6(number)',
+            methodSubSignature: {
+                returnType: 'number'
+            }
+        }
+    ],
+    line: 58,
+    methodSignature: {
+        toString: '@function/OverloadFunctionTest.ts: %dflt.function6(number)',
+        methodSubSignature: {
+            returnType: 'number'
+        }
+    },
+    body: {
+        locals: {
+            x: {
+                name: 'x'
+            }
+        }
+    }
+};
+
+export const NoOverloadMethodWithBody2_Expect_IR = {
+    methodDeclareLines: null,
+    methodDeclareSignatures: null,
+    line: 62,
+    methodSignature: {
+        toString: '@function/OverloadFunctionTest.ts: %dflt.function7(number)',
+        methodSubSignature: {
+            returnType: 'number'
+        }
+    },
+    body: {
+        locals: {
+            x: {
+                name: 'x'
+            }
+        }
+    }
 };

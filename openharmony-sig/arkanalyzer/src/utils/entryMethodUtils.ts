@@ -45,7 +45,8 @@ export const LIFECYCLE_METHOD_NAME: string[] = [
     'onFormEvent',
     'onRemoveForm',
     'onConfigurationUpdate',
-    'onAcquireFormState'
+    'onAcquireFormState',
+    'onWindowStageWillDestroy',
   ];
 export const CALLBACK_METHOD_NAME: string[] = [
     "onClick", // 点击事件，当用户点击组件时触发
@@ -103,7 +104,7 @@ export function getAbilities(abilities: AbilityMessage[], modulePath: string, sc
         }
         const filePath = path.join(modulePath, 'src', 'main', entry);
         for (const file of scene.getFiles()) {
-            if (file.getFilePath() == filePath) {
+            if (file.getFilePath() === filePath) {
                 for (const arkClass of file.getClasses()) {
                     if (ability.name.includes(arkClass.getName()) && arkClass.isExported()) {
                         abilitiyClasses.push(arkClass);
@@ -119,7 +120,7 @@ export function getAbilities(abilities: AbilityMessage[], modulePath: string, sc
 
 export function getCallbackMethodFromStmt(stmt: Stmt, scene: Scene): ArkMethod | null {
     const invokeExpr = stmt.getInvokeExpr();
-    if (invokeExpr && invokeExpr.getMethodSignature().getDeclaringClassSignature().getClassName() == '' && CALLBACK_METHOD_NAME.includes(invokeExpr.getMethodSignature().getMethodSubSignature().getMethodName())) {
+    if (invokeExpr && invokeExpr.getMethodSignature().getDeclaringClassSignature().getClassName() === '' && CALLBACK_METHOD_NAME.includes(invokeExpr.getMethodSignature().getMethodSubSignature().getMethodName())) {
         for (const arg of invokeExpr.getArgs()) {
             const argType = arg.getType();
             if (argType instanceof FunctionType) {

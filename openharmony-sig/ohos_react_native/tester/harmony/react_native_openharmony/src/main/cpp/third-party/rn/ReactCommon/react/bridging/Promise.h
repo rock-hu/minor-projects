@@ -4,6 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
+// RNOH patch — apply fix from https://github.com/facebook/react-native/pull/43410/files
 
 #pragma once
 
@@ -34,8 +35,9 @@ class AsyncPromise {
             },
             jsInvoker));
 
-    auto promiseHolder = std::make_shared<PromiseHolder>(promise.asObject(rt));
-    LongLivedObjectCollection::get().add(promiseHolder);
+     auto promiseHolder =
+        std::make_shared<PromiseHolder>(rt, promise.asObject(rt));
+    LongLivedObjectCollection::get(rt).add(promiseHolder);
 
     // The shared state can retain the promise holder weakly now.
     state_->promiseHolder = promiseHolder;
@@ -71,8 +73,8 @@ class AsyncPromise {
 
  private:
   struct PromiseHolder : LongLivedObject {
-    PromiseHolder(jsi::Object p) : promise(std::move(p)) {}
-
+    PromiseHolder(jsi::Runtime& runtime, jsi::Object p)
+        : LongLivedObject(runtime), promise(std::move(p)) {}
     jsi::Object promise;
   };
 

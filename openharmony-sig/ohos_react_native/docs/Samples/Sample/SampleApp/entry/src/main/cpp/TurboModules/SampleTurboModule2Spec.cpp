@@ -55,7 +55,7 @@ void NativeSampleTurboModule2SpecJSI::callJS() {
         folly::dynamic paramsObj = folly::dynamic::object("size", 20);
         folly::dynamic obj = folly::dynamic::object("params", paramsObj);
         data.push_back(obj);
-        instance->callFunction(std::move(module), std::move(method), std::move(data));
+        instance->callJSFunction(std::move(module), std::move(method), std::move(data));
     }
 }
 

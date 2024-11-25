@@ -158,6 +158,7 @@ function StatusBarView({animated}: {animated?: boolean}) {
         </View>
       </TestCase.Example>
       <TestCase.Logical
+        skip={{harmony: false, android: true}}
         itShould="return correct status bar height for device"
         fn={({expect}) => {
           expect(StatusBar.currentHeight).to.be.closeTo(38.8, 0.1);

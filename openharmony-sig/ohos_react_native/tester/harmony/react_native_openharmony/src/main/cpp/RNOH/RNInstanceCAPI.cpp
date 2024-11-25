@@ -5,6 +5,7 @@
 #include <react/renderer/componentregistry/ComponentDescriptorProvider.h>
 #include <react/renderer/componentregistry/ComponentDescriptorRegistry.h>
 #include <react/renderer/scheduler/Scheduler.h>
+#include "ArkTSBridge.h"
 #include "NativeLogger.h"
 #include "RNInstanceArkTS.h"
 #include "RNOH/Assert.h"
@@ -65,21 +66,17 @@ void RNInstanceCAPI::start() {
           binder->createBindings(rt, turboModuleProvider);
         }
       });
-  auto turboModule = getTurboModule("DeviceInfo");
-  auto deviceInfoTurboModule =
-      std::dynamic_pointer_cast<rnoh::DeviceInfoTurboModule>(turboModule);
-  auto displayMetrics = deviceInfoTurboModule->callSync("getConstants", {});
-  auto m_halfleading = deviceInfoTurboModule->callSync("getHalfLeading", {});
-  if (displayMetrics.count("Dimensions") != 0) {
-    auto Dimensions = displayMetrics.at("Dimensions");
-    auto screenPhysicalPixels = Dimensions.at("screenPhysicalPixels");
-    float scale = screenPhysicalPixels.at("scale").asDouble();
-    float fontScale = screenPhysicalPixels.at("fontScale").asDouble();
-    auto textMeasurer = m_contextContainer->at<std::shared_ptr<rnoh::TextMeasurer>>("textLayoutManagerDelegate");
-    if (textMeasurer) {
-      textMeasurer->setTextMeasureParams(fontScale, scale, m_halfleading.asBool());
-    }
-  }
+    auto textMeasurer =
+          m_contextContainer->at<std::shared_ptr<rnoh::TextMeasurer>>(
+              "textLayoutManagerDelegate");
+    RNOH_ASSERT(textMeasurer != nullptr);
+    auto displayMetrics = ArkTSBridge::getInstance()->getDisplayMetrics().screenPhysicalPixels;
+
+    float fontScale = displayMetrics.fontScale;
+    float scale = displayMetrics.scale;
+
+    auto halfLeading = ArkTSBridge::getInstance()->getMetadata("half_leading") == "true";
+    textMeasurer->setTextMeasureParams(fontScale, scale, halfLeading);
 }
 
 void RNInstanceCAPI::initialize() {
@@ -312,7 +309,7 @@ rnoh::RNInstanceCAPI::getContextContainer() const {
   return *m_contextContainer;
 }
 
-void RNInstanceCAPI::callFunction(
+void RNInstanceCAPI::callJSFunction(
     std::string&& module,
     std::string&& method,
     folly::dynamic&& params) {
@@ -415,8 +412,10 @@ void RNInstanceCAPI::createSurface(
 
 void RNInstanceCAPI::updateSurfaceConstraints(
     facebook::react::Tag surfaceId,
-    float width,
-    float height,
+    float minWidth,
+    float minHeight,
+    float maxWidth,
+    float maxHeight,
     float viewportOffsetX,
     float viewportOffsetY,
     float pixelRatio,
@@ -427,13 +426,48 @@ void RNInstanceCAPI::updateSurfaceConstraints(
     return;
   }
   it->second->updateConstraints(
-      width, height, viewportOffsetX, viewportOffsetY, pixelRatio, isRTL);
+      minWidth,
+      minHeight,
+      maxWidth,
+      maxHeight,
+      viewportOffsetX,
+      viewportOffsetY,
+      pixelRatio,
+      isRTL);
+}
+
+facebook::react::Size RNInstanceCAPI::measureSurface(
+    facebook::react::Tag surfaceId,
+    float minWidth,
+    float minHeight,
+    float maxWidth,
+    float maxHeight,
+    float viewportOffsetX,
+    float viewportOffsetY,
+    float pixelRatio,
+    bool isRTL) {
+  DLOG(INFO) << "RNInstanceCAPI::measureSurface";
+  auto it = m_surfaceById.find(surfaceId);
+  if (it == m_surfaceById.end()) {
+    throw FatalRNOHError("Invalid surfaceId");
+  }
+  return it->second->measure(
+      minWidth,
+      minHeight,
+      maxWidth,
+      maxHeight,
+      viewportOffsetX,
+      viewportOffsetY,
+      pixelRatio,
+      isRTL);
 }
 
 void RNInstanceCAPI::startSurface(
     facebook::react::Tag surfaceId,
-    float width,
-    float height,
+    float minWidth,
+    float minHeight,
+    float maxWidth,
+    float maxHeight,
     float viewportOffsetX,
     float viewportOffsetY,
     float pixelRatio,
@@ -445,8 +479,10 @@ void RNInstanceCAPI::startSurface(
     return;
   }
   it->second->start(
-      width,
-      height,
+      minWidth,
+      minHeight,
+      maxWidth,
+      maxHeight,
       viewportOffsetX,
       viewportOffsetY,
       pixelRatio,
@@ -549,5 +585,11 @@ void RNInstanceCAPI::setBundlePath(std::string const& path)
 
 std::string RNInstanceCAPI::getBundlePath() {
   return m_bundlePath;
+}
+void RNInstanceCAPI::registerFont(
+    std::string const& fontFamily,
+    std::string const& fontFilePath) {
+  m_contextContainer->at<std::shared_ptr<rnoh::TextMeasurer>>("textLayoutManagerDelegate")
+    ->registerFont(m_nativeResourceManager, fontFamily, fontFilePath);
 }
 }

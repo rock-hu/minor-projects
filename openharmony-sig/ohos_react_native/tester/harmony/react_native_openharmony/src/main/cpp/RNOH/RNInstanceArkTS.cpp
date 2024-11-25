@@ -175,10 +175,25 @@ void rnoh::RNInstanceArkTS::createSurface(
   });
 }
 
+facebook::react::Size RNInstanceArkTS::measureSurface(
+    facebook::react::Tag surfaceId,
+    float minWidth,
+    float minHeight,
+    float maxWidth,
+    float maxHeight,
+    float viewportOffsetX,
+    float viewportOffsetY,
+    float pixelRatio,
+    bool isRTL) {
+    throw std::runtime_error("Not implemented");
+}
+
 void RNInstanceArkTS::startSurface(
     react::Tag surfaceId,
-    float width,
-    float height,
+    float minWidth,
+    float minHeight,
+    float maxWidth,
+    float maxHeight,
     float viewportOffsetX,
     float viewportOffsetY,
     float pixelRatio,
@@ -197,7 +212,7 @@ void RNInstanceArkTS::startSurface(
       auto layoutConstraints = surfaceHandler->getLayoutConstraints();
       layoutConstraints.layoutDirection = react::LayoutDirection::LeftToRight;
       layoutConstraints.minimumSize =
-          layoutConstraints.maximumSize = {.width = width, .height = height};
+          layoutConstraints.maximumSize = {.width = maxWidth, .height = maxHeight};
       auto layoutContext = surfaceHandler->getLayoutContext();
       layoutContext.viewportOffset = {viewportOffsetX, viewportOffsetY};
       layoutContext.pointScaleFactor = pixelRatio;
@@ -282,8 +297,10 @@ void rnoh::RNInstanceArkTS::setSurfaceDisplayMode(
 
 void RNInstanceArkTS::updateSurfaceConstraints(
     react::Tag surfaceId,
-    float width,
-    float height,
+    float minWidth,
+    float minHeight,
+    float maxWidth,
+    float maxHeight,
     float viewportOffsetX,
     float viewportOffsetY,
     float pixelRatio,
@@ -292,8 +309,8 @@ void RNInstanceArkTS::updateSurfaceConstraints(
       TaskThread::JS,
       [this,
        surfaceId,
-       width,
-       height,
+       maxWidth,
+       maxHeight,
        viewportOffsetX,
        viewportOffsetY,
        pixelRatio,
@@ -307,7 +324,7 @@ void RNInstanceArkTS::updateSurfaceConstraints(
           auto layoutConstraints =
               surfaceHandlers[surfaceId]->getLayoutConstraints();
           layoutConstraints.minimumSize = layoutConstraints.maximumSize = {
-              .width = width, .height = height};
+              .width = maxWidth, .height = maxHeight};
           auto layoutContext = surfaceHandlers[surfaceId]->getLayoutContext();
           layoutContext.viewportOffset = {viewportOffsetX, viewportOffsetY};
           layoutContext.pointScaleFactor = pixelRatio;
@@ -363,7 +380,7 @@ void rnoh::RNInstanceArkTS::updateState(
   }
 }
 
-void RNInstanceArkTS::callFunction(
+void RNInstanceArkTS::callJSFunction(
     std::string&& module,
     std::string&& method,
     folly::dynamic&& params) {
@@ -452,4 +469,10 @@ NativeResourceManager const* rnoh::RNInstanceArkTS::getNativeResourceManager()
     const {
   throw RNOHError(
       "NativeResourceManager is not supported in ArkTS architecture");
+}
+
+void RNInstanceArkTS::registerFont(
+    std::string const& fontFamily,
+    std::string const& fontFilePath) {
+  // not needed to register here
 }

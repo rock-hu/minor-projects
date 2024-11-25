@@ -22,7 +22,7 @@ export struct UPReactView {
       this.rnInstance = await this.rnohCoreContext!.createAndRegisterRNInstance({
         createRNPackages: createRNPackages,
         enableNDKTextMeasuring: true,
-        enableBackgroundExecutor: true,
+        enableBackgroundExecutor: false,
         enableCAPIArchitecture: true,
         arkTsComponentNames: []
       });

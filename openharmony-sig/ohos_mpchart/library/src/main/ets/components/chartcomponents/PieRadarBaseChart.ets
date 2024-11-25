@@ -20,8 +20,9 @@ import { LogUtil } from '../utils/LogUtil';
 @ComponentV2
 export default struct PieRadarBaseChart {
   @Param model: PieChartModel | RadarChartModel | null = null;
-  private setting: RenderingContextSettings = new RenderingContextSettings(true);
-  private context2D: CanvasRenderingContext2D = new CanvasRenderingContext2D(this.setting);
+  @Param antiAliasing: boolean = true;
+  private setting: RenderingContextSettings | null = null;
+  private context2D: CanvasRenderingContext2D | null = null;
 
   @Monitor('model')
   invalidate() {
@@ -29,19 +30,21 @@ export default struct PieRadarBaseChart {
   }
 
   aboutToAppear() {
-    LogUtil.log('-----------aboutToAppear: enter')
+    LogUtil.log('-----------aboutToAppear: enter');
+    this.setting = new RenderingContextSettings(this.antiAliasing);
+    this.context2D = new CanvasRenderingContext2D(this.setting);
   }
 
   build() {
     Column() {
       Canvas(this.context2D)
         .onReady(() => {
-          if (this.model) {
+          if (this.model && this.context2D) {
             this.model.setContext2D(this.context2D);
           }
         })
         .onAreaChange((oldArea: Area, newArea: Area) => {
-          if (this.model && ((newArea.width !== oldArea.width) || (newArea.height !== oldArea.height))) {
+          if (this.model  && this.context2D && ((newArea.width !== oldArea.width) || (newArea.height !== oldArea.height))) {
             this.model.onChartSizeChanged(Number(newArea.width), Number(newArea.height), Number(oldArea.width),
               Number(oldArea.height));
             this.model.onDraw(this.context2D);

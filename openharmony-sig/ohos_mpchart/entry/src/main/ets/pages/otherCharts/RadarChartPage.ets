@@ -159,8 +159,6 @@ struct RadarChartPage {
     this.model.setWebLineWidthInner(0.3);
     this.model.setDragDecelerationEnabled(true);
     this.model.setWebColorInner(0xFFCCCCCC);
-    // 设置图表顶部距离
-    this.model.setExtraTopOffset(-100);
     this.normalMarker = new RadarMarkerView();
     this.model.setMarker(this.normalMarker);
     let xAxis: XAxis | null = this.model.getXAxis();
@@ -190,13 +188,12 @@ struct RadarChartPage {
   build() {
     Column() {
       title({ model: this.titleModel })
-      Column() {
-        RadarChart({ model: this.model })
-          .width('100%')
-          .height('100%')
-          .backgroundColor(ChartColor.rgb(60, 65, 82))
-      }
+      RadarChart({ model: this.model })
+        .backgroundColor(ChartColor.rgb(60, 65, 82))
+        .layoutWeight(1)
     }
+    .height('100%')
+    .width('100%')
   }
 
   private async setData(): Promise<void> {

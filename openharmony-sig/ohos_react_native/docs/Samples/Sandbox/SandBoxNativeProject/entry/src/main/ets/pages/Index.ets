@@ -88,7 +88,11 @@ struct Index {
         }
         if (this.rnAbility && this.hasBundle) {
           RNApp({
-            rnInstanceConfig: { createRNPackages, arkTsComponentNames: []},
+            rnInstanceConfig: { 
+              createRNPackages,             
+              enableCAPIArchitecture: true,
+              arkTsComponentNames: []
+              },
             initialProps: { "foo": "bar" } as Record<string, string>,
             appKey: "Sandbox",
             wrappedCustomRNComponentBuilder: wrappedCustomRNComponentBuilder,

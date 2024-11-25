@@ -136,7 +136,8 @@ class ArkUITypographyBuilder final {
       : m_styledString(OH_ArkUI_StyledString_Create(typographyStyle, fontCollection.get()), OH_ArkUI_StyledString_Destroy),
         m_scale(scale),
         m_halfleading(halfleading),
-        m_defaultFontFamilyName(defaultFontFamilyName) {}
+        m_defaultFontFamilyName(defaultFontFamilyName),
+        m_fontCollection(fontCollection) {}
 
   void setMaximumWidth(facebook::react::Float maximumWidth) {
     if (!isnan(maximumWidth) && maximumWidth > 0) {
@@ -363,6 +364,7 @@ std::map<std::string, int> mapValueToFontVariant(int value) {
   std::vector<size_t> m_fragmentLengths{};
   facebook::react::Float m_maximumWidth =
       std::numeric_limits<facebook::react::Float>::max();
+  SharedFontCollection m_fontCollection;
 };
 
 } // namespace rnoh

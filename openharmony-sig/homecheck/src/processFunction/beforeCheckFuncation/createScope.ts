@@ -19,6 +19,7 @@ import {
     ArkSwitchStmt,
     ArkThisRef,
     BasicBlock,
+    DEFAULT_ARK_METHOD_NAME,
     Local,
     Scene,
     Stmt
@@ -51,7 +52,7 @@ export function createScope(scene: Scene) {
                 firstBlock = method.getBody()?.getCfg()?.getStartingBlock();
                 if (firstBlock) {
                     let curScope = firstScope;
-                    if (method.getName() !== "_DEFAULT_ARK_METHOD") {
+                    if (method.getName() !== DEFAULT_ARK_METHOD_NAME) {
                         curScope = new Scope(firstScope, new Array<Variable>(), 1);
                         firstScope.setChildScope(curScope)
                     }
@@ -123,7 +124,7 @@ function isForStmtDefinedPart(stmt: Stmt, nextScopeType: ScopeType): boolean {
  * @returns 作用域类型
  */
 export function getScopeType(stmt: Stmt): ScopeType {
-    const text = stmt.getCfg()?.getDeclaringMethod().getBody()?.getStmtToOriginalStmt().get(stmt)?.toString();
+    const text = stmt.getOriginalText();
     if (text) {
         if (text.startsWith('for (') || text.startsWith('for(')) {
             return ScopeType.CASE_TYPE;
@@ -168,7 +169,7 @@ function assignStmtProcess(stmt: Stmt, curScope: Scope): boolean {
         }
     } else if (def instanceof ArkArrayRef) {
         let base = def.getBase();
-        if (base instanceof Local && !base.getName().includes('$')) {
+        if (base instanceof Local && !base.getName().includes('%')) {
             getDefAndSetRedef(base.getName(), curScope, curScope, stmt, SetDefMode.LEFTUSED);
         }
     }

@@ -2,6 +2,8 @@
 
 namespace rnoh {
 
+VSyncListener::VSyncListener(char const* name) : m_vsyncHandle(name) {}
+
 void VSyncListener::scheduleNextVsync() {
   auto alreadyScheduled = m_scheduled.exchange(true);
   if (alreadyScheduled) {
@@ -24,6 +26,18 @@ void VSyncListener::scheduleNextVsync() {
         delete weakSelf;
       },
       new std::weak_ptr<VSyncListener>(weak_from_this()));
+}
+
+void VSyncListener::requestFrame(VSyncCallback callback) {
+  {
+    std::lock_guard<std::mutex> lock(m_callbackMutex);
+    m_callback = std::move(callback);
+  }
+  scheduleNextVsync();
+}
+
+bool VSyncListener::isScheduled() const {
+  return m_scheduled.load();
 }
 
 } // namespace rnoh

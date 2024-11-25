@@ -133,26 +133,26 @@ void TextComponentInstance::onPropsChanged(
       VLOG(3) << "[text-debug] dataDetectorType: " << dataDetectorType;
       if (dataDetectorType == "all") {
         ArkUI_NumberValue types[] = {};
-        m_textNode.setTextDataDetectorType(true, types);
+        m_textNode.setTextDataDetectorType(true, types, sizeof(types) / sizeof(ArkUI_NumberValue));
       } else if (dataDetectorType == "address") {
         ArkUI_NumberValue types[] = {
             {.i32 = ARKUI_TEXT_DATA_DETECTOR_TYPE_ADDRESS}};
-        m_textNode.setTextDataDetectorType(true, types);
+        m_textNode.setTextDataDetectorType(true, types, sizeof(types) / sizeof(ArkUI_NumberValue));
       } else if (dataDetectorType == "link") {
         ArkUI_NumberValue types[] = {
             {.i32 = ARKUI_TEXT_DATA_DETECTOR_TYPE_URL}};
-        m_textNode.setTextDataDetectorType(true, types);
+        m_textNode.setTextDataDetectorType(true, types, sizeof(types) / sizeof(ArkUI_NumberValue));
       } else if (dataDetectorType == "phoneNumber") {
         ArkUI_NumberValue types[] = {
             {.i32 = ARKUI_TEXT_DATA_DETECTOR_TYPE_PHONE_NUMBER}};
-        m_textNode.setTextDataDetectorType(true, types);
+        m_textNode.setTextDataDetectorType(true, types, sizeof(types) / sizeof(ArkUI_NumberValue));
       } else if (dataDetectorType == "email") {
         ArkUI_NumberValue types[] = {
             {.i32 = ARKUI_TEXT_DATA_DETECTOR_TYPE_EMAIL}};
-        m_textNode.setTextDataDetectorType(true, types);
+        m_textNode.setTextDataDetectorType(true, types, sizeof(types) / sizeof(ArkUI_NumberValue));
       } else {
         ArkUI_NumberValue types[] = {};
-        m_textNode.setTextDataDetectorType(false, types);
+        m_textNode.setTextDataDetectorType(false, types, sizeof(types) / sizeof(ArkUI_NumberValue));
       }
     }
     

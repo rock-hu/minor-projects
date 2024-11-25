@@ -113,7 +113,7 @@ export default class RadarChartModel extends PieRadarChartBase<RadarData> {
       return;
     }
     this.mYAxis.calculate(this.mData.getYMin(AxisDependency.LEFT), this.mData.getYMax(AxisDependency.LEFT));
-    this.mYAxis.calculate(0, this.mData.getMaxEntryCountSet()!.getEntryCount());
+    this.mXAxis?.calculate(0, this.mData.getMaxEntryCountSet()!.getEntryCount());
   }
 
   public notifyDataSetChanged(): void {
@@ -181,7 +181,7 @@ export default class RadarChartModel extends PieRadarChartBase<RadarData> {
    */
   public getFactor(): number {
     let content: MyRect = this.mViewPortHandler.getContentRect();
-    return Math.min(content.width() / 2, content.height() / 2) / this.mYAxis.mAxisRange * 0.7;
+    return Math.min(content.width() / 2, content.height() / 2) / this.mYAxis.mAxisRange;
   }
 
   public getSliceAngle(): number {

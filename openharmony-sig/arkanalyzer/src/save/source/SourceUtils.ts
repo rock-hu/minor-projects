@@ -32,10 +32,11 @@ import {
 } from '../../core/common/EtsConst';
 import { ArkClass, ClassCategory } from '../../core/model/ArkClass';
 import Logger, { LOG_MODULE_TYPE } from '../../utils/logger';
-import { ANONYMOUS_CLASS_PREFIX, DEFAULT_ARK_CLASS_NAME } from '../../core/common/Const';
+import { ANONYMOUS_CLASS_PREFIX, ANONYMOUS_METHOD_PREFIX, DEFAULT_ARK_CLASS_NAME } from '../../core/common/Const';
 import { ClassSignature } from '../../core/model/ArkSignature';
 import { ArkNamespace } from '../../core/model/ArkNamespace';
 import ts from 'ohos-typescript';
+import { TEMP_LOCAL_PREFIX } from '../../core/common/Const';
 
 const logger = Logger.getLogger(LOG_MODULE_TYPE.ARKANALYZER, 'SourceUtils');
 
@@ -57,15 +58,15 @@ export class SourceUtils {
     }
 
     public static isDefaultClass(name: string): boolean {
-        return name == DEFAULT_ARK_CLASS_NAME;
+        return name === DEFAULT_ARK_CLASS_NAME;
     }
 
     public static isAnonymousMethod(name: string): boolean {
-        return name.startsWith('AnonymousMethod-');
+        return name.startsWith(ANONYMOUS_METHOD_PREFIX);
     }
 
     public static isConstructorMethod(name: string): boolean {
-        return name == 'constructor';
+        return name === 'constructor';
     }
 
     public static isDeIncrementStmt(stmt: Stmt | null, op: NormalBinaryOperator): boolean {
@@ -86,11 +87,11 @@ export class SourceUtils {
             return false;
         }
 
-        return leftOp.getName() == op1.getName() && operator == op && op2.getValue() == '1';
+        return leftOp.getName() === op1.getName() && operator === op && op2.getValue() === '1';
     }
 
     public static isTemp(name: string): boolean {
-        return name.startsWith('$temp');
+        return name.startsWith(TEMP_LOCAL_PREFIX);
     }
 
     public static getOriginType(cls: ArkClass): number {
@@ -105,7 +106,7 @@ export class SourceUtils {
         let methodName = invokeExpr.getMethodSignature().getMethodSubSignature().getMethodName();
 
         if (
-            methodName == COMPONENT_POP_FUNCTION &&
+            methodName === COMPONENT_POP_FUNCTION &&
             (isEtsSystemComponent(className) || SPECIAL_CONTAINER_COMPONENT.has(className))
         ) {
             return true;
@@ -119,7 +120,7 @@ export class SourceUtils {
         let methodName = invokeExpr.getMethodSignature().getMethodSubSignature().getMethodName();
 
         if (
-            methodName == COMPONENT_CREATE_FUNCTION &&
+            methodName === COMPONENT_CREATE_FUNCTION &&
             (isEtsSystemComponent(className) || SPECIAL_CONTAINER_COMPONENT.has(className))
         ) {
             return true;
@@ -162,7 +163,7 @@ export class SourceUtils {
         let className = invokeExpr.getMethodSignature().getDeclaringClassSignature().getClassName();
         let methodName = invokeExpr.getMethodSignature().getMethodSubSignature().getMethodName();
 
-        if (className == COMPONENT_IF && methodName == COMPONENT_BRANCH_FUNCTION) {
+        if (className === COMPONENT_IF && methodName === COMPONENT_BRANCH_FUNCTION) {
             return true;
         }
         return false;
@@ -172,9 +173,9 @@ export class SourceUtils {
         let className = invokeExpr.getMethodSignature().getDeclaringClassSignature().getClassName();
         let methodName = invokeExpr.getMethodSignature().getMethodSubSignature().getMethodName();
 
-        if (className == COMPONENT_IF && methodName == COMPONENT_BRANCH_FUNCTION) {
+        if (className === COMPONENT_IF && methodName === COMPONENT_BRANCH_FUNCTION) {
             let arg0 = invokeExpr.getArg(0) as Constant;
-            if (arg0.getValue() == '1') {
+            if (arg0.getValue() === '1') {
                 return true;
             }
         }
@@ -189,7 +190,7 @@ export class SourceUtils {
         let className = classSignature.getClassName();
 
         let code: string[] = [];
-        if (namespaceName && namespaceName.length > 0 && namespaceName != namespace?.getName()) {
+        if (namespaceName && namespaceName.length > 0 && namespaceName !== namespace?.getName()) {
             code.push(namespaceName);
         }
 

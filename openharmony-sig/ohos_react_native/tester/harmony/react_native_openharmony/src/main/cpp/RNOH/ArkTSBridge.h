@@ -43,6 +43,7 @@ class ArkTSBridge final {
   uint32_t getFoldStatus();
   bool getIsSplitScreenMode();
   float getFontSizeScale();  
+  std::string getMetadata(std::string const& name);
 
  protected:
   ArkJS m_arkJs;

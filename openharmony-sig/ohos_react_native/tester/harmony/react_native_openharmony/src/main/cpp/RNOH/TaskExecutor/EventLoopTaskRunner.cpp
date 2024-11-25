@@ -6,9 +6,11 @@
 
 namespace rnoh {
 EventLoopTaskRunner::EventLoopTaskRunner(
+    std::string name,
     uv_loop_t* loop,
     ExceptionHandler exceptionHandler)
-    : m_loop(loop),
+    : m_name(name),
+      m_loop(loop),
       m_asyncHandle(
           std::make_unique<uv::Async>(m_loop, [this] { this->executeTask(); })),
       m_exceptionHandler(std::move(exceptionHandler)) {}

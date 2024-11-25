@@ -1,6 +1,6 @@
 # 目录
 
-本目录是React Native for OpenHarmony开发者文档的中文目录。
+本目录是 React Native for OpenHarmony 开发者文档的中文目录。
 
 > 本文档适合具有 React Native 基础的开发者使用，在阅读本文档前，您可以自行学习 React Native 的相关知识。
 

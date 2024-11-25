@@ -231,7 +231,6 @@ export class DescriptorRegistry {
    * @internal
    */
   public applyMutations(mutations: Mutation[]) {
-    this.logger.clone("applyMutations").debug()
     const updatedDescriptorTags = new Set(mutations.flatMap(mutation => {
       return this.applyMutation(mutation)
     }

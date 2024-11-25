@@ -16,10 +16,11 @@
 import ts from 'ohos-typescript';
 import { LineColPosition } from '../../base/Position';
 import { ArkExport, ExportInfo, ExportType, FromInfo } from '../ArkExport';
-import { Decorator } from '../../base/Decorator';
 import { buildModifiers } from './builderUtils';
 import { ArkFile } from '../ArkFile';
 import { ALL, DEFAULT } from "../../common/TSConst";
+import { ModifierType } from '../ArkBaseModel';
+import { IRUtils } from '../../common/IRUtils';
 
 export { buildExportInfo, buildExportAssignment, buildExportDeclaration };
 
@@ -47,7 +48,7 @@ export function buildDefaultExportInfo(im: FromInfo, file: ArkFile, arkExport?: 
 function buildExportDeclaration(node: ts.ExportDeclaration, sourceFile: ts.SourceFile, arkFile: ArkFile): ExportInfo[] {
     const originTsPosition = LineColPosition.buildFromNode(node, sourceFile);
     const tsSourceCode = node.getText(sourceFile);
-    const modifiers = node.modifiers ? buildModifiers(node, sourceFile) : new Set<string | Decorator>();
+    const modifiers = node.modifiers ? buildModifiers(node) : 0;
     let exportFrom = '';
     if (node.moduleSpecifier && ts.isStringLiteral(node.moduleSpecifier)) {
         exportFrom = node.moduleSpecifier.text;
@@ -63,6 +64,7 @@ function buildExportDeclaration(node: ts.ExportDeclaration, sourceFile: ts.Sourc
                 .exportFrom(exportFrom)
                 .originTsPosition(originTsPosition)
                 .declaringArkFile(arkFile)
+                .setLeadingComments(IRUtils.getLeadingComments(node, sourceFile, arkFile.getScene().getOptions()))
                 .modifiers(modifiers);
             if (element.propertyName && ts.isIdentifier(element.propertyName)) {
                 builder.nameBeforeAs(element.propertyName.text);
@@ -79,6 +81,7 @@ function buildExportDeclaration(node: ts.ExportDeclaration, sourceFile: ts.Sourc
         .tsSourceCode(tsSourceCode)
         .exportFrom(exportFrom)
         .declaringArkFile(arkFile)
+        .setLeadingComments(IRUtils.getLeadingComments(node, sourceFile, arkFile.getScene().getOptions()))
         .originTsPosition(originTsPosition);
     if (node.exportClause && ts.isNamespaceExport(node.exportClause) && ts.isIdentifier(node.exportClause.name)) { // just like: export * as xx from './yy'
         exportInfos.push(builder1.exportClauseName(node.exportClause.name.text).build());
@@ -95,9 +98,9 @@ function buildExportAssignment(node: ts.ExportAssignment, sourceFile: ts.SourceF
     }
     const originTsPosition = LineColPosition.buildFromNode(node, sourceFile);
     const tsSourceCode = node.getText(sourceFile);
-    const modifiers = buildModifiers(node, sourceFile);
+    let modifiers = buildModifiers(node);
     if (isKeyword(node.getChildren(sourceFile), ts.SyntaxKind.DefaultKeyword)) {
-        modifiers.add(ts.SyntaxKind[ts.SyntaxKind.DefaultKeyword]);
+        modifiers |= ModifierType.DEFAULT;
     }
     if (ts.isObjectLiteralExpression(node.expression) && node.expression.properties) { // just like: export default {a,b,c}
         node.expression.properties.forEach((property) => {
@@ -110,6 +113,7 @@ function buildExportAssignment(node: ts.ExportAssignment, sourceFile: ts.SourceF
                     .tsSourceCode(tsSourceCode)
                     .originTsPosition(originTsPosition)
                     .declaringArkFile(arkFile)
+                    .setLeadingComments(IRUtils.getLeadingComments(node, sourceFile, arkFile.getScene().getOptions()))
                     .build();
                 exportInfos.push(exportInfo);
             }
@@ -122,6 +126,7 @@ function buildExportAssignment(node: ts.ExportAssignment, sourceFile: ts.SourceF
             .originTsPosition(originTsPosition)
             .declaringArkFile(arkFile)
             .exportClauseName(DEFAULT)
+            .setLeadingComments(IRUtils.getLeadingComments(node, sourceFile, arkFile.getScene().getOptions()))
         if (ts.isIdentifier(node.expression)) { // just like: export default xx
             exportInfo.nameBeforeAs(node.expression.text);
         } else if (ts.isAsExpression(node.expression)) { // just like: export default xx as YY
@@ -141,7 +146,7 @@ function buildExportAssignment(node: ts.ExportAssignment, sourceFile: ts.SourceF
 export function buildExportVariableStatement(node: ts.VariableStatement, sourceFile: ts.SourceFile, arkFile: ArkFile): ExportInfo[] {
     let exportInfos: ExportInfo[] = [];
     const originTsPosition = LineColPosition.buildFromNode(node, sourceFile);
-    const modifiers = node.modifiers ? buildModifiers(node, sourceFile) : new Set<string | Decorator>();
+    const modifiers = node.modifiers ? buildModifiers(node) : 0;
     const tsSourceCode = node.getText(sourceFile);
     node.declarationList.declarations.forEach(dec => {
         const exportInfo = new ExportInfo.Builder()
@@ -166,7 +171,7 @@ export function buildExportVariableStatement(node: ts.VariableStatement, sourceF
 export function buildExportTypeAliasDeclaration(node: ts.TypeAliasDeclaration, sourceFile: ts.SourceFile, arkFile: ArkFile): ExportInfo[] {
     let exportInfos: ExportInfo[] = [];
     const originTsPosition = LineColPosition.buildFromNode(node, sourceFile);
-    const modifiers = node.modifiers ? buildModifiers(node, sourceFile) : new Set<string | Decorator>();
+    const modifiers = node.modifiers ? buildModifiers(node) : 0;
     const tsSourceCode = node.getText(sourceFile);
     const exportInfo = new ExportInfo.Builder()
         .exportClauseName(node.name.text)

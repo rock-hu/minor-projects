@@ -4,6 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
+// RNOH patch — apply fix from https://github.com/facebook/react-native/pull/43410/files
 
 #pragma once
 
@@ -37,6 +38,7 @@ class TurboModuleBinding {
 
  private:
   TurboModuleBinding(
+      jsi::Runtime& runtime,
       TurboModuleBindingMode bindingMode,
       TurboModuleProviderFunctionType &&moduleProvider);
   virtual ~TurboModuleBinding();
@@ -48,6 +50,7 @@ class TurboModuleBinding {
   jsi::Value getModule(jsi::Runtime &runtime, const std::string &moduleName)
       const;
 
+  jsi::Runtime& runtime_;
   TurboModuleBindingMode bindingMode_;
   TurboModuleProviderFunctionType moduleProvider_;
 };

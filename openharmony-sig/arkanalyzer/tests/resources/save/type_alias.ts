@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-type Location = {
+export type Location = {
     x: number;
     y: number;
 };
 
 type FileNotFound = 404;
-type TextInput = string;
+export type TextInput = string;

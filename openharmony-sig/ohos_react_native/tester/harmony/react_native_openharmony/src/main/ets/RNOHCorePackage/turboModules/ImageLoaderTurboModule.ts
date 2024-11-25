@@ -1,23 +1,35 @@
-import type { TurboModuleContext } from '../../RNOH/TurboModule';
-import { TurboModule } from '../../RNOH/TurboModule';
+import { UITurboModule } from '../../RNOH/TurboModule';
 import {
   RemoteImageDiskCache,
-  RemoteImageLoader,
-  RemoteImageLoaderError,
-  RemoteImageMemoryCache
+  RemoteImageLoader, RemoteImageMemoryCache,
+  RemoteImageLoaderError
 } from '../../RemoteImageLoader';
+import { UITurboModuleContext } from '../../RNOH/RNOHContext';
 import image from '@ohos.multimedia.image';
 import { RemoteImageSource } from '../../RemoteImageLoader/RemoteImageSource';
 
-export class ImageLoaderTurboModule extends TurboModule {
+export class ImageLoaderTurboModule extends UITurboModule {
   static NAME = "ImageLoader" as const
 
   private imageLoader: RemoteImageLoader
 
-  constructor(protected ctx: TurboModuleContext) {
+  constructor(protected ctx: UITurboModuleContext) {
     super(ctx)
     this.imageLoader = new RemoteImageLoader(
-      new RemoteImageMemoryCache(128), new RemoteImageDiskCache(128, ctx.uiAbilityContext.cacheDir), ctx.uiAbilityContext)
+      new RemoteImageMemoryCache(128), new RemoteImageDiskCache(128, ctx.uiAbilityContext.cacheDir),
+      ctx.uiAbilityContext, ({ remoteUri, fileUri }) => {
+      ctx.rnInstance.postMessageToCpp('UPDATE_IMAGE_SOURCE_MAP', {
+        remoteUri,
+        fileUri,
+      });
+    })
+  }
+
+  /**
+   * called from cpp
+   */
+  protected getPrefetchResult(uri: string): string | undefined {
+    return this.imageLoader.getPrefetchResult(uri);
   }
 
   public getConstants() {
@@ -51,7 +63,7 @@ export class ImageLoaderTurboModule extends TurboModule {
 
     const imageSource = await this.imageLoader.getImageSource(uri, destHeaders)
     const imageInfo = await imageSource.getImageSource().getImageInfo()
-    return Promise.resolve({ width: imageInfo.size.width, height: imageInfo.size.height})
+    return Promise.resolve({ width: imageInfo.size.width, height: imageInfo.size.height })
   }
 
   public async prefetchImage(uri: string): Promise<boolean> {
@@ -110,7 +122,4 @@ export class ImageLoaderTurboModule extends TurboModule {
     }
   }
 
-  public getCacheFilePath(uri: string): string {
-    return this.imageLoader.getCacheFilePath(uri);
-  }
 }

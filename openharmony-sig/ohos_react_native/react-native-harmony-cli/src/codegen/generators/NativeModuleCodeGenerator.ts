@@ -11,7 +11,7 @@ import {
   SpecSchema,
   CodegenError,
 } from '../core';
-import { GlueCodeTurboModuleData } from './GlueCodeGenerator';
+import { GlueCodeTurboModuleData } from './AppBuildTimeGlueCodeGenerator';
 
 /**
  * Generates boilerplate code for Turbo Modules.
@@ -21,7 +21,8 @@ export class NativeModuleCodeGenerator implements SpecCodeGenerator {
   constructor(
     private cppOutputPath: AbsolutePath,
     private etsOutputPath: AbsolutePath,
-    private generatorVersion: number
+    private codegenNoticeLines: string[],
+    private rnohImport: string
   ) {}
 
   getGlueCodeData() {
@@ -39,11 +40,12 @@ export class NativeModuleCodeGenerator implements SpecCodeGenerator {
     const typeAnnotationToTS = new TypeAnnotationToTS();
     const turboModuleInterfaceTS = new TurboModuleInterfaceTS(
       schema.moduleName,
-      this.generatorVersion
+      this.codegenNoticeLines,
+      this.rnohImport
     );
     const turboModuleH = new TurboModuleHTemplate(
       schema.moduleName,
-      this.generatorVersion
+      this.codegenNoticeLines
     ).build();
     result.set(
       this.cppOutputPath.copyWithNewSegment(`${schema.moduleName}.h`),
@@ -52,7 +54,7 @@ export class NativeModuleCodeGenerator implements SpecCodeGenerator {
 
     const turboModuleCpp = new TurboModuleCppTemplate(
       schema.moduleName,
-      this.generatorVersion
+      this.codegenNoticeLines
     );
 
     Object.entries(schema.aliasMap).map(([name, typeAnnotation]) => {

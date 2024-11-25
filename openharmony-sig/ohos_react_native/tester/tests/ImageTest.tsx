@@ -58,6 +58,7 @@ export const ImageTest = () => {
         </View>
       </TestCase.Example>
       <TestCase.Logical
+        skip={{android: false, harmony: {arkTs: false, cAPI: 'NOT SUPPORTED'}}}
         itShould="retrieve remote image size"
         fn={({expect}) => {
           return new Promise((resolve, reject) => {
@@ -113,7 +114,7 @@ export const ImageTest = () => {
         }}
       />
       <TestCase.Logical
-        itShould="retrieve base64 image size"
+        itShould="retrieve base64 image size (withHeaders)"
         fn={({expect}) => {
           return new Promise((resolve, reject) => {
             Image.getSizeWithHeaders(
@@ -132,7 +133,11 @@ export const ImageTest = () => {
         }}
       />
       <TestCase.Logical
-        itShould="retrieve remote image size"
+        skip={{
+          android: false,
+          harmony: {arkTs: false, cAPI: 'NOT SUPPORTED'},
+        }}
+        itShould="retrieve remote image size (with custom headers provided)"
         fn={({expect}) => {
           return new Promise((resolve, reject) => {
             Image.getSizeWithHeaders(
@@ -174,6 +179,7 @@ export const ImageTest = () => {
         }}
       />
       <TestCase.Logical
+        skip={{android: true, harmony: false}}
         itShould="query cache"
         fn={async ({expect}) => {
           await Image.prefetch(REMOTE_IMAGE_URL);
@@ -182,7 +188,6 @@ export const ImageTest = () => {
             REMOTE_IMAGE_URL,
             WRONG_IMAGE_SRC,
           ]);
-          console.log(JSON.stringify(result, null, 2));
           expect(result).to.be.not.undefined;
           expect(result?.[REMOTE_IMAGE_URL]).to.be.not.undefined;
           expect(result?.[REMOTE_IMAGE_URL]).to.be.eq('disk');

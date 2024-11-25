@@ -19,21 +19,21 @@ import { ArkFile } from '../ArkFile';
 import { buildArkMethodFromArkClass } from './ArkMethodBuilder';
 import ts from 'ohos-typescript';
 import { ArkNamespace } from '../ArkNamespace';
-import { buildModifiers } from './builderUtils';
+import { buildDecorators, buildModifiers } from './builderUtils';
 import Logger, { LOG_MODULE_TYPE } from '../../../utils/logger';
 import { buildExportAssignment, buildExportDeclaration, buildExportInfo } from './ArkExportBuilder';
 import { ArkClass } from '../ArkClass';
 import { ArkMethod } from '../ArkMethod';
 import { NamespaceSignature } from '../ArkSignature';
+import { IRUtils } from '../../common/IRUtils';
 
 const logger = Logger.getLogger(LOG_MODULE_TYPE.ARKANALYZER, 'ArkNamespaceBuilder');
 
 export function buildArkNamespace(node: ts.ModuleDeclaration, declaringInstance: ArkFile | ArkNamespace, ns: ArkNamespace, sourceFile: ts.SourceFile) {
     // modifiers
     if (node.modifiers) {
-        buildModifiers(node, sourceFile).forEach((modifier) => {
-            ns.addModifier(modifier);
-        });
+        ns.setModifiers(buildModifiers(node));
+        ns.setDecorators(buildDecorators(node, sourceFile));
     }
 
     if (declaringInstance instanceof ArkFile) {
@@ -83,6 +83,7 @@ export function buildArkNamespace(node: ts.ModuleDeclaration, declaringInstance:
     else {
         logger.warn("JSDocNamespaceDeclaration found.");
     }
+    IRUtils.setLeadingComments(ns, node, sourceFile, ns.getDeclaringArkFile().getScene().getOptions());
 }
 
 // TODO: check and update
@@ -126,7 +127,6 @@ function buildNamespaceMembers(node: ts.ModuleBlock, namespace: ArkNamespace, so
             let mthd: ArkMethod = new ArkMethod();
 
             buildArkMethodFromArkClass(child, namespace.getDefaultClass(), mthd, sourceFile);
-            namespace.getDefaultClass().addMethod(mthd);
 
             if (mthd.isExported()) {
                 namespace.addExportInfo(buildExportInfo(mthd, namespace.getDeclaringArkFile(),
@@ -136,7 +136,7 @@ function buildNamespaceMembers(node: ts.ModuleBlock, namespace: ArkNamespace, so
             let mthd: ArkMethod = new ArkMethod();
 
             buildArkMethodFromArkClass(child, namespace.getDefaultClass(), mthd, sourceFile);
-            namespace.getDefaultClass().addMethod(mthd);
+
             if (mthd.isExported()) {
                 namespace.addExportInfo(buildExportInfo(mthd, namespace.getDeclaringArkFile(),
                     LineColPosition.buildFromNode(child, sourceFile)));

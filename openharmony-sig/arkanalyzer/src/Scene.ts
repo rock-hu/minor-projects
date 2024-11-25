@@ -16,8 +16,7 @@
 import fs from 'fs';
 import path from 'path';
 
-import { SceneConfig, Sdk } from './Config';
-import { ImportInfo } from './core/model/ArkImport';
+import { SceneConfig, SceneOptions, Sdk } from './Config';
 import { ModelUtils } from './core/common/ModelUtils';
 import { TypeInference } from './core/common/TypeInference';
 import { VisibleValue } from './core/common/VisibleValue';
@@ -34,7 +33,7 @@ import { getAllFiles } from './utils/getAllFiles';
 import { getFileRecursively } from './utils/FileUtils';
 import { ArkExport, ExportType } from './core/model/ArkExport';
 import { addInitInConstructor, buildDefaultConstructor } from './core/model/builder/ArkMethodBuilder';
-import { STATIC_INIT_METHOD_NAME } from './core/common/Const';
+import { DEFAULT_ARK_CLASS_NAME, STATIC_INIT_METHOD_NAME } from './core/common/Const';
 import { CallGraph } from './callgraph/model/CallGraph';
 import { CallGraphBuilder } from './callgraph/model/builder/CallGraphBuilder';
 
@@ -58,8 +57,6 @@ export class Scene {
     private moduleScenesMap: Map<string, ModuleScene> = new Map();
     private modulePath2NameMap: Map<string, string> = new Map<string, string>();
 
-    private globalImportInfos: ImportInfo[] = [];
-
     private moduleSdkMap: Map<string, Sdk[]> = new Map();
     private projectSdkMap: Map<string, Sdk> = new Map();
 
@@ -72,28 +69,76 @@ export class Scene {
     private classesMap: Map<string, ArkClass> = new Map();
     private methodsMap: Map<string, ArkMethod> = new Map();
     // TODO: type of key should be signature object
-    private sdkArkFilesMap: Map<string, ArkFile> = new Map<string, ArkFile>();
+    private sdkArkFilesMap: Map<string, ArkFile> = new Map();
     private sdkGlobalMap: Map<string, ArkExport> = new Map<string, ArkExport>();
     private ohPkgContentMap: Map<string, { [k: string]: unknown }> = new Map<string, { [k: string]: unknown }>();
     private ohPkgFilePath: string = '';
     private ohPkgContent: { [k: string]: unknown } = {};
 
     private buildStage: SceneBuildStage = SceneBuildStage.BUILD_INIT;
+    private options!: SceneOptions;
 
-    constructor() {
+    constructor() {}
+
+    public getOptions(): SceneOptions {
+        return this.options;
+    }
+
+    public clear(): void {
+        this.projectFiles = [];
+
+        this.moduleScenesMap.clear();
+        this.modulePath2NameMap.clear();
+
+        this.moduleSdkMap.clear();
+        this.projectSdkMap.clear();
+
+        this.filesMap.clear();
+        this.namespacesMap.clear();
+        this.classesMap.clear();
+        this.methodsMap.clear();
+
+        this.sdkArkFilesMap.clear();
+        this.sdkGlobalMap.clear();
+        this.ohPkgContentMap.clear();
+        this.ohPkgContent = {};
     }
 
     public getStage(): SceneBuildStage {
         return this.buildStage;
     }
 
+    /**
+     * Build scene object according to the {@link SceneConfig}. This API implements 3 functions. 
+     * First is to build scene object from {@link SceneConfig}, second is to generate {@link ArkFile}s, 
+     * and the last is to collect project import infomation.
+     * @param sceneConfig - a sceneConfig object, which is usally defined by user or Json file.
+     * @example
+     * 1. Build Scene object from scene config
+
+    ```typescript
+    // build config
+    const projectDir = ... ...;
+    const sceneConfig = new SceneConfig();
+    sceneConfig.buildFromProjectDir(projectDir);
+
+    // build scene
+    const scene = new Scene();
+    scene.buildSceneFromProjectDir(sceneConfig);
+    ```
+    */
     public buildSceneFromProjectDir(sceneConfig: SceneConfig) {
         this.buildBasicInfo(sceneConfig);
         this.genArkFiles();
-        this.collectProjectImportInfos();
     }
 
+    /**
+     * Set the basic information of the scene using a config, 
+     * such as the project's name, real path and files.
+     * @param sceneConfig - the config used to set the basic information of scene.
+     */
     public buildBasicInfo(sceneConfig: SceneConfig) {
+        this.options = sceneConfig.getOptions();
         this.projectName = sceneConfig.getTargetProjectName();
         this.realProjectDir = fs.realpathSync(sceneConfig.getTargetProjectDirectory());
         this.projectFiles = sceneConfig.getProjectFiles();
@@ -178,25 +223,29 @@ export class Scene {
             let arkFile: ArkFile = new ArkFile();
             arkFile.setScene(this);
             buildArkFileFromFile(file, this.realProjectDir, arkFile, this.projectName);
-            this.filesMap.set(arkFile.getFileSignature().toString(), arkFile);
+            this.filesMap.set(arkFile.getFileSignature().toMapKey(), arkFile);
         });
         this.buildAllMethodBody();
         this.addDefaultConstructors();
     }
 
     private buildSdk(sdkName: string, sdkPath: string) {
-        const allFiles = getAllFiles(sdkPath, ['.ets', '.ts']);
+        const allFiles = getAllFiles(sdkPath, ['.ets', '.ts'], this.options.ignoreFileNames);
         allFiles.forEach((file) => {
             logger.info('=== parse sdk file:', file);
             let arkFile: ArkFile = new ArkFile();
             arkFile.setScene(this);
             buildArkFileFromFile(file, path.normalize(sdkPath), arkFile, sdkName);
             ModelUtils.getAllClassesInFile(arkFile).forEach(cls => cls.getDefaultArkMethod()?.buildBody());
-            const fileSig = arkFile.getFileSignature().toString();
+            const fileSig = arkFile.getFileSignature().toMapKey();
             this.sdkArkFilesMap.set(fileSig, arkFile);
         });
     }
 
+    /**
+     * Build the scene for harmony project. It resolves the file path of the project first, and then fetches dependencies from this file.
+     * Next, build a `ModuleScene` for this project to generate {@link ArkFile}. Finally, it build bodies of all methods, generate extended classes, and add DefaultConstructors.
+     */
     public buildScene4HarmonyProject() {
         this.modulePath2NameMap.forEach((value, key) => {
             const moduleOhPkgFilePath = path.resolve(key, './oh-package.json5');
@@ -206,8 +255,8 @@ export class Scene {
             }
         });
         this.modulePath2NameMap.forEach((value, key) => {
-            let moduleScene = new ModuleScene();
-            moduleScene.ModuleScenBuilder(value, key, this);
+            let moduleScene = new ModuleScene(this);
+            moduleScene.ModuleSceneBuilder(value, key);
             this.moduleScenesMap.set(value, moduleScene);
         });
 
@@ -254,17 +303,30 @@ export class Scene {
             }
         }
 
-        let moduleScene = new ModuleScene();
-        moduleScene.ModuleScenBuilder(moduleName, modulePath, this);
+        let moduleScene = new ModuleScene(this);
+        moduleScene.ModuleSceneBuilder(moduleName, modulePath);
         this.moduleScenesMap.set(moduleName, moduleScene);
 
         this.buildAllMethodBody();
     }
 
+    /**
+     * Get the absolute path of current project.
+     * @returns The real project's directiory.
+     * @example
+     * 1. get real project directory, such as:
+     ```typescript
+     let projectDir = projectScene.getRealProjectDir(); 
+     ```
+     */
     public getRealProjectDir(): string {
         return this.realProjectDir;
     }
 
+    /**
+     * Returns the **string** name of the project.
+     * @returns The name of the project.
+     */
     public getProjectName(): string {
         return this.projectName;
     }
@@ -277,20 +339,74 @@ export class Scene {
         return this.sdkGlobalMap.get(globalName) || null;
     }
 
+    /**
+     * Returns the file based on its signature. 
+     * If no file can be found according to the input signature, **null** will be returned.
+     * A typical {@link ArkFile} contains: file's name (i.e., its relative path), project's name, 
+     * project's dir, file's signature etc.
+     * @param fileSignature - the signature of file.
+     * @returns a file defined by ArkAnalyzer. **null** will be returned if no file could be found.
+     * @example
+     * 1. get ArkFile based on file signature.
+
+    ```typescript
+    if (...) {
+        const fromSignature = new FileSignature();
+        fromSignature.setProjectName(im.getDeclaringArkFile().getProjectName());
+        fromSignature.setFileName(fileName);
+        return scene.getFile(fromSignature);
+    }
+    ```
+     */
     public getFile(fileSignature: FileSignature): ArkFile | null {
         if (this.projectName === fileSignature.getProjectName()) {
-            return this.filesMap.get(fileSignature.toString()) || null;
+            return this.filesMap.get(fileSignature.toMapKey()) || null;
         } else {
-            return this.sdkArkFilesMap.get(fileSignature.toString()) || null;
+            return this.sdkArkFilesMap.get(fileSignature.toMapKey()) || null;
         }
     }
 
+    public setFile(file: ArkFile): void {
+        this.filesMap.set(file.getFileSignature().toMapKey(), file);
+    }
+
+    public hasSdkFile(fileSignature: FileSignature): boolean {
+        return this.sdkArkFilesMap.has(fileSignature.toMapKey());
+    }
+
+    /**
+     * Get files of a {@link Scene}. Generally, a project includes several ets/ts files that define the different class. We need to generate {@link ArkFile} objects from these ets/ts files.
+     * @returns The array of {@link ArkFile} from `scene.filesMap.values()`.
+     * @example
+     * 1. In inferSimpleTypes() to check arkClass and arkMethod.
+     * ```typescript
+     * public inferSimpleTypes() {
+     *   for (let arkFile of this.getFiles()) {
+     *       for (let arkClass of arkFile.getClasses()) {
+     *           for (let arkMethod of arkClass.getMethods()) {
+     *           // ... ...;
+     *           }
+     *       }
+     *   }
+     * }
+     * ```
+     * 2. To iterate each method
+     * ```typescript
+     * for (const file of this.getFiles()) {
+     *     for (const cls of file.getClasses()) {
+     *         for (const method of cls.getMethods()) {
+     *             // ... ...
+     *         }
+     *     }
+     * }
+     *```
+     */
     public getFiles(): ArkFile[] {
         return Array.from(this.filesMap.values());
     }
 
-    public getSdkArkFilesMap() {
-        return this.sdkArkFilesMap;
+    public getSdkArkFiles(): ArkFile[] {
+        return Array.from(this.sdkArkFilesMap.values());
     }
 
     public getModuleSdkMap() {
@@ -301,24 +417,20 @@ export class Scene {
         return this.projectSdkMap;
     }
 
-    public getFilesMap() {
-        return this.filesMap;
-    }
-
     public getNamespace(namespaceSignature: NamespaceSignature): ArkNamespace | null {
         if (this.projectName === namespaceSignature.getDeclaringFileSignature().getProjectName()) {
-            return this.getNamespacesMap().get(namespaceSignature.toString()) || null;
+            return this.getNamespacesMap().get(namespaceSignature.toMapKey()) || null;
         } else {
-            const arkFile = this.sdkArkFilesMap.get(namespaceSignature.getDeclaringFileSignature().toString());
+            const arkFile = this.getFile(namespaceSignature.getDeclaringFileSignature());
             return arkFile?.getNamespace(namespaceSignature) || null;
         }
     }
 
     private getNamespacesMap(): Map<string, ArkNamespace> {
-        if (this.namespacesMap.size == 0) {
+        if (this.namespacesMap.size === 0) {
             for (const file of this.getFiles()) {
                 ModelUtils.getAllNamespacesInFile(file).forEach((namespace) => {
-                    this.namespacesMap.set(namespace.getNamespaceSignature().toString(), namespace);
+                    this.namespacesMap.set(namespace.getNamespaceSignature().toMapKey(), namespace);
                 });
             }
         }
@@ -329,11 +441,16 @@ export class Scene {
         return Array.from(this.getNamespacesMap().values());
     }
 
+    /**
+     * Returns the class according to the input class signature.
+     * @param classSignature - signature of the class to be obtained.
+     * @returns A class.
+     */
     public getClass(classSignature: ClassSignature, refresh?: boolean): ArkClass | null {
         if (this.projectName === classSignature.getDeclaringFileSignature().getProjectName()) {
-            return this.getClassesMap(refresh).get(classSignature.toString()) || null;
+            return this.getClassesMap(refresh).get(classSignature.toMapKey()) || null;
         } else {
-            const arkFile = this.sdkArkFilesMap.get(classSignature.getDeclaringFileSignature().toString());
+            const arkFile = this.getFile(classSignature.getDeclaringFileSignature());
             const namespaceSignature = classSignature.getDeclaringNamespaceSignature();
             if (namespaceSignature) {
                 return arkFile?.getNamespace(namespaceSignature)?.getClass(classSignature) || null;
@@ -347,12 +464,12 @@ export class Scene {
             this.classesMap.clear();
             for (const file of this.getFiles()) {
                 for (const cls of file.getClasses()) {
-                    this.classesMap.set(cls.getSignature().toString(), cls);
+                    this.classesMap.set(cls.getSignature().toMapKey(), cls);
                 }
             }
             for (const namespace of this.getNamespacesMap().values()) {
                 for (const cls of namespace.getClasses()) {
-                    this.classesMap.set(cls.getSignature().toString(), cls);
+                    this.classesMap.set(cls.getSignature().toMapKey(), cls);
                 }
             }
         }
@@ -365,7 +482,7 @@ export class Scene {
 
     public getMethod(methodSignature: MethodSignature, refresh?: boolean): ArkMethod | null {
         if (this.projectName === methodSignature.getDeclaringClassSignature().getDeclaringFileSignature().getProjectName()) {
-            return this.getMethodsMap(refresh).get(methodSignature.toString()) || null;
+            return this.getMethodsMap(refresh).get(methodSignature.toMapKey()) || null;
         } else {
             return this.getClass(methodSignature.getDeclaringClassSignature())?.getMethod(methodSignature) || null;
         }
@@ -376,19 +493,60 @@ export class Scene {
             this.methodsMap.clear();
             for (const cls of this.getClassesMap().values()) {
                 for (const method of cls.getMethods(true)) {
-                    this.methodsMap.set(method.getSignature().toString(), method);
+                    this.methodsMap.set(method.getSignature().toMapKey(), method);
                 }
             }
         }
         return this.methodsMap;
     }
 
+    /**
+     * Returns the method associated with the method signature. 
+     * If no method is associated with this signature, **null** will be returned.
+     * An {@link ArkMethod} includes:
+     * - Name: the **string** name of method.
+     * - Code: the **string** code of the method.
+     * - Line: a **number** indicating the line location, initialized as -1.
+     * - Column: a **number** indicating the column location, initialized as -1.
+     * - Parameters & Types of parameters: the parameters of method and their types.
+     * - View tree: the view tree of the method.
+     * - ...
+     * 
+     * @param methodSignature - the signature of method.
+     * @returns The method associated with the method signature.
+     * @example
+     * 1. get method from getMethod.
+
+    ```typescript
+    const methodSignatures = this.CHA.resolveCall(xxx, yyy);
+    for (const methodSignature of methodSignatures) {
+        const method = this.scene.getMethod(methodSignature);
+        ... ...
+    }
+    ```
+     */
     public getMethods(refresh?: boolean): ArkMethod[] {
         return Array.from(this.getMethodsMap(refresh).values());
     }
 
     public addToMethodsMap(method: ArkMethod): void {
-        this.methodsMap.set(method.getSignature().toString(), method);
+        this.methodsMap.set(method.getSignature().toMapKey(), method);
+    }
+
+    public removeMethod(method: ArkMethod): boolean {
+        return this.methodsMap.delete(method.getSignature().toMapKey());
+    }
+
+    public removeClass(arkClass: ArkClass): boolean {
+        return this.classesMap.delete(arkClass.getSignature().toMapKey());
+    }
+
+    public removeNamespace(namespace: ArkNamespace): boolean {
+        return this.namespacesMap.delete(namespace.getSignature().toMapKey());
+    }
+
+    public removeFile(file: ArkFile): boolean {
+        return this.filesMap.delete(file.getFileSignature().toMapKey());
     }
 
     public hasMainMethod(): boolean {
@@ -432,8 +590,16 @@ export class Scene {
     }
 
     /**
-     * inference type for each non-default method
-     * because default and generated method was finished
+     * Infer type for each non-default method. It infers the type of each field/local/reference. 
+     * For example, the statement `let b = 5;`, the type of local `b` is `NumberType`; and for the statement `let s = 'hello';`, the type of local `s` is `StringType`. The detailed types are defined in the Type.ts file.
+     * @example
+     * 1. Infer the type of each class field and method field.
+
+    ```typescript
+    const scene = new Scene();
+    scene.buildSceneFromProjectDir(sceneConfig);
+    scene.inferTypes();
+    ```
      */
     public inferTypes() {
         this.sdkArkFilesMap.forEach(file => {
@@ -454,7 +620,18 @@ export class Scene {
     }
 
     /**
+     * Iterate all assignment statements in methods, 
+     * and set the type of left operand based on the type of right operand 
+     * if the left operand is a local variable as well as an unknown.
      * @Deprecated
+     * @example
+     * 1. Infer simple type when scene building.
+
+    ```typescript
+    let scene = new Scene();
+    scene.buildSceneFromProjectDir(config);
+    scene.inferSimpleTypes();
+    ```
      */
     public inferSimpleTypes() {
 
@@ -465,14 +642,6 @@ export class Scene {
                 }
             }
         }
-    }
-
-    public collectProjectImportInfos() {
-        this.getFiles().forEach((arkFile) => {
-            arkFile.getImportInfos().forEach((importInfo) => {
-                this.globalImportInfos.push(importInfo);
-            });
-        });
     }
 
     public getClassMap(): Map<FileSignature | NamespaceSignature, ArkClass[]> {
@@ -499,7 +668,7 @@ export class Scene {
                     nsClass.push(arkClass);
                 }
                 classMap.set(ns.getNamespaceSignature(), nsClass);
-                if (ns.getNamespaces().length == 0) {
+                if (ns.getNamespaces().length === 0) {
                     finalNamespaces.push(ns);
                 } else {
                     for (const nsns of ns.getNamespaces()) {
@@ -555,7 +724,7 @@ export class Scene {
                     try {
                         // 遗留问题：只统计了项目文件的namespace，没统计sdk文件内部的引入
                         const importNameSpaceClasses = classMap.get(importNameSpace.getNamespaceSignature())!;
-                        importClasses.push(...importNameSpaceClasses.filter(c => !importClasses.includes(c) && c.getName() != '_DEFAULT_ARK_CLASS'));
+                        importClasses.push(...importNameSpaceClasses.filter(c => !importClasses.includes(c) && c.getName() !== DEFAULT_ARK_CLASS_NAME));
                     } catch {
                     }
 
@@ -567,14 +736,14 @@ export class Scene {
             const namespaceStack = [...file.getNamespaces()];
             for (const ns of namespaceStack) {
                 const nsClasses = classMap.get(ns.getNamespaceSignature())!;
-                nsClasses.push(...fileClasses.filter(c => !nsClasses.includes(c) && c.getName() != '_DEFAULT_ARK_CLASS'));
+                nsClasses.push(...fileClasses.filter(c => !nsClasses.includes(c) && c.getName() !== DEFAULT_ARK_CLASS_NAME));
             }
             while (namespaceStack.length > 0) {
                 const ns = namespaceStack.shift()!;
                 const nsClasses = classMap.get(ns.getNamespaceSignature())!;
                 for (const nsns of ns.getNamespaces()) {
                     const nsnsClasses = classMap.get(nsns.getNamespaceSignature())!;
-                    nsnsClasses.push(...nsClasses.filter(c => !nsnsClasses.includes(c) && c.getName() != '_DEFAULT_ARK_CLASS'));
+                    nsnsClasses.push(...nsClasses.filter(c => !nsnsClasses.includes(c) && c.getName() !== DEFAULT_ARK_CLASS_NAME));
                     namespaceStack.push(nsns);
                 }
             }
@@ -590,7 +759,7 @@ export class Scene {
             const finalNamespaces: ArkNamespace[] = [];
             const globalLocals: Local[] = [];
             file.getDefaultClass()?.getDefaultArkMethod()!.getBody()?.getLocals().forEach(local => {
-                if (local.getDeclaringStmt() && local.getName() != 'this' && local.getName()[0] != '$') {
+                if (local.getDeclaringStmt() && local.getName() !== 'this' && local.getName()[0] !== '$') {
                     globalLocals.push(local);
                 }
             });
@@ -604,12 +773,12 @@ export class Scene {
                 const ns = namespaceStack.shift()!;
                 const nsGlobalLocals: Local[] = [];
                 ns.getDefaultClass().getDefaultArkMethod()!.getBody()?.getLocals().forEach(local => {
-                    if (local.getDeclaringStmt() && local.getName() != 'this' && local.getName()[0] != '$') {
+                    if (local.getDeclaringStmt() && local.getName() !== 'this' && local.getName()[0] !== '$') {
                         nsGlobalLocals.push(local);
                     }
                 });
                 globalVariableMap.set(ns.getNamespaceSignature(), nsGlobalLocals);
-                if (ns.getNamespaces().length == 0) {
+                if (ns.getNamespaces().length === 0) {
                     finalNamespaces.push(ns);
                 } else {
                     for (const nsns of ns.getNamespaces()) {
@@ -664,7 +833,7 @@ export class Scene {
                     try {
                         // 遗留问题：只统计了项目文件，没统计sdk文件内部的引入
                         const importNameSpaceClasses = globalVariableMap.get(importNameSpace.getNamespaceSignature())!;
-                        importLocals.push(...importNameSpaceClasses.filter(c => !importLocals.includes(c) && c.getName() != '_DEFAULT_ARK_CLASS'));
+                        importLocals.push(...importNameSpaceClasses.filter(c => !importLocals.includes(c) && c.getName() !== DEFAULT_ARK_CLASS_NAME));
                     } catch {
                     }
 
@@ -704,7 +873,7 @@ export class Scene {
     public getStaticInitMethods(): ArkMethod[] {
         const staticInitMethods: ArkMethod[] = [];
         for (const method of Array.from(this.getMethodsMap(true).values())) {
-            if (method.getName() == STATIC_INIT_METHOD_NAME) {
+            if (method.getName() === STATIC_INIT_METHOD_NAME) {
                 staticInitMethods.push(method);
             }
         }
@@ -725,20 +894,20 @@ export class Scene {
 }
 
 export class ModuleScene {
-    private projectScene: Scene = new Scene();
+    private projectScene: Scene;
     private moduleName: string = '';
     private modulePath: string = '';
 
     private moduleOhPkgFilePath: string = '';
     private ohPkgContent: { [k: string]: unknown } = {};
 
-    constructor() {
+    constructor(projectScene: Scene) {
+        this.projectScene = projectScene;
     }
 
-    public ModuleScenBuilder(moduleName: string, modulePath: string, projectScene: Scene, recursively: boolean = false) {
+    public ModuleSceneBuilder(moduleName: string, modulePath: string, recursively: boolean = false): void {
         this.moduleName = moduleName;
         this.modulePath = modulePath;
-        this.projectScene = projectScene;
 
         this.getModuleOhPkgFilePath();
 
@@ -782,15 +951,14 @@ export class ModuleScene {
     }
 
     private genArkFiles() {
-        getAllFiles(this.modulePath, ['.ets', '.ts']).forEach((file) => {
+        getAllFiles(this.modulePath, ['.ets', '.ts'], this.projectScene.getOptions().ignoreFileNames).forEach((file) => {
             logger.info('=== parse file:', file);
             let arkFile: ArkFile = new ArkFile();
             arkFile.setScene(this.projectScene);
             arkFile.setModuleScene(this);
             buildArkFileFromFile(file, this.projectScene.getRealProjectDir(), arkFile,
                 this.projectScene.getProjectName());
-            const fileSig = arkFile.getFileSignature().toString();
-            this.projectScene.getFilesMap().set(fileSig, arkFile);
+            this.projectScene.setFile(arkFile);
         });
     }
 }

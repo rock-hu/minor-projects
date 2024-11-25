@@ -16,6 +16,7 @@ namespace rnoh {
 class EventLoopTaskRunner : public AbstractTaskRunner {
  public:
   EventLoopTaskRunner(
+      std::string name,
       uv_loop_t* loop,
       ExceptionHandler exceptionHandler = defaultExceptionHandler);
   ~EventLoopTaskRunner() override;

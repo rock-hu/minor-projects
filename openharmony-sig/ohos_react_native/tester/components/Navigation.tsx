@@ -9,6 +9,7 @@ import {
   View,
 } from 'react-native';
 import {PALETTE} from './palette';
+import {useEnvironment} from '../contexts';
 
 const NavigationContext = React.createContext<
   | {
@@ -92,36 +93,50 @@ export function Page({name, children}: {name: string; children: any}) {
 
 export function IndexPage() {
   const {navigateTo, registeredPageNames} = useNavigation();
+  const {env} = useEnvironment();
 
   return (
     <FlatList
       data={registeredPageNames}
       ListHeaderComponent={
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            paddingHorizontal: 16,
-            paddingVertical: 16,
-          }}>
-          <Image
-            style={{width: 32, height: 32}}
-            resizeMode="contain"
-            source={require('../assets/react-native-logo.png')}
-          />
+        <>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              paddingHorizontal: 16,
+              paddingVertical: 16,
+            }}>
+            <Image
+              style={{width: 32, height: 32}}
+              resizeMode="contain"
+              source={require('../assets/react-native-logo.png')}
+            />
+            <Text
+              style={{
+                color: '#EEE',
+                fontSize: 24,
+                fontWeight: 'bold',
+                padding: 16,
+                paddingBottom: 0,
+              }}>
+              RN Tester
+              {'rnohArchitecture' in Platform.constants
+                ? (` (${Platform.constants.rnohArchitecture})` as string)
+                : ''}
+            </Text>
+          </View>
           <Text
             style={{
               color: '#EEE',
-              fontSize: 24,
+              fontSize: 12,
               fontWeight: 'bold',
               padding: 16,
+              paddingTop: 0,
             }}>
-            RN Tester
-            {'rnohArchitecture' in Platform.constants
-              ? (` (${Platform.constants.rnohArchitecture})` as string)
-              : ''}
+            {JSON.stringify(env, null, 2)}
           </Text>
-        </View>
+        </>
       }
       renderItem={({item}) => {
         return (

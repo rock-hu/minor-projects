@@ -1,16 +1,20 @@
-import type { TurboModule } from './TurboModule';
+import type {
+  AnyThreadTurboModule,
+  UITurboModule,
+  WorkerTurboModule
+} from './TurboModule';
 import type { TurboModulesFactory } from './RNPackage';
 import { RNOHLogger } from './RNOHLogger';
 
-export class TurboModuleProvider {
-  private cachedTurboModuleByName: Record<string, TurboModule> = {};
+export class TurboModuleProvider<TTurboModule extends UITurboModule | WorkerTurboModule | AnyThreadTurboModule = UITurboModule> {
+  private cachedTurboModuleByName: Record<string, TTurboModule> = {};
   private logger: RNOHLogger
 
-  constructor(private turboModulesFactories: TurboModulesFactory[], logger: RNOHLogger) {
+  constructor(private turboModulesFactories: (TurboModulesFactory<TTurboModule, unknown>)[], logger: RNOHLogger) {
     this.logger = logger.clone("TurboModuleProvider");
   }
 
-  getModule<T extends TurboModule>(name: string): T {
+  getModule<T extends TTurboModule>(name: string): T {
     if (!(name in this.cachedTurboModuleByName)) {
       for (const tmFactory of this.turboModulesFactories) {
         if (tmFactory.hasTurboModule(name)) {
@@ -38,7 +42,7 @@ export class TurboModuleProvider {
       try {
         turboModule.__onDestroy__()
       } catch {
-        this.logger.error("Error while cleaning up TurboModule "+name);
+        this.logger.error("Error while cleaning up TurboModule " + name);
       }
     })
   }

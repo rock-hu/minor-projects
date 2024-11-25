@@ -1,4 +1,4 @@
-import { TurboModule, FatalRNOHError, RNOHError } from "../../RNOH/ts";
+import { TurboModule, FatalRNOHError, RNOHError, RNOHErrorStack } from "../../RNOH/ts";
 
 export type StackFrame = {
   column?: number,
@@ -26,34 +26,35 @@ export class ExceptionsManagerTurboModule extends TurboModule {
   public static readonly NAME = 'ExceptionsManager';
 
   reportFatalException(message: string, stack: StackFrame[], exceptionId: number): void {
-    this.ctx.logger.error(new FatalRNOHError({
+    this.ctx.reportRNOHError(new FatalRNOHError({
       whatHappened: message,
       howCanItBeFixed: [],
-      customStack: stringifyStack(stack),
+      customStack: new RNOHErrorStack(stack),
     }))
   }
 
   reportSoftException(message: string, stack: StackFrame[], exceptionId: number): void {
-    this.ctx.logger.error(new RNOHError({
+    this.ctx.reportRNOHError(new RNOHError({
       whatHappened: message,
       howCanItBeFixed: [],
-      customStack: stringifyStack(stack)
+      customStack: new RNOHErrorStack(stack)
     }))
   }
 
   reportException(data: ExceptionData): void {
+    this.ctx.rnInstance.getInitialBundleUrl()
     if (data.isFatal) {
-      this.ctx.logger.error(new FatalRNOHError({
+      this.ctx.reportRNOHError(new FatalRNOHError({
         whatHappened: data.message,
         howCanItBeFixed: [],
-        customStack: stringifyStack(data.stack),
+        customStack: new RNOHErrorStack(data.stack),
         extraData: data.extraData
       }))
     } else {
-      this.ctx.logger.error(new RNOHError({
+      this.ctx.reportRNOHError(new RNOHError({
         whatHappened: data.originalMessage,
         howCanItBeFixed: [],
-        customStack: stringifyStack(data.stack),
+        customStack: new RNOHErrorStack(data.stack),
         extraData: data.extraData
       }))
     }
@@ -71,32 +72,4 @@ export class ExceptionsManagerTurboModule extends TurboModule {
   dismissRedbox(): void {
     this.ctx.devToolsController.dismissRNOHErrorDialog()
   }
-}
-
-function stringifyStack(stackFrames: StackFrame[]): string {
-  return stackFrames.map(entry => {
-    let location = ""
-    let locationInFile = ""
-    if (entry.lineNumber) {
-      if (entry.column !== undefined) {
-        locationInFile = `${entry.lineNumber}:${entry.column}`
-      } else {
-        locationInFile = `${entry.lineNumber}`
-      }
-    }
-    if (entry.file) {
-      if (locationInFile) {
-        location = `${entry.file}:${locationInFile}`
-      } else {
-        location = `${entry.file}`
-      }
-    } else {
-      location = locationInFile
-    }
-    if (location) {
-      return `${entry.methodName} (${location})`
-    } else {
-      return `${entry.methodName}`
-    }
-  }).join("\n")
 }

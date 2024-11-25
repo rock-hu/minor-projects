@@ -21,10 +21,12 @@ class TextInputComponentInstance
 
   int32_t m_nativeEventCount = 0;
 
+  static std::string getTextContentFromState(SharedConcreteState const& state);
   facebook::react::TextInputMetrics getTextInputMetrics();
   facebook::react::TextInputMetrics getTextInputMetrics(std::string text);
   facebook::react::OnChangeMetrics getOnChangeMetrics();
   facebook::react::Size getOnContentSizeChangeMetrics();
+  int32_t getTextSize(const std::string &content);
 
   bool m_secureInput{false};
 
@@ -50,6 +52,12 @@ class TextInputComponentInstance
 
   void focus();
   void blur();
+
+  void setTextContentAndSelection(
+      std::string const& content,
+      size_t selectionStart,
+      size_t selectionEnd);
+  void setTextContent(std::string const& content);
 
  public:
   TextInputComponentInstance(Context context);

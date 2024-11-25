@@ -2265,7 +2265,7 @@ WaterfallChart({ model: this.model })
    ```
 
 ## Available APIs
-**1. ChartModel**
+### **1. ChartModel**
 
 Indicates the base class for all chart configuration builder classes.
 
@@ -2690,7 +2690,7 @@ Return Value
 |-------| ----------- |
 | HitTestMode | Hit test mode.|
 
-**2. BarLineChartBaseModel**
+### **2. BarLineChartBaseModel**
 
 Defines base class of the bar chart.
 
@@ -2911,7 +2911,7 @@ Return Value
 |---------|-----------|
 | boolean | Identifier of whether the capability to respond to swipe gestures is enabled.|
 
-**3. ComponentBase**
+### **3. ComponentBase**
 
 Defines the base class of chart components.
 
@@ -3022,7 +3022,7 @@ Return Value
 | ------ | --------------------------------- |
 | number | Obtains the offset between the Y-axis and the chart content area.|
 
-**4. AxisBase**
+### **4. AxisBase**
 
 Defines the base class of the axis.
 
@@ -3147,7 +3147,7 @@ Parameters
 | --------- | ------------------- | ---- | ---------------------- |
 | formatter | IAxisValueFormatter | Yes  | Data formatter.|
 
-**5. XAxis**
+### **5. XAxis**
 
 Defines an X-axis object.
 
@@ -3327,8 +3327,7 @@ Return Value
 
 Parameter: none
 
-
-**6. YAxis**
+### **6. YAxis**
 
 Defines an Y-axis object.
 
@@ -3558,7 +3557,8 @@ export interface DashPathEffectConfig {
 }
 ```
 
-**6. Passing Custom MarkerView**
+### **7. Passing Custom MarkerView**
+
 ```typescript
 
 @State customUiInfo: CustomUiInfo = new CustomUiInfo(90, 50);
@@ -3595,7 +3595,7 @@ BarChart({ model: this.model,
    customUiInfo: this.customUiInfo,
 })
 ```
-**7. WaterfallDataSet**
+### **8. WaterfallDataSet**
 
 Defines the data class of the waterfall chart.
 
@@ -3628,7 +3628,7 @@ Return Value
 |-----------------------------| --------------------------- |
 | Array<string &#124; number> | Array of colors of all highlighted points.|
 
-**8. ChartData**
+### **9. ChartData**
 
 Defines the chart data class.
 
@@ -3661,9 +3661,15 @@ Return Value
 |---------|--------|
 | boolean | Whether the point is highlighted based only on its distance to the X-axis.|
 
-**9. BarLineScatterCandleBubbleDataSet**
+### **10. BarLineScatterCandleBubbleDataSet**
 
 Defines the abstract base class for the data of bar chart, line chart, scatter chart, candle chart, and bubble chart.
+
+| API               | Description                                   |
+| ----------------- | --------------------------------------------- |
+| setHighLightColor | Sets the color of the highlight indicator.    |
+| getHighLightColor | Obtains the color of the highlight indicator. |
+| copyTo            | Copies data to a specified dataset.           |
 
 **1.setHighLightColor**
 
@@ -3701,7 +3707,22 @@ Parameters
 | --------------------------------- | ------------------------------------ | ---- | ----------------------- |
 | barLineScatterCandleBubbleDataSet | BarLineScatterCandleBubbleDataSet<T> | Yes  | Data copied to a specified dataset.|
 
-**10. LineScatterCandleRadarDataSet**
+### **11. LineScatterCandleRadarDataSet**
+
+| API                                   | Description                                                  |
+| ------------------------------------- | ------------------------------------------------------------ |
+| setDrawHorizontalHighlightIndicator   | Sets whether to enable the horizontal highlight indicator.   |
+| setDrawVerticalHighlightIndicator     | Sets whether to enable the vertical highlight indicator.     |
+| setDrawHighlightIndicators            | Sets whether to enable the horizontal and vertical highlight indicators. |
+| isVerticalHighlightIndicatorEnabled   | Obtains whether the vertical highlight indicator is enabled. |
+| isHorizontalHighlightIndicatorEnabled | Obtains whether the horizontal highlight indicator is enabled. |
+| setHighlightLineWidth                 | Sets the width of the highlight line, in vp.                 |
+| getHighlightLineWidth                 | Obtains the width of the highlight line.                     |
+| enableDashedHighlightLine             | Enables the dashed highlight line.                           |
+| disableDashedHighlightLine            | Disables the dashed highlight line.                          |
+| isDashedHighlightLineEnabled          | Returns **true** if the dashed highlight line is enabled. Otherwise, returns **false**. |
+| getDashPathEffectHighlight            | Obtains the dash path effect.                                |
+| copyTo                                | Copies data to a specified dataset.                          |
 
 **1.setDrawHorizontalHighlightIndicator**
 
@@ -3849,37 +3870,37 @@ Parameters
 
 ## FAQs
 
-**1. How to remove the legend?**
+### **1. How to remove the legend?**
 
 ```typescript
 this.model.getLegend()?.setEnabled(false);
 ```
 
-**2. How to remove the description in the lower right corner?**
+### **2. How to remove the description in the lower right corner?**
 
 ```typescript
 this.model.getDescription()?.setEnabled(false);
 ```
 
-**3. How to hide the Y-axis?**
+### **3. How to hide the Y-axis?**
 
 ```typescript
 this.model.getAxisLeft().setEnabled(false) // Hide the left Y-axis. In this case, the label is also hidden.
 ```
 
-**4. How to hide the axis but display the label?**
+### **4. How to hide the axis but display the label?**
 
 ```typescript
 this.model.getAxisRight().setDrawAxisLine(false);
 ```
 
-**5. How to set the number of Y-Axis Labels?**
+### **5. How to set the number of Y-Axis Labels?**
 
 ```typescript
 this.model.getAxisLeft().setLabelCount(8, false);// Set eight labels.
 ```
 
-**6. How to set the axis color and width?**
+### **6. How to set the axis color and width?**
 
 ```typescript
 let leftAxis = this.model.getAxisLeft();
@@ -3890,7 +3911,7 @@ leftAxis.setTextSize(20);// Set the font size of the Y-axis label.
 leftAxis.setDrawGridLines(true);// Set to enable the gridlines.
 ```
 
-**7. How to customize axis labels?**
+### **7. How to customize axis labels?**
 
 If you do not want to use the Arabic numeral label of the axis, you can customize the axis label by creating a custom class to implement the **IAxisValueFormatter** API, modifying **getFormattedValue()**, and then calling **setValueFormatter()** of the axis object.
 
@@ -3913,7 +3934,7 @@ class MyAxisValueFormatter implements IAxisValueFormatter {
 this.topAxis.setValueFormatter(new TopAxisValueFormatter())
 ```
 
-**8. How to enable or disable the interactive settings such as zooming and touching a chart?**
+### **8. How to enable or disable the interactive settings such as zooming and touching a chart?**
 
 ```typescript
 setTouchEnabled(enabled: boolean)// Set whether to enable all touch interactions with a chart.
@@ -3929,7 +3950,7 @@ setHighlightIndicatorEnabled(enabled: boolean)// Set whether to enable the highl
 setVisibleXRangeMaximum (maxXRange: number) // Set the maximum number of visible data on the X-axis. (This function must be called after the data source is set. Otherwise, this function is invalid.)
 ```
 
-**9. How to customize the axis styles?**
+### **9. How to customize the axis styles?**
 
 1) Obtain the X-axis or Y-axis object.
 
@@ -3976,6 +3997,14 @@ setSpaceTop (percent: number)// Set the top space (the percentage of the total a
 setSpaceBottom (percent: number)// Set the bottom space (the percentage of the total axis range occupied by the space between the lowest value on the axis and the lowest value on the chart).
 setPosition (pos: YAxisLabelPosition)// Set the position of the axis label. The value can be INSIDE\_CHART or OUTSIDE\_CHART.
 ```
+
+### 10. How to disable the selected horizontal and vertical lines in the line chart?
+
+You can selectively disable the horizontal and vertical highlight lines based on your needs. Configure them through the following methods in the `DataSet`:
+
+- `setDrawHighlightIndicators(boolean)`: Enable or disable the highlight indicators (which will also disable both horizontal and vertical highlight lines).
+- `setDrawVerticalHighlightIndicator(boolean)`: Enable or disable the vertical highlight line.
+- `setDrawHorizontalHighlightIndicator(boolean)`: Enable or disable the horizontal highlight line.
 
 ## Common Custom Charts
 

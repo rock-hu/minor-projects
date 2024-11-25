@@ -58,4 +58,13 @@ StackNode& ViewComponentInstance::getLocalRootArkUINode()
     return m_stackNode;
 }
 
+void ViewComponentInstance::onLayoutChanged(
+    const facebook::react::LayoutMetrics& layoutMetrics) {
+  CppComponentInstance::onLayoutChanged(layoutMetrics);
+  folly::dynamic payload = folly::dynamic::object("surfaceId", this->getTag())(
+      "width", layoutMetrics.frame.size.width)(
+      "height", layoutMetrics.frame.size.height);
+  m_deps->arkTSChannel->postMessage(
+      "RNOH::ROOT_COMPONENT_DIMENSIONS_CHANGED", payload);
+}
 } // namespace rnoh

@@ -15,8 +15,16 @@
 
 import { ClassSignature, LocalSignature, MethodSignature, NamespaceSignature } from '../model/ArkSignature';
 import { ArkExport, ExportType } from '../model/ArkExport';
-import { Decorator } from './Decorator';
 import { LineColPosition } from './Position';
+import { MODIFIER_TYPE_MASK, ModifierType } from '../model/ArkBaseModel';
+import {
+    ANY_KEYWORD,
+    BOOLEAN_KEYWORD, NEVER_KEYWORD,
+    NULL_KEYWORD,
+    NUMBER_KEYWORD,
+    STRING_KEYWORD, UNDEFINED_KEYWORD,
+    UNKNOWN_KEYWORD, VOID_KEYWORD,
+} from '../common/TSConst';
 
 /**
  * @category core/base/type
@@ -41,7 +49,7 @@ export class AnyType extends Type {
     }
 
     public toString(): string {
-        return 'any';
+        return ANY_KEYWORD;
     }
 }
 
@@ -61,36 +69,9 @@ export class UnknownType extends Type {
     }
 
     public toString(): string {
-        return 'unknown';
+        return UNKNOWN_KEYWORD;
     }
 }
-
-// /**
-//  * typeParameter type
-//  * @category core/base/type
-//  */
-// export class TypeParameterType extends Type {
-//     private name: string;
-//     private type: Type;
-//
-//     constructor(name: string, type: Type = UnknownType.getInstance()) {
-//         super();
-//         this.name = name;
-//         this.type = type;
-//     }
-//
-//     public getName() {
-//         return this.name;
-//     }
-//
-//     public getType() {
-//         return this.type;
-//     }
-//
-//     public toString() {
-//         return this.name;
-//     }
-// }
 
 /**
  * unclear type
@@ -148,7 +129,7 @@ export class BooleanType extends PrimitiveType {
     private static readonly INSTANCE = new BooleanType();
 
     constructor() {
-        super('boolean');
+        super(BOOLEAN_KEYWORD);
     }
 
     public static getInstance() {
@@ -160,7 +141,7 @@ export class NumberType extends PrimitiveType {
     private static readonly INSTANCE = new NumberType();
 
     constructor() {
-        super('number');
+        super(NUMBER_KEYWORD);
     }
 
     public static getInstance() {
@@ -172,7 +153,7 @@ export class StringType extends PrimitiveType {
     private static readonly INSTANCE = new StringType();
 
     constructor() {
-        super('string');
+        super(STRING_KEYWORD);
     }
 
     public static getInstance() {
@@ -192,7 +173,7 @@ export class NullType extends PrimitiveType {
     }
 
     constructor() {
-        super('null');
+        super(NULL_KEYWORD);
     }
 }
 
@@ -208,7 +189,7 @@ export class UndefinedType extends PrimitiveType {
     }
 
     constructor() {
-        super('undefined');
+        super(UNDEFINED_KEYWORD);
     }
 }
 
@@ -263,7 +244,7 @@ export class UnionType extends Type {
 
     public toString(): string {
         let typeStr = this.types.join('|');
-        if (!(this.currType instanceof UnknownType) && this.currType != this) {
+        if (!(this.currType instanceof UnknownType) && this.currType !== this) {
             typeStr += '-' + this.currType;
         }
         return typeStr;
@@ -286,7 +267,7 @@ export class VoidType extends Type {
     }
 
     public toString(): string {
-        return 'void';
+        return VOID_KEYWORD;
     }
 }
 
@@ -302,7 +283,7 @@ export class NeverType extends Type {
     }
 
     public toString(): string {
-        return 'never';
+        return NEVER_KEYWORD;
     }
 }
 
@@ -378,6 +359,10 @@ export class ArrayType extends Type {
         this.dimension = dimension;
     }
 
+    /**
+     * Returns the base type of this array, such as `Any`, `Unknown`, `TypeParameter`, etc.
+     * @returns The base type of array.
+     */
     public getBaseType(): Type {
         return this.baseType;
     }
@@ -425,6 +410,7 @@ export class AliasType extends Type implements ArkExport {
     private originalType: Type;
     private name: string;
     private signature: LocalSignature;
+    protected modifiers?: number;
 
     constructor(name: string, originalType: Type, signature: LocalSignature) {
         super();
@@ -453,8 +439,36 @@ export class AliasType extends Type implements ArkExport {
         return ExportType.TYPE;
     }
 
-    public getModifiers(): Set<string | Decorator> {
-        return new Set();
+    public getModifiers(): number {
+        if (!this.modifiers) {
+            return 0;
+        }
+        return this.modifiers;
+    }
+
+    public containsModifier(modifierType: ModifierType): boolean {
+        if (!this.modifiers) {
+            return false;
+        }
+
+        return (this.modifiers & modifierType) === modifierType;
+    }
+
+    public setModifiers(modifiers: number): void {
+        if (modifiers !== 0) {
+            this.modifiers = modifiers;
+        }
+    }
+
+    public addModifier(modifier: ModifierType | number): void {
+        this.modifiers = this.getModifiers() | modifier;
+    }
+
+    public removeModifier(modifier: ModifierType): void {
+        if (!this.modifiers) {
+            return;
+        }
+        this.modifiers &= MODIFIER_TYPE_MASK ^ modifier;
     }
 
     public getSignature(): LocalSignature {

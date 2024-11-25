@@ -23,6 +23,7 @@ import { SourceTransformer } from './SourceTransformer';
 import { SourceUtils } from './SourceUtils';
 import { Stmt } from '../../core/base/Stmt';
 import { ArkNamespace } from '../../core/model/ArkNamespace';
+import { ArkMetadataKind } from '../../core/model/ArkMetadata';
 
 /**
  * @category save
@@ -48,6 +49,9 @@ export class SourceMethod extends SourceBase {
 
     public dump(): string {
         this.printer.clear();
+        (this.method.getMetadata(ArkMetadataKind.LEADING_COMMENTS) || []).forEach((comment) => {
+            this.printer.writeIndent().writeLine(comment);
+        });
         if (!this.method.isDefaultArkMethod()) {
             this.printMethod(this.method);
         } else {
@@ -62,6 +66,9 @@ export class SourceMethod extends SourceBase {
 
     public getLine(): number {
         let line = this.method.getLine();
+        if (line === null) {
+            line = 0;
+        }
         if (line > 0) {
             return line;
         }
@@ -86,7 +93,7 @@ export class SourceMethod extends SourceBase {
     }
 
     private printMethod(method: ArkMethod): void {
-        this.printDecorator(method.getModifiers());
+        this.printDecorator(method.getDecorators());
         this.printer.writeIndent().write(this.methodProtoToString(method));
         // abstract function no body
         if (!method.getBody()) {
@@ -185,8 +192,8 @@ export class SourceMethod extends SourceBase {
     private initInBuilder(): boolean {
         return (
             this.method.hasBuilderDecorator() ||
-            ((this.method.getName() == 'build' || this.method.getName() == 'pageTransition') &&
-                !this.method.containsModifier('StaticKeyword') &&
+            ((this.method.getName() === 'build' || this.method.getName() === 'pageTransition') &&
+                !this.method.isStatic() &&
                 this.method.getDeclaringArkClass().hasViewTree())
         );
     }

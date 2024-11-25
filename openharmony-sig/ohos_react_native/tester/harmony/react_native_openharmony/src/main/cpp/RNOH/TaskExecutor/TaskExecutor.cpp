@@ -11,8 +11,9 @@ namespace rnoh {
 
 TaskExecutor::TaskExecutor(
     napi_env mainEnv,
+    std::unique_ptr<AbstractTaskRunner> workerTaskRunner,
     bool shouldEnableBackground) {
-  auto mainTaskRunner = std::make_shared<NapiTaskRunner>(mainEnv);
+  auto mainTaskRunner = std::make_shared<NapiTaskRunner>("RNOH_MAIN", mainEnv);
   auto jsTaskRunner = std::make_shared<ThreadTaskRunner>("RNOH_JS");
   auto backgroundExecutor = shouldEnableBackground
       ? std::make_shared<ThreadTaskRunner>("RNOH_BACKGROUND")
@@ -20,7 +21,8 @@ TaskExecutor::TaskExecutor(
   m_taskRunners = {
       mainTaskRunner,
       jsTaskRunner,
-      backgroundExecutor};
+      backgroundExecutor,
+      std::move(workerTaskRunner)};
   this->runTask(TaskThread::JS, [this]() {
     this->setTaskThreadPriority(QoS_Level::QOS_USER_INTERACTIVE);
   });
@@ -34,7 +36,7 @@ TaskExecutor::TaskExecutor(
 TaskExecutor::~TaskExecutor() noexcept {
   DLOG(INFO) << "TaskExecutor::~TaskExecutor()";
   std::thread cleanupThread(
-      [](std::array<AbstractTaskRunner::Shared, 3> taskRunners) {},
+      [](std::array<AbstractTaskRunner::Shared, 4> taskRunners) {},
       std::move(m_taskRunners));
   cleanupThread.detach();
 }
@@ -56,7 +58,7 @@ void TaskExecutor::setTaskThreadPriority(QoS_Level level) {
 }
 
 void TaskExecutor::runTask(TaskThread thread, Task&& task) {
-  //facebook::react::SystraceSection s("#RNOH::TaskExecutor::runTask");
+  facebook::react::SystraceSection s("#RNOH::TaskExecutor::runTask");
   auto taskRunner = this->getTaskRunner(thread);
   taskRunner->runAsyncTask(std::move(task));
 }
@@ -114,6 +116,8 @@ std::optional<TaskThread> TaskExecutor::getCurrentTaskThread() const {
     return TaskThread::JS;
   } else if (isOnTaskThread(TaskThread::BACKGROUND)) {
     return TaskThread::BACKGROUND;
+  } else if (isOnTaskThread(TaskThread::WORKER)) {
+    return TaskThread::WORKER;
   } else {
     return std::nullopt;
   }

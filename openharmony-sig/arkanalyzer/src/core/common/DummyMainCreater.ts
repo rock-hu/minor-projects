@@ -16,7 +16,12 @@
 import fs from 'fs';
 import path from 'path';
 import { Scene } from '../../Scene';
-import { COMPONENT_LIFECYCLE_METHOD_NAME, getAbilities, getCallbackMethodFromStmt, LIFECYCLE_METHOD_NAME } from '../../utils/entryMethodUtils';
+import {
+    COMPONENT_LIFECYCLE_METHOD_NAME,
+    getAbilities,
+    getCallbackMethodFromStmt,
+    LIFECYCLE_METHOD_NAME,
+} from '../../utils/entryMethodUtils';
 import { Constant } from '../base/Constant';
 import {
     AbstractInvokeExpr,
@@ -28,7 +33,7 @@ import {
 } from '../base/Expr';
 import { Local } from '../base/Local';
 import { ArkAssignStmt, ArkIfStmt, ArkInvokeStmt, ArkReturnVoidStmt } from '../base/Stmt';
-import { BooleanType, ClassType, NumberType, Type, UnclearReferenceType } from '../base/Type';
+import { ClassType, NumberType, Type, UnclearReferenceType } from '../base/Type';
 import { BasicBlock } from '../graph/BasicBlock';
 import { Cfg } from '../graph/Cfg';
 import { ArkBody } from '../model/ArkBody';
@@ -41,26 +46,27 @@ import { ArkSignatureBuilder } from '../model/builder/ArkSignatureBuilder';
 import { CONSTRUCTOR_NAME } from './TSConst';
 import { fetchDependenciesFromFile } from '../../utils/json5parser';
 import Logger, { LOG_MODULE_TYPE } from '../../utils/logger';
-import { Decorator } from '../base/Decorator';
+import { checkAndUpdateMethod } from '../model/builder/ArkMethodBuilder';
+import { ValueUtil } from './ValueUtil';
 
 const logger = Logger.getLogger(LOG_MODULE_TYPE.ARKANALYZER, 'Scene');
 
 /**
 收集所有的onCreate，onStart等函数，构造一个虚拟函数，具体为：
-@static_init()
+%statInit()
 ...
 count = 0
 while (true) {
-    if (count == 1) {
+    if (count === 1) {
         temp1 = new ability
         temp2 = new want
         temp1.onCreate(temp2)
     }
-    if (count == 2) {
+    if (count === 2) {
         onDestroy()
     }
     ...
-    if (count == *) {
+    if (count === *) {
         callbackMethod1()
     }
     ...
@@ -89,8 +95,8 @@ export class DummyMainCreater {
     }
 
     private buildBuiltInClass() {
-        for (const sdkFile of this.scene.getSdkArkFilesMap().values()) {
-            if (sdkFile.getName() == 'api\\@ohos.app.ability.Want.d.ts') {
+        for (const sdkFile of this.scene.getSdkArkFiles()) {
+            if (sdkFile.getName() === 'api\\@ohos.app.ability.Want.d.ts') {
                 const arkClass = sdkFile.getClassWithName('Want')!;
                 this.builtInClass.set('Want', arkClass);
             }
@@ -106,7 +112,7 @@ export class DummyMainCreater {
         dummyMainFile.setScene(this.scene);
         const dummyMainFileSignature = new FileSignature(this.scene.getProjectName(), '@dummyFile')
         dummyMainFile.setFileSignature(dummyMainFileSignature)
-        this.scene.getFilesMap().set(dummyMainFile.getFileSignature().toString(), dummyMainFile);
+        this.scene.setFile(dummyMainFile);
         const dummyMainClass = new ArkClass();
         dummyMainClass.setDeclaringArkFile(dummyMainFile);
         const dummyMainClassSignature = new ClassSignature('@dummyClass',
@@ -119,7 +125,9 @@ export class DummyMainCreater {
         const methodSubSignature = ArkSignatureBuilder.buildMethodSubSignatureFromMethodName('@dummyMain');
         const methodSignature = new MethodSignature(this.dummyMain.getDeclaringArkClass().getSignature(),
             methodSubSignature);
-        this.dummyMain.setSignature(methodSignature);
+        this.dummyMain.setImplementationSignature(methodSignature);
+        this.dummyMain.setLineCol(0);
+        checkAndUpdateMethod(this.dummyMain, dummyMainClass);
         dummyMainClass.addMethod(this.dummyMain);
 
         for (const method of this.entryMethods) {
@@ -129,7 +137,7 @@ export class DummyMainCreater {
                 const declaringArkClass = method.getDeclaringArkClass();
                 let newLocal: Local | null = null;
                 for (const local of this.classLocalMap.values()) {
-                    if ((local?.getType() as ClassType).getClassSignature() == declaringArkClass.getSignature()) {
+                    if ((local?.getType() as ClassType).getClassSignature() === declaringArkClass.getSignature()) {
                         newLocal = local;
                         break;
                     }
@@ -142,7 +150,7 @@ export class DummyMainCreater {
             }
         }
         const localSet = new Set(Array.from(this.classLocalMap.values()).filter((value): value is Local => value !== null));
-        const dummyBody = new ArkBody(localSet, new Cfg(), this.createDummyMainCfg(), new Map(), new Map());
+        const dummyBody = new ArkBody(localSet, this.createDummyMainCfg());
         this.dummyMain.setBody(dummyBody)
         this.addCfg2Stmt()
         this.scene.addToMethodsMap(this.dummyMain);
@@ -153,11 +161,15 @@ export class DummyMainCreater {
         dummyCfg.setDeclaringMethod(this.dummyMain);
 
         const firstBlock = new BasicBlock();
-        dummyCfg.addBlock(firstBlock);
 
+        let isStartingStmt = true;
         for (const method of this.scene.getStaticInitMethods()) {
             const staticInvokeExpr = new ArkStaticInvokeExpr(method.getSignature(), []);
             const invokeStmt = new ArkInvokeStmt(staticInvokeExpr);
+            if (isStartingStmt) {
+                dummyCfg.setStartingStmt(invokeStmt);
+                isStartingStmt = false;
+            }
             firstBlock.addStmt(invokeStmt);
         }
 
@@ -182,17 +194,20 @@ export class DummyMainCreater {
         }
 
         const countLocal = new Local('count', NumberType.getInstance());
-        const zero = new Constant('0', NumberType.getInstance());
+        const zero = ValueUtil.getOrCreateNumberConst(0);
         const countAssignStmt = new ArkAssignStmt(countLocal, zero);
 
-
-        const truE = new Constant('true', BooleanType.getInstance());
+        const truE = ValueUtil.getBooleanConstant(true);
         const conditionTrue = new ArkConditionExpr(truE, zero, RelationalBinaryOperator.Equality);
         const whileStmt = new ArkIfStmt(conditionTrue);
         firstBlock.addStmt(countAssignStmt);
+
+        dummyCfg.addBlock(firstBlock);
+        dummyCfg.setStartingStmt(firstBlock.getStmts()[0]);
+
         const whileBlock = new BasicBlock();
-        dummyCfg.addBlock(whileBlock);
         whileBlock.addStmt(whileStmt);
+        dummyCfg.addBlock(whileBlock);
         firstBlock.addSuccessorBlock(whileBlock);
         whileBlock.addPredecessorBlock(firstBlock);
         let lastBlocks: BasicBlock[] = [whileBlock];
@@ -203,8 +218,8 @@ export class DummyMainCreater {
             const condition = new ArkConditionExpr(countLocal, new Constant(count.toString(), NumberType.getInstance()), RelationalBinaryOperator.Equality);
             const ifStmt = new ArkIfStmt(condition);
             const ifBlock = new BasicBlock();
-            dummyCfg.addBlock(ifBlock);
             ifBlock.addStmt(ifStmt);
+            dummyCfg.addBlock(ifBlock);
             for (const block of lastBlocks) {
                 ifBlock.addPredecessorBlock(block);
                 block.addSuccessorBlock(ifBlock);
@@ -251,8 +266,8 @@ export class DummyMainCreater {
                 invokeExpr = new ArkStaticInvokeExpr(method.getSignature(), paramLocals);
             }
             const invokeStmt = new ArkInvokeStmt(invokeExpr);
-            dummyCfg.addBlock(invokeBlock);
             invokeBlock.addStmt(invokeStmt);
+            dummyCfg.addBlock(invokeBlock);
             ifBlock.addSuccessorBlock(invokeBlock);
             invokeBlock.addPredecessorBlock(ifBlock);
             lastBlocks = [ifBlock, invokeBlock];
@@ -263,8 +278,8 @@ export class DummyMainCreater {
         }
         const returnStmt = new ArkReturnVoidStmt();
         const returnBlock = new BasicBlock();
-        dummyCfg.addBlock(returnBlock);
         returnBlock.addStmt(returnStmt);
+        dummyCfg.addBlock(returnBlock);
         whileBlock.addSuccessorBlock(returnBlock);
         returnBlock.addPredecessorBlock(whileBlock);
 
@@ -317,10 +332,8 @@ export class DummyMainCreater {
                 if (COMPONENT_BASE_CLASSES.includes(cls.getSuperClassName())) {
                     return true;
                 }
-                for (let m of cls.getModifiers()) {
-                    if (m instanceof Decorator && m.getKind() === 'Component') {
-                        return true;
-                    }
+                if (cls.hasDecorator('Component')) {
+                    return true;
                 }
                 return false;
             })
@@ -331,7 +344,7 @@ export class DummyMainCreater {
     }
 
     public getMethodsFromAllAbilities(): ArkMethod[] {
-        const ABILITY_BASE_CLASSES = ['UIExtensionAbility', 'Ability', 'FormExtensionAbility'];
+        const ABILITY_BASE_CLASSES = ['UIExtensionAbility', 'Ability', 'FormExtensionAbility', 'UIAbility', 'BackupExtensionAbility'];
         let methods: ArkMethod[] = [];
         this.scene.getClasses()
             .filter(cls => ABILITY_BASE_CLASSES.includes(cls.getSuperClassName()))
@@ -374,10 +387,8 @@ export class DummyMainCreater {
             const abilityEntryMethods: ArkMethod[] = [];
             let cls: ArkClass = ability;
             for (const method of cls.getMethods()) {
-                for (const modifier of method.getModifiers()) {
-                    if (modifier === 'private') {
-                        continue;
-                    }
+                if (method.isPrivate()) {
+                    continue;
                 }
                 for (const mtd of abilityEntryMethods) {
                     if (mtd.getName() === method.getName()) {

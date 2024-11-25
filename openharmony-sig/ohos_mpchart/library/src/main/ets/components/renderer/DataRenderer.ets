@@ -225,5 +225,5 @@ export default abstract class DataRenderer extends Renderer {
    * @param c
    * @param indices the highlighted values
    */
-  public abstract drawHighlighted(c: CanvasRenderingContext2D, indices: Highlight[]): void;
+  public abstract drawHighlighted(c: CanvasRenderingContext2D, indices: Highlight[], isDraw?:boolean): void;
 }

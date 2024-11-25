@@ -81,6 +81,14 @@ auto ArkTSBridge::getFontSizeScale() -> float  {
     return m_arkJs.getDouble(napiResult);
 }
 
+auto ArkTSBridge::getMetadata(std::string const& name) -> std::string {
+  auto napiBridgeObject = m_arkJs.getReferenceValue(m_arkTSBridgeRef);
+  auto methodImpl = m_arkJs.getObjectProperty(napiBridgeObject, "getMetadata");
+  auto metadataName = m_arkJs.createString(name);
+  auto napiResult = m_arkJs.call<1>(methodImpl, {metadataName});
+  return m_arkJs.getString(napiResult);
+}
+
 auto PhysicalPixels::fromNapiValue(napi_env env, napi_value value)
     -> PhysicalPixels {
   ArkJS arkJs(env);

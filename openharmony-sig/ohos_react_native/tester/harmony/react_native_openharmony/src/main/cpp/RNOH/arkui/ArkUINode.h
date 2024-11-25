@@ -3,6 +3,7 @@
  */
 #pragma once
 #include <arkui/native_node.h>
+#include <arkui/native_type.h>
 #include <folly/dynamic.h>
 #include <react/renderer/components/rncore/Props.h>
 #include <react/renderer/components/view/AccessibilityPrimitives.h>
@@ -30,7 +31,7 @@ enum class ArkuiHitTestMode : int32_t {
 class ArkUINodeDelegate {
  public:
   virtual ~ArkUINodeDelegate() = default;
-  virtual void onArkUINodeDestroy(ArkUINode* node){};
+  virtual void onArkUINodeDestroy(ArkUINode* /*node*/){};
 };
 
 class ArkUINode {
@@ -112,6 +113,7 @@ class ArkUINode {
   setPadding(float left, float top, float right, float bottom);
   virtual ArkUINode& setVisibility(ArkUI_Visibility visibility);
   virtual ArkUINode& setRenderGroup(bool flag);
+  virtual ArkUINode& setDirection(ArkUI_Direction direction);
   virtual ArkUINode& setZIndex(float index);
 
   virtual ArkUINode& resetAccessibilityText();

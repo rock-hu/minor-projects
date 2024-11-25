@@ -1,5 +1,5 @@
-import { Edges, RNOHError, FatalRNOHError, SafeAreaInsetsProvider } from "./RNOH"
-import { RNOHCoreContext } from './RNOH/RNOHCoreContext'
+import { Edges, RNOHError, FatalRNOHError, SafeAreaInsetsProvider, RNInstanceError } from "./RNOH"
+import { RNOHCoreContext } from './RNOH/RNOHContext'
 import { DevToolsController } from './RNOH/DevToolsController'
 
 /**
@@ -108,7 +108,7 @@ struct RNOHErrorCustomDialog {
     if (!this.lastError) {
       return ""
     }
-    const stack = this.lastError.getStack()
+    const stack = this.lastError.getStack()?.toString();
     if (!stack) {
       return ""
     }
@@ -119,7 +119,41 @@ struct RNOHErrorCustomDialog {
     if (!this.lastError) {
       return ""
     }
-    return this.lastError.getDetails() ?? ""
+    const processData = (data: string | Error | object | null) => {
+      if (!data) {
+        return "";
+      }
+      if (typeof data === "string") {
+        return data.trim()
+      }
+      if (data instanceof Error) {
+        let lines = [`${data.name}: ${data.message}`]
+        for (let stackEntry of (data.stack ?? "").split("\n")) {
+          lines.push("")
+          lines.push(stackEntry)
+        }
+        return lines.join("\n")
+      }
+      try {
+        return JSON.stringify(data, null, 2)
+      } catch (err) {
+        return ""
+      }
+    }
+
+    if (this.lastError instanceof RNInstanceError) {
+      const errorData = this.lastError.getExtraData();
+      let rnInstanceNameString = "";
+      if (errorData.rnInstanceName) {
+        rnInstanceNameString = `rnInstanceName="${errorData.rnInstanceName}", `;
+      }
+      let str = `(${rnInstanceNameString}rnInstanceId=${errorData.rnInstanceId})\n`
+      str += processData(this.lastError.getExtraData().wrappedData);
+      return str;
+    } else {
+      const errorData: object | null = this.lastError.getExtraData();
+      return processData(errorData);
+    }
   }
 
   @Builder

@@ -89,9 +89,8 @@ export default class ForeachArgsCheck extends BaseChecker {
         const originPosition = stmt.getOriginPositionInfo();
         const line = originPosition.getLineNo();
         const arkFile = stmt.getCfg()?.getDeclaringMethod().getDeclaringArkFile();
-        const originStmt = stmt.getCfg()?.getDeclaringMethod().getBody()?.getStmtToOriginalStmt().get(stmt);
-        if (originStmt && arkFile) {
-            const originText = originStmt.toString();
+        if (arkFile) {
+            const originText = stmt.getOriginalText()??'';
             let startCol = originPosition.getColNo();
             const pos = originText.indexOf(name);
             if (pos !== -1) {

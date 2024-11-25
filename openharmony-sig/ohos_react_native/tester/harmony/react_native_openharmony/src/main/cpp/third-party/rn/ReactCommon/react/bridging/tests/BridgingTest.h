@@ -4,6 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
+// RNOH patch — apply fix from https://github.com/facebook/react-native/pull/43410/files
 
 #pragma once
 
@@ -43,14 +44,14 @@ class BridgingTest : public ::testing::Test {
         rt(*runtime) {}
 
   ~BridgingTest() {
-    LongLivedObjectCollection::get().clear();
+    LongLivedObjectCollection::get(rt).clear();
   }
 
   void TearDown() override {
     flushQueue();
 
     // After flushing the invoker queue, we shouldn't leak memory.
-    EXPECT_EQ(0, LongLivedObjectCollection::get().size());
+    EXPECT_EQ(0, LongLivedObjectCollection::get(rt).size());
   }
 
   jsi::Value eval(const std::string &js) {

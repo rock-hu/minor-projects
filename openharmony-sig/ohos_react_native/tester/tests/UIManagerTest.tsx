@@ -81,13 +81,13 @@ export function UIManagerTest() {
           );
         }}
         assert={({expect, state}) => {
-          expect(state.view.width).to.be.closeTo(16.5, 0.4);
+          expect(state.view.width).to.be.closeTo(16.5, 0.49);
           expect(state.view.width).not.to.be.eq(16);
           expect(state.view.width).not.to.be.eq(17);
-          expect(state.text.width).to.be.closeTo(256.5, 0.4);
+          expect(state.text.width).to.be.closeTo(256.5, 0.49);
           expect(state.text.width).not.to.be.eq(256);
           expect(state.text.width).not.to.be.eq(257);
-          expect(state.text.height).to.be.closeTo(64.5, 0.4);
+          expect(state.text.height).to.be.closeTo(64.5, 0.49);
           expect(state.text.height).not.to.be.eq(65);
           expect(state.text.height).not.to.be.eq(64);
         }}

@@ -24,3 +24,4 @@ export * from './ComplexScrollViewExample';
 export * from './SimpleFlatListExample';
 export * from './SimpleSectionListExample';
 export * from './SimpleVirtualistExample';
+export * from './RemoveClippedSubviewsRTLExample';

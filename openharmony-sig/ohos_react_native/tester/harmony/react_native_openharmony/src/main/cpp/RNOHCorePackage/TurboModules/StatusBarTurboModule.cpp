@@ -11,7 +11,7 @@ StatusBarTurboModule::StatusBarTurboModule(
       ARK_METHOD_METADATA(getConstants, 0),
       ARK_METHOD_METADATA(setColor, 1),
       ARK_METHOD_METADATA(setHidden, 1),
-      ARK_METHOD_METADATA(setStyle, 1),
+      ARK_ASYNC_METHOD_METADATA(setStyle, 1),
       ARK_METHOD_METADATA(setTranslucent, 1),
   };
 }

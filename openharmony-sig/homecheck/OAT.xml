@@ -17,8 +17,8 @@
 <configuration>
     <oatconfig>
         <filefilterlist>
-            <filefilter name="UnitTestSampleFilter" desc="Filters for unit test sample">
-                <filteritem type="filepath" name="test" desc="测试用例"/>
+            <filefilter name="defaultFilter">
+                <filteritem type="filepath" name="test/unittest/sample/.*" desc="测试用例"/>
             </filefilter>
         </filefilterlist>
     </oatconfig>

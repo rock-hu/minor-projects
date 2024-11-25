@@ -425,6 +425,40 @@ void TextMeasurer::textCaseTransform(std::string& textContent, facebook::react::
   }
 }
 
+std::vector<uint8_t> readRawFile(
+    NativeResourceManager* resourceManager,
+    std::string const& rawfileRelativeFontFilePath) {
+  auto fontFile =
+      std::unique_ptr<RawFile, decltype(&OH_ResourceManager_CloseRawFile)>(
+          OH_ResourceManager_OpenRawFile(
+              resourceManager, rawfileRelativeFontFilePath.c_str()),
+          OH_ResourceManager_CloseRawFile);
+  if (!fontFile) {
+    throw RNOHError(
+        "Failed to open font fontFile: " + rawfileRelativeFontFilePath);
+  }
+  auto length = OH_ResourceManager_GetRawFileSize(fontFile.get());
+  std::vector<uint8_t> buffer(length);
+  if (OH_ResourceManager_ReadRawFile(fontFile.get(), buffer.data(), length) !=
+      length) {
+    throw RNOHError("Failed to read font file: " + rawfileRelativeFontFilePath);
+  }
+  return buffer;
+}
+
+std::vector<uint8_t> readSandboxFile(std::string const& absoluteFontFilePath) {
+  std::ifstream fontFile(absoluteFontFilePath, std::ifstream::binary);
+  if (!fontFile.is_open()) {
+    throw RNOHError("Failed to read font file: " + absoluteFontFilePath);
+  }
+  fontFile.seekg(0, std::ios::end);
+  auto length = fontFile.tellg();
+  fontFile.seekg(0, std::ios::beg);
+  std::vector<uint8_t> buffer(length);
+  fontFile.read(reinterpret_cast<char*>(buffer.data()), length);
+  return buffer;
+}
+
 void TextMeasurer::setTextMeasureParams(float fontScale, float scale, bool halfleading) {
   m_fontScale = fontScale;
   m_scale = scale;
@@ -432,38 +466,25 @@ void TextMeasurer::setTextMeasureParams(float fontScale, float scale, bool halfl
   updateDefaultFont();
 }
 
-void TextMeasurer::registerFont(std::weak_ptr<NativeResourceManager> weakResourceManager, const std::string name, const std::string fontFilePathRelativeToRawfileDir) {
+void TextMeasurer::registerFont(std::weak_ptr<NativeResourceManager> weakResourceManager, const std::string name, const std::string fontFilePath) {
   auto resourceManager = weakResourceManager.lock();
   if (resourceManager == nullptr) {
     LOG(ERROR) << "Couldn't register font " << name
                << " — resourceManager is nullptr";
     return;
   };
-  auto fontFile =
-      std::unique_ptr<RawFile, decltype(&OH_ResourceManager_CloseRawFile)>(
-          OH_ResourceManager_OpenRawFile(
-              resourceManager.get(), fontFilePathRelativeToRawfileDir.c_str()),
-          OH_ResourceManager_CloseRawFile);
-  if (!fontFile) {
-    throw RNOHError(
-        "Failed to open font fontFile: " + fontFilePathRelativeToRawfileDir);
-  }
-  auto length = OH_ResourceManager_GetRawFileSize(fontFile.get());
-  std::vector<uint8_t> buffer(length);
-  if (OH_ResourceManager_ReadRawFile(fontFile.get(), buffer.data(), length) !=
-      length) {
-    throw RNOHError(
-        "Failed to read fontFile: " + fontFilePathRelativeToRawfileDir);
-  }
-  auto lock = std::lock_guard(m_fontFileContentByFontNameMtx);
-  m_fontFileContentByFontName.emplace(name, buffer);
+  auto fontData = fontFilePath[0] == '/'
+      ? readSandboxFile(fontFilePath)
+      : readRawFile(resourceManager.get(), fontFilePath);
+  auto lock = std::lock_guard(m_fontFileContentByFontFamilyMtx);
+  m_fontFileContentByFontFamily.emplace(name, std::move(fontData));
   // NOTE: fonts cannot be added to an existing collection, so we need to
   // recreate it the next time `getFontCollection` is called
-  // m_fontCollection.reset();
+  m_fontCollection.reset();
 }
 
 void TextMeasurer::updateDefaultFont() {
-  auto lock = std::lock_guard(m_defaultFontFamilyNameMtx);
+  auto lockDefaultFontFamilyName = std::lock_guard(m_defaultFontFamilyNameMtx);
   m_defaultFontFamilyName.clear();
   std::string path = "/data/themes/a/app";
   if (!existDefaultFont(path)) {
@@ -487,21 +508,12 @@ void TextMeasurer::updateDefaultFont() {
   if (m_defaultFontFamilyName.empty()) {
     return;
   }
-  std::ifstream ifs(path, std::ios_base::in);
-  ifs.seekg(0, ifs.end);
-  auto size = ifs.tellg();
-  ifs.seekg(ifs.beg);    
-  std::vector<uint8_t> buffer(size);
-  ifs.read((char*)buffer.data(), size);
-  bool isGood = ifs.good();
-  ifs.close();
-  if (isGood) {
-    auto lock = std::lock_guard(m_fontFileContentByFontNameMtx);
-    m_fontFileContentByFontName.emplace(m_defaultFontFamilyName, buffer);
-    // NOTE: fonts cannot be added to an existing collection, so we need to
-    // recreate it the next time `getFontCollection` is called
-    // m_fontCollection.reset();
-  }
+  auto fontData = readSandboxFile(path);
+  auto lock = std::lock_guard(m_fontFileContentByFontFamilyMtx);
+  m_fontFileContentByFontFamily.emplace(m_defaultFontFamilyName, std::move(fontData));
+  // NOTE: fonts cannot be added to an existing collection, so we need to
+  // recreate it the next time `getFontCollection` is called
+  m_fontCollection.reset();
 }
 
 
@@ -531,8 +543,8 @@ SharedFontCollection TextMeasurer::getFontCollection() {
   SharedFontCollection fontCollection(
       OH_Drawing_CreateSharedFontCollection(),
       OH_Drawing_DestroyFontCollection);
-  auto lock = std::lock_guard(m_fontFileContentByFontNameMtx);
-  for (auto& [name, fileContent] : m_fontFileContentByFontName) {
+  auto lock = std::lock_guard(m_fontFileContentByFontFamilyMtx);
+  for (auto& [name, fileContent] : m_fontFileContentByFontFamily) {
     OH_Drawing_RegisterFontBuffer(
         fontCollection.get(),
         name.c_str(),

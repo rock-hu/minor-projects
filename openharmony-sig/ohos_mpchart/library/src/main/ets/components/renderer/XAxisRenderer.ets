@@ -57,10 +57,7 @@ export default class XAxisRenderer extends AxisRenderer {
 
     // calculate the starting and entry point of the y-labels (depending on
     // zoom / contentrect bounds)
-    if (!this.mViewPortHandler || !this.mTrans) {
-      return;
-    }
-    if (this.mViewPortHandler.contentWidth() > 10 && !this.mViewPortHandler.isFullyZoomedOutX()) {
+    if (this.mViewPortHandler && this.mTrans && this.mViewPortHandler.contentWidth() > 10 && !this.mViewPortHandler.isFullyZoomedOutX()) {
 
       let p1: MPPointD | undefined = this.mTrans?.getValuesByTouchPoint(this.mViewPortHandler.contentLeft(), this.mViewPortHandler.contentTop());
       let p2: MPPointD | undefined = this.mTrans?.getValuesByTouchPoint(this.mViewPortHandler.contentRight(), this.mViewPortHandler.contentTop());

@@ -1,25 +1,25 @@
 # RN-JS打包
 
 ​
-在React Native中，应用的JavaScript代码和资源需要在设备上运行。为了提高应用的加载速度和性能，以及减少网络请求，React Native应用通常会在发布前进行打包处理，将所有的代码和资源打包成一个或多个文件。
+在 React Native 中，应用的 JavaScript 代码和资源需要在设备上运行。为了提高应用的加载速度和性能，以及减少网络请求，React Native 应用通常会在发布前进行打包处理，将所有的代码和资源打包成一个或多个文件。
 
-​ 本章节主要介绍React Native HarmonyOS化后，如何在ReactJs工程中打包bundle文件。HarmonyOS打包Bundle的过程涉及`react-native-harmony.tgz`、`react-native-harmony-cli.tgz`和`metro.config.js`，请参考环境搭建文档，初步构建基本ReactJs HarmonyOS化环境。
+​ 本章节主要介绍 React Native HarmonyOS 化后，如何在 ReactJs 工程中打包 bundle 文件。HarmonyOS 打包 Bundle 的过程涉及 `react-native-harmony.tgz`、`react-native-harmony-cli.tgz` 和 `metro.config.js`，请参考[环境搭建](./环境搭建.md)文档，初步构建基本 ReactJs HarmonyOS 化环境。
 
 ## 打包流程HarmonyOS化
 
-本节会简单介绍有关HarmonyOS打包所需的配置项及HarmonyOS打包命令，帮助您更快速了解打包流程的HarmonyOS化。
+本节会简单介绍有关 HarmonyOS 打包所需的配置项及 HarmonyOS 打包命令，帮助您更快速了解打包流程的 HarmonyOS 化。
 
-- `react-native-harmony.tgz`中包含了适配HarmonyOS的Metro打包配置项，这是至关重要的，能让工程在打包的过程中识别HarmonyOS平台，同时按照配置的路径优先寻找项目中已进行HarmonyOS化适配的依赖文件去加载打包。若您已在您的JS工程中依赖`react-native-harmony.tgz`，那么在编译构建JS工程时，工程内就会带有适配HarmonyOS的Metro打包配置项文件。
+- `react-native-harmony.tgz` 中包含了适配 HarmonyOS 的 Metro 打包配置项，这是至关重要的，能让工程在打包的过程中识别 HarmonyOS 平台，同时按照配置的路径优先寻找项目中已进行 HarmonyOS 化适配的依赖文件去加载打包。若您已在您的 JS 工程中依赖 `react-native-harmony.tgz`，那么在编译构建 JS 工程时，工程内就会带有适配 HarmonyOS 的 Metro 打包配置项文件。
 
-  文件路径：`node_modules/react-native-harmony/metro.config.js`。
+  文件路径：`node_modules/@react-native-oh/react-native-harmony/metro.config.js`。
   
-- 要想应用HarmonyOS Metro打包配置项，需要在Js工程最外层的`metro.config.js`文件中引入`react-native-harmony/metro.config.js`配置文件，自定义修改`config`的`transformer`配置选项，通过Metro自带的`mergeConfig`方法，融合HarmonyOS打包配置项。
+- 要想应用 HarmonyOS Metro 打包配置项，需要在 JS 工程最外层的 `metro.config.js` 文件中引入 `@react-native-oh/react-native-harmony/metro.config.js` 配置文件，自定义修改 `config` 的 `transformer` 配置选项，通过 Metro 自带的 `mergeConfig` 方法，融合 HarmonyOS 打包配置项。
   
-  ```js
+  ```javascript
   // AwesomeProject/metro.config.js
   
   const {mergeConfig, getDefaultConfig} = require('@react-native/metro-config');
-  const {createHarmonyMetroConfig} = require('react-native-harmony/metro.config');
+  const {createHarmonyMetroConfig} = require('@react-native-oh/react-native-harmony/metro.config');
   
   /**
    * @type {import("metro-config").ConfigT}
@@ -38,23 +38,23 @@
   module.exports = mergeConfig(
     getDefaultConfig(__dirname),
     createHarmonyMetroConfig({
-      reactNativeHarmonyPackageName: 'react-native-harmony',
+      reactNativeHarmonyPackageName: '@react-native-oh/react-native-harmony',
     }),
     config,
   );
   ```
 
-- `react-native-harmony-cli.tgz`中包含了HarmonyOS打包命令，其文件路径为`node_modules/@rnoh/react-native-harmony-cli/dist/commands/bundle-harmony.js`。
+- `react-native-harmony-cli.tgz` 中包含了 HarmonyOS 打包命令，其文件路径为 `node_modules/@react-native-oh/react-native-harmony-cli/dist/commands/bundle-harmony.js`。
   
-  HarmonyOS打包命令示例如下：
+  HarmonyOS 打包命令示例如下：
   
   ```powershell
   react-native bundle-harmony --entry-file index.harmony.js --dev false
   ```
   
-  HarmonyOS打包命令所支持的配置项如下：
+  HarmonyOS 打包命令所支持的配置项如下：
   
-  ```js
+  ```javascript
   options: [
       {
           name: '--dev [boolean]',
@@ -93,30 +93,30 @@
   ]
   ```
   
-  --dev：    false：product包    true：dev包
+  --dev：    false：product 包    true：dev包
   --entry-file：入口文件
   --config：额外配置
-  --bundle-output：生成的bundle文件输出位置
+  --bundle-output：生成的 bundle 文件输出位置
   --assets-dest：图片等资源输出的位置
   --sourcemap-output：映射文件输出的位置
   --minify：是否压缩打包
 
 ## 单Bundle打包
 
-​ 在构建基本ReactJs HarmonyOS化环境后使用打包命令`react-native bundle-harmony`，通过打包配置项配置输入文件路径、输出文件路径等。默认输入文件路径为Js项目根目录的`index.js`文件，默认输出文件路径为`./harmony/entry/src/main/resources/rawfile/bundle.harmony.js`。
+​ 在构建基本 ReactJs HarmonyOS 化环境后使用打包命令 `react-native bundle-harmony`，通过打包配置项配置输入文件路径、输出文件路径等。默认输入文件路径为 JS 项目根目录的 `index.js` 文件，默认输出文件路径为 `./harmony/entry/src/main/resources/rawfile/bundle.harmony.js`。
 
 ## 多Bundle打包
 
-​ 在开发过程中，有些开发场景应用的Bundle文件过大，出现Bundle文件加载缓慢，无法按需加载Bundle等情况，这时就需要进行拆包打包，生成多Bundle的过程。为了实现多Bundle打包的过程，我们选择使用Metro工具对工程进行拆包打包。
+​ 在开发过程中，有些开发场景应用的 bundle 文件过大，出现 bundle 文件加载缓慢，无法按需加载 bundle 等情况，这时就需要进行拆包打包，生成多 bundle 的过程。为了实现多 bundle 打包的过程，我们选择使用 Metro 工具对工程进行拆包打包。
 
-bundle代码拆分类型：基础包与业务包。
+bundle 代码拆分类型：基础包与业务包。
 
-- 基础包：将一些重复的js代码与第三方依赖库打成一个包。
+- 基础包：将一些重复的 JS 代码与第三方依赖库打成一个包。
 - 业务包：根据应用内的不同业务逻辑，拆分出一个或多个包。
 
 ### Metro安装
 
-​ 在运行`npm install`时React Native已经安装Metro了，其版本跟React Native版本有关，如果需要单独安装最新版Metro，可以执行以下命令：
+​ 在运行 `npm install` 时 React Native 已经安装 Metro 了，其版本跟 React Native 版本有关，如果需要单独安装最新版 Metro，可以执行以下命令：
 
 ```powershell
 npm install --save-dev metro metro-core
@@ -130,9 +130,9 @@ yarn add --dev metro metro-core
 
 ### Metro配置
 
-​ 配置Metro有三种方法，分别为`metro.config.js`、`metro.config.json`和`package.json`中添加`metro`字段，常用的方式为 `metro.config.js`。
+​ 配置 Metro 有三种方法，分别为 `metro.config.js`、`metro.config.json` 和 `package.json` 中添加 `metro` 字段，常用的方式为 `metro.config.js`。
 
-Metro配置内部结构请参考[Metro官网](https://facebook.github.io/metro/docs/configuration)。
+Metro 配置内部结构请参考[Metro官网](https://facebook.github.io/metro/docs/configuration)。
 
 ```javascript
 module.exports = {
@@ -153,23 +153,23 @@ module.exports = {
 };
 ```
 
-​ 每个optoins内都有很多配置选项，而对于拆包打包来说，最重要的是`serializer`选项内的`createModuleIdFactory`与`processModuleFilter`。
+​ 每个 optoins 内都有很多配置选项，而对于拆包打包来说，最重要的是 `serializer` 选项内的`createModuleIdFactory` 与 `processModuleFilter`。
 
 ![image](./figures/RN-JS-serializer.png)
 
-- `createModuleIdFactory` ：Metro支持了通过此方法配置自定义模块ID，同样支持字符串类型ID，用于生成`require`语句的模块ID，其类型为`() => (path: string) => number`，其中`path`为各个module的完整路径。此方法的另一个用途就是多次打包时，对于同一个模块生成相同的ID，下次更新发版时，不会因ID不同找不到Module。
-- `processModuleFilter`：根据给出的条件，对Module进行过滤，将不需要的模块过滤掉。其类型为`(module: Array<Module>) => boolean`，其中`module`为输出的模块，里面带着相应的参数，根据返回的波尔值判断是否过滤当前模块。返回`false`为过滤，不打入bundle。
+- `createModuleIdFactory` ：Metro 支持了通过此方法配置自定义模块 ID，同样支持字符串类型 ID，用于生成 `require` 语句的模块 ID，其类型为 `() => (path: string) => number`，其中`path` 为各个 module 的完整路径。此方法的另一个用途就是多次打包时，对于同一个模块生成相同的 ID，下次更新发版时，不会因 ID 不同找不到 Module。
+- `processModuleFilter`：根据给出的条件，对 Module 进行过滤，将不需要的模块过滤掉。其类型为 `(module: Array<Module>) => boolean`，其中 `module` 为输出的模块，里面带着相应的参数，根据返回的波尔值判断是否过滤当前模块。返回 `false` 为过滤，不打入 bundle。
 
-​ 下面参考配套的Demo工程`SampleProject`来具体说明一下该如何配置和使用`createModuleIdFactory`与`processModuleFilter`。
+​ 下面参考配套的 Demo 工程 `SampleProject` 来具体说明一下该如何配置和使用 `createModuleIdFactory` 与 `processModuleFilter`。
 
-1. 首先创建一个`SampleProject/MainProject/build/multibundle/moduleId.js`文件，其中自定义了`createModuleIdFactoryWrap`和`postProcessModulesFilterWrap`两个方法，用于对应`createModuleIdFactory`与`processModuleFilter`两个配置选项。
+1. 首先创建一个 `SampleProject/MainProject/build/multibundle/moduleId.js` 文件，其中自定义了 `createModuleIdFactoryWrap` 和 `postProcessModulesFilterWrap` 两个方法，用于对应 `createModuleIdFactory` 与 `processModuleFilter` 两个配置选项。
 
-   - `createModuleIdFactoryWrap`主要作用是判断模块是基础包还是业务包，然后将获取到的`ModuleId`分别存放到`basicNameMap.json`和`pageNameMap.json`文件中，留给`postProcessModulesFilterWrap`方法备用。
+   - `createModuleIdFactoryWrap` 主要作用是判断模块是基础包还是业务包，然后将获取到的 `ModuleId` 分别存放到 `basicNameMap.json` 和 `pageNameMap.json` 文件中，留给 `postProcessModulesFilterWrap` 方法备用。
 
-     `basicNameMap.json`代表基础包所涉及到的`ModuleId`集合，`pageNameMap.json`代表业务包所涉及到的`ModuleId`集合，这两个文件位于`moduleId.js`同目录的`map`文件夹下。
-   - `postProcessModulesFilterWrap`方法只需要在业务包的`metro.config.js`中配置，主要作用是通过一系列判断条件来判断需要打包的模块是否已经存在于`basicNameMap.json`文件中，如果存在，则返回`false`，不进行打包；反之，则该模块需要进行打包。
+     `basicNameMap.json` 代表基础包所涉及到的 `ModuleId` 集合，`pageNameMap.json` 代表业务包所涉及到的 `ModuleId` 集合，这两个文件位于 `moduleId.js` 同目录的 `map` 文件夹下。
+   - `postProcessModulesFilterWrap` 方法只需要在业务包的 `metro.config.js` 中配置，主要作用是通过一系列判断条件来判断需要打包的模块是否已经存在于 `basicNameMap.json` 文件中，如果存在，则返回 `false`，不进行打包；反之，则该模块需要进行打包。
 
-     ```js
+     ```javascript
      // SampleProject/MainProject/build/multibundle/moduleId.js
      ...
      
@@ -259,16 +259,16 @@ module.exports = {
      }
      ```
 
-2. 通过`Basic`模块和`HomePage`模块举例说明，基础包为`Basic`模块，业务包为`HomePage`模块。
+2. 通过 `Basic` 模块和 `HomePage` 模块举例说明，基础包为 `Basic` 模块，业务包为 `HomePage` 模块。
 
-   - 首先需要创建两个模块各自的`metro.config.js`文件：`basic.config.js`和`homepage.config.js`。在执行打包命令的时候需要配置到`--config`配置选项中。
-   - `basic.config.js`中的`config`对象需要配置`serializer`属性的`createModuleIdFactory`为上一步自定义的`createModuleIdFactoryWrap`方法，传入project根目录和模块名，最后在使用`mergeConfig`方式时将`config`对象作为入参传进去。
+   - 首先需要创建两个模块各自的 `metro.config.js` 文件：`basic.config.js` 和 `homepage.config.js`。在执行打包命令的时候需要配置到 `--config` 配置选项中。
+   - `basic.config.js` 中的 `config` 对象需要配置 `serializer` 属性的`createModuleIdFactory` 为上一步自定义的 `createModuleIdFactoryWrap` 方法，传入project根目录和模块名，最后在使用 `mergeConfig` 方式时将 `config` 对象作为入参传进去。
 
-     ```js
+     ```javascript
      // SampleProject/MainProject/basic.config.js
      
      const {mergeConfig, getDefaultConfig} = require('@react-native/metro-config');
-     const {createHarmonyMetroConfig} = require('react-native-harmony/metro.config');
+     const {createHarmonyMetroConfig} = require('@react-native-oh/react-native-harmony/metro.config');
      const path = require('path');
      const projectRootPath = path.join(__dirname);
      const moduleId = require('./build/multibundle/moduleId');
@@ -283,17 +283,17 @@ module.exports = {
      };
      
      module.exports = mergeConfig(getDefaultConfig(__dirname), createHarmonyMetroConfig({
-         reactNativeHarmonyPackageName: 'react-native-harmony',
+         reactNativeHarmonyPackageName: '@react-native-oh/react-native-harmony',
      }), config);
      ```
 
-   - `homepage.config.js`同理，区别在于，在配置`config`对象`serializer`属性时，需要将`processModuleFilter`配置为自定义的`postProcessModulesFilterWrap`方法，传参传入project根目录。
+   - `homepage.config.js` 同理，区别在于，在配置 `config` 对象 `serializer` 属性时，需要将 `processModuleFilter` 配置为自定义的 `postProcessModulesFilterWrap` 方法，传参传入 project 根目录。
 
-     ```js
+     ```javascript
      // SampleProject/MainProject/homepage.config.js
      
      const {mergeConfig, getDefaultConfig} = require('@react-native/metro-config');
-     const {createHarmonyMetroConfig} = require('react-native-harmony/metro.config');
+     const {createHarmonyMetroConfig} = require('@react-native-oh/react-native-harmony/metro.config');
      const path = require('path');
      const projectRootPath = path.join(__dirname);
      const moduleId = require('./build/multibundle/moduleId');
@@ -311,26 +311,26 @@ module.exports = {
      };
      
      module.exports = mergeConfig(getDefaultConfig(__dirname), createHarmonyMetroConfig({
-         reactNativeHarmonyPackageName: 'react-native-harmony',
+         reactNativeHarmonyPackageName: '@react-native-oh/react-native-harmony',
      }), config);
      ```
 
-3. 正确编写和使用分包打包命令，请参考[Metro使用](#metro使用)和`SampleProject\MainProject\package.json`文件。
+3. 正确编写和使用分包打包命令，请参考[Metro使用](#metro使用)和 `SampleProject\MainProject\package.json` 文件。
 
 ### Metro使用
 
-根据基础包业务包的不同，添加`--config <path/to/config>`参数对相应入口文件打包。
+根据基础包业务包的不同，添加 `--config <path/to/config>` 参数对相应入口文件打包。
 
-- 基础包`basic`：
+- 基础包 `basic`：
   
-  将需要的第三方依赖包与React Native的包、js文件等，可以通过`import`方式引入到一个js文件内，如`SampleProject/MainProject/src/bundles/basic/basic.js`，再使用先前写好的`basics.config.js`当做参数传入到`--config`后。使用终端切换到项目根目录，执行命令：
+  将需要的第三方依赖包与 React Native 的包、JS 文件等，可以通过 `import` 方式引入到一个 JS 文件内，如 `SampleProject/MainProject/src/bundles/basic/basic.js`，再使用先前写好的`basics.config.js` 当做参数传入到 `--config` 后。使用终端切换到项目根目录，执行命令：
   
   ```powershell
   react-native bundle-harmony --dev false --entry-file ./src/bundles/basic/basic.js  --bundle-output ../../SampleApp/entry/src/main/resources/rawfile/bundle/basic/basic.harmony.bundle  --config ./basic.config.js
   ```
 
-- 业务包`homepage`：
-  根据自己应用的业务逻辑，分出不同的业务入口，并使用`AppRegistry`注册业务的主Component，如`SampleProject/MainProject/src/bundles/HomePage/index.js`，使用先前写好的`homepage.config.js`传入到`--config`后。
+- 业务包 `homepage`：
+  根据自己应用的业务逻辑，分出不同的业务入口，并使用 `AppRegistry` 注册业务的主 Component，如 `SampleProject/MainProject/src/bundles/HomePage/index.js`，使用先前写好的 `homepage.config.js` 传入到 `--config` 后。
   
   命令如下：
   
@@ -338,11 +338,9 @@ module.exports = {
   react-native bundle-harmony --dev false --entry-file ./src/bundles/HomePage/index.js --bundle-output ../../SampleApp/entry/src/main/resources/rawfile/bundle/cp/homepage.harmony.bundle  --config ./homepage.config.js
   ```
 
-可以将上述两种命令中的路径，替换为自己实际项目的路径，分了几个业务包就需要执行几次命令，可以将命令使用`&&`连接，汇总成一条命令去执行：
+也可以在 `SampleProject/MainProject/package.json` 文件中将上述两种命令中的路径，替换为自己实际项目的路径，分了几个业务包就需要执行几次命令，可以将命令使用 `&&` 连接，汇总成一条命令去执行：
 
-```json5
-// SampleProject/MainProject/package.json
-
+```json
 ...
     "dev:basic":    "react-native bundle-harmony --dev false --entry-file ./src/bundles/basic/basic.js    --bundle-output ../../SampleApp/entry/src/main/resources/rawfile/bundle/basic/basic.harmony.bundle  --config ./basic.config.js",
     "dev:homepage": "react-native bundle-harmony --dev false --entry-file ./src/bundles/HomePage/index.js --bundle-output ../../SampleApp/entry/src/main/resources/rawfile/bundle/cp/homepage.harmony.bundle  --config ./homepage.config.js",
@@ -356,9 +354,9 @@ module.exports = {
 
 ## Bundle转字节码
 
-​ 您可以将打包生成的Bundle文件转换成字节码的形式进行加载，加载字节码具有提高执行效率、优化性能等优点。其转换工具在React Native工程执行`npm install`指令时就已下载在`node_modules`目录下。
+​ 您可以将打包生成的 bundle 文件转换成字节码的形式进行加载，加载字节码具有提高执行效率、优化性能等优点。其转换工具在 React Native 工程执行 `npm install` 指令时就已下载在 `node_modules` 目录下。
 
-1. 将打包出来的Bundle文件放到`node_modules/react-native/sdks/hermesc/win64-bin`目录下。
+1. 将打包出来的 bundle 文件放到 `node_modules/react-native/sdks/hermesc/win64-bin` 目录下。
 2. 在该目录下打开终端控制台，输入转字节码命令。
 
    ```powershell
@@ -371,11 +369,11 @@ module.exports = {
    hermesc --emit-binary bundle.harmony.js -out hermes_bundle.hbc
    ```
 
-3. 将生成的`.hbc`文件放回生成Bundle的目录下，方便native工程在加载Bundle时可以找到该字节码文件。
+3. 将生成的 `.hbc` 文件放回生成 bundle 的目录下，方便 native 工程在加载 bundle 时可以找到该字节码文件。
 
 ## Metro启动
 
-您可以使用Metro服务实时更新bundle，请连接真机，并分别执行以下命令：
+您可以使用 Metro 服务实时更新 bundle，请连接真机，并分别执行以下命令：
 
 ```PowerShell
 hdc rport tcp:8081 tcp:8081

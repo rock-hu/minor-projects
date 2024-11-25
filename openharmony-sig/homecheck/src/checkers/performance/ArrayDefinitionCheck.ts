@@ -26,7 +26,7 @@ export default class ArrayDefinitionCheck extends BaseChecker {
     private readonly ruleId = '@performance/array-definition-check';
     private readonly ruleDocPath = 'docs/array-definition-check.md';
     check(scene: Scene, filePath: string, rule?: Rule): IssueReport[] {
-        let severity = rule ? rule.alert : 1;
+        let severity = rule ? rule.alert : 3;
         let issueReport: IssueReport[] = [];
         let arkFiles = SceneUtils.getArkFile(filePath, scene);
 
@@ -36,7 +36,7 @@ export default class ArrayDefinitionCheck extends BaseChecker {
                     this.processArkMethod(arkFile, method, issueReport, severity)
                 }
             }
-            for (let namespace of arkFile.getNamespaces()) {
+            for (let namespace of arkFile.getAllNamespacesUnderThisFile()) {
                 for (let clazz of namespace.getClasses()) {
                     for (let method of clazz.getMethods()) {
                         this.processArkMethod(arkFile, method, issueReport, severity)
@@ -56,23 +56,18 @@ export default class ArrayDefinitionCheck extends BaseChecker {
             if (!rightOp || !(rightOp instanceof ArkNewArrayExpr)) {
                 continue;
             }
-            let line = stmt.getOriginPositionInfo().getLineNo();
-            let orgStmt = stmt.getCfg()?.getDeclaringMethod().getBody()?.getStmtToOriginalStmt().get(stmt);
-            if (!orgStmt) {
-                continue;
-            }
-            let text = orgStmt.toString();
+            let text = stmt.getOriginalText()??'';
             if (this.isGenericArray(text)) {
-                this.reportIssue(arkFile, issueReport, line, orgStmt, severity);
+                this.reportIssue(arkFile, issueReport, stmt, text, severity);
             }
         }
     }
 
-    private reportIssue(arkFile: ArkFile, issueReports: IssueReport[], lineNum: number, orgStmt: Stmt, severity: number) {
+    private reportIssue(arkFile: ArkFile, issueReports: IssueReport[], stmt: Stmt, text: string, severity: number) {
         let filePath = arkFile.getFilePath();
-        let text = orgStmt.toString();
-        let startColum = orgStmt.getPositionInfo().getColNo() + text.indexOf(this.ARRAY_NAME);
-        let endColum = orgStmt.getPositionInfo().getColNo() + text.indexOf('=') - 1;
+        let lineNum = stmt.getOriginPositionInfo().getLineNo();
+        let startColum = stmt.getOriginPositionInfo().getColNo() + text.indexOf(this.ARRAY_NAME);
+        let endColum = stmt.getOriginPositionInfo().getColNo() + text.indexOf('=') - 1;
         filePath = CheckerStorage.getInstance().getRealFiePath(arkFile);
         const fixKey = lineNum + '%' + startColum + '%' + endColum + '%' + this.ruleId
         const mergeKey = filePath + '%' + fixKey + '%' + this.descriptionArrayType

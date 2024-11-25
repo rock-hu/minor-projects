@@ -13,10 +13,12 @@
  * limitations under the License.
  */
 
+import path from 'path';
 import { transfer2UnixPath } from '../../utils/pathTransfer';
 import { ClassType, Type } from '../base/Type';
 import { MethodParameter } from './builder/ArkMethodBuilder';
 import { UNKNOWN_CLASS_NAME, UNKNOWN_FILE_NAME, UNKNOWN_NAMESPACE_NAME, UNKNOWN_PROJECT_NAME } from '../common/Const';
+import { CryptoUtils } from '../../utils/crypto_utils';
 
 export type Signature =
     FileSignature
@@ -36,12 +38,14 @@ export interface ArkSignature {
 export class FileSignature {
     private projectName: string;
     private fileName: string;
+    private hashcode: number;
 
     public static readonly DEFAULT: FileSignature = new FileSignature(UNKNOWN_PROJECT_NAME, UNKNOWN_FILE_NAME);
 
     constructor(projectName: string, fileName: string) {
         this.projectName = projectName;
-        this.fileName = fileName;
+        this.fileName = transfer2UnixPath(fileName);
+        this.hashcode = CryptoUtils.hashcode(this.toString());
     }
 
     public getProjectName() {
@@ -53,9 +57,11 @@ export class FileSignature {
     }
 
     public toString(): string {
-        let tmpSig = transfer2UnixPath(this.fileName);
-        tmpSig = '@' + this.projectName + '/' + tmpSig + ': ';
-        return tmpSig;
+        return `@${this.projectName}/${this.fileName}: `;
+    }
+
+    public toMapKey(): string {
+        return `${this.hashcode}${path.basename(this.fileName)}`;
     }
 }
 
@@ -93,6 +99,14 @@ export class NamespaceSignature {
             return this.declaringFileSignature.toString() + this.namespaceName;
         }
     }
+
+    public toMapKey(): string {
+        if (this.declaringNamespaceSignature) {
+            return this.declaringNamespaceSignature.toMapKey() + '.' + this.namespaceName;
+        } else {
+            return this.declaringFileSignature.toMapKey() + this.namespaceName;
+        }
+    }
 }
 
 export class ClassSignature {
@@ -110,14 +124,26 @@ export class ClassSignature {
         this.declaringNamespaceSignature = declaringNamespaceSignature;
     }
 
+    /**
+     * Returns the declaring file signature.
+     * @returns The declaring file signature.
+     */
     public getDeclaringFileSignature() {
         return this.declaringFileSignature;
     }
 
+    /**
+     * Get the declaring namespace's signature.
+     * @returns the declaring namespace's signature.
+     */
     public getDeclaringNamespaceSignature() {
         return this.declaringNamespaceSignature;
     }
 
+    /**
+     * Get the **string** name of class from the the class signature. The default value is `""`.
+     * @returns The name of this class.
+     */
     public getClassName() {
         return this.className;
     }
@@ -135,6 +161,14 @@ export class ClassSignature {
             return this.declaringNamespaceSignature.toString() + '.' + this.className;
         } else {
             return this.declaringFileSignature.toString() + this.className;
+        }
+    }
+
+    public toMapKey(): string {
+        if (this.declaringNamespaceSignature) {
+            return this.declaringNamespaceSignature.toMapKey() + '.' + this.className;
+        } else {
+            return this.declaringFileSignature.toMapKey() + this.className;
         }
     }
 }
@@ -231,16 +265,6 @@ export class MethodSubSignature {
         return this.staticFlag;
     }
 
-    // // temp for being compatible with existing type inference
-    // public setReturnType(returnType: Type): void {
-    //     this.returnType = returnType;
-    // }
-    //
-    // // temp for being compatible with existing type inference
-    // public setStaticFlag(flag: boolean): void {
-    //     this.staticFlag = flag;
-    // }
-
     public toString(): string {
         let paraStr = "";
         this.getParameterTypes().forEach((parameterType) => {
@@ -267,10 +291,32 @@ export class MethodSignature {
         this.methodSubSignature = methodSubSignature;
     }
 
+    /**
+     * Return the declaring class signature.
+     * A {@link ClassSignature} includes:
+     * - File Signature: including the **string** names of the project and file, respectively. The default value of project's name is "%unk" and the default value of file's name is "%unk".
+     * - Namespace Signature | **null**:  it may be a namespace signature or **null**. A namespace signature can indicate its **string** name of namespace and its file signature.
+     * - Class Name: the **string** name of this class.
+     * @returns The declaring class signature.
+     * @example
+     * 1. get class signature from ArkMethod.
+
+    ```typescript
+    let methodSignature = expr.getMethodSignature();
+    let name = methodSignature.getDeclaringClassSignature().getClassName();
+    ```
+     * 
+     */
     public getDeclaringClassSignature() {
         return this.declaringClassSignature;
     }
 
+    /**
+     * Returns the sub-signature of this method signature. 
+     * The sub-signature is part of the method signature, which is used to 
+     * identify the name of the method, its parameters and the return value type.
+     * @returns The sub-signature of this method signature.
+     */
     public getMethodSubSignature() {
         return this.methodSubSignature;
     }
@@ -281,6 +327,14 @@ export class MethodSignature {
 
     public toString(): string {
         return this.declaringClassSignature.toString() + '.' + this.methodSubSignature.toString();
+    }
+
+    public toMapKey(): string {
+        return this.declaringClassSignature.toMapKey() + '.' + this.methodSubSignature.toString();
+    }
+
+    public isMatch(signature: MethodSignature): boolean {
+        return ((this.toString() === signature.toString()) && (this.getType().toString() === signature.getType().toString()));
     }
 }
 
@@ -309,7 +363,7 @@ export class LocalSignature {
 //TODO, reconstruct
 export function fieldSignatureCompare(leftSig: FieldSignature, rightSig: FieldSignature): boolean {
     if (leftSig.getDeclaringSignature().toString() === rightSig.getDeclaringSignature().toString() &&
-        (leftSig.getFieldName() == rightSig.getFieldName())) {
+        (leftSig.getFieldName() === rightSig.getFieldName())) {
         return true;
     }
     return false;
@@ -324,8 +378,8 @@ export function methodSignatureCompare(leftSig: MethodSignature, rightSig: Metho
 }
 
 export function methodSubSignatureCompare(leftSig: MethodSubSignature, rightSig: MethodSubSignature): boolean {
-    if ((leftSig.getMethodName() == rightSig.getMethodName()) && arrayCompare(leftSig.getParameterTypes(),
-        rightSig.getParameterTypes()) && leftSig.getReturnType() == rightSig.getReturnType()) {
+    if ((leftSig.getMethodName() === rightSig.getMethodName()) && arrayCompare(leftSig.getParameterTypes(),
+        rightSig.getParameterTypes()) && leftSig.getReturnType() === rightSig.getReturnType()) {
         return true;
     }
     return false;
@@ -333,25 +387,25 @@ export function methodSubSignatureCompare(leftSig: MethodSubSignature, rightSig:
 
 export function classSignatureCompare(leftSig: ClassSignature, rightSig: ClassSignature): boolean {
     if ((fileSignatureCompare(leftSig.getDeclaringFileSignature(), rightSig.getDeclaringFileSignature())) &&
-        (leftSig.getClassName() == rightSig.getClassName())) {
+        (leftSig.getClassName() === rightSig.getClassName())) {
         return true;
     }
     return false;
 }
 
 export function fileSignatureCompare(leftSig: FileSignature, rightSig: FileSignature): boolean {
-    if ((leftSig.getFileName() == rightSig.getFileName()) && (leftSig.getProjectName() == rightSig.getProjectName())) {
+    if ((leftSig.getFileName() === rightSig.getFileName()) && (leftSig.getProjectName() === rightSig.getProjectName())) {
         return true;
     }
     return false;
 }
 
 function arrayCompare(leftArray: any[], rightArray: any[]) {
-    if (leftArray.length != rightArray.length) {
+    if (leftArray.length !== rightArray.length) {
         return false;
     }
     for (let i = 0; i < leftArray.length; i++) {
-        if (leftArray[i] != rightArray[i]) {
+        if (leftArray[i] !== rightArray[i]) {
             return false;
         }
     }

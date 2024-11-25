@@ -1,11 +1,6 @@
 import UIAbility from '@ohos.app.ability.UIAbility';
 import type { RNOHLogger } from '@rnoh/react-native-openharmony/src/main/ets/RNOH/RNOHLogger';
 import { StandardRNOHLogger } from '@rnoh/react-native-openharmony/src/main/ets/RNOH/RNOHLogger';
-import { RNOHCoreContext } from "@rnoh/react-native-openharmony/src/main/ets/RNOH/RNOHCoreContext"
-import {
-  RNInstanceRegistry,
-} from '@rnoh/react-native-openharmony/ts'
-import window from '@ohos.window';
 import Want from '@ohos.app.ability.Want';
 import { RNInstancesCoordinator } from "@rnoh/react-native-openharmony/src/main/ets/RNOH/RNInstancesCoordinator"
 import { HttpClient, DefaultHttpClient } from "@rnoh/react-native-openharmony/src/main/ets/HttpClient"
@@ -18,7 +13,6 @@ export class UPRNSDKImpl{
   protected isDebugModeEnabled_: boolean = true
   private rnInstancesCoordinator!: RNInstancesCoordinator
   private logger!: RNOHLogger
-  private rnInstanceRegistry: RNInstanceRegistry | null = null;
 
   constructor(context: common.UIAbilityContext, want: Want) {
     this.context = context;
@@ -57,14 +51,11 @@ export class UPRNSDKImpl{
   }
 
   protected createLogger(): RNOHLogger {
-    return new StandardRNOHLogger((err) => {
-      this.rnInstancesCoordinator?.getRNOHCoreContext().reportRNOHError(err)
-    });
+    return new StandardRNOHLogger();
   }
 
   onBackPress() {
     const stopTracing = this.logger.clone("onBackPress").startTracing()
-    this.rnInstanceRegistry?.forEach((rnInstance) => rnInstance.onBackPress())
     stopTracing()
     return true;
   }

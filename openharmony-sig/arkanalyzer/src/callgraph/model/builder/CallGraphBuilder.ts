@@ -43,7 +43,7 @@ export class CallGraphBuilder {
         for (const method of methods) {
             let m = method.getSignature();
             let kind = CallGraphNodeKind.real;
-            if (method.isGenerated()) {// || method.getName() === '_DEFAULT_ARK_METHOD') {
+            if (method.isGenerated()) {
                 kind = CallGraphNodeKind.intrinsic;
             }
             if (method.getName() === 'constructor') {
@@ -62,7 +62,7 @@ export class CallGraphBuilder {
             let stmts = cfg.getStmts();
             for (const stmt of stmts) {
                 let invokeExpr = stmt.getInvokeExpr();
-                if (invokeExpr == undefined) {
+                if (invokeExpr === undefined) {
                     continue;
                 }
 
@@ -80,7 +80,7 @@ export class CallGraphBuilder {
         }
     }
 
-    public buildClassHierarchyCallGraph(entries: Method[], displayGeneratedMethod: Boolean = false): void {
+    public buildClassHierarchyCallGraph(entries: Method[], displayGeneratedMethod: boolean = false): void {
         let cgEntries: NodeID[] = [];
         entries.forEach((entry: Method) => {
             cgEntries.push(this.cg.getCallGraphNodeByMethod(entry).getID());
@@ -91,7 +91,7 @@ export class CallGraphBuilder {
         classHierarchyAnalysis.start(displayGeneratedMethod);
     }
 
-    public buildRapidTypeCallGraph(entries: Method[], displayGeneratedMethod: Boolean = false): void {
+    public buildRapidTypeCallGraph(entries: Method[], displayGeneratedMethod: boolean = false): void {
         let cgEntries: NodeID[] = [];
         entries.forEach((entry: Method) => {
             cgEntries.push(this.cg.getCallGraphNodeByMethod(entry).getID());
@@ -114,7 +114,7 @@ export class CallGraphBuilder {
     public setEntries(): void {
         let nodesIter = this.cg.getNodesIter();
         let entries = Array.from(nodesIter)
-            .filter(node => !node.hasIncomingEdges() && node.getKind() == CallGraphNodeKind.real
+            .filter(node => !node.hasIncomingEdges() && node.getKind() === CallGraphNodeKind.real
                 && !(node as CallGraphNode).isBlankMethod)
             .map(node => node.getID());
         this.cg.setEntries(entries);

@@ -2,7 +2,8 @@
 
 #include <ReactCommon/LongLivedObject.h>
 #include <ReactCommon/TurboModuleBinding.h>
-#include "RNOH/LogSink.h"
+#include <glog/logging.h>
+#include <mutex>
 
 using namespace rnoh;
 using namespace facebook;
@@ -56,14 +57,18 @@ void TurboModuleProvider::installJSBindings(
 
 std::shared_ptr<react::TurboModule> TurboModuleProvider::getTurboModule(
     std::string const& moduleName) {
-  if (m_cache.contains(moduleName)) {
-    DLOG(INFO) << "Cache hit. Providing '" << moduleName << "' Turbo Module";
-    return m_cache[moduleName];
+  {
+    std::unique_lock lock(m_cacheMtx);
+    if (auto it = m_cache.find(moduleName); it != m_cache.end()) {
+      DLOG(INFO) << "Cache hit. Providing '" << moduleName << "' Turbo Module";
+      return it->second;
+    }
   }
   auto turboModule = m_createTurboModule(moduleName, m_jsInvoker, m_scheduler);
   if (turboModule != nullptr) {
-    m_cache[moduleName] = turboModule;
-    return turboModule;
+    std::unique_lock lock(m_cacheMtx);
+    auto [it, inserted] = m_cache.emplace(moduleName, std::move(turboModule));
+    return it->second;
   }
   LOG(ERROR) << "Couldn't provide turbo module \"" << moduleName << "\"";
   return nullptr;

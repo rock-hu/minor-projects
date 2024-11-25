@@ -4,9 +4,11 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
+// RNOH patch — apply fix from https://github.com/facebook/react-native/pull/43410/files
 
 #pragma once
 
+#include <jsi/jsi.h>
 #include <memory>
 #include <mutex>
 #include <unordered_set>
@@ -29,8 +31,9 @@ class LongLivedObject {
   void allowRelease();
 
  protected:
-  LongLivedObject() = default;
+  explicit LongLivedObject(jsi::Runtime& runtime) : runtime_(runtime) {}
   virtual ~LongLivedObject() = default;
+  jsi::Runtime& runtime_;
 };
 
 /**
@@ -38,8 +41,9 @@ class LongLivedObject {
  */
 class LongLivedObjectCollection {
  public:
-  static LongLivedObjectCollection &get();
+  static LongLivedObjectCollection& get(jsi::Runtime& runtime);
 
+  LongLivedObjectCollection() = default;
   LongLivedObjectCollection(LongLivedObjectCollection const &) = delete;
   void operator=(LongLivedObjectCollection const &) = delete;
 
@@ -49,8 +53,6 @@ class LongLivedObjectCollection {
   size_t size() const;
 
  private:
-  LongLivedObjectCollection() = default;
-
   std::unordered_set<std::shared_ptr<LongLivedObject>> collection_;
   mutable std::mutex collectionMutex_;
 };

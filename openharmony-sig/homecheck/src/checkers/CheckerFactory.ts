@@ -21,7 +21,6 @@ export class CheckerFactory {
     static createChecker(ruleId: string): BaseChecker | null {
         const checkerName = CheckerFactory.getCheckerName(ruleId)
         const checker = this.checkerMap.get(checkerName);
-
         if (checker) {
             return checker;
         } else {

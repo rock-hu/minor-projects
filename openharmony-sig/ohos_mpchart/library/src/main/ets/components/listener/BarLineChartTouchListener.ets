@@ -287,8 +287,8 @@ export default class BarLineChartTouchListener extends ChartTouchListener<BarLin
       let y: number = this.mChart.isDragYEnabled() ? yCoordinate - this.mTouchStartPoint.y : 0;
       if (!this.mChart.getSwipeEnabled()) {
         this.mChart.highlightValueForObject(null, true);
-        this.performDrag(isTouchEvent, event, x, y);
       }
+      this.performDrag(isTouchEvent, event, x, y);
     } else if (this.mTouchMode == ChartTouchListener.X_ZOOM || this.mTouchMode == ChartTouchListener.Y_ZOOM || this.mTouchMode == ChartTouchListener.PINCH_ZOOM) {
 
       this.mChart.disableScroll();
@@ -545,11 +545,10 @@ export default class BarLineChartTouchListener extends ChartTouchListener<BarLin
       // }
     }
 
-    this.mMatrix.postTranslate(distanceX, distanceY);
-
     if (l != null) {
       l.onChartTranslate(isTouchEvent, event, distanceX, distanceY);
     }
+    this.mMatrix.postTranslate(distanceX, distanceY);
   }
 
   /**

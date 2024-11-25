@@ -47,6 +47,10 @@ void ScrollViewComponentInstance::setLayout(
   if (m_containerSize != layoutMetrics.frame.size) {
     m_containerSize = layoutMetrics.frame.size;
   }
+  if (m_layoutMetrics.layoutDirection != layoutMetrics.layoutDirection) {
+    m_scrollNode.setDirection(
+        convertLayoutDirection(layoutMetrics.layoutDirection));
+  }
   markBoundingBoxAsDirty();
 }
 
@@ -178,7 +182,7 @@ void rnoh::ScrollViewComponentInstance::onPropsChanged(
   if (!m_props || props->contentOffset != m_props->contentOffset ||
       props->scrollToOverflowEnabled != m_props->scrollToOverflowEnabled) {
     m_scrollNode.scrollTo(
-        props->contentOffset.x, props->contentOffset.y, false, m_scrollToOverflowEnabled);
+        adjustOffsetToRTL(props->contentOffset.x), props->contentOffset.y, false, m_scrollToOverflowEnabled);
     updateStateWithContentOffset(props->contentOffset);
   }
   if (!m_props || props->centerContent != m_props->centerContent) {
@@ -208,6 +212,7 @@ void ScrollViewComponentInstance::onCommandReceived(
     folly::dynamic const& args) {
   if (commandName == "scrollTo") {
     facebook::react::Float x = args[0].asDouble();
+    x = adjustOffsetToRTL(x);
     facebook::react::Float y = args[1].asDouble();
     m_targetOffsetOfScrollToCommand = {x, y};
     m_scrollNode.scrollTo(
@@ -269,7 +274,7 @@ bool rnoh::ScrollViewComponentInstance::isNestedScroll() {
 
 facebook::react::Point rnoh::ScrollViewComponentInstance::getCurrentOffset()
     const {
-  auto offset = m_scrollNode.getScrollOffset();
+  auto offset = getScrollOffset();
   auto contentViewOffset = getContentViewOffset();
   return offset - contentViewOffset;
 }
@@ -294,7 +299,7 @@ ScrollViewComponentInstance::getScrollViewMetrics() {
   scrollViewMetrics.responderIgnoreScroll = true;
   scrollViewMetrics.zoomScale = 1;
   scrollViewMetrics.contentSize = m_contentSize;
-  scrollViewMetrics.contentOffset = m_scrollNode.getScrollOffset();
+  scrollViewMetrics.contentOffset = getScrollOffset();
   scrollViewMetrics.containerSize = m_containerSize;
   return scrollViewMetrics;
 }
@@ -330,6 +335,7 @@ void ScrollViewComponentInstance::onScroll() {
      }
     updateStateWithContentOffset(scrollViewMetrics.contentOffset);
     m_currentOffset = scrollViewMetrics.contentOffset;
+    m_currentOffset.x = adjustOffsetToRTL(m_currentOffset.x);
     updateContentClippedSubviews();
   }
 }
@@ -404,12 +410,12 @@ void ScrollViewComponentInstance::emitOnMomentumScrollEndEvent() {
   updateStateWithContentOffset(scrollViewMetrics.contentOffset);
 }
 
-void ScrollViewComponentInstance::updateContentClippedSubviews(bool childrenChange) {
+void ScrollViewComponentInstance::updateContentClippedSubviews() {
   if (!m_children.empty() && m_children[0] != nullptr) {
     auto contentContainer =
         std::dynamic_pointer_cast<CustomNodeComponentInstance>(m_children[0]);
     if (contentContainer != nullptr) {
-      contentContainer->updateClippedSubviews(childrenChange);
+      contentContainer->updateClippedSubviews();
     }
   }
 }
@@ -438,7 +444,9 @@ void ScrollViewComponentInstance::scrollToEnd(bool animated) {
         horizontal = m_props->alwaysBounceHorizontal ||
       m_contentSize.width > m_containerSize.width;
   }
-  auto x = horizontal ? m_contentSize.width : 0.0;
+  auto x = (horizontal && m_layoutMetrics.layoutDirection == facebook::react::LayoutDirection::LeftToRight)
+    ? m_contentSize.width
+    : 0.0;
   auto y = horizontal ? 0.0 : m_contentSize.height;
   m_scrollNode.scrollTo(x, y, animated);
 }
@@ -544,7 +552,7 @@ void ScrollViewComponentInstance::onFinalizeUpdates() {
     }
     m_shouldAdjustScrollPositionOnNextRender = false;
   }
-  updateOffsetAfterChildChange(getCurrentOffset());
+  updateOffsetAfterChildChange(m_scrollNode.getScrollOffset());
 }
 
 folly::dynamic ScrollViewComponentInstance::getScrollEventPayload(
@@ -796,7 +804,6 @@ ScrollViewComponentInstance::getFirstVisibleView(int32_t minIndexForVisible) {
 }
 
 void ScrollViewComponentInstance::onAppear() {
-  updateContentClippedSubviews(true);
 }
 
 bool ScrollViewComponentInstance::setKeyboardAvoider(
@@ -805,4 +812,21 @@ bool ScrollViewComponentInstance::setKeyboardAvoider(
   return true;
 }
 
+// NOTE: ArkUI ScrollNode's offset is calculated relative to top-right if
+// RTL is enabled, while RN expects it to always be counted from top-left
+facebook::react::Float ScrollViewComponentInstance::adjustOffsetToRTL(
+    facebook::react::Float x) const {
+  auto isRTL = m_layoutMetrics.layoutDirection ==
+      facebook::react::LayoutDirection::RightToLeft;
+  if (isRTL) {
+    x = m_contentSize.width - m_containerSize.width - x;
+  }
+  return x;
+}
+
+facebook::react::Point ScrollViewComponentInstance::getScrollOffset() const {
+  auto scrollOffset = m_scrollNode.getScrollOffset();
+  scrollOffset.x = adjustOffsetToRTL(scrollOffset.x);
+  return scrollOffset;
+}
 } // namespace rnoh

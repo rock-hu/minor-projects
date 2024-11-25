@@ -6,12 +6,14 @@ export function PlatformConstantsTest() {
   return (
     <TestSuite name="PlatformConstants">
       <TestCase.Logical
+        skip={{android: true, harmony: false}}
         itShould="use 'harmony' as platform name"
         fn={({expect}) => {
           expect(Platform.OS).to.be.eq('harmony');
         }}
       />
       <TestCase.Logical
+        skip={{android: true, harmony: false}}
         itShould="specify platform version"
         fn={({expect}) => {
           expect(Platform.Version.toString().split('.').length - 1).to.be.eq(3);
@@ -24,6 +26,7 @@ export function PlatformConstantsTest() {
         }}
       />
       <TestCase.Logical
+        skip={{android: true, harmony: false}}
         itShould="select Platform properly"
         fn={({expect}) => {
           expect(

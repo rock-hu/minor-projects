@@ -15,7 +15,7 @@
 
 import { ArkInstanceInvokeExpr } from '../../core/base/Expr';
 import { Local } from '../../core/base/Local';
-import { ArkAssignStmt, ArkIfStmt, ArkInvokeStmt, OriginalStmt, Stmt } from '../../core/base/Stmt';
+import { ArkAssignStmt, ArkIfStmt, ArkInvokeStmt, Stmt } from '../../core/base/Stmt';
 import { BasicBlock } from '../../core/graph/BasicBlock';
 import { ArkBody } from '../../core/model/ArkBody';
 import { ArkMethod } from '../../core/model/ArkMethod';
@@ -43,8 +43,22 @@ import { ClassSignature, MethodSignature } from '../../core/model/ArkSignature';
 import { ModelUtils } from '../../core/common/ModelUtils';
 import { SourceUtils } from './SourceUtils';
 import { ArkNamespace } from '../../core/model/ArkNamespace';
+import { LineColPosition } from '../../core/base/Position';
 
 const logger = Logger.getLogger(LOG_MODULE_TYPE.ARKANALYZER, 'SourceBody');
+
+class AliasStmt extends Stmt {
+
+    constructor(position: LineColPosition) {
+        super();
+        this.originalPosition = position;
+    }
+
+    toString(): string {
+        return '';
+    }
+    
+}
 
 export class SourceBody implements StmtPrinterContext {
     protected printer: ArkCodeBuffer;
@@ -162,23 +176,27 @@ export class SourceBody implements StmtPrinterContext {
     }
 
     private buildTypeAliasStmt(): void {
-        for (const [_, [aliasType, declaration]] of this.arkBody.getAliasTypeMap()) {
-            let stmt = new OriginalStmt('', declaration.getPosition());
+        let map = this.arkBody.getAliasTypeMap();
+        if (!map) {
+            return;
+        }
+        for (const [_, [aliasType, declaration]] of map) {
+            let stmt = new AliasStmt(declaration.getPosition());
             this.pushStmt(new SourceTypeAliasStmt(this, stmt, aliasType));
         }
     }
 
     private buildBasicBlock(block: BasicBlock | undefined, type: CodeBlockType): void {
-        if (type == CodeBlockType.BREAK) {
+        if (type === CodeBlockType.BREAK) {
             this.pushStmt(new SourceBreakStmt(this, this.lastStmt));
             return;
-        } else if (type == CodeBlockType.CONTINUE) {
+        } else if (type === CodeBlockType.CONTINUE) {
             this.pushStmt(new SourceContinueStmt(this, this.lastStmt));
-        } else if (type == CodeBlockType.COMPOUND_END) {
+        } else if (type === CodeBlockType.COMPOUND_END) {
             this.pushStmt(new SourceCompoundEndStmt(this, this.lastStmt, '}'));
-        } else if (type == CodeBlockType.ELSE) {
+        } else if (type === CodeBlockType.ELSE) {
             this.pushStmt(new SourceElseStmt(this, this.lastStmt));
-        } else if (type == CodeBlockType.DO) {
+        } else if (type === CodeBlockType.DO) {
             this.pushStmt(new SourceDoStmt(this, this.lastStmt));
         }
 
@@ -194,14 +212,14 @@ export class SourceBody implements StmtPrinterContext {
                 continue;
             }
             if (stmt instanceof ArkIfStmt) {
-                if (type == CodeBlockType.IF) {
+                if (type === CodeBlockType.IF) {
                     this.pushStmt(new SourceIfStmt(this, stmt));
-                } else if (type == CodeBlockType.WHILE) {
+                } else if (type === CodeBlockType.WHILE) {
                     this.pushStmt(new SourceWhileStmt(this, stmt, block));
-                } else if (type == CodeBlockType.FOR) {
+                } else if (type === CodeBlockType.FOR) {
                     let inc = this.cfgUtils.getForIncBlock(block)!;
                     this.pushStmt(new SourceForStmt(this, stmt, block, inc));
-                } else if (type == CodeBlockType.DO_WHILE) {
+                } else if (type === CodeBlockType.DO_WHILE) {
                     this.pushStmt(new SourceDoWhileStmt(this, stmt, block));
                 }
             } else {
@@ -257,7 +275,7 @@ export class SourceBody implements StmtPrinterContext {
         for (let i = stmts.length - 1; i > 0; i--) {
             if (stmts[i] instanceof ArkInvokeStmt && (stmts[i].getInvokeExpr() as ArkInstanceInvokeExpr)) {
                 let instanceInvokeExpr = stmts[i].getInvokeExpr() as ArkInstanceInvokeExpr;
-                if ('constructor' == instanceInvokeExpr.getMethodSignature().getMethodSubSignature().getMethodName()) {
+                if ('constructor' === instanceInvokeExpr.getMethodSignature().getMethodSubSignature().getMethodName()) {
                     let localName = instanceInvokeExpr.getBase().getName();
                     let newExprIdx = findNewExpr(i, localName);
                     if (newExprIdx >= 0 && newExprIdx < i - 1) {
@@ -274,7 +292,7 @@ export class SourceBody implements StmtPrinterContext {
                     continue;
                 }
                 if ((stmts[j] as ArkAssignStmt).getLeftOp() instanceof Local) {
-                    if (((stmts[j] as ArkAssignStmt).getLeftOp() as Local).getName() == name) {
+                    if (((stmts[j] as ArkAssignStmt).getLeftOp() as Local).getName() === name) {
                         return j;
                     }
                 }
@@ -320,7 +338,7 @@ export class StmtReader {
     }
 
     rollback(): void {
-        if (this.pos == 0) {
+        if (this.pos === 0) {
             logger.error('SourceBody: StmtReader->rollback No more stmt to rollback.');
             throw new Error('No more stmt to rollback.');
         }

@@ -1,7 +1,7 @@
 import UIAbility from '@ohos.app.ability.UIAbility';
 import type { RNOHLogger } from './RNOHLogger';
 import { StandardRNOHLogger } from './RNOHLogger';
-import { RNOHCoreContext } from "./RNOHCoreContext"
+import { RNOHCoreContext } from "./RNOHContext"
 import window from '@ohos.window';
 import Want from '@ohos.app.ability.Want';
 import { RNInstancesCoordinator } from "./RNInstancesCoordinator"
@@ -10,18 +10,18 @@ import AbilityConfiguration from '@ohos.app.ability.Configuration';
 import { HttpClient, DefaultHttpClient } from "../HttpClient"
 import { EnvironmentCallback } from '@kit.AbilityKit';
 import { BusinessError } from '@kit.BasicServicesKit';
+import { EventEmitter } from './EventEmitter';
 
 /**
  Application developers are expected to extend this class. RNAbility aims to move much of the code to the RNOH side in order to improve stability.
  RNInstancesCoordinator can be used if more control is needed.
  */
 export abstract class RNAbility extends UIAbility {
-  // region RNAbility custom methods that can be safely overridden.
+  // region RNAbility methods that can be safely overridden.
   protected createLogger(): RNOHLogger {
-    return new StandardRNOHLogger((err) => {
-      this.rnInstancesCoordinator?.getRNOHCoreContext().reportRNOHError(err)
-    });
+    return new StandardRNOHLogger();
   }
+
 
   /**
    * Override this method if you want to create an RNInstance, and load bundle here, rather than in an ArkUI component.
@@ -54,6 +54,20 @@ export abstract class RNAbility extends UIAbility {
   }
 
   protected abstract getPagePath(): string
+
+  /**
+   * Override to specify the worker script URL and enable the RNOHWorker thread and WorkerTurboModules.
+   * @example return "entry/ets/workers/RNOHWorker.ets"
+   *
+   * RNOHWorker.ets calls `setupRNOHWorker` which can be imported from RNOH in the following way:
+   * import { setupRNOHWorker } from "@rnoh/react-native-openharmony/src/main/ets/setupRNOHWorker"
+   *
+   * You may need to import setupRNOHWorker directly from its file, because ETS seem to struggle when
+   * importing this function from the package level.
+   */
+  protected getRNOHWorkerScriptUrl(): string | undefined {
+    return undefined
+  }
 
   /**
    * Invoked when the React application doesn't handle the device back press.
@@ -95,8 +109,11 @@ export abstract class RNAbility extends UIAbility {
       defaultBackPressHandler: () => {
         this.defaultBackPressHandler()
       },
+      rnohWorkerScriptUrl: this.getRNOHWorkerScriptUrl(),
     }, {
-      launchURI: want.uri, onGetPackagerClientConfig: (buildMode) => buildMode === "DEBUG" ? {
+      disableCleaningRNInstances: this.onShouldDisableCleaningRNInstances(),
+      launchURI: want.uri,
+      onGetPackagerClientConfig: (buildMode) => buildMode === "DEBUG" ? {
         host: "localhost",
         port: 8081
       } : undefined,
@@ -109,10 +126,11 @@ export abstract class RNAbility extends UIAbility {
    * @returns HttpClient shared by RNInstances
    */
   protected onCreateDefaultHttpClient(): undefined | HttpClient {
-    return new DefaultHttpClient({logger: this.logger});
+    return new DefaultHttpClient({ logger: this.logger });
   }
 
   onDestroy() {
+    // this method seems to be never called
     this.rnInstancesCoordinator?.onDestroy()
   }
 
@@ -132,7 +150,6 @@ export abstract class RNAbility extends UIAbility {
         this.rnInstancesCoordinator?.onWindowSizeChange(windowSize)
       }
       const onWindowStageChange = (windowStageEvent: window.WindowStageEventType) => {
-        this.logger?.error("WindowStageEventType !!" + windowStageEvent)
         this.rnInstancesCoordinator?.onWindowStageChange(windowStageEvent)
       }
       mainWindow.on('windowSizeChange', onWindowSizeChange)
@@ -169,5 +186,16 @@ export abstract class RNAbility extends UIAbility {
 
   onBackground() {
     this.rnInstancesCoordinator?.onBackground();
+  }
+
+  onNewWant(want: Want, launchParam: AbilityConstant.LaunchParam): void {
+    this.rnInstancesCoordinator?.onNewWant(want, launchParam);
+  }
+
+  /**
+   * Return `true`, if your app bundle provides multiple RNAbilities, for each RNAbility.
+   */
+  onShouldDisableCleaningRNInstances(): boolean {
+    return false;
   }
 }

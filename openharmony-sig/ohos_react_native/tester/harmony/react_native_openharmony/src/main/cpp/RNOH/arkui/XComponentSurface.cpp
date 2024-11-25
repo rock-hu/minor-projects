@@ -183,8 +183,10 @@ void XComponentSurface::attachNativeXComponent(
 }
 
 void XComponentSurface::updateConstraints(
-    float width,
-    float height,
+    float minWidth,
+    float minHeight,
+    float maxWidth,
+    float maxHeight,
     float viewportOffsetX,
     float viewportOffsetY,
     float pixelRatio,
@@ -194,17 +196,42 @@ void XComponentSurface::updateConstraints(
   layoutConstraints.layoutDirection = isRTL
       ? facebook::react::LayoutDirection::RightToLeft
       : facebook::react::LayoutDirection::LeftToRight;
-  layoutConstraints.minimumSize =
-      layoutConstraints.maximumSize = {.width = width, .height = height};
+  layoutConstraints.maximumSize = {.width = maxWidth, .height = maxHeight};
+  layoutConstraints.minimumSize = {.width = minWidth, .height = minHeight};
   auto layoutContext = m_surfaceHandler.getLayoutContext();
   layoutContext.viewportOffset = {viewportOffsetX, viewportOffsetY};
   layoutContext.pointScaleFactor = pixelRatio;
   m_surfaceHandler.constraintLayout(layoutConstraints, layoutContext);
 }
 
+facebook::react::Size XComponentSurface::measure(
+    float minWidth,
+    float minHeight,
+    float maxWidth,
+    float maxHeight,
+    float viewportOffsetX,
+    float viewportOffsetY,
+    float pixelRatio,
+    bool isRTL) {
+  m_threadGuard.assertThread();
+  auto layoutConstraints = m_surfaceHandler.getLayoutConstraints();
+  layoutConstraints.layoutDirection = isRTL
+      ? facebook::react::LayoutDirection::RightToLeft
+      : facebook::react::LayoutDirection::LeftToRight;
+
+  layoutConstraints.maximumSize = {.width = maxWidth, .height = maxHeight};
+  layoutConstraints.minimumSize = {.width = minWidth, .height = minHeight};
+  auto layoutContext = m_surfaceHandler.getLayoutContext();
+  layoutContext.viewportOffset = {viewportOffsetX, viewportOffsetY};
+  layoutContext.pointScaleFactor = pixelRatio;
+  return m_surfaceHandler.measure(layoutConstraints, layoutContext);
+}
+
 void XComponentSurface::start(
-    float width,
-    float height,
+    float minWidth,
+    float minHeight,
+    float maxWidth,
+    float maxHeight,
     float viewportOffsetX,
     float viewportOffsetY,
     float pixelRatio,
@@ -215,7 +242,14 @@ void XComponentSurface::start(
   m_threadGuard.assertThread();  
   this->setProps(initialProps);
   this->updateConstraints(
-      width, height, viewportOffsetX, viewportOffsetY, pixelRatio, isRTL);
+      minWidth,
+      minHeight,
+      maxWidth,
+      maxHeight,
+      viewportOffsetX,
+      viewportOffsetY,
+      pixelRatio,
+      isRTL);
   m_surfaceHandler.start();
   auto mountingCoordinator = m_surfaceHandler.getMountingCoordinator();
   mountingCoordinator->setMountingOverrideDelegate(animationDriver);

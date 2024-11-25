@@ -24,9 +24,9 @@ import { LogUtil } from '../utils/LogUtil';
 export struct BarLineBaseChart {
   @Param model: BubbleChartModel | CandleStickChartModel | CombinedChartModel | ScatterChartModel | HorizontalBarChartModel | null =
     null;
-  private setting: RenderingContextSettings = new RenderingContextSettings(true);
-  private context2D: CanvasRenderingContext2D = new CanvasRenderingContext2D(this.setting);
-  @Local isPinching: boolean = false;
+  @Param antiAliasing: boolean = true;
+  private setting: RenderingContextSettings | null = null;
+  private context2D: CanvasRenderingContext2D | null = null;
 
   @Monitor('model')
   invalidate() {
@@ -34,13 +34,15 @@ export struct BarLineBaseChart {
   }
 
   aboutToAppear() {
-    LogUtil.log('-----------aboutToAppear: enter')
+    LogUtil.log('-----------aboutToAppear: enter');
+    this.setting = new RenderingContextSettings(this.antiAliasing);
+    this.context2D = new CanvasRenderingContext2D(this.setting);
   }
 
   build() {
     Canvas(this.context2D)
       .onReady(() => {
-        if (this.model) {
+        if (this.model && this.context2D) {
           this.model.setContext2D(this.context2D);
         }
       })
@@ -50,9 +52,7 @@ export struct BarLineBaseChart {
         }
       })
       .onTouch((event) => {
-        if (!this.isPinching) {
           this.model?.onTouchEvent(event);
-        }
       })
       .hitTestBehavior(this.model?.getTouchEnabled()? this.model?.getHitTestMode(): HitTestMode.None)
       .priorityGesture(GestureGroup(GestureMode.Exclusive,
@@ -96,25 +96,21 @@ export struct BarLineBaseChart {
           .onActionStart((event?: GestureEvent) => {
             if (this.model && event) {
               this.model.onPinch(false, 'Start', event);
-              this.isPinching = true;
             }
           })
           .onActionUpdate((event?: GestureEvent) => {
             if (this.model && event) {
               this.model.onPinch(false, 'Update', event);
-              this.isPinching = true;
             }
           })
           .onActionEnd((event?: GestureEvent) => {
             if (this.model && event) {
               this.model.onPinch(false, 'End', event);
-              this.isPinching = false;
             }
           })
           .onActionCancel((event?: GestureEvent) => {
             if (this.model && event) {
               this.model.onPinch(false, 'Cancel', event);
-              this.isPinching = false;
             }
           })
       ))

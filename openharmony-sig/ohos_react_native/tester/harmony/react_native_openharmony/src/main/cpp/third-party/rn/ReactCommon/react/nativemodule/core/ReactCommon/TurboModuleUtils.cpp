@@ -4,6 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
+// RNOH patch — apply fix from https://github.com/facebook/react-native/pull/43410/files
 
 #include "TurboModuleUtils.h"
 
@@ -64,7 +65,9 @@ jsi::Array deepCopyJSIArray(jsi::Runtime &rt, const jsi::Array &arr) {
 }
 
 Promise::Promise(jsi::Runtime &rt, jsi::Function resolve, jsi::Function reject)
-    : runtime_(rt), resolve_(std::move(resolve)), reject_(std::move(reject)) {}
+  : LongLivedObject(rt),
+      resolve_(std::move(resolve)),
+      reject_(std::move(reject)) {}
 
 void Promise::resolve(const jsi::Value &result) {
   resolve_.call(runtime_, result);

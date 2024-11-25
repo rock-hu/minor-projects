@@ -101,7 +101,7 @@ export default class RadarChartRenderer extends LineRadarRenderer {
 
     // calculate the factor that is needed for transforming the value to
     // pixels
-    let factor: number = this.mChart.getFactor() * 0.85;
+    let factor: number = this.mChart.getFactor();
 
     let center: MPPointF | null = this.mChart.getCenterOffsets();
     let pOut: MPPointF = MPPointF.getInstance(0, 0);
@@ -174,7 +174,7 @@ export default class RadarChartRenderer extends LineRadarRenderer {
 
     // calculate the factor that is needed for transforming the value to
     // pixels
-    const factor = this.mChart.getFactor() * 0.85;
+    const factor = this.mChart.getFactor();
 
     const center = this.mChart.getCenterOffsets();
     let pOut = MPPointF.getInstance(0, 0);
@@ -269,7 +269,7 @@ export default class RadarChartRenderer extends LineRadarRenderer {
 
     // calculate the factor that is needed for transforming the value to
     // pixels
-    let factor: number = this.mChart.getFactor() * 0.85;
+    let factor: number = this.mChart.getFactor();
     let rotationangle = this.mChart.getRotationAngle();
 
     let center: MPPointF | null = this.mChart.getCenterOffsets();
@@ -346,7 +346,7 @@ export default class RadarChartRenderer extends LineRadarRenderer {
 
     // calculate the factor that is needed for transforming the value to
     // pixels
-    let factor: number = this.mChart.getFactor() * 0.85;
+    let factor: number = this.mChart.getFactor();
 
     let center: MPPointF | null = this.mChart.getCenterOffsets();
     let pOut: MPPointF = MPPointF.getInstance(0, 0);

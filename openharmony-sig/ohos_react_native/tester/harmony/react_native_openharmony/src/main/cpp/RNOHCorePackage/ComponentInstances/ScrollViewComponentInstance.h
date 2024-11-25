@@ -80,7 +80,7 @@ class ScrollViewComponentInstance
   std::optional<ChildTagWithOffset> getFirstVisibleView(
       int32_t minIndexForVisible);
 
-  void updateContentClippedSubviews(bool childrenChange = false);
+  void updateContentClippedSubviews();
 
  public:
   ScrollViewComponentInstance(Context context);
@@ -138,6 +138,8 @@ class ScrollViewComponentInstance
    */
   bool isCloseToTargetOffset(facebook::react::Point currentOffset);
   void onContentSizeChanged();
+  facebook::react::Float adjustOffsetToRTL(facebook::react::Float x) const;
+  facebook::react::Point getScrollOffset() const;
   facebook::react::Point getContentViewOffset() const;
   ComponentInstance::Weak m_keyboardAvoider;
   bool isNestedScroll();

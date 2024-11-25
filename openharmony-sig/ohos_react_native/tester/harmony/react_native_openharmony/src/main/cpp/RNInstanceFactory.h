@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include "RNOH/ArkJS.h"
+#include "RNOH/ArkTSBridge.h"
 #include "RNOH/ArkTSChannel.h"
 #include "RNOH/ArkTSMessageHandler.h"
 #include "RNOH/ArkTSTurboModule.h"
@@ -53,7 +54,11 @@ class PackageToComponentInstanceFactoryDelegateAdapter
 std::shared_ptr<RNInstanceInternal> createRNInstance(
     int id,
     napi_env env,
-    napi_ref arkTsTurboModuleProviderRef,
+    napi_env workerEnv,
+    std::unique_ptr<NapiTaskRunner> workerTaskRunner,
+    ArkTSBridge::Shared arkTSBridge,
+    napi_ref mainArkTSTurboModuleProviderRef,
+    napi_ref workerArkTSTurboModuleProviderRef,
     napi_ref frameNodeFactoryRef,
     MutationsListener mutationsListener,
     MountingManagerArkTS::CommandDispatcher commandDispatcher,
@@ -65,25 +70,30 @@ std::shared_ptr<RNInstanceInternal> createRNInstance(
     bool shouldEnableDebugger,
     bool shouldEnableBackgroundExecutor,
     std::unordered_set<std::string> arkTsComponentNames,
-    std::unordered_map<std::string, std::string> fontPathRelativeToRawfileDirByFontFamily
+    std::unordered_map<std::string, std::string> fontPathByFontFamily
     ) {  
   HarmonyReactMarker::logMarker(
       HarmonyReactMarker::HarmonyReactMarkerId::REACT_INSTANCE_INIT_START, id);
   auto shouldUseCAPIArchitecture =
-      featureFlagRegistry->getFeatureFlagStatus("C_API_ARCH");
-  std::shared_ptr<TaskExecutor> taskExecutor =
-      std::make_shared<TaskExecutor>(env, shouldEnableBackgroundExecutor);
+       featureFlagRegistry->getFeatureFlagStatus("C_API_ARCH");
+  auto taskExecutor = std::make_shared<TaskExecutor>(
+      env, std::move(workerTaskRunner), shouldEnableBackgroundExecutor);
   auto arkTSChannel = std::make_shared<ArkTSChannel>(
       taskExecutor, ArkJS(env), napiEventDispatcherRef);
 
   taskExecutor->setExceptionHandler(
-      [weakExecutor = std::weak_ptr(taskExecutor)](std::exception_ptr e) {
+      [weakExecutor = std::weak_ptr(taskExecutor),
+       weakArkTsBridge = std::weak_ptr(arkTSBridge)](std::exception_ptr e) {
         auto executor = weakExecutor.lock();
         if (executor == nullptr) {
           return;
         }
-        executor->runTask(TaskThread::MAIN, [e]() {
-          ArkTSBridge::getInstance()->handleError(e);
+        executor->runTask(TaskThread::MAIN, [e, weakArkTsBridge]() {
+          auto arkTSBridge = weakArkTsBridge.lock();
+          if (arkTSBridge == nullptr) {
+            return;
+          }
+          arkTSBridge->handleError(e);
         });
       });
 
@@ -162,12 +172,18 @@ std::shared_ptr<RNInstanceInternal> createRNInstance(
   }
   HarmonyReactMarker::logMarker(
       HarmonyReactMarker::HarmonyReactMarkerId::PROCESS_PACKAGES_END);
+  auto arkTSMessageHub = std::make_shared<ArkTSMessageHub>();
   auto turboModuleFactory = TurboModuleFactory(
-      env,
-      arkTsTurboModuleProviderRef,
+      {
+          // clang-format off
+        {TaskThread::MAIN, {.napiEnv = env, .arkTSTurboModuleProviderRef = mainArkTSTurboModuleProviderRef}},
+        {TaskThread::WORKER, {.napiEnv = workerEnv, .arkTSTurboModuleProviderRef = workerArkTSTurboModuleProviderRef}},
+      }, // clang-format on
+      featureFlagRegistry,
       std::move(componentJSIBinderByName),
       taskExecutor,
-      std::move(turboModuleFactoryDelegates));
+      std::move(turboModuleFactoryDelegates),
+      arkTSMessageHub);
   auto mutationsToNapiConverter = std::make_shared<MutationsToNapiConverter>(
       std::move(componentNapiBinderByName));
   auto mountingManager = std::make_shared<MountingManagerArkTS>(
@@ -192,7 +208,6 @@ std::shared_ptr<RNInstanceInternal> createRNInstance(
         }
       },
       arkTSChannel);
-  auto arkTSMessageHub = std::make_shared<ArkTSMessageHub>();
   arkTSMessageHandlers.emplace_back(arkTSMessageHub);
   if (shouldUseCAPIArchitecture) {
 #ifdef C_API_ARCH
@@ -221,7 +236,7 @@ std::shared_ptr<RNInstanceInternal> createRNInstance(
       OH_ResourceManager_InitNativeResourceManager(env, jsResourceManager),
       OH_ResourceManager_ReleaseNativeResourceManager);
     for (auto& [fontFamilyName, fontPathRelativeToRawfileDir] :
-       fontPathRelativeToRawfileDirByFontFamily) {
+       fontPathByFontFamily) {
       textMeasurer->registerFont(nativeResourceManager, fontFamilyName, fontPathRelativeToRawfileDir);
     }
     auto rnInstance = std::make_shared<RNInstanceCAPI>(

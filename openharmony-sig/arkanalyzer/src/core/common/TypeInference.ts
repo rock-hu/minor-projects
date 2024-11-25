@@ -57,7 +57,7 @@ import { CONSTRUCTOR_NAME, SUPER_NAME } from './TSConst';
 import { ModelUtils } from './ModelUtils';
 import { Builtin } from './Builtin';
 import { MethodSignature, MethodSubSignature } from '../model/ArkSignature';
-import { UNKNOWN_FILE_NAME } from './Const';
+import { INSTANCE_INIT_METHOD_NAME, UNKNOWN_FILE_NAME } from './Const';
 import { EMPTY_STRING } from './ValueUtil';
 
 const logger = Logger.getLogger(LOG_MODULE_TYPE.ARKANALYZER, 'TypeInference');
@@ -69,11 +69,11 @@ export class TypeInference {
         const arkClass = arkField.getDeclaringArkClass();
         const stmts = arkField.getInitializer();
         let rightType: Type | undefined;
-        let fieldRef: AbstractFieldRef | undefined = undefined;
+        let fieldRef: AbstractFieldRef | undefined;
         if (stmts) {
             for (const stmt of stmts) {
                 this.resolveExprsInStmt(stmt, arkClass);
-                this.resolveFieldRefsInStmt(stmt, arkClass, arkClass.getMethodWithName('@instance_init'));
+                this.resolveFieldRefsInStmt(stmt, arkClass, arkClass.getMethodWithName(INSTANCE_INIT_METHOD_NAME));
                 this.resolveArkAssignStmt(stmt, arkClass);
             }
             const lastStmt = stmts[stmts.length - 1];
@@ -105,7 +105,7 @@ export class TypeInference {
     public static inferUnclearedType(leftOpType: Type, declaringArkClass: ArkClass, rightType?: Type) {
         let type;
         if (leftOpType instanceof UnclearReferenceType) {
-            type = this.inferUnclearReferenceType(leftOpType.getName(), declaringArkClass);
+            type = this.inferUnclearRefType(leftOpType, declaringArkClass);
         } else if (leftOpType instanceof ClassType
             && leftOpType.getClassSignature().getDeclaringFileSignature().getFileName() === UNKNOWN_FILE_NAME) {
             type = TypeInference.inferUnclearReferenceType(leftOpType.getClassSignature().getClassName(), declaringArkClass);
@@ -121,7 +121,7 @@ export class TypeInference {
                 } else {
                     newType = optionType;
                 }
-                if (newType && newType != optionType) {
+                if (newType && newType !== optionType) {
                     types[i] = newType;
                 }
                 if (rightType && newType && newType === rightType) {
@@ -312,7 +312,7 @@ export class TypeInference {
         if (!type || type instanceof UnknownType || type instanceof UnclearReferenceType) {
             return true;
         } else if (type instanceof ClassType
-            && type.getClassSignature().getDeclaringFileSignature().getFileName() === '_UnknownFileName') {
+            && type.getClassSignature().getDeclaringFileSignature().getFileName() === UNKNOWN_FILE_NAME) {
             return true;
         }
         return false;
@@ -350,9 +350,10 @@ export class TypeInference {
                 return VoidType.getInstance();
             case 'never':
                 return NeverType.getInstance();
-            case 'RegularExpression':
+            case 'RegularExpression': {
                 const classSignature = Builtin.REGEXP_CLASS_SIGNATURE;
                 return new ClassType(classSignature);
+            }
             default:
                 return new UnclearReferenceType(typeStr);
         }
@@ -368,28 +369,54 @@ export class TypeInference {
         return value.getType();
     }
 
-    public static inferMethodReturnType(method: ArkMethod) {
-        const oldMethodSignature = method.getSignature();
-        const oldMethodSubSignature = oldMethodSignature.getMethodSubSignature();
+    public static inferMethodReturnType(method: ArkMethod): void {
         if (method.getName() === CONSTRUCTOR_NAME) {
+            const oldMethodSignature = method.getSignature();
+            const oldMethodSubSignature = oldMethodSignature.getMethodSubSignature();
             const newReturnType = new ClassType(method.getDeclaringArkClass().getSignature());
-            const newMethodSubSignature = new MethodSubSignature(oldMethodSubSignature.getMethodName(),
-                oldMethodSubSignature.getParameters(), newReturnType, oldMethodSubSignature.isStatic());
-            method.setSignature(
-                new MethodSignature(oldMethodSignature.getDeclaringClassSignature(), newMethodSubSignature));
+            const newMethodSubSignature = new MethodSubSignature(
+                oldMethodSubSignature.getMethodName(),
+                oldMethodSubSignature.getParameters(),
+                newReturnType,
+                oldMethodSubSignature.isStatic()
+            );
+            method.setImplementationSignature(new MethodSignature(oldMethodSignature.getDeclaringClassSignature(), newMethodSubSignature));
             return;
         }
-        const returnType = method.getReturnType();
-        let inferType;
-        if (returnType instanceof UnclearReferenceType) {
-            inferType = this.inferUnclearReferenceType(returnType.getName(), method.getDeclaringArkClass());
+
+        let implSignature = method.getImplementationSignature();
+        if (implSignature !== null) {
+            const newSignature = this.inferSignatureReturnType(implSignature, method.getDeclaringArkClass());
+            if (newSignature !== null) {
+                method.setImplementationSignature(newSignature);
+            }
         }
-        if (inferType) {
-            const newMethodSubSignature = new MethodSubSignature(oldMethodSubSignature.getMethodName(),
-                oldMethodSubSignature.getParameters(), inferType, oldMethodSubSignature.isStatic());
-            method.setSignature(
-                new MethodSignature(oldMethodSignature.getDeclaringClassSignature(), newMethodSubSignature));
+
+        let declareSignatures = method.getDeclareSignatures();
+        declareSignatures?.forEach((signature, index) => {
+            const newSignature = this.inferSignatureReturnType(signature, method.getDeclaringArkClass());
+            if (newSignature !== null) {
+                method.setDeclareSignatureWithIndex(newSignature, index);
+            }
+        });
+    }
+
+    private static inferSignatureReturnType(oldSignature: MethodSignature, declaringClass: ArkClass): MethodSignature | null {
+        const currReturnType = oldSignature.getType();
+        if (currReturnType instanceof UnclearReferenceType) {
+            const newReturnType = this.inferUnclearReferenceType(currReturnType.getName(), declaringClass);
+            if (newReturnType !== null) {
+                const oldSubSignature = oldSignature.getMethodSubSignature();
+                const newMethodSubSignature = new MethodSubSignature(
+                    oldSubSignature.getMethodName(),
+                    oldSubSignature.getParameters(),
+                    newReturnType,
+                    oldSubSignature.isStatic()
+                );
+                return new MethodSignature(oldSignature.getDeclaringClassSignature(), newMethodSubSignature);
+            }
         }
+        return null;
     }
 
     public static inferGenericType(types: GenericType[] | undefined, arkClass: ArkClass) {
@@ -411,6 +438,25 @@ export class TypeInference {
         });
     }
 
+    public static inferUnclearRefType(urType: UnclearReferenceType, arkClass: ArkClass): Type | null {
+        const realTypes = urType.getGenericTypes();
+        this.inferRealGenericTypes(realTypes, arkClass);
+        if (urType.getName() === Builtin.ARRAY) {
+            return new ArrayType(realTypes[0] ?? AnyType, 1);
+        }
+        const type = this.inferUnclearReferenceType(urType.getName(), arkClass);
+        if (realTypes.length === 0) {
+            return type;
+        }
+        if (type instanceof ClassType) {
+            return new ClassType(type.getClassSignature(), realTypes);
+        } else if (type instanceof FunctionType) {
+            return new FunctionType(type.getMethodSignature(), realTypes);
+        } else {
+            return new UnclearReferenceType(urType.getName(), realTypes);
+        }
+    }
+
     public static inferUnclearReferenceType(refName: string, arkClass: ArkClass): Type | null {
         if (!refName) {
             return null;
@@ -420,7 +466,7 @@ export class TypeInference {
         let type = null;
         for (let i = 0; i < singleNames.length; i++) {
             let genericName: string = EMPTY_STRING;
-            const name = singleNames[i].replace(/<(\w+)>/, function (match, group1) {
+            const name = singleNames[i].replace(/<(\w+)>/, (match, group1) => {
                 genericName = group1;
                 return EMPTY_STRING;
             });

@@ -318,6 +318,8 @@ export default class YAxisRendererHorizontalBarChart extends YAxisRenderer {
       this.mLimitLinePaint.setDashPathEffect(l.getDashPathEffect());
       this.mLimitLinePaint.setStrokeWidth(l.getLineWidth());
 
+      Utils.resetContext2DWithoutFont(c, this.mLimitLinePaint);
+      c.stroke(limitLinePath);
       let label: string = l.getLabel();
 
       // if drawing the limit-value label is enabled
@@ -341,28 +343,28 @@ export default class YAxisRendererHorizontalBarChart extends YAxisRenderer {
           const labelLineHeight: number = Utils.getLabelTextSize(this.mLimitLinePaint, label, this.textSizeCache)
             .height;
           this.mLimitLinePaint.setTextAlign("left");
-          // c.drawText(label, pts[0] + xOffset, mViewPortHandler.contentTop() + yOffset + labelLineHeight, mLimitLinePaint);
           Utils.resetContext2DWithoutLine(c, this.mLimitLinePaint);
-          c.strokeText(label, pts[0] + xOffset, this.mViewPortHandler.contentTop() + yOffset + labelLineHeight);
+          c.fillText(label, pts[0] + xOffset, this.mViewPortHandler.contentTop() + yOffset + labelLineHeight);
 
         } else if (position == LimitLabelPosition.RIGHT_BOTTOM) {
 
           this.mLimitLinePaint.setTextAlign("left");
           Utils.resetContext2DWithoutLine(c, this.mLimitLinePaint);
-          c.strokeText(label, pts[0] + xOffset, this.mViewPortHandler.contentBottom() - yOffset);
+          c.fillText(label, pts[0] + xOffset, this.mViewPortHandler.contentBottom() - yOffset);
 
         } else if (position == LimitLabelPosition.LEFT_TOP) {
 
           this.mLimitLinePaint.setTextAlign("right");
           const labelLineHeight: number = Utils.getLabelTextSize(this.mLimitLinePaint, label, this.textSizeCache)
             .height;
-          c.strokeText(label, pts[0] - xOffset, this.mViewPortHandler.contentTop() + yOffset + labelLineHeight);
+          Utils.resetContext2DWithoutLine(c, this.mLimitLinePaint);
+          c.fillText(label, pts[0] - xOffset, this.mViewPortHandler.contentTop() + yOffset + labelLineHeight);
 
         } else {
 
           this.mLimitLinePaint.setTextAlign("right");
           Utils.resetContext2DWithoutLine(c, this.mLimitLinePaint);
-          c.strokeText(label, pts[0] - xOffset, this.mViewPortHandler.contentBottom() - yOffset);
+          c.fillText(label, pts[0] - xOffset, this.mViewPortHandler.contentBottom() - yOffset);
 
         }
         c.closePath();

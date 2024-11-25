@@ -13,6 +13,7 @@ enum TaskThread {
   MAIN = 0, // main thread running the eTS event loop
   JS, // React Native's JS runtime thread
   BACKGROUND, // background tasks queue
+  WORKER, // used by some turbo modules
 };
 
 class TaskExecutor {
@@ -42,6 +43,7 @@ class TaskExecutor {
 
   TaskExecutor(
       napi_env mainEnv,
+      std::unique_ptr<AbstractTaskRunner> workerTaskRunner,
       bool shouldEnableBackground = false);
   ~TaskExecutor() noexcept;
 
@@ -64,10 +66,9 @@ class TaskExecutor {
   AbstractTaskRunner::Shared getTaskRunner(TaskThread taskThread) const;
 
   void setTaskThreadPriority(QoS_Level);
-  std::array<std::shared_ptr<AbstractTaskRunner>, TaskThread::BACKGROUND + 1>
+  std::array<std::shared_ptr<AbstractTaskRunner>, TaskThread::WORKER + 1>
       m_taskRunners;
-  std::array<std::optional<TaskThread>, TaskThread::BACKGROUND + 1>
-      m_waitsOnThread;
+  std::array<std::optional<TaskThread>, TaskThread::WORKER + 1> m_waitsOnThread;
 };
 
 } // namespace rnoh

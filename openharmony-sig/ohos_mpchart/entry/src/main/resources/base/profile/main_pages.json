@@ -10,6 +10,7 @@
     "pages/lineCharts/DualAxisPage",
     "pages/lineCharts/CubicAxisPage",
     "pages/lineCharts/PerformanceAxisPage",
+    "pages/lineCharts/SetAlphaPage",
     "pages/barCharts/ScrollBarChartPage",
     "pages/barCharts/CustomMarkerViewChartPage",
     "pages/barCharts/ScrollBarChartPage2",

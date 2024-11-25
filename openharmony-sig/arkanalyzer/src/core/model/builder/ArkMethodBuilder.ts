@@ -20,6 +20,7 @@ import { ArkClass, ClassCategory } from '../ArkClass';
 import { ArkMethod } from '../ArkMethod';
 import ts from 'ohos-typescript';
 import {
+    buildDecorators,
     buildGenericType,
     buildModifiers,
     buildParameters,
@@ -37,9 +38,18 @@ import { ArkAssignStmt, ArkInvokeStmt, ArkReturnVoidStmt, Stmt } from '../../bas
 import { BasicBlock } from '../../graph/BasicBlock';
 import { Local } from '../../base/Local';
 import { Value } from '../../base/Value';
-import { CONSTRUCTOR_NAME, DECLARE_KEYWORD, SUPER_NAME, THIS_NAME } from '../../common/TSConst';
-import { CALL_SIGNATURE_NAME, DEFAULT_ARK_CLASS_NAME, DEFAULT_ARK_METHOD_NAME } from '../../common/Const';
+import { CONSTRUCTOR_NAME, SUPER_NAME, THIS_NAME } from '../../common/TSConst';
+import {
+    ANONYMOUS_METHOD_PREFIX,
+    CALL_SIGNATURE_NAME,
+    DEFAULT_ARK_CLASS_NAME,
+    DEFAULT_ARK_METHOD_NAME,
+    NAME_DELIMITER,
+    NAME_PREFIX,
+} from '../../common/Const';
 import { ArkSignatureBuilder } from './ArkSignatureBuilder';
+import { IRUtils } from '../../common/IRUtils';
+import { ArkErrorCode } from '../../common/ArkError';
 
 const logger = Logger.getLogger(LOG_MODULE_TYPE.ARKANALYZER, 'ArkMethodBuilder');
 
@@ -61,7 +71,8 @@ export function buildDefaultArkMethodFromArkClass(declaringClass: ArkClass, mtd:
 
     const methodSubSignature = ArkSignatureBuilder.buildMethodSubSignatureFromMethodName(DEFAULT_ARK_METHOD_NAME, true);
     const methodSignature = new MethodSignature(mtd.getDeclaringArkClass().getSignature(), methodSubSignature);
-    mtd.setSignature(methodSignature);
+    mtd.setImplementationSignature(methodSignature);
+    mtd.setLineCol(0);
 
     const defaultMethodNode = node ? node : sourceFile;
 
@@ -74,26 +85,20 @@ export function buildArkMethodFromArkClass(methodNode: MethodLikeNode, declaring
     mtd.setDeclaringArkClass(declaringClass);
 
     if (ts.isFunctionDeclaration(methodNode)) {
-        mtd.setAsteriskToken(methodNode.asteriskToken != undefined);
+        mtd.setAsteriskToken(methodNode.asteriskToken !== undefined);
     }
 
     mtd.setCode(methodNode.getText(sourceFile));
-    const { line, character } = ts.getLineAndCharacterOfPosition(
-        sourceFile,
-        methodNode.getStart(sourceFile),
-    );
-    mtd.setLine(line + 1);
-    mtd.setColumn(character + 1);
 
-    buildModifiers(methodNode, sourceFile).forEach((value) => {
-        mtd.addModifier(value);
-    });
+
+    mtd.setModifiers(buildModifiers(methodNode));
+    mtd.setDecorators(buildDecorators(methodNode, sourceFile));
 
     if (methodNode.typeParameters) {
         mtd.setGenericTypes(buildTypeParameters(methodNode.typeParameters, sourceFile, mtd));
     }
 
-    // build MethodSignature
+    // build methodDeclareSignatures and methodSignature as well as corresponding positions
     const methodName = buildMethodName(methodNode, declaringClass, sourceFile, declaringMethod);
     const methodParameters: MethodParameter[] = [];
     buildParameters(methodNode.parameters, mtd, sourceFile).forEach((parameter) => {
@@ -105,7 +110,18 @@ export function buildArkMethodFromArkClass(methodNode: MethodLikeNode, declaring
     }
     const methodSubSignature = new MethodSubSignature(methodName, methodParameters, returnType, mtd.isStatic());
     const methodSignature = new MethodSignature(mtd.getDeclaringArkClass().getSignature(), methodSubSignature);
-    mtd.setSignature(methodSignature);
+    const { line, character } = ts.getLineAndCharacterOfPosition(
+        sourceFile,
+        methodNode.getStart(sourceFile),
+    );
+    if (isMethodImplementation(methodNode)) {
+        mtd.setImplementationSignature(methodSignature);
+        mtd.setLine(line + 1);
+        mtd.setColumn(character + 1);
+    } else {
+        mtd.setDeclareSignatures(methodSignature);
+        mtd.setDeclareLinesAndCols([line + 1], [character + 1]);
+    }
 
     let bodyBuilder = new BodyBuilder(mtd.getSignature(), methodNode, mtd, sourceFile);
     mtd.setBodyBuilder(bodyBuilder);
@@ -113,29 +129,22 @@ export function buildArkMethodFromArkClass(methodNode: MethodLikeNode, declaring
     if (mtd.hasBuilderDecorator()) {
         mtd.setViewTree(buildViewTree(mtd));
     } else if (declaringClass.hasComponentDecorator() &&
-        mtd.getSubSignature().toString() == 'build()' &&
-        !mtd.containsModifier('StaticKeyword')) {
+        mtd.getSubSignature().toString() === 'build()' &&
+        !mtd.isStatic()) {
         declaringClass.setViewTree(buildViewTree(mtd));
     }
-
+    checkAndUpdateMethod(mtd, declaringClass);
     declaringClass.addMethod(mtd);
+    IRUtils.setLeadingComments(mtd, methodNode, sourceFile, mtd.getDeclaringArkFile().getScene().getOptions());
 }
 
 function buildMethodName(node: MethodLikeNode, declaringClass: ArkClass, sourceFile: ts.SourceFile, declaringMethod?: ArkMethod): string {
     let name: string = '';
     if (ts.isFunctionDeclaration(node) || ts.isFunctionExpression(node)) {
-        if (node.name) {
-            name = node.name.text;
-        } else {
-            name = buildAnonymousMethodName(node, declaringClass, declaringMethod);
-        }
+        name = node.name ? node.name.text : buildAnonymousMethodName(node, declaringClass);
     } else if (ts.isFunctionTypeNode(node)) {
-        if (node.name) {
-            //TODO: check name type
-            name = node.name.getText(sourceFile);
-        } else {
-            name = buildAnonymousMethodName(node, declaringClass, declaringMethod);
-        }
+        //TODO: check name type
+        name = node.name ? node.name.getText(sourceFile) : buildAnonymousMethodName(node, declaringClass);
     } else if (ts.isMethodDeclaration(node) || ts.isMethodSignature(node)) {
         if (ts.isIdentifier(node.name)) {
             name = (node.name as ts.Identifier).text;
@@ -163,18 +172,24 @@ function buildMethodName(node: MethodLikeNode, declaringClass: ArkClass, sourceF
     } else if (ts.isSetAccessor(node) && ts.isIdentifier(node.name)) {
         name = 'Set-' + node.name.text;
     } else if (ts.isArrowFunction(node)) {
-        name = buildAnonymousMethodName(node, declaringClass, declaringMethod);
+        name = buildAnonymousMethodName(node, declaringClass);
+    }
+
+    if (declaringMethod !== undefined && !declaringMethod.isDefaultArkMethod()) {
+        name = buildNestedMethodName(name, declaringMethod.getName());
     }
     return name;
 }
 
-function buildAnonymousMethodName(node: MethodLikeNode, declaringClass: ArkClass, declaringMethod?: ArkMethod) {
-    let declaringMethodName = '';
-    if (declaringMethod) {
-        declaringMethodName = declaringMethod.getName() + '-';
+function buildAnonymousMethodName(node: MethodLikeNode, declaringClass: ArkClass) {
+    return `${ANONYMOUS_METHOD_PREFIX}${declaringClass.getAnonymousMethodNumber()}`;
+}
+
+function buildNestedMethodName(originName: string, declaringMethodName: string): string {
+    if (originName.startsWith(NAME_PREFIX)) {
+        return `${originName}${NAME_DELIMITER}${declaringMethodName}`;
     }
-    const mtdName = 'AnonymousMethod-' + declaringMethodName + declaringClass.getAnonymousMethodNumber();
-    return mtdName;
+    return `${NAME_PREFIX}${originName}${NAME_DELIMITER}${declaringMethodName}`;
 }
 
 export class ObjectBindingPatternParameter {
@@ -314,9 +329,9 @@ export class MethodParameter {
 function needDefaultConstructorInClass(arkClass: ArkClass): boolean {
     const originClassType = arkClass.getCategory();
     return arkClass.getMethodWithName(CONSTRUCTOR_NAME) == null &&
-        (originClassType == ClassCategory.CLASS || originClassType == ClassCategory.OBJECT) &&
-        arkClass.getName() != DEFAULT_ARK_CLASS_NAME &&
-        !arkClass.getModifiers().has(DECLARE_KEYWORD);
+        (originClassType === ClassCategory.CLASS || originClassType === ClassCategory.OBJECT) &&
+        arkClass.getName() !== DEFAULT_ARK_CLASS_NAME &&
+        !arkClass.isDeclare();
 }
 
 export function buildDefaultConstructor(arkClass: ArkClass): boolean {
@@ -354,7 +369,8 @@ export function buildDefaultConstructor(arkClass: ArkClass): boolean {
             defaultConstructor.isStatic());
         const methodSignature = new MethodSignature(defaultConstructor.getDeclaringArkClass().getSignature(),
             methodSubSignature);
-        defaultConstructor.setSignature(methodSignature);
+        defaultConstructor.setImplementationSignature(methodSignature);
+        defaultConstructor.setLineCol(0);
 
         const stmts: Stmt[] = [];
         let index = 0;
@@ -381,7 +397,8 @@ export function buildDefaultConstructor(arkClass: ArkClass): boolean {
         const methodSubSignature = ArkSignatureBuilder.buildMethodSubSignatureFromMethodName(CONSTRUCTOR_NAME);
         const methodSignature = new MethodSignature(defaultConstructor.getDeclaringArkClass().getSignature(),
             methodSubSignature);
-        defaultConstructor.setSignature(methodSignature);
+        defaultConstructor.setImplementationSignature(methodSignature);
+        defaultConstructor.setLineCol(0);
 
         if (arkClass.getSuperClass()) {
             const superClass = arkClass.getSuperClass() as ArkClass;
@@ -403,21 +420,21 @@ export function buildDefaultConstructor(arkClass: ArkClass): boolean {
     cfg.setStartingStmt(startingStmt);
     cfg.setDeclaringMethod(defaultConstructor);
     cfg.getStmts().forEach(s => s.setCfg(cfg));
-    const originalCfg = new Cfg();
 
-    defaultConstructor.setBody(new ArkBody(locals, originalCfg, cfg, new Map(), new Map()));
+    defaultConstructor.setBody(new ArkBody(locals, cfg));
+    checkAndUpdateMethod(defaultConstructor, arkClass);
     arkClass.addMethod(defaultConstructor);
 
     return true;
 }
 
-export function buildInitMethod(initMethod: ArkMethod, stmtMap: Map<Stmt, Stmt>, thisLocal: Local): void {
+export function buildInitMethod(initMethod: ArkMethod, fieldInitializerStmts: Stmt[], thisLocal: Local): void {
     const classType = new ClassType(initMethod.getDeclaringArkClass().getSignature());
     const assignStmt = new ArkAssignStmt(thisLocal, new ArkThisRef(classType));
     const block = new BasicBlock();
     block.addStmt(assignStmt);
     const locals: Set<Local> = new Set();
-    for (const stmt of stmtMap.keys()) {
+    for (const stmt of fieldInitializerStmts) {
         block.addStmt(stmt);
         if (stmt.getDef() && stmt.getDef() instanceof Local) {
             locals.add(stmt.getDef() as Local);
@@ -432,12 +449,12 @@ export function buildInitMethod(initMethod: ArkMethod, stmtMap: Map<Stmt, Stmt>,
     cfg.setStartingStmt(assignStmt);
     cfg.buildDefUseStmt();
     cfg.setDeclaringMethod(initMethod);
-    initMethod.setBody(new ArkBody(locals, new Cfg(), cfg, stmtMap, new Map()));
+    initMethod.setBody(new ArkBody(locals, cfg));
 }
 
 export function addInitInConstructor(arkClass: ArkClass) {
     for (const method of arkClass.getMethods(true)) {
-        if (method.getName() == CONSTRUCTOR_NAME) {
+        if (method.getName() === CONSTRUCTOR_NAME) {
             const thisLocal = method.getBody()?.getLocals().get(THIS_NAME);
             if (!thisLocal) {
                 continue;
@@ -449,10 +466,65 @@ export function addInitInConstructor(arkClass: ArkClass) {
             }
             const firstBlockStmts = [...blocks][0].getStmts();
             let index = 0;
-            if (firstBlockStmts[0].getDef() instanceof Local && (firstBlockStmts[0].getDef() as Local).getName() == THIS_NAME) {
+            if (firstBlockStmts[0].getDef() instanceof Local && (firstBlockStmts[0].getDef() as Local).getName() === THIS_NAME) {
                 index = 1;
             }
             firstBlockStmts.splice(index, 0, initInvokeStmt);
         }
     }
 }
+
+export function isMethodImplementation(node: MethodLikeNode): boolean {
+    if (ts.isFunctionDeclaration(node) ||
+        ts.isMethodDeclaration(node) ||
+        ts.isConstructorDeclaration(node) ||
+        ts.isGetAccessorDeclaration(node) ||
+        ts.isSetAccessorDeclaration(node) ||
+        ts.isFunctionExpression(node)) {
+        if (node.body !== undefined) {
+            return true;
+        }
+    }
+    return false;
+}
+
+export function checkAndUpdateMethod(method: ArkMethod, cls: ArkClass): void {
+    let presentMethod: ArkMethod | null;
+    if (method.isStatic()) {
+        presentMethod = cls.getStaticMethodWithName(method.getName());
+    } else {
+        presentMethod = cls.getMethodWithName(method.getName());
+    }
+    if (presentMethod === null) {
+        return;
+    }
+
+    if (method.validate().errCode !== ArkErrorCode.OK || presentMethod.validate().errCode !== ArkErrorCode.OK) {
+        return;
+    }
+    const presentDeclareSignatures = presentMethod.getDeclareSignatures();
+    const presentDeclareLineCols = presentMethod.getDeclareLineCols();
+    const presentImplSignature = presentMethod.getImplementationSignature();
+    const newDeclareSignature = method.getDeclareSignatures();
+    const newDeclareLineCols = method.getDeclareLineCols();
+    const newImplSignature = method.getImplementationSignature();
+
+    if (presentDeclareSignatures !== null && presentImplSignature === null) {
+        if (newDeclareSignature === null || presentMethod.getDeclareSignatureIndex(newDeclareSignature[0]) >= 0) {
+            method.setDeclareSignatures(presentDeclareSignatures);
+            method.setDeclareLineCols((presentDeclareLineCols as number[]));
+        } else {
+            method.setDeclareSignatures(presentDeclareSignatures.concat(newDeclareSignature));
+            method.setDeclareLineCols((presentDeclareLineCols as number[]).concat(newDeclareLineCols as number[]));
+        }
+        return;
+    }
+    if (presentDeclareSignatures === null && presentImplSignature !== null) {
+        if (newImplSignature === null) {
+            method.setImplementationSignature(presentImplSignature);
+            method.setLineCol(presentMethod.getLineCol() as number);
+        }
+        return;
+    }
+}
+

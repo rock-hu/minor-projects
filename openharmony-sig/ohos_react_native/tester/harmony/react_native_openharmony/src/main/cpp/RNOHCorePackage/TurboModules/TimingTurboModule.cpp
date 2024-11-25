@@ -1,196 +1,307 @@
 #include "TimingTurboModule.h"
-#include <thread>
-#include "RNOH/RNInstance.h"
+#include <algorithm>
 #include <chrono>
-#include <functional>
-#include <glog/logging.h>
+#include <limits>
+#include "RNOH/Assert.h"
+#include "RNOH/Performance/HarmonyReactMarker.h"
+#include "RNOH/RNInstance.h"
 
 namespace rnoh {
 
 using namespace facebook;
 
-class TimingArkTSMessageHandler: public ArkTSMessageHandler {
-  public:
-  TimingArkTSMessageHandler(std::weak_ptr<TimingTurboModule> weakTurboModule)
-      : m_weakTurboModule(weakTurboModule) {}
-  void handleArkTSMessage(const Context& ctx) override
-  {
-    if (ctx.messageName == "TimingCreateTimer") {
-      if (auto turboModule = m_weakTurboModule.lock(); turboModule!= nullptr) {
-        turboModule->createTimer(ctx.messagePayload["id"].asDouble(),
-                                ctx.messagePayload["duration"].asDouble(),
-                                0,
-                                ctx.messagePayload["repeats"].asBool());
-      }
-    }
-  }
-  std::weak_ptr<TimingTurboModule> m_weakTurboModule;
-};
-
 static jsi::Value __hostFunction_TimingTurboModule_createTimer(
-    jsi::Runtime& rt,
+    jsi::Runtime& /*rt*/,
     react::TurboModule& turboModule,
     const jsi::Value* args,
     size_t count) {
-  auto self = static_cast<TimingTurboModule*>(&turboModule);
-  self->runtime = &rt;
-  self->createTimer(args[0].getNumber(),
-                    args[1].getNumber(),
-                    args[2].getNumber(),
-                    args[3].getBool()
-                    );
+  RNOH_ASSERT(count == 4);
+  auto& self = static_cast<TimingTurboModule&>(turboModule);
+  auto id = args[0].getNumber();
+  auto duration = args[1].getNumber();
+  auto jsSchedulingTIme = args[2].getNumber();
+  auto repeats = args[3].getBool();
+  self.createTimer(id, duration, jsSchedulingTIme, repeats);
   return jsi::Value::undefined();
 }
-
 static jsi::Value __hostFunction_TimingTurboModule_deleteTimer(
-    jsi::Runtime& rt,
+    jsi::Runtime& /*rt*/,
     react::TurboModule& turboModule,
     const jsi::Value* args,
     size_t count) {
-  auto self = static_cast<TimingTurboModule*>(&turboModule);
-  self->deleteTimer(args[0].getNumber());
+  RNOH_ASSERT(count == 1);
+  auto id = args[0].getNumber();
+  static_cast<TimingTurboModule&>(turboModule).deleteTimer(id);
+  return jsi::Value::undefined();
+}
+static jsi::Value __hostFunction_TimingTurboModule_setSendIdleEvents(
+    jsi::Runtime& /*rt*/,
+    react::TurboModule& turboModule,
+    const jsi::Value* args,
+    size_t count) {
+  RNOH_ASSERT(count == 1);
+  auto sendIdleEvents = args[0].getBool();
+  static_cast<TimingTurboModule&>(turboModule)
+      .setSendIdleEvents(sendIdleEvents);
   return jsi::Value::undefined();
 }
 
-static jsi::Value __hostFunction_TimingTurboModule_setSendIdleEvents(
-    jsi::Runtime& rt,
-    react::TurboModule& turboModule,
-    const jsi::Value* args,
-    size_t count) {
-  auto self = static_cast<TimingTurboModule*>(&turboModule);
-  self->setSendIdleEvents(args[0].getBool());
-  return jsi::Value::undefined();
+using TimePoint = decltype(std::chrono::system_clock::now());
+
+double getMillisSinceEpoch() {
+  return std::chrono::duration_cast<std::chrono::milliseconds>(
+             std::chrono::system_clock::now().time_since_epoch())
+      .count();
 }
 
 TimingTurboModule::TimingTurboModule(
     const ArkTSTurboModule::Context ctx,
     const std::string name)
     : ArkTSTurboModule(ctx, name) {
-  initLoop();
   methodMap_ = {
       {"createTimer", {4, __hostFunction_TimingTurboModule_createTimer}},
       {"deleteTimer", {1, __hostFunction_TimingTurboModule_deleteTimer}},
       {"setSendIdleEvents",
        {1, __hostFunction_TimingTurboModule_setSendIdleEvents}},
   };
+
+  // LifecycleObserver must be created on the main thread
+  m_ctx.taskExecutor->runTask(
+      TaskThread::MAIN, [weakInstance = m_ctx.instance] {
+        auto instance = weakInstance.lock();
+        if (!instance) {
+          return;
+        }
+        // since this task is scheduled from `TimingTurboModule` constructor,
+        // we cannot capture `weak_from_this()` into the task, and must use
+        // RNInstance to get the TurboModule instead
+        auto self = instance->getTurboModule<TimingTurboModule>("Timing");
+        if (!self) {
+          return;
+        }
+        if (self->m_lifecycleObserver) {
+          return;
+        }
+        auto messageHub = self->m_ctx.arkTSMessageHub;
+        self->m_lifecycleObserver = std::make_shared<LifecycleObserver>(
+            self->weak_from_this(), messageHub);
+      });
 }
 
-folly::dynamic getObject(double callbackID) {
-  auto object1 = folly::dynamic(callbackID);
-  folly::dynamic object2 = folly::dynamic::array();
-  object2.push_back(object1);
-  folly::dynamic object3 = folly::dynamic::array();
-  object3.push_back(object2);
-  return object3;
-}
-
-void TimingTurboModule::initLoop() {
-  loop = std::make_shared<uv::EventLoop>();
-  std::thread([loop=this->loop]() {
-    loop->run();
-  }).detach();
+TimingTurboModule::~TimingTurboModule() {
+  if (m_wakeUpTask.has_value()) {
+    m_ctx.taskExecutor->cancelDelayedTask(m_wakeUpTask.value());
+  }
+  m_ctx.taskExecutor->runTask(
+      TaskThread::MAIN,
+      [lifecycleObserver = std::move(m_lifecycleObserver)] {});
 }
 
 void TimingTurboModule::createTimer(
     double id,
     double duration,
     double jsSchedulingTime,
-    bool repeat) {
-  auto wptr = this->weak_from_this();
+    bool repeats) {
+  assertJSThread();
 
-  if (auto instance = m_ctx.instance.lock(); instance != nullptr) {
-    if (messageHandler == nullptr) {
-      auto rnInstance = dynamic_cast<RNInstanceCAPI*>(instance.get());
-      messageHandler = std::make_shared<TimingArkTSMessageHandler>(wptr);
-      rnInstance->addArkTSMessageHandler(messageHandler);
-    }
+  // for short-lived, one-off timers, schedule them immediately after they are
+  // created
+  if (duration == 0 && !repeats) {
+    triggerTimers({id});
+    return;
   }
 
-  auto triggerTimer = [wptr, id, duration, repeat](uv::Timer* timer) {
-    auto timingPtr = wptr.lock();
-    if (timingPtr == nullptr) {
-      return;
-    }
-    if (auto instance = timingPtr->m_ctx.instance.lock(); instance != nullptr) {
-      instance->callFunction(
-      "JSTimers", "callTimers", std::move(getObject(id)));
-    }
-    if (!repeat) {
-      timingPtr->deleteTimer(id);
-    }
-    if (timingPtr->call(*timingPtr->runtime, "isPaused", nullptr, 0).getBool()) {
-      timingPtr->deleteTimer(id);
-      facebook::jsi::Value testargs[4] ={
-      facebook::jsi::Value(id),
-      facebook::jsi::Value(duration),
-      facebook::jsi::Value(repeat)};
-      timingPtr->call(*timingPtr->runtime, "createTimerInCpp", testargs, 3);
-    }
-  };
+  auto deadline = jsSchedulingTime + duration;
+  m_activeTimerById.emplace(id, Timer{id, deadline, duration, repeats});
 
-  loop->runInThisLoopEn([wptr, id, duration, repeat, triggerTimer, jsSchedulingTime]()
-  {
-    auto timingPtr = wptr.lock();
-    if (timingPtr == nullptr) {
-      return;
-    }
-    std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-    std::chrono::milliseconds milliseconds =
-      std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
-    uint64_t delay = milliseconds.count() - static_cast<uint64_t>(jsSchedulingTime);
-
-    uint64_t timeout = static_cast<uint64_t>(duration)
-      > delay ?(static_cast<uint64_t>(duration) - delay) : 0;
-    uint64_t interval = repeat? static_cast<uint64_t>(duration) : 0;
-
-    uv::Timer * timer = new uv::Timer(timingPtr->loop.get(), timeout, interval, triggerTimer);
-    timingPtr->nativeTimerMap[id] = timer;
-    timer->start();
-  });
+  if (isForeground && !m_vsyncListener->isScheduled()) {
+    scheduleWakeUp();
+  }
 }
 
 void TimingTurboModule::deleteTimer(double id) {
-  auto wptr = this->weak_from_this();
-  loop->runInThisLoopEn([wptr, id]() {
-    auto timingPtr = wptr.lock();
-    if (timingPtr == nullptr) {
+  assertJSThread();
+  m_activeTimerById.erase(id);
+}
+
+void TimingTurboModule::setSendIdleEvents(bool /*sendIdleEvents*/) {
+  LOG(WARNING) << "TimingTurboModule::setSendIdleEvents is not implemented";
+}
+
+void TimingTurboModule::onForeground() {
+  m_ctx.taskExecutor->runTask(TaskThread::JS, [weakSelf = weak_from_this()] {
+    auto self = weakSelf.lock();
+    if (!self) {
       return;
     }
-    auto it = timingPtr->nativeTimerMap.find(id);
-    if (it != timingPtr->nativeTimerMap.end()) {
-      auto timer = it->second;
-      timer->stop();
-      timer->close([](uv::Timer* t)
-      {
-        delete t;
-      });
-      timingPtr->nativeTimerMap.erase(it);
+    if (!self->isForeground) {
+      self->isForeground = true;
+      self->resumeTimers();
     }
   });
 }
 
-void TimingTurboModule::setSendIdleEvents(bool enabled) {
-  DLOG(INFO) << "TimingTurboModule::setSendIdleEvents("
-            << enabled
-            << "): not implemented";
+void TimingTurboModule::onBackground() {
+  m_ctx.taskExecutor->runTask(TaskThread::JS, [weakSelf = weak_from_this()] {
+    auto self = weakSelf.lock();
+    if (!self) {
+      return;
+    }
+    self->isForeground = false;
+    self->pauseTimers();
+  });
 }
 
-TimingTurboModule::~TimingTurboModule() {
-  if (auto instance = m_ctx.instance.lock(); instance != nullptr) {
-    auto rnInstance = dynamic_cast<RNInstanceCAPI*>(instance.get());
-    rnInstance->removeArkTSMessageHandler(messageHandler);
+void TimingTurboModule::LifecycleObserver::onMessageReceived(
+    ArkTSMessage const& message) {
+  auto timingModule = m_timingTurboModule.lock();
+  if (!timingModule) {
+    return;
   }
-  loop->runInThisLoopEn([timeMap=this->nativeTimerMap]() {
-    for (auto it = timeMap.begin(); it != timeMap.end(); ++it) {
-      auto timer = it->second;
-      timer->stop();
-      timer->close([](uv::Timer* t)
-      {
-        delete t;
-      });
+
+  if (message.name == "FOREGROUND") {
+    timingModule->onForeground();
+  } else if (message.name == "BACKGROUND") {
+    timingModule->onBackground();
+  }
+}
+
+void TimingTurboModule::triggerTimers(std::vector<double> const& timerIds) {
+  assertJSThread();
+  auto instance = m_ctx.instance.lock();
+  if (instance) {
+    instance->callJSFunction(
+        "JSTimers",
+        "callTimers",
+        folly::dynamic::array(folly::dynamic::array(timerIds.begin(), timerIds.end())));
+  }
+  for (auto id : timerIds) {
+    auto it = m_activeTimerById.find(id);
+    if (it == m_activeTimerById.end()) {
+      continue;
     }
-  });
-  loop->stop();
+
+    auto& timer = it->second;
+
+    if (timer.repeats) {
+      timer.deadline += timer.duration;
+    } else {
+      m_activeTimerById.erase(it);
+    }
+  }
+}
+
+void TimingTurboModule::resumeTimers() {
+  assertJSThread();
+  HarmonyReactMarker::logMarker(
+      HarmonyReactMarker::HarmonyReactMarkerId::ON_HOST_RESUME_START);
+  triggerExpiredTimers();
+  HarmonyReactMarker::logMarker(
+      HarmonyReactMarker::HarmonyReactMarkerId::ON_HOST_RESUME_END);
+}
+
+void TimingTurboModule::pauseTimers() {
+  assertJSThread();
+  HarmonyReactMarker::logMarker(
+      HarmonyReactMarker::HarmonyReactMarkerId::ON_HOST_PAUSE_START);
+  cancelWakeUp();
+  HarmonyReactMarker::logMarker(
+      HarmonyReactMarker::HarmonyReactMarkerId::ON_HOST_PAUSE_END);
+}
+
+void TimingTurboModule::assertJSThread() const {
+  RNOH_ASSERT(m_ctx.taskExecutor->isOnTaskThread(TaskThread::JS));
+}
+
+void TimingTurboModule::triggerExpiredTimers() {
+  assertJSThread();
+  if (!isForeground) {
+    return;
+  }
+  std::vector<Timer> expiredTimers;
+  auto now = getMillisSinceEpoch();
+  // NOTE: a possible optimization is to keep a std::priority_queue of timer ids
+  // here, ordered by the deadline of the timer. We assume there's only a few
+  // timers scheduled at each time, and the overhead of maintaining the queue is
+  // not worth it
+  for (auto const& [id, timer] : m_activeTimerById) {
+    if (timer.deadline <= now) {
+      expiredTimers.push_back(timer);
+    }
+  }
+  if (!expiredTimers.empty()) {
+    // timers with earlier deadlines should fire sooner
+    std::sort(expiredTimers.begin(), expiredTimers.end(), [](auto a, auto b) {
+      return a.deadline < b.deadline;
+    });
+    std::vector<double> expiredTimerIds;
+    std::transform(
+        expiredTimers.begin(),
+        expiredTimers.end(),
+        std::back_inserter(expiredTimerIds),
+        [](auto timer) { return timer.id; });
+    triggerTimers(expiredTimerIds);
+  }
+
+  if (!m_activeTimerById.empty()) {
+    scheduleWakeUp();
+  }
+}
+
+void TimingTurboModule::cancelWakeUp() {
+  assertJSThread();
+  m_nextTimerDeadline = std::numeric_limits<double>::max();
+  if (m_wakeUpTask.has_value()) {
+    m_ctx.taskExecutor->cancelDelayedTask(m_wakeUpTask.value());
+    m_wakeUpTask.reset();
+  }
+}
+
+double TimingTurboModule::getNextDeadline() {
+  double nextDeadline = std::numeric_limits<double>::max();
+
+  for (auto const& [id, timer] : m_activeTimerById) {
+    nextDeadline = std::min(timer.deadline, nextDeadline);
+  }
+  return nextDeadline;
+}
+
+void TimingTurboModule::scheduleWakeUp() {
+  // NOTE: following the iOS implementation, if there's a scheduled timer which
+  // will expire soon (< 1s), we don't schedule a delayed task on the executor,
+  // checking the scheduled timers on the next few frames instead.
+  constexpr double MINIMUM_SLEEP_DELAY = 1000.;
+
+  auto nextDeadline = getNextDeadline();
+  auto now = getMillisSinceEpoch();
+  auto delay = nextDeadline - now;
+
+  if (delay >= MINIMUM_SLEEP_DELAY) {
+    if (nextDeadline >= m_nextTimerDeadline) {
+      return;
+    }
+    m_nextTimerDeadline = nextDeadline;
+    cancelWakeUp();
+    m_wakeUpTask = m_ctx.taskExecutor->runDelayedTask(
+        TaskThread::JS,
+        [weakSelf = weak_from_this()] {
+          if (auto self = weakSelf.lock()) {
+            self->m_nextTimerDeadline = std::numeric_limits<double>::max();
+            self->triggerExpiredTimers();
+          }
+        },
+        std::max(delay, 0.));
+  } else {
+    m_vsyncListener->requestFrame([weakSelf = weak_from_this()](auto) {
+      if (auto self = weakSelf.lock()) {
+        self->m_ctx.taskExecutor->runTask(TaskThread::JS, [weakSelf] {
+          if (auto self = weakSelf.lock()) {
+            self->triggerExpiredTimers();
+          }
+        });
+      }
+    });
+  }
 }
 
 } // namespace rnoh

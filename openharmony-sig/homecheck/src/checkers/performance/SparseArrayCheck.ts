@@ -37,15 +37,14 @@ import { Defects } from "../../object/Defects";
 import { SparseArrayType, SparseArrayValue } from "../../object/SparseArrayValue";
 
 const logger = LoggerFactory.getLogger("SparseArrayCheck");
+
 export default class SparseArrayCheck extends BaseChecker {
     private description = "Sparse array detected. Avoid using sparse arrays.";
     private ruleId = "@performance/sparse-array-check";
     private ruleDocPath = "docs/sparse-array-check.md";
     private issueColumnInTs = new Map<string, Array<string>>();
 
-
     check(scene: Scene, filePath: string, rule?: Rule): IssueReport[] {
-
         let severity = rule ? rule.alert : 1;
         let issueReports: IssueReport[] = [];
         let arkFiles = SceneUtils.getArkFile(filePath, scene);
@@ -103,12 +102,11 @@ export default class SparseArrayCheck extends BaseChecker {
         if (NumberUtils.isValueSupportCalculation(arkFile, varInfo, value)) {
             let index = NumberUtils.getNumberByScope(arkFile, varInfo, value);
             if ((value instanceof Local) && (index.value > 1024)) {
-                this.reportIssue(arkFile, issueReports, stmt, value, severity)
+                this.reportIssue(arkFile, issueReports, stmt, value, severity);
             } else if ((value.getType() instanceof NumberType) && (index.value > 1024)) {
-                this.reportIssue(arkFile, issueReports, stmt, value, severity)
+                this.reportIssue(arkFile, issueReports, stmt, value, severity);
             }
         }
-
     }
 
     private traverseScope(parentScope: Scope, scopes: Scope[]) {
@@ -122,17 +120,16 @@ export default class SparseArrayCheck extends BaseChecker {
 
     private reportIssue(arkFile: ArkFile, issueReports: IssueReport[], stmt: Stmt, value: Value, severity: number) {
         let filePath = arkFile.getFilePath();
-        let lineNum = stmt.getOriginPositionInfo().getLineNo();
-        const orgStmt = stmt.getCfg()?.getDeclaringMethod().getBody()?.getStmtToOriginalStmt().get(stmt);
+        let originalPosition = stmt.getOriginPositionInfo();
+        let lineNum = originalPosition.getLineNo();
         let startColum = -1;
         let endColum = -1;
         let valStr = '';
-        let srgStmtStr = '';
-        let orgStmtColum = -1;
-        if (orgStmt !== undefined) {
-            let orgStmtStr = orgStmt.toString();
-            let orgStmtColumn = orgStmt.getOriginPositionInfo().getColNo();
-            valStr = NumberUtils.getOriginalValueText(value);
+        let orgStmtColumn = -1;
+        const orgStmtStr = stmt.getOriginalText();
+        if (orgStmtStr && orgStmtStr.length !== 0) {
+            orgStmtColumn = originalPosition.getColNo();
+            valStr = NumberUtils.getOriginalValueText(stmt, value);
             startColum = this.getRealStartColum(filePath, lineNum, orgStmtColumn, orgStmtStr, valStr, stmt);
             if (startColum === -1) {
                 logger.info('find sparse array, but can not get startColum');
@@ -170,7 +167,7 @@ export default class SparseArrayCheck extends BaseChecker {
 
     private hasReported(filePath: string, lineNum: number, startColumn: number): boolean {
         let targetIssue = this.issueColumnInTs.get(filePath)?.find(
-            (lineCol) => lineCol === lineNum + '%' + startColumn
+            (lineCol) => lineCol === (lineNum + '%' + startColumn)
         );
         return targetIssue !== undefined;
     }

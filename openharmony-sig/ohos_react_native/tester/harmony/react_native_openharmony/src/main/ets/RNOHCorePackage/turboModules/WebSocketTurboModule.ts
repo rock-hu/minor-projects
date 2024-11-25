@@ -1,10 +1,12 @@
 import webSocket from '@ohos.net.webSocket'
 import util from '@ohos.util'
-import { TurboModule, TurboModuleContext, RNOHLogger, RNOHError } from "../../RNOH/ts";
+import { RNOHLogger, AnyThreadTurboModule } from "../../RNOH/ts";
 import { BusinessError } from '@ohos.base';
 import { BlobMetadata as BlobMetadata } from './Blob';
+import { AnyThreadTurboModuleContext } from '../../RNOH/RNOHContext';
 
-const WEB_SOCKET_SUPPORTED_EVENT_NAMES = ["websocketOpen", "websocketClosed", "websocketFailed", "websocketMessage"] as const;
+const WEB_SOCKET_SUPPORTED_EVENT_NAMES =
+  ["websocketOpen", "websocketClosed", "websocketFailed", "websocketMessage"] as const;
 
 type MessageParams = {
   id: number,
@@ -17,7 +19,7 @@ export type ContentHandler = {
   processByteMessage: (bytes: ArrayBuffer, params: MessageParams) => MessageParams;
 }
 
-export class WebSocketTurboModule extends TurboModule {
+export class WebSocketTurboModule extends AnyThreadTurboModule {
   public static readonly NAME = 'WebSocketModule';
 
   private socketById: Map<number, webSocket.WebSocket> = new Map();
@@ -25,7 +27,7 @@ export class WebSocketTurboModule extends TurboModule {
   private base64 = new util.Base64Helper();
   private contentHandlerBySocketId: Map<number, ContentHandler> = new Map();
 
-  constructor(ctx: TurboModuleContext) {
+  constructor(ctx: AnyThreadTurboModuleContext) {
     super(ctx)
     this.logger = ctx.logger.clone("WebSocketTurboModule")
   }
@@ -141,14 +143,18 @@ export class WebSocketTurboModule extends TurboModule {
   }
 
   private maybeHandleError(socketId: number, err: unknown | undefined): boolean {
+    const logger = this.logger.clone("maybeHandleError");
     if (err) {
+      if (typeof err === 'object' && 'code' in err && err?.code === 201) {
+        logger.error('Permission denied. Check if \'ohos.permission.INTERNET\' has been granted');
+      }
       let stringifiedErr = ""
       if (err instanceof Error) {
         stringifiedErr = err.message
       } else {
         stringifiedErr = JSON.stringify(err)
       }
-      this.logger.clone("maybeHandleError").error(err);
+      logger.error(JSON.stringify(err));
       this.ctx.rnInstance.emitDeviceEvent("websocketFailed", { id: socketId, message: stringifiedErr });
       this.socketById.delete(socketId);
       this.contentHandlerBySocketId.delete(socketId);
@@ -160,7 +166,8 @@ export class WebSocketTurboModule extends TurboModule {
   private getSocketById(socketId: number, methodName: string) {
     const ws = this.socketById.get(socketId);
     if (!ws) {
-      this.maybeHandleError(socketId, new Error(`Tried to get websocket with ID "${socketId}", but such socket hasn't been created or it's closed. (WebSocketTurboModule::${methodName})`));
+      this.maybeHandleError(socketId,
+        new Error(`Tried to get websocket with ID "${socketId}", but such socket hasn't been created or it's closed. (WebSocketTurboModule::${methodName})`));
       return null
     }
     return ws

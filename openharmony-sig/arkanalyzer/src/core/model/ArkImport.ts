@@ -15,20 +15,19 @@
 
 import { ArkFile } from './ArkFile';
 import { LineColPosition } from '../base/Position';
-import { Decorator } from '../base/Decorator';
 import { ExportInfo, FromInfo } from './ArkExport';
 import { findExportInfo } from "../common/ModelUtils";
+import { ArkBaseModel } from './ArkBaseModel';
+import { ArkError } from '../common/ArkError';
 
 /**
  * @category core/model
  */
-export class ImportInfo implements FromInfo {
+export class ImportInfo extends ArkBaseModel implements FromInfo {
     private importClauseName: string = '';
     private importType: string = '';
     private importFrom?: string;
     private nameBeforeAs?: string;
-    private modifiers: Set<string | Decorator> = new Set<string | Decorator>();
-
     private declaringArkFile!: ArkFile;
 
     private originTsPosition?: LineColPosition;
@@ -36,17 +35,16 @@ export class ImportInfo implements FromInfo {
     private lazyExportInfo?: ExportInfo | null;
 
     constructor() {
+        super();
     }
 
     public build(importClauseName: string, importType: string, importFrom: string, originTsPosition: LineColPosition,
-                 modifiers: Set<string | Decorator>, nameBeforeAs?: string) {
+                 modifiers: number, nameBeforeAs?: string) {
         this.setImportClauseName(importClauseName);
         this.setImportType(importType);
         this.setImportFrom(importFrom);
         this.setOriginTsPosition(originTsPosition);
-        modifiers.forEach((modifier) => {
-            this.addModifier(modifier);
-        });
+        this.addModifier(modifiers);
         this.setNameBeforeAs(nameBeforeAs);
     }
 
@@ -55,7 +53,10 @@ export class ImportInfo implements FromInfo {
     }
 
     /**
-     * 获取实际的引用（调用时生成）
+     * Returns the export information, i.e., the actual reference generated at the time of call. 
+     * The export information includes: clause's name, clause's type, modifiers, location 
+     * where it is exported from, etc. If the export information could not be found, **null** will be returned.
+     * @returns The export information. If there is no export information, the return will be a **null**.
      */
     public getLazyExportInfo(): ExportInfo | null {
         if (this.lazyExportInfo === undefined) {
@@ -100,14 +101,6 @@ export class ImportInfo implements FromInfo {
         this.nameBeforeAs = nameBeforeAs;
     }
 
-    public getModifiers(): Set<string | Decorator> {
-        return this.modifiers;
-    }
-
-    public addModifier(name: string | Decorator): void {
-        this.modifiers.add(name);
-    }
-
     public setOriginTsPosition(originTsPosition: LineColPosition): void {
         this.originTsPosition = originTsPosition;
     }
@@ -133,5 +126,9 @@ export class ImportInfo implements FromInfo {
             return true;
         }
         return this.importType === 'Identifier';
+    }
+
+    public validate(): ArkError {
+        return this.validateFields(['declaringArkFile']);
     }
 }

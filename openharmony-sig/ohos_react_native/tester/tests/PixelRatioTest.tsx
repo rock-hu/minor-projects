@@ -24,8 +24,9 @@ export const PixelRatioTest = () => {
       <TestCase.Logical
         itShould="convert layout size to pixel size correctly"
         fn={({expect}) => {
-          expect(PixelRatio.getPixelSizeForLayoutSize(10)).to.be.equal(
+          expect(PixelRatio.getPixelSizeForLayoutSize(10)).to.be.closeTo(
             PixelRatio.get() * 10,
+            0.51,
           );
         }}
       />

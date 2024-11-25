@@ -17,6 +17,7 @@ import { JArrayList } from '../utils/JArrayList';
 import EntryOhos from './EntryOhos';
 import BaseDataSet from './BaseDataSet';
 import Utils from '../utils/Utils';
+import { LogUtil } from '../utils/LogUtil';
 
 /**
  * The DataSet class represents one group or type of entries (Entry) in the
@@ -317,8 +318,16 @@ export abstract class DataSet<T extends EntryOhos> extends BaseDataSet<T> {
 
     while (low < high) {
       let m: number = Math.floor((low + high) / 2);
-      let d1: number = this.mEntries.get(m).getX() - xValue;
-      let d2: number = this.mEntries.get(m + 1).getX() - xValue;
+      let xVal1: number = this.mEntries.get(m).getX();
+      let xVal2: number = this.mEntries.get(m + 1).getX();
+
+      let d1: number = xVal1 - xValue;
+      let d2: number = xVal2 - xValue;
+
+      if (typeof d1 !== 'number' || typeof d2 !== 'number' || isNaN(d1) || isNaN(d2)) {
+        LogUtil.error(`Invalid values detected: d1 = ${d1}, d2 = ${d2}, xVal1 = ${xVal1}, xVal2 = ${xVal2}, xValue = ${xValue}, Indices: m = ${m}, low = ${low}, high = ${high}`);
+        break;
+      }
       let ad1: number = Math.abs(d1), ad2 = Math.abs(d2);
 
       if (ad2 < ad1) {

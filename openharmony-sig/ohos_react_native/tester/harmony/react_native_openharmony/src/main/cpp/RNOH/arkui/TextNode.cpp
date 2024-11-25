@@ -298,9 +298,9 @@ TextNode& TextNode::setSelectedBackgroundColor(uint32_t color) {
   return *this;
 }
 
-TextNode& TextNode::setTextDataDetectorType(int32_t enable, ArkUI_NumberValue types[]) {
+TextNode& TextNode::setTextDataDetectorType(int32_t enable, const ArkUI_NumberValue* types, int size) {
   ArkUI_AttributeItem item = {
-      .value = types, .size = sizeof(types) / sizeof(ArkUI_NumberValue)};
+      .value = types, .size = size};
   maybeThrow(NativeNodeApi::getInstance()->setAttribute(
       m_nodeHandle, NODE_TEXT_ENABLE_DATA_DETECTOR_CONFIG, &item));
   

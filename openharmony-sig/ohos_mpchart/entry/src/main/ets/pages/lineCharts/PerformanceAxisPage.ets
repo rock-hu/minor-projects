@@ -207,7 +207,7 @@ struct PerformanceAxisPage {
       title({ model: this.titleModel })
       Column() {
         Stack({ alignContent: Alignment.TopStart }) {
-          LineChart({ model: this.model })
+          LineChart({ model: this.model , antiAliasing: false })
             .width('100%')
             .height('70%')
             .backgroundColor(Color.White);

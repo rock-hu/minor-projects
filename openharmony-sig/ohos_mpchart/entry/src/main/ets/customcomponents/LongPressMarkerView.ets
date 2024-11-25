@@ -59,6 +59,7 @@ export default class LongPressMarkerView implements IMarker {
     let offset: MPPointF = this.getOffsetForDrawingAtPoint(posX, posY);
     c.save();
 
+    c.font = "normal normal 14vp"
     let roundX = Number(e.getX().toFixed(1));
     let roundY = Number(e.getY().toFixed(1));
     let text: string = 'x:' + Math.round(roundX) + 'y:' + Math.round(roundY);

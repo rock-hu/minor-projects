@@ -31,12 +31,25 @@ import {
   IBarDataSet,
   HorizontalBarChart,
   HorizontalBarChartModel,
+  LimitLine,
+  LimitLabelPosition,
+  IAxisValueFormatter,
+  AxisBase,
 } from '@ohos/mpchart';
 import title, { ChartTitleModel } from '../../title';
 import SeekBar, { SeekBarModel } from '../../customcomponents/SeekBar';
 import Constants from '../../constants/Constants';
 import Utils from '../../utils/Utils'
 import { LogUtil } from '../../utils/LogUtil';
+
+class customFormatter implements IAxisValueFormatter {
+  getFormattedValue(value: number, axis: AxisBase): string {
+    if (value == 10) {
+      return "";
+    }
+    return value.toString();
+  }
+}
 
 @Entry
 @ComponentV2
@@ -53,15 +66,18 @@ struct HorizontalBarChartPage {
   @Local seekBarX: SeekBarModel = new SeekBarModel()
   @Local seekBarY: SeekBarModel = new SeekBarModel()
   private isDrawIcons: boolean= false;
+  limitLine: LimitLine = new LimitLine(10, "十");
 
   @Monitor("seekBarX.value")
   seekBarXValueWatch(): void {
-    this.setData(this.seekBarX.getValue(), this.seekBarY.getValue());
+    const xValue = this.seekBarX.getValue();
+    const yValue = this.seekBarY.getValue();
+    this.setData(xValue == 0? 5: xValue, yValue == 0? 100: yValue);
   }
 
   @Monitor("seekBarY.value")
   seekBarYValueWatch(): void {
-    this.setData(this.seekBarX.getValue(), this.seekBarY.getValue());
+    this.seekBarXValueWatch();
   }
 
   //标题栏菜单回调
@@ -210,8 +226,14 @@ struct HorizontalBarChartPage {
     if (leftAxis) {
       leftAxis.setAxisMinimum(0);
       leftAxis.setLabelCount(8, false);
-      leftAxis.setPosition(YAxisLabelPosition.OUTSIDE_CHART)
-      leftAxis.setDrawAxisLine(true)
+      leftAxis.setPosition(YAxisLabelPosition.OUTSIDE_CHART);
+      leftAxis.setDrawAxisLine(true);
+      this.limitLine.setLabelPosition(LimitLabelPosition.RIGHT_BOTTOM);
+      this.limitLine.setYOffset(-16);
+      this.limitLine.setXOffset(-7);
+      this.limitLine.setLineColor("#ff0");
+      this.limitLine.enableDashedLine(5,5,5);
+      leftAxis.addLimitLine(this.limitLine);
     }
 
 
@@ -221,6 +243,7 @@ struct HorizontalBarChartPage {
       rightAxis.setLabelCount(8, false);
       rightAxis.setDrawGridLines(false);
       rightAxis.setDrawAxisLine(true);
+      rightAxis.setValueFormatter(new customFormatter());
     }
 
     let legend: Legend | null = this.model.getLegend();
@@ -271,6 +294,16 @@ struct HorizontalBarChartPage {
           SeekBar({ model: this.seekBarX })
           SeekBar({ model: this.seekBarY })
         }
+        Toggle({ type: ToggleType.Switch , isOn: true})
+          .margin({left: 200, right: 10})
+          .onChange((isOn: boolean) => {
+            if(isOn) {
+              this.limitLine.setLineColor("#ff0");
+            } else {
+              this.limitLine.setLineColor("#0000");
+            }
+            this.model?.invalidate();
+          })
       }
     }
   }

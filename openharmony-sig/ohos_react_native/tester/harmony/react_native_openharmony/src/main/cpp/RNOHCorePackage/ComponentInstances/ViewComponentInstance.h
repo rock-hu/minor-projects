@@ -18,6 +18,8 @@ class ViewComponentInstance
       std::size_t index) override;
   void onChildRemoved(
       ComponentInstance::Shared const& childComponentInstance) override;
+  void onLayoutChanged(
+      const facebook::react::LayoutMetrics& layoutMetrics) override;
 
   void onClick() override;
   void onHoverIn() override;

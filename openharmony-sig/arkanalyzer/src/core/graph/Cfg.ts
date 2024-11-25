@@ -15,10 +15,12 @@
 
 import { DefUseChain } from '../base/DefUseChain';
 import { Local } from '../base/Local';
-import { OriginalStmt, Stmt } from '../base/Stmt';
+import { Stmt } from '../base/Stmt';
+import { ArkError, ArkErrorCode } from '../common/ArkError';
 import { ArkMethod } from '../model/ArkMethod';
 import { BasicBlock } from './BasicBlock';
-import { LineColPosition } from '../base/Position';
+import Logger, { LOG_MODULE_TYPE } from '../../utils/logger';
+const logger = Logger.getLogger(LOG_MODULE_TYPE.ARKANALYZER, 'BasicBlock');
 
 /**
  * @category core/graph
@@ -26,14 +28,12 @@ import { LineColPosition } from '../base/Position';
 export class Cfg {
     private blocks: Set<BasicBlock> = new Set();
     private stmtToBlock: Map<Stmt, BasicBlock> = new Map();
-    private startingStmt: Stmt = new OriginalStmt('', LineColPosition.DEFAULT);
+    private startingStmt!: Stmt;
 
     private defUseChains: DefUseChain[] = [];
     private declaringMethod: ArkMethod = new ArkMethod();
 
-    constructor() {
-
-    }
+    constructor() {}
 
     public getStmts(): Stmt[] {
         let stmts = new Array<Stmt>();
@@ -43,12 +43,69 @@ export class Cfg {
         return stmts;
     }
 
-    // TODO
-    public insertBefore(beforeStmt: Stmt, newStmt: Stmt): void {
-        const block = this.stmtToBlock.get(beforeStmt) as BasicBlock;
-        // Simplify edition just for SSA
-        block.addStmtToFirst(newStmt);
-        this.stmtToBlock.set(newStmt, block);
+    /**
+     * Inserts toInsert in the basic block in CFG after point.
+     * @param toInsert
+     * @param point
+     * @returns The number of successfully inserted statements
+     */
+    public insertAfter(toInsert: Stmt | Stmt[], point: Stmt): number {
+        const block = this.stmtToBlock.get(point);
+        if (!block) {
+            return 0;
+        }
+
+        this.updateStmt2BlockMap(block, toInsert);
+        return block.insertAfter(toInsert, point);
+    }
+
+    /**
+     * Inserts toInsert in the basic block in CFG befor point.
+     * @param toInsert
+     * @param point
+     * @returns The number of successfully inserted statements
+     */
+    public insertBefore(toInsert: Stmt | Stmt[], point: Stmt): number {
+        const block = this.stmtToBlock.get(point);
+        if (!block) {
+            return 0;
+        }
+
+        this.updateStmt2BlockMap(block, toInsert);
+        return block.insertBefore(toInsert, point);
+    }
+
+    /**
+     * Removes the given stmt from the basic block in CFG.
+     * @param stmt
+     * @returns
+     */
+    public remove(stmt: Stmt): void {
+        const block = this.stmtToBlock.get(stmt);
+        if (!block) {
+            return;
+        }
+        this.stmtToBlock.delete(stmt);
+        block.remove(stmt);
+    }
+
+    /**
+     * Update stmtToBlock Map
+     * @param block
+     * @param changed
+     */
+    public updateStmt2BlockMap(block: BasicBlock, changed?: Stmt | Stmt[]): void {
+        if (!changed) {
+            for (const stmt of block.getStmts()) {
+                this.stmtToBlock.set(stmt, block);
+            }
+        } else if (changed instanceof Stmt) {
+            this.stmtToBlock.set(changed, block);
+        } else {
+            for (const insert of changed) {
+                this.stmtToBlock.set(insert, block);
+            }
+        }
     }
 
     // TODO: 添加block之间的边
@@ -60,11 +117,9 @@ export class Cfg {
         }
     }
 
-
     public getBlocks(): Set<BasicBlock> {
         return this.blocks;
     }
-
 
     public getStartingBlock(): BasicBlock | undefined {
         return this.stmtToBlock.get(this.startingStmt);
@@ -123,13 +178,13 @@ export class Cfg {
                     // 判断本block之前有无对应def
                     for (let i = stmtIndex - 1; i >= 0; i--) {
                         const beforeStmt = block.getStmts()[i];
-                        if (beforeStmt.getDef() && beforeStmt.getDef()?.toString() == name) {
+                        if (beforeStmt.getDef() && beforeStmt.getDef()?.toString() === name) {
                             defStmts.push(beforeStmt);
                             break;
                         }
                     }
                     // 本block有对应def直接结束,否则找所有的前序block
-                    if (defStmts.length != 0) {
+                    if (defStmts.length !== 0) {
                         this.defUseChains.push(new DefUseChain(value, defStmts[0], stmt));
                     }
                     else {
@@ -147,7 +202,7 @@ export class Cfg {
                             let predecessorHasDef = false;
                             for (let i = predecessorStmts.length - 1; i >= 0; i--) {
                                 const beforeStmt = predecessorStmts[i];
-                                if (beforeStmt.getDef() && beforeStmt.getDef()?.toString() == name) {
+                                if (beforeStmt.getDef() && beforeStmt.getDef()?.toString() === name) {
                                     defStmts.push(beforeStmt);
                                     predecessorHasDef = true;
                                     break;
@@ -168,5 +223,56 @@ export class Cfg {
                 }
             }
         }
+    }
+
+    public getUnreachableBlocks(): Set<BasicBlock> {
+        let unreachable = new Set<BasicBlock>();
+        let startBB = this.getStartingBlock();
+        if (!startBB) {
+            return unreachable;
+        }
+        let postOrder = this.dfsPostOrder(startBB);
+        for (const bb of this.blocks) {
+            if (!postOrder.has(bb)) {
+                unreachable.add(bb);
+            }
+        }
+        return unreachable;
+    }
+
+    public validate(): ArkError {
+        let startBB = this.getStartingBlock();
+        if (!startBB) {
+            let errMsg = `Not found starting block}`;
+            logger.error(errMsg);
+            return { errCode: ArkErrorCode.CFG_NOT_FOUND_START_BLOCK, errMsg: errMsg };
+        }
+
+        let unreachable = this.getUnreachableBlocks();
+        if (unreachable.size !== 0) {
+            let errMsg = `Unreachable blocks: ${Array.from(unreachable)
+                .map((value) => value.toString())
+                .join('\n')}`;
+            logger.error(errMsg);
+            return { errCode: ArkErrorCode.CFG_HAS_UNREACHABLE_BLOCK, errMsg: errMsg };
+        }
+
+        return { errCode: ArkErrorCode.OK };
+    }
+
+    private dfsPostOrder(
+        node: BasicBlock,
+        visitor: Set<BasicBlock> = new Set(),
+        postOrder: Set<BasicBlock> = new Set()
+    ): Set<BasicBlock> {
+        visitor.add(node);
+        for (const succ of node.getSuccessors()) {
+            if (visitor.has(succ)) {
+                continue;
+            }
+            this.dfsPostOrder(succ, visitor, postOrder);
+        }
+        postOrder.add(node);
+        return postOrder;
     }
 }

@@ -42,7 +42,7 @@ export class LoadManager {
       LoadManager.metroInstance = await rnohCoreContext.createAndRegisterRNInstance({
         createRNPackages: createRNPackages,
         enableNDKTextMeasuring: true,
-        enableBackgroundExecutor: true,
+        enableBackgroundExecutor: false,
         enableCAPIArchitecture: ENABLE_CAPI_ARCHITECTURE,
         arkTsComponentNames: arkTsComponentNames
       }

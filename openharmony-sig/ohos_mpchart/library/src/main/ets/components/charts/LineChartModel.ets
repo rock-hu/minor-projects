@@ -12,12 +12,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import EntryOhos from '../data/EntryOhos';
 
 import LineData from '../data/LineData';
+import Highlight from '../highlight/Highlight';
 import LineDataProvider from '../interfaces/dataprovider/LineDataProvider';
+import IDataSet from '../interfaces/datasets/IDataSet';
 import LineChartRenderer from '../renderer/LineChartRenderer';
 import CanvasUtil from '../utils/CanvasUtil';
 import BarLineChartBaseModel from './BarLineChartBaseModel';
+import { LastGesture } from './ChartModel';
 
 @ObservedV2
 export default class LineChartModel extends BarLineChartBaseModel<LineData> implements LineDataProvider {
@@ -31,8 +35,7 @@ export default class LineChartModel extends BarLineChartBaseModel<LineData> impl
 
   public invalidate() {
     if (this.context2d) {
-      this.mIndicesToHighlight = null;
-      this.clearHighlight();
+      this.invalidateHighlight();
       this.onDraw(this.context2d);
     }
   }
@@ -41,9 +44,98 @@ export default class LineChartModel extends BarLineChartBaseModel<LineData> impl
     if (this.highlightContext2D) {
       this.clearHighlight();
       if (this.mIndicesToHighlight) {
-        this.mRenderer?.drawHighlighted(this.highlightContext2D, this.mIndicesToHighlight);
-        super.drawMarkers(this.highlightContext2D);
-        super.drawLongPressMarkers(this.highlightContext2D);
+        this.highlightContext2D.save();
+        if (this.isClipDataToContentEnabled()) {
+          // make sure the data cannot be drawn outside the content-rect
+          let rect = this.mViewPortHandler.getContentRect();
+          this.highlightContext2D.beginPath();
+          this.highlightContext2D.rect(rect.left, rect.top, rect.width(), rect.height());
+          this.highlightContext2D.closePath();
+          this.highlightContext2D.clip();
+        }
+
+        this.mRenderer?.drawHighlighted(this.highlightContext2D, this.mIndicesToHighlight, true);
+        this.drawMarkers(this.highlightContext2D, true);
+        this.drawLongPressMarkers(this.highlightContext2D, true);
+        this.highlightContext2D.restore();
+      }
+    }
+  }
+
+  /**
+   * draws all MarkerViews on the highlighted positions
+   */
+  protected drawMarkers(c: CanvasRenderingContext2D, isDraw?: boolean): void {
+    if (this.mLastGesture != LastGesture.SINGLE_TAP || !isDraw) {
+      return;
+    }
+
+    // if there is no marker view or drawing marker is disabled
+    if (this.mMarker == null || !this.isDrawMarkersEnabled() || !this.valuesToHighlight())
+      return;
+
+    if (this.mIndicesToHighlight && this.mData) {
+      for (let i = 0; i < this.mIndicesToHighlight.length; i++) {
+
+        let highlight: Highlight = this.mIndicesToHighlight[i];
+
+        let dataSet: IDataSet<EntryOhos> | null = this.mData.getDataSetByIndex(highlight.getDataSetIndex()) as IDataSet<EntryOhos>;
+
+        if (dataSet) {
+          let e: EntryOhos | null = this.mData.getEntryForHighlight(this.mIndicesToHighlight[i]);
+          if (!e) {
+            continue;
+          }
+          let entryIndex: number = dataSet.getEntryIndexByEntry(e);
+          // make sure entry not null
+          if (e == null || this.mAnimator == null || entryIndex > dataSet.getEntryCount() * this.mAnimator.getPhaseX())
+            continue;
+
+          let pos: number[] = this.getMarkerPosition(highlight);
+
+          // check bounds
+          if (!this.mViewPortHandler.isInBounds(pos[0], pos[1]))
+            continue;
+
+          if (this.mMarker) {
+            // callbacks to update the content
+            this.mMarker.draw(c, pos[0], pos[1], e, highlight);
+          }
+        }
+      }
+    }
+  }
+
+  protected drawLongPressMarkers(c: CanvasRenderingContext2D, isDraw?: boolean): void {
+    if (this.mLastGesture != LastGesture.LONG_PRESS || !isDraw) {
+      return;
+    }
+    if (this.mLongPressMarker == null || !this.isDrawLongPressMarkersEnabled() || !this.valuesToHighlight()) {
+      return;
+    }
+
+    if (this.mIndicesToHighlight && this.mData) {
+      for (let i = 0; i < this.mIndicesToHighlight.length; i++) {
+        console.log("abc123 LineChartModel drawLongPressMarkers");
+        let highlight: Highlight = this.mIndicesToHighlight[i];
+        let dataSet: IDataSet<EntryOhos> | null = this.mData.getDataSetByIndex(highlight.getDataSetIndex()) as IDataSet<EntryOhos>;
+        if (dataSet) {
+          let e: EntryOhos | null = this.mData.getEntryForHighlight(this.mIndicesToHighlight[i]);
+          if (!e) {
+            continue;
+          }
+          let entryIndex: number = dataSet.getEntryIndexByEntry(e);
+          if (e == null || this.mAnimator == null || entryIndex > dataSet.getEntryCount() * this.mAnimator.getPhaseX()) {
+            continue;
+          }
+          let pos: number[] = this.getMarkerPosition(highlight);
+          if (!this.mViewPortHandler.isInBounds(pos[0], pos[1])) {
+            continue;
+          }
+          if (this.mLongPressMarker) {
+            this.mLongPressMarker.draw(c, pos[0], pos[1], e, highlight);
+          }
+        }
       }
     }
   }

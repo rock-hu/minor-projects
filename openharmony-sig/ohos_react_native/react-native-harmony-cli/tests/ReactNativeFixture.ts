@@ -1,7 +1,16 @@
+import Case from 'case';
 import { execaCommandSync, execa, execaSync } from 'execa';
 import pathUtils from 'path';
+import { AbsolutePath } from '../src/core';
 export class ReactNativeFixture {
-  constructor(private cwd: string) {}
+  private cwd: string;
+  constructor(cwd: string | AbsolutePath) {
+    if (cwd instanceof AbsolutePath) {
+      this.cwd = cwd.getValue();
+    } else {
+      this.cwd = cwd;
+    }
+  }
 
   help() {
     return execaCommandSync(`react-native --help`).stdout;
@@ -61,6 +70,53 @@ export class ReactNativeFixture {
       --no-safety-check
       `
     ).stdout;
+  }
+
+  codegenLibHarmony(
+    args:
+      | { help: true }
+      | {
+          npmPackageName: string;
+          cppOutputPath: string;
+          etsOutputPath: string;
+          cppComponentsSpecPaths?: string;
+          arktsComponentsSpecPaths?: string;
+          turboModulesSpecPaths?: string;
+          noSafetyCheck?: boolean;
+        }
+  ) {
+    return execaCommandSync(
+      `react-native codegen-lib-harmony ${this.createCliArgs(args)}`
+    ).stdout;
+  }
+
+  private createCliArgs(
+    args: Record<string, string | number | boolean>
+  ): string {
+    return Object.entries(args)
+      .filter(([_, value]) => {
+        if (typeof value === 'boolean') {
+          return value;
+        }
+        return value !== undefined && value !== null;
+      })
+      .map(([key, value]) => {
+        const formattedKey = Case.kebab(key);
+
+        if (typeof value === 'boolean') {
+          return `--${formattedKey}`;
+        }
+
+        if (
+          (key.endsWith('Path') || key.endsWith('Paths')) &&
+          typeof value === 'string'
+        ) {
+          return `--${formattedKey} ${this.useCwd(value)}`;
+        }
+
+        return `--${formattedKey} ${value}`;
+      })
+      .join(' ');
   }
 
   private useCwd(relPath: string) {

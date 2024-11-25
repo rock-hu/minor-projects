@@ -17,6 +17,7 @@ export class RemoteImageLoader {
     private memoryCache: RemoteImageMemoryCache,
     private diskCache: RemoteImageDiskCache,
     private context: common.UIAbilityContext,
+    private onDiskCacheUpdate: (e: {remoteUri: string, fileUri: string}) => void,
   ) {
   }
 
@@ -145,14 +146,14 @@ export class RemoteImageLoader {
       if (this.memoryCache.has(value.uri)) {
         this.memoryCache.remove(value.uri);
       }
-    
+
       if (this.diskCache.has(value.uri)) {
         this.diskCache.remove(value.uri);
       }
     } catch(err) {
       console.error('Error occurred when removing file' + err.message);
     }
-    
+
     this.abortPrefetchByUrl.delete(requestId);
   }
 
@@ -174,6 +175,8 @@ export class RemoteImageLoader {
     this.activePrefetchByUrl.set(uri, promise);
     promise.finally(() => {
       this.activePrefetchByUrl.delete(uri);
+      const fileUri = `file://${this.diskCache.getLocation(uri)}`;
+      this.onDiskCacheUpdate({remoteUri: uri, fileUri})
     });
 
     return await promise;
@@ -181,10 +184,14 @@ export class RemoteImageLoader {
 
   private async performDownload(config: request.DownloadConfig): Promise<boolean> {
     return await new Promise(async (resolve, reject) => {
-      const downloadTask = await request.downloadFile(this.context, config);
-      downloadTask.on("complete", () => resolve(true));
-      downloadTask.on("fail", (err: number) => reject(`Failed to download the task. Code: ${err}`));
-    })
+      try {
+        const downloadTask = await request.downloadFile(this.context, config);
+        downloadTask.on("complete", () => resolve(true));
+        downloadTask.on("fail", (err: number) => reject(`Failed to download the task. Code: ${err}`));
+      } catch (e) {
+        reject(e);
+      }
+    });
   }
 
   private async downloadFile(uri: string): Promise<boolean> {
@@ -192,7 +199,7 @@ export class RemoteImageLoader {
     const tempPath = path + '_tmp';
 
     try {
-      // Download to a temporary location to avoid risks of corrupted files from incomplete downloads,
+      // Download to a temporary location to avoid risks of corrupted files from incomplete downloads, 
       // as request.downloadFile does not clean up failed downloads automatically.
       if (fs.accessSync(tempPath)){
         await fs.unlink(tempPath);
@@ -217,7 +224,7 @@ export class RemoteImageLoader {
     return undefined;
   }
 
-  public getCacheFilePath(uri: string): string {
+  public getPrefetchResult(uri: string) {
     if (this.diskCache.has(uri)) {
       return `file://${this.diskCache.getLocation(uri)}`;
     }

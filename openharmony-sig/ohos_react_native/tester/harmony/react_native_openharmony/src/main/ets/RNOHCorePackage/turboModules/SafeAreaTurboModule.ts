@@ -1,5 +1,5 @@
-import type { TurboModuleContext, SafeAreaInsets } from "../../RNOH/ts";
-import { TurboModule } from "../../RNOH/ts";
+import type { UITurboModuleContext, SafeAreaInsets } from "../../RNOH/ts";
+import { UITurboModule } from "../../RNOH/ts";
 import { StatusBarTurboModule } from "./StatusBarTurboModule"
 
 
@@ -7,16 +7,16 @@ export interface StatusBarStatusProvider {
   isStatusBarHidden(): boolean
 }
 
-export class SafeAreaTurboModule extends TurboModule {
+export class SafeAreaTurboModule extends UITurboModule {
   public static readonly NAME = 'SafeAreaTurboModule';
 
   private initialInsets: SafeAreaInsets
 
-  static async create(ctx: TurboModuleContext, statusBarTurboModule: StatusBarTurboModule) {
+  static async create(ctx: UITurboModuleContext, statusBarTurboModule: StatusBarTurboModule) {
     return new SafeAreaTurboModule(ctx, statusBarTurboModule)
   }
 
-  constructor(ctx: TurboModuleContext, statusBarTurboModule: StatusBarTurboModule) {
+  constructor(ctx: UITurboModuleContext, statusBarTurboModule: StatusBarTurboModule) {
     super(ctx)
     this.initialInsets = ctx.safeAreaInsetsProvider.safeAreaInsets;
     ctx.safeAreaInsetsProvider.eventEmitter.subscribe("SAFE_AREA_INSETS_CHANGE", this.onSafeAreaChange.bind(this))

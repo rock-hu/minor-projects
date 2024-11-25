@@ -464,6 +464,8 @@ export default abstract class Utils {
     }
     if (paint.globalAlpha !== undefined) {
       context2D.globalAlpha = paint.globalAlpha;
+    } else {
+      context2D.globalAlpha = 1;
     }
   }
 

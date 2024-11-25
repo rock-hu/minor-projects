@@ -827,8 +827,8 @@ export default class LineChartRenderer extends LineRadarRenderer {
     }
   }
 
-  public drawHighlighted(c: CanvasRenderingContext2D, indices: Highlight[]) {
-    if (!this.mChart) {
+  public drawHighlighted(c: CanvasRenderingContext2D, indices: Highlight[], isDraw?: boolean) {
+    if (!this.mChart || !isDraw) {
       return;
     }
 

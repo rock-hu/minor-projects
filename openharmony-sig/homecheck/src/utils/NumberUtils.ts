@@ -20,6 +20,7 @@ import {
     ImportInfo,
     Local,
     NumberType,
+    Stmt,
     Value
 } from "@ArkAnalyzer/src";
 import { VarInfo } from "../object/scope/VarInfo";
@@ -30,6 +31,11 @@ import { StmtExt } from "../object/scope/StmtExt";
 
 export class NumberUtils {
     public static readonly mBinopList: string[] = ["+", "-", "*", "/", "%", "<<", ">>", "&", "|", "^", ">>>"];
+    
+    private static isSupportOperator(operator: string) {
+        return this.mBinopList.includes(operator);
+    }
+
     public static isValueSupportCalculation(arkFile: ArkFile, valueStmtInfo: VarInfo, value: Value): boolean {
         if (value instanceof Constant && value.getType() instanceof NumberType) {
             return true;
@@ -59,12 +65,14 @@ export class NumberUtils {
         return false;
     }
 
-    public static isMethodValueSupportCalculate(arkFile: ArkFile, valueStmtInfo: VarInfo, value: Local): boolean {
+    private static isMethodValueSupportCalculate(arkFile: ArkFile, valueStmtInfo: VarInfo, value: Local): boolean {
         let scope = valueStmtInfo.scope;
-        let valueStmt = valueStmtInfo.stmt;
+        let valueStmt: Stmt = valueStmtInfo.stmt;
+        if (!scope || !scope.defList) {
+            return false;
+        }
         let hasFind = false;
         let defList = scope.defList;
-
         for (let defVar of defList) {
             if (defVar.name !== value.getName()) {
                 continue;
@@ -72,7 +80,6 @@ export class NumberUtils {
             hasFind = true;
             let nearReDefStmtInfo = new VarInfo(defVar.defStmt, scope);
             let reDefStmtInfos = defVar.redefInfo;
-
             for (let reDefStmtInfo of reDefStmtInfos) {
                 let originalLine = valueStmt.getOriginPositionInfo().getLineNo();
                 if (reDefStmtInfo.stmt.getOriginPositionInfo().getLineNo() >= originalLine) {
@@ -92,12 +99,12 @@ export class NumberUtils {
 
         if (!hasFind && scope.parentScope != null) {
             let defStmtInfo = new VarInfo(valueStmt, scope.parentScope);
-            return NumberUtils.isMethodValueSupportCalculate(arkFile, defStmtInfo, value);
+            return NumberUtils.isValueSupportCalculation(arkFile, defStmtInfo, value);
         }
         return false;
     }
 
-    public static isImportValueSupportCalculate(arkFile: ArkFile, importInfo: ImportInfo, value: Local) {
+    private static isImportValueSupportCalculate(arkFile: ArkFile, importInfo: ImportInfo, value: Local) {
         let exportInfo = importInfo.getLazyExportInfo();
         let importArkFile = exportInfo?.getDeclaringArkFile();
         if (!importArkFile) {
@@ -121,7 +128,7 @@ export class NumberUtils {
         return false;
     }
 
-    public static getValueImportInfo(arkFile: ArkFile, value: Local) {
+    private static getValueImportInfo(arkFile: ArkFile, value: Local) {
         let importInfos = arkFile.getImportInfos();
         for (let importInfo of importInfos) {
             if (importInfo.getImportClauseName() == value.getName()) {
@@ -129,10 +136,6 @@ export class NumberUtils {
             }
         }
         return undefined;
-    }
-
-    private static isSupportOperator(operator: string) {
-        return this.mBinopList.includes(operator);
     }
 
     public static getNumberByScope(arkFile: ArkFile, valueStmtInfo: VarInfo, value: Value): NumberValue {
@@ -186,6 +189,9 @@ export class NumberUtils {
     private static getMethodNumberValue(arkFile: ArkFile, valueStmtInfo: VarInfo, value: Local): NumberValue {
         let scope = valueStmtInfo.scope;
         let valueStmt = valueStmtInfo.stmt;
+        if (!scope || !scope.defList) {
+            return new NumberValue(0, ValueType.UNKNOWN);
+        }
         let hasFind = false;
         let defList = scope.defList;
         for (let defVar of defList) {
@@ -214,7 +220,7 @@ export class NumberUtils {
 
         if (!hasFind && scope.parentScope != null) {
             let defStmtInfo = new VarInfo(valueStmt, scope.parentScope);
-            return this.getMethodNumberValue(arkFile, defStmtInfo, value)
+            return this.getNumberByScope(arkFile, defStmtInfo, value)
         }
         return new NumberValue(0, ValueType.UNKNOWN);
     }
@@ -299,30 +305,41 @@ export class NumberUtils {
         return new NumberValue(0, ValueType.UNKNOWN);
     }
 
-    static getOriginalValueText(value: Value): string {
+    public static getOriginalValueText(stmt: Stmt, value: Value): string {
         let valStr = '';
         if (value instanceof Constant) {
             valStr = value.toString()
         } else if (value instanceof Local) {
-            if (!value.toString().includes('$temp')) {
+            if (!value.toString().includes('%')) {
                 valStr = value.toString();
             } else {
                 let declaringStmt = value.getDeclaringStmt();
                 if (declaringStmt instanceof ArkAssignStmt) {
-                    return this.getOriginalValueText(declaringStmt.getRightOp());
+                    return this.getOriginalValueText(stmt, declaringStmt.getRightOp());
                 }
             }
         } else if (value instanceof ArkNormalBinopExpr) {
-            if (!value.toString().includes('$temp')) {
+            if (!value.toString().includes('%')) {
                 valStr = value.toString();
             } else {
-                return this.getOriginalValueText(value.getOp1()) + ' ' + value.getOperator() + ' ' + this.getOriginalValueText(value.getOp2());
+                let originalPosition = stmt.getOperandOriginalPosition(value);
+                if (!originalPosition) {
+                    return this.getOriginalValueText(stmt, value.getOp1()) + ' ' + value .getOperator() + ' ' 
+                    + this.getOriginalValueText(stmt, value.getOp2());
+                }
+                const text = stmt.getOriginalText();
+                if (!text || text.length === 0) {
+                    return this.getOriginalValueText(stmt, value.getOp1()) + ' ' + value .getOperator() + ' ' 
+                    + this.getOriginalValueText(stmt, value.getOp2());
+                }
+                let startColum = stmt.getOriginPositionInfo().getColNo();
+                return text.substring(originalPosition.getFirstCol() - startColum, originalPosition.getLastCol() - startColum);
             }
         } else if (value instanceof ArkUnopExpr) {
-            if (!value.toString().includes('$temp')) {
+            if (!value.toString().includes('%')) {
                 valStr = value.toString();
             } else {
-                valStr = value.getOperator() + this.getOriginalValueText(value.getUses()[0]);
+                valStr = value.getOperator() + this.getOriginalValueText(stmt, value.getUses()[0]);
             }
         } else if (value instanceof ArkStaticFieldRef) {
             let fieldSignature = value.getFieldSignature();
