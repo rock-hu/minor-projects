@@ -19,8 +19,6 @@ import TitleBar from '../component/TitleBar';
 import OperationView from '../component/OperationView';
 import ResourceUtil from '../util/ResourceUtil';
 
-
-const TAG: string = 'Index';
 const operationUrls: Array<string> = ['pages/Calendar', 'pages/TextProcessing'];
 
 @Entry
@@ -42,11 +40,12 @@ struct Index {
       TitleBar()
       ForEach(this.operations, (item: string, index) => {
         Row() {
-          OperationView({ operationKey: item, handleClick: () => {
-            router.pushUrl({
-              url: operationUrls[index]
-            })
-          }
+          OperationView({
+            operationKey: item, handleClick: () => {
+              router.pushUrl({
+                url: operationUrls[index]
+              })
+            }
           })
             .id(`operationView_${index}`)
             .margin({ left: 12, right: 12, top: 12 })

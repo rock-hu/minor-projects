@@ -18,7 +18,7 @@ import { notificationManager } from '@kit.NotificationKit';
 import { promptAction, window } from '@kit.ArkUI';
 import { pushService } from '@kit.PushKit';
 import Logger from '../utils/Logger';
-import { ExtraData } from './model';
+import { ExtraData } from './Model';
 import { BusinessError } from '@kit.BasicServicesKit';
 
 export default class MainAbility extends UIAbility {

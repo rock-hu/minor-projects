@@ -10,7 +10,7 @@
     },
     {
       "name": "EntryAbility_label",
-      "value": "RunJsInWeb"
+      "value": "JS注入与执行"
     },
     {
       "name": "reason",

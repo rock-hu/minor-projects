@@ -10,31 +10,31 @@
     },
     {
       "name": "EntryAbility_label",
-      "value": "label"
+      "value": "NetworkPerformanceTiming"
     },
     {
       "name": "index_title",
-      "value": "网络性能分析"
+      "value": "Network Performance Analysis"
     },
     {
       "name": "test_url",
-      "value": "测试地址:"
+      "value": "Test URL:"
     },
     {
       "name": "request",
-      "value": "请求"
+      "value": "Request"
     },
     {
       "name": "request_time_tip",
-      "value": "从request到对应阶段完成的耗时:"
+      "value": "Time used from request:"
     },
     {
       "name": "stage_name",
-      "value": "阶段名称"
+      "value": "Phase Name"
     },
     {
       "name": "stage_time",
-      "value": "耗时(ms)"
+      "value": "Time(ms)"
     },
     {
       "name": "reason_internet",

@@ -57,7 +57,7 @@ struct requestContent {
         .fontWeight(500)
         .borderRadius(10)
 
-      Button('点击反馈')
+      Button('Click to set handover mode')
         .width('100%')
         .height(40)
         .margin({ top: '11%' })
@@ -67,7 +67,7 @@ struct requestContent {
         .borderRadius(20)
         .onClick(this.getSetHandoverMode)
 
-      Text('结果')
+      Text('Result')
         .fontSize(24)
         .fontWeight(500)
         .fontColor($r('sys.color.black'))
@@ -97,10 +97,10 @@ struct requestContent {
     try {
       let mode: netHandover.HandoverMode = netHandover.HandoverMode.DISCRETION;
       netHandover.setHandoverMode(mode);
-      this.content = `迁移模式设置成功`;
+      this.content = `Succeed to set handover mode.`;
     } catch (err) {
       let e: BusinessError = err as BusinessError;
-      this.content = `迁移模式设置失败` + JSON.stringify(err);
+      this.content = `Failed to set handover mode:` + JSON.stringify(err);
       hilog.error(0x0000, 'testTag', 'setHandoverMode error: %{public}d %{public}s', e.code, e.message);
     }
   }

@@ -1,4 +1,4 @@
-# 加解密算法合集（ArkTS）
+# 加解密算法合集
 
 ### 介绍
 
@@ -6,19 +6,20 @@
 
 ### 效果预览
 
-| 首页                                        | 加解密页面                                           | 加解密详情页                                         | 签名验签页面                                       | 签名验签详情页                                           |
-|-------------------------------------------|-------------------------------------------------|------------------------------------------------|----------------------------------------------|---------------------------------------------------|
-| ![image](screenshots/devices/index.png)   | ![image](screenshots/devices/crypto.png)        | ![image](screenshots/devices/cryptoDetail.png) | ![image](screenshots/devices/signature.png)  | ![image](screenshots/devices/signatureDetail.png) |
-| <center>消息摘要页面</center>                   | <center>消息摘要详情页</center>                        | <center>消息认证码页面</center>                       | <center>消息认证码详情页</center>                    |                                                   |
-| ![image](screenshots/devices/summary.png) | ![image](screenshots/devices/summaryDetail.png) | ![image](screenshots/devices/code.png)         | ![image](screenshots/devices/codeDetail.png) |                                                   |
+| 首页                                        | 加解密页面                                           | 加解密详情页                                         | 签名验签页面                                       | 签名验签详情页                                             |
+|-------------------------------------------|-------------------------------------------------|------------------------------------------------|----------------------------------------------|-----------------------------------------------------|
+| ![image](screenshots/devices/index.png)   | ![image](screenshots/devices/crypto.png)        | ![image](screenshots/devices/cryptoDetail.png) | ![image](screenshots/devices/signature.png)  | ![image](screenshots/devices/signatureDetail.png)   |
+| <center>消息摘要页面</center>                   | <center>消息摘要详情页</center>                        | <center>消息认证码页面</center>                       | <center>消息认证码详情页</center>                    | <center>SM2密钥格式转换</center>                          |
+| ![image](screenshots/devices/summary.png) | ![image](screenshots/devices/summaryDetail.png) | ![image](screenshots/devices/code.png)         | ![image](screenshots/devices/codeDetail.png) | ![image](screenshots/devices/format_conversion.png) |
 
-使用说明
+### 使用说明
 
 1. 点击按钮跳转到各个算法页面，点击列表项跳转到各个详情页面。
 2. 加解密详情页：输入待加密字符串后点击加密即可加密字符串，输出加密后的Base64编码的字符串，点击解密将加密后的Base64编码的字符串解密。
-3. 签名验签详情页：输入待签名的数据，点击签名按钮生成签名，再点击验签按钮进行验签。
-4. 消息摘要详情页：输入待摘要的数据，点击按钮计算摘要结果。
-5. 消息认证码详情页：输入需要HMAC的数据，点击按钮计算结果。
+3. SM2密钥格式转换：展示不可修改的16进制公私钥。输入待加密字符串后点击加密即可加密字符串，输出加密后的ASN.1格式Base64编码的字符串和16进制的裸密文，点击解密将加密后的Base64编码的字符串解密。
+4. 签名验签详情页：输入待签名的数据，点击签名按钮生成签名，再点击验签按钮进行验签。
+5. 消息摘要详情页：输入待摘要的数据，点击按钮计算摘要结果。
+6. 消息认证码详情页：输入需要HMAC的数据，点击按钮计算结果。
 
 ### 工程目录
 
@@ -37,8 +38,11 @@
 │  │  └──SignatureVerification.ets                  // 签名验签页面
 │  ├──utils
 │  │  ├──CryptoUtil.ets                             // 加解密算法工具类
+│  │  ├──DataConversion.ets                         // SM2数据格式转换工具类
 │  │  ├──Logger.ets                                 // 日志类
-│  │  └──SignatureUtil.ets                          // 签名验签工具类
+│  │  ├──ResourceString.ets                         // 资源文件转字符串
+│  │  ├──SignatureUtil.ets                          // 签名验签工具类
+│  │  └──SM2Sequence.ets                            // SM2Sequence类
 │  ├──view
 │  │  ├──AuthCodeDetail.ets                         // 消息认证码详情页面
 │  │  ├──CryptoDetail.ets                           // 加解密详情页面
@@ -69,8 +73,8 @@
 
 1.本示例仅支持标准系统上运行，支持设备：华为手机。
 
-2.HarmonyOS系统：HarmonyOS NEXT Developer Beta1及以上。
+2.HarmonyOS系统：HarmonyOS 5.0.0 Release及以上。
 
-3.DevEco Studio版本：DevEco Studio NEXT Developer Beta1及以上。
+3.DevEco Studio版本：DevEco Studio 5.0.0 Release及以上。
 
-4.HarmonyOS SDK版本：HarmonyOS NEXT Developer Beta1 SDK及以上。
+4.HarmonyOS SDK版本：HarmonyOS 5.0.0 Release SDK及以上。

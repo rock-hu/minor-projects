@@ -14,11 +14,11 @@
     },
     {
       "name": "Text_desc",
-      "value": "enter the string to be sorted, separated by commas"
+      "value": "Input the strings to be sorted. Separate them by commas."
     },
     {
       "name": "Result_desc",
-      "value": "execution result"
+      "value": "Execution Result"
     },
     {
       "name": "SortString_desc",
@@ -30,11 +30,11 @@
     },
     {
       "name": "Execute_After_3s_desc",
-      "value": "Execute After 3s"
+      "value": "3s Timeout"
     },
     {
       "name": "Execute_Immediately_desc",
-      "value": "Execute Immediately"
+      "value": "Execute Now"
     },
     {
       "name": "Function_Task_desc",
@@ -46,43 +46,43 @@
     },
     {
       "name": "strSortText",
-      "value": "String Sort Text"
+      "value": "Sort String"
     },
     {
       "name": "copyFileText",
-      "value": "ClearFile and CopyFile Text"
+      "value": "Copy File"
     },
     {
       "name": "clearAndCopyFileText",
-      "value": "ClearFile and CopyFile Text"
+      "value": "Clear the sandbox and copy file"
     },
     {
       "name": "workerTitleText",
-      "value": "Worker Title Text"
+      "value": "Files in common directory"
     },
     {
       "name": "logTitle",
-      "value": "Log Title"
+      "value": "Log"
     },
     {
       "name": "workerLog1",
-      "value": "Sandbox File Number"
+      "value": "1、Files in sandbox directory: "
     },
     {
       "name": "workerLog2",
-      "value": "Sandbox File Number Unit"
+      "value": ""
     },
     {
       "name": "workerLog3",
-      "value": "File"
+      "value": " file "
     },
     {
       "name": "workerLog4",
-      "value": "Finish"
+      "value": " is completed"
     },
     {
       "name": "workerLog5",
-      "value": "And So On"
+      "value": " and so on"
     },
     {
       "name": "workerLogChooseFile",

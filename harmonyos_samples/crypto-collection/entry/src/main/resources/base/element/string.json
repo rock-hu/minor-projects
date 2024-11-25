@@ -183,6 +183,30 @@
     {
       "name": "decrypt",
       "value": "Decrypt"
+    },
+    {
+      "name": "format_conversion",
+      "value": "SM2 key format conversion"
+    },
+    {
+      "name": "format_error",
+      "value": "Incorrect ciphertext format"
+    },
+    {
+      "name": "private_key",
+      "value": "Hexadecimal private key"
+    },
+    {
+      "name": "public_key",
+      "value": "Hexadecimal public key"
+    },
+    {
+      "name": "ASN_1",
+      "value": "ASN.1 format ciphertext"
+    },
+    {
+      "name": "naked_ciphertext",
+      "value": "Naked ciphertext"
     }
   ]
 }

@@ -10,7 +10,7 @@
     },
     {
       "name": "network_permission",
-      "value": "获取网络状态权限"
+      "value": "用于订阅网络状态场景获取网络信息"
     },
     {
       "name": "read_call_permission",
@@ -431,10 +431,6 @@
     {
       "name": "no",
       "value": "否"
-    },
-    {
-      "name": "network_permission",
-      "value": "用于订阅网络状态场景获取网络信息"
     }
   ]
 }

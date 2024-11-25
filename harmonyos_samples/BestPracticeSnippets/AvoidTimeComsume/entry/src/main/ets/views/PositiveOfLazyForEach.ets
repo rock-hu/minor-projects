@@ -49,16 +49,7 @@ struct PositiveOfLazyForEach {
   // The value calculated by the time-consuming operation
   private timeConsumingValue: number = 0;
 
-  aboutToAppear(): void {
-    // DocsDot
-    for (let i = 1; i < 1000; i++) {
-      this.data.pushData(i);
-    }
-    // DocsDot
-    // Execute time-consuming asynchronous functions
-    this.itemGeneratorFunc();
-  }
-
+  // Execute time-consuming asynchronous functions elsewhere
   // Simulate time-consuming operations
   itemGeneratorFunc() {
     let temp: number = 0;

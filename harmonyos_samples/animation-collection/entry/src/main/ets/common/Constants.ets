@@ -46,46 +46,50 @@ export default class Constants {
    */
   static readonly NavDestinationData: NavDestinationItem[] = [
     {
-      name: 'PageTurningAnimation', detail: '翻页动效'
+      name: 'PageTurningAnimation', detail: this.ResourceToString($r('app.string.page_turning_animation'))
     },
     {
-      name: 'PageExpandTitle', detail: '标题下拉缩放'
+      name: 'PageExpandTitle', detail: this.ResourceToString($r('app.string.page_expand_title'))
     },
     {
-      name: 'PageStatusBarChange', detail: '状态栏显隐切换'
+      name: 'PageStatusBarChange', detail: this.ResourceToString($r('app.string.page_status_bar_change'))
     },
     {
-      name: 'PageListSlideToHistory', detail: '长列表滑动到指定列表项动效实现'
+      name: 'PageListSlideToHistory', detail: this.ResourceToString($r('app.string.page_list_slide_to_history'))
     },
     {
-      name: 'PageWaterRipples', detail: '听歌识曲水波纹特效'
+      name: 'PageWaterRipples', detail: this.ResourceToString($r('app.string.page_water_ripples'))
     },
     {
-      name: 'PageWaterMarqueeView', detail: '跑马灯'
+      name: 'PageWaterMarqueeView', detail: this.ResourceToString($r('app.string.page_marquee_view'))
     },
     {
-      name: 'SwiperSmoothVariation', detail: 'Swiper高度变化效果'
+      name: 'SwiperSmoothVariation', detail: this.ResourceToString($r('app.string.swiper_smooth_variation'))
     },
     {
-      name: 'SideBarAnimation', detail: 'SideBarContainer侧边栏淡入淡出动效'
+      name: 'SideBarAnimation', detail: this.ResourceToString($r('app.string.side_bar_animation'))
     },
     {
-      name: 'PageVibrateEffect', detail: '使用弹簧曲线实现抖动动画及手机振动效果'
+      name: 'PageVibrateEffect', detail: this.ResourceToString($r('app.string.page_vibrate_effect'))
     },
     {
-      name: 'PagePaintComponent', detail: '使用绘制组件实现自定义进度动画'
+      name: 'PagePaintComponent', detail: this.ResourceToString($r('app.string.page_paint_component'))
     },
     {
-      name: 'DigitalScrollExample', detail: '数字滚动动效'
+      name: 'DigitalScrollExample', detail: this.ResourceToString($r('app.string.digital_scroll_example'))
     },
     {
-      name: 'PageCardsSwiper', detail: '自定义Swiper卡片预览效果'
+      name: 'PageCardsSwiper', detail: this.ResourceToString($r('app.string.page_cards_swiper'))
     },
     {
-      name: 'VotingComponent', detail: '投票动效'
+      name: 'VotingComponent', detail: this.ResourceToString($r('app.string.voting_component'))
     },
     {
-      name: 'VoiceRecordDynamic', detail: '语音录制和声音动效实现'
+      name: 'VoiceRecordDynamic', detail: this.ResourceToString($r('app.string.voice_record_dynamic'))
     }
   ];
+
+  static ResourceToString(resource:Resource):string{
+    return getContext(resource).resourceManager.getStringSync(resource)
+  }
 }

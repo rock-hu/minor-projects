@@ -22,7 +22,9 @@ let windowClass = null
 
 export default class WindowController {
 
-  // 获取当前应用内最后显示的窗口，使用callback异步回调。对应FA的getWindow
+  // Obtain the last window displayed in the current application and
+  // use the callback asynchronous callback function.
+  // Corresponding to the getWindow() of the FA.
   getTopWindow(context) {
     window.getLastWindow(context, (err, data) => {
       if (err.code) {
@@ -39,7 +41,8 @@ export default class WindowController {
     })
   }
 
-  // 设置当前能力的显示方向,对应FA模型的setDisplayOrientation()
+  // Sets the display direction of the current capability,
+  // corresponding to setDisplayOrientation() of the FA model.
   setPreferredOrientation(context) {
 
     window.getLastWindow(context, (err, data) => {

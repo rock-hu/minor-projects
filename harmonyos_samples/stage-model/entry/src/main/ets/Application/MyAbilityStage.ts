@@ -23,13 +23,14 @@ export default class MyAbilityStage extends AbilityStage {
     Logger.info(TAG, 'MyAbilityStage onCreate')
   }
 
-  //启动一个specified ability时触发的事件。
+  // Event triggered when a specified ability is enabled.
   onAcceptWant(want) {
     Logger.info(TAG, 'MyAbilityStage.onAcceptWant called')
     return 'ohos.samples.stagemodel'
   }
 
-  //环境变化通知接口，发生全局配置变更时回调。
+  // Environment change notification interface,
+  // which is called back when the global configuration changes.
   onConfigurationUpdated(config) {
     Logger.info(TAG, `onConfigurationUpdated, language: ${config.language.abilityName}`)
   }

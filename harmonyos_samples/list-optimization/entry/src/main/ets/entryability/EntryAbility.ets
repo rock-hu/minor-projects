@@ -74,6 +74,7 @@ function requestFullScreen(windowStage: window.WindowStage, context: Context): v
       getDeviceSize(context, area);
       let promise: Promise<void> = windowClass.setWindowLayoutFullScreen(isLayoutFullScreen);
       promise.then(() => {
+        windowStage.getMainWindowSync().setWindowBackgroundColor('#F1F3F5');
         Logger.info(TAG, 'Succeeded in setting the window layout to full-screen mode.');
       }).catch((err: BusinessError) => {
         Logger.error(TAG, 'Failed to set the window layout to full-screen mode. Cause:' + JSON.stringify(err));

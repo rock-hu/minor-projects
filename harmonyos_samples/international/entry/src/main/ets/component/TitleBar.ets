@@ -33,7 +33,7 @@ export default struct TitleBar {
         .aspectRatio(1)
         .margin({ left: 24 })
         .onClick(() => {
-          router.back()
+          router.back();
         })
       }
       Text(this.title)

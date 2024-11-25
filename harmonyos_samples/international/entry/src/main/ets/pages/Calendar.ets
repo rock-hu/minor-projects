@@ -13,13 +13,12 @@
 * limitations under the License.
 */
 
-
 import { i18n } from '@kit.LocalizationKit';
 import TitleBar from '../component/TitleBar';
 
 const WEEK_TITLE = [$r('app.string.monday'), $r('app.string.tuesday'), $r('app.string.wednesday'),
-$r('app.string.thursday'), $r('app.string.friday'), $r('app.string.saturday'),
-$r('app.string.sunday')];
+  $r('app.string.thursday'), $r('app.string.friday'), $r('app.string.saturday'),
+  $r('app.string.sunday')];
 
 interface Day {
   isCurrentMonth: boolean,
@@ -125,12 +124,12 @@ struct CalendarView {
   }
 }
 
-
 @Component
 struct Title {
   @Link currentYear: number;
   @Link currentMonth: number;
-  private goToday: () => void = (): void =>{}
+  private goToday: () => void = (): void => {
+  }
 
   build() {
     Column() {

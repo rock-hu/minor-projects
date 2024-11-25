@@ -112,7 +112,7 @@ struct Watcher {
                     .fontSize(14)
                     .margin({ top: 19.5, bottom: 9.5 })
                     .lineHeight(19)
-                    .width(176)
+                    .width("100%")
                     .fontColor('#182431')
                     .fontWeight(500)
                     .textAlign(TextAlign.Start)

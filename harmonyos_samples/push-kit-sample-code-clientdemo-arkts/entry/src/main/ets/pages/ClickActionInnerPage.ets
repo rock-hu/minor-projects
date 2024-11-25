@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import Want from '@ohos.app.ability.Want';
+import { Want } from '@kit.AbilityKit';
 import Logger from '../utils/Logger';
 
 const localStorage = LocalStorage.getShared();

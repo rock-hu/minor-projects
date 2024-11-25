@@ -79,7 +79,7 @@ struct requestContent {
         .fontWeight(500)
         .borderRadius(10)
 
-      Button('点击反馈')
+      Button('Click to report qoe')
         .width('100%')
         .height(40)
         .margin({ top: '11%' })
@@ -89,7 +89,7 @@ struct requestContent {
         .borderRadius(20)
         .onClick(this.getReportQoe)
 
-      Text('结果')
+      Text('Result')
         .fontSize(24)
         .fontWeight(500)
         .fontColor($r('sys.color.black'))
@@ -124,10 +124,10 @@ struct requestContent {
         qoeType
       };
       netQuality.reportQoe(appQoe);
-      this.content = `传输质量反馈成功`;
+      this.content = `report success`;
     } catch (err) {
       let e: BusinessError = err as BusinessError;
-      this.content = `传输质量反馈失败` + JSON.stringify(err);
+      this.content = `report fail` + JSON.stringify(err);
       hilog.error(0x0000, 'testTag', 'reportQoe error: %{public}d %{public}s', e.code, e.message);
     }
   }

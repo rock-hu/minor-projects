@@ -63,5 +63,6 @@ export struct MainPage {
       .height($r('app.string.percent_100'))
       .cachedCount(5)
     }
+    .layoutWeight(1)
   }
 }

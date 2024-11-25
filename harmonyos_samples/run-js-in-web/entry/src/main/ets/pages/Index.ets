@@ -20,11 +20,14 @@ const TAG: string = '[Index]';
 @Entry
 @Component
 struct Index {
-  @State gameLeft: string = "console.info('webgame gameLeft'); _main.paddle.moveLeft();";
-  @State gameRight: string = "console.info('webgame gameRight'); _main.paddle.moveRight();";
-  @State gameStart: string = "console.info('webgame gameStart'); if (_main.game.state !== _main.game.state_GAMEOVER) {_main.game.state = _main.game.state_RUNNING; _main.ball.fired = true;}";
-  @State gameReset: string = "console.info('webgame gameReset'); if (_main.game.state === _main.game.state_GAMEOVER) {_main.game.state = _main.game.state_START; _main.start()}";
-  @State removeDesc: string = "console.info('webgame removeDesc'); y=document.getElementsByTagName('div')[0]; y.parentNode.removeChild(y)";
+  @State gameLeft: string = 'console.info(\'webgame gameLeft\'); _main.paddle.moveLeft();';
+  @State gameRight: string = 'console.info(\'webgame gameRight\'); _main.paddle.moveRight();';
+  @State gameStart: string =
+    'console.info(\'webgame gameStart\'); if (_main.game.state !== _main.game.state_GAMEOVER) {_main.game.state = _main.game.state_RUNNING; _main.ball.fired = true;}';
+  @State gameReset: string =
+    'console.info(\'webgame gameReset\'); if (_main.game.state === _main.game.state_GAMEOVER) {_main.game.state = _main.game.state_START; _main.start()}';
+  @State removeDesc: string =
+    'console.info(\'webgame removeDesc\'); y=document.getElementsByTagName(\'div\')[0]; y.parentNode.removeChild(y)';
   private imgRequestUrl: string = 'https://yangyunhe369.github.io/h5-game-blockBreaker/images/background.jpg';
   controller: webview.WebviewController = new webview.WebviewController();
   responseweb: WebResourceResponse = new WebResourceResponse();
@@ -35,35 +38,38 @@ struct Index {
         Button('Start', { type: ButtonType.Capsule })
           .onClick(() => {
             try {
-              this.controller.loadUrl("javascript:" + this.gameStart);
+              this.controller.loadUrl('javascript:' + this.gameStart);
             } catch (error) {
               Logger.info(TAG, `loadUrl gameStart fail: ${JSON.stringify(error)}`);
             }
           })
         Button('L', { type: ButtonType.Capsule })
-          .width(50).height(100).backgroundColor(Color.Red)
+          .width(50)
+          .height(100)
+          .backgroundColor(Color.Red)
           .gesture(
             LongPressGesture({ repeat: true, duration: 20 })
               .onAction((event: GestureEvent) => {
                 if (event.repeat) {
                   try {
-                    this.controller.loadUrl("javascript:" + this.gameLeft);
+                    this.controller.loadUrl('javascript:' + this.gameLeft);
                   } catch (error) {
                     Logger.info(TAG, `loadUrl gameLeft fail: ${JSON.stringify(error)}`);
                   }
                 }
               })
           )
-      }.width('8%')
+      }
+      .width('8%')
 
       Column() {
-        Web({ src: "https://yangyunhe369.github.io/h5-game-blockBreaker/", controller: this.controller })
+        Web({ src: 'https://yangyunhe369.github.io/h5-game-blockBreaker/', controller: this.controller })
           .domStorageAccess(true)
           .onlineImageAccess(true)
           .imageAccess(true)
           .zoomAccess(false)
           .javaScriptAccess(true)
-          .backgroundColor(Color.Orange)//拦截资源请求，优化游戏流畅度
+          .backgroundColor(Color.Orange)
           .onInterceptRequest((event) => {
             let url = '';
             if (event) {
@@ -76,37 +82,42 @@ struct Index {
           })
           .onPageEnd(e => {
             try {
-              this.controller.loadUrl("javascript:" + this.removeDesc);
+              this.controller.loadUrl('javascript:' + this.removeDesc);
             } catch (error) {
               Logger.info(TAG, `loadUrl removeDesc fail: ${JSON.stringify(error)}`);
             }
           })
-      }.width('78%')
+      }
+      .width('78%')
 
       Column() {
         Button('Reset', { type: ButtonType.Capsule })
           .onClick(() => {
             try {
-              this.controller.loadUrl("javascript:" + this.gameReset);
+              this.controller.loadUrl('javascript:' + this.gameReset);
             } catch (error) {
               Logger.info(TAG, `loadUrl gameReset fail: ${JSON.stringify(error)}`);
             }
           })
         Button('R', { type: ButtonType.Capsule })
-          .width(50).height(100).backgroundColor(Color.Red)
+          .width(50)
+          .height(100)
+          .backgroundColor(Color.Red)
           .gesture(
             LongPressGesture({ repeat: true, duration: 20 })
               .onAction((event: GestureEvent) => {
                 if (event.repeat) {
                   try {
-                    this.controller.loadUrl("javascript:" + this.gameRight);
+                    this.controller.loadUrl('javascript:' + this.gameRight);
                   } catch (error) {
                     Logger.info(TAG, `loadUrl gameRight fail: ${JSON.stringify(error)}`);
                   }
                 }
               })
           )
-      }.width('8%')
+      }
+      .width('8%')
     }
+    .margin({ left: 36 })
   }
 }

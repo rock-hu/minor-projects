@@ -38,7 +38,7 @@ export function harBuilder(value: object) {
         .height(40)
         .margin(20)
         .onClick(() => {
-          RouterModule.popToName(RouterNameConstants.ENTRY_HAP, BuilderNameConstants.HARB_B1)
+          buildRouterModel(RouterNameConstants.ENTRY_HAP, BuilderNameConstants.HARB_B1)
         })
     }
     .width('100%')

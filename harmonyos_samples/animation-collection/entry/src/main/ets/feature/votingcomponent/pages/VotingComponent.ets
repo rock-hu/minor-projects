@@ -32,7 +32,7 @@ export struct VotingComponent {
 
   changeState(option: string) {
     this.isClick = true;
-    this.notice = `${Constants.RESULT_NOTICE}'${option}'`;
+    this.notice = `${$r('app.string.result_notice')}'${option}'`;
     this.fillOpacity = Constants.END_FILL_OPACITY;
     const leftOptionPercent: number =
       this.leftOptionChoose / (this.leftOptionChoose + this.rightOptionChoose) * Constants.PERCENTAGE;
@@ -79,7 +79,7 @@ export struct VotingComponent {
               .height($r('app.integer.voting_component_option_background_height'))
             Stack() {
               if (!this.isClick) {
-                Text(Constants.LEFT_OPTION)
+                Text($r('app.string.left_option'))
                   .fontColor(Color.White)
                   .margin({ right: $r('app.integer.voting_component_text_center_margin') })
               } else {
@@ -87,7 +87,7 @@ export struct VotingComponent {
                   Text(this.leftOptionWidth)
                     .fontColor(Constants.LEFT_COLOR)
                     .fontSize($r('app.integer.voting_component_upper_text_font_size'))
-                  Text(Constants.LEFT_OPTION)
+                  Text($r('app.string.left_option'))
                     .fontColor(Constants.LEFT_COLOR)
                     .fontSize($r('app.integer.voting_component_under_text_font_size'))
                 }
@@ -98,7 +98,7 @@ export struct VotingComponent {
               return;
             }
             this.leftOptionChoose++;
-            this.changeState(Constants.LEFT_OPTION);
+            this.changeState(this.ResourceToString($r('app.string.left_option')));
           })
 
           Stack() {
@@ -115,7 +115,7 @@ export struct VotingComponent {
               .height($r('app.integer.voting_component_option_background_height'))
             Stack() {
               if (!this.isClick) {
-                Text(Constants.RIGHT_OPTION)
+                Text($r('app.string.right_option'))
                   .fontColor(Color.White)
                   .margin({ left: $r('app.integer.voting_component_text_center_margin') })
               } else {
@@ -123,7 +123,7 @@ export struct VotingComponent {
                   Text(this.rightOptionWidth)
                     .fontColor(Constants.RIGHT_COLOR)
                     .fontSize($r('app.integer.voting_component_upper_text_font_size'))
-                  Text(Constants.RIGHT_OPTION)
+                  Text(this.ResourceToString($r('app.string.right_option')))
                     .fontColor(Constants.RIGHT_COLOR)
                     .fontSize($r('app.integer.voting_component_under_text_font_size'))
                 }
@@ -134,7 +134,7 @@ export struct VotingComponent {
               return;
             }
             this.rightOptionChoose++;
-            this.changeState(Constants.RIGHT_OPTION);
+            this.changeState(this.ResourceToString($r('app.string.right_option')));
           })
         }
 
@@ -171,7 +171,7 @@ export struct VotingComponent {
           .fontSize($r('app.integer.voting_component_bottom_text_font_size'))
         Stack() {
           if (this.isClick) {
-            Text(this.leftOptionChoose + this.rightOptionChoose + Constants.BOTTOM_TEXT_SUFFIX)
+            Text(this.leftOptionChoose + this.rightOptionChoose + this.ResourceToString($r('app.string.bottom_text_suffix')))
               .fontSize($r('app.integer.voting_component_bottom_text_font_size'))
           }
         }
@@ -182,6 +182,10 @@ export struct VotingComponent {
     .padding($r('app.integer.voting_component_padding_top'))
     .justifyContent(FlexAlign.Start)
   }
+
+  ResourceToString(resource:Resource):string {
+    return getContext(resource).resourceManager.getStringSync(resource)
+ }
 }
 
 @Builder

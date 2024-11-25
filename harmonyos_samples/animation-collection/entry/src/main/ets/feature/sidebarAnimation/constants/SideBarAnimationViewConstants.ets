@@ -152,8 +152,7 @@ export class SideBarAnimationViewConstants {
   /**
    * Sidebar animation duration.
    */
-  static readonly CASE_DESCRIPTION: string =
-    '本例主要用于平板或2in1场景，如群聊侧边栏显示群成员，与手机上的效果有区别。通过显式动画来实现SideBarContainer侧边栏的淡入淡出（手机上无此效果）。\n1. 请点击右侧三角进行侧边栏的显示或隐藏\n2. 请将鼠标置于侧边栏边缘，待鼠标变为双向箭头样式，长按鼠标左键并左右拖动以变化侧边栏大小';
+  static readonly CASE_DESCRIPTION: string = this.ResourceToString($r('app.string.case_description'));
 
   /**
    * Sidebar animation duration.
@@ -163,5 +162,9 @@ export class SideBarAnimationViewConstants {
   /**
    * Sidebar animation duration.
    */
-  static readonly GROUP_NAME: string = '侧边栏淡入淡出动画案例群';
+  static readonly GROUP_NAME: string = this.ResourceToString($r('app.string.group_name'));
+
+  static ResourceToString(resource:Resource):string{
+    return getContext(resource).resourceManager.getStringSync(resource)
+  }
 }

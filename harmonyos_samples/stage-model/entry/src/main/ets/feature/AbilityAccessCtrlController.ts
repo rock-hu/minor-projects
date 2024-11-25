@@ -21,7 +21,8 @@ const TAG: string = 'AbilityAccessCtrlController'
 
 export default class AbilityAccessCtrlController {
 
-  // 校验应用是否授予权限，使用Promise方式异步返回结果。对应FA模型的verifyPermission()
+  // Checks whether the permission is granted to the application and returns the result asynchronously in Promise mode.
+  // Corresponding to verifyPermission() of the FA model
   verifyAccessToken() {
     let AtManager = abilityAccessCtrl.createAtManager()
     let bundleFlags = bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION;

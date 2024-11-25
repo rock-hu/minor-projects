@@ -1,36 +1,54 @@
-# RemoteCommunicationPlatform
+# **Remote Communication Platform**
+## Overview
+Remote communication platform (RCP) provides network data request functionalities. Compared with the HTTP request capability in Network Kit, RCP is easier to use and stands out with the following features:
 
-#### Description
-{**When you're done, you can delete the content in this README and update the file with details for others getting started with your repository**}
+* Sending PATCH requests
 
-#### Software Architecture
-Software architecture description
+* Setting BaseURL
 
-#### Installation
+* Canceling the specified or ongoing session request.
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+* Customizing certificate verification based on service requirements.
 
-#### Instructions
+* Customizing DNS resolution.
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+* Caching responses by custom interceptors
 
-#### Contribution
+* Capturing detailed tracing information during the HTTP request in a session
 
-1.  Fork the repository
-2.  Create Feat_xxx branch
-3.  Commit your code
-4.  Create Pull Request
+## Preview
+![](screenshots/device/rcp_en.gif)
 
+## Project Directory
+````
+├──entry/src/main/ets                                   // Code
+│  ├──common
+│  |  ├──CommonConstants.ets                            // Constants
+│  |  └──Logger.ets                                     // Logging utility
+│  ├──entryability
+│  |  └──EntryAbility.ets                               // Entry ability
+│  ├──entrybackupability
+│  |  └──EntryBackupAbility.ets
+│  ├──pages
+│  |  ├──BaseRequest.ets                                // Basic structure and logic for making network requests
+│  |  ├──DNSSetting.ets                                 // DNS settings
+│  │  └──Index.ets                                      // Home page
+│  |  ├──MultipartForm.ets                              // APIs for handling multipart form data, useful for handling complex form submissions
+│  |  ├──RequestAndResponse.ets                         // Request and response example
+│  |  └──TracingPoint.ets                               // Tracing and logging HTTP requests and responses
+|  └──utils.ets
+│     ├──Interceptors.ets                               // Utility for intercepting network requests and responses
+│     └──NetworkStateSimulator.ets                      // Utility for simulating a slow-speed network
+└──entry/src/main/resources                             // Static resources of the app
+````
+## Required Permissions
+ohos.permission.INTERNET: allows an app to access Internet.
 
-#### Gitee Feature
+## Constraints
+* The sample app is supported only on Huawei phones running the standard system.
 
-1.  You can use Readme\_XXX.md to support different languages, such as Readme\_en.md, Readme\_zh.md
-2.  Gitee blog [blog.gitee.com](https://blog.gitee.com)
-3.  Explore open source project [https://gitee.com/explore](https://gitee.com/explore)
-4.  The most valuable open source project [GVP](https://gitee.com/gvp)
-5.  The manual of Gitee [https://gitee.com/help](https://gitee.com/help)
-6.  The most popular members  [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+* The HarmonyOS version must be HarmonyOS NEXT Developer Beta1 or later.
+
+* The DevEco Studio version must be DevEco Studio NEXT Developer Beta1 or later.
+
+* The HarmonyOS SDK version must be HarmonyOS NEXT Developer Beta1 SDK or later.

@@ -84,6 +84,8 @@ export class CryptoViewModel {
     cryptoList.push(new CryptoItem($r('app.string.rsa_dissymmetry_pkcs1'),
       $r('app.string.decrypt'), $r('app.string.encrypt'),
       'RSA_PKCS1_BIG'));
+    cryptoList.push(new CryptoItem($r('app.string.format_conversion'),
+      $r('app.string.encrypt'), $r('app.string.decrypt'), 'SM2'));
     return cryptoList;
   }
 }

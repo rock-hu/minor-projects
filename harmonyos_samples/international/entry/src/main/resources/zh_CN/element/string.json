@@ -75,6 +75,10 @@
     {
       "name": "character_type_tip",
       "value": "输入一个字符，显示字符类型"
+    },
+    {
+      "name": "app_name",
+      "value": "国际化"
     }
   ]
 }

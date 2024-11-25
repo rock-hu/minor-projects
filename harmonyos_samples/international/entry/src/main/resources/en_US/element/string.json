@@ -75,6 +75,10 @@
     {
       "name": "character_type_tip",
       "value": "Enter a character to display the character type"
+    },
+    {
+      "name": "app_name",
+      "value": "International"
     }
   ]
 }

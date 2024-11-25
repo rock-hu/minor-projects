@@ -13,10 +13,10 @@
 * limitations under the License.
 */
 
-import TitleBar from '../component/TitleBar';
-import ResourceUtil from '../util/ResourceUtil';
 import { i18n } from '@kit.LocalizationKit';
 import { common } from '@kit.AbilityKit';
+import TitleBar from '../component/TitleBar';
+import ResourceUtil from '../util/ResourceUtil';
 
 const types = ['U_UNASSIGNED', 'U_GENERAL_OTHER_TYPES', 'U_UPPERCASE_LETTER',
   'U_LOWERCASE_LETTER', 'U_TITLECASE_LETTER', 'U_MODIFIER_LETTER',
@@ -31,7 +31,6 @@ const types = ['U_UNASSIGNED', 'U_GENERAL_OTHER_TYPES', 'U_UPPERCASE_LETTER',
   'U_FINAL_PUNCTUATION', 'U_CHAR_CATEGORY_COUNT'];
 
 const LOCALE = i18n.System.getSystemLocale();
-const TAG = 'TextProcessing';
 const MAX = 60;
 
 @Entry

@@ -37,7 +37,7 @@ class ResourceUtil {
   async getDirection(context: common.Context): Promise<string> {
     let rscManager = context.resourceManager;
     let configuration = await rscManager.getConfiguration();
-    if (configuration.direction === 1) { // 1代表Horizontal，0代表Vertical
+    if (configuration.direction === 1) { // 1 is Horizontal，0 is Vertical
       return 'Horizontal';
     } else {
       return 'Vertical';

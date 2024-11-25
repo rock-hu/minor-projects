@@ -138,19 +138,19 @@
     },
     {
       "name": "name_page_one",
-      "value": "拼车"
+      "value": "Carpool"
     },
     {
       "name": "name_page_two",
-      "value": "打车"
+      "value": "Taxi"
     },
     {
       "name": "name_page_three",
-      "value": "赚钱"
+      "value": "Make hay"
     },
     {
       "name": "name_page_four",
-      "value": "公交车"
+      "value": "Bus"
     },
     {
       "name": "first_prompt",
@@ -170,7 +170,7 @@
     },
     {
       "name": "function_tool_bar",
-      "value": "功能栏"
+      "value": "Control bar"
     },
     {
       "name": "search_background_color",
@@ -318,7 +318,7 @@
     },
     {
       "name": "voting_component_voting_theme_image_text",
-      "value": "大家冬天喜欢早起还是晚起呀"
+      "value": "Do you like to wake up early or late in winter?"
     },
     {
       "name": "voting_component_mid_text_left",
@@ -342,7 +342,7 @@
     },
     {
       "name": "voting_component_bottom_text_suffix",
-      "value": "人参与"
+      "value": "People are involved"
     },
     {
       "name": "voting_component_mid_gap_mark_anchor",
@@ -350,11 +350,239 @@
     },
     {
       "name": "voting_notice",
-      "value": "点击上方按钮，选择你的观点"
+      "value": "Click the button above and select your point of view"
+    },
+    {
+      "name": "voice_record_dynamic_effect_talk_info",
+      "value": "What are you doing"
+    },
+    {
+      "name": "voice_record_dynamic_effect_talk_message_one",
+      "value": "a lot of people together"
+    },
+    {
+      "name": "voice_record_dynamic_effect_talk_message_two",
+      "value": "Do you have time"
+    },
+    {
+      "name": "voice_record_dynamic_effect_talk_message_thr",
+      "value": "What are you doing"
+    },
+    {
+      "name": "voice_record_dynamic_effect_talk_message_four",
+      "value": "self-driving tour"
+    },
+    {
+      "name": "page_turning_animation",
+      "value": "page turning animation"
+    },
+    {
+      "name": "page_expand_title",
+      "value": "page expand title"
+    },
+    {
+      "name": "page_status_bar_change",
+      "value": "page status bar change"
+    },
+    {
+      "name": "page_list_slide_to_history",
+      "value": "page list slide to history"
+    },
+    {
+      "name": "page_water_ripples",
+      "value": "page water ripples"
+    },
+    {
+      "name": "page_marquee_view",
+      "value": "page marquee view"
+    },
+    {
+      "name": "swiper_smooth_variation",
+      "value": "swiper smooth variation"
+    },
+    {
+      "name": "side_bar_animation",
+      "value": "sideBar_animation"
+    },
+    {
+      "name": "page_vibrate_effect",
+      "value": "page vibrate effect"
+    },
+    {
+      "name": "page_paint_component",
+      "value": "page paint component"
+    },
+    {
+      "name": "digital_scroll_example",
+      "value": "digital scroll example"
+    },
+    {
+      "name": "page_cards_swiper",
+      "value": "page cards swiper"
+    },
+    {
+      "name": "voting_component",
+      "value": "voting component"
+    },
+    {
+      "name": "voice_record_dynamic",
+      "value": "voice record dynamic"
+    },
+    {
+      "name": "marquee_title",
+      "value": "marquee case"
+    },
+    {
+      "name": "marquee_content",
+      "value": "When the text width is too wide, a marquee effect is achieved(the text scrolls in a loop, and after each loop it will pause for a while before scrolling again)"
+    },
+    {
+      "name": "my_trip",
+      "value": "My trip"
+    },
+    {
+      "name": "time_difference_data_1",
+      "value": "50m from departure"
+    },
+    {
+      "name": "origin_data",
+      "value": "beijing"
+    },
+    {
+      "name": "destinatiojn_data_1",
+      "value": "shanghai"
+    },
+    {
+      "name": "ticket_entrance_data_1",
+      "value": "Waiting location: Waiting Room No. 7"
+    },
+    {
+      "name": "vehicle_model_data_1",
+      "value": "Ordi"
+    },
+    {
+      "name": "whole_course_data_1",
+      "value": "2h8m/100km"
+    },
+    {
+      "name": "time_difference_data_2",
+      "value": "14h50m from departure"
+    },
+    {
+      "name": "destination_data_2",
+      "value": "luoyang"
+    },
+    {
+      "name": "ticket_entrance_data_2",
+      "value": "Gate 15A"
+    },
+    {
+      "name": "vehicle_model_data_2",
+      "value": "H-S"
+    },
+    {
+      "name": "ticket_entrance",
+      "value": "ticket entrance:"
+    },
+    {
+      "name": "plan_text",
+      "value": "on plan"
+    },
+    {
+      "name": "vehicle_model",
+      "value": "Vehicle:"
+    },
+    {
+      "name": "title_name",
+      "value": "Current progress"
+    },
+    {
+      "name": "left_option",
+      "value": "Early"
+    },
+    {
+      "name": "right_option",
+      "value": "Selected"
+    },
+    {
+      "name": "bottom_text_suffix",
+      "value": "People Participation"
+    },
+    {
+      "name": "result_notice",
+      "value": "Selected"
+    },
+    {
+      "name": "voice_record_dynamic_effect_friend",
+      "value": "Group"
+    },
+    {
+      "name": "voice_record_dynamic_effect_send_message",
+      "value": "Release to send"
+    },
+    {
+      "name": "voice_record_dynamic_effect_talk_message",
+      "value": "???"
+    },
+    {
+      "name": "voice_record_dynamic_effect_button",
+      "value": "Press and hold to speak"
+    },
+    {
+      "name": "destination_data_1",
+      "value": "shanghai"
+    },
+    {
+      "name": "group_name",
+      "value": "Sidebar fades in and out of the animation case group"
+    },
+    {
+      "name": "case_description",
+      "value": "This example is mainly used in tablet or 2-in1 scenarios, such as the group chat sidebar displays group members, which is different from the effect on mobile phones. Implement the fade in and out of the SideBarContainer sidebar by explicitly animating it (this effect is not available on mobile phones).\n 1. Click on the triangle on the right to show or hide the sidebar\n 2. Place the mouse on the edge of the sidebar, wait for the mouse to change the two-way arrow style, press and hold the left mouse button and drag left and right to change the sidebar size"
+    },
+    {
+      "name": "other_login_methods",
+      "value": "Other number login/enroll"
+    },
+    {
+      "name": "login_in",
+      "value": "Login with your local number"
+    },
+    {
+      "name": "read_and_check",
+      "value": "Please read and tick the agreement"
+    },
+    {
+      "name": "read_and_agreed",
+      "value": "I have read and agreed"
+    },
+    {
+      "name": "services_and_policies",
+      "value": "「**Account Services & Privacy Policy」"
+    },
+    {
+      "name": "service_agreement",
+      "value": "「Service Agreement」"
+    },
+    {
+      "name": "privacy_policy",
+      "value": "「Privacy Policy」"
+    },
+    {
+      "name": "and",
+      "value": "AND"
+    },
+    {
+      "name": "phone_number",
+      "value": "188******88"
     },
     {
       "name": "reason",
-      "value": "Allow the application to prompt scene control motor vibration on the login page."
+      "value": "get vibrate permission"
+    },
+    {
+      "name": "login_text",
+      "value": "Login successful, demo only"
     },
     {
       "name": "voice_record_dynamic_effect_app_name",

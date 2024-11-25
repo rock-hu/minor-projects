@@ -183,6 +183,30 @@
     {
       "name": "decrypt",
       "value": "解密"
+    },
+    {
+      "name": "format_conversion",
+      "value": "SM2密钥格式转换"
+    },
+    {
+      "name": "format_error",
+      "value": "密文格式错误"
+    },
+    {
+      "name": "private_key",
+      "value": "16进制私钥"
+    },
+    {
+      "name": "public_key",
+      "value": "16进制公钥"
+    },
+    {
+      "name": "ASN_1",
+      "value": "ASN.1格式密文"
+    },
+    {
+      "name": "naked_ciphertext",
+      "value": "裸密文"
     }
   ]
 }

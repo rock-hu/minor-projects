@@ -14,11 +14,11 @@
     },
     {
       "name": "user_agent",
-      "value": "Custom User Agents: %s"
+      "value": "Custom user agents: %s"
     },
     {
       "name": "default_agent",
-      "value": "Default User Agent: %s"
+      "value": "Default user agent: %s"
     },
     {
       "name": "refresh",
@@ -26,15 +26,15 @@
     },
     {
       "name": "get_agent",
-      "value": "Get Custom User Agents"
+      "value": "Obtain custom user agents"
     },
     {
       "name": "set_agent",
-      "value": "Set Custom User Agents"
+      "value": "Set custom user agents"
     },
     {
       "name": "get_default_agent",
-      "value": "Get Default User Agent"
+      "value": "Obtain default user agent"
     },
     {
       "name": "reason_internet",

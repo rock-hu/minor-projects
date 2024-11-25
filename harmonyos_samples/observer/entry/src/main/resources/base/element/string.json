@@ -33,6 +33,10 @@
       "value": "Signal status change"
     },
     {
+      "name": "callState_change",
+      "value": "Subscription call status change event"
+    },
+    {
       "name": "cellular_data_connection_state_change",
       "value": "Cellular data link connection"
     },

@@ -53,14 +53,15 @@ export default class AbilityContextController {
     }
   }
 
-  // 启动Ability，对应FA的StartServiceAbility
+  // Enables the Ability, which corresponds to the StartServiceAbility of the FA.
   startAbility() {
     this.context.startAbility(want, (error) => {
       Logger.info(TAG, `error.code: ${JSON.stringify(error.code)}`)
     })
   }
 
-  // 启动Ability并在结束的时候返回执行结果，对应FA的startAbilityForResult
+  // Starts the capability and returns the execution result when the capability is complete.
+  // This parameter corresponds to startAbilityForResult of the FA.
   startAbilityForResult() {
     this.context.startAbilityForResult(
       {
@@ -73,14 +74,16 @@ export default class AbilityContextController {
     );
   }
 
-  // 停止Ability自身，对应FA的terminateSelf
+  // This field is used to stop the capability itself, which corresponds to terminateSelf of the FA.
   terminateSelf() {
     this.context.terminateSelf((error) => {
       Logger.info(TAG, `terminateSelf result: ${JSON.stringify(error)}`)
     })
   }
 
-  // 停止Ability，配合startAbilityForResult使用，返回给接口调用方AbilityResult信息，对应FA的terminateSelfWithResult
+  // This parameter is used together with startAbilityForResult to stop the capability.
+  // The value of this parameter is returned to the interface invoker.
+  // The value corresponds to terminateSelfWithResult in the FA.
   terminateSelfWithResult() {
     const abilityResult = {
       want,
@@ -92,7 +95,7 @@ export default class AbilityContextController {
     )
   }
 
-  // 断开连接，对应FA模型的disconnectService
+  // Disconnection, corresponding to disconnectService of the FA model.
   disconnectAbility() {
     this.context.disconnectServiceExtensionAbility(connectionNumber).then((data) => {
       Logger.info(TAG, `disconnectAbility success, data: ${JSON.stringify(data)}`)
@@ -107,7 +110,8 @@ export default class AbilityContextController {
     })
   }
 
-  // 拉起弹窗请求用户授权，对应FA模型的AppContext中的requestPermissionsFromUser
+  // Start a pop-up window to request user authorization,
+  // corresponding to requestPermissionsFromUser in AppContext of the FA model.
   requestPermissionsFromUser() {
     let atManager: abilityAccessCtrl.AtManager = abilityAccessCtrl.createAtManager()
     try {
@@ -124,7 +128,7 @@ export default class AbilityContextController {
     }
   }
 
-  // 设置ability在任务中显示的名称，
+  // Specifies the name of the ability displayed in the task,
   setMissionLabel() {
     this.context.setMissionLabel('test', (result) => {
       Logger.info(TAG, `setMissionLabel: ${JSON.stringify(result)}`)
@@ -134,7 +138,7 @@ export default class AbilityContextController {
     })
   }
 
-  // 查询ability是否在terminating状态。
+  // Check whether the ability is in terminating state.
   isTerminating() {
     const isTerminating = this.context.isTerminating()
     promptAction.showToast({

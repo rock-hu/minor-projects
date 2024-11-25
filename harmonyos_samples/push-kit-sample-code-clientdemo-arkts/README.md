@@ -23,7 +23,7 @@
 │ │ ├─ClickActionAbility.ets       // 通知栏点击事件能力类
 │ │ ├─FormAbility.ets              // 卡片能力类
 │ │ ├─MainAbility.ets              // 主程序入口类
-│ │ ├─model.ets                    // 公共接口定义
+│ │ ├─Model.ets                    // 公共接口定义
 │ │ └─RemoteNotificationExtAbility.ets // 通知扩展进程入口类
 │ ├─pages                          // 存放页面文件目录                
 │ │ ├─ClickActionInnerPage.ets     // 点击跳转落地页面            
@@ -39,7 +39,8 @@
 ## 开发准备
 1. 将app.json5文件中的包名替换为您自己应用的包名。
 2. 开通推送服务，详情请参考[指导](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/push-config-setting-V5#section13206419341)。
-3. 完成手动签名，详情请参考[指导](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/ide-signing-0000001587684945-V5#section297715173233)。
+3. 完成手动签名，详情请参考[指导](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/ide-signing-V5#section297715173233)。
+4. 为实现消息展示后可以点击跳转到应用页面，本示例工程已经在module.json5文件中配置好skills标签，如有需要可以参考[指导](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/push-send-alert-V5#section697519219136)自行修改。
 
 ## 使用说明
 ### 申请Token
@@ -71,7 +72,11 @@
 5. 下拉状态栏，在通知中心查看消息。
 6. 点击通知栏消息，跳转应用的落地页。
 
+## 相关权限
+不涉及
+
 ## 约束与限制
-1. HarmonyOS系统：HarmonyOS NEXT Developer Beta5及以上。
-2. DevEco Studio版本：DevEco Studio NEXT Developer Beta5及以上。
-3. HarmonyOS SDK版本：HarmonyOS NEXT Developer Beta5 SDK及以上。
+1. 本示例仅支持标准系统上运行，支持设备：华为手机、2in1、平板。
+2. HarmonyOS系统：HarmonyOS NEXT Developer Beta5及以上。
+3. DevEco Studio版本：DevEco Studio NEXT Developer Beta5及以上。
+4. HarmonyOS SDK版本：HarmonyOS NEXT Developer Beta5 SDK及以上。

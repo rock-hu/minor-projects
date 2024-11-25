@@ -28,7 +28,7 @@ export default class FormAbility extends FormExtensionAbility {
     const bindingData = formBindingData.createFormBindingData({
       formId,
       text: 'default',
-      image: '',
+      image: ''
     });
 
     // define proxy field
@@ -38,7 +38,7 @@ export default class FormAbility extends FormExtensionAbility {
       },
       {
         key: 'image', subscriberId: formId
-      },
+      }
     ];
     return bindingData;
   }

@@ -5,7 +5,7 @@
 本示例基于ArkTS和Web组件实现了User Agent的设置和获取功能。
 
 ### 效果预览
-![](screenshots/devices/webuseragent.jpg)
+![](screenshots/devices/webuseragent.png)
 
 ### 工程目录
 ```

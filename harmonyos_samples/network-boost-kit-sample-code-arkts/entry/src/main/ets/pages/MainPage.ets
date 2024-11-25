@@ -30,92 +30,92 @@ struct MainPage {
       Divider().color('gray').strokeWidth(1)
       Button({ type: ButtonType.Normal }) {
         Column() {
-          Text('网络质量评估')
-            .fontSize(24)
+          Text('Network quality assessment')
+            .fontSize(20)
             .fontWeight(500)
             .fontColor('#FFFFFFFF')
         }
-        .width(190)
+        .width(300)
         .height('100%')
         .alignItems(HorizontalAlign.Start)
-        .padding({ left: 20, top: 30 })
+        .padding({ left: 5, top: 25 })
       }
       .width('100%')
       .height(80)
       .margin({ top: '11%' })
-      .borderRadius(24)
+      .borderRadius(22)
       .onClick(this.getNetworkQos)
 
       Button({ type: ButtonType.Normal }) {
         Column() {
-          Text('网络场景识别')
-            .fontSize(24)
+          Text('Network scenario identification')
+            .fontSize(20)
             .fontWeight(500)
             .fontColor('#FFFFFFFF')
         }
-        .width(190)
+        .width(300)
         .height('100%')
         .alignItems(HorizontalAlign.Start)
-        .padding({ left: 20, top: 30 })
+        .padding({ left: 5, top: 25 })
       }
       .width('100%')
       .height(80)
       .margin({ top: '11%' })
-      .borderRadius(24)
+      .borderRadius(22)
       .onClick(this.getNetworkScene)
 
       Button({ type: ButtonType.Normal }) {
         Column() {
-          Text('传输体验反馈')
-            .fontSize(24)
+          Text('App data transmission quality feedback')
+            .fontSize(20)
             .fontWeight(500)
             .fontColor('#FFFFFFFF')
         }
-        .width(190)
+        .width(300)
         .height('100%')
         .alignItems(HorizontalAlign.Start)
-        .padding({ left: 20, top: 30 })
+        .padding({ left: 5, top: 15 })
       }
       .width('100%')
       .height(80)
       .margin({ top: '11%' })
-      .borderRadius(24)
+      .borderRadius(22)
       .onClick(this.getReportQoe)
 
       Button({ type: ButtonType.Normal }) {
         Column() {
-          Text('连接迁移通知')
-            .fontSize(24)
+          Text('Network handover notification')
+            .fontSize(20)
             .fontWeight(500)
             .fontColor('#FFFFFFFF')
         }
-        .width(190)
+        .width(300)
         .height('100%')
         .alignItems(HorizontalAlign.Start)
-        .padding({ left: 20, top: 30 })
+        .padding({ left: 5, top: 25 })
       }
       .width('100%')
       .height(80)
       .margin({ top: '11%' })
-      .borderRadius(24)
+      .borderRadius(22)
       .onClick(this.getHandover)
 
       Button({ type: ButtonType.Normal }) {
         Column() {
-          Text('迁移模式设置')
-            .fontSize(24)
+          Text('Network handover mode setting')
+            .fontSize(20)
             .fontWeight(500)
             .fontColor('#FFFFFFFF')
         }
-        .width(190)
+        .width(300)
         .height('100%')
         .alignItems(HorizontalAlign.Start)
-        .padding({ left: 20, top: 30 })
+        .padding({ left: 5, top: 15 })
       }
       .width('100%')
       .height(80)
       .margin({ top: '11%' })
-      .borderRadius(24)
+      .borderRadius(22)
       .onClick(this.getSetHandoverMode)
     }
     .linearGradient({

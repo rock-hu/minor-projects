@@ -14,31 +14,31 @@
     },
     {
       "name": "comment_content1",
-      "value": "It feels very good.,The next one is ready to get Mate X3.,I like the split-screen function of the folding screen very much.,Finally, you can watch short videos while chatting!"
+      "value": "Comments comments"
     },
     {
       "name": "comment_content2",
-      "value": "Love this picture, it's amazing! It turned out to be taken by a mobile phone, which is amazing!"
+      "value": "Comments comments"
     },
     {
       "name": "comment_content3",
-      "value": "The press conference is about to start, so I'm looking forward to it"
+      "value": "Comments comments"
     },
     {
       "name": "related_title1",
-      "value": "Huawei's flagship new product is released, and we will see you there"
+      "value": "Video1"
     },
     {
       "name": "related_title2",
-      "value": "Huawei's philanthropic journey contributes to sustainable development"
+      "value": "Video2"
     },
     {
       "name": "related_title3",
-      "value": "Huawei's whole-home intelligence brings you the home of the future"
+      "value": "Video3"
     },
     {
       "name": "related_list",
-      "value": "Related List"
+      "value": "Related"
     },
     {
       "name": "more",
@@ -46,7 +46,7 @@
     },
     {
       "name": "all_comment",
-      "value": "All Comment"
+      "value": "Comments"
     }
   ]
 }

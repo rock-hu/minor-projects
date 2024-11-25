@@ -38,7 +38,7 @@ export default struct DebugInfo {
         .id('debugInfo')
         .width('85%')
         .height('25%')
-        .margin({ top: '35%' })
+        .margin({ top: '50%' })
         .padding({ bottom: '5%', top: '5%' })
         .backgroundColor(Color.White)
         .border({ width: 2, radius: 10 })

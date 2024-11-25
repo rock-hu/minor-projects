@@ -10,7 +10,7 @@
     },
     {
       "name": "network_permission",
-      "value": "Obtain network status permission"
+      "value": "Used for subscribing to network status scenarios to obtain network information."
     },
     {
       "name": "read_call_permission",
@@ -31,6 +31,10 @@
     {
       "name": "signal_info_change",
       "value": "Signal status change"
+    },
+    {
+      "name": "callState_change",
+      "value": "Subscription call status change event"
     },
     {
       "name": "cellular_data_connection_state_change",
@@ -427,10 +431,6 @@
     {
       "name": "no",
       "value": "No"
-    },
-    {
-      "name": "network_permission",
-      "value": "Used for subscribing to network status scenarios to obtain network information."
     }
   ]
 }

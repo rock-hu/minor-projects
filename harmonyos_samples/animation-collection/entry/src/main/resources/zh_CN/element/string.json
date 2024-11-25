@@ -489,9 +489,162 @@
       "value": "点击上方按钮，选择你的观点"
     },
     {
+      "name": "voice_record_dynamic_effect_send_message",
+      "value": "松开发送"
+    },
+    {
+      "name": "voice_record_dynamic_effect_talk_info",
+      "value": "你在干嘛"
+    },
+    {
+      "name": "voice_record_dynamic_effect_talk_message",
+      "value": "？？？"
+    },
+    {
+      "name": "voice_record_dynamic_effect_talk_message_one",
+      "value": "好多人一起"
+    },
+    {
+      "name": "voice_record_dynamic_effect_talk_message_two",
+      "value": "有时间吗"
+    },
+    {
+      "name": "voice_record_dynamic_effect_talk_message_thr",
+      "value": "去哪里玩"
+    },
+    {
+      "name": "voice_record_dynamic_effect_talk_message_four",
+      "value": "自驾周边游"
+    },
+    {
+      "name": "page_turning_animation",
+      "value": "翻页动效"
+    },
+    {
+      "name": "page_expand_title",
+      "value": "标题下拉缩放"
+    },
+    {
+      "name": "page_status_bar_change",
+      "value": "状态栏显隐切换"
+    },
+    {
+      "name": "page_list_slide_to_history",
+      "value": "长列表滑动到指定列表项动效实现"
+    },
+    {
+      "name": "page_water_ripples",
+      "value": "听歌识曲水波纹特效"
+    },
+    {
+      "name": "page_marquee_view",
+      "value": "跑马灯"
+    },
+    {
+      "name": "swiper_smooth_variation",
+      "value": "Swiper高度变化效果"
+    },
+    {
+      "name": "side_bar_animation",
+      "value": "SideBarContainer侧边栏淡入淡出动效"
+    },
+    {
+      "name": "page_vibrate_effect",
+      "value": "使用弹簧曲线实现抖动动画及手机振动效果"
+    },
+    {
+      "name": "page_paint_component",
+      "value": "使用绘制组件实现自定义进度动画"
+    },
+    {
+      "name": "digital_scroll_example",
+      "value": "数字滚动动效"
+    },
+    {
+      "name": "page_cards_swiper",
+      "value": "自定义Swiper卡片预览效果"
+    },
+    {
+      "name": "voting_component",
+      "value": "投票动效"
+    },
+    {
+      "name": "voice_record_dynamic",
+      "value": "语音录制和声音动效实现"
+    },
+    {
+      "name": "left_option",
+      "value": "早起"
+    },
+    {
+      "name": "right_option",
+      "value": "晚起"
+    },
+    {
+      "name": "bottom_text_suffix",
+      "value": "人参与"
+    },
+    {
+      "name": "result_notice",
+      "value": "已选择"
+    },
+    {
+      "name": "destinatiojn_data_1",
+      "value": "上海"
+    },
+    {
+      "name": "group_name",
+      "value": "侧边栏淡入淡出动画案例群"
+    },
+    {
+      "name": "case_description",
+      "value": "本例主要用于平板或2in1场景，如群聊侧边栏显示群成员，与手机上的效果有区别。通过显式动画来实现SideBarContainer侧边栏的淡入淡出（手机上无此效果）。\n 1. 请点击右侧三角进行侧边栏的显示或隐藏\n 2. 请将鼠标置于侧边栏边缘，待鼠标变为双向箭头样式，长按鼠标左键并左右拖动以变化侧边栏大小"
+    },
+    {
+      "name": "other_login_methods",
+      "value": "其他号码登录/注册"
+    },
+    {
+      "name": "login_in",
+      "value": "本机号码一键登录"
+    },
+    {
+      "name": "read_and_check",
+      "value": "请阅读并勾选协议"
+    },
+    {
+      "name": "read_and_agreed",
+      "value": "我已阅读并同意"
+    },
+    {
+      "name": "services_and_policies",
+      "value": "「**账号服务与隐私政策」"
+    },
+    {
+      "name": "service_agreement",
+      "value": "「服务协议」"
+    },
+    {
+      "name": "privacy_policy",
+      "value": "「隐私政策」"
+    },
+    {
+      "name": "and",
+      "value": "和"
+    },
+    {
+      "name": "phone_number",
+      "value": "188******88"
+    },
+    {
+      "name": "login_text",
+      "value": "登录成功，仅演示"
+    },
+    {
       "name": "reason",
       "value": "允许应用在登陆页面提示场景控制马达振动。"
-    },{
+    },
+    {
       "name": "voice_record_dynamic_effect_app_name",
       "value": "允许应用在云因录制和声音动效场景使用麦克风。"
     }

@@ -24,7 +24,8 @@ export struct LiveCommentFooter {
           src: $r('app.media.ic_s_search')
         })
         .layoutWeight(1)
-        .margin({left: 10, top: 10, bottom: 10});
+        .margin({left: 10, top: 10, bottom: 10})
+        .enterKeyType(EnterKeyType.Send);
       Image($r('app.media.paperplane'))
         .width(25)
         .margin({left: 16, right: 16});

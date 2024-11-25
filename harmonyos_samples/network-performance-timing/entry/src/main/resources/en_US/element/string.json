@@ -1,6 +1,42 @@
 {
   "string": [
     {
+      "name": "module_desc",
+      "value": "module description"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "description"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "NetworkPerformanceTiming"
+    },
+    {
+      "name": "index_title",
+      "value": "Network Performance Analysis"
+    },
+    {
+      "name": "test_url",
+      "value": "Test URL:"
+    },
+    {
+      "name": "request",
+      "value": "Request"
+    },
+    {
+      "name": "request_time_tip",
+      "value": "Time used from request:"
+    },
+    {
+      "name": "stage_name",
+      "value": "Phase Name"
+    },
+    {
+      "name": "stage_time",
+      "value": "Time(ms)"
+    },
+    {
       "name": "reason_internet",
       "value": "Used to access the Internet for network performance analysis scenarios"
     },

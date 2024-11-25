@@ -25,7 +25,7 @@ function bufferToString(buffer: ArrayBufferLike): string {
   let textDecoder = util.TextDecoder.create('utf-8', {
     ignoreBOM: true
   });
-  let resultPut = textDecoder.decodeWithStream(new Uint8Array(buffer), {
+  let resultPut = textDecoder.decodeToString(new Uint8Array(buffer), {
     stream: true
   });
   return resultPut;
@@ -90,7 +90,7 @@ export struct LazyForEachListPage {
       }
       .width(Constants.FULL_SCREEN)
       .height(Constants.FULL_SCREEN)
-      .margin({ left: 10, right: 10 })
+      .padding({ left: 10, right: 10 })
       .layoutWeight(1)
       // Optimization method 2：Use cachedCount
       .cachedCount(3);

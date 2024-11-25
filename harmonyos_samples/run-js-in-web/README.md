@@ -8,7 +8,7 @@
 
 | 主页                               |
 |----------------------------------|
-| ![](screenshots/device/main.jpg) |
+| ![](screenshots/device/main.png) |
 
 使用说明
 

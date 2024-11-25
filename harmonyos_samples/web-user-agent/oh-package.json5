@@ -7,8 +7,5 @@
   "author": "",
   "license": "",
   "dependencies": {
-  },
-  "devDependencies": {
-    "@ohos/hypium": "1.0.15"
   }
 }

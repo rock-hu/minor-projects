@@ -17,7 +17,7 @@ import { common } from '@kit.AbilityKit';
 import { image } from '@kit.ImageKit';
 import { pushCommon, RemoteNotificationExtensionAbility } from '@kit.PushKit';
 import Logger from '../utils/Logger';
-import { ExtraData } from './model';
+import { ExtraData } from './Model';
 import { BusinessError } from '@kit.BasicServicesKit';
 
 export default class RemoteNotificationExtAbility extends RemoteNotificationExtensionAbility {

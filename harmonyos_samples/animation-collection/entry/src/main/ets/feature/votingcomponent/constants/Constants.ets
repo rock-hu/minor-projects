@@ -25,21 +25,6 @@ export default class Constants {
   static readonly RIGHT_COLOR: Color = Color.Blue;
 
   /**
-   * Left option.
-   */
-  static readonly LEFT_OPTION: string = '早起';
-
-  /**
-   * Right option.
-   */
-  static readonly RIGHT_OPTION: string = '晚起';
-
-  /**
-   * Bottom text suffix.
-   */
-  static readonly BOTTOM_TEXT_SUFFIX: string = '人参与';
-
-  /**
    * Begin points.
    */
   static readonly BEGIN_POINTS: number[][] = [[20, 0], [90, 0], [80, 80], [10, 80]];
@@ -88,9 +73,4 @@ export default class Constants {
    * Right count.
    */
   static readonly RIGHT_COUNT: number = 13;
-
-  /**
-   * Result notice.
-   */
-  static readonly RESULT_NOTICE: string = '已选择';
 }

@@ -33,7 +33,7 @@ const STRING_TOTAL = 'total';
 @Entry
 @Component
 struct Index {
-  @State inputUrl: string = 'https://developer.huawei.com/consumer/cn/develop/';
+  @State inputUrl: string = 'https://developer.huawei.com/consumer/';
   @State result: string = '';
   @State timing: http.PerformanceTiming | null = null;
   controller: TextAreaController = new TextAreaController();

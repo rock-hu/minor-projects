@@ -58,7 +58,8 @@ struct AbilityContextPage {
               this.abilityContext.isTerminating()
             })
 
-          // 指示有关能力的配置信息,对应FA模型的getAbilityInfo方法
+          // Indicates the configuration information about a capability,
+          // which corresponds to the getAbilityInfo() method of the FA model.
           Button($r('app.string.ability_info'))
             .fancy(() => {
               this.appContext.abilityInfo
@@ -67,7 +68,8 @@ struct AbilityContextPage {
               })
             })
 
-          // 指示有关模块的配置信息,对应FA模型的getHapModuleInfo()方法
+          // Indicates the configuration information about a module,
+          // corresponding to the getHapModuleInfo() method of the FA model.
           Button($r('app.string.current_hap_module_info'))
             .fancy(() => {
               this.appContext.currentHapModuleInfo
@@ -76,7 +78,7 @@ struct AbilityContextPage {
               })
             })
 
-          // 指示配置信息。
+          // Indicates configuration information.
           Button($r('app.string.config'))
             .fancy(() => {
               this.appContext.config
@@ -85,7 +87,7 @@ struct AbilityContextPage {
               })
             })
 
-          // 指示访问应用程序资源的能力。
+          // Indicates the ability to access application resources.
           Button($r('app.string.resource_manager'))
             .fancy(() => {
               this.appContext.resourceManager
@@ -94,7 +96,7 @@ struct AbilityContextPage {
               })
             })
 
-          // 指示有关应用程序的配置信息。
+          // Indicates configuration information about the application.
           Button($r('app.string.application_info'))
             .fancy(() => {
               this.appContext.applicationInfo
@@ -103,7 +105,8 @@ struct AbilityContextPage {
               })
             })
 
-          // 指示应用缓存目录，对应FA模型appContext下的getCacheDir()方法
+          // Indicates the application cache directory, which corresponds to
+          // the getCacheDir() method in appContext of the FA model.
           Button($r('app.string.cache_dir'))
             .fancy(() => {
               this.appContext.cacheDir
@@ -112,7 +115,7 @@ struct AbilityContextPage {
               })
             })
 
-          // 指示应用程序临时目录。
+          // Indicates the application temporary directory.
           Button($r('app.string.temp_dir'))
             .fancy(() => {
               this.appContext.tempDir
@@ -121,7 +124,7 @@ struct AbilityContextPage {
               })
             })
 
-          // 指示应用程序文件目录,对应FA模型的getFilesDir()方法
+          // Indicates the application file directory, corresponding to the getFilesDir() method of the FA model.
           Button($r('app.string.files_dir'))
             .fancy(() => {
               this.appContext.filesDir
@@ -130,7 +133,7 @@ struct AbilityContextPage {
               })
             })
 
-          // 指示应用程序数据库目录。
+          // Indicates the application database directory.
           Button($r('app.string.database_dir'))
             .fancy(() => {
               this.appContext.databaseDir
@@ -139,7 +142,7 @@ struct AbilityContextPage {
               })
             })
 
-          // 指示应用程序首选项目录。
+          // Indicates the application preference directory.
           Button($r('app.string.preferences_dir'))
             .fancy(() => {
               this.appContext.preferencesDir
@@ -148,7 +151,8 @@ struct AbilityContextPage {
               })
             })
 
-          // 指示应用程序分发文件目录,对应FA模型的getOrCreateDistributedDir()方法
+          // Indicates the directory of the application distribution file,
+          // which corresponds to the getOrCreateDistributedDir() method of the FA model.
           Button($r('app.string.distributed_files_dir'))
             .fancy(() => {
               this.appContext.distributedFilesDir
@@ -157,7 +161,7 @@ struct AbilityContextPage {
               })
             })
 
-          // 指示当前设备的屏幕方向。对应FA的getDisplayOrientation()
+          // Indicates the screen orientation of the current device. Corresponding to getDisplayOrientation() of FA
           Button($r('app.string.direction'))
             .fancy(() => {
               this.appContext.config.direction
@@ -166,7 +170,7 @@ struct AbilityContextPage {
               })
             })
 
-          // 指示文件区域。
+          // Indicates the file area.
           Button($r('app.string.area'))
             .fancy(() => {
               this.appContext.area
@@ -175,7 +179,7 @@ struct AbilityContextPage {
               })
             })
 
-          // 指示上下文是FA模式或阶段模式。
+          // Indicates whether the context is FA mode or phase mode.
           Button($r('app.string.stage_mode'))
             .fancy(() => {
               this.appContext.stageMode
@@ -184,7 +188,8 @@ struct AbilityContextPage {
               })
             })
 
-          // 获取应用上下文信息,对应FA模型的getApplicationContext()方法
+          // Obtains application context information,
+          // which corresponds to the getApplicationContext() method of the FA model.
           Button($r('app.string.get_application_context'))
             .fancy(() => {
               this.appContext.getApplicationContext()
@@ -193,7 +198,7 @@ struct AbilityContextPage {
               })
             })
 
-          // 获取当前ability的捆绑包名称,对应FA模型的getBundleName()
+          // Obtains the bundle name of the current ability, corresponding to getBundleName() of the FA model.
           Button($r('app.string.bundle_name'))
             .fancy(() => {
               this.appContext.abilityInfo.bundleName
@@ -202,7 +207,8 @@ struct AbilityContextPage {
               })
             })
 
-          // 获取有关当前进程的信息，包括进程名称,对应FA模型的getProcessInfo()
+          // Obtains information about the current process, including the process name,
+          // corresponding to getProcessInfo() of the FA model.
           Button($r('app.string.description_id'))
             .fancy(() => {
               this.appContext.abilityInfo.descriptionId
@@ -211,7 +217,8 @@ struct AbilityContextPage {
               })
             })
 
-          // 获取有关当前进程的信息，包括进程ID,对应FA模型的getProcessInfo()
+          // Obtains information about the current process,
+          // including the process ID, corresponding to getProcessInfo() of the FA model.
           Button($r('app.string.name'))
             .fancy(() => {
               this.appContext.abilityInfo.name

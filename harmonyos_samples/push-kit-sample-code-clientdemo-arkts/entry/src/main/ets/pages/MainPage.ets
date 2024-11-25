@@ -48,7 +48,7 @@ struct MainPage {
     .width('100%')
     .padding({
       left: 20,
-      right: 20,
+      right: 20
     })
     .justifyContent(FlexAlign.SpaceBetween)
   }
