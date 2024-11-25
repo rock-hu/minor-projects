@@ -514,7 +514,10 @@ public:
     std::shared_ptr<OHOS::AbilityRuntime::Context> GetAbilityContextByModule(
         const std::string& bundle, const std::string& module);
 
-    void UpdateConfiguration(const ParsedConfig& parsedConfig, const std::string& configuration);
+    void BuildResConfig(
+        ResourceConfiguration& resConfig, ConfigurationChange& configurationChange, const ParsedConfig& parsedConfig);
+    void UpdateConfiguration(
+        const ParsedConfig& parsedConfig, const std::string& configuration);
 
     void NotifyConfigurationChange(
         bool needReloadTransition, const ConfigurationChange& configurationChange = { false, false }) override;
@@ -557,9 +560,9 @@ public:
 
     NG::SafeAreaInsets GetKeyboardSafeArea() override;
 
-    Rect GetSessionAvoidAreaByType(uint32_t safeAreaType) override;
-
     Rosen::AvoidArea GetAvoidAreaByType(Rosen::AvoidAreaType type);
+
+    uint32_t GetStatusBarHeight();
 
     // ArkTSCard
     void UpdateFormData(const std::string& data);
@@ -589,7 +592,7 @@ public:
 
     void SetCurPointerEvent(const std::shared_ptr<MMI::PointerEvent>& currentEvent);
     bool GetCurPointerEventInfo(int32_t& pointerId, int32_t& globalX, int32_t& globalY, int32_t& sourceType,
-        int32_t& sourceTool, StopDragCallback&& stopDragCallback) override;
+        int32_t& sourceTool, int32_t& displayId, StopDragCallback&& stopDragCallback) override;
 
     bool GetCurPointerEventSourceType(int32_t& sourceType) override;
 
@@ -706,6 +709,14 @@ public:
         CHECK_NULL_RETURN(IsUIExtensionWindow(), Rect());
         auto rect = uiWindow_->GetHostWindowRect(instanceId);
         return Rect(rect.posX_, rect.posY_, rect.width_, rect.height_);
+    }
+    void FireUIExtensionEventCallback(uint32_t eventId);
+    void FireAccessibilityEventCallback(uint32_t eventId, int64_t parameter);
+
+    bool IsFloatingWindow() const override
+    {
+        CHECK_NULL_RETURN(uiWindow_, false);
+        return uiWindow_->GetMode() == Rosen::WindowMode::WINDOW_MODE_FLOATING;
     }
 
 private:

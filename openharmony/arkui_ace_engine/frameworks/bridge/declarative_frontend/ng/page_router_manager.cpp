@@ -112,6 +112,7 @@ void PageRouterManager::RunPage(const std::shared_ptr<std::vector<uint8_t>>& con
     CHECK_RUN_ON(JS);
     RouterPageInfo info;
     info.content = content;
+    info.params = params;
 
 #if !defined(PREVIEW)
     auto container = Container::Current();
@@ -217,7 +218,7 @@ bool PageRouterManager::TryPreloadNamedRouter(const std::string& name, std::func
     CHECK_NULL_RETURN(taskExecutor, false);
     auto preloadFinishCallback = [taskExecutor, instanceId, callback = std::move(finishCallback), name](bool success) {
         if (!success) {
-            LOGW("failed to preload NamedRouter: %{public}s", name.c_str());
+            TAG_LOGW(AceLogTag::ACE_ROUTER, "failed to preload NamedRouter: %{public}s", name.c_str());
             return;
         }
         taskExecutor->PostTask(
@@ -274,11 +275,11 @@ void PageRouterManager::PushNamedRouteInner(const RouterPageInfo& target)
         return;
     }
     CleanPageOverlay();
+    UpdateSrcPage();
     if (target.routerMode == RouterMode::SINGLE) {
-        auto PageInfoByUrl = FindPageInStack(target.url);
-        auto pagePath = Framework::JsiDeclarativeEngine::GetPagePath(target.url);
+        auto PageInfoByUrl = FindPageInStackByRouteName(target.url);
         if (PageInfoByUrl.second) {
-            // get pageInfo by url, find page in stack, move postion and update params.
+            // find page in stack, move postion and update params.
             MovePageToFront(PageInfoByUrl.first, PageInfoByUrl.second, target, true);
             return;
         }
@@ -286,12 +287,6 @@ void PageRouterManager::PushNamedRouteInner(const RouterPageInfo& target)
         if (index != INVALID_PAGE_INDEX) {
             // find page in restore page, create page, move position and update params.
             RestorePageWithTarget(index, false, target, RestorePageDestination::TOP);
-            return;
-        }
-        auto PageInfoByPagePath = FindPageInStack(pagePath);
-        if (PageInfoByPagePath.second) {
-            // get pageInfo by pagePath, find page in stack, move postion and update params.
-            MovePageToFront(PageInfoByPagePath.first, PageInfoByPagePath.second, target, true);
             return;
         }
     }
@@ -354,6 +349,7 @@ void PageRouterManager::ReplaceNamedRouteInner(const RouterPageInfo& target)
     }
     RouterOptScope scope(this);
     CleanPageOverlay();
+    UpdateSrcPage();
     RouterPageInfo info = target;
     info.isNamedRouterMode = true;
     DealReplacePage(info);
@@ -469,6 +465,7 @@ void PageRouterManager::DisableAlertBeforeBackPage()
 
 void PageRouterManager::StartClean()
 {
+    UpdateSrcPage();
     if (pageRouterStack_.size() > 1) {
         restorePageStack_.clear();
         std::list<WeakPtr<FrameNode>> temp;
@@ -522,7 +519,7 @@ bool PageRouterManager::StartPop()
         // the last page.
         return false;
     }
-
+    UpdateSrcPage();
     // pop top page in page stack
     auto preWeakNode = pageRouterStack_.back();
     pageRouterStack_.pop_back();
@@ -1087,6 +1084,26 @@ std::pair<int32_t, RefPtr<FrameNode>> PageRouterManager::FindPageInStack(const s
     return { std::distance(iter, pageRouterStack_.rend()) - 1, iter->Upgrade() };
 }
 
+std::pair<int32_t, RefPtr<FrameNode>> PageRouterManager::FindPageInStackByRouteName(
+    const std::string& name, bool needIgnoreBegin)
+{
+    auto iter = std::find_if(needIgnoreBegin ? ++pageRouterStack_.rbegin() : pageRouterStack_.rbegin(),
+        pageRouterStack_.rend(), [name](const WeakPtr<FrameNode>& item) {
+            auto pageNode = item.Upgrade();
+            CHECK_NULL_RETURN(pageNode, false);
+            auto pagePattern = pageNode->GetPattern<PagePattern>();
+            CHECK_NULL_RETURN(pagePattern, false);
+            auto entryPageInfo = DynamicCast<EntryPageInfo>(pagePattern->GetPageInfo());
+            CHECK_NULL_RETURN(entryPageInfo, false);
+            return entryPageInfo->GetRouteName() == name;
+        });
+    if (iter == pageRouterStack_.rend()) {
+        return { INVALID_PAGE_INDEX, nullptr };
+    }
+    // Returns to the forward position.
+    return { std::distance(iter, pageRouterStack_.rend()) - 1, iter->Upgrade() };
+}
+
 int32_t PageRouterManager::FindPageInRestoreStack(const std::string& url)
 {
     auto iter = std::find_if(restorePageStack_.rbegin(), restorePageStack_.rend(),
@@ -1152,6 +1169,7 @@ void PageRouterManager::StartPush(const RouterPageInfo& target)
         auto loadTask = [weak = AceType::WeakClaim(this), target]() {
                 auto pageRouterManager = weak.Upgrade();
                 CHECK_NULL_VOID(pageRouterManager);
+                pageRouterManager->UpdateSrcPage();
                 pageRouterManager->PushOhmUrl(target);
             };
         LoadOhmUrlPage(target.url, std::move(loadTask), target.errorCallback,
@@ -1182,6 +1200,7 @@ void PageRouterManager::StartPush(const RouterPageInfo& target)
     }
 
     CleanPageOverlay();
+    UpdateSrcPage();
 
     if (info.routerMode == RouterMode::SINGLE) {
         auto pageInfo = FindPageInStack(info.url);
@@ -1248,6 +1267,7 @@ void PageRouterManager::StartReplace(const RouterPageInfo& target)
         auto loadTask = [weak = AceType::WeakClaim(this), target]() {
                 auto pageRouterManager = weak.Upgrade();
                 CHECK_NULL_VOID(pageRouterManager);
+                pageRouterManager->UpdateSrcPage();
                 pageRouterManager->ReplaceOhmUrl(target);
             };
         LoadOhmUrlPage(target.url, std::move(loadTask), target.errorCallback,
@@ -1267,13 +1287,14 @@ void PageRouterManager::StartReplace(const RouterPageInfo& target)
         }
         return;
     }
-
+    UpdateSrcPage();
     DealReplacePage(info);
 }
 
 void PageRouterManager::StartBack(const RouterPageInfo& target)
 {
     CleanPageOverlay();
+    UpdateSrcPage();
     if (target.url.empty()) {
         size_t pageRouteSize = pageRouterStack_.size();
         if (pageRouteSize <= 1) {
@@ -1388,6 +1409,7 @@ void PageRouterManager::BackToIndexCheckAlert(int32_t index, const std::string& 
             pageInfo->GetDialogProperties(), nullptr, AceApplicationInfo::GetInstance().IsRightToLeft());
         return;
     }
+    UpdateSrcPage();
     StartBackToIndex(index, params);
 }
 
@@ -1432,7 +1454,7 @@ RefPtr<FrameNode> PageRouterManager::CreatePage(int32_t pageId, const RouterPage
     pageRouterStack_.emplace_back(pageNode);
 
     if (target.content && !target.content->empty()) {
-        loadJsByBuffer_(target.content, target.errorCallback);
+        loadJsByBuffer_(target.content, target.errorCallback, target.params);
     } else {
         loadJs_(target.path, target.errorCallback);
     }
@@ -1465,6 +1487,7 @@ RefPtr<FrameNode> PageRouterManager::CreatePage(int32_t pageId, const RouterPage
         keyInfo = moduleName + keyInfo;
     }
 #endif
+    SetPageInfoRouteName(entryPageInfo);
     auto pagePath = Framework::JsiDeclarativeEngine::GetFullPathInfo(keyInfo);
     if (pagePath.empty()) {
         auto container = Container::Current();
@@ -1564,7 +1587,7 @@ void PageRouterManager::MovePageToFront(int32_t index, const RefPtr<FrameNode>& 
         pageInfo->ReplacePageParams(target.params);
         pageInfo->ReplaceRecoverable(target.recoverable);
         if (forceShowCurrent) {
-            pageNode->GetRenderContext()->ResetPageTransitionEffect();
+            pagePattern->ResetPageTransitionEffect();
             StageManager::FirePageShow(pageNode, PageTransitionType::NONE);
         }
         return;
@@ -1924,7 +1947,7 @@ bool PageRouterManager::OnPopPage(bool needShowNext, bool needTransition)
     auto stageManager = context ? context->GetStageManager() : nullptr;
     if (stageManager) {
         Recorder::NodeDataCache::Get().OnBeforePagePop();
-        return stageManager->PopPage(needShowNext, needTransition);
+        return stageManager->PopPage(GetCurrentPageNode(), needShowNext, needTransition);
     }
     return false;
 }
@@ -2246,5 +2269,30 @@ void PageRouterManager::LoadOhmUrlPage(const std::string& url, std::function<voi
             TaskExecutor::TaskType::JS, errorCallbackTaskName);
     };
     pageUrlChecker->LoadPageUrl(url, callback, silentInstallErrorCallBack);
+}
+
+void PageRouterManager::SetPageInfoRouteName(const RefPtr<EntryPageInfo>& info)
+{
+    std::optional<std::string> routeName = std::nullopt;
+    if (info->IsCreateByNamedRouter()) {
+        // info->GetPageUrl() represents the name of namedRoute
+        routeName = info->GetPageUrl();
+    } else {
+        auto container = Container::Current();
+        CHECK_NULL_VOID(container);
+        // info->GetPageUrl() represents the url of destination page
+        routeName = Framework::JsiDeclarativeEngine::GetRouteNameByUrl(
+            info->GetPageUrl(), container->GetBundleName(), container->GetModuleName());
+    }
+    info->SetRouteName(routeName);
+}
+
+void PageRouterManager::UpdateSrcPage()
+{
+    auto pipelineContext = PipelineContext::GetCurrentContext();
+    CHECK_NULL_VOID(pipelineContext);
+    auto stageManager = pipelineContext->GetStageManager();
+    CHECK_NULL_VOID(stageManager);
+    stageManager->SetSrcPage(GetCurrentPageNode());
 }
 } // namespace OHOS::Ace::NG

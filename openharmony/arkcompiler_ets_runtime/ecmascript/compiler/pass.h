@@ -200,7 +200,6 @@ public:
     {
         ctx_->GetBytecodeInfo().AddSkippedMethod(methodOffset_);
         methodInfo_->SetIsCompiled(false);
-        log_->RemoveCompiledMethod(methodName_, recordName_);
     }
 
 private:
@@ -786,7 +785,7 @@ public:
         bool liteCG = data->GetPassContext()->GetCompilationEnv()->GetJSOptions().IsCompilerEnableLiteCG();
         GraphLinearizer(data->GetCircuit(), enableLog, data->GetMethodName(), &chunk, false, licm, liteCG)
             .Run(data->GetCfg());
-        PostSchedule(data->GetCircuit(), enableLog, data->GetMethodName(), &chunk).Run(data->GetCfg());
+        PostSchedule(data->GetCircuit(), enableLog, data->GetMethodName(), &chunk, true).Run(data->GetCfg());
         return true;
     }
 };

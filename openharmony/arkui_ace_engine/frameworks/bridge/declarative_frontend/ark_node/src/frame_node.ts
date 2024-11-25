@@ -23,6 +23,7 @@ class FrameNode {
   public _nodeId: number;
   protected _commonAttribute: ArkComponent;
   protected _commonEvent: UICommonEvent;
+  protected _gestureEvent: UIGestureEvent;
   protected _childList: Map<number, FrameNode>;
   protected _nativeRef: NativeStrongRef | NativeWeakRef;
   protected renderNode_: RenderNode;
@@ -100,7 +101,9 @@ class FrameNode {
     FrameNodeFinalizationRegisterProxy.ElementIdToOwningFrameNode_.delete(this._nodeId);
     this._nativeRef = nativeRef;
     this.nodePtr_ = nodePtr ? nodePtr : this._nativeRef?.getNativeHandle();
+    __JSScopeUtil__.syncInstanceId(this.instanceId_);
     this._nodeId = getUINativeModule().frameNode.getIdByNodePtr(this.nodePtr_);
+    __JSScopeUtil__.restoreInstanceId();
     if (this._nodeId === -1) {
       return;
     }
@@ -123,6 +126,13 @@ class FrameNode {
   }
   getNodePtr(): NodePtr | null {
     return this.nodePtr_;
+  }
+  getValidNodePtr(): NodePtr {
+    if (this.nodePtr_) {
+      return this.nodePtr_;
+    } else {
+      throw Error('The FrameNode has been disposed!');
+    }
   }
   dispose(): void {
     this.renderNode_?.dispose();
@@ -164,11 +174,15 @@ class FrameNode {
 
   convertToFrameNode(nodePtr: NodePtr, nodeId: number = -1): FrameNode | null {
     if (nodeId === -1) {
+      __JSScopeUtil__.syncInstanceId(this.instanceId_);
       nodeId = getUINativeModule().frameNode.getIdByNodePtr(nodePtr);
+      __JSScopeUtil__.restoreInstanceId();
     }
     if (nodeId !== -1 && !getUINativeModule().frameNode.isModifiable(nodePtr)) {
+      __JSScopeUtil__.syncInstanceId(this.instanceId_);
       let frameNode = new ProxyFrameNode(this.uiContext_);
       let node = getUINativeModule().nativeUtils.createNativeWeakRef(nodePtr);
+      __JSScopeUtil__.restoreInstanceId();
       frameNode.setNodePtr(node);
       frameNode._nodeId = nodeId;
       FrameNodeFinalizationRegisterProxy.ElementIdToOwningFrameNode_.set(frameNode._nodeId, new WeakRef(frameNode));
@@ -341,8 +355,10 @@ class FrameNode {
   }
 
   getParent(): FrameNode | null {
+    __JSScopeUtil__.syncInstanceId(this.instanceId_);
     const result = getUINativeModule().frameNode.getParent(this.getNodePtr());
     const nodeId = result?.nodeId;
+    __JSScopeUtil__.restoreInstanceId();
     if (nodeId === undefined || nodeId === -1) {
       return null;
     }
@@ -354,7 +370,9 @@ class FrameNode {
   }
 
   getChildrenCount(isExpanded?: boolean): number {
+    __JSScopeUtil__.syncInstanceId(this.instanceId_);
     return getUINativeModule().frameNode.getChildrenCount(this.nodePtr_, isExpanded);
+    __JSScopeUtil__.restoreInstanceId();
   }
 
   getPositionToParent(): Position {
@@ -388,12 +406,12 @@ class FrameNode {
   }
 
   getMeasuredSize(): Size {
-    const size = getUINativeModule().frameNode.getMeasuredSize(this.getNodePtr());
+    const size = getUINativeModule().frameNode.getMeasuredSize(this.getValidNodePtr());
     return { width: size[0], height: size[1] };
   }
 
   getLayoutPosition(): Position {
-    const position = getUINativeModule().frameNode.getLayoutPosition(this.getNodePtr());
+    const position = getUINativeModule().frameNode.getLayoutPosition(this.getValidNodePtr());
     return { x: position[0], y: position[1] };
   }
 
@@ -464,7 +482,9 @@ class FrameNode {
   }
 
   getInspectorInfo(): Object {
+    __JSScopeUtil__.syncInstanceId(this.instanceId_);
     const inspectorInfoStr = getUINativeModule().frameNode.getInspectorInfo(this.getNodePtr());
+    __JSScopeUtil__.restoreInstanceId();
     const inspectorInfo = JSON.parse(inspectorInfoStr);
     return inspectorInfo;
   }
@@ -501,7 +521,9 @@ class FrameNode {
   }
 
   layout(position: Position): void {
+    __JSScopeUtil__.syncInstanceId(this.instanceId_);
     getUINativeModule().frameNode.layoutNode(this.getNodePtr(), position.x, position.y);
+    __JSScopeUtil__.restoreInstanceId();
   }
 
   setNeedsLayout(): void {
@@ -525,6 +547,16 @@ class FrameNode {
     this._commonEvent.setNodePtr(node);
     this._commonEvent.setInstanceId((this.uiContext_ === undefined || this.uiContext_ === null) ? -1 : this.uiContext_.instanceId_);
     return this._commonEvent;
+  }
+
+  get gestureEvent(): UIGestureEvent {
+    if (this._gestureEvent === undefined) {
+        this._gestureEvent = new UIGestureEvent();
+        this._gestureEvent.setNodePtr(this.nodePtr_);
+        let weakPtr = getUINativeModule().nativeUtils.createNativeWeakRef(this.nodePtr_);
+        this._gestureEvent.setWeakNodePtr(weakPtr);
+    }
+    return this._gestureEvent;
   }
   updateInstance(uiContext: UIContext): void {
     this.uiContext_ = uiContext;

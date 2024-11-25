@@ -16,12 +16,18 @@
 
 
 """Module provides system functions like logging and open files."""
+import logging
 import os
+import sys
+
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, format="%(levelname)s:[%(name)s]: %(message)s", force=True)
+logging.root.name = "h_parser"
 
 LOGGING = 0
 DEBUG_LOGGING = 0
 INFO_LOGGING = 1
-WARNING_LOGGING = 0
+DEBUG_LOGGING = 0
+WARNING_LOGGING = 1
 ERROR_LOGGIN = 1
 PARSING_LOGGING = 0
 
@@ -32,25 +38,32 @@ LIB_GEN_FOLDER: str = ""
 def init_log(lib_gen_folder: str) -> None:
     global LIB_GEN_FOLDER  # pylint: disable=W0603
     LIB_GEN_FOLDER = lib_gen_folder
-    os.makedirs(LIB_GEN_FOLDER + "/gen/logs", exist_ok=True)
+    os.makedirs(os.path.join(LIB_GEN_FOLDER, "./gen/logs"), exist_ok=True)
 
 
 def info_log(msg: str) -> None:
     if INFO_LOGGING:
-        print("INFO: " + msg)
+        logging.info(msg)
+
+
+def debug_log(msg: str) -> None:
+    if DEBUG_LOGGING:
+        logging.debug(msg)
 
 
 def warning_log(msg: str) -> None:
     if WARNING_LOGGING:
-        print("WARNING: " + msg)
+        logging.warning(msg)
 
 
 def parsing_failed_msg(file: str) -> None:
-    print(f"NON FATAL ERROR: Headers parser failed on {file}.\nTo reproduce locally: run 'ninja gen_yamls' and check <es2panda_lib::binary_root>/gen/logs/error_logs.txt")
+    logging.info("NON FATAL ERROR: Headers parser failed on {file}.\n"
+                 "To reproduce locally: run 'ninja gen_yamls' and check "
+                 "<es2panda_lib::binary_root>/gen/logs/error_logs.txt")
 
 
 def error_log(msg: str) -> None:
     path = os.path.join(LIB_GEN_FOLDER, "./gen/logs/error_logs.txt")
     if ERROR_LOGGIN:
-        with os.fdopen(os.open(path, os.O_WRONLY|os.O_CREAT|os.O_APPEND), "a", encoding="utf-8") as f:
+        with os.fdopen(os.open(path, os.O_WRONLY | os.O_CREAT | os.O_APPEND, mode=511), "a", encoding="utf-8") as f:
             f.write(msg + "\n")

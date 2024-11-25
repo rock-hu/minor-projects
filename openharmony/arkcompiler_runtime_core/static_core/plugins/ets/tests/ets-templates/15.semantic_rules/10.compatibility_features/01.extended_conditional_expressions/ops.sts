@@ -23,20 +23,21 @@ desc: >-
 enum Color { Red, Green, Blue }
 enum Size { S, M, L }
 
+let a: {{a.type}} = {{a.val}};  // {% if a.truthy %}truthy{% else %}falsy{% endif %}
+
 function main() {
-    let a: {{a.type}} = {{a.val}}  // {% if a.truthy %}truthy{% else %}falsy{% endif %}
-    assert(!a == {% if a.truthy %}false{% else %}true{% endif %})
+    assert(!a ? {% if a.truthy %}false : true{% else %}true : false{% endif %});
 
 {%- for b in cases %}
 {%- if a != b %}
     {
-        let b: {{b.type}} = {{b.val}}  // {% if b.truthy %}truthy{% else %}falsy{% endif %}
+        let b: {{b.type}} = {{b.val}};  // {% if b.truthy %}truthy{% else %}falsy{% endif %}
 {%- if a.truthy %}
-        assert((a && b) == {% if b.truthy %}true{% else %}false{% endif %})
-        assert(a || b)
+        assert((a && b) ? {% if b.truthy %}true : false{% else %}false : true{% endif %});
+        assert((a || b) ? true : false);
 {%- else %}
-        assert(!(a && b))
-        assert((a || b) == {% if b.truthy %}true{% else %}false{% endif %})
+        assert(!(a && b) ? false : true);
+        assert((a || b) ? {% if b.truthy %}true : false{% else %}false : true{% endif %});
 {%- endif %}
     }
 {%- endif %}

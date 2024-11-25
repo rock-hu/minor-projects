@@ -49,6 +49,7 @@
 #include "core/components_ng/pattern/text_field/text_content_type.h"
 #include "core/components_ng/pattern/text_field/text_field_model_ng.h"
 #include "core/image/image_source_info.h"
+#include "core/text/text_emoji_processor.h"
 
 namespace OHOS::Ace {
 
@@ -114,6 +115,19 @@ bool ParseJsLengthMetrics(const JSRef<JSObject>& obj, CalcDimension& result)
     result = dimension;
     return true;
 }
+
+void ProcessStringUnpairedSurrogates(std::optional<std::string>& value)
+{
+    if (!value.has_value()) {
+        return;
+    }
+    std::u16string temp = StringUtils::Str8ToStr16(value.value());
+    std::string result(value.value().c_str());
+    if (temp.length() == 0 && result.length() != 0) {
+        result = TextEmojiProcessor::ConvertU8stringUnpairedSurrogates(result);
+    }
+    value = result;
+}
 } // namespace
 
 void ParseTextFieldTextObject(const JSCallbackInfo& info, const JSRef<JSVal>& changeEventVal)
@@ -164,6 +178,8 @@ void JSTextField::CreateTextInput(const JSCallbackInfo& info)
         }
     }
 
+    ProcessStringUnpairedSurrogates(placeholderSrc);
+    ProcessStringUnpairedSurrogates(value);
     auto controller = TextFieldModel::GetInstance()->CreateTextInput(placeholderSrc, value);
     if (jsController) {
         jsController->SetController(controller);
@@ -212,6 +228,9 @@ void JSTextField::CreateTextArea(const JSCallbackInfo& info)
             jsController = JSRef<JSObject>::Cast(controllerObj)->Unwrap<JSTextEditableController>();
         }
     }
+
+    ProcessStringUnpairedSurrogates(placeholderSrc);
+    ProcessStringUnpairedSurrogates(value);
     auto controller = TextFieldModel::GetInstance()->CreateTextArea(placeholderSrc, value);
     if (jsController) {
         jsController->SetController(controller);
@@ -404,7 +423,7 @@ void JSTextField::SetCaretStyle(const JSCallbackInfo& info)
         auto paramObject = JSRef<JSObject>::Cast(jsValue);
         auto caretWidth = paramObject->GetProperty("width");
 
-        auto pipeline = PipelineBase::GetCurrentContext();
+        auto pipeline = PipelineContext::GetCurrentContextSafelyWithCheck();
         CHECK_NULL_VOID(pipeline);
         auto theme = pipeline->GetThemeManager()->GetTheme<TextFieldTheme>();
         CHECK_NULL_VOID(theme);
@@ -467,7 +486,7 @@ void JSTextField::SetSelectedBackgroundColor(const JSCallbackInfo& info)
 
     Color selectedColor;
     if (!ParseJsColor(info[0], selectedColor)) {
-        auto pipeline = PipelineBase::GetCurrentContext();
+        auto pipeline = PipelineContext::GetCurrentContextSafelyWithCheck();
         CHECK_NULL_VOID(pipeline);
         auto theme = pipeline->GetThemeManager()->GetTheme<TextFieldTheme>();
         CHECK_NULL_VOID(theme);
@@ -987,30 +1006,6 @@ void JSTextField::JsBorderRadius(const JSCallbackInfo& info)
     }
     ParseBorderRadius(jsValue);
     TextFieldModel::GetInstance()->SetBackBorder();
-}
-
-void JSTextField::JsOutline(const JSCallbackInfo& info)
-{
-    JSViewAbstract::JsOutline(info);
-    TextFieldModel::GetInstance()->SetBackOuterBorder();
-}
-
-void JSTextField::JsOutlineWidth(const JSCallbackInfo& info)
-{
-    JSViewAbstract::JsOutlineWidth(info);
-    TextFieldModel::GetInstance()->SetBackOuterBorderWidth();
-}
-
-void JSTextField::JsOutlineColor(const JSCallbackInfo& info)
-{
-    JSViewAbstract::JsOutlineColor(info);
-    TextFieldModel::GetInstance()->SetBackOuterBorderColor();
-}
-
-void JSTextField::JsOutlineRadius(const JSCallbackInfo& info)
-{
-    JSViewAbstract::JsOutlineRadius(info);
-    TextFieldModel::GetInstance()->SetBackOuterBorderRadius();
 }
 
 void JSTextField::JsHoverEffect(const JSCallbackInfo& info)
@@ -1546,6 +1541,7 @@ static CleanNodeStyle ConvertStrToCleanNodeStyle(const std::string& value)
 void JSTextField::SetCancelButton(const JSCallbackInfo& info)
 {
     if (info.Length() < 1 || !info[0]->IsObject()) {
+        ResetCancelIcon();
         return;
     }
     auto param = JSRef<JSObject>::Cast(info[0]);
@@ -1603,6 +1599,14 @@ void JSTextField::SetCancelDefaultIcon()
     }
     TextFieldModel::GetInstance()->SetCancelIconSize(theme->GetIconSize());
     TextFieldModel::GetInstance()->SetCanacelIconSrc(std::string(), std::string(), std::string());
+    TextFieldModel::GetInstance()->SetCancelSymbolIcon(nullptr);
+    TextFieldModel::GetInstance()->SetCancelButtonSymbol(true);
+}
+
+void JSTextField::ResetCancelIcon()
+{
+    TextFieldModel::GetInstance()->SetCleanNodeStyle(CleanNodeStyle::INPUT);
+    TextFieldModel::GetInstance()->SetIsShowCancelButton(false);
     TextFieldModel::GetInstance()->SetCancelSymbolIcon(nullptr);
     TextFieldModel::GetInstance()->SetCancelButtonSymbol(true);
 }
@@ -1680,7 +1684,7 @@ void JSTextField::SetDecoration(const JSCallbackInfo& info)
         JSRef<JSVal> colorValue = obj->GetProperty("color");
         JSRef<JSVal> styleValue = obj->GetProperty("style");
 
-        auto pipelineContext = PipelineBase::GetCurrentContext();
+        auto pipelineContext = PipelineContext::GetCurrentContextSafelyWithCheck();
         CHECK_NULL_VOID(pipelineContext);
         auto theme = pipelineContext->GetTheme<TextFieldTheme>();
         CHECK_NULL_VOID(theme);
@@ -1725,7 +1729,7 @@ void JSTextField::SetMaxFontSize(const JSCallbackInfo& info)
     if (info.Length() < 1) {
         return;
     }
-    auto pipelineContext = PipelineBase::GetCurrentContext();
+    auto pipelineContext = PipelineContext::GetCurrentContextSafelyWithCheck();
     CHECK_NULL_VOID(pipelineContext);
     auto theme = pipelineContext->GetTheme<TextFieldTheme>();
     CHECK_NULL_VOID(theme);

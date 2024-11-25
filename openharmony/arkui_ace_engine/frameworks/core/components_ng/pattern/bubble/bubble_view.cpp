@@ -263,15 +263,15 @@ RefPtr<FrameNode> BubbleView::CreateBubbleNode(
     }
     auto renderContext = child->GetRenderContext();
     if (renderContext) {
-        if ((Container::LessThanAPIVersion(PlatformVersion::VERSION_ELEVEN))) {
-            renderContext->UpdateBackgroundColor(
-                popupPaintProp->GetBackgroundColor().value_or(GetPopupTheme()->GetBackgroundColor()));
-        } else {
+        if (Container::GreatOrEqualAPIVersion(PlatformVersion::VERSION_ELEVEN) && renderContext->IsUniRenderEnabled()) {
             auto backgroundColor = popupPaintProp->GetBackgroundColor().value_or(Color::TRANSPARENT);
             renderContext->UpdateBackgroundColor(backgroundColor);
             BlurStyleOption styleOption;
             styleOption.blurStyle = param->GetBlurStyle();
             renderContext->UpdateBackBlurStyle(styleOption);
+        } else {
+            renderContext->UpdateBackgroundColor(
+                popupPaintProp->GetBackgroundColor().value_or(GetPopupTheme()->GetBackgroundColor()));
         }
         if (param->GetShadow().has_value()) {
             renderContext->UpdateBackShadow(param->GetShadow().value());
@@ -357,15 +357,16 @@ RefPtr<FrameNode> BubbleView::CreateCustomBubbleNode(
             CalcSize(CalcLength(param->GetChildWidth().value()), std::nullopt));
     }
     if (columnRenderContext) {
-        if ((Container::LessThanAPIVersion(PlatformVersion::VERSION_ELEVEN))) {
-            columnRenderContext->UpdateBackgroundColor(
-                popupPaintProps->GetBackgroundColor().value_or(GetPopupTheme()->GetBackgroundColor()));
-        } else {
+        if (Container::GreatOrEqualAPIVersion(PlatformVersion::VERSION_ELEVEN) &&
+            columnRenderContext->IsUniRenderEnabled()) {
             auto backgroundColor = popupPaintProps->GetBackgroundColor().value_or(Color::TRANSPARENT);
             columnRenderContext->UpdateBackgroundColor(backgroundColor);
             BlurStyleOption styleOption;
             styleOption.blurStyle = param->GetBlurStyle();
             columnRenderContext->UpdateBackBlurStyle(styleOption);
+        } else {
+            columnRenderContext->UpdateBackgroundColor(
+                popupPaintProps->GetBackgroundColor().value_or(GetPopupTheme()->GetBackgroundColor()));
         }
         if (param->GetShadow().has_value()) {
             columnRenderContext->UpdateBackShadow(param->GetShadow().value());
@@ -386,6 +387,7 @@ void BubbleView::UpdateBubbleButtons(std::list<RefPtr<UINode>>& buttons, const R
         buttons.pop_front();
         auto textNode = AceType::DynamicCast<FrameNode>(button->GetFirstChild());
         auto layoutProperty = textNode->GetLayoutProperty<TextLayoutProperty>();
+        CHECK_NULL_VOID(layoutProperty);
         layoutProperty->UpdateContent(primaryButton.value);
         textNode->MarkModifyDone();
         auto buttonEventHub = button->GetOrCreateGestureEventHub();
@@ -398,6 +400,7 @@ void BubbleView::UpdateBubbleButtons(std::list<RefPtr<UINode>>& buttons, const R
         buttons.pop_front();
         auto textNode = AceType::DynamicCast<FrameNode>(button->GetFirstChild());
         auto layoutProperty = textNode->GetLayoutProperty<TextLayoutProperty>();
+        CHECK_NULL_VOID(layoutProperty);
         layoutProperty->UpdateContent(secondaryButton.value);
         textNode->MarkModifyDone();
         auto buttonEventHub = button->GetOrCreateGestureEventHub();
@@ -424,12 +427,15 @@ void BubbleView::UpdateBubbleContent(int32_t popupId, const RefPtr<PopupParam>& 
             if (child->GetTag() == V2::TEXT_ETS_TAG) { // API10
                 auto textNode = AceType::DynamicCast<FrameNode>(child);
                 auto layoutProperty = textNode->GetLayoutProperty<TextLayoutProperty>();
+                CHECK_NULL_VOID(layoutProperty);
                 layoutProperty->UpdateContent(message);
                 UpdateTextProperties(param, layoutProperty);
                 textNode->MarkModifyDone();
             } else if (child->GetTag() == V2::SCROLL_ETS_TAG) {
                 auto textNode = AceType::DynamicCast<FrameNode>(child->GetFirstChild());
+                CHECK_NULL_VOID(textNode);
                 auto layoutProperty = textNode->GetLayoutProperty<TextLayoutProperty>();
+                CHECK_NULL_VOID(layoutProperty);
                 layoutProperty->UpdateContent(message);
                 UpdateTextProperties(param, layoutProperty);
                 textNode->MarkModifyDone();
@@ -447,6 +453,7 @@ void BubbleView::UpdateBubbleContent(int32_t popupId, const RefPtr<PopupParam>& 
         auto textNode = AceType::DynamicCast<FrameNode>(childNode);
         CHECK_NULL_VOID(textNode);
         auto layoutProperty = textNode->GetLayoutProperty<TextLayoutProperty>();
+        CHECK_NULL_VOID(layoutProperty);
         layoutProperty->UpdateContent(message);
         UpdateTextProperties(param, layoutProperty);
         textNode->MarkModifyDone();
@@ -625,15 +632,15 @@ void BubbleView::UpdateCommonParam(int32_t popupId, const RefPtr<PopupParam>& pa
         childLayoutProperty->ClearUserDefinedIdealSize(true, false);
     }
     if (renderContext) {
-        if ((Container::LessThanAPIVersion(PlatformVersion::VERSION_ELEVEN))) {
-            renderContext->UpdateBackgroundColor(
-                popupPaintProp->GetBackgroundColor().value_or(GetPopupTheme()->GetBackgroundColor()));
-        } else {
+        if (Container::GreatOrEqualAPIVersion(PlatformVersion::VERSION_ELEVEN) && renderContext->IsUniRenderEnabled()) {
             auto backgroundColor = popupPaintProp->GetBackgroundColor().value_or(Color::TRANSPARENT);
             renderContext->UpdateBackgroundColor(backgroundColor);
             BlurStyleOption styleOption;
             styleOption.blurStyle = param->GetBlurStyle();
             renderContext->UpdateBackBlurStyle(styleOption);
+        } else {
+            renderContext->UpdateBackgroundColor(
+                popupPaintProp->GetBackgroundColor().value_or(GetPopupTheme()->GetBackgroundColor()));
         }
     }
     RefPtr<BubblePattern> bubblePattern = popupNode->GetPattern<BubblePattern>();
@@ -650,6 +657,7 @@ RefPtr<FrameNode> BubbleView::CreateMessage(const std::string& message, bool IsU
     // The buttons in popupNode can not get focus, if the textNode in the button is not focusable
     textNode->GetOrCreateFocusHub()->SetFocusable(true);
     auto layoutProperty = textNode->GetLayoutProperty<TextLayoutProperty>();
+    CHECK_NULL_RETURN(layoutProperty, nullptr);
     layoutProperty->UpdateContent(message);
     auto popupTheme = GetPopupTheme();
     CHECK_NULL_RETURN(popupTheme, nullptr);
@@ -861,7 +869,7 @@ RefPtr<FrameNode> BubbleView::CreateButton(
     } else {
         buttonProp->UpdatePadding(buttonPadding);
     }
-    if (Container::GreatOrEqualAPITargetVersion(PlatformVersion::VERSION_THIRTEEN)) {
+    if (Container::GreatOrEqualAPITargetVersion(PlatformVersion::VERSION_FOURTEEN)) {
         buttonProp->UpdateType(ButtonType::ROUNDED_RECTANGLE);
     } else {
         buttonProp->UpdateType(ButtonType::CAPSULE);

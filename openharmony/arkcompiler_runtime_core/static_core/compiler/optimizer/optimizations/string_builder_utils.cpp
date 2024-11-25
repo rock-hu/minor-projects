@@ -222,6 +222,33 @@ bool HasUserPhiRecursively(Inst *inst, Marker visited, const FindUserPredicate &
     return false;
 }
 
+bool HasUserRecursively(Inst *inst, Marker visited, const FindUserPredicate &predicate)
+{
+    // Check if instruction is used in a context defined by predicate
+    // All Check-instruction users are checked recursively
+
+    if (HasUser(inst, predicate)) {
+        return true;
+    }
+
+    inst->SetMarker(visited);
+
+    for (auto &user : inst->GetUsers()) {
+        auto userInst = user.GetInst();
+        if (!userInst->IsCheck()) {
+            continue;
+        }
+        if (userInst->IsMarked(visited)) {
+            continue;
+        }
+        if (HasUserRecursively(userInst, visited, predicate)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 size_t CountUsers(Inst *inst, const FindUserPredicate &predicate)
 {
     size_t count = 0;
@@ -271,6 +298,217 @@ bool IsIntrinsicStringBuilderAppendString(Inst *inst)
 
     auto runtime = inst->GetBasicBlock()->GetGraph()->GetRuntime();
     return runtime->IsIntrinsicStringBuilderAppendString(inst->CastToIntrinsic()->GetIntrinsicId());
+}
+
+bool IsUsedOutsideBasicBlock(Inst *inst, BasicBlock *bb)
+{
+    for (auto &user : inst->GetUsers()) {
+        auto userInst = user.GetInst();
+        if (userInst->IsCheck()) {
+            if (!userInst->HasUsers()) {
+                continue;
+            }
+            if (!userInst->HasSingleUser()) {
+                // In case of multi user check-instruction we assume it is used outside current basic block without
+                // actually testing it.
+                return true;
+            }
+            // In case of single user check-instruction we test its the only user.
+            userInst = userInst->GetUsers().Front().GetInst();
+        }
+        if (userInst->GetBasicBlock() != bb) {
+            return true;
+        }
+    }
+    return false;
+}
+
+SaveStateInst *FindFirstSaveState(BasicBlock *block)
+{
+    if (block->IsEmpty()) {
+        return nullptr;
+    }
+
+    for (auto inst : block->Insts()) {
+        if (inst->GetOpcode() == Opcode::SaveState) {
+            return inst->CastToSaveState();
+        }
+    }
+
+    return nullptr;
+}
+
+void RemoveFromInstructionInputs(ArenaVector<InputDesc> &inputDescriptors)
+{
+    // Inputs must be walked in reverse order for removal
+    std::sort(inputDescriptors.begin(), inputDescriptors.end(),
+              [](auto inputDescX, auto inputDescY) { return inputDescX.second > inputDescY.second; });
+
+    for (auto inputDesc : inputDescriptors) {
+        auto inst = inputDesc.first;
+        auto index = inputDesc.second;
+        inst->RemoveInput(index);
+    }
+}
+
+bool BreakStringBuilderAppendChains(BasicBlock *block)
+{
+    // StringBuilder append-call returns 'this' (instance)
+    // Replace all users of append-call with instance itself to support chain calls
+    // like: sb.append(s0).append(s1)...
+    bool isApplied = false;
+    for (auto inst : block->Insts()) {
+        if (!IsStringBuilderAppend(inst) && !IsStringBuilderToString(inst)) {
+            continue;
+        }
+
+        auto instance = inst->GetDataFlowInput(0);
+        for (auto &user : instance->GetUsers()) {
+            auto userInst = SkipSingleUserCheckInstruction(user.GetInst());
+            if (IsStringBuilderAppend(userInst)) {
+                userInst->ReplaceUsers(instance);
+                isApplied = true;
+            }
+        }
+    }
+    return isApplied;
+}
+
+Inst *GetStoreArrayIndexConstant(Inst *storeArray)
+{
+    ASSERT(storeArray->GetOpcode() == Opcode::StoreArray);
+    ASSERT(storeArray->GetInputsCount() > 1);
+
+    auto inputInst1 = storeArray->GetDataFlowInput(1U);
+    if (inputInst1->IsConst()) {
+        return inputInst1;
+    }
+
+    return nullptr;
+}
+
+bool FillArrayElement(Inst *inst, InstVector &arrayElements)
+{
+    if (inst->GetOpcode() == Opcode::StoreArray) {
+        auto indexInst = GetStoreArrayIndexConstant(inst);
+        if (indexInst == nullptr) {
+            return false;
+        }
+
+        ASSERT(indexInst->IsConst());
+        auto indexValue = indexInst->CastToConstant()->GetIntValue();
+        if (arrayElements[indexValue] != nullptr) {
+            return false;
+        }
+
+        auto element = inst->GetDataFlowInput(2U);
+        arrayElements[indexValue] = element;
+    }
+    return true;
+}
+
+bool FillArrayElements(Inst *inst, InstVector &arrayElements)
+{
+    for (auto &user : inst->GetUsers()) {
+        auto userInst = user.GetInst();
+        if (!FillArrayElement(userInst, arrayElements)) {
+            return false;
+        }
+        if (userInst->GetOpcode() == Opcode::NullCheck) {
+            if (!FillArrayElements(userInst, arrayElements)) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+Inst *GetArrayLengthConstant(Inst *newArray)
+{
+    if (newArray->GetOpcode() != Opcode::NewArray) {
+        return nullptr;
+    }
+    ASSERT(newArray->GetInputsCount() > 1);
+
+    auto inputInst1 = newArray->GetDataFlowInput(1U);
+    if (inputInst1->IsConst()) {
+        return inputInst1;
+    }
+
+    return nullptr;
+}
+
+bool CollectArrayElements(Inst *newArray, InstVector &arrayElements)
+{
+    /*
+        Collect instructions stored to a given array
+
+        This functions used to find all the arguments of the calls like:
+            str.concat(a, b, c)
+        IR builder generates the following IR for it:
+
+        bb_start:
+            v0  Constant 0x0
+            v1  Constant 0x1
+            v2  Constant 0x2
+            v3  Constant 0x3
+        bb1:
+            v9  NewArray class, v3, save_state
+            v10 StoreArray v9, v0, a
+            v11 StoreArray v9, v1, b
+            v12 StoreArray v9, v2, c
+            v20 CallStatic String::concat str, v9, save_state
+
+        Conditions:
+            - array size is constant (3 in the sample code above)
+            - every StoreArray instruction stores value by constant index (0, 1 and 2 in the sample code above)
+            - every element stored only once
+            - array filled completely
+
+        If any of the above is false, this functions returns false and clears array.
+        If all the above conditions true, this function returns true and fills array.
+    */
+
+    ASSERT(newArray->GetOpcode() == Opcode::NewArray);
+    arrayElements.clear();
+
+    auto lengthInst = GetArrayLengthConstant(newArray);
+    if (lengthInst == nullptr) {
+        return false;
+    }
+    ASSERT(lengthInst->IsConst());
+
+    auto length = lengthInst->CastToConstant()->GetIntValue();
+    arrayElements.resize(length);
+
+    if (!FillArrayElements(newArray, arrayElements)) {
+        arrayElements.clear();
+        return false;
+    }
+
+    // Check if array is filled completely
+    auto foundNull =
+        std::find_if(arrayElements.begin(), arrayElements.end(), [](auto &element) { return element == nullptr; });
+    if (foundNull != arrayElements.end()) {
+        arrayElements.clear();
+        return false;
+    }
+
+    return true;
+}
+
+void CleanupStoreArrayInstructions(Inst *inst)
+{
+    for (auto &user : inst->GetUsers()) {
+        auto userInst = user.GetInst();
+        if (userInst->GetOpcode() == Opcode::StoreArray) {
+            userInst->ClearFlag(inst_flags::NO_DCE);
+        }
+        if (userInst->IsCheck()) {
+            userInst->ClearFlag(inst_flags::NO_DCE);
+            CleanupStoreArrayInstructions(userInst);
+        }
+    }
 }
 
 }  // namespace ark::compiler

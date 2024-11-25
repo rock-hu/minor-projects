@@ -15,30 +15,30 @@
 #include "ecmascript/patch/patch_loader.h"
 
 #include "ecmascript/interpreter/interpreter-inl.h"
+#include "ecmascript/module/module_resolver.h"
 
 namespace panda::ecmascript {
 PatchErrorCode PatchLoader::LoadPatchInternal(JSThread *thread, const JSPandaFile *baseFile,
                                               const JSPandaFile *patchFile, PatchInfo &patchInfo,
                                               const CMap<uint32_t, CString> &baseClassInfo)
 {
-    DISALLOW_GARBAGE_COLLECTION;
     EcmaVM *vm = thread->GetEcmaVM();
-
-    // hot reload and hot patch only support merge-abc file.
-    if (baseFile->IsBundlePack() || patchFile->IsBundlePack()) {
-        LOG_ECMA(ERROR) << "base or patch is not merge abc!";
-        return PatchErrorCode::PACKAGE_NOT_ESMODULE;
+    {
+        DISALLOW_GARBAGE_COLLECTION;
+        // hot reload and hot patch only support merge-abc file.
+        if (baseFile->IsBundlePack() || patchFile->IsBundlePack()) {
+            LOG_ECMA(ERROR) << "base or patch is not merge abc!";
+            return PatchErrorCode::PACKAGE_NOT_ESMODULE;
+        }
+        // Generate patchInfo for hot reload, hot patch and cold patch.
+        patchInfo = PatchLoader::GeneratePatchInfo(patchFile);
+        if (!thread->GetCurrentEcmaContext()->HasCachedConstpool(baseFile)) {
+            LOG_ECMA(INFO) << "cold patch!";
+            vm->GetJsDebuggerManager()->GetHotReloadManager()->NotifyPatchLoaded(baseFile, patchFile);
+            return PatchErrorCode::SUCCESS;
+        }
     }
-
-    // Generate patchInfo for hot reload, hot patch and cold patch.
-    patchInfo = PatchLoader::GeneratePatchInfo(patchFile);
-
-    if (!thread->GetCurrentEcmaContext()->HasCachedConstpool(baseFile)) {
-        LOG_ECMA(INFO) << "cold patch!";
-        vm->GetJsDebuggerManager()->GetHotReloadManager()->NotifyPatchLoaded(baseFile, patchFile);
-        return PatchErrorCode::SUCCESS;
-    }
-
+    
     [[maybe_unused]] EcmaHandleScope handleScope(thread);
 
     // store base constpool in global object for avoid gc.
@@ -79,11 +79,10 @@ void PatchLoader::ExecuteFuncOrPatchMain(
     // Resolve all patch module records.
     CMap<CString, JSHandle<JSTaggedValue>> moduleRecords {};
 
-    ModuleManager *moduleManager = context->GetModuleManager();
     CString fileName = jsPandaFile->GetJSPandaFileDesc();
     for (const auto &recordName : replacedRecordNames) {
-        JSHandle<JSTaggedValue> moduleRecord = moduleManager->
-            HostResolveImportedModuleWithMergeForHotReload(fileName, recordName, false);
+        JSHandle<JSTaggedValue> moduleRecord =
+            ModuleResolver::HostResolveImportedModuleWithMergeForHotReload(thread, fileName, recordName, false);
         moduleRecords.emplace(recordName, moduleRecord);
     }
 

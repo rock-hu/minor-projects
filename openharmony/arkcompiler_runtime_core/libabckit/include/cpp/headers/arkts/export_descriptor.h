@@ -16,26 +16,52 @@
 #ifndef CPP_ABCKIT_ARKTS_EXPORT_DESCRIPTOR_H
 #define CPP_ABCKIT_ARKTS_EXPORT_DESCRIPTOR_H
 
-#include "libabckit/include/c/abckit.h"
-#include "cpp/headers/declarations.h"
-#include "cpp/headers/config.h"
-#include "cpp/headers/base_classes.h"
-#include "cpp/headers/core/module.h"
-#include "cpp/headers/core/export_descriptor.h"
+#include "../core/export_descriptor.h"
 
 namespace abckit::arkts {
 
+/**
+ * @brief ExportDescriptor
+ */
 class ExportDescriptor final : public core::ExportDescriptor {
-    // To access private constructor.
     // We restrict constructors in order to prevent C/C++ API mix-up by user.
+    /// @brief to access private constructor
     friend class core::Module;
+    /// @brief to access private constructor
     friend class arkts::Module;
+    /// @brief abckit::DefaultHash<ExportDescriptor>
+    friend class abckit::DefaultHash<ExportDescriptor>;
 
 public:
+    /**
+     * @brief Construct a new Export Descriptor object
+     * @param other
+     */
     ExportDescriptor(const ExportDescriptor &other) = default;
+
+    /**
+     * @brief Constructor
+     * @param other
+     * @return ExportDescriptor&
+     */
     ExportDescriptor &operator=(const ExportDescriptor &other) = default;
+
+    /**
+     * @brief Construct a new Export Descriptor object
+     * @param other
+     */
     ExportDescriptor(ExportDescriptor &&other) = default;
+
+    /**
+     * @brief Constructor
+     * @param other
+     * @return ExportDescriptor&
+     */
     ExportDescriptor &operator=(ExportDescriptor &&other) = default;
+
+    /**
+     * @brief Destroy the Export Descriptor object
+     */
     ~ExportDescriptor() override = default;
     // Other API.
     // ...

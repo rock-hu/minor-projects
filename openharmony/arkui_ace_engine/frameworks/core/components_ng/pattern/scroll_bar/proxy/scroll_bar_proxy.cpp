@@ -42,10 +42,10 @@ float GetScrollableNodeOffset(RefPtr<Pattern> pattern)
     return scrollablePattern->GetBarOffset();
 }
 
-double GetScrollBarOutBoundaryExtent(RefPtr<Pattern> pattern)
+float GetScrollBarOutBoundaryExtent(RefPtr<Pattern> pattern)
 {
     auto scrollablePattern = AceType::DynamicCast<ScrollablePattern>(pattern);
-    CHECK_NULL_RETURN(scrollablePattern, 0.0f);
+    CHECK_NULL_RETURN(scrollablePattern, 0.f);
     return scrollablePattern->GetScrollBarOutBoundaryExtent();
 }
 } // namespace
@@ -94,15 +94,16 @@ void ScrollBarProxy::NotifyScrollableNode(
 {
     auto scrollBar = weakScrollBar.Upgrade();
     CHECK_NULL_VOID(scrollBar);
-    float barScrollableDistance  = scrollBar->GetScrollableDistance();
+    float barScrollableDistance = scrollBar->GetScrollableDistance();
     auto node = scorllableNode_;
     CHECK_NULL_VOID(node.onPositionChanged);
     auto scrollable = node.scrollableNode.Upgrade();
     if (!scrollable || !CheckScrollable(scrollable)) {
         return;
     }
-    float value = CalcPatternOffset(GetScrollableNodeDistance(scrollable), barScrollableDistance, distance);
-    node.onPositionChanged(value, source);
+    float controlDistance = scrollBar->GetControlDistance();
+    float value = CalcPatternOffset(controlDistance, barScrollableDistance, distance);
+    node.onPositionChanged(value, source, IsNestScroller());
     if (node.scrollbarFRcallback) {
         node.scrollbarFRcallback(0, SceneStatus::RUNNING);
     }
@@ -116,7 +117,7 @@ void ScrollBarProxy::NotifyScrollBarNode(float distance, int32_t source) const
     if (!scrollable || !CheckScrollable(scrollable)) {
         return;
     }
-    node.onPositionChanged(distance, source);
+    node.onPositionChanged(distance, source, IsNestScroller());
     if (node.scrollbarFRcallback) {
         node.scrollbarFRcallback(0, SceneStatus::RUNNING);
     }
@@ -126,7 +127,7 @@ void ScrollBarProxy::NotifyScrollStart() const
 {
     auto node = scorllableNode_;
     CHECK_NULL_VOID(node.scrollStartCallback);
-    node.scrollStartCallback(0, SCROLL_FROM_BAR);
+    node.scrollStartCallback(0, SCROLL_FROM_BAR, IsNestScroller());
     if (node.scrollbarFRcallback) {
         node.scrollbarFRcallback(0, SceneStatus::RUNNING);
     }
@@ -136,7 +137,7 @@ void ScrollBarProxy::NotifyScrollStop() const
 {
     auto node = scorllableNode_;
     CHECK_NULL_VOID(node.scrollEndCallback);
-    node.scrollEndCallback();
+    node.scrollEndCallback(IsNestScroller());
     if (node.scrollbarFRcallback) {
         node.scrollbarFRcallback(0, SceneStatus::RUNNING);
     }
@@ -160,7 +161,7 @@ void ScrollBarProxy::NotifyScrollBar() const
         scrollableNodeOffset += -GetScrollableNodeOffset(pattern);
     }
 
-    double scrollBarOutBoundaryDistance = GetScrollBarOutBoundaryExtent(scrollable);
+    float scrollBarOutBoundaryDistance = GetScrollBarOutBoundaryExtent(scrollable);
     for (const auto& weakScrollBar : scrollBars_) {
         auto scrollBar = weakScrollBar.Upgrade();
         if (!scrollBar) {
@@ -222,7 +223,7 @@ bool ScrollBarProxy::NotifySnapScroll(
         auto controlDistance = GetScrollableNodeDistance(scrollable);
         auto patternOffset = CalcPatternOffset(controlDistance, barScrollableDistance, delta);
         dragDistance = CalcPatternOffset(controlDistance, barScrollableDistance, dragDistance);
-        return scorllableNode_.startSnapAnimationCallback(patternOffset, velocity, -velocity, dragDistance);
+        return scorllableNode_.startSnapAnimationCallback(patternOffset, -velocity, -velocity, dragDistance);
     }
     return false;
 }
@@ -260,7 +261,7 @@ void ScrollBarProxy::SetScrollEnabled(bool scrollEnabled, const WeakPtr<Scrollab
     }
 }
 
-bool ScrollBarProxy::IsNestScroller()
+bool ScrollBarProxy::IsNestScroller() const
 {
     for (auto bar : scrollBars_) {
         auto scrollBarPattern = bar.Upgrade();

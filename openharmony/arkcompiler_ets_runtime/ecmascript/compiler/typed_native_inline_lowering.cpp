@@ -1992,12 +1992,14 @@ void TypedNativeInlineLowering::LowerNumberParseInt(GateRef gate)
     builder_.Bind(&slowPath);
     {
         GateRef glue = acc_.GetGlueFromArgList();
-        result = builder_.CallRuntime(glue, RTSTUB_ID(ParseInt), Gate::InvalidGateRef, { msg, arg2 }, gate);
+        // this may return exception
+        result = builder_.CallRuntime(glue, RTSTUB_ID(ParseInt), Gate::InvalidGateRef, {msg, arg2}, gate);
         builder_.Jump(&exit);
     }
 
     builder_.Bind(&exit);
-    acc_.ReplaceGate(gate, builder_.GetStateDepend(), *result);
+    ReplaceGateWithPendingException(
+        gate, acc_.GetGlueFromArgList(), builder_.GetState(), builder_.GetDepend(), *result);
 }
 
 void TypedNativeInlineLowering::LowerNumberParseFloat(GateRef gate)
@@ -2503,7 +2505,12 @@ GateRef TypedNativeInlineLowering::NumberToInt32(GateRef gate)
         case MachineType::I32:
             return gate;
         case MachineType::F64:
-            return builder_.ChangeFloat64ToInt32(gate);
+            if (isLiteCG_) {
+                return builder_.ChangeFloat64ToInt32(gate);
+            } else {
+                GateRef glue = acc_.GetGlueFromArgList();
+                return builder_.DoubleToInt(glue, gate, base::INT32_BITS);
+            }
         case MachineType::I1:
             return builder_.ZExtInt1ToInt32(gate);
         default:
@@ -3647,6 +3654,7 @@ void TypedNativeInlineLowering::LowerArrayPop(GateRef gate)
     Label isCOWArray(&builder_);
     Label getElements(&builder_);
     Label indexLessCapacity(&builder_);
+    Label slowGetElement(&builder_);
     Label setArrayLength(&builder_);
     Label checkTrim(&builder_);
     Label needTrim(&builder_);
@@ -3677,13 +3685,31 @@ void TypedNativeInlineLowering::LowerArrayPop(GateRef gate)
         builder_.Bind(&indexLessCapacity);
         {
             GateRef result = builder_.GetValueFromTaggedArray(elements, index);
-            BRANCH_CIR(builder_.TaggedIsHole(result), &setArrayLength, &checkTrim);
+            BRANCH_CIR(builder_.TaggedIsHole(result), &slowGetElement, &checkTrim);
             builder_.Bind(&checkTrim);
             {
                 ret = result;
                 GateRef unused = builder_.Int32Sub(capacity, index);
                 BRANCH_CIR(
                     builder_.Int32GreaterThan(unused, builder_.Int32(TaggedArray::MAX_END_UNUSED)), &needTrim, &noTrim);
+            }
+            builder_.Bind(&slowGetElement);
+            {
+                Label hasException(&builder_);
+                Label notHasException(&builder_);
+                GateRef element = builder_.CallStub(glue, gate, CommonStubCSigns::GetPropertyByIndex,
+                                                    { glue, thisValue, index });
+                BRANCH_CIR(builder_.HasPendingException(glue), &hasException, &notHasException);
+                builder_.Bind(&hasException);
+                {
+                    ret = builder_.ExceptionConstant();
+                    builder_.Jump(&exit);
+                }
+                builder_.Bind(&notHasException);
+                {
+                    ret = element;
+                    builder_.Jump(&setArrayLength);
+                }
             }
         }
         builder_.Bind(&needTrim);

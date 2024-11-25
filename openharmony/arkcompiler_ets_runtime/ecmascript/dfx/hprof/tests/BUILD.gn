@@ -14,13 +14,18 @@
 import("//arkcompiler/ets_runtime/js_runtime_config.gni")
 import("//arkcompiler/ets_runtime/test/test_helper.gni")
 
-module_output_path = "arkcompiler/ets_runtime"
+module_output_path = "ets_runtime"
+
+metadata_file_path = "//arkcompiler/ets_runtime/ecmascript/js_type_metadata/"
+
+target_test_path = "/tests/unittest/arkcompiler/ets_runtime/resource/obj/arkcompiler/ets_runtime/ecmascript/dfx/hprof/tests"
 
 test_js_path = "//arkcompiler/ets_runtime/ecmascript/dfx/hprof/tests/js_files/"
 
 test_js_files = [
   "heapdump",
   "allocation",
+  "heap_snapshot",
 ]
 
 foreach(file, test_js_files) {
@@ -46,6 +51,44 @@ host_unittest_action("HeapDumpTest") {
   sources = [
     # test file
     "heap_dump_test.cpp",
+  ]
+
+  configs = [ "../../../../:ecma_test_config" ]
+
+  deps = [
+    "$ark_third_party_root/icu/icu4c:shared_icui18n",
+    "$ark_third_party_root/icu/icu4c:shared_icuuc",
+    "../../../../:libark_jsruntime_test",
+    sdk_libc_secshared_dep,
+  ]
+
+  foreach(file, test_js_files) {
+    deps += [ ":gen_${file}_abc" ]
+  }
+
+  if (is_ohos && is_standard_system) {
+    test_abc_dir = "/data/test/"
+  } else {
+    test_abc_dir = rebase_path(target_out_dir + "/abc_files/")
+  }
+
+  test_js_dir = rebase_path(test_js_path)
+  defines = [
+    "HPROF_TEST_JS_FILES_DIR=\"${test_js_dir}\"",
+    "HPROF_TEST_ABC_FILES_DIR=\"${test_abc_dir}\"",
+  ]
+
+  # hiviewdfx libraries
+  external_deps = hiviewdfx_ext_deps
+  deps += hiviewdfx_deps
+}
+
+host_unittest_action("HeapSnapShotTest") {
+  module_out_path = module_output_path
+
+  sources = [
+    # test file
+    "heap_snapshot_test.cpp",
   ]
 
   configs = [ "../../../../:ecma_test_config" ]
@@ -189,15 +232,92 @@ host_unittest_action("HeapSamplingTest") {
   deps += hiviewdfx_deps
 }
 
+host_unittest_action("RawHeapTranslateTest") {
+  module_out_path = module_output_path
+
+  sources = [
+    # test file
+    "../rawheap_translate/metadata_parse.cpp",
+    "../rawheap_translate/utils.cpp",
+    "rawheap_translate_test.cpp",
+  ]
+
+  configs = [ "$js_root:ecma_test_config" ]
+
+  deps = [
+    "$ark_third_party_root/icu/icu4c:shared_icui18n",
+    "$ark_third_party_root/icu/icu4c:shared_icuuc",
+    "$js_root:libark_jsruntime_test",
+    sdk_libc_secshared_dep,
+  ]
+
+  cflags_cc = [ "-std=c++17" ]
+
+  external_deps = [
+    "bounds_checking_function:libsec_static",
+    "cJSON:cjson_static",
+  ]
+
+  # hiviewdfx libraries
+  external_deps += hiviewdfx_ext_deps
+  deps += hiviewdfx_deps
+}
+
+action("copy_metadata_for_test") {
+  script = "$js_root/script/metadata_copy_for_test.py"
+
+  target_path = rebase_path(root_out_dir) + "$target_test_path/metadata"
+
+  args = [
+    "--metadata",
+    rebase_path("$js_root/ecmascript/js_type_metadata"),
+    "--outputs",
+    rebase_path("$target_path"),
+  ]
+
+  outputs = [ "$root_gen_dir/arkcompiler/ets_runtime/metadata_copy_dummy.txt" ]
+}
+
+host_unittest_action("JSMetadataTest") {
+  module_out_path = module_output_path
+
+  sources = [ "js_metadata_test.cpp" ]
+
+  configs = [ "../../../../:ecma_test_config" ]
+
+  deps = [
+    ":copy_metadata_for_test",
+    "$ark_third_party_root/icu/icu4c:shared_icui18n",
+    "$ark_third_party_root/icu/icu4c:shared_icuuc",
+    "../../../../:libark_jsruntime_test",
+    sdk_libc_secshared_dep,
+  ]
+
+  if (is_ohos && is_standard_system) {
+    metadata_file_path = "/data/test/"
+  }
+
+  metadata_file_path = rebase_path(metadata_file_path)
+  defines = [ "METADATA_SOURCE_FILE_DIR=\"${metadata_file_path}\"" ]
+
+  # hiviewdfx libraries
+  external_deps = hiviewdfx_ext_deps
+  external_deps += [ "cJSON:cjson_static" ]
+  deps += hiviewdfx_deps
+}
+
 group("unittest") {
   testonly = true
   deps = [
     ":HProfTest",
     ":HeapDumpTest",
     ":HeapSamplingTest",
+    ":HeapSnapShotTest",
     ":HeapTrackerFirstTest",
     ":HeapTrackerSecondTest",
     ":HeapTrackerThirdTest",
+    ":JSMetadataTest",
+    ":RawHeapTranslateTest",
   ]
 }
 
@@ -207,18 +327,24 @@ group("host_unittest") {
     ":HProfTestAction",
     ":HeapDumpTestAction",
     ":HeapSamplingTestAction",
+    ":HeapSnapShotTestAction",
     ":HeapTrackerFirstTestAction",
     ":HeapTrackerSecondTestAction",
     ":HeapTrackerThirdTestAction",
+    ":JSMetadataTestAction",
+    ":RawHeapTranslateTestAction",
   ]
   if (is_mac) {
     deps -= [
       ":HProfTestAction",
       ":HeapDumpTestAction",
       ":HeapSamplingTestAction",
+      ":HeapSnapShotTestAction",
       ":HeapTrackerFirstTestAction",
       ":HeapTrackerSecondTestAction",
       ":HeapTrackerThirdTestAction",
+      ":JSMetadataTestAction",
+      ":RawHeapTranslateTestAction",
     ]
   }
 }

@@ -19,7 +19,7 @@
 #include "ecmascript/compiler/pass_manager.h"
 #include "ecmascript/jspandafile/program_object.h"
 #include "ecmascript/js_runtime_options.h"
-#include "ecmascript/module/js_shared_module_manager.h"
+#include "ecmascript/module/module_resolver.h"
 #include "ecmascript/module/js_module_manager.h"
 #include "ecmascript/ohos/ohos_pgo_processor.h"
 #include "ecmascript/ohos/ohos_pkg_args.h"
@@ -334,12 +334,11 @@ void AotCompilerPreprocessor::ResolveModule(const JSPandaFile *jsPandaFile, cons
 {
     const auto &recordInfo = jsPandaFile->GetJSRecordInfo();
     JSThread *thread = vm_->GetJSThread();
-    SharedModuleManager *sharedModuleManager = SharedModuleManager::GetInstance();
     [[maybe_unused]] EcmaHandleScope scope(thread);
     for (auto info: recordInfo) {
         if (jsPandaFile->IsModule(info.second)) {
             auto recordName = info.first;
-            sharedModuleManager->ResolveImportedModuleWithMerge(thread, fileName.c_str(), recordName, false);
+            ModuleResolver::ResolveImportedModuleWithMerge(thread, fileName.c_str(), recordName, false);
             SharedModuleManager::GetInstance()->TransferSModule(thread);
         }
     }
@@ -463,14 +462,20 @@ void AotCompilerPreprocessor::GenerateMethodMap(CompilationOptions &cOptions)
             }
             auto methodId = methodLiteral->GetMethodId();
             const std::string methodName(MethodLiteral::GetMethodName(jsPandaFile, methodId));
-            bool isAotcompile = !IsSkipMethod(jsPandaFile, bytecodeInfo, MethodLiteral::GetRecordName(
-                jsPandaFile, EntityId(index)), methodLiteral, methodPcInfo, methodName, cOptions);
+            bool isAotCompile = !IsSkipMethod(jsPandaFile,
+                                              bytecodeInfo,
+                                              MethodLiteral::GetRecordName(jsPandaFile, EntityId(index)),
+                                              methodLiteral,
+                                              methodPcInfo,
+                                              methodName,
+                                              cOptions);
             bool isFastCall = methodLiteral->IsFastCall();
             CString fileDesc = jsPandaFile->GetNormalizedFileDesc();
             uint32_t offset = methodId.GetOffset();
-            callMethodFlagMap_.SetIsAotCompile(fileDesc, offset, isAotcompile);
+            callMethodFlagMap_.SetIsAotCompile(fileDesc, offset, isAotCompile);
             callMethodFlagMap_.SetIsFastCall(fileDesc, offset, isFastCall);
-            LOG_COMPILER(INFO) <<"!!!"<< fileDesc <<" "<< offset << " " << isAotcompile << " " << isFastCall;
+            LOG_COMPILER(INFO) << fileDesc << "->" << methodName << ", offset: " << offset
+                               << ", isAotCompile: " << isAotCompile << ", isFastCall: " << isFastCall;
         }
     }
 }

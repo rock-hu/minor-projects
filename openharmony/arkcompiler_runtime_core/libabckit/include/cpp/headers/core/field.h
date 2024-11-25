@@ -16,25 +16,52 @@
 #ifndef CPP_ABCKIT_CORE_FIELD_H
 #define CPP_ABCKIT_CORE_FIELD_H
 
-#include "libabckit/include/c/abckit.h"
-#include "cpp/headers/declarations.h"
-#include "cpp/headers/config.h"
-#include "cpp/headers/base_classes.h"
-#include "libabckit/include/c/metadata_core.h"
+#include "../base_classes.h"
 
 namespace abckit::core {
 
+/**
+ * @brief Field
+ */
 class Field : public View<AbckitCoreField *> {
-    // To access private constructor.
     // We restrict constructors in order to prevent C/C++ API mix-up by user.
+    /// @brief to access private constructor
     friend class Module;
+    /// @brief to access private constructor
     friend class Namespace;
+    /// @brief abckit::DefaultHash<Field>
+    friend class abckit::DefaultHash<Field>;
 
 public:
+    /**
+     * @brief Construct a new Field object
+     * @param other
+     */
     Field(const Field &other) = default;
+
+    /**
+     * @brief Constructor
+     * @param other
+     * @return Field&
+     */
     Field &operator=(const Field &other) = default;
+
+    /**
+     * @brief Construct a new Field object
+     * @param other
+     */
     Field(Field &&other) = default;
+
+    /**
+     * @brief Constructor
+     * @param other
+     * @return Field&
+     */
     Field &operator=(Field &&other) = default;
+
+    /**
+     * @brief Destroy the Field object
+     */
     ~Field() override = default;
 
     // Core API's.
@@ -45,6 +72,10 @@ private:
     const ApiConfig *conf_;
 
 protected:
+    /**
+     * @brief Get the Api Config object
+     * @return const ApiConfig*
+     */
     const ApiConfig *GetApiConfig() const override
     {
         return conf_;

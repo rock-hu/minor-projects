@@ -529,7 +529,7 @@ RectF BaseTextSelectOverlay::GetPaintRectWithTransform()
 
 OffsetF BaseTextSelectOverlay::GetPaintRectOffsetWithTransform()
 {
-    auto pipeline = PipelineContext::GetCurrentContextSafely();
+    auto pipeline = PipelineContext::GetCurrentContextSafelyWithCheck();
     CHECK_NULL_RETURN(pipeline, OffsetF(0.0f, 0.0f));
     auto globalFrameRect = GetPaintRectWithTransform();
     return globalFrameRect.GetOffset() - pipeline->GetRootRect().GetOffset();
@@ -704,6 +704,9 @@ VectorF BaseTextSelectOverlay::GetHostScale()
 void BaseTextSelectOverlay::OnCloseOverlay(OptionMenuType menuType, CloseReason reason, RefPtr<OverlayInfo> info)
 {
     isHandleDragging_ = false;
+    if (reason == CloseReason::CLOSE_REASON_BY_RECREATE) {
+        return;
+    }
     originalMenuIsShow_ = false;
     if (enableHandleLevel_) {
         auto host = GetOwner();
@@ -817,10 +820,10 @@ void BaseTextSelectOverlay::OnAncestorNodeChanged(FrameNodeChangeInfoFlag flag)
     auto isScrollEnd = IsAncestorNodeEndScroll(flag) || ((flag & AVOID_KEYBOARD_END_FALG) == AVOID_KEYBOARD_END_FALG);
     isSwitchToEmbed = isSwitchToEmbed && (!isScrollEnd || HasUnsupportedTransform());
     UpdateMenuWhileAncestorNodeChanged(
-        isStartScroll || isStartAnimation || isTransformChanged || isStartTransition, isScrollEnd);
-    auto pipeline = PipelineContext::GetCurrentContextSafely();
+        isStartScroll || isStartAnimation || isTransformChanged || isStartTransition, isScrollEnd, flag);
+    auto pipeline = PipelineContext::GetCurrentContextSafelyWithCheck();
     CHECK_NULL_VOID(pipeline);
-    pipeline->AddAfterRenderTask([weak = WeakClaim(this), isSwitchToEmbed, isScrollEnd]() {
+    auto switchTask = [weak = WeakClaim(this), isSwitchToEmbed, isScrollEnd]() {
         auto overlay = weak.Upgrade();
         CHECK_NULL_VOID(overlay);
         if (isScrollEnd) {
@@ -830,7 +833,12 @@ void BaseTextSelectOverlay::OnAncestorNodeChanged(FrameNodeChangeInfoFlag flag)
         if (isSwitchToEmbed) {
             overlay->SwitchToEmbedMode();
         }
-    });
+    };
+    if (AnimationUtils::IsImplicitAnimationOpen()) {
+        switchTask();
+    } else {
+        pipeline->AddAfterRenderTask(switchTask);
+    }
     if ((flag & FRAME_NODE_CONTENT_CLIP_CHANGE) == FRAME_NODE_CONTENT_CLIP_CHANGE) {
         if (IsOverlayMode() && IsHandleInParentSafeAreaPadding()) {
             SwitchToEmbedMode();
@@ -839,12 +847,17 @@ void BaseTextSelectOverlay::OnAncestorNodeChanged(FrameNodeChangeInfoFlag flag)
     }
 }
 
-void BaseTextSelectOverlay::UpdateMenuWhileAncestorNodeChanged(bool shouldHideMenu, bool shouldShowMenu)
+void BaseTextSelectOverlay::UpdateMenuWhileAncestorNodeChanged(
+    bool shouldHideMenu, bool shouldShowMenu, FrameNodeChangeInfoFlag extraFlag)
 {
     auto manager = GetManager<SelectContentOverlayManager>();
     CHECK_NULL_VOID(manager);
     if (shouldHideMenu) {
         manager->HideOptionMenu(true);
+        return;
+    }
+    if ((extraFlag & AVOID_KEYBOARD_END_FALG) == AVOID_KEYBOARD_END_FALG) {
+        manager->ShowOptionMenu();
         return;
     }
     if (shouldShowMenu && originalMenuIsShow_ && !GetIsHandleDragging() && !GetSelectArea().IsEmpty()) {
@@ -1151,14 +1164,20 @@ bool BaseTextSelectOverlay::GetClipHandleViewPort(RectF& rect)
         auto renderContext = parent->GetRenderContext();
         CHECK_NULL_RETURN(renderContext, false);
         if (renderContext->GetClipEdge().value_or(false)) {
-            contentRect = contentRect.IntersectRectT(parentContentRect);
+            if (contentRect.IsIntersectWith(parentContentRect)) {
+                contentRect = contentRect.IntersectRectT(parentContentRect);
+            } else {
+                contentRect = parentContentRect;
+            }
         }
         contentRect.SetOffset(contentRect.GetOffset() + parent->GetPaintRectWithTransform().GetOffset());
         parent = parent->GetAncestorNodeOfFrame(true);
     }
     contentRect.SetWidth(std::max(contentRect.Width(), 0.0f));
     contentRect.SetHeight(std::max(contentRect.Height(), 0.0f));
-    UpdateClipHandleViewPort(contentRect);
+    if (Positive(contentRect.Width()) && Positive(contentRect.Height())) {
+        UpdateClipHandleViewPort(contentRect);
+    }
     rect = contentRect;
     return true;
 }
@@ -1340,7 +1359,7 @@ bool BaseTextSelectOverlay::IsHandleInParentSafeAreaPadding()
         overlayInfo->firstHandle.localPaintRect, overlayInfo->secondHandle.localPaintRect);
 }
 
-void BaseTextSelectOverlay::AddAvoidKeyboardCallback()
+void BaseTextSelectOverlay::AddAvoidKeyboardCallback(bool isCustomKeyboard)
 {
     auto host = GetOwner();
     CHECK_NULL_VOID(host);
@@ -1348,7 +1367,7 @@ void BaseTextSelectOverlay::AddAvoidKeyboardCallback()
     CHECK_NULL_VOID(context);
     auto textFieldManagerNg = DynamicCast<TextFieldManagerNG>(context->GetTextFieldManager());
     CHECK_NULL_VOID(textFieldManagerNg);
-    textFieldManagerNg->AddAvoidKeyboardCallback([weak = WeakClaim(this)]() {
+    textFieldManagerNg->AddAvoidKeyboardCallback(host->GetId(), isCustomKeyboard, [weak = WeakClaim(this)]() {
         auto overlay = weak.Upgrade();
         CHECK_NULL_VOID(overlay);
         if (!overlay->SelectOverlayIsOn()) {
@@ -1363,5 +1382,16 @@ void BaseTextSelectOverlay::AddAvoidKeyboardCallback()
         host->ClearChangeInfoFlag();
         host->AddFrameNodeChangeInfoFlag(flag);
     });
+}
+
+void BaseTextSelectOverlay::RemoveAvoidKeyboardCallback()
+{
+    auto host = GetOwner();
+    CHECK_NULL_VOID(host);
+    auto context = host->GetContext();
+    CHECK_NULL_VOID(context);
+    auto textFieldManagerNg = DynamicCast<TextFieldManagerNG>(context->GetTextFieldManager());
+    CHECK_NULL_VOID(textFieldManagerNg);
+    textFieldManagerNg->RemoveAvoidKeyboardCallback(host->GetId());
 }
 } // namespace OHOS::Ace::NG

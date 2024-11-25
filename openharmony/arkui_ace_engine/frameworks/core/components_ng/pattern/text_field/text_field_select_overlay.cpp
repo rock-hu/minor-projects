@@ -60,6 +60,7 @@ bool TextFieldSelectOverlay::PreProcessOverlay(const OverlayRequest& request)
     CHECK_NULL_RETURN(!pattern->IsTransparent(), false);
     pattern->ShowSelect();
     SetEnableHandleLevel(true);
+    CheckEnableContainerModal();
     return true;
 }
 
@@ -122,11 +123,14 @@ void TextFieldSelectOverlay::OnCloseOverlay(OptionMenuType menuType, CloseReason
     if (CloseReason::CLOSE_REASON_BACK_PRESSED == reason) {
         OnResetTextSelection();
         if (info && info->isSingleHandle) {
-            TAG_LOGI(AceLogTag::ACE_TEXT_FIELD, "SingleHandle OnCloseOverlayv");
+            TAG_LOGI(AceLogTag::ACE_TEXT_FIELD, "SingleHandle OnCloseOverlay");
             pattern->OnBackPressed();
         }
+    } else if (CloseReason::CLOSE_REASON_HOLD_BY_OTHER == reason) {
+        OnResetTextSelection();
     }
     pattern->StopContentScroll();
+    RemoveAvoidKeyboardCallback();
 }
 
 void TextFieldSelectOverlay::OnHandleGlobalTouchEvent(SourceType sourceType, TouchType touchType, bool touchInside)

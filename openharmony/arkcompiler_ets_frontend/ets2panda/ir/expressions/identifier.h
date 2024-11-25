@@ -181,12 +181,12 @@ public:
         flags_ |= IdentifierFlags::ANNOTATIONDECL;
     }
 
-    [[nodiscard]] bool IsAnnotataionUsage() const noexcept
+    [[nodiscard]] bool IsAnnotationUsage() const noexcept
     {
         return (flags_ & IdentifierFlags::ANNOTATIONUSAGE) != 0;
     }
 
-    void SetAnnotataionUsage() noexcept
+    void SetAnnotationUsage() noexcept
     {
         flags_ |= IdentifierFlags::ANNOTATIONUSAGE;
     }
@@ -197,6 +197,7 @@ public:
     }
 
     [[nodiscard]] Identifier *Clone(ArenaAllocator *allocator, AstNode *parent) override;
+    [[nodiscard]] Identifier *CloneReference(ArenaAllocator *allocator, AstNode *parent);
 
     bool CanHaveDecorator([[maybe_unused]] bool inTs) const override
     {

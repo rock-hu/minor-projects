@@ -158,12 +158,12 @@ public:
 
     void UpdateChainWeight(const LayoutWeightPair& value);
 
-    void UpdatePixelRound(uint8_t value)
+    void UpdatePixelRound(uint16_t value)
     {
         pixelRoundFlag_ = value;
     }
 
-    uint8_t GetPixelRound() const {
+    uint16_t GetPixelRound() const {
         return pixelRoundFlag_;
     }
 
@@ -338,7 +338,9 @@ public:
 
     static void UpdateAllGeometryTransition(const RefPtr<UINode>& parent);
 
-    std::pair<bool, bool> GetPercentSensitive();
+    // the returned value represents whether to compare percent reference when comparing old and new layout constrains.
+    // the first of returned value represents width, and the second of returned value represents height.
+    virtual std::pair<bool, bool> GetPercentSensitive();
     std::pair<bool, bool> UpdatePercentSensitive(bool width, bool height);
     bool ConstraintEqual(const std::optional<LayoutConstraintF>& preLayoutConstraint,
         const std::optional<LayoutConstraintF>& preContentConstraint);
@@ -365,6 +367,11 @@ public:
         return needOffsetLocalizedEdges_;
     }
 
+    void ResetMarkAnchorStart()
+    {
+        markAnchorStart_.reset();
+    }
+
     void UpdateMarkAnchorStart(const Dimension& markAnchorStart)
     {
         markAnchorStart_ = markAnchorStart;
@@ -384,6 +391,8 @@ public:
     void CheckLocalizedBorderImageOutset(const TextDirection& direction);
     void CheckLocalizedSafeAreaPadding(const TextDirection& direction);
 
+    virtual void OnPropertyChangeMeasure() {}
+
 protected:
     void UpdateLayoutProperty(const LayoutProperty* layoutProperty);
 
@@ -399,6 +408,7 @@ private:
     void ConstraintContentByBorder();
     void ConstraintContentBySafeAreaPadding();
     PaddingPropertyF CreateSafeAreaPadding();
+    bool DecideMirror();
 
     const std::string PixelRoundToJsonValue() const;
 
@@ -438,7 +448,7 @@ private:
 
     bool usingPosition_ = true;
 
-    uint8_t pixelRoundFlag_  = 0;
+    uint16_t pixelRoundFlag_  = 0;
 
     bool isOverlayNode_ = false;
     Dimension overlayOffsetX_;

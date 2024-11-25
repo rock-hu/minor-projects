@@ -127,7 +127,7 @@ public:
     static void ResetAspectRatio();
     static void SetLayoutWeight(float value);
     static void SetLayoutWeight(const NG::LayoutWeightPair& value);
-    static void SetPixelRound(uint8_t value);
+    static void SetPixelRound(uint16_t value);
     static void SetLayoutDirection(TextDirection value);
 
     static void SetBackgroundColor(const Color &color);
@@ -172,8 +172,9 @@ public:
     static void* GetFrameNode();
     static void SetDragPreview(const NG::DragDropInfo& info);
 
-    static void SetBorderImage(const RefPtr<BorderImage> &borderImage);
-    static void SetBorderImageSource(const std::string &bdImageSrc);
+    static void SetBorderImage(const RefPtr<BorderImage>& borderImage);
+    static void SetBorderImageSource(
+        const std::string& bdImageSrc, const std::string& bundleName = "", const std::string& moduleName = "");
 
     // visual
     static void SetVisualEffect(const OHOS::Rosen::VisualEffect* visualEffect);
@@ -279,9 +280,10 @@ public:
     static void SetHoverEffectAuto(HoverEffectType hoverEffect);
     static void SetEnabled(bool enabled);
     static void SetFocusable(bool focusable);
+    static void SetTabStop(bool tabStop);
     static void SetOnFocus(OnFocusFunc &&onFocusCallback);
     static void SetOnBlur(OnBlurFunc &&onBlurCallback);
-    static void SetOnKeyEvent(OnKeyCallbackFunc &&onKeyCallback);
+    static void SetOnKeyEvent(OnKeyConsumeFunc &&onKeyCallback);
     static void SetTabIndex(int32_t index);
     static void SetFocusOnTouch(bool isSet);
     static void SetDefaultFocus(bool isSet);
@@ -399,6 +401,12 @@ public:
     static void DisableOnFocus();
     static void DisableOnBlur();
     static void DisableOnClick(FrameNode* frameNode);
+    static void DisableOnDragStart(FrameNode* frameNode);
+    static void DisableOnDragEnter(FrameNode* frameNode);
+    static void DisableOnDragMove(FrameNode* frameNode);
+    static void DisableOnDragLeave(FrameNode* frameNode);
+    static void DisableOnDrop(FrameNode* frameNode);
+    static void DisableOnDragEnd(FrameNode* frameNode);
     static void DisableOnTouch(FrameNode* frameNode);
     static void DisableOnKeyEvent(FrameNode* frameNode);
     static void DisableOnHover(FrameNode* frameNode);
@@ -407,12 +415,13 @@ public:
     static void DisableOnDisappear(FrameNode* frameNode);
     static void DisableOnAttach(FrameNode* frameNode);
     static void DisableOnDetach(FrameNode* frameNode);
+    static void DisableOnPreDrag(FrameNode* frameNode);
     static void DisableOnFocus(FrameNode* frameNode);
     static void DisableOnBlur(FrameNode* frameNode);
     static void DisableOnAreaChange(FrameNode* frameNode);
 
     // useEffect
-    static void SetUseEffect(bool useEffect);
+    static void SetUseEffect(bool useEffect, EffectType effectType);
 
     static void SetFreeze(bool freeze);
     static void SetAttractionEffect(const AttractionEffect& effect);
@@ -534,13 +543,14 @@ public:
     static void SetSphericalEffect(FrameNode* frameNode, double radio);
     static void SetRenderGroup(FrameNode* frameNode, bool isRenderGroup);
     static void SetRenderFit(FrameNode* frameNode, RenderFit renderFit);
-    static void SetUseEffect(FrameNode* frameNode, bool useEffect);
+    static void SetUseEffect(FrameNode* frameNode, bool useEffect, EffectType effectType);
     static void SetForegroundColor(FrameNode* frameNode, const Color& color);
     static void SetForegroundColorStrategy(FrameNode* frameNode, const ForegroundColorStrategy& strategy);
     static void SetMotionPath(FrameNode* frameNode, const MotionPathOption& motionPath);
     static void SetFocusOnTouch(FrameNode* frameNode, bool isSet);
     static void SetGroupDefaultFocus(FrameNode* frameNode, bool isSet);
     static void SetFocusable(FrameNode* frameNode, bool focusable);
+    static void SetTabStop(FrameNode* frameNode, bool tabStop);
     static void SetFocusType(FrameNode* frameNode, FocusType type);
     static void SetTouchable(FrameNode* frameNode, bool touchable);
     static void SetDefaultFocus(FrameNode* frameNode, bool isSet);
@@ -633,7 +643,7 @@ public:
         std::function<void(const RefPtr<OHOS::Ace::DragEvent>&, const std::string&)>&& onDragLeave);
     static void SetOnMouse(FrameNode* frameNode, OnMouseEventFunc &&onMouseEventFunc);
     static void SetOnHover(FrameNode* frameNode, OnHoverFunc &&onHoverEventFunc);
-    static void SetOnKeyEvent(FrameNode* frameNode, OnKeyCallbackFunc &&onKeyCallback);
+    static void SetOnKeyEvent(FrameNode* frameNode, OnKeyConsumeFunc &&onKeyCallback);
     static void SetOnGestureJudgeBegin(FrameNode* frameNode, GestureJudgeFunc&& gestureJudgeFunc);
     static void SetOnSizeChanged(
         FrameNode* frameNode, std::function<void(const RectF& oldRect, const RectF& rect)>&& onSizeChanged);
@@ -647,6 +657,7 @@ public:
     static void SetClickDistance(FrameNode* frameNode, double clickDistance);
 
     static bool GetFocusable(FrameNode* frameNode);
+    static bool GetTabStop(FrameNode* frameNode);
     static bool GetDefaultFocus(FrameNode* frameNode);
     static std::vector<DimensionRect> GetResponseRegion(FrameNode* frameNode);
     static NG::OverlayOptions GetOverlay(FrameNode* frameNode);
@@ -761,14 +772,15 @@ public:
     static void ResetLayoutRect(FrameNode* frameNode);
     static NG::RectF GetLayoutRect(FrameNode* frameNode);
     static bool GetFocusOnTouch(FrameNode* frameNode);
-    static void SetPixelRound(FrameNode* frameNode, uint8_t value);
+    static void SetPixelRound(FrameNode* frameNode, uint16_t value);
     static uint32_t GetSafeAreaExpandType(FrameNode* frameNode);
     static uint32_t GetSafeAreaExpandEdges(FrameNode* frameNode);
     static void SetPositionLocalizedEdges(bool needLocalized);
     static void SetMarkAnchorStart(Dimension& markAnchorStart);
+    static void ResetMarkAnchorStart();
     static void SetOffsetLocalizedEdges(bool needLocalized);
-    static void AddCustomProperty(FrameNode* frameNode, const std::string& key, const std::string& value);
-    static void RemoveCustomProperty(FrameNode* frameNode, const std::string& key);
+    static void AddCustomProperty(UINode* frameNode, const std::string& key, const std::string& value);
+    static void RemoveCustomProperty(UINode* frameNode, const std::string& key);
 
 private:
     static void AddDragFrameNodeToManager();
@@ -776,6 +788,7 @@ private:
     static void AddOverlayToFrameNode(const RefPtr<NG::FrameNode>& overlayNode,
         const std::optional<Alignment>& align, const std::optional<Dimension>& offsetX,
         const std::optional<Dimension>& offsetY);
+    static void CheckIfParentNeedMarkDirty(FrameNode* frameNode);
 };
 } // namespace OHOS::Ace::NG
 

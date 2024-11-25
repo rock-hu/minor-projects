@@ -22,7 +22,7 @@
 #include "ecmascript/module/js_module_deregister.h"
 #include "ecmascript/module/js_module_manager.h"
 #include "ecmascript/module/module_data_extractor.h"
-#include "ecmascript/module/module_path_helper.h"
+#include "ecmascript/module/module_resolver.h"
 
 namespace panda::ecmascript {
 using PathHelper = base::PathHelper;
@@ -48,7 +48,7 @@ JSTaggedValue DynamicImport::ExecuteNativeOrJsonModule(JSThread *thread, const C
         if (moduleType != ModuleTypes::JSON_MODULE) {
             // nativeModule
             JSHandle<JSTaggedValue> nativeModuleHld =
-                moduleManager->ResolveNativeModule(specifierString, "", moduleType);
+                ModuleResolver::ResolveNativeModule(thread, specifierString, "", moduleType);
             moduleRecord = JSHandle<SourceTextModule>::Cast(nativeModuleHld);
             if (!SourceTextModule::LoadNativeModule(thread, moduleRecord, moduleType)) {
                 LOG_FULL(ERROR) << " dynamically loading native module" << specifierString << " failed";
@@ -66,7 +66,7 @@ JSTaggedValue DynamicImport::ExecuteNativeOrJsonModule(JSThread *thread, const C
     }
 
     JSHandle<JSTaggedValue> moduleNamespace = SourceTextModule::GetModuleNamespace(thread,
-        JSHandle<SourceTextModule>(requiredModule));
+        JSHandle<SourceTextModule>::Cast(requiredModule));
     RETURN_VALUE_IF_ABRUPT_COMPLETION(thread, BuiltinsPromiseJob::CatchException(thread, reject));
     JSHandle<JSTaggedValue> undefined = thread->GlobalConstants()->GetHandledUndefined();
     EcmaRuntimeCallInfo *info =
@@ -75,7 +75,6 @@ JSTaggedValue DynamicImport::ExecuteNativeOrJsonModule(JSThread *thread, const C
                                             undefined, undefined, 1);
     RETURN_VALUE_IF_ABRUPT_COMPLETION(thread, BuiltinsPromiseJob::CatchException(thread, reject));
     info->SetCallArg(moduleNamespace.GetTaggedValue());
-    RETURN_EXCEPTION_IF_ABRUPT_COMPLETION(thread);
     return JSFunction::Call(info);
 }
 }  // namespace panda::ecmascript

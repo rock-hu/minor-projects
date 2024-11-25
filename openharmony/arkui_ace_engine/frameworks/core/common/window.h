@@ -75,6 +75,8 @@ public:
         return nullptr;
     }
 
+    virtual void FlushLayoutSize(int32_t width, int32_t height) {}
+
     virtual bool FlushAnimation(uint64_t timeStamp)
     {
         return false;
@@ -206,6 +208,11 @@ public:
     virtual uint32_t GetStatusBarHeight() const
     {
         return 0;
+    }
+
+    virtual bool GetIsRequestVsync()
+    {
+        return false;
     }
 
     virtual void NotifyExtensionTimeout(int32_t errorCode) {}

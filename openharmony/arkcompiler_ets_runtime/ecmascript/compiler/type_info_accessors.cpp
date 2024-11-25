@@ -35,6 +35,8 @@ ParamType TypeInfoAccessor::PGOSampleTypeToParamType() const
             return ParamType::DoubleType();
         } else if (sample->IsString()) {
             return ParamType::StringType();
+        } else if (sample->IsInternString()) {
+            return ParamType::InternStringType();
         } else if (sample->IsBigInt()) {
             return ParamType::BigIntType();
         } else if (sample->IsBoolean()) {
@@ -678,6 +680,9 @@ bool StorePrivatePropertyTypeInfoAccessor::AotAccessorStrategy::GenerateObjectAc
         return true;
     }
 
+    if (parent_.types_.size() == 0) {
+        return false;
+    }
     ProfileTyper receiverType = std::get<0>(parent_.types_.at(0));
     ProfileTyper holderType = std::get<1>(parent_.types_.at(0));
     if (receiverType == holderType) {
@@ -702,6 +707,9 @@ bool StorePrivatePropertyTypeInfoAccessor::JitAccessorStrategy::GenerateObjectAc
         return true;
     }
 
+    if (parent_.jitTypes_.size() == 0) {
+        return false;
+    }
     JSHClass *receiverType = parent_.jitTypes_[0].GetReceiverHclass();
     JSHClass *holderType = parent_.jitTypes_[0].GetHolderHclass();
     if (receiverType->IsJsPrimitiveRef() || holderType->IsJsPrimitiveRef()) {
@@ -778,6 +786,9 @@ bool LoadPrivatePropertyTypeInfoAccessor::AotAccessorStrategy::GenerateObjectAcc
         return true;
     }
 
+    if (parent_.types_.size() == 0) {
+        return false;
+    }
     ProfileTyper receiverType = parent_.types_.at(0).first;
     ProfileTyper holderType = parent_.types_.at(0).second;
     if (receiverType == holderType) {
@@ -802,6 +813,9 @@ bool LoadPrivatePropertyTypeInfoAccessor::JitAccessorStrategy::GenerateObjectAcc
         return true;
     }
 
+    if (parent_.jitTypes_.size() == 0) {
+        return false;
+    }
     JSHClass *receiver = parent_.jitTypes_[0].GetReceiverHclass();
     JSHClass *holder = parent_.jitTypes_[0].GetHolderHclass();
     // case: r.toFixed() => HeapObjectCheck Deopt
@@ -874,6 +888,9 @@ bool LoadObjByNameTypeInfoAccessor::AotAccessorStrategy::GenerateObjectAccessInf
     if (key.IsUndefined()) {
         return false;
     }
+    if (parent_.types_.size() == 0) {
+        return false;
+    }
     for (size_t i = 0; i < parent_.types_.size(); ++i) {
         ProfileTyper receiverType = parent_.types_[i].first;
         ProfileTyper holderType = parent_.types_[i].second;
@@ -905,6 +922,9 @@ bool LoadObjByNameTypeInfoAccessor::JitAccessorStrategy::GenerateObjectAccessInf
 {
     JSTaggedValue key = parent_.GetKeyTaggedValue();
     if (key.IsUndefined()) {
+        return false;
+    }
+    if (parent_.jitTypes_.size() == 0) {
         return false;
     }
     for (size_t i = 0; i < parent_.jitTypes_.size(); ++i) {
@@ -1013,6 +1033,9 @@ void StoreObjByNameTypeInfoAccessor::JitAccessorStrategy::FetchPGORWTypesDual()
 bool StoreObjByNameTypeInfoAccessor::AotAccessorStrategy::GenerateObjectAccessInfo()
 {
     JSTaggedValue key = parent_.GetKeyTaggedValue();
+    if (parent_.types_.size() == 0) {
+        return false;
+    }
     for (size_t i = 0; i < parent_.types_.size(); ++i) {
         ProfileTyper receiverType = std::get<0>(parent_.types_[i]);
         ProfileTyper holderType = std::get<1>(parent_.types_[i]);
@@ -1050,6 +1073,9 @@ bool StoreObjByNameTypeInfoAccessor::JitAccessorStrategy::GenerateObjectAccessIn
 {
     JSTaggedValue key = parent_.GetKeyTaggedValue();
     if (key.IsUndefined()) {
+        return false;
+    }
+    if (parent_.jitTypes_.size() == 0) {
         return false;
     }
     for (size_t i = 0; i < parent_.jitTypes_.size(); ++i) {
@@ -1167,6 +1193,9 @@ bool InstanceOfTypeInfoAccessor::AotAccessorStrategy::GenerateObjectAccessInfo()
     if (!IsMono()) {
         return false;
     }
+    if (parent_.types_.size() == 0) {
+        return false;
+    }
     JSTaggedValue key = parent_.GetKeyTaggedValue();
     for (size_t i = 0; i < parent_.types_.size(); ++i) {
         ProfileTyper targetPgoType = parent_.types_[i].first;
@@ -1194,6 +1223,9 @@ bool InstanceOfTypeInfoAccessor::JitAccessorStrategy::GenerateObjectAccessInfo()
     }
     JSTaggedValue key = parent_.GetKeyTaggedValue();
     if (key.IsUndefined()) {
+        return false;
+    }
+    if (parent_.jitTypes_.size() == 0) {
         return false;
     }
     for (size_t i = 0; i < parent_.jitTypes_.size(); ++i) {

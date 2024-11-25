@@ -14,8 +14,7 @@
 import("//arkcompiler/ets_frontend/es2panda/es2abc_config.gni")
 import("//arkcompiler/ets_frontend/ets2panda/ets2abc_config.gni")
 import("//arkcompiler/runtime_core/ark_config.gni")
-import("//arkcompiler/runtime_core/libabckit/libabckit_config.gni")
-import("//arkcompiler/runtime_core/tests/test_helper.gni")
+import("//arkcompiler/runtime_core/libabckit/abckit_config.gni")
 
 template("create_merge_file") {
   assert(defined(invoker.input_file), "input_file is required!")
@@ -30,6 +29,7 @@ template("create_merge_file") {
     script = "./../scripts/create_merge_file.sh"
 
     args = [
+      rebase_path(target_gen_dir),
       rebase_path(invoker.input_file),
       rebase_path(invoker.output_file),
     ]
@@ -166,7 +166,13 @@ test_js_files = [
   "scenarios/branch_eliminator/dynamic/branch_eliminator",
   "scenarios/scan_subclasses/dynamic/scan_subclasses",
   "scenarios/parameter_check/dynamic/parameter_check",
-  "scenarios_c_api_clean/add_log_js/add_log_dynamic",
+  "scenarios_c_api_clean/dynamic/add_log/add_log_dynamic",
+  "scenarios_c_api_clean/dynamic/scan_subclasses/scan_subclasses",
+  "scenarios_c_api_clean/dynamic/parameter_check/parameter_check",
+  "scenarios_c_api_clean/dynamic/api_scanner/api_scanner",
+  "scenarios_c_api_clean/dynamic/branch_eliminator/branch_eliminator",
+  "scenarios_c_api_clean/dynamic/add_try_catch/add_try_catch",
+  "scenarios_cpp_api_clean/dynamic/add_log/add_log_dynamic",
 
   "internal/ICSlotAllocator/ICSlotAllocator",
   "internal/implementation_api/abc_dynamic",
@@ -182,7 +188,7 @@ test_ts_files = [
   "scenarios/router_table/dynamic/router_table",
   "scenarios/replace_call_site/dynamic/replace_call_site",
 
-  "ut/isa/isa_dynamic/catchphi/catchphi_dynamic",
+  "ut/ir_core/catchphi/catchphi_dynamic",
 
   "ut/ir_core/phi/phi_dynamic",
 
@@ -195,6 +201,9 @@ test_ts_files = [
   "ut/extensions/arkts/inspect_api/api_casts/api_casts",
   "ut/extensions/arkts/inspect_api/namespace/namespace_arkts_dynamic",
   "ut/extensions/arkts/modify_api/annotations/annotations_dynamic",
+
+  "scenarios_c_api_clean/dynamic/replace_call_site/replace_call_site",
+  "scenarios_c_api_clean/dynamic/router_table/router_table",
 ]
 
 test_ets_files = [
@@ -231,7 +240,7 @@ test_ets_files = [
   "ut/isa/isa_static/cast/target_type_static",
   "ut/isa/isa_static/call/call_static_static",
   "ut/isa/isa_static/call/call_virtual_static",
-  "ut/isa/isa_static/catchphi/catchphi_static",
+  "ut/ir_core/catchphi/catchphi_static",
   "ut/isa/isa_static/cmp/create_cmp_static",
   "ut/isa/isa_static/load_string/load_string_static",
   "ut/isa/isa_static/load_undefined/load_undefined_static",
@@ -260,6 +269,7 @@ test_ets_files = [
   "ut/ir_core/loops/loop_static",
   "ut/ir_core/insert_try_catch/insert_try_catch_static",
   "ut/ir_core/graph_verifier/graph_verifier",
+  "ut/extensions/arkts/modify_api/modules/modules_static_modify",
 
   "internal/implementation_api/abc_static",
   "internal/mem_manager/abc_static_1",
@@ -272,8 +282,7 @@ test_ets_files = [
   "scenarios/replace_callsite/replace_callsite_static",
   "scenarios/api_scanner/static/api_scanner_static",
   "scenarios/static_branch_elimination/static_branch_elimination",
-  "scenarios_c_api_clean/add_log_arkts2/add_log_static",
-  "ut/extensions/arkts/modify_api/modules/modules_static_modify",
+  "scenarios_c_api_clean/static/add_log/add_log_static",
 ]
 
 module_output_path = "arkcompiler/runtime_core/libabckit"
@@ -356,7 +365,7 @@ template("libabckit_host_unittest_action") {
   _module_out_path_ = invoker.module_out_path
 
   # unittest for host running
-  action("${_target_name_}Action") {
+  action("${_target_name_}_action") {
     testonly = true
 
     defines = [ "HOST_UT" ]
@@ -366,7 +375,7 @@ template("libabckit_host_unittest_action") {
 
     deps = [ _host_test_target_ ]
 
-    script = "$ark_root/libabckit/scripts/run_script.sh"
+    script = "$abckit_root/scripts/run_script.sh"
 
     args = [
       "--script=" + rebase_path(_root_out_dir_) +
@@ -379,10 +388,11 @@ template("libabckit_host_unittest_action") {
           "/thirdparty/zlib:",
     ]
 
-    if (libabckit_with_sanitizers) {
+    if (abckit_with_sanitizers) {
       args += [ "--env=ASAN_OPTIONS=verify_asan_link_order=0" ]
-      args += [ "--env=LSAN_OPTIONS=suppressions=" + rebase_path("$ark_root") +
-                "/libabckit/tests/sanitizers/ignored_leaks.supp" ]
+      args +=
+          [ "--env=LSAN_OPTIONS=suppressions=" + rebase_path("$abckit_root") +
+            "/tests/sanitizers/ignored_leaks.supp" ]
     }
 
     print(script, string_join(" ", args))
@@ -394,7 +404,36 @@ template("libabckit_host_unittest_action") {
   }
 }
 
-libabckit_host_unittest_action("AbcKitTest") {
+libabckit_host_unittest_action("abckit_mock_gtests") {
+  module_out_path = module_output_path
+
+  sources = [
+    # mock infrastructure
+    "mock/abckit_api_mock.cpp",
+    "mock/arkts_inspect_api_impl_mock.cpp",
+    "mock/arkts_modify_api_impl_mock.cpp",
+    "mock/check_mock.cpp",
+    "mock/graph_api_impl_mock.cpp",
+    "mock/isa_api_dynamic_impl_mock.cpp",
+    "mock/isa_api_static_impl_mock.cpp",
+    "mock/metadata_inspect_impl_mock.cpp",
+    "mock/metadata_modify_impl_mock.cpp",
+
+    #mock tests
+    "mock/tests/cpp_mock_file.cpp",
+  ]
+
+  include_dirs = [
+    "$abckit_root",
+    "$abckit_root/src",
+  ]
+
+  configs = [ "$abckit_root:abckit_mock_config" ]
+
+  deps = [ "$abckit_root/src:libabckit_mock" ]
+}
+
+libabckit_host_unittest_action("abckit_gtests") {
   module_out_path = module_output_path
 
   sources = [
@@ -436,15 +475,23 @@ libabckit_host_unittest_action("AbcKitTest") {
     "scenarios/scan_subclasses/dynamic/scan_subclasses_test.cpp",
     "scenarios/scan_subclasses/dynamic/subclasses_scanner.cpp",
     "scenarios/static_branch_elimination/static_branch_elimination.cpp",
-    "scenarios_c_api_clean/add_log_arkts2/add_log_static_test.cpp",
-    "scenarios_c_api_clean/add_log_js/add_log_dynamic_test.cpp",
+    "scenarios_c_api_clean/dynamic/add_log/add_log_dynamic_test.cpp",
+    "scenarios_c_api_clean/dynamic/add_try_catch/add_try_catch_test.cpp",
+    "scenarios_c_api_clean/dynamic/api_scanner/api_scanner_test.cpp",
+    "scenarios_c_api_clean/dynamic/branch_eliminator/branch_eliminator_test.cpp",
+    "scenarios_c_api_clean/dynamic/parameter_check/parameter_check_test.cpp",
+    "scenarios_c_api_clean/dynamic/replace_call_site/replace_call_site_test.cpp",
+    "scenarios_c_api_clean/dynamic/router_table/router_table_test.cpp",
+    "scenarios_c_api_clean/dynamic/scan_subclasses/scan_subclasses_test.cpp",
+    "scenarios_c_api_clean/static/add_log/add_log_static_test.cpp",
+    "scenarios_cpp_api_clean/dynamic/add_log/add_log_dynamic_test.cpp",
     "ut/extensions/arkts/inspect_api/api_casts/api_casts.cpp",
     "ut/extensions/arkts/inspect_api/modules/modules_dynamic_test.cpp",
     "ut/extensions/arkts/inspect_api/namespace/namespace_arkts.cpp",
     "ut/extensions/arkts/modify_api/annotations/annotations_test.cpp",
     "ut/extensions/arkts/modify_api/modules/modules_dynamic_modify_test.cpp",
     "ut/extensions/js/inspect_api/api_casts/api_casts.cpp",
-    "ut/extensions/js/inspect_api/enumerators/modules_test.cpp",
+    "ut/extensions/js/inspect_api/enumerators/enumerators_test.cpp",
     "ut/extensions/js/inspect_api/modules/modules_dynamic_test.cpp",
     "ut/extensions/js/modify_api/arrays/array_modify_test.cpp",
     "ut/extensions/js/modify_api/bigint/load_bigint_test.cpp",
@@ -455,6 +502,8 @@ libabckit_host_unittest_action("AbcKitTest") {
     "ut/extensions/js/modify_api/super_this/super_this_modify.cpp",
     "ut/ir_core/basic_blocks/basic_blocks_dynamic.cpp",
     "ut/ir_core/basic_blocks/basic_blocks_static.cpp",
+    "ut/ir_core/catchphi/catchphi_dynamic.cpp",
+    "ut/ir_core/catchphi/catchphi_static.cpp",
     "ut/ir_core/create_constant/create_constant_dynamic.cpp",
     "ut/ir_core/create_constant/create_constant_static.cpp",
     "ut/ir_core/get_constant_value/get_constant_value.cpp",
@@ -483,7 +532,6 @@ libabckit_host_unittest_action("AbcKitTest") {
     "ut/isa/isa_dynamic/arrays/create_array_dynamic.cpp",
     "ut/isa/isa_dynamic/async/async_dynamic.cpp",
     "ut/isa/isa_dynamic/call_runtime/call_runtime_dynamic.cpp",
-    "ut/isa/isa_dynamic/catchphi/catchphi_dynamic.cpp",
     "ut/isa/isa_dynamic/create/createdebugger.cpp",
     "ut/isa/isa_dynamic/create/createobjectwithbuffer_dynamic.cpp",
     "ut/isa/isa_dynamic/create/createobjectwithexcludedkeys_dynamic.cpp",
@@ -529,7 +577,6 @@ libabckit_host_unittest_action("AbcKitTest") {
     "ut/isa/isa_static/call/call_static_static.cpp",
     "ut/isa/isa_static/call/call_virtual_static.cpp",
     "ut/isa/isa_static/cast/cast_static.cpp",
-    "ut/isa/isa_static/catchphi/catchphi_static.cpp",
     "ut/isa/isa_static/classes/classes_api.cpp",
     "ut/isa/isa_static/cmp/create_cmp_static.cpp",
     "ut/isa/isa_static/create_if/create_if_static.cpp",
@@ -545,7 +592,7 @@ libabckit_host_unittest_action("AbcKitTest") {
     "ut/isa/isa_static/throw/throw_static.cpp",
     "ut/metadata_core/inspect_api/annotations/annotations_test.cpp",
     "ut/metadata_core/inspect_api/classes/classes_test.cpp",
-    "ut/metadata_core/inspect_api/enumerators/modules_test.cpp",
+    "ut/metadata_core/inspect_api/enumerators/enumerators_test.cpp",
     "ut/metadata_core/inspect_api/files/files_test.cpp",
     "ut/metadata_core/inspect_api/literals/literals_test.cpp",
     "ut/metadata_core/inspect_api/methods/methods_test.cpp",
@@ -559,12 +606,9 @@ libabckit_host_unittest_action("AbcKitTest") {
     "ut/metadata_core/modify_api/types/types_test.cpp",
     "ut/metadata_core/modify_api/values/values_test.cpp",
 
-    # "wrong_ctx_tests/wrong_ctx_tests_ApiImpl_0.cpp",
     # "wrong_ctx_tests/wrong_ctx_tests_ArktsInspectApiImpl_0.cpp",
     # "wrong_ctx_tests/wrong_ctx_tests_ArktsModifyApiImpl_0.cpp",
     "wrong_ctx_tests/wrong_ctx_tests_GraphApiImpl_0.cpp",
-
-    # "wrong_ctx_tests/wrong_ctx_tests_InspectApiImpl_0.cpp",
     "wrong_ctx_tests/wrong_ctx_tests_IsaApiDynamicImpl_0.cpp",
     "wrong_ctx_tests/wrong_ctx_tests_IsaApiDynamicImpl_1.cpp",
     "wrong_ctx_tests/wrong_ctx_tests_IsaApiStaticImpl_0.cpp",
@@ -575,19 +619,19 @@ libabckit_host_unittest_action("AbcKitTest") {
   ]
 
   include_dirs = [
-    "$ark_root",
-    "$ark_root/libabckit",
-    "$ark_root/libabckit/include",
-    "$ark_root/libabckit/src",
-    "$ark_root/libabckit/tests",
+    "$ark_root_dynamic",
+    "$abckit_root",
+    "$abckit_root/include",
+    "$abckit_root/src",
+    "$abckit_root/tests",
   ]
 
-  configs = [ "$ark_root/libabckit:libabckit_config" ]
+  configs = [ "$abckit_root:abckit_config" ]
 
   deps = [
     ":abckit_ets_vm_helpers",
     ":abckit_js_vm_helpers",
-    "$ark_root/libabckit:libabckit",
+    "$abckit_root/src:libabckit",
   ]
 
   foreach(file, test_js_files) {
@@ -616,50 +660,32 @@ libabckit_host_unittest_action("AbcKitTest") {
   ]
 }
 
-group("abckit_stress_test_package") {
+group("libabckit_stress_tests_package") {
   deps = [
-    "$ark_root/libabckit/abckit:abckit(${host_toolchain})",
-    "$ark_root/libabckit/abckit/stress_plugin:abckit_stress_plugin(${host_toolchain})",
-    "$ark_root/static_core/verification/verifier:verifier_bin(${host_toolchain})",
+    "$abckit_root/abckit:abckit(${host_toolchain})",
+    "$abckit_root/abckit/stress_plugin:abckit_stress_plugin(${host_toolchain})",
+    "$ark_root_static/verification/verifier:verifier_bin(${host_toolchain})",
   ]
 }
 
-action("abckit_stress_test") {
-  deps = [ ":abckit_stress_test_package" ]
-
-  outputs = [ "$target_gen_dir/abckit_stress_test.txt" ]
-
+action("abckit_stress_tests") {
+  deps = [ ":libabckit_stress_tests_package" ]
+  outputs = [ "$target_gen_dir/abckit_stress_tests.txt" ]
   script = "stress/stress.py"
-}
-
-group("unittest") {
-  testonly = true
-  if (enable_libabckit) {
-    deps = [
-      ":AbcKitTest",
-      ":abckit_stress_test",
-    ]
-  }
-}
-
-group("host_unittest") {
-  testonly = true
-  if (enable_libabckit) {
-    deps = [
-      ":AbcKitTestAction",
-      ":abckit_stress_test",
-    ]
-  }
 }
 
 ohos_source_set("abckit_js_vm_helpers") {
   sources = [ "helpers/helpers_js_runtime.cpp" ]
 
-  deps = [ "$ark_root/assembler:libarkassembler" ]
+  deps = [
+    "$ark_root_dynamic/assembler:libarkassembler",
+    "$js_root:libark_jsruntime_test_set",
+  ]
 
-  if (ark_standalone_build) {
-    deps += [ "$js_root:libark_jsruntime_test_set" ]
-  }
+  include_dirs = [
+    "$ark_root_dynamic",
+    "$abckit_root/src",
+  ]
 
   output_extension = "so"
   part_name = "runtime_core"
@@ -670,18 +696,18 @@ ohos_source_set("abckit_ets_vm_helpers") {
   sources = [ "helpers/helpers_ets_runtime.cpp" ]
 
   include_dirs = [
-    "$ark_root",
-    "$ark_root/libabckit/src",
+    "$ark_root_dynamic",
+    "$abckit_root/src",
   ]
 
   etsstdlib =
-      rebase_path(get_label_info("$ark_root/static_core/plugins/ets:etsstdlib",
+      rebase_path(get_label_info("$ark_root_static/plugins/ets:etsstdlib",
                                  "target_gen_dir")) + "/etsstdlib.abc"
   defines = [ "ABCKIT_ETS_STD_LIB=\"${etsstdlib}\"" ]
 
   deps = [
-    "$ark_root/static_core/plugins/ets:etsstdlib",
-    "$ark_root/static_core/runtime:libarkruntime",
+    "$ark_root_static/plugins/ets:etsstdlib",
+    "$ark_root_static/runtime:libarkruntime",
   ]
 
   output_extension = "so"

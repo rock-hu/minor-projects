@@ -77,35 +77,12 @@ void SearchPattern::UpdateChangeEvent(const std::string& textValue, int16_t styl
     CHECK_NULL_VOID(buttonHost);
     auto imageHost = AceType::DynamicCast<FrameNode>(frameNode->GetChildAtIndex(CANCEL_IMAGE_INDEX));
     CHECK_NULL_VOID(imageHost);
-    auto cancelButtonRenderContext = buttonHost->GetRenderContext();
-    CHECK_NULL_VOID(cancelButtonRenderContext);
-    auto cancelImageRenderContext = imageHost->GetRenderContext();
-    CHECK_NULL_VOID(cancelImageRenderContext);
-    auto cancelButtonEvent = buttonHost->GetEventHub<ButtonEventHub>();
-    CHECK_NULL_VOID(cancelButtonEvent);
     if (style == ERROR) {
         auto layoutProperty = frameNode->GetLayoutProperty<SearchLayoutProperty>();
         CHECK_NULL_VOID(layoutProperty);
         style = static_cast<int16_t>(layoutProperty->GetCancelButtonStyle().value_or(CancelButtonStyle::INPUT));
     }
-    if (IsEventEnabled(textValue, style)) {
-        cancelButtonRenderContext->UpdateOpacity(1.0);
-        cancelImageRenderContext->UpdateOpacity(1.0);
-        cancelButtonEvent->SetEnabled(true);
-    } else {
-        cancelButtonRenderContext->UpdateOpacity(0.0);
-        cancelImageRenderContext->UpdateOpacity(0.0);
-        cancelButtonEvent->SetEnabled(false);
-    }
-    if (imageHost->GetTag() == V2::IMAGE_ETS_TAG) {
-        auto imageEvent = imageHost->GetEventHub<ImageEventHub>();
-        CHECK_NULL_VOID(imageEvent);
-        if (IsEventEnabled(textValue, style)) {
-            imageEvent->SetEnabled(true);
-        } else {
-            imageEvent->SetEnabled(false);
-        }
-    }
+    UpdateCancelButtonStatus(textValue, style);
     buttonHost->MarkModifyDone();
     imageHost->MarkModifyDone();
     buttonHost->MarkDirtyNode(PROPERTY_UPDATE_MEASURE);
@@ -116,7 +93,47 @@ void SearchPattern::UpdateChangeEvent(const std::string& textValue, int16_t styl
         auto layoutConstraint = textLayoutProperty->GetLayoutConstraint();
         auto textLayoutWrapper = imageHost->CreateLayoutWrapper();
         CHECK_NULL_VOID(textLayoutWrapper);
+        ScopedLayout scope(frameNode->GetContext());
         textLayoutWrapper->Measure(layoutConstraint);
+    }
+}
+
+void SearchPattern::UpdateCancelButtonStatus(const std::string& textValue, int16_t style)
+{
+    auto frameNode = GetHost();
+    CHECK_NULL_VOID(frameNode);
+    auto buttonHost = AceType::DynamicCast<FrameNode>(frameNode->GetChildAtIndex(CANCEL_BUTTON_INDEX));
+    CHECK_NULL_VOID(buttonHost);
+    auto imageHost = AceType::DynamicCast<FrameNode>(frameNode->GetChildAtIndex(CANCEL_IMAGE_INDEX));
+    CHECK_NULL_VOID(imageHost);
+    auto cancelButtonRenderContext = buttonHost->GetRenderContext();
+    CHECK_NULL_VOID(cancelButtonRenderContext);
+    auto cancelImageRenderContext = imageHost->GetRenderContext();
+    CHECK_NULL_VOID(cancelImageRenderContext);
+    auto cancelButtonEvent = buttonHost->GetEventHub<ButtonEventHub>();
+    CHECK_NULL_VOID(cancelButtonEvent);
+    auto buttonLayoutProperty = buttonHost->GetLayoutProperty<LayoutProperty>();
+    CHECK_NULL_VOID(buttonLayoutProperty);
+    auto imageLayoutProperty = imageHost->GetLayoutProperty<LayoutProperty>();
+    CHECK_NULL_VOID(imageLayoutProperty);
+    bool isEventEnabled = IsEventEnabled(textValue, style);
+    if (isEventEnabled) {
+        cancelButtonRenderContext->UpdateOpacity(1.0);
+        cancelImageRenderContext->UpdateOpacity(1.0);
+        cancelButtonEvent->SetEnabled(true);
+        buttonLayoutProperty->UpdateVisibility(VisibleType::VISIBLE);
+        imageLayoutProperty->UpdateVisibility(VisibleType::VISIBLE);
+    } else {
+        cancelButtonRenderContext->UpdateOpacity(0.0);
+        cancelImageRenderContext->UpdateOpacity(0.0);
+        cancelButtonEvent->SetEnabled(false);
+        buttonLayoutProperty->UpdateVisibility(VisibleType::INVISIBLE);
+        imageLayoutProperty->UpdateVisibility(VisibleType::INVISIBLE);
+    }
+    if (imageHost->GetTag() == V2::IMAGE_ETS_TAG) {
+        auto imageEvent = imageHost->GetEventHub<ImageEventHub>();
+        CHECK_NULL_VOID(imageEvent);
+        imageEvent->SetEnabled(isEventEnabled);
     }
 }
 
@@ -756,9 +773,13 @@ void SearchPattern::OnClickButtonAndImage()
     auto textFieldPattern = textFieldFrameNode->GetPattern<TextFieldPattern>();
     CHECK_NULL_VOID(textFieldPattern);
     auto text = textFieldPattern->GetTextValue();
-    searchEventHub->UpdateSubmitEvent(text);
-    // close keyboard and select background color
-    textFieldPattern->StopEditing();
+    // Enter key type callback
+    TextFieldCommonEvent event;
+    searchEventHub->FireOnSubmit(text, event);
+    // If the developer doesn't want to keep editing, close keyboard and select background color
+    if (!event.IsKeepEditable()) {
+        textFieldPattern->StopEditing();
+    }
 #if !defined(PREVIEW) && defined(OHOS_PLATFORM)
     UiSessionManager::GetInstance().ReportComponentChangeEvent("event", "Search.onSubmit");
 #endif
@@ -790,6 +811,7 @@ void SearchPattern::OnClickCancelButton()
     CHECK_NULL_VOID(focusHub);
     focusHub->RequestFocusImmediately();
     textFieldPattern->HandleFocusEvent();
+    textFieldFrameNode->OnAccessibilityEvent(AccessibilityEventType::REQUEST_FOCUS);
     host->MarkModifyDone();
     textFieldFrameNode->MarkModifyDone();
 }
@@ -862,7 +884,7 @@ bool SearchPattern::OnKeyEvent(const KeyEvent& event)
     }
 
     // If the focus is on the search, press Enter to request keyboard.
-    if (event.code == KeyCode::KEY_ENTER && focusChoice_ == FocusChoice::SEARCH) {
+    if (event.code == KeyCode::KEY_ENTER && focusChoice_ == FocusChoice::SEARCH && !IsSearchAttached()) {
         RequestKeyboard();
         return true;
     }
@@ -972,6 +994,17 @@ bool SearchPattern::OnKeyEvent(const KeyEvent& event)
     } else {
         return true;
     }
+}
+
+bool SearchPattern::IsSearchAttached()
+{
+    auto host = GetHost();
+    CHECK_NULL_RETURN(host, false);
+    auto context = host->GetContext();
+    CHECK_NULL_RETURN(context, false);
+    auto textFieldManager = DynamicCast<TextFieldManagerNG>(context->GetTextFieldManager());
+    CHECK_NULL_RETURN(textFieldManager, false);
+    return textFieldManager->GetIsImeAttached();
 }
 
 void SearchPattern::PaintFocusState(bool recoverFlag)
@@ -1322,6 +1355,12 @@ void SearchPattern::HandleClickEvent(GestureEvent& info)
     CHECK_NULL_VOID(textFieldFrameNode);
     auto textFieldPattern = textFieldFrameNode->GetPattern<TextFieldPattern>();
     CHECK_NULL_VOID(textFieldPattern);
+    auto textFieldGeometryNode = textFieldFrameNode->GetGeometryNode();
+    CHECK_NULL_VOID(textFieldGeometryNode);
+    auto textFieldFrameRect = textFieldGeometryNode->GetFrameRect();
+    auto relTextFieldLocalLocation = Offset(info.GetLocalLocation().GetX() - textFieldFrameRect.GetX(),
+        info.GetLocalLocation().GetY() - textFieldFrameRect.GetY());
+    info.SetLocalLocation(relTextFieldLocalLocation);
     textFieldPattern->HandleClickEvent(info);
 }
 
@@ -1746,7 +1785,7 @@ void SearchPattern::CreateSearchIcon(const std::string& src, bool forceUpdate)
         return;
     }
     if (AceApplicationInfo::GetInstance().GreatOrEqualTargetAPIVersion(PlatformVersion::VERSION_TWELVE) &&
-        src.empty()) {
+        src.empty() && SystemProperties::IsNeedSymbol()) {
         CreateOrUpdateSymbol(IMAGE_INDEX, !GetSearchNode()->HasSearchIconNodeCreated(), false);
     } else {
         GetSearchNode()->SetSearchImageIconOptions(IconOptions(src));
@@ -1776,7 +1815,8 @@ void SearchPattern::CreateCancelIcon()
         UpdateCancelSymbolIconColor();
         return;
     }
-    if (AceApplicationInfo::GetInstance().GreatOrEqualTargetAPIVersion(PlatformVersion::VERSION_TWELVE)) {
+    if (AceApplicationInfo::GetInstance().GreatOrEqualTargetAPIVersion(PlatformVersion::VERSION_TWELVE) &&
+        SystemProperties::IsNeedSymbol()) {
         CreateOrUpdateSymbol(CANCEL_IMAGE_INDEX, !GetSearchNode()->HasCancelIconNodeCreated(), false);
     } else {
         GetSearchNode()->SetCancelImageIconOptions(IconOptions());
@@ -1806,6 +1846,7 @@ void SearchPattern::CreateOrUpdateSymbol(int32_t index, bool isCreateNode, bool 
     auto host = GetHost();
     CHECK_NULL_VOID(host);
     auto pipeline = host->GetContext();
+    CHECK_NULL_VOID(pipeline);
     auto nodeId = ElementRegister::GetInstance()->MakeUniqueId();
     auto searchTheme = pipeline->GetTheme<SearchTheme>();
     CHECK_NULL_VOID(searchTheme);

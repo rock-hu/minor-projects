@@ -1940,6 +1940,7 @@ void PipelineContext::FlushVsync(uint64_t nanoTimestamp, uint32_t frameCount)
         FlushAnimation(GetTimeFromExternalTimer());
         FlushPipelineWithoutAnimation();
         FlushAnimationTasks();
+        window_->FlushLayoutSize(width_, height_);
         hasIdleTasks_ = false;
     } else {
         LOGW("the surface is not ready, waiting");
@@ -3043,7 +3044,7 @@ void PipelineContext::ProcessDragEventEnd(
     SetInitRenderNode(nullptr);
 }
 
-void PipelineContext::OnDragEvent(const PointerEvent& pointerEvent, DragEventAction action,
+void PipelineContext::OnDragEvent(const DragPointerEvent& pointerEvent, DragEventAction action,
     const RefPtr<NG::FrameNode>& node)
 {
     if (!clipboard_) {

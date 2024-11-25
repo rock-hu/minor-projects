@@ -25,7 +25,6 @@ set(ETS_RUNTIME_SOURCES
     ${ETS_EXT_SOURCES}/ets_runtime_interface.cpp
     ${ETS_EXT_SOURCES}/ets_vm.cpp
     ${ETS_EXT_SOURCES}/ets_stubs.cpp
-    ${ETS_EXT_SOURCES}/ets_taskpool.cpp
     ${ETS_EXT_SOURCES}/intrinsics/std_core.cpp
     ${ETS_EXT_SOURCES}/ets_itable_builder.cpp
     ${ETS_EXT_SOURCES}/ets_vtable_builder.cpp
@@ -87,7 +86,10 @@ set(ETS_RUNTIME_SOURCES
     ${PANDA_ETS_PLUGIN_SOURCE}/stdlib/native/init_native_methods.cpp
     ${PANDA_ETS_PLUGIN_SOURCE}/stdlib/native/escompat/Process.cpp
     ${PANDA_ETS_PLUGIN_SOURCE}/stdlib/native/etsstdlib.cpp
+    ${PANDA_ETS_PLUGIN_SOURCE}/stdlib/native/core/Intl.cpp
+    ${PANDA_ETS_PLUGIN_SOURCE}/stdlib/native/core/IntlState.cpp
     ${PANDA_ETS_PLUGIN_SOURCE}/stdlib/native/core/IntlNumberFormat.cpp
+    ${PANDA_ETS_PLUGIN_SOURCE}/stdlib/native/core/IntlFormattersCache.cpp
 )
 
 get_directory_property(CURRENT_DEFS DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} COMPILE_DEFINITIONS)

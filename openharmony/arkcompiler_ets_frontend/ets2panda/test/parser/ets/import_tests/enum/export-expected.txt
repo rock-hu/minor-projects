@@ -133,6 +133,7 @@
         }
       ],
       "const": false,
+      "ambient": false,
       "loc": {
         "start": {
           "line": 18,
@@ -2510,7 +2511,7 @@
                       "column": 1
                     }
                   }
-                },
+                }
                 "throwMarker": "throws",
                 "loc": {
                   "start": {
@@ -3676,7 +3677,7 @@
                       "column": 1
                     }
                   }
-                },
+                }
                 "throwMarker": "throws",
                 "loc": {
                   "start": {
@@ -4335,7 +4336,7 @@
                       "column": 1
                     }
                   }
-                },
+                }
                 "throwMarker": "throws",
                 "loc": {
                   "start": {

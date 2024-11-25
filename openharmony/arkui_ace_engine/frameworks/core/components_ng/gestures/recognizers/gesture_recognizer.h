@@ -409,6 +409,12 @@ public:
         return refereeState_ == RefereeState::READY;
     }
 
+    bool IsAllowedType(SourceTool type);
+    
+    std::string GetExtraInfo() const
+    {
+        return extraInfo_;
+    }
 protected:
     void Adjudicate(const RefPtr<NGGestureRecognizer>& recognizer, GestureDisposal disposal)
     {
@@ -434,7 +440,6 @@ protected:
     virtual void OnSucceedCancel() {}
     virtual void RemoveUnsupportEvent(int32_t touchId) {}
     bool ShouldResponse() override;
-    bool IsAllowedType(SourceTool type);
 
     void HandleWillAccept();
     void HandleDidAccept();
@@ -473,6 +478,7 @@ protected:
     std::list<WeakPtr<NGGestureRecognizer>> bridgeObjList_;
     bool enabled_ = true;
     ResponseLinkResult responseLinkRecognizer_;
+    std::string extraInfo_;
 private:
     WeakPtr<NGGestureRecognizer> gestureGroup_;
     WeakPtr<NGGestureRecognizer> eventImportGestureGroup_;

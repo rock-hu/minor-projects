@@ -79,28 +79,38 @@ static void ReplaceThisInExtensionMethod(checker::ETSChecker *checker, ir::Scrip
 
 void CheckExtensionMethod(checker::ETSChecker *checker, ir::ScriptFunction *extensionFunc, ir::MethodDefinition *node)
 {
-    auto *const classType = checker->GetApparentType(extensionFunc->Signature()->Params()[0]->TsType());
-    if (!classType->IsETSObjectType() ||
-        (!classType->AsETSObjectType()->HasObjectFlag(checker::ETSObjectFlags::CLASS) &&
-         !classType->AsETSObjectType()->HasObjectFlag(checker::ETSObjectFlags::INTERFACE))) {
-        checker->LogTypeError("Extension function can only defined for class and interface type.", node->Start());
+    auto *const thisType = extensionFunc->Signature()->Params()[0]->TsType();
+
+    // "Extension Functions" are only allowed for classes, interfaces, and arrays.
+    if (thisType->IsETSArrayType() ||
+        (thisType->IsETSObjectType() &&
+         (thisType->AsETSObjectType()->HasObjectFlag(checker::ETSObjectFlags::CLASS) ||
+          thisType->AsETSObjectType()->HasObjectFlag(checker::ETSObjectFlags::INTERFACE)))) {
+        // Skip for arrays (array does not contain a class definition) and checked class definition.
+        if (!thisType->IsETSArrayType() && thisType->Variable()->Declaration()->Node()->IsClassDefinition() &&
+            !thisType->Variable()->Declaration()->Node()->AsClassDefinition()->IsClassDefinitionChecked()) {
+            thisType->Variable()->Declaration()->Node()->Check(checker);
+        }
+
+        // NOTE(gogabr): should be done in a lowering
+        ReplaceThisInExtensionMethod(checker, extensionFunc);
+
+        checker::SignatureInfo *originalExtensionSigInfo = checker->Allocator()->New<checker::SignatureInfo>(
+            extensionFunc->Signature()->GetSignatureInfo(), checker->Allocator());
+        originalExtensionSigInfo->minArgCount -= 1;
+        originalExtensionSigInfo->params.erase(originalExtensionSigInfo->params.begin());
+        checker::Signature *originalExtensionSigature =
+            checker->CreateSignature(originalExtensionSigInfo, extensionFunc->Signature()->ReturnType(), extensionFunc);
+
+        // The shadowing check is only relevant for classes and interfaces,
+        // since for arrays there are no other ways to declare a method other than "Extension Functions".
+        if (thisType->IsETSObjectType()) {
+            CheckExtensionIsShadowedByMethod(checker, thisType->AsETSObjectType(), extensionFunc,
+                                             originalExtensionSigature);
+        }
+    } else {
+        checker->LogTypeError("Extension function can only defined for class, interface or array.", node->Start());
     }
-    if (classType->Variable()->Declaration()->Node()->IsClassDefinition() &&
-        !classType->Variable()->Declaration()->Node()->AsClassDefinition()->IsClassDefinitionChecked()) {
-        classType->Variable()->Declaration()->Node()->Check(checker);
-    }
-
-    // NOTE(gogabr): should be done in a lowering
-    ReplaceThisInExtensionMethod(checker, extensionFunc);
-
-    checker::SignatureInfo *originalExtensionSigInfo = checker->Allocator()->New<checker::SignatureInfo>(
-        extensionFunc->Signature()->GetSignatureInfo(), checker->Allocator());
-    originalExtensionSigInfo->minArgCount -= 1;
-    originalExtensionSigInfo->params.erase(originalExtensionSigInfo->params.begin());
-    checker::Signature *originalExtensionSigature =
-        checker->CreateSignature(originalExtensionSigInfo, extensionFunc->Signature()->ReturnType(), extensionFunc);
-
-    CheckExtensionIsShadowedByMethod(checker, classType->AsETSObjectType(), extensionFunc, originalExtensionSigature);
 }
 
 void DoBodyTypeChecking(ETSChecker *checker, ir::MethodDefinition *node, ir::ScriptFunction *scriptFunc)
@@ -147,13 +157,7 @@ void DoBodyTypeChecking(ETSChecker *checker, ir::MethodDefinition *node, ir::Scr
 
 void ComposeAsyncImplFuncReturnType(ETSChecker *checker, ir::ScriptFunction *scriptFunc)
 {
-    const auto &promiseGlobal = checker->GlobalBuiltinPromiseType()->AsETSObjectType();
-    auto promiseType =
-        promiseGlobal->Instantiate(checker->Allocator(), checker->Relation(), checker->GetGlobalTypesHolder())
-            ->AsETSObjectType();
-    promiseType->AddTypeFlag(checker::TypeFlag::GENERIC);
-    promiseType->TypeArguments().clear();
-    promiseType->TypeArguments().emplace_back(scriptFunc->Signature()->ReturnType());
+    auto const promiseType = checker->CreatePromiseOf(scriptFunc->Signature()->ReturnType());
 
     auto *objectId =
         checker->AllocNode<ir::Identifier>(compiler::Signatures::BUILTIN_OBJECT_CLASS, checker->Allocator());
@@ -345,13 +349,15 @@ ArenaVector<checker::Signature *> GetUnionTypeSignatures(ETSChecker *checker, ch
     ArenaVector<checker::Signature *> callSignatures(checker->Allocator()->Adapter());
 
     for (auto *constituentType : etsUnionType->ConstituentTypes()) {
-        if (constituentType->IsETSObjectType()) {
+        if (constituentType->IsETSObjectType() &&
+            constituentType->AsETSObjectType()->HasObjectFlag(checker::ETSObjectFlags::FUNCTIONAL_INTERFACE)) {
             ArenaVector<checker::Signature *> tmpCallSignatures(checker->Allocator()->Adapter());
-            tmpCallSignatures = constituentType->AsETSObjectType()
-                                    ->GetOwnProperty<checker::PropertyType::INSTANCE_METHOD>("invoke0")
-                                    ->TsType()
-                                    ->AsETSFunctionType()
-                                    ->CallSignatures();
+            tmpCallSignatures =
+                constituentType->AsETSObjectType()
+                    ->GetOwnProperty<checker::PropertyType::INSTANCE_METHOD>(FUNCTIONAL_INTERFACE_INVOKE_METHOD_NAME)
+                    ->TsType()
+                    ->AsETSFunctionType()
+                    ->CallSignatures();
             callSignatures.insert(callSignatures.end(), tmpCallSignatures.begin(), tmpCallSignatures.end());
         }
         if (constituentType->IsETSFunctionType()) {
@@ -509,6 +515,7 @@ static constexpr char const ITERATOR_TYPE_ABSENT[] = "Cannot obtain iterator typ
 checker::Type *GetIteratorType(ETSChecker *checker, checker::Type *elemType, ir::AstNode *left)
 {
     // Just to avoid extra nested level(s)
+    // CC-OFFNXT(G.FMT.14-CPP) project code style
     auto const getIterType = [checker, elemType](ir::VariableDeclarator *const declarator) -> checker::Type * {
         if (declarator->TsType() == nullptr) {
             if (auto *resolved = checker->FindVariableInFunctionScope(declarator->Id()->AsIdentifier()->Name(),
@@ -570,6 +577,7 @@ bool CheckReturnType(ETSChecker *checker, checker::Type *funcReturnType, checker
         if (!checker::AssignmentContext(checker->Relation(), stArgument, argumentType, funcReturnType,
                                         stArgument->Start(), {},
                                         checker::TypeRelationFlag::DIRECT_RETURN | checker::TypeRelationFlag::NO_THROW)
+                 // CC-OFFNXT(G.FMT.02) project code style
                  .IsAssignable()) {
             checker->LogTypeError({"Return statement type is not compatible with the enclosing method's return type."},
                                   stArgument->Start());
@@ -592,6 +600,7 @@ bool CheckReturnType(ETSChecker *checker, checker::Type *funcReturnType, checker
     const Type *sourceType = checker->TryGettingFunctionTypeFromInvokeFunction(argumentType);
     if (!checker::AssignmentContext(checker->Relation(), stArgument, argumentType, funcReturnType, stArgument->Start(),
                                     {}, checker::TypeRelationFlag::DIRECT_RETURN | checker::TypeRelationFlag::NO_THROW)
+             // CC-OFFNXT(G.FMT.02) project code style
              .IsAssignable()) {
         checker->LogTypeError(
             {"Type '", sourceType, "' is not compatible with the enclosing method's return type '", targetType, "'"},
@@ -627,6 +636,7 @@ void InferReturnType(ETSChecker *checker, ir::ScriptFunction *containingFunc, ch
         if (!checker::AssignmentContext(checker->Relation(), arrowFunc, argumentType, funcReturnType,
                                         stArgument->Start(), {},
                                         checker::TypeRelationFlag::DIRECT_RETURN | checker::TypeRelationFlag::NO_THROW)
+                 // CC-OFFNXT(G.FMT.02) project code style
                  .IsAssignable()) {
             checker->LogTypeError({"Type '", sourceType,
                                    "' is not compatible with the enclosing method's return type '", targetType, "'"},
@@ -695,8 +705,9 @@ void ProcessReturnStatements(ETSChecker *checker, ir::ScriptFunction *containing
 
 ETSObjectType *CreateOptionalSignaturesForFunctionalType(ETSChecker *checker, ir::ETSFunctionType *node,
                                                          ETSObjectType *genericInterfaceType,
-                                                         Substitution *substitution, size_t optionalParameterIndex)
+                                                         size_t optionalParameterIndex)
 {
+    auto substitution = checker->NewSubstitution();
     const auto &params = node->Params();
     auto returnType = node->ReturnType()->GetType(checker);
 
@@ -724,8 +735,9 @@ ETSObjectType *CreateOptionalSignaturesForFunctionalType(ETSChecker *checker, ir
 }
 
 ETSObjectType *CreateInterfaceTypeForETSFunctionType(ETSChecker *checker, ir::ETSFunctionType *node,
-                                                     ETSObjectType *genericInterfaceType, Substitution *substitution)
+                                                     ETSObjectType *genericInterfaceType)
 {
+    auto substitution = checker->NewSubstitution();
     size_t i = 0;
     if (auto const &params = node->Params(); params.size() < checker->GlobalBuiltinFunctionTypeVariadicThreshold()) {
         for (; i < params.size(); i++) {
@@ -762,15 +774,16 @@ Type *CreateParamTypeWithDefaultParam(ETSChecker *checker, ir::Expression *param
 
 Type *InstantiateBoxedPrimitiveType(ETSChecker *checker, ir::Expression *param, Type *paramType)
 {
-    if (paramType->HasTypeFlag(checker::TypeFlag::ETS_PRIMITIVE)) {
-        auto node = checker->Relation()->GetNode();
-        checker->Relation()->SetNode(param);
-        auto *const boxedTypeArg = checker->PrimitiveTypeAsETSBuiltinType(paramType);
-        ASSERT(boxedTypeArg);
-        paramType =
-            boxedTypeArg->Instantiate(checker->Allocator(), checker->Relation(), checker->GetGlobalTypesHolder());
-        checker->Relation()->SetNode(node);
+    if (paramType->IsETSReferenceType()) {
+        return paramType;
     }
+
+    auto node = checker->Relation()->GetNode();
+    checker->Relation()->SetNode(param);
+    auto boxedTypeArg = checker->MaybeBoxInRelation(paramType);
+    paramType = boxedTypeArg->Instantiate(checker->Allocator(), checker->Relation(), checker->GetGlobalTypesHolder());
+    checker->Relation()->SetNode(node);
+    ASSERT(paramType->IsETSReferenceType());
 
     return paramType;
 }

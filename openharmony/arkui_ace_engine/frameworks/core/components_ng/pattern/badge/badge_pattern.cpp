@@ -54,7 +54,7 @@ void BadgePattern::OnModifyDone()
             auto maxCount = badgeMaxCount;
             auto content = std::to_string(badgeCount.value());
             if (badgeCount.value() > maxCount) {
-                content += "+";
+                content = std::to_string(maxCount) + "+";
             }
             textLayoutProperty->UpdateContent(content);
             TAG_LOGD(AceLogTag::ACE_BADGE, "BadgeContent: %{public}s", content.c_str());
@@ -72,7 +72,7 @@ void BadgePattern::OnModifyDone()
         textLayoutProperty->UpdateContent(badgeValue.value());
         if (badgeValue.value().empty()) {
             TAG_LOGI(AceLogTag::ACE_BADGE, "Badge content is empty");
-            textLayoutProperty->UpdateContent(" ");
+            textLayoutProperty->UpdateContent(u" ");
         }
         badgeVisible = true;
     }
@@ -87,7 +87,7 @@ void BadgePattern::OnModifyDone()
         width.Reset();
     }
     auto badgeTextColor = layoutProperty->GetBadgeTextColor();
-    textLayoutProperty->UpdateTextColor(badgeTextColor.value());
+    textLayoutProperty->UpdateTextColor(badgeTextColor.value_or(badgeTheme->GetBadgeTextColor()));
 
     auto badgeFontSize = layoutProperty->GetBadgeFontSize();
     if (badgeFontSize.has_value()) {
@@ -100,8 +100,9 @@ void BadgePattern::OnModifyDone()
     BorderWidthProperty borderWidth;
     borderWidth.SetBorderWidth(width);
     textLayoutProperty->UpdateBorderWidth(borderWidth);
-    auto badgeColor = layoutProperty->GetBadgeColorValue();
+    auto badgeColor = layoutProperty->GetBadgeColorValue(badgeTheme->GetBadgeColor());
     auto textRenderContext = lastFrameNode->GetRenderContext();
+    CHECK_NULL_VOID(textRenderContext);
     textRenderContext->SetVisible(badgeVisible);
     textRenderContext->UpdateBackgroundColor(badgeColor);
 
@@ -188,6 +189,7 @@ void BadgePattern::DumpInfo(std::unique_ptr<JsonValue>& json)
 void BadgePattern::DumpSimplifyInfo(std::unique_ptr<JsonValue>& json)
 {
     auto layoutProperty = GetLayoutProperty<BadgeLayoutProperty>();
+    CHECK_NULL_VOID(layoutProperty);
     auto badgeCount = layoutProperty->GetBadgeCount();
     auto badgeValue = layoutProperty->GetBadgeValue();
     auto circleSize = layoutProperty->GetBadgeCircleSize();
@@ -206,13 +208,13 @@ void BadgePattern::DumpSimplifyInfo(std::unique_ptr<JsonValue>& json)
     if (badgeValue.has_value() && !badgeValue.value().empty()) {
         json->Put("BadgeValue", badgeValue.value().c_str());
     }
-    if (badgeTextColor.value() != Color::BLACK) {
+    if (badgeTextColor.has_value() && badgeTextColor.value() != Color::BLACK) {
         json->Put("BadgeTextColor", badgeTextColor.value().ToString().c_str());
     }
     if (circleSize && circleSize != Dimension(0.0, circleSize->Unit())) {
         json->Put("CircleSize", std::to_string(circleSize->ConvertToPx()).c_str());
     }
-    if (badgeFontSize.value() != Dimension(0.0, badgeFontSize.value().Unit())) {
+    if (badgeFontSize.has_value() && badgeFontSize.value() != Dimension(0.0, badgeFontSize.value().Unit())) {
         json->Put("BadgeFontSize", badgeFontSize.value().ToString().c_str());
     }
 }

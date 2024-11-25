@@ -422,6 +422,7 @@ private:
     V(SetSValueWithBarrier)                     \
     V(NewLexicalEnv)                            \
     V(CopyRestArgs)                             \
+    V(CreateObjectHavingMethod)                 \
     V(GetUnmappedArgs)                          \
     V(GetCallSpreadArgs)                        \
     V(NewThisObjectChecked)                     \
@@ -485,7 +486,6 @@ private:
     V(ResumeCaughtFrameAndDispatch)             \
     V(ResumeUncaughtFrameAndReturn)             \
     V(ResumeRspAndRollback)                     \
-    V(StringsAreEquals)                         \
     V(BigIntEquals)                             \
     V(BigIntSameValueZero)                      \
     V(CallBigIntAsIntN)                         \
@@ -507,7 +507,6 @@ private:
     V(InsertLocalToShareRSet)                   \
     V(SetBitAtomic)                             \
     V(DoubleToInt)                              \
-    V(DoubleToLength)                           \
     V(FloatMod)                                 \
     V(FloatAcos)                                \
     V(FloatAcosh)                               \
@@ -535,13 +534,10 @@ private:
     V(FloatPow)                                 \
     V(FloatCeil)                                \
     V(CallDateNow)                              \
-    V(NumberIsFinite)                           \
-    V(FindElementWithCache)                     \
     V(UpdateFieldType)                          \
     V(MarkingBarrier)                           \
     V(MarkingBarrierWithEden)                   \
     V(SharedGCMarkingBarrier)                   \
-    V(StoreBarrier)                             \
     V(CallArg0)                                 \
     V(CallArg1)                                 \
     V(CallArgs2)                                \
@@ -554,7 +550,6 @@ private:
     V(JSFunctionEntry)                          \
     V(OptimizedFastCallEntry)                   \
     V(JSProxyCallInternalWithArgV)              \
-    V(CreateArrayFromList)                      \
     V(JSObjectGetMethod)                        \
     V(JsProxyCallInternal)                      \
     V(JsBoundCallInternal)                      \
@@ -570,6 +565,7 @@ private:
     V(CreateStringBySingleCharCode)             \
     V(FastStringEqual)                          \
     V(FastStringAdd)                            \
+    V(StringAdd)                                \
     V(DeleteObjectProperty)                     \
     V(Getpropiterator)                          \
     V(Getnextpropname)                          \
@@ -581,11 +577,11 @@ private:
     V(JSMapValues)                              \
     V(JSSetHas)                                 \
     V(JSSetAdd)                                 \
-    V(JSMapDelete)                              \
-    V(JSSetDelete)                              \
     V(CreateJSTypedArrayEntries)                \
     V(CreateJSTypedArrayKeys)                   \
     V(CreateJSTypedArrayValues)                 \
+    V(JSMapDelete)                              \
+    V(JSSetDelete)                              \
     V(JSSetEntries)                             \
     V(JSHClassFindProtoTransitions)             \
     V(NumberHelperStringToDouble)               \
@@ -596,8 +592,8 @@ private:
     V(StringGetStart)                           \
     V(StringGetEnd)                             \
     V(ArrayTrim)                                \
-    V(OptimizedFastJmp)                         \
     V(CopyTypedArrayBuffer)                     \
+    V(OptimizedFastJmp)                         \
     V(CallArg0AndDispatchFromBaseline)          \
     V(CallArg1AndDispatchFromBaseline)          \
     V(CallArgs2AndDispatchFromBaseline)         \
@@ -632,6 +628,8 @@ private:
     V(ASMFastWriteBarrier)                           \
     V(ASMWriteBarrierWithEden)                       \
     V(VerifyBarrier)                                 \
+    V(SortTypedArray)                                \
+    V(ReverseTypedArray)                             \
     V(IsFastRegExp)
 
 #define DECL_CALL_SIGNATURE(name)                                  \

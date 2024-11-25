@@ -115,7 +115,7 @@ void DialogPattern::OnAttachToFrameNode()
 {
     auto host = GetHost();
     CHECK_NULL_VOID(host);
-    auto pipelineContext = PipelineContext::GetCurrentContext();
+    auto pipelineContext = host->GetContext();
     CHECK_NULL_VOID(pipelineContext);
     pipelineContext->AddWindowSizeChangeCallback(host->GetId());
     InitHostWindowRect();
@@ -241,12 +241,12 @@ void DialogPattern::HandleClick(const GestureEvent& info)
 
 void DialogPattern::PopDialog(int32_t buttonIdx = -1)
 {
-    auto pipeline = PipelineContext::GetCurrentContext();
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto pipeline = host->GetContext();
     CHECK_NULL_VOID(pipeline);
     auto overlayManager = pipeline->GetOverlayManager();
     CHECK_NULL_VOID(overlayManager);
-    auto host = GetHost();
-    CHECK_NULL_VOID(host);
     if (host->IsRemoving()) {
         return;
     }
@@ -1290,39 +1290,58 @@ void DialogPattern::UpdateSheetIconAndText()
     }
 }
 
+void DialogPattern::UpdateButtonsPropertyForEachButton(RefPtr<FrameNode> buttonFrameNode, int32_t btnIndex)
+{
+    CHECK_NULL_VOID(buttonFrameNode);
+    auto pattern = buttonFrameNode->GetPattern<ButtonPattern>();
+    CHECK_NULL_VOID(pattern);
+    pattern->SetSkipColorConfigurationUpdate();
+    // parse button text color and background color
+    std::string textColorStr;
+    std::optional<Color> bgColor;
+    ParseButtonFontColorAndBgColor(dialogProperties_.buttons[btnIndex], textColorStr, bgColor);
+    // update background color
+    auto renderContext = buttonFrameNode->GetRenderContext();
+    CHECK_NULL_VOID(renderContext);
+    renderContext->UpdateBackgroundColor(bgColor.value());
+    auto buttonTextNode = DynamicCast<FrameNode>(buttonFrameNode->GetFirstChild());
+    CHECK_NULL_VOID(buttonTextNode);
+    auto buttonTextLayoutProperty = buttonTextNode->GetLayoutProperty<TextLayoutProperty>();
+    CHECK_NULL_VOID(buttonTextLayoutProperty);
+    Color textColor;
+    Color::ParseColorString(textColorStr, textColor);
+    buttonTextLayoutProperty->UpdateContent(dialogProperties_.buttons[btnIndex].text);
+    buttonTextLayoutProperty->UpdateTextColor(textColor);
+    buttonTextNode->MarkModifyDone();
+    buttonTextNode->MarkDirtyNode(PROPERTY_UPDATE_MEASURE_SELF);
+}
+
 void DialogPattern::UpdateButtonsProperty()
 {
-    CHECK_NULL_VOID(buttonContainer_);
     int32_t btnIndex = 0;
-    isFirstDefaultFocus_ = true;
-    for (const auto& buttonNode : buttonContainer_->GetChildren()) {
-        if (buttonNode->GetTag() != V2::BUTTON_ETS_TAG) {
-            continue;
+    if (buttonContainer_) {
+        isFirstDefaultFocus_ = true;
+        for (const auto& buttonNode : buttonContainer_->GetChildren()) {
+            if (buttonNode->GetTag() != V2::BUTTON_ETS_TAG) {
+                continue;
+            }
+            auto buttonFrameNode = DynamicCast<FrameNode>(buttonNode);
+            UpdateButtonsPropertyForEachButton(buttonFrameNode, btnIndex);
+            ++btnIndex;
         }
-        auto buttonFrameNode = DynamicCast<FrameNode>(buttonNode);
-        CHECK_NULL_VOID(buttonFrameNode);
-        auto pattern = buttonFrameNode->GetPattern<ButtonPattern>();
-        CHECK_NULL_VOID(pattern);
-        pattern->SetSkipColorConfigurationUpdate();
-        // parse button text color and background color
-        std::string textColorStr;
-        std::optional<Color> bgColor;
-        ParseButtonFontColorAndBgColor(dialogProperties_.buttons[btnIndex], textColorStr, bgColor);
-        // update background color
-        auto renderContext = buttonFrameNode->GetRenderContext();
-        CHECK_NULL_VOID(renderContext);
-        renderContext->UpdateBackgroundColor(bgColor.value());
-        auto buttonTextNode = DynamicCast<FrameNode>(buttonFrameNode->GetFirstChild());
-        CHECK_NULL_VOID(buttonTextNode);
-        auto buttonTextLayoutProperty = buttonTextNode->GetLayoutProperty<TextLayoutProperty>();
-        CHECK_NULL_VOID(buttonTextLayoutProperty);
-        Color textColor;
-        Color::ParseColorString(textColorStr, textColor);
-        buttonTextLayoutProperty->UpdateContent(dialogProperties_.buttons[btnIndex].text);
-        buttonTextLayoutProperty->UpdateTextColor(textColor);
-        buttonTextNode->MarkModifyDone();
-        buttonTextNode->MarkDirtyNode(PROPERTY_UPDATE_MEASURE_SELF);
-        ++btnIndex;
+    } else {
+        auto upgradedMenuNode = menuNode_.Upgrade();
+        CHECK_NULL_VOID(upgradedMenuNode);
+        for (const auto& rowNode : upgradedMenuNode->GetChildren()) {
+            if (rowNode->GetTag() != V2::ROW_ETS_TAG) {
+                continue;
+            }
+            auto buttonFrameNode = DynamicCast<FrameNode>(rowNode->GetFirstChild());
+            if (buttonFrameNode && buttonFrameNode->GetTag() == V2::BUTTON_ETS_TAG) {
+                UpdateButtonsPropertyForEachButton(buttonFrameNode, btnIndex);
+            }
+            ++btnIndex;
+        }
     }
 }
 
@@ -1434,8 +1453,6 @@ void DialogPattern::UpdateDeviceOrientation(const DeviceOrientation& deviceOrien
 {
     if (deviceOrientation_ != deviceOrientation) {
         CHECK_NULL_VOID(buttonContainer_);
-        auto pipeline = PipelineContext::GetCurrentContext();
-        CHECK_NULL_VOID(pipeline);
         OnFontConfigurationUpdate();
         auto host = GetHost();
         CHECK_NULL_VOID(host);
@@ -1800,6 +1817,25 @@ bool DialogPattern::IsShowInFreeMultiWindow()
     return container->IsFreeMultiWindow();
 }
 
+bool DialogPattern::IsShowInFloatingWindow()
+{
+    auto currentId = Container::CurrentId();
+    auto container = Container::Current();
+    if (!container) {
+        TAG_LOGW(AceLogTag::ACE_DIALOG, "container is null");
+        return false;
+    }
+    if (container->IsSubContainer()) {
+        currentId = SubwindowManager::GetInstance()->GetParentContainerId(currentId);
+        container = AceEngine::Get().GetContainer(currentId);
+        if (!container) {
+            TAG_LOGW(AceLogTag::ACE_DIALOG, "parent container is null");
+            return false;
+        }
+    }
+    return container->IsFloatingWindow();
+}
+
 void DialogPattern::DumpSimplifyInfo(std::unique_ptr<JsonValue>& json)
 {
     json->Put("Type", DialogTypeUtils::ConvertDialogTypeToString(dialogProperties_.type).c_str());
@@ -1856,7 +1892,7 @@ void DialogPattern::DumpSimplifyBorderProperty(std::unique_ptr<JsonValue>& json)
                     radius.radiusBottomStart.value_or(radius.radiusBottomEnd.value_or(Dimension()))))))))).Unit();
         Dimension defaultValue(0, unit);
         BorderRadiusProperty defaultRadius(defaultValue);
-        if (radius == defaultRadius) {
+        if (!(radius == defaultRadius)) {
             json->Put("BorderRadius", dialogProperties_.borderRadius.value().ToString().c_str());
         }
     }
@@ -1910,10 +1946,10 @@ void DialogPattern::DumpSimplifyObjectProperty(std::unique_ptr<JsonValue>& json)
     std::stringstream stream;
     stream << dialogProperties_.offset.GetX().ToString() << "," << dialogProperties_.offset.GetY().ToString();
     json->Put("Offset", stream.str().c_str());
-    if (dialogProperties_.buttons.size() > 0) {
+    if (!dialogProperties_.buttons.empty()) {
         std::unique_ptr<JsonValue> buttons = JsonUtil::Create(true);
         int32_t index = -1;
-        for (auto buttonInfo : dialogProperties_.buttons) {
+        for (const auto& buttonInfo : dialogProperties_.buttons) {
             std::unique_ptr<JsonValue> child = JsonUtil::Create(true);
             child->Put("Text", buttonInfo.text.c_str());
             child->Put("Color", buttonInfo.textColor.c_str());

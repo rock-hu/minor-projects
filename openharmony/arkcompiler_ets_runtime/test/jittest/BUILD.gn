@@ -17,6 +17,8 @@ group("ark_jit_ts_test") {
     "arguments",
     "create_arguments",
     "function_reuse",
+    "intern_string_strict_equal_1",
+    "intern_string_strict_equal_2",
     "try_catch_empty",
     "ldobjbyname",
     "for_loop",
@@ -29,6 +31,7 @@ group("ark_jit_ts_test") {
     "addition_assignment",
     "catch_with_osr",
     "jit_test_0001",
+    "jit_test_0002",
     "string_length",
     "ts_inline",
     "proxy_fast_call",
@@ -39,6 +42,7 @@ group("ark_jit_ts_test") {
     "uint32_array",
     "inc",
     "uncheck_float64_to_int32",
+    "retype_convert_test",
   ]
 
   deps = [ "pgo_roottype_test:pgo_roottype_test" ]

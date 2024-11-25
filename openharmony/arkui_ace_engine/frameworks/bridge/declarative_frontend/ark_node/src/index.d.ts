@@ -70,6 +70,7 @@ declare interface XComponentController { }
 declare interface BuildOptions {
   nestingBuilderSupported?: boolean;
   lazyBuildSupported?: boolean;
+  bindedViewOfBuilderNode?:ViewPU;
 }
 declare abstract class ViewPU {
   id__(): number;
@@ -225,6 +226,14 @@ declare class UICommonEvent {
   constructor(nodePtr: NodePtr);
   setInstanceId(instanceId: number): void;
   setNodePtr(nodePtr: NodePtr): void;
+}
+
+declare class UIGestureEvent {
+  private _nodePtr: NodePtr;
+  private _weakPtr: WeakRef<FrameNode>;
+  constructor();
+  setNodePtr(nodePtr: NodePtr): void;
+  setWeakNodePtr(weakPtr: WeakRef<FrameNode>): void;
 }
 
 declare class ModifierWithKey<T extends number | string | boolean | object> {

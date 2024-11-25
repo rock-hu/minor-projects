@@ -22,6 +22,7 @@
 #include <map>
 #include <array>
 #include <sstream>
+#include <sys/stat.h>
 #include "isa.h"
 #include "asm_info.h"
 #include "cg.h"
@@ -229,6 +230,7 @@ public:
     MIRAddroffuncConst *GetAddroffuncConst(const MIRSymbol &mirSymbol, MIRAggConst &aggConst);
     int64 GetFieldOffsetValue(const std::string &className, const MIRIntConst &intConst,
                               const std::map<GStrIdx, MIRType *> &strIdx2Type);
+    void WriteDebugCommentToFile();
 
     Emitter &Emit(int64 val)
     {

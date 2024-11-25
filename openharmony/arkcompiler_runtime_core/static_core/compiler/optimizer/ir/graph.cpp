@@ -529,7 +529,7 @@ Register Graph::GetZeroReg() const
 {
     auto regfile = GetRegisters();
     if (regfile == nullptr) {
-        return INVALID_REG;
+        return GetInvalidReg();
     }
     auto reg = regfile->GetZeroReg();
     if (reg == INVALID_REGISTER) {
@@ -639,7 +639,13 @@ void MarkLoopExits(const Graph *graph, Marker marker)
 {
     for (auto block : graph->GetBlocksRPO()) {
         if (block->GetSuccsBlocks().size() == MAX_SUCCS_NUM) {
-            if (block->GetSuccessor(0)->GetLoop() != block->GetSuccessor(1)->GetLoop()) {
+            auto thisLoop = block->GetLoop();
+            auto loop0 = block->GetSuccessor(0)->GetLoop();
+            auto loop1 = block->GetSuccessor(1)->GetLoop();
+            if (loop0 != thisLoop && !loop0->IsInside(thisLoop)) {
+                block->SetMarker(marker);
+            }
+            if (loop1 != thisLoop && !loop1->IsInside(thisLoop)) {
                 block->SetMarker(marker);
             }
         } else if (block->GetSuccsBlocks().size() > MAX_SUCCS_NUM) {
@@ -682,7 +688,7 @@ SpillFillData Graph::GetDataForNativeParam(DataType::Type type)
             regType = DataType::UINT32;
         }
         auto loc = reg.IsFloat() ? LocationType::FP_REGISTER : LocationType::REGISTER;
-        return SpillFillData(SpillFillData {loc, LocationType::INVALID, reg.GetId(), INVALID_REG, regType});
+        return SpillFillData(SpillFillData {loc, LocationType::INVALID, reg.GetId(), GetInvalidReg(), regType});
     }
     ASSERT(std::holds_alternative<uint8_t>(param));
     auto slot = std::get<uint8_t>(param);
@@ -695,7 +701,7 @@ SpillFillData Graph::GetDataForNativeParam(DataType::Type type)
         regType = DataType::UINT64;
     }
     return SpillFillData(
-        SpillFillData {LocationType::STACK_PARAMETER, LocationType::INVALID, slot, INVALID_REG, regType});
+        SpillFillData {LocationType::STACK_PARAMETER, LocationType::INVALID, slot, GetInvalidReg(), regType});
 #endif
 }
 

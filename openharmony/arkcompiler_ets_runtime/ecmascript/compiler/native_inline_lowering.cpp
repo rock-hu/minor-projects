@@ -684,8 +684,9 @@ void NativeInlineLowering::TryInlineNumberParseInt(GateRef gate, size_t argc, bo
     if (EnableTrace()) {
         AddTraceLogs(gate, id);
     }
+    // this may return exception
     GateRef ret = builder_.NumberParseInt(arg, radix);
-    acc_.ReplaceHirAndDeleteIfException(gate, builder_.GetStateDepend(), ret);
+    acc_.ReplaceGate(gate, builder_.GetStateDepend(), ret);
 }
 
 void NativeInlineLowering::TryInlineNumberIsSafeInteger(GateRef gate, size_t argc, bool skipThis)
@@ -1536,11 +1537,11 @@ void NativeInlineLowering::TryInlineArrayIterator(GateRef gate, BuiltinsStubCSig
     if (!Uncheck()) {
         builder_.CallTargetCheck(gate, tacc.GetFunc(), builder_.IntPtr(static_cast<int64_t>(id)), {tacc.GetThisObj()});
     }
+    GateRef thisObj = acc_.GetValueIn(gate, 0);
+    builder_.EcmaObjectCheck(thisObj);
     if (EnableTrace()) {
         AddTraceLogs(gate, id);
     }
-    GateRef thisObj = acc_.GetValueIn(gate, 0);
-    builder_.EcmaObjectCheck(thisObj);
     GateRef CallIDRef = builder_.Int32(static_cast<int32_t>(id));
     GateRef ret = builder_.ArrayIteratorBuiltin(thisObj, CallIDRef);
     acc_.ReplaceHirAndDeleteIfException(gate, builder_.GetStateDepend(), ret);
@@ -1655,7 +1656,7 @@ void NativeInlineLowering::TryInlineArrayFilter(GateRef gate, size_t argc, Built
         ret = builder_.ArrayFilter(thisValue, callBackFn, builder_.UndefineConstant(), frameState, pcOffset);
     } else {
         ret = builder_.ArrayFilter(
-            thisValue, callBackFn, acc_.GetValueIn(gate, 2), frameState, pcOffset); //2: provide usingThis
+            thisValue, callBackFn, acc_.GetValueIn(gate, 2), frameState, pcOffset); // 2: provide usingThis
     }
     acc_.ReplaceGate(gate, builder_.GetState(), builder_.GetDepend(), ret);
 }
@@ -1785,7 +1786,7 @@ void NativeInlineLowering::TryInlineArrayPop(GateRef gate, size_t argc, Builtins
         AddTraceLogs(gate, id);
     }
     GateRef ret = builder_.ArrayPop(thisValue, acc_.GetFrameState(gate));
-    acc_.ReplaceHirAndDeleteIfException(gate, builder_.GetStateDepend(), ret);
+    ReplaceGateWithPendingException(gate, ret);
 }
 
 void NativeInlineLowering::TryInlineArraySlice(GateRef gate, size_t argc, BuiltinsStubCSigns::ID id, bool skipThis)

@@ -25,7 +25,8 @@
 #include <cstdint>
 #endif /* __cplusplus */
 
-#include "abckit.h"
+#include "./declarations.h"
+#include "./api_version.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -128,70 +129,7 @@ enum AbckitLiteralTag {
     ABCKIT_LITERAL_TAG_SETTER
 };
 
-// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
-#define ABCKIT_VERSION_SIZE 4
-
-struct AbckitGraph;
-
-/*
- * Language-independent top-level entities of the library.
- */
-struct AbckitFile;
-struct AbckitString;
-struct AbckitType;
-struct AbckitValue;
-struct AbckitLiteral;
-struct AbckitLiteralArray;
-
-/*
- * Language abstractions avalilable for the user.
- * Language extensions can provide specializations for these types.
- */
-struct AbckitCoreModule;
-struct AbckitCoreNamespace;
-struct AbckitCoreClass;
-struct AbckitCoreFunction;
-struct AbckitCoreField;
-struct AbckitCoreAnnotation;
-struct AbckitCoreAnnotationElement;
-struct AbckitCoreAnnotationInterface;
-struct AbckitCoreAnnotationInterfaceField;
-struct AbckitCoreImportDescriptor;
-struct AbckitCoreExportDescriptor;
-
-#ifndef __cplusplus
-typedef uint8_t *AbckitFileVersion;
-
-typedef struct AbckitGraph AbckitGraph;
-
-/*
- * Language-independent top-level entities of the library.
- */
-typedef struct AbckitFile AbckitFile;
-typedef struct AbckitString AbckitString;
-typedef struct AbckitType AbckitType;
-typedef struct AbckitValue AbckitValue;
-typedef struct AbckitLiteral AbckitLiteral;
-typedef struct AbckitLiteralArray AbckitLiteralArray;
-
-/*
- * Language abstractions avalilable for the user.
- * Language extensions can provide specializations for these types.
- */
-typedef struct AbckitCoreModule AbckitCoreModule;
-typedef struct AbckitCoreNamespace AbckitCoreNamespace;
-typedef struct AbckitCoreClass AbckitCoreClass;
-typedef struct AbckitCoreFunction AbckitCoreFunction;
-typedef struct AbckitCoreField AbckitCoreField;
-typedef struct AbckitCoreAnnotation AbckitCoreAnnotation;
-typedef struct AbckitCoreAnnotationElement AbckitCoreAnnotationElement;
-typedef struct AbckitCoreAnnotationInterface AbckitCoreAnnotationInterface;
-typedef struct AbckitCoreAnnotationInterfaceField AbckitCoreAnnotationInterfaceField;
-typedef struct AbckitCoreImportDescriptor AbckitCoreImportDescriptor;
-typedef struct AbckitCoreExportDescriptor AbckitCoreExportDescriptor;
-#else
-using AbckitFileVersion = uint8_t *;
-#endif
+enum { ABCKIT_VERSION_SIZE = 4 };
 
 /**
  * @brief Struct that holds the pointers to the non-modifying API for core Abckit types.
@@ -798,6 +736,14 @@ struct AbckitInspectApi {
     AbckitString *(*classGetName)(AbckitCoreClass *klass);
 
     /**
+     * @brief Returns parent function for class `klass`.
+     * @return Pointer to the `AbckitCoreFunction`.
+     * @param [ in ] klass - Class to be inspected.
+     * @note Set `ABCKIT_STATUS_BAD_ARGUMENT` error if `klass` is NULL.
+     */
+    AbckitCoreFunction *(*classGetParentFunction)(AbckitCoreClass *klass);
+
+    /**
      * @brief Returns parent namespace for class `klass`.
      * @return Pointer to the `AbckitCoreNamespace`.
      * @param [ in ] klass - Class to be inspected.
@@ -861,6 +807,14 @@ struct AbckitInspectApi {
     AbckitString *(*functionGetName)(AbckitCoreFunction *function);
 
     /**
+     * @brief Returns parent function for function `function`.
+     * @return Pointer to the `AbckitCoreClass`.
+     * @param [ in ] function - Function to be inspected.
+     * @note Set `ABCKIT_STATUS_BAD_ARGUMENT` error if `function` is NULL.
+     */
+    AbckitCoreFunction *(*functionGetParentFunction)(AbckitCoreFunction *function);
+
+    /**
      * @brief Returns parent class for function `function`.
      * @return Pointer to the `AbckitCoreClass`.
      * @param [ in ] function - Function to be inspected.
@@ -888,6 +842,19 @@ struct AbckitInspectApi {
      */
     void (*functionEnumerateNestedFunctions)(AbckitCoreFunction *func, void *data,
                                              bool (*cb)(AbckitCoreFunction *nestedFunc, void *data));
+
+    /**
+     * @brief Enumerates nested classes of function `func`, invoking callback `cb` for each nested class.
+     * @return None.
+     * @param [ in ] func - Function to be inspected.
+     * @param [ in, out ] data - Pointer to the user-defined data that will be passed to the callback `cb` each time
+     * it is invoked.
+     * @param [ in ] cb - Callback that will be invoked.
+     * @note Set `ABCKIT_STATUS_BAD_ARGUMENT` error if `func` is NULL.
+     * @note Set `ABCKIT_STATUS_BAD_ARGUMENT` error if `cb` is NULL.
+     */
+    void (*functionEnumerateNestedClasses)(AbckitCoreFunction *func, void *data,
+                                           bool (*cb)(AbckitCoreClass *nestedClass, void *data));
 
     /**
      * @brief Enumerates annotations of function `func`, invoking callback `cb` for each annotation.

@@ -33,10 +33,9 @@ GradientColor CreatePercentGradientColor(float percent, Color color)
 }
 } // namespace
 
-void ScrollablePaintMethod::UpdateFadingGradient(const RefPtr<RenderContext>& renderContext, PaintWrapper* wrapper)
+void ScrollablePaintMethod::UpdateFadingGradient(const RefPtr<RenderContext>& renderContext)
 {
-    auto props = DynamicCast<ScrollablePaintProperty>(wrapper->GetPaintProperty());
-    if (!props->GetFadingEdge().value_or(false) && !isFadingTop_ && !isFadingBottom_) {
+    if (!hasFadingEdge_) {
         return;
     }
     CHECK_NULL_VOID(renderContext);
@@ -61,36 +60,19 @@ void ScrollablePaintMethod::UpdateFadingGradient(const RefPtr<RenderContext>& re
                                                   ? CalcDimension(LINEAR_GRADIENT_DIRECTION_ANGLE, DimensionUnit::PX)
                                                   : CalcDimension(LINEAR_GRADIENT_ANGLE, DimensionUnit::PX);
     }
-    renderContext->UpdateBackBlendMode(BlendMode::SRC_OVER);
     renderContext->UpdateBackBlendApplyType(BlendApplyType::OFFSCREEN);
 
     overlayRenderContext_->UpdateZIndex(INT32_MAX);
     overlayRenderContext_->UpdateLinearGradient(gradient);
     if (!isFadingTop_ && !isFadingBottom_) {
         overlayRenderContext_->UpdateBackBlendMode(BlendMode::SRC_OVER);
+        renderContext->UpdateBackBlendMode(BlendMode::NONE);
     } else {
         overlayRenderContext_->UpdateBackBlendMode(BlendMode::DST_IN);
+        renderContext->UpdateBackBlendMode(BlendMode::SRC_OVER);
     }
     overlayRenderContext_->UpdateBackBlendApplyType(BlendApplyType::OFFSCREEN);
 }
-
-namespace {
-PaddingPropertyF GetSafeAreaPadding(const RefPtr<FrameNode>& host, const RefPtr<GeometryNode>& geo)
-{
-    // if there's padding, safeAreaPadding fails to accumulate
-    // remove later when GetAccumulatedSafeAreaExpand works correctly
-    if (geo->GetPadding()) {
-        PaddingPropertyF padding = *geo->GetPadding();
-        if (geo->GetResolvedSingleSafeAreaPadding()) {
-            padding = padding.Minus(*geo->GetResolvedSingleSafeAreaPadding());
-        }
-        if (padding.HasValue() && geo->GetResolvedSingleSafeAreaPadding()) {
-            return *geo->GetResolvedSingleSafeAreaPadding();
-        }
-    }
-    return host->GetAccumulatedSafeAreaExpand(true);
-}
-} // namespace
 
 bool ScrollablePaintMethod::TryContentClip(PaintWrapper* wrapper)
 {
@@ -121,7 +103,7 @@ bool ScrollablePaintMethod::TryContentClip(PaintWrapper* wrapper)
             case ContentClipMode::SAFE_AREA: {
                 auto host = renderContext->GetHost();
                 CHECK_NULL_RETURN(host, false);
-                auto safeAreaPad = GetSafeAreaPadding(host, geo);
+                const auto safeAreaPad = host->GetAccumulatedSafeAreaExpand(true);
 
                 auto size = geo->GetPaddingSize();
                 AddPaddingToSize(safeAreaPad, size);

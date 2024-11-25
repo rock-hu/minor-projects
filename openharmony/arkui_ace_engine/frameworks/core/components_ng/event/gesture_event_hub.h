@@ -112,6 +112,7 @@ public:
 
     void AddGesture(const RefPtr<NG::Gesture>& gesture);
     // call by CAPI do distinguish with AddGesture called by ARKUI;
+    void ClearGesture();
     void AttachGesture(const RefPtr<NG::Gesture>& gesture);
     void RemoveGesture(const RefPtr<NG::Gesture>& gesture);
     void RemoveGesturesByTag(const std::string& gestureTag);
@@ -158,8 +159,7 @@ public:
     void ClearUserOnTouch();
     void ClearJSFrameNodeOnClick();
     void ClearJSFrameNodeOnTouch();
-    void AddClickEvent(const RefPtr<ClickEvent>& clickEvent,
-        double distanceThreshold = std::numeric_limits<double>::infinity());
+    void AddClickEvent(const RefPtr<ClickEvent>& clickEvent);
     void AddClickAfterEvent(const RefPtr<ClickEvent>& clickEvent);
     void RemoveClickEvent(const RefPtr<ClickEvent>& clickEvent);
     bool IsClickEventsEmpty() const;
@@ -171,8 +171,10 @@ public:
     void SetLongPressEvent(const RefPtr<LongPressEvent>& event, bool isForDrag = false, bool isDisableMouseLeft = false,
         int32_t duration = 500);
     // Set by user define, which will replace old one.
-    void SetPanEvent(const RefPtr<PanEvent>& panEvent, PanDirection direction, int32_t fingers, Dimension distance);
-    void AddPanEvent(const RefPtr<PanEvent>& panEvent, PanDirection direction, int32_t fingers, Dimension distance);
+    void SetPanEvent(const RefPtr<PanEvent>& panEvent, PanDirection direction, int32_t fingers, Dimension distance,
+        bool isOverrideDistance = false);
+    void AddPanEvent(const RefPtr<PanEvent>& panEvent, PanDirection direction, int32_t fingers, Dimension distance,
+        bool isOverrideDistance = false);
     void RemovePanEvent(const RefPtr<PanEvent>& panEvent);
     void SetPanEventType(GestureTypeName typeName);
     // Set by user define, which will replace old one.
@@ -210,7 +212,7 @@ public:
     bool GetTouchable() const;
     void SetTouchable(bool touchable);
     void SetThumbnailCallback(std::function<void(Offset)>&& callback);
-    bool IsDragForbidden();
+    bool IsDragForbidden() const;
     void SetDragForbiddenForcely(bool isDragForbidden);
     bool GetTextDraggable() const;
     void SetTextDraggable(bool draggable);
@@ -231,8 +233,10 @@ public:
     int32_t SetDragData(const RefPtr<UnifiedData>& unifiedData, std::string& udKey);
     OnDragCallbackCore GetDragCallback(const RefPtr<PipelineBase>& context, const WeakPtr<EventHub>& hub);
     void GenerateMousePixelMap(const GestureEvent& info);
-    OffsetF GetPixelMapOffset(const GestureEvent& info, const SizeF& size, const float scale = 1.0f,
-        bool isCalculateInSubwindow = false) const;
+    OffsetF GetPixelMapOffset(
+        const GestureEvent& info, const SizeF& size, const float scale = 1.0f, const RectF& innerRect = RectF()) const;
+    void CalcFrameNodeOffsetAndSize(const RefPtr<FrameNode> frameNode, bool isMenuShow);
+    float GetDefaultPixelMapScale(const GestureEvent& info, bool isMenuShow, RefPtr<PixelMap> pixelMap);
     RefPtr<PixelMap> GetPreScaledPixelMapIfExist(float targetScale, RefPtr<PixelMap> defaultPixelMap);
     float GetPixelMapScale(const int32_t height, const int32_t width) const;
     bool IsPixelMapNeedScale() const;
@@ -292,6 +296,10 @@ public:
 
     bool parallelCombineClick = false;
     RefPtr<ParallelRecognizer> innerParallelRecognizer_;
+
+    bool IsGestureEmpty() const;
+
+    bool IsPanEventEmpty() const;
 private:
     void ProcessTouchTestHierarchy(const OffsetF& coordinateOffset, const TouchRestrict& touchRestrict,
         std::list<RefPtr<NGGestureRecognizer>>& innerRecognizers, TouchTestResult& finalResult, int32_t touchId,

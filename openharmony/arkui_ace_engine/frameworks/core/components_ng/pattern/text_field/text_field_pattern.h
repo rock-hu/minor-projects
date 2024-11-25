@@ -42,6 +42,7 @@
 #include "core/common/ime/text_input_proxy.h"
 #include "core/common/ime/text_input_type.h"
 #include "core/common/ime/text_selection.h"
+#include "core/components/text_field/textfield_theme.h"
 #include "core/components_ng/base/frame_node.h"
 #include "core/components_ng/image_provider/image_loading_context.h"
 #include "core/components_ng/pattern/overlay/keyboard_base_pattern.h"
@@ -76,7 +77,7 @@
 
 #ifndef ACE_UNITTEST
 #ifdef ENABLE_STANDARD_INPUT
-#include "commonlibrary/c_utils/base/include/refbase.h"
+#include "refbase.h"
 
 namespace OHOS::MiscServices {
 class InspectorFilter;
@@ -158,6 +159,7 @@ enum class RequestFocusReason {
     AUTO_FILL,
     CLEAN_NODE,
     MOUSE,
+    SYSTEM
 };
 
 
@@ -301,6 +303,9 @@ public:
     double CalcCounterBoundHeight();
     void UpdateCounterMargin();
     void CleanCounterNode();
+    void CleanErrorNode();
+    float CalcDecoratorWidth(const RefPtr<FrameNode>& decoratorNode);
+    float CalcDecoratorHeight(const RefPtr<FrameNode>& decoratorNode);
     void UltralimitShake();
     void UpdateAreaBorderStyle(BorderWidthProperty& currentBorderWidth, BorderWidthProperty& overCountBorderWidth,
         BorderColorProperty& overCountBorderColor, BorderColorProperty& currentBorderColor);
@@ -320,6 +325,11 @@ public:
     WeakPtr<LayoutWrapper> GetCounterNode()
     {
         return counterTextNode_;
+    }
+
+    RefPtr<FrameNode> GetErrorNode()
+    {
+        return errorTextNode_;
     }
 
     bool GetShowCounterStyleValue() const
@@ -442,11 +452,6 @@ public:
         return paragraph_;
     }
 
-    const RefPtr<Paragraph>& GetErrorParagraph() const
-    {
-        return errorParagraph_;
-    }
-
     bool GetCursorVisible() const
     {
         return cursorVisible_;
@@ -489,15 +494,9 @@ public:
     float GetPaddingLeft() const;
     float GetPaddingRight() const;
 
-    float GetHorizontalPaddingAndBorderSum() const
-    {
-        return GetPaddingLeft() + GetPaddingRight() + GetBorderLeft() + GetBorderRight();
-    }
+    float GetHorizontalPaddingAndBorderSum() const;
 
-    float GetVerticalPaddingAndBorderSum() const
-    {
-        return GetPaddingTop() + GetPaddingBottom() + GetBorderTop() + GetBorderBottom();
-    }
+    float GetVerticalPaddingAndBorderSum() const;
 
     double GetPercentReferenceWidth() const
     {
@@ -509,10 +508,10 @@ public:
     }
 
     BorderWidthProperty GetBorderWidthProperty() const;
-    float GetBorderLeft() const;
-    float GetBorderTop() const;
-    float GetBorderBottom() const;
-    float GetBorderRight() const;
+    float GetBorderLeft(BorderWidthProperty border) const;
+    float GetBorderTop(BorderWidthProperty border) const;
+    float GetBorderBottom(BorderWidthProperty border) const;
+    float GetBorderRight(BorderWidthProperty border) const;
 
     const RectF& GetTextRect() override
     {
@@ -598,6 +597,7 @@ public:
     {
         return selectController_->GetSelectedRects();
     }
+    std::vector<RectF> GetTextBoxesForSelect();
     void ToJsonValue(std::unique_ptr<JsonValue>& json, const InspectorFilter& filter) const override;
     void ToJsonValueForOption(std::unique_ptr<JsonValue>& json, const InspectorFilter& filter) const;
     void ToJsonValueSelectOverlay(std::unique_ptr<JsonValue>& json, const InspectorFilter& filter) const;
@@ -626,7 +626,7 @@ public:
         TAG_LOGI(AceLogTag::ACE_TEXT_FIELD, "NotifyKeyboardClosed");
         CHECK_NULL_VOID(HasFocus());
         CHECK_NULL_VOID(!customKeyboard_ && !customKeyboardBuilder_);
-        auto pipelineContext = PipelineBase::GetCurrentContextSafely();
+        auto pipelineContext = PipelineContext::GetCurrentContextSafelyWithCheck();
         CHECK_NULL_VOID(pipelineContext);
         auto windowManager = pipelineContext->GetWindowManager();
         CHECK_NULL_VOID(windowManager);
@@ -824,7 +824,7 @@ public:
 
     void AddDragFrameNodeToManager(const RefPtr<FrameNode>& frameNode)
     {
-        auto context = PipelineContext::GetCurrentContextSafely();
+        auto context = PipelineContext::GetCurrentContextSafelyWithCheck();
         CHECK_NULL_VOID(context);
         auto dragDropManager = context->GetDragDropManager();
         CHECK_NULL_VOID(dragDropManager);
@@ -833,7 +833,7 @@ public:
 
     void RemoveDragFrameNodeFromManager(const RefPtr<FrameNode>& frameNode)
     {
-        auto context = PipelineContext::GetCurrentContextSafely();
+        auto context = PipelineContext::GetCurrentContextSafelyWithCheck();
         CHECK_NULL_VOID(context);
         auto dragDropManager = context->GetDragDropManager();
         CHECK_NULL_VOID(dragDropManager);
@@ -872,6 +872,7 @@ public:
     std::string TextContentTypeToString() const;
     std::string GetPlaceholderFont() const;
     RefPtr<TextFieldTheme> GetTheme() const;
+    void InitTheme();
     std::string GetTextColor() const;
     std::string GetCaretColor() const;
     std::string GetPlaceholderColor() const;
@@ -904,6 +905,7 @@ public:
     bool OnBackPressed() override;
     void CheckScrollable();
     void HandleClickEvent(GestureEvent& info);
+    bool CheckMousePressedOverScrollBar(GestureEvent& info);
     int32_t CheckClickLocation(GestureEvent& info);
     void HandleDoubleClickEvent(GestureEvent& info);
     void HandleTripleClickEvent(GestureEvent& info);
@@ -1463,6 +1465,8 @@ public:
 
     bool InsertOrDeleteSpace(int32_t index) override;
 
+    void DeleteRange(int32_t start, int32_t end) override;
+
     bool SetCaretOffset(int32_t caretPostion) override;
 
     const RefPtr<MultipleClickRecognizer>& GetMultipleClickRecognizer() const
@@ -1605,7 +1609,8 @@ private:
     void HandleHoverEffect(MouseInfo& info, bool isHover);
     void OnHover(bool isHover);
     void ChangeMouseState(
-        const Offset location, const RefPtr<PipelineContext>& pipeline, int32_t frameId, bool isByPass = false);
+        const Offset location, int32_t frameId, bool isByPass = false);
+    void FreeMouseStyleHoldNode(const Offset location);
     void HandleMouseEvent(MouseInfo& info);
     void FocusAndUpdateCaretByMouse(MouseInfo& info);
     void HandleRightMouseEvent(MouseInfo& info);
@@ -1687,8 +1692,10 @@ private:
     void CalcInlineScrollRect(Rect& inlineScrollRect);
 
     bool ResetObscureTickCountDown();
-
+    bool IsAccessibilityClick();
     bool IsOnUnitByPosition(const Offset& globalOffset);
+    bool IsOnPasswordByPosition(const Offset& globalOffset);
+    bool IsOnCleanNodeByPosition(const Offset& globalOffset);
     bool IsTouchAtLeftOffset(float currentOffsetX);
     void FilterExistText();
     void CreateErrorParagraph(const std::string& content);
@@ -1718,7 +1725,7 @@ private:
     void UnitResponseKeyEvent();
     void ProcBorderAndUnderlineInBlurEvent();
     void ProcNormalInlineStateInBlurEvent();
-    bool IsMouseOverScrollBar(const GestureEvent& info);
+    bool IsMouseOverScrollBar(const BaseEventInfo* info);
 
 #if defined(ENABLE_STANDARD_INPUT)
     std::optional<MiscServices::TextConfig> GetMiscTextConfig() const;
@@ -1755,7 +1762,6 @@ private:
     PaddingProperty GetPaddingByUserValue();
     void SetThemeAttr();
     void SetThemeBorderAttr();
-    void SetThemeOuterBorderAttr();
     void ProcessInlinePaddingAndMargin();
     Offset ConvertGlobalToLocalOffset(const Offset& globalOffset);
     void HandleCountStyle();
@@ -1800,11 +1806,12 @@ private:
     void SetDragMovingScrollback();
     float CalcScrollSpeed(float hotAreaStart, float hotAreaEnd, float point);
     std::optional<TouchLocationInfo> GetAcceptedTouchLocationInfo(const TouchEventInfo& info);
+    void ResetTouchAndMoveCaretState();
 
     RectF frameRect_;
     RectF textRect_;
     RefPtr<Paragraph> paragraph_;
-    RefPtr<Paragraph> errorParagraph_;
+    RefPtr<FrameNode> errorTextNode_;
     InlineMeasureItem inlineMeasureItem_;
     TextStyle nextLineUtilTextStyle_;
 
@@ -1824,6 +1831,7 @@ private:
 
     OffsetF parentGlobalOffset_;
     OffsetF lastTouchOffset_;
+    std::optional<PaddingPropertyF> utilPadding_;
 
     bool setBorderFlag_ = true;
     BorderWidthProperty lastDiffBorderWidth_;
@@ -1880,6 +1888,8 @@ private:
     bool changeSelectedRects_ = false;
     RefPtr<TextFieldOverlayModifier> textFieldOverlayModifier_;
     RefPtr<TextFieldContentModifier> textFieldContentModifier_;
+    RefPtr<TextFieldForegroundModifier> textFieldForegroundModifier_;
+    WeakPtr<TextFieldTheme> textFieldTheme_;
     ACE_DISALLOW_COPY_AND_MOVE(TextFieldPattern);
 
     int32_t dragTextStart_ = 0;
@@ -1987,6 +1997,7 @@ private:
     WeakPtr<FrameNode> firstAutoFillContainerNode_;
     float lastCaretPos_ = 0.0f;
     std::optional<float> maxFontSizeScale_;
+    std::optional<bool> hasFocusBeforeTouchDown_;
 };
 } // namespace OHOS::Ace::NG
 

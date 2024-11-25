@@ -86,7 +86,7 @@ void ButtonLayoutAlgorithm::HandleChildLayoutConstraint(
         return;
     }
     auto buttonType = buttonLayoutProperty->GetType().value_or(ButtonType::CAPSULE);
-    if (Container::GreatOrEqualAPITargetVersion(PlatformVersion::VERSION_THIRTEEN)) {
+    if (Container::GreatOrEqualAPITargetVersion(PlatformVersion::VERSION_FOURTEEN)) {
         buttonType = buttonLayoutProperty->GetType().value_or(ButtonType::ROUNDED_RECTANGLE);
     }
     if (buttonType == ButtonType::CIRCLE) {
@@ -194,7 +194,7 @@ void ButtonLayoutAlgorithm::HandleBorderRadius(LayoutWrapper* layoutWrapper)
     auto renderContext = host->GetRenderContext();
     CHECK_NULL_VOID(renderContext);
     auto buttonType = buttonLayoutProperty->GetType().value_or(ButtonType::CAPSULE);
-    if (Container::GreatOrEqualAPITargetVersion(PlatformVersion::VERSION_THIRTEEN)) {
+    if (Container::GreatOrEqualAPITargetVersion(PlatformVersion::VERSION_FOURTEEN)) {
         buttonType = buttonLayoutProperty->GetType().value_or(ButtonType::ROUNDED_RECTANGLE);
     }
     if (buttonType == ButtonType::CIRCLE) {
@@ -248,7 +248,7 @@ void ButtonLayoutAlgorithm::PerformMeasureSelf(LayoutWrapper* layoutWrapper)
 
         auto defaultHeight = GetDefaultHeight(layoutWrapper);
         auto buttonType = buttonLayoutProperty->GetType().value_or(ButtonType::CAPSULE);
-        if (Container::GreatOrEqualAPITargetVersion(PlatformVersion::VERSION_THIRTEEN)) {
+        if (Container::GreatOrEqualAPITargetVersion(PlatformVersion::VERSION_FOURTEEN)) {
             buttonType = buttonLayoutProperty->GetType().value_or(ButtonType::ROUNDED_RECTANGLE);
         }
         if (buttonType == ButtonType::CIRCLE) {
@@ -299,7 +299,9 @@ void ButtonLayoutAlgorithm::MeasureCircleButton(LayoutWrapper* layoutWrapper)
 {
     auto frameNode = layoutWrapper->GetHostNode();
     CHECK_NULL_VOID(frameNode);
-    const auto& radius = frameNode->GetRenderContext()->GetBorderRadius();
+    auto context = frameNode->GetRenderContext();
+    CHECK_NULL_VOID(context);
+    const auto& radius = context->GetBorderRadius();
     SizeF frameSize = { -1, -1 };
     if (radius.has_value()) {
         auto radiusTopMax = std::max(radius->radiusTopLeft, radius->radiusTopRight);

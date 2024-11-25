@@ -23,7 +23,7 @@ function main(): int {
   {% for v in c['values'] %}
   let src_{{loop.index}}: {{c.src_type}} = {{v|safe}};
   let dst_{{loop.index}}: {{c.dst_type}} = src_{{loop.index}};   // boxing in this assignment
-  if (dst_{{loop.index}} === null) {
+  if (dst_{{loop.index}} == null) {
       return 1;
   }
   {% endfor %}

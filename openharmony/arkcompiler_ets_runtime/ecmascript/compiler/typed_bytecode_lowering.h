@@ -124,6 +124,8 @@ private:
     void LowerTypedLdPrivateProperty(GateRef gate);
     void LowerTypedLdObjByName(GateRef gate);
     void LowerTypedStObjByName(GateRef gate);
+    void TypedStObjByNameTransition(GateRef gate, GateRef receiverHC, GateRef frameState,
+                                    Label &exit, StoreObjByNameTypeInfoAccessor &tacc, size_t i);
     void LowerTypedStOwnByName(GateRef gate);
     GateRef BuildNamedPropertyAccess(GateRef hir, GateRef receiver, GateRef holder, PropertyLookupResult plr);
     GateRef BuildNamedPropertyAccess(GateRef hir, GateRef receiver, GateRef holder,
@@ -211,6 +213,9 @@ private:
     void DeleteBytecodeCount(EcmaOpcode op);
     void AddHitBytecodeCount();
 
+    GateRef InternStringCheck(GateRef gate);
+    template<TypedBinOp Op>
+    void SpeculateInternStrings(const BinOpTypeInfoAccessor& tacc);
     template<TypedBinOp Op>
     void SpeculateStrings(const BinOpTypeInfoAccessor& tacc);
     template<TypedBinOp Op>

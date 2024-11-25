@@ -69,6 +69,7 @@ RefPtr<FrameNode> CreateBarItemTextNode(const std::string& text)
 {
     int32_t nodeId = ElementRegister::GetInstance()->MakeUniqueId();
     auto textNode = FrameNode::CreateFrameNode(V2::TEXT_ETS_TAG, nodeId, AceType::MakeRefPtr<TextPattern>());
+    CHECK_NULL_RETURN(textNode, nullptr);
     auto textLayoutProperty = textNode->GetLayoutProperty<TextLayoutProperty>();
     CHECK_NULL_RETURN(textLayoutProperty, nullptr);
     textLayoutProperty->UpdateContent(text);
@@ -83,6 +84,7 @@ RefPtr<FrameNode> CreateBarItemIconNode(const std::string& src)
     int32_t nodeId = ElementRegister::GetInstance()->MakeUniqueId();
     ImageSourceInfo info(src);
     auto iconNode = FrameNode::CreateFrameNode(V2::IMAGE_ETS_TAG, nodeId, AceType::MakeRefPtr<ImagePattern>());
+    CHECK_NULL_RETURN(iconNode, nullptr);
     auto imageLayoutProperty = iconNode->GetLayoutProperty<ImageLayoutProperty>();
     CHECK_NULL_RETURN(imageLayoutProperty, nullptr);
     auto theme = NavigationGetTheme();
@@ -617,6 +619,7 @@ void NavigationModelNG::SetTitleMode(NG::NavigationTitleMode mode)
     auto buttonPattern = backButtonNode->GetPattern<ButtonPattern>();
     CHECK_NULL_VOID(buttonPattern);
     auto theme = NavigationGetTheme();
+    CHECK_NULL_VOID(theme);
     buttonPattern->SetSkipColorConfigurationUpdate();
     buttonPattern->setComponentButtonType(ComponentButtonType::NAVIGATION);
     if (AceApplicationInfo::GetInstance().GreatOrEqualTargetAPIVersion(PlatformVersion::VERSION_TWELVE)) {
@@ -653,7 +656,8 @@ void NavigationModelNG::SetTitleMode(NG::NavigationTitleMode mode)
     auto eventHub = backButtonNode->GetOrCreateInputEventHub();
     CHECK_NULL_VOID(eventHub);
 
-    if (AceApplicationInfo::GetInstance().GreatOrEqualTargetAPIVersion(PlatformVersion::VERSION_TWELVE)) {
+    if (AceApplicationInfo::GetInstance().GreatOrEqualTargetAPIVersion(PlatformVersion::VERSION_TWELVE) &&
+        SystemProperties::IsNeedSymbol()) {
         CreateSymbolBackIcon(backButtonNode, navigationGroupNode);
     } else {
         CreateImageBackIcon(backButtonNode, navigationGroupNode);
@@ -718,7 +722,6 @@ void NavigationModelNG::SetBackButtonIcon(const std::function<void(WeakPtr<NG::F
     titleBarLayoutProperty->UpdatePixelMap(pixMap);
     titleBarLayoutProperty->SetBackIconSymbol(symbolApply);
     titleBarLayoutProperty->UpdateIsValidImage(imageOption.isValidImage);
-    titleBarNode->MarkModifyDone();
 }
 
 void NavigationModelNG::SetHideBackButton(bool hideBackButton)
@@ -1148,7 +1151,6 @@ void NavigationModelNG::SetBackButtonIcon(FrameNode* frameNode,
     titleBarLayoutProperty->UpdatePixelMap(pixMap);
     titleBarLayoutProperty->SetBackIconSymbol(symbolApply);
     titleBarLayoutProperty->UpdateIsValidImage(imageOption.isValidImage);
-    titleBarNode->MarkModifyDone();
 }
 
 void NavigationModelNG::SetHideNavBarInner(
@@ -1370,9 +1372,9 @@ void NavigationModelNG::SetRecoverable(FrameNode* frameNode, bool recoverable)
 
 void NavigationModelNG::SetRecoverable(bool recoverable)
 {
-    auto frameNode = ViewStackProcessor::GetInstance()->GetMainFrameNode();
-    CHECK_NULL_VOID(frameNode);
-    auto navigationGroupNode = AceType::DynamicCast<NavigationGroupNode>(frameNode);
+    auto navigationGroupNode = AceType::DynamicCast<NavigationGroupNode>(
+        ViewStackProcessor::GetInstance()->GetMainFrameNode());
+    CHECK_NULL_VOID(navigationGroupNode);
     navigationGroupNode->SetRecoverable(recoverable);
 }
 

@@ -134,6 +134,8 @@ public:
 
 private:
     void OnAttachToFrameNode() override;
+    void OnColorConfigurationUpdate() override;
+    void OnLanguageConfigurationUpdate() override;
     bool OnDirtyLayoutWrapperSwap(const RefPtr<LayoutWrapper>& dirty, const DirtySwapConfig& config) override;
     void OnModifyDone() override;
     void OnClick(Offset& localLocation, const ObtainedMonth& obtainedMonth);
@@ -160,6 +162,7 @@ private:
     void ChangeVirtualNodeState(const CalendarDay& calendarDay);
     void SetLineNodeSize(RefPtr<FrameNode> lineNode);
     void SetFocusNode(int32_t index, bool isDeviceOrientation = false);
+    float GetWidth(const RefPtr<FrameNode>& host);
     std::string GetDayStr(int32_t index);
     bool isCalendarDialog_ = false;
     bool hoverState_ = false;
@@ -167,6 +170,7 @@ private:
     bool isFirstEnter_ = false;
     int32_t selectedIndex_ = 0;
     double margin_ = 0;
+    RefPtr<FrameNode> lineNode_;
     double dayHeight_ = 0;
     double dayWidth_ = 0;
     DeviceOrientation deviceOrientation_ = DeviceOrientation::ORIENTATION_UNDEFINED;

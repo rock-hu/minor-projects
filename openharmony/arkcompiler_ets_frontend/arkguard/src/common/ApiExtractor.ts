@@ -62,7 +62,8 @@ import {
   isPropertyAssignment,
   isModuleBlock,
   isFunctionDeclaration,
-  isEnumMember
+  isEnumMember,
+  isIndexedAccessTypeNode
 } from 'typescript';
 
 import fs from 'fs';
@@ -73,7 +74,9 @@ import {
   exportOriginalNameSet,
   getClassProperties,
   getElementAccessExpressionProperties,
-  getEnumProperties, getInterfaceProperties,
+  getEnumProperties,
+  getIndexedAccessTypeProperties,
+  getInterfaceProperties,
   getObjectExportNames,
   getObjectProperties,
   getTypeAliasProperties,
@@ -96,7 +99,8 @@ export namespace ApiExtractor {
     COMPONENT = 2,
     PROJECT_DEPENDS = 3,
     PROJECT = 4,
-    CONSTRUCTOR_PROPERTY = 5
+    CONSTRUCTOR_PROPERTY = 5,
+    KEEP_DTS = 6
   }
 
   let mCurrentExportedPropertySet: Set<string> = new Set<string>();
@@ -580,7 +584,9 @@ export namespace ApiExtractor {
     } else if (isTypeAliasDeclaration(astNode)) {
       getTypeAliasProperties(astNode, currentPropsSet);
     } else if (isElementAccessExpression(astNode)) {
-      getElementAccessExpressionProperties(astNode, currentPropsSet);
+      getElementAccessExpressionProperties(astNode);
+    } else if (isIndexedAccessTypeNode(astNode)) {
+      getIndexedAccessTypeProperties(astNode);
     } else if (isObjectLiteralExpression(astNode)) {
       getObjectProperties(astNode, currentPropsSet);
     } else if (isClassExpression(astNode)) {
@@ -629,6 +635,7 @@ export namespace ApiExtractor {
     // get export name list
     switch (apiType) {
       case ApiType.COMPONENT:
+      case ApiType.KEEP_DTS:
         forEachChild(sourceFile, visitChildNode);
         break;
       case ApiType.API:

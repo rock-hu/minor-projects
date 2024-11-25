@@ -31,6 +31,7 @@
 namespace panda::test {
 class GCTest_CallbackTask_Test;
 class HProfTestHelper;
+class HeapTestHelper;
 }
 
 namespace panda::ecmascript {
@@ -123,6 +124,12 @@ enum class VerifyKind {
     VERIFY_SHARED_GC_MARK,
     VERIFY_SHARED_GC_SWEEP,
     VERIFY_END,
+};
+
+enum class SharedHeapOOMSource {
+    NORMAL_ALLOCATION,
+    DESERIALIZE,
+    SHARED_GC,
 };
 
 class BaseHeap {
@@ -241,12 +248,17 @@ public:
     {
         shouldThrowOOMError_ = shouldThrow;
     }
-    
+
+    void ShouldForceThrowOOMError()
+    {
+        shouldForceThrowOOMError_ = true;
+    }
+
     void SetCanThrowOOMError(bool canThrow)
     {
         canThrowOOMError_ = canThrow;
     }
-    
+
     bool CanThrowOOMError()
     {
         return canThrowOOMError_;
@@ -423,6 +435,9 @@ protected:
     bool clearTaskFinished_ {true};
     bool inBackground_ {false};
     bool shouldThrowOOMError_ {false};
+    // Diffs from `shouldThrowOOMError_`, this is set due to allocating region failed during GC, and thus make
+    // MemMapAllocator infinite to complete this GC. After GC, if this flag is set, we MUST throw OOM force.
+    bool shouldForceThrowOOMError_ {false};
     bool canThrowOOMError_ {true};
     bool oldGCRequested_ {false};
     // ONLY used for heap verification.
@@ -610,6 +625,11 @@ public:
         return sOldSpace_;
     }
 
+    SharedOldSpace *GetCompressSpace() const
+    {
+        return sCompressSpace_;
+    }
+
     SharedNonMovableSpace *GetNonMovableSpace() const
     {
         return sNonMovableSpace_;
@@ -647,6 +667,7 @@ public:
     template<TriggerGCType gcType, GCReason gcReason>
     void CollectGarbage(JSThread *thread);
 
+    void CollectGarbageNearOOM(JSThread *thread);
     // Only means the main body of SharedGC is finished, i.e. if parallel_gc is enabled, this flags will be set
     // to true even if sweep_task and clear_task is running asynchronously
     void NotifyGCCompleted();            // In daemon thread
@@ -818,7 +839,7 @@ public:
 
     inline void MergeToOldSpaceSync(SharedLocalSpace *localSpace);
 
-    void DumpHeapSnapshotBeforeOOM(bool isFullGC, JSThread *thread);
+    void DumpHeapSnapshotBeforeOOM(bool isFullGC, JSThread *thread, SharedHeapOOMSource source);
 
     inline void ProcessSharedNativeDelete(const WeakRootVisitor& visitor);
     inline void PushToSharedNativePointerList(JSNativePointer* pointer);
@@ -838,7 +859,7 @@ public:
 
 private:
     void ProcessAllGCListeners();
-    inline void CollectGarbageFinish(bool inDaemon, TriggerGCType gcType);
+    void CollectGarbageFinish(bool inDaemon, TriggerGCType gcType);
     
     void MoveOldSpaceToAppspawn();
 
@@ -900,6 +921,7 @@ private:
     size_t growingStep_ {0};
     size_t incNativeSizeTriggerSharedCM_ {0};
     size_t incNativeSizeTriggerSharedGC_ {0};
+    size_t fragmentationLimitForSharedFullGC_ {0};
     std::atomic<size_t> nativeSizeAfterLastGC_ {0};
     bool inHeapProfiler_ {false};
     CVector<JSNativePointer *> sharedNativePointerList_;
@@ -951,6 +973,11 @@ public:
     OldSpace *GetOldSpace() const
     {
         return oldSpace_;
+    }
+
+    OldSpace *GetCompressSpace() const
+    {
+        return compressSpace_;
     }
 
     NonMovableSpace *GetNonMovableSpace() const
@@ -1351,6 +1378,16 @@ public:
         return recordObjSizeBeforeSensitive_;
     }
 
+    void SetNearGCInSensitive(bool flag)
+    {
+        nearGCInSensitive_ = flag;
+    }
+
+    bool IsNearGCInSensitive()
+    {
+        return nearGCInSensitive_;
+    }
+
     bool CASSensitiveStatus(AppSensitiveStatus expect, AppSensitiveStatus status)
     {
         return smartGCStats_.sensitiveStatus_.compare_exchange_strong(expect, status, std::memory_order_seq_cst);
@@ -1453,6 +1490,11 @@ public:
         return nativeBindingSize_;
     }
 
+    size_t GetNativeBindingSizeAfterLastGC() const
+    {
+        return nativeBindingSizeAfterLastGC_;
+    }
+
     size_t GetGlobalNativeSize() const
     {
         return GetNativeBindingSize() + nativeAreaAllocator_->GetNativeMemoryUsage();
@@ -1514,16 +1556,6 @@ public:
     bool IsGeneralYoungGC() const
     {
         return gcType_ == TriggerGCType::YOUNG_GC || gcType_ == TriggerGCType::EDEN_GC;
-    }
-
-    bool IsProcessingRset() const
-    {
-        return isProcessingRset_;
-    }
-
-    void SetProcessingRset(bool processing)
-    {
-        isProcessingRset_ = processing;
     }
 
     void EnableEdenGC();
@@ -1749,7 +1781,6 @@ private:
     bool fullMarkRequested_ {false};
     bool oldSpaceLimitAdjusted_ {false};
     bool enableIdleGC_ {false};
-    bool isProcessingRset_ {false};
     std::atomic_bool isCSetClearing_ {false};
     HeapMode mode_ { HeapMode::NORMAL };
 
@@ -1776,6 +1807,8 @@ private:
     size_t recordNativeSize_ {0};
     // Record heap object size before enter sensitive status
     size_t recordObjSizeBeforeSensitive_ {0};
+    bool nearGCInSensitive_ {false};
+
     size_t pendingAsyncNativeCallbackSize_ {0};
     MemGrowingType memGrowingtype_ {MemGrowingType::HIGH_THROUGHPUT};
 
@@ -1805,6 +1838,7 @@ private:
 
     friend panda::test::HProfTestHelper;
     friend panda::test::GCTest_CallbackTask_Test;
+    friend panda::test::HeapTestHelper;
 };
 }  // namespace panda::ecmascript
 

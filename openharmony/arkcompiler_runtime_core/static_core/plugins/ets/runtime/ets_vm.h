@@ -29,6 +29,7 @@
 #include "libpandabase/utils/expected.h"
 #include "libpandabase/os/mutex.h"
 #include "runtime/include/compiler_interface.h"
+#include "runtime/include/external_callback_poster.h"
 #include "runtime/include/gc_task.h"
 #include "runtime/include/language_context.h"
 #include "runtime/include/managed_thread.h"
@@ -57,10 +58,8 @@
 #include "plugins/ets/runtime/napi/ets_napi.h"
 #include "plugins/ets/runtime/types/ets_object.h"
 #include "plugins/ets/runtime/job_queue.h"
-#include "plugins/ets/runtime/ets_external_callback_poster.h"
 #include "plugins/ets/runtime/ets_handle_scope.h"
 #include "plugins/ets/runtime/ets_handle.h"
-#include "plugins/ets/runtime/ets_taskpool.h"
 
 namespace ark::ets {
 
@@ -272,16 +271,6 @@ public:
         return jobQueue_.get();
     }
 
-    Taskpool *GetTaskpool()
-    {
-        return taskpool_;
-    }
-
-    const Taskpool *GetTaskpool() const
-    {
-        return taskpool_;
-    }
-
     void InitJobQueue(JobQueue *jobQueue)
     {
         ASSERT(jobQueue_ == nullptr);
@@ -393,6 +382,8 @@ private:
     template <bool REF_CAN_BE_NULL>
     static void UpdateMovedVmRef(Value &ref);
 
+    static void UpdateManagedEntrypointArgRefs(EtsCoroutine *coroutine);
+
     void InitializeRandomEngine()
     {
         ASSERT(!randomEngine_);
@@ -421,7 +412,6 @@ private:
     os::memory::Mutex finalizationRegistryLock_;
     PandaList<EtsObject *> registeredFinalizationRegistryInstances_ GUARDED_BY(finalizationRegistryLock_);
     PandaUniquePtr<JobQueue> jobQueue_;
-    Taskpool *taskpool_ {nullptr};
     PandaUniquePtr<CallbackPosterFactoryIface> callbackPosterFactory_;
     // optional for lazy initialization
     std::optional<std::mt19937> randomEngine_;

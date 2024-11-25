@@ -784,6 +784,9 @@ bool ContainsLiteralArrayInHeader(const std::array<uint8_t, File::VERSION_SIZE> 
 
 bool File::ValidateChecksum(uint32_t *cal_checksum_out) const
 {
+    if (UNLIKELY(GetHeader() == nullptr)) {
+        LOG(FATAL, PANDAFILE) << "Header pointer is nullptr. Abc file is corrupted";
+    }
     constexpr uint32_t CHECKSUM_SIZE = 4U;
     // The checksum calculation does not include magic or checksum, so the offset needs to be added
     constexpr uint32_t FILE_CONTENT_OFFSET = File::MAGIC_SIZE + CHECKSUM_SIZE;
@@ -800,6 +803,7 @@ bool File::ValidateChecksum(uint32_t *cal_checksum_out) const
 void File::ThrowIfWithCheck(bool cond, const std::string_view& msg, const std::string_view& tag) const
 {
     if (UNLIKELY(cond)) {
+#ifndef SUPPORT_KNOWN_EXCEPTION
         uint32_t cal_checksum = 0;
         bool is_checksum_match = ValidateChecksum(&cal_checksum);
         if (!is_checksum_match) {
@@ -813,7 +817,9 @@ void File::ThrowIfWithCheck(bool cond, const std::string_view& msg, const std::s
         } else {
             LOG(FATAL, PANDAFILE) << msg;
         }
+#else
+        throw helpers::FileAccessException(msg);
+#endif
     }
 }
-
 }  // namespace panda::panda_file

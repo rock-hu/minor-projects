@@ -16,30 +16,65 @@
 #ifndef CPP_ABCKIT_CORE_ANNOTATION_H
 #define CPP_ABCKIT_CORE_ANNOTATION_H
 
-#include "libabckit/include/c/abckit.h"
-#include "cpp/headers/declarations.h"
-#include "cpp/headers/core/annotation_interface.h"
-#include "cpp/headers/config.h"
-#include "cpp/headers/base_classes.h"
+#include "./annotation_interface.h"
+#include "../base_classes.h"
 
 namespace abckit::core {
 
+/**
+ * @brief Annotation
+ */
 class Annotation : public View<AbckitCoreAnnotation *> {
+    /// @brief core::Function
     friend class core::Function;
+    /// @brief arkts::Function
     friend class arkts::Function;
+    /// @brief core::Class
     friend class core::Class;
+    /// @brief arkts::Class
     friend class arkts::Class;
+    /// @brief abckit::DefaultHash<Annotation>
+    friend class abckit::DefaultHash<Annotation>;
 
 public:
+    /**
+     * @brief Construct a new Annotation object
+     * @param other
+     */
     Annotation(const Annotation &other) = default;
+
+    /**
+     * @brief Constructor
+     * @param other
+     * @return Annotation&
+     */
     Annotation &operator=(const Annotation &other) = default;
+
+    /**
+     * @brief Construct a new Annotation object
+     * @param other
+     */
     Annotation(Annotation &&other) = default;
+
+    /**
+     * @brief Constructor
+     * @param other
+     * @return Annotation&
+     */
     Annotation &operator=(Annotation &&other) = default;
+
+    /**
+     * @brief Destroy the Annotation object
+     */
     ~Annotation() override = default;
 
     // Core API's.
     // ...
 
+    /**
+     * @brief Get the Interface object
+     * @return core::AnnotationInterface
+     */
     core::AnnotationInterface GetInterface()
     {
         AnnotationInterface iface(GetApiConfig()->cIapi_->annotationGetInterface(GetView()), GetApiConfig());
@@ -52,6 +87,10 @@ private:
     const ApiConfig *conf_;
 
 protected:
+    /**
+     * @brief Get the Api Config object
+     * @return const ApiConfig*
+     */
     const ApiConfig *GetApiConfig() const override
     {
         return conf_;

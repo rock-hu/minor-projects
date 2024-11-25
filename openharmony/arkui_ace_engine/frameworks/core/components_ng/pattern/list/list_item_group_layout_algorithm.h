@@ -378,6 +378,11 @@ public:
         return { forwardCachedIndex_, backwardCachedIndex_ };
     }
 
+    int32_t GetListItemCount() const
+    {
+        return static_cast<int32_t>(itemPosition_.size());
+    }
+
 private:
     float CalculateLaneCrossOffset(float crossSize, float childCrossSize);
     void UpdateListItemConstraint(const OptionalSizeF& selfIdealSize, LayoutConstraintF& contentConstraint);
@@ -425,7 +430,8 @@ private:
     static void SetListItemIndex(const LayoutWrapper* groupLayoutWrapper,
         const RefPtr<LayoutWrapper>& itemLayoutWrapper, int32_t indexInGroup);
     bool IsCardStyleForListItemGroup(const LayoutWrapper* groupLayoutWrapper);
-    float GetListItemGroupMaxWidth(const OptionalSizeF& parentIdealSize, RefPtr<LayoutProperty> layoutProperty);
+    void UpdateListItemGroupMaxWidth(const OptionalSizeF& parentIdealSize, RefPtr<LayoutProperty> layoutProperty,
+        OptionalSizeF& contentIdealSize);
     void AdjustItemPosition();
     bool CheckNeedMeasure(const RefPtr<LayoutWrapper>& layoutWrapper) const;
     void MeasureCacheItem(LayoutWrapper* layoutWrapper);
@@ -433,7 +439,7 @@ private:
     void MeasureCacheBackward(LayoutWrapper* layoutWrapper, ListItemGroupCacheParam& param);
     void LayoutCacheItem(LayoutWrapper* layoutWrapper, const OffsetF& paddingOffset, float crossSize, bool show);
     void CheckUpdateGroupAndItemPos(LayoutWrapper* layoutWrapper, const OffsetF& paddingOffset, float crossSize);
-    void UpdateCachedItemPosition();
+    void UpdateCachedItemPosition(int32_t cacheCount);
     void UpdateLayoutedItemInfo();
 
     bool isCardStyle_ = false;

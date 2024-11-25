@@ -110,11 +110,11 @@ checker::Type *ETSTuple::CalculateLUBForTuple(checker::ETSChecker *const checker
     }
     // Other case - promote element types
     // NOTE(vpukhov): #15570 normalization happens or not?
-    std::for_each(typeList.begin(), typeList.end(), [checker](auto &t) { t = checker->MaybePromotedBuiltinType(t); });
+    std::for_each(typeList.begin(), typeList.end(), [checker](auto &t) { t = checker->MaybeBoxType(t); });
 
     auto ctypes = typeList;
     if (spreadType != nullptr) {
-        spreadType = checker->MaybePromotedBuiltinType(spreadType);
+        spreadType = checker->MaybeBoxType(spreadType);
         ctypes.push_back(spreadType);
     }
     return checker->CreateETSUnionType(std::move(ctypes));
@@ -142,9 +142,12 @@ checker::Type *ETSTuple::GetType(checker::ETSChecker *const checker)
 
     auto *spreadElementType = spreadType_ != nullptr ? spreadType_->TsType() : nullptr;
 
-    auto *const tupleType = checker->Allocator()->New<checker::ETSTupleType>(
+    checker::Type *tupleType = checker->Allocator()->New<checker::ETSTupleType>(
         typeList, CalculateLUBForTuple(checker, typeList, &spreadElementType), spreadElementType);
 
+    if (IsReadonlyType()) {
+        tupleType = checker->GetReadonlyType(tupleType);
+    }
     SetTsType(tupleType);
     return TsType();
 }
@@ -152,6 +155,8 @@ checker::Type *ETSTuple::GetType(checker::ETSChecker *const checker)
 ETSTuple *ETSTuple::Clone(ArenaAllocator *const allocator, AstNode *const parent)
 {
     if (auto *const clone = allocator->New<ETSTuple>(allocator, size_); clone != nullptr) {
+        clone->AddModifier(flags_);
+
         if (parent != nullptr) {
             clone->SetParent(parent);
         }

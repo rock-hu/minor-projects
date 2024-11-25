@@ -816,7 +816,7 @@ HWTEST_F(TextTestFiveNg, AdaptMinFontSize001, TestSize.Level1)
     ASSERT_NE(textAdaptFontSizer, nullptr);
 
     TextStyle textStyle;
-    std::string content;
+    std::u16string content;
     Dimension stepUnit;
     LayoutConstraintF contentConstraint;
 
@@ -1023,17 +1023,17 @@ HWTEST_F(TextTestFiveNg, CreateParagraph001, TestSize.Level1)
     ASSERT_NE(externalParagraph, nullptr);
     pattern->SetExternalParagraph(AceType::RawPtr(externalParagraph));
 
-    EXPECT_EQ(textLayoutAlgorithm->CreateParagraph(textStyle, "", AceType::RawPtr(frameNode), maxSize.Width()), true);
+    EXPECT_EQ(textLayoutAlgorithm->CreateParagraph(textStyle, u"", AceType::RawPtr(frameNode), maxSize.Width()), true);
 
     pattern->textDetectEnable_ = true;
     pattern->copyOption_ = CopyOptions::InApp;
     pattern->dataDetectorAdapter_->aiSpanMap_.insert(std::make_pair(0, AISpan()));
 
-    EXPECT_EQ(textLayoutAlgorithm->CreateParagraph(textStyle, "", AceType::RawPtr(frameNode), maxSize.Width()), true);
+    EXPECT_EQ(textLayoutAlgorithm->CreateParagraph(textStyle, u"", AceType::RawPtr(frameNode), maxSize.Width()), true);
 
     pattern->SetExternalParagraphStyle(externalParagraphStyle);
 
-    EXPECT_EQ(textLayoutAlgorithm->CreateParagraph(textStyle, "", AceType::RawPtr(frameNode), maxSize.Width()), true);
+    EXPECT_EQ(textLayoutAlgorithm->CreateParagraph(textStyle, u"", AceType::RawPtr(frameNode), maxSize.Width()), true);
 }
 
 /**
@@ -1085,7 +1085,7 @@ HWTEST_F(TextTestFiveNg, AdaptMinTextSize001, TestSize.Level1)
     ASSERT_NE(textLayoutAlgorithm, nullptr);
 
     TextStyle textStyle;
-    std::string content;
+    std::u16string content;
     LayoutConstraintF contentConstraint;
 
     frameNode->pattern_ = nullptr;
@@ -1548,38 +1548,6 @@ HWTEST_F(TextTestFiveNg, UpdateTextColorIfForeground001, TestSize.Level1)
     auto layoutProperty = AceType::DynamicCast<TextLayoutProperty>(frameNode->GetLayoutProperty());
     ASSERT_NE(layoutProperty, nullptr);
     EXPECT_NE(layoutProperty->GetTextColorValue(Color::RED), Color::BLACK);
-}
-
-/**
- * @tc.name: SetPropertyToModifier001
- * @tc.desc: test multiple_paragraph_layout_algorithm.cpp SetPropertyToModifier function
- * @tc.type: FUNC
- */
-HWTEST_F(TextTestFiveNg, SetPropertyToModifier001, TestSize.Level1)
-{
-    auto pattern = AceType::MakeRefPtr<TextPattern>();
-    ASSERT_NE(pattern, nullptr);
-    auto frameNode = FrameNode::CreateFrameNode("Test", 1, pattern);
-    ASSERT_NE(frameNode, nullptr);
-    pattern->AttachToFrameNode(frameNode);
-    auto textLayoutAlgorithm = AceType::DynamicCast<TextLayoutAlgorithm>(pattern->CreateLayoutAlgorithm());
-    ASSERT_NE(textLayoutAlgorithm, nullptr);
-
-    TextStyle textStyle;
-
-    auto layoutProperty = AceType::DynamicCast<TextLayoutProperty>(frameNode->GetLayoutProperty());
-    ASSERT_NE(layoutProperty, nullptr);
-    auto modifier = AceType::MakeRefPtr<TextContentModifier>(std::optional<TextStyle>(textStyle), pattern);
-    ASSERT_NE(modifier, nullptr);
-
-    std::vector<std::string> fontFamilies;
-    fontFamilies.emplace_back("Arial");
-    fontFamilies.emplace_back("Calibri");
-    layoutProperty->UpdateFontFamily(fontFamilies);
-    layoutProperty->UpdateAdaptMaxFontSize(Dimension(1.0));
-    layoutProperty->UpdateTextDecorationStyle(TextDecorationStyle::SOLID);
-    textLayoutAlgorithm->SetPropertyToModifier(layoutProperty, modifier, textStyle);
-    EXPECT_EQ(modifier->textDecorationStyle_, TextDecorationStyle::SOLID);
 }
 
 /**

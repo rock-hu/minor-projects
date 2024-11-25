@@ -14,13 +14,13 @@
  */
 
 @interface Author {
-    authorName: string
+    authorName: string = "1"
 }
 
 @Author
 function foo1(){}
 
-@Author("11")
+@Author("-11")
 function foo2(){}
 
 @Author({authorName: "22"})

@@ -89,8 +89,16 @@ public:
     {
         auto layoutProp = GetLayoutProperty<ToastLayoutProperty>();
         CHECK_NULL_RETURN(layoutProp, false);
-        auto showMode = layoutProp->GetShowModeValue(ToastShowMode::SYSTEM_TOP_MOST);
+        auto showMode = layoutProp->GetShowModeValue(ToastShowMode::DEFAULT);
         return showMode == ToastShowMode::SYSTEM_TOP_MOST;
+    }
+
+    bool IsTopMostToast() const
+    {
+        auto layoutProp = GetLayoutProperty<ToastLayoutProperty>();
+        CHECK_NULL_RETURN(layoutProp, false);
+        auto showMode = layoutProp->GetShowModeValue(ToastShowMode::DEFAULT);
+        return showMode == ToastShowMode::TOP_MOST;
     }
 
     bool AvoidKeyboard() const override
@@ -128,10 +136,18 @@ public:
         return toastInfo_;
     }
 
-    bool IsShowInFreeMultiWindow();
+    bool IsShowInFreeMultiWindow() const;
 
-    bool IsUIExtensionSubWindow();
+    bool IsUIExtensionSubWindow() const;
+
+    bool IsAlignedWithHostWindow() const
+    {
+        return IsUIExtensionSubWindow() && IsTopMostToast();
+    }
+
+    void InitUIExtensionHostWindowRect();
     
+    RefPtr<PipelineContext> GetToastContext();
 private:
     void BeforeCreateLayoutWrapper() override;
     void UpdateToastSize(const RefPtr<FrameNode>& toast);
@@ -146,6 +162,9 @@ private:
     double GetTextMaxWidth();
     int32_t GetTextLineHeight(const RefPtr<FrameNode>& textNode);
 
+    void AdjustOffsetForKeyboard(Dimension& offsetY, double toastBottom, float textHeight);
+    NG::SizeF GetSystemTopMostSubwindowSize() const;
+
     RefPtr<FrameNode> textNode_;
     std::optional<int32_t> foldDisplayModeChangedCallbackId_;
     std::optional<int32_t> halfFoldHoverChangedCallbackId_;
@@ -156,6 +175,7 @@ private:
     Rect wrapperRect_;
     bool isHoverMode_ = false;
     bool expandDisplay_ = false;
+    Rect uiExtensionHostWindowRect_;
 };
 } // namespace OHOS::Ace::NG
 #endif // FOUNDATION_ACE_FRAMEWORKS_CORE_COMPONENTS_NG_PATTERNS_TOAST_TOAST_PATTERN_H

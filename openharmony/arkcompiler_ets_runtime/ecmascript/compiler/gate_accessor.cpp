@@ -325,6 +325,15 @@ TypedArrayMetaDataAccessor GateAccessor::GetTypedArrayMetaDataAccessor(GateRef g
     return TypedArrayMetaDataAccessor(gatePtr->GetOneParameterMetaData()->GetValue());
 }
 
+void GateAccessor::UpdateOnHeapMode(GateRef gate, OnHeapMode onHeapMode)
+{
+    ASSERT(GetOpCode(gate) == OpCode::TYPED_ARRAY_CHECK);
+    Gate *gatePtr = circuit_->LoadGatePtr(gate);
+    TypedArrayMetaDataAccessor accessor = GetTypedArrayMetaDataAccessor(gate);
+    uint64_t value = accessor.UpdateOnHeapMode(onHeapMode);
+    const_cast<OneParameterMetaData *>(gatePtr->GetOneParameterMetaData())->SetValue(value);
+}
+
 LoadElementAccessor GateAccessor::GetLoadElementAccessor(GateRef gate) const
 {
     ASSERT(GetOpCode(gate) == OpCode::LOAD_ELEMENT);
@@ -409,14 +418,23 @@ bool GateAccessor::HasNumberType(GateRef gate) const
     return false;
 }
 
-bool GateAccessor::HasStringType(GateRef gate) const
+bool GateAccessor::HasStringType(GateRef gate, bool onlyInternString) const
 {
     OpCode op = GetOpCode(gate);
     if (op == OpCode::TYPED_BINARY_OP) {
         TypedBinaryAccessor accessor(TryGetValue(gate));
-        return accessor.GetParamType().IsStringType();
+        bool isInternString = accessor.GetParamType().IsInternStringType();
+        if (onlyInternString) {
+            return isInternString;
+        }
+        return isInternString || accessor.GetParamType().IsStringType();
     }
     return false;
+}
+
+bool GateAccessor::IsInternStringType(GateRef gate) const
+{
+    return HasStringType(gate, true);
 }
 
 GlobalTSTypeRef GateAccessor::GetFuncGT(GateRef gate) const

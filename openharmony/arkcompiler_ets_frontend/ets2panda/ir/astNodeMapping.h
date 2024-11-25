@@ -16,6 +16,7 @@
 #ifndef ES2PANDA_IR_AST_NODE_MAPPING_H
 #define ES2PANDA_IR_AST_NODE_MAPPING_H
 
+// CC-OFFNXT(G.PRE.06) solid logic
 // NOLINTBEGIN(cppcoreguidelines-macro-usage)
 #define AST_NODE_MAPPING(_)                                                               \
     _(ARROW_FUNCTION_EXPRESSION, ArrowFunctionExpression)                                 \
@@ -84,6 +85,7 @@
     _(STRING_LITERAL, StringLiteral)                                                      \
     _(ETS_NULL_TYPE, ETSNullType)                                                         \
     _(ETS_UNDEFINED_TYPE, ETSUndefinedType)                                               \
+    _(ETS_NEVER_TYPE, ETSNeverType)                                                       \
     _(ETS_STRING_LITERAL_TYPE, ETSStringLiteralType)                                      \
     _(ETS_FUNCTION_TYPE, ETSFunctionType)                                                 \
     _(ETS_WILDCARD_TYPE, ETSWildcardType)                                                 \

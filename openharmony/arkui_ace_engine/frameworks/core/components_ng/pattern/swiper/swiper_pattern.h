@@ -49,6 +49,7 @@ class SwiperPattern : public NestableScrollContainer {
 
 public:
     using CustomContentTransitionPtr = std::shared_ptr<std::function<TabContentAnimatedTransition(int32_t, int32_t)>>;
+    using PanEventFunction = std::function<void(const GestureEvent& info)>;
 
     SwiperPattern();
     ~SwiperPattern() override = default;
@@ -296,7 +297,7 @@ public:
 
     bool HasIndicatorNode() const
     {
-        return indicatorId_.has_value() || GetIndicatorNode() != nullptr;
+        return indicatorId_.has_value();
     }
 
     bool HasLeftButtonNode() const
@@ -309,12 +310,15 @@ public:
         return rightButtonId_.has_value();
     }
 
-    int32_t GetIndicatorId()
+    int32_t CreateIndicatorId()
     {
-        if (!indicatorId_.has_value()) {
-            indicatorId_ = ElementRegister::GetInstance()->MakeUniqueId();
-        }
+        indicatorId_ = ElementRegister::GetInstance()->MakeUniqueId();
         return indicatorId_.value();
+    }
+
+    int32_t GetIndicatorId() const
+    {
+        return indicatorId_.has_value() ? indicatorId_.value() : -1;
     }
 
     int32_t GetLeftButtonId()
@@ -626,40 +630,8 @@ public:
         return isTouchDownOnOverlong_;
     }
 
-    bool IsBindIndicator() const
-    {
-        return isBindIndicator_;
-    }
+    bool IsAutoPlay() const;
 
-    void SetBindIndicator(bool bind)
-    {
-        isBindIndicator_ = bind;
-    }
- 
-    void SetIndicatorNode(WeakPtr<NG::UINode>& indicatorNode)
-    {
-        if (isBindIndicator_) {
-            indicatorNode_ = indicatorNode;
-            auto host = GetHost();
-            CHECK_NULL_VOID(host);
-            host->MarkDirtyNode(PROPERTY_UPDATE_RENDER);
-
-            auto frameIndicatorNode = GetIndicatorNode();
-            CHECK_NULL_VOID(frameIndicatorNode);
-            frameIndicatorNode->MarkDirtyNode(PROPERTY_UPDATE_RENDER);
-        }
-    }
-
-    RefPtr<FrameNode> GetIndicatorNode() const
-    {
-        auto refUINode = indicatorNode_.Upgrade();
-        CHECK_NULL_RETURN(refUINode, nullptr);
-        auto frameNode = DynamicCast<FrameNode>(refUINode);
-        CHECK_NULL_RETURN(frameNode, nullptr);
-        return frameNode;
-    }
-
-    bool IsFocusNodeInItemPosition(const RefPtr<FrameNode>& focusNode);
 private:
     void OnModifyDone() override;
     void OnAfterModifyDone() override;
@@ -674,6 +646,9 @@ private:
     void InitPanEvent(const RefPtr<GestureEventHub>& gestureHub);
     void AddPanEvent(const RefPtr<GestureEventHub>& gestureHub, GestureEventFunc&& actionStart,
         GestureEventFunc&& actionUpdate, GestureEventFunc&& actionEnd, GestureEventNoParameter&& actionCancel);
+    PanEventFunction ActionStartTask();
+    PanEventFunction ActionUpdateTask();
+    PanEventFunction ActionEndTask();
 
     // Init touch event, stop animation when touch down.
     void InitTouchEvent(const RefPtr<GestureEventHub>& gestureHub);
@@ -695,6 +670,7 @@ private:
     void HandleDragUpdate(const GestureEvent& info);
     void HandleDragEnd(double dragVelocity);
 
+    bool InsideIndicatorRegion(const TouchLocationInfo& locationInfo);
     void HandleTouchEvent(const TouchEventInfo& info);
     void HandleTouchDown(const TouchLocationInfo& locationInfo);
     void HandleTouchUp();
@@ -762,7 +738,6 @@ private:
     int32_t GetInterval() const;
     RefPtr<Curve> GetCurve() const;
     EdgeEffect GetEdgeEffect() const;
-    bool IsAutoPlay() const;
     bool IsDisableSwipe() const;
     bool IsShowIndicator() const;
     std::pair<int32_t, SwiperItemInfo> GetFirstItemInfoInVisibleArea() const;
@@ -773,6 +748,7 @@ private:
     void SetDigitStartAndEndProperty(const RefPtr<FrameNode>& indicatorNode);
     void UpdatePaintProperty(const RefPtr<FrameNode>& indicatorNode);
     void PostTranslateTask(uint32_t delayTime);
+    void HandleVisibleChange(bool visible);
     void RegisterVisibleAreaChange();
     bool NeedAutoPlay() const;
     void OnTranslateFinish(int32_t nextIndex, bool restartAutoPlay, bool isFinishAnimation, bool forceStop = false,
@@ -843,6 +819,10 @@ private:
      */
     inline bool DuringTranslateAnimation() const;
     /**
+     * @return true if any translate animation (switching page / spring) is running, ignore animation pause etc.
+     */
+    inline bool RunningTranslateAnimation() const;
+    /**
      * @return true if fade animation is running, false otherwise.
      */
     inline bool DuringFadeAnimation() const;
@@ -863,6 +843,8 @@ private:
      * @param offset The scroll offset from DragUpdate.
      */
     void CloseTheGap(float& offset);
+
+    void HandleOutBoundarySelf(float offset, float& selfOffset, float& remainOffset);
 
     ScrollResult HandleOutBoundary(float offset, int32_t source, float velocity);
 
@@ -988,7 +970,6 @@ private:
     bool NeedForceMeasure() const;
     void SetIndicatorChangeIndexStatus(bool withAnimation, std::optional<int32_t> startIndex = std::nullopt);
     void SetIndicatorJumpIndex(std::optional<int32_t> jumpIndex);
-    bool ParseTabsIsRtl();
 
     void PostIdleTask(const RefPtr<FrameNode>& frameNode);
 
@@ -1114,7 +1095,6 @@ private:
     std::optional<int32_t> uiCastJumpIndex_;
     std::optional<int32_t> jumpIndex_;
     std::optional<int32_t> targetIndex_;
-    std::optional<int32_t> preTargetIndex_;
     std::optional<int32_t> pauseTargetIndex_;
     std::optional<int32_t> oldChildrenSize_;
     std::optional<int32_t> oldRealTotalCount_;
@@ -1183,13 +1163,6 @@ private:
     std::set<int32_t> cachedItems_;
     LayoutConstraintF layoutConstraint_;
     bool requestLongPredict_ = false;
-    WeakPtr<NG::UINode> indicatorNode_;
-    bool isBindIndicator_ = false;
-    RefPtr<FrameNode> GetCommonIndicatorNode();
-    bool IsIndicator(const std::string& tag) const
-    {
-        return tag == V2::SWIPER_INDICATOR_ETS_TAG || tag == V2::INDICATOR_ETS_TAG;
-    }
 };
 } // namespace OHOS::Ace::NG
 

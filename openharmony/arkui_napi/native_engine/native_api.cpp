@@ -1149,10 +1149,9 @@ NAPI_EXTERN napi_status napi_get_array_length(napi_env env, napi_value value, ui
 
     auto vm = reinterpret_cast<NativeEngine*>(env)->GetEcmaVm();
     bool isArrayOrSharedArray = false;
-    auto nativeValue = reinterpret_cast<panda::JSValueRef *>(value);
+    panda::Local<panda::JSValueRef> nativeValue = LocalValueFromJsValue(value);
     nativeValue->TryGetArrayLength(vm, &isArrayOrSharedArray, result);
     if (!isArrayOrSharedArray) {
-        HILOG_ERROR("argument is not type of array or sharedarray");
         return napi_set_last_error(env, napi_array_expected);
     }
     return napi_clear_last_error(env);
@@ -2876,10 +2875,13 @@ NAPI_EXTERN napi_status napi_get_version(napi_env env, uint32_t* result)
 NAPI_EXTERN napi_status napi_create_promise(napi_env env, napi_deferred* deferred, napi_value* promise)
 {
     NAPI_PREAMBLE(env);
+    auto engine = reinterpret_cast<NativeEngine*>(env);
+    if (panda::JSNApi::HasPendingException(engine->GetEcmaVm())) {
+        return napi_pending_exception;
+    }
     CHECK_ARG(env, deferred);
     CHECK_ARG(env, promise);
 
-    auto engine = reinterpret_cast<NativeEngine*>(env);
     NativeDeferred* nativeDeferred = nullptr;
     auto resultValue = engine->CreatePromise(&nativeDeferred);
     if (LocalValueFromJsValue(resultValue)->IsUndefined()) {
@@ -4132,6 +4134,21 @@ NAPI_EXTERN napi_status napi_encode(napi_env env, napi_value src, napi_value* re
     Local<panda::StringRef> stringVal(nativeValue);
     Local<TypedArrayRef> typedArray = stringVal->EncodeIntoUint8Array(vm);
     *result = JsValueFromLocalValue(typedArray);
+
+    return napi_clear_last_error(env);
+}
+
+NAPI_EXTERN napi_status napi_is_bitvector(napi_env env, napi_value value, bool* result)
+{
+    CHECK_ENV(env);
+    CHECK_ARG(env, value);
+    CHECK_ARG(env, result);
+
+    auto nativeValue = LocalValueFromJsValue(value);
+    auto vm = reinterpret_cast<NativeEngine*>(env)->GetEcmaVm();
+    panda::JsiFastNativeScope fastNativeScope(vm);
+
+    *result = nativeValue->IsBitVector(vm);
 
     return napi_clear_last_error(env);
 }

@@ -136,7 +136,7 @@ MemMap MemMapAllocator::Allocate(const uint32_t threadId, size_t size, size_t al
         memMapPool_.InsertMemMap(mem);
         mem = memMapPool_.SplitMemFromCache(mem);
     } else {
-        if (UNLIKELY(memMapTotalSize_ + size > capacity_)) {
+        if (UNLIKELY(memMapTotalSize_ + size > capacity_)) { // LCOV_EXCL_BR_LINE
             LOG_GC(ERROR) << "memory map overflow";
             return MemMap();
         }
@@ -181,7 +181,7 @@ void MemMapAllocator::Free(void *mem, size_t size, bool isRegular)
 {
     memMapTotalSize_ -= size;
     PageTag(mem, size, PageTagType::MEMPOOL_CACHE);
-    if (!PageProtect(mem, size, PAGE_PROT_NONE)) {
+    if (!PageProtect(mem, size, PAGE_PROT_NONE)) { // LCOV_EXCL_BR_LINE
         return;
     }
     PageRelease(mem, size);
@@ -197,5 +197,11 @@ void MemMapAllocator::AdapterSuitablePoolCapacity()
     size_t physicalSize = PhysicalSize();
     capacity_ = std::min<size_t>(physicalSize * DEFAULT_CAPACITY_RATE, MAX_MEM_POOL_CAPACITY);
     LOG_GC(INFO) << "Ark Auto adapter memory pool capacity:" << capacity_;
+}
+
+void MemMapAllocator::TransferToInfiniteModeForGC()
+{
+    capacity_ = std::numeric_limits<size_t>::max();
+    LOG_GC(INFO) << "MemMapAllocator transfer to infinite mode:" << capacity_;
 }
 }  // namespace panda::ecmascript

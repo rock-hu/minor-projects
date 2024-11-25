@@ -16,24 +16,50 @@
 #ifndef CPP_ABCKIT_ARKTS_IMPORT_DESCRIPTOR_H
 #define CPP_ABCKIT_ARKTS_IMPORT_DESCRIPTOR_H
 
-#include "libabckit/include/c/abckit.h"
-#include "cpp/headers/declarations.h"
-#include "cpp/headers/config.h"
-#include "cpp/headers/base_classes.h"
-#include "cpp/headers/core/import_descriptor.h"
+#include "../core/import_descriptor.h"
 
 namespace abckit::arkts {
 
+/**
+ * @brief ImportDescriptor
+ */
 class ImportDescriptor final : public core::ImportDescriptor {
-    // To access private constructor.
     // We restrict constructors in order to prevent C/C++ API mix-up by user.
+    /// @brief to access private constructor
     friend class abckit::File;
+    /// @brief abckit::DefaultHash<ImportDescriptor>
+    friend class abckit::DefaultHash<ImportDescriptor>;
 
 public:
+    /**
+     * @brief Construct a new Import Descriptor object
+     * @param other
+     */
     ImportDescriptor(const ImportDescriptor &other) = default;
+
+    /**
+     * @brief Constructor
+     * @param other
+     * @return ImportDescriptor&
+     */
     ImportDescriptor &operator=(const ImportDescriptor &other) = default;
+
+    /**
+     * @brief Construct a new Import Descriptor object
+     * @param other
+     */
     ImportDescriptor(ImportDescriptor &&other) = default;
+
+    /**
+     * @brief Constructor
+     * @param other
+     * @return ImportDescriptor&
+     */
     ImportDescriptor &operator=(ImportDescriptor &&other) = default;
+
+    /**
+     * @brief Destroy the Import Descriptor object
+     */
     ~ImportDescriptor() override = default;
     // Other API.
     // ...

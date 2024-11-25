@@ -16,28 +16,59 @@
 #ifndef CPP_ABCKIT_LITERAL_ARRAY_H
 #define CPP_ABCKIT_LITERAL_ARRAY_H
 
-#include "libabckit/include/c/abckit.h"
-#include "cpp/headers/declarations.h"
-#include "cpp/headers/config.h"
-#include "cpp/headers/base_classes.h"
-#include "libabckit/include/c/metadata_core.h"
-
-#include <vector>
+#include "./base_classes.h"
 
 namespace abckit {
 
+/**
+ * @brief LiteralArray
+ */
 class LiteralArray : public View<AbckitLiteralArray *> {
+    /// @brief abckit::File
     friend class abckit::File;
+    /// @brief abckit::Literal
     friend class abckit::Literal;
+    /// @brief abckit::DefaultHash<LiteralArray>
+    friend class abckit::DefaultHash<LiteralArray>;
 
 public:
+    /**
+     * @brief Construct a new Literal Array object
+     * @param other
+     */
     LiteralArray(const LiteralArray &other) = default;
+
+    /**
+     * @brief Constructor
+     * @param other
+     * @return LiteralArray&
+     */
     LiteralArray &operator=(const LiteralArray &other) = default;
+
+    /**
+     * @brief Construct a new Literal Array object
+     * @param other
+     */
     LiteralArray(LiteralArray &&other) = default;
+
+    /**
+     * @brief Constructor
+     * @param other
+     * @return LiteralArray&
+     */
     LiteralArray &operator=(LiteralArray &&other) = default;
+
+    /**
+     * @brief Destroy the Literal Array object
+     *
+     */
     ~LiteralArray() override = default;
 
 protected:
+    /**
+     * @brief Get the Api Config object
+     * @return const ApiConfig*
+     */
     const ApiConfig *GetApiConfig() const override
     {
         return conf_;

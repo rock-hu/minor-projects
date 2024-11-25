@@ -238,10 +238,7 @@ ArkUI_CharPtr GetName(ArkUINodeHandle node)
     return ViewModel::GetName(node);
 }
 
-static void DumpTree(ArkUINodeHandle node, int indent)
-{
-    TAG_LOGI(AceLogTag::ACE_NATIVE_NODE, "dumpTree %{public}p", node);
-}
+static void DumpTree(ArkUINodeHandle node, int indent) {}
 
 void DumpTreeNode(ArkUINodeHandle node)
 {
@@ -304,14 +301,10 @@ ArkUI_Int32 InsertChildBefore(ArkUINodeHandle parent, ArkUINodeHandle child, Ark
     return ERROR_CODE_NO_ERROR;
 }
 
-void SetAttribute(ArkUINodeHandle node, ArkUI_CharPtr attribute, ArkUI_CharPtr value)
-{
-    TAG_LOGE(AceLogTag::ACE_NATIVE_NODE, "%{public}p SetAttribute %{public}s, %{public}s", node, attribute, value);
-}
+void SetAttribute(ArkUINodeHandle node, ArkUI_CharPtr attribute, ArkUI_CharPtr value) {}
 
 ArkUI_CharPtr GetAttribute(ArkUINodeHandle node, ArkUI_CharPtr attribute)
 {
-    TAG_LOGE(AceLogTag::ACE_NATIVE_NODE, "%{public}p GetAttribute %{public}s", node, attribute);
     return "";
 }
 
@@ -336,7 +329,7 @@ const ComponentAsyncEventHandler commonNodeAsyncEventHandlers[] = {
     NodeModifier::SetOnClick,
     NodeModifier::SetOnHover,
     NodeModifier::SetOnBlur,
-    nullptr,
+    NodeModifier::SetOnKeyEvent,
     NodeModifier::SetOnMouse,
     NodeModifier::SetOnAreaChange,
     nullptr,
@@ -353,6 +346,7 @@ const ComponentAsyncEventHandler commonNodeAsyncEventHandlers[] = {
     NodeModifier::SetOnDragLeave,
     NodeModifier::SetOnDragEnd,
     NodeModifier::SetOnPreDrag,
+    NodeModifier::SetOnKeyPreIme,
 };
 
 const ComponentAsyncEventHandler scrollNodeAsyncEventHandlers[] = {
@@ -436,6 +430,7 @@ const ComponentAsyncEventHandler TIME_PICKER_NODE_ASYNC_EVENT_HANDLERS[] = {
 
 const ComponentAsyncEventHandler TEXT_PICKER_NODE_ASYNC_EVENT_HANDLERS[] = {
     NodeModifier::SetTextPickerOnChange,
+    NodeModifier::SetTextPickerOnScrollStop,
 };
 
 const ComponentAsyncEventHandler CALENDAR_PICKER_NODE_ASYNC_EVENT_HANDLERS[] = {
@@ -535,7 +530,7 @@ const ResetComponentAsyncEventHandler COMMON_NODE_RESET_ASYNC_EVENT_HANDLERS[] =
     NodeModifier::ResetOnClick,
     NodeModifier::ResetOnHover,
     NodeModifier::ResetOnBlur,
-    nullptr,
+    NodeModifier::ResetOnKeyEvent,
     NodeModifier::ResetOnMouse,
     NodeModifier::ResetOnAreaChange,
     NodeModifier::ResetOnVisibleAreaChange,
@@ -545,6 +540,14 @@ const ResetComponentAsyncEventHandler COMMON_NODE_RESET_ASYNC_EVENT_HANDLERS[] =
     NodeModifier::ResetOnAttach,
     NodeModifier::ResetOnDetach,
     nullptr,
+    NodeModifier::ResetOnDragStart,
+    NodeModifier::ResetOnDragEnter,
+    NodeModifier::ResetOnDragDrop,
+    NodeModifier::ResetOnDragMove,
+    NodeModifier::ResetOnDragLeave,
+    NodeModifier::ResetOnDragEnd,
+    NodeModifier::ResetOnPreDrag,
+    NodeModifier::ResetOnKeyPreIme,
 };
 
 const ResetComponentAsyncEventHandler SCROLL_NODE_RESET_ASYNC_EVENT_HANDLERS[] = {
@@ -1878,12 +1881,7 @@ ArkUIExtendedNodeAPI impl_extended = {
 /* clang-format on */
 
 void CanvasDrawRect(ArkUICanvasHandle canvas, ArkUI_Float32 left, ArkUI_Float32 top, ArkUI_Float32 right,
-    ArkUI_Float32 bottom, ArkUIPaintHandle paint)
-{
-    TAG_LOGI(AceLogTag::ACE_NATIVE_NODE,
-        "DrawRect canvas=%{public}p [%{public}f, %{public}f, %{public}f, %{public}f]\n", canvas, left, top, right,
-        bottom);
-}
+    ArkUI_Float32 bottom, ArkUIPaintHandle paint) {}
 
 const ArkUIGraphicsCanvas* GetCanvasAPI()
 {

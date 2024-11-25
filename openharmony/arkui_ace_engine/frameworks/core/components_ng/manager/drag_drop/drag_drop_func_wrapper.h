@@ -30,7 +30,7 @@ class ACE_FORCE_EXPORT DragDropFuncWrapper {
 public:
     static int32_t StartDragAction(std::shared_ptr<OHOS::Ace::NG::ArkUIInteralDragAction> dragAction);
     static void SetDraggingPointerAndPressedState(int32_t currentPointerId, int32_t containerId);
-    static void DecideWhetherToStopDragging(const PointerEvent& pointerEvent,
+    static void DecideWhetherToStopDragging(const DragPointerEvent& pointerEvent,
         const std::string& extraParams, int32_t currentPointerId, int32_t containerId);
     static void UpdateDragPreviewOptionsFromModifier(
         std::function<void(WeakPtr<FrameNode>)> applyOnNodeSync, DragPreviewOption& options);
@@ -49,6 +49,7 @@ public:
     static std::string GetSummaryString(const std::map<std::string, int64_t>& summary);
     static void SetExtraInfo(int32_t containerId, std::string extraInfo);
     static std::string GetAnonyString(const std::string &fullString);
+    static OffsetF GetPaintRectCenter(const RefPtr<FrameNode>& frameNode, bool checkWindowBoundary = true);
 };
 } // namespace OHOS::Ace::NG
 

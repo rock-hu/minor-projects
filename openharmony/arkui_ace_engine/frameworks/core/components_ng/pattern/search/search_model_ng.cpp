@@ -110,14 +110,19 @@ RefPtr<SearchNode> SearchModelNG::CreateSearchNode(int32_t nodeId, const std::op
 
     // Set search background
     auto renderContext = frameNode->GetRenderContext();
-    auto textFieldTheme = frameNode->GetContext()->GetTheme<TextFieldTheme>();
+    CHECK_NULL_RETURN(renderContext, frameNode);
+    auto context = frameNode->GetContext();
+    CHECK_NULL_RETURN(context, frameNode);
+    auto textFieldTheme = context->GetTheme<TextFieldTheme>();
+    CHECK_NULL_RETURN(textFieldTheme, frameNode);
     auto radius = textFieldTheme->GetBorderRadius();
     BorderRadiusProperty borderRadius { radius.GetX(), radius.GetY(), radius.GetY(), radius.GetX() };
     renderContext->UpdateBorderRadius(borderRadius);
 
-    auto layoutProperty = frameNode->GetLayoutProperty<SearchLayoutProperty>();
     auto textFieldFrameNode = AceType::DynamicCast<FrameNode>(frameNode->GetChildAtIndex(TEXTFIELD_INDEX));
+    CHECK_NULL_RETURN(textFieldFrameNode, frameNode);
     auto textFieldPattern = textFieldFrameNode->GetPattern<TextFieldPattern>();
+    CHECK_NULL_RETURN(textFieldPattern, frameNode);
     pattern->SetSearchController(textFieldPattern->GetTextFieldController());
     pattern->UpdateChangeEvent(textFieldPattern->GetTextValue());
 
@@ -518,7 +523,7 @@ void SearchModelNG::SetHeight(const Dimension& height)
     NG::ViewAbstract::SetHeight(NG::CalcLength(height));
 }
 
-void SearchModelNG::SetOnSubmit(std::function<void(const std::string&)>&& onSubmit)
+void SearchModelNG::SetOnSubmit(std::function<void(const std::string&, NG::TextFieldCommonEvent&)>&& onSubmit)
 {
     auto frameNode = ViewStackProcessor::GetInstance()->GetMainFrameNode();
     CHECK_NULL_VOID(frameNode);
@@ -796,6 +801,7 @@ void SearchModelNG::CreateTextField(const RefPtr<SearchNode>& parentNode, const 
         pattern->SetTextFieldNode(frameNode);
         frameNode->MountToParent(parentNode);
     }
+    pattern->SetMaxFontSizeScale(MAX_FONT_SCALE);
 }
 
 void SearchModelNG::TextFieldUpdateContext(const RefPtr<FrameNode>& frameNode)
@@ -859,7 +865,7 @@ void SearchModelNG::CreateButton(const RefPtr<SearchNode>& parentNode, bool hasB
     buttonRenderContext->UpdateClipEdge(true);
     auto textFrameNode = AceType::DynamicCast<FrameNode>(frameNode->GetChildren().front());
     auto textLayoutProperty = textFrameNode->GetLayoutProperty<TextLayoutProperty>();
-    std::string defaultText = "Search";
+    std::u16string defaultText = u"Search";
     textLayoutProperty->UpdateContent(defaultText);
     textLayoutProperty->UpdateTextColor(searchTheme->GetSearchButtonTextColor());
     textLayoutProperty->UpdateFontSize(searchTheme->GetFontSize());
@@ -1603,7 +1609,8 @@ void SearchModelNG::SetTextDecorationStyle(FrameNode* frameNode, Ace::TextDecora
     textFieldChild->MarkDirtyNode(PROPERTY_UPDATE_MEASURE);
 }
 
-void SearchModelNG::SetOnSubmit(FrameNode* frameNode, std::function<void(const std::string&)>&& onSubmit)
+void SearchModelNG::SetOnSubmit(
+    FrameNode* frameNode, std::function<void(const std::string&, NG::TextFieldCommonEvent&)>&& onSubmit)
 {
     CHECK_NULL_VOID(frameNode);
     auto eventHub = frameNode->GetEventHub<SearchEventHub>();

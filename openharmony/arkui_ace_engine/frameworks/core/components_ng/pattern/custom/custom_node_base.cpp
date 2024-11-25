@@ -46,11 +46,18 @@ void CustomNodeBase::Update()
 void CustomNodeBase::MarkNeedUpdate()
 {
     if (recycleRenderFunc_) {
+        TAG_LOGW(
+            AceLogTag::ACE_STATE_MGMT, "[%{public}s] call markNeedUpdate in recycle/reuse", GetJSViewName().c_str());
         return;
     }
     auto context = PipelineContext::GetCurrentContext();
-    CHECK_NULL_VOID(context);
+    if (!context) {
+        TAG_LOGW(AceLogTag::ACE_STATE_MGMT, "context no longer exist when [%{public}s] call markNeedUpdate",
+            GetJSViewName().c_str());
+        return;
+    }
     if (needRebuild_) {
+        TAG_LOGW(AceLogTag::ACE_STATE_MGMT, "[%{public}s] call markNeedUpdate in rebuild", GetJSViewName().c_str());
         return;
     }
     needRebuild_ = true;
@@ -93,5 +100,29 @@ void CustomNodeBase::SetOnDumpInfoFunc(std::function<void(const std::vector<std:
 void CustomNodeBase::SetOnDumpInspectorFunc(std::function<std::string()>&& func)
 {
     onDumpInspectorFunc_ = func;
+}
+
+void CustomNodeBase::SetOnRecycleFunc(std::function<void()>&& func)
+{
+    onRecycleFunc_ = func;
+}
+
+void CustomNodeBase::SetOnReuseFunc(std::function<void(void*)>&& func)
+{
+    onReuseFunc_ = func;
+}
+
+void CustomNodeBase::FireOnRecycleFunc()
+{
+    if (onRecycleFunc_) {
+        onRecycleFunc_();
+    }
+}
+
+void CustomNodeBase::FireOnReuseFunc(void* params)
+{
+    if (onReuseFunc_) {
+        onReuseFunc_(params);
+    }
 }
 } // namespace OHOS::Ace::NG

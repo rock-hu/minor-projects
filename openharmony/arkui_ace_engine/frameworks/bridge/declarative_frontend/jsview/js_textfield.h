@@ -73,10 +73,6 @@ public:
         CalcDimension& topRight, CalcDimension& bottomLeft, CalcDimension& bottomRight);
     static void ParseBorderRadius(const JSRef<JSVal>& args);
     static void JsBorderRadius(const JSCallbackInfo& info);
-    static void JsOutline(const JSCallbackInfo& info);
-    static void JsOutlineWidth(const JSCallbackInfo& info);
-    static void JsOutlineColor(const JSCallbackInfo& info);
-    static void JsOutlineRadius(const JSCallbackInfo& info);
     static void JsHoverEffect(const JSCallbackInfo& info);
     static void SetOnEditChanged(const JSCallbackInfo& info);
     static void SetOnSubmit(const JSCallbackInfo& info);
@@ -140,6 +136,7 @@ public:
 private:
     static void SetCancelIconColorAndIconSrc(const JSRef<JSObject>& iconParam);
     static void SetCancelDefaultIcon();
+    static void ResetCancelIcon();
     static void SetCancelSymbolIcon(const JSCallbackInfo& info);
 };
 

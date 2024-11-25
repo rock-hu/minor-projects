@@ -68,10 +68,13 @@ void FunctionDeclaration::Dump(ir::AstDumper *dumper) const
 
 void FunctionDeclaration::Dump(ir::SrcDumper *dumper) const
 {
+    for (auto *anno : annotations_) {
+        anno->Dump(dumper);
+    }
     if (func_->IsNative()) {
         dumper->Add("native ");
     }
-    if (func_->Declare()) {
+    if (func_->IsDeclare()) {
         dumper->Add("declare ");
     }
     if (func_->IsAsyncFunc()) {
@@ -87,6 +90,7 @@ void FunctionDeclaration::Dump(ir::SrcDumper *dumper) const
                 param->AsETSParameterExpression()->Ident()->TypeAnnotation()->IsETSTypeReference() &&
                 param->AsETSParameterExpression()->Ident()->TypeAnnotation()->AsETSTypeReference()->Part() != nullptr &&
                 param->AsETSParameterExpression()->Ident()->TypeAnnotation()->AsETSTypeReference()->Part()->Name() !=
+                    // CC-OFFNXT(G.FMT.02-CPP) project code style
                     nullptr &&
                 param->AsETSParameterExpression()
                     ->Ident()

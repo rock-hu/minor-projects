@@ -51,7 +51,7 @@ def parse_type(data: str) -> dict:
 
             res["other_modifiers"] = f"{res['other_modifiers']} {modifier}".strip(" ")
 
-    # Weakness (<>)
+    # NOTE(@Zhelyapov Aleksey) Weakness (<>)
     start_of_parenthes = data.find("(")
     if start_of_parenthes != -1:
         start_of_parenthes, end_of_parenthes = find_scope_borders(data, start_of_parenthes, "(")
@@ -99,7 +99,7 @@ def extract_type_name(data: str, res: Dict[str, Any]) -> int:
 
     # Extract type name
     while type_name in modifiers_list or type_name == "":
-        prefix_modifiers += f" {type_name}" 
+        prefix_modifiers += f" {type_name}"
 
         type_name_start = find_first_not_restricted_character(" <*", data, type_name_end)
         type_name_end = find_first_of_characters(" <(*", data, type_name_start)

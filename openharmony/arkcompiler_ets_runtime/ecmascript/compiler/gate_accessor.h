@@ -406,7 +406,8 @@ public:
     TypedBinOp GetTypedBinaryOp(GateRef gate) const;
     TypedCallTargetCheckOp GetTypedCallTargetCheckOp(GateRef gate) const;
     bool HasNumberType(GateRef gate) const;
-    bool HasStringType(GateRef gate) const;
+    bool HasStringType(GateRef gate, bool onlyInternString = false) const;
+    bool IsInternStringType(GateRef gate) const;
     GlobalTSTypeRef GetFuncGT(GateRef gate) const;
     GateType GetParamGateType(GateRef gate) const;
     ParamType GetParamType(GateRef gate) const;
@@ -623,6 +624,7 @@ public:
 
     TypedBinOp GetRevCompareOpForTypedBinOp(TypedBinOp op);
     TypedBinOp GetSwapCompareOpForTypedBinOp(TypedBinOp op);
+    void UpdateOnHeapMode(GateRef gate, OnHeapMode onHeapMode);
 
 private:
     const GateMetaData *GetMetaData(GateRef gate) const;

@@ -655,6 +655,8 @@ void TextSelectController::UpdateCaretOffset(TextAffinity textAffinity, bool mov
     caretInfo_.rect = caretRect;
     if (moveHandle) {
         MoveHandleToContentRect(caretInfo_.rect, 0.0f);
+    } else {
+        AdjustHandleAtEdge(caretInfo_.rect);
     }
     UpdateCaretOriginalRect(caretMetrics.offset);
 }
@@ -678,12 +680,16 @@ void TextSelectController::UpdateSecondHandleInfoByMouseOffset(const Offset& loc
     UpdateCaretOffset(TextAffinity::UPSTREAM);
 }
 
-void TextSelectController::MoveSecondHandleByKeyBoard(int32_t index)
+void TextSelectController::MoveSecondHandleByKeyBoard(int32_t index, std::optional<TextAffinity> textAffinity)
 {
     index = std::clamp(index, 0, static_cast<int32_t>(contentController_->GetWideText().length()));
     MoveSecondHandleToContentRect(index);
     caretInfo_.index = index;
-    UpdateCaretOffset(HasReverse() ? TextAffinity::DOWNSTREAM : TextAffinity::UPSTREAM);
+    auto caretTextAffinity = HasReverse() ? TextAffinity::DOWNSTREAM : TextAffinity::UPSTREAM;
+    if (textAffinity) {
+        caretTextAffinity = textAffinity.value();
+    }
+    UpdateCaretOffset(caretTextAffinity);
     auto caretRect = GetCaretRect();
     MoveHandleToContentRect(caretRect);
     caretInfo_.rect = caretRect;
@@ -887,8 +893,8 @@ void TextSelectController::SetCaretRectAtEmptyValue()
 
 void TextSelectController::UpdateCaretOriginalRect(const OffsetF& offset)
 {
-    caretInfo_.originalRect.SetOffset(offset);
-    caretInfo_.originalRect.SetHeight(caretInfo_.originalRect.Height());
+    caretInfo_.originalRect.SetOffset(OffsetF(offset.GetX(), caretInfo_.rect.Top()));
+    caretInfo_.originalRect.SetHeight(caretInfo_.rect.Height());
     AdjustHandleAtEdge(caretInfo_.originalRect);
 }
 } // namespace OHOS::Ace::NG

@@ -118,7 +118,7 @@ bool ConfirmCurPointerEventInfo(
     };
     int32_t sourceTool = -1;
     bool getPointSuccess = container->GetCurPointerEventInfo(dragAction->pointer, dragAction->x, dragAction->y,
-        dragAction->sourceType, sourceTool, std::move(stopDragCallback));
+        dragAction->sourceType, sourceTool, dragAction->displayId, std::move(stopDragCallback));
     if (dragAction->sourceType == SOURCE_TYPE_MOUSE) {
         dragAction->pointer = MOUSE_POINTER_ID;
     } else if (dragAction->sourceType == SOURCE_TYPE_TOUCH && sourceTool == SOURCE_TOOL_PEN) {
@@ -132,9 +132,6 @@ void EnvelopedDragData(
 {
     auto container = AceEngine::Get().GetContainer(dragAction->instanceId);
     CHECK_NULL_VOID(container);
-    auto displayInfo = container->GetDisplayInfo();
-    CHECK_NULL_VOID(displayInfo);
-    dragAction->displayId = static_cast<int32_t>(displayInfo->GetDisplayId());
 
     std::vector<ShadowInfoCore> shadowInfos;
     GetShadowInfoArray(dragAction, shadowInfos);
@@ -286,7 +283,7 @@ void DragDropFuncWrapper::SetDraggingPointerAndPressedState(int32_t currentPoint
 }
 
 void DragDropFuncWrapper::DecideWhetherToStopDragging(
-    const PointerEvent& pointerEvent, const std::string& extraParams, int32_t currentPointerId, int32_t containerId)
+    const DragPointerEvent& pointerEvent, const std::string& extraParams, int32_t currentPointerId, int32_t containerId)
 {
     auto pipelineContext = PipelineContext::GetContextByContainerId(containerId);
     CHECK_NULL_VOID(pipelineContext);
@@ -424,7 +421,7 @@ void DragDropFuncWrapper::ParseShadowInfo(Shadow& shadow, std::unique_ptr<JsonVa
 
 std::optional<Shadow> DragDropFuncWrapper::GetDefaultShadow()
 {
-    auto pipelineContext = PipelineContext::GetCurrentContext();
+    auto pipelineContext = PipelineContext::GetCurrentContextSafelyWithCheck();
     CHECK_NULL_RETURN(pipelineContext, std::nullopt);
     auto shadowTheme = pipelineContext->GetTheme<ShadowTheme>();
     CHECK_NULL_RETURN(shadowTheme, std::nullopt);
@@ -449,13 +446,14 @@ float DragDropFuncWrapper::RadiusToSigma(float radius)
 std::optional<EffectOption> DragDropFuncWrapper::BrulStyleToEffection(
     const std::optional<BlurStyleOption>& blurStyleOp)
 {
-    auto pipeline = PipelineContext::GetCurrentContext();
+    auto pipeline = PipelineContext::GetCurrentContextSafelyWithCheck();
     CHECK_NULL_RETURN(pipeline, std::nullopt);
     auto blurStyleTheme = pipeline->GetTheme<BlurStyleTheme>();
     if (!blurStyleTheme) {
         LOGW("cannot find theme of blurStyle, create blurStyle failed");
         return std::nullopt;
     }
+    CHECK_NULL_RETURN(blurStyleOp, std::nullopt);
     ThemeColorMode colorMode = blurStyleOp->colorMode;
     if (blurStyleOp->colorMode == ThemeColorMode::SYSTEM) {
         colorMode = SystemProperties::GetColorMode() == ColorMode::DARK ? ThemeColorMode::DARK : ThemeColorMode::LIGHT;
@@ -518,5 +516,33 @@ std::string DragDropFuncWrapper::GetAnonyString(const std::string &fullString)
             .append(fullString, strLen - PLAINTEXT_LENGTH, PLAINTEXT_LENGTH);
     }
     return anonyStr;
+}
+
+// returns a node's offset relative to window plus half of self rect size(w, h)
+// and accumulate every ancestor node's graphic properties such as rotate and transform
+// ancestor will NOT check boundary of window scene
+OffsetF DragDropFuncWrapper::GetPaintRectCenter(const RefPtr<FrameNode>& frameNode, bool checkWindowBoundary)
+{
+    CHECK_NULL_RETURN(frameNode, OffsetF());
+    auto context = frameNode->GetRenderContext();
+    CHECK_NULL_RETURN(context, OffsetF());
+    auto paintRect = context->GetPaintRectWithoutTransform();
+    auto offset = paintRect.GetOffset();
+    PointF pointNode(offset.GetX() + paintRect.Width() / 2.0f, offset.GetY() + paintRect.Height() / 2.0f);
+    context->GetPointTransformRotate(pointNode);
+    auto parent = frameNode->GetAncestorNodeOfFrame();
+    while (parent) {
+        if (checkWindowBoundary && parent->IsWindowBoundary()) {
+            break;
+        }
+        auto renderContext = parent->GetRenderContext();
+        CHECK_NULL_RETURN(renderContext, OffsetF());
+        offset = renderContext->GetPaintRectWithoutTransform().GetOffset();
+        pointNode.SetX(offset.GetX() + pointNode.GetX());
+        pointNode.SetY(offset.GetY() + pointNode.GetY());
+        renderContext->GetPointTransformRotate(pointNode);
+        parent = parent->GetAncestorNodeOfFrame();
+    }
+    return OffsetF(pointNode.GetX(), pointNode.GetY());
 }
 } // namespace OHOS::Ace

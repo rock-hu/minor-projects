@@ -47,10 +47,12 @@ uintptr_t LinearSpace::Allocate(size_t size, bool isPromoted)
         return object;
     }
     if (Expand(isPromoted)) {
-        if (!isPromoted && !localHeap_->NeedStopCollection()) {
-            localHeap_->TryTriggerIncrementalMarking();
-            localHeap_->TryTriggerIdleCollection();
-            localHeap_->TryTriggerConcurrentMarking();
+        if (!isPromoted) {
+            if (!localHeap_->NeedStopCollection() || localHeap_->IsNearGCInSensitive()) {
+                localHeap_->TryTriggerIncrementalMarking();
+                localHeap_->TryTriggerIdleCollection();
+                localHeap_->TryTriggerConcurrentMarking();
+            }
         }
         object = allocator_.Allocate(size);
     } else if (localHeap_->IsMarking() || !localHeap_->IsEmptyIdleTask()) {
@@ -193,7 +195,7 @@ EdenSpace::~EdenSpace()
 void EdenSpace::Initialize()
 {
     auto region = AllocRegion();
-    if (UNLIKELY(region == nullptr)) {
+    if (UNLIKELY(region == nullptr)) { // LCOV_EXCL_BR_LINE
         LOG_GC(ERROR) << "EdenSpace::Initialize: region is nullptr";
         return;
     }
@@ -388,7 +390,7 @@ bool SemiSpace::SwapRegion(Region *region, SemiSpace *fromSpace)
 
     region->SetGCFlag(RegionGCFlags::IN_NEW_TO_NEW_SET);
 
-    if (UNLIKELY(heap_->ShouldVerifyHeap())) {
+    if (UNLIKELY(heap_->ShouldVerifyHeap())) { // LCOV_EXCL_BR_LINE
         region->ResetInactiveSemiSpace();
     }
 
@@ -444,19 +446,20 @@ bool SemiSpace::AdjustCapacity(size_t allocatedSizeSinceGC, JSThread *thread)
     if (allocatedSizeSinceGC <= initialCapacity_ * GROW_OBJECT_SURVIVAL_RATE / GROWING_FACTOR) {
         return false;
     }
+    size_t committedSize = GetCommittedSize();
     double curObjectSurvivalRate = static_cast<double>(survivalObjectSize_) / allocatedSizeSinceGC;
-    double initialObjectRate = static_cast<double>(survivalObjectSize_) / initialCapacity_;
-    if (curObjectSurvivalRate > GROW_OBJECT_SURVIVAL_RATE || initialObjectRate > GROW_OBJECT_SURVIVAL_RATE) {
-        if (GetCommittedSize() > maximumCapacity_
-            && GetHeapObjectSize() > GetCommittedSize() *  GROW_OBJECT_SURVIVAL_RATE) {
-            // Overshoot size is too large. Avoid heapObjectSize is too close to committed size.
-            AddOverShootSize(GetCommittedSize() * SHRINK_OBJECT_SURVIVAL_RATE);
-        }
-        if (initialCapacity_ >= maximumCapacity_) {
-            return false;
-        }
+    double committedSurvivalRate = static_cast<double>(committedSize) / initialCapacity_;
+    SetOverShootSize(0);
+    if (curObjectSurvivalRate > GROW_OBJECT_SURVIVAL_RATE || committedSurvivalRate > GROW_OBJECT_SURVIVAL_RATE) {
         size_t newCapacity = initialCapacity_ * GROWING_FACTOR;
+        while (committedSize >= newCapacity && newCapacity < maximumCapacity_) {
+            newCapacity = newCapacity * GROWING_FACTOR;
+        }
         SetInitialCapacity(std::min(newCapacity, maximumCapacity_));
+        if (committedSize >= initialCapacity_ * GROW_OBJECT_SURVIVAL_RATE) {
+            // Overshoot size is too large. Avoid heapObjectSize is too close to committed size.
+            SetOverShootSize(committedSize);
+        }
         if (newCapacity == maximumCapacity_) {
             localHeap_->GetJSObjectResizingStrategy()->UpdateGrowStep(
                 thread,

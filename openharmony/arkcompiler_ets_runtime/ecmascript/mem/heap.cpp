@@ -151,6 +151,15 @@ bool SharedHeap::CheckHugeAndTriggerSharedGC(JSThread *thread, size_t size)
     return false;
 }
 
+void SharedHeap::CollectGarbageNearOOM(JSThread *thread)
+{
+    auto fragmentationSize = sOldSpace_->GetCommittedSize() - sOldSpace_->GetHeapObjectSize();
+    if (fragmentationSize >= fragmentationLimitForSharedFullGC_) {
+        CollectGarbage<TriggerGCType::SHARED_FULL_GC,  GCReason::ALLOCATION_FAILED>(thread);
+    } else {
+        CollectGarbage<TriggerGCType::SHARED_GC, GCReason::ALLOCATION_FAILED>(thread);
+    }
+}
 // Shared gc trigger
 void SharedHeap::AdjustGlobalSpaceAllocLimit()
 {
@@ -213,7 +222,7 @@ void SharedHeap::Initialize(NativeAreaAllocator *nativeAreaAllocator, HeapRegion
     growingStep_ = config_.GetSharedHeapLimitGrowingStep();
     incNativeSizeTriggerSharedCM_= config_.GetStepNativeSizeInc();
     incNativeSizeTriggerSharedGC_ = config_.GetMaxNativeSizeInc();
-
+    fragmentationLimitForSharedFullGC_ = config_.GetFragmentationLimitForSharedFullGC();
     dThread_ = dThread;
 }
 
@@ -567,7 +576,7 @@ void SharedHeap::TryTriggerLocalConcurrentMarking()
         return;
     }
     if (reinterpret_cast<std::atomic<bool>*>(&localFullMarkTriggered_)->exchange(true, std::memory_order_relaxed)
-            != false) {
+            != false) { // LCOV_EXCL_BR_LINE
         return;
     }
     ASSERT(localFullMarkTriggered_ == true);
@@ -596,6 +605,36 @@ size_t SharedHeap::VerifyHeapObjects(VerifyKind verifyKind) const
         sAppSpawnSpace_->IterateOverMarkedObjects(verifier);
     }
     return failCount;
+}
+
+void SharedHeap::CollectGarbageFinish(bool inDaemon, TriggerGCType gcType)
+{
+    if (inDaemon) {
+        ASSERT(JSThread::GetCurrent() == dThread_);
+#ifndef NDEBUG
+        ASSERT(dThread_->HasLaunchedSuspendAll());
+#endif
+        dThread_->FinishRunningTask();
+        NotifyGCCompleted();
+        // Update to forceGC_ is in DaemeanSuspendAll, and protected by the Runtime::mutatorLock_,
+        // so do not need lock.
+        smartGCStats_.forceGC_ = false;
+    }
+    localFullMarkTriggered_ = false;
+    // Record alive object size after shared gc and other stats
+    UpdateHeapStatsAfterGC(gcType);
+    // Adjust shared gc trigger threshold
+    AdjustGlobalSpaceAllocLimit();
+    GetEcmaGCStats()->RecordStatisticAfterGC();
+    GetEcmaGCStats()->PrintGCStatistic();
+    ProcessAllGCListeners();
+    if (shouldThrowOOMError_ || shouldForceThrowOOMError_) {
+        // LocalHeap could do FullGC later instead of Fatal at once if only set `shouldThrowOOMError_` because there
+        // is kind of partial compress GC in LocalHeap, but SharedHeap differs.
+        DumpHeapSnapshotBeforeOOM(false, Runtime::GetInstance()->GetMainThread(), SharedHeapOOMSource::SHARED_GC);
+        LOG_GC(FATAL) << "SharedHeap OOM";
+        UNREACHABLE();
+    }
 }
 
 bool SharedHeap::IsReadyToConcurrentMark() const
@@ -659,22 +698,41 @@ void SharedHeap::ReclaimForAppSpawn()
     sHugeObjectSpace_->EnumerateRegions(cb);
 }
 
-void SharedHeap::DumpHeapSnapshotBeforeOOM([[maybe_unused]]bool isFullGC, [[maybe_unused]]JSThread *thread)
+void SharedHeap::DumpHeapSnapshotBeforeOOM([[maybe_unused]]bool isFullGC, [[maybe_unused]]JSThread *thread,
+                                           [[maybe_unused]] SharedHeapOOMSource source)
 {
+#if defined(ECMASCRIPT_SUPPORT_SNAPSHOT) && defined(PANDA_TARGET_OHOS) && defined(ENABLE_HISYSEVENT)
+    if (!g_betaVersion && !g_developMode) {
+        LOG_ECMA(INFO)
+            << "SharedHeap::DumpHeapSnapshotBeforeOOM, current device is not development or beta! do not dump";
+        return;
+    }
+#endif
 #if defined(ECMASCRIPT_SUPPORT_SNAPSHOT)
 #if defined(ENABLE_DUMP_IN_FAULTLOG)
     EcmaVM *vm = thread->GetEcmaVM();
-    if (vm->GetHeapProfile() != nullptr) {
-        LOG_FULL(INFO) << "GetHeapProfile nullptr";
-        return;
+    HeapProfilerInterface *heapProfile = nullptr;
+    if (source == SharedHeapOOMSource::SHARED_GC) {
+#ifndef NDEBUG
+        // If OOM during SharedGC, use main JSThread and create a new HeapProfile instancre to dump when GC completed.
+        ASSERT(thread == Runtime::GetInstance()->GetMainThread() && JSThread::GetCurrent()->HasLaunchedSuspendAll());
+#endif
+        heapProfile = HeapProfilerInterface::CreateNewInstance(vm);
+    } else {
+        if (vm->GetHeapProfile() != nullptr) {
+            LOG_ECMA(ERROR) << "SharedHeap::DumpHeapSnapshotBeforeOOM, HeapProfile is nullptr";
+            return;
+        }
+        heapProfile = HeapProfilerInterface::GetInstance(vm);
     }
     // Filter appfreeze when dump.
-    LOG_ECMA(INFO) << " DumpHeapSnapshotBeforeOOM, isFullGC" << isFullGC;
+    LOG_ECMA(INFO) << "SharedHeap::DumpHeapSnapshotBeforeOOM, isFullGC = " << isFullGC;
     base::BlockHookScope blockScope;
-    HeapProfilerInterface *heapProfile = HeapProfilerInterface::GetInstance(vm);
     if (appfreezeCallback_ != nullptr && appfreezeCallback_(getprocpid())) {
-        LOG_ECMA(INFO) << " DumpHeapSnapshotBeforeOOM Success. ";
+        LOG_ECMA(INFO) << "SharedHeap::DumpHeapSnapshotBeforeOOM, appfreezeCallback_ success. ";
     }
+    vm->GetEcmaGCKeyStats()->SendSysEventBeforeDump("OOMDump", GetEcmaParamConfiguration().GetMaxHeapSize(),
+                                                    GetHeapObjectSize());
     DumpSnapShotOption dumpOption;
     dumpOption.dumpFormat = DumpFormat::BINARY;
     dumpOption.isVmMode = true;
@@ -685,8 +743,13 @@ void SharedHeap::DumpHeapSnapshotBeforeOOM([[maybe_unused]]bool isFullGC, [[mayb
     dumpOption.isSync = true;
     dumpOption.isBeforeFill = false;
     dumpOption.isDumpOOM = true;
-    heapProfile->DumpHeapSnapshot(dumpOption);
-    HeapProfilerInterface::Destroy(vm);
+    if (source == SharedHeapOOMSource::SHARED_GC) {
+        heapProfile->DumpHeapSnapshotForOOM(dumpOption, true);
+        HeapProfilerInterface::DestroyInstance(heapProfile);
+    } else {
+        heapProfile->DumpHeapSnapshotForOOM(dumpOption);
+        HeapProfilerInterface::Destroy(vm);
+    }
 #endif // ENABLE_DUMP_IN_FAULTLOG
 #endif // ECMASCRIPT_SUPPORT_SNAPSHOT
 }
@@ -728,7 +791,7 @@ void Heap::Initialize()
     readOnlySpace_ = new ReadOnlySpace(this, readOnlySpaceCapacity, readOnlySpaceCapacity);
     appSpawnSpace_ = new AppSpawnSpace(this, maxHeapSize);
     size_t nonmovableSpaceCapacity = config_.GetDefaultNonMovableSpaceSize();
-    if (ecmaVm_->GetJSOptions().WasSetMaxNonmovableSpaceCapacity()) {
+    if (ecmaVm_->GetJSOptions().WasSetMaxNonmovableSpaceCapacity()) { // LCOV_EXCL_BR_LINE
         nonmovableSpaceCapacity = ecmaVm_->GetJSOptions().MaxNonmovableSpaceCapacity();
     }
     nonMovableSpace_ = new NonMovableSpace(this, nonmovableSpaceCapacity, nonmovableSpaceCapacity);
@@ -818,6 +881,10 @@ void Heap::ProcessSharedGCRSetWorkList()
         ASSERT(thread_->IsSharedConcurrentMarkingOrFinished());
         ASSERT(this == sharedGCData_.rSetWorkListHandler_->GetHeap());
         sHeap_->GetSharedGCMarker()->ProcessThenMergeBackRSetFromBoundJSThread(sharedGCData_.rSetWorkListHandler_);
+        // The current thread may end earlier than the deamon thread.
+        // To ensure the accuracy of the state range, set true is executed on js thread and deamon thread.
+        // Reentrant does not cause exceptions because all the values are set to false.
+        thread_->SetProcessingLocalToSharedRset(false);
         ASSERT(sharedGCData_.rSetWorkListHandler_ == nullptr);
     }
 }
@@ -1252,15 +1319,22 @@ void Heap::CollectGarbage(TriggerGCType gcType, GCReason reason)
     }
     // OOMError object is not allowed to be allocated during gc process, so throw OOMError after gc
     if (shouldThrowOOMError_ && gcType_ == TriggerGCType::FULL_GC) {
-        sweeper_->EnsureAllTaskFinished();
         oldSpace_->ResetCommittedOverSizeLimit();
-        if (oldSpace_->CommittedSizeExceed()) {
+        if (oldSpace_->CommittedSizeExceed()) { // LCOV_EXCL_BR_LINE
+            sweeper_->EnsureAllTaskFinished();
             DumpHeapSnapshotBeforeOOM(false);
             StatisticHeapDetail();
             ThrowOutOfMemoryError(thread_, oldSpace_->GetMergeSize(), " OldSpace::Merge");
         }
         oldSpace_->ResetMergeSize();
         shouldThrowOOMError_ = false;
+    }
+    // Allocate region failed during GC, MUST throw OOM here
+    if (shouldForceThrowOOMError_) {
+        sweeper_->EnsureAllTaskFinished();
+        DumpHeapSnapshotBeforeOOM(false);
+        StatisticHeapDetail();
+        ThrowOutOfMemoryError(thread_, DEFAULT_REGION_SIZE, " HeapRegionAllocator::AllocateAlignedRegion");
     }
     // Update record heap object size after gc if in sensitive status
     if (GetSensitiveStatus() == AppSensitiveStatus::ENTER_HIGH_SENSITIVE) {
@@ -1367,7 +1441,7 @@ void BaseHeap::FatalOutOfMemoryError(size_t size, std::string functionName)
 
 void Heap::CheckNonMovableSpaceOOM()
 {
-    if (nonMovableSpace_->GetHeapObjectSize() > MAX_NONMOVABLE_LIVE_OBJ_SIZE) {
+    if (nonMovableSpace_->GetHeapObjectSize() > MAX_NONMOVABLE_LIVE_OBJ_SIZE) { // LCOV_EXCL_BR_LINE
         sweeper_->EnsureAllTaskFinished();
         DumpHeapSnapshotBeforeOOM(false);
         StatisticHeapDetail();
@@ -1513,17 +1587,25 @@ void BaseHeap::OnAllocateEvent([[maybe_unused]] EcmaVM *ecmaVm, [[maybe_unused]]
 
 void Heap::DumpHeapSnapshotBeforeOOM([[maybe_unused]] bool isFullGC)
 {
+#if defined(ECMASCRIPT_SUPPORT_SNAPSHOT) && defined(PANDA_TARGET_OHOS) && defined(ENABLE_HISYSEVENT)
+    if (!g_betaVersion && !g_developMode) {
+        LOG_ECMA(INFO)
+            << "Heap::DumpHeapSnapshotBeforeOOM, current device is not development or beta! do not dump";
+        return;
+    }
+#endif
 #if defined(ECMASCRIPT_SUPPORT_SNAPSHOT)
 #if defined(ENABLE_DUMP_IN_FAULTLOG)
     if (ecmaVm_->GetHeapProfile() != nullptr) {
+        LOG_ECMA(ERROR) << "Heap::DumpHeapSnapshotBeforeOOM, HeapProfile is nullptr";
         return;
     }
     // Filter appfreeze when dump.
-    LOG_ECMA(INFO) << " DumpHeapSnapshotBeforeOOM, isFullGC" << isFullGC;
+    LOG_ECMA(INFO) << " Heap::DumpHeapSnapshotBeforeOOM, isFullGC = " << isFullGC;
     base::BlockHookScope blockScope;
     HeapProfilerInterface *heapProfile = HeapProfilerInterface::GetInstance(ecmaVm_);
     if (appfreezeCallback_ != nullptr && appfreezeCallback_(getprocpid())) {
-        LOG_ECMA(INFO) << " DumpHeapSnapshotBeforeOOM Success. ";
+        LOG_ECMA(INFO) << "Heap::DumpHeapSnapshotBeforeOOM, appfreezeCallback_ success. ";
     }
 #ifdef ENABLE_HISYSEVENT
     GetEcmaGCKeyStats()->SendSysEventBeforeDump("OOMDump", GetHeapLimitSize(), GetLiveObjectSize());
@@ -1540,7 +1622,7 @@ void Heap::DumpHeapSnapshotBeforeOOM([[maybe_unused]] bool isFullGC)
     dumpOption.isSync = true;
     dumpOption.isBeforeFill = false;
     dumpOption.isDumpOOM = true;
-    heapProfile->DumpHeapSnapshot(dumpOption);
+    heapProfile->DumpHeapSnapshotForOOM(dumpOption);
     HeapProfilerInterface::Destroy(ecmaVm_);
 #endif // ENABLE_DUMP_IN_FAULTLOG
 #endif // ECMASCRIPT_SUPPORT_SNAPSHOT
@@ -1637,6 +1719,8 @@ void Heap::RecomputeLimits()
     globalSpaceNativeLimit_ = memController_->CalculateAllocLimit(GetGlobalNativeSize(), MIN_HEAP_SIZE,
                                                                   MAX_GLOBAL_NATIVE_LIMIT, newSpaceCapacity,
                                                                   growingFactor);
+    globalSpaceNativeLimit_ = std::max(globalSpaceNativeLimit_, GetGlobalNativeSize()
+                                        + config_.GetMinNativeLimitGrowingStep());
     OPTIONAL_LOG(ecmaVm_, INFO) << "RecomputeLimits oldSpaceAllocLimit_: " << newOldSpaceLimit
         << " globalSpaceAllocLimit_: " << globalSpaceAllocLimit_
         << " globalSpaceNativeLimit_:" << globalSpaceNativeLimit_;
@@ -1719,7 +1803,7 @@ bool Heap::CheckAndTriggerHintGC(MemoryReduceDegree degree, GCReason reason)
             }
             return result;
         }
-        default:
+        default: // LCOV_EXCL_BR_LINE
             LOG_GC(INFO) << "HintGC invalid degree value: " << static_cast<int>(degree);
             break;
     }
@@ -2157,10 +2241,9 @@ void Heap::ChangeGCParams(bool inBackground)
             SetMemGrowingType(MemGrowingType::CONSERVATIVE);
             LOG_GC(DEBUG) << "Heap Growing Type CONSERVATIVE";
         }
-        concurrentMarker_->EnableConcurrentMarking(EnableConcurrentMarkType::DISABLE);
-        sweeper_->EnableConcurrentSweep(EnableConcurrentSweepType::DISABLE);
-        maxMarkTaskCount_ = 1;
-        maxEvacuateTaskCount_ = 1;
+        maxMarkTaskCount_ = std::min<size_t>(ecmaVm_->GetJSOptions().GetGcThreadNum(),
+            (Taskpool::GetCurrentTaskpool()->GetTotalThreadNum() - 1) / 2);  // 2 means half.
+        maxEvacuateTaskCount_ = Taskpool::GetCurrentTaskpool()->GetTotalThreadNum() / 2; // 2 means half.
         Taskpool::GetCurrentTaskpool()->SetThreadPriority(PriorityMode::BACKGROUND);
     } else {
         LOG_GC(INFO) << "app is not inBackground";
@@ -2336,13 +2419,20 @@ bool Heap::NeedStopCollection()
     if (OnStartupEvent() && !ObjectExceedMaxHeapSize()) {
         return true;
     }
-
-    if (GetRecordHeapObjectSizeBeforeSensitive() == 0) {
-        SetRecordHeapObjectSizeBeforeSensitive(GetHeapObjectSize());
+    size_t objSize = GetHeapObjectSize();
+    size_t recordSizeBeforeSensitive = GetRecordHeapObjectSizeBeforeSensitive();
+    if (recordSizeBeforeSensitive == 0) {
+        recordSizeBeforeSensitive = objSize;
+        SetRecordHeapObjectSizeBeforeSensitive(recordSizeBeforeSensitive);
     }
 
-    if (GetHeapObjectSize() < GetRecordHeapObjectSizeBeforeSensitive() + config_.GetIncObjSizeThresholdInSensitive()
+    if (objSize < recordSizeBeforeSensitive + config_.GetIncObjSizeThresholdInSensitive()
         && !ObjectExceedMaxHeapSize()) {
+        if (!IsNearGCInSensitive() &&
+            objSize > (recordSizeBeforeSensitive + config_.GetIncObjSizeThresholdInSensitive())
+            * MIN_SENSITIVE_OBJECT_SURVIVAL_RATE) {
+            SetNearGCInSensitive(true);
+        }
         return true;
     }
 
@@ -2537,14 +2627,14 @@ void Heap::StatisticHeapObject(TriggerGCType gcType) const
 void Heap::StatisticHeapDetail()
 {
     Prepare();
-    static const int JS_TYPE_LAST = static_cast<int>(JSType::TYPE_LAST);
-    int typeCount[JS_TYPE_LAST] = { 0 };
+    static const int JS_TYPE_SUM = static_cast<int>(JSType::TYPE_LAST) + 1;
+    int typeCount[JS_TYPE_SUM] = { 0 };
     static const int MIN_COUNT_THRESHOLD = 1000;
 
     nonMovableSpace_->IterateOverObjects([&typeCount] (TaggedObject *object) {
         typeCount[static_cast<int>(object->GetClass()->GetObjectType())]++;
     });
-    for (int i = 0; i < JS_TYPE_LAST; i++) {
+    for (int i = 0; i < JS_TYPE_SUM; i++) {
         if (typeCount[i] > MIN_COUNT_THRESHOLD) {
             LOG_ECMA(INFO) << "NonMovable space type " << JSHClass::DumpJSType(JSType(i))
                            << " count:" << typeCount[i];
@@ -2555,7 +2645,7 @@ void Heap::StatisticHeapDetail()
     oldSpace_->IterateOverObjects([&typeCount] (TaggedObject *object) {
         typeCount[static_cast<int>(object->GetClass()->GetObjectType())]++;
     });
-    for (int i = 0; i < JS_TYPE_LAST; i++) {
+    for (int i = 0; i < JS_TYPE_SUM; i++) {
         if (typeCount[i] > MIN_COUNT_THRESHOLD) {
             LOG_ECMA(INFO) << "Old space type " << JSHClass::DumpJSType(JSType(i))
                            << " count:" << typeCount[i];
@@ -2566,7 +2656,7 @@ void Heap::StatisticHeapDetail()
     activeSemiSpace_->IterateOverObjects([&typeCount] (TaggedObject *object) {
         typeCount[static_cast<int>(object->GetClass()->GetObjectType())]++;
     });
-    for (int i = 0; i < JS_TYPE_LAST; i++) {
+    for (int i = 0; i < JS_TYPE_SUM; i++) {
         if (typeCount[i] > MIN_COUNT_THRESHOLD) {
             LOG_ECMA(INFO) << "Active semi space type " << JSHClass::DumpJSType(JSType(i))
                            << " count:" << typeCount[i];
@@ -2706,7 +2796,7 @@ void Heap::ThresholdReachedDump()
             dumpOption.isSync = false;
             dumpOption.isBeforeFill = false;
             dumpOption.isDumpOOM = true; // aim's to do binary dump
-            heapProfile->DumpHeapSnapshot(dumpOption);
+            heapProfile->DumpHeapSnapshotForOOM(dumpOption);
             hasOOMDump_ = false;
             HeapProfilerInterface::Destroy(ecmaVm_);
         }

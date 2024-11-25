@@ -61,6 +61,13 @@ std::unordered_set<AceAction> AccessibilityProperty::GetSupportAction() const
     return supportActions;
 }
 
+void AccessibilityProperty::NotifyComponentChangeEvent(AccessibilityEventType eventType)
+{
+    auto frameNode = host_.Upgrade();
+    CHECK_NULL_VOID(frameNode);
+    frameNode->OnAccessibilityEvent(eventType);
+}
+
 std::string AccessibilityProperty::GetText() const
 {
     return propText_.value_or("");
@@ -264,7 +271,7 @@ bool AccessibilityProperty::HoverTestRecursive(
     PointF selfPoint = parentPoint;
     renderContext->GetPointWithRevert(selfPoint);
     bool hitSelf = rect.IsInnerRegion(selfPoint);
-    if (hitSelf && shouldSearchSelf && IsAccessibilityFocusable(node)) {
+    if (hitSelf && shouldSearchSelf && (IsAccessibilityFocusable(node) || IsTagInModalDialog(node))) {
         hitTarget = true;
         path.push_back(node);
     }
@@ -304,7 +311,17 @@ static const std::set<std::string> TAGS_SUBTREE_COMPONENT = {
     V2::UI_EXTENSION_COMPONENT_ETS_TAG,
     V2::EMBEDDED_COMPONENT_ETS_TAG,
     V2::FORM_ETS_TAG,
-    V2::ISOLATED_COMPONENT_ETS_TAG
+    V2::ISOLATED_COMPONENT_ETS_TAG,
+    V2::WEB_ETS_TAG,
+};
+
+static const std::set<std::string> TAGS_MODAL_DIALOG_COMPONENT = {
+    V2::MENU_WRAPPER_ETS_TAG,
+    V2::POPUP_ETS_TAG,
+    V2::SELECT_ETS_TAG,
+    V2::DIALOG_ETS_TAG,
+    V2::SHEET_PAGE_TAG,
+    V2::SHEET_WRAPPER_TAG,
 };
 
 bool AccessibilityProperty::IsTagInSubTreeComponent(const std::string& tag)
@@ -313,6 +330,12 @@ bool AccessibilityProperty::IsTagInSubTreeComponent(const std::string& tag)
         return true;
     }
     return false;
+}
+
+bool AccessibilityProperty::IsTagInModalDialog(const RefPtr<FrameNode>& node)
+{
+    CHECK_NULL_RETURN(node, false);
+    return TAGS_MODAL_DIALOG_COMPONENT.find(node->GetTag()) != TAGS_MODAL_DIALOG_COMPONENT.end();
 }
 
 std::tuple<bool, bool, bool> AccessibilityProperty::GetSearchStrategy(const RefPtr<FrameNode>& node,
@@ -710,7 +733,16 @@ void AccessibilityProperty::SetAccessibilityFocusState(bool state)
 
 void AccessibilityProperty::SetAccessibilityGroup(bool accessibilityGroup)
 {
+    if (accessibilityGroup == accessibilityGroup_) {
+        return;
+    }
     accessibilityGroup_ = accessibilityGroup;
+    NotifyComponentChangeEvent(AccessibilityEventType::ELEMENT_INFO_CHANGE);
+}
+
+void AccessibilityProperty::SetAccessibilityTextPreferred(bool accessibilityTextPreferred)
+{
+    accessibilityTextPreferred_ = accessibilityTextPreferred;
 }
 
 void AccessibilityProperty::SetChildTreeId(int32_t childTreeId)
@@ -725,19 +757,20 @@ void AccessibilityProperty::SetChildWindowId(int32_t childWindowId)
 
 void AccessibilityProperty::SetAccessibilityText(const std::string& text)
 {
+    if (text == accessibilityText_.value_or("")) {
+        return;
+    }
     accessibilityText_ = text;
+    NotifyComponentChangeEvent(AccessibilityEventType::TEXT_CHANGE);
 }
 
 void AccessibilityProperty::SetAccessibilityTextWithEvent(const std::string& text)
 {
-    auto backupStr = accessibilityText_.value_or("");
-    if (text == backupStr) {
+    if (text == accessibilityText_.value_or("")) {
         return;
     }
     accessibilityText_ = text;
-    auto frameNode = host_.Upgrade();
-    CHECK_NULL_VOID(frameNode);
-    frameNode->OnAccessibilityEvent(AccessibilityEventType::TEXT_CHANGE, backupStr, text);
+    NotifyComponentChangeEvent(AccessibilityEventType::TEXT_CHANGE);
 }
 
 void AccessibilityProperty::SetAccessibilityTextHint(const std::string& text)
@@ -747,24 +780,30 @@ void AccessibilityProperty::SetAccessibilityTextHint(const std::string& text)
 
 void AccessibilityProperty::SetAccessibilityDescription(const std::string& accessibilityDescription)
 {
+    if (accessibilityDescription == accessibilityDescription_.value_or("")) {
+        return;
+    }
     accessibilityDescription_ = accessibilityDescription;
+    NotifyComponentChangeEvent(AccessibilityEventType::TEXT_CHANGE);
 }
 
 void AccessibilityProperty::SetAccessibilityDescriptionWithEvent(const std::string& accessibilityDescription)
 {
-    auto backupStr = accessibilityDescription_.value_or("");
-    if (accessibilityDescription == backupStr) {
+    if (accessibilityDescription == accessibilityDescription_.value_or("")) {
         return;
     }
     accessibilityDescription_ = accessibilityDescription;
-    auto frameNode = host_.Upgrade();
-    CHECK_NULL_VOID(frameNode);
-    frameNode->OnAccessibilityEvent(AccessibilityEventType::TEXT_CHANGE, backupStr, accessibilityDescription);
+    NotifyComponentChangeEvent(AccessibilityEventType::TEXT_CHANGE);
 }
 
 bool AccessibilityProperty::IsAccessibilityGroup() const
 {
     return accessibilityGroup_;
+}
+
+bool AccessibilityProperty::IsAccessibilityTextPreferred() const
+{
+    return accessibilityTextPreferred_;
 }
 
 int32_t AccessibilityProperty::GetChildTreeId() const
@@ -809,12 +848,18 @@ std::string AccessibilityProperty::GetTextType() const
 
 void AccessibilityProperty::SetAccessibilityLevel(const std::string& accessibilityLevel)
 {
+    auto backupLevel = accessibilityLevel_.value_or("");
+
     if (accessibilityLevel == Level::YES_STR ||
         accessibilityLevel == Level::NO_STR ||
         accessibilityLevel == Level::NO_HIDE_DESCENDANTS) {
         accessibilityLevel_ = accessibilityLevel;
     } else {
         accessibilityLevel_ = Level::AUTO;
+    }
+
+    if (backupLevel != accessibilityLevel_.value_or("")) {
+        NotifyComponentChangeEvent(AccessibilityEventType::ELEMENT_INFO_CHANGE);
     }
 }
 
@@ -843,14 +888,16 @@ void AccessibilityProperty::SetGetWindowScenePosition(const GetWindowScenePositi
         getWindowScenePositionImpl_ = getWindowScenePositionImpl;
     }
 
-void AccessibilityProperty::GetWindowScenePosition(int32_t& left, int32_t& top)
+void AccessibilityProperty::GetWindowScenePosition(int32_t& left, int32_t& top, float_t& scaleX, float_t& scaleY)
 {
     if (getWindowScenePositionImpl_ == nullptr) {
         left = 0;
         top = 0;
+        scaleX = 1.0f;
+        scaleY = 1.0f;
         return;
     }
-    getWindowScenePositionImpl_(left, top);
+    getWindowScenePositionImpl_(left, top, scaleX, scaleY);
 }
 
 void AccessibilityProperty::SetOnAccessibilityFocusCallback(

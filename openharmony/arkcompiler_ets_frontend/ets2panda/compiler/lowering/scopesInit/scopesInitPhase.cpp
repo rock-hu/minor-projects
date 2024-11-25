@@ -15,6 +15,7 @@
 
 #include "util/errorHandler.h"
 #include "scopesInitPhase.h"
+#include "util/errorLogger.h"
 
 namespace ark::es2panda::compiler {
 
@@ -148,6 +149,7 @@ void ScopesInitPhase::VisitForUpdateStatement(ir::ForUpdateStatement *forUpdateS
     auto declCtx = (forUpdateStmt->Scope() == nullptr)
                        ? varbinder::LexicalScope<varbinder::LoopDeclarationScope>(VarBinder())
                        : varbinder::LexicalScope<varbinder::LoopDeclarationScope>::Enter(
+                             // CC-OFFNXT(G.FMT.06-CPP) project code style
                              VarBinder(), forUpdateStmt->Scope()->DeclScope());
     CallNode(forUpdateStmt->Init());
 
@@ -165,6 +167,7 @@ void ScopesInitPhase::VisitForInStatement(ir::ForInStatement *forInStmt)
     auto declCtx = (forInStmt->Scope() == nullptr)
                        ? varbinder::LexicalScope<varbinder::LoopDeclarationScope>(VarBinder())
                        : varbinder::LexicalScope<varbinder::LoopDeclarationScope>::Enter(
+                             // CC-OFFNXT(G.FMT.06-CPP) project code style
                              VarBinder(), forInStmt->Scope()->DeclScope());
     CallNode(forInStmt->Left());
 
@@ -178,6 +181,7 @@ void ScopesInitPhase::VisitForOfStatement(ir::ForOfStatement *forOfStmt)
     auto declCtx = (forOfStmt->Scope() == nullptr)
                        ? varbinder::LexicalScope<varbinder::LoopDeclarationScope>(VarBinder())
                        : varbinder::LexicalScope<varbinder::LoopDeclarationScope>::Enter(
+                             // CC-OFFNXT(G.FMT.06-CPP) project code style
                              VarBinder(), forOfStmt->Scope()->DeclScope());
     CallNode(forOfStmt->Left());
 
@@ -193,6 +197,7 @@ void ScopesInitPhase::VisitCatchClause(ir::CatchClause *catchClause)
     auto catchParamCtx = (catchClause->Scope() == nullptr)
                              ? varbinder::LexicalScope<varbinder::CatchParamScope>(VarBinder())
                              : varbinder::LexicalScope<varbinder::CatchParamScope>::Enter(
+                                   // CC-OFFNXT(G.FMT.06-CPP) project code style
                                    VarBinder(), catchClause->Scope()->ParamScope());
     auto *catchParamScope = catchParamCtx.GetScope();
     auto *param = catchClause->Param();
@@ -277,11 +282,6 @@ void ScopesInitPhase::VisitAnnotationDeclaration(ir::AnnotationDeclaration *anno
 
 void ScopesInitPhase::VisitAnnotationUsage(ir::AnnotationUsage *annoUsage)
 {
-    // Temporary solution to solve the problem of repeated use of annotations on an entity
-    const auto locStart = annoUsage->Ident()->Start();
-    const auto &annoName = annoUsage->Ident()->Name();
-    AddOrGetDecl<varbinder::AnnotationUsage>(VarBinder(), annoName, annoUsage, locStart, annoName, annoUsage);
-
     auto annoCtx = LexicalScopeCreateOrEnter<varbinder::AnnotationParamScope>(VarBinder(), annoUsage);
     auto *curScope = annoCtx.GetScope();
     BindScopeNode(curScope, annoUsage);
@@ -408,9 +408,9 @@ void ScopesInitPhase::IterateNoTParams(ir::ClassDefinition *classDef)
     CallNode(classDef->Body());
 }
 
-void ScopesInitPhase::ThrowSyntaxError(std::string_view errorMessage, const lexer::SourcePosition &pos) const
+void ScopesInitPhase::LogSyntaxError(std::string_view errorMessage, const lexer::SourcePosition &pos) const
 {
-    util::ErrorHandler::ThrowSyntaxError(Program(), errorMessage, pos);
+    util::ErrorHandler::LogSyntaxError(ctx_->parser->ErrorLogger(), Program(), errorMessage, pos);
 }
 
 void ScopesInitPhase::CreateFuncDecl(ir::ScriptFunction *func)
@@ -514,7 +514,7 @@ void ScopesInitPhase::AnalyzeExports()
 {
     if (Program()->Kind() == parser::ScriptKind::MODULE && VarBinder()->TopScope()->IsModuleScope() &&
         !VarBinder()->TopScope()->AsModuleScope()->ExportAnalysis()) {
-        ThrowSyntaxError("Invalid exported binding", Program()->Ast()->End());
+        LogSyntaxError("Invalid exported binding", Program()->Ast()->End());
     }
 }
 
@@ -566,7 +566,7 @@ void ScopeInitTyped::VisitTSInterfaceDeclaration(ir::TSInterfaceDeclaration *int
     if (res == bindings.end()) {
         decl = VarBinder()->AddTsDecl<varbinder::InterfaceDecl>(ident->Start(), Allocator(), name);
     } else if (!AllowInterfaceRedeclaration()) {
-        ThrowSyntaxError("Interface redeclaration is not allowed", interfDecl->Start());
+        LogSyntaxError("Interface redeclaration is not allowed", interfDecl->Start());
     } else if (!res->second->Declaration()->IsInterfaceDecl()) {
         VarBinder()->ThrowRedeclaration(ident->Start(), ident->Name());
     } else {
@@ -586,6 +586,10 @@ void ScopeInitTyped::VisitTSInterfaceDeclaration(ir::TSInterfaceDeclaration *int
     BindScopeNode(localScope.GetScope(), interfDecl);
 
     CallNode(interfDecl->Body());
+    if (decl == nullptr) {  // Error processing.
+        return;
+    }
+
     if (!alreadyExists) {
         decl->BindNode(interfDecl);
     }
@@ -826,6 +830,7 @@ void InitScopesPhaseETS::VisitClassStaticBlock(ir::ClassStaticBlock *staticBlock
         auto funcParamCtx = (func->Scope() == nullptr)
                                 ? varbinder::LexicalScope<varbinder::FunctionParamScope>(VarBinder())
                                 : varbinder::LexicalScope<varbinder::FunctionParamScope>::Enter(
+                                      // CC-OFFNXT(G.FMT.06-CPP) project code style
                                       VarBinder(), func->Scope()->ParamScope());
         auto *funcParamScope = funcParamCtx.GetScope();
         auto funcCtx = LexicalScopeCreateOrEnter<varbinder::FunctionScope>(VarBinder(), func);
@@ -935,7 +940,7 @@ void InitScopesPhaseETS::MaybeAddOverload(ir::MethodDefinition *method, ir::Iden
         }
     } else {
         if (methodName->Name().Is(compiler::Signatures::MAIN) && clsScope->Parent()->IsGlobalScope()) {
-            ThrowSyntaxError("Main overload is not enabled", methodName->Start());
+            LogSyntaxError("Main overload is not enabled", methodName->Start());
         }
         AddOverload(method, found);
         method->Function()->AddFlag(ir::ScriptFunctionFlags::OVERLOAD);
@@ -1033,6 +1038,8 @@ void InitScopesPhaseETS::VisitETSNewClassInstanceExpression(ir::ETSNewClassInsta
         anonymousName.Append(std::to_string(parentClassScope->AsClassScope()->GetAndIncrementAnonymousClassIdx()));
         classDef->SetInternalName(anonymousName.View());
         classDef->Ident()->SetName(anonymousName.View());
+        AddOrGetDecl<varbinder::ClassDecl>(VarBinder(), anonymousName.View(), classDef, classDef->Start(),
+                                           anonymousName.View(), classDef);
         CallNode(classDef);
     }
 }
@@ -1193,7 +1200,7 @@ void InitScopesPhaseETS::VisitClassProperty(ir::ClassProperty *classProp)
             if (!classProp->TypeAnnotation()->IsETSPrimitiveType()) {
                 pos.index--;
             }
-            ThrowSyntaxError("Missing initializer in const declaration", pos);
+            LogSyntaxError("Missing initializer in const declaration", pos);
         }
         AddOrGetDecl<varbinder::ConstDecl>(VarBinder(), name, classProp, classProp->Key()->Start(), name, classProp);
     } else if (classProp->IsReadonly()) {
@@ -1256,7 +1263,7 @@ void InitScopesPhaseETS::ParseGlobalClass(ir::ClassDefinition *global)
     for (auto decl : global->Body()) {
         if (decl->IsDefaultExported()) {
             if (VarBinder()->AsETSBinder()->DefaultExport() != nullptr) {
-                ThrowSyntaxError("Only one default export is allowed in a module", decl->Start());
+                LogSyntaxError("Only one default export is allowed in a module", decl->Start());
             }
             VarBinder()->AsETSBinder()->SetDefaultExport(decl);
         }

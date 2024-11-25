@@ -12,12 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "ecmascript/checkpoint/thread_state_transition.h"
 #include "ecmascript/module/js_module_deregister.h"
 
+#include "ecmascript/checkpoint/thread_state_transition.h"
 #include "ecmascript/jspandafile/js_pandafile_executor.h"
 #include "ecmascript/module/js_module_manager.h"
 #include "ecmascript/module/module_path_helper.h"
+#include "ecmascript/module/module_resolver.h"
 
 namespace panda::ecmascript {
 using PathHelper = base::PathHelper;
@@ -38,23 +39,25 @@ void ModuleDeregister::FreeModuleRecord([[maybe_unused]] void *env, void *pointe
     if (moduleVal.IsUndefined()) {
         return;
     }
+
+    NativeAreaAllocator* allocator = thread->GetEcmaVM()->GetNativeAreaAllocator();
+    allocator->FreeBuffer(pointer);
+
     JSHandle<SourceTextModule> module(thread, SourceTextModule::Cast(moduleVal.GetTaggedObject()));
     LoadingTypes type = module->GetLoadingTypes();
     CString recordNameStr = SourceTextModule::GetModuleName(module.GetTaggedValue());
     if (type != LoadingTypes::DYNAMITC_MODULE) {
         LOG_FULL(INFO) << "free stable module's ModuleNameSpace" << recordNameStr;
+        return;
     }
-    NativeAreaAllocator* allocator = thread->GetEcmaVM()->GetNativeAreaAllocator();
-    allocator->FreeBuffer(pointer);
-    if (type == LoadingTypes::DYNAMITC_MODULE) {
-        std::set<CString> decreaseModule = {recordNameStr};
-        DecreaseRegisterCounts(thread, module, decreaseModule);
-        uint16_t counts = module->GetRegisterCounts();
-        if (counts == 0) {
-            thread->GetEcmaVM()->RemoveFromDeregisterModuleList(recordNameStr);
-        }
-        LOG_FULL(INFO) << "try to remove module " << recordNameStr << ", register counts is " << counts;
+
+    std::set<CString> decreaseModule = {recordNameStr};
+    DecreaseRegisterCounts(thread, module, decreaseModule);
+    uint16_t counts = module->GetRegisterCounts();
+    if (counts == 0) {
+        thread->GetEcmaVM()->RemoveFromDeregisterModuleList(recordNameStr);
     }
+    LOG_FULL(INFO) << "try to remove module " << recordNameStr << ", register counts is " << counts;
 }
 
 void ModuleDeregister::ReviseLoadedModuleCount(JSThread *thread, const CString &moduleName)
@@ -102,21 +105,12 @@ void ModuleDeregister::IncreaseRegisterCounts(JSThread *thread, JSHandle<SourceT
         for (size_t idx = 0; idx < requestedModulesLen; idx++) {
             required.Update(requestedModules->Get(idx));
             JSMutableHandle<SourceTextModule> requiredModule(thread, thread->GlobalConstants()->GetUndefined());
+            JSHandle<JSTaggedValue> requiredVal = ModuleResolver::HostResolveImportedModule(thread, module, required);
+            RETURN_IF_ABRUPT_COMPLETION(thread);
+            requiredModule.Update(JSHandle<SourceTextModule>::Cast(requiredVal));
             const CString moduleRecordName = module->GetEcmaModuleRecordNameString();
-            CString moduleName;
-            if (moduleRecordName.empty()) {
-                JSHandle<JSTaggedValue> requiredVal =
-                    SourceTextModule::HostResolveImportedModule(thread, module, required);
-                RETURN_IF_ABRUPT_COMPLETION(thread);
-                requiredModule.Update(JSHandle<SourceTextModule>::Cast(requiredVal));
-                moduleName = requiredModule->GetEcmaModuleFilenameString();
-            } else {
-                JSHandle<JSTaggedValue> requiredVal =
-                    SourceTextModule::HostResolveImportedModuleWithMerge(thread, module, required);
-                RETURN_IF_ABRUPT_COMPLETION(thread);
-                requiredModule.Update(JSHandle<SourceTextModule>::Cast(requiredVal));
-                moduleName = requiredModule->GetEcmaModuleRecordNameString();
-            }
+            CString moduleName =
+                moduleRecordName.empty() ? requiredModule->GetEcmaModuleFilenameString() : moduleRecordName;
             if (increaseModule.find(moduleName) != increaseModule.end()) {
                 LOG_FULL(DEBUG) << "Find module cyclical loading, stop increasing.";
                 requiredModule->SetLoadingTypes(LoadingTypes::STABLE_MODULE);
@@ -151,21 +145,12 @@ void ModuleDeregister::DecreaseRegisterCounts(JSThread *thread, JSHandle<SourceT
         for (size_t idx = 0; idx < requestedModulesLen; idx++) {
             required.Update(requestedModules->Get(idx));
             JSMutableHandle<SourceTextModule> requiredModule(thread, thread->GlobalConstants()->GetUndefined());
+            JSHandle<JSTaggedValue> requiredVal = ModuleResolver::HostResolveImportedModule(thread, module, required);
+            RETURN_IF_ABRUPT_COMPLETION(thread);
+            requiredModule.Update(JSHandle<SourceTextModule>::Cast(requiredVal));
             const CString moduleRecordName = module->GetEcmaModuleRecordNameString();
-            CString moduleName;
-            if (moduleRecordName.empty()) {
-                JSHandle<JSTaggedValue> requiredVal =
-                    SourceTextModule::HostResolveImportedModule(thread, module, required);
-                RETURN_IF_ABRUPT_COMPLETION(thread);
-                requiredModule.Update(JSHandle<SourceTextModule>::Cast(requiredVal));
-                moduleName = requiredModule->GetEcmaModuleFilenameString();
-            } else {
-                JSHandle<JSTaggedValue> requiredVal =
-                    SourceTextModule::HostResolveImportedModuleWithMerge(thread, module, required);
-                RETURN_IF_ABRUPT_COMPLETION(thread);
-                requiredModule.Update(JSHandle<SourceTextModule>::Cast(requiredVal));
-                moduleName = requiredModule->GetEcmaModuleRecordNameString();
-            }
+            CString moduleName =
+                moduleRecordName.empty() ? requiredModule->GetEcmaModuleFilenameString() : moduleRecordName;
             if (decreaseModule.find(moduleName) != decreaseModule.end()) {
                 LOG_FULL(DEBUG) << "Find module cyclical loading, stop increasing.";
                 requiredModule->SetLoadingTypes(LoadingTypes::STABLE_MODULE);

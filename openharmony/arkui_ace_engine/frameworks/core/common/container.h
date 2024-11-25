@@ -50,6 +50,7 @@
 #include "core/components_ng/pattern/app_bar/app_bar_view.h"
 #include "core/components_ng/pattern/navigation/navigation_route.h"
 #include "core/components_ng/pattern/navigator/navigator_event_hub.h"
+#include "core/event/non_pointer_event.h"
 #include "core/event/pointer_event.h"
 #include "core/pipeline/pipeline_base.h"
 
@@ -59,13 +60,14 @@ using PageTask = std::function<void()>;
 using TouchEventCallback = std::function<void(const TouchEvent&, const std::function<void()>&,
     const RefPtr<NG::FrameNode>&)>;
 using KeyEventCallback = std::function<bool(const KeyEvent&)>;
+using NonPointerEventCallback = std::function<bool(const NonPointerEvent&)>;
 using MouseEventCallback = std::function<void(const MouseEvent&, const std::function<void()>&,
     const RefPtr<NG::FrameNode>&)>;
 using AxisEventCallback = std::function<void(const AxisEvent&, const std::function<void()>&,
     const RefPtr<NG::FrameNode>&)>;
 using RotationEventCallBack = std::function<bool(const RotationEvent&)>;
 using CardViewPositionCallBack = std::function<void(int id, float offsetX, float offsetY)>;
-using DragEventCallBack = std::function<void(const PointerEvent&, const DragEventAction&,
+using DragEventCallBack = std::function<void(const DragPointerEvent&, const DragEventAction&,
     const RefPtr<NG::FrameNode>&)>;
 using StopDragCallback = std::function<void()>;
 
@@ -197,11 +199,6 @@ public:
     virtual FoldStatus GetCurrentFoldStatus();
 
     virtual NG::SafeAreaInsets GetKeyboardSafeArea()
-    {
-        return {};
-    }
-
-    virtual Rect GetSessionAvoidAreaByType(uint32_t safeAreaType)
     {
         return {};
     }
@@ -453,6 +450,7 @@ public:
     }
 
     virtual void NotifyConfigurationChange(bool, const ConfigurationChange& configurationChange = { false, false }) {}
+
     virtual void HotReload() {}
 
     void SetIsModule(bool isModule)
@@ -497,7 +495,7 @@ public:
 
     virtual bool GetCurPointerEventInfo(
         int32_t& pointerId, int32_t& globalX, int32_t& globalY, int32_t& sourceType,
-        int32_t& sourceTool, StopDragCallback&& stopDragCallback)
+        int32_t& sourceTool, int32_t& displayId, StopDragCallback&& stopDragCallback)
     {
         return false;
     }
@@ -562,6 +560,15 @@ public:
         return apiTargetVersion >= static_cast<int32_t>(version);
     }
 
+    static int32_t GetCurrentApiTargetVersion()
+    {
+        auto container = Current();
+        if (!container) {
+            return AceApplicationInfo::GetInstance().GetApiTargetVersion() % 1000;
+        }
+        return container->GetApiTargetVersion();
+    }
+
     void SetAppBar(const RefPtr<NG::AppBarView>& appBar)
     {
         appBar_ = appBar;
@@ -612,6 +619,12 @@ public:
     {
         return Rect();
     }
+
+    virtual bool IsFloatingWindow() const
+    {
+        return false;
+    }
+
 protected:
     bool IsFontFileExistInPath(const std::string& path);
     std::string GetFontFamilyName(std::string path);

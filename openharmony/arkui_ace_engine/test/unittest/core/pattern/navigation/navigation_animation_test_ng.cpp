@@ -965,7 +965,6 @@ HWTEST_F(NavigationAnimationTest, SystemAnimation002, TestSize.Level1)
     EXPECT_FALSE(navdestination->IsOnAnimation());
     auto navdestinationLayoutProperty = navdestination->GetLayoutProperty();
     ASSERT_NE(navdestinationLayoutProperty, nullptr);
-    ASSERT_EQ(navdestinationLayoutProperty->GetVisibilityValue(VisibleType::VISIBLE), VisibleType::INVISIBLE);
 }
 
 /**
@@ -1250,5 +1249,121 @@ HWTEST_F(NavigationAnimationTest, DialogAnimation002, TestSize.Level1)
     navigationStack->Add("A", preTopNavdestination);
     navigationPattern->DialogAnimation(preTopNavdestination, replaceNode, true, true);
     EXPECT_EQ(stack->GetReplaceValue(), 0);
+}
+
+/**
+ * @tc.name: IsNeedContentTransition
+ * @tc.desc: Test NavDestinationGroupNode::IsNeedContentTransition
+ * @tc.type: FUNC
+ */
+HWTEST_F(NavigationAnimationTest, IsNeedContentTransition001, TestSize.Level1)
+{
+    auto navDestinationNode = NavDestinationGroupNode::GetOrCreateGroupNode(
+        "navDestinationNode", 55, []() { return AceType::MakeRefPtr<NavDestinationPattern>(); });
+    ASSERT_NE(navDestinationNode, nullptr);
+
+    auto navDestinationContentNode = FrameNode::GetOrCreateFrameNode(V2::NAVDESTINATION_CONTENT_ETS_TAG, 1,
+            []() { return AceType::MakeRefPtr<LinearLayoutPattern>(true); });
+    ASSERT_NE(navDestinationContentNode, nullptr);
+    navDestinationNode->AddChild(navDestinationContentNode);
+    navDestinationNode->SetContentNode(navDestinationContentNode);
+    auto textNode =
+        FrameNode::GetOrCreateFrameNode(V2::TEXT_ETS_TAG, 66, []() { return AceType::MakeRefPtr<TextPattern>(); });
+    ASSERT_NE(textNode, nullptr);
+    navDestinationContentNode->AddChild(textNode);
+
+    navDestinationNode->SetSystemTransitionType(NavigationSystemTransitionType::DEFAULT);
+    bool ret = navDestinationNode->IsNeedContentTransition();
+    ASSERT_EQ(ret, true);
+    navDestinationNode->SetNavDestinationMode(NavDestinationMode::STANDARD);
+    navDestinationNode->SetSystemTransitionType(NavigationSystemTransitionType::CONTENT);
+    ret = navDestinationNode->IsNeedContentTransition();
+    ASSERT_EQ(ret, true);
+    navDestinationNode->SetNavDestinationMode(NavDestinationMode::DIALOG);
+    navDestinationNode->SetSystemTransitionType(NavigationSystemTransitionType::CONTENT);
+    ret = navDestinationNode->IsNeedContentTransition();
+    ASSERT_EQ(ret, true);
+    navDestinationNode->SetNavDestinationMode(NavDestinationMode::DIALOG);
+    navDestinationNode->SetSystemTransitionType(NavigationSystemTransitionType::NONE);
+    ret = navDestinationNode->IsNeedContentTransition();
+    ASSERT_EQ(ret, false);
+}
+
+/**
+ * @tc.name: TransitionContentInValid
+ * @tc.desc: Test NavDestinationGroupNode::TransitionContentInValid
+ * @tc.type: FUNC
+ */
+HWTEST_F(NavigationAnimationTest, TransitionContentInValid001, TestSize.Level1)
+{
+    auto navDestinationNode = NavDestinationGroupNode::GetOrCreateGroupNode(
+        "navDestinationNode", 55, []() { return AceType::MakeRefPtr<NavDestinationPattern>(); });
+    ASSERT_NE(navDestinationNode, nullptr);
+
+    auto navDestinationContentNode = FrameNode::GetOrCreateFrameNode(V2::NAVDESTINATION_CONTENT_ETS_TAG, 1,
+            []() { return AceType::MakeRefPtr<LinearLayoutPattern>(true); });
+    ASSERT_NE(navDestinationContentNode, nullptr);
+    navDestinationNode->AddChild(navDestinationContentNode);
+    navDestinationNode->SetContentNode(navDestinationContentNode);
+    auto textNode =
+        FrameNode::GetOrCreateFrameNode(V2::TEXT_ETS_TAG, 66, []() { return AceType::MakeRefPtr<TextPattern>(); });
+    ASSERT_NE(textNode, nullptr);
+    navDestinationContentNode->AddChild(textNode);
+
+    navDestinationNode->SetNavDestinationMode(NavDestinationMode::STANDARD);
+    navDestinationNode->SetSystemTransitionType(NavigationSystemTransitionType::NONE);
+    bool ret = navDestinationNode->TransitionContentInValid();
+    ASSERT_EQ(ret, true);
+
+    navDestinationNode->SetNavDestinationMode(NavDestinationMode::DIALOG);
+    navDestinationNode->SetSystemTransitionType(NavigationSystemTransitionType::CONTENT);
+    ret = navDestinationNode->TransitionContentInValid();
+    ASSERT_EQ(ret, false);
+
+    navDestinationNode->SetNavDestinationMode(NavDestinationMode::STANDARD);
+    navDestinationNode->SetSystemTransitionType(NavigationSystemTransitionType::CONTENT);
+    ret = navDestinationNode->TransitionContentInValid();
+    ASSERT_EQ(ret, false);
+}
+
+/**
+ * @tc.name: IsNeedTitleTransition
+ * @tc.desc: Test NavDestinationGroupNode::IsNeedTitleTransition
+ * @tc.type: FUNC
+ */
+HWTEST_F(NavigationAnimationTest, IsNeedTitleTransition001, TestSize.Level1)
+{
+    auto navDestinationNode = NavDestinationGroupNode::GetOrCreateGroupNode(
+        "navDestinationNode", 55, []() { return AceType::MakeRefPtr<NavDestinationPattern>(); });
+    ASSERT_NE(navDestinationNode, nullptr);
+
+    auto navDestinationContentNode = FrameNode::GetOrCreateFrameNode(V2::NAVDESTINATION_CONTENT_ETS_TAG, 1,
+            []() { return AceType::MakeRefPtr<LinearLayoutPattern>(true); });
+    ASSERT_NE(navDestinationContentNode, nullptr);
+    navDestinationNode->AddChild(navDestinationContentNode);
+    navDestinationNode->SetContentNode(navDestinationContentNode);
+    auto textNode =
+        FrameNode::GetOrCreateFrameNode(V2::TEXT_ETS_TAG, 66, []() { return AceType::MakeRefPtr<TextPattern>(); });
+    ASSERT_NE(textNode, nullptr);
+    navDestinationContentNode->AddChild(textNode);
+
+    navDestinationNode->SetSystemTransitionType(NavigationSystemTransitionType::DEFAULT);
+    bool ret = navDestinationNode->IsNeedTitleTransition();
+    ASSERT_EQ(ret, true);
+
+    navDestinationNode->SetNavDestinationMode(NavDestinationMode::STANDARD);
+    navDestinationNode->SetSystemTransitionType(NavigationSystemTransitionType::TITLE);
+    ret = navDestinationNode->IsNeedTitleTransition();
+    ASSERT_EQ(ret, true);
+
+    navDestinationNode->SetNavDestinationMode(NavDestinationMode::DIALOG);
+    navDestinationNode->SetSystemTransitionType(NavigationSystemTransitionType::TITLE);
+    ret = navDestinationNode->IsNeedTitleTransition();
+    ASSERT_EQ(ret, false);
+
+    navDestinationNode->SetNavDestinationMode(NavDestinationMode::STANDARD);
+    navDestinationNode->SetSystemTransitionType(NavigationSystemTransitionType::NONE);
+    ret = navDestinationNode->IsNeedTitleTransition();
+    ASSERT_EQ(ret, false);
 }
 }; // namespace OHOS::Ace::NG

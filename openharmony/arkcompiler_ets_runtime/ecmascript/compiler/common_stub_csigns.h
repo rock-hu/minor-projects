@@ -88,6 +88,7 @@ namespace panda::ecmascript::kungfu {
     V(ConstructorCheck)               \
     V(CreateEmptyArray)               \
     V(CreateArrayWithBuffer)          \
+    V(CreateObjectHavingMethod)       \
     V(NewJSObject)                    \
     V(JsBoundCallInternal)            \
     V(CreateStringBySingleCharCode)   \
@@ -102,14 +103,15 @@ namespace panda::ecmascript::kungfu {
     V(JSMapHas)                       \
     V(JSSetHas)                       \
     V(JSSetAdd)                       \
-    V(JSMapDelete)                    \
-    V(JSSetDelete)                    \
     V(CreateJSTypedArrayEntries)      \
     V(CreateJSTypedArrayKeys)         \
     V(CreateJSTypedArrayValues)       \
+    V(JSMapDelete)                    \
+    V(JSSetDelete)                    \
     V(GetSingleCharCodeByIndex)       \
     V(FastStringEqual)                \
     V(FastStringAdd)                  \
+    V(StringAdd)                      \
     V(Definefunc)                     \
     V(DefineField)                    \
     V(ConvertCharToInt32)             \

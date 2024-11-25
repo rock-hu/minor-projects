@@ -81,13 +81,6 @@ NativeEngine::NativeEngine(void* jsEngine) : jsEngine_(jsEngine)
     InitUvField();
 }
 
-NativeEngine::NativeEngine(void* jsEngine, EcmaVM* vm) : jsEngine_(jsEngine), vm_(vm)
-{
-    SetMainThreadEngine(this);
-    SetAlived();
-    InitUvField();
-}
-
 void NativeEngine::InitUvField()
 {
     if (memset_s(&uvAsync_, sizeof(uvAsync_), 0, sizeof(uvAsync_)) != EOK) {
@@ -115,7 +108,6 @@ NativeEngine::~NativeEngine()
     }
     std::lock_guard<std::mutex> insLock(instanceDataLock_);
     FinalizerInstanceData();
-    vm_ = nullptr;
 }
 
 static void ThreadSafeCallback(napi_env env, napi_value jsCallback, void* context, void* data)
@@ -124,8 +116,6 @@ static void ThreadSafeCallback(napi_env env, napi_value jsCallback, void* contex
         CallbackWrapper *cbw = static_cast<CallbackWrapper *>(data);
         cbw->cb();
         delete cbw;
-        cbw = nullptr;
-        data = nullptr;
     }
 }
 
@@ -800,6 +790,9 @@ void NativeEngine::RunCleanup()
         }
         CleanupHandles();
     }
+
+    // make sure tsfn relese by itself
+    uv_run(loop_, UV_RUN_NOWAIT);
 
     // Close all unclosed uv handles
     auto const ensureClosing = [](uv_handle_t *handle, void *arg) {

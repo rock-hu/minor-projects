@@ -116,7 +116,7 @@ private:
         bool canBeCompress, MemSpaceType type = MemSpaceType::SHARED_OLD_SPACE, bool isConstantString = false,
         uint32_t idOffset = 0);
     static EcmaString *CreateFromUtf8CompressedSubString(const EcmaVM *vm, const JSHandle<EcmaString> &string,
-        uint32_t offset, uint32_t utf8Len, MemSpaceType type = MemSpaceType::SEMI_SPACE);
+        uint32_t offset, uint32_t utf8Len, MemSpaceType type = MemSpaceType::SHARED_OLD_SPACE);
     static EcmaString *CreateUtf16StringFromUtf8(const EcmaVM *vm, const uint8_t *utf8Data, uint32_t utf8Len,
         MemSpaceType type = MemSpaceType::SHARED_OLD_SPACE);
     static EcmaString *CreateFromUtf16(const EcmaVM *vm, const uint16_t *utf16Data, uint32_t utf16Len,
@@ -142,6 +142,8 @@ private:
     static EcmaString *CopyStringToOldSpace(const EcmaVM *vm, const JSHandle<EcmaString> &original,
         uint32_t length, bool compressed);
     static EcmaString *FastSubString(const EcmaVM *vm,
+        const JSHandle<EcmaString> &src, uint32_t start, uint32_t length);
+    static bool SubStringIsUtf8(const EcmaVM *vm,
         const JSHandle<EcmaString> &src, uint32_t start, uint32_t length);
     static EcmaString *GetSlicedString(const EcmaVM *vm,
         const JSHandle<EcmaString> &src, uint32_t start, uint32_t length);
@@ -342,7 +344,9 @@ private:
     {
         ASSERT(str1.Size() <= str2.Size());
         size_t size = str1.Size();
-        if (!std::is_same_v<T, T1>) {
+        if constexpr (std::is_same_v<T, T1>) {
+            return !memcmp(str1.data(), str2.data(), size * sizeof(T));
+        } else {
             for (size_t i = 0; i < size; i++) {
                 auto left = static_cast<uint16_t>(str1[i]);
                 auto right = static_cast<uint16_t>(str2[i]);
@@ -352,8 +356,6 @@ private:
             }
             return true;
         }
-
-        return !memcmp(str1.data(), str2.data(), size * sizeof(T));
     }
 
     // Converts utf8Data to utf16 and compare it with given utf16_data.
@@ -1006,6 +1008,8 @@ public:
     }
 };
 
+// FlatStringInfo holds an EcmaString* instead of a JSHandle. If a GC occurs during its usage period,
+// it may cause the pointer to become invalid, necessitating the pointer to be reset.
 class FlatStringInfo {
 public:
     FlatStringInfo(EcmaString *string, uint32_t startIndex, uint32_t length) : string_(string),
@@ -1137,7 +1141,11 @@ public:
     {
         return EcmaString::FastSubString(vm, src, start, length);
     }
-
+    static bool SubStringIsUtf8(const EcmaVM *vm,
+        const JSHandle<EcmaString> &src, uint32_t start, uint32_t length)
+    {
+        return EcmaString::SubStringIsUtf8(vm, src, start, length);
+    }
     // get
     static EcmaString *GetSubString(const EcmaVM *vm,
         const JSHandle<EcmaString> &src, uint32_t start, uint32_t length)

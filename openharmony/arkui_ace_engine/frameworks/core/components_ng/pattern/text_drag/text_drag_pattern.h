@@ -212,6 +212,7 @@ public:
     Color GetDragBackgroundColor();
 protected:
     static TextDragData CalculateTextDragData(RefPtr<TextDragBase>& pattern, RefPtr<FrameNode>& dragNode);
+    static void AdjustMaxWidth(float& width, const RectF& contentRect, const std::vector<RectF>& boxes);
     static RectF GetHandler(const bool isLeftHandler, const std::vector<RectF> boxes, const RectF contentRect,
         const OffsetF globalOffset, const OffsetF textStartOffset);
     static void AdjustHandlers(const RectF contentRect, RectF& leftHandler, RectF& rightHandler);
@@ -220,6 +221,7 @@ protected:
     void GenerateBackgroundPoints(std::vector<TextPoint>& points, float offset, bool needAdjust = true);
     void CalculateLineAndArc(std::vector<TextPoint>& points, std::shared_ptr<RSPath>& path, float radiusRatio);
     void CalculateLine(std::vector<TextPoint>& points, std::shared_ptr<RSPath>& path);
+    static void CalculateFloatTitleOffset(RefPtr<FrameNode>& dragNode, OffsetF& offset);
 
     void SetLastLineHeight(float lineHeight)
     {

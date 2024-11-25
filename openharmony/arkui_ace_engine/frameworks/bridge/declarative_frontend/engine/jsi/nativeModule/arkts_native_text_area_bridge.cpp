@@ -25,6 +25,7 @@
 #include "frameworks/bridge/declarative_frontend/jsview/js_textfield.h"
 
 namespace OHOS::Ace::NG {
+namespace {
 constexpr int NUM_0 = 0;
 constexpr int NUM_1 = 1;
 constexpr int NUM_2 = 2;
@@ -55,6 +56,75 @@ const std::vector<OHOS::Ace::FontStyle> FONT_STYLES = { OHOS::Ace::FontStyle::NO
 constexpr TextDecorationStyle DEFAULT_DECORATION_STYLE = TextDecorationStyle::SOLID;
 const std::vector<TextHeightAdaptivePolicy> HEIGHT_ADAPTIVE_POLICY = { TextHeightAdaptivePolicy::MAX_LINES_FIRST,
     TextHeightAdaptivePolicy::MIN_FONT_SIZE_FIRST, TextHeightAdaptivePolicy::LAYOUT_CONSTRAINT_FIRST };
+
+bool ParseLocalizedPadding(const EcmaVM* vm, const Local<JSValueRef>& value, CalcDimension& dimen,
+    ArkUISizeType& result)
+{
+    if (ArkTSUtils::ParseJsLengthMetrics(vm, value, dimen)) {
+        if (LessOrEqual(dimen.Value(), 0.0)) {
+            dimen.SetValue(0.0);
+            dimen.SetUnit(DimensionUnit::VP);
+        }
+        result.unit = static_cast<int8_t>(dimen.Unit());
+        if (dimen.CalcValue() != "") {
+            result.string = dimen.CalcValue().c_str();
+        } else {
+            result.value = dimen.Value();
+        }
+        return true;
+    }
+    return false;
+}
+
+bool ParseLocalizedMargin(const EcmaVM* vm, const Local<JSValueRef>& value, CalcDimension& dimen, ArkUISizeType& result)
+{
+    if (ArkTSUtils::ParseJsLengthMetrics(vm, value, dimen)) {
+        result.unit = static_cast<int8_t>(dimen.Unit());
+        if (dimen.CalcValue() != "") {
+            result.string = dimen.CalcValue().c_str();
+        } else {
+            result.value = dimen.Value();
+        }
+        return true;
+    }
+    return false;
+}
+
+void SetBorderWidthArrayByDimen(CalcDimension& borderDimension, ArkUI_Float32 values[], int units[], int index)
+{
+    values[index] = borderDimension.Value();
+    units[index] = static_cast<int>(borderDimension.Unit());
+}
+
+void ParseMirrorDimen(ArkUI_Float32 values[], int units[], int idx, CalcDimension& calcDimen)
+{
+    values[idx] = calcDimen.Value();
+    units[idx] = static_cast<int>(calcDimen.Unit());
+}
+
+bool ParseLocalizedBorderWidth(const EcmaVM* vm, const Local<JSValueRef>& value, CalcDimension& dimen)
+{
+    if (ArkTSUtils::ParseJsLengthMetrics(vm, value, dimen)) {
+        if (LessOrEqual(dimen.Value(), 0.0)) {
+            dimen.SetValue(0.0);
+            dimen.SetUnit(DimensionUnit::VP);
+        }
+        return true;
+    }
+    return false;
+}
+
+bool ParseLocalizedBorderRadius(const EcmaVM* vm, const Local<JSValueRef>& value, CalcDimension& result)
+{
+    if (ArkTSUtils::ParseJsLengthMetrics(vm, value, result)) {
+        if (result.IsNegative()) {
+            result.Reset();
+        }
+        return true;
+    }
+    return false;
+}
+} // namespace
 
 ArkUINativeModuleValue TextAreaBridge::SetStyle(ArkUIRuntimeCallInfo *runtimeCallInfo)
 {
@@ -1417,7 +1487,31 @@ ArkUINativeModuleValue TextAreaBridge::SetPadding(ArkUIRuntimeCallInfo *runtimeC
     CalcDimension rightDimen(0, DimensionUnit::VP);
     CalcDimension bottomDimen(0, DimensionUnit::VP);
     CalcDimension leftDimen(0, DimensionUnit::VP);
-    
+
+    bool isLengthMetrics = false;
+    if (secondArg->IsObject(vm)) {
+        isLengthMetrics |= ParseLocalizedPadding(vm, secondArg, topDimen, top);
+    }
+    if (thirdArg->IsObject(vm)) {
+        isLengthMetrics |= ParseLocalizedPadding(vm, thirdArg, rightDimen, right);
+    }
+    if (forthArg->IsObject(vm)) {
+        isLengthMetrics |= ParseLocalizedPadding(vm, forthArg, bottomDimen, bottom);
+    }
+    if (fifthArg->IsObject(vm)) {
+        isLengthMetrics |= ParseLocalizedPadding(vm, fifthArg, leftDimen, left);
+    }
+
+    if (isLengthMetrics) {
+        auto isRightToLeft = AceApplicationInfo::GetInstance().IsRightToLeft();
+        GetArkUINodeModifiers()->getTextAreaModifier()->setTextAreaPadding(nativeNode,
+            &top,
+            isRightToLeft ? &left : &right,
+            &bottom,
+            isRightToLeft ? &right : &left);
+        return panda::JSValueRef::Undefined(vm);
+    }
+
     ArkTSUtils::ParsePadding(vm, secondArg, topDimen, top);
     ArkTSUtils::ParsePadding(vm, thirdArg, rightDimen, right);
     ArkTSUtils::ParsePadding(vm, forthArg, bottomDimen, bottom);
@@ -1461,8 +1555,7 @@ ArkUINativeModuleValue TextAreaBridge::SetOnSubmit(ArkUIRuntimeCallInfo* runtime
         auto eventObject = panda::ObjectRef::NewWithNamedProperties(vm, ArraySize(keys), keys, values);
         eventObject->SetNativePointerFieldCount(vm, 1);
         eventObject->SetNativePointerField(vm, 0, static_cast<void*>(&event));
-        panda::Local<panda::JSValueRef> params[PARAM_ARR_LENGTH_2] = {
-            panda::IntegerRef::New(vm, key), eventObject };
+        panda::Local<panda::JSValueRef> params[PARAM_ARR_LENGTH_2] = { panda::IntegerRef::New(vm, key), eventObject };
         func->Call(vm, func.ToLocal(), params, PARAM_ARR_LENGTH_2);
     };
     GetArkUINodeModifiers()->getTextAreaModifier()->setTextAreaOnSubmitWithEvent(
@@ -1575,23 +1668,50 @@ ArkUINativeModuleValue TextAreaBridge::SetBorderWidth(ArkUIRuntimeCallInfo* runt
     CHECK_NULL_RETURN(vm, panda::NativePointerRef::New(vm, nullptr));
     Local<JSValueRef> firstArg = runtimeCallInfo->GetCallArgRef(NUM_0);
     auto nativeNode = nodePtr(firstArg->ToNativePointer(vm)->Value());
-    Local<JSValueRef> leftArgs = runtimeCallInfo->GetCallArgRef(NUM_1);
+    Local<JSValueRef> topArgs = runtimeCallInfo->GetCallArgRef(NUM_1);
     Local<JSValueRef> rightArgs = runtimeCallInfo->GetCallArgRef(NUM_2);
-    Local<JSValueRef> topArgs = runtimeCallInfo->GetCallArgRef(NUM_3);
-    Local<JSValueRef> bottomArgs = runtimeCallInfo->GetCallArgRef(NUM_4);
+    Local<JSValueRef> bottomArgs = runtimeCallInfo->GetCallArgRef(NUM_3);
+    Local<JSValueRef> leftArgs = runtimeCallInfo->GetCallArgRef(NUM_4);
     if (leftArgs->IsUndefined() && rightArgs->IsUndefined() && topArgs->IsUndefined() && bottomArgs->IsUndefined()) {
         GetArkUINodeModifiers()->getTextAreaModifier()->resetTextAreaBorderWidth(nativeNode);
         return panda::JSValueRef::Undefined(vm);
+    }
+
+    CalcDimension top;
+    CalcDimension right;
+    CalcDimension bottom;
+    CalcDimension left;
+    bool isLengthMetrics = false;
+
+    if (topArgs->IsObject(vm)) {
+        isLengthMetrics |= ParseLocalizedBorderWidth(vm, topArgs, top);
+    }
+    if (rightArgs->IsObject(vm)) {
+        isLengthMetrics |= ParseLocalizedBorderWidth(vm, rightArgs, right);
+    }
+    if (bottomArgs->IsObject(vm)) {
+        isLengthMetrics |= ParseLocalizedBorderWidth(vm, bottomArgs, bottom);
+    }
+    if (leftArgs->IsObject(vm)) {
+        isLengthMetrics |= ParseLocalizedBorderWidth(vm, leftArgs, left);
     }
 
     uint32_t size = NUM_4;
     ArkUI_Float32 values[size];
     int units[size];
 
-    ArkTSUtils::SetBorderWidthArray(vm, leftArgs, values, units, NUM_0);
-    ArkTSUtils::SetBorderWidthArray(vm, rightArgs, values, units, NUM_1);
-    ArkTSUtils::SetBorderWidthArray(vm, topArgs, values, units, NUM_2);
-    ArkTSUtils::SetBorderWidthArray(vm, bottomArgs, values, units, NUM_3);
+    if (isLengthMetrics) {
+        auto isRightToLeft = AceApplicationInfo::GetInstance().IsRightToLeft();
+        SetBorderWidthArrayByDimen(top, values, units, NUM_0);
+        SetBorderWidthArrayByDimen(isRightToLeft ? left : right, values, units, NUM_1);
+        SetBorderWidthArrayByDimen(bottom, values, units, NUM_2);
+        SetBorderWidthArrayByDimen(isRightToLeft ? right : left, values, units, NUM_3);
+    } else {
+        ArkTSUtils::SetBorderWidthArray(vm, leftArgs, values, units, NUM_0);
+        ArkTSUtils::SetBorderWidthArray(vm, rightArgs, values, units, NUM_1);
+        ArkTSUtils::SetBorderWidthArray(vm, topArgs, values, units, NUM_2);
+        ArkTSUtils::SetBorderWidthArray(vm, bottomArgs, values, units, NUM_3);
+    }
 
     GetArkUINodeModifiers()->getTextAreaModifier()->setTextAreaBorderWidth(nativeNode, values, units, size);
     return panda::JSValueRef::Undefined(vm);
@@ -1612,31 +1732,37 @@ ArkUINativeModuleValue TextAreaBridge::SetBorderColor(ArkUIRuntimeCallInfo *runt
     EcmaVM *vm = runtimeCallInfo->GetVM();
     CHECK_NULL_RETURN(vm, panda::NativePointerRef::New(vm, nullptr));
     Local<JSValueRef> firstArg = runtimeCallInfo->GetCallArgRef(NUM_0);
-    Local<JSValueRef> leftArg = runtimeCallInfo->GetCallArgRef(NUM_1);
+    Local<JSValueRef> topArg = runtimeCallInfo->GetCallArgRef(NUM_1);
     Local<JSValueRef> rightArg = runtimeCallInfo->GetCallArgRef(NUM_2);
-    Local<JSValueRef> topArg = runtimeCallInfo->GetCallArgRef(NUM_3);
-    Local<JSValueRef> bottomArg = runtimeCallInfo->GetCallArgRef(NUM_4);
+    Local<JSValueRef> bottomArg = runtimeCallInfo->GetCallArgRef(NUM_3);
+    Local<JSValueRef> leftArg = runtimeCallInfo->GetCallArgRef(NUM_4);
+    Local<JSValueRef> isLocalizedArg = runtimeCallInfo->GetCallArgRef(NUM_5);
     auto nativeNode = nodePtr(firstArg->ToNativePointer(vm)->Value());
+    auto isLocalized = (isLocalizedArg->IsBoolean()) ? isLocalizedArg->ToBoolean(vm)->Value() : false;
 
     Color leftColor;
     Color rightColor;
     Color topColor;
     Color bottomColor;
 
-    if (!ArkTSUtils::ParseJsColorAlpha(vm, leftArg, leftColor)) {
-        leftColor.SetValue(COLOR_ALPHA_VALUE);
+    if (!ArkTSUtils::ParseJsColorAlpha(vm, topArg, topColor)) {
+        topColor.SetValue(COLOR_ALPHA_VALUE);
     }
     if (!ArkTSUtils::ParseJsColorAlpha(vm, rightArg, rightColor)) {
         rightColor.SetValue(COLOR_ALPHA_VALUE);
     }
-    if (!ArkTSUtils::ParseJsColorAlpha(vm, topArg, topColor)) {
-        topColor.SetValue(COLOR_ALPHA_VALUE);
-    }
     if (!ArkTSUtils::ParseJsColorAlpha(vm, bottomArg, bottomColor)) {
         bottomColor.SetValue(COLOR_ALPHA_VALUE);
     }
-    GetArkUINodeModifiers()->getTextAreaModifier()->setTextAreaBorderColor(nativeNode, leftColor.GetValue(),
-        rightColor.GetValue(), topColor.GetValue(), bottomColor.GetValue());
+    if (!ArkTSUtils::ParseJsColorAlpha(vm, leftArg, leftColor)) {
+        leftColor.SetValue(COLOR_ALPHA_VALUE);
+    }
+    auto isRightToLeft = AceApplicationInfo::GetInstance().IsRightToLeft();
+    GetArkUINodeModifiers()->getTextAreaModifier()->setTextAreaBorderColor(nativeNode,
+        topColor.GetValue(),
+        (isRightToLeft && isLocalized) ? leftColor.GetValue() : rightColor.GetValue(),
+        bottomColor.GetValue(),
+        (isRightToLeft && isLocalized) ? rightColor.GetValue() : leftColor.GetValue());
     return panda::JSValueRef::Undefined(vm);
 }
 
@@ -1723,24 +1849,35 @@ ArkUINativeModuleValue TextAreaBridge::SetBorderRadius(ArkUIRuntimeCallInfo *run
     CalcDimension bottomLeft;
     CalcDimension bottomRight;
 
-    ArkTSUtils::ParseAllBorder(vm, topLeftArgs, topLeft);
-    ArkTSUtils::ParseAllBorder(vm, topRightArgs, topRight);
-    ArkTSUtils::ParseAllBorder(vm, bottomLeftArgs, bottomLeft);
-    ArkTSUtils::ParseAllBorder(vm, bottomRightArgs, bottomRight);
+    bool isLengthMetrics = false;
+    if (topLeftArgs->IsObject(vm)) {
+        isLengthMetrics |= ParseLocalizedBorderRadius(vm, topLeftArgs, topLeft);
+    }
+    if (topRightArgs->IsObject(vm)) {
+        isLengthMetrics |= ParseLocalizedBorderRadius(vm, topRightArgs, topRight);
+    }
+    if (bottomLeftArgs->IsObject(vm)) {
+        isLengthMetrics |= ParseLocalizedBorderRadius(vm, bottomLeftArgs, bottomLeft);
+    }
+    if (bottomRightArgs->IsObject(vm)) {
+        isLengthMetrics |= ParseLocalizedBorderRadius(vm, bottomRightArgs, bottomRight);
+    }
+    if (!isLengthMetrics) {
+        ArkTSUtils::ParseAllBorder(vm, topLeftArgs, topLeft);
+        ArkTSUtils::ParseAllBorder(vm, topRightArgs, topRight);
+        ArkTSUtils::ParseAllBorder(vm, bottomLeftArgs, bottomLeft);
+        ArkTSUtils::ParseAllBorder(vm, bottomRightArgs, bottomRight);
+    }
 
     uint32_t size = SIZE_OF_FOUR;
     ArkUI_Float32 values[size];
     int units[size];
 
-    values[NUM_0] = topLeft.Value();
-    units[NUM_0] = static_cast<int>(topLeft.Unit());
-    values[NUM_1] = topRight.Value();
-    units[NUM_1] = static_cast<int>(topRight.Unit());
-    values[NUM_2] = bottomLeft.Value();
-    units[NUM_2] = static_cast<int>(bottomLeft.Unit());
-    values[NUM_3] = bottomRight.Value();
-    units[NUM_3] = static_cast<int>(bottomRight.Unit());
-
+    bool isMirror = isLengthMetrics && AceApplicationInfo::GetInstance().IsRightToLeft();
+    ParseMirrorDimen(values, units, NUM_0, isMirror ? topRight : topLeft);
+    ParseMirrorDimen(values, units, NUM_1, isMirror ? topLeft : topRight);
+    ParseMirrorDimen(values, units, NUM_2, isMirror ? bottomRight : bottomLeft);
+    ParseMirrorDimen(values, units, NUM_3, isMirror ? bottomLeft : bottomRight);
     GetArkUINodeModifiers()->getTextAreaModifier()->setTextAreaBorderRadius(nativeNode, values, units, SIZE_OF_FOUR);
 
     return panda::JSValueRef::Undefined(vm);
@@ -1753,106 +1890,6 @@ ArkUINativeModuleValue TextAreaBridge::ResetBorderRadius(ArkUIRuntimeCallInfo *r
     Local<JSValueRef> firstArg = runtimeCallInfo->GetCallArgRef(0);
     auto nativeNode = nodePtr(firstArg->ToNativePointer(vm)->Value());
     GetArkUINodeModifiers()->getTextAreaModifier()->resetTextAreaBorderRadius(nativeNode);
-    return panda::JSValueRef::Undefined(vm);
-}
-
-ArkUINativeModuleValue TextAreaBridge::SetOutlineColor(ArkUIRuntimeCallInfo* runtimeCallInfo)
-{
-    EcmaVM* vm = runtimeCallInfo->GetVM();
-    CHECK_NULL_RETURN(vm, panda::NativePointerRef::New(vm, nullptr));
-    Local<JSValueRef> firstArg = runtimeCallInfo->GetCallArgRef(0);
-    auto nativeNode = nodePtr(firstArg->ToNativePointer(vm)->Value());
-    std::vector<uint32_t> colorOptions;
-    ArkTSUtils::ParseOuterBorderColor(runtimeCallInfo, vm, colorOptions, NUM_1);
-    GetArkUINodeModifiers()->getTextAreaModifier()->setTextAreaOutlineColor(
-        nativeNode, colorOptions.data(), colorOptions.size());
-    return panda::JSValueRef::Undefined(vm);
-}
-
-ArkUINativeModuleValue TextAreaBridge::ResetOutlineColor(ArkUIRuntimeCallInfo* runtimeCallInfo)
-{
-    EcmaVM* vm = runtimeCallInfo->GetVM();
-    CHECK_NULL_RETURN(vm, panda::NativePointerRef::New(vm, nullptr));
-    Local<JSValueRef> firstArg = runtimeCallInfo->GetCallArgRef(0);
-    auto nativeNode = nodePtr(firstArg->ToNativePointer(vm)->Value());
-    GetArkUINodeModifiers()->getTextAreaModifier()->resetTextAreaOutlineColor(nativeNode);
-    return panda::JSValueRef::Undefined(vm);
-}
-
-ArkUINativeModuleValue TextAreaBridge::SetOutlineRadius(ArkUIRuntimeCallInfo* runtimeCallInfo)
-{
-    EcmaVM* vm = runtimeCallInfo->GetVM();
-    CHECK_NULL_RETURN(vm, panda::NativePointerRef::New(vm, nullptr));
-    Local<JSValueRef> firstArg = runtimeCallInfo->GetCallArgRef(0);
-    auto nativeNode = nodePtr(firstArg->ToNativePointer(vm)->Value());
-    std::vector<ArkUI_Float32> radiusOptions;
-    ArkTSUtils::ParseOuterBorderRadius(runtimeCallInfo, vm, radiusOptions, NUM_1);
-    GetArkUINodeModifiers()->getTextAreaModifier()->setTextAreaOutlineRadius(
-        nativeNode, radiusOptions.data(), radiusOptions.size());
-    return panda::JSValueRef::Undefined(vm);
-}
-
-ArkUINativeModuleValue TextAreaBridge::ResetOutlineRadius(ArkUIRuntimeCallInfo* runtimeCallInfo)
-{
-    EcmaVM* vm = runtimeCallInfo->GetVM();
-    CHECK_NULL_RETURN(vm, panda::NativePointerRef::New(vm, nullptr));
-    Local<JSValueRef> firstArg = runtimeCallInfo->GetCallArgRef(0);
-    auto nativeNode = nodePtr(firstArg->ToNativePointer(vm)->Value());
-    GetArkUINodeModifiers()->getTextAreaModifier()->resetTextAreaOutlineRadius(nativeNode);
-    return panda::JSValueRef::Undefined(vm);
-}
-
-ArkUINativeModuleValue TextAreaBridge::SetOutlineWidth(ArkUIRuntimeCallInfo* runtimeCallInfo)
-{
-    EcmaVM* vm = runtimeCallInfo->GetVM();
-    CHECK_NULL_RETURN(vm, panda::NativePointerRef::New(vm, nullptr));
-    Local<JSValueRef> firstArg = runtimeCallInfo->GetCallArgRef(0);
-    auto nativeNode = nodePtr(firstArg->ToNativePointer(vm)->Value());
-    std::vector<ArkUI_Float32> widthOptions;
-    ArkTSUtils::ParseOuterBorderWidth(runtimeCallInfo, vm, widthOptions, false);
-    GetArkUINodeModifiers()->getTextAreaModifier()->setTextAreaOutlineWidth(
-        nativeNode, widthOptions.data(), widthOptions.size());
-    return panda::JSValueRef::Undefined(vm);
-}
-
-ArkUINativeModuleValue TextAreaBridge::ResetOutlineWidth(ArkUIRuntimeCallInfo* runtimeCallInfo)
-{
-    EcmaVM* vm = runtimeCallInfo->GetVM();
-    CHECK_NULL_RETURN(vm, panda::NativePointerRef::New(vm, nullptr));
-    Local<JSValueRef> firstArg = runtimeCallInfo->GetCallArgRef(0);
-    auto nativeNode = nodePtr(firstArg->ToNativePointer(vm)->Value());
-    GetArkUINodeModifiers()->getTextAreaModifier()->resetTextAreaOutlineWidth(nativeNode);
-    return panda::JSValueRef::Undefined(vm);
-}
-
-ArkUINativeModuleValue TextAreaBridge::SetOutline(ArkUIRuntimeCallInfo* runtimeCallInfo)
-{
-    EcmaVM* vm = runtimeCallInfo->GetVM();
-    CHECK_NULL_RETURN(vm, panda::NativePointerRef::New(vm, nullptr));
-    Local<JSValueRef> firstArg = runtimeCallInfo->GetCallArgRef(0);
-    auto nativeNode = nodePtr(firstArg->ToNativePointer(vm)->Value());
-    std::vector<ArkUI_Float32> options;
-    ArkTSUtils::ParseOuterBorderWidth(runtimeCallInfo, vm, options);         // Outline Width args start index from 1
-    ArkTSUtils::ParseOuterBorderRadius(runtimeCallInfo, vm, options, NUM_9); // Outline Radius args start index
-
-    std::vector<uint32_t> colorAndStyleOptions;
-    ArkTSUtils::ParseOuterBorderColor(
-        runtimeCallInfo, vm, colorAndStyleOptions, NUM_5); // Outline Color args start index
-    ArkTSUtils::ParseOuterBorderStyle(
-        runtimeCallInfo, vm, colorAndStyleOptions, NUM_13); // Outline Style args start index
-
-    GetArkUINodeModifiers()->getTextAreaModifier()->setTextAreaOutline(
-        nativeNode, options.data(), options.size(), colorAndStyleOptions.data(), colorAndStyleOptions.size());
-    return panda::JSValueRef::Undefined(vm);
-}
-
-ArkUINativeModuleValue TextAreaBridge::ResetOutline(ArkUIRuntimeCallInfo* runtimeCallInfo)
-{
-    EcmaVM* vm = runtimeCallInfo->GetVM();
-    CHECK_NULL_RETURN(vm, panda::NativePointerRef::New(vm, nullptr));
-    Local<JSValueRef> firstArg = runtimeCallInfo->GetCallArgRef(0);
-    auto nativeNode = nodePtr(firstArg->ToNativePointer(vm)->Value());
-    GetArkUINodeModifiers()->getTextAreaModifier()->resetTextAreaOutline(nativeNode);
     return panda::JSValueRef::Undefined(vm);
 }
 
@@ -1892,10 +1929,40 @@ ArkUINativeModuleValue TextAreaBridge::SetMargin(ArkUIRuntimeCallInfo *runtimeCa
     Local<JSValueRef> thirdArg = runtimeCallInfo->GetCallArgRef(NUM_2);
     Local<JSValueRef> forthArg = runtimeCallInfo->GetCallArgRef(NUM_3);
     Local<JSValueRef> fifthArg = runtimeCallInfo->GetCallArgRef(NUM_4);
+
     ArkUISizeType top = ArkTSUtils::ParseJsToArkUISize(vm, secondArg);
     ArkUISizeType right = ArkTSUtils::ParseJsToArkUISize(vm, thirdArg);
     ArkUISizeType bottom = ArkTSUtils::ParseJsToArkUISize(vm, forthArg);
     ArkUISizeType left = ArkTSUtils::ParseJsToArkUISize(vm, fifthArg);
+
+    CalcDimension topDimen(0, DimensionUnit::VP);
+    CalcDimension rightDimen(0, DimensionUnit::VP);
+    CalcDimension bottomDimen(0, DimensionUnit::VP);
+    CalcDimension leftDimen(0, DimensionUnit::VP);
+
+    bool isLengthMetrics = false;
+    if (secondArg->IsObject(vm)) {
+        isLengthMetrics |= ParseLocalizedMargin(vm, secondArg, topDimen, top);
+    }
+    if (thirdArg->IsObject(vm)) {
+        isLengthMetrics |= ParseLocalizedMargin(vm, thirdArg, rightDimen, right);
+    }
+    if (forthArg->IsObject(vm)) {
+        isLengthMetrics |= ParseLocalizedMargin(vm, forthArg, bottomDimen, bottom);
+    }
+    if (fifthArg->IsObject(vm)) {
+        isLengthMetrics |= ParseLocalizedMargin(vm, fifthArg, leftDimen, left);
+    }
+    if (isLengthMetrics) {
+        auto isRightToLeft = AceApplicationInfo::GetInstance().IsRightToLeft();
+        GetArkUINodeModifiers()->getTextAreaModifier()->setTextAreaMargin(nativeNode,
+            &top,
+            isRightToLeft ? &left : &right,
+            &bottom,
+            isRightToLeft ? &right : &left);
+        return panda::JSValueRef::Undefined(vm);
+    }
+
     GetArkUINodeModifiers()->getTextAreaModifier()->setTextAreaMargin(nativeNode, &top, &right, &bottom, &left);
     return panda::JSValueRef::Undefined(vm);
 }
@@ -2199,8 +2266,7 @@ ArkUINativeModuleValue TextAreaBridge::SetWidth(ArkUIRuntimeCallInfo* runtimeCal
         GetArkUINodeModifiers()->getTextAreaModifier()->resetTextAreaWidth(nativeNode);
         return panda::JSValueRef::Undefined(vm);
     }
-    GetArkUINodeModifiers()->getTextAreaModifier()->setTextAreaWidth(
-        nativeNode, value.c_str());
+    GetArkUINodeModifiers()->getTextAreaModifier()->setTextAreaWidth(nativeNode, value.c_str());
     return panda::JSValueRef::Undefined(vm);
 }
 

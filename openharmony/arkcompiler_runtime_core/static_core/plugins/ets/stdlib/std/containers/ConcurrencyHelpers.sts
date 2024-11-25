@@ -22,6 +22,15 @@ final class ConcurrencyHelpers {
     public static native mutexLock(mutex: Object): void;
     public static native mutexUnlock(mutex: Object): void;
 
+    public static lockGuard(mutex: Object, callback: () => void): void {
+        ConcurrencyHelpers.mutexLock(mutex);
+        try {
+            callback();
+        } finally {
+            ConcurrencyHelpers.mutexUnlock(mutex);
+        }
+    }
+
     // Event api
     public static native eventCreate(): Object;
     public static native eventWait(event: Object): void;

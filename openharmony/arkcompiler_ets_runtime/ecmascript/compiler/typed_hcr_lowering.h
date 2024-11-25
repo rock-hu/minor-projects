@@ -137,6 +137,7 @@ private:
     void LowerStableArrayCheck(GateRef gate);
     void LowerTypedArrayCheck(GateRef gate);
     void LowerEcmaStringCheck(GateRef gate);
+    void LowerInternStringCheck(GateRef gate);
     void LowerEcmaMapCheck(GateRef gate);
     void LowerFlattenTreeStringCheck(GateRef gate, GateRef glue);
     void LowerLoadTypedArrayLength(GateRef gate);
@@ -203,7 +204,6 @@ private:
     void LowerLoadSetter(GateRef gate);
     void LowerPrototypeCheck(GateRef gate);
     void LowerStringEqual(GateRef gate, GateRef glue);
-    void LowerStringAdd(GateRef gate, GateRef glue);
     void LowerTypeOfCheck(GateRef gate);
     void LowerTypeOf(GateRef gate, GateRef glue);
     void LowerArrayConstructorCheck(GateRef gate, GateRef glue);
@@ -253,10 +253,6 @@ private:
     GateType GetRightType(GateRef gate);
     GateRef GetElementSize(BuiltinTypeId id);
     VariableType GetVariableType(BuiltinTypeId id);
-    GateRef AllocateLineString(GateRef glue, GateRef length, GateRef canBeCompressed);
-    GateRef AllocateSlicedString(GateRef glue, GateRef flatString, GateRef length, GateRef canBeCompressed);
-    bool IsFirstConcatInStringAdd(GateRef gate) const;
-    bool ConcatIsInStringAdd(GateRef gate) const;
 
     GateRef GetFrameState(GateRef gate) const
     {

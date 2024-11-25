@@ -79,7 +79,7 @@ public:
 
     bool canExpandCurrentWindow_ = false;
     void InitCanExpandCurrentWindow(bool isShowInSubWindow);
-    bool CheckIsEmbeddedMode(LayoutWrapper* layoutWrapper);
+    bool HoldEmbeddedMenuPosition(LayoutWrapper* layoutWrapper);
     Rect GetMenuWindowRectInfo(const RefPtr<MenuPattern>& menuPattern);
 
 protected:
@@ -88,6 +88,7 @@ protected:
 
     RefPtr<MenuPaintProperty> GetPaintProperty(const LayoutWrapper* layoutWrapper);
     OffsetF GetMenuWrapperOffset(const LayoutWrapper* layoutWrapper);
+    void ClipMenuPath(LayoutWrapper* layoutWrapper);
 
     // position input is relative to main window left top point,
     // menu show position is relative to menuWrapper.
@@ -142,7 +143,6 @@ private:
     void UpdateConstraintHeight(LayoutWrapper* layoutWrapper, LayoutConstraintF& constraint);
     void UpdateConstraintBaseOnOptions(LayoutWrapper* layoutWrapper, LayoutConstraintF& constraint);
     void UpdateOptionConstraint(std::list<RefPtr<LayoutWrapper>>& options, float width);
-    void AdjustSelectOverlayMenuPosition(OffsetF& menuPosition, const RefPtr<GeometryNode>& geometryNode);
 
     void ComputeMenuPositionByAlignType(const RefPtr<MenuLayoutProperty>& menuProp, const SizeF& menuSize);
     OffsetF ComputeMenuPositionByOffset(
@@ -199,7 +199,7 @@ private:
         RefPtr<LayoutWrapper>& previewLayoutWrapper, RefPtr<LayoutWrapper>& menuLayoutWrapper);
     void ModifyPreviewMenuPlacement(LayoutWrapper* layoutWrapper);
     void GetPreviewNodeTotalSize(const RefPtr<LayoutWrapper>& child, const Rect& menuWindowRect,
-        RefPtr<LayoutWrapper>& previewLayoutWrapper, SizeF& size, bool isShowHoverImage);
+        RefPtr<LayoutWrapper>& previewLayoutWrapper, SizeF& size, const RefPtr<LayoutWrapper>& menuLayoutWrapper);
     SizeF GetPreviewNodeAndMenuNodeTotalSize(const RefPtr<FrameNode>& frameNode,
         RefPtr<LayoutWrapper>& previewLayoutWrapper, RefPtr<LayoutWrapper>& menuLayoutWrapper);
 
@@ -238,6 +238,7 @@ private:
     void UpdateChildConstraintByDevice(const RefPtr<MenuPattern>& menuPattern,
         LayoutConstraintF& childConstraint, const LayoutConstraintF& layoutConstraint);
     void CheckPreviewConstraint(const RefPtr<FrameNode>& frameNode, const Rect& menuWindowRect);
+    void CheckPreviewSize(const RefPtr<LayoutWrapper>& previewLayoutWrapper, const RefPtr<MenuPattern>& menuPattern);
     void ModifyTargetOffset();
 
     std::string MoveTo(double x, double y);
@@ -258,7 +259,6 @@ private:
     void NormalizeBorderRadius(float& radiusTopLeftPx, float& radiusTopRightPx,
         float& radiusBottomLeftPx, float& radiusBottomRightPx);
     std::string CalculateMenuPath(LayoutWrapper* layoutWrapper, bool didNeedArrow);
-    void ClipMenuPath(LayoutWrapper* layoutWrapper);
 
     std::optional<OffsetF> lastPosition_;
     OffsetF targetOffset_;
@@ -315,6 +315,7 @@ private:
     float previewScale_ = 1.0f;
     MenuDumpInfo dumpInfo_;
     MarginPropertyF layoutRegionMargin_;
+    bool isTargetNodeInSubwindow_ = false;
     bool isExpandDisplay_ = false;
     bool isFreeMultiWindow_ = false;
     bool isUIExtensionSubWindow_ = false;
@@ -325,6 +326,7 @@ private:
     SizeF childMarginFrameSize_;
     std::string clipPath_;
     bool isPreviewContainScale_ = false;
+    bool holdEmbeddedMenuPosition_ = false;
 
     using PlacementFunc = OffsetF (MenuLayoutAlgorithm::*)(const SizeF&, const OffsetF&, const OffsetF&);
     std::map<Placement, PlacementFunc> placementFuncMap_;

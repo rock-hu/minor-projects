@@ -43,6 +43,7 @@ private:
     void LowerIsMarkerCellValid(GateRef gate);
     void LowerIsSpecificObjectType(GateRef gate);
     void LowerHClassStableArrayCheck(GateRef gate);
+    void LowerMathHClassConsistencyCheck(GateRef gate);
     void LowerGetConstPool(GateRef gate);
     void LowerGetUnsharedConstpool(GateRef gate);
     void LowerLoadConstOffset(GateRef gate);
@@ -56,7 +57,7 @@ private:
     void LowerCheckTaggedNumberAndConvert(GateRef gate, GateRef frameState, Label *exit);
     void LowerCheckTaggedBoolAndConvert(GateRef gate, GateRef frameState);
     void LowerCheckSpecialHoleAndConvert(GateRef gate, GateRef frameState);
-    void LowerCheckSupportAndConvert(GateRef gate, GateRef frameState);
+    void LowerCheckSupportAndConvertBool(GateRef gate, GateRef frameState);
     void LowerGetGlobalEnv(GateRef gate);
     void LowerGetGlobalEnvObj(GateRef gate);
     void LowerGetGlobalEnvObjHClass(GateRef gate);
@@ -83,6 +84,7 @@ private:
     void LowerHeapObjectIsEcmaObject(GateRef gate);
     void LowerIsCallableCheck(GateRef gate);
     void LowerCheckFloat64AndConvert(GateRef gate, GateRef frameState, Label *exit);
+    void LowerStringAdd(GateRef gate);
 
     GateRef ConvertSpecialHoleIntToTagged(GateRef gate, Label* exit);
     GateRef ConvertSpecialHoleDoubleToTagged(GateRef gate, Label* exit);

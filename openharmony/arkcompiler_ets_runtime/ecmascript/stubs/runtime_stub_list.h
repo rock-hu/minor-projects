@@ -141,9 +141,7 @@ namespace panda::ecmascript {
     V(MarkingBarrier)                          \
     V(MarkingBarrierWithEden)                  \
     V(SharedGCMarkingBarrier)                  \
-    V(StoreBarrier)                            \
     V(DoubleToInt)                             \
-    V(DoubleToLength)                          \
     V(FloatMod)                                \
     V(FloatAcos)                               \
     V(FloatAcosh)                              \
@@ -170,11 +168,7 @@ namespace panda::ecmascript {
     V(FloatPow)                                \
     V(FloatCeil)                               \
     V(CallDateNow)                             \
-    V(NumberIsFinite)                          \
-    V(FindElementWithCache)                    \
     V(UpdateFieldType)                         \
-    V(CreateArrayFromList)                     \
-    V(StringsAreEquals)                        \
     V(BigIntEquals)                            \
     V(TimeClip)                                \
     V(SetDateValues)                           \
@@ -190,6 +184,8 @@ namespace panda::ecmascript {
     V(StringGetStart)                          \
     V(StringGetEnd)                            \
     V(ArrayTrim)                               \
+    V(SortTypedArray)                          \
+    V(ReverseTypedArray)                       \
     V(CopyTypedArrayBuffer)                    \
     V(IsFastRegExp)
 
@@ -296,6 +292,7 @@ namespace panda::ecmascript {
     V(StOwnByValue)                             \
     V(LdSuperByValue)                           \
     V(StSuperByValue)                           \
+    V(StObjByValue)                             \
     V(LdObjByIndex)                             \
     V(StObjByIndex)                             \
     V(StOwnByIndex)                             \
@@ -469,6 +466,7 @@ namespace panda::ecmascript {
     V(HasProperty)                              \
     V(DumpObject)                               \
     V(TryGetInternString)                       \
+    V(FastCopyFromArrayToTypedArray)            \
     V(BigIntConstructor)                        \
     V(ObjectPrototypeHasOwnProperty)            \
     V(ReflectHas)                               \

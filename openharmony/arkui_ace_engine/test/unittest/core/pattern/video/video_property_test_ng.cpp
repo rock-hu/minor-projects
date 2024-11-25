@@ -1101,13 +1101,13 @@ HWTEST_F(VideoPropertyTestNg, VideoPatternTest025, TestSize.Level1)
 
     /**
      * @tc.steps: step2. Call PrepareSurface in different status.
-     * @tc.expected: SetSurface function is not called.
+     * @tc.expected: SetSurface function is called.
      */
     EXPECT_CALL(*(AceType::DynamicCast<MockRenderSurface>(videoPattern->renderSurface_)), IsSurfaceValid())
         .WillOnce(Return(true))
         .WillOnce(Return(false));
     EXPECT_CALL(*(AceType::DynamicCast<MockMediaPlayer>(videoPattern->mediaPlayer_)), SetSurface())
-        .Times(0);
+        .WillOnce(Return(-1));
     videoPattern->PrepareSurface();
     SystemProperties::SetExtSurfaceEnabled(false);
     videoPattern->PrepareSurface();

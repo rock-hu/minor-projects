@@ -294,9 +294,10 @@ void XComponentPattern::InitializeRenderContext()
 #ifdef RENDER_EXTRACT_SUPPORTED
     auto contextType = type_ == XComponentType::TEXTURE ? RenderContext::ContextType::HARDWARE_TEXTURE
                                                         : RenderContext::ContextType::HARDWARE_SURFACE;
-    RenderContext::ContextParam param = { contextType, GetId() + "Surface" };
+    RenderContext::ContextParam param = { contextType, GetId() + "Surface", RenderContext::PatternType::XCOM };
 #else
-    RenderContext::ContextParam param = { RenderContext::ContextType::HARDWARE_SURFACE, GetId() + "Surface" };
+    RenderContext::ContextParam param = { RenderContext::ContextType::HARDWARE_SURFACE,
+                                          GetId() + "Surface", RenderContext::PatternType::XCOM };
 #endif
 
     renderContextForSurface_->InitContext(false, param);
@@ -375,8 +376,9 @@ void XComponentPattern::OnModifyDone()
     CHECK_NULL_VOID(renderContext);
     CHECK_NULL_VOID(handlingSurfaceRenderContext_);
     auto bkColor = renderContext->GetBackgroundColor();
-    if (bkColor.has_value() && bkColor.value() != Color::BLACK) {
-        handlingSurfaceRenderContext_->UpdateBackgroundColor(Color::TRANSPARENT);
+    if (bkColor.has_value()) {
+        bool isTransparent = bkColor.value().GetAlpha() < UINT8_MAX;
+        handlingSurfaceRenderContext_->UpdateBackgroundColor(isTransparent ? Color::TRANSPARENT : bkColor.value());
     } else {
         handlingSurfaceRenderContext_->UpdateBackgroundColor(Color::BLACK);
     }
@@ -545,6 +547,16 @@ void XComponentPattern::OnDetachContext(PipelineContext* context)
     auto host = GetHost();
     CHECK_NULL_VOID(host);
     context->RemoveWindowStateChangedCallback(host->GetId());
+}
+
+void XComponentPattern::ToJsonValue(std::unique_ptr<JsonValue>& json, const InspectorFilter& filter) const
+{
+    Pattern::ToJsonValue(json, filter);
+    if (filter.IsFastFilter()) {
+        return;
+    }
+    json->PutExtAttr("enableAnalyzer", isEnableAnalyzer_ ? "true" : "false", filter);
+    json->PutExtAttr("enableSecure", isEnableSecure_ ? "true" : "false", filter);
 }
 
 void XComponentPattern::SetRotation(uint32_t rotation)
@@ -970,6 +982,10 @@ bool XComponentPattern::HandleKeyEvent(const KeyEvent& event)
     nativeXComponentImpl_->SetKeyEvent(keyEvent);
 
     auto* surface = const_cast<void*>(nativeXComponentImpl_->GetSurface());
+    const auto keyEventCallbackWithResult = nativeXComponentImpl_->GetKeyEventCallbackWithResult();
+    if (keyEventCallbackWithResult) {
+        return keyEventCallbackWithResult(nativeXComponent_.get(), surface);
+    }
     const auto keyEventCallback = nativeXComponentImpl_->GetKeyEventCallback();
     CHECK_NULL_RETURN(keyEventCallback, false);
     keyEventCallback(nativeXComponent_.get(), surface);
@@ -1776,9 +1792,12 @@ void XComponentPattern::NativeSurfaceHide()
 
 void XComponentPattern::OnWindowHide()
 {
-    if (!hasXComponentInit_ || hasReleasedSurface_
-        || (type_ != XComponentType::SURFACE && type_ != XComponentType::TEXTURE)) {
+    if (!hasXComponentInit_ || hasReleasedSurface_ ||
+        (type_ != XComponentType::SURFACE && type_ != XComponentType::TEXTURE)) {
         return;
+    }
+    if (renderSurface_) {
+        renderSurface_->OnWindowStateChange(false);
     }
     NativeSurfaceHide();
     hasReleasedSurface_ = true;
@@ -1786,9 +1805,12 @@ void XComponentPattern::OnWindowHide()
 
 void XComponentPattern::OnWindowShow()
 {
-    if (!hasXComponentInit_ || !hasReleasedSurface_
-        || (type_ != XComponentType::SURFACE && type_ != XComponentType::TEXTURE)) {
+    if (!hasXComponentInit_ || !hasReleasedSurface_ ||
+        (type_ != XComponentType::SURFACE && type_ != XComponentType::TEXTURE)) {
         return;
+    }
+    if (renderSurface_) {
+        renderSurface_->OnWindowStateChange(true);
     }
     NativeSurfaceShow();
     hasReleasedSurface_ = false;
@@ -2019,5 +2041,6 @@ void XComponentPattern::EnableSecure(bool isSecure)
     }
     CHECK_NULL_VOID(renderContextForSurface_);
     renderContextForSurface_->SetSecurityLayer(isSecure);
+    isEnableSecure_ = isSecure;
 }
 } // namespace OHOS::Ace::NG

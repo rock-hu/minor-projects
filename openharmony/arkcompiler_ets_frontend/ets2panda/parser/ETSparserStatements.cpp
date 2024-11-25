@@ -20,6 +20,7 @@
 #include "macros.h"
 #include "parser/parserFlags.h"
 #include "parser/parserStatusContext.h"
+#include "util/errorRecovery.h"
 #include "util/helpers.h"
 #include "util/language.h"
 #include "utils/arena_containers.h"
@@ -127,16 +128,15 @@ ArenaVector<ir::Statement *> ETSParser::ParseTopLevelStatements()
 {
     ArenaVector<ir::Statement *> statements(Allocator()->Adapter());
     while (Lexer()->GetToken().Type() != lexer::TokenType::EOS) {
+        util::ErrorRecursionGuard infiniteLoopBlocker(Lexer());
+
         if (Lexer()->TryEatTokenType(lexer::TokenType::PUNCTUATOR_SEMI_COLON)) {
             continue;
         }
-        auto savedPosition = Lexer()->Save();
         auto stmt = ParseTopLevelStatement();
         GetContext().Status() &= ~ParserStatus::IN_AMBIENT_CONTEXT;
         if (stmt != nullptr) {
             statements.emplace_back(stmt);
-        } else if (savedPosition == Lexer()->Save()) {
-            Lexer()->NextToken();  // Error processing, avoid infinite loop.
         }
     }
 
@@ -144,7 +144,8 @@ ArenaVector<ir::Statement *> ETSParser::ParseTopLevelStatements()
 }
 
 static ir::Statement *ValidateExportableStatement(ETSParser *parser, ir::Statement *stmt,
-                                                  ark::es2panda::ir::ModifierFlags memberModifiers)
+                                                  ark::es2panda::ir::ModifierFlags memberModifiers,
+                                                  lexer::SourcePosition pos)
 {
     if (stmt != nullptr) {
         if ((memberModifiers & ir::ModifierFlags::EXPORT_TYPE) != 0U &&
@@ -153,11 +154,17 @@ static ir::Statement *ValidateExportableStatement(ETSParser *parser, ir::Stateme
         }
         if (stmt->IsAnnotationDeclaration()) {
             if ((memberModifiers & ir::ModifierFlags::DEFAULT_EXPORT) != 0U) {
-                parser->ThrowSyntaxError("Can not export annotation default!", stmt->Start());
+                parser->LogSyntaxError("Can not export annotation default!", stmt->Start());
             }
         }
         stmt->AddModifier(memberModifiers);
+    } else {
+        if ((memberModifiers &
+             (ir::ModifierFlags::EXPORT | ir::ModifierFlags::DEFAULT_EXPORT | ir::ModifierFlags::EXPORT_TYPE)) != 0U) {
+            parser->LogSyntaxError("Export is allowed only for declarations.", pos);
+        }
     }
+
     return stmt;
 }
 
@@ -198,28 +205,24 @@ ir::Statement *ETSParser::ParseTopLevelDeclStatement(StatementParsingFlags flags
             }
             break;
         }
-        case lexer::TokenType::KEYW_CONST: {
+        case lexer::TokenType::KEYW_CONST:
             memberModifiers |= ir::ModifierFlags::CONST;
             [[fallthrough]];
-        }
-        case lexer::TokenType::KEYW_LET: {
+        case lexer::TokenType::KEYW_LET:
             result = ParseStatement(flags);
             break;
-        }
         case lexer::TokenType::KEYW_NAMESPACE:
         case lexer::TokenType::KEYW_STATIC:
         case lexer::TokenType::KEYW_ABSTRACT:
         case lexer::TokenType::KEYW_FINAL:
         case lexer::TokenType::KEYW_ENUM:
         case lexer::TokenType::KEYW_INTERFACE:
-        case lexer::TokenType::KEYW_CLASS: {
+        case lexer::TokenType::KEYW_CLASS:
             result = ParseTypeDeclaration(false);
             break;
-        }
-        case lexer::TokenType::PUNCTUATOR_AT: {
+        case lexer::TokenType::PUNCTUATOR_AT:
             result = ParseAnnotation(flags, memberModifiers);
             break;
-        }
         case lexer::TokenType::LITERAL_IDENT: {
             result = ParseIdentKeyword();
             if (result == nullptr && (memberModifiers & (ir::ModifierFlags::EXPORTED)) != 0U) {
@@ -231,7 +234,7 @@ ir::Statement *ETSParser::ParseTopLevelDeclStatement(StatementParsingFlags flags
         }
     }
 
-    return ValidateExportableStatement(this, result, memberModifiers);
+    return ValidateExportableStatement(this, result, memberModifiers, startLoc);
 }
 
 ir::Statement *ETSParser::ParseTopLevelStatement()

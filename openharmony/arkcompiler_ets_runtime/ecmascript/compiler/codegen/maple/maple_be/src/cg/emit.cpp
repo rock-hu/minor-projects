@@ -37,6 +37,7 @@ using namespace maple;
 #ifdef ARK_LITECG_DEBUG
 constexpr uint32 kSizeOfHugesoRoutine = 3;
 constexpr uint32 kFromDefIndexMask32Mod = 0x40000000;
+const std::string DEFAULT_PATH = "/data/local/tmp/aot_code_comment.txt";
 
 int32 GetPrimitiveTypeSize(const std::string &name)
 {
@@ -2789,6 +2790,24 @@ void Emitter::EmitHexUnsigned(uint64 num)
     std::ios::fmtflags flag(outStream.flags());
     outStream << "0x" << std::hex << num;
     outStream.flags(flag);
+#endif
+}
+
+void Emitter::WriteDebugCommentToFile()
+{
+#ifdef ARK_LITECG_DEBUG
+    struct stat buffer;
+    std::string filePath = cg->GetCGOptions().GetEmitAotCodeCommentFile();
+    std::string outputFile = stat(filePath.c_str(), &buffer) == 0 ? filePath : DEFAULT_PATH;
+    std::ofstream file(outputFile.c_str(), std::ios::app);
+    if (!file.is_open()) {
+        std::cerr << outputFile << " Unable to open file for writing." << std::endl;
+        return;
+    }
+
+    file << outStream.str();
+    file.flush();
+    file.close();
 #endif
 }
 

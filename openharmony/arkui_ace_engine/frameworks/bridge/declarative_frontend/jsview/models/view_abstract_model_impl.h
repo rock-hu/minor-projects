@@ -91,7 +91,7 @@ public:
         const std::optional<BorderStyle>& styleTop, const std::optional<BorderStyle>& styleBottom) override {}
 
     void SetLayoutPriority(int32_t priority) override;
-    void SetPixelRound(uint8_t value) override;
+    void SetPixelRound(uint16_t value) override;
     void SetLayoutWeight(float value) override;
     void SetLayoutWeight(const NG::LayoutWeightPair& value) override {};
     void SetLayoutDirection(TextDirection value) override;
@@ -175,7 +175,7 @@ public:
     void SetInvert(const InvertVariant& invert) override;
     void SetSystemBarEffect(bool) override {};
     void SetHueRotate(float value) override;
-    void SetUseEffect(bool) override {}
+    void SetUseEffect(bool, EffectType) override {}
     void SetUseShadowBatching(bool) override {}
     void SetFreeze(bool) override {}
 
@@ -190,7 +190,7 @@ public:
     void SetOnGestureRecognizerJudgeBegin(
         NG::GestureRecognizerJudgeFunc&& gestureRecognizerJudgeFunc, bool exposeInnerGestureFlag) override {}
     void SetOnTouch(TouchEventFunc&& touchEventFunc) override;
-    void SetOnKeyEvent(OnKeyCallbackFunc&& onKeyCallback) override;
+    void SetOnKeyEvent(OnKeyConsumeFunc&& onKeyCallback) override;
     void SetOnMouse(OnMouseEventFunc&& onMouseEventFunc) override;
     void SetOnHover(OnHoverFunc&& onHoverEventFunc) override;
     void SetOnAccessibilityHover(OnAccessibilityHoverFunc&& onAccessibilityHoverEventFunc) override {};
@@ -293,6 +293,7 @@ public:
     void SetAccessibilityVirtualNode(std::function<void()>&& buildFunc) override;
     void SetAccessibilitySelected(bool selected, bool resetValue) override;
     void SetAccessibilityChecked(bool checked, bool resetValue) override;
+    void SetAccessibilityTextPreferred(bool accessibilityTextPreferred) override;
 
     void SetProgressMask(const RefPtr<NG::ProgressMaskProperty>& progress) override {}
     void SetForegroundColor(const Color& color) override {}
@@ -325,6 +326,7 @@ public:
     void SetBloom(const float value) override {};
     void SetPositionLocalizedEdges(bool needLocalized) override {};
     void SetMarkAnchorStart(Dimension& markAnchorStart) override {};
+    void ResetMarkAnchorStart() override {};
     void SetOffsetLocalizedEdges(bool needLocalized) override {};
 };
 

@@ -46,6 +46,7 @@
 #include "core/components/common/layout/constants.h"
 #include "core/components/common/properties/animation_option.h"
 #include "core/components/theme/theme_manager.h"
+#include "core/components_ng/pattern/ui_extension/ui_extension_config.h"
 #include "core/components_ng/property/safe_area_insets.h"
 #include "core/event/axis_event.h"
 #include "core/event/key_event.h"
@@ -159,7 +160,7 @@ public:
         const std::function<void()>& finishCallback = nullptr);
 
     void StartImplicitAnimation(const AnimationOption& operation, const RefPtr<Curve>& curve,
-        const std::function<void()>& finishCallback = nullptr);
+        const std::function<void()>& finishCallback = nullptr, const std::optional<int32_t>& count = std::nullopt);
 
     void PrepareCloseImplicitAnimation();
 
@@ -191,6 +192,10 @@ public:
     // if return false, then this event needs platform to handle it.
     virtual bool OnKeyEvent(const KeyEvent& event) = 0;
 
+    // Called by container when key event received.
+    // if return false, then this event needs platform to handle it.
+    virtual bool OnNonPointerEvent(const NonPointerEvent& event) = 0;
+
     // Called by view when mouse event received.
     virtual void OnMouseEvent(const MouseEvent& event) = 0;
 
@@ -213,7 +218,7 @@ public:
     virtual void OnVsyncEvent(uint64_t nanoTimestamp, uint32_t frameCount);
 
     // Called by viewr
-    virtual void OnDragEvent(const PointerEvent& pointerEvent, DragEventAction action,
+    virtual void OnDragEvent(const DragPointerEvent& pointerEvent, DragEventAction action,
         const RefPtr<NG::FrameNode>& node = nullptr) = 0;
 
     // Called by view when idle event.
@@ -384,6 +389,23 @@ public:
     virtual void SetAppIcon(const RefPtr<PixelMap>& icon) = 0;
 
     virtual void SetContainerButtonHide(bool hideSplit, bool hideMaximize, bool hideMinimize, bool hideClose) {}
+
+    virtual void EnableContainerModalGesture(bool isEnable) {}
+
+    virtual bool GetContainerFloatingTitleVisible()
+    {
+        return false;
+    }
+
+    virtual bool GetContainerCustomTitleVisible()
+    {
+        return false;
+    }
+
+    virtual bool GetContainerControlButtonVisible()
+    {
+        return false;
+    }
 
     virtual void RefreshRootBgColor() const {}
 
@@ -903,6 +925,7 @@ public:
         TaskExecutor::TaskType type = TaskExecutor::TaskType::UI);
 
     virtual void FlushReload(const ConfigurationChange& configurationChange, bool fullUpdate = true) {}
+
     virtual void FlushBuild() {}
 
     virtual void FlushReloadTransition() {}
@@ -941,7 +964,7 @@ public:
 
     void OnFoldDisplayModeChanged(FoldDisplayMode foldDisplayMode);
 
-    using virtualKeyBoardCallback = std::function<bool(int32_t, int32_t, double)>;
+    using virtualKeyBoardCallback = std::function<bool(int32_t, int32_t, double, bool)>;
     void SetVirtualKeyBoardCallback(virtualKeyBoardCallback&& listener)
     {
         static std::atomic<int32_t> pseudoId(-1); // -1 will not be conflict with real node ids.
@@ -956,11 +979,11 @@ public:
     {
         virtualKeyBoardCallback_.erase(nodeId);
     }
-    bool NotifyVirtualKeyBoard(int32_t width, int32_t height, double keyboard) const
+    bool NotifyVirtualKeyBoard(int32_t width, int32_t height, double keyboard, bool isCustomKeyboard) const
     {
         bool isConsume = false;
         for (const auto& [nodeId, iterVirtualKeyBoardCallback] : virtualKeyBoardCallback_) {
-            if (iterVirtualKeyBoardCallback && iterVirtualKeyBoardCallback(width, height, keyboard)) {
+            if (iterVirtualKeyBoardCallback && iterVirtualKeyBoardCallback(width, height, keyboard, isCustomKeyboard)) {
                 isConsume = true;
             }
         }
@@ -1397,32 +1420,11 @@ public:
     {
         return true;
     }
-    bool IsWaitFlushFinish() const
-    {
-        return isWaitFlushFinish_;
-    }
 
-    void EnWaitFlushFinish()
-    {
-        isWaitFlushFinish_ = true;
-    }
-
-    void UnWaitFlushFinish()
-    {
-        isWaitFlushFinish_ = false;
-    }
-
-    void SetUIExtensionFlushFinishCallback(std::function<void(void)>&& callback)
-    {
-        uiExtensionFlushFinishCallback_ = callback;
-    }
-
-    void FireUIExtensionFlushFinishCallback()
-    {
-        if (uiExtensionFlushFinishCallback_) {
-            uiExtensionFlushFinishCallback_();
-        }
-    }
+    void SetUIExtensionEventCallback(std::function<void(uint32_t)>&& callback);
+    void AddUIExtensionCallbackEvent(NG::UIExtCallbackEventId eventId);
+    void FireAllUIExtensionEvents();
+    void FireUIExtensionEventOnceImmediately(NG::UIExtCallbackEventId eventId);
 
     void SetOpenInvisibleFreeze(bool isOpenInvisibleFreeze)
     {
@@ -1433,6 +1435,25 @@ public:
     {
         return isOpenInvisibleFreeze_;
     }
+
+    void SetVisibleAreaRealTime(bool visibleAreaRealTime)
+    {
+        visibleAreaRealTime_ = visibleAreaRealTime;
+    }
+
+    bool GetVisibleAreaRealTime() const
+    {
+        return visibleAreaRealTime_;
+    }
+
+    // Prints out the count of the unexecuted finish callback
+    std::string GetUnexecutedFinishCount() const;
+
+    void SetAccessibilityEventCallback(std::function<void(uint32_t, int64_t)>&& callback);
+
+    void AddAccessibilityCallbackEvent(AccessibilityCallbackEventId event, int64_t parameter);
+
+    void FireAccessibilityEvents();
 
 protected:
     virtual bool MaybeRelease() override;
@@ -1467,8 +1488,10 @@ protected:
     {
         isReloading_ = isReloading;
     }
+    bool FireUIExtensionEventValid();
 
-    std::function<void()> GetWrappedAnimationCallback(const std::function<void()>& finishCallback);
+    std::function<void()> GetWrappedAnimationCallback(const AnimationOption& option,
+        const std::function<void()>& finishCallback, const std::optional<int32_t>& count = std::nullopt);
 
     std::map<int32_t, configChangedCallback> configChangedCallback_;
     std::map<int32_t, virtualKeyBoardCallback> virtualKeyBoardCallback_;
@@ -1505,6 +1528,8 @@ protected:
     double dipScale_ = 1.0;
     double rootHeight_ = 0.0;
     double rootWidth_ = 0.0;
+    int32_t width_ = 0;
+    int32_t height_ = 0;
     FrontendType frontendType_;
     WindowModal windowModal_ = WindowModal::NORMAL;
 
@@ -1596,6 +1621,7 @@ private:
     PostRTTaskCallback postRTTaskCallback_;
     std::function<void(void)> gsVsyncCallback_;
     std::unordered_set<std::shared_ptr<std::function<void()>>, FunctionHash> finishFunctions_;
+    std::unordered_set<int32_t> finishCount_;
     bool isFormAnimationFinishCallback_ = false;
     int64_t formAnimationStartTime_ = 0;
     bool isFormAnimation_ = false;
@@ -1603,6 +1629,8 @@ private:
     bool hasSupportedPreviewText_ = true;
     bool hasPreviewTextOption_ = false;
     bool useCutout_ = false;
+    // whether visible area need to be calculate at each vsync after approximate timeout.
+    bool visibleAreaRealTime_ = false;
     uint64_t vsyncTime_ = 0;
 
     bool destroyed_ = false;
@@ -1615,9 +1643,11 @@ private:
     std::mutex densityChangeMutex_;
     int32_t densityChangeCallbackId_ = 0;
     std::unordered_map<int32_t, std::function<void(double)>> densityChangedCallbacks_;
-    bool isWaitFlushFinish_ = false;
     std::function<double()> windowDensityCallback_;
-    std::function<void(void)> uiExtensionFlushFinishCallback_;
+    std::function<void(uint32_t)> uiExtensionEventCallback_;
+    std::set<NG::UIExtCallbackEvent> uiExtensionEvents_;
+    std::function<void(uint32_t, int64_t)> accessibilityCallback_;
+    std::set<AccessibilityCallbackEvent> accessibilityEvents_;
 
     ACE_DISALLOW_COPY_AND_MOVE(PipelineBase);
 };

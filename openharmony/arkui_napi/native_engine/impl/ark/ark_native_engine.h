@@ -21,20 +21,19 @@
 #include <sys/wait.h>
 #include <sys/types.h>
 #endif
-#include <unistd.h>
+#include <iostream>
 #include <map>
 #include <mutex>
-#include <thread>
-#include <iostream>
 #include <regex>
+#include <thread>
+#include <unistd.h>
 
+#include "ark_idle_monitor.h"
+#include "ark_native_options.h"
 #include "ecmascript/napi/include/dfx_jsnapi.h"
 #include "ecmascript/napi/include/jsnapi.h"
 #include "native_engine/impl/ark/ark_finalizers_pack.h"
 #include "native_engine/native_engine.h"
-#include "ark_idle_monitor.h"
-#include "ark_native_options.h"
-
 
 namespace panda::ecmascript {
 struct JsHeapDumpWork;
@@ -144,7 +143,7 @@ public:
     // ArkNativeEngine destructor
     ~ArkNativeEngine() override;
 
-    inline NAPI_EXPORT const EcmaVM* GetEcmaVm() const
+    NAPI_EXPORT const EcmaVM* GetEcmaVm() const override
     {
         return vm_;
     }
@@ -395,6 +394,7 @@ private:
         pendingFinalizersPackNativeBindingSize_ -= nativeBindingSize;
     }
 
+    EcmaVM* vm_ = nullptr;
     bool needStop_ = false;
     panda::LocalScope topScope_;
     NapiConcurrentCallback concurrentCallbackFunc_ { nullptr };
@@ -412,6 +412,6 @@ private:
     // napi options and its cache
     NapiOptions* options_ { nullptr };
     bool crossThreadCheck_ { false };
-    ArkIdleMonitor *arkIdleMonitor_ {nullptr};
+    std::shared_ptr<ArkIdleMonitor> arkIdleMonitor_;
 };
 #endif /* FOUNDATION_ACE_NAPI_NATIVE_ENGINE_IMPL_ARK_ARK_NATIVE_ENGINE_H */

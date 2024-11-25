@@ -16,32 +16,64 @@
 #ifndef CPP_ABCKIT_ARKTS_FUNCTION_H
 #define CPP_ABCKIT_ARKTS_FUNCTION_H
 
-#include "libabckit/include/c/abckit.h"
-#include "cpp/headers/declarations.h"
-#include "cpp/headers/config.h"
-#include "cpp/headers/base_classes.h"
-#include "cpp/headers/core/function.h"
-#include "cpp/headers/core/annotation_interface.h"
-#include "cpp/headers/arkts/annotation_interface.h"
+#include "../core/function.h"
 
 namespace abckit::arkts {
 
+/**
+ * @brief Function
+ */
 class Function final : public core::Function {
-    // To access private constructor.
     // We restrict constructors in order to prevent C/C++ API mix-up by user.
+    /// @brief to access private constructor
     friend class Class;
+    /// @brief abckit::DefaultHash<Function>
+    friend class abckit::DefaultHash<Function>;
 
 public:
+    /**
+     * @brief Construct a new Function object
+     * @param other
+     */
     Function(const Function &other) = default;
+
+    /**
+     * @brief Constructor
+     * @param other
+     * @return Function&
+     */
     Function &operator=(const Function &other) = default;
+
+    /**
+     * @brief Construct a new Function object
+     * @param other
+     */
     Function(Function &&other) = default;
+
+    /**
+     * @brief Constructor
+     * @param other
+     * @return Function&
+     */
     Function &operator=(Function &&other) = default;
 
     // CC-OFFNXT(G.FMT.02) project code style
+    /**
+     * @brief Construct a new Function object
+     * @param coreOther
+     */
     explicit Function(const core::Function &coreOther) : core::Function(coreOther) {};
 
+    /**
+     * @brief Destroy the Function object
+     */
     ~Function() override = default;
 
+    /**
+     * @brief Add annotation
+     * @param iface
+     * @return arkts::Function&
+     */
     arkts::Function &AddAnnotation(const arkts::AnnotationInterface &iface);
 
     // Other API.

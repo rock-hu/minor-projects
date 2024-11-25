@@ -35,8 +35,10 @@ void ShapeModelNG::Create()
 
 void ShapeModelNG::InitBox(const RefPtr<PixelMap>& pixMap)
 {
-    ImageSourceInfo pixelMapInfo(pixMap);
-    ACE_UPDATE_PAINT_PROPERTY(ShapeContainerPaintProperty, PixelMapInfo, pixelMapInfo);
+    if (Container::GreatOrEqualAPITargetVersion(PlatformVersion::VERSION_FOURTEEN)) {
+        ImageSourceInfo pixelMapInfo(pixMap);
+        ACE_UPDATE_PAINT_PROPERTY(ShapeContainerPaintProperty, PixelMapInfo, pixelMapInfo);
+    }
 }
 
 void ShapeModelNG::SetBitmapMesh(const std::vector<float>& mesh, int32_t column, int32_t row)
@@ -63,6 +65,11 @@ void ShapeModelNG::SetStroke(const Color& color)
 void ShapeModelNG::SetFill(const Color& color)
 {
     ShapeAbstractModelNG().SetFill(color);
+}
+
+void ShapeModelNG::SetForegroundColor(const Color& color)
+{
+    ShapeAbstractModelNG().SetForegroundColor(color);
 }
 
 void ShapeModelNG::SetStrokeDashOffset(const Ace::Dimension& dashOffset)

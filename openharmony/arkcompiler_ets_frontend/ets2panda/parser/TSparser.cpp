@@ -217,8 +217,7 @@ ir::TSTypeAliasDeclaration *TSParser::ParseTypeAliasDeclaration()
     TypeAnnotationParsingOptions options = TypeAnnotationParsingOptions::REPORT_ERROR;
     ir::TypeNode *typeAnnotation = ParseTypeAnnotation(&options);
 
-    auto *typeAliasDecl =
-        AllocNode<ir::TSTypeAliasDeclaration>(Allocator(), id, typeParamDecl, typeAnnotation, InAmbientContext());
+    auto *typeAliasDecl = AllocNode<ir::TSTypeAliasDeclaration>(Allocator(), id, typeParamDecl, typeAnnotation);
     typeAliasDecl->SetRange({typeStart, Lexer()->GetToken().End()});
 
     return typeAliasDecl;
@@ -1929,9 +1928,7 @@ ir::MethodDefinition *TSParser::ParseClassMethod(ClassElementDescriptor *desc,
 void TSParser::ValidateClassSetter(ClassElementDescriptor *desc, const ArenaVector<ir::AstNode *> &properties,
                                    ir::Expression *propName, ir::ScriptFunction *func)
 {
-    if (func->Params().size() != 1) {
-        ThrowSyntaxError("Setter must have exactly one formal parameter");
-    }
+    ValidateGetterSetter(ir::MethodDefinitionKind::SET, func->Params().size());
 
     if ((desc->modifiers & ir::ModifierFlags::STATIC) == 0) {
         ir::ModifierFlags access = GetAccessability(desc->modifiers);
@@ -1942,9 +1939,7 @@ void TSParser::ValidateClassSetter(ClassElementDescriptor *desc, const ArenaVect
 void TSParser::ValidateClassGetter(ClassElementDescriptor *desc, const ArenaVector<ir::AstNode *> &properties,
                                    ir::Expression *propName, ir::ScriptFunction *func)
 {
-    if (!func->Params().empty()) {
-        ThrowSyntaxError("Getter must not have formal parameters");
-    }
+    ValidateGetterSetter(ir::MethodDefinitionKind::GET, func->Params().size());
 
     if ((desc->modifiers & ir::ModifierFlags::STATIC) == 0) {
         ir::ModifierFlags access = GetAccessability(desc->modifiers);
@@ -1986,7 +1981,7 @@ void TSParser::CheckIfTypeParameterNameIsReserved()
     }
 }
 
-void TSParser::ThrowErrorIfStaticConstructor(ir::ModifierFlags flags)
+void TSParser::CheckIfStaticConstructor(ir::ModifierFlags flags)
 {
     if ((flags & ir::ModifierFlags::STATIC) != 0) {
         ThrowSyntaxError("Static modifier can not appear on a constructor");
@@ -2099,7 +2094,7 @@ std::tuple<bool, ir::BlockStatement *, lexer::SourcePosition, bool> TSParser::Pa
 
 ir::AstNode *TSParser::ParseImportDefaultSpecifier(ArenaVector<ir::AstNode *> *specifiers)
 {
-    ir::Identifier *local = ParseNamedImport(Lexer()->GetToken());
+    ir::Identifier *local = ParseNamedImport(&Lexer()->GetToken());
     Lexer()->NextToken();  // eat local name
 
     if (Lexer()->GetToken().Type() == lexer::TokenType::PUNCTUATOR_SUBSTITUTION) {
@@ -2140,34 +2135,34 @@ void TSParser::ParseCatchParamTypeAnnotation([[maybe_unused]] ir::AnnotatedExpre
     }
 }
 
-void TSParser::ThrowPossibleOutOfBoundaryJumpError(bool allowBreak)
+void TSParser::ReportPossibleOutOfBoundaryJumpError(bool allowBreak)
 {
     if (((GetContext().Status() & ParserStatus::FUNCTION) != 0) && !allowBreak) {
         ThrowSyntaxError("Jump target cannot cross function boundary");
     }
 }
 
-void TSParser::ThrowIllegalBreakError()
+void TSParser::ReportIllegalBreakError(const lexer::SourcePosition &pos)
 {
-    ThrowSyntaxError("A 'break' statement can only be used within an enclosing iteration or switch statement");
+    ThrowSyntaxError("A 'break' statement can only be used within an enclosing iteration or switch statement", pos);
 }
 
-void TSParser::ThrowIllegalContinueError()
+void TSParser::ReportIllegalContinueError()
 {
     ThrowSyntaxError("A 'continue' statement can only be used within an enclosing iteration statement");
 }
 
-void TSParser::ThrowMultipleDefaultError()
+void TSParser::ReportMultipleDefaultError()
 {
     ThrowSyntaxError("A 'default' clause cannot appear more than once in a 'switch' statement");
 }
 
-void TSParser::LogIllegalNewLineErrorAfterThrow()
+void TSParser::ReportIllegalNewLineErrorAfterThrow()
 {
-    LogSyntaxError("Line break not permitted here");
+    ThrowSyntaxError("Line break not permitted here");
 }
 
-void TSParser::ThrowIfBodyEmptyError(ir::Statement *consequent)
+void TSParser::ReportIfBodyEmptyError(ir::Statement *consequent)
 {
     if (consequent->IsEmptyStatement()) {
         ThrowSyntaxError("The body of an if statement cannot be the empty statement");

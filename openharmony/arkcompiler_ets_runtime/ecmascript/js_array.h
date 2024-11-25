@@ -45,6 +45,7 @@ public:
                                   const PropertyDescriptor &desc);
 
     static bool IsLengthString(JSThread *thread, const JSHandle<JSTaggedValue> &key);
+    static bool IsProtoNotChangeJSArray(JSThread *thread, const JSHandle<JSObject> &obj);
     // ecma6 7.3 Operations on Objects
     static JSHandle<JSArray> CreateArrayFromList(JSThread *thread, const JSHandle<TaggedArray> &elements);
     static JSHandle<JSArray> CreateArrayFromList(JSThread *thread, const JSHandle<JSTaggedValue> &newtarget,
@@ -109,6 +110,8 @@ public:
                                           SCheckMode sCheckMode = SCheckMode::CHECK);
 
     static JSTaggedValue Sort(JSThread *thread, const JSHandle<JSTaggedValue> &obj, const JSHandle<JSTaggedValue> &fn);
+    static JSTaggedValue CopySortedListToReceiver(JSThread *thread, const JSHandle<JSTaggedValue> &thisObjVal,
+                                                  JSHandle<TaggedArray> sortedList, uint32_t len);
     static bool IncludeInSortedValue(JSThread *thread, const JSHandle<JSTaggedValue> &obj,
                                      const JSHandle<JSTaggedValue> &value);
     static JSHandle<TaggedArray> ToTaggedArray(JSThread *thread, const JSHandle<JSTaggedValue> &obj);

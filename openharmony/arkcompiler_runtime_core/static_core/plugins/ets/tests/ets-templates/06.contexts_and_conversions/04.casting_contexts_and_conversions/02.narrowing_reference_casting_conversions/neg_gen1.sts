@@ -19,7 +19,7 @@ tags: [compile-only, negative]
 ---*/
 class A<T> {
     fld: T;
-    init(p: Boolean) {
+    constructor(p: Boolean) {
         this.fld = p as T // CTE expected: casting to type parameter
     }
 }

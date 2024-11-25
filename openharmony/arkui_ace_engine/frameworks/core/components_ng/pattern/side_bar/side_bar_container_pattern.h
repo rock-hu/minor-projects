@@ -25,10 +25,6 @@
 
 namespace OHOS::Ace::NG {
 
-namespace {
-using UpdateCallback = std::function<void(const RefPtr<FrameNode>&)>;
-} // namespace
-
 enum class SideBarAnimationDirection {
     LTR,
     RTL,
@@ -145,40 +141,10 @@ public:
         typeUpdateWidth_ = typeUpdateWidth;
     }
     void GetControlImageSize(Dimension& width, Dimension& height);
-    void OnWindowFocused() override
-    {
-        WindowFocus(true);
-    }
-
-    void OnWindowUnfocused() override
-    {
-        WindowFocus(false);
-    }
 
     bool GetShowSideBar() const
     {
         return showSideBar_;
-    }
-
-    RefPtr<FrameNode> GetControlButtonNode() const;
-    void SetControlButtonInfoUpdateCallback(const UpdateCallback& updateCallback)
-    {
-        updateCallBack_ = updateCallback;
-    }
-
-    bool IsControlButtonCustomed() const
-    {
-        return isControlButtonPosCustomed_ || isControlButtonSizeCustomed_;
-    }
-
-    void SetControlButtonPosCustom(bool isControlButtonPosCustomed)
-    {
-        isControlButtonPosCustomed_ = isControlButtonPosCustomed;
-    }
-
-    void SetControlButtonSizeCustom(bool isControlButtonSizeCustomed)
-    {
-        isControlButtonSizeCustomed_ = isControlButtonSizeCustomed;
     }
 
     void SetImageInfo(ImageSourceInfo imageInfo)
@@ -187,12 +153,10 @@ public:
     }
 
 private:
-    void WindowFocus(bool isFocus);
     bool OnDirtyLayoutWrapperSwap(const RefPtr<LayoutWrapper>& dirty, const DirtySwapConfig& config) override;
     void OnAttachToFrameNode() override;
     void OnDetachFromFrameNode(FrameNode* frameNode) override;
     void OnModifyDone() override;
-    void OnColorConfigurationUpdate() override;
     void UpdateAnimDir();
     void DoAnimation();
     void CreateAnimation();
@@ -222,6 +186,7 @@ private:
     RefPtr<FrameNode> GetSideBarNode(const RefPtr<FrameNode>& host) const;
     RefPtr<FrameNode> GetFirstFrameNode(const RefPtr<UINode>& host) const;
     RefPtr<FrameNode> GetSideBarNodeOrFirstChild() const;
+    RefPtr<FrameNode> GetControlButtonNode() const;
     RefPtr<FrameNode> GetContentNode(const RefPtr<FrameNode>& host) const;
     RefPtr<FrameNode> GetControlImageNode() const;
     RefPtr<FrameNode> GetDividerNode() const;
@@ -230,12 +195,9 @@ private:
     void UpdateDividerShadow() const;
     void SetSideBarActive(bool isActive, bool onlyJsActive) const;
     void OnLanguageConfigurationUpdate() override;
-    void SetSideBarMask(bool isWindowFocus) const;
     void OnWindowSizeChanged(int32_t width, int32_t height, WindowSizeChangeReason type) override;
     void RegisterElementInfoCallBack(const RefPtr<FrameNode>& buttonNode);
     void SetAccessibilityEvent();
-    void UpdateControlButtonInfo();
-    void UpdateControlButtonImageSize();
     void InitImageErrorCallback(const RefPtr<SideBarTheme>& sideBarTheme, const RefPtr<FrameNode>& imgNode);
 
     RefPtr<InputEvent> hoverEvent_;
@@ -263,7 +225,6 @@ private:
     bool isRightToLeft_ = false;
     bool isInDividerDrag_ = false;
     bool isDividerDraggable_ = true;
-    bool isWindowFocus_ = true;
     bool userSetShowSideBar_ = true;
 
     Dimension realSideBarWidth_ = -1.0_vp;
@@ -291,9 +252,6 @@ private:
     void HandleLongPressActionEnd();
     void ShowDialogWithNode();
     bool isDialogShow_ = false;
-    UpdateCallback updateCallBack_ = nullptr;
-    bool isControlButtonPosCustomed_ = false;
-    bool isControlButtonSizeCustomed_ = false;
 };
 
 } // namespace OHOS::Ace::NG

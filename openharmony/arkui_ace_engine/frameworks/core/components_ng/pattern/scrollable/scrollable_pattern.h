@@ -49,7 +49,7 @@ class InspectorFilter;
 constexpr double FRICTION = 0.6;
 constexpr double API11_FRICTION = 0.7;
 constexpr double API12_FRICTION = 0.75;
-constexpr double MAX_VELOCITY = 12000.0;
+constexpr double MAX_VELOCITY = 9000.0;
 #else
 constexpr double FRICTION = 0.9;
 constexpr double MAX_VELOCITY = 5000.0;
@@ -59,6 +59,12 @@ enum class ModalSheetCoordinationMode : char {
     UNKNOWN = 0,
     SHEET_SCROLL = 1,
     SCROLLABLE_SCROLL = 2,
+};
+struct ScrollOffsetAbility {
+    std::function<bool(float)> scrollFunc = nullptr;
+    Axis axis = Axis::VERTICAL;
+    float contentStartOffset = 0.0f;
+    float contentEndOffset = 0.0f;
 };
 class ScrollablePattern : public NestableScrollContainer {
     DECLARE_ACE_TYPE(ScrollablePattern, NestableScrollContainer);
@@ -127,6 +133,10 @@ public:
     }
     virtual bool IsAtTop() const = 0;
     virtual bool IsAtBottom() const = 0;
+    virtual bool IsFadingBottom() const
+    {
+        return !IsAtBottom();
+    }
     virtual bool OutBoundaryCallback()
     {
         return IsOutOfBoundary();
@@ -156,12 +166,19 @@ public:
     void SetScrollEnabled(bool enabled)
     {
         CHECK_NULL_VOID(scrollableEvent_);
-        scrollableEvent_->SetEnabled(enabled);
-        if (!enabled) {
-            scrollableEvent_->SetAxis(Axis::NONE);
-        } else {
-            scrollableEvent_->SetAxis(axis_);
+        bool bNest = false;
+        if (scrollBarProxy_) {
+            bNest = scrollBarProxy_->IsNestScroller();
         }
+
+        if (enabled || bNest) {
+            enabled = true;
+            scrollableEvent_->SetAxis(axis_);
+        } else {
+            scrollableEvent_->SetAxis(Axis::NONE);
+        }
+        scrollableEvent_->SetEnabled(enabled);
+
         if (scrollBarProxy_) {
             scrollBarProxy_->SetScrollEnabled(enabled, AceType::WeakClaim(this));
         }
@@ -207,7 +224,7 @@ public:
         return barOffset_;
     }
 
-    double GetScrollBarOutBoundaryExtent() const
+    float GetScrollBarOutBoundaryExtent() const
     {
         return scrollBarOutBoundaryExtent_;
     }
@@ -622,7 +639,7 @@ public:
         return isScrollToSafeAreaHelper_;
     }
 
-    virtual std::pair<std::function<bool(float)>, Axis> GetScrollOffsetAbility()
+    virtual ScrollOffsetAbility GetScrollOffsetAbility()
     {
         return { nullptr, Axis::NONE };
     }
@@ -680,6 +697,17 @@ public:
         return isScrolling_;
     }
 
+    void OnColorConfigurationUpdate() override;
+
+    virtual SizeF GetChildrenExpandedSize()
+    {
+        return SizeF();
+    }
+
+    SizeF GetViewSizeMinusPadding();
+
+    void ScrollEndCallback(bool nestedScroll, float velocity);
+
 protected:
     void SuggestOpIncGroup(bool flag);
     void OnDetachFromFrameNode(FrameNode* frameNode) override;
@@ -702,7 +730,6 @@ protected:
     virtual void FireOnScroll(float finalOffset, OnScrollEvent& onScroll) const;
 
     void FireObserverOnTouch(const TouchEventInfo& info);
-    void FireObserverOnPanActionEnd(GestureEvent& info);
     void FireObserverOnReachStart();
     void FireObserverOnReachEnd();
     void FireObserverOnScrollStart();
@@ -866,7 +893,6 @@ private:
     void SetNeedScrollSnapToSideCallback(const RefPtr<Scrollable>& scrollable);
     void SetDragFRCSceneCallback(const RefPtr<Scrollable>& scrollable);
     void SetOnContinuousSliding(const RefPtr<Scrollable>& scrollable);
-    void SetPanActionEndEvent(const RefPtr<Scrollable>& scrollable);
     RefPtr<Scrollable> CreateScrollable();
 
     // Scrollable::UpdateScrollPosition
@@ -918,7 +944,7 @@ private:
     bool isSheetInReactive_ = false;
     bool isCoordEventNeedSpring_ = true;
     bool isScrolling_ = false;
-    double scrollBarOutBoundaryExtent_ = 0.0;
+    float scrollBarOutBoundaryExtent_ = 0.f;
     std::optional<float> ratio_;
     double friction_ = -1.0;
     double maxFlingVelocity_ = MAX_VELOCITY;
@@ -987,6 +1013,7 @@ private:
     WeakPtr<NestableScrollContainer> scrollOriginChild_;
     float nestedScrollVelocity_ = 0.0f;
     uint64_t nestedScrollTimestamp_ = 0;
+    bool prevHasFadingEdge_ = false;
 
     // dump info
     std::list<ScrollableEventsFiredInfo> eventsFiredInfos_;

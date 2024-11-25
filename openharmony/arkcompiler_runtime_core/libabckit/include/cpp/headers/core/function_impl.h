@@ -16,7 +16,9 @@
 #ifndef CPP_ABCKIT_CORE_FUNCTION_IMPL_H
 #define CPP_ABCKIT_CORE_FUNCTION_IMPL_H
 
-#include "cpp/headers/core/function.h"
+#include "./function.h"
+#include "./class.h"
+#include "./module.h"
 
 namespace abckit::core {
 
@@ -54,13 +56,12 @@ inline std::vector<core::Annotation> Function::GetAnnotations() const
     using EnumerateData = std::pair<std::vector<core::Annotation> *, const ApiConfig *>;
     EnumerateData enumerateData(&anns, conf);
 
-    conf->cIapi_->functionEnumerateAnnotations(GetView(), (void *)&enumerateData,
-                                               [](AbckitCoreAnnotation *ann, void *data) {
-                                                   auto *vec = static_cast<EnumerateData *>(data)->first;
-                                                   auto *config = static_cast<EnumerateData *>(data)->second;
-                                                   vec->push_back(core::Annotation(ann, config));
-                                                   return true;
-                                               });
+    conf->cIapi_->functionEnumerateAnnotations(GetView(), &enumerateData, [](AbckitCoreAnnotation *ann, void *data) {
+        auto *vec = static_cast<EnumerateData *>(data)->first;
+        auto *config = static_cast<EnumerateData *>(data)->second;
+        vec->push_back(core::Annotation(ann, config));
+        return true;
+    });
 
     CheckError(conf);
 
@@ -73,6 +74,54 @@ inline bool Function::IsStatic() const
     bool result = conf->cIapi_->functionIsStatic(GetView());
     CheckError(conf);
     return result;
+}
+
+inline core::Module Function::GetModule() const
+{
+    const ApiConfig *conf = GetApiConfig();
+    AbckitCoreModule *module = conf->cIapi_->functionGetModule(GetView());
+    CheckError(conf);
+    return core::Module(module, conf_);
+}
+
+inline core::Class Function::GetParentClass() const
+{
+    const ApiConfig *conf = GetApiConfig();
+    AbckitCoreClass *klass = conf->cIapi_->functionGetParentClass(GetView());
+    CheckError(conf);
+    return core::Class(klass, conf_);
+}
+
+// CC-OFFNXT(G.FUD.06) perf critical
+inline void Function::EnumerateNestedFunctions(const std::function<bool(core::Function)> &cb) const
+{
+    struct Payload {
+        const std::function<bool(core::Function)> &callback;
+        const ApiConfig *config;
+    } payload {cb, GetApiConfig()};
+
+    GetApiConfig()->cIapi_->functionEnumerateNestedFunctions(
+        GetView(), &payload, [](AbckitCoreFunction *nestedFunc, void *data) {
+            const auto &payload = *static_cast<Payload *>(data);
+            return payload.callback(core::Function(nestedFunc, payload.config));
+        });
+    CheckError(GetApiConfig());
+}
+
+// CC-OFFNXT(G.FUD.06) perf critical
+inline void Function::EnumerateNestedClasses(const std::function<bool(core::Class)> &cb) const
+{
+    struct Payload {
+        const std::function<bool(core::Class)> &callback;
+        const ApiConfig *config;
+    } payload {cb, GetApiConfig()};
+
+    GetApiConfig()->cIapi_->functionEnumerateNestedClasses(
+        GetView(), &payload, [](AbckitCoreClass *nestedClass, void *data) {
+            const auto &payload = *static_cast<Payload *>(data);
+            return payload.callback(core::Class(nestedClass, payload.config));
+        });
+    CheckError(GetApiConfig());
 }
 
 }  // namespace abckit::core

@@ -130,6 +130,7 @@ bool ListPattern::OnDirtyLayoutWrapperSwap(const RefPtr<LayoutWrapper>& dirty, c
     auto listLayoutAlgorithm = DynamicCast<ListLayoutAlgorithm>(layoutAlgorithmWrapper->GetLayoutAlgorithm());
     CHECK_NULL_RETURN(listLayoutAlgorithm, false);
     itemPosition_ = listLayoutAlgorithm->GetItemPosition();
+    cachedItemPosition_ = listLayoutAlgorithm->GetCachedItemPosition();
     maxListItemIndex_ = listLayoutAlgorithm->GetMaxListItemIndex();
     spaceWidth_ = listLayoutAlgorithm->GetSpaceWidth();
     auto predictSnapOffset = listLayoutAlgorithm->GetPredictSnapOffset();
@@ -339,7 +340,7 @@ RefPtr<NodePaintMethod> ListPattern::CreateNodePaintMethod()
         listContentModifier_ = AceType::MakeRefPtr<ListContentModifier>(offset, size);
     }
     paint->SetLaneGutter(laneGutter_);
-    paint->SetItemsPosition(itemPosition_, pressedItem_);
+    paint->SetItemsPosition(itemPosition_, cachedItemPosition_, pressedItem_);
     paint->SetContentModifier(listContentModifier_);
     paint->SetAdjustOffset(geometryNode->GetParentAdjust().GetOffset().GetY());
     UpdateFadingEdge(paint);
@@ -524,12 +525,6 @@ void ListPattern::DrivenRender(const RefPtr<LayoutWrapper>& layoutWrapper)
 
 void ListPattern::CheckScrollable()
 {
-    auto host = GetHost();
-    CHECK_NULL_VOID(host);
-    auto hub = host->GetEventHub<EventHub>();
-    CHECK_NULL_VOID(hub);
-    auto gestureHub = hub->GetOrCreateGestureEventHub();
-    CHECK_NULL_VOID(gestureHub);
     auto listProperty = GetLayoutProperty<ListLayoutProperty>();
     CHECK_NULL_VOID(listProperty);
     auto lastScrollable = isScrollable_;
@@ -580,7 +575,7 @@ RefPtr<LayoutAlgorithm> ListPattern::CreateLayoutAlgorithm()
         listLayoutAlgorithm->SetListChildrenMainSize(childrenSize_);
         listLayoutAlgorithm->SetListPositionMap(posMap_);
     }
-    if (!isInitialized_) {
+    if (!isInitialized_ && !jumpIndex_) {
         jumpIndex_ = listLayoutProperty->GetInitialIndex().value_or(0);
         if (NeedScrollSnapAlignEffect()) {
             scrollAlign_ = GetScrollAlignByScrollSnapAlign();
@@ -818,7 +813,7 @@ OverScrollOffset ListPattern::GetOutBoundaryOffset(bool useCurrentDelta) const
     if (endIndex >= maxListItemIndex_ && groupAtEnd) {
         endMainPos = endMainPos + GetChainDelta(endIndex);
         auto contentMainSize = contentMainSize_ - contentEndOffset_ - contentStartOffset_;
-        if (GreatNotEqual(contentMainSize, endMainPos - startMainPos)) {
+        if (startIndex_ == 0 && GreatNotEqual(contentMainSize, endMainPos - startMainPos)) {
             endMainPos = startMainPos + contentMainSize;
         }
         if (useCurrentDelta) {
@@ -1203,15 +1198,19 @@ bool ListPattern::ScrollToNode(const RefPtr<FrameNode>& focusFrameNode)
     return true;
 }
 
-std::pair<std::function<bool(float)>, Axis> ListPattern::GetScrollOffsetAbility()
+ScrollOffsetAbility ListPattern::GetScrollOffsetAbility()
 {
-    return { [wp = WeakClaim(this)](float moveOffset) -> bool {
-                auto pattern = wp.Upgrade();
-                CHECK_NULL_RETURN(pattern, false);
-                pattern->ScrollBy(-moveOffset);
-                return true;
-            },
-        GetAxis() };
+    return {
+        [wp = WeakClaim(this)](float moveOffset) -> bool {
+            auto pattern = wp.Upgrade();
+            CHECK_NULL_RETURN(pattern, false);
+            pattern->ScrollBy(-moveOffset);
+            return true;
+        },
+        GetAxis(),
+        contentStartOffset_,
+        contentEndOffset_,
+    };
 }
 
 std::function<bool(int32_t)> ListPattern::GetScrollIndexAbility()
@@ -1253,6 +1252,17 @@ bool ListPattern::ScrollListForFocus(int32_t nextIndex, int32_t curIndex, int32_
         isScrollIndex = true;
         ScrollToIndex(nextIndex, false, ScrollAlign::END);
         pipeline->FlushUITasks();
+    } else if (nextIndexInGroup == -1) {
+        auto iter = itemPosition_.find(nextIndex);
+        if (iter != itemPosition_.end()) {
+            float targetPos = 0.0f;
+            GetListItemAnimatePos(iter->second.startPos, iter->second.endPos, ScrollAlign::AUTO, targetPos);
+            if (Positive(targetPos)) {
+                ScrollToIndex(nextIndex, false, ScrollAlign::END);
+            } else if (Negative(targetPos)) {
+                ScrollToIndex(nextIndex, false, ScrollAlign::START);
+            }
+        }
     }
     return isScrollIndex;
 }
@@ -1522,13 +1532,13 @@ bool ListPattern::GetListItemGroupAnimatePosWithIndexInGroup(
         if (stickyStyle == V2::StickyStyle::FOOTER || stickyStyle == V2::StickyStyle::BOTH) {
             itemEndPos += groupPattern->GetFooterMainSize();
         }
-        if (!IsScrollSnapAlignCenter() || childrenSize_) {
-            itemStartPos -= contentStartOffset_;
-            itemEndPos += contentEndOffset_;
-        }
         if (align == ScrollAlign::AUTO) {
             targetPos = CalculateTargetPos(itemStartPos, itemEndPos);
         } else {
+            if (!IsScrollSnapAlignCenter() || childrenSize_) {
+                itemStartPos -= contentStartOffset_;
+                itemEndPos += contentEndOffset_;
+            }
             targetPos = align == ScrollAlign::END ? itemEndPos - contentMainSize_ : itemStartPos;
         }
     }
@@ -1619,26 +1629,12 @@ void ListPattern::HandleScrollBarOutBoundary()
     if (!GetScrollBar() && !GetScrollBarProxy()) {
         return;
     }
-    if (!IsOutOfBoundary(false) || !isScrollable_) {
+    if (!isScrollable_) {
         ScrollablePattern::HandleScrollBarOutBoundary(0);
         return;
     }
-    float overScroll = 0.0f;
-    if (!IsScrollSnapAlignCenter()) {
-        if ((itemPosition_.begin()->first == 0) && GreatNotEqual(startMainPos_, contentStartOffset_)) {
-            overScroll = startMainPos_ - contentStartOffset_;
-        } else {
-            overScroll = contentMainSize_ - contentEndOffset_ - endMainPos_;
-        }
-    } else {
-        float itemHeight = itemPosition_[centerIndex_].endPos - itemPosition_[centerIndex_].startPos;
-        if (startIndex_ == 0 && Positive(startMainPos_ + itemHeight / 2.0f - contentMainSize_ / 2.0f)) {
-            overScroll = startMainPos_ + itemHeight / 2.0f - contentMainSize_ / 2.0f;
-        } else if ((endIndex_ == maxListItemIndex_) &&
-                   LessNotEqual(endMainPos_ - itemHeight / 2.0f, contentMainSize_ / 2.0f)) {
-            overScroll = endMainPos_ - itemHeight / 2.0f - contentMainSize_ / 2.0f;
-        }
-    }
+    auto res = GetOutBoundaryOffset(false);
+    float overScroll = std::max(res.start, res.end);
     ScrollablePattern::HandleScrollBarOutBoundary(overScroll);
 }
 
@@ -1952,10 +1948,16 @@ void ListPattern::UpdateChildPosInfo(int32_t index, float delta, float sizeChang
 void ListPattern::UpdateScrollBarOffset()
 {
     CheckScrollBarOff();
-    if (itemPosition_.empty()) {
+    if (!GetScrollBar() && !GetScrollBarProxy()) {
         return;
     }
-    if (!GetScrollBar() && !GetScrollBarProxy()) {
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    const auto& geometryNode = host->GetGeometryNode();
+    auto frameSize = geometryNode->GetFrameSize();
+    Size size(frameSize.Width(), frameSize.Height());
+    if (itemPosition_.empty()) {
+        UpdateScrollBarRegion(0.f, 0.f, size, Offset(0.0f, 0.0f));
         return;
     }
     float currentOffset = 0.0f;
@@ -1978,15 +1980,10 @@ void ListPattern::UpdateScrollBarOffset()
     }
 
     // calculate padding offset of list
-    auto host = GetHost();
-    CHECK_NULL_VOID(host);
     auto layoutPriority = host->GetLayoutProperty();
     CHECK_NULL_VOID(layoutPriority);
     auto padding = layoutPriority->CreatePaddingAndBorder();
     auto paddingMain = GetAxis() == Axis::VERTICAL ? padding.Height() : padding.Width();
-    const auto& geometryNode = host->GetGeometryNode();
-    auto frameSize = geometryNode->GetFrameSize();
-    Size size(frameSize.Width(), frameSize.Height());
     UpdateScrollBarRegion(currentOffset, estimatedHeight + paddingMain, size, Offset(0.0f, 0.0f));
 }
 
@@ -2215,7 +2212,7 @@ void ListPattern::MultiSelectWithoutKeyboard(const RectF& selectedZone)
             if (!selectedZone.IsIntersectWith(itemGroupRect)) {
                 continue;
             }
-            HandleCardModeSelectedEvent(selectedZone, item, itemGroupRect.Top());
+            HandleCardModeSelectedEvent(selectedZone, item, itemGroupRect.GetOffset());
             continue;
         }
         auto itemPattern = item->GetPattern<ListItemPattern>();
@@ -2239,7 +2236,7 @@ void ListPattern::MultiSelectWithoutKeyboard(const RectF& selectedZone)
 }
 
 void ListPattern::HandleCardModeSelectedEvent(
-    const RectF& selectedZone, const RefPtr<FrameNode>& itemGroupNode, float itemGroupTop)
+    const RectF& selectedZone, const RefPtr<FrameNode>& itemGroupNode, const OffsetF& groupOffset)
 {
     CHECK_NULL_VOID(itemGroupNode);
     std::list<RefPtr<FrameNode>> childrens;
@@ -2257,7 +2254,8 @@ void ListPattern::HandleCardModeSelectedEvent(
         auto context = item->GetRenderContext();
         CHECK_NULL_VOID(context);
         auto itemRect = itemGeometry->GetFrameRect();
-        RectF itemRectInGroup(itemRect.GetX(), itemRect.GetY() + itemGroupTop, itemRect.Width(), itemRect.Height());
+        RectF itemRectInGroup(itemRect.GetX() + groupOffset.GetX(),
+            itemRect.GetY() + groupOffset.GetY(), itemRect.Width(), itemRect.Height());
         if (!selectedZone.IsIntersectWith(itemRectInGroup)) {
             itemPattern->MarkIsSelected(false);
         } else {
@@ -2717,5 +2715,26 @@ void ListPattern::DumpAdvanceInfo(std::unique_ptr<JsonValue>& json)
     json->Put("isScrollEnd", isScrollEnd_);
     json->Put("IsAtTop", IsAtTop());
     json->Put("IsAtBottom", IsAtBottom());
+}
+
+SizeF ListPattern::GetChildrenExpandedSize()
+{
+    auto viewSize = GetViewSizeMinusPadding();
+    auto axis = GetAxis();
+    float estimatedHeight = 0.0f;
+    if (childrenSize_) {
+        estimatedHeight = listTotalHeight_;
+    } else if (!itemPosition_.empty()) {
+        auto calculate = ListHeightOffsetCalculator(itemPosition_, spaceWidth_, lanes_, axis);
+        calculate.GetEstimateHeightAndOffset(GetHost());
+        estimatedHeight = calculate.GetEstimateHeight();
+    }
+
+    if (axis == Axis::VERTICAL) {
+        return SizeF(viewSize.Width(), estimatedHeight);
+    } else if (axis == Axis::HORIZONTAL) {
+        return SizeF(estimatedHeight, viewSize.Height());
+    }
+    return SizeF();
 }
 } // namespace OHOS::Ace::NG

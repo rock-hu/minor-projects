@@ -25,7 +25,8 @@
 #include <cstdint>
 #endif
 
-#include "metadata_core.h"
+#include "./declarations.h"
+#include "./api_version.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -45,16 +46,6 @@ enum AbckitIsaType {
      */
     ABCKIT_ISA_TYPE_STATIC,
 };
-
-struct AbckitGraph;
-struct AbckitBasicBlock;
-struct AbckitInst;
-
-#ifndef __cplusplus
-typedef struct AbckitGraph AbckitGraph;
-typedef struct AbckitBasicBlock AbckitBasicBlock;
-typedef struct AbckitInst AbckitInst;
-#endif
 
 enum { ABCKIT_TRUE_SUCC_IDX = 0, ABCKIT_FALSE_SUCC_IDX = 1 };
 
@@ -137,6 +128,14 @@ struct AbckitGraphApi {
      * @note Set `ABCKIT_STATUS_BAD_ARGUMENT` error if there is no parameter under given `index` in `graph`.
      */
     AbckitInst *(*gGetParameter)(AbckitGraph *graph, uint32_t index);
+
+    /**
+     * @brief Returns number of instruction parameters under given `graph`.
+     * @return uint32_t corresponding to number of instruction parameters.
+     * @param [ in ] graph - Graph to be inspected.
+     * @note Set `ABCKIT_STATUS_BAD_ARGUMENT` error if `graph` is NULL.
+     */
+    uint32_t (*gGetNumberOfParameters)(AbckitGraph *graph);
 
     /**
      * @brief Wraps basic blocks from `tryFirstBB` to `tryLastBB` into try,
@@ -273,7 +272,7 @@ struct AbckitGraphApi {
      * @note Set `ABCKIT_STATUS_BAD_ARGUMENT` error if `cb` is NULL.
      */
     void (*bbVisitPredBlocks)(AbckitBasicBlock *basicBlock, void *data,
-                              void (*cb)(AbckitBasicBlock *basicBlock, AbckitBasicBlock *predBasicBlock, void *data));
+                              void (*cb)(AbckitBasicBlock *predBasicBlock, void *data));
 
     /**
      * @brief Returns the number of basic blocks successing the given `basicBlock`.
@@ -342,7 +341,7 @@ struct AbckitGraphApi {
      * @note Set `ABCKIT_STATUS_BAD_ARGUMENT` error if `cb` is NULL.
      */
     void (*bbVisitSuccBlocks)(AbckitBasicBlock *basicBlock, void *data,
-                              void (*cb)(AbckitBasicBlock *basicBlock, AbckitBasicBlock *succBasicBlock, void *data));
+                              void (*cb)(AbckitBasicBlock *succBasicBlock, void *data));
 
     /**
      * @brief Returns successor of `basicBlock` with index 0.
@@ -406,7 +405,7 @@ struct AbckitGraphApi {
      * @param [ in ] basicBlock - basic block to clear.
      * @note Set `ABCKIT_STATUS_BAD_ARGUMENT` error if `basicBlock` is NULL.
      */
-    void (*bbClear)(AbckitBasicBlock *basicBlock);
+    void (*bbRemoveAllInsts)(AbckitBasicBlock *basicBlock);
 
     /**
      * @brief Returns first instruction from `basicBlock`.
@@ -453,16 +452,6 @@ struct AbckitGraphApi {
     bool (*bbCheckDominance)(AbckitBasicBlock *basicBlock, AbckitBasicBlock *dominator);
 
     /**
-     * @brief Enumerates basic blocks successing to the given `basicBlock`, invoking callback `cb` for each basic block.
-     * @return None.
-     * @param [ in ] basicBlock - Basic block to be inspected.
-     * @param [ in, out ] data - Pointer to the user-defined data that will be passed to the callback `cb` each time
-     * it is invoked.
-     * @param [ in ] cb - Callback that will be invoked.
-     * @note Set `ABCKIT_STATUS_BAD_ARGUMENT` error if `basicBlock` is NULL.
-     * @note Set `ABCKIT_STATUS_BAD_ARGUMENT` error if `cb` is NULL.
-     */
-    /**
      * @brief Enumerates basic blocks dominating to the given `basicBlock`, invoking callback `cb` for each basic block.
      * @return None.
      * @param [ in ] basicBlock - Basic block to be inspected.
@@ -473,8 +462,7 @@ struct AbckitGraphApi {
      * @note Set `ABCKIT_STATUS_BAD_ARGUMENT` error if `cb` is NULL.
      */
     void (*bbVisitDominatedBlocks)(AbckitBasicBlock *basicBlock, void *data,
-                                   void (*cb)(AbckitBasicBlock *basicBlock, AbckitBasicBlock *dominatedBasicBlock,
-                                              void *data));
+                                   void (*cb)(AbckitBasicBlock *dominatedBasicBlock, void *data));
 
     /**
      * @brief Tells if `basicBlock` is start basic block.
@@ -573,6 +561,17 @@ struct AbckitGraphApi {
      * @note Allocates
      */
     AbckitInst *(*bbCreatePhi)(AbckitBasicBlock *basicBlock, size_t argCount, ...);
+
+    /**
+     * @brief Creates CatchPhi instruction and sets it at the beginning of basic block `catchBegin`.
+     * @return Pointer to created `AbckitInst`.
+     * @param [ in ] catchBegin - Basic block at the beginning of which the instruction will be inserted.
+     * @param [ in ] argCount - Number of instruction's inputs
+     * @param [ in ] ... - Instructions that are inputs of the new instruction.
+     * @note Set `ABCKIT_STATUS_BAD_ARGUMENT` error if `catchBegin` is NULL.
+     * @note Set `ABCKIT_STATUS_WRONG_MODE` error if `graph` is not DYNAMIC.
+     */
+    AbckitInst *(*bbCreateCatchPhi)(AbckitBasicBlock *catchBegin, size_t argCount, ...);
 
     /**
      * @brief Removes instruction from it's basic block.
@@ -688,7 +687,7 @@ struct AbckitGraphApi {
      * @note Set `ABCKIT_STATUS_BAD_ARGUMENT` error if `inst` is NULL.
      * @note Set `ABCKIT_STATUS_BAD_ARGUMENT` error if `cb` is NULL.
      */
-    void (*iVisitUsers)(AbckitInst *inst, void *data, void (*cb)(AbckitInst *inst, AbckitInst *user, void *data));
+    void (*iVisitUsers)(AbckitInst *inst, void *data, void (*cb)(AbckitInst *user, void *data));
 
     /**
      * @brief Returns number of `inst` inputs.
@@ -718,8 +717,7 @@ struct AbckitGraphApi {
      * @note Set `ABCKIT_STATUS_BAD_ARGUMENT` error if `inst` is NULL.
      * @note Set `ABCKIT_STATUS_BAD_ARGUMENT` error if `cb` is NULL.
      */
-    void (*iVisitInputs)(AbckitInst *inst, void *data,
-                         void (*cb)(AbckitInst *inst, AbckitInst *input, size_t inputIdx, void *data));
+    void (*iVisitInputs)(AbckitInst *inst, void *data, void (*cb)(AbckitInst *input, size_t inputIdx, void *data));
 
     /**
      * @brief Sets `inst` input, overwrites existing input.

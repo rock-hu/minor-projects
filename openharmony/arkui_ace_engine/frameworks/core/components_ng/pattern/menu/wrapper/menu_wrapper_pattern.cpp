@@ -186,6 +186,7 @@ void MenuWrapperPattern::HandleMouseEvent(const MouseInfo& info, RefPtr<MenuItem
     if (!menuItemPattern->IsInHoverRegions(mousePosition.GetX(), mousePosition.GetY()) &&
         menuItemPattern->IsSubMenuShowed()) {
         HideSubMenu();
+        menuItemPattern->OnHover(false);
         menuItemPattern->SetIsSubMenuShowed(false);
         menuItemPattern->ClearHoverRegions();
         menuItemPattern->ResetWrapperMouseEvent();
@@ -205,7 +206,9 @@ void MenuWrapperPattern::GetExpandingMode(const RefPtr<UINode>& subMenu, SubMenu
     bool& hasAnimation)
 {
     CHECK_NULL_VOID(subMenu);
-    auto subMenuPattern = DynamicCast<FrameNode>(subMenu)->GetPattern<MenuPattern>();
+    auto subMenuNode = DynamicCast<FrameNode>(subMenu);
+    CHECK_NULL_VOID(subMenuNode);
+    auto subMenuPattern = subMenuNode->GetPattern<MenuPattern>();
     CHECK_NULL_VOID(subMenuPattern);
     hasAnimation = subMenuPattern->GetDisappearAnimation();
     auto menuItem = FrameNode::GetFrameNode(subMenuPattern->GetTargetTag(), subMenuPattern->GetTargetId());
@@ -255,8 +258,6 @@ void MenuWrapperPattern::HideSubMenu()
     GetExpandingMode(subMenu, expandingMode, hasAnimation);
     if (expandingMode == SubMenuExpandingMode::STACK && hasAnimation) {
         HideStackExpandMenu(subMenu);
-        host->RemoveChild(subMenu);
-        host->MarkDirtyNode(PROPERTY_UPDATE_MEASURE_SELF_AND_CHILD);
     } else {
         UpdateMenuAnimation(host);
         SendToAccessibility(subMenu, false);
@@ -546,6 +547,18 @@ void MenuWrapperPattern::MarkWholeSubTreeNoDraggable(const RefPtr<FrameNode>& fr
     gestureEventHub->SetDragForbiddenForcely(true);
 }
 
+void MenuWrapperPattern::MarkAllMenuNoDraggable()
+{
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    for (const auto& child : host->GetChildren()) {
+        auto node = DynamicCast<FrameNode>(child);
+        if (node && node->GetTag() == V2::MENU_ETS_TAG) {
+            MarkWholeSubTreeNoDraggable(node);
+        }
+    }
+}
+
 bool MenuWrapperPattern::OnDirtyLayoutWrapperSwap(const RefPtr<LayoutWrapper>& dirty, const DirtySwapConfig& config)
 {
     auto pipeline = PipelineBase::GetCurrentContext();
@@ -566,7 +579,7 @@ bool MenuWrapperPattern::OnDirtyLayoutWrapperSwap(const RefPtr<LayoutWrapper>& d
     if ((IsContextMenu() && !IsHide()) || ((expandDisplay && isShowInSubWindow_) && !IsHide())) {
         SetHotAreas(dirty);
     }
-    MarkWholeSubTreeNoDraggable(GetMenu());
+    MarkAllMenuNoDraggable();
     MarkWholeSubTreeNoDraggable(GetPreview());
     CheckAndShowAnimation();
     return false;
@@ -766,48 +779,74 @@ void MenuWrapperPattern::ClearAllSubMenu()
     }
 }
 
-void MenuWrapperPattern::StopHoverImageToPreviewAnimation()
+void MenuWrapperPattern::StopPreviewMenuAnimation()
 {
-    auto menuWrapperNode = GetHost();
-    CHECK_NULL_VOID(menuWrapperNode);
-    auto menuWrapperPattern = menuWrapperNode->GetPattern<MenuWrapperPattern>();
-    CHECK_NULL_VOID(menuWrapperPattern);
-
-    auto flexNode = menuWrapperPattern->GetHoverImageFlexNode();
-    CHECK_NULL_VOID(flexNode);
-    auto flexContext = flexNode->GetRenderContext();
-    CHECK_NULL_VOID(flexContext);
-
-    auto stackNode = menuWrapperPattern->GetHoverImageStackNode();
-    CHECK_NULL_VOID(stackNode);
-    auto stackContext = stackNode->GetRenderContext();
-    CHECK_NULL_VOID(stackContext);
-
-    auto menuChild = menuWrapperPattern->GetMenu();
-    CHECK_NULL_VOID(menuChild);
-    auto menuPattern = menuChild->GetPattern<MenuPattern>();
-    CHECK_NULL_VOID(menuPattern);
-    auto originPosition = menuPattern->GetPreviewOriginOffset();
-
-    auto geometryNode = flexNode->GetGeometryNode();
-    CHECK_NULL_VOID(geometryNode);
-    auto position = geometryNode->GetFrameOffset();
-
-    auto flexPosition = originPosition;
-    if (Positive(hoverImageToPreviewRate_)) {
-        flexPosition += (position - originPosition) * hoverImageToPreviewRate_;
+    if (HasTransitionEffect() || HasPreviewTransitionEffect()) {
+        return;
     }
 
-    AnimationUtils::Animate(AnimationOption(Curves::LINEAR, 0),
-        [stackContext, flexContext, flexPosition, scale = hoverImageToPreviewScale_]() {
-            if (flexContext) {
-                flexContext->UpdatePosition(
-                    OffsetT<Dimension>(Dimension(flexPosition.GetX()), Dimension(flexPosition.GetY())));
-            }
+    auto menu = GetMenu();
+    CHECK_NULL_VOID(menu);
+    auto menuContext = menu->GetRenderContext();
+    CHECK_NULL_VOID(menuContext);
 
-            CHECK_NULL_VOID(stackContext && Positive(scale));
-            stackContext->UpdateTransformScale(VectorF(scale, scale));
-        });
+    RefPtr<RenderContext> previewPositionContext;
+    RefPtr<RenderContext> previewScaleContext;
+    if (isShowHoverImage_) {
+        auto flexNode = GetHoverImageFlexNode();
+        CHECK_NULL_VOID(flexNode);
+        previewPositionContext = flexNode->GetRenderContext();
+        CHECK_NULL_VOID(previewPositionContext);
+
+        auto stackNode = GetHoverImageStackNode();
+        CHECK_NULL_VOID(stackNode);
+        previewScaleContext = stackNode->GetRenderContext();
+        CHECK_NULL_VOID(previewScaleContext);
+    } else {
+        auto preview = GetPreview();
+        CHECK_NULL_VOID(preview);
+        previewPositionContext = preview->GetRenderContext();
+        CHECK_NULL_VOID(previewPositionContext);
+        previewScaleContext = previewPositionContext;
+    }
+
+    AnimationUtils::Animate(AnimationOption(Curves::LINEAR, 0), [previewPositionContext, previewScaleContext,
+                                                                    menuContext, animationInfo = animationInfo_]() {
+        auto previewOffset = animationInfo.previewOffset;
+        if (previewPositionContext && !previewOffset.NonOffset()) {
+            previewPositionContext->UpdatePosition(
+                OffsetT<Dimension>(Dimension(previewOffset.GetX()), Dimension(previewOffset.GetY())));
+        }
+
+        auto menuOffset = animationInfo.menuOffset;
+        if (menuContext && !menuOffset.NonOffset()) {
+            menuContext->UpdatePosition(OffsetT<Dimension>(Dimension(menuOffset.GetX()), Dimension(menuOffset.GetY())));
+        }
+
+        if (menuContext && Positive(animationInfo.menuScale)) {
+            menuContext->UpdateTransformScale(VectorF(animationInfo.menuScale, animationInfo.menuScale));
+        }
+
+        if (previewScaleContext && Positive(animationInfo.previewScale)) {
+            previewScaleContext->UpdateTransformScale(VectorF(animationInfo.previewScale, animationInfo.previewScale));
+
+            if (Positive(animationInfo.borderRadius)) {
+                previewScaleContext->UpdateBorderRadius(BorderRadiusProperty(Dimension(animationInfo.borderRadius)));
+            }
+        }
+    });
+}
+
+void MenuWrapperPattern::RequestPathRender()
+{
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto paintProperty = host->GetPaintProperty<MenuWrapperPaintProperty>();
+    CHECK_NULL_VOID(paintProperty);
+    auto flag = paintProperty->GetRenderFlagValue(0);
+    flag++;
+    paintProperty->UpdateRenderFlag(flag);
+    host->MarkDirtyNode(PROPERTY_UPDATE_RENDER);
 }
 
 void MenuWrapperPattern::DumpInfo()

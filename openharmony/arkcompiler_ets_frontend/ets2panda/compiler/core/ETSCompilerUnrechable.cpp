@@ -127,6 +127,11 @@ void ETSCompiler::Compile([[maybe_unused]] const ir::ETSUndefinedType *node) con
     UNREACHABLE();
 }
 
+void ETSCompiler::Compile([[maybe_unused]] const ir::ETSNeverType *node) const
+{
+    UNREACHABLE();
+}
+
 void ETSCompiler::Compile([[maybe_unused]] const ir::ETSStringLiteralType *node) const
 {
     UNREACHABLE();
@@ -164,11 +169,6 @@ void ETSCompiler::Compile([[maybe_unused]] const ir::DirectEvalExpression *expr)
 }
 
 void ETSCompiler::Compile([[maybe_unused]] const ir::FunctionExpression *expr) const
-{
-    UNREACHABLE();
-}
-
-void ETSCompiler::Compile([[maybe_unused]] const ir::ImportExpression *expr) const
 {
     UNREACHABLE();
 }
@@ -300,11 +300,6 @@ void ETSCompiler::Compile([[maybe_unused]] const ir::TSConditionalType *node) co
 }
 
 void ETSCompiler::Compile([[maybe_unused]] const ir::TSConstructorType *node) const
-{
-    UNREACHABLE();
-}
-
-void ETSCompiler::Compile([[maybe_unused]] const ir::TSEnumDeclaration *st) const
 {
     UNREACHABLE();
 }

@@ -12,6 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <chrono>
+#include <thread>
 
 #include "ecmascript/builtins/builtins_ark_tools.h"
 #include "ecmascript/ecma_vm.h"
@@ -21,6 +23,13 @@
 #include "ecmascript/mem/partial_gc.h"
 #include "ecmascript/tests/ecma_test_common.h"
 #include "ecmascript/napi/include/jsnapi_expo.h"
+#include "ecmascript/mem/free_object_list.h"
+#include "ecmascript/mem/gc_stats.h"
+#include "ecmascript/mem/free_object_set.h"
+#include "ecmascript/mem/shared_mem_controller.h"
+#include "ecmascript/mem/mem_controller_utils.h"
+#include "ecmascript/mem/mem_controller.h"
+#include "ecmascript/mem/incremental_marker.h"
 
 using namespace panda;
 
@@ -299,7 +308,7 @@ HWTEST_F_L0(GCTest, AdjustCapacity)
     size = space->GetSurvivalObjectSize() / GROW_OBJECT_SURVIVAL_RATE - 1;
     size_t oldMaxCapacity = space->GetMaximumCapacity();
     space->SetMaximumCapacity(space->GetInitialCapacity());
-    EXPECT_FALSE(space->AdjustCapacity(size, thread));
+    EXPECT_TRUE(space->AdjustCapacity(size, thread));
     space->SetMaximumCapacity(oldMaxCapacity);
     EXPECT_TRUE(space->AdjustCapacity(size, thread));
 #endif
@@ -316,4 +325,228 @@ HWTEST_F_L0(GCTest, NativeMemAllocInSensitive)
     }
     EXPECT_TRUE(heap->GetGlobalNativeSize() < 1 * 1024 * 1024* 1024); // 1GB
 }
+
+HWTEST_F_L0(GCTest, RecordAllocationForIdleTest001)
+{
+    SharedHeap *heap = SharedHeap::GetInstance();
+    SharedMemController *controller = new SharedMemController(heap);
+    controller->RecordAllocationForIdle();
+    controller->RecordAllocationForIdle();
+}
+
+HWTEST_F_L0(GCTest, RecordAllocationForIdleTest002)
+{
+    SharedHeap *heap = SharedHeap::GetInstance();
+    SharedMemController *controller = new SharedMemController(heap);
+    controller->RecordAllocationForIdle();
+    size_t before = heap->GetHeapObjectSize();
+    heap->ReclaimForAppSpawn();
+    size_t after = heap->GetHeapObjectSize();
+    ASSERT_NE(before, after);
+    controller->RecordAllocationForIdle();
+}
+
+HWTEST_F_L0(GCTest, PrintGCStatisticTest001)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    int prop = 1 << 15;
+    heap->GetEcmaVM()->GetJSOptions().SetArkProperties(prop);
+    ASSERT_EQ(heap->GetEcmaVM()->GetJSOptions().EnableGCTracer(), true);
+    GCStats *stats = new GCStats(heap);
+    stats->PrintGCStatistic();
+
+    prop = 1 << 14;
+    heap->GetEcmaVM()->GetJSOptions().SetArkProperties(prop);
+    ASSERT_EQ(heap->GetEcmaVM()->GetJSOptions().EnableGCTracer(), false);
+    stats->PrintGCStatistic();
+}
+
+HWTEST_F_L0(GCTest, GCReasonToStringTest001)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    GCStats *stats = new GCStats(heap);
+    ASSERT_EQ(strcmp(stats->GCReasonToString(GCReason::SWITCH_BACKGROUND), "Switch to background"), 0);
+    ASSERT_EQ(strcmp(stats->GCReasonToString(GCReason::EXTERNAL_TRIGGER), "Externally triggered"), 0);
+    ASSERT_EQ(strcmp(stats->GCReasonToString(GCReason::WORKER_DESTRUCTION), "Worker Destruction"), 0);
+    ASSERT_EQ(strcmp(stats->GCReasonToString(GCReason::TRIGGER_BY_ARKUI), "Trigger by ArkUI"), 0);
+    ASSERT_EQ(strcmp(stats->GCReasonToString(GCReason::TRIGGER_BY_ABILITY), "Trigger by AbilityRuntime"), 0);
+    ASSERT_EQ(strcmp(stats->GCReasonToString(GCReason::TRIGGER_BY_MEM_TOOLS), "Trigger by Mem tools"), 0);
+    ASSERT_EQ(strcmp(stats->GCReasonToString(GCReason::TRIGGER_BY_TASKPOOL), "Trigger by taskPool"), 0);
+}
+
+HWTEST_F_L0(GCTest, PrintGCMemoryStatisticTest001)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    heap->SetMarkType(MarkType::MARK_EDEN);
+    GCStats *stats = new GCStats(heap);
+    stats->RecordStatisticBeforeGC(TriggerGCType::EDEN_GC, GCReason::TRIGGER_BY_ARKUI);
+    stats->PrintGCMemoryStatistic();
+}
+
+HWTEST_F_L0(GCTest, PrintGCMemoryStatisticTest002)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    heap->SetMarkType(MarkType::MARK_YOUNG);
+    GCStats *stats = new GCStats(heap);
+    stats->RecordStatisticBeforeGC(TriggerGCType::YOUNG_GC, GCReason::TRIGGER_BY_ARKUI);
+    stats->PrintGCMemoryStatistic();
+}
+
+HWTEST_F_L0(GCTest, CheckIfNeedPrintTest001)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    heap->SetMarkType(MarkType::MARK_YOUNG);
+    GCStats *stats = new GCStats(heap);
+    stats->SetRecordData(RecordData::EDEN_COUNT, 1);
+    stats->PrintStatisticResult();
+}
+
+HWTEST_F_L0(GCTest, PrintGCSummaryStatisticTest001)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    heap->SetMarkType(MarkType::MARK_YOUNG);
+    GCStats *stats = new GCStats(heap);
+    stats->PrintStatisticResult();
+}
+
+HWTEST_F_L0(GCTest, RecordStatisticAfterGCTest001)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    heap->SetMarkType(MarkType::MARK_YOUNG);
+    GCStats *stats = new GCStats(heap);
+    stats->RecordStatisticBeforeGC(TriggerGCType::EDEN_GC, GCReason::TRIGGER_BY_ARKUI);
+    stats->SetRecordData(RecordData::EDEN_COUNT, 1);
+    stats->RecordStatisticAfterGC();
+}
+
+HWTEST_F_L0(GCTest, RecordStatisticAfterGCTest002)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    heap->SetMarkType(MarkType::MARK_EDEN);
+    GCStats *stats = new GCStats(heap);
+    stats->RecordStatisticBeforeGC(TriggerGCType::EDEN_GC, GCReason::TRIGGER_BY_ARKUI);
+    stats->SetRecordData(RecordData::EDEN_COUNT, 1);
+    stats->RecordStatisticAfterGC();
+}
+
+HWTEST_F_L0(GCTest, CalculateGrowingFactorTest001)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    heap->SetMemGrowingType(MemGrowingType::CONSERVATIVE);
+    auto controller = new MemController(heap);
+    controller->CalculateGrowingFactor(1, 1);
+}
+
+HWTEST_F_L0(GCTest, CalculateGrowingFactorTest002)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    heap->SetMemGrowingType(MemGrowingType::PRESSURE);
+    auto controller = new MemController(heap);
+    controller->CalculateGrowingFactor(1, 1);
+}
+
+HWTEST_F_L0(GCTest, CalculateGrowingFactorTest003)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    heap->SetMemGrowingType(MemGrowingType::CONSERVATIVE);
+    auto controller = new MemController(heap);
+    controller->CalculateGrowingFactor(1, 0);
+}
+
+HWTEST_F_L0(GCTest, StopCalculationAfterGCTest001)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    auto controller = new MemController(heap);
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    controller->StartCalculationBeforeGC();
+    controller->StopCalculationAfterGC(TriggerGCType::EDEN_GC);
+}
+
+HWTEST_F_L0(GCTest, RecordAllocationForIdleTest003)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    auto controller = new MemController(heap);
+    controller->RecordAllocationForIdle();
+}
+
+HWTEST_F_L0(GCTest, TryTriggerIdleCollectionTest001)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    heap->SetIdleTask(IdleTaskType::YOUNG_GC);
+    heap->TryTriggerIdleCollection();
+}
+
+HWTEST_F_L0(GCTest, WaitAllTasksFinishedTest001)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    heap->GetJSThread()->SetMarkStatus(MarkStatus::MARKING);
+    heap->WaitAllTasksFinished();
+}
+
+HWTEST_F_L0(GCTest, WaitAllTasksFinishedTest002)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    heap->GetJSThread()->SetMarkStatus(MarkStatus::MARKING);
+    heap->GetConcurrentMarker()->Mark();
+    heap->WaitAllTasksFinished();
+}
+
+HWTEST_F_L0(GCTest, ChangeGCParamsTest001)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    heap->GetOldSpace()->IncreaseLiveObjectSize(2098000);
+    heap->ChangeGCParams(true);
+}
+
+HWTEST_F_L0(GCTest, ChangeGCParamsTest002)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    heap->GetOldSpace()->IncreaseLiveObjectSize(2098000);
+    heap->GetOldSpace()->IncreaseCommitted(31457300);
+    heap->ChangeGCParams(true);
+}
+
+HWTEST_F_L0(GCTest, ChangeGCParamsTest003)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    auto sHeap = SharedHeap::GetInstance();
+    sHeap->GetOldSpace()->IncreaseLiveObjectSize(2098000);
+    heap->ChangeGCParams(true);
+}
+
+HWTEST_F_L0(GCTest, ChangeGCParamsTest004)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    heap->SetMemGrowingType(MemGrowingType::HIGH_THROUGHPUT);
+    heap->ChangeGCParams(true);
+}
+
+HWTEST_F_L0(GCTest, IncrementMarkerTest001)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    heap->GetIncrementalMarker()->TriggerIncrementalMark(100);
+    heap->GetIncrementalMarker()->TriggerIncrementalMark(100);
+}
+
+HWTEST_F_L0(GCTest, IncrementMarkerTest002)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    heap->GetIncrementalMarker()->TriggerIncrementalMark(0);
+}
+
+HWTEST_F_L0(GCTest, IncrementMarkerTest003)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    heap->GetIncrementalMarker()->SetMarkingFinished(true);
+    heap->GetIncrementalMarker()->TriggerIncrementalMark(100);
+}
+
+HWTEST_F_L0(GCTest, IncrementMarkerTest004)
+{
+    thread->GetEcmaVM()->GetJSOptions().SetArkProperties(0);
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    heap->GetIncrementalMarker()->SetMarkingFinished(true);
+    heap->GetIncrementalMarker()->TriggerIncrementalMark(100);
+}
+
 } // namespace panda::test

@@ -126,6 +126,7 @@ void SelectOverlayPattern::InitMouseEvent()
 
 void SelectOverlayPattern::OnDetachFromFrameNode(FrameNode* /*frameNode*/)
 {
+    CHECK_NULL_VOID(info_);
     if (info_->onClose) {
         info_->onClose(closedByGlobalTouchEvent_);
         closedByGlobalTouchEvent_ = false;
@@ -596,6 +597,16 @@ void SelectOverlayPattern::UpdateSelectMenuInfo(std::function<void(SelectMenuInf
     }
 }
 
+void SelectOverlayPattern::UpdateAncestorViewPort(const std::optional<RectF>& ancestorViewPort) const
+{
+    if (info_->ancestorViewPort != ancestorViewPort) {
+        info_->ancestorViewPort = ancestorViewPort;
+    }
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    host->MarkDirtyNode(PROPERTY_UPDATE_LAYOUT);
+}
+
 void SelectOverlayPattern::ShowOrHiddenMenu(bool isHidden, bool noAnimation)
 {
     auto host = DynamicCast<SelectOverlayNode>(GetHost());
@@ -745,7 +756,7 @@ bool SelectOverlayPattern::CheckIfNeedHandle()
 
 float SelectOverlayPattern::GetHandleDiameter()
 {
-    auto pipeline = PipelineContext::GetCurrentContextSafely();
+    auto pipeline = PipelineContext::GetCurrentContextSafelyWithCheck();
     CHECK_NULL_RETURN(pipeline, 0.0f);
     auto textOverlayTheme = pipeline->GetTheme<TextOverlayTheme>();
     CHECK_NULL_RETURN(textOverlayTheme, 0.0f);
@@ -799,5 +810,13 @@ void SelectOverlayPattern::SwitchHandleToOverlayMode(bool afterRender)
     } else {
         switchTask();
     }
+}
+
+void SelectOverlayPattern::OnColorConfigurationUpdate()
+{
+    auto host = DynamicCast<SelectOverlayNode>(GetHost());
+    CHECK_NULL_VOID(host);
+    host->UpdateSelectMenuBg();
+    host->UpdateToolBar(true, true);
 }
 } // namespace OHOS::Ace::NG

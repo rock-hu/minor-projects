@@ -173,7 +173,6 @@ PandaEtsVM::PandaEtsVM(Runtime *runtime, const RuntimeOptions &options, mem::Mem
         coroutineManager_ = allocator->New<ThreadedCoroutineManager>(EtsCoroutine::Create<Coroutine>);
     }
     rendezvous_ = allocator->New<Rendezvous>(this);
-    taskpool_ = allocator->New<Taskpool>();
 
     InitializeRandomEngine();
 }
@@ -183,7 +182,6 @@ PandaEtsVM::~PandaEtsVM()
     auto allocator = mm_->GetHeapManager()->GetInternalAllocator();
     ASSERT(allocator != nullptr);
 
-    allocator->Delete(taskpool_);
     allocator->Delete(rendezvous_);
     allocator->Delete(runtimeIface_);
     allocator->Delete(coroutineManager_);
@@ -675,6 +673,33 @@ void PandaEtsVM::UpdateMovedVmRef(Value &ref)
     }
 }
 
+void PandaEtsVM::UpdateManagedEntrypointArgRefs(EtsCoroutine *coroutine)
+{
+    PandaVector<Value> &arguments = coroutine->GetManagedEntrypointArguments();
+    if (!arguments.empty()) {
+        // arguments may be empty in the following cases:
+        // 1. The entrypoint is static and doesn't accept any arguments
+        // 2. The coroutine is launched.
+        // 3. The entrypoint is the main method
+        Method *entrypoint = coroutine->GetManagedEntrypoint();
+        panda_file::ShortyIterator it(entrypoint->GetShorty());
+        size_t argIdx = 0;
+        ++it;  // skip return type
+        if (!entrypoint->IsStatic()) {
+            // handle 'this' argument
+            UpdateMovedVmRef<false>(arguments[argIdx]);
+            ++argIdx;
+        }
+        while (it != panda_file::ShortyIterator()) {
+            if ((*it).GetId() == panda_file::Type::TypeId::REFERENCE) {
+                UpdateMovedVmRef<true>(arguments[argIdx]);
+            }
+            ++it;
+            ++argIdx;
+        }
+    }
+}
+
 void PandaEtsVM::UpdateVmRefs()
 {
     GetThreadManager()->EnumerateThreads([](ManagedThread *thread) {
@@ -686,29 +711,7 @@ void PandaEtsVM::UpdateVmRefs()
         if (!coroutine->HasManagedEntrypoint()) {
             return true;
         }
-        PandaVector<Value> &arguments = coroutine->GetManagedEntrypointArguments();
-        if (!arguments.empty()) {
-            // arguments may be empty in the following cases:
-            // 1. The entrypoint is static and doesn't accept any arguments
-            // 2. The coroutine is launched.
-            // 3. The entrypoint is the main method
-            Method *entrypoint = coroutine->GetManagedEntrypoint();
-            panda_file::ShortyIterator it(entrypoint->GetShorty());
-            size_t argIdx = 0;
-            ++it;  // skip return type
-            if (!entrypoint->IsStatic()) {
-                // handle 'this' argument
-                UpdateMovedVmRef<false>(arguments[argIdx]);
-                ++argIdx;
-            }
-            while (it != panda_file::ShortyIterator()) {
-                if ((*it).GetId() == panda_file::Type::TypeId::REFERENCE) {
-                    UpdateMovedVmRef<true>(arguments[argIdx]);
-                }
-                ++it;
-                ++argIdx;
-            }
-        }
+        UpdateManagedEntrypointArgRefs(coroutine);
         return true;
     });
 

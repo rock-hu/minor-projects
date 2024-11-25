@@ -507,7 +507,7 @@ JSTaggedValue BuiltinsString::LastIndexOf(EcmaRuntimeCallInfo *argv)
     }
     pos = std::min(std::max(pos, 0), thisLen);
     int32_t res = EcmaStringAccessor::LastIndexOf(thread->GetEcmaVM(), thisHandle, searchHandle, pos);
-    if (res >= 0 && res < thisLen) {
+    if (res >= 0 && res <= thisLen) {
         return GetTaggedInt(res);
     }
     res = -1;
@@ -609,7 +609,7 @@ JSTaggedValue BuiltinsString::Match(EcmaRuntimeCallInfo *argv)
     RETURN_EXCEPTION_IF_ABRUPT_COMPLETION(thread);
     JSHandle<JSTaggedValue> regexp = BuiltinsString::GetCallArg(argv, 0);
     if (thisTag->IsString() && regexp->IsECMAObject()) {
-        if (BuiltinsRegExp::IsFastRegExp(thread, regexp, BuiltinsRegExp::RegExpSymbol::MATCH)) {
+        if (BuiltinsRegExp::IsFastRegExp(thread, regexp.GetTaggedValue(), BuiltinsRegExp::RegExpSymbol::MATCH)) {
             return BuiltinsRegExp::RegExpMatch(thread, regexp, thisTag, true);
         }
     }
@@ -659,7 +659,7 @@ JSTaggedValue BuiltinsString::MatchAll(EcmaRuntimeCallInfo *argv)
     if (!regexp->IsUndefined() && !regexp->IsNull()) {
         // a. Let isRegExp be ? IsRegExp(searchValue).
         if (regexp->IsECMAObject() &&
-            BuiltinsRegExp::IsFastRegExp(thread, regexp, BuiltinsRegExp::RegExpSymbol::MATCH)) {
+            BuiltinsRegExp::IsFastRegExp(thread, regexp.GetTaggedValue(), BuiltinsRegExp::RegExpSymbol::MATCH)) {
             bool isGlobal = BuiltinsRegExp::GetOriginalFlag(thread, regexp, RegExpParser::FLAG_GLOBAL);
             if (!isGlobal) {
                 THROW_TYPE_ERROR_AND_RETURN(thread,
@@ -689,7 +689,7 @@ JSTaggedValue BuiltinsString::MatchAll(EcmaRuntimeCallInfo *argv)
         RETURN_EXCEPTION_IF_ABRUPT_COMPLETION(thread);
         if (thisTag->IsString() && regexp->IsECMAObject()) {
             if (PropertyDetector::IsRegExpSpeciesDetectorValid(env) &&
-                BuiltinsRegExp::IsFastRegExp(thread, regexp, BuiltinsRegExp::RegExpSymbol::MATCHALL)) {
+                BuiltinsRegExp::IsFastRegExp(thread, regexp.GetTaggedValue(), BuiltinsRegExp::RegExpSymbol::MATCHALL)) {
                 JSHandle<EcmaString> string = JSHandle<EcmaString>::Cast(thisTag);
                 return BuiltinsRegExp::RegExpMatchAll(thread, regexp, string, true);
             }
@@ -1030,7 +1030,7 @@ JSTaggedValue BuiltinsString::Replace(EcmaRuntimeCallInfo *argv)
         JSHandle<JSRegExp> re(searchTag);
         JSHandle<JSTaggedValue> pattern(thread, re->GetOriginalSource());
         JSHandle<JSTaggedValue> flags(thread, re->GetOriginalFlags());
-        bool isFastPath = BuiltinsRegExp::IsFastRegExp(thread, searchTag);
+        bool isFastPath = BuiltinsRegExp::IsFastRegExp(thread, searchTag.GetTaggedValue());
         if (isFastPath) {
             uint32_t lastIndex = static_cast<uint32_t>(BuiltinsRegExp::GetLastIndex(thread, searchTag, true));
             JSTaggedValue cacheResult = cacheTable->FindCachedResult(thread, thisTag,
@@ -1251,7 +1251,9 @@ JSTaggedValue BuiltinsString::ReplaceAll(EcmaRuntimeCallInfo *argv)
                                           EcmaStringAccessor::FastSubString(ecmaVm, thisString, endOfLastMatch,
                                                                             pos - endOfLastMatch));
         accumulatedResult.Update(JSTaggedValue(EcmaStringAccessor::Concat(ecmaVm, accumulatedResult, prefixString)));
+        RETURN_EXCEPTION_IF_ABRUPT_COMPLETION(thread);
         accumulatedResult.Update(JSTaggedValue(EcmaStringAccessor::Concat(ecmaVm, accumulatedResult, realReplaceStr)));
+        RETURN_EXCEPTION_IF_ABRUPT_COMPLETION(thread);
         endOfLastMatch = pos + searchLength;
         pos = EcmaStringAccessor::IndexOf(ecmaVm, thisString, searchString, pos + advanceBy);
         thread->CheckSafepointIfSuspended();
@@ -1262,6 +1264,7 @@ JSTaggedValue BuiltinsString::ReplaceAll(EcmaRuntimeCallInfo *argv)
         JSHandle<EcmaString> suffixString(thread,
             EcmaStringAccessor::FastSubString(ecmaVm, thisString, endOfLastMatch, thisLen - endOfLastMatch));
         accumulatedResult.Update(JSTaggedValue(EcmaStringAccessor::Concat(ecmaVm, accumulatedResult, suffixString)));
+        RETURN_EXCEPTION_IF_ABRUPT_COMPLETION(thread);
     }
 
     return accumulatedResult.GetTaggedValue();
@@ -1502,7 +1505,7 @@ JSTaggedValue BuiltinsString::Search(EcmaRuntimeCallInfo *argv)
     RETURN_EXCEPTION_IF_ABRUPT_COMPLETION(thread);
     JSHandle<JSTaggedValue> regexp = BuiltinsString::GetCallArg(argv, 0);
     if (thisTag->IsString() && regexp->IsECMAObject()) {
-        if (BuiltinsRegExp::IsFastRegExp(thread, regexp, BuiltinsRegExp::RegExpSymbol::SEARCH)) {
+        if (BuiltinsRegExp::IsFastRegExp(thread, regexp.GetTaggedValue(), BuiltinsRegExp::RegExpSymbol::SEARCH)) {
             return BuiltinsRegExp::RegExpSearchFast(thread, regexp, thisTag);
         }
     }
@@ -1591,7 +1594,7 @@ JSTaggedValue BuiltinsString::Split(EcmaRuntimeCallInfo *argv)
 
     if (thisTag->IsString() && seperatorTag->IsECMAObject()) {
         // this condition need change, all regexp should use RegExpSplit
-        if (BuiltinsRegExp::IsFastRegExp(thread, seperatorTag)) {
+        if (BuiltinsRegExp::IsFastRegExp(thread, seperatorTag.GetTaggedValue())) {
             return BuiltinsRegExp::RegExpSplit(thread, seperatorTag, thisTag, limitTag, true);
         }
     }

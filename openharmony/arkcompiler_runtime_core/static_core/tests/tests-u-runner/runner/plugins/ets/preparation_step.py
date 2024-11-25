@@ -35,6 +35,7 @@ from runner.plugins.ets.ets_suites import EtsSuites
 from runner.plugins.ets.ets_templates.ets_templates_generator import EtsTemplatesGenerator
 from runner.plugins.ets.ets_templates.test_metadata import get_metadata
 from runner.plugins.ets.stdlib_templates.stdlib_templates_generator import StdlibTemplatesGenerator
+from runner.generators.ets_func_tests.ets_func_test_template_generator import EtsFuncTestsCodeGenerator
 from runner.plugins.ets.utils.exceptions import InvalidFileFormatException, InvalidFileStructureException, \
     UnknownTemplateException
 from runner.plugins.ets.utils.file_structure import walk_test_subdirs
@@ -84,9 +85,11 @@ class CustomGeneratorTestPreparationStep(TestPreparationStep):
         if self.test_gen_path.exists() and force_generated:
             shutil.rmtree(self.test_gen_path)
         self.test_gen_path.mkdir(exist_ok=True)
-        cmd = [self.config.custom.generator,
-               "--source", self.test_source_path,
-               "--target", self.test_gen_path]
+        cmd = [
+            self.config.custom.generator,
+            "--source", self.test_source_path,
+            "--target", self.test_gen_path
+        ]
         cmd.extend(self.config.custom.generator_options)
         timeout = 300
         result: List[str] = []
@@ -130,6 +133,35 @@ class FuncTestPreparationStep(TestPreparationStep):
             dir_outpath = test_gen_path / dir_name.path.relative_to(template_root_path)
             generated_tests_tmp = ets_render.render_and_write_templates(template_root_path, dir_name.path, dir_outpath)
             generated_tests.extend(generated_tests_tmp)
+
+        return generated_tests
+
+    def transform(self, force_generated: bool) -> List[str]:
+        return self.generate_template_tests(self.test_source_path, self.test_gen_path)
+
+
+class FrontendFuncTestPreparationStep(TestPreparationStep):
+    def __str__(self) -> str:
+        return f"Test Generator for '{EtsSuites.FUNC.value}' test suite"
+
+    @staticmethod
+    def generate_template_tests(template_root_path: Path, test_gen_path: Path) -> List[str]:
+        """
+        Renders all templates and saves them.
+        """
+        if not template_root_path.is_dir():
+            Log.all(_LOGGER, f"ERROR: {str(template_root_path.absolute())} must be a directory")
+            return []
+
+        generated_tests = []
+        ets_func_test_render = EtsFuncTestsCodeGenerator(template_root_path)
+        for dir_name in walk_test_subdirs(template_root_path):
+            dir_outpath = test_gen_path / dir_name.path.relative_to(template_root_path)
+            generated_tests_tmp = ets_func_test_render.render_and_write_templates(template_root_path,
+                                                                                  dir_name.path,
+                                                                                  dir_outpath)
+            generated_tests.extend(generated_tests_tmp)
+
         return generated_tests
 
     def transform(self, force_generated: bool) -> List[str]:
@@ -142,11 +174,11 @@ class ESCheckedTestPreparationStep(TestPreparationStep):
 
     def transform(self, force_generated: bool) -> List[str]:
         confs = list(glob(os.path.join(self.test_source_path, "**/*.yaml"), recursive=True))
-        generator_root = Path(self.config.general.static_core_root) / \
-                         "tests" / \
-                         "tests-u-runner" / \
-                         "tools" / \
-                         "generate-es-checked"
+        generator_root = (Path(self.config.general.static_core_root) /
+                          "tests" /
+                          "tests-u-runner" /
+                          "tools" /
+                          "generate-es-checked")
         generator_executable = generator_root / "main.rb"
         res = subprocess.run(
             [
@@ -168,7 +200,7 @@ class ESCheckedTestPreparationStep(TestPreparationStep):
         )
         if res.returncode != 0:
             Log.default(_LOGGER,
-                        'Failed to run es cross-validator, please, make sure that' \
+                        'Failed to run es cross-validator, please, make sure that '
                         'all required tools are installed (see tests-u-runner/readme.md#ets-es-checked-dependencies)')
             Log.exception_and_raise(_LOGGER, f"invalid return code {res.returncode}\n" + res.stdout + res.stderr)
         glob_expression = os.path.join(self.test_gen_path, "**/*.sts")
@@ -215,9 +247,9 @@ class JitStep(TestPreparationStep):
 
     def jit_transform_one_test(self, test_path: str) -> str:
         metadata = get_metadata(Path(test_path))
-        is_convert = not metadata.tags.not_a_test and \
-                     not metadata.tags.compile_only and \
-                     not metadata.tags.no_warmup
+        is_convert = (not metadata.tags.not_a_test and
+                      not metadata.tags.compile_only and
+                      not metadata.tags.no_warmup)
         if not is_convert:
             return test_path
 

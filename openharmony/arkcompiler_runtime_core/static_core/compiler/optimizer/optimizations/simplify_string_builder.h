@@ -22,6 +22,7 @@
 #include "optimizer/ir/graph.h"
 #include "optimizer/ir/inst.h"
 #include "optimizer/pass.h"
+#include "optimizer/optimizations/string_builder_utils.h"
 
 namespace ark::compiler {
 
@@ -224,6 +225,8 @@ private:
     bool AllUsersAreVisitedAppendInstructions(Inst *inst, Marker visited);
     Inst *UpdateIntermediateValue(const StringBuilderUsage &usage, Inst *intermediateValue,
                                   Marker appendInstructionVisited);
+    bool MatchTemporaryInstruction(ConcatenationLoopMatch &match, ConcatenationLoopMatch::TemporaryInstructions &temp,
+                                   Inst *appendInstruction, const Inst *accValue, Marker appendInstructionVisited);
     void MatchTemporaryInstructions(const StringBuilderUsage &usage, ConcatenationLoopMatch &match, Inst *accValue,
                                     Inst *intermediateValue, Marker appendInstructionVisited);
     Inst *MatchHoistableInstructions(const StringBuilderUsage &usage, ConcatenationLoopMatch &match,
@@ -273,7 +276,7 @@ private:
     SaveStateBridgesBuilder ssb_ {};
     ArenaStack<Inst *> instructionsStack_;
     ArenaVector<Inst *> instructionsVector_;
-    ArenaVector<std::pair<Inst *, size_t>> inputDescriptors_;
+    ArenaVector<InputDesc> inputDescriptors_;
     ArenaVector<StringBuilderUsage> usages_;
     ArenaVector<ConcatenationLoopMatch> matches_;
     StringBuilderCallsMap stringBuilderCalls_;

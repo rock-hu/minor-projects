@@ -43,9 +43,9 @@ protected:
         const std::vector<PaddingPropertyF>& margins, const SizeF& frameSize);
 
     /**
-     * @brief Check if Sections info align with actual children
+     * @brief Check if Sections info align with actual children and if internal data structures are consistent.
      */
-    static bool IsDataValid(const RefPtr<WaterFlowLayoutInfoBase>& info, int32_t childrenCnt);
+    static bool IsSectionValid(const RefPtr<WaterFlowLayoutInfoBase>& info, int32_t childrenCnt);
 
     LayoutWrapper* wrapper_ {};
     RefPtr<WaterFlowLayoutProperty> props_;
@@ -68,11 +68,6 @@ public:
     void Measure(LayoutWrapper* layoutWrapper) override;
 
     void Layout(LayoutWrapper* layoutWrapper) override;
-
-    void SetCanOverScroll(bool value) override
-    {
-        overScroll_ = value;
-    }
 
     bool PreloadItem(LayoutWrapper* host, int32_t itemIdx, int64_t deadline) override;
 
@@ -124,10 +119,10 @@ private:
      * If user has defined a size for any FlowItem, use that size instead of calling child->Measure.
      *
      * @param targetIdx index of the last FlowItem to measure.
-     * @param cacheDeadline when called during a cache layout, always measure the items and return early if deadline is
-     * reached.
+     * @param cacheDeadline when called during a cache layout, return early if deadline is reached.
+     * @param force explicitly measure items even if their heights are user-defined.
      */
-    void MeasureToTarget(int32_t targetIdx, std::optional<int64_t> cacheDeadline);
+    void MeasureToTarget(int32_t targetIdx, std::optional<int64_t> cacheDeadline, bool force = false);
 
     /**
      * @brief Helper to measure a single FlowItems.
@@ -177,9 +172,6 @@ private:
     std::optional<float> postJumpOffset_;
 
     RefPtr<WaterFlowLayoutInfo> info_;
-
-    // true if WaterFlow can be overScrolled
-    bool overScroll_ = false;
 
     ACE_DISALLOW_COPY_AND_MOVE(WaterFlowSegmentedLayout);
 };

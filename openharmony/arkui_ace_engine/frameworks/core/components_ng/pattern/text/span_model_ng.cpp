@@ -429,6 +429,7 @@ void SpanModelNG::ResetFont(UINode *uiNode)
 void SpanModelNG::CreateContainSpan()
 {
     auto* stack = ViewStackProcessor::GetInstance();
+    CHECK_NULL_VOID(stack);
     auto nodeId = stack->ClaimNodeId();
     auto spanNode = ContainerSpanNode::GetOrCreateSpanNode(nodeId);
     stack->Push(spanNode);
@@ -488,7 +489,7 @@ Ace::TextDecorationStyle SpanModelNG::GetTextDecorationStyle(UINode* uiNode)
 TextStyle SpanModelNG::GetDefaultTextStyle()
 {
     TextStyle textStyle;
-    auto pipelineContext = PipelineBase::GetCurrentContextSafely();
+    auto pipelineContext = PipelineContext::GetCurrentContextSafelyWithCheck();
     CHECK_NULL_RETURN(pipelineContext, textStyle);
     auto textTheme = pipelineContext->GetTheme<TextTheme>();
     CHECK_NULL_RETURN(textTheme, textStyle);

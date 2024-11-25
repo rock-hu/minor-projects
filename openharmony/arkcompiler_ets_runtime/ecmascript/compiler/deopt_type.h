@@ -84,6 +84,7 @@ namespace panda::ecmascript::kungfu {
     V(RemainderIsNegativeZero,         REMAINDERISNEGATIVEZERO)        \
     V(Int32Overflow1,                  INT32OVERFLOW1)                 \
     V(NotString1,                      NOTSTRING1)                     \
+    V(NotInternString1,                NOTINTERNSTRING1)               \
     V(InconsistentType1,               INCONSISTENTTYPE1)              \
     V(NotNull1,                        NOTNULL1)                       \
     V(NotNull2,                        NOTNULL2)                       \
@@ -91,8 +92,8 @@ namespace panda::ecmascript::kungfu {
     V(BuiltinInstanceHClassMismatch2,  BUILTININSTANCEHCLASSMISMATCH2) \
     V(BuiltinPrototypeHClassMismatch1, BUILTINPROTOHCLASSMISMATCH1)    \
     V(BuiltinPrototypeHClassMismatch2, BUILTINPROTOHCLASSMISMATCH2)    \
-    V(ProtoTypeChanged1,               PROTOTYPECHANGED1)              \
-    V(ProtoTypeChanged2,               PROTOTYPECHANGED2)              \
+    V(PrototypeChanged1,               PROTOTYPECHANGED1)              \
+    V(PrototypeChanged2,               PROTOTYPECHANGED2)              \
     V(BuiltinIsHole1,                  BUILTINISHOLE1)                 \
     V(NewBuiltinCtorFail1,             NEWBUILTINCTORFAIL1)            \
     V(NewBuiltinCtorObject,            NEWBUILTINCTOROBJECT)           \

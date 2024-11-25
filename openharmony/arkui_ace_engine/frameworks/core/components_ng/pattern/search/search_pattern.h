@@ -287,6 +287,9 @@ private:
     void UpdateCancelButton();
     void UpdateDividerColorMode();
     void UpdateCancelButtonColorMode();
+    void UpdateCancelButtonStatus(const std::string& value, int16_t style = -1);
+
+    bool IsSearchAttached();
 
     uint32_t GetMaxLength() const;
     std::string SearchTypeToString() const;

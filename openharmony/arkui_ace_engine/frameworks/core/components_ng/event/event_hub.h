@@ -219,6 +219,12 @@ public:
     }
 
     void ClearCustomerOnDragFunc();
+    void ClearCustomerOnDragStart();
+    void ClearCustomerOnDragEnter();
+    void ClearCustomerOnDragMove();
+    void ClearCustomerOnDragLeave();
+    void ClearCustomerOnDrop();
+    void ClearCustomerOnDragEnd();
     void FireCustomerOnDragFunc(
         DragFuncType dragFuncType, const RefPtr<OHOS::Ace::DragEvent>& info, const std::string& extraParams = "");
     bool IsFireOnDrop(const RefPtr<OHOS::Ace::DragEvent>& info);
@@ -249,6 +255,7 @@ public:
     void FireOnAttach();
     void SetOnDetach(std::function<void()>&& onDetach);
     void ClearOnDetach();
+    void ClearOnPreDrag();
     void FireOnDetach();
     void ClearStateStyle();
     void OnDetachClear();

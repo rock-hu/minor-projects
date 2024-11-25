@@ -71,6 +71,9 @@ UINode::~UINode()
     if (!onMainTree_) {
         return;
     }
+    if (context_) {
+        context_->RemoveAttachedNode(this);
+    }
     onMainTree_ = false;
     if (nodeStatus_ == NodeStatus::BUILDER_NODE_ON_MAINTREE) {
         nodeStatus_ = NodeStatus::BUILDER_NODE_OFF_MAINTREE;
@@ -81,6 +84,7 @@ void UINode::AttachContext(PipelineContext* context, bool recursive)
 {
     CHECK_NULL_VOID(context);
     context_ = context;
+    context_->RegisterAttachedNode(this);
     instanceId_ = context->GetInstanceId();
     if (updateJSInstanceCallback_) {
         updateJSInstanceCallback_(instanceId_);
@@ -679,8 +683,7 @@ void UINode::AttachToMainTree(bool recursive, PipelineContext* context)
     for (const auto& child : GetChildren()) {
         child->AttachToMainTree(isRecursive, context);
     }
-    auto isOpenInvisibleFreeze = context->IsOpenInvisibleFreeze();
-    if (isOpenInvisibleFreeze) {
+    if (context && context->IsOpenInvisibleFreeze()) {
         auto parent = GetParent();
         // if it does not has parent, reset the flag.
         SetFreeze(parent ? parent->isFreeze_ : false);
@@ -1119,6 +1122,11 @@ PipelineContext* UINode::GetContext() const
         }
     }
     return context;
+}
+
+PipelineContext* UINode::GetAttachedContext() const
+{
+    return context_;
 }
 
 PipelineContext* UINode::GetContextWithCheck()
@@ -1570,11 +1578,11 @@ void UINode::DoRemoveChildInRenderTree(uint32_t index, bool isAll)
     }
 }
 
-void UINode::DoSetActiveChildRange(int32_t start, int32_t end, int32_t cacheStart, int32_t cacheEnd)
+void UINode::DoSetActiveChildRange(int32_t start, int32_t end, int32_t cacheStart, int32_t cacheEnd, bool showCache)
 {
     for (const auto& child : children_) {
         uint32_t count = static_cast<uint32_t>(child->FrameCount());
-        child->DoSetActiveChildRange(start, end, cacheStart, cacheEnd);
+        child->DoSetActiveChildRange(start, end, cacheStart, cacheEnd, showCache);
         start -= static_cast<int32_t>(count);
         end -= static_cast<int32_t>(count);
     }
@@ -1747,7 +1755,7 @@ void UINode::NotifyWebPattern(bool isRegister)
     }
 }
 
-void UINode::GetContainerComponentText(std::string& text)
+void UINode::GetContainerComponentText(std::u16string& text)
 {
     for (const auto& child : GetChildren()) {
         if (InstanceOf<FrameNode>(child) && child->GetTag() == V2::TEXT_ETS_TAG) {
@@ -1756,7 +1764,7 @@ void UINode::GetContainerComponentText(std::string& text)
             CHECK_NULL_VOID(pattern);
             auto layoutProperty = pattern->GetLayoutProperty<TextLayoutProperty>();
             CHECK_NULL_VOID(layoutProperty);
-            text = layoutProperty->GetContent().value_or("");
+            text = layoutProperty->GetContent().value_or(u"");
             break;
         }
         child->GetContainerComponentText(text);

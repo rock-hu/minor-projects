@@ -55,6 +55,7 @@
 #include "core/components_ng/gestures/pinch_gesture.h"
 #include "core/components_ng/pattern/select_overlay/magnifier.h"
 #include "core/components_ng/pattern/select_overlay/magnifier_controller.h"
+#include "ui/rs_surface_node.h"
 
 namespace OHOS::Ace {
 class WebDelegateObserver;
@@ -62,17 +63,14 @@ class ImageAnalyzerManager;
 }
 
 namespace OHOS::Ace::NG {
+class WebAccessibilityChildTreeCallback;
+
 namespace {
 
 struct MouseClickInfo {
     double x = -1;
     double y = -1;
     TimeStamp start;
-};
-
-struct ReachEdge {
-    bool atStart = false;
-    bool atEnd = false;
 };
 
 struct ViewDataCommon {
@@ -478,6 +476,7 @@ public:
     ACE_DEFINE_PROPERTY_FUNC_WITH_GROUP(WebProperty, VerticalScrollBarAccessEnabled, bool);
     ACE_DEFINE_PROPERTY_FUNC_WITH_GROUP(WebProperty, ScrollBarColor, std::string);
     ACE_DEFINE_PROPERTY_FUNC_WITH_GROUP(WebProperty, OverScrollMode, int32_t);
+    ACE_DEFINE_PROPERTY_FUNC_WITH_GROUP(WebProperty, BlurOnKeyboardHideMode, int32_t);
     ACE_DEFINE_PROPERTY_FUNC_WITH_GROUP(WebProperty, CopyOptionMode, int32_t);
     ACE_DEFINE_PROPERTY_FUNC_WITH_GROUP(WebProperty, MetaViewport, bool);
     ACE_DEFINE_PROPERTY_FUNC_WITH_GROUP(WebProperty, NativeEmbedModeEnabled, bool);
@@ -626,7 +625,7 @@ public:
         int32_t direction);
     bool ExecuteAction(int64_t accessibilityId, AceAction action,
         const std::map<std::string, std::string>& actionArguments) const;
-    void SetAccessibilityState(bool state);
+    void SetAccessibilityState(bool state, bool isDelayed = false);
     void UpdateFocusedAccessibilityId(int64_t accessibilityId = -1);
     void ClearFocusedAccessibilityId();
     void OnTooltip(const std::string& tooltip);
@@ -689,6 +688,8 @@ public:
     void RegisterWebComponentClickCallback(WebComponentClickCallback&& callback);
     void UnregisterWebComponentClickCallback();
     WebComponentClickCallback GetWebComponentClickCallback() const { return webComponentClickCallback_; }
+    void DumpInfo() override;
+    float DumpGpuInfo();
     void OnSetAccessibilityChildTree(int32_t childWindowId, int32_t childTreeId);
     bool OnAccessibilityChildTreeRegister();
     bool OnAccessibilityChildTreeDeregister();
@@ -707,6 +708,11 @@ public:
     // The magnifier needs this to know the web's offset
     OffsetF GetTextPaintOffset() const override;
     void OnColorConfigurationUpdate() override;
+
+    bool IsPreviewImageNodeExist() const
+    {
+        return previewImageNodeId_.has_value();
+    }
 
     void SetNewDragStyle(bool isNewDragStyle)
     {
@@ -730,6 +736,8 @@ public:
 
     bool IsPreviewMenuNotNeedShowPreview();
 
+    bool GetAccessibilityVisible(int64_t accessibilityId);
+
 private:
     friend class WebContextSelectOverlay;
 
@@ -743,7 +751,7 @@ private:
     bool IsNeedResizeVisibleViewport();
     bool ProcessVirtualKeyBoardHide(int32_t width, int32_t height, bool safeAreaEnabled);
     bool ProcessVirtualKeyBoardShow(int32_t width, int32_t height, double keyboard, bool safeAreaEnabled);
-    bool ProcessVirtualKeyBoard(int32_t width, int32_t height, double keyboard);
+    bool ProcessVirtualKeyBoard(int32_t width, int32_t height, double keyboard, bool isCustomKeyboard = false);
     void UpdateWebLayoutSize(int32_t width, int32_t height, bool isKeyboard, bool isUpdate = true);
     void UpdateLayoutAfterKeyboardShow(int32_t width, int32_t height, double keyboard, double oldWebHeight);
     bool OnDirtyLayoutWrapperSwap(const RefPtr<LayoutWrapper>& dirty, const DirtySwapConfig& config) override;
@@ -807,6 +815,7 @@ private:
     void OnVerticalScrollBarAccessEnabledUpdate(bool value);
     void OnScrollBarColorUpdate(const std::string& value);
     void OnOverScrollModeUpdate(const int32_t value);
+    void OnBlurOnKeyboardHideModeUpdate(const int32_t value);
     void OnCopyOptionModeUpdate(const int32_t value);
     void OnMetaViewportUpdate(bool value);
     void OnNativeEmbedModeEnabledUpdate(bool value);
@@ -965,7 +974,6 @@ private:
     bool CheckParentScroll(const float &directValue, const NestedScrollMode &scrollMode);
     bool CheckOverParentScroll(const float &directValue, const NestedScrollMode &scrollMode);
     bool FilterScrollEventHandlevVlocity(const float velocity);
-    void UpdateFlingReachEdgeState(const float value, bool status);
     void CalculateTooltipOffset(RefPtr<FrameNode>& tooltipNode, OffsetF& tooltipOfffset);
     void HandleShowTooltip(const std::string& tooltip, int64_t tooltipTimestamp);
     void ShowTooltip(const std::string& tooltip, int64_t tooltipTimestamp);
@@ -976,6 +984,7 @@ private:
     bool IsDialogNested();
     void SelectCancel() const;
     bool IsSelectInfoValid();
+    std::optional<RectF> GetViewPort() const;
     std::string GetSelectInfo() const;
     void UpdateRunQuickMenuSelectInfo(SelectOverlayInfo& selectInfo,
         std::shared_ptr<OHOS::NWeb::NWebQuickMenuParams> params,
@@ -1009,7 +1018,6 @@ private:
     void GetWebAllInfosImpl(WebNodeInfoCallback cb, int32_t webId);
     std::string EnumTypeToString(WebAccessibilityType type);
     std::string VectorIntToString(std::vector<int64_t>&& vec);
-    void InitAiEngine();
     void InitMagnifier();
     void ShowMagnifier(int centerOffsetX, int centerOffsetY);
     void HideMagnifier();
@@ -1070,6 +1078,7 @@ private:
     bool isDragging_ = false;
     bool isReceivedArkDrag_ = false;
     bool isW3cDragEvent_ = false;
+    bool isDragStartFromWeb_ = false;
 
     bool isNewDragStyle_ = false;
     std::map<std::pair<WebElementType, ResponseType>,
@@ -1138,7 +1147,6 @@ private:
     TouchEventInfo touchEventInfo_{"touchEvent"};
     std::vector<TouchEventInfo> touchEventInfoList_ {};
     bool isParentReachEdge_ = false;
-    ReachEdge isFlingReachEdge_ = { false, false };
     RefPtr<PinchGesture> pinchGesture_ = nullptr;
     std::queue<TouchEventInfo> touchEventQueue_;
     std::vector<NG::MenuOptionsParam> menuOptionParam_ {};
@@ -1166,12 +1174,11 @@ private:
     TextBlurCallback textBlurCallback_ = nullptr;
     WebComponentClickCallback webComponentClickCallback_ = nullptr;
     uint32_t autoFillSessionId_ = 0;
-    std::unordered_map<int32_t, std::shared_ptr<AccessibilityChildTreeCallback>> accessibilityChildTreeCallback_;
+    std::unordered_map<int32_t, std::shared_ptr<WebAccessibilityChildTreeCallback>> accessibilityChildTreeCallback_;
     int32_t treeId_ = 0;
     int32_t instanceId_ = -1;
     int64_t focusedAccessibilityId_ = -1;
     std::vector<RefPtr<PageNodeInfoWrap>> pageNodeInfo_;
-    bool isLayoutModeInit_ = false;
     bool isRenderModeInit_ = false;
     bool isAutoFillClosing_ = true;
     ViewDataCommon viewDataCommon_;
@@ -1186,10 +1193,12 @@ private:
     };
     VisibleType componentVisibility_ = VisibleType::VISIBLE;
     bool imageOverlayIsSelected_ = false;
-    bool isLayoutModeChanged = false;
+    bool isLayoutModeChanged_ = false;
     bool isDragEnd_ = false;
     OHOS::NWeb::CursorType cursor_type_ = OHOS::NWeb::CursorType::CT_NONE;
-    bool isAIEngineInit = false;
+    float touchPointX = 0;
+    float touchPointY = 0;
+    bool isUsingCustomKeyboardAvoid_ = false;
 
 protected:
     OnCreateMenuCallback onCreateMenuCallback_;

@@ -133,6 +133,11 @@ GateRef MCRLowering::VisitGate(GateRef gate)
         case OpCode::IS_CALLABLE_CHECK:
             LowerIsCallableCheck(gate);
             break;
+        case OpCode::MATH_HCLASS_CONSISTENCY_CHECK:
+            LowerMathHClassConsistencyCheck(gate);
+            break;
+        case OpCode::STRING_ADD:
+            LowerStringAdd(gate);
         default:
             break;
     }
@@ -278,7 +283,7 @@ void MCRLowering::LowerArrayGuardianCheck(GateRef gate)
     Environment env(gate, circuit_, &builder_);
 
     GateRef frameState = acc_.GetFrameState(gate);
-    GateRef guardiansOffset = builder_.IntPtr(JSThread::GlueData::GetStableArrayElementsGuardiansOffset(false));
+    GateRef guardiansOffset = builder_.IntPtr(JSThread::GlueData::GetArrayElementsGuardiansOffset(false));
     GateRef check = builder_.Load(VariableType::BOOL(), glue_, guardiansOffset);
     builder_.DeoptCheck(check, frameState, DeoptType::NOTSARRAY1);
 
@@ -293,6 +298,20 @@ void MCRLowering::LowerHClassStableArrayCheck(GateRef gate)
 
     GateRef check = builder_.IsStableElements(hclass);
     builder_.DeoptCheck(check, frameState, DeoptType::NOTSARRAY2);
+
+    acc_.ReplaceGate(gate, builder_.GetState(), builder_.GetDepend(), Circuit::NullGate());
+}
+
+void MCRLowering::LowerMathHClassConsistencyCheck(GateRef gate)
+{
+    Environment env(gate, circuit_, &builder_);
+    GateRef receiver = acc_.GetValueIn(gate, 0);
+    GateRef receiverHClass = builder_.LoadHClassByConstOffset(receiver);
+
+    GateRef cond = builder_.Equal(receiverHClass,
+        builder_.GetGlobalEnvObj(builder_.GetGlobalEnv(), GlobalEnv::MATH_FUNCTION_CLASS_INDEX));
+
+    builder_.DeoptCheck(cond, acc_.GetFrameState(gate), DeoptType::INCONSISTENTHCLASS14);
 
     acc_.ReplaceGate(gate, builder_.GetState(), builder_.GetDepend(), Circuit::NullGate());
 }
@@ -506,7 +525,7 @@ void MCRLowering::LowerCheckAndConvert(GateRef gate)
             LowerCheckTaggedNumberAndConvert(gate, frameState, &exit);
             break;
         case ValueType::BOOL:
-            LowerCheckSupportAndConvert(gate, frameState);
+            LowerCheckSupportAndConvertBool(gate, frameState);
             break;
         case ValueType::TAGGED_NULL:
             LowerCheckNullAndConvert(gate, frameState);
@@ -627,7 +646,7 @@ void MCRLowering::LowerCheckTaggedNumberAndConvert(GateRef gate, GateRef frameSt
     acc_.ReplaceGate(gate, builder_.GetState(), builder_.GetDepend(), result);
 }
 
-void MCRLowering::LowerCheckSupportAndConvert(GateRef gate, GateRef frameState)
+void MCRLowering::LowerCheckSupportAndConvertBool(GateRef gate, GateRef frameState)
 {
     ValueType dstType = acc_.GetDstType(gate);
     ASSERT(dstType == ValueType::INT32 || dstType == ValueType::FLOAT64);
@@ -635,6 +654,9 @@ void MCRLowering::LowerCheckSupportAndConvert(GateRef gate, GateRef frameState)
     GateRef value = acc_.GetValueIn(gate, 0);
 
     GateRef result = Circuit::NullGate();
+    if (acc_.GetMachineType(value) != MachineType::I1) {
+        UNREACHABLE();
+    }
     if (dstType == ValueType::INT32) {
         builder_.DeoptCheck(builder_.Boolean(support), frameState, DeoptType::NOTINT2);
         result = builder_.BooleanToInt32(value);
@@ -1296,5 +1318,17 @@ void MCRLowering::LowerIsCallableCheck(GateRef gate)
         .And(builder_.IsCallable(func)).Done();
     builder_.DeoptCheck(isCallable, frameState, DeoptType::NOTCALLABLE);
     acc_.ReplaceGate(gate, builder_.GetState(), builder_.GetDepend(), Circuit::NullGate());
+}
+
+void MCRLowering::LowerStringAdd(GateRef gate)
+{
+    Environment env(gate, circuit_, &builder_);
+    // 2: number of value inputs
+    ASSERT(acc_.GetNumValueIn(gate) == 2);
+    auto status = acc_.GetStringStatus(gate);
+
+    GateRef result = builder_.CallStub(glue_, gate, CommonStubCSigns::StringAdd,
+        { glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1), builder_.Int32(status) });
+    acc_.ReplaceGate(gate, builder_.GetState(), builder_.GetDepend(), result);
 }
 }  // namespace panda::ecmascript

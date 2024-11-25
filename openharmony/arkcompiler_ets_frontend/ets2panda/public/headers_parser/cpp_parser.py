@@ -25,7 +25,7 @@ from parse_define import parse_define_macros, is_known_macros
 from parse_class import parse_class, parse_friend_class, parse_template_prefix
 from parse_method import parse_method_or_constructor
 from parse_arguments import parse_argument
-from log_tools import warning_log
+from log_tools import debug_log
 
 
 def deep_copy(data: Any) -> Any:
@@ -48,9 +48,11 @@ class CppParser:
     def parse(self) -> Dict[str, Any]:  # pylint: disable=R0912
 
         while self.it.next_line():
-            # Skip "#include", "#ifndef", "#undef", "template"
 
-            if self.it.is_skip_line():
+            if self.it.is_access_modifier():
+                self.update_access_modifier()
+
+            elif self.it.is_skip_line() or self.current_modifier in ["private", "protected"]:
                 add_to_statistics("skip", self.it.current_line)
 
             elif self.it.is_template():
@@ -79,9 +81,6 @@ class CppParser:
             elif is_known_macros(self.it.current_line):
                 self.parsed = self.it.current_line
                 self.res_append("known_macroses")
-
-            elif self.it.is_access_modifier():
-                self.update_access_modifier()
 
             elif self.it.is_firend_class():
                 self.it.end, self.parsed = parse_friend_class(self.it.data, self.it.start)
@@ -131,10 +130,10 @@ class CppParser:
                 return
             raise RuntimeError("Unreachable")
 
-        if key not in self.res[self.current_modifier]:
-            self.res[self.current_modifier][key] = []
+        if key not in self.res[self.current_modifier]: # CC-OFF(G.TYP.07) dict key exist
+            self.res[self.current_modifier][key] = [] # CC-OFF(G.TYP.07) dict key exist
 
-        self.res[self.current_modifier][key].append(deep_copy(self.parsed))
+        self.res[self.current_modifier][key].append(deep_copy(self.parsed)) # CC-OFF(G.TYP.07) dict key exist
 
     def res_update(self) -> None:
         if self.parsed:
@@ -160,11 +159,11 @@ class CppParser:
 
     def res_append_method_or_constructor(self) -> None:
         # Constructor
-        if self.parsed["name"] == self.parent_class_name:
+        if self.parsed["name"] == self.parent_class_name: # CC-OFF(G.TYP.07) dict key exist
             self.res_append_in_modifier("constructors")
 
         # Destructor
-        elif self.parsed["name"] == "~" + self.parent_class_name:
+        elif self.parsed["name"] == "~" + self.parent_class_name: # CC-OFF(G.TYP.07) dict key exist
             self.res_append_in_modifier("destructors")
 
         # Method
@@ -193,4 +192,4 @@ class CppParser:
                 self.parsed["template"] = self.template
                 self.template = None
             else:
-                warning_log(f"Skipping template for '{self.parsed}'")
+                debug_log(f"Skipping template for '{self.parsed}'")

@@ -81,18 +81,6 @@ public:
 
     CAST_CHECK(SourceTextModule, IsSourceTextModule);
 
-    // 15.2.1.17 Runtime Semantics: HostResolveImportedModule ( referencingModule, specifier )
-    static JSHandle<JSTaggedValue> HostResolveImportedModule(JSThread *thread,
-                                                             const JSHandle<SourceTextModule> &module,
-                                                             const JSHandle<JSTaggedValue> &moduleRequest,
-                                                             bool executeFromJob = false);
-    static JSHandle<JSTaggedValue> HostResolveImportedModuleWithMerge(JSThread *thread,
-                                                                      const JSHandle<SourceTextModule> &module,
-                                                                      const JSHandle<JSTaggedValue> &moduleRequest,
-                                                                      bool executeFromJob = false);
-
-    static CString ReplaceModuleThroughFeature(JSThread *thread, const CString &requestName);
-
     // 15.2.1.16.2 GetExportedNames(exportStarSet)
     static CVector<std::string> GetExportedNames(JSThread *thread, const JSHandle<SourceTextModule> &module,
                                                  const JSHandle<TaggedArray> &exportStarSet);
@@ -357,10 +345,12 @@ public:
                                      ModuleTypes moduleType);
 
     JSTaggedValue GetModuleValue(JSThread *thread, int32_t index, bool isThrow);
-    void StoreModuleValue(JSThread *thread, int32_t index, const JSHandle<JSTaggedValue> &value);
+    static void StoreModuleValue(JSThread *thread, const JSHandle<SourceTextModule> &module, int32_t index,
+                                 const JSHandle<JSTaggedValue> &value);
 
     JSTaggedValue GetModuleValue(JSThread *thread, JSTaggedValue key, bool isThrow);
-    void StoreModuleValue(JSThread *thread, const JSHandle<JSTaggedValue> &key, const JSHandle<JSTaggedValue> &value);
+    static void StoreModuleValue(JSThread *thread, const JSHandle<SourceTextModule> &module,
+                                 const JSHandle<JSTaggedValue> &key, const JSHandle<JSTaggedValue> &value);
 
     static JSTaggedValue GetValueFromExportObject(JSThread *thread, JSHandle<JSTaggedValue> &exportObject,
         int32_t index);

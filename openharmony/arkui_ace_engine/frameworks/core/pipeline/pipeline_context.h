@@ -222,6 +222,8 @@ public:
     // if return false, then this event needs platform to handle it.
     bool OnKeyEvent(const KeyEvent& event) override;
 
+    bool OnNonPointerEvent(const NonPointerEvent& event) override { return false; }
+
     // Called by view when mouse event received.
     void OnMouseEvent(const MouseEvent& event) override;
 
@@ -663,7 +665,7 @@ public:
     }
     void StartSystemDrag(const std::string& str, const RefPtr<PixelMap>& pixmap);
     void InitDragListener();
-    void OnDragEvent(const PointerEvent& pointerEvent, DragEventAction action,
+    void OnDragEvent(const DragPointerEvent& pointerEvent, DragEventAction action,
         const RefPtr<NG::FrameNode>& node = nullptr) override;
     void SetPreTargetRenderNode(const RefPtr<DragDropEvent>& preDragDropNode);
     const RefPtr<DragDropEvent>& GetPreTargetRenderNode() const;
@@ -979,8 +981,6 @@ private:
     int32_t frameCount_ = 0;
 #endif
 
-    int32_t width_ = 0;
-    int32_t height_ = 0;
     bool isFirstPage_ = true;
     bool buildingFirstPage_ = false;
     bool forbidPlatformQuit_ = false;

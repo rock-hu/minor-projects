@@ -79,9 +79,11 @@ class TSHCROptPass;
     V(BitAnd, And, MachineType::I1)                                       \
     V(Int8And, And, MachineType::I8)                                      \
     V(Int8Xor, Xor, MachineType::I8)                                      \
+    V(Int16And, And, MachineType::I16)                                    \
     V(Int32And, And, MachineType::I32)                                    \
     V(Int64And, And, MachineType::I64)                                    \
     V(BitOr, Or, MachineType::I1)                                         \
+    V(Int16Or, Or, MachineType::I16)                                      \
     V(Int32Or, Or, MachineType::I32)                                      \
     V(Int64Or, Or, MachineType::I64)                                      \
     V(Int32Xor, Xor, MachineType::I32)                                    \
@@ -90,6 +92,7 @@ class TSHCROptPass;
     V(Int32LSL, Lsl, MachineType::I32)                                    \
     V(Int64LSL, Lsl, MachineType::I64)                                    \
     V(Int8LSR, Lsr, MachineType::I8)                                      \
+    V(Int16LSR, Lsr, MachineType::I16)                                      \
     V(Int32LSR, Lsr, MachineType::I32)                                    \
     V(Int64LSR, Lsr, MachineType::I64)                                    \
     V(Int32ASR, Asr, MachineType::I32)                                    \
@@ -340,6 +343,7 @@ public:
     GateRef HasPendingException(GateRef glue); // shareir
     GateRef IsUtf8String(GateRef string);
     GateRef IsUtf16String(GateRef string);
+    GateRef IsInternString(GateRef string);
     GateRef LoadObjectFromConstPool(GateRef constPool, GateRef index);
     GateRef IsAccessorInternal(GateRef accessor);
 
@@ -468,6 +472,7 @@ public:
     inline GateRef IsStableArguments(GateRef hClass);
     inline GateRef IsStableArray(GateRef hClass);
     inline GateRef IsDictionaryElement(GateRef hClass);
+    inline GateRef IsJSArrayPrototypeModified(GateRef hClass);
     inline GateRef IsClassConstructor(GateRef object);
     inline GateRef IsClassConstructorWithBitField(GateRef bitfield);
     inline GateRef IsConstructor(GateRef object);
@@ -477,7 +482,7 @@ public:
     inline GateRef IsJSObject(GateRef obj);
     inline GateRef IsCallable(GateRef obj);
     inline GateRef IsCallableFromBitField(GateRef bitfield);
-    inline GateRef IsProtoTypeHClass(GateRef hclass);
+    inline GateRef IsPrototypeHClass(GateRef hclass);
     inline GateRef IsJsProxy(GateRef obj);
     GateRef IsJSHClass(GateRef obj);
     inline void StoreHClass(GateRef glue, GateRef object, GateRef hClass);
@@ -510,12 +515,14 @@ public:
     // **************************** Middle IR ****************************
     GateRef EcmaObjectCheck(GateRef gate);
     GateRef HeapObjectCheck(GateRef gate, GateRef frameState);
+    GateRef MathHClassConsistencyCheck(GateRef receiver);
     GateRef HeapObjectIsEcmaObjectCheck(GateRef gate, GateRef frameState);
     GateRef ProtoChangeMarkerCheck(GateRef gate, GateRef frameState = Gate::InvalidGateRef);
     GateRef StableArrayCheck(GateRef gate, ElementsKind kind, ArrayMetaDataAccessor::Mode mode);
     GateRef ElementsKindCheck(GateRef receiver, ElementsKind kind, ArrayMetaDataAccessor::Mode mode);
     GateRef COWArrayCheck(GateRef gate);
     GateRef EcmaStringCheck(GateRef gate);
+    GateRef InternStringCheck(GateRef gate);
     GateRef EcmaMapCheck(GateRef gate);
     GateRef FlattenTreeStringCheck(GateRef gate);
     GateRef HClassStableArrayCheck(GateRef gate, GateRef frameState, ArrayMetaDataAccessor accessor);
@@ -665,7 +672,7 @@ public:
     GateRef MonoStorePropertyLookUpProto(GateRef receiver, GateRef plrGate, GateRef jsFunc, size_t hclassIndex,
                                          GateRef value);
     GateRef MonoStoreProperty(GateRef receiver, GateRef plrGate, GateRef jsFunc, size_t hclassIndex,
-                              GateRef value, GateRef keyIndex, GateRef frameState);
+                              GateRef value, GateRef keyIndex, GateRef isProto, GateRef frameState);
     GateRef TypedCreateObjWithBuffer(std::vector<GateRef> &valueIn);
     template<TypedLoadOp Op>
     GateRef ConvertJSArrayHoleAsUndefined(GateRef receiver);
@@ -699,7 +706,7 @@ public:
     inline GateRef TaggedIsWeak(GateRef x);
     inline GateRef TaggedIsPrototypeHandler(GateRef x);
     inline GateRef TaggedIsTransitionHandler(GateRef x);
-    inline GateRef TaggedIsStoreTSHandler(GateRef x);
+    inline GateRef TaggedIsStoreAOTHandler(GateRef x);
     inline GateRef TaggedIsTransWithProtoHandler(GateRef x);
     inline GateRef TaggedIsUndefinedOrNull(GateRef x);
     inline GateRef TaggedIsUndefinedOrNullOrHole(GateRef x);

@@ -108,7 +108,7 @@ OperationResult ModuleNamespace::GetProperty(JSThread *thread, const JSHandle<JS
         thread, OperationResult(thread, JSTaggedValue::Exception(), PropertyMetaData(false)));
     // 7. Assert: binding is a ResolvedBinding Record.
     // If resolution is null or "ambiguous", throw a SyntaxError exception.
-    if (binding->IsNull() || binding->IsString()) {
+    if (binding->IsNull() || binding->IsString()) { // LCOV_EXCL_BR_LINE
         CString requestMod = ModulePathHelper::ReformatPath(mm->GetEcmaModuleFilenameString());
         LOG_FULL(FATAL) << "Module: '" << requestMod << SourceTextModule::GetResolveErrorReason(binding) <<
             ConvertToString(key.GetTaggedValue()) << ".";
@@ -177,7 +177,7 @@ JSHandle<TaggedArray> ModuleNamespace::OwnPropertyKeys(JSThread *thread, const J
     JSHandle<ModuleNamespace> moduleNamespace = JSHandle<ModuleNamespace>::Cast(obj);
     JSHandle<JSTaggedValue> exports(thread, moduleNamespace->GetExports());
     JSHandle<TaggedArray> exportsArray = JSArray::ToTaggedArray(thread, exports);
-    if (!moduleNamespace->ValidateKeysAvailable(thread, exportsArray)) {
+    if (!ModuleNamespace::ValidateKeysAvailable(thread, moduleNamespace, exportsArray)) {
         return exportsArray;
     }
 
@@ -196,7 +196,7 @@ JSHandle<TaggedArray> ModuleNamespace::OwnEnumPropertyKeys(JSThread *thread, con
     JSHandle<ModuleNamespace> moduleNamespace = JSHandle<ModuleNamespace>::Cast(obj);
     JSHandle<JSTaggedValue> exports(thread, moduleNamespace->GetExports());
     JSHandle<TaggedArray> exportsArray = JSArray::ToTaggedArray(thread, exports);
-    if (!moduleNamespace->ValidateKeysAvailable(thread, exportsArray)) {
+    if (!ModuleNamespace::ValidateKeysAvailable(thread, moduleNamespace, exportsArray)) {
         return exportsArray;
     }
 
@@ -351,9 +351,10 @@ bool ModuleNamespace::DeleteProperty(JSThread *thread, const JSHandle<JSTaggedVa
     return true;
 }
 
-bool ModuleNamespace::ValidateKeysAvailable(JSThread *thread, const JSHandle<TaggedArray> &exports)
+// static
+bool ModuleNamespace::ValidateKeysAvailable(JSThread *thread, const JSHandle<ModuleNamespace> &moduleNamespace,
+                                            const JSHandle<TaggedArray> &exports)
 {
-    JSHandle<ModuleNamespace> moduleNamespace(thread, this);
     JSHandle<SourceTextModule> mm(thread, moduleNamespace->GetModule());
     uint32_t exportsLength = exports->GetLength();
     for (uint32_t idx = 0; idx < exportsLength; idx++) {

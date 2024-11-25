@@ -55,9 +55,9 @@ public:
         enableSkipping_ = skip;
     }
 
-    GridLayoutInfo GetScrollGridLayoutInfo()
+    std::unique_ptr<GridLayoutInfo>&& MoveInfoCopy()
     {
-        return scrollGridLayoutInfo_;
+        return std::move(infoCopy_);
     }
 
     template<class T>
@@ -94,7 +94,8 @@ private:
     void AddForwardLines(int32_t currentIndex, float crossSize, float mainSize, LayoutWrapper* layoutWrapper);
     void UpdateMatrixForAddedItems();
     // Fill forward one line, but do not update startMainLineIndex_ and startIndex_
-    void FillOneLineForwardWithoutUpdatingStartIndex(float crossSize, float mainSize, LayoutWrapper* layoutWrapper);
+    virtual void FillOneLineForwardWithoutUpdatingStartIndex(
+        float crossSize, float mainSize, LayoutWrapper* layoutWrapper);
 
     // fill end of viewport
     void FillBlankAtEnd(float mainSize, float crossSize, LayoutWrapper* layoutWrapper, float& mainLength);
@@ -231,8 +232,8 @@ private:
 
     bool expandSafeArea_ = false;
     bool canOverScroll_ = false;
-    bool enableSkipping_ = true; // enables skipping lines on a large offset change.
-    GridLayoutInfo scrollGridLayoutInfo_;
+    bool enableSkipping_ = true;               // enables skipping lines on a large offset change.
+    std::unique_ptr<GridLayoutInfo> infoCopy_; // legacy impl to save independent data for animation.
 
     // Map structure: [index, crossPosition], store cross position of each item.
     std::map<int32_t, float> itemsCrossPosition_;

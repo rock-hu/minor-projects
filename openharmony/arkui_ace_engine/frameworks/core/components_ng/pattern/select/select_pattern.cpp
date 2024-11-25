@@ -23,6 +23,7 @@
 #include "base/json/json_util.h"
 #include "base/utils/system_properties.h"
 #include "base/utils/utils.h"
+#include "base/utils/utf_helper.h"
 #include "core/animation/curves.h"
 #include "core/common/recorder/event_recorder.h"
 #include "core/common/recorder/node_data_cache.h"
@@ -37,6 +38,7 @@
 #include "core/components_ng/pattern/image/image_pattern.h"
 #include "core/components_ng/pattern/linear_layout/linear_layout_pattern.h"
 #include "core/components_ng/pattern/linear_layout/linear_layout_property.h"
+#include "core/components_ng/pattern/menu/menu_item/menu_item_pattern.h"
 #include "core/components_ng/pattern/menu/menu_pattern.h"
 #include "core/components_ng/pattern/option/option_pattern.h"
 #include "core/components_ng/pattern/scroll/scroll_layout_property.h"
@@ -238,7 +240,7 @@ void SelectPattern::UpdateOptionsWidth(float selectWidth)
         auto optionGeoNode = options_[i]->GetGeometryNode();
         CHECK_NULL_VOID(optionGeoNode);
         auto optionWidth = selectWidth - OPTION_MARGIN.ConvertToPx();
-        auto optionPattern = options_[i]->GetPattern<OptionPattern>();
+        auto optionPattern = options_[i]->GetPattern<MenuItemPattern>();
         CHECK_NULL_VOID(optionPattern);
         optionPattern->SetIsWidthModifiedBySelect(true);
         auto optionPaintProperty = options_[i]->GetPaintProperty<OptionPaintProperty>();
@@ -306,11 +308,13 @@ void SelectPattern::RegisterOnHover()
     CHECK_NULL_VOID(host);
     auto inputHub = host->GetOrCreateInputEventHub();
     CHECK_NULL_VOID(inputHub);
-    auto mouseCallback = [weak = WeakClaim(this), host](bool isHover) {
+    auto mouseCallback = [weak = WeakClaim(this)](bool isHover) {
         TAG_LOGD(AceLogTag::ACE_SELECT_COMPONENT, "select mouse hover %{public}d", isHover);
         auto pattern = weak.Upgrade();
         CHECK_NULL_VOID(pattern);
         pattern->SetIsHover(isHover);
+        auto host = pattern->GetHost();
+        CHECK_NULL_VOID(host);
         auto* pipeline = host->GetContextWithCheck();
         CHECK_NULL_VOID(pipeline);
         auto theme = pipeline->GetTheme<SelectTheme>();
@@ -383,12 +387,12 @@ void SelectPattern::CreateSelectedCallback()
         }
         auto valueChangeEvent = hub->GetValueChangeEvent();
         if (valueChangeEvent) {
-            auto newSelected = pattern->options_[index]->GetPattern<OptionPattern>();
+            auto newSelected = pattern->options_[index]->GetPattern<MenuItemPattern>();
             CHECK_NULL_VOID(newSelected);
             valueChangeEvent(newSelected->GetText());
         }
         // execute onSelect callback
-        auto newSelected = pattern->options_[index]->GetPattern<OptionPattern>();
+        auto newSelected = pattern->options_[index]->GetPattern<MenuItemPattern>();
         CHECK_NULL_VOID(newSelected);
         auto value = newSelected->GetText();
         auto onSelect = hub->GetSelectEvent();
@@ -450,7 +454,8 @@ void SelectPattern::SetDisabledStyle()
     textProps->UpdateTextColor(theme->GetDisabledFontColor());
     text_->MarkDirtyNode(PROPERTY_UPDATE_RENDER);
 
-    if (AceApplicationInfo::GetInstance().GreatOrEqualTargetAPIVersion(PlatformVersion::VERSION_TWELVE)) {
+    if (AceApplicationInfo::GetInstance().GreatOrEqualTargetAPIVersion(PlatformVersion::VERSION_TWELVE) &&
+        SystemProperties::IsNeedSymbol()) {
         auto spinnerLayoutProperty = spinner_->GetLayoutProperty<TextLayoutProperty>();
         CHECK_NULL_VOID(spinnerLayoutProperty);
         spinnerLayoutProperty->UpdateSymbolColorList({theme->GetDisabledSpinnerSymbolColor()});
@@ -537,7 +542,8 @@ void SelectPattern::BuildChild()
     auto textProps = text_->GetLayoutProperty<TextLayoutProperty>();
     CHECK_NULL_VOID(textProps);
     InitTextProps(textProps, theme);
-    if (AceApplicationInfo::GetInstance().GreatOrEqualTargetAPIVersion(PlatformVersion::VERSION_TWELVE)) {
+    if (AceApplicationInfo::GetInstance().GreatOrEqualTargetAPIVersion(PlatformVersion::VERSION_TWELVE) &&
+        SystemProperties::IsNeedSymbol()) {
         spinner_ = FrameNode::GetOrCreateFrameNode(
             V2::SYMBOL_ETS_TAG, spinnerId, []() { return AceType::MakeRefPtr<TextPattern>(); });
         CHECK_NULL_VOID(spinner_);
@@ -638,7 +644,7 @@ void SelectPattern::SetOptionBgColor(const Color& color)
         if (static_cast<int32_t>(i) == selected_ && selectedBgColor_.has_value()) {
             continue;
         }
-        auto pattern = options_[i]->GetPattern<OptionPattern>();
+        auto pattern = options_[i]->GetPattern<MenuItemPattern>();
         CHECK_NULL_VOID(pattern);
         pattern->SetBgColor(color);
     }
@@ -651,7 +657,7 @@ void SelectPattern::SetOptionFontSize(const Dimension& value)
         if (static_cast<int32_t>(i) == selected_ && selectedFont_.FontSize.has_value()) {
             continue;
         }
-        auto pattern = options_[i]->GetPattern<OptionPattern>();
+        auto pattern = options_[i]->GetPattern<MenuItemPattern>();
         CHECK_NULL_VOID(pattern);
         pattern->SetFontSize(value);
     }
@@ -664,7 +670,7 @@ void SelectPattern::SetOptionItalicFontStyle(const Ace::FontStyle& value)
         if (static_cast<int32_t>(i) == selected_ && selectedFont_.FontStyle.has_value()) {
             continue;
         }
-        auto pattern = options_[i]->GetPattern<OptionPattern>();
+        auto pattern = options_[i]->GetPattern<MenuItemPattern>();
         CHECK_NULL_VOID(pattern);
         pattern->SetItalicFontStyle(value);
     }
@@ -677,7 +683,7 @@ void SelectPattern::SetOptionFontWeight(const FontWeight& value)
         if (static_cast<int32_t>(i) == selected_ && selectedFont_.FontWeight.has_value()) {
             continue;
         }
-        auto pattern = options_[i]->GetPattern<OptionPattern>();
+        auto pattern = options_[i]->GetPattern<MenuItemPattern>();
         CHECK_NULL_VOID(pattern);
         pattern->SetFontWeight(value);
     }
@@ -690,7 +696,7 @@ void SelectPattern::SetOptionFontFamily(const std::vector<std::string>& value)
         if (static_cast<int32_t>(i) == selected_ && selectedFont_.FontFamily.has_value()) {
             continue;
         }
-        auto pattern = options_[i]->GetPattern<OptionPattern>();
+        auto pattern = options_[i]->GetPattern<MenuItemPattern>();
         CHECK_NULL_VOID(pattern);
         pattern->SetFontFamily(value);
     }
@@ -703,7 +709,7 @@ void SelectPattern::SetOptionFontColor(const Color& color)
         if (static_cast<int32_t>(i) == selected_ && selectedFont_.FontColor.has_value()) {
             continue;
         }
-        auto pattern = options_[i]->GetPattern<OptionPattern>();
+        auto pattern = options_[i]->GetPattern<MenuItemPattern>();
         CHECK_NULL_VOID(pattern);
         pattern->SetFontColor(color);
     }
@@ -714,7 +720,7 @@ void SelectPattern::SetSelectedOptionBgColor(const Color& color)
 {
     selectedBgColor_ = color;
     if (selected_ >= 0 && selected_ < static_cast<int32_t>(options_.size())) {
-        auto pattern = options_[selected_]->GetPattern<OptionPattern>();
+        auto pattern = options_[selected_]->GetPattern<MenuItemPattern>();
         CHECK_NULL_VOID(pattern);
         pattern->SetBgColor(color);
     }
@@ -724,7 +730,7 @@ void SelectPattern::SetSelectedOptionFontSize(const Dimension& value)
 {
     selectedFont_.FontSize = value;
     if (selected_ >= 0 && selected_ < static_cast<int32_t>(options_.size())) {
-        auto pattern = options_[selected_]->GetPattern<OptionPattern>();
+        auto pattern = options_[selected_]->GetPattern<MenuItemPattern>();
         CHECK_NULL_VOID(pattern);
         pattern->SetFontSize(value);
     }
@@ -734,7 +740,7 @@ void SelectPattern::SetSelectedOptionItalicFontStyle(const Ace::FontStyle& value
 {
     selectedFont_.FontStyle = value;
     if (selected_ >= 0 && selected_ < static_cast<int32_t>(options_.size())) {
-        auto pattern = options_[selected_]->GetPattern<OptionPattern>();
+        auto pattern = options_[selected_]->GetPattern<MenuItemPattern>();
         CHECK_NULL_VOID(pattern);
         pattern->SetItalicFontStyle(value);
     }
@@ -744,7 +750,7 @@ void SelectPattern::SetSelectedOptionFontWeight(const FontWeight& value)
 {
     selectedFont_.FontWeight = value;
     if (selected_ >= 0 && selected_ < static_cast<int32_t>(options_.size())) {
-        auto pattern = options_[selected_]->GetPattern<OptionPattern>();
+        auto pattern = options_[selected_]->GetPattern<MenuItemPattern>();
         CHECK_NULL_VOID(pattern);
         pattern->SetFontWeight(value);
     }
@@ -754,7 +760,7 @@ void SelectPattern::SetSelectedOptionFontFamily(const std::vector<std::string>& 
 {
     selectedFont_.FontFamily = value;
     if (selected_ >= 0 && selected_ < static_cast<int32_t>(options_.size())) {
-        auto pattern = options_[selected_]->GetPattern<OptionPattern>();
+        auto pattern = options_[selected_]->GetPattern<MenuItemPattern>();
         CHECK_NULL_VOID(pattern);
         pattern->SetFontFamily(value);
     }
@@ -764,7 +770,7 @@ void SelectPattern::SetSelectedOptionFontColor(const Color& color)
 {
     selectedFont_.FontColor = color;
     if (selected_ >= 0 && selected_ < static_cast<int32_t>(options_.size())) {
-        auto pattern = options_[selected_]->GetPattern<OptionPattern>();
+        auto pattern = options_[selected_]->GetPattern<MenuItemPattern>();
         CHECK_NULL_VOID(pattern);
         pattern->SetFontColor(color);
     }
@@ -786,7 +792,7 @@ void SelectPattern::ResetOptionProps()
     CHECK_NULL_VOID(selectTheme && textTheme);
 
     for (const auto& option : options_) {
-        auto pattern = option->GetPattern<OptionPattern>();
+        auto pattern = option->GetPattern<MenuItemPattern>();
         CHECK_NULL_VOID(pattern);
         pattern->SetSelected(false);
         pattern->SetBgColor(optionBgColor_.value_or(selectTheme->GetBackgroundColor()));
@@ -801,12 +807,12 @@ void SelectPattern::ResetOptionProps()
 void SelectPattern::UpdateLastSelectedProps(int32_t index)
 {
     CHECK_NULL_VOID(options_[index]);
-    auto newSelected = options_[index]->GetPattern<OptionPattern>();
+    auto newSelected = options_[index]->GetPattern<MenuItemPattern>();
     CHECK_NULL_VOID(newSelected);
     // set lastSelected option props back to default (unselected) values
     if (selected_ >= 0 && selected_ < static_cast<int32_t>(options_.size())) {
         CHECK_NULL_VOID(options_[selected_]);
-        auto lastSelected = options_[selected_]->GetPattern<OptionPattern>();
+        auto lastSelected = options_[selected_]->GetPattern<MenuItemPattern>();
         CHECK_NULL_VOID(lastSelected);
 
         lastSelected->SetFontColor(newSelected->GetFontColor());
@@ -833,7 +839,7 @@ void SelectPattern::UpdateLastSelectedProps(int32_t index)
 void SelectPattern::UpdateSelectedProps(int32_t index)
 {
     CHECK_NULL_VOID(options_[index]);
-    auto newSelected = options_[index]->GetPattern<OptionPattern>();
+    auto newSelected = options_[index]->GetPattern<MenuItemPattern>();
     CHECK_NULL_VOID(newSelected);
 
     // set newSelected props
@@ -885,7 +891,7 @@ void SelectPattern::UpdateText(int32_t index)
     if (index >= static_cast<int32_t>(options_.size()) || index < 0) {
         return;
     }
-    auto newSelected = options_[index]->GetPattern<OptionPattern>();
+    auto newSelected = options_[index]->GetPattern<MenuItemPattern>();
     CHECK_NULL_VOID(newSelected);
     textProps->UpdateContent(newSelected->GetText());
     text_->MarkModifyDone();
@@ -959,7 +965,7 @@ void SelectPattern::ToJsonValue(std::unique_ptr<JsonValue>& json, const Inspecto
         json->PutExtAttr("optionFont", "", filter);
         json->PutExtAttr("optionFontColor", "", filter);
     } else {
-        auto optionPattern = options_[0]->GetPattern<OptionPattern>();
+        auto optionPattern = options_[0]->GetPattern<MenuItemPattern>();
         CHECK_NULL_VOID(optionPattern);
         json->PutExtAttr("optionBgColor", optionPattern->GetBgColor().ColorToString().c_str(), filter);
         json->PutExtAttr("optionFont", optionPattern->InspectorGetFont().c_str(), filter);
@@ -1007,7 +1013,7 @@ void SelectPattern::ToJsonArrowAndText(std::unique_ptr<JsonValue>& json, const I
 
     auto props = text_->GetLayoutProperty<TextLayoutProperty>();
     CHECK_NULL_VOID(props);
-    json->PutExtAttr("value", props->GetContent().value_or("").c_str(), filter);
+    json->PutExtAttr("value", UtfUtils::Str16ToStr8(props->GetContent().value_or(u"")).c_str(), filter);
     Color fontColor = props->GetTextColor().value_or(Color::BLACK);
     json->PutExtAttr("fontColor", fontColor.ColorToString().c_str(), filter);
     json->PutExtAttr("font", props->InspectorGetTextFont().c_str(), filter);
@@ -1093,7 +1099,7 @@ std::string SelectPattern::InspectorGetOptions() const
     auto jsonOptions = JsonUtil::CreateArray(true);
     for (size_t i = 0; i < options_.size(); ++i) {
         auto temp = JsonUtil::Create(true);
-        auto optionPattern = options_[i]->GetPattern<OptionPattern>();
+        auto optionPattern = options_[i]->GetPattern<MenuItemPattern>();
         temp->Put("value", optionPattern->GetText().c_str());
         temp->Put("icon", optionPattern->GetIcon().c_str());
         auto index = std::to_string(i);
@@ -1165,7 +1171,7 @@ std::string SelectPattern::GetValue()
     CHECK_NULL_RETURN(text_, "");
     auto textProps = text_->GetLayoutProperty<TextLayoutProperty>();
     CHECK_NULL_RETURN(textProps, "");
-    return textProps->GetContentValue("");
+    return UtfUtils::Str16ToStr8(textProps->GetContentValue(u""));
 }
 
 void SelectPattern::SetMenuAlign(const MenuAlign& menuAlign)
@@ -1224,7 +1230,7 @@ void SelectPattern::OnColorConfigurationUpdate()
 
     auto optionNode = menuPattern->GetOptions();
     for (auto child : optionNode) {
-        auto optionsPattern = child->GetPattern<OptionPattern>();
+        auto optionsPattern = child->GetPattern<MenuItemPattern>();
         optionsPattern->SetFontColor(selectTheme->GetFontColor());
 
         child->MarkModifyDone();
@@ -1255,7 +1261,7 @@ void SelectPattern::OnLanguageConfigurationUpdate()
             if (index >= static_cast<int32_t>(pattern->options_.size()) || index < 0) {
                 return;
             }
-            auto newSelected = pattern->options_[index]->GetPattern<OptionPattern>();
+            auto newSelected = pattern->options_[index]->GetPattern<MenuItemPattern>();
             CHECK_NULL_VOID(newSelected);
             auto value = newSelected->GetText();
             auto valueChangeEvent = hub->GetValueChangeEvent();
@@ -1308,7 +1314,7 @@ void SelectPattern::SetOptionWidth(const Dimension& value)
     
     for (size_t i = 0; i < options_.size(); ++i) {
         auto optionWidth = value.ConvertToPx();
-        auto optionPattern = options_[i]->GetPattern<OptionPattern>();
+        auto optionPattern = options_[i]->GetPattern<MenuItemPattern>();
         CHECK_NULL_VOID(optionPattern);
         optionPattern->SetIsWidthModifiedBySelect(true);
         auto optionPaintProperty = options_[i]->GetPaintProperty<OptionPaintProperty>();
@@ -1335,7 +1341,7 @@ void SelectPattern::SetHasOptionWidth(bool hasOptionWidth)
     CHECK_NULL_VOID(scrollPattern);
     scrollPattern->SetHasOptionWidth(true);
     for (size_t i = 0; i < options_.size(); ++i) {
-        auto optionPattern = options_[i]->GetPattern<OptionPattern>();
+        auto optionPattern = options_[i]->GetPattern<MenuItemPattern>();
         CHECK_NULL_VOID(optionPattern);
         optionPattern->SetHasOptionWidth(true);
     }

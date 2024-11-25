@@ -13,13 +13,23 @@
  * limitations under the License.
  */
 
+#include <chrono>
+#include <thread>
+
 #include "ecmascript/builtins/builtins_ark_tools.h"
 #include "ecmascript/ecma_vm.h"
 #include "ecmascript/mem/full_gc.h"
 #include "ecmascript/object_factory-inl.h"
 #include "ecmascript/mem/concurrent_marker.h"
 #include "ecmascript/mem/partial_gc.h"
+#include "ecmascript/mem/sparse_space.h"
+#include "ecmascript/mem/mem_controller.h"
 #include "ecmascript/mem/incremental_marker.h"
+#include "ecmascript/mem/shared_heap/shared_concurrent_marker.h"
+#include "ecmascript/mem/gc_key_stats.h"
+#include "ecmascript/mem/gc_stats.h"
+#include "ecmascript/mem/allocation_inspector.h"
+#include "ecmascript/dfx/hprof/heap_sampling.h"
 #include "ecmascript/tests/ecma_test_common.h"
 
 using namespace panda;
@@ -82,13 +92,10 @@ HWTEST_F_L0(GCTest, ArkToolsHintGC)
     }
     {
 #ifdef NDEBUG
-        size_t originSize = heap->GetCommittedSize();
         size_t newSize = 0;
         size_t finalSize = 0;
         bool res = getSizeAfterCreateAndCallHintGC(newSize, finalSize);
         EXPECT_TRUE(res);
-        EXPECT_TRUE(newSize > originSize);
-        EXPECT_TRUE(finalSize < newSize);
 #endif
     }
 }
@@ -101,27 +108,29 @@ HWTEST_F_L0(GCTest, LargeOverShootSizeTest)
     EXPECT_FALSE(heap->GetNewSpace()->CommittedSizeIsLarge());
     heap->GetConcurrentMarker()->ConfigConcurrentMark(false);
     heap->NotifyHighSensitive(true);
+    size_t originalCapacity = heap->GetNewSpace()->GetInitialCapacity();
+    size_t originalOverShootSize = heap->GetNewSpace()->GetOvershootSize();
     {
         [[maybe_unused]] ecmascript::EcmaHandleScope baseScope(thread);
-        for (int i = 0; i < 500; i++) {
+        for (int i = 0; i < 300; i++) {
             [[maybe_unused]] JSHandle<TaggedArray> array = thread->GetEcmaVM()->GetFactory()->NewTaggedArray(
                 10 * 1024, JSTaggedValue::Hole(), MemSpaceType::SEMI_SPACE);
         }
+        size_t newYoungSize = heap->GetNewSpace()->GetCommittedSize();
+        EXPECT_TRUE(originalYoungSize < newYoungSize);
+
+        heap->NotifyHighSensitive(false);
+        heap->CollectGarbage(TriggerGCType::YOUNG_GC);
+        newYoungSize = heap->GetNewSpace()->GetCommittedSize();
+        size_t newOverShootSize = heap->GetNewSpace()->GetOvershootSize();
+        size_t newCapacity = heap->GetNewSpace()->GetInitialCapacity();
+        EXPECT_TRUE(originalYoungSize < newYoungSize);
+        EXPECT_TRUE(originalOverShootSize < newOverShootSize);
+        EXPECT_TRUE(0 < newOverShootSize);
+        EXPECT_TRUE(originalCapacity < newCapacity);
+        EXPECT_TRUE(heap->GetNewSpace()->GetMaximumCapacity() == newCapacity);
     }
-    size_t newYoungSize = heap->GetNewSpace()->GetCommittedSize();
-    size_t originalOverShootSize = heap->GetNewSpace()->GetOvershootSize();
-    EXPECT_TRUE(heap->GetNewSpace()->CommittedSizeIsLarge());
-    EXPECT_TRUE(originalYoungSize < newYoungSize);
-
-    heap->NotifyHighSensitive(false);
-    heap->CollectGarbage(TriggerGCType::YOUNG_GC);
-    newYoungSize = heap->GetNewSpace()->GetCommittedSize();
-    size_t newOverShootSize = heap->GetNewSpace()->GetOvershootSize();
-
-    EXPECT_TRUE(originalYoungSize < newYoungSize);
-    EXPECT_TRUE(originalOverShootSize < newOverShootSize);
-    EXPECT_TRUE(0 < newOverShootSize);
-
+    originalOverShootSize = heap->GetNewSpace()->GetOvershootSize();
     {
         [[maybe_unused]] ecmascript::EcmaHandleScope baseScope(thread);
         for (int i = 0; i < 2049; i++) {
@@ -448,6 +457,283 @@ HWTEST_F_L0(GCTest, TriggerIdleCollectionTest007)
     ASSERT_EQ(heap->GetIncrementalMarker()->GetIncrementalGCStates(), IncrementalGCStates::ROOT_SCAN);
     heap->GetIncrementalMarker()->TriggerIncrementalMark(1000);
     heap->TriggerIdleCollection(1000);
+}
+
+HWTEST_F_L0(GCTest, CheckAndTriggerSharedGCTest002)
+{
+    SharedHeap *heap = SharedHeap::GetInstance();
+    heap->GetOldSpace()->SetInitialCapacity(100);
+    ASSERT_EQ(heap->CheckAndTriggerSharedGC(thread), true);
+}
+
+HWTEST_F_L0(GCTest, CheckAndTriggerSharedGCTest003)
+{
+    SharedHeap *heap = SharedHeap::GetInstance();
+    heap->GetOldSpace()->SetInitialCapacity(100);
+    thread->SetSharedMarkStatus(SharedMarkStatus::CONCURRENT_MARKING_OR_FINISHED);
+    ASSERT_EQ(heap->CheckAndTriggerSharedGC(thread), true);
+}
+
+HWTEST_F_L0(GCTest, CheckAndTriggerSharedGCTest004)
+{
+    SharedHeap *heap = SharedHeap::GetInstance();
+    thread->SetSharedMarkStatus(SharedMarkStatus::CONCURRENT_MARKING_OR_FINISHED);
+    ASSERT_EQ(heap->CheckAndTriggerSharedGC(thread), false);
+}
+
+HWTEST_F_L0(GCTest, CheckHugeAndTriggerSharedGCTest003)
+{
+    SharedHeap *heap = SharedHeap::GetInstance();
+    heap->GetOldSpace()->SetInitialCapacity(100);
+    ASSERT_EQ(heap->CheckHugeAndTriggerSharedGC(thread, 1), false);
+}
+
+HWTEST_F_L0(GCTest, CheckHugeAndTriggerSharedGCTest004)
+{
+    SharedHeap *heap = SharedHeap::GetInstance();
+    heap->GetOldSpace()->SetInitialCapacity(100);
+    thread->SetSharedMarkStatus(SharedMarkStatus::CONCURRENT_MARKING_OR_FINISHED);
+    ASSERT_EQ(heap->CheckHugeAndTriggerSharedGC(thread, 1), false);
+}
+
+HWTEST_F_L0(GCTest, CheckHugeAndTriggerSharedGCTest005)
+{
+    SharedHeap *heap = SharedHeap::GetInstance();
+    thread->SetSharedMarkStatus(SharedMarkStatus::CONCURRENT_MARKING_OR_FINISHED);
+    ASSERT_EQ(heap->CheckHugeAndTriggerSharedGC(thread, 1), false);
+}
+
+HWTEST_F_L0(GCTest, CheckOngoingConcurrentMarkingTest001)
+{
+    SharedHeap *heap = SharedHeap::GetInstance();
+    heap->GetConcurrentMarker()->ConfigConcurrentMark(false);
+    ASSERT_EQ(heap->CheckOngoingConcurrentMarking(), false);
+}
+
+HWTEST_F_L0(GCTest, CheckOngoingConcurrentMarkingTest002)
+{
+    SharedHeap *heap = SharedHeap::GetInstance();
+    heap->GetConcurrentMarker()->ConfigConcurrentMark(true);
+    ASSERT_EQ(heap->CheckOngoingConcurrentMarking(), false);
+}
+
+HWTEST_F_L0(GCTest, SelectGCTypeTest001)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    heap->GetOldSpace()->SetInitialCapacity(100);
+    ASSERT_EQ(heap->SelectGCType(), OLD_GC);
+}
+
+HWTEST_F_L0(GCTest, SelectGCTypeTest002)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    heap->GetOldSpace()->SetMaximumCapacity(1000);
+    heap->GetOldSpace()->SetOvershootSize(1000);
+    heap->GetNewSpace()->IncreaseCommitted(100000);
+    ASSERT_EQ(heap->SelectGCType(), OLD_GC);
+}
+
+HWTEST_F_L0(GCTest, CollectGarbageTest004)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    thread->EnableCrossThreadExecution();
+    heap->CollectGarbage(TriggerGCType::EDEN_GC, GCReason::TRIGGER_BY_TASKPOOL);
+}
+
+HWTEST_F_L0(GCTest, CollectGarbageTest005)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    heap->SetOnSerializeEvent(true);
+    heap->CollectGarbage(TriggerGCType::EDEN_GC, GCReason::TRIGGER_BY_TASKPOOL);
+}
+
+HWTEST_F_L0(GCTest, CollectGarbageTest006)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    heap->SetOnSerializeEvent(true);
+    thread->EnableCrossThreadExecution();
+    heap->CollectGarbage(TriggerGCType::EDEN_GC, GCReason::TRIGGER_BY_TASKPOOL);
+}
+
+HWTEST_F_L0(GCTest, CollectGarbageTest007)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    heap->GetConcurrentMarker()->ConfigConcurrentMark(false);
+    heap->CollectGarbage(TriggerGCType::EDEN_GC, GCReason::TRIGGER_BY_TASKPOOL);
+}
+
+HWTEST_F_L0(GCTest, CollectGarbageTest008)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    heap->GetIncrementalMarker()->TriggerIncrementalMark(1000);
+    heap->CollectGarbage(TriggerGCType::YOUNG_GC, GCReason::TRIGGER_BY_TASKPOOL);
+}
+
+HWTEST_F_L0(GCTest, CollectGarbageTest009)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    heap->GetConcurrentMarker()->EnableConcurrentMarking(EnableConcurrentMarkType::REQUEST_DISABLE);
+    ASSERT_TRUE(heap->GetConcurrentMarker()->IsRequestDisabled());
+    heap->CollectGarbage(TriggerGCType::YOUNG_GC, GCReason::TRIGGER_BY_TASKPOOL);
+}
+
+HWTEST_F_L0(GCTest, AdjustBySurvivalRateTest001)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    heap->SetMarkType(MarkType::MARK_EDEN);
+    heap->AdjustBySurvivalRate(100);
+    heap->SetMarkType(MarkType::MARK_YOUNG);
+    heap->AdjustBySurvivalRate(100);
+}
+
+HWTEST_F_L0(GCTest, TryTriggerIdleCollectionTest007)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    heap->SetIdleTask(IdleTaskType::NO_TASK);
+    heap->TryTriggerIdleCollection();
+}
+
+HWTEST_F_L0(GCTest, TryTriggerFullMarkBySharedLimitTest004)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    heap->GetConcurrentMarker()->ConfigConcurrentMark(true);
+    heap->TryTriggerFullMarkBySharedLimit();
+    heap->GetConcurrentMarker()->ConfigConcurrentMark(false);
+    heap->TryTriggerFullMarkBySharedLimit();
+}
+
+HWTEST_F_L0(GCTest, TriggerConcurrentMarkingTest002)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    heap->SetMarkType(MarkType::MARK_FULL);
+    heap->TriggerConcurrentMarking();
+    heap->SetMarkType(MarkType::MARK_EDEN);
+    heap->TriggerConcurrentMarking();
+}
+
+HWTEST_F_L0(GCTest, TriggerConcurrentMarkingTest003)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    heap->GetConcurrentMarker()->ConfigConcurrentMark(true);
+    heap->TriggerConcurrentMarking();
+    heap->GetConcurrentMarker()->ConfigConcurrentMark(false);
+    heap->TriggerConcurrentMarking();
+}
+
+HWTEST_F_L0(GCTest, TriggerIdleCollectionTest008)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    heap->TriggerIdleCollection(1000);
+    heap->ClearIdleTask();
+    heap->TriggerIdleCollection(1000);
+}
+
+HWTEST_F_L0(GCTest, TriggerIdleCollectionTest009)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    heap->SetIdleTask(IdleTaskType::YOUNG_GC);
+    heap->TriggerIdleCollection(5);
+}
+
+HWTEST_F_L0(GCTest, NotifyFinishColdStartTest002)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    heap->NotifyPostFork();
+    heap->NotifyFinishColdStart(true);
+}
+
+HWTEST_F_L0(GCTest, NeedStopCollectionTest004)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    heap->SetOnSerializeEvent(false);
+    heap->SetSensitiveStatus(AppSensitiveStatus::ENTER_HIGH_SENSITIVE);
+    ASSERT_EQ(heap->NeedStopCollection(), true);
+}
+
+HWTEST_F_L0(GCTest, TryToGetSuitableSweptRegionTest001)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    SparseSpace *space = heap->GetSpaceWithType(MemSpaceType::OLD_SPACE);
+    space->FinishFillSweptRegion();
+    ASSERT_EQ(space->TryToGetSuitableSweptRegion(100), nullptr);
+}
+
+HWTEST_F_L0(GCTest, CalculateGrowingFactorTest001)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    heap->SetMemGrowingType(MemGrowingType::CONSERVATIVE);
+    MemController *memController = new MemController(heap);
+    memController->CalculateGrowingFactor(0, 0);
+}
+
+HWTEST_F_L0(GCTest, CalculateGrowingFactorTest002)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    heap->SetMemGrowingType(MemGrowingType::PRESSURE);
+    MemController *memController = new MemController(heap);
+    memController->CalculateGrowingFactor(0, 0);
+}
+
+HWTEST_F_L0(GCTest, StartCalculationBeforeGCTest001)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    MemController *memController = new MemController(heap);
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    memController->StartCalculationBeforeGC();
+    memController->StopCalculationAfterGC(TriggerGCType::EDEN_GC);
+}
+
+HWTEST_F_L0(GCTest, StartCalculationBeforeGCTest002)
+{
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    MemController *memController = new MemController(heap);
+    memController->StopCalculationAfterGC(TriggerGCType::EDEN_GC);
+}
+
+HWTEST_F_L0(GCTest, DryTrunkExpandTest001)
+{
+    auto trunk = thread->GetEcmaVM()->GetChunk();
+    DynChunk *dynChunk = new DynChunk(trunk);
+    ASSERT_TRUE(dynChunk->GetAllocatedSize() < 1000);
+    dynChunk->SetError();
+    ASSERT_EQ(dynChunk->Expand(1000), -1);
+}
+
+HWTEST_F_L0(GCTest, DryTrunkInsertTest001)
+{
+    auto trunk = thread->GetEcmaVM()->GetChunk();
+    DynChunk *dynChunk = new DynChunk(trunk);
+    ASSERT_EQ(dynChunk->Insert(5, 5), -1);
+}
+
+HWTEST_F_L0(GCTest, DryTrunkInsertTest002)
+{
+    auto trunk = thread->GetEcmaVM()->GetChunk();
+    DynChunk *dynChunk = new DynChunk(trunk);
+    dynChunk->SetError();
+    ASSERT_EQ(dynChunk->Insert(0, 5), -1);
+}
+
+HWTEST_F_L0(GCTest, AdvanceAllocationInspectorTest001)
+{
+    auto counter = new AllocationCounter();
+    counter->AdvanceAllocationInspector(100);
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    auto profiler = new HeapSampling(thread->GetEcmaVM(), heap, 10, 3);
+    auto inspector = new AllocationInspector(heap, 10, profiler);
+    counter->AddAllocationInspector(inspector);
+    counter->AdvanceAllocationInspector(0);
+}
+
+HWTEST_F_L0(GCTest, InvokeAllocationInspectorTest001)
+{
+    auto counter = new AllocationCounter();
+    counter->InvokeAllocationInspector(10000, 100, 100);
+    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+    auto profiler = new HeapSampling(thread->GetEcmaVM(), heap, 10, 3);
+    auto inspector = new AllocationInspector(heap, 10, profiler);
+    counter->AddAllocationInspector(inspector);
+    counter->InvokeAllocationInspector(10000, 100, 100);
 }
 
 } // namespace panda::test

@@ -16,9 +16,19 @@
 #ifndef CPP_ABCKIT_CORE_CLASS_IMPL_H
 #define CPP_ABCKIT_CORE_CLASS_IMPL_H
 
-#include "cpp/headers/core/class.h"
+#include "./class.h"
 
 namespace abckit::core {
+
+inline std::string_view Class::GetName() const
+{
+    const ApiConfig *conf = GetApiConfig();
+    AbckitString *cString = conf->cIapi_->classGetName(GetView());
+    CheckError(conf);
+    std::string_view view = conf->cIapi_->abckitStringToString(cString);
+    CheckError(conf);
+    return view;
+}
 
 // CC-OFFNXT(G.FUD.06) perf critical
 inline std::vector<core::Function> Class::GetAllMethods() const
@@ -29,7 +39,7 @@ inline std::vector<core::Function> Class::GetAllMethods() const
     using EnumerateData = std::pair<std::vector<core::Function> *, const ApiConfig *>;
     EnumerateData enumerateData(&methods, conf);
 
-    conf->cIapi_->classEnumerateMethods(GetView(), (void *)&enumerateData, [](AbckitCoreFunction *method, void *data) {
+    conf->cIapi_->classEnumerateMethods(GetView(), &enumerateData, [](AbckitCoreFunction *method, void *data) {
         auto *vec = static_cast<EnumerateData *>(data)->first;
         auto *config = static_cast<EnumerateData *>(data)->second;
         vec->push_back(core::Function(method, config));
@@ -50,17 +60,31 @@ inline std::vector<core::Annotation> Class::GetAnnotations() const
     using EnumerateData = std::pair<std::vector<core::Annotation> *, const ApiConfig *>;
     EnumerateData enumerateData(&anns, conf);
 
-    conf->cIapi_->classEnumerateAnnotations(GetView(), (void *)&enumerateData,
-                                            [](AbckitCoreAnnotation *method, void *data) {
-                                                auto *vec = static_cast<EnumerateData *>(data)->first;
-                                                auto *config = static_cast<EnumerateData *>(data)->second;
-                                                vec->push_back(core::Annotation(method, config));
-                                                return true;
-                                            });
+    conf->cIapi_->classEnumerateAnnotations(GetView(), &enumerateData, [](AbckitCoreAnnotation *method, void *data) {
+        auto *vec = static_cast<EnumerateData *>(data)->first;
+        auto *config = static_cast<EnumerateData *>(data)->second;
+        vec->push_back(core::Annotation(method, config));
+        return true;
+    });
 
     CheckError(conf);
 
     return anns;
+}
+
+// CC-OFFNXT(G.FUD.06) perf critical
+inline void Class::EnumerateMethods(const std::function<bool(core::Function)> &cb) const
+{
+    const ApiConfig *conf = GetApiConfig();
+    using EnumerateData = std::pair<const std::function<bool(core::Function)> &, const ApiConfig *>;
+    EnumerateData enumerateData(cb, conf);
+
+    conf->cIapi_->classEnumerateMethods(GetView(), &enumerateData, [](AbckitCoreFunction *method, void *data) {
+        const std::function<bool(core::Function)> &callback = static_cast<EnumerateData *>(data)->first;
+        auto *config = static_cast<EnumerateData *>(data)->second;
+        return callback(core::Function(method, config));
+    });
+    CheckError(conf);
 }
 
 }  // namespace abckit::core

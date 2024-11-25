@@ -336,7 +336,7 @@ void PipelineContext::FlushTouchEvents() {}
 void PipelineContext::OnAxisEvent(const AxisEvent& event) {}
 
 void PipelineContext::OnDragEvent(
-    const PointerEvent& pointerEvent, DragEventAction action, const RefPtr<NG::FrameNode>& node)
+    const DragPointerEvent& pointerEvent, DragEventAction action, const RefPtr<NG::FrameNode>& node)
 {}
 
 void PipelineContext::OnIdle(int64_t deadline)
@@ -538,6 +538,11 @@ bool PipelineContext::OnKeyEvent(const KeyEvent& event)
     return false;
 }
 
+bool PipelineContext::OnNonPointerEvent(const NonPointerEvent& event)
+{
+    return false;
+}
+
 bool PipelineContext::RequestFocus(const std::string& targetNodeId, bool isSyncRequest)
 {
     return false;
@@ -562,7 +567,7 @@ void PipelineContext::AddDirtyRequestFocus(const RefPtr<FrameNode>& node) {}
 void PipelineContext::AddDirtyFreezeNode(FrameNode* node) {}
 
 // core/pipeline_ng/pipeline_context.h depends on the specific impl
-void UITaskScheduler::FlushTask(bool triggeredByImplicitAnimation) {}
+void UITaskScheduler::FlushTaskWithCheck(bool triggeredByImplicitAnimation) {}
 
 UITaskScheduler::UITaskScheduler() {}
 
@@ -737,7 +742,7 @@ bool PipelineContext::HasDifferentDirectionGesture() const
 
 void PipelineContext::SetJSViewActive(bool active, WeakPtr<CustomNode> custom) {}
 
-RefPtr<FrameNode> PipelineContext::FindNavigationNodeToHandleBack(const RefPtr<UINode>& node)
+RefPtr<FrameNode> PipelineContext::FindNavigationNodeToHandleBack(const RefPtr<UINode>& node, bool& isEntry)
 {
     return nullptr;
 }
@@ -963,7 +968,12 @@ uint64_t PipelineBase::GetTimeFromExternalTimer()
     return 1;
 }
 
-void PipelineBase::PostAsyncEvent(TaskExecutor::Task&& task, const std::string& name, TaskExecutor::TaskType type) {}
+void PipelineBase::PostAsyncEvent(TaskExecutor::Task&& task, const std::string& name, TaskExecutor::TaskType type)
+{
+    if (taskExecutor_) {
+        taskExecutor_->PostTask(std::move(task), type, name);
+    }
+}
 
 void PipelineBase::PostAsyncEvent(const TaskExecutor::Task& task, const std::string& name, TaskExecutor::TaskType type)
 {}
@@ -1024,6 +1034,11 @@ bool PipelineBase::HasFloatTitle() const
     return true;
 }
 
+void PipelineBase::AddUIExtensionCallbackEvent(NG::UIExtCallbackEventId eventId)
+{
+    uiExtensionEvents_.insert(NG::UIExtCallbackEvent(eventId));
+}
+
 Dimension NG::PipelineContext::GetCustomTitleHeight()
 {
     return Dimension();
@@ -1079,5 +1094,28 @@ void NG::PipelineContext::DumpUIExt() const
 {
 }
 
+void NG::PipelineContext::RegisterAttachedNode(UINode* uiNode) {}
+
+void NG::PipelineContext::RemoveAttachedNode(UINode* uiNode) {}
+
+void NG::PipelineContext::EnableContainerModalGesture(bool isEnable) {}
+
+bool NG::PipelineContext::GetContainerFloatingTitleVisible()
+{
+    return false;
+}
+
+bool NG::PipelineContext::GetContainerCustomTitleVisible()
+{
+    return false;
+}
+
+bool NG::PipelineContext::GetContainerControlButtonVisible() 
+{
+    return false;
+}
+
+NG::ScopedLayout::ScopedLayout(PipelineContext* pipeline) {}
+NG::ScopedLayout::~ScopedLayout() {}
 } // namespace OHOS::Ace
 // pipeline_base ===============================================================

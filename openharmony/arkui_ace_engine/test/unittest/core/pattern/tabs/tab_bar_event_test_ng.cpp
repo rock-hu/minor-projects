@@ -546,7 +546,7 @@ HWTEST_F(TabBarEventTestNg, TabBarPatternHandleTouchEvent003, TestSize.Level1)
     CreateTabContents(1);
     CreateTabsDone(model);
     tabBarLayoutProperty_->UpdateAxis(Axis::HORIZONTAL);
-    tabBarPattern_->tabBarType_.emplace(std::make_pair(1, true));
+    tabBarPattern_->tabBarType_.emplace(std::make_pair(1, TabBarParamType::CUSTOM_BUILDER));
 
     /**
      * @tc.steps: steps2. HandleTouchEvent
@@ -685,9 +685,9 @@ HWTEST_F(TabBarEventTestNg, TabBarLayoutAlgorithmHandleSpaceBetweenOrCenterLayou
  */
 HWTEST_F(TabBarEventTestNg, Drag001, TestSize.Level1)
 {
-    auto pipeline = PipelineContext::GetCurrentContextSafelyWithCheck();
-    pipeline->fontScale_ = BIG_FONT_SIZE_SCALE; // for InitLongPressEvent
     TabsModelNG model = CreateTabs();
+    auto pipeline = frameNode_->GetContext();
+    pipeline->fontScale_ = BIG_FONT_SIZE_SCALE; // for InitLongPressEvent
     CreateTabContentTabBarStyle(TabBarStyle::BOTTOMTABBATSTYLE);
     CreateTabContentTabBarStyle(TabBarStyle::BOTTOMTABBATSTYLE);
     CreateTabsDone(model);
@@ -745,9 +745,9 @@ HWTEST_F(TabBarEventTestNg, Drag001, TestSize.Level1)
  */
 HWTEST_F(TabBarEventTestNg, DialogStyle001, TestSize.Level1)
 {
-    auto pipeline = PipelineContext::GetCurrentContextSafelyWithCheck();
-    pipeline->fontScale_ = BIG_FONT_SIZE_SCALE; // for InitLongPressEvent
     TabsModelNG model = CreateTabs();
+    auto pipeline = frameNode_->GetContext();
+    pipeline->fontScale_ = BIG_FONT_SIZE_SCALE; // for InitLongPressEvent
     CreateTabContentTabBarStyle(TabBarStyle::BOTTOMTABBATSTYLE);
     CreateTabContentTabBarStyle(TabBarStyle::BOTTOMTABBATSTYLE);
     CreateTabsDone(model);
@@ -1001,7 +1001,7 @@ HWTEST_F(TabBarEventTestNg, HandleTouchEvent004, TestSize.Level1)
     auto actuator = eventHub->touchEventActuator_;
     auto events = actuator->touchEvents_;
     events.front()->callback_(info);
-    tabBarPattern_->tabBarType_ = { { 0, false }, { 1, true } };
+    tabBarPattern_->tabBarType_ = { { 0, TabBarParamType::NORMAL }, { 1, TabBarParamType::CUSTOM_BUILDER } };
     tabBarPattern_->HandleHoverEvent(true);
     MouseInfo mouseInfo;
     mouseInfo.SetAction(MouseAction::MOVE);
@@ -1045,7 +1045,7 @@ HWTEST_F(TabBarEventTestNg, TabBarPatternOnKeyEvent001, TestSize.Level1)
     CreateTabContentTabBarStyle(TabBarStyle::NOSTYLE);
     CreateTabContentTabBarStyle(TabBarStyle::NOSTYLE);
     CreateTabsDone(model);
-    auto pipeline = PipelineContext::GetCurrentContextSafelyWithCheck();
+    auto pipeline = frameNode_->GetContext();
     pipeline->isFocusActive_ = true;
     /**
      * @tc.steps: step1. call OnKeyEvent use Axis::HORIZONTAL and KeyCode::KEY_TAB and isCustomAnimation_ is true

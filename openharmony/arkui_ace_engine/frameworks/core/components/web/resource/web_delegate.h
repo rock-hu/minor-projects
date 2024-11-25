@@ -583,6 +583,7 @@ public:
         : result_(result) {}
 
     void SetGestureEventResult(bool result) override;
+    void SetGestureEventResult(bool result, bool stopPropagation) override;
     bool HasSendTask() { return sendTask_; }
     void SetSendTask() { sendTask_ = true; }
     bool GetEventResult() { return eventResult_; }
@@ -733,6 +734,7 @@ public:
     void UpdateUserAgent(const std::string& userAgent);
     void UpdateBackgroundColor(const int backgroundColor);
     void UpdateInitialScale(float scale);
+    void UpdateLayoutMode(WebLayoutMode mode);
     void UpdateJavaScriptEnabled(const bool& isJsEnabled);
     void UpdateAllowFileAccess(const bool& isFileAccessEnabled);
     void UpdateBlockNetworkImage(const bool& onLineImageAccessEnabled);
@@ -776,6 +778,7 @@ public:
     void UpdateOverlayScrollbarEnabled(bool isEnabled);
     void UpdateScrollBarColor(const std::string& colorValue);
     void UpdateOverScrollMode(const int32_t overscrollModeValue);
+    void UpdateBlurOnKeyboardHideMode(const int32_t isBlurOnKeyboardHideEnable);
     void UpdateNativeEmbedModeEnabled(bool isEmbedModeEnabled);
     void UpdateNativeEmbedRuleTag(const std::string& tag);
     void UpdateNativeEmbedRuleType(const std::string& type);
@@ -828,6 +831,7 @@ public:
     bool GetPendingSizeStatus();
     void OnInactive();
     void OnActive();
+    void GestureBackBlur();
     void OnWebviewHide();
     void OnWebviewShow();
     bool OnCursorChange(const OHOS::NWeb::CursorType& type, std::shared_ptr<OHOS::NWeb::NWebCursorInfo> info);
@@ -1009,7 +1013,7 @@ public:
     std::shared_ptr<OHOS::NWeb::NWebAccessibilityNodeInfo> GetAccessibilityNodeInfoById(int64_t accessibilityId);
     std::shared_ptr<OHOS::NWeb::NWebAccessibilityNodeInfo> GetAccessibilityNodeInfoByFocusMove(
         int64_t accessibilityId, int32_t direction);
-    void SetAccessibilityState(bool state);
+    void SetAccessibilityState(bool state, bool isDelayed);
     void UpdateAccessibilityState(bool state);
     OHOS::NWeb::NWebPreference::CopyOptionMode GetCopyOptionMode() const;
     void OnIntelligentTrackingPreventionResult(
@@ -1079,6 +1083,10 @@ public:
     {
         return taskExecutor_;
     }
+
+    bool GetAccessibilityVisible(int64_t accessibilityId);
+
+    void SetTransformHint(uint32_t rotation);
 
 private:
     void InitWebEvent();
@@ -1164,6 +1172,7 @@ private:
     void RegisterAvoidAreaChangeListener(int32_t instanceId);
     void UnregisterAvoidAreaChangeListener(int32_t instanceId);
     void OnSafeInsetsChange();
+    void EnableHardware();
 #endif
 
     WeakPtr<WebComponent> webComponent_;
@@ -1290,6 +1299,7 @@ private:
     int64_t lastFocusInputId_ = 0;
     int64_t lastFocusReportId_ = 0;
     RefPtr<TaskExecutor> taskExecutor_;
+    bool isEnableHardwareComposition_ = false;
 #endif
 };
 

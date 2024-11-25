@@ -16,7 +16,7 @@
 #ifndef CPP_ABCKIT_BASIC_BLOCK_IMPL_H
 #define CPP_ABCKIT_BASIC_BLOCK_IMPL_H
 
-#include "cpp/headers/basic_block.h"
+#include "./basic_block.h"
 
 namespace abckit {
 
@@ -44,12 +44,11 @@ inline std::vector<BasicBlock> BasicBlock::GetSuccs() const
     using EnumerateData = std::pair<std::vector<BasicBlock> *, const ApiConfig *>;
     EnumerateData enumerateData(&bBs, conf);
 
-    conf->cGapi_->bbVisitSuccBlocks(GetView(), (void *)&enumerateData,
-                                    []([[maybe_unused]] AbckitBasicBlock *bb, AbckitBasicBlock *succ, void *data) {
-                                        auto *vec = static_cast<EnumerateData *>(data)->first;
-                                        auto *config = static_cast<EnumerateData *>(data)->second;
-                                        vec->push_back(BasicBlock(succ, config));
-                                    });
+    conf->cGapi_->bbVisitSuccBlocks(GetView(), &enumerateData, [](AbckitBasicBlock *succ, void *data) {
+        auto *vec = static_cast<EnumerateData *>(data)->first;
+        auto *config = static_cast<EnumerateData *>(data)->second;
+        vec->push_back(BasicBlock(succ, config));
+    });
 
     CheckError(conf);
 
@@ -70,9 +69,24 @@ inline std::vector<Instruction> BasicBlock::GetInstructions() const
     return insts;
 }
 
+inline Instruction BasicBlock::GetFirstInst() const
+{
+    auto *conf = GetApiConfig();
+    auto *inst = conf->cGapi_->bbGetFirstInst(GetView());
+    CheckError(conf);
+    return Instruction(inst, conf);
+}
+
 inline BasicBlock &BasicBlock::AddInstFront(const Instruction &inst)
 {
     GetApiConfig()->cGapi_->bbAddInstFront(GetView(), inst.GetView());
+    CheckError(GetApiConfig());
+    return *this;
+}
+
+inline BasicBlock &BasicBlock::AddInstBack(const Instruction &inst)
+{
+    GetApiConfig()->cGapi_->bbAddInstBack(GetView(), inst.GetView());
     CheckError(GetApiConfig());
     return *this;
 }

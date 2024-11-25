@@ -81,7 +81,6 @@ public:
     {
         selectOverlay_ = AceType::MakeRefPtr<TextSelectOverlay>(WeakClaim(this));
         pManager_ = AceType::MakeRefPtr<ParagraphManager>();
-        magnifierController_ = MakeRefPtr<MagnifierController>(WeakClaim(this));
     }
 
     ~TextPattern() override;
@@ -741,6 +740,14 @@ public:
         afterLayoutCallback_ = std::nullopt;
     }
 
+    RefPtr<MagnifierController> GetOrCreateMagnifier()
+    {
+        if (!magnifierController_) {
+            magnifierController_ = MakeRefPtr<MagnifierController>(WeakClaim(this));
+        }
+        return magnifierController_;
+    }
+
 protected:
     int32_t GetClickedSpanPosition()
     {
@@ -768,6 +775,7 @@ protected:
     void RecordClickEvent();
     void ActTextOnClick(GestureEvent& info);
     void RecordSpanClickEvent(const RefPtr<SpanItem>& span);
+    RectF CalcAIMenuPosition(const AISpan& aiSpan, const CalculateHandleFunc& calculateHandleFunc);
     bool ShowAIEntityMenu(const AISpan& aiSpan, const CalculateHandleFunc& calculateHandleFunc = nullptr,
         const ShowSelectOverlayFunc& showSelectOverlayFunc = nullptr);
     void SetOnClickMenu(const AISpan& aiSpan, const CalculateHandleFunc& calculateHandleFunc,
@@ -836,6 +844,7 @@ protected:
     int32_t recoverEnd_ = 0;
     bool aiSpanHoverEventInitialized_ = false;
     bool mouseEventInitialized_ = false;
+    bool isHover_ = false;
     bool panEventInitialized_ = false;
     bool clickEventInitialized_ = false;
     bool touchEventInitialized_ = false;
@@ -954,6 +963,13 @@ private:
     virtual void ResetAfterTextChange();
     bool GlobalOffsetInSelectedArea(const Offset& globalOffset);
     bool LocalOffsetInSelectedArea(const Offset& localOffset);
+    void HandleOnCopyWithoutSpanString(const std::string& pasteData);
+    void EncodeTlvNoChild(const std::string& pasteData, std::vector<uint8_t>& buff);
+    void EncodeTlvFontStyleNoChild(std::vector<uint8_t>& buff);
+    void EncodeTlvTextLineStyleNoChild(std::vector<uint8_t>& buff);
+    void EncodeTlvSpanItems(const std::string& pasteData, std::vector<uint8_t>& buff);
+
+    void DumpTextLayoutProperty();
 
     bool isMeasureBoundary_ = false;
     bool isMousePressed_ = false;
@@ -998,6 +1014,8 @@ private:
     WeakPtr<ScrollablePattern> scrollableParent_;
     ACE_DISALLOW_COPY_AND_MOVE(TextPattern);
     std::optional<std::function<void()>> afterLayoutCallback_;
+    Offset lastLeftMouseMoveLocation_;
+    bool isAutoScrollByMouse_ = false;
 };
 } // namespace OHOS::Ace::NG
 

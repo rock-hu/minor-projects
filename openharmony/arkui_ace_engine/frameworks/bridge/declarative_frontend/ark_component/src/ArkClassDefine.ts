@@ -373,14 +373,14 @@ class ArkChainMode {
   }
 }
 
-class ArkListEdgeEffect {
+class ArkEdgeEffect {
   value: EdgeEffect;
   options?: EdgeEffectOptions | undefined;
   constructor() {
     this.value = undefined;
     this.options = undefined;
   }
-  isEqual(another: ArkListEdgeEffect): boolean {
+  isEqual(another: ArkEdgeEffect): boolean {
     return (this.value === another.value) &&
       (this.options === another.options);
   }
@@ -394,19 +394,6 @@ class ArkFadingEdge {
     this.options = undefined;
   }
   isEqual(another: ArkFadingEdge): boolean {
-    return (this.value === another.value) &&
-      (this.options === another.options);
-  }
-}
-
-class ArkScrollEdgeEffect {
-  value: EdgeEffect;
-  options?: EdgeEffectOptions | undefined;
-  constructor() {
-    this.value = undefined;
-    this.options = undefined;
-  }
-  isEqual(another: ArkScrollEdgeEffect): boolean {
     return (this.value === another.value) &&
       (this.options === another.options);
   }
@@ -526,12 +513,16 @@ class ArkBorderDashGap {
   right: EdgeWidths | LengthMetrics | LocalizedEdgeWidths;
   top: EdgeWidths | LengthMetrics | LocalizedEdgeWidths;
   bottom: EdgeWidths | LengthMetrics | LocalizedEdgeWidths;
+  start: LocalizedEdgeWidths;
+  end: LocalizedEdgeWidths;
 
   constructor() {
     this.left = undefined;
     this.right = undefined;
     this.top = undefined;
     this.bottom = undefined;
+    this.start = undefined;
+    this.end = undefined;
   }
 
   isEqual(another: ArkBorderDashGap): boolean {
@@ -539,7 +530,9 @@ class ArkBorderDashGap {
       this.left === another.left &&
       this.right === another.right &&
       this.top === another.top &&
-      this.bottom === another.bottom
+      this.bottom === another.bottom &&
+      this.start === another.start &&
+      this.end === another.end
     );
   }
 }
@@ -549,12 +542,16 @@ class ArkBorderDashWidth {
   right: EdgeWidths | LengthMetrics | LocalizedEdgeWidths;
   top: EdgeWidths | LengthMetrics | LocalizedEdgeWidths;
   bottom: EdgeWidths | LengthMetrics | LocalizedEdgeWidths;
+  start: LocalizedEdgeWidths;
+  end: LocalizedEdgeWidths;
 
   constructor() {
     this.left = undefined;
     this.right = undefined;
     this.top = undefined;
     this.bottom = undefined;
+    this.start = undefined;
+    this.end = undefined;
   }
 
   isEqual(another: ArkBorderDashWidth): boolean {
@@ -562,7 +559,9 @@ class ArkBorderDashWidth {
       this.left === another.left &&
       this.right === another.right &&
       this.top === another.top &&
-      this.bottom === another.bottom
+      this.bottom === another.bottom &&
+      this.start === another.start &&
+      this.end === another.end
     );
   }
 }
@@ -972,6 +971,18 @@ class ArkCustomProperty {
   }
 }
 
+class ArkUseEffect {
+  useEffect: boolean;
+  effectType: EffectType;
+  constructor() {
+    this.useEffect = undefined;
+    this.effectType = undefined;
+  }
+  isEqual(another: ArkUseEffect): boolean {
+    return (this.useEffect === another.useEffect) && (this.effectType === another.effectType);
+  }
+}
+
 class ArkBlendMode {
   blendMode: number | Blender;
   blendApplyType: number;
@@ -1210,19 +1221,6 @@ class ArkDisplayCount {
   }
 }
 
-class ArkGridEdgeEffect {
-  value: EdgeEffect;
-  options?: EdgeEffectOptions | undefined;
-  constructor() {
-    this.value = undefined;
-    this.options = undefined;
-  }
-  isEqual(another: ArkGridEdgeEffect): boolean {
-    return (this.value === another.value) &&
-      (this.options === another.options);
-  }
-}
-
 class ArkPlaceholder {
   value: ResourceStr | undefined;
   style?: PlaceholderStyle | undefined;
@@ -1370,19 +1368,6 @@ class ArkScrollOffsetOptions {
   }
   isEqual(another: ArkScrollOffsetOptions): boolean {
     return this.xOffset === another.xOffset && this.yOffset === another.yOffset;
-  }
-}
-
-class ArkWaterFlowEdgeEffect {
-  value: EdgeEffect;
-  options?: EdgeEffectOptions | undefined;
-  constructor() {
-    this.value = undefined;
-    this.options = undefined;
-  }
-  isEqual(another: ArkWaterFlowEdgeEffect): boolean {
-    return (this.value === another.value) &&
-      (this.options === another.options);
   }
 }
 

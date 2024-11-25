@@ -40,11 +40,13 @@ namespace panda::ecmascript::kungfu {
     V(COWArrayCheck, COW_ARRAY_CHECK, GateFlags::CHECKABLE, 1, 1, 1)                            \
     V(ConvertHoleAsUndefined, CONVERT_HOLE_AS_UNDEFINED, GateFlags::NO_WRITE, 1, 1, 1)          \
     V(EcmaStringCheck, ECMA_STRING_CHECK, GateFlags::CHECKABLE, 1, 1, 1)                        \
+    V(InternStringCheck, INTERN_STRING_CHECK, GateFlags::CHECKABLE, 1, 1, 1)                    \
     V(EcmaMapCheck, ECMA_MAP_CHECK, GateFlags::CHECKABLE, 1, 1, 1)                              \
     V(FinishAllocate, FINISH_ALLOCATE, GateFlags::NONE_FLAG, 0, 1, 1)                           \
     V(FlattenTreeStringCheck, FLATTEN_TREE_STRING_CHECK, GateFlags::CHECKABLE, 1, 1, 1)         \
     V(HeapObjectCheck, HEAP_OBJECT_CHECK, GateFlags::CHECKABLE, 1, 1, 1)                        \
     V(EcmaObjectCheck, ECMA_OBJECT_CHECK, GateFlags::CHECKABLE, 1, 1, 1)                        \
+    V(MathHClassConsistencyCheck, MATH_HCLASS_CONSISTENCY_CHECK, GateFlags::CHECKABLE, 1, 1, 1) \
     V(ProtoChangeMarkerCheck, PROTO_CHANGE_MARKER_CHECK, GateFlags::CHECKABLE, 1, 1, 1)         \
     V(LookUpHolder, LOOK_UP_HOLDER, GateFlags::CHECKABLE, 1, 1, 3)                              \
     V(LoadGetter, LOAD_GETTER, GateFlags::NO_WRITE, 0, 1, 2)                                    \
@@ -210,7 +212,7 @@ namespace panda::ecmascript::kungfu {
 #define MCR_GATE_META_DATA_LIST_WITH_BOOL(V)                                                                 \
     V(LoadProperty, LOAD_PROPERTY, GateFlags::NO_WRITE, 1, 1, 2)                                             \
     V(MonoStorePropertyLookUpProto, MONO_STORE_PROPERTY_LOOK_UP_PROTO, GateFlags::HAS_FRAME_STATE, 1, 1, 5)  \
-    V(MonoStoreProperty, MONO_STORE_PROPERTY, GateFlags::HAS_FRAME_STATE, 1, 1, 6)
+    V(MonoStoreProperty, MONO_STORE_PROPERTY, GateFlags::HAS_FRAME_STATE, 1, 1, 7)
 
 #define MCR_GATE_META_DATA_LIST_WITH_GATE_TYPE(V)                                          \
     V(PrimitiveTypeCheck, PRIMITIVE_TYPE_CHECK, GateFlags::CHECKABLE, 1, 1, 1)             \

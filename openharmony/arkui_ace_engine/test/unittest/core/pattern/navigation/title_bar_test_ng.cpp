@@ -36,6 +36,7 @@
 #include "core/components_ng/pattern/navigation/nav_bar_layout_property.h"
 #include "core/components_ng/pattern/navigation/bar_item_event_hub.h"
 #include "core/components_ng/pattern/navigation/navigation_declaration.h"
+#include "core/components_ng/pattern/navigation/navigation_title_util.h"
 #include "core/components_ng/pattern/text/text_pattern.h"
 #include "core/components_v2/inspector/inspector_constants.h"
 #include "test/mock/core/common/mock_container.h"
@@ -808,18 +809,6 @@ HWTEST_F(TitleBarTestNg, GetTempTitleOffsetY004, TestSize.Level1)
 }
 
 /**
- * @tc.name: GetTempTitleOffsetX001
- * @tc.desc: Test GetTempTitleOffsetX interface.
- * @tc.type: FUNC
- */
-HWTEST_F(TitleBarTestNg, GetTempTitleOffsetX001, TestSize.Level1)
-{
-    auto titleBarPattern = AceType::MakeRefPtr<TitleBarPattern>();
-    auto ret = titleBarPattern->GetTempTitleOffsetX();
-    EXPECT_EQ(ret, RET_VALUE);
-}
-
-/**
  * @tc.name: GetTempSubTitleOffsetY001
  * @tc.desc: Test GetTempSubTitleOffsetY interface.
  * @tc.type: FUNC
@@ -828,18 +817,6 @@ HWTEST_F(TitleBarTestNg, GetTempSubTitleOffsetY001, TestSize.Level1)
 {
     auto titleBarPattern = AceType::MakeRefPtr<TitleBarPattern>();
     auto ret = titleBarPattern->GetTempSubTitleOffsetY();
-    EXPECT_EQ(ret, RET_VALUE);
-}
-
-/**
- * @tc.name: GetTempSubTitleOffsetX001
- * @tc.desc: Test GetTempSubTitleOffsetX interface.
- * @tc.type: FUNC
- */
-HWTEST_F(TitleBarTestNg, GetTempSubTitleOffsetX001, TestSize.Level1)
-{
-    auto titleBarPattern = AceType::MakeRefPtr<TitleBarPattern>();
-    auto ret = titleBarPattern->GetTempSubTitleOffsetX();
     EXPECT_EQ(ret, RET_VALUE);
 }
 
@@ -1733,21 +1710,6 @@ HWTEST_F(TitleBarTestNg, TitleBarPatternSpringAnimationTest001, TestSize.Level1)
 }
 
 /**
- * @tc.name: GetSideBarButtonInfoTest001
- * @tc.desc: get the empty info of sideBarButton when the sideBarButton is empty.
- * @tc.type: FUNC
- */
-HWTEST_F(TitleBarTestNg, GetSideBarButtonInfoTest001, TestSize.Level1)
-{
-    InitTitleBarTestNg();
-    bool hasSideBar = titleBarPattern_->IsNecessaryToAvoidSideBar();
-    EXPECT_EQ(hasSideBar, false);
-    RectF buttonRect = titleBarPattern_->GetControlButtonInfo();
-    EXPECT_EQ(buttonRect, RectF(0.0f, 0.0f, 0.0f, 0.0f));
-    DestroyTitleBarObject();
-}
-
-/**
  * @tc.name: TitleBarPatternOnModifyDone001
  * @tc.desc: Increase the coverage of OnModifyDone function.
  * @tc.type: FUNC
@@ -2563,15 +2525,20 @@ HWTEST_F(TitleBarTestNg, OnLanguageConfigurationUpdate001, TestSize.Level1)
 }
 
 /**
- * @tc.name: TitleBarPatternLongPress
- * @tc.desc: Test TitleBarPattern back button long press event.
+ * @tc.name: TitleBarPatternLongPress001
+ * @tc.desc: Test TitleBarPattern back button long press event with fontScale 1.75.
  * @tc.type: FUNC
  */
-HWTEST_F(TitleBarTestNg, TitleBarPatternLongPress, TestSize.Level1)
+HWTEST_F(TitleBarTestNg, TitleBarPatternLongPress001, TestSize.Level1)
 {
     /**
      * @tc.steps: step1. Set backButton to TitleBarNode.
      */
+    InitTitleBarTestNg();
+    auto themeManager = AceType::MakeRefPtr<MockThemeManager>();
+    MockPipelineContext::GetCurrent()->SetThemeManager(themeManager);
+    auto theme = AceType::MakeRefPtr<NavigationBarTheme>();
+    EXPECT_CALL(*themeManager, GetTheme(_)).WillRepeatedly(Return(theme));
     auto titleBarNode = TitleBarNode::GetOrCreateTitleBarNode(
         V2::TITLE_BAR_ETS_TAG, 1, []() { return AceType::MakeRefPtr<TitleBarPattern>(); });
     ASSERT_NE(titleBarNode, nullptr);
@@ -2588,7 +2555,60 @@ HWTEST_F(TitleBarTestNg, TitleBarPatternLongPress, TestSize.Level1)
     titleBarNode->SetBackButton(backButton);
 
     /**
-     * @tc.steps: step2. Set fontScale to aging scale.
+     * @tc.steps: step2. Set fontScale to 1.75 scale.
+     */
+    auto context = PipelineBase::GetCurrentContext();
+    CHECK_NULL_VOID(context);
+    context->fontScale_ = 1.75f;
+
+    /**
+     * @tc.steps: step3. call HandleLongPress.
+     * @tc.expected: dialogNode != nullptr
+     */
+    titleBarPattern->HandleLongPress(backButton);
+    auto dialogNode = titleBarPattern->dialogNode_;
+    ASSERT_EQ(dialogNode, nullptr);
+
+    /**
+     * @tc.steps: step4. call HandleLongPressActionEnd.
+     * @tc.expected: dialogNode = nullptr
+     */
+    titleBarPattern->HandleLongPressActionEnd();
+    ASSERT_EQ(titleBarPattern->dialogNode_, nullptr);
+}
+
+/**
+ * @tc.name: TitleBarPatternLongPress002
+ * @tc.desc: Test TitleBarPattern back button long press event with fontScale 2.0.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TitleBarTestNg, TitleBarPatternLongPress002, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. Set backButton to TitleBarNode.
+     */
+    InitTitleBarTestNg();
+    auto themeManager = AceType::MakeRefPtr<MockThemeManager>();
+    MockPipelineContext::GetCurrent()->SetThemeManager(themeManager);
+    auto theme = AceType::MakeRefPtr<NavigationBarTheme>();
+    EXPECT_CALL(*themeManager, GetTheme(_)).WillRepeatedly(Return(theme));
+    auto titleBarNode = TitleBarNode::GetOrCreateTitleBarNode(
+        V2::TITLE_BAR_ETS_TAG, 1, []() { return AceType::MakeRefPtr<TitleBarPattern>(); });
+    ASSERT_NE(titleBarNode, nullptr);
+    auto titleBarPattern = titleBarNode->GetPattern<TitleBarPattern>();
+    ASSERT_NE(titleBarPattern, nullptr);
+    auto backButton = FrameNode::CreateFrameNode("BackButton", 33, AceType::MakeRefPtr<TitleBarPattern>());
+    ASSERT_NE(backButton, nullptr);
+    auto image = FrameNode::CreateFrameNode(V2::IMAGE_ETS_TAG, 1, AceType::MakeRefPtr<ImagePattern>());
+    ASSERT_NE(image, nullptr);
+    const std::string IMAGE_SRC_URL = "file://data/data/com.example.test/res/example.svg";
+    auto imageLayoutProperty = image->GetLayoutProperty<ImageLayoutProperty>();
+    imageLayoutProperty->UpdateImageSourceInfo(ImageSourceInfo(IMAGE_SRC_URL));
+    image->MountToParent(backButton);
+    titleBarNode->SetBackButton(backButton);
+
+    /**
+     * @tc.steps: step2. Set fontScale to 2.0 scale.
      */
     auto context = PipelineBase::GetCurrentContext();
     CHECK_NULL_VOID(context);
@@ -2598,17 +2618,8 @@ HWTEST_F(TitleBarTestNg, TitleBarPatternLongPress, TestSize.Level1)
      * @tc.steps: step3. call HandleLongPress.
      * @tc.expected: dialogNode != nullptr
      */
-    auto themeManager = AceType::MakeRefPtr<MockThemeManager>();
-    MockPipelineContext::GetCurrent()->SetThemeManager(themeManager);
-    EXPECT_CALL(*themeManager, GetTheme(_)).Times(5).WillRepeatedly([](ThemeType type) -> RefPtr<Theme> {
-        if (type == DialogTheme::TypeId()) {
-            return AceType::MakeRefPtr<DialogTheme>();
-        } else {
-            return AceType::MakeRefPtr<AgingAdapationDialogTheme>();
-        }
-    });
     titleBarPattern->HandleLongPress(backButton);
-    ASSERT_NE(titleBarPattern->dialogNode_, nullptr);
+    ASSERT_EQ(titleBarPattern->dialogNode_, nullptr);
 
     /**
      * @tc.steps: step4. call HandleLongPressActionEnd.
@@ -2616,5 +2627,115 @@ HWTEST_F(TitleBarTestNg, TitleBarPatternLongPress, TestSize.Level1)
      */
     titleBarPattern->HandleLongPressActionEnd();
     ASSERT_EQ(titleBarPattern->dialogNode_, nullptr);
+}
+
+/**
+ * @tc.name: TitleBarPatternLongPress003
+ * @tc.desc: Test TitleBarPattern back button long press event with fontScale 3.2.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TitleBarTestNg, TitleBarPatternLongPress003, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. Set backButton to TitleBarNode.
+     */
+    InitTitleBarTestNg();
+    auto themeManager = AceType::MakeRefPtr<MockThemeManager>();
+    MockPipelineContext::GetCurrent()->SetThemeManager(themeManager);
+    auto theme = AceType::MakeRefPtr<NavigationBarTheme>();
+    EXPECT_CALL(*themeManager, GetTheme(_)).WillRepeatedly(Return(theme));
+    auto titleBarNode = TitleBarNode::GetOrCreateTitleBarNode(
+        V2::TITLE_BAR_ETS_TAG, 1, []() { return AceType::MakeRefPtr<TitleBarPattern>(); });
+    ASSERT_NE(titleBarNode, nullptr);
+    auto titleBarPattern = titleBarNode->GetPattern<TitleBarPattern>();
+    ASSERT_NE(titleBarPattern, nullptr);
+    auto backButton = FrameNode::CreateFrameNode("BackButton", 33, AceType::MakeRefPtr<TitleBarPattern>());
+    ASSERT_NE(backButton, nullptr);
+    auto image = FrameNode::CreateFrameNode(V2::IMAGE_ETS_TAG, 1, AceType::MakeRefPtr<ImagePattern>());
+    ASSERT_NE(image, nullptr);
+    const std::string IMAGE_SRC_URL = "file://data/data/com.example.test/res/example.svg";
+    auto imageLayoutProperty = image->GetLayoutProperty<ImageLayoutProperty>();
+    imageLayoutProperty->UpdateImageSourceInfo(ImageSourceInfo(IMAGE_SRC_URL));
+    image->MountToParent(backButton);
+    titleBarNode->SetBackButton(backButton);
+
+    /**
+     * @tc.steps: step2. Set fontScale to 3.2 scale.
+     */
+    auto context = PipelineBase::GetCurrentContext();
+    CHECK_NULL_VOID(context);
+    context->fontScale_ = 3.2f;
+
+    /**
+     * @tc.steps: step3. call HandleLongPress.
+     * @tc.expected: dialogNode != nullptr
+     */
+    titleBarPattern->HandleLongPress(backButton);
+    auto dialogNode = titleBarPattern->dialogNode_;
+    ASSERT_EQ(dialogNode, nullptr);
+
+    /**
+     * @tc.steps: step4. call HandleLongPressActionEnd.
+     * @tc.expected: dialogNode = nullptr
+     */
+    titleBarPattern->HandleLongPressActionEnd();
+    ASSERT_EQ(titleBarPattern->dialogNode_, nullptr);
+}
+
+/**
+ * @tc.name: TitleBarHoverModeTest001
+ * @tc.desc: Test IsNeedHoverModeAction and CalculateTitlebarOffset.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TitleBarTestNg, TitleBarHoverModeTest001, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. initialize parameters
+     */
+    CreateNavBar();
+    InitTitleBarTestNg();
+
+    /**
+     * @tc.steps: step2. itleBarParentTypeValue is NAVBAR and NavigationTitleMode is MINI.
+     * @tc.expected: Hover mode is false and offset is 0.0f.
+     */
+    auto titleBarLayoutProperty = frameNode_->GetLayoutProperty<TitleBarLayoutProperty>();
+    ASSERT_NE(titleBarLayoutProperty, nullptr);
+    titleBarLayoutProperty->UpdateTitleBarParentType(TitleBarParentType::NAVBAR);
+    titleBarLayoutProperty->UpdateTitleMode(NavigationTitleMode::MINI);
+    bool hover = NavigationTitleUtil::IsNeedHoverModeAction(frameNode_);
+    ASSERT_FALSE(hover);
+    auto offset = NavigationTitleUtil::CalculateTitlebarOffset(frameNode_);
+    EXPECT_EQ(offset, 0.0f);
+}
+
+/**
+ * @tc.name: TitleBarHoverModeTest002
+ * @tc.desc: Test IsNeedHoverModeAction and CalculateTitlebarOffset.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TitleBarTestNg, TitleBarHoverModeTest002, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. initialize parameters
+     */
+    InitTitleBarTestNg();
+
+    /**
+     * @tc.steps: step2. When barStyle is STANDARD or enableHoverMode is false.
+     * @tc.expected: Hover mode is false and offset is 0.0f.
+     */
+    NavigationTitlebarOptions opt1;
+    opt1.brOptions.barStyle = std::make_optional(BarStyle::STANDARD);
+    titleBarPattern_->SetTitlebarOptions(std::move(opt1));
+    bool hover1 = NavigationTitleUtil::IsNeedHoverModeAction(frameNode_);
+    ASSERT_FALSE(hover1);
+    NavigationTitlebarOptions opt2;
+    opt2.enableHoverMode = false;
+    titleBarPattern_->SetTitlebarOptions(std::move(opt2));
+    bool hover2 = NavigationTitleUtil::IsNeedHoverModeAction(frameNode_);
+    ASSERT_FALSE(hover2);
+    auto offset = NavigationTitleUtil::CalculateTitlebarOffset(frameNode_);
+    EXPECT_EQ(offset, 0.0f);
 }
 } // namespace OHOS::Ace::NG

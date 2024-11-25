@@ -112,7 +112,7 @@ public:
 
     void ScrollToFocusNodeIndex(int32_t index) override;
 
-    std::pair<std::function<bool(float)>, Axis> GetScrollOffsetAbility() override;
+    ScrollOffsetAbility GetScrollOffsetAbility() override;
 
     std::function<bool(int32_t)> GetScrollIndexAbility() override;
 
@@ -173,6 +173,8 @@ public:
     {
         return info_.offsetEnd_;
     }
+
+    bool IsFadingBottom() const override;
 
     OverScrollOffset GetOverScrollOffset(double delta) const override;
     void GetEndOverScrollIrregular(OverScrollOffset& offset, float delta) const;
@@ -257,6 +259,18 @@ public:
         return info_.axis_;
     }
 
+    int32_t GetDefaultCachedCount() const
+    {
+        return info_.defCachedCount_;
+    }
+
+    void ResetFocusedIndex()
+    {
+        focusIndex_ = std::nullopt;
+    }
+
+    SizeF GetChildrenExpandedSize() override;
+
 private:
     /**
      * @brief calculate where startMainLine_ should be after spring animation.
@@ -285,7 +299,10 @@ private:
     std::pair<FocusStep, FocusStep> GetFocusSteps(int32_t curMainIndex, int32_t curCrossIndex, FocusStep step);
     void InitOnKeyEvent(const RefPtr<FocusHub>& focusHub);
     bool OnKeyEvent(const KeyEvent& event);
-    bool HandleDirectionKey(KeyCode code);
+    void HandleFocusEvent();
+    void HandleBlurEvent();
+    bool ScrollToLastFocusIndex(KeyCode keyCode);
+    int32_t GetIndexByFocusHub(const WeakPtr<FocusHub>& focusNode);
 
     void ClearMultiSelect() override;
     bool IsItemSelected(const GestureEvent& info) override;
@@ -315,6 +332,8 @@ private:
     double GetNearestDistanceFromChildToCurFocusItemInMainAxis(int32_t targetIndex, GridItemIndexInfo itemIndexInfo);
     double GetNearestDistanceFromChildToCurFocusItemInCrossAxis(int32_t targetIndex, GridItemIndexInfo itemIndexInfo);
     void ResetAllDirectionsStep();
+    void FireFocus();
+    bool IsInViewport(int32_t index) const;
 
     std::string GetIrregularIndexesString() const;
 
@@ -335,12 +354,16 @@ private:
     bool isRightEndStep_ = false;
     bool isSmoothScrolling_ = false;
     bool irregular_ = false; // true if LayoutOptions require running IrregularLayout
+    bool needTriggerFocus_ = false;
+    bool triggerFocus_ = false;
+    KeyEvent keyEvent_;
 
     ScrollAlign scrollAlign_ = ScrollAlign::AUTO;
     std::optional<int32_t> targetIndex_;
+    std::optional<int32_t> focusIndex_;
     std::pair<std::optional<float>, std::optional<float>> scrollbarInfo_;
     GridItemIndexInfo curFocusIndexInfo_;
-    GridLayoutInfo scrollGridLayoutInfo_;
+    std::unique_ptr<GridLayoutInfo> infoCopy_; // legacy impl to save independent data for animation.
     GridLayoutInfo info_;
     std::list<GridPreloadItem> preloadItemList_; // list of GridItems to build preemptively in IdleTask
     ACE_DISALLOW_COPY_AND_MOVE(GridPattern);

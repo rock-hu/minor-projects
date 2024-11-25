@@ -29,7 +29,7 @@ from runner.enum_types.fail_kind import FailKind
 from runner.utils import write_2_file
 from runner.test_base import Test
 
-_LOGGER = logging.getLogger("runner.reports.standart_view")
+_LOGGER = logging.getLogger("runner.reports.standard_view")
 
 
 class StandardView:
@@ -102,7 +102,7 @@ class StandardView:
             return
         time_edges: List[int] = time_report_options.time_edges[:]
         tests_by_time: List[List[str]] = []
-        for i in range(len(time_edges) + 1):
+        for _ in range(len(time_edges) + 1):
             tests_by_time.append([])
 
         for test_result in results:

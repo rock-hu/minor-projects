@@ -93,6 +93,7 @@ public:
         bool Parse();
 
         bool GetJsonObject(JsonObject *emptyObj);
+        void SaveSourceString(std::streampos posStart);
         bool GetValue();
         bool GetNull();
         bool GetString(char delim);
@@ -150,6 +151,11 @@ public:
     {
         ASSERT(idx < GetSize());
         return keys_[idx];
+    }
+
+    bool HasKey(const Key &key) const noexcept
+    {
+        return valuesMap_.find(key) != valuesMap_.end();
     }
 
     template <typename T>

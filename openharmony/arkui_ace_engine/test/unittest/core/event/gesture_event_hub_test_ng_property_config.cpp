@@ -15,6 +15,15 @@
 
 #include "test/unittest/core/event/gesture_event_hub_test_ng.h"
 
+#include "test/mock/core/common/mock_container.h"
+#include "test/mock/core/common/mock_interaction_interface.h"
+
+#include "core/components_ng/base/view_abstract.h"
+#include "core/components_ng/pattern/grid/grid_item_pattern.h"
+#include "core/components_ng/pattern/grid/grid_pattern.h"
+#include "core/components_ng/pattern/image/image_pattern.h"
+#include "frameworks/core/components_ng/pattern/text/text_pattern.h"
+
 using namespace testing;
 using namespace testing::ext;
 
@@ -1776,6 +1785,7 @@ HWTEST_F(GestureEventHubTestNg, GetDragCallback001, TestSize.Level1)
      * @tc.steps: step3. Invoke GetDragCallback to get function and fire this function.
      * @tc.expected: fire function success.
      */
+    MockContainer::SetUp();
     int32_t callbackInfo = 0;
     eventHub->SetOnDragEnd([&callbackInfo](const RefPtr<OHOS::Ace::DragEvent>& /*dragEvent*/) {
         callbackInfo = 1;
@@ -1787,6 +1797,7 @@ HWTEST_F(GestureEventHubTestNg, GetDragCallback001, TestSize.Level1)
     dragCallback(notifyMessage);
     EXPECT_FALSE(dragDropManager->IsDragged());
     EXPECT_EQ(callbackInfo, 1);
+    MockContainer::TearDown();
 }
 
 /**

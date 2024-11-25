@@ -20,10 +20,9 @@
 #endif
 
 #include <sstream>
+#include "ark_crash_holder.h"
+#include "ark_finalizers_pack.h"
 #include "ark_native_deferred.h"
-#if !defined(is_arkui_x) && defined(OHOS_PLATFORM)
-#include "unwinder.h"
-#endif
 #include "ark_native_reference.h"
 #include "native_engine/native_property.h"
 #include "native_engine/native_utils.h"
@@ -34,6 +33,9 @@
 #if !defined(PREVIEW) && !defined(ANDROID_PLATFORM) && !defined(IOS_PLATFORM)
 #include "parameters.h"
 #include <uv.h>
+#endif
+#ifdef OHOS_STANDARD_PLATFORM
+#include "unwinder.h"
 #endif
 #ifdef ENABLE_CONTAINER_SCOPE
 #include "core/common/container_scope.h"
@@ -343,7 +345,8 @@ void ArkNativeEngine::CopyPropertyApiFilter(const std::unique_ptr<ApiAllowListCh
     }
 }
 
-ArkNativeEngine::ArkNativeEngine(EcmaVM* vm, void* jsEngine, bool isLimitedWorker) : NativeEngine(jsEngine, vm),
+ArkNativeEngine::ArkNativeEngine(EcmaVM* vm, void* jsEngine, bool isLimitedWorker) : NativeEngine(jsEngine),
+                                                                                     vm_(vm),
                                                                                      topScope_(vm),
                                                                                      isLimitedWorker_(isLimitedWorker)
 {
@@ -562,7 +565,7 @@ ArkNativeEngine::ArkNativeEngine(EcmaVM* vm, void* jsEngine, bool isLimitedWorke
     });
 #if defined(ENABLE_EVENT_HANDLER)
     if (JSNApi::IsJSMainThreadOfEcmaVM(vm)) {
-        arkIdleMonitor_ = new ArkIdleMonitor(vm);
+        arkIdleMonitor_ = std::make_shared<ArkIdleMonitor>(vm);
         JSNApi::SetTriggerGCTaskCallback(vm, [this](TriggerGCData& data) {
             this->PostTriggerGCTask(data);
         });
@@ -590,11 +593,6 @@ ArkNativeEngine::~ArkNativeEngine()
     if (options_ != nullptr) {
         delete options_;
         options_ = nullptr;
-    }
-
-    if (arkIdleMonitor_ != nullptr) {
-        delete arkIdleMonitor_;
-        arkIdleMonitor_ = nullptr;
     }
 }
 
@@ -1546,9 +1544,11 @@ __attribute__((optnone)) void ArkNativeEngine::RunAsyncCallbacks(std::vector<Ref
 #ifdef ENABLE_HITRACE
     StartTrace(HITRACE_TAG_ACE, "RunFinalizeCallbacks:" + std::to_string(finalizers->size()));
 #endif
+    INIT_CRASH_HOLDER(holder);
     for (auto iter : (*finalizers)) {
         NapiNativeFinalize callback = iter.first;
         std::tuple<NativeEngine*, void*, void*> &param = iter.second;
+        holder.UpdateCallbackPtr(reinterpret_cast<uintptr_t>(callback));
         callback(reinterpret_cast<napi_env>(std::get<0>(param)),
                  std::get<1>(param), std::get<2>(param)); // 2 is the param.
     }
@@ -2352,7 +2352,7 @@ void ArkNativeEngine::AllowCrossThreadExecution() const
 
 bool DumpHybridStack(const EcmaVM* vm, std::string &stack, uint32_t ignore, int32_t deepth)
 {
-#if !defined(is_arkui_x) && defined(OHOS_PLATFORM)
+#ifdef OHOS_STANDARD_PLATFORM
     constexpr size_t minSkiped = 2; // 2: skiped frames, include current func and unwinder
     const size_t skipedFrames = minSkiped + ignore;
     const int backtraceDeepth = (deepth < 0 || deepth > DEFAULT_MAX_FRAME_NUM) ? DEFAULT_MAX_FRAME_NUM : deepth;
@@ -2387,14 +2387,20 @@ void ArkNativeEngine::PostLooperTriggerIdleGCTask()
         HILOG_FATAL("ArkNativeEngine:: the mainEventRunner is nullptr");
         return;
     }
-    auto callback = [this](OHOS::AppExecFwk::EventRunnerStage stage,
+    std::weak_ptr<ArkIdleMonitor> weakArkIdleMonitor = arkIdleMonitor_;
+    auto callback = [weakArkIdleMonitor](OHOS::AppExecFwk::EventRunnerStage stage,
         const OHOS::AppExecFwk::StageInfo* info) -> int {
+        auto arkIdleMonitor = weakArkIdleMonitor.lock();
+        if (nullptr == arkIdleMonitor) {
+            HILOG_ERROR("ArkIdleMonitor has been destructed.");
+            return 0;
+        }
         switch (stage) {
             case OHOS::AppExecFwk::EventRunnerStage::STAGE_BEFORE_WAITING:
-                arkIdleMonitor_->NotifyLooperIdleStart(info->timestamp, info->sleepTime);
+                arkIdleMonitor->NotifyLooperIdleStart(info->timestamp, info->sleepTime);
                 break;
             case OHOS::AppExecFwk::EventRunnerStage::STAGE_AFTER_WAITING:
-                arkIdleMonitor_->NotifyLooperIdleEnd(info->timestamp);
+                arkIdleMonitor->NotifyLooperIdleEnd(info->timestamp);
                 break;
             default:
                 HILOG_ERROR("this branch is unreachable");

@@ -25,7 +25,6 @@
 #include "optimizer/ir/inst.h"
 
 #include "optimizer/optimizations/cleanup.h"
-#include "optimizer/optimizations/string_builder_utils.h"
 
 namespace ark::compiler {
 
@@ -119,26 +118,6 @@ bool IsDataFlowInput(Inst *inst, Inst *input)
 {
     for (size_t i = 0; i < inst->GetInputsCount(); ++i) {
         if (inst->GetDataFlowInput(i) == input) {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool IsUsedOutsideBasicBlock(Inst *inst, BasicBlock *bb)
-{
-    for (auto &user : inst->GetUsers()) {
-        auto userInst = user.GetInst();
-        if (userInst->IsCheck()) {
-            if (!userInst->HasSingleUser()) {
-                // In case of multi user check-instruction we assume it is used outside current basic block without
-                // actually testing it.
-                return true;
-            }
-            // In case of single user check-instruction we test its the only user.
-            userInst = userInst->GetUsers().Front().GetInst();
-        }
-        if (userInst->GetBasicBlock() != bb) {
             return true;
         }
     }
@@ -244,12 +223,8 @@ IntrinsicInst *SimplifyStringBuilder::CreateConcatIntrinsic(
     return concatIntrinsic;
 }
 
-bool SimplifyStringBuilder::MatchConcatenation(InstIter &begin, const InstIter &end, ConcatenationMatch &match)
+bool CheckUnsupportedCases(Inst *instance)
 {
-    // Walk instruction range [begin, end) and fill the match structure with StringBuilder usage instructions found
-
-    auto instance = match.instance;
-
     if (IsUsedOutsideBasicBlock(instance, instance->GetBasicBlock())) {
         return false;  // Unsupported case: doesn't look like concatenation pattern
     }
@@ -265,10 +240,21 @@ bool SimplifyStringBuilder::MatchConcatenation(InstIter &begin, const InstIter &
     if (appendCount != appendStringCount) {
         return false;  // Unsupported case: arguments must be strings
     }
-    if (appendCount <= 1 || appendCount > match.appendIntrinsics.size()) {
+    if (appendCount <= 1 || appendCount > ARGS_NUM_4) {
         return false;  // Unsupported case: too many strings concatenated
     }
 
+    return true;
+}
+
+bool SimplifyStringBuilder::MatchConcatenation(InstIter &begin, const InstIter &end, ConcatenationMatch &match)
+{
+    auto instance = match.instance;
+    if (!CheckUnsupportedCases(instance)) {
+        return false;
+    }
+
+    // Walk instruction range [begin, end) and fill the match structure with StringBuilder usage instructions found
     for (; begin != end; ++begin) {
         if ((*begin)->IsSaveState()) {
             continue;
@@ -302,8 +288,15 @@ bool SimplifyStringBuilder::MatchConcatenation(InstIter &begin, const InstIter &
         }
     }
 
-    // Supported case: number of toString-calls is one,
-    // number of append calls is between 2 and 4
+    for (size_t index = 0; index < match.appendCount; ++index) {
+        if (!match.appendIntrinsics[index]->IsDominate(match.toStringCall)) {
+            return false;
+        }
+    }
+
+    // Supported case: number of toString calls is one,
+    // number of append calls is between 2 and 4,
+    // toString call is dominated by all append calls.
     return true;
 }
 
@@ -537,21 +530,6 @@ SaveStateInst *FindPreHeaderSaveState(Loop *loop)
     return nullptr;
 }
 
-SaveStateInst *FindFirstSaveState(BasicBlock *block)
-{
-    if (block->IsEmpty()) {
-        return nullptr;
-    }
-
-    for (auto inst : block->Insts()) {
-        if (inst->GetOpcode() == Opcode::SaveState) {
-            return inst->CastToSaveState();
-        }
-    }
-
-    return nullptr;
-}
-
 size_t CountOuterLoopSuccs(BasicBlock *block)
 {
     return std::count_if(block->GetSuccsBlocks().begin(), block->GetSuccsBlocks().end(),
@@ -652,26 +630,6 @@ ArenaVector<Inst *> SimplifyStringBuilder::FindStringBuilderAppendInstructions(I
     }
 
     return appendInstructions;
-}
-
-void RemoveFromInstructionInputs(ArenaVector<std::pair<Inst *, size_t>> &inputDescriptors)
-{
-    // Inputs must be walked in reverse order for removal
-    std::sort(inputDescriptors.begin(), inputDescriptors.end(),
-              [](auto inputDescX, auto inputDescY) { return inputDescX.second > inputDescY.second; });
-
-    for (auto inputDesc : inputDescriptors) {
-        auto inst = inputDesc.first;
-        auto index = inputDesc.second;
-
-        [[maybe_unused]] auto inputInst = inst->GetInput(index).GetInst();
-        COMPILER_LOG(DEBUG, SIMPLIFY_SB) << "Remove input id=" << inputInst->GetId() << " ("
-                                         << GetOpcodeString(inputInst->GetOpcode())
-                                         << ") from instruction id=" << inst->GetId() << " ("
-                                         << GetOpcodeString(inst->GetOpcode()) << ")";
-
-        inst->RemoveInput(index);
-    }
 }
 
 void SimplifyStringBuilder::RemoveFromSaveStateInputs(Inst *inst)
@@ -1328,15 +1286,28 @@ bool SimplifyStringBuilder::HasInputInst(Inst *inputInst, Inst *inst) const
 
 bool SimplifyStringBuilder::HasAppendInstructionUser(Inst *inst) const
 {
+    Loop *instLoop = inst->GetBasicBlock()->GetLoop();
     for (auto &user : inst->GetUsers()) {
-        auto userInst = SkipSingleUserCheckInstruction(user.GetInst());
-        if (userInst->IsSaveState()) {
+        auto appendInst = SkipSingleUserCheckInstruction(user.GetInst());
+        if (!IsStringBuilderAppend(appendInst) || appendInst->GetDataFlowInput(1) != inst ||
+            appendInst->GetBasicBlock()->GetLoop() != instLoop) {
             continue;
         }
 
-        if (IsStringBuilderAppend(userInst)) {
-            return true;
+        auto instance = appendInst->GetDataFlowInput(0);
+        if (!IsStringBuilderInstance(instance) || instance->GetBasicBlock() != appendInst->GetBasicBlock()) {
+            continue;
         }
+
+        // Cycle through instructions from appendInst to sb (backwards) and make sure no other appends in between
+        auto currentInst = appendInst->GetPrev();
+        while (currentInst != nullptr && currentInst != instance) {
+            if (IsStringBuilderAppend(currentInst) && currentInst->GetDataFlowInput(0) == instance) {
+                return false;
+            }
+            currentInst = currentInst->GetPrev();
+        }
+        return true;
     }
 
     return false;
@@ -1513,6 +1484,42 @@ Inst *SimplifyStringBuilder::UpdateIntermediateValue(const StringBuilderUsage &u
     return intermediateValue;
 }
 
+bool SimplifyStringBuilder::MatchTemporaryInstruction(ConcatenationLoopMatch &match,
+                                                      ConcatenationLoopMatch::TemporaryInstructions &temp,
+                                                      Inst *appendInstruction, const Inst *accValue,
+                                                      Marker appendInstructionVisited)
+{
+    // Arrange single append instruction to one of the two groups (substructures of ConcatenationLoopMatch):
+    //  'temp' group - temporary instructions to be erased from loop
+    //  'loop' group - append-call instructions to be kept inside loop
+
+    ASSERT(appendInstruction->GetInputsCount() > 1);
+    auto appendArg = appendInstruction->GetDataFlowInput(1);
+    if ((appendArg->IsPhi() && IsDataFlowInput(appendArg, temp.intermediateValue)) ||
+        appendArg == temp.intermediateValue || appendArg == accValue) {
+        // Append-call needs to be removed, if its argument is either accumulated value, or intermediate value;
+        // or intermediate value is data flow input of argument
+
+        if (temp.appendAccValue == nullptr) {
+            temp.appendAccValue = appendInstruction;
+        } else {
+            // Does not look like string concatenation pattern
+            temp.Clear();
+            return false;
+        }
+        appendInstruction->SetMarker(appendInstructionVisited);
+    } else {
+        if (temp.appendAccValue != nullptr) {
+            // First appendee should be acc value
+            temp.Clear();
+            return false;
+        }
+        // Keep append-call inside loop otherwise
+        match.loop.appendInstructions.push_back(appendInstruction);
+    }
+    return true;
+}
+
 void SimplifyStringBuilder::MatchTemporaryInstructions(const StringBuilderUsage &usage, ConcatenationLoopMatch &match,
                                                        Inst *accValue, Inst *intermediateValue,
                                                        Marker appendInstructionVisited)
@@ -1528,24 +1535,12 @@ void SimplifyStringBuilder::MatchTemporaryInstructions(const StringBuilderUsage 
     temp.ctorCall = usage.ctorCall;
 
     for (auto appendInstruction : usage.appendInstructions) {
-        ASSERT(appendInstruction->GetInputsCount() > 1);
-        auto appendArg = appendInstruction->GetDataFlowInput(1);
-        if ((appendArg->IsPhi() && IsDataFlowInput(appendArg, intermediateValue)) || appendArg == intermediateValue ||
-            appendArg == accValue) {
-            // Append-call needs to be removed, if its argument is either accumulated value, or intermediate value;
-            // or intermediate value is data flow input of argument
-
-            if (temp.appendAccValue == nullptr) {
-                temp.appendAccValue = appendInstruction;
-            } else {
-                // Does not look like string concatenation pattern
-                temp.Clear();
-                break;
-            }
-            appendInstruction->SetMarker(appendInstructionVisited);
-        } else {
-            // Keep append-call inside loop otherwise
-            match.loop.appendInstructions.push_back(appendInstruction);
+        bool isMatchStillValid =
+            MatchTemporaryInstruction(match, temp, appendInstruction, accValue, appendInstructionVisited);
+        if (!isMatchStillValid) {
+            // Doesn't look like concatenation pattern. Clean entire match
+            match.Clear();
+            return;
         }
     }
 
@@ -1789,29 +1784,6 @@ void SimplifyStringBuilder::ReplaceWithAppendIntrinsic(const ConcatenationMatch 
     isApplied_ = true;
 }
 
-bool BreakStringBuilderAppendChains(BasicBlock *block)
-{
-    // StringBuilder append-call returns 'this' (instance)
-    // Replace all users of append-call with instance itself to support chain calls
-    // like: sb.append(s0).append(s1)...
-    bool isApplied = false;
-    for (auto inst : block->Insts()) {
-        if (!IsStringBuilderAppend(inst) && !IsStringBuilderToString(inst)) {
-            continue;
-        }
-
-        auto instance = inst->GetDataFlowInput(0);
-        for (auto &user : instance->GetUsers()) {
-            auto userInst = SkipSingleUserCheckInstruction(user.GetInst());
-            if (IsStringBuilderAppend(userInst)) {
-                userInst->ReplaceUsers(instance);
-                isApplied = true;
-            }
-        }
-    }
-    return isApplied;
-}
-
 bool HasPhiOfStringBuilders(BasicBlock *block)
 {
     for (auto phi : block->PhiInsts()) {
@@ -1946,30 +1918,27 @@ void SimplifyStringBuilder::CollectStringBuilderLastCalls(BasicBlock *block)
             continue;
         }
 
-        if (IsMethodStringBuilderDefaultConstructor(inst) || IsMethodStringBuilderConstructorWithCharArrayArg(inst) ||
-            IsMethodStringBuilderConstructorWithStringArg(inst)) {
+        if (!IsStringBuilderToString(inst)) {
             continue;
         }
 
-        for (size_t index = 0; index < inst->GetInputsCount(); ++index) {
-            auto inputInst = inst->GetDataFlowInput(index);
-            if (inputInst->IsSaveState()) {
-                continue;
-            }
+        auto inputInst = inst->GetDataFlowInput(0);
+        if (inputInst->IsSaveState()) {
+            continue;
+        }
 
-            auto instance = inputInst;
-            if (!IsStringBuilderInstance(instance)) {
-                continue;
-            }
+        auto instance = inputInst;
+        if (!IsStringBuilderInstance(instance)) {
+            continue;
+        }
 
-            auto calls = stringBuilderFirstLastCalls_.find(instance);
-            if (calls == stringBuilderFirstLastCalls_.end()) {
-                calls = stringBuilderFirstLastCalls_.emplace(instance, InstPair {}).first;
-            }
-            auto &lastCall = calls->second.second;
-            if (lastCall == nullptr) {
-                lastCall = inst;
-            }
+        auto calls = stringBuilderFirstLastCalls_.find(instance);
+        if (calls == stringBuilderFirstLastCalls_.end()) {
+            calls = stringBuilderFirstLastCalls_.emplace(instance, InstPair {}).first;
+        }
+        auto &lastCall = calls->second.second;
+        if (lastCall == nullptr) {
+            lastCall = inst;
         }
     }
 }
@@ -1998,8 +1967,8 @@ bool SimplifyStringBuilder::CanMergeStringBuilders(Inst *instance, const InstPai
         return false;
     }
 
-    auto &[inputInstnceFirstAppendCall, inputInstanceLastToStringCall] = inputInstanceCalls->second;
-    if (inputInstnceFirstAppendCall == nullptr || inputInstanceLastToStringCall == nullptr) {
+    auto &[inputInstanceFirstAppendCall, inputInstanceLastToStringCall] = inputInstanceCalls->second;
+    if (inputInstanceFirstAppendCall == nullptr || inputInstanceLastToStringCall == nullptr) {
         return false;  // Unsupported case: doesn't look like concatenation pattern
     }
 
@@ -2017,6 +1986,18 @@ bool SimplifyStringBuilder::CanMergeStringBuilders(Inst *instance, const InstPai
     if (instance->GetBasicBlock() != instanceFirstCall->GetBasicBlock()) {
         // Does not look like string concatenation pattern
         return false;
+    }
+
+    // Check if 'inputInstance' toString call comes after any 'inputInstance' append call
+    for (auto &user : inputInstance->GetUsers()) {
+        auto userInst = SkipSingleUserCheckInstruction(user.GetInst());
+        if (!IsStringBuilderAppend(userInst)) {
+            continue;
+        }
+
+        if (inputInstanceLastToStringCall->IsDominate(userInst)) {
+            return false;
+        }
     }
 
     // Check if all 'inputInstance' calls comes before any 'instance' call
@@ -2220,7 +2201,10 @@ void SimplifyStringBuilder::OptimizeStringBuilderChain()
         auto &calls = instanceCalls.second;
 
         for (auto call : calls) {
-            call->SetInput(0U, inputInstance);
+            // Switch call to new instance only if it is not marked for removal
+            if (call->GetFlag(inst_flags::NO_DCE)) {
+                call->SetInput(0U, inputInstance);
+            }
         }
 
         FixBrokenSaveStatesForStringBuilderCalls(inputInstance);

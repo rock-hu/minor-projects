@@ -16,25 +16,53 @@
 #ifndef CPP_ABCKIT_ARKTS_CLASS_H
 #define CPP_ABCKIT_ARKTS_CLASS_H
 
-#include "libabckit/include/c/abckit.h"
-#include "cpp/headers/declarations.h"
-#include "cpp/headers/config.h"
-#include "cpp/headers/base_classes.h"
-#include "cpp/headers/core/class.h"
+#include "../core/class.h"
 
 namespace abckit::arkts {
 
+/**
+ * @brief Class
+ */
 class Class final : public core::Class {
     // To access private constructor.
     // We restrict constructors in order to prevent C/C++ API mix-up by user.
+    /// @brief to access private constructor
     friend class Module;
+    /// @brief to access private constructor
     friend class Namespace;
+    /// @brief abckit::DefaultHash<Class>
+    friend class abckit::DefaultHash<Class>;
 
 public:
+    /**
+     * @brief Construct a new Class object
+     * @param other
+     */
     Class(const Class &other) = default;
+
+    /**
+     * @brief Constructor
+     * @param other
+     * @return Class&
+     */
     Class &operator=(const Class &other) = default;
+
+    /**
+     * @brief Construct a new Class object
+     * @param other
+     */
     Class(Class &&other) = default;
+
+    /**
+     * @brief Constructor
+     * @param other
+     * @return Class&
+     */
     Class &operator=(Class &&other) = default;
+
+    /**
+     * @brief Destroy the Class object
+     */
     ~Class() override = default;
     // Other API.
     // ...

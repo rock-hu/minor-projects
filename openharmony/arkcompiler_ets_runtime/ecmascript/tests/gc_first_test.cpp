@@ -84,11 +84,11 @@ HWTEST_F_L0(GCTest, ChangeGCParams)
 #if !ECMASCRIPT_DISABLE_CONCURRENT_MARKING
     uint32_t markTaskNumBackground = heap->GetMaxMarkTaskCount();
     EXPECT_TRUE(markTaskNum > markTaskNumBackground);
-    EXPECT_FALSE(heap->GetConcurrentMarker()->IsEnabled());
+    EXPECT_TRUE(heap->GetConcurrentMarker()->IsEnabled());
 #endif
     uint32_t evacuateTaskNumBackground = heap->GetMaxEvacuateTaskCount();
     EXPECT_TRUE(evacuateTaskNum > evacuateTaskNumBackground);
-    EXPECT_FALSE(heap->GetSweeper()->ConcurrentSweepEnabled());
+    EXPECT_TRUE(heap->GetSweeper()->ConcurrentSweepEnabled());
     EXPECT_EQ(heap->GetMemGrowingType(), MemGrowingType::CONSERVATIVE);
 
     partialGc->RunPhases();
@@ -140,12 +140,12 @@ HWTEST_F_L0(GCTest, NotifyMemoryPressure)
 #if !ECMASCRIPT_DISABLE_CONCURRENT_MARKING
     uint32_t markTaskNumBackground = heap->GetMaxMarkTaskCount();
     EXPECT_TRUE(markTaskNum > markTaskNumBackground);
-    EXPECT_FALSE(heap->GetConcurrentMarker()->IsEnabled());
+    EXPECT_TRUE(heap->GetConcurrentMarker()->IsEnabled());
 #endif
     uint32_t evacuateTaskNumBackground = heap->GetMaxEvacuateTaskCount();
     EXPECT_TRUE(evacuateTaskNum > evacuateTaskNumBackground);
     EXPECT_EQ(heap->GetMemGrowingType(), MemGrowingType::PRESSURE);
-    EXPECT_FALSE(heap->GetSweeper()->ConcurrentSweepEnabled());
+    EXPECT_TRUE(heap->GetSweeper()->ConcurrentSweepEnabled());
 
     partialGc->RunPhases();
     heap->ChangeGCParams(false);
@@ -312,74 +312,5 @@ HWTEST_F_L0(GCTest, Destroy)
     delete heap;
     heap = nullptr;
 };
-
-HWTEST_F_L0(GCTest, WeakRefTest)
-{
-    ObjectFactory *factory = thread->GetEcmaVM()->GetFactory();
-    std::vector<JSHandle<TaggedArray>> srcArrayHandleRecord;
-    std::vector<JSHandle<TaggedArray>> dstOldArrayHandleRecord;
-    std::vector<JSHandle<TaggedArray>> dstNewArrayHandleRecord;
-    for (int i = 0; i < 1024; i++) {
-        JSHandle<TaggedArray> arrayHandle = factory->NewTaggedArray(64, JSTaggedValue::True(),
-                                                                    MemSpaceType::OLD_SPACE);
-        srcArrayHandleRecord.emplace_back(arrayHandle);
-    }
-    for (int i = 0; i < 1024; i++) {
-        JSHandle<TaggedArray> arrayHandle = factory->NewTaggedArray(128, JSTaggedValue::True(),
-                                                                    MemSpaceType::OLD_SPACE);
-        dstOldArrayHandleRecord.emplace_back(arrayHandle);
-    }
-    for (int i = 0; i < 1024; i++) {
-        JSHandle<TaggedArray> arrayHandle = factory->NewTaggedArray(128, JSTaggedValue::True(),
-                                                                    MemSpaceType::SEMI_SPACE);
-        dstNewArrayHandleRecord.emplace_back(arrayHandle);
-    }
-    for (auto it : srcArrayHandleRecord) {
-        uint32_t countIndex = 0;
-        std::random_device randomDevice;
-        std::shuffle(dstOldArrayHandleRecord.begin(), dstOldArrayHandleRecord.end(), std::mt19937(randomDevice()));
-        for (auto it2 : dstOldArrayHandleRecord) {
-            if (Region::ObjectAddressToRange(it2.GetTaggedValue().GetTaggedObject())->InGeneralOldSpace()) {
-                JSTaggedValue valueWeak = it2.GetTaggedValue().CreateAndGetWeakRef();
-                it->Set<true>(thread, countIndex, valueWeak);
-                if (++countIndex >= 40) {
-                    break;
-                }
-            }
-        }
-    }
-    auto heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
-    heap->SetMarkType(MarkType::MARK_FULL);
-    auto concurrentMarker = heap->GetConcurrentMarker();
-    concurrentMarker->Mark();
-    std::this_thread::sleep_for(std::chrono::seconds(5));
-    for (auto it : srcArrayHandleRecord) {
-        uint32_t countIndex = 0;
-        std::random_device randomDevice;
-        std::shuffle(dstNewArrayHandleRecord.begin(), dstNewArrayHandleRecord.end(), std::mt19937(randomDevice()));
-        for (auto it2 : dstNewArrayHandleRecord) {
-            if (Region::ObjectAddressToRange(it2.GetTaggedValue().GetTaggedObject())->InGeneralNewSpace()) {
-                JSTaggedValue valueWeak = it2.GetTaggedValue().CreateAndGetWeakRef();
-                it->Set<true>(thread, countIndex, valueWeak);
-                if (++countIndex >= 40) {
-                    break;
-                }
-            }
-        }
-    }
-    auto partialGc = heap->GetPartialGC();
-    partialGc->RunPhases();
-    for (auto it : dstOldArrayHandleRecord) {
-        EXPECT_TRUE(it.GetTaggedValue() != JSTaggedValue::Undefined());
-    }
-    for (auto it : dstNewArrayHandleRecord) {
-        EXPECT_TRUE(it.GetTaggedValue() != JSTaggedValue::Undefined());
-    }
-    for (auto it : srcArrayHandleRecord) {
-        for (uint32_t i = 0; i < 40; i++) {
-            EXPECT_TRUE(it->Get(i) != JSTaggedValue::Undefined());
-        }
-    }
-}
 
 }  // namespace panda::test

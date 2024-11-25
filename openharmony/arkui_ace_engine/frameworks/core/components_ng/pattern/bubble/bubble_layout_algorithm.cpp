@@ -463,6 +463,11 @@ void BubbleLayoutAlgorithm::Layout(LayoutWrapper* layoutWrapper)
             childWrapper->GetGeometryNode()->GetFrameSize().Height() + BUBBLE_ARROW_HEIGHT.ConvertToPx() * 2;
         childWrapper->GetGeometryNode()->SetFrameSize(SizeF { childShowWidth, childShowHeight });
     }
+    auto targetNode = FrameNode::GetFrameNode(targetTag_, targetNodeId_);
+    if (!targetNode) {
+        TAG_LOGD(AceLogTag::ACE_OVERLAY, "Popup can not get target node, stop layout");
+        return;
+    }
     if (bubblePattern->IsExiting()) {
         return;
     }
@@ -1576,6 +1581,7 @@ std::string BubbleLayoutAlgorithm::ClipBubbleWithPath()
     Placement arrowBuildplacement = Placement::NONE;
     if (enableArrow_ && showArrow_) {
         GetArrowBuildPlacement(arrowBuildplacement);
+        arrowBuildPlacement_ = arrowBuildplacement;
     }
     if ((arrowBuildplacement == Placement::TOP_LEFT) || (arrowBuildplacement == Placement::LEFT_TOP)) {
         path += MoveTo(childOffset_.GetX(), childOffset_.GetY());
@@ -2461,7 +2467,7 @@ OffsetF BubbleLayoutAlgorithm::FitToScreen(const OffsetF& fitPosition, const Siz
 
 void BubbleLayoutAlgorithm::UpdateMarginByWidth()
 {
-    isGreatWrapperWidth_ = GreatOrEqual(childSize_.Width(), wrapperSize_.Width() - MARGIN_SPACE.ConvertToPx());
+    isGreatWrapperWidth_ = GreatOrEqual(childSize_.Width(), wrapperSize_.Width() - marginStart_ - marginEnd_);
     marginStart_ = isGreatWrapperWidth_ ? 0.0f : marginStart_;
     marginEnd_ = isGreatWrapperWidth_ ? 0.0f : marginEnd_;
 }

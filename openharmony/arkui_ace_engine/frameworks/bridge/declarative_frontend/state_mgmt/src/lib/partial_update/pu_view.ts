@@ -232,9 +232,6 @@ abstract class ViewPU extends PUV2ViewBase
     // in case this ViewPU is currently frozen
     PUV2ViewBase.inactiveComponents_.delete(`${this.constructor.name}[${this.id__()}]`);
 
-    // FIXME needed ?
-    MonitorV2.clearWatchesFromTarget(this);
-
     this.updateFuncByElmtId.clear();
     this.watchedProps.clear();
     this.providedVars_.clear();
@@ -264,7 +261,7 @@ abstract class ViewPU extends PUV2ViewBase
       stateVar.purgeDependencyOnElmtId(elmtId);
     });
   }
-  protected debugInfoStateVars(): string {
+  public debugInfoStateVars(): string {
     let result: string = `|--${this.constructor.name}[${this.id__()}]`;
     Object.getOwnPropertyNames(this)
       .filter((varName: string) => varName.startsWith('__') && !varName.startsWith(ObserveV2.OB_PREFIX))
@@ -306,14 +303,8 @@ abstract class ViewPU extends PUV2ViewBase
   public setActiveInternal(active: boolean): void {
     stateMgmtProfiler.begin('ViewPU.setActive');
     if (this.isCompFreezeAllowed()) {
-      // When the child node also supports the issuance of freeze instructions, the root node will definitely recurse to the child node. 
-      // In order to prevent the child node from being mistakenly activated by the parent node, reference counting is used to control the node status.
-      // active + 1， inactive -1, Expect no more than 1 
-      this.activeCount_ += active ? 1 : -1;
-      if (this.activeCount_ > 1) {
-        stateMgmtConsole.warn(`activeCount_ error:${this.activeCount_}`);
-      }
-      if (this.isViewActive()) {
+      this.isActive_ = active;
+      if (this.isActive_) {
         this.onActiveInternal();
       } else {
         this.onInactiveInternal();
@@ -329,7 +320,7 @@ abstract class ViewPU extends PUV2ViewBase
   }
 
   private onActiveInternal(): void {
-    if (!this.isViewActive()) {
+    if (!this.isActive_) {
       return;
     }
 
@@ -341,7 +332,7 @@ abstract class ViewPU extends PUV2ViewBase
 
 
   private onInactiveInternal(): void {
-    if (this.isViewActive()) {
+    if (this.isActive_) {
       return;
     }
 
@@ -435,7 +426,7 @@ abstract class ViewPU extends PUV2ViewBase
   // implements IMultiPropertiesChangeSubscriber
   viewPropertyHasChanged(varName: PropertyInfo, dependentElmtIds: Set<number>): void {
     stateMgmtProfiler.begin('ViewPU.viewPropertyHasChanged');
-    aceTrace.begin('ViewPU.viewPropertyHasChanged', this.constructor.name, varName, dependentElmtIds.size);
+    aceDebugTrace.begin('ViewPU.viewPropertyHasChanged', this.constructor.name, varName, dependentElmtIds.size, this.id__(), this.dirtDescendantElementIds_.size, this.runReuse_);
     if (this.isRenderInProgress) {
       stateMgmtConsole.applicationError(`${this.debugInfo__()}: State variable '${varName}' has changed during render! It's illegal to change @Component state while build (initial render or re-render) is on-going. Application error!`);
     }
@@ -469,7 +460,7 @@ abstract class ViewPU extends PUV2ViewBase
     }
 
     this.restoreInstanceId();
-    aceTrace.end();
+    aceDebugTrace.end();
     stateMgmtProfiler.end();
   }
 
@@ -510,7 +501,7 @@ abstract class ViewPU extends PUV2ViewBase
       return;
     }
     stateMgmtProfiler.begin('ViewPU.performDelayedUpdate');
-    aceTrace.begin('ViewPU.performDelayedUpdate', this.constructor.name);
+    aceDebugTrace.begin('ViewPU.performDelayedUpdate', this.constructor.name);
     stateMgmtConsole.debug(`${this.debugInfo__()}: performDelayedUpdate start ...`);
     this.syncInstanceId();
 
@@ -544,7 +535,7 @@ abstract class ViewPU extends PUV2ViewBase
     if (this.dirtDescendantElementIds_.size) {
       this.markNeedUpdate();
     }
-    aceTrace.end();
+    aceDebugTrace.end();
     stateMgmtProfiler.end();
   }
 
@@ -861,7 +852,7 @@ abstract class ViewPU extends PUV2ViewBase
       const child = weakRefChild.deref();
       if (child) {
         if (child instanceof ViewPU) {
-          if (!child.hasBeenRecycled_) {
+          if (!child.hasBeenRecycled_ && !child.__isBlockRecycleOrReuse__) {
             child.aboutToReuseInternal();
           }
         } else {
@@ -890,7 +881,7 @@ abstract class ViewPU extends PUV2ViewBase
       const child = weakRefChild.deref();
       if (child) {
         if (child instanceof ViewPU) {
-          if (!child.hasBeenRecycled_) {
+          if (!child.hasBeenRecycled_ && !child.__isBlockRecycleOrReuse__)) {
             child.aboutToRecycleInternal();
           }
         } else {
@@ -988,126 +979,7 @@ abstract class ViewPU extends PUV2ViewBase
     return localStorageProp;
   }
 
-  /**
-   * onDumpInfo is used to process commands delivered by the hidumper process
-   * @param commands -  list of commands provided in the shell
-   * @returns void
-   */
-  protected onDumpInfo(commands: string[]): void {
-
-    let dfxCommands: DFXCommand[] = this.processOnDumpCommands(commands);
-
-    dfxCommands.forEach((command) => {
-      let view: ViewPU = undefined;
-      if (command.viewId) {
-        view = this.findViewPUInHierarchy(command.viewId);
-        if (!view) {
-          DumpLog.print(0, `\nTarget view: ${command.viewId} not found for command: ${command.what}\n`);
-          return;
-        }
-      } else {
-        view = this;
-        command.viewId = view.id__();
-      }
-      switch (command.what) {
-        case '-dumpAll':
-          view.printDFXHeader('ViewPU Info', command);
-          DumpLog.print(0, view.debugInfoView(command.isRecursive));
-          break;
-        case '-viewHierarchy':
-          view.printDFXHeader('ViewPU Hierarchy', command);
-          DumpLog.print(0, view.debugInfoViewHierarchy(command.isRecursive));
-          break;
-        case '-stateVariables':
-          view.printDFXHeader('ViewPU State Variables', command);
-          DumpLog.print(0, view.debugInfoStateVars());
-          break;
-        case '-registeredElementIds':
-          view.printDFXHeader('ViewPU Registered Element IDs', command);
-          DumpLog.print(0, view.debugInfoUpdateFuncByElmtId(command.isRecursive));
-          break;
-        case '-dirtyElementIds':
-          view.printDFXHeader('ViewPU Dirty Registered Element IDs', command);
-          DumpLog.print(0, view.debugInfoDirtDescendantElementIds(command.isRecursive));
-          break;
-        case '-inactiveComponents':
-          view.printDFXHeader('List of Inactive Components', command);
-          DumpLog.print(0, view.debugInfoInactiveComponents());
-          break;
-        case '-profiler':
-          view.printDFXHeader('Profiler Info', command);
-          view.dumpReport();
-          this.sendStateInfo('{}');
-          break;
-        default:
-          DumpLog.print(0, `\nUnsupported JS DFX dump command: [${command.what}, viewId=${command.viewId}, isRecursive=${command.isRecursive}]\n`);
-      }
-    })
-  }
-
-  private printDFXHeader(header: string, command: DFXCommand): void {
-    let length: number = 50;
-    let remainder: number = length - header.length < 0 ? 0 : length - header.length;
-    DumpLog.print(0, `\n${'-'.repeat(remainder / 2)}${header}${'-'.repeat(remainder / 2)}`);
-    DumpLog.print(0, `[${command.what}, viewId=${command.viewId}, isRecursive=${command.isRecursive}]\n`);
-  }
-
-  private processOnDumpCommands(commands: string[]): DFXCommand[] {
-    let isFlag: Function = (param: string): boolean => {
-      return '-r'.match(param) != null || param.startsWith('-viewId=');
-    }
-
-    let dfxCommands: DFXCommand[] = [];
-
-    for (var i: number = 0; i < commands.length; i++) {
-      let command = commands[i];
-      if (isFlag(command)) {
-        if (command.startsWith('-viewId=')) {
-          let dfxCommand: DFXCommand = dfxCommands[dfxCommands.length - 1];
-          if (dfxCommand) {
-            let input: string[] = command.split('=');
-            if (input[1]) {
-              let viewId: number = Number.parseInt(input[1]);
-              dfxCommand.viewId = Number.isNaN(viewId) ? UINodeRegisterProxy.notRecordingDependencies : viewId;
-            }
-          }
-        } else if (command.match('-r')) {
-          let dfxCommand: DFXCommand = dfxCommands[dfxCommands.length - 1];
-          if (dfxCommand) {
-            dfxCommand.isRecursive = true;
-          }
-        }
-      } else {
-        dfxCommands.push({
-          what: command,
-          viewId: undefined,
-          isRecursive: false,
-        });
-      }
-    }
-    return dfxCommands;
-  }
-
-  public findViewPUInHierarchy(id: number): ViewPU {
-    let weakChild = this.childrenWeakrefMap_.get(id);
-    if (weakChild) {
-      const child = weakChild.deref();
-      // found child with id, is it a ViewPU?
-      return (child instanceof ViewPU) ? child : undefined;
-    }
-
-    // did not find, continue searching
-    let retVal: ViewPU = undefined;
-    for (const [key, value] of this.childrenWeakrefMap_.entries()) {
-      retVal = value.deref().findViewPUInHierarchy(id);
-      if (retVal) {
-        break;
-      }
-    }
-    return retVal;
-  }
-
-  private debugInfoView(recursive: boolean = false): string {
+  public debugInfoView(recursive: boolean = false): string {
     return this.debugInfoViewInternal(recursive);
   }
 
@@ -1120,7 +992,7 @@ abstract class ViewPU extends PUV2ViewBase
     return retVal;
   }
 
-  private debugInfoDirtDescendantElementIds(recursive: boolean = false): string {
+  public debugInfoDirtDescendantElementIds(recursive: boolean = false): string {
     return this.debugInfoDirtDescendantElementIdsInternal(0, recursive, { total: 0 });
   }
 
