@@ -18,15 +18,11 @@
     },
     {
       "name": "oaid_btn_promise",
-      "value": "Get OAID By Promise"
+      "value": "Get OAID via promise"
     },
     {
       "name": "oaid_btn_asynccallback",
-      "value": "Get OAID By Async Callback"
-    },
-    {
-      "name": "oaid_btn_reset",
-      "value": "reset OAID"
+      "value": "Get OAID via async callback"
     },
     {
       "name": "oaid_label",

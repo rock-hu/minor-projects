@@ -42,17 +42,17 @@ export class OrderDetailConstants{
   /**
    * String value of success.
    */
-  static readonly SUCCESS: string = '成功';
+  static readonly SUCCESS: Resource = $r('app.string.success');
 
   /**
    * String value of pay.
    */
-  static readonly ORDER_PAY: string = '支付';
+  static readonly ORDER_PAY: Resource = $r('app.string.ordered_pay');
 
   /**
    * String value of confirm.
    */
-  static readonly ORDER_CONFIRM: string = '确认';
+  static readonly ORDER_CONFIRM: Resource = $r('app.string.order_confirm');
 
   /**
    * String value of price.
@@ -77,15 +77,15 @@ export class OrderDetailConstants{
   /**
    * Order status.
    */
-  static readonly STATUS_ENUM = ['待支付', '卖家已发货', '已完成'];
+  static readonly STATUS_ENUM = [$r('app.string.wait_pay'), $r('app.string.seller_shipped'), $r('app.string.order_completed')];
 
   /**
    * Describe of order status.
    */
-  static readonly STATUS_DESC_ENUM = ['您提交了订单，请等待系统确认', '您的订单已发货，请耐心等待', '您的订单已完成，感谢支持~'];
+  static readonly STATUS_DESC_ENUM = [$r('app.string.order_submitted'), $r('app.string.order_shipped'), $r('app.string.order_completed')];
 
   /**
    * Payment string enum.
    */
-  static readonly PAYMENT_ENUM = ['支付', '确认收货'];
+  static readonly PAYMENT_ENUM = [$r('app.string.confirm_pay'), $r('app.string.confirm_harvest')];
 }

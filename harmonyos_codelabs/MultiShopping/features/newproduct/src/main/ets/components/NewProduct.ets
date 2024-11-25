@@ -57,6 +57,8 @@ export struct NewProduct {
           .opacity(this.titleIndex === index ? StyleConstants.FULL_OPACITY : StyleConstants.EIGHTY_OPACITY)
           .fontWeight(this.titleIndex === index ? StyleConstants.FONT_WEIGHT_SEVEN : StyleConstants.FONT_WEIGHT_FOUR)
           .fontColor(Color.Black)
+          .textOverflow({ overflow: TextOverflow.Ellipsis})
+          .maxLines(1)
           .onClick(() => {
             if (index !== undefined) {
               this.titleIndex = index;
@@ -78,6 +80,8 @@ export struct NewProduct {
             StyleConstants.FULL_OPACITY : StyleConstants.EIGHTY_OPACITY)
           .fontWeight(this.titleIndex === classifyTitle.length + 1 ?
             StyleConstants.FONT_WEIGHT_SEVEN : StyleConstants.FONT_WEIGHT_FOUR)
+          .textOverflow({ overflow: TextOverflow.Ellipsis})
+          .maxLines(1)
       }.onClick(() => {
         this.titleIndex = classifyTitle.length + 1;
       })

@@ -35,8 +35,8 @@ export class Order {
   uid?: string = '';
   orderId: string = '';
   image: string = '';
-  title: string = '';
-  description: string = '';
+  title?: Resource;
+  description?: Resource;
   payTime?: string = '';
   orderTime?: string = '';
   createTime?: string = '';

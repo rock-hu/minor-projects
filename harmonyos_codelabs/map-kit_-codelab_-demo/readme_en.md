@@ -5,6 +5,7 @@ Map Kit Sample Code
 
 * [Overview](#Overview)
 * [Preparations](#Preparations)
+* [Project_Directory](#Project_Directory)
 * [Required_Permissions](#Required_Permissions)
 * [Environment_Requirements](#Environment_Requirements)
 * [Result](#Result)
@@ -19,6 +20,16 @@ Preparations
 ---------------
 
 You need to enable Map Kit and configure the app signing certificate fingerprint in [AppGallery Connect](https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V5/map-config-agc-V5).
+
+## Project_Directory
+```
+├─entry/src/main/ets                    // Code area.
+│  ├─entryability                       
+│  │   └─EntryAbility.ets               // Ability for local startup.
+│  └─pages                              // Code directory.
+│     └─BasicMapDemo.ets                // Basic map page.
+└─entry/src/main/resources              // Project resource directory.
+````
 
 ## Required_Permissions
 

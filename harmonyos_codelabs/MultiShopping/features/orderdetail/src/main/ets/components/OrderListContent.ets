@@ -40,10 +40,10 @@ export struct OrderListContent {
   private status: OrderOperationStatus = OrderOperationStatus.ALLStatus;
   private localDataManager: LocalDataManager = LocalDataManager.instance();
 
-  paymentHandler(orderId: string, status: number, msg: string | Resource) {
+  paymentHandler(orderId: string, status: number, msg: Resource) {
     let orderIdStatus: updateOrderProps = { orderId, status }
     this.orderList = this.localDataManager.updateOrder(orderIdStatus);
-    promptAction.showToast({ message: `${msg}${OrderDetailConstants.SUCCESS}` });
+    promptAction.showToast({ message: `${getContext(this).resourceManager.getStringSync(msg)}${getContext(this).resourceManager.getStringSync(OrderDetailConstants.SUCCESS)}` });
   }
 
   build() {

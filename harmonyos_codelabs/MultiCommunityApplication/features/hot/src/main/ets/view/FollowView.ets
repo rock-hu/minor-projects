@@ -85,14 +85,14 @@ export struct FollowView {
                   .aspectRatio(1)
                   .borderRadius($r('app.float.follow_title_icon_br'))
                   .borderWidth(index === this.indexTitleSelected ? $r('app.float.follow_title_icon_bw') :
-                    $r('app.float.zero'))
+                  $r('app.float.zero'))
                   .borderColor($r('app.color.follow_title_icon_bc'))
 
                 Text(item.name)
                   .width($r('app.float.follow_title_text_width'))
                   .fontSize($r('app.float.follow_title_text_font_size'))
                   .fontColor(index === this.indexTitleSelected ? $r('app.color.follow_title_select') :
-                    $r('app.color.follow_title_normal'))
+                  $r('app.color.follow_title_normal'))
                   .textAlign(TextAlign.Center)
                   .margin({
                     top: $r('app.float.follow_title_text_mt')
@@ -101,7 +101,7 @@ export struct FollowView {
               .margin({
                 left: index === 0 ? $r('app.float.follow_title_margin_left') : $r('app.float.zero'),
                 right: index === this.iconTitleList.length - 1 ? $r('app.float.follow_title_margin_left') :
-                  $r('app.float.zero')
+                $r('app.float.zero')
               })
             }
             .onClick(() => {
@@ -124,10 +124,13 @@ export struct FollowView {
 
         if (this.indexTitleSelected !== -1) {
           Row() {
-            Text(`${this.iconTitleList[this.indexTitleSelected].name}${Common.FOLLOW_TITLE_CONTENT}`)
-              .fontSize($r('app.float.follow_title_content_fs'))
-              .fontWeight(BaseCommon.FONT_WEIGHT_500)
-              .fontColor($r('app.color.follow_title_content_fc'))
+            Text() {
+              Span(this.iconTitleList[this.indexTitleSelected].name)
+              Span($r('app.string.follow_title_content'))
+            }
+            .fontSize($r('app.float.follow_title_content_fs'))
+            .fontWeight(BaseCommon.FONT_WEIGHT_500)
+            .fontColor($r('app.color.follow_title_content_fc'))
 
             Image($r('app.media.ic_public_cancel'))
               .width($r('app.float.follow_title_cancel'))

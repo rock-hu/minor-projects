@@ -37,7 +37,7 @@ export class CommodityConstants{
   /**
    * String of choose.
    */
-  static readonly SPECIAL_CHOOSE: string = '已选';
+  static readonly SPECIAL_CHOOSE: Resource = $r('app.string.choice');
 
   /**
    * ConfirmOrderPage url.

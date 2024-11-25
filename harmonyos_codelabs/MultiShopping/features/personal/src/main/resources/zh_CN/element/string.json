@@ -99,6 +99,102 @@
     {
       "name": "not_living",
       "value": "未开播"
+    },
+    {
+      "name": "live_data1_watch_desc",
+      "value": "2.9万人观看"
+    },
+    {
+      "name": "live_data1_liver_name",
+      "value": "首席美食家"
+    },
+    {
+      "name": "live_data1_liver_desc",
+      "value": "带您品尝各地美食"
+    },
+    {
+      "name": "live_data2_watch_desc",
+      "value": "2.9万人观看"
+    },
+    {
+      "name": "live_data2_liver_name",
+      "value": "大旅游家"
+    },
+    {
+      "name": "live_data2_liver_desc",
+      "value": "带您走遍天下奇景"
+    },
+    {
+      "name": "live_data3_watch_desc",
+      "value": "0人观看"
+    },
+    {
+      "name": "live_data3_liver_name",
+      "value": "首席美食家"
+    },
+    {
+      "name": "live_data3_liver_desc",
+      "value": "带您品尝各地美食"
+    },
+    {
+      "name": "live_data4_watch_desc",
+      "value": "2.9万人观看"
+    },
+    {
+      "name": "live_data4_liver_name",
+      "value": "大旅游家"
+    },
+    {
+      "name": "live_data4_liver_desc",
+      "value": "带您走遍天下奇景"
+    },
+    {
+      "name": "live_data5_watch_desc",
+      "value": "2.9万人观看"
+    },
+    {
+      "name": "live_data5_liver_name",
+      "value": "首席美食家"
+    },
+    {
+      "name": "live_data5_liver_desc",
+      "value": "带您品尝各地美食"
+    },
+    {
+      "name": "live_data6_watch_desc",
+      "value": "2.9万人观看"
+    },
+    {
+      "name": "live_data6_liver_name",
+      "value": "大旅游家"
+    },
+    {
+      "name": "live_data6_liver_desc",
+      "value": "带您走遍天下奇景"
+    },
+    {
+      "name": "live_data7_watch_desc",
+      "value": "2.9万人观看"
+    },
+    {
+      "name": "live_data7_liver_name",
+      "value": "首席美食家"
+    },
+    {
+      "name": "live_data7_liver_desc",
+      "value": "带您品尝各地美食"
+    },
+    {
+      "name": "live_data8_watch_desc",
+      "value": "2.9万人观看"
+    },
+    {
+      "name": "live_data8_liver_name",
+      "value": "大旅游家"
+    },
+    {
+      "name": "live_data8_liver_desc",
+      "value": "带您走遍天下奇景"
     }
   ]
 }

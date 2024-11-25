@@ -16,10 +16,10 @@
 @Observed
 export class Product {
   id: string = '';
-  name: string = '';
+  name?: Resource;
   img: string[] = [];
   commodityId: string = '';
-  description: string = '';
+  description?: Resource;
   price: number = 0;
   count: number = 0;
   selected: boolean = false;
@@ -30,8 +30,8 @@ export class Product {
 }
 
 export class ProductSpecification {
-  name: string = '';
-  value: string = '';
+  name?: Resource;
+  value?: Resource;
 }
 
 export class ShopProps {

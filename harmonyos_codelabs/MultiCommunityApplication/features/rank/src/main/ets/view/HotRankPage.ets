@@ -62,7 +62,7 @@ export struct HotRankPage {
 
           Scroll() {
             Swiper() {
-              ForEach(BaseCommon.RANK_TITLE_LIST, (item: string, index: number) => {
+              ForEach(BaseCommon.RANK_TITLE_LIST, (item: ResourceStr, index: number) => {
                 HotListView({
                   groupTitle: item,
                   index: index

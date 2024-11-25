@@ -25,10 +25,6 @@
       "value": "通过异步callback获取OAID"
     },
     {
-      "name": "oaid_btn_reset",
-      "value": "重置OAID"
-    },
-    {
       "name": "oaid_label",
       "value": "OAID:"
     },

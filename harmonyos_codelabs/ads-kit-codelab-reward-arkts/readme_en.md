@@ -2,35 +2,54 @@
 ## Contents
 
 * [Overview](#Overview)
-* [Installation](#Installation)
 * [How to Use](#How-to-Use)
+* [Preview](#Preview)
+* [Project Directory](#Project-Directory)
 * [Sample Code](#Sample-Code)
+* [Required Permissions](#Required-Permissions)
 * [Constraints](#Constraints)
 
 
 ## Overview
 The sample code of Ads Kit for HarmonyOS ArkTS describes how to use APIs of Ads Kit in your app to display ads.
 
-## Installation
-Install the demo on a phone running HarmonyOS.
-
 ## How to Use
 
-1. Before running this demo, you need to:
-    * Configure app signing.
+Before running this demo, you need to: [Configure app signing information.](https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V5/application-dev-guide-V5#section42841246144813)
+
+## Preview
+| **Rewarded ad page**                            |
+|--------------------------------------------|
+| ![avatar](./screenshots/device_en/reward_en.png) |
+
+## Project Directory
+```
+├─entry/src/main/ets            // Code area. 
+│ ├─entryability
+│ │ └─EntryAbility.ets          // Entry point class.
+│ ├─event   
+│ │ └─RewardAdStatusHandler.ets // Listener for rewarded ad status.
+│ ├─pages                       // Directory for storing app UI files.               
+│ │ └─RewardAdPage.ets          // Rewarded ad page.
+└─entry/src/main/resources      // Directory for storing resource files.
+```
 
 ## Sample Code
 ### Petal Ads Publisher Service
 The sample code is used to implement a UI to display rewarded ads.
 The sample code includes the following files for you to request and display ads:
 
-1). RewardAdPagePage.ets
+1. RewardAdPagePage.ets
 Demo UI of Petal Ads Publisher Service, where you can tap the button to request and display rewarded ads.
 <br>Code location: **entry\src\main\ets\pages\RewardAdPagePage.ets**<br>
 
-2). RewardAdStatusHandler.ets
+2. RewardAdStatusHandler.ets
 Used to subscribe to the **com.huawei.hms.pps.action.PPS_REWARD_STATUS_CHANGED** event to track changes on the rewarded ad page and receive reward information.
 <br>Code location: **entry\src\main\ets\event\RewardAdStatusHandler.ets**<br>
+
+## Required Permissions
+
+* To obtain the OAID, you need to request the activity tracking permission [ohos.permission.APP_TRACKING_CONSENT](https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V5/permissions-for-all-V5#ohospermissionapp_tracking_consent).
 
 ## Constraints
 

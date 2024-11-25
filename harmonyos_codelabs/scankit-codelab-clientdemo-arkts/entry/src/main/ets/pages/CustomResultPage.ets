@@ -1,11 +1,12 @@
 // CustomResultPage.ets Display the result of barcode scanning using the custom UI.
 import { router } from '@kit.ArkUI';
-import { scanBarcode } from '@kit.ScanKit';
+import { scanBarcode, scanCore } from '@kit.ScanKit';
+import { MockSetup } from '@ohos/hamock';
 
 @Extend(Text)
 function textName() {
   .fontSize(20)
-  .fontColor('#000000')
+  .fontColor($r('sys.color.black'))
   .fontWeight(FontWeight.Medium)
   .width('100%')
   .margin({ bottom: 5 })
@@ -22,17 +23,34 @@ function textValue() {
 let typeStr: Array<string> =
   ['FORMAT_UNKNOWN', 'AZTEC_CODE', 'CODABAR_CODE', 'CODE39_CODE', 'CODE93_CODE', 'CODE128_CODE', 'DATAMATRIX_CODE',
     'EAN8_CODE', 'EAN13_CODE',
-    'ITF14_CODE', 'PDF417_CODE', 'QR_CODE', 'UPC_A_CODE', 'UPC_E_CODE', ''];
+    'ITF14_CODE', 'PDF417_CODE', 'QR_CODE', 'UPC_A_CODE', 'UPC_E_CODE', 'MULTIFUNCTIONAL_CODE'];
 
 @Entry
 @Component
 struct CustomResultPage {
+  @State params: object = router.getParams()
   private result: Array<scanBarcode.ScanResult> = []
   public scroller: Scroller = new Scroller()
 
   aboutToAppear() {
-    let params = router.getParams() as Record<string, string | Array<scanBarcode.ScanResult>>;
-    this.result = params.result as Array<scanBarcode.ScanResult>;
+    this.result = this.params['result'] as Array<scanBarcode.ScanResult>;
+  }
+
+  @MockSetup
+  mock() {
+    this.params = [];
+    let mockScanResult: scanBarcode.ScanResult = {
+      scanType: scanCore.ScanType.QR_CODE,
+      originalValue: 'mock',
+      scanCodeRect: {
+        left: 10,
+        right: 100,
+        top: 10,
+        bottom: 100
+      }
+    }
+    this.params['result'] = [mockScanResult];
+    this.result = this.params['result'] as Array<scanBarcode.ScanResult>;
   }
 
   @Builder
@@ -75,14 +93,18 @@ struct CustomResultPage {
           .objectFit(ImageFit.Contain)
         Text($r('app.string.title_result'))
           .fontSize(20)
-          .fontColor('#000000')
+          .fontColor($r('sys.color.black'))
           .margin({ left: 15 })
       }
       .margin({ top: 20 })
       .zIndex(10)
       .position({ x: 15, y: 0 })
       .onClick(async () => {
-        router.back();
+        router.pushUrl({
+          url: 'pages/Index'
+        }).then(() => {
+          router.clear();
+        });
       })
 
       Scroll(this.scroller) {

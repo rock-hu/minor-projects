@@ -22,10 +22,10 @@ import { ProductSpecification } from '@ohos/common/src/main/ets/viewmodel/Produc
 @CustomDialog
 export struct SpecificationDialog {
   @State colorChange: ColorChange = {
-    颜色: '',
-    版本: '',
-    网络制式: '',
-    类型: ''
+    Color: '',
+    Version: '',
+    Network: '',
+    Type: ''
   };
   @Link data: Commodity;
   @Link count: number;
@@ -35,18 +35,18 @@ export struct SpecificationDialog {
   private onFinish?: (type: FinishType, count: number, selectKeys: ProductSpecification[]) => void;
   aboutToAppear(){
     this.selectTags.forEach((item) => {
-      switch (item.name) {
-        case '颜色':
-          this.colorChange.颜色 = item.value;
+      switch (getContext(this).resourceManager.getStringSync(item.name)) {
+        case getContext(this).resourceManager.getStringSync($r('app.string.case_color')):
+          this.colorChange.Color = getContext(this).resourceManager.getStringSync(item.value);
           break;
-        case '版本':
-          this.colorChange.版本 = item.value;
+        case getContext(this).resourceManager.getStringSync($r('app.string.case_version')):
+          this.colorChange.Version = getContext(this).resourceManager.getStringSync(item.value);
           break;
-        case '网络制式':
-          this.colorChange.网络制式 = item.value;
+        case getContext(this).resourceManager.getStringSync($r('app.string.case_network_standard')):
+          this.colorChange.Network = getContext(this).resourceManager.getStringSync(item.value);
           break;
-        case '类型':
-          this.colorChange.类型 = item.value;
+        case getContext(this).resourceManager.getStringSync($r('app.string.case_type')):
+          this.colorChange.Type = getContext(this).resourceManager.getStringSync(item.value);
           break;
         default:
           break;
@@ -90,7 +90,7 @@ export struct SpecificationDialog {
               }
               .margin({ bottom: $r('app.float.vp_twelve') })
 
-              Text(`${CommodityConstants.SPECIAL_CHOOSE} ：${this.productOptions} ${this.count ? `X${this.count}` : ''}`)
+              Text(`${getContext(this).resourceManager.getStringSync(CommodityConstants.SPECIAL_CHOOSE)} ：${this.productOptions} ${this.count ? `X${this.count}` : ''}`)
                 .fontSize($r('app.float.smaller_font_size'))
                 .fontColor(Color.Black)
                 .maxLines(CommodityConstants.MAX_LINE)
@@ -110,7 +110,7 @@ export struct SpecificationDialog {
             Column() {
               ForEach(this.data.specifications || [], (item: Specification) => {
                 this.Specification(item)
-              }, (item: Specification) => item.id)
+              }, (item: Specification) => getContext(this).resourceManager.getStringSync(item.id))
               Flex({ justifyContent: FlexAlign.SpaceBetween, alignItems: ItemAlign.Center }) {
                 Text($r('app.string.quantity'))
                   .fontSize($r('app.float.small_font_size'))
@@ -166,19 +166,19 @@ export struct SpecificationDialog {
     .padding($r('app.float.vp_twelve'))
   }
   colorChanges(key: string): string {
-    let temp: string = ''
+    let temp: string = '';
     switch (key) {
-      case '颜色':
-        temp = this.colorChange.颜色;
+      case getContext(this).resourceManager.getStringSync($r('app.string.case_color')):
+        temp = this.colorChange.Color;
         break;
-      case '版本':
-        temp = this.colorChange.版本;
+      case getContext(this).resourceManager.getStringSync($r('app.string.case_version')):
+        temp = this.colorChange.Version;
         break;
-      case '网络制式':
-        temp = this.colorChange.网络制式;
+      case getContext(this).resourceManager.getStringSync($r('app.string.case_network_standard')):
+        temp = this.colorChange.Network;
         break;
-      case '类型':
-        temp = this.colorChange.类型;
+      case getContext(this).resourceManager.getStringSync($r('app.string.case_type')):
+        temp = this.colorChange.Type;
         break;
       default:
         break;
@@ -196,7 +196,7 @@ export struct SpecificationDialog {
         ForEach(payload.data, (item: KV) => {
           Text(item.key)
             .fontSize($r('app.float.smaller_font_size'))
-            .fontColor(this.colorChanges(payload.id) === item.value ? $r('app.color.focus_color') : Color.Black)
+            .fontColor(this.colorChanges(getContext(this).resourceManager.getStringSync(payload.id)) === getContext(this).resourceManager.getStringSync(item.value) ? $r('app.color.focus_color') : Color.Black)
             .height($r('app.float.vp_twenty_four'))
             .padding({
               top: $r('app.float.vp_six'),
@@ -204,11 +204,11 @@ export struct SpecificationDialog {
               left: $r('app.float.vp_ten'),
               right: $r('app.float.vp_ten')
             })
-            .backgroundColor(this.colorChanges(payload.id) === item.value  ?
+            .backgroundColor(this.colorChanges(getContext(this).resourceManager.getStringSync(payload.id)) === getContext(this).resourceManager.getStringSync(item.value)  ?
               $r('app.color.dialog_select_tag') : $r('app.color.five_alpha_black'))
             .margin({ bottom: $r('app.float.vp_ten'), right: $r('app.float.vp_twelve') })
             .borderRadius($r('app.float.vp_twelve'))
-            .onClick(():void => this.onTagSelect(item, payload.id))
+            .onClick(():void => this.onTagSelect(item, getContext(this).resourceManager.getStringSync(payload.id)))
         }, (item: KV) => JSON.stringify(item.value))
       }
     }
@@ -219,24 +219,24 @@ export struct SpecificationDialog {
 
   onTagSelect(tag: KV, parentId: string) {
     this.selectTags.forEach((item, index) => {
-      if (parentId === item.name) {
+      if (parentId === getContext(this).resourceManager.getStringSync(item.name)) {
         switch (parentId) {
-          case '颜色':
-            this.colorChange.颜色 = tag.value;
+          case getContext(this).resourceManager.getStringSync($r('app.string.case_color')):
+            this.colorChange.Color = getContext(this).resourceManager.getStringSync(tag.value);
             break;
-          case '版本':
-            this.colorChange.版本 = tag.value;
+          case getContext(this).resourceManager.getStringSync($r('app.string.case_version')):
+            this.colorChange.Version = getContext(this).resourceManager.getStringSync(tag.value);
             break;
-          case '网络制式':
-            this.colorChange.网络制式 = tag.value;
+          case getContext(this).resourceManager.getStringSync($r('app.string.case_network_standard')):
+            this.colorChange.Network = getContext(this).resourceManager.getStringSync(tag.value);
             break;
-          case '类型':
-            this.colorChange.类型 = tag.value;
+          case getContext(this).resourceManager.getStringSync($r('app.string.case_type')):
+            this.colorChange.Type = getContext(this).resourceManager.getStringSync(tag.value);
             break;
           default:
             break;
         }
-        let data: ProductSpecification = {name:parentId,value:tag.value}
+        let data: ProductSpecification = {name:item.name,value:tag.value}
         this.selectTags.splice(index,1,data);
       }
     })
@@ -246,7 +246,7 @@ export struct SpecificationDialog {
   onSelectKeysChange(){
     this.productOptions = '';
     this.selectTags.forEach((item)=>{
-      this.productOptions += item.value+' ';
+      this.productOptions += getContext(this).resourceManager.getStringSync(item.value)+' ';
     })
   }
 }

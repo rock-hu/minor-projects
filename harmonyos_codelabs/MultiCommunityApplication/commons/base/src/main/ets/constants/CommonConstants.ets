@@ -40,7 +40,9 @@ export class CommonConstants {
   /**
    * Rank title List.
    */
-  static readonly RANK_TITLE_LIST: string[] = ['今日热搜', '要闻热搜', '同城热搜', '娱乐热搜', '美食热搜'];
+  static readonly RANK_TITLE_LIST: ResourceStr[] =
+    [$r('app.string.today_hot_search'), $r('app.string.news_hot_search'), $r('app.string.same_city_hot_search'),
+      $r('app.string.entertainment_hot_search'), $r('app.string.food_hot_search')];
 
   /**
    * Device 2in1.

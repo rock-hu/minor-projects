@@ -70,7 +70,7 @@ export struct CommodityDetail {
     this.productOptions = '';
     if (this.selectKeys !== undefined) {
       this.selectKeys.forEach((item) => {
-        this.productOptions += item.value + ' ';
+        this.productOptions += getContext(this).resourceManager.getStringSync(item.value) + ' ';
       })
     }
   }
@@ -311,6 +311,8 @@ export struct CommodityDetail {
                 .fontColor(Color.Black)
                 .fontSize($r('app.float.vp_fourteen'))
                 .margin({ left: $r('app.float.vp_eight') })
+                .textOverflow({ overflow: TextOverflow.Ellipsis})
+                .maxLines(1)
             }
             .height($r('app.float.vp_twenty'))
             .margin({

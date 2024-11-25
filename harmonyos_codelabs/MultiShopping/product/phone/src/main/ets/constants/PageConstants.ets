@@ -20,9 +20,9 @@ export class PageConstants {
   static readonly DELAY_TIME: number = 2000;
 
   /**
-   * The value of letter space: 16vp.
+   * The value of letter space: 8vp.
    */
-  static readonly LETTER_SPACE: string = '16vp';
+  static readonly LETTER_SPACE: string = '8vp';
 
   /**
    * The value of tab bar button space: 6vp.

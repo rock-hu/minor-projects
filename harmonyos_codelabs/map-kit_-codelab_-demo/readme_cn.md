@@ -5,6 +5,7 @@
 
 * [简介](#简介)
 * [开发准备](#开发准备)
+* [工程目录](#工程目录)
 * [相关权限](#相关权限)
 * [环境要求](#环境要求)
 * [结果](#结果)
@@ -20,10 +21,20 @@
 
 您需要先在[AppGallery Connect](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/map-config-agc-V5)网站上开通地图服务并配置应用签名证书指纹。
 
+## 工程目录
+```
+├─entry/src/main/ets                    // 代码区域
+│  ├─entryability                       
+│  │   └─EntryAbility.ets               // 本地启动ability
+│  └─pages                              // 代码目录
+│     └─BasicMapDemo.ets                // 基础地图界面
+└─entry/src/main/resources              // 项目资源目录
+````
+
 ## 相关权限
 
-1.允许使用Internet网络：ohos.permission.INTERNET。
-2.允许应用获取数据网络信息：ohos.permission.GET_NETWORK_INFO。
+1. 允许使用Internet网络：ohos.permission.INTERNET。
+2. 允许应用获取数据网络信息：ohos.permission.GET_NETWORK_INFO。
 
 环境要求
 -------

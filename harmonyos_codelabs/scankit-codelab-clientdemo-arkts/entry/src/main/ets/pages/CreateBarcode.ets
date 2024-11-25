@@ -211,6 +211,7 @@ struct CreateBarcodePage {
             generateBarcode.createBarcode(content, options).then((result: image.PixelMap) => {
               this.pixelMap = result;
             }).catch((error: BusinessError) => {
+              showError(error);
               hilog.error(0x0001, TAG,
                 `Failed to get pixelMap by promise with options. Code: ${error.code}, message: ${error.message}`);
             })

@@ -64,7 +64,7 @@ function angleSizes(x: number, y: number, borderOption: BorderOptions, xDisplay:
   .width(20)
   .height(20)
   .border(borderOption)
-  .borderColor('#FFFFFF')
+  .borderColor($r('sys.color.comp_background_list_card'))
   .position({ x: x + xDisplay.offsetX, y: y + xDisplay.offsetY })
 }
 

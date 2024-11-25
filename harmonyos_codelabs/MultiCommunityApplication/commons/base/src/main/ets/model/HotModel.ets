@@ -28,8 +28,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 1,
       icon: $r('app.media.ic_today_rank_1'),
-      title: '野生动物保护',
-      content: '规范野生动植物管理',
+      title: $r('app.string.title_1'),
+      content: $r('app.string.content_14'),
       stateIcon: $r('app.media.ic_state_fire'),
       clickCount: 666,
       upDownIcon: $r('app.media.ic_up')
@@ -37,8 +37,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 2,
       icon: $r('app.media.ic_today_rank_2'),
-      title: '世界有名建筑',
-      content: '人类建筑史上的奇迹',
+      title: $r('app.string.title_2'),
+      content: $r('app.string.content_15'),
       stateIcon: $r('app.media.ic_state_fire'),
       clickCount: 651,
       upDownIcon: $r('app.media.ic_up')
@@ -46,8 +46,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 3,
       icon: $r('app.media.ic_today_rank_3'),
-      title: '茶叶的神奇功效',
-      content: '雾绕青山枝叶绿',
+      title: $r('app.string.title_3'),
+      content: $r('app.string.content_16'),
       stateIcon: $r('app.media.ic_state_favor'),
       clickCount: 576,
       upDownIcon: $r('app.media.ic_up')
@@ -55,8 +55,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 4,
       icon: $r('app.media.ic_rank_item_4'),
-      title: '舞动者们',
-      content: '舞者们台下十年练习之路',
+      title: $r('app.string.title_4'),
+      content: $r('app.string.content_17'),
       stateIcon: $r('app.media.ic_state_fire'),
       clickCount: 556,
       upDownIcon: $r('app.media.ic_down')
@@ -64,8 +64,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 5,
       icon: $r('app.media.ic_rank_item_5'),
-      title: '宇宙最遥远的样子',
-      content: '揭秘宇宙的奥秘',
+      title: $r('app.string.title_5'),
+      content: $r('app.string.content_18'),
       stateIcon: $r('app.media.ic_state_favor'),
       clickCount: 532,
       upDownIcon: $r('app.media.ic_up')
@@ -73,8 +73,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 6,
       icon: $r('app.media.ic_rank_item_1'),
-      title: '建筑人文',
-      content: '欧洲建筑的历史责任在对欧洲...',
+      title: $r('app.string.title_6'),
+      content: $r('app.string.content_19'),
       stateIcon: $r('app.media.ic_state_favor'),
       clickCount: 501,
       upDownIcon: $r('app.media.ic_down')
@@ -82,8 +82,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 7,
       icon: $r('app.media.ic_rank_item_2'),
-      title: '世界十大神奇建筑',
-      content: '世界十大神奇建筑指的是建筑造型...',
+      title: $r('app.string.title_7'),
+      content: $r('app.string.content_20'),
       stateIcon: $r('app.media.ic_state_favor'),
       clickCount: 489,
       upDownIcon: $r('app.media.ic_down')
@@ -91,8 +91,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 8,
       icon: $r('app.media.ic_rank_item_3'),
-      title: '生命之谜语',
-      content: '小小世界的生存智慧是非常...',
+      title: $r('app.string.title_8'),
+      content: $r('app.string.content_21'),
       stateIcon: $r('app.media.ic_state_favor'),
       clickCount: 473,
       upDownIcon: $r('app.media.ic_up')
@@ -100,8 +100,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 9,
       icon: $r('app.media.ic_rank_item_4'),
-      title: '舞动者们',
-      content: '舞者们台下十年练习之路',
+      title: $r('app.string.title_4'),
+      content: $r('app.string.content_17'),
       stateIcon: $r('app.media.ic_state_new'),
       clickCount: 421,
       upDownIcon: $r('app.media.ic_up')
@@ -109,8 +109,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 10,
       icon: $r('app.media.ic_rank_item_5'),
-      title: '宇宙最遥远的样子',
-      content: '揭秘宇宙的奥秘',
+      title: $r('app.string.title_5'),
+      content: $r('app.string.content_18'),
       stateIcon: $r('app.media.ic_state_fire'),
       clickCount: 389,
       upDownIcon: $r('app.media.ic_down')
@@ -118,8 +118,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 11,
       icon: $r('app.media.ic_rank_item_1'),
-      title: '建筑人文',
-      content: '欧洲建筑的历史责任在对欧洲...',
+      title: $r('app.string.title_6'),
+      content: $r('app.string.content_19'),
       stateIcon: $r('app.media.ic_state_favor'),
       clickCount: 365,
       upDownIcon: $r('app.media.ic_down')
@@ -127,8 +127,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 12,
       icon: $r('app.media.ic_rank_item_2'),
-      title: '世界十大神奇建筑',
-      content: '世界十大神奇建筑指的是建筑造型...',
+      title: $r('app.string.title_7'),
+      content: $r('app.string.content_20'),
       stateIcon: $r('app.media.ic_state_favor'),
       clickCount: 349,
       upDownIcon: $r('app.media.ic_down')
@@ -136,8 +136,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 13,
       icon: $r('app.media.ic_rank_item_3'),
-      title: '生命之谜语',
-      content: '小小世界的生存智慧是非常...',
+      title: $r('app.string.title_8'),
+      content: $r('app.string.content_21'),
       stateIcon: $r('app.media.ic_state_favor'),
       clickCount: 311,
       upDownIcon: $r('app.media.ic_up')
@@ -145,8 +145,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 14,
       icon: $r('app.media.ic_rank_item_4'),
-      title: '舞动者们',
-      content: '舞者们台下十年练习之路',
+      title: $r('app.string.title_4'),
+      content: $r('app.string.content_17'),
       stateIcon: $r('app.media.ic_state_new'),
       clickCount: 278,
       upDownIcon: $r('app.media.ic_down')
@@ -154,8 +154,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 15,
       icon: $r('app.media.ic_rank_item_5'),
-      title: '宇宙最遥远的样子',
-      content: '揭秘宇宙的奥秘',
+      title: $r('app.string.title_5'),
+      content: $r('app.string.content_18'),
       stateIcon: $r('app.media.ic_state_fire'),
       clickCount: 257,
       upDownIcon: $r('app.media.ic_up')
@@ -165,8 +165,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 1,
       icon: $r('app.media.ic_news_rank_1'),
-      title: '艺术之美',
-      content: '艺术如同一首悠扬的乐曲',
+      title: $r('app.string.title_9'),
+      content: $r('app.string.content_22'),
       stateIcon: $r('app.media.ic_state_fire'),
       clickCount: 666,
       upDownIcon: $r('app.media.ic_up')
@@ -174,8 +174,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 2,
       icon: $r('app.media.ic_news_rank_2'),
-      title: '太空高清图片',
-      content: '浩瀚宇宙有边际吗',
+      title: $r('app.string.title_10'),
+      content: $r('app.string.content_23'),
       stateIcon: $r('app.media.ic_state_new'),
       clickCount: 651,
       upDownIcon: $r('app.media.ic_up')
@@ -183,8 +183,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 3,
       icon: $r('app.media.ic_news_rank_3'),
-      title: '心灵的修行',
-      content: '人的精神世界的总和',
+      title: $r('app.string.title_11'),
+      content: $r('app.string.content_24'),
       stateIcon: $r('app.media.ic_state_new'),
       clickCount: 576,
       upDownIcon: $r('app.media.ic_up')
@@ -192,8 +192,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 4,
       icon: $r('app.media.ic_rank_item_4'),
-      title: '舞动者们',
-      content: '舞者们台下十年练习之路',
+      title: $r('app.string.title_4'),
+      content: $r('app.string.content_17'),
       stateIcon: $r('app.media.ic_state_fire'),
       clickCount: 556,
       upDownIcon: $r('app.media.ic_down')
@@ -201,8 +201,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 5,
       icon: $r('app.media.ic_rank_item_5'),
-      title: '宇宙最遥远的样子',
-      content: '揭秘宇宙的奥秘',
+      title: $r('app.string.title_5'),
+      content: $r('app.string.content_18'),
       stateIcon: $r('app.media.ic_state_favor'),
       clickCount: 532,
       upDownIcon: $r('app.media.ic_up')
@@ -210,8 +210,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 6,
       icon: $r('app.media.ic_rank_item_1'),
-      title: '建筑人文',
-      content: '欧洲建筑的历史责任在对欧洲...',
+      title: $r('app.string.title_6'),
+      content: $r('app.string.content_19'),
       stateIcon: $r('app.media.ic_state_favor'),
       clickCount: 501,
       upDownIcon: $r('app.media.ic_down')
@@ -219,8 +219,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 7,
       icon: $r('app.media.ic_rank_item_2'),
-      title: '世界十大神奇建筑',
-      content: '世界十大神奇建筑指的是建筑造型...',
+      title: $r('app.string.title_7'),
+      content: $r('app.string.content_20'),
       stateIcon: $r('app.media.ic_state_favor'),
       clickCount: 489,
       upDownIcon: $r('app.media.ic_down')
@@ -228,8 +228,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 8,
       icon: $r('app.media.ic_rank_item_3'),
-      title: '生命之谜语',
-      content: '小小世界的生存智慧是非常...',
+      title: $r('app.string.title_8'),
+      content: $r('app.string.content_21'),
       stateIcon: $r('app.media.ic_state_favor'),
       clickCount: 473,
       upDownIcon: $r('app.media.ic_up')
@@ -237,8 +237,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 9,
       icon: $r('app.media.ic_rank_item_4'),
-      title: '舞动者们',
-      content: '舞者们台下十年练习之路',
+      title: $r('app.string.title_4'),
+      content: $r('app.string.content_17'),
       stateIcon: $r('app.media.ic_state_new'),
       clickCount: 421,
       upDownIcon: $r('app.media.ic_up')
@@ -246,8 +246,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 10,
       icon: $r('app.media.ic_rank_item_5'),
-      title: '宇宙最遥远的样子',
-      content: '揭秘宇宙的奥秘',
+      title: $r('app.string.title_5'),
+      content: $r('app.string.content_18'),
       stateIcon: $r('app.media.ic_state_fire'),
       clickCount: 389,
       upDownIcon: $r('app.media.ic_down')
@@ -255,8 +255,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 11,
       icon: $r('app.media.ic_rank_item_1'),
-      title: '建筑人文',
-      content: '欧洲建筑的历史责任在对欧洲...',
+      title: $r('app.string.title_6'),
+      content: $r('app.string.content_19'),
       stateIcon: $r('app.media.ic_state_favor'),
       clickCount: 365,
       upDownIcon: $r('app.media.ic_down')
@@ -264,8 +264,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 12,
       icon: $r('app.media.ic_rank_item_2'),
-      title: '世界十大神奇建筑',
-      content: '世界十大神奇建筑指的是建筑造型...',
+      title: $r('app.string.title_7'),
+      content: $r('app.string.content_20'),
       stateIcon: $r('app.media.ic_state_favor'),
       clickCount: 349,
       upDownIcon: $r('app.media.ic_down')
@@ -273,8 +273,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 13,
       icon: $r('app.media.ic_rank_item_3'),
-      title: '生命之谜语',
-      content: '小小世界的生存智慧是非常...',
+      title: $r('app.string.title_8'),
+      content: $r('app.string.content_21'),
       stateIcon: $r('app.media.ic_state_favor'),
       clickCount: 311,
       upDownIcon: $r('app.media.ic_up')
@@ -282,8 +282,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 14,
       icon: $r('app.media.ic_rank_item_4'),
-      title: '舞动者们',
-      content: '舞者们台下十年练习之路',
+      title: $r('app.string.title_4'),
+      content: $r('app.string.content_17'),
       stateIcon: $r('app.media.ic_state_new'),
       clickCount: 278,
       upDownIcon: $r('app.media.ic_down')
@@ -291,8 +291,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 15,
       icon: $r('app.media.ic_rank_item_5'),
-      title: '宇宙最遥远的样子',
-      content: '揭秘宇宙的奥秘',
+      title: $r('app.string.title_5'),
+      content: $r('app.string.content_18'),
       stateIcon: $r('app.media.ic_state_fire'),
       clickCount: 257,
       upDownIcon: $r('app.media.ic_up')
@@ -302,8 +302,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 1,
       icon: $r('app.media.ic_city_rank_1'),
-      title: '夏天来了',
-      content: '夏天的气息扑面而来',
+      title: $r('app.string.title_12'),
+      content: $r('app.string.content_25'),
       stateIcon: $r('app.media.ic_state_fire'),
       clickCount: 666,
       upDownIcon: $r('app.media.ic_up')
@@ -311,8 +311,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 2,
       icon: $r('app.media.ic_city_rank_2'),
-      title: '新的打卡景点',
-      content: '这里的花开了',
+      title: $r('app.string.title_13'),
+      content: $r('app.string.content_26'),
       stateIcon: $r('app.media.ic_state_new'),
       clickCount: 651,
       upDownIcon: $r('app.media.ic_up')
@@ -320,8 +320,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 3,
       icon: $r('app.media.ic_city_rank_3'),
-      title: '带宠物去旅行',
-      content: '旅行是种什么体验',
+      title: $r('app.string.title_14'),
+      content: $r('app.string.content_27'),
       stateIcon: $r('app.media.ic_state_new'),
       clickCount: 576,
       upDownIcon: $r('app.media.ic_up')
@@ -329,8 +329,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 4,
       icon: $r('app.media.ic_rank_item_4'),
-      title: '舞动者们',
-      content: '舞者们台下十年练习之路',
+      title: $r('app.string.title_4'),
+      content: $r('app.string.content_17'),
       stateIcon: $r('app.media.ic_state_fire'),
       clickCount: 556,
       upDownIcon: $r('app.media.ic_down')
@@ -338,8 +338,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 5,
       icon: $r('app.media.ic_rank_item_5'),
-      title: '宇宙最遥远的样子',
-      content: '揭秘宇宙的奥秘',
+      title: $r('app.string.title_5'),
+      content: $r('app.string.content_18'),
       stateIcon: $r('app.media.ic_state_favor'),
       clickCount: 532,
       upDownIcon: $r('app.media.ic_up')
@@ -347,8 +347,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 6,
       icon: $r('app.media.ic_rank_item_1'),
-      title: '建筑人文',
-      content: '欧洲建筑的历史责任在对欧洲...',
+      title: $r('app.string.title_6'),
+      content: $r('app.string.content_19'),
       stateIcon: $r('app.media.ic_state_favor'),
       clickCount: 501,
       upDownIcon: $r('app.media.ic_down')
@@ -356,8 +356,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 7,
       icon: $r('app.media.ic_rank_item_2'),
-      title: '世界十大神奇建筑',
-      content: '世界十大神奇建筑指的是建筑造型...',
+      title: $r('app.string.title_7'),
+      content: $r('app.string.content_20'),
       stateIcon: $r('app.media.ic_state_favor'),
       clickCount: 489,
       upDownIcon: $r('app.media.ic_down')
@@ -365,8 +365,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 8,
       icon: $r('app.media.ic_rank_item_3'),
-      title: '生命之谜语',
-      content: '小小世界的生存智慧是非常...',
+      title: $r('app.string.title_8'),
+      content: $r('app.string.content_21'),
       stateIcon: $r('app.media.ic_state_favor'),
       clickCount: 473,
       upDownIcon: $r('app.media.ic_up')
@@ -374,8 +374,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 9,
       icon: $r('app.media.ic_rank_item_4'),
-      title: '舞动者们',
-      content: '舞者们台下十年练习之路',
+      title: $r('app.string.title_4'),
+      content: $r('app.string.content_17'),
       stateIcon: $r('app.media.ic_state_new'),
       clickCount: 421,
       upDownIcon: $r('app.media.ic_up')
@@ -383,8 +383,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 10,
       icon: $r('app.media.ic_rank_item_5'),
-      title: '宇宙最遥远的样子',
-      content: '揭秘宇宙的奥秘',
+      title: $r('app.string.title_5'),
+      content: $r('app.string.content_18'),
       stateIcon: $r('app.media.ic_state_fire'),
       clickCount: 389,
       upDownIcon: $r('app.media.ic_down')
@@ -392,8 +392,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 11,
       icon: $r('app.media.ic_rank_item_1'),
-      title: '建筑人文',
-      content: '欧洲建筑的历史责任在对欧洲...',
+      title: $r('app.string.title_6'),
+      content: $r('app.string.content_19'),
       stateIcon: $r('app.media.ic_state_favor'),
       clickCount: 365,
       upDownIcon: $r('app.media.ic_down')
@@ -401,8 +401,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 12,
       icon: $r('app.media.ic_rank_item_2'),
-      title: '世界十大神奇建筑',
-      content: '世界十大神奇建筑指的是建筑造型...',
+      title: $r('app.string.title_7'),
+      content: $r('app.string.content_20'),
       stateIcon: $r('app.media.ic_state_favor'),
       clickCount: 349,
       upDownIcon: $r('app.media.ic_down')
@@ -410,8 +410,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 13,
       icon: $r('app.media.ic_rank_item_3'),
-      title: '生命之谜语',
-      content: '小小世界的生存智慧是非常...',
+      title: $r('app.string.title_8'),
+      content: $r('app.string.content_21'),
       stateIcon: $r('app.media.ic_state_favor'),
       clickCount: 311,
       upDownIcon: $r('app.media.ic_up')
@@ -419,8 +419,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 14,
       icon: $r('app.media.ic_rank_item_4'),
-      title: '舞动者们',
-      content: '舞者们台下十年练习之路',
+      title: $r('app.string.title_4'),
+      content: $r('app.string.content_17'),
       stateIcon: $r('app.media.ic_state_new'),
       clickCount: 278,
       upDownIcon: $r('app.media.ic_down')
@@ -428,8 +428,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 15,
       icon: $r('app.media.ic_rank_item_5'),
-      title: '宇宙最遥远的样子',
-      content: '揭秘宇宙的奥秘',
+      title: $r('app.string.title_5'),
+      content: $r('app.string.content_18'),
       stateIcon: $r('app.media.ic_state_fire'),
       clickCount: 257,
       upDownIcon: $r('app.media.ic_up')
@@ -439,8 +439,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 1,
       icon: $r('app.media.ic_fun_rank_1'),
-      title: '吉他之声',
-      content: '吉他有许多不同的音色',
+      title: $r('app.string.title_15'),
+      content: $r('app.string.content_28'),
       stateIcon: $r('app.media.ic_state_fire'),
       clickCount: 666,
       upDownIcon: $r('app.media.ic_up')
@@ -448,8 +448,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 2,
       icon: $r('app.media.ic_fun_rank_2'),
-      title: '聆听美妙的声音',
-      content: '轻轻地拂过我的耳畔',
+      title: $r('app.string.title_16'),
+      content: $r('app.string.content_29'),
       stateIcon: $r('app.media.ic_state_new'),
       clickCount: 651,
       upDownIcon: $r('app.media.ic_up')
@@ -457,8 +457,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 3,
       icon: $r('app.media.ic_fun_rank_3'),
-      title: '安静的工作',
-      content: '静下来做事是难得的品质',
+      title: $r('app.string.title_17'),
+      content: $r('app.string.content_30'),
       stateIcon: $r('app.media.ic_state_favor'),
       clickCount: 576,
       upDownIcon: $r('app.media.ic_up')
@@ -466,8 +466,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 4,
       icon: $r('app.media.ic_rank_item_4'),
-      title: '舞动者们',
-      content: '舞者们台下十年练习之路',
+      title: $r('app.string.title_4'),
+      content: $r('app.string.content_17'),
       stateIcon: $r('app.media.ic_state_fire'),
       clickCount: 556,
       upDownIcon: $r('app.media.ic_down')
@@ -475,8 +475,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 5,
       icon: $r('app.media.ic_rank_item_5'),
-      title: '宇宙最遥远的样子',
-      content: '揭秘宇宙的奥秘',
+      title: $r('app.string.title_5'),
+      content: $r('app.string.content_18'),
       stateIcon: $r('app.media.ic_state_favor'),
       clickCount: 532,
       upDownIcon: $r('app.media.ic_up')
@@ -484,8 +484,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 6,
       icon: $r('app.media.ic_rank_item_1'),
-      title: '建筑人文',
-      content: '欧洲建筑的历史责任在对欧洲...',
+      title: $r('app.string.title_6'),
+      content: $r('app.string.content_19'),
       stateIcon: $r('app.media.ic_state_favor'),
       clickCount: 501,
       upDownIcon: $r('app.media.ic_down')
@@ -493,8 +493,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 7,
       icon: $r('app.media.ic_rank_item_2'),
-      title: '世界十大神奇建筑',
-      content: '世界十大神奇建筑指的是建筑造型...',
+      title: $r('app.string.title_7'),
+      content: $r('app.string.content_20'),
       stateIcon: $r('app.media.ic_state_favor'),
       clickCount: 489,
       upDownIcon: $r('app.media.ic_down')
@@ -502,8 +502,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 8,
       icon: $r('app.media.ic_rank_item_3'),
-      title: '生命之谜语',
-      content: '小小世界的生存智慧是非常...',
+      title: $r('app.string.title_8'),
+      content: $r('app.string.content_21'),
       stateIcon: $r('app.media.ic_state_favor'),
       clickCount: 473,
       upDownIcon: $r('app.media.ic_up')
@@ -511,8 +511,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 9,
       icon: $r('app.media.ic_rank_item_4'),
-      title: '舞动者们',
-      content: '舞者们台下十年练习之路',
+      title: $r('app.string.title_4'),
+      content: $r('app.string.content_17'),
       stateIcon: $r('app.media.ic_state_new'),
       clickCount: 421,
       upDownIcon: $r('app.media.ic_up')
@@ -520,8 +520,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 10,
       icon: $r('app.media.ic_rank_item_5'),
-      title: '宇宙最遥远的样子',
-      content: '揭秘宇宙的奥秘',
+      title: $r('app.string.title_5'),
+      content: $r('app.string.content_18'),
       stateIcon: $r('app.media.ic_state_fire'),
       clickCount: 389,
       upDownIcon: $r('app.media.ic_down')
@@ -529,8 +529,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 11,
       icon: $r('app.media.ic_rank_item_1'),
-      title: '建筑人文',
-      content: '欧洲建筑的历史责任在对欧洲...',
+      title: $r('app.string.title_6'),
+      content: $r('app.string.content_19'),
       stateIcon: $r('app.media.ic_state_favor'),
       clickCount: 365,
       upDownIcon: $r('app.media.ic_down')
@@ -538,8 +538,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 12,
       icon: $r('app.media.ic_rank_item_2'),
-      title: '世界十大神奇建筑',
-      content: '世界十大神奇建筑指的是建筑造型...',
+      title: $r('app.string.title_7'),
+      content: $r('app.string.content_20'),
       stateIcon: $r('app.media.ic_state_favor'),
       clickCount: 349,
       upDownIcon: $r('app.media.ic_down')
@@ -547,8 +547,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 13,
       icon: $r('app.media.ic_rank_item_3'),
-      title: '生命之谜语',
-      content: '小小世界的生存智慧是非常...',
+      title: $r('app.string.title_8'),
+      content: $r('app.string.content_21'),
       stateIcon: $r('app.media.ic_state_favor'),
       clickCount: 311,
       upDownIcon: $r('app.media.ic_up')
@@ -556,8 +556,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 14,
       icon: $r('app.media.ic_rank_item_4'),
-      title: '舞动者们',
-      content: '舞者们台下十年练习之路',
+      title: $r('app.string.title_4'),
+      content: $r('app.string.content_17'),
       stateIcon: $r('app.media.ic_state_new'),
       clickCount: 278,
       upDownIcon: $r('app.media.ic_down')
@@ -565,8 +565,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 15,
       icon: $r('app.media.ic_rank_item_5'),
-      title: '宇宙最遥远的样子',
-      content: '揭秘宇宙的奥秘',
+      title: $r('app.string.title_5'),
+      content: $r('app.string.content_18'),
       stateIcon: $r('app.media.ic_state_fire'),
       clickCount: 257,
       upDownIcon: $r('app.media.ic_up')
@@ -576,8 +576,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 1,
       icon: $r('app.media.ic_food_rank_1'),
-      title: '超市的果子',
-      content: '红彤彤的苹果像小灯笼',
+      title: $r('app.string.title_18'),
+      content: $r('app.string.content_31'),
       stateIcon: $r('app.media.ic_state_new'),
       clickCount: 666,
       upDownIcon: $r('app.media.ic_up')
@@ -585,8 +585,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 2,
       icon: $r('app.media.ic_food_rank_2'),
-      title: '蔬菜种植',
-      content: '带你去吃健康的蔬菜',
+      title: $r('app.string.title_19'),
+      content: $r('app.string.content_32'),
       stateIcon: $r('app.media.ic_state_fire'),
       clickCount: 651,
       upDownIcon: $r('app.media.ic_up')
@@ -594,8 +594,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 3,
       icon: $r('app.media.ic_food_rank_3'),
-      title: '儿时的味道',
-      content: '儿时香甜的味道',
+      title: $r('app.string.title_20'),
+      content: $r('app.string.content_33'),
       stateIcon: $r('app.media.ic_state_favor'),
       clickCount: 576,
       upDownIcon: $r('app.media.ic_up')
@@ -603,8 +603,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 4,
       icon: $r('app.media.ic_rank_item_4'),
-      title: '舞动者们',
-      content: '舞者们台下十年练习之路',
+      title: $r('app.string.title_4'),
+      content: $r('app.string.content_17'),
       stateIcon: $r('app.media.ic_state_fire'),
       clickCount: 556,
       upDownIcon: $r('app.media.ic_down')
@@ -612,8 +612,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 5,
       icon: $r('app.media.ic_rank_item_5'),
-      title: '宇宙最遥远的样子',
-      content: '揭秘宇宙的奥秘',
+      title: $r('app.string.title_5'),
+      content: $r('app.string.content_18'),
       stateIcon: $r('app.media.ic_state_favor'),
       clickCount: 532,
       upDownIcon: $r('app.media.ic_up')
@@ -621,8 +621,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 6,
       icon: $r('app.media.ic_rank_item_1'),
-      title: '建筑人文',
-      content: '欧洲建筑的历史责任在对欧洲...',
+      title: $r('app.string.title_6'),
+      content: $r('app.string.content_19'),
       stateIcon: $r('app.media.ic_state_favor'),
       clickCount: 501,
       upDownIcon: $r('app.media.ic_down')
@@ -630,8 +630,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 7,
       icon: $r('app.media.ic_rank_item_2'),
-      title: '世界十大神奇建筑',
-      content: '世界十大神奇建筑指的是建筑造型...',
+      title: $r('app.string.title_7'),
+      content: $r('app.string.content_20'),
       stateIcon: $r('app.media.ic_state_favor'),
       clickCount: 489,
       upDownIcon: $r('app.media.ic_down')
@@ -639,8 +639,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 8,
       icon: $r('app.media.ic_rank_item_3'),
-      title: '生命之谜语',
-      content: '小小世界的生存智慧是非常...',
+      title: $r('app.string.title_8'),
+      content: $r('app.string.content_21'),
       stateIcon: $r('app.media.ic_state_favor'),
       clickCount: 473,
       upDownIcon: $r('app.media.ic_up')
@@ -648,8 +648,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 9,
       icon: $r('app.media.ic_rank_item_4'),
-      title: '舞动者们',
-      content: '舞者们台下十年练习之路',
+      title: $r('app.string.title_4'),
+      content: $r('app.string.content_17'),
       stateIcon: $r('app.media.ic_state_new'),
       clickCount: 421,
       upDownIcon: $r('app.media.ic_up')
@@ -657,8 +657,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 10,
       icon: $r('app.media.ic_rank_item_5'),
-      title: '宇宙最遥远的样子',
-      content: '揭秘宇宙的奥秘',
+      title: $r('app.string.title_5'),
+      content: $r('app.string.content_18'),
       stateIcon: $r('app.media.ic_state_fire'),
       clickCount: 389,
       upDownIcon: $r('app.media.ic_down')
@@ -666,8 +666,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 11,
       icon: $r('app.media.ic_rank_item_1'),
-      title: '建筑人文',
-      content: '欧洲建筑的历史责任在对欧洲...',
+      title: $r('app.string.title_6'),
+      content: $r('app.string.content_19'),
       stateIcon: $r('app.media.ic_state_favor'),
       clickCount: 365,
       upDownIcon: $r('app.media.ic_down')
@@ -675,8 +675,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 12,
       icon: $r('app.media.ic_rank_item_2'),
-      title: '世界十大神奇建筑',
-      content: '世界十大神奇建筑指的是建筑造型...',
+      title: $r('app.string.title_7'),
+      content: $r('app.string.content_20'),
       stateIcon: $r('app.media.ic_state_favor'),
       clickCount: 349,
       upDownIcon: $r('app.media.ic_down')
@@ -684,8 +684,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 13,
       icon: $r('app.media.ic_rank_item_3'),
-      title: '生命之谜语',
-      content: '小小世界的生存智慧是非常...',
+      title: $r('app.string.title_8'),
+      content: $r('app.string.content_21'),
       stateIcon: $r('app.media.ic_state_favor'),
       clickCount: 311,
       upDownIcon: $r('app.media.ic_up')
@@ -693,8 +693,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 14,
       icon: $r('app.media.ic_rank_item_4'),
-      title: '舞动者们',
-      content: '舞者们台下十年练习之路',
+      title: $r('app.string.title_4'),
+      content: $r('app.string.content_17'),
       stateIcon: $r('app.media.ic_state_new'),
       clickCount: 278,
       upDownIcon: $r('app.media.ic_down')
@@ -702,8 +702,8 @@ export const HOST_LIST_ARRAY: Array<HotItemInterface[]> = [
     {
       index: 15,
       icon: $r('app.media.ic_rank_item_5'),
-      title: '宇宙最遥远的样子',
-      content: '揭秘宇宙的奥秘',
+      title: $r('app.string.title_5'),
+      content: $r('app.string.content_18'),
       stateIcon: $r('app.media.ic_state_fire'),
       clickCount: 257,
       upDownIcon: $r('app.media.ic_up')

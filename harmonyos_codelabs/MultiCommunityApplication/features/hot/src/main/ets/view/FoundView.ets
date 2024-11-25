@@ -38,7 +38,7 @@ export struct FoundView {
         space: new BreakpointType(Common.WINDOW_PADDING_SM, Common.WINDOW_PADDING_MD,
           Common.WINDOW_PADDING_LG).getValue(this.currentBreakpoint)
       }) {
-        ForEach(BaseCommon.RANK_TITLE_LIST, (item: string, index: number) => {
+        ForEach(BaseCommon.RANK_TITLE_LIST, (item: ResourceStr, index: number) => {
           ListItem() {
             Text(item)
               .fontSize($r('app.float.rank_name_fs'))
@@ -73,7 +73,7 @@ export struct FoundView {
         this.TitleBarBuilder()
 
         Tabs({ index: this.tabIndexSelected, barPosition: BarPosition.Start }) {
-          ForEach(BaseCommon.RANK_TITLE_LIST, (item: string) => {
+          ForEach(BaseCommon.RANK_TITLE_LIST, (item: ResourceStr) => {
             TabContent() {
               HotColumnView({
                 tab_index: this.tabIndexSelected

@@ -5,7 +5,7 @@ import { font, router } from '@kit.ArkUI';
 import { common } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
-const TAG = '[PDFKit_LOG_TAG]';
+const TAG = 'PDFPreview';
 
 @Entry
 @Component
@@ -21,7 +21,7 @@ struct PDFPreview {
     let t0 = Date.now();
     this.document.loadDocument(this.filePath, '');
     let t1 = Date.now();
-    hilog.info(0x0000, 'openFile-', "loadDocument time: " + (t1 - t0));
+    hilog.info(0x0000, TAG, "loadDocument time: " + (t1 - t0));
   }
 
   // Prompt box.
@@ -98,7 +98,7 @@ struct PDFPreview {
         Button ("Convert PDF to image.")
           .fontSize(12)
           .onClick(async () => {
-            let uri = 'file://docs/storage/Users/currentUser' + '/outputImg'; // Image storage path.
+            let uri = 'file://docs/storage/Users/currentUser' + '/outputImg'; // Image storage path. If the path is invalid, use the sandbox path.
             let fileUri: fileuri.FileUri = new fileuri.FileUri(uri);
             let path = fileUri.path;
             fs.mkdir(path);

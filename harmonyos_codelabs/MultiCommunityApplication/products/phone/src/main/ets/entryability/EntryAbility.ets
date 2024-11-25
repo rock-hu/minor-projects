@@ -41,9 +41,7 @@ export default class EntryAbility extends UIAbility {
       if (deviceInfo.deviceType !== BaseCommon.DEVICE_2IN1) {
         data.setWindowLayoutFullScreen(true);
       }
-      // 获取当前窗口尺寸对应断点
       this.updateBreakpoint(data.getWindowProperties().windowRect.width);
-      // 监听窗口尺寸变化，改变断点
       data.on('windowSizeChange', (windowSize: window.Size) => {
         this.updateBreakpoint(windowSize.width);
       })

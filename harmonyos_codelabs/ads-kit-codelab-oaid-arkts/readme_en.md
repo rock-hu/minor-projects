@@ -2,23 +2,16 @@
 ## Contents
 
 * [Overview](#Overview)
-* [Installation](#Installation)
 * [How to Use](#How-to-Use)
+* [Preview](#Preview)
+* [Project Directory](#Project-Directory)
 * [Sample Code](#Sample-Code)
+* [Required Permissions](#Required-Permissions)
 * [Constraints](#Constraints)
 
 
 ## Overview
 This demo shows how to obtain and reset Open Anonymous Device IDs (OAIDs) through APIs provided by Identifier Service.
-
-## Installation
-Install the demo on a phone running HarmonyOS.
-
-### Required Permissions
-
-To obtain the OAID, you need to request the activity tracking permission:
-**[ohos.permission.APP_TRACKING_CONSENT]**  
-For details, please visit the following website: <https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V5/permissions-for-all-V5#ohospermissionapp_tracking_consent>.
 
 ## Related Concepts
 * OAID
@@ -28,21 +21,38 @@ For details, please visit the following website: <https://developer.huawei.com/c
 ## How to Use
 
 1. Before running this demo, you need to:
-    * Configure app signing.
-
+    * [Configure app signing information.](https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V5/application-dev-guide-V5#section42841246144813)
 2. Access the app home screen. The OAID can be obtained by default during the first access to the app. If **Activity tracking for this app** is set to **Deny**, the obtained OAID will be an empty string that consists of all zeros.
+3. Tap **Get OAID via promise**. The OAID is displayed in the text box.
+4. Tap **Get OAID via async callback**. The OAID is displayed in the text box.
 
-3. Tap **Get OAID By Promise**. The OAID is displayed in the text box.
+## Preview
+| **Page for obtaining the OAID**                            |
+|------------------------------------------|
+| ![avatar](./screenshots/device_en/oaid_en.png) |
 
-4. Tap **Get OAID By Async Callback**. The OAID is displayed in the text box.
+## Project Directory
+```
+├─entry/src/main/ets       // Code area. 
+│ ├─entryability
+│ │ └─EntryAbility.ets     // Entry point class.
+│ ├─pages                  // Directory for storing app UI files.               
+│ │ └─Index.ets            // OAID ad page.
+└─entry/src/main/resources // Directory for storing resource files.
+```
 
 ## Sample Code
 ### Identifier Service
 The sample code includes the following file for you to obtain the OAID:
 
-1). Index.ets
+* Index.ets
 Demo UI of Identifier Service, which can be used to obtain the OAID.
 <br>Code location: **entry\src\main\ets\pages\Index.ets**<br>
+
+### Required Permissions
+
+* To obtain the OAID, you need to request the activity tracking permission [ohos.permission.APP_TRACKING_CONSENT](https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V5/permissions-for-all-V5#ohospermissionapp_tracking_consent).
+
 
 ## Constraints
 

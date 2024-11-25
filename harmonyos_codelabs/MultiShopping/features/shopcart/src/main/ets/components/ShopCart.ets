@@ -187,11 +187,11 @@ export struct ShopCart {
           .maxLines(StyleConstants.TWO_TEXT_LINE)
           .width(StyleConstants.FULL_WIDTH)
         Text(item.specifications.length === 2 ?
-            item.specifications[0].value + '，' + item.specifications[1].value:
+            getContext(this).resourceManager.getStringSync(item.specifications[0].value) + '，' + getContext(this).resourceManager.getStringSync(item.specifications[1].value):
             item.specifications.length === 3 ?
-            item.specifications[0].value + '，' + item.specifications[1].value + '，' + item.specifications[2].value :
+              getContext(this).resourceManager.getStringSync(item.specifications[0].value) + '，' + getContext(this).resourceManager.getStringSync(item.specifications[1].value) + '，' + getContext(this).resourceManager.getStringSync(item.specifications[2].value) :
             item.specifications.length === 4 ?
-            item.specifications[0].value + '，' + item.specifications[1].value + '，' + item.specifications[2].value + '，' + item.specifications[3].value : ''
+              getContext(this).resourceManager.getStringSync(item.specifications[0].value) + '，' + getContext(this).resourceManager.getStringSync(item.specifications[1].value) + '，' + getContext(this).resourceManager.getStringSync(item.specifications[2].value) + '，' + getContext(this).resourceManager.getStringSync(item.specifications[3].value) : ''
         )
           .fontSize($r('app.float.smaller_font_size'))
           .maxLines(1)

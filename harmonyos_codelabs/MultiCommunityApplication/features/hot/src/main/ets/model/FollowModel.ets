@@ -14,13 +14,13 @@
  */
 
 export interface FollowItemInterface {
-  name: string;
+  name: ResourceStr;
   icon: Resource;
-  date: string;
+  date: ResourceStr;
   picture: Resource;
-  type: string;
-  subType: string;
-  content: string;
+  type: ResourceStr;
+  subType: ResourceStr;
+  content: ResourceStr;
   shareCount: number;
   viewCount: number;
   favourCount: number;
@@ -28,121 +28,121 @@ export interface FollowItemInterface {
 
 export const FOLLOW_LIST: FollowItemInterface[] = [
   {
-    name: '摄影视觉',
+    name: $r("app.string.follow_list_name_1"),
     icon: $r('app.media.ic_follow_icon1'),
-    date: '2小时前·发布了动态',
+    date: $r('app.string.follow_list_date_1'),
     picture: $r('app.media.ic_follow_picture1'),
-    type: '登山',
-    subType: '旅游',
-    content: '在山顶，你会觉得山再巍峨，人也能把它征服，而此时的…',
+    type: $r('app.string.follow_list_type_1'),
+    subType: $r('app.string.follow_list_subtype_1'),
+    content: $r('app.string.follow_list_content_1'),
     shareCount: 1557,
     viewCount: 57,
     favourCount: 1557
   },
   {
-    name: '大自然的风采',
+    name: $r('app.string.follow_list_name_2'),
     icon: $r('app.media.ic_follow_icon2'),
-    date: '11小时前·发布了动态',
+    date: $r('app.string.follow_list_date_2'),
     picture: $r('app.media.ic_follow_picture2'),
-    type: '登山',
-    subType: '旅游',
-    content: '在山顶，你会觉得山再巍峨，人也能把它征服，而此时的…',
+    type: $r('app.string.follow_list_type_1'),
+    subType: $r('app.string.follow_list_subtype_1'),
+    content: $r('app.string.follow_list_content_1'),
     shareCount: 154,
     viewCount: 34,
     favourCount: 127
   },
   {
-    name: '山水',
+    name: $r('app.string.follow_list_name_3'),
     icon: $r('app.media.ic_follow_icon3'),
-    date: '3小时前·发布了动态',
+    date: $r('app.string.follow_list_date_3'),
     picture: $r('app.media.ic_follow_picture3'),
-    type: '登山',
-    subType: '旅游',
-    content: '在山顶，你会觉得山再巍峨，人也能把它征服，而此时的…',
+    type: $r('app.string.follow_list_type_1'),
+    subType: $r('app.string.follow_list_subtype_1'),
+    content: $r('app.string.follow_list_content_1'),
     shareCount: 134,
     viewCount: 35,
     favourCount: 357
   },
   {
-    name: '最科技评测',
+    name: $r('app.string.follow_list_name_4'),
     icon: $r('app.media.ic_follow_icon4'),
-    date: '刚刚',
+    date: $r('app.string.follow_list_date_4'),
     picture: $r('app.media.ic_follow_picture4'),
-    type: '登山',
-    subType: '旅游',
-    content: '在山顶，你会觉得山再巍峨，人也能把它征服，而此时的…',
+    type: $r('app.string.follow_list_type_1'),
+    subType: $r('app.string.follow_list_subtype_1'),
+    content: $r('app.string.follow_list_content_1'),
     shareCount: 154,
     viewCount: 54,
     favourCount: 145
   },
   {
-    name: '故宫画家',
+    name: $r('app.string.follow_list_name_5'),
     icon: $r('app.media.ic_follow_icon5'),
-    date: '2小时前·发布了动态',
+    date: $r('app.string.follow_list_date_1'),
     picture: $r('app.media.ic_follow_picture5'),
-    type: '登山',
-    subType: '旅游',
-    content: '在山顶，你会觉得山再巍峨，人也能把它征服，而此时的…',
+    type: $r('app.string.follow_list_type_1'),
+    subType: $r('app.string.follow_list_subtype_1'),
+    content: $r('app.string.follow_list_content_1'),
     shareCount: 1257,
     viewCount: 573,
     favourCount: 1357
   },
   {
-    name: '国学展览',
+    name: $r('app.string.follow_list_name_6'),
     icon: $r('app.media.ic_follow_icon6'),
-    date: '8小时前·发布了动态',
+    date: $r('app.string.follow_list_date_6'),
     picture: $r('app.media.ic_follow_picture6'),
-    type: '登山',
-    subType: '旅游',
-    content: '在山顶，你会觉得山再巍峨，人也能把它征服，而此时的…',
+    type: $r('app.string.follow_list_type_1'),
+    subType: $r('app.string.follow_list_subtype_1'),
+    content: $r('app.string.follow_list_content_1'),
     shareCount: 187,
     viewCount: 56,
     favourCount: 127
   },
   {
-    name: '自然社区',
+    name: $r('app.string.follow_list_name_7'),
     icon: $r('app.media.ic_follow_icon1'),
-    date: '刚刚',
+    date: $r('app.string.follow_list_date_4'),
     picture: $r('app.media.ic_follow_picture7'),
-    type: '登山',
-    subType: '旅游',
-    content: '在山顶，你会觉得山再巍峨，人也能把它征服，而此时的…',
+    type: $r('app.string.follow_list_type_1'),
+    subType: $r('app.string.follow_list_subtype_1'),
+    content: $r('app.string.follow_list_content_1'),
     shareCount: 757,
     viewCount: 17,
     favourCount: 156
   },
   {
-    name: '摄影视效',
+    name: $r('app.string.follow_list_name_8'),
     icon: $r('app.media.ic_follow_icon2'),
-    date: '13小时前·发布了动态',
+    date: $r('app.string.follow_list_date_8'),
     picture: $r('app.media.ic_follow_picture8'),
-    type: '登山',
-    subType: '旅游',
-    content: '在山顶，你会觉得山再巍峨，人也能把它征服，而此时的…',
+    type: $r('app.string.follow_list_type_1'),
+    subType: $r('app.string.follow_list_subtype_1'),
+    content: $r('app.string.follow_list_content_1'),
     shareCount: 345,
     viewCount: 56,
     favourCount: 1366
   },
   {
-    name: '国学探究',
+    name: $r('app.string.follow_list_name_9'),
     icon: $r('app.media.ic_follow_icon3'),
-    date: '2小时前·发布了动态',
+    date: $r('app.string.follow_list_date_1'),
     picture: $r('app.media.ic_follow_picture9'),
-    type: '登山',
-    subType: '旅游',
-    content: '在山顶，你会觉得山再巍峨，人也能把它征服，而此时的…',
+    type: $r('app.string.follow_list_type_1'),
+    subType: $r('app.string.follow_list_subtype_1'),
+    content: $r('app.string.follow_list_content_1'),
     shareCount: 1557,
     viewCount: 57,
     favourCount: 1557
   },
   {
-    name: '摄影视觉',
+    name: $r('app.string.follow_list_name_1'),
     icon: $r('app.media.ic_follow_icon1'),
-    date: '2小时前·发布了动态',
+    date: $r('app.string.follow_list_date_1'),
     picture: $r('app.media.ic_follow_picture1'),
-    type: '登山',
-    subType: '旅游',
-    content: '在山顶，你会觉得山再巍峨，人也能把它征服，而此时的…',
+    type: $r('app.string.follow_list_type_1'),
+    subType: $r('app.string.follow_list_subtype_1'),
+    content: $r('app.string.follow_list_content_1'),
     shareCount: 1557,
     viewCount: 57,
     favourCount: 1557
@@ -150,57 +150,58 @@ export const FOLLOW_LIST: FollowItemInterface[] = [
 ];
 
 export interface TitleDetailInterface {
-  name: string;
+  name: ResourceStr;
   icon?: Resource;
-  content?: string;
+  content?: ResourceStr;
 }
+
 export const TITLE_DETAIL_LIST: TitleDetailInterface[] = [
   {
-    name: '全部关注'
+    name: $r('app.string.follow_detail_name_1')
   },
   {
-    name: '摄影视觉',
+    name: $r('app.string.follow_list_name_1'),
     icon: $r('app.media.ic_follow_icon1'),
-    content: '摄影/10粉丝'
+    content: $r('app.string.follow_detail_content_1')
   },
   {
-    name: '大自然的风采',
+    name: $r('app.string.follow_detail_name_2'),
     icon: $r('app.media.ic_follow_icon2'),
-    content: '摄影/5万粉丝'
+    content: $r('app.string.follow_detail_content_2')
   },
   {
-    name: '山水',
+    name: $r('app.string.follow_list_name_3'),
     icon: $r('app.media.ic_follow_icon3'),
-    content: '20万粉丝'
+    content: $r('app.string.follow_detail_content_3')
   },
   {
-    name: '科技评测',
+    name: $r('app.string.follow_detail_name_3'),
     icon: $r('app.media.ic_follow_icon4'),
-    content: '快速评测'
+    content: $r('app.string.follow_detail_content_4')
   },
   {
-    name: '风景画家',
+    name: $r('app.string.follow_detail_name_4'),
     icon: $r('app.media.ic_follow_icon5'),
-    content: '爱山爱水'
+    content: $r('app.string.follow_detail_content_5')
   },
   {
-    name: '国学展览',
+    name: $r('app.string.follow_list_name_6'),
     icon: $r('app.media.ic_follow_icon6'),
-    content: '国学认证'
+    content: $r('app.string.follow_detail_content_6')
   },
   {
-    name: '自然社区',
+    name: $r('app.string.follow_detail_name_5'),
     icon: $r('app.media.ic_follow_icon1'),
-    content: '3万粉丝'
+    content: $r('app.string.follow_detail_content_7')
   },
   {
-    name: '摄影视效',
+    name: $r('app.string.follow_list_name_8'),
     icon: $r('app.media.ic_follow_icon2'),
-    content: '2小时前发布了...'
+    content: $r('app.string.follow_detail_content_8')
   },
   {
-    name: '国学探究',
+    name: $r('app.string.follow_detail_name_6'),
     icon: $r('app.media.ic_follow_icon3'),
-    content: '摄影/10粉丝'
+    content: $r('app.string.follow_detail_content_1')
   }
 ];

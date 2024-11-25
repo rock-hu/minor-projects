@@ -30,7 +30,7 @@
     },
     {
       "name": "send_hint",
-      "value": "Please select your shipping address"
+      "value": "Please select your address"
     },
     {
       "name": "service",
@@ -54,7 +54,7 @@
     },
     {
       "name": "insert_cart_success",
-      "value": "Adding to the shopping cart succeeded"
+      "value": "Add to cart"
     },
     {
       "name": "commodity_desc",
@@ -62,11 +62,67 @@
     },
     {
       "name": "insert_cart",
-      "value": "Adding to the shopping cart succeeded"
+      "value": "Add to cart"
     },
     {
       "name": "buy_now",
       "value": "Buy Now"
+    },
+    {
+      "name": "user_evaluate_title",
+      "value": "User comments (2000+)"
+    },
+    {
+      "name": "user_evaluate_content1",
+      "value": "Matched the description, loved it, well made, nice color, original genuine."
+    },
+    {
+      "name": "user_evaluate_content2",
+      "value": "Matched the description, loved it, well made, nice color, original genuine."
+    },
+    {
+      "name": "user_evaluate_content3",
+      "value": "Matched the description, loved it, well made, nice color, original genuine."
+    },
+    {
+      "name": "user_evaluate_content4",
+      "value": "Matched the description, loved it, well made, nice color, original genuine."
+    },
+    {
+      "name": "user_evaluate_content5",
+      "value": "Matched the description, loved it, well made, nice color, original genuine."
+    },
+    {
+      "name": "user_evaluate_content6",
+      "value": "Matched the description, loved it, well made, nice color, original genuine."
+    },
+    {
+      "name": "service_content_1",
+      "value": "Free Shipping (Subject to order submission)"
+    },
+    {
+      "name": "service_content_2",
+      "value": "Store Delivery&Post-Sales"
+    },
+    {
+      "name": "service_content_3",
+      "value": "Seven-day no-fault returns"
+    },
+    {
+      "name": "case_color",
+      "value": "Color"
+    },
+    {
+      "name": "case_version",
+      "value": "Version"
+    },
+    {
+      "name": "case_network_standard",
+      "value": "Network Standard"
+    },
+    {
+      "name": "case_type",
+      "value": "Type"
     }
   ]
 }

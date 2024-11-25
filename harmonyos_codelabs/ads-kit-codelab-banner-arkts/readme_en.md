@@ -2,31 +2,48 @@
 ## Contents
 
 * [Overview](#Overview)
-* [Installation](#Installation)
 * [How to Use](#How-to-Use)
+* [Preview](#Preview)
+* [Project Directory](#Project-Directory)
 * [Sample Code](#Sample-Code)
+* [Required Permissions](#Required-Permissions)
 * [Constraints](#Constraints)
 
 
 ## Overview
 The sample code of Ads Kit for HarmonyOS ArkTS describes how to use APIs of Ads Kit in your app to display ads.
 
-## Installation
-Install the demo on a phone running HarmonyOS.
-
 ## How to Use
 
-1. Before running this demo, you need to:
-    * Configure app signing.
+Before running this demo, you need to: [Configure app signing information.](https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V5/application-dev-guide-V5#section42841246144813)
+
+## Preview
+| **Banner ad page**                            |
+|--------------------------------------------|
+| ![avatar](./screenshots/device_en/banner_en.jpg) |
+
+## Project Directory
+```
+├─entry/src/main/ets               // Code area. 
+│ ├─entryability
+│ │ └─EntryAbility.ets             // Entry point class.
+│ ├─pages                          // Directory for storing app UI files.               
+│ │ └─Index.ets                    // Banner ad page.
+└─entry/src/main/resources         // Directory for storing resource files.
+```
 
 ## Sample Code
 ### Petal Ads Publisher Service
 The sample code is used to implement a UI to display banner ads.
 The sample code includes the following file for you to request and display ads:
 
-1). Index.ets
+* Index.ets
 Demo UI of Petal Ads Publisher Service, where you can tap the button to request and display banner ads.
 <br>Code location: **entry\src\main\ets\pages\Index.ets**<br>
+
+## Required Permissions
+
+* To obtain the OAID, you need to request the activity tracking permission [ohos.permission.APP_TRACKING_CONSENT](https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V5/permissions-for-all-V5#ohospermissionapp_tracking_consent).
 
 ## Constraints
 

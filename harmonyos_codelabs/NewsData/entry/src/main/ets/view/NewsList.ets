@@ -34,7 +34,7 @@ import NewsModel from '../viewmodel/NewsModel';
 @Component
 export default struct NewsList {
   @State newsModel: NewsModel = new NewsModel();
-  @Watch('changeCategory') @Link currentIndex: number;
+  @Link currentIndex: number;
 
   changeCategory() {
     this.newsModel.currentPage = 1;

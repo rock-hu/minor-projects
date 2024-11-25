@@ -14,23 +14,23 @@
  */
 
 export class KV {
-  key: string = '';
-  value: string = '';
-  image?: string = ''
+  key?: Resource;
+  value?: Resource;
+  image: string = ''
 }
 
 export class Specification {
-  id: string = '';
-  title: string = '';
+  id?: Resource;
+  title?: Resource;
   data: KV[] = [];
 }
 
 export class Commodity {
   category_id?: string = '';
   id: string = '';
-  title: string = '';
-  promotion?: string = '';
-  description: string = '';
+  title?: Resource;
+  promotion?: Resource;
+  description?: Resource;
   images: string[] = [];
   detail?: string[] = [];
   price: number = 0;

@@ -23,6 +23,78 @@
     {
       "name": "swiper_product_furnishing",
       "value": "家居"
+    },
+    {
+      "name": "product1_comment",
+      "value": "#带你快速体验新款"
+    },
+    {
+      "name": "product1_des",
+      "value": "重磅推荐，MD热水器新品试用中！"
+    },
+    {
+      "name": "product1_user",
+      "value": "来自SER111"
+    },
+    {
+      "name": "product2_comment",
+      "value": "#带你快速体验新款"
+    },
+    {
+      "name": "product2_des",
+      "value": "重磅推荐，MD咖啡新品试用中！"
+    },
+    {
+      "name": "product2_user",
+      "value": "来自SER222"
+    },
+    {
+      "name": "product3_comment",
+      "value": "#带你快速体验新空气"
+    },
+    {
+      "name": "product3_des",
+      "value": "重磅推荐，MD热水器新品试用中！"
+    },
+    {
+      "name": "product3_user",
+      "value": "来自SER333"
+    },
+    {
+      "name": "product4_comment",
+      "value": "#带你快速体验新空气"
+    },
+    {
+      "name": "product4_des",
+      "value": "重磅推荐，MD空气净化器新品试用中！"
+    },
+    {
+      "name": "product4_user",
+      "value": "来自SER444"
+    },
+    {
+      "name": "product5_comment",
+      "value": "#带你快速体验新款"
+    },
+    {
+      "name": "product5_des",
+      "value": "重磅推荐，MD咖啡新品试用中！"
+    },
+    {
+      "name": "product5_user",
+      "value": "来自SER555"
+    },
+    {
+      "name": "product6_comment",
+      "value": "#带你快速体验新空气"
+    },
+    {
+      "name": "product6_des",
+      "value": "重磅推荐，MD空气净化器新品试用中！"
+    },
+    {
+      "name": "product6_user",
+      "value": "来自SER666"
     }
   ]
 }

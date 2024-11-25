@@ -17,14 +17,14 @@ export class AddressInfoParams {
   id?: string;
   updateTime?: string;
   isDefault?: number;
-  province?: string;
+  province?: Resource;
   createTime?: string;
   phone?: string;
-  city?: string;
+  city?: Resource;
   postCode?: string;
-  name?: string;
-  detailAddress?: string;
-  region?: string;
+  name?: Resource;
+  detailAddress?: Resource;
+  region?: Resource;
   addressId?: string;
   post_code?: string;
 }
@@ -34,34 +34,34 @@ const addressInfo: AddressInfoParams[] = [
     id: '1',
     updateTime: '2022-10-22T10:10:10.222Z',
     isDefault: 1,
-    province: '江苏省',
+    province: $r('app.string.address1_province'),
     createTime: '2022-10-22T10:10:10.222Z',
     phone: '131****2168',
-    city: '南京市',
+    city: $r('app.string.address1_city'),
     postCode: '246100',
-    name: '李先生',
-    detailAddress: '中国南京软件谷 XX路18号XX云楼N13食堂B1楼小厨娘',
-    region: '玄武区',
+    name: $r('app.string.address1_name'),
+    detailAddress: $r('app.string.address1_detail_address'),
+    region: $r('app.string.address1_region'),
     addressId: '1'
   },
   {
     id: '1',
     updateTime: '2022-10-22T10:10:10.222Z',
     isDefault: 0,
-    province: '江苏省',
+    province: $r('app.string.address2_province'),
     createTime: '2022-10-22T10:10:10.222Z',
     phone: '182****0193',
-    city: '南京市',
+    city: $r('app.string.address2_city'),
     post_code: '241200',
-    name: '王先生',
-    detailAddress: '东山街道 中国南京软件谷 XX云楼N15',
-    region: '江宁区',
+    name: $r('app.string.address2_name'),
+    detailAddress: $r('app.string.address2_detail_address'),
+    region: $r('app.string.address2_region'),
     addressId: '3'
   }
 ];
 
-const payEnum = ['应付款','实付款','实付款'];
+const payEnum = [$r('app.string.accounts_payable'),$r('app.string.order_money'),$r('app.string.order_money')];
 
-const statusEnum = ['待支付','卖家已发货','已完成'];
+const statusEnum = [$r('app.string.wait_pay'),$r('app.string.seller_shipped'),$r('app.string.completed')];
 
 export { addressInfo, payEnum, statusEnum }

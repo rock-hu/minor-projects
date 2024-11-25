@@ -123,7 +123,7 @@ export struct PayOrder {
               }
             })
             promptAction.showToast({
-              message: $r('app.string.info_success', OrderDetailConstants.PAYMENT_ENUM[OrderOperationStatus.UN_PAY])
+              message: $r('app.string.info_success', getContext(this).resourceManager.getStringSync(OrderDetailConstants.PAYMENT_ENUM[OrderOperationStatus.UN_PAY]))
             });
             router.back();
           })
@@ -140,7 +140,7 @@ export struct PayOrder {
               }
               this.localDataManager.updateOrder(UpdateOrderParameter);
               promptAction.showToast({
-                message: $r('app.string.info_success', OrderDetailConstants.PAYMENT_ENUM[OrderOperationStatus.DELIVERED])
+                message: $r('app.string.info_success', getContext(this).resourceManager.getStringSync(OrderDetailConstants.PAYMENT_ENUM[OrderOperationStatus.DELIVERED]))
               });
               router.back();
             }

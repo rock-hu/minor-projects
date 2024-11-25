@@ -163,9 +163,4 @@ export class CommonConstants {
    * Follow title space.
    */
   static readonly FOLLOW_TITLE_SPACE: string = '24vp';
-
-  /**
-   * Follow title content.
-   */
-  static readonly FOLLOW_TITLE_CONTENT: string = '的动态';
 }

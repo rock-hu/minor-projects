@@ -6,7 +6,7 @@
     },
     {
       "name": "bottom_bar_button",
-      "value": "Submitting Order"
+      "value": "Submit"
     },
     {
       "name": "order_list_reward",
@@ -30,15 +30,15 @@
     },
     {
       "name": "order_commit_success",
-      "value": "Submitted successfully"
+      "value": "Submitted Success"
     },
     {
       "name": "order_commit_fail",
-      "value": "Submission failed %d"
+      "value": "Submission Failed %d"
     },
     {
       "name": "order_money",
-      "value": "Actual payment"
+      "value": "Actual Payment"
     },
     {
       "name": "product_price",
@@ -82,19 +82,19 @@
     },
     {
       "name": "pending_payment",
-      "value": "Pending payment"
+      "value": "Pending"
     },
     {
       "name": "waiting_shipment",
-      "value": "To be Shipment"
+      "value": "Shipped"
     },
     {
       "name": "to_be_received",
-      "value": "To be Received"
+      "value": "Received"
     },
     {
       "name": "to_be_evaluated",
-      "value": "To be Evaluated"
+      "value": "Evaluated"
     },
     {
       "name": "my_order",
@@ -111,6 +111,90 @@
     {
       "name": "wait_pay",
       "value": "To be paid"
+    },
+    {
+      "name": "success",
+      "value": " Success"
+    },
+    {
+      "name": "ordered_pay",
+      "value": "Pay"
+    },
+    {
+      "name": "order_confirm",
+      "value": "Confirm"
+    },
+    {
+      "name": "to_be_paid",
+      "value": "To be paid"
+    },
+    {
+      "name": "seller_shipped",
+      "value": "Seller shipped"
+    },
+    {
+      "name": "completed",
+      "value": "Completed"
+    },
+    {
+      "name": "order_submitted",
+      "value": "You have submitted an order, please wait for system confirmation."
+    },
+    {
+      "name": "order_shipped",
+      "value": "Your order has been shipped, please be patient."
+    },
+    {
+      "name": "order_completed",
+      "value": "Your order has been completed, thank you for your support~"
+    },
+    {
+      "name": "receipt_confirmation",
+      "value": "Receipt confirmation"
+    },
+    {
+      "name": "address1_province",
+      "value": "Jiangsu Province"
+    },
+    {
+      "name": "address1_city",
+      "value": "Nanjing City"
+    },
+    {
+      "name": "address1_name",
+      "value": "Mr. Li"
+    },
+    {
+      "name": "address1_detail_address",
+      "value": "XiaoChuNiang, B1 Floor, N13 Canteen, XX Cloud Building, No.118 XX Road, Software Valley, Nanjing, China"
+    },
+    {
+      "name": "address1_region",
+      "value": "Xuanwu District"
+    },
+    {
+      "name": "address2_province",
+      "value": "Jiangsu Province"
+    },
+    {
+      "name": "address2_city",
+      "value": "Nanjing City"
+    },
+    {
+      "name": "address2_name",
+      "value": "Mr. Wang"
+    },
+    {
+      "name": "address2_detail_address",
+      "value": "Dongshan Street N15, XX Cloud Building, Software Valley, Nanjing, China"
+    },
+    {
+      "name": "address2_region",
+      "value": "Jiangning District"
+    },
+    {
+      "name": "accounts_payable",
+      "value": "Accounts payable"
     }
   ]
 }

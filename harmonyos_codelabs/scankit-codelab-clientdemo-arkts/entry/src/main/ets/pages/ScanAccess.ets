@@ -1,4 +1,4 @@
-// ScanAccess.est
+// ScanAccess.ets
 @Entry
 @Component
 struct ScanAccess {

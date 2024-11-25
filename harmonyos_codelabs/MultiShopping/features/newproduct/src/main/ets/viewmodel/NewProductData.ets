@@ -43,47 +43,47 @@ const classifyTitle: Resource[] = [
 
 class ProductDataModel {
   img: string = '';
-  comment: string = '';
-  des: string = '';
-  user: string = '';
+  comment?: Resource;
+  des?: Resource;
+  user?: Resource;
 }
 
 const productData: ProductDataModel[] = [
   {
     img: 'common/ic_product01.png',
-    comment: '#带你快速体验新款',
-    des: '重磅推荐，MD热水器新品试用中！',
-    user: '来自SER111'
+    comment: $r('app.string.product1_comment'),
+    des: $r('app.string.product1_des'),
+    user: $r('app.string.product1_user')
   },
   {
     img: 'common/ic_product02.png',
-    comment: '#带你快速体验新款',
-    des: '重磅推荐，MD咖啡新品试用中！',
-    user: '来自SER222'
+    comment: $r('app.string.product2_comment'),
+    des: $r('app.string.product2_des'),
+    user: $r('app.string.product2_user')
   },
   {
     img: 'common/ic_product03.png',
-    comment: '#带你快速体验新空气',
-    des: '重磅推荐，MD热水器新品试用中！',
-    user: '来自SER333'
+    comment: $r('app.string.product3_comment'),
+    des: $r('app.string.product3_des'),
+    user: $r('app.string.product3_user')
   },
   {
     img: 'common/ic_product04.png',
-    comment: '#带你快速体验新空气',
-    des: '重磅推荐，MD空气净化器新品试用中！',
-    user: '来自SER444'
+    comment: $r('app.string.product4_comment'),
+    des: $r('app.string.product4_des'),
+    user: $r('app.string.product4_user')
   },
   {
     img: 'common/ic_product02.png',
-    comment: '#带你快速体验新款',
-    des: '重磅推荐，MD咖啡新品试用中！',
-    user: '来自SER555'
+    comment: $r('app.string.product5_comment'),
+    des: $r('app.string.product5_des'),
+    user: $r('app.string.product5_user')
   },
   {
     img: 'common/ic_product04.png',
-    comment: '#带你快速体验新空气',
-    des: '重磅推荐，MD空气净化器新品试用中！',
-    user: '来自SER666'
+    comment: $r('app.string.product6_comment'),
+    des: $r('app.string.product6_des'),
+    user: $r('app.string.product6_user')
   }
 ]
 

@@ -26,10 +26,10 @@ export enum FinishType {
   CANCEL
 }
 export class ColorChange {
-  颜色: string = '';
-  版本: string = '';
-  网络制式: string = '';
-  类型: string = '';
+  Color: string = '';
+  Version: string = '';
+  Network: string = '';
+  Type: string = '';
 }
 
 export class OrderCount {

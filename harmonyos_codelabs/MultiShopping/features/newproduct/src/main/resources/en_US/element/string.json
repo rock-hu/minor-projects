@@ -2,11 +2,11 @@
   "string": [
     {
       "name": "title_bar_classification",
-      "value": "Classifieds"
+      "value": "Class"
     },
     {
       "name": "swiper_product_boutique",
-      "value": "FineProducts"
+      "value": "Boutique"
     },
     {
       "name": "swiper_product_phone",
@@ -18,11 +18,83 @@
     },
     {
       "name": "swiper_product_match",
-      "value": "Wear tie"
+      "value": "Outfits"
     },
     {
       "name": "swiper_product_furnishing",
       "value": "Homes"
+    },
+    {
+      "name": "product1_comment",
+      "value": "#Experience of the new"
+    },
+    {
+      "name": "product1_des",
+      "value": "MD water heater new product trail!"
+    },
+    {
+      "name": "product1_user",
+      "value": "From SER111"
+    },
+    {
+      "name": "product2_comment",
+      "value": "#Experience of the new"
+    },
+    {
+      "name": "product2_des",
+      "value": "MD coffee new product trail!"
+    },
+    {
+      "name": "product2_user",
+      "value": "From SER222"
+    },
+    {
+      "name": "product3_comment",
+      "value": "#Experience of new air"
+    },
+    {
+      "name": "product3_des",
+      "value": "MD water heater new product trail!"
+    },
+    {
+      "name": "product3_user",
+      "value": "From SER333"
+    },
+    {
+      "name": "product4_comment",
+      "value": "#Experience of new air"
+    },
+    {
+      "name": "product4_des",
+      "value": "MD air purifier new product trail!"
+    },
+    {
+      "name": "product4_user",
+      "value": "From SER444"
+    },
+    {
+      "name": "product5_comment",
+      "value": "#Experience of the new"
+    },
+    {
+      "name": "product5_des",
+      "value": "MD coffee new product trail!"
+    },
+    {
+      "name": "product5_user",
+      "value": "From SER555"
+    },
+    {
+      "name": "product6_comment",
+      "value": "#Experience of new air"
+    },
+    {
+      "name": "product6_des",
+      "value": "MD air purifier new product trail!"
+    },
+    {
+      "name": "product6_user",
+      "value": "From SER666"
     }
   ]
 }

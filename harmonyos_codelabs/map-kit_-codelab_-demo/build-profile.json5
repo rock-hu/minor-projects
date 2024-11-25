@@ -1,5 +1,19 @@
 {
   "app": {
+    "signingConfigs": [
+      {
+        "name": "default",
+        "material": {
+          "certpath": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.cer",
+          "storePassword": "0000*******************************************************************",
+          "keyAlias": "debugKey",
+          "keyPassword": "0000*******************************************************************",
+          "profile": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.p7b",
+          "signAlg": "SHA256withECDSA",
+          "storeFile": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.p12"
+        }
+      }
+    ],
     "products": [
       {
         "name": "default",

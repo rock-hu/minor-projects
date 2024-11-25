@@ -7,7 +7,7 @@ const TAG = 'ScanKit scanBarcode';
 let typeStr: Array<string> =
   ['FORMAT_UNKNOWN', 'AZTEC_CODE', 'CODABAR_CODE', 'CODE39_CODE', 'CODE93_CODE', 'CODE128_CODE', 'DATAMATRIX_CODE',
     'EAN8_CODE', 'EAN13_CODE',
-    'ITF14_CODE', 'PDF417_CODE', 'QR_CODE', 'UPC_A_CODE', 'UPC_E_CODE', ''];
+    'ITF14_CODE', 'PDF417_CODE', 'QR_CODE', 'UPC_A_CODE', 'UPC_E_CODE', 'MULTIFUNCTIONAL_CODE'];
 
 @Entry
 @Component

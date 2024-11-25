@@ -40,7 +40,7 @@ struct requestContent {
 
       Divider().color('gray').strokeWidth(1)
       Column({ space: 20 }) {
-        Button('订阅')
+        Button('Subscribe')
           .width('100%')
           .height(40)
           .margin({ top: '11%' })
@@ -50,7 +50,7 @@ struct requestContent {
           .borderRadius(20)
           .onClick(this.getNetworkHandoverOn)
 
-        Button('去订阅')
+        Button('Unsubscribe')
           .width('100%')
           .height(40)
           .margin({ top: '11%' })
@@ -60,7 +60,7 @@ struct requestContent {
           .borderRadius(20)
           .onClick(this.getNetworkHandoverOff)
 
-        Text('结果')
+        Text('Result')
           .width('100%')
           .height(40)
           .margin({ top: '11%' })

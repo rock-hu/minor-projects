@@ -1,21 +1,19 @@
 // ResultPage.ets Display the recognition result and the position for drawing the barcode.
 import { hilog } from '@kit.PerformanceAnalysisKit';
-import { scanBarcode } from '@kit.ScanKit';
+import { scanBarcode, scanCore } from '@kit.ScanKit';
 import { display, router } from '@kit.ArkUI';
+import { MockSetup } from '@ohos/hamock';
 
 const TAG: string = 'ScanKit scanResult';
 let typeStr: Array<string> =
   ['FORMAT_UNKNOWN', 'AZTEC_CODE', 'CODABAR_CODE', 'CODE39_CODE', 'CODE93_CODE', 'CODE128_CODE', 'DATAMATRIX_CODE',
     'EAN8_CODE', 'EAN13_CODE',
-    'ITF14_CODE', 'PDF417_CODE', 'QR_CODE', 'UPC_A_CODE', 'UPC_E_CODE', ''];
+    'ITF14_CODE', 'PDF417_CODE', 'QR_CODE', 'UPC_A_CODE', 'UPC_E_CODE', 'MULTIFUNCTIONAL_CODE'];
 
 @Entry
 @Component
 struct ScanResultPage {
-  private result: Array<scanBarcode.ScanResult> = [];
-  private uri: string = ''
-  private infoW: number = 0
-  private infoH: number = 0
+  @State params: object = router.getParams()
   @State cameraHeight: number = 1412
   @State cameraWidth: number = 720
   @State layTop: number = 226
@@ -27,18 +25,39 @@ struct ScanResultPage {
   @State rh: number = 0
   public scroller: Scroller = new Scroller()
   private statusHeight: number = 39
+  private result: Array<scanBarcode.ScanResult> = [];
+  private uri: string = ''
+  private infoW: number = 0
+  private infoH: number = 0
+
+  @MockSetup
+  mock() {
+    this.params = [];
+    let mockScanResult: scanBarcode.ScanResult = {
+      scanType: scanCore.ScanType.QR_CODE,
+      originalValue: 'mock',
+      scanCodeRect: {
+        left: 200,
+        right: 300,
+        top: 200,
+        bottom: 300
+      }
+    }
+    this.params['result'] = [mockScanResult];
+    this.result = [mockScanResult];
+  }
 
   aboutToAppear() {
     let isFold: boolean = display.isFoldable();
     this.setDisplay();
     hilog.info(0x0001, TAG, 'aboutToAppear ResultPage');
-    let params = router.getParams() as Record<string, number | string | Array<scanBarcode.ScanResult>>;
+    let getParams = this.params as Record<string, number | string | Array<scanBarcode.ScanResult>>;
     // Return the barcode recognition result.
-    this.result = params.result as Array<scanBarcode.ScanResult>;
-    this.uri = params.uri as string;
-    this.infoW = params.infoW as number;
-    this.infoH = params.infoH as number;
-    hilog.info(0x0001, TAG, `Succeeded in getting params: ${JSON.stringify(params)}`);
+    this.result = getParams.result as Array<scanBarcode.ScanResult>;
+    this.uri = getParams.uri as string;
+    this.infoW = getParams.infoW as number;
+    this.infoH = getParams.infoH as number;
+    hilog.info(0x0001, TAG, `Succeeded in getting params: ${JSON.stringify(getParams)}`);
     hilog.info(0x0001, TAG, `Succeeded in getting result: ${JSON.stringify(this.result)}`);
     hilog.info(0x0001, TAG,
       `Succeeded in getting uri: ${this.uri}, this.infoW: ${this.infoW}, this.infoH: ${this.infoH}`);
@@ -123,9 +142,11 @@ struct ScanResultPage {
   build() {
     Stack() {
       // Display the barcode image.
-      Image(this.uri)
-        .objectFit(ImageFit.Contain)
-        .width('100%').height('100%')
+      if (this.uri) {
+        Image(this.uri)
+          .objectFit(ImageFit.Contain)
+          .width('100%').height('100%')
+      }
       // Check the return data and display position of the QR code.
       ForEach(this.result, (item: scanBarcode.ScanResult, index: number) => {
         Column() {
@@ -160,7 +181,7 @@ struct ScanResultPage {
           Column() {
             Text($r('app.string.title_result'))
               .fontSize(18)
-              .fontColor('#000000')
+              .fontColor($r('sys.color.black'))
               .margin({ top: 20 })
             ForEach(this.result, (item: scanBarcode.ScanResult) => {
               if (item['scanCodeRect']) {

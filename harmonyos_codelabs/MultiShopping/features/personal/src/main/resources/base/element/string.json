@@ -38,7 +38,7 @@
     },
     {
       "name": "live_watch",
-      "value": "The live broadcast I used to watch"
+      "value": "The live watched a lot"
     },
     {
       "name": "live_more",
@@ -46,19 +46,19 @@
     },
     {
       "name": "pending_payment",
-      "value": "Pending payment"
+      "value": "Pending"
     },
     {
       "name": "pending_shipment",
-      "value": "To be shipped"
+      "value": "Shipped"
     },
     {
       "name": "pending_receive",
-      "value": "To be received"
+      "value": "Received"
     },
     {
       "name": "pending_evaluated",
-      "value": "To be evaluated"
+      "value": "Evaluated"
     },
     {
       "name": "pending_after_sales",
@@ -94,11 +94,107 @@
     },
     {
       "name": "living",
-      "value": "Live Broadcast"
+      "value": "Live"
     },
     {
       "name": "not_living",
       "value": "Not On"
+    },
+    {
+      "name": "live_data1_watch_desc",
+      "value": "29,000 watched"
+    },
+    {
+      "name": "live_data1_liver_name",
+      "value": "Chief Gourmet"
+    },
+    {
+      "name": "live_data1_liver_desc",
+      "value": "Taste the world's cuisine"
+    },
+    {
+      "name": "live_data2_watch_desc",
+      "value": "29,000 watched"
+    },
+    {
+      "name": "live_data2_liver_name",
+      "value": "Great Traveler"
+    },
+    {
+      "name": "live_data2_liver_desc",
+      "value": "Walk all over the world"
+    },
+    {
+      "name": "live_data3_watch_desc",
+      "value": "0 watched"
+    },
+    {
+      "name": "live_data3_liver_name",
+      "value": "Chief Gourmet"
+    },
+    {
+      "name": "live_data3_liver_desc",
+      "value": "Taste the world's cuisine"
+    },
+    {
+      "name": "live_data4_watch_desc",
+      "value": "29,000 watched"
+    },
+    {
+      "name": "live_data4_liver_name",
+      "value": "Great Traveler"
+    },
+    {
+      "name": "live_data4_liver_desc",
+      "value": "Walk all over the world"
+    },
+    {
+      "name": "live_data5_watch_desc",
+      "value": "29,000 watched"
+    },
+    {
+      "name": "live_data5_liver_name",
+      "value": "Chief Gourmet"
+    },
+    {
+      "name": "live_data5_liver_desc",
+      "value": "Taste the world's cuisine"
+    },
+    {
+      "name": "live_data6_watch_desc",
+      "value": "29,000 watched"
+    },
+    {
+      "name": "live_data6_liver_name",
+      "value": "Great Traveler"
+    },
+    {
+      "name": "live_data6_liver_desc",
+      "value": "Walk all over the world"
+    },
+    {
+      "name": "live_data7_watch_desc",
+      "value": "29,000 watched"
+    },
+    {
+      "name": "live_data7_liver_name",
+      "value": "Chief Gourmet"
+    },
+    {
+      "name": "live_data7_liver_desc",
+      "value": "Taste the world's cuisine"
+    },
+    {
+      "name": "live_data8_watch_desc",
+      "value": "29,000 watched"
+    },
+    {
+      "name": "live_data8_liver_name",
+      "value": "Great Traveler"
+    },
+    {
+      "name": "live_data8_liver_desc",
+      "value": "Walk all over the world"
     }
   ]
 }

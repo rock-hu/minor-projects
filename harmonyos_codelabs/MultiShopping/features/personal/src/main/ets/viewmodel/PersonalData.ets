@@ -66,85 +66,85 @@ const activityButton: IconButtonModel[] = [
 class LiveDataModel {
   liveId: string = '';
   living: boolean = false;
-  watchDesc: string = '';
+  watchDesc?: Resource;
   previewIcon: string = '';
   liverIcon: string = '';
-  liverName: string = '';
-  liverDesc: string = '';
+  liverName?: Resource;
+  liverDesc?: Resource;
 }
 
 const liveData: LiveDataModel[] = [
   {
     liveId: '1',
     living: true,
-    watchDesc: '2.9万人观看',
+    watchDesc: $r('app.string.live_data1_watch_desc'),
     previewIcon: 'common/food.png',
     liverIcon: 'common/ic_person.png',
-    liverName: '首席美食家',
-    liverDesc: '带您品尝各地美食'
+    liverName: $r('app.string.live_data1_liver_name'),
+    liverDesc: $r('app.string.live_data1_liver_desc')
   },
   {
     liveId: '2',
     living: true,
-    watchDesc: '2.9万人观看',
+    watchDesc: $r('app.string.live_data2_watch_desc'),
     previewIcon: 'common/scenery.png',
     liverIcon: 'common/ic_person.png',
-    liverName: '大旅游家',
-    liverDesc: '带您走遍天下奇景'
+    liverName: $r('app.string.live_data2_liver_name'),
+    liverDesc: $r('app.string.live_data2_liver_desc')
   },
   {
     liveId: '3',
     living: false,
-    watchDesc: '0人观看',
+    watchDesc: $r('app.string.live_data3_watch_desc'),
     previewIcon: 'common/food.png',
     liverIcon: 'common/ic_person.png',
-    liverName: '首席美食家',
-    liverDesc: '带您品尝各地美食'
+    liverName: $r('app.string.live_data3_liver_name'),
+    liverDesc: $r('app.string.live_data3_liver_desc')
   },
   {
     liveId: '4',
     living: true,
-    watchDesc: '2.9万人观看',
+    watchDesc: $r('app.string.live_data4_watch_desc'),
     previewIcon: 'common/scenery.png',
     liverIcon: 'common/ic_person.png',
-    liverName: '大旅游家',
-    liverDesc: '带您走遍天下奇景'
+    liverName: $r('app.string.live_data4_liver_name'),
+    liverDesc: $r('app.string.live_data4_liver_desc')
   },
   {
     liveId: '5',
     living: true,
-    watchDesc: '2.9万人观看',
+    watchDesc: $r('app.string.live_data5_watch_desc'),
     previewIcon: 'common/food.png',
     liverIcon: 'common/ic_person.png',
-    liverName: '首席美食家',
-    liverDesc: '带您品尝各地美食'
+    liverName: $r('app.string.live_data5_liver_name'),
+    liverDesc: $r('app.string.live_data5_liver_desc')
   },
   {
     liveId: '6',
     living: true,
-    watchDesc: '2.9万人观看',
+    watchDesc: $r('app.string.live_data6_watch_desc'),
     previewIcon: 'common/scenery.png',
     liverIcon: 'common/ic_person.png',
-    liverName: '大旅游家',
-    liverDesc: '带您走遍天下奇景'
+    liverName: $r('app.string.live_data6_liver_name'),
+    liverDesc: $r('app.string.live_data6_liver_desc')
   },
   {
     liveId: '7',
     living: true,
-    watchDesc: '2.9万人观看',
+    watchDesc: $r('app.string.live_data7_watch_desc'),
     previewIcon: 'common/food.png',
     liverIcon: 'common/ic_person.png',
-    liverName: '首席美食家',
-    liverDesc: '带您品尝各地美食'
+    liverName: $r('app.string.live_data7_liver_name'),
+    liverDesc: $r('app.string.live_data7_liver_desc')
   },
   {
     liveId: '8',
     living: true,
-    watchDesc: '2.9万人观看',
+    watchDesc: $r('app.string.live_data8_watch_desc'),
     previewIcon: 'common/scenery.png',
     liverIcon: 'common/ic_person.png',
-    liverName: '大旅游家',
-    liverDesc: '带您走遍天下奇景'
+    liverName: $r('app.string.live_data8_liver_name'),
+    liverDesc: $r('app.string.live_data8_liver_desc')
   }
 ]
 

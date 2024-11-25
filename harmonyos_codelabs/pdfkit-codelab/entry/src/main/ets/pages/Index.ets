@@ -1,8 +1,7 @@
-import fs from '@ohos.file.fs';
-import router from '@ohos.router';
-import picker from '@ohos.file.picker';
-import { BusinessError } from '@ohos.base';
-import common from '@ohos.app.ability.common';
+import { fileIo as fs, picker } from '@kit.CoreFileKit';
+import { router } from '@kit.ArkUI';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { common } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
 const TAG = '[PDFView_LOG_TAG]';
@@ -12,7 +11,6 @@ function getCurrentDateFormatted(): string {
   const year = now.getFullYear();
   const month = (now.getMonth() + 1).toString().padStart(2, '0');
   const date = now.getDate().toString().padStart(2, '0');
-
   return `${year}-${month}-${date}`;
 }
 
@@ -27,7 +25,7 @@ async function copyResourceFileAndJump(): Promise<void> {
       hilog.info(0x0000, TAG, "file exists 0");
     } else {
       hilog.info(0x0000, TAG, "file not exists");
-      let content = context.resourceManager.getRawFileContentSync('rawfile/pdf_reference.pdf'); //pdf_reference
+      let content = context.resourceManager.getRawFileContentSync('rawfile/pdf_reference.pdf');
       let fdSand = fs.openSync(filePath, fs.OpenMode.WRITE_ONLY | fs.OpenMode.CREATE | fs.OpenMode.TRUNC);
       fs.writeSync(fdSand.fd, content.buffer);
       fs.closeSync(fdSand.fd);

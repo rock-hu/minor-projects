@@ -23,11 +23,11 @@ class Evaluate {
   userIcon?: string;
   userNumber?: string;
   rating?: number;
-  desc?: string;
+  desc?: Resource;
 }
 
 class UserEvaluate {
-  title?: string;
+  title?: Resource;
   favorable?: string;
   evaluate?: Evaluate[];
 }
@@ -48,7 +48,7 @@ const barData: BarData[] = [
 ]
 
 const userEvaluate: UserEvaluate = {
-  title: '用户评价（2万+）',
+  title: $r('app.string.user_evaluate_title'),
   favorable: '98%',
   evaluate: [
     {
@@ -56,14 +56,14 @@ const userEvaluate: UserEvaluate = {
       userIcon: 'common/ic_person.png',
       userNumber: '185****1937',
       rating: 5,
-      desc: '和描述相符合，很喜欢，做工精致，颜色好看，原装正品。'
+      desc: $r('app.string.user_evaluate_content1')
     },
     {
       userId: '2',
       userIcon: 'common/ic_person.png',
       userNumber: '185****1937',
       rating: 4,
-      desc: '和描述相符合，很喜欢，做工精致，颜色好看，原装正品。'
+      desc: $r('app.string.user_evaluate_content2')
     }
   ]
 }
@@ -74,38 +74,38 @@ const moreEvaluate: Evaluate[] = [
     userIcon: 'common/ic_person.png',
     userNumber: '185****1937',
     rating: 5,
-    desc: '和描述相符合，很喜欢，做工精致，颜色好看，原装正品。'
+    desc: $r('app.string.user_evaluate_content3')
   },
   {
     userId: '4',
     userIcon: 'common/ic_person.png',
     userNumber: '185****1937',
     rating: 5,
-    desc: '和描述相符合，很喜欢，做工精致，颜色好看，原装正品。'
+    desc: $r('app.string.user_evaluate_content4')
   },
   {
     userId: '5',
     userIcon: 'common/ic_person.png',
     userNumber: '185****1937',
     rating: 5,
-    desc: '和描述相符合，很喜欢，做工精致，颜色好看，原装正品。'
+    desc: $r('app.string.user_evaluate_content5')
   },
   {
     userId: '5',
     userIcon: 'common/ic_person.png',
     userNumber: '185****1937',
     rating: 4,
-    desc: '和描述相符合，很喜欢，做工精致，颜色好看，原装正品。'
+    desc: $r('app.string.user_evaluate_content5')
   },
   {
     userId: '6',
     userIcon: 'common/ic_person.png',
     userNumber: '185****1937',
     rating: 5,
-    desc: '和描述相符合，很喜欢，做工精致，颜色好看，原装正品。'
+    desc: $r('app.string.user_evaluate_content6')
   }
 ]
 
-const serviceList = ['免运费（请以提交订单时为准）', '店铺发货&售后', '7天无理由退货']
+const serviceList = [$r('app.string.service_content_1'), $r('app.string.service_content_2'), $r('app.string.service_content_3')]
 
 export { userEvaluate, moreEvaluate, Evaluate, barData, BarData, serviceList }
