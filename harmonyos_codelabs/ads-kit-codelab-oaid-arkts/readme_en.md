@@ -20,8 +20,7 @@ This demo shows how to obtain and reset Open Anonymous Device IDs (OAIDs) throug
 
 ## How to Use
 
-1. Before running this demo, you need to:
-    * [Configure app signing information.](https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V5/application-dev-guide-V5#section42841246144813)
+1. Before running this demo, you need to [configure app signing information](https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V5/application-dev-overview-V5#section42841246144813).
 2. Access the app home screen. The OAID can be obtained by default during the first access to the app. If **Activity tracking for this app** is set to **Deny**, the obtained OAID will be an empty string that consists of all zeros.
 3. Tap **Get OAID via promise**. The OAID is displayed in the text box.
 4. Tap **Get OAID via async callback**. The OAID is displayed in the text box.

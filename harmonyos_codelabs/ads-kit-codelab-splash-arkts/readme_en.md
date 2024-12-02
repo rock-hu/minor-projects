@@ -15,8 +15,7 @@ The sample code of Ads Kit for HarmonyOS ArkTS describes how to use APIs of Ads 
 
 ## How to Use
 
-Before running this demo, you need to: [Configure app signing information.](https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V5/application-dev-guide-V5#section42841246144813)
-
+Before running this demo, you need to [configure app signing information](https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V5/application-dev-overview-V5#section42841246144813).
 ## Preview
 | **Page of the full-screen splash video ad**                                    | **Page of the half-screen splash image ad**                                       |
 |--------------------------------------------------|-----------------------------------------------------|
