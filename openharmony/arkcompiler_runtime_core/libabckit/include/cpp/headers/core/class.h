@@ -18,6 +18,7 @@
 
 #include "../base_classes.h"
 #include "./function.h"
+#include "./module.h"
 
 #include <functional>
 #include <vector>
@@ -27,7 +28,7 @@ namespace abckit::core {
 /**
  * @brief Class
  */
-class Class : public View<AbckitCoreClass *> {
+class Class : public ViewInResource<AbckitCoreClass *, const File *> {
     // We restrict constructors in order to prevent C/C++ API mix-up by user.
     /// @brief to access private constructor
     friend class Module;
@@ -37,6 +38,10 @@ class Class : public View<AbckitCoreClass *> {
     friend class Function;
     /// @brief abckit::DefaultHash<Class>
     friend class abckit::DefaultHash<Class>;
+
+protected:
+    /// @brief Core API View type
+    using CoreViewT = Class;
 
 public:
     /**
@@ -77,6 +82,13 @@ public:
     std::string_view GetName() const;
 
     /**
+     * @brief Returns module for this `Class`.
+     * @return Owning `core::Module`.
+     * @note Set `ABCKIT_STATUS_BAD_ARGUMENT` error if `bool(*this)` results in `false`.
+     */
+    core::Module GetModule() const;
+
+    /**
      * @brief Get the All Methods object
      * @return std::vector<core::Function>
      */
@@ -94,42 +106,24 @@ public:
      */
     void EnumerateMethods(const std::function<bool(core::Function)> &cb) const;
 
+    /**
+     * @brief Enumerates annotations of current `Class`, invoking callback `cb` for each annotation.
+     * @param [ in ] cb - Callback that will be invoked.
+     * @note Set `ABCKIT_STATUS_BAD_ARGUMENT` error if current `Class` is false.
+     * @note Set `ABCKIT_STATUS_BAD_ARGUMENT` error if `cb` is not valid.
+     */
+    void EnumerateAnnotations(const std::function<bool(core::Annotation)> &cb) const;
+
     // Core API's.
     // ...
 
 private:
-    inline void GetAllMethodsInner(std::vector<core::Function> &methods) const
-    {
-        const ApiConfig *conf = GetApiConfig();
+    inline void GetAllMethodsInner(std::vector<core::Function> &methods) const;
 
-        using EnumerateData = std::pair<std::vector<core::Function> *, const ApiConfig *>;
-        EnumerateData enumerateData(&methods, conf);
+    inline void GetAllAnnotationsInner(std::vector<core::Annotation> &anns) const;
 
-        conf->cIapi_->classEnumerateMethods(GetView(), &enumerateData, [](AbckitCoreFunction *method, void *data) {
-            auto *vec = static_cast<EnumerateData *>(data)->first;
-            auto *config = static_cast<EnumerateData *>(data)->second;
-            vec->push_back(core::Function(method, config));
-            return true;
-        });
-    }
+    Class(AbckitCoreClass *klass, const ApiConfig *conf, const File *file);
 
-    inline void GetAllAnnotationsInner(std::vector<core::Annotation> &anns) const
-    {
-        const ApiConfig *conf = GetApiConfig();
-
-        using EnumerateData = std::pair<std::vector<core::Annotation> *, const ApiConfig *>;
-        EnumerateData enumerateData(&anns, conf);
-
-        conf->cIapi_->classEnumerateAnnotations(GetView(), &enumerateData,
-                                                [](AbckitCoreAnnotation *method, void *data) {
-                                                    auto *vec = static_cast<EnumerateData *>(data)->first;
-                                                    auto *config = static_cast<EnumerateData *>(data)->second;
-                                                    vec->push_back(core::Annotation(method, config));
-                                                    return true;
-                                                });
-    }
-
-    Class(AbckitCoreClass *klass, const ApiConfig *conf) : View(klass), conf_(conf) {};
     const ApiConfig *conf_;
 
 protected:

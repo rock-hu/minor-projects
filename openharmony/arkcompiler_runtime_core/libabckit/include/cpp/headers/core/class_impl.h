@@ -17,6 +17,8 @@
 #define CPP_ABCKIT_CORE_CLASS_IMPL_H
 
 #include "./class.h"
+#include "./annotation.h"
+#include "./function.h"
 
 namespace abckit::core {
 
@@ -30,23 +32,27 @@ inline std::string_view Class::GetName() const
     return view;
 }
 
+inline core::Module Class::GetModule() const
+{
+    const ApiConfig *conf = GetApiConfig();
+    AbckitCoreModule *module = conf->cIapi_->classGetModule(GetView());
+    CheckError(conf);
+    return core::Module(module, conf_, GetResource());
+}
+
 // CC-OFFNXT(G.FUD.06) perf critical
 inline std::vector<core::Function> Class::GetAllMethods() const
 {
-    const ApiConfig *conf = GetApiConfig();
     std::vector<core::Function> methods;
+    Payload<std::vector<core::Function> *> payload {&methods, GetApiConfig(), GetResource()};
 
-    using EnumerateData = std::pair<std::vector<core::Function> *, const ApiConfig *>;
-    EnumerateData enumerateData(&methods, conf);
-
-    conf->cIapi_->classEnumerateMethods(GetView(), &enumerateData, [](AbckitCoreFunction *method, void *data) {
-        auto *vec = static_cast<EnumerateData *>(data)->first;
-        auto *config = static_cast<EnumerateData *>(data)->second;
-        vec->push_back(core::Function(method, config));
+    GetApiConfig()->cIapi_->classEnumerateMethods(GetView(), &payload, [](AbckitCoreFunction *method, void *data) {
+        const auto &payload = *static_cast<Payload<std::vector<core::Function> *> *>(data);
+        payload.data->push_back(core::Function(method, payload.config, payload.resource));
         return true;
     });
 
-    CheckError(conf);
+    CheckError(GetApiConfig());
 
     return methods;
 }
@@ -54,20 +60,18 @@ inline std::vector<core::Function> Class::GetAllMethods() const
 // CC-OFFNXT(G.FUD.06) perf critical
 inline std::vector<core::Annotation> Class::GetAnnotations() const
 {
-    const ApiConfig *conf = GetApiConfig();
     std::vector<core::Annotation> anns;
 
-    using EnumerateData = std::pair<std::vector<core::Annotation> *, const ApiConfig *>;
-    EnumerateData enumerateData(&anns, conf);
+    Payload<std::vector<core::Annotation> *> payload {&anns, GetApiConfig(), GetResource()};
 
-    conf->cIapi_->classEnumerateAnnotations(GetView(), &enumerateData, [](AbckitCoreAnnotation *method, void *data) {
-        auto *vec = static_cast<EnumerateData *>(data)->first;
-        auto *config = static_cast<EnumerateData *>(data)->second;
-        vec->push_back(core::Annotation(method, config));
-        return true;
-    });
+    GetApiConfig()->cIapi_->classEnumerateAnnotations(
+        GetView(), &payload, [](AbckitCoreAnnotation *method, void *data) {
+            const auto &payload = *static_cast<Payload<std::vector<core::Annotation> *> *>(data);
+            payload.data->push_back(core::Annotation(method, payload.config, payload.resource));
+            return true;
+        });
 
-    CheckError(conf);
+    CheckError(GetApiConfig());
 
     return anns;
 }
@@ -75,16 +79,55 @@ inline std::vector<core::Annotation> Class::GetAnnotations() const
 // CC-OFFNXT(G.FUD.06) perf critical
 inline void Class::EnumerateMethods(const std::function<bool(core::Function)> &cb) const
 {
-    const ApiConfig *conf = GetApiConfig();
-    using EnumerateData = std::pair<const std::function<bool(core::Function)> &, const ApiConfig *>;
-    EnumerateData enumerateData(cb, conf);
+    Payload<const std::function<bool(core::Function)> &> payload {cb, GetApiConfig(), GetResource()};
 
-    conf->cIapi_->classEnumerateMethods(GetView(), &enumerateData, [](AbckitCoreFunction *method, void *data) {
-        const std::function<bool(core::Function)> &callback = static_cast<EnumerateData *>(data)->first;
-        auto *config = static_cast<EnumerateData *>(data)->second;
-        return callback(core::Function(method, config));
+    GetApiConfig()->cIapi_->classEnumerateMethods(GetView(), &payload, [](AbckitCoreFunction *method, void *data) {
+        const auto &payload = *static_cast<Payload<const std::function<bool(core::Function)> &> *>(data);
+        return payload.data(core::Function(method, payload.config, payload.resource));
     });
-    CheckError(conf);
+    CheckError(GetApiConfig());
+}
+
+inline void Class::GetAllMethodsInner(std::vector<core::Function> &methods) const
+{
+    Payload<std::vector<core::Function> *> payload {&methods, GetApiConfig(), GetResource()};
+
+    GetApiConfig()->cIapi_->classEnumerateMethods(GetView(), &payload, [](AbckitCoreFunction *method, void *data) {
+        const auto &payload = *static_cast<Payload<std::vector<core::Function> *> *>(data);
+        payload.data->push_back(core::Function(method, payload.config, payload.resource));
+        return true;
+    });
+}
+
+inline void Class::GetAllAnnotationsInner(std::vector<core::Annotation> &anns) const
+{
+    Payload<std::vector<core::Annotation> *> payload {&anns, GetApiConfig(), GetResource()};
+
+    GetApiConfig()->cIapi_->classEnumerateAnnotations(
+        GetView(), &payload, [](AbckitCoreAnnotation *method, void *data) {
+            const auto &payload = *static_cast<Payload<std::vector<core::Annotation> *> *>(data);
+            payload.data->push_back(core::Annotation(method, payload.config, payload.resource));
+            return true;
+        });
+}
+
+inline Class::Class(AbckitCoreClass *klass, const ApiConfig *conf, const File *file)
+    : ViewInResource(klass), conf_(conf)
+{
+    SetResource(file);
+};
+
+inline void Class::EnumerateAnnotations(const std::function<bool(core::Annotation)> &cb) const
+{
+    Payload<const std::function<bool(core::Annotation)> &> payload {cb, GetApiConfig(), GetResource()};
+
+    GetApiConfig()->cIapi_->classEnumerateAnnotations(
+        GetView(), &payload, [](AbckitCoreAnnotation *method, void *data) {
+            const auto &payload = *static_cast<Payload<const std::function<bool(core::Annotation)> &> *>(data);
+            return payload.data(core::Annotation(method, payload.config, payload.resource));
+        });
+
+    CheckError(GetApiConfig());
 }
 
 }  // namespace abckit::core

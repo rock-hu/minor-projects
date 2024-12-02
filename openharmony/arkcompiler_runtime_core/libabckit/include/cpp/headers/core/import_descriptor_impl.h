@@ -35,8 +35,14 @@ inline core::Module ImportDescriptor::GetImportedModule() const
 {
     AbckitCoreModule *module = GetApiConfig()->cIapi_->importDescriptorGetImportedModule(GetView());
     CheckError(GetApiConfig());
-    return core::Module(module, conf_);
+    return core::Module(module, conf_, GetResource());
 }
+
+inline ImportDescriptor::ImportDescriptor(AbckitCoreImportDescriptor *module, const ApiConfig *conf, const File *file)
+    : ViewInResource(module), conf_(conf)
+{
+    SetResource(file);
+};
 
 }  // namespace abckit::core
 

@@ -497,6 +497,7 @@ private:
     V(DebugPrint)                               \
     V(DebugPrintCustom)                         \
     V(DebugPrintInstruction)                    \
+    V(CollectingOpcodes)                        \
     V(DebugOsrEntry)                            \
     V(Comment)                                  \
     V(FatalPrint)                               \
@@ -507,6 +508,7 @@ private:
     V(InsertLocalToShareRSet)                   \
     V(SetBitAtomic)                             \
     V(DoubleToInt)                              \
+    V(SaturateTruncDoubleToInt32)            \
     V(FloatMod)                                 \
     V(FloatAcos)                                \
     V(FloatAcosh)                               \
@@ -577,6 +579,7 @@ private:
     V(JSMapValues)                              \
     V(JSSetHas)                                 \
     V(JSSetAdd)                                 \
+    V(GrowElementsCapacity)                     \
     V(CreateJSTypedArrayEntries)                \
     V(CreateJSTypedArrayKeys)                   \
     V(CreateJSTypedArrayValues)                 \

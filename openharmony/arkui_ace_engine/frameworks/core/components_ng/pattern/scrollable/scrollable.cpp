@@ -133,8 +133,12 @@ void Scrollable::InitPanRecognizerNG()
 {
     PanDirection panDirection;
     panDirection.type = axis_ == Axis::VERTICAL ? PanDirection::VERTICAL : PanDirection::HORIZONTAL;
+    double distance = SystemProperties::GetScrollableDistance();
+    if (LessOrEqual(distance, 0.0)) {
+        distance = DEFAULT_PAN_DISTANCE.ConvertToPx();
+    }
     panRecognizerNG_ =
-        AceType::MakeRefPtr<NG::PanRecognizer>(DEFAULT_PAN_FINGER, panDirection, DEFAULT_PAN_DISTANCE.ConvertToPx());
+        AceType::MakeRefPtr<NG::PanRecognizer>(DEFAULT_PAN_FINGER, panDirection, distance);
     panRecognizerNG_->SetIsAllowMouse(false);
     SetOnActionStart();
     SetOnActionUpdate();
@@ -735,6 +739,7 @@ void Scrollable::StartListSnapAnimation(float predictSnapOffset, float scrollSna
     auto context = context_.Upgrade();
     CHECK_NULL_VOID(context);
     lastVsyncTime_ = context->GetVsyncTime();
+    MarkNeedFlushAnimationStartTime();
 }
 
 void Scrollable::StartScrollSnapAnimation(float scrollSnapDelta, float scrollSnapVelocity)
@@ -794,7 +799,7 @@ void Scrollable::ProcessListSnapMotion(double position)
         }
     }
     currentPos_ = position;
-    if (outBoundaryCallback_ && outBoundaryCallback_() && state_ == AnimationState::SNAP) {
+    if (canOverScroll_ && state_ == AnimationState::SNAP) {
         scrollPause_ = true;
         skipRestartSpring_ = true;
         MarkNeedFlushAnimationStartTime();
@@ -998,7 +1003,8 @@ void Scrollable::ProcessSpringMotion(double position)
     if (LessOrEqual(std::abs(currentPos_ - position), 1)) {
         // trace stop at OnScrollStop
         if (!isFadingAway_) {
-            AceAsyncTraceBegin(0, (TRAILING_ANIMATION + std::to_string(nodeId_) + std::string(" ") + nodeTag_).c_str());
+            AceAsyncTraceBegin(
+                nodeId_, (TRAILING_ANIMATION + std::to_string(nodeId_) + std::string(" ") + nodeTag_).c_str());
         } else {
             ACE_SCOPED_TRACE("Spring to same position");
         }
@@ -1046,7 +1052,8 @@ void Scrollable::ProcessScrollMotion(double position)
         position, currentVelocity_, needScrollSnapChange_);
     if (LessOrEqual(std::abs(currentPos_ - position), 1)) {
         // trace stop at OnScrollStop
-        AceAsyncTraceBegin(0, (TRAILING_ANIMATION + std::to_string(nodeId_) + std::string(" ") + nodeTag_).c_str());
+        AceAsyncTraceBegin(
+            nodeId_, (TRAILING_ANIMATION + std::to_string(nodeId_) + std::string(" ") + nodeTag_).c_str());
     }
     // UpdateScrollPosition return false, means reach to scroll limit.
     auto mainDelta = position - currentPos_;
@@ -1123,6 +1130,7 @@ void Scrollable::SetSlipFactor(double SlipFactor)
 void Scrollable::UpdateScrollSnapEndWithOffset(double offset)
 {
     if (state_ == AnimationState::SNAP) {
+        MarkNeedFlushAnimationStartTime();
         AnimationOption option;
         option.SetDuration(CUSTOM_SPRING_ANIMATION_DURATION);
         auto curve = AceType::MakeRefPtr<ResponsiveSpringMotion>(DEFAULT_SPRING_RESPONSE, DEFAULT_SPRING_DAMP, 0.0f);

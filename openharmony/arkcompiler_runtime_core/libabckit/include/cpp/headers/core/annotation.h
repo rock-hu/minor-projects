@@ -16,15 +16,16 @@
 #ifndef CPP_ABCKIT_CORE_ANNOTATION_H
 #define CPP_ABCKIT_CORE_ANNOTATION_H
 
-#include "./annotation_interface.h"
 #include "../base_classes.h"
+
+#include <functional>
 
 namespace abckit::core {
 
 /**
  * @brief Annotation
  */
-class Annotation : public View<AbckitCoreAnnotation *> {
+class Annotation : public ViewInResource<AbckitCoreAnnotation *, const File *> {
     /// @brief core::Function
     friend class core::Function;
     /// @brief arkts::Function
@@ -35,6 +36,10 @@ class Annotation : public View<AbckitCoreAnnotation *> {
     friend class arkts::Class;
     /// @brief abckit::DefaultHash<Annotation>
     friend class abckit::DefaultHash<Annotation>;
+
+protected:
+    /// @brief Core API View type
+    using CoreViewT = Annotation;
 
 public:
     /**
@@ -75,15 +80,21 @@ public:
      * @brief Get the Interface object
      * @return core::AnnotationInterface
      */
-    core::AnnotationInterface GetInterface()
-    {
-        AnnotationInterface iface(GetApiConfig()->cIapi_->annotationGetInterface(GetView()), GetApiConfig());
-        CheckError(GetApiConfig());
-        return iface;
-    }
+    core::AnnotationInterface GetInterface() const;
+
+    /**
+     * @brief Enumerates elements of the this `Annotation`, invoking the callback for each element.
+     * The return value of `cb` used as a signal to continue (true) or early-exit (false) enumeration.
+     * @param cb - Callback that will be invoked.
+     * @note Set `ABCKIT_STATUS_BAD_ARGUMENT` error if `bool(*this)` results in `false`.
+     */
+    void EnumerateElements(const std::function<bool(core::AnnotationElement)> &cb) const;
 
 private:
-    Annotation(AbckitCoreAnnotation *ann, const ApiConfig *conf) : View(ann), conf_(conf) {};
+    Annotation(AbckitCoreAnnotation *ann, const ApiConfig *conf, const File *file) : ViewInResource(ann), conf_(conf)
+    {
+        SetResource(file);
+    };
     const ApiConfig *conf_;
 
 protected:

@@ -27,16 +27,22 @@ namespace abckit::core {
 /**
  * @brief Module
  */
-class Module : public View<AbckitCoreModule *> {
+class Module : public ViewInResource<AbckitCoreModule *, const File *> {
     // We restrict constructors in order to prevent C/C++ API mix-up by user.
     /// @brief to access private constructor
     friend class abckit::File;
+    /// @brief to access private constructor
+    friend class abckit::core::Class;
     /// @brief to access private constructor
     friend class abckit::core::Function;
     /// @brief to access private constructor
     friend class abckit::core::ImportDescriptor;
     /// @brief abckit::DefaultHash<Module>
     friend class abckit::DefaultHash<Module>;
+
+protected:
+    /// @brief Core API View type
+    using CoreViewT = Module;
 
 public:
     /**
@@ -142,100 +148,20 @@ public:
     // ...
 
 private:
-    inline void GetClassesInner(std::vector<core::Class> &classes) const
-    {
-        const ApiConfig *conf = GetApiConfig();
+    inline void GetClassesInner(std::vector<core::Class> &classes) const;
 
-        using EnumerateData = std::pair<std::vector<core::Class> *, const ApiConfig *>;
-        EnumerateData enumerateData(&classes, GetApiConfig());
+    inline void GetTopLevelFunctionsInner(std::vector<core::Function> &functions) const;
 
-        conf->cIapi_->moduleEnumerateClasses(GetView(), &enumerateData, [](AbckitCoreClass *klass, void *data) {
-            auto *vec = static_cast<EnumerateData *>(data)->first;
-            auto *config = static_cast<EnumerateData *>(data)->second;
-            vec->push_back(core::Class(klass, config));
-            return true;
-        });
-    }
+    inline void GetAnnotationInterfacesInner(std::vector<core::AnnotationInterface> &ifaces) const;
 
-    inline void GetTopLevelFunctionsInner(std::vector<core::Function> &functions) const
-    {
-        const ApiConfig *conf = GetApiConfig();
+    inline void GetNamespacesInner(std::vector<core::Namespace> &namespaces) const;
 
-        using EnumerateData = std::pair<std::vector<core::Function> *, const ApiConfig *>;
-        EnumerateData enumerateData(&functions, conf);
+    inline void GetImportsInner(std::vector<core::ImportDescriptor> &imports) const;
 
-        conf->cIapi_->moduleEnumerateTopLevelFunctions(GetView(), &enumerateData,
-                                                       [](AbckitCoreFunction *func, void *data) {
-                                                           auto *vec = static_cast<EnumerateData *>(data)->first;
-                                                           auto *config = static_cast<EnumerateData *>(data)->second;
-                                                           vec->push_back(core::Function(func, config));
-                                                           return true;
-                                                       });
-    }
+    inline void GetExportsInner(std::vector<core::ExportDescriptor> &exports) const;
 
-    inline void GetAnnotationInterfacesInner(std::vector<core::AnnotationInterface> &ifaces) const
-    {
-        const ApiConfig *conf = GetApiConfig();
+    Module(AbckitCoreModule *module, const ApiConfig *conf, const File *file);
 
-        using EnumerateData = std::pair<std::vector<core::AnnotationInterface> *, const ApiConfig *>;
-        EnumerateData enumerateData(&ifaces, conf);
-
-        conf->cIapi_->moduleEnumerateAnnotationInterfaces(GetView(), &enumerateData,
-                                                          [](AbckitCoreAnnotationInterface *func, void *data) {
-                                                              auto *vec = static_cast<EnumerateData *>(data)->first;
-                                                              auto *config = static_cast<EnumerateData *>(data)->second;
-                                                              vec->push_back(core::AnnotationInterface(func, config));
-                                                              return true;
-                                                          });
-    }
-
-    inline void GetNamespacesInner(std::vector<core::Namespace> &namespaces) const
-    {
-        const ApiConfig *conf = GetApiConfig();
-
-        using EnumerateData = std::pair<std::vector<core::Namespace> *, const ApiConfig *>;
-        EnumerateData enumerateData(&namespaces, conf);
-
-        conf->cIapi_->moduleEnumerateNamespaces(GetView(), &enumerateData, [](AbckitCoreNamespace *func, void *data) {
-            auto *vec = static_cast<EnumerateData *>(data)->first;
-            auto *config = static_cast<EnumerateData *>(data)->second;
-            vec->push_back(core::Namespace(func, config));
-            return true;
-        });
-    }
-
-    inline void GetImportsInner(std::vector<core::ImportDescriptor> &imports) const
-    {
-        const ApiConfig *conf = GetApiConfig();
-
-        using EnumerateData = std::pair<std::vector<core::ImportDescriptor> *, const ApiConfig *>;
-        EnumerateData enumerateData(&imports, conf);
-
-        conf->cIapi_->moduleEnumerateImports(GetView(), &enumerateData,
-                                             [](AbckitCoreImportDescriptor *func, void *data) {
-                                                 auto *vec = static_cast<EnumerateData *>(data)->first;
-                                                 auto *config = static_cast<EnumerateData *>(data)->second;
-                                                 vec->push_back(core::ImportDescriptor(func, config));
-                                                 return true;
-                                             });
-    }
-    inline void GetExportsInner(std::vector<core::ExportDescriptor> &exports) const
-    {
-        const ApiConfig *conf = GetApiConfig();
-
-        using EnumerateData = std::pair<std::vector<core::ExportDescriptor> *, const ApiConfig *>;
-        EnumerateData enumerateData(&exports, conf);
-
-        conf->cIapi_->moduleEnumerateExports(GetView(), &enumerateData,
-                                             [](AbckitCoreExportDescriptor *func, void *data) {
-                                                 auto *vec = static_cast<EnumerateData *>(data)->first;
-                                                 auto *config = static_cast<EnumerateData *>(data)->second;
-                                                 vec->push_back(core::ExportDescriptor(func, config));
-                                                 return true;
-                                             });
-    }
-
-    Module(AbckitCoreModule *module, const ApiConfig *conf) : View(module), conf_(conf) {};
     const ApiConfig *conf_;
 
 protected:

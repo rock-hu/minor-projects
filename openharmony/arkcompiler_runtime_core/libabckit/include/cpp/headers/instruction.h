@@ -25,7 +25,7 @@ namespace abckit {
 /**
  * @brief Instruction
  */
-class Instruction final : public View<AbckitInst *> {
+class Instruction final : public ViewInResource<AbckitInst *, const Graph *> {
     // To access private constructor.
     // We restrict constructors in order to prevent C/C++ API mix-up by user.
 
@@ -37,8 +37,18 @@ class Instruction final : public View<AbckitInst *> {
     friend class DynamicIsa;
     /// @brief abckit::DefaultHash<Instruction>
     friend class abckit::DefaultHash<Instruction>;
+    /// @brief To access private constructor
+    friend class Graph;
 
 public:
+    /**
+     * @brief Construct a new empty Instruction object
+     */
+    Instruction() : ViewInResource(nullptr), conf_(nullptr)
+    {
+        SetResource(nullptr);
+    };
+
     /**
      * @brief Construct a new Instruction object
      * @param other
@@ -75,14 +85,20 @@ public:
      * @param inst
      * @return Instruction&
      */
-    Instruction &InsertAfter(const Instruction &inst);
+    const Instruction &InsertAfter(const Instruction &inst) const;
 
     /**
      * @brief Inserts `newInst` instruction before `ref` instruction into `ref`'s basic block.
      * @param inst
      * @return Instruction&
      */
-    Instruction &InsertBefore(const Instruction &inst);
+    const Instruction &InsertBefore(const Instruction &inst) const;
+
+    /**
+     * @brief Removes instruction from it's basic block.
+     * @note Set `ABCKIT_STATUS_BAD_ARGUMENT` error if `bool(*this)` results in `false`
+     */
+    void Remove() const;
 
     /**
      * @brief Get the Opcode Dyn object
@@ -95,6 +111,24 @@ public:
      * @return AbckitIsaApiStaticOpcode
      */
     AbckitIsaApiStaticOpcode GetOpcodeStat() const;
+
+    /**
+     * @brief Returns condition code of `Instruction`.
+     * @return enum value of `AbckitIsaApiDynamicConditionCode`.
+     * @note Set `ABCKIT_STATUS_BAD_ARGUMENT` error if `bool(*this)` results in `false`
+     * @note Set `ABCKIT_STATUS_BAD_ARGUMENT` error if `Instruction` is not Intrinsic.
+     * @note Set `ABCKIT_STATUS_BAD_ARGUMENT` error if `Instruction` opcode is not IF.
+     */
+    enum AbckitIsaApiDynamicConditionCode GetConditionCodeDyn() const;
+
+    /**
+     * @brief Returns value of I64 constant `Instruction`.
+     * @return Value of `Instruction`.
+     * @note Set `ABCKIT_STATUS_BAD_ARGUMENT` error if `bool(*this)` results in `false`
+     * @note Set `ABCKIT_STATUS_BAD_ARGUMENT` error if `Instruction` is not a constant instruction.
+     * @note Set `ABCKIT_STATUS_BAD_ARGUMENT` error if `Instruction` is not I64 constant instruction.
+     */
+    int64_t GetConstantValueI64() const;
 
     /**
      * @brief Get the String object
@@ -121,6 +155,13 @@ public:
     core::Function GetFunction() const;
 
     /**
+     * @brief Returns basic block that owns `Instruction`.
+     * @return `BasicBlock` which contains this `Instruction`.
+     * @note Set `ABCKIT_STATUS_BAD_ARGUMENT` error if `bool(*this)` results in `false`
+     */
+    BasicBlock GetBasicBlock() const;
+
+    /**
      * @brief Returns number of inputs.
      * @return Number of inputs.
      */
@@ -138,13 +179,28 @@ public:
      * @param [ in ] index - Index of input to be set.
      * @param [ in ] input - Input instruction to be set.
      */
-    void SetInput(uint32_t index, const Instruction &input);
+    void SetInput(uint32_t index, const Instruction &input) const;
 
     /**
      * @brief Enumerates `insts` user instructions, invoking callback `cb` for each user instruction.
      * @param cb - Callback that will be invoked.
+     * @return bool
      */
-    void VisitUsers(const std::function<void(Instruction)> &cb) const;
+    bool VisitUsers(const std::function<bool(Instruction)> &cb) const;
+
+    /**
+     * @brief Returns number of `Instruction` users.
+     * @return Number of this `Instruction` users.
+     * @note Set `ABCKIT_STATUS_BAD_ARGUMENT` error if `bool(*this)` results in `false`
+     */
+    uint32_t GetUserCount() const;
+
+    /**
+     * @brief Returns import descriptor of `Instruction`.
+     * @return `core::ImportDescriptor`.
+     * @note Set `ABCKIT_STATUS_BAD_ARGUMENT` error if `Instruction` is false.
+     */
+    core::ImportDescriptor GetImportDescriptorDyn() const;
 
 protected:
     /**
@@ -161,8 +217,12 @@ private:
      * @brief Construct a new Instruction object
      * @param inst
      * @param conf
+     * @param graph
      */
-    Instruction(AbckitInst *inst, const ApiConfig *conf) : View(inst), conf_(conf) {};
+    Instruction(AbckitInst *inst, const ApiConfig *conf, const Graph *graph) : ViewInResource(inst), conf_(conf)
+    {
+        SetResource(graph);
+    };
     const ApiConfig *conf_;
 };
 

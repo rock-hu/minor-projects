@@ -19,6 +19,7 @@
 #include "./base_classes.h"
 #include "./basic_block.h"
 #include "./dynamic_isa.h"
+#include "./instruction.h"
 #include "../../../src/include_v2/cpp/headers/static_isa.h"
 
 #include <memory>
@@ -73,10 +74,25 @@ public:
     ~Graph() override = default;
 
     /**
+     * @brief Returns binary file that the current `Graph` is a part of.
+     * @return Pointer to the `File`
+     */
+    const File *GetFile() const
+    {
+        return file_;
+    }
+
+    /**
      * @brief Get start basic block
      * @return `BasicBlock`
      */
     BasicBlock GetStartBb() const;
+
+    /**
+     * @brief Returns end basic block of current `Graph`.
+     * @return End `BasicBlock`.
+     */
+    BasicBlock GetEndBb() const;
 
     /**
      * @brief Get blocks RPO
@@ -85,31 +101,46 @@ public:
     std::vector<BasicBlock> GetBlocksRPO() const;
 
     /**
-     * @brief Get dyn isa
+     * @brief Get dynamic ISA
      * @return `DynamicIsa`
      */
-    DynamicIsa DynIsa()
-    {
-        return DynamicIsa(*this);
-    }
+    DynamicIsa DynIsa();
 
     /**
-     * @brief Get static isa
+     * @brief Get static ISA
      * @return `StatIsa`
      */
-    StaticIsa StatIsa()
-    {
-        return StaticIsa(*this);
-    }
+    StaticIsa StatIsa();
 
     /**
      * @brief EnumerateBasicBlocksRpo
      * @param cb
      */
-    void EnumerateBasicBlocksRpo(const std::function<void(BasicBlock)> &cb) const;
+    void EnumerateBasicBlocksRpo(const std::function<bool(BasicBlock)> &cb) const;
+
+    /**
+     * @brief Creates I32 constant instruction and inserts it in start basic block of current `Graph`.
+     * @return Created `Instruction`.
+     * @param [ in ] val - value of created constant instruction.
+     * @note Allocates
+     */
+    Instruction CreateConstantI32(int32_t val) const;
+
+    /**
+     * @brief Creates empty basic block.
+     * @return Created `BasicBlock`.
+     * @note Allocates
+     */
+    BasicBlock CreateEmptyBb() const;
 
     // Other Graph API's
     // ...
+
+    /**
+     * @brief Removes all basic blocks unreachable from start basic block.
+     * @note Set `ABCKIT_STATUS_BAD_ARGUMENT` error if `bool(*this)` results in `false`
+     */
+    void RunPassRemoveUnreachableBlocks() const;
 
 protected:
     /**
@@ -120,6 +151,25 @@ protected:
     {
         return conf_;
     }
+
+    /**
+     * @brief Struct for using in callbacks
+     */
+    template <typename D>
+    struct Payload {
+        /**
+         * @brief data
+         */
+        D data;
+        /**
+         * @brief config
+         */
+        const ApiConfig *config;
+        /**
+         * @brief resource
+         */
+        const Graph *resource;
+    };
 
 private:
     class GraphDeleter final : public IResourceDeleter {
@@ -173,12 +223,13 @@ private:
         const Graph &deleterGraph_;
     };
 
-    Graph(AbckitGraph *graph, const ApiConfig *conf) : Resource(graph), conf_(conf)
+    Graph(AbckitGraph *graph, const ApiConfig *conf, const File *file) : Resource(graph), conf_(conf), file_(file)
     {
         SetDeleter(std::make_unique<GraphDeleter>(conf_, *this));
     };
     // for interop with API
     const ApiConfig *conf_;
+    const File *file_;
 };
 
 }  // namespace abckit

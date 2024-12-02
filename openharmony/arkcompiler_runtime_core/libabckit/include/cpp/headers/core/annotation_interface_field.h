@@ -25,7 +25,7 @@ namespace abckit::core {
 /**
  * @brief AnnotationInterfaceField
  */
-class AnnotationInterfaceField : public View<AbckitCoreAnnotationInterfaceField *> {
+class AnnotationInterfaceField : public ViewInResource<AbckitCoreAnnotationInterfaceField *, const File *> {
     /// @brief core::Annotation
     friend class core::Annotation;
     /// @brief arkts::Annotation
@@ -36,6 +36,10 @@ class AnnotationInterfaceField : public View<AbckitCoreAnnotationInterfaceField 
     friend class arkts::AnnotationInterface;
     /// @brief abckit::DefaultHash<AnnotationInterfaceField>
     friend class abckit::DefaultHash<AnnotationInterfaceField>;
+
+protected:
+    /// @brief Core API View type
+    using CoreViewT = AnnotationInterfaceField;
 
 public:
     /**
@@ -79,8 +83,11 @@ public:
     std::string_view GetName();
 
 private:
-    AnnotationInterfaceField(AbckitCoreAnnotationInterfaceField *anni, const ApiConfig *conf)
-        : View(anni), conf_(conf) {};
+    AnnotationInterfaceField(AbckitCoreAnnotationInterfaceField *anni, const ApiConfig *conf, const File *file)
+        : ViewInResource(anni), conf_(conf)
+    {
+        SetResource(file);
+    };
     const ApiConfig *conf_;
 
 protected:

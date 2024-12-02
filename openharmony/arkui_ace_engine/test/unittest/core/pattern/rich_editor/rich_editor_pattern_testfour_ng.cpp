@@ -21,13 +21,6 @@ using namespace testing;
 using namespace testing::ext;
 
 namespace OHOS::Ace::NG {
-namespace {
-int32_t testOnReadyEvent = 0;
-int32_t testAboutToIMEInput = 0;
-int32_t testOnIMEInputComplete = 0;
-int32_t testAboutToDelete = 0;
-int32_t testOnDeleteComplete = 0;
-} // namespace
 
 class RichEditorPatternTestFourNg : public RichEditorCommonTestNg {
 public:
@@ -57,11 +50,6 @@ void RichEditorPatternTestFourNg::SetUp()
 void RichEditorPatternTestFourNg::TearDown()
 {
     richEditorNode_ = nullptr;
-    testOnReadyEvent = 0;
-    testAboutToIMEInput = 0;
-    testOnIMEInputComplete = 0;
-    testAboutToDelete = 0;
-    testOnDeleteComplete = 0;
     MockParagraph::TearDown();
 }
 
@@ -102,6 +90,40 @@ HWTEST_F(RichEditorPatternTestFourNg, HandleDoubleClickOrLongPress001, TestSize.
     richEditorPattern->HandleDoubleClickOrLongPress(info, imageNode);
 
     EXPECT_TRUE(richEditorPattern->textSelector_.IsValid());
+}
+
+/**
+ * @tc.name: HandleDoubleClickOrLongPress001
+ * @tc.desc: test HandleDoubleClickOrLongPress
+ * @tc.type: FUNC
+ */
+HWTEST_F(RichEditorPatternTestFourNg, HandleDoubleClickOrLongPress002, TestSize.Level1)
+{
+    ASSERT_NE(richEditorNode_, nullptr);
+    auto richEditorPattern = richEditorNode_->GetPattern<RichEditorPattern>();
+    ASSERT_NE(richEditorPattern, nullptr);
+    auto richEditorController = richEditorPattern->GetRichEditorController();
+    ASSERT_NE(richEditorController, nullptr);
+    GestureEvent info;
+    richEditorPattern->caretUpdateType_ = CaretUpdateType::LONG_PRESSED;
+    richEditorPattern->isEditing_ = true;
+    richEditorPattern->selectOverlay_->hasTransform_ = true;
+    richEditorPattern->textSelector_.baseOffset = 0;
+    richEditorPattern->textSelector_.destinationOffset = 10;
+    ParagraphManager::ParagraphInfo paragraphInfo;
+    RefPtr<MockParagraph> mockParagraph = AceType::MakeRefPtr<MockParagraph>();
+    EXPECT_CALL(*mockParagraph, GetRectsForRange(_, _, _))
+        .WillRepeatedly(Invoke([](int32_t start, int32_t end, std::vector<RectF>& selectedRects) {
+            selectedRects.emplace_back(RectF(0, 0, 100, 20));
+        }));
+    PositionWithAffinity defaultPositionWithAffinity(2, TextAffinity::UPSTREAM);
+    EXPECT_CALL(*mockParagraph, GetGlyphPositionAtCoordinate(_)).WillRepeatedly(Return(defaultPositionWithAffinity));
+    paragraphInfo.paragraph = mockParagraph;
+    paragraphInfo.start = 0;
+    paragraphInfo.end = 10;
+    richEditorPattern->paragraphs_.paragraphs_.emplace_back(paragraphInfo);
+    richEditorPattern->HandleDoubleClickOrLongPress(info);
+    EXPECT_FALSE(richEditorPattern->isMousePressed_);
 }
 
 /**
@@ -917,50 +939,25 @@ HWTEST_F(RichEditorPatternTestFourNg, GetAdjustedSelectionInfo001, TestSize.Leve
     auto richEditorPattern = richEditorNode_->GetPattern<RichEditorPattern>();
     ASSERT_NE(richEditorPattern, nullptr);
 
-    SelectionInfo textSelectInfo;
+    std::vector<std::tuple<SelectSpanType, std::string, RefPtr<PixelMap>>> testTuples;
+    testTuples.emplace_back(SelectSpanType::TYPEIMAGE, " ", PixelMap::CreatePixelMap(nullptr));
+    testTuples.emplace_back(SelectSpanType::TYPEIMAGE, "", PixelMap::CreatePixelMap(nullptr));
+    testTuples.emplace_back(SelectSpanType::TYPEIMAGE, " ", nullptr);
+    testTuples.emplace_back(SelectSpanType::TYPEIMAGE, "", nullptr);
+    testTuples.emplace_back(SelectSpanType::TYPESYMBOLSPAN, " ", PixelMap::CreatePixelMap(nullptr));
+    testTuples.emplace_back(SelectSpanType::TYPESYMBOLSPAN, "", PixelMap::CreatePixelMap(nullptr));
+    testTuples.emplace_back(SelectSpanType::TYPESYMBOLSPAN, " ", nullptr);
+    testTuples.emplace_back(SelectSpanType::TYPESYMBOLSPAN, "", nullptr);
     std::list<ResultObject> resultObjectList;
     ResultObject obj;
+    for (const auto& testcase : testTuples) {
+        obj.type = std::get<0>(testcase);
+        obj.valueString = std::get<1>(testcase);
+        obj.valuePixelMap = std::get<2>(testcase);
+        resultObjectList.emplace_back(obj);
+    }
 
-    obj.type = SelectSpanType::TYPEIMAGE;
-    obj.valueString = " ";
-    obj.valuePixelMap = PixelMap::CreatePixelMap(nullptr);
-    resultObjectList.emplace_back(obj);
-
-    obj.type = SelectSpanType::TYPEIMAGE;
-    obj.valueString = "";
-    obj.valuePixelMap = PixelMap::CreatePixelMap(nullptr);
-    resultObjectList.emplace_back(obj);
-
-    obj.type = SelectSpanType::TYPEIMAGE;
-    obj.valueString = " ";
-    obj.valuePixelMap = nullptr;
-    resultObjectList.emplace_back(obj);
-
-    obj.type = SelectSpanType::TYPEIMAGE;
-    obj.valueString = "";
-    obj.valuePixelMap = nullptr;
-    resultObjectList.emplace_back(obj);
-
-    obj.type = SelectSpanType::TYPESYMBOLSPAN;
-    obj.valueString = " ";
-    obj.valuePixelMap = PixelMap::CreatePixelMap(nullptr);
-    resultObjectList.emplace_back(obj);
-
-    obj.type = SelectSpanType::TYPESYMBOLSPAN;
-    obj.valueString = "";
-    obj.valuePixelMap = PixelMap::CreatePixelMap(nullptr);
-    resultObjectList.emplace_back(obj);
-
-    obj.type = SelectSpanType::TYPESYMBOLSPAN;
-    obj.valueString = " ";
-    obj.valuePixelMap = nullptr;
-    resultObjectList.emplace_back(obj);
-
-    obj.type = SelectSpanType::TYPESYMBOLSPAN;
-    obj.valueString = "";
-    obj.valuePixelMap = nullptr;
-    resultObjectList.emplace_back(obj);
-
+    SelectionInfo textSelectInfo;
     textSelectInfo.SetResultObjectList(resultObjectList);
     richEditorPattern->GetAdjustedSelectionInfo(textSelectInfo);
 

@@ -242,12 +242,11 @@ void ETSAnalyzer::CheckMethodModifiers(ir::MethodDefinition *node) const
         node->SetTsType(checker->GlobalTypeError());
     }
 
-    auto const notValidInFinal = ir::ModifierFlags::ABSTRACT | ir::ModifierFlags::STATIC | ir::ModifierFlags::NATIVE;
+    auto const notValidInFinal = ir::ModifierFlags::ABSTRACT | ir::ModifierFlags::STATIC;
 
     if (node->IsFinal() && (node->flags_ & notValidInFinal) != 0U) {
-        checker->LogTypeError(
-            "Invalid method modifier(s): a final method can't have abstract, static or native modifier.",
-            node->Start());
+        checker->LogTypeError("Invalid method modifier(s): a final method can't have abstract or static modifier.",
+                              node->Start());
         node->SetTsType(checker->GlobalTypeError());
     }
 
@@ -2197,10 +2196,20 @@ checker::Type *ETSAnalyzer::Check(ir::ClassDeclaration *st) const
 checker::Type *ETSAnalyzer::Check(ir::AnnotationDeclaration *st) const
 {
     ETSChecker *checker = GetETSChecker();
+
+    if (!st->Expr()->IsIdentifier()) {
+        st->Expr()->Check(checker);
+    }
+
     for (auto *it : st->Properties()) {
         auto *property = it->AsClassProperty();
         property->Check(checker);
         checker->CheckAnnotationPropertyType(property);
+    }
+
+    auto *annoDecl = st->GetBaseName()->Variable()->Declaration()->Node()->AsAnnotationDeclaration();
+    if (annoDecl != st && annoDecl->IsDeclare()) {
+        checker->CheckAmbientAnnotation(st, annoDecl);
     }
     return nullptr;
 }
@@ -2208,6 +2217,14 @@ checker::Type *ETSAnalyzer::Check(ir::AnnotationDeclaration *st) const
 checker::Type *ETSAnalyzer::Check(ir::AnnotationUsage *st) const
 {
     ETSChecker *checker = GetETSChecker();
+
+    if (!st->GetBaseName()->Variable()->Declaration()->Node()->IsAnnotationDeclaration()) {
+        checker->LogTypeError({"'", st->GetBaseName()->Name(), "' is not an annotation."}, st->GetBaseName()->Start());
+        return nullptr;
+    }
+
+    auto *annoDecl = st->GetBaseName()->Variable()->Declaration()->Node()->AsAnnotationDeclaration();
+    annoDecl->Check(checker);
 
     if (!st->Expr()->IsIdentifier()) {
         st->Expr()->Check(checker);
@@ -2222,14 +2239,6 @@ checker::Type *ETSAnalyzer::Check(ir::AnnotationUsage *st) const
                                   property->Value()->Start());
         }
     }
-
-    if (!st->GetBaseName()->Variable()->Declaration()->Node()->IsAnnotationDeclaration()) {
-        checker->LogTypeError({"'", st->GetBaseName()->Name(), "' is not an annotation."}, st->GetBaseName()->Start());
-        return nullptr;
-    }
-
-    auto *annoDecl = st->GetBaseName()->Variable()->Declaration()->Node()->AsAnnotationDeclaration();
-    annoDecl->Check(checker);
 
     ArenaUnorderedMap<util::StringView, ir::ClassProperty *> fieldMap {checker->Allocator()->Adapter()};
     for (auto *it : annoDecl->Properties()) {
@@ -2352,11 +2361,7 @@ checker::Type *ETSAnalyzer::Check(ir::ForOfStatement *const st) const
     if (exprType->IsETSStringType()) {
         elemType = checker->GetGlobalTypesHolder()->GlobalCharType();
     } else if (exprType->IsETSArrayType()) {
-        elemType = exprType->AsETSArrayType()->ElementType()->Instantiate(checker->Allocator(), checker->Relation(),
-                                                                          checker->GetGlobalTypesHolder());
-        if (elemType != nullptr) {
-            elemType->RemoveTypeFlag(checker::TypeFlag::CONSTANT);
-        }
+        elemType = exprType->AsETSArrayType()->ElementType();
     } else if (exprType->IsETSObjectType() || exprType->IsETSUnionType() || exprType->IsETSTypeParameter()) {
         elemType = st->CheckIteratorMethod(checker);
     }

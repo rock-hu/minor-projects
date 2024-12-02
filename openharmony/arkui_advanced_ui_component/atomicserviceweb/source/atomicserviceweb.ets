@@ -85,6 +85,7 @@ const UPLOAD_IMAGE_FILES_URI_REQUIRED_ERROR: AsError = new AsError(200012, 'Para
 const UPLOAD_FILE_ERROR: AsError = new AsError(200013, 'Upload file error.');
 const IMAGE_CAN_NOT_PREVIEW_ERROR: AsError = new AsError(200014, 'The filePath can not preview.');
 const NETWORK_NO_ACTIVE_ERROR: AsError = new AsError(200015, 'The network is not active.');
+const PERMISSION_LOCATION_USER_REFUSED_ERROR: number = 200016;
 
 registerJsApi('router.pushUrl', 'pushUrl', '1.0.0', MAX_VERSION, ['url']);
 registerJsApi('router.replaceUrl', 'replaceUrl', '1.0.0', MAX_VERSION, ['url']);
@@ -656,23 +657,6 @@ class AtomicService {
     return http.substring(index + 1);
   }
 
-  saveDownloadFile(filePath: string, fileName: string, options: DownloadFileOptions,
-    callback: (uri: string) => void): void {
-    let documentPicker = new filePicker.DocumentViewPicker();
-    documentPicker.save({
-      newFileNames: [fileName]
-    }).then(res => {
-      let uri: string = res[0];
-      fs.copy(fileUri.getUriFromPath(filePath), uri).then(() => {
-        callback && callback(uri);
-      }).catch((err: BusinessError) => {
-        this.error(err, options);
-      });
-    }).catch((err: BusinessError) => {
-      this.error(err, options);
-    });
-  }
-
   checkAccessToken(permissionName: Permissions): Promise<abilityAccessCtrl.GrantStatus> {
     let bundleInfo: bundleManager.BundleInfo = bundleManager.getBundleInfoForSelfSync(
       bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION);
@@ -690,6 +674,12 @@ class AtomicService {
         atManager.requestPermissionsFromUser(this.context, [permissionName]).then(permissionRequestResult => {
           for (let i = 0; i < permissionRequestResult.authResults.length; i++) {
             if (permissionRequestResult.authResults[i] != 0) {
+              const error: BusinessError<void> = {
+                name: '',
+                message: `RequestPermissionsFromUser error. authResult: ${permissionRequestResult.authResults[i]}.`,
+                code: PERMISSION_LOCATION_USER_REFUSED_ERROR
+              };
+              grantCallback(error);
               return;
             }
           }
@@ -882,20 +872,12 @@ class AtomicServiceApi extends AtomicService {
 
   openPreview(options: OpenPreviewOptions): void {
     let uri: string = this.getUri(options.uri as string);
-    filePreview.canPreview(this.context, uri).then((res: boolean) => {
-      if (!res) {
-        this.errorWithCodeAndMsg(IMAGE_CAN_NOT_PREVIEW_ERROR, options);
-        return;
-      }
-      filePreview.openPreview(this.context, {
-        uri: uri,
-        mimeType: options.mimeType as string,
-        title: options.title
-      }).then(() => {
-        this.success(new OpenPreviewResult(), options);
-      }).catch((err: BusinessError) => {
-        this.error(err, options);
-      });
+    filePreview.openPreview(this.context, {
+      uri: uri,
+      mimeType: options.mimeType as string,
+      title: options.title
+    }).then(() => {
+      this.success(new OpenPreviewResult(), options);
     }).catch((err: BusinessError) => {
       this.error(err, options);
     });
@@ -929,7 +911,6 @@ class AtomicServiceApi extends AtomicService {
   }
 
   downloadFile(options: DownloadFileOptions): void {
-    let fileName: string = options.fileName ? options.fileName : this.parseFileNameFromUrl(options.url);
     let cacheFileName: string = `${util.generateRandomUUID().replaceAll('-', '')}`;
     let filePath: string = `${this.context.cacheDir}/${cacheFileName}`;
     request.downloadFile(this.context, {
@@ -942,9 +923,7 @@ class AtomicServiceApi extends AtomicService {
       background: false
     }).then((downloadTask: request.DownloadTask) => {
       downloadTask.on('complete', () => {
-        this.saveDownloadFile(filePath, fileName, options, uri => {
-          this.success(new DownloadFileResult(uri), options);
-        });
+        this.success(new DownloadFileResult(filePath), options);
       });
       downloadTask.on('fail', errCode => {
         this.errorWithCodeAndMsg(new AsError(errCode, 'File download fail.'), options);

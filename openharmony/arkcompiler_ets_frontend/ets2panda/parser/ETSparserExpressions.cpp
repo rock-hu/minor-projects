@@ -171,6 +171,10 @@ ir::Expression *ETSParser::ParseUnaryOrPrefixUpdateExpression(ExpressionParseFla
 
     ir::Expression *argument = ResolveArgumentUnaryExpr(flags);
 
+    if (argument == nullptr) {
+        return nullptr;
+    }
+
     if (lexer::Token::IsUpdateToken(operatorType)) {
         if (!argument->IsIdentifier() && !argument->IsMemberExpression()) {
             LogSyntaxError("Invalid left-hand side in prefix operation");
@@ -553,6 +557,12 @@ ir::Expression *ETSParser::ParsePotentialAsExpression(ir::Expression *primaryExp
     TypeAnnotationParsingOptions options = TypeAnnotationParsingOptions::REPORT_ERROR;
     ir::TypeNode *type = ParseTypeAnnotation(&options);
 
+    if (type == nullptr) {
+        // Error processing
+        // Failed to parse type annotation for AsExpression
+        return nullptr;
+    }
+
     auto *asExpression = AllocNode<ir::TSAsExpression>(primaryExpr, type, false);
     asExpression->SetRange(primaryExpr->Range());
     return asExpression;
@@ -707,41 +717,6 @@ ir::Expression *ETSParser::ParseETSImportExpression()
     auto *importExpression = AllocNode<ir::ImportExpression>(source);
     importExpression->SetRange({startLoc, endLoc});
     return importExpression;
-}
-
-ir::ThisExpression *ETSParser::ParseThisExpression()
-{
-    auto *thisExpression = TypedParser::ParseThisExpression();
-
-    if (Lexer()->GetToken().NewLine()) {
-        return thisExpression;
-    }
-
-    switch (Lexer()->GetToken().Type()) {
-        case lexer::TokenType::PUNCTUATOR_PERIOD:
-        case lexer::TokenType::PUNCTUATOR_LEFT_PARENTHESIS:
-        case lexer::TokenType::PUNCTUATOR_RIGHT_PARENTHESIS:
-        case lexer::TokenType::PUNCTUATOR_RIGHT_BRACE:
-        case lexer::TokenType::PUNCTUATOR_SEMI_COLON:
-        case lexer::TokenType::PUNCTUATOR_COLON:
-        case lexer::TokenType::PUNCTUATOR_EQUAL:
-        case lexer::TokenType::PUNCTUATOR_NOT_EQUAL:
-        case lexer::TokenType::PUNCTUATOR_STRICT_EQUAL:
-        case lexer::TokenType::PUNCTUATOR_NOT_STRICT_EQUAL:
-        case lexer::TokenType::PUNCTUATOR_COMMA:
-        case lexer::TokenType::PUNCTUATOR_QUESTION_MARK:
-        case lexer::TokenType::PUNCTUATOR_LEFT_SQUARE_BRACKET:
-        case lexer::TokenType::KEYW_INSTANCEOF:
-        case lexer::TokenType::KEYW_AS: {
-            break;
-        }
-        default: {
-            LogUnexpectedToken(Lexer()->GetToken().Type());
-            break;
-        }
-    }
-
-    return thisExpression;
 }
 
 ir::Expression *ETSParser::ParsePotentialExpressionSequence(ir::Expression *expr, ExpressionParseFlags flags)

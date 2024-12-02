@@ -128,7 +128,7 @@
     status: Finished
 3.7.5:
     title: Literal Types
-    status: ''
+    status: Finished
 '3.8':
     title: Reference Types
     status: ''
@@ -617,7 +617,7 @@
     status: ''
 '7.33':
     title: Dynamic Import Expression
-    status: ''
+    status: 'Finished'
 '7.34':
     title: Constant Expressions
     status: ''
@@ -1100,7 +1100,7 @@
     status: No testable assertions
 17.8.1:
     title: Native Functions
-    status: ''
+    status: 'Finished'
 17.8.2:
     title: Native Methods
     status: ''
@@ -1220,7 +1220,7 @@
     status: ''
 17.19.3:
     title: Import and Overloading of Function Names
-    status: ''
+    status: 'Finished'
 '17.20':
     title: Generics Experimental
     status: No testable assertions

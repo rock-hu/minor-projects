@@ -539,7 +539,7 @@ TaggedObject *Heap::AllocateSharedNonMovableSpaceFromTlab(JSThread *thread, size
         if (thread->IsJitThread()) {
             LOG_ECMA(FATAL) << "jit thread not allowed";
         }
-        if (thread->GetThreadId() != JSThread::GetCurrentThreadId()) {
+        if (thread->GetThreadId() != JSThread::GetCurrentThreadId() && !thread->IsCrossThreadExecutionEnable()) {
             LOG_FULL(FATAL) << "Fatal: ecma_vm cannot run in multi-thread!"
                             << "thread:" << thread->GetThreadId()
                             << " currentThread:" << JSThread::GetCurrentThreadId();
@@ -576,7 +576,7 @@ TaggedObject *Heap::AllocateSharedOldSpaceFromTlab(JSThread *thread, size_t size
         if (thread->IsJitThread()) {
             LOG_ECMA(FATAL) << "jit thread not allowed";
         }
-        if (thread->GetThreadId() != JSThread::GetCurrentThreadId()) {
+        if (thread->GetThreadId() != JSThread::GetCurrentThreadId() && !thread->IsCrossThreadExecutionEnable()) {
             LOG_FULL(FATAL) << "Fatal: ecma_vm cannot run in multi-thread!"
                             << "thread:" << thread->GetThreadId()
                             << " currentThread:" << JSThread::GetCurrentThreadId();
@@ -1018,6 +1018,24 @@ void SharedHeap::CollectGarbage(JSThread *thread)
     ASSERT(!gcFinished_);
     SetForceGC(true);
     WaitGCFinished(thread);
+}
+
+template<TriggerGCType gcType, GCReason gcReason>
+void SharedHeap::PostGCTaskForTest(JSThread *thread)
+{
+    ASSERT(gcType == TriggerGCType::SHARED_GC || gcType == TriggerGCType::SHARED_FULL_GC);
+#ifndef NDEBUG
+    ASSERT(!thread->HasLaunchedSuspendAll());
+#endif
+    if (dThread_->IsRunning()) {
+        // Some UT may run without Daemon Thread.
+        LockHolder lock(waitGCFinishedMutex_);
+        if (dThread_->CheckAndPostTask(TriggerCollectGarbageTask<gcType, gcReason>(thread))) {
+            ASSERT(gcFinished_);
+            gcFinished_ = false;
+        }
+        ASSERT(!gcFinished_);
+    }
 }
 
 static void SwapBackAndPop(CVector<JSNativePointer*>& vec, CVector<JSNativePointer*>::iterator& iter)

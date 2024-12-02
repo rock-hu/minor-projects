@@ -2231,6 +2231,23 @@ DEF_CALL_SIGNATURE(DebugPrintInstruction)
     callSign->SetTargetKind(CallSignature::TargetKind::RUNTIME_STUB_NO_GC);
 }
 
+DEF_CALL_SIGNATURE(CollectingOpcodes)
+{
+    // 2 : 2 input parameters
+    CallSignature collectingOpcodes("CollectingOpcodes", 0, 2,
+        ArgumentsOrder::DEFAULT_ORDER, VariableType::VOID());
+    *callSign = collectingOpcodes;
+    // 2 : 2 input parameters
+    std::array<VariableType, 2> params = {
+        VariableType::NATIVE_POINTER(),
+        VariableType::NATIVE_POINTER(),
+    };
+    callSign->SetVariadicArgs(true);
+    callSign->SetParameters(params.data());
+    callSign->SetGCLeafFunction(true);
+    callSign->SetTargetKind(CallSignature::TargetKind::RUNTIME_STUB_NO_GC);
+}
+
 DEF_CALL_SIGNATURE(DebugOsrEntry)
 {
     // 2 : 2 input parameters
@@ -2467,6 +2484,20 @@ DEF_CALL_SIGNATURE(DoubleToInt)
     std::array<VariableType, 2> params = {
         VariableType::FLOAT64(),
         VariableType::NATIVE_POINTER(),
+    };
+    callSign->SetParameters(params.data());
+    callSign->SetGCLeafFunction(true);
+    callSign->SetTargetKind(CallSignature::TargetKind::RUNTIME_STUB_NO_GC);
+}
+
+DEF_CALL_SIGNATURE(SaturateTruncDoubleToInt32)
+{
+    // 1 : 1 input parameters
+    CallSignature index("SaturateTruncDoubleToInt32", 0, 1, ArgumentsOrder::DEFAULT_ORDER, VariableType::INT32());
+    *callSign = index;
+    // 1 : 1 input parameters
+    std::array<VariableType, 1> params = {
+        VariableType::FLOAT64(),
     };
     callSign->SetParameters(params.data());
     callSign->SetGCLeafFunction(true);
@@ -3027,6 +3058,22 @@ DEF_CALL_SIGNATURE(CreateJSTypedArrayValues)
     std::array<VariableType, 2> params = {
         VariableType::NATIVE_POINTER(),  // glue
         VariableType::JS_ANY(),          // obj
+    };
+    callSign->SetParameters(params.data());
+    callSign->SetCallConv(CallSignature::CallConv::CCallConv);
+}
+
+DEF_CALL_SIGNATURE(GrowElementsCapacity)
+{
+    // 6 : 6 input parameters
+    CallSignature growElementsCapacity("GrowElementsCapacity", 0, 3, ArgumentsOrder::DEFAULT_ORDER,
+        VariableType::JS_ANY());
+    *callSign = growElementsCapacity;
+    // 6 : 6 input parameters
+    std::array<VariableType, 3> params = {     // 3 : 3 input parameters
+        VariableType::NATIVE_POINTER(),    // glue
+        VariableType::JS_ANY(),            // thisValue
+        VariableType::INT32(),             // newlength
     };
     callSign->SetParameters(params.data());
     callSign->SetCallConv(CallSignature::CallConv::CCallConv);

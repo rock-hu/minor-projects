@@ -31,28 +31,35 @@ namespace abckit {
 class Entity {
 public:
     /**
-     * @brief Constructor
+     * @brief Copy constructor allowed
      */
     Entity(const Entity &) = default;
 
     /**
-     * @brief Constructor
+     * @brief Copy assignment allowed
      * @return Entity
      */
     Entity &operator=(const Entity &) = default;
 
     /**
-     * @brief Constructor
+     * @brief Move constructor allowed
      */
     Entity(Entity &&) = default;
 
     /**
-     * @brief Constructor
+     * @brief Move assignment allowed
      * @return Entity
      */
     Entity &operator=(Entity &&) = default;
 
+    /**
+     * @brief Default constructor
+     */
     Entity() = default;
+
+    /**
+     * @brief Destructor
+     */
     virtual ~Entity() = default;
 
     /**
@@ -69,7 +76,7 @@ template <typename T, typename = std::enable_if_t<std::is_pointer_v<T>>>
 class View : public Entity {
 public:
     /**
-     * Operator ==
+     * @brief Operator ==
      * @param rhs
      * @return bool
      */
@@ -79,7 +86,17 @@ public:
     }
 
     /**
-     * Operator bool
+     * @brief Operator !=
+     * @param rhs
+     * @return bool
+     */
+    bool operator!=(const View<T> &rhs) const
+    {
+        return GetView() != rhs.GetView();
+    }
+
+    /**
+     * @brief Operator bool
      * @return bool
      */
     explicit operator bool() const
@@ -89,7 +106,7 @@ public:
 
 protected:
     /**
-     * Constructor
+     * @brief Constructor
      * @param ...a
      */
     template <typename... Args>
@@ -99,23 +116,23 @@ protected:
     // Can move and copy views
 
     /**
-     * @brief Constructor
+     * @brief Copy constructor
      */
     View(const View &) = default;
 
     /**
-     * @brief Constructor
+     * @brief Copy assignment
      * @return View
      */
     View &operator=(const View &) = default;
 
     /**
-     * @brief Constructor
+     * @brief Move constructor
      */
     View(View &&) = default;
 
     /**
-     * @brief Constructor
+     * @brief Move assignment
      * @return View
      */
     View &operator=(View &&) = default;
@@ -124,7 +141,7 @@ protected:
     ~View() override = default;
 
     /**
-     * Get view
+     * @brief Get view
      * @return T
      */
     T GetView() const
@@ -133,7 +150,7 @@ protected:
     }
 
     /**
-     * Set view
+     * @brief Set view
      * @param newView
      */
     void SetView(T newView)
@@ -145,6 +162,101 @@ private:
     T view_;
 };
 
+/**
+ * @brief ViewInResource
+ */
+template <typename T, typename R, typename = std::enable_if_t<std::is_pointer_v<R>>>
+class ViewInResource : public View<T> {
+public:
+    /**
+     * @brief Operator bool
+     * @return bool
+     */
+    explicit operator bool() const
+    {
+        return resource_ != nullptr && *static_cast<const View<T> *>(this);
+    }
+
+protected:
+    /**
+     * @brief Constructor
+     * @param ...a
+     */
+    template <typename... Args>
+    explicit ViewInResource(Args &&...a) : View<T>(std::forward<Args>(a)...)
+    {
+    }
+
+    // Can move and copy views in resource
+
+    /**
+     * @brief Copy constructor
+     */
+    ViewInResource(const ViewInResource &) = default;
+
+    /**
+     * @brief Copy assignment
+     * @return ViewInResource
+     */
+    ViewInResource &operator=(const ViewInResource &) = default;
+
+    /**
+     * @brief Move constructor
+     */
+    ViewInResource(ViewInResource &&) = default;
+
+    /**
+     * @brief Move assignment
+     * @return ViewInResource
+     */
+    ViewInResource &operator=(ViewInResource &&) = default;
+
+    /**
+     * @brief Destructor
+     */
+    ~ViewInResource() override = default;
+
+    /**
+     * @brief Get resource
+     * @return R
+     */
+    R GetResource() const
+    {
+        return resource_;
+    }
+
+    /**
+     * @brief Set resource
+     * @param newResource
+     */
+    void SetResource(R newResource)
+    {
+        resource_ = newResource;
+    }
+
+    /**
+     * @brief Struct for using in callbacks
+     */
+    template <typename D>
+    struct Payload {
+        /**
+         * @brief data
+         */
+        D data;
+        /**
+         * @brief config
+         */
+        const ApiConfig *config;
+        /**
+         * @brief resource
+         */
+        R resource;
+    };
+
+private:
+    R resource_;
+};
+
 // Resource - ptr semantics
 /**
  * @brief Resource
@@ -154,15 +266,15 @@ class Resource : public Entity {
 public:
     // No copy for resources
     /**
-     * @brief Deleted constructor
+     * @brief Deleted copy constructor
      */
-    Resource(Resource &) = delete;
+    Resource(const Resource &) = delete;
 
     /**
-     * @brief Deleted constructor
+     * @brief Deleted copy assignment
      * @return Resource&
      */
-    Resource &operator=(Resource &) = delete;
+    Resource &operator=(const Resource &) = delete;
 
 protected:
     /**
@@ -187,7 +299,7 @@ protected:
 
     // Resources are movable
     /**
-     * @brief Constructor
+     * @brief Move constructor
      * @param other
      */
     Resource(Resource &&other)
@@ -197,7 +309,7 @@ protected:
     };
 
     /**
-     * @brief
+     * @brief Move assignment
      * @param other
      * @return Resource&
      */

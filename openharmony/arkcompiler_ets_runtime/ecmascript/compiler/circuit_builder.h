@@ -806,6 +806,7 @@ public:
         GateRef thisValue, GateRef callBackFn, GateRef usingThis, GateRef callIDRef, uint32_t pcOffset);
     GateRef ArrayEvery(GateRef thisValue, GateRef callBackFn, GateRef usingThis, uint32_t pcOffset);
     GateRef ArrayPop(GateRef thisValue, GateRef frameState);
+    GateRef ArrayPush(GateRef thisValue, GateRef value);
     GateRef ArraySlice(GateRef thisValue, GateRef startIndex, GateRef endIndex, GateRef frameState);
     GateRef ToNumber(GateRef gate, GateRef value, GateRef glue);
     GateRef StringToNumber(GateRef gate, GateRef value, GateRef radix, GateRef glue);
@@ -871,8 +872,9 @@ public:
     inline GateRef GetDoubleOfTDouble(GateRef x);
     inline GateRef GetBooleanOfTBoolean(GateRef x);
     GateRef GetDoubleOfTNumber(GateRef x);
-    GateRef DoubleToInt(GateRef x, Label *exit);
-    GateRef DoubleToInt(GateRef glue, GateRef x, size_t typeBits);
+    GateRef TruncDoubleToInt(GateRef glue, GateRef x, size_t typeBits);
+    GateRef DoubleToIntOverflowCheck(GateRef x, size_t typeBits);
+    GateRef SaturateTruncDoubleToInt32(GateRef glue, GateRef x);
     GateRef DoubleCheckINFInRangeInt32(GateRef x);
     GateRef DoubleInRangeInt32(GateRef x);
     inline GateRef Int32ToTaggedPtr(GateRef x);

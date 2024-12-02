@@ -18,11 +18,10 @@
 #include "helpers/helpers.h"
 #include "helpers/helpers_runtime.h"
 
+#include <gtest/gtest.h>
+
 #include <optional>
 #include <string_view>
-#include <regex>
-
-#include <gtest/gtest.h>
 
 namespace libabckit::test {
 
@@ -36,7 +35,7 @@ class GTestAssertErrorHandler final : public abckit::IErrorHandler {
 public:
     void HandleError(abckit::Exception &&err) override
     {
-        EXPECT_TRUE(false) << "Abckit expection raised: " << err.What();
+        EXPECT_TRUE(false) << "Abckit expection raised: " << err.what();
     }
 };
 
@@ -130,7 +129,10 @@ void CreateEpilog(abckit::Graph &graph, const abckit::BasicBlock &bb, const abck
 void TransformIr(abckit::Graph &graph, const UserData &userData)
 {
     const abckit::Instruction iTimeStart = CreateProlog(graph, userData);
-    graph.EnumerateBasicBlocksRpo([&](const abckit::BasicBlock &bb) { CreateEpilog(graph, bb, iTimeStart, userData); });
+    graph.EnumerateBasicBlocksRpo([&](const abckit::BasicBlock &bb) {
+        CreateEpilog(graph, bb, iTimeStart, userData);
+        return true;
+    });
 }
 
 }  // namespace
@@ -171,7 +173,7 @@ TEST_F(AbckitScenarioCPPTestClean, LibAbcKitTestDynamicAddLogClean)
         });
         EXPECT_TRUE(handleMethod.has_value());
 
-        abckit::Graph graph = handleMethod->GetGraph();
+        abckit::Graph graph = handleMethod->CreateGraph();
         TransformIr(graph, data);
         handleMethod->SetGraph(graph);
 
