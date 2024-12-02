@@ -5,6 +5,9 @@
 ## 3.1.0-rc.0
 - 升级状态管理器V2
 
+## 3.0.16
+- Fix the issue of no custom UI after sliding and lifting the hand
+
 ## 3.0.15
 - Fix the issue of sliding stuttering in the setLongPressCursorEnabled scenario
 

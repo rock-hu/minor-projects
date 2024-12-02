@@ -96,6 +96,11 @@ export default struct LineChart {
             SwipeGesture()
               .onAction((event: GestureEvent) => {
                 if (event && this.model) {
+                  if (this.customUiTriggerEvent === EventType.SingleTap &&
+                  this.model.eventControl.eventIsEnable(EventType.SingleTap) && this.model.getTouchEnabled()
+                  ) {
+                    this.calcCustomUiInfo(event)
+                  }
                   if (this.model.isDragDecelerationEnabled()) {
                     this.model.computeScroll(event);
                   }
