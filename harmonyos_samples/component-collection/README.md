@@ -6,11 +6,11 @@
 
 ### 效果预览
 
-| 组件                                          | 通用                                             | 动画                                                            | 全局方法                                               |
-|---------------------------------------------|------------------------------------------------|---------------------------------------------------------------|----------------------------------------------------|
-| ![image](screenshots/devices/component.jpg) | ![image](screenshots/devices/general.jpg)      | ![image](screenshots/devices/animation.jpg)                   | ![image](screenshots/devices/global.jpg)           |
-| <center>Button 按钮</center>                  | <center>onClick 点击事件</center>                  | <center>元素共享转场</center>                                       | <center>警告弹窗</center>                              |
-| ![image](screenshots/devices/button.jpg)    | ![image](screenshots/devices/click_event.jpg) | ![image](screenshots/devices/share_element_transition.jpg) | ![image](screenshots/devices/warning_popup.jpg) |
+| 组件                                          | 通用                                            | 动画                                                         | 全局方法                                            |
+|---------------------------------------------|-----------------------------------------------|------------------------------------------------------------|-------------------------------------------------|
+| ![image](screenshots/devices/component.png) | ![image](screenshots/devices/general.png)     | ![image](screenshots/devices/animation.png)                | ![image](screenshots/devices/global.png)        |
+| <center>Button 按钮</center>                  | <center>onClick 点击事件</center>                 | <center>元素共享转场</center>                                    | <center>警告弹窗</center>                           |
+| ![image](screenshots/devices/button.png)    | ![image](screenshots/devices/click_event.png) | ![image](screenshots/devices/share_element_transition.png) | ![image](screenshots/devices/warning_popup.png) |
 
 使用说明：
 
