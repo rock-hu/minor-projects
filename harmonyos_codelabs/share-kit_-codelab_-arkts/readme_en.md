@@ -3,10 +3,12 @@
 Share Kit enables content such as text, images, and videos to be shared across apps. To share content to other apps through Share Kit, an app needs to send configuration about the content to be shared and the preview style to Share Kit. Share Kit then constructs a sharing panel based on the shared data type and quantity of shared items to provide users with content preview, recommended sharing contacts, associated apps, and relevant operations. Users can quickly select the target app to share content or choose the desired operation.
 
 ## Preview
-![](./screenshots/device/systemshare_en.jpg)
-![](./screenshots/device/effectTextSingle_en.jpg)
-![](./screenshots/device/effectImageDetail_en.jpg)
-![](./screenshots/device/effectVideoDetail_en.jpg)
+![](./screenshots/device/share_tab1_en.jpg)
+![](./screenshots/device/share_tab2_en.jpg)
+![](./screenshots/device/share_tab3_en.jpg)
+![](./screenshots/device/share_demo1_en.jpg)
+![](./screenshots/device/share_demo2_en.jpg)
+![](./screenshots/device/share_demo3_en.jpg)
 
 ## Concepts
 - [Stage model](https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V5/stage-model-development-overview-V5): It is designed to solve development issues that cannot be solved in the [FA model](https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V5/fa-model-development-overview-V5), making it easier to develop complex apps in the distributed environment. The stage model is supported since API version 9.
@@ -17,15 +19,31 @@ Share Kit enables content such as text, images, and videos to be shared across a
 
 ```c
 ├─entry/src/main/ets                         // Code area.
+│  ├─components
+│  │  ├─modules                              // Common modules.
+│  │  ├─AccessModel.ets                      // Access Mode.
+│  │  ├─BasicUse.ets                         // Basic use.
+│  │  ├─FunctionExample.ets                  // Function example.
+│  │  ├─KnockShare.ets                       // tap-to-share.
+│  │  ├─ReferralContact.ets                  // Recommended contacts.
+│  │  └─TypicalScenarios.ets                 // Typical scenarios.
 │  ├─entryability
 │  │  ├─EntryAbility.ets                     // Entry component.
 │  │  └─ShareUIAbility.ets                   // Component for an app to process the shared content.
 │  ├─extensionAbility
 │  │  └─ShareExtAbility.ets                  // Component for the level-2 panel to process the shared content.
-│  └─pages
-│     ├─Index.ets                            // Home page.
+│  ├─pages
+│  │  ├─Index.ets                            // Home page.
 │     ├─ShareExtDialog.ets                   // Page for the level-2 panel to process the shared content.
 │     └─ShareUIPage.ets                      // Page for an app to process the shared content.
+│  ├─scenario                                // Scenario examples.
+│  │  ├─AppLinkingScenario.ets               // Sharing a link of App Linking.
+│  │  ├─ImageScenario.ets                    // Image sharing.
+│  │  ├─LinkScenario.ets                     // Link sharing.
+│  │  ├─PostersScenario.ets                  // Poster and link sharing.
+│  │  ├─TextScenario.ets                     // Text sharing.
+│  │  └─VideoScenario.ets                    // Video sharing.
+│  └─utils                                   // Utility class.
 ├─entry/src/main/resources                   // App resource directory.
 │  ├─base
 │  │  ├─media                                // Directory for storing sample images.
@@ -44,6 +62,12 @@ None
 1. Install the sample app: Prepare a phone, connect the phone to DevEco, and tap the green arrow next to **entry** in DevEco.
 2. When the sample app is started, tap the share button to display the sharing panel.
 3. Share data to a target app, choose a desired operation, or share data to another device through Huawei Share.
+
+## Code Snippets:
+1. Customize a UTD.
+    + Code path: **entry/src/main/resources/rawfile/arkdata/utd/utd.json5**
+2. Share contact information to the recommendation area on the sharing panel.
+    + Code path: **entry/src/main/ets/components/ReferralContact.ets**
 
 ## Constraints
 1. The sample app is only supported on Huawei phones, tablets, and 2-in-1 devices with standard systems.

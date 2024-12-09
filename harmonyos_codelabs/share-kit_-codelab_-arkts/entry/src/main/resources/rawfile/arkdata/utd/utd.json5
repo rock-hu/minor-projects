@@ -1,0 +1,13 @@
+{
+  "UniformDataTypeDeclarations": [
+    // 自定义utd类型
+    {
+      "TypeId": "com.example.sharekit_sample_demo.share",
+      "BelongingToTypes": ["general.object"],
+      "FilenameExtensions": [".share",".sharekit"],
+      "MIMETypes": ["application/share"],
+      "Description": "share kit object.",
+      "ReferenceURL": "https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/share-introduction-V5"
+    }
+  ]
+}

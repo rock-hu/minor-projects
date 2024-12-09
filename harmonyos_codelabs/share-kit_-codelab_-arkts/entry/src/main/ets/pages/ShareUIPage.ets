@@ -1,21 +1,28 @@
-import { common, Want } from '@kit.AbilityKit';
+import { common, OpenLinkOptions, Want } from '@kit.AbilityKit';
 import { systemShare } from '@kit.ShareKit';
 import { uniformTypeDescriptor as utd } from '@kit.ArkData';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { image } from '@kit.ImageKit';
 
+// 获取共享的storage实例
+// Obtaining a Shared Storage Instance
 let storage = LocalStorage.getShared();
 
-@Entry
+@Entry(storage)
 @Component
 struct SystemShare {
-  @State message: string = 'Target Application';
+  @State message: ResourceStr = $r('app.string.target_app');
   @State textContent: string = '';
   @State htmlLink: string = '';
+  @State imageUri: string = '';
+  @State videoUri: string = '';
+  @State pixelMap: image.PixelMap | null = null;
   private want: Want | undefined = storage.get<Want>('ShareUIAbilityWant');
 
   aboutToAppear(): void {
     systemShare.getSharedData(this.want).then((data: systemShare.SharedData) => {
       let records: systemShare.SharedRecord[] = data.getRecords();
-      records.forEach((record: systemShare.SharedRecord) => {
+      records.forEach(async (record: systemShare.SharedRecord) => {
         switch (record.utd) {
           case utd.UniformDataType.TEXT:
             record.content && (this.textContent = record.content);
@@ -32,7 +39,7 @@ struct SystemShare {
 
   @Builder
   ShareContent() {
-    Text('Sharing data')
+    Text($r('app.string.share_content'))
       .fontSize(28)
       .margin({ top: 20 })
 
@@ -46,6 +53,33 @@ struct SystemShare {
       Text(this.htmlLink)
         .fontSize(20)
         .margin({ top: 20 })
+        .onClick(() => {
+          let context: common.UIAbilityContext = getContext(this) as common.UIAbilityContext;
+          let openLinkOptions: OpenLinkOptions = {
+            appLinkingOnly: false
+          };
+          context.openLink(this.htmlLink, openLinkOptions)
+            .then(() => {
+              console.info('open link success.');
+            }).catch((err: BusinessError) => {
+              console.error(`open link failed. Code is ${err.code}, message is ${err.message}`);
+            })
+        })
+    }
+
+    if (this.imageUri) {
+      Image(this.imageUri)
+        .width(200)
+        .height(200)
+    }
+
+    if (this.videoUri) {
+      Video({
+        src: this.videoUri,
+        previewUri: this.pixelMap
+      })
+        .width(200)
+        .height(200)
     }
   }
 
@@ -59,7 +93,7 @@ struct SystemShare {
         this.ShareContent();
 
         Button() {
-          Text('BACK')
+          Text($r('app.string.action_back'))
             .fontSize(25)
             .fontColor('#FFFFFF')
             .fontWeight(FontWeight.Bold)

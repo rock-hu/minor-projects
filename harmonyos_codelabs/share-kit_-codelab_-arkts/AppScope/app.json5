@@ -1,6 +1,6 @@
 {
   "app": {
-    "bundleName": "com.example.sharekit_samplecode_clientdemo_arkts",
+    "bundleName": "com.example.sharekit_sample_demo",
     "vendor": "example",
     "versionCode": 1000000,
     "versionName": "1.0.0",

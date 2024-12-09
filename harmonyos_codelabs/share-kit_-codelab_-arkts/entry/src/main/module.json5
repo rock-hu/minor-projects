@@ -12,24 +12,51 @@
     "deliveryWithInstall": true,
     "installationFree": false,
     "pages": "$profile:main_pages",
+//    "requestPermissions": [
+//      {
+//        "name" : "ohos.permission.READ_IMAGEVIDEO",
+//        "reason": "$string:photo_reason",
+//        "usedScene": {
+//          "abilities": [
+//            "EntryAbility"
+//          ],
+//          "when":"inuse"
+//        }
+//      }
+//    ],
     "abilities": [
       {
         "name": "EntryAbility",
         "srcEntry": "./ets/entryability/EntryAbility.ets",
         "description": "$string:EntryAbility_desc",
-        "icon": "$media:icon",
+        "icon": "$media:launcher",
         "label": "$string:EntryAbility_label",
-        "startWindowIcon": "$media:startIcon",
+        "startWindowIcon": "$media:launcher",
         "startWindowBackground": "$color:start_window_background",
         "exported": true,
         "skills": [
           {
             "entities": [
-              "entity.system.home"
+              "entity.system.home",
+              "entity.system.browsable",
             ],
             "actions": [
-              "action.system.home"
-            ]
+              "action.system.home",
+              "ohos.want.action.viewData",
+              "ohos.want.action.sendData"
+            ],
+            "uris": [
+              {
+                "scheme": "https",
+                "host": "sharekitdemo.drcn.agconnect.link",
+              },
+              {
+                "scheme": "file",
+                "utd": "general.video",
+                "maxFileSupported": 1
+              }
+            ],
+            "domainVerify": true
           }
         ]
       },
@@ -37,9 +64,9 @@
         "name": "ShareUIAbility",
         "srcEntry": "./ets/entryability/ShareUIAbility.ets",
         "description": "$string:EntryAbility_desc",
-        "icon": "$media:icon",
+        "icon": "$media:launcher",
         "label": "$string:ShareUIAbility_label",
-        "startWindowIcon": "$media:startIcon",
+        "startWindowIcon": "$media:launcher",
         "startWindowBackground": "$color:start_window_background",
         "exported": true,
         "skills": [
@@ -51,7 +78,7 @@
               {
                 "scheme": "file",
                 "utd": "general.text",
-                "maxFileSupported": 6
+                "maxFileSupported": 1
               },
             ]
           }
@@ -63,7 +90,7 @@
         "name": "ShareExtensionAbility",
         "srcEntry": "./ets/extensionAbility/ShareExtAbility.ets",
         "description": "$string:EntryAbility_desc",
-        "icon": "$media:icon",
+        "icon": "$media:launcher",
         "label": "$string:ShareExtensionAbility_label",
         "type": "share",
         "exported": true,
@@ -78,12 +105,13 @@
                 "utd": "general.image",
                 "maxFileSupported": 3
               },
-              {
-                "scheme": "file",
-                "utd": "general.video",
-                "maxFileSupported": 1
-              }
             ]
+          }
+        ],
+        "metadata": [
+          {
+            "name": "systemShare.uiExtension.layout.preferredHeight",
+            "value": "400"
           }
         ]
       }
