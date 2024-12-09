@@ -269,7 +269,7 @@ void Scrollable::HandleTouchUp()
         }
         return;
     }
-    if (isList_ && state_ != AnimationState::SNAP && startSnapAnimationCallback_) {
+    if (state_ != AnimationState::SNAP && startSnapAnimationCallback_) {
         startSnapAnimationCallback_(0.f, 0.f, 0.f, 0.f);
     }
 }
@@ -797,6 +797,11 @@ void Scrollable::ProcessListSnapMotion(double position)
             }
             touchUp_ = true;
         }
+    }
+    if (LessOrEqual(std::abs(currentPos_ - position), 1)) {
+        // trace stop at OnScrollStop
+        AceAsyncTraceBegin(
+            nodeId_, (TRAILING_ANIMATION + std::to_string(nodeId_) + std::string(" ") + nodeTag_).c_str());
     }
     currentPos_ = position;
     if (canOverScroll_ && state_ == AnimationState::SNAP) {

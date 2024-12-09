@@ -69,13 +69,14 @@ void BuiltinsDataViewStubBuilder::SetTypedValue(GateRef glue, GateRef thisValue,
                 BRANCH(IsDetachedBuffer(buffer), slowPath, &checkOffset);
                 Bind(&checkOffset);
                 {
-                    GateRef offset = GetByteOffset(thisValue);
-                    GateRef size = GetByteLength(thisValue);
+                    GateRef size = ZExtInt32ToInt64(GetByteLength(thisValue));
                     GateRef elementSize = GetElementSize(type);
-                    BRANCH(Int32GreaterThan(Int32Add(index, elementSize), size), slowPath, &setValue);
+                    GateRef indexInt64 = ZExtInt32ToInt64(index);
+                    BRANCH(Int64UnsignedGreaterThan(Int64Add(indexInt64, elementSize), size), slowPath, &setValue);
                     Bind(&setValue);
                     {
-                        GateRef bufferIndex = Int32Add(index, offset);
+                        GateRef offset = ZExtInt32ToInt64(GetByteOffset(thisValue));
+                        GateRef bufferIndex = TruncInt64ToInt32(Int64Add(indexInt64, offset));
                         BuiltinsTypedArrayStubBuilder builder(this);
                         GateRef pointer = builder.GetDataPointFromBuffer(buffer);
                         GateRef doubleValue = TaggedGetNumber(value);
@@ -200,21 +201,21 @@ GateRef BuiltinsDataViewStubBuilder::GetElementSize(DataViewType type)
         case DataViewType::INT8:
         case DataViewType::UINT8:
         case DataViewType::UINT8_CLAMPED:
-            size = Int32(1);
+            size = Int64(1);
             break;
         case DataViewType::INT16:
         case DataViewType::UINT16:
-            size = Int32(2);  // 2 means the length
+            size = Int64(2);  // 2 means the length
             break;
         case DataViewType::INT32:
         case DataViewType::UINT32:
         case DataViewType::FLOAT32:
-            size = Int32(4);  // 4 means the length
+            size = Int64(4);  // 4 means the length
             break;
         case DataViewType::FLOAT64:
         case DataViewType::BIGINT64:
         case DataViewType::BIGUINT64:
-            size = Int32(8);  // 8 means the length
+            size = Int64(8);  // 8 means the length
             break;
         default:
             LOG_ECMA(FATAL) << "this branch is unreachable";

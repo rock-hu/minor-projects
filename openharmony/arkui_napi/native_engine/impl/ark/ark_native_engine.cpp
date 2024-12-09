@@ -50,6 +50,8 @@
 #include "musl_preinit_common.h"
 #include "memory_trace.h"
 
+#include "ecmascript/base/config.h"
+
 // LCOV_EXCL_START
 struct alignas(8) HookJsConfig { // 8 is 8 bit
     int32_t jsStackReport = 0;
@@ -454,7 +456,8 @@ ArkNativeEngine::ArkNativeEngine(EcmaVM* vm, void* jsEngine, bool isLimitedWorke
                         } else {
                             buffer = static_cast<const void *>(module->jsCode);
                         }
-                        auto exportObject = arkNativeEngine->LoadArkModule(buffer, module->jsCodeLen, fileName);
+                        auto exportObject = arkNativeEngine->LoadArkModule(buffer,
+                            module->jsCodeLen, fileName);
                         if (exportObject->IsUndefined()) {
                             HILOG_ERROR("load module failed");
                             return scope.Escape(exports);
@@ -735,9 +738,29 @@ panda::JSValueRef ArkNativeFunctionCallBack(JsiRuntimeCallInfo *runtimeInfo)
     if (cb != nullptr) {
         if constexpr (changeState) {
             panda::JsiNativeScope nativeScope(vm);
+#if ECMASCRIPT_ENABLE_COLLECTING_OPCODES
+#ifdef ENABLE_HITRACE
+                        StartTrace(HITRACE_TAG_ACE, "Developer::NativeCallBack::One");
+#endif
+#endif
             result = cb(env, runtimeInfo);
+#if ECMASCRIPT_ENABLE_COLLECTING_OPCODES
+#ifdef ENABLE_HITRACE
+                        FinishTrace(HITRACE_TAG_ACE);
+#endif
+#endif
         } else {
+#if ECMASCRIPT_ENABLE_COLLECTING_OPCODES
+#ifdef ENABLE_HITRACE
+                        StartTrace(HITRACE_TAG_ACE, "Developer::NativeCallBack::Two");
+#endif
+#endif
             result = cb(env, runtimeInfo);
+#if ECMASCRIPT_ENABLE_COLLECTING_OPCODES
+#ifdef ENABLE_HITRACE
+                        FinishTrace(HITRACE_TAG_ACE);
+#endif
+#endif
         }
     }
 
@@ -1609,7 +1632,7 @@ void ArkNativeEngine::PostFinalizeTasks()
         this->DecreasePendingFinalizersPackNativeBindingSize(totalNativeBindingSize);
     });
     IncreasePendingFinalizersPackNativeBindingSize(bindingSize);
-    
+
     syncWork->data = reinterpret_cast<void *>(finalizersPack);
     int ret = uv_queue_work_with_qos(GetUVLoop(), syncWork, [](uv_work_t *) {}, [](uv_work_t *syncWork, int32_t) {
         ArkFinalizersPack *finalizersPack = reinterpret_cast<ArkFinalizersPack*>(syncWork->data);

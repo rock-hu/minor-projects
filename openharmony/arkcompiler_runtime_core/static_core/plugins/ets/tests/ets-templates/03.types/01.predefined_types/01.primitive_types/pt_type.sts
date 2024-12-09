@@ -21,6 +21,7 @@ desc: >-
 tags: [negative, compile-only]
 ---*/
 
-type {p}: Object;
+type {{p}} = Object;
 
+function main() {}
 {%- endfor %}

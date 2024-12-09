@@ -31,7 +31,10 @@ action("copy_v8") {
   deps = []
   script = "copy_v8.sh"
   sources = []
-  outputs = [ "$target_gen_dir/libv8_shared.so" ]
+  outputs = [
+    "$target_gen_dir/libv8_shared.so",
+    "$target_gen_dir/v8-include",
+  ]
   args = [
     "--target_gen_dir",
     rebase_path("$target_gen_dir"),
@@ -73,6 +76,10 @@ action("build_libjsvm") {
     rebase_path("$musl_sysroot"),
     "--node_path",
     rebase_path("//third_party/node"),
+    "--is_asan",
+    "$is_asan",
+    "--use_hwasan",
+    "$use_hwasan",
   ]
   if (use_clang_coverage) {
     args += [

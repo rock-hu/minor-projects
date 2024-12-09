@@ -12,9 +12,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#include "test/unittest/core/pattern/rich_editor/rich_editor_common_test_ng.h"
 #include "test/mock/base/mock_task_executor.h"
 #include "test/mock/core/common/mock_clipboard.h"
-#include "test/unittest/core/pattern/rich_editor/rich_editor_common_test_ng.h"
+#include "core/components_ng/pattern/text_field/text_field_manager.h"
+#include "test/mock/core/render/mock_paragraph.h"
+#include "test/mock/core/pipeline/mock_pipeline_context.h"
+#include "test/mock/core/common/mock_theme_manager.h"
+#include "test/mock/core/common/mock_container.h"
+#include "core/components_ng/pattern/rich_editor/rich_editor_theme.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -734,7 +741,6 @@ HWTEST_F(RichEditorPatternTestThreeNg, HandleDragStart001, TestSize.Level1)
     auto dragEvent = AceType::MakeRefPtr<Ace::DragEvent>();
     std::string extraParams = "text";
     richEditorPattern->isDragSponsor_ = true;
-    richEditorPattern->isOnlyImageDrag_ = true;
     richEditorPattern->HandleDragStart(dragEvent, extraParams);
     EXPECT_EQ(richEditorPattern->recoverStart_, -1);
     EXPECT_EQ(richEditorPattern->recoverEnd_, -1);
@@ -895,6 +901,7 @@ HWTEST_F(RichEditorPatternTestThreeNg, HandleTouchEvent005, TestSize.Level1)
     touchLocationInfo.touchType_ = TouchType::DOWN;
     touchLocationInfo.localLocation_ = Offset(0.0f, 0.0f);
     touchEventInfo.AddTouchLocationInfo(std::move(touchLocationInfo));
+    touchEventInfo.AddChangedTouchLocationInfo(std::move(touchLocationInfo));
     richEditorPattern->hasUrlSpan_ = true;
     richEditorPattern->isMoveCaretAnywhere_ = true;
     richEditorPattern->HandleTouchEvent(touchEventInfo);
@@ -915,6 +922,7 @@ HWTEST_F(RichEditorPatternTestThreeNg, HandleTouchEvent006, TestSize.Level1)
     touchLocationInfo.touchType_ = TouchType::UP;
     touchLocationInfo.localLocation_ = Offset(0.0f, 0.0f);
     touchEventInfo.AddTouchLocationInfo(std::move(touchLocationInfo));
+    touchEventInfo.AddChangedTouchLocationInfo(std::move(touchLocationInfo));
     richEditorPattern->hasUrlSpan_ = true;
     richEditorPattern->isMoveCaretAnywhere_ = true;
     richEditorPattern->HandleTouchEvent(touchEventInfo);
