@@ -7,6 +7,7 @@
 
 ## 3.0.16
 - Fix the issue of no custom UI after sliding and lifting the hand
+- Fix the logic of long pressing the chart icon with fingers
 
 ## 3.0.15
 - Fix the issue of sliding stuttering in the setLongPressCursorEnabled scenario

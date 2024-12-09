@@ -193,7 +193,13 @@ export default class BarLineChartTouchListener extends ChartTouchListener<BarLin
       return;
     }
     let l: OnChartGestureListener | null = this.mChart.getOnChartGestureListener();
-    l?.onChartMove(isTouchEvent, event);
+    if (this.mChart.getLongPressCursorEnabled()) {
+      if (this.mLongPressStatus) {
+        l?.onChartMove(isTouchEvent, event);
+      }
+    } else {
+      l?.onChartMove(isTouchEvent, event);
+    }
     let xCoordinate: number = 0;
     let yCoordinate: number = 0;
     if (isTouchEvent) {
@@ -358,7 +364,7 @@ export default class BarLineChartTouchListener extends ChartTouchListener<BarLin
     }
   }
 
-  private calculateSwipe(event: TouchEvent): void {
+  private calculateSwipe(event: TouchEvent, isTouchEvent: boolean): void {
     this.mLongPressStatus = false;
     let curPointX: number = event.touches[0].x;
     let curPointY: number = event.touches[0].y;
@@ -367,6 +373,8 @@ export default class BarLineChartTouchListener extends ChartTouchListener<BarLin
       if (h) {
         this.performHighlight(h);
       }
+      let l: OnChartGestureListener | null = this.mChart.getOnChartGestureListener();
+      l?.onChartMove(isTouchEvent, event);
     } else if (this.downPointX !== -1 && Math.abs(curPointX - this.downPointX) >= 50) {
       let x: number = this.mChart.isDragXEnabled() ? curPointX - this.mTouchStartPoint.x : 0;
       let y: number = this.mChart.isDragYEnabled() ? curPointY - this.mTouchStartPoint.y : 0;
@@ -402,7 +410,7 @@ export default class BarLineChartTouchListener extends ChartTouchListener<BarLin
       yCoordinate = event.touches[0].y;
       gestureFingersCount = event.touches.length;
       if (this.mChart.getLongPressCursorEnabled()) {
-        this.calculateSwipe(event as TouchEvent);
+        this.calculateSwipe(event as TouchEvent, isTouchEvent);
       }
     } else {
       event = event as GestureEvent;

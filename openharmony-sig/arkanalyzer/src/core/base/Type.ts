@@ -33,7 +33,10 @@ import {
  * @category core/base/type
  */
 export abstract class Type {
-    abstract toString(): string;
+    toString(): string {
+        return this.getTypeString();
+    }
+    abstract getTypeString(): string;
 }
 
 /**
@@ -47,11 +50,11 @@ export class AnyType extends Type {
         return this.INSTANCE;
     }
 
-    constructor() {
+    private constructor() {
         super();
     }
 
-    public toString(): string {
+    public getTypeString(): string {
         return ANY_KEYWORD;
     }
 }
@@ -67,11 +70,11 @@ export class UnknownType extends Type {
         return this.INSTANCE;
     }
 
-    constructor() {
+    private constructor() {
         super();
     }
 
-    public toString(): string {
+    public getTypeString(): string {
         return UNKNOWN_KEYWORD;
     }
 }
@@ -98,7 +101,7 @@ export class UnclearReferenceType extends Type {
         return this.genericTypes;
     }
 
-    public toString() {
+    public getTypeString():string {
         let str = this.name;
         if (this.genericTypes.length > 0) {
             str += '<' + this.genericTypes.join(',') + '>';
@@ -123,7 +126,7 @@ export abstract class PrimitiveType extends Type {
         return this.name;
     }
 
-    public toString() {
+    public getTypeString():string {
         return this.name;
     }
 }
@@ -131,7 +134,7 @@ export abstract class PrimitiveType extends Type {
 export class BooleanType extends PrimitiveType {
     private static readonly INSTANCE = new BooleanType();
 
-    constructor() {
+    private constructor() {
         super(BOOLEAN_KEYWORD);
     }
 
@@ -143,7 +146,7 @@ export class BooleanType extends PrimitiveType {
 export class NumberType extends PrimitiveType {
     private static readonly INSTANCE = new NumberType();
 
-    constructor() {
+    private constructor() {
         super(NUMBER_KEYWORD);
     }
 
@@ -155,7 +158,7 @@ export class NumberType extends PrimitiveType {
 export class StringType extends PrimitiveType {
     private static readonly INSTANCE = new StringType();
 
-    constructor() {
+    private constructor() {
         super(STRING_KEYWORD);
     }
 
@@ -175,7 +178,7 @@ export class NullType extends PrimitiveType {
         return this.INSTANCE;
     }
 
-    constructor() {
+    private constructor() {
         super(NULL_KEYWORD);
     }
 }
@@ -191,7 +194,7 @@ export class UndefinedType extends PrimitiveType {
         return this.INSTANCE;
     }
 
-    constructor() {
+    private constructor() {
         super(UNDEFINED_KEYWORD);
     }
 }
@@ -245,7 +248,7 @@ export class UnionType extends Type {
         this.currType = newType;
     }
 
-    public toString(): string {
+    public getTypeString(): string {
         return this.types.join('|');
     }
 }
@@ -261,11 +264,11 @@ export class VoidType extends Type {
         return this.INSTANCE;
     }
 
-    constructor() {
+    private constructor() {
         super();
     }
 
-    public toString(): string {
+    public getTypeString(): string {
         return VOID_KEYWORD;
     }
 }
@@ -277,11 +280,11 @@ export class NeverType extends Type {
         return this.INSTANCE;
     }
 
-    constructor() {
+    private constructor() {
         super();
     }
 
-    public toString(): string {
+    public getTypeString(): string {
         return NEVER_KEYWORD;
     }
 }
@@ -308,7 +311,7 @@ export class FunctionType extends Type {
         return this.realGenericTypes;
     }
 
-    public toString(): string {
+    public getTypeString(): string {
         return this.methodSignature.toString();
     }
 }
@@ -343,7 +346,7 @@ export class ClassType extends Type {
         this.realGenericTypes = types;
     }
 
-    public toString(): string {
+    public getTypeString(): string {
         let temp = this.classSignature.toString();
         let generic = this.realGenericTypes?.join(',');
         if (generic) {
@@ -379,7 +382,7 @@ export class ArrayType extends Type {
         return this.dimension;
     }
 
-    public toString(): string {
+    public getTypeString(): string {
         const strs: string[] = [];
         if (this.baseType instanceof UnionType) {
             strs.push('(' + this.baseType.toString() + ')');
@@ -405,7 +408,7 @@ export class TupleType extends Type {
         return this.types;
     }
 
-    public toString(): string {
+    public getTypeString(): string {
         return '[' + this.types.join(', ') + ']';
     }
 }
@@ -435,7 +438,7 @@ export class AliasType extends Type implements ArkExport {
         return this.originalType;
     }
 
-    public toString(): string {
+    public getTypeString(): string {
         return this.name;
     }
 
@@ -521,7 +524,7 @@ export class GenericType extends Type {
         return this.index ?? 0;
     }
 
-    public toString(): string {
+    public getTypeString(): string {
         let str = this.name;
         if (this.constraint) {
             str += ' extends ' + this.constraint.toString();
@@ -563,7 +566,7 @@ export abstract class AnnotationType extends Type {
         return this.originType;
     }
 
-    public toString() {
+    public getTypeString(): string {
         return this.originType;
     }
 }

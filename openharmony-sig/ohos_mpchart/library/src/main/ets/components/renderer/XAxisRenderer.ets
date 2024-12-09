@@ -269,7 +269,7 @@ export default class XAxisRenderer extends AxisRenderer {
     this.drawXAxisValue(c, formattedLabel, x, y, this.mAxisLabelPaint, anchor, angleDegrees, labelPosition, isHorizontalFlip);
   }
 
-  private drawXAxisValue(c: CanvasRenderingContext2D, text: string, x: number, y: number,
+  protected drawXAxisValue(c: CanvasRenderingContext2D, text: string, x: number, y: number,
                          paint: Paint, anchor: MPPointF, angleDegrees: number, labelPosition: XAxisLabelPosition = XAxisLabelPosition.Center, isHorizontalFlip: boolean = false): void {
     let drawOffsetX: number = 0.0;
     let drawOffsetY: number = 0.0;
