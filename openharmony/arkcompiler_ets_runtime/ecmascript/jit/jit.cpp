@@ -180,6 +180,7 @@ void Jit::Destroy()
     initialized_ = false;
     fastJitEnable_ = false;
     baselineJitEnable_ = false;
+    ASSERT(jitResources_ != nullptr);
     jitResources_->Destroy();
     jitResources_ = nullptr;
 }
@@ -275,7 +276,12 @@ void Jit::Compile(EcmaVM *vm, const CompileDecision &decision)
     TimeScope scope(vm, msg, tier, true, true);
 
     ECMA_BYTRACE_NAME(HITRACE_TAG_ARK, ConvertToStdString("JIT::Compile:" + methodInfo));
-    jsFunction->SetJitCompilingFlag(true);
+    if (tier.IsFast()) {
+        jsFunction->SetJitCompilingFlag(true);
+    } else {
+        ASSERT(tier.IsBaseLine());
+        jsFunction->SetBaselinejitCompilingFlag(true);
+    }
     GetJitDfx()->SetTriggerCount(tier);
 
     {

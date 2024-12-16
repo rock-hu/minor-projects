@@ -80,6 +80,8 @@ struct ArkUI_ListItemSwipeActionOption;
 struct ArkUI_ListItemSwipeActionItem;
 struct ArkUI_ListChildrenMainSize;
 struct ArkUI_StyledString_Descriptor;
+struct _ArkUIRSNode;
+struct _ArkUI_OEMVisualEffectFunc;
 
 typedef _ArkUINode* ArkUINodeHandle;
 typedef _ArkUIVMContext* ArkUIVMContext;
@@ -91,6 +93,8 @@ typedef _ArkUIFont* ArkUIFontHandle;
 typedef _ArkUIXComponentController* ArkUIXComponentControllerHandle;
 typedef _ArkUINodeAdapter* ArkUINodeAdapterHandle;
 typedef _ArkUINodeContent* ArkUINodeContentHandle;
+typedef _ArkUIRSNode* ArkUIRSNodeHandle;
+typedef _ArkUI_OEMVisualEffectFunc* ArkUIOEMVisualEffectFuncHandle;
 
 
 struct ArkUICanvasArcOptions {
@@ -263,6 +267,28 @@ struct ArkUIDragEvent {
     ArkUI_Int32 dataTypesCount;
     ArkUI_CharPtr* dataTypes;
     ArkUI_Int32 dataTypesMaxStrLength;
+};
+
+struct ArkUIFocusAxisEvent {
+    ArkUI_Float64 absXValue;
+    ArkUI_Float64 absYValue;
+    ArkUI_Float64 absZValue;
+    ArkUI_Float64 absRzValue;
+    ArkUI_Float64 absHat0XValue;
+    ArkUI_Float64 absHat0YValue;
+    ArkUI_Float64 absBrakeValue;
+    ArkUI_Float64 absGasValue;
+    ArkUI_Float64 tiltX;
+    ArkUI_Float64 tiltY;
+    ArkUI_Float64 pressure;
+    ArkUI_Int32 toolType;
+    ArkUI_Int64 timeStamp;
+    ArkUI_Int32 subKind;
+    ArkUI_Int32 sourceType;
+    ArkUI_Int64 deviceId;
+    ArkUI_Int32* pressedKeyCodes;
+    ArkUI_Int32 keyCodesLength;
+    bool stopPropagation;
 };
 
 struct ArkUIStringAndFloat {
@@ -790,6 +816,7 @@ enum ArkUIEventCategory {
     MIXED_EVENT = 11,
     DRAG_EVENT = 12,
     KEY_INPUT_EVENT = 13, // KEY_EVENT is already defined as a macro in wincon.h
+    FOCUS_AXIS_EVENT = 14,
 };
 
 #define ARKUI_MAX_EVENT_NUM 1000
@@ -820,6 +847,7 @@ enum ArkUIEventSubKind {
     ON_DRAG_END,
     ON_PRE_DRAG,
     ON_KEY_PREIME,
+    ON_FOCUS_AXIS,
     ON_DETECT_RESULT_UPDATE = ARKUI_MAX_EVENT_NUM * ARKUI_TEXT,
     ON_IMAGE_COMPLETE = ARKUI_MAX_EVENT_NUM * ARKUI_IMAGE,
     ON_IMAGE_ERROR,
@@ -1144,6 +1172,7 @@ struct ArkUINodeEvent {
         ArkUIMixedEvent mixedEvent;
         ArkUIDragEvent dragEvent;
         ArkUIKeyEvent keyEvent;
+        ArkUIFocusAxisEvent focusAxisEvent;
     };
 };
 
@@ -1403,6 +1432,9 @@ struct ArkUIAccessibilityValue {
     ArkUIOptionalInt min;
     ArkUIOptionalInt max;
     ArkUIOptionalInt current;
+    ArkUIOptionalInt rangeMin;
+    ArkUIOptionalInt rangeMax;
+    ArkUIOptionalInt rangeCurrent;
     ArkUIOptionalCharPtr text;
 };
 
@@ -1549,6 +1581,32 @@ struct ArkUITabBarBackgroundEffect {
     ArkUI_Int32 blurType;
     ArkUI_Bool isValidColor;
     ArkUI_Uint32 inactiveColor;
+};
+
+struct ArkUIDrawingContext {
+    ArkUICanvasHandle canvas;
+    ArkUI_Float32 width;
+    ArkUI_Float32 height;
+};
+
+struct ArkUIDirtySwapConfig {
+    ArkUI_Bool frameSizeChange;
+    ArkUI_Bool frameOffsetChange;
+    ArkUI_Bool contentSizeChange;
+    ArkUI_Bool contentOffsetChange;
+    ArkUI_Bool skipMeasure;
+    ArkUI_Bool skipLayout;
+};
+
+enum ArkUIConfigType {
+    ARKUI_COLOR_MODE_UPDATE = 0,
+    ARKUI_LANGUAGE_UPDATE = 1,
+    ARKUI_DIRECTION_UPDATE = 2,
+    ARKUI_DPI_UPDATE = 3,
+    ARKUI_FONT_UPDATE = 4,
+    ARKUI_ICON_UPDATE = 5,
+    ARKUI_SKIN_UPDATE = 6,
+    ARKUI_FONT_SCALE_UPDATE = 7,
 };
 
 struct ArkUICommonModifier {
@@ -2000,6 +2058,8 @@ struct ArkUICommonModifier {
     void (*setTabStop)(ArkUINodeHandle node, ArkUI_Bool tabstop);
     void (*resetTabStop)(ArkUINodeHandle node);
     ArkUI_Bool (*getTabStop)(ArkUINodeHandle node);
+    void (*setOnClick)(ArkUINodeHandle node, void (*eventReceiver)(ArkUINodeHandle node, ArkUINodeEvent event));
+    void (*setOnAppear)(ArkUINodeHandle node, void (*eventReceiver)(ArkUINodeHandle node));
     void (*resetEnableAnalyzer)(ArkUINodeHandle node);
     void (*setEnableAnalyzer)(ArkUINodeHandle node, ArkUI_Bool enable);
 };
@@ -4915,6 +4975,9 @@ struct ArkUIFrameNodeModifier {
     ArkUI_Int32 (*getNodeTag)(ArkUINodeHandle node);
     void (*getActiveChildrenInfo)(ArkUINodeHandle handle, ArkUINodeHandle** items, ArkUI_Int32* size);
     void (*getCustomProperty)(ArkUINodeHandle node, ArkUI_CharPtr key, char** value);
+    void (*addExtraCustomProperty)(ArkUINodeHandle node, ArkUI_CharPtr key, void* extraData);
+    void* (*getExtraCustomProperty)(ArkUINodeHandle node, ArkUI_CharPtr key);
+    void (*removeExtraCustomProperty)(ArkUINodeHandle node, ArkUI_CharPtr key);
 };
 
 struct ArkUINodeContentEvent {
@@ -5056,6 +5119,28 @@ struct ArkUIContainerSpanModifier {
     void (*resetContainerSpanTextBackgroundStyle)(ArkUINodeHandle node);
 };
 
+typedef void (*CustomDrawFunc)(ArkUINodeHandle node, ArkUIDrawingContext context);
+struct ArkUICustomNodeExtModifier {
+    ArkUI_Bool (*parseColorString)(ArkUI_CharPtr colorStr, ArkUI_Uint32* colorValue);
+    ArkUI_Bool (*parseLengthString)(ArkUI_CharPtr lengthStr, ArkUI_Int32* unit,
+        ArkUI_Float32* floatData, ArkUI_CommonCharPtr strData);
+    ArkUI_Float64 (*getDpi)();
+    ArkUI_Int32 (*getLayoutDirection)(ArkUINodeHandle node);
+    void (*setCustomMeasure)(ArkUINodeHandle node,
+        void (*setCustomMeasureCallback)(ArkUINodeHandle node, ArkUIConstraintSizeOptions option));
+    void (*setCustomLayout)(ArkUINodeHandle node,
+        void (*setCustomLayoutCallback)(ArkUINodeHandle node, ArkUIRect rect));
+    void (*setCustomContentDraw)(ArkUINodeHandle node, CustomDrawFunc drawFunc);
+    void (*setCustomForegroundDraw)(ArkUINodeHandle node, CustomDrawFunc drawFunc);
+    void (*setCustomOverlayDraw)(ArkUINodeHandle node, CustomDrawFunc drawFunc);
+    void (*setOnConfigUpdate)(ArkUINodeHandle node,
+        void (*onConfigUpdate)(ArkUINodeHandle node, ArkUIConfigType type));
+    void (*setOnModifyDone)(ArkUINodeHandle node, void (*onModifyDone)(ArkUINodeHandle node));
+    void (*setOnDirtyLayoutWrapperSwap)(ArkUINodeHandle node,
+        void (*onDirtySwap)(ArkUINodeHandle node, ArkUIDirtySwapConfig config));
+    void (*setIsAtomic)(ArkUINodeHandle node, const ArkUI_Bool isAtomic);
+};
+
 /**
  * An API to control an implementation. When making changes modifying binary
  * layout, i.e. adding new events - increase ARKUI_NODE_API_VERSION above for binary
@@ -5167,6 +5252,7 @@ struct ArkUINodeModifiers {
     const ArkUISymbolSpanModifier* (*getSymbolSpanModifier)();
     const ArkUIComponent3DModifier* (*getComponent3DModifier)();
     const ArkUIContainerSpanModifier* (*getContainerSpanModifier)();
+    const ArkUICustomNodeExtModifier* (*getCustomNodeExtModifier)();
 };
 
 // same as inner defines in property.h
@@ -5316,6 +5402,14 @@ struct ArkUIExtendedNodeAPI {
 
     /// Error reporting.
     void (*showCrash)(ArkUI_CharPtr message);
+
+    ArkUINodeHandle (*getTopNodeFromViewStack)();
+    ArkUINodeHandle (*createCustomNode)(ArkUI_CharPtr tag);
+    ArkUINodeHandle (*getOrCreateCustomNode)(ArkUI_CharPtr tag);
+    ArkUIRSNodeHandle (*getRSNodeByNode)(ArkUINodeHandle node);
+    void (*createNewScope)();
+    void (*registerOEMVisualEffect)(ArkUIOEMVisualEffectFuncHandle func);
+    void (*setOnNodeDestroyCallback)(ArkUINodeHandle node, void (*onDestroy)(ArkUINodeHandle node));
 };
 
 struct ArkUIStyledStringAPI {
@@ -5404,6 +5498,7 @@ struct ArkUIAnyAPI {
     ArkUI_Int32 version;
 };
 
+__attribute__((visibility("default"))) const ArkUIFullNodeAPI* GetArkUIFullNodeAPI();
 #ifdef __cplusplus
 };
 #endif

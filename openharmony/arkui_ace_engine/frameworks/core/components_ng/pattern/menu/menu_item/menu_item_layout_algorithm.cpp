@@ -19,6 +19,8 @@
 #include "core/components_ng/pattern/security_component/security_component_layout_property.h"
 
 namespace OHOS::Ace::NG {
+constexpr Dimension ITEM_BOTTOM_TOP_PADDING = 8.0_vp;
+constexpr int32_t PADDING_MULTIPLE = 2;
 void MenuItemLayoutAlgorithm::Measure(LayoutWrapper* layoutWrapper)
 {
     CHECK_NULL_VOID(layoutWrapper);
@@ -147,14 +149,22 @@ void MenuItemLayoutAlgorithm::MeasureItemViews(LayoutConstraintF& childConstrain
     childConstraint.minSize.SetWidth(actualWidth - padding.Width());
     childConstraint.maxSize.SetWidth(actualWidth - padding.Width());
 
+    auto expandableHeight = MeasureExpandableHeight(childConstraint, layoutWrapper);
+
+    UpdateSelfSize(layoutWrapper, actualWidth, itemHeight, expandableHeight);
+}
+
+float MenuItemLayoutAlgorithm::MeasureExpandableHeight(LayoutConstraintF& childConstraint, LayoutWrapper* layoutWrapper)
+{
     auto expandableHeight = 0.0f;
     auto expandableArea = layoutWrapper->GetOrCreateChildByIndex(EXPANDABLE_AREA_VIEW_INDEX);
     if (expandableArea) {
         expandableArea->Measure(childConstraint);
-        expandableHeight = std::max(expandableArea->GetGeometryNode()->GetMarginFrameSize().Height(), 0.0f);
+        auto expandableAreaGeometryNode = expandableArea->GetGeometryNode();
+        CHECK_NULL_RETURN(expandableAreaGeometryNode, expandableHeight);
+        expandableHeight = std::max(expandableAreaGeometryNode->GetMarginFrameSize().Height(), 0.0f);
     }
-
-    UpdateSelfSize(layoutWrapper, actualWidth, itemHeight, expandableHeight);
+    return expandableHeight;
 }
 
 void MenuItemLayoutAlgorithm::MeasureRow(const RefPtr<LayoutWrapper>& row, const LayoutConstraintF& constraint)
@@ -191,6 +201,9 @@ void MenuItemLayoutAlgorithm::MeasureRow(const RefPtr<LayoutWrapper>& row, const
     }
     if (!isOption_ && GreatNotEqual(rowWidth, iconContentPadding)) {
         rowWidth -= iconContentPadding;
+    }
+    if (Container::GreatOrEqualAPITargetVersion(PlatformVersion::VERSION_FOURTEEN) && isOption_) {
+        rowHeight += (ITEM_BOTTOM_TOP_PADDING * PADDING_MULTIPLE).ConvertToPx();
     }
     row->GetGeometryNode()->SetFrameSize(SizeF(rowWidth, rowHeight));
 }

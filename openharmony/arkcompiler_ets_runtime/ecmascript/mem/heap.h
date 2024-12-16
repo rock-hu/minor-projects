@@ -1499,6 +1499,11 @@ public:
         return nativeBindingSize_;
     }
 
+    size_t GetGlobalSpaceNativeLimit() const
+    {
+        return globalSpaceNativeLimit_;
+    }
+
     size_t GetNativeBindingSizeAfterLastGC() const
     {
         return nativeBindingSizeAfterLastGC_;
@@ -1594,6 +1599,7 @@ public:
     }
 
 private:
+    void CollectGarbageImpl(TriggerGCType gcType, GCReason reason = GCReason::OTHER);
 
     static constexpr int MIN_JSDUMP_THRESHOLDS = 85;
     static constexpr int MAX_JSDUMP_THRESHOLDS = 95;
@@ -1615,7 +1621,7 @@ private:
     uint64_t GetCurrentTickMillseconds();
     void ThresholdReachedDump();
 #endif
-    void CleanCallBack();
+    void CleanCallback();
     void IncreasePendingAsyncNativeCallbackSize(size_t bindingSize)
     {
         pendingAsyncNativeCallbackSize_ += bindingSize;

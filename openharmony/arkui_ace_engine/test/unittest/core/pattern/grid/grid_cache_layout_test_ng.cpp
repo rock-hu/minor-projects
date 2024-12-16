@@ -14,12 +14,11 @@
  */
 
 #include "grid_test_ng.h"
+#include "test/mock/core/render/mock_render_context.h"
 
 #include "core/components_ng/pattern/grid/grid_item_layout_property.h"
 
 namespace OHOS::Ace::NG {
-
-namespace {} // namespace
 
 class GridCacheLayoutTestNg : public GridTestNg {
 public:
@@ -415,6 +414,78 @@ HWTEST_F(GridCacheLayoutTestNg, Cache001, TestSize.Level1)
     EXPECT_EQ(info.startIndex_, 39);
     // GridScroll algo currently not capable of preloading backward
     EXPECT_TRUE(pattern_->preloadItemList_.empty());
+}
+
+/**
+ * @tc.name: Cache003
+ * @tc.desc: Test Grid cached items.
+ * @tc.type: FUNC
+ */
+HWTEST_F(GridCacheLayoutTestNg, Cache003, TestSize.Level1)
+{
+    GridModelNG model = CreateGrid();
+    model.SetColumnsTemplate("1fr 1fr 1fr");
+    model.SetRowsGap(Dimension(5));
+    model.SetCachedCount(1);
+    model.SetLayoutOptions({});
+    CreateItemsInLazyForEach(50, [](uint32_t idx) { return 50.0f; });
+    CreateDone();
+    frameNode_->AttachToMainTree(true, PipelineContext::GetCurrentContextPtrSafely());
+
+    EXPECT_EQ(pattern_->info_.startIndex_, 0);
+    EXPECT_EQ(pattern_->info_.endIndex_, 23);
+    UpdateCurrentOffset(-200.0f);
+    EXPECT_EQ(pattern_->info_.startIndex_, 9);
+    EXPECT_EQ(pattern_->info_.endIndex_, 32);
+    EXPECT_NE(GetItem(7, true)->GetLayoutProperty()->GetPropertyChangeFlag(), 0);
+    PipelineContext::GetCurrentContext()->OnIdle(INT64_MAX);
+    EXPECT_TRUE(GetItem(6, true));
+    EXPECT_FALSE(GetItem(5, true));
+    EXPECT_NE(GetItem(7, true)->GetLayoutProperty()->GetPropertyChangeFlag(), 0);
+
+    UpdateCurrentOffset(60.0f);
+    PipelineContext::GetCurrentContext()->OnIdle(INT64_MAX);
+    EXPECT_EQ(pattern_->info_.startIndex_, 6);
+    ASSERT_TRUE(GetItem(5, true));
+    EXPECT_FALSE(GetItem(5, true)->IsOnMainTree());
+    EXPECT_NE(GetItem(5, true)->GetLayoutProperty()->GetPropertyChangeFlag(), 0);
+
+    GetItem(5, true)->GetLayoutProperty()->UpdatePropertyChangeFlag(PROPERTY_UPDATE_LAYOUT);
+    GetItem(5, true)->SetActive(true); // ::Layout would reset PropertyFlag if item is active
+    UpdateCurrentOffset(1.0f);
+    EXPECT_EQ(pattern_->info_.startIndex_, 6);
+    EXPECT_FALSE(GetItem(5, true)->IsOnMainTree());
+    EXPECT_TRUE(GetItem(5, true)->GetLayoutProperty()->GetPropertyChangeFlag() & PROPERTY_UPDATE_LAYOUT);
+}
+
+/**
+ * @tc.name: Cache004
+ * @tc.desc: Test Grid layout cache with no scrolling.
+ * @tc.type: FUNC
+ */
+HWTEST_F(GridCacheLayoutTestNg, Cache004, TestSize.Level1)
+{
+    GridModelNG model = CreateGrid();
+    model.SetColumnsTemplate("1fr 1fr 1fr");
+    model.SetCachedCount(1);
+    model.SetLayoutOptions({});
+    CreateItemsInLazyForEach(50, [](uint32_t idx) { return 50.0f; });
+    CreateDone();
+
+    EXPECT_EQ(pattern_->info_.endIndex_, 23);
+    EXPECT_FALSE(GetItem(24, true));
+    PipelineContext::GetCurrentContext()->OnIdle(INT64_MAX);
+    auto item = GetItem(24, true);
+    ASSERT_TRUE(item);
+    auto ctx = AceType::DynamicCast<MockRenderContext>(item->GetRenderContext());
+    FlushUITasks();
+    EXPECT_EQ(item->GetGeometryNode()->GetFrameRect().ToString(), "RectT (0.00, 400.00) - [80.00 x 50.00]");
+
+    layoutProperty_->UpdateUserDefinedIdealSize(CalcSize(std::nullopt, CalcLength(600.0f)));
+    FlushUITasks();
+    EXPECT_EQ(item->GetGeometryNode()->GetFrameRect().ToString(), "RectT (0.00, 400.00) - [80.00 x 50.00]");
+    EXPECT_EQ(ctx->paintRect_, item->GetGeometryNode()->GetFrameRect()); // should be synced with layout
+    EXPECT_EQ(GetChildFrameNode(frameNode_, 24), item);
 }
 
 /**

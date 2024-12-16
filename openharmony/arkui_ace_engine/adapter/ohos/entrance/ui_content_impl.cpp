@@ -88,6 +88,7 @@
 #include "core/common/container.h"
 #include "core/common/container_scope.h"
 #include "core/common/modal_ui_extension.h"
+#include "core/common/recorder/event_definition.h"
 #include "core/common/recorder/event_recorder.h"
 #include "core/common/resource/resource_manager.h"
 #include "core/common/xcollie/xcollieInterface.h"
@@ -192,13 +193,16 @@ void AddResConfigInfo(
         std::string preferredLanguage = preferredLocaleInfo->getLanguage();
         std::string script = preferredLocaleInfo->getScript();
         std::string country = preferredLocaleInfo->getCountry();
+        AceApplicationInfo::GetInstance().SetLocale(preferredLanguage.c_str(), country.c_str(), script.c_str(), "");
+
+        std::string preferredLanguageTag = preferredLanguage;
         if (!script.empty()) {
-            preferredLanguage += "-" + script;
+            preferredLanguageTag += "-" + script;
         }
         if (!country.empty()) {
-            preferredLanguage += "-" + country;
+            preferredLanguageTag += "-" + country;
         }
-        aceResCfg.SetPreferredLanguage(preferredLanguage);
+        aceResCfg.SetPreferredLanguage(preferredLanguageTag);
     }
 }
 
@@ -228,7 +232,7 @@ std::string StringifyAvoidAreas(const std::map<OHOS::Rosen::AvoidAreaType, OHOS:
 
 const std::string SUBWINDOW_PREFIX = "ARK_APP_SUBWINDOW_";
 const std::string SUBWINDOW_TOAST_DIALOG_PREFIX = "ARK_APP_SUBWINDOW_TOAST_DIALOG_";
-const std::string SUBWINDOW_TOAST_PREFIX = "ARK_APP_SUBWINDOW_TOPMOST_TOAST";
+const std::string SUBWINDOW_TOAST_PREFIX = "ARK_APP_SUBWINDOW_TOAST";
 const int32_t REQUEST_CODE = -1;
 constexpr uint32_t TIMEOUT_LIMIT = 5;
 constexpr int32_t COUNT_LIMIT = 3;
@@ -1271,6 +1275,7 @@ UIContentErrorCode UIContentImpl::CommonInitializeForm(
     CHECK_NULL_RETURN(container, UIContentErrorCode::NULL_POINTER);
     container->SetIsFormRender(isFormRender_);
     container->SetIsDynamicRender(isDynamicRender_);
+    container->SetUIContentType(uIContentType_);
     container->SetRegisterComponents(registerComponents_);
     container->SetIsFRSCardContainer(isFormRender_);
     if (window_) {
@@ -1312,6 +1317,7 @@ UIContentErrorCode UIContentImpl::CommonInitializeForm(
     aceResCfg.SetDeviceType(SystemProperties::GetDeviceType());
     aceResCfg.SetColorMode(SystemProperties::GetColorMode());
     aceResCfg.SetDeviceAccess(SystemProperties::GetDeviceAccess());
+    aceResCfg.SetLanguage(AceApplicationInfo::GetInstance().GetLocaleTag());
     AddResConfigInfo(context, aceResCfg);
     if (isDynamicRender_) {
         auto runtimeContext = Platform::AceContainer::GetRuntimeContext(hostInstanceId_);
@@ -1624,7 +1630,10 @@ UIContentErrorCode UIContentImpl::CommonInitialize(
         }
     }
 
-    auto defaultDisplay = Rosen::DisplayManager::GetInstance().GetDefaultDisplay();
+    auto defaultDisplay = Rosen::DisplayManager::GetInstance().GetDisplayById(window->GetDisplayId());
+    if (!defaultDisplay) {
+        defaultDisplay = Rosen::DisplayManager::GetInstance().GetDefaultDisplay();
+    }
     if (defaultDisplay) {
         density = defaultDisplay->GetVirtualPixelRatio();
         if (isSceneBoardWindow && !NearEqual(defaultDensity, 1.0f)) {
@@ -1858,6 +1867,7 @@ UIContentErrorCode UIContentImpl::CommonInitialize(
     aceResCfg.SetDeviceType(SystemProperties::GetDeviceType());
     aceResCfg.SetColorMode(SystemProperties::GetColorMode());
     aceResCfg.SetDeviceAccess(SystemProperties::GetDeviceAccess());
+    aceResCfg.SetLanguage(AceApplicationInfo::GetInstance().GetLocaleTag());
     AddResConfigInfo(context, aceResCfg);
     AddSetAppColorModeToResConfig(context, aceResCfg);
     container->SetResourceConfiguration(aceResCfg);
@@ -2359,6 +2369,9 @@ bool UIContentImpl::ProcessBackPressed()
 {
     LOGI("[%{public}s][%{public}s][%{public}d]: OnBackPressed called", bundleName_.c_str(), moduleName_.c_str(),
         instanceId_);
+    Recorder::EventParamsBuilder builder;
+    builder.SetEventType(Recorder::EventType::BACK_PRESSED);
+    Recorder::EventRecorder::Get().OnEvent(std::move(builder));
     auto container = AceEngine::Get().GetContainer(instanceId_);
     CHECK_NULL_RETURN(container, false);
     if (container->IsUIExtensionWindow() && !container->WindowIsShow()) {
@@ -2516,6 +2529,9 @@ void UIContentImpl::UpdateConfigurationSyncForAll(const std::shared_ptr<OHOS::Ap
 
     auto dialogContainer = Platform::DialogContainer::GetContainer(instanceId_);
     if (dialogContainer) {
+        return;
+    }
+    if (isDynamicRender_ || isFormRender_) {
         return;
     }
 
@@ -2688,7 +2704,8 @@ void UIContentImpl::UpdateViewportConfigWithAnimation(const ViewportConfig& conf
     taskExecutor->PostTask(std::move(changeBrightnessTask), TaskExecutor::TaskType::UI, "ArkUIUpdateBrightness");
     AceViewportConfig aceViewportConfig(modifyConfig, reason, rsTransaction);
     bool isReasonRotationOrDPI = (reason == OHOS::Rosen::WindowSizeChangeReason::ROTATION ||
-        reason == OHOS::Rosen::WindowSizeChangeReason::UPDATE_DPI_SYNC);
+        reason == OHOS::Rosen::WindowSizeChangeReason::UPDATE_DPI_SYNC ||
+        reason == OHOS::Rosen::WindowSizeChangeReason::RESIZE_WITH_ANIMATION);
     if (container->IsUseStageModel() && isReasonRotationOrDPI) {
         if (container->IsUIExtensionWindow()) {
             pipelineContext->AddUIExtensionCallbackEvent(NG::UIExtCallbackEventId::ON_AREA_CHANGED);
@@ -2951,6 +2968,7 @@ void UIContentImpl::UpdateDialogResourceConfiguration(RefPtr<Container>& contain
         aceResCfg.SetColorMode(SystemProperties::GetColorMode());
         aceResCfg.SetDeviceAccess(SystemProperties::GetDeviceAccess());
         aceResCfg.SetColorModeIsSetByApp(true);
+        aceResCfg.SetLanguage(AceApplicationInfo::GetInstance().GetLocaleTag());
         dialogContainer->SetResourceConfiguration(aceResCfg);
     }
 }

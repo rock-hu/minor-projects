@@ -7215,7 +7215,7 @@ class ViewPU extends PUV2ViewBase {
       */
     onDumpInspector() {
         let res = new DumpInfo();
-        res.viewInfo = { componentName: this.constructor.name, id: this.id__() };
+        res.viewInfo = { componentName: this.constructor.name, id: this.id__(), isV2: false, isCompFreezeAllowed_: this.isCompFreezeAllowed_, isViewActive_: this.isActive_ };
         Object.getOwnPropertyNames(this)
             .filter((varName) => varName.startsWith('__') && !varName.startsWith(ObserveV2.OB_PREFIX))
             .forEach((varName) => {
@@ -9566,13 +9566,13 @@ class ViewV2 extends PUV2ViewBase {
             .forEach((varName) => {
             const prop = Reflect.get(meta, varName);
             if ('deco' in prop) {
-                retVal += ` ${prop['deco']}`; // main decorator
+                retVal += ` ${prop.deco}`; // main decorator
             }
             if ('deco2' in prop) {
-                retVal += ` ${prop['deco2']}`; // sub decorator like @Once
+                retVal += ` ${prop.deco2}`; // sub decorator like @Once
             }
             if ('aliasName' in prop) {
-                retVal += `(${prop['aliasName']})`; // aliasName for provider & consumer
+                retVal += `(${prop.aliasName})`; // aliasName for provider & consumer
             }
             retVal += ` varName: ${varName}`;
             let dependentElmtIds = this[ObserveV2.SYMBOL_REFS][varName];

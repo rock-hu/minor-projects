@@ -2609,31 +2609,28 @@ bool ObjectRef::Set(const EcmaVM *vm, const char *utf8, Local<JSValueRef> value)
     JSHandle<JSTaggedValue> obj = JSNApiHelper::ToJSHandle(this);
     LOG_IF_SPECIAL(obj, ERROR);
     ObjectFactory *factory = vm->GetFactory();
-    JSHandle<JSTaggedValue> keyValue(factory->NewFromUtf8(utf8));
-    JSTaggedValue valueValue = JSNApiHelper::ToJSTaggedValue(*value);
+    JSHandle<JSTaggedValue> key(factory->NewFromUtf8(utf8));
+    JSHandle<JSTaggedValue> val = JSNApiHelper::ToJSHandle(value);
     if (!obj->IsHeapObject()) {
-        return JSTaggedValue::SetProperty(thread, obj, keyValue, JSHandle<JSTaggedValue>(thread, valueValue));
+        return JSTaggedValue::SetProperty(thread, obj, key, val);
     }
-    JSTaggedValue res = ObjectFastOperator::TrySetPropertyByNameThroughCacheAtLocal(thread, obj.GetTaggedValue(),
-                                                                                    keyValue.GetTaggedValue(),
-                                                                                    valueValue);
+    JSTaggedValue res = ObjectFastOperator::TrySetPropertyByNameThroughCacheAtLocal(thread, obj, key, val);
     RETURN_VALUE_IF_ABRUPT_COMPLETION(thread, false);
     if (!res.IsHole()) {
         return !res.IsException();
     }
     if (!JSNApi::KeyIsNumber(utf8)) {
-        res = ObjectFastOperator::SetPropertyByName(thread, obj.GetTaggedValue(), keyValue.GetTaggedValue(),
-                                                    valueValue);
+        res = ObjectFastOperator::SetPropertyByName(thread, obj.GetTaggedValue(), key.GetTaggedValue(),
+                                                    val.GetTaggedValue());
         RETURN_VALUE_IF_ABRUPT_COMPLETION(thread, false);
         if (!res.IsHole()) {
             return !res.IsException();
         }
-        return JSTaggedValue::SetProperty(thread, JSHandle<JSTaggedValue>(thread, obj.GetTaggedValue()), keyValue,
-                                          JSHandle<JSTaggedValue>(thread, valueValue), true);
+        return JSTaggedValue::SetProperty(thread, obj, key, val, true);
     }
     return ObjectFastOperator::FastSetPropertyByValue(thread, obj.GetTaggedValue(),
-                                                      keyValue.GetTaggedValue(),
-                                                      valueValue);
+                                                      key.GetTaggedValue(),
+                                                      val.GetTaggedValue());
 }
 
 bool ObjectRef::Set(const EcmaVM *vm, uint32_t key, Local<JSValueRef> value)
@@ -4536,6 +4533,7 @@ bool JSNApi::StartDebuggerCheckParameters(EcmaVM *vm, const DebugOption &option,
     vm->GetJsDebuggerManager()->SetDebugMode(option.isDebugMode);
     vm->GetJsDebuggerManager()->SetIsDebugApp(true);
     vm->GetJsDebuggerManager()->SetDebugLibraryHandle(std::move(handle.Value()));
+    vm->GetJsDebuggerManager()->SetFaApp(option.isFaApp);
     bool ret = reinterpret_cast<StartDebugger>(sym.Value())(
         "PandaDebugger", vm, option.isDebugMode, instanceId, debuggerPostTask, option.port);
     if (!ret) {
@@ -4564,6 +4562,7 @@ bool JSNApi::StartDebugger([[maybe_unused]] EcmaVM *vm, [[maybe_unused]] const D
     }
     CROSS_THREAD_AND_EXCEPTION_CHECK_WITH_RETURN(vm, false);
     vm->GetJsDebuggerManager()->SetDebugMode(option.isDebugMode);
+    vm->GetJsDebuggerManager()->SetFaApp(option.isFaApp);
     bool ret = OHOS::ArkCompiler::Toolchain::StartDebug(
         DEBUGGER_NAME, vm, option.isDebugMode, instanceId, debuggerPostTask, option.port);
     if (!ret) {
@@ -4718,6 +4717,7 @@ bool JSNApi::NotifyDebugMode([[maybe_unused]] int tid,
     jsDebuggerManager->SetDebugLibraryHandle(std::move(handle.Value()));
     jsDebuggerManager->SetDebugMode(option.isDebugMode && debugApp);
     jsDebuggerManager->SetIsDebugApp(debugApp);
+    jsDebuggerManager->SetFaApp(option.isFaApp);
 #ifdef PANDA_TARGET_ARM32
     ret = StartDebuggerForOldProcess(vm, option, instanceId, debuggerPostTask);
 #else

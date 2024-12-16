@@ -195,7 +195,7 @@ JSTaggedValue ModuleManager::GetLazyModuleValueOutterInternal(int32_t index, JST
             }
         }
         if (module->GetStatus() != ModuleStatus::EVALUATED) {
-            SourceTextModule::Evaluate(thread, module, nullptr, 0, context->IsInPendingJob());
+            SourceTextModule::Evaluate(thread, module, nullptr, 0, true);
         }
         RETURN_VALUE_IF_ABRUPT_COMPLETION(thread, JSTaggedValue::Exception());
         return ModuleManagerHelper::GetModuleValue(thread, module, binding->GetIndex());
