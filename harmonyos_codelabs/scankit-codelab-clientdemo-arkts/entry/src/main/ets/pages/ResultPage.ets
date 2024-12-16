@@ -5,10 +5,25 @@ import { display, router } from '@kit.ArkUI';
 import { MockSetup } from '@ohos/hamock';
 
 const TAG: string = 'ScanKit scanResult';
-let typeStr: Array<string> =
-  ['FORMAT_UNKNOWN', 'AZTEC_CODE', 'CODABAR_CODE', 'CODE39_CODE', 'CODE93_CODE', 'CODE128_CODE', 'DATAMATRIX_CODE',
-    'EAN8_CODE', 'EAN13_CODE',
-    'ITF14_CODE', 'PDF417_CODE', 'QR_CODE', 'UPC_A_CODE', 'UPC_E_CODE', 'MULTIFUNCTIONAL_CODE'];
+const SCAN_TYPE: Record<number, string> = {
+  0: 'FORMAT_UNKNOWN',
+  1: 'AZTEC_CODE',
+  2: 'CODABAR_CODE',
+  3: 'CODE39_CODE',
+  4: 'CODE93_CODE',
+  5: 'CODE128_CODE',
+  6: 'DATAMATRIX_CODE',
+  7: 'EAN8_CODE',
+  8: 'EAN13_CODE',
+  9: 'ITF14_CODE',
+  10: 'PDF417_CODE',
+  11: 'QR_CODE',
+  12: 'UPC_A_CODE',
+  13: 'UPC_E_CODE',
+  14: 'MULTIFUNCTIONAL_CODE',
+  100: 'ONE_D_CODE',
+  101: 'TWO_D_CODE'
+};
 
 @Entry
 @Component
@@ -57,8 +72,8 @@ struct ScanResultPage {
     this.uri = getParams.uri as string;
     this.infoW = getParams.infoW as number;
     this.infoH = getParams.infoH as number;
-    hilog.info(0x0001, TAG, `Succeeded in getting params: ${JSON.stringify(getParams)}`);
-    hilog.info(0x0001, TAG, `Succeeded in getting result: ${JSON.stringify(this.result)}`);
+    hilog.info(0x0001, TAG, `Succeeded in getting params.`);
+    hilog.info(0x0001, TAG, `Succeeded in getting result.`);
     hilog.info(0x0001, TAG,
       `Succeeded in getting uri: ${this.uri}, this.infoW: ${this.infoW}, this.infoH: ${this.infoH}`);
     this.calculate();
@@ -80,9 +95,9 @@ struct ScanResultPage {
     let displayClass: display.Display | null = null;
     try {
       displayClass = display.getDefaultDisplaySync();
-      hilog.info(0x0001, TAG, `Succeeded in getting displayClass: ${JSON.stringify(displayClass)}`);
-    } catch (exception) {
-      hilog.error(0x0001, TAG, `Failed to get displayClass. Code: ${exception.code}, message: ${exception.message}`);
+      hilog.info(0x0001, TAG, `Succeeded in getting displayClass.`);
+    } catch (error) {
+      hilog.error(0x0001, TAG, `Failed to get displayClass. Code: ${error.code}, message: ${error.message}`);
     }
 
     if (displayClass !== null) {
@@ -185,7 +200,8 @@ struct ScanResultPage {
               .margin({ top: 20 })
             ForEach(this.result, (item: scanBarcode.ScanResult) => {
               if (item['scanCodeRect']) {
-                this.CustomTextBox(typeStr[item['scanType']], item['originalValue'], item['scanCodeRect']['left'],
+                this.CustomTextBox(this.getScanTypeKey(item['scanType']), item['originalValue'],
+                  item['scanCodeRect']['left'],
                   item['scanCodeRect'].top, item['scanCodeRect'].right, item['scanCodeRect'].bottom)
               }
             })
@@ -205,5 +221,9 @@ struct ScanResultPage {
     .padding({
       top: 40
     })
+  }
+
+  getScanTypeKey(type: number): string {
+    return SCAN_TYPE[type] || ''
   }
 }

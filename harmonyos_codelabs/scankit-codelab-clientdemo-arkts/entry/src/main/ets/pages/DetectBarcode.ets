@@ -40,7 +40,19 @@ struct DetectBarcodePage {
               try {
                 let file = fileIo.openSync(photoResult.photoUris[0], fileIo.OpenMode.READ_ONLY);
                 const imageSourceApi = image.createImageSource(file.fd);
+                try {
+                  fileIo.closeSync(file);
+                } catch (error) {
+                  hilog.error(0x0001, TAG, `Failed to closeSync. Code: ${error.code}.`);
+                }
                 imageSourceApi.getImageInfo(0, (error: BusinessError, imageInfo) => {
+                  try {
+                    imageSourceApi.release();
+                  } catch (error) {
+                    hilog.error(0x0001, TAG,
+                      `Failed to release imageSourceApi. Code: ${error.code}, message: ${error.message}`);
+                    return;
+                  }
                   if (imageInfo == undefined) {
                     hilog.error(0x0001, TAG,
                       `Failed to get imageInfo by callbak. Code: ${error.code}, message: ${error.message}`);
@@ -48,7 +60,7 @@ struct DetectBarcodePage {
                   }
                   infoW = imageInfo.size.width;
                   infoH = imageInfo.size.height;
-                })
+                });
               } catch (error) {
                 hilog.error(0x0001, TAG, `Failed to get imageInfo. Code: ${error.code}, message: ${error.message}`);
                 return;
@@ -58,8 +70,7 @@ struct DetectBarcodePage {
                 let inputImage: detectBarcode.InputImage = { uri: photoResult.photoUris[0] }
                 // Call the image-based barcode recognition API that uses a promise.
                 detectBarcode.decode(inputImage, options).then((result: Array<scanBarcode.ScanResult>) => {
-                  hilog.info(0x0001, TAG,
-                    `Succeeded in getting ScanResult by promise with options, result is ${JSON.stringify(result)}`);
+                  hilog.info(0x0001, TAG, `Succeeded in getting ScanResult by promise with options.`);
                   if (result && result.length > 0) {
                     router.pushUrl({
                       url: 'pages/ResultPage',

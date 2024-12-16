@@ -24,8 +24,7 @@ export default class EntryAbility extends UIAbility {
     windowStage.getMainWindow().then((windowObj: window.Window) => {
       windowObj.setWindowLayoutFullScreen(true).catch((error: BusinessError) => {
         if (error) {
-          hilog.error(0x0000, 'testTag', 'Failed to setWindowLayoutFullScreen. Cause: %{public}s',
-            JSON.stringify(error) ?? '');
+          hilog.error(0x0000, 'testTag', `Failed to setWindowLayoutFullScreen. Code: ${error.code}, message: ${error.message}`);
           return;
         }
         hilog.info(0x0000, 'testTag', 'setWindowLayoutFullScreen Succeed!');
@@ -34,10 +33,10 @@ export default class EntryAbility extends UIAbility {
 
     windowStage.loadContent(this.page, (error, data) => {
       if (error.code) {
-        hilog.error(0x0000, 'testTag', 'Failed to load the content. Cause: %{public}s', JSON.stringify(error) ?? '');
+        hilog.error(0x0000, 'testTag', `Failed to load the content. Code: ${error.code}, message: ${error.message}`);
         return;
       }
-      hilog.info(0x0000, 'testTag', 'Succeeded in loading the content. Data: %{public}s', JSON.stringify(data) ?? '');
+      hilog.info(0x0000, 'testTag', `Succeeded in loading the content.`);
     });
   }
 
@@ -45,7 +44,6 @@ export default class EntryAbility extends UIAbility {
     hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onNewWant');
     // Obtain the uri field from the want information.
     let uri = want?.uri;
-    console.error('testTag', ' router = ' + JSON.stringify(router.getState()))
     let status: router.RouterState = router.getState();
     if (status && status.name !== 'ScanAccess' && uri) {
       // Process the service based on the URI.

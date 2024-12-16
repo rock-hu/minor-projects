@@ -20,7 +20,7 @@ import ToDoItem from '../view/ToDoItem';
 @Entry
 @Component
 struct ToDoListPage {
-  private totalTasks: Array<string> = [];
+  private totalTasks: Array<Resource> = [];
 
   aboutToAppear() {
     this.totalTasks = DataModel.getData();

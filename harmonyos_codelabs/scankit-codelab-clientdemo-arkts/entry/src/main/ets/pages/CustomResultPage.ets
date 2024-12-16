@@ -20,10 +20,25 @@ function textValue() {
   .margin({ bottom: 5 })
 }
 
-let typeStr: Array<string> =
-  ['FORMAT_UNKNOWN', 'AZTEC_CODE', 'CODABAR_CODE', 'CODE39_CODE', 'CODE93_CODE', 'CODE128_CODE', 'DATAMATRIX_CODE',
-    'EAN8_CODE', 'EAN13_CODE',
-    'ITF14_CODE', 'PDF417_CODE', 'QR_CODE', 'UPC_A_CODE', 'UPC_E_CODE', 'MULTIFUNCTIONAL_CODE'];
+const SCAN_TYPE: Record<number, string> = {
+  0: 'FORMAT_UNKNOWN',
+  1: 'AZTEC_CODE',
+  2: 'CODABAR_CODE',
+  3: 'CODE39_CODE',
+  4: 'CODE93_CODE',
+  5: 'CODE128_CODE',
+  6: 'DATAMATRIX_CODE',
+  7: 'EAN8_CODE',
+  8: 'EAN13_CODE',
+  9: 'ITF14_CODE',
+  10: 'PDF417_CODE',
+  11: 'QR_CODE',
+  12: 'UPC_A_CODE',
+  13: 'UPC_E_CODE',
+  14: 'MULTIFUNCTIONAL_CODE',
+  100: 'ONE_D_CODE',
+  101: 'TWO_D_CODE'
+};
 
 @Entry
 @Component
@@ -112,7 +127,8 @@ struct CustomResultPage {
           Column() {
             ForEach(this.result, (item: scanBarcode.ScanResult) => {
               if (item['scanCodeRect']) {
-                this.CustomTextBox(typeStr[item['scanType']], item['originalValue'], item['scanCodeRect']['left'],
+                this.CustomTextBox(this.getScanTypeKey(item['scanType']), item['originalValue'],
+                  item['scanCodeRect']['left'],
                   item['scanCodeRect'].top, item['scanCodeRect'].right, item['scanCodeRect'].bottom)
               }
             })
@@ -130,5 +146,9 @@ struct CustomResultPage {
     .padding({
       top: 40
     })
+  }
+
+  getScanTypeKey(type: number): string {
+    return SCAN_TYPE[type] || ''
   }
 }

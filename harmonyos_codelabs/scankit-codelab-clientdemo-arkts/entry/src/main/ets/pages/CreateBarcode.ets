@@ -71,7 +71,8 @@ struct CreateBarcodePage {
   @State mWidth: string = '800' // Default barcode width, in px.
   @State mHeight: string = '800' // Default barcode height, in px.
   @State mMargin: number = 1 // Default barcode margin, in px.
-  @State mLevel: generateBarcode.ErrorCorrectionLevel = generateBarcode.ErrorCorrectionLevel.LEVEL_H // Default error correction level of the barcode image.
+  @State mLevel: generateBarcode.ErrorCorrectionLevel =
+    generateBarcode.ErrorCorrectionLevel.LEVEL_H // Default error correction level of the barcode image.
   @State mBackgroundColor: number = 0xffffff // Default background color of the barcode image.
   @State mPixelMapColor: number = 0x000000 // Default color of the barcode image.
 
@@ -291,200 +292,137 @@ function showError(businessError: BusinessError): void {
       duration: 2000
     });
   } catch (error) {
-    let message = (error as BusinessError).message
-    let code = (error as BusinessError).code
-    hilog.error(0x0001, TAG, `Failed to ShowToast. Code: ${code}, message: ${message}`);
+    if (error) {
+      hilog.error(0x0001, TAG, `Failed to ShowToast. Code: ${error.code}, message: ${error.message}`);
+    }
   }
 }
 
 export default class ScanConstant {
-  static readonly qr_code: Record<string, string> = {
-    'scanType': 'qrcode', 'originalValue': 'TEC-IT'
-  }
-  static readonly colorItems: Array<SelectOption> = [{
-    value: 'Black', icon: ''
-  },
+  static readonly colorItems: Array<SelectOption> = [
     {
-      value: 'Blue', icon: ''
+      value: 'Black'
     },
     {
-      value: 'Brown', icon: ''
+      value: 'Blue'
     },
     {
-      value: 'Gray', icon: ''
+      value: 'Brown'
     },
     {
-      value: 'Green', icon: ''
+      value: 'Gray'
     },
     {
-      value: 'Orange', icon: ''
+      value: 'Green'
     },
     {
-      value: 'Red', icon: ''
+      value: 'Orange'
     },
     {
-      value: 'White', icon: ''
+      value: 'Red'
     },
     {
-      value: 'Yellow', icon: ''
+      value: 'White'
+    },
+    {
+      value: 'Yellow'
     }];
-  static readonly errorLevelItems: Array<SelectOption> = [{
-    value: 'LEVEL_L', icon: ''
-  },
+  static readonly errorLevelItems: Array<SelectOption> = [
     {
-      value: 'LEVEL_M', icon: ''
+      value: 'LEVEL_L'
     },
     {
-      value: 'LEVEL_Q', icon: ''
+      value: 'LEVEL_M'
     },
     {
-      value: 'LEVEL_H', icon: ''
+      value: 'LEVEL_Q'
+    },
+    {
+      value: 'LEVEL_H'
     }];
-  static readonly codeTypeItems: Array<SelectOption> = [{
-    value: 'AZTEC_CODE', icon: ''
-  },
+  static readonly codeTypeItems: Array<SelectOption> = [
     {
-      value: 'CODABAR_CODE', icon: ''
+      value: 'AZTEC_CODE'
     },
     {
-      value: 'CODE93_CODE', icon: ''
+      value: 'CODABAR_CODE'
     },
     {
-      value: 'CODE39_CODE', icon: ''
+      value: 'CODE93_CODE'
     },
     {
-      value: 'CODE128_CODE', icon: ''
+      value: 'CODE39_CODE'
     },
     {
-      value: 'DATAMATRIX_CODE', icon: ''
+      value: 'CODE128_CODE'
     },
     {
-      value: 'EAN8_CODE', icon: ''
+      value: 'DATAMATRIX_CODE'
     },
     {
-      value: 'EAN13_CODE', icon: ''
+      value: 'EAN8_CODE'
     },
     {
-      value: 'ITF14_CODE', icon: ''
+      value: 'EAN13_CODE'
     },
     {
-      value: 'PDF417_CODE', icon: ''
+      value: 'ITF14_CODE'
     },
     {
-      value: 'QR_CODE', icon: ''
+      value: 'PDF417_CODE'
     },
     {
-      value: 'UPC_A_CODE', icon: ''
+      value: 'QR_CODE'
     },
     {
-      value: 'UPC_E_CODE', icon: ''
+      value: 'UPC_A_CODE'
+    },
+    {
+      value: 'UPC_E_CODE'
     }];
 }
 
 function getLevelType(type?: string): generateBarcode.ErrorCorrectionLevel {
-  let result: generateBarcode.ErrorCorrectionLevel = generateBarcode.ErrorCorrectionLevel.LEVEL_H;
-  switch (type) {
-    case 'LEVEL_L':
-      result = generateBarcode.ErrorCorrectionLevel.LEVEL_L;
-      break;
-    case 'LEVEL_M':
-      result = generateBarcode.ErrorCorrectionLevel.LEVEL_M;
-      break;
-    case 'LEVEL_Q':
-      result = generateBarcode.ErrorCorrectionLevel.LEVEL_Q;
-      break;
-    case 'LEVEL_H':
-      result = generateBarcode.ErrorCorrectionLevel.LEVEL_H;
-      break;
-    default:
-      result = generateBarcode.ErrorCorrectionLevel.LEVEL_H;
-      break;
+  const LEVEL_TYPE: Record<string, number> = {
+    'LEVEL_L': generateBarcode.ErrorCorrectionLevel.LEVEL_L,
+    'LEVEL_M': generateBarcode.ErrorCorrectionLevel.LEVEL_M,
+    'LEVEL_Q': generateBarcode.ErrorCorrectionLevel.LEVEL_Q,
+    'LEVEL_H': generateBarcode.ErrorCorrectionLevel.LEVEL_H
   }
-  return result;
+  return type ? LEVEL_TYPE[type] || LEVEL_TYPE['LEVEL_H'] : LEVEL_TYPE['LEVEL_H'];
 }
 
 function getColorType(type?: string): number {
-  let color: number = 0x000000;
-  switch (type) {
-    case 'Black':
-      color = 0x000000;
-      break;
-    case 'Blue':
-      color = 0x0000ff;
-      break;
-    case 'Brown':
-      color = 0xa52a2a;
-      break;
-    case 'Gray':
-      color = 0x808080;
-      break;
-    case 'Green':
-      color = 0x008000;
-      break;
-    case 'Orange':
-      color = 0xffa500;
-      break;
-    case 'Red':
-      color = 0xff0000;
-      break;
-    case 'White':
-      color = 0xffffff;
-      break;
-    case 'Yellow':
-      color = 0xffff00;
-      break;
-    default:
-      color = 0x1e1e1e;
-      break;
-  }
-  return color;
+  const COLOR_MAP: Record<string, number> = {
+    'Black': 0x000000,
+    'Blue': 0x0000ff,
+    'Brown': 0xa52a2a,
+    'Gray': 0x808080,
+    'Green': 0x008000,
+    'Orange': 0xffa500,
+    'Red': 0xff0000,
+    'White': 0xffffff,
+    'Yellow': 0xffff00,
+    'Default': 0x1e1e1e
+  };
+  return type ? COLOR_MAP[type] || COLOR_MAP['Black'] : COLOR_MAP['Black'];
 }
 
 function getTypeNum(type?: string): scanCore.ScanType {
-  let result: scanCore.ScanType = scanCore.ScanType.QR_CODE;
-  switch (type) {
-    case 'AZTEC_CODE':
-      result = scanCore.ScanType.AZTEC_CODE;
-      break;
-    case 'CODABAR_CODE':
-      result = scanCore.ScanType.CODABAR_CODE;
-      break;
-    case 'CODE39_CODE':
-      result = scanCore.ScanType.CODE39_CODE;
-      break;
-    case 'CODE93_CODE':
-      result = scanCore.ScanType.CODE93_CODE;
-      break;
-    case 'CODE128_CODE':
-      result = scanCore.ScanType.CODE128_CODE;
-      break;
-    case 'DATAMATRIX_CODE':
-      result = scanCore.ScanType.DATAMATRIX_CODE;
-      break;
-    case 'EAN8_CODE':
-      result = scanCore.ScanType.EAN8_CODE;
-      break;
-    case 'EAN13_CODE':
-      result = scanCore.ScanType.EAN13_CODE;
-      break;
-    case 'ITF14_CODE':
-      result = scanCore.ScanType.ITF14_CODE;
-      break;
-    case 'PDF417_CODE':
-      result = scanCore.ScanType.PDF417_CODE;
-      break;
-    case 'QR_CODE':
-      result = scanCore.ScanType.QR_CODE;
-      break;
-    case 'UPC_A_CODE':
-      result = scanCore.ScanType.UPC_A_CODE;
-      break;
-    case 'UPC_E_CODE':
-      result = scanCore.ScanType.UPC_E_CODE;
-      break;
-    default:
-      result = scanCore.ScanType.QR_CODE;
-      break;
+  const SCAN_TYPE: Record<string, number> = {
+    'AZTEC_CODE': scanCore.ScanType.AZTEC_CODE,
+    'CODABAR_CODE': scanCore.ScanType.CODABAR_CODE,
+    'CODE39_CODE': scanCore.ScanType.CODE39_CODE,
+    'CODE93_CODE': scanCore.ScanType.CODE93_CODE,
+    'CODE128_CODE': scanCore.ScanType.CODE128_CODE,
+    'DATAMATRIX_CODE': scanCore.ScanType.DATAMATRIX_CODE,
+    'EAN8_CODE': scanCore.ScanType.EAN8_CODE,
+    'EAN13_CODE': scanCore.ScanType.EAN13_CODE,
+    'ITF14_CODE': scanCore.ScanType.ITF14_CODE,
+    'PDF417_CODE': scanCore.ScanType.PDF417_CODE,
+    'QR_CODE': scanCore.ScanType.QR_CODE,
+    'UPC_A_CODE': scanCore.ScanType.UPC_A_CODE,
+    'UPC_E_CODE': scanCore.ScanType.UPC_E_CODE
   }
-  return result;
+  return type ? SCAN_TYPE[type] || SCAN_TYPE['QR_CODE'] : SCAN_TYPE['QR_CODE'];
 }

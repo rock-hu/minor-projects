@@ -3,11 +3,26 @@ import { hilog } from '@kit.PerformanceAnalysisKit';
 import { scanCore, scanBarcode } from '@kit.ScanKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 
-const TAG = 'ScanKit scanBarcode';
-let typeStr: Array<string> =
-  ['FORMAT_UNKNOWN', 'AZTEC_CODE', 'CODABAR_CODE', 'CODE39_CODE', 'CODE93_CODE', 'CODE128_CODE', 'DATAMATRIX_CODE',
-    'EAN8_CODE', 'EAN13_CODE',
-    'ITF14_CODE', 'PDF417_CODE', 'QR_CODE', 'UPC_A_CODE', 'UPC_E_CODE', 'MULTIFUNCTIONAL_CODE'];
+const TAG: string = 'ScanKit scanBarcode';
+const SCAN_TYPE: Record<number, string> = {
+  0: 'FORMAT_UNKNOWN',
+  1: 'AZTEC_CODE',
+  2: 'CODABAR_CODE',
+  3: 'CODE39_CODE',
+  4: 'CODE93_CODE',
+  5: 'CODE128_CODE',
+  6: 'DATAMATRIX_CODE',
+  7: 'EAN8_CODE',
+  8: 'EAN13_CODE',
+  9: 'ITF14_CODE',
+  10: 'PDF417_CODE',
+  11: 'QR_CODE',
+  12: 'UPC_A_CODE',
+  13: 'UPC_E_CODE',
+  14: 'MULTIFUNCTIONAL_CODE',
+  100: 'ONE_D_CODE',
+  101: 'TWO_D_CODE'
+};
 
 @Entry
 @Component
@@ -38,8 +53,7 @@ struct ScanBarcodePage {
               // Receive the correct barcode scanning result.
               this.scanType = result.scanType;
               this.inputValue = result.originalValue;
-              hilog.debug(0x0001, TAG,
-                `Succeeded in getting ScanResult by promise with options, result is ${JSON.stringify(result)}`);
+              hilog.debug(0x0001, TAG, `Succeeded in getting ScanResult by promise with options.`);
             }).catch((error: BusinessError) => {
               if (error.code == scanCore.ScanErrorCode.SCAN_SERVICE_CANCELED) {
                 hilog.info(0x0001, TAG, `Disabling the Scanning Service.`);
@@ -53,12 +67,16 @@ struct ScanBarcodePage {
           }
         })
 
-      CustomTextBox({ scanType: typeStr[this.scanType], inputValue: this.inputValue })
+      CustomTextBox({ scanType: this.getScanTypeKey(this.scanType), inputValue: this.inputValue })
     }
     .width('100%')
     .height('100%')
     .justifyContent(FlexAlign.Center)
     .alignItems(HorizontalAlign.Center)
+  }
+
+  getScanTypeKey(type: number): string {
+    return SCAN_TYPE[type] || ''
   }
 }
 

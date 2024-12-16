@@ -60,12 +60,12 @@ export default class CommonConstants {
   /**
    * agents data.
    */
-  static readonly TODO_DATA: Array<string> = [
-    "早起晨练",
-    "准备早餐",
-    "阅读名著",
-    "学习ArkTS",
-    "看剧放松"
+  static readonly TODO_DATA: Array<Resource> = [
+    $r('app.string.todo_list_one'),
+    $r('app.string.todo_list_two'),
+    $r('app.string.todo_list_three'),
+    $r('app.string.todo_list_four'),
+    $r('app.string.todo_list_five')
   ];
 }
 
