@@ -5,9 +5,9 @@
 本示例使用@kit.LocationKit中的geoLocationManager实现获取缓存定位、当前定位、持续定位的经纬度，然后将经纬度作为请求参数，通过map.Marker将位置标记在地图上，通过逆地理编码，获取到地址的详细信息，展示到页面上。
 
 ### 效果预览
-| 首页                                               |
-|--------------------------------------------------|
-| ![](screenshots/devices/position_service.jpg) |
+| 首页                                            |
+|-----------------------------------------------|
+| ![](screenshots/devices/position_service.png) |
 
 使用说明：
 
