@@ -246,7 +246,7 @@ This section describes how to create an OpenHarmony project, load the dependency
 
 ![image](./figures/environment-setup-EmptyAbility.png)
 
-​ Click `Next` and select `API12` for `Compile SDK` to create a project named **MyApplication**. Note that the project path cannot be too long, as shown in the following figure.
+​ Click `Next` and select `API13` for `Compile SDK` to create a project named **MyApplication**. Note that the project path cannot be too long, as shown in the following figure.
 
 ![image](./figures/environment-setup-version.png)
 

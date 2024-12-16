@@ -76,6 +76,7 @@
 
 ```json
 "scripts": {
+      ...
   "codegen": "react-native codegen-harmony --cpp-output-path ./entry/src/main/cpp/generated --rnoh-module-path ./entry/oh_modules/@rnoh/react-native-openharmony"
 }
 ```

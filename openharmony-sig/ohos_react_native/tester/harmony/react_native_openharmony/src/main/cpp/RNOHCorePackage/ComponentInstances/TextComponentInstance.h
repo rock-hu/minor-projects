@@ -21,6 +21,8 @@ class TextComponentInstance
   bool m_touchTargetChildrenNeedUpdate = false;
   bool m_hasCheckNesting = false;
   std::string m_key;
+  std::string m_textContent = "";
+
  public:
   TextComponentInstance(Context context);
   ~TextComponentInstance() override;
@@ -36,6 +38,7 @@ class TextComponentInstance
       ComponentInstance::Shared const& childComponentInstance) override;
   void onPropsChanged(SharedConcreteProps const& props) override;
   void onStateChanged(SharedConcreteState const& textState) override;
+  const std::string& getAccessibilityLabel() const override;
 
  private:
   void setTextAttributes(const facebook::react::TextAttributes& textAttributes);

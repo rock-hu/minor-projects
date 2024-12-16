@@ -2,6 +2,7 @@ import { DisplayMode } from './CppBridgeUtils';
 import type { Tag } from './DescriptorBase';
 import type { NapiBridge } from './NapiBridge';
 import type { RNInstance, SurfaceContext } from './RNInstance';
+import { NodeContent } from '@ohos.arkui.node';
 
 export type SurfaceProps = Record<string, any>;
 
@@ -222,5 +223,13 @@ export class SurfaceHandle {
 
   public isDestroyed() {
     return this.destroyed;
+  }
+
+  public attachRootView(instanceId: number, surfaceId: number, nodeContent: NodeContent) {
+    return this.napiBridge.attachRootView(instanceId, surfaceId, nodeContent);
+  }
+
+  public detachRootView(instanceId: number, surfaceId: number) {
+    return this.napiBridge.detachRootView(instanceId, surfaceId);
   }
 }

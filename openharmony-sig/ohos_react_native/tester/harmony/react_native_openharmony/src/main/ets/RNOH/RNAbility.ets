@@ -85,22 +85,6 @@ export abstract class RNAbility extends UIAbility {
   private logger!: RNOHLogger
 
   onCreate(want: Want) {
-    let envCallback: EnvironmentCallback = {
-      onConfigurationUpdated(config) {
-        let fontSizeScale = config.fontSizeScale
-        AppStorage.setOrCreate('fontSizeScale', fontSizeScale)
-      },
-      onMemoryLevel(level) {
-        console.log('onMemoryLevel level: ${level}');
-      }
-    };
-    try {
-      let applicationContext = this.context.getApplicationContext();
-      let callbackId = applicationContext.on('environment', envCallback);
-      console.log(`callbackId: ${callbackId}`);
-    } catch (paramError) {
-      console.error(`error: ${(paramError as BusinessError).code}, ${(paramError as BusinessError).message}`);
-    }
     this.logger = this.createLogger().clone("RNAbility")
     this.rnInstancesCoordinator = RNInstancesCoordinator.create({
       fontSizeScale: this.context.config.fontSizeScale,

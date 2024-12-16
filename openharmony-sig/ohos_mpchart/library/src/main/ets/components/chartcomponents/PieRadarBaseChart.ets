@@ -35,6 +35,10 @@ export default struct PieRadarBaseChart {
     this.context2D = new CanvasRenderingContext2D(this.setting);
   }
 
+  aboutToDisappear(): void {
+    this.model?.clearJobs();
+  }
+
   build() {
     Column() {
       Canvas(this.context2D)

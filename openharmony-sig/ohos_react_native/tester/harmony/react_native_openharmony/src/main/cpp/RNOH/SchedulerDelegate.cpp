@@ -12,12 +12,7 @@ void SchedulerDelegate::schedulerDidFinishTransaction(
   HarmonyReactMarker::logMarker(HarmonyReactMarker::HarmonyReactMarkerId::
                                     FABRIC_FINISH_TRANSACTION_START);
   mountingCoordinator->getTelemetryController().pullTransaction(
-      [this](auto const& transaction, auto const& surfaceTelemetry) {
-        performOnMainThread(
-            [transaction](MountingManager::Shared const& mountingManager) {
-              mountingManager->willMount(transaction.getMutations());
-            });
-      },
+      [this](auto const& transaction, auto const& surfaceTelemetry) {},
       [this](auto const& transaction, auto const& surfaceTelemetry) {
         performOnMainThread(
             [transaction](MountingManager::Shared const& mountingManager) {
@@ -63,10 +58,7 @@ void SchedulerDelegate::schedulerDidFinishTransaction(
             [otherMutation, this](MountingManager::Shared 
         const& mountingManager) {
               mountingManager->didMount(otherMutation);
-              auto preAllocationBuffer = m_preAllocationBuffer.lock();
-              if(preAllocationBuffer){
-                  preAllocationBuffer->clearPreallocatedViews();
-              }
+              mountingManager->clearPreallocatedViews();
             });
         logTransactionTelemetryMarkers(transaction);
       });
@@ -116,6 +108,22 @@ void SchedulerDelegate::logTransactionTelemetryMarkers(
       layoutEndTime);
 }
 
+void SchedulerDelegate::schedulerDidRequestPreliminaryViewAllocation(
+    SurfaceId /*surfaceId*/,
+    const ShadowNode& shadowNode) {
+  facebook::react::SystraceSection s(
+      "#RNOH::SchedulerDelegate::schedulerDidRequestPreliminaryViewAllocation");
+  auto preallocationRequestQueue = m_weakPreallocationRequestQueue.lock();
+  if (preallocationRequestQueue == nullptr) {
+    return;
+  }
+  preallocationRequestQueue->push(
+      PreallocationRequest{
+          shadowNode.getTag(),
+          shadowNode.getComponentHandle(),
+          shadowNode.getComponentName()});
+}
+
 void SchedulerDelegate::schedulerDidDispatchCommand(
     const ShadowView& shadowView,
     std::string const& commandName,
@@ -128,7 +136,12 @@ void SchedulerDelegate::schedulerDidDispatchCommand(
 
 void SchedulerDelegate::schedulerDidSendAccessibilityEvent(
     const ShadowView& shadowView,
-    std::string const& eventType) {}
+    std::string const& eventType) {
+    performOnMainThread([shadowView, eventType](
+                          MountingManager::Shared const& mountingManager) {
+      mountingManager->schedulerDidSendAccessibilityEvent(shadowView, eventType);
+    });
+}
 
 void SchedulerDelegate::schedulerDidSetIsJSResponder(
     ShadowView const& shadowView,

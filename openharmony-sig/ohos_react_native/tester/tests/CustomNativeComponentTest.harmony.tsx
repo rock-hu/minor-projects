@@ -7,6 +7,7 @@ import {
   GeneratedSampleComponentArkTSRef,
   GeneratedSampleComponentArkTS,
   CodegenLibSampleComponent,
+  ContainerView,
 } from 'react-native-sample-package';
 import {useEffect, useState} from 'react';
 import React from 'react';
@@ -16,13 +17,14 @@ import {
   IncomingData as GeneratedSampleNativeComponentCAPICustomProps,
   SupportedCommandArgs as GeneratedSampleNativeComponentCAPICommandArgs,
 } from 'react-native-harmony-sample-package/src/specs/v2/GeneratedSampleNativeComponent';
-import {View} from 'react-native';
+import {Text, View} from 'react-native';
 
 export function CustomNativeComponentTest() {
   return (
     <TestSuite name="Custom Native Component">
       <ManualCustomComponentImplementationTest />
       <GeneratedCustomComponentTest />
+      <ContainerViewTest />
     </TestSuite>
   );
 }
@@ -356,6 +358,28 @@ function GeneratedCustomComponentTest() {
           }}
         />
       </TestSuite>
+    </TestSuite>
+  );
+}
+
+function ContainerViewTest() {
+  return (
+    <TestSuite name="Custom container component">
+      <TestCase.Example itShould="display a custom component with children">
+        <ContainerView>
+          <View style={{width: 100, height: 100, backgroundColor: 'red'}} />
+          <Text>Content</Text>
+        </ContainerView>
+      </TestCase.Example>
+
+      <TestCase.Example itShould="display a custom component with toggleable child">
+        <ContainerView>
+          <Blinker>
+            <View style={{width: 100, height: 100, backgroundColor: 'red'}} />
+            <Text>Content</Text>
+          </Blinker>
+        </ContainerView>
+      </TestCase.Example>
     </TestSuite>
   );
 }

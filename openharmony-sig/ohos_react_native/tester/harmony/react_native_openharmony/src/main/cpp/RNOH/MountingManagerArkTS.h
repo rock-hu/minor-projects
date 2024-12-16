@@ -43,11 +43,6 @@ class MountingManagerArkTS final : public MountingManager {
         triggerUICallback(std::move(triggerUICallback)),
         commandDispatcher(std::move(commandDispatcher)),
         m_arkTsChannel(std::move(arkTsChannel)) {}
-    
-    PreAllocationBuffer::Shared getPreAllocationBuffer() override{
-        return nullptr;
-    }
-
   void willMount(MutationList const& mutations) override;
 
   void doMount(MutationList const& mutations) override;
@@ -68,6 +63,8 @@ class MountingManagerArkTS final : public MountingManager {
       facebook::react::Tag tag,
       folly::dynamic props,
       facebook::react::ComponentDescriptor const& componentDescriptor) override;
+
+  void clearPreallocatedViews();
 
  private:
   ShadowViewRegistry::Shared shadowViewRegistry;

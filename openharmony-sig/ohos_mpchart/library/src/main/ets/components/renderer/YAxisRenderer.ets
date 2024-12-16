@@ -369,6 +369,7 @@ export default class YAxisRenderer extends AxisRenderer {
       c.stroke();
       c.closePath();
       c.restore();
+      MPPointD.recycleInstance(pos);
     }
   }
 

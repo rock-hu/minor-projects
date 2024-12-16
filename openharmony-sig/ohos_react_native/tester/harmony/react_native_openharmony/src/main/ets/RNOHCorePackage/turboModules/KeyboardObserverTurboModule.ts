@@ -6,20 +6,26 @@ declare function px2vp(px: number): number;
 
 export class KeyboardObserverTurboModule extends TurboModule {
   public static readonly NAME = 'KeyboardObserver';
-
+  private static keyboardHeight:number;
   constructor(protected ctx: TurboModuleContext) {
     super(ctx);
     this.subscribeListeners();
   }
 
-  private createKeyboardEvent(screenX: number, screenY: number, width: number, height: number) {
+  private createKeyboardEvent(screenX: number, startScreenY: number, endScreenY: number, width: number, startHeight: number, endHeight: number)  {
     return {
       easing: 'keyboard',
       duration: 0,
       endCoordinates: {
         screenX: px2vp(screenX),
-        screenY: px2vp(screenY),
-        height: px2vp(height),
+        screenY: px2vp(endScreenY),
+        height: px2vp(endHeight),
+        width: px2vp(width),
+      },
+      startCoordinates: {
+        screenX: px2vp(screenX),
+        screenY: px2vp(startScreenY),
+        height: px2vp(startHeight),
         width: px2vp(width),
       }
     }
@@ -30,12 +36,17 @@ export class KeyboardObserverTurboModule extends TurboModule {
     // using inputMethodEngine.on('keyboardShow') and .on('keyboardHide') would be preferable, but it doesn't work at the time of writing.
     windowInstance.on('keyboardHeightChange', async (keyboardHeight) => {
       if (keyboardHeight > 0) {
+        const windowRect = windowInstance.getWindowProperties().windowRect;
         const keyboardAvoidArea = windowInstance.getWindowAvoidArea(window.AvoidAreaType.TYPE_KEYBOARD).bottomRect;
-        this.ctx.rnInstance.emitDeviceEvent('keyboardDidShow', this.createKeyboardEvent(keyboardAvoidArea.left, keyboardAvoidArea.top, keyboardAvoidArea.width, keyboardAvoidArea.height));
+        KeyboardObserverTurboModule.keyboardHeight = keyboardAvoidArea.height;
+        this.ctx.rnInstance.emitDeviceEvent('keyboardDidShow',
+          this.createKeyboardEvent(keyboardAvoidArea.left, windowRect.height, keyboardAvoidArea.top, windowRect.width, 0, keyboardHeight));
         this.ctx.rnInstance.postMessageToCpp("KEYBOARD_VISIBLE", {keyboardHeight: px2vp(keyboardAvoidArea.height)});
       } else {
         const windowRect = windowInstance.getWindowProperties().windowRect;
-        this.ctx.rnInstance.emitDeviceEvent('keyboardDidHide', this.createKeyboardEvent(0, windowRect.height, windowRect.width, 0))
+        const keyboardAvoidArea = windowInstance.getWindowAvoidArea(window.AvoidAreaType.TYPE_KEYBOARD).bottomRect;
+        this.ctx.rnInstance.emitDeviceEvent('keyboardDidHide',
+          this.createKeyboardEvent(keyboardAvoidArea.left, windowRect.height-KeyboardObserverTurboModule.keyboardHeight, windowRect.height, windowRect.width, KeyboardObserverTurboModule.keyboardHeight, 0));
       }
     })
 

@@ -212,6 +212,7 @@ export default class ChartHighlighter<T extends BarLineScatterCandleBubbleDataPr
             highlights.add(new Highlight(
               e.getX(), e.getY(),
               dataSetIndex, 0, 0, pixels.x, pixels.y, axisObj));
+            MPPointD.recycleInstance(pixels);
           }
 
         }

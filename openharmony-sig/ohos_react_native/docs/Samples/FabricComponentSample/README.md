@@ -1,5 +1,5 @@
 # 说明
-这是创建自定义Fabric组件（包括CAPI组件和ArkTs组件）的demo工程。
+这是创建自定义Fabric组件（包括CAPI组件和ArkTS组件）的demo工程。
 
 
 # 目录结构

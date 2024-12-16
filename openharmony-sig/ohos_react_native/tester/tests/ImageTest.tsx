@@ -47,14 +47,9 @@ export const ImageTest = () => {
         itShould="support loading remote animated gifs"
         source={{uri: REMOTE_GIF_URL}}
       />
-      <TestCase.Example
-        itShould="display alt when the image doesn't load"
-        skip={'screenReader is not available'}>
+      <TestCase.Example itShould="display accessible image which reads 'EXAMPLE IMAGE' when focused">
         <View style={{minHeight: 50}}>
-          <Image
-            source={require('../assets/fonts/Pacifico-Regular.ttf')}
-            alt="This image could not be loaded!"
-          />
+          <Image source={LOCAL_IMAGE_ASSET_ID} alt="EXAMPLE IMAGE" />
         </View>
       </TestCase.Example>
       <TestCase.Logical

@@ -15,20 +15,20 @@ ScrollNode::ScrollNode()
       m_childArkUINodeHandle(nullptr),
       m_scrollNodeDelegate(nullptr) {
   for (auto eventType : SCROLL_NODE_EVENT_TYPES) {
-    maybeThrow(NativeNodeApi::getInstance()->registerNodeEvent(
-        m_nodeHandle, eventType, eventType, this));
+    registerNodeEvent(eventType);
   }
 }
 
 ScrollNode::~ScrollNode() {
   for (auto eventType : SCROLL_NODE_EVENT_TYPES) {
-    NativeNodeApi::getInstance()->unregisterNodeEvent(m_nodeHandle, eventType);
+    unregisterNodeEvent(eventType);
   }
 }
 
 void ScrollNode::onNodeEvent(
     ArkUI_NodeEventType eventType,
     EventArgs& eventArgs) {
+  ArkUINode::onNodeEvent(eventType, eventArgs);
   if (eventType == ArkUI_NodeEventType::NODE_SCROLL_EVENT_ON_DID_SCROLL) {
     if (m_scrollNodeDelegate != nullptr) {
       m_scrollNodeDelegate->onScroll();

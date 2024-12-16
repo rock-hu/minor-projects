@@ -39,6 +39,10 @@ class BaseComponentJSIBinder : public ComponentJSIBinder {
     nativeProps.setProperty(rt, "accessibilityElementsHidden", "boolean");
     nativeProps.setProperty(rt, "accessibilityLabel", "string");
     nativeProps.setProperty(rt, "accessibilityHint", "string");
+    nativeProps.setProperty(rt, "accessibilityRole", true);
+    nativeProps.setProperty(rt, "accessibilityState", true);
+    nativeProps.setProperty(rt, "accessibilityActions", true);
+    nativeProps.setProperty(rt, "accessibilityLabelledBy", true);
     nativeProps.setProperty(rt, "aria-hidden", "boolean");
     nativeProps.setProperty(rt, "aria-label", "string");
     nativeProps.setProperty(rt, "aria-labelledby", "string");

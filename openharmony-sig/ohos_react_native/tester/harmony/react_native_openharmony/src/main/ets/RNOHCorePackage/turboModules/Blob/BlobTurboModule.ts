@@ -44,7 +44,30 @@ export class BlobTurboModule extends AnyThreadTurboModule {
       return false;
     },
     fetch: async (query) => {
-      const file = fs.openSync(query.url, fs.OpenMode.READ_WRITE);
+      const parsedUri = new uri.URI(query.url)
+      if (parsedUri.scheme === 'asset') {
+        const bundleUrl = this.ctx.rnInstance.getInitialBundleUrl();
+        const isFileJSBundle = bundleUrl?.indexOf('/') === 0;
+        if (isFileJSBundle) {
+          const pos = bundleUrl?.lastIndexOf('/');
+          const prefix = bundleUrl?.slice(0, pos + 1);
+          query.url = query.url.replace('asset://', prefix);
+        } else {
+          //assets can't be handled using normal file API's
+          const path = query.url.replace("asset://", this.ctx.rnInstance.getAssetsDest())
+          const bytes = this.ctx.uiAbilityContext.resourceManager.getRawFileContentSync(path);
+          const blob = bytes.buffer;
+          return {
+            blobId: this.blobRegistry.save(blob),
+            offset: bytes.byteOffset,
+            size: bytes.byteLength,
+            type: undefined, //no way to find the type using Ark
+            name: path,
+            lastModified: 0 //we don't know the value
+          }
+        }
+      }
+      const file = fs.openSync(query.url, fs.OpenMode.READ_ONLY);
       const stat = await fs.stat(query.url);
       const blob: Blob = new ArrayBuffer(stat.size);
       await fs.read(file.fd, blob);

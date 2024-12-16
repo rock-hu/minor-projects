@@ -4,17 +4,17 @@
  
 - 现象
  
-    鸿蒙项目中加载本地 rawfile 中的 bundle 时 **RN** 界面Image组件可以正常显示本地图片，从沙盒中加载 bundle 时 **RN** 界面 Image 组件图片显示不出来。
+  鸿蒙项目中加载本地 rawfile 中的 bundle 时 **RN** 界面Image组件可以正常显示本地图片，从沙盒中加载 bundle 时 **RN** 界面 Image 组件图片显示不出来。
  
 - 原因
  
-    对于从沙盒中加载图片，放资源文件，需要按照 bundles 本身文件的解压位置来确定。
+  对于从沙盒中加载图片，放资源文件，需要按照 bundles 本身文件的解压位置来确定。
  
 - 解决
  
-    读取沙箱中的图片资源请参考[文档](../常见开发场景.md#如何加载沙箱路径bundle和图片)。
- 
-    对于从沙盒中加载图片，放资源文件，需要按照 bundles 本身文件的解压位置来确定，可参考以下：
+  读取沙箱中的图片资源请参考[文档](../常见开发场景.md#如何加载沙箱路径bundle和图片)。
+
+  对于从沙盒中加载图片，放资源文件，需要按照 bundles 本身文件的解压位置来确定，可参考以下：
 - 打包场景
   - 打包路径
     
@@ -212,3 +212,225 @@
       }
       })
     ```
+
+### hermes 编译教程
+
+- 现象
+
+    如果业务场景有诉求，需要自定义编译hermes，可参考下面步骤。
+
+- 原因
+
+    无。
+
+- 解决
+
+    > 如非必要，不推荐自行编译hermes。
+
+    - 资源准备
+
+      - 编译脚本: 可以通过[RN鸿蒙化仓库](https://gitee.com/openharmony-sig/ohos_react_native/blob/0.72.5-ohos-5.0-release/react-native-harmony/scripts/build-hermes.sh)获取；
+
+      - hermes源码及相关依赖：编译需要[hermes源码](https://github.com/facebook/hermes/tree/hermes-2023-08-07-RNv0.72.4-813b2def12bc9df02654b3e3653ae4a68d0572e0)和JSI源码（可通过解压rnoh的源码包获得，如：react_native_openharmony-5.0.0.601.har）；
+
+      - SDK：直接使用IDE自带的SDK；
+
+      - 操作系统：MacOS 或 Linux。
+
+    - 编译流程
+
+      1. 解压har包：找一个空目录（比如temp），将har包复制到改目录，然后解压，解压后将看到一个 `package` 文件夹；
+      2. 下载hermes源码：通过[hermes源码](https://github.com/facebook/hermes/tree/hermes-2023-08-07-RNv0.72.4-813b2def12bc9df02654b3e3653ae4a68d0572e0)的链接下载hermes源码，然后替换掉 `package/src/main/cpp/third-party/hermes` 文件夹；
+      3. 下载编译脚本：通过上述链接下载编译脚本，然后将其拷贝到 `package/src/main/cpp/third-party/scripts` 路径下（没有scripts目录就自己建）；
+      4. 配置 SDK 环境变量：将 IDE 中 `sdk/default/openharmony` 的路径配置在系统的环境变量中，环境变量名为 `OHOS_SDK`，或者也可以将这个路径写在编译脚本中；
+      5. 调整编译脚本：见下面的文件变更：
+          ```diff
+          #!/bin/bash
+
+          + OHOS_SDK=你的SDK路径 # 若做了第3步，这里可以忽略
+          ...
+          - THIRD_PARTY_DIR=$SCRIPT_DIR/../harmony/cpp/third-party
+          + THIRD_PARTY_DIR=../
+          ...
+          - OHOS_SDK_NATIVE_DIR=$OHOS_SDK/10/native
+          + OHOS_SDK_NATIVE_DIR=$OHOS_SDK/native
+          ...
+          - JSI_DIR=$THIRD_PARTY_DIR/rn/ReactCommon/jsi
+          + JSI_DIR=jsi 的绝对路径
+          ...
+          - -DJSI_DIR=$THIRD_PARTY_DIR/rn/ReactCommon/jsi \
+          + -DJSI_DIR=$JSI_DIR \
+          ```
+      6. 调整 `hermes/CMakeLists.txt`：注释掉 619 和 632 行，编译时也会有提示；
+      7. 编译：在scripts目录下打开命令行工具，然后执行 `./build-hermes.sh`；
+      8. 编译完成，编译好的so会覆盖掉原先 `prebuilt` 目录中的文件。
+
+### 原生页面切换到RN页面字体偏小问题
+
+- 现象  
+采用非直板机设备(折叠屏，平板)，在开启capi架构，从原生页面切换到RN页面字体会出现偏小问题。
+- 原因  
+1.不使用rnability
+2.从原生页面切换到RN页面不会触发onWindiwSizeChange，导致DisplayMetricsManager的displayMetrics默认的scale是1，与预期不符。
+- 解决  
+需要手动执行下`this.rnInstancesCoordinator.onWindowSizeChange(windowSize)`来触发displayMetrics更新。
+
+### 使用KeyboardAvoidingView组件后页面被异常抬高的问题
+
+- 现象
+
+  使用KeyboardAvoidingView包裹TextInput设置一个底部弹窗，键盘弹出的时候，弹窗底部没有与键盘顶部对齐，中间间隔一段空白。
+
+- 原因
+
+  当TextInput聚焦，键盘弹出的时候，TextInput本身会自动避让键盘抬高组件高度。而当TextInput被KeyboardAvoidingView包裹时，不仅TextInput高度被抬高，其所在的页面会为了躲避键盘而重新计算页面高度，页面整体会被抬升一个键盘的高度。故出现了键盘顶部和弹窗底部中间有一段空白，没有对齐。
+
+- 解决
+
+  在KeyboardAvoidingView所在页面的原生容器中，设置键盘安全区域属性 `.expandSafeArea([SafeAreaType.KEYBOARD])` ，如下示例：
+
+  ```typescript
+  build() {
+    Stack() {
+      if (this.shouldShow) {
+        RNSurface({
+          ctx: this.ctx,
+          surfaceConfig: {
+            initialProps: this.initialProps ?? {},
+            appKey: this.appKey,
+          } as SurfaceConfig2,
+        })
+      }
+      if (this.rnohCoreContext!.isDebugModeEnabled) {
+        RNDevLoadingView({ useSafeAreaInsets: true, ctx: this.rnohCoreContext }).position({ x: 0, y: 0 })
+      }
+    }
+    .expandSafeArea([SafeAreaType.KEYBOARD])
+    .width("100%")
+    .height("100%")
+  }
+  ```
+
+- 参考
+
+  鸿蒙[规格文档](https://developer.huawei.com/consumer/cn/doc/best-practices-V5/bpta-keyboard-layout-adapt-V5)。      
+
+### 加载多个实例后，仅进行一次手势侧滑返回，页面却执行了多次返回动作的问题
+
+- 现象
+
+  加载多个实例后，仅进行一次手势侧滑返回，页面却执行了多次返回动作。
+
+- 原因
+
+  1. 在原生端的@Entry页面中，`onBackPress`方法拦截返回动作，定义如下：
+      ```typescript
+        onBackPress(): boolean | undefined {
+          if (this.rnohCoreContext) {
+            this.rnohCoreContext!.dispatchBackPress()
+          }
+          return true
+        }
+      ```
+  2. 创建实例时，自定义返回拦截处理方法`backPressHandler`如下：
+      ```typescript
+        const rnInstance: RNInstance = await this.rnohCoreContext.createAndRegisterRNInstance({
+          createRNPackages: createRNPackages,
+          ...
+          backPressHandler: () => {
+            router.back()
+          }
+        }
+      ```
+  3. 假设开发者在首页中依次打开两个页面，每个页面都通过各自的实例`rnInstance`进行加载，当在第二个页面中侧滑返回时，应该返回到第一个页面，然而实际却执行了两次返回动作，直接回到了首页。
+
+- 解决
+
+  有以下两种办法可以选择：
+  - 在`backPressHandler`方法中根据实际情况增加判断逻辑，比如通过路由获取当前页面的路径名称，与创建当前页面实例时所定义的名称对比，如果两者一致，则执行页面返回逻辑，反之则不作任何处理。
+  - 去除实例中的`backPressHandler`拦截方法，且跳过`onBackPress`中定义的`dispatchBackPress`方法，直接执行返回逻辑，比如下面示例的方法：
+    ```typescript 
+      onBackPress(): boolean | undefined {
+        if (this.rnohCoreContext) {
+          router.back()
+        }
+        return true
+      }
+    ``` 
+
+### 原生组件嵌套RNSurface，滚动时容易触发RN页面的点击事件
+
+- 现象
+
+    原生Scroll组件嵌套RNSurface时，在滚动原生组件时极易触发RN的点击事件。
+
+- 原因
+
+    触摸滑动原生Scroll时，RN监听到了触摸事件从而触发了点击事件。
+
+- 解决
+
+    在滚动事件中调用`this.rnohCoreContext?.cancelTouches()`主动阻止RN的触摸事件。
+    ```typescript
+    Scroll() {
+      RNApp({
+        rnInstanceConfig: {
+          createRNPackages,
+          enableNDKTextMeasuring: true,
+          enableBackgroundExecutor: true,
+          enableCAPIArchitecture: true,
+          enablePartialSyncOfDescriptorRegistryInCAPI: true,
+        },
+        initialProps: { "foo": "bar" } as Record<string, string>,
+        appKey: "app_name",
+        wrappedCustomRNComponentBuilder: wrappedCustomRNComponentBuilder,
+        onSetUp: (rnInstance) => {
+          rnInstance.enableFeatureFlag("ENABLE_RN_INSTANCE_CLEAN_UP")
+        },
+        jsBundleProvider: new TraceJSBundleProviderDecorator(
+          new AnyJSBundleProvider([
+            new MetroJSBundleProvider(),
+            new FileJSBundleProvider('/data/storage/el2/base/files/bundle.harmony.js'),
+            new ResourceJSBundleProvider(this.rnohCoreContext.uiAbilityContext.resourceManager, 'hermes_bundle.hbc'),
+            new ResourceJSBundleProvider(this.rnohCoreContext.uiAbilityContext.resourceManager, 'bundle.harmony.js')
+          ]),
+          this.rnohCoreContext.logger),
+      })
+    }.height(2000).backgroundColor("red").onScroll(() => {
+      this.rnohCoreContext?.cancelTouches()
+    })
+    ```
+
+### RN中StatusBar作用域问题
+
+- 现象
+
+    由原生页面进入RN页面后设置StatusBar的样式，再退到原生页面，原生页面的StatusBar样式没有还原，变成在RN页面中设置的样式了。
+
+- 原因
+
+    ArkUI中设置StatusBar对整个窗口生效，不是对页面生效。
+
+- 解决
+
+    由RN页面退到原生页面后重新设置StatusBar的样式。
+
+### Keyboard下的监听事件未响应的问题
+
+- 现象
+
+    Keyboard下的监听事件未响应。
+
+- 原因
+
+    RNOH只监听了最上层子窗口的键盘事件，如果遇到上述情况，可能原因就是当前应用中RN并不是在最上层子窗口中展示。
+
+- 解决
+
+    根据上面的分析，这个问题可以有2种解决方案：
+    1. 调整RN显示的窗口，让其显示在 `lastWindow`；
+    2. 修改RNOH的源码，让RNOH监听对应窗口（如：`MainWindow`）上的键盘事件。  
+  
+    <br>RNOH中，键盘事件监听的代码位于：  
+    `oh_modules/@rnoh/react-native-openharmony/src/main/ets/RNOHCorePackage/turboModules/KeyboardObserverTurboModule.ts`  
+    具体功能实现可以参考[窗口](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V13/js-apis-window-V13#windowgetlastwindow9)。

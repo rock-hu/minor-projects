@@ -5,6 +5,9 @@
 ## 3.1.0-rc.0
 - 升级状态管理器V2
 
+## 3.0.17
+- Fix the issue where pool objects were not being recycled
+
 ## 3.0.16
 - Fix the issue of no custom UI after sliding and lifting the hand
 - Fix the logic of long pressing the chart icon with fingers

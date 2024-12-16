@@ -34,6 +34,10 @@ export default struct LineChart {
     this.context2D = new CanvasRenderingContext2D(this.setting);
   }
 
+  aboutToDisappear(): void {
+    this.model?.clearJobs();
+  }
+
   @Monitor('model')
   invalidate(){
     this.model?.invalidate();

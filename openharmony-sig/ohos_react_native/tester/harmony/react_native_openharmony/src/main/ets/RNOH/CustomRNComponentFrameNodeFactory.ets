@@ -1,7 +1,7 @@
 /**
  * Only used in C-API architecture.
  */
-import { BuilderNode, FrameNode, UIContext } from '@kit.ArkUI';
+import { BuilderNode, FrameNode, NodeContent, UIContext } from '@kit.ArkUI';
 import { Tag, Descriptor } from "./DescriptorBase"
 import { RNComponentContext, ComponentBuilderContext } from "./EtsRNOHContext"
 import type { FrameNodeFactory } from "./RNInstance"
@@ -9,7 +9,8 @@ import { RNOHLogger } from "./RNOHLogger"
 
 interface CustomRNComponentFrameNodeFactoryResult {
   frameNode: FrameNode
-  destroyBuilderNode: () => void
+  nodeContent: NodeContent
+  dispose: () => void
 }
 
 /**
@@ -34,6 +35,8 @@ export class CustomRNComponentFrameNodeFactory implements FrameNodeFactory {
       this.componentContext = this.getRNComponentContext();
       logger.fatal("ComponentContext is undefined")
     }
+    const nodeContent = new NodeContent()
+    this.componentContext!.__setContentForTag(tag, nodeContent);
     const builderCtx = new ComponentBuilderContext(
       this.componentContext!,
       this.componentContext!,
@@ -48,7 +51,8 @@ export class CustomRNComponentFrameNodeFactory implements FrameNodeFactory {
       this.componentContext!.logger.fatal(`Couldn't create frameNode for: ${componentName}`);
     }
     stopTracing();
-    return { frameNode: frameNode!, destroyBuilderNode: () => {
+    return { frameNode: frameNode!, nodeContent, dispose: () => {
+      this.componentContext?.__deleteContentForTag(tag);
       builderNode.dispose()
     } };
   }

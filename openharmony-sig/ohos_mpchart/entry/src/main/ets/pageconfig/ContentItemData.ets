@@ -43,6 +43,7 @@ export default class ContentItemData {
     ContentItemData.itemData.push(new ContentItem("Performance  ", "Render 30.000 data points smoothly.", "pages/lineCharts/PerformanceAxisPage"));
     ContentItemData.itemData.push(new ContentItem("Filled  ", "Colored area between two lines.", "pages/lineCharts/FilledAxisPage"));
     ContentItemData.itemData.push(new ContentItem("SetAlphaPage  ", "Set Alpha", "pages/lineCharts/SetAlphaPage"));
+    ContentItemData.itemData.push(new ContentItem("HorizontalFlipPage  ", "Horizontal flip", "pages/lineCharts/HorizontalFlipPage"));
     //Bar Charts
     ContentItemData.itemData.push(new ContentItem("Bar Charts"));
 
@@ -83,6 +84,7 @@ export default class ContentItemData {
     ContentItemData.itemData.push(new ContentItem("View Pager", "Swipe through different charts.", "pages/scrollingCharts/ViewPagerPage"));
     ContentItemData.itemData.push(new ContentItem("Tall Bar Chart", "Bars bigger than your screen!", "pages/scrollingCharts/TallBarChartPage"));
     ContentItemData.itemData.push(new ContentItem("Many Bar Charts", "More bars than your screen can handle!", "pages/scrollingCharts/ManyBarChartsPage"));
+    ContentItemData.itemData.push(new ContentItem("HitTestBehavior Page", "HitTestBehavior Page.", "pages/scrollingCharts/HitTestBehaviorPage"));
 
     //Even More Line Charts
     ContentItemData.itemData.push(new ContentItem("Even More Line Charts"));

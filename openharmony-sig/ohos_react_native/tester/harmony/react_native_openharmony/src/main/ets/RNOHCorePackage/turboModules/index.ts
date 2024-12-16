@@ -1,4 +1,4 @@
-export * from "./AccessibilityManagerTurboModule";
+export * from "./AccessibilityInfoTurboModule";
 
 export * from "./AppStateTurboModule";
 

@@ -860,6 +860,7 @@ export default class LineChartRenderer extends LineRadarRenderer {
 
       // draw the lines
       this.drawHighlightLines(c, pix.x as number, pix.y as number, set);
+      MPPointD.recycleInstance(pix);
     }
   }
 

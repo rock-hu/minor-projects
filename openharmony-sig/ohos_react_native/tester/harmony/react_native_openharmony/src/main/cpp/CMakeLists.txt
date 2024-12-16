@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.4.1)
-cmake_policy(SET CMP0079 NEW) # Allow to link libraries from different directories than targets
+cmake_policy(SET CMP0079 NEW) # Allow to link libraries from different
+                              # directories than targets
 
 set(NATIVERENDER_ROOT_PATH "${RNOH_CPP_DIR}")
 set(third_party_dir "${RNOH_CPP_DIR}/third-party")
@@ -309,7 +310,6 @@ add_library(fbjni INTERFACE)
 add_library(reactnativejni INTERFACE)
 add_library(mapbufferjni INTERFACE)
 
-
 function(add_react_common_subdir relative_path)
   add_subdirectory(${REACT_COMMON_DIR}/${relative_path})
 endfunction()
@@ -349,14 +349,15 @@ add_react_common_subdir(react/renderer/graphics)
 add_subdirectory(${REACT_COMMON_PATCH_DIR}/react/renderer/debug)
 add_react_common_subdir(react/renderer/imagemanager)
 add_react_common_subdir(react/renderer/components/view)
-#add_react_common_subdir(react/renderer/components/switch)
+# add_react_common_subdir(react/renderer/components/switch)
 add_subdirectory(${REACT_COMMON_PATCH_DIR}/react/renderer/components/textinput)
 # add_react_common_subdir(react/renderer/components/progressbar)
 add_react_common_subdir(react/renderer/components/root)
 add_react_common_subdir(react/renderer/components/image)
 # add_react_common_subdir(react/renderer/components/legacyviewmanagerinterop)
 # add_react_common_subdir(react/renderer/componentregistry/native)
-add_react_common_subdir(react/renderer/components/text)
+#add_react_common_subdir(react/renderer/components/text)
+add_subdirectory(${REACT_COMMON_PATCH_DIR}/react/renderer/components/text)
 # add_react_common_subdir(react/renderer/components/unimplementedview)
 add_subdirectory(${REACT_COMMON_PATCH_DIR}/react/renderer/components/rncore)
 add_react_common_subdir(react/renderer/components/modal)
@@ -393,6 +394,7 @@ add_library(rnoh SHARED
     "${RNOH_CPP_DIR}/RNOH/ArkJS.cpp"
     "${RNOH_CPP_DIR}/RNOH/ArkTSBridge.cpp"
     "${RNOH_CPP_DIR}/RNOH/Inspector.cpp"
+    "${RNOH_CPP_DIR}/RNOH/ComponentInstanceProvider.cpp"
     "${RNOH_CPP_DIR}/RNOH/MountingManagerArkTS.cpp"
     "${RNOH_CPP_DIR}/RNOH/MountingManagerCAPI.cpp"
     "${RNOH_CPP_DIR}/RNOH/ShadowViewRegistry.cpp"
@@ -401,6 +403,7 @@ add_library(rnoh SHARED
     "${RNOH_CPP_DIR}/RNOH/ArkTSTurboModule.cpp"
     "${RNOH_CPP_DIR}/RNOH/JsiConversions.cpp"
     "${RNOH_CPP_DIR}/RNOH/Package.cpp"
+    "${RNOH_CPP_DIR}/RNOH/ComponentInstancePreallocationRequestQueue.cpp"
     "${RNOH_CPP_DIR}/RNOH/UIManagerModule.cpp"
     "${RNOH_CPP_DIR}/RNOH/VSyncListener.cpp"
     "${RNOH_CPP_DIR}/RNOH/TouchTarget.cpp"
@@ -414,7 +417,7 @@ add_library(rnoh SHARED
     "${RNOH_CPP_DIR}/RNOH/TaskExecutor/uv/Async.cpp"
     "${RNOH_CPP_DIR}/RNOH/TaskExecutor/uv/Timer.cpp"
     "${RNOH_CPP_DIR}/RNOH/TaskExecutor/uv/EventLoop.cpp"
-    "${RNOH_CPP_DIR}/RNOHCorePackage/TurboModules/AccessibilityManagerTurboModule.cpp"
+    "${RNOH_CPP_DIR}/RNOHCorePackage/TurboModules/AccessibilityInfoTurboModule.cpp"
     "${RNOH_CPP_DIR}/RNOHCorePackage/TurboModules/AlertManagerTurboModule.cpp"
     "${RNOH_CPP_DIR}/RNOHCorePackage/TurboModules/AppearanceTurboModule.cpp"
     "${RNOH_CPP_DIR}/RNOHCorePackage/TurboModules/AppStateTurboModule.cpp"
@@ -454,10 +457,12 @@ add_library(rnoh SHARED
     "${RNOH_CPP_DIR}/RNOHCorePackage/TurboModules/Animated/Drivers/EventAnimationDriver.cpp"
     "${RNOH_CPP_DIR}/RNOHCorePackage/TurboModules/I18nManagerTurboModule.cpp"
     "${RNOH_CPP_DIR}/RNOHCorePackage/EventEmitRequestHandlers/TouchEventEmitRequestHandler.cpp"
+    "${RNOH_CPP_DIR}/RNOH/arkui/UIInputEventHandler.cpp"
     "${RNOH_CPP_DIR}/RNOH/arkui/NativeNodeApi.cpp"
     "${RNOH_CPP_DIR}/RNOH/arkui/NativeDialogApi.cpp"
     "${RNOH_CPP_DIR}/RNOH/arkui/ArkUINodeRegistry.cpp"
-    "${RNOH_CPP_DIR}/RNOH/arkui/XComponentSurface.cpp"
+    "${RNOH_CPP_DIR}/RNOH/arkui/NodeContentHandle.cpp"
+    "${RNOH_CPP_DIR}/RNOH/arkui/ArkUISurface.cpp"
     "${RNOH_CPP_DIR}/RNOH/arkui/ArkUINode.cpp"
     "${RNOH_CPP_DIR}/RNOH/arkui/ColumnNode.cpp"
     "${RNOH_CPP_DIR}/RNOH/arkui/ImageNode.cpp"

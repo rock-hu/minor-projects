@@ -1,5 +1,6 @@
 #pragma once
 
+#include <glog/logging.h>
 #include <chrono>
 #include <functional>
 #include <future>
@@ -8,20 +9,27 @@
 #include "NativeVsyncHandle.h"
 
 namespace rnoh {
-
+/**
+ * @internal
+ */
 class UITicker {
  public:
-  static void scheduleNextTick(long long timestamp, void* data) {
+  using Timestamp = std::chrono::
+      time_point<std::chrono::steady_clock, std::chrono::nanoseconds>;
+
+  static void onTick(long long _timestamp, void* data) {
     auto self = static_cast<UITicker*>(data);
-    self->tick(timestamp);
+    self->tick(std::chrono::steady_clock::now());
   }
 
   UITicker() : m_vsyncHandle("UITicker") {}
 
   using Shared = std::shared_ptr<UITicker>;
 
-  std::function<void()> subscribe(int id, std::function<void(long long)>&& listener) {
+  std::function<void()> subscribe(std::function<void(Timestamp)>&& listener) {
     std::lock_guard lock(listenersMutex);
+    auto id = m_nextListenerId;
+    m_nextListenerId++;
     auto listenersCount = m_listenerById.size();
     m_listenerById.insert_or_assign(id, std::move(listener));
     if (listenersCount == 0) {
@@ -33,21 +41,21 @@ class UITicker {
     };
   }
 
-  int getVsyncPeriod(long long* period) {
-    return m_vsyncHandle.getVsyncPeriod(period);
-  }
-
  private:
-   std::unordered_map < int, std::function <void(long long)>> m_listenerById;
-   std::mutex listenersMutex;
-   NativeVsyncHandle m_vsyncHandle;
+  std::unordered_map<int, std::function<void(Timestamp)>> m_listenerById;
+  std::mutex listenersMutex;
+  NativeVsyncHandle m_vsyncHandle;
+  int m_nextListenerId = 0;
 
   void requestNextTick() {
-    m_vsyncHandle.requestFrame(scheduleNextTick, this);
+    m_vsyncHandle.requestFrame(onTick, this);
   }
 
-  void tick(long long timestamp) {
+  void tick(Timestamp timestamp) {
     std::lock_guard lock(listenersMutex);
+    if (m_listenerById.empty()) {
+      return;
+    }
     for (const auto& idAndListener : m_listenerById) {
       idAndListener.second(timestamp);
     }

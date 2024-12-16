@@ -76,7 +76,8 @@ class KeyboardAvoidingView extends React.Component<Props, State> {
     keyboardFrame: KeyboardMetrics,
   ): Promise<number> {
     const frame = this._frame;
-    if (!frame || !keyboardFrame) {
+    if (!frame || !keyboardFrame 
+      || this.props.enabled === false) { // RNOH patch
       return 0;
     }
 
@@ -206,7 +207,7 @@ class KeyboardAvoidingView extends React.Component<Props, State> {
             style={StyleSheet.compose(style, heightStyle)}
             onLayout={this._onLayout}
             {...props}>
-            {React.Children.map(children, child => React.cloneElement(child, {__keyboardAvoidingViewBottomHeight: bottomHeight}))}
+            {React.Children.map(children, child => child && React.cloneElement(child, {__keyboardAvoidingViewBottomHeight: bottomHeight}))}
           </View>
         );
 
@@ -234,7 +235,7 @@ class KeyboardAvoidingView extends React.Component<Props, State> {
             style={StyleSheet.compose(style, {paddingBottom: bottomHeight})}
             onLayout={this._onLayout}
             {...props}>
-            {React.Children.map(children, child => React.cloneElement(child, {__keyboardAvoidingViewBottomHeight: bottomHeight}))}
+            {React.Children.map(children, child => child && React.cloneElement(child, {__keyboardAvoidingViewBottomHeight: bottomHeight}))}
           </View>
         );
 

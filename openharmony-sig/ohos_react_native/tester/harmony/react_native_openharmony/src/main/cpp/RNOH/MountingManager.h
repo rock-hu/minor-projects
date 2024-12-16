@@ -2,7 +2,6 @@
 
 #include <react/renderer/mounting/ShadowViewMutation.h>
 #include "RNOH/ComponentInstance.h"
-#include "RNOH/PreAllocationBuffer.h"
 
 namespace rnoh {
 
@@ -23,8 +22,6 @@ class MountingManager {
   using Weak = std::weak_ptr<MountingManager>;
 
   virtual ~MountingManager() noexcept = default;
-    
-  virtual PreAllocationBuffer::Shared getPreAllocationBuffer() = 0;
 
   virtual void willMount(MutationList const& mutations) = 0;
 
@@ -42,9 +39,15 @@ class MountingManager {
       bool isJsResponder,
       bool blockNativeResponder) = 0;
 
+     virtual void schedulerDidSendAccessibilityEvent(
+      const facebook::react::ShadowView& shadowView,
+      std::string const& eventType) {}
+
   virtual void updateView(
       facebook::react::Tag tag,
       folly::dynamic props,
       facebook::react::ComponentDescriptor const& componentDescriptor) = 0;
+
+  virtual void clearPreallocatedViews() = 0;
 };
 } // namespace rnoh

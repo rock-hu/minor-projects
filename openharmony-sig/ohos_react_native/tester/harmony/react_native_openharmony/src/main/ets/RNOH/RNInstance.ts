@@ -294,6 +294,16 @@ export interface RNInstance {
    */
   cancelTouches(): void
 
+   /**
+   * @architecture: C-API
+   * Retrieves the native ArkUI node's `id` attribute for the React component with given tag.
+   */
+   getNativeNodeIdByTag(tag: Tag): string | undefined
+
+   /**
+    * @returns UIContext
+   */
+
   getUIContext(): UIContext
 
   /**
@@ -301,11 +311,6 @@ export interface RNInstance {
    * Retrieves the native ArkUI node's `id` attribute for the React component with given tag.
    */
   getNativeNodeIdByTag(tag: Tag): string | undefined
-
-  /**
-   * @returns UIContext
-   */
-  getUIContext(): UIContext
 
   /**
    * Registers a custom font used by the RN application.
@@ -782,7 +787,7 @@ export class RNInstanceImpl implements RNInstance {
         jsBundleUrl: bundleURL,
         appKeys: jsBundleProvider.getAppKeys()
       })
-      this.workerThread?.postMessage("JS_BUNDLE_EXECUTION_FINISH", { rnInstanceId: this.id })
+      this.workerThread?.postMessage("JS_BUNDLE_EXECUTION_FINISH", { rnInstanceId: this.id, bundleURL })
     } catch (err) {
       this.bundleExecutionStatusByBundleURL.delete(bundleURL)
       if (err instanceof JSBundleProviderError) {

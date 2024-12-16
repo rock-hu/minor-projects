@@ -97,6 +97,7 @@ export default class RadarHighlighter extends PieRadarHighlighter<RadarChart> {
         new Highlight(index, entry.getY(), i, 0, 0, pOut.x, pOut.y, dataSet.getAxisDependency())
       );
     }
+    MPPointF.recycleInstance(pOut);
 
     return highlightBuffer;
   }

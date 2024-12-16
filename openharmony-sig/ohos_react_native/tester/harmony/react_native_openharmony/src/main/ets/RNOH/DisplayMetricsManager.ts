@@ -44,31 +44,32 @@ export class DisplayMetricsManager {
   }
 
   public getFontSizeScale():number{
-    return AppStorage.get("fontSizeScale") ?? this.fontSizeScale
+    return this.fontSizeScale
   }
 
   public updateWindowSize(windowSize: window.Size | window.Rect) {
     this.displayMetrics.windowPhysicalPixels.height = windowSize.height;
     this.displayMetrics.windowPhysicalPixels.width = windowSize.width;
-    this.updateDisplayMetrics()
+    this.updateDisplayMetrics(this.fontSizeScale)
   }
 
-  public updateDisplayMetrics() {
+  public updateDisplayMetrics( fontSizeScale: number ) {
     try {
       const displayInstance = display.getDefaultDisplaySync();
+      this.fontSizeScale = fontSizeScale;
       this.displayMetrics = {
         screenPhysicalPixels: {
           width: displayInstance.width,
           height: displayInstance.height,
           scale: displayInstance.densityPixels,
-          fontScale: this.getFontSizeScale(),
+          fontScale: this.fontSizeScale,
           densityDpi: displayInstance.densityDPI,
         },
         windowPhysicalPixels: {
           width: this.displayMetrics.windowPhysicalPixels.width,
           height: this.displayMetrics.windowPhysicalPixels.height,
           scale: displayInstance.densityPixels,
-          fontScale: this.getFontSizeScale(),
+          fontScale: this.fontSizeScale,
           densityDpi: displayInstance.densityDPI,
         }
       };

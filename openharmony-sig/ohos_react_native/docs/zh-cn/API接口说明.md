@@ -73,7 +73,7 @@ protected async onWindowStageSetup(windowStage: window.WindowStage): void
 protected abstract getPagePath(): string
 ```
 
-获取入口页面路径，该路径在 module.json5 中定义。扩展类必须实现该方法。
+获取入口页面路径，该路径是 `main_pages.json` 中定义的路径。扩展类必须实现该方法。
 
 #### defaultBackPressHandler
 
@@ -225,11 +225,11 @@ RNApp({
     createRNPackages,
     // 是否启用C++原生文本测算接口
     enableNDKTextMeasuring: true,
-    // 是否启动后台线程
+    // 是否启动后台线程，建议关闭后台线程
     enableBackgroundExecutor: false,
     // 是否使用CAPI架构，默认为true
     enableCAPIArchitecture: true,
-    // ArkTs自定义组件的名称
+    // ArkTS自定义组件的名称
     arkTsComponentNames,
   },
   // 传递初始属性给 React Native 应用
@@ -262,7 +262,7 @@ RNApp({
 
 ### 基本介绍
 
-`RNSurface` 是 React Native 的根容器，它是一个 Native View，用于将 React Native 组件渲染到Native UI 中。`RNSurface` 主要负责将组件树渲染到屏幕上。在基于 ArkUI C-API 的适配方案中，rootView 是一个 `XComponent`，用于占位，并挂载 C-API 的组件。本节主要介绍了 `RNSurface` 的接口类型以及使用方式。
+`RNSurface` 是 React Native 的根容器，它是一个 Native View，用于将 React Native 组件渲染到Native UI 中。`RNSurface` 主要负责将组件树渲染到屏幕上。在基于 ArkUI C-API 的适配方案中，rootView 是一个 `NodeContent`，用于占位，并挂载 C-API 的组件。本节主要介绍了 `RNSurface` 的接口类型以及使用方式。
 
 其中，Surface 的创建需要调用 `RNInstance` 的[createSurface](#createsurface)，并且会在 `RNInstance` 触发 `onDestory` 的时候销毁。Surface 会在 `RNSurface` 的 `onAreaChange` 中启动（执行 start ），需要注意的是，startSurface 需要在 loadJSbundle 完成后执行，否则会导致页面白屏。您可以通过 `RNInstance` 的[getBundleExecutionStatus](#getbundleexecutionstatus)获取 bundle 加载状态，确保时序的正确性。
 
@@ -329,7 +329,7 @@ const styles = StyleSheet.create({
 | 参数名 | 类型 | 必填 | 说明 |
 | --- | --- | --- | --- |
 | appKey | string | 是 | 开发者在 JS 侧使用 `AppRegistry.registerComponent` 注册的名称。 |
-| initialProps | Record<string, any> | 是 | React Native应用的初始化原生参数。 |
+| initialProps | Record<string, any> | 是 | React Native 应用的初始化原生参数。 |
 
 ### updateViewRootTag
 
@@ -337,7 +337,6 @@ const styles = StyleSheet.create({
  public updateViewRootTag: ((rnInstance:RNInstance, rootViewTag: number) => void) | undefined;
 ```
 返回该 `RNSurface` 对应的 `RNInstance` 以及 rootViewTag。
-
 
 ## RNInstance
 
@@ -395,12 +394,12 @@ const styles = StyleSheet.create({
 | ------------------------ | ------- | ---- | ------------------------------------------ |
 | createRNPackages         | void    | 是   | 外部功能包管理（向框架提供额外的功能特性）。 |
 | enableDebugger           | boolean | 否   | 是否启动Hermes debugger模式。                       |
-| enableBackgroundExecutor | boolean | 否   | 是否启动后台线程。     |
+| enableBackgroundExecutor | boolean | 否   | 是否启动后台线程，建议关闭后台线程。     |
 | enableNDKTextMeasuring   | boolean | 否   | 是否启用C++原生文本测算接口。                    |
 | enableImageLoader        | boolean | 否   | 是否启动图片缓存。                           |
 | enableCAPIArchitecture   | boolean | 否   | 是否使用CAPI架构，默认开启。                 |
 | assetsDest               | string  | 否   | 指定资源文件路径。                           |
-| arkTsComponentNames      | Array<string>  | 是   | ArkTs自定义组件的名称。                           |
+| arkTsComponentNames      | Array<string>  | 是   | ArkTS自定义组件的名称。                           |
 | backPressHandler         | () => void  | 否   | 当RN JS端不处理侧滑返回事件时的自定义处理逻辑。   |
 | httpClient               | [HttpClient](https://developer.huawei.com/consumer/cn/doc/system-References/network-httpclient-0000001073658008)  | 否  | 指定Http客户端处理类。    |
 | fontResourceByFontFamily | Record<string, Resource>  | 否   | 注册自定义字体。 |

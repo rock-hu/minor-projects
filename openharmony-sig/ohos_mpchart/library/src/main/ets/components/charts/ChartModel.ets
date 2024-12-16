@@ -363,9 +363,6 @@ export default abstract class ChartModel<T extends ChartData<IDataSet<EntryOhos>
         if (!pt) {
           return;
         }
-        // let textPaint: TextPaint = new TextPaint();
-        // if (this.mInfoPaint) {
-        // textPaint.set(this.mInfoPaint);
         Utils.resetContext2DWithoutLine(c, this.mInfoPaint);
         if (this.mInfoPaint) {
           switch (this.mInfoPaint.getTextAlign()) {
@@ -384,12 +381,8 @@ export default abstract class ChartModel<T extends ChartData<IDataSet<EntryOhos>
               break;
           }
         }
-        // }
+        MPPointF.recycleInstance(pt);
         return;
-        // textPaint.setText(this.mNoDataText)
-        // textPaint.setX(pt.x)
-        // textPaint.setY(pt.y)
-        // return [textPaint]
       }
     }
     if (!this.mOffsetsCalculated && this.mChartSizeCorrected) {
@@ -430,21 +423,12 @@ export default abstract class ChartModel<T extends ChartData<IDataSet<EntryOhos>
         } else {
           x = position.x;
           y = position.y;
+          MPPointF.recycleInstance(position);
         }
         Utils.resetContext2DWithoutLine(c, this.mDescPaint);
         c.strokeText(this.mDescription.getText(), x, y);
-        // if (this.mDescPaint) {
-        //   (this.mDescPaint as TextPaint).setText(this.mDescription.getText());
-        //   this.mDescPaint.setX(x);
-        //   this.mDescPaint.setY(y);
-        //   return [this.mDescPaint];
-        // }
-        // return [];
       }
-      // return [];
     }
-
-    // return [];
   }
 
   /**
@@ -1170,7 +1154,7 @@ export default abstract class ChartModel<T extends ChartData<IDataSet<EntryOhos>
   }
 
   /**
-   * Returns true if log-output is enabled for the chart, fals if not.
+   * Returns true if log-output is enabled for the chart, false if not.
    *
    * @return
    */
@@ -1485,7 +1469,7 @@ export default abstract class ChartModel<T extends ChartData<IDataSet<EntryOhos>
   }
 
   /**
-   * Sets a custom highligher object for the chart that handles / processes
+   * Sets a custom highlighter object for the chart that handles / processes
    * all highlight touch events performed on the chart-view.
    *
    * @param highlighter
@@ -1592,5 +1576,12 @@ export default abstract class ChartModel<T extends ChartData<IDataSet<EntryOhos>
    */
   public getHitTestMode(): HitTestMode {
     return this.mHitTestMode;
+  }
+
+  public clearJobs() {
+    const length = this.mJobs.length();
+    for (let i = 0; i < length; i++) {
+      MoveViewJob.recycleInstance(this.mJobs.get(i));
+    }
   }
 }

@@ -53,7 +53,7 @@ export default class CandleDataSet extends LineScatterCandleRadarDataSet<CandleE
   protected mIncreasingPaintStyle: Style = Style.STROKE;
   /**
    * paint style when open > close
-   * descreasing candlesticks are traditionally filled
+   * decreasing candlesticks are traditionally filled
    */
   protected mDecreasingPaintStyle: Style = Style.FILL;
   /**

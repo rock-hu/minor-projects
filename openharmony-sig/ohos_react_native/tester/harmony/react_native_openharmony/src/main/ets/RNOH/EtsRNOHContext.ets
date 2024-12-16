@@ -91,6 +91,26 @@ export class RNComponentContext extends RNOHContext {
     return createComponentDataSource ? createComponentDataSource(ctx) : new RNComponentDataSource(this, ctx.tag);
   }
 
+  private contentByTag: Map<Tag, Content> = new Map()
+
+  public getContentForTag(tag: Tag): Content | undefined {
+    return this.contentByTag.get(tag)
+  }
+
+  /**
+   * @internal
+   */
+  public __setContentForTag(tag: Tag, content: Content) {
+    this.contentByTag.set(tag, content);
+  }
+
+  /**
+   * @internal
+   */
+  public __deleteContentForTag(tag: Tag) {
+    this.contentByTag.delete(tag);
+  }
+
   constructor(
     rnohContext: RNOHContext,
     wrappedCustomRNComponentBuilder: WrappedCustomRNComponentBuilder,

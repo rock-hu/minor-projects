@@ -2,8 +2,8 @@
 #include <glog/logging.h>
 #include <react/renderer/core/ReactPrimitives.h>
 #include "RNOH/ArkJS.h"
-#include "RNOH/TaskExecutor/TaskExecutor.h"
 #include "RNOH/ThreadGuard.h"
+#include "arkui/NodeContentHandle.h"
 
 #ifdef C_API_ARCH
 #include <arkui/native_node.h>
@@ -11,6 +11,12 @@
 #endif
 
 namespace rnoh {
+
+struct CustomComponentArkUINodeHandle {
+  ArkUI_NodeHandle nodeHandle;
+  NodeContentHandle nodeContent;
+  folly::Function<void()> deleter;
+};
 
 /**
  * @thread: MAIN
@@ -22,14 +28,12 @@ class CustomComponentArkUINodeHandleFactory final {
 
   CustomComponentArkUINodeHandleFactory(
       napi_env env,
-      napi_ref customRNComponentFrameNodeFactoryRef,
-      TaskExecutor::Shared taskExecutor)
+      napi_ref customRNComponentFrameNodeFactoryRef)
       : m_env(env),
-        m_taskExecutor(taskExecutor),
         m_customRNComponentFrameNodeFactoryRef(
             customRNComponentFrameNodeFactoryRef) {}
 
-  std::pair<ArkUI_NodeHandle, std::function<void()>> create(
+  std::optional<CustomComponentArkUINodeHandle> create(
       facebook::react::Tag tag,
       std::string componentName) {
     m_threadGuard.assertThread();
@@ -44,30 +48,32 @@ class CustomComponentArkUINodeHandleFactory final {
                 "create",
                 {arkJs.createInt(tag), arkJs.createString(componentName)});
     auto n_arkTsNodeHandle = arkJs.getObjectProperty(n_result, "frameNode");
-    auto n_destroyBuilderNode =
-        arkJs.getObjectProperty(n_result, "destroyBuilderNode");
-    auto n_destroyBuilderNodeRef = arkJs.createReference(n_destroyBuilderNode);
+    auto n_disposeCallback = arkJs.getObjectProperty(n_result, "dispose");
+    auto n_disposeRef = arkJs.createReference(n_disposeCallback);
     ArkUI_NodeHandle arkTsNodeHandle = nullptr;
     auto errorCode = OH_ArkUI_GetNodeHandleFromNapiValue(
         m_env, n_arkTsNodeHandle, &arkTsNodeHandle);
     if (errorCode != 0) {
       LOG(ERROR) << "Couldn't get node handle. Error code: " << errorCode;
-      return std::make_pair(nullptr, [] {});
+      return std::nullopt;
     }
-    return std::make_pair(
-        arkTsNodeHandle, [env = m_env, n_destroyBuilderNodeRef] {
+    auto n_nodeContent = arkJs.getObjectProperty(n_result, "nodeContent");
+    auto contentHandle = NodeContentHandle::fromNapiValue(m_env, n_nodeContent);
+    return CustomComponentArkUINodeHandle{
+        arkTsNodeHandle,
+        contentHandle,
+        [env = m_env, disposeRef = std::move(n_disposeRef)] {
           ArkJS arkJs(env);
-          auto n_destroy = arkJs.getReferenceValue(n_destroyBuilderNodeRef);
-          arkJs.call(n_destroy, {});
-          arkJs.deleteReference(n_destroyBuilderNodeRef);
-        });
+          auto disposeCallback = arkJs.getReferenceValue(disposeRef);
+          arkJs.call(disposeCallback, {});
+          arkJs.deleteReference(disposeRef);
+        }};
 #else
-    return std::make_pair(nullptr, [] {});
+    return std::nullopt;
 #endif
   }
 
  private:
-  TaskExecutor::Shared m_taskExecutor;
   napi_env m_env;
   napi_ref m_customRNComponentFrameNodeFactoryRef;
   ThreadGuard m_threadGuard{};

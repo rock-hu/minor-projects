@@ -45,6 +45,8 @@
    }
    ```
 
+   > 如果要继承并重写 RNAbility 内的方法，需要调用`super()`方法，确保 RNAbility 的逻辑是正确的。
+
 2. 在入口文件 `Index.ets` 中，使用 RNApp。
 
    ```typescript
@@ -401,7 +403,7 @@
      
      aboutToAppear() {
        this.initProps = {
-         'stringParam': 'ArkTs传递给RN的参数：'+this.name,
+         'stringParam': 'ArkTS传递给RN的参数：'+this.name,
          'styles' : this.styles
        };
      }
@@ -491,7 +493,7 @@
      打印 `otherProps` 可看到从 Native 侧传过来的初始化参数：
 
      ```json
-     {"initialProps":{"concurrentRoot":true,"stringParam":"ArkTs传递给RN的参数：details1","styles":{"container":{"backgroundColor":"#E6E6E6","padding":20,"flex":1},"apiFontSize":{"fontSize":30,"color":"white"}}},"fabric":true,"showArchitectureIndicator":false}
+     {"initialProps":{"concurrentRoot":true,"stringParam":"ArkTS传递给RN的参数：details1","styles":{"container":{"backgroundColor":"#E6E6E6","padding":20,"flex":1},"apiFontSize":{"fontSize":30,"color":"white"}}},"fabric":true,"showArchitectureIndicator":false}
      ```
 
 - 通过 `RNApp` 传递

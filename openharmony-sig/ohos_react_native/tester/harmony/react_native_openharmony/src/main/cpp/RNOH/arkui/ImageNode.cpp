@@ -20,14 +20,13 @@ ImageNode::ImageNode()
       m_childArkUINodeHandle(nullptr),
       m_imageNodeDelegate(nullptr) {
   for (auto eventType : IMAGE_NODE_EVENT_TYPES) {
-    maybeThrow(NativeNodeApi::getInstance()->registerNodeEvent(
-        m_nodeHandle, eventType, eventType, this));
+    registerNodeEvent(eventType);
   }
 }
 
 ImageNode::~ImageNode() {
   for (auto eventType : IMAGE_NODE_EVENT_TYPES) {
-    NativeNodeApi::getInstance()->unregisterNodeEvent(m_nodeHandle, eventType);
+    unregisterNodeEvent(eventType);
   }
 }
 
@@ -38,6 +37,7 @@ void ImageNode::setNodeDelegate(ImageNodeDelegate* imageNodeDelegate) {
 void ImageNode::onNodeEvent(
     ArkUI_NodeEventType eventType,
     EventArgs& eventArgs) {
+  ArkUINode::onNodeEvent(eventType, eventArgs);
   if (eventType == ArkUI_NodeEventType::NODE_IMAGE_ON_COMPLETE) {
     if (m_imageNodeDelegate != nullptr && eventArgs[0].i32 == 1) {
       m_imageNodeDelegate->onComplete(eventArgs[1].f32, eventArgs[2].f32);

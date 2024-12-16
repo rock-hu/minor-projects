@@ -23,6 +23,7 @@
 #include "RNOH/RNInstance.h"
 #include "RNOH/Performance/HarmonyReactMarker.h"
 #include "TaskExecutor/TaskExecutor.h"
+#include <react/renderer/debug/SystraceSection.h>
 
 using namespace facebook;
 namespace rnoh {
@@ -39,7 +40,7 @@ rnoh::RNInstanceCAPI::~RNInstanceCAPI() {
       [mountingManager = std::move(m_mountingManager),
         componentInstanceRegistry = std::move(m_componentInstanceRegistry),
         componentInstanceFactory = std::move(m_componentInstanceFactory),
-       // NOTE: `XComponentSurface` is not copyable, but `std::function` is, so
+       // NOTE: `ArkUISurface` is not copyable, but `std::function` is, so
        // we need to move the map into a shared_ptr first in order to capture it
        surfaces = std::make_shared<decltype(m_surfaceById)>(
            std::move(m_surfaceById))] {});
@@ -74,9 +75,10 @@ void RNInstanceCAPI::start() {
 
     float fontScale = displayMetrics.fontScale;
     float scale = displayMetrics.scale;
+    m_densityDpi = displayMetrics.densityDpi;
 
     auto halfLeading = ArkTSBridge::getInstance()->getMetadata("half_leading") == "true";
-    textMeasurer->setTextMeasureParams(fontScale, scale, halfLeading);
+    textMeasurer->setTextMeasureParams(fontScale, scale, m_densityDpi, halfLeading);
 }
 
 void RNInstanceCAPI::initialize() {
@@ -152,8 +154,10 @@ void RNInstanceCAPI::initializeScheduler(
 
   m_animationDriver = std::make_shared<react::LayoutAnimationDriver>(
       this->instance->getRuntimeExecutor(), m_contextContainer, this);
-     m_schedulerDelegate = std::make_unique<rnoh::SchedulerDelegate>(
-      m_mountingManager, taskExecutor, m_mountingManager->getPreAllocationBuffer());
+  m_schedulerDelegate = std::make_unique<rnoh::SchedulerDelegate>(
+      m_mountingManager,
+      this->taskExecutor,
+      m_componentInstancePreallocationRequestQueue);
   this->scheduler = std::make_shared<react::Scheduler>(
       schedulerToolbox, m_animationDriver.get(), m_schedulerDelegate.get());
   turboModuleProvider->setScheduler(this->scheduler);
@@ -327,55 +331,57 @@ void RNInstanceCAPI::callJSFunction(
 }
 
 void RNInstanceCAPI::onAnimationStarted() {
-  m_shouldRelayUITick.store(true);
+  facebook::react::SystraceSection s("RNInstanceCAPI::onAnimationStarted");
+  if (this->unsubscribeUITickListener != nullptr) {
+    return;
+  }
+  this->unsubscribeUITickListener =
+      m_uiTicker->subscribe([this](auto recentVSyncTimestamp) {
+        this->taskExecutor->runTask(
+            TaskThread::MAIN, [this, recentVSyncTimestamp]() {
+              this->onUITick(recentVSyncTimestamp);
+            });
+      });
 }
 
 void RNInstanceCAPI::onAllAnimationsComplete() {
-  m_shouldRelayUITick.store(false);
+  facebook::react::SystraceSection s(
+      "#RNOH::RNInstanceCAPI::onAllAnimationsComplete");
+  if (this->unsubscribeUITickListener == nullptr) {
+    return;
+  }
+  this->unsubscribeUITickListener();
+  this->unsubscribeUITickListener = nullptr;
 }
 
-void RNInstanceCAPI::onUITick(long long timestamp) {
-  if (this->m_shouldRelayUITick.load() && this->scheduler != nullptr) {
+void RNInstanceCAPI::onUITick(
+    UITicker::Timestamp /*recentVSyncTimestamp*/) {
+  facebook::react::SystraceSection s("#RNOH::RNInstanceCAPI::onUITick");
+  if (this->scheduler != nullptr) {
     this->scheduler->animationTick();
   }
-  if( this->m_uiTicker != nullptr){
-    long long vsyncPeriod = 0;
-    auto ret = this->m_uiTicker->getVsyncPeriod(&vsyncPeriod);
-    if( ret != 0){
-        LOG(ERROR)<<"failed to get vsyncPeriod";
-        return;  
-    }
-    schedulerTransactionByVsync(timestamp, vsyncPeriod);   
-  }
 }
 
-void RNInstanceCAPI::schedulerTransactionByVsync(long long timestamp, long long period) {
-  auto schedulerDelegateCapi =
-      dynamic_cast<SchedulerDelegate *>(m_schedulerDelegate.get());
-  if (schedulerDelegateCapi != nullptr) {
-    schedulerDelegateCapi->schedulerDidViewAllocationByVsync(timestamp, period);
-    return;
-  }
-}
-
-void RNInstanceCAPI::registerNativeXComponentHandle(
-    OH_NativeXComponent* nativeXComponent,
+void RNInstanceCAPI::attachRootView(
+    NodeContentHandle nodeContentHandle,
     facebook::react::Tag surfaceId) {
-  DLOG(INFO) << "RNInstanceCAPI::registerNativeXComponentHandle";
-  if (nativeXComponent == nullptr) {
+  DLOG(INFO) << "RNInstanceCAPI::registerNodeContentHandle";
+  auto it = m_surfaceById.find(surfaceId);
+  if (it == m_surfaceById.end()) {
+    LOG(ERROR) << "Surface with id: " << surfaceId << " not found";
     return;
   }
-  // NOTE: for some reason, attaching in the NAPI call made by XComponent
-  // fails to mount the ArkUI node. Posting a task to be executed separately
-  // fixes the issue.
-  taskExecutor->runTask(TaskThread::MAIN, [this, nativeXComponent, surfaceId] {
-    auto it = m_surfaceById.find(surfaceId);
-    if (it == m_surfaceById.end()) {
-      LOG(ERROR) << "Surface with id: " << surfaceId << " not found";
-      return;
-    }
-    it->second->attachNativeXComponent(nativeXComponent);
-  });
+  it->second->attachToNodeContent(std::move(nodeContentHandle));
+}
+
+void RNInstanceCAPI::detachRootView(facebook::react::Tag surfaceId) {
+  DLOG(INFO) << "RNInstanceCAPI::registerNodeContentHandle";
+  auto it = m_surfaceById.find(surfaceId);
+  if (it == m_surfaceById.end()) {
+    LOG(ERROR) << "Surface with id: " << surfaceId << " not found";
+    return;
+  }
+  it->second->detachFromNodeContent();
 }
 
 TurboModule::Shared RNInstanceCAPI::getTurboModule(const std::string& name) {
@@ -399,7 +405,7 @@ void RNInstanceCAPI::createSurface(
   DLOG(INFO) << "RNInstanceCAPI::createSurface";
   m_surfaceById.emplace(
       surfaceId,
-      std::make_shared<XComponentSurface>(
+      std::make_shared<ArkUISurface>(
           taskExecutor,
           scheduler,
           m_componentInstanceRegistry,
@@ -543,9 +549,48 @@ RNInstanceCAPI::findComponentInstanceTagById(const std::string& id) {
   return m_componentInstanceRegistry->findTagById(id);
 }
 
+std::optional<std::string> RNInstanceCAPI::getNativeNodeIdByTag(
+    facebook::react::Tag tag) const {
+  auto componentInstance = m_componentInstanceRegistry->findByTag(tag);
+  if (componentInstance == nullptr) {
+    return std::nullopt;
+  }
+  return componentInstance->getLocalRootArkUINode().getId();
+}
+
+void RNInstanceCAPI::onConfigurationChange(folly::dynamic const& payload){
+  if(payload.isNull()){
+    return;
+  }
+  folly::dynamic screenPhysicalPixels = payload["screenPhysicalPixels"];
+  if(screenPhysicalPixels.isNull() || !screenPhysicalPixels["densityDpi"].isDouble()){
+    return;
+  }
+  float densityDpi = screenPhysicalPixels["densityDpi"].asDouble();
+  if(densityDpi == m_densityDpi){
+    return;
+  }
+  m_densityDpi = densityDpi;
+  if(screenPhysicalPixels["scale"].isDouble() &&
+    screenPhysicalPixels["fontScale"].isDouble()){
+    float scale = screenPhysicalPixels["scale"].asDouble();
+    float fontScale = screenPhysicalPixels["fontScale"].asDouble();
+    auto halfLeading = ArkTSBridge::getInstance()->getMetadata("half_leading") == "true";
+    auto textMeasurer = m_contextContainer->
+       at<std::shared_ptr<rnoh::TextMeasurer>>("textLayoutManagerDelegate");
+    if (textMeasurer) {
+      textMeasurer->setTextMeasureParams(fontScale, scale, densityDpi, halfLeading);
+    }
+  }
+}
+
 void RNInstanceCAPI::handleArkTSMessage(
     const std::string& name,
     folly::dynamic const& payload) {
+  facebook::react::SystraceSection s("RNInstanceCAPI::handleArkTSMessage");
+  if( name == "CONFIGURATION_UPDATE"){
+    onConfigurationChange(payload);
+  }
   for (auto& arkTSMessageHandler : m_arkTSMessageHandlers) {
     arkTSMessageHandler->handleArkTSMessage(
         {.messageName = name,

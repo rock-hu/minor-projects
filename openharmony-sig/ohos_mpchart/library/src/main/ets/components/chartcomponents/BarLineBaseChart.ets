@@ -39,6 +39,10 @@ export struct BarLineBaseChart {
     this.context2D = new CanvasRenderingContext2D(this.setting);
   }
 
+  aboutToDisappear(): void {
+    this.model?.clearJobs();
+  }
+
   build() {
     Canvas(this.context2D)
       .onReady(() => {

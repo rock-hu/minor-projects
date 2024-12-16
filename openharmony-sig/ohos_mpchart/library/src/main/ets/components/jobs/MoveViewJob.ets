@@ -38,6 +38,9 @@ export default class MoveViewJob extends ViewPortJob {
   }
 
   public static recycleInstance(instance: MoveViewJob): void {
+    instance.mViewPortHandler = null;
+    instance.view = null;
+    instance.mTrans = null;
     MoveViewJob.pool.recycle(instance);
   }
 

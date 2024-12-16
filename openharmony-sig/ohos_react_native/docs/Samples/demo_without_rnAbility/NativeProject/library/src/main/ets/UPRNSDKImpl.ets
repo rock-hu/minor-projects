@@ -50,6 +50,14 @@ export class UPRNSDKImpl{
     AppStorage.setOrCreate('RNOHCoreContext', this.rnInstancesCoordinator.getRNOHCoreContext())
   }
 
+  public async onAppSetup(windowStage: window.WindowStage){
+    const mainWindow = await windowStage.getMainWindow();
+    const onWindowSizeChange = (windowSize: window.Size) => {
+      this.rnInstancesCoordinator?.onWindowSizeChange(windowSize)
+    }
+    mainWindow.on('windowSizeChange', onWindowSizeChange)
+  }
+
   protected createLogger(): RNOHLogger {
     return new StandardRNOHLogger();
   }

@@ -28,13 +28,13 @@ export default struct Details {
     'apiFontSize': this.apiFontSize
   }
   private initProps: Record<string, string | object> = {
-    // 'stringParam': 'ArkTs传递给RN的参数',
+    // 'stringParam': 'ArkTS传递给RN的参数',
     // 'styles' : this.styles
   };
 
   aboutToAppear() {
     this.initProps = {
-      'stringParam': 'ArkTs传递给RN的参数：' + this.name,
+      'stringParam': 'ArkTS传递给RN的参数：' + this.name,
       'styles': this.styles
     };
   }
@@ -47,7 +47,7 @@ export default struct Details {
           .fontWeight(30)
           .margin({ top: 10 })
         Row() {
-          Text('紫色区域及文字ArkTs渲染')
+          Text('紫色区域及文字ArkTS渲染')
             .fontSize(30)
             .fontColor('white')
             .fontWeight(20)

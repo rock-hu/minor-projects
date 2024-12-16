@@ -9,14 +9,13 @@ RefreshNode::RefreshNode()
     : ArkUINode(NativeNodeApi::getInstance()->createNode(
           ArkUI_NodeType::ARKUI_NODE_REFRESH)) {
   for (auto eventType : REFRESH_NODE_EVENT_TYPES) {
-    maybeThrow(NativeNodeApi::getInstance()->registerNodeEvent(
-        m_nodeHandle, eventType, eventType, this));
+    registerNodeEvent(eventType);
   }
 }
 
 RefreshNode::~RefreshNode() {
   for (auto eventType : REFRESH_NODE_EVENT_TYPES) {
-    NativeNodeApi::getInstance()->unregisterNodeEvent(m_nodeHandle, eventType);
+    unregisterNodeEvent(eventType);
   }
 }
 
@@ -66,6 +65,7 @@ RefreshNode& RefreshNode::setNativeRefreshing(bool isRefreshing) {
 void RefreshNode::onNodeEvent(
     ArkUI_NodeEventType eventType,
     EventArgs& eventArgs) {
+  ArkUINode::onNodeEvent(eventType, eventArgs);
   if (eventType == ArkUI_NodeEventType::NODE_REFRESH_ON_REFRESH &&
       m_refreshNodeDelegate) {
     m_refreshNodeDelegate->onRefresh();

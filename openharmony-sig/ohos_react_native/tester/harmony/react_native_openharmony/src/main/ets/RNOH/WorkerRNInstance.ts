@@ -15,6 +15,7 @@ export class WorkerRNInstance implements AnyThreadRNInstance {
     functionName: string;
     args: unknown[];
   }[] = [];
+  private initialBundleUrl: string | undefined = undefined;
 
   constructor(
     protected id: number,
@@ -68,6 +69,14 @@ export class WorkerRNInstance implements AnyThreadRNInstance {
 
   getAssetsDest(): string {
     return this.assetsDest;
+  }
+
+  getInitialBundleUrl(): string | undefined {
+    return this.initialBundleUrl
+  }
+
+  setBunleUrl(bundleURL: string) {
+    this.initialBundleUrl = this.initialBundleUrl ?? bundleURL
   }
 }
 

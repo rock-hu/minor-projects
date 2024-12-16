@@ -33,6 +33,7 @@ class TextInputComponentJSIBinder : public ViewComponentJSIBinder {
     nativeProps.setProperty(rt, "textContentType", "string");
     nativeProps.setProperty(rt, "blurOnSubmit", "boolean");
     nativeProps.setProperty(rt, "showSoftInputOnFocus", "boolean");
+    nativeProps.setProperty(rt, "textAlignVertical", "string");
     return nativeProps;
   };
   facebook::jsi::Object createDirectEventTypes(

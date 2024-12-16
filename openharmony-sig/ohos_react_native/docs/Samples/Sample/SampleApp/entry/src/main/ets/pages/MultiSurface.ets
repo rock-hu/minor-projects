@@ -47,7 +47,7 @@ export struct MultiSurface {
     'apiFontSize': this.apiFontSize
   }
   initProps: Record<string, string | object> = {
-    'stringParam': 'ArkTs传递给RN的参数',
+    'stringParam': 'ArkTS传递给RN的参数',
     'styles': this.styles
   };
 

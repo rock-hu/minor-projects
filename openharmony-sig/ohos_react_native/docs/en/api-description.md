@@ -203,7 +203,7 @@ The `appState` variable in `RNInstancesCoordinator` is set to **BACKGROUND**.
 
 #### onSetUp
 
-```typescript
+```javascript
 onSetUp: (rnInstance: RNInstance) => Promise<void> | void = () => Promise.resolve()
 ```
 
@@ -217,7 +217,7 @@ Calls the method to be executed in `RNInstance`. This callback is called before 
 
 ### API Usage Description
 
-```typescript
+```javascript
 RNApp({
   // Used to specify the configuration of the React Native instance.
   rnInstanceConfig: {
@@ -316,7 +316,7 @@ Generally, the `createAndRegisterRNInstance` method in `RNOHCoreContext` is used
 
 1. The application executes the `onCreate` method in `RNAbility` to create a `RNInstancesCoordinator` object instance. This class is the coordinator of `RNInstance` and is created for the use of `UIAbility`. It guides React Native and forwards device events to `RNInstance`.
 
-    ```typescript
+    ```javascript
     this.rnInstancesCoordinator = RNInstancesCoordinator.create({
       fontSizeScale: this.context.config.fontSizeScale,
       logger: this.createLogger(),
@@ -374,7 +374,7 @@ Generally, the `createAndRegisterRNInstance` method in `RNOHCoreContext` is used
 
 When `aboutToDisappear` is executed for `RNApp`, the `destroyAndUnregisterRNInstance` method of `RNOHCoreContext` is called to destroy `RNInstance`.
 
-```typescript
+```javascript
 aboutToDisappear() {
   this.cleanUp()
 }

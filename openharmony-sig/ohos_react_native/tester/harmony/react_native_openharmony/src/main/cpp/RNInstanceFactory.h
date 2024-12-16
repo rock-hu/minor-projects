@@ -12,12 +12,12 @@
 #include "RNOH/ArkTSChannel.h"
 #include "RNOH/ArkTSMessageHandler.h"
 #include "RNOH/ArkTSTurboModule.h"
+#include "RNOH/ComponentInstanceProvider.h"
 #include "RNOH/EventEmitRequestHandler.h"
 #include "RNOH/FeatureFlagRegistry.h"
 #include "RNOH/MountingManagerArkTS.h"
 #include "RNOH/MutationsToNapiConverter.h"
 #include "RNOH/PackageProvider.h"
-#include "RNOH/PreAllocationBuffer.h"
 #include "RNOH/Performance/HarmonyReactMarker.h"
 #include "RNOH/RNInstance.h"
 #include "RNOH/RNInstanceArkTS.h"
@@ -31,6 +31,7 @@
 
 #ifdef C_API_ARCH
 #include "RNOH/ComponentInstanceFactory.h"
+#include "RNOH/ComponentInstancePreallocationRequestQueue.h"
 #include "RNOH/ComponentInstanceRegistry.h"
 #include "RNOH/CustomComponentArkUINodeHandleFactory.h"
 #include "RNOH/MountingManagerCAPI.h"
@@ -217,21 +218,32 @@ std::shared_ptr<RNInstanceInternal> createRNInstance(
     componentInstanceDependencies->arkTSMessageHub = arkTSMessageHub;
     auto customComponentArkUINodeFactory =
         std::make_shared<CustomComponentArkUINodeHandleFactory>(
-            env, frameNodeFactoryRef, taskExecutor);
+            env, frameNodeFactoryRef);
     auto componentInstanceFactory = std::make_shared<ComponentInstanceFactory>(
         componentInstanceFactoryDelegates,
         componentInstanceDependencies,
         customComponentArkUINodeFactory);
     auto componentInstanceRegistry =
         std::make_shared<ComponentInstanceRegistry>();
-    auto preAllocationBuffer = std::make_shared<PreAllocationBuffer>(componentInstanceFactory, componentInstanceRegistry);
+    componentInstanceDependencies->componentInstanceRegistry =
+        componentInstanceRegistry;
+    auto componentInstancePreallocationRequestQueue =
+        std::make_shared<ComponentInstancePreallocationRequestQueue>();
+    auto componentInstanceProvider = std::make_shared<ComponentInstanceProvider>(
+        componentInstancePreallocationRequestQueue,
+        componentInstanceFactory,
+        componentInstanceRegistry,
+        uiTicker,
+        taskExecutor);
+    componentInstanceProvider->initialize();
     auto mountingManagerCAPI = std::make_shared<MountingManagerCAPI>(
         componentInstanceRegistry,
         componentInstanceFactory,
+        componentInstanceProvider,
         mountingManager,
         arkTsComponentNames,
-		preAllocationBuffer,
-        featureFlagRegistry);
+        featureFlagRegistry,
+        arkTSChannel);
     SharedNativeResourceManager nativeResourceManager(
       OH_ResourceManager_InitNativeResourceManager(env, jsResourceManager),
       OH_ResourceManager_ReleaseNativeResourceManager);
@@ -256,6 +268,7 @@ std::shared_ptr<RNInstanceInternal> createRNInstance(
         arkTSMessageHub,
         componentInstanceRegistry,
         componentInstanceFactory,
+        componentInstancePreallocationRequestQueue,
         std::move(nativeResourceManager),
         shouldEnableDebugger,
         shouldEnableBackgroundExecutor);

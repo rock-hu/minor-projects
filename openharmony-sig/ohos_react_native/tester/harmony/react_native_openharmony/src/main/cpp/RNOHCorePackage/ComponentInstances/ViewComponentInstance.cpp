@@ -1,6 +1,5 @@
 #include "ViewComponentInstance.h"
 #include <RNOH/arkui/NativeNodeApi.h>
-#include "RNOH/arkui/ArkUINodeRegistry.h"
 
 namespace rnoh {
 ViewComponentInstance::ViewComponentInstance(Context context)

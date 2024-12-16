@@ -1,7 +1,7 @@
-import webSocket from '@ohos.net.webSocket';
 import { RNOHLogger } from './RNOHLogger';
 import type { DevToolsController } from "./DevToolsController"
-import type { DevMenu } from "./DevMenu"
+import type { DevMenu } from "./types"
+import { ReconnectingWebSocket } from './ReconnectingWebSocket';
 
 export interface JSPackagerClientConfig {
   host: string,
@@ -9,21 +9,17 @@ export interface JSPackagerClientConfig {
 }
 
 export class JSPackagerClient {
-  private webSocket: webSocket.WebSocket;
+  private webSocket: ReconnectingWebSocket;
   private logger: RNOHLogger;
 
-  constructor(logger: RNOHLogger, private devToolsController: DevToolsController, private devMenu: DevMenu) {
+  constructor(logger: RNOHLogger, private devToolsController: DevToolsController, private devMenu:DevMenu) {
     this.logger = logger.clone("JSPackagerClient");
   }
 
   public connectToMetroMessages(config: JSPackagerClientConfig) {
-    this.webSocket = webSocket.createWebSocket();
     const url = this.buildUrl(config);
-    this.webSocket.on("message", (err, data) => {
-      if (err) {
-        this.logger.error("Websocket error " + err.message);
-        return;
-      }
+
+    const onMessage = (data) => {
       if (typeof data === "string") {
         const message = JSON.parse(data);
         switch (message.method) {
@@ -37,21 +33,19 @@ export class JSPackagerClient {
             this.logger.warn(`Unsupported action: ${message.method}`)
         }
       }
-    })
-    this.webSocket.connect(url, (err, _data) => {
-      if (!err) {
-        this.logger.info("Websocket connected successfully");
-      } else {
+    }
+
+    const onDisconnected = (err) => {
+      if (err) {
         this.logger.error("Websocket connection failed, err: " + JSON.stringify(err));
       }
-    });
+    }
+
+    this.webSocket = new ReconnectingWebSocket(url, { onMessage, onDisconnected })
   }
 
   public async onDestroy() {
-    /**
-     * Closing this websocket creates prevents subsequent loading a bundle from Metro server and connecting this client, when connected using "localhost" url.
-     */
-    // await this.webSocket?.close();
+    this.webSocket.close()
   }
 
   private buildUrl(config: JSPackagerClientConfig): string {

@@ -2,6 +2,7 @@
 
 #include <react/renderer/scheduler/SchedulerDelegate.h>
 #include <react/utils/Telemetry.h>
+#include "RNOH/ComponentInstancePreallocationRequestQueue.h"
 #include "RNOH/MountingManager.h"
 #include "RNOH/TaskExecutor/TaskExecutor.h"
 
@@ -19,30 +20,21 @@ class SchedulerDelegate final : public facebook::react::SchedulerDelegate {
   using ShadowNode = facebook::react::ShadowNode;
   using ShadowView = facebook::react::ShadowView;
   using SurfaceId = facebook::react::SurfaceId;
+  using PreallocationRequest = ComponentInstancePreallocationRequestQueue::Request;
 
  public:
   SchedulerDelegate(
       MountingManager::Shared mountingManager,
       TaskExecutor::Shared taskExecutor,
-       PreAllocationBuffer::Shared preAllocationBuffer)
+      ComponentInstancePreallocationRequestQueue::Weak
+          weakPreallocationRequestQueue)
       : m_mountingManager(mountingManager), m_taskExecutor(taskExecutor),
-        m_preAllocationBuffer(std::move(preAllocationBuffer)){};
+        m_weakPreallocationRequestQueue(
+            std::move(weakPreallocationRequestQueue)){};
     
   void schedulerDidRequestPreliminaryViewAllocation(
-    SurfaceId surfaceId,
-    const ShadowNode& shadowView) override{
-        auto preAllocationBuffer = m_preAllocationBuffer.lock();
-        if(preAllocationBuffer){
-            preAllocationBuffer->push(shadowView);
-        }
-    }
-
- void schedulerDidViewAllocationByVsync(long long timestamp, long long period) {
-         auto preAllocationBuffer = m_preAllocationBuffer.lock();
-         if(preAllocationBuffer){
-            preAllocationBuffer->flushByVsync(timestamp, period);
-        }
-  }
+      SurfaceId /*surfaceId*/,
+      const ShadowNode& shadowView) override;
 
   void schedulerDidFinishTransaction(
       MountingCoordinator::Shared mountingCoordinator) override;
@@ -74,12 +66,13 @@ class SchedulerDelegate final : public facebook::react::SchedulerDelegate {
           }
         });
   }
-  void logTransactionTelemetryMarkers(
+  static void logTransactionTelemetryMarkers(
       facebook::react::MountingTransaction const& transaction);
 
   MountingManager::Weak m_mountingManager;
   TaskExecutor::Shared m_taskExecutor;
-  PreAllocationBuffer::Weak m_preAllocationBuffer;
+  ComponentInstancePreallocationRequestQueue::Weak
+      m_weakPreallocationRequestQueue;
 };
 
 }; // namespace rnoh

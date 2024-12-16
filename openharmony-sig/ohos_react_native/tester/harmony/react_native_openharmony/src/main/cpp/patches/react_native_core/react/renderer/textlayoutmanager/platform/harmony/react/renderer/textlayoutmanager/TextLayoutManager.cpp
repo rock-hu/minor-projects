@@ -31,6 +31,12 @@ TextMeasurement TextLayoutManager::measure(
     return this->measure(attributedStringBox, paragraphAttributes, layoutConstraints);
 }
 
+float  TextLayoutManager::getDPI() const{
+    if( m_textLayoutManagerDelegate != nullptr){
+        return m_textLayoutManagerDelegate->getDPI();
+    }
+}
+
 LinesMeasurements TextLayoutManager::measureLines(
     AttributedString attributedString,
     ParagraphAttributes paragraphAttributes,

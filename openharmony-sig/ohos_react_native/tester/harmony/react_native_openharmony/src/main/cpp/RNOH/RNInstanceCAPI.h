@@ -7,7 +7,6 @@
 #include <thread>
 #include <utility>
 
-#include <ace/xcomponent/native_interface_xcomponent.h>
 #include <cxxreact/Instance.h>
 #include <cxxreact/ModuleRegistry.h>
 #include <cxxreact/NativeModule.h>
@@ -35,7 +34,9 @@
 #include "RNOH/ArkTSMessageHandler.h"
 #include "RNOH/ComponentInstanceFactory.h"
 #include "RNOH/ComponentInstanceRegistry.h"
-#include "RNOH/arkui/XComponentSurface.h"
+#include "RNOH/arkui/ArkUISurface.h"
+#include "RNOH/arkui/NodeContentHandle.h"
+#include "RNOH/ComponentInstancePreallocationRequestQueue.h"
 
 namespace rnoh {
 using MutationsListener = std::function<void(
@@ -65,6 +66,8 @@ class RNInstanceCAPI : public RNInstanceInternal,
       ArkTSMessageHub::Shared arkTSMessageHub,
       ComponentInstanceRegistry::Shared componentInstanceRegistry,
       ComponentInstanceFactory::Shared componentInstanceFactory,
+      ComponentInstancePreallocationRequestQueue::Shared
+          componentInstancePreallocationRequestQueue,
       SharedNativeResourceManager nativeResourceManager,
       bool shouldEnableDebugger,
       bool shouldEnableBackgroundExecutor)
@@ -81,7 +84,6 @@ class RNInstanceCAPI : public RNInstanceInternal,
         m_mutationsToNapiConverter(mutationsToNapiConverter),
         m_eventEmitRequestHandlers(eventEmitRequestHandlers),
         m_globalJSIBinders(globalJSIBinders),
-        m_shouldRelayUITick(false),
         m_uiTicker(uiTicker),
         m_mountingManager(std::move(mountingManager)),
         m_shouldEnableDebugger(shouldEnableDebugger),
@@ -91,11 +93,9 @@ class RNInstanceCAPI : public RNInstanceInternal,
         m_componentInstanceFactory(componentInstanceFactory),
         m_arkTSChannel(std::move(arkTSChannel)),
         m_arkTSMessageHandlers(std::move(arkTSMessageHandlers)),
-        m_nativeResourceManager(std::move(nativeResourceManager)) {
-          this->unsubscribeUITickListener =
-              this->m_uiTicker->subscribe(m_id, [this](long long timestamp){ 
-              this->taskExecutor->runTask(
-                TaskThread::MAIN, [this, timestamp](){ this->onUITick(timestamp); }); });
+        m_nativeResourceManager(std::move(nativeResourceManager)),
+        m_componentInstancePreallocationRequestQueue(
+            std::move(componentInstancePreallocationRequestQueue)) {
         }
 
  ~RNInstanceCAPI() noexcept override;
@@ -171,9 +171,11 @@ class RNInstanceCAPI : public RNInstanceInternal,
 
   facebook::react::ContextContainer const& getContextContainer() const override;
 
-  void registerNativeXComponentHandle(
-      OH_NativeXComponent* nativeXComponent,
+  void attachRootView(
+      NodeContentHandle nodeContentHandle,
       facebook::react::Tag surfaceId);
+
+  void detachRootView(facebook::react::Tag surfaceId);
 
   TurboModule::Shared getTurboModule(const std::string& name) override;
 
@@ -184,6 +186,9 @@ class RNInstanceCAPI : public RNInstanceInternal,
 
   std::optional<facebook::react::Tag> findComponentInstanceTagById(
       const std::string& id);
+
+  std::optional<std::string> getNativeNodeIdByTag(
+      facebook::react::Tag tag) const;
 
   void handleArkTSMessage(
       const std::string& name,
@@ -224,17 +229,20 @@ class RNInstanceCAPI : public RNInstanceInternal,
   GlobalJSIBinders m_globalJSIBinders;
   std::shared_ptr<facebook::react::LayoutAnimationDriver> m_animationDriver;
   UITicker::Shared m_uiTicker;
+  std::mutex m_unsubscribeUITickListenerMtx;
   std::function<void()> unsubscribeUITickListener = nullptr;
-  std::atomic<bool> m_shouldRelayUITick;
+  ComponentInstancePreallocationRequestQueue::Shared
+      m_componentInstancePreallocationRequestQueue;
   std::shared_ptr<MessageQueueThread> m_jsQueue;
   bool m_shouldEnableDebugger;
   bool m_shouldEnableBackgroundExecutor;
-  std::unordered_map<facebook::react::SurfaceId, XComponentSurface::Shared>
+  std::unordered_map<facebook::react::SurfaceId, ArkUISurface::Shared>
       m_surfaceById;
   ComponentInstanceRegistry::Shared m_componentInstanceRegistry;
   ComponentInstanceFactory::Shared m_componentInstanceFactory;
   MountingManager::Shared m_mountingManager;
   std::unique_ptr<facebook::react::SchedulerDelegate> m_schedulerDelegate = nullptr;
+  float m_densityDpi;
   /**
    * NOTE: Order matters. m_scheduler holds indirectly jsi::Values.
    * These values must be destructed before the runtime.
@@ -253,11 +261,11 @@ class RNInstanceCAPI : public RNInstanceInternal,
   void initializeScheduler(
       std::shared_ptr<TurboModuleProvider> turboModuleProvider);
   std::shared_ptr<TurboModuleProvider> createTurboModuleProvider();
-  void onUITick(long long timestamp);
-  void schedulerTransactionByVsync(long long timestamp, long long period);
+  void onUITick(UITicker::Timestamp recentVSyncTimestamp);
   void onAnimationStarted() override; // react::LayoutAnimationStatusDelegate
   void onAllAnimationsComplete()
       override; // react::LayoutAnimationStatusDelegate
+  void onConfigurationChange(folly::dynamic const& payload);
 };
 
 } // namespace rnoh

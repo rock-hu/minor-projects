@@ -24,6 +24,8 @@ class TextInputNode : public TextInputNodeBase {
  private:
   uint32_t m_caretColorValue;
   bool m_autofocus{false};
+  bool m_setTextContent{false};
+  std::string m_textContent;
  protected:
   TextInputNodeDelegate* m_textInputNodeDelegate;
 
@@ -87,6 +89,8 @@ class TextInputNode : public TextInputNodeBase {
   void setInputFilter(std::string const& inputFilter);
 
   void setAutoFocus(bool const &autoFocus);
+
+  void setSelectAll(bool selectAll);
 
   bool getTextFocusStatus();
 

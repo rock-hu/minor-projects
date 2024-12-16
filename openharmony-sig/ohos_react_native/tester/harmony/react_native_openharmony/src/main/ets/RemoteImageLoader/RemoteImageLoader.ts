@@ -11,7 +11,7 @@ import { common } from '@kit.AbilityKit';
 export class RemoteImageLoader {
   private activeRequestByUrl: Map<string, Promise<FetchResult>> = new Map();
   private activePrefetchByUrl: Map<string, Promise<boolean>> = new Map();
-  private abortPrefetchByUrl: Map<number, {uri: string, downloadTask: request.DownloadTask}> = new Map()
+  private abortPrefetchByUrl: Map<number, request.DownloadTask> = new Map()
 
   public constructor(
     private memoryCache: RemoteImageMemoryCache,
@@ -131,33 +131,10 @@ export class RemoteImageLoader {
   }
 
   public async abortPrefetch(requestId: number): Promise<void> {
-    if (!this.abortPrefetchByUrl.has(requestId)) {
-      console.info('abort prefetch success');
-      return;
-    }
-
-    let value = this.abortPrefetchByUrl.get(requestId);
-    if (value === null || value === undefined) {
-      return;
-    }
-
-    try {
-      await value.downloadTask?.delete();
-      if (this.memoryCache.has(value.uri)) {
-        this.memoryCache.remove(value.uri);
-      }
-
-      if (this.diskCache.has(value.uri)) {
-        this.diskCache.remove(value.uri);
-      }
-    } catch(err) {
-      console.error('Error occurred when removing file' + err.message);
-    }
-
-    this.abortPrefetchByUrl.delete(requestId);
+    this.abortPrefetchByUrl.get(requestId)?.delete();
   }
 
-  public async prefetch(uri: string): Promise<boolean> {
+  public async prefetch(uri: string, requestId: number): Promise<boolean> {
     if (this.diskCache.has(uri)) {
       return true;
     }
@@ -171,7 +148,7 @@ export class RemoteImageLoader {
       this.memoryCache.remove(uri);
     }
 
-    const promise = this.downloadFile(uri);
+    const promise = this.downloadFile(uri, requestId);
     this.activePrefetchByUrl.set(uri, promise);
     promise.finally(() => {
       this.activePrefetchByUrl.delete(uri);
@@ -182,19 +159,30 @@ export class RemoteImageLoader {
     return await promise;
   }
 
-  private async performDownload(config: request.DownloadConfig): Promise<boolean> {
+  private async performDownload(config: request.DownloadConfig, requestId: number): Promise<boolean> {
     return await new Promise(async (resolve, reject) => {
       try {
         const downloadTask = await request.downloadFile(this.context, config);
-        downloadTask.on("complete", () => resolve(true));
-        downloadTask.on("fail", (err: number) => reject(`Failed to download the task. Code: ${err}`));
+        this.abortPrefetchByUrl.set(requestId, downloadTask);
+        downloadTask.on("complete", () => {
+          this.abortPrefetchByUrl.delete(requestId);
+          resolve(true)
+        });
+        downloadTask.on("remove", () => {
+          this.abortPrefetchByUrl.delete(requestId);
+          reject(`Download task remove.`)
+        });
+        downloadTask.on("fail", (err: number) => {
+          this.abortPrefetchByUrl.delete(requestId);
+          reject(`Failed to download the task. Code: ${err}`)
+        });
       } catch (e) {
         reject(e);
       }
     });
   }
 
-  private async downloadFile(uri: string): Promise<boolean> {
+  private async downloadFile(uri: string, requestId: number): Promise<boolean> {
     const path = this.diskCache.getLocation(uri);
     const tempPath = path + '_tmp';
 
@@ -204,7 +192,7 @@ export class RemoteImageLoader {
       if (fs.accessSync(tempPath)){
         await fs.unlink(tempPath);
       }
-      await this.performDownload({ url: uri, filePath: tempPath });
+      await this.performDownload({ url: uri, filePath: tempPath }, requestId);
       // Move the file to the final location and remove the temporary file
       await fs.moveFile(tempPath, path);
       this.diskCache.set(uri);

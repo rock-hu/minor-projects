@@ -22,8 +22,7 @@ TextInputNode::TextInputNode()
     : TextInputNodeBase(ArkUI_NodeType::ARKUI_NODE_TEXT_INPUT),
       m_textInputNodeDelegate(nullptr) {
   for (auto eventType : TEXT_INPUT_NODE_EVENT_TYPES) {
-    maybeThrow(NativeNodeApi::getInstance()->registerNodeEvent(
-        m_nodeHandle, eventType, eventType, this));
+    registerNodeEvent(eventType);
   }
 
   ArkUI_NumberValue value = {.i32 = 1};
@@ -34,13 +33,14 @@ TextInputNode::TextInputNode()
 
 TextInputNode::~TextInputNode() {
   for (auto eventType : TEXT_INPUT_NODE_EVENT_TYPES) {
-    NativeNodeApi::getInstance()->unregisterNodeEvent(m_nodeHandle, eventType);
+    unregisterNodeEvent(eventType);
   }
 }
 
 void TextInputNode::onNodeEvent(
     ArkUI_NodeEventType eventType,
     EventArgs& eventArgs) {
+  ArkUINode::onNodeEvent(eventType, eventArgs);
   if (eventType == ArkUI_NodeEventType::NODE_TEXT_INPUT_ON_SUBMIT) {
     if (m_textInputNodeDelegate != nullptr) {
       m_textInputNodeDelegate->onSubmit();
@@ -95,7 +95,12 @@ void TextInputNode::onNodeEvent(
   if (eventType == ArkUI_NodeEventType::NODE_TEXT_INPUT_ON_CHANGE) {
     if (m_textInputNodeDelegate != nullptr) {
       std::string text(eventString);
-      m_textInputNodeDelegate->onChange(std::move(text));
+      if (m_setTextContent == true && text==m_textContent){ //it does not trigger onChange when using setTextContent
+        m_setTextContent = false;
+      } else{
+        m_setTextContent = false;
+        m_textInputNodeDelegate->onChange(std::move(text));
+      }
     }
   } else if (eventType == ArkUI_NodeEventType::NODE_TEXT_INPUT_ON_PASTE) {
     if (m_textInputNodeDelegate != nullptr) {
@@ -134,6 +139,8 @@ facebook::react::Rect TextInputNode::getTextContentRect() const {
 
 void TextInputNode::setTextContent(std::string const& textContent) {
   ArkUI_AttributeItem item = {.string = textContent.c_str()};
+  m_setTextContent = true;
+  m_textContent = textContent;
   maybeThrow(NativeNodeApi::getInstance()->setAttribute(
       m_nodeHandle, NODE_TEXT_INPUT_TEXT, &item));
 }
@@ -154,6 +161,11 @@ void TextInputNode::setCaretHidden(bool hidden) {
     ArkUI_AttributeItem item = {&value, sizeof(ArkUI_NumberValue)};
     maybeThrow(NativeNodeApi::getInstance()->setAttribute(
         m_nodeHandle, NODE_TEXT_INPUT_CARET_STYLE, &item));
+
+    value = {.u32 = 0};
+    item = {&value, sizeof(ArkUI_NumberValue)};
+    maybeThrow(NativeNodeApi::getInstance()->setAttribute(
+      m_nodeHandle, NODE_TEXT_INPUT_CARET_COLOR, &item));
   } else {
     ArkUI_NumberValue value = {.f32 = 2};  //The default width of the cursor in ArkUI is 2 vp
     ArkUI_AttributeItem item = {&value, sizeof(ArkUI_NumberValue)};
@@ -365,6 +377,13 @@ std::string TextInputNode::getTextContent() {
   auto item = NativeNodeApi::getInstance()->getAttribute(
       m_nodeHandle, NODE_TEXT_INPUT_TEXT);
   return item->string;
+}
+
+void TextInputNode::setSelectAll(bool selectAll) {
+  ArkUI_NumberValue value = {.i32 = int32_t(selectAll)};
+  ArkUI_AttributeItem item = {&value, 1};
+  maybeThrow(NativeNodeApi::getInstance()->setAttribute(
+      m_nodeHandle, NODE_TEXT_INPUT_SELECT_ALL, &item));
 }
 
 void TextInputNode::setAutoFocus(bool const &autoFocus){

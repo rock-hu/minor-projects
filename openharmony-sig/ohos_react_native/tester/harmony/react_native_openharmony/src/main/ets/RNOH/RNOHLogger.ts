@@ -96,13 +96,12 @@ export class StandardRNOHLogger implements RNOHLogger {
       if (rnohError.getRNInstanceName()) {
         rnInstanceNameString = `rnInstanceName="${rnohError.getRNInstanceName()}", `;
       }
-      return `(${rnInstanceNameString}rnInstanceId=${rnohError.getRNInstanceId()})` +
-      rnohError.getMessage()
+      return `(${rnInstanceNameString}rnInstanceId=${rnohError.getRNInstanceId()}) ` +
+      rnohError.getMessage() + "\n" + rnohError.getSuggestions().join("\n")
     } else {
-      return rnohError.getMessage();
+      return rnohError.getMessage() + "\n" + rnohError.getSuggestions().join("\n");
     }
   }
-
 
   public fatal(...args: any[]): void {
     if (args[0] instanceof RNOHError) {

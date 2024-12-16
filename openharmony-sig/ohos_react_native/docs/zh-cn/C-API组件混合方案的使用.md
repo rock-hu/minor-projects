@@ -66,28 +66,3 @@
    ```
 
 5. 使用 `RNApp` 或者 `RNSurface` 启动 React Native for OpenHarmony。
-
-## C-API组件中使用ArkTS组件
-
-当前 **RNOH** 框架支持 C-API 组件挂载一个 ArkTs 组件
-
-1. 通过 `createArkTSComponent` 创建 ArkTs 组件。
-
-   `createArkTSComponent` 接口需要传递三个参数：
-
-   - `tag`： 组件的 tag。
-   - `componentHandle`：component 句柄（`facebook::react::ComponentHandle`）。
-   - `componentName`：组件名，需要与入口文件的 `buildCustomRNComponent` 函数中定义的自定义 ArkTS 组件名相对应。
-
-   ```cpp
-   auto componentInstanceFactory = rnInstance->getComponentInstanceFactory();
-   auto newChildComponentInstance = componentInstanceFactory->createArkTSComponent(tag, componentHandle, componentName);
-   ```
-
-2. 然后调用组件的 `onChildInserted` 方法插入。
-
-   ```cpp
-   if (newChildComponentInstance != nullptr) {
-     this->onChildInserted(newChildComponentInstance, index);
-   }
-   ```

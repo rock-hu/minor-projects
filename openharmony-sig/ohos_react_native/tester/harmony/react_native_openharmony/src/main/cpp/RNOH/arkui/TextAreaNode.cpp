@@ -21,21 +21,21 @@ TextAreaNode::TextAreaNode()
     : TextInputNodeBase(ArkUI_NodeType::ARKUI_NODE_TEXT_AREA),
       m_textAreaNodeDelegate(nullptr) {
   for (auto eventType : TEXT_AREA_NODE_EVENT_TYPES) {
-    maybeThrow(NativeNodeApi::getInstance()->registerNodeEvent(
-        m_nodeHandle, eventType, eventType, this));
+    registerNodeEvent(eventType);
     // NODE_TEXT_AREA_ENABLE_KEYBOARD_ON_FOCUS missing in C-API
   }
 }
 
 TextAreaNode::~TextAreaNode() {
   for (auto eventType : TEXT_AREA_NODE_EVENT_TYPES) {
-    NativeNodeApi::getInstance()->unregisterNodeEvent(m_nodeHandle, eventType);
+    unregisterNodeEvent(eventType);
   }
 }
 
 void TextAreaNode::onNodeEvent(
     ArkUI_NodeEventType eventType,
     EventArgs& eventArgs) {
+  ArkUINode::onNodeEvent(eventType, eventArgs);
   if (eventType == ArkUI_NodeEventType::NODE_ON_FOCUS) {
     if (m_textAreaNodeDelegate != nullptr) {
       m_textAreaNodeDelegate->onFocus();
@@ -86,7 +86,12 @@ void TextAreaNode::onNodeEvent(
   if (eventType == ArkUI_NodeEventType::NODE_TEXT_AREA_ON_CHANGE) {
     if (m_textAreaNodeDelegate != nullptr) {
       std::string text(eventString);
-      m_textAreaNodeDelegate->onChange(std::move(text));
+      if (m_setTextContent == true && text==m_textContent){ //it does not trigger onChange when using setTextContent
+        m_setTextContent = false;
+      } else{
+        m_setTextContent = false;
+        m_textAreaNodeDelegate->onChange(std::move(text));
+      }
     }
   } else if (eventType == ArkUI_NodeEventType::NODE_TEXT_AREA_ON_PASTE) {
     if (m_textAreaNodeDelegate != nullptr) {
@@ -126,6 +131,8 @@ facebook::react::Rect TextAreaNode::getTextContentRect() const {
 
 void TextAreaNode::setTextContent(std::string const& textContent) {
   ArkUI_AttributeItem item = {.string = textContent.c_str()};
+  m_setTextContent = true;
+  m_textContent = textContent;
   maybeThrow(NativeNodeApi::getInstance()->setAttribute(
       m_nodeHandle, NODE_TEXT_AREA_TEXT, &item));
 }
@@ -295,6 +302,13 @@ void TextAreaNode::setInputFilter(const std::string &inputFilter) {
   ArkUI_AttributeItem item = {.string = inputFilter.c_str()};
   maybeThrow(NativeNodeApi::getInstance()->setAttribute(
       m_nodeHandle, NODE_TEXT_AREA_INPUT_FILTER, &item));
+}
+
+void TextAreaNode::setSelectAll(bool selectAll) {
+  ArkUI_NumberValue value = {.i32 = int32_t(selectAll)};
+  ArkUI_AttributeItem item = {&value, 1};
+  maybeThrow(NativeNodeApi::getInstance()->setAttribute(
+      m_nodeHandle, NODE_TEXT_INPUT_SELECT_ALL, &item));
 }
 
 void TextAreaNode::setAutoFocus(bool const &autoFocus){

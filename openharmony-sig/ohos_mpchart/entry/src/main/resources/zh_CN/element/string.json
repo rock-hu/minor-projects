@@ -220,6 +220,26 @@
     {
       "name": "test_data",
       "value": "测试数据："
+    },
+    {
+      "name": "placeholder_area",
+      "value": "占位区"
+    },
+    {
+      "name": "hitTestModeDefault",
+      "value": "HitTestMode.Default"
+    },
+    {
+      "name": "hitTestModeBlock",
+      "value": "HitTestMode.Block"
+    },
+    {
+      "name": "hitTestModeTransparent",
+      "value": "hitTestMode.Transparent"
+    },
+    {
+      "name": "hitTestModeNone",
+      "value": "HitTestMode.None"
     }
   ]
 }

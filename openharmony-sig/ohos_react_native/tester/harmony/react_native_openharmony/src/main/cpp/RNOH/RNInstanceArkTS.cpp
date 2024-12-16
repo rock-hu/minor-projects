@@ -15,6 +15,7 @@
 #include "RNOH/TurboModuleProvider.h"
 #include "hermes/executor/HermesExecutorFactory.h"
 #include "RNOH/SchedulerDelegate.h"
+#include <react/renderer/debug/SystraceSection.h>
 
 using namespace facebook;
 using namespace rnoh;
@@ -105,7 +106,7 @@ void RNInstanceArkTS::initializeScheduler(
   m_animationDriver = std::make_shared<react::LayoutAnimationDriver>(
       this->instance->getRuntimeExecutor(), m_contextContainer, this);
     m_schedulerDelegate = std::make_unique<rnoh::SchedulerDelegate>(
-      m_mountingManager, taskExecutor, m_mountingManager->getPreAllocationBuffer());
+      m_mountingManager, taskExecutor, ComponentInstancePreallocationRequestQueue::Weak());
   this->scheduler = std::make_shared<react::Scheduler>(
       schedulerToolbox, m_animationDriver.get(), m_schedulerDelegate.get());
   turboModuleProvider->setScheduler(this->scheduler);
@@ -398,15 +399,31 @@ void RNInstanceArkTS::callJSFunction(
 }
 
 void RNInstanceArkTS::onAnimationStarted() {
-  m_shouldRelayUITick.store(true);
+  facebook::react::SystraceSection s("RNInstanceArkTS::onAnimationStarted");
+  if (this->unsubscribeUITickListener != nullptr) {
+    return;
+  }
+  this->unsubscribeUITickListener =
+      m_uiTicker->subscribe([this](auto recentVSyncTimestamp) {
+        this->taskExecutor->runTask(
+            TaskThread::MAIN, [this, recentVSyncTimestamp]() {
+              this->onUITick(recentVSyncTimestamp);
+            });
+      });
 }
 
 void RNInstanceArkTS::onAllAnimationsComplete() {
-  m_shouldRelayUITick.store(false);
+  facebook::react::SystraceSection s(
+      "#RNOH::RNInstanceArkTS::onAllAnimationsComplete");
+  if (this->unsubscribeUITickListener == nullptr) {
+    return;
+  }
+  this->unsubscribeUITickListener();
+  this->unsubscribeUITickListener = nullptr;
 }
 
-void RNInstanceArkTS::onUITick(long long timestamp) {
-  if (this->m_shouldRelayUITick.load()) {
+void RNInstanceArkTS::onUITick(UITicker::Timestamp timestamp) {
+  if (this->scheduler != nullptr) {
     this->scheduler->animationTick();
   }
 }
@@ -414,6 +431,7 @@ void RNInstanceArkTS::onUITick(long long timestamp) {
 void RNInstanceArkTS::handleArkTSMessage(
     const std::string& name,
     folly::dynamic const& payload) {
+  facebook::react::SystraceSection s("RNInstanceArkTS::handleArkTSMessage");
   for (auto const& arkTSMessageHandler : m_arkTSMessageHandlers) {
     arkTSMessageHandler->handleArkTSMessage(
         {.messageName = name,

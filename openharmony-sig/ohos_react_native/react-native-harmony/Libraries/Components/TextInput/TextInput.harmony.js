@@ -1312,6 +1312,8 @@ function InternalTextInput(props: Props): React.Node {
 
   const multiline = props.multiline ?? false;
 
+  let blurOnSubmit = props.blurOnSubmit; // RNOH patch
+
   let submitBehavior: SubmitBehavior;
   if (props.submitBehavior != null) {
     // `submitBehavior` is set explicitly
@@ -1330,6 +1332,7 @@ function InternalTextInput(props: Props): React.Node {
   } else {
     // Single line
     if (props.blurOnSubmit !== false) {
+      blurOnSubmit = true; // RNOH patch: The default value is true for single-line fields
       submitBehavior = 'blurAndSubmit';
     } else {
       submitBehavior = 'submit';
@@ -1394,6 +1397,10 @@ function InternalTextInput(props: Props): React.Node {
   let style = flattenStyle(props.style);
 
   if (OS === 'ios') {
+    // RNOH patch
+    const _accessibilityLabelledBy =
+    props?.['aria-labelledby'] ?? props?.accessibilityLabelledBy;
+
     const RCTTextInputView =
       props.multiline === true
         ? RCTMultilineTextInputView
@@ -1412,6 +1419,7 @@ function InternalTextInput(props: Props): React.Node {
         {...otherProps}
         {...eventHandlers}
         accessibilityState={_accessibilityState}
+        accessibilityLabelledBy={_accessibilityLabelledBy} // RNOH patch
         accessible={accessible}
         submitBehavior={submitBehavior}
         caretHidden={caretHidden}
@@ -1431,6 +1439,7 @@ function InternalTextInput(props: Props): React.Node {
         selection={selection}
         style={style}
         text={text}
+        blurOnSubmit={blurOnSubmit} // RNOH patch
       />
     );
   } else if (OS === 'android') {

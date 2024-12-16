@@ -41,20 +41,10 @@ std::string TextInputComponentInstance::getTextContentFromState(SharedConcreteSt
 }
 
 void TextInputComponentInstance::onChange(std::string text) {
-  if (m_content == text) {
-    m_shouldIgnoreNextChangeEvent = false;
-    return;
-  }
-  m_content = std::move(text);
-  if (m_shouldIgnoreNextChangeEvent) {
-    m_shouldIgnoreNextChangeEvent = false;
-    return;
-  }
   m_nativeEventCount++;
+  m_content = std::move(text);
   m_eventEmitter->onChange(getOnChangeMetrics());
-  
-  auto content = getTextContentFromState(m_state);
-  m_valueChanged = content != m_content;
+  m_valueChanged = true;
 }
 
 void TextInputComponentInstance::onSubmit() {
@@ -82,10 +72,6 @@ void TextInputComponentInstance::onFocus() {
   if (this->m_clearTextOnFocus) {
     m_textAreaNode.setTextContent("");
     m_textInputNode.setTextContent("");
-  }
-  if (m_props->traits.selectTextOnFocus) {
-    m_textInputNode.setTextSelection(0, m_content.size());
-    m_textAreaNode.setTextSelection(0, m_content.size());
   }
   if (m_props->traits.clearButtonMode ==
       facebook::react::TextInputAccessoryVisibilityMode::WhileEditing) {
@@ -260,6 +246,21 @@ void TextInputComponentInstance::onPropsChanged(
       m_textInputNode.setBackgroundColor(facebook::react::clearColor());
     }
   }
+  if (props->rawProps.count("textAlignVertical") != 0){
+    std::string rawAlignment = props->rawProps["textAlignVertical"].asString();
+    ArkUI_Alignment aligment;
+    if (rawAlignment == "top"){
+      aligment = ARKUI_ALIGNMENT_TOP;
+    } else if(rawAlignment == "center"){
+      aligment = ARKUI_ALIGNMENT_CENTER;
+    } else if(rawAlignment == "bottom"){
+      aligment = ARKUI_ALIGNMENT_BOTTOM;
+    } else if(rawAlignment == "auto"){
+      aligment = ARKUI_ALIGNMENT_CENTER;
+    }
+    m_textInputNode.setAlignment(aligment);
+    m_textAreaNode.setAlignment(aligment);
+  }
   if (props->textAttributes.alignment) {
     if (!m_props ||
         *(props->textAttributes.alignment) !=
@@ -410,6 +411,10 @@ void TextInputComponentInstance::onPropsChanged(
     m_textAreaNode.setEnabled(props->traits.editable);
   m_textInputNode.setEnabled(props->traits.editable);
   }
+  if (!m_props || props->traits.selectTextOnFocus != m_props->traits.selectTextOnFocus) {
+    m_textInputNode.setSelectAll(props->traits.selectTextOnFocus);
+    m_textAreaNode.setSelectAll(props->traits.selectTextOnFocus);
+  }
 }
 
 void TextInputComponentInstance::onLayoutChanged(
@@ -500,9 +505,6 @@ void TextInputComponentInstance::onStateChanged(
   }
 
   auto content = getTextContentFromState(state);
-  if (m_content != content) {
-    m_shouldIgnoreNextChangeEvent = true;
-  }
   setTextContent(content);
 }
 

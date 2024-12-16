@@ -337,8 +337,10 @@ export class DescriptorRegistry {
       this.saveDescriptor(this.maybeOverwriteProps(mutation.descriptor))
       return [];
     } else if (mutation.type === MutationType.INSERT) {
-      const childDescriptor = this.descriptorByTag.get(mutation.childTag)!;
-      childDescriptor.parentTag = mutation.parentTag;
+      const childDescriptor = this.descriptorByTag.get(mutation.childTag);
+      if (childDescriptor) {
+        childDescriptor.parentTag = mutation.parentTag;
+      }
       this.descriptorByTag.get(mutation.parentTag)?.childrenTags.splice(
         mutation.index,
         0,
@@ -381,8 +383,8 @@ export class DescriptorRegistry {
 
       return [mutation.descriptor.tag];
     } else if (mutation.type === MutationType.REMOVE) {
-      const parentDescriptor = this.descriptorByTag.get(mutation.parentTag)!;
-      const childDescriptor = this.descriptorByTag.get(mutation.childTag)!;
+      const parentDescriptor = this.descriptorByTag.get(mutation.parentTag);
+      const childDescriptor = this.descriptorByTag.get(mutation.childTag);
       if (parentDescriptor == undefined) {
         return [];
       }
@@ -393,9 +395,11 @@ export class DescriptorRegistry {
         childIndex: idx
       }));
       if (idx != -1) {
-        parentDescriptor.childrenTags.splice(idx, 1);
+        parentDescriptor.childrenTags.splice(parentDescriptor && idx, 1);
       }
-      childDescriptor.parentTag = undefined;
+      if (childDescriptor) {
+        childDescriptor.parentTag = undefined;
+      }
       return [mutation.parentTag];
     } else if (mutation.type === MutationType.DELETE) {
       const currentDescriptor = this.descriptorByTag.get(mutation.tag);

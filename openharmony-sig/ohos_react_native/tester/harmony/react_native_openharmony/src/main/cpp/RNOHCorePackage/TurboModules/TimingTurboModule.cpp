@@ -169,6 +169,7 @@ void TimingTurboModule::LifecycleObserver::onMessageReceived(
 void TimingTurboModule::triggerTimers(std::vector<double> const& timerIds) {
   assertJSThread();
   auto instance = m_ctx.instance.lock();
+  auto now = getMillisSinceEpoch();
   if (instance) {
     instance->callJSFunction(
         "JSTimers",
@@ -184,7 +185,7 @@ void TimingTurboModule::triggerTimers(std::vector<double> const& timerIds) {
     auto& timer = it->second;
 
     if (timer.repeats) {
-      timer.deadline += timer.duration;
+      timer.deadline = now + timer.duration;
     } else {
       m_activeTimerById.erase(it);
     }

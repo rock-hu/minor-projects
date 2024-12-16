@@ -1,7 +1,5 @@
 #include "CustomNodeComponentInstance.h"
 #include "conversions.h"
-#include <RNOH/arkui/NativeNodeApi.h>
-#include "RNOH/arkui/ArkUINodeRegistry.h"
 
 namespace rnoh {
 CustomNodeComponentInstance::CustomNodeComponentInstance(Context context)

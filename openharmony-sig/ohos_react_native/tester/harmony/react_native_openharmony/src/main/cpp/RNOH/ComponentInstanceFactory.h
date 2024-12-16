@@ -10,8 +10,6 @@
 #include "RNOH/CustomComponentArkUINodeHandleFactory.h"
 #include "RNOH/FallbackComponentInstance.h"
 #include "RNOH/ThreadGuard.h"
-#include "RNOH/arkui/CustomNode.h"
-#include "RNOH/arkui/StackNode.h"
 
 namespace rnoh {
 class ComponentInstanceFactoryDelegate {
@@ -52,26 +50,20 @@ class ComponentInstanceFactory {
         .componentName = componentName,
         .dependencies = m_dependencies};
 
-    DLOG(INFO) << "Creating FallbackComponentInstance for: " << componentName
-                 << ""
-                    ""
-                 << tag;
-    auto frameNodeHandleAndBuilderNodeDestroyer =
+    auto maybeCustomComponentWrapper =
         m_customComponentArkUINodeHandleFactory->create(tag, componentName);
-    auto arkUINode = frameNodeHandleAndBuilderNodeDestroyer.first != nullptr
-        ? std::make_unique<ArkUINode>(
-              frameNodeHandleAndBuilderNodeDestroyer.first)
-        // use Stack as a fallback when no frame node was created
-        : std::make_unique<StackNode>();
-    auto arkUIComponentInstance =
-        std::make_shared<FallbackComponentInstance>(
+    if (maybeCustomComponentWrapper.has_value()) {
+      auto [nodeHandle, nodeContent, deleter] =
+          std::move(maybeCustomComponentWrapper.value());
+      auto arkUINode = std::make_unique<ArkUINode>(nodeHandle);
+      auto arkUIComponentInstance = std::make_shared<FallbackComponentInstance>(
           ctx,
-        std::move(arkUINode),
-        std::move(frameNodeHandleAndBuilderNodeDestroyer.second));
-    auto rootComponentInstance =
-        this->create(tag, componentHandle, "RootView");
-    rootComponentInstance->insertChild(arkUIComponentInstance, 0);
-    return rootComponentInstance;
+          std::move(arkUINode),
+          std::move(nodeContent),
+          std::move(deleter));
+      return arkUIComponentInstance;
+    }
+    return nullptr;
   }
 
   ComponentInstance::Shared create(
@@ -87,6 +79,7 @@ class ComponentInstanceFactory {
     for (auto& delegate : m_delegates) {
       auto componentInstance = delegate->create(ctx);
       if (componentInstance != nullptr) {
+        componentInstance->onCreate();
         return componentInstance;
       }
     }

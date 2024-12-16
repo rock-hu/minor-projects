@@ -450,10 +450,10 @@ Codegen 的详细使用方法，可以参考[Codegen](Codegen.md)文档。
     ...
     }
     ```
-   在ets路径下右击，选择`New`选项，右侧展开菜单选择`Woker`选项：
-   ![create_worker](./figures/create-worker.png)
-   选择后在弹出的窗口中取名`RNOHWorker.ets`：
-   ![christen_RNOHWorker](./figures/christen-RNOHWorker.png)
+   在ets路径下右击，选择`New`选项，右侧展开菜单选择`Woker`选项： 
+   ![create_worker](./figures/create-worker.png)  
+   选择后在弹出的窗口中取名`RNOHWorker.ets`： 
+   ![christen_RNOHWorker](./figures/christen-RNOHWorker.png) 
    此时目录结构为:
     ```
     └── ets

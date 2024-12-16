@@ -99,7 +99,7 @@ export default class YAxis extends AxisBase {
   protected mMinWidth: number = 0;
   /**
    * the maximum width that the axis can take (in vp).
-   * use Inifinity for disabling the maximum
+   * use Infinity for disabling the maximum
    * default: Float.POSITIVE_INFINITY (no maximum specified)
    */
   protected mMaxWidth: number = Number.POSITIVE_INFINITY;

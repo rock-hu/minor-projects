@@ -23,6 +23,8 @@ class TextAreaNodeDelegate {
 class TextAreaNode : public TextInputNodeBase {
  private:
   bool m_autofocus{false};
+  bool m_setTextContent{false};
+  std::string m_textContent;
  protected:
   TextAreaNodeDelegate* m_textAreaNodeDelegate;
 
@@ -75,6 +77,8 @@ class TextAreaNode : public TextInputNodeBase {
   void setInputFilter(std::string const& inputFilter);
 
   void setAutoFocus(bool const &autoFocus);
+
+  void setSelectAll(bool selectAll);
 
   bool getTextFocusStatus();
 

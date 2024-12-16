@@ -90,6 +90,7 @@ export default class HorizontalBarHighlighter extends BarHighlighter {
         e.getX(), e.getY(), dataSetIndex, 0, 0,
         pixels.x, pixels.y,
         set.getAxisDependency()));
+      MPPointD.recycleInstance(pixels);
     }
 
     return highlights;

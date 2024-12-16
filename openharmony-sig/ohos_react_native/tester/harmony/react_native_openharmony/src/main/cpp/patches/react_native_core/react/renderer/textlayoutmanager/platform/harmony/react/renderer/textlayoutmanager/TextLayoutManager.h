@@ -33,6 +33,7 @@ class TextLayoutManagerDelegate {
     virtual std::vector<OH_Drawing_LineMetrics> getLineMetrics(AttributedString const& attributedString,
                                     ParagraphAttributes const& paragraphAttributes,
                                     LayoutConstraints const& layoutConstraints) = 0;
+    virtual float getDPI() = 0;
 };
 
 /*
@@ -59,6 +60,8 @@ class TextLayoutManager {
         ParagraphAttributes paragraphAttributes,
         LayoutConstraints layoutConstraints,
         std::shared_ptr<void> hostTextStorage) const;
+    
+    float getDPI() const;
 
     /*
    * Measures lines of `attributedString` using native text rendering

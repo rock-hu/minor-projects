@@ -28,6 +28,7 @@ class ScrollViewComponentInstance
   bool m_persistentScrollbar = false;
   long long m_lastScrollDispatchTime = 0;
   bool m_allowNextScrollEvent = false;
+  bool m_scrollStartFling = false;
   facebook::react::Float m_scrollEventThrottle = 0;
   bool m_isNativeResponderBlocked = false;
   std::weak_ptr<NativeAnimatedTurboModule> m_nativeAnimatedTurboModule{};

@@ -15,3 +15,6 @@ NativeProject -- 原生工程
 4. 用 DevEco Studio 打开 `NativeProject`，执行 **Sync and Refresh Project**；
 5. 点击右上角的 **run** 启动项目。
 
+# 注意事项
+
+1. 主动调用`windowSizeChange`方法监听屏幕尺寸变化，调用`this.rnInstancesCoordinator?.onWindowSizeChange`设置正确的屏幕尺寸，否则会出现字体size不正常的问题。

@@ -1,8 +1,10 @@
 #pragma once
 #include <react/renderer/components/view/ViewShadowNode.h>
+#include "ComponentInstance.h"
 #include "RNOH/CppComponentInstance.h"
 #include "RNOH/arkui/ArkUINode.h"
-#include "arkui/ArkUINode.h"
+#include "arkui/NodeContentHandle.h"
+#include "arkui/StackNode.h"
 
 namespace rnoh {
 /**
@@ -10,45 +12,60 @@ namespace rnoh {
  * It is used for backward compatibility reasons with ArkTS-based architecture.
  */
 class FallbackComponentInstance
-    : public CppComponentInstance<facebook::react::ViewShadowNode>,
-      public ArkUINodeDelegate {
+    : public CppComponentInstance<facebook::react::ViewShadowNode> {
  private:
+  // NOTE: the order matters. `m_arkUINode` must be deleted before
+  // `m_arkUIBuilderNodeDeleter`
+  folly::Function<void()> m_arkUIBuilderNodeDeleter;
   std::unique_ptr<ArkUINode> m_arkUINode;
-  std::function<void()> m_arkUIBuilderNodeDestroyer;
+  StackNode m_stackNode;
+  NodeContentHandle m_contentHandle;
 
  public:
   FallbackComponentInstance(
       Context ctx,
       std::unique_ptr<ArkUINode> arkUINode,
-      std::function<void()>&& arkUIBuilderNodeDestroyer)
+      NodeContentHandle contentHandle,
+      folly::Function<void()> arkUIBuilderNodeDeleter)
       : CppComponentInstance(ctx),
+        m_arkUIBuilderNodeDeleter(std::move(arkUIBuilderNodeDeleter)),
         m_arkUINode(std::move(arkUINode)),
-        m_arkUIBuilderNodeDestroyer(std::move(arkUIBuilderNodeDestroyer)) {
+        m_contentHandle(std::move(contentHandle)) {
     m_arkUINode->setArkUINodeDelegate(this);
+    m_stackNode.insertChild(*m_arkUINode, 0);
   };
 
   ArkUINode& getLocalRootArkUINode() override {
-    return *m_arkUINode;
+    return m_stackNode;
   };
 
-  void onArkUINodeDestroy(ArkUINode* node) override {
-    m_arkUIBuilderNodeDestroyer();
+  void onArkUINodeDestroy(ArkUINode* /*node*/) override {
+    m_arkUIBuilderNodeDeleter();
   }
 
-  void setLayout(facebook::react::LayoutMetrics layoutMetrics) override {
-    // Attributes are not set on the C++ side to prevent conflicts with ArkUI
-    // front-end state management.
+  void onLayoutChanged(
+      facebook::react::LayoutMetrics const& layoutMetrics) override {
+    m_stackNode.setLayoutRect(
+      layoutMetrics.frame.origin, layoutMetrics.frame.size, layoutMetrics.pointScaleFactor);
   }
 
  protected:
-  void onPropsChanged(const SharedConcreteProps& props) override {
+  void onPropsChanged(const SharedConcreteProps& /*props*/) override {
     // NOOP: Props are set on ArkTS side.
   }
 
   void onChildInserted(
       ComponentInstance::Shared const& childComponentInstance,
       std::size_t index) override {
-    // The child node is added on the ArkTS side.
+    ComponentInstance::onChildInserted(childComponentInstance, index);
+    m_contentHandle.insertNode(
+        childComponentInstance->getLocalRootArkUINode(), index);
+  }
+
+  void onChildRemoved(
+      ComponentInstance::Shared const& childComponentInstance) override {
+    ComponentInstance::onChildRemoved(childComponentInstance);
+    m_contentHandle.removeNode(childComponentInstance->getLocalRootArkUINode());
   }
 };
 } // namespace rnoh

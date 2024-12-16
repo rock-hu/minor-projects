@@ -343,6 +343,7 @@ void ScrollViewComponentInstance::onScroll() {
 void ScrollViewComponentInstance::onScrollStart() {
   if (m_scrollState == ScrollState::IDLE) {
     m_scrollState = ScrollState::FLING; 
+    m_scrollStartFling = true;
   }
   m_allowNextScrollEvent = false;
 }
@@ -383,7 +384,10 @@ float ScrollViewComponentInstance::onScrollFrameBegin(
     if (m_scrollState == ScrollState::SCROLL) {
       emitOnScrollEndDragEvent();
     } else if (m_scrollState == ScrollState::FLING) {
-      emitOnMomentumScrollEndEvent();
+      if (!m_scrollStartFling) {
+        emitOnMomentumScrollEndEvent();
+      }
+      m_scrollStartFling = false;
     }
     auto scrollViewMetrics = getScrollViewMetrics();
     if (scrollState == ScrollState::SCROLL) {

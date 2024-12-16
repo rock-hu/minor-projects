@@ -980,6 +980,7 @@ extends Chart<T> implements BarLineScatterCandleBubbleDataProvider {
     if (center) {
       this.mViewPortHandler.zoom(scaleX, scaleY, center.x, -center.y, save);
       this.mViewPortHandler.refresh(save, this, false);
+      MPPointF.recycleInstance(center);
     }
   }
 

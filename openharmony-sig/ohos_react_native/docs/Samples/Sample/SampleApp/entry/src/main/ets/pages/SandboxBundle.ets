@@ -76,7 +76,7 @@ export default struct SandBoxApp {
   build() {
     NavDestination() {
       Row() {
-        Text('紫色区域由ArkTs渲染')
+        Text('紫色区域由ArkTS渲染')
           .fontSize(30)
           .fontWeight(30)
           .margin({ top: 10 })

@@ -219,6 +219,26 @@
     {
       "name": "test_data",
       "value": "test data:"
+    },
+    {
+      "name": "placeholder_area",
+      "value": "placeholder area"
+    },
+    {
+      "name": "hitTestModeDefault",
+      "value": "HitTestMode.Default"
+    },
+    {
+      "name": "hitTestModeBlock",
+      "value": "HitTestMode.Block"
+    },
+    {
+      "name": "hitTestModeTransparent",
+      "value": "hitTestMode.Transparent"
+    },
+    {
+      "name": "hitTestModeNone",
+      "value": "HitTestMode.None"
     }
   ]
 }

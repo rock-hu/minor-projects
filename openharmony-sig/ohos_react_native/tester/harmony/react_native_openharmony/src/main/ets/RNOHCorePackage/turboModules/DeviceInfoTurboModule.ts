@@ -20,6 +20,7 @@ export class DeviceInfoTurboModule extends TurboModule {
     const updateDisplayMetrics = () => {
       this.displayMetrics = this.ctx.getDisplayMetrics();
       this.ctx.rnInstance.emitDeviceEvent("didUpdateDimensions", this.displayMetrics);
+      this.ctx.rnInstance.postMessageToCpp("CONFIGURATION_UPDATE",this.displayMetrics);
     }
     this.cleanUpCallbacks.push(
       this.ctx.rnInstance.subscribeToLifecycleEvents("CONFIGURATION_UPDATE", updateDisplayMetrics)

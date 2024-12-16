@@ -10,10 +10,10 @@ import {
   TraceJSBundleProviderDecorator,
   RNOHCoreContext
 } from '@rnoh/react-native-openharmony';
-import { PropsDisplayer, SampleView, GeneratedSampleView, CodegenLibSampleArkTSComponent } from 'rnoh-sample-package';
+import { PropsDisplayer, SampleView, GeneratedSampleView, CodegenLibSampleArkTSComponent, ContainerView } from '@rnoh/sample-package';
 import { createRNPackages } from '../RNPackagesFactory';
 
-const arkTsComponentNames: Array<string> = [SampleView.NAME, GeneratedSampleView.NAME, PropsDisplayer.NAME, CodegenLibSampleArkTSComponent.NAME];
+const arkTsComponentNames: Array<string> = [SampleView.NAME, GeneratedSampleView.NAME, PropsDisplayer.NAME, CodegenLibSampleArkTSComponent.NAME, ContainerView.NAME];
 @Builder
 export function buildCustomRNComponent(ctx: ComponentBuilderContext) {
   // There seems to be a problem with the placement of ArkTS components in mixed mode. Nested Stack temporarily avoided.
@@ -38,6 +38,12 @@ export function buildCustomRNComponent(ctx: ComponentBuilderContext) {
     }
     if (ctx.componentName === CodegenLibSampleArkTSComponent.NAME) {
       CodegenLibSampleArkTSComponent({
+        ctx: ctx.rnComponentContext,
+        tag: ctx.tag
+      })
+    }
+    if (ctx.componentName === ContainerView.NAME) {
+      ContainerView({
         ctx: ctx.rnComponentContext,
         tag: ctx.tag
       })

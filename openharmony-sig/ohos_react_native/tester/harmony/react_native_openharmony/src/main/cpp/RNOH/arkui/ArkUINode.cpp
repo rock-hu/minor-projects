@@ -3,14 +3,141 @@
 #include <arkui/native_type.h>
 #include <bits/alltypes.h>
 #include <algorithm>
-#include "ArkUINodeRegistry.h"
 #include "NativeNodeApi.h"
+#include "RNOH/Assert.h"
 #include "conversions.h"
 
 namespace rnoh {
 
+const std::unordered_map<std::string, ArkUI_NodeType> NODE_TYPE_BY_ROLE_NAME = {
+    {"button", ARKUI_NODE_BUTTON},
+    {"togglebutton", ARKUI_NODE_TOGGLE},
+    {"search", ARKUI_NODE_TEXT_INPUT},
+    {"image", ARKUI_NODE_IMAGE},
+    {"text", ARKUI_NODE_TEXT},
+    {"adjustable", ARKUI_NODE_SLIDER},
+    {"imagebutton", ARKUI_NODE_BUTTON},
+    {"checkbox", ARKUI_NODE_CHECKBOX},
+    {"menuitem", ARKUI_NODE_LIST_ITEM},
+    {"progressbar", ARKUI_NODE_PROGRESS},
+    {"radio", ARKUI_NODE_RADIO},
+    {"scrollbar", ARKUI_NODE_SCROLL},
+    {"switch", ARKUI_NODE_TOGGLE},
+    {"list", ARKUI_NODE_LIST},
+    {"cell", ARKUI_NODE_GRID_ITEM},
+    {"grid", ARKUI_NODE_GRID},
+    {"img", ARKUI_NODE_IMAGE},
+    {"listitem", ARKUI_NODE_LIST_ITEM},
+    {"marquee", ARKUI_NODE_IMAGE_ANIMATOR},
+    {"meter", ARKUI_NODE_PROGRESS},
+    {"option", ARKUI_NODE_LIST_ITEM},
+    {"row", ARKUI_NODE_ROW},
+    {"searchbox", ARKUI_NODE_TEXT_INPUT},
+    {"slider", ARKUI_NODE_SLIDER},
+    {"table", ARKUI_NODE_GRID},
+};
+
+std::optional<ArkUI_NodeType> roleNameToNodeType(const std::string& roleName) {
+  auto it = NODE_TYPE_BY_ROLE_NAME.find(roleName);
+  if (it != NODE_TYPE_BY_ROLE_NAME.end()) {
+    return it->second;
+  }
+  return std::nullopt;
+}
+
+const std::unordered_map<std::string, ArkUI_AccessibilityActionType>
+    ACTION_TYPE_BY_NAME = {
+        {"activate", ARKUI_ACCESSIBILITY_ACTION_CLICK},
+        {"longpress", ARKUI_ACCESSIBILITY_ACTION_LONG_CLICK},
+        {"cut", ARKUI_ACCESSIBILITY_ACTION_CUT},
+        {"copy", ARKUI_ACCESSIBILITY_ACTION_COPY},
+        {"paste", ARKUI_ACCESSIBILITY_ACTION_PASTE},
+};
+
+std::optional<ArkUI_AccessibilityActionType> actionNameToType(
+    const std::string& name) {
+  auto it = ACTION_TYPE_BY_NAME.find(name);
+  if (it != ACTION_TYPE_BY_NAME.end()) {
+    return it->second;
+  } else {
+    return std::nullopt;
+  }
+}
+
+std::optional<std::string> actionTypeToName(
+    ArkUI_AccessibilityActionType type) {
+  for (const auto& pair : ACTION_TYPE_BY_NAME) {
+    if (pair.second == type) {
+      return pair.first;
+    }
+  }
+  return std::nullopt;
+}
+
+static constexpr std::array NODE_EVENT_TYPES{
+    NODE_ON_ACCESSIBILITY_ACTIONS,
+};
+
+static std::unordered_map<ArkUI_NodeHandle, ArkUINode*> NODE_BY_HANDLE;
+
+static void receiveEvent(ArkUI_NodeEvent* event) {
+#ifdef C_API_ARCH
+  try {
+    auto eventType = OH_ArkUI_NodeEvent_GetEventType(event);
+    auto node = OH_ArkUI_NodeEvent_GetNodeHandle(event);
+    auto it = NODE_BY_HANDLE.find(node);
+    if (it == NODE_BY_HANDLE.end()) {
+      DLOG(WARNING) << "Node with handle: " << node << " not found";
+      return;
+    }
+    auto target = it->second;
+
+    if (eventType == ArkUI_NodeEventType::NODE_TOUCH_EVENT) {
+      // Node Touch events are handled in UIInputEventHandler instead
+      return;
+    }
+
+    auto componentEvent = OH_ArkUI_NodeEvent_GetNodeComponentEvent(event);
+    if (componentEvent != nullptr) {
+      target->onNodeEvent(eventType, componentEvent->data);
+      return;
+    }
+    auto eventString = OH_ArkUI_NodeEvent_GetStringAsyncEvent(event);
+    if (eventString != nullptr) {
+      target->onNodeEvent(eventType, std::string_view(eventString->pStr));
+      return;
+    }
+
+  } catch (std::exception& e) {
+    LOG(ERROR) << e.what();
+  }
+#endif
+}
+
 ArkUINode::ArkUINode(ArkUI_NodeHandle nodeHandle) : m_nodeHandle(nodeHandle) {
-  ArkUINodeRegistry::getInstance().registerNode(this);
+  RNOH_ASSERT(nodeHandle != nullptr);
+  maybeThrow(NativeNodeApi::getInstance()->addNodeEventReceiver(
+      m_nodeHandle, receiveEvent));
+  NODE_BY_HANDLE.emplace(m_nodeHandle, this);
+  for (auto eventType : NODE_EVENT_TYPES) {
+    this->registerNodeEvent(eventType);
+  }
+}
+
+ArkUINode::~ArkUINode() noexcept {
+  for (auto eventType : NODE_EVENT_TYPES) {
+    this->unregisterNodeEvent(eventType);
+  }
+  if (m_arkUINodeDelegate != nullptr) {
+    m_arkUINodeDelegate->onArkUINodeDestroy(this);
+  }
+  auto it = NODE_BY_HANDLE.find(m_nodeHandle);
+  if (it != NODE_BY_HANDLE.end()) {
+    NODE_BY_HANDLE.erase(it);
+  }
+  NativeNodeApi::getInstance()->removeNodeEventReceiver(
+      m_nodeHandle, receiveEvent);
+  NativeNodeApi::getInstance()->disposeNode(m_nodeHandle);
 }
 
 void ArkUINode::setArkUINodeDelegate(ArkUINodeDelegate* delegate) {
@@ -29,6 +156,13 @@ ArkUINode& ArkUINode::operator=(ArkUINode&& other) noexcept {
 
 ArkUI_NodeHandle ArkUINode::getArkUINodeHandle() {
   return m_nodeHandle;
+}
+
+std::string ArkUINode::getId() const {
+  auto idItem =
+      NativeNodeApi::getInstance()->getAttribute(m_nodeHandle, NODE_ID);
+  RNOH_ASSERT(idItem != nullptr);
+  return idItem->string;
 }
 
 void ArkUINode::markDirty() {
@@ -144,14 +278,14 @@ ArkUINode& ArkUINode::setBorderWidth(
 ArkUINode& ArkUINode::setBorderColor(
     facebook::react::BorderColors const& borderColors) {
   uint32_t borderTopColor = 0xff000000;
-  uint32_t bordeRightColor = 0xff000000;
+  uint32_t borderRightColor = 0xff000000;
   uint32_t borderBottomColor = 0xff000000;
   uint32_t borderLeftColor = 0xff000000;
   if (borderColors.top) {
     borderTopColor = (uint32_t)*borderColors.top;
   }
   if (borderColors.right) {
-    bordeRightColor = (uint32_t)*borderColors.right;
+    borderRightColor = (uint32_t)*borderColors.right;
   }
   if (borderColors.bottom) {
     borderBottomColor = (uint32_t)*borderColors.bottom;
@@ -161,7 +295,7 @@ ArkUINode& ArkUINode::setBorderColor(
   }
   ArkUI_NumberValue borderColorValue[] = {
       {.u32 = borderTopColor},
-      {.u32 = bordeRightColor},
+      {.u32 = borderRightColor},
       {.u32 = borderBottomColor},
       {.u32 = borderLeftColor}};
 
@@ -262,12 +396,78 @@ ArkUINode& ArkUINode::setHitTestMode(
   return *this;
 }
 
+ArkUINode& ArkUINode::setAccessibilityRole(std::string const& roleName) {
+  if (roleName == "none") {
+    NativeNodeApi::getInstance()->resetAttribute(
+        m_nodeHandle, NODE_ACCESSIBILITY_ROLE);
+    return *this;
+  }
+  std::optional<ArkUI_NodeType> maybeNodeType = roleNameToNodeType(roleName);
+  if (!maybeNodeType.has_value()) {
+    DLOG(WARNING) << "Unsupported accessibility role: " << roleName;
+    NativeNodeApi::getInstance()->resetAttribute(
+        m_nodeHandle, NODE_ACCESSIBILITY_ROLE);
+    return *this;
+  }
+  auto nodeType = maybeNodeType.value();
+  ArkUI_NumberValue value[] = {{.u32 = nodeType}};
+  ArkUI_AttributeItem attr = {
+      .value = value, .size = sizeof(nodeType) / sizeof(ArkUI_NumberValue)};
+  maybeThrow(NativeNodeApi::getInstance()->setAttribute(
+      m_nodeHandle, NODE_ACCESSIBILITY_ROLE, &attr));
+  return *this;
+}
+
+ArkUINode& ArkUINode::setAccessibilityActions(
+    const std::vector<facebook::react::AccessibilityAction>& rnActions) {
+  std::vector<ArkUI_NumberValue> actionTypes;
+  actionTypes.reserve(rnActions.size());
+  for (const auto& rnAction : rnActions) {
+    auto actionType = actionNameToType(rnAction.name);
+    if (!actionType.has_value()) {
+      DLOG(WARNING) << "Unsupported accessibility action: " << rnAction.name;
+      continue;
+    }
+    actionTypes.push_back({.u32 = actionType.value()});
+  }
+  if (actionTypes.empty()) {
+    maybeThrow(NativeNodeApi::getInstance()->resetAttribute(
+        m_nodeHandle, NODE_ACCESSIBILITY_ACTIONS));
+  } else {
+    ArkUI_AttributeItem attr = {
+        .value = actionTypes.data(),
+        .size = static_cast<int32_t>(actionTypes.size())};
+    maybeThrow(NativeNodeApi::getInstance()->setAttribute(
+        m_nodeHandle, NODE_ACCESSIBILITY_ACTIONS, &attr));
+  }
+  return *this;
+}
+
 ArkUINode& ArkUINode::setAccessibilityDescription(
     std::string const& accessibilityDescription) {
   ArkUI_AttributeItem descriptionItem = {
       .string = accessibilityDescription.c_str()};
   maybeThrow(NativeNodeApi::getInstance()->setAttribute(
       m_nodeHandle, NODE_ACCESSIBILITY_DESCRIPTION, &descriptionItem));
+  return *this;
+}
+
+ArkUINode& ArkUINode::setAccessibilityState(
+    const facebook::react::AccessibilityState& rnState) {
+  std::unique_ptr<
+      ArkUI_AccessibilityState,
+      decltype(&OH_ArkUI_AccessibilityState_Dispose)>
+      state(
+          OH_ArkUI_AccessibilityState_Create(),
+          OH_ArkUI_AccessibilityState_Dispose);
+  OH_ArkUI_AccessibilityState_SetDisabled(state.get(), rnState.disabled);
+  OH_ArkUI_AccessibilityState_SetCheckedState(
+      state.get(),
+      rnState.checked == facebook::react::AccessibilityState::Checked);
+  OH_ArkUI_AccessibilityState_SetSelected(state.get(), rnState.selected);
+  ArkUI_AttributeItem item = {.object = state.get()};
+  maybeThrow(NativeNodeApi::getInstance()->setAttribute(
+      m_nodeHandle, NODE_ACCESSIBILITY_STATE, &item));
   return *this;
 }
 
@@ -458,7 +658,25 @@ ArkUINode& ArkUINode::resetAccessibilityText() {
 
 void ArkUINode::onNodeEvent(
     ArkUI_NodeEventType eventType,
-    EventArgs& eventArgs) {}
+    EventArgs& eventArgs) {
+  switch (eventType) {
+    case ArkUI_NodeEventType::NODE_ON_ACCESSIBILITY_ACTIONS: {
+      auto maybeActionName = actionTypeToName(
+          static_cast<ArkUI_AccessibilityActionType>(eventArgs[0].u32));
+      if (!maybeActionName.has_value()) {
+        DLOG(WARNING) << "Unsupported action type: " << eventArgs[0].u32;
+        return;
+      }
+      auto actionName = maybeActionName.value();
+      if (m_arkUINodeDelegate == nullptr) {
+        DLOG(WARNING) << "Cancelled " << actionName << " — delegate is nullptr";
+        return;
+      }
+      m_arkUINodeDelegate->onArkUINodeAccessibilityAction(this, actionName);
+      break;
+    }
+  }
+}
 
 void ArkUINode::onNodeEvent(
     ArkUI_NodeEventType eventType,
@@ -520,14 +738,13 @@ ArkUI_IntOffset ArkUINode::getLayoutPosition() {
   return NativeNodeApi::getInstance()->getLayoutPosition(m_nodeHandle);
 }
 
-ArkUINode::~ArkUINode() {
-  if (m_nodeHandle != nullptr) {
-    ArkUINodeRegistry::getInstance().unregisterNode(this);
-    NativeNodeApi::getInstance()->disposeNode(m_nodeHandle);
-  }
-  if (m_arkUINodeDelegate != nullptr) {
-    m_arkUINodeDelegate->onArkUINodeDestroy(this);
-  }
+void ArkUINode::registerNodeEvent(ArkUI_NodeEventType eventType) {
+  maybeThrow(NativeNodeApi::getInstance()->registerNodeEvent(
+      m_nodeHandle, eventType, eventType, this));
+}
+
+void ArkUINode::unregisterNodeEvent(ArkUI_NodeEventType eventType) {
+  NativeNodeApi::getInstance()->unregisterNodeEvent(m_nodeHandle, eventType);
 }
 
 const ArkUI_AttributeItem& ArkUINode::getAttribute(
@@ -550,4 +767,29 @@ ArkUINode& ArkUINode::setDirection(ArkUI_Direction direction) {
       m_nodeHandle, NODE_DIRECTION, &item));
   return *this;
 }
+
+void ArkUINode::setAttribute(
+    ArkUI_NodeAttributeType attribute,
+    ArkUI_AttributeItem const& item) 
+{
+    maybeThrow(NativeNodeApi::getInstance()->setAttribute(
+        m_nodeHandle, attribute, &item));
+}
+
+void ArkUINode::setAttribute(
+    ArkUI_NodeAttributeType attribute,
+    std::initializer_list<ArkUI_NumberValue> values) 
+{
+    int32_t size = values.size();
+    ArkUI_AttributeItem item{.value = std::data(values), .size = size};
+    setAttribute(attribute, item);
+}
+
+ArkUINode& ArkUINode::setAccessibilityMode(ArkUI_AccessibilityMode mode) 
+{
+    ArkUI_NumberValue value = {.i32 = mode};
+    setAttribute(NODE_ACCESSIBILITY_MODE, {value});
+    return *this;
+}
+
 } // namespace rnoh

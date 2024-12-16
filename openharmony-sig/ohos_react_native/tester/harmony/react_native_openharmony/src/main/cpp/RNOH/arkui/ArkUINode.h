@@ -13,7 +13,6 @@
 #include <react/renderer/graphics/Rect.h>
 #include <react/renderer/graphics/Transform.h>
 #include <stdexcept>
-#include "ArkUINodeRegistry.h"
 #include "glog/logging.h"
 #include "react/renderer/components/view/primitives.h"
 
@@ -26,12 +25,17 @@ enum class ArkuiHitTestMode : int32_t {
   TRANSPARENT,
   NONE,
 };
-}
+} // namespace
+
+class ArkUINode;
 
 class ArkUINodeDelegate {
  public:
   virtual ~ArkUINodeDelegate() = default;
   virtual void onArkUINodeDestroy(ArkUINode* /*node*/){};
+  virtual void onArkUINodeAccessibilityAction(
+      ArkUINode* node,
+      const std::string& actionName){};
 };
 
 class ArkUINode {
@@ -43,6 +47,8 @@ class ArkUINode {
 
   ArkUINode& operator=(ArkUINode&& other) noexcept;
   ArkUINode(ArkUINode&& other) noexcept;
+
+  using EventArgs = ArkUI_NumberValue[MAX_COMPONENT_EVENT_ARG_NUM];
 
  public:
   using Alignment = ArkUI_Alignment;
@@ -57,6 +63,7 @@ class ArkUINode {
   int32_t getSavedWidth();
   int32_t getSavedHeight();
 
+  virtual ArkUINode& setAccessibilityRole(std::string const& role);
   virtual ArkUINode& setPosition(facebook::react::Point const& position);
   virtual ArkUINode& setSize(facebook::react::Size const& size);
   virtual ArkUINode& setLayoutRect(
@@ -86,14 +93,20 @@ class ArkUINode {
       facebook::react::Float pointScaleFactor);
   virtual ArkUINode& setHitTestMode(
       facebook::react::PointerEventsMode const& pointerEvents);
+  virtual ArkUINode& setAccessibilityActions(
+      const std::vector<facebook::react::AccessibilityAction>& rnActions);
   virtual ArkUINode& setAccessibilityDescription(
       std::string const& accessibilityDescription);
+  virtual ArkUINode& setAccessibilityState(
+      const facebook::react::AccessibilityState& state);
   virtual ArkUINode& setAccessibilityLevel(
       facebook::react::ImportantForAccessibility importance);
   virtual ArkUINode& setAccessibilityText(
       std::string const& accessibilityLabel);
   virtual ArkUINode& setAccessibilityGroup(bool accessible);
+  virtual ArkUINode& setAccessibilityMode(ArkUI_AccessibilityMode mode);
   virtual ArkUINode& setId(std::string const& id);
+  virtual std::string getId() const;  
   virtual ArkUINode& setOpacity(facebook::react::Float opacity);
   virtual ArkUINode& setClip(bool clip);
   virtual ArkUINode& setAlignment(Alignment alignment);
@@ -128,11 +141,18 @@ class ArkUINode {
       ArkUI_NodeEventType eventType,
       std::string_view eventString);
 
-  virtual ~ArkUINode();
+  virtual ~ArkUINode() noexcept;
 
  protected:
   void maybeThrow(int32_t status) {
     // TODO: map status to error message, maybe add a new error type
+    static const auto ARKUI_ERROR_CODE_NOT_SUPPORTED_FOR_ARKTS_NODE = 106103;
+    if (status == ARKUI_ERROR_CODE_NOT_SUPPORTED_FOR_ARKTS_NODE) {
+      // This is a quick fix for a problem that has arisen after updating the
+      // ROM and SDK.
+      LOG(WARNING) << "Couldn't set a property on ArkTS node";
+      return;
+    }
     if (status != 0) {
       auto message = std::string("ArkUINode operation failed with status: ") +
           std::to_string(status);
@@ -140,9 +160,27 @@ class ArkUINode {
       throw std::runtime_error(std::move(message));
     }
   }
-
+    
+  void registerNodeEvent(ArkUI_NodeEventType eventType);
+  void unregisterNodeEvent(ArkUI_NodeEventType eventType);  
   const ArkUI_AttributeItem& getAttribute(
       ArkUI_NodeAttributeType attribute) const;
+
+  void setAttribute(
+      ArkUI_NodeAttributeType attribute,
+      ArkUI_AttributeItem const& item);
+
+  void setAttribute(
+      ArkUI_NodeAttributeType attribute,
+      std::initializer_list<ArkUI_NumberValue> values);
+
+  template <size_t N>
+  void setAttribute(
+      ArkUI_NodeAttributeType attribute,
+      std::array<ArkUI_NumberValue, N> const& values) {
+    ArkUI_AttributeItem item{.value = values.data(), .size = N};
+    setAttribute(attribute, item);
+  }
 
   ArkUI_NodeHandle m_nodeHandle;
 

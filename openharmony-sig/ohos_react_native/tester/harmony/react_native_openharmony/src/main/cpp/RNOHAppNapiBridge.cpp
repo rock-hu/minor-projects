@@ -1,4 +1,3 @@
-#include <ace/xcomponent/native_interface_xcomponent.h>
 #include <cxxreact/JSExecutor.h>
 #include <js_native_api.h>
 #include <js_native_api_types.h>
@@ -642,59 +641,47 @@ static napi_value onArkTSMessage(napi_env env, napi_callback_info info) {
   return arkJs.getUndefined();
 }
 
-static void registerNativeXComponent(napi_env env, napi_value exports) {
-if ((env == nullptr) || (exports == nullptr)) {
-    LOG(ERROR) << "registerNativeXComponent: env or exports is null"
-               << "\n";
-    return;
-  }
 
-  napi_value exportInstance = nullptr;
-  if (napi_get_named_property(
-          env, exports, OH_NATIVE_XCOMPONENT_OBJ, &exportInstance) != napi_ok) {
-    LOG(ERROR) << "registerNativeXComponent: napi_get_named_property fail"
-               << "\n";
-    return;
-  }
+static napi_value attachRootView(napi_env env, napi_callback_info info) {
+  return invoke(env, [&] {
+    ArkJS arkJS(env);
+    auto args = arkJS.getCallbackArgs(info, 3);
+    auto instanceId = arkJS.getInteger(args[0]);
+    auto surfaceId = arkJS.getInteger(args[1]);
+    auto nodeContentHandle = NodeContentHandle::fromNapiValue(env, args[2]);
+    auto rnInstance = maybeGetInstanceById(instanceId);
+    if (!rnInstance) {
+      return arkJS.createFromRNOHError(
+          RNOHError("Failed to get the RNInstance"));
+    }
+    auto rnInstanceCAPIRawPtr =
+        std::dynamic_pointer_cast<RNInstanceCAPI>(rnInstance);
+    if (rnInstanceCAPIRawPtr != nullptr) {
+      rnInstanceCAPIRawPtr->attachRootView(
+          std::move(nodeContentHandle), surfaceId);
+    }
+    return arkJS.getNull();
+  });
+}
 
-  OH_NativeXComponent* nativeXComponent = nullptr;
-  if (napi_unwrap(
-          env, exportInstance, reinterpret_cast<void**>(&nativeXComponent)) !=
-      napi_ok) {
-    LOG(ERROR) << "registerNativeXComponent: napi_unwrap fail"
-               << "\n";
-    return;
-  }
-
-  char idStr[OH_XCOMPONENT_ID_LEN_MAX + 1] = {'\0'};
-  uint64_t idSize = OH_XCOMPONENT_ID_LEN_MAX + 1;
-  if (OH_NativeXComponent_GetXComponentId(nativeXComponent, idStr, &idSize) !=
-      OH_NATIVEXCOMPONENT_RESULT_SUCCESS) {
-    LOG(ERROR)
-        << "registerNativeXComponent: OH_NativeXComponent_GetXComponentId fail"
-        << "\n";
-    return;
-  }
-  std::string xcomponentStr(idStr);
-  std::stringstream ss(xcomponentStr);
-  std::string instanceId;
-  std::getline(ss, instanceId, '_');
-  std::string surfaceId;
-  std::getline(ss, surfaceId, '_');
-  size_t instanceIdNum = std::stod(instanceId, nullptr);
-  if (RN_INSTANCE_BY_ID.find(instanceIdNum) == RN_INSTANCE_BY_ID.end()) {
-    LOG(ERROR) << "RNInstance with the following id "
-               << std::to_string(instanceIdNum) << " does not exist";
-    return;
-  }
-  auto& rnInstance = RN_INSTANCE_BY_ID.at(instanceIdNum);
-
-  auto* rnInstanceCPIRawPtr = dynamic_cast<RNInstanceCAPI*>(rnInstance.get());
-  if (rnInstanceCPIRawPtr != nullptr) {
-    rnInstanceCPIRawPtr->registerNativeXComponentHandle(
-        nativeXComponent, std::stoi(surfaceId));
-  }
-  DLOG(INFO) << "registerNativeXComponent: id = " << instanceId << "\n";
+static napi_value detachRootView(napi_env env, napi_callback_info info) {
+  return invoke(env, [&] {
+    ArkJS arkJS(env);
+    auto args = arkJS.getCallbackArgs(info, 2);
+    auto instanceId = arkJS.getInteger(args[0]);
+    auto surfaceId = arkJS.getInteger(args[1]);
+    auto rnInstance = maybeGetInstanceById(instanceId);
+    if (!rnInstance) {
+      return arkJS.createFromRNOHError(
+          RNOHError("Failed to get the RNInstance"));
+    }
+    auto rnInstanceCAPIRawPtr =
+        std::dynamic_pointer_cast<RNInstanceCAPI>(rnInstance);
+    if (rnInstanceCAPIRawPtr != nullptr) {
+      rnInstanceCAPIRawPtr->detachRootView(surfaceId);
+    }
+    return arkJS.getNull();
+  });
 }
 
 static napi_value setBundlePath(napi_env env, napi_callback_info info)
@@ -734,6 +721,31 @@ static napi_value registerFont(napi_env env, napi_callback_info info) {
     return arkJS.getUndefined();
   });
 }
+
+static napi_value getNativeNodeIdByTag(napi_env env, napi_callback_info info) {
+  return invoke(env, [&] {
+    ArkJS arkJs(env);
+    auto args = arkJs.getCallbackArgs(info, 2);
+    size_t instanceId = arkJs.getDouble(args[0]);
+    // auto lock = std::lock_guard<std::mutex>(rnInstanceByIdMutex);
+    // auto it = rnInstanceById.find(instanceId);
+    // if (it == rnInstanceById.end()) {
+    auto lock = std::lock_guard<std::mutex>(RN_INSTANCE_BY_ID_MTX);
+    auto it = RN_INSTANCE_BY_ID.find(instanceId);
+    if (it == RN_INSTANCE_BY_ID.end()) {
+      return arkJs.getUndefined();
+    }
+    auto rnInstanceCapi = std::dynamic_pointer_cast<RNInstanceCAPI>(it->second);
+    if (rnInstanceCapi == nullptr) {
+      return arkJs.getUndefined();
+    }
+    auto tag = arkJs.getDouble(args[1]);
+    auto nativeNodeId = rnInstanceCapi->getNativeNodeIdByTag(tag);
+    return nativeNodeId.has_value() ? arkJs.createString(nativeNodeId.value())
+                                    : arkJs.getUndefined();
+  });
+}
+
 
 EXTERN_C_START
 static napi_value Init(napi_env env, napi_value exports) {
@@ -921,12 +933,34 @@ static napi_value Init(napi_env env, napi_value exports) {
        nullptr,
        nullptr,
        napi_default,
+       nullptr},
+       {"getNativeNodeIdByTag",
+       nullptr,
+       ::getNativeNodeIdByTag,
+       nullptr,
+       nullptr,
+       nullptr,
+       napi_default,
+       nullptr},
+       {"attachRootView",
+       nullptr,
+       ::attachRootView,
+       nullptr,
+       nullptr,
+       nullptr,
+       napi_default,
+       nullptr},
+      {"detachRootView",
+       nullptr,
+       ::detachRootView,
+       nullptr,
+       nullptr,
+       nullptr,
+       napi_default,
        nullptr}};
 
   napi_define_properties(
       env, exports, sizeof(desc) / sizeof(napi_property_descriptor), desc);
-  registerNativeXComponent(
-      env, exports); // NOTE: shouldn't this be called when creating surface?
   return exports;
 }
 EXTERN_C_END

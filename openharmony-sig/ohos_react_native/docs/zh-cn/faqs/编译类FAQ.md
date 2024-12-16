@@ -1,5 +1,17 @@
 # 编译类FAQ
 
+## RN偶现崩溃，报"Fault thread info，Name:RNOH_BACKGROUND"错误
+-错误提示  
+```
+Process name:xxxxxxxxxx
+Process life time:1584s
+Reason:Signal:SIGSEGV(SEGV_MAPERR)@xxxxxxxxxxxx
+Fault thread info:
+Tid:xxxx, Name:RNOH_BACKGROUND
+```
+-解决  
+创建`RNInstance`时将`enableBackgroundExecutor`设置成false。
+
 ## 编译时报错，找不到TextLayoutManager 
 - 错误提示
 编译 CPP 的时候报错，在报错信息中搜索 `error` ，发现是 `TextLayoutManager.cpp` 文件找不到了。截图如下:
@@ -9,7 +21,7 @@
 
 ## 找不到generated等文件
 - 错误提示  
-错信息意思是说找不到 `react_native_openharmony/generated/ts` 文件， `react_native_openharmony/generated` 里面的文件是由 Codegen。
+错误信息的意思是说找不到 `react_native_openharmony/generated/ts` 文件， `react_native_openharmony/generated` 里面的文件是由 Codegen生成。
 - 错误截图  
 ![faq-generated](./figures/faq-generated.png)
 - 原因
@@ -28,7 +40,7 @@
 - 原因  
 该问题是没有配置 HarmonyOS 打包参数导致的，请参考[如何配置HarmonyOS打包参数](常见开发场景.md#如何配置harmonyos打包参数)，配置完成后重新打包。
 
-### 找不到HiTrace编译选项
+## 找不到HiTrace编译选项
 - 错误截图  
 ![faq-HiTrace](./figures/faq-HiTrace.png)
 - 原因  
@@ -44,7 +56,7 @@
     ···
     ```
 
-### react-native不是内部或外部命令
+## react-native不是内部或外部命令
 - 解决  
 ![faq-RNnoExist](./figures/faq-RNnoExist.png)  
 该问题为 `npm install` 的时候存在问题，请确认 `package.json` 的正确性，并重新执行以下命令：
@@ -53,7 +65,7 @@
     npm install
     ```
 
-### MAC环境下Cannot find module ‘@react-native/babel-preset’
+## MAC环境下Cannot find module ‘@react-native/babel-preset’
 - 错误截图  
 ![faq-babel-preset](./figures/faq-babel-preset.png)
  - 原因  
@@ -61,7 +73,7 @@
 - 解决  
 您可以将复制的命令格式化之后再执行，或者手动输入创建工程的命令。
 
-### 找不到libhermes.so
+## 找不到libhermes.so
  
 该问题可能会分为以下三种表现情况：
  
@@ -85,7 +97,7 @@
  
 ![faq-libhermes-answer](./figures/faq-libhermes-answer.png)
 
-### RNOH_CAPI_ARCH环境变量相关
+## RNOH_CAPI_ARCH环境变量相关
 
 - 现象
 
@@ -105,7 +117,7 @@
     set(RNOH_C_API_ARCH, 1)
     ```
 
-### Release版本C++编译问题
+## Release版本C++编译问题
 
 - 背景
 
@@ -133,7 +145,7 @@
     - 错误1：根据提示，在 `include_directories` 选项中补充对应三方库的头文件路径。
     - 错误2：三方包得加上 `folly` 编译配置，如 `target_compile_options` (三方库包名 PUBLIC${folly_compile_options})。
 
-### hvigor ERROR：Exceptions happend while excuting：ninja：Entering directory...
+## hvigor ERROR：Exceptions happend while excuting：ninja：Entering directory...
 
 - 现象
 	
@@ -148,7 +160,7 @@
 
     native 工程根目录太深或者工程名称过长，建议将 native 工程目录级别缩短或者尝试将工程命名缩短。
 
-### hvigor ERROR: Failed :entry:default@HotReloadArkTS...
+## hvigor ERROR: Failed :entry:default@HotReloadArkTS...
 
 - 现象
 	
@@ -172,3 +184,69 @@
 
     删除项目中的 `oh_modules` 文件夹，点击同步重新加载。
 
+## ERROR: missing: @rnoh/react-native-openharmony@D:\SampleRN\AwesomeApp\oh_modules\.ohpm\@react-native-oh-tpl+react-native-linear-gradient@boyzfjkz+1u0h9qytn7nrfzxgndfqxrq3gwpaleooou=\oh_modules\@react-native-oh-tpl\react_native_openharmony, required by @react-native-oh-tpl/react-native-linear-gradient@D:\SampleRN\AwesomeApp\libs\linear_gradient.har
+
+- 现象
+
+  在引入RN三方库，或自定义TurboModule/组件的场景下，点击 `flie ---> sync and refresh project` 后报错:
+
+  ![常见开发场景-引入三方库报错](../figures/常见开发场景-引入三方库报错.png)
+
+- 原因
+
+  三方库中需要引入rnoh的依赖。
+
+- 解决
+
+  在工程级oh-package.json5文件下加上以下依赖：
+
+  ```json5
+  {
+    ...
+    "overrides":{
+      "@rnoh/react-native-openharmony":"^X.X.X"
+    }
+  }
+  ```
+
+## release模式，缺失folly编译报错
+- 现象  
+缺失folly，release模式编译报错。
+
+```bash
+CMake Error at CMakeLists.txt:168 (target_link_libraries):
+Attempt to add link library "-DFOLLY_NO_CONFIG=1" to target
+"xxx" which is not built in this directory.
+This is allowed only when policy CMP0079 is set to NEW.
+
+-- Configuring incomplete, errors occurred!
+```
+
+- 解决  
+
+将folly添加到编译构建，在`CMakeLists.txt`中导入缺失的folly。  
+```CMAKE
+target_link_libraries(xxx PUBLIC ${folly_compile_options})
+```
+
+## Release版本编译报找不到<hermes/hermes.h>头文件
+
+- 现象
+
+    ![release编译报头文件缺失](./figures/faq-release编译报头文件缺失.png)
+
+- 原因
+
+    这类错误一般是在使用RN三方库时引入。`hermes/hermes.h` 是裁剪过的路径，编译器根据配置的头文件目录无法找到该文件，因此会编译报错。
+
+- 解决
+
+    在Release版本的RNOH中，头文件已全部抽取出来并放到了 `src/main/include` 文件夹下，如果遇到上述错误，可到 `include` 文件夹下找到对应的文件，并将其路径配置在 `CMakeLists.txt` 的 **include_directories** 里面。例如，对于上述问题，修复方案是：
+    ```diff
+    # 添加头文件目录
+    include_directories(${NATIVERENDER_ROOT_PATH}
+                        ${RNOH_CPP_DIR}
+                        ...
+    +                   ${RNOH_CPP_DIR}/third-party/hermes/API
+                        )
+    ```
