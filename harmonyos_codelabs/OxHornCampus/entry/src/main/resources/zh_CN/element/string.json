@@ -343,6 +343,26 @@
     {
       "name": "distribute_reason",
       "value": "允许应用分布式接续场景中使用不同设备间的数据交换的能力。"
+    },
+    {
+      "name": "startup_page_title",
+      "value": "溪流背坡村"
+    },
+    {
+      "name": "startup_page_desc",
+      "value": "溪村欢迎您"
+    },
+    {
+      "name": "top_text_zone",
+      "value": "区域导览"
+    },
+    {
+      "name": "top_text_train",
+      "value": "小火车"
+    },
+    {
+      "name": "default_search",
+      "value": "A区入口..."
     }
   ]
 }

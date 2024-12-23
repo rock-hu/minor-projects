@@ -59,14 +59,14 @@ export class CommonConstants {
   /**
    * Title text.
    */
-  static readonly SPLASH_DES: string = '溪流背坡村';
-  static readonly SPLASH_WELCOME: string = '溪村欢迎您';
-  static readonly INTRODUCTION_TITLE: string = '区域导览';
-  static readonly TRAIN_TITLE: string = "小火车";
+  static readonly SPLASH_DES: Resource = $r('app.string.startup_page_title');
+  static readonly SPLASH_WELCOME: Resource = $r('app.string.startup_page_desc');
+  static readonly INTRODUCTION_TITLE: Resource = $r('app.string.top_text_zone');
+  static readonly TRAIN_TITLE: Resource = $r('app.string.top_text_train');
   /**
    * Default content in the search box.
    */
-  static readonly PANEL_PLACEHOLDER: string = 'A区入口...';
+  static readonly PANEL_PLACEHOLDER: Resource = $r('app.string.default_search');
   /**
    * Number of columns.
    */
