@@ -134,6 +134,7 @@ public:
     static bool BigIntEquals(JSTaggedType left, JSTaggedType right);
     static bool BigIntSameValueZero(JSTaggedType key, JSTaggedType other);
     static JSTaggedValue JSHClassFindProtoTransitions(JSHClass *cls, JSTaggedValue key, JSTaggedValue proto);
+    static void FinishObjSizeTracking(JSHClass *cls);
     static JSTaggedValue NumberHelperStringToDouble(EcmaString *str);
     static JSTaggedValue GetStringToListCacheArray(uintptr_t argGlue);
     static int FastArraySort(JSTaggedType x, JSTaggedType y);
@@ -155,6 +156,7 @@ public:
     static inline uint32_t RuntimeGetBytecodePcOfstForBaseline(const JSHandle<JSFunction> &func, uintptr_t nativePc);
     static void ReverseTypedArray(JSTypedArray *typedArray);
     static void SortTypedArray(JSTypedArray *typedArray);
+    static inline uintptr_t RuntimeGetNativePcOfstForBaseline(const JSHandle<JSFunction> &func, uint64_t bytecodePos);
 private:
     static void DumpToStreamWithHint(std::ostream &out, std::string_view prompt, JSTaggedValue value);
 

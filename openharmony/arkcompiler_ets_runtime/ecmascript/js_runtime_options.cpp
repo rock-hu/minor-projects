@@ -194,9 +194,11 @@ const std::string PUBLIC_API HELP_OPTION_MSG =
     "--compiler-pgo-force-dump:            Enable pgo dump not interrupted by GC. Default: 'true'\n"
     "--async-load-abc:                     Enable asynchronous load abc. Default: 'true'\n"
     "--async-load-abc-test:                Enable asynchronous load abc test. Default: 'false'\n"
+    "--compiler-enable-store-barrier:      Enable store barrier optimization. Default: 'true'\n"
     "--compiler-enable-concurrent:         Enable concurrent compile(only support in ark_stub_compiler).\n"
     "                                      Default: 'true'\n"
     "--compiler-opt-frame-state-elimination: Enable frame state elimination. Default: 'true'\n"
+    "--enable-inline-property-optimization:  Enable inline property optimization(also enable slack tracking).\n"
     "--compiler-enable-aot-code-comment    Enable generate aot_code_comment.txt file during compilation.\n"
     "                                      Default : 'false'\n\n";
 
@@ -335,9 +337,11 @@ bool JSRuntimeOptions::ParseCommand(const int argc, const char **argv)
         {"compiler-enable-pgo-space", required_argument, nullptr, OPTION_COMPILER_ENABLE_PGO_SPACE},
         {"async-load-abc", required_argument, nullptr, OPTION_ASYNC_LOAD_ABC},
         {"async-load-abc-test", required_argument, nullptr, OPTION_ASYNC_LOAD_ABC_TEST},
+        {"compiler-enable-store-barrier", required_argument, nullptr, OPTION_COMPILER_ENABLE_STORE_BARRIER_OPT},
         {"compiler-enable-concurrent", required_argument, nullptr, OPTION_COMPILER_ENABLE_CONCURRENT},
         {"compiler-opt-frame-state-elimination", required_argument, nullptr,
             OPTION_COMPILER_OPT_FRAME_STATE_ELIMINATION},
+        {"enable-inline-property-optimization", required_argument, nullptr, OPTION_ENABLE_INLINE_PROPERTY_OPTIMIZATION},
         {"compiler-enable-aot-code-comment", required_argument, nullptr, OPTION_COMPILER_ENABLE_AOT_CODE_COMMENT},
         {nullptr, 0, nullptr, 0},
     };
@@ -1295,6 +1299,14 @@ bool JSRuntimeOptions::ParseCommand(const int argc, const char **argv)
                     return false;
                 }
                 break;
+            case OPTION_COMPILER_ENABLE_STORE_BARRIER_OPT:
+                ret = ParseBoolParam(&argBool);
+                if (ret) {
+                    SetStoreBarrierOpt(argBool);
+                } else {
+                    return false;
+                }
+                break;
             case OPTION_COMPILER_PGO_FORCE_DUMP:
                 ret = ParseBoolParam(&argBool);
                 if (ret) {
@@ -1315,6 +1327,14 @@ bool JSRuntimeOptions::ParseCommand(const int argc, const char **argv)
                 ret = ParseBoolParam(&argBool);
                 if (ret) {
                     SetEnableAotCodeComment(argBool);
+                } else {
+                    return false;
+                }
+                break;
+            case OPTION_ENABLE_INLINE_PROPERTY_OPTIMIZATION:
+                 ret = ParseBoolParam(&argBool);
+                if (ret) {
+                    SetEnableInlinePropertyOptimization(argBool);
                 } else {
                     return false;
                 }
@@ -1440,33 +1460,27 @@ void JSRuntimeOptions::BindCPUCoreForTargetCompilation()
 
 void JSRuntimeOptions::SetOptionsForTargetCompilation()
 {
-    if (IsTargetCompilerMode()) {
+    if (IsApplicationCompilation()) {
         SetTargetTriple("aarch64-unknown-linux-gnu");
         SetMaxAotMethodSize(MAX_APP_COMPILE_METHOD_SIZE);
         SetEnableOptTrackField(false);
         SetEnableOptInlining(false);
         SetEnableArrayBoundsCheckElimination(false);
-        if (IsPartialCompilerMode()) {
-            SetEnableOptPGOType(true);
-            if (IsPGOProfilerPathEmpty()) {
-                LOG_ECMA(DEBUG) << "no pgo profile file in partial mode!";
-            }
-        } else {
+        SetCompilerEnableLiteCG(true);
+        SetEnableOptPGOType(true);
+    }
+
+    if (IsTargetCompilerMode()) {
+        if (UNLIKELY(IsFullCompilerMode())) {
             SetEnableOptPGOType(false);
             SetPGOProfilerPath("");
         }
         BindCPUCoreForTargetCompilation();
     }
+
     if (IsCompilerPipelineHostAOT()) {
-        SetTargetTriple("aarch64-unknown-linux-gnu");
-        SetMaxAotMethodSize(MAX_APP_COMPILE_METHOD_SIZE);
-        SetEnableOptTrackField(false);
-        SetEnableOptInlining(false);
-        SetEnableArrayBoundsCheckElimination(false);
-        SetEnableOptPGOType(true);
         SetFastAOTCompileMode(true);
         SetOptLevel(DEFAULT_OPT_LEVEL);
-        SetCompilerEnableLiteCG(true);
         SetEnableLoweringBuiltin(false);
     }
 }

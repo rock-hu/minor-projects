@@ -267,9 +267,14 @@ uintptr_t Heap::AllocateYoungSync(size_t size)
     return activeSemiSpace_->AllocateSync(size);
 }
 
-bool Heap::MoveYoungRegionSync(Region *region)
+bool Heap::MoveYoungRegion(Region *region)
 {
     return activeSemiSpace_->SwapRegion(region, inactiveSemiSpace_);
+}
+
+bool Heap::MoveYoungRegionToOld(Region *region)
+{
+    return oldSpace_->SwapRegion(region, inactiveSemiSpace_);
 }
 
 void Heap::MergeToOldSpaceSync(LocalSpace *localSpace)
@@ -777,7 +782,11 @@ void SharedHeap::TryTriggerConcurrentMarking(JSThread *thread)
     if (!CheckCanTriggerConcurrentMarking(thread)) {
         return;
     }
-    if (GetHeapObjectSize() >= globalSpaceConcurrentMarkLimit_) {
+    bool triggerConcurrentMark = (GetHeapObjectSize() >= globalSpaceConcurrentMarkLimit_);
+    if (triggerConcurrentMark && (OnStartupEvent() || IsJustFinishStartup())) {
+        triggerConcurrentMark = ObjectExceedJustFinishStartupThresholdForCM();
+    }
+    if (triggerConcurrentMark) {
         TriggerConcurrentMarking<TriggerGCType::SHARED_GC, GCReason::ALLOCATION_LIMIT>(thread);
     }
 }

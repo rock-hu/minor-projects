@@ -79,6 +79,9 @@ constexpr int32_t MAX_MISS_COUNT = 3;
 } // namespace
 
 namespace OHOS::Ace::NG {
+namespace {
+constexpr Dimension CARET_AVOID_OFFSET = 24.0_vp;
+} // namespace
 
 std::unordered_set<int32_t> PipelineContext::aliveInstanceSet_;
 
@@ -680,9 +683,15 @@ void PipelineContext::InspectDrew()
         auto needRenderNode = std::move(needRenderNode_);
         for (auto&& nodeWeak : needRenderNode) {
             auto node = nodeWeak.Upgrade();
-            if (node) {
+            if (!node) {
+                return;
+            }
+            if (node->GetInspectorId().has_value()) {
                 OnDrawCompleted(node->GetInspectorId()->c_str());
             }
+            auto eventHub = node->GetEventHub<NG::EventHub>();
+            CHECK_NULL_VOID(eventHub);
+            eventHub->FireDrawCompletedNDKCallback(this);
         }
     }
 }
@@ -765,6 +774,10 @@ void PipelineContext::FlushMessages()
     if (navigationMgr_) {
         navigationMgr_->CacheNavigationNodeAnimation();
     }
+    if (!window_->GetIsRequestFrame()) {
+        ACE_SCOPED_TRACE("smart gc end with no request frame(app_start or push_page)!");
+        ResSchedReport::GetInstance().ResSchedDataReport("page_end_flush", {});
+    }
     window_->FlushTasks();
 }
 
@@ -824,7 +837,7 @@ void PipelineContext::FlushUITaskWithSingleDirtyNode(const RefPtr<FrameNode>& no
 void PipelineContext::FlushAfterLayoutCallbackInImplicitAnimationTask()
 {
     if (AnimationUtils::IsImplicitAnimationOpen()) {
-        TAG_LOGI(AceLogTag::ACE_ANIMATION,
+        TAG_LOGD(AceLogTag::ACE_ANIMATION,
             "Can not flush implicit animation task after layout because implicit animation is open.");
         return;
     }
@@ -1073,8 +1086,12 @@ void PipelineContext::RegisterRootEvent()
 void PipelineContext::SetupRootElement()
 {
     CHECK_RUN_ON(UI);
+    auto rootPattern = ViewAdvancedRegister::GetInstance()->GeneratePattern(V2::ROOT_ETS_TAG);
+    if (!rootPattern) {
+        rootPattern = MakeRefPtr<RootPattern>();
+    }
     rootNode_ = FrameNode::CreateFrameNodeWithTree(
-        V2::ROOT_ETS_TAG, ElementRegister::GetInstance()->MakeUniqueId(), MakeRefPtr<RootPattern>());
+        V2::ROOT_ETS_TAG, ElementRegister::GetInstance()->MakeUniqueId(), rootPattern);
     rootNode_->SetHostRootId(GetInstanceId());
     rootNode_->SetHostPageId(-1);
     rootNode_->SetActive(true);
@@ -1173,8 +1190,12 @@ void PipelineContext::SetupSubRootElement()
 {
     CHECK_RUN_ON(UI);
     appBgColor_ = Color::TRANSPARENT;
+    auto rootPattern = ViewAdvancedRegister::GetInstance()->GeneratePattern(V2::ROOT_ETS_TAG);
+    if (!rootPattern) {
+        rootPattern = MakeRefPtr<RootPattern>();
+    }
     rootNode_ = FrameNode::CreateFrameNodeWithTree(
-        V2::ROOT_ETS_TAG, ElementRegister::GetInstance()->MakeUniqueId(), MakeRefPtr<RootPattern>());
+        V2::ROOT_ETS_TAG, ElementRegister::GetInstance()->MakeUniqueId(), rootPattern);
     rootNode_->SetHostRootId(GetInstanceId());
     rootNode_->SetHostPageId(-1);
     rootNode_->SetActive(true);
@@ -1407,7 +1428,6 @@ void PipelineContext::StartWindowSizeChangeAnimate(int32_t width, int32_t height
             break;
         }
         case WindowSizeChangeReason::ROTATION: {
-            safeAreaManager_->UpdateKeyboardSafeArea(0.0f);
             safeAreaManager_->UpdateKeyboardOffset(0.0);
             SetRootRect(width, height, 0.0);
             FlushUITasks();
@@ -1469,10 +1489,11 @@ void PipelineContext::PostKeyboardAvoidTask()
             weakManager = WeakPtr<TextFieldManagerNG>(textFieldManager)] {
             auto context = weakContext.Upgrade();
             CHECK_NULL_VOID(context);
-            context->OnVirtualKeyboardAreaChange(keyboardRect, positionY, height);
+            context->OnVirtualKeyboardAreaChange(keyboardRect, positionY, height, nullptr, true);
             auto manager = weakManager.Upgrade();
             CHECK_NULL_VOID(manager);
             manager->SetLaterAvoid(false);
+            manager->SetFocusFieldAlreadyTriggerWsCallback(false);
         },
         TaskExecutor::TaskType::UI, "ArkUIVirtualKeyboardAreaChange");
 }
@@ -2168,7 +2189,7 @@ float  PipelineContext::CalcNewKeyboardOffset(float keyboardHeight, float positi
     auto paintOffset = host->GetPaintRectOffset();
     auto frameSize = geometryNode->GetFrameSize();
     auto offset = CalcAvoidOffset(keyboardHeight, paintOffset.GetY() - safeAreaManager_->GetKeyboardOffsetDirectly(),
-        frameSize.Height(), rootSize);
+        frameSize.Height() + CARET_AVOID_OFFSET.ConvertToPx(), rootSize);
     return std::max(offset, newKeyboardOffset);
 }
 
@@ -2364,6 +2385,10 @@ RefPtr<FrameNode> PipelineContext::FindNavigationNodeToHandleBack(const RefPtr<U
 
 bool PipelineContext::SetIsFocusActive(bool isFocusActive, FocusActiveReason reason, bool autoFocusInactive)
 {
+    if (!SystemProperties::GetFocusCanBeActive()) {
+        TAG_LOGI(AceLogTag::ACE_FOCUS, "FocusActive false");
+        return false;
+    }
     auto containerId = Container::CurrentId();
     auto subWindowContainerId = SubwindowManager::GetInstance()->GetSubContainerId(containerId);
     if (subWindowContainerId >= 0) {
@@ -2386,6 +2411,9 @@ bool PipelineContext::SetIsFocusActive(bool isFocusActive, FocusActiveReason rea
     }
     TAG_LOGI(AceLogTag::ACE_FOCUS, "Pipeline focus turns to %{public}s", isFocusActive ? "active" : "inactive");
     isFocusActive_ = isFocusActive;
+    auto focusManager = GetOrCreateFocusManager();
+    CHECK_NULL_RETURN(focusManager, false);
+    focusManager->TriggerFocusActiveChangeCallback(isFocusActive);
     for (auto& pair : isFocusActiveUpdateEvents_) {
         if (pair.second) {
             pair.second(isFocusActive_);
@@ -3545,33 +3573,7 @@ void PipelineContext::OnAxisEvent(const AxisEvent& event, const RefPtr<FrameNode
         formEventMgr->HandleEtsCardAxisEvent(scaleEvent, etsSerializedGesture);
     }
 
-    auto dragManager = GetDragDropManager();
-    if (dragManager && !dragManager->IsDragged()) {
-        if (event.action == AxisAction::BEGIN) {
-            isBeforeDragHandleAxis_ = true;
-            TouchRestrict touchRestrict { TouchRestrict::NONE };
-            touchRestrict.sourceType = event.sourceType;
-            touchRestrict.hitTestType = SourceType::TOUCH;
-            touchRestrict.inputEventType = InputEventType::AXIS;
-            // If received rotate event, no need to touchtest.
-            if (!event.isRotationEvent) {
-                eventManager_->TouchTest(scaleEvent, node, touchRestrict);
-                auto axisTouchTestResults_ = eventManager_->GetAxisTouchTestResults();
-                if (formEventMgr) {
-                    formEventMgr->HandleEtsCardTouchEvent(touchRestrict.touchEvent, etsSerializedGesture);
-                }
-                auto formGestureMgr =  this->GetFormGestureManager();
-                if (formGestureMgr) {
-                    formGestureMgr->LinkGesture(event, this, node, axisTouchTestResults_,
-                        etsSerializedGesture, eventManager_);
-                }
-            }
-        }
-        eventManager_->DispatchTouchEvent(scaleEvent);
-    } else if (isBeforeDragHandleAxis_ && (event.action == AxisAction::END || event.action == AxisAction::CANCEL)) {
-        eventManager_->DispatchTouchEvent(scaleEvent);
-        isBeforeDragHandleAxis_ = false;
-    }
+    DispatchAxisEventToDragDropManager(event, node);
 
     if (event.action == AxisAction::BEGIN || event.action == AxisAction::UPDATE) {
         eventManager_->AxisTest(scaleEvent, node);
@@ -3590,11 +3592,37 @@ void PipelineContext::OnAxisEvent(const AxisEvent& event, const RefPtr<FrameNode
         TAG_LOGD(AceLogTag::ACE_MOUSE, "Slide Axis Update");
         ResSchedReport::GetInstance().OnAxisEvent(scaleEvent);
     }
+    if (event.action == AxisAction::BEGIN || event.action == AxisAction::CANCEL || event.action == AxisAction::END) {
+        eventManager_->GetEventTreeRecord(EventTreeType::TOUCH).AddAxis(scaleEvent);
+    }
     auto mouseEvent = ConvertAxisToMouse(event);
     OnMouseMoveEventForAxisEvent(mouseEvent, node);
     if (formEventMgr && ((scaleEvent.action == AxisAction::END) || (scaleEvent.action == AxisAction::CANCEL))) {
         formEventMgr->RemoveEtsCardAxisEventCallback(event.id);
         formEventMgr->RemoveEtsCardTouchEventCallback(event.id);
+    }
+}
+
+void PipelineContext::DispatchAxisEventToDragDropManager(const AxisEvent& event, const RefPtr<FrameNode>& node)
+{
+    auto scaleEvent = event.CreateScaleEvent(viewScale_);
+    auto dragManager = GetDragDropManager();
+    if (dragManager && !dragManager->IsDragged()) {
+        if (event.action == AxisAction::BEGIN) {
+            isBeforeDragHandleAxis_ = true;
+            TouchRestrict touchRestrict { TouchRestrict::NONE };
+            touchRestrict.sourceType = event.sourceType;
+            touchRestrict.hitTestType = SourceType::TOUCH;
+            touchRestrict.inputEventType = InputEventType::AXIS;
+            // If received rotate event, no need to touchtest.
+            if (!event.isRotationEvent) {
+                eventManager_->TouchTest(scaleEvent, node, touchRestrict);
+            }
+        }
+        eventManager_->DispatchTouchEvent(scaleEvent);
+    } else if (isBeforeDragHandleAxis_ && (event.action == AxisAction::END || event.action == AxisAction::CANCEL)) {
+        eventManager_->DispatchTouchEvent(scaleEvent);
+        isBeforeDragHandleAxis_ = false;
     }
 }
 
@@ -5333,5 +5361,13 @@ std::string PipelineContext::GetModuleName()
     auto container = Container::GetContainer(instanceId_);
     CHECK_NULL_RETURN(container, "");
     return container->GetModuleName();
+}
+
+void PipelineContext::SetEnableSwipeBack(bool isEnable)
+{
+    CHECK_NULL_VOID(rootNode_);
+    auto rootPattern = rootNode_->GetPattern<RootPattern>();
+    CHECK_NULL_VOID(rootPattern);
+    rootPattern->SetEnableSwipeBack(isEnable);
 }
 } // namespace OHOS::Ace::NG

@@ -587,6 +587,7 @@ private:
     V(JSSetDelete)                              \
     V(JSSetEntries)                             \
     V(JSHClassFindProtoTransitions)             \
+    V(FinishObjSizeTracking)                    \
     V(NumberHelperStringToDouble)               \
     V(GetStringToListCacheArray)                \
     V(FastArraySort)                            \
@@ -633,7 +634,12 @@ private:
     V(VerifyBarrier)                                 \
     V(SortTypedArray)                                \
     V(ReverseTypedArray)                             \
-    V(IsFastRegExp)
+    V(IsFastRegExp)                                  \
+    V(ArrayIteratorNext)                             \
+    V(MapIteratorNext)                               \
+    V(SetIteratorNext)                               \
+    V(GetIterator)
+
 
 #define DECL_CALL_SIGNATURE(name)                                  \
 class name##CallSignature final {                                  \

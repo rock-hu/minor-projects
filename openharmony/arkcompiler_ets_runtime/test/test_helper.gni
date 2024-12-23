@@ -288,6 +288,10 @@ template("host_moduletest_action") {
       js_vm_options += " --async-load-abc-test=true"
     }
 
+    if (defined(invoker.disable_force_gc) && invoker.disable_force_gc) {
+      js_vm_options += " --enable-force-gc=false"
+    }
+
     if (defined(invoker.is_enable_enableArkTools) &&
         invoker.is_enable_enableArkTools) {
       js_vm_options += " --enable-ark-tools=true"
@@ -346,6 +350,10 @@ template("host_moduletest_action") {
 
     if (defined(invoker.async_load_abc_test) && invoker.async_load_abc_test) {
       js_vm_options += " --async-load-abc-test=true"
+    }
+
+    if (defined(invoker.disable_force_gc) && invoker.disable_force_gc) {
+      js_vm_options += " --enable-force-gc=false"
     }
 
     if (defined(invoker.is_enable_enableArkTools) &&
@@ -407,6 +415,10 @@ template("host_moduletest_action") {
 
     if (defined(invoker.async_load_abc_test) && invoker.async_load_abc_test) {
       _asm_run_options_ += " --async-load-abc-test=true"
+    }
+
+    if (defined(invoker.disable_force_gc) && invoker.disable_force_gc) {
+      _asm_run_options_ += " --enable-force-gc=false"
     }
 
     if (defined(invoker.is_set_elements_kind) && invoker.is_set_elements_kind) {
@@ -472,6 +484,10 @@ template("host_moduletest_action") {
 
     if (defined(invoker.async_load_abc_test) && invoker.async_load_abc_test) {
       _asm_run_options_ += " --async-load-abc-test=true"
+    }
+
+    if (defined(invoker.disable_force_gc) && invoker.disable_force_gc) {
+      _asm_run_options_ += " --enable-force-gc=false"
     }
 
     if (defined(invoker.is_set_elements_kind) && invoker.is_set_elements_kind) {
@@ -540,6 +556,10 @@ template("host_moduletest_action") {
       _asm_run_options_ += " --async-load-abc-test=true"
     }
 
+    if (defined(invoker.disable_force_gc) && invoker.disable_force_gc) {
+      _asm_run_options_ += " --enable-force-gc=false"
+    }
+
     if (defined(invoker.is_enable_enableArkTools) &&
         invoker.is_enable_enableArkTools) {
       _asm_run_options_ += " --enable-ark-tools=true"
@@ -598,6 +618,10 @@ template("host_moduletest_action") {
 
     if (defined(invoker.async_load_abc_test) && invoker.async_load_abc_test) {
       _asm_run_options_ += " --async-load-abc-test=true"
+    }
+
+    if (defined(invoker.disable_force_gc) && invoker.disable_force_gc) {
+      _asm_run_options_ += " --enable-force-gc=false"
     }
 
     if (defined(invoker.is_enable_enableArkTools) &&
@@ -1239,7 +1263,7 @@ template("host_aot_js_test_action") {
 
     if (defined(invoker.is_enable_typed_op_profiler) &&
         invoker.is_enable_typed_op_profiler) {
-      _aot_compile_options_ += " --compiler-typed-op-profiler=true "
+      _aot_compile_options_ += " --compiler-typed-op-profiler=true"
     }
 
     if (defined(invoker.is_enable_lowering_builtin) &&
@@ -1351,7 +1375,7 @@ template("host_aot_js_test_action") {
 
     if (defined(invoker.is_enable_typed_op_profiler) &&
         invoker.is_enable_typed_op_profiler) {
-      _aot_run_options_ += " --compiler-typed-op-profiler=ture"
+      _aot_run_options_ += " --compiler-typed-op-profiler=true"
     }
 
     if (defined(invoker.is_enable_lowering_builtin) &&
@@ -1439,7 +1463,7 @@ template("host_aot_js_test_action") {
 
     if (defined(invoker.is_enable_typed_op_profiler) &&
         invoker.is_enable_typed_op_profiler) {
-      _aot_run_options_ += " --compiler-typed-op-profiler=ture"
+      _aot_run_options_ += " --compiler-typed-op-profiler=true"
     }
 
     if (defined(invoker.is_enable_lowering_builtin) &&
@@ -1520,7 +1544,7 @@ template("host_aot_js_test_action") {
 
       if (defined(invoker.is_enable_typed_op_profiler) &&
           invoker.is_enable_typed_op_profiler) {
-        _aot_compile_options_ += " --compiler-typed-op-profiler=ture"
+        _aot_compile_options_ += " --compiler-typed-op-profiler=true"
       }
 
       if (defined(invoker.is_enable_lowering_builtin) &&
@@ -1629,7 +1653,7 @@ template("host_aot_js_test_action") {
 
       if (defined(invoker.is_enable_typed_op_profiler) &&
           invoker.is_enable_typed_op_profiler) {
-        _aot_run_options_ += " --compiler-typed-op-profiler=ture"
+        _aot_run_options_ += " --compiler-typed-op-profiler=true"
       }
 
       if (defined(invoker.is_enable_lowering_builtin) &&
@@ -1707,7 +1731,7 @@ template("host_aot_js_test_action") {
 
       if (defined(invoker.is_enable_typed_op_profiler) &&
           invoker.is_enable_typed_op_profiler) {
-        _aot_run_options_ += " --compiler-typed-op-profiler=ture"
+        _aot_run_options_ += " --compiler-typed-op-profiler=true"
       }
 
       if (defined(invoker.is_enable_lowering_builtin) &&
@@ -1794,7 +1818,7 @@ template("host_aot_js_test_action") {
 
       if (defined(invoker.is_enable_typed_op_profiler) &&
           invoker.is_enable_typed_op_profiler) {
-        _aot_compile_options_ += " --compiler-typed-op-profiler=ture"
+        _aot_compile_options_ += " --compiler-typed-op-profiler=true"
       }
 
       if (defined(invoker.is_enable_lowering_builtin) &&
@@ -1904,7 +1928,7 @@ template("host_aot_js_test_action") {
 
       if (defined(invoker.is_enable_typed_op_profiler) &&
           invoker.is_enable_typed_op_profiler) {
-        _aot_run_options_ += " --compiler-typed-op-profiler=ture"
+        _aot_run_options_ += " --compiler-typed-op-profiler=true"
       }
 
       if (defined(invoker.is_enable_lowering_builtin) &&
@@ -1985,7 +2009,7 @@ template("host_aot_js_test_action") {
 
       if (defined(invoker.is_enable_typed_op_profiler) &&
           invoker.is_enable_typed_op_profiler) {
-        _aot_run_options_ += " --compiler-typed-op-profiler=ture"
+        _aot_run_options_ += " --compiler-typed-op-profiler=true"
       }
 
       if (defined(invoker.is_enable_lowering_builtin) &&
@@ -2262,7 +2286,7 @@ template("host_aot_js_assert_test_action") {
 
     if (defined(invoker.is_enable_typed_op_profiler) &&
         invoker.is_enable_typed_op_profiler) {
-      _aot_run_options_ += " --compiler-typed-op-profiler=ture"
+      _aot_run_options_ += " --compiler-typed-op-profiler=true"
     }
 
     if (defined(invoker.is_enable_lowering_builtin) &&
@@ -2341,7 +2365,7 @@ template("host_aot_js_assert_test_action") {
 
     if (defined(invoker.is_enable_typed_op_profiler) &&
         invoker.is_enable_typed_op_profiler) {
-      _aot_run_options_ += " --compiler-typed-op-profiler=ture"
+      _aot_run_options_ += " --compiler-typed-op-profiler=true"
     }
 
     if (defined(invoker.is_enable_lowering_builtin) &&
@@ -2809,7 +2833,7 @@ template("host_aot_test_action") {
 
     if (defined(invoker.is_enable_typed_op_profiler) &&
         invoker.is_enable_typed_op_profiler) {
-      _aot_run_options_ += " --compiler-typed-op-profiler=ture"
+      _aot_run_options_ += " --compiler-typed-op-profiler=true"
     }
 
     if (defined(invoker.is_enable_lowering_builtin) &&
@@ -2895,7 +2919,7 @@ template("host_aot_test_action") {
 
     if (defined(invoker.is_enable_typed_op_profiler) &&
         invoker.is_enable_typed_op_profiler) {
-      _aot_run_options_ += " --compiler-typed-op-profiler=ture"
+      _aot_run_options_ += " --compiler-typed-op-profiler=true"
     }
     _aot_run_options_ += common_options
     if (defined(invoker.is_enable_lowering_builtin) &&
@@ -3032,7 +3056,7 @@ template("host_aot_test_action") {
 
       if (defined(invoker.is_enable_typed_op_profiler) &&
           invoker.is_enable_typed_op_profiler) {
-        _aot_compile_options_ += " --compiler-typed-op-profiler=ture"
+        _aot_compile_options_ += " --compiler-typed-op-profiler=true"
       }
 
       if (defined(invoker.is_enable_lowering_builtin) &&
@@ -3239,7 +3263,7 @@ template("host_aot_test_action") {
 
       if (defined(invoker.is_enable_typed_op_profiler) &&
           invoker.is_enable_typed_op_profiler) {
-        _aot_run_options_ += " --compiler-typed-op-profiler=ture"
+        _aot_run_options_ += " --compiler-typed-op-profiler=true"
       }
 
       if (defined(invoker.is_enable_lowering_builtin) &&
@@ -3316,7 +3340,7 @@ template("host_aot_test_action") {
 
       if (defined(invoker.is_enable_typed_op_profiler) &&
           invoker.is_enable_typed_op_profiler) {
-        _aot_run_options_ += " --compiler-typed-op-profiler=ture"
+        _aot_run_options_ += " --compiler-typed-op-profiler=true"
       }
 
       if (defined(invoker.is_enable_lowering_builtin) &&
@@ -3461,7 +3485,7 @@ template("host_aot_test_action") {
 
       if (defined(invoker.is_enable_typed_op_profiler) &&
           invoker.is_enable_typed_op_profiler) {
-        _aot_compile_options_ += " --compiler-typed-op-profiler=ture"
+        _aot_compile_options_ += " --compiler-typed-op-profiler=true"
       }
 
       if (defined(invoker.is_enable_lowering_builtin) &&
@@ -3671,7 +3695,7 @@ template("host_aot_test_action") {
 
       if (defined(invoker.is_enable_typed_op_profiler) &&
           invoker.is_enable_typed_op_profiler) {
-        _aot_run_options_ += " --compiler-typed-op-profiler=ture"
+        _aot_run_options_ += " --compiler-typed-op-profiler=true"
       }
 
       if (defined(invoker.is_enable_lowering_builtin) &&
@@ -3754,7 +3778,7 @@ template("host_aot_test_action") {
 
       if (defined(invoker.is_enable_typed_op_profiler) &&
           invoker.is_enable_typed_op_profiler) {
-        _aot_run_options_ += " --compiler-typed-op-profiler=ture"
+        _aot_run_options_ += " --compiler-typed-op-profiler=true"
       }
 
       if (defined(invoker.is_enable_lowering_builtin) &&
@@ -4196,7 +4220,7 @@ template("host_aot_assert_test_action") {
 
     if (defined(invoker.is_enable_typed_op_profiler) &&
         invoker.is_enable_typed_op_profiler) {
-      _aot_run_options_ += " --compiler-typed-op-profiler=ture"
+      _aot_run_options_ += " --compiler-typed-op-profiler=true"
     }
 
     if (defined(invoker.is_enable_lowering_builtin) &&
@@ -4273,7 +4297,7 @@ template("host_aot_assert_test_action") {
 
     if (defined(invoker.is_enable_typed_op_profiler) &&
         invoker.is_enable_typed_op_profiler) {
-      _aot_run_options_ += " --compiler-typed-op-profiler=ture"
+      _aot_run_options_ += " --compiler-typed-op-profiler=true"
     }
 
     if (defined(invoker.is_enable_lowering_builtin) &&
@@ -4809,6 +4833,83 @@ template("host_jit_test_action") {
       rebase_path(_root_out_dir_) + "/arkcompiler/ets_runtime/ark_js_vm",
       "--script-options",
       _jit_run_options_,
+      "--script-args",
+      _script_args_,
+      "--expect-file",
+      rebase_path(_test_expect_path_),
+      "--env-path",
+      rebase_path(_root_out_dir_) + "/arkcompiler/ets_runtime:" +
+          rebase_path(_root_out_dir_) + "/${_icu_path_}:" +
+          rebase_path(_root_out_dir_) + "/thirdparty/zlib:" +
+          rebase_path(_root_out_dir_) + "/resourceschedule/frame_aware_sched:" +
+          rebase_path(_root_out_dir_) + "/hiviewdfx/hilog:" +
+          rebase_path(_root_out_dir_) +
+          "/thirdparty/bounds_checking_function:" +
+          rebase_path("//prebuilts/clang/ohos/linux-x86_64/llvm/lib/"),
+    ]
+
+    inputs = [ _test_abc_path_ ]
+
+    outputs = [ "$target_out_dir/${_target_name_}/" ]
+  }
+}
+
+template("host_baseline_jit_test_action") {
+  _target_name_ = "${target_name}"
+  _deps_ = invoker.deps
+
+  _test_ts_path_ = "./${_target_name_}.ts"
+  _test_abc_path_ = "$target_out_dir/${_target_name_}.abc"
+  _script_args_ = rebase_path(_test_abc_path_)
+  _test_expect_path_ = "./expect_output.txt"
+
+  es2abc_gen_newest_abc("gen_${_target_name_}_abc") {
+    extra_visibility = [ ":*" ]  # Only targets in this file can depend on this.
+
+    if (defined(invoker.run_multi_file_tests) && invoker.run_multi_file_tests) {
+      src_js = rebase_path("./")
+    } else {
+      src_js = rebase_path(_test_ts_path_)
+    }
+    dst_file = rebase_path(_test_abc_path_)
+    extension = "ts"
+    extra_args = [
+      "--module",
+      "--merge-abc",
+    ]
+    in_puts = [ _test_ts_path_ ]
+    out_puts = [ _test_abc_path_ ]
+  }
+
+  action("${_target_name_}BaselineJitAction") {
+    testonly = true
+    script = "//arkcompiler/ets_runtime/script/run_ark_executable.py"
+
+    _host_jsvm_target_ = "//arkcompiler/ets_runtime/ecmascript/js_vm:ark_js_vm(${host_toolchain})"
+    _host_jsoptimizer_lib_ = "//arkcompiler/ets_runtime/ecmascript/compiler:libark_jsoptimizer(${host_toolchain})"
+    _root_out_dir_ = get_label_info(_host_jsvm_target_, "root_out_dir")
+    _baseline_jit_run_options_ =
+        " --asm-interpreter=true" + " --enable-force-gc=false" +
+        " --compiler-enable-baselinejit=true" +
+        " --entry-point=${_target_name_} "
+    _baseline_jit_run_options_ += common_options
+
+    if (defined(invoker.extra_option)) {
+      _baseline_jit_run_options_ += invoker.extra_option
+    }
+
+    deps = [
+      ":gen_${_target_name_}_abc",
+      _host_jsoptimizer_lib_,
+      _host_jsvm_target_,
+    ]
+    deps += _deps_
+
+    args = [
+      "--script-file",
+      rebase_path(_root_out_dir_) + "/arkcompiler/ets_runtime/ark_js_vm",
+      "--script-options",
+      _baseline_jit_run_options_,
       "--script-args",
       _script_args_,
       "--expect-file",

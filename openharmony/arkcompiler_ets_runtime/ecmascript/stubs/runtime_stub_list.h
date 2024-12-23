@@ -178,6 +178,7 @@ namespace panda::ecmascript {
     V(EndCallTimer)                            \
     V(BigIntSameValueZero)                     \
     V(JSHClassFindProtoTransitions)            \
+    V(FinishObjSizeTracking)                   \
     V(NumberHelperStringToDouble)              \
     V(GetStringToListCacheArray)               \
     V(FastArraySort)                           \
@@ -484,7 +485,8 @@ namespace panda::ecmascript {
     V(GetCollationValueFromIcuCollator)         \
     V(DecodeURIComponent)                       \
     V(GetAllFlagsInternal)                      \
-    V(SlowSharedObjectStoreBarrier)
+    V(SlowSharedObjectStoreBarrier)             \
+    V(GetNativePcOfstForBaseline)
 
 #define RUNTIME_STUB_LIST(V)                     \
     RUNTIME_ASM_STUB_LIST(V)                     \

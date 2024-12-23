@@ -65,7 +65,8 @@ import {
   isGlobalScope,
   isEnumScope,
   isInterfaceScope,
-  isObjectLiteralScope
+  isObjectLiteralScope,
+  nodeSymbolMap
 } from '../../utils/ScopeAnalyzer';
 
 import type {
@@ -106,6 +107,8 @@ import {
   UnobfuscationCollections,
   LocalVariableCollections
 } from '../../utils/CommonCollections';
+import { MemoryDottingDefine } from '../../utils/MemoryDottingDefine';
+import { shouldKeepCurFileParamerters, shouldKeepParameter } from '../../utils/KeepParameterUtils';
 
 namespace secharmony {
   /**
@@ -121,7 +124,7 @@ namespace secharmony {
    *
    * @param option
    */
-  const createRenameIdentifierFactory = function (option: IOptions): TransformerFactory<Node> {
+  const createRenameIdentifierFactory = function (option: IOptions): TransformerFactory<Node> | null {
     const profile: INameObfuscationOption | undefined = option?.mNameObfuscation;
     const unobfuscationOption: IUnobfuscationOption | undefined = option?.mUnobfuscationOption;
     if (!profile || !profile.mEnable) {
@@ -129,7 +132,7 @@ namespace secharmony {
     }
 
     let options: NameGeneratorOptions = {};
-    let generator: INameGenerator = getNameGenerator(profile.mNameGeneratorType, options);
+    globalGenerator = getNameGenerator(profile.mNameGeneratorType, options);
 
     const enableToplevel: boolean = option?.mNameObfuscation?.mTopLevel;
     const exportObfuscation: boolean = option?.mExportObfuscation;
@@ -145,6 +148,7 @@ namespace secharmony {
       let fileImportNames: Set<string> = undefined;
       exportElementsWithoutSymbol.clear();
       exportSymbolAliasMap.clear();
+      nodeSymbolMap.clear();
 
       let historyMangledNames: Set<string> = undefined;
       if (historyNameCache && historyNameCache.size > 0) {
@@ -153,7 +157,7 @@ namespace secharmony {
 
       let checker: TypeChecker = undefined;
       let manager: ScopeManager = createScopeManager();
-
+      let isCurFileParamertersKept: boolean = false;
       return renameTransformer;
 
       /**
@@ -170,15 +174,20 @@ namespace secharmony {
         if (!isSourceFile(node) || ArkObfuscator.isKeptCurrentFile) {
           return node;
         }
+        isCurFileParamertersKept = shouldKeepCurFileParamerters(node, profile);
 
+        const checkRecordInfo = ArkObfuscator.recordStage(MemoryDottingDefine.CREATE_CHECKER);
         startSingleFileEvent(EventList.CREATE_CHECKER, performancePrinter.timeSumPrinter);
         checker = TypeUtils.createChecker(node);
         endSingleFileEvent(EventList.CREATE_CHECKER, performancePrinter.timeSumPrinter);
+        ArkObfuscator.stopRecordStage(checkRecordInfo);
 
+        const scopeRecordInfo = ArkObfuscator.recordStage(MemoryDottingDefine.SCOPE_ANALYZE);
         startSingleFileEvent(EventList.SCOPE_ANALYZE, performancePrinter.timeSumPrinter);
         manager.analyze(node, checker, exportObfuscation);
         endSingleFileEvent(EventList.SCOPE_ANALYZE, performancePrinter.timeSumPrinter);
-
+        ArkObfuscator.stopRecordStage(scopeRecordInfo);
+ 
         let rootScope: Scope = manager.getRootScope();
         fileExportNames = rootScope.fileExportNames;
         fileImportNames = rootScope.fileImportNames;
@@ -187,12 +196,15 @@ namespace secharmony {
           renameProcessors.push(renamePropertyParametersInScope);
         }
 
+        const obfuscateNamesRecordInfo = ArkObfuscator.recordStage(MemoryDottingDefine.OBFUSCATE_NAMES);
         startSingleFileEvent(EventList.CREATE_OBFUSCATED_NAMES, performancePrinter.timeSumPrinter);
         getMangledNamesInScope(rootScope, renameProcessors);
         endSingleFileEvent(EventList.CREATE_OBFUSCATED_NAMES, performancePrinter.timeSumPrinter);
+        ArkObfuscator.stopRecordStage(obfuscateNamesRecordInfo);
 
         rootScope = undefined;
 
+        const obfuscateNodesRecordInfo = ArkObfuscator.recordStage(MemoryDottingDefine.OBFUSCATE_NODES);
         startSingleFileEvent(EventList.OBFUSCATE_NODES, performancePrinter.timeSumPrinter);
         let updatedNode: Node = renameIdentifiers(node);
 
@@ -203,6 +215,7 @@ namespace secharmony {
 
         let parentNodes = setParentRecursive(updatedNode, true);
         endSingleFileEvent(EventList.OBFUSCATE_NODES, performancePrinter.timeSumPrinter);
+        ArkObfuscator.stopRecordStage(obfuscateNodesRecordInfo);
         return parentNodes;
       }
 
@@ -244,7 +257,7 @@ namespace secharmony {
           });
         }
 
-        renames(scope, scope.defs, generator);
+        renames(scope, scope.defs, globalGenerator);
       }
 
       // process property parameters symbols in class scope
@@ -253,7 +266,7 @@ namespace secharmony {
           return;
         }
 
-        renamePropertyParameters(scope, scope.defs, generator);
+        renamePropertyParameters(scope, scope.defs, globalGenerator);
       }
 
       function renames(scope: Scope, defs: Set<Symbol>, generator: INameGenerator): void {
@@ -272,6 +285,12 @@ namespace secharmony {
           }
 
           if (mangledSymbolNames.has(def)) {
+            return;
+          }
+
+          const declarationOfSymbol: Declaration | undefined = def.declarations?.[0];
+          if (isCurFileParamertersKept && shouldKeepParameter(declarationOfSymbol, profile, mangledSymbolNames, checker)) {
+            mangledSymbolNames.set(def, {mangledName: mangled, originalNameWithScope: path});
             return;
           }
 
@@ -335,7 +354,9 @@ namespace secharmony {
           if (historyMangledNames && historyMangledNames.has(tmpName)) {
             continue;
           }
-          if (PropCollections.newlyOccupiedMangledProps.has(tmpName) || PropCollections.mangledPropsInNameCache.has(tmpName)) {
+
+          // For incremental compilation, preventing generated names from conflicting with existing global name.
+          if (PropCollections.globalMangledNamesInCache.has(tmpName)) {
             continue;
           }
           if (searchMangledInParent(scope, tmpName)) {
@@ -344,7 +365,6 @@ namespace secharmony {
           mangledName = tmpName;
         }
         PropCollections.globalMangledTable.set(originalName, mangledName);
-        PropCollections.newlyOccupiedMangledProps.add(mangledName);
         return mangledName;
       }
 
@@ -356,7 +376,7 @@ namespace secharmony {
         const historyName: string = PropCollections.historyMangledTable?.get(original);
         let mangledName: string = historyName ? historyName : PropCollections.globalMangledTable.get(original);
         while (!mangledName) {
-          let tmpName = generator.getName();
+          let tmpName = globalGenerator.getName();
           if (isReservedTopLevel(tmpName) ||
             tmpName === original) {
             continue;
@@ -387,7 +407,10 @@ namespace secharmony {
             continue;
           }
 
-          if (PropCollections.newlyOccupiedMangledProps.has(tmpName) || PropCollections.mangledPropsInNameCache.has(tmpName)) {
+          /**
+           * For incremental compilation, preventing generated names from conflicting with existing global name.
+           */
+          if (PropCollections.globalMangledNamesInCache.has(tmpName)) {
             continue;
           }
 
@@ -403,7 +426,6 @@ namespace secharmony {
         }
 
         PropCollections.globalMangledTable.set(original, mangledName);
-        PropCollections.newlyOccupiedMangledProps.add(mangledName);
         return mangledName;
       }
 
@@ -458,6 +480,14 @@ namespace secharmony {
             continue;
           }
 
+          /**
+           * For incremental compilation, preventing generated names from conflicting with existing global name.
+           */
+          if (PropCollections.globalMangledNamesInCache.has(mangled)) {
+            mangled = '';
+            continue;
+          }
+
           if (searchMangledInParent(scope, mangled)) {
             mangled = '';
             continue;
@@ -490,7 +520,7 @@ namespace secharmony {
       function getMangledLabel(label: Label, mangledLabels: string[]): string {
         let mangledLabel: string = '';
         do {
-          mangledLabel = generator.getName();
+          mangledLabel = globalGenerator.getName();
           if (mangledLabel === label.name) {
             mangledLabel = '';
           }
@@ -683,7 +713,7 @@ namespace secharmony {
           return node;
         }
 
-        let sym: Symbol | undefined = NodeUtils.findSymbolOfIdentifier(checker, node);
+        let sym: Symbol | undefined = NodeUtils.findSymbolOfIdentifier(checker, node, nodeSymbolMap);
         let mangledPropertyNameOfNoSymbolImportExport = '';
         if (!sym) {
           if (shouldObfuscateNodeWithoutSymbol(node)) {
@@ -726,7 +756,7 @@ namespace secharmony {
       }
 
       function updatePropertyParameterNameNode(node: Identifier): Node {
-        let sym: Symbol | undefined = NodeUtils.findSymbolOfIdentifier(checker, node);
+        let sym: Symbol | undefined = NodeUtils.findSymbolOfIdentifier(checker, node, nodeSymbolMap);
         if (!sym || sym.valueDeclaration?.kind !== SyntaxKind.Parameter) {
           return node;
         }
@@ -799,7 +829,7 @@ namespace secharmony {
         tmpReservedProps.forEach(item => {
           PropCollections.reservedProperties.add(item);
         });
-        PropCollections.mangledPropsInNameCache = new Set(PropCollections.historyMangledTable?.values());
+        PropCollections.globalMangledNamesInCache = new Set(PropCollections.historyMangledTable?.values());
         if (profile?.mUniversalReservedProperties) {
           PropCollections.universalReservedProperties = [...profile.mUniversalReservedProperties];
         }
@@ -838,6 +868,8 @@ namespace secharmony {
   export let classMangledName: Map<Node, string> = new Map();
   // Record the original class name and line number range to distinguish between class names and member method names.
   export let classInfoInMemberMethodCache: Set<string> = new Set();
+  // Generate obfuscated names for all property and variable names.
+  export let globalGenerator: INameGenerator;
 
   export function clearCaches(): void {
     nameCache.clear();

@@ -17,10 +17,12 @@
 #define PANDA_GUARD_GUARD_DRIVER_H
 
 namespace panda::guard {
-    class GuardDriver {
-    public:
-        void Run(int argc, const char **argv);
-    };
-}
 
-#endif // PANDA_GUARD_GUARD_DRIVER_H
+class GuardDriver {
+public:
+    void Run(int argc, const char **argv);
+};
+
+}  // namespace panda::guard
+
+#endif  // PANDA_GUARD_GUARD_DRIVER_H

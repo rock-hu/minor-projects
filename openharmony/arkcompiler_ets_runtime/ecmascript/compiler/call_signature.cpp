@@ -1658,6 +1658,20 @@ DEF_CALL_SIGNATURE(JSHClassFindProtoTransitions)
     callSign->SetTargetKind(CallSignature::TargetKind::RUNTIME_STUB_NO_GC);
 }
 
+DEF_CALL_SIGNATURE(FinishObjSizeTracking)
+{
+    // 1 : 1 input parameters
+    CallSignature finishObjSizeTracking("FinishObjSizeTracking", 0, 1,
+        ArgumentsOrder::DEFAULT_ORDER, VariableType::JS_ANY());
+    *callSign = finishObjSizeTracking;
+    std::array<VariableType, 1> params = { // 1 : 1 input parameters
+        VariableType::JS_POINTER(),
+    };
+    callSign->SetParameters(params.data());
+    callSign->SetGCLeafFunction(true);
+    callSign->SetTargetKind(CallSignature::TargetKind::RUNTIME_STUB_NO_GC);
+}
+
 DEF_CALL_SIGNATURE(NumberHelperStringToDouble)
 {
     // 1 : 1 input parameters
@@ -2866,6 +2880,26 @@ DEF_CALL_SIGNATURE(JSMapGet)
 DEF_CALL_SIGNATURE(StringIteratorNext)
 {
     UNARY_CALL_SIGNATURE(StringIteratorNext)
+}
+
+DEF_CALL_SIGNATURE(ArrayIteratorNext)
+{
+    UNARY_CALL_SIGNATURE(ArrayIteratorNext)
+}
+
+DEF_CALL_SIGNATURE(MapIteratorNext)
+{
+    UNARY_CALL_SIGNATURE(MapIteratorNext)
+}
+
+DEF_CALL_SIGNATURE(SetIteratorNext)
+{
+    UNARY_CALL_SIGNATURE(SetIteratorNext)
+}
+
+DEF_CALL_SIGNATURE(GetIterator)
+{
+    UNARY_CALL_SIGNATURE(GetIterator)
 }
 
 DEF_CALL_SIGNATURE(JSMapHas)

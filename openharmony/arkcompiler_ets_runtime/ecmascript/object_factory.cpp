@@ -1053,6 +1053,19 @@ JSHandle<JSObject> ObjectFactory::NewJSAggregateError()
     return NewJSObjectByConstructor(constructor);
 }
 
+JSHandle<JSObject> ObjectFactory::CreateNapiObject()
+{
+    JSHandle<GlobalEnv> globalEnv = vm_->GetGlobalEnv();
+    JSHandle<JSFunction> constructor(globalEnv->GetObjectFunction());
+    JSHandle<JSHClass> ihc(globalEnv->GetObjectFunctionNapiClass());
+    if (globalEnv->GetTaggedObjectFunctionTsNapiClass().IsJSHClass()) {
+        ihc = JSHandle<JSHClass>(globalEnv->GetObjectFunctionTsNapiClass());
+    }
+    JSHandle<JSObject> jsObject(NewJSObjectWithInit(ihc));
+    JSHandle<JSTaggedValue> object(jsObject);
+    return jsObject;
+}
+
 JSHandle<JSObject> ObjectFactory::NewJSObjectByConstructor(JSHandle<GlobalEnv> env,
     const JSHandle<JSFunction> &constructor, uint32_t inlinedProps)
 {
@@ -1735,10 +1748,20 @@ void ObjectFactory::InitializeExtraProperties(const JSHandle<JSHClass> &hclass,
     auto paddr = reinterpret_cast<uintptr_t>(obj) + hclass->GetObjectSize();
     // The object which created by AOT speculative hclass, should be initialized as hole, means does not exist,
     // to follow ECMA spec.
-    JSTaggedType initVal = hclass->IsAOT() ? JSTaggedValue::VALUE_HOLE : JSTaggedValue::VALUE_UNDEFINED;
+    JSTaggedType initVal;
+    bool inProgress = hclass->IsObjSizeTrackingInProgress();
+    if (inProgress) {
+        const GlobalEnvConstants *globalConst = thread_->GetFirstGlobalConst();
+        initVal = globalConst->GetFreeObjectWithNoneFieldClass().GetRawData();
+    } else {
+        initVal = hclass->IsAOT() ? JSTaggedValue::VALUE_HOLE : JSTaggedValue::VALUE_UNDEFINED;
+    }
     for (uint32_t i = 0; i < inobjPropCount; ++i) {
         paddr -= JSTaggedValue::TaggedTypeSize();
         *reinterpret_cast<JSTaggedType *>(paddr) = initVal;
+    }
+    if (inProgress) {
+        hclass->ObjSizeTrackingStep();
     }
 }
 
@@ -2014,11 +2037,13 @@ void ObjectFactory::InitializeMethod(const MethodLiteral *methodLiteral, JSHandl
         method->SetLiteralInfo(methodLiteral->GetLiteralInfo());
         method->SetNativePointerOrBytecodeArray(const_cast<void *>(methodLiteral->GetNativePointer()));
         method->SetExtraLiteralInfo(methodLiteral->GetExtraLiteralInfo());
+        method->SetExpectedPropertyCount(methodLiteral->GetExpectedPropertyCount());
     } else {
         method->SetCallField(0ULL);
         method->SetLiteralInfo(0ULL);
         method->SetNativePointerOrBytecodeArray(nullptr);
         method->SetExtraLiteralInfo(0ULL);
+        method->SetExpectedPropertyCount(MethodLiteral::MAX_EXPECTED_PROPERTY_COUNT);
     }
     method->SetCodeEntryOrLiteral(reinterpret_cast<uintptr_t>(methodLiteral));
     method->SetConstantPool(thread_, JSTaggedValue::Undefined());

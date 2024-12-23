@@ -60,8 +60,8 @@ void BuiltinsFunctionStubBuilder::PrototypeApply(GateRef glue, GateRef thisValue
                 BRANCH(TaggedIsHole(elements), &targetIsHole, &targetNotHole);
                 Bind(&targetIsHole);
                 {
-                    BuiltinsObjectStubBuilder objectStubBuilder(this);
-                    GateRef argList = objectStubBuilder.CreateListFromArrayLike(glue, arrayObj);
+                    NewObjectStubBuilder newBuilder(this);
+                    GateRef argList = newBuilder.CreateListFromArrayLike(glue, arrayObj);
                     // 4. ReturnIfAbrupt(argList).
                     Label isPendingException(env);
                     Label noPendingException(env);
@@ -128,6 +128,7 @@ void BuiltinsFunctionStubBuilder::PrototypeBind(GateRef glue, GateRef thisValue,
     Label targetIsHeapObject(env);
     Label targetIsCallable(env);
     Label targetIsJSFunctionOrBound(env);
+    Label findInlineProperty(env);
     Label targetNameAndLengthNotChange(env);
 
     // 1. Let Target be the this value.
@@ -141,11 +142,24 @@ void BuiltinsFunctionStubBuilder::PrototypeBind(GateRef glue, GateRef thisValue,
     Bind(&targetIsJSFunctionOrBound);
     {
         GateRef hclass = LoadHClass(target);
+        GateRef inlineProps = GetInlinedPropertiesFromHClass(hclass);
+        GateRef isPropsInRange = LogicAndBuilder(env)
+            .And(Int32UnsignedLessThan(Int32(JSFunction::LENGTH_INLINE_PROPERTY_INDEX), inlineProps))
+            .And(Int32UnsignedLessThan(Int32(JSFunction::NAME_INLINE_PROPERTY_INDEX), inlineProps))
+            .Done();
+        BRANCH(isPropsInRange, &findInlineProperty, slowPath);
+        Bind(&findInlineProperty);
+        GateRef lengthProperty = GetPropertyInlinedProps(target, hclass,
+            Int32(JSFunction::LENGTH_INLINE_PROPERTY_INDEX));
+        GateRef nameProperty = GetPropertyInlinedProps(target, hclass,
+            Int32(JSFunction::NAME_INLINE_PROPERTY_INDEX));
+        GateRef functionLengthAccessor = GetGlobalConstantValue(VariableType::JS_POINTER(), glue,
+            ConstantIndex::FUNCTION_LENGTH_ACCESSOR);
+        GateRef functionNameAccessor = GetGlobalConstantValue(VariableType::JS_POINTER(), glue,
+            ConstantIndex::FUNCTION_NAME_ACCESSOR);
         GateRef isTargetNameAndLengthNotChange = LogicAndBuilder(env)
-            .And(IntPtrEqual(GetPropertyInlinedProps(target, hclass, Int32(JSFunction::NAME_INLINE_PROPERTY_INDEX)),
-                GetGlobalConstantValue(VariableType::JS_POINTER(), glue, ConstantIndex::FUNCTION_NAME_ACCESSOR)))
-            .And(IntPtrEqual(GetPropertyInlinedProps(target, hclass, Int32(JSFunction::LENGTH_INLINE_PROPERTY_INDEX)),
-                GetGlobalConstantValue(VariableType::JS_POINTER(), glue, ConstantIndex::FUNCTION_LENGTH_ACCESSOR)))
+            .And(IntPtrEqual(functionLengthAccessor, lengthProperty))
+            .And(IntPtrEqual(functionNameAccessor, nameProperty))
             .Done();
         BRANCH(isTargetNameAndLengthNotChange, &targetNameAndLengthNotChange, slowPath);
         Bind(&targetNameAndLengthNotChange);
@@ -554,7 +568,7 @@ void BuiltinsFunctionStubBuilder::InitializeSFunction(GateRef glue, GateRef func
     Bind(&exit);
     auto emptyProfileTypeInfoCell = GetGlobalConstantValue(VariableType::JS_POINTER(), glue,
                                                            ConstantIndex::EMPTY_PROFILE_TYPE_INFO_CELL_INDEX);
-    SetRawProfileTypeInfoToFunction(glue, func, emptyProfileTypeInfoCell);
+    SetRawProfileTypeInfoToFunction(glue, func, emptyProfileTypeInfoCell, MemoryAttribute::NoBarrier());
     env->SubCfgExit();
     return;
 }
@@ -685,7 +699,7 @@ void BuiltinsFunctionStubBuilder::InitializeJSFunction(GateRef glue, GateRef fun
     Bind(&exit);
     auto emptyProfileTypeInfoCell = GetGlobalConstantValue(VariableType::JS_POINTER(), glue,
                                                            ConstantIndex::EMPTY_PROFILE_TYPE_INFO_CELL_INDEX);
-    SetRawProfileTypeInfoToFunction(glue, func, emptyProfileTypeInfoCell);
+    SetRawProfileTypeInfoToFunction(glue, func, emptyProfileTypeInfoCell, MemoryAttribute::NoBarrier());
     env->SubCfgExit();
     return;
 }

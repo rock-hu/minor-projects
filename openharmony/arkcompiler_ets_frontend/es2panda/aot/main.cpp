@@ -120,7 +120,8 @@ static void DumpPandaFileSizePctStatistic(std::map<std::string, size_t> &stat)
 static bool GenerateProgramsByWorkers(const std::map<std::string, panda::es2panda::util::ProgramCache*> &programsInfo,
     const std::unique_ptr<panda::es2panda::aot::Options> &options, std::map<std::string, size_t> *statp)
 {
-    auto queue = new panda::es2panda::aot::EmitFileQueue(options, statp, programsInfo);
+    panda::ArenaAllocator allocator(SpaceType::SPACE_TYPE_COMPILER, nullptr, true);
+    auto queue = new panda::es2panda::aot::EmitFileQueue(options, statp, programsInfo, &allocator);
 
     bool emitResult = true;
     try {
@@ -181,8 +182,8 @@ static bool GenerateProgram(std::map<std::string, panda::es2panda::util::Program
 
         // Disable generating cached files when cross-program optimization is required, to prevent cached files from
         // not being invalidated when their dependencies are changed
-        if (options->compilerProtoOutput().size() > 0 && !options->CompilerOptions().requireGlobalOptimization) {
-            panda::proto::ProtobufSnapshotGenerator::GenerateSnapshot(*prog, options->compilerProtoOutput());
+        if (options->CompilerProtoOutput().size() > 0 && !options->CompilerOptions().requireGlobalOptimization) {
+            panda::proto::ProtobufSnapshotGenerator::GenerateSnapshot(*prog, options->CompilerProtoOutput());
             return true;
         }
     }

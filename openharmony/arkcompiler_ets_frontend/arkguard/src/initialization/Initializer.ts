@@ -85,6 +85,7 @@ function initArkGuardConfig(
       mKeepStringProperty: !mergedObConfig.options.enableStringPropertyObfuscation,
       mTopLevel: mergedObConfig.options.enableToplevelObfuscation,
       mReservedToplevelNames: mergedObConfig.reservedGlobalNames,
+      mKeepParameterNames: mergedObConfig.options.keepParameterNames,
       mUniversalReservedProperties: mergedObConfig.universalReservedPropertyNames,
       mUniversalReservedToplevelNames: mergedObConfig.universalReservedGlobalNames
     },
@@ -109,6 +110,7 @@ function initArkGuardConfig(
       mKeepSourceOfPaths: new Set(),
       mkeepFilesAndDependencies: new Set(),
     },
+    mStripLanguageDefaultWhitelist: mergedObConfig.options.stripLanguageDefault
   };
 
   const arkObfuscator: ArkObfuscator = new ArkObfuscator();

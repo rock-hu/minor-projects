@@ -124,6 +124,26 @@ GateRef CircuitBuilder::IsSpecialSlicedString(GateRef obj)
     return ret;
 }
 
+GateRef CircuitBuilder::TaggedIsArrayIterator(GateRef obj)
+{
+    Label entry(env_);
+    SubCfgEntry(&entry);
+    Label exit(env_);
+    DEFVALUE(result, env_, VariableType::BOOL(), False());
+    Label isHeapObject(env_);
+    Branch(TaggedIsHeapObject(obj), &isHeapObject, &exit);
+    Bind(&isHeapObject);
+    {
+        result = Int32Equal(GetObjectType(LoadHClass(obj)),
+                            Int32(static_cast<int32_t>(JSType::JS_ARRAY_ITERATOR)));
+        Jump(&exit);
+    }
+    Bind(&exit);
+    auto ret = *result;
+    SubCfgExit();
+    return ret;
+}
+
 GateRef CircuitBuilder::TaggedIsBigInt(GateRef obj)
 {
     Label entry(env_);
@@ -200,6 +220,34 @@ GateRef CircuitBuilder::TaggedIsSharedObj(GateRef obj)
     auto ret = *result;
     SubCfgExit();
     return ret;
+}
+
+GateRef CircuitBuilder::TaggedIsStableArray(GateRef glue, GateRef obj)
+{
+    Label subentry(env_);
+    env_->SubCfgEntry(&subentry);
+    DEFVALUE(result, env_, VariableType::BOOL(), False());
+    Label exit(env_);
+    Label targetIsHeapObject(env_);
+    Label targetIsStableArray(env_);
+
+    BRANCH_CIR2(TaggedIsHeapObject(obj), &targetIsHeapObject, &exit);
+    Bind(&targetIsHeapObject);
+    {
+        GateRef jsHclass = LoadHClass(obj);
+        BRANCH_CIR2(IsStableArray(jsHclass), &targetIsStableArray, &exit);
+        Bind(&targetIsStableArray);
+        {
+            GateRef guardiansOffset =
+                IntPtr(JSThread::GlueData::GetArrayElementsGuardiansOffset(false));
+            result = Load(VariableType::BOOL(), glue, guardiansOffset);
+            Jump(&exit);
+        }
+    }
+    Bind(&exit);
+    auto res = *result;
+    env_->SubCfgExit();
+    return res;
 }
 
 GateRef CircuitBuilder::TaggedIsSymbol(GateRef obj)

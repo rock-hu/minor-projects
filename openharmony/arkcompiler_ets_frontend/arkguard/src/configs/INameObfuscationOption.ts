@@ -35,6 +35,8 @@ export interface INameObfuscationOption {
 
   readonly mTopLevel?: boolean;
 
+  readonly mKeepParameterNames?: boolean;
+
   mReservedToplevelNames?: string[];
 
   mUniversalReservedToplevelNames?: RegExp[];
@@ -69,7 +71,7 @@ export enum OhmUrlStatus {
 }
 
 export interface IPrinterOption {
-  
+
   //Print obfuscation time&memory usage of all files and obfuscation processes
   readonly mFilesPrinter?: boolean;
 

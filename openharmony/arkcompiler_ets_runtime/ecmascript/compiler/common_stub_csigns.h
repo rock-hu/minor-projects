@@ -120,6 +120,10 @@ namespace panda::ecmascript::kungfu {
     V(SameValue)                      \
     V(StringIteratorNext)             \
     V(VerifyBarrier)                  \
+    V(ArrayIteratorNext)              \
+    V(MapIteratorNext)                \
+    V(SetIteratorNext)                \
+    V(GetIterator)                    \
     V(GrowElementsCapacity)
 
 #define COMMON_STUB_ID_LIST(V)          \

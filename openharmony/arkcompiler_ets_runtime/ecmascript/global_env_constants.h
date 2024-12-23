@@ -166,7 +166,8 @@ class ObjectFactory;
     V(JSTaggedValue, EmptyLayoutInfo, EMPTY_LAYOUT_INFO_OBJECT_INDEX, ecma_roots_special)              \
     V(JSTaggedValue, DefaultSupers, DEFAULT_SUPERS_INDEX, ecma_roots_special)                          \
     V(JSTaggedValue, EmptyTaggedQueue, EMPTY_TAGGED_QUEUE_OBJECT_INDEX, ecma_roots_special)            \
-    V(JSTaggedValue, UndefinedCompletionRecord, UNDEFINED_COMPLRTION_RECORD_INDEX, ecma_roots_special)
+    V(JSTaggedValue, UndefinedCompletionRecord, UNDEFINED_COMPLRTION_RECORD_INDEX, ecma_roots_special) \
+    V(JSTaggedValue, ArraySpeciesAccessor, ARRAY_SPECIES_ACCESSOR, ecma_roots_special)
 
 // Use for builtins inlining
 #define GLOBAL_ENV_INLINED_BUILTINS(V)                                                                  \
@@ -289,8 +290,9 @@ class ObjectFactory;
     V(JSTaggedValue, ArraySome, ARRAY_SOME_INDEX, ecma_roots_builtins)                                  \
     V(JSTaggedValue, ArrayEvery, ARRAY_EVERY_INDEX, ecma_roots_builtins)                                \
     V(JSTaggedValue, ArrayPop, ARRAY_POP_INDEX, ecma_roots_builtins)                                    \
-    V(JSTaggedValue, ArrayPush, ARRAY_PUSH_INDEX, ecma_roots_builtins)                                    \
+    V(JSTaggedValue, ArrayPush, ARRAY_PUSH_INDEX, ecma_roots_builtins)                                  \
     V(JSTaggedValue, ArraySlice, ARRAY_SLICE_INDEX, ecma_roots_builtins)                                \
+    V(JSTaggedValue, ArrayConcat, ARRAY_CONCAT_INDEX, ecma_roots_builtins)                              \
     V(JSTaggedValue, GloablDecodeURIComponent, GLOBAL_DECODE_URI_COMPONENT, ecma_roots_builtins)
 
 // All of type JSTaggedValue

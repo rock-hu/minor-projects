@@ -1153,6 +1153,7 @@ public:
     std::list<RefPtr<FrameNode>> GetActiveChildren();
 
     void MarkDirtyWithOnProChange(PropertyChangeFlag extraFlag);
+    void OnPropertyChangeMeasure() const;
 
     void SetVisibleAreaChangeTriggerReason(VisibleAreaChangeTriggerReason triggerReason)
     {
@@ -1160,6 +1161,8 @@ public:
             visibleAreaChangeTriggerReason_ = triggerReason;
         }
     }
+
+    void OnThemeScopeUpdate(int32_t themeScopeId) override;
 
 protected:
     void DumpInfo() override;

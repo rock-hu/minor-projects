@@ -318,10 +318,12 @@ public:
     void SetKeysOfForInIterator(GateRef glue, GateRef iter, GateRef keys);
     void SetObjectOfForInIterator(GateRef glue, GateRef iter, GateRef object);
     void SetCachedHclassOfForInIterator(GateRef glue, GateRef iter, GateRef hclass);
-    void IncreaseInteratorIndex(GateRef glue, GateRef iter, GateRef index);
+    void IncreaseIteratorIndex(GateRef glue, GateRef iter, GateRef index);
+    void IncreaseArrayIteratorIndex(GateRef glue, GateRef iter, GateRef index);
     void SetNextIndexOfArrayIterator(GateRef glue, GateRef iter, GateRef nextIndex);
     void SetIteratedArrayOfArrayIterator(GateRef glue, GateRef iter, GateRef iteratedArray);
     void SetBitFieldOfArrayIterator(GateRef glue, GateRef iter, GateRef kind);
+    GateRef GetArrayIterationKind(GateRef iter);
     GateRef GetHasChanged(GateRef object);
     GateRef GetAccessorHasChanged(GateRef object);
     GateRef HasDeleteProperty(GateRef hClass);
@@ -487,7 +489,6 @@ public:
     GateRef IsJSHClass(GateRef obj);
     inline void StoreHClass(GateRef glue, GateRef object, GateRef hClass);
     inline void StoreHClassWithoutBarrier(GateRef glue, GateRef object, GateRef hClass);
-    GateRef IsStabelArray(GateRef glue, GateRef obj);
     inline void StorePrototype(GateRef glue, GateRef hclass, GateRef prototype);
     void SetExtensibleToBitfield(GateRef glue, GateRef obj, bool isExtensible);
 
@@ -560,7 +561,7 @@ public:
     GateRef IsUndefinedOrHoleCheck(GateRef value);
     GateRef IsNotUndefinedOrHoleCheck(GateRef value);
     GateRef IsDataViewCheck(GateRef obj);
-    GateRef IsCallableCheck(GateRef func);
+    GateRef IsCallableCheck(GateRef func, GateRef frameState = Circuit::NullGate());
     GateRef Int32UnsignedUpperBoundCheck(GateRef value, GateRef upperBound);
     GateRef Int32DivWithCheck(GateRef left, GateRef right);
     GateType GetGateTypeOfValueType(ValueType type);
@@ -698,6 +699,7 @@ public:
     inline GateRef TaggedIsException(GateRef x);
     inline GateRef TaggedIsSpecial(GateRef x);
     inline GateRef TaggedIsHeapObject(GateRef x);
+    inline GateRef TaggedIsArrayIterator(GateRef obj);
     inline GateRef TaggedIsAsyncGeneratorObject(GateRef x);
     inline GateRef TaggedIsJSGlobalObject(GateRef x);
     inline GateRef TaggedIsGeneratorObject(GateRef x);
@@ -722,6 +724,7 @@ public:
     inline GateRef TaggedIsString(GateRef obj);
     inline GateRef TaggedIsStringIterator(GateRef obj);
     inline GateRef TaggedIsSharedObj(GateRef obj);
+    inline GateRef TaggedIsStableArray(GateRef glue, GateRef obj);
     inline GateRef TaggedIsStringOrSymbol(GateRef obj);
     inline GateRef TaggedIsSymbol(GateRef obj);
     inline GateRef TaggedIsProtoChangeMarker(GateRef obj);

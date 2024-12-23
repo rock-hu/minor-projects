@@ -295,6 +295,7 @@ public:
     GateRef BothAreString(GateRef x, GateRef y);
     GateRef TaggedIsStringOrSymbol(GateRef obj);
     GateRef TaggedIsSymbol(GateRef obj);
+    GateRef TaggedIsArrayIterator(GateRef obj);
     GateRef TaggedIsArrayBuffer(GateRef obj);
     GateRef TaggedIsProtoChangeMarker(GateRef obj);
     GateRef GetNextPositionForHash(GateRef last, GateRef count, GateRef size);
@@ -560,6 +561,9 @@ public:
     GateRef GetPropertyInlinedProps(GateRef obj, GateRef hClass,
         GateRef index);
     GateRef GetInlinedPropOffsetFromHClass(GateRef hclass, GateRef attrOffset);
+    inline GateRef IsObjSizeTrackingInProgress(GateRef hclass);
+    inline GateRef GetConstructionCounter(GateRef hclass);
+    inline void SetConstructionCounter(GateRef glue, GateRef hclass, GateRef count);
 
     void IncNumberOfProps(GateRef glue, GateRef hClass);
     GateRef GetNumberOfPropsFromHClass(GateRef hClass);
@@ -632,7 +636,6 @@ public:
     void JSObjectSetProperty(GateRef glue, GateRef obj, GateRef hClass, GateRef attr, GateRef key, GateRef value);
     GateRef ShouldCallSetter(GateRef receiver, GateRef holder, GateRef accessor, GateRef attr);
     GateRef CallSetterHelper(GateRef glue, GateRef holder, GateRef accessor,  GateRef value, ProfileOperation callback);
-    GateRef SetHasConstructorCondition(GateRef glue, GateRef receiver, GateRef key);
     GateRef AddPropertyByName(GateRef glue, GateRef receiver, GateRef key, GateRef value, GateRef propertyAttributes,
         ProfileOperation callback);
     GateRef IsUtf16String(GateRef string);
@@ -891,10 +894,12 @@ public:
     void SetKeysOfForInIterator(GateRef glue, GateRef iter, GateRef keys);
     void SetObjectOfForInIterator(GateRef glue, GateRef iter, GateRef object);
     void SetCachedHclassOfForInIterator(GateRef glue, GateRef iter, GateRef hclass);
-    void IncreaseInteratorIndex(GateRef glue, GateRef iter, GateRef index);
+    void IncreaseIteratorIndex(GateRef glue, GateRef iter, GateRef index);
     void SetNextIndexOfArrayIterator(GateRef glue, GateRef iter, GateRef nextIndex);
+    void IncreaseArrayIteratorIndex(GateRef glue, GateRef iter, GateRef index);
     void SetIteratedArrayOfArrayIterator(GateRef glue, GateRef iter, GateRef iteratedArray);
     void SetBitFieldOfArrayIterator(GateRef glue, GateRef iter, GateRef kind);
+    GateRef GetArrayIterationKind(GateRef iter);
     GateRef GetEnumCacheKind(GateRef glue, GateRef enumCache);
     GateRef GetEmptyArray(GateRef glue);
     GateRef IsEnumCacheValid(GateRef receiver, GateRef cachedHclass, GateRef kind);

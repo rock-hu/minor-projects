@@ -58,6 +58,13 @@ const std::u16string SYMBOL_TRANS = u"\uF0001";
 const std::u16string WIDE_NEWLINE = u"\n";
 constexpr float RICH_DEFAULT_SHADOW_COLOR = 0x33000000;
 constexpr float RICH_DEFAULT_ELEVATION = 120.0f;
+
+bool IsJumpLink(const std::string& content)
+{
+    // start with http:// or https://
+    std::regex pattern(R"(https?://[^\s]+)");
+    return std::regex_match(content, pattern);
+}
 }; // namespace
 
 TextPattern::~TextPattern()
@@ -110,7 +117,9 @@ void TextPattern::OnAttachToFrameNode()
     pipeline->AddWindowStateChangedCallback(host->GetId());
     auto textLayoutProperty = GetLayoutProperty<TextLayoutProperty>();
     CHECK_NULL_VOID(textLayoutProperty);
-    textLayoutProperty->UpdateTextAlign(TextAlign::START);
+    auto theme = pipeline->GetTheme<TextTheme>();
+    CHECK_NULL_VOID(theme);
+    textLayoutProperty->UpdateTextAlign(theme->GetTextStyle().GetTextAlign());
     textLayoutProperty->UpdateAlignment(Alignment::CENTER_LEFT);
 }
 
@@ -838,6 +847,17 @@ void TextPattern::HandleOnSelectAll()
     host->MarkDirtyNode(PROPERTY_UPDATE_RENDER);
 }
 
+bool TextPattern::IsShowSearch()
+{
+    auto host = GetHost();
+    CHECK_NULL_RETURN(host, false);
+    auto context = host->GetContext();
+    CHECK_NULL_RETURN(context, false);
+    auto textTheme = context->GetTheme<TextTheme>();
+    CHECK_NULL_RETURN(textTheme, false);
+    return textTheme->IsShowSearch();
+}
+
 void TextPattern::InitLongPressEvent(const RefPtr<GestureEventHub>& gestureHub)
 {
     constexpr int32_t longPressDelay = 600;
@@ -964,10 +984,36 @@ void TextPattern::HandleClickOnTextAndSpan(GestureEvent& info)
         target.area.SetWidth(Dimension(0.0f));
         target.area.SetHeight(Dimension(0.0f));
         spanClickinfo.SetTarget(target);
-        span->onClick(spanClickinfo);
+        if (!TryLinkJump(span)) {
+            span->onClick(spanClickinfo);
+            // todo: RecordSpanClickEvent
+        }
     } else {
         ActTextOnClick(info);
     }
+}
+
+// return: whether execute link jump callback
+bool TextPattern::TryLinkJump(const RefPtr<SpanItem>& span)
+{
+    auto host = GetHost();
+    CHECK_NULL_RETURN(host, false);
+    auto pipelineContext = host->GetContext();
+    CHECK_NULL_RETURN(pipelineContext, false);
+
+    bool isCloudConfOpen = pipelineContext->GetIsLinkJumpOpen();
+    if (isCloudConfOpen) {
+        std::string spanContent = UtfUtils::Str16ToStr8(span->GetSpanContent()); // change for u16string
+        auto isJumpLink = IsJumpLink(spanContent);
+        TAG_LOGI(AceLogTag::ACE_TEXT, "TextPattern::TryLinkJump, spanContentLen: %{public}zu, isJumpLink: %{public}d",
+            spanContent.size(), isJumpLink);
+        if (isJumpLink) {
+            pipelineContext->ExecuteLinkJumpCallback(spanContent);
+            // todo: RecordSpanClickEvent
+            return true;
+        }
+    }
+    return false;
 }
 
 void TextPattern::ActTextOnClick(GestureEvent& info)
@@ -2299,7 +2345,7 @@ std::function<void(Offset)> TextPattern::GetThumbnailCallback()
                     imageChildren.emplace_back(node);
                 }
             }
-            RichEditorDragInfo info;
+            TextDragInfo info;
             if (pattern->selectOverlay_->IsHandleVisible(true)) {
                 info.firstHandle = pattern->textSelector_.firstHandle;
             }
@@ -2715,6 +2761,7 @@ void TextPattern::OnModifyDone()
         }
     }
     bool enabledCache = eventHub->IsEnabled();
+    selectOverlay_->SetIsSupportMenuSearch(IsShowSearch());
     selectOverlay_->UpdateHandleColor();
     if (textDetectEnable_ && enabledCache != enabled_) {
         enabled_ = enabledCache;
@@ -2897,6 +2944,8 @@ void TextPattern::ToJsonValue(std::unique_ptr<JsonValue>& json, const InspectorF
     }
     json->PutExtAttr("font", GetFontInJson().c_str(), filter);
     json->PutExtAttr("bindSelectionMenu", GetBindSelectionMenuInJson().c_str(), filter);
+    json->PutExtAttr("caretColor", GetCaretColor().c_str(), filter);
+    json->PutExtAttr("selectedBackgroundColor", GetSelectedBackgroundColor().c_str(), filter);
 }
 
 std::string TextPattern::GetBindSelectionMenuInJson() const
@@ -4255,6 +4304,7 @@ ResultObject TextPattern::GetBuilderResultObject(RefPtr<UINode> uiNode, int32_t 
 
 void TextPattern::SetStyledString(const RefPtr<SpanString>& value)
 {
+    AllocStyledString();
     isSpanStringMode_ = true;
     auto host = GetHost();
     CHECK_NULL_VOID(host);
@@ -4415,6 +4465,9 @@ Offset TextPattern::ConvertGlobalToLocalOffset(const Offset& globalOffset)
 void TextPattern::SetExternalSpanItem(const std::list<RefPtr<SpanItem>>& spans)
 {
     isSpanStringMode_ = !spans.empty();
+    if (isSpanStringMode_) {
+        AllocStyledString();
+    }
     spans_ = spans;
     ProcessSpanString();
     auto layoutProperty = GetLayoutProperty<TextLayoutProperty>();
@@ -4850,5 +4903,27 @@ void TextPattern::BeforeSyncGeometryProperties(const DirtySwapConfig& config)
     if (afterLayoutCallback_.has_value()) {
         (*afterLayoutCallback_)();
     }
+}
+
+std::string TextPattern::GetCaretColor() const
+{
+    auto context = PipelineContext::GetCurrentContextSafelyWithCheck();
+    CHECK_NULL_RETURN(context, "");
+    auto theme = context->GetTheme<TextTheme>();
+    CHECK_NULL_RETURN(theme, "");
+    auto textLayoutProperty = GetLayoutProperty<TextLayoutProperty>();
+    CHECK_NULL_RETURN(textLayoutProperty, "");
+    return textLayoutProperty->GetCursorColorValue(theme->GetCaretColor()).ColorToString();
+}
+
+std::string TextPattern::GetSelectedBackgroundColor() const
+{
+    auto context = PipelineContext::GetCurrentContextSafelyWithCheck();
+    CHECK_NULL_RETURN(context, "");
+    auto theme = context->GetTheme<TextTheme>();
+    CHECK_NULL_RETURN(theme, "");
+    auto textLayoutProperty = GetLayoutProperty<TextLayoutProperty>();
+    CHECK_NULL_RETURN(textLayoutProperty, "");
+    return textLayoutProperty->GetSelectedBackgroundColorValue(theme->GetSelectedColor()).ColorToString();
 }
 } // namespace OHOS::Ace::NG

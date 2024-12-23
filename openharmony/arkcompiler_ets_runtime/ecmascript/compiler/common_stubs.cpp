@@ -18,6 +18,7 @@
 #include "ecmascript/base/number_helper.h"
 #include "ecmascript/compiler/access_object_stub_builder.h"
 #include "ecmascript/compiler/builtins/builtins_array_stub_builder.h"
+#include "ecmascript/compiler/builtins/builtins_collection_iterator_stub_builder.h"
 #include "ecmascript/compiler/builtins/builtins_string_stub_builder.h"
 #include "ecmascript/compiler/builtins/linked_hashtable_stub_builder.h"
 #include "ecmascript/compiler/circuit_builder.h"
@@ -1138,7 +1139,7 @@ CREATE_ITERATOR_STUB_BUILDER(CreateJSMapIterator, Map, KEY_AND_VALUE)
 
 void StringIteratorNextStubBuilder::GenerateCircuit()
 {
-    auto env = GetEnvironment();                                                                                 \
+    auto env = GetEnvironment();
     Label exit(env);
     Label slowpath(env);
 
@@ -1156,6 +1157,69 @@ void StringIteratorNextStubBuilder::GenerateCircuit()
     }
     Bind(&exit);
     Return(*result);
+}
+
+void ArrayIteratorNextStubBuilder::GenerateCircuit()
+{
+    auto env = GetEnvironment();
+    Label exit(env);
+    Label slowpath(env);
+
+    GateRef glue = PtrArgument(0);
+    GateRef obj = TaggedArgument(1);
+
+    DEFVARIABLE(result, VariableType::JS_ANY(), Undefined());
+
+    BuiltinsArrayStubBuilder builder(this);
+    builder.ArrayIteratorNext(glue, obj, Gate::InvalidGateRef, &result, &exit, &slowpath);
+    Bind(&slowpath);
+    {
+        result = CallRuntime(glue, RTSTUB_ID(ArrayIteratorNext), { obj });
+        Jump(&exit);
+    }
+    Bind(&exit);
+    Return(*result);
+}
+
+void MapIteratorNextStubBuilder::GenerateCircuit()
+{
+    auto env = GetEnvironment();
+    Label exit(env);
+
+    GateRef glue = PtrArgument(0);
+    GateRef obj = TaggedArgument(1);
+
+    DEFVARIABLE(result, VariableType::JS_ANY(), Undefined());
+
+    BuiltinsCollectionIteratorStubBuilder<JSMapIterator> builder(this, glue, obj, Gate::InvalidGateRef);
+    builder.Next(&result, &exit);
+    Bind(&exit);
+    Return(*result);
+}
+
+void SetIteratorNextStubBuilder::GenerateCircuit()
+{
+    auto env = GetEnvironment();
+    Label exit(env);
+
+    GateRef glue = PtrArgument(0);
+    GateRef obj = TaggedArgument(1);
+
+    DEFVARIABLE(result, VariableType::JS_ANY(), Undefined());
+
+    BuiltinsCollectionIteratorStubBuilder<JSSetIterator> builder(this, glue, obj, Gate::InvalidGateRef);
+    builder.Next(&result, &exit);
+    Bind(&exit);
+    Return(*result);
+}
+
+void GetIteratorStubBuilder::GenerateCircuit()
+{
+    GateRef glue = PtrArgument(0);
+    GateRef obj = TaggedArgument(1);
+
+    GateRef res = GetIterator(glue, obj, ProfileOperation());
+    Return(res);
 }
 
 void JSMapGetStubBuilder::GenerateCircuit()

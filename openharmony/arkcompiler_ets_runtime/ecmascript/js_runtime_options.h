@@ -214,10 +214,12 @@ enum CommandValues {
     OPTION_PGO_TRACE,
     OPTION_COMPILER_PGO_FORCE_DUMP,
     OPTION_COMPILER_ENABLE_CONCURRENT,
+    OPTION_COMPILER_ENABLE_STORE_BARRIER_OPT,
     OPTION_COMPILER_OPT_STRING,
     OPTION_OPEN_ARK_TOOLS,
     OPTION_COMPILER_OPT_FRAME_STATE_ELIMINATION,
     OPTION_COMPILER_ENABLE_PGO_SPACE,
+    OPTION_ENABLE_INLINE_PROPERTY_OPTIMIZATION,
     OPTION_COMPILER_ENABLE_AOT_CODE_COMMENT,
 };
 static_assert(OPTION_INVALID == 63); // Placeholder for invalid options
@@ -1599,6 +1601,11 @@ public:
         return targetCompilerMode_ == "full";
     }
 
+    bool IsApplicationCompilation() const
+    {
+        return IsTargetCompilerMode() || IsCompilerPipelineHostAOT();
+    }
+
     void SetHapPath(std::string path)
     {
         hapPath_ = std::move(path);
@@ -1954,6 +1961,16 @@ public:
         return concurrentCompile;
     }
 
+    void SetStoreBarrierOpt(bool value)
+    {
+        storeBarrierOpt_ = value;
+    }
+
+    bool IsStoreBarrierOpt() const
+    {
+        return storeBarrierOpt_;
+    }
+
     void SetAOTHasException(bool value)
     {
         aotHasException_ = value;
@@ -1982,6 +1999,16 @@ public:
     bool IsEnableAotCodeComment() const
     {
         return enableAotCodeComment_;
+    }
+
+    void SetEnableInlinePropertyOptimization(bool value)
+    {
+        enableInlinePropertyOptimization_ = value;
+    }
+
+    bool IsEnableInlinePropertyOptimization() const
+    {
+        return enableInlinePropertyOptimization_;
     }
 
 public:
@@ -2166,6 +2193,8 @@ private:
     bool forceDump_ {true};
     bool concurrentCompile {true};
     bool aotHasException_ {false};
+    bool enableInlinePropertyOptimization_ {NEXT_OPTIMIZATION_BOOL};
+    bool storeBarrierOpt_ {true};
 };
 } // namespace panda::ecmascript
 

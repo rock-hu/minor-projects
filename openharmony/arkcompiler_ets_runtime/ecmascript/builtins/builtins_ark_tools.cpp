@@ -112,6 +112,18 @@ JSTaggedValue BuiltinsArkTools::DumpHClass(EcmaRuntimeCallInfo *info)
     return JSTaggedValue::Undefined();
 }
 
+JSTaggedValue BuiltinsArkTools::GetInlinedPropertiesCount(EcmaRuntimeCallInfo *info)
+{
+    ASSERT(info);
+    JSThread *thread = info->GetThread();
+    RETURN_IF_DISALLOW_ARKTOOLS(thread);
+    [[maybe_unused]] EcmaHandleScope handleScope(thread);
+
+    JSHandle<JSTaggedValue> obj = GetCallArg(info, 0);
+    JSHClass *objHclass = obj->GetTaggedObject()->GetClass();
+    return JSTaggedValue(objHclass->GetInlinedProperties());
+}
+
 JSTaggedValue BuiltinsArkTools::IsTSHClass(EcmaRuntimeCallInfo *info)
 {
     ASSERT(info);
@@ -174,6 +186,20 @@ JSTaggedValue BuiltinsArkTools::IsStableJsArray(EcmaRuntimeCallInfo *info)
     ASSERT(info->GetArgsNumber() == 1);
     JSHandle<JSTaggedValue> object = GetCallArg(info, 0);
     return (object->IsStableJSArray(thread)) ?
+        GetTaggedBoolean(true) : GetTaggedBoolean(false);
+}
+
+JSTaggedValue BuiltinsArkTools::HasConstructor(EcmaRuntimeCallInfo *info)
+{
+    DISALLOW_GARBAGE_COLLECTION;
+    ASSERT(info);
+    JSThread *thread = info->GetThread();
+    RETURN_IF_DISALLOW_ARKTOOLS(thread);
+    [[maybe_unused]] EcmaHandleScope handleScope(thread);
+
+    ASSERT(info->GetArgsNumber() == 1);
+    JSHandle<JSTaggedValue> object = GetCallArg(info, 0);
+    return (object->IsHeapObject() && object->GetHeapObject()->GetClass()->HasConstructor()) ?
         GetTaggedBoolean(true) : GetTaggedBoolean(false);
 }
 
@@ -1522,5 +1548,13 @@ JSTaggedValue BuiltinsArkTools::InOldSpace(EcmaRuntimeCallInfo *info)
     CHECK(arg->IsHeapObject());
     Region *region = Region::ObjectAddressToRange(arg->GetTaggedObject());
     return JSTaggedValue(region->InOldSpace());
+}
+
+JSTaggedValue BuiltinsArkTools::CreateNapiObject(EcmaRuntimeCallInfo *msg)
+{
+    JSThread *thread = msg->GetThread();
+    ObjectFactory *factory = thread->GetEcmaVM()->GetFactory();
+    JSHandle<JSObject> jsObject(factory->CreateNapiObject());
+    return jsObject.GetTaggedValue();
 }
 } // namespace panda::ecmascript::builtins

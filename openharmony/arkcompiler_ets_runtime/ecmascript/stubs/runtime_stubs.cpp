@@ -804,6 +804,14 @@ DEF_RUNTIME_STUBS(NoticeThroughChainAndRefreshUser)
     return JSTaggedValue::Hole().GetRawData();
 }
 
+DEF_RUNTIME_STUBS(GetNativePcOfstForBaseline)
+{
+    RUNTIME_STUBS_HEADER(GetNativePcOfstForBaseline);
+    JSHandle<JSFunction> func = GetHArg<JSFunction>(argv, argc, 0);  // 0: means the zeroth parameter
+    uint64_t bytecodePc = static_cast<uint64_t>(GetTArg(argv, argc, 1));  // 1: means the first parameter
+    return RuntimeGetNativePcOfstForBaseline(func, bytecodePc);
+}
+
 DEF_RUNTIME_STUBS(Inc)
 {
     RUNTIME_STUBS_HEADER(Inc);
@@ -3560,14 +3568,14 @@ JSTaggedValue RuntimeStubs::CallBoundFunction(EcmaRuntimeCallInfo *info)
 DEF_RUNTIME_STUBS(DeoptHandler)
 {
     RUNTIME_STUBS_HEADER(DeoptHandler);
-    size_t depth = static_cast<size_t>(GetArg(argv, argc, 1).GetInt());
+    size_t depth = static_cast<size_t>(GetTArg(argv, argc, 1));
     Deoptimizier deopt(thread, depth);
     std::vector<kungfu::ARKDeopt> deoptBundle;
     deopt.CollectDeoptBundleVec(deoptBundle);
     ASSERT(!deoptBundle.empty());
     size_t shift = Deoptimizier::ComputeShift(depth);
     deopt.CollectVregs(deoptBundle, shift);
-    kungfu::DeoptType type = static_cast<kungfu::DeoptType>(GetArg(argv, argc, 0).GetInt());
+    kungfu::DeoptType type = static_cast<kungfu::DeoptType>(GetTArg(argv, argc, 0));
     deopt.UpdateAndDumpDeoptInfo(type);
     return deopt.ConstructAsmInterpretFrame();
 }
@@ -3997,6 +4005,15 @@ void RuntimeStubs::ReverseTypedArray(JSTypedArray *typedArray)
             break;
         default:
             UNREACHABLE();
+    }
+}
+
+void RuntimeStubs::FinishObjSizeTracking(JSHClass *cls)
+{
+    uint32_t finalInObjPropsNum = JSHClass::VisitTransitionAndFindMaxNumOfProps(cls);
+    if (finalInObjPropsNum < cls->GetInlinedProperties()) {
+        // UpdateObjSize with finalInObjPropsNum
+        JSHClass::VisitTransitionAndUpdateObjSize(cls, finalInObjPropsNum);
     }
 }
 

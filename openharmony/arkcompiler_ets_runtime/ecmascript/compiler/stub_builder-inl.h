@@ -674,6 +674,11 @@ inline GateRef StubBuilder::TaggedIsArrayBuffer(GateRef obj)
     return Int32Equal(objectType, Int32(static_cast<int32_t>(JSType::JS_ARRAY_BUFFER)));
 }
 
+inline GateRef StubBuilder::TaggedIsArrayIterator(GateRef obj)
+{
+    return env_->GetBuilder()->TaggedIsArrayIterator(obj);
+}
+
 inline GateRef StubBuilder::BothAreString(GateRef x, GateRef y)
 {
     return env_->GetBuilder()->BothAreString(x, y);
@@ -1835,9 +1840,14 @@ inline void StubBuilder::SetCachedHclassOfForInIterator(GateRef glue, GateRef it
     env_->GetBuilder()->SetCachedHclassOfForInIterator(glue, iter, hclass);
 }
 
-inline void StubBuilder::IncreaseInteratorIndex(GateRef glue, GateRef iter, GateRef index)
+inline void StubBuilder::IncreaseIteratorIndex(GateRef glue, GateRef iter, GateRef index)
 {
-    env_->GetBuilder()->IncreaseInteratorIndex(glue, iter, index);
+    env_->GetBuilder()->IncreaseIteratorIndex(glue, iter, index);
+}
+
+inline void StubBuilder::IncreaseArrayIteratorIndex(GateRef glue, GateRef iter, GateRef index)
+{
+    env_->GetBuilder()->IncreaseArrayIteratorIndex(glue, iter, index);
 }
 
 inline void StubBuilder::SetNextIndexOfArrayIterator(GateRef glue, GateRef iter, GateRef nextIndex)
@@ -1853,6 +1863,11 @@ inline void StubBuilder::SetIteratedArrayOfArrayIterator(GateRef glue, GateRef i
 inline void StubBuilder::SetBitFieldOfArrayIterator(GateRef glue, GateRef iter, GateRef kind)
 {
     env_->GetBuilder()->SetBitFieldOfArrayIterator(glue, iter, kind);
+}
+
+inline GateRef StubBuilder::GetArrayIterationKind(GateRef iter)
+{
+    return env_->GetBuilder()->GetArrayIterationKind(iter);
 }
 
 inline GateRef StubBuilder::IsField(GateRef attr)
@@ -2230,6 +2245,30 @@ inline GateRef StubBuilder::GetInlinedPropOffsetFromHClass(GateRef hclass, GateR
     GateRef propOffset = Int32Mul(
         Int32Add(inlinedPropsStart, index), Int32(JSTaggedValue::TaggedTypeSize()));
     return ZExtInt32ToInt64(propOffset);
+}
+
+inline GateRef StubBuilder::IsObjSizeTrackingInProgress(GateRef hclass)
+{
+    GateRef count = GetConstructionCounter(hclass);
+    return Int32NotEqual(count, Int32(0));
+}
+
+inline GateRef StubBuilder::GetConstructionCounter(GateRef hclass)
+{
+    GateRef bitfield = Load(VariableType::INT32(), hclass, IntPtr(JSHClass::BIT_FIELD_OFFSET));
+    return Int32And(Int32LSR(bitfield,
+        Int32(JSHClass::ConstructionCounterBits::START_BIT)),
+        Int32((1LU << JSHClass::ConstructionCounterBits::SIZE) - 1));
+}
+
+inline void StubBuilder::SetConstructionCounter(GateRef glue, GateRef hclass, GateRef count)
+{
+    GateRef bitfield = Load(VariableType::INT32(), hclass, IntPtr(JSHClass::BIT_FIELD_OFFSET));
+    GateRef encodeValue = Int32LSL(count, Int32(JSHClass::ConstructionCounterBits::START_BIT));
+    GateRef mask =
+        Int32(((1LU << JSHClass::ConstructionCounterBits::SIZE) - 1) << JSHClass::ConstructionCounterBits::START_BIT);
+    bitfield = Int32Or(Int32And(bitfield, Int32Not(mask)), encodeValue);
+    Store(VariableType::INT32(), glue, hclass, IntPtr(JSHClass::BIT_FIELD_OFFSET), bitfield);
 }
 
 inline void StubBuilder::IncNumberOfProps(GateRef glue, GateRef hClass)
@@ -3301,7 +3340,7 @@ inline void StubBuilder::SetCompiledCodeFlagToFunction(GateRef glue, GateRef fun
 
     GateRef mask = Int32(JSFunctionBase::COMPILED_CODE_FASTCALL_BITS << JSFunctionBase::IsCompiledCodeBit::START_BIT);
     GateRef newVal = Int32Or(Int32And(oldVal, Int32Not(mask)), value);
-    Store(VariableType::INT32(), glue, function, bitFieldOffset, newVal);
+    Store(VariableType::INT32(), glue, function, bitFieldOffset, newVal, MemoryAttribute::NoBarrier());
 }
 
 inline void StubBuilder::SetCompiledFuncEntry(GateRef glue, GateRef jsFunc, GateRef codeEntry, GateRef isFastCall)
@@ -3675,7 +3714,8 @@ inline void StubBuilder::SetExtensibleToBitfield(GateRef glue, GateRef obj, bool
     GateRef encodeValue = Int32LSL(boolToInt32, Int32(JSHClass::ExtensibleBit::START_BIT));
     GateRef mask = Int32(((1LU << JSHClass::ExtensibleBit::SIZE) - 1) << JSHClass::ExtensibleBit::START_BIT);
     bitfield = Int32Or(Int32And(bitfield, Int32Not(mask)), encodeValue);
-    Store(VariableType::INT32(), glue, jsHclass, IntPtr(JSHClass::BIT_FIELD_OFFSET), bitfield);
+    Store(VariableType::INT32(), glue, jsHclass, IntPtr(JSHClass::BIT_FIELD_OFFSET), bitfield,
+        MemoryAttribute::NoBarrier());
 }
 
 inline void StubBuilder::SetCallableToBitfield(GateRef glue, GateRef obj, bool isCallable)
@@ -3687,7 +3727,8 @@ inline void StubBuilder::SetCallableToBitfield(GateRef glue, GateRef obj, bool i
     GateRef encodeValue = Int32LSL(boolToInt32, Int32(JSHClass::CallableBit::START_BIT));
     GateRef mask = Int32(((1LU << JSHClass::CallableBit::SIZE) - 1) << JSHClass::CallableBit::START_BIT);
     bitfield = Int32Or(Int32And(bitfield, Int32Not(mask)), encodeValue);
-    Store(VariableType::INT32(), glue, jsHclass, IntPtr(JSHClass::BIT_FIELD_OFFSET), bitfield);
+    Store(VariableType::INT32(), glue, jsHclass, IntPtr(JSHClass::BIT_FIELD_OFFSET), bitfield,
+        MemoryAttribute::NoBarrier());
 }
 
 inline void StubBuilder::Comment(GateRef glue, const std::string &str)
@@ -3707,6 +3748,7 @@ inline GateRef StubBuilder::HasConstructorByHClass(GateRef hClass)
 
 inline GateRef StubBuilder::HasConstructor(GateRef object)
 {
+    // only array and typedArray use this bitfield
     return env_->GetBuilder()->HasConstructor(object);
 }
 

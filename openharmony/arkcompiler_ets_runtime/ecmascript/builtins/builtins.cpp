@@ -378,6 +378,7 @@ void Builtins::Initialize(const JSHandle<GlobalEnv> &env, JSThread *thread, bool
     InitializeCjsRequire(env);
     InitializeDefaultExportOfScript(env);
     InitializePropertyDetector(env, lazyInit);
+    InitializeNapiHClass(env, objFuncClass);
     JSHandle<JSHClass> generatorFuncClass =
         factory_->CreateFunctionClass(FunctionKind::GENERATOR_FUNCTION, JSFunction::SIZE, JSType::JS_GENERATOR_FUNCTION,
                                       env->GetGeneratorFunctionPrototype());
@@ -395,7 +396,7 @@ void Builtins::Initialize(const JSHandle<GlobalEnv> &env, JSThread *thread, bool
     thread_->ResetGuardians();
 
     thread->CheckSafepointIfSuspended();
-    if (vm_->GetJSOptions().IsEnableLoweringBuiltin()) {
+    if (vm_->GetJSOptions().IsEnableLoweringBuiltin() && !isRealm) {
         if (!lazyInit) {
             thread_->InitializeBuiltinObject();
         }
@@ -412,6 +413,13 @@ void Builtins::InitializePropertyDetector(const JSHandle<GlobalEnv> &env, bool l
     env->Set##name(thread_, name##detector);
     GLOBAL_ENV_DETECTOR_FIELDS(INITIALIZE_PROPERTY_DETECTOR)
 #undef INITIALIZE_PROPERTY_DETECTOR
+}
+
+void Builtins::InitializeNapiHClass(const JSHandle<GlobalEnv> &env,
+                                    const JSHandle<JSHClass> &objFuncClass) const
+{
+    JSHandle<JSHClass> newJsHClass = JSHClass::Clone(thread_, objFuncClass);
+    env->SetObjectFunctionNapiClass(thread_, newJsHClass);
 }
 
 void Builtins::SetLazyAccessor(const JSHandle<JSObject> &object, const JSHandle<JSTaggedValue> &key,
@@ -2150,7 +2158,7 @@ void Builtins::InitializeArray(const JSHandle<GlobalEnv> &env, const JSHandle<JS
 {
     [[maybe_unused]] EcmaHandleScope scope(thread_);
     // Arraybase.prototype
-    JSHandle<JSHClass> arrBaseFuncInstanceHClass = factory_->CreateJSArrayInstanceClass(
+    JSHandle<JSHClass> arrBaseFuncInstanceHClass = JSArray::CreateJSArrayPrototypeClass(thread_, factory_,
         objFuncPrototypeVal, BuiltinsArray::GetNumPrototypeInlinedProperties());
     // Since we don't want the operations on the array prototype to go through the IR code.
     // Specially we set the bit of the array prototype to true.
@@ -2179,10 +2187,11 @@ void Builtins::InitializeArray(const JSHandle<GlobalEnv> &env, const JSHandle<JS
         arrFuncInstanceHClass.Update(hclassVal);
     }
 
+    JSHandle<JSHClass> arrayFunctionHClass = JSArray::CreateJSArrayFunctionClass(thread_, factory_, env);
     // Array = new Function()
     JSHandle<JSObject> arrayFunction(
         NewBuiltinConstructor(env, arrFuncPrototype, BuiltinsArray::ArrayConstructor, "Array", FunctionLength::ONE,
-                              BUILTINS_STUB_ID(ArrayConstructor)));
+                              BUILTINS_STUB_ID(ArrayConstructor), arrayFunctionHClass));
     JSHandle<JSFunction> arrayFuncFunction(arrayFunction);
 
     // Set the [[Realm]] internal slot of F to the running execution context's Realm
@@ -2215,11 +2224,13 @@ void Builtins::InitializeArray(const JSHandle<GlobalEnv> &env, const JSHandle<JS
     }
 
     // 22.1.2.5 get %Array% [ @@species ]
-    JSHandle<JSTaggedValue> speciesSymbol = env->GetSpeciesSymbol();
     JSHandle<JSTaggedValue> speciesGetter =
         CreateGetter(env, BuiltinsArray::Species, "[Symbol.species]", FunctionLength::ZERO);
-    SetGetter(JSHandle<JSObject>(arrayFunction), speciesSymbol, speciesGetter);
-
+    JSHandle<AccessorData> speciesAccessor = factory_->NewAccessorData();
+    speciesAccessor->SetGetter(thread_, speciesGetter);
+    arrayFunction->SetPropertyInlinedProps(thread_, JSArray::ARRAY_FUNCTION_SPECIES_INDEX,
+                                           speciesAccessor.GetTaggedValue());
+    globalConstant->SetConstant(ConstantIndex::ARRAY_SPECIES_ACCESSOR, speciesAccessor.GetTaggedValue());
     constexpr int arrProtoLen = 0;
     JSHandle<JSTaggedValue> keyString = thread_->GlobalConstants()->GetHandledLengthString();
     PropertyDescriptor descriptor(thread_, JSHandle<JSTaggedValue>(thread_, JSTaggedValue(arrProtoLen)), true, false,
@@ -2733,10 +2744,17 @@ void Builtins::LazyInitializeDataView(const JSHandle<GlobalEnv> &env) const
 JSHandle<JSFunction> Builtins::NewBuiltinConstructor(const JSHandle<GlobalEnv> &env,
                                                      const JSHandle<JSObject> &prototype, EcmaEntrypoint ctorFunc,
                                                      std::string_view name, int length,
-                                                     kungfu::BuiltinsStubCSigns::ID builtinId) const
+                                                     kungfu::BuiltinsStubCSigns::ID builtinId,
+                                                     JSHandle<JSHClass> hclass) const
 {
-    JSHandle<JSFunction> ctor =
-        factory_->NewJSFunction(env, reinterpret_cast<void *>(ctorFunc), FunctionKind::BUILTIN_CONSTRUCTOR, builtinId);
+    JSHandle<Method> target = factory_->NewMethodForNativeFunction(reinterpret_cast<void *>(ctorFunc),
+                                                                   FunctionKind::BUILTIN_CONSTRUCTOR, builtinId);
+    JSHandle<JSFunction> ctor;
+    if (!hclass.IsEmpty()) {
+        ctor = factory_->NewJSFunctionByHClass(target, hclass);
+    } else {
+        ctor = factory_->NewJSFunction(env, target);
+    }
     InitializeCtor(env, prototype, ctor, name, length);
     return ctor;
 }

@@ -59,6 +59,7 @@ import { needReadApiInfo, readProjectPropertiesByCollectedPaths } from './common
 import type { ReseverdSetForArkguard } from './common/ApiReader';
 import { ApiExtractor } from './common/ApiExtractor';
 import esInfo from './configs/preset/es_reserved_properties.json';
+import optimizeEsInfo from './configs/preset/es_reserved_properties_optimized.json';
 import {
   EventList,
   TimeSumPrinter,
@@ -86,6 +87,8 @@ import { TypeUtils } from './utils/TypeUtils';
 import { handleReservedConfig } from './utils/TransformUtil';
 import { UnobfuscationCollections } from './utils/CommonCollections';
 import { historyAllUnobfuscatedNamesMap } from './initialization/Initializer';
+import { MemoryDottingDefine } from './utils/MemoryDottingDefine';
+import { nodeSymbolMap } from './utils/ScopeAnalyzer';
 export { UnobfuscationCollections } from './utils/CommonCollections';
 export { separateUniversalReservedItem, containWildcards, wildcardTransformer } from './utils/TransformUtil';
 export type { ReservedNameInfo } from './utils/TransformUtil';
@@ -145,6 +148,11 @@ export type ObfuscationResultType = {
   unobfuscationNameMap?: Map<string, Set<string>>;
 };
 
+export interface RecordInfo {
+  recordStage: string;
+  recordIndex: number;
+};
+
 const JSON_TEXT_INDENT_LENGTH: number = 2;
 export class ArkObfuscator {
   // Used only for testing
@@ -161,6 +169,10 @@ export class ArkObfuscator {
 
   private mTransformers: TransformerFactory<Node>[];
 
+  private static memoryDottingCallback: (stage: string) => RecordInfo;
+
+  private static memoryDottingStopCallback: (recordInfo: RecordInfo) => void;
+
   static mProjectInfo: ProjectInfo | undefined;
 
   // If isKeptCurrentFile is true, both identifier and property obfuscation are skipped.
@@ -169,6 +181,10 @@ export class ArkObfuscator {
   public constructor() {
     this.mCompilerOptions = {};
     this.mTransformers = [];
+  }
+
+  public getWriteOriginalFileForTest(): boolean {
+    return this.mWriteOriginalFile;
   }
 
   public setWriteOriginalFile(flag: boolean): void {
@@ -235,6 +251,25 @@ export class ArkObfuscator {
     ArkObfuscator.mProjectInfo = projectInfo;
   }
 
+  public static recordStage(stage: string): RecordInfo | null {
+    if (ArkObfuscator.memoryDottingCallback) {
+      return ArkObfuscator.memoryDottingCallback(stage);
+    }
+    return null;
+  }
+
+  public static stopRecordStage(recordInfo: RecordInfo | null): void {
+    if (ArkObfuscator.memoryDottingStopCallback) {
+      if (recordInfo !== null) {
+        ArkObfuscator.memoryDottingStopCallback(recordInfo);
+      }
+    }
+  }
+
+  public isCurrentFileInKeepPathsForTest(customProfiles: IOptions, originalFilePath: string): boolean {
+    return this.isCurrentFileInKeepPaths(customProfiles, originalFilePath);
+  }
+
   private isCurrentFileInKeepPaths(customProfiles: IOptions, originalFilePath: string): boolean {
     const keepFileSourceCode = customProfiles.mKeepFileSourceCode;
     if (keepFileSourceCode === undefined || keepFileSourceCode.mKeepSourceOfPaths.size === 0) {
@@ -285,8 +320,9 @@ export class ArkObfuscator {
     if (needReadApiInfo(this.mCustomProfiles)) {
       // if -enable-property-obfuscation or -enable-export-obfuscation, collect language reserved keywords.
       let languageSet: Set<string> = new Set();
-      for (const key of Object.keys(esInfo)) {
-        const valueArray = esInfo[key];
+      let presetLanguageWhitelist = this.mCustomProfiles.mStripLanguageDefaultWhitelist ? optimizeEsInfo : esInfo;
+      for (const key of Object.keys(presetLanguageWhitelist)) {
+        const valueArray = presetLanguageWhitelist[key];
         valueArray.forEach((element: string) => {
           languageSet.add(element);
         });
@@ -295,6 +331,21 @@ export class ArkObfuscator {
     }
 
     return true;
+  }
+
+  public static setMemoryDottingCallBack(memoryDottingCallback: (stage: string) => RecordInfo,
+    memoryDottingStopCallback: (recordInfo: RecordInfo) => void): void {
+    if (memoryDottingCallback) {
+      ArkObfuscator.memoryDottingCallback = memoryDottingCallback;
+    }
+    if (memoryDottingStopCallback) {
+      ArkObfuscator.memoryDottingStopCallback = memoryDottingStopCallback;
+    }
+  }
+
+  public static clearMemoryDottingCallBack(): void {
+    ArkObfuscator.memoryDottingCallback = undefined;
+    ArkObfuscator.memoryDottingStopCallback = undefined;
   }
 
   /**
@@ -417,6 +468,7 @@ export class ArkObfuscator {
   }
 
   private createAst(content: SourceFile | string, sourceFilePath: string): SourceFile {
+    const recordInfo = ArkObfuscator.recordStage(MemoryDottingDefine.CREATE_AST);
     startSingleFileEvent(EventList.CREATE_AST, performancePrinter.timeSumPrinter);
     let ast: SourceFile;
     if (typeof content === 'string') {
@@ -425,14 +477,17 @@ export class ArkObfuscator {
       ast = content;
     }
     endSingleFileEvent(EventList.CREATE_AST, performancePrinter.timeSumPrinter);
+    ArkObfuscator.stopRecordStage(recordInfo);
 
     return ast;
   }
 
   private obfuscateAst(ast: SourceFile): SourceFile {
+    const recordInfo = ArkObfuscator.recordStage(MemoryDottingDefine.OBFUSCATE_AST);
     startSingleFileEvent(EventList.OBFUSCATE_AST, performancePrinter.timeSumPrinter);
     let transformedResult: TransformationResult<Node> = transform(ast, this.mTransformers, this.mCompilerOptions);
     endSingleFileEvent(EventList.OBFUSCATE_AST, performancePrinter.timeSumPrinter);
+    ArkObfuscator.stopRecordStage(recordInfo);
     ast = transformedResult.transformed[0] as SourceFile;
     return ast;
   }
@@ -477,8 +532,10 @@ export class ArkObfuscator {
       TypeUtils.tsToJs(ast);
     }
     this.handleTsHarComments(ast, originalFilePath);
+    const recordInfo = ArkObfuscator.recordStage(MemoryDottingDefine.CREATE_PRINTER);
     this.createObfsPrinter(ast.isDeclarationFile).writeFile(ast, this.mTextWriter, sourceMapGenerator);
     endSingleFileEvent(EventList.CREATE_PRINTER, performancePrinter.timeSumPrinter);
+    ArkObfuscator.stopRecordStage(recordInfo);
 
     result.filePath = ast.fileName;
     result.content = this.mTextWriter.getText();
@@ -539,8 +596,8 @@ export class ArkObfuscator {
     renameIdentifierModule.clearCaches();
     if (cleanFileMangledNames) {
       PropCollections.globalMangledTable.clear();
-      PropCollections.newlyOccupiedMangledProps.clear();
     }
     UnobfuscationCollections.unobfuscatedNamesMap.clear();
+    nodeSymbolMap.clear();
   }
 }

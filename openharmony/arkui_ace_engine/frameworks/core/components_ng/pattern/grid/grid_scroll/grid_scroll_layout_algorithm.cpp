@@ -1130,9 +1130,10 @@ void GridScrollLayoutAlgorithm::SkipForwardLines(float mainSize, LayoutWrapper* 
         if (lineHeight == info_.lineHeightMap_.end()) {
             break;
         }
-        info_.startMainLineIndex_--;
+        --info_.startMainLineIndex_;
         info_.startIndex_ = line->second.begin()->second;
         info_.currentOffset_ -= lineHeight->second + mainGap_;
+        info_.currentHeight_ -= lineHeight->second + mainGap_;
     }
 
     // skip lines not in matrix
@@ -1173,9 +1174,10 @@ void GridScrollLayoutAlgorithm::SkipBackwardLines(float mainSize, LayoutWrapper*
         if (lineHeight == info_.lineHeightMap_.end()) {
             break;
         }
-        info_.startMainLineIndex_++;
-        info_.endMainLineIndex_++;
+        ++info_.startMainLineIndex_;
+        ++info_.endMainLineIndex_;
         info_.currentOffset_ += lineHeight->second + mainGap_;
+        info_.currentHeight_ += lineHeight->second + mainGap_;
     }
     info_.UpdateStartIndexByStartLine();
 
@@ -1918,8 +1920,7 @@ float GridScrollLayoutAlgorithm::FillNewCacheLineBackward(
     // if it fails to fill a new line backward, do [currentLine--]
     auto line = info_.gridMatrix_.find(currentLine);
     if (info_.gridMatrix_.find(currentLine) != info_.gridMatrix_.end()) {
-        auto nextMain = info_.gridMatrix_.find(currentLine + 1);
-        if (line->second.size() < crossCount_ && nextMain == info_.gridMatrix_.end()) {
+        if (line->second.size() < crossCount_) {
             bool hasNormalItem = false;
             lastCross_ = 0;
             for (const auto& elem : line->second) {

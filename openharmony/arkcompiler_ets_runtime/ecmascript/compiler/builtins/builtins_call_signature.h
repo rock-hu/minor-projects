@@ -90,39 +90,40 @@ namespace panda::ecmascript::kungfu {
     V(GetOwnPropertyDescriptors,   Object,   Undefined())                         \
     V(SetPrototypeOf,              Object,   Undefined())
 
-#define BUILTINS_WITH_ARRAY_STUB_BUILDER(V)         \
-    V(With,          Array,   Undefined())          \
-    V(Unshift,       Array,   Undefined())          \
-    V(Shift,         Array,   Undefined())          \
-    V(Concat,        Array,   Undefined())          \
-    V(Filter,        Array,   Undefined())          \
-    V(Find,          Array,   Undefined())          \
-    V(FindIndex,     Array,   Undefined())          \
-    V(From,          Array,   Undefined())          \
-    V(Splice,        Array,   Undefined())          \
-    V(ToSpliced,     Array,   Undefined())          \
-    V(ForEach,       Array,   Undefined())          \
-    V(IndexOf,       Array,   Undefined())          \
-    V(LastIndexOf,   Array,   Undefined())          \
-    V(Pop,           Array,   Undefined())          \
-    V(Slice,         Array,   Undefined())          \
-    V(Reduce,        Array,   Undefined())          \
-    V(Reverse,       Array,   Undefined())          \
-    V(ToReversed,    Array,   Undefined())          \
-    V(Push,          Array,   Undefined())          \
-    V(Values,        Array,   Undefined())          \
-    V(Includes,      Array,   Undefined())          \
-    V(CopyWithin,    Array,   Undefined())          \
-    V(Some,          Array,   Undefined())          \
-    V(Fill,          Array,   Undefined())          \
-    V(Every,         Array,   Undefined())          \
-    V(FindLastIndex, Array,   Undefined())          \
-    V(FindLast,      Array,   Undefined())          \
-    V(ReduceRight,   Array,   Undefined())          \
-    V(Map,           Array,   Undefined())          \
-    V(FlatMap,       Array,   Undefined())          \
-    V(ToSorted,      Array,   Undefined())          \
-    V(IsArray,       Array,   Undefined())
+#define BUILTINS_WITH_ARRAY_STUB_BUILDER(V)               \
+    V(With,                Array,   Undefined())          \
+    V(Unshift,             Array,   Undefined())          \
+    V(Shift,               Array,   Undefined())          \
+    V(Concat,              Array,   Undefined())          \
+    V(Filter,              Array,   Undefined())          \
+    V(Find,                Array,   Undefined())          \
+    V(FindIndex,           Array,   Undefined())          \
+    V(From,                Array,   Undefined())          \
+    V(Splice,              Array,   Undefined())          \
+    V(ToSpliced,           Array,   Undefined())          \
+    V(ForEach,             Array,   Undefined())          \
+    V(IndexOf,             Array,   Undefined())          \
+    V(LastIndexOf,         Array,   Undefined())          \
+    V(Pop,                 Array,   Undefined())          \
+    V(Slice,               Array,   Undefined())          \
+    V(Reduce,              Array,   Undefined())          \
+    V(Reverse,             Array,   Undefined())          \
+    V(ToReversed,          Array,   Undefined())          \
+    V(Push,                Array,   Undefined())          \
+    V(Values,              Array,   Undefined())          \
+    V(Includes,            Array,   Undefined())          \
+    V(CopyWithin,          Array,   Undefined())          \
+    V(Some,                Array,   Undefined())          \
+    V(Fill,                Array,   Undefined())          \
+    V(Every,               Array,   Undefined())          \
+    V(FindLastIndex,       Array,   Undefined())          \
+    V(FindLast,            Array,   Undefined())          \
+    V(ReduceRight,         Array,   Undefined())          \
+    V(Map,                 Array,   Undefined())          \
+    V(FlatMap,             Array,   Undefined())          \
+    V(ToSorted,            Array,   Undefined())          \
+    V(IsArray,             Array,   Undefined())          \
+    V(ArrayIteratorNext,   Array,   Undefined())
 
 #define BUILTINS_WITH_SET_STUB_BUILDER(V)           \
     V(Clear,    Set,   Undefined())                 \
@@ -240,22 +241,36 @@ namespace panda::ecmascript::kungfu {
     V(BigInt64ArrayConstructor)                     \
     V(BigUint64ArrayConstructor)
 
-#define AOT_AND_BUILTINS_STUB_LIST(V)  \
-    V(StringLocaleCompare)             \
-    V(StringIteratorProtoNext)         \
-    V(ArraySort)
+// NEXT_AOT_AND_BUILTINS_STUB_LIST: List of functions that is optimized for Next
+#if ENABLE_NEXT_OPTIMIZATION
+    #define NEXT_AOT_AND_BUILTINS_STUB_LIST(V)             \
+        V(ArrayIteratorProtoNext)                          \
+        V(MapIteratorProtoNext)                            \
+        V(SetIteratorProtoNext)
+    #define NEXT_AOT_BUILTINS_STUB_LIST(V)
+#else
+    #define NEXT_AOT_AND_BUILTINS_STUB_LIST(V)
+    #define NEXT_AOT_BUILTINS_STUB_LIST(V)                 \
+        V(ArrayIteratorProtoNext)                          \
+        V(MapIteratorProtoNext)                            \
+        V(SetIteratorProtoNext)
+#endif
+
+#define AOT_AND_BUILTINS_STUB_LIST(V)               \
+    V(StringLocaleCompare)                          \
+    V(StringIteratorProtoNext)                      \
+    V(ArraySort)                                    \
+    NEXT_AOT_AND_BUILTINS_STUB_LIST(V)
 
 #define AOT_BUILTINS_STUB_LIST(V)                       \
     V(JsonStringify)                                    \
     V(MapProtoIterator)                                 \
-    V(MapIteratorProtoNext)                             \
     V(SetProtoIterator)                                 \
-    V(SetIteratorProtoNext)                             \
     V(StringProtoIterator)                              \
     V(ArrayProtoIterator)                               \
-    V(ArrayIteratorProtoNext)                           \
     V(TypeArrayProtoIterator)                           \
-    V(IteratorProtoReturn)
+    V(IteratorProtoReturn)                              \
+    NEXT_AOT_BUILTINS_STUB_LIST(V)
 
 // List of builtins which will try to be inlined in TypedNativeInlineLoweringPass
 #define AOT_BUILTINS_INLINE_LIST(V)                 \
@@ -382,7 +397,11 @@ public:
     {
         return (BuiltinsStubCSigns::ID::StringLocaleCompare == builtinId) ||
                (BuiltinsStubCSigns::ID::StringIteratorProtoNext == builtinId) ||
+               (BuiltinsStubCSigns::ID::ArrayIteratorProtoNext == builtinId) ||
+               (BuiltinsStubCSigns::ID::MapIteratorProtoNext == builtinId) ||
+               (BuiltinsStubCSigns::ID::SetIteratorProtoNext == builtinId) ||
                (BuiltinsStubCSigns::ID::ArraySort == builtinId) ||
+               (BuiltinsStubCSigns::ID::ArrayConcat == builtinId) ||
                (BuiltinsStubCSigns::ID::GlobalDecodeURIComponent == builtinId) ||
                ((BuiltinsStubCSigns::ID::TYPED_BUILTINS_FIRST <= builtinId) &&
                (builtinId <= BuiltinsStubCSigns::ID::TYPED_BUILTINS_LAST));
@@ -480,6 +499,7 @@ public:
             case BuiltinsStubCSigns::ID::StringIteratorProtoNext:
             case BuiltinsStubCSigns::ID::ArrayIteratorProtoNext:
             case BuiltinsStubCSigns::ID::IteratorProtoReturn:
+            case BuiltinsStubCSigns::ID::ArrayConcat:
             case BuiltinsStubCSigns::ID::ArraySort:
                 return true;
             default:
@@ -490,6 +510,7 @@ public:
     static bool IsTypedBuiltinCallThis1(ID builtinId)
     {
         switch (builtinId) {
+            case BuiltinsStubCSigns::ID::ArrayConcat:
             case BuiltinsStubCSigns::ID::JsonStringify:
             case BuiltinsStubCSigns::ID::StringLocaleCompare:
                 return true;
@@ -755,6 +776,8 @@ public:
                 return ConstantIndex::ARRAY_PUSH_INDEX;
             case BuiltinsStubCSigns::ID::ArraySlice:
                 return ConstantIndex::ARRAY_SLICE_INDEX;
+            case BuiltinsStubCSigns::ID::ArrayConcat:
+                return ConstantIndex::ARRAY_CONCAT_INDEX;
             case BuiltinsStubCSigns::ID::GlobalDecodeURIComponent:
                 return ConstantIndex::GLOBAL_DECODE_URI_COMPONENT;
             default:

@@ -1417,33 +1417,6 @@ void StubBuilder::JSHClassAddProperty(GateRef glue, GateRef receiver, GateRef ke
     return;
 }
 
-// if condition:(objHandle->IsJSArray() || objHandle->IsTypedArray()) &&
-//      keyHandle.GetTaggedValue() == thread->GlobalConstants()->GetConstructorString()
-GateRef StubBuilder::SetHasConstructorCondition(GateRef glue, GateRef receiver, GateRef key)
-{
-    Label subentry(env_);
-    env_->SubCfgEntry(&subentry);
-    Label isArray(env_);
-    Label exit(env_);
-    DEFVALUE(result, env_, VariableType::BOOL(), False());
-    Branch(LogicOrBuilder(env_).Or(IsJsArray(receiver)).Or(IsTypedArray(receiver)).Done(), &isArray, &exit);
-    Bind(&isArray);
-    {
-        GateRef gConstOffset = Load(VariableType::JS_ANY(), glue,
-                                    IntPtr(JSThread::GlueData::GetGlobalConstOffset(env_->Is32Bit())));
-        GateRef gCtorStr = Load(VariableType::JS_ANY(),
-                                gConstOffset,
-                                Int64Mul(Int64(sizeof(JSTaggedValue)),
-                                         Int64(static_cast<uint64_t>(ConstantIndex::CONSTRUCTOR_STRING_INDEX))));
-        result = Equal(key, gCtorStr);
-        Jump(&exit);
-    }
-    Bind(&exit);
-    auto ret = *result;
-    env_->SubCfgExit();
-    return ret;
-}
-
 // Note: set return exit node
 GateRef StubBuilder::AddPropertyByName(GateRef glue, GateRef receiver, GateRef key, GateRef value,
                                        GateRef propertyAttributes, ProfileOperation callback)
@@ -1453,19 +1426,7 @@ GateRef StubBuilder::AddPropertyByName(GateRef glue, GateRef receiver, GateRef k
     env->SubCfgEntry(&subentry);
     Label exit(env);
     DEFVARIABLE(result, VariableType::JS_ANY(), Undefined());
-    Label setHasCtor(env);
-    Label notSetHasCtor(env);
-    Label afterCtorCon(env);
     GateRef hclass = LoadHClass(receiver);
-    BRANCH(SetHasConstructorCondition(glue, receiver, key), &setHasCtor, &notSetHasCtor);
-    {
-        Bind(&setHasCtor);
-        SetHClassBit<JSHClass::HasConstructorBits>(glue, hclass, Int32(1));
-        Jump(&afterCtorCon);
-        Bind(&notSetHasCtor);
-        Jump(&afterCtorCon);
-    }
-    Bind(&afterCtorCon);
     // 0x111 : default attribute for property: writable, enumerable, configurable
     DEFVARIABLE(attr, VariableType::INT64(), propertyAttributes);
     GateRef numberOfProps = GetNumberOfPropsFromHClass(hclass);
@@ -6764,7 +6725,7 @@ GateRef StubBuilder::FastEqual(GateRef glue, GateRef left, GateRef right, Profil
             BRANCH(TaggedIsUndefinedOrNull(right), &rightIsUndefinedOrNull, &rightIsNotUndefinedOrNull);
             Bind(&rightIsUndefinedOrNull);
             {
-                curType = TaggedInt(PGOSampleType::UndefineOrNullType());
+                curType = TaggedInt(PGOSampleType::UndefinedOrNullType());
                 Label leftIsHeapObject(env);
                 Label leftNotHeapObject(env);
                 BRANCH(TaggedIsHeapObject(left), &leftIsHeapObject, &leftNotHeapObject);
@@ -7114,6 +7075,7 @@ GateRef StubBuilder::FastToBooleanWithProfile(GateRef value, ProfileOperation ca
     Label isNotTrue(env);
     Label isFalse(env);
     Label isNotFalse(env);
+    Label isUndefinedOrNull(env);
 
     BRANCH(TaggedIsSpecial(value), &isSpecial, &notSpecial);
     Bind(&isSpecial);
@@ -7132,9 +7094,14 @@ GateRef StubBuilder::FastToBooleanWithProfile(GateRef value, ProfileOperation ca
                 callback.ProfileOpType(TaggedInt(PGOSampleType::BooleanType()));
                 Jump(&returnFalse);
             }
+            Bind(&isNotFalse);
+            BRANCH(TaggedIsUndefinedOrNull(value), &isUndefinedOrNull, &returnFalse);
+            Bind(&isUndefinedOrNull);
+            {
+                callback.ProfileOpType(TaggedInt(PGOSampleType::UndefinedOrNullType()));
+                Jump(&returnFalse);
+            }
         }
-        Bind(&isNotFalse);
-        Jump(&returnFalse);
     }
     Bind(&notSpecial);
     {
@@ -7234,6 +7201,7 @@ GateRef StubBuilder::FastToBooleanWithProfileBaseline(GateRef value, ProfileOper
     Label isNotTrue(env);
     Label isFalse(env);
     Label isNotFalse(env);
+    Label isUndefinedOrNull(env);
 
     Branch(TaggedIsSpecial(value), &isSpecial, &notSpecial);
     Bind(&isSpecial);
@@ -7246,15 +7214,20 @@ GateRef StubBuilder::FastToBooleanWithProfileBaseline(GateRef value, ProfileOper
         }
         Bind(&isNotTrue);
         {
-            Branch(TaggedIsFalse(value), &isFalse, &isNotFalse);
+            BRANCH(TaggedIsFalse(value), &isFalse, &isNotFalse);
             Bind(&isFalse);
             {
                 callback.ProfileOpType(TaggedInt(PGOSampleType::BooleanType()));
                 Jump(&returnFalse);
             }
+            Bind(&isNotFalse);
+            BRANCH(TaggedIsUndefinedOrNull(value), &isUndefinedOrNull, &returnFalse);
+            Bind(&isUndefinedOrNull);
+            {
+                callback.ProfileOpType(TaggedInt(PGOSampleType::UndefinedOrNullType()));
+                Jump(&returnFalse);
+            }
         }
-        Bind(&isNotFalse);
-        Jump(&returnFalse);
     }
     Bind(&notSpecial);
     {
@@ -8050,7 +8023,7 @@ GateRef StubBuilder::NextInternal(GateRef glue, GateRef iter)
     Bind(&fastGetKey);
     {
         result = GetValueFromTaggedArray(keys, index);
-        IncreaseInteratorIndex(glue, iter, index);
+        IncreaseIteratorIndex(glue, iter, index);
         Jump(&exit);
     }
     Bind(&slowpath);
