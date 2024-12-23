@@ -7,6 +7,7 @@ type AlertAction = string;
 /*
   primaryButton = 1,
   secondaryButton = 2,
+  thirdaryButton = 3,
 */
 type AlertButtonKey = number;
 export type AlertOptions = {
@@ -14,6 +15,7 @@ export type AlertOptions = {
   message?: string;
   primaryButton?: string;
   secondaryButton?: string;
+  thirdaryButton?: string;
   items?: Array<string>;
   cancelable?: boolean;
 };
@@ -24,6 +26,7 @@ export interface Spec extends TurboModule {
     dismissed: AlertAction;
     primaryButton: AlertButtonKey;
     secondaryButton: AlertButtonKey;
+    thirdaryButton: AlertButtonKey;
   };
   alert: (
     options: AlertOptions,

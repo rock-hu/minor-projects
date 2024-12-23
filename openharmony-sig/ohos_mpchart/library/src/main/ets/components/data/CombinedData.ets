@@ -82,6 +82,11 @@ export default class CombinedData extends BarLineScatterCandleBubbleData<IBarLin
     this.mXMax = -Number.MAX_VALUE;
     this.mXMin = Number.MAX_VALUE;
 
+    this.mLeftAxisMax = -Number.MAX_VALUE;
+    this.mLeftAxisMin = Number.MAX_VALUE;
+    this.mRightAxisMax = -Number.MAX_VALUE;
+    this.mRightAxisMin = Number.MAX_VALUE;
+
     let allData: JArrayList<BarLineScatterCandleBubbleData<IBarLineScatterCandleBubbleDataSet<EntryOhos>>> = this.getAllData();
 
     for (let i = 0; i < allData.size(); i++) {

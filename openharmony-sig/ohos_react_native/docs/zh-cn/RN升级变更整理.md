@@ -6,7 +6,7 @@
 
 2. **RN** 中`Dimensions`，`DeviceEventEmitter`，`Appstate`，`Appearance`，`Keyboard`， `AccessibilityInfo`，`NativeEventEmitter`，`Linking`等 `removeEventListener` 或  `removeListener` 在新版本已经废弃，更改为 `remove()`。
 
-3. 增加 HarmonyOS 判断方法 `PlatformUtils.isHarmony()`，`PlatformUtils.isAPP()` 已经包含HarmonyOS 判断，如果要写单独的 HarmonyOS RN 文件，文件后缀改为 `index.harmony.tsx`。
+3. 增加 OpenHarmony 判断方法 `PlatformUtils.isHarmony()`，`PlatformUtils.isAPP()` 已经包含OpenHarmony 判断，如果要写单独的 OpenHarmony RN 文件，文件后缀改为 `index.harmony.tsx`。
 
 4. 由于 **RN** 新架构上 native 和 js 通讯效率提高，`setnativeprops` 方法在新架构上已废弃，迁移到 `state` 上实现。
 

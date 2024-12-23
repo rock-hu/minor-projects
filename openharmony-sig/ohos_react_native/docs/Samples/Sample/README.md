@@ -52,7 +52,7 @@
   
   ![image](./figures/环境搭建-bundle打包命令.png)
 
-### HarmonyOS工程内容结构
+### OpenHarmony工程内容结构
 
 ​ 鸿蒙工程由一个`Tabs`组件来构建基本页面框架。在`MultiHome`组件创建了一个`Tabs`组件，`Tabs`包含的三个`TabContent`分别为`HomePage`、`Goods`和`Test`：
 

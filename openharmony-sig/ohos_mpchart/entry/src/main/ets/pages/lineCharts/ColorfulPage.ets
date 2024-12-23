@@ -109,18 +109,14 @@ struct ColorfulPage {
     if (legend) {
       legend.setEnabled(false);
     }
-    let pixelMap=await Utils.getPixelMap($r('app.media.star').id, getContext(this).resourceManager)
+    let pixelMap = await Utils.getPixelMap($r('app.media.star').id, getContext(this).resourceManager)
 
     let start: number = 1;
     let values: JArrayList<EntryOhos> = new JArrayList<EntryOhos>();
     for (let i = start; i < 40; i++) {
       let val = Number(Math.random() * 41);
 
-      if (Math.random() * 100 < 25) {
-        values.add(new EntryOhos(i, val,pixelMap));
-      } else {
-        values.add(new EntryOhos(i, val));
-      }
+      values.add(Math.random() * 100 < 25 ? new EntryOhos(i, val,pixelMap) : new EntryOhos(i, val));
     }
 
 

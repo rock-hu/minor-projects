@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2024 Huawei Technologies Co., Ltd.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE-MIT file in the root directory of this source tree.
+ */
+
 #include "TextComponentInstance.h"
 #include <glog/logging.h>
 #include <react/renderer/components/text/ParagraphProps.h>
@@ -282,6 +289,10 @@ class TextFragmentTouchTarget : public TouchTarget {
   }
 
   bool canChildrenHandleTouch() const override {
+    return false;
+  }
+
+  bool canSubtreeHandleTouch(facebook::react::Point const& point) override {
     return false;
   }
 

@@ -1,4 +1,4 @@
-This documentation is based on React Native documentation licensed under the [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/) license at https://reactnative.cn/docs/0.72/the-new-architecture/pillars-turbomodules. © Meta Platforms Inc. Changed to How to create a TurboModule on HarmonyOS.
+This documentation is based on React Native documentation licensed under the [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/) license at https://reactnative.cn/docs/0.72/the-new-architecture/pillars-turbomodules. © Meta Platforms Inc. Changed to How to create a TurboModule on OpenHarmony.
 
 # Implementation of a Custom TurboModule
 
@@ -135,10 +135,10 @@ For details about how to use Codegen, see [Codegen](Codegen.md).
     npm run codegen
     ```
     ![Execution result](./figures/TurboModule-Codegen-execution-result.png)
-After the execution is successful, copy the generated glue code to your HarmonyOS project.
+After the execution is successful, copy the generated glue code to your OpenHarmony project.
 
 
-#### Writing Native HarmonyOS Code
+#### Writing Native OpenHarmony Code
 
 1. Create a `CalculatorModule.ts` file.
 

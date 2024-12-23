@@ -1,9 +1,17 @@
-import fs from 'node:fs';
+/**
+ * Copyright (c) 2024 Huawei Technologies Co., Ltd.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE-MIT file in the root directory of this source tree.
+ */
+
 import { AbsolutePath } from './AbsolutePath';
 import { PackageJSON } from './PackageJSON';
+import { FS } from '../core';
 
 export class ProjectDependency {
   constructor(
+    private fs: FS,
     private packageRootPath: AbsolutePath,
     private projectRootPath: AbsolutePath
   ) {}
@@ -16,8 +24,26 @@ export class ProjectDependency {
     return this.readPackageJSON().getCodegenConfigs();
   }
 
+  getHarFilePath(): AbsolutePath | null {
+    const packageHarmonyPath =
+      this.packageRootPath.copyWithNewSegment('harmony');
+    if (!this.fs.existsSync(packageHarmonyPath)) {
+      return null;
+    }
+
+    const harFilePaths = this.fs.findFilePathsWithExtensions(
+      packageHarmonyPath,
+      ['har']
+    );
+    if (harFilePaths.length !== 1) {
+      return null;
+    }
+    return harFilePaths[0];
+  }
+
   readPackageJSON() {
     return PackageJSON.fromProjectRootPath(
+      this.fs,
       this.packageRootPath,
       this.projectRootPath
     );
@@ -25,7 +51,7 @@ export class ProjectDependency {
 }
 
 export class ProjectDependenciesManager {
-  constructor(private projectRootPath: AbsolutePath) {}
+  constructor(private fs: FS, private projectRootPath: AbsolutePath) {}
 
   async forEachAsync(
     cb: (dependency: ProjectDependency) => Promise<void> | void
@@ -40,32 +66,32 @@ export class ProjectDependenciesManager {
     cb: (dependency: ProjectDependency) => Promise<void> | void,
     directoryPath: AbsolutePath
   ) {
-    if (!fs.existsSync(directoryPath.getValue())) {
+    if (!this.fs.existsSync(directoryPath)) {
       return;
     }
-    for (let dirOrFileName of fs.readdirSync(directoryPath.getValue())) {
-      const potentialDependencyRootPath =
-        directoryPath.copyWithNewSegment(dirOrFileName);
-      if (fs.lstatSync(potentialDependencyRootPath.getValue()).isDirectory()) {
-        if (dirOrFileName.startsWith('.')) {
+    for (let dirent of this.fs.readDirentsSync(directoryPath)) {
+      if (dirent.isDirectory()) {
+        if (dirent.name.startsWith('.')) {
           continue;
-        } else if (dirOrFileName.startsWith('@')) {
+        } else if (dirent.name.startsWith('@')) {
           await this.forEachDependencyInDirectory(
             cb,
-            directoryPath.copyWithNewSegment(dirOrFileName)
+            directoryPath.copyWithNewSegment(dirent.name)
           );
         } else {
+          const potentialDependencyRootPath = directoryPath.copyWithNewSegment(
+            dirent.name
+          );
           if (
-            !fs.existsSync(
-              potentialDependencyRootPath
-                .copyWithNewSegment('package.json')
-                .getValue()
+            !this.fs.existsSync(
+              potentialDependencyRootPath.copyWithNewSegment('package.json')
             )
           ) {
             continue;
           }
           await cb(
             new ProjectDependency(
+              this.fs,
               potentialDependencyRootPath,
               this.projectRootPath
             )

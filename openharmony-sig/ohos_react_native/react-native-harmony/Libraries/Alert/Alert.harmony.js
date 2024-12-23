@@ -40,8 +40,9 @@ class Alert {
       alertOptions.cancelable = options.cancelable;
     }
 
-    // At most two buttons. Ignore rest.
-    const validButtons: Buttons = (buttons ?? [{text: "OK"}]).slice(0, 2)
+    // At most three buttons. Ignore rest.
+    const validButtons: Buttons = (buttons ?? [{text: "OK"}]).slice(0, 3)
+    const thirdaryButton = validButtons.pop();
     const secondaryButton = validButtons.pop();
     const primaryButton = validButtons.pop();
 
@@ -51,6 +52,9 @@ class Alert {
     if (secondaryButton) {
       alertOptions.secondaryButton = secondaryButton.text || "";
     }
+    if (thirdaryButton) {
+      alertOptions.thirdaryButton = thirdaryButton.text || "";
+    }
 
     const onAction = (action, buttonKey) => {
       if (action === constants.buttonClicked) {
@@ -58,6 +62,8 @@ class Alert {
           primaryButton.onPress && primaryButton.onPress();
         } else if (buttonKey === constants.secondaryButton) {
           secondaryButton.onPress && secondaryButton.onPress();
+        } else if (buttonKey = constants.thirdaryButton) {
+          thirdaryButton.onPress && thirdaryButton.onPress();
         }
       } else if (action === constants.dismissed) {
         options && options.onDismiss && options.onDismiss();

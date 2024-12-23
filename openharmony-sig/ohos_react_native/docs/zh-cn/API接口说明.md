@@ -246,7 +246,7 @@ RNApp({
     new AnyJSBundleProvider([
     new MetroJSBundleProvider(),
     /**
-     * 注意：要从`/data/app/el2/100/base/com.rnoh.tester/files/bundle.harmony.js`加载bundle包。路径不匹配是由于HarmonyOS上的应用程序沙盒
+     * 注意：要从`/data/app/el2/100/base/com.rnoh.tester/files/bundle.harmony.js`加载bundle包。路径不匹配是由于OpenHarmony上的应用程序沙盒
      */
     new FileJSBundleProvider('/data/storage/el2/base/files/bundle.harmony.js'),
     new ResourceJSBundleProvider(this.rnohCoreContext.uiAbilityContext.resourceManager, 'hermes_bundle.hbc'),

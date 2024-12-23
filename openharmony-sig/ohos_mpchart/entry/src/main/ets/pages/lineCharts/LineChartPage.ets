@@ -51,10 +51,7 @@ import MpSelect, { ValueObject } from '../../customView/MpSelect';
 
 class customFormatter implements IAxisValueFormatter {
   getFormattedValue(value: number, axis: AxisBase): string {
-    if (value % 2 == 0) {
-      return value.toString().repeat(5);
-    }
-    return value.toString();
+    return value % 2 === 0 ? value.toString().repeat(5) : value.toString();
   }
 }
 
@@ -160,20 +157,32 @@ struct LineChartPage {
   @Monitor("limitLinePosition")
   changeLimitLine() {
     this.leftAxis?.removeAllLimitLines();
-    switch (this.limitLinePosition) {
-      case 0:
-        break;
-      case 1:
-        this.limitLine1 && this.leftAxis?.addLimitLine(this.limitLine1);
-        break;
-      case 2:
-        this.limitLine2 && this.leftAxis?.addLimitLine(this.limitLine2);
-        break;
-      case 3:
-        this.limitLine1 && this.leftAxis?.addLimitLine(this.limitLine1);
-        this.limitLine2 && this.leftAxis?.addLimitLine(this.limitLine2);
-        break;
+
+    const addLimitLineToAxis = (axis: YAxis | null, limitLine: LimitLine | null) => {
+      if (limitLine && axis) {
+        axis.addLimitLine(limitLine);
+      }
     }
+
+    const limitLineArr: Function[] = [
+      () => {},
+      () => {
+        addLimitLineToAxis(this.leftAxis, this.limitLine1);
+      },
+      () => {
+        addLimitLineToAxis(this.leftAxis, this.limitLine2);
+      },
+      () => {
+        addLimitLineToAxis(this.leftAxis, this.limitLine1);
+        addLimitLineToAxis(this.leftAxis, this.limitLine2);
+      }
+    ]
+
+    const action: Function = limitLineArr[this.limitLinePosition]
+    if (action) {
+      action();
+    }
+
     this.model.invalidate();
   }
 
@@ -194,18 +203,112 @@ struct LineChartPage {
     })
   }
 
+  toggleValues(data: LineData | null, sets: JArrayList<ILineDataSet> | null) {
+    if (!data || !sets) {
+      return;
+    }
+    for (let i = 0; i < sets.size(); i++) {
+      let set = sets.get(i) as LineDataSet;
+      set.setDrawValues(!set.isDrawValuesEnabled());
+    }
+    this.model.invalidate();
+  }
+
+  togglePinchZoom() {
+    this.model.setPinchZoom(!this.model.isPinchZoomEnabled())
+    this.model.invalidate();
+  }
+
+  toggleAutoScale() {
+    this.model.setAutoScaleMinMaxEnabled(!this.model.isAutoScaleMinMaxEnabled());
+    this.model.notifyDataSetChanged();
+  }
+
+  toggleHighlight(data: LineData | null) {
+    if (data !== null) {
+      data.setHighlightEnabled(!data.isHighlightEnabled());
+      this.model.invalidate();
+    }
+  }
+
+  toggleFilled(sets: JArrayList<ILineDataSet> | null) {
+    if (sets) {
+      for (let i = 0; i < sets.size(); i++) {
+        let set = sets.get(i) as LineDataSet;
+        set.setDrawFilled(!set.isDrawFilledEnabled())
+      }
+      this.model.invalidate();
+    }
+  }
+
+  toggleCircles(sets: JArrayList<ILineDataSet> | null) {
+    if (sets) {
+      for (let i = 0; i < sets.size(); i++) {
+        let set = sets.get(i) as LineDataSet;
+        set.setDrawCircles(!set.isDrawCirclesEnabled());
+      }
+      this.model.invalidate();
+    }
+  }
+
+  toggleCubic(sets: JArrayList<ILineDataSet> | null) {
+    if (sets) {
+      for (let i = 0; i < sets.size(); i++) {
+        let set = sets.get(i) as LineDataSet;
+        set.setMode(set.getMode() === Mode.CUBIC_BEZIER ? Mode.LINEAR : Mode.CUBIC_BEZIER);
+      }
+      this.model.invalidate();
+    }
+  }
+
+  toggleStepped(sets: JArrayList<ILineDataSet> | null) {
+    if (sets) {
+      for (let i = 0; i < sets.size(); i++) {
+        let set = sets.get(i) as LineDataSet;
+        set.setMode(set.getMode() === Mode.STEPPED ? Mode.LINEAR : Mode.STEPPED);
+      }
+      this.model.invalidate();
+    }
+  }
+
+  toggleHorizontalCubic(sets: JArrayList<ILineDataSet> | null) {
+    if (sets) {
+      for (let i = 0; i < sets.size(); i++) {
+        let set = sets.get(i) as LineDataSet;
+        set.setMode(set.getMode() === Mode.HORIZONTAL_BEZIER ? Mode.LINEAR : Mode.HORIZONTAL_BEZIER);
+      }
+      this.model.invalidate();
+    }
+  }
+
+  toggleDrawIcon(sets: JArrayList<ILineDataSet> | null) {
+    if (sets) {
+      for (let i = 0; i < sets.size(); i++) {
+        let set = sets.get(i) as LineDataSet;
+        set.setDrawIcons(!this.isDrawIcons)
+      }
+      this.isDrawIcons = !this.isDrawIcons
+      this.model.invalidate();
+    }
+  }
+
+  saveImage() {
+    Utils.saveImage(this.title, this.model ? this.model.context2d : null);
+  }
+
+
   //标题栏菜单回调
   @Monitor("titleModel.index")
   menuCallback() {
 
-    if (this.titleModel == null || this.titleModel == undefined) {
+    if (this.titleModel === null || this.titleModel === undefined) {
       return
     }
-    if (this.model == null || this.model == undefined) {
+    if (this.model === null || this.model === undefined) {
       return
     }
     let index: number = this.titleModel.getIndex()
-    if (index == undefined || index == -1) {
+    if (index === undefined || index === null || index === -1) {
       return
     }
     let data = this.model.getData();
@@ -213,87 +316,34 @@ struct LineChartPage {
     if (data) {
       sets = data.getDataSets();
     }
+
     switch (this.menuItemArr[index]) {
       case Constants.TOGGLE_VALUES:
-        if (!data || !sets) {
-          break;
-        }
-        for (let i = 0; i < sets.size(); i++) {
-          let set = sets.get(i) as LineDataSet;
-          set.setDrawValues(!set.isDrawValuesEnabled());
-        }
-        this.model.invalidate();
+        this.toggleValues(data, sets)
         break;
       case Constants.TOGGLE_PINCHZOOM:
-        if (this.model.isPinchZoomEnabled()) {
-          this.model.setPinchZoom(false);
-        } else {
-          this.model.setPinchZoom(true);
-        }
-        this.model.invalidate();
+        this.togglePinchZoom()
         break;
       case Constants.TOGGLE_AUTO_SCALE:
-        this.model.setAutoScaleMinMaxEnabled(!this.model.isAutoScaleMinMaxEnabled());
-        this.model.notifyDataSetChanged();
+        this.toggleAutoScale()
         break;
       case Constants.TOGGLE_HIGHLIGHT:
-        if (data != null) {
-          data.setHighlightEnabled(!data.isHighlightEnabled());
-          this.model.invalidate();
-        }
+        this.toggleHighlight(data)
         break;
       case Constants.TOGGLE_FILLED:
-        if (sets) {
-          for (let i = 0; i < sets.size(); i++) {
-            let set = sets.get(i) as LineDataSet;
-            if (set.isDrawFilledEnabled()) {
-              set.setDrawFilled(false);
-            } else {
-              set.setDrawFilled(true);
-            }
-          }
-          this.model.invalidate();
-        }
+        this.toggleFilled(sets)
         break;
       case Constants.TOGGLE_CIRCLES:
-        if (sets) {
-          for (let i = 0; i < sets.size(); i++) {
-            let set = sets.get(i) as LineDataSet;
-            if (set.isDrawCirclesEnabled()) {
-              set.setDrawCircles(false);
-            } else {
-              set.setDrawCircles(true);
-            }
-          }
-          this.model.invalidate();
-        }
+        this.toggleCircles(sets)
         break;
       case Constants.TOGGLE_CUBIC:
-        if (sets) {
-          for (let i = 0; i < sets.size(); i++) {
-            let set = sets.get(i) as LineDataSet;
-            set.setMode(set.getMode() == Mode.CUBIC_BEZIER ? Mode.LINEAR : Mode.CUBIC_BEZIER);
-          }
-          this.model.invalidate();
-        }
+        this.toggleCubic(sets)
         break;
       case Constants.TOGGLE_STEPPED:
-        if (sets) {
-          for (let i = 0; i < sets.size(); i++) {
-            let set = sets.get(i) as LineDataSet;
-            set.setMode(set.getMode() == Mode.STEPPED ? Mode.LINEAR : Mode.STEPPED);
-          }
-          this.model.invalidate();
-        }
+        this.toggleStepped(sets)
         break;
       case Constants.TOGGLE_HORIZONTAL_CUBIC:
-        if (sets) {
-          for (let i = 0; i < sets.size(); i++) {
-            let set = sets.get(i) as LineDataSet;
-            set.setMode(set.getMode() == Mode.HORIZONTAL_BEZIER ? Mode.LINEAR : Mode.HORIZONTAL_BEZIER);
-          }
-          this.model.invalidate();
-        }
+        this.toggleHorizontalCubic(sets)
         break;
       case Constants.ANIMATE_X:
         this.model.animateX(2000);
@@ -305,17 +355,10 @@ struct LineChartPage {
         this.model.animateXY(2000, 2000);
         break;
       case Constants.SAVE_IMAGE:
-        Utils.saveImage(this.title, this.model ? this.model.context2d : null);
+        this.saveImage()
         break;
       case Constants.TOGGLE_DRAW_ICON:
-        if (sets) {
-          for (let i = 0; i < sets.size(); i++) {
-            let set = sets.get(i) as LineDataSet;
-            set.setDrawIcons(!this.isDrawIcons)
-          }
-          this.isDrawIcons = !this.isDrawIcons
-          this.model.invalidate();
-        }
+        this.toggleDrawIcon(sets)
         break;
 
     }

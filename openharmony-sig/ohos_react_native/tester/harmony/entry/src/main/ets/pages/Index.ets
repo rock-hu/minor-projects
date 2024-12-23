@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2024 Huawei Technologies Co., Ltd.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE-MIT file in the root directory of this source tree.
+ */
+
 import {
   AnyJSBundleProvider,
   ComponentBuilderContext,
@@ -11,7 +18,7 @@ import {
   RNOHCoreContext
 } from '@rnoh/react-native-openharmony';
 import { PropsDisplayer, SampleView, GeneratedSampleView, CodegenLibSampleArkTSComponent, ContainerView } from '@rnoh/sample-package';
-import { createRNPackages } from '../RNPackagesFactory';
+import { getRNOHPackages } from '../PackageProvider';
 
 const arkTsComponentNames: Array<string> = [SampleView.NAME, GeneratedSampleView.NAME, PropsDisplayer.NAME, CodegenLibSampleArkTSComponent.NAME, ContainerView.NAME];
 @Builder
@@ -87,7 +94,7 @@ struct Index {
         RNApp({
           rnInstanceConfig: {
             name: "app_name",
-            createRNPackages,
+            createRNPackages: getRNOHPackages,
             enableNDKTextMeasuring: true,
             enableBackgroundExecutor: false,
             enableCAPIArchitecture: true,
@@ -109,10 +116,15 @@ struct Index {
           jsBundleProvider: new TraceJSBundleProviderDecorator(
             new AnyJSBundleProvider([
               new MetroJSBundleProvider(),
-              // NOTE: to load the bundle from file, place it in
-              // `/data/app/el2/100/base/com.rnoh.tester/files/bundle.harmony.js`
-              // on your device. The path mismatch is due to app sandboxing on HarmonyOS
+              /**
+              * NOTE: to load the bundle from file, place it in
+              * `/data/app/el2/100/base/com.rnoh.tester/files/bundle.harmony.js`
+              * on your device. The path mismatch is due to app sandboxing on HarmonyOS
+              */
               new FileJSBundleProvider('/data/storage/el2/base/files/bundle.harmony.js'),
+              /**
+              * NOTE: The HBC format is recommended in a production environment. HBC is optimized pre-compiled bytecode.
+              */
               new ResourceJSBundleProvider(this.rnohCoreContext.uiAbilityContext.resourceManager, 'hermes_bundle.hbc'),
               new ResourceJSBundleProvider(this.rnohCoreContext.uiAbilityContext.resourceManager, 'bundle.harmony.js')
             ]),

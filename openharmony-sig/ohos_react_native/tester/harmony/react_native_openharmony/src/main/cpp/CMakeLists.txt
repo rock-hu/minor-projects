@@ -1,3 +1,8 @@
+# Copyright (c) 2024 Huawei Technologies Co., Ltd.
+#
+# This source code is licensed under the MIT license found in the
+# LICENSE-MIT file in the root directory of this source tree.
+
 cmake_minimum_required(VERSION 3.4.1)
 cmake_policy(SET CMP0079 NEW) # Allow to link libraries from different
                               # directories than targets

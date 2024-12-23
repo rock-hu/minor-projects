@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2024 Huawei Technologies Co., Ltd.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE-MIT file in the root directory of this source tree.
+ */
+
 import {
   ComponentSchema,
   NativeModuleSchema,
@@ -9,6 +16,7 @@ import {
   PackageJSON,
   ProjectDependenciesManager,
   CodegenConfig,
+  FS
 } from '../../core';
 // @ts-expect-error
 import extractUberSchemaFromSpecFilePaths_ from '@react-native/codegen/lib/cli/combine/combine-js-to-schema.js';
@@ -58,6 +66,7 @@ export class UberSchema implements ValueObject {
   }
 
   static async fromProject(
+    fs: FS,
     projectRootPath: AbsolutePath,
     onShouldAcceptCodegenConfig?: (
       codegenVersion: number,
@@ -67,6 +76,7 @@ export class UberSchema implements ValueObject {
     const onShouldAcceptCodegenConfig_ =
       onShouldAcceptCodegenConfig ?? ((x: number) => true);
     const packageJSON = PackageJSON.fromProjectRootPath(
+      fs,
       projectRootPath,
       projectRootPath
     );
@@ -82,7 +92,7 @@ export class UberSchema implements ValueObject {
         acceptedCodegenConfigs.push(codegenConfig);
       }
     }
-    await new ProjectDependenciesManager(projectRootPath).forEachAsync(
+    await new ProjectDependenciesManager(fs, projectRootPath).forEachAsync(
       (dependency) => {
         const codegenConfigs = dependency.getCodegenConfigs();
         for (const codegenConfig of codegenConfigs) {

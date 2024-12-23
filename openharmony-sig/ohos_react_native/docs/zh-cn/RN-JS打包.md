@@ -3,17 +3,17 @@
 ​
 在 React Native 中，应用的 JavaScript 代码和资源需要在设备上运行。为了提高应用的加载速度和性能，以及减少网络请求，React Native 应用通常会在发布前进行打包处理，将所有的代码和资源打包成一个或多个文件。
 
-​ 本章节主要介绍 React Native HarmonyOS 化后，如何在 ReactJs 工程中打包 bundle 文件。HarmonyOS 打包 Bundle 的过程涉及 `react-native-harmony.tgz`、`react-native-harmony-cli.tgz` 和 `metro.config.js`，请参考[环境搭建](./环境搭建.md)文档，初步构建基本 ReactJs HarmonyOS 化环境。
+​ 本章节主要介绍 React Native OpenHarmony 化后，如何在 ReactJs 工程中打包 bundle 文件。OpenHarmony 打包 Bundle 的过程涉及 `react-native-harmony.tgz`、`react-native-harmony-cli.tgz` 和 `metro.config.js`，请参考[环境搭建](./环境搭建.md)文档，初步构建基本 ReactJs OpenHarmony 化环境。
 
-## 打包流程HarmonyOS化
+## 打包流程OpenHarmony化
 
-本节会简单介绍有关 HarmonyOS 打包所需的配置项及 HarmonyOS 打包命令，帮助您更快速了解打包流程的 HarmonyOS 化。
+本节会简单介绍有关 OpenHarmony 打包所需的配置项及 OpenHarmony 打包命令，帮助您更快速了解打包流程的 OpenHarmony 化。
 
-- `react-native-harmony.tgz` 中包含了适配 HarmonyOS 的 Metro 打包配置项，这是至关重要的，能让工程在打包的过程中识别 HarmonyOS 平台，同时按照配置的路径优先寻找项目中已进行 HarmonyOS 化适配的依赖文件去加载打包。若您已在您的 JS 工程中依赖 `react-native-harmony.tgz`，那么在编译构建 JS 工程时，工程内就会带有适配 HarmonyOS 的 Metro 打包配置项文件。
+- `react-native-harmony.tgz` 中包含了适配 OpenHarmony 的 Metro 打包配置项，这是至关重要的，能让工程在打包的过程中识别 OpenHarmony 平台，同时按照配置的路径优先寻找项目中已进行 OpenHarmony 化适配的依赖文件去加载打包。若您已在您的 JS 工程中依赖 `react-native-harmony.tgz`，那么在编译构建 JS 工程时，工程内就会带有适配 OpenHarmony 的 Metro 打包配置项文件。
 
   文件路径：`node_modules/@react-native-oh/react-native-harmony/metro.config.js`。
   
-- 要想应用 HarmonyOS Metro 打包配置项，需要在 JS 工程最外层的 `metro.config.js` 文件中引入 `@react-native-oh/react-native-harmony/metro.config.js` 配置文件，自定义修改 `config` 的 `transformer` 配置选项，通过 Metro 自带的 `mergeConfig` 方法，融合 HarmonyOS 打包配置项。
+- 要想应用 OpenHarmony Metro 打包配置项，需要在 JS 工程最外层的 `metro.config.js` 文件中引入 `@react-native-oh/react-native-harmony/metro.config.js` 配置文件，自定义修改 `config` 的 `transformer` 配置选项，通过 Metro 自带的 `mergeConfig` 方法，融合 OpenHarmony 打包配置项。
   
   ```javascript
   // AwesomeProject/metro.config.js
@@ -44,15 +44,15 @@
   );
   ```
 
-- `react-native-harmony-cli.tgz` 中包含了 HarmonyOS 打包命令，其文件路径为 `node_modules/@react-native-oh/react-native-harmony-cli/dist/commands/bundle-harmony.js`。
+- `react-native-harmony-cli.tgz` 中包含了 OpenHarmony 打包命令，其文件路径为 `node_modules/@react-native-oh/react-native-harmony-cli/dist/commands/bundle-harmony.js`。
   
-  HarmonyOS 打包命令示例如下：
+  OpenHarmony 打包命令示例如下：
   
   ```powershell
   react-native bundle-harmony --entry-file index.harmony.js --dev false
   ```
   
-  HarmonyOS 打包命令所支持的配置项如下：
+  OpenHarmony 打包命令所支持的配置项如下：
   
   ```javascript
   options: [
@@ -103,7 +103,7 @@
 
 ## 单Bundle打包
 
-​ 在构建基本 ReactJs HarmonyOS 化环境后使用打包命令 `react-native bundle-harmony`，通过打包配置项配置输入文件路径、输出文件路径等。默认输入文件路径为 JS 项目根目录的 `index.js` 文件，默认输出文件路径为 `./harmony/entry/src/main/resources/rawfile/bundle.harmony.js`。
+​ 在构建基本 ReactJs OpenHarmony 化环境后使用打包命令 `react-native bundle-harmony`，通过打包配置项配置输入文件路径、输出文件路径等。默认输入文件路径为 JS 项目根目录的 `index.js` 文件，默认输出文件路径为 `./harmony/entry/src/main/resources/rawfile/bundle.harmony.js`。
 
 ## 多Bundle打包
 

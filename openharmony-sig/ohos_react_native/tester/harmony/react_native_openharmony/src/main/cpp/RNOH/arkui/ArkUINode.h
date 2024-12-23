@@ -1,4 +1,11 @@
 /**
+ * Copyright (c) 2024 Huawei Technologies Co., Ltd.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE-MIT file in the root directory of this source tree.
+ */
+
+/**
  * Used only in C-API based Architecture.
  */
 #pragma once
@@ -36,6 +43,7 @@ class ArkUINodeDelegate {
   virtual void onArkUINodeAccessibilityAction(
       ArkUINode* node,
       const std::string& actionName){};
+  virtual void onArkUINodeTouchIntercept(const ArkUI_UIInputEvent* event){};
 };
 
 class ArkUINode {
@@ -140,6 +148,7 @@ class ArkUINode {
   virtual void onNodeEvent(
       ArkUI_NodeEventType eventType,
       std::string_view eventString);
+  virtual void onTouchIntercept(const ArkUI_UIInputEvent* event);
 
   virtual ~ArkUINode() noexcept;
 

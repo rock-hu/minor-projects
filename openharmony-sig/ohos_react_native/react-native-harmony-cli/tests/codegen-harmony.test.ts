@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2024 Huawei Technologies Co., Ltd.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE-MIT file in the root directory of this source tree.
+ */
+
 import tmp from 'tmp';
 import { ReactNativeFixture } from './ReactNativeFixture';
 import fs from 'fs';
@@ -213,7 +220,7 @@ describe('module', () => {
       }),
     });
 
-    new ReactNativeFixture(tmpDir).codegenHarmony({
+    const result = new ReactNativeFixture(tmpDir).codegenHarmony({
       cppOutputPath: './harmony/entry/src/main/cpp/generated',
       projectRootPath: '.',
     });

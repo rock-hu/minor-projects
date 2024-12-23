@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2024 Huawei Technologies Co., Ltd.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE-MIT file in the root directory of this source tree.
+ */
+
 #pragma once
 
 #include <react/renderer/components/view/TouchEventEmitter.h>
@@ -25,6 +32,8 @@ class TouchTarget {
   virtual bool containsPointInBoundingBox(Point const& point) = 0;
   virtual bool canHandleTouch() const = 0;
   virtual bool canChildrenHandleTouch() const = 0;
+  // TODO: The function should have been designed as a pure virtual function.
+  virtual bool canSubtreeHandleTouch(Point const& point) { return false; };
   /**
    If a component is designed to handle touch events (e.g., Scroll), it should
    return true if handling is currently in progress. This is done to prevent

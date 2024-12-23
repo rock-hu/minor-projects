@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2024 Huawei Technologies Co., Ltd.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE-MIT file in the root directory of this source tree.
+ */
+
 #pragma once
 #include <react/renderer/components/scrollview/ScrollViewEventEmitter.h>
 #include <react/renderer/components/scrollview/ScrollViewShadowNode.h>
@@ -19,7 +26,6 @@ class ScrollViewComponentInstance
   };
   ScrollNode m_scrollNode;
   StackNode m_contentContainerNode;
-  StackNode m_scrollContainerNode;
   bool m_horizontal = false;
   facebook::react::Size m_contentSize;
   facebook::react::Size m_containerSize;
@@ -86,7 +92,7 @@ class ScrollViewComponentInstance
  public:
   ScrollViewComponentInstance(Context context);
 
-  StackNode& getLocalRootArkUINode() override;
+  ScrollNode& getLocalRootArkUINode() override;
 
   void onChildInserted(
       ComponentInstance::Shared const& childComponentInstance,

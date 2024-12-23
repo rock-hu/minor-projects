@@ -72,6 +72,7 @@ export default class ContentItemData {
     ContentItemData.itemData.push(new ContentItem("Other Charts"));
 
     ContentItemData.itemData.push(new ContentItem("Combined Chart", "Bar and line chart together.", "pages/otherCharts/CombinedChartPage"));
+    ContentItemData.itemData.push(new ContentItem("ScrollCombined Chart", "Scroll Combined Chart.", "pages/otherCharts/ScrollCombinedChartPage"));
     ContentItemData.itemData.push(new ContentItem("Scatter Plot", "Simple scatter plot.", "pages/otherCharts/ScatterChartPage"));
     ContentItemData.itemData.push(new ContentItem("Bubble Chart", "Simple bubble chart.", "pages/otherCharts/BubbleChartPage"));
     ContentItemData.itemData.push(new ContentItem("Candlestick", "Simple financial chart.", "pages/otherCharts/CandlestickChartPage"));
@@ -104,6 +105,7 @@ export default class ContentItemData {
     ContentItemData.itemData.push(new ContentItem("LeftRightAxisPage  ", " The left axis of the icon represents numerical values, and the right axis represents percentages", "pages/customCharts/LeftRightAxisPage"));
     ContentItemData.itemData.push(new ContentItem("ScaleLinePage  ", " Short scale lines", "pages/customCharts/ScaleLinePage/ScaleLinePage"));
     ContentItemData.itemData.push(new ContentItem("GradientLinePage  ", " Gradient Color Chart", "pages/customCharts/GradientLinePage/GradientLinePage"));
+    ContentItemData.itemData.push(new ContentItem("CursorPage  ", " Display cursor", "pages/customCharts/CursorPage"));
 
 
     return ContentItemData.itemData

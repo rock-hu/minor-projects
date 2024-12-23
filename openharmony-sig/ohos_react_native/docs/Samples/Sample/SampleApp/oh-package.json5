@@ -1,4 +1,4 @@
-s{
+{
   "modelVersion": "5.0.0",
   "license": "",
   "devDependencies": {
@@ -13,6 +13,6 @@ s{
     "@ohos/axios": "^2.1.1"
   },
   "overrides": {
-    "@rnoh/react-native-openharmony": "0.72.46"
+    "@rnoh/react-native-openharmony": "0.72.47"
   }
 }

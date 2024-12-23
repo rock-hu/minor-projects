@@ -1,15 +1,29 @@
-import fs from 'fs';
+/**
+ * Copyright (c) 2024 Huawei Technologies Co., Ltd.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE-MIT file in the root directory of this source tree.
+ */
 import { AbsolutePath } from './AbsolutePath';
-import { CodegenConfig } from './CodegenConfig';
+import { CodegenConfig, RawCodegenConfig } from './CodegenConfig';
 import { DescriptiveError } from './DescriptiveError';
+import { FS } from './FileSystem';
+
+type RawAutolinkingConfig = {
+  etsPackageClassName?: string;
+  cppPackageClassName?: string;
+  cmakeLibraryTargetName?: string;
+  ohPackageName?: string;
+};
 
 export class PackageJSON {
   static fromProjectRootPath(
+    fs: FS,
     packageRootPath: AbsolutePath,
     projectRootPath: AbsolutePath
   ) {
     const packageJSONPath = packageRootPath.copyWithNewSegment('package.json');
-    if (!fs.existsSync(packageJSONPath.getValue())) {
+    if (!fs.existsSync(packageJSONPath)) {
       throw new DescriptiveError({
         whatHappened: "Couldn't find 'package.json'",
         whatCanUserDo: {
@@ -21,11 +35,19 @@ export class PackageJSON {
         extraData: packageJSONPath.getValue(),
       });
     }
-    return new PackageJSON(
-      JSON.parse(fs.readFileSync(packageJSONPath.getValue()).toString()),
-      packageRootPath,
-      projectRootPath
-    );
+    try {
+      return new PackageJSON(
+        JSON.parse(fs.readTextSync(packageJSONPath).toString()),
+        packageRootPath,
+        projectRootPath
+      );
+    } catch (err) {
+      throw new DescriptiveError({
+        whatHappened: "Couldn't parse package.json",
+        whatCanUserDo: {},
+        extraData: { packageJSONPath, err },
+      });
+    }
   }
 
   private constructor(
@@ -40,6 +62,16 @@ export class PackageJSON {
 
   get version(): string {
     return this.rawPackageJSON.version;
+  }
+
+  get harmony():
+    | undefined
+    | {
+        alias?: string;
+        codegenConfig?: RawCodegenConfig | RawCodegenConfig[];
+        autolinking?: RawAutolinkingConfig | null | true;
+      } {
+    return this.rawPackageJSON.harmony;
   }
 
   getCodegenConfigs(): CodegenConfig[] {

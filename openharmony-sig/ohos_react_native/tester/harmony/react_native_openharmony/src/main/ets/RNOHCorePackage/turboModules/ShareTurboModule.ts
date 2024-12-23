@@ -1,12 +1,22 @@
-import type {TurboModuleContext} from '../../RNOH/TurboModule';
-import {TurboModule} from '../../RNOH/TurboModule';
-import {RNOHLogger} from '../../RNOH/RNOHLogger';
-import wantConstant from '@ohos.app.ability.wantConstant';
+/**
+ * Copyright (c) 2024 Huawei Technologies Co., Ltd.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE-MIT file in the root directory of this source tree.
+ */
+
+import type { TurboModuleContext } from '../../RNOH/TurboModule';
+import { TurboModule } from '../../RNOH/TurboModule';
+import { RNOHLogger } from '../../RNOH/RNOHLogger';
+import { systemShare } from '@kit.ShareKit';
+import { uniformTypeDescriptor as utd } from '@kit.ArkData';
+import { common } from '@kit.AbilityKit';
 
 const ACTION_SHARED = 'sharedAction';
 
 export class ShareTurboModule extends TurboModule {
   public static readonly NAME = 'ShareModule';
+
   private logger: RNOHLogger;
 
   constructor(protected ctx: TurboModuleContext) {
@@ -15,25 +25,52 @@ export class ShareTurboModule extends TurboModule {
   }
 
   async share(
-    content: {title?: string; message?: string; url?: string},
+    content: { title?: string; message?: string; url?: string },
     dialogTitle?: string,
-  ): Promise<{action: string}> {
-    try {
-      const want = {
-        action: 'ohos.want.action.sendData',
-        uri: 'file://',
-        type: 'text/plain',
-        parameters: {
-          [wantConstant.Params.SHARE_ABSTRACT_KEY]: content.message,
-          [wantConstant.Params.SHARE_URL_KEY]: content.url,
-          [wantConstant.Params.CONTENT_TITLE_KEY]: content.title,
-        },
-      };
-      await this.ctx.uiAbilityContext.startAbility(want); // no information from API to check if sharing was successful
-      this.logger.info('startAbility success');
-    } catch (error) {
-      this.logger.error('startAbility returned error: ' + error); // sometimes startAbility returns InternalError but shares the content correctly
+  ): Promise<{ action: string }> {
+    if (!content) {
+      this.logger.error('Content is null');
+      return Promise.reject('Content cannot be null');
     }
-    return Promise.resolve({action: ACTION_SHARED});
+
+    let sharedData: systemShare.SharedData = new systemShare.SharedData(undefined);
+    let sharedRecord: systemShare.SharedRecord;
+    if (content.message) {
+      sharedRecord = {
+        utd: utd.UniformDataType.PLAIN_TEXT,
+        content: content.message,
+        title: content.title
+      }
+      sharedData.addRecord(sharedRecord);
+    }
+    if (content.url) {
+      sharedRecord = {
+        utd: utd.UniformDataType.HYPERLINK,
+        uri: content.url,
+        title: content.title
+      }
+      sharedData.addRecord(sharedRecord);
+    }
+
+    if (sharedData.getRecords().length == 0) {
+      this.logger.error('Invalid content: either message or url must be provided');
+      return Promise.reject('Either message or url must be provided');
+    }
+
+    try {
+      const controller: systemShare.ShareController = new systemShare.ShareController(sharedData);
+      const context: common.UIAbilityContext = this.ctx.uiAbilityContext as common.UIAbilityContext;
+      controller.on('dismiss', () => {
+        this.logger.info('Share panel closed');
+      })
+      await controller.show(context, {
+        previewMode: systemShare.SharePreviewMode.DETAIL,
+        selectionMode: systemShare.SelectionMode.BATCH
+      });
+    } catch (error) {
+      this.logger.error('Open share dialog error: ' + error);
+      return Promise.reject('Failed to open share dialog');
+    }
+    return Promise.resolve({ action: ACTION_SHARED });
   }
 }

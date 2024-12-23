@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2024 Huawei Technologies Co., Ltd.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE-MIT file in the root directory of this source tree.
+ */
+
 import pathUtils from 'node:path';
 import { ValueObject } from './ValueObject';
 
@@ -7,11 +14,16 @@ export class AbsolutePath implements ValueObject {
   }
 
   private value: string = '';
+
   constructor(path: string) {
     this.value = pathUtils.resolve(path);
   }
 
   getValue(): string {
+    return this.value;
+  }
+
+  toString(): string {
     return this.value;
   }
 
@@ -45,6 +57,10 @@ class RelativePath implements ValueObject {
   constructor(private value: string) {}
 
   getValue() {
+    return this.value;
+  }
+
+  toString() {
     return this.value;
   }
 }

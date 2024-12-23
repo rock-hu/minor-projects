@@ -1,27 +1,27 @@
 ### README
 
-这个项目包含两个演示，一个演示如何在 HarmonyOS 侧将 raw 文件推送到沙箱并成功加载，另一个演示如何在 React Native 侧加载沙箱中的图片。
+这个项目包含两个演示，一个演示如何在 OpenHarmony 侧将 raw 文件推送到沙箱并成功加载，另一个演示如何在 React Native 侧加载沙箱中的图片。
 
 #### 目录结构
 
 ```
 ├── SandBoxNativeProject
 |   └── Index.ets
-|       ├── downloadBundle # HarmonyOS 侧推送 raw 文件到沙箱中
-|       └── new FileJSBundleProvider #HarmonyOS 侧加载沙箱中的文件
+|       ├── downloadBundle # OpenHarmony 侧推送 raw 文件到沙箱中
+|       └── new FileJSBundleProvider #OpenHarmony 侧加载沙箱中的文件
 └── SandBoxRnProject
     └── example.tsx  # React Native 侧加载沙箱中的图片
 
 ```
 
-#### HarmonyOS 侧
+#### OpenHarmony 侧
 
 1. **将文件推送到沙箱**: 使用 `downloadBundle` 函数的 getRawFileContent 方法将 rwaFile 中的文件推送到沙箱，以便之后的读取操作。
 2. **加载文件**: 使用 `new FileJSBundleProvider` 类从沙箱中加载文件并验证其内容。
 
 #### React Native 侧
 
-1. **加载沙箱中的图片**: 使用 `example.tsx` 中的代码，从 HarmonyOS 沙箱中加载图片，并在 React Native 应用中显示。
+1. **加载沙箱中的图片**: 使用 `example.tsx` 中的代码，从 OpenHarmony 沙箱中加载图片，并在 React Native 应用中显示。
 
 #### 运行步骤
 
@@ -35,7 +35,7 @@
 
 #### 注意事项
 
-- 确保 HarmonyOS 和 React Native 项目配置正确，以便文件可以在两个系统之间无缝传递与加载。
+- 确保 OpenHarmony 和 React Native 项目配置正确，以便文件可以在两个系统之间无缝传递与加载。
 - 沙箱路径的使用和文件访问权限需要根据具体环境进行调整。
 
 ---

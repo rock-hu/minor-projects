@@ -15,7 +15,7 @@
 
 import { Scene } from '../../Scene';
 import { Value } from '../../core/base/Value';
-import { NodeID } from '../model/BaseGraph';
+import { NodeID } from '../../core/graph/BaseExplicitGraph';
 import path from 'path';
 import * as fs from 'fs';
 import { CallGraph, CallGraphNode, CallSite, DynCallSite, FuncID } from '../model/CallGraph';
@@ -111,6 +111,14 @@ export class PointerAnalysis extends AbstractAnalysis {
         if (this.config.unhandledFuncDump) {
             this.dumpUnhandledFunctions();
         }
+    }
+
+    public getStat(): string {
+        let ret: string = this.cg.getStat();
+        ret += '\n' + this.pagBuilder.getStat();
+        ret += '\n' + this.ptaStat.getStat();
+
+        return ret;
     }
 
     protected preProcessMethod(funcID: FuncID): CallSite[] {
@@ -591,7 +599,7 @@ export class PointerAnalysis extends AbstractAnalysis {
             if (!err) {
                 fs.truncate(filePath, 0, (err) => {
                     if (err) {
-                        console.log('Error to truncate file ', err);
+                        logger.error('Error to truncate file ', err);
                     }
                 });
             }
@@ -611,7 +619,7 @@ export class PointerAnalysis extends AbstractAnalysis {
 
             fs.writeFile(filePath, updatedContent, 'utf8', (err) => {
                 if (err) {
-                    console.error('Error to write file', err);
+                    logger.error('Error to write file', err);
                 }
             });
         });

@@ -415,6 +415,120 @@
 
     由RN页面退到原生页面后重新设置StatusBar的样式。
 
+### release包相关问题
+
+- 现象
+
+  - 滚动条滚动缓慢、闪烁问题。
+  - 两个scrollView联动滚动的时候会有卡顿、延迟。
+  - RN中动画卡顿。
+
+- 原因
+
+  debug包性能有一定的瓶颈。
+
+- 方案
+
+  用release版本的RN包编译release版本的包，性能会好很多。
+
+### 如何提高编译效率
+
+- 现象
+    
+  用 release 包的时候，由于没有 x86_64 架构，就编译不到 Windows 的模拟器上；用 Windows 或者 intel 芯片的 mac的同事，都需要用源码的版本编译到模拟器上，如果有c++的改动，一次编译都得在30分钟左右。
+
+- 原因
+
+  主要是c++编译较慢
+
+- 解决
+
+一、创建rnoh静态模块
+  - [release包使用](../环境搭建.md)  
+  1. ⽤DevEco打开鸿蒙⼯程，右键->New->Module->Static Library,填写模块名。
+  2. 解压华为公司提供的react_native_openharmony-x.x.x.xxx.har。
+  3. 将解压后的src/main/cpp⽂件夹、ets.ets⽂件、ts.ts⽂件复制粘贴到新模块。
+  4. ⽤解压后的src/main/ets⽂件夹替换掉新模块的src/main/ets⽂件夹。
+  5. ⽤解压后的index.ets⽂件替换掉新模块的index.ets⽂件。
+  6. 新模块的build-profile.json5如下：
+    ```json5
+    {
+        "apiType": "stageMode",
+        "targets": [
+            {
+                "name": "default",
+                "runtimeOS": "HarmonyOS",
+            }
+        ]
+    }
+    ```
+  7. 新模块的oh-package.json5如下：
+    ```json5
+    {
+        license: 'ISC',
+        types: '',
+        devDependencies: {},
+        name: '@rnoh/react-native-openharmony',
+        description: 'React Native for OpenHarmony',
+        ohos: {
+            org: '',
+        },
+        type: 'module',
+        version: '', # 版本号到解压后的oh-package.json5⽂件中查看
+        dependencies: {},
+        main: 'index.ets',
+    }
+    ```
+  8. 新模块的src/main/module.json5内容如下：
+    ```json5
+    {
+        "module": {
+            "name": "react_native_openharmony",
+            "type": "har",
+            "deviceTypes": [
+                "default"
+            ],
+            "requestPermissions": [
+                {"name": "ohos.permission.INTERNET"},
+                {"name": "ohos.permission.VIBRATE"}
+            ]
+        }
+    }
+    ```
+  9. 删除新模块的混淆配置⽂件consumer-rules.txt和obfuscation-rules.txt。
+
+二、编译rnoh release
+
+  1. 解压华为公司提供的react_native_openharmony_release-x.x.x.xxx.har。
+  2. 将解压后的src/main/include⽂件夹复制粘贴到新模块。
+  3. 修改新模块的src/main/cpp/CMakeLists.txt。
+  4. 修改新模块的build-profile.json5。
+  
+  ```json
+    {
+        "apiType": "stageMode",
+      + "buildOption": {
+        + "externalNativeOptions": {
+        + "path": "./src/main/cpp/CMakeLists.txt",
+        + "arguments": "",
+        + "cppFlags": ""
+        + }
+      + },
+        "targets": [
+            {
+                "name": "default",
+                "runtimeOS": "HarmonyOS",
+            }
+        ]
+    }
+  ```
+  5. 切换成release模式构建 entry旁边左边有个按钮，product，build Mode选择release。
+  6. 编译，选中新建的模块（rnoh）-> Build -> Make Module xxx，等待编译完成，编译好后的⽂件位于`build/default/outputs/default`, ⼤⼩约35M。
+
+三、使⽤release包
+
+使⽤release版本的har包需要使⽤release版本的[CMakeLists.txt⽂件](../../Zips/MyApplicationReplace/entry/src/main/cpp/CMakeLists%20-%20release.txt)，将该⽂件内容复制粘贴到⾃⼰鸿蒙⼯程的CMakeLists.txt中，并做对应的调整。  
+
 ### Keyboard下的监听事件未响应的问题
 
 - 现象

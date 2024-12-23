@@ -39,23 +39,22 @@ struct LineChartNotAxisConfigPage {
   @Local titleModel: ChartTitleModel = new ChartTitleModel()
   @Local private model: LineChartModel | undefined = undefined;
   private dataSet: LineDataSet | null = null;
-  titleSelcetString: string = 'X'
+  titleSelectString: string = 'X'
   private isDrawIcons: boolean= false;
-
 
   //标题栏菜单回调
   @Monitor("titleModel.index")
   menuCallback() {
 
-    if (this.titleModel == null || this.titleModel == undefined) {
+    if (this.titleModel === null || this.titleModel === undefined) {
       return
     }
     let index: number = this.titleModel.getIndex()
-    if (index == undefined || index == -1) {
+    if (index === undefined || index === null || index === -1) {
       return
     }
 
-    if (this.model == null || this.model == undefined) {
+    if (this.model === null || this.model === undefined) {
       return
     }
 
@@ -65,28 +64,34 @@ struct LineChartNotAxisConfigPage {
       sets = data.getDataSets();
     }
 
+    const animateFun = (s: string) => {
+      this.titleSelectString = s
+      this.animate()
+    }
+
+    const toggleDrawIcon = (sets: JArrayList<ILineDataSet> | null) => {
+      if (sets) {
+        for (let i = 0; i < sets.size(); i++) {
+          let set = sets.get(i) as LineDataSet;
+          set.setDrawIcons(!this.isDrawIcons)
+        }
+        this.isDrawIcons = !this.isDrawIcons
+        this.model?.invalidate();
+      }
+    }
+
     switch (this.menuItemArr[index]) {
       case 'Animate X':
-        this.titleSelcetString = 'X'
-        this.animate()
+        animateFun('X')
         break;
       case 'Animate Y':
-        this.titleSelcetString = 'Y'
-        this.animate()
+        animateFun('Y')
         break;
       case 'Animate XY':
-        this.titleSelcetString = 'XY'
-        this.animate()
+        animateFun('XY')
         break;
       case Constants.TOGGLE_DRAW_ICON:
-        if (sets) {
-          for (let i = 0; i < sets.size(); i++) {
-            let set = sets.get(i) as LineDataSet;
-            set.setDrawIcons(!this.isDrawIcons)
-          }
-          this.isDrawIcons=!this.isDrawIcons
-          this.model.invalidate();
-        }
+        toggleDrawIcon(sets)
         break;
 
     }
@@ -95,11 +100,11 @@ struct LineChartNotAxisConfigPage {
 
   public animate() {
     if (this.model) {
-      if (this.titleSelcetString == 'X') {
+      if (this.titleSelectString === 'X') {
         this.model.animateX(2000);
-      } else if (this.titleSelcetString == 'Y') {
+      } else if (this.titleSelectString === 'Y') {
         this.model.animateY(2000);
-      } else if (this.titleSelcetString == 'XY') {
+      } else if (this.titleSelectString === 'XY') {
         this.model.animateXY(2000, 2000);
       }
     }
@@ -124,17 +129,13 @@ struct LineChartNotAxisConfigPage {
   }
 
   private async getLineData(): Promise<LineData> {
-    let pixelMap=await Utils.getPixelMap($r('app.media.star').id, getContext(this).resourceManager)
+    let pixelMap = await Utils.getPixelMap($r('app.media.star').id, getContext(this).resourceManager)
     let start: number = 1;
     let values: JArrayList<EntryOhos> = new JArrayList<EntryOhos>();
     for (let i = start; i < 20; i++) {
       let val = Number(Math.random() * 141);
 
-      if (Math.random() * 100 < 25) {
-        values.add(new EntryOhos(i, val,pixelMap));
-      } else {
-        values.add(new EntryOhos(i, val));
-      }
+      values.add(Math.random() * 100 < 25 ? new EntryOhos(i, val, pixelMap) : new EntryOhos(i, val));
     }
 
     this.dataSet = new LineDataSet(values, 'DataSet');

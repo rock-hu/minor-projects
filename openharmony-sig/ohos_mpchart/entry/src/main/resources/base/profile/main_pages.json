@@ -29,6 +29,7 @@
     "pages/pieCharts/PiePolylineChartPage",
     "pages/pieCharts/HalfPieChartPage",
     "pages/otherCharts/CombinedChartPage",
+    "pages/otherCharts/ScrollCombinedChartPage",
     "pages/otherCharts/ScatterChartPage",
     "pages/otherCharts/BubbleChartPage",
     "pages/otherCharts/CandlestickChartPage",
@@ -45,6 +46,7 @@
     "pages/customCharts/DashedSolidLinePage/DashedSolidLinePage",
     "pages/customCharts/LeftRightAxisPage",
     "pages/customCharts/ScaleLinePage/ScaleLinePage",
-    "pages/customCharts/GradientLinePage/GradientLinePage"
+    "pages/customCharts/GradientLinePage/GradientLinePage",
+    "pages/customCharts/CursorPage"
   ]
 }

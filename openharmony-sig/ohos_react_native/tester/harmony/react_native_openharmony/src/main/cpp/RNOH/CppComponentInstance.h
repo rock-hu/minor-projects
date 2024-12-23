@@ -1,4 +1,11 @@
 /**
+ * Copyright (c) 2024 Huawei Technologies Co., Ltd.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE-MIT file in the root directory of this source tree.
+ */
+
+/**
  * Used only in C-API based Architecture.
  */
 #pragma once
@@ -167,6 +174,10 @@ class CppComponentInstance : public ComponentInstance,
   }
 
   bool canHandleTouch() const override {
+    auto parent = m_parent.lock();
+    if (parent && !parent->canChildrenHandleTouch()) {
+      return false;
+    }
     if (m_props != nullptr) {
       auto props =
           std::dynamic_pointer_cast<const facebook::react::ViewProps>(m_props);
@@ -177,6 +188,10 @@ class CppComponentInstance : public ComponentInstance,
   };
 
   bool canChildrenHandleTouch() const override {
+    auto parent = m_parent.lock();
+    if (parent && !parent->canChildrenHandleTouch()) {
+      return false;
+    }
     if (m_props != nullptr) {
       auto props =
           std::dynamic_pointer_cast<const facebook::react::ViewProps>(m_props);
@@ -184,6 +199,29 @@ class CppComponentInstance : public ComponentInstance,
           props->pointerEvents == facebook::react::PointerEventsMode::BoxNone;
     }
     return true;
+  };
+
+  bool canSubtreeHandleTouch(facebook::react::Point const& point) override {
+    auto children = getTouchTargetChildren();
+    for (auto const& child : children) {
+      if (child == nullptr) {
+        continue;
+      }
+
+      auto childPoint = computeChildPoint(point, child);
+      if (child->canHandleTouch() && child->containsPoint(childPoint) &&
+          child->getTouchEventEmitter()) {
+        return true;
+      }
+
+      if (child->canChildrenHandleTouch() &&
+          child->containsPointInBoundingBox(childPoint)) {
+        if (child->canSubtreeHandleTouch(childPoint)) {
+          return true;
+        }
+      }
+    }
+    return false;
   };
 
   facebook::react::Tag getTouchTargetTag() const override {
@@ -372,21 +410,6 @@ class CppComponentInstance : public ComponentInstance,
           props->transform, m_layoutMetrics.pointScaleFactor);
         markBoundingBoxAsDirty();
       }
-    }
-
-    if (!old) {
-      // 0 -- Default hit test mode
-      if (props->pointerEvents != facebook::react::PointerEventsMode::Auto) {
-        this->getLocalRootArkUINode().setHitTestMode(props->pointerEvents);
-        this->getLocalRootArkUINode().setEnabled(
-          props->pointerEvents != facebook::react::PointerEventsMode::None);
-      }
-    } else if (props->pointerEvents != old->pointerEvents) {
-      this->getLocalRootArkUINode().setHitTestMode(props->pointerEvents);
-      this->getLocalRootArkUINode().setEnabled(
-          props->pointerEvents != facebook::react::PointerEventsMode::None);
-    } else {
-      // Do nothing here.
     }
 
     if (!old) {
@@ -603,6 +626,20 @@ class CppComponentInstance : public ComponentInstance,
       return;
     }
     m_eventEmitter->onAccessibilityAction(actionName);
+  }
+
+  void onArkUINodeTouchIntercept(const ArkUI_UIInputEvent* event) override {
+    auto mode = HitTestMode::HTM_NONE;
+    if (this->canHandleTouch()) {
+      mode = HitTestMode::HTM_DEFAULT;
+    } else if (this->canChildrenHandleTouch()) {
+      auto x = OH_ArkUI_PointerEvent_GetX(event);
+      auto y = OH_ArkUI_PointerEvent_GetY(event);
+      if (this->canSubtreeHandleTouch({x, y})) {
+        mode = HitTestMode::HTM_DEFAULT;
+      }
+    }
+    OH_ArkUI_PointerEvent_SetInterceptHitTestMode(event, mode);
   }
 
   std::string getIdFromProps(

@@ -129,7 +129,7 @@
                   new MetroJSBundleProvider(),
                   // NOTE: to load the bundle from file, place it in
                   // `/data/app/el2/100/base/com.rnoh.tester/files/bundle.harmony.js`
-                  // on your device. The path mismatch is due to app sandboxing on HarmonyOS
+                  // on your device. The path mismatch is due to app sandboxing on OpenHarmony
                   new FileJSBundleProvider('/data/storage/el2/base/files/bundle.harmony.js'),
                   new ResourceJSBundleProvider(this.rnohCoreContext.uiAbilityContext.resourceManager, 'hermes_bundle.hbc'),
                   new ResourceJSBundleProvider(this.rnohCoreContext.uiAbilityContext.resourceManager, 'bundle.harmony.js')
@@ -286,7 +286,7 @@
 
 ## 多实例、多Surface、多Bundle
 
-​ 在[环境搭建 > 工程内容介绍](环境搭建.md#工程内容介绍)中，介绍了空工程 `SampleProject` 和 `SampleApp` 的内容主要包括首页 HomePage、商品 Goods、测试用例 test、商品详情 Detail 四个模块，通过加载四个业务模块的 bundle 包创建对应的 `RNSurface`，最后将 `RNSurface` 嵌入 ArtkUI 的页面组件中完成 HarmonyOS 侧的页面构建。因此空工程 `SampleProject` 和 `SampleApp` 就是一个多实例、多 Surface、多 bundle 场景，下面通过业务代码举例说明该场景。
+​ 在[环境搭建 > 工程内容介绍](环境搭建.md#工程内容介绍)中，介绍了空工程 `SampleProject` 和 `SampleApp` 的内容主要包括首页 HomePage、商品 Goods、测试用例 test、商品详情 Detail 四个模块，通过加载四个业务模块的 bundle 包创建对应的 `RNSurface`，最后将 `RNSurface` 嵌入 ArtkUI 的页面组件中完成 OpenHarmony 侧的页面构建。因此空工程 `SampleProject` 和 `SampleApp` 就是一个多实例、多 Surface、多 bundle 场景，下面通过业务代码举例说明该场景。
 
 ​ 多实例、多 Surface、多 bundle 场景就是多个单实例、单 Surface、多 bundle 场景组合在一起，在该场景中，需要特别注意的点是，不要混淆实例与 `RNSurface` 的对应关系，实例加载多个 bundle 文件的对应关系。在单实例、单 `Surface`、多 bundle 的场景中已经详细说明了 `HomePage` 模块的实现，下面通过添加上 `Detail` 模块来说明多实例、多 `Surface`、多 bundle 场景。
 
@@ -463,7 +463,7 @@
 
   4. <span id="RNSurface-4">在 JS 侧需要通过 `AppRegistry` 来接收初始化参数。</span>
 
-     使用 `setWrapperComponentProvider` 来包装根组件，其中回调函数中的参数 `children`：渲染 **RN** 侧组件；`otherProps`：HarmonyOS 侧传递过来的初始化数据内容。
+     使用 `setWrapperComponentProvider` 来包装根组件，其中回调函数中的参数 `children`：渲染 **RN** 侧组件；`otherProps`：OpenHarmony 侧传递过来的初始化数据内容。
 
      ```javascript
      // MainProject\src\bundles\Details\index.js
@@ -473,7 +473,7 @@
      import React from 'react';
      
      // 使用setWrapperComponentProvider来包装根组件。
-     // children: 渲染RN侧组件；otherProps: HarmonyOS侧传递过来的数据内容。
+     // children: 渲染RN侧组件；otherProps: OpenHarmony侧传递过来的数据内容。
      AppRegistry.setWrapperComponentProvider(appParams => {
          return function({children, ...otherProps}) {
              return (

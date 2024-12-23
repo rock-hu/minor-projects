@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2024 Huawei Technologies Co., Ltd.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE-MIT file in the root directory of this source tree.
+ */
+
 #include "MountingManagerCAPI.h"
 #include <cxxreact/SystraceSection.h>
 #include "RNOH/Performance/HarmonyReactMarker.h"
@@ -41,9 +48,7 @@ std::optional<facebook::react::SurfaceId> findSurfaceIdForComponentInstance(
   return std::nullopt;
 }
 
-void MountingManagerCAPI::willMount(MutationList const& mutations) {
-  // Check the comment in SchedulerDelegate::schedulerDidFinishTransaction before editing here
-}
+void MountingManagerCAPI::willMount(MutationList const& mutations) {}
 
 void MountingManagerCAPI::doMount(MutationList const& mutations) {
   m_arkTsMountingManager->doMount(mutations);

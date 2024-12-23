@@ -14,6 +14,7 @@ NativeProject -- 原生工程
 4. 在 `RNProject/MainProject` 中执行 **npm run dev** 命令打包；
 4. 用 DevEco Studio 打开 `NativeProject`，执行 **Sync and Refresh Project**；
 5. 点击右上角的 **run** 启动项目。
+   
 
 # 注意事项
 

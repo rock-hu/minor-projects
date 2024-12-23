@@ -122,6 +122,14 @@ describe("Infer Array Test", () => {
         assert.isTrue((stmt as ArkAssignStmt).getRightOp() instanceof ArkStaticFieldRef);
     })
 
+    it('embed namespace case', () => {
+        const fileId = new FileSignature(projectScene.getProjectName(), 'demo.ts');
+        const file = projectScene.getFile(fileId);
+        const method = file?.getDefaultClass()?.getMethodWithName('testDoubleNamespace');
+        const stmt = method?.getCfg()?.getStmts().at(-2);
+        assert.equal(stmt?.toString(), 'staticinvoke <@inferType/demo.ts: outer.inner.TestClass.[static]request()>()');
+    })
+
     it('field case', () => {
         const fileId = new FileSignature(projectScene.getProjectName(), 'Field.ts');
         const file = projectScene.getFile(fileId);
@@ -149,6 +157,13 @@ describe("Infer Array Test", () => {
         const classB = projectScene.getFile(fileId)?.getClassWithName('ClassB');
         assert.isDefined(classB?.getSuperClass());
         assert.isTrue(classB?.getFieldWithName('field1')?.getType() instanceof AliasType);
+    })
+
+    it('alias type Test case', () => {
+        const fileId = new FileSignature(projectScene.getProjectName(), 'B.ets');
+        const aliasType = projectScene.getFile(fileId)?.getDefaultClass().getDefaultArkMethod()?.getBody()?.getAliasTypeByName('TestType');
+        assert.isTrue(aliasType?.getOriginalType() instanceof AliasType);
+        assert.equal((aliasType?.getOriginalType() as AliasType).getOriginalType().getTypeString(), '@inferType/Target.ets: MySpace.%AC$0<@inferType/Target.ets: MySpace.ClassTarget>');
     })
 
     it('constructor case', () => {

@@ -246,7 +246,7 @@ RNApp({
     new AnyJSBundleProvider([
     new MetroJSBundleProvider(),
     /**
-     * Note: Load a bundle from '/data/app/el2/100/base/com.rnoh.tester/files/bundle.harmony.js'. Path mismatch is caused by the application sandbox on HarmonyOS.
+     * Note: Load a bundle from '/data/app/el2/100/base/com.rnoh.tester/files/bundle.harmony.js'. Path mismatch is caused by the application sandbox on OpenHarmony.
      */
     new FileJSBundleProvider('/data/storage/el2/base/files/bundle.harmony.js'),
     new ResourceJSBundleProvider(this.rnohCoreContext.uiAbilityContext.resourceManager, 'hermes_bundle.hbc'),

@@ -129,14 +129,113 @@ struct DualAxisPage {
       LogUtil.log("-----------------chartGestureListener onChartTranslate moved ");
     }
   }
+
+  toggleValues(data: LineData | null, sets: JArrayList<ILineDataSet> | null) {
+    if (!data || !sets) {
+      return;
+    }
+    for (let i = 0; i < sets.size(); i++) {
+      let set = sets.get(i) as LineDataSet;
+      set.setDrawValues(!set.isDrawValuesEnabled());
+    }
+    this.model?.invalidate();
+  }
+
+  togglePinchZoom() {
+    this.model?.setPinchZoom(!this.model.isPinchZoomEnabled())
+    this.model?.invalidate();
+  }
+
+  toggleAutoScale() {
+    this.model?.setAutoScaleMinMaxEnabled(!this.model.isAutoScaleMinMaxEnabled());
+    this.model?.notifyDataSetChanged();
+  }
+
+  toggleHighlight(data: LineData | null) {
+    if (data !== null) {
+      data.setHighlightEnabled(!data.isHighlightEnabled());
+      this.model?.invalidate();
+    }
+  }
+
+  toggleFilled(sets: JArrayList<ILineDataSet> | null) {
+    if (sets) {
+      for (let i = 0; i < sets.size(); i++) {
+        let set = sets.get(i) as LineDataSet;
+        set.setDrawFilled(!set.isDrawFilledEnabled())
+      }
+      this.model?.invalidate();
+    }
+  }
+
+  toggleCircles(sets: JArrayList<ILineDataSet> | null) {
+    if (sets) {
+      for (let i = 0; i < sets.size(); i++) {
+        let set = sets.get(i) as LineDataSet;
+        set.setDrawCircles(!set.isDrawCirclesEnabled());
+      }
+      this.model?.invalidate();
+    }
+  }
+
+  toggleCubic(sets: JArrayList<ILineDataSet> | null) {
+    if (sets) {
+      for (let i = 0; i < sets.size(); i++) {
+        let set = sets.get(i) as LineDataSet;
+        set.setMode(set.getMode() === Mode.CUBIC_BEZIER ? Mode.LINEAR : Mode.CUBIC_BEZIER);
+      }
+      this.model?.invalidate();
+    }
+  }
+
+  toggleStepped(sets: JArrayList<ILineDataSet> | null) {
+    if (sets) {
+      for (let i = 0; i < sets.size(); i++) {
+        let set = sets.get(i) as LineDataSet;
+        set.setMode(set.getMode() === Mode.STEPPED ? Mode.LINEAR : Mode.STEPPED);
+      }
+      this.model?.invalidate();
+    }
+  }
+
+  toggleHorizontalCubic(sets: JArrayList<ILineDataSet> | null) {
+    if (sets) {
+      for (let i = 0; i < sets.size(); i++) {
+        let set = sets.get(i) as LineDataSet;
+        set.setMode(set.getMode() === Mode.HORIZONTAL_BEZIER ? Mode.LINEAR : Mode.HORIZONTAL_BEZIER);
+      }
+      this.model?.invalidate();
+    }
+  }
+
+  toggleDrawIcon(sets: JArrayList<ILineDataSet> | null) {
+    if (sets) {
+      for (let i = 0; i < sets.size(); i++) {
+        let set = sets.get(i) as LineDataSet;
+        set.setDrawIcons(!this.isDrawIcons)
+      }
+      this.isDrawIcons = !this.isDrawIcons
+      this.model?.invalidate();
+    }
+  }
+
+  handleAnimate(s: string) {
+    this.titleSelectString = s;
+    this.animate();
+  }
+
+  saveImage() {
+    Utils.saveImage(this.title, this.model ? this.model.context2d : null);
+  }
+
   //标题栏菜单回调
   @Monitor("titleModel.index")
   menuCallback(){
-    if (this.model == null || this.model == undefined) {
+    if (this.model === null || this.model === undefined) {
       return
     }
     let index: number = this.titleModel.getIndex()
-    if(index==undefined||index==-1){
+    if(index === undefined || index === null || index === -1){
       return
     }
     let data = this.model.getData();
@@ -146,124 +245,58 @@ struct DualAxisPage {
     }
     switch (this.menuItemArr[index]) {
       case Constants.TOGGLE_VALUES:
-        if (!data || !sets) {
-          break;
-        }
-        for (let i = 0; i < sets.size(); i++) {
-          let set = sets.get(i) as LineDataSet;
-          set.setDrawValues(!set.isDrawValuesEnabled());
-        }
-        LogUtil.log('log' + 1111)
-        this.model.invalidate();
+        this.toggleValues(data, sets)
         break;
       case Constants.TOGGLE_PINCHZOOM:
-        if (this.model.isPinchZoomEnabled()) {
-          this.model.setPinchZoom(false);
-        } else {
-          this.model.setPinchZoom(true);
-        }
-        this.model.invalidate();
+        this.togglePinchZoom()
         break;
       case Constants.TOGGLE_AUTO_SCALE:
-        this.model.setAutoScaleMinMaxEnabled(!this.model.isAutoScaleMinMaxEnabled());
-        this.model.notifyDataSetChanged();
+        this.toggleAutoScale()
         break;
       case Constants.TOGGLE_HIGHLIGHT:
-        if (data != null) {
-          data.setHighlightEnabled(!data.isHighlightEnabled());
-          this.model.invalidate();
-        }
+        this.toggleHighlight(data)
         break;
       case Constants.TOGGLE_FILLED:
-        if (sets) {
-          for (let i = 0; i < sets.size(); i++) {
-            let set = sets.get(i) as LineDataSet;
-            if (set.isDrawFilledEnabled()) {
-              set.setDrawFilled(false);
-            } else {
-              set.setDrawFilled(true);
-            }
-          }
-          this.model.invalidate();
-        }
+        this.toggleFilled(sets)
         break;
       case Constants.TOGGLE_CIRCLES:
-        if (sets) {
-          for (let i = 0; i < sets.size(); i++) {
-            let set = sets.get(i) as LineDataSet;
-            if (set.isDrawCirclesEnabled()) {
-              set.setDrawCircles(false);
-            } else {
-              set.setDrawCircles(true);
-            }
-          }
-          this.model.invalidate();
-        }
+        this.toggleCircles(sets)
         break;
       case Constants.TOGGLE_CUBIC:
-        if (sets) {
-          for (let i = 0; i < sets.size(); i++) {
-            let set = sets.get(i) as LineDataSet;
-            set.setMode(set.getMode() == Mode.CUBIC_BEZIER ? Mode.LINEAR : Mode.CUBIC_BEZIER);
-          }
-          this.model.invalidate();
-        }
+        this.toggleCubic(sets)
         break;
       case Constants.TOGGLE_STEPPED:
-        if (sets) {
-          for (let i = 0; i < sets.size(); i++) {
-            let set = sets.get(i) as LineDataSet;
-            set.setMode(set.getMode() == Mode.STEPPED ? Mode.LINEAR : Mode.STEPPED);
-          }
-          this.model.invalidate();
-        }
+        this.toggleStepped(sets)
         break;
       case Constants.TOGGLE_HORIZONTAL_CUBIC:
-        if (sets) {
-          for (let i = 0; i < sets.size(); i++) {
-            let set = sets.get(i) as LineDataSet;
-            set.setMode(set.getMode() == Mode.HORIZONTAL_BEZIER ? Mode.LINEAR : Mode.HORIZONTAL_BEZIER);
-          }
-          this.model.invalidate();
-        }
+        this.toggleHorizontalCubic(sets)
         break;
       case Constants.ANIMATE_X:
-        this.titleSelectString = 'X'
-        this.animate()
+        this.handleAnimate('X')
         break;
       case Constants.ANIMATE_Y:
-        this.titleSelectString = 'Y'
-        this.animate()
+        this.handleAnimate('Y')
         break;
       case Constants.ANIMATE_XY:
-        this.titleSelectString = 'XY'
-        this.animate()
+        this.handleAnimate('XY')
         break;
       case Constants.SAVE_IMAGE:
-        Utils.saveImage(this.title, this.model ? this.model.context2d : null);
+        this.saveImage()
         break;
       case Constants.TOGGLE_DRAW_ICON:
-        if (sets) {
-          for (let i = 0; i < sets.size(); i++) {
-            let set = sets.get(i) as LineDataSet;
-            set.setDrawIcons(!this.isDrawIcons)
-          }
-          this.isDrawIcons=!this.isDrawIcons
-          this.model.invalidate();
-        }
+        this.toggleDrawIcon(sets)
         break;
-
     }
     this.titleModel.setIndex(-1)
   }
 
   public animate() {
     if (this.model) {
-      if (this.titleSelectString == 'X') {
+      if (this.titleSelectString === 'X') {
         this.model.animateX(2000);
-      } else if (this.titleSelectString == 'Y') {
+      } else if (this.titleSelectString === 'Y') {
         this.model.animateY(2000);
-      } else if (this.titleSelectString == 'XY') {
+      } else if (this.titleSelectString === 'XY') {
         this.model.animateXY(2000,2000);
       }
     }
@@ -347,18 +380,14 @@ struct DualAxisPage {
     let values3 = new JArrayList<EntryOhos>();
 
     for (let i = 0; i < count; i++) {
-      let yVal: number = Math.random() * (range / 2) + 50;
-      values1.add(new EntryOhos(i, yVal, pixelMap));
-    }
+      let yVal1: number = Math.random() * (range / 2) + 50;
+      values1.add(new EntryOhos(i, yVal1, pixelMap));
 
-    for (let i = 0; i < count; i++) {
-      let yVal: number = Math.random() * range + 100;
-      values2.add(new EntryOhos(i, yVal, pixelMap));
-    }
+      let yVal2: number = Math.random() * range + 100;
+      values2.add(new EntryOhos(i, yVal2, pixelMap));
 
-    for (let i = 0; i < count; i++) {
-      let yVal: number = Math.random() * range + 120;
-      values3.add(new EntryOhos(i, yVal, pixelMap));
+      let yVal3: number = Math.random() * range + 120;
+      values3.add(new EntryOhos(i, yVal3, pixelMap));
     }
 
     let dataSet = new JArrayList<ILineDataSet>();

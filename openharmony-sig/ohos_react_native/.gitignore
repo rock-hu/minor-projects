@@ -3,4 +3,5 @@
 *.code-workspace
 .DS_Store
 *.drawio.*
+package-lock.json
 # build

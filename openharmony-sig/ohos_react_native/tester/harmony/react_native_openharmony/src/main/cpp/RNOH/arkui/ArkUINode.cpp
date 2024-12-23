@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2024 Huawei Technologies Co., Ltd.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE-MIT file in the root directory of this source tree.
+ */
+
 #include "ArkUINode.h"
 #include <arkui/native_node.h>
 #include <arkui/native_type.h>
@@ -76,6 +83,7 @@ std::optional<std::string> actionTypeToName(
 
 static constexpr std::array NODE_EVENT_TYPES{
     NODE_ON_ACCESSIBILITY_ACTIONS,
+    NODE_ON_TOUCH_INTERCEPT
 };
 
 static std::unordered_map<ArkUI_NodeHandle, ArkUINode*> NODE_BY_HANDLE;
@@ -94,6 +102,12 @@ static void receiveEvent(ArkUI_NodeEvent* event) {
 
     if (eventType == ArkUI_NodeEventType::NODE_TOUCH_EVENT) {
       // Node Touch events are handled in UIInputEventHandler instead
+      return;
+    }
+
+    if (eventType == ArkUI_NodeEventType::NODE_ON_TOUCH_INTERCEPT) {
+      auto inputEvent = OH_ArkUI_NodeEvent_GetInputEvent(event);
+      target->onTouchIntercept(inputEvent);
       return;
     }
 
@@ -379,20 +393,12 @@ ArkUINode& ArkUINode::setShadow(
   return *this;
 }
 
+/**
+ * @deprecated The matching of pointerEvents and hitTestBehavior has been
+ * moved to CppComponentInstance::onArkUINodeTouchIntercept
+ */
 ArkUINode& ArkUINode::setHitTestMode(
     facebook::react::PointerEventsMode const& pointerEvents) {
-  ArkuiHitTestMode hitTestMode =
-      (pointerEvents == facebook::react::PointerEventsMode::None ||
-       pointerEvents == facebook::react::PointerEventsMode::BoxNone)
-      ? ArkuiHitTestMode::NONE
-      : ArkuiHitTestMode::DEFAULT;
-  ArkUI_NumberValue hitTestModeValue[] = {
-      {.i32 = static_cast<int32_t>(hitTestMode)}};
-  ArkUI_AttributeItem hitTestModeItem = {
-      .value = hitTestModeValue,
-      .size = sizeof(hitTestModeValue) / sizeof(ArkUI_NumberValue)};
-  maybeThrow(NativeNodeApi::getInstance()->setAttribute(
-      m_nodeHandle, NODE_HIT_TEST_BEHAVIOR, &hitTestModeItem));
   return *this;
 }
 
@@ -654,6 +660,12 @@ ArkUINode& ArkUINode::resetAccessibilityText() {
   maybeThrow(NativeNodeApi::getInstance()->resetAttribute(
       m_nodeHandle, NODE_ACCESSIBILITY_TEXT));
   return *this;
+}
+
+void ArkUINode::onTouchIntercept(const ArkUI_UIInputEvent* event) {
+  if (m_arkUINodeDelegate != nullptr) {
+    m_arkUINodeDelegate->onArkUINodeTouchIntercept(event);
+  }
 }
 
 void ArkUINode::onNodeEvent(

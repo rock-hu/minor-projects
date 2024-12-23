@@ -13,7 +13,7 @@
 
   4. Configure the hdc environment.
 
-      HarmonyOS device connector (hdc) is a command line tool used for debugging. The HarmonyOS React Native project uses hdc for debugging on a real device. Obtain the hdc tool from the HarmonyOS SDK and store it in the `toolchains` directory of the SDK. Add the full path of `{DevEco Studio installation path}/sdk/{SDK version}/openharmony/toolchains` to the environment variable.
+      OpenHarmony device connector (hdc) is a command line tool used for debugging. The OpenHarmony React Native project uses hdc for debugging on a real device. Obtain the hdc tool from the OpenHarmony SDK and store it in the `toolchains` directory of the SDK. Add the full path of `{DevEco Studio installation path}/sdk/{SDK version}/openharmony/toolchains` to the environment variable.
 
       - On Windows:
 
@@ -105,11 +105,11 @@
 
   7. Additional Information
 
-      After the preceding environment configuration is complete, you are now ready to develop the React Native project on HarmonyOS. For details about how to set up the React Native environment on Android and iOS, go to the React Native official website and refer to [Environment Setup](https://reactnative.dev/docs/set-up-your-environment).
+      After the preceding environment configuration is complete, you are now ready to develop the React Native project on OpenHarmony. For details about how to set up the React Native environment on Android and iOS, go to the React Native official website and refer to [Environment Setup](https://reactnative.dev/docs/set-up-your-environment).
 
 # Creating a React Native Project
 
-​ This section describes how to initialize the React Native project, install the HarmonyOS dependency packages, and run the project.
+​ This section describes how to initialize the React Native project, install the OpenHarmony dependency packages, and run the project.
 
 ## Creating a Project
 
@@ -121,7 +121,7 @@
 
 ![image](./figures/environment-setup-AwesomeProject.png)
 
-​ When this command is used to initialize the React Native project on macOS, the iOS dependency library is downloaded, which takes a long time. You can run the following command to skip this process and download the library as required. This does not affect the development of the HarmonyOS project.
+​ When this command is used to initialize the React Native project on macOS, the iOS dependency library is downloaded, which takes a long time. You can run the following command to skip this process and download the library as required. This does not affect the development of the OpenHarmony project.
 
   ```bash
   npx react-native@0.72.5 init AwesomeProject --version 0.72.5 --skip-install
@@ -129,20 +129,20 @@
 
 ![image](./figures/environment-setup-mac-AwesomeProject.png)
 
-## Installing HarmonyOS Dependency Packages and Generating a Bundle
+## Installing OpenHarmony Dependency Packages and Generating a Bundle
 
 For details about the version mapping of the files used in this section, see [React Native for OpenHarmony Release Notes](release-notes.md).
 > You can set up the environment step by step according to the operations in this section. You can also replace the corresponding files with the files in `AwesomeProjectReplace.zip`, modify the version information, and run the project.
 
-### Downloading and Installing the HarmonyOS Dependencies
+### Downloading and Installing the OpenHarmony Dependencies
 
 1. Download the .tgz packages `react-native-harmony` and `react-native-harmony-cli` contained in the release package. Specifically:
    - **react-native-harmony-*xxx*.tgz**: JS adaptation code of React Native.
-   - **react-native-harmony-cli-*xxx*.tgz**: implementations of command lines adapted to HarmonyOS, such as `Codegen`.
+   - **react-native-harmony-cli-*xxx*.tgz**: implementations of command lines adapted to OpenHarmony, such as `Codegen`.
 2. Create folders named **react-native-harmony** and **react-native-harmony-cli** in the same directory as **AwesomeProject**. 
 3. Place the .tgz packages in the corresponding files, as shown in the following figure. 
    ![image](./figures/environment-setup-tgz.png)
-4. Open the `package.json` file in the `AwesomeProject` directory, add the HarmonyOS dependencies, and modify the corresponding version in the `package.json` file based on the **react-native-harmony** version in the release package, that is, **xxx** in the following code:
+4. Open the `package.json` file in the `AwesomeProject` directory, add the OpenHarmony dependencies, and modify the corresponding version in the `package.json` file based on the **react-native-harmony** version in the release package, that is, **xxx** in the following code:
    ```diff
    {
     "name": "AwesomeProject",
@@ -199,7 +199,7 @@ For details about the version mapping of the files used in this section, see [Re
 
 ### Running the Command for Generating a Bundle
 
-1. Open `AwsomeProject\metro.config.js` and add the HarmonyOS adaptation code. For details about the configuration file, see [React Native](https://reactnative.dev/docs/metro). The modified file content is as follows:
+1. Open `AwsomeProject\metro.config.js` and add the OpenHarmony adaptation code. For details about the configuration file, see [React Native](https://reactnative.dev/docs/metro). The modified file content is as follows:
 
     ```JavaScript
     const {mergeConfig, getDefaultConfig} = require('@react-native/metro-config');
@@ -250,7 +250,7 @@ This section describes how to create an OpenHarmony project, load the dependency
 
 ![image](./figures/environment-setup-version.png)
 
-​ Connect to a real device and click `File > Project Structure`. In the dialog box that is displayed, click `Signing Configs`, select `Support HarmonyOS` and `Automatically generate signature`, and click `Sign In` to log in to the HUAWEI ID and sign.
+​ Connect to a real device and click `File > Project Structure`. In the dialog box that is displayed, click `Signing Configs`, select `Support OpenHarmony` and `Automatically generate signature`, and click `Sign In` to log in to the HUAWEI ID and sign.
 
 ![image](./figures/environment-setup-signing.png)
 
@@ -448,7 +448,7 @@ This section describes how to create an OpenHarmony project, load the dependency
                   new MetroJSBundleProvider(),
                   // NOTE: to load the bundle from file, place it in
                   // `/data/app/el2/100/base/com.rnoh.tester/files/bundle.harmony.js`
-                  // on your device. The path mismatch is due to app sandboxing on HarmonyOS
+                  // on your device. The path mismatch is due to app sandboxing on OpenHarmony
                   new FileJSBundleProvider('/data/storage/el2/base/files/bundle.harmony.js'),
                   new ResourceJSBundleProvider(this.rnohCoreContext.uiAbilityContext.resourceManager, 'hermes_bundle.hbc'),
                   new ResourceJSBundleProvider(this.rnohCoreContext.uiAbilityContext.resourceManager, 'bundle.harmony.js')

@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2024 Huawei Technologies Co., Ltd.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE-MIT file in the root directory of this source tree.
+ */
+
 import fs from 'node:fs';
 import tmp from 'tmp';
 import {
@@ -13,7 +20,7 @@ import {
   createNpmAndOhPackageVersionsAreEqualCheck,
 } from './checks';
 import { Check, CheckStatus } from './types';
-import { unpackTarGz } from '../io';
+import { RealFS, unpackTarGz } from '../io';
 
 type StartProcessMessage = {
   type: 'START_PROCESS';
@@ -39,6 +46,7 @@ export async function* verifyRNOHPackage({
   checkNamesToSkip: string[];
 }): AsyncGenerator<VerificationMessage, void, unknown> {
   const npmPackageJson = PackageJSON.fromProjectRootPath(
+    new RealFS(),
     npmPackagePath,
     npmPackagePath
   );

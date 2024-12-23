@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2024 Huawei Technologies Co., Ltd.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE-MIT file in the root directory of this source tree.
+ */
+
 #include "SchedulerDelegate.h"
 #include <react/renderer/debug/SystraceSection.h>
 #include "RNOH/Performance/HarmonyReactMarker.h"
@@ -12,7 +19,12 @@ void SchedulerDelegate::schedulerDidFinishTransaction(
   HarmonyReactMarker::logMarker(HarmonyReactMarker::HarmonyReactMarkerId::
                                     FABRIC_FINISH_TRANSACTION_START);
   mountingCoordinator->getTelemetryController().pullTransaction(
-      [this](auto const& transaction, auto const& surfaceTelemetry) {},
+      [this](auto const& transaction, auto const& surfaceTelemetry) {
+        performOnMainThread(
+            [transaction](MountingManager::Shared const& mountingManager) {
+              mountingManager->willMount(transaction.getMutations());
+            });
+      },
       [this](auto const& transaction, auto const& surfaceTelemetry) {
         performOnMainThread(
             [transaction](MountingManager::Shared const& mountingManager) {

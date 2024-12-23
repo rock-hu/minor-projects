@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2024 Huawei Technologies Co., Ltd.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE-MIT file in the root directory of this source tree.
+ */
+
 #include "ScrollViewComponentInstance.h"
 #include <react/renderer/components/scrollview/ScrollViewShadowNode.h>
 #include <react/renderer/components/scrollview/ScrollViewState.h>
@@ -12,7 +19,6 @@ namespace rnoh {
 
 ScrollViewComponentInstance::ScrollViewComponentInstance(Context context)
     : CppComponentInstance(std::move(context)) {
-  getLocalRootArkUINode().insertChild(m_scrollNode, 0);
   m_scrollNode.insertChild(m_contentContainerNode);
   // NOTE: perhaps this needs to take rtl into account?
   m_scrollNode.setAlignment(ARKUI_ALIGNMENT_TOP_START);
@@ -20,8 +26,8 @@ ScrollViewComponentInstance::ScrollViewComponentInstance(Context context)
   m_scrollNode.setNestedScroll(ARKUI_SCROLL_NESTED_MODE_SELF_FIRST);
 }
 
-StackNode& ScrollViewComponentInstance::getLocalRootArkUINode() {
-  return m_scrollContainerNode;
+ScrollNode& ScrollViewComponentInstance::getLocalRootArkUINode() {
+  return m_scrollNode;
 }
 
 void ScrollViewComponentInstance::onChildInserted(

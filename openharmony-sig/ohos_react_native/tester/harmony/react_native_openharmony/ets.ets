@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2024 Huawei Technologies Co., Ltd.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE-MIT file in the root directory of this source tree.
+ */
+
 export { RNApp, buildRNComponentForTag } from './src/main/ets/RNApp'
 
 export { RNSurface } from './src/main/ets/RNSurface'
@@ -13,6 +20,7 @@ export { RNComponentContext,
   RNInstancesCoordinator,
   RNInstancesCoordinatorOptions,
   RNInstancesCoordinatorDependencies,
+  RNOHPackage,
   EtsWorkerTurboModule } from "./src/main/ets/RNOH/ets"
 
 export * from "./src/main/ets/RNOHCorePackage/components/RNComponentFactory"

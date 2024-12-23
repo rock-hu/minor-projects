@@ -1,4 +1,4 @@
-This documentation is based on React Native documentation licensed under the [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/) license at https://reactnative.cn/docs/0.72/the-new-architecture/pillars-turbomodules. © Meta Platforms Inc. Changed to How to create a TurboModule on HarmonyOS.
+This documentation is based on React Native documentation licensed under the [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/) license at https://reactnative.cn/docs/0.72/the-new-architecture/pillars-turbomodules. © Meta Platforms Inc. Changed to How to create a TurboModule on OpenHarmony.
 
 # 自定义TurboModule的实现
 
@@ -138,7 +138,7 @@ Codegen 的详细使用方法，可以参考[Codegen](Codegen.md)文档。
    执行成功后，将生成的胶水代码拷贝到您的harmony工程中即可。
 
 
-#### 编写HarmonyOS原生代码
+#### 编写OpenHarmony原生代码
 
 1. 创建用于实现模块的 `CalculatorModule.ts`。
 

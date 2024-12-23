@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2024 Huawei Technologies Co., Ltd.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE-MIT file in the root directory of this source tree.
+ */
+
 import React, {useState} from 'react';
 import {Animated, View, Button, StyleSheet, Text} from 'react-native';
 
@@ -47,7 +54,7 @@ export function AnimatedRenderExample() {
       />
       <Button onPress={() => onPress.stop()} title="Stop" />
       <Button onPress={() => onPress.reset()} title="Reset" />
-      {/* NOTE: this is bugged on (Fabric) iOS and Harmony, but fine on Android */}
+      {/* NOTE: this is bugged on (Fabric) iOS and OpenHarmony, but fine on Android */}
       <Button
         disabled
         onPress={() => setAnimated(!animated)}

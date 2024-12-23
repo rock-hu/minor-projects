@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2024 Huawei Technologies Co., Ltd.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE-MIT file in the root directory of this source tree.
+ */
+
 import * as tmp from 'tmp';
 import { copyMetroConfig, createFileStructure } from './fsUtils';
 import * as pathUtils from 'path';

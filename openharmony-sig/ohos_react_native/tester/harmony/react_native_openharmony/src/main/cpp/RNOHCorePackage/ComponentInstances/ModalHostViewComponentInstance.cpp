@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2024 Huawei Technologies Co., Ltd.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE-MIT file in the root directory of this source tree.
+ */
+
 #include "ModalHostViewComponentInstance.h"
 
 #include <glog/logging.h>
@@ -185,8 +192,10 @@ void ModalHostViewComponentInstance::onMessageReceived(
     ArkTSMessage const& message) {
   if (message.name == "WINDOW_SIZE_CHANGE") {
     auto displayMetrics = ArkTSBridge::getInstance()->getDisplayMetrics();
-    updateDisplaySize(displayMetrics, m_state);
-    resetModalPosition(displayMetrics, m_state);
+    if (m_state) {
+        updateDisplaySize(displayMetrics, m_state);
+        resetModalPosition(displayMetrics, m_state);
+    }
   }
 }
 

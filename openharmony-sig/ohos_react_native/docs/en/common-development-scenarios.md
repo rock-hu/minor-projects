@@ -249,7 +249,7 @@ this.rnInstance.getTurboModule<LogBoxTurboModule>(LogBoxTurboModule.NAME).eventE
 
 ### How Do I Enable Metro?
 
-1. Ensure that the HarmonyOS bundle parameters have been configured. For details, see [How Do I Set HarmonyOS Bundle Parameters?](#how-do-i-set-harmonyos-bundle-parameters).
+1. Ensure that the OpenHarmony bundle parameters have been configured. For details, see [How Do I Set OpenHarmony Bundle Parameters?](#how-do-i-set-harmonyos-bundle-parameters).
 2. If you use the RN framework started by `RNApp`, skip this step because Metro is enabled by default. If you use the RN framework started by `RNSurface`, you need to create a `RNComponentContext`, add the following event emitter to `devToolsController` of `context`, delete the original `RNInstance`, and restart a new `RNInstance` to enable the hot reloading function.
 
     ```js
@@ -298,7 +298,7 @@ this.rnInstance.getTurboModule<LogBoxTurboModule>(LogBoxTurboModule.NAME).eventE
     npm run start
     ```
 
-### How Do I Set HarmonyOS Bundle Parameters?
+### How Do I Set OpenHarmony Bundle Parameters?
 
 When running React Native, Metro Bundler packs JavaScript code into one or more bundles and provides them for devices to execute at runtime. To customize the behavior of Metro Bundler, you need to create a configuration file that tells Metro Bundler how to handle the project to be packaged.
 
@@ -311,7 +311,7 @@ When running React Native, Metro Bundler packs JavaScript code into one or more 
     - `mergeConfig`: merges multiple configurations.
     - `getDefaultConfig`: gets the default Metro configuration.
 
-2. Import the `createHarmonyMetroConfig` function from `react-native-harmony/metro.config` to create specific configurations applicable to the HarmonyOS platform.
+2. Import the `createHarmonyMetroConfig` function from `react-native-harmony/metro.config` to create specific configurations applicable to the OpenHarmony platform.
 
     ```JavaScript
     const {createHarmonyMetroConfig} = require('react-native-harmony/metro.config');
@@ -347,7 +347,7 @@ When running React Native, Metro Bundler packs JavaScript code into one or more 
     - `experimentalImportSupport`: Set it to `false`, indicating that experimental import support is not used.
     - `inlineRequires`: Set it to `true`, indicating that the `require` statement is inlined to the bundle.
 
-5. Call the `mergeConfig` function to merge the default configuration, HarmonyOS configuration, and custom configurations into a final configuration and export it for the Metro Bundler to use.
+5. Call the `mergeConfig` function to merge the default configuration, OpenHarmony configuration, and custom configurations into a final configuration and export it for the Metro Bundler to use.
 
     The default metro-config is as follows:
 
@@ -370,7 +370,7 @@ When running React Native, Metro Bundler packs JavaScript code into one or more 
           }),
         },
       };
-      /* Call the mergeConfig function to merge the default configuration, HarmonyOS configuration, and custom configurations into a final configuration and export it for the Metro Bundler to use.*/
+      /* Call the mergeConfig function to merge the default configuration, OpenHarmony configuration, and custom configurations into a final configuration and export it for the Metro Bundler to use.*/
       module.exports = mergeConfig(
         getDefaultConfig(__dirname),
         createHarmonyMetroConfig({
@@ -500,7 +500,7 @@ To convert the bundle to .hbc format, perform the following steps:
 
 ### How Do I Reduce the HAP Size?
 
-A large HarmonyOS Ability Package (HAP) may occupy more resources during application download, installation, and running, affecting user experience. Therefore, when building or compiling a HarmonyOS application, you can adjust or change the compilation settings to reduce the size of the generated HAP.
+A large OpenHarmony Ability Package (HAP) may occupy more resources during application download, installation, and running, affecting user experience. Therefore, when building or compiling a OpenHarmony application, you can adjust or change the compilation settings to reduce the size of the generated HAP.
 
 1. Set a secure compilation parameter in the `CMakeLists.txt` file to reduce the HAP size.
 
@@ -620,6 +620,6 @@ Currently, you need to configure the following parameters in the `module.json5` 
 
 ### Precautions for Using a Custom Bundle Command
 
-- The current version provides the `bundle-harmony` command to directly use the HarmonyOS-based RN bundle script. You only need to set correct parameters.
+- The current version provides the `bundle-harmony` command to directly use the OpenHarmony-based RN bundle script. You only need to set correct parameters.
 
 - If you want to eliminate command difference across platforms and use a custom bundle command instead of `bundle-harmony`, you can refer to the bundling process in the **react-native-harmony-cli/dist/commands/bundle-harmony.js** file, import the HarmonyOS bundle configuration through `createHarmonyMetroConfig`, and compile the bundle file based on the configuration. Then, you need to add operations related to `copyAssets`. Ensure that the path format of the image resource is the same as that of the image resource encoded in the bundle.
