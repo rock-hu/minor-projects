@@ -25,20 +25,15 @@
     "deliveryWithInstall": true,
     "installationFree": false,
     "pages": "$profile:main_pages",
-    "metadata": [
-      {
-        "name": "client_id",
-        "value": "111362431"
-      }
-    ],
     "abilities": [
       {
         "name": "EntryAbility",
         "srcEntry": "./ets/entryability/EntryAbility.ets",
+        "backgroundModes": ["location"],
         "description": "$string:EntryAbility_desc",
-        "icon": "$media:icon",
+        "icon": "$media:layered_image",
         "label": "$string:EntryAbility_label",
-        "startWindowIcon": "$media:icon",
+        "startWindowIcon": "$media:startIcon",
         "startWindowBackground": "$color:white",
         "exported": true,
         "skills": [
@@ -65,8 +60,8 @@
         }
       },
       {
-        "name": "ohos.permission.INTERNET",
-        "reason": "$string:internet_permission",
+        "name": "ohos.permission.APPROXIMATELY_LOCATION",
+        "reason": "$string:fuzzy_location_permission",
         "usedScene": {
           "abilities": [
             "EntryAbility"
@@ -75,13 +70,33 @@
         }
       },
       {
-        "name": "ohos.permission.APPROXIMATELY_LOCATION",
-        "reason": "$string:fuzzy_location_permission",
+        "name": "ohos.permission.LOCATION_IN_BACKGROUND",
+        "reason": "$string:location_background",
         "usedScene": {
           "abilities": [
             "EntryAbility"
           ],
-          "when": "inuse"
+          "when": "always"
+        }
+      },
+      {
+        "name": "ohos.permission.KEEP_BACKGROUND_RUNNING",
+        "reason": "$string:running_background",
+        "usedScene": {
+          "abilities": [
+            "EntryAbility"
+          ],
+          "when": "always"
+        }
+      },
+      {
+        "name": "ohos.permission.GET_NETWORK_INFO",
+        "reason": "$string:get_network_info",
+        "usedScene": {
+          "abilities": [
+            "EntryAbility"
+          ],
+          "when": "always"
         }
       }
     ]

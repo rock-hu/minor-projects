@@ -17,16 +17,20 @@
       "value": "允许应用在定位场景中前台运行时获取位置信息"
     },
     {
-      "name": "internet_permission",
-      "value": "允许应用在定位场景中使用网络"
-    },
-    {
       "name": "fuzzy_location_permission",
       "value": "允许应用在定位场景中获取设备模糊位置信息"
     },
     {
-      "name": "you_geocoded_location",
-      "value": "你的逆地理编码结果："
+      "name": "current_geocoded_location",
+      "value": "当前位置逆地理编码结果："
+    },
+    {
+      "name": "cache_geocoded_location",
+      "value": "缓存位置逆地理编码结果："
+    },
+    {
+      "name": "geocoded_location",
+      "value": "逆地理编码结果"
     },
     {
       "name": "get_cache_location",
@@ -41,8 +45,36 @@
       "value": "持续定位"
     },
     {
+      "name": "background_positioning",
+      "value": "后台定位"
+    },
+    {
       "name": "language",
       "value": "zh"
+    },
+    {
+      "name": "location_background",
+      "value": "允许应用在后台获取定位信息"
+    },
+    {
+      "name": "running_background",
+      "value": "允许应用在后台执行长时任务获取定位信息"
+    },
+    {
+      "name": "get_network_info",
+      "value": "允许应用获取设备网络连接信息"
+    },
+    {
+      "name": "location_switch",
+      "value": "位置功能关闭，请检查位置设置"
+    },
+    {
+      "name": "internet_switch",
+      "value": "网络已断开，请检查网络设置"
+    },
+    {
+      "name": "wifi_bluetooth_switch",
+      "value": "WiFi或蓝牙关闭，请检查设置"
     }
   ]
 }

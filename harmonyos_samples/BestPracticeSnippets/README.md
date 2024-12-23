@@ -2,6 +2,7 @@
 
 ## 目录
 
+* [DealStrideSolution： 处理stride解决相机预览花屏问题](DealStrideSolution)
 * [AppDataSecurity： 应用数据安全](AppDataSecurity)
 * [AppPrivacyProtection：应用隐私保护](AppPrivacyProtection)
 * [AvoidTimeComsume：主线程耗时操作优化指导](AvoidTimeComsume)

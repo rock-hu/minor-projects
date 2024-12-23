@@ -17,31 +17,42 @@ import { promptAction } from '@kit.ArkUI';
 import { AsyncCallback, BusinessError } from '@kit.BasicServicesKit';
 import { MapComponent, mapCommon, map } from '@kit.MapKit';
 import { geoLocationManager } from '@kit.LocationKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+import { common, wantAgent } from '@kit.AbilityKit';
+import { backgroundTaskManager } from '@kit.BackgroundTasksKit';
+import { connection } from '@kit.NetworkKit';
 import { CommonConstants } from '../common/CommonConstants';
+import { LocationInter } from '../model/LocationInter';
 
-interface LocationInter {
-  latitude: number,
-  longitude: number
-};
+const TAG = '[Index]';
 
 @Entry
 @Component
 struct LocationService {
   @State address: string = '';
+  @State isBackgroundRunning: boolean = false;
+  @State isOnLocationChange: boolean = false;
+  @State isCacheLocation: boolean = false;
+  @StorageProp('bottomRectHeight') bottomRectHeight: number = 0;
   private mapController?: map.MapComponentController;
   private callback?: AsyncCallback<map.MapComponentController>;
   private marker?: map.Marker;
   private mapOption?: mapCommon.MapOptions;
 
   aboutToAppear(): void {
-    geoLocationManager.off('locationChange', this.locationChange);
+    if (!this.judgeHasNet()) {
+      promptAction.showToast({
+        message: $r('app.string.internet_switch'),
+        duration: 2000
+      });
+    }
     let cameraPosition: mapCommon.CameraPosition = {
       target: { longitude: 113.886642, latitude: 22.878538 },
       zoom: 15
     };
     this.mapOption = {
       position: cameraPosition,
-      scaleControlsEnabled: true,
+      scaleControlsEnabled: true
     };
     this.callback = async (err, mapController) => {
       if (!err) {
@@ -50,6 +61,19 @@ struct LocationService {
     };
   }
 
+  aboutToDisappear(): void {
+    if (this.isBackgroundRunning) {
+      this.stopContinuousTask();
+    } else {
+      if (this.isOnLocationChange) {
+        this.offLocationChange();
+      }
+    }
+  }
+
+  /**
+   * Get cache location information
+   */
   getPreLocationPosition(): void {
     try {
       let location = geoLocationManager.getLastLocation();
@@ -58,31 +82,33 @@ struct LocationService {
         longitude: location.longitude
       });
     } catch (err) {
-      promptAction.showToast({
-        message: JSON.stringify(err),
-        duration: CommonConstants.TWO_THOUSAND
-      });
+      hilog.error(0x0000, TAG, `getPreLocationPosition failed, code: ${err.code}, message: ${err.message}`);
+      this.locationFailedAlert(err.code);
     }
   }
 
+  /**
+   * Get current location information
+   */
   getLocationPosition(): void {
     let request: geoLocationManager.SingleLocationRequest = {
       locatingPriority: CommonConstants.PRIORITY_LOCATING_SPEED,
-      locatingTimeoutMs: CommonConstants.TEN_THOUSAND
+      locatingTimeoutMs: CommonConstants.LOCATING_TIMEOUT_MS
     };
     geoLocationManager.getCurrentLocation(request).then((location: geoLocationManager.Location) => {
       this.getAddress({
         latitude: location.latitude,
         longitude: location.longitude
-      });
+      })
     }).catch((err: BusinessError) => {
-      promptAction.showToast({
-        message: JSON.stringify(err),
-        duration: CommonConstants.TWO_THOUSAND
-      });
+      hilog.error(0x0000, TAG, `getCurrentLocationPosition failed, code: ${err.code}, message: ${err.message}`);
+      this.locationFailedAlert(err.code);
     });
   }
 
+  /**
+   * Start position change listening
+   */
   onLocationChange(): void {
     let request: geoLocationManager.ContinuousLocationRequest = {
       interval: 1,
@@ -90,11 +116,28 @@ struct LocationService {
     };
     try {
       geoLocationManager.on('locationChange', request, this.locationChange);
+      if (!this.judgeHasNet()) {
+        promptAction.showToast({
+          message: $r('app.string.internet_switch'),
+          duration: 2000
+        });
+        this.marker?.setInfoWindowVisible(false);
+        this.address = '';
+      }
     } catch (err) {
-      promptAction.showToast({
-        message: JSON.stringify(err),
-        duration: CommonConstants.TWO_THOUSAND
-      });
+      hilog.error(0x0000, TAG, `onLocationChange failed, code: ${err.code}, message: ${err.message}`);
+      this.locationFailedAlert(err.code);
+    }
+  }
+
+  /**
+   * Stop position change listening
+   */
+  offLocationChange(): void {
+    try {
+      geoLocationManager.off('locationChange', this.locationChange);
+    } catch (err) {
+      hilog.error(0x0000, TAG, `offLocationChange failed, code: ${err.code}, message: ${err.message}`);
     }
   }
 
@@ -105,6 +148,10 @@ struct LocationService {
     });
   }
 
+  /**
+   * Reverse geocoding and drawing the marker on the map
+   * @param location
+   */
   async getAddress(location: LocationInter) {
     try {
       let mapLocation: mapCommon.LatLng =
@@ -126,7 +173,11 @@ struct LocationService {
         clickable: true,
         title: CommonConstants.MARKER_TITLE
       };
-      this.marker = await this.mapController?.addMarker(makerOptions);
+      if (this.marker === undefined) {
+        this.marker = await this.mapController?.addMarker(makerOptions);
+      } else {
+        this.marker.setPosition(mapLocation);
+      }
       let reverseGeocodeRequest: geoLocationManager.ReverseGeoCodeRequest = {
         locale: getContext(this).resourceManager.getStringSync($r('app.string.language')),
         latitude: location.latitude,
@@ -136,21 +187,116 @@ struct LocationService {
       geoLocationManager.getAddressesFromLocation(reverseGeocodeRequest, async (err, data) => {
         if (data) {
           this.address = data[0]?.placeName || '';
-          this.marker?.setInfoWindowVisible(true)
-          this.marker?.setSnippet(this.address)
+          this.marker?.setInfoWindowVisible(true);
+          this.marker?.setSnippet(this.address);
+          hilog.info(0x0000, TAG, `The address is: ${this.address}`);
+          if (this.isBackgroundRunning || this.isOnLocationChange) {
+            this.isCacheLocation = false;
+          }
         } else {
-          promptAction.showToast({
-            message: JSON.stringify(err),
-            duration: CommonConstants.TWO_THOUSAND
-          });
+          hilog.error(0x0000, TAG, `getAddressesFromLocation failed, code: ${err.code}, message: ${err.message}`);
+          if (!this.isOnLocationChange && !this.isBackgroundRunning) {
+            this.locationFailedAlert(err.code);
+          }
         }
       });
     } catch (error) {
+      hilog.error(0x0000, TAG, `getAddress failed, code: ${error.code}, message: ${error.message}`);
+    }
+  }
+
+  /**
+   * Start Background Location
+   */
+  startContinuousTask(): void {
+    let context = getContext(this) as common.UIAbilityContext;
+    if (!context) {
+      return;
+    }
+    let wantAgentInfo: wantAgent.WantAgentInfo = {
+      wants: [
+        {
+          bundleName: context.abilityInfo.bundleName,
+          abilityName: context.abilityInfo.name
+        }
+      ],
+      operationType: wantAgent.OperationType.START_ABILITY,
+      requestCode: 1,
+      wantAgentFlags: [wantAgent.WantAgentFlags.UPDATE_PRESENT_FLAG]
+    };
+
+    wantAgent.getWantAgent(wantAgentInfo).then((wantAgentObj) => {
+      backgroundTaskManager.startBackgroundRunning(context,
+        backgroundTaskManager.BackgroundMode.LOCATION, wantAgentObj).then(() => {
+        this.onLocationChange();
+        hilog.info(0x0000, TAG, 'startBackgroundRunning succeeded');
+      }).catch((err: BusinessError) => {
+        hilog.error(0x0000, TAG, `startBackgroundRunning failed, cause:  ${JSON.stringify(err)}`);
+      });
+    });
+  }
+
+  /**
+   * Stop Background Location
+   */
+  stopContinuousTask(): void {
+    let context = getContext(this) as common.UIAbilityContext;
+    if (!context) {
+      return;
+    }
+    backgroundTaskManager.stopBackgroundRunning(context).then(() => {
+      if (!this.isOnLocationChange) {
+        this.offLocationChange();
+      }
+      hilog.info(0x0000, TAG, 'stopBackgroundRunning succeeded');
+    }).catch((err: BusinessError) => {
+      hilog.error(0x0000, TAG, `stopBackgroundRunning failed, cause:  ${JSON.stringify(err)}`);
+    });
+  }
+
+  locationFailedAlert(errCode: number) {
+    if (errCode === CommonConstants.LOCATION_SWITCH_OFF) {
       promptAction.showToast({
-        message: JSON.stringify(error),
-        duration: CommonConstants.TWO_THOUSAND
+        message: $r('app.string.location_switch'),
+        duration: 2000
+      });
+    } else if (errCode === CommonConstants.LOCATION_FAILED) {
+      promptAction.showToast({
+        message: $r('app.string.internet_switch'),
+        duration: 2000
+      });
+    } else if (errCode === CommonConstants.REVERSE_GEOCODING_FAILED) {
+      promptAction.showToast({
+        message: $r('app.string.internet_switch'),
+        duration: 2000
+      });
+    } else if (errCode === CommonConstants.WIFI_BLUETOOTH_OFF) {
+      promptAction.showToast({
+        message: $r('app.string.wifi_bluetooth_switch'),
+        duration: 2000
       });
     }
+    this.marker?.setInfoWindowVisible(false);
+    this.address = '';
+  }
+
+  judgeHasNet(): boolean {
+    try {
+      let netHandle = connection.getDefaultNetSync();
+      if (!netHandle || netHandle.netId === 0) {
+        return false;
+      }
+      let netCapability = connection.getNetCapabilitiesSync(netHandle);
+      let cap = netCapability.networkCap || [];
+      if (cap.includes(connection.NetCap.NET_CAPABILITY_VALIDATED)) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (err) {
+      hilog.error(0x0000, TAG, `JudgeHasNet failed, code: ${err.code}, message: ${err.message}`);
+    }
+    return false;
   }
 
   build() {
@@ -162,97 +308,152 @@ struct LocationService {
             mapCallback: this.callback,
             customInfoWindow: this.customInfoWindow
           })
-            .width(CommonConstants.ONE_HUNDRED_PERCENT)
-            .height(CommonConstants.ONE_HUNDRED_PERCENT)
+            .width('100%')
+            .height('100%')
         }
       }
-      .height(CommonConstants.EIGHTY_FIVE_PERCENT)
-      .width(CommonConstants.ONE_HUNDRED_PERCENT)
+      .height('83%')
+      .width('100%')
 
       Column() {
         Row() {
           Text()
-            .width($r('app.float.text_width'))
-            .height($r('app.float.text_height'))
-            .margin({ right: $r('app.float.text_margin_right') })
+            .width(8)
+            .height(8)
+            .margin({ right: 7 })
             .backgroundColor($r('app.color.green'))
-            .borderRadius($r('app.float.text_border_radius'))
-            .offset({ y: $r('app.float.text_offset') })
+            .borderRadius(4)
+            .offset({ y: 6 })
           Text() {
-            Span($r('app.string.you_geocoded_location'))
-              .fontSize($r('app.float.span_font_size'))
+            Span(this.isCacheLocation ? $r('app.string.cache_geocoded_location') :
+            $r('app.string.current_geocoded_location'))
+              .fontSize(14)
+              .lineHeight(19)
               .fontFamily('Medium')
               .fontColor($r('app.color.shallow_green'))
             Span(this.address)
-              .fontSize($r('app.float.span_font_size'))
+              .fontSize(14)
+              .lineHeight(19)
               .fontFamily('Medium')
               .fontColor($r('app.color.black'))
           }
+          .margin({ right: 16 })
         }
-        .width(CommonConstants.ONE_HUNDRED_PERCENT)
-        .padding($r('app.float.row_padding'))
+        .width('100%')
+        .padding({
+          top: 24,
+          bottom: 16,
+          left: 16,
+          right: 16
+        })
+        .margin({
+          left: 16,
+          right: 16
+        })
+        .constraintSize({ maxWidth: '100%' })
         .alignItems(VerticalAlign.Top)
 
-        Row() {
-          Column() {
-            Button($r('app.string.get_cache_location'))
-              .onClick(() => {
-                this.getPreLocationPosition();
-              })
-              .width(CommonConstants.ONE_HUNDRED_PERCENT)
-              .height($r('app.float.button_height'))
-              .margin({ right: $r('app.float.button_margin_right') })
-          }
-          .width(CommonConstants.FIFTY_PERCENT)
-
-          Column() {
-            Button($r('app.string.get_current_location'))
-              .onClick(() => {
-                this.getLocationPosition();
-              })
-              .width(CommonConstants.ONE_HUNDRED_PERCENT)
-              .height($r('app.float.button_height'))
-              .backgroundColor($r('app.color.black_0D'))
-              .fontColor($r('app.color.blue'))
-              .margin({ left: $r('app.float.button_margin_left') })
-          }
-          .width(CommonConstants.FIFTY_PERCENT)
-        }
-        .margin({
-          left: $r('app.float.column_margin_left'),
-          right: $r('app.float.column_margin_right')
-        })
-
         Column() {
-          Button($r('app.string.continuous_positioning'))
-            .onClick(() => {
-              this.onLocationChange();
-            })
-            .width(CommonConstants.ONE_HUNDRED_PERCENT)
-            .height($r('app.float.button_height'))
-            .backgroundColor($r('app.color.black_0D'))
-            .fontSize($r('app.float.button_font_size'))
-            .fontFamily('Medium')
-            .fontColor($r('app.color.blue'))
-        }
-        .width(CommonConstants.ONE_HUNDRED_PERCENT)
-        .padding({
-          left: $r('app.float.column_padding_left'),
-          right: $r('app.float.column_padding_right'),
-          top: $r('app.float.column_padding_top'),
-          bottom: $r('app.float.column_padding_bottom')
-        })
+          Row() {
+            Text($r('app.string.continuous_positioning'))
+              .fontSize(16)
+              .fontWeight(FontWeight.Medium)
 
+            Toggle({ type: ToggleType.Switch })
+              .onChange((isOn: boolean) => {
+                if (isOn) {
+                  this.isOnLocationChange = true;
+                  this.onLocationChange();
+                } else {
+                  this.isOnLocationChange = false;
+                  if (!this.isBackgroundRunning) {
+                    this.offLocationChange();
+                  }
+                }
+              })
+          }
+          .height(48)
+          .width('100%')
+          .constraintSize({ maxWidth: '100%' })
+          .justifyContent(FlexAlign.SpaceBetween)
+          .padding({
+            left: 16,
+            right: 16
+          })
+
+          Row() {
+            Text($r('app.string.background_positioning'))
+              .fontSize(16)
+              .fontWeight(FontWeight.Medium)
+
+            Toggle({ type: ToggleType.Switch })
+              .onChange((isOn: boolean) => {
+                if (isOn) {
+                  this.isBackgroundRunning = true;
+                  this.startContinuousTask();
+                } else {
+                  this.isBackgroundRunning = false;
+                  this.stopContinuousTask();
+                }
+              })
+          }
+          .height(48)
+          .width('100%')
+          .constraintSize({ maxWidth: '100%' })
+          .justifyContent(FlexAlign.SpaceBetween)
+          .padding({
+            left: 16,
+            right: 16
+          })
+          .margin({
+            bottom: 24
+          })
+
+          Button($r('app.string.get_cache_location'))
+            .onClick(() => {
+              this.getPreLocationPosition();
+              this.isCacheLocation = true;
+            })
+            .width('100%')
+            .height(40)
+            .backgroundColor($r('app.color.blue'))
+            .fontColor($r('app.color.white'))
+            .fontWeight(FontWeight.Medium)
+            .margin({
+              bottom: 12
+            })
+
+          Button($r('app.string.get_current_location'))
+            .onClick(() => {
+              this.getLocationPosition();
+              this.isCacheLocation = false;
+            })
+            .width('100%')
+            .height(40)
+            .backgroundColor($r('app.color.blue'))
+            .fontColor($r('app.color.white'))
+            .fontWeight(FontWeight.Medium)
+        }
+        .width('100%')
+        .constraintSize({ maxWidth: '100%' })
+        .margin({
+          left: 16,
+          right: 16,
+          bottom: 16
+        })
       }
-      .width(CommonConstants.ONE_HUNDRED_PERCENT)
+      .width('100%')
       .borderRadius({
-        topLeft: $r('app.float.column_border_radius_top'),
-        topRight: $r('app.float.column_border_radius_top')
+        topLeft: 32,
+        topRight: 32
       })
-      .backgroundColor($r('app.color.white'))
-      .position({ bottom: $r('app.float.column_position_bottom') })
+      .backgroundColor($r('sys.color.comp_background_list_card'))
+      .position({ bottom: 0 })
     }
-    .height(CommonConstants.ONE_HUNDRED_PERCENT)
+    .height('100%')
+    .padding({
+      bottom: px2vp(this.bottomRectHeight)
+    })
   }
 
   @BuilderParam customInfoWindow: (params: map.MarkerDelegate) => void = this.customInfoWindowBuilder;
@@ -262,38 +463,38 @@ struct LocationService {
     if (params.marker) {
       Column() {
         Text(params.marker.getTitle())
-          .width($r('app.float.text_custom_info_title_width'))
-          .height($r('app.float.text_custom_info_title_height'))
+          .width(180)
+          .height(24)
           .backgroundColor($r('app.color.green'))
           .borderRadius({
-            topLeft: $r('app.float.text_custom_info_title_border_radius_top'),
-            topRight: $r('app.float.text_custom_info_title_border_radius_top')
+            topLeft: 12,
+            topRight: 12
           })
           .padding({
-            top: $r('app.float.text_custom_info_title_padding_top'),
-            bottom: $r('app.float.text_custom_info_title_padding_bottom'),
-            left: $r('app.float.text_custom_info_title_padding_left')
+            top: 4,
+            bottom: 4,
+            left: 12
           })
-          .fontSize($r('app.float.text_custom_info_title_font_size'))
+          .fontSize(12)
           .fontColor($r('app.color.white_e6'))
-          .lineHeight($r('app.float.text_custom_info_title_line_height'))
+          .lineHeight(16)
           .textAlign(TextAlign.Start)
         Text(params.marker.getSnippet())
-          .width($r('app.float.text_custom_info_snippet_width'))
+          .width(180)
           .backgroundColor($r('app.color.white'))
           .borderRadius({
-            bottomLeft: $r('app.float.text_custom_info_snippet_border_radius_top'),
-            bottomRight: $r('app.float.text_custom_info_snippet_border_radius_top')
+            bottomLeft: 12,
+            bottomRight: 12
           })
           .padding({
-            top: $r('app.float.text_custom_info_snippet_padding_top'),
-            bottom: $r('app.float.text_custom_info_snippet_padding_bottom'),
-            left: $r('app.float.text_custom_info_snippet_padding_left'),
-            right: $r('app.float.text_custom_info_snippet_padding_right')
+            top: 4,
+            bottom: 6,
+            left: 12,
+            right: 8
           })
-          .fontSize($r('app.float.text_custom_info_snippet_font_size'))
+          .fontSize(14)
           .fontColor($r('app.color.black_e6'))
-          .lineHeight($r('app.float.text_custom_info_snippet_line_height'))
+          .lineHeight(19)
           .textAlign(TextAlign.Start)
       }
     }

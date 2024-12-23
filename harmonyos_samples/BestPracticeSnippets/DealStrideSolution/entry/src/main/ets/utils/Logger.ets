@@ -15,6 +15,8 @@
 
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
+const TAG = 'DealStrideSolution';
+
 class Logger {
   private domain: number;
   private prefix: string;
@@ -25,21 +27,21 @@ class Logger {
     this.domain = 0xFF00;
   }
 
-  debug(...args: string[]) {
+  debug(...args: string[]): void {
     hilog.debug(this.domain, this.prefix, this.format, args);
   }
 
-  info(...args: string[]) {
+  info(...args: string[]): void {
     hilog.info(this.domain, this.prefix, this.format, args);
   }
 
-  warn(...args: string[]) {
+  warn(...args: string[]): void {
     hilog.warn(this.domain, this.prefix, this.format, args);
   }
 
-  error(...args: string[]) {
+  error(...args: string[]): void {
     hilog.error(this.domain, this.prefix, this.format, args);
   }
 }
 
-export default new Logger('[locationService]')
+export default new Logger(TAG);

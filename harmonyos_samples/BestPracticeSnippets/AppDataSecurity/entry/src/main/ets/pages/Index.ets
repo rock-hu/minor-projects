@@ -67,15 +67,15 @@ struct Index {
   getEl2Path() {
     let context = getContext(this) as common.UIAbilityContext;
     context.area = contextConstant.AreaMode.EL2;
-    let file_path = context.filesDir + '/health_data.txt';
-    this.message = file_path;
+    let filePath = context.filesDir + '/health_data.txt';
+    this.message = filePath;
   }
 
   getEl1Path() {
     let context = getContext(this) as common.UIAbilityContext;
     context.area = contextConstant.AreaMode.EL1;
-    let file_path = context.filesDir + '/health_data.txt';
-    this.message = file_path;
+    let filePath = context.filesDir + '/health_data.txt';
+    this.message = filePath;
   }
 }
 
@@ -85,15 +85,15 @@ let plainText = '123456';
 let IV = '001122334455';
 let cipherData: Uint8Array;
 
-function writeFile(file_path: string, data: string) {
-  let file = fileIo.openSync(file_path, fileIo.OpenMode.READ_WRITE | fileIo.OpenMode.CREATE);
+function writeFile(filePath: string, data: string) {
+  let file = fileIo.openSync(filePath, fileIo.OpenMode.READ_WRITE | fileIo.OpenMode.CREATE);
   let writeLen = fileIo.writeSync(file.fd, data);
   hilog.info(0x0000, 'AppDataSecurity', 'The length of str is: ' + writeLen);
   fileIo.closeSync(file);
 }
 
-function readFile(file_path: string): object {
-  let file = fileIo.openSync(file_path, fileIo.OpenMode.READ_WRITE | fileIo.OpenMode.CREATE);
+function readFile(filePath: string): object {
+  let file = fileIo.openSync(filePath, fileIo.OpenMode.READ_WRITE | fileIo.OpenMode.CREATE);
   let arrayBuffer = new ArrayBuffer(1024);
 
   class Option {

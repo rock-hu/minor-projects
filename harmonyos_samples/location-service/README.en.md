@@ -10,7 +10,7 @@ This sample shows how to use the APIs provided by the **geoLocationManager** cla
 ### Preview
 | Home                                             |
 |--------------------------------------------------|
-| ![](screenshots/devices/position_service.en.png) |
+| ![](screenshots/devices/location_service.en.png) |
 
 How to Use
 

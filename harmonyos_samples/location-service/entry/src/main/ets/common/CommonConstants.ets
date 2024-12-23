@@ -15,35 +15,42 @@
 
 export class CommonConstants {
   /**
-   * duration
-   */
-  static TWO_THOUSAND: number = 2000;
-  /**
    * locatingTimeoutMs
    */
-  static TEN_THOUSAND: number = 10000;
+  static LOCATING_TIMEOUT_MS: number = 10000;
+
   /**
    * locatingPriority
    */
   static PRIORITY_LOCATING_SPEED: number = 0x502;
+
   /**
    * locationScenario
    */
   static NAVIGATION: number = 0x401;
+
+  /**
+   * locationSwitch
+   */
+  static LOCATION_SWITCH_OFF: number = 3301100;
+
+  /**
+   * locationFail
+   */
+  static LOCATION_FAILED: number = 3301200;
+
+  /**
+   * reverseGeocodingFailed
+   */
+  static REVERSE_GEOCODING_FAILED: number = 3301300;
+
+  /**
+   * reverseGeocodingFailed
+   */
+  static WIFI_BLUETOOTH_OFF: number = 3301800;
+
   /**
    * Information Window Title
    */
-  static MARKER_TITLE: string = '逆地理编码结果';
-  /**
-  * Full percent
-  */
-  static ONE_HUNDRED_PERCENT: string = '100%';
-  /**
-   * Eighty five percent
-   */
-  static EIGHTY_FIVE_PERCENT: string = '83%';
-  /**
-   * Fifty percent
-   */
-  static FIFTY_PERCENT: string = '50%';
+  static MARKER_TITLE: string = getContext(this).resourceManager.getStringSync($r('app.string.geocoded_location'));
 }
