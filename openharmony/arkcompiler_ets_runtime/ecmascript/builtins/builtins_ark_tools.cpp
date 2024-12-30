@@ -15,15 +15,10 @@
 
 #include "ecmascript/builtins/builtins_ark_tools.h"
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 #include "ecmascript/dfx/stackinfo/js_stackinfo.h"
 #include "ecmascript/dfx/vmstat/opt_code_profiler.h"
 #include "ecmascript/mem/verification.h"
-#include "ecmascript/module/js_module_source_text.h"
 #include "ecmascript/property_detector-inl.h"
-#include "ecmascript/js_arraybuffer.h"
 #include "ecmascript/interpreter/fast_runtime_stub-inl.h"
 #include "ecmascript/linked_hash_table.h"
 #include "builtins_typedarray.h"
@@ -1466,6 +1461,23 @@ JSTaggedValue BuiltinsArkTools::WaitAllJitCompileFinish(EcmaRuntimeCallInfo *inf
     thread->CheckOrSwitchPGOStubs();
     thread->GetEcmaVM()->GetJSOptions().SetEnablePGOProfiler(false);
     return JSTaggedValue::True();
+}
+
+JSTaggedValue BuiltinsArkTools::IsInFastJit(EcmaRuntimeCallInfo *info)
+{
+    JSThread *thread = info->GetThread();
+    RETURN_IF_DISALLOW_ARKTOOLS(thread);
+    [[maybe_unused]] EcmaHandleScope handleScope(thread);
+
+    JSTaggedType *currentFrame = const_cast<JSTaggedType*>(thread->GetCurrentFrame());
+    for (FrameIterator it(currentFrame, thread); !it.Done(); it.Advance<GCVisitedFlag::VISITED>()) {
+        if (!it.IsJSFrame()) {
+            continue;
+        }
+        return (it.IsOptimizedJSFunctionFrame() || it.IsFastJitFunctionFrame() ?
+            JSTaggedValue::True() : JSTaggedValue::False());
+    }
+    return JSTaggedValue::False();
 }
 
 JSTaggedValue BuiltinsArkTools::StartRuntimeStat(EcmaRuntimeCallInfo *msg)

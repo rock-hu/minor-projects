@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-#include <algorithm>
 
 #include "ecmascript/ecma_context.h"
 #include "ecmascript/global_env_constants-inl.h"
@@ -746,9 +745,14 @@ bool JSHClass::TransitToElementsKind(const JSThread *thread, const JSHandle<JSOb
     if (Elements::IsGeneric(current)) {
         return false;
     }
-    auto newKind = Elements::ToElementsKind(value.GetTaggedValue(), kind);
+
     // Merge current kind and new kind
-    newKind = Elements::MergeElementsKind(current, newKind);
+    ElementsKind newKind = Elements::MergeElementsKindNoFix(value.GetTaggedValue(), current, kind);
+    if (newKind == current) {
+        return false;
+    }
+
+    newKind = Elements::FixElementsKind(newKind);
     if (newKind == current) {
         return false;
     }
@@ -758,14 +762,18 @@ bool JSHClass::TransitToElementsKind(const JSThread *thread, const JSHandle<JSOb
         return false;
     }
 
-    if (!thread->GetEcmaVM()->IsEnableElementsKind()) {
+    if (thread->IsEnableElementsKind() || thread->IsPGOProfilerEnable()) {
         // Update TrackInfo
-        if (!thread->IsPGOProfilerEnable()) {
-            return true;
-        }
-        auto trackInfoVal = JSHandle<JSArray>(object)->GetTrackInfo();
-        thread->GetEcmaVM()->GetPGOProfiler()->UpdateTrackElementsKind(trackInfoVal, newKind);
+        JSHandle<JSArray>(object)->UpdateTrackInfo(thread);
+    }
+
+    if (!thread->IsPGOProfilerEnable()) {
         return true;
+    }
+    JSTaggedValue trackInfoVal = JSHandle<JSArray>(object)->GetTrackInfo();
+    if (trackInfoVal.IsHeapObject() && trackInfoVal.IsWeak()) {
+        TrackInfo *trackInfo = TrackInfo::Cast(trackInfoVal.GetWeakReferentUnChecked());
+        thread->GetEcmaVM()->GetPGOProfiler()->UpdateTrackInfo(JSTaggedValue(trackInfo));
     }
     return true;
 }

@@ -45,6 +45,7 @@
 #include "tooling/test/testcases/js_breakpoint_cannot_hit_test.h"
 #include "tooling/test/testcases/js_breakpoint_in_different_branch.h"
 #include "tooling/test/testcases/js_watch_variable_test.h"
+#include "tooling/test/testcases/js_watch_closure_variable_test.h"
 #include "tooling/test/testcases/js_stepinto_arrow_test.h"
 #include "tooling/test/testcases/js_stepinto_async_test.h"
 #include "tooling/test/testcases/js_stepout_arrow_test.h"
@@ -70,6 +71,7 @@
 #include "tooling/test/testcases/js_heapusage_loop_test.h"
 #include "tooling/test/testcases/js_heapusage_recursion_test.h"
 #include "tooling/test/testcases/js_smart_stepInto_test.h"
+#include "tooling/test/testcases/js_accelerate_launch_test.h"
 
 namespace panda::ecmascript::tooling::test {
 static std::string g_currentTestName = "";
@@ -114,6 +116,7 @@ static void RegisterTests()
     TestUtil::RegisterTest("JsJsWatchBasicTypeTest", GetJsWatchBasicTypeTest());
     TestUtil::RegisterTest("JsJsWatchSetTypeTest", GetJsWatchSetTypeTest());
     TestUtil::RegisterTest("JsJsWatchOtherTypeTest", GetJsWatchOtherTypeTest());
+    TestUtil::RegisterTest("JsWatchClosureVariableTest", GetJsWatchClosureVariableTest());
     TestUtil::RegisterTest("JsStepintoLoopTest", GetJsStepintoLoopTest());
     TestUtil::RegisterTest("JsStepintoRecursionTest", GetJsStepintoRecursionTest());
     TestUtil::RegisterTest("JsStepintoSwitchTest", GetJsStepintoSwitchTest());
@@ -129,6 +132,7 @@ static void RegisterTests()
     TestUtil::RegisterTest("JsHeapusageLoopTest", GetJsHeapusageLoopTest());
     TestUtil::RegisterTest("JsHeapusageRecursionTest", GetJsHeapusageRecursionTest());
     TestUtil::RegisterTest("JsSmartStepoutTest", GetJsSmartStepoutTest());
+    TestUtil::RegisterTest("JsAccelerateLaunchTest", GetJsAccelerateLaunchTest());
 }
 
 std::vector<const char *> GetTestList()

@@ -64,6 +64,8 @@ enum ArkProperties {
     ENABLE_MODULE_LOG = 1 << 25,
     ENABLE_SERIALIZATION_TIMEOUT_CHECK = 1 << 26,
     ENABLE_PAGETAG_THREAD_ID = 1 << 27,
+    ENABLE_LOCAL_HANDLE_LEAK_DETECT = 1 << 28,
+    ENABLE_MODULE_EXCEPTION = 1 << 29,
 };
 
 // asm interpreter control parsed option
@@ -185,7 +187,8 @@ enum CommandValues {
     OPTION_COMPILER_ENABLE_AOT_PGO,
     OPTION_COMPILER_ENABLE_FRAMEWORK_AOT,
     OPTION_COMPILER_ENABLE_PROPFILE_DUMP,
-    OPTION_ENABLE_ELEMENTSKIND,
+    OPTION_ENABLE_MUTANT_ARRAY,
+    OPTION_ENABLE_ELEMENTS_KIND,
     OPTION_COMPILER_TYPED_OP_PROFILER,
     OPTION_COMPILER_OPT_BRANCH_PROFILING,
     OPTION_TEST_ASSERT,
@@ -206,8 +209,9 @@ enum CommandValues {
     OPTION_COMPILER_BASELINEJIT_HOTNESS_THRESHOLD,
     OPTION_COMPILER_FORCE_BASELINEJIT_COMPILE_MAIN,
     OPTION_ENABLE_AOT_CRASH_ESCAPE,
-    OPTION_COMPILER_ENABLE_JIT_FAST_COMPILE,
     OPTION_SPLIT_TWO,
+    OPTION_COMPILER_ENABLE_JIT_FAST_COMPILE,
+    OPTION_COMPILER_ENABLE_MEGA_IC,
     OPTION_COMPILER_BASELINE_PGO,
     OPTION_ASYNC_LOAD_ABC,
     OPTION_ASYNC_LOAD_ABC_TEST,
@@ -221,6 +225,9 @@ enum CommandValues {
     OPTION_COMPILER_ENABLE_PGO_SPACE,
     OPTION_ENABLE_INLINE_PROPERTY_OPTIMIZATION,
     OPTION_COMPILER_ENABLE_AOT_CODE_COMMENT,
+    OPTION_ENABLE_JIT_VERIFY_PASS,
+    OPTION_COMPILER_AN_FILE_MAX_SIZE,
+    OPTION_COMPILER_TRACE_BUILTINS,
 };
 static_assert(OPTION_INVALID == 63); // Placeholder for invalid options
 static_assert(OPTION_SPLIT_ONE == 64); // add new option at the bottom, DO NOT modify this value
@@ -455,6 +462,13 @@ public:
         }
     }
 
+    void SetTraceLoadBundleName(std::string bundleName)
+    {
+        if (bundleName != "") {
+            traceLoadBundleName_ = bundleName;
+        }
+    }
+
     void SetMemConfigProperty(std::string configProperty)
     {
         if (configProperty != "") {
@@ -495,6 +509,11 @@ public:
     std::string GetArkBundleName() const
     {
         return arkBundleName_;
+    }
+
+    std::string GetTraceLoadBundleName() const
+    {
+        return traceLoadBundleName_;
     }
 
     bool EnableOptionalLog() const
@@ -562,6 +581,10 @@ public:
     {
         return EnableGlobalObjectLeakCheck() || EnableGlobalPrimitiveLeakCheck();
     }
+
+    bool IsEnableLocalHandleLeakDetect() const;
+
+    void SetEnableLocalHandleLeakDetect();
 
     bool EnableCpuProfilerColdStartMainThread() const
     {
@@ -640,6 +663,11 @@ public:
     bool EnablePageTagThreadId() const
     {
         return (static_cast<uint32_t>(arkProperties_) & ArkProperties::ENABLE_PAGETAG_THREAD_ID) != 0;
+    }
+
+    bool EnableModuleException() const
+    {
+        return (static_cast<uint32_t>(arkProperties_) & ArkProperties::ENABLE_MODULE_EXCEPTION) != 0;
     }
 
     bool WasSetMaxNonmovableSpaceCapacity() const
@@ -1086,6 +1114,16 @@ public:
         return enablePrintExecuteTime_;
     }
 
+    void SetEnableMutantArray(bool value)
+    {
+        enableMutantArray_ = value;
+    }
+
+    bool IsEnableMutantArray() const
+    {
+        return enableMutantArray_;
+    }
+
     void SetEnableElementsKind(bool value)
     {
         enableElementsKind_ = value;
@@ -1281,12 +1319,12 @@ public:
         return jitHotnessThreshold_;
     }
 
-    void SetJitCallThreshold(uint8_t value)
+    void SetJitCallThreshold(uint16_t value)
     {
         jitCallThreshold_ = value;
     }
 
-    uint8_t GetJitCallThreshold() const
+    uint16_t GetJitCallThreshold() const
     {
         return jitCallThreshold_;
     }
@@ -1519,6 +1557,16 @@ public:
     bool GetTraceInline() const
     {
         return traceInline_;
+    }
+
+    bool GetTraceBuiltins() const
+    {
+        return traceBuiltins_;
+    }
+
+    void SetTraceBuiltins(bool value)
+    {
+        traceBuiltins_ = value;
     }
 
     void SetTraceValueNumbering(bool value)
@@ -1910,6 +1958,22 @@ public:
     {
         return enableJitFastCompile_;
     }
+    
+    void SetEnableMegaIC(bool value)
+    {
+        enableMegaIC_ = value;
+        isMegaICInitialized = true;
+    }
+
+    bool IsEnableMegaIC() const
+    {
+        return enableMegaIC_ && IsEnableJIT();
+    }
+
+    bool IsMegaICInitialized() const
+    {
+        return isMegaICInitialized;
+    }
 
     void SetEnableFrameworkAOT(bool value)
     {
@@ -2011,6 +2075,31 @@ public:
         return enableInlinePropertyOptimization_;
     }
 
+    void SetEnableJitVerifyPass(bool value)
+    {
+        enableJitVerifyPass_ = value;
+    }
+
+    bool IsEnableJitVerifyPass() const
+    {
+        return enableJitVerifyPass_;
+    }
+
+    void SetCompilerAnFileMaxByteSize(uint64_t value)
+    {
+        CompilerAnFileMaxByteSize_ = value;
+    }
+
+    uint64_t GetCompilerAnFileMaxByteSize() const
+    {
+        return CompilerAnFileMaxByteSize_;
+    }
+
+    bool IsCompilerAnFileMaxByteSizeDefault() const
+    {
+        return CompilerAnFileMaxByteSize_ == 0;
+    }
+
 public:
     static constexpr int32_t MAX_APP_COMPILE_METHOD_SIZE = 4_KB;
 
@@ -2062,6 +2151,7 @@ private:
     int32_t deviceThermalLevel_ {0};
     int arkProperties_ = GetDefaultProperties();
     std::string arkBundleName_ = {""};
+    std::string traceLoadBundleName_ = {""};
     size_t heapSize_ = {0};
     uint32_t gcThreadNum_ {7}; // 7: default thread num
     uint32_t longPauseTime_ {40}; // 40: default pause time
@@ -2106,7 +2196,12 @@ private:
     bool enableLaterElimination_ {true};
     bool enableValueNumbering_ {true};
     bool enableOptString_ {true};
+    bool enableMutantArray_ {false};
+#if ENABLE_NEXT_OPTIMIZATION
+    bool enableElementsKind_ {true};
+#else
     bool enableElementsKind_ {false};
+#endif
     bool enableInstrcutionCombine {true};
     bool enableNewValueNumbering_ {true};
     bool enableOptInlining_ {true};
@@ -2116,7 +2211,7 @@ private:
     bool isEnableJitDfxDump_ {false};
     bool enableOSR_ {false};
     uint16_t jitHotnessThreshold_ {2};
-    uint8_t jitCallThreshold_ {0};
+    uint16_t jitCallThreshold_ {1};
     uint16_t osrHotnessThreshold_ {2};
     bool forceJitCompileMain_ {false};
     bool enableBaselineJIT_ {false};
@@ -2148,6 +2243,7 @@ private:
     std::string compilerSkipMethods_ {""};
     bool pgoTrace_ {false};
     bool traceInline_ {false};
+    bool traceBuiltins_ {false};
     bool traceJIT_ {false};
     bool traceValueNumbering_ {false};
     bool traceInstructionCombine_ {false};
@@ -2184,6 +2280,8 @@ private:
     bool checkPgoVersion_ {false};
     bool enableJitFastCompile_ {false};
     bool enableJitFrame_ {false};
+    bool enableMegaIC_ {false};
+    bool isMegaICInitialized {false};
     bool disableCodeSign_ {true};
     bool enableJitFort_ {true};
     bool enableAsyncCopyToFort_ {true};
@@ -2195,6 +2293,9 @@ private:
     bool aotHasException_ {false};
     bool enableInlinePropertyOptimization_ {NEXT_OPTIMIZATION_BOOL};
     bool storeBarrierOpt_ {true};
+    uint64_t CompilerAnFileMaxByteSize_ {0_MB};
+    bool enableJitVerifyPass_ {false};
+    bool enableLocalHandleLeakDetect_ {false};
 };
 } // namespace panda::ecmascript
 

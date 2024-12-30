@@ -50,7 +50,7 @@ TEST_F(LibAbcKitCreateDynGetNextProp, IcreateGetnextpropname_1)
             auto *newBB = g_implG->bbCreateEmpty(graph);
             auto *newFalseBB = g_implG->bbCreateEmpty(graph);
             auto *newEndBB = g_implG->bbCreateEmpty(graph);
-            g_implG->bbEraseSuccBlock(bb, 0);
+            g_implG->bbDisconnectSuccBlock(bb, 0);
             g_implG->bbAppendSuccBlock(bb, newBB);
             g_implG->bbAppendSuccBlock(newBB, newEndBB);  // true branch -> end block
             g_implG->bbAppendSuccBlock(newBB, newFalseBB);
@@ -80,7 +80,7 @@ TEST_F(LibAbcKitCreateDynGetNextProp, IcreateGetnextpropname_1)
             g_implG->bbAddInstBack(newEndBB, ldundef2);
             g_implG->bbAddInstBack(newEndBB, returnundef2);
 
-            auto *stringPrint = g_implM->createString(file, "print");
+            auto *stringPrint = g_implM->createString(file, "print", strlen("print"));
             auto *tryldglobalbyname = g_dynG->iCreateTryldglobalbyname(graph, stringPrint);
             auto *ldobjbyvalue = g_dynG->iCreateLdobjbyvalue(graph, getnextpropname, createArr);
             auto *callarg1 = g_dynG->iCreateCallarg1(graph, tryldglobalbyname, ldobjbyvalue);

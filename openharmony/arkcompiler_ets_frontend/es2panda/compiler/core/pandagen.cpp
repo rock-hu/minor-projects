@@ -41,6 +41,7 @@
 #include <ir/expressions/literals/stringLiteral.h>
 #include <ir/expressions/newExpression.h>
 #include <ir/module/importSpecifier.h>
+#include <ir/module/importDefaultSpecifier.h>
 #include <ir/statement.h>
 #include <util/concurrent.h>
 #include <util/helpers.h>
@@ -201,6 +202,11 @@ const util::StringView &PandaGen::FunctionName() const
 binder::Binder *PandaGen::Binder() const
 {
     return context_->Binder();
+}
+
+pandasm::extensions::Language PandaGen::SourceLang() const
+{
+    return context_->SourceLang();
 }
 
 void PandaGen::FunctionInit(CatchTable *catchTable)
@@ -1797,6 +1803,12 @@ void PandaGen::LoadSendableClass(const ir::AstNode *node, int32_t level)
 void PandaGen::LoadLocalModuleVariable(const ir::AstNode *node, const binder::ModuleVariable *variable)
 {
     auto index = variable->Index();
+    if (inSendable_ && Binder()->Program()->TargetApiVersion() >= 16) {
+        index <= util::Helpers::MAX_INT8 ? ra_.Emit<CallruntimeLdsendablelocalmodulevar>(node, index) :
+                                           ra_.Emit<CallruntimeWideldsendablelocalmodulevar>(node, index);
+        return;
+    }
+
     index <= util::Helpers::MAX_INT8 ? ra_.Emit<Ldlocalmodulevar>(node, index) :
                                        ra_.Emit<WideLdlocalmodulevar>(node, index);
 }
@@ -1808,6 +1820,11 @@ void PandaGen::LoadExternalModuleVariable(const ir::AstNode *node, const binder:
     auto targetApiVersion = Binder()->Program()->TargetApiVersion();
     bool isLazy = variable->Declaration()->Node()->IsImportSpecifier() ?
         variable->Declaration()->Node()->AsImportSpecifier()->IsLazy() : false;
+    if (!isLazy) {
+        isLazy = variable->Declaration()->Node()->IsImportDefaultSpecifier() ?
+            variable->Declaration()->Node()->AsImportDefaultSpecifier()->IsLazy() : false;
+    }
+
     if (isLazy) {
         // Change the behavior of using imported object in sendable class since api12
         if (inSendable_ && targetApiVersion >= util::Helpers::SENDABLE_LAZY_LOADING_MIN_SUPPORTED_API_VERSION) {

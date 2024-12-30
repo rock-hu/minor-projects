@@ -95,6 +95,7 @@ struct CompilationOptions {
     bool enableAotCodeComment_ {false};
     std::map<std::string, std::vector<std::string>> optionSelectMethods_;
     std::map<std::string, std::vector<std::string>> optionSkipMethods_;
+    size_t anFileMaxByteSize_ {0_MB};
 };
 
 class AotCompilerPreprocessor {
@@ -126,11 +127,11 @@ public:
 
     void Process(CompilationOptions &cOptions);
 
-    uint32_t GenerateAbcFileInfos();
+    void GenerateAbcFileInfos(std::unordered_map<CString, uint32_t> &fileNameToChecksumMap);
 
     void GenerateBytecodeInfoCollectors(const CompilationOptions &cOptions);
 
-    bool HandleMergedPgoFile(uint32_t checksum);
+    bool HandleMergedPgoFile(std::unordered_map<CString, uint32_t> &fileNameToChecksumMap);
 
     void GeneratePGOTypes();
 

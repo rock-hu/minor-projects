@@ -20,7 +20,6 @@
 #include "ecmascript/global_env.h"
 #include "ecmascript/interpreter/interpreter.h"
 #include "ecmascript/js_object-inl.h"
-#include "ecmascript/module/js_module_manager.h"
 #include "ecmascript/module/module_resolver.h"
 #include "ecmascript/object_factory-inl.h"
 #include "ecmascript/pgo_profiler/pgo_profiler.h"
@@ -954,9 +953,6 @@ JSHandle<JSHClass> JSFunction::GetOrCreateDerivedJSHClass(JSThread *thread, JSHa
     } else {
         newJSHClass = JSHClass::Clone(thread, ctorInitialJSHClass);
     }
-    if (ctorInitialJSHClass->IsJSArray()) {
-        newJSHClass->SetIsJSArrayPrototypeModified(true);
-    }
     newJSHClass->SetElementsKind(ElementsKind::GENERIC);
     // guarante derived has function prototype
     JSHandle<JSTaggedValue> prototype(thread, derived->GetProtoOrHClass());
@@ -1135,6 +1131,16 @@ void JSFunction::SetJitMachineCodeCache(const JSThread *thread, const JSHandle<M
     handleRaw->SetMachineCode(thread, machineCode.GetTaggedValue().CreateAndGetWeakRef(), WRITE_BARRIER);
 }
 
+void JSFunction::SetBaselineJitCodeCache(const JSThread *thread, const JSHandle<MachineCode> &machineCode)
+{
+    JSHandle<ProfileTypeInfoCell> handleRaw(thread, GetRawProfileTypeInfo());
+    if (handleRaw->IsEmptyProfileTypeInfoCell(thread)) {
+        LOG_BASELINEJIT(ERROR) << "skip set baselinejit cache, as profileTypeInfoCell is empty.";
+        return;
+    }
+    handleRaw->SetBaselineCode(thread, machineCode.GetTaggedValue().CreateAndGetWeakRef(), WRITE_BARRIER);
+}
+
 JSTaggedValue JSFunctionBase::GetFunctionExtraInfo() const
 {
     JSTaggedType hashField = Barriers::GetValue<JSTaggedType>(this, HASH_OFFSET);
@@ -1197,15 +1203,9 @@ void JSFunction::InitializeForConcurrentFunction(JSThread *thread, JSHandle<JSFu
         return;
     }
     ecmascript::ModuleManager *moduleManager = thread->GetCurrentEcmaContext()->GetModuleManager();
-    JSHandle<ecmascript::JSTaggedValue> moduleRecord;
-    // check compileMode
-    if (jsPandaFile->IsBundlePack()) {
-        LOG_ECMA(DEBUG) << "CompileMode is jsbundle";
-        moduleRecord = ModuleResolver::HostResolveImportedModuleBundlePack(thread, moduleName);
-    } else {
-        LOG_ECMA(DEBUG) << "CompileMode is esmodule";
-        moduleRecord = ModuleResolver::HostResolveImportedModuleWithMerge(thread, moduleName, recordName);
-    }
+    LOG_ECMA(DEBUG) << "CompileMode is " << (jsPandaFile->IsBundlePack() ? "jsbundle" : "esmodule");
+    JSHandle<ecmascript::JSTaggedValue> moduleRecord =
+        ModuleResolver::HostResolveImportedModule(thread, moduleName, recordName);
     RETURN_IF_ABRUPT_COMPLETION(thread);
     ecmascript::SourceTextModule::Instantiate(thread, moduleRecord);
     RETURN_IF_ABRUPT_COMPLETION(thread);

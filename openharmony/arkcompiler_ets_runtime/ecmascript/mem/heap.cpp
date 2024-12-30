@@ -12,8 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <chrono>
-#include <thread>
 
 #include "ecmascript/base/block_hook_scope.h"
 #include "ecmascript/checkpoint/thread_state_transition.h"
@@ -2637,7 +2635,7 @@ void Heap::CleanCallback()
         asyncTaskCb(asyncCallbacks);
     } else {
         ThreadNativeScope nativeScope(thread_);
-        asyncCallbacks->ProcessAll();
+        asyncCallbacks->ProcessAll("ArkCompiler");
         delete asyncCallbacks;
     }
     ASSERT(asyncCallbacksPack.TotallyEmpty());
@@ -2711,6 +2709,28 @@ bool BaseHeap::ContainObject(TaggedObject *object) const
      */
     Region *region = Region::ObjectAddressToRange(object);
     return region->InHeapSpace();
+}
+
+void SharedHeap::UpdateHeapStatsAfterGC(TriggerGCType gcType)
+{
+    heapAliveSizeAfterGC_ = GetHeapObjectSize();
+    fragmentSizeAfterGC_ = GetCommittedSize() - GetHeapObjectSize();
+    if (gcType == TriggerGCType::SHARED_FULL_GC) {
+        heapBasicLoss_ = fragmentSizeAfterGC_;
+    }
+}
+
+void Heap::UpdateHeapStatsAfterGC(TriggerGCType gcType)
+{
+    if (gcType == TriggerGCType::EDEN_GC || gcType == TriggerGCType::YOUNG_GC) {
+        return;
+    }
+    heapAliveSizeAfterGC_ = GetHeapObjectSize();
+    heapAliveSizeExcludesYoungAfterGC_ = heapAliveSizeAfterGC_ - activeSemiSpace_->GetHeapObjectSize();
+    fragmentSizeAfterGC_ = GetCommittedSize() - heapAliveSizeAfterGC_;
+    if (gcType == TriggerGCType::FULL_GC) {
+        heapBasicLoss_ = fragmentSizeAfterGC_;
+    }
 }
 
 void Heap::PrintHeapInfo(TriggerGCType gcType) const

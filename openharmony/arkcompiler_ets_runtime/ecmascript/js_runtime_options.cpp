@@ -15,9 +15,6 @@
 
 #include "ecmascript/js_runtime_options.h"
 
-#include <cerrno>
-#include <cstdlib>
-#include <iostream>
 #include <getopt.h>
 
 #include "ecmascript/compiler/aot_file/an_file_data_manager.h"
@@ -54,13 +51,13 @@ const std::string PUBLIC_API HELP_OPTION_MSG =
     "                                      'allllir' or 'all1': print llir info for all methods,\n"
     "                                      'allasm' or 'all2': print asm log for all methods,\n"
     "                                      'alltype' or 'all3': print type infer log for all methods,\n"
-    "                                      'cerllircirasm' or 'cer0112': print all log for certain method defined "
-                                           "in 'mlist-for-log',\n"
+    "                                      'cerllircirasm' or 'cer0112': print all log for certain method defined\n"
+    "                                       in 'mlist-for-log',\n"
     "                                      'cercir' or 'cer0': print IR for methods in 'mlist-for-log',\n"
     "                                      'cerasm' or 'cer2': print log for methods in 'mlist-for-log',\n"
     "                                      Default: 'none'\n"
     "--compiler-log-methods:               Specific method list for compiler log, only used when compiler-log. "
-                                           "Default: 'none'\n"
+    "                                      Default: 'none'\n"
     "--compiler-type-threshold:            enable to skip methods whose type is no more than threshold. Default: -1\n"
     "--compiler-log-snapshot:              Enable to print snapshot information. Default: 'false'\n"
     "--compiler-log-time:                  Enable to print pass compiler time. Default: 'false'\n"
@@ -70,6 +67,7 @@ const std::string PUBLIC_API HELP_OPTION_MSG =
     "--compiler-trace-bc:                  Enable tracing bytecode for aot runtime. Default: 'false'\n"
     "--compiler-trace-deopt:               Enable tracing deopt for aot runtime. Default: 'false'\n"
     "--compiler-trace-inline:              Enable tracing inline function for aot runtime. Default: 'false'\n"
+    "--compiler-trace-builtins:            Enable tracing builtins function for aot runtime. Default: 'false'\n"
     "--compiler-trace-value-numbering:     Enable tracing value numbering for aot runtime. Default: 'false'\n"
     "--compiler-max-inline-bytecodes       Set max bytecodes count which aot function can be inlined. Default: '25'\n"
     "--compiler-deopt-threshold:           Set max count which aot function can occur deoptimization. Default: '10'\n"
@@ -103,7 +101,7 @@ const std::string PUBLIC_API HELP_OPTION_MSG =
     "--enable-worker:                      Whether is worker vm. Default: 'false'\n"
     "--log-level:                          Log level: ['debug', 'info', 'warning', 'error', 'fatal'].\n"
     "--log-components:                     Enable logs from specified components: ['all', 'gc', 'ecma','interpreter',\n"
-    "                                      'debugger', 'compiler', 'builtins', 'trace', 'jit', 'baselinejit', 'all']. \n"
+    "                                      'debugger', 'compiler', 'builtins', 'trace', 'jit', 'baselinejit', 'all'].\n"
     "                                      Default: 'all'\n"
     "--log-debug:                          Enable debug or above logs for components: ['all', 'gc', 'ecma',\n"
     "                                      'interpreter', 'debugger', 'compiler', 'builtins', 'trace', 'jit',\n"
@@ -129,17 +127,18 @@ const std::string PUBLIC_API HELP_OPTION_MSG =
     "--serializer-buffer-size-limit:       Max serializer buffer size used by the VM in Byte. Default size is 2GB\n"
     "--snapshot-file:                      Snapshot file. Default: '/system/etc/snapshot'\n"
     "--startup-time:                       Print the start time of command execution. Default: 'false'\n"
-    "--stub-file:                          Path of file includes common stubs module compiled by stub compiler. "
-                                           "Default: 'stub.an'\n"
+    "--stub-file:                          Path of file includes common stubs module compiled by stub compiler. \n"
+    "                                      Default: 'stub.an'\n"
     "--enable-pgo-profiler:                Enable pgo profiler to sample jsfunction call and output to file. "
                                            "Default: 'false'\n"
-    "--enable-elements-kind:               Enable elementsKind sampling and usage. Default: 'false'\n"
+    "--enable-mutant-array:                Enable transition between mutant array and tagged array. Default: 'false'\n"
+    "--enable-elements-kind:               Enable initialization of elements kind in array. Default: 'false'\n"
     "--compiler-pgo-hotness-threshold:     Set hotness threshold for pgo in aot compiler. Default: '2'\n"
     "--compiler-pgo-profiler-path:         The pgo file output dir or the pgo file dir of AOT compiler. Default: ''\n"
     "--compiler-pgo-save-min-interval:     Set the minimum time interval for automatically saving profile, "
-                                           "Unit seconds. Default: '30s'\n"
-    "--compiler-baseline-pgo:              Enable compile the baseline Ap file. "
-                                           "Default: 'false'\n"
+    "Unit seconds. Default: '30s'\n"
+    "--compiler-baseline-pgo:              Enable compile the baseline Ap file. \n"
+    "                                      Default: 'false'\n"
     "--compiler-target-triple:             CPU triple for aot compiler or stub compiler. \n"
     "                                      values: ['x86_64-unknown-linux-gnu', 'arm-unknown-linux-gnu', \n"
     "                                      'aarch64-unknown-linux-gnu'], Default: 'x86_64-unknown-linux-gnu'\n"
@@ -196,11 +195,16 @@ const std::string PUBLIC_API HELP_OPTION_MSG =
     "--async-load-abc-test:                Enable asynchronous load abc test. Default: 'false'\n"
     "--compiler-enable-store-barrier:      Enable store barrier optimization. Default: 'true'\n"
     "--compiler-enable-concurrent:         Enable concurrent compile(only support in ark_stub_compiler).\n"
+    "--compile-enable-jit-verify-pass:     Enable jit compile with verify pass. Default: 'false'\n\n"
     "                                      Default: 'true'\n"
     "--compiler-opt-frame-state-elimination: Enable frame state elimination. Default: 'true'\n"
     "--enable-inline-property-optimization:  Enable inline property optimization(also enable slack tracking).\n"
     "--compiler-enable-aot-code-comment    Enable generate aot_code_comment.txt file during compilation.\n"
-    "                                      Default : 'false'\n\n";
+    "                                      Default : 'false'\n"
+    "--compiler-an-file-max-size:          Max size of compiler .an file in MB. '0' means Default\n"
+    "                                      Default: No limit for Host, '100' for TargetCompilerMode\n"
+    // Please add new options above this line for keep a blank line after help message.
+    "\n";
 
 bool JSRuntimeOptions::ParseCommand(const int argc, const char **argv)
 {
@@ -278,7 +282,8 @@ bool JSRuntimeOptions::ParseCommand(const int argc, const char **argv)
         {"compiler-target-triple", required_argument, nullptr, OPTION_COMPILER_TARGET_TRIPLE},
         {"enable-print-execute-time", required_argument, nullptr, OPTION_PRINT_EXECUTE_TIME},
         {"enable-pgo-profiler", required_argument, nullptr, OPTION_ENABLE_PGO_PROFILER},
-        {"enable-elements-kind", required_argument, nullptr, OPTION_ENABLE_ELEMENTSKIND},
+        {"enable-mutant-array", required_argument, nullptr, OPTION_ENABLE_MUTANT_ARRAY},
+        {"enable-elements-kind", required_argument, nullptr, OPTION_ENABLE_ELEMENTS_KIND},
         {"compiler-pgo-profiler-path", required_argument, nullptr, OPTION_COMPILER_PGO_PROFILER_PATH},
         {"compiler-pgo-hotness-threshold", required_argument, nullptr, OPTION_COMPILER_PGO_HOTNESS_THRESHOLD},
         {"compiler-pgo-save-min-interval", required_argument, nullptr, OPTION_COMPILER_PGO_SAVE_MIN_INTERVAL},
@@ -326,6 +331,7 @@ bool JSRuntimeOptions::ParseCommand(const int argc, const char **argv)
         {"compiler-trace-induction-variable", required_argument, nullptr, OPTION_COMPILER_TRACE_INDUCTION_VARIABLE},
         {"compiler-memory-analysis", required_argument, nullptr, OPTION_COMPILER_MEMORY_ANALYSIS},
         {"compiler-check-pgo-version", required_argument, nullptr, OPTION_COMPILER_CHECK_PGO_VERSION},
+        {"compiler-enable-mega-ic", required_argument, nullptr, OPTION_COMPILER_ENABLE_MEGA_IC},
         {"compiler-enable-baselinejit", required_argument, nullptr, OPTION_COMPILER_ENABLE_BASELINEJIT},
         {"compiler-baselinejit-hotness-threshold", required_argument, nullptr, OPTION_COMPILER_BASELINEJIT_HOTNESS_THRESHOLD},
         {"compiler-force-baselinejit-compile-main", required_argument, nullptr, OPTION_COMPILER_FORCE_BASELINEJIT_COMPILE_MAIN},
@@ -343,7 +349,11 @@ bool JSRuntimeOptions::ParseCommand(const int argc, const char **argv)
             OPTION_COMPILER_OPT_FRAME_STATE_ELIMINATION},
         {"enable-inline-property-optimization", required_argument, nullptr, OPTION_ENABLE_INLINE_PROPERTY_OPTIMIZATION},
         {"compiler-enable-aot-code-comment", required_argument, nullptr, OPTION_COMPILER_ENABLE_AOT_CODE_COMMENT},
+        {"compile-enable-jit-verify-pass", required_argument, nullptr, OPTION_ENABLE_JIT_VERIFY_PASS},
+        {"compiler-an-file-max-size", required_argument, nullptr, OPTION_COMPILER_AN_FILE_MAX_SIZE},
+        {"compiler-trace-builtins", required_argument, nullptr, OPTION_COMPILER_TRACE_BUILTINS},
         {nullptr, 0, nullptr, 0},
+        
     };
 
     int index = 0;
@@ -371,6 +381,11 @@ bool JSRuntimeOptions::ParseCommand(const int argc, const char **argv)
         }
 
         if (option == -1) {
+            // set dependency between options at here
+            if (!IsEnableElementsKind() && IsEnableMutantArray()) {
+                LOG_ECMA(ERROR) << "'enable-mutant-array' must set to false while 'enable-elements-kind' is disabled\n";
+                return false;
+            }
             return true;
         }
 
@@ -732,7 +747,15 @@ bool JSRuntimeOptions::ParseCommand(const int argc, const char **argv)
                     return false;
                 }
                 break;
-            case OPTION_ENABLE_ELEMENTSKIND:
+            case OPTION_ENABLE_MUTANT_ARRAY:
+                ret = ParseBoolParam(&argBool);
+                if (ret) {
+                    SetEnableMutantArray(argBool);
+                } else {
+                    return false;
+                }
+                break;
+            case OPTION_ENABLE_ELEMENTS_KIND:
                 ret = ParseBoolParam(&argBool);
                 if (ret) {
                     SetEnableElementsKind(argBool);
@@ -1072,8 +1095,8 @@ bool JSRuntimeOptions::ParseCommand(const int argc, const char **argv)
             case OPTION_COMPILER_JIT_CALL_THRESHOLD:
                 ret = ParseUint32Param("compiler-jit-call-threshold", &argUint32);
                 if (ret) {
-                    uint8_t val =  argUint32 > std::numeric_limits<uint8_t>::max() ?
-                        std::numeric_limits<uint8_t>::max() : static_cast<uint8_t>(argUint32);
+                    uint16_t val =  argUint32 > std::numeric_limits<uint16_t>::max() ?
+                        std::numeric_limits<uint16_t>::max() : static_cast<uint16_t>(argUint32);
                     SetJitCallThreshold(val);
                 } else {
                     return false;
@@ -1251,6 +1274,14 @@ bool JSRuntimeOptions::ParseCommand(const int argc, const char **argv)
                     return false;
                 }
                 break;
+            case OPTION_COMPILER_ENABLE_MEGA_IC:
+                ret = ParseBoolParam(&argBool);
+                if (ret) {
+                    SetEnableMegaIC(argBool);
+                } else {
+                    return false;
+                }
+                break;
             case OPTION_ASYNC_LOAD_ABC:
                 ret = ParseBoolParam(&argBool);
                 if (ret) {
@@ -1335,6 +1366,30 @@ bool JSRuntimeOptions::ParseCommand(const int argc, const char **argv)
                  ret = ParseBoolParam(&argBool);
                 if (ret) {
                     SetEnableInlinePropertyOptimization(argBool);
+                } else {
+                    return false;
+                }
+                break;
+            case OPTION_ENABLE_JIT_VERIFY_PASS:
+                 ret = ParseBoolParam(&argBool);
+                if (ret) {
+                    SetEnableJitVerifyPass(argBool);
+                } else {
+                    return false;
+                }
+                break;
+            case OPTION_COMPILER_TRACE_BUILTINS:
+                ret = ParseBoolParam(&argBool);
+                if (ret) {
+                    SetTraceBuiltins(argBool);
+                } else {
+                    return false;
+                }
+                break;
+            case OPTION_COMPILER_AN_FILE_MAX_SIZE:
+                ret = ParseUint64Param("compiler-an-file-max-size", &argUInt64);
+                if (ret) {
+                    SetCompilerAnFileMaxByteSize(argUInt64 * 1_MB);
                 } else {
                     return false;
                 }
@@ -1468,6 +1523,9 @@ void JSRuntimeOptions::SetOptionsForTargetCompilation()
         SetEnableArrayBoundsCheckElimination(false);
         SetCompilerEnableLiteCG(true);
         SetEnableOptPGOType(true);
+        if (IsCompilerAnFileMaxByteSizeDefault()) {
+            SetCompilerAnFileMaxByteSize(100_MB);
+        }
     }
 
     if (IsTargetCompilerMode()) {
@@ -1483,5 +1541,16 @@ void JSRuntimeOptions::SetOptionsForTargetCompilation()
         SetOptLevel(DEFAULT_OPT_LEVEL);
         SetEnableLoweringBuiltin(false);
     }
+}
+
+bool JSRuntimeOptions::IsEnableLocalHandleLeakDetect() const
+{
+    return enableLocalHandleLeakDetect_;
+}
+
+void JSRuntimeOptions::SetEnableLocalHandleLeakDetect()
+{
+    enableLocalHandleLeakDetect_ =
+            (static_cast<uint32_t>(arkProperties_) & ArkProperties::ENABLE_LOCAL_HANDLE_LEAK_DETECT) != 0;
 }
 }

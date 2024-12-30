@@ -24,10 +24,12 @@
 #include "ecmascript/compiler/assembler_module.h"
 #include "ecmascript/compiler/bc_call_signature.h"
 #include "ecmascript/compiler/baseline/baseline_call_signature.h"
+#include "ecmascript/ecma_context.h"
 #include "ecmascript/global_dictionary.h"
 #include "ecmascript/global_env.h"
 #include "ecmascript/global_env_constants.h"
 #include "ecmascript/ic/ic_handler.h"
+#include "ecmascript/ic/mega_ic_cache.h"
 #include "ecmascript/ic/profile_type_info.h"
 #include "ecmascript/ic/proto_change_details.h"
 #include "ecmascript/js_array.h"
@@ -291,6 +293,14 @@ inline GateRef StubBuilder::CallStub(GateRef glue, int index, const std::initial
     return result;
 }
 
+inline GateRef StubBuilder::CallCommonStub(GateRef glue, int index, const std::initializer_list<GateRef>& args)
+{
+    SavePcIfNeeded(glue);
+    const std::string name = CommonStubCSigns::GetName(index);
+    GateRef result = env_->GetBuilder()->CallCommonStub(glue, Circuit::NullGate(), index, args, name.c_str());
+    return result;
+}
+
 inline GateRef StubBuilder::CallBuiltinRuntime(GateRef glue, const std::initializer_list<GateRef>& args, bool isNew)
 {
     return env_->GetBuilder()->CallBuiltinRuntime(glue, Gate::InvalidGateRef, args, isNew);
@@ -362,6 +372,7 @@ inline GateRef StubBuilder::Load(VariableType type, GateRef base, GateRef offset
     }
     return env_->GetBuilder()->Load(type, base, offset);
 }
+
 
 inline GateRef StubBuilder::Load(VariableType type, GateRef base)
 {
@@ -3382,6 +3393,13 @@ inline void StubBuilder::SetMachineCodeToFunction(GateRef glue, GateRef function
     Store(VariableType::JS_ANY(), glue, function, offset, value, mAttr);
 }
 
+inline void StubBuilder::SetBaselineJitCodeToFunction(GateRef glue, GateRef function, GateRef value,
+    MemoryAttribute mAttr)
+{
+    GateRef offset = IntPtr(JSFunction::BASELINECODE_OFFSET);
+    Store(VariableType::JS_ANY(), glue, function, offset, value, mAttr);
+}
+
 inline GateRef StubBuilder::GetGlobalObject(GateRef glue)
 {
     GateRef offset = IntPtr(JSThread::GlueData::GetGlobalObjOffset(env_->Is32Bit()));
@@ -3596,6 +3614,12 @@ inline GateRef StubBuilder::GetSingleCharTable(GateRef glue)
         VariableType::JS_POINTER(), glue, ConstantIndex::SINGLE_CHAR_TABLE_INDEX);
 }
 
+inline GateRef StubBuilder::IsEnableMutantArray(GateRef glue)
+{
+    GateRef offset = IntPtr(JSThread::GlueData::GetIsEnableMutantArrayOffset(env_->Is32Bit()));
+    return Load(VariableType::BOOL(), glue, offset);
+}
+
 inline GateRef StubBuilder::IsEnableElementsKind(GateRef glue)
 {
     GateRef offset = IntPtr(JSThread::GlueData::GetIsEnableElementsKindOffset(env_->Is32Bit()));
@@ -3650,6 +3674,11 @@ inline GateRef StubBuilder::AlignUp(GateRef x, GateRef alignment)
 {
     GateRef x1 = PtrAdd(x, PtrSub(alignment, IntPtr(1)));
     return IntPtrAnd(x1, IntPtrNot(PtrSub(alignment, IntPtr(1))));
+}
+
+inline GateRef StubBuilder::AlignDown(GateRef x, GateRef alignment)
+{
+    return IntPtrAnd(x, IntPtrNot(PtrSub(alignment, IntPtr(1))));
 }
 
 inline void StubBuilder::SetLength(GateRef glue, GateRef str, GateRef length, bool compressed)
@@ -3933,7 +3962,42 @@ inline GateRef StubBuilder::GetPropertiesCache(GateRef glue)
 {
     GateRef currentContextOffset = IntPtr(JSThread::GlueData::GetCurrentContextOffset(env_->Is32Bit()));
     GateRef currentContext = Load(VariableType::NATIVE_POINTER(), glue, currentContextOffset);
-    return Load(VariableType::NATIVE_POINTER(), currentContext, IntPtr(0));
+    GateRef propertiesCacheOffset = IntPtr(EcmaContext::EcmaData::GetPropertiesCacheOffset(env_->Is32Bit()));
+    return Load(VariableType::NATIVE_POINTER(), currentContext, propertiesCacheOffset);
+}
+
+inline GateRef StubBuilder::GetMegaICCache(GateRef glue, MegaICCache::MegaICKind kind)
+{
+    GateRef currentContextOffset = IntPtr(JSThread::GlueData::GetCurrentContextOffset(env_->Is32Bit()));
+    GateRef currentContext = Load(VariableType::NATIVE_POINTER(), glue, currentContextOffset);
+    GateRef megaICCache_Offset;
+    if (kind == MegaICCache::Load) {
+        megaICCache_Offset = IntPtr(EcmaContext::EcmaData::GetLoadMegaICCacheOffset(env_->Is32Bit()));
+    } else {
+        megaICCache_Offset = IntPtr(EcmaContext::EcmaData::GetStoreMegaICCacheOffset(env_->Is32Bit()));
+    }
+    return Load(VariableType::NATIVE_POINTER(), currentContext, megaICCache_Offset);
+}
+
+inline void StubBuilder::IncMegaProbeCount([[maybe_unused]]GateRef glue)
+{
+#if ECMASCRIPT_ENABLE_MEGA_PROFILER
+    GateRef currentContextOffset = IntPtr(JSThread::GlueData::GetCurrentContextOffset(env_->Is32Bit()));
+    GateRef currentContext = Load(VariableType::NATIVE_POINTER(), glue, currentContextOffset);
+    GateRef megaProbeCountOffset = IntPtr(EcmaContext::EcmaData::GetMegaProbesCountOffset(env_->Is32Bit()));
+    GateRef before = Load(VariableType::INT64(), currentContext, megaProbeCountOffset);
+    Store(VariableType::INT64(), glue, currentContext, megaProbeCountOffset, Int64Add(before, Int64(1)));
+#endif
+}
+inline void StubBuilder::IncMegaHitCount([[maybe_unused]]GateRef glue)
+{
+#if ECMASCRIPT_ENABLE_MEGA_PROFILER
+    GateRef currentContextOffset = IntPtr(JSThread::GlueData::GetCurrentContextOffset(env_->Is32Bit()));
+    GateRef currentContext = Load(VariableType::NATIVE_POINTER(), glue, currentContextOffset);
+    GateRef megaHitCountOffset = IntPtr(EcmaContext::EcmaData::GetMegaHitCountOffset(env_->Is32Bit()));
+    GateRef before = Load(VariableType::INT64(), currentContext, megaHitCountOffset);
+    Store(VariableType::INT64(), glue, currentContext, megaHitCountOffset, Int64Add(before, Int64(1)));
+#endif
 }
 
 inline GateRef StubBuilder::GetSortedKey(GateRef layoutInfo, GateRef index)
@@ -3975,6 +4039,16 @@ inline GateRef StubBuilder::GetLastLeaveFrame(GateRef glue)
     bool isArch32 = GetEnvironment()->Is32Bit();
     GateRef spOffset = IntPtr(JSThread::GlueData::GetLeaveFrameOffset(isArch32));
     return Load(VariableType::NATIVE_POINTER(), glue, spOffset);
+}
+
+// HashFromHclassAndStringKey only supports String and does not support Symbol. Additionally, it is necessary to ensure
+// that the hash value of the String exists.
+inline GateRef StubBuilder::HashFromHclassAndStringKey([[maybe_unused]] GateRef glue, GateRef cls, GateRef key)
+{
+    GateRef clsHash =
+        Int32LSR(ChangeIntPtrToInt32(TaggedCastToIntPtr(cls)), Int32(MegaICCache::HCLASS_SHIFT)); // skip 8bytes
+    GateRef keyHash = Load(VariableType::INT32(), key, IntPtr(EcmaString::MIX_HASHCODE_OFFSET));
+    return Int32And(Int32Xor(clsHash, keyHash), Int32(MegaICCache::CACHE_LENGTH_MASK));
 }
 
 inline GateRef StubBuilder::OrdinaryNewJSObjectCreate(GateRef glue, GateRef proto)

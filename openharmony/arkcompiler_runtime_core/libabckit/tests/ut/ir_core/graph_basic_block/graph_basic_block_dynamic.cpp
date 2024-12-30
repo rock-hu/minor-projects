@@ -85,7 +85,7 @@ TEST_F(LibAbcKitBasicBlocksDynTest, GrunPassRemoveUnreachableBlocks_1)
         [&](AbckitFile * /*file*/, AbckitCoreFunction * /*method*/, AbckitGraph *graph) {
             auto *bb2 = g_implG->gGetBasicBlock(graph, 2);
             g_implG->iRemove(g_implG->bbGetLastInst(bb2));
-            g_implG->bbEraseSuccBlock(bb2, 0x0);
+            g_implG->bbDisconnectSuccBlock(bb2, 0x0);
             g_implG->gRunPassRemoveUnreachableBlocks(graph);
             ASSERT_EQ(g_impl->getLastError(), ABCKIT_STATUS_NO_ERROR);
         },
@@ -144,7 +144,7 @@ TEST_F(LibAbcKitBasicBlocksDynTest, GrunPassRemoveUnreachableBlocks_2)
         [&](AbckitFile * /*file*/, AbckitCoreFunction * /*method*/, AbckitGraph *graph) {
             auto *bb2 = g_implG->gGetBasicBlock(graph, 2);
             g_implG->iRemove(g_implG->bbGetLastInst(bb2));
-            g_implG->bbEraseSuccBlock(bb2, 0x1);
+            g_implG->bbDisconnectSuccBlock(bb2, 0x1);
             g_implG->gRunPassRemoveUnreachableBlocks(graph);
             ASSERT_EQ(g_impl->getLastError(), ABCKIT_STATUS_NO_ERROR);
         },
@@ -205,7 +205,7 @@ TEST_F(LibAbcKitBasicBlocksDynTest, GrunPassRemoveUnreachableBlocks_3)
         [&](AbckitFile * /*file*/, AbckitCoreFunction * /*method*/, AbckitGraph *graph) {
             auto *bb0 = g_implG->gGetBasicBlock(graph, 0);
             g_implG->iRemove(g_implG->bbGetLastInst(bb0));
-            g_implG->bbEraseSuccBlock(bb0, 0x0);
+            g_implG->bbDisconnectSuccBlock(bb0, 0x0);
             g_implG->gRunPassRemoveUnreachableBlocks(graph);
             ASSERT_EQ(g_impl->getLastError(), ABCKIT_STATUS_NO_ERROR);
         },
@@ -250,9 +250,9 @@ static void VerifyGraphStart(AbckitFile *file)
 // Test: test-kind=api, api=GraphApiImpl::gGetStartBasicBlock, abc-kind=ArkTS1, category=positive
 TEST_F(LibAbcKitBasicBlocksDynTest, GgetStartBasicBlockValid)
 {
-    AbckitFile *file = g_impl->openAbc(ABCKIT_ABC_DIR "ut/ir_core/graph_basic_block/graph_basic_block_simple.abc");
-    LIBABCKIT_LOG(DEBUG) << "LibAbcKitBasicBlocksDynTest: "
-                         << ABCKIT_ABC_DIR "ut/ir_core/graph_basic_block/graph_basic_block_simple.abc" << std::endl;
+    constexpr auto INPUT_PATH = ABCKIT_ABC_DIR "ut/ir_core/graph_basic_block/graph_basic_block_simple.abc";
+    AbckitFile *file = g_impl->openAbc(INPUT_PATH, strlen(INPUT_PATH));
+    LIBABCKIT_LOG(DEBUG) << "LibAbcKitBasicBlocksDynTest: " << INPUT_PATH << std::endl;
 
     ASSERT_EQ(g_impl->getLastError(), ABCKIT_STATUS_NO_ERROR);
 
@@ -290,9 +290,9 @@ static void VerifyGraphEnd(AbckitFile *file)
 // Test: test-kind=api, api=GraphApiImpl::gGetEndBasicBlock, abc-kind=ArkTS1, category=positive
 TEST_F(LibAbcKitBasicBlocksDynTest, GgetEndBasicBlockValid)
 {
-    AbckitFile *file = g_impl->openAbc(ABCKIT_ABC_DIR "ut/ir_core/graph_basic_block/graph_basic_block_simple.abc");
-    LIBABCKIT_LOG(DEBUG) << "LibAbcKitBasicBlocksDynTest: "
-                         << ABCKIT_ABC_DIR "ut/ir_core/graph_basic_block/graph_basic_block_simple.abc" << std::endl;
+    constexpr auto INPUT_PATH = ABCKIT_ABC_DIR "ut/ir_core/graph_basic_block/graph_basic_block_simple.abc";
+    AbckitFile *file = g_impl->openAbc(INPUT_PATH, strlen(INPUT_PATH));
+    LIBABCKIT_LOG(DEBUG) << "LibAbcKitBasicBlocksDynTest: " << INPUT_PATH << std::endl;
     ASSERT_EQ(g_impl->getLastError(), ABCKIT_STATUS_NO_ERROR);
 
     VerifyGraphEnd(file);
@@ -368,9 +368,9 @@ static void VerifyGraphVisitBlocks(AbckitFile *file)
 // Test: test-kind=api, api=GraphApiImpl::gVisitBlocksRpo, abc-kind=ArkTS1, category=positive
 TEST_F(LibAbcKitBasicBlocksDynTest, GvisitBlocksRPO)
 {
-    AbckitFile *file = g_impl->openAbc(ABCKIT_ABC_DIR "ut/ir_core/graph_basic_block/graph_basic_block_simple.abc");
-    LIBABCKIT_LOG(DEBUG) << "LibAbcKitBasicBlocksDynTest: "
-                         << ABCKIT_ABC_DIR "ut/ir_core/graph_basic_block/graph_basic_block_simple.abc" << std::endl;
+    constexpr auto INPUT_PATH = ABCKIT_ABC_DIR "ut/ir_core/graph_basic_block/graph_basic_block_simple.abc";
+    AbckitFile *file = g_impl->openAbc(INPUT_PATH, strlen(INPUT_PATH));
+    LIBABCKIT_LOG(DEBUG) << "LibAbcKitBasicBlocksDynTest: " << INPUT_PATH << std::endl;
 
     ASSERT_EQ(g_impl->getLastError(), ABCKIT_STATUS_NO_ERROR);
 

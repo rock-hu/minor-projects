@@ -35,10 +35,7 @@
     },
     "keepOptions": {
       "enable": true,
-      "keepPaths": [],
-      "universalKeepPaths": [],
-      "excludePaths": [],
-      "universalExcludePaths": []
+      "keepPaths": []
     }
   }
 }

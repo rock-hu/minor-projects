@@ -23,6 +23,7 @@
 #include "ecmascript/compiler/profiler_operation.h"
 #include "ecmascript/compiler/share_gate_meta_data.h"
 #include "ecmascript/compiler/variable_type.h"
+#include "ecmascript/ic/mega_ic_cache.h"
 
 namespace panda::ecmascript::kungfu {
 struct StringInfoGateRef;
@@ -136,41 +137,7 @@ public:
     GateRef Return();
     void Bind(Label *label);
     void Jump(Label *label);
-
-#define BRANCH(condition, trueLabel, falseLabel)                       \
-    {                                                                  \
-        std::ostringstream os;                                         \
-        os << __func__ << ": " << #trueLabel << "- " << #falseLabel;   \
-        Branch(condition, trueLabel, falseLabel, os.str().c_str());    \
-    }
-
-    void Branch(GateRef condition, Label *trueLabel, Label *falseLabel, const char *comment = nullptr);
-
-#define BRANCH_LIKELY(condition, trueLabel, falseLabel)                                  \
-    {                                                                                    \
-        std::ostringstream os;                                                           \
-        os << __func__ << ": " << #trueLabel << "(likely)- " << #falseLabel;             \
-        BranchPredict(condition, trueLabel, falseLabel,                                  \
-            BranchWeight::DEOPT_WEIGHT, BranchWeight::ONE_WEIGHT, os.str().c_str());     \
-    }
-
-#define BRANCH_UNLIKELY(condition, trueLabel, falseLabel)                                \
-    {                                                                                    \
-        std::ostringstream os;                                                           \
-        os << __func__ << ": " << #trueLabel << "(unlikely)- " << #falseLabel;           \
-        BranchPredict(condition, trueLabel, falseLabel,                                  \
-            BranchWeight::ONE_WEIGHT, BranchWeight::DEOPT_WEIGHT, os.str().c_str());     \
-    }
-
-#define BRANCH_NO_WEIGHT(condition, trueLabel, falseLabel)                               \
-    {                                                                                    \
-        std::ostringstream os;                                                           \
-        os << __func__ << ": " << #trueLabel << "(no weight)- " << #falseLabel;          \
-        BranchPredict(condition, trueLabel, falseLabel,                                  \
-            BranchWeight::ZERO_WEIGHT, BranchWeight::ZERO_WEIGHT, os.str().c_str());     \
-    }
-
-    void BranchPredict(GateRef condition, Label *trueLabel, Label *falseLabel,
+    void Branch(GateRef condition, Label *trueLabel, Label *falseLabel,
                        uint32_t trueWeight = BranchWeight::ONE_WEIGHT, uint32_t falseWeight = BranchWeight::ONE_WEIGHT,
                        const char *comment = nullptr);
 
@@ -191,6 +158,7 @@ public:
                           const std::vector<GateRef>& args, GateRef hir = Circuit::NullGate());
     GateRef GetAotCodeAddr(GateRef jsFunc);
     GateRef CallStub(GateRef glue, int index, const std::initializer_list<GateRef>& args);
+    GateRef CallCommonStub(GateRef glue, int index, const std::initializer_list<GateRef>& args);
     GateRef CallBuiltinRuntime(GateRef glue, const std::initializer_list<GateRef>& args, bool isNew = false);
     GateRef CallBuiltinRuntimeWithNewTarget(GateRef glue, const std::initializer_list<GateRef>& args);
     void DebugPrint(GateRef thread, std::initializer_list<GateRef> args);
@@ -396,6 +364,8 @@ public:
     void StoreBuiltinHClass(GateRef glue, GateRef object, GateRef hClass);
     void StorePrototype(GateRef glue, GateRef hclass, GateRef prototype);
     void CopyAllHClass(GateRef glue, GateRef dstHClass, GateRef scrHClass);
+    void FuncCompare(GateRef glue, GateRef Function,
+                     Label *matchFunc, Label *slowPath, size_t funcIndex);
     GateRef GetObjectType(GateRef hClass);
     GateRef IsDictionaryMode(GateRef object);
     GateRef IsDictionaryModeByHClass(GateRef hClass);
@@ -513,7 +483,6 @@ public:
     GateRef ConvertTaggedValueWithElementsKind(GateRef glue, GateRef value, GateRef extraKind);
     GateRef SameValue(GateRef glue, GateRef left, GateRef right);
     GateRef SameValueZero(GateRef glue, GateRef left, GateRef right);
-    GateRef HasStableElements(GateRef glue, GateRef obj);
     GateRef IsStableJSArguments(GateRef glue, GateRef obj);
     GateRef IsStableJSArray(GateRef glue, GateRef obj);
     GateRef IsTypedArray(GateRef obj);
@@ -595,7 +564,7 @@ public:
     GateRef ClearSharedStoreKind(GateRef handlerInfo);
     GateRef UpdateSOutOfBoundsForHandler(GateRef handlerInfo);
     void RestoreElementsKindToGeneric(GateRef glue, GateRef jsHClass);
-    GateRef GetTaggedValueWithElementsKind(GateRef receiver, GateRef index);
+    GateRef GetTaggedValueWithElementsKind(GateRef glue, GateRef receiver, GateRef index);
     void FastSetValueWithElementsKind(GateRef glue, GateRef receiver, GateRef elements, GateRef rawValue,
                                       GateRef index, ElementsKind kind, bool needTransition = false);
     GateRef SetValueWithElementsKind(GateRef glue, GateRef receiver, GateRef rawValue, GateRef index,
@@ -827,6 +796,8 @@ public:
     void SetBitFieldToFunction(GateRef glue, GateRef function, GateRef value);
     void SetMachineCodeToFunction(GateRef glue, GateRef function, GateRef value,
                                   MemoryAttribute mAttr = MemoryAttribute::Default());
+    void SetBaselineJitCodeToFunction(GateRef glue, GateRef function, GateRef value,
+                                      MemoryAttribute mAttr = MemoryAttribute::Default());
     void SetTypedArrayName(GateRef glue, GateRef typedArray, GateRef name,
                            MemoryAttribute mAttr = MemoryAttribute::Default());
     void SetContentType(GateRef glue, GateRef typedArray, GateRef type);
@@ -911,9 +882,9 @@ public:
     GateRef IsSpecialKeysObject(GateRef obj);
     GateRef IsSlowKeysObject(GateRef obj);
     GateRef TryGetEnumCache(GateRef glue, GateRef obj);
-    GateRef GetNumberOfElements(GateRef obj);
-    GateRef IsSimpleEnumCacheValid(GateRef obj);
-    GateRef IsEnumCacheWithProtoChainInfoValid(GateRef obj);
+    GateRef GetNumberOfElements(GateRef glue, GateRef obj);
+    GateRef IsSimpleEnumCacheValid(GateRef glue, GateRef obj);
+    GateRef IsEnumCacheWithProtoChainInfoValid(GateRef glue, GateRef obj);
 
     // Exception handle
     GateRef HasPendingException(GateRef glue);
@@ -928,8 +899,9 @@ public:
     // dstAddr/srcAddr is the address will be copied to/from.
     // It can be a derived pointer point to the middle of an object.
     // Note: dstObj is the object address for dstAddr, it must point to the head of an object.
-    void ArrayCopyAndHoleToUndefined(GateRef glue, GateRef srcAddr, GateRef dstObj, GateRef dstAddr,
-                                     GateRef length, MemoryAttribute mAttr = MemoryAttribute::Default());
+    void ArrayCopyAndHoleToUndefined(GateRef glue, GateRef srcObj, GateRef srcAddr, GateRef dstObj,
+                                     GateRef dstAddr, GateRef length, GateRef needBarrier);
+    GateRef ThreeInt64Min(GateRef first, GateRef second, GateRef third);
     void MigrateArrayWithKind(GateRef glue, GateRef object, GateRef oldKind, GateRef newKind);
     GateRef MigrateFromRawValueToHeapValues(GateRef glue, GateRef object, GateRef needCOW, GateRef isIntKind);
     GateRef MigrateFromHeapValueToRawValue(GateRef glue, GateRef object, GateRef needCOW, GateRef isIntKind);
@@ -971,6 +943,7 @@ public:
     inline GateRef GetGlobalConstantValue(
         VariableType type, GateRef glue, ConstantIndex index);
     inline GateRef GetSingleCharTable(GateRef glue);
+    inline GateRef IsEnableMutantArray(GateRef glue);
     inline GateRef IsEnableElementsKind(GateRef glue);
     inline GateRef GetGlobalEnvValue(VariableType type, GateRef env, size_t index);
     GateRef CallGetterHelper(GateRef glue, GateRef receiver, GateRef holder,
@@ -992,6 +965,7 @@ public:
     GateRef ComputeSizeUtf8(GateRef length);
     GateRef ComputeSizeUtf16(GateRef length);
     GateRef AlignUp(GateRef x, GateRef alignment);
+    GateRef AlignDown(GateRef x, GateRef alignment);
     inline void SetLength(GateRef glue, GateRef str, GateRef length, bool compressed);
     inline void SetLength(GateRef glue, GateRef str, GateRef length, GateRef isCompressed);
     void Assert(int messageId, int line, GateRef glue, GateRef condition, Label *nextLabel);
@@ -1025,12 +999,18 @@ public:
     inline GateRef ComputeTaggedTypedArraySize(GateRef elementSize, GateRef length);
     GateRef ChangeTaggedPointerToInt64(GateRef x);
     inline GateRef GetPropertiesCache(GateRef glue);
+    inline GateRef GetMegaICCache(GateRef glue, MegaICCache::MegaICKind kind);
+    inline void IncMegaProbeCount(GateRef glue);
+    inline void IncMegaHitCount(GateRef glue);
     GateRef GetIndexFromPropertiesCache(GateRef glue, GateRef cache, GateRef cls, GateRef key,
                                         GateRef hir = Circuit::NullGate());
+    GateRef GetHandlerFromMegaICCache(GateRef glue, GateRef cache, GateRef cls, GateRef key);
     inline void SetToPropertiesCache(GateRef glue, GateRef cache, GateRef cls, GateRef key, GateRef result,
                                      GateRef hir = Circuit::NullGate());
     GateRef HashFromHclassAndKey(GateRef glue, GateRef cls, GateRef key, GateRef hir = Circuit::NullGate());
+    GateRef HashFromHclassAndStringKey(GateRef glue, GateRef cls, GateRef key);
     GateRef GetKeyHashCode(GateRef glue, GateRef key, GateRef hir = Circuit::NullGate());
+    GateRef GetStringKeyHashCode(GateRef glue, GateRef key, GateRef hir = Circuit::NullGate());
     inline GateRef GetSortedKey(GateRef layoutInfo, GateRef index);
     inline GateRef GetSortedIndex(GateRef layoutInfo, GateRef index);
     inline GateRef GetSortedIndex(GateRef attr);
@@ -1045,29 +1025,34 @@ public:
     GateRef Loadlocalmodulevar(GateRef glue, GateRef index, GateRef module);
     GateRef GetArgumentsElements(GateRef glue, GateRef argvTaggedArray, GateRef argv);
     void TryToJitReuseCompiledFunc(GateRef glue, GateRef jsFunc, GateRef profileTypeInfoCell);
+    void TryToBaselineJitReuseCompiledFunc(GateRef glue, GateRef jsFunc, GateRef profileTypeInfoCell);
+    void StartTraceLoadDetail(GateRef glue, GateRef receiver, GateRef profileTypeInfo, GateRef slotId);
+    void StartTraceLoadGetter(GateRef glue);
+    void StartTraceLoadSlowPath(GateRef glue);
+    void EndTraceLoad(GateRef glue);
     GateRef GetIsFastCall(GateRef machineCode);
+    // compute new elementKind from sub elements
+    GateRef ComputeTaggedArrayElementKind(GateRef array, GateRef offset, GateRef end);
+    GateRef GetElementsKindHClass(GateRef glue, GateRef elementKind);
+    GateRef FixElementsKind(GateRef oldElement);
+    GateRef NeedBarrier(GateRef kind);
 
-    enum OverlapKind {
-        // NotOverlap means the source and destination memory are not overlap,
-        // or overlap but the start of source is larger than destination.
-        // then we will copy the memory from left to right.
-        NotOverlap,
-        // MustOverlap mean the source and destination memory are overlap,
-        // and the start of source is lesser than destination.
-        // then we will copy the memory from right to left.
-        MustOverlap,
-        // Unknown means all the kinds above are possible, it will select the suitable one in runtime.
-        Unknown,
+    enum CopyKind {
+        SameArray,
+        DifferentArray,
     };
+
     // dstAddr/srcAddr is the address will be copied to/from.
     // It can be a derived pointer point to the middle of an object.
-    //
     // Note: dstObj is the object address for dstAddr, it must point to the head of an object.
-    template <OverlapKind kind>
-    void ArrayCopy(GateRef glue, GateRef srcAddr, GateRef dstObj, GateRef dstAddr, GateRef length,
-                   MemoryAttribute mAttr = MemoryAttribute::Default());
+    void ArrayCopy(GateRef glue, GateRef srcObj, GateRef srcAddr, GateRef dstObj, GateRef dstAddr,
+                   GateRef taggedValueCount, GateRef needBarrier, CopyKind copyKind);
 protected:
     static constexpr int LOOP_UNROLL_FACTOR = 2;
+    static constexpr int ELEMENTS_KIND_HCLASS_NUM = 12;
+    static int64_t ELEMENTS_KIND_HCLASS_CASES[ELEMENTS_KIND_HCLASS_NUM];
+    static ConstantIndex ELEMENTS_KIND_HCLASS_INDEX[ELEMENTS_KIND_HCLASS_NUM];
+
 private:
     using BinaryOperation = std::function<GateRef(Environment*, GateRef, GateRef)>;
     template<OpCode Op>

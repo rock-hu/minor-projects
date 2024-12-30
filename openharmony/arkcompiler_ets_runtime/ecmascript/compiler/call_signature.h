@@ -405,6 +405,8 @@ private:
     V(LdObjByIndex)                             \
     V(SetPropertyByValueWithOwn)                \
     V(GetPropertyByName)                        \
+    V(SetPropertyByNameWithMega)                \
+    V(GetPropertyByNameWithMega)                \
     V(DeprecatedGetPropertyByName)              \
     V(GetPropertyByIndex)                       \
     V(SetPropertyByIndex)                       \
@@ -475,6 +477,11 @@ private:
     V(CallSetter)                               \
     V(CallContainersArgs2)                      \
     V(CallContainersArgs3)                      \
+    V(CallGetterToBaseline)                     \
+    V(CallSetterToBaseline)                     \
+    V(CallContainersArgs2ToBaseline)            \
+    V(CallContainersArgs3ToBaseline)            \
+    V(CallReturnWithArgvToBaseline)             \
     V(JSCallWithArgV)                           \
     V(JSFastCallWithArgV)                       \
     V(JSFastCallWithArgVAndPushArgv)            \
@@ -627,6 +634,14 @@ private:
     V(StringIteratorNext)                            \
     V(Definefunc)                                    \
     V(DefineField)                                   \
+    V(CallArg0Stub)                                  \
+    V(CallArg1Stub)                                  \
+    V(CallArg2Stub)                                  \
+    V(CallArg3Stub)                                  \
+    V(CallThis0Stub)                                 \
+    V(CallThis1Stub)                                 \
+    V(CallThis2Stub)                                 \
+    V(CallThis3Stub)                                 \
     V(ConvertCharToInt32)                            \
     V(ConvertCharToDouble)                           \
     V(ASMFastWriteBarrier)                           \
@@ -635,11 +650,19 @@ private:
     V(SortTypedArray)                                \
     V(ReverseTypedArray)                             \
     V(IsFastRegExp)                                  \
-    V(ArrayIteratorNext)                             \
     V(MapIteratorNext)                               \
     V(SetIteratorNext)                               \
-    V(GetIterator)
-
+    V(CreateLocalToShare)                            \
+    V(CreateOldToNew)                                \
+    V(BatchBarrier)                                  \
+    V(ObjectCopy)                                    \
+    V(ArrayIteratorNext)                             \
+    V(GetIterator)                                   \
+    V(MoveBarrierInRegion)                           \
+    V(FillObject)                                    \
+    V(MoveBarrierCrossRegion)                        \
+    V(ReverseArray)                                  \
+    V(LrInt)
 
 #define DECL_CALL_SIGNATURE(name)                                  \
 class name##CallSignature final {                                  \

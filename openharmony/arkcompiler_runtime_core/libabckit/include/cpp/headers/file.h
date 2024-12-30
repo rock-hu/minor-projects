@@ -68,12 +68,6 @@ public:
      * @brief Constructor
      * @param path
      */
-    explicit File(const char *path) : File(std::string_view(path)) {};
-
-    /**
-     * @brief Constructor
-     * @param path
-     */
     explicit File(std::string_view path) : File(path, std::make_unique<DefaultErrorHandler>()) {}
 
     /**
@@ -108,7 +102,8 @@ public:
      * @param eh
      */
     File(std::string_view path, std::unique_ptr<IErrorHandler> eh)
-        : Resource(AbckitGetApiImpl(ABCKIT_VERSION_RELEASE_1_0_0)->openAbc(path.data())), conf_(std::move(eh))
+        : Resource(AbckitGetApiImpl(ABCKIT_VERSION_RELEASE_1_0_0)->openAbc(path.data(), path.size())),
+          conf_(std::move(eh))
     {
         CheckError(&conf_);
         SetDeleter(std::make_unique<FileDeleter>(&conf_, *this));
@@ -214,15 +209,6 @@ public:
     abckit::LiteralArray CreateLiteralArray(const std::vector<abckit::Literal> &literals) const;
 
     /**
-     * @brief Creates string item containing the given C-style null-terminated string `val`.
-     * @return `string`.
-     * @param [ in ] val - string to be set.
-     * @note Set `ABCKIT_STATUS_BAD_ARGUMENT` error if current File is false.
-     * @note Allocates
-     */
-    std::string CreateString(std::string_view val) const;
-
-    /**
      * @brief Creates literal containing the given string `val`.
      * @return `Literal`.
      * @param [ in ] val - string that will be stored in the literal to be created.
@@ -247,7 +233,7 @@ public:
      */
     void WriteAbc(std::string_view path) const
     {
-        GetApiConfig()->cApi_->writeAbc(GetResource(), path.data());
+        GetApiConfig()->cApi_->writeAbc(GetResource(), path.data(), path.size());
         CheckError(GetApiConfig());
     }
 
@@ -258,8 +244,8 @@ public:
     std::vector<core::Module> GetModules() const;
 
     /**
-     * @brief Enumerates modules that are defined in binary file `file`, invoking callback `cb` for each of such
-     * modules.
+     * @brief Enumerates modules that are defined in binary file `file`, invoking callback `cb` for each of
+     * such modules.
      * @return `false` if was early exited. Otherwise - `true`.
      * @param [ in ] cb - Callback that will be invoked. Should return `false` on early exit and `true` when iterations
      * should continue.
@@ -281,7 +267,7 @@ public:
 
     /**
      * @brief Creates type according to type id `id`.
-     * @return Pointer to the `AbckitType`.
+     * @return `Type`
      * @param [ in ] id - Type id corresponding to the type being created.
      * @note Set `ABCKIT_STATUS_BAD_ARGUMENT` error if current File is false.
      * @note Allocates
@@ -290,7 +276,7 @@ public:
 
     /**
      * @brief Creates reference type according to class `klass`.
-     * @return Pointer to the `AbckitType`.
+     * @return `Type`
      * @param [ in ] klass - Class from which the type is created.
      * @note Set `ABCKIT_STATUS_BAD_ARGUMENT` error if current File is false.
      * @note Set `ABCKIT_STATUS_BAD_ARGUMENT` error if `klass` is false.
@@ -299,17 +285,17 @@ public:
     Type CreateReferenceType(core::Class &klass) const;
 
     /**
-     * @brief Creates value item `Value` containing the given const char * `value`.
+     * @brief Creates value item `Value` containing the given string `value`.
      * @return `Value`.
-     * @param [ in ] value - const char * value from which value item is created.
+     * @param [ in ] value - string value from which value item is created.
      * @note Set `ABCKIT_STATUS_BAD_ARGUMENT` error if current File is false.
      * @note Allocates
      */
-    Value CreateValueString(const char *value) const;
+    Value CreateValueString(std::string_view value) const;
 
     /**
      * @brief Creates literal array value item with size `size` from the given value items array `value`.
-     * @return Pointer to the `AbckitValue`.
+     * @return `Value`
      * @param [ in ] value - Value items from which literal array item is created.
      * @param [ in ] size - Size of the literal array value item to be created.
      * @note Set `ABCKIT_STATUS_BAD_ARGUMENT` error if current File is false.
@@ -338,14 +324,12 @@ public:
 
     /**
      * @brief Creates an external Js module and adds it to the file `file`.
-     * @return Pointer to the created module.
+     * @return `js::Module`
      * @param [ in ] name - Data that is used to create the external module.
      * @note Set `ABCKIT_STATUS_BAD_ARGUMENT` error if view itself is NULL.
      * @note Allocates
      */
     js::Module AddExternalModuleJs(std::string_view name) const;
-
-    // Other API.
 
 protected:
     /**
@@ -377,31 +361,6 @@ protected:
     };
 
 private:
-    inline void GetAllFunctionsInner(std::vector<core::Function> &functions) const
-    {
-        for (auto &module : GetModules()) {
-            for (auto &klass : module.GetClasses()) {
-                for (auto &function : klass.GetAllMethods()) {
-                    functions.push_back(function);
-                }
-            }
-            for (auto &function : module.GetTopLevelFunctions()) {
-                functions.push_back(function);
-            }
-        }
-    }
-
-    inline void GetModulesInner(std::vector<core::Module> &modules) const
-    {
-        Payload<std::vector<core::Module> *> payload {&modules, GetApiConfig(), this};
-
-        GetApiConfig()->cIapi_->fileEnumerateModules(GetResource(), &payload, [](AbckitCoreModule *module, void *data) {
-            const auto &payload = *static_cast<Payload<std::vector<core::Module> *> *>(data);
-            payload.data->push_back(core::Module(module, payload.config, payload.resource));
-            return true;
-        });
-    }
-
     const ApiConfig conf_;
 };
 

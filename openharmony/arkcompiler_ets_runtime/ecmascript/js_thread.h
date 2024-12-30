@@ -26,6 +26,7 @@
 #include "ecmascript/builtin_entries.h"
 #include "ecmascript/daemon/daemon_task.h"
 #include "ecmascript/global_index.h"
+#include "ecmascript/ic/mega_ic_cache.h"
 #include "ecmascript/js_object_resizing_strategy.h"
 #include "ecmascript/js_tagged_value.h"
 #include "ecmascript/js_thread_hclass_entries.h"
@@ -47,6 +48,7 @@ class EcmaHandleScope;
 class GlobalIndex;
 class HeapRegionAllocator;
 class PropertiesCache;
+class MegaICCache;
 template<typename T>
 class EcmaGlobalStorage;
 class Node;
@@ -256,6 +258,16 @@ public:
         glueData_.unsharedConstpools_ = unsharedConstpools;
     }
 
+    uintptr_t GetUnsharedConstpoolsArrayLen() const
+    {
+        return glueData_.unsharedConstpoolsArrayLen_;
+    }
+
+    void SetUnsharedConstpoolsArrayLen(uint32_t unsharedConstpoolsArrayLen)
+    {
+        glueData_.unsharedConstpoolsArrayLen_ = unsharedConstpoolsArrayLen;
+    }
+
     void SetIsStartHeapSampling(bool isStart)
     {
         glueData_.isStartHeapSampling_ = isStart ? JSTaggedValue::True() : JSTaggedValue::False();
@@ -449,6 +461,8 @@ public:
     void UpdateJitCodeMapReference(const WeakRootVisitor &visitor);
 
     PUBLIC_API PropertiesCache *GetPropertiesCache() const;
+    PUBLIC_API MegaICCache *GetLoadMegaICCache() const;
+    PUBLIC_API MegaICCache *GetStoreMegaICCache() const;
 
     MarkStatus GetMarkStatus() const
     {
@@ -773,6 +787,8 @@ public:
         disposeGlobalHandle_(nodeAddr);
     }
 
+    uintptr_t PUBLIC_API NewHandle(JSTaggedType value) const;
+
     inline uintptr_t SetWeak(uintptr_t nodeAddr, void *ref = nullptr, WeakClearCallback freeGlobalCallBack = nullptr,
                              WeakClearCallback nativeFinalizeCallBack = nullptr)
     {
@@ -914,6 +930,16 @@ public:
         return jitCodeMaps_;
     }
 
+    bool IsEnableMutantArray() const
+    {
+        return glueData_.isEnableMutantArray_;
+    }
+
+    bool IsEnableElementsKind() const
+    {
+        return glueData_.IsEnableElementsKind_;
+    }
+
     struct GlueData : public base::AlignedStruct<JSTaggedValue::TaggedTypeSize(),
                                                  BCStubEntries,
                                                  JSTaggedValue,
@@ -951,10 +977,12 @@ public:
                                                  base::AlignedPointer,
                                                  BuiltinEntries,
                                                  base::AlignedBool,
+                                                 base::AlignedUint32,
                                                  base::AlignedPointer,
                                                  base::AlignedPointer,
                                                  base::AlignedPointer,
                                                  base::AlignedUint32,
+                                                 base::AlignedBool,
                                                  base::AlignedBool> {
         enum class Index : size_t {
             BcStubEntriesIndex = 0,
@@ -993,10 +1021,12 @@ public:
             CurrentContextIndex,
             BuiltinEntriesIndex,
             IsTracingIndex,
+            UnsharedConstpoolsArrayLenIndex,
             UnsharedConstpoolsIndex,
             RandomStatePtrIndex,
             StateAndFlagsIndex,
             TaskInfoIndex,
+            IsEnableMutantArrayIndex,
             IsEnableElementsKindIndex,
             NumOfMembers
         };
@@ -1208,6 +1238,11 @@ public:
             return GetOffset<static_cast<size_t>(Index::UnsharedConstpoolsIndex)>(isArch32);
         }
 
+        static size_t GetUnSharedConstpoolsArrayLenOffset(bool isArch32)
+        {
+            return GetOffset<static_cast<size_t>(Index::UnsharedConstpoolsArrayLenIndex)>(isArch32);
+        }
+
         static size_t GetStateAndFlagsOffset(bool isArch32)
         {
             return GetOffset<static_cast<size_t>(Index::StateAndFlagsIndex)>(isArch32);
@@ -1221,6 +1256,11 @@ public:
         static size_t GetTaskInfoOffset(bool isArch32)
         {
             return GetOffset<static_cast<size_t>(Index::TaskInfoIndex)>(isArch32);
+        }
+
+        static size_t GetIsEnableMutantArrayOffset(bool isArch32)
+        {
+            return GetOffset<static_cast<size_t>(Index::IsEnableMutantArrayIndex)>(isArch32);
         }
 
         static size_t GetIsEnableElementsKindOffset(bool isArch32)
@@ -1264,11 +1304,13 @@ public:
         alignas(EAS) EcmaContext *currentContext_ {nullptr};
         alignas(EAS) BuiltinEntries builtinEntries_ {};
         alignas(EAS) bool isTracing_ {false};
+        alignas(EAS) uint32_t unsharedConstpoolsArrayLen_ {0};
         alignas(EAS) uintptr_t unsharedConstpools_ {0};
         alignas(EAS) uintptr_t randomStatePtr_ {0};
         alignas(EAS) ThreadStateAndFlags stateAndFlags_ {};
         alignas(EAS) uintptr_t taskInfo_ {0};
-        alignas(EAS) bool isEnableElementsKind_ {false};
+        alignas(EAS) bool isEnableMutantArray_ {false};
+        alignas(EAS) bool IsEnableElementsKind_ {false};
     };
     STATIC_ASSERT_EQ_ARCH(sizeof(GlueData), GlueData::SizeArch32, GlueData::SizeArch64);
 
@@ -1487,6 +1529,11 @@ public:
         return dateUtils_;
     }
 
+    bool CheckMultiThread() const
+    {
+        return GetThreadId() != JSThread::GetCurrentThreadId() && !IsCrossThreadExecutionEnable();
+    }
+
 #ifndef NDEBUG
     inline void LaunchSuspendAll()
     {
@@ -1583,7 +1630,7 @@ private:
     EcmaGlobalStorage<Node> *globalStorage_ {nullptr};
     EcmaGlobalStorage<DebugNode> *globalDebugStorage_ {nullptr};
     int32_t stackTraceFd_ {-1};
-
+    std::function<uintptr_t(JSThread *thread, JSTaggedType value)> newHandle_;
     std::function<uintptr_t(JSTaggedType value)> newGlobalHandle_;
     std::function<void(uintptr_t nodeAddr)> disposeGlobalHandle_;
     std::function<uintptr_t(uintptr_t nodeAddr, void *ref, WeakClearCallback freeGlobalCallBack_,

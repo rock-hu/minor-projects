@@ -14,6 +14,7 @@
  */
 
 #include "ark_native_engine.h"
+#include "ecmascript/napi/include/jsnapi_expo.h"
 
 #ifdef ENABLE_HITRACE
 #include <sys/prctl.h>
@@ -92,6 +93,7 @@ using panda::SymbolRef;
 using panda::IntegerRef;
 using panda::DateRef;
 using panda::BigIntRef;
+using ArkCrashHolder = panda::ArkCrashHolder;
 static constexpr auto PANDA_MAIN_FUNCTION = "_GLOBAL::func_main_0";
 static constexpr auto PANDA_MODULE_NAME = "_GLOBAL_MODULE_NAME";
 static constexpr auto PANDA_MODULE_NAME_LEN = 32;
@@ -513,6 +515,16 @@ ArkNativeEngine::ArkNativeEngine(EcmaVM* vm, void* jsEngine, bool isLimitedWorke
                     nullptr, false, errInfo, false, "");
                 MoudleNameLocker nameLocker(moduleName->ToString(ecmaVm).c_str());
                 if (module != nullptr && arkNativeEngine) {
+                    if (module->registerCallback == nullptr) {
+                        if (module->name != nullptr) {
+                            HILOG_ERROR("requireInternal Init function is nullptr. module name: %{public}s",
+                                module->name);
+                        } else {
+                            HILOG_ERROR("requireInternal Init function is nullptr.");
+                        }
+                        return scope.Escape(exports);
+                    }
+
                     auto it = arkNativeEngine->loadedModules_.find(module);
                     if (it != arkNativeEngine->loadedModules_.end()) {
                         return scope.Escape(it->second.ToLocal(ecmaVm));
@@ -560,14 +572,43 @@ ArkNativeEngine::ArkNativeEngine(EcmaVM* vm, void* jsEngine, bool isLimitedWorke
     JSNApi::SetAsyncCleanTaskCallback(vm, [this] (AsyncNativeCallbacksPack *callbacksPack) {
         this->PostAsyncTask(callbacksPack);
     });
+    RegisterNapiUncaughtExceptionHandler([this] (napi_value exception) -> void {
+        if (!NativeEngine::IsAlive(this)) {
+            HILOG_WARN("napi_env has been destoryed!");
+            return;
+        }
+        std::string name = "";
+        if (this->IsWorkerThread() && this->getWorkerNameCallback_) {
+            name = this->getWorkerNameCallback_(this->worker_);
+        } else if (this->IsTaskPoolThread()) {
+            name = this->GetTaskName();
+            this->SetTaskName("");
+        }
+        auto hasAllErrorCallback = NapiErrorManager::GetInstance()->GetHasAllErrorCallback();
+        if (!hasAllErrorCallback) {
+            return;
+        }
+        if (!hasAllErrorCallback()) {
+            return;
+        }
+        JSNApi::GetAndClearUncaughtException(this->GetEcmaVm());
+        auto callback = NapiErrorManager::GetInstance()->GetOnAllErrorCallback();
+        if (callback) {
+            callback(reinterpret_cast<napi_env>(this), exception,
+                name, this->GetJSThreadTypeInt());
+        }
+    });
+    RegisterAllPromiseCallback();
 #if defined(ENABLE_EVENT_HANDLER)
     if (JSNApi::IsJSMainThreadOfEcmaVM(vm)) {
-        arkIdleMonitor_ = std::make_shared<ArkIdleMonitor>(vm);
+        ArkIdleMonitor::GetInstance()->SetMainThreadEcmaVM(vm);
         JSNApi::SetTriggerGCTaskCallback(vm, [this](TriggerGCData& data) {
             this->PostTriggerGCTask(data);
         });
-        arkIdleMonitor_->SetStartTimerCallback();
+        ArkIdleMonitor::GetInstance()->SetStartTimerCallback();
         PostLooperTriggerIdleGCTask();
+    } else {
+        ArkIdleMonitor::GetInstance()->RegisterWorkerEnv(reinterpret_cast<napi_env>(this));
     }
 #endif
 }
@@ -576,6 +617,9 @@ ArkNativeEngine::~ArkNativeEngine()
 {
     HILOG_DEBUG("ArkNativeEngine::~ArkNativeEngine");
     Deinit();
+    if (JSNApi::IsJSMainThreadOfEcmaVM(vm_)) {
+        ArkIdleMonitor::GetInstance()->SetMainThreadEcmaVM(nullptr);
+    }
     // Free cached objects
     for (auto&& [module, exportObj] : loadedModules_) {
         exportObj.FreeGlobalHandleAddr();
@@ -591,6 +635,7 @@ ArkNativeEngine::~ArkNativeEngine()
         delete options_;
         options_ = nullptr;
     }
+    ArkIdleMonitor::GetInstance()->UnregisterWorkerEnv(reinterpret_cast<napi_env>(this));
 }
 
 #ifdef ENABLE_HITRACE
@@ -1300,6 +1345,15 @@ bool ArkNativeEngine::NapiNewSendableTypedArray(const EcmaVM* vm, NativeTypedArr
         case NATIVE_UINT8_CLAMPED_ARRAY:
             typedArray = panda::SharedUint8ClampedArrayRef::New(vm, arrayBuf, byte_offset, length);
             break;
+        case NATIVE_FLOAT64_ARRAY:
+            typedArray = panda::SharedFloat64ArrayRef::New(vm, arrayBuf, byte_offset, length);
+            break;
+        case NATIVE_BIGINT64_ARRAY:
+            typedArray = panda::SharedBigInt64ArrayRef::New(vm, arrayBuf, byte_offset, length);
+            break;
+        case NATIVE_BIGUINT64_ARRAY:
+            typedArray = panda::SharedBigUint64ArrayRef::New(vm, arrayBuf, byte_offset, length);
+            break;
         default:
             *result = nullptr;
             return false;
@@ -1357,6 +1411,12 @@ NativeTypedArrayType ArkNativeEngine::GetSendableTypedArrayType(panda::Local<pan
         thisType = NATIVE_FLOAT32_ARRAY;
     } else if (typedArray->IsJSSharedUint8ClampedArray(vm_)) {
         thisType = NATIVE_UINT8_CLAMPED_ARRAY;
+    } else if (typedArray->IsJSSharedFloat64Array(vm_)) {
+        thisType = NATIVE_FLOAT64_ARRAY;
+    } else if (typedArray->IsJSSharedBigInt64Array(vm_)) {
+        thisType = NATIVE_BIGINT64_ARRAY;
+    } else if (typedArray->IsJSSharedBigUint64Array(vm_)) {
+        thisType = NATIVE_BIGUINT64_ARRAY;
     }
 
     return thisType;
@@ -1397,45 +1457,17 @@ Local<JSValueRef> ArkNativeEngine::NapiLoadNativeModule(std::string path)
     return panda::JSNApi::ExecuteNativeModule(vm_, key);
 }
 
-ModuleTypes ArkNativeEngine::CheckLoadType(const std::string &path)
-{
-    if (path[0] == '@') {
-        return ModuleTypes::NATIVE_MODULE;
-    } else if (path.find("ets/") == 0) { // ets/xxx/xxx
-        return ModuleTypes::MODULE_INNER_FILE;
-    }
-    return ModuleTypes::UNKNOWN;
-}
-
-napi_value ArkNativeEngine::NapiLoadModule(const char* path, const char* module_info)
+napi_value ArkNativeEngine::NapiLoadModule(const char* path)
 {
     if (path == nullptr) {
         HILOG_ERROR("ArkNativeEngine:The module name is empty");
         return nullptr;
     }
     panda::EscapeLocalScope scope(vm_);
-    Local<JSValueRef> undefObj = JSValueRef::Undefined(vm_);
-    Local<ObjectRef> exportObj(undefObj);
     std::string inputPath(path);
-    std::string modulePath;
-    if (module_info != nullptr) {
-        modulePath = module_info;
-    }
-    switch (CheckLoadType(inputPath)) {
-        case ModuleTypes::NATIVE_MODULE: {
-            exportObj = NapiLoadNativeModule(inputPath);
-            break;
-        }
-        case ModuleTypes::MODULE_INNER_FILE: {
-            exportObj = panda::JSNApi::GetModuleNameSpaceFromFile(vm_, inputPath, modulePath);
-            break;
-        }
-        default: {
-            std::string msg = "ArkNativeEngine:NapiLoadModule input path:" + inputPath + " is invalid.";
-            ThrowException(msg.c_str());
-        }
-    }
+    Local exportObj = panda::JSNApi::GetModuleNameSpaceFromFile(vm_, inputPath);
     if (!exportObj->IsObject(vm_)) {
+        Local<JSValueRef> undefObj = JSValueRef::Undefined(vm_);
         ThrowException("ArkNativeEngine:NapiLoadModule failed.");
         return JsValueFromLocalValue(scope.Escape(undefObj));
     }
@@ -1561,7 +1593,7 @@ __attribute__((optnone)) void ArkNativeEngine::RunAsyncCallbacks(std::vector<Ref
 #ifdef ENABLE_HITRACE
     StartTrace(HITRACE_TAG_ACE, "RunFinalizeCallbacks:" + std::to_string(finalizers->size()));
 #endif
-    INIT_CRASH_HOLDER(holder);
+    INIT_CRASH_HOLDER(holder, "NAPI");
     for (auto iter : (*finalizers)) {
         NapiNativeFinalize callback = iter.first;
         std::tuple<NativeEngine*, void*, void*> &param = iter.second;
@@ -1649,7 +1681,7 @@ __attribute__((optnone)) void ArkNativeEngine::RunCallbacks(AsyncNativeCallbacks
 #ifdef ENABLE_HITRACE
     StartTrace(HITRACE_TAG_ACE, "RunNativeCallbacks:" + std::to_string(callbacksPack->GetNumCallBacks()));
 #endif
-    callbacksPack->ProcessAll();
+    callbacksPack->ProcessAll("NAPI");
 #ifdef ENABLE_HITRACE
     FinishTrace(HITRACE_TAG_ACE);
 #endif
@@ -1908,6 +1940,30 @@ bool ArkNativeEngine::AdjustExternalMemory(int64_t ChangeInBytes, int64_t* Adjus
     return true;
 }
 
+void ArkNativeEngine::RegisterAllPromiseCallback()
+{
+    JSNApi::SetHostPromiseRejectionTracker(vm_, reinterpret_cast<void*>(PromiseRejectCallback),
+                                           reinterpret_cast<void*>(this));
+    allPromiseRejectCallback_ = [this] (napi_value* args) -> void {
+        if (!NativeEngine::IsAlive(this)) {
+            HILOG_WARN("napi_env has been destoryed!");
+            return;
+        }
+        std::string name = "";
+        if (this->IsWorkerThread() && this->getWorkerNameCallback_) {
+            name = this->getWorkerNameCallback_(this->worker_);
+        } else if (this->IsTaskPoolThread()) {
+            name = this->GetTaskName();
+            this->SetTaskName("");
+        }
+        auto callback = NapiErrorManager::GetInstance()->GetAllUnhandledRejectionCallback();
+        if (callback) {
+            callback(reinterpret_cast<napi_env>(this), args,
+                name, this->GetJSThreadTypeInt());
+        }
+    };
+}
+
 void ArkNativeEngine::SetPromiseRejectCallback(NativeReference* rejectCallbackRef, NativeReference* checkCallbackRef)
 {
     if (rejectCallbackRef == nullptr || checkCallbackRef == nullptr) {
@@ -1929,11 +1985,6 @@ void ArkNativeEngine::PromiseRejectCallback(void* info)
         HILOG_ERROR("engine is nullptr");
         return;
     }
-
-    if (env->promiseRejectCallbackRef_ == nullptr || env->checkCallbackRef_ == nullptr) {
-        HILOG_ERROR("promiseRejectCallbackRef or checkCallbackRef is nullptr");
-        return;
-    }
     panda::ecmascript::EcmaVM* vm = const_cast<EcmaVM*>(env->GetEcmaVm());
     LocalScope scope(vm);
     Local<JSValueRef> promise = promiseRejectInfo->GetPromise();
@@ -1943,7 +1994,19 @@ void ArkNativeEngine::PromiseRejectCallback(void* info)
     Local<JSValueRef> type(IntegerRef::New(vm, static_cast<int32_t>(operation)));
 
     Local<JSValueRef> args[] = {type, promise, reason};
-
+    if (env->allPromiseRejectCallback_) {
+        constexpr int ARGC_THREE = 3;
+        napi_value *callErrorArgs = new napi_value[ARGC_THREE];
+        for (int i = 0; i < ARGC_THREE; i++) {
+            callErrorArgs[i] = JsValueFromLocalValue(args[i]);
+        }
+        env->allPromiseRejectCallback_(callErrorArgs);
+        delete[] callErrorArgs;
+    }
+    if (env->promiseRejectCallbackRef_ == nullptr || env->checkCallbackRef_ == nullptr) {
+        HILOG_ERROR("promiseRejectCallbackRef or checkCallbackRef is nullptr");
+        return;
+    }
     napi_value promiseNapiRejectCallback = env->promiseRejectCallbackRef_->Get(env);
     Local<FunctionRef> promiseRejectCallback = LocalValueFromJsValue(promiseNapiRejectCallback);
     if (!promiseRejectCallback.IsEmpty()) {
@@ -2137,7 +2200,7 @@ size_t ArkNativeEngine::GetFullGCLongTimeCount()
 void ArkNativeEngine::NotifyApplicationState(bool inBackground)
 {
     DFXJSNApi::NotifyApplicationState(vm_, inBackground);
-    arkIdleMonitor_->NotifyChangeBackgroundState(inBackground);
+    ArkIdleMonitor::GetInstance()->NotifyChangeBackgroundState(inBackground);
 }
 
 void ArkNativeEngine::NotifyIdleStatusControl(std::function<void(bool)> callback)
@@ -2285,9 +2348,24 @@ void ArkNativeEngine::SetMockModuleList(const std::map<std::string, std::string>
     JSNApi::SetMockModuleList(vm_, list);
 }
 
+static void OnAllErrorCallbackForThreadFunc(Local<ObjectRef> value, void *data)
+{
+    if (data == nullptr) {
+        return;
+    }
+    auto engine = static_cast<ArkNativeEngine *>(data);
+    auto napiUncaughtExceptionCallback = engine->GetNapiUncaughtExceptionCallback();
+    if (napiUncaughtExceptionCallback == nullptr) {
+        return;
+    }
+    napi_env env = reinterpret_cast<napi_env>(engine);
+    napiUncaughtExceptionCallback(ArkNativeEngine::ArkValueToNapiValue(env, value));
+}
+
 void ArkNativeEngine::RegisterNapiUncaughtExceptionHandler(NapiUncaughtExceptionCallback callback)
 {
     JSNApi::EnableUserUncaughtErrorHandler(vm_);
+    JSNApi::SetOnAllErrorCallbackForThread(vm_, OnAllErrorCallbackForThreadFunc, static_cast<void *>(this));
     napiUncaughtExceptionCallback_ = callback;
 }
 
@@ -2404,7 +2482,7 @@ void ArkNativeEngine::PostLooperTriggerIdleGCTask()
         HILOG_FATAL("ArkNativeEngine:: the mainEventRunner is nullptr");
         return;
     }
-    std::weak_ptr<ArkIdleMonitor> weakArkIdleMonitor = arkIdleMonitor_;
+    std::weak_ptr<ArkIdleMonitor> weakArkIdleMonitor = ArkIdleMonitor::GetInstance();
     auto callback = [weakArkIdleMonitor](OHOS::AppExecFwk::EventRunnerStage stage,
         const OHOS::AppExecFwk::StageInfo* info) -> int {
         auto arkIdleMonitor = weakArkIdleMonitor.lock();
@@ -2559,6 +2637,11 @@ bool ArkNativeEngine::RunScriptBuffer(const std::string& path, uint8_t* buffer, 
         return false;
     }
 
+    auto stopPreSoCallback = panda::JSNApi::GetStopPreLoadSoCallback(vm_);
+    if (stopPreSoCallback != nullptr) {
+        stopPreSoCallback();
+        panda::JSNApi::SetStopPreLoadSoCallback(vm_, nullptr);
+    }
     // LCOV_EXCL_START
     panda::JSExecutionScope executionScope(vm_);
     LocalScope scope(vm_);

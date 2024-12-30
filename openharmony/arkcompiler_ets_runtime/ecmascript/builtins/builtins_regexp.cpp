@@ -17,7 +17,6 @@
 #include "ecmascript/builtins/builtins_regexp-inl.h"
 #include "ecmascript/checkpoint/thread_state_transition.h"
 
-#include <cmath>
 
 #include "ecmascript/ecma_string-inl.h"
 #include "ecmascript/interpreter/interpreter.h"
@@ -1162,7 +1161,7 @@ JSTaggedValue BuiltinsRegExp::ReplaceInternal(JSThread *thread,
     JSMutableHandle<JSTaggedValue> capN(thread, JSTaggedValue(0));
     // 16. Repeat, for each result in results,
     for (int i = 0; i < resultsIndex; i++) {
-        resultValues.Update(ElementAccessor::Get(resultsList, i));
+        resultValues.Update(ElementAccessor::Get(thread, resultsList, i));
         // a. Let nCaptures be ToLength(Get(result, "length")).
         uint32_t ncaptures;
         if (isFastPath) {

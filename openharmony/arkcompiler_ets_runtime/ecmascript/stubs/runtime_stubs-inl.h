@@ -518,7 +518,7 @@ JSTaggedValue RuntimeStubs::RuntimeStArraySpread(JSThread *thread, const JSHandl
         JSHandle<JSObject> dstObj(dst);
         ElementAccessor::CopyJSArrayObject(thread, srcObj, dstObj, length);
         for (uint32_t i = 0; i < length; i++) {
-            JSHandle<JSTaggedValue> reg(thread, ElementAccessor::Get(srcObj, i));
+            JSHandle<JSTaggedValue> reg(thread, ElementAccessor::Get(thread, srcObj, i));
             if (reg->IsHole()) {
                 JSHandle<JSTaggedValue> reg2(thread, JSArray::FastGetPropertyByValue(thread, src, i).GetTaggedValue());
                 RETURN_EXCEPTION_IF_ABRUPT_COMPLETION(thread);
@@ -1427,6 +1427,11 @@ inline JSTaggedValue RuntimeStubs::RuntimeLdExternalModuleVarWithModule(JSThread
 JSTaggedValue RuntimeStubs::RuntimeLdSendableExternalModuleVar(JSThread *thread, int32_t index, JSTaggedValue jsFunc)
 {
     return SharedModuleManager::GetInstance()->GetSendableModuleValue(thread, index, jsFunc);
+}
+
+JSTaggedValue RuntimeStubs::RuntimeLdSendableLocalModuleVar(JSThread* thread, int32_t index, JSTaggedValue jsFunc)
+{
+    return SharedModuleManager::GetInstance()->GetSendableModuleValueInner(thread, index, jsFunc);
 }
 
 JSTaggedValue RuntimeStubs::RuntimeLdExternalModuleVar(JSThread *thread, int32_t index, JSTaggedValue jsFunc)
@@ -2857,6 +2862,7 @@ JSTaggedValue RuntimeStubs::RuntimeOptConstructProxy(JSThread *thread, JSHandle<
                                                      JSHandle<JSTaggedValue> newTgt, JSHandle<JSTaggedValue> preArgs,
                                                      JSHandle<TaggedArray> args)
 {
+    STACK_LIMIT_CHECK(thread, JSTaggedValue::Exception());
     // step 1 ~ 4 get ProxyHandler and ProxyTarget
     JSHandle<JSTaggedValue> handler(thread, ctor->GetHandler());
     if (handler->IsNull()) {

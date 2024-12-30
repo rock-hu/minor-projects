@@ -649,6 +649,7 @@ public:
     bool IsElementDict() const;
     bool IsPropertiesDict() const;
     bool IsTypedArray() const;
+    bool IsSharedTypedArray() const;
     bool PUBLIC_API ElementsAndPropertiesIsEmpty() const;
 
     static PUBLIC_API void DefinePropertyByLiteral(JSThread *thread, const JSHandle<JSObject> &obj,
@@ -692,7 +693,7 @@ public:
                                             std::vector<JSTaggedValue> &keyVector);
     std::pair<uint32_t, uint32_t> GetNumberOfEnumKeys() const;
     uint32_t GetNumberOfKeys();
-    uint32_t GetNumberOfElements();
+    uint32_t GetNumberOfElements(JSThread *thread);
 
     static JSHandle<TaggedArray> GetEnumElementKeys(JSThread *thread, const JSHandle<JSObject> &obj, int offset,
                                                     uint32_t numOfElements, uint32_t *keys);
@@ -788,6 +789,8 @@ private:
 
     static bool HasMutantTaggedArrayElements(const JSHandle<JSObject> &obj);
     PropertyBox* GetGlobalPropertyBox(JSTaggedValue key);
+    static bool CheckAndUpdateArrayLength(JSThread *thread, const JSHandle<JSObject> &receiver,
+                                          uint32_t index, ElementsKind &kind);
     static bool PUBLIC_API AddElementInternal(
         JSThread *thread, const JSHandle<JSObject> &receiver, uint32_t index, const JSHandle<JSTaggedValue> &value,
         PropertyAttributes attr = PropertyAttributes(PropertyAttributes::GetDefaultAttributes()));
@@ -813,8 +816,8 @@ private:
     static uint32_t SetValuesOrEntries(JSThread *thread, const JSHandle<TaggedArray> &prop, uint32_t index,
                                        const JSHandle<JSTaggedValue> &key, const JSHandle<JSTaggedValue> &value,
                                        PropertyKind kind);
-    static bool IsSimpleEnumCacheValid(JSTaggedValue receiver);
-    static bool IsEnumCacheWithProtoChainInfoValid(JSTaggedValue receiver);
+    static bool IsSimpleEnumCacheValid(JSThread *thread, JSTaggedValue receiver);
+    static bool IsEnumCacheWithProtoChainInfoValid(JSThread *thread, JSTaggedValue receiver);
     static void TrimInlinePropsSpace(const JSThread *thread, const JSHandle<JSObject> &object,
                                      uint32_t numberInlinedProps);
     static bool ValidateDataDescriptorWhenConfigurable(ObjectOperator *op, const PropertyDescriptor &desc,

@@ -111,7 +111,7 @@ void Jit::ConfigOptions(EcmaVM *vm) const
     bool jitEnableLitecg = ohos::JitTools::IsJitEnableLitecg(options.IsCompilerEnableLiteCG());
     options.SetCompilerEnableLiteCG(jitEnableLitecg);
 
-    uint8_t jitCallThreshold = ohos::JitTools::GetJitCallThreshold(options.GetJitCallThreshold());
+    uint16_t jitCallThreshold = ohos::JitTools::GetJitCallThreshold(options.GetJitCallThreshold());
     options.SetJitCallThreshold(jitCallThreshold);
 
     uint32_t jitHotnessThreshold = GetHotnessThreshold();
@@ -122,6 +122,9 @@ void Jit::ConfigOptions(EcmaVM *vm) const
 
     bool jitEnableJitFort = ohos::JitTools::GetEnableJitFort(options.GetEnableJitFort());
     options.SetEnableJitFort(jitEnableJitFort);
+
+    bool jitEnableVerifyPass = ohos::JitTools::GetEnableJitVerifyPass(options.IsEnableJitVerifyPass());
+    options.SetEnableJitVerifyPass(jitEnableVerifyPass);
 
     bool jitEnableAsyncCopyToFort = ohos::JitTools::GetEnableAsyncCopyToFort(options.GetEnableAsyncCopyToFort());
     options.SetEnableAsyncCopyToFort(jitEnableAsyncCopyToFort);

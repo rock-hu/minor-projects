@@ -125,23 +125,10 @@ ElementsKind Elements::FixElementsKind(ElementsKind oldKind)
     return result;
 }
 
+
 ElementsKind Elements::ToElementsKind(JSTaggedValue value, ElementsKind kind)
 {
-    ElementsKind valueKind = ElementsKind::NONE;
-    if (value.IsInt()) {
-        valueKind = ElementsKind::INT;
-    } else if (value.IsDouble()) {
-        valueKind = ElementsKind::NUMBER;
-    } else if (value.IsString()) {
-        valueKind = ElementsKind::STRING;
-    } else if (value.IsHeapObject()) {
-        valueKind = ElementsKind::OBJECT;
-    } else if (value.IsHole()) {
-        valueKind = ElementsKind::HOLE;
-    } else {
-        valueKind = ElementsKind::TAGGED;
-    }
-    return MergeElementsKind(valueKind, kind);
+    return MergeElementsKind(ToElementsKind(value), kind);
 }
 
 void Elements::HandleIntKindMigration(const JSThread *thread, const JSHandle<JSObject> &object,
@@ -193,7 +180,7 @@ void Elements::HandleOtherKindMigration(const JSThread *thread, const JSHandle<J
 void Elements::MigrateArrayWithKind(const JSThread *thread, const JSHandle<JSObject> &object,
                                     const ElementsKind oldKind, const ElementsKind newKind)
 {
-    if (!thread->GetEcmaVM()->IsEnableElementsKind()) {
+    if (!thread->IsEnableMutantArray()) {
         return;
     }
 

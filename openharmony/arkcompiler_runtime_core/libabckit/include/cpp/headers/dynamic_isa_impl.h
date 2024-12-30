@@ -104,7 +104,7 @@ inline Instruction DynamicIsa::SetExportDescriptor(Instruction inst, core::Expor
 inline Instruction DynamicIsa::CreateLoadString(std::string_view string) &&
 {
     auto *conf = graph_.GetApiConfig();
-    AbckitString *abcStr = conf->cMapi_->createString(graph_.GetFile()->GetResource(), string.data());
+    AbckitString *abcStr = conf->cMapi_->createString(graph_.GetFile()->GetResource(), string.data(), string.size());
     CheckError(conf);
     AbckitInst *abcLoadstring = conf->cDynapi_->iCreateLoadString(graph_.GetResource(), abcStr);
     CheckError(conf);
@@ -112,8 +112,7 @@ inline Instruction DynamicIsa::CreateLoadString(std::string_view string) &&
 }
 
 /**
- * @brief Creates instruction with opcode NEWOBJRANGE. This instruction invokes the constructor of `inputs[0]` with
- * arguments `inputs[1]`, ..., `inputs[argCount-1]` to create a class instance, and stores the instance in `acc`.
+ * @brief Creates instruction with opcode NEWOBJRANGE.
  * @return `Instruction`
  * @param [ in ] input0 - Class object.
  * @param [ in ] args - Number of insts containing arguments.
@@ -132,8 +131,7 @@ inline Instruction DynamicIsa::CreateNewobjrange(Instruction input0, Args... arg
 }
 
 /**
- * @brief Creates instruction with opcode NEWOBJRANGE. This instruction invokes the constructor of `inputs[0]` with
- * arguments `inputs[1]`, ..., `inputs[argCount-1]` to create a class instance, and stores the instance in `acc`.
+ * @brief Creates instruction with opcode NEWOBJRANGE.
  * @return `Instruction`
  * @param [ in ] input0 - Class object.
  * @param [ in ] args - Number of insts containing arguments.
@@ -340,7 +338,7 @@ inline Instruction DynamicIsa::CreateTestin(Instruction acc, uint64_t imm0, uint
 inline Instruction DynamicIsa::CreateDefinefieldbyname(Instruction acc, std::string_view string, Instruction input0) &&
 {
     auto *conf = graph_.GetApiConfig();
-    AbckitString *abcStr = conf->cMapi_->createString(graph_.GetFile()->GetResource(), string.data());
+    AbckitString *abcStr = conf->cMapi_->createString(graph_.GetFile()->GetResource(), string.data(), string.size());
     CheckError(conf);
     AbckitInst *inst =
         conf->cDynapi_->iCreateDefinefieldbyname(graph_.GetResource(), acc.GetView(), abcStr, input0.GetView());
@@ -352,7 +350,7 @@ inline Instruction DynamicIsa::CreateDefinepropertybyname(Instruction acc, std::
                                                           Instruction input0) &&
 {
     auto *conf = graph_.GetApiConfig();
-    AbckitString *abcStr = conf->cMapi_->createString(graph_.GetFile()->GetResource(), string.data());
+    AbckitString *abcStr = conf->cMapi_->createString(graph_.GetFile()->GetResource(), string.data(), string.size());
     CheckError(conf);
     AbckitInst *inst =
         conf->cDynapi_->iCreateDefinepropertybyname(graph_.GetResource(), acc.GetView(), abcStr, input0.GetView());
@@ -394,9 +392,7 @@ inline Instruction DynamicIsa::CreateCreateiterresultobj(Instruction input0, Ins
 }
 
 /**
- * @brief Creates instruction with opcode CREATEOBJECTWITHEXCLUDEDKEYS. This instruction creates an object based on
- * object `input0` with excluded properties of the keys `input1`, `inputs[0]`, ..., `inputs[imm0-1]`, and stores
- * it in `acc`.
+ * @brief Creates instruction with opcode CREATEOBJECTWITHEXCLUDEDKEYS.
  * @return `Instruction`
  * @param [ in ] input0 - Inst containing object.
  * @param [ in ] input1 - Inst containing first `key`.
@@ -415,9 +411,7 @@ inline Instruction DynamicIsa::CreateCreateobjectwithexcludedkeys(Instruction in
 }
 
 /**
- * @brief Creates instruction with opcode WIDE_CREATEOBJECTWITHEXCLUDEDKEYS. This instruction creates an object
- * based on object `input0` with excluded properties of the keys `input1`, `inputs[0]`, ..., `inputs[imm0-1]`, and
- * stores it in `acc`.
+ * @brief Creates instruction with opcode WIDE_CREATEOBJECTWITHEXCLUDEDKEYS.
  * @return `Instruction`
  * @param [ in ] input0 - Inst containing object.
  * @param [ in ] input1 - Inst containing first `key`.
@@ -980,7 +974,7 @@ inline Instruction DynamicIsa::CreateThrowIfsupernotcorrectcall(Instruction acc,
 inline Instruction DynamicIsa::CreateThrowUndefinedifholewithname(Instruction acc, std::string_view string) &&
 {
     auto *conf = graph_.GetApiConfig();
-    AbckitString *abcStr = conf->cMapi_->createString(graph_.GetFile()->GetResource(), string.data());
+    AbckitString *abcStr = conf->cMapi_->createString(graph_.GetFile()->GetResource(), string.data(), string.size());
     CheckError(conf);
     AbckitInst *inst = conf->cDynapi_->iCreateThrowUndefinedifholewithname(graph_.GetResource(), acc.GetView(), abcStr);
     CheckError(conf);
@@ -1023,8 +1017,7 @@ inline Instruction DynamicIsa::CreateCallargs3(Instruction acc, Instruction inpu
 }
 
 /**
- * @brief Creates instruction with opcode CALLRANGE. This instruction invokes `acc` with arguments `inputs[0]`, ...,
- * `inputs[argCount-1]`.
+ * @brief Creates instruction with opcode CALLRANGE.
  * @return `Instruction`
  * @param [ in ] acc - Inst containing function object.
  * @param [ in ] instrs - Arguments.
@@ -1040,8 +1033,7 @@ inline Instruction DynamicIsa::CreateCallrange(Instruction acc, Args... instrs) 
 }
 
 /**
- * @brief Creates instruction with opcode WIDE_CALLRANGE. This instruction invokes `acc` with arguments `inputs[0]`,
- * ..., `inputs[argCount-1]`.
+ * @brief Creates instruction with opcode WIDE_CALLRANGE.
  * @return `Instruction`
  * @param [ in ] acc - Inst containing function object.
  * @param [ in ] instrs - Arguments.
@@ -1530,7 +1522,7 @@ inline Instruction DynamicIsa::CreateTryldglobalbyname(std::string_view string) 
 {
     const ApiConfig *conf = graph_.GetApiConfig();
     // NOTE(urandon): resolve duplicates for string
-    AbckitString *abcStr = conf->cMapi_->createString(graph_.GetFile()->GetResource(), string.data());
+    AbckitString *abcStr = conf->cMapi_->createString(graph_.GetFile()->GetResource(), string.data(), string.size());
     CheckError(conf);
     AbckitInst *inst = conf->cDynapi_->iCreateTryldglobalbyname(graph_.GetResource(), abcStr);
     CheckError(conf);
@@ -1540,7 +1532,7 @@ inline Instruction DynamicIsa::CreateTryldglobalbyname(std::string_view string) 
 inline Instruction DynamicIsa::CreateTrystglobalbyname(Instruction acc, std::string_view string) &&
 {
     const ApiConfig *conf = graph_.GetApiConfig();
-    AbckitString *abcStr = conf->cMapi_->createString(graph_.GetFile()->GetResource(), string.data());
+    AbckitString *abcStr = conf->cMapi_->createString(graph_.GetFile()->GetResource(), string.data(), string.size());
     CheckError(conf);
     AbckitInst *inst = conf->cDynapi_->iCreateTrystglobalbyname(graph_.GetResource(), acc.GetView(), abcStr);
     CheckError(conf);
@@ -1550,7 +1542,7 @@ inline Instruction DynamicIsa::CreateTrystglobalbyname(Instruction acc, std::str
 inline Instruction DynamicIsa::CreateLdglobalvar(std::string_view string) &&
 {
     const ApiConfig *conf = graph_.GetApiConfig();
-    AbckitString *abcStr = conf->cMapi_->createString(graph_.GetFile()->GetResource(), string.data());
+    AbckitString *abcStr = conf->cMapi_->createString(graph_.GetFile()->GetResource(), string.data(), string.size());
     CheckError(conf);
     AbckitInst *inst = conf->cDynapi_->iCreateLdglobalvar(graph_.GetResource(), abcStr);
     CheckError(conf);
@@ -1560,7 +1552,7 @@ inline Instruction DynamicIsa::CreateLdglobalvar(std::string_view string) &&
 inline Instruction DynamicIsa::CreateStglobalvar(Instruction acc, std::string_view string) &&
 {
     const ApiConfig *conf = graph_.GetApiConfig();
-    AbckitString *abcStr = conf->cMapi_->createString(graph_.GetFile()->GetResource(), string.data());
+    AbckitString *abcStr = conf->cMapi_->createString(graph_.GetFile()->GetResource(), string.data(), string.size());
     CheckError(conf);
     AbckitInst *inst = conf->cDynapi_->iCreateStglobalvar(graph_.GetResource(), acc.GetView(), abcStr);
     CheckError(conf);
@@ -1570,7 +1562,7 @@ inline Instruction DynamicIsa::CreateStglobalvar(Instruction acc, std::string_vi
 inline Instruction DynamicIsa::CreateLdobjbyname(Instruction acc, std::string_view string) &&
 {
     const ApiConfig *conf = graph_.GetApiConfig();
-    AbckitString *abcStr = conf->cMapi_->createString(graph_.GetFile()->GetResource(), string.data());
+    AbckitString *abcStr = conf->cMapi_->createString(graph_.GetFile()->GetResource(), string.data(), string.size());
     CheckError(conf);
     AbckitInst *inst = conf->cDynapi_->iCreateLdobjbyname(graph_.GetResource(), acc.GetView(), abcStr);
     CheckError(conf);
@@ -1580,7 +1572,7 @@ inline Instruction DynamicIsa::CreateLdobjbyname(Instruction acc, std::string_vi
 inline Instruction DynamicIsa::CreateStobjbyname(Instruction acc, std::string_view string, Instruction input0) &&
 {
     const ApiConfig *conf = graph_.GetApiConfig();
-    AbckitString *abcStr = conf->cMapi_->createString(graph_.GetFile()->GetResource(), string.data());
+    AbckitString *abcStr = conf->cMapi_->createString(graph_.GetFile()->GetResource(), string.data(), string.size());
     CheckError(conf);
     AbckitInst *inst =
         conf->cDynapi_->iCreateStobjbyname(graph_.GetResource(), acc.GetView(), abcStr, input0.GetView());
@@ -1591,7 +1583,7 @@ inline Instruction DynamicIsa::CreateStobjbyname(Instruction acc, std::string_vi
 inline Instruction DynamicIsa::CreateStownbyname(Instruction acc, std::string_view string, Instruction input0) &&
 {
     const ApiConfig *conf = graph_.GetApiConfig();
-    AbckitString *abcStr = conf->cMapi_->createString(graph_.GetFile()->GetResource(), string.data());
+    AbckitString *abcStr = conf->cMapi_->createString(graph_.GetFile()->GetResource(), string.data(), string.size());
     CheckError(conf);
     AbckitInst *inst =
         conf->cDynapi_->iCreateStownbyname(graph_.GetResource(), acc.GetView(), abcStr, input0.GetView());
@@ -1602,7 +1594,7 @@ inline Instruction DynamicIsa::CreateStownbyname(Instruction acc, std::string_vi
 inline Instruction DynamicIsa::CreateLdsuperbyname(Instruction acc, std::string_view string) &&
 {
     const ApiConfig *conf = graph_.GetApiConfig();
-    AbckitString *abcStr = conf->cMapi_->createString(graph_.GetFile()->GetResource(), string.data());
+    AbckitString *abcStr = conf->cMapi_->createString(graph_.GetFile()->GetResource(), string.data(), string.size());
     CheckError(conf);
     AbckitInst *inst = conf->cDynapi_->iCreateLdsuperbyname(graph_.GetResource(), acc.GetView(), abcStr);
     CheckError(conf);
@@ -1612,7 +1604,7 @@ inline Instruction DynamicIsa::CreateLdsuperbyname(Instruction acc, std::string_
 inline Instruction DynamicIsa::CreateStsuperbyname(Instruction acc, std::string_view string, Instruction input0) &&
 {
     const ApiConfig *conf = graph_.GetApiConfig();
-    AbckitString *abcStr = conf->cMapi_->createString(graph_.GetFile()->GetResource(), string.data());
+    AbckitString *abcStr = conf->cMapi_->createString(graph_.GetFile()->GetResource(), string.data(), string.size());
     CheckError(conf);
     AbckitInst *inst =
         conf->cDynapi_->iCreateStsuperbyname(graph_.GetResource(), acc.GetView(), abcStr, input0.GetView());
@@ -1665,7 +1657,7 @@ inline Instruction DynamicIsa::CreateStownbynamewithnameset(Instruction acc, std
                                                             Instruction input0) &&
 {
     const ApiConfig *conf = graph_.GetApiConfig();
-    AbckitString *abcStr = conf->cMapi_->createString(graph_.GetFile()->GetResource(), string.data());
+    AbckitString *abcStr = conf->cMapi_->createString(graph_.GetFile()->GetResource(), string.data(), string.size());
     CheckError(conf);
     AbckitInst *inst =
         conf->cDynapi_->iCreateStownbynamewithnameset(graph_.GetResource(), acc.GetView(), abcStr, input0.GetView());
@@ -1676,7 +1668,7 @@ inline Instruction DynamicIsa::CreateStownbynamewithnameset(Instruction acc, std
 inline Instruction DynamicIsa::CreateLdbigint(std::string_view string) &&
 {
     const ApiConfig *conf = graph_.GetApiConfig();
-    AbckitString *abcStr = conf->cMapi_->createString(graph_.GetFile()->GetResource(), string.data());
+    AbckitString *abcStr = conf->cMapi_->createString(graph_.GetFile()->GetResource(), string.data(), string.size());
     CheckError(conf);
     AbckitInst *inst = conf->cDynapi_->iCreateLdbigint(graph_.GetResource(), abcStr);
     CheckError(conf);
@@ -1686,7 +1678,7 @@ inline Instruction DynamicIsa::CreateLdbigint(std::string_view string) &&
 inline Instruction DynamicIsa::CreateLdthisbyname(std::string_view string) &&
 {
     const ApiConfig *conf = graph_.GetApiConfig();
-    AbckitString *abcStr = conf->cMapi_->createString(graph_.GetFile()->GetResource(), string.data());
+    AbckitString *abcStr = conf->cMapi_->createString(graph_.GetFile()->GetResource(), string.data(), string.size());
     CheckError(conf);
     AbckitInst *inst = conf->cDynapi_->iCreateLdthisbyname(graph_.GetResource(), abcStr);
     CheckError(conf);
@@ -1696,7 +1688,7 @@ inline Instruction DynamicIsa::CreateLdthisbyname(std::string_view string) &&
 inline Instruction DynamicIsa::CreateStthisbyname(Instruction acc, std::string_view string) &&
 {
     const ApiConfig *conf = graph_.GetApiConfig();
-    AbckitString *abcStr = conf->cMapi_->createString(graph_.GetFile()->GetResource(), string.data());
+    AbckitString *abcStr = conf->cMapi_->createString(graph_.GetFile()->GetResource(), string.data(), string.size());
     CheckError(conf);
     AbckitInst *inst = conf->cDynapi_->iCreateStthisbyname(graph_.GetResource(), acc.GetView(), abcStr);
     CheckError(conf);

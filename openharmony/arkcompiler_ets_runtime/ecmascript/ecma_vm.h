@@ -108,6 +108,8 @@ using RequestAotCallback =
 using SearchHapPathCallBack = std::function<bool(const std::string moduleName, std::string &hapPath)>;
 using DeviceDisconnectCallback = std::function<bool()>;
 using UncatchableErrorHandler = std::function<void(panda::TryCatch&)>;
+using OnAllErrorCallback = std::function<void(Local<ObjectRef> value, void *data)>;
+using StopPreLoadSoCallback = std::function<void()>;
 
 class EcmaVM {
 public:
@@ -164,6 +166,7 @@ public:
     void DisablePGOProfilerWithAOTFile(const std::string &aotFileName);
 
     bool PUBLIC_API IsEnablePGOProfiler() const;
+    bool PUBLIC_API IsEnableMutantArray() const;
     bool PUBLIC_API IsEnableElementsKind() const;
 
     bool Initialize();
@@ -359,6 +362,32 @@ public:
     {
         concurrentCallback_ = callback;
         concurrentData_ = data;
+    }
+
+    void SetOnAllErrorCallback(OnAllErrorCallback callback, void* data)
+    {
+        onAllErrorCallback_ = callback;
+        onAllErrorData_ = data;
+    }
+
+    OnAllErrorCallback GetOnAllErrorCallback()
+    {
+        return onAllErrorCallback_;
+    }
+
+    void* GetOnAllData()
+    {
+        return onAllErrorData_;
+    }
+    
+    void SetStopPreLoadSoCallback(const StopPreLoadSoCallback &cb)
+    {
+        stopPreLoadSoCallback_ = cb;
+    }
+
+    StopPreLoadSoCallback GetStopPreLoadSoCallback() const
+    {
+        return stopPreLoadSoCallback_;
     }
 
     void TriggerConcurrentCallback(JSTaggedValue result, JSTaggedValue hint);
@@ -879,6 +908,7 @@ private:
     CMap<CString, CString> pkgNameList_;
     CMap<CString, CMap<CString, CVector<CString>>> pkgContextInfoList_;
     CMap<CString, CString> pkgAliasList_;
+    StopPreLoadSoCallback stopPreLoadSoCallback_ {nullptr};
     NativePtrGetter nativePtrGetter_ {nullptr};
     SourceMapCallback sourceMapCallback_ {nullptr};
     SourceMapTranslateCallback sourceMapTranslateCallback_ {nullptr};
@@ -893,6 +923,10 @@ private:
     // Concurrent taskpool callback and data
     ConcurrentCallback concurrentCallback_ {nullptr};
     void *concurrentData_ {nullptr};
+
+    // AllError callback
+    OnAllErrorCallback onAllErrorCallback_ {nullptr};
+    void *onAllErrorData_ {nullptr};
 
     // serch happath callback
     SearchHapPathCallBack SearchHapPathCallBack_ {nullptr};

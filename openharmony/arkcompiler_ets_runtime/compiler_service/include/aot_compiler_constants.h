@@ -37,6 +37,7 @@ const std::string TARGET_COMPILER_MODE = "target-compiler-mode";
 const std::string COMPILER_PKG_INFO = "compiler-pkg-info";
 const std::string COMPILER_ENABLE_AOT_CODE_COMMENT = "compiler-enable-aot-code-comment";
 const std::string COMPILER_LOG_OPT = "compiler-log";
+const std::string COMPILER_AN_FILE_MAX_SIZE = "compiler-an-file-max-size";
 
 } // namespace ArgsIdx
 
@@ -114,6 +115,7 @@ std::unordered_set<std::string> AotArgsSet {
     "compiler-target-triple",
     "enable-print-execute-time",
     "enable-pgo-profiler",
+    "enable-mutant-array",
     "enable-elements-kind",
     "compiler-pgo-profiler-path",
     "compiler-pgo-hotness-threshold",
@@ -163,6 +165,7 @@ std::unordered_set<std::string> AotArgsSet {
     "compiler-baselinejit-hotness-threshold",
     "compiler-force-baselinejit-compile-main",
     "compiler-baseline-pgo",
+    "compiler-trace-builtins",
 };
 
 /**

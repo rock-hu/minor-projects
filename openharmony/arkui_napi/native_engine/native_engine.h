@@ -33,11 +33,12 @@
 #include "native_engine/native_deferred.h"
 #include "native_engine/native_reference.h"
 #include "native_engine/native_safe_async_work.h"
+#include "native_engine/native_event.h"
 #include "native_engine/native_value.h"
 #include "native_property.h"
 #include "reference_manager/native_reference_manager.h"
 #include "utils/macros.h"
-#include "libpandafile/data_protect.h"
+#include "utils/data_protect.h"
 
 namespace panda::ecmascript {
     class EcmaVM;
@@ -66,6 +67,40 @@ enum class WorkerVersion {
     NONE, OLD, NEW
 };
 
+class WorkerThreadState {
+public:
+    void CheckIdleState()
+    {
+        if (!isRunning_.load() && taskCount_ == lastTaskCount_) {
+            checkCount_++;
+            return;
+        }
+        checkCount_ = 0;
+        lastTaskCount_ = taskCount_;
+    }
+
+    uint32_t GetCheckCount()
+    {
+        return checkCount_;
+    }
+
+    void NoityTaskStart()
+    {
+        taskCount_ ++;
+        isRunning_.store(true);
+    }
+
+    void NotifyTaskEnd()
+    {
+        isRunning_.store(false);
+    }
+private:
+    std::atomic<bool> isRunning_ {false};
+    uint32_t taskCount_ {0};
+    uint32_t lastTaskCount_ {0};
+    uint32_t checkCount_ {0};
+};
+
 using CleanupCallback = void (*)(void*);
 using ThreadId = uint32_t;
 
@@ -85,7 +120,13 @@ using SourceMapTranslateCallback = std::function<bool(std::string& url, int& lin
 using AppFreezeFilterCallback = std::function<bool(const int32_t pid)>;
 using EcmaVM = panda::ecmascript::EcmaVM;
 using JsFrameInfo = panda::ecmascript::JsFrameInfo;
-
+using GetWorkerNameCallback = std::function<std::string(void* worker)>;
+using NapiOnAllErrorCallback = std::function<bool(napi_env env,
+    napi_value exception, std::string name, uint32_t type)>;
+using NapiAllUnhandledRejectionCallback = std::function<bool(napi_env env,
+    napi_value* args, std::string name, uint32_t type)>;
+using NapiAllPromiseRejectCallback = std::function<void(napi_value* args)>;
+using NapiHasOnAllErrorCallback = std::function<bool()>;
 class NAPI_EXPORT NativeEngine {
 public:
     explicit NativeEngine(void* jsEngine);
@@ -242,23 +283,23 @@ public:
     }
     bool IsWorkerThread() const
     {
-        return static_cast<JSThreadType>(jsThreadType_.GetOriginPointer()) == JSThreadType::WORKER_THREAD;
+        return static_cast<JSThreadType>(jsThreadType_.GetData()) == JSThreadType::WORKER_THREAD;
     }
     bool IsRestrictedWorkerThread() const
     {
-        return static_cast<JSThreadType>(jsThreadType_.GetOriginPointer()) == JSThreadType::RESTRICTEDWORKER_THREAD;
+        return static_cast<JSThreadType>(jsThreadType_.GetData()) == JSThreadType::RESTRICTEDWORKER_THREAD;
     }
     bool IsTaskPoolThread() const
     {
-        return static_cast<JSThreadType>(jsThreadType_.GetOriginPointer()) == JSThreadType::TASKPOOL_THREAD;
+        return static_cast<JSThreadType>(jsThreadType_.GetData()) == JSThreadType::TASKPOOL_THREAD;
     }
     bool IsMainThread() const
     {
-        return static_cast<JSThreadType>(jsThreadType_.GetOriginPointer()) == JSThreadType::MAIN_THREAD;
+        return static_cast<JSThreadType>(jsThreadType_.GetData()) == JSThreadType::MAIN_THREAD;
     }
     bool IsNativeThread() const
     {
-        return static_cast<JSThreadType>(jsThreadType_.GetOriginPointer()) == JSThreadType::NATIVE_THREAD;
+        return static_cast<JSThreadType>(jsThreadType_.GetData()) == JSThreadType::NATIVE_THREAD;
     }
 
     bool CheckAndSetWorkerVersion(WorkerVersion expected, WorkerVersion desired)
@@ -319,7 +360,6 @@ public:
     virtual NativeEngine* GetHostEngine() const;
     virtual void SetApiVersion(int32_t apiVersion);
     virtual int32_t GetApiVersion();
-    virtual int32_t GetRealApiVersion() const;
     virtual bool IsApplicationApiVersionAPI11Plus();
 
     virtual napi_status AddCleanupHook(CleanupCallback fun, void* arg);
@@ -441,7 +481,7 @@ public:
      */
     void SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate>& moduleCheckerDelegate);
 
-    virtual napi_value NapiLoadModule(const char* path, const char* module_info) = 0;
+    virtual napi_value NapiLoadModule(const char* path) = 0;
     virtual napi_value NapiLoadModuleWithInfo(const char* path, const char* module_info) = 0;
     virtual std::string GetPkgName(const std::string &moduleName) = 0;
 
@@ -467,8 +507,6 @@ public:
      */
     napi_status StopEventLoop();
 
-    napi_status SendEvent(const std::function<void()> &cb, napi_event_priority priority = napi_eprio_high);
-
     virtual bool IsCrossThreadCheckEnabled() const = 0;
 
     bool IsInDestructor() const
@@ -482,6 +520,36 @@ public:
         return g_mainThreadEngine_;
     }
 
+    void RegisterGetWorkerNameCallback(GetWorkerNameCallback callback, void* worker)
+    {
+        getWorkerNameCallback_ = callback;
+        worker_ = worker;
+    }
+
+    uint32_t GetJSThreadTypeInt()
+    {
+        return GetJSThreadType();
+    }
+
+    void SetTaskName(std::string taskName)
+    {
+        taskName_ = taskName;
+    }
+
+    std::string GetTaskName()
+    {
+        return taskName_;
+    }
+
+    void HandleTaskpoolException(napi_value exception, std::string taskName)
+    {
+        this->SetTaskName(taskName);
+        auto callback = this->GetNapiUncaughtExceptionCallback();
+        if (callback) {
+            callback(exception);
+        }
+    }
+
     static void SetMainThreadEngine(NativeEngine* engine)
     {
         if (g_mainThreadEngine_ == nullptr) {
@@ -492,10 +560,13 @@ public:
         }
     }
 
+    WorkerThreadState* GetWorkerThreadState()
+    {
+        return workerThreadState_;
+    }
+
 private:
     void InitUvField();
-    void CreateDefaultFunction(void);
-    void DestoryDefaultFunction(bool release);
 
     virtual NapiOptions *GetNapiOptions() const = 0;
 
@@ -524,6 +595,8 @@ protected:
     NativeErrorExtendedInfo lastError_;
 
     // register for worker
+    GetWorkerNameCallback getWorkerNameCallback_ {nullptr};
+    void* worker_ = nullptr;
     InitWorkerFunc initWorkerFunc_ {nullptr};
     GetAssetFunc getAssetFunc_ {nullptr};
     OffWorkerFunc offWorkerFunc_ {nullptr};
@@ -532,6 +605,7 @@ protected:
 #endif
     NativeEngine* hostEngine_ {nullptr};
     bool isAppModule_ = false;
+    WorkerThreadState* workerThreadState_;
 
 public:
     uint64_t openHandleScopes_ = 0;
@@ -550,13 +624,16 @@ private:
     uv_sem_t uvSem_;
     // Application's sdk version
     int32_t apiVersion_ = 8;
-    int32_t realApiVersion_ = 8;
 
     // the old worker api use before api9, the new worker api start with api9
     enum JSThreadType { MAIN_THREAD, WORKER_THREAD, TASKPOOL_THREAD, RESTRICTEDWORKER_THREAD, NATIVE_THREAD };
-    panda::panda_file::DataProtect jsThreadType_ {panda::panda_file::DataProtect(uintptr_t(JSThreadType::MAIN_THREAD))};
+    DataProtect jsThreadType_ {DataProtect(uintptr_t(JSThreadType::MAIN_THREAD))};
     // current is hostengine, can create old worker, new worker, or no workers on hostengine
     std::atomic<WorkerVersion> workerVersion_ { WorkerVersion::NONE };
+    JSThreadType GetJSThreadType()
+    {
+        return static_cast<JSThreadType>(jsThreadType_.GetData());
+    }
 
 #if !defined(PREVIEW)
     static void UVThreadRunner(void* nativeEngine);
@@ -580,6 +657,7 @@ private:
     std::mutex loopRunningMutex_;
     bool isLoopRunning_ = false;
     bool isInDestructor_ {false};
+    std::string taskName_ = "";
 
     // protect alived engine set and last engine id
     static std::mutex g_alivedEngineMutex_;
@@ -587,6 +665,67 @@ private:
     static uint64_t g_lastEngineId_;
     static std::mutex g_mainThreadEngineMutex_;
     static NativeEngine* g_mainThreadEngine_;
+
+public:
+    inline std::shared_mutex& GetEventMutex() const
+    {
+        return eventMutex_;
+    }
+
+    inline napi_threadsafe_function GetDefaultFunc()
+    {
+        return defaultFunc_;
+    }
+
+    inline static bool IsAliveLocked(NativeEngine* env)
+    {
+        return g_alivedEngine_.find(env) != g_alivedEngine_.end();
+    }
+
+    inline static std::mutex& GetAliveEngineMutex() {
+        return g_alivedEngineMutex_;
+    }
+};
+
+class NapiErrorManager {
+public:
+    static NapiErrorManager* GetInstance();
+
+    void RegisterOnAllErrorCallback(NapiOnAllErrorCallback callback)
+    {
+        onAllErrorCb_ = callback;
+    }
+
+    NapiOnAllErrorCallback &GetOnAllErrorCallback()
+    {
+        return onAllErrorCb_;
+    }
+
+    void RegisterAllUnhandledRejectionCallback(NapiAllUnhandledRejectionCallback callback)
+    {
+        allUnhandledRejectionCb_ = callback;
+    }
+
+    NapiAllUnhandledRejectionCallback &GetAllUnhandledRejectionCallback()
+    {
+        return allUnhandledRejectionCb_;
+    }
+
+    void RegisterHasOnAllErrorCallback(NapiHasOnAllErrorCallback callback)
+    {
+        hasOnAllErrorCb_ = callback;
+    }
+
+    NapiHasOnAllErrorCallback &GetHasAllErrorCallback()
+    {
+        return hasOnAllErrorCb_;
+    }
+
+private:
+    static NapiErrorManager *instance_;
+    NapiOnAllErrorCallback onAllErrorCb_ { nullptr };
+    NapiAllUnhandledRejectionCallback allUnhandledRejectionCb_ { nullptr };
+    NapiHasOnAllErrorCallback hasOnAllErrorCb_ { nullptr };
 };
 
 bool DumpHybridStack(const EcmaVM* vm, std::string &stack, uint32_t ignored = 0, int32_t deepth = -1);
@@ -605,5 +744,22 @@ public:
     }
 private:
    NativeEngine* engine_ = nullptr;
+};
+
+class WorkerRunningScope {
+public:
+    explicit WorkerRunningScope(napi_env env) : env_(env)
+    {
+        auto engine = reinterpret_cast<NativeEngine*>(env_);
+        engine->GetWorkerThreadState()->NoityTaskStart();
+    }
+
+    ~WorkerRunningScope()
+    {
+        auto engine = reinterpret_cast<NativeEngine*>(env_);
+        engine->GetWorkerThreadState()->NotifyTaskEnd();
+    }
+private:
+    napi_env env_;
 };
 #endif /* FOUNDATION_ACE_NAPI_NATIVE_ENGINE_NATIVE_ENGINE_H */

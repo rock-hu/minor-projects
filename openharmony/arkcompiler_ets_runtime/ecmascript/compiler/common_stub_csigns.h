@@ -48,6 +48,8 @@ namespace panda::ecmascript::kungfu {
     V(ToBooleanTrue)                  \
     V(ToBooleanFalse)                 \
     V(GetPropertyByName)              \
+    V(SetPropertyByNameWithMega)      \
+    V(GetPropertyByNameWithMega)      \
     V(DeprecatedGetPropertyByName)    \
     V(SetPropertyByName)              \
     V(DeprecatedSetPropertyByName)    \
@@ -114,17 +116,28 @@ namespace panda::ecmascript::kungfu {
     V(StringAdd)                      \
     V(Definefunc)                     \
     V(DefineField)                    \
+    V(CallArg0Stub)                   \
+    V(CallArg1Stub)                   \
+    V(CallArg2Stub)                   \
+    V(CallArg3Stub)                   \
+    V(CallThis0Stub)                  \
+    V(CallThis1Stub)                  \
+    V(CallThis2Stub)                  \
+    V(CallThis3Stub)                  \
     V(ConvertCharToInt32)             \
     V(ConvertCharToDouble)            \
     V(DeleteObjectProperty)           \
     V(SameValue)                      \
     V(StringIteratorNext)             \
-    V(VerifyBarrier)                  \
     V(ArrayIteratorNext)              \
     V(MapIteratorNext)                \
     V(SetIteratorNext)                \
     V(GetIterator)                    \
-    V(GrowElementsCapacity)
+    V(GrowElementsCapacity)           \
+    V(BatchBarrier)                   \
+    V(VerifyBarrier)                  \
+    V(MoveBarrierInRegion)            \
+    V(MoveBarrierCrossRegion)
 
 #define COMMON_STUB_ID_LIST(V)          \
     COMMON_STUB_LIST(V)

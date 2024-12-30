@@ -70,7 +70,6 @@
 #include "ecmascript/containers/containers_treeset.h"
 #include "ecmascript/containers/containers_vector.h"
 #include "ecmascript/containers/containers_bitvector.h"
-#include "ecmascript/runtime.h"
 #include "ecmascript/runtime_lock.h"
 #ifdef ARK_SUPPORT_INTL
 #include "ecmascript/builtins/builtins_collator.h"
@@ -1229,11 +1228,11 @@ void SnapshotProcessor::DeserializeSpaceObject(uintptr_t beginAddr, Space* space
         regionIndexMap_.emplace(regionIndex, region);
 
         ASAN_UNPOISON_MEMORY_REGION(reinterpret_cast<void *>(region->packedData_.begin_), liveObjectSize);
-        if (memcpy_s(ToVoidPtr(region->packedData_.begin_),
-                     liveObjectSize,
-                     ToVoidPtr(objectBeginAddr),
-                     liveObjectSize) != EOK) {
-            LOG_FULL(FATAL) << "memcpy_s failed";
+        if (errno_t ret = memcpy_s(ToVoidPtr(region->packedData_.begin_),
+                                   liveObjectSize,
+                                   ToVoidPtr(objectBeginAddr),
+                                   liveObjectSize); ret != EOK) {
+            LOG_FULL(FATAL) << "memcpy_s failed: " << ret;
             UNREACHABLE();
         }
 

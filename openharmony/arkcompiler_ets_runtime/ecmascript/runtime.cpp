@@ -14,13 +14,11 @@
  */
 
 #include "ecmascript/runtime.h"
-#include <memory>
 
 #include "ecmascript/checkpoint/thread_state_transition.h"
 #include "ecmascript/jit/jit.h"
 #include "ecmascript/jspandafile/program_object.h"
 #include "ecmascript/mem/heap-inl.h"
-#include "ecmascript/mem/mem_map_allocator.h"
 namespace panda::ecmascript {
 using PGOProfilerManager = pgo::PGOProfilerManager;
 
@@ -327,8 +325,6 @@ void Runtime::ProcessNativeDeleteInSharedGC(const WeakRootVisitor &visitor)
                 if (fwd == nullptr) {
                     int32_t constpoolIndex =
                         ConstantPool::Cast(constpoolVal.GetTaggedObject())->GetUnsharedConstpoolIndex();
-                    ASSERT(0 <= constpoolIndex && constpoolIndex != ConstantPool::CONSTPOOL_TYPE_FLAG &&
-                        constpoolIndex < UNSHARED_CONSTANTPOOL_COUNT);
                     EraseUnusedConstpool(iterator->first, constpoolIter->first, constpoolIndex);
                     constpoolIter = constpools.erase(constpoolIter);
                     // when shared constpool is not referenced by any objects,

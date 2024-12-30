@@ -1481,7 +1481,7 @@ void BuiltinsTypedArrayStubBuilder::Filter(GateRef glue, GateRef thisValue, Gate
                 BRANCH(Int32LessThan(*i, *newArrayLen), &next2, &loopExit2);
                 Bind(&next2);
                 {
-                    GateRef kValue = arrayStubBuilder.GetTaggedValueWithElementsKind(kept, *i);
+                    GateRef kValue = arrayStubBuilder.GetTaggedValueWithElementsKind(glue, kept, *i);
                     StoreTypedArrayElement(glue, newArray, ZExtInt32ToInt64(*i), kValue, arrayType);
                     Jump(&loopEnd2);
                 }
@@ -2879,18 +2879,54 @@ void BuiltinsTypedArrayStubBuilder::SetValueToBuffer(GateRef glue, GateRef value
             Label valueIsDouble(env);
             GateRef byteIndex = Int32Add(index, offset);
             GateRef block = GetDataPointFromBuffer(buffer);
+            Label overFlow(env);
+            Label underFlow(env);
+            GateRef topValue = Int32(static_cast<uint32_t>(UINT8_MAX));
+            GateRef bottomValue = Int32(0U);
             BRANCH(valueType, &valueIsInt, &valueIsDouble);
             Bind(&valueIsInt);
             {
-                GateRef val = TruncInt32ToInt8(TruncInt64ToInt32(ChangeTaggedPointerToInt64(value)));
-                Store(VariableType::INT8(), glue, block, byteIndex, val);
-                Jump(&exit);
+                Label notOverFlow1(env);
+                Label notUnderFlow1(env);
+                GateRef tmpVal = TruncInt64ToInt32(ChangeTaggedPointerToInt64(value));
+                BRANCH(Int32GreaterThan(tmpVal, topValue), &overFlow, &notOverFlow1);
+                Bind(&notOverFlow1);
+                {
+                    BRANCH(Int32LessThan(tmpVal, bottomValue), &underFlow, &notUnderFlow1);
+                    Bind(&notUnderFlow1);
+                    {
+                        GateRef val = TruncInt32ToInt8(tmpVal);
+                        Store(VariableType::INT8(), glue, block, byteIndex, val);
+                        Jump(&exit);
+                    }
+                }
             }
             Bind(&valueIsDouble);
             {
-                GateRef val = TruncInt32ToInt8(ChangeFloat64ToInt32(CastInt64ToFloat64(
-                    ChangeTaggedPointerToInt64(value))));
-                Store(VariableType::INT8(), glue, block, byteIndex, val);
+                GateRef dVal = GetDoubleOfTDouble(value);
+                GateRef integer = ChangeFloat64ToInt32(dVal);
+                Label notOverFlow2(env);
+                Label notUnderFlow2(env);
+                BRANCH(Int32GreaterThan(integer, topValue), &overFlow, &notOverFlow2);
+                Bind(&notOverFlow2);
+                {
+                    BRANCH(BitOr(Int32LessThan(integer, bottomValue), DoubleIsNAN(dVal)), &underFlow, &notUnderFlow2);
+                    Bind(&notUnderFlow2);
+                    {
+                        GateRef val = CallNGCRuntime(glue, RTSTUB_ID(LrInt), { dVal });
+                        Store(VariableType::INT8(), glue, block, byteIndex, val);
+                        Jump(&exit);
+                    }
+                }
+            }
+            Bind(&overFlow);
+            {
+                Store(VariableType::INT8(), glue, block, byteIndex, Int8(static_cast<uint8_t>(UINT8_MAX)));
+                Jump(&exit);
+            }
+            Bind(&underFlow);
+            {
+                Store(VariableType::INT8(), glue, block, byteIndex, Int8(0));
                 Jump(&exit);
             }
         }
@@ -3403,7 +3439,7 @@ void BuiltinsTypedArrayStubBuilder::FastCopyFromArrayToTypedArray(GateRef glue, 
     Label next(env);
     Label setValue(env);
     Label isTagged(env);
-    Label elementsKindEnabled(env);
+    Label mutantArrayEnabled(env);
 
     GateRef buffer = GetViewedArrayBufferOrByteArray(result->ReadVariable());
     if (!typedArrayFromCtor) {
@@ -3423,8 +3459,8 @@ void BuiltinsTypedArrayStubBuilder::FastCopyFromArrayToTypedArray(GateRef glue, 
     } else {
         targetByteIndex = Int32Add(Int32Mul(targetOffset, elementSize), targetByteOffset);
     }
-    BRANCH(IsEnableElementsKind(glue), &elementsKindEnabled, &isTagged);
-    Bind(&elementsKindEnabled);
+    BRANCH(IsEnableMutantArray(glue), &mutantArrayEnabled, &isTagged);
+    Bind(&mutantArrayEnabled);
     {
         CopyElementsToArrayBuffer(glue, srcLength, array, buffer, targetByteIndex, arrayType, true);
         Jump(check);
@@ -3457,7 +3493,7 @@ void BuiltinsTypedArrayStubBuilder::CopyElementsToArrayBuffer(GateRef glue, Gate
         BRANCH(Int32UnsignedLessThan(*i, srcLength), &storeValue, &exit);
         Bind(&storeValue);
         {
-            GateRef value = getWithKind ? GetTaggedValueWithElementsKind(array, *i)
+            GateRef value = getWithKind ? GetTaggedValueWithElementsKind(glue, array, *i)
                                         : GetValueFromTaggedArray(elementsArray, *i);
             GateRef val = ToNumber(glue, value);
             BRANCH(HasPendingException(glue), &exit, &copyElement);

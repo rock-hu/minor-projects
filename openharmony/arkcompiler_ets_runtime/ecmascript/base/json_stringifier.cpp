@@ -17,14 +17,12 @@
 
 #include "ecmascript/global_dictionary-inl.h"
 #include "ecmascript/interpreter/interpreter.h"
-#include "ecmascript/js_api/js_api_hashmap.h"
 #include "ecmascript/js_api/js_api_hashset.h"
 #include "ecmascript/js_map.h"
 #include "ecmascript/js_primitive_ref.h"
 #include "ecmascript/js_set.h"
 #include "ecmascript/object_fast_operator-inl.h"
 #include "ecmascript/shared_objects/js_shared_map.h"
-#include "ecmascript/shared_objects/js_shared_set.h"
 #include "ecmascript/tagged_hash_array.h"
 
 namespace panda::ecmascript::base {
@@ -241,6 +239,7 @@ JSHandle<JSTaggedValue> JsonStringifier::SerializeHolder(const JSHandle<JSTagged
 JSTaggedValue JsonStringifier::SerializeJSONProperty(const JSHandle<JSTaggedValue> &value,
                                                      const JSHandle<JSTaggedValue> &replacer)
 {
+    STACK_LIMIT_CHECK(thread_, JSTaggedValue::Exception());
     JSTaggedValue tagValue = value.GetTaggedValue();
     if (!tagValue.IsHeapObject()) {
         JSTaggedType type = tagValue.GetRawData();
@@ -493,7 +492,7 @@ bool JsonStringifier::SerializeJSONObject(const JSHandle<JSTaggedValue> &value, 
             }
         } else {
             uint32_t numOfKeys = obj->GetNumberOfKeys();
-            uint32_t numOfElements = obj->GetNumberOfElements();
+            uint32_t numOfElements = obj->GetNumberOfElements(thread_);
             if (numOfElements > 0) {
                 hasContent = JsonStringifier::SerializeElements(obj, replacer, hasContent);
                 RETURN_VALUE_IF_ABRUPT_COMPLETION(thread_, false);
@@ -882,9 +881,9 @@ bool JsonStringifier::SerializeElements(const JSHandle<JSObject> &obj, const JSH
     if (!ElementAccessor::IsDictionaryMode(obj)) {
         uint32_t elementsLen = ElementAccessor::GetElementsLength(obj);
         for (uint32_t i = 0; i < elementsLen; ++i) {
-            if (!ElementAccessor::Get(obj, i).IsHole()) {
+            if (!ElementAccessor::Get(thread_, obj, i).IsHole()) {
                 handleKey_.Update(JSTaggedValue(i));
-                handleValue_.Update(ElementAccessor::Get(obj, i));
+                handleValue_.Update(ElementAccessor::Get(thread_, obj, i));
                 hasContent = JsonStringifier::AppendJsonString(obj, replacer, hasContent);
                 RETURN_VALUE_IF_ABRUPT_COMPLETION(thread_, false);
             }

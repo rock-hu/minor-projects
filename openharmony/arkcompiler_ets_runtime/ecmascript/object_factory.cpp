@@ -16,7 +16,6 @@
 #include "ecmascript/dfx/native_module_failure_info.h"
 #include "ecmascript/builtins/builtins.h"
 #include "ecmascript/builtins/builtins_errors.h"
-#include "ecmascript/ecma_string_table.h"
 #include "ecmascript/ecma_string-inl.h"
 #include "ecmascript/ic/ic_handler.h"
 #include "ecmascript/ic/profile_type_info.h"
@@ -386,7 +385,7 @@ JSHandle<JSArrayBuffer> ObjectFactory::NewJSArrayBuffer(void *buffer, int32_t le
 JSHandle<JSDataView> ObjectFactory::NewJSDataView(JSHandle<JSArrayBuffer> buffer, uint32_t offset, uint32_t length)
 {
     uint32_t arrayLength = buffer->GetArrayBufferByteLength();
-    if (arrayLength - offset < length) {
+    if (arrayLength < static_cast<uint64_t>(offset) + length) {
         THROW_TYPE_ERROR_AND_RETURN(thread_, "offset or length error",
                                     JSHandle<JSDataView>(thread_, JSTaggedValue::Undefined()));
     }
@@ -1124,6 +1123,17 @@ JSHandle<JSObject> ObjectFactory::NewJSObjectByConstructor(const JSHandle<JSFunc
                 auto properties = NewAndCopySNameDictionary(dict, dict->GetLength());
                 obj->SetProperties(thread_, properties);
             }
+            if (constructor->IsClassConstructor()) {
+                JSTaggedValue elementsDic =
+                    constructor->GetPropertyInlinedProps(ClassInfoExtractor::SENDABLE_ELEMENTS_INDEX);
+                if (elementsDic.IsDictionary()) {
+                    JSHandle<TaggedArray> elementsDicHld(thread_, elementsDic);
+                    JSHandle<TaggedArray> elements =
+                        NewAndCopySNameDictionary(elementsDicHld, elementsDicHld->GetLength());
+                    obj->SetElements(thread_, elements);
+                    jshclass->SetIsDictionaryElement(true);
+                }
+            }
             InitializeJSObject(obj, jshclass);
         } else {
             obj = NewJSObjectWithInit(jshclass);
@@ -1165,11 +1175,57 @@ JSHandle<JSObject> ObjectFactory::NewJSObjectByConstructor(const JSHandle<JSFunc
             auto properties = NewAndCopySNameDictionary(dict, dict->GetLength());
             obj->SetProperties(thread_, properties);
         }
+        if (constructor->IsClassConstructor() && newTarget->IsClassConstructor()) {
+            JSTaggedValue elementsDicOfCtor =
+                constructor->GetPropertyInlinedProps(ClassInfoExtractor::SENDABLE_ELEMENTS_INDEX);
+            JSTaggedValue elementsDicOfTrg =
+                JSHandle<JSFunction>(newTarget)->GetPropertyInlinedProps(ClassInfoExtractor::SENDABLE_ELEMENTS_INDEX);
+            if (elementsDicOfCtor.IsDictionary() && elementsDicOfTrg.IsDictionary()) {
+                JSHandle<TaggedArray> elements;
+                MergeSendableClassElementsDic(elements, JSHandle<JSTaggedValue>(thread_, elementsDicOfCtor),
+                                              JSHandle<JSTaggedValue>(thread_, elementsDicOfTrg));
+                obj->SetElements(thread_, elements);
+                jshclass->SetIsDictionaryElement(true);
+            }
+        }
         InitializeJSObject(obj, jshclass);
     } else {
         obj = NewJSObjectWithInit(jshclass);
     }
     return obj;
+}
+
+void ObjectFactory::MergeSendableClassElementsDic(JSHandle<TaggedArray> &elements,
+                                                  const JSHandle<JSTaggedValue> &elementsDicOfCtorVal,
+                                                  const JSHandle<JSTaggedValue> &elementsDicOfTrgVal)
+{
+    JSHandle<JSTaggedValue> undefinedVal = thread_->GlobalConstants()->GetHandledUndefined();
+
+    JSHandle<TaggedArray> elementsDicOfCtorHdl(elementsDicOfCtorVal);
+    if (elementsDicOfCtorVal.GetTaggedValue() == elementsDicOfTrgVal.GetTaggedValue()) {
+        elements = NewAndCopySNameDictionary(elementsDicOfCtorHdl, elementsDicOfCtorHdl->GetLength());
+    } else {
+        JSHandle<TaggedArray> elementsDicDicOfTrgHdl(elementsDicOfTrgVal);
+        JSHandle<NumberDictionary> elementsDicOfCtor(elementsDicOfCtorVal);
+        JSMutableHandle<JSTaggedValue> key(thread_, JSTaggedValue::Undefined());
+
+        JSMutableHandle<NumberDictionary> newElementsDicUpdate(thread_, elementsDicOfCtor);
+        uint32_t headerSize = 4;
+        for (uint32_t i = headerSize; i < elementsDicDicOfTrgHdl->GetLength(); i++) {
+            key.Update(elementsDicDicOfTrgHdl->Get(i));
+            if (key->IsInt()) {
+                JSHandle<NumberDictionary> elementsDicOfTrg(elementsDicOfTrgVal);
+
+                int entry = elementsDicOfTrg->FindEntry(key.GetTaggedValue());
+                PropertyAttributes attributes = elementsDicOfTrg->GetAttributes(entry);
+                JSHandle<NumberDictionary> newElementsDic =
+                    NumberDictionary::Put(thread_, elementsDicOfCtor, key, undefinedVal, attributes);
+                newElementsDicUpdate.Update(newElementsDic);
+            }
+        }
+        JSHandle<TaggedArray> newElementsDicHld(newElementsDicUpdate);
+        elements = NewAndCopySNameDictionary(newElementsDicHld, newElementsDicHld->GetLength());
+    }
 }
 
 JSHandle<JSObject> ObjectFactory::NewJSObjectWithInit(const JSHandle<JSHClass> &jshclass)
@@ -2705,7 +2761,7 @@ JSHandle<JSObject> ObjectFactory::NewAndCopyJSArrayObject(JSHandle<JSObject> thi
         return JSHandle<JSObject>(arrayObj);
     }
     for (uint32_t i = 0; i < oldLength; i++) {
-        JSHandle<JSTaggedValue> value(thread_, ElementAccessor::Get(thisObjHandle, i + k));
+        JSHandle<JSTaggedValue> value(thread_, ElementAccessor::Get(thread_, thisObjHandle, i + k));
         ElementAccessor::Set(thread_, arrayObj, i, value, true);
     }
     for (uint32_t i = oldLength; i < newLength; i++) {
@@ -2727,7 +2783,7 @@ JSHandle<TaggedArray> ObjectFactory::NewAndCopyTaggedArrayByObject(JSHandle<JSOb
     }
 
     for (uint32_t i = 0; i < oldLength; i++) {
-        dstElements->Set(thread_, i, ElementAccessor::Get(thisObjHandle, i + k));
+        dstElements->Set(thread_, i, ElementAccessor::Get(thread_, thisObjHandle, i + k));
     }
     for (uint32_t i = oldLength; i < newLength; i++) {
         dstElements->Set(thread_, i, JSTaggedValue::Hole());
@@ -2750,7 +2806,7 @@ JSHandle<MutantTaggedArray> ObjectFactory::NewAndCopyMutantTaggedArrayByObject(J
     for (uint32_t i = 0; i < oldLength; i++) {
         ElementsKind kind = thisObjHandle->GetClass()->GetElementsKind();
         JSTaggedValue value = JSTaggedValue(ElementAccessor::ConvertTaggedValueWithElementsKind(
-            ElementAccessor::Get(thisObjHandle, i + k), kind));
+            ElementAccessor::Get(thread_, thisObjHandle, i + k), kind));
         dstElements->Set<false>(thread_, i, value);
     }
     for (uint32_t i = oldLength; i < newLength; i++) {
@@ -3380,7 +3436,7 @@ JSHandle<ProfileTypeInfo> ObjectFactory::NewProfileTypeInfo(uint32_t icSlotSize)
         array->SetJitHotnessThreshold(threshold);
         threshold = vm_->GetJSOptions().GetOsrHotnessThreshold();
         array->SetOsrHotnessThreshold(threshold);
-        uint8_t jitCallThreshold = vm_->GetJSOptions().GetJitCallThreshold();
+        uint16_t jitCallThreshold = vm_->GetJSOptions().GetJitCallThreshold();
         array->SetJitCallThreshold(jitCallThreshold);
     }
     if (vm_->IsEnableBaselineJit()) {
@@ -4752,7 +4808,7 @@ JSHandle<SourceTextModule> ObjectFactory::NewSourceTextModule()
     obj->SetPendingAsyncDependencies(SourceTextModule::UNDEFINED_INDEX);
     obj->SetDFSIndex(SourceTextModule::UNDEFINED_INDEX);
     obj->SetDFSAncestorIndex(SourceTextModule::UNDEFINED_INDEX);
-    obj->SetEvaluationError(SourceTextModule::UNDEFINED_INDEX);
+    obj->SetException(thread_, JSTaggedValue::Hole());
     obj->SetStatus(ModuleStatus::UNINSTANTIATED);
     obj->SetTypes(ModuleTypes::UNKNOWN);
     obj->SetIsNewBcVersion(false);
@@ -4954,6 +5010,7 @@ JSHandle<ProfileTypeInfoCell> ObjectFactory::NewProfileTypeInfoCell(const JSHand
     JSHandle<ProfileTypeInfoCell> profileTypeInfoCell(thread_, header);
     profileTypeInfoCell->SetValue(thread_, value.GetTaggedValue());
     profileTypeInfoCell->SetMachineCode(thread_, JSTaggedValue::Hole());
+    profileTypeInfoCell->SetBaselineCode(thread_, JSTaggedValue::Hole());
     profileTypeInfoCell->SetHandle(thread_, JSTaggedValue::Undefined());
     return profileTypeInfoCell;
 }

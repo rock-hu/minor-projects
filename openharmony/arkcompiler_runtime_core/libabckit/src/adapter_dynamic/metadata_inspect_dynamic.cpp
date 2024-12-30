@@ -24,6 +24,7 @@
 #include "libabckit/src/statuses_impl.h"
 #include "libabckit/src/wrappers/graph_wrapper/graph_wrapper.h"
 #include "libabckit/src/wrappers/abcfile_wrapper.h"
+#include "libabckit/src/adapter_static/ir_static.h"
 
 #include "assembler/assembly-emitter.h"
 #include "assembler/annotation.h"
@@ -74,7 +75,8 @@ AbckitString *NamespaceGetNameDynamic(AbckitCoreNamespace *n)
     auto name = func->name;
     size_t sharpPos = name.rfind('#');
     ASSERT(sharpPos != std::string::npos);
-    return CreateStringDynamic(n->owningModule->file, name.substr(sharpPos + 1).data());
+    auto subname = name.substr(sharpPos + 1);
+    return CreateStringDynamic(n->owningModule->file, subname.data(), subname.size());
 }
 
 // ========================================
@@ -91,7 +93,7 @@ AbckitString *ClassGetNameDynamic(AbckitCoreClass *klass)
     auto *scopesLitArr = mPayload->scopeNamesLiteralArray;
     auto name = GetClassNameFromCtor(func->name, scopesLitArr);
 
-    return CreateStringDynamic(klass->owningModule->file, name.data());
+    return CreateStringDynamic(klass->owningModule->file, name.data(), name.size());
 }
 
 // ========================================
@@ -114,7 +116,7 @@ AbckitString *FunctionGetNameDynamic(AbckitCoreFunction *function)
         }
     }
 
-    return CreateStringDynamic(function->owningModule->file, name.data());
+    return CreateStringDynamic(function->owningModule->file, name.data(), name.size());
 }
 
 AbckitGraph *CreateGraphFromFunctionDynamic(AbckitCoreFunction *function)
@@ -154,6 +156,7 @@ AbckitGraph *CreateGraphFromFunctionDynamic(AbckitCoreFunction *function)
     if (statuses::GetLastError() != AbckitStatus::ABCKIT_STATUS_NO_ERROR) {
         return nullptr;
     }
+    LIBABCKIT_LOG_DUMP(GdumpStatic(graph, STDERR_FILENO), DEBUG);
 
     ASSERT(graph->file == file);
     graph->function = function;
@@ -196,7 +199,7 @@ AbckitString *AnnotationInterfaceGetNameDynamic(AbckitCoreAnnotationInterface *a
 {
     LIBABCKIT_LOG_FUNC;
     auto name = pandasm::GetItemName(ai->GetArkTSImpl()->GetDynamicImpl()->name);
-    return CreateStringDynamic(ai->owningModule->file, name.data());
+    return CreateStringDynamic(ai->owningModule->file, name.data(), name.size());
 }
 
 // ========================================
@@ -217,7 +220,7 @@ AbckitString *ImportDescriptorGetNameDynamic(AbckitCoreImportDescriptor *i)
         auto importNameOffset = sectionOffset + idPayload->moduleRecordIndexOff * 3 + 1;
         return std::get<std::string>(moduleLitArr->GetDynamicImpl()->literals_[importNameOffset].value_);
     }();
-    return CreateStringDynamic(i->importingModule->file, name.data());
+    return CreateStringDynamic(i->importingModule->file, name.data(), name.size());
 }
 
 AbckitString *ImportDescriptorGetAliasDynamic(AbckitCoreImportDescriptor *i)
@@ -232,7 +235,7 @@ AbckitString *ImportDescriptorGetAliasDynamic(AbckitCoreImportDescriptor *i)
         auto importNameOffset = sectionOffset + idPayload->moduleRecordIndexOff * gap;
         return std::get<std::string>(moduleLitArr->GetDynamicImpl()->literals_[importNameOffset].value_);
     }();
-    return CreateStringDynamic(i->importingModule->file, name.data());
+    return CreateStringDynamic(i->importingModule->file, name.data(), name.size());
 }
 
 // ========================================
@@ -262,7 +265,7 @@ AbckitString *ExportDescriptorGetNameDynamic(AbckitCoreExportDescriptor *i)
         }
         return std::get<std::string>(moduleLitArr->GetDynamicImpl()->literals_[exportNameOffset].value_);
     }();
-    return CreateStringDynamic(i->exportingModule->file, name.data());
+    return CreateStringDynamic(i->exportingModule->file, name.data(), name.size());
 }
 
 AbckitString *ExportDescriptorGetAliasDynamic(AbckitCoreExportDescriptor *i)
@@ -291,7 +294,7 @@ AbckitString *ExportDescriptorGetAliasDynamic(AbckitCoreExportDescriptor *i)
         }
         return std::get<std::string>(moduleLitArr->GetDynamicImpl()->literals_[exportNameOffset].value_);
     }();
-    return CreateStringDynamic(i->exportingModule->file, name.data());
+    return CreateStringDynamic(i->exportingModule->file, name.data(), name.size());
 }
 
 // ========================================
@@ -578,7 +581,7 @@ AbckitString *ValueGetStringDynamic(AbckitValue *value)
 
     auto *pVal = reinterpret_cast<pandasm::ScalarValue *>(value->val.get());
     auto valImpl = pVal->GetValue<std::string>();
-    return CreateStringDynamic(value->file, valImpl.data());
+    return CreateStringDynamic(value->file, valImpl.data(), valImpl.size());
 }
 
 AbckitLiteralArray *ArrayValueGetLiteralArrayDynamic(AbckitValue *value)

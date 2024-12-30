@@ -875,7 +875,8 @@ void BaselineCreateobjectwithbufferImm8Id16StubBuilder::GenerateCircuit()
     GateRef currentEnv = GetEnvFromFrame(frame);
     GateRef module = GetModuleFromFunction(curFunc);
     GateRef result = GetObjectLiteralFromConstPool(glue, constpool, imm, module);
-    GateRef res = CallRuntime(glue, RTSTUB_ID(CreateObjectHavingMethod), { result, currentEnv });
+    NewObjectStubBuilder newBuilder(this);
+    GateRef res = newBuilder.CreateObjectHavingMethod(glue, result, currentEnv);
     callback.ProfileCreateObject(res);
     CHECK_EXCEPTION_WITH_ACC(res);
 }
@@ -894,7 +895,8 @@ void BaselineCreateobjectwithbufferImm16Id16StubBuilder::GenerateCircuit()
     GateRef currentEnv = GetEnvFromFrame(GetFrame(sp));
     GateRef module = GetModuleFromFunction(curFunc);
     GateRef result = GetObjectLiteralFromConstPool(glue, constpool, imm, module);
-    GateRef res = CallRuntime(glue, RTSTUB_ID(CreateObjectHavingMethod), { result, currentEnv });
+    NewObjectStubBuilder newBuilder(this);
+    GateRef res = newBuilder.CreateObjectHavingMethod(glue, result, currentEnv);
     callback.ProfileCreateObject(res);
     CHECK_EXCEPTION_WITH_ACC(res);
 }
@@ -1520,7 +1522,10 @@ void BaselineDefinefuncImm8Id16Imm8StubBuilder::GenerateCircuit()
         GateRef currentFunc = GetFunctionFromFrame(frame);
         SetModuleToFunction(glue, result, GetModuleFromFunction(currentFunc));
         SetHomeObjectToFunction(glue, result, GetHomeObjectFromFunction(currentFunc));
+#if ECMASCRIPT_ENABLE_IC
+        UpdateProfileTypeInfoCellToFunction(glue, result, profileTypeInfo, slotId);
         callback.ProfileDefineClass(result);
+#endif
         Return(result);
     }
 }
@@ -1550,7 +1555,10 @@ void BaselineDefinefuncImm16Id16Imm8StubBuilder::GenerateCircuit()
         GateRef currentFunc = GetFunctionFromFrame(frame);
         SetModuleToFunction(glue, result, GetModuleFromFunction(currentFunc));
         SetHomeObjectToFunction(glue, result, GetHomeObjectFromFunction(currentFunc));
+#if ECMASCRIPT_ENABLE_IC
+        UpdateProfileTypeInfoCellToFunction(glue, result, profileTypeInfo, slotId);
         callback.ProfileDefineClass(result);
+#endif
         Return(result);
     }
 }
@@ -2015,21 +2023,22 @@ void BaselineDefineclasswithbufferImm8Id16Id16Imm16V8StubBuilder::GenerateCircui
 {
     GateRef glue = PtrArgument(PARAM_INDEX(BaselineDefineclasswithbufferImm8Id16Id16Imm16V8, GLUE));
     GateRef sp = PtrArgument(PARAM_INDEX(BaselineDefineclasswithbufferImm8Id16Id16Imm16V8, SP));
-    GateRef methodId = Int32Argument(PARAM_INDEX(BaselineDefineclasswithbufferImm8Id16Id16Imm16V8, METHOD_ID));
-    GateRef literalId = Int32Argument(PARAM_INDEX(BaselineDefineclasswithbufferImm8Id16Id16Imm16V8, LITERRAL_ID));
+    GateRef methodLiteralId =
+        Int32Argument(PARAM_INDEX(BaselineDefineclasswithbufferImm8Id16Id16Imm16V8, METHOD_LITERIAL_ID));
     GateRef length = Int32Argument(PARAM_INDEX(BaselineDefineclasswithbufferImm8Id16Id16Imm16V8, LENGTH));
     GateRef v0 = Int32Argument(PARAM_INDEX(BaselineDefineclasswithbufferImm8Id16Id16Imm16V8, V0));
-    ProfileOperation callback;
+    GateRef slotId = Int32Argument(PARAM_INDEX(BaselineDefineclasswithbufferImm8Id16Id16Imm16V8, SLOT_ID));
+    GateRef methodId = Int32And(methodLiteralId, Int32(TWO_BYTE_ALL_ONE));
+    GateRef literalId = Int32And(Int32LSR(methodLiteralId, Int32(TWO_BYTE_SIZE)), Int32(TWO_BYTE_ALL_ONE));
+    DEFINE_PROFILE_CALLBACK(glue, sp, slotId);
     GateRef proto = GetVregValue(sp, ZExtInt8ToPtr(v0));
 
-    GateRef frame = GetFrame(sp);
-    GateRef currentFunc = GetFunctionFromFrame(frame);
-    GateRef method = GetMethodFromFunction(currentFunc);
+    GateRef method = GetMethodFromFunction(curFunc);
     GateRef constpool = GetConstpoolFromMethod(method);
 
     auto env = GetEnvironment();
     GateRef lexicalEnv = GetEnvFromFrame(frame);
-    GateRef module = GetModuleFromFunction(currentFunc);
+    GateRef module = GetModuleFromFunction(curFunc);
     GateRef res = CallRuntime(glue, RTSTUB_ID(CreateClassWithBuffer),
                               { proto, lexicalEnv, constpool,
                                 Int16ToTaggedInt(methodId),
@@ -2046,7 +2055,10 @@ void BaselineDefineclasswithbufferImm8Id16Id16Imm16V8StubBuilder::GenerateCircui
         Return(acc);
     }
     Bind(&isNotException);
+#if ECMASCRIPT_ENABLE_IC
+    UpdateProfileTypeInfoCellToFunction(glue, res, profileTypeInfo, slotId);
     callback.ProfileDefineClass(res);
+#endif
     Return(res);
 }
 
@@ -2087,7 +2099,10 @@ void BaselineDefineclasswithbufferImm16Id16Id16Imm16V8StubBuilder::GenerateCircu
         Return(res);
     }
     Bind(&isNotException);
+#if ECMASCRIPT_ENABLE_IC
+    UpdateProfileTypeInfoCellToFunction(glue, res, profileTypeInfo, slotId);
     callback.ProfileDefineClass(res);
+#endif
     Return(res);
 }
 
@@ -3072,9 +3087,12 @@ void BaselineStsuperbynameImm16Id16V8StubBuilder::GenerateCircuit()
 void BaselineLdlocalmodulevarImm8StubBuilder::GenerateCircuit()
 {
     GateRef glue = PtrArgument(PARAM_INDEX(BaselineLdlocalmodulevarImm8, GLUE));
+    GateRef sp = PtrArgument(PARAM_INDEX(BaselineLdlocalmodulevarImm8, SP));
     GateRef index = Int32Argument(PARAM_INDEX(BaselineLdlocalmodulevarImm8, INDEX));
+    GateRef currentFunc = GetFunctionFromFrame(GetFrame(sp));
 
-    GateRef moduleRef = CallRuntime(glue, RTSTUB_ID(LdLocalModuleVarByIndex), { Int8ToTaggedInt(index) });
+    GateRef module = GetModuleFromFunction(currentFunc);
+    GateRef moduleRef = Loadlocalmodulevar(glue, index, module);
     Return(moduleRef);
 }
 
@@ -3367,9 +3385,9 @@ void BaselineReturnStubBuilder::GenerateCircuit()
     {
         GateRef varProfileTypeInfoVal = *varProfileTypeInfo;
         GateRef isProfileDumpedAndJitCompiled = LogicAndBuilder(env)
-            .And(ProfilerStubBuilder(env).IsProfileTypeInfoDumped(varProfileTypeInfoVal, callback))
             .And(ProfilerStubBuilder(env).IsCompiledOrTryCompile(
-                glue, GetFunctionFromFrame(frame), varProfileTypeInfoVal, callback))
+                glue, GetFunctionFromFrame(frame), varProfileTypeInfoVal, callback, pc))
+            .And(ProfilerStubBuilder(env).IsProfileTypeInfoDumped(varProfileTypeInfoVal, callback))
             .Done();
         BRANCH(isProfileDumpedAndJitCompiled, &tryContinue, &updateHotness);
     }
@@ -5642,9 +5660,9 @@ void BaselineReturnundefinedStubBuilder::GenerateCircuit()
     {
         GateRef varProfileTypeInfoVal = *varProfileTypeInfo;
         GateRef isProfileDumpedAndJitCompiled = LogicAndBuilder(env)
-            .And(ProfilerStubBuilder(env).IsProfileTypeInfoDumped(varProfileTypeInfoVal, callback))
             .And(ProfilerStubBuilder(env).IsCompiledOrTryCompile(
-                glue, GetFunctionFromFrame(frame), varProfileTypeInfoVal, callback))
+                glue, GetFunctionFromFrame(frame), varProfileTypeInfoVal, callback, pc))
+            .And(ProfilerStubBuilder(env).IsProfileTypeInfoDumped(varProfileTypeInfoVal, callback))
             .Done();
         BRANCH(isProfileDumpedAndJitCompiled, &tryContinue, &updateHotness);
     }
@@ -5895,9 +5913,12 @@ void BaselineUpdateHotnessStubBuilder::GenerateCircuit()
         varHotnessCounter = Int32(EcmaInterpreter::METHOD_HOTNESS_THRESHOLD);
         Label initialized(env);
         Label callRuntime(env);
-        BRANCH(BitOr(TaggedIsUndefined(*varProfileTypeInfo),
-                     Int8Equal(interruptsFlag, Int8(VmThreadControl::VM_NEED_SUSPENSION))),
-            &callRuntime, &initialized);
+        BRANCH(Int8Equal(interruptsFlag, Int8(VmThreadControl::VM_NEED_SUSPENSION)), &callRuntime, &initialized);
+        Bind(&initialized);
+        ProfilerStubBuilder profiler(this);
+        profiler.TryJitCompile(glue, { offset, 0, false }, func, profileTypeInfo);
+        Jump(&exitLabel);
+
         Bind(&callRuntime);
         varProfileTypeInfo = CallRuntime(glue, RTSTUB_ID(UpdateHotnessCounterWithProf), { func });
 
@@ -5908,10 +5929,6 @@ void BaselineUpdateHotnessStubBuilder::GenerateCircuit()
             DISPATCH_LAST();
             Return();
         }
-        Bind(&initialized);
-        ProfilerStubBuilder profiler(this);
-        profiler.TryJitCompile(glue, { offset, 0, false }, func, profileTypeInfo);
-        Jump(&exitLabel);
     }
     Bind(&exitLabel);
     SetHotnessCounter(glue, method, *varHotnessCounter);

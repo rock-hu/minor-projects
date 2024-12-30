@@ -13,19 +13,13 @@
  * limitations under the License.
  */
 
-#include <cmath>
-#include <cfenv>
-#include <sstream>
-#include <sys/time.h>
 
 #include "ecmascript/stubs/runtime_optimized_stubs-inl.h"
 #include "ecmascript/stubs/runtime_stubs-inl.h"
 #include "ecmascript/base/json_stringifier.h"
 #include "ecmascript/base/typed_array_helper-inl.h"
 #include "ecmascript/builtins/builtins_array.h"
-#include "ecmascript/builtins/builtins_arraybuffer.h"
 #include "ecmascript/js_stable_array.h"
-#include "ecmascript/builtins/builtins_arraybuffer.h"
 #include "ecmascript/builtins/builtins_bigint.h"
 #include "ecmascript/builtins/builtins_function.h"
 #include "ecmascript/builtins/builtins_iterator.h"
@@ -41,7 +35,6 @@
 #include "ecmascript/interpreter/interpreter_assembly.h"
 #include "ecmascript/interpreter/slow_runtime_stub.h"
 #include "ecmascript/jit/jit.h"
-#include "ecmascript/js_array_iterator.h"
 #include "ecmascript/js_map_iterator.h"
 #include "ecmascript/js_set_iterator.h"
 #include "ecmascript/js_string_iterator.h"
@@ -589,13 +582,18 @@ DEF_RUNTIME_STUBS(UpdateHClassForElementsKind)
         return JSTaggedValue::Hole().GetRawData();
     }
 
-    if (!thread->GetEcmaVM()->IsEnableElementsKind()) {
+    if (thread->IsEnableElementsKind() || thread->IsPGOProfilerEnable()) {
         // Update TrackInfo
-        if (!thread->IsPGOProfilerEnable()) {
-            return JSTaggedValue::Hole().GetRawData();
-        }
-        auto trackInfoVal = JSHandle<JSArray>(receiver)->GetTrackInfo();
-        thread->GetEcmaVM()->GetPGOProfiler()->UpdateTrackElementsKind(trackInfoVal, kind);
+        JSHandle<JSArray>(receiver)->UpdateTrackInfo(thread);
+    }
+
+    if (!thread->IsPGOProfilerEnable()) {
+        return JSTaggedValue::Hole().GetRawData();
+    }
+    JSTaggedValue trackInfoVal = JSHandle<JSArray>(receiver)->GetTrackInfo();
+    if (trackInfoVal.IsHeapObject() && trackInfoVal.IsWeak()) {
+        TrackInfo *trackInfo = TrackInfo::Cast(trackInfoVal.GetWeakReferentUnChecked());
+        thread->GetEcmaVM()->GetPGOProfiler()->UpdateTrackInfo(JSTaggedValue(trackInfo));
     }
     return JSTaggedValue::Hole().GetRawData();
 }
@@ -1916,6 +1914,14 @@ DEF_RUNTIME_STUBS(LdSendableExternalModuleVarByIndex)
     JSTaggedValue index = GetArg(argv, argc, 0);  // 0: means the zeroth parameter
     JSTaggedValue jsFunc = GetArg(argv, argc, 1); // 1: means the first parameter
     return RuntimeLdSendableExternalModuleVar(thread, index.GetInt(), jsFunc).GetRawData();
+}
+
+DEF_RUNTIME_STUBS(LdSendableLocalModuleVarByIndex)
+{
+    RUNTIME_STUBS_HEADER(LdSendableLocalModuleVarByIndex);
+    JSTaggedValue index = GetArg(argv, argc, 0);  // 0: means the zeroth parameter
+    JSTaggedValue jsFunc = GetArg(argv, argc, 1); // 1: means the first parameter
+    return RuntimeLdSendableLocalModuleVar(thread, index.GetInt(), jsFunc).GetRawData();
 }
 
 DEF_RUNTIME_STUBS(LdLazyExternalModuleVarByIndex)
@@ -3330,6 +3336,12 @@ int32_t RuntimeStubs::SaturateTruncDoubleToInt32(double x)
     return base::NumberHelper::SaturateTruncDoubleToInt32(x);
 }
 
+uint8_t RuntimeStubs::LrInt(double x)
+{
+    DISALLOW_GARBAGE_COLLECTION;
+    return static_cast<uint8_t>(std::lrint(x));
+}
+
 void RuntimeStubs::InsertNewToEdenRSet([[maybe_unused]] uintptr_t argGlue,
     uintptr_t object, size_t offset)
 {
@@ -3568,14 +3580,14 @@ JSTaggedValue RuntimeStubs::CallBoundFunction(EcmaRuntimeCallInfo *info)
 DEF_RUNTIME_STUBS(DeoptHandler)
 {
     RUNTIME_STUBS_HEADER(DeoptHandler);
-    size_t depth = static_cast<size_t>(GetTArg(argv, argc, 1));
+    size_t depth = static_cast<size_t>(GetArg(argv, argc, 1).GetInt());
     Deoptimizier deopt(thread, depth);
     std::vector<kungfu::ARKDeopt> deoptBundle;
     deopt.CollectDeoptBundleVec(deoptBundle);
     ASSERT(!deoptBundle.empty());
     size_t shift = Deoptimizier::ComputeShift(depth);
     deopt.CollectVregs(deoptBundle, shift);
-    kungfu::DeoptType type = static_cast<kungfu::DeoptType>(GetTArg(argv, argc, 0));
+    kungfu::DeoptType type = static_cast<kungfu::DeoptType>(GetArg(argv, argc, 0).GetInt());
     deopt.UpdateAndDumpDeoptInfo(type);
     return deopt.ConstructAsmInterpretFrame();
 }
@@ -3612,6 +3624,22 @@ DEF_RUNTIME_STUBS(AotInlineBuiltinTrace)
 
     auto builtinId = static_cast<kungfu::BuiltinsStubCSigns::ID>(GetArg(argv, argc, 1).GetInt());
     LOG_TRACE(INFO) << "aot inline builtin: " << kungfu::BuiltinsStubCSigns::GetBuiltinName(builtinId)
+                    << ", caller function name:" << callerFullName;
+    return JSTaggedValue::Undefined().GetRawData();
+}
+
+DEF_RUNTIME_STUBS(AotCallBuiltinTrace)
+{
+    RUNTIME_STUBS_HEADER(AotCallBuiltinTrace);
+    JSTaggedValue callerFunc = GetArg(argv, argc, 0);
+    JSFunction *callerJSFunc = JSFunction::Cast(callerFunc);
+    Method *callerMethod = Method::Cast(callerJSFunc->GetMethod());
+    auto callerRecordName = callerMethod->GetRecordNameStr();
+    const std::string callerFuncName(callerMethod->GetMethodName());
+    std::string callerFullName = callerFuncName + "@" + std::string(callerRecordName);
+
+    auto builtinId = static_cast<kungfu::BuiltinsStubCSigns::ID>(GetArg(argv, argc, 1).GetInt());
+    LOG_TRACE(INFO) << "aot call builtin: " << kungfu::BuiltinsStubCSigns::GetBuiltinName(builtinId)
                     << ", caller function name:" << callerFullName;
     return JSTaggedValue::Undefined().GetRawData();
 }
@@ -3853,7 +3881,15 @@ DEF_RUNTIME_STUBS(ParseInt)
 int RuntimeStubs::FastArraySort(JSTaggedType x, JSTaggedType y)
 {
     DISALLOW_GARBAGE_COLLECTION;
-    return JSTaggedValue::IntLexicographicCompare(JSTaggedValue(x), JSTaggedValue(y));
+    JSTaggedValue xValue = JSTaggedValue(x);
+    JSTaggedValue yValue = JSTaggedValue(y);
+    if (xValue.IsInt() && yValue.IsInt()) {
+        return JSTaggedValue::IntLexicographicCompare(xValue, yValue);
+    }
+    if (xValue.IsDouble() && yValue.IsDouble()) {
+        return JSTaggedValue::DoubleLexicographicCompare(xValue, yValue);
+    }
+    return -1;
 }
 
 int RuntimeStubs::FastArraySortString(uintptr_t argGlue, JSTaggedValue x, JSTaggedValue y)
@@ -3905,6 +3941,16 @@ bool RuntimeStubs::IsFastRegExp(uintptr_t argGlue, JSTaggedValue thisValue)
 {
     auto thread = JSThread::GlueToJSThread(argGlue);
     return builtins::BuiltinsRegExp::IsFastRegExp(thread, thisValue);
+}
+
+RememberedSet* RuntimeStubs::CreateLocalToShare(Region* region)
+{
+    return region->CreateLocalToShareRememberedSet();
+}
+
+RememberedSet* RuntimeStubs::CreateOldToNew(Region* region)
+{
+    return region->CreateOldToNewRememberedSet();
 }
 
 template <typename T>
@@ -4015,6 +4061,106 @@ void RuntimeStubs::FinishObjSizeTracking(JSHClass *cls)
         // UpdateObjSize with finalInObjPropsNum
         JSHClass::VisitTransitionAndUpdateObjSize(cls, finalInObjPropsNum);
     }
+}
+
+void RuntimeStubs::FillObject(JSTaggedType *dst, JSTaggedType value, uint32_t count)
+{
+    DISALLOW_GARBAGE_COLLECTION;
+    std::fill_n(dst, count, value);
+}
+
+DEF_RUNTIME_STUBS(TraceLoadSlowPath)
+{
+#if ECMASCRIPT_ENABLE_TRACE_LOAD
+    auto thread = JSThread::GlueToJSThread(argGlue);
+    auto target_bundle_name = thread->GetEcmaVM()->GetJSOptions().GetTraceLoadBundleName();
+    if (thread->GetEcmaVM()->GetBundleName() != ConvertToString(target_bundle_name)) {
+        return JSTaggedValue::Undefined().GetRawData();
+    }
+
+    ECMA_BYTRACE_START_TRACE(HITRACE_TAG_ARK, "[dfx]TraceLoadSlowPath");
+#endif
+    return JSTaggedValue::Undefined().GetRawData();
+}
+
+DEF_RUNTIME_STUBS(TraceLoadGetter)
+{
+#if ECMASCRIPT_ENABLE_TRACE_LOAD
+    auto thread = JSThread::GlueToJSThread(argGlue);
+    auto target_bundle_name = thread->GetEcmaVM()->GetJSOptions().GetTraceLoadBundleName();
+    if (thread->GetEcmaVM()->GetBundleName() != ConvertToString(target_bundle_name)) {
+        return JSTaggedValue::Undefined().GetRawData();
+    }
+
+    ECMA_BYTRACE_START_TRACE(HITRACE_TAG_ARK, "[DFX]TraceLoadGetter");
+#endif
+    return JSTaggedValue::Undefined().GetRawData();
+}
+
+DEF_RUNTIME_STUBS(TraceLoadDetail)
+{
+#if ECMASCRIPT_ENABLE_TRACE_LOAD
+    auto thread = JSThread::GlueToJSThread(argGlue);
+    auto target_bundle_name = thread->GetEcmaVM()->GetJSOptions().GetTraceLoadBundleName();
+    if (thread->GetEcmaVM()->GetBundleName() != ConvertToString(target_bundle_name)) {
+        return JSTaggedValue::Undefined().GetRawData();
+    }
+
+    JSHandle<JSTaggedValue> receiver = GetHArg<JSTaggedValue>(argv, argc, 0);
+    JSHandle<JSTaggedValue> profile = GetHArg<JSTaggedValue>(argv, argc, 1);
+    JSTaggedValue slotId = GetArg(argv, argc, 2);
+    CString msg = "[DFX]Trace Load Detail: ";
+    if (profile->IsUndefined()) {
+        msg += "ProfileTypeInfo Undefine";
+    } else {
+        auto prof = JSHandle<ProfileTypeInfo>::Cast(profile);
+        auto slot = slotId.GetInt();
+        auto first = prof->GetIcSlot(slot);
+        if (first.IsHole()) {
+            auto second = prof->GetIcSlot(slot + 1);
+            if (second.IsHole()) {
+                msg += "other-mega, ";
+            // 1: Call SetAsMegaDFX and set it to 1 (for placeholder purposes)..
+            } else if (second == JSTaggedValue(ProfileTypeAccessor::MegaState::NOTFOUND_MEGA)) {
+                msg += "not_found-mage, ";
+            // 2: Call SetAsMegaDFX and set it to 2 (for placeholder purposes).
+            } else if (second == JSTaggedValue(ProfileTypeAccessor::MegaState::DICT_MEGA)) {
+                msg += "dictionary-mega, ";
+            } else if (second.IsString()) {
+                msg += "ic-mega, ";
+            } else {
+                msg += "unkown-mega, ";
+            }
+        } else if (first.IsUndefined()) {
+            msg += "undedfine slot, ";
+        } else if (first.IsWeak()) {
+            msg += "mono, ";
+        } else {
+            msg += "poly, ";
+        }
+    }
+    if (!receiver->IsHeapObject()) {
+        msg += "prim_obj";
+    } else {
+        msg += "heap_obj";
+    }
+    ECMA_BYTRACE_START_TRACE(HITRACE_TAG_ARK, msg);
+#endif
+    return JSTaggedValue::Undefined().GetRawData();
+}
+
+DEF_RUNTIME_STUBS(TraceLoadEnd)
+{
+#if ECMASCRIPT_ENABLE_TRACE_LOAD
+    auto thread = JSThread::GlueToJSThread(argGlue);
+    auto target_bundle_name = thread->GetEcmaVM()->GetJSOptions().GetTraceLoadBundleName();
+    if (thread->GetEcmaVM()->GetBundleName() != ConvertToString(target_bundle_name)) {
+        return JSTaggedValue::Undefined().GetRawData();
+    }
+
+    ECMA_BYTRACE_FINISH_TRACE(HITRACE_TAG_ARK);
+#endif
+    return JSTaggedValue::Undefined().GetRawData();
 }
 
 DEF_RUNTIME_STUBS(ArrayForEachContinue)
@@ -4228,6 +4374,18 @@ DEF_RUNTIME_STUBS(SlowSharedObjectStoreBarrier)
     return publishValue.GetTaggedValue().GetRawData();
 }
 
+void RuntimeStubs::ObjectCopy(JSTaggedType *dst, JSTaggedType *src, uint32_t count)
+{
+    DISALLOW_GARBAGE_COLLECTION;
+    std::copy_n(src, count, dst);
+}
+
+void RuntimeStubs::ReverseArray(JSTaggedType *dst, uint32_t length)
+{
+    DISALLOW_GARBAGE_COLLECTION;
+    std::reverse(dst, dst + length);
+}
+
 void RuntimeStubs::Initialize(JSThread *thread)
 {
 #define DEF_RUNTIME_STUB(name) kungfu::RuntimeStubCSigns::ID_##name
@@ -4235,6 +4393,7 @@ void RuntimeStubs::Initialize(JSThread *thread)
     thread->RegisterRTInterface(DEF_RUNTIME_STUB(name), reinterpret_cast<uintptr_t>(name));
     RUNTIME_STUB_WITHOUT_GC_LIST(INITIAL_RUNTIME_FUNCTIONS)
     RUNTIME_STUB_WITH_GC_LIST(INITIAL_RUNTIME_FUNCTIONS)
+    RUNTIME_STUB_WITH_DFX(INITIAL_RUNTIME_FUNCTIONS)
     TEST_RUNTIME_STUB_GC_LIST(INITIAL_RUNTIME_FUNCTIONS)
 #undef INITIAL_RUNTIME_FUNCTIONS
 #undef DEF_RUNTIME_STUB

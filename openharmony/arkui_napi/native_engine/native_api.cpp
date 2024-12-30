@@ -57,7 +57,6 @@ using panda::ecmascript::EcmaVM;
 static constexpr size_t MAX_BYTE_LENGTH = 2097152;
 static constexpr size_t ONEMIB_BYTE_SIZE = 1048576;
 static constexpr size_t SMALL_STRING_SIZE = 16;
-static constexpr int32_t API_VERSION_FOURTEEN = 14;
 
 class HandleScopeWrapper {
 public:
@@ -513,12 +512,7 @@ NAPI_EXTERN napi_status napi_create_type_error(napi_env env, napi_value code, na
     auto msgValue = LocalValueFromJsValue(msg);
     RETURN_STATUS_IF_FALSE(env, msgValue->IsString(vm), napi_invalid_arg);
 
-    Local<panda::JSValueRef> errorVal;
-    if (reinterpret_cast<NativeEngine*>(env)->GetRealApiVersion() < API_VERSION_FOURTEEN) {
-        errorVal = panda::Exception::Error(vm, msgValue);
-    } else {
-        errorVal = panda::Exception::TypeError(vm, msgValue);
-    }
+    Local<panda::JSValueRef> errorVal = panda::Exception::Error(vm, msgValue);
     if (code != nullptr) {
         Local<panda::StringRef> codeKey = panda::StringRef::NewFromUtf8(vm, "code");
         Local<panda::ObjectRef> errorObj(errorVal);
@@ -546,12 +540,7 @@ NAPI_EXTERN napi_status napi_create_range_error(napi_env env, napi_value code, n
     auto msgValue = LocalValueFromJsValue(msg);
     RETURN_STATUS_IF_FALSE(env, msgValue->IsString(vm), napi_invalid_arg);
 
-    Local<panda::JSValueRef> errorVal;
-    if (reinterpret_cast<NativeEngine*>(env)->GetRealApiVersion() < API_VERSION_FOURTEEN) {
-        errorVal = panda::Exception::Error(vm, msgValue);
-    } else {
-        errorVal = panda::Exception::RangeError(vm, msgValue);
-    }
+    Local<panda::JSValueRef> errorVal = panda::Exception::Error(vm, msgValue);
     if (code != nullptr) {
         Local<panda::StringRef> codeKey = panda::StringRef::NewFromUtf8(vm, "code");
         Local<panda::ObjectRef> errorObj(errorVal);
@@ -943,16 +932,8 @@ NAPI_EXTERN napi_status napi_has_own_property(napi_env env, napi_value object, n
 
     auto vm = reinterpret_cast<NativeEngine*>(env)->GetEcmaVm();
     panda::JsiFastNativeScope fastNativeScope(vm);
-    Local<panda::JSValueRef> hasResult;
-
-    if (reinterpret_cast<NativeEngine*>(env)->GetRealApiVersion() < API_VERSION_FOURTEEN) {
-        hasResult = JSNApi::NapiHasProperty(vm, reinterpret_cast<uintptr_t>(object),
-                                            reinterpret_cast<uintptr_t>(key));
-    } else {
-        hasResult = JSNApi::NapiHasOwnProperty(vm, reinterpret_cast<uintptr_t>(object),
-                                               reinterpret_cast<uintptr_t>(key));
-    }
-
+    auto hasResult = JSNApi::NapiHasOwnProperty(vm, reinterpret_cast<uintptr_t>(object),
+                                                reinterpret_cast<uintptr_t>(key));
     RETURN_STATUS_IF_FALSE(env, NapiStatusValidationCheck(hasResult), napi_object_expected);
     if (result) {
         *result = hasResult->BooleaValue(vm);
@@ -2995,7 +2976,7 @@ NAPI_EXTERN napi_status napi_load_module(napi_env env, const char* path, napi_va
     NAPI_PREAMBLE(env);
     CHECK_ARG(env, result);
     auto engine = reinterpret_cast<NativeEngine*>(env);
-    *result = engine->NapiLoadModule(path, nullptr);
+    *result = engine->NapiLoadModule(path);
     return GET_RETURN_STATUS(env);
 }
 
@@ -3883,7 +3864,7 @@ NAPI_EXTERN napi_status napi_queue_async_work_with_qos(napi_env env, napi_async_
     CHECK_ARG(env, work);
 
     auto asyncWork = reinterpret_cast<NativeAsyncWork*>(work);
-    asyncWork->QueueWithQos(qos);
+    asyncWork->QueueWithQos(reinterpret_cast<NativeEngine*>(env), qos);
     return napi_status::napi_ok;
 }
 
@@ -4086,22 +4067,6 @@ NAPI_EXTERN napi_status napi_call_threadsafe_function_with_priority(napi_threads
         HILOG_ERROR("post task failed due to error %{public}d", res);
     }
     return res;
-}
-
-NAPI_EXTERN napi_status napi_send_event(napi_env env, const std::function<void()> cb, napi_event_priority priority)
-{
-    CHECK_ENV(env);
-
-    if (priority < napi_eprio_vip || priority > napi_eprio_idle) {
-        HILOG_ERROR("invalid priority %{public}d", static_cast<int32_t>(priority));
-        return napi_status::napi_invalid_arg;
-    }
-    NativeEngine *eng = reinterpret_cast<NativeEngine *>(env);
-    if (NativeEngine::IsAlive(eng)) {
-        return eng->SendEvent(cb, priority);
-    } else {
-        return napi_status::napi_closing;
-    }
 }
 
 NAPI_EXTERN napi_status napi_open_fast_native_scope(napi_env env, napi_fast_native_scope* scope)

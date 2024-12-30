@@ -21,6 +21,25 @@
 #include "ecmascript/property_detector-inl.h"
 
 namespace panda::ecmascript {
+bool ObjectOperator::TryFastHandleStringKey(const JSHandle<JSTaggedValue> &key)
+{
+    if (!EcmaStringAccessor(key->GetTaggedObject()).IsInternString()) {
+        return false;
+    }
+    if (EcmaStringAccessor(key->GetTaggedObject()).IsInteger()) {
+        elementIndex_ = EcmaStringAccessor(key->GetTaggedObject()).GetIntegerCode();
+        return true;
+    }
+    if (EcmaStringAccessor(key->GetTaggedObject()).GetLength() <= EcmaString::MAX_CACHED_INTEGER_SIZE) {
+        // Since the range of hash values is of the int32 type,
+        // the IsInteger() function can only accurately determine
+        // a string whose length is less than or equal to MAX_CACHED_INTEGER_SIZE is not a number.
+        key_ = key;
+        return true;
+    }
+    return false;
+}
+
 void ObjectOperator::HandleKey(const JSHandle<JSTaggedValue> &key)
 {
     if (key->IsInt()) {
@@ -35,8 +54,13 @@ void ObjectOperator::HandleKey(const JSHandle<JSTaggedValue> &key)
 
     if (key->IsString()) {
         keyFromStringType_ = true;
+#ifdef ENABLE_NEXT_OPTIMIZATION
+        if (TryFastHandleStringKey(key)) {
+            return;
+        }
+#endif
         uint32_t index = 0;
-        if (JSTaggedValue::ToElementIndex(key.GetTaggedValue(), &index)) {
+        if (JSTaggedValue::StringToElementIndex(key.GetTaggedValue(), &index)) {
             ASSERT(index < JSObject::MAX_ELEMENT_INDEX);
             elementIndex_ = index;
             return;
@@ -83,15 +107,25 @@ void ObjectOperator::HandleKey(const JSHandle<JSTaggedValue> &key)
 
 void ObjectOperator::UpdateHolder()
 {
-    if (holder_->IsString() && (GetThroughElement() || GetStringLength())) {
-        JSHandle<JSTaggedValue> undefined = thread_->GlobalConstants()->GetHandledUndefined();
-        holder_.Update(JSPrimitiveRef::StringCreate(thread_, holder_, undefined).GetTaggedValue());
-    } else {
-        if (holder_->IsString() || holder_->IsNumber()) {
+#ifdef ENABLE_NEXT_OPTIMIZATION
+    if (holder_->IsECMAObject()) {
+        return;
+    }
+#endif
+    if (holder_->IsString()) {
+        if (CheckValidIndexOrKeyIsLength()) {
+            // key is 'length' of string or key is index and this index < strLength
+            JSHandle<JSTaggedValue> undefined = thread_->GlobalConstants()->GetHandledUndefined();
+            holder_.Update(JSPrimitiveRef::StringCreate(thread_, holder_, undefined).GetTaggedValue());
+            // holder updated
+            return;
+        } else {
             SetIsOnPrototype(true);
         }
-        holder_.Update(JSTaggedValue::ToPrototypeOrObj(thread_, holder_).GetTaggedValue());
+    } else if (holder_->IsNumber()) {
+        SetIsOnPrototype(true);
     }
+    holder_.Update(JSTaggedValue::ToPrototypeOrObj(thread_, holder_).GetTaggedValue());
 }
 
 void ObjectOperator::StartLookUp(OperatorType type)
@@ -101,6 +135,7 @@ void ObjectOperator::StartLookUp(OperatorType type)
     if (type == OperatorType::OWN) {
         LookupPropertyInHolder();
     } else {
+        // try find property in prototype chain
         LookupProperty();
     }
 }
@@ -455,30 +490,27 @@ void ObjectOperator::GlobalLookupProperty()
     if (IsFound()) {
         return;
     }
-    JSTaggedValue proto = JSTaggedValue::GetPrototype(thread_, holder_);
-    RETURN_IF_ABRUPT_COMPLETION(thread_);
-    if (!proto.IsHeapObject()) {
-        return;
-    }
-    holder_.Update(proto);
-    if (holder_->IsJSProxy()) {
-        return;
-    }
-    SetIsOnPrototype(true);
-    LookupProperty();
+    IsElement()
+        ? TryLookupInProtoChain<true>()
+        : TryLookupInProtoChain<false>();
 }
 
-void ObjectOperator::LookupProperty()
+template<bool isElement>
+bool ObjectOperator::ShouldContinuelyLookupInProtoChain()
 {
-    while (true) {
-        if (holder_->IsJSProxy()) {
-            return;
+    if constexpr (isElement) {
+        if (holder_->IsTypedArray()) {
+            // 10.4.5.3 typedArray do not need to lookup property in prototype chain when key is element.
+            return false;
         }
-        LookupPropertyInHolder();
-        if (IsFound()) {
-            return;
-        }
+    }
+    return true;
+}
 
+template<bool isElement>
+void ObjectOperator::TryLookupInProtoChain()
+{
+    do {
         JSTaggedValue proto = JSTaggedValue::GetPrototype(thread_, holder_);
         RETURN_IF_ABRUPT_COMPLETION(thread_);
         if (!proto.IsHeapObject()) {
@@ -487,6 +519,31 @@ void ObjectOperator::LookupProperty()
 
         holder_.Update(proto);
         SetIsOnPrototype(true);
+        if (holder_->IsJSProxy()) {
+            return;
+        }
+        JSHandle<JSObject> obj(holder_);
+        if constexpr (isElement) {
+            LookupElementInlinedProps(obj);
+        } else {
+            LookupPropertyInlinedProps(obj);
+        }
+        if (!ShouldContinuelyLookupInProtoChain<isElement>()) {
+            return;
+        }
+    } while (!IsFound());
+}
+
+void ObjectOperator::LookupProperty()
+{
+    if (holder_->IsJSProxy()) {
+        return;
+    }
+    LookupPropertyInHolder();
+    if (!IsFound()) {
+        IsElement()
+            ? TryLookupInProtoChain<true>()
+            : TryLookupInProtoChain<false>();
     }
 }
 
@@ -513,11 +570,7 @@ void ObjectOperator::LookupGlobal(const JSHandle<JSObject> &obj)
 
 void ObjectOperator::LookupPropertyInlinedProps(const JSHandle<JSObject> &obj)
 {
-    if (IsElement()) {
-        LookupElementInlinedProps(obj);
-        return;
-    }
-
+    ASSERT(!IsElement());
     if (!obj.GetTaggedValue().IsJSObject()) {
         return;
     }
@@ -648,6 +701,20 @@ bool ObjectOperator::UpdateValueAndDetails(const JSHandle<JSObject> &receiver, c
     return res;
 }
 
+bool ObjectOperator::SetTypedArrayPropByIndex(const JSHandle<JSObject> &receiver, const JSHandle<JSTaggedValue> &value)
+{
+    JSTaggedValue holder = receiver.GetTaggedValue();
+    JSType jsType = holder.GetTaggedObject()->GetClass()->GetObjectType();
+    JSTaggedValue typedArrayProperty =
+        JSTypedArray::FastSetPropertyByIndex(thread_, receiver.GetTaggedValue(),
+                                             GetIndex(), value.GetTaggedValue(), jsType);
+    RETURN_VALUE_IF_ABRUPT_COMPLETION(thread_, false);
+    if (typedArrayProperty.IsHole() || typedArrayProperty.IsUndefined()) {
+        return false;
+    }
+    return true;
+}
+
 bool ObjectOperator::UpdateDataValue(const JSHandle<JSObject> &receiver, const JSHandle<JSTaggedValue> &value,
                                      bool isInternalAccessor, bool mayThrow)
 {
@@ -657,15 +724,7 @@ bool ObjectOperator::UpdateDataValue(const JSHandle<JSObject> &receiver, const J
             if (receiver.GetTaggedValue().IsJSCOWArray()) {
                 JSArray::CheckAndCopyArray(thread_, JSHandle<JSArray>(receiver));
             } else if (receiver->IsTypedArray()) {
-                JSTaggedValue holder = receiver.GetTaggedValue();
-                JSType jsType = holder.GetTaggedObject()->GetClass()->GetObjectType();
-                JSTaggedValue typedArrayProperty = JSTypedArray::FastSetPropertyByIndex(thread_,
-                    receiver.GetTaggedValue(), GetIndex(), value.GetTaggedValue(), jsType);
-                RETURN_VALUE_IF_ABRUPT_COMPLETION(thread_, false);
-                if (typedArrayProperty.IsHole()) {
-                    return false;
-                }
-                return true;
+                return SetTypedArrayPropByIndex(receiver, value);
             }
             ElementsKind oldKind = receiver->GetClass()->GetElementsKind();
             if (JSHClass::TransitToElementsKind(thread_, receiver, value)) {
@@ -979,7 +1038,7 @@ void ObjectOperator::LookupElementInlinedProps(const JSHandle<JSObject> &obj)
             JSTaggedValue val = JSTypedArray::FastElementGet(thread_,
                 JSHandle<JSTaggedValue>::Cast(obj), elementIndex_).GetValue().GetTaggedValue();
             RETURN_IF_ABRUPT_COMPLETION(thread_);
-            if (!val.IsHole()) {
+            if (!val.IsUndefined()) {
                 SetFound(elementIndex_, val, PropertyAttributes::GetDefaultAttributes(), !IsFoundDict());
             }
             return;
@@ -994,7 +1053,7 @@ void ObjectOperator::LookupElementInlinedProps(const JSHandle<JSObject> &obj)
                 return;
             }
 
-            JSTaggedValue value = ElementAccessor::Get(obj, elementIndex_);
+            JSTaggedValue value = ElementAccessor::Get(thread_, obj, elementIndex_);
             if (value.IsHole()) {
                 return;
             }

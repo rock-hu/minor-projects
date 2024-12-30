@@ -517,7 +517,6 @@ public:
     bool PUBLIC_API IsJSCOWArray() const;
     bool IsStableJSArray(JSThread *thread) const;
     bool IsStableJSArguments(JSThread *thread) const;
-    bool HasStableElements(JSThread *thread) const;
     bool IsTypedArray() const;
     bool IsJSTypedArray() const;
     bool IsJSInt8Array() const;
@@ -706,6 +705,7 @@ public:
     static ComparisonResult Compare(JSThread *thread, const JSHandle<JSTaggedValue> &x,
                                     const JSHandle<JSTaggedValue> &y);
     static int IntLexicographicCompare(JSTaggedValue x, JSTaggedValue y);
+    static int DoubleLexicographicCompare(JSTaggedValue x, JSTaggedValue y);
     static ComparisonResult StrictNumberCompare(double x, double y);
     static bool StrictNumberEquals(double x, double y);
     static bool StrictIntEquals(int x, int y);
@@ -713,6 +713,7 @@ public:
 
     static JSHandle<JSTaggedValue> ToPrototypeOrObj(JSThread *thread, const JSHandle<JSTaggedValue> &obj);
     inline uint32_t GetKeyHashCode() const;
+    uint32_t GetStringKeyHashCode() const;
     static JSTaggedValue GetSuperBase(JSThread *thread, const JSHandle<JSTaggedValue> &obj);
     static JSTaggedValue TryCastDoubleToInt32(double d);
 
@@ -721,6 +722,7 @@ public:
     void Dump(std::ostream &os, bool isPrivacy = false) const DUMP_API_ATTR;
     void D() const DUMP_API_ATTR;
     void DumpForSnapshot(std::vector<Reference> &vec, bool isVmMode = true) const;
+    static void DesensitizedDump(const JSHandle<JSTaggedValue> &obj);
     static void DV(JSTaggedType val) DUMP_API_ATTR;
     friend std::ostream& operator<<(std::ostream& os, const JSTaggedValue& value)
     {

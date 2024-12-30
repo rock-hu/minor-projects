@@ -43,6 +43,7 @@ import { WhitelistType } from '../utils/TransformUtil';
 import { endFilesEvent, startFilesEvent } from '../utils/PrinterUtils';
 import { MemoryDottingDefine } from '../utils/MemoryDottingDefine';
 import { initScanProjectConfigByMergeConfig, scanProjectConfig, resetScanProjectConfig } from '../common/ApiReader';
+import type { HvigorErrorInfo } from '../common/type';
 
 enum OptionType {
   NONE,
@@ -58,6 +59,7 @@ enum OptionType {
   ENABLE_TOPLEVEL_OBFUSCATION,
   ENABLE_FILENAME_OBFUSCATION,
   ENABLE_EXPORT_OBFUSCATION,
+  ENABLE_LIB_OBFUSCATION_OPTIONS,
   COMPACT,
   REMOVE_LOG,
   REMOVE_COMMENTS,
@@ -84,6 +86,7 @@ class ObOptions {
   enableToplevelObfuscation: boolean = false;
   enableFileNameObfuscation: boolean = false;
   enableExportObfuscation: boolean = false;
+  enableLibObfuscationOptions: boolean = false;
   printKeptNames: boolean = false;
   removeComments: boolean = false;
   compact: boolean = false;
@@ -95,7 +98,7 @@ class ObOptions {
   stripSystemApiArgs: boolean = false;
   keepParameterNames: boolean = false;
 
-  merge(other: ObOptions): void {
+  mergeObOptions(other: ObOptions): void {
     this.disableObfuscation = this.disableObfuscation || other.disableObfuscation;
     this.enablePropertyObfuscation = this.enablePropertyObfuscation || other.enablePropertyObfuscation;
     this.enableToplevelObfuscation = this.enableToplevelObfuscation || other.enableToplevelObfuscation;
@@ -137,8 +140,7 @@ export class MergedConfig {
   excludeUniversalPaths: RegExp[] = []; // Support excluded paths contain wildcards.
   excludePathSet: Set<string> = new Set();
 
-  merge(other: MergedConfig): void {
-    this.options.merge(other.options);
+  mergeKeepOptions(other: MergedConfig): void {
     this.reservedPropertyNames.push(...other.reservedPropertyNames);
     this.reservedGlobalNames.push(...other.reservedGlobalNames);
     this.reservedFileNames.push(...other.reservedFileNames);
@@ -149,6 +151,11 @@ export class MergedConfig {
     other.excludePathSet.forEach((excludePath) => {
       this.excludePathSet.add(excludePath);
     });
+  }
+
+  mergeAllRules(other: MergedConfig): void {
+    this.options.mergeObOptions(other.options);
+    this.mergeKeepOptions(other);
   }
 
   sortAndDeduplicate(): void {
@@ -187,14 +194,14 @@ export class MergedConfig {
 
 export class ObConfigResolver {
   sourceObConfig: any;
-  logger: any;
+  printObfLogger: Function;
   isHarCompiled: boolean | undefined;
   isHspCompiled: boolean | undefined;
   isTerser: boolean;
 
-  constructor(projectConfig: any, logger: any, isTerser?: boolean) {
+  constructor(projectConfig: any, printObfLogger: Function, isTerser?: boolean) {
     this.sourceObConfig = projectConfig.obfuscationOptions;
-    this.logger = logger;
+    this.printObfLogger = printObfLogger;
     this.isHarCompiled = projectConfig.compileHar;
     this.isHspCompiled = projectConfig.compileShared;
     this.isTerser = isTerser;
@@ -281,8 +288,15 @@ export class ObConfigResolver {
     try {
       fileContent = fs.readFileSync(path, 'utf-8');
     } catch (err) {
-      this.logger.error(`Failed to open ${path}. Error message: ${err}`);
-      throw err;
+      const errorInfo = `Failed to open ${path}. Error message: ${err}`;
+      const errorCodeInfo: HvigorErrorInfo = {
+        code: '10804001',
+        description: 'ArkTS compiler Error',
+        cause: `Failed to open obfuscation config file from ${path}. Error message: ${err}`,
+        position: path,
+        solutions: [`Please check whether ${path} exists.`],
+      };
+      this.printObfLogger(errorInfo, errorCodeInfo, 'error');
     }
     this.handleConfigContent(fileContent, configs, path);
   }
@@ -322,6 +336,7 @@ export class ObConfigResolver {
   static readonly ENABLE_TOPLEVEL_OBFUSCATION = '-enable-toplevel-obfuscation';
   static readonly ENABLE_FILENAME_OBFUSCATION = '-enable-filename-obfuscation';
   static readonly ENABLE_EXPORT_OBFUSCATION = '-enable-export-obfuscation';
+  static readonly ENABLE_LIB_OBFUSCATION_OPTIONS = '-enable-lib-obfuscation-options';
   static readonly REMOVE_COMMENTS = '-remove-comments';
   static readonly COMPACT = '-compact';
   static readonly REMOVE_LOG = '-remove-log';
@@ -335,7 +350,6 @@ export class ObConfigResolver {
 
   // renameFileName, printNameCache, applyNameCache, removeComments and keepComments won't be reserved in obfuscation.txt file.
   static exportedSwitchMap: Map<string, string> = new Map([
-    ['disableObfuscation', ObConfigResolver.KEEP_DTS],
     ['enablePropertyObfuscation', ObConfigResolver.ENABLE_PROPERTY_OBFUSCATION],
     ['enableStringPropertyObfuscation', ObConfigResolver.ENABLE_STRING_PROPERTY_OBFUSCATION],
     ['enableToplevelObfuscation', ObConfigResolver.ENABLE_TOPLEVEL_OBFUSCATION],
@@ -367,6 +381,8 @@ export class ObConfigResolver {
         return OptionType.ENABLE_FILENAME_OBFUSCATION;
       case ObConfigResolver.ENABLE_EXPORT_OBFUSCATION:
         return OptionType.ENABLE_EXPORT_OBFUSCATION;
+      case ObConfigResolver.ENABLE_LIB_OBFUSCATION_OPTIONS:
+        return OptionType.ENABLE_LIB_OBFUSCATION_OPTIONS;
       case ObConfigResolver.REMOVE_COMMENTS:
         return OptionType.REMOVE_COMMENTS;
       case ObConfigResolver.COMPACT:
@@ -443,6 +459,11 @@ export class ObConfigResolver {
         }
         case OptionType.ENABLE_EXPORT_OBFUSCATION: {
           configs.options.enableExportObfuscation = true;
+          extraOptionType = OptionType.NONE;
+          continue;
+        }
+        case OptionType.ENABLE_LIB_OBFUSCATION_OPTIONS: {
+          configs.options.enableLibObfuscationOptions = true;
           extraOptionType = OptionType.NONE;
           continue;
         }
@@ -617,7 +638,8 @@ export class ObConfigResolver {
       }
 
       if (!fs.existsSync(tempAbsPath)) {
-        this.logger.warn(yellow + 'ArkTS: The path of obfuscation \'-keep\' configuration does not exist: ' + keepPath);
+        const warnInfo: string = `ArkTS: The path of obfuscation \'-keep\' configuration does not exist: ${keepPath}`;
+        this.printObfLogger(warnInfo, warnInfo, 'warn');
         continue;
       }
       tempAbsPath = fs.realpathSync(tempAbsPath);
@@ -739,7 +761,7 @@ export class ObConfigResolver {
     }
 
     for (const lib of sourceObConfig.dependencies.hspLibraries || []) {
-      if(lib.consumerRules && lib.consumerRules.length > 0) {
+      if (lib.consumerRules && lib.consumerRules.length > 0) {
         this.mergeDependencyConfigsByPath(lib.consumerRules, dependencyConfigs);
       }
     }
@@ -752,11 +774,11 @@ export class ObConfigResolver {
       this.mergeDependencyConfigsByPath(sourceObConfig.dependencies.hars, dependencyConfigs);
     }
 
-    if(
+    if (
       sourceObConfig.dependencies &&
       sourceObConfig.dependencies.hsps &&
       sourceObConfig.dependencies.hsps.length > 0
-    ){
+    ) {
       this.mergeDependencyConfigsByPath(sourceObConfig.dependencies.hsps, dependencyConfigs);
     }
   }
@@ -765,7 +787,7 @@ export class ObConfigResolver {
     for (const path of paths) {
       const thisConfig = new MergedConfig();
       this.getConfigByPath(path, thisConfig);
-      dependencyConfigs.merge(thisConfig);
+      dependencyConfigs.mergeAllRules(thisConfig);
     }
   }
 
@@ -806,7 +828,11 @@ export class ObConfigResolver {
 
   private getMergedConfigs(selfConfigs: MergedConfig, dependencyConfigs: MergedConfig): MergedConfig {
     if (dependencyConfigs) {
-      selfConfigs.merge(dependencyConfigs);
+      if (selfConfigs.options.enableLibObfuscationOptions) {
+        selfConfigs.mergeAllRules(dependencyConfigs);
+      } else {
+        selfConfigs.mergeKeepOptions(dependencyConfigs);
+      }
     }
     selfConfigs.sortAndDeduplicate();
     return selfConfigs;
@@ -822,7 +848,7 @@ export class ObConfigResolver {
     dependencyConfigs: MergedConfig,
   ): void {
     if (this.isHarCompiled) {
-      selfConsumerConfig.merge(dependencyConfigs);
+      selfConsumerConfig.mergeAllRules(dependencyConfigs);
     }
     selfConsumerConfig.sortAndDeduplicate();
     this.writeConsumerConfigFile(selfConsumerConfig, sourceObConfig.exportRulePath);
@@ -843,7 +869,15 @@ export class ObConfigResolver {
 
   private determineNameCachePath(nameCachePath: string, configPath: string): void {
     if (!fs.existsSync(nameCachePath)) {
-      throw new Error(`The applied namecache file '${nameCachePath}' configured by '${configPath}' does not exist.`);
+      const errorInfo: string = `The applied namecache file '${nameCachePath}' configured by '${configPath}' does not exist.`;
+      const errorCodeInfo: HvigorErrorInfo = {
+        code: '10804004',
+        description: 'ArkTS compiler Error',
+        cause: `The applied namecache file '${nameCachePath}' configured by '${configPath}' does not exist.`,
+        position: configPath,
+        solutions: [`Please check ${configPath} and make sure the file configured by -apply-namecache exists`],
+      };
+      this.printObfLogger(errorInfo, errorCodeInfo, 'error');
     }
   }
 }
@@ -911,7 +945,7 @@ export function collectResevedFileNameInIDEConfig(
   return reservedFileNames;
 }
 
-export function readNameCache(nameCachePath: string, logger: any): void {
+export function readNameCache(nameCachePath: string, printObfLogger: Function): void {
   try {
     const fileContent = fs.readFileSync(nameCachePath, 'utf-8');
     const nameCache: {
@@ -932,7 +966,15 @@ export function readNameCache(nameCachePath: string, logger: any): void {
       nameCacheMap.set(key, rest[key]);
     });
   } catch (err) {
-    logger.error(`Failed to open ${nameCachePath}. Error message: ${err}`);
+    const errorInfo: string = `Failed to open ${nameCachePath}. Error message: ${err}`;
+    const errorCodeInfo: HvigorErrorInfo = {
+      code: '10804002',
+      description: 'ArkTS compiler Error',
+      cause: `Failed to open namecache file from ${nameCachePath}, Error message: ${err}`,
+      position: nameCachePath,
+      solutions: [`Please check ${nameCachePath} as error message suggested.`],
+    };
+    printObfLogger(errorInfo, errorCodeInfo, 'error');
   }
 }
 
@@ -1191,9 +1233,9 @@ export function printUnobfuscationReasons(configPath: string, defaultPath: strin
 }
 
 
-export function generateConsumerObConfigFile(obfuscationOptions: any, logger: any): void {
+export function generateConsumerObConfigFile(obfuscationOptions: any, printObfLogger: Function): void {
   const projectConfig = { obfuscationOptions, compileHar: true };
-  const obConfig: ObConfigResolver = new ObConfigResolver(projectConfig, logger);
+  const obConfig: ObConfigResolver = new ObConfigResolver(projectConfig, printObfLogger);
   obConfig.resolveObfuscationConfigs();
 }
 

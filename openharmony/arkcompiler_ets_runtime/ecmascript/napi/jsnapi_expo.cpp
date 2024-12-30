@@ -13,9 +13,7 @@
  * limitations under the License.
  */
 
-#include <array>
-#include <cstdint>
-#include <fcntl.h>
+#include <cinttypes>
 
 #include "ecmascript/base/json_stringifier.h"
 #include "ecmascript/base/typed_array_helper-inl.h"
@@ -37,13 +35,16 @@
 #include "ecmascript/regexp/regexp_parser.h"
 #include "ecmascript/serializer/base_deserializer.h"
 #include "ecmascript/serializer/value_serializer.h"
-#include "ecmascript/ohos/ohos_preload_app_info.h"
 #include "ecmascript/platform/aot_crash_info.h"
+#include "ecmascript/platform/dfx_crash_obj.h"
 #ifdef ARK_SUPPORT_INTL
 #include "ecmascript/js_bigint.h"
 #include "ecmascript/js_collator.h"
 #include "ecmascript/js_date_time_format.h"
 #include "ecmascript/js_number_format.h"
+#endif
+#if !WIN_OR_MAC_OR_IOS_PLATFORM
+#include "ecmascript/dfx/hprof/heap_profiler.h"
 #endif
 
 namespace panda {
@@ -141,6 +142,10 @@ using Concurrent = ecmascript::Concurrent;
 using EnableAotJitListHelper = ecmascript::ohos::EnableAotJitListHelper;
 using PGOProfilerManager = ecmascript::pgo::PGOProfilerManager;
 using AotRuntimeInfo = ecmascript::ohos::AotRuntimeInfo;
+#if defined(ECMASCRIPT_SUPPORT_HEAPPROFILER)
+using HeapProfiler = ecmascript::HeapProfiler;
+using HeapProfilerInterface = ecmascript::HeapProfilerInterface;
+#endif
 
 namespace {
 // NOLINTNEXTLINE(fuchsia-statically-constructed-objects)
@@ -150,6 +155,48 @@ constexpr std::string_view ENTRY_POINTER = "_GLOBAL::func_main_0";
 bool JSNApi::isForked_ = false;
 static Mutex *mutex = new panda::Mutex();
 StartIdleMonitorCallback JSNApi::startIdleMonitorCallback_ = nullptr;
+
+// ----------------------------------- ArkCrashHolder --------------------------------------
+constexpr size_t FORMATED_FUNCPTR_LENGTH = 36; // length of dec function pointer
+
+ArkCrashHolder::~ArkCrashHolder()
+{
+    ecmascript::ResetCrashObject(handle_);
+    if (data_ != nullptr) {
+        delete [] data_;
+        data_ = nullptr;
+    }
+}
+
+void ArkCrashHolder::SetCrashObj(const char* tag, const char* info)
+{
+    std::string data = "[";
+    data += tag,
+    data += "] Crash occured on ";
+    data += info;
+    data += ", callback: ";
+
+    size_ = data.length();
+    const size_t bufSize = size_ + FORMATED_FUNCPTR_LENGTH;
+    data_ = new char[bufSize];
+
+    if (memcpy_s(data_, bufSize, data.c_str(), size_) != EOK) {
+        LOG_FULL(WARN) << "Failed to init crash holder.";
+        size_ = 0;
+        data_[0] = '\0';
+    };
+
+    handle_ = ecmascript::SetCrashObject(ecmascript::DFXObjectType::STRING, reinterpret_cast<uintptr_t>(data_));
+}
+
+void ArkCrashHolder::UpdateCallbackPtr(uintptr_t addr)
+{
+    if (sprintf_s(data_ + size_, FORMATED_FUNCPTR_LENGTH, "%" PRIuPTR, addr) < 0) {
+        LOG_FULL(ERROR) << "Failed to update callback info: " << addr;
+    }
+}
+
+#undef ENABLE_DFX_CRASH_OBJECT
 
 // ----------------------------------- JSValueRef --------------------------------------
 Local<PrimitiveRef> JSValueRef::Undefined(const EcmaVM *vm)
@@ -749,6 +796,24 @@ bool JSValueRef::IsJSSharedUint32Array(const EcmaVM *vm)
 {
     ecmascript::ThreadManagedScope managedScope(vm->GetJSThread());
     return JSNApiHelper::ToJSTaggedValue(this).IsJSSharedUint32Array();
+}
+
+bool JSValueRef::IsJSSharedFloat64Array(const EcmaVM *vm)
+{
+    ecmascript::ThreadManagedScope managedScope(vm->GetJSThread());
+    return JSNApiHelper::ToJSTaggedValue(this).IsJSSharedFloat64Array();
+}
+
+bool JSValueRef::IsJSSharedBigInt64Array(const EcmaVM *vm)
+{
+    ecmascript::ThreadManagedScope managedScope(vm->GetJSThread());
+    return JSNApiHelper::ToJSTaggedValue(this).IsJSSharedBigInt64Array();
+}
+
+bool JSValueRef::IsJSSharedBigUint64Array(const EcmaVM *vm)
+{
+    ecmascript::ThreadManagedScope managedScope(vm->GetJSThread());
+    return JSNApiHelper::ToJSTaggedValue(this).IsJSSharedBigUint64Array();
 }
 
 bool JSValueRef::IsJSPrimitiveRef(const EcmaVM *vm)
@@ -2200,9 +2265,8 @@ Local<StringRef> StringRef::GetNapiWrapperString(const EcmaVM *vm)
     // Omit exception check because ark calls here may not
     // cause side effect even pending exception exists.
     CROSS_THREAD_CHECK(vm);
-    ecmascript::ThreadManagedScope managedScope(thread);
-    JSHandle<JSTaggedValue> napiWapperString = thread->GlobalConstants()->GetHandledNapiWrapperString();
-    return JSNApiHelper::ToLocal<StringRef>(napiWapperString);
+    JSHandle<JSTaggedValue> napiWrapperString = thread->GlobalConstants()->GetHandledNapiWrapperString();
+    return JSNApiHelper::ToLocal<StringRef>(napiWrapperString);
 }
 
 Local<TypedArrayRef> StringRef::EncodeIntoUint8Array(const EcmaVM *vm)
@@ -2353,9 +2417,13 @@ LocalScope::LocalScope(const EcmaVM *vm) : thread_(vm->GetJSThread())
     prevPrimitiveNext_ = context->GetPrimitiveScopeStorageNext();
     prevPrimitiveEnd_ = context->GetPrimitiveScopeStorageEnd();
     prevPrimitiveStorageIndex_ = context->GetCurrentPrimitiveStorageIndex();
-#ifdef ECMASCRIPT_ENABLE_HANDLE_LEAK_CHECK
-    context->HandleScopeCountAdd();
-    context->PrimitiveScopeCountAdd();
+#if defined(ECMASCRIPT_SUPPORT_HEAPPROFILER)
+    if (const_cast<EcmaVM *>(vm)->GetJSOptions().IsEnableLocalHandleLeakDetect()) {
+        auto heapProfiler = reinterpret_cast<HeapProfiler *>(
+            HeapProfilerInterface::GetInstance(const_cast<EcmaVM *>(vm)));
+        heapProfiler->IncreaseScopeCount();
+        heapProfiler->PushToActiveScopeStack(this, nullptr);
+    }
 #endif
 }
 
@@ -2363,7 +2431,7 @@ LocalScope::LocalScope(const EcmaVM *vm, JSTaggedType value) : thread_(vm->GetJS
 {
     ecmascript::ThreadManagedScope managedScope(reinterpret_cast<JSThread *>(thread_));
     // Simply reserve a slot on the handlescope. The escaped handle will still be retained in this slot.
-    ecmascript::EcmaHandleScope::NewHandle(reinterpret_cast<JSThread *>(thread_), value);
+    reinterpret_cast<JSThread *>(thread_)->NewHandle(value);
     auto context = reinterpret_cast<JSThread *>(thread_)->GetCurrentEcmaContext();
     prevNext_ = context->GetHandleScopeStorageNext();
     prevEnd_ = context->GetHandleScopeStorageEnd();
@@ -2372,9 +2440,13 @@ LocalScope::LocalScope(const EcmaVM *vm, JSTaggedType value) : thread_(vm->GetJS
     prevPrimitiveNext_ = context->GetPrimitiveScopeStorageNext();
     prevPrimitiveEnd_ = context->GetPrimitiveScopeStorageEnd();
     prevPrimitiveStorageIndex_ = context->GetCurrentPrimitiveStorageIndex();
-#ifdef ECMASCRIPT_ENABLE_HANDLE_LEAK_CHECK
-    context->HandleScopeCountAdd();
-    context->PrimitiveScopeCountAdd();
+#if defined(ECMASCRIPT_SUPPORT_HEAPPROFILER)
+    if (const_cast<EcmaVM *>(vm)->GetJSOptions().IsEnableLocalHandleLeakDetect()) {
+        auto heapProfiler = reinterpret_cast<HeapProfiler *>(
+            HeapProfilerInterface::GetInstance(const_cast<EcmaVM *>(vm)));
+        heapProfiler->IncreaseScopeCount();
+        heapProfiler->PushToActiveScopeStack(this, nullptr);
+    }
 #endif
 }
 
@@ -2382,10 +2454,6 @@ LocalScope::~LocalScope()
 {
     ecmascript::ThreadManagedScope managedScope(reinterpret_cast<JSThread *>(thread_));
     auto context = reinterpret_cast<JSThread *>(thread_)->GetCurrentEcmaContext();
-#ifdef ECMASCRIPT_ENABLE_HANDLE_LEAK_CHECK
-    context->HandleScopeCountDec();
-    context->PrimitiveScopeCountDec();
-#endif
     context->SetHandleScopeStorageNext(static_cast<JSTaggedType *>(prevNext_));
     context->SetPrimitiveScopeStorageNext(static_cast<JSTaggedType *>(prevPrimitiveNext_));
 
@@ -2398,6 +2466,14 @@ LocalScope::~LocalScope()
         context->SetPrimitiveScopeStorageEnd(static_cast<JSTaggedType *>(prevPrimitiveEnd_));
         context->ShrinkPrimitiveStorage(prevPrimitiveStorageIndex_);
     }
+#if defined(ECMASCRIPT_SUPPORT_HEAPPROFILER)
+    if (context->GetEcmaVM()->GetJSOptions().IsEnableLocalHandleLeakDetect()) {
+        EcmaVM *vm = context->GetEcmaVM();
+        auto heapProfiler = reinterpret_cast<HeapProfiler *>(HeapProfilerInterface::GetInstance(vm));
+        heapProfiler->DecreaseScopeCount();
+        heapProfiler->PopFromActiveScopeStack();
+    }
+#endif
 }
 
 // ----------------------------------- EscapeLocalScope ------------------------------
@@ -4162,6 +4238,16 @@ void JSNApi::SetExecuteBufferMode(const EcmaVM *vm)
     moduleManager->SetExecuteMode(ecmascript::ModuleExecuteMode::ExecuteBufferMode);
 }
 
+void JSNApi::SetStopPreLoadSoCallback(EcmaVM *vm, const StopPreLoadSoCallback &callback)
+{
+    vm->SetStopPreLoadSoCallback(callback);
+}
+
+StopPreLoadSoCallback JSNApi::GetStopPreLoadSoCallback(EcmaVM *vm)
+{
+    return vm->GetStopPreLoadSoCallback();
+}
+
 bool JSNApi::InitForConcurrentThread(EcmaVM *vm, ConcurrentCallback cb, void *data)
 {
     vm->SetConcurrentCallback(cb, data);
@@ -4488,6 +4574,11 @@ void JSNApi::PrintExceptionInfo(const EcmaVM *vm)
     ecmascript::CString string = ConvertToString(*result);
     LOG_ECMA(ERROR) << string;
     ThrowException(vm, exception);
+}
+
+void JSNApi::SetOnAllErrorCallbackForThread(EcmaVM *vm, OnAllErrorCallback cb, void* data)
+{
+    vm->SetOnAllErrorCallback(cb, data);
 }
 
 #if defined(ECMASCRIPT_SUPPORT_DEBUGGER) && !defined(PANDA_TARGET_IOS)
@@ -4966,11 +5057,12 @@ void JSNApi::NotifyUIIdle(const EcmaVM *vm, [[maybe_unused]] int idleTime)
     vm->GetHeap()->GetIdleGCTrigger()->NotifyVsyncIdleStart();
 }
 
-void JSNApi::NotifyLooperIdleStart(const EcmaVM *vm, int64_t timestamp, int idleTime)
+bool JSNApi::NotifyLooperIdleStart(const EcmaVM *vm, int64_t timestamp, int idleTime)
 {
     if (vm->IsPostForked()) {
-        vm->GetHeap()->GetIdleGCTrigger()->NotifyLooperIdleStart(timestamp, idleTime);
+        return vm->GetHeap()->GetIdleGCTrigger()->NotifyLooperIdleStart(timestamp, idleTime);
     }
+    return false;
 }
 
 void JSNApi::NotifyLooperIdleEnd(const EcmaVM *vm, int64_t timestamp)
@@ -5431,7 +5523,7 @@ uintptr_t JSNApi::GetHandleAddr(const EcmaVM *vm, uintptr_t localAddress)
     CROSS_THREAD_CHECK(vm);
     ecmascript::ThreadManagedScope scope(thread);
     JSTaggedType value = *(reinterpret_cast<JSTaggedType *>(localAddress));
-    return ecmascript::EcmaHandleScope::NewHandle(thread, value);
+    return thread->NewHandle(value);
 }
 
 uintptr_t JSNApi::GetGlobalHandleAddr(const EcmaVM *vm, uintptr_t localAddress)
@@ -5718,7 +5810,7 @@ Local<JSValueRef> JSNApi::NapiHasOwnProperty(const EcmaVM *vm, uintptr_t nativeO
         RETURN_VALUE_IF_ABRUPT(thread, JSValueRef::Undefined(vm));
         return scope.Escape(JSNApiHelper::ToLocal<JSValueRef>(JSHandle<JSTaggedValue>(thread, res)));
     }
-    auto ret = JSTaggedValue(JSTaggedValue::HasOwnProperty(thread, obj, keyValue));
+    auto ret = JSTaggedValue(JSTaggedValue::HasProperty(thread, obj, keyValue));
     return scope.Escape(JSNApiHelper::ToLocal<JSValueRef>(JSHandle<JSTaggedValue>(thread, ret)));
 }
 
@@ -5911,32 +6003,19 @@ Local<ObjectRef> JSNApi::ExecuteNativeModule(EcmaVM *vm, const std::string &key)
     return JSNApiHelper::ToLocal<ObjectRef>(exportObj);
 }
 
-Local<ObjectRef> JSNApi::GetModuleNameSpaceFromFile(EcmaVM *vm, const std::string &file, const std::string &module_path)
+Local<ObjectRef> JSNApi::GetModuleNameSpaceFromFile(EcmaVM *vm, const std::string &file)
 {
     CROSS_THREAD_AND_EXCEPTION_CHECK_WITH_RETURN(vm, JSValueRef::Undefined(vm));
     ecmascript::ThreadManagedScope managedScope(thread);
-    ecmascript::CString recordNameStr;
-    ecmascript::CString abcFilePath;
-    if (module_path.size() != 0) {
-        ecmascript::CString moduleName = ModulePathHelper::GetModuleNameWithPath(module_path.c_str());
-        abcFilePath = ModulePathHelper::ConcatPandaFilePath(moduleName);
-        recordNameStr = ModulePathHelper::TranslateNapiFileRequestPath(thread, module_path.c_str(), file.c_str());
-    } else {
-        // need get moduleName from stack
-        std::pair<std::string, std::string> moduleInfo = vm->GetCurrentModuleInfo(false);
-        if (thread->HasPendingException()) {
-            thread->GetCurrentEcmaContext()->HandleUncaughtException();
-            return JSValueRef::Undefined(vm);
-        }
-        std::string path = std::string(vm->GetBundleName().c_str()) + PathHelper::SLASH_TAG +
-            moduleInfo.first;
-        abcFilePath = moduleInfo.second;
-        recordNameStr = ModulePathHelper::TranslateNapiFileRequestPath(thread, path.c_str(), file.c_str());
+    std::pair<std::string, std::string> moduleInfo = vm->GetCurrentModuleInfo(false);
+    if (thread->HasPendingException()) {
+        thread->GetCurrentEcmaContext()->HandleUncaughtException();
+        return JSValueRef::Undefined(vm);
     }
-    LOG_ECMA(DEBUG) << "JSNApi::LoadModuleNameSpaceFromFile: Concated recordName " << recordNameStr;
-    ecmascript::ModuleManager *moduleManager = thread->GetCurrentEcmaContext()->GetModuleManager();
-    JSHandle<JSTaggedValue> moduleNamespace = moduleManager->
-        GetModuleNameSpaceFromFile(thread, recordNameStr, abcFilePath);
+    ecmascript::CString moduleName = moduleInfo.first.c_str();
+    ecmascript::CString abcPath = moduleInfo.second.c_str();
+    JSHandle<JSTaggedValue> moduleNamespace = ecmascript::NapiModuleLoader::LoadModuleNameSpace(vm,
+        file.c_str(), moduleName, abcPath);
     return JSNApiHelper::ToLocal<ObjectRef>(moduleNamespace);
 }
 
@@ -5945,16 +6024,9 @@ Local<ObjectRef> JSNApi::GetModuleNameSpaceWithModuleInfo(EcmaVM *vm, const std:
 {
     CROSS_THREAD_AND_EXCEPTION_CHECK_WITH_RETURN(vm, JSValueRef::Undefined(vm));
     ecmascript::ThreadManagedScope managedScope(thread);
-    ecmascript::CString moduleStr = ModulePathHelper::GetModuleNameWithPath(module_path.c_str());
-    ecmascript::CString srcPrefix = moduleStr + ModulePathHelper::PHYCICAL_FILE_PATH;
-    std::string prefix = ConvertToStdString(srcPrefix);
-    if (file.find(srcPrefix) == 0)  {
-        std::string fileName = file.substr(prefix.size() + 1);
-        return GetModuleNameSpaceFromFile(vm, fileName, module_path);
-    }
     ecmascript::CString requestPath = file.c_str();
     ecmascript::CString modulePath = module_path.c_str();
-    JSHandle<JSTaggedValue> nameSp = ecmascript::NapiModuleLoader::LoadModuleNameSpaceWithModuleInfo(vm,
+    JSHandle<JSTaggedValue> nameSp = ecmascript::NapiModuleLoader::LoadModuleNameSpace(vm,
         requestPath, modulePath);
     return JSNApiHelper::ToLocal<ObjectRef>(nameSp);
 }

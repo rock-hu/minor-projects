@@ -19,6 +19,7 @@
 #include "libabckit/src/macros.h"
 #include "libabckit/src/irbuilder_dynamic/ir_builder_dyn.h"
 #include "libabckit/src/adapter_dynamic/runtime_adapter_dynamic.h"
+#include "libabckit/src/adapter_dynamic/convert.h"
 #include "libabckit/src/adapter_static/helpers_static.h"
 #include "libabckit/src/codegen/codegen_dynamic.h"
 #include "libabckit/src/codegen/ic_slot_allocator.h"
@@ -83,10 +84,13 @@ AbckitGraph *GraphWrapper::BuildGraphDynamic(FileWrapper *pf, AbckitIrInterface 
         statuses::SetLastError(AbckitStatus::ABCKIT_STATUS_BAD_ARGUMENT);
         return nullptr;
     }
+    if (GraphHasUnreachableBlocks(graphImpl)) {
+        LIBABCKIT_LOG(DEBUG) << "Cannot build graph, there are unreachable blocks in graph\n";
+        statuses::SetLastError(ABCKIT_STATUS_BAD_ARGUMENT);
+        return nullptr;
+    }
     graphImpl->RunPass<ark::bytecodeopt::CheckResolver>();
     graphImpl->RunPass<ark::compiler::Cleanup>();
-
-    LIBABCKIT_LOG_DUMP(graphImpl->Dump(&std::cerr), DEBUG);
     CheckInvalidOpcodes(graphImpl, true);
 
     auto graph = new AbckitGraph;
@@ -107,9 +111,9 @@ static bool RunPreliminaryPasses(ark::compiler::Graph *graphImpl, uint16_t *icSl
 {
     graphImpl->RemoveUnreachableBlocks();
 
-    CheckInvalidOpcodes(graphImpl, true);
-
     graphImpl->InvalidateAnalysis<compiler::LoopAnalyzer>();
+
+    CheckInvalidOpcodes(graphImpl, true);
 
     if (!ark::compiler::GraphChecker(graphImpl).Check()) {
         LIBABCKIT_LOG(DEBUG) << ": Graph Verifier failed!\n";
@@ -150,10 +154,13 @@ static bool RunPreliminaryPasses(ark::compiler::Graph *graphImpl, uint16_t *icSl
 
 void *GraphWrapper::BuildCodeDynamic(AbckitGraph *graph, const std::string &funcName)
 {
-    LIBABCKIT_LOG(DEBUG) << "Building code for function " << funcName;
+    LIBABCKIT_LOG(DEBUG) << "Building code for function " << funcName << "\n";
 
     auto graphImpl =
         compiler::GraphCloner(graph->impl, graph->impl->GetAllocator(), graph->impl->GetLocalAllocator()).CloneGraph();
+
+    graphImpl->RemoveUnreachableBlocks();
+    GraphInvalidateAnalyses(graphImpl);
 
     LIBABCKIT_LOG(DEBUG) << "BEFORE======================================\n";
     LIBABCKIT_LOG_DUMP(graphImpl->Dump(&std::cerr), DEBUG);
@@ -168,7 +175,8 @@ void *GraphWrapper::BuildCodeDynamic(AbckitGraph *graph, const std::string &func
     LIBABCKIT_LOG_DUMP(graphImpl->Dump(&std::cerr), DEBUG);
     LIBABCKIT_LOG(DEBUG) << "============================================\n";
 
-    FunctionWrapper *wrFunc = PandasmWrapper::CreateWrappedFunction();
+    const auto lang = convert::ToSourceLang(graph->function->owningModule->target);
+    FunctionWrapper *wrFunc = PandasmWrapper::CreateWrappedFunction(lang);
     if (!graphImpl->RunPass<CodeGenDynamic>(wrFunc, graph->irInterface)) {
         LIBABCKIT_LOG(DEBUG) << funcName << ": Code generation failed!\n";
         statuses::SetLastError(AbckitStatus::ABCKIT_STATUS_INTERNAL_ERROR);

@@ -567,7 +567,7 @@ TEST_F(LibAbcKitIrInstTest, IinsertAfter_1)
             auto *negInst = g_statG->iCreateNeg(graph, newInst);
             auto *addInst = g_statG->iCreateAdd(graph, negInst, newInst);
 
-            g_implG->bbEraseSuccBlock(start, 0);
+            g_implG->bbDisconnectSuccBlock(start, 0);
             ASSERT_EQ(g_impl->getLastError(), ABCKIT_STATUS_NO_ERROR);
             auto *empty = g_implG->bbCreateEmpty(graph);
             ASSERT_EQ(g_impl->getLastError(), ABCKIT_STATUS_NO_ERROR);
@@ -615,7 +615,7 @@ TEST_F(LibAbcKitIrInstTest, IinsertAfter_2)
             auto *negInst = g_dynG->iCreateNeg(graph, newInst);
             auto *addInst = g_dynG->iCreateAdd2(graph, negInst, newInst);
 
-            g_implG->bbEraseSuccBlock(start, 0);
+            g_implG->bbDisconnectSuccBlock(start, 0);
             ASSERT_EQ(g_impl->getLastError(), ABCKIT_STATUS_NO_ERROR);
             auto *empty = g_implG->bbCreateEmpty(graph);
             ASSERT_EQ(g_impl->getLastError(), ABCKIT_STATUS_NO_ERROR);
@@ -862,7 +862,7 @@ TEST_F(LibAbcKitIrInstTest, IsetLiteralArray_1)
     helpers::TransformMethod(file, "test", [](AbckitFile *file, AbckitCoreFunction * /*method*/, AbckitGraph *graph) {
         auto *constInst = g_implG->gFindOrCreateConstantI64(graph, 1U);
         auto arr = std::vector<AbckitLiteral *>();
-        AbckitLiteral *res1 = g_implM->createLiteralString(file, "asdf");
+        AbckitLiteral *res1 = g_implM->createLiteralString(file, "asdf", strlen("asdf"));
         AbckitLiteral *res2 = g_implM->createLiteralDouble(file, 1.0);
         arr.emplace_back(res1);
         arr.emplace_back(res2);
@@ -887,7 +887,7 @@ TEST_F(LibAbcKitIrInstTest, IsetLiteralArray_2)
             auto *bb = g_implG->bbGetSuccBlock(start, 0);
             auto *inst = g_implG->bbGetFirstInst(bb);
             auto arr = std::vector<AbckitLiteral *>();
-            AbckitLiteral *res1 = g_implM->createLiteralString(file, "asdf");
+            AbckitLiteral *res1 = g_implM->createLiteralString(file, "asdf", strlen("asdf"));
             AbckitLiteral *res2 = g_implM->createLiteralDouble(file, 1.0);
             arr.emplace_back(res1);
             arr.emplace_back(res2);

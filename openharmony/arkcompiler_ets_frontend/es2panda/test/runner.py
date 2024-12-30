@@ -904,6 +904,7 @@ class CompilerProjectTest(Test):
                 abc_files_info_f.writelines(abc_files_info)
                 final_file_info_f.writelines('%s-abcinput.abc;;;;%s;\n' % (abc_input_path, abc_files_info_name))
 
+
     def gen_files_info(self, runner):
         # After collect_record_mapping, self.file_record_mapping stores {'source file name' : 'source file record name'}
         self.collect_record_mapping()
@@ -1130,6 +1131,116 @@ class CompilerProjectTest(Test):
         return self
 
 
+class FilesInfoRunner(Runner):
+    def __init__(self, args):
+        Runner.__init__(self, args, "FilesInfo")
+
+    def add_directory(self, directory, extension, flags):
+        projects_path = path.join(self.test_root, directory)
+        test_projects = ["base", "mod"]
+        for project in test_projects:
+            filesinfo_path = path.join(projects_path, project, "filesInfo.txt")
+            self.tests.append(FilesInfoTest(projects_path, project, filesinfo_path, flags))
+
+    def test_path(self, src):
+        return src
+
+
+class FilesInfoTest(Test):
+    def __init__(self, projects_path, project, filesinfo_path, flags):
+        Test.__init__(self, "", flags)
+        self.projects_path = projects_path
+        self.output_path = path.join(projects_path, "output")
+        self.project = project
+        self.origin_filesinfo_path = filesinfo_path
+        self.files_info_path = path.join(self.output_path, self.project + "filesInfo.txt")
+        self.path = path.join(self.projects_path, self.project)
+        self.symbol_table_file = os.path.join(self.output_path, 'base.map')
+        self.output_abc_name = path.join(self.output_path, self.project + ".abc")
+        self.output_abc_name_of_input_abc = path.join(self.output_path, self.project + "_input.abc")
+
+        if not path.exists(self.output_path):
+            os.makedirs(self.output_path)
+
+    def gen_files_info(self):
+        with open(self.origin_filesinfo_path, 'r') as src, open(self.files_info_path, 'w') as dst:
+            for line in src:
+                dst.write(f"{path.join(self.projects_path, self.project)}/{line}")
+
+    def remove_output(self):
+        shutil.rmtree(self.output_path)
+
+    def remove_project(self, runner):
+        if self.project == "mod": # clear after all tests
+            self.remove_output()
+
+    def gen_es2abc_cmd(self, runner, input_file, output_file):
+        es2abc_cmd = runner.cmd_prefix + [runner.es2panda]
+        es2abc_cmd.extend(self.flags)
+        es2abc_cmd.extend(['%s%s' % ("--output=", output_file)])
+        es2abc_cmd.append(input_file)
+        if ("base" == self.project):
+            es2abc_cmd.extend(['--dump-symbol-table', self.symbol_table_file])
+        else:
+            es2abc_cmd.extend(['--input-symbol-table', self.symbol_table_file])
+        return es2abc_cmd
+
+    def gen_es2abc_cmd_input_abc(self, runner, input_file, output_file):
+        es2abc_cmd = runner.cmd_prefix + [runner.es2panda]
+        es2abc_cmd.extend(self.flags)
+        es2abc_cmd.extend(['%s%s' % ("--output=", output_file), "--enable-abc-input"])
+        es2abc_cmd.append(input_file)
+        return es2abc_cmd
+
+    def gen_merged_abc(self, runner):
+        # Generate the abc to be tested
+        es2abc_cmd = self.gen_es2abc_cmd(runner, '@' + self.files_info_path, self.output_abc_name)
+        process = run_subprocess_with_beta3(self, es2abc_cmd)
+        out, err = process.communicate()
+
+        # Gen abc and verify it
+        pa_expected_path = "".join([self.get_path_to_expected()[:self.get_path_to_expected().rfind(".txt")],
+                                    ".pa.txt"])
+        self.output = out.decode("utf-8", errors="ignore") + err.decode("utf-8", errors="ignore")
+        try:
+            with open(pa_expected_path, 'r') as fp:
+                expected = fp.read()
+            self.passed = expected == self.output and process.returncode in [0, 1]
+        except Exception:
+            self.passed = False
+        if not self.passed:
+            self.error = err.decode("utf-8", errors="ignore")
+            return self
+
+        # Input abc and verify it when it is base.
+        if self.project == "base":
+            self.input_abc(runner)
+        return self
+
+    def input_abc(self, runner):
+        es2abc_cmd = self.gen_es2abc_cmd_input_abc(runner, self.output_abc_name, self.output_abc_name_of_input_abc)
+        process = run_subprocess_with_beta3(self, es2abc_cmd)
+        out, err = process.communicate()
+        pa_expected_path = "".join([self.path, "input_base-expected.pa.txt"])
+        self.output = out.decode("utf-8", errors="ignore") + err.decode("utf-8", errors="ignore")
+        try:
+            with open(pa_expected_path, 'r') as fp:
+                expected = fp.read()
+            self.passed = expected == self.output and process.returncode in [0, 1]
+        except Exception:
+            self.passed = False
+        if not self.passed:
+            self.error = err.decode("utf-8", errors="ignore")
+            return self
+
+
+    def run(self, runner):
+        self.gen_files_info()
+        self.gen_merged_abc(runner)
+        self.remove_project(runner)
+        return self
+
+
 class TSDeclarationTest(Test):
     def get_path_to_expected(self):
         file_name = self.path[:self.path.find(".d.ts")]
@@ -1178,7 +1289,7 @@ class BcVersionTest(Test):
         # To avoid problems when api version is upgraded abruptly,
         # the corresponding bytecode version of the api version not written in isa.yaml is alaways the newest version.
         self.bc_version_expect = {
-            8: "13.0.0.0",
+            8: "13.0.1.0",
             9: "9.0.0.0",
             10: "9.0.0.0",
             11: "11.0.2.0",
@@ -1189,7 +1300,7 @@ class BcVersionTest(Test):
             13: "12.0.6.0",
             14: "12.0.6.0",
             15: "12.0.6.0",
-            16: "13.0.0.0"
+            16: "13.0.1.0"
         }
         self.es2abc_script_expect = {
             8: "0.0.0.2",
@@ -1203,7 +1314,7 @@ class BcVersionTest(Test):
             13: "12.0.6.0",
             14: "12.0.6.0",
             15: "12.0.6.0",
-            16: "13.0.0.0"
+            16: "13.0.1.0"
         }
 
     def run(self):
@@ -2372,6 +2483,13 @@ def add_directory_for_version_control(runners, args):
         "API16",
         "bytecode_feature",
     )
+    runner.add_directory(
+        "version_control/API16/bytecode_feature",
+        "ts",
+        ["--module"],
+        "API16",
+        "bytecode_feature",
+    )
     runners.append(runner)
 
     abc_tests_prepare = AbcTestCasesPrepare(args)
@@ -2436,12 +2554,14 @@ def add_directory_for_regression(runners, args):
     runner.add_directory("parser/js/language/arguments-object", "js", ["--parse-only"])
     runner.add_directory("parser/js/language/statements/for-statement", "js", ["--parse-only", "--dump-ast"])
     runner.add_directory("parser/js/language/expressions/optional-chain", "js", ["--parse-only", "--dump-ast"])
-    runner.add_directory("parser/js/language/import/syntax", "js",
-                         ["--parse-only", "--module", "--target-api-sub-version=beta3"])
-    runner.add_directory("parser/js/language/import/syntax/beta2", "js",
+    runner.add_directory("parser/js/language/import/syntax/api16", "js",
+                         ["--parse-only", "--module", "--target-api-version=16"])
+    runner.add_directory("parser/js/language/import/syntax/api12/beta3", "js",
+                         ["--parse-only", "--module", "--target-api-version=12", "--target-api-sub-version=beta3"])
+    runner.add_directory("parser/js/language/import/syntax/api12/beta2", "js",
                          ["--parse-only", "--module", "--target-api-version=12", "--target-api-sub-version=beta2"])
     runner.add_directory("parser/js/language/import", "ts",
-                         ["--dump-assembly", "--dump-literal-buffer", "--module", "--target-api-sub-version=beta3"])
+                         ["--dump-assembly", "--dump-literal-buffer", "--module", "--target-api-version=16"])
     runner.add_directory("parser/sendable_class", "ts",
                          ["--dump-assembly", "--dump-literal-buffer", "--module", "--target-api-sub-version=beta3"])
     runner.add_directory("parser/sendable_class/api12beta2", "ts",
@@ -2556,8 +2676,17 @@ def add_directory_for_compiler(runners, args):
 
     for info in compiler_test_infos:
         runner.add_directory(info.directory, info.extension, info.flags)
+    
+    filesinfo_compiler_infos  = []
+    filesinfo_runner = FilesInfoRunner(args)
+    filesinfo_compiler_infos.append(CompilerTestInfo("compiler/filesInfoTest/sourceLang", "txt",
+                                                ["--module", "--merge-abc", "--dump-assembly"]))
 
+    for info in filesinfo_compiler_infos:
+        filesinfo_runner.add_directory(info.directory, info.extension, info.flags)
+    
     runners.append(runner)
+    runners.append(filesinfo_runner)
 
 
 def add_directory_for_bytecode(runners, args):
@@ -2568,6 +2697,7 @@ def add_directory_for_bytecode(runners, args):
     runner.add_directory("bytecode/ts/ic", "ts", ["--dump-assembly"])
     runner.add_directory("bytecode/ts/api11", "ts", ["--dump-assembly", "--module", "--target-api-version=11"])
     runner.add_directory("bytecode/ts/api12", "ts", ["--dump-assembly", "--module", "--target-api-version=12"])
+    runner.add_directory("bytecode/ts/api16", "ts", ["--dump-assembly", "--module", "--target-api-version=16"])
     runner.add_directory("bytecode/watch-expression", "js", ["--debugger-evaluate-expression", "--dump-assembly"])
 
     runners.append(runner)

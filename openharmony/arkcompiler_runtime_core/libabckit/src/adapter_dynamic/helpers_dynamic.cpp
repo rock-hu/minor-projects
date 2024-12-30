@@ -19,6 +19,7 @@
 #include "libabckit/src/logger.h"
 #include "libabckit/src/statuses_impl.h"
 #include "assembler/assembly-program.h"
+#include "assembler/assembly-record.h"
 
 #if defined(_WIN32)
 #include <cwchar>
@@ -249,12 +250,13 @@ bool UpdateModuleLiteralArray(AbckitFile *file, const std::string &recName)
 
 namespace libabckit {
 
+// CC-OFFNXT(G.FUN.01-CPP) helper function
 const panda_file::File *EmitDynamicProgram(AbckitFile *file, pandasm::Program *program,
                                            pandasm::AsmEmitter::PandaFileToPandaAsmMaps *mapsp, bool getFile,
-                                           const char *path)
+                                           std::string_view path)
 {
     for (auto &[recName, rec] : program->record_table) {
-        if (IsServiceRecord(recName) || IsAnnotationInterfaceRecord(rec) || IsExternalRecord(rec)) {
+        if (!IsModuleDescriptorRecord(rec) || IsExternalRecord(rec)) {
             continue;
         }
         if (!UpdateModuleLiteralArray(file, recName)) {
@@ -266,7 +268,7 @@ const panda_file::File *EmitDynamicProgram(AbckitFile *file, pandasm::Program *p
         const panda_file::File *res {nullptr};
         if (!getFile) {
             std::map<std::string, size_t> *statp = nullptr;
-            if (!pandasm::AsmEmitter::Emit(path, *program, statp, mapsp)) {
+            if (!pandasm::AsmEmitter::Emit(std::string(path), *program, statp, mapsp)) {
                 LIBABCKIT_LOG_NO_FUNC(DEBUG)
                     << "[EmitDynamicProgram] FAILURE: " << pandasm::AsmEmitter::GetLastError() << '\n';
                 statuses::SetLastError(AbckitStatus::ABCKIT_STATUS_INTERNAL_ERROR);
@@ -471,6 +473,24 @@ bool IsServiceRecord(const std::string &name)
     return name == TSTYPE_ANNO_RECORD_NAME || name == "_ESConcurrentModuleRequestsAnnotation" ||
            name == "L_ESSlotNumberAnnotation" || name == "_ESSlotNumberAnnotation" ||
            name == "_ESExpectedPropertyCountAnnotation";
+}
+
+bool IsModuleDescriptorRecord(const pandasm::Record &rec)
+{
+    constexpr std::array<std::string_view, 2> REQUIRED_FIELDS = {
+        "moduleRecordIdx",
+        "scopeNames",
+    };
+
+    for (const auto &fieldName : REQUIRED_FIELDS) {
+        auto it = std::find_if(rec.field_list.begin(), rec.field_list.end(),
+                               [&fieldName](const auto &field) { return fieldName == field.name; });
+        if (it == rec.field_list.end()) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 bool IsAnnotationInterfaceRecord(const pandasm::Record &rec)

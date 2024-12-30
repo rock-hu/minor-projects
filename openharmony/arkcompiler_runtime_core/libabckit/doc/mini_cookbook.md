@@ -294,7 +294,7 @@ auto *start = implG->gGetStartBasicBlock(ctxG);
 auto *bb = implG->bbCreateEmpty(ctxG);
 
 implG->bbInsertSuccBlock(start, bb, 0);
-implG->bbEraseSuccBlock(start, 0);
+implG->bbDisconnectSuccBlock(start, 0);
 ```
 
 ### _Insert instructions_
@@ -323,8 +323,8 @@ AbckitInst *ret = dynG->iCreateReturnundefined(ctxG);
 ### _Create 'print("Hello")' for ArkTS1.0_
 
 ```cpp
-AbckitInst *str = dynG->iCreateLoadString(ctxG, implM->createString(file, "Hello"));
-AbckitInst *print = dynG->iCreateTryldglobalbyname(ctxG, implM->createString(file, "print"));
+AbckitInst *str = dynG->iCreateLoadString(ctxG, implM->createString(file, "Hello", strlen("Hello")));
+AbckitInst *print = dynG->iCreateTryldglobalbyname(ctxG, implM->createString(file, "print", strlen("print")));
 AbckitInst *callArg = dynG->iCreateCallarg1(ctxG, print, str);
 ```
 

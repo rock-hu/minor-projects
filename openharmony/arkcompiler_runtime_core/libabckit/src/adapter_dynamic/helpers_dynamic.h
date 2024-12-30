@@ -53,7 +53,7 @@ struct ModuleIterateData {
 
 const panda::panda_file::File *EmitDynamicProgram(AbckitFile *file, panda::pandasm::Program *program,
                                                   panda::pandasm::AsmEmitter::PandaFileToPandaAsmMaps *mapsp,
-                                                  bool getFile, const char *path = nullptr);
+                                                  bool getFile, std::string_view path = {});
 bool IterateModuleSections(
     ModuleIterateData &data, const std::function<size_t(ModuleIterateData *)> &requestIdxSectionModifier,
     const std::function<std::pair<size_t, size_t>(ModuleIterateData *, size_t, size_t)> &sectionModifier,
@@ -63,6 +63,7 @@ void DumpModuleArray(const panda::pandasm::LiteralArray *moduleLitArr, std::stri
 fs::path Relative(const fs::path &src, const fs::path &base);
 
 bool IsServiceRecord(const std::string &name);
+bool IsModuleDescriptorRecord(const panda::pandasm::Record &rec);
 bool IsAnnotationInterfaceRecord(const panda::pandasm::Record &rec);
 bool IsExternalRecord(const panda::pandasm::Record &rec);
 

@@ -112,32 +112,24 @@ void ElfBuilder::Initialize()
     for (size_t i = 0; i < des_.size(); i++) {
         des_[i].AddArkStackMapSection();
     }
-    sectionToAlign_ = {
-        {ElfSecName::TEXT, AOTFileInfo::PAGE_ALIGN},
-        {ElfSecName::STRTAB, 1},
-        {ElfSecName::SYMTAB, AOTFileInfo::DATA_SEC_ALIGN},
-        {ElfSecName::SHSTRTAB, AOTFileInfo::DATA_SEC_ALIGN},
-        {ElfSecName::ARK_STACKMAP, AOTFileInfo::DATA_SEC_ALIGN},
-        {ElfSecName::ARK_FUNCENTRY, AOTFileInfo::DATA_SEC_ALIGN},
-        {ElfSecName::ARK_ASMSTUB, AOTFileInfo::DATA_SEC_ALIGN},
-        {ElfSecName::ARK_MODULEINFO, AOTFileInfo::DATA_SEC_ALIGN},
-    };
+    sectionToAlign_ = {{ElfSecName::TEXT, AOTFileInfo::PAGE_ALIGN},
+                       {ElfSecName::STRTAB, 1},
+                       {ElfSecName::SYMTAB, AOTFileInfo::DATA_SEC_ALIGN},
+                       {ElfSecName::SHSTRTAB, AOTFileInfo::DATA_SEC_ALIGN},
+                       {ElfSecName::ARK_STACKMAP, AOTFileInfo::DATA_SEC_ALIGN},
+                       {ElfSecName::ARK_FUNCENTRY, AOTFileInfo::DATA_SEC_ALIGN},
+                       {ElfSecName::ARK_ASMSTUB, AOTFileInfo::DATA_SEC_ALIGN},
+                       {ElfSecName::ARK_MODULEINFO, AOTFileInfo::DATA_SEC_ALIGN},
+                       {ElfSecName::ARK_CHECKSUMINFO, AOTFileInfo::DATA_SEC_ALIGN}};
 
     sectionToSegment_ = {
-        {ElfSecName::RODATA, ElfSecName::TEXT},
-        {ElfSecName::RODATA_CST4, ElfSecName::TEXT},
-        {ElfSecName::RODATA_CST8, ElfSecName::TEXT},
-        {ElfSecName::RODATA_CST16, ElfSecName::TEXT},
-        {ElfSecName::RODATA_CST32, ElfSecName::TEXT},
-        {ElfSecName::TEXT, ElfSecName::TEXT},
-        {ElfSecName::STRTAB, ElfSecName::DATA},
-        {ElfSecName::SYMTAB, ElfSecName::DATA},
-        {ElfSecName::SHSTRTAB, ElfSecName::DATA},
-        {ElfSecName::ARK_STACKMAP, ElfSecName::DATA},
-        {ElfSecName::ARK_FUNCENTRY, ElfSecName::DATA},
-        {ElfSecName::ARK_ASMSTUB, ElfSecName::TEXT},
-        {ElfSecName::ARK_MODULEINFO, ElfSecName::DATA},
-    };
+        {ElfSecName::RODATA, ElfSecName::TEXT},         {ElfSecName::RODATA_CST4, ElfSecName::TEXT},
+        {ElfSecName::RODATA_CST8, ElfSecName::TEXT},    {ElfSecName::RODATA_CST16, ElfSecName::TEXT},
+        {ElfSecName::RODATA_CST32, ElfSecName::TEXT},   {ElfSecName::TEXT, ElfSecName::TEXT},
+        {ElfSecName::STRTAB, ElfSecName::DATA},         {ElfSecName::SYMTAB, ElfSecName::DATA},
+        {ElfSecName::SHSTRTAB, ElfSecName::DATA},       {ElfSecName::ARK_STACKMAP, ElfSecName::DATA},
+        {ElfSecName::ARK_FUNCENTRY, ElfSecName::DATA},  {ElfSecName::ARK_ASMSTUB, ElfSecName::TEXT},
+        {ElfSecName::ARK_MODULEINFO, ElfSecName::DATA}, {ElfSecName::ARK_CHECKSUMINFO, ElfSecName::DATA}};
 
     segmentToFlag_ = {
         {ElfSecName::TEXT, llvm::ELF::PF_X | llvm::ELF::PF_R},
@@ -524,6 +516,7 @@ Section Headers:
   [ 4] .shstrtab         STRTAB           0000000000002350  00002350  000000000000003f  0000000000000000   A       0     0     8
   [ 5] .ark_funcentry    PROGBITS         0000000000002390  00002390  00000000000006c0  0000000000000000   A       0     0     8
   [ 6] .ark_stackmaps    PROGBITS         0000000000002a50  00002a50  000000000000070e  0000000000000000   A       0     0     8
+  [ 7] .ark_checksuminfo PROGBITS         000000000000315e  0000315e  0000000000000028  0000000000000000   A       0     0     8
 
 section of stub.an layout as follows:
 There are 7 section headers, starting at offset 0x40:
@@ -620,7 +613,8 @@ void ElfBuilder::PackELFSections(std::ofstream &file)
             }
             case ElfSecName::SHSTRTAB:
             case ElfSecName::ARK_FUNCENTRY:
-            case ElfSecName::ARK_ASMSTUB: {
+            case ElfSecName::ARK_ASMSTUB:
+            case ElfSecName::ARK_CHECKSUMINFO: {
                 uint32_t curSecSize = des_[FullSecIndex].GetSecSize(secName);
                 uint64_t curSecAddr = des_[FullSecIndex].GetSecAddr(secName);
                 file.write(reinterpret_cast<char *>(curSecAddr), curSecSize);
@@ -660,23 +654,23 @@ Entry point 0x0
 There are 2 program headers, starting at offset 16384
 
 Program Headers:
-  Type           Offset             VirtAddr           PhysAddr           FileSiz            MemSiz              Flags  Align
-  LOAD           0x0000000000001000 0x0000000000001000 0x0000000000001000 0x0000000000000f61 0x0000000000001000  R E    0x1000
-  LOAD           0x0000000000002000 0x0000000000002000 0x0000000000002000 0x000000000000115e 0x0000000000002000  R      0x1000
+  Type    Offset             VirtAddr           PhysAddr           FileSiz            MemSiz              Flags  Align
+  LOAD    0x0000000000001000 0x0000000000001000 0x0000000000001000 0x0000000000000f61 0x0000000000001000  R E    0x1000
+  LOAD    0x0000000000002000 0x0000000000002000 0x0000000000002000 0x000000000000115e 0x0000000000002000  R      0x1000
 
  Section to Segment mapping:
   Segment Sections...
    00     .text
-   01     .strtab .symtab .shstrtab .ark_funcentry .ark_stackmaps
+   01     .strtab .symtab .shstrtab .ark_funcentry .ark_stackmaps .ark_checksuminfo
 ------------------------------------------------------------------------------------------------------------------------------
 Stub Elf file
 Entry point 0x0
 There are 2 program headers, starting at offset 770048
 
 Program Headers:
-  Type           Offset             VirtAddr           PhysAddr           FileSiz            MemSiz              Flags  Align
-  LOAD           0x0000000000001000 0x0000000000001000 0x0000000000001000 0x0000000000085020 0x0000000000086000  R E    0x1000
-  LOAD           0x0000000000087000 0x0000000000087000 0x0000000000087000 0x0000000000035bbc 0x0000000000036000  R      0x1000
+  Type     Offset             VirtAddr           PhysAddr           FileSiz            MemSiz              Flags  Align
+  LOAD     0x0000000000001000 0x0000000000001000 0x0000000000001000 0x0000000000085020 0x0000000000086000  R E    0x1000
+  LOAD     0x0000000000087000 0x0000000000087000 0x0000000000087000 0x0000000000035bbc 0x0000000000036000  R      0x1000
 
  Section to Segment mapping:
   Segment Sections...
@@ -739,5 +733,123 @@ void ElfBuilder::PackELFSegment(std::ofstream &file)
         ++phdrIndex;
     }
     file.write(reinterpret_cast<char *>(phdrs.get()), sizeof(llvm::ELF::Elf64_Phdr) * segNum);
+}
+
+size_t ElfBuilder::CalculateTotalFileSize()
+{
+    uint32_t moduleNum = des_.size();
+    const auto &sections = GetFullSecInfo();
+    uint32_t secNum = sections.size() + 1;  // +1 for null section
+    llvm::ELF::Elf64_Off curOffset = ComputeEndAddrOfShdr(secNum);
+
+    for (auto const &[secName, secInfo] : sections) {
+        ElfSection section = ElfSection(secName);
+        if (!section.ShouldDumpToAOTFile()) {
+            continue;
+        }
+        auto align = sectionToAlign_[secName];
+        curOffset = AlignUp(curOffset, align);
+
+        switch (secName) {
+            case ElfSecName::ARK_MODULEINFO: {
+                uint32_t curSecSize = sizeof(ModuleSectionDes::ModuleRegionInfo) * moduleNum;
+                curOffset = AlignUp(curOffset, align);
+                curOffset += curSecSize;
+                break;
+            }
+            case ElfSecName::TEXT: {
+                CalculateTextSectionSize(curOffset);
+                break;
+            }
+            case ElfSecName::ARK_STACKMAP: {
+                for (auto &des : des_) {
+                    curOffset += des.GetSecSize(ElfSecName::ARK_STACKMAP);
+                }
+                break;
+            }
+            case ElfSecName::STRTAB: {
+                CalculateStrTabSectionSize(curOffset);
+                break;
+            }
+            case ElfSecName::SYMTAB: {
+                CalculateSymTabSectionSize(curOffset);
+                break;
+            }
+            case ElfSecName::SHSTRTAB:
+            case ElfSecName::ARK_FUNCENTRY:
+            case ElfSecName::ARK_ASMSTUB:
+            case ElfSecName::ARK_CHECKSUMINFO: {
+                uint32_t curSecSize = des_[FullSecIndex].GetSecSize(secName);
+                curOffset = AlignUp(curOffset, align);
+                curOffset += curSecSize;
+                break;
+            }
+            default: {
+                LOG_COMPILER(FATAL) << "this section should not be included in file size calculation";
+                break;
+            }
+        }
+
+        if (secName == lastDataSection || secName == lastCodeSection) {
+            curOffset = AlignUp(curOffset, PageSize());
+        }
+    }
+    // calcutelate segment
+    curOffset += GetSegmentNum() * sizeof(llvm::ELF::Elf64_Phdr);
+    return curOffset;
+}
+
+void ElfBuilder::CalculateTextSectionSize(llvm::ELF::Elf64_Off &curOffset)
+{
+    for (ModuleSectionDes &des : des_) {
+        curOffset = AlignUp(curOffset, AOTFileInfo::PAGE_ALIGN);
+        uint32_t textSize = des.GetSecSize(ElfSecName::TEXT);
+        uint64_t textAddr = des.GetSecAddr(ElfSecName::TEXT);
+        uint64_t rodataAddrBeforeText = 0;
+        uint32_t rodataSizeBeforeText = 0;
+        uint64_t rodataAddrAfterText = 0;
+        uint32_t rodataSizeAfterText = 0;
+        std::tie(rodataAddrBeforeText, rodataSizeBeforeText, rodataAddrAfterText, rodataSizeAfterText) =
+            des.GetMergedRODataAddrAndSize(textAddr);
+
+        if (rodataSizeBeforeText != 0) {
+            curOffset += rodataSizeBeforeText;
+            curOffset = AlignUp(curOffset, AOTFileInfo::TEXT_SEC_ALIGN);
+        }
+        curOffset += textSize;
+        if (rodataSizeAfterText != 0) {
+            curOffset = AlignUp(curOffset, AOTFileInfo::RODATA_SEC_ALIGN);
+            curOffset += rodataSizeAfterText;
+        }
+    }
+}
+
+void ElfBuilder::CalculateStrTabSectionSize(llvm::ELF::Elf64_Off &curOffset)
+{
+    for (auto &des : des_) {
+        uint32_t curSecSize = des.GetSecSize(ElfSecName::STRTAB);
+        curOffset += curSecSize;
+        if (des.HasAsmStubStrTab()) {
+            const auto &asmStubInfo = des.GetAsmStubELFInfo();
+            uint32_t asmStubStrSize = 1;  // 1 for null string
+            uint32_t asmStubSymTabNum = asmStubInfo.size() - 1;
+            for (size_t idx = 0; idx < asmStubSymTabNum; ++idx) {
+                asmStubStrSize += asmStubInfo[idx].first.size() + 1;  // +1 for null terminator
+            }
+            curOffset += asmStubStrSize;
+        }
+    }
+}
+
+void ElfBuilder::CalculateSymTabSectionSize(llvm::ELF::Elf64_Off &curOffset)
+{
+    for (auto &des : des_) {
+        curOffset += des.GetSecSize(ElfSecName::SYMTAB);
+        if (des.HasAsmStubStrTab()) {
+            const auto &asmStubInfo = des.GetAsmStubELFInfo();
+            uint32_t asmStubSymTabNum = asmStubInfo.size() - 1;
+            curOffset += asmStubSymTabNum * sizeof(llvm::ELF::Elf64_Sym);
+        }
+    }
 }
 }  // namespace panda::ecmascript

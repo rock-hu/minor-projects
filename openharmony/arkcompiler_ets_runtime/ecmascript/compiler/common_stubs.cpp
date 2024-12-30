@@ -15,17 +15,20 @@
 
 #include "ecmascript/compiler/common_stubs.h"
 
+#include "ecmascript/compiler/barrier_stub_builder.h"
 #include "ecmascript/base/number_helper.h"
 #include "ecmascript/compiler/access_object_stub_builder.h"
 #include "ecmascript/compiler/builtins/builtins_array_stub_builder.h"
 #include "ecmascript/compiler/builtins/builtins_collection_iterator_stub_builder.h"
 #include "ecmascript/compiler/builtins/builtins_string_stub_builder.h"
 #include "ecmascript/compiler/builtins/linked_hashtable_stub_builder.h"
-#include "ecmascript/compiler/circuit_builder.h"
+#include "ecmascript/compiler/call_stub_builder.h"
 #include "ecmascript/compiler/codegen/llvm/llvm_ir_builder.h"
+#include "ecmascript/compiler/gate.h"
 #include "ecmascript/compiler/interpreter_stub.h"
 #include "ecmascript/compiler/new_object_stub_builder.h"
 #include "ecmascript/compiler/operations_stub_builder.h"
+#include "ecmascript/compiler/share_gate_meta_data.h"
 #include "ecmascript/compiler/stub_builder-inl.h"
 #include "ecmascript/compiler/variable_type.h"
 #include "ecmascript/js_array.h"
@@ -35,6 +38,7 @@
 #include "ecmascript/js_set_iterator.h"
 #include "ecmascript/linked_hash_table.h"
 #include "ecmascript/message_string.h"
+#include "ecmascript/runtime_call_id.h"
 #include "ecmascript/tagged_hash_table.h"
 
 namespace panda::ecmascript::kungfu {
@@ -89,6 +93,54 @@ void DefinefuncStubBuilder::GenerateCircuit()
     }
     Bind(&exit);
     Return(*result);
+}
+
+void CallArg0StubStubBuilder::GenerateCircuit()
+{
+    CallCoStubBuilder callBuilder(this, EcmaOpcode::CALLARG0_IMM8);
+    Return(callBuilder.CallStubDispatch());
+}
+
+void CallArg1StubStubBuilder::GenerateCircuit()
+{
+    CallCoStubBuilder callBuilder(this, EcmaOpcode::CALLARG1_IMM8_V8);
+    Return(callBuilder.CallStubDispatch());
+}
+
+void CallArg2StubStubBuilder::GenerateCircuit()
+{
+    CallCoStubBuilder callBuilder(this, EcmaOpcode::CALLARGS2_IMM8_V8_V8);
+    Return(callBuilder.CallStubDispatch());
+}
+
+void CallArg3StubStubBuilder::GenerateCircuit()
+{
+    CallCoStubBuilder callBuilder(this, EcmaOpcode::CALLARGS3_IMM8_V8_V8_V8);
+    Return(callBuilder.CallStubDispatch());
+}
+
+void CallThis0StubStubBuilder::GenerateCircuit()
+{
+    CallCoStubBuilder callBuilder(this, EcmaOpcode::CALLTHIS0_IMM8_V8);
+    Return(callBuilder.CallStubDispatch());
+}
+
+void CallThis1StubStubBuilder::GenerateCircuit()
+{
+    CallCoStubBuilder callBuilder(this, EcmaOpcode::CALLTHIS1_IMM8_V8_V8);
+    Return(callBuilder.CallStubDispatch());
+}
+
+void CallThis2StubStubBuilder::GenerateCircuit()
+{
+    CallCoStubBuilder callBuilder(this, EcmaOpcode::CALLTHIS2_IMM8_V8_V8_V8);
+    Return(callBuilder.CallStubDispatch());
+}
+
+void CallThis3StubStubBuilder::GenerateCircuit()
+{
+    CallCoStubBuilder callBuilder(this, EcmaOpcode::CALLTHIS3_IMM8_V8_V8_V8_V8);
+    Return(callBuilder.CallStubDispatch());
 }
 
 void ConvertCharToInt32StubBuilder::GenerateCircuit()
@@ -507,6 +559,34 @@ void SetPropertyByNameStubBuilder::GenerateCircuit()
     StringIdInfo info(0, 0, StringIdInfo::Offset::INVALID, StringIdInfo::Length::INVALID);
     GateRef profileTypeInfo = UpdateProfileTypeInfo(glue, jsFunc);
     Return(builder.StoreObjByName(glue, receiver, id, info, value, profileTypeInfo, slotId, ProfileOperation()));
+}
+
+void GetPropertyByNameWithMegaStubBuilder::GenerateCircuit()
+{
+    GateRef glue = PtrArgument(0);
+    GateRef receiver = TaggedArgument(1);
+    GateRef megaStubCache = PtrArgument(3);
+    GateRef prop = TaggedArgument(4);
+    GateRef jsFunc = TaggedArgument(5); // 5 : 6th para
+    GateRef slotId = Int32Argument(6); // 6 : 7th para
+    AccessObjectStubBuilder builder(this, jsFunc);
+    Return(builder.LoadObjByNameWithMega(glue, receiver, megaStubCache, prop, jsFunc, slotId,
+                                         ProfileOperation()));
+}
+
+
+void SetPropertyByNameWithMegaStubBuilder::GenerateCircuit()
+{
+    GateRef glue = PtrArgument(0);
+    GateRef receiver = TaggedArgument(1);
+    GateRef value = TaggedPointerArgument(3); // 3 : 4th para
+    GateRef megaStubCache = PtrArgument(4); // 4 : 5th para
+    GateRef prop = TaggedArgument(5); // 5 : 6th para
+    GateRef jsFunc = TaggedArgument(6); // 6 : 7th para
+    GateRef slotId = Int32Argument(7); // 7 : 8th para
+    AccessObjectStubBuilder builder(this, jsFunc);
+    Return(builder.StoreObjByNameWithMega(glue, receiver, value, megaStubCache, prop, jsFunc, slotId,
+                                          ProfileOperation()));
 }
 
 void DeprecatedSetPropertyByNameStubBuilder::GenerateCircuit()
@@ -1360,6 +1440,42 @@ void SameValueStubBuilder::GenerateCircuit()
     GateRef right = TaggedArgument(2U);
     GateRef result = SameValue(glue, left, right);
     Return(result);
+}
+
+void BatchBarrierStubBuilder::GenerateCircuit()
+{
+    GateRef glue = PtrArgument(0);
+    GateRef dstObj = PtrArgument(1);
+    GateRef dstAddr = PtrArgument(2);
+    GateRef taggedValueCount = TaggedArgument(3);
+    BarrierStubBuilder barrierBuilder(this, glue, dstObj, dstAddr, taggedValueCount);
+    barrierBuilder.DoBatchBarrier();
+    Return();
+}
+
+void MoveBarrierInRegionStubBuilder::GenerateCircuit()
+{
+    GateRef glue = PtrArgument(0);
+    GateRef dstObj = PtrArgument(1);
+    GateRef dstAddr = PtrArgument(2);
+    GateRef count = Int32Argument(3);
+    GateRef srcAddr = PtrArgument(4);
+    BarrierStubBuilder barrierBuilder(this, glue, dstObj, dstAddr, count);
+    barrierBuilder.DoMoveBarrierInRegion(srcAddr);
+    Return();
+}
+
+void MoveBarrierCrossRegionStubBuilder::GenerateCircuit()
+{
+    GateRef glue = PtrArgument(0);
+    GateRef dstObj = PtrArgument(1);
+    GateRef dstAddr = PtrArgument(2);
+    GateRef count = Int32Argument(3);
+    GateRef srcAddr = PtrArgument(4);
+    GateRef srcObj = PtrArgument(5);
+    BarrierStubBuilder barrierBuilder(this, glue, dstObj, dstAddr, count);
+    barrierBuilder.DoMoveBarrierCrossRegion(srcAddr, srcObj);
+    Return();
 }
 
 CallSignature CommonStubCSigns::callSigns_[CommonStubCSigns::NUM_OF_STUBS];

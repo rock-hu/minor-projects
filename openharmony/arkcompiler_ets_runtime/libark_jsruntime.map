@@ -17,6 +17,8 @@
       panda::ecmascript::HELP_OPTION_MSG*;
       panda::ecmascript::COMPILER_HELP_HEAD_MSG*;
 
+      panda::ArkCrashHolder*;
+
       panda::ArrayBufferRef::*;
       panda::SendableArrayBufferRef::*;
       panda::BufferRef::*;
@@ -65,6 +67,9 @@
       panda::SharedInt32ArrayRef::*;
       panda::SharedUint32ArrayRef::*;
       panda::SharedFloat32ArrayRef::*;
+      panda::SharedFloat64ArrayRef::*;
+      panda::SharedBigInt64ArrayRef::*;
+      panda::SharedBigUint64ArrayRef::*;
       panda::SharedUint8ClampedArrayRef::*;
       panda::ProxyRef::*;
       panda::StringRef::*;
@@ -163,6 +168,7 @@
       panda::ecmascript::EcmaStringAccessor::ToStdString*;
       panda::ecmascript::EcmaVM::CheckThread*;
       panda::ecmascript::EcmaVM::GetGlobalEnv*;
+      panda::ecmascript::EcmaVM::IsEnableMutantArray*;
       panda::ecmascript::EcmaVM::IsEnableElementsKind*;
       panda::ecmascript::EcmaVM::IsEnablePGOProfiler*;
       panda::ecmascript::EcmaVM::IsEnableJit*;
@@ -251,8 +257,7 @@
       panda::ecmascript::MethodLiteral::ParseFunctionName*;
       panda::ecmascript::ModuleManager::GetRecordName*;
       panda::ecmascript::ModuleManager::HostGetImportedModule*;
-      panda::ecmascript::ModuleResolver::HostResolveImportedModuleWithMerge*;
-      panda::ecmascript::ModuleResolver::ResolveImportedModuleWithMerge*;
+      panda::ecmascript::ModuleResolver::HostResolveImportedModule*;
       panda::ecmascript::ModuleManagerHelper::GetModuleValue*;
       panda::ecmascript::ModuleManagerHelper::GetNativeModuleValue*;
       panda::ecmascript::ModuleManagerHelper::GetModuleValueFromIndexBinding*;
@@ -351,6 +356,7 @@
       panda::ecmascript::kungfu::PGOTypeRecorder::GetElementsKindForCreater*;
       panda::ecmascript::kungfu::PGOTypeRecorder::GetElementsKindsForUser*;
       panda::ecmascript::kungfu::PGOTypeRecorder::GetElementsLength*;
+      panda::ecmascript::kungfu::PGOTypeRecorder::IsInsufficientProfile*;
       panda::ecmascript::kungfu::PGOTypeRecorder::GetPGOType*;
       panda::ecmascript::kungfu::PGOTypeRecorder::GetRegionSpaceFlag*;
       panda::ecmascript::kungfu::PGOTypeRecorder::GetTransitionElementsKindForUser*;
@@ -385,9 +391,7 @@
       panda::ecmascript::InitializeMallocConfig*;
     };
     extern "C" {
-      get_ark_native_frame_info;
       ark_parse_js_frame_info;
-      ark_translate_js_frame_info;
       step_ark;
       ark_create_js_symbol_extractor;
       ark_destory_js_symbol_extractor;

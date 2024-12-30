@@ -383,12 +383,6 @@ bool JSTaggedValue::IsGeneratorContext() const
     return IsHeapObject() && GetTaggedObject()->GetClass()->IsGeneratorContext();
 }
 
-bool JSTaggedValue::HasStableElements(JSThread *thread) const
-{
-    return IsHeapObject() && GetTaggedObject()->GetClass()->IsStableElements() &&
-           !thread->IsArrayPrototypeChangedGuardiansInvalid();
-}
-
 bool JSTaggedValue::WithinInt32() const
 {
     if (!IsNumber()) {
@@ -661,6 +655,14 @@ int JSTaggedValue::IntLexicographicCompare(JSTaggedValue x, JSTaggedValue y)
         return -1;
     }
     return res;
+}
+
+int JSTaggedValue::DoubleLexicographicCompare(JSTaggedValue x, JSTaggedValue y)
+{
+    ASSERT(x.IsDouble() && y.IsDouble());
+    CString xStr = base::NumberHelper::DoubleToCString(x.GetDouble());
+    CString yStr = base::NumberHelper::DoubleToCString(y.GetDouble());
+    return xStr.compare(yStr);
 }
 
 ComparisonResult JSTaggedValue::Compare(JSThread *thread, const JSHandle<JSTaggedValue> &x,
@@ -1452,8 +1454,12 @@ bool JSTaggedValue::ToArrayLength(JSThread *thread, const JSHandle<JSTaggedValue
 
 JSHandle<JSTaggedValue> JSTaggedValue::ToPrototypeOrObj(JSThread *thread, const JSHandle<JSTaggedValue> &obj)
 {
+#ifdef ENABLE_NEXT_OPTIMIZATION
+    if (obj->IsECMAObject()) {
+        return obj;
+    }
+#endif
     JSHandle<GlobalEnv> env = thread->GetEcmaVM()->GetGlobalEnv();
-
     if (obj->IsNumber()) {
         return JSHandle<JSTaggedValue>(thread,
                                        env->GetNumberFunction().GetObject<JSFunction>()->GetFunctionPrototype());
@@ -1806,12 +1812,17 @@ bool JSTaggedValue::SetJSAPIProperty(JSThread *thread, const JSHandle<JSTaggedVa
 void JSTaggedValue::DumpExceptionObject(JSThread *thread, const JSHandle<JSTaggedValue> &obj)
 {
     if (thread->GetEcmaVM()->GetJSOptions().EnableExceptionBacktrace()) {
-        std::ostringstream oss;
-        obj->Dump(oss, true);
-        std::regex reg("0x[0-9a-fA-F]+");
-        std::string sensitiveStr = std::regex_replace(oss.str(), reg, "");
-        LOG_ECMA(ERROR) << "DumpExceptionObject: " << sensitiveStr;
+        DesensitizedDump(obj);
     }
+}
+
+void JSTaggedValue::DesensitizedDump(const JSHandle<JSTaggedValue> &obj)
+{
+    std::ostringstream oss;
+    obj->Dump(oss, true);
+    std::regex reg("0x[0-9a-fA-F]+");
+    std::string sensitiveStr = std::regex_replace(oss.str(), reg, "");
+    LOG_ECMA(ERROR) << "DumpExceptionObject: " << sensitiveStr;
 }
 
 JSHandle<JSTaggedValue> JSTaggedValue::PublishSharedValueSlow(JSThread *thread, JSHandle<JSTaggedValue> value)
@@ -1821,5 +1832,11 @@ JSHandle<JSTaggedValue> JSTaggedValue::PublishSharedValueSlow(JSThread *thread, 
     ASSERT(value->IsTreeString());
     EcmaString *flatStr = EcmaStringAccessor::Flatten(thread->GetEcmaVM(), JSHandle<EcmaString>(value));
     return JSHandle<JSTaggedValue>(thread, JSTaggedValue(flatStr));
+}
+
+uint32_t JSTaggedValue::GetStringKeyHashCode() const
+{
+    ASSERT(IsString());
+    return EcmaStringAccessor(GetTaggedObject()).GetHashcode();
 }
 }  // namespace panda::ecmascript

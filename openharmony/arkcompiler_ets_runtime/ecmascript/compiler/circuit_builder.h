@@ -54,6 +54,7 @@ class TypedNativeInlineLowering;
 class StringBuilderOptimizer;
 class PostSchedule;
 class TSHCROptPass;
+class BuiltinLowering;
 
 #define BINARY_ARITHMETIC_METHOD_LIST_WITH_BITWIDTH(V)                    \
     V(Int16Add, Add, MachineType::I16)                                    \
@@ -248,18 +249,50 @@ public:
     GateRef NanValue();
     GateRef RelocatableData(uint64_t val);
 
-#define BRANCH_CIR(condition, trueLabel, falseLabel)                                \
-    {                                                                               \
-        std::ostringstream os;                                                      \
-        os << __func__ << ": " << #trueLabel << "- " << #falseLabel;                \
-        builder_.Branch(condition, trueLabel, falseLabel, 1, 1, os.str().c_str());  \
+#define BRANCH(condition, trueLabel, falseLabel)                                         \
+    {                                                                                    \
+        std::ostringstream os;                                                           \
+        os << __func__ << ": " << #trueLabel << "- " << #falseLabel;                     \
+        Branch(condition, trueLabel, falseLabel, 1, 1, os.str().c_str());                \
     }
 
-#define BRANCH_CIR2(condition, trueLabel, falseLabel)                      \
-    {                                                                      \
-        std::ostringstream os;                                             \
-        os << __func__ << ": " << #trueLabel << "- " << #falseLabel;       \
-        Branch(condition, trueLabel, falseLabel, 1, 1, os.str().c_str());  \
+#define BRANCH_CIR(condition, trueLabel, falseLabel)                                     \
+    {                                                                                    \
+        std::ostringstream os;                                                           \
+        os << __func__ << ": " << #trueLabel << "- " << #falseLabel;                     \
+        builder_.Branch(condition, trueLabel, falseLabel, 1, 1, os.str().c_str());       \
+    }
+
+#define BRANCH_LIKELY(condition, trueLabel, falseLabel)                                  \
+    {                                                                                    \
+        std::ostringstream os;                                                           \
+        os << __func__ << ": " << #trueLabel << "(likely)- " << #falseLabel;             \
+        Branch(condition, trueLabel, falseLabel,                                         \
+            BranchWeight::DEOPT_WEIGHT, BranchWeight::ONE_WEIGHT, os.str().c_str());     \
+    }
+
+#define BRANCH_CIR_LIKELY(condition, trueLabel, falseLabel)                              \
+    {                                                                                    \
+        std::ostringstream os;                                                           \
+        os << __func__ << ": " << #trueLabel << "(likely)- " << #falseLabel;             \
+        builder_.Branch(condition, trueLabel, falseLabel,                                \
+            BranchWeight::DEOPT_WEIGHT, BranchWeight::ONE_WEIGHT, os.str().c_str());     \
+    }
+
+#define BRANCH_UNLIKELY(condition, trueLabel, falseLabel)                                \
+    {                                                                                    \
+        std::ostringstream os;                                                           \
+        os << __func__ << ": " << #trueLabel << "(unlikely)- " << #falseLabel;           \
+        Branch(condition, trueLabel, falseLabel,                                         \
+            BranchWeight::ONE_WEIGHT, BranchWeight::DEOPT_WEIGHT, os.str().c_str());     \
+    }
+
+#define BRANCH_NO_WEIGHT(condition, trueLabel, falseLabel)                               \
+    {                                                                                    \
+        std::ostringstream os;                                                           \
+        os << __func__ << ": " << #trueLabel << "(no weight)- " << #falseLabel;          \
+        Branch(condition, trueLabel, falseLabel,                                         \
+            BranchWeight::ZERO_WEIGHT, BranchWeight::ZERO_WEIGHT, os.str().c_str());     \
     }
 
     GateRef Branch(GateRef state, GateRef condition, uint32_t leftWeight = 1, uint32_t rightWeight = 1,
@@ -283,6 +316,7 @@ public:
     GateRef GetUnsharedConstpoolFromGlue(GateRef glue, GateRef constpool);
     GateRef GetUnsharedConstpoolIndex(GateRef constpool);
     GateRef GetUnsharedConstpool(GateRef arrayAddr, GateRef index);
+    GateRef GetUnsharedConstpoolArrayLen(GateRef glue);
     GateRef GetCodeAddr(GateRef jsFunc);
     GateRef GetBaselineCodeAddr(GateRef baselineCode);
     GateRef GetObjectByIndexFromConstPool(GateRef glue, GateRef hirGate, GateRef frameState, GateRef index,
@@ -450,6 +484,8 @@ public:
                           GateRef hirGate);
     GateRef CallStub(GateRef glue, GateRef hirGate, int index, const std::vector<GateRef> &args,
                      const char* comment = nullptr);
+    GateRef CallCommonStub(GateRef glue, GateRef hirGate, int index, const std::vector<GateRef> &args,
+                           const char *comment = nullptr);
     GateRef CallBuiltinRuntime(GateRef glue, GateRef depend, const std::vector<GateRef> &args, bool isNew = false);
     GateRef CallBuiltinRuntimeWithNewTarget(GateRef glue, GateRef depend, const std::vector<GateRef> &args);
     GateRef Call(const CallSignature* cs, GateRef glue, GateRef target, GateRef depend,
@@ -484,6 +520,8 @@ public:
     inline GateRef IsJSObject(GateRef obj);
     inline GateRef IsCallable(GateRef obj);
     inline GateRef IsCallableFromBitField(GateRef bitfield);
+    inline GateRef AlreadyDeopt(GateRef method);
+    inline GateRef AlreadyDeoptFromExtraLiteralInfo(GateRef callfield);
     inline GateRef IsPrototypeHClass(GateRef hclass);
     inline GateRef IsJsProxy(GateRef obj);
     GateRef IsJSHClass(GateRef obj);
@@ -546,6 +584,7 @@ public:
     GateRef JSCallTargetTypeCheck(GateRef func, GateRef methodIndex, GateRef gate);
     template<TypedCallTargetCheckOp Op>
     inline GateRef JSNoGCCallThisTargetTypeCheck(GateRef func, GateRef methodId, GateRef gate);
+    GateRef CallTargetIsCompiledCheck(GateRef func, GateRef gate);
     GateRef TypeOfCheck(GateRef gate, ParamType paramType);
     GateRef TypedTypeOf(ParamType paramType);
     GateRef TypedCallOperator(GateRef hirGate, MachineType type, const std::vector<GateRef>& inList, bool isSideEffect);
@@ -862,6 +901,7 @@ public:
                MemoryAttribute mAttr = MemoryAttribute::Default());
     void StoreWithoutBarrier(VariableType type, GateRef addr, GateRef value,
                              MemoryAttribute mAttr = MemoryAttribute::Default());
+    GateRef ThreeInt64Min(GateRef first, GateRef second, GateRef third);
 
     // cast operation
     inline GateRef Int16ToBigEndianInt16(GateRef x);
@@ -973,6 +1013,7 @@ private:
     friend TypedNativeInlineLowering;
     friend PostSchedule;
     friend TSHCROptPass;
+    friend BuiltinLowering;
 };
 
 class LogicAndBuilder {

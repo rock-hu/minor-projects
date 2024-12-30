@@ -15,10 +15,8 @@
 
 #include "ecmascript/dfx/hprof/heap_snapshot.h"
 
-#include <functional>
 
 #include "ecmascript/ecma_string-inl.h"
-#include "ecmascript/jspandafile/program_object.h"
 
 namespace panda::ecmascript {
 CString *HeapSnapshot::GetString(const CString &as)
@@ -34,10 +32,10 @@ CString *HeapSnapshot::GetArrayString(TaggedArray *array, const CString &as)
     return GetString(arrayName);  // String type was handled singly, see#GenerateStringNode
 }
 
-Node *Node::NewNode(Chunk *chunk, NodeId id, size_t index, const CString *name, NodeType type, size_t size,
+Node *Node::NewNode(Chunk &chunk, NodeId id, size_t index, const CString *name, NodeType type, size_t size,
                     size_t nativeSize, JSTaggedType entry, bool isLive)
 {
-    auto node = chunk->New<Node>(id, index, name, type, size, nativeSize, 0, entry, isLive);
+    auto node = chunk.New<Node>(id, index, name, type, size, nativeSize, 0, entry, isLive);
     if (UNLIKELY(node == nullptr)) {
         LOG_FULL(FATAL) << "internal allocator failed";
         UNREACHABLE();
@@ -45,9 +43,9 @@ Node *Node::NewNode(Chunk *chunk, NodeId id, size_t index, const CString *name, 
     return node;
 }
 
-Edge *Edge::NewEdge(Chunk *chunk, EdgeType type, Node *from, Node *to, CString *name)
+Edge *Edge::NewEdge(Chunk &chunk, EdgeType type, Node *from, Node *to, CString *name)
 {
-    auto edge = chunk->New<Edge>(type, from, to, name);
+    auto edge = chunk.New<Edge>(type, from, to, name);
     if (UNLIKELY(edge == nullptr)) {
         LOG_FULL(FATAL) << "internal allocator failed";
         UNREACHABLE();
@@ -55,9 +53,9 @@ Edge *Edge::NewEdge(Chunk *chunk, EdgeType type, Node *from, Node *to, CString *
     return edge;
 }
 
-Edge *Edge::NewEdge(Chunk *chunk, EdgeType type, Node *from, Node *to, uint32_t index)
+Edge *Edge::NewEdge(Chunk &chunk, EdgeType type, Node *from, Node *to, uint32_t index)
 {
-    auto edge = chunk->New<Edge>(type, from, to, index);
+    auto edge = chunk.New<Edge>(type, from, to, index);
     if (UNLIKELY(edge == nullptr)) {
         LOG_FULL(FATAL) << "internal allocator failed";
         UNREACHABLE();
@@ -68,10 +66,10 @@ Edge *Edge::NewEdge(Chunk *chunk, EdgeType type, Node *from, Node *to, uint32_t 
 HeapSnapshot::~HeapSnapshot()
 {
     for (Node *node : nodes_) {
-        chunk_->Delete(node);
+        chunk_.Delete(node);
     }
     for (Edge *edge : edges_) {
-        chunk_->Delete(edge);
+        chunk_.Delete(edge);
     }
     nodes_.clear();
     edges_.clear();
@@ -81,7 +79,6 @@ HeapSnapshot::~HeapSnapshot()
     methodToTraceNodeId_.clear();
     traceNodeIndex_.clear();
     entryIdMap_ = nullptr;
-    chunk_ = nullptr;
     stringTable_ = nullptr;
 }
 
@@ -118,7 +115,7 @@ void HeapSnapshot::UpdateNodes(bool isInFinish)
             entryMap_.FindAndEraseNode((*iter)->GetAddress());
             entryIdMap_->EraseId((*iter)->GetAddress());
             DecreaseNodeSize((*iter)->GetSelfSize());
-            chunk_->Delete(*iter);
+            chunk_.Delete(*iter);
             iter = nodes_.erase(iter);
             nodeCount_--;
         } else {
@@ -1249,7 +1246,7 @@ void HeapSnapshot::EraseNodeUnique(Node *node)
     auto iter = std::find(nodes_.begin(), nodes_.end(), node);
     if (iter != nodes_.end()) {
         DecreaseNodeSize(node->GetSelfSize());
-        chunk_->Delete(node);
+        chunk_.Delete(node);
         nodes_.erase(iter);
         nodeCount_--;
     }
@@ -1296,6 +1293,7 @@ void HeapSnapshot::AddSyntheticRoot()
         [[maybe_unused]] Root type, ObjectSlot slot) {
         ROOT_EDGE_BUILDER_CORE(type, slot);
     };
+
     RootBaseAndDerivedVisitor rootBaseEdgeBuilder = []
         ([[maybe_unused]] Root type, [[maybe_unused]] ObjectSlot base, [[maybe_unused]] ObjectSlot derived,
          [[maybe_unused]] uintptr_t baseOldObject) {
@@ -1307,8 +1305,39 @@ void HeapSnapshot::AddSyntheticRoot()
             ROOT_EDGE_BUILDER_CORE(type, slot);
         }
     };
+
+    RootVisitor rootEdgeBuilderWithLeakDetect = [&]([[maybe_unused]] Root type, ObjectSlot slot) {
+        LogLeakedLocalHandleBackTrace(slot);
+        ROOT_EDGE_BUILDER_CORE(type, slot);
+    };
+
+    RootRangeVisitor rootRangeEdgeBuilderWithLeakDetect = [&]([[maybe_unused]] Root type,
+        ObjectSlot start, ObjectSlot end) {
+        for (ObjectSlot slot = start; slot < end; slot++) {
+            LogLeakedLocalHandleBackTrace(slot);
+            ROOT_EDGE_BUILDER_CORE(type, slot);
+        }
+    };
 #undef ROOT_EDGE_BUILDER_CORE
-    rootVisitor_.VisitHeapRoots(vm_->GetJSThread(), rootEdgeBuilder, rootRangeEdgeBuilder, rootBaseEdgeBuilder);
+
+    auto options = const_cast<EcmaVM *>(vm_)->GetJSOptions();
+    auto heapProfiler = reinterpret_cast<HeapProfiler *>(HeapProfilerInterface::GetInstance(const_cast<EcmaVM *>(vm_)));
+    bool isStopLocalLeakDetect =
+            options.IsEnableLocalHandleLeakDetect() && !heapProfiler->IsStartLocalHandleLeakDetect();
+    if (isStopLocalLeakDetect && heapProfiler->GetLeakStackTraceFd() > 0) {
+        LOG_ECMA(INFO) << "[LocalHandleLeakDetect] Iterate heap roots in heap snapshot WITH leak detection.";
+        std::ostringstream buffer;
+        buffer << "========================== Local Handle Leak Detection Result ==========================\n";
+        heapProfiler->WriteToLeakStackTraceFd(buffer);
+        rootVisitor_.VisitHeapRoots(vm_->GetJSThread(), rootEdgeBuilderWithLeakDetect,
+                                    rootRangeEdgeBuilderWithLeakDetect, rootBaseEdgeBuilder);
+        buffer << "======================== End of Local Handle Leak Detection Result =======================";
+        heapProfiler->WriteToLeakStackTraceFd(buffer);
+        heapProfiler->CloseLeakStackTraceFd();
+    } else {
+        rootVisitor_.VisitHeapRoots(vm_->GetJSThread(), rootEdgeBuilder, rootRangeEdgeBuilder, rootBaseEdgeBuilder);
+    }
+    heapProfiler->ClearHandleBackTrace();
 
     // add root edges to edges begin
     edges_.insert(edges_.begin(), rootEdges.begin(), rootEdges.end());
@@ -1317,6 +1346,22 @@ void HeapSnapshot::AddSyntheticRoot()
     for (Node *node : nodes_) {
         node->SetIndex(reindex);
         reindex++;
+    }
+}
+
+void HeapSnapshot::LogLeakedLocalHandleBackTrace(ObjectSlot slot)
+{
+    auto heapProfiler = reinterpret_cast<HeapProfiler *>(HeapProfilerInterface::GetInstance(const_cast<EcmaVM *>(vm_)));
+    if (!heapProfiler->GetBackTraceOfHandle(slot.SlotAddress()).empty()) {
+        JSTaggedValue value(slot.GetTaggedType());
+        TaggedObject *root = value.GetTaggedObject();
+        Node *rootNode = entryMap_.FindEntry(Node::NewAddress(root));
+        if (rootNode != nullptr && heapProfiler->GetLeakStackTraceFd() > 0) {
+            std::ostringstream buffer;
+            buffer << "NodeId: " << rootNode->GetId() << "\n"
+                   << heapProfiler->GetBackTraceOfHandle(slot.SlotAddress()) << "\n";
+            heapProfiler->WriteToLeakStackTraceFd(buffer);
+        }
     }
 }
 

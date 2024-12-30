@@ -76,8 +76,6 @@ public:
      * @brief Destroy the Module object
      */
     ~Module() override = default;
-    // Other API.
-    // ...
 
     /**
      * @brief Adds import from one ArktsV1 module to another ArktsV1 module.
@@ -96,13 +94,13 @@ public:
 
     /**
      * @brief Removes import `id` from Module.
-     * @param [ in ] id - Import to remove from the Module.
+     * @param [ in ] desc - Import to remove from the Module.
      * @return New state of Module.
      * @note Set `ABCKIT_STATUS_BAD_ARGUMENT` error if view itself is false.
      * @note Set `ABCKIT_STATUS_BAD_ARGUMENT` error if Module does not have the import descriptor `id`.
      * @note Set `ABCKIT_STATUS_UNSUPPORTED` error if Module doesn't have `ABCKIT_TARGET_ARK_TS_V1` target.
      */
-    Module RemoveImport(arkts::ImportDescriptor id) const;
+    Module RemoveImport(arkts::ImportDescriptor desc) const;
 
     /**
      * @brief Adds export from one Arkts module to another Arkts module.

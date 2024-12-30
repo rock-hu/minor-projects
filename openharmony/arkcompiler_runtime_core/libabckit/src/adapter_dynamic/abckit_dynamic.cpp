@@ -15,6 +15,7 @@
 
 #include "libabckit/include/c/metadata_core.h"
 #include "libabckit/src/adapter_dynamic/abckit_dynamic.h"
+#include "libabckit/src/adapter_dynamic/convert.h"
 #include "libabckit/src/adapter_dynamic/helpers_dynamic.h"
 #include "libabckit/src/helpers_common.h"
 #include "libabckit/src/logger.h"
@@ -36,6 +37,7 @@
 #include <cstdint>
 #include <cstring>
 #include <string>
+#include <type_traits>
 
 #if __has_include(<filesystem>)
 #include <filesystem>
@@ -93,7 +95,7 @@ AbckitTypeId PandaTypeToAbcKitTypeId(const pandasm::Type &type)
 
 AbckitString *CreateNameString(std::string &name, AbckitFile *file)
 {
-    return CreateStringDynamic(file, name.data());
+    return CreateStringDynamic(file, name.data(), name.size());
 }
 
 AbckitCoreModule *TryFindModule(const std::string &name, AbckitFile *file)
@@ -441,9 +443,10 @@ std::unique_ptr<AbckitCoreModule> CreateModule(pandasm::Program *prog, const pan
 {
     auto m = std::make_unique<AbckitCoreModule>();
     m->file = file;
-    m->moduleName = CreateStringDynamic(file, record->name.data());
-    m->target = m->moduleName->impl.find("JS", 0) == std::string_view::npos ? ABCKIT_TARGET_ARK_TS_V1
-                                                                            : ABCKIT_TARGET_JS;  // NOTE(ivagin)
+    m->moduleName = CreateStringDynamic(file, record->name.data(), record->name.size());
+    m->target = convert::ToTargetDynamic(record->language);
+    LIBABCKIT_LOG(DEBUG) << "name=" << m->moduleName << " target=" << convert::ToString(m->target)
+                         << " lang=" << record->language << "\n";
 
     CreateModuleImpl(m.get());
 
@@ -794,7 +797,7 @@ void CreateFunctionAnnotations(AbckitFile *file, panda::pandasm::Function &funct
         for (auto &annoElemImpl : annoImpl.GetElements()) {
             auto annoElem = std::make_unique<AbckitCoreAnnotationElement>();
             annoElem->ann = anno.get();
-            annoElem->name = CreateStringDynamic(file, annoElemImpl.GetName().data());
+            annoElem->name = CreateStringDynamic(file, annoElemImpl.GetName().data(), annoElemImpl.GetName().size());
             annoElem->impl = std::make_unique<AbckitArktsAnnotationElement>();
             annoElem->GetArkTSImpl()->core = annoElem.get();
             auto value = FindOrCreateValueDynamic(file, *annoElemImpl.GetValue());
@@ -975,8 +978,7 @@ AbckitCoreModule *ResolveUnfoundModule(AbckitCoreModule *m, AbckitFile *file, si
     auto foundModule = TryFindModule(moduleName, file);
     if (foundModule == nullptr) {
         auto md = std::make_unique<AbckitCoreModule>();
-        md->target = moduleName.find("JS", 0) == std::string_view::npos ? ABCKIT_TARGET_ARK_TS_V1
-                                                                        : ABCKIT_TARGET_JS;  // NOTE(ivagin)
+        md->target = ABCKIT_TARGET_UNKNOWN;
         md->isExternal = true;
         md->file = file;
         md->moduleName = CreateNameString(moduleName, file);
@@ -1053,8 +1055,7 @@ void CollectModules(pandasm::Program *prog, AbckitFile *file)
 {
     for (const auto &[recName, rec] : prog->record_table) {
         LIBABCKIT_LOG(DEBUG) << "RECORD: " << recName << ' ' << rec.name << '\n';
-        if (libabckit::IsServiceRecord(recName) || libabckit::IsAnnotationInterfaceRecord(rec) ||
-            libabckit::IsExternalRecord(rec)) {
+        if (!libabckit::IsModuleDescriptorRecord(rec) || libabckit::IsExternalRecord(rec)) {
             continue;
         }
         auto m = CreateModule(prog, &rec, file);
@@ -1143,13 +1144,14 @@ struct CtxIInternal {
     panda::abc2program::Abc2ProgramDriver *driver = nullptr;
 };
 
-AbckitFile *OpenAbcDynamic(const char *path)
+AbckitFile *OpenAbcDynamic(const char *path, size_t len)
 {
     LIBABCKIT_LOG_FUNC;
-    LIBABCKIT_LOG(DEBUG) << path << '\n';
+    auto spath = std::string(path, len);
+    LIBABCKIT_LOG(DEBUG) << spath << '\n';
     auto *abc2program = new panda::abc2program::Abc2ProgramDriver();
-    if (!abc2program->Compile(path)) {
-        LIBABCKIT_LOG(DEBUG) << "Failed to open " << path << "\n";
+    if (!abc2program->Compile(spath)) {
+        LIBABCKIT_LOG(DEBUG) << "Failed to open " << spath << "\n";
         delete abc2program;
         return nullptr;
     }
@@ -1158,7 +1160,7 @@ AbckitFile *OpenAbcDynamic(const char *path)
     file->frontend = Mode::DYNAMIC;
     CreateWrappers(&prog, file);
 
-    auto pf = panda_file::File::Open(path);
+    auto pf = panda_file::File::Open(spath);
     if (pf == nullptr) {
         LIBABCKIT_LOG(DEBUG) << "Failed to panda_file::File::Open\n";
         delete abc2program;
@@ -1177,13 +1179,13 @@ AbckitFile *OpenAbcDynamic(const char *path)
     return file;
 }
 
-void WriteAbcDynamic(AbckitFile *file, const char *path)
+void WriteAbcDynamic(AbckitFile *file, const char *path, size_t len)
 {
     auto program = file->GetDynamicProgram();
 
     pandasm::AsmEmitter::PandaFileToPandaAsmMaps *mapsp = nullptr;
 
-    EmitDynamicProgram(file, program, mapsp, false, path);
+    EmitDynamicProgram(file, program, mapsp, false, std::string_view(path, len));
     if (statuses::GetLastError() != AbckitStatus::ABCKIT_STATUS_NO_ERROR) {
         return;
     }

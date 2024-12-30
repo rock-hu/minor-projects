@@ -12,25 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <atomic>
-#include <chrono>
-#include <fcntl.h>
 #include <sys/wait.h>
 #include <sys/prctl.h>
-#include <sys/stat.h>
-#include <sys/syscall.h>
-#include <thread>
-#include <unistd.h>
 #include "ecmascript/dfx/hprof/heap_profiler.h"
 
 #include "ecmascript/checkpoint/thread_state_transition.h"
 #include "ecmascript/dfx/hprof/heap_snapshot.h"
-#include "ecmascript/jspandafile/js_pandafile_manager.h"
 #include "ecmascript/mem/heap-inl.h"
 #include "ecmascript/mem/shared_heap/shared_concurrent_sweeper.h"
 #include "ecmascript/base/block_hook_scope.h"
 #include "ecmascript/dfx/hprof/heap_root_visitor.h"
 #include "ecmascript/mem/object_xray.h"
+#include "ecmascript/platform/backtrace.h"
 
 #if defined(ENABLE_DUMP_IN_FAULTLOG)
 #include "faultloggerd_client.h"
@@ -159,6 +152,20 @@ void HeapProfiler::DumpHeapSnapshotForOOM([[maybe_unused]] const DumpSnapShotOpt
 #if defined(ENABLE_DUMP_IN_FAULTLOG)
     // Write in faultlog for heap leak.
     int32_t fd;
+#if defined(PANDA_TARGET_ARM32)
+    DumpSnapShotOption doDumpOption;
+    doDumpOption.dumpFormat = DumpFormat::JSON;
+    doDumpOption.isFullGC = dumpOption.isFullGC;
+    doDumpOption.isSimplify = true;
+    doDumpOption.isBeforeFill = false;
+    fd = RequestFileDescriptor(static_cast<int32_t>(FaultLoggerType::JS_HEAP_SNAPSHOT));
+    if (fd < 0) {
+        LOG_ECMA(ERROR) << "OOM Dump Write FD failed, fd" << fd;
+        return;
+    }
+    FileDescriptorStream stream(fd);
+    DumpHeapSnapshot(&stream, doDumpOption);
+#else
     if (dumpOption.isDumpOOM && dumpOption.dumpFormat == DumpFormat::BINARY) {
         fd = RequestFileDescriptor(static_cast<int32_t>(FaultLoggerType::JS_RAW_SNAPSHOT));
     } else {
@@ -174,6 +181,7 @@ void HeapProfiler::DumpHeapSnapshotForOOM([[maybe_unused]] const DumpSnapShotOpt
     } else {
         DumpHeapSnapshotFromSharedGC(&stream, dumpOption);
     }
+#endif
 #endif
 }
 
@@ -526,7 +534,7 @@ bool HeapProfiler::GenerateHeapSnapshot(std::string &inputFilePath, std::string 
     auto strTabMap = DecodeStrTable(GetEcmaStringTable(), file, sections[2], sections[3]);
     file.close();
     DumpSnapShotOption dp;
-    auto *snapshot = new HeapSnapshot(vm_, GetEcmaStringTable(), dp, false, entryIdMap_, GetChunk());
+    auto *snapshot = new HeapSnapshot(vm_, GetEcmaStringTable(), dp, false, entryIdMap_);
     LOG_ECMA(INFO) << "ark raw heap decode generate nodes=" << objMap.size();
     snapshot->GenerateNodeForBinMod(objMap, rootSet, strTabMap);
     rootSet.clear();
@@ -830,7 +838,7 @@ bool HeapProfiler::DumpRawHeap(Stream *stream, uint32_t &fileOffset, CVector<uin
     CUnorderedMap<char *, uint32_t> objTabMap; // buf map table num
     CUnorderedMap<uint64_t, CVector<uint64_t>> strIdMapObjVec; // string id map to objs vector
     DumpSnapShotOption op;
-    auto snapshot = GetChunk()->New<HeapSnapshot>(vm_, GetEcmaStringTable(), op, false, entryIdMap_, GetChunk());
+    auto snapshot = GetChunk()->New<HeapSnapshot>(vm_, GetEcmaStringTable(), op, false, entryIdMap_);
     uint32_t objTotalNum = GenObjTable(objTabMap, snapshot, strIdMapObjVec);
     LOG_ECMA(INFO) << "ark raw heap dump DumpRawHeap totalObjNumber=" << objTotalNum;
     CVector<CVector<std::pair<char *, uint32_t>>> allMemBuf(objTabMap.size(), CVector<std::pair<char *, uint32_t>>());
@@ -1163,7 +1171,7 @@ HeapSnapshot *HeapProfiler::MakeHeapSnapshot(SampleType sampleType, const DumpSn
     switch (sampleType) {
         case SampleType::ONE_SHOT: {
             auto *snapshot = GetChunk()->New<HeapSnapshot>(vm_, GetEcmaStringTable(), dumpOption,
-                                                           traceAllocation, entryIdMap_, GetChunk());
+                                                           traceAllocation, entryIdMap_);
             if (snapshot == nullptr) {
                 LOG_FULL(FATAL) << "alloc snapshot failed";
                 UNREACHABLE();
@@ -1173,7 +1181,7 @@ HeapSnapshot *HeapProfiler::MakeHeapSnapshot(SampleType sampleType, const DumpSn
         }
         case SampleType::REAL_TIME: {
             auto *snapshot = GetChunk()->New<HeapSnapshot>(vm_, GetEcmaStringTable(), dumpOption,
-                                                           traceAllocation, entryIdMap_, GetChunk());
+                                                           traceAllocation, entryIdMap_);
             if (snapshot == nullptr) {
                 LOG_FULL(FATAL) << "alloc snapshot failed";
                 UNREACHABLE();
@@ -1227,5 +1235,114 @@ const struct SamplingInfo *HeapProfiler::GetAllocationProfile()
         return nullptr;
     }
     return heapSampling_->GetAllocationProfile();
+}
+
+bool HeapProfiler::IsStartLocalHandleLeakDetect() const
+{
+    return startLocalHandleLeakDetect_;
+}
+
+void HeapProfiler::SwitchStartLocalHandleLeakDetect()
+{
+    startLocalHandleLeakDetect_ = !startLocalHandleLeakDetect_;
+}
+
+void HeapProfiler::IncreaseScopeCount()
+{
+    ++scopeCount_;
+}
+
+void HeapProfiler::DecreaseScopeCount()
+{
+    --scopeCount_;
+}
+
+uint32_t HeapProfiler::GetScopeCount() const
+{
+    return scopeCount_;
+}
+
+void HeapProfiler::PushToActiveScopeStack(LocalScope *localScope, EcmaHandleScope *ecmaHandleScope)
+{
+    activeScopeStack_.emplace(std::make_shared<ScopeWrapper>(localScope, ecmaHandleScope));
+}
+
+void HeapProfiler::PopFromActiveScopeStack()
+{
+    if (!activeScopeStack_.empty()) {
+        activeScopeStack_.pop();
+    }
+}
+
+std::shared_ptr<ScopeWrapper> HeapProfiler::GetLastActiveScope() const
+{
+    if (!activeScopeStack_.empty()) {
+        return activeScopeStack_.top();
+    }
+    return nullptr;
+}
+
+void HeapProfiler::ClearHandleBackTrace()
+{
+    handleBackTrace_.clear();
+}
+
+std::string_view HeapProfiler::GetBackTraceOfHandle(const uintptr_t handle) const
+{
+    const auto it = handleBackTrace_.find(handle);
+    if (it != handleBackTrace_.end()) {
+        return std::string_view(it->second);
+    }
+    return "";
+}
+
+bool HeapProfiler::InsertHandleBackTrace(uintptr_t handle, const std::string &backTrace)
+{
+    auto [iter, inserted] = handleBackTrace_.emplace(handle, backTrace);
+    return inserted;
+}
+
+void HeapProfiler::WriteToLeakStackTraceFd(std::ostringstream &buffer) const
+{
+    if (leakStackTraceFd_ < 0) {
+        return;
+    }
+    buffer << std::endl;
+    DPrintf(reinterpret_cast<fd_t>(leakStackTraceFd_), buffer.str());
+    buffer.str("");
+}
+
+void HeapProfiler::SetLeakStackTraceFd(const int32_t fd)
+{
+    leakStackTraceFd_ = fd;
+}
+
+int32_t HeapProfiler::GetLeakStackTraceFd() const
+{
+    return leakStackTraceFd_;
+}
+
+void HeapProfiler::CloseLeakStackTraceFd()
+{
+    if (leakStackTraceFd_ != -1) {
+        FSync(reinterpret_cast<fd_t>(leakStackTraceFd_));
+        Close(reinterpret_cast<fd_t>(leakStackTraceFd_));
+        leakStackTraceFd_ = -1;
+    }
+}
+
+void HeapProfiler::StorePotentiallyLeakHandles(const uintptr_t handle)
+{
+    bool isDetectedByScopeCount { GetScopeCount() <= 1 };
+    bool isDetectedByScopeTime { false };
+    if (auto lastScope = GetLastActiveScope()) {
+        auto timeSinceLastScopeCreate = lastScope->clockScope_.TotalSpentTime();
+        isDetectedByScopeTime = timeSinceLastScopeCreate >= LOCAL_HANDLE_LEAK_TIME_MS;
+    }
+    if (isDetectedByScopeCount || isDetectedByScopeTime) {
+        std::ostringstream stack;
+        Backtrace(stack, true);
+        InsertHandleBackTrace(handle, stack.str());
+    }
 }
 }  // namespace panda::ecmascript

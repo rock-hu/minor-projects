@@ -57,7 +57,7 @@ TEST_F(LibAbcKitInspectApiFilesTest, DynamicFileGetVersion)
 
     AbckitFileVersion version = g_implI->fileGetVersion(file);
     // NOLINTNEXTLINE(readability-magic-numbers)
-    std::array<uint8_t, ABCKIT_VERSION_SIZE> expectedVersion = {12, 0, 6, 0};
+    std::array<uint8_t, ABCKIT_VERSION_SIZE> expectedVersion = {13, 0, 1, 0};
     const auto versionsEquality = std::memcmp(expectedVersion.data(), version, sizeof(uint8_t) * ABCKIT_VERSION_SIZE);
     ASSERT_EQ(versionsEquality, 0);
 
@@ -82,7 +82,8 @@ TEST_F(LibAbcKitInspectApiFilesTest, DynamicFileEnumerateModules)
         ASSERT_NE(gotModulesMap.find(expectedName), gotModulesMap.end());
     }
 
-    g_impl->writeAbc(file, ABCKIT_ABC_DIR "ut/metadata_core/inspect_api/modules/modules_dynamic_modified.abc");
+    constexpr auto OUTPUT_PATH = ABCKIT_ABC_DIR "ut/metadata_core/inspect_api/modules/modules_dynamic_modified.abc";
+    g_impl->writeAbc(file, OUTPUT_PATH, strlen(OUTPUT_PATH));
     ASSERT_EQ(g_impl->getLastError(), ABCKIT_STATUS_NO_ERROR);
     g_impl->closeFile(file);
     ASSERT_EQ(g_impl->getLastError(), ABCKIT_STATUS_NO_ERROR);
@@ -106,7 +107,8 @@ TEST_F(LibAbcKitInspectApiFilesTest, DISABLED_DynamicFileEnumerateExternalModule
         ASSERT_NE(gotModulesMap.find(expectedName), gotModulesMap.end());
     }
 
-    g_impl->writeAbc(file, ABCKIT_ABC_DIR "ut/metadata_core/inspect_api/modules/modules_dynamic_modified.abc");
+    constexpr auto OUTPUT_PATH = ABCKIT_ABC_DIR "ut/metadata_core/inspect_api/modules/modules_dynamic_modified.abc";
+    g_impl->writeAbc(file, OUTPUT_PATH, strlen(OUTPUT_PATH));
     ASSERT_EQ(g_impl->getLastError(), ABCKIT_STATUS_NO_ERROR);
     g_impl->closeFile(file);
     ASSERT_EQ(g_impl->getLastError(), ABCKIT_STATUS_NO_ERROR);

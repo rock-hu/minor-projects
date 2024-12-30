@@ -2732,9 +2732,9 @@ DECLARE_ASM_HANDLER(HandleReturn)
     {
         GateRef varProfileTypeInfoVal = *varProfileTypeInfo;
         GateRef isProfileDumpedAndJitCompiled = LogicAndBuilder(env)
-            .And(ProfilerStubBuilder(env).IsProfileTypeInfoDumped(varProfileTypeInfoVal, callback))
             .And(ProfilerStubBuilder(env).IsCompiledOrTryCompile(glue, GetFunctionFromFrame(frame),
-                varProfileTypeInfoVal, callback))
+                varProfileTypeInfoVal, callback, pc))
+            .And(ProfilerStubBuilder(env).IsProfileTypeInfoDumped(varProfileTypeInfoVal, callback))
             .Done();
         BRANCH(isProfileDumpedAndJitCompiled, &tryContinue, &updateHotness);
     }
@@ -2831,9 +2831,9 @@ DECLARE_ASM_HANDLER(HandleReturnundefined)
     {
         GateRef varProfileTypeInfoVal = *varProfileTypeInfo;
         GateRef isProfileDumpedAndJitCompiled = LogicAndBuilder(env)
-            .And(ProfilerStubBuilder(env).IsProfileTypeInfoDumped(varProfileTypeInfoVal, callback))
             .And(ProfilerStubBuilder(env).IsCompiledOrTryCompile(glue, GetFunctionFromFrame(frame),
-                varProfileTypeInfoVal, callback))
+                varProfileTypeInfoVal, callback, pc))
+            .And(ProfilerStubBuilder(env).IsProfileTypeInfoDumped(varProfileTypeInfoVal, callback))
             .Done();
         BRANCH(isProfileDumpedAndJitCompiled, &tryContinue, &updateHotness);
     }
@@ -6036,6 +6036,48 @@ DECLARE_ASM_HANDLER(HandleCallRuntimeSuperCallForwardAllArgsV8)
     {
         varAcc = *res;
         DISPATCH_WITH_ACC(CALLRUNTIME_SUPERCALLFORWARDALLARGS_PREF_V8);
+    }
+}
+
+DECLARE_ASM_HANDLER(HandleCallRuntimeLdsendablelocalmodulevarImm8)
+{
+    DEFVARIABLE(varAcc, VariableType::JS_ANY(), acc);
+    DEFVARIABLE(moduleRef, VariableType::JS_ANY(), Undefined());
+    GateRef index = ReadInst8_1(pc);
+
+    // LdSendableLocalModuleVarByIndex may load uninitialized module lazy. Exception could happened.
+    GateRef currentFunc = GetFunctionFromFrame(GetFrame(sp));
+    moduleRef = CallRuntime(glue, RTSTUB_ID(LdSendableLocalModuleVarByIndex), {Int8ToTaggedInt(index), currentFunc});
+
+    auto env = GetEnvironment();
+    Label notException(env);
+    CHECK_EXCEPTION_WITH_JUMP(*moduleRef, &notException);
+    Bind(&notException);
+    {
+        varAcc = *moduleRef;
+        DISPATCH_WITH_ACC(CALLRUNTIME_LDSENDABLELOCALMODULEVAR_PREF_IMM8);
+    }
+}
+
+DECLARE_ASM_HANDLER(HandleCallRuntimeWideLdsendablelocalmodulevarPrefImm16)
+{
+    DEFVARIABLE(varAcc, VariableType::JS_ANY(), acc);
+    DEFVARIABLE(moduleRef, VariableType::JS_ANY(), Undefined());
+
+    GateRef index = ReadInst16_1(pc);
+
+    // LdSendableLocalModuleVarByIndex may load uninitialized module lazy. Exception could happened.
+    GateRef currentFunc = GetFunctionFromFrame(GetFrame(sp));
+    moduleRef =
+        CallRuntime(glue, RTSTUB_ID(LdSendableLocalModuleVarByIndex), {Int16ToTaggedInt(index), currentFunc});
+
+    auto env = GetEnvironment();
+    Label notException(env);
+    CHECK_EXCEPTION_WITH_JUMP(*moduleRef, &notException);
+    Bind(&notException);
+    {
+        varAcc = *moduleRef;
+        DISPATCH_WITH_ACC(CALLRUNTIME_WIDELDSENDABLELOCALMODULEVAR_PREF_IMM16);
     }
 }
 

@@ -185,8 +185,14 @@ protected:
 class AOTFileGenerator : public FileGenerator {
 public:
     AOTFileGenerator(const CompilerLog *log, const MethodLogList *logList, CompilationEnv *env,
-                     const std::string &triple, bool useLiteCG = false)
-        : FileGenerator(log, logList), compilationEnv_(env), cfg_(triple), useLiteCG_(useLiteCG) {}
+                     const std::string &triple, bool useLiteCG = false, size_t anFileMaxByteSize = 0)
+        : FileGenerator(log, logList),
+          cfg_(triple),
+          compilationEnv_(env),
+          useLiteCG_(useLiteCG),
+          anFileMaxByteSize_(anFileMaxByteSize)
+    {
+    }
 
     ~AOTFileGenerator() override = default;
 
@@ -208,7 +214,8 @@ public:
     bool SetFileModeAsDefault(const std::string &filename);
 
     // save function for aot files containing normal func translated from JS/TS
-    bool SaveAOTFile(const std::string &filename, const std::string &appSignature);
+    bool SaveAOTFile(const std::string &filename, const std::string &appSignature,
+                     const std::unordered_map<CString, uint32_t> &fileNameToChecksumMap);
 
     static void SaveEmptyAOTFile(const std::string& filename, const std::string& appSignature, bool isAnFile);
 
@@ -235,22 +242,25 @@ public:
         aotCodeCommentFile_ = filename;
     }
 
+protected:
+    AnFileInfo aotInfo_;
+    CompilationConfig cfg_;
+
 private:
     // collect aot component info
     void CollectCodeInfo(Module *module, uint32_t moduleIdx);
 
     uint64_t RollbackTextSize(Module *module);
 
-    AnFileInfo aotInfo_;
     CGStackMapInfo *stackMapInfo_ = nullptr;
     CompilationEnv *compilationEnv_ {nullptr};
-    CompilationConfig cfg_;
     std::string curCompileFileName_;
     // MethodID->EntryIndex
     std::map<uint32_t, uint32_t> methodToEntryIndexMap_ {};
     const bool useLiteCG_;
     CodeInfo::CodeSpaceOnDemand jitCodeSpace_ {};
     std::string aotCodeCommentFile_ = "";
+    size_t anFileMaxByteSize_ {0_MB};
 };
 
 enum class StubFileKind {

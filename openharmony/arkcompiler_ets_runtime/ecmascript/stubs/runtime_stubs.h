@@ -50,6 +50,7 @@ public:
 #define DECLARE_RUNTIME_STUBS(name) \
     static JSTaggedType name(uintptr_t argGlue, uint32_t argc, uintptr_t argv);
     RUNTIME_STUB_WITH_GC_LIST(DECLARE_RUNTIME_STUBS)
+    RUNTIME_STUB_WITH_DFX(DECLARE_RUNTIME_STUBS)
     TEST_RUNTIME_STUB_GC_LIST(DECLARE_RUNTIME_STUBS)
 #undef DECLARE_RUNTIME_STUBS
 
@@ -104,6 +105,7 @@ public:
                              GCBitset::GCBitsetWord oldValue);
     static int32_t DoubleToInt(double x, size_t bits);
     static int32_t SaturateTruncDoubleToInt32(double x);
+    static uint8_t LrInt(double x);
     static double FloatMod(double x, double y);
     static double FloatAcos(double x);
     static double FloatAcosh(double x);
@@ -157,6 +159,9 @@ public:
     static void ReverseTypedArray(JSTypedArray *typedArray);
     static void SortTypedArray(JSTypedArray *typedArray);
     static inline uintptr_t RuntimeGetNativePcOfstForBaseline(const JSHandle<JSFunction> &func, uint64_t bytecodePos);
+    static void ObjectCopy(JSTaggedType *dst, JSTaggedType *src, uint32_t count);
+    static void FillObject(JSTaggedType *dst, JSTaggedType value, uint32_t count);
+    static void ReverseArray(JSTaggedType *dst, uint32_t length);
 private:
     static void DumpToStreamWithHint(std::ostream &out, std::string_view prompt, JSTaggedValue value);
 
@@ -299,6 +304,7 @@ private:
         JSHandle<JSTaggedValue> moduleHdl);
     static inline JSTaggedValue RuntimeLdSendableExternalModuleVar(JSThread *thread, int32_t index,
                                                                    JSTaggedValue jsFunc);
+    static inline JSTaggedValue RuntimeLdSendableLocalModuleVar(JSThread *thread, int32_t index, JSTaggedValue jsFunc);
     static inline JSTaggedValue RuntimeLdExternalModuleVar(JSThread *thread, int32_t index,
                                                            JSTaggedValue jsFunc);
     static inline JSTaggedValue RuntimeLdLazySendableExternalModuleVar(JSThread *thread, int32_t index,
@@ -533,6 +539,8 @@ private:
                                                      const JSHandle<EcmaString> &str, std::u16string &sStr);
     static inline bool IsFastRegExp(uintptr_t argGlue, JSTaggedValue thisValue);
 
+    static inline RememberedSet* CreateLocalToShare(Region *region);
+    static inline RememberedSet* CreateOldToNew(Region *region);
     static inline uint8_t GetValueFromTwoHex(uint8_t front, uint8_t behind);
     friend class SlowRuntimeStub;
 };

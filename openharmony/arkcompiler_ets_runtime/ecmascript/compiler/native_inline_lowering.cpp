@@ -309,12 +309,6 @@ void NativeInlineLowering::RunNativeInlineLowering()
             case BuiltinsStubCSigns::ID::BigIntConstructor:
                 TryInlineBigIntConstructor(gate, argc, skipThis);
                 break;
-            case BuiltinsStubCSigns::ID::MapClear:
-                InlineStubBuiltin(gate, 0U, argc, id, circuit_->MapClear(), skipThis);
-                break;
-            case BuiltinsStubCSigns::ID::SetClear:
-                InlineStubBuiltin(gate, 0U, argc, id, circuit_->SetClear(), skipThis);
-                break;
             case BuiltinsStubCSigns::ID::ArraySort:
                 TryInlineArraySort(gate, argc, id, skipThis);
                 break;
@@ -1797,8 +1791,8 @@ void NativeInlineLowering::TryInlineArrayPush(GateRef gate, size_t argc, Builtin
 {
     // To ensure that the Inline code is as small as possible,
     // FastPath only processes the case when the number of elements to push equals 1
-    // and elementsKinds is not enabled.
-    if (!skipThis || argc != 1 || enableElementsKind_) {
+    // and mutantArray is not enabled.
+    if (!skipThis || argc != 1 || enableMutantArray_) {
         return;
     }
     Environment env(gate, circuit_, &builder_);

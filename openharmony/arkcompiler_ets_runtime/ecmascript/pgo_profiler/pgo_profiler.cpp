@@ -15,13 +15,10 @@
 
 #include "ecmascript/pgo_profiler/pgo_profiler.h"
 
-#include <chrono>
-#include <memory>
 
 #include "ecmascript/enum_conversion.h"
 #include "ecmascript/interpreter/interpreter-inl.h"
 #include "ecmascript/jit/jit_profiler.h"
-#include "ecmascript/pgo_profiler/pgo_profiler_info.h"
 #include "ecmascript/pgo_profiler/pgo_trace.h"
 
 namespace panda::ecmascript::pgo {
@@ -260,30 +257,6 @@ void PGOProfiler::UpdateRootProfileTypeSafe(JSHClass* oldHClass, JSHClass* newHC
     if (oldPt.IsRootType()) {
         newHClass->SetProfileType(oldPt.GetRaw());
         oldHClass->SetProfileType(0);
-    }
-}
-
-void PGOProfiler::UpdateTrackElementsKind(JSTaggedValue trackInfoVal, ElementsKind newKind)
-{
-    if (trackInfoVal.IsHeapObject() && trackInfoVal.IsWeak()) {
-        auto trackInfo = TrackInfo::Cast(trackInfoVal.GetWeakReferentUnChecked());
-        auto oldKind = trackInfo->GetElementsKind();
-        if (Elements::IsGeneric(oldKind) || oldKind == newKind) {
-            return;
-        }
-        auto mixKind = Elements::MergeElementsKind(oldKind, newKind);
-        if (mixKind == oldKind) {
-            return;
-        }
-        trackInfo->SetElementsKind(mixKind);
-        auto thread = vm_->GetJSThread();
-        auto globalConst = thread->GlobalConstants();
-        // Since trackinfo is only used at define point,
-        // we update cachedHClass with initial array hclass which does not have IsPrototype set.
-        auto constantId = thread->GetArrayHClassIndexMap().at(mixKind).first;
-        auto hclass = globalConst->GetGlobalConstantObject(static_cast<size_t>(constantId));
-        trackInfo->SetCachedHClass(vm_->GetJSThread(), hclass);
-        UpdateTrackInfo(JSTaggedValue(trackInfo));
     }
 }
 

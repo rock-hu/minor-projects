@@ -23,6 +23,7 @@
 #include "libabckit/src/ir_impl.h"
 #include "libabckit/src/adapter_static/runtime_adapter_static.h"
 #include "libabckit/src/adapter_static/metadata_modify_static.h"
+#include "libabckit/src/adapter_static/ir_static.h"
 
 #include "libabckit/src/wrappers/graph_wrapper/graph_wrapper.h"
 
@@ -83,7 +84,7 @@ AbckitString *ClassGetNameStatic(AbckitCoreClass *klass)
     auto *record = klass->GetArkTSImpl()->impl.GetStaticClass();
     auto [moduleName, className] = ClassGetNames(record->name);
 
-    return CreateStringStatic(klass->owningModule->file, className.data());
+    return CreateStringStatic(klass->owningModule->file, className.data(), className.size());
 }
 
 // ========================================
@@ -96,7 +97,7 @@ AbckitString *FunctionGetNameStatic(AbckitCoreFunction *function)
 
     auto functionName = pandasm::MangleFunctionName(functionImpl->name, functionImpl->params, functionImpl->returnType);
     auto croppedName = FuncNameCropModule(functionName);
-    return CreateStringStatic(function->owningModule->file, croppedName.data());
+    return CreateStringStatic(function->owningModule->file, croppedName.data(), croppedName.size());
 }
 
 bool GetMethodOffset(pandasm::Function *func, pandasm::AsmEmitter::PandaFileToPandaAsmMaps *maps,
@@ -160,6 +161,7 @@ static AbckitGraph *CreateGraph(AbckitCoreFunction *function, AbckitIrInterface 
     auto *ctxGInternal =
         new CtxGInternal {graphImpl->GetAllocator(), graphImpl->GetLocalAllocator(), irInterface, adapter};
     graph->internal = ctxGInternal;
+    LIBABCKIT_LOG_DUMP(GdumpStatic(graph, STDERR_FILENO), DEBUG);
     return graph;
 }
 
@@ -174,8 +176,7 @@ AbckitGraph *CreateGraphFromFunctionStatic(AbckitCoreFunction *function)
     LIBABCKIT_LOG_DUMP(func->DebugDump(), DEBUG);
     LIBABCKIT_LOG(DEBUG) << func->name << '\n';
 
-    auto *file = function->owningModule->file;
-    auto program = file->GetStaticProgram();
+    auto program = function->owningModule->file->GetStaticProgram();
 
     auto maps = std::make_unique<pandasm::AsmEmitter::PandaFileToPandaAsmMaps>();
     auto pf = pandasm::AsmEmitter::Emit(*program, maps.get()).release();
@@ -220,8 +221,9 @@ AbckitGraph *CreateGraphFromFunctionStatic(AbckitCoreFunction *function)
     }
 
     RemoveInsts(graphImpl);
+    graphImpl->RemoveUnreachableBlocks();
+    GraphInvalidateAnalyses(graphImpl);
     CheckInvalidOpcodes(graphImpl, false);
-    LIBABCKIT_LOG_DUMP(graphImpl->Dump(&std::cerr), DEBUG);
 
     return CreateGraph(function, irInterface, graphImpl, adapter);
 }
@@ -503,7 +505,7 @@ AbckitString *ValueGetStringStatic(AbckitValue *value)
 
     auto *pVal = reinterpret_cast<pandasm::ScalarValue *>(value->val.get());
     auto valImpl = pVal->GetValue<std::string>();
-    return CreateStringStatic(value->file, valImpl.data());
+    return CreateStringStatic(value->file, valImpl.data(), valImpl.size());
 }
 
 AbckitLiteralArray *ArrayValueGetLiteralArrayStatic(AbckitValue * /*value*/)

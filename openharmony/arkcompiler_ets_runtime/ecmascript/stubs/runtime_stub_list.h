@@ -56,6 +56,11 @@ namespace panda::ecmascript {
     V(CallContainersArgs2)                   \
     V(CallContainersArgs3)                   \
     V(CallReturnWithArgv)                    \
+    V(CallGetterToBaseline)                  \
+    V(CallSetterToBaseline)                  \
+    V(CallContainersArgs2ToBaseline)         \
+    V(CallContainersArgs3ToBaseline)         \
+    V(CallReturnWithArgvToBaseline)          \
     V(ASMFastWriteBarrier)                   \
     V(ASMWriteBarrierWithEden)
 
@@ -120,6 +125,11 @@ namespace panda::ecmascript {
     V(JSFastCallWithArgV)                    \
     V(JSFastCallWithArgVAndPushArgv)
 
+#define RUNTIME_STUB_WITH_DFX(V)                \
+    V(TraceLoadGetter)                          \
+    V(TraceLoadSlowPath)                        \
+    V(TraceLoadDetail)                          \
+    V(TraceLoadEnd)
 
 #define RUNTIME_STUB_WITHOUT_GC_LIST(V)        \
     V(Dump)                                    \
@@ -190,7 +200,13 @@ namespace panda::ecmascript {
     V(SortTypedArray)                          \
     V(ReverseTypedArray)                       \
     V(CopyTypedArrayBuffer)                    \
-    V(IsFastRegExp)
+    V(IsFastRegExp)                            \
+    V(CreateLocalToShare)                      \
+    V(CreateOldToNew)                          \
+    V(ObjectCopy)                              \
+    V(FillObject)                              \
+    V(ReverseArray)                            \
+    V(LrInt)
 
 #define RUNTIME_STUB_WITH_GC_LIST(V)            \
     V(AddElementInternal)                       \
@@ -324,6 +340,7 @@ namespace panda::ecmascript {
     V(LdExternalModuleVarByIndex)               \
     V(LdExternalModuleVarByIndexWithModule)     \
     V(LdSendableExternalModuleVarByIndex)       \
+    V(LdSendableLocalModuleVarByIndex)          \
     V(LdLazyExternalModuleVarByIndex)           \
     V(LdLazySendableExternalModuleVarByIndex)   \
     V(LdLocalModuleVarByIndexOnJSFunc)          \
@@ -486,12 +503,14 @@ namespace panda::ecmascript {
     V(DecodeURIComponent)                       \
     V(GetAllFlagsInternal)                      \
     V(SlowSharedObjectStoreBarrier)             \
-    V(GetNativePcOfstForBaseline)
+    V(GetNativePcOfstForBaseline)               \
+    V(AotCallBuiltinTrace)
 
 #define RUNTIME_STUB_LIST(V)                     \
     RUNTIME_ASM_STUB_LIST(V)                     \
     RUNTIME_STUB_WITHOUT_GC_LIST(V)              \
     RUNTIME_STUB_WITH_GC_LIST(V)                 \
+    RUNTIME_STUB_WITH_DFX(V)                     \
     TEST_RUNTIME_STUB_GC_LIST(V)
 
 }  // namespace panda::ecmascript

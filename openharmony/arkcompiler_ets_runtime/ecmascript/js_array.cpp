@@ -30,7 +30,7 @@ bool JSArray::LengthSetter(JSThread *thread, const JSHandle<JSObject> &self, con
                            bool mayThrow)
 {
     uint32_t newLen = 0;
-    if (!JSTaggedValue::ToArrayLength(thread, value, &newLen) && mayThrow) {
+    if (!JSTaggedValue::ToArrayLength(thread, value, &newLen)) {
         RETURN_VALUE_IF_ABRUPT_COMPLETION(thread, false);
     }
 
@@ -65,6 +65,14 @@ JSHandle<JSTaggedValue> JSArray::ArrayCreate(JSThread *thread, JSTaggedNumber le
     return JSArray::ArrayCreate(thread, length, arrayFunction, mode);
 }
 
+// Used to check whether newArrayHandle's proto == Array.prototype.
+void JSArray::CheckAndSetPrototypeModified(JSThread* thread, const JSHandle<JSObject> &newArrayHandle)
+{
+    if (!JSArray::IsProtoNotChangeJSArray(thread, newArrayHandle)) {
+        newArrayHandle->GetJSHClass()->SetIsJSArrayPrototypeModified(true);
+    }
+};
+
 // 9.4.2.2 ArrayCreate(length, proto)
 JSHandle<JSTaggedValue> JSArray::ArrayCreate(JSThread *thread, JSTaggedNumber length,
                                              const JSHandle<JSTaggedValue> &newTarget, ArrayMode mode)
@@ -72,7 +80,7 @@ JSHandle<JSTaggedValue> JSArray::ArrayCreate(JSThread *thread, JSTaggedNumber le
     ObjectFactory *factory = thread->GetEcmaVM()->GetFactory();
     // Assert: length is an integer Number ≥ 0.
     ASSERT_PRINT(length.IsInteger() && length.GetNumber() >= 0, "length must be positive integer");
-    // 2. If length is −0, let length be +0.
+    // 2. If length is −0, let length  be +0.
     double arrayLength = length.GetNumber();
     if (arrayLength > MAX_ARRAY_INDEX) {
         JSHandle<JSTaggedValue> exception(thread, JSTaggedValue::Exception());
@@ -107,7 +115,7 @@ JSHandle<JSTaggedValue> JSArray::ArrayCreate(JSThread *thread, JSTaggedNumber le
             #endif
         }
     }
-
+    CheckAndSetPrototypeModified(thread, obj);
     return JSHandle<JSTaggedValue>(obj);
 }
 
@@ -266,7 +274,7 @@ void JSArray::SetCapacity(JSThread *thread, const JSHandle<JSObject> &array,
 
     if (element->IsDictionaryMode()) {
         ObjectFactory *factory = thread->GetEcmaVM()->GetFactory();
-        uint32_t numOfElements = array->GetNumberOfElements();
+        uint32_t numOfElements = array->GetNumberOfElements(thread);
         uint32_t newNumOfElements = newLen;
 
         if (newLen < oldLen && numOfElements != 0U) {
@@ -340,7 +348,7 @@ void JSArray::TransformElementsKindAfterSetCapacity(JSThread *thread, const JSHa
         ElementsKind newKind = ElementsKind::NONE;
 #endif
         for (uint32_t i = 0; i < newLen; ++i) {
-            JSTaggedValue val = ElementAccessor::Get(array, i);
+            JSTaggedValue val = ElementAccessor::Get(thread, array, i);
             newKind = Elements::ToElementsKind(val, newKind);
         }
         // elements length might not be zero when newLen is zero
@@ -482,6 +490,36 @@ bool JSArray::IsProtoNotModifiedDictionaryJSArray(JSThread *thread, const JSHand
            JSObject::AttributesUnchanged(thread, obj);
 }
 
+#if ENABLE_NEXT_OPTIMIZATION
+// ecma6 7.3 Operations on Objects
+JSHandle<JSArray> JSArray::CreateArrayFromList(JSThread *thread, const JSHandle<TaggedArray> &elements)
+{
+    // Assert: elements is a List whose elements are all ECMAScript language values.
+    uint32_t length = elements->GetLength();
+    auto env = thread->GetEcmaVM()->GetGlobalEnv();
+    
+    // New JSObject by Constructor.
+    JSTaggedValue protoOrHClass = JSHandle<JSFunction>::Cast(env->GetArrayFunction())->GetProtoOrHClass();
+    JSHandle<JSHClass> jsHClass = JSHandle<JSHClass>(thread,
+        reinterpret_cast<JSHClass *>(protoOrHClass.GetTaggedObject()));
+    
+    ObjectFactory *factory = thread->GetEcmaVM()->GetFactory();
+    JSHandle<JSObject> obj = factory->NewJSObject(jsHClass);
+    
+    JSArray::Cast(*obj)->SetLength(0);
+    JSArray::Cast(*obj)->SetTrackInfo(thread, JSTaggedValue::Undefined());
+    auto accessor = thread->GlobalConstants()->GetArrayLengthAccessor();
+    JSArray::Cast(*obj)->SetPropertyInlinedProps(thread, JSArray::LENGTH_INLINE_PROPERTY_INDEX, accessor);
+    
+    obj->GetJSHClass()->SetExtensible(true);
+    JSArray::Cast(*obj)->SetArrayLength(thread, length);
+    obj->SetElements(thread, elements);
+
+    JSHandle<JSArray> arr(obj);
+    JSHClass::TransitToElementsKind(thread, arr, ElementsKind::GENERIC);
+    return arr;
+}
+# else
 // ecma6 7.3 Operations on Objects
 JSHandle<JSArray> JSArray::CreateArrayFromList(JSThread *thread, const JSHandle<TaggedArray> &elements)
 {
@@ -503,6 +541,7 @@ JSHandle<JSArray> JSArray::CreateArrayFromList(JSThread *thread, const JSHandle<
 
     return arr;
 }
+#endif
 
 // used for array contructor with (...items)
 JSHandle<JSArray> JSArray::CreateArrayFromList(JSThread *thread, const JSHandle<JSTaggedValue> &newtarget,
@@ -524,6 +563,7 @@ JSHandle<JSArray> JSArray::CreateArrayFromList(JSThread *thread, const JSHandle<
     arr->SetArrayLength(thread, length);
     obj->SetElements(thread, elements);
 
+    CheckAndSetPrototypeModified(thread, obj);
     return arr;
 }
 
@@ -567,14 +607,13 @@ bool JSArray::TryFastCreateDataProperty(JSThread *thread, const JSHandle<JSObjec
     }
 
     uint32_t capacity = TaggedArray::Cast(obj->GetElements())->GetLength();
-    ElementsKind kind = obj->GetJSHClass()->GetElementsKind();
     uint32_t len = JSHandle<JSArray>::Cast(obj)->GetArrayLength();
-    if (index > len || kind != ElementsKind::HOLE_TAGGED) {
+    if UNLIKELY(index > len) {
         // goto slowPath
         return JSObject::CreateDataPropertyOrThrow(thread, obj, index, value, sCheckMode);
     }
 
-    if (index == len) {
+    if UNLIKELY(index == len) {
         // append situation
         if (!IsArrayLengthWritable(thread, obj)) {
             THROW_TYPE_ERROR_AND_RETURN(thread, "UnWritable ArrayLength", false);
@@ -587,8 +626,14 @@ bool JSArray::TryFastCreateDataProperty(JSThread *thread, const JSHandle<JSObjec
         }
         JSHandle<JSArray>::Cast(obj)->SetArrayLength(thread, newLen);
     }
-    
-    TaggedArray::Cast(obj->GetElements())->Set(thread, index, value);
+    if LIKELY(!thread->IsEnableMutantArray()) {
+        TaggedArray::Cast(obj->GetElements())->Set(thread, index, value);
+        if LIKELY(thread->IsEnableElementsKind()) {
+            JSHClass::TransitToElementsKind(thread, obj, value, ElementsKind::NONE);
+        }
+    } else {
+        ElementAccessor::Set(thread, obj, index, value, true);
+    }
     return true;
 #else
     return JSObject::CreateDataPropertyOrThrow(thread, obj, index, value, sCheckMode);
@@ -813,10 +858,10 @@ void JSArray::SortElementsByObject(JSThread *thread, const JSHandle<JSObject> &t
     for (uint32_t i = 1; i < len; i++) {
         uint32_t beginIndex = 0;
         uint32_t endIndex = i;
-        presentValue.Update(ElementAccessor::Get(thisObjHandle, i));
+        presentValue.Update(ElementAccessor::Get(thread, thisObjHandle, i));
         while (beginIndex < endIndex) {
             uint32_t middleIndex = (beginIndex + endIndex) / 2; // 2 : half
-            middleValue.Update(ElementAccessor::Get(thisObjHandle, middleIndex));
+            middleValue.Update(ElementAccessor::Get(thread, thisObjHandle, middleIndex));
             int32_t compareResult = base::ArrayHelper::SortCompare(thread, fn, middleValue, presentValue);
             RETURN_IF_ABRUPT_COMPLETION(thread);
             if (compareResult > 0) {
@@ -828,7 +873,7 @@ void JSArray::SortElementsByObject(JSThread *thread, const JSHandle<JSObject> &t
 
         if (endIndex >= 0 && endIndex < i) {
             for (uint32_t j = i; j > endIndex; j--) {
-                previousValue.Update(ElementAccessor::Get(thisObjHandle, j - 1));
+                previousValue.Update(ElementAccessor::Get(thread, thisObjHandle, j - 1));
                 ElementAccessor::Set(thread, thisObjHandle, j, previousValue, false);
             }
             ElementAccessor::Set(thread, thisObjHandle, endIndex, presentValue, false);
@@ -911,7 +956,6 @@ bool JSArray::IsProtoNotChangeJSArray(JSThread *thread, const JSHandle<JSObject>
     return false;
 }
 
-
 JSHandle<JSHClass> JSArray::CreateJSArrayPrototypeClass(const JSThread *thread, ObjectFactory *factory,
                                                         JSHandle<JSTaggedValue> proto, uint32_t inlinedProps)
 {
@@ -972,4 +1016,26 @@ JSHandle<JSHClass> JSArray::CreateJSArrayFunctionClass(const JSThread *thread, O
     }
     return arrayFunctionClass;
 }
-} // namespace panda::ecmascript
+
+void JSArray::UpdateTrackInfo(const JSThread *thread)
+{
+    JSTaggedValue trackInfoVal = GetTrackInfo();
+    if (trackInfoVal.IsHeapObject() && trackInfoVal.IsWeak()) {
+        TrackInfo *trackInfo = TrackInfo::Cast(trackInfoVal.GetWeakReferentUnChecked());
+        ElementsKind oldKind = trackInfo->GetElementsKind();
+        if (Elements::IsGeneric(oldKind)) {
+            return;
+        }
+
+        JSHClass *hclass = GetJSHClass();
+        ElementsKind newKind = hclass->GetElementsKind();
+        trackInfo->SetElementsKind(newKind);
+        const GlobalEnvConstants *globalConst = thread->GlobalConstants();
+        // Since trackInfo is only used at define point,
+        // we update cachedHClass with initial array hclass which does not have IsPrototype set.
+        ConstantIndex constantId = thread->GetArrayHClassIndexMap().at(newKind).first;
+        JSTaggedValue cachedHClass = globalConst->GetGlobalConstantObject(static_cast<size_t>(constantId));
+        trackInfo->SetCachedHClass(thread, cachedHClass);
+    }
+}
+}  // namespace panda::ecmascript

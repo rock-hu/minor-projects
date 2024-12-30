@@ -16,7 +16,6 @@
 #include "ecmascript/jspandafile/program_object.h"
 #include "ecmascript/layout_info-inl.h"
 #include "ecmascript/mem/heap-inl.h"
-#include "ecmascript/runtime.h"
 #include "ecmascript/symbol_table.h"
 #include "ecmascript/jspandafile/program_object.h"
 
@@ -466,6 +465,7 @@ JSHandle<ProfileTypeInfoCell> ObjectFactory::NewSEmptyProfileTypeInfoCell()
     JSHandle<ProfileTypeInfoCell> profileTypeInfoCell(thread_, header);
     profileTypeInfoCell->SetValue(thread_, JSTaggedValue::Undefined());
     profileTypeInfoCell->SetMachineCode(thread_, JSTaggedValue::Hole());
+    profileTypeInfoCell->SetBaselineCode(thread_, JSTaggedValue::Hole());
     profileTypeInfoCell->SetHandle(thread_, JSTaggedValue::Undefined());
     return profileTypeInfoCell;
 }
@@ -739,7 +739,7 @@ JSHandle<SourceTextModule> ObjectFactory::NewSSourceTextModule()
     obj->SetPendingAsyncDependencies(SourceTextModule::UNDEFINED_INDEX);
     obj->SetDFSIndex(SourceTextModule::UNDEFINED_INDEX);
     obj->SetDFSAncestorIndex(SourceTextModule::UNDEFINED_INDEX);
-    obj->SetEvaluationError(SourceTextModule::UNDEFINED_INDEX);
+    obj->SetException(thread_, JSTaggedValue::Hole());
     obj->SetStatus(ModuleStatus::UNINSTANTIATED);
     obj->SetTypes(ModuleTypes::UNKNOWN);
     obj->SetIsNewBcVersion(false);
