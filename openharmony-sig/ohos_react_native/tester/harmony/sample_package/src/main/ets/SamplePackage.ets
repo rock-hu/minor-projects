@@ -98,11 +98,7 @@ export function buildContainerView(ctx: ComponentBuilderContext) {
   })
 }
 
-/**
- * export default and ReactNativeHarmonySamplePackagePackage name is used here for autolinking purpose.
- * The name is derived from npm package name. It can be configured in the package autolinking configuration.
- */
-export default class ReactNativeHarmonySamplePackagePackage extends RNOHPackage {
+export default class SamplePackagePackage extends RNOHPackage {
   createUITurboModuleFactory(ctx: UITurboModuleContext) {
     return new SampleTurboModulesFactory(ctx);
   }

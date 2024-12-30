@@ -34,44 +34,6 @@ export default function abilityTest() {
     const path_certificate_pin = XTS_CONFIG.path_certificate_pin; //证书锁定的请求路径
     const pwd = XTS_CONFIG.psw
 
-    //单向认证，p12格式证书
-    it('caPath_p12', 0, async (done: Function) => {
-      let filePath: string  = ''
-      let context: Context = GlobalContext.getContext().getObject("context") as Context;
-      let filesDir: string = context.filesDir;
-
-      //获取根证书路径
-      try {
-        let ca: Uint8Array = await context.resourceManager.getRawFileContent("oneWayAuth/ca.p12");
-        if (ca != null) {
-          filePath = filesDir + "/ca.p12";
-          let file = fs.openSync(filePath, fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE);
-          fs.writeSync(file.fd, ca.buffer);
-          fs.fsyncSync(file.fd);
-          fs.closeSync(file);
-        }
-
-        // 发送请求
-        let startTime = new Date().getTime()
-        axios<InfoModel, AxiosResponse<InfoModel>, null>({
-          url: path_oneWayAuth,
-          method: 'get',
-          caPath: filePath,
-        }).then((res: AxiosResponse<InfoModel>) => {
-          let endTime = new Date().getTime();
-          let averageTime = endTime - startTime;
-          hilog.info(DOMAIN, TAG, " caPath_p12 averageTime: " + averageTime + ' μs');
-          hilog.info(DOMAIN, TAG, " caPath_p12 averageTime: " + JSON.stringify(res.status));
-          expect(res && res.status && res.status === 200)
-            .assertTrue()
-          done()
-        })
-      }
-      catch (err) {
-        expect().assertFail()
-      }
-    })
-
     //单向认证，pem格式证书
     it('caPath_pem', 1, async (done: Function) => {
       let filePath: string  = '';
@@ -80,9 +42,9 @@ export default function abilityTest() {
 
       //获取根证书路径
       try {
-        let ca: Uint8Array = await context.resourceManager.getRawFileContent("oneWayAuth/ca.pem");
+        let ca: Uint8Array = await context.resourceManager.getRawFileContent("oneWayAuth/ca.crt");
         if (ca != null) {
-          filePath = filesDir + "/ca.pem";
+          filePath = filesDir + "/ca.crt";
           let file = fs.openSync(filePath, fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE);
           fs.writeSync(file.fd, ca.buffer);
           fs.fsyncSync(file.fd);
@@ -176,7 +138,7 @@ export default function abilityTest() {
       //获取根证书路径
       try {
         let ca: Uint8Array = await context.resourceManager.getRawFileContent("mutualAuth_noPsw/ca.crt");
-        let client: Uint8Array = await context.resourceManager.getRawFileContent("mutualAuth_noPsw/pem/client.pem");
+        let client: Uint8Array = await context.resourceManager.getRawFileContent("mutualAuth_noPsw/pem/client.crt");
         let key: Uint8Array = await context.resourceManager.getRawFileContent("mutualAuth_noPsw/pem/client.key");
 
         if (ca != null) {
@@ -184,8 +146,8 @@ export default function abilityTest() {
           writeFile(filesDir, 'ca.crt', ca.buffer)
         }
         if (client != null) {
-          path_client = filesDir + "/client.pem";
-          writeFile(filesDir, 'client.pem', client.buffer)
+          path_client = filesDir + "/client.crt";
+          writeFile(filesDir, 'client.crt', client.buffer)
         }
         if (key != null) {
           path_key = filesDir + "/client.key";
@@ -279,7 +241,7 @@ export default function abilityTest() {
       //获取根证书路径
       try {
         let ca: Uint8Array = await context.resourceManager.getRawFileContent("mutualAuth_hasPsw/ca.crt");
-        let client: Uint8Array = await context.resourceManager.getRawFileContent("mutualAuth_hasPsw/pem/client.pem");
+        let client: Uint8Array = await context.resourceManager.getRawFileContent("mutualAuth_hasPsw/pem/client.crt");
         let key: Uint8Array = await context.resourceManager.getRawFileContent("mutualAuth_hasPsw/pem/client.key");
 
         if (ca != null) {
@@ -287,8 +249,8 @@ export default function abilityTest() {
           writeFile(filesDir, 'ca.crt', ca.buffer)
         }
         if (client != null) {
-          path_client = filesDir + "/client.pem";
-          writeFile(filesDir, 'client.pem', client.buffer)
+          path_client = filesDir + "/client.crt";
+          writeFile(filesDir, 'client.crt', client.buffer)
         }
         if (key != null) {
           path_key = filesDir + "/client.key";

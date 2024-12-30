@@ -17,7 +17,7 @@
 - [added] FlatList组件新增inverted属性
 -->
 
-## 测试用例
+## 测试步骤
 <!-- 
 如何测试这条PR。例如：
 1. 打开Tester工程.

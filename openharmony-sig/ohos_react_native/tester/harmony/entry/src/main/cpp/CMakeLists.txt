@@ -36,5 +36,5 @@ target_link_libraries(rnoh_app PUBLIC rnoh)
 autolink_libraries(rnoh_app)
 
 # RNOH_BEGIN: manual_package_linking_2
-target_link_libraries(rnoh_app PUBLIC rnoh__react_native_harmony_sample_package)
+target_link_libraries(rnoh_app PUBLIC rnoh_sample_package)
 # RNOH_END: manual_package_linking_2

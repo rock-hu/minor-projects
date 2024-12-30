@@ -19,6 +19,7 @@ import {
 } from '@rnoh/react-native-openharmony';
 import { PropsDisplayer, SampleView, GeneratedSampleView, CodegenLibSampleArkTSComponent, ContainerView } from '@rnoh/sample-package';
 import { getRNOHPackages } from '../PackageProvider';
+import { inspector } from '@kit.ArkUI'
 
 const arkTsComponentNames: Array<string> = [SampleView.NAME, GeneratedSampleView.NAME, PropsDisplayer.NAME, CodegenLibSampleArkTSComponent.NAME, ContainerView.NAME];
 @Builder
@@ -112,6 +113,11 @@ struct Index {
             // NOTE: you can provide fonts dynamically at runtime by calling `RNInstance.registerFont`
             rnInstance.registerFont('Pacifico-Regular', $rawfile("fonts/Pacifico-Regular.ttf"))
             // rnInstance.registerFont('Pacifico-Regular', "/data/storage/el2/base/files/Pacifico-Regular.ttf");
+            // NOTE: this component directly contains performance test components, it's drawn event marks the end of a
+            // performance test case
+            inspector.createComponentObserver("rnohBenchmarkComponentId").on('draw', () => {
+              rnInstance.emitDeviceEvent("benchmarkComponentDrawn", {})
+            })
           },
           jsBundleProvider: new TraceJSBundleProviderDecorator(
             new AnyJSBundleProvider([

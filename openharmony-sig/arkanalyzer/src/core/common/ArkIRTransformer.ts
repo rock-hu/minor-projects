@@ -97,8 +97,10 @@ import { ArkSignatureBuilder } from '../model/builder/ArkSignatureBuilder';
 import {
     COMPONENT_BRANCH_FUNCTION,
     COMPONENT_CREATE_FUNCTION,
-    COMPONENT_CUSTOMVIEW, COMPONENT_FOR_EACH,
-    COMPONENT_IF, COMPONENT_LAZY_FOR_EACH,
+    COMPONENT_CUSTOMVIEW,
+    COMPONENT_FOR_EACH,
+    COMPONENT_IF,
+    COMPONENT_LAZY_FOR_EACH,
     COMPONENT_POP_FUNCTION,
     COMPONENT_REPEAT,
     isEtsSystemComponent,
@@ -112,9 +114,7 @@ import { TEMP_LOCAL_PREFIX } from './Const';
 
 const logger = Logger.getLogger(LOG_MODULE_TYPE.ARKANALYZER, 'ArkIRTransformer');
 
-export const DUMMY_INITIALIZER_STMT = 'dummyInitializerStmt';
-
-type ValueAndStmts = {
+export type ValueAndStmts = {
     value: Value,
     valueOriginalPositions: FullPosition[], // original positions of value and its uses
     stmts: Stmt[]
@@ -132,7 +132,14 @@ export class DummyStmt extends Stmt {
 }
 
 export class ArkIRTransformer {
-    private tempLocalIndex: number = 0;
+    public static readonly DUMMY_LOOP_INITIALIZER_STMT = 'LoopInitializer';
+    public static readonly DUMMY_CONDITIONAL_OPERATOR = 'ConditionalOperator';
+    public static readonly DUMMY_CONDITIONAL_OPERATOR_IF_TRUE_STMT = ArkIRTransformer.DUMMY_CONDITIONAL_OPERATOR + 'IfTrue';
+    public static readonly DUMMY_CONDITIONAL_OPERATOR_IF_FALSE_STMT = ArkIRTransformer.DUMMY_CONDITIONAL_OPERATOR + 'IfFalse';
+    public static readonly DUMMY_CONDITIONAL_OPERATOR_END_STMT = ArkIRTransformer.DUMMY_CONDITIONAL_OPERATOR + 'End';
+
+    private conditionalOperatorNo: number = 0;
+    private tempLocalNo: number = 0;
     private locals: Map<string, Local> = new Map();
     private sourceFile: ts.SourceFile;
     private declaringMethod: ArkMethod;
@@ -186,8 +193,6 @@ export class ArkIRTransformer {
             stmts = this.typeAliasDeclarationToStmts(node);
         } else if (ts.isBlock(node)) {
             stmts = this.blockToStmts(node);
-        } else if (ts.isSwitchStatement(node)) {
-            stmts = this.switchStatementToStmts(node);
         } else if (ts.isForStatement(node)) {
             stmts = this.forStatementToStmts(node);
         } else if (ts.isForInStatement(node) || ts.isForOfStatement(node)) {
@@ -318,40 +323,45 @@ export class ArkIRTransformer {
         return [];
     }
 
-    private switchStatementToStmts(switchStatement: ts.SwitchStatement): Stmt[] {
-        const stmts: Stmt[] = [];
+    public switchStatementToValueAndStmts(switchStatement: ts.SwitchStatement): ValueAndStmts[] {
+        const valueAndStmtsOfSwitchAndCases: ValueAndStmts[] = [];
+        const exprStmts: Stmt[] = [];
         let {
             value: exprValue,
             valueOriginalPositions: exprPositions,
-            stmts: exprStmts,
+            stmts: exprTempStmts,
         } = this.tsNodeToValueAndStmts(switchStatement.expression);
-        stmts.push(...exprStmts);
+        exprStmts.push(...exprTempStmts);
         if (IRUtils.moreThanOneAddress(exprValue)) {
-            const { value: newExprValue, stmts: exprStmts } = this.generateAssignStmtForValue(exprValue, exprPositions);
-            stmts.push(...exprStmts);
-            exprValue = newExprValue;
+            ({ value: exprValue, valueOriginalPositions: exprPositions, stmts: exprTempStmts } =
+                this.generateAssignStmtForValue(exprValue, exprPositions));
+            exprStmts.push(...exprTempStmts);
         }
-        const caseValues: Value[] = [];
+        valueAndStmtsOfSwitchAndCases.push(
+            { value: exprValue, valueOriginalPositions: exprPositions, stmts: exprStmts });
+
         for (const clause of switchStatement.caseBlock.clauses) {
             if (ts.isCaseClause(clause)) {
+                const clauseStmts: Stmt[] = [];
                 let {
                     value: clauseValue,
                     valueOriginalPositions: clausePositions,
-                    stmts: clauseStmts,
-                } = this.tsNodeToValueAndStmts(switchStatement.expression);
-                stmts.push(...clauseStmts);
+                    stmts: clauseTempStmts,
+                } = this.tsNodeToValueAndStmts(clause.expression);
+                clauseStmts.push(...clauseTempStmts);
                 if (IRUtils.moreThanOneAddress(clauseValue)) {
-                    const {
-                        value: newClauseValue,
-                        stmts: clauseStmts,
-                    } = this.generateAssignStmtForValue(exprValue, clausePositions);
-                    stmts.push(...clauseStmts);
-                    clauseValue = newClauseValue;
+                    ({
+                        value: clauseValue,
+                        valueOriginalPositions: clausePositions,
+                        stmts: clauseTempStmts,
+                    } = this.generateAssignStmtForValue(clauseValue, clausePositions));
+                    clauseStmts.push(...clauseTempStmts);
                 }
-                caseValues.push(clauseValue);
+                valueAndStmtsOfSwitchAndCases.push(
+                    { value: clauseValue, valueOriginalPositions: clausePositions, stmts: clauseStmts });
             }
         }
-        return stmts;
+        return valueAndStmtsOfSwitchAndCases;
     }
 
     private forStatementToStmts(forStatement: ts.ForStatement): Stmt[] {
@@ -359,7 +369,7 @@ export class ArkIRTransformer {
         if (forStatement.initializer) {
             stmts.push(...this.tsNodeToValueAndStmts(forStatement.initializer).stmts);
         }
-        const dummyInitializerStmt = new DummyStmt(DUMMY_INITIALIZER_STMT);
+        const dummyInitializerStmt = new DummyStmt(ArkIRTransformer.DUMMY_LOOP_INITIALIZER_STMT);
         stmts.push(dummyInitializerStmt);
 
         if (forStatement.condition) {
@@ -510,7 +520,7 @@ export class ArkIRTransformer {
 
     private whileStatementToStmts(whileStatement: ts.WhileStatement): Stmt[] {
         const stmts: Stmt[] = [];
-        const dummyInitializerStmt = new DummyStmt(DUMMY_INITIALIZER_STMT);
+        const dummyInitializerStmt = new DummyStmt(ArkIRTransformer.DUMMY_LOOP_INITIALIZER_STMT);
         stmts.push(dummyInitializerStmt);
 
         const {
@@ -728,8 +738,8 @@ export class ArkIRTransformer {
     }
 
     private conditionalExpressionToValueAndStmts(conditionalExpression: ts.ConditionalExpression): ValueAndStmts {
-        // TODO: separated by blocks
         const stmts: Stmt[] = [];
+        const currConditionalOperatorIndex = this.conditionalOperatorNo++;
         const {
             value: conditionValue,
             valueOriginalPositions: conditionPositions,
@@ -740,28 +750,34 @@ export class ArkIRTransformer {
         ifStmt.setOperandOriginalPositions(conditionPositions);
         stmts.push(ifStmt);
 
+        stmts.push(
+            new DummyStmt(ArkIRTransformer.DUMMY_CONDITIONAL_OPERATOR_IF_TRUE_STMT + currConditionalOperatorIndex));
         const {
             value: whenTrueValue,
             valueOriginalPositions: whenTruePositions,
             stmts: whenTrueStmts
         } = this.tsNodeToValueAndStmts(conditionalExpression.whenTrue);
         stmts.push(...whenTrueStmts);
-        const {
-            value: resultValue,
-            valueOriginalPositions: resultPositions,
-            stmts: tempStmts,
-        } = this.generateAssignStmtForValue(whenTrueValue, whenTruePositions);
-        stmts.push(...tempStmts);
+        const resultLocal = this.generateTempLocal();
+        const assignStmtWhenTrue = new ArkAssignStmt(resultLocal, whenTrueValue);
+        const resultLocalPosition: FullPosition[] = [whenTruePositions[0]];
+        assignStmtWhenTrue.setOperandOriginalPositions([...resultLocalPosition, ...whenTruePositions]);
+        stmts.push(assignStmtWhenTrue);
+
+        stmts.push(
+            new DummyStmt(ArkIRTransformer.DUMMY_CONDITIONAL_OPERATOR_IF_FALSE_STMT + currConditionalOperatorIndex));
         const {
             value: whenFalseValue,
             valueOriginalPositions: whenFalsePositions,
             stmts: whenFalseStmts,
         } = this.tsNodeToValueAndStmts(conditionalExpression.whenFalse);
         stmts.push(...whenFalseStmts);
-        const assignStmt = new ArkAssignStmt(resultValue, whenFalseValue);
-        assignStmt.setOperandOriginalPositions([...resultPositions, ...whenFalsePositions]);
+        const assignStmt = new ArkAssignStmt(resultLocal, whenFalseValue);
+        assignStmt.setOperandOriginalPositions([...resultLocalPosition, ...whenFalsePositions]);
         stmts.push(assignStmt);
-        return { value: resultValue, valueOriginalPositions: resultPositions, stmts: stmts };
+        stmts.push(
+            new DummyStmt(ArkIRTransformer.DUMMY_CONDITIONAL_OPERATOR_END_STMT + currConditionalOperatorIndex));
+        return { value: resultLocal, valueOriginalPositions: resultLocalPosition, stmts: stmts };
     }
 
     private objectLiteralExpresionToValueAndStmts(objectLiteralExpression: ts.ObjectLiteralExpression): ValueAndStmts {
@@ -1821,8 +1837,8 @@ export class ArkIRTransformer {
     }
 
     private generateTempLocal(localType: Type = UnknownType.getInstance()): Local {
-        const tempLocalName = TEMP_LOCAL_PREFIX + this.tempLocalIndex;
-        this.tempLocalIndex++;
+        const tempLocalName = TEMP_LOCAL_PREFIX + this.tempLocalNo;
+        this.tempLocalNo++;
         const tempLocal: Local = new Local(tempLocalName, localType);
         this.locals.set(tempLocalName, tempLocal);
         return tempLocal;
@@ -1834,6 +1850,38 @@ export class ArkIRTransformer {
         const assignStmt = new ArkAssignStmt(leftOp, value);
         assignStmt.setOperandOriginalPositions([leftOpPosition, ...valueOriginalPositions]);
         return { value: leftOp, valueOriginalPositions: [leftOpPosition], stmts: [assignStmt] };
+    }
+
+    public generateIfStmtForValues(leftValue: Value, leftOpOriginalPositions: FullPosition[], rightValue: Value,
+                                   rightOpOriginalPositions: FullPosition[]): Stmt[] {
+        const stmts: Stmt[] = [];
+        if (IRUtils.moreThanOneAddress(leftValue)) {
+            const {
+                value: tempLeftValue,
+                valueOriginalPositions: tempLeftPositions,
+                stmts: leftStmts,
+            } = this.generateAssignStmtForValue(leftValue, leftOpOriginalPositions);
+            stmts.push(...leftStmts);
+            leftValue = tempLeftValue;
+            leftOpOriginalPositions = tempLeftPositions;
+        }
+        if (IRUtils.moreThanOneAddress(rightValue)) {
+            const {
+                value: tempRightValue,
+                valueOriginalPositions: tempRightPositions,
+                stmts: rightStmts,
+            } = this.generateAssignStmtForValue(rightValue, rightOpOriginalPositions);
+            stmts.push(...rightStmts);
+            rightValue = tempRightValue;
+            rightOpOriginalPositions = tempRightPositions;
+        }
+
+        const conditionExpr = new ArkConditionExpr(leftValue, rightValue, RelationalBinaryOperator.Equality);
+        const conditionPositions = [...leftOpOriginalPositions, ...rightOpOriginalPositions];
+        const ifStmt = new ArkIfStmt(conditionExpr);
+        ifStmt.setOperandOriginalPositions([...conditionPositions]);
+        stmts.push(ifStmt);
+        return stmts;
     }
 
     private isRelationalOperator(operator: BinaryOperator): boolean {
@@ -2086,8 +2134,6 @@ export class ArkIRTransformer {
                 return RelationalBinaryOperator.StrictEquality;
             case ts.SyntaxKind.ExclamationEqualsEqualsToken:
                 return RelationalBinaryOperator.StrictInequality;
-            default:
-                ;
         }
         return null;
     }

@@ -15,7 +15,7 @@
 
 import hilog from '@ohos.hilog';
 import { describe, it, expect } from '@ohos/hypium'
-import axios,{AxiosResponse} from '@ohos/axios';
+import axios,{ AxiosError, AxiosResponse} from '@ohos/axios';
 import { LOG, XTS_CONFIG } from '../../../main/ets/common/Common'
 
 export default function AxiosProxyTest() {
@@ -30,7 +30,7 @@ export default function AxiosProxyTest() {
           method: 'get',
           proxy:{
             host: XTS_CONFIG.host,
-            port: 6443,
+            port: 8005,
             exclusionList: []
           }
         }).then((res: AxiosResponse) => {
@@ -49,7 +49,7 @@ export default function AxiosProxyTest() {
         method: 'get',
         proxy:{
           host: XTS_CONFIG.host,
-          port: 6443,
+          port: 8005,
           exclusionList: []
         }
       }).then((res: AxiosResponse) => {

@@ -19,10 +19,10 @@ file(GLOB_RECURSE rnoh_sample_package_lib_generated_SRC "${rnoh_sample_package_l
 file(GLOB rnoh_sample_package_SRC CONFIGURE_DEPENDS *.cpp)
 
 # ...and added to the library. Otherwise, "undefined reference to *" errors will occur.
-add_library(rnoh__react_native_harmony_sample_package SHARED ${rnoh_sample_package_SRC} ${rnoh_sample_package_build_time_generated_SRC} ${rnoh_sample_package_lib_generated_SRC})
+add_library(rnoh_sample_package SHARED ${rnoh_sample_package_SRC} ${rnoh_sample_package_build_time_generated_SRC} ${rnoh_sample_package_lib_generated_SRC})
 
 # The library needs to know where to look for header files to make #includes work.
-target_include_directories(rnoh__react_native_harmony_sample_package PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${rnoh_sample_package_build_time_generated_dir} ${rnoh_sample_package_lib_generated_dir})
+target_include_directories(rnoh_sample_package PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${rnoh_sample_package_build_time_generated_dir} ${rnoh_sample_package_lib_generated_dir})
 
 # The library depends on the rnoh library.
-target_link_libraries(rnoh__react_native_harmony_sample_package PUBLIC rnoh)
+target_link_libraries(rnoh_sample_package PUBLIC rnoh)

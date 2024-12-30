@@ -676,7 +676,7 @@ struct Index {
     // 获取根证书、客户端证书、客户端密码沙箱路径
     try {
       let context: Context = getContext(this);
-      let ca: Uint8Array = context.resourceManager.getRawFileContentSync("oneWayAuth/ca.p12");
+      let ca: Uint8Array = context.resourceManager.getRawFileContentSync("mutualAuth_noPsw/ca.crt");
       let client: Uint8Array = context.resourceManager.getRawFileContentSync("mutualAuth_noPsw/p12/client.p12");
       let key: Uint8Array = context.resourceManager.getRawFileContentSync("mutualAuth_noPsw/p12/client.key");
       let cacheDir: string = context.cacheDir;
@@ -735,7 +735,7 @@ struct Index {
     try {
       let context: Context = getContext(this);
       let ca: Uint8Array = context.resourceManager.getRawFileContentSync("mutualAuth_hasPsw/ca.crt");
-      let client: Uint8Array = context.resourceManager.getRawFileContentSync("mutualAuth_hasPsw/pem/client.pem");
+      let client: Uint8Array = context.resourceManager.getRawFileContentSync("mutualAuth_hasPsw/pem/client.crt");
       let key: Uint8Array = context.resourceManager.getRawFileContentSync("mutualAuth_hasPsw/pem/client.key");
       let cacheDir: string = context.cacheDir;
 
@@ -744,8 +744,8 @@ struct Index {
         writeFile(cacheDir, 'ca.crt', ca.buffer)
       }
       if (client != null) {
-        path_client = cacheDir + "/client.pem";
-        writeFile(cacheDir, 'client.pem', client.buffer)
+        path_client = cacheDir + "/client.crt";
+        writeFile(cacheDir, 'client.crt', client.buffer)
       }
       if (key != null) {
         path_key = cacheDir + "/client.key";
@@ -818,7 +818,7 @@ struct Index {
       method: 'get',
       proxy: {
         host: this.host,
-        port: 6443,
+        port: 8005,
         exclusionList: []
       },
       connectTimeout: this.connectTimeout,

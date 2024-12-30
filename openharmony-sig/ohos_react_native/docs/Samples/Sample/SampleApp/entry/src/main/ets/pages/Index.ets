@@ -64,6 +64,12 @@ struct Index {
       alignment: DialogAlignment.TopStart,
       backgroundColor: Color.Transparent,
       builder: LogBoxDialog({
+        ctx: new RNComponentContext(
+          RNOHContext.fromCoreContext(this.rnohCoreContext!, LoadManager.metroInstance),
+          wrapBuilder(buildCustomComponent),
+          wrapBuilder(buildRNComponentForTag),
+          new Map()
+        ),
         rnInstance: LoadManager.metroInstance,
         initialProps: {},
         buildCustomComponent: this.logBoxBuilder,

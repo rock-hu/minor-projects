@@ -18,7 +18,7 @@ If it is a change to add a new attribute, use [added] prefix, for example:
 - [added] FlatList component adds inverted attribute
 -->
 
-## Test Cases
+## Test Plan
 <!-- 
 How to test this PR. For example:
 1. Open the Tester project

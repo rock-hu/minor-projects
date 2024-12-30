@@ -15,7 +15,8 @@ import { RNOHContext, RNOHCoreContext, InternalRNOHCoreContext } from "./RNOHCon
 import { DisplayMetricsManager } from './DisplayMetricsManager';
 import { JSPackagerClient } from "./JSPackagerClient"
 import { DevToolsController } from "./DevToolsController"
-import { InternalDevMenu } from "./DevMenu"
+import { InternalDevMenu, NoopDevMenu } from "./DevMenu"
+import { DevMenu } from './types'
 import { JSPackagerClientConfig } from "./JSPackagerClient"
 import { RNOHError, RNOHErrorEventEmitter } from "./RNOHError"
 import AbilityConfiguration from '@ohos.app.ability.Configuration';
@@ -106,6 +107,7 @@ export class RNInstancesCoordinator {
     }
     RNInstancesCoordinator.isInitialized = true
     dependencies.logger.info(RNOH_BANNER)
+    const onDestroyCallbacks: Function[] = []
     const devToolsController = new DevToolsController(dependencies.logger);
     const napiBridge = new NapiBridge(dependencies.logger);
     const displayMetricsManager = new DisplayMetricsManager(dependencies.fontSizeScale ?? 1, dependencies.logger);
@@ -127,7 +129,19 @@ export class RNInstancesCoordinator {
           getIsSplitScreenMode: () => displayMetricsManager.getIsSplitScreenMode(),
           getMetadata,
         });
-    const devMenu = new InternalDevMenu(devToolsController, dependencies.uiAbilityContext, dependencies.logger);
+
+    let devMenu: DevMenu = new NoopDevMenu()
+    // NOTE: ONLY INITIALIZE DEVMENU IN DEBUG MODE
+    // You can initialize the DevMenu in release mode by changing 'envInfo.isDebugModeEnabled' to 'true' or commenting out the following condition check.
+    if (envInfo.isDebugModeEnabled) {
+      const internalDevMenu =
+        new InternalDevMenu(devToolsController, dependencies.uiAbilityContext, dependencies.logger);
+      onDestroyCallbacks.push(() => {
+        internalDevMenu.onDestroy()
+      })
+      devMenu = internalDevMenu;
+    }
+
     const jsPackagerClient = new JSPackagerClient(
       dependencies.logger,
       devToolsController,
@@ -161,7 +175,8 @@ export class RNInstancesCoordinator {
       dependencies.defaultBackPressHandler,
       globalRNOHErrorEventEmitter,
       dependencies.rnohWorkerScriptUrl,
-      options);
+      options,
+      onDestroyCallbacks);
   }
 
   private rawLogger: RNOHLogger;
@@ -173,13 +188,14 @@ export class RNInstancesCoordinator {
   private isDebugModeEnabled: boolean
   private uiAbilityContext: common.UIAbilityContext
   private devToolsController: DevToolsController
-  private devMenu: InternalDevMenu
+  private devMenu: DevMenu
   private jsPackagerClient: JSPackagerClient
   private options: RNInstancesCoordinatorOptions | undefined
   private appState: AppState = "FOREGROUND"
   private defaultBackPressHandler: () => void
   private globalRNOHErrorEventEmitter: RNOHErrorEventEmitter
   private envId: number;
+  private onDestroyCallbacks: Function[]
 
   private constructor(napiBridge: NapiBridge,
     logger: RNOHLogger,
@@ -188,12 +204,13 @@ export class RNInstancesCoordinator {
     envId: number,
     uiAbilityContext: common.UIAbilityContext,
     devToolsController: DevToolsController,
-    devMenu: InternalDevMenu,
+    devMenu: DevMenu,
     jsPackagerClient: JSPackagerClient,
     defaultBackPressHandler: () => void,
     globalRNOHErrorEventEmitter: RNOHErrorEventEmitter,
     rnohWorkerScriptUrl?: string | undefined,
-    options?: RNInstancesCoordinatorOptions) {
+    options?: RNInstancesCoordinatorOptions,
+    onDestroyCallbacks?: Function[]) {
     this.envId = envId;
     this.logger = logger.clone("RNInstancesCoordinator")
     this.rawLogger = logger
@@ -245,6 +262,7 @@ export class RNInstancesCoordinator {
       devMenu: this.devMenu,
       rnohErrorEventEmitter: this.globalRNOHErrorEventEmitter
     });
+    this.onDestroyCallbacks = onDestroyCallbacks ?? []
   }
 
   public onDestroy() {
@@ -254,6 +272,9 @@ export class RNInstancesCoordinator {
       instance.onDestroy()
     })
     this.rnohCoreContext.onDestroy()
+    this.onDestroyCallbacks.forEach(cb => {
+      cb()
+    });
     stopTracing()
   }
 

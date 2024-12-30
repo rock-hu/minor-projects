@@ -62,7 +62,7 @@
         （2）或者打开 **IDE** 的错误增强功能，参考下图：
             ![faq-IDE-打开错误增强功能](./figures/faq-IDE-打开错误增强功能.png) 
  
-        （3）因为 **IDE** 升级有一个非兼容性变更，变更可参考[文档](https://developer.huawei.com/consumer/cn/doc/harmonyos-releases-V5/ide-changelogs-db5-V5)，简单说就是：2 个 har 包，har 包 A 的 so 依赖了 har 包 B 的 so，以前，har 包 A 会打包 Har 包 B 的 so 到的 har 包 A 里，变更之后，则不会。
+        （3）因为 **IDE** 升级，需要开发者修改适配，修改适配可参考[文档](https://developer.huawei.com/consumer/cn/doc/harmonyos-releases-V5/ide-changelogs-db5-V5)，简单说就是：2 个 har 包，har 包 A 的 so 依赖了 har 包 B 的 so，以前，har 包 A 会打包 Har 包 B 的 so 到的 har 包 A 里，修改适配之后，则不会。
  
         （4）解决：自动解决（需要升级 IDE 到最新版本）
  

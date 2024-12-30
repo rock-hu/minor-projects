@@ -96,6 +96,28 @@ export function AlertTest() {
           expect(state).to.be.true;
         }}
       />
+      <TestCase.Manual
+        itShould="show three buttons in Alert"
+        initialState={false}
+        arrange={({setState, reset}) => (
+          <View style={{flexDirection: 'row'}}>
+            <Button
+              label="show alert"
+              onPress={() => {
+                Alert.alert('Test Alert', 'Message', [
+                  {text: 'OK', onPress: () => setState(true)},
+                  {text: 'Cancel', onPress: () => setState(true)},
+                  {text: 'Later', onPress: () => setState(true)},
+                ]);
+              }}
+            />
+            <Button label="reset" onPress={reset} />
+          </View>
+        )}
+        assert={({state, expect}) => {
+          expect(state).to.be.true;
+        }}
+      />
     </TestSuite>
   );
 }

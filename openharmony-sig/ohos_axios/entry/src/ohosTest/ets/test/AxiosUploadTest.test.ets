@@ -146,17 +146,17 @@ export default function AxiosUploadTest() {
     it('upload_filepath', 4, async (done: Function) => {
       let context: Context = GlobalContext.getContext().getObject("context") as Context;
       let cacheDir: string = context.cacheDir;
-      let ca: Uint8Array = await context.resourceManager.getRawFileContent("oneWayAuth/ca.pem");
+      let ca: Uint8Array = await context.resourceManager.getRawFileContent("oneWayAuth/ca.crt");
 
       try {
-        writeFile(cacheDir, 'ca.pem', ca.buffer)
+        writeFile(cacheDir, 'ca.crt', ca.buffer)
       }catch (err){
         hilog.info(DOMAIN, TAG, " upload_filepath error: " +JSON.stringify(err) );
         expect().assertFail()
       }
 
       let formData = new FormData()
-      formData.append('file', 'internal://cache/ca.pem');
+      formData.append('file', 'internal://cache/ca.crt');
       let startTime = new Date().getTime()
       axios.post<UploadResultModel, AxiosResponse<UploadResultModel>, FormData>(config.uploadUrl, formData, {
         headers: {
@@ -175,13 +175,13 @@ export default function AxiosUploadTest() {
     // uploading arraybuffer type files without specifying a file name
     it('upload_buffer', 5, async (done: Function) => {
       let context: Context = GlobalContext.getContext().getObject("context") as Context;
-      let content: Uint8Array = await context.resourceManager.getRawFileContent("oneWayAuth/ca.pem");
+      let content: Uint8Array = await context.resourceManager.getRawFileContent("oneWayAuth/ca.crt");
       let filesDir: string = context.filesDir;
       let buffer:ArrayBuffer = new ArrayBuffer(1024);
 
       try {
-        writeFile(context.filesDir, 'ca.pem', content.buffer)
-        buffer = readFile(filesDir + "/ca.pem")
+        writeFile(context.filesDir, 'ca.crt', content.buffer)
+        buffer = readFile(filesDir + "/ca.crt")
       } catch (err){
         hilog.info(DOMAIN, TAG, " file error: " +JSON.stringify(err) );
         expect().assertFail()
@@ -190,7 +190,7 @@ export default function AxiosUploadTest() {
       // Arraybuffer
       let formData = new FormData()
       formData.append('file', buffer);
-      formData.append('name', 'ca.pem');
+      formData.append('name', 'ca.crt');
 
       let startTime = new Date().getTime()
       axios.post<UploadResultModel, AxiosResponse<UploadResultModel>, FormData>(config.uploadUrl, formData, {
@@ -235,17 +235,17 @@ export default function AxiosUploadTest() {
     it('upload_filepath_fd', 7, async (done: Function) => {
       let context: Context = GlobalContext.getContext().getObject("context") as Context;
       let cacheDir: string = context.cacheDir;
-      let ca: Uint8Array = await context.resourceManager.getRawFileContent("oneWayAuth/ca.pem");
+      let ca: Uint8Array = await context.resourceManager.getRawFileContent("oneWayAuth/ca.crt");
 
       try {
-        writeFile(cacheDir, 'ca.pem', ca.buffer)
+        writeFile(cacheDir, 'ca.crt', ca.buffer)
       }catch (err){
         hilog.info(DOMAIN, TAG, " upload_filepath error: " +JSON.stringify(err) );
         expect().assertFail()
       }
 
       let formData = new FormData()
-      formData.append('file', cacheDir+'/ca.pem');
+      formData.append('file', cacheDir+'/ca.crt');
       let startTime = new Date().getTime()
       axios.defaults.baseURL = XTS_CONFIG.baseURL
       axios.post<UploadResultModel, AxiosResponse<UploadResultModel>, FormData>(config.uploadUrl, formData, {

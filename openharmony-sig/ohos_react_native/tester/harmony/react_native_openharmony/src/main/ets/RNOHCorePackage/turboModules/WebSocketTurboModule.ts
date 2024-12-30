@@ -101,7 +101,7 @@ export class WebSocketTurboModule extends AnyThreadTurboModule {
 
     })
 
-    ws.connect(url, { header: options.headers }, (err) => this.maybeHandleError(socketID, err));
+    ws.connect(url, { header: options.headers, protocol: (protocols ? protocols.join(',') : "") }, (err) => this.maybeHandleError(socketID, err));
     this.socketById.set(socketID, ws);
   }
 

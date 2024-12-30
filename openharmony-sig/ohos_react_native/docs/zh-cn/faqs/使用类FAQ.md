@@ -243,7 +243,7 @@
       2. 下载hermes源码：通过[hermes源码](https://github.com/facebook/hermes/tree/hermes-2023-08-07-RNv0.72.4-813b2def12bc9df02654b3e3653ae4a68d0572e0)的链接下载hermes源码，然后替换掉 `package/src/main/cpp/third-party/hermes` 文件夹；
       3. 下载编译脚本：通过上述链接下载编译脚本，然后将其拷贝到 `package/src/main/cpp/third-party/scripts` 路径下（没有scripts目录就自己建）；
       4. 配置 SDK 环境变量：将 IDE 中 `sdk/default/openharmony` 的路径配置在系统的环境变量中，环境变量名为 `OHOS_SDK`，或者也可以将这个路径写在编译脚本中；
-      5. 调整编译脚本：见下面的文件变更：
+      5. 根据下方代码：调整编译脚本：
           ```diff
           #!/bin/bash
 

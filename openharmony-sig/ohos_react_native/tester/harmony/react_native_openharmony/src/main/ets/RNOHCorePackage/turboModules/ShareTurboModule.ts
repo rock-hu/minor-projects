@@ -46,7 +46,7 @@ export class ShareTurboModule extends TurboModule {
     if (content.url) {
       sharedRecord = {
         utd: utd.UniformDataType.HYPERLINK,
-        uri: content.url,
+        content: content.url,
         title: content.title
       }
       sharedData.addRecord(sharedRecord);

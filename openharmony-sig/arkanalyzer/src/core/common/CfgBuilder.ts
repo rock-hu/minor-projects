@@ -15,17 +15,31 @@
 
 import * as ts from 'ohos-typescript';
 import { Local } from '../base/Local';
-import { ArkAssignStmt, ArkIfStmt, ArkReturnStmt, ArkReturnVoidStmt, Stmt } from '../base/Stmt';
+import {
+    ArkAssignStmt,
+    ArkIfStmt,
+    ArkInvokeStmt,
+    ArkReturnStmt,
+    ArkReturnVoidStmt,
+    ArkThrowStmt,
+    Stmt,
+} from '../base/Stmt';
 import { BasicBlock } from '../graph/BasicBlock';
 import { Cfg } from '../graph/Cfg';
 import { ArkClass } from '../model/ArkClass';
 import { ArkMethod } from '../model/ArkMethod';
-import { ArkIRTransformer, DUMMY_INITIALIZER_STMT } from './ArkIRTransformer';
+import { ArkIRTransformer, DummyStmt, ValueAndStmts } from './ArkIRTransformer';
 import { ModelUtils } from './ModelUtils';
 import { AbstractInvokeExpr } from '../base/Expr';
 import { Builtin } from './Builtin';
 import { IRUtils } from './IRUtils';
-import { AliasType, AliasTypeDeclaration } from '../base/Type';
+import { AliasType, AliasTypeDeclaration, UnknownType } from '../base/Type';
+import { Trap } from '../base/Trap';
+import Logger, { LOG_MODULE_TYPE } from '../../utils/logger';
+import { ArkCaughtExceptionRef } from '../base/Ref';
+import { FullPosition } from '../base/Position';
+
+const logger = Logger.getLogger(LOG_MODULE_TYPE.ARKANALYZER, 'CfgBuilder');
 
 class StatementBuilder {
     type: string;
@@ -83,6 +97,7 @@ class SwitchStatementBuilder extends StatementBuilder {
     nexts: StatementBuilder[];
     cases: Case[] = [];
     default: StatementBuilder | null = null;
+    afterSwitch: StatementBuilder | null = null;
 
     constructor(type: string, code: string, astNode: ts.Node, scopeID: number) {
         super(type, code, astNode, scopeID);
@@ -96,6 +111,7 @@ class TryStatementBuilder extends StatementBuilder {
     catchStatement: StatementBuilder | null = null;
     catchError: string = '';
     finallyStatement: StatementBuilder | null = null;
+    afterFinal: StatementBuilder | null = null;
 
     constructor(type: string, code: string, astNode: ts.Node, scopeID: number) {
         super(type, code, astNode, scopeID);
@@ -105,6 +121,7 @@ class TryStatementBuilder extends StatementBuilder {
 class Case {
     value: string;
     stmt: StatementBuilder;
+    valueNode!: ts.Node;
 
     constructor(value: string, stmt: StatementBuilder) {
         this.value = value;
@@ -138,13 +155,9 @@ class Variable {
 
 class Scope {
     id: number;
-    level: number;
-    parent: Scope | null;
 
-    constructor(id: number, variable: Set<String>, level: number) {
+    constructor(id: number) {
         this.id = id;
-        this.level = level;
-        this.parent = null;
     }
 }
 
@@ -197,7 +210,6 @@ export class CfgBuilder {
     statementArray: StatementBuilder[];
     dotEdges: number[][];
     scopes: Scope[];
-    scopeLevel: number;
     tempVariableNum: number;
     current3ACstm: StatementBuilder;
     blocks: Block[];
@@ -227,7 +239,6 @@ export class CfgBuilder {
         this.dotEdges = [];
         this.exit = new StatementBuilder('exit', 'return;', null, 0);
         this.scopes = [];
-        this.scopeLevel = 0;
         this.tempVariableNum = 0;
         this.current3ACstm = this.entry;
         this.blocks = [];
@@ -239,308 +250,332 @@ export class CfgBuilder {
         this.arrowFunctionWithoutBlock = true;
     }
 
-    walkAST(lastStatement: StatementBuilder, nextStatement: StatementBuilder, nodes: ts.Node[]) {
-        function judgeLastType(s: StatementBuilder) {
-            if (lastStatement.type === 'ifStatement') {
-                let lastIf = lastStatement as ConditionStatementBuilder;
-                if (lastIf.nextT == null) {
-                    lastIf.nextT = s;
-                    s.lasts.add(lastIf);
-                } else {
-                    lastIf.nextF = s;
-                    s.lasts.add(lastIf);
-                }
-            } else if (lastStatement.type === 'loopStatement') {
-                let lastLoop = lastStatement as ConditionStatementBuilder;
-                lastLoop.nextT = s;
-                s.lasts.add(lastLoop);
-            } else if (lastStatement.type === 'catchOrNot') {
-                let lastLoop = lastStatement as ConditionStatementBuilder;
-                lastLoop.nextT = s;
-                s.lasts.add(lastLoop);
+    judgeLastType(s: StatementBuilder, lastStatement: StatementBuilder): void {
+        if (lastStatement.type === 'ifStatement') {
+            let lastIf = lastStatement as ConditionStatementBuilder;
+            if (lastIf.nextT == null) {
+                lastIf.nextT = s;
+                s.lasts.add(lastIf);
             } else {
-                lastStatement.next = s;
-                s.lasts.add(lastStatement);
+                lastIf.nextF = s;
+                s.lasts.add(lastIf);
+            }
+        } else if (lastStatement.type === 'loopStatement') {
+            let lastLoop = lastStatement as ConditionStatementBuilder;
+            lastLoop.nextT = s;
+            s.lasts.add(lastLoop);
+        } else if (lastStatement.type === 'catchOrNot') {
+            let lastLoop = lastStatement as ConditionStatementBuilder;
+            lastLoop.nextT = s;
+            s.lasts.add(lastLoop);
+        } else {
+            lastStatement.next = s;
+            s.lasts.add(lastStatement);
+        }
+
+    }
+
+    ASTNodeBreakStatement(c: ts.Node, lastStatement: StatementBuilder): void {
+        let p: ts.Node | null = c;
+        while (p && p !== this.astRoot) {
+            if (ts.isWhileStatement(p) || ts.isDoStatement(p) || ts.isForStatement(p) || ts.isForInStatement(p) || ts.isForOfStatement(p)) {
+                const lastLoopNextF = this.loopStack[this.loopStack.length - 1].nextF!;
+                this.judgeLastType(lastLoopNextF, lastStatement);
+                lastLoopNextF.lasts.add(lastStatement);
+                return;
+            }
+            if (ts.isCaseClause(p) || ts.isDefaultClause(p)) {
+                const lastSwitchExit = this.switchExitStack[this.switchExitStack.length - 1];
+                this.judgeLastType(lastSwitchExit, lastStatement);
+                lastSwitchExit.lasts.add(lastStatement);
+                return;
+            }
+            p = p.parent;
+        }
+    }
+
+    ASTNodeIfStatement(c: ts.IfStatement, lastStatement: StatementBuilder, scopeID: number): StatementBuilder {
+        let ifstm: ConditionStatementBuilder = new ConditionStatementBuilder('ifStatement', '', c, scopeID);
+        this.judgeLastType(ifstm, lastStatement);
+        let ifexit: StatementBuilder = new StatementBuilder('ifExit', '', c, scopeID);
+        this.exits.push(ifexit);
+        ifstm.condition = c.expression.getText(this.sourceFile);
+        ifstm.code = 'if (' + ifstm.condition + ')';
+        if (ts.isBlock(c.thenStatement)) {
+            this.walkAST(ifstm, ifexit, [...c.thenStatement.statements]);
+        } else {
+            this.walkAST(ifstm, ifexit, [c.thenStatement]);
+        }
+        if (c.elseStatement) {
+            if (ts.isBlock(c.elseStatement)) {
+                this.walkAST(ifstm, ifexit, [...c.elseStatement.statements]);
+            } else {
+                this.walkAST(ifstm, ifexit, [c.elseStatement]);
+            }
+        }
+        if (!ifstm.nextT) {
+            ifstm.nextT = ifexit;
+            ifexit.lasts.add(ifstm);
+        }
+        if (!ifstm.nextF) {
+            ifstm.nextF = ifexit;
+            ifexit.lasts.add(ifstm);
+        }
+        return ifexit;
+    }
+
+    ASTNodeWhileStatement(c: ts.WhileStatement, lastStatement: StatementBuilder, scopeID: number): StatementBuilder {
+        this.breakin = 'loop';
+        let loopstm = new ConditionStatementBuilder('loopStatement', '', c, scopeID);
+        this.loopStack.push(loopstm);
+        this.judgeLastType(loopstm, lastStatement);
+        let loopExit = new StatementBuilder('loopExit', '', c, scopeID);
+        this.exits.push(loopExit);
+        loopstm.nextF = loopExit;
+        loopExit.lasts.add(loopstm);
+        loopstm.condition = c.expression.getText(this.sourceFile);
+        loopstm.code = 'while (' + loopstm.condition + ')';
+        if (ts.isBlock(c.statement)) {
+            this.walkAST(loopstm, loopstm, [...c.statement.statements]);
+        } else {
+            this.walkAST(loopstm, loopstm, [c.statement]);
+        }
+        if (!loopstm.nextF) {
+            loopstm.nextF = loopExit;
+            loopExit.lasts.add(loopstm);
+        }
+        if (!loopstm.nextT) {
+            loopstm.nextT = loopExit;
+            loopExit.lasts.add(loopstm);
+        }
+        this.loopStack.pop();
+        return loopExit;
+    }
+
+    ASTNodeForStatement(c: ts.ForInOrOfStatement | ts.ForStatement, lastStatement: StatementBuilder, scopeID: number): StatementBuilder {
+        this.breakin = 'loop';
+        let loopstm = new ConditionStatementBuilder('loopStatement', '', c, scopeID);
+        this.loopStack.push(loopstm);
+        this.judgeLastType(loopstm, lastStatement);
+        let loopExit = new StatementBuilder('loopExit', '', c, scopeID);
+        this.exits.push(loopExit);
+        loopstm.nextF = loopExit;
+        loopExit.lasts.add(loopstm);
+        loopstm.code = 'for (';
+        if (ts.isForStatement(c)) {
+            loopstm.code += c.initializer?.getText(this.sourceFile) + '; ' + c.condition?.getText(this.sourceFile) + '; ' + c.incrementor?.getText(this.sourceFile);
+        } else if (ts.isForOfStatement(c)) {
+            loopstm.code += c.initializer?.getText(this.sourceFile) + ' of ' + c.expression.getText(this.sourceFile);
+        } else {
+            loopstm.code += c.initializer?.getText(this.sourceFile) + ' in ' + c.expression.getText(this.sourceFile);
+        }
+        loopstm.code += ')';
+        if (ts.isBlock(c.statement)) {
+            this.walkAST(loopstm, loopstm, [...c.statement.statements]);
+        } else {
+            this.walkAST(loopstm, loopstm, [c.statement]);
+        }
+        if (!loopstm.nextF) {
+            loopstm.nextF = loopExit;
+            loopExit.lasts.add(loopstm);
+        }
+        if (!loopstm.nextT) {
+            loopstm.nextT = loopExit;
+            loopExit.lasts.add(loopstm);
+        }
+        this.loopStack.pop();
+        return loopExit;
+    }
+
+    ASTNodeDoStatement(c: ts.DoStatement, lastStatement: StatementBuilder, scopeID: number): StatementBuilder {
+        this.breakin = 'loop';
+        let loopstm = new ConditionStatementBuilder('loopStatement', '', c, scopeID);
+        this.loopStack.push(loopstm);
+        let loopExit = new StatementBuilder('loopExit', '', c, scopeID);
+        this.exits.push(loopExit);
+        loopstm.nextF = loopExit;
+        loopExit.lasts.add(loopstm);
+        loopstm.condition = c.expression.getText(this.sourceFile);
+        loopstm.code = 'while (' + loopstm.condition + ')';
+        loopstm.isDoWhile = true;
+        if (ts.isBlock(c.statement)) {
+            this.walkAST(lastStatement, loopstm, [...c.statement.statements]);
+        } else {
+            this.walkAST(lastStatement, loopstm, [c.statement]);
+        }
+        let lastType = lastStatement.type;
+        if (lastType === 'ifStatement' || lastType === 'loopStatement') {
+            let lastCondition = lastStatement as ConditionStatementBuilder;
+            loopstm.nextT = lastCondition.nextT;
+            lastCondition.nextT?.lasts.add(loopstm);
+        } else {
+            loopstm.nextT = lastStatement.next;
+            lastStatement.next?.lasts.add(loopstm);
+        }
+        if (loopstm.nextT && loopstm.nextT !== loopstm) {
+            loopstm.nextT.isDoWhile = true;
+            loopstm.doStatement = loopstm.nextT;
+        }
+        this.loopStack.pop();
+        return loopExit;
+    }
+
+    ASTNodeSwitchStatement(c: ts.SwitchStatement, lastStatement: StatementBuilder, scopeID: number): StatementBuilder {
+        this.breakin = 'switch';
+        let switchstm = new SwitchStatementBuilder('switchStatement', '', c, scopeID);
+        this.judgeLastType(switchstm, lastStatement);
+        let switchExit = new StatementBuilder('switchExit', '', null, scopeID);
+        this.exits.push(switchExit);
+        this.switchExitStack.push(switchExit);
+        switchExit.lasts.add(switchstm);
+        switchstm.code = 'switch (' + c.expression + ')';
+        let lastCaseExit: StatementBuilder | null = null;
+        for (let i = 0; i < c.caseBlock.clauses.length; i++) {
+            const clause = c.caseBlock.clauses[i];
+            let casestm: StatementBuilder;
+            if (ts.isCaseClause(clause)) {
+                casestm = new StatementBuilder('statement', 'case ' + clause.expression.getText(this.sourceFile) + ':', clause, scopeID);
+            } else {
+                casestm = new StatementBuilder('statement', 'default:', clause, scopeID);
+            }
+            switchstm.nexts.push(casestm);
+            casestm.lasts.add(switchstm);
+            let caseExit = new StatementBuilder('caseExit', '', null, scopeID);
+            this.exits.push(caseExit);
+            this.walkAST(casestm, caseExit, [...clause.statements]);
+            if (ts.isCaseClause(clause)) {
+                const cas = new Case(casestm.code, casestm.next!);
+                switchstm.cases.push(cas);
+            } else {
+                switchstm.default = casestm.next;
+            }
+            switchstm.nexts[switchstm.nexts.length - 1] = casestm.next!;
+            for (const stmt of [...casestm.lasts]) {
+                casestm.next!.lasts.add(stmt);
+            }
+            casestm.next!.lasts.delete(casestm);
+
+            if (lastCaseExit) {
+                lastCaseExit.next = casestm.next;
+                casestm.next?.lasts.add(lastCaseExit);
+            }
+            lastCaseExit = caseExit;
+            if (i === c.caseBlock.clauses.length - 1) {
+                caseExit.next = switchExit;
+                switchExit.lasts.add(caseExit);
+            }
+        }
+        this.switchExitStack.pop();
+        return switchExit;
+    }
+
+    ASTNodeTryStatement(c: ts.TryStatement, lastStatement: StatementBuilder, scopeID: number): StatementBuilder {
+        let trystm = new TryStatementBuilder('tryStatement', 'try', c, scopeID);
+        this.judgeLastType(trystm, lastStatement);
+        let tryExit = new StatementBuilder('tryExit', '', c, scopeID);
+        this.exits.push(tryExit);
+        trystm.tryExit = tryExit;
+        this.walkAST(trystm, tryExit, [...c.tryBlock.statements]);
+        trystm.tryFirst = trystm.next;
+        trystm.next?.lasts.add(trystm);
+        if (c.catchClause) {
+            let text = 'catch';
+            if (c.catchClause.variableDeclaration) {
+                text += '(' + c.catchClause.variableDeclaration.getText(this.sourceFile) + ')';
+            }
+            let catchOrNot = new ConditionStatementBuilder('catchOrNot', text, c, scopeID);
+            let catchExit = new StatementBuilder('catch exit', '', c, scopeID);
+            catchOrNot.nextF = catchExit;
+            catchExit.lasts.add(catchOrNot);
+            this.walkAST(catchOrNot, catchExit, [...c.catchClause.block.statements]);
+            if (!catchOrNot.nextT) {
+                catchOrNot.nextT = catchExit;
+                catchExit.lasts.add(catchOrNot);
+            }
+            const catchStatement = new StatementBuilder('statement', catchOrNot.code, c.catchClause, catchOrNot.nextT.scopeID);
+            catchStatement.next = catchOrNot.nextT;
+            trystm.catchStatement = catchStatement;
+            catchStatement.lasts.add(trystm);
+            if (c.catchClause.variableDeclaration) {
+                trystm.catchError = c.catchClause.variableDeclaration.getText(this.sourceFile);
+            } else {
+                trystm.catchError = 'Error';
             }
 
         }
-
-        this.scopeLevel++;
-        let scope = new Scope(this.scopes.length, new Set(), this.scopeLevel);
-        for (let i = this.scopes.length - 1; i >= 0; i--) {
-            if (this.scopes[i].level === this.scopeLevel - 1) {
-                scope.parent = this.scopes[i];
-                break;
-            }
+        let final = new StatementBuilder('statement', 'finally', c, scopeID);
+        let finalExit = new StatementBuilder('finallyExit', '', c, scopeID);
+        this.exits.push(finalExit);
+        if (c.finallyBlock && c.finallyBlock.statements.length > 0) {
+            this.walkAST(final, finalExit, [...c.finallyBlock.statements]);
+        } else {
+            let dummyFinally = new StatementBuilder('statement', 'dummyFinally', c, (new Scope(this.scopes.length)).id);
+            final.next = dummyFinally;
+            dummyFinally.lasts.add(final);
+            dummyFinally.next = finalExit;
+            finalExit.lasts.add(dummyFinally);
         }
+        trystm.finallyStatement = final.next;
+        tryExit.next = final.next;
+        final.next?.lasts.add(tryExit);
+
+        trystm.next = finalExit;
+        finalExit.lasts.add(trystm);
+        return finalExit;
+    }
+
+    walkAST(lastStatement: StatementBuilder, nextStatement: StatementBuilder, nodes: ts.Node[]) {
+        let scope = new Scope(this.scopes.length);
         this.scopes.push(scope);
-
         for (let i = 0; i < nodes.length; i++) {
             let c = nodes[i];
             if (ts.isVariableStatement(c) || ts.isExpressionStatement(c) || ts.isThrowStatement(c) || ts.isTypeAliasDeclaration(c)) {
                 let s = new StatementBuilder('statement', c.getText(this.sourceFile), c, scope.id);
-                judgeLastType(s);
+                this.judgeLastType(s, lastStatement);
                 lastStatement = s;
             } else if (!this.declaringMethod.isDefaultArkMethod() && ts.isFunctionDeclaration(c)) {
                 let s = new StatementBuilder('functionDeclarationStatement', c.getText(this.sourceFile), c, scope.id);
-                judgeLastType(s);
+                this.judgeLastType(s, lastStatement);
                 lastStatement = s;
             } else if (ts.isReturnStatement(c)) {
                 let s = new StatementBuilder('returnStatement', c.getText(this.sourceFile), c, scope.id);
-                judgeLastType(s);
-                s.astNode = c;
+                this.judgeLastType(s, lastStatement);
                 lastStatement = s;
                 break;
             } else if (ts.isBreakStatement(c)) {
-                let p: ts.Node | null = c;
-                while (p) {
-                    if (ts.isWhileStatement(p) || ts.isDoStatement(p) || ts.isForStatement(p) || ts.isForInStatement(p) || ts.isForOfStatement(p)) {
-                        const lastLoopNextF = this.loopStack[this.loopStack.length - 1].nextF!;
-                        judgeLastType(lastLoopNextF);
-                        lastLoopNextF.lasts.add(lastStatement);
-                        return;
-                    }
-                    if (ts.isCaseClause(p) || ts.isDefaultClause(p)) {
-                        const lastSwitchExit = this.switchExitStack[this.switchExitStack.length - 1];
-                        judgeLastType(lastSwitchExit);
-                        lastSwitchExit.lasts.add(lastStatement);
-                        return;
-                    }
-                    p = p.parent;
-                }
+                this.ASTNodeBreakStatement(c, lastStatement);
+                return;
             } else if (ts.isContinueStatement(c)) {
                 const lastLoop = this.loopStack[this.loopStack.length - 1];
-                judgeLastType(lastLoop);
+                this.judgeLastType(lastLoop, lastStatement);
                 lastLoop.lasts.add(lastStatement);
                 return;
             } else if (ts.isIfStatement(c)) {
-                let ifstm: ConditionStatementBuilder = new ConditionStatementBuilder('ifStatement', '', c, scope.id);
-                judgeLastType(ifstm);
-                let ifexit: StatementBuilder = new StatementBuilder('ifExit', '', c, scope.id);
-                this.exits.push(ifexit);
-                ifstm.condition = c.expression.getText(this.sourceFile);
-                ifstm.code = 'if (' + ifstm.condition + ')';
-                if (ts.isBlock(c.thenStatement)) {
-                    this.walkAST(ifstm, ifexit, [...c.thenStatement.statements]);
-                } else {
-                    this.walkAST(ifstm, ifexit, [c.thenStatement]);
-                }
-                if (c.elseStatement) {
-                    if (ts.isBlock(c.elseStatement)) {
-                        this.walkAST(ifstm, ifexit, [...c.elseStatement.statements]);
-                    } else {
-                        this.walkAST(ifstm, ifexit, [c.elseStatement]);
-                    }
-                }
-                if (!ifstm.nextT) {
-                    ifstm.nextT = ifexit;
-                    ifexit.lasts.add(ifstm);
-                }
-                if (!ifstm.nextF) {
-                    ifstm.nextF = ifexit;
-                    ifexit.lasts.add(ifstm);
-                }
-                lastStatement = ifexit;
+                lastStatement = this.ASTNodeIfStatement(c, lastStatement, scope.id);
             } else if (ts.isWhileStatement(c)) {
-                this.breakin = 'loop';
-                let loopstm = new ConditionStatementBuilder('loopStatement', '', c, scope.id);
-                this.loopStack.push(loopstm);
-                judgeLastType(loopstm);
-                let loopExit = new StatementBuilder('loopExit', '', c, scope.id);
-                this.exits.push(loopExit);
-                loopstm.nextF = loopExit;
-                loopExit.lasts.add(loopstm);
-                loopstm.condition = c.expression.getText(this.sourceFile);
-                loopstm.code = 'while (' + loopstm.condition + ')';
-                if (ts.isBlock(c.statement)) {
-                    this.walkAST(loopstm, loopstm, [...c.statement.statements]);
-                } else {
-                    this.walkAST(loopstm, loopstm, [c.statement]);
-                }
-                if (!loopstm.nextF) {
-                    loopstm.nextF = loopExit;
-                    loopExit.lasts.add(loopstm);
-                }
-                if (!loopstm.nextT) {
-                    loopstm.nextT = loopExit;
-                    loopExit.lasts.add(loopstm);
-                }
-                lastStatement = loopExit;
-                this.loopStack.pop();
+                lastStatement = this.ASTNodeWhileStatement(c, lastStatement, scope.id);
             }
             if (ts.isForStatement(c) || ts.isForInStatement(c) || ts.isForOfStatement(c)) {
-                this.breakin = 'loop';
-                let loopstm = new ConditionStatementBuilder('loopStatement', '', c, scope.id);
-                this.loopStack.push(loopstm);
-                judgeLastType(loopstm);
-                let loopExit = new StatementBuilder('loopExit', '', c, scope.id);
-                this.exits.push(loopExit);
-                loopstm.nextF = loopExit;
-                loopExit.lasts.add(loopstm);
-                loopstm.code = 'for (';
-                if (ts.isForStatement(c)) {
-                    loopstm.code += c.initializer?.getText(this.sourceFile) + '; ' + c.condition?.getText(this.sourceFile) + '; ' + c.incrementor?.getText(this.sourceFile);
-                } else if (ts.isForOfStatement(c)) {
-                    loopstm.code += c.initializer?.getText(this.sourceFile) + ' of ' + c.expression.getText(this.sourceFile);
-                } else {
-                    loopstm.code += c.initializer?.getText(this.sourceFile) + ' in ' + c.expression.getText(this.sourceFile);
-                }
-                loopstm.code += ')';
-                if (ts.isBlock(c.statement)) {
-                    this.walkAST(loopstm, loopstm, [...c.statement.statements]);
-                } else {
-                    this.walkAST(loopstm, loopstm, [c.statement]);
-                }
-                if (!loopstm.nextF) {
-                    loopstm.nextF = loopExit;
-                    loopExit.lasts.add(loopstm);
-                }
-                if (!loopstm.nextT) {
-                    loopstm.nextT = loopExit;
-                    loopExit.lasts.add(loopstm);
-                }
-                lastStatement = loopExit;
-                this.loopStack.pop();
+                lastStatement = this.ASTNodeForStatement(c, lastStatement, scope.id);
             } else if (ts.isDoStatement(c)) {
-                this.breakin = 'loop';
-                let loopstm = new ConditionStatementBuilder('loopStatement', '', c, scope.id);
-                this.loopStack.push(loopstm);
-                let loopExit = new StatementBuilder('loopExit', '', c, scope.id);
-                this.exits.push(loopExit);
-                loopstm.nextF = loopExit;
-                loopExit.lasts.add(loopstm);
-                loopstm.condition = c.expression.getText(this.sourceFile);
-                loopstm.code = 'while (' + loopstm.condition + ')';
-                loopstm.isDoWhile = true;
-                if (ts.isBlock(c.statement)) {
-                    this.walkAST(lastStatement, loopstm, [...c.statement.statements]);
-                } else {
-                    this.walkAST(lastStatement, loopstm, [c.statement]);
-                }
-                let lastType = lastStatement.type;
-                if (lastType === 'ifStatement' || lastType === 'loopStatement') {
-                    let lastCondition = lastStatement as ConditionStatementBuilder;
-                    loopstm.nextT = lastCondition.nextT;
-                    lastCondition.nextT?.lasts.add(loopstm);
-                } else {
-                    loopstm.nextT = lastStatement.next;
-                    lastStatement.next?.lasts.add(loopstm);
-                }
-                if (loopstm.nextT && loopstm.nextT !== loopstm) {
-                    loopstm.nextT.isDoWhile = true;
-                    loopstm.doStatement = loopstm.nextT;
-                }
-                lastStatement = loopExit;
-                this.loopStack.pop();
+                lastStatement = this.ASTNodeDoStatement(c, lastStatement, scope.id);
             } else if (ts.isSwitchStatement(c)) {
-                this.breakin = 'switch';
-                let switchstm = new SwitchStatementBuilder('switchStatement', '', c, scope.id);
-                judgeLastType(switchstm);
-                let switchExit = new StatementBuilder('switchExit', '', null, scope.id);
-                this.exits.push(switchExit);
-                this.switchExitStack.push(switchExit);
-                switchstm.code = 'switch (' + c.expression + ')';
-                let lastCaseExit: StatementBuilder | null = null;
-                for (let i = 0; i < c.caseBlock.clauses.length; i++) {
-                    const clause = c.caseBlock.clauses[i];
-                    let casestm: StatementBuilder;
-                    if (ts.isCaseClause(clause)) {
-                        casestm = new StatementBuilder('statement', 'case ' + clause.expression.getText(this.sourceFile) + ':', clause, scope.id);
-                    } else {
-                        casestm = new StatementBuilder('statement', 'default:', clause, scope.id);
-                    }
-
-                    switchstm.nexts.push(casestm);
-                    casestm.lasts.add(switchstm);
-                    let caseExit = new StatementBuilder('caseExit', '', null, scope.id);
-                    this.exits.push(caseExit);
-                    this.walkAST(casestm, caseExit, [...clause.statements]);
-                    if (ts.isCaseClause(clause)) {
-                        const cas = new Case(casestm.code, casestm.next!);
-                        switchstm.cases.push(cas);
-                    } else {
-                        switchstm.default = casestm.next;
-                    }
-                    // case: 之类的代码不会被三地址码识别，可能会导致空block，暂时删除
-                    switchstm.nexts[switchstm.nexts.length - 1] = casestm.next!;
-                    for (const stmt of [...casestm.lasts]) {
-                        casestm.next!.lasts.add(stmt);
-                    }
-                    casestm.next!.lasts.delete(casestm);
-
-                    if (lastCaseExit) {
-                        lastCaseExit.next = casestm.next;
-                        casestm.next?.lasts.add(lastCaseExit);
-                    }
-                    lastCaseExit = caseExit;
-                    if (i === c.caseBlock.clauses.length - 1) {
-                        caseExit.next = switchExit;
-                        switchExit.lasts.add(caseExit);
-                    }
-                }
-
-                lastStatement = switchExit;
-                this.switchExitStack.pop();
+                lastStatement = this.ASTNodeSwitchStatement(c, lastStatement, scope.id);
             } else if (ts.isBlock(c)) {
                 let blockExit = new StatementBuilder('blockExit', '', c, scope.id);
                 this.exits.push(blockExit);
                 this.walkAST(lastStatement, blockExit, c.getChildren(this.sourceFile)[1].getChildren(this.sourceFile));
                 lastStatement = blockExit;
             } else if (ts.isTryStatement(c)) {
-                let trystm = new TryStatementBuilder('tryStatement', 'try', c, scope.id);
-                judgeLastType(trystm);
-                let tryExit = new StatementBuilder('tryExit', '', c, scope.id);
-                this.exits.push(tryExit);
-                trystm.tryExit = tryExit;
-                this.walkAST(trystm, tryExit, [...c.tryBlock.statements]);
-                trystm.tryFirst = trystm.next;
-                trystm.next?.lasts.add(trystm);
-                if (c.catchClause) {
-                    let text = 'catch';
-                    if (c.catchClause.variableDeclaration) {
-                        text += '(' + c.catchClause.variableDeclaration.getText(this.sourceFile) + ')';
-                    }
-                    let catchOrNot = new ConditionStatementBuilder('catchOrNot', text, c, scope.id);
-                    let catchExit = new StatementBuilder('catch exit', '', c, scope.id);
-                    catchOrNot.nextF = catchExit;
-                    catchExit.lasts.add(catchOrNot);
-                    this.walkAST(catchOrNot, catchExit, [...c.catchClause.block.statements]);
-                    if (!catchOrNot.nextT) {
-                        catchOrNot.nextT = catchExit;
-                        catchExit.lasts.add(catchOrNot);
-                    }
-                    const catchStatement = new StatementBuilder('statement', catchOrNot.code, c.catchClause, catchOrNot.nextT.scopeID);
-                    catchStatement.next = catchOrNot.nextT;
-                    trystm.catchStatement = catchStatement;
-                    catchStatement.lasts.add(trystm);
-                    if (c.catchClause.variableDeclaration) {
-                        trystm.catchError = c.catchClause.variableDeclaration.getText(this.sourceFile);
-                    } else {
-                        trystm.catchError = 'Error';
-                    }
-
-                }
-                if (c.finallyBlock && c.finallyBlock.statements.length > 0) {
-                    let final = new StatementBuilder('statement', 'finally', c, scope.id);
-                    let finalExit = new StatementBuilder('finallyExit', '', c, scope.id);
-                    this.exits.push(finalExit);
-                    this.walkAST(final, finalExit, [...c.finallyBlock.statements]);
-                    trystm.finallyStatement = final.next;
-                    tryExit.next = final;
-                    final.next?.lasts.add(tryExit);
-                    lastStatement = finalExit;
-                } else {
-                    lastStatement = tryExit;
-                }
+                lastStatement = this.ASTNodeTryStatement(c, lastStatement, scope.id);
             } else if (ts.isExportAssignment(c)) {
                 if (ts.isNewExpression(c.expression) || ts.isObjectLiteralExpression(c.expression)) {
                     let s = new StatementBuilder('statement', c.getText(this.sourceFile), c, scope.id);
-                    judgeLastType(s);
+                    this.judgeLastType(s, lastStatement);
                     lastStatement = s;
                 }
             }
         }
-        this.scopeLevel--;
         if (lastStatement.type !== 'breakStatement' && lastStatement.type !== 'continueStatement' && lastStatement.type !== 'returnStatement') {
             lastStatement.next = nextStatement;
             nextStatement.lasts.add(lastStatement);
@@ -557,31 +592,44 @@ export class CfgBuilder {
         }
     }
 
-    deleteExit() {
+    deleteExitAfterCondition(last: ConditionStatementBuilder, exit: StatementBuilder): void {
+        if (last.nextT === exit) {
+            last.nextT = exit.next;
+            const lasts = exit.next!.lasts;
+            lasts.delete(exit);
+            lasts.add(last);
+        } else if (last.nextF === exit) {
+            last.nextF = exit.next;
+            const lasts = exit.next!.lasts;
+            lasts.delete(exit);
+            lasts.add(last);
+        }
+    }
+
+    deleteExitAfterSwitch(last: SwitchStatementBuilder, exit: StatementBuilder): void {
+        if (exit.type === 'switchExit') {
+            last.afterSwitch = exit.next;
+        }
+        exit.next!.lasts.delete(exit);
+        last.nexts = last.nexts.filter(item => item !== exit);
+        if (last.nexts.length === 0) {
+            last.next = exit.next;
+            exit.next?.lasts.add(last);
+        }
+    }
+
+    deleteExit(): void {
         for (const exit of this.exits) {
-            for (const last of [...exit.lasts]) {
+            const lasts = [...exit.lasts];
+            for (const last of lasts) {
                 if (last instanceof ConditionStatementBuilder) {
-                    if (last.nextT === exit) {
-                        last.nextT = exit.next;
-                        const lasts = exit.next!.lasts;
-                        lasts.delete(exit);
-                        lasts.add(last);
-                    } else if (last.nextF === exit) {
-                        last.nextF = exit.next;
-                        const lasts = exit.next!.lasts;
-                        lasts.delete(exit);
-                        lasts.add(last);
-                    }
+                    this.deleteExitAfterCondition(last, exit);
                 } else if (last instanceof SwitchStatementBuilder) {
-                    for (let i = 0; i < last.nexts.length; i++) {
-                        const stmt = last.nexts[i];
-                        if (stmt === exit) {
-                            last.nexts[i] = exit.next!;
-                            const lasts = exit.next!.lasts;
-                            lasts.delete(exit);
-                            lasts.add(last);
-                        }
-                    }
+                    this.deleteExitAfterSwitch(last, exit);
+                } else if (last instanceof TryStatementBuilder && exit.type === 'finallyExit') {
+                    last.afterFinal = exit.next;
+                    last.next = last.tryFirst;
+                    exit.lasts.delete(last);
                 } else {
                     last.next = exit.next;
                     const lasts = exit.next!.lasts;
@@ -596,6 +644,51 @@ export class CfgBuilder {
                 exit.next.lasts.delete(exit);
             }
         }
+    }
+
+    addStmt2BlockStmtQueueInSpecialCase(stmt: StatementBuilder, stmtQueue: StatementBuilder[]): StatementBuilder | null {
+        if (stmt.next) {
+            if ((stmt.type === 'continueStatement' || stmt.next.type === 'loopStatement') && stmt.next.block || stmt.next.type.includes('exit')) {
+                return null;
+            }
+            stmt.next.passTmies++;
+            if (stmt.next.passTmies === stmt.next.lasts.size || stmt.next.type === 'loopStatement' || stmt.next.isDoWhile) {
+                if (stmt.next.scopeID !== stmt.scopeID && !(stmt.next instanceof ConditionStatementBuilder && stmt.next.doStatement) &&
+                    !(ts.isCaseClause(stmt.astNode!) || ts.isDefaultClause(stmt.astNode!))) {
+                    stmtQueue.push(stmt.next);
+                    return null;
+                }
+                return stmt.next;
+            }
+        }
+        return null;
+    }
+
+    addStmt2BlockStmtQueue(stmt: StatementBuilder, stmtQueue: StatementBuilder[]): StatementBuilder | null {
+        if (stmt instanceof ConditionStatementBuilder) {
+            stmtQueue.push(stmt.nextF!);
+            stmtQueue.push(stmt.nextT!);
+        } else if (stmt instanceof SwitchStatementBuilder) {
+            if (stmt.nexts.length === 0) {
+                stmtQueue.push(stmt.afterSwitch!);
+            }
+            for (let i = stmt.nexts.length - 1; i >= 0; i--) {
+                stmtQueue.push(stmt.nexts[i]);
+            }
+        } else if (stmt instanceof TryStatementBuilder) {
+            if (stmt.finallyStatement) {
+                stmtQueue.push(stmt.finallyStatement);
+            }
+            if (stmt.catchStatement) {
+                stmtQueue.push(stmt.catchStatement);
+            }
+            if (stmt.tryFirst) {
+                stmtQueue.push(stmt.tryFirst);
+            }
+        } else if (stmt.next) {
+            return this.addStmt2BlockStmtQueueInSpecialCase(stmt, stmtQueue);
+        }
+        return null;
     }
 
     buildBlocks(): void {
@@ -622,90 +715,97 @@ export class CfgBuilder {
                 block.stmts.push(stmt);
                 stmt.block = block;
                 handledStmts.add(stmt);
-                if (stmt instanceof ConditionStatementBuilder) {
-                    if (!handledStmts.has(stmt.nextF!)) {
-                        stmtQueue.push(stmt.nextF!);
-                    }
-                    if (!handledStmts.has(stmt.nextT!)) {
-                        stmtQueue.push(stmt.nextT!);
-                    }
-                    break;
-                } else if (stmt instanceof SwitchStatementBuilder) {
-                    for (let i = stmt.nexts.length - 1; i >= 0; i--) {
-                        stmtQueue.push(stmt.nexts[i]);
-                    }
-                    break;
-                } else if (stmt instanceof TryStatementBuilder) {
-                    if (stmt.finallyStatement) {
-                        stmtQueue.push(stmt.finallyStatement);
-                    }
-                    if (stmt.catchStatement) {
-                        stmtQueue.push(stmt.catchStatement);
-                    }
-                    if (stmt.tryFirst) {
-                        stmt = stmt.tryFirst;
-                        continue;
-                    }
-                    break;
+                const addRet = this.addStmt2BlockStmtQueue(stmt, stmtQueue);
+                if (addRet instanceof StatementBuilder) {
+                    stmt = addRet;
                 } else {
-                    if (stmt.next) {
-                        if ((stmt.type === 'continueStatement' || stmt.next.type === 'loopStatement') && stmt.next.block) {
-                            break;
-                        }
-                        if (stmt.next.type.includes('exit')) {
-                            break;
-                        }
-                        stmt.next.passTmies++;
-                        if (stmt.next.passTmies === stmt.next.lasts.size || (stmt.next.type === 'loopStatement') || stmt.next.isDoWhile) {
-                            if (stmt.next.scopeID !== stmt.scopeID && !(stmt.next instanceof ConditionStatementBuilder && stmt.next.doStatement)
-                                && !(ts.isCaseClause(stmt.astNode!) || ts.isDefaultClause(stmt.astNode!))) {
-                                stmtQueue.push(stmt.next);
-                                break;
-                            }
-                            stmt = stmt.next;
-                        }
-                    }
+                    break;
                 }
             }
         }
     }
 
-    buildBlocksNextLast() {
+    buildConditionNextBlocks(originStatement: ConditionStatementBuilder, block: Block, isLastStatement: boolean): void {
+        let nextT = originStatement.nextT?.block;
+        if (nextT && (isLastStatement || nextT !== block) && !originStatement.nextT?.type.includes(' exit')) {
+            block.nexts.push(nextT);
+            nextT.lasts.push(block);
+        }
+        let nextF = originStatement.nextF?.block;
+        if (nextF && (isLastStatement || nextF !== block) && !originStatement.nextF?.type.includes(' exit')) {
+            block.nexts.push(nextF);
+            nextF.lasts.push(block);
+        }
+    }
+
+    buildSwitchNextBlocks(originStatement: SwitchStatementBuilder, block: Block, isLastStatement: boolean): void {
+        if (originStatement.nexts.length === 0) {
+            const nextBlock = originStatement.afterSwitch!.block;
+            if (nextBlock && (isLastStatement || nextBlock !== block)) {
+                block.nexts.push(nextBlock);
+                nextBlock.lasts.push(block);
+            }
+        }
+        for (const next of originStatement.nexts) {
+            const nextBlock = next.block;
+            if (nextBlock && (isLastStatement || nextBlock !== block)) {
+                block.nexts.push(nextBlock);
+                nextBlock.lasts.push(block);
+            }
+        }
+    }
+
+    buildNormalNextBlocks(originStatement: StatementBuilder, block: Block, isLastStatement: boolean): void {
+        let next = originStatement.next?.block;
+        if (next && (isLastStatement || next !== block) && !originStatement.next?.type.includes(' exit')) {
+            block.nexts.push(next);
+            next.lasts.push(block);
+        }
+    }
+
+    buildBlocksNextLast(): void {
         for (let block of this.blocks) {
             for (let originStatement of block.stmts) {
-                let lastStatement = (block.stmts.indexOf(originStatement) === block.stmts.length - 1);
+                let isLastStatement = (block.stmts.indexOf(originStatement) === block.stmts.length - 1);
                 if (originStatement instanceof ConditionStatementBuilder) {
-                    let nextT = originStatement.nextT?.block;
-                    if (nextT && (lastStatement || nextT !== block) && !originStatement.nextT?.type.includes(' exit')) {
-                        block.nexts.push(nextT);
-                        nextT.lasts.push(block);
-                    }
-                    let nextF = originStatement.nextF?.block;
-                    if (nextF && (lastStatement || nextF !== block) && !originStatement.nextF?.type.includes(' exit')) {
-                        block.nexts.push(nextF);
-                        nextF.lasts.push(block);
-                    }
+                    this.buildConditionNextBlocks(originStatement, block, isLastStatement);
                 } else if (originStatement instanceof SwitchStatementBuilder) {
-                    for (const next of originStatement.nexts) {
-                        const nextBlock = next.block;
-                        if (nextBlock && (lastStatement || nextBlock !== block)) {
-                            block.nexts.push(nextBlock);
-                            nextBlock.lasts.push(block);
-                        }
-                    }
+                    this.buildSwitchNextBlocks(originStatement, block, isLastStatement);
                 } else {
-                    let next = originStatement.next?.block;
-                    if (next && (lastStatement || next !== block) && !originStatement.next?.type.includes(' exit')) {
-                        block.nexts.push(next);
-                        next.lasts.push(block);
-                    }
+                    this.buildNormalNextBlocks(originStatement, block, isLastStatement);
                 }
-
             }
         }
     }
 
-    addReturnBlock() {
+    addReturnBlock(returnStatement: StatementBuilder, notReturnStmts: StatementBuilder[]) {
+        let returnBlock = new Block(this.blocks.length, [returnStatement]);
+        returnStatement.block = returnBlock;
+        this.blocks.push(returnBlock);
+        for (const notReturnStmt of notReturnStmts) {
+            if (notReturnStmt instanceof ConditionStatementBuilder) {
+                if (this.exit === notReturnStmt.nextT) {
+                    notReturnStmt.nextT = returnStatement;
+                    notReturnStmt.block?.nexts.splice(0, 0, returnBlock);
+                } else if (this.exit === notReturnStmt.nextF) {
+                    notReturnStmt.nextF = returnStatement;
+                    notReturnStmt.block?.nexts.push(returnBlock);
+                }
+            } else {
+                notReturnStmt.next = returnStatement;
+                notReturnStmt.block?.nexts.push(returnBlock);
+            }
+            returnStatement.lasts.add(notReturnStmt);
+            returnStatement.next = this.exit;
+            const lasts = [...this.exit.lasts];
+            lasts[lasts.indexOf(notReturnStmt)] = returnStatement;
+            this.exit.lasts = new Set(lasts);
+            returnBlock.lasts.push(notReturnStmt.block!);
+        }
+        this.exit.block = returnBlock;
+    }
+
+    addReturnStmt(): void {
         let notReturnStmts: StatementBuilder[] = [];
         for (let stmt of [...this.exit.lasts]) {
             if (stmt.type !== 'returnStatement') {
@@ -716,16 +816,18 @@ export class CfgBuilder {
             return;
         }
         const returnStatement = new StatementBuilder('returnStatement', 'return;', null, this.exit.scopeID);
-        let tryExit = false;
+        let TryOrSwitchExit = false;
         if (notReturnStmts.length === 1 && notReturnStmts[0].block) {
-            for (const stmt of notReturnStmts[0].block.stmts) {
-                if (stmt instanceof TryStatementBuilder) {
-                    tryExit = true;
+            let p: ts.Node | null = notReturnStmts[0].astNode;
+            while (p && p !== this.astRoot) {
+                if (ts.isTryStatement(p) || ts.isSwitchStatement(p)) {
+                    TryOrSwitchExit = true;
                     break;
                 }
+                p = p.parent;
             }
         }
-        if (notReturnStmts.length === 1 && !(notReturnStmts[0] instanceof ConditionStatementBuilder) && !tryExit) {
+        if (notReturnStmts.length === 1 && !(notReturnStmts[0] instanceof ConditionStatementBuilder) && !TryOrSwitchExit) {
             const notReturnStmt = notReturnStmts[0];
             notReturnStmt.next = returnStatement;
             returnStatement.lasts = new Set([notReturnStmt]);
@@ -736,29 +838,7 @@ export class CfgBuilder {
             notReturnStmt.block?.stmts.push(returnStatement);
             returnStatement.block = notReturnStmt.block;
         } else {
-            let returnBlock = new Block(this.blocks.length, [returnStatement]);
-            returnStatement.block = returnBlock;
-            this.blocks.push(returnBlock);
-            for (const notReturnStmt of notReturnStmts) {
-                if (notReturnStmt instanceof ConditionStatementBuilder) {
-                    if (this.exit === notReturnStmt.nextT) {
-                        notReturnStmt.nextT = returnStatement;
-                        notReturnStmt.block?.nexts.splice(0, 0, returnBlock);
-                    } else if (this.exit === notReturnStmt.nextF) {
-                        notReturnStmt.nextF = returnStatement;
-                        notReturnStmt.block?.nexts.push(returnBlock);
-                    }
-                } else {
-                    notReturnStmt.next = returnStatement;
-                    notReturnStmt.block?.nexts.push(returnBlock);
-                }
-                returnStatement.lasts.add(notReturnStmt);
-                returnStatement.next = this.exit;
-                const lasts = [...this.exit.lasts];
-                lasts[lasts.indexOf(notReturnStmt)] = returnStatement;
-                this.exit.lasts = new Set(lasts);
-                returnBlock.lasts.push(notReturnStmt.block!);
-            }
+            this.addReturnBlock(returnStatement, notReturnStmts);
         }
     }
 
@@ -976,7 +1056,7 @@ export class CfgBuilder {
         this.buildBlocks();
         this.blocks = this.blocks.filter((b) => b.stmts.length !== 0);
         this.buildBlocksNextLast();
-        this.addReturnBlock();
+        this.addReturnStmt();
     }
 
     private handleBuilder(stmts: ts.Node[]): void {
@@ -996,9 +1076,7 @@ export class CfgBuilder {
     }
 
     public buildCfgAndOriginalCfg(): {
-        cfg: Cfg,
-        locals: Set<Local>,
-        aliasTypeMap: Map<string, [AliasType, AliasTypeDeclaration]>
+        cfg: Cfg, locals: Set<Local>, aliasTypeMap: Map<string, [AliasType, AliasTypeDeclaration]>, traps: Trap[],
     } {
         if (ts.isArrowFunction(this.astRoot) && !ts.isBlock(this.astRoot.body)) {
             return this.buildCfgAndOriginalCfgForSimpleArrowFunction();
@@ -1008,9 +1086,7 @@ export class CfgBuilder {
     }
 
     public buildCfgAndOriginalCfgForSimpleArrowFunction(): {
-        cfg: Cfg,
-        locals: Set<Local>,
-        aliasTypeMap: Map<string, [AliasType, AliasTypeDeclaration]>
+        cfg: Cfg, locals: Set<Local>, aliasTypeMap: Map<string, [AliasType, AliasTypeDeclaration]>, traps: Trap[],
     } {
         const stmts: Stmt[] = [];
         const arkIRTransformer = new ArkIRTransformer(this.sourceFile, this.declaringMethod);
@@ -1048,30 +1124,40 @@ export class CfgBuilder {
         return {
             cfg: cfg,
             locals: arkIRTransformer.getLocals(),
-            aliasTypeMap: arkIRTransformer.getAliasTypeMap()
+            aliasTypeMap: arkIRTransformer.getAliasTypeMap(),
+            traps: [],
         };
     }
 
     public buildNormalCfgAndOriginalCfg(): {
-        cfg: Cfg,
-        locals: Set<Local>,
-        aliasTypeMap: Map<string, [AliasType, AliasTypeDeclaration]>
+        cfg: Cfg, locals: Set<Local>, aliasTypeMap: Map<string, [AliasType, AliasTypeDeclaration]>, traps: Trap[],
     } {
-        const cfg = new Cfg();
         const blockBuilderToCfgBlock = new Map<Block, BasicBlock>();
-        let isStartingStmtInCfgBlock = true;
-
+        const basicBlockSet = new Set<BasicBlock>();
         const arkIRTransformer = new ArkIRTransformer(this.sourceFile, this.declaringMethod);
         const blocksContainLoopCondition = new Set<Block>();
+        const blockBuildersBeforeTry = new Set<Block>();
+        const blockBuildersContainSwitch: Block[] = [];
+        const valueAndStmtsOfSwitchAndCasesAll: ValueAndStmts[][] = [];
         for (let i = 0; i < this.blocks.length; i++) {
             // build block in Cfg
             const stmtsInBlock: Stmt[] = [];
             if (i === 0) {
                 stmtsInBlock.push(...arkIRTransformer.prebuildStmts());
             }
+            const stmtsCnt = this.blocks[i].stmts.length;
+            if (this.blocks[i].stmts[stmtsCnt - 1].type === 'tryStatement') {
+                blockBuildersBeforeTry.add(this.blocks[i]);
+            }
             for (const statementBuilder of this.blocks[i].stmts) {
                 if (statementBuilder.type === 'loopStatement') {
                     blocksContainLoopCondition.add(this.blocks[i]);
+                } else if (statementBuilder instanceof SwitchStatementBuilder) {
+                    blockBuildersContainSwitch.push(this.blocks[i]);
+                    const valueAndStmtsOfSwitchAndCases = arkIRTransformer.switchStatementToValueAndStmts(
+                        statementBuilder.astNode as ts.SwitchStatement);
+                    valueAndStmtsOfSwitchAndCasesAll.push(valueAndStmtsOfSwitchAndCases);
+                    continue;
                 }
                 if (statementBuilder.astNode && statementBuilder.code !== '') {
                     stmtsInBlock.push(...arkIRTransformer.tsNodeToStmts(statementBuilder.astNode));
@@ -1082,18 +1168,46 @@ export class CfgBuilder {
             const blockInCfg = new BasicBlock();
             blockInCfg.setId(this.blocks[i].id);
             for (const stmt of stmtsInBlock) {
-                if (isStartingStmtInCfgBlock) {
-                    isStartingStmtInCfgBlock = false;
-                    cfg.setStartingStmt(stmt);
-                }
                 blockInCfg.addStmt(stmt);
             }
-            cfg.addBlock(blockInCfg);
+            basicBlockSet.add(blockInCfg);
             blockBuilderToCfgBlock.set(this.blocks[i], blockInCfg);
         }
         let currBlockId = this.blocks.length;
+        this.linkBasicBlocks(blockBuilderToCfgBlock);
+        this.rebuildBlocksInLoop(blockBuilderToCfgBlock, blocksContainLoopCondition, basicBlockSet);
+        this.buildSwitch(blockBuilderToCfgBlock, blockBuildersContainSwitch, valueAndStmtsOfSwitchAndCasesAll,
+            arkIRTransformer, basicBlockSet);
+        this.rebuildBlocksContainConditionalOperator(basicBlockSet);
+        const traps = this.buildTraps(blockBuilderToCfgBlock, blockBuildersBeforeTry, arkIRTransformer, basicBlockSet);
+        for (const blockBuilder of this.blocks) {
+            if (blockBuilder.id === -1) {
+                blockBuilder.id = currBlockId++;
+                const block = blockBuilderToCfgBlock.get(blockBuilder) as BasicBlock;
+                block.setId(blockBuilder.id);
+            }
+        }
+        const cfg = new Cfg();
+        const startingBasicBlock = blockBuilderToCfgBlock.get(this.blocks[0])!;
+        cfg.setStartingStmt(startingBasicBlock.getStmts()[0]);
+        currBlockId = 0;
+        for (const basicBlock of basicBlockSet) {
+            basicBlock.setId(currBlockId++);
+            cfg.addBlock(basicBlock);
+        }
+        for (const stmt of cfg.getStmts()) {
+            stmt.setCfg(cfg);
+        }
 
-        // link blocks
+        return {
+            cfg: cfg,
+            locals: arkIRTransformer.getLocals(),
+            aliasTypeMap: arkIRTransformer.getAliasTypeMap(),
+            traps: traps,
+        };
+    }
+
+    private linkBasicBlocks(blockBuilderToCfgBlock: Map<Block, BasicBlock>): void {
         for (const [blockBuilder, cfgBlock] of blockBuilderToCfgBlock) {
             for (const successorBlockBuilder of blockBuilder.nexts) {
                 if (!blockBuilderToCfgBlock.get(successorBlockBuilder)) {
@@ -1110,8 +1224,295 @@ export class CfgBuilder {
                 cfgBlock.addPredecessorBlock(predecessorBlock);
             }
         }
+    }
 
-        // put statements within loop in right position
+    private rebuildBlocksContainConditionalOperator(basicBlockSet: Set<BasicBlock>): void {
+        if (ModelUtils.isArkUIBuilderMethod(this.declaringMethod)) {
+            this.deleteDummyConditionalOperatorStmt(basicBlockSet);
+            return;
+        }
+
+        const currBasicBlocks = Array.from(basicBlockSet);
+        for (const currBasicBlock of currBasicBlocks) {
+            const stmtsInCurrBasicBlock = Array.from(currBasicBlock.getStmts());
+            const stmtsCnt = stmtsInCurrBasicBlock.length;
+            let conditionalOperatorEndPos = -1;
+            for (let i = stmtsCnt - 1; i >= 0; i--) {
+                const stmt = stmtsInCurrBasicBlock[i];
+                if (stmt instanceof DummyStmt && stmt.toString()
+                    ?.startsWith(ArkIRTransformer.DUMMY_CONDITIONAL_OPERATOR_END_STMT)) {
+                    conditionalOperatorEndPos = i;
+                    break;
+                }
+            }
+            if (conditionalOperatorEndPos === -1) {
+                continue;
+            }
+
+            let {
+                generatedTopBlock: generatedTopBlock,
+                generatedBottomBlocks: generatedBottomBlocks,
+            } = this.generateBlocksContainConditionalOperatorGroup(
+                stmtsInCurrBasicBlock.slice(0, conditionalOperatorEndPos + 1), basicBlockSet);
+
+            if (conditionalOperatorEndPos !== stmtsCnt - 1) { // need create a new basic block for rest statements
+                const {
+                    generatedTopBlock: extraBlock,
+                } = this.generateBlockWithoutConditionalOperator(
+                    stmtsInCurrBasicBlock.slice(conditionalOperatorEndPos + 1));
+                generatedBottomBlocks.forEach(generatedBottomBlock => {
+                    generatedBottomBlock.addSuccessorBlock(extraBlock);
+                    extraBlock.addPredecessorBlock(generatedBottomBlock);
+                });
+                basicBlockSet.add(extraBlock);
+                generatedBottomBlocks = this.removeUnnecessaryBlocksInConditionalOperator(extraBlock, basicBlockSet);
+            }
+            this.relinkPrevAndSuccOfBlockContainConditionalOperator(currBasicBlock, generatedTopBlock, generatedBottomBlocks);
+            basicBlockSet.delete(currBasicBlock);
+        }
+    }
+
+    private relinkPrevAndSuccOfBlockContainConditionalOperator(currBasicBlock: BasicBlock,
+        generatedTopBlock: BasicBlock,
+        generatedBottomBlocks: BasicBlock[]): void {
+        const predecessorsOfCurrBasicBlock = Array.from(currBasicBlock.getPredecessors());
+        predecessorsOfCurrBasicBlock.forEach(predecessor => {
+            predecessor.removeSuccessorBlock(currBasicBlock);
+            currBasicBlock.removePredecessorBlock(predecessor);
+            generatedTopBlock.addPredecessorBlock(predecessor);
+            predecessor.addSuccessorBlock(generatedTopBlock);
+        });
+        const successorsOfCurrBasicBlock = Array.from(currBasicBlock.getSuccessors());
+        successorsOfCurrBasicBlock.forEach(successor => {
+            successor.removePredecessorBlock(currBasicBlock);
+            currBasicBlock.removeSuccessorBlock(successor);
+            generatedBottomBlocks.forEach(generatedBottomBlock => {
+                generatedBottomBlock.addSuccessorBlock(successor);
+                successor.addPredecessorBlock(generatedBottomBlock);
+            });
+        });
+    }
+
+    private generateBlocksContainConditionalOperatorGroup(sourceStmts: Stmt[], basicBlockSet: Set<BasicBlock>): {
+        generatedTopBlock: BasicBlock,
+        generatedBottomBlocks: BasicBlock[],
+    } {
+        const { firstEndPos: firstEndPos } = this.findFirstConditionalOperator(sourceStmts);
+        if (firstEndPos === -1) {
+            return this.generateBlockWithoutConditionalOperator(sourceStmts);
+        }
+        const {
+            generatedTopBlock: firstGeneratedTopBlock,
+            generatedBottomBlocks: firstGeneratedBottomBlocks,
+            generatedAllBlocks: firstGeneratedAllBlocks,
+        } = this.generateBlocksContainSingleConditionalOperator(sourceStmts.slice(0, firstEndPos + 1));
+        const generatedTopBlock = firstGeneratedTopBlock;
+        let generatedBottomBlocks = firstGeneratedBottomBlocks;
+        firstGeneratedAllBlocks.forEach(block => basicBlockSet.add(block));
+        const stmtsCnt = sourceStmts.length;
+        if (firstEndPos !== stmtsCnt - 1) { // need handle other conditional operators
+            const {
+                generatedTopBlock: restGeneratedTopBlock,
+                generatedBottomBlocks: restGeneratedBottomBlocks,
+            } = this.generateBlocksContainConditionalOperatorGroup(
+                sourceStmts.slice(firstEndPos + 1, stmtsCnt), basicBlockSet);
+            firstGeneratedBottomBlocks.forEach(firstGeneratedBottomBlock => {
+                firstGeneratedBottomBlock.addSuccessorBlock(restGeneratedTopBlock);
+                restGeneratedTopBlock.addPredecessorBlock(firstGeneratedBottomBlock);
+            });
+            restGeneratedBottomBlocks.forEach(block => basicBlockSet.add(block));
+            this.removeUnnecessaryBlocksInConditionalOperator(restGeneratedTopBlock, basicBlockSet);
+            generatedBottomBlocks = restGeneratedBottomBlocks;
+        }
+        return { generatedTopBlock, generatedBottomBlocks };
+    }
+
+    private generateBlocksContainSingleConditionalOperator(sourceStmts: Stmt[]): {
+        generatedTopBlock: BasicBlock,
+        generatedBottomBlocks: BasicBlock[],
+        generatedAllBlocks: BasicBlock[],
+    } {
+        const {
+            firstIfTruePos: ifTruePos,
+            firstIfFalsePos: ifFalsePos,
+            firstEndPos: endPos,
+        } = this.findFirstConditionalOperator(sourceStmts);
+        if (endPos === -1) {
+            return this.generateBlockWithoutConditionalOperator(sourceStmts);
+        }
+        const {
+            generatedTopBlock: generatedTopBlock,
+            generatedAllBlocks: generatedAllBlocks,
+        } = this.generateBlockWithoutConditionalOperator(sourceStmts.slice(0, ifTruePos));
+        let generatedBottomBlocks: BasicBlock[] = [];
+        const {
+            generatedTopBlock: generatedTopBlockOfTrueBranch,
+            generatedBottomBlocks: generatedBottomBlocksOfTrueBranch,
+            generatedAllBlocks: generatedAllBlocksOfTrueBranch,
+        } = this.generateBlocksContainSingleConditionalOperator(sourceStmts.slice(ifTruePos + 1, ifFalsePos));
+        generatedBottomBlocks.push(...generatedBottomBlocksOfTrueBranch);
+        generatedAllBlocks.push(...generatedAllBlocksOfTrueBranch);
+        const {
+            generatedTopBlock: generatedTopBlockOfFalseBranch,
+            generatedBottomBlocks: generatedBottomBlocksOfFalseBranch,
+            generatedAllBlocks: generatedAllBlocksOfFalseBranch,
+        } = this.generateBlocksContainSingleConditionalOperator(sourceStmts.slice(ifFalsePos + 1, endPos));
+        generatedBottomBlocks.push(...generatedBottomBlocksOfFalseBranch);
+        generatedAllBlocks.push(...generatedAllBlocksOfFalseBranch);
+
+        generatedTopBlock.addSuccessorBlock(generatedTopBlockOfTrueBranch);
+        generatedTopBlockOfTrueBranch.addPredecessorBlock(generatedTopBlock);
+        generatedTopBlock.addSuccessorBlock(generatedTopBlockOfFalseBranch);
+        generatedTopBlockOfFalseBranch.addPredecessorBlock(generatedTopBlock);
+        const stmtsCnt = sourceStmts.length;
+        if (endPos !== stmtsCnt - 1) { // need create a new basic block for rest statements
+            const {
+                generatedTopBlock: extraBlock,
+            } = this.generateBlockWithoutConditionalOperator(sourceStmts.slice(endPos + 1));
+            generatedBottomBlocks.forEach(generatedBottomBlock => {
+                generatedBottomBlock.addSuccessorBlock(extraBlock);
+                extraBlock.addPredecessorBlock(generatedBottomBlock);
+            });
+            generatedBottomBlocks = [extraBlock];
+            generatedAllBlocks.push(extraBlock);
+        }
+        return { generatedTopBlock, generatedBottomBlocks, generatedAllBlocks };
+    }
+
+    private generateBlockWithoutConditionalOperator(sourceStmts: Stmt[]): {
+        generatedTopBlock: BasicBlock,
+        generatedBottomBlocks: BasicBlock[],
+        generatedAllBlocks: BasicBlock[],
+    } {
+        const generatedBlock = new BasicBlock();
+        sourceStmts.forEach(stmt => generatedBlock.addStmt(stmt));
+        return {
+            generatedTopBlock: generatedBlock,
+            generatedBottomBlocks: [generatedBlock],
+            generatedAllBlocks: [generatedBlock],
+        };
+    }
+
+    private deleteDummyConditionalOperatorStmt(basicBlockSet: Set<BasicBlock>): void {
+        for (const basicBlock of basicBlockSet) {
+            const stmts = Array.from(basicBlock.getStmts());
+            for (const stmt of stmts) {
+                if (stmt instanceof DummyStmt && stmt.toString()
+                    ?.startsWith(ArkIRTransformer.DUMMY_CONDITIONAL_OPERATOR)) {
+                    basicBlock.remove(stmt);
+                }
+            }
+        }
+    }
+
+    private findFirstConditionalOperator(stmts: Stmt[]): {
+        firstIfTruePos: number, firstIfFalsePos: number, firstEndPos: number,
+    } {
+        let firstIfTruePos = -1;
+        let firstIfFalsePos = -1;
+        let firstEndPos = -1;
+        let firstConditionalOperatorNo = '';
+        for (let i = 0; i < stmts.length; i++) {
+            const stmt = stmts[i];
+            if (stmt instanceof DummyStmt) {
+                if (stmt.toString()
+                    .startsWith(ArkIRTransformer.DUMMY_CONDITIONAL_OPERATOR_IF_TRUE_STMT) && firstIfTruePos === -1) {
+                    firstIfTruePos = i;
+                    firstConditionalOperatorNo =
+                        stmt.toString().replace(ArkIRTransformer.DUMMY_CONDITIONAL_OPERATOR_IF_TRUE_STMT, '');
+                } else if (stmt.toString() === ArkIRTransformer.DUMMY_CONDITIONAL_OPERATOR_IF_FALSE_STMT + firstConditionalOperatorNo) {
+                    firstIfFalsePos = i;
+                } else if (stmt.toString() === ArkIRTransformer.DUMMY_CONDITIONAL_OPERATOR_END_STMT + firstConditionalOperatorNo) {
+                    firstEndPos = i;
+                }
+            }
+        }
+        return { firstIfTruePos, firstIfFalsePos, firstEndPos };
+    }
+
+    private removeUnnecessaryBlocksInConditionalOperator(bottomBlock: BasicBlock, allBlocks: Set<BasicBlock>): BasicBlock[] {
+        const firstStmtInBottom = bottomBlock.getStmts()[0];
+        if (!(firstStmtInBottom instanceof ArkAssignStmt)) {
+            return [bottomBlock];
+        }
+
+        const targetValue = firstStmtInBottom.getLeftOp();
+        const tempResultValue = firstStmtInBottom.getRightOp();
+        if (!(targetValue instanceof Local && IRUtils.isTempLocal(tempResultValue))) {
+            return [bottomBlock];
+        }
+        const oldPredecessors = Array.from(bottomBlock.getPredecessors());
+        const newPredecessors: BasicBlock[] = [];
+        for (const predecessor of oldPredecessors) {
+            predecessor.removeSuccessorBlock(bottomBlock);
+            newPredecessors.push(
+                ...this.replaceTempRecursively(predecessor, targetValue as Local, tempResultValue as Local,
+                    allBlocks));
+        }
+
+        bottomBlock.remove(firstStmtInBottom);
+        if (bottomBlock.getStmts().length === 0) { // must be a new block without successors
+            allBlocks.delete(bottomBlock);
+            return newPredecessors;
+        }
+
+        oldPredecessors.forEach((oldPredecessor) => {
+            bottomBlock.removePredecessorBlock(oldPredecessor);
+        });
+        newPredecessors.forEach((newPredecessor) => {
+            bottomBlock.addPredecessorBlock(newPredecessor);
+            newPredecessor.addSuccessorBlock(bottomBlock);
+        });
+        return [bottomBlock];
+    }
+
+    private replaceTempRecursively(currBottomBlock: BasicBlock, targetLocal: Local,
+        tempResultLocal: Local, allBlocks: Set<BasicBlock>): BasicBlock[] {
+        const stmts = currBottomBlock.getStmts();
+        const stmtsCnt = stmts.length;
+        let tempResultReassignStmt: Stmt | null = null;
+        for (let i = stmtsCnt - 1; i >= 0; i--) {
+            const stmt = stmts[i];
+            if (stmt instanceof ArkAssignStmt && stmt.getLeftOp() === tempResultLocal) {
+                if (IRUtils.isTempLocal(stmt.getRightOp())) {
+                    tempResultReassignStmt = stmt;
+                } else {
+                    stmt.setLeftOp(targetLocal);
+                }
+            }
+        }
+
+        let newBottomBlocks: BasicBlock[] = [];
+        if (tempResultReassignStmt) {
+            const oldPredecessors = currBottomBlock.getPredecessors();
+            const newPredecessors: BasicBlock[] = [];
+            const prevTempResultLocal = (tempResultReassignStmt as ArkAssignStmt).getRightOp() as Local;
+            for (const predecessor of oldPredecessors) {
+                predecessor.removeSuccessorBlock(currBottomBlock);
+                newPredecessors.push(
+                    ...this.replaceTempRecursively(predecessor, targetLocal, prevTempResultLocal, allBlocks));
+            }
+
+            currBottomBlock.remove(tempResultReassignStmt);
+            if (currBottomBlock.getStmts().length === 0) {
+                // remove this block
+                newBottomBlocks = newPredecessors;
+                allBlocks.delete(currBottomBlock);
+            } else {
+                currBottomBlock.getPredecessors().splice(0, oldPredecessors.length, ...newPredecessors);
+                newPredecessors.forEach((newPredecessor) => {
+                    newPredecessor.addSuccessorBlock(currBottomBlock);
+                });
+                newBottomBlocks = [currBottomBlock];
+            }
+        } else {
+            newBottomBlocks = [currBottomBlock];
+        }
+        return newBottomBlocks;
+    }
+
+    private rebuildBlocksInLoop(blockBuilderToCfgBlock: Map<Block, BasicBlock>, blocksContainLoopCondition: Set<Block>,
+        basicBlockSet: Set<BasicBlock>): void {
         for (const blockBuilder of blocksContainLoopCondition) {
             if (!blockBuilderToCfgBlock.get(blockBuilder)) {
                 continue;
@@ -1120,108 +1521,56 @@ export class CfgBuilder {
             const blockId = block.getId();
             const stmts = block.getStmts();
             const stmtsCnt = stmts.length;
-            let ifStmtIdx = -1;
-            let iteratorNextStmtIdx = -1;
-            let dummyInitializerStmtIdx = -1;
-            for (let i = 0; i < stmtsCnt; i++) {
-                const stmt = stmts[i];
-                if (stmt instanceof ArkAssignStmt && stmt.getRightOp() instanceof AbstractInvokeExpr) {
-                    const invokeExpr = stmt.getRightOp() as AbstractInvokeExpr;
-                    if (invokeExpr.getMethodSignature().getMethodSubSignature().getMethodName() === Builtin.ITERATOR_NEXT) {
-                        iteratorNextStmtIdx = i;
-                        continue;
-                    }
-                }
-                if (stmt.toString() === DUMMY_INITIALIZER_STMT) {
-                    dummyInitializerStmtIdx = i;
-                    continue;
-                }
-                if (stmt instanceof ArkIfStmt) {
-                    ifStmtIdx = i;
-                    break;
-                }
-            }
-
+            const { ifStmtIdx, iteratorNextStmtIdx, dummyInitializerStmtIdx } = this.findIteratorIdx(stmts);
             if (iteratorNextStmtIdx !== -1 || dummyInitializerStmtIdx !== -1) {
-                // put statements into block before condition
                 const lastStmtIdxBeforeCondition = iteratorNextStmtIdx !== -1 ? iteratorNextStmtIdx : dummyInitializerStmtIdx;
                 const stmtsInsertBeforeCondition = stmts.slice(0, lastStmtIdxBeforeCondition);
 
-                let prevBlockBuilderContainsLoop = false;
-                for (const prevBlockBuilder of blockBuilder.lasts) {
-                    if (prevBlockBuilder.id < blockId && blocksContainLoopCondition.has(prevBlockBuilder)) {
-                        prevBlockBuilderContainsLoop = true;
-                        break;
-                    }
-                }
-
+                let prevBlockBuilderContainsLoop = this.doesPrevBlockBuilderContainLoop(blockBuilder, blockId,
+                    blocksContainLoopCondition);
                 if (prevBlockBuilderContainsLoop) {
                     // should create an extra block when previous block contains loop condition
-                    this.insertBeforeConditionBlockBuilder(blockBuilderToCfgBlock, blockBuilder, stmtsInsertBeforeCondition, false, cfg);
+                    this.insertBeforeConditionBlockBuilder(blockBuilderToCfgBlock, blockBuilder,
+                        stmtsInsertBeforeCondition, false, basicBlockSet);
                 } else {
                     const blockBuilderBeforeCondition = blockBuilder.lasts[0];
                     const blockBeforeCondition = blockBuilderToCfgBlock.get(blockBuilderBeforeCondition) as BasicBlock;
                     blockBeforeCondition?.getStmts().push(...stmtsInsertBeforeCondition);
                 }
-
                 if (dummyInitializerStmtIdx !== -1 && ifStmtIdx !== stmtsCnt - 1) {
                     // put incrementor statements into block which reenters condition
-                    const stmtsReenterCondition = stmts.slice(ifStmtIdx + 1);
-                    const blockBuildersReenterCondition: Block[] = [];
-                    for (const prevBlockBuilder of blockBuilder.lasts) {
-                        const prevBlock = blockBuilderToCfgBlock.get(prevBlockBuilder) as BasicBlock;
-                        if (prevBlock.getId() > blockId) {
-                            blockBuildersReenterCondition.push(prevBlockBuilder);
-                        }
-                    }
-
-                    if (blockBuildersReenterCondition.length > 1 || blocksContainLoopCondition.has(blockBuildersReenterCondition[0])) {
-                        // put incrementor statements into an extra block
-                        this.insertBeforeConditionBlockBuilder(blockBuilderToCfgBlock, blockBuilder, stmtsReenterCondition, true, cfg);
-                    } else {
-                        // put incrementor statements into prev reenter block
-                        const blockReenterCondition = blockBuilderToCfgBlock.get(blockBuildersReenterCondition[0]) as BasicBlock;
-                        blockReenterCondition?.getStmts().push(...stmtsReenterCondition);
-                    }
+                    this.adjustIncrementorStmts(stmts, ifStmtIdx, blockBuilder, blockId, blockBuilderToCfgBlock,
+                        blocksContainLoopCondition, basicBlockSet);
                 } else if (iteratorNextStmtIdx !== -1) {
                     // put statements which get value of iterator into block after condition
                     const blockBuilderAfterCondition = blockBuilder.nexts[0];
                     const blockAfterCondition = blockBuilderToCfgBlock.get(blockBuilderAfterCondition) as BasicBlock;
-
                     const stmtsAfterCondition = stmts.slice(ifStmtIdx + 1);
                     blockAfterCondition?.getStmts().splice(0, 0, ...stmtsAfterCondition);
                 }
-
                 // remove statements which should not in condition
                 const firstStmtIdxInCondition = iteratorNextStmtIdx !== -1 ? iteratorNextStmtIdx : dummyInitializerStmtIdx + 1;
                 stmts.splice(0, firstStmtIdxInCondition);
                 stmts.splice(ifStmtIdx - firstStmtIdxInCondition + 1);
             }
         }
+    }
 
-        for (const blockBuilder of this.blocks) {
-            if (blockBuilder.id === -1) {
-                blockBuilder.id = currBlockId++;
-                const block = blockBuilderToCfgBlock.get(blockBuilder) as BasicBlock;
-                block.setId(blockBuilder.id);
+    private doesPrevBlockBuilderContainLoop(currBlockBuilder: Block, currBlockId: number,
+        blocksContainLoopCondition: Set<Block>): boolean {
+        let prevBlockBuilderContainsLoop = false;
+        for (const prevBlockBuilder of currBlockBuilder.lasts) {
+            if (prevBlockBuilder.id < currBlockId && blocksContainLoopCondition.has(prevBlockBuilder)) {
+                prevBlockBuilderContainsLoop = true;
+                break;
             }
         }
-        for (const stmt of cfg.getStmts()) {
-            stmt.setCfg(cfg);
-        }
-
-        return {
-            cfg: cfg,
-            locals: arkIRTransformer.getLocals(),
-            aliasTypeMap: arkIRTransformer.getAliasTypeMap(),
-        };
+        return prevBlockBuilderContainsLoop;
     }
 
     private insertBeforeConditionBlockBuilder(blockBuilderToCfgBlock: Map<Block, BasicBlock>,
-        conditionBlockBuilder: Block,
-        stmtsInsertBeforeCondition: Stmt[],
-        collectReenter: Boolean,
-        cfg: Cfg): void {
+        conditionBlockBuilder: Block, stmtsInsertBeforeCondition: Stmt[],
+        collectReenter: Boolean, basicBlockSet: Set<BasicBlock>): void {
         const blockId = conditionBlockBuilder.id;
         const block = blockBuilderToCfgBlock.get(conditionBlockBuilder) as BasicBlock;
         const blockBuildersBeforeCondition: Block[] = [];
@@ -1283,7 +1632,428 @@ export class CfgBuilder {
         block.getPredecessors().splice(0, predecessorsCnt, ...newPrevBlocksBeforeCondition);
 
         this.blocks.push(blockBuilderInsertBeforeCondition);
-        cfg.addBlock(blockInsertBeforeCondition);
+        basicBlockSet.add(blockInsertBeforeCondition);
         blockBuilderToCfgBlock.set(blockBuilderInsertBeforeCondition, blockInsertBeforeCondition);
+    }
+
+    private findIteratorIdx(stmts: Stmt[]): {
+        ifStmtIdx: number, iteratorNextStmtIdx: number, dummyInitializerStmtIdx: number
+    } {
+        let ifStmtIdx = -1;
+        let iteratorNextStmtIdx = -1;
+        let dummyInitializerStmtIdx = -1;
+        const stmtsCnt = stmts.length;
+        for (let i = 0; i < stmtsCnt; i++) {
+            const stmt = stmts[i];
+            if (stmt instanceof ArkAssignStmt && stmt.getRightOp() instanceof AbstractInvokeExpr) {
+                const invokeExpr = stmt.getRightOp() as AbstractInvokeExpr;
+                if (invokeExpr.getMethodSignature().getMethodSubSignature()
+                    .getMethodName() === Builtin.ITERATOR_NEXT) {
+                    iteratorNextStmtIdx = i;
+                    continue;
+                }
+            }
+            if (stmt.toString() === ArkIRTransformer.DUMMY_LOOP_INITIALIZER_STMT) {
+                dummyInitializerStmtIdx = i;
+                continue;
+            }
+            if (stmt instanceof ArkIfStmt) {
+                ifStmtIdx = i;
+                break;
+            }
+        }
+        return {
+            ifStmtIdx: ifStmtIdx,
+            iteratorNextStmtIdx: iteratorNextStmtIdx,
+            dummyInitializerStmtIdx: dummyInitializerStmtIdx,
+        };
+    }
+
+    private adjustIncrementorStmts(stmts: Stmt[], ifStmtIdx: number, currBlockBuilder: Block, currBlockId: number,
+        blockBuilderToCfgBlock: Map<Block, BasicBlock>,
+        blocksContainLoopCondition: Set<Block>, basicBlockSet: Set<BasicBlock>): void {
+        const stmtsReenterCondition = stmts.slice(ifStmtIdx + 1);
+        const blockBuildersReenterCondition: Block[] = [];
+        for (const prevBlockBuilder of currBlockBuilder.lasts) {
+            const prevBlock = blockBuilderToCfgBlock.get(prevBlockBuilder) as BasicBlock;
+
+            if (prevBlock.getId() > currBlockId) {
+                blockBuildersReenterCondition.push(prevBlockBuilder);
+            }
+        }
+
+        if (blockBuildersReenterCondition.length > 1 || blocksContainLoopCondition.has(
+            blockBuildersReenterCondition[0])) {
+            // put incrementor statements into an extra block
+            this.insertBeforeConditionBlockBuilder(blockBuilderToCfgBlock, currBlockBuilder,
+                stmtsReenterCondition, true, basicBlockSet);
+        } else {
+            // put incrementor statements into prev reenter block
+            const blockReenterCondition = blockBuilderToCfgBlock.get(
+                blockBuildersReenterCondition[0]) as BasicBlock;
+            blockReenterCondition?.getStmts().push(...stmtsReenterCondition);
+        }
+    }
+
+    private buildTraps(blockBuilderToCfgBlock: Map<Block, BasicBlock>, blockBuildersBeforeTry: Set<Block>,
+        arkIRTransformer: ArkIRTransformer, basicBlockSet: Set<BasicBlock>): Trap[] {
+        const traps: Trap[] = [];
+        for (const blockBuilderBeforeTry of blockBuildersBeforeTry) {
+            if (blockBuilderBeforeTry.nexts.length === 0) {
+                logger.error(`can't find try block.`);
+                continue;
+            }
+            const blockBuilderContainTry = blockBuilderBeforeTry.nexts[0];
+            const stmtsCnt = blockBuilderBeforeTry.stmts.length;
+            const tryStmtBuilder = blockBuilderBeforeTry.stmts[stmtsCnt - 1] as TryStatementBuilder;
+            const finallyBlockBuilder = tryStmtBuilder.finallyStatement?.block;
+            if (!finallyBlockBuilder) {
+                logger.error(`can't find finally block or dummy finally block.`);
+                continue;
+            }
+            const { bfsBlocks: tryBfsBlocks, tailBlocks: tryTailBlocks } = this.getAllBlocksBFS(blockBuilderToCfgBlock,
+                blockBuilderContainTry, finallyBlockBuilder);
+            let catchBfsBlocks: BasicBlock[] = [];
+            let catchTailBlocks: BasicBlock[] = [];
+            const catchBlockBuilder = tryStmtBuilder.catchStatement?.block;
+            if (catchBlockBuilder) {
+                ({ bfsBlocks: catchBfsBlocks, tailBlocks: catchTailBlocks } = this.getAllBlocksBFS(
+                    blockBuilderToCfgBlock, catchBlockBuilder));
+            }
+            const finallyStmts = finallyBlockBuilder.stmts;
+            const blockBuilderAfterFinally = tryStmtBuilder.afterFinal?.block;
+            if (!blockBuilderAfterFinally) {
+                logger.error(`can't find block after try...catch.`);
+                continue;
+            }
+            if (finallyStmts.length === 1 && finallyStmts[0].code === 'dummyFinally') { // no finally block
+                const trapsIfNoFinally = this.buildTrapsIfNoFinally(tryBfsBlocks, tryTailBlocks, catchBfsBlocks,
+                    catchTailBlocks,
+                    finallyBlockBuilder, blockBuilderAfterFinally, basicBlockSet, blockBuilderToCfgBlock);
+                if (trapsIfNoFinally) {
+                    traps.push(...trapsIfNoFinally);
+                }
+            } else {
+                const trapsIfFinallyExist = this.buildTrapsIfFinallyExist(tryBfsBlocks, tryTailBlocks, catchBfsBlocks,
+                    catchTailBlocks, finallyBlockBuilder, blockBuilderAfterFinally, basicBlockSet, arkIRTransformer,
+                    blockBuilderToCfgBlock);
+                traps.push(...trapsIfFinallyExist);
+            }
+        }
+        return traps;
+    }
+
+    private buildTrapsIfNoFinally(tryBfsBlocks: BasicBlock[], tryTailBlocks: BasicBlock[], catchBfsBlocks: BasicBlock[],
+        catchTailBlocks: BasicBlock[], finallyBlockBuilder: Block,
+        blockBuilderAfterFinally: Block, basicBlockSet: Set<BasicBlock>,
+        blockBuilderToCfgBlock: Map<Block, BasicBlock>): Trap[] | null {
+        if (catchBfsBlocks.length === 0) {
+            logger.error(`catch block expected.`);
+            return null;
+        }
+        if (!blockBuilderToCfgBlock.has(blockBuilderAfterFinally)) {
+            logger.error(`can't find basicBlock corresponding to the blockBuilder.`);
+            return null;
+        }
+        let blockAfterFinally: BasicBlock = blockBuilderToCfgBlock.get(blockBuilderAfterFinally)!;
+        if (!blockBuilderToCfgBlock.has(finallyBlockBuilder)) {
+            logger.error(`can't find basicBlock corresponding to the blockBuilder.`);
+            return null;
+        }
+        const finallyBlock = blockBuilderToCfgBlock.get(finallyBlockBuilder)!;
+        let dummyFinallyIdxInPredecessors = -1;
+        for (let i = 0; i < blockAfterFinally.getPredecessors().length; i++) {
+            if (blockAfterFinally.getPredecessors()[i] === finallyBlock) {
+                dummyFinallyIdxInPredecessors = i;
+                break;
+            }
+        }
+        if (dummyFinallyIdxInPredecessors === -1) {
+            return null;
+        }
+        blockAfterFinally.getPredecessors().splice(dummyFinallyIdxInPredecessors, 1);
+        for (const tryTailBlock of tryTailBlocks) {
+            tryTailBlock.setSuccessorBlock(0, blockAfterFinally);
+            blockAfterFinally.addPredecessorBlock(tryTailBlock);
+        }
+        basicBlockSet.delete(finallyBlock);
+
+        for (const catchTailBlock of catchTailBlocks) {
+            catchTailBlock.addSuccessorBlock(blockAfterFinally);
+            blockAfterFinally.addPredecessorBlock(catchTailBlock);
+        }
+        for (const tryTailBlock of tryTailBlocks) {
+            tryTailBlock.addExceptionalSuccessorBlock(catchBfsBlocks[0]);
+        }
+        return [new Trap(tryBfsBlocks, catchBfsBlocks)];
+    }
+
+    private buildTrapsIfFinallyExist(tryBfsBlocks: BasicBlock[], tryTailBlocks: BasicBlock[],
+        catchBfsBlocks: BasicBlock[], catchTailBlocks: BasicBlock[],
+        finallyBlockBuilder: Block, blockBuilderAfterFinally: Block,
+        basicBlockSet: Set<BasicBlock>, arkIRTransformer: ArkIRTransformer,
+        blockBuilderToCfgBlock: Map<Block, BasicBlock>): Trap[] {
+        const { bfsBlocks: finallyBfsBlocks, tailBlocks: finallyTailBlocks } = this.getAllBlocksBFS(
+            blockBuilderToCfgBlock,
+            finallyBlockBuilder, blockBuilderAfterFinally);
+        const copyFinallyBfsBlocks = this.copyFinallyBlocks(finallyBfsBlocks, finallyTailBlocks, basicBlockSet,
+            arkIRTransformer, blockBuilderToCfgBlock);
+        const traps: Trap[] = [];
+        if (catchBfsBlocks.length !== 0) {
+            for (const catchTailBlock of catchTailBlocks) {
+                catchTailBlock.addSuccessorBlock(finallyBfsBlocks[0]);
+                finallyBfsBlocks[0].addPredecessorBlock(catchTailBlock);
+            }
+            // try -> catch trap
+            for (const tryTailBlock of tryTailBlocks) {
+                tryTailBlock.addExceptionalSuccessorBlock(catchBfsBlocks[0]);
+            }
+            traps.push(new Trap(tryBfsBlocks, catchBfsBlocks));
+            // catch -> finally trap
+            for (const catchTailBlock of catchTailBlocks) {
+                catchTailBlock.addExceptionalSuccessorBlock(copyFinallyBfsBlocks[0]);
+            }
+            traps.push(new Trap(catchBfsBlocks, copyFinallyBfsBlocks));
+        } else {
+            // try -> finally trap
+            for (const tryTailBlock of tryTailBlocks) {
+                tryTailBlock.addExceptionalSuccessorBlock(copyFinallyBfsBlocks[0]);
+            }
+            traps.push(new Trap(tryBfsBlocks, copyFinallyBfsBlocks));
+        }
+        return traps;
+    }
+
+    private getAllBlocksBFS(blockBuilderToCfgBlock: Map<Block, BasicBlock>, startBlockBuilder: Block,
+        endBlockBuilder?: Block): { bfsBlocks: BasicBlock[], tailBlocks: BasicBlock[] } {
+        const bfsBlocks: BasicBlock[] = [];
+        const tailBlocks: BasicBlock[] = [];
+        const queue: Block[] = [];
+        const visitedBlockBuilders = new Set<Block>();
+        queue.push(startBlockBuilder);
+        while (queue.length !== 0) {
+            const currBlockBuilder = queue.splice(0, 1)[0];
+            if (visitedBlockBuilders.has(currBlockBuilder)) {
+                continue;
+            }
+            visitedBlockBuilders.add(currBlockBuilder);
+            if (!blockBuilderToCfgBlock.has(currBlockBuilder)) {
+                logger.error(`can't find basicBlock corresponding to the blockBuilder.`);
+                continue;
+            }
+            const currBlock = blockBuilderToCfgBlock.get(currBlockBuilder)!;
+            bfsBlocks.push(currBlock);
+
+            const childList = currBlockBuilder.nexts;
+            if (childList.length === 0 || (childList.length !== 0 && (childList[0] === endBlockBuilder))) {
+                if (childList[0] === endBlockBuilder) {
+                    tailBlocks.push(currBlock);
+                    continue;
+                }
+            }
+            if (childList.length !== 0) {
+                for (const child of childList) {
+                    queue.push(child);
+                }
+            }
+        }
+        return { bfsBlocks, tailBlocks };
+    }
+
+    private copyFinallyBlocks(finallyBfsBlocks: BasicBlock[], finallyTailBlocks: BasicBlock[],
+        basicBlockSet: Set<BasicBlock>, arkIRTransformer: ArkIRTransformer,
+        blockBuilderToCfgBlock: Map<Block, BasicBlock>): BasicBlock[] {
+        const copyFinallyBfsBlocks = this.copyBlocks(finallyBfsBlocks);
+        const caughtExceptionRef = new ArkCaughtExceptionRef(UnknownType.getInstance());
+        const {
+            value: exceptionValue,
+            stmts: exceptionAssignStmts,
+        } = arkIRTransformer.generateAssignStmtForValue(caughtExceptionRef, [FullPosition.DEFAULT]);
+        copyFinallyBfsBlocks[0].addHead(exceptionAssignStmts);
+        const finallyPredecessorsCnt = copyFinallyBfsBlocks[0].getPredecessors().length;
+        copyFinallyBfsBlocks[0].getPredecessors().splice(0, finallyPredecessorsCnt);
+        const throwStmt = new ArkThrowStmt(exceptionValue);
+        let copyFinallyTailBlocks = copyFinallyBfsBlocks.splice(
+            copyFinallyBfsBlocks.length - finallyTailBlocks.length, finallyTailBlocks.length);
+        copyFinallyTailBlocks.forEach((copyFinallyTailBlock: BasicBlock) => {
+            const successorsCnt = copyFinallyTailBlock.getSuccessors().length;
+            copyFinallyTailBlock.getSuccessors().splice(0, successorsCnt);
+        });
+        if (copyFinallyTailBlocks.length > 1) {
+            const newCopyFinallyTailBlock = new BasicBlock();
+            copyFinallyTailBlocks.forEach((copyFinallyTailBlock: BasicBlock) => {
+                copyFinallyTailBlock.addSuccessorBlock(newCopyFinallyTailBlock);
+                newCopyFinallyTailBlock.addPredecessorBlock(copyFinallyTailBlock);
+            });
+            copyFinallyTailBlocks = [newCopyFinallyTailBlock];
+        }
+        copyFinallyTailBlocks[0].addStmt(throwStmt);
+        copyFinallyBfsBlocks.push(...copyFinallyTailBlocks);
+        copyFinallyBfsBlocks.forEach((copyFinallyBfsBlock: BasicBlock) => {
+            basicBlockSet.add(copyFinallyBfsBlock);
+        });
+        return copyFinallyBfsBlocks;
+    }
+
+    private copyBlocks(sourceBlocks: BasicBlock[]): BasicBlock[] {
+        const sourceToTarget = new Map<BasicBlock, BasicBlock>();
+        const targetBlocks: BasicBlock[] = [];
+        for (const sourceBlock of sourceBlocks) {
+            const targetBlock = new BasicBlock();
+            for (const stmt of sourceBlock.getStmts()) {
+                targetBlock.addStmt(this.copyStmt(stmt)!);
+            }
+            sourceToTarget.set(sourceBlock, targetBlock);
+            targetBlocks.push(targetBlock);
+        }
+        for (const sourceBlock of sourceBlocks) {
+            const targetBlock = sourceToTarget.get(sourceBlock)!;
+            for (const predecessor of sourceBlock.getPredecessors()) {
+                const targetPredecessor = sourceToTarget.get(predecessor)!;
+                targetBlock.addPredecessorBlock(targetPredecessor);
+            }
+            for (const successor of sourceBlock.getSuccessors()) {
+                const targetSuccessor = sourceToTarget.get(successor)!;
+                targetBlock.addSuccessorBlock(targetSuccessor);
+            }
+        }
+        return targetBlocks;
+    }
+
+    private copyStmt(sourceStmt: Stmt): Stmt | null {
+        if (sourceStmt instanceof ArkAssignStmt) {
+            return new ArkAssignStmt(sourceStmt.getLeftOp(), sourceStmt.getRightOp());
+        } else if (sourceStmt instanceof ArkInvokeStmt) {
+            return new ArkInvokeStmt(sourceStmt.getInvokeExpr());
+        } else if (sourceStmt instanceof ArkIfStmt) {
+            return new ArkIfStmt(sourceStmt.getConditionExprExpr());
+        } else if (sourceStmt instanceof ArkReturnStmt) {
+            return new ArkReturnStmt(sourceStmt.getOp());
+        } else if (sourceStmt instanceof ArkReturnVoidStmt) {
+            return new ArkReturnVoidStmt();
+        } else if (sourceStmt instanceof ArkThrowStmt) {
+            return new ArkThrowStmt(sourceStmt.getOp());
+        }
+        return null;
+    }
+
+    private buildSwitch(blockBuilderToCfgBlock: Map<Block, BasicBlock>, blockBuildersContainSwitch: Block[],
+        valueAndStmtsOfSwitchAndCasesAll: ValueAndStmts[][], arkIRTransformer: ArkIRTransformer,
+        basicBlockSet: Set<BasicBlock>): void {
+        for (let i = 0; i < blockBuildersContainSwitch.length; i++) {
+            const blockBuilderContainSwitch = blockBuildersContainSwitch[i];
+
+            if (!blockBuilderToCfgBlock.has(blockBuilderContainSwitch)) {
+                logger.error(
+                    `can't find basicBlock corresponding to the blockBuilder.`);
+                continue;
+            }
+
+            const blockContainSwitch = blockBuilderToCfgBlock.get(blockBuilderContainSwitch)!;
+            const valueAndStmtsOfSwitch = valueAndStmtsOfSwitchAndCasesAll[i][0];
+            const stmtsOfSwitch = valueAndStmtsOfSwitch.stmts;
+            stmtsOfSwitch.forEach((stmt: Stmt) => {
+                blockContainSwitch.addStmt(stmt);
+            });
+
+            const stmtsCnt = blockBuilderContainSwitch.stmts.length;
+            const switchStmtBuilder = blockBuilderContainSwitch.stmts[stmtsCnt - 1] as SwitchStatementBuilder;
+            const cases = switchStmtBuilder.cases;
+            let nonEmptyCaseCnt = 0;
+            for (const currCase of cases) {
+                if (currCase.stmt.block) { // there are stmts after this case
+                    nonEmptyCaseCnt++;
+                }
+            }
+            if (nonEmptyCaseCnt === 0) {
+                continue;
+            }
+
+            const caseCnt = cases.length;
+            const caseIfBlocks = this.generateIfBlocksForCases(valueAndStmtsOfSwitchAndCasesAll[i], caseCnt,
+                blockContainSwitch, basicBlockSet, arkIRTransformer);
+            this.linkIfBlockAndCaseBlock(blockContainSwitch, caseIfBlocks, switchStmtBuilder,
+                blockBuilderToCfgBlock);
+        }
+    }
+
+    private generateIfBlocksForCases(valueAndStmtsOfSwitchAndCases: ValueAndStmts[], caseCnt: number,
+        blockContainSwitch: BasicBlock, basicBlockSet: Set<BasicBlock>,
+        arkIRTransformer: ArkIRTransformer): BasicBlock[] {
+        const valueAndStmtsOfSwitch = valueAndStmtsOfSwitchAndCases[0];
+        const valueOfSwitch = valueAndStmtsOfSwitch.value;
+        const caseIfBlocks: BasicBlock[] = [];
+
+        for (let j = 0; j < caseCnt; j++) {
+            let caseIfBlock: BasicBlock;
+            if (j === 0) {
+                caseIfBlock = blockContainSwitch;
+            } else {
+                caseIfBlock = new BasicBlock();
+                basicBlockSet.add(caseIfBlock);
+            }
+            caseIfBlocks.push(caseIfBlock);
+
+            const caseValueAndStmts = valueAndStmtsOfSwitchAndCases[j + 1];
+            const caseValue = caseValueAndStmts.value;
+            const caseStmts = caseValueAndStmts.stmts;
+            caseStmts.forEach((stmt: Stmt) => {
+                caseIfBlock.addStmt(stmt);
+            });
+            const caseIfStmts = arkIRTransformer.generateIfStmtForValues(valueOfSwitch,
+                valueAndStmtsOfSwitch.valueOriginalPositions, caseValue,
+                caseValueAndStmts.valueOriginalPositions);
+            caseIfStmts.forEach((stmt: Stmt) => {
+                caseIfBlock.addStmt(stmt);
+            });
+        }
+        return caseIfBlocks;
+    }
+
+    private linkIfBlockAndCaseBlock(blockContainSwitch: BasicBlock, caseIfBlocks: BasicBlock[],
+        switchStmtBuilder: SwitchStatementBuilder,
+        blockBuilderToCfgBlock: Map<Block, BasicBlock>): boolean {
+        const successorsOfBlockContainSwitch = Array.from(blockContainSwitch.getSuccessors());
+        const expectedSuccessorsOfCaseIfBlock: BasicBlock[] = [];
+        const defaultStmtBuilder = switchStmtBuilder.default;
+        if (defaultStmtBuilder && defaultStmtBuilder.block) {
+            expectedSuccessorsOfCaseIfBlock.push(...successorsOfBlockContainSwitch.splice(-1, 1));
+        } else {
+            const afterSwitchStmtBuilder = switchStmtBuilder.afterSwitch;
+            const afterSwitchBlockBuilder = afterSwitchStmtBuilder?.block;
+            if (!afterSwitchBlockBuilder || !blockBuilderToCfgBlock.has(afterSwitchBlockBuilder)) {
+                logger.error(`can't find basicBlock corresponding to the blockBuilder.`);
+                return false;
+            }
+            expectedSuccessorsOfCaseIfBlock.push(blockBuilderToCfgBlock.get(afterSwitchBlockBuilder)!);
+        }
+        const caseCnt = switchStmtBuilder.cases.length;
+        for (let i = caseCnt - 1; i >= 0; i--) {
+            const currCase = switchStmtBuilder.cases[i];
+            if (currCase.stmt.block) {
+                expectedSuccessorsOfCaseIfBlock.push(...successorsOfBlockContainSwitch.splice(-1, 1));
+            } else { // if there are no stmts after this case, reuse the successor of the next case
+                expectedSuccessorsOfCaseIfBlock.push(...expectedSuccessorsOfCaseIfBlock.slice(-1));
+            }
+        }
+        expectedSuccessorsOfCaseIfBlock.reverse();
+
+        blockContainSwitch.getSuccessors().forEach((successor) => {
+            successor.getPredecessors().splice(0, 1);
+        });
+        blockContainSwitch.getSuccessors().splice(0);
+        for (let j = 0; j < caseCnt; j++) {
+            const caseIfBlock = caseIfBlocks[j];
+            caseIfBlock.addSuccessorBlock(expectedSuccessorsOfCaseIfBlock[j]);
+            expectedSuccessorsOfCaseIfBlock[j].addPredecessorBlock(caseIfBlock);
+            if (j === caseCnt - 1) { // the false branch of last case should be default or block after switch statement
+                caseIfBlock.addSuccessorBlock(expectedSuccessorsOfCaseIfBlock[j + 1]);
+                expectedSuccessorsOfCaseIfBlock[j + 1].addPredecessorBlock(caseIfBlock);
+            } else {
+                caseIfBlock.addSuccessorBlock(caseIfBlocks[j + 1]);
+                caseIfBlocks[j + 1].addPredecessorBlock(caseIfBlock);
+            }
+        }
+        return true;
     }
 }

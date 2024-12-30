@@ -152,7 +152,7 @@ onMemoryLevel(level: AbilityConstant.MemoryLevel): void
 onConfigurationUpdate(config: AbilityConfiguration.Configuration): void
 ```
 
-[onConfigurationUpdate](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-app-ability-abilitystage-V5#abilitystageonconfigurationupdate)是系统底层`AbilityStage`的能力，环境变化通知接口，发生全局配置变更时回调。
+[onConfigurationUpdate](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-app-ability-abilitystage-V5#abilitystageonconfigurationupdate)是系统底层`AbilityStage`的能力，环境变化通知接口，发生全局配置发生改变时回调。
 
 ##### 参数
 

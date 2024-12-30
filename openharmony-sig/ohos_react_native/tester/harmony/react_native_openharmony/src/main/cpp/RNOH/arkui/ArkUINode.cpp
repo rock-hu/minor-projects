@@ -376,9 +376,10 @@ ArkUINode& ArkUINode::setShadow(
 
   float offsetXInPX = shadowOffset.width * pointScaleFactor;
   float offsetYInPX = shadowOffset.height * pointScaleFactor;
-  
+  float shadowRadiusInPX = shadowRadius * pointScaleFactor;
+
   ArkUI_NumberValue shadowValue[] = {
-      {.f32 = shadowRadius},
+      {.f32 = shadowRadiusInPX},
       {.i32 = 0},
       {.f32 = offsetXInPX},
       {.f32 = offsetYInPX},

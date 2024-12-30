@@ -23,14 +23,17 @@ const logger = Logger.getLogger(LOG_MODULE_TYPE.ARKANALYZER, 'BasicBlock');
  * A `BasicBlock` is composed of:
  * - ID: a **number** that uniquely identify the basic block, initialized as -1.
  * - Statements: an **array** of statements in the basic block.
- * - Predecessors:  an **array** of basic blocks in front of the current basic block. More accurately, these basic blocks can reach the current block through edges.
- * - Successors: an **array** of basic blocks after the current basic block. More accurately, the current block can reach these basic blocks through edges.
+ * - Predecessors:  an **array** of basic blocks in front of the current basic block. More accurately, these basic
+ *     blocks can reach the current block through edges.
+ * - Successors: an **array** of basic blocks after the current basic block. More accurately, the current block can
+ *     reach these basic blocks through edges.
  */
 export class BasicBlock {
     private id: number = -1;
     private stmts: Stmt[] = [];
     private predecessorBlocks: BasicBlock[] = [];
     private successorBlocks: BasicBlock[] = [];
+    private exceptionalSuccessorBlocks?: BasicBlock[];
 
     constructor() {}
 
@@ -208,6 +211,24 @@ export class BasicBlock {
         this.successorBlocks.push(block);
     }
 
+    public removePredecessorBlock(block: BasicBlock): boolean {
+        let index = this.predecessorBlocks.indexOf(block);
+        if (index < 0) {
+            return false;
+        }
+        this.predecessorBlocks.splice(index, 1);
+        return true;
+    }
+
+    public removeSuccessorBlock(block: BasicBlock): boolean {
+        let index = this.successorBlocks.indexOf(block);
+        if (index < 0) {
+            return false;
+        }
+        this.successorBlocks.splice(index, 1);
+        return true;
+    }
+
     public toString(): string {
         let strs: string[] = [];
         for (const stmt of this.stmts) {
@@ -251,5 +272,16 @@ export class BasicBlock {
         }
         this.stmts.splice(index, 0, ...toInsert);
         return toInsert.length;
+    }
+
+    public getExceptionalSuccessorBlocks(): BasicBlock[] | undefined {
+        return this.exceptionalSuccessorBlocks;
+    }
+
+    public addExceptionalSuccessorBlock(block: BasicBlock): void {
+        if (!this.exceptionalSuccessorBlocks) {
+            this.exceptionalSuccessorBlocks = [];
+        }
+        this.exceptionalSuccessorBlocks.push(block);
     }
 }

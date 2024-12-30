@@ -83,7 +83,7 @@ Tid:xxxx, Name:RNOH_BACKGROUND
  
 2. native 工程 `\entry\build\default\outputs\default\entry-default-signed.hap` 包中查找，没有发现 libhermes.so。
  
-3. DevEco Studio 变更说明上有一个[不兼容变更](https://developer.huawei.com/consumer/cn/doc/harmonyos-releases-V5/ide-changelogs-db5-V5)，举例说明该变更：如果存在2个 har 包，且 har 包 A 的 so 依赖了 har 包 B 的 so。在之前的版本中，har 包 A 在打包过程中会将 har 包 B 的 so 打包到 har 包 A 里，变更后，har 包 A 打包时将不会携带 har 包 B 的 so。
+3. DevEco Studio 上有一个特性，[需要开发者修改适配](https://developer.huawei.com/consumer/cn/doc/harmonyos-releases-V5/ide-changelogs-db5-V5)，举例说明该特性：如果存在2个 har 包，且 har 包 A 的 so 依赖了 har 包 B 的 so。在之前的版本中，har 包 A 在打包过程中会将 har 包 B 的 so 打包到 har 包 A 里，在当前版本中，har 包 A 打包时将不会携带 har 包 B 的 so。
  
 该问题的解决方法：
  

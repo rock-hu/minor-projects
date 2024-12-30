@@ -19,12 +19,7 @@ void SchedulerDelegate::schedulerDidFinishTransaction(
   HarmonyReactMarker::logMarker(HarmonyReactMarker::HarmonyReactMarkerId::
                                     FABRIC_FINISH_TRANSACTION_START);
   mountingCoordinator->getTelemetryController().pullTransaction(
-      [this](auto const& transaction, auto const& surfaceTelemetry) {
-        performOnMainThread(
-            [transaction](MountingManager::Shared const& mountingManager) {
-              mountingManager->willMount(transaction.getMutations());
-            });
-      },
+      [](auto const& transaction, auto const& surfaceTelemetry) {},
       [this](auto const& transaction, auto const& surfaceTelemetry) {
         performOnMainThread(
             [transaction](MountingManager::Shared const& mountingManager) {
