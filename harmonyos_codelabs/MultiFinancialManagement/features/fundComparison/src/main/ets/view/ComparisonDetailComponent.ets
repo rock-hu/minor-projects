@@ -155,7 +155,7 @@ export struct ComparisonDetailComponent {
               .scrollBar(BarState.Off)
               .listDirection(Axis.Horizontal)
               .edgeEffect(EdgeEffect.None)
-              .onScroll((scrollOffset: number) => {
+              .onWillScroll((_scrollOffset: number) => {
                 if (this.isScroll) {
                   let offset = this.scrollerList.currentOffset().xOffset;
                   this.scroller.scrollTo({ xOffset: offset, yOffset: 0 });
@@ -290,7 +290,7 @@ export struct ComparisonDetailComponent {
                 .scrollable(ScrollDirection.Horizontal)
                 .scrollBar(BarState.Off)
                 .edgeEffect(EdgeEffect.None)
-                .onScroll((scrollOffset: number) => {
+                .onWillScroll((_scrollOffset: number) => {
                   if (this.isListScroll) {
                     let offset = this.scroller.currentOffset().xOffset;
                     this.scrollerList.scrollTo({ xOffset: offset, yOffset: 0 });

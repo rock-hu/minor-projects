@@ -12,6 +12,6 @@
     "@ohos/transaction": "file:../transaction",
     "@ohos/fundComparison": "file:../fundComparison",
     "@ohos/basic": "file:../../commons/basic",
-    "@ohos/mpchart": "3.0.0-rc.1"
+    "@ohos/mpchart": "^3.0.0-rc.1"
   }
 }
