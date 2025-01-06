@@ -9,8 +9,7 @@
 #include "RNOH/generated/BaseReactNativeHarmonySamplePackagePackage.h"
 
 namespace rnoh {
-class SamplePackage
-    : public BaseReactNativeHarmonySamplePackagePackage {
+class SamplePackage : public BaseReactNativeHarmonySamplePackagePackage {
   using Super = BaseReactNativeHarmonySamplePackagePackage;
 
  public:

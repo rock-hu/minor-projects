@@ -80,15 +80,13 @@ SamplePackage::createComponentDescriptorProviders() {
   return componentDescriptorProviders;
 }
 
-ComponentNapiBinderByString
-SamplePackage::createComponentNapiBinderByName() {
+ComponentNapiBinderByString SamplePackage::createComponentNapiBinderByName() {
   return {
       {"PropsDisplayer", std::make_shared<ViewComponentNapiBinder>()},
   };
 };
 
-ComponentJSIBinderByString 
-SamplePackage::createComponentJSIBinderByName() {
+ComponentJSIBinderByString SamplePackage::createComponentJSIBinderByName() {
   auto result = Super::createComponentJSIBinderByName();
   result["SampleView"] = std::make_shared<SampleViewJSIBinder>();
   return result;
@@ -131,8 +129,7 @@ SamplePackage::createArkTSMessageHandlers() {
  * here for testing purposes.
  */
 ComponentInstanceFactoryDelegate::Shared
-SamplePackage::
-    createComponentInstanceFactoryDelegate() {
+SamplePackage::createComponentInstanceFactoryDelegate() {
   class SampleComponentInstanceFactoryDelegate
       : public ComponentInstanceFactoryDelegate {
    public:
@@ -146,8 +143,7 @@ SamplePackage::
   return std::make_shared<SampleComponentInstanceFactoryDelegate>();
 };
 
-ComponentInstance::Shared
-SamplePackage::createComponentInstance(
+ComponentInstance::Shared SamplePackage::createComponentInstance(
     const ComponentInstance::Context& ctx) {
   if (ctx.componentName == "GeneratedSampleView") {
     return std::make_shared<GeneratedSampleViewComponentInstance>(ctx);

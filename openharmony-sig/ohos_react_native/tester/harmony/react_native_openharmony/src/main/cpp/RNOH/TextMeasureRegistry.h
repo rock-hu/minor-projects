@@ -37,7 +37,8 @@ public:
   ArkUI_StyledString* getTextStyledString(const std::string& key);
   std::optional<std::shared_ptr<TextMeasureInfo>> getTextMeasureInfoByKey(const std::string& key);
   void eraseTextMeasureInfo(const std::string& key);
-  std::optional<std::shared_ptr<TextMeasureInfo>> getTextMeasureInfo(const facebook::react::TextMeasureCacheKey& cacheKey);
+  std::optional<std::shared_ptr<TextMeasureInfo>> getTextMeasureInfo(
+    const facebook::react::TextMeasureCacheKey& cacheKey, float scale);
 
  private:
 

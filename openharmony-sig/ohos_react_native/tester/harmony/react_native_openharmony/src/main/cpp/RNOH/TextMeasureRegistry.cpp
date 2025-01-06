@@ -37,12 +37,16 @@ ArkUI_StyledString* TextMeasureRegistry::getTextStyledString(const std::string& 
   return nullptr;
 }
 
-std::optional<std::shared_ptr<TextMeasureInfo>> TextMeasureRegistry::getTextMeasureInfo(const facebook::react::TextMeasureCacheKey& cacheKey) {
+std::optional<std::shared_ptr<TextMeasureInfo>> TextMeasureRegistry::getTextMeasureInfo(
+    const facebook::react::TextMeasureCacheKey& cacheKey, float scale)
+{
   std::lock_guard<std::mutex> lock(m_mutex);
   std::optional<std::shared_ptr<TextMeasureInfo>> measureInfo = std::nullopt;
   auto itor = m_textMeasureInfoCache.find(cacheKey);
   if (itor != m_textMeasureInfoCache.end()) {
-    measureInfo = itor->second;
+    if (scale == itor->second->builder.getScale()) {
+        measureInfo = itor->second;
+    }
   }
   return measureInfo;
 }

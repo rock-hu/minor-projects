@@ -43,7 +43,7 @@ import {
     ArkInstanceFieldRef,
     ArkParameterRef,
     ArkStaticFieldRef,
-    ArkThisRef,
+    ArkThisRef, GlobalRef,
 } from '../base/Ref';
 import { Value } from '../base/Value';
 import * as ts from 'ohos-typescript';
@@ -141,6 +141,7 @@ export class ArkIRTransformer {
     private conditionalOperatorNo: number = 0;
     private tempLocalNo: number = 0;
     private locals: Map<string, Local> = new Map();
+    private globals?: Map<string, GlobalRef>;
     private sourceFile: ts.SourceFile;
     private declaringMethod: ArkMethod;
     private thisLocal: Local;
@@ -163,6 +164,23 @@ export class ArkIRTransformer {
         return new Set<Local>(this.locals.values());
     }
 
+    private addNewLocal(localName: string, localType: Type = UnknownType.getInstance()): Local {
+        let local = new Local(localName, localType);
+        this.locals.set(localName, local);
+        return local;
+    }
+
+    public getGlobals(): Map<string, GlobalRef> | null {
+        return this.globals ?? null;
+    }
+
+    private addNewGlobal(name: string, ref?: Value): GlobalRef {
+        let globalRef = new GlobalRef(name, ref);
+        this.globals = this.globals ?? new Map();
+        this.globals.set(name, globalRef);
+        return globalRef;
+    }
+
     public getThisLocal(): Local {
         return this.thisLocal;
     }
@@ -176,7 +194,7 @@ export class ArkIRTransformer {
         let index = 0;
         for (const methodParameter of this.declaringMethod.getParameters()) {
             const parameterRef = new ArkParameterRef(index, methodParameter.getType());
-            stmts.push(new ArkAssignStmt(this.getOrCreatLocal(methodParameter.getName(), parameterRef.getType()), parameterRef));
+            stmts.push(new ArkAssignStmt(this.addNewLocal(methodParameter.getName(), parameterRef.getType()), parameterRef));
             index++;
         }
 
@@ -495,7 +513,7 @@ export class ArkIRTransformer {
                     const fieldSignature = ArkSignatureBuilder.buildFieldSignatureFromFieldName(fieldName);
                     const fieldRef = new ArkInstanceFieldRef(objectItem as Local, fieldSignature);
                     const fieldRefPositions = [objectItemPositions[0], ...objectItemPositions];
-                    const fieldLocal = this.getOrCreatLocal(element.name.getText(this.sourceFile));
+                    const fieldLocal = this.addNewLocal(element.name.getText(this.sourceFile));
                     const fieldLocalPosition = FullPosition.buildFromNode(element, this.sourceFile);
                     fieldLocal.setConstFlag(isConst);
                     const assignStmt = new ArkAssignStmt(fieldLocal, fieldRef);
@@ -503,7 +521,7 @@ export class ArkIRTransformer {
                     stmts.push(assignStmt);
                 }
             } else {
-                const item = this.getOrCreatLocal(variableDeclaration.name.getText(this.sourceFile));
+                const item = this.addNewLocal(variableDeclaration.name.getText(this.sourceFile));
                 item.setConstFlag(isConst);
                 stmts.push(new ArkAssignStmt(item, castExpr));
             }
@@ -657,7 +675,7 @@ export class ArkIRTransformer {
             stmts: rightStmts,
         } = this.tsNodeToValueAndStmts(expression);
         stmts.push(...rightStmts);
-        let leftValue = this.getOrCreatLocal(DEFAULT);
+        let leftValue = this.addNewLocal(DEFAULT, rightValue.getType());
         let leftPositions = rightPositions;
         const assignStmt = new ArkAssignStmt(leftValue, rightValue);
         assignStmt.setOperandOriginalPositions([...leftPositions, ...rightPositions]);
@@ -928,7 +946,7 @@ export class ArkIRTransformer {
             buildNormalArkClassFromArkFile(classExpression, declaringArkFile, newClass, this.sourceFile, this.declaringMethod);
             declaringArkFile.addArkClass(newClass);
         }
-        const classValue = this.getOrCreatLocal(newClass.getName(), new ClassType(newClass.getSignature()));
+        const classValue = this.addNewLocal(newClass.getName(), new ClassType(newClass.getSignature()));
         return {
             value: classValue,
             valueOriginalPositions: [FullPosition.buildFromNode(classExpression, this.sourceFile)],
@@ -991,14 +1009,17 @@ export class ArkIRTransformer {
         return { value: currTemplateValue, valueOriginalPositions: currTemplatePositions, stmts: stmts };
     }
 
-    private identifierToValueAndStmts(identifier: ts.Identifier): ValueAndStmts {
-        // TODO: handle global variable
+    private identifierToValueAndStmts(identifier: ts.Identifier, variableDefFlag: boolean = false): ValueAndStmts {
         let identifierValue: Value;
         let identifierPositions = [FullPosition.buildFromNode(identifier, this.sourceFile)];
         if (identifier.text === UndefinedType.getInstance().getName()) {
             identifierValue = ValueUtil.getUndefinedConst();
         } else {
-            identifierValue = this.getOrCreatLocal(identifier.text);
+            if (variableDefFlag) {
+                identifierValue = this.addNewLocal(identifier.text);
+            } else {
+                identifierValue = this.getOrCreateLocal(identifier.text);
+            }
         }
         return { value: identifierValue, valueOriginalPositions: identifierPositions, stmts: [] };
     }
@@ -1059,6 +1080,7 @@ export class ArkIRTransformer {
             const fieldSignature = ArkSignatureBuilder.buildFieldSignatureFromFieldName(argumentValue.toString());
             elementAccessExpr = new ArkInstanceFieldRef(baseValue as Local, fieldSignature);
         }
+        // reserve positions for field name
         const exprPositions = [FullPosition.buildFromNode(elementAccessExpression, this.sourceFile), ...basePositions,
             ...arguPositions];
         return { value: elementAccessExpr, valueOriginalPositions: exprPositions, stmts: stmts };
@@ -1158,7 +1180,7 @@ export class ArkIRTransformer {
         buildArkMethodFromArkClass(callableNode, declaringClass, arrowArkMethod, this.sourceFile, this.declaringMethod);
 
         const callableType = new FunctionType(arrowArkMethod.getSignature());
-        const callableValue = this.getOrCreatLocal(arrowArkMethod.getName(), callableType);
+        const callableValue = this.addNewLocal(arrowArkMethod.getName(), callableType);
         return {
             value: callableValue,
             valueOriginalPositions: [FullPosition.buildFromNode(callableNode, this.sourceFile)],
@@ -1382,23 +1404,36 @@ export class ArkIRTransformer {
     }
 
     private awaitExpressionToValueAndStmts(awaitExpression: ts.AwaitExpression): ValueAndStmts {
-        const {
+        const stmts: Stmt[] = [];
+        let {
             value: promiseValue,
             valueOriginalPositions: promisePositions,
-            stmts: stmts,
+            stmts: promiseStmts,
         } = this.tsNodeToValueAndStmts(awaitExpression.expression);
+        stmts.push(...promiseStmts);
+        if (IRUtils.moreThanOneAddress(promiseValue)) {
+            ({ value: promiseValue, valueOriginalPositions: promisePositions, stmts: promiseStmts } =
+                this.generateAssignStmtForValue(promiseValue, promisePositions));
+            stmts.push(...promiseStmts);
+        }
         const awaitExpr = new ArkAwaitExpr(promiseValue);
         const awaitExprPositions = [FullPosition.buildFromNode(awaitExpression, this.sourceFile), ...promisePositions];
         return { value: awaitExpr, valueOriginalPositions: awaitExprPositions, stmts: stmts };
     }
 
     private yieldExpressionToValueAndStmts(yieldExpression: ts.YieldExpression): ValueAndStmts {
+        const stmts: Stmt[] = [];
         let yieldValue: Value = ValueUtil.getUndefinedConst();
         let yieldPositions = [FullPosition.DEFAULT];
-        let stmts: Stmt[] = [];
+        let yieldStmts: Stmt[] = [];
         if (yieldExpression.expression) {
-            ({ value: yieldValue, valueOriginalPositions: yieldPositions, stmts: stmts } =
+            ({ value: yieldValue, valueOriginalPositions: yieldPositions, stmts: yieldStmts } =
                 this.tsNodeToValueAndStmts(yieldExpression.expression));
+            if (IRUtils.moreThanOneAddress(yieldValue)) {
+                ({ value: yieldValue, valueOriginalPositions: yieldPositions, stmts: yieldStmts } =
+                    this.generateAssignStmtForValue(yieldValue, yieldPositions));
+                stmts.push(...yieldStmts);
+            }
         }
 
         const yieldExpr = new ArkYieldExpr(yieldValue);
@@ -1484,8 +1519,15 @@ export class ArkIRTransformer {
         }
 
         const stmts: Stmt[] = [];
-        let { value: leftValue, valueOriginalPositions: leftPositions, stmts: leftStmts } = this.tsNodeToValueAndStmts(
-            leftOpNode);
+        let leftValueAndStmts: ValueAndStmts;
+        if (ts.isIdentifier(leftOpNode)) {
+            leftValueAndStmts = this.identifierToValueAndStmts(leftOpNode, true);
+        } else {
+            leftValueAndStmts = this.tsNodeToValueAndStmts(leftOpNode);
+        }
+        let leftValue = leftValueAndStmts.value;
+        let leftPositions = leftValueAndStmts.valueOriginalPositions;
+        let leftStmts = leftValueAndStmts.stmts;
         stmts.push(...leftStmts);
         let rightValue: Value;
         let rightPositions: FullPosition[];
@@ -1550,7 +1592,7 @@ export class ArkIRTransformer {
                 const fieldSignature = ArkSignatureBuilder.buildFieldSignatureFromFieldName(fieldName);
                 const fieldRef = new ArkInstanceFieldRef(leftValue as Local, fieldSignature);
                 const fieldRefPositions = [leftPositions[0], ...leftPositions];
-                const fieldLocal = this.getOrCreatLocal(element.name.getText(this.sourceFile));
+                const fieldLocal = this.addNewLocal(element.name.getText(this.sourceFile));
                 fieldLocal.setConstFlag(isConst);
                 const fieldLocalPosition = FullPosition.buildFromNode(element, this.sourceFile);
                 const assignStmt = new ArkAssignStmt(fieldLocal, fieldRef);
@@ -1827,12 +1869,13 @@ export class ArkIRTransformer {
         };
     }
 
-    private getOrCreatLocal(localName: string, localType: Type = UnknownType.getInstance()): Local {
-        let local = this.locals.get(localName) || null;
-        if (local == null) {
-            local = new Local(localName, localType);
-            this.locals.set(localName, local);
+    private getOrCreateLocal(localName: string, localType: Type = UnknownType.getInstance()): Local {
+        let local = this.locals.get(localName);
+        if (local !== undefined) {
+            return local;
         }
+        local = this.addNewLocal(localName, localType);
+        this.addNewGlobal(localName);
         return local;
     }
 

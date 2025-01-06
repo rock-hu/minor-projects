@@ -54,7 +54,7 @@ TextMeasurement TextMeasurer::measure(
     }
     // calc typograph
     facebook::react::TextMeasureCacheKey cacheKey{attributedString, paragraphAttributes, layoutConstraints};
-    std::optional<std::shared_ptr<TextMeasureInfo>> measureInfo = TextMeasureRegistry::getTextMeasureRegistry().getTextMeasureInfo(cacheKey);
+    std::optional<std::shared_ptr<TextMeasureInfo>> measureInfo = TextMeasureRegistry::getTextMeasureRegistry().getTextMeasureInfo(cacheKey, m_scale);
     if (measureInfo.has_value()) {
       if (!attributedString.getFragments().empty()) {
         std::string key = std::to_string(m_rnInstanceId) + "_" + 

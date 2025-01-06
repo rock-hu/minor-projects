@@ -38,11 +38,11 @@ interface Params {
 @Entry
 @Component
 export struct Index {
-  @StorageLink('RNOHCoreContext') rnohCoreContext: RNOHCoreContext | undefined = undefined
+  @StorageLink('RNOHCoreContext') rnohCoreContext: RNOHCoreContext | undefined = undefined;
   private instance: RNInstance | undefined;
   private receivedInstance: RNInstance | undefined;
   private receivedRootTag: Tag | undefined;
-  private bundlePath = 'bundle.harmony.js'
+  private bundlePath = 'bundle.harmony.js';
   @State isBundleReady: boolean = false;
 
   async aboutToAppear() {
@@ -58,7 +58,7 @@ export struct Index {
       arkTsComponentNames: []
     });
     await this.instance.runJSBundle(new ResourceJSBundleProvider(getContext().resourceManager, this.bundlePath)).then(() => {
-      this.isBundleReady = true
+      this.isBundleReady = true;
     })
 
   }
@@ -70,7 +70,7 @@ export struct Index {
         Row() {
           RNSurface({
             surfaceConfig: {
-              appKey: 'AppO',
+              appKey: 'Hotel_Page',
             },
             ctx: new RNComponentContext(
               RNOHContext.fromCoreContext(this.rnohCoreContext!, this.instance),
@@ -99,7 +99,7 @@ export struct Index {
         Row() {
           RNSurface({
             surfaceConfig: {
-              appKey: 'AppT',
+              appKey: 'Ticket_Page',
             },
             ctx: new RNComponentContext(
               RNOHContext.fromCoreContext(this.rnohCoreContext!, this.instance),

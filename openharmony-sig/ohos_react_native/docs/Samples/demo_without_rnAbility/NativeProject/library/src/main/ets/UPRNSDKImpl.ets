@@ -14,6 +14,7 @@ import { HttpClient, DefaultHttpClient } from "@rnoh/react-native-openharmony/sr
 import { EnvironmentCallback } from '@kit.AbilityKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import common from '@ohos.app.ability.common';
+import window from '@ohos.window';
 
 export class UPRNSDKImpl{
   private context:common.UIAbilityContext | null = null;

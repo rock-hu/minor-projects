@@ -51,7 +51,10 @@ class TextMeasurer : public facebook::react::TextLayoutManagerDelegate {
   void setTextMeasureParams(float m_fontScale, float m_scale, float DPI, bool m_halfleading);
     
   float getDPI(){ return m_DPI; };
-  void registerFont(
+
+    float getScale(){ return m_scale; };
+
+    void registerFont(
     std::weak_ptr<NativeResourceManager> weakResourceManager,
     const std::string name,
     const std::string fontFilePath

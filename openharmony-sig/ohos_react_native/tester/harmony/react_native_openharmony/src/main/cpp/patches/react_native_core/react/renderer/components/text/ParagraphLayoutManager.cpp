@@ -23,7 +23,8 @@ TextMeasurement ParagraphLayoutManager::measure(
         // Value 0.15f is too big to judge freedom multi window , so 0.15f is a better number.
           ((std::abs(layoutConstraints.maximumSize.width - availableWidth_) <= 0.10f) ||
            (std::abs(layoutConstraints.maximumSize.width -
-               cachedTextMeasurement_.size.width) <= 0.10f))) {
+               cachedTextMeasurement_.size.width) <= 0.10f)) &&
+                textLayoutManager_->getScale() == cachedScale_) {
         /* Yoga has requested measurement for this size before. Let's use cached
          * value. `TextLayoutManager` might not have cached this because it could be
          * using different width to generate cache key. This happens because Yoga
@@ -39,7 +40,8 @@ TextMeasurement ParagraphLayoutManager::measure(
         // Value 0.5f is too small to judge, so 0.8f is a better number.
           ((std::abs(layoutConstraints.maximumSize.width - availableWidth_) <= 0.8f) ||
            (std::abs(layoutConstraints.maximumSize.width -
-               cachedTextMeasurement_.size.width) <= 0.8f))) {
+               cachedTextMeasurement_.size.width) <= 0.8f)) &&
+            textLayoutManager_->getScale() == cachedScale_) {
         /* Yoga has requested measurement for this size before. Let's use cached
          * value. `TextLayoutManager` might not have cached this because it could be
          * using different width to generate cache key. This happens because Yoga
@@ -74,6 +76,7 @@ TextMeasurement ParagraphLayoutManager::measure(
         hostTextStorage_);
 
     availableWidth_ = layoutConstraints.maximumSize.width;
+    cachedScale_ = textLayoutManager_->getScale();
 
     return cachedTextMeasurement_;
   } else {
@@ -102,6 +105,7 @@ void ParagraphLayoutManager::resetCache() const {
   // Reset compare parameters
   hash_ = 0;
   availableWidth_ = 0.0f;
+  cachedScale_ = 0.0f;
 }
 
 std::shared_ptr<TextLayoutManager const>

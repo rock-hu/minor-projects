@@ -6,20 +6,52 @@
         <licensefile></licensefile>
         <policylist>
             <policy name="projectPolicy" desc="">
-              <policyitem type="license" name="MIT" path=".*" desc=""/>
-              <policyitem type="copyright" name="Huawei Technologies Co., Ltd." path=".*" rule="may" group="defaultGroup" filefilter="copyrightPolicyFilter" desc=""/>
+                <policyitem type="license" name="MIT" path=".*"
+                    desc="" />
+                <policyitem type="copyright" name="Huawei Technologies Co., Ltd." path=".*"
+                    rule="may" group="defaultGroup" desc="" />
             </policy>
         </policylist>
-        
+
         <filefilterlist>
+            <filefilter name="defaultFilter" desc="">
+                <filteritem type="filename" name="README.OpenSource" />
+                <filteritem type="filename" name="README" />
+                <filteritem type="filename" name="README.md" />
+                <filteritem type="filename" name="README_zh.md" />
+                <filteritem type="filename" name="LICENSE" />
+                <filteritem type="filename" name="LICENSE-MIT" />
+                <filteritem type="filename" name=".eslintrc" />
+                <filteritem type="filename" name=".node-version" />
+                <filteritem type="filename" name=".npmignore" />
+                <filteritem type="filename" name=".npmrc" />
+                <filteritem type="filename" name=".watchmanconfig" />
+                <filteritem type="filename" name=".gitmodules" />
+                <filteritem type="filename" name=".clang-tidy" />
+                <filteritem type="filename" name=".keep" />
+                <filteritem type="filename" name="*.json5" desc="项目工程默认文件，不需要版权头检测" />
+                <filteritem type="filepath" name=".*/android/.*" />
+                <filteritem type="filepath" name=".*/ios/.*" />
+                <filteritem type="filepath" name="docs/.*" />
+                <filteritem type="filepath" name="tester/harmony/react_native_openharmony/src/main/cpp/RNOH/TouchTarget.cpp" />
+                <filteritem type="filepath" name="tester/harmony/react_native_openharmony/src/main/ets/RNOH/RNTypes.ts" />
+                <filteritem type="filepath"
+                    name="tester/harmony/react_native_openharmony/src/main/cpp/third-party/.*" desc="上游社区代码，无需检测" />
+                <filteritem type="filepath"
+                    name="tester/harmony/react_native_openharmony/src/main/cpp/patches/.*" desc="上游社区代码，无需检测" />
+                <filteritem type="filepath" name="react-native-harmony/Libraries/.*" desc="上游社区代码，无需检测" />
+            </filefilter>
             <filefilter name="copyrightPolicyFilter" desc="">
-                <filteritem type="filename" name="README.OpenSource"/>
-                <filteritem type="filename" name="README"/>
-                <filteritem type="filename" name="README.md"/>
-                <filteritem type="filename" name="README_zh.md"/>
-                <filteritem type="filename" name="LICENSE"/>
-                <filteritem type="filename" name="LICENSE-MIT"/>
-                <filteritem type="filepath" name="react-native-harmony/Libraries/.*"/>
+                <filteritem type="filepath" name="tester/benchmarks/stresstest/.*" />
+                <filteritem type="filepath" name=".*/sample_package/src/main/cpp/generated/.*" />+
+            </filefilter>
+            <filefilter name="binaryFileTypePolicyFilter" desc="">
+                <filteritem type="filename" name="rnoh-testerino-.*.tgz" />
+                <filteritem type="filename" name="rnoh-hvigor-plugin-.*.tgz" />
+                <filteritem type="filename" name="*.jpg|*.png|*.ttf" />
+                <filteritem type="filepath" name="tester/android/.*"/>
+                <filteritem type="filepath" name="tester/harmony/react_native_openharmony/src/main/cpp/third-party/.*"/>
+                <filteritem type="filepath" name="tester/harmony/react_native_openharmony/src/main/cpp/patches/.*"/>
             </filefilter>
         </filefilterlist>
     </oatconfig>

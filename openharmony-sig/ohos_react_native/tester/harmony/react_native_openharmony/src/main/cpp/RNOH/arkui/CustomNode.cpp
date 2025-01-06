@@ -47,10 +47,21 @@ CustomNode::CustomNode()
       m_nodeHandle, ARKUI_NODE_CUSTOM_EVENT_ON_MEASURE, 89, userCallback_));
   maybeThrow(NativeNodeApi::getInstance()->registerNodeCustomEvent(
       m_nodeHandle, ARKUI_NODE_CUSTOM_EVENT_ON_LAYOUT, 90, userCallback_));
-  ArkUI_NumberValue value[] = {{.i32 = 1}};
-  ArkUI_AttributeItem item = {.value = value, .size = 1};
+  ArkUI_NumberValue focusValue[] = {{.i32 = 1}};
+  ArkUI_AttributeItem focusItem = {.value = focusValue, .size = 1};
   maybeThrow(NativeNodeApi::getInstance() -> setAttribute(
-    m_nodeHandle, NODE_FOCUSABLE, &item));
+    m_nodeHandle, NODE_FOCUSABLE, &focusItem));
+  /**
+   * This is for 2in1 CustomNode focusing problem, focusing would 
+   * raise the component and setting ZIndex as 2^31-1, which would
+   * setting it at the top to display. 
+   * Setting z-index ahead would preventing focusing drawing to 
+   * set the z-index again. 
+   */
+  ArkUI_NumberValue zIndexValue[] = {{.i32 = 0}};
+  ArkUI_AttributeItem zIndexItem = {.value = zIndexValue, .size = 1};
+  maybeThrow(NativeNodeApi::getInstance() -> setAttribute(
+      m_nodeHandle, NODE_Z_INDEX, &zIndexItem));
 }
 
 void CustomNode::onMeasure(ArkUI_NodeCustomEventType eventType) {

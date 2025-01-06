@@ -34,19 +34,6 @@ export class AlertManagerTurboModule extends TurboModule {
     thirdaryButton: 3,
   }
 
-  private parseButton(button?: string, buttonKey?: number, onAction?: (action: string, buttonKey?: number) => void) {
-    if (button) {
-      return ({
-        value: button,
-        action: () => {
-          onAction?.(this.constants.buttonClicked, buttonKey);
-          onAction = undefined;
-        }
-      })
-    }
-    return undefined;
-  }
-
   getConstants() {
     return this.constants;
   }
@@ -56,9 +43,30 @@ export class AlertManagerTurboModule extends TurboModule {
       {
         const uiContext = value.getUIContext()
 
-        const primaryButton = this.parseButton(options.primaryButton, this.constants.primaryButton, onAction);
-        const secondaryButton = this.parseButton(options.secondaryButton, this.constants.secondaryButton, onAction);
-        const thirdaryButton = this.parseButton(options.thirdaryButton, this.constants.thirdaryButton, onAction);
+        const primaryButton = 
+        options.primaryButton? {
+          value: options.primaryButton,
+          action: () => {
+            onAction?.(this.constants.buttonClicked, this.constants.primaryButton);
+            onAction = undefined;
+          }
+        } : undefined;
+        const secondaryButton = 
+        options.secondaryButton? {
+          value: options.secondaryButton,
+          action: () => {
+            onAction?.(this.constants.buttonClicked, this.constants.secondaryButton);
+            onAction = undefined;
+          }
+        } : undefined;
+        const thirdaryButton = 
+        options.thirdaryButton? {
+          value: options.thirdaryButton,
+          action: () => {
+            onAction?.(this.constants.buttonClicked, this.constants.thirdaryButton);
+            onAction = undefined;
+          }
+        } : undefined;
         const buttons = [primaryButton, secondaryButton, thirdaryButton];
 
         const alertParams = {
@@ -67,7 +75,8 @@ export class AlertManagerTurboModule extends TurboModule {
           autoCancel: options.cancelable,
           buttons: buttons,
           cancel: () => {
-            onAction(this.constants.dismissed);
+            onAction?.(this.constants.dismissed);
+            onAction = undefined;
           },
         }
         uiContext.showAlertDialog(alertParams)

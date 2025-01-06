@@ -71,12 +71,6 @@
                 "type": {
                   "_": "StringType"
                 }
-              },
-              {
-                "name": "readFileSync",
-                "type": {
-                  "_": "UnknownType"
-                }
               }
             ],
             "cfg": {
@@ -2121,7 +2115,15 @@
               }
             ],
             "returnType": {
-              "_": "UnknownType"
+              "_": "ClassType",
+              "signature": {
+                "declaringFile": {
+                  "fileName": "sample.ts",
+                  "projectName": "save"
+                },
+                "declaringNamespace": null,
+                "name": "Student"
+              }
             }
           },
           "modifiers": 0,
@@ -3756,7 +3758,15 @@
               }
             ],
             "returnType": {
-              "_": "UnknownType"
+              "_": "ClassType",
+              "signature": {
+                "declaringFile": {
+                  "fileName": "sample.ts",
+                  "projectName": "save"
+                },
+                "declaringNamespace": null,
+                "name": "Circle"
+              }
             }
           },
           "modifiers": 0,
@@ -3982,12 +3992,6 @@
                     },
                     "declaringNamespace": null
                   }
-                }
-              },
-              {
-                "name": "Math",
-                "type": {
-                  "_": "UnknownType"
                 }
               },
               {
@@ -4282,12 +4286,6 @@
                     },
                     "declaringNamespace": null
                   }
-                }
-              },
-              {
-                "name": "Math",
-                "type": {
-                  "_": "UnknownType"
                 }
               },
               {

@@ -8,3 +8,4 @@
 export * from './DeepTree';
 export * from './Benchmarker';
 export * from './SierpinskiTriangle';
+export * from './stresstest/StressTest';

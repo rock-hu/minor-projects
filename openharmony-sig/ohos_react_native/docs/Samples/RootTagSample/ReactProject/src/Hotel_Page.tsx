@@ -5,18 +5,17 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-
 import React, { useContext, useState } from 'react';
 import { Text, View, DeviceEventEmitter, RootTagContext } from 'react-native';
 
-const App = () => {
-  const rootTag = useContext(RootTagContext)
-  const [msg, setMsg] = useState('')
+const Hotel_Page = () => {
+  const rootTag = useContext(RootTagContext);
+  const [msg, setMsg] = useState('');
   DeviceEventEmitter.addListener('clickEvent', e => {
-    setMsg(`The message was ${e.params.rootTag === rootTag ? '' : 'not'} sent to me.`)
+    setMsg(`The message was ${e.params.rootTag === rootTag ? '' : 'not'} sent to me.`);
     const timer = setTimeout(() => {
-      setMsg('')
-      clearTimeout(timer)
+      setMsg('');
+      clearTimeout(timer);
     }, 1000)
   })
   return (
@@ -27,4 +26,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default Hotel_Page;

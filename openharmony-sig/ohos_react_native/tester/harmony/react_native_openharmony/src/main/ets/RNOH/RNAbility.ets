@@ -94,7 +94,6 @@ export abstract class RNAbility extends UIAbility {
   onCreate(want: Want) {
     this.logger = this.createLogger().clone("RNAbility")
     this.rnInstancesCoordinator = RNInstancesCoordinator.create({
-      fontSizeScale: this.context.config.fontSizeScale,
       logger: this.createLogger(),
       uiAbilityContext: this.context,
       defaultBackPressHandler: () => {
@@ -137,6 +136,7 @@ export abstract class RNAbility extends UIAbility {
     try {
       await this.onPrepareRNInstance(AppStorage.get<RNOHCoreContext>('RNOHCoreContext')!)
       const mainWindow = await windowStage.getMainWindow();
+      this.rnInstancesCoordinator?.setMainWindow(mainWindow);
       const onWindowSizeChange = (windowSize: window.Size) => {
         this.rnInstancesCoordinator?.onWindowSizeChange(windowSize)
       }

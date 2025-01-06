@@ -34,12 +34,15 @@ const defaultDisplayMetrics: DisplayMetrics = {
  */
 export class DisplayMetricsManager {
   private displayMetrics: DisplayMetrics = defaultDisplayMetrics;
-  private fontSizeScale: number
   private logger: RNOHLogger
+  private mainWindow: window.Window
 
-  constructor(fontSizeScale: number, logger: RNOHLogger) {
-    this.fontSizeScale = fontSizeScale;
+  constructor(logger: RNOHLogger) {
     this.logger = logger.clone("DisplayMetricsManager");
+  }
+
+  public setMainWindow(mainWindow: window.Window) {
+    this.mainWindow = mainWindow;
   }
 
   public getFoldStatus():display.FoldStatus{
@@ -50,33 +53,42 @@ export class DisplayMetricsManager {
     return AppStorage.get("isSplitScreenMode") ?? false
   }
 
+  public setFontSizeScale(fontSizeScale: number){
+    this.displayMetrics.screenPhysicalPixels.fontScale = fontSizeScale;
+    this.displayMetrics.windowPhysicalPixels.fontScale = fontSizeScale;
+    this.updateDisplayMetrics()
+  }
+
   public getFontSizeScale():number{
-    return this.fontSizeScale
+    return this.displayMetrics.windowPhysicalPixels.fontScale
   }
 
   public updateWindowSize(windowSize: window.Size | window.Rect) {
     this.displayMetrics.windowPhysicalPixels.height = windowSize.height;
     this.displayMetrics.windowPhysicalPixels.width = windowSize.width;
-    this.updateDisplayMetrics(this.fontSizeScale)
+    this.updateDisplayMetrics()
   }
 
-  public updateDisplayMetrics( fontSizeScale: number ) {
+  public updateDisplayMetrics() {
     try {
-      const displayInstance = display.getDefaultDisplaySync();
-      this.fontSizeScale = fontSizeScale;
+      const windowDisplayId = this.mainWindow.getWindowProperties().displayId;
+      if (windowDisplayId == undefined) {
+        throw new Error("windowDisplayId is undefined!");
+      }
+      const displayInstance = display.getDisplayByIdSync(windowDisplayId);
       this.displayMetrics = {
         screenPhysicalPixels: {
           width: displayInstance.width,
           height: displayInstance.height,
           scale: displayInstance.densityPixels,
-          fontScale: this.fontSizeScale,
+          fontScale: this.displayMetrics.screenPhysicalPixels.fontScale,
           densityDpi: displayInstance.densityDPI,
         },
         windowPhysicalPixels: {
           width: this.displayMetrics.windowPhysicalPixels.width,
           height: this.displayMetrics.windowPhysicalPixels.height,
           scale: displayInstance.densityPixels,
-          fontScale: this.fontSizeScale,
+          fontScale: this.displayMetrics.windowPhysicalPixels.fontScale,
           densityDpi: displayInstance.densityDPI,
         }
       };

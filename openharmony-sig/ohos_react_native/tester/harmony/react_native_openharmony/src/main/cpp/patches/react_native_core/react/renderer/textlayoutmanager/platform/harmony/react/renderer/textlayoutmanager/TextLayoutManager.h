@@ -34,6 +34,7 @@ class TextLayoutManagerDelegate {
                                     ParagraphAttributes const& paragraphAttributes,
                                     LayoutConstraints const& layoutConstraints) = 0;
     virtual float getDPI() = 0;
+    virtual float getScale() = 0;
 };
 
 /*
@@ -62,6 +63,8 @@ class TextLayoutManager {
         std::shared_ptr<void> hostTextStorage) const;
     
     float getDPI() const;
+
+    float getScale() const;
 
     /*
    * Measures lines of `attributedString` using native text rendering

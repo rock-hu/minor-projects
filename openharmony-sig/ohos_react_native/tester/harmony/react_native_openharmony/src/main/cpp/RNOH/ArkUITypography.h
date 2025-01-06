@@ -176,6 +176,11 @@ class ArkUITypographyBuilder final {
     return m_styledString.get();
   }
 
+    float getScale()
+    {
+        return m_scale;
+    }
+
  private:
   float m_scale;
   bool m_halfleading;

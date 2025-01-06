@@ -8,7 +8,7 @@
     "postinstall": "node ./scripts/create-build-profile && npm run reinstall:react_native_harmony && npm run reinstall:react_native_harmony_sample_package",
     "reinstall:react_native_harmony": "npm uninstall react-native-harmony && npm run pack_react_native_harmony && npm run install:react_native_harmony",
     "reinstall:react_native_harmony_sample_package": "npm uninstall react-native-harmony-sample-package && npm run pack_react_native_harmony_sample_package && npm run install:react_native_harmony_sample_package",
-    "install:react_native_harmony": "npm i react-native-harmony@file:../react-native-harmony/rnoh-react-native-harmony-0.72.49.tgz",
+    "install:react_native_harmony": "npm i react-native-harmony@file:../react-native-harmony/rnoh-react-native-harmony-0.72.50.tgz",
     "install:react_native_harmony_sample_package": "npm i ../react-native-harmony-sample-package/react-native-harmony-sample-package-1.0.0.tgz",
     "pack_react_native_harmony": "cd ../react-native-harmony && npm pack && cd ../tester",
     "pack_react_native_harmony_sample_package": "cd ../react-native-harmony-sample-package && npm run codegen-lib && npm pack && cd ../tester",
@@ -17,6 +17,7 @@
     "dev:rn": "npm i && npm run dev",
     "dev": "npm run codegen && react-native bundle-harmony --dev --minify=false",
     "prod": "npm run codegen && react-native bundle-harmony --dev=false --minify=true",
+    "prod:hbc": "npm run codegen && react-native bundle-harmony --dev=false --minify=true --bundle-output /tmp/bundle.harmony.js && hermesc --emit-binary /tmp/bundle.harmony.js -out ./harmony/entry/src/main/resources/rawfile/hermes_bundle.hbc",
     "dev:hbc": "npm run codegen && react-native bundle-harmony --dev --bundle-output /tmp/bundle.harmony.js && hermesc --emit-binary /tmp/bundle.harmony.js -out ./harmony/entry/src/main/resources/rawfile/hermes_bundle.hbc",
     "dev:multi_surface": "react-native codegen-harmony --rnoh-module-path ./harmony/react_native_openharmony --cpp-output-path ./harmony/multi_surface/src/main/cpp/generated  && react-native bundle-harmony --dev --bundle-output './harmony/multi_surface/src/main/resources/rawfile/bundle.harmony.js' --assets-dest './harmony/multi_surface/src/main/resources/rawfile/assets'",
     "android": "react-native run-android",
@@ -44,7 +45,7 @@
     "react": "18.2.0",
     "react-native": "0.72.5",
     "react-native-flipper-performance-plugin": "^0.4.0",
-    "react-native-harmony": "file:../react-native-harmony/rnoh-react-native-harmony-0.72.49.tgz",
+    "react-native-harmony": "file:../react-native-harmony/rnoh-react-native-harmony-0.72.50.tgz",
     "react-native-harmony-sample-package": "file:../react-native-harmony-sample-package/react-native-harmony-sample-package-1.0.0.tgz"
   },
   "devDependencies": {

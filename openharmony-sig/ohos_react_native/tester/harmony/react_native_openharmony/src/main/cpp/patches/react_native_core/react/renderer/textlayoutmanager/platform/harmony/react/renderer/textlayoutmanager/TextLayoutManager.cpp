@@ -37,6 +37,14 @@ float  TextLayoutManager::getDPI() const{
     }
 }
 
+float  TextLayoutManager::getScale() const
+{
+    if (m_textLayoutManagerDelegate != nullptr)
+    {
+        return m_textLayoutManagerDelegate->getScale();
+    }
+}
+
 LinesMeasurements TextLayoutManager::measureLines(
     AttributedString attributedString,
     ParagraphAttributes paragraphAttributes,

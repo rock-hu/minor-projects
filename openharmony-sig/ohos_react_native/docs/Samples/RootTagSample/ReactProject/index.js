@@ -6,8 +6,8 @@
  */
 
 import {AppRegistry} from 'react-native';
-import AppO from './src/AppO';
-import AppT from './src/AppT';
+import Hotel_Page from './src/Hotel_Page';
+import Ticket_Page from './src/Ticket_Page';
 
-AppRegistry.registerComponent('AppO', () => AppO);
-AppRegistry.registerComponent('AppT', () => AppT);
+AppRegistry.registerComponent('Hotel_Page', () => Hotel_Page);
+AppRegistry.registerComponent('Ticket_Page', () => Ticket_Page);

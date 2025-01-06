@@ -106,10 +106,6 @@ export class JsonPrinter extends Printer {
         return JSON.stringify(jsonObject, null, 2);
     }
 
-    public dumpOriginal(): string {
-        return '';
-    }
-
     private serializeArkFile(file: ArkFile): object {
         return {
             signature: this.serializeFileSignature(file.getFileSignature()),
@@ -598,7 +594,7 @@ export class JsonPrinter extends Printer {
         } else if (stmt instanceof ArkIfStmt) {
             return {
                 _: 'IfStmt',
-                condition: this.serializeValue(stmt.getConditionExprExpr()),
+                condition: this.serializeValue(stmt.getConditionExpr()),
             };
         } else if (stmt instanceof ArkReturnVoidStmt) {
             return {
