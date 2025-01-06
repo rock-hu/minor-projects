@@ -193,9 +193,11 @@ void EcmaVM::InitializeForJit(JitThread *jitThread)
 
 void EcmaVM::InitializePGOProfiler()
 {
+    LOG_PGO(INFO) << "initialize pgo profiler, pgo is enable: " << IsEnablePGOProfiler()
+                  << ", is worker: " << options_.IsWorker() << ", profiler: " << pgoProfiler_;
     bool isEnablePGOProfiler = IsEnablePGOProfiler();
     if (pgoProfiler_ == nullptr) {
-        pgoProfiler_ = PGOProfilerManager::GetInstance()->Build(this, isEnablePGOProfiler);
+        pgoProfiler_ = PGOProfilerManager::GetInstance()->BuildProfiler(this, isEnablePGOProfiler);
     }
     pgo::PGOTrace::GetInstance()->SetEnable(options_.GetPGOTrace() || ohos::AotTools::GetPgoTraceEnable());
     thread_->SetPGOProfilerEnable(isEnablePGOProfiler);
@@ -215,6 +217,7 @@ void EcmaVM::DisablePGOProfilerWithAOTFile(const std::string &aotFileName)
 {
     if (AOTFileManager::AOTFileExist(aotFileName, AOTFileManager::FILE_EXTENSION_AN) ||
         AOTFileManager::AOTFileExist(aotFileName, AOTFileManager::FILE_EXTENSION_AI)) {
+        LOG_PGO(INFO) << "disable pgo profiler due to aot file exist: " << aotFileName;
         options_.SetEnablePGOProfiler(false);
         PGOProfilerManager::GetInstance()->SetDisablePGO(true);
         ResetPGOProfiler();
@@ -666,9 +669,9 @@ void EcmaVM::CollectGarbage(TriggerGCType gcType, panda::ecmascript::GCReason re
     heap_->CollectGarbage(gcType, reason);
 }
 
-void EcmaVM::Iterate(const RootVisitor &v, const RootRangeVisitor &rv, VMRootVisitType type)
+void EcmaVM::Iterate(RootVisitor &v, VMRootVisitType type)
 {
-    rv(Root::ROOT_VM, ObjectSlot(ToUintPtr(&internalNativeMethods_.front())),
+    v.VisitRangeRoot(Root::ROOT_VM, ObjectSlot(ToUintPtr(&internalNativeMethods_.front())),
         ObjectSlot(ToUintPtr(&internalNativeMethods_.back()) + JSTaggedValue::TaggedTypeSize()));
     if (!WIN_OR_MAC_OR_IOS_PLATFORM && snapshotEnv_!= nullptr) {
         snapshotEnv_->Iterate(v, type);

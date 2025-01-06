@@ -38,13 +38,16 @@ namespace ecmascript {
     V(Finish)                            \
     V(UpdateReference)                   \
     V(EvacuateSpace)                     \
+    V(SweepNewToOldRegions)              \
+    V(Finalize)                          \
     V(SuspendAll)                        \
     V(ResumeAll)                         \
     V(ProceeWorkload)                    \
     V(UpdateRoot)                        \
     V(UpdateWeekRef)                     \
     V(EvacuateRegion)                    \
-    V(WaitFinish)
+    V(WaitFinish)                        \
+    V(InvokeNativeFinalizeCallbacks)
 
 #define RECORD_DATA(V)                   \
     V(START_OBJ_SIZE)                    \

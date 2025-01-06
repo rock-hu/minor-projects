@@ -26,9 +26,14 @@
     for (let v1 = 0; v1 < 10000; v1++) {
         v0 = new Proxy(v0, {});
     }
+    let error = new Error();
     try {
         new v0(0);
-    } catch (error) {
-        print(error);
+    } catch (e) {
+        error = e;
     }
+    assert_equal(error.name, "RangeError");
+    assert_equal(error.message, "Stack overflow!");
 }
+
+test_end();

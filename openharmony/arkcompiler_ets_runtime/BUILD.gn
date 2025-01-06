@@ -290,7 +290,10 @@ config("hiviewdfx_config") {
     defines += [ "ENABLE_HILOG" ]
   }
   if (enable_hisysevent) {
-    defines += [ "ENABLE_HISYSEVENT" ]
+    defines += [
+      "ENABLE_HISYSEVENT",
+      "ENABLE_UCOLLECTION",
+    ]
   }
   if (enable_unwinder) {
     defines += [ "ENABLE_UNWINDER" ]
@@ -873,7 +876,6 @@ ecma_source = [
   "ecmascript/mem/thread_local_allocation_buffer.cpp",
   "ecmascript/mem/verification.cpp",
   "ecmascript/mem/work_space_chunk.cpp",
-  "ecmascript/mem/work_manager.cpp",
   "ecmascript/mem/allocation_inspector.cpp",
   "ecmascript/mem/jit_fort.cpp",
   "ecmascript/module/js_module_manager.cpp",
@@ -906,6 +908,8 @@ ecma_source = [
   "ecmascript/pgo_profiler/pgo_profiler_layout.cpp",
   "ecmascript/pgo_profiler/pgo_profiler_manager.cpp",
   "ecmascript/pgo_profiler/pgo_utils.cpp",
+  "ecmascript/pgo_profiler/pgo_state.cpp",
+  "ecmascript/pgo_profiler/pgo_info.cpp",
   "ecmascript/pgo_profiler/ap_file/pgo_method_type_set.cpp",
   "ecmascript/pgo_profiler/types/pgo_profile_type.cpp",
   "ecmascript/property_accessor.cpp",
@@ -1084,6 +1088,7 @@ if (is_mingw) {
     "ecmascript/platform/windows/time.cpp",
     "ecmascript/platform/windows/log.cpp",
     "ecmascript/platform/windows/aot_crash_info.cpp",
+    "ecmascript/platform/windows/dfx_hisys_event.cpp",
   ]
 } else {
   ecma_platform_source += [
@@ -1098,6 +1103,7 @@ if (is_mingw) {
       "ecmascript/platform/unix/mac/os.cpp",
       "ecmascript/platform/unix/mac/backtrace.cpp",
       "ecmascript/platform/unix/mac/log.cpp",
+      "ecmascript/platform/unix/mac/dfx_hisys_event.cpp",
     ]
   } else if (target_os == "ios") {
     ecma_platform_source += [
@@ -1105,6 +1111,7 @@ if (is_mingw) {
       "ecmascript/platform/unix/mac/backtrace.cpp",
       "ecmascript/platform/common/dfx_crash_obj.cpp",
       "ecmascript/platform/common/log.cpp",
+      "ecmascript/platform/unix/mac/dfx_hisys_event.cpp",
     ]
   } else if (is_ohos || target_os == "android") {
     ecma_platform_source += [
@@ -1112,6 +1119,7 @@ if (is_mingw) {
       "ecmascript/platform/unix/ohos/backtrace.cpp",
       "ecmascript/platform/common/log.cpp",
       "ecmascript/platform/unix/ohos/memory.cpp",
+      "ecmascript/platform/unix/ohos/dfx_hisys_event.cpp",
     ]
 
     if (is_ohos && !ark_standalone_build &&
@@ -1128,6 +1136,7 @@ if (is_mingw) {
       "ecmascript/platform/common/dfx_crash_obj.cpp",
       "ecmascript/platform/common/log.cpp",
       "ecmascript/platform/unix/linux/memory.cpp",
+      "ecmascript/platform/unix/linux/dfx_hisys_event.cpp",
     ]
   } else {
     print("Invalid os!")

@@ -61,6 +61,10 @@ class AccessibilityElementInfo;
 class AccessibilityEventInfo;
 } // namespace OHOS::Accessibility
 
+namespace OHOS::Ace::Kit {
+class FrameNode;
+}
+
 namespace OHOS::Ace::NG {
 class InspectorFilter;
 class PipelineContext;
@@ -483,7 +487,7 @@ public:
 
     std::pair<OffsetF, bool> GetPaintRectGlobalOffsetWithTranslate(bool excludeSelf = false) const;
 
-    OffsetF GetPaintRectOffsetToPage() const;
+    OffsetF GetPaintRectOffsetToStage() const;
 
     RectF GetPaintRectWithTransform() const;
 
@@ -1143,6 +1147,10 @@ public:
     void AddExtraCustomProperty(const std::string& key, void* extraData);
     void* GetExtraCustomProperty(const std::string& key) const;
     void RemoveExtraCustomProperty(const std::string& key);
+    bool GetCustomPropertyByKey(const std::string& key, std::string& value);
+    void AddNodeDestroyCallback(const std::string& callbackKey, std::function<void()>&& callback);
+    void RemoveNodeDestroyCallback(const std::string& callbackKey);
+    void FireOnExtraNodeDestroyCallback();
 
     LayoutConstraintF GetLayoutConstraint() const;
 
@@ -1167,6 +1175,8 @@ public:
 
     void MarkDirtyWithOnProChange(PropertyChangeFlag extraFlag);
     void OnPropertyChangeMeasure() const;
+
+    void SetKitNode(const RefPtr<Kit::FrameNode>& node);
 
     void SetVisibleAreaChangeTriggerReason(VisibleAreaChangeTriggerReason triggerReason)
     {
@@ -1453,6 +1463,8 @@ private:
 
     std::unordered_map<std::string, void*> extraCustomPropertyMap_;
 
+    std::map<std::string, std::function<void()>> destroyCallbacks_;
+
     RefPtr<Recorder::ExposureProcessor> exposureProcessor_;
 
     std::pair<uint64_t, OffsetF> cachedGlobalOffset_ = { 0, OffsetF() };
@@ -1479,6 +1491,8 @@ private:
     friend class Pattern;
     mutable std::shared_mutex fontSizeCallbackMutex_;
     mutable std::shared_mutex colorModeCallbackMutex_;
+
+    RefPtr<Kit::FrameNode> kitNode_;
     ACE_DISALLOW_COPY_AND_MOVE(FrameNode);
 };
 } // namespace OHOS::Ace::NG

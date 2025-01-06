@@ -228,6 +228,8 @@ enum CommandValues {
     OPTION_ENABLE_JIT_VERIFY_PASS,
     OPTION_COMPILER_AN_FILE_MAX_SIZE,
     OPTION_COMPILER_TRACE_BUILTINS,
+    OPTION_ENABLE_HEAP_VERIFY,
+    OPTION_COMPILER_ENABLE_DFX_HISYS_EVENT,
 };
 static_assert(OPTION_INVALID == 63); // Placeholder for invalid options
 static_assert(OPTION_SPLIT_ONE == 64); // add new option at the bottom, DO NOT modify this value
@@ -403,9 +405,8 @@ public:
         return enableEdenGC_;
     }
 
-    void SetEnableEdenGC(bool value)
+    void SetEnableEdenGC([[maybe_unused]] bool value)
     {
-        enableEdenGC_ = value;
     }
 
     bool ForceFullGC() const
@@ -426,6 +427,11 @@ public:
     uint32_t GetForceSharedGCFrequency() const
     {
         return forceSharedGc_;
+    }
+
+    void SetEnableHeapVerify(bool value)
+    {
+        enableHeapVerify_ = value;
     }
 
     void SetGcThreadNum(size_t num)
@@ -637,7 +643,7 @@ public:
 
     bool EnableHeapVerify() const
     {
-        return (static_cast<uint32_t>(arkProperties_) & ArkProperties::ENABLE_HEAP_VERIFY) != 0;
+        return enableHeapVerify_ && (static_cast<uint32_t>(arkProperties_) & ArkProperties::ENABLE_HEAP_VERIFY) != 0;
     }
 
     bool EnableMicroJobTrace() const
@@ -1267,6 +1273,16 @@ public:
     bool IsEnableJIT() const
     {
         return enableFastJIT_;
+    }
+
+    void SetEnableDFXHiSysEvent(bool value)
+    {
+        enableDFXHiSysEvent_ = value;
+    }
+
+    bool IsEnableDFXHiSysEvent() const
+    {
+        return enableDFXHiSysEvent_;
     }
 
     void SetEnableAPPJIT(bool value)
@@ -2147,6 +2163,7 @@ private:
     bool enableForceGc_ {true};
     bool enableEdenGC_ {false};
     bool forceFullGc_ {true};
+    bool enableHeapVerify_ {true};
     uint32_t forceSharedGc_ {1};
     int32_t deviceThermalLevel_ {0};
     int arkProperties_ = GetDefaultProperties();
@@ -2207,6 +2224,7 @@ private:
     bool enableOptInlining_ {true};
     bool enableOptPGOType_ {true};
     bool enableFastJIT_ {false};
+    bool enableDFXHiSysEvent_ {true};
     bool enableAPPJIT_ {false};
     bool isEnableJitDfxDump_ {false};
     bool enableOSR_ {false};
@@ -2294,7 +2312,7 @@ private:
     bool enableInlinePropertyOptimization_ {NEXT_OPTIMIZATION_BOOL};
     bool storeBarrierOpt_ {true};
     uint64_t CompilerAnFileMaxByteSize_ {0_MB};
-    bool enableJitVerifyPass_ {false};
+    bool enableJitVerifyPass_ {true};
     bool enableLocalHandleLeakDetect_ {false};
 };
 } // namespace panda::ecmascript

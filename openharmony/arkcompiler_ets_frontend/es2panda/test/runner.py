@@ -1026,6 +1026,10 @@ class CompilerProjectTest(Test):
                 self.flags.append("--merge-abc")
 
         es2abc_cmd = self.gen_es2abc_cmd(runner, '@' + self.files_info_path, output_abc_name)
+        if "--cache-file" in self.flags and len(self.test_paths) == 1:
+            es2abc_cmd = self.gen_es2abc_cmd(runner, self.test_paths[0], output_abc_name)
+        else:
+            es2abc_cmd = self.gen_es2abc_cmd(runner, '@' + self.files_info_path, output_abc_name)
         compile_context_info_path = path.join(path.join(self.projects_path, self.project), "compileContextInfo.json")
         if path.exists(compile_context_info_path):
             es2abc_cmd.append("%s%s" % ("--compile-context-info=", compile_context_info_path))
@@ -1753,7 +1757,7 @@ class ArkJsVmDownload:  # Obtain different versions of ark_js_vm and their depen
             return -1
 
     def git_clone(self, git_url, code_dir):
-        cmd = ["git", "clone", git_url, code_dir]
+        cmd = ["git", "clone", git_url, code_dir, "--depth=1"]
         retries = 1
         while retries <= self.max_retries:
             ret = self.run_cmd_cwd(cmd)
@@ -1937,7 +1941,7 @@ class TestAbcVersionControl(Test):
 
     def run_process(self, cmd):
         self.process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdout, stderr = self.process.communicate(timeout=10)
+        stdout, stderr = self.process.communicate()
         self.output = stdout.decode("utf-8", errors="ignore") + stderr.decode("utf-8", errors="ignore").split("\n")[0]
         if stderr:
             stderr = "Error executing command: %s\n%s" % (cmd, stderr)
@@ -2645,6 +2649,8 @@ def add_directory_for_compiler(runners, args):
     compiler_test_infos.append(CompilerTestInfo("compiler/js/module-record-field-name-option.js", "js",
                                                 ["--module", "--module-record-field-name=abc"]))
     compiler_test_infos.append(CompilerTestInfo("compiler/annotations", "ts", ["--module", "--enable-annotations"]))
+    compiler_test_infos.append(CompilerTestInfo("compiler/generateCache-projects", "ts",
+                                                ["--merge-abc", "--file-threads=0", "--cache-file"]))
     # Following directories of test cases are for dump-assembly comparison only, and is not executed.
     # Check CompilerProjectTest for more details.
     compiler_test_infos.append(CompilerTestInfo("optimizer/ts/branch-elimination/projects", "ts",

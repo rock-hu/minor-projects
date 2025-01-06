@@ -3271,11 +3271,12 @@ HWTEST_F_L0(EcmaModuleTest, ReplaceModuleThroughFeature1)
 {
     auto vm = thread->GetEcmaVM();
     CString moduleName = "a";
+    CString mockName = "a_mock";
     std::map<std::string, std::string> list;
-    list.emplace(moduleName, moduleName);
+    list.emplace(moduleName, mockName);
     vm->SetMockModuleList(list);
-    CString res = ModuleResolver::ReplaceModuleThroughFeature(thread, moduleName);
-    EXPECT_EQ(res, moduleName);
+    ModuleResolver::ReplaceModuleThroughFeature(thread, moduleName);
+    EXPECT_EQ(moduleName, mockName);
 }
 
 HWTEST_F_L0(EcmaModuleTest, ReplaceModuleThroughFeature2)
@@ -3284,12 +3285,12 @@ HWTEST_F_L0(EcmaModuleTest, ReplaceModuleThroughFeature2)
     CString moduleName = "a";
     std::vector<panda::HmsMap> map;
     HmsMap tmp;
-    tmp.targetPath = "a";
+    tmp.targetPath = "a_target";
     tmp.originalPath = "a";
     map.push_back(tmp);
     vm->SetHmsModuleList(map);
-    CString res = ModuleResolver::ReplaceModuleThroughFeature(thread, moduleName);
-    EXPECT_EQ(res, moduleName);
+    ModuleResolver::ReplaceModuleThroughFeature(thread, moduleName);
+    EXPECT_EQ(moduleName, tmp.targetPath.c_str());
 }
 
 HWTEST_F_L0(EcmaModuleTest, CheckResolvedBinding)
@@ -4217,5 +4218,29 @@ HWTEST_F_L0(EcmaModuleTest, ModuleStatusOrder)
     EXPECT_EQ(static_cast<int>(ModuleStatus::EVALUATING_ASYNC), 0x05);
     EXPECT_EQ(static_cast<int>(ModuleStatus::EVALUATED), 0x06);
     EXPECT_EQ(static_cast<int>(ModuleStatus::ERRORED), 0x07);
+}
+
+HWTEST_F_L0(EcmaModuleTest, FindOhpmEntryPoint)
+{
+    CString baseFilename = "merge.abc";
+    const char *data = R"(
+        .language ECMAScript
+        .function any func_main_0(any a0, any a1, any a2) {
+            ldai 1
+            return
+        }
+    )";
+    JSPandaFileManager *pfManager = JSPandaFileManager::GetInstance();
+    Parser parser;
+    auto res = parser.Parse(data);
+    std::unique_ptr<const File> pfPtr = pandasm::AsmEmitter::Emit(res.Value());
+    std::shared_ptr<JSPandaFile> pf = pfManager->NewJSPandaFile(pfPtr.release(), baseFilename);
+
+    //test requestName is empty string
+    CString ohpmPath = "pkg_modules/0";
+    CString requestName = "";
+    CString result = "";
+    CString entryPoint = ModulePathHelper::FindOhpmEntryPoint(pf.get(), ohpmPath, requestName);
+    EXPECT_EQ(entryPoint, result);
 }
 }  // namespace panda::test

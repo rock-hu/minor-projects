@@ -21,7 +21,7 @@ namespace panda::ecmascript {
  * unified format.
  */
 CString ModulePathHelper::ConcatFileNameWithMerge(JSThread *thread, const JSPandaFile *jsPandaFile,
-    CString &baseFileName, CString recordName, CString requestName)
+    CString &baseFileName, const CString &recordName, const CString &requestName)
 {
     if (StringHelper::StringStartWith(requestName, PREFIX_NORMALIZED_NOT_CROSS_HAP_FILE)) {
         return requestName.substr(PREFIX_NORMALIZED_LEN);
@@ -469,7 +469,9 @@ CString ModulePathHelper::FindOhpmEntryPoint(const JSPandaFile *jsPandaFile,
 {
     CVector<CString> vec;
     StringHelper::SplitString(requestName, vec, 0);
-    ASSERT(vec.size() > 0);
+    if (vec.empty()) {
+        return CString();
+    }
     size_t maxIndex = vec.size() - 1;
     CString ohpmKey;
     size_t index = 0;

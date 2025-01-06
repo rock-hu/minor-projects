@@ -99,7 +99,8 @@ class JitThread;
 
 using NativePtrGetter = void* (*)(void* info);
 using SourceMapCallback = std::function<std::string(const std::string& rawStack)>;
-using SourceMapTranslateCallback = std::function<bool(std::string& url, int& line, int& column)>;
+using SourceMapTranslateCallback = std::function<bool(std::string& url, int& line, int& column,
+    std::string &packageName)>;
 using ResolveBufferCallback =
     std::function<bool(std::string dirPath, uint8_t **buff, size_t *buffSize, std::string &errorMsg)>;
 using UnloadNativeModuleCallback = std::function<bool(const std::string &moduleKey)>;
@@ -108,7 +109,7 @@ using RequestAotCallback =
 using SearchHapPathCallBack = std::function<bool(const std::string moduleName, std::string &hapPath)>;
 using DeviceDisconnectCallback = std::function<bool()>;
 using UncatchableErrorHandler = std::function<void(panda::TryCatch&)>;
-using OnAllErrorCallback = std::function<void(Local<ObjectRef> value, void *data)>;
+using OnErrorCallback = std::function<void(Local<ObjectRef> value, void *data)>;
 using StopPreLoadSoCallback = std::function<void()>;
 
 class EcmaVM {
@@ -248,7 +249,7 @@ public:
         return optionalLogEnabled_;
     }
 
-    void Iterate(const RootVisitor &v, const RootRangeVisitor &rv, VMRootVisitType type);
+    void Iterate(RootVisitor &v, VMRootVisitType type);
 
     const Heap *GetHeap() const
     {
@@ -364,20 +365,20 @@ public:
         concurrentData_ = data;
     }
 
-    void SetOnAllErrorCallback(OnAllErrorCallback callback, void* data)
+    void SetOnErrorCallback(OnErrorCallback callback, void* data)
     {
-        onAllErrorCallback_ = callback;
-        onAllErrorData_ = data;
+        onErrorCallback_ = callback;
+        onErrorData_ = data;
     }
 
-    OnAllErrorCallback GetOnAllErrorCallback()
+    OnErrorCallback GetOnErrorCallback()
     {
-        return onAllErrorCallback_;
+        return onErrorCallback_;
     }
 
     void* GetOnAllData()
     {
-        return onAllErrorData_;
+        return onErrorData_;
     }
     
     void SetStopPreLoadSoCallback(const StopPreLoadSoCallback &cb)
@@ -924,9 +925,9 @@ private:
     ConcurrentCallback concurrentCallback_ {nullptr};
     void *concurrentData_ {nullptr};
 
-    // AllError callback
-    OnAllErrorCallback onAllErrorCallback_ {nullptr};
-    void *onAllErrorData_ {nullptr};
+    // Error callback
+    OnErrorCallback onErrorCallback_ {nullptr};
+    void *onErrorData_ {nullptr};
 
     // serch happath callback
     SearchHapPathCallBack SearchHapPathCallBack_ {nullptr};

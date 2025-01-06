@@ -4576,9 +4576,9 @@ void JSNApi::PrintExceptionInfo(const EcmaVM *vm)
     ThrowException(vm, exception);
 }
 
-void JSNApi::SetOnAllErrorCallbackForThread(EcmaVM *vm, OnAllErrorCallback cb, void* data)
+void JSNApi::SetOnErrorCallback(EcmaVM *vm, OnErrorCallback cb, void* data)
 {
-    vm->SetOnAllErrorCallback(cb, data);
+    vm->SetOnErrorCallback(cb, data);
 }
 
 #if defined(ECMASCRIPT_SUPPORT_DEBUGGER) && !defined(PANDA_TARGET_IOS)
@@ -5419,6 +5419,7 @@ void JSNApi::PostFork(EcmaVM *vm, const RuntimeOption &option)
     JSRuntimeOptions &jsOption = vm->GetJSOptions();
     jsOption.SetEnablePGOProfiler(option.GetEnableProfile());
     jsOption.SetEnableJIT(option.GetEnableJIT());
+    jsOption.SetEnableDFXHiSysEvent(true);
     jsOption.SetEnableBaselineJIT(option.GetEnableBaselineJIT());
     jsOption.SetMaxAotMethodSize(JSRuntimeOptions::MAX_APP_COMPILE_METHOD_SIZE);
     ecmascript::pgo::PGOProfilerManager::GetInstance()->SetBundleName(option.GetBundleName());

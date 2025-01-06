@@ -110,10 +110,11 @@ using JSThread = ecmascript::JSThread;
 using JSTaggedType = uint64_t;
 using ConcurrentCallback = void (*)(Local<JSValueRef> result, bool success, void *taskInfo, void *data);
 using SourceMapCallback = std::function<std::string(const std::string& rawStack)>;
-using SourceMapTranslateCallback = std::function<bool(std::string& url, int& line, int& column)>;
+using SourceMapTranslateCallback = std::function<bool(std::string& url, int& line, int& column,
+    std::string& packageName)>;
 using DeviceDisconnectCallback = std::function<bool()>;
 using QueueType = ecmascript::job::QueueType;
-using OnAllErrorCallback = std::function<void(Local<ObjectRef> value, void *data)>;
+using OnErrorCallback = std::function<void(Local<ObjectRef> value, void *data)>;
 using StopPreLoadSoCallback = std::function<void()>;
 
 #define ECMA_DISALLOW_COPY(className)      \
@@ -1680,7 +1681,7 @@ public:
     // Exception
     static void ThrowException(const EcmaVM *vm, Local<JSValueRef> error);
     static void PrintExceptionInfo(const EcmaVM *vm);
-    static void SetOnAllErrorCallbackForThread(EcmaVM *vm, OnAllErrorCallback cb, void* data);
+    static void SetOnErrorCallback(EcmaVM *vm, OnErrorCallback cb, void* data);
     static Local<ObjectRef> GetAndClearUncaughtException(const EcmaVM *vm);
     static Local<ObjectRef> GetUncaughtException(const EcmaVM *vm);
     static bool IsExecutingPendingJob(const EcmaVM *vm);

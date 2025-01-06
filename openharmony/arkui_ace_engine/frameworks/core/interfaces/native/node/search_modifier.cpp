@@ -890,10 +890,24 @@ void ResetSearchEnableHapticFeedback(ArkUINodeHandle node)
     CHECK_NULL_VOID(frameNode);
     SearchModelNG::SetEnableHapticFeedback(frameNode, DEFAULT_ENABLE_HAPTIC_FEEDBACK_VALUE);
 }
+
+void SetStopBackPress(ArkUINodeHandle node, ArkUI_Uint32 value)
+{
+    auto* frameNode = reinterpret_cast<FrameNode*>(node);
+    CHECK_NULL_VOID(frameNode);
+    SearchModelNG::SetStopBackPress(frameNode, static_cast<bool>(value));
+}
+
+void ResetStopBackPress(ArkUINodeHandle node)
+{
+    auto* frameNode = reinterpret_cast<FrameNode*>(node);
+    CHECK_NULL_VOID(frameNode);
+    SearchModelNG::SetStopBackPress(frameNode, true);
+}
 namespace NodeModifier {
 const ArkUISearchModifier* GetSearchModifier()
 {
-    constexpr auto lineBegin = __LINE__; // don't move this line
+    CHECK_INITIALIZED_FIELDS_BEGIN(); // don't move this line
     static const ArkUISearchModifier modifier = {
         .setSearchPlaceholderColor = SetSearchPlaceholderColor,
         .resetSearchPlaceholderColor = ResetSearchPlaceholderColor,
@@ -992,21 +1006,16 @@ const ArkUISearchModifier* GetSearchModifier()
         .resetSearchMinFontScale = ResetSearchMinFontScale,
         .setSearchMaxFontScale = SetSearchMaxFontScale,
         .resetSearchMaxFontScale = ResetSearchMaxFontScale,
+        .setStopBackPress = SetStopBackPress,
+        .resetStopBackPress = ResetStopBackPress,
     };
-    constexpr auto lineEnd = __LINE__; // don't move this line
-    constexpr auto ifdefOverhead = 4; // don't modify this line
-    constexpr auto overHeadLines = 3; // don't modify this line
-    constexpr auto blankLines = 0; // modify this line accordingly
-    constexpr auto ifdefs = 0; // modify this line accordingly
-    constexpr auto initializedFieldLines = lineEnd - lineBegin - ifdefs * ifdefOverhead - overHeadLines - blankLines;
-    static_assert(initializedFieldLines == sizeof(modifier) / sizeof(void*),
-        "ensure all fields are explicitly initialized");
+    CHECK_INITIALIZED_FIELDS_END(modifier, 0, 0, 0); // don't move this line
     return &modifier;
 }
 
 const CJUISearchModifier* GetCJUISearchModifier()
 {
-    constexpr auto lineBegin = __LINE__; // don't move this line
+    CHECK_INITIALIZED_FIELDS_BEGIN(); // don't move this line
     static const CJUISearchModifier modifier = {
         .setSearchPlaceholderColor = SetSearchPlaceholderColor,
         .resetSearchPlaceholderColor = ResetSearchPlaceholderColor,
@@ -1094,14 +1103,7 @@ const CJUISearchModifier* GetCJUISearchModifier()
         .setSearchCaretPosition = SetSearchCaretPosition,
         .resetSearchCaretPosition = ResetSearchCaretPosition,
     };
-    constexpr auto lineEnd = __LINE__; // don't move this line
-    constexpr auto ifdefOverhead = 4; // don't modify this line
-    constexpr auto overHeadLines = 3; // don't modify this line
-    constexpr auto blankLines = 0; // modify this line accordingly
-    constexpr auto ifdefs = 0; // modify this line accordingly
-    constexpr auto initializedFieldLines = lineEnd - lineBegin - ifdefs * ifdefOverhead - overHeadLines - blankLines;
-    static_assert(initializedFieldLines == sizeof(modifier) / sizeof(void*),
-        "ensure all fields are explicitly initialized");
+    CHECK_INITIALIZED_FIELDS_END(modifier, 0, 0, 0); // don't move this line
     return &modifier;
 }
 
