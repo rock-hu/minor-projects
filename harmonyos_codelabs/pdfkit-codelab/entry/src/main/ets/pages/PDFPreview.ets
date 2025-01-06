@@ -14,7 +14,7 @@ struct PDFPreview {
   @State pageCount: number = 0;
   @State pageIndex: number = 0;
   @State _pixelMap: image.PixelMap | undefined = undefined;
-  private document: pdfService.PdfDocument = new pdfService.PdfDocument;
+  private document: pdfService.PdfDocument = new pdfService.PdfDocument();
 
   // Open the selected PDF file.
   openFile() {
@@ -98,11 +98,9 @@ struct PDFPreview {
         Button ("Convert PDF to image.")
           .fontSize(12)
           .onClick(async () => {
-            let uri = 'file://docs/storage/Users/currentUser' + '/outputImg'; // Image storage path. If the path is invalid, use the sandbox path.
-            let fileUri: fileuri.FileUri = new fileuri.FileUri(uri);
-            let path = fileUri.path;
+            let path = getContext(this).filesDir + '/outputImg';
             fs.mkdir(path);
-            const result: boolean = this.document.convertToImage(path, 0); // Convert the PDF file to an image.
+            const result: boolean = this.document.convertToImage(path, pdfService.ImageFormat.PNG); // Convert the PDF file to an image.
             if (result) {
               this.showDialog('The PDF file is successfully converted to an image.','Storage path: user directory/outputImg');
             } else {
