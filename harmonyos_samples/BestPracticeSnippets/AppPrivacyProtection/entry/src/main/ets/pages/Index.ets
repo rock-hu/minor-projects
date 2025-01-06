@@ -61,7 +61,7 @@ struct Index {
         .height(40)
         .width('100%')
         .onClick(() => {
-          router.pushUrl({ url: 'pages/LocationDemo' });
+          router.pushUrl({ url: 'pages/LocationButtonDemo' });
         })
       Button($r('app.string.use_picker'))
         .height(40)

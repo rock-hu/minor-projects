@@ -6,7 +6,7 @@
 
 ### 效果预览
 
-| 模糊定位权限申请                                  | LocationButton获取位置信息                    | 使用Picker获取图片                              | 相机权限申请                                    |
+| 模糊定位权限申请                                  | LocationButton                    | 使用Picker获取图片                              | 相机权限申请                                    |
 |-------------------------------------------|-----------------------------------------|-------------------------------------------|-------------------------------------------|
 | ![pic1.png](screenshots/devices/pic1.png) | ![pic2.png](screenshots/devices/pic2.png) | ![pic1.png](screenshots/devices/pic3.png) | ![pic3.png](screenshots/devices/pic4.png) |
 
@@ -45,13 +45,13 @@
 
 ### 约束与限制
 
-1.本示例仅支持标准系统上运行，支持设备：华为手机。
+1. 本示例仅支持标准系统上运行，支持设备：华为手机。
 
-2.HarmonyOS系统：HarmonyOS NEXT Beta1及以上。
+2. HarmonyOS系统：HarmonyOS 5.0.0 Release及以上。
 
-3.DevEco Studio版本：DevEco Studio NEXT Beta1及以上。
+3. DevEco Studio版本：DevEco Studio 5.0.0 Release及以上。
 
-4.HarmonyOS SDK版本：HarmonyOS NEXT Beta1 SDK及以上。
+4. HarmonyOS SDK版本：HarmonyOS 5.0.0 Release SDK及以上。
 
 
 

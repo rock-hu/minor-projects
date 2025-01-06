@@ -6,9 +6,9 @@
 
 
 ## 效果预览
-| **主页**                                   |
-|------------------------------------------|
-| <img src="screenshots/UserAuthDemo.png"> |
+| **主页**                                    |
+|-------------------------------------------|
+| <img src="screenshots/UserAuthDemo.png"  width="300px"> |
 
 ## 工程目录
 ```
