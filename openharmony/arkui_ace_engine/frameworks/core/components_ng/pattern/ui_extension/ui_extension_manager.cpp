@@ -18,6 +18,7 @@
 #include "adapter/ohos/entrance/ace_container.h"
 #include "core/components_ng/pattern/ui_extension/security_ui_extension_pattern.h"
 #include "core/components_ng/pattern/ui_extension/ui_extension_pattern.h"
+#include "frameworks/core/pipeline_ng/pipeline_context.h"
 
 namespace OHOS::Ace::NG {
 UIExtensionIdUtility::UIExtensionIdUtility() {}
@@ -432,5 +433,33 @@ bool UIExtensionManager::SendBusinessToHostSyncReply(UIContentBusinessCode code,
     }
     auto callback = businessSendToHostReplyFunc_;
     return callback(static_cast<uint32_t>(code), std::move(data), reply);
+}
+
+void UIExtensionManager::NotifyWindowMode(Rosen::WindowMode mode)
+{
+    TAG_LOGI(AceLogTag::ACE_UIEXTENSIONCOMPONENT, "NotifyWindowMode aliveUIExtensions = %{public}zu",
+        aliveUIExtensions_.size());
+    for (const auto& it : aliveUIExtensions_) {
+        auto uiExtension = it.second.Upgrade();
+        if (uiExtension) {
+            uiExtension->NotifyHostWindowMode(mode);
+        }
+    }
+}
+
+void UIExtensionManager::SendPageModeToUEA(const RefPtr<PipelineContext>& pipeline)
+{
+    AAFwk::Want data;
+    data.SetParam("requestPageMode", std::string("yes"));
+    AAFwk::Want reply;
+    SendBusinessToHostSyncReply(UIContentBusinessCode::SEND_PAGE_MODE, std::move(data), reply);
+    if (reply.HasParameter("pageMode")) {
+        auto pageMode = reply.GetStringParam("pageMode");
+        TAG_LOGI(AceLogTag::ACE_UIEXTENSIONCOMPONENT,
+            "UEA received a reply, pageMode: %{public}s.", pageMode.c_str());
+        auto accessibilityManager = pipeline->GetAccessibilityManager();
+        CHECK_NULL_VOID(accessibilityManager);
+        accessibilityManager->UpdatePageMode(pageMode);
+    }
 }
 } // namespace OHOS::Ace::NG

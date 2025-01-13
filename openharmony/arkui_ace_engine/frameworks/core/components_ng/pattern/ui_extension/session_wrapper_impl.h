@@ -25,6 +25,7 @@
 #include "base/memory/referenced.h"
 #include "core/components_ng/pattern/ui_extension/session_wrapper.h"
 #include "core/components_ng/pattern/ui_extension/ui_extension_pattern.h"
+#include "core/components_ng/pattern/window_scene/scene/system_window_scene.h"
 
 namespace OHOS::Ace::NG {
 class SessionWrapperImpl : public SessionWrapper {
@@ -105,11 +106,15 @@ public:
     bool SendBusinessDataSyncReply(UIContentBusinessCode code, AAFwk::Want&& data, AAFwk::Want& reply) override;
     bool SendBusinessData(UIContentBusinessCode code, AAFwk::Want&& data, BusinessDataSendType type) override;
 
+    void NotifyHostWindowMode(int32_t mode) override;
+
 private:
     int32_t GetFrameNodeId() const;
     void InitAllCallback();
     void UpdateSessionConfig();
+    RefPtr<SystemWindowScene> GetWindowScene();
     int32_t GetWindowSceneId();
+    Rosen::WSRect GetWindowSceneRcet();
     bool InnerNotifyOccupiedAreaChangeInfo(
         sptr<Rosen::OccupiedAreaChangeInfo> info, bool isWaitTask, int64_t occupiedAreaTime);
     bool RegisterDataConsumer();

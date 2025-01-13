@@ -712,6 +712,12 @@ struct CJUIButtonModifier {
     void (*setButtonOptions)(ArkUINodeHandle node, ArkUI_Uint32 buttonStyle, ArkUI_Uint32 buttonRole);
     void (*resetButtonOptions)(ArkUINodeHandle node);
     void (*setCreateWithLabel)(ArkUINodeHandle node, bool createWithLabel);
+    void (*setButtonMinFontScale)(ArkUINodeHandle node, ArkUI_Float32 minFontScale);
+    void (*resetButtonMinFontScale)(ArkUINodeHandle node);
+    void (*setButtonMaxFontScale)(ArkUINodeHandle node, ArkUI_Float32 maxFontScale);
+    void (*resetButtonMaxFontScale)(ArkUINodeHandle node);
+    ArkUI_Float32 (*getButtonMinFontScale)(ArkUINodeHandle node);
+    ArkUI_Float32 (*getButtonMaxFontScale)(ArkUINodeHandle node);
 };
 
 struct CJUIImageModifier {
@@ -903,7 +909,8 @@ struct CJUIListModifier {
     void (*resetNodeAdapter)(ArkUINodeHandle node);
     ArkUINodeAdapterHandle (*getNodeAdapter)(ArkUINodeHandle node);
     ArkUI_Int32 (*getCachedCount)(ArkUINodeHandle node);
-    void (*setScrollToIndex)(ArkUINodeHandle node, ArkUI_Int32 index, ArkUI_Int32 animation, ArkUI_Int32 alignment);
+    void (*setScrollToIndex)(
+        ArkUINodeHandle node, ArkUI_Int32 index, ArkUI_Int32 animation, ArkUI_Int32 alignment, ArkUI_Float32 options);
     void (*setScrollBy)(ArkUINodeHandle node, ArkUI_Float64 x, ArkUI_Float64 y);
     void (*setInitialIndex)(ArkUINodeHandle node, ArkUI_Int32 index);
     void (*resetInitialIndex)(ArkUINodeHandle node);
@@ -1055,6 +1062,12 @@ struct CJUITimepickerModifier {
     ArkUI_CharPtr (*getTimepickerSelected)(ArkUINodeHandle node);
     void (*setTimepickerSelected)(ArkUINodeHandle node, ArkUI_Uint32 hour, ArkUI_Uint32 minute);
     void (*resetTimepickerSelected)(ArkUINodeHandle node);
+    ArkUI_CharPtr (*getTimepickerStart)(ArkUINodeHandle node);
+    void (*setTimepickerStart)(ArkUINodeHandle node, ArkUI_Uint32 hour, ArkUI_Uint32 minute);
+    void (*resetTimepickerStart)(ArkUINodeHandle node);
+    ArkUI_CharPtr (*getTimepickerEnd)(ArkUINodeHandle node);
+    void (*setTimepickerEnd)(ArkUINodeHandle node, ArkUI_Uint32 hour, ArkUI_Uint32 minute);
+    void (*resetTimepickerEnd)(ArkUINodeHandle node);
     ArkUI_Uint32 (*getTimepickerBackgroundColor)(ArkUINodeHandle node);
     void (*setTimepickerBackgroundColor)(ArkUINodeHandle node, ArkUI_Uint32 color);
     ArkUI_CharPtr (*getTimepickerDisappearTextStyle)(ArkUINodeHandle node);
@@ -1078,9 +1091,6 @@ struct CJUITimepickerModifier {
     void (*setTimepickerDateTimeOptions)(
         ArkUINodeHandle node, ArkUI_Int32 hourType, ArkUI_Int32 minuteType, ArkUI_Int32 secondType);
     void (*resetTimepickerDateTimeOptions)(ArkUINodeHandle node);
-    ArkUI_Int32 (*getTimepickerEnableCascade)(ArkUINodeHandle node);
-    void (*setTimepickerEnableCascade)(ArkUINodeHandle node, ArkUI_Bool isEnableCascade);
-    void (*resetTimepickerEnableCascade)(ArkUINodeHandle node);
 };
 
 struct CJUIVideoModifier {
@@ -2611,6 +2621,9 @@ struct CJUIDatePickerModifier {
     ArkUI_Int32 (*getDatePickerMode)(ArkUINodeHandle node);
     void (*setDatePickerMode)(ArkUINodeHandle node, ArkUI_Int32 value);
     void (*resetDatePickerMode)(ArkUINodeHandle node);
+    ArkUI_Bool (*getEnableHapticFeedback)(ArkUINodeHandle node);
+    void (*setEnableHapticFeedback)(ArkUINodeHandle node, ArkUI_Bool enableHapticFeedback);
+    void (*resetEnableHapticFeedback)(ArkUINodeHandle node);
 };
 
 struct CJUISpanModifier {

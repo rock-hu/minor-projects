@@ -37,9 +37,7 @@ void JitCompiler::UpdatePassOptions(CompilationEnv *env)
 {
     EcmaVM *vm = env->GetHostThread()->GetEcmaVM();
     bool builtinsLazyEnabled = vm->GetJSOptions().IsWorker() && vm->GetJSOptions().GetEnableBuiltinsLazy();
-    if (builtinsLazyEnabled) {
-        passOptions_.SetLoweringBuiltin(false);
-    }
+    passOptions_.SetLoweringBuiltin(!builtinsLazyEnabled);
 }
 
 JitCompilationOptions::JitCompilationOptions(JSRuntimeOptions runtimeOptions)
@@ -193,8 +191,8 @@ static ARK_INLINE bool CopyCodeToFort(MachineCodeDesc &desc)
                        << std::hex << (uintptr_t)pText << " <- "
                        << std::hex << (uintptr_t)desc.codeAddr << " size: " << desc.codeSize;
         LOG_JIT(DEBUG) << "     codeSigner = " << std::hex << (uintptr_t)desc.codeSigner;
-        OHOS::Security::CodeSign::JitCodeSignerBase *signer =
-            reinterpret_cast<OHOS::Security::CodeSign::JitCodeSignerBase*>(desc.codeSigner);
+        OHOS::Security::CodeSign::JitCodeSigner *signer =
+            reinterpret_cast<OHOS::Security::CodeSign::JitCodeSigner*>(desc.codeSigner);
         int err = OHOS::Security::CodeSign::CopyToJitCode(
             signer, pText, reinterpret_cast<void *>(desc.codeAddr), desc.codeSize);
         if (err != EOK) {
@@ -203,7 +201,7 @@ static ARK_INLINE bool CopyCodeToFort(MachineCodeDesc &desc)
         } else {
             LOG_JIT(DEBUG) << "     CopyToJitCode success!!";
         }
-        delete reinterpret_cast<OHOS::Security::CodeSign::JitCodeSignerBase*>(desc.codeSigner);
+        delete reinterpret_cast<OHOS::Security::CodeSign::JitCodeSigner*>(desc.codeSigner);
     }
 #else
     if (memcpy_s(pText, desc.codeSizeAlign, reinterpret_cast<uint8_t*>(desc.codeAddr), desc.codeSize) != EOK) {

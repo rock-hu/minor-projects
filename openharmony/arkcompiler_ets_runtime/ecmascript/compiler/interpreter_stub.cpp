@@ -594,7 +594,8 @@ DECLARE_ASM_HANDLER(HandleCopyrestargsImm8)
     GateRef lengthOffset = IntPtr(JSArray::LENGTH_OFFSET);
     Store(VariableType::INT32(), glue, *res, lengthOffset, TruncInt64ToInt32(numArgs));
     GateRef accessor = GetGlobalConstantValue(VariableType::JS_ANY(), glue, ConstantIndex::ARRAY_LENGTH_ACCESSOR);
-    SetPropertyInlinedProps(glue, *res, intialHClass, accessor, Int32(JSArray::LENGTH_INLINE_PROPERTY_INDEX));
+    Store(VariableType::JS_ANY(), glue, *res,
+          IntPtr(JSArray::GetInlinedPropertyOffset(JSArray::LENGTH_INLINE_PROPERTY_INDEX)), accessor);
     SetExtensibleToBitfield(glue, *res, true);
     Label setArgumentsBegin(env);
     Label setArgumentsAgain(env);
@@ -5597,14 +5598,14 @@ DECLARE_ASM_HANDLER(HandleCallRuntimeDefineFieldByIndexPrefImm8Imm32V8)
     GateRef index = ReadInst32_2(pc);
     GateRef v0 = ReadInst8_6(pc);
     GateRef obj = GetVregValue(sp, ZExtInt8ToPtr(v0));
-    GateRef propKey = IntToTaggedInt(index);
+    GateRef propKey = IntToTaggedPtr(index);
     GateRef res = DefineField(glue, obj, propKey, acc);  // acc as value
     CHECK_EXCEPTION_WITH_ACC(res, INT_PTR(CALLRUNTIME_DEFINEFIELDBYINDEX_PREF_IMM8_IMM32_V8));
 }
 
 DECLARE_ASM_HANDLER(HandleCallRuntimeToPropertyKeyPrefNone)
 {
-    GateRef res = CallRuntime(glue, RTSTUB_ID(ToPropertyKey), {acc});
+    GateRef res = ToPropertyKey(glue, acc);
     CHECK_EXCEPTION_WITH_ACC(res, INT_PTR(CALLRUNTIME_TOPROPERTYKEY_PREF_NONE));
 }
 

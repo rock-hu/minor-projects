@@ -1667,6 +1667,7 @@ void ScrollablePattern::InitMouseEvent()
     PanDirection panDirection = { .type = PanDirection::ALL };
     gestureHub->AddPanEvent(boxSelectPanEvent_, panDirection, 1, DEFAULT_PAN_DISTANCE);
     gestureHub->SetPanEventType(GestureTypeName::BOXSELECT);
+    gestureHub->SetExcludedAxisForPanEvent(true);
     gestureHub->SetOnGestureJudgeNativeBegin([](const RefPtr<NG::GestureInfo>& gestureInfo,
                                                  const std::shared_ptr<BaseGestureEvent>& info) -> GestureJudgeResult {
         if (gestureInfo->GetType() == GestureTypeName::BOXSELECT &&
@@ -2781,7 +2782,7 @@ void ScrollablePattern::SuggestOpIncGroup(bool flag)
     flag = flag && isVertical();
     if (flag) {
         ACE_SCOPED_TRACE("SuggestOpIncGroup %s", host->GetHostTag().c_str());
-        auto parent = host->GetAncestorNodeOfFrame();
+        auto parent = host->GetAncestorNodeOfFrame(false);
         CHECK_NULL_VOID(parent);
         parent->SetSuggestOpIncActivatedOnce();
         // get 1st layer
@@ -2895,9 +2896,20 @@ void ScrollablePattern::Register2DragDropManager()
     CHECK_NULL_VOID(host);
     auto pipeline = GetContext();
     CHECK_NULL_VOID(pipeline);
+    DragPreviewOption dragPreviewOption = host->GetDragPreviewOption();
+    bool enableEdgeAutoScroll = dragPreviewOption.enableEdgeAutoScroll;
     auto dragDropManager = pipeline->GetDragDropManager();
     CHECK_NULL_VOID(dragDropManager);
-    dragDropManager->RegisterDragStatusListener(host->GetId(), AceType::WeakClaim(AceType::RawPtr(host)));
+    if (enableEdgeAutoScroll) {
+        TAG_LOGI(AceLogTag::ACE_SCROLLABLE,
+            "Enable scrolling when the drag hovered on a scrollable controller's edge.");
+        dragDropManager->RegisterDragStatusListener(host->GetId(), AceType::WeakClaim(AceType::RawPtr(host)));
+    } else {
+        TAG_LOGI(AceLogTag::ACE_SCROLLABLE,
+            "Disable scrolling when the drag hovered on a scrollable controller's edge.");
+        StopHotzoneScroll();
+        dragDropManager->UnRegisterDragStatusListener(host->GetId());
+    }
 }
 
 /**
@@ -4026,13 +4038,13 @@ void ScrollablePattern::SetOnHiddenChangeForParent()
 {
     auto host = GetHost();
     CHECK_NULL_VOID(host);
-    auto parent = host->GetAncestorNodeOfFrame();
+    auto parent = host->GetAncestorNodeOfFrame(false);
     CHECK_NULL_VOID(parent);
     while (parent) {
         if (parent->GetTag() == V2::NAVDESTINATION_VIEW_ETS_TAG) {
             break;
         }
-        parent = parent->GetAncestorNodeOfFrame();
+        parent = parent->GetAncestorNodeOfFrame(false);
     }
     if (parent && parent->GetTag() == V2::NAVDESTINATION_VIEW_ETS_TAG) {
         auto navDestinationPattern = parent->GetPattern<NavDestinationPattern>();

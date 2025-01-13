@@ -131,6 +131,26 @@ public:
         return range_;
     }
 
+    void SetColumnWidths(const std::vector<Dimension>& widths)
+    {
+        columnWidths_.clear();
+        for (size_t i = 0; i < widths.size(); i++) {
+            columnWidths_.emplace_back(widths[i]);
+        }
+    }
+
+    std::vector<Dimension> GetColumnWidths() const
+    {
+        return columnWidths_;
+    }
+
+    void SetDividerLength(int32_t index, float childCount, const SizeF& pickerContentSize);
+
+    std::optional<float> GetDividerLength() const
+    {
+        return dividerLength_;
+    }
+
     std::vector<NG::TextCascadePickerOptions> GetMultiOptions() const
     {
         return cascadeOriginptions_;
@@ -343,7 +363,7 @@ public:
         isPicker_ = isPicker;
     }
 
-    void CheckAndUpdateColumnSize(SizeF& size, bool isNeedAdaptForAging = false);
+    void CheckAndUpdateColumnSize(SizeF& size, RefPtr<FrameNode>& frameNode, bool isNeedAdaptForAging = false);
     bool NeedAdaptForAging();
 
     void SetDivider(const ItemDivider& divider)
@@ -493,6 +513,21 @@ public:
         return isDisableTextStyleAnimation_;
     }
 
+    void SetIsEnableHaptic(bool isEnableHapticFeedback)
+    {
+        if (isEnableHaptic_ != isEnableHapticFeedback) {
+            isHapticChanged_ = true;
+        }
+        isEnableHaptic_ = isEnableHapticFeedback;
+    }
+
+    bool GetIsEnableHaptic() const
+    {
+        return isEnableHaptic_;
+    }
+
+    void ColumnPatternInitHapticController();
+
 private:
     void OnModifyDone() override;
     void SetLayoutDirection(TextDirection textDirection);
@@ -544,6 +579,8 @@ private:
     RectF CalculatePaintRect(int32_t currentFocusIndex,
         float centerX, float centerY, float paintRectWidth, float paintRectHeight, float columnWidth);
     void AdjustFocusBoxOffset(float& centerX, float& centerY);
+    float CalculateColumnSize(int32_t index, float childCount, const SizeF& pickerContentSize);
+    int32_t CalculateIndex(RefPtr<FrameNode>& frameNode);
 
     bool enabled_ = true;
     int32_t focusKeyID_ = 0;
@@ -602,8 +639,12 @@ private:
     float paintDividerSpacing_ = 1.0f;
     bool isNeedUpdateSelectedIndex_ = true;
     PickerTextProperties textProperties_;
+    std::vector<Dimension> columnWidths_;
+    std::optional<float> dividerLength_;
 
     bool isDisableTextStyleAnimation_ = false;
+    bool isEnableHaptic_ = true;
+    bool isHapticChanged_ = false;
 };
 } // namespace OHOS::Ace::NG
 

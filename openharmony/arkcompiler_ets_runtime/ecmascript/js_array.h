@@ -25,7 +25,7 @@
 namespace panda::ecmascript {
 enum class ArrayMode : uint8_t { UNDEFINED = 0, DICTIONARY, LITERAL };
 // ecma6 9.4.2 Array Exotic Object
-class JSArray : public JSObject {
+class JSArray final : public JSObject {
 public:
     // array instance property:
     static constexpr int LENGTH_INLINE_PROPERTY_INDEX = 0;
@@ -36,6 +36,10 @@ public:
     static constexpr int ARRAY_FUNCTION_SPECIES_INDEX = 0;
     CAST_CHECK(JSArray, IsJSArray);
 
+    static JSTaggedValue CheckStableArrayAndGet(JSThread *thread, const JSHandle<JSObject> &thisObjHandle,
+                                                uint32_t index);
+    static void CheckStableArrayAndSet(JSThread *thread, const JSHandle<JSObject> &thisObjHandle,
+                                       uint32_t index, JSMutableHandle<JSTaggedValue> &value);
     static PUBLIC_API JSHandle<JSTaggedValue> ArrayCreate(JSThread *thread, JSTaggedNumber length,
                                                           ArrayMode mode = ArrayMode::UNDEFINED);
     static JSHandle<JSTaggedValue> ArrayCreate(JSThread *thread, JSTaggedNumber length,

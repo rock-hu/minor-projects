@@ -156,9 +156,20 @@ void SessionWrapperImpl::NotifyCreate()
 {
 }
 
+RefPtr<SystemWindowScene> SessionWrapperImpl::GetWindowScene()
+{
+    return nullptr;
+}
+
 int32_t SessionWrapperImpl::GetWindowSceneId()
 {
     return 1;
+}
+
+Rosen::WSRect SessionWrapperImpl::GetWindowSceneRcet()
+{
+    Rosen::WSRect rect = {0, 0, 0, 0};
+    return rect;
 }
 
 void SessionWrapperImpl::NotifyForeground()
@@ -277,4 +288,6 @@ bool SessionWrapperImpl::SendBusinessData(UIContentBusinessCode code, AAFwk::Wan
 {
     return false;
 }
+
+void SessionWrapperImpl::NotifyHostWindowMode(int32_t mode) {}
 } // namespace OHOS::Ace::NG

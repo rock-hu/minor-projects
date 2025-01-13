@@ -508,6 +508,7 @@ const ComponentAsyncEventHandler listNodeAsyncEventHandlers[] = {
     NodeModifier::SetOnListDidScroll,
     NodeModifier::SetOnListReachStart,
     NodeModifier::SetOnListReachEnd,
+    NodeModifier::SetOnListScrollVisibleContentChange,
 };
 
 const ComponentAsyncEventHandler LIST_ITEM_NODE_ASYNC_EVENT_HANDLERS[] = {
@@ -714,6 +715,7 @@ const ResetComponentAsyncEventHandler LIST_NODE_RESET_ASYNC_EVENT_HANDLERS[] = {
     NodeModifier::ResetOnListDidScroll,
     NodeModifier::ResetOnListReachStart,
     NodeModifier::ResetOnListReachEnd,
+    NodeModifier::ResetOnScrollVisibleContentChange,
 };
 
 const ResetComponentAsyncEventHandler LIST_ITEM_NODE_RESET_ASYNC_EVENT_HANDLERS[] = {
@@ -1913,6 +1915,11 @@ ArkUI_Int32 RegisterOnWillDismissWithUserData(
     return CustomDialog::RegisterOnWillDialogDismissWithUserData(handler, userData, callback);
 }
 
+ArkUI_Int32 SetKeyboardAvoidDistance(ArkUIDialogHandle handle, float distance, ArkUI_Int32 unit)
+{
+    return CustomDialog::SetKeyboardAvoidDistance(handle, distance, unit);
+}
+
 const ArkUIDialogAPI* GetDialogAPI()
 {
     static const ArkUIDialogAPI dialogImpl = {
@@ -1933,7 +1940,8 @@ const ArkUIDialogAPI* GetDialogAPI()
         ShowDialog,
         CloseDialog,
         RegisterOnWillDialogDismiss,
-        RegisterOnWillDismissWithUserData
+        RegisterOnWillDismissWithUserData,
+        SetKeyboardAvoidDistance
     };
     return &dialogImpl;
 }

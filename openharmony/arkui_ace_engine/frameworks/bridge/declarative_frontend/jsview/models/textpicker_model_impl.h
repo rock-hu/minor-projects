@@ -46,6 +46,7 @@ public:
     void SetOnEnterSelectedArea(TextCascadeChangeEvent&& onEnterSelectedArea) override;
     void SetValues(const std::vector<std::string>& values) override {};
     void SetSelecteds(const std::vector<uint32_t>& values) override {};
+    void SetColumnWidths(const std::vector<Dimension>& widths) override {};
     void SetBackgroundColor(const Color& color) override;
     void HasUserDefinedOpacity() override {};
     bool IsSingle() override
@@ -80,6 +81,7 @@ public:
 
     void SetDisableTextStyleAnimation(const bool value) override {};
     void SetDefaultTextStyle(const RefPtr<TextTheme>& textTheme, const NG::PickerTextStyle& value) override {};
+    void SetEnableHapticFeedback(bool isEnableHapticFeedback) override {};
 };
 
 class ACE_EXPORT TextPickerDialogModelImpl : public TextPickerDialogModel {

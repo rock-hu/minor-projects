@@ -525,6 +525,15 @@ void SearchPattern::InitTextFieldDragEvent()
     CHECK_NULL_VOID(textFieldEventHub);
 
     textFieldFrameNode->SetDragPreview(host->GetDragPreview());
+    if (host->GetDisallowDropForcedly()) {
+        textFieldFrameNode->SetDisallowDropForcedly(true);
+        textFieldFrameNode->SetAllowDrop(host->GetAllowDrop());
+    } else if (!host->GetAllowDrop().empty()) {
+        textFieldFrameNode->SetDisallowDropForcedly(false);
+        textFieldFrameNode->SetAllowDrop(host->GetAllowDrop());
+    } else {
+        textFieldFrameNode->SetDisallowDropForcedly(false);
+    }
 
     auto dragStart = searchEventHub->GetOnDragStart();
     if (dragStart != nullptr) {
@@ -1102,8 +1111,13 @@ void SearchPattern::HandleFocusChoiceSearch(const RefPtr<TextFieldPattern>& text
     const RefPtr<SearchTextFieldPattern>& searchTextFieldPattern)
 {
     PaintSearchFocusState();
+    if (directionKeysMoveFocusOut_ && !recoverFlag && !textFieldPattern->GetTextUtf16Value().empty()) {
+        textFieldPattern->HandleFocusEvent();
+        searchTextFieldPattern->SearchRequestStartTwinkling();
+        return;
+    }
     if (!recoverFlag) {
-        if (!textFieldPattern->GetTextUtf16Value().empty() && !directionKeysMoveFocusOut_) {
+        if (!textFieldPattern->GetTextUtf16Value().empty()) {
             textFieldPattern->NeedRequestKeyboard();
             textFieldPattern->SearchRequestKeyboard();
             textFieldPattern->HandleOnSelectAll(false); // Select all text
@@ -1478,7 +1492,11 @@ void SearchPattern::InitTouchEvent()
         CHECK_NULL_VOID(pattern);
         auto infoTouches = info.GetTouches();
         CHECK_EQUAL_VOID(infoTouches.empty(), true);
-        pattern->OnTouchDownOrUp(infoTouches.front().GetTouchType() == TouchType::DOWN);
+        auto touchType = infoTouches.front().GetTouchType();
+        if (touchType == TouchType::MOVE) {
+            return;
+        }
+        pattern->OnTouchDownOrUp(touchType == TouchType::DOWN);
     };
     searchTouchListener_ = MakeRefPtr<TouchEventImpl>(std::move(touchCallback));
     gesture->AddTouchEvent(searchTouchListener_);
@@ -1494,10 +1512,9 @@ void SearchPattern::OnTouchDownOrUp(bool isDown)
     auto renderContext = host->GetRenderContext();
     auto searchTheme = GetTheme();
     CHECK_NULL_VOID(searchTheme);
-    auto searchHoverColor = searchTheme->GetHoverColor();
     auto searchTouchColor = searchTheme->GetTouchColor();
-    AnimateSearchTouchAndHover(renderContext, isDown ? searchHoverColor : searchTouchColor,
-        isDown ? searchTouchColor : searchHoverColor, TOUCH_DURATION, Curves::FRICTION);
+    AnimateSearchTouchAndHover(renderContext, isDown ? transparentColor_ : searchTouchColor,
+        isDown ? searchTouchColor : transparentColor_, TOUCH_DURATION, Curves::FRICTION);
 }
 
 void SearchPattern::InitFocusEvent(const RefPtr<FocusHub>& focusHub)
@@ -1648,7 +1665,7 @@ void SearchPattern::ToJsonValueForTextField(std::unique_ptr<JsonValue>& json, co
     CHECK_NULL_VOID(textFieldPattern);
 
     json->PutExtAttr("value", textFieldPattern->GetTextValue().c_str(), filter);
-    json->PutExtAttr("placeholder", UtfUtils::Str16ToStr8(textFieldPattern->GetPlaceHolder()).c_str(), filter);
+    json->PutExtAttr("placeholder", UtfUtils::Str16DebugToStr8(textFieldPattern->GetPlaceHolder()).c_str(), filter);
     json->PutExtAttr("placeholderColor", textFieldPattern->GetPlaceholderColor().c_str(), filter);
     json->PutExtAttr("placeholderFont", textFieldPattern->GetPlaceholderFont().c_str(), filter);
     json->PutExtAttr("textAlign", V2::ConvertWrapTextAlignToString(textFieldPattern->GetTextAlign()).c_str(), filter);
@@ -2022,9 +2039,7 @@ void SearchPattern::InitSearchIconColorSize()
     auto searchTheme = pipeline->GetTheme<SearchTheme>();
     CHECK_NULL_VOID(searchTheme);
     GetSearchNode()->SetSearchSymbolIconColor(Color(searchTheme->GetSymbolIconColor()));
-    auto searchSymbolIconSize = searchTheme->GetIconSize().ConvertToFp();
-    GetSearchNode()->SetSearchSymbolIconSize(searchSymbolIconSize <= 0 ? SYMBOL_ICON_HEIGHT :
-        Dimension(searchSymbolIconSize, DimensionUnit::FP));
+    GetSearchNode()->SetSearchSymbolIconSize(searchTheme->GetSymbolIconHeight());
     GetSearchNode()->SetSearchImageIconColor(Color(searchTheme->GetSearchIconColor()));
     GetSearchNode()->SetSearchImageIconSize(searchTheme->GetIconHeight());
 }

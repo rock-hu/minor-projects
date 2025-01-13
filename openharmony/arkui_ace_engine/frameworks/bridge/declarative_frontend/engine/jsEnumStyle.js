@@ -104,6 +104,12 @@ let SecurityDpiFollowStrategy;
   SecurityDpiFollowStrategy[SecurityDpiFollowStrategy.FOLLOW_UI_EXTENSION_ABILITY_DPI = 1] = 'follow-ui-extension-ability-dpi';
 })(SecurityDpiFollowStrategy || (SecurityDpiFollowStrategy = {}));
 
+let WindowModeFollowStrategy;
+(function (WindowModeFollowStrategy) {
+  WindowModeFollowStrategy[WindowModeFollowStrategy.FOLLOW_HOST_WINDOW_MODE = 0] = 'follow-host-window-mode';
+  WindowModeFollowStrategy[WindowModeFollowStrategy.FOLLOW_UI_EXTENSION_ABILITY_WINDOW_MODE = 1] = 'follow-ui-extension-ability-window-mode';
+})(WindowModeFollowStrategy || (WindowModeFollowStrategy = {}));
+
 let EllipsisMode;
 (function (EllipsisMode) {
   EllipsisMode[EllipsisMode.START = 0] = 'start';
@@ -2048,6 +2054,18 @@ class TransitionEffect {
   }
 }
 
+class ColorContent {
+  colorContent_ = '';
+
+  constructor(colorContent) {
+    this.colorContent_ = colorContent;
+  }
+
+  static get ORIGIN() {
+    return new ColorContent('ORIGIN');
+  }
+}
+
 class TextMenuItemId {
   id_ = '';
 
@@ -2492,12 +2510,15 @@ class NavPathStack {
     let pathInfo = this.pathArray.pop();
     this.popArray.push(pathInfo);
     this.isReplace = 0;
-    if (result !== undefined && typeof result !== 'boolean' && currentPathInfo.onPop !== undefined) {
-      let popInfo = {
-        info: currentPathInfo,
-        result: result,
-      };
-      currentPathInfo.onPop(popInfo);
+    if (result !== undefined && typeof result !== 'boolean') {
+      if (currentPathInfo.onPop !== undefined) {
+        let popInfo = {
+          info: currentPathInfo,
+          result: result,
+        };
+        currentPathInfo.onPop(popInfo);
+      }
+      this.nativeStack.onPopCallback(result);
     }
     if (typeof result === 'boolean') {
       this.animated = result;
@@ -2520,12 +2541,15 @@ class NavPathStack {
     let currentPathInfo = this.pathArray[this.pathArray.length - 1];
     this.pathArray.splice(index + 1);
     this.isReplace = 0;
-    if (result !== undefined && typeof result !== 'boolean' && currentPathInfo.onPop !== undefined) {
-      let popInfo = {
-        info: currentPathInfo,
-        result: result,
-      };
-      currentPathInfo.onPop(popInfo);
+    if (result !== undefined && typeof result !== 'boolean') {
+      if (currentPathInfo.onPop !== undefined) {
+        let popInfo = {
+          info: currentPathInfo,
+          result: result,
+        };
+        currentPathInfo.onPop(popInfo);
+      }
+      this.nativeStack.onPopCallback(result);
     }
     if (typeof result === 'boolean') {
       this.animated = result;
@@ -2544,12 +2568,15 @@ class NavPathStack {
     let currentPathInfo = this.pathArray[this.pathArray.length - 1];
     this.pathArray.splice(index + 1);
     this.isReplace = 0;
-    if (result !== undefined && typeof result !== 'boolean' && currentPathInfo.onPop !== undefined) {
-      let popInfo = {
-        info: currentPathInfo,
-        result: result,
-      };
-      currentPathInfo.onPop(popInfo);
+    if (result !== undefined && typeof result !== 'boolean') {
+      if (currentPathInfo.onPop !== undefined) {
+        let popInfo = {
+          info: currentPathInfo,
+          result: result,
+        };
+        currentPathInfo.onPop(popInfo);
+      }
+      this.nativeStack.onPopCallback(result);
     }
     if (typeof result === 'boolean') {
       this.animated = result;
@@ -3355,6 +3382,7 @@ let TextSpanType;
   TextSpanType[TextSpanType.TEXT = 0] = 'TEXT';
   TextSpanType[TextSpanType.IMAGE = 1] = 'IMAGE';
   TextSpanType[TextSpanType.MIXED = 2] = 'MIXED';
+  TextSpanType[TextSpanType.DEFAULT = 3] = 'DEFAULT';
 })(TextSpanType || (TextSpanType = {}));
 
 let TextResponseType;
@@ -3362,6 +3390,7 @@ let TextResponseType;
   TextResponseType[TextResponseType.RIGHT_CLICK = 0] = 'RIGHT_CLICK';
   TextResponseType[TextResponseType.LONG_PRESS = 1] = 'LONG_PRESS';
   TextResponseType[TextResponseType.SELECT = 2] = 'SELECT';
+  TextResponseType[TextResponseType.DEFAULT = 3] = 'DEFAULT';
 })(TextResponseType || (TextResponseType = {}));
 
 let MarqueeState;
@@ -3416,7 +3445,14 @@ let PreDragStatus;
   PreDragStatus.PREVIEW_LANDING_STARTED = 4;
   PreDragStatus.PREVIEW_LANDING_FINISHED = 5;
   PreDragStatus.ACTION_CANCELED_BEFORE_DRAG = 6;
+  PreDragStatus.PREPARING_FOR_DRAG_DETECTION = 7;
 })(PreDragStatus || (PreDragStatus = {}));
+
+let DragStartRequestStatus;
+(function (DragStartRequestStatus) {
+  DragStartRequestStatus.WAITING = 0;
+  DragStartRequestStatus.READY = 1;
+})(DragStartRequestStatus || (DragStartRequestStatus = {}));
 
 let DataOperationType;
 (function (DataOperationType) {
@@ -3707,16 +3743,22 @@ let AxisModel;
   AxisModel[AxisModel.ABS_HAT0Y = 7] = 'ABS_HAT0Y';
 })(AxisModel || (AxisModel = {}));
 
-var CrownSensitivity;
+let CrownSensitivity;
 (function (CrownSensitivity) {
-  CrownSensitivity[CrownSensitivity["LOW"] = 0] = "LOW";
-  CrownSensitivity[CrownSensitivity["MEDIUM"] = 1] = "MEDIUM";
-  CrownSensitivity[CrownSensitivity["HIGH"] = 2] = "HIGH";
+  CrownSensitivity[CrownSensitivity.LOW = 0] = 'LOW';
+  CrownSensitivity[CrownSensitivity.MEDIUM = 1] = 'MEDIUM';
+  CrownSensitivity[CrownSensitivity.HIGH = 2] = 'HIGH';
 })(CrownSensitivity || (CrownSensitivity = {}));
 
-var CrownAction;
+let CrownAction;
 (function (CrownAction) {
-  CrownAction[CrownAction["BEGIN"] = 0] = "BEGIN";
-  CrownAction[CrownAction["UPDATE"] = 1] = "UPDATE";
-  CrownAction[CrownAction["END"] = 2] = "END";
+  CrownAction[CrownAction.BEGIN = 0] = 'BEGIN';
+  CrownAction[CrownAction.UPDATE = 1] = 'UPDATE';
+  CrownAction[CrownAction.END = 2] = 'END';
 })(CrownAction || (CrownAction = {}));
+
+let AccessibilitySamePageMode;
+(function (AccessibilitySamePageMode) {
+  AccessibilitySamePageMode[AccessibilitySamePageMode.SEMI_SILENT = 0] = 'SEMI_SILENT';
+  AccessibilitySamePageMode[AccessibilitySamePageMode.FULL_SILENT = 1] = 'FULL_SILENT';
+})(AccessibilitySamePageMode || (AccessibilitySamePageMode = {}));

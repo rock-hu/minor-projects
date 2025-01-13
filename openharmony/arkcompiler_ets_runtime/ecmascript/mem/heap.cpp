@@ -738,10 +738,10 @@ void SharedHeap::ReclaimForAppSpawn()
 void SharedHeap::DumpHeapSnapshotBeforeOOM([[maybe_unused]]bool isFullGC, [[maybe_unused]]JSThread *thread,
                                            [[maybe_unused]] SharedHeapOOMSource source)
 {
-#if defined(ECMASCRIPT_SUPPORT_SNAPSHOT) && defined(PANDA_TARGET_OHOS) && defined(ENABLE_HISYSEVENT)
-    if (!g_betaVersion && !g_developMode && !g_futVersion) {
-        LOG_ECMA(INFO)
-            << "SharedHeap::DumpHeapSnapshotBeforeOOM, current device is not development or beta! do not dump";
+#if defined(ECMASCRIPT_SUPPORT_SNAPSHOT) && defined(ENABLE_DUMP_IN_FAULTLOG)
+    AppFreezeFilterCallback appfreezeCallback = Runtime::GetInstance()->GetAppFreezeFilterCallback();
+    if (appfreezeCallback != nullptr && !appfreezeCallback(getprocpid())) {
+        LOG_ECMA(INFO) << "SharedHeap::DumpHeapSnapshotBeforeOOM, no dump quota.";
         return;
     }
 #endif
@@ -765,9 +765,6 @@ void SharedHeap::DumpHeapSnapshotBeforeOOM([[maybe_unused]]bool isFullGC, [[mayb
     // Filter appfreeze when dump.
     LOG_ECMA(INFO) << "SharedHeap::DumpHeapSnapshotBeforeOOM, isFullGC = " << isFullGC;
     base::BlockHookScope blockScope;
-    if (appfreezeCallback_ != nullptr && appfreezeCallback_(getprocpid())) {
-        LOG_ECMA(INFO) << "SharedHeap::DumpHeapSnapshotBeforeOOM, appfreezeCallback_ success. ";
-    }
     vm->GetEcmaGCKeyStats()->SendSysEventBeforeDump("OOMDump", GetEcmaParamConfiguration().GetMaxHeapSize(),
                                                     GetHeapObjectSize());
     DumpSnapShotOption dumpOption;
@@ -1447,13 +1444,6 @@ void BaseHeap::SetMachineCodeOutOfMemoryError(JSThread *thread, size_t size, std
     thread->SetException(error.GetTaggedValue());
 }
 
-void BaseHeap::SetAppFreezeFilterCallback(AppFreezeFilterCallback cb)
-{
-    if (cb != nullptr) {
-        appfreezeCallback_ = cb;
-    }
-}
-
 void BaseHeap::ThrowOutOfMemoryErrorForDefault(JSThread *thread, size_t size, std::string functionName,
     bool NonMovableObjNearOOM)
 { // LCOV_EXCL_START
@@ -1628,10 +1618,10 @@ void BaseHeap::OnAllocateEvent([[maybe_unused]] EcmaVM *ecmaVm, [[maybe_unused]]
 
 void Heap::DumpHeapSnapshotBeforeOOM([[maybe_unused]] bool isFullGC)
 {
-#if defined(ECMASCRIPT_SUPPORT_SNAPSHOT) && defined(PANDA_TARGET_OHOS) && defined(ENABLE_HISYSEVENT)
-    if (!g_betaVersion && !g_developMode && !g_futVersion) {
-        LOG_ECMA(INFO)
-            << "Heap::DumpHeapSnapshotBeforeOOM, current device is not development or beta! do not dump";
+#if defined(ECMASCRIPT_SUPPORT_SNAPSHOT) && defined(ENABLE_DUMP_IN_FAULTLOG)
+    AppFreezeFilterCallback appfreezeCallback = Runtime::GetInstance()->GetAppFreezeFilterCallback();
+    if (appfreezeCallback != nullptr && !appfreezeCallback(getprocpid())) {
+        LOG_ECMA(INFO) << "Heap::DumpHeapSnapshotBeforeOOM, no dump quota.";
         return;
     }
 #endif
@@ -1645,9 +1635,6 @@ void Heap::DumpHeapSnapshotBeforeOOM([[maybe_unused]] bool isFullGC)
     LOG_ECMA(INFO) << " Heap::DumpHeapSnapshotBeforeOOM, isFullGC = " << isFullGC;
     base::BlockHookScope blockScope;
     HeapProfilerInterface *heapProfile = HeapProfilerInterface::GetInstance(ecmaVm_);
-    if (appfreezeCallback_ != nullptr && appfreezeCallback_(getprocpid())) {
-        LOG_ECMA(INFO) << "Heap::DumpHeapSnapshotBeforeOOM, appfreezeCallback_ success. ";
-    }
 #ifdef ENABLE_HISYSEVENT
     GetEcmaGCKeyStats()->SendSysEventBeforeDump("OOMDump", GetHeapLimitSize(), GetLiveObjectSize());
     hasOOMDump_ = true;
@@ -2875,7 +2862,8 @@ void Heap::ThresholdReachedDump()
             g_lastHeapDumpTime = GetCurrentTickMillseconds();
             base::BlockHookScope blockScope;
             HeapProfilerInterface *heapProfile = HeapProfilerInterface::GetInstance(ecmaVm_);
-            if (appfreezeCallback_ != nullptr && appfreezeCallback_(getprocpid())) {
+            AppFreezeFilterCallback appfreezeCallback = Runtime::GetInstance()->GetAppFreezeFilterCallback();
+            if (appfreezeCallback != nullptr && appfreezeCallback(getprocpid())) {
                 LOG_ECMA(INFO) << "ThresholdReachedDump and avoid freeze success.";
             } else {
                 LOG_ECMA(WARN) << "ThresholdReachedDump but avoid freeze failed.";

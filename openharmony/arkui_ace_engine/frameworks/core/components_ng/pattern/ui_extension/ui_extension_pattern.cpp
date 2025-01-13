@@ -42,6 +42,9 @@
 #include "core/components_ng/render/adapter/rosen_render_context.h"
 #include "core/components_ng/render/adapter/rosen_window.h"
 #include "core/event/ace_events.h"
+#ifdef SUPPORT_DIGITAL_CROWN
+#include "core/event/crown_event.h"
+#endif
 #include "core/event/key_event.h"
 #include "core/event/mouse_event.h"
 #include "core/event/pointer_event.h"
@@ -415,7 +418,15 @@ void UIExtensionPattern::OnConnect()
     }
     InitializeAccessibility();
     ReDispatchDisplayArea();
+    InitBusinessDataHandleCallback();
+    RegisterReplyPageModeCallback();
+    NotifyHostWindowMode();
+}
+
+void UIExtensionPattern::InitBusinessDataHandleCallback()
+{
     RegisterEventProxyFlagCallback();
+    RegisterTransformParamGetCallback();
 }
 
 void UIExtensionPattern::ReplacePlaceholderByContent()
@@ -503,12 +514,26 @@ void UIExtensionPattern::OnExtensionEvent(UIExtCallbackEventId eventId)
     }
 }
 
+void UIExtensionPattern::UpdateFrameNodeState()
+{
+    auto frameNode = frameNode_.Upgrade();
+    CHECK_NULL_VOID(frameNode);
+    auto ngPipeline = NG::PipelineContext::GetCurrentContext();
+    CHECK_NULL_VOID(ngPipeline);
+    auto frontend = ngPipeline->GetFrontend();
+    CHECK_NULL_VOID(frontend);
+    auto accessibilityManager = frontend->GetAccessibilityManager();
+    CHECK_NULL_VOID(accessibilityManager);
+    accessibilityManager->UpdateFrameNodeState(frameNode->GetId());
+}
+
 void UIExtensionPattern::OnUeaAccessibilityEventAsync()
 {
     auto frameNode = frameNode_.Upgrade();
     CHECK_NULL_VOID(frameNode);
     auto accessibilityProperty = frameNode->GetAccessibilityProperty<AccessibilityProperty>();
     CHECK_NULL_VOID(accessibilityProperty);
+    UpdateFrameNodeState();
     if ((accessibilityChildTreeCallback_ != nullptr) && (accessibilityProperty->GetChildTreeId() != -1)) {
         UIEXT_LOGI("uec need notify register accessibility again %{public}d, %{public}d.",
             accessibilityProperty->GetChildWindowId(), accessibilityProperty->GetChildTreeId());
@@ -690,6 +715,11 @@ void UIExtensionPattern::OnAttachToFrameNode()
         CHECK_NULL_VOID(pattern);
         pattern->SetFoldStatusChanged(true);
     });
+    auto frontend = pipeline->GetFrontend();
+    CHECK_NULL_VOID(frontend);
+    auto accessibilityManager = frontend->GetAccessibilityManager();
+    CHECK_NULL_VOID(accessibilityManager);
+    accessibilityManager->SendFrameNodeToAccessibility(host, true);
     UIEXT_LOGI("OnAttachToFrameNode");
 }
 
@@ -724,6 +754,9 @@ void UIExtensionPattern::OnModifyDone()
     auto focusHub = host->GetFocusHub();
     CHECK_NULL_VOID(focusHub);
     InitKeyEvent(focusHub);
+#ifdef SUPPORT_DIGITAL_CROWN
+    InitCrownEvent(focusHub);
+#endif
 }
 
 void UIExtensionPattern::InitKeyEventOnFocus(const RefPtr<FocusHub>& focusHub)
@@ -806,6 +839,33 @@ void UIExtensionPattern::InitKeyEventOnKeyEvent(const RefPtr<FocusHub>& focusHub
         return false;
     });
 }
+
+#ifdef SUPPORT_DIGITAL_CROWN
+void UIExtensionPattern::InitCrownEvent(const RefPtr<FocusHub>& focusHub)
+{
+    focusHub->SetOnCrownEventInternal([wp = WeakClaim(this)](const CrownEvent& event) -> bool {
+        auto pattern = wp.Upgrade();
+        if (pattern) {
+            pattern->HandleCrownEvent(event);
+        }
+        return false;
+    });
+}
+
+void UIExtensionPattern::HandleCrownEvent(const CrownEvent& event)
+{
+    if (event.action == Ace::CrownAction::UNKNOWN) {
+        UIEXT_LOGE("action is UNKNOWN");
+        return;
+    }
+    auto pointerEvent = event.GetPointerEvent();
+    CHECK_NULL_VOID(pointerEvent);
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    Platform::CalculatePointerEvent(pointerEvent, host);
+    DispatchPointerEvent(pointerEvent);
+}
+#endif
 
 void UIExtensionPattern::InitKeyEvent(const RefPtr<FocusHub>& focusHub)
 {
@@ -1035,7 +1095,7 @@ void UIExtensionPattern::DispatchDisplayArea(bool isForce)
     CHECK_NULL_VOID(sessionWrapper_);
     auto host = GetHost();
     CHECK_NULL_VOID(host);
-    auto [displayOffset, err] = host->GetPaintRectGlobalOffsetWithTranslate();
+    auto [displayOffset, err] = host->GetPaintRectGlobalOffsetWithTranslate(false, true);
     auto geometryNode = host->GetGeometryNode();
     CHECK_NULL_VOID(geometryNode);
     auto renderContext = host->GetRenderContext();
@@ -1673,6 +1733,63 @@ void UIExtensionPattern::RegisterEventProxyFlagCallback()
         });
 }
 
+void UIExtensionPattern::RegisterTransformParamGetCallback()
+{
+    RegisterUIExtBusinessConsumeReplyCallback(UIContentBusinessCode::TRANSFORM_PARAM,
+        [weak = WeakClaim(this)](const AAFwk::Want& data, std::optional<AAFwk::Want>& reply) -> int32_t {
+            auto pattern = weak.Upgrade();
+            CHECK_NULL_RETURN(pattern, -1);
+            auto host = pattern->GetHost();
+            CHECK_NULL_RETURN(host, -1);
+            auto rect = host->GetTransformRectRelativeToWindow();
+            VectorF finalScale = host->GetTransformScaleRelativeToWindow();
+            AccessibilityParentRectInfo parentRectInfo;
+            parentRectInfo.left = static_cast<int32_t>(rect.Left());
+            parentRectInfo.top = static_cast<int32_t>(rect.Top());
+            parentRectInfo.scaleX = finalScale.x;
+            parentRectInfo.scaleY = finalScale.y;
+            auto pipeline = host->GetContextRefPtr();
+            if (pipeline) {
+                auto accessibilityManager = pipeline->GetAccessibilityManager();
+                if (accessibilityManager) {
+                    auto windowInfo = accessibilityManager->GenerateWindowInfo(host, pipeline);
+                    parentRectInfo.left =
+                        parentRectInfo.left * windowInfo.scaleX + static_cast<int32_t>(windowInfo.left);
+                    parentRectInfo.top = parentRectInfo.top * windowInfo.scaleY + static_cast<int32_t>(windowInfo.top);
+                    parentRectInfo.scaleX *= windowInfo.scaleX;
+                    parentRectInfo.scaleY *= windowInfo.scaleY;
+                }
+            }
+            reply->SetParam("left", parentRectInfo.left);
+            reply->SetParam("top", parentRectInfo.top);
+            reply->SetParam("scaleX", parentRectInfo.scaleX);
+            reply->SetParam("scaleY", parentRectInfo.scaleY);
+            TAG_LOGI(AceLogTag::ACE_UIEXTENSIONCOMPONENT,
+                "Transform rect param[left:%{public}d, top:%{public}d, scaleX:%{public}f, scaleY:%{public}f].",
+                parentRectInfo.left, parentRectInfo.top, parentRectInfo.scaleX, parentRectInfo.scaleY);
+            return 0;
+        });
+}
+
+void UIExtensionPattern::RegisterReplyPageModeCallback()
+{
+    auto callback = [weak = WeakClaim(this)](const AAFwk::Want& data, std::optional<AAFwk::Want>& reply) -> int32_t {
+        auto pattern = weak.Upgrade();
+        CHECK_NULL_RETURN(pattern, -1);
+        auto host = pattern->GetHost();
+        CHECK_NULL_RETURN(host, -1);
+        auto accessibilityProperty = host->GetAccessibilityProperty<AccessibilityProperty>();
+        CHECK_NULL_RETURN(accessibilityProperty, -1);
+
+        if (reply.has_value() && data.HasParameter("requestPageMode")) {
+            reply->SetParam("pageMode", accessibilityProperty->GetAccessibilitySamePage());
+            return 0;
+        }
+        return -1;
+    };
+    RegisterUIExtBusinessConsumeReplyCallback(UIContentBusinessCode::SEND_PAGE_MODE, callback);
+}
+
 bool UIExtensionPattern::SendBusinessDataSyncReply(UIContentBusinessCode code, AAFwk::Want&& data, AAFwk::Want& reply)
 {
     CHECK_NULL_RETURN(sessionWrapper_, false);
@@ -1736,6 +1853,25 @@ void UIExtensionPattern::FireOnDrawReadyCallback()
 {
     if (onDrawReadyCallback_) {
         onDrawReadyCallback_();
+    }
+}
+
+void UIExtensionPattern::NotifyHostWindowMode()
+{
+    auto container = Platform::AceContainer::GetContainer(instanceId_);
+    CHECK_NULL_VOID(container);
+    auto mode = container->GetWindowMode();
+    NotifyHostWindowMode(mode);
+}
+
+void UIExtensionPattern::NotifyHostWindowMode(Rosen::WindowMode mode)
+{
+    UIEXT_LOGI("NotifyHostWindowMode: instanceId = %{public}d, followStrategy = %{public}d, mode = %{public}d",
+        instanceId_, isWindowModeFollowHost_, static_cast<int32_t>(mode));
+    CHECK_NULL_VOID(sessionWrapper_);
+    if (isWindowModeFollowHost_ && mode != Rosen::WindowMode::WINDOW_MODE_UNDEFINED) {
+        int32_t windowMode = static_cast<int32_t>(mode);
+        sessionWrapper_->NotifyHostWindowMode(windowMode);
     }
 }
 } // namespace OHOS::Ace::NG

@@ -71,18 +71,6 @@ namespace panda::ecmascript {
 #define GET_ASM_FRAME(CurrentSp) \
     (reinterpret_cast<AsmInterpretedFrame *>(CurrentSp) - 1) // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 
-DEF_RUNTIME_STUBS(AddElementInternal)
-{
-    RUNTIME_STUBS_HEADER(AddElementInternal);
-    JSHandle<JSObject> receiver = GetHArg<JSObject>(argv, argc, 0);  // 0: means the zeroth parameter
-    JSTaggedValue argIndex = GetArg(argv, argc, 1);  // 1: means the first parameter
-    JSHandle<JSTaggedValue> value = GetHArg<JSTaggedValue>(argv, argc, 2);  // 2: means the second parameter
-    JSTaggedValue attr = GetArg(argv, argc, 3);  // 3: means the third parameter
-    PropertyAttributes attrValue(attr);
-    auto result = JSObject::AddElementInternal(thread, receiver, argIndex.GetInt(), value, attrValue);
-    return JSTaggedValue(result).GetRawData();
-}
-
 DEF_RUNTIME_STUBS(InitializeGeneratorFunction)
 {
     RUNTIME_STUBS_HEADER(InitializeGeneratorFunction);
@@ -265,23 +253,40 @@ DEF_RUNTIME_STUBS(TypedArraySpeciesCreate)
     return newArr.GetTaggedValue().GetRawData();
 }
 
-void RuntimeStubs::CopyTypedArrayBuffer(JSTypedArray *srcArray, JSTypedArray *targetArray, int32_t srcStartPos,
-    int32_t tarStartPos, int32_t count, int32_t elementSize)
+void RuntimeStubs::CopyTypedArrayBuffer(uintptr_t argGlue, JSTypedArray *srcArray, JSTypedArray *targetArray,
+                                        int32_t srcStartPos, int32_t tarStartPos, int32_t count)
 {
     DISALLOW_GARBAGE_COLLECTION;
     if (count <= 0) {
         return;
     }
-    JSTaggedValue srcBuffer = srcArray->GetViewedArrayBufferOrByteArray();
-    JSTaggedValue targetBuffer = targetArray->GetViewedArrayBufferOrByteArray();
-    uint32_t srcByteIndex = static_cast<uint32_t>(srcStartPos * elementSize) + srcArray->GetByteOffset();
-    uint32_t targetByteIndex = static_cast<uint32_t>(tarStartPos * elementSize) + targetArray->GetByteOffset();
-    uint8_t *srcBuf = (uint8_t *)builtins::BuiltinsArrayBuffer::GetDataPointFromBuffer(srcBuffer, srcByteIndex);
-    uint8_t *targetBuf = (uint8_t *)builtins::BuiltinsArrayBuffer::GetDataPointFromBuffer(targetBuffer,
-                                                                                          targetByteIndex);
-    if (memmove_s(targetBuf, elementSize * count, srcBuf, elementSize * count) != EOK) {
-        LOG_FULL(FATAL) << "memmove_s failed";
-        UNREACHABLE();
+
+    JSType srcType = srcArray->GetClass()->GetObjectType();
+    JSType tarType = targetArray->GetClass()->GetObjectType();
+    uint32_t srcElementSize = base::TypedArrayHelper::GetElementSize(srcType);
+    uint32_t uSrcStartPos = static_cast<uint32_t>(srcStartPos);
+    uint32_t uTarStartPos = static_cast<uint32_t>(tarStartPos);
+    uint32_t uCount = static_cast<uint32_t>(count);
+    if (LIKELY(srcType == tarType)) {
+        JSTaggedValue srcBuffer = srcArray->GetViewedArrayBufferOrByteArray();
+        JSTaggedValue targetBuffer = targetArray->GetViewedArrayBufferOrByteArray();
+        uint32_t srcByteIndex = uSrcStartPos * srcElementSize + srcArray->GetByteOffset();
+        uint32_t targetByteIndex = uTarStartPos * srcElementSize + targetArray->GetByteOffset();
+        uint8_t *srcBuf = (uint8_t *) builtins::BuiltinsArrayBuffer::GetDataPointFromBuffer(srcBuffer, srcByteIndex);
+        uint8_t *targetBuf = (uint8_t *) builtins::BuiltinsArrayBuffer::GetDataPointFromBuffer(targetBuffer,
+                                                                                               targetByteIndex);
+        if (memmove_s(targetBuf, srcElementSize * uCount, srcBuf, srcElementSize * uCount) != EOK) {
+            LOG_FULL(FATAL) << "memmove_s failed";
+            UNREACHABLE();
+        }
+    } else {
+        auto thread = JSThread::GlueToJSThread(argGlue);
+        for (uint32_t i = 0; i < uCount; ++i) {
+            JSTaggedValue curElement = JSTypedArray::FastGetPropertyByIndex(thread, JSTaggedValue::Cast(srcArray),
+                                                                            uSrcStartPos + i, srcType);
+            JSTypedArray::FastSetPropertyByIndex(thread, JSTaggedValue::Cast(targetArray), uTarStartPos + i,
+                                                 curElement, tarType);
+        }
     }
 }
 
@@ -881,46 +886,6 @@ DEF_RUNTIME_STUBS(ToPropertyKey)
 {
     RUNTIME_STUBS_HEADER(ToPropertyKey);
     JSHandle<JSTaggedValue> key = GetHArg<JSTaggedValue>(argv, argc, 0);  // 0: means the zeroth parameter
-    JSTaggedValue res = JSTaggedValue::ToPropertyKey(thread, key).GetTaggedValue();
-    return res.GetRawData();
-}
-
-DEF_RUNTIME_STUBS(ToPropertyKeyValue)
-{
-    RUNTIME_STUBS_HEADER(ToPropertyKeyValue);
-    std::string string_key = "value";
-    JSHandle<JSTaggedValue> key = JSHandle<JSTaggedValue>(thread,
-        base::BuiltinsBase::GetTaggedString(thread, string_key.c_str()));
-    JSTaggedValue res = JSTaggedValue::ToPropertyKey(thread, key).GetTaggedValue();
-    return res.GetRawData();
-}
-
-DEF_RUNTIME_STUBS(ToPropertyKeyWritable)
-{
-    RUNTIME_STUBS_HEADER(ToPropertyKeyWritable);
-    std::string string_key = "writable";
-    JSHandle<JSTaggedValue> key = JSHandle<JSTaggedValue>(thread,
-        base::BuiltinsBase::GetTaggedString(thread, string_key.c_str()));
-    JSTaggedValue res = JSTaggedValue::ToPropertyKey(thread, key).GetTaggedValue();
-    return res.GetRawData();
-}
-
-DEF_RUNTIME_STUBS(ToPropertyKeyEnumerable)
-{
-    RUNTIME_STUBS_HEADER(ToPropertyKeyEnumerable);
-    std::string string_key = "enumerable";
-    JSHandle<JSTaggedValue> key = JSHandle<JSTaggedValue>(thread,
-        base::BuiltinsBase::GetTaggedString(thread, string_key.c_str()));
-    JSTaggedValue res = JSTaggedValue::ToPropertyKey(thread, key).GetTaggedValue();
-    return res.GetRawData();
-}
-
-DEF_RUNTIME_STUBS(ToPropertyKeyConfigurable)
-{
-    RUNTIME_STUBS_HEADER(ToPropertyKeyConfigurable);
-    std::string string_key = "configurable";
-    JSHandle<JSTaggedValue> key = JSHandle<JSTaggedValue>(thread,
-        base::BuiltinsBase::GetTaggedString(thread, string_key.c_str()));
     JSTaggedValue res = JSTaggedValue::ToPropertyKey(thread, key).GetTaggedValue();
     return res.GetRawData();
 }
@@ -3540,8 +3505,13 @@ void RuntimeStubs::SaveFrameToContext(JSThread *thread, JSHandle<GeneratorContex
     context->SetMethod(thread, function);
     context->SetThis(thread, frameHandler.GetThis());
 
-    BytecodeInstruction ins(frameHandler.GetPc());
-    auto offset = ins.GetSize();
+    uint32_t offset = 0;
+    // pc in baseline is not real bytecode offset, so skip to get the offset
+    if (reinterpret_cast<uint64_t>(frameHandler.GetPc()) != std::numeric_limits<uint64_t>::max()) {
+        BytecodeInstruction ins(frameHandler.GetPc());
+        offset = ins.GetSize();
+    }
+
     context->SetAcc(thread, frameHandler.GetAcc());
     context->SetLexicalEnv(thread, thread->GetCurrentLexenv());
     context->SetNRegs(nregs);

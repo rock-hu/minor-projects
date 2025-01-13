@@ -36,6 +36,7 @@
 namespace OHOS::Ace::NG {
 namespace {
 constexpr float PICKER_MAXFONTSCALE = 1.0f;
+constexpr bool DEFAULT_ENABLE_HAPTIC_FEEDBACK = true;
 const int32_t BUFFER_NODE_NUMBER = 2;
 
 void SetDialogProperties(DialogProperties& properties, TextPickerDialog& textPickerDialog,
@@ -241,6 +242,30 @@ void TextPickerModelNG::SetSelected(uint32_t value)
     values.emplace_back(value);
     ACE_UPDATE_LAYOUT_PROPERTY(TextPickerLayoutProperty, Selected, value);
     ACE_UPDATE_LAYOUT_PROPERTY(TextPickerLayoutProperty, SelectedIndex, values);
+}
+
+void TextPickerModelNG::SetColumnWidths(const std::vector<Dimension>& widths)
+{
+    auto frameNode = ViewStackProcessor::GetInstance()->GetMainFrameNode();
+    CHECK_NULL_VOID(frameNode);
+    auto textPickerPattern = frameNode->GetPattern<TextPickerPattern>();
+    textPickerPattern->SetColumnWidths(widths);
+}
+
+void TextPickerModelNG::SetColumnWidths(FrameNode* frameNode, const std::vector<Dimension>& widths)
+{
+    CHECK_NULL_VOID(frameNode);
+    auto textPickerPattern = frameNode->GetPattern<TextPickerPattern>();
+    textPickerPattern->SetColumnWidths(widths);
+}
+
+std::vector<Dimension> TextPickerModelNG::GetColumnWidths(FrameNode* frameNode)
+{
+    std::vector<Dimension> columnWidths;
+    CHECK_NULL_RETURN(frameNode, columnWidths);
+    auto textPickerPattern = frameNode->GetPattern<TextPickerPattern>();
+    columnWidths = textPickerPattern->GetColumnWidths();
+    return columnWidths;
 }
 
 void TextPickerModelNG::SetRange(const std::vector<NG::RangeContent>& value)
@@ -812,7 +837,8 @@ void TextPickerDialogModelNG::SetTextPickerDialogShow(RefPtr<AceType>& PickerTex
             overlayManager->ShowTextDialog(
                 properties, settingData, dialogEvent, dialogCancelEvent, dialogLifeCycleEvent, buttonInfos);
         },
-        TaskExecutor::TaskType::UI, "ArkUITextPickerShowTextDialog");
+        TaskExecutor::TaskType::UI, "ArkUITextPickerShowTextDialog",
+        TaskExecutor::GetPriorityTypeWithCheck(PriorityType::VIP));
 }
 
 void TextPickerModelNG::SetCanLoop(FrameNode* frameNode, const bool value)
@@ -1280,6 +1306,14 @@ int32_t TextPickerModelNG::GetSelectedSize(FrameNode* frameNode)
     return textPickerPattern->GetSelecteds().size();
 }
 
+int32_t TextPickerModelNG::GetColumnWidthsSize(FrameNode* frameNode)
+{
+    CHECK_NULL_RETURN(frameNode, 0);
+    auto textPickerPattern = frameNode->GetPattern<TextPickerPattern>();
+    CHECK_NULL_RETURN(textPickerPattern, 0);
+    return textPickerPattern->GetColumnWidths().size();
+}
+
 std::string TextPickerModelNG::getTextPickerValues(FrameNode* frameNode)
 {
     CHECK_NULL_RETURN(frameNode, "");
@@ -1350,4 +1384,25 @@ void TextPickerModelNG::HasUserDefinedOpacity()
     textPickerPattern->SetUserDefinedOpacity(renderContext->GetOpacityValue(1.0));
 }
 
+void TextPickerModelNG::SetEnableHapticFeedback(bool isEnableHapticFeedback)
+{
+    auto frameNode = ViewStackProcessor::GetInstance()->GetMainFrameNode();
+    SetEnableHapticFeedback(frameNode, isEnableHapticFeedback);
+}
+
+void TextPickerModelNG::SetEnableHapticFeedback(FrameNode* frameNode, bool isEnableHapticFeedback)
+{
+    CHECK_NULL_VOID(frameNode);
+    auto textPickerPattern = frameNode->GetPattern<TextPickerPattern>();
+    CHECK_NULL_VOID(textPickerPattern);
+    textPickerPattern->SetIsEnableHaptic(isEnableHapticFeedback);
+}
+
+bool TextPickerModelNG::GetEnableHapticFeedback(FrameNode* frameNode)
+{
+    CHECK_NULL_RETURN(frameNode, DEFAULT_ENABLE_HAPTIC_FEEDBACK);
+    auto textPickerPattern = frameNode->GetPattern<TextPickerPattern>();
+    CHECK_NULL_RETURN(textPickerPattern, DEFAULT_ENABLE_HAPTIC_FEEDBACK);
+    return textPickerPattern->GetIsEnableHaptic();
+}
 } // namespace OHOS::Ace::NG
