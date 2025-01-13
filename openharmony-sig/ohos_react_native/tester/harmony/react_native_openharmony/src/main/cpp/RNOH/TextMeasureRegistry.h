@@ -46,7 +46,7 @@ public:
 
   std::unordered_map<std::string, std::shared_ptr<TextMeasureInfo>> m_keyToMeasureInfo; // saved which measureInfo using by key
 
-  mutable folly::EvictingCacheMap<facebook::react::TextMeasureCacheKey, std::shared_ptr<TextMeasureInfo>>
+  mutable std::unordered_map<facebook::react::TextMeasureCacheKey, std::shared_ptr<TextMeasureInfo>>
     m_textMeasureInfoCache{facebook::react::kSimpleThreadSafeCacheSizeCap}; // cached all measure result
   std::mutex m_mutex;
 };

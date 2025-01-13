@@ -21,7 +21,7 @@ TextMeasureRegistry& TextMeasureRegistry::getTextMeasureRegistry() {
 
 void TextMeasureRegistry::setTextMeasureInfo(const std::string& key, std::shared_ptr<TextMeasureInfo> measureInfo, facebook::react::TextMeasureCacheKey& cacheKey) {
   std::lock_guard<std::mutex> lock(m_mutex);
-  m_textMeasureInfoCache.set(cacheKey, measureInfo);
+  m_textMeasureInfoCache.emplace(cacheKey, measureInfo);
   m_keyToMeasureInfo.erase(key);
   m_keyToCacheKey.erase(key);
   m_keyToMeasureInfo.emplace(key, measureInfo);

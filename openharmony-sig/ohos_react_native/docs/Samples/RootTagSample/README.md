@@ -1,20 +1,20 @@
-# 说明
-这是获取RNSurface对应RNInstance与rootTag的demo工程。
+# Description
+This is the demo project for obtaining RNInstance and RootTag corresponding to RNSurface.
 
 
-# 目录结构
+# Directory Structure
 
 ```md
 RootTagSample
-├── ReactProject RN前端工程
-├── NativeProject 鸿蒙工程
+├── ReactProject RN front-end project
+├── NativeProject HarmonyOS project
 └── README.md
 ```
 
 
-# 环境搭建
-1. 在 `ReactProject` 目录下执行 **npm i @react-native-oh/react-native-harmony@x.x.x** 安装依赖，执行 **npm run dev** 生成 bundle；
-2. 在 `entry` 目录下执行 **ohpm i @rnoh/react-native-openharmony@x.x.x** 安装依赖；
-3. 检查 `NativeProject`、`entry` 目录下是否生成 `oh-modules` 文件夹；
-4. 用 DevEco Studio 打开 NativeProject，执行 **Sync and Refresh Project**；
-5. 点击右上角的 **run** 启动项目。
+# Environment Setup
+1. In the `ReactProject` directory, run **npm i @react-native-oh/react-native-harmony@x.x.x** to install the dependency and run **npm run dev** to generate the bundle.
+2. In the `entry` directory, run **ohpm i @rnoh/react-native-openharmony@x.x.x** to install the dependency.
+3. Check whether the `oh-modules` folder is generated in the `NativeProject` and `entry` directories.
+4. Open **NativeProject** in DevEco Studio and run **Sync and Refresh Project**.
+5. Click **run** in the upper right corner to start the project.

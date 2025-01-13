@@ -1,41 +1,41 @@
 ### README
 
-这个项目包含两个演示，一个演示如何在 OpenHarmony 侧将 raw 文件推送到沙箱并成功加载，另一个演示如何在 React Native 侧加载沙箱中的图片。
+This project includes two demos. One demonstrates how to push raw files to the sandbox and load the files on HarmonyOS. The other demonstrates how to load images in the sandbox on the React Native side.
 
-#### 目录结构
+#### Directory Structure
 
 ```
 ├── SandBoxNativeProject
 |   └── Index.ets
-|       ├── downloadBundle # OpenHarmony 侧推送 raw 文件到沙箱中
-|       └── new FileJSBundleProvider #OpenHarmony 侧加载沙箱中的文件
+|       ├── downloadBundle # Push raw files to the sandbox on HarmonyOS.
+|       └── new FileJSBundleProvider # Load the files in the sandbox on HarmonyOS.
 └── SandBoxRnProject
-    └── example.tsx  # React Native 侧加载沙箱中的图片
+    └── example.tsx  # Load images in the sandbox on the React Native side.
 
 ```
 
-#### OpenHarmony 侧
+#### On HarmonyOS
 
-1. **将文件推送到沙箱**: 使用 `downloadBundle` 函数的 getRawFileContent 方法将 rwaFile 中的文件推送到沙箱，以便之后的读取操作。
-2. **加载文件**: 使用 `new FileJSBundleProvider` 类从沙箱中加载文件并验证其内容。
+1. **Push files to the sandbox**: Use the **getRawFileContent** method of the `downloadBundle` function to push raw files to the sandbox for subsequent read operations.
+2. **Load files**: Use the `new FileJSBundleProvider` class to load the files from the sandbox and verify the file content.
 
-#### React Native 侧
+#### On React Native
 
-1. **加载沙箱中的图片**: 使用 `example.tsx` 中的代码，从 OpenHarmony 沙箱中加载图片，并在 React Native 应用中显示。
+1. **Load images from the sandbox**: Use the code in `example.tsx` to load images from the HarmonyOS sandbox and display them in the React Native app.
 
-#### 运行步骤
+#### Procedure
 
-1. 在 `SandBoxRnProject` 目录下执行 **npm i @react-native-oh/react-native-harmony@x.x.x** 安装依赖，执行 **npm run dev** 生成 bundle；
-2. 在 `entry` 目录下执行 **ohpm i @rnoh/react-native-openharmony@x.x.x** 安装依赖；
-3. 检查 `SandBoxRnProject`、`entry` 目录下是否生成 `oh-modules` 文件夹；
-4. 用 DevEco Studio 打开 SandBoxNativeProject **Sync and Refresh Project**；
-5. 点击右上角的 **run** 启动项目；
-6. 确保鸿蒙和 rn 侧依赖下载无缺，版本配套正常；
-7. 打开生成的 app 来确认文件已正确加载。
+1. In the `SandBoxRnProject` directory, run **npm i @react-native-oh/react-native-harmony@x.x.x** to install the dependency and run **npm run dev** to generate the bundle.
+2. In the `entry` directory, run **ohpm i @rnoh/react-native-openharmony@x.x.x** to install the dependency.
+3. Check whether the `oh-modules` folder is generated in the `SandBoxRnProject` and `entry` directories.
+4. Open **SandBoxNativeProject** in DevEco Studio and run **Sync and Refresh Project**.
+5. Click **run** in the upper right corner to start the project.
+6. Ensure that the dependency downloaded on the Harmony and RN sides is complete and the version mapping is normal.
+7. Open the generated app and check whether the file is correctly loaded.
 
-#### 注意事项
+#### Notes
 
-- 确保 OpenHarmony 和 React Native 项目配置正确，以便文件可以在两个系统之间无缝传递与加载。
-- 沙箱路径的使用和文件访问权限需要根据具体环境进行调整。
+- Ensure that the HarmonyOS and React Native projects are correctly configured so that files can be seamlessly transferred and loaded between the two systems.
+- The sandbox path usage and file access permission need to be adjusted based on the actual environment.
 
 ---

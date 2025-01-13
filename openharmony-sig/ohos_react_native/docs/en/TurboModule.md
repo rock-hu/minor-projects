@@ -1,4 +1,4 @@
-This documentation is based on React Native documentation licensed under the [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/) license at https://reactnative.cn/docs/0.72/the-new-architecture/pillars-turbomodules. © Meta Platforms Inc. Changed to How to create a TurboModule on OpenHarmony.
+This documentation is based on React Native documentation licensed under the [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/) license at https://reactnative.cn/docs/0.72/the-new-architecture/pillars-turbomodules. © Meta Platforms Inc. Changed to How to create a TurboModule on HarmonyOS.
 
 # Implementation of a Custom TurboModule
 
@@ -20,7 +20,7 @@ You can create a `RTNCalculator` directory at the same level as the `MyApp` dire
 
 ### JavaScript API Declaration
 
-Create `index.ts` in the `RTNCalculator` directory and export the API declaration file. The API declaration file is stored in the `v1` or `v2` directory as required. In this example, the file is stored in the `V2` directory. The API declaration file can be compiled using the [Flow](https://flow.org/) or [TypeScript](https://www.typescriptlang.org/) language.
+Create `index.ts` in the `RTNCalculator` directory and export the API declaration file. The NativeCalculator.ts file is stored in the `v1` or `v2` directory as required. In this example, the file is stored in the `V2` directory. The API declaration file can be compiled using the [Flow](https://flow.org/) or [TypeScript](https://www.typescriptlang.org/) language.
 
 ```TypeScript
 // index.ts
@@ -29,7 +29,7 @@ import NativeCalculator from "./src/specs/v2/NativeCalculator";
 export const RTNCalculator = NativeCalculator;
 ```
 
-> `npm` does not pack empty folders. You can retain the directory by implementing `.gitkeep` in v1.
+> `npm` does not pack empty folders. You need to create a `.gitkeep` file to save the **v1** directory.
 
 Note that the file must meet the following requirements. For details, see [React Native](https://reactnative.cn/docs/0.72/the-new-architecture/pillars-turbomodules#2-%E5%A3%B0%E6%98%8E-javascript-%E6%8E%A5%E5%8F%A3).
 
@@ -135,14 +135,15 @@ For details about how to use Codegen, see [Codegen](Codegen.md).
     npm run codegen
     ```
     ![Execution result](./figures/TurboModule-Codegen-execution-result.png)
-After the execution is successful, copy the generated glue code to your OpenHarmony project.
+After the execution is successful, copy the generated glue code to your HarmonyOS project.
 
 
-#### Writing Native OpenHarmony Code
+#### Writing Native HarmonyOS Code
 
 1. Create a `CalculatorModule.ts` file.
 
     Create the `turbomodule` folder in the `entry/src/main/ets` directory and add `CalculatorModule.ts` to the folder.
+    For **CxxTurboModule**, you do not need to implement it here. Leave the function body empty.
     For **ArkTSTurboModule**, add the following code:
 
     ```TypeScript
@@ -153,6 +154,19 @@ After the execution is successful, copy the generated glue code to your OpenHarm
     export class CalculatorModule extends TurboModule implements TM.RTNCalculator.Spec {
       add(a: number, b: number): Promise<number>{
         return Promise.resolve(a+b);
+      }
+    }
+    ```
+    For **CxxTurboModule**, you do not need to implement it here. You only need to ensure that the parameter type and return type of the function are correct.
+
+    ```typescript
+    // entry/src/main/ets/turbomodule/CalculatorModule.ts
+    import { TurboModule } from '@rnoh/react-native-openharmony/ts';
+    import { TM } from '@rnoh/react-native-openharmony/generated/ts';
+
+    export class CalculatorModule extends TurboModule implements TM.RTNCalculator.Spec {
+      add(a: number, b: number): Promise<number>{
+        return Promise.resolve(123456);
       }
     }
     ```
@@ -231,7 +245,30 @@ After the execution is successful, copy the generated glue code to your OpenHarm
 
     ```
 
-    Delete the asynchronous bridge call to **ArkTSTurboModule** from the lambda expression and add the implementation.
+    Delete the asynchronous bridge call to **ArkTSTurboModule** from the lambda expression and perform direct implementation.
+
+    ```diff
+    #include "RTNCalculator.h"
+
+    namespace rnoh {
+    using namespace facebook;
+
+    RTNCalculator::RTNCalculator(const ArkTSTurboModule::Context ctx, const std::string name) : ArkTSTurboModule(ctx, name) {
+        methodMap_ = {
+           { "add",
+             { 2,
+               [] (facebook::jsi::Runtime& rt, facebook::react::TurboModule& turboModule, const facebook::jsi::Value* args, size_t count) {
+    -             return static_cast<ArkTSTurboModule&>(turboModule).callAsync(rt, "add", args, count);
+    +             return jsi::Value(args[0].asNumber() + args[1].asNumber());
+               } 
+             } 
+           }
+        };
+    }
+
+    } // namespace rnoh
+
+    ```
 
 4. The subsequent steps vary according to the Codegen version in use:
 #### V1 Version
@@ -286,6 +323,8 @@ After the execution is successful, copy the generated glue code to your OpenHarm
         };
     }
     ```
+
+
 
 #### V2 Version
 
@@ -347,10 +386,102 @@ After the execution is successful, copy the generated glue code to your OpenHarm
     }
     ```
 
+#### Setting the Custom TurboModule to Run in the Worker Thread
+
+1. To create a TurboModule that runs in the worker thread, perform the following steps:
+
+    ```typescript
+    // entry/src/main/ets/GeneratedPackage.ets
+    import { RNPackage, AnyThreadTurboModuleFactory } from '@rnoh/react-native-openharmony/ts';
+    import type {
+      AnyThreadTurboModule,
+      AnyThreadTurboModuleContext
+    } from '@rnoh/react-native-openharmony/ts';
+    import { TM } from "@rnoh/react-native-openharmony/generated/ts"
+    import { CalculatorModule } from './turbomodule/CalculatorModule';
+    class GeneratedTurboModulesFactory extends AnyThreadTurboModuleFactory {
+      createTurboModule(name: string): AnyThreadTurboModule | null {
+        if (name === TM.RTNCalculator.NAME) {
+          return new CalculatorModule(this.ctx);
+        }
+        return null;
+      }
+      hasTurboModule(name: string): boolean {
+        return name === TM.RTNCalculator.NAME;
+      }
+    }
+    export class GeneratedPackage extends RNPackage {
+      createAnyThreadTurboModuleFactory(ctx: AnyThreadTurboModuleContext): AnyThreadTurboModuleFactory {
+        return new GeneratedTurboModulesFactory(ctx);
+      }
+    }
+    ```
+    To run the `CalculatorModule.ets` method on the worker thread, add the corresponding implementation code:
+
+    ```typescript
+    // entry/src/main/ets/turbomodule/CalculatorModule.ets
+    import { AnyThreadTurboModule } from '@rnoh/react-native-openharmony/ts';
+    import { TM } from '@rnoh/react-native-openharmony/generated/ts';
+
+    export class CalculatorModule extends AnyThreadTurboModule implements TM.RTNCalculator.Spec {
+      add(a: number, b: number): Promise<number>{
+        return Promise.resolve(a+b);
+      }
+      ...
+    }
+    ```
+    Note that:
+
+   - `GeneratedPackage` should inherit the `RNPackage` class, and `createAnyThreadTurboModuleFactory` should be implemented, to create `AnyThreadTurboModuleFactory`.
+      - The type of the **ctx** parameter of the `createAnyThreadTurboModuleFactory` method should be set to `AnyThreadTurboModuleContext`, and the return value type should be `AnyThreadTurboModuleFactory`.
+   - `GeneratedTurboModulesFactory` should inherit `AnyThreadTurboModuleFactory`.
+   - The following two methods must be implemented in `GeneratedTurboModulesFactory`:
+      - `createTurboModule`: used to create the corresponding `AnyThreadTurboModule` class based on the name or returns `null`.
+      - `hasTurboModule`: used to determine whether the TurboModule corresponding to the name exists.
+   - The `CalculatorModule` class of TurboModule should inherit `AnyThreadTurboModule`.
+
+2. Configure TurboModule to run in the worker thread. `getRNOHWorkerScriptUrl` should be reloaded after RNability is inherited. The code is modified as follows:
+    ```typescript
+    // entry/src/main/ets/entryability/EntryAbility.ets
+    import {RNAbility} from '@rnoh/react-native-openharmony';
+
+    export default class EntryAbility extends RNAbility {
+    +  override getRNOHWorkerScriptUrl() {
+    +    return "entry/ets/workers/RNOHWorker.ets"
+    +  }
+    ...
+    }
+    ```
+   Right-click the **ets** directory, choose `New`, and select `Worker` in the menu on the right.
+   ![create_worker](./figures/create-worker.png)
+   Enter `RNOHWorker.ets` in the window that is displayed.
+   ![christen_RNOHWorker](./figures/christen-RNOHWorker.png)
+   The directory structure is as follows:
+    ```
+    └── ets
+        ├── entryability
+        ├── page
+        ├── rn
+        └── workers
+            └── RNOHWorker.ets         
+    ```
+    Change `RNOHWorker.ets` to the following code:
+    ```typescript
+    // entry/src/main/ets/worker/RNOHWorker.ets
+    import { setupRNOHWorker } from "@rnoh/react-native-openharmony/src/main/ets/setupRNOHWorker";
+    import { createRNPackages } from '../RNPackagesFactory';
+
+    setupRNOHWorker({
+      createWorkerRNInstanceConfig: (_rnInstanceName) => {
+        return { thirdPartyPackagesFactory: createRNPackages }
+      }
+    })
+    ```
+
 ### TurboModule Usage
 
 Now, you can use TurboModule in your application. The following is an example:
-```TypeScript
+```javascript
 /**
  * Sample React Native App
  * https://github.com/facebook/react-native

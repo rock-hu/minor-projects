@@ -13,7 +13,7 @@
 
   4. Configure the hdc environment.
 
-      OpenHarmony device connector (hdc) is a command line tool used for debugging. The OpenHarmony React Native project uses hdc for debugging on a real device. Obtain the hdc tool from the OpenHarmony SDK and store it in the `toolchains` directory of the SDK. Add the full path of `{DevEco Studio installation path}/sdk/{SDK version}/openharmony/toolchains` to the environment variable.
+      HarmonyOS device connector (hdc) is a command line tool used for debugging. The HarmonyOS React Native project uses hdc for debugging on a real device. Obtain the hdc tool from the HarmonyOS SDK and store it in the `toolchains` directory of the SDK. Add the full path of `{DevEco Studio installation path}/sdk/{SDK version}/openharmony/toolchains` to the environment variable.
 
       - On Windows:
 
@@ -21,7 +21,7 @@
 
         b. Choose **This PC** > **Properties** > **Advanced system settings** > **Advances** > **Environment Variables**, add the variable **HDC_SERVER_PORT**, and set its value to any port number not in use, such as **7035**.
 
-        ![image](./figures/environment-configuration-hdc.png)
+        ![Environment configuration - hdc](./figures/environment-configuration-hdc.png)
       - On macOS:
 
         a. Start the terminal tool and run the following command to open the **.bash_profile** file.
@@ -105,11 +105,11 @@
 
   7. Additional Information
 
-      After the preceding environment configuration is complete, you are now ready to develop the React Native project on OpenHarmony. For details about how to set up the React Native environment on Android and iOS, go to the React Native official website and refer to [Environment Setup](https://reactnative.dev/docs/set-up-your-environment).
+      After the preceding environment configuration is complete, you are now ready to develop the React Native project on HarmonyOS. For details about how to set up the React Native environment on Android and iOS, go to the React Native official website and refer to [Environment Setup](https://reactnative.dev/docs/set-up-your-environment).
 
 # Creating a React Native Project
 
-​ This section describes how to initialize the React Native project, install the OpenHarmony dependency packages, and run the project.
+​ This section describes how to initialize the React Native project, install the HarmonyOS dependency packages, and run the project.
 
 ## Creating a Project
 
@@ -119,30 +119,25 @@
   npx react-native@0.72.5 init AwesomeProject --version 0.72.5
   ```
 
-![image](./figures/environment-setup-AwesomeProject.png)
+![Environment setup - AwesomeProject](./figures/environment-setup-AwesomeProject.png)
 
-​ When this command is used to initialize the React Native project on macOS, the iOS dependency library is downloaded, which takes a long time. You can run the following command to skip this process and download the library as required. This does not affect the development of the OpenHarmony project.
+​ When this command is used to initialize the React Native project on macOS, the iOS dependency library is downloaded, which takes a long time. You can run the following command to skip this process and download the library as required. This does not affect the development of the HarmonyOS project.
 
   ```bash
   npx react-native@0.72.5 init AwesomeProject --version 0.72.5 --skip-install
   ```
 
-![image](./figures/environment-setup-mac-AwesomeProject.png)
+![Environment setup - mac - AwesomeProject](./figures/environment-setup-mac-AwesomeProject.png)
 
-## Installing OpenHarmony Dependency Packages and Generating a Bundle
+## Installing HarmonyOS Dependency Packages and Generating a Bundle
 
 For details about the version mapping of the files used in this section, see [React Native for OpenHarmony Release Notes](release-notes.md).
 > You can set up the environment step by step according to the operations in this section. You can also replace the corresponding files with the files in `AwesomeProjectReplace.zip`, modify the version information, and run the project.
 
-### Downloading and Installing the OpenHarmony Dependencies
+### Downloading and Installing the HarmonyOS Dependencies
 
-1. Download the .tgz packages `react-native-harmony` and `react-native-harmony-cli` contained in the release package. Specifically:
-   - **react-native-harmony-*xxx*.tgz**: JS adaptation code of React Native.
-   - **react-native-harmony-cli-*xxx*.tgz**: implementations of command lines adapted to OpenHarmony, such as `Codegen`.
-2. Create folders named **react-native-harmony** and **react-native-harmony-cli** in the same directory as **AwesomeProject**. 
-3. Place the .tgz packages in the corresponding files, as shown in the following figure. 
-   ![image](./figures/environment-setup-tgz.png)
-4. Open the `package.json` file in the `AwesomeProject` directory, add the OpenHarmony dependencies, and modify the corresponding version in the `package.json` file based on the **react-native-harmony** version in the release package, that is, **xxx** in the following code:
+1. Open `package.json` in the `AwesomeProject` directory and add HarmonyOS dependencies under `scripts`.
+
    ```diff
    {
     "name": "AwesomeProject",
@@ -190,20 +185,22 @@ For details about the version mapping of the files used in this section, see [Re
     }
    }
    ```
-5. Run the following command in the `AwesomeProject` directory to install the dependency package:
+2. Run the following command in the `AwesomeProject` directory to install the dependency package:
   
     ```bash
-    npm install
+    npm i @react-native-oh/react-native-harmony@x.x.x
     ```
-    ![image](./figures/environment-setup-dependency-download.png)
+    > In the command, *@x.x.x* indicates the version to be downloaded. If it is not specified, the latest version is downloaded by default.
+
+    ![Environment setup - Dependency download](./figures/environment-setup-dependency-download.png)
 
 ### Running the Command for Generating a Bundle
 
-1. Open `AwsomeProject\metro.config.js` and add the OpenHarmony adaptation code. For details about the configuration file, see [React Native](https://reactnative.dev/docs/metro). The modified file content is as follows:
+1. Open `AwsomeProject\metro.config.js` and add the HarmonyOS adaptation code. For details about the configuration file, see [React Native](https://reactnative.dev/docs/metro). The modified file content is as follows:
 
     ```JavaScript
     const {mergeConfig, getDefaultConfig} = require('@react-native/metro-config');
-    const {createHarmonyMetroConfig} = require('react-native-harmony/metro.config');
+    const {createHarmonyMetroConfig} = require('@react-native-oh/react-native-harmony/metro.config');
 
     /**
     * @type {import("metro-config").ConfigT}
@@ -220,7 +217,7 @@ For details about the version mapping of the files used in this section, see [Re
     };
 
     module.exports = mergeConfig(getDefaultConfig(__dirname), createHarmonyMetroConfig({
-      reactNativeHarmonyPackageName: 'react-native-harmony',
+      reactNativeHarmonyPackageName: '@react-native-oh/react-native-harmony',
     }), config);
     ```
 2. Run the command for generating a bundle file in the **AwesomeProject** directory. The `bundle.harmony.js` and `assets` folders are generated in the `AwesomeProject/harmony/entry/src/main/resources/rawfile` directory. The `assets` folder is used to store images. If no local image is involved in the `bundle`, the `assets` folder does not exist.
@@ -229,7 +226,7 @@ For details about the version mapping of the files used in this section, see [Re
     npm run dev
     ```
 
-    ![image](./figures/environment-setup-bundle-generation.png)
+    ![Environment setup - Bundle generation](./figures/environment-setup-bundle-generation.png)
 
     > If you get the error "'react-native' is not recognized as an internal or external command, operable program or batch file" during the running, run the `npm install` command again.
 
@@ -244,43 +241,33 @@ This section describes how to create an OpenHarmony project, load the dependency
 
 ​ The following demonstrates how to integrate a project. Click `File > New > Create Project` and create an `Empty Ability` project, as shown in the following figure.
 
-![image](./figures/environment-setup-EmptyAbility.png)
+![Environment Setup - EmptyAbility](./figures/environment-setup-EmptyAbility.png)
 
-​ Click `Next` and select `API13` for `Compile SDK` to create a project named **MyApplication**. Note that the project path cannot be too long, as shown in the following figure.
+​ Click `Next` and select `API12` for `Compile SDK` to create a project named **MyApplication**. Note that the project path cannot be too long, as shown in the following figure.
 
-![image](./figures/environment-setup-version.png)
+![Environment setup - Version](./figures/environment-setup-version.png)
 
-​ Connect to a real device and click `File > Project Structure`. In the dialog box that is displayed, click `Signing Configs`, select `Support OpenHarmony` and `Automatically generate signature`, and click `Sign In` to log in to the HUAWEI ID and sign.
+​ Connect to a real device and click `File > Project Structure`. In the dialog box that is displayed, click `Signing Configs`, select `Support HarmonyOS` and `Automatically generate signature`, and click `Sign In` to log in to the HUAWEI ID and sign.
 
-![image](./figures/environment-setup-signing.png)
+![Environment setup - Signing](./figures/environment-setup-signing.png)
 
 ## Adding the React Native Configuration
 
-1. Create the `libs` folder in the `MyApplication` directory and save `react_native_openharmony-xxx.har` to the folder.
-2. Open `oh-package.json5` under `MyApplication/entry` and add the dependency of the HAR package.
-    ```diff
-    {
-      "name": "entry",
-      "version": "1.0.0",
-      "description": "Please describe the basic information.",
-      "main": "",
-      "author": "",
-      "license": "",
-      "dependencies": {
-    +     "@rnoh/react-native-openharmony": "file:../libs/react_native_openharmony-xxx.har"
-      }
-    }
-    ```
-    > Don't forget to supplement the version number of the HAR package.
-3. Check the dependency path of the HAR package configured in `dependencies` in the `entry/oh-package.json5` file. Click `File` > `Sync and Refresh Project` on the top menu bar to run the `ohpm install` command. After the command is executed, the `oh_modules` folder is generated in the `entry` directory.
-    This step takes a long time because the HAR package is large. Ensure that `ohpm install` and `SyncData` generated by the IDE are complete. Otherwise, a compilation error is reported.
+Run the following command in the `entry` directory:
+
+    ohpm i @rnoh/react-native-openharmony@x.x.x
+
+After the execution is complete, the `oh_modules` folder is generated in the project-level directory and module-level directory.
+> NOTE
+> 1. In the command, *@x.x.x* indicates the version to be downloaded. If it is not specified, the latest version is downloaded by default.
+> 2. This step takes a long time because the HAR package is large. Ensure that `ohpm install` and `SyncData` generated by the IDE are complete. Otherwise, a compilation error is reported.
 
 ## Integrating RNOH into a Native Project
 
 ### Adding CPP Code
 
 1. Create the **cpp** folder in the `MyApplication/entry/src/main` directory.
-2. Add `CMakeLists.txt` to the **cpp** directory and add the RNOH adaptation layer code to the compilation and building to generate `librnoh_app.so`.
+2. Add `CMakeLists.txt` to the **cpp** directory and add the **RNOH** adaptation layer code to the compilation and building to generate `librnoh_app.so`.
     ```CMake
     project(rnapp)
     cmake_minimum_required(VERSION 3.4.1)
@@ -448,7 +435,7 @@ This section describes how to create an OpenHarmony project, load the dependency
                   new MetroJSBundleProvider(),
                   // NOTE: to load the bundle from file, place it in
                   // `/data/app/el2/100/base/com.rnoh.tester/files/bundle.harmony.js`
-                  // on your device. The path mismatch is due to app sandboxing on OpenHarmony
+                  // on your device. The path mismatch is due to app sandboxing on HarmonyOS
                   new FileJSBundleProvider('/data/storage/el2/base/files/bundle.harmony.js'),
                   new ResourceJSBundleProvider(this.rnohCoreContext.uiAbilityContext.resourceManager, 'hermes_bundle.hbc'),
                   new ResourceJSBundleProvider(this.rnohCoreContext.uiAbilityContext.resourceManager, 'bundle.harmony.js')
@@ -483,19 +470,20 @@ This section describes how to create an OpenHarmony project, load the dependency
 
   - To load a bundle from the sandbox directory, you need to use `new FileJSBundleProvider('bundlePath')` in the `jsBundlePrivider` parameter of RNApp to register the bundle with the framework and run the bundle.
 
-In the `Index.ets` file under the `MyApplication/entry` directory, pass `jsBundleProvider` to load the bundle when creating an RNApp. As shown in the code, three **BundleProvider**s are passed in, indicating that the bundle is loaded by Metro, sandbox directory, and local mode respectively. If the bundle fails to be loaded by Metro, it should be loaded in the sequence of **JSBundleProvider**s until the loading is successful or fails in all modes.
+In the `Index.ets` file under the `MyApplication/entry` directory, pass `jsBundleProvider` to load the bundle when creating an `RNApp`. As shown in the code, three **BundleProvider**s are passed in, indicating that the bundle is loaded by Metro, sandbox directory, and local mode respectively. If the bundle fails to be loaded by Metro, it should be loaded in the sequence of **JSBundleProvider**s until the loading is successful or fails in all modes.
 
 ## Starting and Running a Project
 
 ​ Use DevEco Studio to run the **MyApplication** project. After the execution is complete, the console displays the following information:
 
-![image](./figures/environment-setup-run.png)
+![Environment setup - Run](./figures/environment-setup-run.png)
 
 > It takes a long time to completely compile C++ code. Please wait.
 
 ## Using the Release Package
+1. Create a **libs** folder in the `MyApplication` directory and store the `react_native_openharmony-xxx-release.har` file to the **libs** folder.
 
-1. Open `oh-package.json5` under `MyApplication/entry` and replace the dependency of the HAR package with the release package.
+2. Open `oh-package.json5` under `MyApplication/entry` and replace the dependency of the HAR package with the release package.
     ```diff
     {
       "name": "entry",
@@ -510,7 +498,7 @@ In the `Index.ets` file under the `MyApplication/entry` directory, pass `jsBundl
     }
     ```
 
-2. Change the code in `MyApplication\entry\src\main\cpp\CMakeLists.txt` to the following:
+3. Change the code in `MyApplication\entry\src\main\cpp\CMakeLists.txt` to the following:
 
 
 ```cmake
@@ -655,7 +643,7 @@ target_compile_options(rnoh_app PUBLIC ${folly_compile_options} -DRAW_PROPS_ENAB
 
 ```
 
-3. Delete the `oh_module` folder from `MyApplication/entry`, click the `entry` folder, and choose `build` > `Clean Project` on the top menu bar to clear the project cache.
+3. Delete the `oh_modules` folder from `MyApplication/entry`, click the `entry` folder, and choose `build` > `Clean Project` on the top menu bar to clear the project cache.
 4. Choose `File` > `Sync and Refresh Project` on the top menu bar to run `ohpm install`. After the execution is complete, the `oh_modules` folder is generated in the `entry` directory.
 5. Choose `Run` > `Run 'entry'` on the top menu bar to run the project. After the project is successfully run, you will see information similar to the following:
-![](./figures/release-package-running-success.png)
+![Release package running success](./figures/release-package-running-success.png)

@@ -377,7 +377,7 @@ export class NapiBridge {
   }
   getNativeNodeIdByTag(instanceId: number, tag: Tag): string | undefined {
     const result = this.libRNOHApp?.getNativeNodeIdByTag(instanceId, tag)
-    return result
+    return this.unwrapResult(result);
   }
   attachRootView(instanceId: number, surfaceId: number, nodeContent: NodeContent) {
     const result = this.libRNOHApp?.attachRootView(instanceId, surfaceId, nodeContent)

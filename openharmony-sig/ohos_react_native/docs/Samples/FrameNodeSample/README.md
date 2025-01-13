@@ -1,16 +1,16 @@
-# 说明
+# Description
 
-这是一个使用 FrameNode 进行 bundle 预加载的 demo 工程。
+This is a demo project that uses FrameNode to preload bundles.
 
-# 目录结构
+# Directory Structure
 
-GenerateBundle -- RN 侧工程  
-FrameNodeSampleApp -- 原生工程
+GenerateBundle -- RN project 
+FrameNodeSampleApp -- Native project
 
-# 环境搭建
+# Environment Setup
 
-1. 在 `GenerateBundle` 目录下执行 **npm i @react-native-oh/react-native-harmony@x.x.x** 安装依赖，执行 **npm run dev** 生成 bundle；
-2. 在 `entry` 目录下执行 **ohpm i @rnoh/react-native-openharmony@x.x.x** 安装依赖；
-3. 检查 `FrameNodeSampleApp`、`entry` 目录下是否生成 `oh-modules` 文件夹；
-4. 用 DevEco Studio 打开 FrameNodeSampleApp，执行 **Sync and Refresh Project**；
-5. 点击右上角的 **run** 启动项目。
+1. In the `GenerateBundle` directory, run **npm i @react-native-oh/react-native-harmony@x.x.x** to install the dependency and run **npm run dev** to generate the bundle.
+2. In the `entry` directory, run **ohpm i @rnoh/react-native-openharmony@x.x.x** to install the dependency.
+3. Check whether the `oh-modules` folder is generated in the `FrameNodeSampleApp` and `entry` directories.
+4. Open **FrameNodeSampleApp** in DevEco Studio and run **Sync and Refresh Project**.
+5. Click **run** in the upper right corner to start the project.

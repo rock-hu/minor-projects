@@ -71,11 +71,16 @@ export class DisplayMetricsManager {
 
   public updateDisplayMetrics() {
     try {
-      const windowDisplayId = this.mainWindow.getWindowProperties().displayId;
-      if (windowDisplayId == undefined) {
-        throw new Error("windowDisplayId is undefined!");
+      let displayInstance: display.Display;
+      try {
+        const windowDisplayId = this.mainWindow.getWindowProperties().displayId;
+        if (windowDisplayId == undefined) {
+          throw new Error("windowDisplayId is undefined!");
+        }
+        displayInstance = display.getDisplayByIdSync(windowDisplayId);
+      } catch (err) {
+        displayInstance = display.getDefaultDisplaySync();
       }
-      const displayInstance = display.getDisplayByIdSync(windowDisplayId);
       this.displayMetrics = {
         screenPhysicalPixels: {
           width: displayInstance.width,

@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.72.48
+- fix: disable DevMenu in release mode,([4e0fde3c](https://gitee.com/openharmony-sig/ohos_react_native/commit/4e0fde3c1ab6f6311640c6d0f4f15728c9b74a30))
+
+## v0.72.46
+- Trick: skip empty task submission,([a238743e](https://gitee.com/openharmony-sig/ohos_react_native/commit/a238743e27f46acda5b303fc289c47e68188e8b8))
+- fix: reconnecting websocket floods logs with errors when trying to reconnect,([e708b330](https://gitee.com/openharmony-sig/ohos_react_native/commit/e708b3302b4dcb545e1a208f135da994a96b138d))
+- fix: setValue for Animated transforms sometimes is not applied,([cea35762](https://gitee.com/openharmony-sig/ohos_react_native/commit/cea35762ed36c9a6f70fe206ad9ddd7b0fc71750))
+- fix: 修复metro设置死地址后强制转换为localhost的问题,([62d637a7](https://gitee.com/openharmony-sig/ohos_react_native/commit/62d637a703280850e1482ed90bf9108c55bbc4dc))
+- 更新0.72.44 CHANGELOG.md,([2b85bf3d](https://gitee.com/openharmony-sig/ohos_react_native/commit/2b85bf3d0774b5a8c2fb75ccf2cf87df049fb267))
+
 ## v0.72.44
 - 版本升到0.72.44,([4182eff0c](https://gitee.com/openharmony-sig/ohos_react_native/commit/4182eff0c6dfe958414c2ac8ff13d0b93be55b01))
 - fix: selectTextOnFocus cannot select all after manually typing,([afefa6c7d](https://gitee.com/openharmony-sig/ohos_react_native/commit/afefa6c7d07eeb18c908641e369d6bf8b24da9ac))

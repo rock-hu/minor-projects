@@ -73,7 +73,7 @@ export class ImageLoaderTurboModule extends UITurboModule {
     return Promise.resolve({ width: imageInfo.size.width, height: imageInfo.size.height })
   }
 
-  public async prefetchImage(uri: string, requestId: number): Promise<boolean> {
+  public async prefetchImage(uri: string, requestId: number = 0): Promise<boolean> {
     return this.imageLoader.prefetch(uri, requestId);
   }
 

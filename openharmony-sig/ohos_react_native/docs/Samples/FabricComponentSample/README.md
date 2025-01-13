@@ -1,27 +1,26 @@
-# 说明
-这是创建自定义Fabric组件（包括CAPI组件和ArkTS组件）的demo工程。
+# Description
+This is a demo project for creating custom **Fabric** components (including **CAPI** and **ArkTS** components).
 
 
-# 目录结构
+# Directory Structure
 
 ```md
 FabricComponentSample
-├── ReactProject 前端工程
-├── fabric-component-sample-package RN三方件（自定义Fabric组件）
-├── NativeProject 鸿蒙工程
-├── react-native-harmony RN鸿蒙化包
-├── react-native-harmony-cli RN鸿蒙化手脚架
+├── ReactProject Front-end project
+├── fabric-component-sample-package RN third-party component (custom Fabric component)
+├── NativeProject HarmonyOS project
+├── react-native-harmony RN HarmonyOS bundle
+├── react-native-harmony-cli RN HarmonyOS scaffolding
 └── README.md
 ```
 
 
-# 环境搭建
-1. 将 `rnoh-react-native-harmony-xx.tgz` 放到 `react-native-harmony` 文件夹下，然后修改 `ReactProject/package.json` 的 `react-native-harmony` 依赖路径；
-2. 将 `rnoh-react-native-harmony-cli-xx.tgz` 放到 `react-native-harmony-cli` 文件夹下；
-3. 在 `fabric-component-sample-package` 中运行 **npm pack** 生成tgz文件；
-4. 将 `react_native_openharmony-xxx.har` 放到 `NativeProject/libs` 文件夹下，并修改 `NativeProject/oh-package.json5` 和 `NativeProject/entry/oh-package.json5` 的依赖路径；
-5. 用 DevEco Studio 打开 `NativeProject`，执行 **Sync and Refresh Project**；
-6. 在 `ReactProject` 中运行 **npm i** 安装依赖，运行 **npm run dev** 生成bundle文件，运行 **npm start** 启动metro服务；
-7. 回到 DevEco Studio，点击右上角的 **run** 启动项目；
-8. 如果启动的是metro服务，还需要运行 `hdc rport tcp:8081 tcp:8081` 来转发8081端口，然后再在手机上重新打开应用。
-
+# Environment Setup
+1. Save `rnoh-react-native-harmony-xx.tgz` to the `react-native-harmony` folder and modify the `react-native-harmony` dependency path of `ReactProject/package.json`.
+2. Save `rnoh-react-native-harmony-cli-xx.tgz` to the `react-native-harmony-cli` folder.
+3. Run **npm pack** in `fabric-component-sample-package` to generate a .tgz file.
+4. Save `react_native_openharmony-xxx.har` to the `NativeProject/libs` folder and modify the dependency paths of `NativeProject/oh-package.json5` and `NativeProject/entry/oh-package.json5`.
+5. Open `NativeProject` in DevEco Studio and run **Sync and Refresh Project**.
+6. Run **npm i** in `ReactProject` to install the dependency, run **npm run dev** to generate the bundle file, and run **npm start** to start Metro.
+7. Go back to DevEco Studio and click **run** in the upper right corner to start the project.
+8. If Metro is started, run `hdc rport tcp:8081 tcp:8081` to forward port 8081, and then restart the application on the mobile phone.

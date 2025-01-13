@@ -1,21 +1,16 @@
-# 说明
-这是一个不继承RNAbilty，由原生页面跳转到RN页面的demo工程。
+# Description
+This is a demo project that does not inherit the RNAbilty and switches from the native page to the RN page.
 
 
-# 目录结构
-RNProject -- RN侧工程  
-NativeProject -- 原生工程
+# Directory Structure
+RNProject -- RN project 
+NativeProject -- Native project
 
 
-# 环境搭建
-1. 在 `library` 目录下执行 **ohpm i @rnoh/react-native-openharmony@x.x.x** 安装依赖；
-2. 执行完成后，检查是否在 `NativeProject`、`entry`、`library` 目录下生成 `oh-modules` 文件夹；
-3. 在 `RNProject/MainProject` 中执行 **npm i @react-native-oh/react-native-harmony@x.x.x** 安装依赖；
-4. 在 `RNProject/MainProject` 中执行 **npm run dev** 命令打包；
-4. 用 DevEco Studio 打开 `NativeProject`，执行 **Sync and Refresh Project**；
-5. 点击右上角的 **run** 启动项目。
-   
-
-# 注意事项
-
-1. 主动调用`windowSizeChange`方法监听屏幕尺寸变化，调用`this.rnInstancesCoordinator?.onWindowSizeChange`设置正确的屏幕尺寸，否则会出现字体size不正常的问题。
+# Environment Setup
+1. In the `entry` directory, run **ohpm i @rnoh/react-native-openharmony@x.x.x** to install the dependency.
+2. Check whether the `oh-modules` folder is generated in the `NativeProject`, `entry`, and `library` directories.
+3. Run **npm i @react-native-oh/react-native-harmony@x.x.x** in `RNProject/MainProject` to install the dependency.
+4. Run **npm run dev** in `RNProject/MainProject` to generate the bundle.
+4. Open `NativeProject` in DevEco Studio and run **Sync and Refresh Project**.
+5. Click **run** in the upper right corner to start the project.

@@ -41,7 +41,6 @@ export class RNInstanceManager {
   public static getOrCreateRNInstance(page: string, options?: RNInstanceOptions): Promise<RNInstance> | undefined {
     const rnohCoreContext: RNOHCoreContext | undefined = AppStorage.get('RNOHCoreContext');
     if (!rnohCoreContext) {
-      hilog.warn(0x0000, 'XIE_DR', '获取 RNOHCoreContext 失败',);
       return
     }
     if (RNInstanceManager.instanceMap.has(page)) {

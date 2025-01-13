@@ -211,6 +211,7 @@ void SurfaceHandler::constraintLayout(
     LayoutConstraints const &layoutConstraints,
     LayoutContext const &layoutContext) const noexcept {
   SystraceSection s("SurfaceHandler::constraintLayout");
+  bool needToMarkDirty{false};
   {
     std::unique_lock lock(parametersMutex_);
 
@@ -218,6 +219,8 @@ void SurfaceHandler::constraintLayout(
         parameters_.layoutContext == layoutContext) {
       return;
     }
+
+    needToMarkDirty = parameters_.layoutContext.pointScaleFactor != layoutContext.pointScaleFactor;
 
     parameters_.layoutConstraints = layoutConstraints;
     parameters_.layoutContext = layoutContext;
@@ -237,8 +240,12 @@ void SurfaceHandler::constraintLayout(
         link_.shadowTree && "`link_.shadowTree` must not be null.");
     link_.shadowTree->commit(
         [&](RootShadowNode const &oldRootShadowNode) {
-          return oldRootShadowNode.clone(
+          auto newRootShadowNode = oldRootShadowNode.clone(
               propsParserContext, layoutConstraints, layoutContext);
+          if (needToMarkDirty) {
+            newRootShadowNode->dirtyLayoutAndPropogateToDescendants();
+          }
+          return newRootShadowNode;
         },
         {/* default commit options */});
   }

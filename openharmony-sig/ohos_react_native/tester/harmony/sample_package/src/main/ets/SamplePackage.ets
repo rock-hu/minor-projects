@@ -6,7 +6,7 @@
  */
 
 import {
-  RNOHPackage,
+  RNPackage,
   DescriptorWrapperFactoryByDescriptorType,
   DescriptorWrapperFactoryByDescriptorTypeCtx,
   UITurboModuleFactory,
@@ -48,7 +48,7 @@ class SampleWorkerTurboModulesFactory extends WorkerTurboModuleFactory {
   }
 }
 
-export default class SamplePackage extends RNOHPackage {
+export class SamplePackage extends RNPackage {
   createUITurboModuleFactory(ctx: UITurboModuleContext) {
     return new SampleTurboModulesFactory(ctx);
   }

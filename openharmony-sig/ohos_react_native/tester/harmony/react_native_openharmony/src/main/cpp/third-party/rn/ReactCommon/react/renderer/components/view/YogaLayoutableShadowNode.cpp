@@ -153,6 +153,11 @@ void YogaLayoutableShadowNode::dirtyLayout() {
   yogaNode_.setDirty(true);
 }
 
+void YogaLayoutableShadowNode::dirtyLayoutAndPropogateToDescendants()
+{
+    YGNodeMarkDirtyAndPropogateToDescendants(&yogaNode_);
+}
+
 bool YogaLayoutableShadowNode::getIsLayoutClean() const {
   return !yogaNode_.isDirty();
 }

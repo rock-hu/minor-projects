@@ -195,7 +195,14 @@ export class RNInstancesCoordinator {
   private defaultBackPressHandler: () => void
   private globalRNOHErrorEventEmitter: RNOHErrorEventEmitter
   private envId: number;
-  private onDestroyCallbacks: Function[]
+  private onDestroyCallbacks: Function[];
+  private timerId: number = 0;
+  private lastChangeTime: number = 0;
+  /**
+  * Note: You may need to change this delay along with RNSurface's onMeasuredSize delay, 
+  * as both have an effect on window changes. 
+  */
+  private readonly delayTime: number = 500;
 
   private constructor(napiBridge: NapiBridge,
     logger: RNOHLogger,
@@ -315,10 +322,26 @@ export class RNInstancesCoordinator {
   }
 
   public onWindowSizeChange(windowSize: window.Size) {
-    this.displayMetricsManager.updateWindowSize(windowSize);
-    this.rnInstanceRegistry.forEach((rnInstance) => {
-      rnInstance.onWindowSizeChange(windowSize)
-    })
+    const currentTime = Date.now(); 
+    if (currentTime - this.lastChangeTime > this.delayTime) {
+      this.displayMetricsManager.updateWindowSize(windowSize);
+      this.rnInstanceRegistry.forEach((rnInstance) => {
+        rnInstance.onWindowSizeChange(windowSize)
+      })
+      this.lastChangeTime = currentTime;
+    } else {
+      if(this.timerId){
+        clearTimeout(this.timerId)
+      }
+      this.timerId = setTimeout(() =>{
+        this.displayMetricsManager.updateWindowSize(windowSize);
+        this.rnInstanceRegistry.forEach((rnInstance) => {
+          rnInstance.onWindowSizeChange(windowSize)
+        })
+        this.lastChangeTime = Date.now();
+      }, this.delayTime)
+      this.lastChangeTime = currentTime;
+    }
   }
 
   public onConfigurationUpdate(systemConfiguration: AbilityConfiguration.Configuration) {

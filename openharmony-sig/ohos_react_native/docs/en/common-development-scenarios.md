@@ -10,7 +10,7 @@
 
     1. Import the `RNAbility` class to the page decorated by `@Entry`.
 
-       ```typescript
+       ```javascript
        import {RNAbility} from '@rnoh/react-native-openharmony';
        ...
        @Entry
@@ -23,7 +23,7 @@
 
     2. Call `rnAbility?.onForeground()` and `rnAbility?.onBackground()` in lifecycle callbacks `onPageShow` and `onPageHide`.
 
-       ```typescript
+       ```javascript
        onPageShow(){
          this.rnAbility?.onForeground();
        }
@@ -36,7 +36,7 @@
 
     1. Import the `RNInstancesCoordinator` class to the page decorated by `@Entry`.
 
-       ```typescript
+       ```javascript
        import {RNInstancesCoordinator} from '@rnoh/react-native-openharmony';
        ...
        @Entry
@@ -49,7 +49,7 @@
 
     2. Call `rninstancesCoordinator?.onForeground()` and `rninstancesCoordinator?.onBackground()` in lifecycle callbacks `onPageShow` and `onPageHide`.
 
-       ```typescript
+       ```javascript
        onPageShow(){
         this.rninstancesCoordinator?.onForeground()
        }
@@ -66,7 +66,7 @@
 
     2. Call `rnAbility?.onForeground()` in the `onShown` callback event of `NavDestination`, and call `rnAbility?.onBackground()` in the `onHidden` callback event.
 
-       ```typescript
+       ```javascript
        ...
        build(){
          NavDestination(){
@@ -87,7 +87,7 @@
 
     2. Call `rninstancesCoordinator?.onForeground()` in the `onShown` callback event of `NavDestination`, and call `rninstancesCoordinator?.onBackground()` in the `onHidden` callback event.
 
-       ```typescript
+       ```javascript
        ...
        build(){
          NavDestination(){
@@ -102,7 +102,7 @@
        }
        ```
 
-### How Do I Use onBackPress?
+### How Do I Process Back Press Events?
 
 `onBackPress` is used to handle a back press event. The basic principle is to call the `onBackPress` capability of the framework in the native `onBackPress` lifecycle callback, and ensure `return true`. (If `true` is returned, the page handles the back logic by itself, rather than call the native default back event capability. If `false` is returned, the native default route back logic is used. The default value is `false`.) Then, the back press event logic is handled by the framework, which further sends the event to the JS. Therefore, the final back press event logic is implemented in the JS.
 
@@ -112,7 +112,7 @@
 
     1. Import the `RNOHCoreContext` class to the page decorated by `@Entry`.
 
-       ```TypeScript
+       ```javascript
        import {RNOHCoreContext} from '@rnoh/react-native-openharmony';
        ...
        @Entry
@@ -125,7 +125,7 @@
 
     2. Call `this.rnohCoreContext!.dispatchBackPress()` in lifecycle callback `onBackPress` and `return true`.
 
-       ```TypeScript
+       ```javascript
        onBackPress(): boolean | undefined{
           this.rnohCoreContext!.dispatchBackPress();
           return true;
@@ -136,7 +136,7 @@
 
     If the project has multiple `RNInstance`s, `rnohCoreContext!.dispatchBackPress()` cannot be called in the `onBackPressed` callback event. You need to obtain the `RNInstance` instance that responds to the back press event in the foreground based on the actual service scenario, and call the `onBackPress` method of the instance.
 
-    ```TypeScript
+    ```javascript
     // router
     onBackPress(): boolean{
       // Obtain the rnInstance that responds to the back press event.
@@ -154,7 +154,7 @@
 
     2. Call `rnohCoreContext!.dispatchBackPress()` in the `onBackPressed` callback event of `NavDestination`.
 
-       ```TypeScript
+       ```javascript
        ...
        build(){
          NavDestination(){
@@ -171,7 +171,7 @@
 
     The method is the same as that when `router` is used. The `RNInstance` that responds to the back press event needs to be obtained.
 
-    ```TypeScript
+    ```javascript
     // Navigation
     ...
     build(){
@@ -187,7 +187,7 @@
     }
        ```
 
-- Default back press of the React Native (RN) page
+- Default back press of the React Native (**RN**) page
   - In `RNAbility`, there is a `defaultBackPressHandler` method, which will be used if no special handling is performed on the RN page or `exitApp` is called. You can override this method to customize the default back press.
   - If you do not use `RNAbility` but perform custom extension, you need to pass `defaultBackPressHandler` as a parameter to the framework when building the `RNInstancesCoordinator` object.
 
@@ -209,7 +209,7 @@ The procedure for loading multiple bundles is as follows:
 2. During project initialization, create the required `RNInstance` instance and call the `runJSBundle` API to load the basic bundle.
 3. When loading the corresponding service module, call the `runJSBundle` API to load the service bundle.
 
-For details, see [RN Native Access > Single-Instance Single-Surface Multi-Bundle](../zh-cn/RN-Native接入.md).
+For details, see [RN Native Access > Single-Instance Single-Surface Multi-Bundle](../en/rn-native-access.md).
 
 ### How Do I Use Components Based on the ArkUI Declarative Paradigm in the C-API Version?
 
@@ -223,9 +223,9 @@ To use components based on the ArkUI declarative paradigm in the C-API version, 
 
 ### How Do I Enable LogBox?
 
-If you use the RN framework started by `RNApp`, `LogBox` is enabled by default. If you use the RN framework started by `RNSurface`, you need to create a `RNComponentContext` and a `LogBox` constructor, add the following event emitter to `devToolsController` of `context`, and start and close the `LogBox` pop-up window.
+If you use the **RN** framework started by `RNApp`, `LogBox` is enabled by default. If you use the **RN** framework started by `RNSurface`, you need to create a `RNComponentContext` and a `LogBox` constructor, add the following event emitter to `devToolsController` of `context`, and start and close the `LogBox` pop-up window.
 
-```TypeScript
+```javascript
 this.logBoxDialogController = new CustomDialogController({
   cornerRadius: 0,
   customStyle: true,
@@ -249,7 +249,7 @@ this.rnInstance.getTurboModule<LogBoxTurboModule>(LogBoxTurboModule.NAME).eventE
 
 ### How Do I Enable Metro?
 
-1. Ensure that the OpenHarmony bundle parameters have been configured. For details, see [How Do I Set OpenHarmony Bundle Parameters?](#how-do-i-set-harmonyos-bundle-parameters).
+1. Ensure that the HarmonyOS bundle parameters have been configured. For details, see [How Do I Set HarmonyOS Bundle Parameters?](#how-do-i-set-harmonyos-bundle-parameters).
 2. If you use the RN framework started by `RNApp`, skip this step because Metro is enabled by default. If you use the RN framework started by `RNSurface`, you need to create a `RNComponentContext`, add the following event emitter to `devToolsController` of `context`, delete the original `RNInstance`, and restart a new `RNInstance` to enable the hot reloading function.
 
     ```js
@@ -261,7 +261,7 @@ this.rnInstance.getTurboModule<LogBoxTurboModule>(LogBoxTurboModule.NAME).eventE
 
 3. Configure `jsBundleProvider` of Metro.
 
-    ```TypeScript
+    ```javascript
     // index.ets Use RNApp to load MetroJSBundleProvider.
     build() {
       RNApp({
@@ -277,7 +277,7 @@ this.rnInstance.getTurboModule<LogBoxTurboModule>(LogBoxTurboModule.NAME).eventE
     }
     ```
 
-    ```TypeScript
+    ```javascript
     ···
     // Use RNInstance to load MetroJSBundleProvider.
     await RNInstance.runJSBundle(new MetroJSBundleProvider())
@@ -298,7 +298,7 @@ this.rnInstance.getTurboModule<LogBoxTurboModule>(LogBoxTurboModule.NAME).eventE
     npm run start
     ```
 
-### How Do I Set OpenHarmony Bundle Parameters?
+### How Do I Set HarmonyOS Bundle Parameters?
 
 When running React Native, Metro Bundler packs JavaScript code into one or more bundles and provides them for devices to execute at runtime. To customize the behavior of Metro Bundler, you need to create a configuration file that tells Metro Bundler how to handle the project to be packaged.
 
@@ -311,10 +311,10 @@ When running React Native, Metro Bundler packs JavaScript code into one or more 
     - `mergeConfig`: merges multiple configurations.
     - `getDefaultConfig`: gets the default Metro configuration.
 
-2. Import the `createHarmonyMetroConfig` function from `react-native-harmony/metro.config` to create specific configurations applicable to the OpenHarmony platform.
+2. Import the `createHarmonyMetroConfig` function from `react-native-harmony/metro.config` to create specific configurations applicable to the HarmonyOS platform.
 
     ```JavaScript
-    const {createHarmonyMetroConfig} = require('react-native-harmony/metro.config');
+    const {createHarmonyMetroConfig} = require('@react-native-oh/react-native-harmony/metro.config');
     ```
 
 3. Use the `@type {import("metro-config").ConfigT}` comment to indicate that the file type is `ConfigT` of the `metro-config` module. This helps editors and code analysis tools understand the structure and type of the file.
@@ -347,14 +347,14 @@ When running React Native, Metro Bundler packs JavaScript code into one or more 
     - `experimentalImportSupport`: Set it to `false`, indicating that experimental import support is not used.
     - `inlineRequires`: Set it to `true`, indicating that the `require` statement is inlined to the bundle.
 
-5. Call the `mergeConfig` function to merge the default configuration, OpenHarmony configuration, and custom configurations into a final configuration and export it for the Metro Bundler to use.
+5. Call the `mergeConfig` function to merge the default configuration, HarmonyOS configuration, and custom configurations into a final configuration and export it for the Metro Bundler to use.
 
     The default metro-config is as follows:
 
       ```JavaSCript
       /* Import functions. */
       const {mergeConfig, getDefaultConfig} = require('@react-native/metro-config');
-      const {createHarmonyMetroConfig} = require('react-native-harmony/metro.config');
+      const {createHarmonyMetroConfig} = require('@react-native-oh/react-native-harmony/metro.config');
 
       /**
        * @type {import("metro-config").ConfigT}
@@ -370,7 +370,7 @@ When running React Native, Metro Bundler packs JavaScript code into one or more 
           }),
         },
       };
-      /* Call the mergeConfig function to merge the default configuration, OpenHarmony configuration, and custom configurations into a final configuration and export it for the Metro Bundler to use.*/
+      /* Call the mergeConfig function to merge the default configuration, HarmonyOS configuration, and custom configurations into a final configuration and export it for the Metro Bundler to use.*/
       module.exports = mergeConfig(
         getDefaultConfig(__dirname),
         createHarmonyMetroConfig({
@@ -397,9 +397,9 @@ When running React Native, Metro Bundler packs JavaScript code into one or more 
 
     To load a `bundle` from the sandbox directory, you need to use `new FileJSBundleProvider('bundlePath')` in the `jsBundlePrivider` parameter of RNApp to register the `bundle` with the framework and run the `bundle`.
 
-    In the `Index.ets` file under the `MyApplication/entry` directory, pass `jsBundleProvider` to load the bundle when creating an RNApp. As shown in the code, three `BundleProvider`s are passed in, indicating that the `bundle` is loaded by `Metro`, sandbox directory, and local mode respectively. If the `bundle` fails to be loaded by `Metro`, it should be loaded in the sequence of `JSBundleProvider`s until the loading is successful or fails in all modes.
+    In the `Index.ets` file under the `MyApplication/entry` directory, pass `jsBundleProvider` to load the bundle when creating an `RNApp`. As shown in the code, three `BundleProvider`s are passed in, indicating that the `bundle` is loaded by `Metro`, sandbox directory, and local mode respectively. If the `bundle` fails to be loaded by `Metro`, it should be loaded in the sequence of `JSBundleProvider`s until the loading is successful or fails in all modes.
 
-    ```TypeScript
+    ```javascript
     // index.ets Use RNApp to load FileJSBundleProvider.
     build() {
       RNApp({
@@ -415,7 +415,7 @@ When running React Native, Metro Bundler packs JavaScript code into one or more 
     }
     ```
 
-    ```TypeScript
+    ```javascript
     ···
     // Use RNInstance to load FileJSBundleProvider.
     await RNInstance.runJSBundle(new FileJSBundleProvider('/data/storage/el2/base/files/bundle.harmony.js'))
@@ -446,7 +446,8 @@ When running React Native, Metro Bundler packs JavaScript code into one or more 
         ```
     3. **Precautions:**
       Currently, the directories for loading an image by local mode or sandbox are encoded in different ways. For an image loaded by local mode, the image is searched from the **rawfile/assets** directory, so the image resources need to be stored under this directory. For an image loaded by sandbox, the image is directly searched from the bundle directory at the same level, and no additional **assets** directory is required.
-
+      
+      	For details about how to read a file from the sandbox, see the [sandbox sample](../Samples/Sandbox).
 ### How Do I Generate a .hbc Bundle?
 
 To convert the bundle to .hbc format, perform the following steps:
@@ -496,11 +497,11 @@ To convert the bundle to .hbc format, perform the following steps:
 
 5. After the preceding steps are complete, the bundle is converted to .hbc format.
 
-    ![faq-bundlle-hbc](./figures/faq-bundlle-hbc.png)
+    ![faq-bundlle-hbc](./faqs/figures/faq-bundlle-hbc.png)
 
 ### How Do I Reduce the HAP Size?
 
-A large OpenHarmony Ability Package (HAP) may occupy more resources during application download, installation, and running, affecting user experience. Therefore, when building or compiling a OpenHarmony application, you can adjust or change the compilation settings to reduce the size of the generated HAP.
+A large HarmonyOS Ability Package (HAP) may occupy more resources during application download, installation, and running, affecting user experience. Therefore, when building or compiling a HarmonyOS application, you can adjust or change the compilation settings to reduce the size of the generated HAP.
 
 1. Set a secure compilation parameter in the `CMakeLists.txt` file to reduce the HAP size.
 
@@ -533,7 +534,7 @@ A large OpenHarmony Ability Package (HAP) may occupy more resources during appli
 
     ​On the `Build Mode` tab page, select `release`.
 
-    ![faq-entry-release](./figures/faq-entry-release.png)
+    ![faq-entry-release](./faqs/figures/faq-entry-release.png)
 
 4. Compress the .so file to reduce the HAP size.
    Modify the `compressNativeLibs` field in the `module.json5` configuration file of the application module by referring to [Reducing the Size of Application Packages](https://developer.huawei.com/consumer/cn/doc/best-practices-V5/bpta-decrease_pakage_size-V5#section1286810176182), set the value to **true**, and recompile and bundle the application.
@@ -557,7 +558,7 @@ Common parameters include `strip`, `NO Rpath/Runpath`, and `SP`.
 - `strip coverage` (remove the symbol table): Symbols play an important role in the linking process. The essence of the linking process is to "stick" multiple different target files together. Symbols can be regarded as the adhesive of links. The entire linking process is completed based on symbols. After linking is complete, the symbol table will no longer affect the running of executable files. Instead, it can be exploited by attackers. Therefore, removing the symbol table can help defend against hacker attacks. In addition, it can help reduce the file size. 
 Add the following code under `externalNativeOptions` of `build-profile.json5` in the `entry` module:
 
-  ```json
+  ```json5
   "cppFlags": "-s"
   ```
 
@@ -612,14 +613,316 @@ Currently, you need to configure the following parameters in the `module.json5` 
 
 ### How Do I Control Whether the Page Avoids the Keyboard?
 
-- Method 1: Use the component layout capability of RN to avoid the keyboard. Use the `KeyboardAvoidingView` component as the container so that the layout is automatically adjusted based on the keyboard pop-up height.
+- Method 1: Use the component layout capability of **RN** to avoid the keyboard. Use the `KeyboardAvoidingView` component as the container so that the layout is automatically adjusted based on the keyboard pop-up height.
 
-- Method 2: Use the default behavior of ArkUI to avoid the keyboard. Currently, the `expandSafeArea([SafeAreaType.KEYBOARD])` attribute is configured for `RNApp` by default. Therefore, you can only adjust the internal layout of the RN page to avoid the keyboard. There is no related configuration on `RNSurface`, and the ArkUI component automatically avoids the keyboard.
+- Method 2: Use the default behavior of ArkUI to avoid the keyboard. Currently, the `expandSafeArea([SafeAreaType.KEYBOARD])` attribute is configured for `RNApp` by default. Therefore, you can only adjust the internal layout of the **RN** page to avoid the keyboard. There is no related configuration on `RNSurface`, and the ArkUI component automatically avoids the keyboard.
 
-- You can integrate `RNSurface`/`RNApp` to set the `expandSafeArea([SafeAreaType.KEYBOARD])` attribute. Use different combinations of RN layout components to customize the keyboard avoidance effect.
+- You can integrate `RNSurface`/`RNApp` to set the `expandSafeArea([SafeAreaType.KEYBOARD])` attribute. Use different combinations of **RN** layout components to customize the keyboard avoidance effect.
+
+### How Do I Obtain RNInstance and RootTag Corresponding to RNSurface?
+
+You can obtain RNInstance and rootTag through the `updateViewRootTag` callback function in RNSurface.
+In the following example, an RN page is built with two RNSurfaces that use the same RNInstance but different RootTags. There is a button between two RNSurfaces. The first RNSurface is S1 and the second RNSurface is S2. The **updateViewRootTag** API enables the following effect: When the button is clicked, a message is sent to all RNInstances. The message is processed by the corresponding RNSurface only when the RootTag of the specified RNSurface in the message is consistent.
+
+![Before the RootTag message](./figures/before-the-RootTag-message.png)
+
+The following code is used to build the RN page:
+```javascript
+build() {
+  NavDestination() {
+    if (this.isBundleReady) {
+    Column() {
+      Row() {
+        RNSurface({
+          surfaceConfig: {
+            appKey: 'AppO',
+          },
+          ctx: new RNComponentContext(
+            RNOHContext.fromCoreContext(this.rnohCoreContext!, this.instance),
+            wrappedCustomRNComponentBuilder,
+            wrapBuilder(buildRNComponentForTag),
+            new Map()
+          ),
+          updateViewRootTag: (rnInstance: RNInstance, rootViewTag: Tag) => {
+            // Save the RNInstance and RootTag of the current RNSurface.
+            this.receivedRootTag = rootViewTag;
+            this.receivedInstance = rnInstance;
+          }
+        })
+      }
+      .height("45%")
+      Row() {
+        Button("CLICK ME")
+          .onClick(() => {
+            // Send a message to RN.
+            this.instance?.emitDeviceEvent("clickEvent", { params: ({
+              rootTag: this.receivedRootTag
+            } as Params) })
+          })
+      }
+      .height("10%")
+      Row() {
+        RNSurface({
+          surfaceConfig: {
+            appKey: 'AppT',
+          },
+          ctx: new RNComponentContext(
+            RNOHContext.fromCoreContext(this.rnohCoreContext!, this.instance),
+            wrappedCustomRNComponentBuilder,
+            wrapBuilder(buildRNComponentForTag),
+            new Map()
+          ),
+        })
+      }
+      .height("45%")
+    }
+    .width('100%')
+    .height('100%')
+    }
+  }
+}
+```
+It can be seen that, to build S1, you can obtain `RNInstance` and RootTag corresponding to the `RNSurface` through `updateViewRootTag`, bind the `Click` event through the button, and transfer the corresponding RootTag.
+Only when the RootTag of the native `Click` event in the frontend code is the same as the current RootTag, the message can be processed.
+```tsx
+const rootTag = useContext(RootTagContext);
+const [msg, setMsg] = useState('')
+DeviceEventEmitter.addListener('clickEvent', e => {
+  setMsg(`The message was ${e.params.rootTag === rootTag ? '' : 'not'} sent to me.`)
+  const timer = setTimeout(() => {
+    setMsg('')
+    clearTimeout(timer)
+  }, 1000)
+})
+```
+The following figure shows the effect. After the button is clicked, both S1 and S2 receive the message, but only the RootTag of S1 meets the requirement after comparison. Therefore, the message is correctly replied.
+
+![After the RootTag message](./figures/after-the-RootTag-message.png)
+
+> The preceding code snippet is extracted from the [RootTagSample project](../Samples/RootTagSample/README.md).
 
 ### Precautions for Using a Custom Bundle Command
 
-- The current version provides the `bundle-harmony` command to directly use the OpenHarmony-based RN bundle script. You only need to set correct parameters.
+- The current version provides the `bundle-harmony` command to directly use the HarmonyOS-based **RN** bundle script. You only need to set correct parameters.
 
 - If you want to eliminate command difference across platforms and use a custom bundle command instead of `bundle-harmony`, you can refer to the bundling process in the **react-native-harmony-cli/dist/commands/bundle-harmony.js** file, import the HarmonyOS bundle configuration through `createHarmonyMetroConfig`, and compile the bundle file based on the configuration. Then, you need to add operations related to `copyAssets`. Ensure that the path format of the image resource is the same as that of the image resource encoded in the bundle.
+
+### How Do I Load a Bundle Only Once in RNApp Mode?
+- Symptom
+
+    When `RNApp` is used to create a RN page, HarmonyOS and RN share the same **RN** container. However, each time a different RN page is displayed through the **RN** container, the bundle is reloaded. How can I load the bundle only once? How to shorten the loading time?
+
+- Cause
+
+    **RNApp** automatically destroys `RNInstance`.
+
+- Solutions
+
+- Solution 1: Do not use **RNApp** because it will automatically destroy `RNInstance`. You can use `RNSurface` and `createAndRegisterRNInstance` to manage `RNInstance`. As long as `RNInstance` exists, the bundle will not be reloaded.
+- Solution 2: Push the bundle in the rawfile to the sandbox. Each time the page is loaded, you can determine whether the bundle exists in the sandbox. For details, see the `sandbox` file of `SampleAPP`.
+
+> Note: When `RNSurface` is used, the `init()` method must be initialized after `rnInstancesCoordinator?.onWindowSizeChange` is created. Otherwise, the `windowsize` changes and the `RNOHCoreContext` is incorrect, which may cause text display problems.
+
+### How Do I Use Code to Refresh the RN Page?
+
+When Metro is used to load the bundle of RN, you can forcibly reload the entire bundle according to the command in the menu. During development, if you want to reload the current RN bundle page after a service is complete, you can reload the bundle by referring to reload functions.
+
+By default, the reload function of Metro is implemented for `RNApp`. If `RNSurface` is used to load the RN page during development, the reload function does not take effect. You can refer to the reload implementation logic in `RNApp` to implement the custom reload function.
+
+The following uses the source code of `RNApp` as an example to describe the implementation logic of reload.
+1. Bind the `shouldShow` parameter.
+
+    As a declarative `UI` framework, ArkUI determines the creation, destruction, and update of the `UI` component through state binding. The entry component of the RN page is `RNSurface`. To refresh the page, you can use the `shouldShow` variable decorated by `@State` and determine the display and destruction of `RNSurface` through if judgment.
+
+    ```typescript
+    build() {
+      Stack() {
+        if (this.shouldShow) {
+          RNSurface({
+            ctx: this.ctx,
+            surfaceConfig: {
+              initialProps: this.initialProps ?? {},
+              appKey: this.appKey,
+            } as SurfaceConfig2,
+          })
+        }
+      }  
+    }
+    ```
+    To refresh the RN page, set `shouldShow` to `false`, reload the bundle, and reset `shouldShow` to `true`.
+
+    ```typescript
+    private async cleanUp() {
+        const stopTracing = this.logger.clone("cleanUp").startTracing()
+        this.shouldShow = false
+        ...
+    }
+    ```
+
+2. Clear the RNInstance.
+
+    RNOH provides the method of clearing `RNInstance`. `this.rnohCoreContext!.destroyAndUnregisterRNInstance(this.rnInstance)` calls the `onDestroy` method of `RNInstance` and clears `RNInstance` from `RNInstanceRegistry`.
+
+    ```typescript
+    private async cleanUp() {
+      const stopTracing = this.logger.clone("cleanUp").startTracing()
+      this.shouldShow = false
+      if (this.shouldDestroyRNInstance) {
+        this.rnohCoreContext!.destroyAndUnregisterRNInstance(this.rnInstance)
+      }
+      ...
+    }
+    ```    
+
+3. Re-create the RNInstance and load the bundle.
+
+    The **RELOAD** operation of `RNApp` is performed by subscribing to the **RELOAD** event of devToolsController. After the `RNInstance` is cleared, the `init` method is immediately called to create a `RNInstance` and execute the `runJSBundle`.
+
+    ```javascript
+    this.cleanUpCallbacks.push(this.ctx.devToolsController.eventEmitter.subscribe("RELOAD", async () => {
+      await this.cleanUp()
+      this.init()
+    }))
+    ``` 
+
+4.  Reload the page.
+
+    You need to re-create the `RNSurface` after the bundle is loaded. In the preceding steps, `shouldShow` has been set to `false`. In this case, `shouldShow` is set to `true` and a new `RNSurface` component will be created by ArkUI.
+    
+### Does the Current OpenHarmony RN Support the Migration of Native Modules of the Old Architecture to Turbo Modules?
+
+- **Q**: Does the current OpenHarmony RN support the migration of native modules of the old architecture to turbo modules?
+
+- **A**: OpenHarmony RN is developed based on the new RN architecture. The native module (adapted to Android and iOS) developed based on the old RN architecture cannot be migrated to the turbo module of the new RN architecture. They are incompatible at the bottom layer.
+
+### How to Use Custom Fonts?
+
+- Symptom
+    
+    In ArkUI, after you perform custom [font registration](https://developer.huawei.com/consumer/en/doc/harmonyos-references/js-apis-font-0000001821000745), the fontFamily setting in the RN code does not take effect.
+
+- Cause
+
+    RN components are loaded to the native container through **XComponent**. You need to register the font in the **CAPI** code. RNOH specifies a font registration entry. You need to transfer custom font data to RN.
+
+- Solutions
+
+    (1) Add a font file.
+    
+     Same as the image file, the RN font file is stored in the `resources/rawfile/` directory. To distinguish the two files, you are advised to create a **fonts** folder in the **assets** directory, as shown in the following figure.
+
+    ![Common development scenario - Adding a custom font](./figures/common-development-scenario-add-a-custom-font.png)
+    
+    (2) Configure the font.
+
+      In the previous step, an **SFMono-Bold.ttf** font file is added to the project. Then you need to create a `Record` object.
+    ```typescript
+    const fontsFamily: Record<string, Resource | string> = {
+      'SFMono': $rawfile('fonts/SFMono-Bold.ttf'),
+    }
+    ```
+
+    (3) Register the font.
+
+     RNOH provides `fontOptions` in the `RNInstance` build parameters for custom font configuration.
+
+    ```typescript
+    this.rnInstance = await rnohCoreContext.createAndRegisterRNInstance({
+      createRNPackages: createRNPackages,
+      enableNDKTextMeasuring: true,
+      enableBackgroundExecutor: true,
+      enableCAPIArchitecture: ENABLE_CAPI_ARCHITECTURE,
+      enableDebugger: true,
+      arkTsComponentNames: arkTsComponentNames,
+      fontResourceByFontFamily: fontsFamily
+    });
+    ```
+    If `RNApp` is used, set this parameter in `RNInstanceConfig`:
+
+    ```typescript
+    RNApp({
+      rnInstanceConfig: {
+        createRNPackages,
+        enableNDKTextMeasuring: true,
+        enableBackgroundExecutor: true,
+        enableCAPIArchitecture: true,
+        arkTsComponentNames: arkTsComponentNames,
+        fontResourceByFontFamily: fontsFamily
+      },
+    })
+    ...
+    ```
+
+    (4) Specify the font family on the RN side.
+    
+    The code on the RN side is the same as that on iOS and Android. Use **fontFamily** to specify the custom text font.
+     
+    ```typescript
+    <Text style={{ fontFamily: "SFMono" }}>
+      Hello World
+    </Text>
+    ``` 
+
+### Why Does the gestureEnabled:false Setting for the Navigation Page Do Not Take Effect?
+
+- Symptom
+
+    For RN, after the `react-navigation` library is used to set `gestureEnabled: false` of a subpage, you can still swipe back to the previous page.
+    
+    ```typescript
+    <NavigationContainer ref={navigationRef}>
+      <Stack.Navigator 
+      initialRouteName="Page1">
+        <Stack.Screen name="Page1" component={Page1} />
+        <Stack.Screen name="Page2" component={Page2} 
+        options={{ 
+          gestureEnabled: false,
+        }}/>
+      </Stack.Navigator>
+    </NavigationContainer>
+    ```
+
+- Cause
+
+    The `@react-navigation/stack` library depends on the `react-native-screens` library. You need to call the native method through `react-native-screens` to disable the back gesture. The following describes the native code for disabling the gesture on iOS.
+
+    ![Common development scenario - iOS - Native code for disabling gestures](./figures/common-development-scenario-iOS-native-code-for-disabling-gestures.png)
+
+    The `react-native-screens` library is now incompatible with HarmonyOS. Therefore, setting `gestureEnabled:false` is invalid.
+
+- Solution
+
+    Currently, you can use BackHanlder to listen for the back press event to achieve the same effect.
+
+    For example, there are two pages in the navigation route stack: **Home** and **Details**. After you press **Home** to go to **Details**, you are not allowed to swipe back. In this case, you can add a listener in **Details** and return `true` in the listener callback, indicating that the default back behavior is disabled.
+
+    ```javascript
+    // DetailsScreen.js
+    import React, { useEffect } from 'react';
+    import { Button, View, BackHandler } from 'react-native';
+    
+    function DetailsScreen({ route, navigation }) {
+    
+      useEffect(() => {
+        const backHandlerListener = BackHandler.addEventListener('hardwareBackPress', () => {
+          console.log('detail back')
+          return true
+        })
+    
+        return () => {
+          backHandlerListener.remove();
+        }
+      })
+    
+      return (
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          {/* <StatusBar backgroundColor={'blue'} hidden={false}/> */}
+          <Button
+            title="Go back"
+            onPress={() => navigation.goBack()} />
+        </View>
+      );
+    }
+    
+    export default DetailsScreen;
+    ```

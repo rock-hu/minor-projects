@@ -1,6 +1,6 @@
 {
   "name": "@rnoh/react-native-harmony",
-  "version": "0.72.50",
+  "version": "0.72.51",
   "description": "",
   "scripts": {
     "install:local-cli": "cd ../react-native-harmony-cli && npm pack && cd ../react-native-harmony && npm i ../react-native-harmony-cli/rnoh-react-native-harmony-cli-0.0.25.tgz && cd ../react-native-harmony",
@@ -13,7 +13,7 @@
     "test": "jest"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "peerDependencies": {
     "react-native": "0.72.5"
   },
@@ -52,5 +52,10 @@
   },
   "harmony": {
     "autolinking": null
+  },
+  "homepage": "https://gitee.com/openharmony-sig/ohos_react_native",
+  "repository": {
+    "type": "gitee",
+    "url": "https://gitee.com/openharmony-sig/ohos_react_native"
   }
 }

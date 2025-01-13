@@ -548,3 +548,22 @@
     <br>RNOH中，键盘事件监听的代码位于：  
     `oh_modules/@rnoh/react-native-openharmony/src/main/ets/RNOHCorePackage/turboModules/KeyboardObserverTurboModule.ts`  
     具体功能实现可以参考[窗口](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V13/js-apis-window-V13#windowgetlastwindow9)。
+
+### Linking.canOpenURL()一直返回false的问题
+
+- 现象
+
+  使用Linking.canOpenURL()拉起其他应用时一直返回false
+
+- 原因
+
+  指定应用的scheme需要在module.json5文件中配置，否则查询不到
+
+- 解决
+
+  在`module.json5`文件内的[querySchemes](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V13/canopenlink-V13#%E6%93%8D%E4%BD%9C%E6%AD%A5%E9%AA%A4)字段配上想要拉起的应用的scheme
+
+  例如：想要拉起浏览器访问网页，则需要配http或https
+  ```json5
+    "querySchemes": ["http", "https"],
+  ```

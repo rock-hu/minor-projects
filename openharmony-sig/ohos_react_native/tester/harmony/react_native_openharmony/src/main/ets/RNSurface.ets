@@ -110,6 +110,14 @@ export struct RNSurface {
   private initialProps!: SurfaceProps;
   private logger!: RNOHLogger
   private rootViewNodeContent: NodeContent = new NodeContent();
+  private timerId: number = 0;
+  private lastChangeTime: number = 0;
+  private currentMeasuredSize: Size | undefined = undefined;
+  /**
+  * Note: You may need to change this delay along with RNInstancesCoordinator's 
+  * onWindowSizeChange delay, as both have an effect on window changes. 
+  */
+  private readonly delayTime: number = 500;
 
   aboutToAppear() {
     this.logger = this.ctx.logger.clone("RNSurface")
@@ -194,15 +202,35 @@ export struct RNSurface {
 
   override onMeasureSize(selfLayoutInfo: GeometryInfo, children: Array<Measurable>,
     constraint: ConstraintSizeOptions): SizeResult {
-    const measuredSize =
+    const currentTime = Date.now(); 
+    if (currentTime - this.lastChangeTime > this.delayTime) {
+      this.currentMeasuredSize =
       this.updateSurfaceConstraints({
         minWidth: constraint.maxWidth as number, // NOTE: width: 100% doesn't work on the root component hence maxWidth is used here
         minHeight: constraint.minHeight as number,
         maxWidth: constraint.maxWidth as number,
         maxHeight: constraint.maxHeight as number,
       })
+      this.lastChangeTime = currentTime;
+    } else {
+      if(this.timerId){
+        clearTimeout(this.timerId)
+      }
+      this.timerId = setTimeout(() =>{
+        this.currentMeasuredSize =
+        this.updateSurfaceConstraints({
+          minWidth: constraint.maxWidth as number, // NOTE: width: 100% doesn't work on the root component hence maxWidth is used here
+          minHeight: constraint.minHeight as number,
+          maxWidth: constraint.maxWidth as number,
+          maxHeight: constraint.maxHeight as number,
+        })
+        this.lastChangeTime = Date.now();
+      }, this.delayTime)
+      this.lastChangeTime = currentTime;
+    }
+    const measuredSize = this.currentMeasuredSize;
     const newSize: Size =
-      { width: measuredSize.width || selfLayoutInfo.width, height: measuredSize.height || selfLayoutInfo.height }
+      { width: measuredSize?.width || selfLayoutInfo.width, height: measuredSize?.height || selfLayoutInfo.height }
     children.forEach((child) => {
       child.measure({
         minHeight: newSize.height,

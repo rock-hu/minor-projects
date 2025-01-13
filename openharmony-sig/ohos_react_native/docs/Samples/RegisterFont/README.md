@@ -25,7 +25,7 @@
 
 #### 运行步骤
 
-1. 在 `RegisterFontRnProject` 目录下执行 **npm i @react-native-oh/react-native-harmony@x.x.x** 安装依赖，执行 **npm run dev** 生成 bundle；
+1. 在 `RegisterFontRnProject` 目录下执行 **npm i @react-native-oh/react-native-harmony@x.x.x**或**yarn add @react-native-oh/react-native-harmony@x.x.x** 安装依赖，执行 **npm run dev** 生成 bundle；
 2. 在 `entry` 目录下执行 **ohpm i @rnoh/react-native-openharmony@x.x.x** 安装依赖；
 3. 检查 `RegisterFontRnProject`、`entry` 目录下是否生成 `oh-modules` 文件夹；
 4. 用 DevEco Studio 打开 RegisterFontNativeProject **Sync and Refresh Project**；

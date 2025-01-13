@@ -9,32 +9,26 @@
                 <policyitem type="license" name="MIT" path=".*"
                     desc="" />
                 <policyitem type="copyright" name="Huawei Technologies Co., Ltd." path=".*"
-                    rule="may" group="defaultGroup" desc="" />
+                    desc="" rule="may" group="defaultGroup" filefilter="copyrightPolicyFilter" />
             </policy>
         </policylist>
 
         <filefilterlist>
             <filefilter name="defaultFilter" desc="">
-                <filteritem type="filename" name="README.OpenSource" />
-                <filteritem type="filename" name="README" />
-                <filteritem type="filename" name="README.md" />
-                <filteritem type="filename" name="README_zh.md" />
-                <filteritem type="filename" name="LICENSE" />
-                <filteritem type="filename" name="LICENSE-MIT" />
-                <filteritem type="filename" name=".eslintrc" />
-                <filteritem type="filename" name=".node-version" />
-                <filteritem type="filename" name=".npmignore" />
-                <filteritem type="filename" name=".npmrc" />
-                <filteritem type="filename" name=".watchmanconfig" />
-                <filteritem type="filename" name=".gitmodules" />
-                <filteritem type="filename" name=".clang-tidy" />
-                <filteritem type="filename" name=".keep" />
+                <filteritem type="filename" name=".eslintrc" desc="desc files" />
+                <filteritem type="filename" name=".node-version" desc="desc files" />
+                <filteritem type="filename" name=".npmignore" desc="desc files" />
+                <filteritem type="filename" name=".npmrc" desc="desc files" />
+                <filteritem type="filename" name=".watchmanconfig" desc="desc files" />
+                <filteritem type="filename" name=".gitmodules" desc="desc files" />
+                <filteritem type="filename" name=".clang-tidy" desc="desc files" />
+                <filteritem type="filename" name=".keep" desc="desc files" />
                 <filteritem type="filename" name="*.json5" desc="项目工程默认文件，不需要版权头检测" />
-                <filteritem type="filepath" name=".*/android/.*" />
-                <filteritem type="filepath" name=".*/ios/.*" />
-                <filteritem type="filepath" name="docs/.*" />
-                <filteritem type="filepath" name="tester/harmony/react_native_openharmony/src/main/cpp/RNOH/TouchTarget.cpp" />
-                <filteritem type="filepath" name="tester/harmony/react_native_openharmony/src/main/ets/RNOH/RNTypes.ts" />
+                <filteritem type="filepath" name=".*/android/.*" desc="生成文件，不手动修改" />
+                <filteritem type="filepath" name=".*/ios/.*" desc="生成文件，不手动修改" />
+                <filteritem type="filepath" name="docs/.*" desc="文档、demo工程" />
+                <filteritem type="filepath" name="tester/harmony/react_native_openharmony/src/main/cpp/RNOH/TouchTarget.cpp" desc="上游社区代码，无需检测" />
+                <filteritem type="filepath" name="tester/harmony/react_native_openharmony/src/main/ets/RNOH/RNTypes.ts" desc="上游社区代码，无需检测" />
                 <filteritem type="filepath"
                     name="tester/harmony/react_native_openharmony/src/main/cpp/third-party/.*" desc="上游社区代码，无需检测" />
                 <filteritem type="filepath"
@@ -42,16 +36,12 @@
                 <filteritem type="filepath" name="react-native-harmony/Libraries/.*" desc="上游社区代码，无需检测" />
             </filefilter>
             <filefilter name="copyrightPolicyFilter" desc="">
-                <filteritem type="filepath" name="tester/benchmarks/stresstest/.*" />
-                <filteritem type="filepath" name=".*/sample_package/src/main/cpp/generated/.*" />+
+                <filteritem type="filepath" name="tester/benchmarks/stresstest/.*" desc="上游社区代码，无需检测" />
             </filefilter>
             <filefilter name="binaryFileTypePolicyFilter" desc="">
-                <filteritem type="filename" name="rnoh-testerino-.*.tgz" />
-                <filteritem type="filename" name="rnoh-hvigor-plugin-.*.tgz" />
-                <filteritem type="filename" name="*.jpg|*.png|*.ttf" />
-                <filteritem type="filepath" name="tester/android/.*"/>
-                <filteritem type="filepath" name="tester/harmony/react_native_openharmony/src/main/cpp/third-party/.*"/>
-                <filteritem type="filepath" name="tester/harmony/react_native_openharmony/src/main/cpp/patches/.*"/>
+                <filteritem type="filename" name="rnoh-testerino-.*.tgz" desc="测试工程依赖" />
+                <filteritem type="filename" name="rnoh-hvigor-plugin-.*.tgz" desc="autolink需要的hvigor额外配置项" />
+                <filteritem type="filename" name="*.jpg|*.png|*.ttf" desc="desc files" />
             </filefilter>
         </filefilterlist>
     </oatconfig>

@@ -38,8 +38,14 @@ export class LoadManager {
   static ctx: RNComponentContext;
 
   public static loadBundle(instance: RNInstance, bundlePath: string, useBundleCache: boolean = true): Promise<void> {
-    if (LoadManager.loadedBundle.has(bundlePath) && useBundleCache) return Promise.resolve();
-    if (useBundleCache) LoadManager.loadedBundle.add(bundlePath);
+    if (LoadManager.loadedBundle.has(bundlePath) && useBundleCache)
+    {
+      return Promise.resolve();
+    } 
+    if (useBundleCache)
+    {
+      LoadManager.loadedBundle.add(bundlePath);
+    }
     return instance.runJSBundle(new ResourceJSBundleProvider(getContext().resourceManager, bundlePath));
   }
 

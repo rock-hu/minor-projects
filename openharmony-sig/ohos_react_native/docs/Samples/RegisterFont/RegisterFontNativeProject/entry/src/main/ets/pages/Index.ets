@@ -16,13 +16,13 @@ import {
   TraceJSBundleProviderDecorator,
   RNOHCoreContext,
   RNAbility
-} from '@rnoh/react-native-openharmony'
-import { createRNPackages } from '../RNPackagesFactory'
+} from '@rnoh/react-native-openharmony';
+import { createRNPackages } from '../RNPackagesFactory';
 import fs from '@ohos.file.fs';
 
 @Builder
-export function buildCustomRNComponent(ctx: ComponentBuilderContext) {}
-const wrappedCustomRNComponentBuilder = wrapBuilder(buildCustomRNComponent)
+export function buildCustomRNComponent(ctx: ComponentBuilderContext) {};
+const wrappedCustomRNComponentBuilder = wrapBuilder(buildCustomRNComponent);
 
 @Entry
 @Component

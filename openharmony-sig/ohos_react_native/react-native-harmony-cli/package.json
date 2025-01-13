@@ -2,6 +2,10 @@
   "name": "@rnoh/react-native-harmony-cli",
   "version": "0.0.28",
   "description": "",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc --outDir dist -p tsconfig.build.json",
     "prepack": "npm run build",
@@ -13,7 +17,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "peerDependencies": {
     "metro": "*"
   },
@@ -50,5 +54,10 @@
     "mustache": "^4.2.0",
     "tar": "^6.1.15",
     "tmp": "^0.2.1"
+  },
+  "homepage": "https://gitee.com/openharmony-sig/ohos_react_native",
+  "repository": {
+    "type": "gitee",
+    "url": "https://gitee.com/openharmony-sig/ohos_react_native"
   }
 }

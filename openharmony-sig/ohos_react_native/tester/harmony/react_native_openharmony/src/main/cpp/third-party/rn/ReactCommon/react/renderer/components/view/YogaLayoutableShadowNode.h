@@ -78,6 +78,7 @@ class YogaLayoutableShadowNode : public LayoutableShadowNode {
 
   void cleanLayout() override;
   void dirtyLayout() override;
+  void dirtyLayoutAndPropogateToDescendants();
   bool getIsLayoutClean() const override;
 
   /*
