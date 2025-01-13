@@ -6,6 +6,9 @@ import BuildProfile from 'BuildProfile';
 import { util } from '@kit.ArkTS';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { insightIntent } from '@kit.IntentsKit';
+import Logger from '../utils/Logger';
+
+let logger = Logger.getLogger('[ReferralContact]');
 
 /**
  * Share contact information to the sharing recommendation area.
@@ -49,17 +52,17 @@ export default struct ReferralContact {
 
   async shareIntent() {
     insightIntent.shareIntent(getContext(this), [this.intent]).then(() => {
-      console.info('shareIntent ok');
+      logger.info('shareIntent ok');
     }).catch((err: BusinessError) => {
-      console.error(`shareIntent failed. Code: ${err.code}. message: ${err.message}`);
+      logger.error(`shareIntent failed. Code: ${err.code}. message: ${err.message}`);
     });
   }
 
   async deleteIntent() {
     insightIntent.deleteIntent(getContext(this), this.intentName).then(() => {
-      console.info('deleteIntent ok');
+      logger.info('deleteIntent ok');
     }).catch((err: BusinessError) => {
-      console.error(`deleteIntent failed. Code: ${err.code}. message: ${err.message}`);
+      logger.error(`deleteIntent failed. Code: ${err.code}. message: ${err.message}`);
     });
   }
 

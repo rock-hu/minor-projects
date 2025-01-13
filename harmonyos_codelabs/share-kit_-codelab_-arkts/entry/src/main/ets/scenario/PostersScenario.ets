@@ -6,6 +6,10 @@ import { uniformTypeDescriptor as utd } from '@kit.ArkData';
 import { common } from '@kit.AbilityKit';
 import { fileUri } from '@kit.CoreFileKit';
 import { image } from '@kit.ImageKit';
+import { BusinessError } from '@kit.BasicServicesKit';
+import Logger from '../utils/Logger';
+
+let logger = Logger.getLogger('[Posters]');
 
 @Component
 export default struct Posters {
@@ -15,11 +19,9 @@ export default struct Posters {
     let filePath = contextFaker.filesDir + '/exampleImage.jpg';
 
     let thumbnailPath = contextFaker.filesDir + '/exampleImage.jpg';
-    const imageSourceApi: image.ImageSource = image.createImageSource(thumbnailPath);
-    let opts: image.InitializationOptions = { size: { height: 6, width: 6 } }
-    const pixelMap: image.PixelMap = await imageSourceApi.createPixelMap(opts);
-    const imagePackerApi: image.ImagePacker = image.createImagePacker();
-    const buffer: ArrayBuffer = await imagePackerApi.packing(pixelMap, {
+    const imageSource: image.ImageSource = image.createImageSource(thumbnailPath);
+    const imagePacker: image.ImagePacker = image.createImagePacker();
+    const buffer: ArrayBuffer = await imagePacker.packToData(imageSource, {
       format: 'image/jpeg',
       quality: 30,
     });
@@ -45,6 +47,10 @@ export default struct Posters {
     controller.show(context, {
       selectionMode: systemShare.SelectionMode.SINGLE,
       previewMode: systemShare.SharePreviewMode.DETAIL,
+    }).then(() => {
+      logger.info('ShareController show success.');
+    }).catch((error: BusinessError) => {
+      logger.error(`ShareController show error. code: ${error.code}, message: ${error.message}`);
     });
   }
 

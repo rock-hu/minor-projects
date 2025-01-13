@@ -3,7 +3,6 @@
  */
 
 import { uniformTypeDescriptor as utd } from '@kit.ArkData';
-import FormItem from './FormItem';
 import CreateRecord from '../../utils/CreateRecord';
 
 @Component

@@ -301,7 +301,7 @@
       "value": "当预览图宽高比大于1:1时，使用白卡上下布局。"
     },
     {
-      "name": "knock_precautions",
+      "name": "precautions",
       "value": "注意事项："
     },
     {
@@ -315,6 +315,30 @@
     {
       "name": "knock_precautions_3",
       "value": "3.当应用退至后台时，使用harmonyShare.off()方法注册碰一碰监听事件。"
+    },
+    {
+      "name": "gesture_title",
+      "value": "隔空传送"
+    },
+    {
+      "name": "gesture_listening",
+      "value": "隔空传送事件监听中"
+    },
+    {
+      "name": "gesture_click",
+      "value": "点击开启隔空传送事件监听"
+    },
+    {
+      "name": "gesture_precautions_1",
+      "value": "1.请开启“隔空传送”开关体验。开启路径：设置->系统->快捷启动和手势->隔空传送。"
+    },
+    {
+      "name": "gesture_file_title",
+      "value": "隔空传送文件"
+    },
+    {
+      "name": "gesture_close_other",
+      "value": "请先关闭其他隔空传送监听事件"
     }
   ]
 }

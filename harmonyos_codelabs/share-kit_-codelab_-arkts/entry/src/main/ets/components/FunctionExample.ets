@@ -25,7 +25,7 @@ export default struct FunctionDemo {
   @State title: string = 'Test title';
   @State label: string = 'Test label';
   @State description: string = 'Test description';
-  @State pixelMap: image.PixelMap | null = null;
+  @State imageSource: image.ImageSource | null = null;
   @State uri: string = '';
   @State content: string = 'Test content';
   @State extraData: Record<string, string | number | boolean | Array<string | number | boolean>> = {};
@@ -34,7 +34,7 @@ export default struct FunctionDemo {
   @State title2: string = '';
   @State label2: string = '';
   @State description2: string = '';
-  @State pixelMap2: image.PixelMap | null = null;
+  @State imageSource2: image.ImageSource | null = null;
   @State uri2: string = '';
   @State content2: string = '';
   @State extraData2: Record<string, string | number | boolean | Array<string | number | boolean>> = {};
@@ -85,9 +85,9 @@ export default struct FunctionDemo {
       title: this.title,
       description: this.description,
     }
-    if (this.pixelMap) {
-      const imagePackerApi: image.ImagePacker = image.createImagePacker();
-      const buffer: ArrayBuffer = await imagePackerApi.packing(this.pixelMap, {
+    if (this.imageSource) {
+      const imagePacker: image.ImagePacker = image.createImagePacker();
+      const buffer: ArrayBuffer = await imagePacker.packToData(this.imageSource, {
         format: 'image/jpeg',
         quality: 1,
       });
@@ -105,9 +105,9 @@ export default struct FunctionDemo {
       title: this.title2,
       description: this.description2,
     }
-    if (this.pixelMap2) {
+    if (this.imageSource2) {
       const imagePackerApi: image.ImagePacker = image.createImagePacker();
-      const buffer: ArrayBuffer = await imagePackerApi.packing(this.pixelMap2, {
+      const buffer: ArrayBuffer = await imagePackerApi.packing(this.imageSource2, {
         format: 'image/jpeg',
         quality: 1,
       });
@@ -156,7 +156,7 @@ export default struct FunctionDemo {
               title: this.title,
               label: this.label,
               description: this.description,
-              pixelMap: this.pixelMap,
+              imageSource: this.imageSource,
               uri: this.uri,
               content: this.content,
               extraData: this.extraData
@@ -170,7 +170,7 @@ export default struct FunctionDemo {
               title: this.title2,
               label: this.label2,
               description: this.description2,
-              pixelMap: this.pixelMap2,
+              imageSource: this.imageSource2,
               uri: this.uri2,
               content: this.content2,
               extraData: this.extraData2

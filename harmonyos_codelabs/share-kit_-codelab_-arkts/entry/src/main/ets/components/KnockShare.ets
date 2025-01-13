@@ -21,14 +21,22 @@ export default struct KnockShare {
       this.purityListening();
     }
     let context = getContext(this);
-    context.eventHub.on('onBackGround', this.onBackGround);
+    context.eventHub.on('onFocus', () => {
+      if (this.isNoListening()) {
+        this.purityListening();
+      }
+    });
+    context.eventHub.on('onBackGround', () => {
+      this.onBackGround();
+    });
   }
 
   aboutToDisappear(): void {
     logger.info('aboutToDisappear invoked.');
     this.disablingAllListening();
     let context = getContext(this);
-    context.eventHub.off('onBackGround', this.onBackGround);
+    context.eventHub.off('onFocus');
+    context.eventHub.off('onBackGround');
   }
 
   private onBackGround() {
@@ -295,7 +303,7 @@ export default struct KnockShare {
   @Builder
   KnockExplain() {
     Column() {
-      Text($r('app.string.knock_precautions'))
+      Text($r('app.string.precautions'))
         .width('100%')
         .fontSize(18)
 

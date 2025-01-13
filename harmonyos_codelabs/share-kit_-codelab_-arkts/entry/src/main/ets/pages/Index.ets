@@ -34,9 +34,15 @@ struct Index {
     ].forEach(item => {
       let file = fs.openSync(filesDir + item[1], fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE);
       let writeLen = fs.writeSync(file.fd, (item[0] as Uint8Array).buffer);
-      console.info("write data to file succeed and size is:" + writeLen);
+      logger.info("write data to file succeed and size is:" + writeLen);
       fs.closeSync(file);
     })
+  }
+
+  onPageShow(): void {
+    logger.info('onPageHide invoked.');
+    let context = getContext(this);
+    context.eventHub.emit('onFocus');
   }
 
   onPageHide(): void {
@@ -110,7 +116,7 @@ struct Index {
         symbolIcon: new SymbolGlyphModifier($r("sys.symbol.person_2")),
         activeSymbolIcon: new SymbolGlyphModifier($r("sys.symbol.person_2_fill")),
         action: () => { this.navigationIndex = Constants.NAVIGATION_KNOCK },
-      }
+      },
     ])
   }
 }

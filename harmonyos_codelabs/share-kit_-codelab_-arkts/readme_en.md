@@ -11,9 +11,9 @@ Share Kit enables content such as text, images, and videos to be shared across a
 ![](./screenshots/device/share_demo3_en.jpg)
 
 ## Concepts
-- [Stage model](https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V5/stage-model-development-overview-V5): It is designed to solve development issues that cannot be solved in the [FA model](https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V5/fa-model-development-overview-V5), making it easier to develop complex apps in the distributed environment. The stage model is supported since API version 9.
-- [UIAbility](https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V5/uiability-overview-V5) overview: It is a type of app component that provides the UI for user interactions. UIAbility is the basic unit of scheduling in OpenHarmony and provides a window for apps to draw the UI. An app can contain one or more UIAbility components.
-- [UIAbilityContext](https://developer.huawei.com/consumer/en/doc/harmonyos-references-V5/js-apis-inner-application-uiabilitycontext-V5): Inherited from **Context**, **UIAbilityContext** provides the context environment for **UIAbility** that needs to store its status, including the **UIAbility** configuration and methods for operating **UIAbility** and **ServiceExtensionAbility**.
+- [Stage model](https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V13/stage-model-development-overview-V13): It is designed to solve development issues that cannot be solved in the [FA model](https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V13/fa-model-development-overview-V13), making it easier to develop complex apps in the distributed environment. The stage model is supported since API version 9.
+- [UIAbility](https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V13/uiability-overview-V13) overview: It is a type of app component that provides the UI for user interactions. UIAbility is the basic unit of scheduling in OpenHarmony and provides a window for apps to draw the UI. An app can contain one or more UIAbility components.
+- [UIAbilityContext](https://developer.huawei.com/consumer/en/doc/harmonyos-references-V13/js-apis-inner-application-uiabilitycontext-V13): Inherited from **Context**, **UIAbilityContext** provides the context environment for **UIAbility** that needs to store its status, including the **UIAbility** configuration and methods for operating **UIAbility** and **ServiceExtensionAbility**.
 
 ## Project Directory
 
@@ -72,9 +72,9 @@ None
 ## Constraints
 1. The sample app is only supported on Huawei phones, tablets, and 2-in-1 devices with standard systems.
 2. The HarmonyOS version must be HarmonyOS NEXT Developer Beta1 or later.
-3. The DevEco Studio version must be DevEco Studio NEXT Developer Beta1 or later.
-4. The HarmonyOS SDK version must be HarmonyOS NEXT Developer Beta1 SDK or later.
+3. The DevEco Studio version must be DevEco Studio 5.0.1 Beta3 or later.
+4. The HarmonyOS SDK version must be HarmonyOS SDK 5.0.1 Beta3 SDK or later.
 
 This function is available only when both of the following conditions are met:
-- The data types defined by the host app and target app must comply with the [UTD](https://developer.huawei.com/consumer/en/doc/harmonyos-references-V5/js-apis-data-uniformtypedescriptor-V5) specifications provided by the [UDMF](https://developer.huawei.com/consumer/en/doc/harmonyos-references-V5/js-apis-data-unifieddatachannel-V5). The supported content types must be configured in the target app configuration file. If all image types are supported, declare **general.image**.
+- The data types defined by the host app and target app must comply with the [UTD](https://developer.huawei.com/consumer/en/doc/harmonyos-references-V13/js-apis-data-uniformtypedescriptor-V13) specifications provided by the [UDMF](https://developer.huawei.com/consumer/en/doc/harmonyos-references-V13/js-apis-data-unifieddatachannel-V13). The supported content types must be configured in the target app configuration file. If all image types are supported, declare **general.image**.
 - The total size of the description about shared data configured in the host app cannot exceed 200 KB, and the total number of shared items cannot exceed 500.

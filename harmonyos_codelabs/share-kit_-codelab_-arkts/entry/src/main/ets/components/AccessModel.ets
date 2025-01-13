@@ -31,9 +31,9 @@ export default struct AccessModel {
       previewMode: systemShare.SharePreviewMode.DETAIL,
       selectionMode: systemShare.SelectionMode.BATCH,
     }).then(() => {
-      console.info('HuaweiShare_ show');
+      logger.info('HuaweiShare_ show');
     }).catch((error: BusinessError) => {
-      console.error(`HuaweiShare_ show error. Code: ${error.code}, message: ${error.message}`);
+      logger.error(`HuaweiShare_ show error. Code: ${error.code}, message: ${error.message}`);
     });
   }
 
@@ -158,8 +158,9 @@ export default struct AccessModel {
         Text($r('app.string.system_share'))
           .fontSize(12)
           .margin({ top: 8 })
+          .textAlign(TextAlign.Center)
       }
-      .width('20%')
+      .width('22%')
       .height(100)
       .justifyContent(FlexAlign.Center)
       .onClick(() => {

@@ -3,6 +3,9 @@ import { systemShare } from '@kit.ShareKit';
 import { uniformTypeDescriptor as utd } from '@kit.ArkData';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { image } from '@kit.ImageKit';
+import Logger from '../utils/Logger';
+
+let logger = Logger.getLogger('[SystemShare]');
 
 // 获取共享的storage实例
 // Obtaining a Shared Storage Instance
@@ -60,9 +63,9 @@ struct SystemShare {
           };
           context.openLink(this.htmlLink, openLinkOptions)
             .then(() => {
-              console.info('open link success.');
+              logger.info('open link success.');
             }).catch((err: BusinessError) => {
-              console.error(`open link failed. Code is ${err.code}, message is ${err.message}`);
+              logger.error(`open link failed. Code is ${err.code}, message is ${err.message}`);
             })
         })
     }
@@ -95,7 +98,7 @@ struct SystemShare {
         Button() {
           Text($r('app.string.action_back'))
             .fontSize(25)
-            .fontColor('#FFFFFF')
+            .fontColor($r('sys.color.comp_background_list_card'))
             .fontWeight(FontWeight.Bold)
         }
         .type(ButtonType.Capsule)

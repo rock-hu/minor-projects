@@ -8,7 +8,9 @@ import { fileUri } from '@kit.CoreFileKit';
 import { promptAction } from '@kit.ArkUI';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { image } from '@kit.ImageKit';
-import { resourceManager } from '@kit.LocalizationKit';
+import Logger from '../utils/Logger';
+
+let logger = Logger.getLogger('[BaseDemo]');
 
 interface IDemoItem {
   type: string;
@@ -68,9 +70,9 @@ export default struct BaseDemo {
       previewMode: systemShare.SharePreviewMode.DETAIL,
       excludedAbilities: [systemShare.ShareAbilityType.COPY_TO_PASTEBOARD],
     }).then(() => {
-      console.info('HuaweiShare_ show');
+      logger.info('HuaweiShare_ show');
     }).catch((error: BusinessError) => {
-      console.error(`HuaweiShare_ show error. Code: ${error.code}, message: ${error.message}`);
+      logger.error(`HuaweiShare_ show error. Code: ${error.code}, message: ${error.message}`);
     });
   }
 
@@ -91,9 +93,9 @@ export default struct BaseDemo {
       selectionMode: systemShare.SelectionMode.SINGLE,
       excludedAbilities: [systemShare.ShareAbilityType.PRINT],
     }).then(() => {
-      console.info('HuaweiShare_ show');
+      logger.info('HuaweiShare_ show');
     }).catch((error: BusinessError) => {
-      console.error(`HuaweiShare_ show error. Code: ${error.code}, message: ${error.message}`);
+      logger.error(`HuaweiShare_ show error. Code: ${error.code}, message: ${error.message}`);
     });
   }
 
@@ -106,11 +108,9 @@ export default struct BaseDemo {
     // this.thumbnailBuffer = fileData;
     /** Solution 2 */
     let thumbnailPath = contextFaker.filesDir + '/exampleImage.jpg';
-    const imageSourceApi: image.ImageSource = image.createImageSource(thumbnailPath);
-    let opts: image.InitializationOptions = { size: { height: 6, width: 6 } };
-    const pixelMap: image.PixelMap = await imageSourceApi.createPixelMap(opts);
-    const imagePackerApi: image.ImagePacker = image.createImagePacker();
-    const buffer: ArrayBuffer = await imagePackerApi.packing(pixelMap, {
+    const imageSource: image.ImageSource = image.createImageSource(thumbnailPath);
+    const imagePacker: image.ImagePacker = image.createImagePacker();
+    const buffer: ArrayBuffer = await imagePacker.packToData(imageSource, {
       format: 'image/jpeg',
       quality: 30,
     });
@@ -125,7 +125,7 @@ export default struct BaseDemo {
     });
     let controller: systemShare.ShareController = new systemShare.ShareController(shareData);
     const callback = () => {
-      console.info('HuaweiShare_ dismiss run');
+      logger.info('HuaweiShare_ dismiss run');
       promptAction.showToast({ message: 'Share panel disappeared' });
     };
     controller.on('dismiss', callback);
@@ -134,9 +134,9 @@ export default struct BaseDemo {
     controller.show(context, {
       previewMode: this.videoPreviewMode === 0 ? systemShare.SharePreviewMode.DEFAULT : systemShare.SharePreviewMode.DETAIL
     }).then(() => {
-      console.info('HuaweiShare_ show');
+      logger.info('HuaweiShare_ show');
     }).catch((error: BusinessError) => {
-      console.error(`HuaweiShare_ show error. Code: ${error.code}, message: ${error.message}`);
+      logger.error(`HuaweiShare_ show error. Code: ${error.code}, message: ${error.message}`);
     });
   }
 

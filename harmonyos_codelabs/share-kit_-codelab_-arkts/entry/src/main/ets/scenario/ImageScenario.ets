@@ -6,6 +6,9 @@ import { uniformTypeDescriptor as utd } from '@kit.ArkData';
 import { common } from '@kit.AbilityKit';
 import { fileUri } from '@kit.CoreFileKit';
 import { BusinessError } from '@kit.BasicServicesKit';
+import Logger from '../utils/Logger';
+
+let logger = Logger.getLogger('[ImageScenario]');
 
 @Component
 export default struct ImageScenario {
@@ -30,9 +33,9 @@ export default struct ImageScenario {
       selectionMode: systemShare.SelectionMode.SINGLE,
       previewMode: systemShare.SharePreviewMode.DETAIL,
     }).then(() => {
-      console.info('ShareController show success.');
+      logger.info('ShareController show success.');
     }).catch((error: BusinessError) => {
-      console.error(`ShareController show error. code: ${error.code}, message: ${error.message}`);
+      logger.error(`ShareController show error. code: ${error.code}, message: ${error.message}`);
     });
   }
 

@@ -4,9 +4,7 @@
 import { image } from '@kit.ImageKit';
 import { photoAccessHelper } from '@kit.MediaLibraryKit';
 import { BusinessError } from '@kit.BasicServicesKit';
-import { picker } from '@kit.CoreFileKit';
-import { dataSharePredicates } from '@kit.ArkData';
-import { common } from '@kit.AbilityKit';
+import { fileIo as fs } from '@kit.CoreFileKit';
 import FormItem from './FormItem';
 import CreateRecord from '../../utils/CreateRecord';
 
@@ -16,7 +14,7 @@ export default struct SharedRecord {
   @Link title: string;
   @Link label: string;
   @Link description: string;
-  @Link pixelMap: image.PixelMap | null;
+  @Link imageSource: image.ImageSource | null;
   @Link uri: string;
   @Link content: string;
   @Link extraData: Record<string, string | number | boolean | Array<string | number | boolean>>;
@@ -87,25 +85,16 @@ export default struct SharedRecord {
 
   @Builder
   ThumbnailBuilder() {
-    Button(this.pixelMap ? $r('app.string.selected') : $r('app.string.select'))
+    Button(this.imageSource ? $r('app.string.selected') : $r('app.string.select'))
       .onClick(() => {
-        let context = getContext(this) as common.Context;
-        let photoPicker = new picker.PhotoViewPicker(context);
+        let photoPicker = new photoAccessHelper.PhotoViewPicker();
         photoPicker.select({
-          MIMEType: picker.PhotoViewMIMETypes.IMAGE_TYPE,
+          MIMEType: photoAccessHelper.PhotoViewMIMETypes.IMAGE_TYPE,
           maxSelectNumber: 1,
-        }).then(async (photoSelectResult: picker.PhotoSelectResult) => {
+        }).then(async (photoSelectResult: photoAccessHelper.PhotoSelectResult) => {
           let photoUri = photoSelectResult.photoUris;
-          let phAccessHelper = photoAccessHelper.getPhotoAccessHelper(context);
-          let predicates: dataSharePredicates.DataSharePredicates = new dataSharePredicates.DataSharePredicates();
-          predicates.equalTo('uri', photoUri[0]);
-          let fetchOption: photoAccessHelper.FetchOptions = {
-            fetchColumns: [],
-            predicates: predicates
-          };
-          let fetchResult: photoAccessHelper.FetchResult<photoAccessHelper.PhotoAsset> = await phAccessHelper.getAssets(fetchOption);
-          const asset: photoAccessHelper.PhotoAsset = await fetchResult.getFirstObject();
-          this.pixelMap = await asset.getThumbnail();
+          let file = fs.openSync(photoUri[0]);
+          this.imageSource = image.createImageSource(file.fd);
         }).catch((err: BusinessError) => {
           console.error(`PhotoViewPicker.select failed with err: Code: ${err.code}. message: ${err.message}`);
         });

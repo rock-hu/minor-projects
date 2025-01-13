@@ -4,6 +4,9 @@ import { uniformTypeDescriptor as utd } from '@kit.ArkData';
 import { image } from '@kit.ImageKit';
 import { SymbolGlyphModifier } from '@kit.ArkUI';
 import { BusinessError } from '@kit.BasicServicesKit';
+import Logger from '../utils/Logger';
+
+let logger = Logger.getLogger('[ShareExtDialog]');
 
 // 获取共享的storage实例
 // Obtaining a Shared Storage Instance
@@ -95,7 +98,7 @@ struct ShareExtDialog {
       selectionMode: systemShare.SelectionMode.SINGLE
     };
     systemShare.getWant(data, options).then((want) => {
-      console.info('getWant', JSON.stringify(want))
+      logger.info('getWant', JSON.stringify(want))
     });
   }
 
@@ -126,7 +129,7 @@ struct ShareExtDialog {
     Button() {
       Text(text)
         .fontSize(25)
-        .fontColor('#FFFFFF')
+        .fontColor($r('sys.color.comp_background_list_card'))
         .fontWeight(FontWeight.Bold)
     }
     .type(ButtonType.Capsule)
@@ -153,10 +156,10 @@ struct ShareExtDialog {
               abilityName: "ShareUIAbility",
             };
             (getContext(this) as common.UIExtensionContext).startAbility(paramsWant).then(() => {
-              console.info('startAbility show');
+              logger.info('startAbility show');
               this.session?.terminateSelfWithResult({ resultCode: systemShare.ShareAbilityResultCode.CLOSE });
             }).catch((error: BusinessError) => {
-              console.error(`startAbility error. Code: ${error.code}, message: ${error.message}`);
+              logger.error(`startAbility error. Code: ${error.code}, message: ${error.message}`);
             });
           })
 

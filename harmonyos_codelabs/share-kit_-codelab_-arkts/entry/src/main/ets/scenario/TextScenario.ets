@@ -5,6 +5,9 @@ import { systemShare } from '@kit.ShareKit';
 import { uniformTypeDescriptor as utd } from '@kit.ArkData';
 import { common } from '@kit.AbilityKit';
 import { BusinessError } from '@kit.BasicServicesKit';
+import Logger from '../utils/Logger';
+
+let logger = Logger.getLogger('[TextScenario]');
 
 @Component
 export default struct TextScenario {
@@ -24,9 +27,9 @@ export default struct TextScenario {
       selectionMode: systemShare.SelectionMode.SINGLE,
       previewMode: systemShare.SharePreviewMode.DEFAULT,
     }).then(() => {
-      console.info('ShareController show success.');
+      logger.info('ShareController show success.');
     }).catch((error: BusinessError) => {
-      console.error(`ShareController show error. code: ${error.code}, message: ${error.message}`);
+      logger.error(`ShareController show error. code: ${error.code}, message: ${error.message}`);
     });
   }
 

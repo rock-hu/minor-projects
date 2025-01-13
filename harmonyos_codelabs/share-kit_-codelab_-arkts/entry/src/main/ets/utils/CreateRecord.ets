@@ -81,11 +81,9 @@ export default class CreateRecord {
   private static async createRecordForVIDEO(context: Context): Promise<systemShare.SharedRecord> {
     let filePath = context.filesDir + '/exampleVideo.mp4';
     let thumbnailPath = context.filesDir + '/exampleImage.jpg';
-    const imageSourceApi: image.ImageSource = image.createImageSource(thumbnailPath);
-    let opts: image.InitializationOptions = { size: { height: 6, width: 6 } }
-    const pixelMap: image.PixelMap = await imageSourceApi.createPixelMap(opts);
-    const imagePackerApi: image.ImagePacker = image.createImagePacker();
-    const buffer: ArrayBuffer = await imagePackerApi.packing(pixelMap, {
+    const imageSource: image.ImageSource = image.createImageSource(thumbnailPath);
+    const imagePacker: image.ImagePacker = image.createImagePacker();
+    const buffer: ArrayBuffer = await imagePacker.packToData(imageSource, {
       format: 'image/jpeg',
       quality: 30,
     });

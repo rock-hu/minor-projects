@@ -6,6 +6,9 @@ import { uniformTypeDescriptor as utd } from '@kit.ArkData';
 import { common } from '@kit.AbilityKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { resourceManager } from '@kit.LocalizationKit';
+import Logger from '../utils/Logger';
+
+let logger = Logger.getLogger('[AppLinking]');
 
 @Component
 export default struct AppLinking {
@@ -28,9 +31,9 @@ export default struct AppLinking {
       previewMode: systemShare.SharePreviewMode.DEFAULT,
       selectionMode: systemShare.SelectionMode.SINGLE
     }).then(() => {
-      console.info('ShareController show success.');
+      logger.info('ShareController show success.');
     }).catch((error: BusinessError) => {
-      console.error(`ShareController show error. code: ${error.code}, message: ${error.message}`);
+      logger.error(`ShareController show error. code: ${error.code}, message: ${error.message}`);
     });
   }
 

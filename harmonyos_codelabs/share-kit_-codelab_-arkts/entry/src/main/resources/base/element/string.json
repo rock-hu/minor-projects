@@ -2,7 +2,7 @@
   "string": [
     {
       "name": "system_share",
-      "value": "System share"
+      "value": "System Share"
     },
     {
       "name": "huawei_share",
@@ -301,7 +301,7 @@
       "value": "When the aspect ratio of the preview image is greater than 1:1, the top-down layout of the white card is used."
     },
     {
-      "name": "knock_precautions",
+      "name": "precautions",
       "value": "Precautions:"
     },
     {
@@ -315,6 +315,30 @@
     {
       "name": "knock_precautions_3",
       "value": "3. When the application returns to the background, use the harmonyShare.off() method to register the touch listening event."
+    },
+    {
+      "name": "gesture_title",
+      "value": "Grab & drop"
+    },
+    {
+      "name": "gesture_listening",
+      "value": "grab & drop event listening"
+    },
+    {
+      "name": "gesture_click",
+      "value": "click to enable grab & drop monitoring"
+    },
+    {
+      "name": "gesture_precautions_1",
+      "value": "1. Turn on the Air Transfer switch to experience it. Go to Settings > System > Shortcuts & gestures > Grab & drop"
+    },
+    {
+      "name": "gesture_file_title",
+      "value": "Grab & drop file"
+    },
+    {
+      "name": "gesture_close_other",
+      "value": "Disable other gesture events."
     }
   ]
 }
