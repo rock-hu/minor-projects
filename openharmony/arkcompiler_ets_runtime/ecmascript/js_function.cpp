@@ -99,7 +99,6 @@ void JSFunction::InitializeWithDefaultValue(JSThread *thread, const JSHandle<JSF
     func->SetRawProfileTypeInfo(thread, thread->GlobalConstants()->GetEmptyProfileTypeInfoCell(), SKIP_BARRIER);
     func->SetMethod(thread, JSTaggedValue::Undefined(), SKIP_BARRIER);
     func->SetModule(thread, JSTaggedValue::Undefined(), SKIP_BARRIER);
-    func->SetProtoTransRootHClass(thread, JSTaggedValue::Undefined(), SKIP_BARRIER);
     func->SetCodeEntry(reinterpret_cast<uintptr_t>(nullptr));
     func->ClearCompiledCodeFlags();
     func->SetTaskConcurrentFuncFlag(0); // 0 : default value
@@ -260,22 +259,19 @@ void JSFunction::SetFunctionPrototypeOrInstanceHClass(const JSThread *thread, co
     }
 }
 
-EcmaString* JSFunction::GetFunctionNameString(JSThread *thread, JSHandle<EcmaString> concatString,
-                                              ObjectFactory *factory, JSHandle<JSTaggedValue> target)
+EcmaString* JSFunction::GetFunctionNameString(ObjectFactory *factory, JSHandle<EcmaString> concatString,
+                                              JSHandle<JSTaggedValue> target)
 {
-    JSTaggedValue method = JSHandle<JSFunction>::Cast(target)->GetMethod();
-    JSHandle<EcmaString> newString = factory->ConcatFromString(concatString, factory->GetEmptyString());
-    if (!method.IsUndefined()) {
-        Method *targetObj = Method::Cast(method.GetTaggedObject());
-        std::string funcName = targetObj->ParseFunctionName();
-        if (!funcName.empty()) {
-            JSHandle<JSTaggedValue> methodName(thread,
-                                               factory->NewFromStdString(funcName).GetTaggedValue());
-            JSHandle<EcmaString> functionName = JSHandle<EcmaString>::Cast(methodName);
-            newString = factory->ConcatFromString(concatString, functionName);
+    if (target->IsJSFunction()) {
+        JSTaggedValue method = JSHandle<JSFunction>::Cast(target)->GetMethod();
+        if (!method.IsUndefined()) {
+            std::string funcName = Method::Cast(method.GetTaggedObject())->ParseFunctionName();
+            if (!funcName.empty()) {
+                return *factory->ConcatFromString(concatString, factory->NewFromStdString(funcName));
+            }
         }
     }
-    return *newString;
+    return *concatString;
 }
 
 JSTaggedValue JSFunction::NameGetter(JSThread *thread, const JSHandle<JSObject> &self)
@@ -297,7 +293,7 @@ JSTaggedValue JSFunction::NameGetter(JSThread *thread, const JSHandle<JSObject> 
 
         EcmaString *newString;
         if (!targetName->IsString()) {
-            newString = GetFunctionNameString(thread, concatString, factory, target);
+            newString = GetFunctionNameString(factory, concatString, target);
         } else {
             JSHandle<EcmaString> functionName = JSHandle<EcmaString>::Cast(targetName);
             newString = *factory->ConcatFromString(concatString, functionName);

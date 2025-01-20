@@ -500,6 +500,23 @@ void SwiperModelNG::SetOnContentDidScroll(FrameNode* frameNode, ContentDidScroll
     pattern->SetOnContentDidScroll(std::move(onContentDidScroll));
 }
 
+void SwiperModelNG::SetOnContentWillScroll(ContentWillScrollEvent&& onContentWillScroll)
+{
+    auto swiperNode = ViewStackProcessor::GetInstance()->GetMainFrameNode();
+    CHECK_NULL_VOID(swiperNode);
+    auto pattern = swiperNode->GetPattern<SwiperPattern>();
+    CHECK_NULL_VOID(pattern);
+    pattern->SetOnContentWillScroll(std::move(onContentWillScroll));
+}
+
+void SwiperModelNG::SetOnContentWillScroll(FrameNode* frameNode, ContentWillScrollEvent&& onContentWillScroll)
+{
+    CHECK_NULL_VOID(frameNode);
+    auto pattern = frameNode->GetPattern<SwiperPattern>();
+    CHECK_NULL_VOID(pattern);
+    pattern->SetOnContentWillScroll(std::move(onContentWillScroll));
+}
+
 void SwiperModelNG::SetPageFlipMode(int32_t pageFlipMode)
 {
     auto swiperNode = ViewStackProcessor::GetInstance()->GetMainFrameNode();
@@ -942,6 +959,14 @@ void SwiperModelNG::SetSwiperToIndex(FrameNode* frameNode, int32_t index, bool u
     pattern->ChangeIndex(index, useAnimation);
 }
 
+void SwiperModelNG::SetSwiperToIndex(FrameNode* frameNode, int32_t index, SwiperAnimationMode animationMode)
+{
+    CHECK_NULL_VOID(frameNode);
+    auto pattern = frameNode->GetPattern<SwiperPattern>();
+    CHECK_NULL_VOID(pattern);
+    pattern->ChangeIndex(index, animationMode);
+}
+
 void SwiperModelNG::GetPreviousMargin(FrameNode* frameNode, int32_t unit, SwiperMarginOptions* options)
 {
     CHECK_NULL_VOID(frameNode);
@@ -1011,5 +1036,31 @@ bool SwiperModelNG::GetIndicatorInteractive(FrameNode* frameNode)
     auto pattern = frameNode->GetPattern<SwiperPattern>();
     CHECK_NULL_RETURN(pattern, false);
     return pattern->IsIndicatorInteractive();
+}
+
+void SwiperModelNG::SetOnSelected(std::function<void(const BaseEventInfo* info)>&& onSelected)
+{
+    auto swiperNode = ViewStackProcessor::GetInstance()->GetMainFrameNode();
+    CHECK_NULL_VOID(swiperNode);
+    auto pattern = swiperNode->GetPattern<SwiperPattern>();
+    CHECK_NULL_VOID(pattern);
+
+    pattern->UpdateOnSelectedEvent([event = std::move(onSelected)](int32_t index) {
+        CHECK_NULL_VOID(event);
+        SwiperChangeEvent eventInfo(index);
+        event(&eventInfo);
+    });
+}
+
+void SwiperModelNG::SetOnSelected(FrameNode* frameNode, std::function<void(const BaseEventInfo* info)>&& onSelected)
+{
+    CHECK_NULL_VOID(frameNode);
+    auto pattern = frameNode->GetPattern<SwiperPattern>();
+    CHECK_NULL_VOID(pattern);
+    pattern->UpdateOnSelectedEvent([event = std::move(onSelected)](int32_t index) {
+        CHECK_NULL_VOID(event);
+        SwiperChangeEvent eventInfo(index);
+        event(&eventInfo);
+    });
 }
 } // namespace OHOS::Ace::NG

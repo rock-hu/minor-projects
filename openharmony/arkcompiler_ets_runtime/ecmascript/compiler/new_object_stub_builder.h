@@ -78,7 +78,7 @@ public:
     void ExtendMutantArray(Variable *result, GateRef glue, GateRef elements, GateRef newLen, Label *exit,
                            RegionSpaceFlag spaceType = RegionSpaceFlag::IN_YOUNG_SPACE);
     GateRef NewJSArrayWithSize(GateRef hclass, GateRef size);
-    GateRef NewEmptyJSArrayWithHClass(GateRef hclass);
+    GateRef NewJSArrayWithHClass(GateRef hclass, GateRef length);
     GateRef NewJSForinIterator(GateRef glue, GateRef receiver, GateRef keys, GateRef cachedHclass);
     GateRef LoadHClassFromMethod(GateRef glue, GateRef method);
     GateRef LoadSHClassFromMethod(GateRef glue, GateRef method);
@@ -136,6 +136,7 @@ public:
     GateRef NewProfileTypeInfoCell(GateRef glue, GateRef value);
     GateRef GetElementSizeFromType(GateRef glue, GateRef type);
     GateRef GetOnHeapHClassFromType(GateRef glue, GateRef type);
+    GateRef GetNotOnHeapHClassFromType(GateRef glue, GateRef type);
     GateRef CreateArrayFromList(GateRef glue, GateRef elements, GateRef kind);
     GateRef CreateListFromArrayLike(GateRef glue, GateRef arrayObj);
     void CreateJSIteratorResult(GateRef glue, Variable *res, GateRef value, GateRef done, Label *exit);

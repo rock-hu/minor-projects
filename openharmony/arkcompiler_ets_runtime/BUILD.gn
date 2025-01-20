@@ -15,6 +15,10 @@ import("//arkcompiler/ets_frontend/es2panda/es2abc_config.gni")
 import("//arkcompiler/ets_runtime/js_runtime_config.gni")
 import("$build_root/toolchain/toolchain.gni")
 
+if (!ark_standalone_build && is_ohos) {
+  import("//build/ohos.gni")
+}
+
 group("ark_js_packages") {
   deps = []
 
@@ -533,8 +537,8 @@ config("ark_jsruntime_common_config") {
     }
   }
 
-  if (enable_leak_check || enable_gc_dfx_options || is_asan) {
-    defines += [ "ECMASCRIPT_ENABLE_HANDLE_LEAK_CHECK" ]
+  if (enable_handle_leak_detect) {
+    defines += [ "ENABLE_LOCAL_HANDLE_LEAK_DETECT" ]
   }
 
   if (is_ohos && is_standard_system) {
@@ -581,8 +585,8 @@ config("ecma_test_config") {
     "$js_root:ark_jsruntime_common_config",
   ]
 
-  if (enable_leak_check || is_asan) {
-    defines = [ "ECMASCRIPT_ENABLE_HANDLE_LEAK_CHECK" ]
+  if (enable_handle_leak_detect) {
+    defines = [ "ENABLE_LOCAL_HANDLE_LEAK_DETECT" ]
   }
   if (!is_mac) {
     ldflags = [ "-Wl,-rpath=\$ORIGIN/" ]
@@ -684,6 +688,7 @@ ecma_source = [
   "ecmascript/compiler/aot_file/elf_checker.cpp",
   "ecmascript/compiler/aot_file/an_file_data_manager.cpp",
   "ecmascript/compiler/aot_file/an_file_info.cpp",
+  "ecmascript/compiler/aot_file/aot_checksum_helper.cpp",
   "ecmascript/compiler/aot_file/aot_file_info.cpp",
   "ecmascript/compiler/aot_file/stub_file_info.cpp",
   "ecmascript/compiler/aot_file/gdb_jit.cpp",
@@ -875,6 +880,7 @@ ecma_source = [
   "ecmascript/mem/shared_heap/shared_concurrent_marker.cpp",
   "ecmascript/mem/shared_heap/shared_concurrent_sweeper.cpp",
   "ecmascript/mem/shared_heap/shared_gc.cpp",
+  "ecmascript/mem/shared_heap/shared_gc_evacuator.cpp",
   "ecmascript/mem/shared_heap/shared_full_gc.cpp",
   "ecmascript/mem/shared_heap/shared_gc_marker.cpp",
   "ecmascript/mem/shared_heap/shared_space.cpp",
@@ -1272,8 +1278,8 @@ ohos_source_set("libark_jsruntime_test_set") {
     deps += [ "$js_root/ecmascript/compiler:libark_mock_stub_set" ]
   }
 
-  if (enable_leak_check || is_asan) {
-    defines += [ "ECMASCRIPT_ENABLE_HANDLE_LEAK_CHECK" ]
+  if (enable_handle_leak_detect) {
+    defines += [ "ENABLE_LOCAL_HANDLE_LEAK_DETECT" ]
   }
 
   public_configs = [ "$js_root:ark_jsruntime_public_config" ]
@@ -1340,6 +1346,19 @@ ohos_source_set("libark_jsruntime_static") {
   subsystem_name = "arkcompiler"
 }
 
+config("arkjs_runtime_lto_link_config") {
+  ldflags = []
+  if (!ark_standalone_build && is_ohos && enhanced_opt && is_clang &&
+      (target_cpu == "arm" || target_cpu == "arm64")) {
+    if (ets_runtime_feature_enable_bsymbolic) {
+      ldflags += [ "-Wl,-Bsymbolic" ]
+    }
+    if (ets_runtime_feature_enable_pgo && enable_enhanced_opt) {
+      ldflags += [ "-Wl,--aarch64-inline-plt" ]
+    }
+  }
+}
+
 ohos_shared_library("libark_jsruntime") {
   stack_protector_ret = false
   if (enable_sanitize) {
@@ -1404,6 +1423,8 @@ ohos_shared_library("libark_jsruntime") {
   innerapi_tags = [ "platformsdk_indirect" ]
   part_name = "ets_runtime"
   subsystem_name = "arkcompiler"
+
+  configs = [ ":arkjs_runtime_lto_link_config" ]
 }
 
 ohos_shared_library("libark_jsruntime_test") {

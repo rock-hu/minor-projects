@@ -59,6 +59,7 @@ struct CommonProperty {
     int32_t windowTop = 0;
     int32_t pageId = 0;
     std::string pagePath;
+    bool isReduceMode = false;
 };
 
 struct ActionTable {
@@ -311,6 +312,14 @@ public:
     void FireAccessibilityEventCallback(uint32_t eventId, int64_t parameter) override;
     AccessibilityWindowInfo GenerateWindowInfo(const RefPtr<NG::FrameNode>& node,
         const RefPtr<PipelineBase>& context) override;
+    void UpdateWindowInfo(AccessibilityWindowInfo& windowInfo) override;
+
+    AccessibilityWorkMode GetAccessibilityWorkMode() override;
+
+    AccessibilityParentRectInfo GetUECAccessibilityParentRectInfo() const;
+    void UpdateUECAccessibilityParentRectInfo(const AccessibilityParentRectInfo& info);
+    void RegisterUIExtBusinessConsumeCallback();
+    void RegisterGetParentRectHandler();
 
     bool IsScreenReaderEnabled() override;
 
@@ -559,7 +568,7 @@ private:
         Accessibility::AccessibilityElementInfo& nodeInfo, const RefPtr<NG::PipelineContext>& ngPipeline);
 
     void UpdateCacheInfoNG(std::list<Accessibility::AccessibilityElementInfo>& infos, const RefPtr<NG::FrameNode>& node,
-        const CommonProperty& commonProperty, const RefPtr<NG::PipelineContext>& ngPipeline,
+        CommonProperty& commonProperty, const RefPtr<NG::PipelineContext>& ngPipeline,
         const SearchParameter& searchParam);
 #ifdef WEB_SUPPORTED
 
@@ -610,7 +619,8 @@ private:
     void UpdateChildrenNodeInCache(std::list<AccessibilityElementInfo>& infos,
         const CommonProperty& commonProperty, const RefPtr<NG::PipelineContext>& ngPipeline,
         const SearchParameter& searchParam, std::list<RefPtr<NG::FrameNode>>& children);
-    void RegisterGetParentRectHandler();
+    void RegisterDynamicRenderGetParentRectHandler();
+
     std::string callbackKey_;
     uint32_t windowId_ = 0;
     std::shared_ptr<JsAccessibilityStateObserver> stateObserver_ = nullptr;
@@ -639,6 +649,7 @@ private:
     std::list<WeakPtr<NG::FrameNode>> defaultFocusList_;
     std::vector<std::pair<WeakPtr<NG::FrameNode>, bool>> extensionComponentStatusVec_;
     std::unordered_map<int32_t, std::optional<Accessibility::AccessibilityEventInfo>> pageIdEventMap_;
+    AccessibilityParentRectInfo uecRectInfo_;
 };
 
 } // namespace OHOS::Ace::Framework

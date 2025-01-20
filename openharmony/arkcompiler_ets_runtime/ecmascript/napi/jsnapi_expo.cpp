@@ -43,7 +43,7 @@
 #include "ecmascript/js_date_time_format.h"
 #include "ecmascript/js_number_format.h"
 #endif
-#if !WIN_OR_MAC_OR_IOS_PLATFORM
+#if defined(ENABLE_LOCAL_HANDLE_LEAK_DETECT)
 #include "ecmascript/dfx/hprof/heap_profiler.h"
 #endif
 
@@ -142,7 +142,7 @@ using Concurrent = ecmascript::Concurrent;
 using EnableAotJitListHelper = ecmascript::ohos::EnableAotJitListHelper;
 using PGOProfilerManager = ecmascript::pgo::PGOProfilerManager;
 using AotRuntimeInfo = ecmascript::ohos::AotRuntimeInfo;
-#if defined(ECMASCRIPT_SUPPORT_HEAPPROFILER)
+#if defined(ENABLE_LOCAL_HANDLE_LEAK_DETECT)
 using HeapProfiler = ecmascript::HeapProfiler;
 using HeapProfilerInterface = ecmascript::HeapProfilerInterface;
 #endif
@@ -534,6 +534,17 @@ bool JSValueRef::IsObject(const EcmaVM *vm)
 {
     ecmascript::ThreadManagedScope managedScope(vm->GetJSThread());
     return JSNApiHelper::ToJSTaggedValue(this).IsECMAObject();
+}
+
+bool JSValueRef::IsNativeBindingObject(const EcmaVM *vm)
+{
+    ecmascript::ThreadManagedScope managedScope(vm->GetJSThread());
+    JSTaggedValue object = JSNApiHelper::ToJSTaggedValue(this);
+    if (!object.IsECMAObject()) {
+        return false;
+    }
+
+    return object.GetTaggedObject()->GetClass()->IsNativeBindingObject();
 }
 
 bool JSValueRef::IsArray(const EcmaVM *vm)
@@ -2417,13 +2428,11 @@ LocalScope::LocalScope(const EcmaVM *vm) : thread_(vm->GetJSThread())
     prevPrimitiveNext_ = context->GetPrimitiveScopeStorageNext();
     prevPrimitiveEnd_ = context->GetPrimitiveScopeStorageEnd();
     prevPrimitiveStorageIndex_ = context->GetCurrentPrimitiveStorageIndex();
-#if defined(ECMASCRIPT_SUPPORT_HEAPPROFILER)
-    if (const_cast<EcmaVM *>(vm)->GetJSOptions().IsEnableLocalHandleLeakDetect()) {
+#if defined(ENABLE_LOCAL_HANDLE_LEAK_DETECT)
         auto heapProfiler = reinterpret_cast<HeapProfiler *>(
             HeapProfilerInterface::GetInstance(const_cast<EcmaVM *>(vm)));
         heapProfiler->IncreaseScopeCount();
         heapProfiler->PushToActiveScopeStack(this, nullptr);
-    }
 #endif
 }
 
@@ -2431,7 +2440,7 @@ LocalScope::LocalScope(const EcmaVM *vm, JSTaggedType value) : thread_(vm->GetJS
 {
     ecmascript::ThreadManagedScope managedScope(reinterpret_cast<JSThread *>(thread_));
     // Simply reserve a slot on the handlescope. The escaped handle will still be retained in this slot.
-    reinterpret_cast<JSThread *>(thread_)->NewHandle(value);
+    ecmascript::EcmaHandleScope::NewHandle(reinterpret_cast<JSThread *>(thread_), value);
     auto context = reinterpret_cast<JSThread *>(thread_)->GetCurrentEcmaContext();
     prevNext_ = context->GetHandleScopeStorageNext();
     prevEnd_ = context->GetHandleScopeStorageEnd();
@@ -2440,13 +2449,11 @@ LocalScope::LocalScope(const EcmaVM *vm, JSTaggedType value) : thread_(vm->GetJS
     prevPrimitiveNext_ = context->GetPrimitiveScopeStorageNext();
     prevPrimitiveEnd_ = context->GetPrimitiveScopeStorageEnd();
     prevPrimitiveStorageIndex_ = context->GetCurrentPrimitiveStorageIndex();
-#if defined(ECMASCRIPT_SUPPORT_HEAPPROFILER)
-    if (const_cast<EcmaVM *>(vm)->GetJSOptions().IsEnableLocalHandleLeakDetect()) {
+#if defined(ENABLE_LOCAL_HANDLE_LEAK_DETECT)
         auto heapProfiler = reinterpret_cast<HeapProfiler *>(
             HeapProfilerInterface::GetInstance(const_cast<EcmaVM *>(vm)));
         heapProfiler->IncreaseScopeCount();
         heapProfiler->PushToActiveScopeStack(this, nullptr);
-    }
 #endif
 }
 
@@ -2466,13 +2473,11 @@ LocalScope::~LocalScope()
         context->SetPrimitiveScopeStorageEnd(static_cast<JSTaggedType *>(prevPrimitiveEnd_));
         context->ShrinkPrimitiveStorage(prevPrimitiveStorageIndex_);
     }
-#if defined(ECMASCRIPT_SUPPORT_HEAPPROFILER)
-    if (context->GetEcmaVM()->GetJSOptions().IsEnableLocalHandleLeakDetect()) {
+#if defined(ENABLE_LOCAL_HANDLE_LEAK_DETECT)
         EcmaVM *vm = context->GetEcmaVM();
         auto heapProfiler = reinterpret_cast<HeapProfiler *>(HeapProfilerInterface::GetInstance(vm));
         heapProfiler->DecreaseScopeCount();
         heapProfiler->PopFromActiveScopeStack();
-    }
 #endif
 }
 
@@ -2649,11 +2654,26 @@ bool ObjectRef::ConvertToNativeBindingObject(const EcmaVM *vm, Local<NativePoint
     LOG_IF_SPECIAL(object, ERROR);
     JSHandle<GlobalEnv> env = vm->GetGlobalEnv();
     JSHandle<JSTaggedValue> keyValue = env->GetNativeBindingSymbol();
-    JSHandle<JSTaggedValue> valueValue = JSNApiHelper::ToJSHandle(value);
-    bool result = JSTaggedValue::SetProperty(thread, object, keyValue, valueValue);
+    auto key = JSNApiHelper::ToLocal<JSValueRef>(keyValue);
+    PropertyAttribute attr(Local<JSValueRef>(value), true, false, false);
+    bool result = DefineProperty(vm, key, attr);
     RETURN_VALUE_IF_ABRUPT_COMPLETION(thread, false);
     object->GetTaggedObject()->GetClass()->SetIsNativeBindingObject(true);
     return result;
+}
+
+Local<NativePointerRef> ObjectRef::GetNativeBindingPointer(const EcmaVM *vm)
+{
+    CROSS_THREAD_AND_EXCEPTION_CHECK_WITH_RETURN(vm, JSValueRef::Undefined(vm));
+    ecmascript::ThreadManagedScope managedScope(thread);
+    EscapeLocalScope scope(vm);
+    JSHandle<JSTaggedValue> object = JSNApiHelper::ToJSHandle(this);
+    LOG_IF_SPECIAL(object, ERROR);
+    JSHandle<GlobalEnv> env = vm->GetGlobalEnv();
+    JSHandle<JSTaggedValue> keyValue = env->GetNativeBindingSymbol();
+    OperationResult ret = JSTaggedValue::GetProperty(thread, object, keyValue);
+    RETURN_VALUE_IF_ABRUPT(thread, JSValueRef::Undefined(vm));
+    return scope.Escape(JSNApiHelper::ToLocal<JSValueRef>(ret.GetValue()));
 }
 
 bool ObjectRef::Set(const EcmaVM *vm, Local<JSValueRef> key, Local<JSValueRef> value)
@@ -4196,6 +4216,19 @@ void JSNApi::SetPkgAliasList(EcmaVM *vm, const std::map<std::string, std::string
     vm->SetPkgAliasList(pkgAliasList);
 }
 
+void JSNApi::UpdatePkgAliasList(EcmaVM *vm, const std::map<std::string, std::string> &list)
+{
+    ecmascript::CMap<ecmascript::CString, ecmascript::CString> pkgAliasList;
+    for (auto &[alias, pkgName]: list) {
+        pkgAliasList.emplace(alias, pkgName);
+    }
+    vm->UpdatePkgAliasList(pkgAliasList);
+    ecmascript::CMap<uint32_t, EcmaVM *> workerList = vm->GetWorkList();
+    for (auto &[workerId, workerVm]: workerList) {
+        workerVm->UpdatePkgAliasList(pkgAliasList);
+    }
+}
+
 void JSNApi::SetPkgNameList(EcmaVM *vm, const std::map<std::string, std::string> &list)
 {
     ecmascript::CMap<ecmascript::CString, ecmascript::CString> pkgNameList;
@@ -4204,6 +4237,20 @@ void JSNApi::SetPkgNameList(EcmaVM *vm, const std::map<std::string, std::string>
     }
     vm->SetPkgNameList(pkgNameList);
 }
+
+void JSNApi::UpdatePkgNameList(EcmaVM *vm, const std::map<std::string, std::string> &list)
+{
+    ecmascript::CMap<ecmascript::CString, ecmascript::CString> pkgNameList;
+    for (auto &[moduleName, pkgName]: list) {
+        pkgNameList.emplace(moduleName, pkgName);
+    }
+    vm->UpdatePkgNameList(pkgNameList);
+    ecmascript::CMap<uint32_t, EcmaVM *> workerList = vm->GetWorkList();
+    for (auto &[workerId, workerVm]: workerList) {
+        workerVm->UpdatePkgNameList(pkgNameList);
+    }
+}
+
 std::string JSNApi::GetPkgName(EcmaVM *vm, const std::string &moduleName)
 {
     return vm->GetPkgName(moduleName.c_str()).c_str();
@@ -4230,6 +4277,33 @@ void JSNApi::SetpkgContextInfoList(EcmaVM *vm, const std::map<std::string,
     vm->SetpkgContextInfoList(pkgContextInfoList);
 }
 
+void JSNApi::UpdatePkgContextInfoList(EcmaVM *vm,
+    const std::map<std::string, std::vector<std::vector<std::string>>> &list)
+{
+    ecmascript::CMap<ecmascript::CString, ecmascript::CMap<ecmascript::CString,
+        ecmascript::CVector<ecmascript::CString>>> pkgContextInfoList;
+    for (auto &[moduleName, pkgContextInfos]: list) {
+        ecmascript::CMap<ecmascript::CString, ecmascript::CVector<ecmascript::CString>> map;
+        for (auto &datas: pkgContextInfos) {
+            if (datas.empty()) {
+                continue;
+            }
+            ecmascript::CString pkgName = datas[0].c_str();
+            ecmascript::CVector<ecmascript::CString> pkgContextInfo;
+            for (size_t i = 1; i < datas.size(); i++) {
+                pkgContextInfo.emplace_back(datas[i].c_str());
+            }
+            map.emplace(pkgName, pkgContextInfo);
+        }
+        pkgContextInfoList.emplace(moduleName, map);
+    }
+    vm->UpdatePkgContextInfoList(pkgContextInfoList);
+
+    ecmascript::CMap<uint32_t, EcmaVM *> workerList = vm->GetWorkList();
+    for (auto &[workerId, workerVm]: workerList) {
+        workerVm->UpdatePkgContextInfoList(pkgContextInfoList);
+    }
+}
 // Only used for env created by napi to set module execution mode
 void JSNApi::SetExecuteBufferMode(const EcmaVM *vm)
 {
@@ -4240,12 +4314,7 @@ void JSNApi::SetExecuteBufferMode(const EcmaVM *vm)
 
 void JSNApi::SetStopPreLoadSoCallback(EcmaVM *vm, const StopPreLoadSoCallback &callback)
 {
-    vm->SetStopPreLoadSoCallback(callback);
-}
-
-StopPreLoadSoCallback JSNApi::GetStopPreLoadSoCallback(EcmaVM *vm)
-{
-    return vm->GetStopPreLoadSoCallback();
+    vm->AddStopPreLoadCallback(callback);
 }
 
 bool JSNApi::InitForConcurrentThread(EcmaVM *vm, ConcurrentCallback cb, void *data)
@@ -4346,9 +4415,9 @@ void JSNApi::SynchronizVMInfo(EcmaVM *vm, const EcmaVM *hostVM)
     vm->SetModuleName(hostVM->GetModuleName());
     vm->SetAssetPath(hostVM->GetAssetPath());
     vm->SetIsBundlePack(hostVM->IsBundlePack());
-    vm->SetPkgNameList(hostVM->GetPkgNameList());
-    vm->SetPkgAliasList(hostVM->GetPkgAliasList());
-    vm->SetpkgContextInfoList(hostVM->GetPkgContextInfoLit());
+    vm->SetPkgNameList(const_cast<EcmaVM *>(hostVM)->GetPkgNameList());
+    vm->SetPkgAliasList(const_cast<EcmaVM *>(hostVM)->GetPkgAliasList());
+    vm->SetpkgContextInfoList(const_cast<EcmaVM *>(hostVM)->GetPkgContextInfoList());
 
     ecmascript::ModuleManager *vmModuleManager =
         vm->GetAssociatedJSThread()->GetCurrentEcmaContext()->GetModuleManager();
@@ -5524,7 +5593,7 @@ uintptr_t JSNApi::GetHandleAddr(const EcmaVM *vm, uintptr_t localAddress)
     CROSS_THREAD_CHECK(vm);
     ecmascript::ThreadManagedScope scope(thread);
     JSTaggedType value = *(reinterpret_cast<JSTaggedType *>(localAddress));
-    return thread->NewHandle(value);
+    return ecmascript::EcmaHandleScope::NewHandle(thread, value);
 }
 
 uintptr_t JSNApi::GetGlobalHandleAddr(const EcmaVM *vm, uintptr_t localAddress)

@@ -39,8 +39,12 @@ void ObjectFactory::NewSObjectHook() const
             sHeap_->TriggerConcurrentMarking<TriggerGCType::SHARED_GC, GCReason::OTHER>(thread_);
         }
         if (!ecmascript::AnFileDataManager::GetInstance()->IsEnable()) {
-            sHeap_->WaitGCFinished(thread_);
-            sHeap_->CollectGarbage<TriggerGCType::SHARED_FULL_GC, GCReason::OTHER>(thread_);
+            if (count % (CONCURRENT_MARK_FREQUENCY_FACTOR * frequency) == 0) {
+                sHeap_->WaitGCFinished(thread_);
+                sHeap_->CollectGarbage<TriggerGCType::SHARED_FULL_GC, GCReason::OTHER>(thread_);
+            } else if (sHeap_->CheckCanTriggerConcurrentMarking(thread_)) {
+                sHeap_->TriggerConcurrentMarking<TriggerGCType::SHARED_PARTIAL_GC, GCReason::OTHER>(thread_);
+            }
         }
     }
 #endif
@@ -200,10 +204,15 @@ JSHandle<Method> ObjectFactory::NewSMethod(const JSPandaFile *jsPandaFile, Metho
 
 JSHandle<Method> ObjectFactory::NewSMethod(const MethodLiteral *methodLiteral, MemSpaceType spaceType)
 {
-    ASSERT(spaceType == SHARED_NON_MOVABLE || spaceType == SHARED_OLD_SPACE);
+    ASSERT(spaceType == SHARED_READ_ONLY_SPACE ||
+           spaceType == SHARED_NON_MOVABLE ||
+           spaceType == SHARED_OLD_SPACE);
     NewSObjectHook();
     TaggedObject *header = nullptr;
-    if (spaceType == SHARED_NON_MOVABLE) {
+    if (spaceType == SHARED_READ_ONLY_SPACE) {
+        header = sHeap_->AllocateReadOnlyOrHugeObject(thread_,
+            JSHClass::Cast(thread_->GlobalConstants()->GetMethodClass().GetTaggedObject()));
+    } else if (spaceType == SHARED_NON_MOVABLE) {
         header = sHeap_->AllocateNonMovableOrHugeObject(thread_,
             JSHClass::Cast(thread_->GlobalConstants()->GetMethodClass().GetTaggedObject()));
     } else {
@@ -241,7 +250,9 @@ JSHandle<JSFunction> ObjectFactory::NewSFunctionByHClass(const JSHandle<Method> 
     JSFunction::InitializeSFunction(thread_, function, method->GetFunctionKind());
     function->SetMethod(thread_, method);
     function->SetTaskConcurrentFuncFlag(0); // 0 : default value
-    if (method->IsAotWithCallField()) {
+    if (method->IsNativeWithCallField()) {
+        SetNativePointerToFunctionFromMethod(JSHandle<JSFunctionBase>::Cast(function), method);
+    } else if (method->IsAotWithCallField()) {
         thread_->GetEcmaVM()->GetAOTFileManager()->
             SetAOTFuncEntry(method->GetJSPandaFile(), *function, *method);
     } else {
@@ -250,13 +261,29 @@ JSHandle<JSFunction> ObjectFactory::NewSFunctionByHClass(const JSHandle<Method> 
     return function;
 }
 
+JSHandle<JSFunction> ObjectFactory::NewNativeSFunctionByHClass(const JSHandle<JSHClass> &hclass,
+                                                               const void *nativeFunc,
+                                                               FunctionKind kind)
+{
+    JSHandle<JSFunction> function(NewSharedOldSpaceJSObject(hclass));
+    hclass->SetCallable(true);
+    JSFunction::InitializeSFunction(thread_, function, kind);
+    function->SetMethod(thread_, GetReadOnlyMethodForNativeFunction(kind));
+    function->SetNativePointer(const_cast<void *>(nativeFunc));
+    function->SetTaskConcurrentFuncFlag(0); // 0 : default value
+    return function;
+}
+
 // new function with name/length accessor
 JSHandle<JSFunction> ObjectFactory::NewSFunctionWithAccessor(const void *func, const JSHandle<JSHClass> &hclass,
     FunctionKind kind, kungfu::BuiltinsStubCSigns::ID builtinId, MemSpaceType spaceType)
 {
     ASSERT(spaceType == SHARED_NON_MOVABLE || spaceType == SHARED_OLD_SPACE);
-    JSHandle<Method> method = NewSMethodForNativeFunction(func, kind, builtinId, spaceType);
-    return NewSFunctionByHClass(method, hclass);
+    if (builtinId != kungfu::BuiltinsStubCSigns::INVALID) {
+        JSHandle<Method> method = NewSMethodForNativeFunction(func, kind, builtinId, spaceType);
+        return NewSFunctionByHClass(method, hclass);
+    }
+    return NewNativeSFunctionByHClass(hclass, func, kind);
 }
 
 // new function without name/length accessor
@@ -264,11 +291,16 @@ JSHandle<JSFunction> ObjectFactory::NewSFunctionByHClass(const void *func, const
     FunctionKind kind, kungfu::BuiltinsStubCSigns::ID builtinId, MemSpaceType spaceType)
 {
     ASSERT(spaceType == SHARED_NON_MOVABLE || spaceType == SHARED_OLD_SPACE);
-    JSHandle<Method> method = NewSMethodForNativeFunction(func, kind, builtinId, spaceType);
     JSHandle<JSFunction> function(NewSharedOldSpaceJSObject(hclass));
     hclass->SetCallable(true);
     JSFunction::InitializeWithDefaultValue(thread_, function);
-    function->SetMethod(thread_, method);
+    if (builtinId != kungfu::BuiltinsStubCSigns::INVALID) {
+        JSHandle<Method> method = NewSMethodForNativeFunction(func, kind, builtinId, spaceType);
+        function->SetMethod(thread_, method);
+    } else {
+        function->SetMethod(thread_, GetReadOnlyMethodForNativeFunction(kind));
+    }
+    function->SetNativePointer(const_cast<void *>(func));
     return function;
 }
 
@@ -468,6 +500,16 @@ JSHandle<ProfileTypeInfoCell> ObjectFactory::NewSEmptyProfileTypeInfoCell()
     profileTypeInfoCell->SetBaselineCode(thread_, JSTaggedValue::Hole());
     profileTypeInfoCell->SetHandle(thread_, JSTaggedValue::Undefined());
     return profileTypeInfoCell;
+}
+
+JSHandle<Method> ObjectFactory::NewSEmptyNativeFunctionMethod(FunctionKind kind)
+{
+    uint32_t numArgs = 2;  // function object and this
+    auto method = NewSMethod(nullptr, MemSpaceType::SHARED_READ_ONLY_SPACE);
+    method->SetNativeBit(true);
+    method->SetNumArgsWithCallField(numArgs);
+    method->SetFunctionKind(kind);
+    return method;
 }
 
 JSHandle<FunctionTemplate> ObjectFactory::NewSFunctionTemplate(
@@ -688,6 +730,19 @@ JSHandle<JSSymbol> ObjectFactory::NewSPublicSymbol(const JSHandle<JSTaggedValue>
     obj->SetFlags(0);
     obj->SetDescription(thread_, name);
     obj->SetHashField(SymbolTable::Hash(name.GetTaggedValue()));
+    return obj;
+}
+
+JSHandle<JSSymbol> ObjectFactory::NewSConstantPrivateSymbol()
+{
+    NewObjectHook();
+    TaggedObject *header = sHeap_->AllocateReadOnlyOrHugeObject(
+        thread_, JSHClass::Cast(thread_->GlobalConstants()->GetSymbolClass().GetTaggedObject()));
+    JSHandle<JSSymbol> obj(thread_, JSSymbol::Cast(header));
+    obj->SetDescription(thread_, JSTaggedValue::Undefined());
+    obj->SetFlags(0);
+    obj->SetHashField(SymbolTable::Hash(obj.GetTaggedValue()));
+    obj->SetPrivate();
     return obj;
 }
 

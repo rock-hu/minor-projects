@@ -762,25 +762,25 @@ panda::JSValueRef ArkNativeFunctionCallBack(JsiRuntimeCallInfo *runtimeInfo)
     if (cb != nullptr) {
         if constexpr (changeState) {
             panda::JsiNativeScope nativeScope(vm);
-#if ECMASCRIPT_ENABLE_COLLECTING_OPCODES
+#if ECMASCRIPT_ENABLE_INTERPRETER_ARKUINAITVE_TRACE
 #ifdef ENABLE_HITRACE
                         StartTrace(HITRACE_TAG_ACE, "Developer::NativeCallBack::One");
 #endif
 #endif
             result = cb(env, runtimeInfo);
-#if ECMASCRIPT_ENABLE_COLLECTING_OPCODES
+#if ECMASCRIPT_ENABLE_INTERPRETER_ARKUINAITVE_TRACE
 #ifdef ENABLE_HITRACE
                         FinishTrace(HITRACE_TAG_ACE);
 #endif
 #endif
         } else {
-#if ECMASCRIPT_ENABLE_COLLECTING_OPCODES
+#if ECMASCRIPT_ENABLE_INTERPRETER_ARKUINAITVE_TRACE
 #ifdef ENABLE_HITRACE
                         StartTrace(HITRACE_TAG_ACE, "Developer::NativeCallBack::Two");
 #endif
 #endif
             result = cb(env, runtimeInfo);
-#if ECMASCRIPT_ENABLE_COLLECTING_OPCODES
+#if ECMASCRIPT_ENABLE_INTERPRETER_ARKUINAITVE_TRACE
 #ifdef ENABLE_HITRACE
                         FinishTrace(HITRACE_TAG_ACE);
 #endif
@@ -2609,11 +2609,6 @@ bool ArkNativeEngine::RunScriptBuffer(const std::string& path, uint8_t* buffer, 
         return false;
     }
 
-    auto stopPreSoCallback = panda::JSNApi::GetStopPreLoadSoCallback(vm_);
-    if (stopPreSoCallback != nullptr) {
-        stopPreSoCallback();
-        panda::JSNApi::SetStopPreLoadSoCallback(vm_, nullptr);
-    }
     // LCOV_EXCL_START
     panda::JSExecutionScope executionScope(vm_);
     LocalScope scope(vm_);

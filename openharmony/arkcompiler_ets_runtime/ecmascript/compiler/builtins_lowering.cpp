@@ -178,28 +178,9 @@ GateRef BuiltinLowering::LowerCallRuntime(GateRef glue, GateRef gate, int index,
     }
 }
 
-void BuiltinLowering::ReplaceHirWithValue(GateRef hirGate, GateRef value, bool noThrow)
+void BuiltinLowering::ReplaceHirWithValue(GateRef hirGate, GateRef value)
 {
-    if (!noThrow) {
-        GateRef state = builder_.GetState();
-        // copy depend-wire of hirGate to value
-        GateRef depend = builder_.GetDepend();
-        // exception value
-        GateRef exceptionVal = builder_.ExceptionConstant();
-        // compare with trampolines result
-        GateRef equal = builder_.Equal(value, exceptionVal);
-        auto ifBranch = builder_.Branch(state, equal, 1, BranchWeight::DEOPT_WEIGHT, "checkException");
-
-        GateRef ifTrue = builder_.IfTrue(ifBranch);
-        GateRef ifFalse = builder_.IfFalse(ifBranch);
-        GateRef eDepend = builder_.DependRelay(ifTrue, depend);
-        GateRef sDepend = builder_.DependRelay(ifFalse, depend);
-        StateDepend success(ifFalse, sDepend);
-        StateDepend exception(ifTrue, eDepend);
-        acc_.ReplaceHirWithIfBranch(hirGate, success, exception, value);
-    } else {
-        acc_.ReplaceHirDirectly(hirGate, builder_.GetStateDepend(), value);
-    }
+    acc_.ReplaceHirDirectly(hirGate, builder_.GetStateDepend(), value);
 }
 
 void BuiltinLowering::LowerTypedLocaleCompare(GateRef gate)
@@ -558,9 +539,8 @@ void BuiltinLowering::LowerCallBuiltinStub(GateRef gate, BuiltinsStubCSigns::ID 
     size_t numIn = acc_.GetNumValueIn(gate);
     GateRef glue = acc_.GetGlueFromArgList();
     GateRef function = builder_.GetGlobalConstantValue(GET_TYPED_CONSTANT_INDEX(id));
-    GateRef method = builder_.Load(VariableType::JS_ANY(), function, builder_.IntPtr(JSFunction::METHOD_OFFSET));
-    GateRef nativeCode = builder_.Load(VariableType::NATIVE_POINTER(), method,
-                                       builder_.IntPtr(Method::NATIVE_POINTER_OR_BYTECODE_ARRAY_OFFSET));
+    GateRef nativeCode = builder_.Load(VariableType::NATIVE_POINTER(), function,
+                                       builder_.IntPtr(JSFunction::CODE_ENTRY_OFFSET));
     std::vector<GateRef> args(static_cast<size_t>(BuiltinsArgs::NUM_OF_INPUTS), builder_.Undefined());
     args[static_cast<size_t>(BuiltinsArgs::GLUE)] = glue;
     args[static_cast<size_t>(BuiltinsArgs::NATIVECODE)] = nativeCode;

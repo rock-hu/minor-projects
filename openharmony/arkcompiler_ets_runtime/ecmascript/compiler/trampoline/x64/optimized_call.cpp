@@ -15,17 +15,8 @@
 
 #include "ecmascript/compiler/trampoline/x64/common_call.h"
 
-#include "ecmascript/compiler/assembler/assembler.h"
-#include "ecmascript/compiler/rt_call_signature.h"
-#include "ecmascript/compiler/argument_accessor.h"
 #include "ecmascript/deoptimizer/deoptimizer.h"
-#include "ecmascript/ecma_runtime_call_info.h"
-#include "ecmascript/frames.h"
-#include "ecmascript/js_function.h"
-#include "ecmascript/js_thread.h"
 #include "ecmascript/message_string.h"
-#include "ecmascript/method.h"
-#include "ecmascript/runtime_call_id.h"
 
 namespace panda::ecmascript::x64 {
 #define __ assembler->
@@ -495,8 +486,8 @@ void OptimizedCall::GenJSCall(ExtendedAssembler *assembler, bool isNew)
         Register nativePointer = rsi;
         method = rax;
         __ Movq(jsFuncReg, rdx);
-        __ Mov(Operand(jsFuncReg, JSFunctionBase::METHOD_OFFSET), method);  // get method
-        __ Mov(Operand(method, Method::NATIVE_POINTER_OR_BYTECODE_ARRAY_OFFSET), nativePointer);  // native pointer
+        __ Mov(Operand(rdx, JSFunctionBase::METHOD_OFFSET), method);  // get method
+        __ Mov(Operand(rdx, JSFunctionBase::CODE_ENTRY_OFFSET), nativePointer);  // native pointer
         __ Mov(Operand(method, Method::CALL_FIELD_OFFSET), methodCallField);  // get call field
         __ Btq(MethodLiteral::IsFastBuiltinBit::START_BIT, methodCallField);  // is builtin stub
 
@@ -618,10 +609,12 @@ void OptimizedCall::GenJSCall(ExtendedAssembler *assembler, bool isNew)
     }
     __ Bind(&lJSProxy);
     {
+        Register nativePointer = rsi;
         __ Mov(Operand(jsFuncReg, JSProxy::METHOD_OFFSET), method);
         __ Mov(Operand(method, Method::CALL_FIELD_OFFSET), methodCallField);
         __ Mov(Operand(rsp, FRAME_SLOT_SIZE), argc);
-        __ Jmp(&lCallNativeMethod);
+        __ Movq(Operand(method, Method::NATIVE_POINTER_OR_BYTECODE_ARRAY_OFFSET), nativePointer);
+        __ Jmp(&lCallNativeCpp);
     }
 }
 

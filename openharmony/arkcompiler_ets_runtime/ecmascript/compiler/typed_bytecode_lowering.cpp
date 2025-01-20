@@ -13,27 +13,12 @@
  * limitations under the License.
  */
 
-#include <string>
-#include <cstring>
-#include <cstdlib>
 
-#include "ecmascript/compiler/circuit_builder.h"
 #include "ecmascript/compiler/typed_bytecode_lowering.h"
 
-#include "ecmascript/base/string_helper.h"
-#include "ecmascript/builtin_entries.h"
-#include "ecmascript/compiler/bytecodes.h"
-#include "ecmascript/compiler/circuit.h"
-#include "ecmascript/compiler/type_info_accessors.h"
 #include "ecmascript/dfx/vmstat/opt_code_profiler.h"
-#include "ecmascript/enum_conversion.h"
-#include "ecmascript/js_tagged_value.h"
-#include "ecmascript/jspandafile/js_pandafile.h"
-#include "ecmascript/jspandafile/js_pandafile_manager.h"
-#include "ecmascript/jspandafile/program_object.h"
 #include "ecmascript/jit/jit.h"
 #include "ecmascript/js_object-inl.h"
-#include "ecmascript/layout_info-inl.h"
 
 namespace panda::ecmascript::kungfu {
 void TypedBytecodeLowering::RunTypedBytecodeLowering()
@@ -1603,7 +1588,8 @@ void TypedBytecodeLowering::LowerTypedNewObjRange(GateRef gate)
     }
     bool needPushArgv = (expectedArgc != actualArgc);
     GateRef result = builder_.CallNew(gate, args, needPushArgv);
-    acc_.ReplaceGate(gate, builder_.GetState(), builder_.GetDepend(), result);
+    ReplaceGateWithPendingException(acc_.GetGlueFromArgList(), gate, builder_.GetState(),
+        builder_.GetDepend(), result);
 }
 
 bool TypedBytecodeLowering::TryLowerNewBuiltinConstructor(GateRef gate)
@@ -1640,7 +1626,8 @@ bool TypedBytecodeLowering::TryLowerNewBuiltinConstructor(GateRef gate)
     if (constructGate == Circuit::NullGate()) {
         return false;
     }
-    acc_.ReplaceGate(gate, builder_.GetState(), builder_.GetDepend(), constructGate);
+    ReplaceGateWithPendingException(acc_.GetGlueFromArgList(), gate, builder_.GetState(),
+        builder_.GetDepend(), constructGate);
     return true;
 }
 
@@ -1680,7 +1667,8 @@ void TypedBytecodeLowering::LowerTypedSuperCall(GateRef gate)
     }
 
     GateRef constructGate = builder_.Construct(gate, args);
-    acc_.ReplaceGate(gate, builder_.GetState(), builder_.GetDepend(), constructGate);
+    ReplaceGateWithPendingException(acc_.GetGlueFromArgList(), gate, builder_.GetState(),
+        builder_.GetDepend(), constructGate);
 }
 
 void TypedBytecodeLowering::SpeculateCallBuiltin(GateRef gate, GateRef func, const std::vector<GateRef> &args,
@@ -1693,7 +1681,8 @@ void TypedBytecodeLowering::SpeculateCallBuiltin(GateRef gate, GateRef func, con
     GateRef result = builder_.TypedCallBuiltin(gate, args, id, IS_SIDE_EFFECT_BUILTINS_ID(id));
 
     if (isThrow) {
-        acc_.ReplaceGate(gate, builder_.GetState(), builder_.GetDepend(), result);
+        ReplaceGateWithPendingException(acc_.GetGlueFromArgList(), gate, builder_.GetState(),
+            builder_.GetDepend(), result);
     } else {
         acc_.ReplaceHirAndDeleteIfException(gate, builder_.GetStateDepend(), result);
     }
@@ -1705,7 +1694,8 @@ void TypedBytecodeLowering::SpeculateCallBuiltinFromGlobal(GateRef gate, const s
     GateRef result = builder_.TypedCallBuiltin(gate, args, id, isSideEffect);
 
     if (isThrow) {
-        acc_.ReplaceGate(gate, builder_.GetState(), builder_.GetDepend(), result);
+        ReplaceGateWithPendingException(acc_.GetGlueFromArgList(), gate, builder_.GetState(),
+            builder_.GetDepend(), result);
     } else {
         acc_.ReplaceHirAndDeleteIfException(gate, builder_.GetStateDepend(), result);
     }
@@ -1717,7 +1707,8 @@ void TypedBytecodeLowering::LowerFastCall(GateRef gate, GateRef func,
     builder_.StartCallTimer(glue_, gate, {glue_, func, builder_.True()}, true);
     GateRef result = builder_.TypedFastCall(gate, argsFastCall, isNoGC);
     builder_.EndCallTimer(glue_, gate, {glue_, func}, true);
-    acc_.ReplaceGate(gate, builder_.GetState(), builder_.GetDepend(), result);
+    ReplaceGateWithPendingException(acc_.GetGlueFromArgList(), gate, builder_.GetState(),
+        builder_.GetDepend(), result);
 }
 
 void TypedBytecodeLowering::LowerCall(GateRef gate, GateRef func,
@@ -1726,7 +1717,8 @@ void TypedBytecodeLowering::LowerCall(GateRef gate, GateRef func,
     builder_.StartCallTimer(glue_, gate, {glue_, func, builder_.True()}, true);
     GateRef result = builder_.TypedCall(gate, args, isNoGC);
     builder_.EndCallTimer(glue_, gate, {glue_, func}, true);
-    acc_.ReplaceGate(gate, builder_.GetState(), builder_.GetDepend(), result);
+    ReplaceGateWithPendingException(acc_.GetGlueFromArgList(), gate, builder_.GetState(),
+        builder_.GetDepend(), result);
 }
 
 template<class TypeAccessor>
@@ -2445,5 +2437,20 @@ void TypedBytecodeLowering::LowerCreateObjectWithBuffer(GateRef gate)
     }
     GateRef ret = builder_.TypedCreateObjWithBuffer(valueIn);
     acc_.ReplaceHirAndDeleteIfException(gate, builder_.GetStateDepend(), ret);
+}
+
+void TypedBytecodeLowering::ReplaceGateWithPendingException(GateRef glue, GateRef gate, GateRef state, GateRef depend,
+                                                            GateRef value)
+{
+    auto condition = builder_.HasPendingException(glue);
+    GateRef ifBranch = builder_.Branch(state, condition, 1, BranchWeight::DEOPT_WEIGHT, "checkException");
+    GateRef ifTrue = builder_.IfTrue(ifBranch);
+    GateRef ifFalse = builder_.IfFalse(ifBranch);
+    GateRef eDepend = builder_.DependRelay(ifTrue, depend);
+    GateRef sDepend = builder_.DependRelay(ifFalse, depend);
+
+    StateDepend success(ifFalse, sDepend);
+    StateDepend exception(ifTrue, eDepend);
+    acc_.ReplaceHirWithIfBranch(gate, success, exception, value);
 }
 }  // namespace panda::ecmascript

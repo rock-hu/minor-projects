@@ -253,6 +253,26 @@ DEF_RUNTIME_STUBS(TypedArraySpeciesCreate)
     return newArr.GetTaggedValue().GetRawData();
 }
 
+DEF_RUNTIME_STUBS(TypedArraySpeciesCreateForSubArray)
+{
+    RUNTIME_STUBS_HEADER(TypedArraySpeciesCreateForSubArray);
+    JSHandle<JSTaggedValue> obj = GetHArg<JSTaggedValue>(argv, argc, 0);    // 0: means the zeroth parameter
+    JSHandle<JSTypedArray> thisObj(obj);
+    uint32_t argsLen = static_cast<uint32_t>(GetArg(argv, argc, 1).GetInt()); // 1: means the first parameter
+    uint32_t length = static_cast<uint32_t>(GetArg(argv, argc, 2).GetInt()); // 2: means the second parameter
+    uint32_t beginByteOffset = static_cast<uint32_t>(GetArg(argv, argc, 3).GetInt()); // 3: means the third parameter
+
+    JSTaggedValue buffer = JSTypedArray::GetOffHeapBuffer(thread, thisObj);
+    JSTaggedType args[3] = { // 3: means this stub called by TypedArray::subarray
+        buffer.GetRawData(),
+        JSTaggedValue(beginByteOffset).GetRawData(),
+        JSTaggedValue(length).GetRawData()
+    };
+    JSHandle<JSObject> newArr = base::TypedArrayHelper::TypedArraySpeciesCreate(thread, thisObj, argsLen, &args[0]);
+    RETURN_VALUE_IF_ABRUPT_COMPLETION(thread, JSTaggedValue::Exception().GetRawData());
+    return newArr.GetTaggedValue().GetRawData();
+}
+
 void RuntimeStubs::CopyTypedArrayBuffer(uintptr_t argGlue, JSTypedArray *srcArray, JSTypedArray *targetArray,
                                         int32_t srcStartPos, int32_t tarStartPos, int32_t count)
 {
@@ -3382,8 +3402,10 @@ void RuntimeStubs::MarkingBarrierWithEden([[maybe_unused]] uintptr_t argGlue,
     Barriers::Update(thread, slotAddr, objectRegion, value, valueRegion);
 }
 
-void RuntimeStubs::SharedGCMarkingBarrier([[maybe_unused]] uintptr_t argGlue, TaggedObject *value)
+void RuntimeStubs::SharedGCMarkingBarrier(uintptr_t argGlue, uintptr_t object, size_t offset, TaggedObject *value)
 {
+    uintptr_t slotAddr = object + offset;
+    Region *objectRegion = Region::ObjectAddressToRange(object);
     Region *valueRegion = Region::ObjectAddressToRange(value);
     ASSERT(valueRegion->InSharedSweepableSpace());
     auto thread = JSThread::GlueToJSThread(argGlue);
@@ -3393,7 +3415,7 @@ void RuntimeStubs::SharedGCMarkingBarrier([[maybe_unused]] uintptr_t argGlue, Ta
     }
 #endif
     ASSERT(thread->IsSharedConcurrentMarkingOrFinished());
-    Barriers::UpdateShared(thread, value, valueRegion);
+    Barriers::UpdateShared(thread, slotAddr, objectRegion, value, valueRegion);
 }
 
 bool RuntimeStubs::BigIntEquals(JSTaggedType left, JSTaggedType right)

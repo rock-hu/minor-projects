@@ -98,6 +98,8 @@ constexpr Dimension ERROR_UNDERLINE_WIDTH = 2.0_px;
 constexpr Dimension UNDERLINE_WIDTH = 1.0_px;
 constexpr uint32_t INLINE_DEFAULT_VIEW_MAXLINE = 3;
 constexpr Dimension SCROLL_BAR_MIN_HEIGHT = 4.0_vp;
+constexpr float MINFONTSCALE = 0.85f;
+constexpr float MAXFONTSCALE = 3.20f;
 #if defined(ENABLE_STANDARD_INPUT)
 constexpr Dimension AVOID_OFFSET = 24.0_vp;
 #endif
@@ -183,7 +185,19 @@ static std::unordered_map<AceAutoFillType, TextInputType> keyBoardMap_ = {
     { AceAutoFillType::ACE_YEAR, TextInputType::NUMBER },
     { AceAutoFillType::ACE_NICKNAME, TextInputType::TEXT },
     { AceAutoFillType::ACE_DETAIL_INFO_WITHOUT_STREET, TextInputType::TEXT },
-    { AceAutoFillType::ACE_FORMAT_ADDRESS, TextInputType::TEXT }};
+    { AceAutoFillType::ACE_FORMAT_ADDRESS, TextInputType::TEXT },
+    { AceAutoFillType::ACE_PASSPORT_NUMBER, TextInputType::TEXT },
+    { AceAutoFillType::ACE_VALIDITY, TextInputType::TEXT },
+    { AceAutoFillType::ACE_ISSUE_AT, TextInputType::TEXT },
+    { AceAutoFillType::ACE_ORGANIZATION, TextInputType::TEXT },
+    { AceAutoFillType::ACE_TAX_ID, TextInputType::NUMBER },
+    { AceAutoFillType::ACE_ADDRESS_CITY_AND_STATE, TextInputType::TEXT },
+    { AceAutoFillType::ACE_FLIGHT_NUMBER, TextInputType::TEXT },
+    { AceAutoFillType::ACE_LICENSE_NUMBER, TextInputType::TEXT },
+    { AceAutoFillType::ACE_LICENSE_FILE_NUMBER, TextInputType::TEXT },
+    { AceAutoFillType::ACE_LICENSE_PLATE, TextInputType::TEXT },
+    { AceAutoFillType::ACE_ENGINE_NUMBER, TextInputType::TEXT },
+    { AceAutoFillType::ACE_LICENSE_CHASSIS_NUMBER, TextInputType::TEXT }};
 
 static std::unordered_map<TextContentType, std::pair<AceAutoFillType, std::string>> contentTypeMap_ = {
     {TextContentType::VISIBLE_PASSWORD,
@@ -228,6 +242,30 @@ static std::unordered_map<TextContentType, std::pair<AceAutoFillType, std::strin
         std::make_pair(AceAutoFillType::ACE_DETAIL_INFO_WITHOUT_STREET, "TextContentType.DETAIL_INFO_WITHOUT_STREET")},
     {TextContentType::FORMAT_ADDRESS,
         std::make_pair(AceAutoFillType::ACE_FORMAT_ADDRESS, "TextContentType.FORMAT_ADDRESS")},
+    {TextContentType::PASSPORT_NUMBER,
+        std::make_pair(AceAutoFillType::ACE_PASSPORT_NUMBER, "TextContentType.PASSPORT_NUMBER")},
+    {TextContentType::VALIDITY,
+        std::make_pair(AceAutoFillType::ACE_VALIDITY, "TextContentType.VALIDITY")},
+    {TextContentType::ISSUE_AT,
+        std::make_pair(AceAutoFillType::ACE_ISSUE_AT, "TextContentType.ISSUE_AT")},
+    {TextContentType::ORGANIZATION,
+        std::make_pair(AceAutoFillType::ACE_ORGANIZATION, "TextContentType.ORGANIZATION")},
+    {TextContentType::TAX_ID,
+        std::make_pair(AceAutoFillType::ACE_TAX_ID, "TextContentType.TAX_ID")},
+    {TextContentType::ADDRESS_CITY_AND_STATE,
+        std::make_pair(AceAutoFillType::ACE_ADDRESS_CITY_AND_STATE, "TextContentType.ADDRESS_CITY_AND_STATE")},
+    {TextContentType::FLIGHT_NUMBER,
+        std::make_pair(AceAutoFillType::ACE_FLIGHT_NUMBER, "TextContentType.FLIGHT_NUMBER")},
+    {TextContentType::LICENSE_NUMBER,
+        std::make_pair(AceAutoFillType::ACE_LICENSE_NUMBER, "TextContentType.LICENSE_NUMBER")},
+    {TextContentType::LICENSE_FILE_NUMBER,
+        std::make_pair(AceAutoFillType::ACE_LICENSE_FILE_NUMBER, "TextContentType.LICENSE_FILE_NUMBER")},
+    {TextContentType::LICENSE_PLATE,
+        std::make_pair(AceAutoFillType::ACE_LICENSE_PLATE, "TextContentType.LICENSE_PLATE")},
+    {TextContentType::ENGINE_NUMBER,
+        std::make_pair(AceAutoFillType::ACE_ENGINE_NUMBER, "TextContentType.ENGINE_NUMBER")},
+    {TextContentType::LICENSE_CHASSIS_NUMBER,
+        std::make_pair(AceAutoFillType::ACE_LICENSE_CHASSIS_NUMBER, "TextContentType.LICENSE_CHASSIS_NUMBER")},
     {TextContentType::UNSPECIFIED, std::make_pair(AceAutoFillType::ACE_UNSPECIFIED, "TextContentType.UNSPECIFIED")}};
 
 void SwapIfLarger(int32_t& a, int32_t& b)
@@ -482,8 +520,8 @@ void TextFieldPattern::BeforeCreateLayoutWrapper()
         CheckAndUpdateRecordBeforeOperation();
         switch (operation) {
             case InputOperation::INSERT: {
-                InsertValueOperation(insertValueOperations_.front());
-                insertValueOperations_.pop();
+                ExecuteInsertValueCommand(insertCommands_.front());
+                insertCommands_.pop();
                 break;
             }
             case InputOperation::DELETE_BACKWARD: {
@@ -520,6 +558,10 @@ void TextFieldPattern::BeforeCreateLayoutWrapper()
                 break;
             case InputOperation::SET_PREVIEW_FINISH:
                 FinishTextPreviewOperation();
+                break;
+            case InputOperation::INPUT:
+                ExecuteInputCommand(inputCommands_.front());
+                inputCommands_.pop();
                 break;
         }
     }
@@ -979,7 +1021,7 @@ Offset TextFieldPattern::GetGlobalOffset() const
     auto pipeline = host->GetContext();
     CHECK_NULL_RETURN(pipeline, {});
     auto rootOffset = pipeline->GetRootRect().GetOffset();
-    auto globalOffset = host->GetPaintRectOffset() - rootOffset;
+    auto globalOffset = host->GetPaintRectOffset(false, true) - rootOffset;
     offset = Offset(globalOffset.GetX(), globalOffset.GetY());
     return offset;
 }
@@ -1018,7 +1060,7 @@ void TextFieldPattern::HandleFocusEvent()
     auto context = host->GetContextRefPtr();
     CHECK_NULL_VOID(context);
     context->AddOnAreaChangeNode(host->GetId());
-    auto globalOffset = host->GetPaintRectOffset() - context->GetRootRect().GetOffset();
+    auto globalOffset = host->GetPaintRectOffset(false, true) - context->GetRootRect().GetOffset();
     UpdateTextFieldManager(Offset(globalOffset.GetX(), globalOffset.GetY()), frameRect_.Height());
     SetNeedToRequestKeyboardInner(!isLongPress_ && (dragRecipientStatus_ != DragStatus::DRAGGING) &&
         (dragStatus_ != DragStatus::DRAGGING) && !afterDragSelect_, RequestKeyboardInnerChangeReason::FOCUS);
@@ -1419,6 +1461,10 @@ void TextFieldPattern::SetNeedToRequestKeyboardInner(bool needToRequestKeyboardI
         TAG_LOGI(ACE_TEXT_FIELD, "Set needToRequestKeyboardInner_ to %{public}d : reason %{public}d",
             needToRequestKeyboardInner, static_cast<int32_t>(reason));
     }
+    if (reason == RequestKeyboardInnerChangeReason::FOCUS && !needToRequestKeyboardInner) {
+        TAG_LOGI(ACE_TEXT_FIELD, "field focus but set needToRequestKeyboardInner to false "
+            "why: %{public}d %{public}d %{public}d", isLongPress_, dragRecipientStatus_, dragStatus_);
+    }
     needToRequestKeyboardInner_ = needToRequestKeyboardInner;
 }
 
@@ -1567,13 +1613,19 @@ void TextFieldPattern::HandleOnUndoAction()
     }
     auto value = operationRecords_.back();
     operationRecords_.pop_back();
+    auto textEditingValue = operationRecords_.back(); // each record includes text and caret
+    bool isWillChange = OnWillChangePreSetValue(textEditingValue.text);
+    if (!isWillChange) {
+        operationRecords_.emplace_back(value);
+        return;
+    }
     if (redoOperationRecords_.size() >= RECORD_MAX_LENGTH) {
         redoOperationRecords_.erase(redoOperationRecords_.begin());
     }
     if (operationRecords_.size() >= 1) {
-        redoOperationRecords_.push_back(value); // the initial status is not recorded
+        redoOperationRecords_.emplace_back(value); // the initial status is not recorded
     }
-    auto textEditingValue = operationRecords_.back(); // each record includes text and caret
+    
     contentController_->SetTextValue(textEditingValue.text);
     if (value.beforeCaretPosition != -1) {
         selectController_->MoveCaretToContentRect(
@@ -1594,8 +1646,12 @@ void TextFieldPattern::HandleOnRedoAction()
     }
     TAG_LOGI(AceLogTag::ACE_TEXT_FIELD, "HandleOnRedoAction");
     auto textEditingValue = redoOperationRecords_.back();
+    bool isWillChange = OnWillChangePreSetValue(textEditingValue.text);
+    if (!isWillChange) {
+        return;
+    }
     redoOperationRecords_.pop_back();
-    operationRecords_.push_back(textEditingValue);
+    operationRecords_.emplace_back(textEditingValue);
     contentController_->SetTextValue(textEditingValue.text);
     selectController_->UpdateCaretIndex(textEditingValue.caretPosition);
     auto tmpHost = GetHost();
@@ -1760,42 +1816,32 @@ void TextFieldPattern::HandleOnPaste()
             textfield->StartTwinkling();
             return;
         }
-        auto layoutProperty = host->GetLayoutProperty<TextFieldLayoutProperty>();
-        CHECK_NULL_VOID(layoutProperty);
-        int32_t start = 0;
-        int32_t end = 0;
-        if (textfield->IsSelected()) {
-            start = textfield->selectController_->GetStartIndex();
-            end = textfield->selectController_->GetEndIndex();
-        } else {
-            start = textfield->selectController_->GetCaretIndex();
-            end = textfield->selectController_->GetCaretIndex();
-        }
-        TAG_LOGI(AceLogTag::ACE_TEXT_FIELD, "HandleOnPaste len:%{public}d", static_cast<int32_t>(pasteData.length()));
-        auto originLength = static_cast<int32_t>(textfield->contentController_->GetTextUtf16Value().length());
-        textfield->contentController_->ReplaceSelectedValue(start, end, pasteData);
-        auto caretMoveLength =
-            static_cast<int32_t>(textfield->contentController_->GetTextUtf16Value().length()) - originLength;
-        auto newCaretPosition = std::clamp(std::max(start, end) + caretMoveLength, 0,
-            static_cast<int32_t>(textfield->contentController_->GetTextUtf16Value().length()));
-        textfield->ResetObscureTickCountDown();
-        textfield->selectController_->UpdateCaretIndex(newCaretPosition);
-        textfield->UpdateEditingValueToRecord(std::max(start, end));
-        if (layoutProperty->HasMaxLength()) {
-            textfield->CalcCounterAfterFilterInsertValue(originLength - (end - start), pasteData,
-                static_cast<int32_t>(layoutProperty->GetMaxLengthValue(Infinity<uint32_t>())));
-        }
-        textfield->CloseSelectOverlay(true);
-        host->MarkDirtyNode(PROPERTY_UPDATE_MEASURE_SELF_AND_PARENT);
-        textfield->StartTwinkling();
-        textfield->TriggerAvoidOnCaretChange();
+        textfield->AddInsertCommand(pasteData, InputReason::PASTE);
     };
     CHECK_NULL_VOID(clipboard_);
     clipboard_->GetData(pasteCallback);
 }
 
+bool TextFieldPattern::IsShowTranslate()
+{
+    auto container = Container::Current();
+    if (container && container->IsScenceBoardWindow()) {
+        return false;
+    }
+
+    auto host = GetHost();
+    CHECK_NULL_RETURN(host, false);
+    auto textFieldTheme = GetTheme();
+    CHECK_NULL_RETURN(textFieldTheme, false);
+    return textFieldTheme->GetTranslateIsSupport();
+}
+
 bool TextFieldPattern::IsShowSearch()
 {
+    auto container = Container::Current();
+    if (container && container->IsScenceBoardWindow()) {
+        return false;
+    }
     auto host = GetHost();
     CHECK_NULL_RETURN(host, false);
     auto textFieldTheme = GetTheme();
@@ -1894,18 +1940,12 @@ void TextFieldPattern::HandleOnCut()
         clipboard_->SetData(UtfUtils::Str16DebugToStr8(selectedText),
             layoutProperty->GetCopyOptionsValue(CopyOptions::Local));
     }
-    contentController_->erase(start, end - start);
-    UpdateSelection(start);
-    CloseSelectOverlay(true);
-    StartTwinkling();
-    HandleDeleteOnCounterScene();
-
+    DeleteRange(start, end);
     auto host = GetHost();
     CHECK_NULL_VOID(host);
     auto eventHub = host->GetEventHub<TextFieldEventHub>();
     CHECK_NULL_VOID(eventHub);
     eventHub->FireOnCut(selectedText);
-    FireEventHubOnChange(contentController_->GetTextUtf16Value());
     host->MarkDirtyNode(layoutProperty->GetMaxLinesValue(Infinity<float>()) <= 1 ? PROPERTY_UPDATE_MEASURE_SELF
                                                                                  : PROPERTY_UPDATE_MEASURE);
 }
@@ -1945,12 +1985,15 @@ void TextFieldPattern::FireEventHubOnChange(const std::u16string& text)
 
     auto eventHub = host->GetEventHub<TextFieldEventHub>();
     CHECK_NULL_VOID(eventHub);
-    PreviewText previewText {.offset = -1, .value = u""};
-    if (GetIsPreviewText()) {
-        previewText.offset = GetPreviewTextStart();
-        previewText.value = GetPreviewTextValue();
-    }
-    eventHub->FireOnChange(text, previewText);
+    ChangeValueInfo changeValueInfo;
+    changeValueInfo.value = text;
+    changeValueInfo.previewText.offset = hasPreviewText_ ? GetPreviewTextStart() : -1;
+    changeValueInfo.previewText.value = GetPreviewTextValue();
+    changeValueInfo.oldPreviewText = callbackOldPreviewText_;
+    changeValueInfo.oldContent = callbackOldContent_;
+    changeValueInfo.rangeBefore = callbackRangeBefore_;
+    changeValueInfo.rangeAfter = callbackRangeAfter_;
+    eventHub->FireOnChange(changeValueInfo);
 }
 
 void TextFieldPattern::HandleTouchEvent(const TouchEventInfo& info)
@@ -2103,7 +2146,9 @@ void TextFieldPattern::UpdateCaretByTouchMove(const TouchLocationInfo& info)
         previewTextTouchOffset.SetY(std::clamp(touchOffset.GetY(), limitT, limitB));
         selectController_->UpdateCaretInfoByOffset(previewTextTouchOffset, true, true);
     } else {
-        UpdateContentScroller(touchOffset);
+        if (HasText()) {
+            UpdateContentScroller(touchOffset);
+        }
         auto touchCaretX = std::clamp(
             touchOffset.GetX(), static_cast<double>(contentRect_.Left()), static_cast<double>(contentRect_.Right()));
         // 1/4 line height.
@@ -2355,22 +2400,15 @@ std::function<void(const RefPtr<OHOS::Ace::DragEvent>&, const std::string&)> Tex
         if (str.empty()) {
             return;
         }
-        if (pattern->dragStatus_ == DragStatus::NONE) {
-            pattern->InsertValue(str);
+        if ((pattern->dragStatus_ == DragStatus::NONE) || isCopy) {
+            pattern->AddInsertCommand(str, InputReason::DRAG);
         } else {
-            auto current = pattern->selectController_->GetCaretIndex();
-            auto dragTextStart = pattern->dragTextStart_;
-            auto dragTextEnd = pattern->dragTextEnd_;
-            if (current < dragTextStart && !isCopy) {
-                pattern->contentController_->erase(dragTextStart, dragTextEnd - dragTextStart);
-                pattern->InsertValue(str);
-            } else if (current > dragTextEnd && !isCopy) {
-                pattern->contentController_->erase(dragTextStart, dragTextEnd - dragTextStart);
-                pattern->selectController_->UpdateCaretIndex(current - (dragTextEnd - dragTextStart));
-                pattern->InsertValue(str);
-            } else if (isCopy) {
-                pattern->InsertValue(str);
-            }
+            InputCommandInfo inputCommandInfo;
+            inputCommandInfo.deleteRange = { pattern->dragTextStart_, pattern->dragTextEnd_ };
+            inputCommandInfo.insertOffset = pattern->selectController_->GetCaretIndex();
+            inputCommandInfo.insertValue = str;
+            inputCommandInfo.reason = InputReason::DRAG;
+            pattern->AddInputCommand(inputCommandInfo);
             pattern->dragStatus_ = DragStatus::NONE;
             pattern->MarkContentChange();
             host->MarkDirtyNode(pattern->IsTextArea() ? PROPERTY_UPDATE_MEASURE : PROPERTY_UPDATE_MEASURE_SELF);
@@ -2479,7 +2517,8 @@ void TextFieldPattern::InitDragDropCallBack()
             }
         }
         auto textPaintOffset = pattern->GetPaintRectGlobalOffset();
-        Offset localOffset = Offset(event->GetX(), event->GetY()) - Offset(textPaintOffset.GetX(), textPaintOffset.GetY());
+        Offset localOffset =
+            Offset(event->GetX(), event->GetY()) - Offset(textPaintOffset.GetX(), textPaintOffset.GetY());
         if (host->GetDragPreviewOption().enableEdgeAutoScroll) {
             pattern->UpdateContentScroller(localOffset);
         } else {
@@ -3360,6 +3399,7 @@ void TextFieldPattern::OnModifyDone()
         UpdateTextFieldInfo();
     }
     TriggerAvoidWhenCaretGoesDown();
+    selectOverlay_->SetMenuTranslateIsSupport(IsShowTranslate());
     selectOverlay_->SetIsSupportMenuSearch(IsShowSearch());
     host->MarkDirtyNode(PROPERTY_UPDATE_MEASURE);
     isModifyDone_ = true;
@@ -3379,7 +3419,8 @@ void TextFieldPattern::TriggerAvoidWhenCaretGoesDown()
             auto textFieldManager = manager.Upgrade();
             CHECK_NULL_VOID(textFieldManager);
             auto caretPos = textFieldManager->GetFocusedNodeCaretRect().Top() + textFieldManager->GetHeight();
-            if (caretPos > textField->GetLastCaretPos()) {
+            auto lastCaretPos = textField->GetLastCaretPos();
+            if (!lastCaretPos.has_value() || caretPos > lastCaretPos.value()) {
                 TAG_LOGI(ACE_KEYBOARD, "Caret Position Goes Down, Retrigger Avoid");
                 textField->TriggerAvoidOnCaretChange();
             }
@@ -3445,8 +3486,8 @@ void TextFieldPattern::AutoFillValueChanged()
     auto container = Container::Current();
     CHECK_NULL_VOID(container);
     auto isValidType =
-        (aceContentType >= AceAutoFillType::ACE_PASSWORD && aceContentType <= AceAutoFillType::ACE_FORMAT_ADDRESS) ||
-        IsAutoFillUserName(aceContentType);
+        (aceContentType >= AceAutoFillType::ACE_PASSWORD &&
+        aceContentType <= AceAutoFillType::END) || IsAutoFillUserName(aceContentType);
     if (isValidType && CheckAutoFill()) {
         container->UpdatePopupUIExtension(host, autoFillSessionId_);
     }
@@ -3508,13 +3549,16 @@ void TextFieldPattern::AddTextFireOnChange()
         auto layoutProperty = host->GetLayoutProperty<TextFieldLayoutProperty>();
         CHECK_NULL_VOID(layoutProperty);
         layoutProperty->UpdateValue(pattern->GetTextContentController()->GetTextUtf16Value());
-        PreviewText previewText {.offset = -1, .value = u""};
-        if (pattern->GetIsPreviewText()) {
-            previewText.offset = pattern->GetPreviewTextStart();
-            previewText.value = pattern->GetPreviewTextValue();
-        }
-        layoutProperty->UpdatePreviewText(previewText);
-        eventHub->FireOnChange(pattern->GetBodyTextValue(), previewText);
+        ChangeValueInfo changeValueInfo;
+        changeValueInfo.value = pattern->GetBodyTextValue();
+        changeValueInfo.previewText.offset = pattern->hasPreviewText_ ? pattern->GetPreviewTextStart() : -1;
+        changeValueInfo.previewText.value = pattern->GetPreviewTextValue();
+        changeValueInfo.oldPreviewText = pattern->callbackOldPreviewText_;
+        changeValueInfo.oldContent = pattern->callbackOldContent_;
+        changeValueInfo.rangeBefore = pattern->callbackRangeBefore_;
+        changeValueInfo.rangeAfter = pattern->callbackRangeAfter_;
+        layoutProperty->UpdatePreviewText(changeValueInfo.previewText);
+        eventHub->FireOnChange(changeValueInfo);
 
         pattern->RecordTextInputEvent();
     });
@@ -4527,7 +4571,7 @@ std::optional<MiscServices::TextConfig> TextFieldPattern::GetMiscTextConfig() co
     auto theme = GetTheme();
     CHECK_NULL_RETURN(theme, {});
     auto windowRect = pipeline->GetCurrentWindowRect();
-    double positionY = (tmpHost->GetPaintRectOffset() - pipeline->GetRootRect().GetOffset()).GetY() + windowRect.Top();
+    double positionY = (tmpHost->GetPaintRectOffset(false, true) - pipeline->GetRootRect().GetOffset()).GetY() + windowRect.Top();
     auto offset = AVOID_OFFSET.ConvertToPx();
     auto textPaintOffset = GetPaintRectGlobalOffset();
     double height = selectController_->GetCaretRect().Bottom() + windowRect.Top() +
@@ -4548,7 +4592,9 @@ std::optional<MiscServices::TextConfig> TextFieldPattern::GetMiscTextConfig() co
         .height = selectController_->GetCaretRect().Height() };
     MiscServices::InputAttribute inputAttribute = { .inputPattern = (int32_t)keyboard_,
         .enterKeyType = (int32_t)GetTextInputActionValue(GetDefaultTextInputAction()),
-        .isTextPreviewSupported = hasSupportedPreviewText_ };
+        .isTextPreviewSupported = hasSupportedPreviewText_,
+        .immersiveMode = static_cast<int32_t>(keyboardAppearance_)};
+    TAG_LOGI(ACE_TEXT_FIELD, "GetMiscTextConfig, immersiveMode:%{public}i", keyboardAppearance_);
     MiscServices::TextConfig textConfig = { .inputAttribute = inputAttribute,
         .cursorInfo = cursorInfo,
         .range = { .start = selectController_->GetStartIndex(), .end = selectController_->GetEndIndex() },
@@ -4741,7 +4787,7 @@ bool TextFieldPattern::OnThemeScopeUpdate(int32_t themeScopeId)
     textFieldTheme_ = textFieldTheme;
     CHECK_NULL_RETURN(textFieldTheme, result);
 
-    if (!paintProperty->HasBackgroundColor()) {
+    if (!paintProperty->HasBackgroundColor() && !IsUnderlineMode() && !IsInlineMode()) {
         Color bgColor = textFieldTheme->GetBgColor();
         auto renderContext = host->GetRenderContext();
         CHECK_NULL_RETURN(renderContext, result);
@@ -4804,12 +4850,26 @@ void TextFieldPattern::CalcCounterAfterFilterInsertValue(
     HandleCountStyle();
 }
 
+void TextFieldPattern::NotifyImfFinishTextPreview()
+{
+    if (!HasFocus()) {
+        return;
+    }
+#if defined(ENABLE_STANDARD_INPUT)
+    int32_t caretIndex = selectController_->GetCaretIndex();
+    MiscServices::InputMethodController::GetInstance()->OnSelectionChange(
+        u"", caretIndex, caretIndex);
+    TAG_LOGD(AceLogTag::ACE_TEXT_FIELD, "notify imf that textfield exit textPreview");
+#endif
+}
+
 int32_t TextFieldPattern::InsertValueByController(const std::u16string& insertValue, int32_t offset)
 {
     auto host = GetHost();
     CHECK_NULL_RETURN(host, offset);
     auto layoutProperty = GetLayoutProperty<TextFieldLayoutProperty>();
     CHECK_NULL_RETURN(layoutProperty, offset);
+    NotifyImfFinishTextPreview();
     int32_t originLength =
         static_cast<int32_t>(contentController_->GetTextUtf16Value().length());
     bool hasInsertValue =
@@ -4821,20 +4881,21 @@ int32_t TextFieldPattern::InsertValueByController(const std::u16string& insertVa
             static_cast<int32_t>(layoutProperty->GetMaxLengthValue(Infinity<uint32_t>())));
     }
     int32_t newCaretIndex = offset + caretMoveLength;
-    selectController_->UpdateCaretIndex(offset + caretMoveLength);
+    selectController_->UpdateCaretIndex(newCaretIndex);
+    selectController_->MoveCaretToContentRect(newCaretIndex);
     UpdateObscure(insertValue, hasInsertValue);
     UpdateEditingValueToRecord();
     TwinklingByFocus();
     CloseSelectOverlay(true);
     ScrollToSafeArea();
-    host->MarkDirtyNode(PROPERTY_UPDATE_MEASURE_SELF);
-    return newCaretIndex;
+    host->MarkDirtyNode(PROPERTY_UPDATE_MEASURE_SELF_AND_PARENT);
+    return selectController_->GetCaretIndex();
 }
 
-void TextFieldPattern::InsertValueOperation(const SourceAndValueInfo& info)
+void TextFieldPattern::ExecuteInsertValueCommand(const InsertCommandInfo& info)
 {
     auto insertValue = info.insertValue;
-    auto isIME = info.isIME;
+    auto isIME = (info.reason == InputReason::IME);
     auto layoutProperty = GetLayoutProperty<TextFieldLayoutProperty>();
     CHECK_NULL_VOID(layoutProperty);
     auto start = selectController_->GetStartIndex();
@@ -4847,6 +4908,7 @@ void TextFieldPattern::InsertValueOperation(const SourceAndValueInfo& info)
     int32_t caretMoveLength = 0;
     bool hasInsertValue = false;
     int32_t originLength = 0;
+    auto oldContent = contentController_->GetTextUtf16Value();
     if (IsSelected()) {
         auto value = contentController_->GetSelectedValue(start, end);
         auto isDelete = true;
@@ -4857,6 +4919,11 @@ void TextFieldPattern::InsertValueOperation(const SourceAndValueInfo& info)
         originLength = static_cast<int32_t>(contentController_->GetTextUtf16Value().length()) - (end - start);
         hasInsertValue = contentController_->ReplaceSelectedValue(start, end, insertValue);
         caretMoveLength = abs(static_cast<int32_t>(contentController_->GetTextUtf16Value().length()) - originLength);
+        bool isWillChange = OnWillChangePreInsert(contentController_->GetInsertValue(), oldContent, start, end);
+        if (!isWillChange) {
+            contentController_->SetTextValue(oldContent);
+            return;
+        }
         if (isIME && isDelete) {
             selectController_->UpdateCaretIndex(start);
             AfterIMEDeleteValue(value, TextDeleteDirection::BACKWARD);
@@ -4865,6 +4932,11 @@ void TextFieldPattern::InsertValueOperation(const SourceAndValueInfo& info)
         originLength = static_cast<int32_t>(contentController_->GetTextUtf16Value().length());
         hasInsertValue = contentController_->InsertValue(selectController_->GetCaretIndex(), insertValue);
         caretMoveLength = abs(static_cast<int32_t>(contentController_->GetTextUtf16Value().length()) - originLength);
+        bool isWillChange = OnWillChangePreInsert(contentController_->GetInsertValue(), oldContent, start, end);
+        if (!isWillChange) {
+            contentController_->SetTextValue(oldContent);
+            return;
+        }
     }
     if (layoutProperty->HasMaxLength()) {
         CalcCounterAfterFilterInsertValue(originLength, insertValue,
@@ -4927,45 +4999,8 @@ void TextFieldPattern::UpdateObscure(const std::u16string& insertValue, bool has
 
 void TextFieldPattern::InsertValue(const std::u16string& insertValue, bool isIME)
 {
-    auto host = GetHost();
-    if (!host) {
-        TAG_LOGW(AceLogTag::ACE_TEXT_FIELD, "textfield can't get host, len:%{public}d, isIME:%{public}d",
-            static_cast<int32_t>(insertValue.length()), isIME);
-    }
-    CHECK_NULL_VOID(host);
-    if (!HasFocus()) {
-        TAG_LOGW(AceLogTag::ACE_TEXT_FIELD, "textfield %{public}d on blur, can't insert value", host->GetId());
-        auto currentFocusNode = InputMethodManager::GetInstance()->GetCurFocusNode();
-        auto curFocusNode = currentFocusNode.Upgrade();
-        CHECK_NULL_VOID(curFocusNode);
-        TAG_LOGI(AceLogTag::ACE_TEXT_FIELD, "curFocusNode:%{public}s, ", curFocusNode->GetTag().c_str());
-        return;
-    }
-    if (!isEdit_ || (isIME && IsDragging())) {
-        TAG_LOGI(AceLogTag::ACE_TEXT_FIELD,
-            "textfield %{public}d NOT allow input, isEdit_ = %{public}d, IsDragging = %{public}d", host->GetId(),
-            isEdit_, IsDragging());
-        return;
-    }
-    if (focusIndex_ != FocuseIndex::TEXT && insertValue == u" ") {
-        TAG_LOGI(AceLogTag::ACE_TEXT_FIELD, "textfield HandleSpaceEvent");
-        HandleSpaceEvent();
-        return;
-    }
-    focusIndex_ = FocuseIndex::TEXT;
-    if (FinishTextPreviewByPreview(insertValue)) {
-        TAG_LOGI(AceLogTag::ACE_TEXT_FIELD, "FinishTextPreviewByPreview len:%{public}d",
-            static_cast<int32_t>(insertValue.length()));
-        return;
-    }
-    inputOperations_.emplace(InputOperation::INSERT);
-    SourceAndValueInfo info;
-    info.insertValue = insertValue;
-    info.isIME = isIME;
-    insertValueOperations_.emplace(info);
-    CloseSelectOverlay(true);
-    ScrollToSafeArea();
-    host->MarkDirtyNode(PROPERTY_UPDATE_MEASURE_SELF_AND_PARENT);
+    InputReason reason = isIME ? InputReason::IME : InputReason::NONE;
+    AddInsertCommand(insertValue, reason);
 }
 
 void TextFieldPattern::InsertValue(const std::string& insertValue, bool isIME)
@@ -6058,13 +6093,7 @@ void TextFieldPattern::DeleteBackward(int32_t length)
     if (IsSelected()) {
         auto start = selectController_->GetStartIndex();
         auto end = selectController_->GetEndIndex();
-        auto value = contentController_->GetSelectedValue(start, end);
-        auto isDelete = BeforeIMEDeleteValue(value, TextDeleteDirection::BACKWARD, end);
-        CHECK_NULL_VOID(isDelete);
-        Delete(start, end);
-        AfterIMEDeleteValue(value, TextDeleteDirection::BACKWARD);
-        showCountBorderStyle_ = false;
-        HandleCountStyle();
+        DeleteRange(start, end);
         return;
     }
     if (selectController_->GetCaretIndex() <= 0) {
@@ -6089,7 +6118,13 @@ void TextFieldPattern::DeleteBackwardOperation(int32_t length)
     auto value = contentController_->GetSelectedValue(idx - willDeleteLength, idx);
     auto isDelete = BeforeIMEDeleteValue(value, TextDeleteDirection::BACKWARD, idx);
     CHECK_NULL_VOID(isDelete);
+    auto oldContent = contentController_->GetTextUtf16Value();
     int32_t count = contentController_->Delete(selectController_->GetCaretIndex(), length, true);
+    auto isOnWillChange = OnWillChangePreDelete(oldContent, std::max(idx - count, 0), idx);
+    if (!isOnWillChange) {
+        contentController_->SetTextValue(oldContent);
+        return;
+    }
     selectController_->UpdateCaretIndex(std::max(idx - count, 0));
     if (GetIsPreviewText()) {
         UpdatePreviewIndex(GetPreviewTextStart(), GetPreviewTextEnd() - length);
@@ -6108,9 +6143,15 @@ void TextFieldPattern::DeleteForwardOperation(int32_t length)
     auto isDelete = BeforeIMEDeleteValue(value, TextDeleteDirection::FORWARD, caretIndex);
     CHECK_NULL_VOID(isDelete);
     ResetObscureTickCountDown();
+    auto oldContent = contentController_->GetTextUtf16Value();
     contentController_->Delete(caretIndex, length, false);
     if (GetIsPreviewText()) {
         UpdatePreviewIndex(GetPreviewTextStart(), GetPreviewTextEnd() - length);
+    }
+    auto isOnWillChange = OnWillChangePreDelete(oldContent, caretIndex, caretIndex + willDeleteLength);
+    if (!isOnWillChange) {
+        contentController_->SetTextValue(oldContent);
+        return;
     }
     AfterIMEDeleteValue(value, TextDeleteDirection::FORWARD);
     StartTwinkling();
@@ -6124,14 +6165,7 @@ void TextFieldPattern::DeleteForward(int32_t length)
     if (IsSelected()) {
         auto start = selectController_->GetStartIndex();
         auto end = selectController_->GetEndIndex();
-        auto value = contentController_->GetSelectedValue(start, end);
-        auto isDelete = BeforeIMEDeleteValue(value, TextDeleteDirection::FORWARD, start);
-        CHECK_NULL_VOID(isDelete);
-        ResetObscureTickCountDown();
-        Delete(start, end);
-        AfterIMEDeleteValue(value, TextDeleteDirection::FORWARD);
-        showCountBorderStyle_ = false;
-        HandleCountStyle();
+        DeleteRange(start, end);
         return;
     }
     auto contentLength = static_cast<int32_t>(contentController_->GetTextUtf16Value().length());
@@ -6734,6 +6768,28 @@ std::string TextFieldPattern::GetMaxFontSize() const
     auto layoutProperty = GetLayoutProperty<TextFieldLayoutProperty>();
     CHECK_NULL_RETURN(layoutProperty, "");
     return layoutProperty->GetAdaptMaxFontSize()->ToString();
+}
+
+std::string TextFieldPattern::GetMinFontScale() const
+{
+    auto layoutProperty = GetLayoutProperty<TextFieldLayoutProperty>();
+    CHECK_NULL_RETURN(layoutProperty, std::to_string(MINFONTSCALE));
+    return std::to_string(layoutProperty->GetMinFontScale().value_or(MINFONTSCALE));
+}
+
+std::string TextFieldPattern::GetMaxFontScale() const
+{
+    auto layoutProperty = GetLayoutProperty<TextFieldLayoutProperty>();
+    CHECK_NULL_RETURN(layoutProperty, std::to_string(MAXFONTSCALE));
+    return std::to_string(layoutProperty->GetMaxFontScale().value_or(MAXFONTSCALE));
+}
+
+std::string TextFieldPattern::GetEllipsisMode() const
+{
+    auto layoutProperty = GetLayoutProperty<TextFieldLayoutProperty>();
+    CHECK_NULL_RETURN(layoutProperty, V2::ConvertEllipsisModeToString(EllipsisMode::TAIL));
+    return V2::ConvertEllipsisModeToString(layoutProperty->GetEllipsisMode().value_or(
+        EllipsisMode::TAIL));
 }
 
 std::string TextFieldPattern::GetTextIndent() const
@@ -7410,6 +7466,9 @@ void TextFieldPattern::ToJsonValue(std::unique_ptr<JsonValue>& json, const Inspe
     json->PutExtAttr("barState", GetBarStateString().c_str(), filter);
     json->PutExtAttr("caretPosition", std::to_string(GetCaretIndex()).c_str(), filter);
     json->PutExtAttr("enablePreviewText", GetSupportPreviewText(), filter);
+    json->PutExtAttr("minFontScale", GetMinFontScale().c_str(), filter);
+    json->PutExtAttr("maxFontScale", GetMaxFontScale().c_str(), filter);
+    json->PutExtAttr("ellipsisMode",GetEllipsisMode().c_str(), filter);
     ToJsonValueForOption(json, filter);
     ToJsonValueSelectOverlay(json, filter);
 }
@@ -7479,8 +7538,8 @@ void TextFieldPattern::ToJsonValueSelectOverlay(std::unique_ptr<JsonValue>& json
     auto menuNode = manager->GetSelectOverlayNode();
     CHECK_NULL_VOID(menuNode);
     json->PutExtAttr("MenuNode", menuNode->GetTag().c_str(), filter);
-    if (menuNode->GetAncestorNodeOfFrame(false)) {
-        json->PutExtAttr("MountOn", menuNode->GetAncestorNodeOfFrame(false)->GetTag().c_str(), filter);
+    if (menuNode->GetAncestorNodeOfFrame(true)) {
+        json->PutExtAttr("MountOn", menuNode->GetAncestorNodeOfFrame(true)->GetTag().c_str(), filter);
     }
     auto menuLayoutProperty = menuNode->GetLayoutProperty();
     CHECK_NULL_VOID(menuLayoutProperty);
@@ -7868,6 +7927,10 @@ void TextFieldPattern::NotifyFillRequestSuccess(RefPtr<ViewDataWrap> viewDataWra
     if (!contentController_ || contentController_->GetTextValue() == nodeWrap->GetValue()) {
         return;
     }
+    bool isWillChange = OnWillChangePreSetValue(UtfUtils::Str8DebugToStr16(nodeWrap->GetValue()));
+    if (!isWillChange) {
+        return;
+    }
     contentController_->SetTextValue(UtfUtils::Str8DebugToStr16(nodeWrap->GetValue()));
     auto textLength = static_cast<int32_t>(contentController_->GetTextUtf16Value().length());
     selectController_->UpdateCaretIndex(textLength);
@@ -7944,7 +8007,7 @@ bool TextFieldPattern::CheckAutoSave()
             return true;
         }
     }
-    if (AceAutoFillType::ACE_UNSPECIFIED < autoFillType && autoFillType <= AceAutoFillType::ACE_FORMAT_ADDRESS &&
+    if (AceAutoFillType::ACE_UNSPECIFIED < autoFillType && autoFillType <= AceAutoFillType::END &&
         !IsAutoFillUserName(autoFillType)) {
         if (contentController_->GetTextValue() != lastAutoFillTextValue_) {
             return true;
@@ -8036,7 +8099,7 @@ OffsetF TextFieldPattern::GetPaintRectGlobalOffset() const
     CHECK_NULL_RETURN(pipeline, OffsetF(0.0f, 0.0f));
     auto rootOffset = pipeline->GetRootRect().GetOffset();
     OffsetF textPaintOffset;
-    textPaintOffset = host->GetPaintRectOffset();
+    textPaintOffset = host->GetPaintRectOffset(false, true);
     return textPaintOffset - rootOffset;
 }
 
@@ -8364,7 +8427,7 @@ void TextFieldPattern::UpdateCancelNode()
 
 bool TextFieldPattern::HasInputOperation()
 {
-    return !deleteBackwardOperations_.empty() || !deleteForwardOperations_.empty() || !insertValueOperations_.empty();
+    return !deleteBackwardOperations_.empty() || !deleteForwardOperations_.empty() || !insertCommands_.empty();
 }
 
 void TextFieldPattern::FocusForwardStopTwinkling()
@@ -8583,7 +8646,7 @@ void TextFieldPattern::CleanNodeResponseKeyEvent()
     CHECK_NULL_VOID(!IsDragging());
     auto host = GetHost();
     CHECK_NULL_VOID(host);
-    InitEditingValueText(u"");
+    ClearTextContent();
     CloseSelectOverlay();
     SetFloatingCursorVisible(false);
     StartTwinkling();
@@ -8627,6 +8690,7 @@ void TextFieldPattern::OnWindowSizeChanged(int32_t width, int32_t height, Window
     auto textFieldManager = DynamicCast<TextFieldManagerNG>(context->GetTextFieldManager());
     CHECK_NULL_VOID(textFieldManager);
     textFieldManager->ResetOptionalClickPosition();
+    lastCaretPos_ = std::nullopt;
     taskExecutor->PostTask(
         [weak = WeakClaim(this), manager = WeakPtr<TextFieldManagerNG>(textFieldManager)] {
             auto textField = weak.Upgrade();
@@ -8665,7 +8729,7 @@ void TextFieldPattern::PasswordResponseKeyEvent()
 
 void TextFieldPattern::UnitResponseKeyEvent()
 {
-#ifndef ARKUI_WAERABLE
+#ifndef ARKUI_WEARABLE
     auto unitArea = AceType::DynamicCast<UnitResponseArea>(responseArea_);
     CHECK_NULL_VOID(unitArea);
     auto frameNode = unitArea->GetFrameNode();
@@ -8743,7 +8807,7 @@ void TextFieldPattern::GetCaretMetrics(CaretMetricsF& caretCaretMetric)
     float width = selectController_->GetCaretRect().Width();
     auto host = GetHost();
     CHECK_NULL_VOID(host);
-    auto textPaintOffset = host->GetPaintRectOffset();
+    auto textPaintOffset = host->GetPaintRectOffset(false, true);
     caretCaretMetric.offset = offset + textPaintOffset + OffsetF(width / 2.0f, 0.0f);
     caretCaretMetric.height = height;
 }
@@ -8995,6 +9059,13 @@ void TextFieldPattern::SetPreviewTextOperation(PreviewTextInfo info)
         end = (rangeEnd == PREVIEW_TEXT_RANGE_DEFAULT) ? end : rangeEnd;
     }
 
+    ChangeValueInfo changeValueInfo;
+    changeValueInfo.oldPreviewText.offset = hasPreviewText_ ? GetPreviewTextStart() : -1;
+    changeValueInfo.oldPreviewText.value = GetPreviewTextValue();
+    changeValueInfo.oldContent = GetBodyTextValue();
+    changeValueInfo.rangeBefore = TextRange { GetPreviewTextStart(), GetPreviewTextStart() };
+    changeValueInfo.rangeAfter = TextRange { GetPreviewTextStart(), GetPreviewTextStart() };
+
     bool hasInsertValue = false;
     auto originLength = static_cast<int32_t>(contentController_->GetTextUtf16Value().length()) - (end - start);
     hasInsertValue = contentController_->ReplaceSelectedValue(start, end, info.text);
@@ -9010,6 +9081,10 @@ void TextFieldPattern::SetPreviewTextOperation(PreviewTextInfo info)
 
     UpdatePreviewIndex(start, newCaretPosition);
     hasPreviewText_ = true;
+    changeValueInfo.value = GetBodyTextValue();
+    changeValueInfo.previewText.offset = hasPreviewText_ ? GetPreviewTextStart() : -1;
+    changeValueInfo.previewText.value = GetPreviewTextValue();
+    FireOnWillChange(changeValueInfo);
     if (HasFocus()) {
         cursorVisible_ = true;
         StartTwinkling();
@@ -9044,6 +9119,12 @@ void TextFieldPattern::FinishTextPreviewOperation()
             static_cast<int32_t>(layoutProperty->GetMaxLengthValue(Infinity<uint32_t>()));
         HandleCountStyle();
     }
+
+    ChangeValueInfo changeValueInfo;
+    changeValueInfo.oldPreviewText.offset = GetPreviewTextStart();
+    changeValueInfo.oldPreviewText.value = GetPreviewTextValue();
+    changeValueInfo.oldContent = GetBodyTextValue();
+    changeValueInfo.rangeBefore = TextRange { GetPreviewTextStart(), GetPreviewTextStart() };
     auto start = GetPreviewTextStart();
     auto end = GetPreviewTextEnd();
     auto previewValue = GetPreviewTextValue();
@@ -9054,6 +9135,11 @@ void TextFieldPattern::FinishTextPreviewOperation()
         originLength);
     selectController_->UpdateCaretIndex(start + caretMoveLength);
     UpdateEditingValueToRecord();
+    changeValueInfo.rangeAfter = TextRange { selectController_->GetCaretIndex(), selectController_->GetCaretIndex() };
+    changeValueInfo.value = GetBodyTextValue();
+    changeValueInfo.previewText.offset = GetPreviewTextStart();
+    changeValueInfo.previewText.value = GetPreviewTextValue();
+    FireOnWillChange(changeValueInfo);
     if (HasFocus()) {
         cursorVisible_ = true;
         StartTwinkling();
@@ -9445,7 +9531,13 @@ void TextFieldPattern::DeleteRange(int32_t start, int32_t end, bool isIME)
     }
     ResetObscureTickCountDown();
     CheckAndUpdateRecordBeforeOperation();
+    auto oldContent = contentController_->GetTextUtf16Value();
     Delete(start, end);
+    auto isOnWillChange = OnWillChangePreDelete(oldContent, start, end);
+    if (!isOnWillChange) {
+        contentController_->SetTextValue(oldContent);
+        return;
+    }
     if (isIME) {
         AfterIMEDeleteValue(value, TextDeleteDirection::FORWARD);
     }
@@ -9570,15 +9662,12 @@ void TextFieldPattern::HandleAIWriteResult(int32_t start, int32_t end, std::vect
     auto host = GetHost();
     CHECK_NULL_VOID(host);
     auto value = contentController_->GetSelectedValue(start, end);
-    BeforeIMEDeleteValue(value, TextDeleteDirection::FORWARD, start);
-    BeforeIMEInsertValue(resultText, start);
-    contentController_->ReplaceSelectedValue(start, end, resultText);
-    AfterIMEDeleteValue(value, TextDeleteDirection::FORWARD);
-    AfterIMEInsertValue(resultText);
-    CloseSelectOverlay(true);
-    SetCaretPosition(start + spanString->GetLength());
-    StartTwinkling();
-    host->MarkDirtyNode(PROPERTY_UPDATE_MEASURE_SELF_AND_PARENT);
+    InputCommandInfo inputCommandInfo;
+    inputCommandInfo.deleteRange = { start, end };
+    inputCommandInfo.insertOffset = start;
+    inputCommandInfo.insertValue = resultText;
+    inputCommandInfo.reason = InputReason::AI_WRITE;
+    AddInputCommand(inputCommandInfo);
 }
 
 bool TextFieldPattern::IsTextEditableForStylus() const
@@ -10110,6 +10199,233 @@ FocusPattern TextFieldPattern::GetFocusPattern() const
         focusPattern.SetStyleType(FocusStyleType::OUTER_BORDER);
     }
     return focusPattern;
+}
+
+bool TextFieldPattern::FireOnWillChange(const ChangeValueInfo& changeValueInfo)
+{
+    auto host = GetHost();
+    CHECK_NULL_RETURN(host, true);
+    auto eventHub = host->GetEventHub<TextFieldEventHub>();
+    CHECK_NULL_RETURN(eventHub, true);
+    CHECK_NULL_RETURN(eventHub->HaveOnWillChangeEvent(), true);
+    return eventHub->FireOnWillChangeEvent(changeValueInfo);
+}
+
+bool TextFieldPattern::OnWillChangePreInsert(const std::u16string& insertValue, const std::u16string& oldContent,
+    uint32_t start, uint32_t end)
+{
+    auto host = GetHost();
+    CHECK_NULL_RETURN(host, true);
+    auto eventHub = host->GetEventHub<TextFieldEventHub>();
+    CHECK_NULL_RETURN(eventHub, true);
+    CHECK_NULL_RETURN(eventHub->HaveOnWillChangeEvent(), true);
+    ChangeValueInfo changeValueInfo;
+    PreviewText previewText {.offset = -1, .value = u""};
+    if (hasPreviewText_) {
+        previewText.offset = GetPreviewTextStart();
+        previewText.value = GetPreviewTextValue();
+    }
+    changeValueInfo.oldPreviewText = previewText;
+    changeValueInfo.previewText = previewText;
+
+    auto insertLength = insertValue.length();
+    changeValueInfo.rangeBefore = TextRange { start, end };
+    changeValueInfo.rangeAfter = TextRange { start, start + insertLength };
+
+    changeValueInfo.oldContent = oldContent;
+    changeValueInfo.value = contentController_->GetTextUtf16Value();
+    callbackRangeBefore_ = changeValueInfo.rangeBefore;
+    callbackRangeAfter_ = changeValueInfo.rangeAfter;
+    callbackOldContent_ = changeValueInfo.oldContent;
+    callbackOldPreviewText_ = changeValueInfo.oldPreviewText;
+    return eventHub->FireOnWillChangeEvent(changeValueInfo);
+}
+
+bool TextFieldPattern::OnWillChangePreDelete(const std::u16string& oldContent, uint32_t start, uint32_t end)
+{
+    auto host = GetHost();
+    CHECK_NULL_RETURN(host, true);
+    auto eventHub = host->GetEventHub<TextFieldEventHub>();
+    CHECK_NULL_RETURN(eventHub, true);
+    CHECK_NULL_RETURN(eventHub->HaveOnWillChangeEvent(), true);
+    ChangeValueInfo changeValueInfo;
+    PreviewText previewText {.offset = -1, .value = u""};
+    if (hasPreviewText_) {
+        previewText.offset = GetPreviewTextStart();
+        previewText.value = GetPreviewTextValue();
+    }
+    changeValueInfo.oldPreviewText = previewText;
+    changeValueInfo.previewText = previewText;
+
+    changeValueInfo.rangeBefore = TextRange { start, end };
+    changeValueInfo.rangeAfter = TextRange { start, start };
+
+    changeValueInfo.oldContent = oldContent;
+    changeValueInfo.value = contentController_->GetTextUtf16Value();
+    callbackRangeBefore_ = changeValueInfo.rangeBefore;
+    callbackRangeAfter_ = changeValueInfo.rangeAfter;
+    callbackOldContent_ = changeValueInfo.oldContent;
+    callbackOldPreviewText_ = changeValueInfo.oldPreviewText;
+    return eventHub->FireOnWillChangeEvent(changeValueInfo);
+}
+
+bool TextFieldPattern::OnWillChangePreSetValue(const std::u16string& newValue)
+{
+    auto host = GetHost();
+    CHECK_NULL_RETURN(host, true);
+    auto eventHub = host->GetEventHub<TextFieldEventHub>();
+    CHECK_NULL_RETURN(eventHub, true);
+    CHECK_NULL_RETURN(eventHub->HaveOnWillChangeEvent(), true);
+    ChangeValueInfo changeValueInfo;
+    changeValueInfo.oldContent = contentController_->GetTextUtf16Value();
+    changeValueInfo.value = newValue;
+    changeValueInfo.previewText.offset = GetPreviewTextStart();
+    changeValueInfo.previewText.value = GetPreviewTextValue();
+    changeValueInfo.oldPreviewText.offset = GetPreviewTextStart();
+    changeValueInfo.oldPreviewText.value = GetPreviewTextValue();
+    changeValueInfo.rangeBefore = TextRange { 0, contentController_->GetTextUtf16Value().length() };
+    changeValueInfo.rangeAfter = TextRange { 0, newValue.length() };
+    callbackRangeBefore_ = changeValueInfo.rangeBefore;
+    callbackRangeAfter_ = changeValueInfo.rangeAfter;
+    callbackOldContent_ = changeValueInfo.oldContent;
+    callbackOldPreviewText_ = changeValueInfo.oldPreviewText;
+    return eventHub->FireOnWillChangeEvent(changeValueInfo);
+}
+
+void TextFieldPattern::AddInsertCommand(const std::u16string& insertValue, InputReason reason)
+{
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    if (!HasFocus()) {
+        TAG_LOGW(AceLogTag::ACE_TEXT_FIELD, "textfield %{public}d on blur, can't insert value", host->GetId());
+        auto currentFocusNode = InputMethodManager::GetInstance()->GetCurFocusNode();
+        auto curFocusNode = currentFocusNode.Upgrade();
+        CHECK_NULL_VOID(curFocusNode);
+        TAG_LOGI(AceLogTag::ACE_TEXT_FIELD, "curFocusNode:%{public}s, ", curFocusNode->GetTag().c_str());
+        return;
+    }
+    if (!isEdit_ || (reason == InputReason::IME && IsDragging())) {
+        TAG_LOGI(AceLogTag::ACE_TEXT_FIELD,
+            "textfield %{public}d NOT allow input, isEdit_ = %{public}d, IsDragging = %{public}d", host->GetId(),
+            isEdit_, IsDragging());
+        return;
+    }
+    if (focusIndex_ != FocuseIndex::TEXT && insertValue == u" ") {
+        HandleSpaceEvent();
+        return;
+    }
+    focusIndex_ = FocuseIndex::TEXT;
+    if (FinishTextPreviewByPreview(insertValue)) {
+        return;
+    }
+    inputOperations_.emplace(InputOperation::INSERT);
+    InsertCommandInfo info;
+    info.insertValue = insertValue;
+    info.reason = reason;
+    insertCommands_.emplace(info);
+    CloseSelectOverlay(true);
+    ScrollToSafeArea();
+    host->MarkDirtyNode(PROPERTY_UPDATE_MEASURE_SELF_AND_PARENT);
+}
+
+void TextFieldPattern::AddInputCommand(const InputCommandInfo& inputCommandInfo)
+{
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    if (!isEdit_ && (inputCommandInfo.reason != InputReason::CANCEL_BUTTON)) {
+        TAG_LOGW(AceLogTag::ACE_TEXT_FIELD, "textfield %{public}d on blur, can't input", host->GetId());
+        return;
+    }
+    if (inputCommandInfo.reason == InputReason::IME && IsDragging()) {
+        TAG_LOGI(AceLogTag::ACE_TEXT_FIELD,
+            "textfield %{public}d NOT allow input when dragging", host->GetId());
+        return;
+    }
+
+    inputOperations_.emplace(InputOperation::INPUT);
+    inputCommands_.emplace(inputCommandInfo);
+    CloseSelectOverlay(true);
+    ScrollToSafeArea();
+    host->MarkDirtyNode(PROPERTY_UPDATE_MEASURE_SELF_AND_PARENT);
+}
+
+void TextFieldPattern::ExecuteInputCommand(const InputCommandInfo& info)
+{
+    auto layoutProperty = GetLayoutProperty<TextFieldLayoutProperty>();
+    CHECK_NULL_VOID(layoutProperty);
+    auto start = info.deleteRange.start;
+    auto end = info.deleteRange.end;
+    auto insertValue = info.insertValue;
+    auto caretIndex = info.insertOffset;
+    GetEmojiSubStringRange(start, end);
+
+    if ((info.reason == InputReason::IME || info.reason == InputReason::AI_WRITE) && !insertValue.empty()) {
+        auto isInsert = BeforeIMEInsertValue(insertValue, caretIndex - (end - start));
+        CHECK_NULL_VOID(isInsert);
+    }
+
+    ChangeValueInfo changeValueInfo;
+    changeValueInfo.oldContent = contentController_->GetTextUtf16Value();
+    changeValueInfo.oldPreviewText.offset = GetPreviewTextStart();
+    changeValueInfo.oldPreviewText.value = GetPreviewTextValue();
+    changeValueInfo.rangeBefore = TextRange { start, end };
+
+    auto isDelete = true;
+    if (start != end) {
+        auto deleteValue = contentController_->GetSelectedValue(start, end);
+        if (info.reason == InputReason::IME || info.reason == InputReason::AI_WRITE) {
+            isDelete = BeforeIMEDeleteValue(deleteValue, TextDeleteDirection::BACKWARD, end);
+        }
+        contentController_->erase(start, end - start);
+        if ((info.reason == InputReason::IME || info.reason == InputReason::AI_WRITE) && isDelete) {
+            selectController_->UpdateCaretIndex(start);
+            AfterIMEDeleteValue(deleteValue, TextDeleteDirection::BACKWARD);
+        }
+    }
+
+    int32_t insertLength = 0;
+    if (!insertValue.empty()) {
+        if (info.insertOffset >= end && isDelete) {
+            caretIndex = caretIndex - (end - start);
+        }
+        auto originLength = contentController_->GetTextUtf16Value().length();
+        auto hasInsertValue = contentController_->InsertValue(caretIndex, info.insertValue);
+        insertLength = contentController_->GetTextUtf16Value().length() - originLength;
+        caretIndex += insertLength;
+
+        if (layoutProperty->HasMaxLength()) {
+            CalcCounterAfterFilterInsertValue(originLength, insertValue,
+                static_cast<int32_t>(layoutProperty->GetMaxLengthValue(Infinity<uint32_t>())));
+        }
+        selectController_->UpdateCaretIndex(caretIndex);
+        UpdateObscure(insertValue, hasInsertValue);
+        if (info.reason == InputReason::IME || info.reason == InputReason::AI_WRITE) {
+            AfterIMEInsertValue(contentController_->GetInsertValue());
+        }
+    }
+
+    changeValueInfo.value = contentController_->GetTextUtf16Value();
+    changeValueInfo.previewText.offset = GetPreviewTextStart();
+    changeValueInfo.previewText.value = GetPreviewTextValue();
+    changeValueInfo.rangeAfter = TextRange { caretIndex - insertLength, caretIndex };
+
+    bool isWillChange = FireOnWillChange(changeValueInfo);
+    if (!isWillChange) {
+        contentController_->SetTextValue(changeValueInfo.oldContent);
+        return;
+    }
+    UpdateEditingValueToRecord();
+    TwinklingByFocus();
+}
+
+void TextFieldPattern::ClearTextContent()
+{
+    InputCommandInfo inputCommandInfo;
+    inputCommandInfo.deleteRange = { 0, contentController_->GetTextUtf16Value().length() };
+    inputCommandInfo.insertOffset = 0;
+    inputCommandInfo.insertValue = u"";
+    inputCommandInfo.reason = InputReason::CANCEL_BUTTON;
+    AddInputCommand(inputCommandInfo);
 }
 
 // return: whether the offset is valid, return false if invalid

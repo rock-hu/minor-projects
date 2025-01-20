@@ -14,7 +14,6 @@
  */
 
 #include "ecmascript/compiler/call_signature.h"
-#include "ecmascript/compiler/variable_type.h"
 
 #if defined(__clang__)
 #pragma clang diagnostic push
@@ -26,8 +25,6 @@
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
 
-#include "llvm-c/Core.h"
-#include "llvm/Support/Host.h"
 
 #if defined(__clang__)
 #pragma clang diagnostic pop
@@ -2671,11 +2668,13 @@ DEF_CALL_SIGNATURE(MarkingBarrierWithEden)
 
 DEF_CALL_SIGNATURE(SharedGCMarkingBarrier)
 {
-    // 2 : 2 input parameters
-    CallSignature index("SharedGCMarkingBarrier", 0, 2, ArgumentsOrder::DEFAULT_ORDER, VariableType::VOID());
+    // 4 : 4 input parameters
+    CallSignature index("SharedGCMarkingBarrier", 0, 4, ArgumentsOrder::DEFAULT_ORDER, VariableType::VOID());
     *callSign = index;
-    // 2 : 2 input parameters
-    std::array<VariableType, 2> params = {
+    // 4 : 4 input parameters
+    std::array<VariableType, 4> params = {
+        VariableType::NATIVE_POINTER(),
+        VariableType::JS_POINTER(),
         VariableType::NATIVE_POINTER(),
         VariableType::JS_POINTER(),
     };
@@ -3447,6 +3446,21 @@ DEF_CALL_SIGNATURE(MoveBarrierCrossRegion)
     };
     callSign->SetParameters(params.data());
     callSign->SetGCLeafFunction(true);
+    callSign->SetCallConv(CallSignature::CallConv::CCallConv);;
+}
+
+DEF_CALL_SIGNATURE(FindEntryFromNameDictionary)
+{
+    constexpr size_t paramCount = 3;
+    CallSignature signature("FindEntryFromNameDictionary", 0, paramCount, ArgumentsOrder::DEFAULT_ORDER,
+                            VariableType::INT32());
+    *callSign = signature;
+    std::array<VariableType, paramCount> params = {
+        VariableType::NATIVE_POINTER(),
+        VariableType::JS_ANY(),
+        VariableType::JS_ANY(),
+    };
+    callSign->SetParameters(params.data());
     callSign->SetCallConv(CallSignature::CallConv::CCallConv);;
 }
 }  // namespace panda::ecmascript::kungfu

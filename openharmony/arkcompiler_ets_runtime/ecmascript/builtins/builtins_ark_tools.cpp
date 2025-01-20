@@ -339,6 +339,18 @@ JSTaggedValue BuiltinsArkTools::HashCode(EcmaRuntimeCallInfo *info)
     return JSTaggedValue(LinkedHash::Hash(thread, key.GetTaggedValue()));
 }
 
+JSTaggedValue BuiltinsArkTools::PrintMegaICStat(EcmaRuntimeCallInfo *info)
+{
+    JSThread *thread = info->GetThread();
+    BUILTINS_API_TRACE(thread, Global, PrintMegaICStat);
+    [[maybe_unused]] EcmaHandleScope handleScope(thread);
+    // start vm runtime stat statistic
+#if ECMASCRIPT_ENABLE_MEGA_PROFILER
+    thread->GetCurrentEcmaContext()->PrintMegaICStat();
+#endif
+    return JSTaggedValue::Undefined();
+}
+
 #if defined(ECMASCRIPT_SUPPORT_CPUPROFILER)
 JSTaggedValue BuiltinsArkTools::StartCpuProfiler(EcmaRuntimeCallInfo *info)
 {
@@ -1548,6 +1560,28 @@ JSTaggedValue BuiltinsArkTools::IterateFrame(EcmaRuntimeCallInfo *info)
         LOG_BUILTINS(INFO) << "DeoptIterateFrameCalleeRegInfo: " << calleeRegInfo.size();
     }
 
+    return JSTaggedValue::Undefined();
+}
+
+JSTaggedValue BuiltinsArkTools::TriggerSharedGC(EcmaRuntimeCallInfo *info)
+{
+    ASSERT(info);
+    JSThread *thread = info->GetThread();
+    RETURN_IF_DISALLOW_ARKTOOLS(thread);
+    [[maybe_unused]] EcmaHandleScope handleScope(thread);
+    JSTaggedValue type = GetCallArg(info, 0).GetTaggedValue();
+    auto globalConst = thread->GlobalConstants();
+    SharedHeap *sHeap = SharedHeap::GetInstance();
+    sHeap->WaitGCFinished(thread);
+    if (JSTaggedValue::StrictEqual(globalConst->GetSharedGcCause(), type)) {
+        sHeap->TriggerConcurrentMarking<TriggerGCType::SHARED_GC, GCReason::TRIGGER_BY_JS>(thread);
+        sHeap->WaitGCFinished(thread);
+    } else if (JSTaggedValue::StrictEqual(globalConst->GetSharedPartialGcCause(), type)) {
+        sHeap->TriggerConcurrentMarking<TriggerGCType::SHARED_PARTIAL_GC, GCReason::TRIGGER_BY_JS>(thread);
+        sHeap->WaitGCFinished(thread);
+    } else if (JSTaggedValue::StrictEqual(globalConst->GetSharedFullGcCause(), type)) {
+        sHeap->CollectGarbage<TriggerGCType::SHARED_FULL_GC, GCReason::TRIGGER_BY_JS>(thread);
+    }
     return JSTaggedValue::Undefined();
 }
 

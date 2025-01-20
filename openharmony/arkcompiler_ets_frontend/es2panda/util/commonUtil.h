@@ -36,6 +36,7 @@ struct PkgInfo;
 namespace panda::es2panda::util {
 const std::string NPM_ENTRIES = "npmEntries.txt";
 const std::string IS_COMMONJS = "isCommonjs";
+const std::string JSON_FilE_CONTENT = "jsonFileContent";
 // The format of ohmurl for non-SO files are start with '@normalized:N'.
 const std::string NORMALIZED_OHMURL_NOT_SO = "@normalized:N";
 const std::string NORMALIZED = "@normalized:";
@@ -59,7 +60,7 @@ std::string GetRecordNameFromNormalizedOhmurl(const std::string &ohmurl);
 std::string GetPkgNameFromNormalizedOhmurl(const std::string &ohmurl);
 std::string GetPkgNameFromNormalizedImport(const std::string &normalizedImport);
 std::string UpdatePackageVersionIfNeeded(const std::string &ohmurl,
-                                         const std::unordered_map<std::string, PkgInfo> &pkgContextInfo);
+                                         const std::map<std::string, PkgInfo> &pkgContextInfo);
 std::string UpdateBundleNameIfNeeded(std::string &ohmurl, const std::string &bundleName,
                                      const std::set<std::string> &externalPkgNames);
 bool RecordNotGeneratedFromBytecode(std::string recordName);

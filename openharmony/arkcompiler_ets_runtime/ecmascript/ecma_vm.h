@@ -381,15 +381,17 @@ public:
         return onErrorData_;
     }
     
-    void SetStopPreLoadSoCallback(const StopPreLoadSoCallback &cb)
+    void AddStopPreLoadCallback(const StopPreLoadSoCallback &cb)
     {
-        stopPreLoadSoCallback_ = cb;
+        stopPreLoadCallbacks_.emplace_back(cb);
     }
 
-    StopPreLoadSoCallback GetStopPreLoadSoCallback() const
+    CVector<StopPreLoadSoCallback> GetStopPreLoadCallbacks() const
     {
-        return stopPreLoadSoCallback_;
+        return stopPreLoadCallbacks_;
     }
+
+    void StopPreLoadSoOrAbc();
 
     void TriggerConcurrentCallback(JSTaggedValue result, JSTaggedValue hint);
 
@@ -436,23 +438,33 @@ public:
     // UnifiedOhmUrlPack means app compiles ohmurl using old format like "@bundle:",
     // or new unified rules like "@normalize:"
     // if pkgContextInfoList is empty, means use old ohmurl packing.
-    bool IsNormalizedOhmUrlPack() const
+    bool IsNormalizedOhmUrlPack()
     {
+        ReadLockHolder lock(pkgContextInfoLock_);
         return !pkgContextInfoList_.empty();
     }
 
     void SetPkgNameList(const CMap<CString, CString> &list)
     {
+        WriteLockHolder lock(pkgNameListLock_);
         pkgNameList_ = list;
     }
 
-    CMap<CString, CString> GetPkgNameList() const
+    void UpdatePkgNameList(const CMap<CString, CString> &list)
     {
+        WriteLockHolder lock(pkgNameListLock_);
+        pkgNameList_.insert(list.begin(), list.end());
+    }
+
+    CMap<CString, CString> GetPkgNameList()
+    {
+        ReadLockHolder lock(pkgNameListLock_);
         return pkgNameList_;
     }
 
-    inline CString GetPkgName(const CString &moduleName) const
+    inline CString GetPkgName(const CString &moduleName)
     {
+        ReadLockHolder lock(pkgNameListLock_);
         auto it = pkgNameList_.find(moduleName);
         if (it == pkgNameList_.end()) {
             LOG_ECMA(INFO) << " Get Pkg Name failed";
@@ -461,13 +473,21 @@ public:
         return it->second;
     }
 
-    inline CMap<CString, CMap<CString, CVector<CString>>> GetPkgContextInfoLit() const
+    void UpdatePkgContextInfoList(const CMap<CString, CMap<CString, CVector<CString>>> &list)
     {
+        WriteLockHolder lock(pkgContextInfoLock_);
+        pkgContextInfoList_.insert(list.begin(), list.end());
+    }
+
+    inline CMap<CString, CMap<CString, CVector<CString>>> GetPkgContextInfoList()
+    {
+        ReadLockHolder lock(pkgContextInfoLock_);
         return pkgContextInfoList_;
     }
 
-    inline CString GetPkgNameWithAlias(const CString &alias) const
+    inline CString GetPkgNameWithAlias(const CString &alias)
     {
+        ReadLockHolder lock(pkgAliasListLock_);
         auto it = pkgAliasList_.find(alias);
         if (it == pkgAliasList_.end()) {
             return alias;
@@ -477,11 +497,19 @@ public:
 
     void SetPkgAliasList(const CMap<CString, CString> &list)
     {
+        WriteLockHolder lock(pkgAliasListLock_);
         pkgAliasList_ = list;
     }
 
-    CMap<CString, CString> GetPkgAliasList() const
+    void UpdatePkgAliasList(const CMap<CString, CString> &list)
     {
+        WriteLockHolder lock(pkgAliasListLock_);
+        pkgAliasList_.insert(list.begin(), list.end());
+    }
+
+    CMap<CString, CString> GetPkgAliasList()
+    {
+        ReadLockHolder lock(pkgAliasListLock_);
         return pkgAliasList_;
     }
 
@@ -909,7 +937,11 @@ private:
     CMap<CString, CString> pkgNameList_;
     CMap<CString, CMap<CString, CVector<CString>>> pkgContextInfoList_;
     CMap<CString, CString> pkgAliasList_;
-    StopPreLoadSoCallback stopPreLoadSoCallback_ {nullptr};
+    RWLock pkgContextInfoLock_;
+    RWLock pkgAliasListLock_;
+    RWLock pkgNameListLock_;
+
+    CVector<StopPreLoadSoCallback> stopPreLoadCallbacks_;
     NativePtrGetter nativePtrGetter_ {nullptr};
     SourceMapCallback sourceMapCallback_ {nullptr};
     SourceMapTranslateCallback sourceMapTranslateCallback_ {nullptr};

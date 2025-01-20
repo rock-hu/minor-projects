@@ -15,12 +15,6 @@
 
 #include "options.h"
 
-#if defined(PANDA_TARGET_WINDOWS)
-#include <io.h>
-#else
-#include <dirent.h>
-#endif
-
 #include "bytecode_optimizer/bytecodeopt_options.h"
 #include "compiler_options.h"
 #include "utils/timers.h"
@@ -240,13 +234,13 @@ void Options::ParseUpdateVersionInfo(nlohmann::json &compileContextInfoJson)
 {
     if (compileContextInfoJson.contains("updateVersionInfo") &&
         compileContextInfoJson["updateVersionInfo"].is_object()) {
-        std::unordered_map<std::string, std::unordered_map<std::string, PkgInfo>> updateVersionInfo {};
+        std::unordered_map<std::string, std::map<std::string, PkgInfo>> updateVersionInfo {};
         for (const auto& [abcName, versionInfo] : compileContextInfoJson["updateVersionInfo"].items()) {
             if (!versionInfo.is_object()) {
                 std::cerr << "The input file '" << compilerOptions_.compileContextInfoPath
                           << "' is incomplete format of json" << std::endl;
             }
-            std::unordered_map<std::string, PkgInfo> pkgContextMap {};
+            std::map<std::string, PkgInfo> pkgContextMap {};
             for (const auto& [pkgName, version] : versionInfo.items()) {
                 PkgInfo pkgInfo;
                 pkgInfo.version = version;
@@ -258,7 +252,7 @@ void Options::ParseUpdateVersionInfo(nlohmann::json &compileContextInfoJson)
         compilerOptions_.compileContextInfo.updateVersionInfo = updateVersionInfo;
     } else if (compileContextInfoJson.contains("pkgContextInfo") &&
                compileContextInfoJson["pkgContextInfo"].is_object()) {
-        std::unordered_map<std::string, PkgInfo> pkgContextMap {};
+        std::map<std::string, PkgInfo> pkgContextMap {};
         for (const auto& [pkgName, pkgContextInfo] : compileContextInfoJson["pkgContextInfo"].items()) {
             PkgInfo pkgInfo;
             if (pkgContextInfo.contains("version") && pkgContextInfo["version"].is_string()) {

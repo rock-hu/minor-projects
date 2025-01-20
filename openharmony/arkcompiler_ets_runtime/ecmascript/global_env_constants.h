@@ -582,6 +582,7 @@ class ObjectFactory;
     V(FullGcCause,                    FULL_GC_CAUSE,                         "full")                        \
     V(AppSpawnFullGcCause,            APP_SPAWN_FULL_GC_CAUSE,               "app_spawn_full")              \
     V(SharedGcCause,                  SHARED_GC_CAUSE,                       "shared")                      \
+    V(SharedPartialGcCause,           SHARED_PARTIAL_GC_CAUSE,               "shared_partial")              \
     V(SharedFullGcCause,              SHARED_FULL_GC_CAUSE,                  "shared_full")                 \
     V(AppSpawnSharedFullGcCause,      APP_SPAWN_SHARED_FULL_GC_CAUSE,        "app_spawn_shared_full")       \
     V(SymbolLeftParentheses,          SYMBOL_LEFT_PARENTHESES,               "Symbol(")
@@ -628,6 +629,7 @@ class ObjectFactory;
     V(JSTaggedValue, Hole, HOLE_INDEX, ecma_roots_special)                                        \
     V(JSTaggedValue, True, TRUE_INDEX, ecma_roots_special)                                        \
     V(JSTaggedValue, False, FALSE_INDEX, ecma_roots_special)                                      \
+    V(JSTaggedValue, ProtoTransRootHClassSymbol, PROTO_TRANS_ROOT_HCLASS_SYMBOL_INDEX, ecma_roots_special) \
     V(JSTaggedValue, EmptyString, EMPTY_STRING_OBJECT_INDEX, ecma_roots_special)                  \
     V(JSTaggedValue, SingleCharTable, SINGLE_CHAR_TABLE_INDEX, ecma_roots_special)                \
     V(JSTaggedValue, EmptySLayoutInfo, EMPTY_SLAYOUT_INFO_OBJECT_INDEX, ecma_roots_special)       \
@@ -637,6 +639,21 @@ class ObjectFactory;
     V(JSTaggedValue, Uint64MaxBigInt, UINT64_MAX_BIGINT_INDEX, ecma_roots_special)                \
     V(JSTaggedValue, Int64MaxBigInt, INT64_MAX_BIGINT_INDEX, ecma_roots_special)                  \
     V(JSTaggedValue, EmptyProfileTypeInfoCell, EMPTY_PROFILE_TYPE_INFO_CELL_INDEX, ecma_roots_special) \
+    V(JSTaggedValue, NativeNormalFunctionMethod, NATIVE_NORMAL_FUNCTION_METHOD_INDEX, ecma_roots_special) \
+    V(JSTaggedValue, NativeGetterFunctionMethod, NATIVE_GETTER_FUNCTION_METHOD_INDEX, ecma_roots_special) \
+    V(JSTaggedValue, NativeSetterFunctionMethod, NATIVE_SETTER_FUNCTION_METHOD_INDEX, ecma_roots_special) \
+    V(JSTaggedValue, NativeArrowFunctionMethod, NATIVE_ARROW_FUNCTION_METHOD_INDEX, ecma_roots_special) \
+    V(JSTaggedValue, NativeAsyncArrowFunctionMethod, NATIVE_ASYNC_ARROW_FUNCTION_METHOD_INDEX, ecma_roots_special) \
+    V(JSTaggedValue, NativeConcurrentFunctionMethod, NATIVE_CONCURRENT_FUNCTION_METHOD_INDEX, ecma_roots_special) \
+    V(JSTaggedValue, NativeAsyncFunctionMethod, NATIVE_ASYNC_FUNCTION_METHOD_INDEX, ecma_roots_special) \
+    V(JSTaggedValue, NativeBaseConstructorMethod, NATIVE_BASE_CONSTRUCTOR_METHOD_INDEX, ecma_roots_special) \
+    V(JSTaggedValue, NativeClassConstructorMethod, NATIVE_CLASS_CONSTRUCTOR_METHOD_INDEX, ecma_roots_special) \
+    V(JSTaggedValue, NativeBuiltinProxyConstructorMethod, NATIVE_BUILTIN_PROXY_CONSTRUCTOR_METHOD_INDEX, ecma_roots_special) \
+    V(JSTaggedValue, NativeBuiltinConstructorMethod, NATIVE_BUILTIN_CONSTRUCTOR_METHOD_INDEX, ecma_roots_special) \
+    V(JSTaggedValue, NativeDerivedConstructorMethod, NATIVE_DERIVED_CONSTRUCTOR_METHOD_INDEX, ecma_roots_special) \
+    V(JSTaggedValue, NativeGeneratorFunctionMethod, NATIVE_GENERATOR_FUNCTION_METHOD_INDEX, ecma_roots_special) \
+    V(JSTaggedValue, NativeNoneFunctionMethod, NATIVE_NONE_FUNCTION_METHOD_INDEX, ecma_roots_special) \
+    V(JSTaggedValue, NativeAsyncGeneratorFunctionMethod, NATIVE_ASYNC_GENERATOR_FUNCTION_METHOD_INDEX, ecma_roots_special) \
     V(JSTaggedValue, BoundFunctionMethod, BOUND_FUNCTION_METHOD_INDEX, ecma_roots_special)
 
 #define GLOBAL_ENV_CACHES(V)                \

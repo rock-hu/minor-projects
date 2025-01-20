@@ -599,12 +599,14 @@ private:
 
 class WebAvoidAreaChangedListener : public OHOS::Rosen::IAvoidAreaChangedListener {
 public:
-    explicit WebAvoidAreaChangedListener(WeakPtr<WebDelegate> webDelegate) : webDelegate_(webDelegate) {}
+    explicit WebAvoidAreaChangedListener(WeakPtr<WebDelegate> webDelegate, WeakPtr<PipelineBase> context)
+        : webDelegate_(webDelegate), context_(context) {}
     ~WebAvoidAreaChangedListener() = default;
 
     void OnAvoidAreaChanged(const OHOS::Rosen::AvoidArea avoidArea, OHOS::Rosen::AvoidAreaType type) override;
 private:
     WeakPtr<WebDelegate> webDelegate_;
+    WeakPtr<PipelineBase> context_;
 };
 
 enum class ScriptItemType {
@@ -971,6 +973,8 @@ public:
     void OnPopupSize(int32_t x, int32_t y, int32_t width, int32_t height);
     void OnPopupShow(bool show);
     void OnShowAutofillPopup(const float offsetX, const float offsetY, const std::vector<std::string>& menu_items);
+    void OnShowAutofillPopupV2(const float offsetX, const float offsetY, const float height, const float width,
+        const std::vector<std::string>& menu_items);
     void SuggestionSelected(int32_t index);
     void OnHideAutofillPopup();
     std::shared_ptr<OHOS::NWeb::NWebDragData> GetOrCreateDragData();
@@ -1005,6 +1009,7 @@ public:
     void OnOverScroll(float xOffset, float yOffset);
     void OnOverScrollFlingVelocity(float xVelocity, float yVelocity, bool isFling);
     void OnScrollState(bool scrollState);
+    void OnScrollStart(const float x, const float y);
     void OnRootLayerChanged(int width, int height);
     bool FilterScrollEvent(const float x, const float y, const float xVelocity, const float yVelocity);
     void OnNativeEmbedAllDestory();
@@ -1168,6 +1173,8 @@ public:
     void UnRegisterNativeArkJSFunction(const std::string& objName);
 
     bool IsActivePolicyDisable();
+
+    void UpdateWebMediaAVSessionEnabled(bool isEnabled);
 
 private:
     void InitWebEvent();

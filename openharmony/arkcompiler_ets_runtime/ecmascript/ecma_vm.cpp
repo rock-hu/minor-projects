@@ -977,7 +977,20 @@ bool EcmaVM::IsHmsModule(const CString &moduleStr) const
 
 void EcmaVM::SetpkgContextInfoList(const CMap<CString, CMap<CString, CVector<CString>>> &list)
 {
+    WriteLockHolder lock(pkgContextInfoLock_);
     pkgContextInfoList_ = list;
+}
+
+void EcmaVM::StopPreLoadSoOrAbc()
+{
+    if (!stopPreLoadCallbacks_.empty()) {
+        for (StopPreLoadSoCallback &cb: stopPreLoadCallbacks_) {
+            if (cb != nullptr) {
+                cb();
+            }
+        }
+        stopPreLoadCallbacks_.clear();
+    }
 }
 
 // Initialize IcuData Path

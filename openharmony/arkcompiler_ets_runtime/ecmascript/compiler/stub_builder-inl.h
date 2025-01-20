@@ -3186,13 +3186,6 @@ inline void StubBuilder::SetLexicalEnvToFunction(GateRef glue, GateRef object, G
     Store(VariableType::JS_ANY(), glue, object, offset, lexicalEnv, mAttr);
 }
 
-inline void StubBuilder::SetProtoTransRootHClassToFunction(GateRef glue, GateRef object, GateRef hclass,
-                                                           MemoryAttribute mAttr)
-{
-    GateRef offset = IntPtr(JSFunction::PROTO_TRANS_ROOT_HCLASS_OFFSET);
-    Store(VariableType::JS_ANY(), glue, object, offset, hclass, mAttr);
-}
-
 inline void StubBuilder::SetProtoOrHClassToFunction(GateRef glue, GateRef function, GateRef value,
                                                     MemoryAttribute mAttr)
 {
@@ -3290,6 +3283,14 @@ inline void StubBuilder::SetCodeEntryToFunctionFromFuncEntry(GateRef glue, GateR
 {
     GateRef funcOffset = IntPtr(JSFunctionBase::CODE_ENTRY_OFFSET);
     Store(VariableType::NATIVE_POINTER(), glue, function, funcOffset, codeEntry);
+}
+
+inline void StubBuilder::SetNativePointerToFunctionFromMethod(GateRef glue, GateRef function, GateRef method)
+{
+    GateRef nativePointerOffset = IntPtr(Method::NATIVE_POINTER_OR_BYTECODE_ARRAY_OFFSET);
+    GateRef nativePointer = Load(VariableType::NATIVE_POINTER(), method, nativePointerOffset);
+    GateRef funcOffset = IntPtr(JSFunctionBase::CODE_ENTRY_OFFSET);
+    Store(VariableType::NATIVE_POINTER(), glue, function, funcOffset, nativePointer);
 }
 
 inline void StubBuilder::SetLengthToFunction(GateRef glue, GateRef function, GateRef value)
@@ -3935,6 +3936,16 @@ inline GateRef StubBuilder::ComputeTaggedTypedArraySize(GateRef elementSize, Gat
     return PtrAdd(IntPtr(ByteArray::DATA_OFFSET), PtrMul(elementSize, length));
 }
 
+inline GateRef StubBuilder::GetAccGetter(GateRef accesstor)
+{
+    return Load(VariableType::JS_ANY(), accesstor, IntPtr(AccessorData::GETTER_OFFSET));
+}
+
+inline GateRef StubBuilder::GetAccSetter(GateRef accesstor)
+{
+    return Load(VariableType::JS_ANY(), accesstor, IntPtr(AccessorData::SETTER_OFFSET));
+}
+
 inline GateRef StubBuilder::GetViewedArrayBuffer(GateRef dataView)
 {
     return Load(VariableType::JS_ANY(), dataView,
@@ -4061,7 +4072,9 @@ inline GateRef StubBuilder::HashFromHclassAndStringKey([[maybe_unused]] GateRef 
     GateRef clsHash =
         Int32LSR(ChangeIntPtrToInt32(TaggedCastToIntPtr(cls)), Int32(MegaICCache::HCLASS_SHIFT)); // skip 8bytes
     GateRef keyHash = Load(VariableType::INT32(), key, IntPtr(EcmaString::MIX_HASHCODE_OFFSET));
-    return Int32And(Int32Xor(clsHash, keyHash), Int32(MegaICCache::CACHE_LENGTH_MASK));
+    GateRef temp = Int32Xor(Int32Xor(Int32Mul(clsHash, Int32(31)), Int32Mul(keyHash, Int32(0x9e3779b9))),
+                            Int32LSR(keyHash, Int32(16)));
+    return Int32And(temp, Int32(MegaICCache::CACHE_LENGTH_MASK));
 }
 
 inline GateRef StubBuilder::OrdinaryNewJSObjectCreate(GateRef glue, GateRef proto)
