@@ -1,15 +1,6 @@
 import { http } from '@kit.NetworkKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
-interface Par {
-  userName: string;
-  downloadCer: string;
-  userVerify: string;
-  authType: string;
-  deviceID: string;
-  type: string;
-}
-
 interface Sp {
   type: string;
   userName: string;
@@ -20,7 +11,7 @@ export class Util {
   public static fidoParameter(type: string, userAuthType: String) {
     let name: string = 'testName';
     let downloadCer = 'false';
-    // Biometric authentication type. Fingerprint: 2; Face: 16
+    // 生物认证类型，指纹 ： 2， 人脸 ： 16
     let userVerify = userAuthType;
     let authType = 'auth';
     let deviceID = 'mate30test';
@@ -35,19 +26,19 @@ export class Util {
         httpRequest.request(
           url,
           {
-            // Optional. The default value is http.RequestMethod.GET.
+            // 可选，默认为http.RequestMethod.GET
             method: http.RequestMethod.POST,
-            // You can add header fields based on service requirements.
+            // 开发者根据自身业务需要添加header字段
             header: {
               'Content-Type': 'application/x-www-form-urlencoded'
             },
-            // Use this field to transfer information in a POST request.
+            // 当使用POST请求时此字段用于传递内容
             extraData: str,
-            // Optional. The default value is 1.
+            // 可选，默认为1
             priority: 1,
-            // Optional. The default value is 60000, in ms.
+            // 可选，默认为60000ms
             connectTimeout: 60000,
-            // Optional. The default value is 60000, in ms.
+            // 可选，默认为60000ms
             readTimeout: 60000,
           },
           (err, data) => {
@@ -80,16 +71,16 @@ export class Util {
         httpRequest.request(
           url,
           {
-            method: http.RequestMethod.POST, // Optional. The default value is http.RequestMethod.GET.
-            // You can add header fields based on service requirements.
+            method: http.RequestMethod.POST, // 可选，默认为http.RequestMethod.GET
+            // 开发者根据自身业务需要添加header字段
             header: {
               'Content-Type': 'application/json'
             },
-            // Use this field to transfer information in a POST request.
+            // 当使用POST请求时此字段用于传递内容
             extraData: str,
-            priority: 1, // Optional. The default value is 1.
-            connectTimeout: 60000, // Optional. The default value is 60000, in ms.
-            readTimeout: 60000, // Optional. The default value is 60000, in ms.
+            priority: 1, // 可选，默认为1
+            connectTimeout: 60000, // 可选，默认为60000ms
+            readTimeout: 60000, // 可选，默认为60000ms
           },
           (err, data) => {
             hilog.info(0x0000, 'TAG', `test... ${JSON.stringify(err)}`);
@@ -105,7 +96,7 @@ export class Util {
     });
   }
 
-  // Convert byte streams into strings in plaintext.
+  // 字节流转成可理解的字符串
   public static uint8ArrayToString(array: Uint8Array) {
     let arrayString = '';
     for (let i = 0; i < array.length; i++) {

@@ -19,11 +19,12 @@ struct Index {
   build() {
     Row() {
       Column() {
-        Button("Enable")
+        Button("开启")
           .margin(20)
           .width(200)
           .onClick(async ()=>{
             try{
+              await IfaaModel.initReqData();
               await IfaaModel.register(ifaaAuthType);
               show("IIFAA register success");
             } catch (err) {
@@ -31,23 +32,24 @@ struct Index {
             }
           })
 
-        Button("Authenticate")
+        Button("认证")
           .margin(20)
           .width(200)
           .onClick(async ()=> {
             let ifaaChallenge:Uint8Array = IfaaModel.getChallenge();
-            // Start biometric authentication. (This step is required in the IIFAA process but is not an IFAA capability.)
+            // 拉起生物特征认证（此步骤为IIFAA流程所需步骤，非IFAA能力）
             let authParam : userAuth.AuthParam = {
               challenge: ifaaChallenge,
               authType: [userAuth.UserAuthType.FINGERPRINT],
               authTrustLevel: userAuth.AuthTrustLevel.ATL4,
             };
-            let userAuthInstance = userAuth.getUserAuthInstance(authParam,  {title: ' '});
+            let userAuthInstance = userAuth.getUserAuthInstance(authParam,  {title: '请认证'});
             userAuthInstance.on('result', {
               async onResult (result) {
                 let authToken = result.token;
                 try {
-                  // After biometric features are successfully authenticated, start IFAA authentication.
+                  await IfaaModel.initReqData();
+                  // 生物特征认证成功后，调用IFAA认证
                   await IfaaModel.auth(ifaaAuthType, authToken);
                   show("IIFAA auth success");
                 } catch (err) {
@@ -58,11 +60,12 @@ struct Index {
             userAuthInstance.start();
           })
 
-        Button("Disable")
+        Button("关闭")
           .margin(20)
           .width(200)
           .onClick(async ()=>{
             try{
+              await IfaaModel.initReqData();
               await IfaaModel.deregister(ifaaAuthType);
               show("deregister success");
             } catch (err) {

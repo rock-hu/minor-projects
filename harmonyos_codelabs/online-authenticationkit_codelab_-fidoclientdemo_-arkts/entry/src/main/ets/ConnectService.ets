@@ -13,8 +13,8 @@ export enum AuthType {
   Fingerprint = '2',
 }
 
-const SERVER_URL = 'FIDO server URL' // FIDO server URL, in the format http://xxxx.
-const AUTHTYPE = AuthType.Face; // Biometric authentication type used for FIDO.
+const SERVER_URL = 'FIDO服务器地址' //FIDO 服务器地址，http://xxxx
+const AUTHTYPE = AuthType.Face; // fido使用生物类型
 
 export class ConnectService {
   static base64 = new util.Base64Helper;
@@ -111,7 +111,7 @@ export class ConnectService {
           hilog.error(0x0000, 'TAG', `UAF_DEREG---uafMessage: ${uafMessage}`);
         }
         break;
-      case 'CHECK_POLICY': // check policy
+      case 'CHECK_POLICY': // checkpolicy
         strUAFConnectType = 'CHECK_POLICY';
         break;
     }

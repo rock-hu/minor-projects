@@ -43,7 +43,7 @@ export struct HomeComponent {
               .lineHeight($r('app.float.location_text_height'))
               .fontWeight(FontWeight.Normal)
           }
-          .width($r('app.float.gps_width'))
+          .width('15%')
 
           Blank()
 

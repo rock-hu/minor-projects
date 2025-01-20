@@ -3,7 +3,11 @@
     "requestPermissions": [
       {
         "name": "ohos.permission.INTERNET",
-      },],
+      },
+      {
+        "name": "ohos.permission.ACCESS_BIOMETRIC",
+      }
+    ],
     "name": "entry",
     "type": "entry",
     "description": "$string:module_desc",

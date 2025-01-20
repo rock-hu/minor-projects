@@ -14,11 +14,13 @@ struct PDFView {
     let dir: string = context.filesDir
     // Ensure that the rawfile directory contains PDF files
     let filePath: string = dir + "/pdf_reference.pdf";
-    fileIo.accessSync(filePath);
-    let content: Uint8Array = context.resourceManager.getRawFileContentSync('rawfile/pdf_reference.pdf');
-    let fdSand = fileIo.openSync(filePath, fileIo.OpenMode.WRITE_ONLY | fileIo.OpenMode.CREATE | fileIo.OpenMode.TRUNC);
-    fileIo.writeSync(fdSand.fd, content.buffer);
-    fileIo.closeSync(fdSand.fd);
+    let res = fileIo.accessSync(filePath);
+    if (!res) {
+      let content: Uint8Array = context.resourceManager.getRawFileContentSync('rawfile/pdf_reference.pdf');
+      let fdSand = fileIo.openSync(filePath, fileIo.OpenMode.WRITE_ONLY | fileIo.OpenMode.CREATE | fileIo.OpenMode.TRUNC);
+      fileIo.writeSync(fdSand.fd, content.buffer);
+      fileIo.closeSync(fdSand.fd);
+    }
     (async () => {
       this.controller.registerPageCountChangedListener((pageCount: number) => {
         hilog.info(0x0000, 'registerPageCountChanged-', pageCount.toString());

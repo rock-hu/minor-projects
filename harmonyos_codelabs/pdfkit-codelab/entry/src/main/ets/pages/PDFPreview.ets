@@ -14,7 +14,7 @@ struct PDFPreview {
   @State pageCount: number = 0;
   @State pageIndex: number = 0;
   @State _pixelMap: image.PixelMap | undefined = undefined;
-  private document: pdfService.PdfDocument = new pdfService.PdfDocument();
+  private document: pdfService.PdfDocument = new pdfService.PdfDocument;
 
   // Open the selected PDF file.
   openFile() {
@@ -102,7 +102,8 @@ struct PDFPreview {
             fs.mkdir(path);
             const result: boolean = this.document.convertToImage(path, pdfService.ImageFormat.PNG); // Convert the PDF file to an image.
             if (result) {
-              this.showDialog('The PDF file is successfully converted to an image.','Storage path: user directory/outputImg');
+              this.showDialog('The PDF file successfully converted to images.','Storage path: ' + path);
+
             } else {
               this.showDialog('Failed to convert the PDF to an image.', 'Check user permissions.');
             }
@@ -134,7 +135,7 @@ struct PDFPreview {
             let savePath: string = dir + "/output.pdf";
             const result: boolean = this.document.saveDocument(savePath); //Save the file.
             if (result) {
-              this.showDialog('The PDF file is successfully saved.','Storage path: /data/storage/el2/base/haps/entry/files/output.pdf');
+              this.showDialog('The PDF file is successfully saved.','Storage path: ' + savePath);
             } else {
               this.showDialog('Failed to save the PDF file.', 'Check user permissions.');
             }
