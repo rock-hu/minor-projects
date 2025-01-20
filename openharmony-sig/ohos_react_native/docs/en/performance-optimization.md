@@ -3,7 +3,7 @@
 ## Page Lifecycle Management
 
 In `RNAbility`, the `onBackground` and `onForeground` APIs are provided to listen on the page lifecycle management. By default, these two APIs are called when an application is switched between the foreground and background. However, you need to adapt the routing between pages.
-Currently, HarmonyOS supports two page routing modes: `router` and `Navigation`, which require different adaptation modes of page lifecycle management.
+Currently, OpenHarmony supports two page routing modes: `router` and `Navigation`, which require different adaptation modes of page lifecycle management.
 
 - Adaptation in `router`:
     1. Import the `RNAbility` class to the page decorated by `@Entry`.
@@ -147,7 +147,7 @@ React Marker is used to listen for various events in the lifecycle of RN applica
 
 #### Listening Implementation of React Marker
 > Note: To implement the listening function of React Marker, you need to [implementation a custom TurboModule](./TurboModule.md). The following content is also written based on this document.
-1. Create a TurboModule in the HarmonyOS project. For details, see [Implementation of a Custom TurboModule](./TurboModule.md). If the TurboModule already exists in the project, go to the next step.
+1. Create a TurboModule in the OpenHarmony project. For details, see [Implementation of a Custom TurboModule](./TurboModule.md). If the TurboModule already exists in the project, go to the next step.
 
 2. Declare a method for processing the React Marker event in the `NativeCalculator.ts` file on the JS side in the React Native project.
    
@@ -174,8 +174,8 @@ React Marker is used to listen for various events in the lifecycle of RN applica
     - markerId: unique ID used to identify a specific event of the React Marker. 
     - tag: used to further describe the type or source of the React Marker event. 
     - timestamp: indicates the time when an event occurs. It is usually used to record the timestamp of the React Marker event.
-  3. Use Codegen to generate native code in the React Native project, and copy the generated glue code to your HarmonyOS project. For details, see [Implementation of a Custom TurboModule](./TurboModule.md).
-  4. Implement the method for processing the React Marker event in the `CalculatorModule.ts` file on the ArkTS side in the HarmonyOS project.
+  3. Use Codegen to generate native code in the React Native project, and copy the generated glue code to your OpenHarmony project. For details, see [Implementation of a Custom TurboModule](./TurboModule.md).
+  4. Implement the method for processing the React Marker event in the `CalculatorModule.ts` file on the ArkTS side in the OpenHarmony project.
 
      Add the following code to `entry/src/main/ets/turbomodule/CalculatorModule.ts`:
       ```diff
@@ -198,7 +198,7 @@ React Marker is used to listen for various events in the lifecycle of RN applica
       ```
       Print the information in this method about the React Marker event listened for on the C++ side. 
 
-5. Create the `TMHarmonyReactMarker.h` file on the C++ side in the HarmonyOS project.
+5. Create the `TMHarmonyReactMarker.h` file on the C++ side in the OpenHarmony project.
 
    Add the `TMHarmonyReactMarker.h` file to the `entry/src/main/cpp` directory and add the following code:
     ```cpp
@@ -248,7 +248,7 @@ React Marker is used to listen for various events in the lifecycle of RN applica
       The `logMarker` method overrides the method with the same name in the `HarmonyReactMarkerListener` API. When the `logMarker` method is called on the C++ side, the `handleReactMarkerEvent` method on the JS side is triggered.
     > Note: In the `logMarker` function, only `FABRIC_COMMIT_START` is written in the switch statement. Therefore, only `FABRIC_COMMIT_START` is listened for on the JS side. To listen for other React Markers, you only need to add other React Markers to the switch statement.
   
-6. Modify the following code in the `entry\src\main\cpp\generated\rtn_calculator\RNOH\generated\BaseRtnCalculatorPackage.h` file in the HarmonyOS project:
+6. Modify the following code in the `entry\src\main\cpp\generated\rtn_calculator\RNOH\generated\BaseRtnCalculatorPackage.h` file in the OpenHarmony project:
 
     ```diff
     #pragma once
@@ -413,10 +413,10 @@ npm run codegen && react-native bundle-harmony --dev=false --minify=true --bundl
 - **--dev**: enables the development mode, which may affect the performance optimization of Hermes.
 
 ### TurboModule Running in a Child Thread
-In the development of React Native, TurboModule is a module system used to optimize the communication performance between JavaScript and native code. In Android or iOS, TurboModule runs in a child thread. This document describes how to run TurboModule in a child thread in the HarmonyOS project.
+In the development of React Native, TurboModule is a module system used to optimize the communication performance between JavaScript and native code. In Android or iOS, TurboModule runs in a child thread. This document describes how to run TurboModule in a child thread in the OpenHarmony project.
 
 #### Why Should TurboModule Run in a Child Thread?
-Currently, the TurboModule of the HarmonyOS RN runs in the main thread, and the TurboModule logic and the UI drawing logic of the main thread compete for limited main thread resources. If the main thread is under UI drawing and rendering, the TurboModule initiated from the JS side will be blocked by the main thread. As a result, the user interaction response is not timely. Similarly, if a TurboModule method takes a long time, when it is executed, a frame loss will occur when the main thread performs UI rendering.
+Currently, the TurboModule of the OpenHarmony RN runs in the main thread, and the TurboModule logic and the UI drawing logic of the main thread compete for limited main thread resources. If the main thread is under UI drawing and rendering, the TurboModule initiated from the JS side will be blocked by the main thread. As a result, the user interaction response is not timely. Similarly, if a TurboModule method takes a long time, when it is executed, a frame loss will occur when the main thread performs UI rendering.
 
 #### Implementation
 Starting TurboModule child threads: As the threads on which TurboModule runs are continuous tasks, you are advised to use the worker thread to start TurboModule child threads.
@@ -1111,17 +1111,17 @@ The figure shows the execution result.
 
 ##### Preloading an RN Page
 
-Ark TypeScript (ArkTS) is an efficient optimization method to preload pages in HarmonyOS. It is the programming language of HarmonyOS. It works with the capabilities of HarmonyOS to provide smoother user experience during page switching. This section describes how to use ArkTS to preload pages in HarmonyOS.
+Ark TypeScript (ArkTS) is an efficient optimization method to preload pages in OpenHarmony. It is the programming language of OpenHarmony. It works with the capabilities of OpenHarmony to provide smoother user experience during page switching. This section describes how to use ArkTS to preload pages in OpenHarmony.
 
 ##### Why Is Page Preloading Required?
 
-In HarmonyOS applications, page switching may involve a large number of operations such as resource loading and layout calculation. Without preloading, you may encounter obvious latency in page switching. By preloading pages, you can load resources before accessing the page, reducing the waiting time for page switching.
+In OpenHarmony applications, page switching may involve a large number of operations such as resource loading and layout calculation. Without preloading, you may encounter obvious latency in page switching. By preloading pages, you can load resources before accessing the page, reducing the waiting time for page switching.
 
 ##### Implementation Procedure
 
 1. Initializing the ArkTS page
 
-    First, ensure that your HarmonyOS application is written based on ArkTS. The following is an example of the basic page structure:
+    First, ensure that your OpenHarmony application is written based on ArkTS. The following is an example of the basic page structure:
 
     ```javascript
     @Entry
@@ -1217,15 +1217,15 @@ In HarmonyOS applications, page switching may involve a large number of operatio
 
 ##### Summary
 
-By using ArkTS to preload pages in HarmonyOS, you can significantly improve the performance and response speed of applications. Preloading not only reduces the page switching latency, but also improves the overall user experience. In practice, you can flexibly adjust the preloading policy based on service requirements to achieve the optimal effect.
+By using ArkTS to preload pages in OpenHarmony, you can significantly improve the performance and response speed of applications. Preloading not only reduces the page switching latency, but also improves the overall user experience. In practice, you can flexibly adjust the preloading policy based on service requirements to achieve the optimal effect.
 
 #### Precreating an RN Instance
 
-Using ArkTS to precreate a React Native instance in HarmonyOS can effectively improve the performance of application startup and page switching. By initializing a React Native instance in advance during application startup, you can access the page with a lower latency. This section describes how to precreate a React Native instance in ArkTS.
+Using ArkTS to precreate a React Native instance in OpenHarmony can effectively improve the performance of application startup and page switching. By initializing a React Native instance in advance during application startup, you can access the page with a lower latency. This section describes how to precreate a React Native instance in ArkTS.
 
 ##### Why Do I Need to Precreate an RN Instance?
 
-ArkTS is the main development language of HarmonyOS. With the capabilities of HarmonyOS, ArkTS can better manage application resources and tasks. With ArkTS, you can precreate a React Native instance and use the multi-task and resource management capabilities of HarmonyOS to ensure smoother application startup.
+ArkTS is the main development language of OpenHarmony. With the capabilities of OpenHarmony, ArkTS can better manage application resources and tasks. With ArkTS, you can precreate a React Native instance and use the multi-task and resource management capabilities of OpenHarmony to ensure smoother application startup.
 
 ##### Implementation Procedure
 
@@ -1293,7 +1293,7 @@ ArkTS is the main development language of HarmonyOS. With the capabilities of Ha
 
 3. Optimizing page switching
 
-    During page switching, the animation and transition effects of HarmonyOS can be used to further improve user experience. For example, adding a smooth transition animation during page switching brings more natural experience.
+    During page switching, the animation and transition effects of OpenHarmony can be used to further improve user experience. For example, adding a smooth transition animation during page switching brings more natural experience.
 
     ```typescript
     router.push({
@@ -1304,11 +1304,11 @@ ArkTS is the main development language of HarmonyOS. With the capabilities of Ha
 
 ##### Summary
 
-Using ArkTS to precreate a React Native instance in HarmonyOS significantly improves the application startup speed and page switching smoothness. With the powerful features of HarmonyOS, ArkTS enables you to flexibly manage the lifecycle of React Native instances. In real-world development, you can adjust the precreation policy as required to ensure the balance between application performance and resource usage.
+Using ArkTS to precreate a React Native instance in OpenHarmony significantly improves the application startup speed and page switching smoothness. With the powerful features of OpenHarmony, ArkTS enables you to flexibly manage the lifecycle of React Native instances. In real-world development, you can adjust the precreation policy as required to ensure the balance between application performance and resource usage.
 
 #### Preloading an RN page By FrameNode
 
-In React Native development, bundle preloading is a common optimization method. It loads resources in advance during application startup and page switching, improving user experience. This section describes how to use FrameNode to preload React Native pages in HarmonyOS.
+In React Native development, bundle preloading is a common optimization method. It loads resources in advance during application startup and page switching, improving user experience. This section describes how to use FrameNode to preload React Native pages in OpenHarmony.
 
 ##### What Is FrameNode?
 For the third-party framework React Native with custom frontend definitions, converting specific DSL to ArkUI declarative descriptions is required. This conversion process depends on additional data drivers bound to the builder. The conversion is complex and results in low performance. Such a framework typically leverages ArkUI's layout and event handling, as well as basic node operations and customization capabilities. While most components are customized, some built-in components are needed for mixed display. That is where FrameNode comes in to solve the problems.
@@ -1317,7 +1317,7 @@ A FrameNode indicates an entity node of the component tree. It works with the cu
 
 Moreover, the ArkUI framework enables obtaining and traversing proxy FrameNode objects for built-in components, known as proxy nodes, which facilitate UI tree traversal and allow for obtaining specific information about built-in components or registering additional event listeners.
 
-For details, see the HarmonyOS official document: https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V5/arkts-user-defined-arktsnode-framenode-V5.
+For details, see the OpenHarmony official document: https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V5/arkts-user-defined-arktsnode-framenode-V5.
 
 
 ##### When to Use

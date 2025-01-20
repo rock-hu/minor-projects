@@ -1,5 +1,7 @@
 'use strict';
 
+import { LogUtil } from '../LogUtil';
+
 /*eslint no-console:0*/
 
 /**
@@ -14,13 +16,12 @@
  */
 export default function deprecatedMethod(method, instead, docs) {
   try {
-    console.warn(
+    LogUtil.warn(
       'DEPRECATED method `' + method + '`.' +
-      (instead ? ' Use `' + instead + '` instead.' : '') +
-      ' This method will be removed in a future release.');
-
+        (instead ? ' Use `' + instead + '` instead.' : '') +
+        ' This method will be removed in a future release.');
     if (docs) {
-      console.warn('For more information about usage see ' + docs);
+      LogUtil.warn('For more information about usage see ' + docs);
     }
   } catch (e) { /* Ignore */ }
 }

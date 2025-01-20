@@ -53,8 +53,8 @@ export struct Index {
       arkTsComponentNames: []
     });
     await this.instance.runJSBundle(new ResourceJSBundleProvider(getContext().resourceManager, this.bundlePath)).then(() => {
-      this.isBundleReady = true
-      console.log('instance 加载完成' + this.bundlePath)
+      this.isBundleReady = true;
+      console.log('instance 加载完成' + this.bundlePath);
     })
 
   }

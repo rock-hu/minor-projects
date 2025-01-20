@@ -8,7 +8,7 @@ This is a demo project with multiple JSBundles and RNInstances.
 MutilBundleSample
 ├── FlightRN Flight front-end project
 ├── HotelRN Hotel front-end project
-├── NativeProject HarmonyOS project
+├── NativeProject OpenHarmony project
 └── README.md
 ```
 

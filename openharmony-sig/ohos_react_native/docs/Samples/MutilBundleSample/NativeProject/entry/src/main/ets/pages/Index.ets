@@ -9,7 +9,7 @@ import router from '@ohos.router';
 import {
   ResourceJSBundleProvider,
 } from '@rnoh/react-native-openharmony';
-import { RNInstanceManager } from "../rn/RNInstanceManager"
+import { RNInstanceManager } from "../rn/RNInstanceManager";
 
 @Entry
 @Component

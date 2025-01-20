@@ -375,6 +375,7 @@ void ScrollViewComponentInstance::onScrollStop() {
     }
     sendEventForNativeAnimations(scrollViewMetrics);
   }
+    updateContentClippedSubviews();
 }
 
 float ScrollViewComponentInstance::onScrollFrameBegin(

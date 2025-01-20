@@ -30,11 +30,11 @@ export const arkTsComponentNames = [];
 export class LoadManager {
 
   private static loadedBundle: Set<string> = new Set();
-  public static metroInstance: RNInstance
-  public static cpInstance: RNInstance
-  public static bpInstance: RNInstance
+  public static metroInstance: RNInstance;
+  public static cpInstance: RNInstance;
+  public static bpInstance: RNInstance;
 
-  private static shouldResetMetroInstance: Boolean = true
+  private static shouldResetMetroInstance: Boolean = true;
   static ctx: RNComponentContext;
 
   public static loadBundle(instance: RNInstance, bundlePath: string, useBundleCache: boolean = true): Promise<void> {
@@ -50,7 +50,7 @@ export class LoadManager {
   }
 
   public static async loadMetroBundle(uiContext: UIContext): Promise<boolean> {
-    const rnohCoreContext: RNOHCoreContext | undefined = AppStorage.get('RNOHCoreContext')
+    const rnohCoreContext: RNOHCoreContext | undefined = AppStorage.get('RNOHCoreContext');
     if (LoadManager.shouldResetMetroInstance && rnohCoreContext) {
       LoadManager.metroInstance = await rnohCoreContext.createAndRegisterRNInstance({
         createRNPackages: createRNPackages,
@@ -67,23 +67,23 @@ export class LoadManager {
         new Map()
       );
 
-      const provider = new MetroJSBundleProvider()
-      await LoadManager.metroInstance.runJSBundle(provider)
+      const provider = new MetroJSBundleProvider();
+      await LoadManager.metroInstance.runJSBundle(provider);
 
-      const jsBundleExecutionStatus: string = LoadManager.metroInstance.getBundleExecutionStatus(provider.getURL()) as string
-      LoadManager.shouldResetMetroInstance = false
+      const jsBundleExecutionStatus: string = LoadManager.metroInstance.getBundleExecutionStatus(provider.getURL()) as string;
+      LoadManager.shouldResetMetroInstance = false;
       if (jsBundleExecutionStatus === "DONE") {
         return true
       } else {
-        return false
+        return false;
       }
     }
-    return true
+    return true;
   }
 
   public static resetLoadedData() {
-    LoadManager.loadedBundle.clear()
-    LoadManager.shouldResetMetroInstance = true
-    const rnohCoreContext: RNOHCoreContext | undefined = AppStorage.get('RNOHCoreContext')
+    LoadManager.loadedBundle.clear();
+    LoadManager.shouldResetMetroInstance = true;
+    const rnohCoreContext: RNOHCoreContext | undefined = AppStorage.get('RNOHCoreContext');
   }
 }

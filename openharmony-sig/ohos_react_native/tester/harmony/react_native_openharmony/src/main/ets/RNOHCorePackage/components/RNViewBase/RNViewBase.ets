@@ -222,7 +222,7 @@ export struct RNViewBase {
   }
 
   onClickEvent(event: ClickEvent): void {
-    if (this.controlsFocus && event.source !== SourceType.TouchScreen) {
+    if (this.controlsFocus && event.source !== SourceType.TouchScreen && event.source !== SourceType.Mouse) {
       this.ctx.rnInstance.emitComponentEvent(this.tag, "onClick", {})
     }
   }

@@ -1,27 +1,27 @@
 ### README
 
-This project includes two demos. One demonstrates how to push raw files to the sandbox and load the files on HarmonyOS. The other demonstrates how to load images in the sandbox on the React Native side.
+This project includes two demos. One demonstrates how to push raw files to the sandbox and load the files on OpenHarmony. The other demonstrates how to load images in the sandbox on the React Native side.
 
 #### Directory Structure
 
 ```
 ├── SandBoxNativeProject
 |   └── Index.ets
-|       ├── downloadBundle # Push raw files to the sandbox on HarmonyOS.
-|       └── new FileJSBundleProvider # Load the files in the sandbox on HarmonyOS.
+|       ├── downloadBundle # Push raw files to the sandbox on OpenHarmony.
+|       └── new FileJSBundleProvider # Load the files in the sandbox on OpenHarmony.
 └── SandBoxRnProject
     └── example.tsx  # Load images in the sandbox on the React Native side.
 
 ```
 
-#### On HarmonyOS
+#### On OpenHarmony
 
 1. **Push files to the sandbox**: Use the **getRawFileContent** method of the `downloadBundle` function to push raw files to the sandbox for subsequent read operations.
 2. **Load files**: Use the `new FileJSBundleProvider` class to load the files from the sandbox and verify the file content.
 
 #### On React Native
 
-1. **Load images from the sandbox**: Use the code in `example.tsx` to load images from the HarmonyOS sandbox and display them in the React Native app.
+1. **Load images from the sandbox**: Use the code in `example.tsx` to load images from the OpenHarmony sandbox and display them in the React Native app.
 
 #### Procedure
 
@@ -35,7 +35,7 @@ This project includes two demos. One demonstrates how to push raw files to the s
 
 #### Notes
 
-- Ensure that the HarmonyOS and React Native projects are correctly configured so that files can be seamlessly transferred and loaded between the two systems.
+- Ensure that the OpenHarmony and React Native projects are correctly configured so that files can be seamlessly transferred and loaded between the two systems.
 - The sandbox path usage and file access permission need to be adjusted based on the actual environment.
 
 ---

@@ -34,6 +34,10 @@ import { EventEmitter } from './EventEmitter';
  * create a breaking change.
  */
 export interface RNInstancesCoordinatorDependencies {
+  /**
+   * @deprecated
+   */
+  fontSizeScale?: number,
   logger: RNOHLogger,
   uiAbilityContext: common.UIAbilityContext,
   rnohWorkerScriptUrl?: string,
@@ -110,7 +114,7 @@ export class RNInstancesCoordinator {
     const devToolsController = new DevToolsController(dependencies.logger);
     const napiBridge = new NapiBridge(dependencies.logger);
     const displayMetricsManager = new DisplayMetricsManager(dependencies.logger);
-    displayMetricsManager.setFontSizeScale(dependencies.uiAbilityContext.config.fontSizeScale ?? 1)
+    displayMetricsManager.setFontSizeScale(dependencies.fontSizeScale ?? dependencies.uiAbilityContext.config.fontSizeScale ?? 1)
     const globalRNOHErrorEventEmitter: RNOHErrorEventEmitter = new EventEmitter();
     globalRNOHErrorEventEmitter.subscribe("NEW_ERROR", (err) => {
       dependencies.logger.error(err);

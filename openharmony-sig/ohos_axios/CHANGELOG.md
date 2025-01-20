@@ -1,4 +1,7 @@
 # Changelog
+## [v2.2.5-rc.1] 2025.01
+- Log rectification
+
 ## [v2.2.5-rc.0] 2024.09
 - toFormData传入number类型时转换为string
 

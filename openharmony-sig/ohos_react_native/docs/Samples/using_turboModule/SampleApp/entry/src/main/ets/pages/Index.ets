@@ -35,10 +35,10 @@ export function createRNPackages(ctx: RNPackageContext): RNPackage[] {
 @Entry
 @Component
 export struct MultiSurface {
-  @StorageLink('RNOHCoreContext') rnohCoreContext: RNOHCoreContext | undefined = undefined
+  @StorageLink('RNOHCoreContext') rnohCoreContext: RNOHCoreContext | undefined = undefined;
   private instance: RNInstance | undefined;
-  private bundlePath = 'bundle.harmony.js'
-  private moduleName = 'App'
+  private bundlePath = 'bundle.harmony.js';
+  private moduleName = 'App';
   @State isBundleReady: boolean = false;
 
 
@@ -61,12 +61,20 @@ export struct MultiSurface {
       wrapBuilder(buildRNComponentForTag),
       new Map()
     );
-    // await this.instance.runJSBundle(new ResourceJSBundleProvider(getContext().resourceManager, 'bundle/basic/basic.harmony.bundle'));
-    await this.instance.runJSBundle(new ResourceJSBundleProvider(getContext().resourceManager, this.bundlePath)).then(() => {
-      this.isBundleReady = true
-      console.log('instance 加载完成' + this.bundlePath)
+    // await this.instance.runJSBundle(
+    //   new ResourceJSBundleProvider(
+    //     getContext().resourceManager,
+    //     'bundle/basic/basic.harmony.bundle'
+    //   )
+    // );
+    await this.instance.runJSBundle(
+      new ResourceJSBundleProvider(
+        getContext().resourceManager,
+        this.bundlePath
+    )).then(() => {
+      this.isBundleReady = true;
+      console.log('instance 加载完成' + this.bundlePath);
     })
-
   }
 
   @Builder

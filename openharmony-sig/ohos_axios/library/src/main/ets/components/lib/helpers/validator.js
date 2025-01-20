@@ -2,6 +2,7 @@
 
 import {VERSION} from '../env/data.js';
 import AxiosError from '../core/AxiosError.js';
+import { LogUtil } from '../LogUtil';
 
 const validators = {};
 
@@ -40,7 +41,7 @@ validators.transitional = function transitional(validator, version, message) {
     if (version && !deprecatedWarnings[opt]) {
       deprecatedWarnings[opt] = true;
       // eslint-disable-next-line no-console
-      console.warn(
+      LogUtil.warn(
         formatMessage(
           opt,
           ' has been deprecated since v' + version + ' and will be removed in the near future'

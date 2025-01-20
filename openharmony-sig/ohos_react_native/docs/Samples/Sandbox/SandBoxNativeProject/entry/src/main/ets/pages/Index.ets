@@ -32,7 +32,7 @@ struct Index {
   @State shouldShow: boolean = false;
   private logger!: RNOHLogger;
   @StorageLink('RNAbility') rnAbility: RNAbility | undefined = undefined;
-  // bundlePath 和 assetsPath 都是相对于 rnAbility.context.filesDir目录下的路径
+  // bundlePath 和 assetsPath 都是相对于 rnAbility.context.filesDir目录下的路径。
   bundlePath: string = 'sandbox.harmony.bundle';
   assetsPath: string = 'assets';
   @State hasBundle: Boolean = false;
@@ -48,7 +48,7 @@ struct Index {
 
   async downloadBundle() {
     if (this.rnAbility) {
-      // 将bundlejs下载并保存到沙箱
+      // 将bundlejs下载并保存到沙箱。
       let uint8Array = await this.rnAbility.context.resourceManager.getRawFileContent('rawfile/bundle/sandbox.harmony.bundle');
       let rawBuffer = uint8Array.buffer;
       let num = rawBuffer.byteLength;
@@ -80,9 +80,9 @@ struct Index {
   }
 
   onBackPress(): boolean | undefined {
-    // NOTE: this is required since `Ability`'s `onBackPressed` function always
-    // terminates or puts the app in the background, but we want Ark to ignore it completely
-    // when handled by RN
+    // NOTE: this is required since `Ability`'s `onBackPressed` function always。
+    // terminates or puts the app in the background, but we want Ark to ignore it completely。
+    // when handled by RN。
     this.rnohCoreContext!.dispatchBackPress();
     return true;
 
@@ -92,7 +92,7 @@ struct Index {
     Column() {
       if (this.rnohCoreContext && this.shouldShow) {
         if (this.rnohCoreContext?.isDebugModeEnabled) {
-          RNOHErrorDialog({ ctx: this.rnohCoreContext })
+          RNOHErrorDialog({ ctx: this.rnohCoreContext });
         }
         if (this.rnAbility && this.hasBundle) {
           RNApp({

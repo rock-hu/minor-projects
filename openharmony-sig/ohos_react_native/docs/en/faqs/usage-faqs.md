@@ -4,7 +4,7 @@
  
 - Symptom
  
-    The local image on the RN page is properly displayed when a bundle in the local rawfile is loaded in the HarmonyOS project. While the image is not properly displayed when the bundle is loaded from sandbox.
+    The local image on the RN page is properly displayed when a bundle in the local rawfile is loaded in the OpenHarmony project. While the image is not properly displayed when the bundle is loaded from sandbox.
  
 - Cause
  
@@ -76,7 +76,7 @@
 
 - Cause
 
-    According to different specifications, the modal of HarmonyOS is implemented through ArkUI, while the UI dialog is at the top layer of the window.
+    According to different specifications, the modal of OpenHarmony is implemented through ArkUI, while the UI dialog is at the top layer of the window.
 
 - Solutions
 
@@ -86,7 +86,7 @@
 
 - Reference
 
-    HarmonyOS [specifications](https://gitee.com/openharmony/docs/blob/master/en/release-notes/changelogs/OpenHarmony_5.0.0.17/changelogs-arkui.md#clarkui2--dialog%E5%9C%A8%E9%A1%B5%E9%9D%A2%E8%B7%AF%E7%94%B1%E8%B7%B3%E8%BD%AC%E6%97%B6%E5%85%B3%E9%97%AD%E8%A1%8C%E4%B8%BA%E5%8F%98%E6%9B%B4)
+    OpenHarmony [specifications](https://gitee.com/openharmony/docs/blob/master/en/release-notes/changelogs/OpenHarmony_5.0.0.17/changelogs-arkui.md#clarkui2--dialog%E5%9C%A8%E9%A1%B5%E9%9D%A2%E8%B7%AF%E7%94%B1%E8%B7%B3%E8%BD%AC%E6%97%B6%E5%85%B3%E9%97%AD%E8%A1%8C%E4%B8%BA%E5%8F%98%E6%9B%B4)
    
 ### Hiding the Scrollbar on the Right of FlashList
 

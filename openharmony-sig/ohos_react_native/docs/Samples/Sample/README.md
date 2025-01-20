@@ -2,7 +2,7 @@
 
 ## Running Guide
 
-​This demo contains a HarmonyOS project directory `SampleApp` and a ReactNative project directory `SampleProject`. You need to use `SampleProject` to generate a bundle and load the bundle to `SampleApp` to run the HarmonyOS project.
+​This demo contains a OpenHarmony project directory `SampleApp` and a ReactNative project directory `SampleProject`. You need to use `SampleProject` to generate a bundle and load the bundle to `SampleApp` to run the OpenHarmony project.
 
 **Configure an environment variable:**
 
@@ -20,7 +20,7 @@
   npm run start
   ```
 
-**Configure a HarmonyOS project:**
+**Configure a OpenHarmony project:**
 
 1. Specify the version of `react-native-openharmony` in `entry/oh-package.json5`.
 2. Open `SampleApp` in DevEco Studio and run **Sync and Refresh Project**.
@@ -28,16 +28,16 @@
 
 ## Project Introduction
 
-​ On the React Native side, an empty project consists of **HomePage**, **Goods**, **test**, and **Detail** modules. On HarmonyOS, the bundles of the four service modules are loaded to create the corresponding RNSurfaces, which are then embedded into the ArkUI page components to build the HarmonyOS page.
+​ On the React Native side, an empty project consists of **HomePage**, **Goods**, **test**, and **Detail** modules. On OpenHarmony, the bundles of the four service modules are loaded to create the corresponding RNSurfaces, which are then embedded into the ArkUI page components to build the OpenHarmony page.
 
 - HomePage: The third-party library react-native-pager-view is used to implement the split-view layout of tabs.
 - Goods: The scrollbar component on the top is customized by ArkUI and imported and rendered on the RN side. The bottom provides the examples of using multiple TuboModule methods.
 - Test: Multiple common code example pages are provided.
-- Detail: The **ArkUI** and **RN** components are used for hybrid rendering. In the **RN** component, the data transferred from the HarmonyOS side is used for style and content rendering.
+- Detail: The **ArkUI** and **RN** components are used for hybrid rendering. In the **RN** component, the data transferred from the OpenHarmony side is used for style and content rendering.
   
 | HomePage| Goods| Test| Detail|
 | --- | --- | --- | ---|
-| ![HomePage](./figures/environment-setup-homepage.png)| ![Goods](./figures/environment-setup-goods.png)| ![Test](./figures/environment-setup-test.png)| ![Detail](./figures/environment-setup-detail.png)|
+| ![HomePage](./figures_en/environment-setup-homepage.png)| ![Goods](./figures_en/environment-setup-goods.png)| ![Test](./figures_en/environment-setup-test.png)| ![Detail](./figures_en/environment-setup-detail.png)|
 
 ### React Native Project Structure
 
@@ -50,35 +50,35 @@
   
   Under the `SampleProject/MainProject` directory, the `config.js` file is created to configure the bundles of all modules. For example, the configuration file of the **Goods** module is `goods.config.js`. The `package.json` file in the same directory implements the bundle commands of all modules, which are encapsulated in `dev:all`.
   
-  ![image](./figures/environment-setup-bundle-command.png)
+  ![image](./figures_en/environment-setup-BundlePackingCommands.png)
 
-### HarmonyOS Project Structure
+### OpenHarmony Project Structure
 
-​ The `Tabs` component is used to build the basic page framework of the HarmonyOS project, and is created in the `MultiHome` component, containing three `TabContent`s: `HomePage`, `Goods`, and `Test`.
+​ The `Tabs` component is used to build the basic page framework of the OpenHarmony project, and is created in the `MultiHome` component, containing three `TabContent`s: `HomePage`, `Goods`, and `Test`.
 
-![image](./figures/environment-setup-tabs.png)
+  ![image](./figures_en/environment-setup-Tabs.png)
 
 ​ The `HomePage` and `Goods` components contain a `BaseRN` component (Metro uses the `MetroBaseRN` component), which is a basic component that encapsulates the `RNSurface` component and is used to load the specified React Native module view.
 
-![image](./figures/environment-setup-RNSurface.png)
+  ![image](./figures_en/environment-setup-RNSurface.png)
 
 ### Using TurboModule
 
 ​ Create a `RNInstance`, transfer the `createRNPackages` implemented in `RNPackagesFactory`, and create the corresponding `SampleTurboModulePackage`.
 
-![image](./figures/environment-setup-createRNPackages.png)
+  ![image](./figures_en/environment-setup-CreateRNPackages.png)
 
 ​ Define the API to be implemented by `SampleTurboModule` in `basic/SampleTurboModule.tsx` on the React Native side and export the `SampleTurboModule` instance.
 
-![image](./figures/environment-setup-SampleTurboModule.png)
+  ![image](./figures_en/environment-setup-SampleTurboModule.png)
 
-​ In `GoodsMainPage.tsx`, use `SampleTurboModule` to call the method defined in the protocol for HarmonyOS communication.
+​ In `GoodsMainPage.tsx`, use `SampleTurboModule` to call the method defined in the protocol for OpenHarmony communication.
 
-![image](./figures/environment-setup-communication-definition.png)
+  ![image](./figures_en/environment-setup-CommunicationDefinition.png)
 
-​ Implement the API defined on the React Native side in the HarmonyOS `SampleTurboModule.ts`, and use `emitter` to send the message of redirecting to the Detail page.
+​ Implement the API defined on the React Native side in the OpenHarmony `SampleTurboModule.ts`, and use `emitter` to send the message of redirecting to the Detail page.
 
-![image](./figures/environment-setup-emit-redirection.png)
+  ![image](./figures_en/environment-setup-EmitJumping.png)
 
 ### Using a Custom Component
 
@@ -86,15 +86,15 @@
 
 ​ Add the mapping of the custom component to the `src/main/cpp/SampleTurboModulePackage.cpp` method.
 
-![image](./figures/environment-setup-component-mapping.png)
+  ![image](./figures_en/environment-setup-ComponentMapping.png)
 
 ​ Define the `JSI` API of `ButtonView` in `basic/ButtonView.tsx` on the React Native side.
 
-![image](./figures/environment-setup-jsi-api.png)
+  ![image](./figures_en/environment-setup-JsiInterface.png)
 
 ​ Use custom components in `GoodsMainPage.tsx`.
 
-![image](./figures/environment-setup-calling-custom-components.png)
+  ![image](./figures_en/environment-setup-InvokeCustomComponent.png)
 
 ### Using a Third-Party Library
 
@@ -102,20 +102,20 @@
 
 ​ You can use a third-party library in either of the following ways:
 
-- Method 1: Use the third-party library of the ArkTS version in the C API version. Currently, RN supports only the third-party libraries of the ArkTS version of leaf nodes. Third-party libraries of container nodes are not supported. Specifically, add the third-party library component mapping, for example, `FastImage`, to the `buildCustomComponent` method on the HarmonyOS side. Note that you need to add a `Stack` component externally and set `position = (0,0)` for the mapping.
+- Method 1: Use the third-party library of the ArkTS version in the C API version. Currently, RN supports only the third-party libraries of the ArkTS version of leaf nodes. Third-party libraries of container nodes are not supported. Specifically, add the third-party library component mapping, for example, `FastImage`, to the `buildCustomComponent` method on the OpenHarmony side. Note that you need to add a `Stack` component externally and set `position = (0,0)` for the mapping.
   
-  ![image](./figures/environment-setup-stack-component.png)
+  ![image](./figures_en/environment-setup-StackComponent.png)
 - Method 2: Directly use the third-party library of the CPP version. In this method, no other operation is required.
   
   Use the `PagerView` component of the third-party library in the `SamplePackage/MainProject/src/bundles/HomePage/HomePage.tsx` file on the React Native side.
   
-  ![image](./figures/environment-setup-PagerView-component.png)
+  ![image](./figures_en/environment-setup-PagerViewComponent.png)
 
 ### Metro
 
 ​ In this project, Metro is used to load bundles. To use Metro, please refer to [Running Guide](#running-guide). You can modify the code on the React Native side and save it to refresh the application UI content in real time. For details, see [Metro](../../en/debugging.md#metro-hot-reloading).
 
-![image](./figures/environment-setup-runStart.png)
+  ![image](./figures_en/environment-setup-RunStart.png)
 
 ### Reload and LogBox
 

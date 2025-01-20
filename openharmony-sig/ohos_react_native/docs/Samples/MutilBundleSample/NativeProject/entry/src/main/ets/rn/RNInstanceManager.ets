@@ -21,8 +21,8 @@ import {
   JSBundleProvider,
 } from '@rnoh/react-native-openharmony';
 import { createRNPackages } from '../RNPackagesFactory';
-import { ObjectUtil } from './util'
-import { arkTsComponentNames } from './CustomRNComponent'
+import { ObjectUtil } from './util';
+import { arkTsComponentNames } from './CustomRNComponent';
 
 // 通用 RN 实例配置
 const CommonRnConfig: RNInstanceOptions = {
@@ -35,22 +35,22 @@ const CommonRnConfig: RNInstanceOptions = {
 };
 
 export class RNInstanceManager {
-  // RNInstance 容器, 一个 RN 页面对应一个  RNInstance
+  // RNInstance 容器, 一个 RN 页面对应一个  RNInstance;
   private static instanceMap: Map<string, RNInstance> = new Map();
 
   public static getOrCreateRNInstance(page: string, options?: RNInstanceOptions): Promise<RNInstance> | undefined {
     const rnohCoreContext: RNOHCoreContext | undefined = AppStorage.get('RNOHCoreContext');
     if (!rnohCoreContext) {
-      return
+      return;
     }
     if (RNInstanceManager.instanceMap.has(page)) {
       return Promise.resolve(RNInstanceManager.instanceMap.get(page) as RNInstance);
     }
     const option = ObjectUtil.Assign(CommonRnConfig, {
       backPressHandler: () => {
-        // 根据自己的业务规则处理返回事件
+        // 根据自己的业务规则处理返回事件;
         if (router.getState().name === page) {
-          router.back()
+          router.back();
         }
       }
     })
@@ -73,7 +73,7 @@ export class RNInstanceManager {
   }
 
   public static async prepareRN(page: string, provider: JSBundleProvider) {
-    const rnInstance = await RNInstanceManager.getOrCreateRNInstance(page)
-    await rnInstance?.runJSBundle(provider)
+    const rnInstance = await RNInstanceManager.getOrCreateRNInstance(page);
+    await rnInstance?.runJSBundle(provider);
   }
 }

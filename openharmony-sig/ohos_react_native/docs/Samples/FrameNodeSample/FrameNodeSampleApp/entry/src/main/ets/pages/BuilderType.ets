@@ -6,9 +6,9 @@
  */
 
 export declare class Params {
-  text: string
+  text: string;
 }
 
 export declare class BuilderData {
-  text: string
+  text: string;
 }

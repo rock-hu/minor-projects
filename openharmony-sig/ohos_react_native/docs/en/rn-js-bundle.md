@@ -3,17 +3,17 @@
 ​
 In React Native, the JavaScript code and resources of your applications need to run on the device. To improve the loading speed and performance of applications and reduce network requests, React Native applications are usually packaged before being released. All code and resources are packaged into one or more files.
 
-​ This section describes how to package bundles in a ReactJS project after React Native for HarmonyOS is implemented. The HarmonyOS-based bundling process involves `react-native-harmony.tgz`, `react-native-harmony-cli.tgz`, and `metro.config.js`. For details about how to set up a basic ReactJs HarmonyOS environment, see [Environment Setup](../en/environment-setup.md).
+​ This section describes how to package bundles in a ReactJS project after React Native for OpenHarmony is implemented. The OpenHarmony-based bundling process involves `react-native-harmony.tgz`, `react-native-harmony-cli.tgz`, and `metro.config.js`. For details about how to set up a basic ReactJs OpenHarmony environment, see [Environment Setup](../en/environment-setup.md).
 
-## HarmonyOS-based Packaging Process
+## OpenHarmony-based Packaging Process
 
-This section describes the configuration options and commands required for HarmonyOS packaging, helping you quickly understand the HarmonyOS-based packaging process.
+This section describes the configuration options and commands required for OpenHarmony packaging, helping you quickly understand the OpenHarmony-based packaging process.
 
-- `react-native-harmony.tgz` contains the Metro packaging configuration options that adapt to HarmonyOS, which is critical. It enables the project to identify the HarmonyOS platform during packaging and preferentially search for the dependency files that have been adapted to HarmonyOS in the project based on the configured path for loading and packaging. If you have configured `react-native-harmony.tgz` as a dependency in your JS project, the project contains the Metro configuration option file that adapts to HarmonyOS when you build the JS project.
+- `react-native-harmony.tgz` contains the Metro packaging configuration options that adapt to OpenHarmony, which is critical. It enables the project to identify the OpenHarmony platform during packaging and preferentially search for the dependency files that have been adapted to OpenHarmony in the project based on the configured path for loading and packaging. If you have configured `react-native-harmony.tgz` as a dependency in your JS project, the project contains the Metro configuration option file that adapts to OpenHarmony when you build the JS project.
 
   File path: `node_modules/@react-native-oh/react-native-harmony/metro.config.js`.
   
-- To use the configuration options for HarmonyOS Metro packaging, you need to import the `react-native-harmony/metro.config.js` file to the `metro.config.js` file at the outermost layer of the JS project, modify the `transformer` configuration option of `config`, and use the `mergeConfig` method provided by Metro to integrate the configuration options for HarmonyOS packaging.
+- To use the configuration options for OpenHarmony Metro packaging, you need to import the `react-native-harmony/metro.config.js` file to the `metro.config.js` file at the outermost layer of the JS project, modify the `transformer` configuration option of `config`, and use the `mergeConfig` method provided by Metro to integrate the configuration options for OpenHarmony packaging.
   
   ```javascript
   // AwesomeProject/metro.config.js
@@ -44,15 +44,15 @@ This section describes the configuration options and commands required for Harmo
   );
   ```
 
-- `react-native-harmony-cli.tgz` contains the HarmonyOS bundle command, and the file path is `node_modules/@react-native-oh//react-native-harmony-cli/dist/commands/bundle-harmony.js`.
+- `react-native-harmony-cli.tgz` contains the OpenHarmony bundle command, and the file path is `node_modules/@react-native-oh//react-native-harmony-cli/dist/commands/bundle-harmony.js`.
   
-  The following is an example of the HarmonyOS bundle command:
+  The following is an example of the OpenHarmony bundle command:
   
   ```powershell
   react-native bundle-harmony --entry-file index.harmony.js --dev false
   ```
   
-  The HarmonyOS bundle command supports the following configuration options:
+  The OpenHarmony bundle command supports the following configuration options:
   
   ```javascript
   options: [
@@ -103,7 +103,7 @@ This section describes the configuration options and commands required for Harmo
 
 ## Single-Bundle
 
-​ After setting up the basic ReactJs HarmonyOS environment, run the `react-native bundle-harmony` command to configure the input file path and output file path. The default input file is `index.js` in the root directory of the JS project, and the default output file path is `./harmony/entry/src/main/resources/rawfile/bundle.harmony.js`.
+​ After setting up the basic ReactJs OpenHarmony environment, run the `react-native bundle-harmony` command to configure the input file path and output file path. The default input file is `index.js` in the root directory of the JS project, and the default output file path is `./harmony/entry/src/main/resources/rawfile/bundle.harmony.js`.
 
 ## Multi-bundle
 

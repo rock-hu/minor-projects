@@ -42,7 +42,7 @@ When the hybrid solution is used, if an unexpected exit occurs and `CustomRNComp
  
 - Solutions
  
-    Check whether `librnoh_app.so` exists. You can check whether the corresponding .so file exists in `\entry\build\default\intermediates\libs\default\arm64-v8a\` or `libs/arm64-v8a` under the root directory of the HarmonyOS project.
+    Check whether `librnoh_app.so` exists. You can check whether the corresponding .so file exists in `\entry\build\default\intermediates\libs\default\arm64-v8a\` or `libs/arm64-v8a` under the root directory of the OpenHarmony project.
  
     - Solution to cause 1: Edit the configuration file `entry/build-profile.json5` and add the `externalNativeOptions` option under **buildOptions**.
  

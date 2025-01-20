@@ -34,3 +34,4 @@ export * from './SimpleVirtualistExample';
 export * from './RemoveClippedSubviewsRTLExample';
 export * from './ModalCrashExample'
 export * from './AlertCrashExample'
+export * from './MeasureLinesCrashExample'

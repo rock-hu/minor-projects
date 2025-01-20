@@ -8,9 +8,9 @@ This is a demo project for creating custom **Fabric** components (including **CA
 FabricComponentSample
 ├── ReactProject Front-end project
 ├── fabric-component-sample-package RN third-party component (custom Fabric component)
-├── NativeProject HarmonyOS project
-├── react-native-harmony RN HarmonyOS bundle
-├── react-native-harmony-cli RN HarmonyOS scaffolding
+├── NativeProject OpenHarmony project
+├── react-native-harmony RN OpenHarmony bundle
+├── react-native-harmony-cli RN OpenHarmony scaffolding
 └── README.md
 ```
 

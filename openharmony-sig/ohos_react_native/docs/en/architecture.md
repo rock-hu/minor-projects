@@ -17,8 +17,8 @@ As shown in the figure, React Native for OpenHarmony is adapted to the new archi
 
 ## RN Library Code
 
-- In the current React Native, many attributes are encapsulated on the React side and are platform-specific. To achieve this effect, React Native adds many judgments based on `Platform` on the JS side. Therefore, the platform judgments related to `HarmonyOS` and the encapsulation of corresponding component attributes need to be added for implementing React Native for OpenHarmony. To address this issue, the OpenHarmony team provides a .tgz package of `react-native-harmony` and applies the .tgz package to Metro Bundler by modifying `metro.config.js`.
-- React Native also provides encapsulation of many libraries, such as Codegen and bundle tools. The OpenHarmony team provides the `react-native-harmony-cli` package to adapt the libraries to the `HarmonyOS` platform.
+- In the current React Native, many attributes are encapsulated on the React side and are platform-specific. To achieve this effect, React Native adds many judgments based on `Platform` on the JS side. Therefore, the platform judgments related to `OpenHarmony` and the encapsulation of corresponding component attributes need to be added for implementing React Native for OpenHarmony. To address this issue, the OpenHarmony team provides a .tgz package of `react-native-harmony` and applies the .tgz package to Metro Bundler by modifying `metro.config.js`.
+- React Native also provides encapsulation of many libraries, such as Codegen and bundle tools. The OpenHarmony team provides the `react-native-harmony-cli` package to adapt the libraries to the `OpenHarmony` platform.
 
 ## Fabric
 
@@ -38,7 +38,7 @@ For details about the render pipeline, see [Three Rendering Phases](three-render
 
 ![TurboModule](./figures/TurboModule.png)
 
-TurboModule is used for interaction between JavaScript and native code in React Native. It provides a mechanism for RN JS applications to invoke system capabilities. Based on whether HarmonyOS-related capabilities are required, there are cxxTurboModule and ArkTSTurboModule.
+TurboModule is used for interaction between JavaScript and native code in React Native. It provides a mechanism for RN JS applications to invoke system capabilities. Based on whether OpenHarmony-related capabilities are required, there are cxxTurboModule and ArkTSTurboModule.
 
 1. ArkTSTurboModule:
     - ArkTSTurboModule provides React Native with methods for calling native ArkTS APIs.There are two types: synchronous and asynchronous.

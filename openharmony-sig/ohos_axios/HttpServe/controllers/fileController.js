@@ -213,7 +213,7 @@ const getFileList = (req, res) => {
   let uploadPath = resolve("./public/upload/");
   let files = fs.readdirSync(uploadPath);
   let result = files.map((file) => {
-    let fullPath = path.join(uploadPath, "" + file);
+    let fullPath = path.join(uploadPath, '' + file);
     let stat = fs.lstatSync(fullPath);
     var atimeMs = timestampToTime(stat.atimeMs);
     return {

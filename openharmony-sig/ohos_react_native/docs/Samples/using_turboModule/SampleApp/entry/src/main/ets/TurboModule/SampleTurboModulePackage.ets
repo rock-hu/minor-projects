@@ -35,7 +35,7 @@ class SampleWorkerTurboModulesFactory extends AnyThreadTurboModuleFactory {
   }
 
   hasTurboModule(name: string): boolean {
-    return name === "SampleWorkerTurboModule"
+    return name === "SampleWorkerTurboModule";
   }
 }
 

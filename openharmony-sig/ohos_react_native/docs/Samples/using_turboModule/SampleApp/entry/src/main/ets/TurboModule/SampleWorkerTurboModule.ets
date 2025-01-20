@@ -9,7 +9,7 @@
  * Imports from ETS to be done like that, otherwise ArkTS fails on runtime.
  */
 import { AnyThreadTurboModule, } from '@rnoh/react-native-openharmony/ts';
-import { preferences } from '../entryability/EntryAbility'
+import { preferences } from '../entryability/EntryAbility';
 import { BusinessError } from '@ohos.base';
 
 export class SampleWorkerTurboModule extends AnyThreadTurboModule{
@@ -34,32 +34,32 @@ export class SampleWorkerTurboModule extends AnyThreadTurboModule{
   }
 
   rnLog(info: string) {
-    console.log("ReactNative.log in Worker: " + info)
+    console.log("ReactNative.log in Worker: " + info);
   }
 
   getPreferencesData(key: string): string {
     if (!preferences) return 'null';
     try {
-      let val = preferences.getSync(key, '默认值') as string
-      return val
+      let val = preferences.getSync(key, '默认值') as string;
+      return val;
     } catch (err) {
-      return '未赋值'
+      return '未赋值';
     }
   }
 
   putPreferencesData(key: string, value: string) {
     if (!preferences) return;
-    preferences.putSync(key, value)
+    preferences.putSync(key, value);
     try {
       preferences.flush((err: BusinessError) => {
         if (err) {
-          console.error('Failed to flush')
+          console.error('Failed to flush');
           return;
         }
-        console.info('Succeeded in flushing.')
+        console.info('Succeeded in flushing.');
       })
     } catch (err) {
-      console.error('Failed to flush')
+      console.error('Failed to flush');
     }
   }
 }

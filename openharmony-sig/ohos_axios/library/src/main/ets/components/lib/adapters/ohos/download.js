@@ -15,29 +15,15 @@
 'use strict';
 
 import buildURL from '../../../lib/helpers/buildURL.js';
-import settle from "../../../lib/core/settle";
+import settle from '../../../lib/core/settle';
 import AxiosError from '../../../lib/core/AxiosError';
 import request from '@ohos.request';
 import fs from '@ohos.file.fs';
 import { setOptions, judgeMaxContentLength } from './index';
-import { LogUtil } from '../../LogUtil'
 
 function download(httpConfig, resolve, reject) {
-    const { httpRequest,fullPath,config } = httpConfig;
-    let options = setOptions(config, options => {
-        // 添加filePath
-        if (config.filePath) {
-            options.filePath = config.filePath;
-        }
-    });
-    let response = {
-        data: null,
-        status: 0,
-        statusText: "",
-        headers: config.header,
-        config: config,
-        request: httpRequest
-    };
+    const { httpRequest, fullPath, config } = httpConfig;
+    let response = createInitialResponse(httpRequest, config);
 
     function settleResult(data, code) {
         response.data = data;
@@ -49,80 +35,111 @@ function download(httpConfig, resolve, reject) {
         }, response);
     }
 
-    // 发送下载请求
     try {
-        const fileStream = fs.createStreamSync(options.filePath, "a+");
-        httpRequest.on("headersReceive", (header) => {
-            response.headers = header;
-            const totalSize = Number(header['content-length']);
-            if(totalSize) {
-                judgeMaxContentLength(totalSize, config, reject, httpRequest,(valid)=>{
-                    // 校验失败，移除监听
-                    if(!valid) {
-                        removeEvent(httpRequest);
-                        fileStream.close();
-                    }
-                });
+        const options = setOptions(config, opts => {
+            if (config.filePath) {
+                opts.filePath = config.filePath;
             }
         });
-        // 用于订阅HTTP流式响应数据接收进度事件
-        httpRequest.on('dataReceiveProgress', ({receiveSize,totalSize}) => {
-            if (typeof config.onDownloadProgress === 'function') {
-                config.onDownloadProgress({
-                    loaded: receiveSize,
-                    total: totalSize
-                })
-            }
-        });
-        httpRequest.on('dataReceive', (arraybuffer) => {
-            try {
-                if (fileStream.writeSync(arraybuffer)) {
-                    // 如果写入成功，则不需要定时器
-                    return;
-                }
-                // 如果写入失败，则加入定时器，控制写入速度
-                const timer = setTimeout(() => {
-                    if (fileStream.writeSync(arraybuffer)) {
-                        // 写入成功，则清空定时器
-                        clearTimeout(timer);
-                    }
-                }, 1000);
-            } catch (err) {
-                removeEvent(httpRequest);
-                let s = JSON.stringify(err);
-                reject(new AxiosError(s, AxiosError.ERR_BAD_RESPONSE, config, request, request));
-            }
-        });
-        // 用于订阅HTTP流式响应数据接收完毕事件
-        httpRequest.on('dataEnd', () => {
-            removeEvent(httpRequest);
-            fileStream.close()
 
-        });
-        // 填写http请求的url地址，可以带参数也可以不带参数。URL地址需要开发者自定义。GET请求的参数可以在extraData中指定
-        let url = buildURL(fullPath, config.params, config.paramsSerializer)
-        LogUtil.debug(`download url:${url}, options: ${JSON.stringify(options)}`);
-        httpRequest.requestInStream(url, options,
-            (err, data) => {
-                response.status = data;
-                if (!err) {
-                    let resultData = '';
-                    if (data === 200 || data === 304) {
-                        resultData = 'download success!';
-                    }
-                    settleResult(resultData, data);
-                } else {
-                    removeEvent(httpRequest);
-                    reject(new AxiosError(JSON.stringify(err), null, config, request, request));
-                }
-            }
-        )
+        const fileStream = fs.createStreamSync(options.filePath, 'a+');
+        setupEventListeners(httpRequest, fileStream, config, response, reject);
+
+        const url = buildURL(fullPath, config.params, config.paramsSerializer);
+        httpRequest.requestInStream(url, options, handleRequestResult(httpRequest, response, config, settleResult, reject));
+
     } catch (err) {
-        removeEvent(httpRequest);
-        let s = JSON.stringify(err);
-        reject(new AxiosError(s, AxiosError.ERR_BAD_OPTION_VALUE, config, request, request));
+        handleGlobalError(httpRequest, config, err, reject);
     }
 }
+
+function createInitialResponse(request, config) {
+    return {
+        data: null,
+        status: 0,
+        statusText: '',
+        headers: config.headers || {},
+        config: config,
+        request: request
+    };
+}
+
+function setupEventListeners(httpRequest, fileStream, config, response, reject) {
+    httpRequest.on('headersReceive', onHeadersReceive(httpRequest, fileStream, response, config, reject));
+    httpRequest.on('dataReceiveProgress', onDataReceiveProgress(config));
+    httpRequest.on('dataReceive', onDataReceive(httpRequest, fileStream, config, reject));
+    httpRequest.on('dataEnd', () => ()=>{
+        removeEvent(httpRequest);
+        fileStream.close();
+    });
+}
+
+function onHeadersReceive(httpRequest, fileStream, response, config, reject) {
+    return (header) => {
+        response.headers = header;
+        const totalSize = Number(header['content-length']);
+        if (totalSize) {
+            judgeMaxContentLength(totalSize, config, reject, httpRequest, validErrorCallback(httpRequest, fileStream));
+        }
+    };
+}
+
+function validErrorCallback(httpRequest, fileStream) {
+    return (valid) => {
+        // 校验失败，移除监听
+        if (!valid) {
+            removeEvent(httpRequest);
+            fileStream.close();
+        }
+    };
+}
+
+function onDataReceiveProgress(config) {
+    return ({ receiveSize, totalSize }) => {
+        if (typeof config.onDownloadProgress === 'function') {
+            config.onDownloadProgress({ loaded: receiveSize, total: totalSize });
+        }
+    };
+}
+
+function onDataReceive(httpRequest, fileStream, config, reject) {
+    return (arraybuffer) => {
+        try {
+            handleStream(fileStream, arraybuffer);
+        } catch (err) {
+            removeEvent(httpRequest);
+            reject(new AxiosError(JSON.stringify(err), AxiosError.ERR_BAD_RESPONSE, config, request, request));
+        }
+    };
+}
+
+function handleStream(fileStream, arraybuffer) {
+    if (!fileStream.writeSync(arraybuffer)) {
+        setTimeout(() => {
+            if (fileStream.writeSync(arraybuffer)) {
+                clearTimeout(this);
+            }
+        }, 1000);
+    }
+}
+
+function handleRequestResult(httpRequest, response, config, settleResult, reject) {
+    return (err, data) => {
+        response.status = data;
+        if (!err && (data === 200 || data === 304)) {
+            settleResult('download success!', data);
+        } else {
+            removeEvent(httpRequest);
+            reject(new AxiosError(JSON.stringify(err), null, config, request, request));
+        }
+    };
+}
+
+function handleGlobalError(httpRequest, config, err, reject) {
+    removeEvent(httpRequest);
+    reject(new AxiosError(JSON.stringify(err), AxiosError.ERR_BAD_OPTION_VALUE, config, request, request));
+}
+
 // 移除监听
 const removeEvent = (httpRequest) => {
     httpRequest.off('headersReceive');

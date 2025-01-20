@@ -1,6 +1,6 @@
 # Appendix
 
-The following samples are provided to help you better understand the development of HarmonyOS key features and scenarios.
+The following samples are provided to help you better understand the development of OpenHarmony key features and scenarios.
 | Subject| Description|
 | ---- | ---- |
 | [SampleProject](../Samples/Sample/)| This sample shows the multi-bundle and multi-instance scenario, custom components, custom TurboModules, and bundle loading from the sandbox.|

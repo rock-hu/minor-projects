@@ -8,7 +8,7 @@
     "lint": "eslint .",
     "start": "react-native start",
     "test": "jest",
-    "dev": "react-native bundle-harmony --dev=false"
+    "dev": "react-native bundle-harmony --dev false --bundle-output ../NativeProject/entry/src/main/resources/rawfile/bundle.harmony.js"
   },
   "dependencies": {
     "@react-native-oh/react-native-harmony": "^0.72.48",

@@ -13,7 +13,7 @@ import { BusinessError } from '@ohos.base';
 import type common from '@ohos.app.ability.common';
 
 export interface TurboModuleEventData {
-  param: string
+  param: string;
 }
 
 export class SampleTurboModule extends TurboModule {
@@ -30,16 +30,16 @@ export class SampleTurboModule extends TurboModule {
       let options: dataPreferences.Options = {
         name: 'test'
       };
-      SampleTurboModule.preferences = dataPreferences.getPreferencesSync(context, options)
+      SampleTurboModule.preferences = dataPreferences.getPreferencesSync(context, options);
     } catch (err) {
-      console.error('Failed to get preferences')
+      console.error('Failed to get preferences');
     }
   }
 
   pushStringToHarmony(arg: string, id?: number): string {
     if (id) {
-      let data: TurboModuleEventData = { param: arg }
-      emitter.emit({ eventId: id }, { data: data })
+      let data: TurboModuleEventData = { param: arg };
+      emitter.emit({ eventId: id }, { data: data });
     }
     return arg;
   }
@@ -64,16 +64,16 @@ export class SampleTurboModule extends TurboModule {
   }
 
   rnLog(info: string) {
-    console.log("ReactNative.log: " + info)
+    console.log("ReactNative.log: " + info);
   }
 
   getPreferencesData(key: string): string {
     if (!SampleTurboModule.preferences) return 'null';
     try {
-      let val = SampleTurboModule.preferences.getSync(key, '默认值') as string
-      return val
+      let val = SampleTurboModule.preferences.getSync(key, '默认值') as string;
+      return val;
     } catch (err) {
-      return '未赋值'
+      return '未赋值';
     }
   }
 
@@ -83,13 +83,13 @@ export class SampleTurboModule extends TurboModule {
     try {
       SampleTurboModule.preferences.flush((err: BusinessError) => {
         if (err) {
-          console.error('Failed to flush')
+          console.error('Failed to flush');
           return;
         }
-        console.info('Succeeded in flushing.')
+        console.info('Succeeded in flushing.');
       })
     } catch (err) {
-      console.error('Failed to flush')
+      console.error('Failed to flush');
     }
   }
 }

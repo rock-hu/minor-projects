@@ -5,11 +5,11 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-import React ,{useSate} from 'react';
+import React ,{useState} from 'react';
 import {View,Text,Button,Alert,StyleSheet} from 'react-native'
 
 const App:React.FC = () => {
-  const[errorMessage,setErrorMessage] = useSate('');
+  const[errorMessage,setErrorMessage] = useState('');
 
   const handleReferenceError = () =>{
     try{
@@ -24,7 +24,7 @@ const App:React.FC = () => {
 
   const handleStandardError = () =>{
     try{
-      const error = new Error('Some error happened')；
+      const error = new Error('Some error happened');
       throw error;
     }catch(e){
       console.error('Caught an error:',e);
@@ -35,8 +35,8 @@ const App:React.FC = () => {
 
   const handleFrozenError = () =>{
     try{
-      const error = Object.freeze(new Error('Some erro happened'));
-      throw error,
+      const error = Object.freeze(new Error('Some error happened'));
+      throw error;
     }catch(e){
       console.error('Caught an error:',e);
 
@@ -82,7 +82,7 @@ StyleSheet.create({
     },
     title:{
       fontSize:18,
-      marginBotton:20,
+      marginBottom:20,
     },
     buttonContainer:{
       width:'80%',

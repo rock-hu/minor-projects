@@ -5,8 +5,8 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-import { setupRNOHWorker } from "@rnoh/react-native-openharmony/src/main/ets/setupRNOHWorker"
-import { createRNPackages } from "../pages/Index"
+import { setupRNOHWorker } from "@rnoh/react-native-openharmony/src/main/ets/setupRNOHWorker";
+import { createRNPackages } from "../pages/Index";
 
 setupRNOHWorker({
   createWorkerRNInstanceConfig: (_rnInstanceName) => {

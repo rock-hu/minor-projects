@@ -14,13 +14,13 @@ import {
   buildRNComponentForTag
 } from "@rnoh/react-native-openharmony";
 import { SurfaceConfig2 } from '@rnoh/react-native-openharmony/src/main/ets/RNSurface';
-import { LoadManager, buildCustomComponent } from './LoadBundle'
+import { LoadManager, buildCustomComponent } from './LoadBundle';
 
 const wrappedCustomRNComponentBuilder = wrapBuilder(buildCustomComponent);
 
 @Component
 export struct BaseRN {
-  @StorageLink('RNOHCoreContext') rnohCoreContext: RNOHCoreContext | undefined = undefined
+  @StorageLink('RNOHCoreContext') rnohCoreContext: RNOHCoreContext | undefined = undefined;
   useBundleCache: boolean = true;
   rnInstance!: RNInstance;
   moduleName: string = '';
@@ -32,7 +32,7 @@ export struct BaseRN {
     LoadManager.loadBundle(this.rnInstance, this.bundlePath, this.useBundleCache).then(() => {
       this.isBundleReady = true;
     }).catch((err: Error) => {
-      console.log('BaseRN.ets aboutToAppear 加载失败')
+      console.log('BaseRN.ets aboutToAppear 加载失败');
     })
   }
 

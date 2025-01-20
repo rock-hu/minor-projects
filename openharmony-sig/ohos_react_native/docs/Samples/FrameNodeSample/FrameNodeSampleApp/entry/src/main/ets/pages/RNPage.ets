@@ -31,12 +31,12 @@ class MyNodeController extends NodeController {
   private isRemove: boolean = false;
 
   aboutToDisappear(): void {
-    this.dispose()
+    this.dispose();
   }
 
   dispose() {
     if (this.rootNode != null) {
-      this.rootNode.dispose()
+      this.rootNode.dispose();
     }
   }
 
@@ -51,7 +51,7 @@ class MyNodeController extends NodeController {
 
     if (this.rootNode === null) {
       this.rootNode = new BuilderNode(uiContext);
-      this.rootNode.build(wrapBuilder<BuilderData[]>(myRNPageBuilder), { text: 'This is a Text' })
+      this.rootNode.build(wrapBuilder<BuilderData[]>(myRNPageBuilder), { text: 'This is a Text' });
     }
 
     return this.rootNode.getFrameNode();
@@ -71,7 +71,7 @@ class MyNodeController extends NodeController {
 @Entry()
 @Component
 struct RNPage {
-  @StorageLink('RNOHCoreContext') rnohCoreContext: RNOHCoreContext | undefined = undefined
+  @StorageLink('RNOHCoreContext') rnohCoreContext: RNOHCoreContext | undefined = undefined;
 
   @Builder
   logBoxBuilder(_: ComponentBuilderContext) {
@@ -81,15 +81,15 @@ struct RNPage {
   @State hasRemoved: boolean = false;
 
   aboutToAppear() {
-    console.log('TTXXX RNPage.ets aboutToAppear')
+    console.log('TTXXX RNPage.ets aboutToAppear');
 
     setTimeout(() => {
-      LoadManager.cpInstance.emitDeviceEvent('updatePage', { params: { title: 'Hello' } })
+      LoadManager.cpInstance.emitDeviceEvent('updatePage', { params: { title: 'Hello' } });
     }, 3000);
   }
 
   aboutToDisappear() {
-    LoadManager.resetLoadedData()
+    LoadManager.resetLoadedData();
   }
 
   build() {

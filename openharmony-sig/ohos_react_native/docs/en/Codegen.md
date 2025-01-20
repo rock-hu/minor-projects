@@ -2,7 +2,7 @@
 
 On the [React Native official website](https://github.com/reactwg/react-native-new-architecture/blob/main/docs/codegen.md), `Codegen` is usually used to generate glue code when `Turbo Native Module` and `Fabric Native Component` are created.
 
-A HarmonyOS-based Codegen is also created in RNOH, which is described below.
+A OpenHarmony-based Codegen is also created in RNOH, which is described below.
 
 ## Environment Setup
 
@@ -87,7 +87,7 @@ where:
 
 - **--cpp-output-path \<path\>**: specifies the relative path of the C++ file output directory. The default value is `./harmony/entry/src/main/cpp/generated`.
 
-- **--no-safety-check \[boolean\]**: By default, Codegen cannot perform file operations outside the working directory. You can skip this check by configuring `--no-safety-check`. If the HarmonyOS project is not in the frontend project directory, this parameter needs to be transferred.
+- **--no-safety-check \[boolean\]**: By default, Codegen cannot perform file operations outside the working directory. You can skip this check by configuring `--no-safety-check`. If the OpenHarmony project is not in the frontend project directory, this parameter needs to be transferred.
 
 
 ## Codegen File Generation and Structure

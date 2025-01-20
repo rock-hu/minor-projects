@@ -209,9 +209,9 @@ void TextComponentInstance::onStateChanged(
     std::to_string(fragments[0].parentShadowView.tag) + "_" + 
     std::to_string(fragments[0].parentShadowView.surfaceId);
   auto info = TextMeasureRegistry::getTextMeasureRegistry().getTextMeasureInfoByKey(m_key);
-  if (*info != nullptr) {
+  if (info.has_value()) {
     VLOG(3) << "[text-debug] setTextContentWithStyledString";
-    m_textNode.setTextContentWithStyledString(*info);
+    m_textNode.setTextContentWithStyledString(info.value());
     std::string textContent;
     for (auto& fragment: fragments) {
       textContent += fragment.string;

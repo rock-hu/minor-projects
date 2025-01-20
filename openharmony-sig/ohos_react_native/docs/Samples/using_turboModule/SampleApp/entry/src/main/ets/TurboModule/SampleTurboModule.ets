@@ -11,14 +11,14 @@ import { preferences } from '../entryability/EntryAbility'
 import { BusinessError } from '@ohos.base';
 
 export interface TurboModuleEventData {
-  param: string
+  param: string;
 }
 
 export class SampleTurboModule extends TurboModule {
   pushStringToHarmony(arg: string, id?: number): string {
     if (id) {
-      let data: TurboModuleEventData = { param: arg }
-      emitter.emit({ eventId: id }, { data: data })
+      let data: TurboModuleEventData = { param: arg };
+      emitter.emit({ eventId: id }, { data: data });
     }
     return arg;
   }
@@ -43,7 +43,7 @@ export class SampleTurboModule extends TurboModule {
   }
 
   rnLog(info: string) {
-    console.log("ReactNative.log: " + info)
+    console.log("ReactNative.log: " + info);
   }
 
   getPreferencesData(key: string): string {

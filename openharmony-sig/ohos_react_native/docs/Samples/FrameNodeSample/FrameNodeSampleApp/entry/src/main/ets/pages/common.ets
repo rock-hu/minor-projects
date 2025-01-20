@@ -55,7 +55,7 @@ class MyNodeController extends NodeController {
 
     if (this.rootNode === null) {
       this.rootNode = new BuilderNode(uiContext);
-      this.rootNode.build(wrapBuilder<BuilderData[]>(myRNPageBuilder), { text: 'This is a Text' })
+      this.rootNode.build(wrapBuilder<BuilderData[]>(myRNPageBuilder), { text: 'This is a Text' });
     }
 
     return this.rootNode.getFrameNode();
@@ -75,7 +75,7 @@ class MyNodeController extends NodeController {
     if (this.rootNode != null) {
       return;
     }
-    this.rootNode = new BuilderNode(uiContext)
-    this.rootNode.build(wrapBuilder<BuilderData[]>(myRNPageBuilder), { text: 'This is a Text' })
+    this.rootNode = new BuilderNode(uiContext);
+    this.rootNode.build(wrapBuilder<BuilderData[]>(myRNPageBuilder), { text: 'This is a Text' });
   }
 }

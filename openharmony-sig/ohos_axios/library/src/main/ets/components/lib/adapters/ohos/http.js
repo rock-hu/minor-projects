@@ -18,12 +18,11 @@ import buildURL from '../../../lib/helpers/buildURL.js'
 import settle from "../../../lib/core/settle"
 import AxiosError from '../../../lib/core/AxiosError'
 import {setOptions} from './index'
-import { LogUtil } from '../../LogUtil'
 
 export default (httpConfig, resolve, reject) => {
     const { httpRequest, fullPath, config } = httpConfig;
     let options = setOptions(config);
-    LogUtil.debug(`http url:${fullPath}, options: ${JSON.stringify(options)}`);
+
     httpRequest.request(
         // 填写http请求的url地址，可以带参数也可以不带参数。URL地址需要开发者自定义。GET请求的参数可以在extraData中指定
         buildURL(fullPath, config.params, config.paramsSerializer), options
@@ -32,7 +31,7 @@ export default (httpConfig, resolve, reject) => {
             let response = {
                 data: data && data.result,
                 status: data && data.responseCode,
-                statusText: "",
+                statusText: '',
                 headers: data && data.header,
                 config: config,
                 request: httpRequest,

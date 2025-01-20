@@ -44,7 +44,7 @@ void StackNode::onNodeEvent(
     EventArgs& eventArgs) {
   ArkUINode::onNodeEvent(eventType, eventArgs);
   if (eventType == ArkUI_NodeEventType::NODE_ON_CLICK &&
-      eventArgs[3].i32 != 2) {
+      eventArgs[3].i32 == UI_INPUT_EVENT_SOURCE_TYPE_KEY) {
     onClick();
   }
   if (eventType == ArkUI_NodeEventType::NODE_ON_HOVER) {

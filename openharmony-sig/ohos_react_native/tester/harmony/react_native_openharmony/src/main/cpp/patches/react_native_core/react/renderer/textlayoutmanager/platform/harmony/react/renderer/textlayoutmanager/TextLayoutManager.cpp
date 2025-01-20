@@ -55,10 +55,12 @@ LinesMeasurements TextLayoutManager::measureLines(
     
     std::string text = "";
     auto const& fragments = attributedString.getFragments();
+    bool hasAttachmentCharacter = false;
     for (const auto& fragment : fragments) {
-        if (!fragment.isAttachment()) {
-            text += fragment.string.c_str();
+        if (fragment.isAttachment()) {
+            hasAttachmentCharacter = true;
         }
+        text += fragment.string.c_str();
     }
     std::u16string u16Text = std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t>{}.from_bytes(text);
         
@@ -80,14 +82,11 @@ LinesMeasurements TextLayoutManager::measureLines(
         std::u16string u16LineText;
         auto pos = lineMetrics[i].startIndex;
         auto len = lineMetrics[i].endIndex- lineMetrics[i].startIndex;
-        if (pos > u16Text.length()) {  
-            VLOG(3) << "TextLayoutManager pos is out of range, text length = " << u16Text.length() << ", pos = " << pos;
-        }  
-        else if (len != std::string::npos && pos + len > u16Text.length()) {  
-            VLOG(3) << "TextLayoutManager pos + len is out of range, text length = " << u16Text.length() << ", pos = " << pos << ", len = " << len;
-            u16LineText = u16Text.substr(pos, u16Text.length() - pos);
-        } else {
-            u16LineText = u16Text.substr(pos, len);
+        u16LineText = u16Text.substr(pos, len);
+        if (hasAttachmentCharacter) {
+            // NOTE: Use std::remove and erase to remove the placeholder character `\uFFFC`
+            // in the UTF-16 string (corresponding to `0xFFFC` in UTF-16)
+            u16LineText.erase(std::remove(u16LineText.begin(), u16LineText.end(), 0xFFFC), u16LineText.end());
         }
         std::string lineText = std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t>{}.to_bytes(u16LineText);
         

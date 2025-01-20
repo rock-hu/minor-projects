@@ -5,7 +5,7 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-import { RNInfo, UPReactView, UPRNSDK } from 'library'
+import { RNInfo, UPReactView, UPRNSDK } from 'library';
 @Entry
 @Component
 export struct RNPage {

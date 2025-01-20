@@ -8,14 +8,14 @@
 import { AbilityConstant, UIAbility, Want } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { window } from '@kit.ArkUI';
-import { UPRNSDK, UPRNSDKImpl } from 'library'
+import { UPRNSDK, UPRNSDKImpl } from 'library';
 
 export default class EntryAbility extends UIAbility {
   rnSDK: UPRNSDKImpl | undefined = undefined;
-  // rnSDK: UPRNSDK | undefined = undefined
+  // rnSDK: UPRNSDK | undefined = undefined;
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
     hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onCreate');
-    this.rnSDK = new UPRNSDKImpl(this.context, want)
+    this.rnSDK = new UPRNSDKImpl(this.context, want);
     AppStorage.setOrCreate('UPRNSDK', this.rnSDK);
   }
 
@@ -25,7 +25,7 @@ export default class EntryAbility extends UIAbility {
   }
 
   onWindowStageCreate(windowStage: window.WindowStage): void {
-    // Main window is created, set main page for this ability
+    // Main window is created, set main page for this ability;
     hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onWindowStageCreate');
 
     windowStage.loadContent('pages/Index', (err, data) => {
@@ -39,17 +39,17 @@ export default class EntryAbility extends UIAbility {
   }
 
   onWindowStageDestroy(): void {
-    // Main window is destroyed, release UI related resources
+    // Main window is destroyed, release UI related resources;
     hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onWindowStageDestroy');
   }
 
   onForeground(): void {
-    // Ability has brought to foreground
+    // Ability has brought to foreground;
     hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onForeground');
   }
 
   onBackground(): void {
-    // Ability has back to background
+    // Ability has back to background;
     hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onBackground');
   }
 }

@@ -59,6 +59,9 @@ class ArkUINode {
   using EventArgs = ArkUI_NumberValue[MAX_COMPONENT_EVENT_ARG_NUM];
 
  public:
+  enum {
+      UI_INPUT_EVENT_SOURCE_TYPE_KEY = 4
+  };
   using Alignment = ArkUI_Alignment;
 
   ArkUI_NodeHandle getArkUINodeHandle();

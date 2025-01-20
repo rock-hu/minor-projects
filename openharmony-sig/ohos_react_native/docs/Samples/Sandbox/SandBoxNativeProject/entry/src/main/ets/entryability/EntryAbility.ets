@@ -14,7 +14,7 @@ export default class EntryAbility extends RNAbility {
   }
 
   onWindowStageCreate(windowStage: window.WindowStage) {
-    super.onWindowStageCreate(windowStage)
-    AppStorage.setOrCreate('RNAbility', this)
+    super.onWindowStageCreate(windowStage);
+    AppStorage.setOrCreate('RNAbility', this);
   }
 }

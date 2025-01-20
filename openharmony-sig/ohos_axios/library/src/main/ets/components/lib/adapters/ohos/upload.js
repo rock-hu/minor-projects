@@ -16,12 +16,11 @@
 'use strict';
 
 import buildURL from '../../../lib/helpers/buildURL.js';
-import settle from "../../../lib/core/settle";
+import settle from '../../../lib/core/settle';
 import AxiosError from '../../../lib/core/AxiosError';
 import buffer from '@ohos.buffer';
 import util from '@ohos.util';
 import { setOptions, judgeMaxContentLength } from './index';
-import { LogUtil } from '../../LogUtil'
 
 const part = '/data/storage/';
 
@@ -30,9 +29,8 @@ const part = '/data/storage/';
  * path: 文件路径
  */
 function getFileNameByPath(path) {
-    let index = path.lastIndexOf("/");
-    let fileName = path.substr(index + 1);
-    return fileName;
+    let index = path.lastIndexOf('/');
+    return path.substr(index + 1);
 }
 
 /**
@@ -45,60 +43,68 @@ function getFileNameByPath(path) {
  */
 function getFileList(requestData, reject, cacheDir) {
     let files = [];
-    let data = [];
     requestData.forEach((value, key, option) => {
-        // 如果data为空，则必须设置filePath
-        if (typeof (value) === 'string' && value.indexOf('internal://') == 0 && cacheDir) { // uri
-            // 1、兼容：internal:// + context
-            let filename = option && option.filename ? option.filename : getFileNameByPath(value)
-            let type = option && option.type ? option.type : getType(filename)
-            let restStr = value.split('internal://')[1]
-            let defaultDir = cacheDir.split('/cache')[0]
-            files.push({
-                name: key,
-                contentType: type,
-                remoteFileName: filename,
-                data: '',
-                filePath: defaultDir + '/' + restStr
-            })
-        } else if (typeof (value) === 'string' && value.indexOf(part) == 0) {
-            let filename = option && option.filename ? option.filename : getFileNameByPath(value)
-            let type = option && option.type ? option.type : getType(filename)
-            files.push({
-                name: key,
-                contentType: type,
-                remoteFileName: filename,
-                data: '',
-                filePath: value
-            })
-        } else if (value instanceof ArrayBuffer) { // ArrayBuffer
-            // 如果data有值，则filePath不会生效
-            let defaultName = "default" + Date.now();
-            let filename = !option ? defaultName : (typeof (option) === 'string') ? option : (option.filename ? option.filename : defaultName);
-            let type = option && option.type ? option.type : ''
-            let contentType = getType(filename)
-            files.push({
-                name: key,
-                contentType: type ? type : contentType ? contentType : '',
-                remoteFileName: filename,
-                data: value,
-                filePath: ''
-            })
+        if (typeof value === 'string') {
+            let file = handleString(value, key, option, cacheDir);
+            if (file) {
+                files.push(file);
+            }
+        } else if (value instanceof ArrayBuffer) {
+            files.push(handleArrayBuffer(value, key, option));
         } else {
-            // 添加额外参数
             files.push({
                 name: key,
                 contentType: '',
                 remoteFileName: '',
                 data: value,
                 filePath: ''
-            })
+            });
         }
-    })
-    return {
-        files: files,
-        data: data
+    });
+
+    return { files: files, data: [] };
+}
+
+function handleString(value, key, option, cacheDir) {
+    let isInternalUri = value.indexOf('internal://') === 0;
+    let isPartPath = value.indexOf(part) === 0;
+
+    if (isInternalUri || isPartPath) {
+        let filename = option?.filename ?? getFileNameByPath(value);
+        let type = option?.type ?? getType(filename);
+        let filePath = isInternalUri
+            ? `${cacheDir.split('/cache')[0]}/${value.split('internal://')[1]}`
+            : value;
+
+        return {
+            name: key,
+            contentType: type,
+            remoteFileName: filename,
+            data: '',
+            filePath: filePath
+        };
     }
+
+    return {
+        name: key,
+        contentType: '',
+        remoteFileName: '',
+        data: value,
+        filePath: ''
+    };
+}
+
+function handleArrayBuffer(value, key, option) {
+    let filename = option?.filename ?? (typeof option === 'string' ? option : `default${Date.now()}`);
+    let type = option?.type ?? getType(filename);
+
+    return {
+        name: key,
+        contentType: type,
+        remoteFileName: filename,
+        data: value,
+        filePath: ''
+    };
 }
 
 /**
@@ -106,11 +112,10 @@ function getFileList(requestData, reject, cacheDir) {
  * path: 文件路径
  */
 function getType(filename) {
-    if (!filename) return ''
-    let index = filename.lastIndexOf(".");
-    let type = index > -1 ? filename.substr(index) : '';
-    return type;
+    let index = filename && filename.lastIndexOf('.');
+    return index > -1 ? filename.substr(index) : '';
 }
+
 /**
  * htmlString: 字符串
  */
@@ -120,6 +125,7 @@ function isHTMLTag(htmlString) {
     // 使用test方法检查字符串是否匹配
     return tagPattern.test(htmlString);
 }
+
 /**
  * 判断是否为json字串
  */
@@ -127,7 +133,7 @@ function isValidJson(str) {
     // JSON字符串必须以 {, [ 或 " 开始，以 }, ], 或 " 结束，且不能包含未闭合的引号
     var jsonPattern = /^[\\],:{}\\s]*$/;
     // 忽略空字符串和非字符串
-    if (str === "" || typeof str !== "string") {
+    if (str === '' || typeof str !== 'string') {
         return false;
     }
     // 使用正则表达式检查
@@ -142,97 +148,108 @@ function isValidJson(str) {
  */
 async function upload(httpConfig, resolve, reject) {
     const { httpRequest, fullPath, config } = httpConfig;
-    const requestData = config.data;
-    // 构建upload请求参数
-    let context = config.context;
-    let cacheDir = '';
-    if (context && context.cacheDir) {
-        cacheDir = context.cacheDir;
-    }
-    let list = getFileList(requestData, reject, cacheDir);
+    let cacheDir = config.context?.cacheDir || '';
+    let list = getFileList(config.data, reject, cacheDir);
     let options = setOptions(config, options => {
         options.multiFormDataList = list.files;
     });
     // 发送upload请求
     try {
-        let responseHeader = null;
+        let responseHeader = {};
         let dataFul = [];
         let resultData = null;
         // 用于订阅HTTP流式响应数据接收事件
-        httpRequest.on("headersReceive", (header) => {
-            responseHeader = header;
-            const totalSize = Number(header['content-length']);
-            if (totalSize) {
-                judgeMaxContentLength(totalSize, config, reject, httpRequest, (valid) => {
-                    // 校验失败，移除监听
-                    if (!valid) {
-                        removeEvent(httpRequest);
-                    }
-                });
-            }
-        });
+        httpRequest.on('headersReceive', onHeadersReceive(responseHeader, config, reject, httpRequest));
         // 用于订阅HTTP流式响应数据接收进度事件
-        httpRequest.on("dataSendProgress", ({sendSize,totalSize}) => {
-            if (typeof config.onUploadProgress === 'function') {
-                config.onUploadProgress({
-                    loaded: sendSize,
-                    total: totalSize
-                })
-            }
-        });
-        httpRequest.on('dataReceive', (arrayBuffer) => {
-            let data = buffer.from(arrayBuffer);
-            dataFul.push(data);
-        });
+        httpRequest.on('dataSendProgress', onDataSendProgress(config));
+        httpRequest.on('dataReceive', onDataReceive(dataFul));
         // 用于订阅HTTP流式响应数据接收完毕事件
         httpRequest.on('dataEnd', () => {
             removeEvent(httpRequest);
         });
         // 填写http请求的url地址，可以带参数也可以不带参数。URL地址需要开发者自定义。GET请求的参数可以在extraData中指定
         let url = buildURL(fullPath, config.params, config.paramsSerializer);
-        LogUtil.debug(`upload url:${fullPath}, options: ${JSON.stringify(options)}`);
-        httpRequest.requestInStream(url, options,
-            (err, data) => {
-                if (responseHeader) {
-                    let fullBuffer = buffer.concat(dataFul);
-                    if (responseHeader['content-type'] === 'gzip' || responseHeader['content-type'] === 'application/octet-stream') {
-                        resultData = fullBuffer.buffer;
-                    } else if (options.expectDataType === 0) { // string
-                        resultData = fullBuffer.toString('utf8');
-                    } else if (options.expectDataType === 2) { // arraybuffer
-                        resultData = fullBuffer.buffer;
-                    } else { // object 或者 默认无
-                        let textDecoder = util.TextDecoder.create('utf-8', { ignoreBOM: true });
-                        let dest = new Uint8Array(fullBuffer.buffer);
-                        let resStr = textDecoder.decodeWithStream(dest);
-                        resultData = isValidJson(resStr) ? JSON.parse(resStr): resStr;
-                    }
-                    resultData = responseHeader.body ? responseHeader.body : resultData ? resultData : 'upload success!';
-                }
-                if (!err) {
-                    let response = {
-                        data: resultData,
-                        status: data,
-                        statusText: "",
-                        headers: responseHeader,
-                        config: config,
-                        request: httpRequest
-                    };
-                    settle(function _resolve(value) {
-                        resolve(value);
-                    }, function _reject(error) {
-                        reject(error);
-                    }, response);
-                } else {
-                    removeEvent(httpRequest);
-                    let {message,code} = err;
-                    reject(new AxiosError(message || '', code || 0, config, null, null));
-                }
-            }
-        )
+        httpRequest.requestInStream(url, options, handleUploadRequest(options, responseHeader, config, reject, resolve, httpRequest, dataFul, resultData));
     } catch (err) {
         reject(new AxiosError(err, AxiosError.ERR_BAD_OPTION_VALUE, config, null, null));
     }
+}
+
+function onHeadersReceive(responseHeader, config, reject, httpRequest) {
+    return (header) => {
+        responseHeader.header = header;
+        const totalSize = Number(header['content-length']);
+        if (totalSize) {
+            judgeMaxContentLength(totalSize, config, reject, httpRequest, validErrorCallback());
+        }
+    };
+}
+
+function validErrorCallback() {
+    return (valid) => {
+        // 校验失败，移除监听
+        if (!valid) {
+            removeEvent(httpRequest);
+        }
+    };
+}
+
+function onDataSendProgress(config) {
+    return ({sendSize, totalSize}) => {
+        if (typeof config.onUploadProgress === 'function') {
+            config.onUploadProgress({
+                loaded: sendSize,
+                total: totalSize
+            });
+        }
+    };
+}
+
+function onDataReceive(dataFul) {
+    return (arrayBuffer) => {
+        let data = buffer.from(arrayBuffer);
+        dataFul.push(data);
+    };
+}
+
+function handleUploadRequest(options, responseHeader, config, reject, resolve, httpRequest, dataFul, resultData) {
+    return (err, data) => {
+        if (responseHeader.header) {
+            let fullBuffer = buffer.concat(dataFul);
+            if (responseHeader.header['content-type'] === 'gzip' || responseHeader.header['content-type'] === 'application/octet-stream') {
+                resultData = fullBuffer.buffer;
+            } else if (options.expectDataType === 0) { // string
+                resultData = fullBuffer.toString('utf8');
+            } else if (options.expectDataType === 2) { // arraybuffer
+                resultData = fullBuffer.buffer;
+            } else { // object 或者 默认无
+                let textDecoder = util.TextDecoder.create('utf-8', { ignoreBOM: true });
+                let dest = new Uint8Array(fullBuffer.buffer);
+                let resStr = textDecoder.decodeWithStream(dest);
+                resultData = isValidJson(resStr) ? JSON.parse(resStr) : resStr;
+            }
+            resultData = responseHeader.header.body ? responseHeader.header.body : resultData ? resultData : 'upload success!';
+        }
+        if (!err) {
+            let response = {
+                data: resultData,
+                status: data,
+                statusText: '',
+                headers: responseHeader.header,
+                config: config,
+                request: httpRequest
+            };
+            settle(function _resolve(value) {
+                resolve(value);
+            }, function _reject(error) {
+                reject(error);
+            }, response);
+        } else {
+            removeEvent(httpRequest);
+            let {message, code} = err;
+            reject(new AxiosError(message || '', code || 0, config, null, null));
+        }
+    };
 }
 
 // 移除监听

@@ -21,7 +21,7 @@ import { createRNController } from './common';
 @Entry
 @Component
 struct Index {
-  @StorageLink('RNOHCoreContext') rnohCoreContext: RNOHCoreContext | undefined = undefined
+  @StorageLink('RNOHCoreContext') rnohCoreContext: RNOHCoreContext | undefined = undefined;
 
   async prepareRNEnv(): Promise<Map<string, RNInstance>> {
     this.rnohCoreContext = AppStorage.get('RNOHCoreContext');

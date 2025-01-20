@@ -13,10 +13,10 @@ import { Params } from './BuilderType';
 @Component
 export default struct FrameNodeRNPage {
   @State message: string = 'Hello World, FrameNodeRNPage';
-  private instance: RNInstance = LoadManager.cpInstance
-  private bundlePath = 'bundle/bundle.harmony.bundle'
-  private moduleName = 'App'
-  @StorageLink('isMetroAvailable') isMetroAvailable: boolean = false
+  private instance: RNInstance = LoadManager.cpInstance;
+  private bundlePath = 'bundle/bundle.harmony.bundle';
+  private moduleName = 'App';
+  @StorageLink('isMetroAvailable') isMetroAvailable: boolean = false;
   private params: Params = {
     text: ''
   };
@@ -30,8 +30,8 @@ export default struct FrameNodeRNPage {
   }
 
   aboutToDisappear(): void {
-    const rnohCoreContext: RNOHCoreContext | undefined = AppStorage.get('RNOHCoreContext')
-    rnohCoreContext?.destroyAndUnregisterRNInstance(this.instance)
+    const rnohCoreContext: RNOHCoreContext | undefined = AppStorage.get('RNOHCoreContext');
+    rnohCoreContext?.destroyAndUnregisterRNInstance(this.instance);
   }
 
   build() {

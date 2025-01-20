@@ -7,7 +7,7 @@ This is the demo project for obtaining RNInstance and RootTag corresponding to R
 ```md
 RootTagSample
 ├── ReactProject RN front-end project
-├── NativeProject HarmonyOS project
+├── NativeProject OpenHarmony project
 └── README.md
 ```
 
