@@ -1,11 +1,11 @@
 
-# 多HAP
+# 实现多Hap构建功能
 
 ### 介绍
 
 本示例展示多HAP开发，简单介绍了多HAP的使用场景，应用包含了一个entry HAP和两个feature HAP，两个feature HAP分别提供了音频和视频播放组件，entry中使用了音频和视频播放组件。 三个模块需要安装三个hap包，最终会在设备上安装一个主entry的hap包。
 
-本示例用到了应用上下文Context接口 @ohos.app.ability.common媒体服务接口@ohos.multimedia.media
+本示例用到了应用上下文Context接口 @ohos.app.ability.common媒体服务接口@ohos.multimedia.media。
 
 ### 效果预览
 
@@ -99,8 +99,8 @@ feature：应用的特性模块，一个应用中可以包含一个或者多个f
 
 1.本示例仅支持标准系统上运行，支持设备：华为手机。
 
-2.HarmonyOS系统：HarmonyOS NEXT Developer Beta1及以上。
+2.HarmonyOS系统：HarmonyOS 5.0.0 Release及以上。
 
-3.DevEco Studio版本：DevEco Studio NEXT Developer Beta1及以上。
+3.DevEco Studio版本：HarmonyOS 5.0.0 Release及以上。
 
-4.HarmonyOS SDK版本：HarmonyOS NEXT Developer Beta1 SDK及以上。
+4.HarmonyOS SDK版本：HarmonyOS 5.0.0 Release及以上。

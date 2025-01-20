@@ -1,8 +1,8 @@
-# 自定义键盘
+# 实现自定义键盘功能
 
 ### 介绍
 
-本示例介绍自定义键盘的实现，包括原生键盘和自定义键盘切换、自定义键盘光标处理、自定义键盘布局避让等场景。
+本示例介绍自定义键盘的实现，通过绑定系统键盘，实现自定义键盘和系统键盘的切换；通过onAreaChange获取自定义键盘高度，设置布局避让；为开发者讲解键盘切换、自定义键盘光标处理、自定义键盘布局避让等技术场景案例。
 
 ### 效果预览
 | 自定义键盘布局避让         | 自定义键盘和系统键盘切换 | 自定义键盘通用功能  |
@@ -61,8 +61,8 @@
 
 1. 本示例仅支持标准系统上运行，支持设备：华为手机。
 
-2. HarmonyOS系统：HarmonyOS NEXT Release及以上。
+2. HarmonyOS系统：HarmonyOS 5.0.0 Release及以上。
 
-3. DevEco Studio版本：DevEco Studio NEXT Release及以上。
+3. DevEco Studio版本：DevEco Studio 5.0.0 Release及以上。
 
-4. HarmonyOS SDK版本：HarmonyOS NEXT Release SDK及以上。
+4. HarmonyOS SDK版本：HarmonyOS 5.0.0 Release SDK及以上。
