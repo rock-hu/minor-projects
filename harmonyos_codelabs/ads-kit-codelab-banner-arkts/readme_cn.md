@@ -18,7 +18,7 @@
 运行本示例前需要参考指导进行：[配置应用签名信息](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/application-dev-overview-V5#section42841246144813)。
 
 ## 效果预览
-| **Banner广告页面**                             |
+| **横幅广告页面**                             |
 |--------------------------------------------|
 | ![avatar](./screenshots/device/banner.jpg) |
 
@@ -28,17 +28,17 @@
 │ ├─entryability
 │ │ └─EntryAbility.ets             // 主程序入口类
 │ ├─pages                          // 存放页面文件目录                
-│ │ └─Index.ets                    // Banner广告页面
+│ │ └─Index.ets                    // 横幅广告页面
 └─entry/src/main/resources         // 资源文件目录
 ```
 
 ## 示例代码
 ### 流量变现服务示例代码
-鲸鸿动能广告服务HarmonyOS-ArkTs示例代码为您提供Banner广告的展示页面。
+鲸鸿动能广告服务HarmonyOS-ArkTs示例代码为您提供横幅广告的展示页面。
 本示例代码包括以下文件，便于您进行广告请求、广告展示：
 
 * Index.ets
-流量变现服务演示界面，可以请求并展示Banner广告，点击按钮可以展示Banner广告内容。
+流量变现服务演示界面，可以请求并展示横幅广告，点击按钮可以展示横幅广告内容。
 <br>代码位置： entry\src\main\ets\pages\Index.ets</br>
 
 ## 相关权限
