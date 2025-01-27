@@ -119,6 +119,7 @@ group("ark_js_unittest") {
     "ecmascript/module/tests:unittest",
     "ecmascript/napi/test:unittest",
     "ecmascript/napi/test:workload_test",
+    "ecmascript/platform/unix/ohos/tests:unittest",
     "ecmascript/regexp/tests:unittest",
     "ecmascript/require/tests:unittest",
     "ecmascript/serializer/tests:unittest",
@@ -164,6 +165,7 @@ group("ark_unittest") {
     "ecmascript/module/tests:host_unittest",
     "ecmascript/napi/test:host_unittest",
     "ecmascript/pgo_profiler/tests:host_unittest",
+    "ecmascript/platform/unix/ohos/tests:host_unittest",
     "ecmascript/regexp/tests:host_unittest",
     "ecmascript/require/tests:host_unittest",
     "ecmascript/serializer/tests:host_unittest",
@@ -683,6 +685,7 @@ ecma_source = [
   "ecmascript/byte_array.cpp",
   "ecmascript/ohos/code_decrypt.cpp",
   "ecmascript/ohos/enable_aot_list_helper.cpp",
+  "ecmascript/compiler/aot_constantpool_patcher.cpp",
   "ecmascript/compiler/aot_file/elf_builder.cpp",
   "ecmascript/compiler/aot_file/elf_reader.cpp",
   "ecmascript/compiler/aot_file/elf_checker.cpp",
@@ -725,6 +728,7 @@ ecma_source = [
   "ecmascript/debugger/js_debugger_manager.cpp",
   "ecmascript/deoptimizer/calleeReg.cpp",
   "ecmascript/deoptimizer/deoptimizer.cpp",
+  "ecmascript/dfx/stackinfo/async_stack_trace.cpp",
   "ecmascript/dfx/dump_code/jit_dump_elf.cpp",
   "ecmascript/dfx/native_module_failure_info.cpp",
   "ecmascript/dfx/stackinfo/js_stackinfo.cpp",
@@ -1095,6 +1099,7 @@ if (is_mingw) {
   ecma_platform_source += [
     "ecmascript/platform/common/dfx_crash_obj.cpp",
     "ecmascript/platform/windows/backtrace.cpp",
+    "ecmascript/platform/windows/async_detect.cpp",
     "ecmascript/platform/windows/map.cpp",
     "ecmascript/platform/windows/file.cpp",
     "ecmascript/platform/windows/os.cpp",
@@ -1118,6 +1123,7 @@ if (is_mingw) {
       "ecmascript/platform/common/dfx_crash_obj.cpp",
       "ecmascript/platform/unix/mac/os.cpp",
       "ecmascript/platform/unix/mac/backtrace.cpp",
+      "ecmascript/platform/unix/mac/async_detect.cpp",
       "ecmascript/platform/unix/mac/log.cpp",
       "ecmascript/platform/unix/mac/dfx_hisys_event.cpp",
       "ecmascript/platform/unix/mac/pandafile.cpp",
@@ -1128,6 +1134,7 @@ if (is_mingw) {
     ecma_platform_source += [
       "ecmascript/platform/unix/mac/os.cpp",
       "ecmascript/platform/unix/mac/backtrace.cpp",
+      "ecmascript/platform/unix/mac/async_detect.cpp",
       "ecmascript/platform/common/dfx_crash_obj.cpp",
       "ecmascript/platform/common/log.cpp",
       "ecmascript/platform/unix/mac/dfx_hisys_event.cpp",
@@ -1139,6 +1146,7 @@ if (is_mingw) {
     ecma_platform_source += [
       "ecmascript/platform/unix/linux/os.cpp",
       "ecmascript/platform/unix/ohos/backtrace.cpp",
+      "ecmascript/platform/unix/ohos/async_detect.cpp",
       "ecmascript/platform/common/log.cpp",
       "ecmascript/platform/unix/ohos/memory.cpp",
       "ecmascript/platform/unix/ohos/dfx_hisys_event.cpp",
@@ -1165,6 +1173,7 @@ if (is_mingw) {
     ecma_platform_source += [
       "ecmascript/platform/unix/linux/os.cpp",
       "ecmascript/platform/unix/linux/backtrace.cpp",
+      "ecmascript/platform/unix/linux/async_detect.cpp",
       "ecmascript/platform/common/dfx_crash_obj.cpp",
       "ecmascript/platform/common/log.cpp",
       "ecmascript/platform/unix/linux/memory.cpp",
@@ -1238,7 +1247,10 @@ ohos_source_set("libark_jsruntime_test_set") {
   defines += [ "STUB_AN_FILE=\"${stub_an_file_path}\"" ]
 
   deps = []
-  external_deps = [ "zlib:libz" ]
+  external_deps = [
+    "libuv:uv",
+    "zlib:libz",
+  ]
   if (enable_hilog) {
     external_deps += [ "hilog:libhilog" ]
   }
@@ -1253,10 +1265,6 @@ ohos_source_set("libark_jsruntime_test_set") {
       "icu:shared_icui18n",
       "icu:shared_icuuc",
     ]
-  }
-
-  if (enable_dump_in_faultlog) {
-    external_deps += [ "libuv:uv" ]
   }
 
   if (!is_arkui_x) {

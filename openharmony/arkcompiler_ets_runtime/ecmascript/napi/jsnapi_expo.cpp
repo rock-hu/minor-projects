@@ -109,6 +109,7 @@ using ecmascript::Region;
 using ecmascript::TaggedArray;
 using ecmascript::base::BuiltinsBase;
 using ecmascript::base::JsonStringifier;
+using ecmascript::SharedHeap;
 using ecmascript::base::StringHelper;
 using ecmascript::base::TypedArrayHelper;
 using ecmascript::base::Utf16JsonParser;
@@ -4396,6 +4397,17 @@ void JSNApi::AllowCrossThreadExecution(EcmaVM *vm)
     vm->GetAssociatedJSThread()->EnableCrossThreadExecution();
 }
 
+// Enable cross thread execution except in gc process.
+bool JSNApi::CheckAndSetAllowCrossThreadExecution(EcmaVM *vm)
+{
+    if (vm->GetHeap()->InGC() || SharedHeap::GetInstance()->InGC()) {
+        return false;
+    }
+    LOG_ECMA(WARN) << "enable cross thread execution when not in gc process";
+    vm->GetAssociatedJSThread()->EnableCrossThreadExecution();
+    return true;
+}
+
 void* JSNApi::GetEnv(EcmaVM *vm)
 {
     JSThread *thread = vm->GetJSThread();
@@ -5282,13 +5294,13 @@ bool JSNApi::ExecuteInContext(EcmaVM *vm, const std::string &fileName, const std
 
 // function for bundle abc
 bool JSNApi::ExecuteForAbsolutePath(const EcmaVM *vm, const std::string &fileName, const std::string &entry,
-                                    bool needUpdate, bool executeFromJob)
+                                    bool needUpdate, const ecmascript::ExecuteTypes &executeType)
 {
     CROSS_THREAD_AND_EXCEPTION_CHECK_WITH_RETURN(vm, false);
     LOG_ECMA(DEBUG) << "start to execute absolute path ark file: " << fileName;
     ecmascript::ThreadManagedScope scope(thread);
     if (!ecmascript::JSPandaFileExecutor::ExecuteFromAbsolutePathAbcFile(
-        thread, fileName.c_str(), entry, needUpdate, executeFromJob)) {
+        thread, fileName.c_str(), entry, needUpdate, executeType)) {
         if (thread->HasPendingException()) {
             ecmascript::JsStackInfo::BuildCrashInfo(thread);
             thread->GetCurrentEcmaContext()->HandleUncaughtException();
@@ -5301,13 +5313,13 @@ bool JSNApi::ExecuteForAbsolutePath(const EcmaVM *vm, const std::string &fileNam
 }
 
 bool JSNApi::Execute(const EcmaVM *vm, const std::string &fileName, const std::string &entry,
-                     bool needUpdate, bool executeFromJob)
+                     bool needUpdate, const ecmascript::ExecuteTypes &executeType)
 {
     CROSS_THREAD_AND_EXCEPTION_CHECK_WITH_RETURN(vm, false);
     LOG_ECMA(DEBUG) << "start to execute ark file: " << fileName;
     ecmascript::ThreadManagedScope scope(thread);
     if (!ecmascript::JSPandaFileExecutor::ExecuteFromAbcFile(
-        thread, fileName.c_str(), entry, needUpdate, executeFromJob)) {
+        thread, fileName.c_str(), entry, needUpdate, executeType)) {
         if (thread->HasPendingException()) {
             ecmascript::JsStackInfo::BuildCrashInfo(thread);
             thread->GetCurrentEcmaContext()->HandleUncaughtException();
@@ -5488,7 +5500,7 @@ void JSNApi::PostFork(EcmaVM *vm, const RuntimeOption &option)
     JSRuntimeOptions &jsOption = vm->GetJSOptions();
     jsOption.SetEnablePGOProfiler(option.GetEnableProfile());
     jsOption.SetEnableJIT(option.GetEnableJIT());
-    jsOption.SetEnableDFXHiSysEvent(true);
+    jsOption.SetEnableDFXHiSysEvent(option.GetEnableDFXHiSysEvent());
     jsOption.SetEnableBaselineJIT(option.GetEnableBaselineJIT());
     jsOption.SetMaxAotMethodSize(JSRuntimeOptions::MAX_APP_COMPILE_METHOD_SIZE);
     ecmascript::pgo::PGOProfilerManager::GetInstance()->SetBundleName(option.GetBundleName());
@@ -5826,7 +5838,7 @@ bool JSNApi::ExecuteModuleFromBuffer(EcmaVM *vm, const void *data, int32_t size,
     CROSS_THREAD_AND_EXCEPTION_CHECK_WITH_RETURN(vm, false);
     ecmascript::ThreadManagedScope scope(thread);
     if (!ecmascript::JSPandaFileExecutor::ExecuteFromBuffer(thread, data, size, ENTRY_POINTER, file.c_str(), false,
-        true)) {
+        ecmascript::ExecuteTypes::NATIVE_MODULE)) {
         if (thread->HasPendingException()) {
             ecmascript::JsStackInfo::BuildCrashInfo(thread);
         }
@@ -6000,7 +6012,8 @@ Local<ObjectRef> JSNApi::GetExportObject(EcmaVM *vm, const std::string &file, co
     if (!vm->IsBundlePack()) {
         ModulePathHelper::ParseAbcPathAndOhmUrl(vm, entry, name, entry);
         std::shared_ptr<JSPandaFile> jsPandaFile =
-            JSPandaFileManager::GetInstance()->LoadJSPandaFile(thread, name, entry.c_str(), false);
+            JSPandaFileManager::GetInstance()->LoadJSPandaFile(
+                thread, name, entry.c_str(), false, ecmascript::ExecuteTypes::STATIC);
         if (jsPandaFile == nullptr) {
             JSHandle<JSTaggedValue> exportObj(thread, JSTaggedValue::Null());
             return JSNApiHelper::ToLocal<ObjectRef>(exportObj);

@@ -17,12 +17,8 @@
 #include "ecmascript/compiler/bytecode_circuit_builder.h"
 #include "ecmascript/compiler/pgo_type/pgo_type_parser.h"
 #include "ecmascript/compiler/pass_manager.h"
-#include "ecmascript/jspandafile/program_object.h"
-#include "ecmascript/js_runtime_options.h"
 #include "ecmascript/module/module_resolver.h"
-#include "ecmascript/module/js_module_manager.h"
 #include "ecmascript/ohos/ohos_pgo_processor.h"
-#include "ecmascript/ohos/ohos_pkg_args.h"
 
 namespace panda::ecmascript::kungfu {
 
@@ -330,6 +326,7 @@ void AotCompilerPreprocessor::ResolveModule(const JSPandaFile *jsPandaFile, cons
         if (jsPandaFile->IsModule(info.second)) {
             auto recordName = info.first;
             ModuleResolver::HostResolveImportedModule(thread, fileName.c_str(), recordName);
+            RETURN_IF_ABRUPT_COMPLETION(thread);
             SharedModuleManager::GetInstance()->TransferSModule(thread);
         }
     }

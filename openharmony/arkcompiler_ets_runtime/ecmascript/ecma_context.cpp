@@ -328,7 +328,7 @@ JSTaggedValue EcmaContext::ExecuteAot(size_t actualNumArgs, JSTaggedType *args,
 }
 
 Expected<JSTaggedValue, bool> EcmaContext::CommonInvokeEcmaEntrypoint(const JSPandaFile *jsPandaFile,
-    std::string_view entryPoint, JSHandle<JSFunction> &func, bool executeFromJob)
+    std::string_view entryPoint, JSHandle<JSFunction> &func, const ExecuteTypes &executeType)
 {
     ASSERT(thread_->IsInManagedState());
     JSHandle<JSTaggedValue> global = GlobalEnv::Cast(globalEnv_.GetTaggedObject())->GetJSGlobalObject();
@@ -403,7 +403,7 @@ Expected<JSTaggedValue, bool> EcmaContext::CommonInvokeEcmaEntrypoint(const JSPa
             moduleLogger->SetEndTime(CString(entryPoint));
         }
 
-        if (!thread_->HasPendingException() && !executeFromJob) {
+        if (!thread_->HasPendingException() && IsStaticImport(executeType)) {
             JSHandle<JSTaggedValue> handleResult(thread_, result);
             job::MicroJobQueue::ExecutePendingJob(thread_, GetMicroJobQueue());
             result = handleResult.GetTaggedValue();
@@ -417,7 +417,8 @@ Expected<JSTaggedValue, bool> EcmaContext::CommonInvokeEcmaEntrypoint(const JSPa
 }
 
 Expected<JSTaggedValue, bool> EcmaContext::InvokeEcmaEntrypoint(const JSPandaFile *jsPandaFile,
-                                                                std::string_view entryPoint, bool executeFromJob)
+                                                                std::string_view entryPoint,
+                                                                const ExecuteTypes &executeType)
 {
     [[maybe_unused]] EcmaHandleScope scope(thread_);
     auto &options = const_cast<EcmaVM *>(thread_->GetEcmaVM())->GetJSOptions();
@@ -435,20 +436,20 @@ Expected<JSTaggedValue, bool> EcmaContext::InvokeEcmaEntrypoint(const JSPandaFil
         jsPandaFile->GetJSPandaFileDesc(), entryPoint);
 
     JSHandle<JSFunction> func(thread_, program->GetMainFunction());
-    Expected<JSTaggedValue, bool> result = CommonInvokeEcmaEntrypoint(jsPandaFile, entryPoint, func, executeFromJob);
+    Expected<JSTaggedValue, bool> result = CommonInvokeEcmaEntrypoint(jsPandaFile, entryPoint, func, executeType);
 
     CheckHasPendingException(this, thread_);
     return result;
 }
 
 Expected<JSTaggedValue, bool> EcmaContext::InvokeEcmaEntrypointForHotReload(
-    const JSPandaFile *jsPandaFile, std::string_view entryPoint, bool executeFromJob)
+    const JSPandaFile *jsPandaFile, std::string_view entryPoint, const ExecuteTypes &executeType)
 {
     [[maybe_unused]] EcmaHandleScope scope(thread_);
     JSHandle<Program> program = JSPandaFileManager::GetInstance()->GenerateProgram(vm_, jsPandaFile, entryPoint);
 
     JSHandle<JSFunction> func(thread_, program->GetMainFunction());
-    Expected<JSTaggedValue, bool> result = CommonInvokeEcmaEntrypoint(jsPandaFile, entryPoint, func, executeFromJob);
+    Expected<JSTaggedValue, bool> result = CommonInvokeEcmaEntrypoint(jsPandaFile, entryPoint, func, executeType);
 
     JSHandle<JSTaggedValue> finalModuleRecord(thread_, func->GetModule());
     // avoid GC problems.
@@ -734,7 +735,6 @@ JSHandle<ConstantPool> EcmaContext::FindOrCreateConstPool(const JSPandaFile *jsP
         JSHandle<ConstantPool> newConstpool = ConstantPool::CreateUnSharedConstPool(vm_, jsPandaFile, id);
         JSHandle<ConstantPool> newSConstpool;
         if (jsPandaFile->IsLoadedAOT()) {
-            // worker thread is not active.
             AotConstantpoolPatcher::SetObjectFunctionFromConstPool(thread_, newConstpool);
             newSConstpool = ConstantPool::CreateSharedConstPoolForAOT(vm_, newConstpool, index);
         } else {
@@ -746,7 +746,8 @@ JSHandle<ConstantPool> EcmaContext::FindOrCreateConstPool(const JSPandaFile *jsP
     } else if (jsPandaFile->IsLoadedAOT()) {
         // For aot, after getting the cached shared constpool,
         // worker thread need to create and bind the correspoding unshared constpool.
-        FindOrCreateUnsharedConstpool(constpool);
+        JSHandle<ConstantPool> newConstpool = JSHandle<ConstantPool>(thread_, FindOrCreateUnsharedConstpool(constpool));
+        AotConstantpoolPatcher::SetObjectFunctionFromConstPool(thread_, newConstpool);
     }
     return JSHandle<ConstantPool>(thread_, constpool);
 }

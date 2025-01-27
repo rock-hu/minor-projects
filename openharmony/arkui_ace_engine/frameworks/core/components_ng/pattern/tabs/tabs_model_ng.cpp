@@ -413,6 +413,15 @@ void TabsModelNG::SetOnTabBarClick(std::function<void(const BaseEventInfo*)>&& o
     tabPattern->SetOnTabBarClickEvent(std::move(onTabBarClick));
 }
 
+void TabsModelNG::SetOnUnselected(std::function<void(const BaseEventInfo* info)>&& onUnselected)
+{
+    auto tabsNode = ViewStackProcessor::GetInstance()->GetMainFrameNode();
+    CHECK_NULL_VOID(tabsNode);
+    auto tabPattern = tabsNode->GetPattern<TabsPattern>();
+    CHECK_NULL_VOID(tabPattern);
+    tabPattern->SetOnUnselectedEvent(std::move(onUnselected));
+}
+
 void TabsModelNG::SetOnAnimationStart(AnimationStartEvent&& onAnimationStart)
 {
     auto tabsNode = ViewStackProcessor::GetInstance()->GetMainFrameNode();
@@ -449,6 +458,14 @@ void TabsModelNG::SetOnSelected(std::function<void(const BaseEventInfo* info)>&&
     auto tabPattern = tabsNode->GetPattern<TabsPattern>();
     CHECK_NULL_VOID(tabPattern);
     tabPattern->SetOnSelectedEvent(std::move(onSelected));
+}
+
+void TabsModelNG::SetOnSelected(FrameNode* frameNode, std::function<void(const BaseEventInfo* info)>&& onSelected)
+{
+    CHECK_NULL_VOID(frameNode);
+    auto pattern = frameNode->GetPattern<TabsPattern>();
+    CHECK_NULL_VOID(pattern);
+    pattern->SetOnSelectedEvent(std::move(onSelected));
 }
 
 void TabsModelNG::SetDivider(const TabsItemDivider& divider)
@@ -701,6 +718,14 @@ void TabsModelNG::SetBarGridAlign(FrameNode* frameNode, const BarGridColumnOptio
     auto tabBarLayoutProperty = GetTabBarLayoutProperty(frameNode);
     CHECK_NULL_VOID(tabBarLayoutProperty);
     tabBarLayoutProperty->UpdateBarGridAlign(BarGridColumnOptions);
+}
+
+void TabsModelNG::SetOnUnselected(FrameNode* frameNode, std::function<void(const BaseEventInfo* info)>&& onUnselected)
+{
+    CHECK_NULL_VOID(frameNode);
+    auto pattern = frameNode->GetPattern<TabsPattern>();
+    CHECK_NULL_VOID(pattern);
+    pattern->SetOnUnselectedEvent(std::move(onUnselected));
 }
 
 void TabsModelNG::SetDivider(FrameNode* frameNode, const TabsItemDivider& divider)

@@ -1794,7 +1794,7 @@ void StubBuilder::VerifyBarrier(GateRef glue, GateRef obj, [[maybe_unused]] Gate
     env->SubCfgExit();
 }
 
-void StubBuilder::SetValueWithBarrier(GateRef glue, GateRef obj, GateRef offset, GateRef value, bool withEden,
+void StubBuilder::SetValueWithBarrier(GateRef glue, GateRef obj, GateRef offset, GateRef value,
                                       MemoryAttribute::ShareFlag share)
 {
     auto env = GetEnvironment();
@@ -1832,7 +1832,7 @@ void StubBuilder::SetValueWithBarrier(GateRef glue, GateRef obj, GateRef offset,
             break;
         }
         case MemoryAttribute::NON_SHARE: {
-            SetNonSValueWithBarrier(glue, obj, offset, value, objectRegion, valueRegion, withEden);
+            SetNonSValueWithBarrier(glue, obj, offset, value, objectRegion, valueRegion);
             Jump(&exit);
             break;
         }
@@ -1847,7 +1847,7 @@ void StubBuilder::SetValueWithBarrier(GateRef glue, GateRef obj, GateRef offset,
             }
             Bind(&valueIsNotShared);
             {
-                SetNonSValueWithBarrier(glue, obj, offset, value, objectRegion, valueRegion, withEden);
+                SetNonSValueWithBarrier(glue, obj, offset, value, objectRegion, valueRegion);
                 Jump(&exit);
             }
             break;
@@ -1936,7 +1936,7 @@ void StubBuilder::SetSValueWithBarrier(GateRef glue, GateRef obj, GateRef offset
 }
 
 void StubBuilder::SetNonSValueWithBarrier(GateRef glue, GateRef obj, GateRef offset, GateRef value,
-                                          GateRef objectRegion, GateRef valueRegion, bool withEden)
+                                          GateRef objectRegion, GateRef valueRegion)
 {
     auto env = GetEnvironment();
     Label entry(env);
@@ -1945,16 +1945,9 @@ void StubBuilder::SetNonSValueWithBarrier(GateRef glue, GateRef obj, GateRef off
 
     Label checkMarkStatus(env);
     Label isOldToYoung(env);
-    Label checkEden(env);
-    if (withEden) {
-        GateRef objectRegionInOld = InGeneralOldGeneration(objectRegion);
-        GateRef valueRegionInYoung = InGeneralYoungGeneration(valueRegion);
-        BRANCH(BitAnd(objectRegionInOld, valueRegionInYoung), &isOldToYoung, &checkEden);
-    } else {
-        GateRef objectNotInYoung = BoolNot(InYoungGeneration(objectRegion));
-        GateRef valueRegionInYoung = InYoungGeneration(valueRegion);
-        BRANCH_UNLIKELY(BitAnd(objectNotInYoung, valueRegionInYoung), &isOldToYoung, &checkMarkStatus);
-    }
+    GateRef objectNotInYoung = BoolNot(InYoungGeneration(objectRegion));
+    GateRef valueRegionInYoung = InYoungGeneration(valueRegion);
+    BRANCH_UNLIKELY(BitAnd(objectNotInYoung, valueRegionInYoung), &isOldToYoung, &checkMarkStatus);
 
     Bind(&isOldToYoung);
     {
@@ -1986,45 +1979,6 @@ void StubBuilder::SetNonSValueWithBarrier(GateRef glue, GateRef obj, GateRef off
         {
             CallNGCRuntime(glue, RTSTUB_ID(InsertOldToNewRSet), { glue, obj, offset });
             Jump(&checkMarkStatus);
-        }
-    }
-    if (withEden) {
-        Bind(&checkEden);
-        GateRef objectRegionInYoung = InYoungGeneration(objectRegion);
-        GateRef valueRegionInEden = InEdenGeneration(valueRegion);
-        Label newToEden(env);
-        Branch(BitAnd(objectRegionInYoung, valueRegionInEden), &newToEden, &checkMarkStatus);
-        Bind(&newToEden);
-        {
-            GateRef loadOffset = IntPtr(Region::PackedData::GetNewToEdenSetOffset(env_->Is32Bit()));
-            auto newToEdenSet = Load(VariableType::NATIVE_POINTER(), objectRegion, loadOffset);
-            Label isNullPtr(env);
-            Label notNullPtr(env);
-            Branch(IntPtrEuqal(newToEdenSet, IntPtr(0)), &isNullPtr, &notNullPtr);
-            Bind(&notNullPtr);
-            {
-                GateRef slotAddr = PtrAdd(TaggedCastToIntPtr(obj), offset);
-                // (slotAddr - this) >> TAGGED_TYPE_SIZE_LOG
-                GateRef bitOffsetPtr = IntPtrLSR(PtrSub(slotAddr, objectRegion), IntPtr(TAGGED_TYPE_SIZE_LOG));
-                GateRef bitOffset = TruncPtrToInt32(bitOffsetPtr);
-                GateRef bitPerWordLog2 = Int32(GCBitset::BIT_PER_WORD_LOG2);
-                GateRef bytePerWord = Int32(GCBitset::BYTE_PER_WORD);
-                // bitOffset >> BIT_PER_WORD_LOG2
-                GateRef index = Int32LSR(bitOffset, bitPerWordLog2);
-                GateRef byteIndex = Int32Mul(index, bytePerWord);
-                // bitset_[index] |= mask;
-                GateRef bitsetData = PtrAdd(newToEdenSet, IntPtr(RememberedSet::GCBITSET_DATA_OFFSET));
-                GateRef oldsetValue = Load(VariableType::INT32(), bitsetData, byteIndex);
-                GateRef newmapValue = Int32Or(oldsetValue, GetBitMask(bitOffset));
-
-                Store(VariableType::INT32(), glue, bitsetData, byteIndex, newmapValue);
-                Jump(&checkMarkStatus);
-            }
-            Bind(&isNullPtr);
-            {
-                CallNGCRuntime(glue, RTSTUB_ID(InsertNewToEdenRSet), { glue, obj, offset });
-                Jump(&checkMarkStatus);
-            }
         }
     }
     Bind(&checkMarkStatus);
@@ -2561,7 +2515,7 @@ GateRef StubBuilder::LoadICWithHandler(
         BRANCH_LIKELY(TaggedIsPrototypeHandler(*handler), &handlerIsPrototypeHandler, &handlerNotPrototypeHandler);
         Bind(&handlerIsPrototypeHandler);
         {
-            GateRef cellValue = GetProtoCell(*handler);
+            GateRef cellValue = GetPrototypeHandlerProtoCell(*handler);
             BRANCH_LIKELY(TaggedIsUndefined(cellValue), &loopEnd, &cellNotUndefined);
             Bind(&cellNotUndefined);
             BRANCH(GetHasChanged(cellValue), &cellHasChanged, &loopEnd);
@@ -2838,7 +2792,7 @@ GateRef StubBuilder::ICStoreElement(GateRef glue, GateRef receiver, GateRef key,
         }
         Bind(&handlerNotInt);
         {
-            GateRef cellValue = GetProtoCell(*varHandler);
+            GateRef cellValue = GetPrototypeHandlerProtoCell(*varHandler);
             BRANCH(GetHasChanged(cellValue), &cellHasChanged, &loopEnd);
             Bind(&cellHasChanged);
             {
@@ -2960,7 +2914,7 @@ GateRef StubBuilder::StoreICWithHandler(GateRef glue, GateRef receiver, GateRef 
                     &handlerNotTransWithProtoHandler);
                 Bind(&handlerIsTransWithProtoHandler);
                 {
-                    GateRef cellValue = GetProtoCell(*handler);
+                    GateRef cellValue = GetTransWithProtoHandlerProtoCell(*handler);
                     BRANCH(GetHasChanged(cellValue), &cellHasChanged, &cellNotChanged);
                     Bind(&cellNotChanged);
                     {
@@ -2983,7 +2937,7 @@ GateRef StubBuilder::StoreICWithHandler(GateRef glue, GateRef receiver, GateRef 
         }
         Bind(&handlerIsPrototypeHandler);
         {
-            GateRef cellValue = GetProtoCell(*handler);
+            GateRef cellValue = GetPrototypeHandlerProtoCell(*handler);
             BRANCH(TaggedIsUndefined(cellValue), &loopEnd, &cellNotUndefined);
             Bind(&cellNotUndefined);
             BRANCH(TaggedIsNull(cellValue), &cellHasChanged, &cellNotNull);
@@ -3003,7 +2957,7 @@ GateRef StubBuilder::StoreICWithHandler(GateRef glue, GateRef receiver, GateRef 
             BRANCH(TaggedIsStoreAOTHandler(*handler), &handlerIsStoreAOTHandler, &handlerNotStoreAOTHandler);
             Bind(&handlerIsStoreAOTHandler);
             {
-                GateRef cellValue = GetProtoCell(*handler);
+                GateRef cellValue = GetStoreAOTHandlerProtoCell(*handler);
                 BRANCH(GetHasChanged(cellValue), &cellHasChanged, &aotCellNotChanged);
                 Bind(&aotCellNotChanged);
                 {

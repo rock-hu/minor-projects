@@ -243,6 +243,7 @@ public:
     void SetVisibleAreaUserCallback(const std::vector<double>& ratios, const VisibleCallbackInfo& callback)
     {
         CreateEventHubInner();
+        CHECK_NULL_VOID(eventHub_);
         eventHub_->SetVisibleAreaRatiosAndCallback(callback, ratios, true);
     }
 
@@ -253,6 +254,7 @@ public:
     {
         isCalculateInnerVisibleRectClip_ = isCalculateInnerClip;
         CreateEventHubInner();
+        CHECK_NULL_VOID(eventHub_);
         eventHub_->SetVisibleAreaRatiosAndCallback(callback, ratios, false);
     }
 
@@ -337,6 +339,7 @@ public:
     RefPtr<T> GetEventHub()
     {
         CreateEventHubInner();
+        CHECK_NULL_RETURN(eventHub_, nullptr);
         return DynamicCast<T>(eventHub_);
     }
 
@@ -349,6 +352,7 @@ public:
     RefPtr<GestureEventHub> GetOrCreateGestureEventHub()
     {
         CreateEventHubInner();
+        CHECK_NULL_RETURN(eventHub_, nullptr);
         return eventHub_->GetOrCreateGestureEventHub();
     }
 
@@ -1204,6 +1208,7 @@ public:
     void OnPropertyChangeMeasure() const;
 
     void SetKitNode(const RefPtr<Kit::FrameNode>& node);
+    const RefPtr<Kit::FrameNode>& GetKitNode() const;
 
     void SetVisibleAreaChangeTriggerReason(VisibleAreaChangeTriggerReason triggerReason)
     {
@@ -1240,15 +1245,30 @@ public:
     {
         return lastHostParentOffsetToWindow_;
     }
+    void ResetRenderDirtyMarked(bool isRenderDirtyMarked)
+    {
+        isRenderDirtyMarked_ = isRenderDirtyMarked;
+    }
 
     void SetFrameNodeDestructorCallback(const std::function<void(int32_t)>&& callback);
     void FireFrameNodeDestructorCallback();
+
+    bool CheckTopWindowBoundary() const
+    {
+        return topWindowBoundary_;
+    }
+
+    void SetTopWindowBoundary(bool topWindowBoundary)
+    {
+        topWindowBoundary_ = topWindowBoundary;
+    }
 
 protected:
     void DumpInfo() override;
     std::unordered_map<std::string, std::function<void()>> destroyCallbacksMap_;
     void DumpInfo(std::unique_ptr<JsonValue>& json) override;
     void DumpSimplifyInfo(std::unique_ptr<JsonValue>& json) override;
+    void OnCollectRemoved() override;
 
 private:
     void MarkDirtyNode(
@@ -1516,6 +1536,8 @@ private:
     VisibleAreaChangeTriggerReason visibleAreaChangeTriggerReason_ = VisibleAreaChangeTriggerReason::IDLE;
     float preOpacity_ = 1.0f;
     std::function<void(int32_t)> frameNodeDestructorCallback_;
+
+    bool topWindowBoundary_ = false;
 
     friend class RosenRenderContext;
     friend class RenderContext;
