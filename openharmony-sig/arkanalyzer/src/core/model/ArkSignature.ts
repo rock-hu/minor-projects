@@ -340,6 +340,10 @@ export class MethodSignature {
     public isMatch(signature: MethodSignature): boolean {
         return ((this.toString() === signature.toString()) && (this.getType().toString() === signature.getType().toString()));
     }
+
+    public getParamLength(): number {
+        return this.methodSubSignature.getParameters().length;
+    }
 }
 
 export class LocalSignature {
@@ -355,7 +359,7 @@ export class LocalSignature {
         return this.name;
     }
 
-    public getDeclaringMethodSubSignature() {
+    public getDeclaringMethodSignature(): MethodSignature {
         return this.declaringMethodSignature;
     }
 

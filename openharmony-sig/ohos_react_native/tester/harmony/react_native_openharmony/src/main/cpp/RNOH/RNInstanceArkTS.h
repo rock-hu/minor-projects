@@ -190,6 +190,8 @@ class RNInstanceArkTS : public RNInstanceInternal,
   void registerFont(
       std::string const& fontFamily,
       std::string const& fontFilePath) override;
+  void setJavaScriptExecutorFactory(
+      std::shared_ptr<facebook::react::JSExecutorFactory> jsExecutorFactory) override;
 
   std::shared_ptr<TaskExecutor> taskExecutor;
 
@@ -223,6 +225,7 @@ class RNInstanceArkTS : public RNInstanceInternal,
   std::vector<ArkTSMessageHandler::Shared> m_arkTSMessageHandlers;
   ArkTSChannel::Shared m_arkTSChannel;
   std::string m_bundlePath;
+  std::shared_ptr<facebook::react::JSExecutorFactory> m_jsExecutorFactory = nullptr;
 
   void initialize();
   void initializeScheduler(

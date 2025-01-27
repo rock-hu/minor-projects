@@ -3,10 +3,10 @@
 ### Incorrect Attribute Settings
 - Methods
 1. Open `ArkUI Inspector` at the bottom of DevEco Studio and select the application that encounters the issue. For details, see [Layout Analysis](https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V5/ide-arkui-inspector-V5).
-   ![faq-inspector](./figures/faq-inspector.png)
+   ![faq-inspector](../figures/faq-inspector.png)
 2. Find the faulty component on the displayed page. If the component is not displayed, you can use the component tree on the left of the page to find the component based on the text, component type, and tag (if attributes such as **nativeId** are not set, **id** is used by default).
 3. Select the component, view the attributes on the right of the page, and find the faulty attribute. 
-   ![faq-attributes](./figures/faq-attributes.png)
+   ![faq-attributes](../figures/faq-attributes.png)
 4. Determine the cause based on the attribute.
    - The abnormal value cannot be processed by ArkUI and needs to be adapted.
    - The input value is incorrect. You need to find the incorrect value.

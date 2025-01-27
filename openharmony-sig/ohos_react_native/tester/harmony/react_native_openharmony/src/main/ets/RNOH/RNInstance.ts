@@ -71,6 +71,7 @@ export type LifecycleEventArgsByEventName = {
   ];
   RELOAD: [{ reason: string | undefined }];
   WINDOW_SIZE_CHANGE: [windowSize: window.Size];
+  WINDOW_REACT_DRAG: [isWindowRectDrag: boolean];
 }
 
 export type StageChangeEventArgsByEventName = {
@@ -877,6 +878,10 @@ export class RNInstanceImpl implements RNInstance {
     this.lifecycleEventEmitter.emit("CONFIGURATION_UPDATE", ...args)
   }
 
+  public onWindowReactChange(isWindowRectDrag: boolean) {
+    this.lifecycleEventEmitter.emit("WINDOW_REACT_DRAG", isWindowRectDrag);
+  }
+
   public onWindowSizeChange(windowSize: window.Size) {
     this.lifecycleEventEmitter.emit("WINDOW_SIZE_CHANGE", windowSize);
     this.postMessageToCpp("WINDOW_SIZE_CHANGE", windowSize);
@@ -969,7 +974,6 @@ export class RNInstanceImpl implements RNInstance {
   public getUIContext(): UIContext {
     return this.uiCtx;
   }
-
 
   public registerFont(fontFamily: string, fontResource: Resource | string): void {
     const fontPath = (() => {

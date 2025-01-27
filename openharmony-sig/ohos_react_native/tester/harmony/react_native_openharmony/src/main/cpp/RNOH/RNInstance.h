@@ -168,6 +168,8 @@ class RNInstanceInternal : public RNInstance,
   virtual void registerFont(
       std::string const& fontFamily,
       std::string const& fontFilePath) = 0;
+  virtual void setJavaScriptExecutorFactory(
+      std::shared_ptr<facebook::react::JSExecutorFactory> jsExecutorFactory) = 0;
 };
 
 } // namespace rnoh

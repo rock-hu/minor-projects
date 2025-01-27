@@ -497,7 +497,7 @@ To convert the bundle to .hbc format, perform the following steps:
 
 5. After the preceding steps are complete, the bundle is converted to .hbc format.
 
-    ![faq-bundlle-hbc](./faqs/figures/faq-bundlle-hbc.png)
+    ![faq-bundlle-hbc](../en/figures/faq-bundlle-hbc.png)
 
 ### How Do I Reduce the HAP Size?
 
@@ -534,7 +534,7 @@ A large OpenHarmony Ability Package (HAP) may occupy more resources during appli
 
     ​On the `Build Mode` tab page, select `release`.
 
-    ![faq-entry-release](./faqs/figures/faq-entry-release.png)
+    ![faq-entry-release](../en/figures/faq-entry-release.png)
 
 4. Compress the .so file to reduce the HAP size.
    Modify the `compressNativeLibs` field in the `module.json5` configuration file of the application module by referring to [Reducing the Size of Application Packages](https://developer.huawei.com/consumer/cn/doc/best-practices-V5/bpta-decrease_pakage_size-V5#section1286810176182), set the value to **true**, and recompile and bundle the application.

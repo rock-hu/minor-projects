@@ -10,6 +10,7 @@ cmake_policy(SET CMP0079 NEW) # Allow to link libraries from different
 set(NATIVERENDER_ROOT_PATH "${RNOH_CPP_DIR}")
 set(third_party_dir "${RNOH_CPP_DIR}/third-party")
 set(patches_dir "${RNOH_CPP_DIR}/patches")
+option(USE_HERMES "Enabled or Disable the Hermes JS Engine" ON)
 
 add_compile_options("-Wno-error=unused-command-line-argument")
 
@@ -284,19 +285,6 @@ target_sources(folly_futures PRIVATE
 )
 target_link_libraries(folly_futures libevent)
 
-# HERMES
-add_library(hermes-engine::libhermes SHARED IMPORTED)
-add_compile_options(
-    # TODO: check if building in debug mode
-    -DHERMES_ENABLE_DEBUGGER
-)
-set(hermes_include_dirs
-    "${third_party_dir}/hermes/API"
-    "${third_party_dir}/hermes/public"
-)
-set_property(TARGET hermes-engine::libhermes PROPERTY
-                IMPORTED_LOCATION "${third_party_dir}/prebuilt/${OHOS_ARCH}/libhermes.so")
-
 # -------- REACT COMMON --------
 set(REACT_COMMON_DIR "${RNOH_CPP_DIR}/third-party/rn/ReactCommon")
 set(REACT_COMMON_PATCH_DIR "${patches_dir}/react_native_core")
@@ -326,18 +314,10 @@ add_react_common_subdir(reactperflogger)
 add_react_common_subdir(logger)
 add_react_common_subdir(jsiexecutor)
 add_react_common_subdir(cxxreact)
-# add_react_common_subdir(jsc)
 add_react_common_subdir(jsi)
 add_react_common_subdir(butter)
 add_react_common_subdir(callinvoker)
 add_react_common_subdir(jsinspector)
-add_react_common_subdir(hermes/executor)
-target_include_directories(hermes_executor_common PRIVATE
-    "${folly_include_dir}"
-    "${boost_include_dirs}"
-    "${hermes_include_dirs}"
-)
-# add_react_common_subdir(hermes/inspector)
 add_react_common_subdir(react/renderer/runtimescheduler)
 add_subdirectory(${REACT_COMMON_PATCH_DIR}/react/debug)
 add_react_common_subdir(react/config)
@@ -375,16 +355,7 @@ add_react_common_subdir(react/renderer/mapbuffer)
 add_react_common_subdir(react/nativemodule/core)
 target_include_directories(react_nativemodule_core PRIVATE "${REACT_COMMON_DIR}/callinvoker")
 
-# HERMES INSPECTOR
-add_subdirectory("${REACT_COMMON_DIR}/hermes/inspector")
-target_include_directories(hermes_inspector PRIVATE
-    "${folly_include_dir}"
-    "${boost_include_dirs}"
-    "${hermes_include_dirs}"
-    "${libevent_include_dirs}"
-)
-target_compile_options(hermes_inspector PRIVATE ${folly_compile_options})
-
+add_subdirectory("${RNOH_CPP_DIR}/RNOH/executor")
 # ----------------------------------------------------------------------------------------------------------------------
 
 add_library(rnoh SHARED
@@ -498,13 +469,14 @@ add_library(rnoh SHARED
     "${RNOH_CPP_DIR}/RNOH/Performance/NativeTracing.cpp"
     "${RNOH_CPP_DIR}/RNOH/Performance/HarmonyReactMarker.cpp"
     "${RNOH_CPP_DIR}/RNOH/Performance/OHReactMarkerListener.cpp"
+    "${RNOH_CPP_DIR}/RNOH/executor/hermesExecutor.cpp"
+    "${RNOH_CPP_DIR}/RNOH/executor/jsvmExecutor.cpp"
 )
 target_include_directories(rnoh PUBLIC
     "${RNOH_CPP_DIR}"
     "${REACT_COMMON_DIR}"
     "${REACT_COMMON_DIR}/jsiexecutor"
     "${folly_include_dir}"
-    "${hermes_include_dirs}"
     "${RNOH_APP_DIR}"
 )
 # add hitrace systrace implementation for debugging
@@ -513,6 +485,7 @@ if(DEFINED WITH_HITRACE_SYSTRACE)
     target_link_libraries(react_nativemodule_core libhitrace_ndk.z.so)
     target_link_libraries(react_render_debug libhitrace_ndk.z.so)
 endif()
+
 target_link_libraries(rnoh PUBLIC
     libace_napi.z.so
     libace_ndk.z.so
@@ -524,6 +497,7 @@ target_link_libraries(rnoh PUBLIC
     Boost::context
     reactnative
     react_render_scheduler
+    jsvm_executor_common
     hermes_executor_common
     rrc_image
     rrc_text
@@ -535,6 +509,12 @@ target_link_libraries(rnoh PUBLIC
     react_bridging
     react_render_animations
 )
+
+if(USE_HERMES)
+    target_compile_definitions(rnoh PUBLIC USE_HERMES=1)
+else()
+    target_compile_definitions(rnoh PUBLIC USE_HERMES=0)
+endif()
 
 target_compile_options(rnoh PUBLIC
     ${folly_compile_options}

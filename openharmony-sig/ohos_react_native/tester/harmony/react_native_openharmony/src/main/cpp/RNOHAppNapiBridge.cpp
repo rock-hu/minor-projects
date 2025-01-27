@@ -28,6 +28,16 @@
 #include "RNOH/UITicker.h"
 #include "RNOH/arkui/ArkUINodeRegistry.h"
 
+#ifndef USE_HERMES
+#define USE_HERMES 1
+#endif
+
+#if USE_HERMES
+#include "RNOH/executor/hermesExecutor.h"
+#else
+#include "RNOH/executor/jsvmExecutor.h"
+#endif
+
 template <typename Map, typename K, typename V>
 auto getOrDefault(const Map& map, K&& key, V&& defaultValue)
     -> std::common_type_t<decltype(map.at(std::forward<K>(key))), V&&> {
@@ -48,6 +58,17 @@ auto extractOrDefault(Map& map, K&& key, V&& defaultValue)
     return value;
   }
   return std::forward<V>(defaultValue);
+}
+
+std::shared_ptr<facebook::react::JSExecutorFactory> getDefaultJSExecutorFactory(
+    bool shouldEnableDebugger) {
+  #if USE_HERMES
+    DLOG(INFO) << "Using HermesExecutorFactory";
+    return createHermesExecutorFactory(shouldEnableDebugger);
+  #else
+    DLOG(INFO) << "Using JSVMExecutorFactory";
+    return createJSVMExecutorFactory();
+  #endif
 }
 
 std::mutex RN_INSTANCE_BY_ID_MTX;
@@ -296,6 +317,8 @@ static napi_value onCreateRNInstance(
     }
     auto [it, _inserted] =
         RN_INSTANCE_BY_ID.emplace(instanceId, std::move(rnInstance));
+    it->second->setJavaScriptExecutorFactory(
+        getDefaultJSExecutorFactory(shouldEnableDebugger));
     it->second->start();
   } catch (...) {
     ArkTSBridge::getInstance()->handleError(std::current_exception());

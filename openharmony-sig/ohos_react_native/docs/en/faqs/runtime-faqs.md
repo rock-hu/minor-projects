@@ -4,7 +4,7 @@
 - Viewing the Crash Log 
 The application is compiled and installed on the phone, but it crashes once it is run. View the crash log in **DevEco Studio** > **Log** > **FaultLog**.
 - Error screenshot 
-![faq-RNOH_C_API_ARCH](./figures/faq-RNOH_C_API_ARCH.png)
+![faq-RNOH_C_API_ARCH](../figures/faq-RNOH_C_API_ARCH.png)
 - Solutions
 1. This error is caused by the **C API** version. You need to set `RNOH_C_API_ARCH=1` in the environment variable, restart DevEco Studio, choose **Build** > **Clean Project**, and recompile the code.
 2. If the preceding settings do not take effect, delete the `.cxx` directory and recompile and run the code.
@@ -17,13 +17,13 @@ The application is compiled and installed on the phone, but it crashes once it i
 
 ### "insertChild" Error for Crash in the Hybrid Solution
 - Error screenshot 
-![faq-CustomRNComponentFrameNodeFactory](./figures/faq-CustomRNComponentFrameNodeFactory.png)
+![faq-CustomRNComponentFrameNodeFactory](../figures/faq-CustomRNComponentFrameNodeFactory.png)
 - Crash 
 When the hybrid solution is used, if a crash occurs and the `ComponentInstance::insertChild` call stack exists, check whether `CustomRNComponentFrameNodeFactory` is correctly created when `RNInstance` is created. Create the factory method correctly or upgrade the **RNOH** version to solve the problem.
 
 ### "Cannot read property tag of undefined" Error for Crash in the Hybrid Solution
 - Error screenshot 
-    ![faq-arkTSComponentNames](./figures/faq-arkTSComponentNames.png)
+    ![faq-arkTSComponentNames](../figures/faq-arkTSComponentNames.png)
 - Crash
 When the hybrid solution is used, if an unexpected exit occurs and `CustomRNComponentFrameNodeFactory` is displayed at the bottom of the call stack, check whether the component name is placed in the array and transferred as the `arkTsComponentNames` parameter when the `RNApp` or `RNInstance` is created.
 
@@ -60,8 +60,8 @@ When the hybrid solution is used, if an unexpected exit occurs and `CustomRNComp
         (1) Check the Hilog to locate the fault. One possible cause is that `libhermes.so` is not packed into ***XXX*.hap**. (The Hilog reports `can't find library libhermes.so in namespace: moduleNs_default`.)
         
         (2) Alternatively, enable the error enhancement function of IDE, as shown in the following figure.
-            ![faq-IDE-enabling-error-enhancement](./figures/faq-IDE-enable-error-enhancement.png)
- 
+            ![faq-IDE-enabling-error-enhancement](../figures/faq-IDE-enable-error-enhancement.png)
+
         (3) There is an incompatible change in IDE upgrade. For details, see [Document](https://developer.huawei.com/consumer/en/doc/harmonyos-releases-V5/ide-changelogs-db5-V5). Simply speaking, there are two HARs, and the .so file of HAR A depends on the .so file of HAR B. Before change, the .so file of HAR B is packed into HAR A.
  
         (4) Solution: This problem is automatically solved when IDE is upgraded to the latest version.

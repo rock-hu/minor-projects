@@ -216,6 +216,8 @@ class RNInstanceCAPI : public RNInstanceInternal,
   void registerFont(
       std::string const& fontFamily,
       std::string const& fontFilePath) override;
+  void setJavaScriptExecutorFactory(
+      std::shared_ptr<facebook::react::JSExecutorFactory> jsExecutorFactory) override;
     
 
  protected:
@@ -263,6 +265,7 @@ class RNInstanceCAPI : public RNInstanceInternal,
   SharedNativeResourceManager m_nativeResourceManager;
   std::string m_bundlePath;
   ArkTSMessageHub::Shared m_arkTSMessageHub;
+  std::shared_ptr<facebook::react::JSExecutorFactory> m_jsExecutorFactory = nullptr;
 
   void initialize();
   void initializeScheduler(

@@ -1,6 +1,13 @@
 # Changelog
+## 5.1.0.201
 
-## 5.1.0.110
+## 5.1.0.111
+- fix:change delay time,([f19bda388](https://gitee.com/openharmony-sig/ohos_react_native/commit/f19bda388633c9e3290737c1500df1b2387b8cdc))
+- fix:surface change delay in non-windowed change scenes,([f084903c5](https://gitee.com/openharmony-sig/ohos_react_native/commit/f084903c58d2dcc321e5f225a824ffe981d0f686))
+- ix: Modify the type of onFinished,([8973483e3](https://gitee.com/openharmony-sig/ohos_react_native/commit/8973483e36fbbfe445944ab5ed572576c23514cf))
+- fix: MaxFontSizeMultiplier property adds a judgment greater than or equal to 1,([39a36feb0](https://gitee.com/openharmony-sig/ohos_react_native/commit/39a36feb0a8343a296245fe50bf32aaba4ace91e))
+- config: RN Tester add fontSizeScale config,([4256e190a](https://gitee.com/openharmony-sig/ohos_react_native/commit/4256e190a7691e454a6e2ee72d5aed93af3451d1))
+- fix:crash when updateConstraints called on a destroyed surface,([cbd6bf44b](https://gitee.com/openharmony-sig/ohos_react_native/commit/cbd6bf44bf2e449a3a88454a7fd9236ebb7369bf))
 - add enum UI_INPUT_EVENT_SOURCE_TYPE_KEY,([c5625dbe0](https://gitee.com/openharmony-sig/ohos_react_native/commit/c5625dbe04cbca9ab3dda1ac1e7ceeae1a3d1d15))
 - fix: Fix the mouse click onPress responding twice on PC.,([6b628dfb4](https://gitee.com/openharmony-sig/ohos_react_native/commit/6b628dfb4c0966c0bcac4774ef453f091a7578d8))
 - fix large scrollEventThrottle ScrollView missing items on ends,([16c6ef3aa](https://gitee.com/openharmony-sig/ohos_react_native/commit/16c6ef3aab69502a506e4fd089a6e2491bcbebbc))

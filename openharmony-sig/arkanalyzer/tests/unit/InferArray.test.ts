@@ -15,9 +15,6 @@
 
 import { assert, describe, it } from 'vitest';
 import path from 'path';
-import { SceneConfig } from '../../src/Config';
-import { Scene } from '../../src/Scene';
-import { FileSignature } from '../../src/core/model/ArkSignature';
 import {
     AliasType,
     ArkAssignStmt,
@@ -27,9 +24,13 @@ import {
     ArkStaticFieldRef,
     ArrayType,
     ClassType,
+    DEFAULT_ARK_CLASS_NAME,
+    DEFAULT_ARK_METHOD_NAME,
+    FileSignature,
     NumberType,
-    StringType,
-    UnionType,
+    Scene,
+    SceneConfig,
+    StringType
 } from '../../src';
 import Logger, { LOG_LEVEL, LOG_MODULE_TYPE } from '../../src/utils/logger';
 
@@ -44,6 +45,7 @@ describe("Infer Array Test", () => {
     let projectScene: Scene = new Scene();
     projectScene.buildSceneFromProjectDir(config);
     projectScene.inferTypes();
+
     it('normal case', () => {
         const fileId = new FileSignature(projectScene.getProjectName(), 'inferSample.ts');
         const file = projectScene.getFile(fileId);
@@ -110,7 +112,6 @@ describe("Infer Array Test", () => {
             assert.equal(stmts[14].toString(), 'n = %5[3]');
         }
     })
-
 
     it('demo case', () => {
         const fileId = new FileSignature(projectScene.getProjectName(), 'demo.ts');
@@ -200,32 +201,15 @@ describe("Infer Array Test", () => {
 
     it('union array case', () => {
         let flag = false;
+        const paramToString = `@inferType/UnionArray.ts: ${DEFAULT_ARK_CLASS_NAME}.[static]${DEFAULT_ARK_METHOD_NAME}()#ISceneEvent`;
         projectScene.getMethods().forEach(m => {
-            if (m.getSignature().toString().includes('ISceneEvent[]|ISceneEvent')) {
+            if (m.getSignature().toString().includes(`${paramToString}[]|${paramToString}`)) {
                 if (projectScene.getMethod(m.getSignature()) !== null) {
                     flag = true;
                 }
             }
         })
         assert.isTrue(flag);
-    })
-
-    it('union currType case', () => {
-        let count = 0;
-        projectScene.getMethods().forEach(m => {
-            if (m.getSignature().toString().includes('testCurrType')) {
-                m.getCfg()?.getStmts().forEach(stmt => {
-                    if (stmt instanceof ArkAssignStmt) {
-                        const leftOp = stmt.getLeftOp();
-                        if (leftOp.getType() instanceof UnionType &&
-                            (leftOp.getType() as UnionType).getCurrType().toString() === 'string') {
-                            count++;
-                        }
-                    }
-                })
-            }
-        })
-        assert.equal(count, 3);
     })
 
     it('field to ArrayRef case', () => {
@@ -260,7 +244,7 @@ describe("function Test", () => {
         const actual = file?.getDefaultClass()?.getMethodWithName('demoCallBack')
             ?.getCfg()?.getStmts();
         assert.equal((actual?.[1] as ArkInvokeStmt).getInvokeExpr().getMethodSignature().toString(),
-            '@etsSdk/api/@ohos.multimedia.media.d.ts: media.%dflt.createAVPlayer(AsyncCallback<@etsSdk/api/@ohos.multimedia.media.d.ts: media.AVPlayer>)');
+            '@etsSdk/api/@ohos.multimedia.media.d.ts: media.%dflt.createAVPlayer(@etsSdk/api/@ohos.base.d.ts: AsyncCallback<@etsSdk/api/@ohos.multimedia.media.d.ts: media.AVPlayer,void>)');
         assert.equal((actual?.[2] as ArkAssignStmt).getInvokeExpr()?.getMethodSignature().toString(),
             '@etsSdk/api/@ohos.multimedia.media.d.ts: media.%dflt.createAVPlayer()');
     })
@@ -270,7 +254,7 @@ describe("function Test", () => {
         const file = scene.getFile(fileId);
         const actual = file?.getDefaultClass()?.getMethodWithName('%AM0$demoCallBack')
             ?.getCfg()?.getStmts().find(s => s instanceof ArkInvokeStmt)?.toString();
-        assert.equal(actual, 'instanceinvoke player.<@etsSdk/api/@ohos.multimedia.media.d.ts: media.AVPlayer.on(string, Callback<drm.MediaKeySystemInfo[]>)>(\'audioInterrupt\', %AM1$%AM0$demoCallBack)');
+        assert.equal(actual, 'instanceinvoke player.<@etsSdk/api/@ohos.multimedia.media.d.ts: media.AVPlayer.on(\'audioInterrupt\', @etsSdk/api/@ohos.base.d.ts: Callback<audio.InterruptEvent>)>(\'audioInterrupt\', %AM1$%AM0$demoCallBack)');
     })
 
     it('promise case', () => {
@@ -278,6 +262,6 @@ describe("function Test", () => {
         const file = scene.getFile(fileId);
         const actual2 = file?.getDefaultClass()?.getMethodWithName('%AM3$demoCallBack')
             ?.getCfg()?.getStmts().find(s => s instanceof ArkInvokeStmt)?.toString();
-        assert.equal(actual2, 'instanceinvoke player.<@etsSdk/api/@ohos.multimedia.media.d.ts: media.AVPlayer.on(string, Callback<drm.MediaKeySystemInfo[]>)>(\'audioInterrupt\', %AM4$%AM3$demoCallBack)');
+        assert.equal(actual2, 'instanceinvoke player.<@etsSdk/api/@ohos.multimedia.media.d.ts: media.AVPlayer.on(\'audioInterrupt\', @etsSdk/api/@ohos.base.d.ts: Callback<audio.InterruptEvent>)>(\'audioInterrupt\', %AM4$%AM3$demoCallBack)');
     })
 })

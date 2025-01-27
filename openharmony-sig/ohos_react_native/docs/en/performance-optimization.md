@@ -505,9 +505,9 @@ export default class App extends React.Component<Props, State> {
 }
 ```
 
-In this example, if you click the increment button for multiple times, the following result is displayed.
+In this example, if you click the increment button for multiple times, the following result is displayed.  
 
-![](./figures/renderDemo.png)
+![](./figures/renderDemo.png)  
 
 As shown in the preceding figure, when count does not change, the **render** function continues to be executed, causing performance deterioration. Therefore, rendering in the same state should be avoided.
 
@@ -546,7 +546,7 @@ export default class App extends React.PureComponent<Props, State> {
 ```
 The figure shows the execution result.
 
-![PureComponentDemo](./figures/PureComponentDemo.png)
+![PureComponentDemo](./figures/PureComponentDemo.png)  
 
 As shown in the figure, when count does not change, rendering is not triggered.
 
@@ -626,7 +626,7 @@ export default class App extends React.Component<Props, State> {
 }
 ```
 The figure shows the execution result. 
-![shouldComponentUpdate](./figures/shouldComponentUpdate.png)
+![shouldComponentUpdate](./figures/shouldComponentUpdate.png)  
 
 #### Using React.memo
 
@@ -668,7 +668,7 @@ export default class App extends React.Component<Props, State> {
 }
 ```
 The execution result is as follows. Even if **props** of the **Child** component does not change, the component is re-rendered.
-![Demo for memo error](./figures/demo-for-memo-error.png)
+![Demo for memo error](./figures/demo-for-memo-error.png)  
 
 Using memo ensures that the **Child** component is not rendered when **props** does not change. The demo is as follows:
 ```javascript
@@ -709,7 +709,7 @@ export default class App extends React.Component<Props, State> {
 ```
 
 The execution result is as follows. The **Child** component is not re-rendered. 
-![Demo for memo usage](./figures/demo-for-memo-usage.png)
+![Demo for memo usage](./figures/demo-for-memo-usage.png)  
 
 #### Using Functional Components
 
@@ -740,7 +740,7 @@ export default function App() {
 }
 ```
 The figure shows the execution result. 
-![Demo for functional components](./figures/demo-for-functional-components.png)
+![Demo for functional components](./figures/demo-for-functional-components.png)  
 
 #### Creating the Property Object Once
 
@@ -795,12 +795,12 @@ export default class App extends React.PureComponent<Props, State> {
 
 ```
 The execution result is as follows. 
-![Demo for creating object properties](./figures/demo-for-creating-object-properties.png)
+![Demo for creating object properties](./figures/demo-for-creating-object-properties.png)  
 
 #### Rendering in the Child Component
 
 If there are too many elements in an application, the elements will be rendered each time the application component is re-rendered, which is unnecessary. You can split an independent render into the child component. 
-![Rendering error in the child component](./figures/rendering-error-in-the-child-component.png)
+![Rendering error in the child component](./figures/rendering-error-in-the-child-component.png)  
 
 The independent part can be split into a child component. 
 
@@ -842,7 +842,7 @@ export default class App extends React.PureComponent<Props, State> {
 }
 ```
 The following figure shows the execution result. The application is rendered only once. 
-![Child component rendering](./figures/child-component-rendering.png)
+![Child component rendering](./figures/child-component-rendering.png)  
 
 #### Merging setState
 In actual services, you may need to set the state for multiple times before or after data request. The code is as follows:
@@ -979,14 +979,14 @@ export default class App extends React.PureComponent<Props, State> {
 ```
 
 The following figure shows the execution result. Each time the parent component changes, all child components need to be re-rendered.
-![Not adding keys to list items](./figures/not-adding-keys-to-list-items.png)
+![Not adding keys to list items](./figures/not-adding-keys-to-list-items.png)  
 
 To avoid unnecessary updates, add keys to the child component:
 ```typescript
 return <Child key={item} age={25 + item} />
 ```
 The following figure shows the execution result after the modification. Only the new child is rendered each time. 
-![Adding keys to list items](./figures/adding-keys-to-list-items.png)
+![Adding keys to list items](./figures/adding-keys-to-list-items.png)  
 
 #### Condition Rendering Optimization
 
@@ -1041,7 +1041,7 @@ export default class App extends React.PureComponent<Props, State> {
 }
 ```
 The execution result is as follows. 
-![Condition rendering optimization error](./figures/condition-rendering-optimization-error].png)
+![Condition rendering optimization error](./figures/condition-rendering-optimization-error.png)  
 
 Each time the condition judgment changes, all internal child components are re-rendered. You can perform proper extraction to optimize the rendering.
 
@@ -1060,7 +1060,7 @@ return (
 ```
 
 The execution result is as follows. Only the switched part is rendered. 
-![Condition rendering optimization](./figures/condition-rendering-optimization.png)
+![Condition rendering optimization](./figures/condition-rendering-optimization.png)  
 
 #### No Rendering in Specific Conditions
 
@@ -1103,7 +1103,7 @@ export default class App extends React.PureComponent<Props, State> {
 ```
 
 The figure shows the execution result. 
-![TouchableOpacity rendering](./figures/TouchableOpacity-rendering.png)
+![TouchableOpacity rendering](./figures/TouchableOpacity-rendering.png)  
 
 
 
@@ -1328,7 +1328,7 @@ The following uses [Preloading a bundle by FrameNode](../Samples/FrameNodeSample
 
 The detailed process is as follows.
 
-![FrameNode Flowchart](./figures/precreation-introduction-process.JPG)
+![FrameNode Flowchart](./figures/precreation-introduction-process.JPG)  
 
 First, initialize `prepareRNEnv()` in `Index.est` on the home page and load the basic bundle. Use `createRNController` in `common.est` to create `NodeControllerd` and bind the corresponding `instanceKey`. The `build` method of `BuilderNode` is also executed to create and return `FrameNode`.
 

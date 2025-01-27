@@ -25,7 +25,6 @@
 #include "RNOH/TurboModuleFactory.h"
 #include "RNOH/TurboModuleProvider.h"
 #include "RNOHCorePackage/TurboModules/DeviceInfoTurboModule.h"
-#include "hermes/executor/HermesExecutorFactory.h"
 #include "RNOH/SchedulerDelegate.h"
 #include "RNOH/RNInstance.h"
 #include "RNOH/Performance/HarmonyReactMarker.h"
@@ -88,23 +87,18 @@ void RNInstanceCAPI::start() {
     textMeasurer->setTextMeasureParams(fontScale, scale, m_densityDpi, halfLeading);
 }
 
+void RNInstanceCAPI::setJavaScriptExecutorFactory(
+    std::shared_ptr<facebook::react::JSExecutorFactory> jsExecutorFactory) {
+  DLOG(INFO) << "RNInstanceCAPI::setJavaScriptExecutorFactory";
+  m_jsExecutorFactory = jsExecutorFactory;
+}
+
 void RNInstanceCAPI::initialize() {
   DLOG(INFO) << "RNInstanceCAPI::initialize";
   // create a new event dispatcher every time RN is initialized
   m_eventDispatcher = std::make_shared<EventDispatcher>();
   std::vector<std::unique_ptr<react::NativeModule>> modules;
   auto instanceCallback = std::make_unique<react::InstanceCallback>();
-  auto jsExecutorFactory = std::make_shared<react::HermesExecutorFactory>(
-      // runtime installer, which is run when the runtime
-      // is first initialized and provides access to the runtime
-      // before the JS code is executed
-      [](facebook::jsi::Runtime& rt) {
-        // install `console.log` (etc.) implementation
-        react::bindNativeLogger(rt, nativeLogger);
-        // install tracing functions
-        rnoh::setupTracing(rt);
-      });
-  jsExecutorFactory->setEnableDebugger(m_shouldEnableDebugger);
   m_jsQueue = std::make_shared<MessageQueueThread>(this->taskExecutor);
   auto moduleRegistry =
       std::make_shared<react::ModuleRegistry>(std::move(modules));
@@ -112,7 +106,7 @@ void RNInstanceCAPI::initialize() {
       HarmonyReactMarker::HarmonyReactMarkerId::REACT_BRIDGE_LOADING_START);
   this->instance->initializeBridge(
       std::move(instanceCallback),
-      std::move(jsExecutorFactory),
+      std::move(m_jsExecutorFactory),
       m_jsQueue,
       std::move(moduleRegistry));
       HarmonyReactMarker::logMarker(

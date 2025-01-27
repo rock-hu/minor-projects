@@ -195,7 +195,7 @@ function copyFiles(fileDestBySrc: Record<Path, Path>) {
 function copyFile(
   src: string,
   dest: string,
-  onFinished: (error: Error) => void
+  onFinished: (error?: Error) => void
 ): void {
   const destDir = pathUtils.dirname(dest);
   fs.mkdir(destDir, { recursive: true }, (err?) => {
