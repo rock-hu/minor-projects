@@ -49,6 +49,12 @@ struct PositiveOfLazyForEach {
   // The value calculated by the time-consuming operation
   private timeConsumingValue: number = 0;
 
+  aboutToAppear(): void {
+    for (let i = 1; i < 1000; i++) {
+      this.data.pushData(i);
+    }
+  }
+
   // Execute time-consuming asynchronous functions elsewhere
   // Simulate time-consuming operations
   itemGeneratorFunc() {
@@ -131,7 +137,7 @@ struct ReusableChildComponent {
         .width(48)
         .height(48)
         .margin({ bottom: 12 })
-      Text(`${this.item}`)
+      Text(`image${this.item}`)
         .fontSize(12)
         .textAlign(TextAlign.Center)
     }
