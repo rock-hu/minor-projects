@@ -1,5 +1,13 @@
 # Changelog
-## 5.1.0.201
+## 5.1.0.202
+- Supplement the pull third-party library dependency command,([18e052f9](https://gitee.com/openharmony-sig/ohos_react_native/commit/18e052f9e2073ab4860f1526e21ecd8c0daab360))
+- doc(performance): update performance tuning instructions and add BiSheng compiler usage,([c3ad53c3](https://gitee.com/openharmony-sig/ohos_react_native/commit/c3ad53c3dac1f260af07016e49924d5d0563e777))
+- fix: 解决bundle加载状态精准度问题,([d6152766](https://gitee.com/openharmony-sig/ohos_react_native/commit/d6152766fc9d4f3653aaf3c1c41db6802a4a5a3c))
+- chore(.gitignore): git ignore build log,([0ce01aa2](https://gitee.com/openharmony-sig/ohos_react_native/commit/0ce01aa2f6142bcff1c23f4e6a8ac01dcbd63fc2))
+- doc(marker): add instruction on how to enable react marker tracing,([0b7a0b9c](https://gitee.com/openharmony-sig/ohos_react_native/commit/0b7a0b9cabf2586e9980fa3865f57961af3e1d17))
+- fix: Fix the issue of accessibility and inability to click,([749e1142](https://gitee.com/openharmony-sig/ohos_react_native/commit/749e114265807198047a0d9b9a0e5838e529575c))
+- chore: update to version 5.1.0.201(0.72.54),([7e416696](https://gitee.com/openharmony-sig/ohos_react_native/commit/7e4166966306c256037986008cf034b5ba57c0e7))
+- 添加react-native-harmony-v5.1.0.200版本说明,([51490cb9](https://gitee.com/openharmony-sig/ohos_react_native/commit/51490cb9adda446fa778e3cfea1f6a76b680dfee))
 
 ## 5.1.0.111
 - fix:change delay time,([f19bda388](https://gitee.com/openharmony-sig/ohos_react_native/commit/f19bda388633c9e3290737c1500df1b2387b8cdc))

@@ -29,7 +29,6 @@
 #include "RNOH/EventEmitRequestHandler.h"
 #include "RNOH/GlobalJSIBinder.h"
 #include "RNOH/MessageQueueThread.h"
-#include "RNOH/RNInstance.h"
 #include "RNOH/MountingManager.h"
 #include "RNOH/ShadowViewRegistry.h"
 #include "RNOH/TaskExecutor/TaskExecutor.h"
@@ -38,7 +37,6 @@
 #include "RNOH/UITicker.h"
 
 namespace rnoh {
-
 
 class RNInstanceArkTS : public RNInstanceInternal,
                         public facebook::react::LayoutAnimationStatusDelegate {
@@ -60,7 +58,7 @@ class RNInstanceArkTS : public RNInstanceInternal,
       std::vector<ArkTSMessageHandler::Shared> arkTSMessageHandlers,
       bool shouldEnableDebugger,
       bool shouldEnableBackgroundExecutor)
-      : RNInstanceInternal(),
+      : RNInstanceInternal(nullptr),
         m_id(id),
         instance(std::make_shared<facebook::react::Instance>()),
         m_contextContainer(contextContainer),
@@ -85,9 +83,10 @@ class RNInstanceArkTS : public RNInstanceInternal,
     if (this->unsubscribeUITickListener != nullptr) {
       unsubscribeUITickListener();
     }
-    // synchronization primitives used to ensure all tasks currently in queue
-    // run before this destructor returns. This ensures the tasks scheduled by
-    // this object are not running after the object is destroyed.
+    // synchronization primitives used to ensure all tasks currently in
+    // queue run before this destructor returns. This ensures the tasks
+    // scheduled by this object are not running after the object is
+    // destroyed.
     std::mutex surfacesUnregisteredMutex;
     std::condition_variable cv;
     std::unique_lock lock(surfacesUnregisteredMutex);
@@ -112,10 +111,6 @@ class RNInstanceArkTS : public RNInstanceInternal,
   TaskExecutor::Shared getTaskExecutor() override;
 
   void start() override;
-  void loadScript(
-      std::vector<uint8_t>&& bundle,
-      std::string const sourceURL,
-      std::function<void(const std::string)>&& onFinish) override;
   void createSurface(
       facebook::react::Tag surfaceId,
       std::string const& moduleName) override;
@@ -185,8 +180,6 @@ class RNInstanceArkTS : public RNInstanceInternal,
       const std::string& name,
       folly::dynamic const& payload) override;
   NativeResourceManager const* getNativeResourceManager() const override;
-  void setBundlePath(std::string const& path) override;
-  std::string getBundlePath() override;
   void registerFont(
       std::string const& fontFamily,
       std::string const& fontFilePath) override;

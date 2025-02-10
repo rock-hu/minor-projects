@@ -374,10 +374,44 @@ export function TextMeasuringTest() {
             </Text>
           </Text>
         </TestCase>
+        <TestCase itShould="show text clipped in half horizontally">
+          <View style={{backgroundColor: 'white'}}>
+            <View style={{height: 40, backgroundColor: 'orange'}}>
+              <Text style={{lineHeight: 80, fontSize: 40}}>文字111</Text>
+            </View>
+          </View>
+        </TestCase>
+        <TestCase itShould="not be pressable anywhere in the white area below the text">
+          <SmallLineHeightPressableTest />
+        </TestCase>
       </TestSuite>
     </TestSuite>
   );
 }
+
+const SmallLineHeightPressableTest = () => {
+  const [presses, setPresses] = useState(0);
+  return (
+    <View style={{backgroundColor: 'white'}}>
+      <Text>Number of presses: {presses}</Text>
+      <View style={{height: 40, backgroundColor: 'orange', marginBottom: 40}}>
+        <Text
+          style={{lineHeight: 80, fontSize: 40}}
+          onPress={() => {
+            setPresses(presses + 1);
+          }}>
+          文字
+          <Text
+            onPress={() => {
+              setPresses(presses + 1);
+            }}>
+            111
+          </Text>
+        </Text>
+      </View>
+    </View>
+  );
+};
 
 const TextUpdateNumberOfLinesTest = () => {
   const [caseIndex, setCaseIndex] = useState(0);

@@ -314,6 +314,20 @@ RNOHNapiObject ArkJS::getObject(napi_ref objectRef) {
   return getObject(getReferenceValue(objectRef));
 }
 
+bool ArkJS::hasProperty(napi_value object, std::string const &key)
+{
+    return hasProperty(object, this->createString(key));
+}
+
+bool ArkJS::hasProperty(napi_value object, napi_value key)
+{
+    bool result;
+    auto status = napi_has_property(m_env, object, key, &result);
+    this->maybeThrowFromStatus(
+        status, "Failed to check if object has property");
+    return result;
+}
+
 napi_value ArkJS::getObjectProperty(napi_value object, std::string const& key) {
   return getObjectProperty(object, this->createString(key));
 }
@@ -687,4 +701,12 @@ Promise& Promise::catch_(
   auto obj = m_arkJS.getObject(m_value);
   obj.call("catch", {m_arkJS.createSingleUseCallback(std::move(callback))});
   return *this;
+}
+
+bool ArkJS::isArrayBuffer(napi_value value)
+{
+    bool result = false;
+    maybeThrowFromStatus(napi_is_arraybuffer(m_env, value, &result),
+        "Failed to check if value is an ArrayBuffer");
+    return result;
 }

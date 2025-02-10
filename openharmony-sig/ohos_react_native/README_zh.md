@@ -16,6 +16,7 @@
 从[官网](https://developer.huawei.com/consumer/cn/deveco-studio/)下载并安装最新版本 DevEco Studio。
 
 ### 启动项目
+> 如果是编译源码，在拉取工程后需要在工程的根目录执行`git submodule update --init`命令，拉取三方库依赖。 
 
 1. 打开终端（命令行工具）并导航到react-native-harmony-cli目录，然后执行 `npm i && npm pack`。
 1. 在终端中导航到react-native-harmony-sample-package目录，然后执行 `npm i && npm pack`。

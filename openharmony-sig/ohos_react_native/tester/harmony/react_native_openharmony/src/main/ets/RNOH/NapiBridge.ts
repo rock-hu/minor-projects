@@ -6,23 +6,31 @@
  */
 
 // @ts-ignore
-import libRNOHApp from 'librnoh_app.so';
-import type { TurboModuleProvider } from "./TurboModuleProvider";
-import type { Mutation } from "./Mutation";
-import type { Tag } from "./DescriptorBase";
-import type { AttributedString, ParagraphAttributes, LayoutConstrains } from "./TextLayoutManager";
-import { measureParagraph } from "./TextLayoutManager"
-import type { DisplayMode } from './CppBridgeUtils'
-import { RNOHLogger } from "./RNOHLogger"
-import type { InspectorInstance, DisplayMetrics } from './types'
-import { FatalRNOHError, RNOHError } from "./RNOHError"
-import type { FrameNodeFactory } from "./RNInstance"
-import ohosResourceManager from '@ohos.resourceManager';
-import { AnyThreadTurboModule, UITurboModule,
-  UITurboModuleContext,
-  WorkerTurboModule, WorkerTurboModuleContext } from './TurboModule';
+import {NodeContent} from '@ohos.arkui.node';
 import display from '@ohos.display';
-import { NodeContent } from '@ohos.arkui.node';
+import ohosResourceManager from '@ohos.resourceManager';
+import libRNOHApp from 'librnoh_app.so';
+
+import type {DisplayMode} from './CppBridgeUtils'
+import type {Tag} from "./DescriptorBase";
+import {JsBundle} from './JSBundleProvider';
+import type {Mutation} from "./Mutation";
+import type {FrameNodeFactory} from "./RNInstance"
+import {FatalRNOHError, RNOHError} from "./RNOHError"
+import {RNOHLogger} from "./RNOHLogger"
+import type {
+    AttributedString, LayoutConstrains, ParagraphAttributes} from
+    "./TextLayoutManager";
+import {measureParagraph} from "./TextLayoutManager"
+import {
+    AnyThreadTurboModule,
+    UITurboModule,
+    UITurboModuleContext,
+    WorkerTurboModule,
+    WorkerTurboModuleContext
+} from './TurboModule';
+import type {TurboModuleProvider} from "./TurboModuleProvider";
+import type {DisplayMetrics, InspectorInstance} from './types'
 
 export type CppFeatureFlag = "ENABLE_NDK_TEXT_MEASURING" | "C_API_ARCH" | "WORKER_THREAD_ENABLED"
 
@@ -182,13 +190,15 @@ export class NapiBridge {
       payload);
   }
 
-  loadScript(instanceId: number, bundle: ArrayBuffer, sourceURL: string): Promise<void> {
-    return new Promise((resolve, reject) => {
+  loadScript(
+      instanceId: number,
+      bundle: JsBundle,
+      sourceURL:
+          string): Promise<void>{return new Promise((resolve, reject) => {
       this.libRNOHApp?.loadScript(instanceId, bundle, sourceURL, (errorMsg: string) => {
         errorMsg ? reject(new Error(errorMsg)) : resolve()
       });
-    })
-  }
+  })}
 
   startSurface(
     instanceId: number,

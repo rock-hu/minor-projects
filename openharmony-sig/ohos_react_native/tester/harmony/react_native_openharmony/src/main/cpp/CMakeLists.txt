@@ -361,6 +361,8 @@ add_subdirectory("${RNOH_CPP_DIR}/RNOH/executor")
 add_library(rnoh SHARED
     "${RNOH_CPP_DIR}/RNOH/RNInstanceArkTS.cpp"
     "${RNOH_CPP_DIR}/RNOH/RNInstanceCAPI.cpp"
+    "${RNOH_CPP_DIR}/RNOH/RNInstanceInternal.cpp"
+    "${RNOH_CPP_DIR}/RNOH/JSBigStringHelpers.cpp"
     "${RNOH_CPP_DIR}/RNOH/SchedulerDelegate.cpp"
     "${RNOH_CPP_DIR}/RNOH/BlobCollector.cpp"
     "${RNOH_CPP_DIR}/RNOH/MessageQueueThread.cpp"

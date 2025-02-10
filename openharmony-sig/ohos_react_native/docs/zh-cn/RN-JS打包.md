@@ -171,8 +171,13 @@ module.exports = {
 
      ```javascript
      // SampleProject/MainProject/build/multibundle/moduleId.js
-     ...
-     
+
+     const pathSep = require('path').sep;
+     const fs = require('fs');
+     const SHA256 = require('crypto-js/sha256');
+     const basicNameArray = require('./map/basicNameMap.json');
+     const homepageArray = require('./map/pageNameMap.jsno');
+
      function getModuleId(projectRootPath, modulePath, ...bundles) {
        let startIndex = modulePath.indexOf(projectRootPath);
        let pathRelative = modulePath.substr(startIndex + projectRootPath.length + 1);
@@ -257,6 +262,8 @@ module.exports = {
          return true;
        };
      }
+
+     module.exports = {createModuleIdFactoryWrap,postProcessModulesFilterWrap};
      ```
 
 2. 通过 `Basic` 模块和 `HomePage` 模块举例说明，基础包为 `Basic` 模块，业务包为 `HomePage` 模块。

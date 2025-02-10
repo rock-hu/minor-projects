@@ -21,8 +21,8 @@
 #include <vector>
 #include "RNOH/RNOHError.h"
 #include "RNOH/Result.h"
-#include "napi/native_api.h"
 #include "ThreadGuard.h"
+#include "napi/native_api.h"
 
 class RNOHNapiObjectBuilder;
 class RNOHNapiObject;
@@ -87,7 +87,7 @@ class ArkJS {
   napi_value createFromJSError(facebook::jsi::JSError const&);
 
   napi_value createFromRNOHError(rnoh::RNOHError const&);
-  
+
   napi_value createResult(rnoh::Result<napi_value> const&);
 
   RNOHNapiObjectBuilder createObjectBuilder();
@@ -116,7 +116,11 @@ class ArkJS {
 
   napi_value getObjectProperty(napi_value object, napi_value key);
 
-  bool getBoolean(napi_value value);
+    bool hasProperty(napi_value object, std::string const& key);
+
+    bool hasProperty(napi_value object, napi_value key);
+
+    bool getBoolean(napi_value value);
 
   double getDouble(napi_value value);
 
@@ -128,8 +132,10 @@ class ArkJS {
 
   std::vector<uint8_t> getArrayBuffer(napi_value array);
 
-  std::vector<std::pair<napi_value, napi_value>> getObjectProperties(
-      napi_value object);
+    bool isArrayBuffer(napi_value value);
+
+    std::vector<std::pair<napi_value, napi_value>> getObjectProperties(
+        napi_value object);
 
   std::string getString(napi_value value);
 

@@ -755,7 +755,9 @@ export class RNInstanceImpl implements RNInstance {
     return this.bundleExecutionStatusByBundleURL.get(bundleURL)
   }
   public async runJSBundle(jsBundleProvider: JSBundleProvider, info?:string | null) {
-    let bundleURL: string
+    let bundleURL: string = "";
+    const bundleURLPre = jsBundleProvider.getURL();
+    const bundleURLPreList: string[] = [];
     const stopTracing = this.logger.clone("runJSBundle").startTracing()
     const isMetroServer = jsBundleProvider.getHotReloadConfig() !== null
     try {
@@ -767,14 +769,33 @@ export class RNInstanceImpl implements RNInstance {
           `${info.slice(0, 255)}`)
       }
 
-      this.bundleExecutionStatusByBundleURL.set(bundleURL, "RUNNING")
+      // 设置初始状态为 RUNNING
+      if (bundleURLPre) {
+        this.bundleExecutionStatusByBundleURL.set(bundleURLPre, "RUNNING");
+      }
       this.logMarker("DOWNLOAD_START");
+
       const jsBundle = await jsBundleProvider.getBundle((progress) => {
         this.devToolsController.eventEmitter.emit("SHOW_DEV_LOADING_VIEW", this.id,
           `Loading from ${jsBundleProvider.getHumanFriendlyURL()} (${Math.round(progress * 100)}%)`)
+      },(currentProvider) => {
+        const currentURL = currentProvider.getURL();
+        if (currentURL) {
+          bundleURL = currentURL; // 记录当前的 URL
+          bundleURLPreList.push(currentURL);
+          this.bundleExecutionStatusByBundleURL.set(currentURL, "RUNNING");
+        }
       })
       this.logMarker("DOWNLOAD_END");
-      bundleURL = jsBundleProvider.getURL()
+      const bundleURLCur = jsBundleProvider.getURL()
+      if(bundleURLCur !== bundleURLPre && bundleURLPreList.length){
+        for(const url of bundleURLPreList){
+          this.bundleExecutionStatusByBundleURL.delete(url)
+        }
+        this.bundleExecutionStatusByBundleURL.set(bundleURL, "RUNNING")
+      }else {
+        bundleURL = bundleURLCur
+      }
       this.initialBundleUrl = this.initialBundleUrl ?? bundleURL
 
       await this.napiBridge.loadScript(this.id, jsBundle, bundleURL)

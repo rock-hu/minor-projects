@@ -60,6 +60,9 @@ class ArkUINode {
 
  public:
   enum {
+      UI_INPUT_EVENT_SOURCE_TYPE_UNKNOWN = 0,
+      UI_INPUT_EVENT_SOURCE_TYPE_MOUSE = 1,
+      UI_INPUT_EVENT_SOURCE_TYPE_TOUCH_SCREEN = 2,
       UI_INPUT_EVENT_SOURCE_TYPE_KEY = 4
   };
   using Alignment = ArkUI_Alignment;

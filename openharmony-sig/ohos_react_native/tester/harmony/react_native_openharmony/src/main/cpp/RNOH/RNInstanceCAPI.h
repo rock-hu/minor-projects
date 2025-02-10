@@ -30,8 +30,8 @@
 #include "RNOH/EventEmitRequestHandler.h"
 #include "RNOH/GlobalJSIBinder.h"
 #include "RNOH/MessageQueueThread.h"
-#include "RNOH/RNInstance.h"
 #include "RNOH/MountingManager.h"
+#include "RNOH/RNInstance.h"
 #include "RNOH/ShadowViewRegistry.h"
 #include "RNOH/TaskExecutor/TaskExecutor.h"
 #include "RNOH/TurboModuleFactory.h"
@@ -40,17 +40,15 @@
 
 #include "RNOH/ArkTSMessageHandler.h"
 #include "RNOH/ComponentInstanceFactory.h"
+#include "RNOH/ComponentInstancePreallocationRequestQueue.h"
 #include "RNOH/ComponentInstanceRegistry.h"
 #include "RNOH/arkui/ArkUISurface.h"
 #include "RNOH/arkui/NodeContentHandle.h"
-#include "RNOH/ComponentInstancePreallocationRequestQueue.h"
 
 namespace rnoh {
 using MutationsListener = std::function<void(
     MutationsToNapiConverter const&,
     facebook::react::ShadowViewMutationList const& mutations)>;
-
-using SharedNativeResourceManager = std::shared_ptr<NativeResourceManager>;
 
 class RNInstanceCAPI : public RNInstanceInternal,
                        public facebook::react::LayoutAnimationStatusDelegate {
@@ -78,11 +76,9 @@ class RNInstanceCAPI : public RNInstanceInternal,
       SharedNativeResourceManager nativeResourceManager,
       bool shouldEnableDebugger,
       bool shouldEnableBackgroundExecutor)
-      : RNInstanceInternal(),
+      : RNInstanceInternal(std::move(nativeResourceManager)),
         m_id(id),
-        instance(std::make_shared<facebook::react::Instance>()),
         m_contextContainer(contextContainer),
-        scheduler(nullptr),
         taskExecutor(taskExecutor),
         m_shadowViewRegistry(shadowViewRegistry),
         m_turboModuleFactory(std::move(turboModuleFactory)),
@@ -100,7 +96,6 @@ class RNInstanceCAPI : public RNInstanceInternal,
         m_componentInstanceFactory(componentInstanceFactory),
         m_arkTSChannel(std::move(arkTSChannel)),
         m_arkTSMessageHandlers(std::move(arkTSMessageHandlers)),
-        m_nativeResourceManager(std::move(nativeResourceManager)),
         m_componentInstancePreallocationRequestQueue(
             std::move(componentInstancePreallocationRequestQueue)) {
         }
@@ -110,10 +105,6 @@ class RNInstanceCAPI : public RNInstanceInternal,
   TaskExecutor::Shared getTaskExecutor() override;
 
   void start() override;
-  void loadScript(
-      std::vector<uint8_t>&& bundle,
-      std::string const sourceURL,
-      std::function<void(const std::string)>&& onFinish) override;
   void createSurface(
       facebook::react::Tag surfaceId,
       std::string const& moduleName) override;
@@ -204,15 +195,11 @@ class RNInstanceCAPI : public RNInstanceInternal,
   void postMessageToArkTS(
       const std::string& name,
       folly::dynamic const& payload) override;
-  void setBundlePath(std::string const& path) override;
-  std::string getBundlePath() override;
-  void addArkTSMessageHandler(ArkTSMessageHandler::Shared handler);
-  void removeArkTSMessageHandler(ArkTSMessageHandler::Shared handler);
+    void addArkTSMessageHandler(ArkTSMessageHandler::Shared handler);
+    void removeArkTSMessageHandler(ArkTSMessageHandler::Shared handler);
   int getId() override { return m_id; }
-  NativeResourceManager const* getNativeResourceManager() const override;
-    
-  std::optional<Surface::Weak> getSurfaceByRootTag(
-      facebook::react::Tag rootTag) override;
+    std::optional<Surface::Weak> getSurfaceByRootTag(
+        facebook::react::Tag rootTag) override;
   void registerFont(
       std::string const& fontFamily,
       std::string const& fontFilePath) override;
@@ -252,18 +239,8 @@ class RNInstanceCAPI : public RNInstanceInternal,
   MountingManager::Shared m_mountingManager;
   std::unique_ptr<facebook::react::SchedulerDelegate> m_schedulerDelegate = nullptr;
   float m_densityDpi;
-  /**
-   * NOTE: Order matters. m_scheduler holds indirectly jsi::Values.
-   * These values must be destructed before the runtime.
-   * The runtime is destructed when `m_reactInstance` is destructed.
-   * Therefore, `m_scheduler` must be declared after `m_reactInstance`.
-   */
-  std::shared_ptr<facebook::react::Instance> instance;
-  std::shared_ptr<facebook::react::Scheduler> scheduler = nullptr;
   std::vector<ArkTSMessageHandler::Shared> m_arkTSMessageHandlers;
   ArkTSChannel::Shared m_arkTSChannel;
-  SharedNativeResourceManager m_nativeResourceManager;
-  std::string m_bundlePath;
   ArkTSMessageHub::Shared m_arkTSMessageHub;
   std::shared_ptr<facebook::react::JSExecutorFactory> m_jsExecutorFactory = nullptr;
 

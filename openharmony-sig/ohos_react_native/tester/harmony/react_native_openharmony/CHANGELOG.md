@@ -1,5 +1,8 @@
 # Changelog
-## v0.72.54
+## v0.72.56
+- fix: 解决bundle加载状态精准度问题,([d6152766](https://gitee.com/openharmony-sig/ohos_react_native/commit/d6152766fc9d4f3653aaf3c1c41db6802a4a5a3c))
+- fix: Fix the issue of accessibility and inability to click,([749e1142](https://gitee.com/openharmony-sig/ohos_react_native/commit/749e114265807198047a0d9b9a0e5838e529575c))
+- chore: update to version 5.1.0.201(0.72.54),([7e416696](https://gitee.com/openharmony-sig/ohos_react_native/commit/7e4166966306c256037986008cf034b5ba57c0e7))
 
 ## v0.72.53
 - fix:change delay time,([f19bda388](https://gitee.com/openharmony-sig/ohos_react_native/commit/f19bda388633c9e3290737c1500df1b2387b8cdc))

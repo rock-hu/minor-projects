@@ -33,7 +33,9 @@ JSBigFileString::JSBigFileString(int fd, size_t size, off_t offset /*= 0*/)
     const static auto ps = sysconf(_SC_PAGESIZE);
     auto d = lldiv(offset, ps);
 
-    m_mapOff = d.quot;
+    // RNOH patch - multiply by page size so we get offset in bytes instead of
+    // number of pages.
+    m_mapOff = d.quot * ps;
     m_pageOff = d.rem;
     m_size = size + m_pageOff;
   } else {
@@ -62,12 +64,12 @@ const char *JSBigFileString::c_str() const {
         << " error: " << std::strerror(errno);
   }
   static const size_t kMinPageSize = 4096;
-  CHECK(!(reinterpret_cast<uintptr_t>(m_data) & (kMinPageSize - 1)))
-      << "mmap address misaligned, likely corrupted"
-      << " m_data: " << (const void *)m_data;
-  CHECK(m_pageOff <= m_size)
-      << "offset impossibly large, likely corrupted"
-      << " m_pageOff: " << m_pageOff << " m_size: " << m_size;
+  CHECK(!(reinterpret_cast<uintptr_t>(m_data) & (kMinPageSize - 1))) <<
+        "mmap address misaligned, likely corrupted" <<
+        " m_data: " << static_cast<const void *>(m_data);
+    CHECK(m_pageOff <= m_size) << 
+        "offset impossibly large, likely corrupted" <<
+        " m_pageOff: " << m_pageOff << " m_size: " << m_size;
   return m_data + m_pageOff;
 }
 

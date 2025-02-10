@@ -6,13 +6,9 @@
  */
 
 #pragma once
-#include <js_native_api.h>
-#include <js_native_api_types.h>
 #include <rawfile/raw_file_manager.h>
-#include <atomic>
 #include <functional>
 #include <memory>
-#include <thread>
 
 #include <cxxreact/Instance.h>
 #include <cxxreact/ModuleRegistry.h>
@@ -22,6 +18,7 @@
 #include <react/renderer/scheduler/Scheduler.h>
 
 #include "RNOH/ArkTSChannel.h"
+#include "RNOH/Assert.h"
 #include "RNOH/EventEmitRequestHandler.h"
 #include "RNOH/GlobalJSIBinder.h"
 #include "RNOH/MessageQueueThread.h"
@@ -29,13 +26,12 @@
 #include "RNOH/TaskExecutor/TaskExecutor.h"
 #include "RNOH/TurboModule.h"
 #include "RNOH/TurboModuleProvider.h"
-#include "RNOH/UITicker.h"
-#include "RNOH/Assert.h"
 
 namespace rnoh {
 using MutationsListener = std::function<void(
     MutationsToNapiConverter const&,
     facebook::react::ShadowViewMutationList const& mutations)>;
+using SharedNativeResourceManager = std::shared_ptr<NativeResourceManager>;
 
 class Surface {
  public:
@@ -98,14 +94,12 @@ class RNInstance {
 class RNInstanceInternal : public RNInstance,
                            public std::enable_shared_from_this<RNInstance> {
  public:
+    explicit RNInstanceInternal(SharedNativeResourceManager nativeResourceManager);
+
   virtual ~RNInstanceInternal() = default;
 
   virtual TaskExecutor::Shared getTaskExecutor() = 0;
   virtual void start() = 0;
-  virtual void loadScript(
-      std::vector<uint8_t>&& bundle,
-      std::string const sourceURL,
-      std::function<void(const std::string)>&& onFinish) = 0;
   virtual void createSurface(
       facebook::react::Tag surfaceId,
       std::string const& moduleName) = 0;
@@ -163,13 +157,40 @@ class RNInstanceInternal : public RNInstance,
   virtual void handleArkTSMessage(
       const std::string& name,
       folly::dynamic const& payload) = 0;
-  virtual void setBundlePath(std::string const& path) = 0;
-  virtual std::string getBundlePath() = 0;
-  virtual void registerFont(
-      std::string const& fontFamily,
-      std::string const& fontFilePath) = 0;
+    void setBundlePath(std::string const& path);
+    std::string getBundlePath();
+    virtual void registerFont(
+        std::string const& fontFamily,
+        std::string const& fontFilePath) = 0;
   virtual void setJavaScriptExecutorFactory(
       std::shared_ptr<facebook::react::JSExecutorFactory> jsExecutorFactory) = 0;
+
+    void loadScriptFromBuffer(
+        std::vector<uint8_t> bundle,
+        std::string const sourceURL,
+        std::function<void(const std::string)> onFinish);
+    void loadScriptFromFile(
+        std::string const fileURL,
+        std::function<void(const std::string)> onFinish);
+    void loadScriptFromRawFile(
+        std::string const rawFileURL,
+        std::function<void(const std::string)> onFinish);
+    void loadScript(
+        std::unique_ptr<facebook::react::JSBigString const>,
+        std::string const sourceURL,
+        std::function<void(const std::string)> onFinish);
+    NativeResourceManager const *getNativeResourceManager() const;
+
+    SharedNativeResourceManager m_nativeResourceManager;
+    std::string m_bundlePath;
+    /**
+     * NOTE: Order matters. m_scheduler holds indirectly jsi::Values.
+     * These values must be destructed before the runtime.
+     * The runtime is destructed when `m_reactInstance` is destructed.
+     * Therefore, `m_scheduler` must be declared after `m_reactInstance`.
+     */
+    std::shared_ptr<facebook::react::Instance> instance;
+    std::shared_ptr<facebook::react::Scheduler> scheduler = nullptr;
 };
 
 } // namespace rnoh
