@@ -6,6 +6,8 @@ Share Kit enables content such as text, images, and videos to be shared across a
 ![](./screenshots/device/share_tab1_en.jpg)
 ![](./screenshots/device/share_tab2_en.jpg)
 ![](./screenshots/device/share_tab3_en.jpg)
+![](./screenshots/device/share_tab4_en.jpg)
+![](./screenshots/device/share_tab5_en.jpg)
 ![](./screenshots/device/share_demo1_en.jpg)
 ![](./screenshots/device/share_demo2_en.jpg)
 ![](./screenshots/device/share_demo3_en.jpg)

@@ -6,6 +6,8 @@
 ![](./screenshots/device/share_tab1.jpg)
 ![](./screenshots/device/share_tab2.jpg)
 ![](./screenshots/device/share_tab3.jpg)
+![](./screenshots/device/share_tab4.jpg)
+![](./screenshots/device/share_tab5.jpg)
 ![](./screenshots/device/share_demo1.jpg)
 ![](./screenshots/device/share_demo2.jpg)
 ![](./screenshots/device/share_demo3.jpg)
