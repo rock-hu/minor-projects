@@ -698,7 +698,7 @@ public:
 
     bool IsTouchDownOnOverlong() const
     {
-        return isTouchDownOnOverlong_;
+        return isTouchDownOnOverlong_ || isDragging_;
     }
 
     bool IsAutoPlay() const;
@@ -726,6 +726,7 @@ public:
     }
 
     bool NeedFastAnimation() const;
+    bool IsInFastAnimation() const;
 
     float CalcCurrentTurnPageRate() const;
     int32_t GetFirstIndexInVisibleArea() const;
@@ -753,6 +754,7 @@ public:
     }
 
     bool IsFocusNodeInItemPosition(const RefPtr<FrameNode>& focusNode);
+    virtual RefPtr<Curve> GetCurve() const;
 
 protected:
     void MarkDirtyNodeSelf();
@@ -923,7 +925,6 @@ private:
     int32_t CalculateCount(
         float contentWidth, float minSize, float margin, float gutter, float swiperPadding = 0.0f) const;
     int32_t GetInterval() const;
-    virtual RefPtr<Curve> GetCurve() const;
     EdgeEffect GetEdgeEffect() const;
     bool IsDisableSwipe() const;
     bool IsShowIndicator() const;

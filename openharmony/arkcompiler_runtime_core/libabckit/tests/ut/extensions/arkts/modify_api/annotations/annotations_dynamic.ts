@@ -12,6 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import {Anno3, Anno4} from "./annotations_imports"
+
 @interface Anno1 {
     a: number = 3
     b: number[] = [13, 9]

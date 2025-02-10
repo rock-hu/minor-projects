@@ -188,7 +188,8 @@ namespace panda::ecmascript {
     V(FinishObjSizeTracking)                   \
     V(NumberHelperStringToDouble)              \
     V(GetStringToListCacheArray)               \
-    V(FastArraySort)                           \
+    V(IntLexicographicCompare)                 \
+    V(DoubleLexicographicCompare)              \
     V(FastArraySortString)                     \
     V(StringToNumber)                          \
     V(StringGetStart)                          \
@@ -476,6 +477,10 @@ namespace panda::ecmascript {
     V(FunctionDefineOwnProperty)                \
     V(DefineOwnProperty)                        \
     V(AOTEnableProtoChangeMarker)               \
+    V(JSProxyHasProperty)                       \
+    V(JSTypedArrayHasProperty)                  \
+    V(ModuleNamespaceHasProperty)               \
+    V(JSObjectHasProperty)                      \
     V(HasProperty)                              \
     V(DumpObject)                               \
     V(TryGetInternString)                       \

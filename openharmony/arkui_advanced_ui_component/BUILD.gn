@@ -16,6 +16,8 @@ group("advanced_ui_component") {
     "atomicservicenavigation/interfaces:atomicservicenavigation",
     "atomicservicetabs/interfaces:atomicservicetabs",
     "atomicserviceweb/interfaces:atomicserviceweb",
+    "customappbar/interfaces:custom_app_bar",
+    "halfscreenlaunchcomponent/interfaces:halfscreenlaunchcomponent",
     "innerfullscreenlaunchcomponent/interfaces:innerfullscreenlaunchcomponent",
     "interstitialdialogaction/interfaces:interstitialdialogaction",
   ]

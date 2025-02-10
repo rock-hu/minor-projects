@@ -189,7 +189,11 @@ GateRef BuiltinsArrayStubBuilder::DoSortOptimised(GateRef glue, GateRef receiver
         BRANCH(TaggedIsHole(*presentValue), &presentValueIsHole, &afterGettingpresentValue);
         Bind(&presentValueIsHole);
         {
+#if ENABLE_NEXT_OPTIMIZATION
+            GateRef presentValueHasProp = HasProperty(glue, receiver, IntToTaggedPtr(*i), hir);
+#else
             GateRef presentValueHasProp = CallRuntime(glue, RTSTUB_ID(HasProperty), {receiver, IntToTaggedInt(*i)});
+#endif
             BRANCH(TaggedIsTrue(presentValueHasProp), &presentValueHasProperty, &afterGettingpresentValue);
             Bind(&presentValueHasProperty);
             {
@@ -223,8 +227,12 @@ GateRef BuiltinsArrayStubBuilder::DoSortOptimised(GateRef glue, GateRef receiver
                 BRANCH(TaggedIsHole(*middleValue), &middleValueIsHole, &afterGettingmiddleValue);
                 Bind(&middleValueIsHole);
                 {
-                    GateRef middleValueHasProp = CallRuntime(glue, RTSTUB_ID(HasProperty),
-                                                             {receiver, IntToTaggedInt(middleIndex)});
+#if ENABLE_NEXT_OPTIMIZATION
+                    GateRef middleValueHasProp = HasProperty(glue, receiver, IntToTaggedPtr(middleIndex), hir);
+#else
+                    GateRef middleValueHasProp =
+                        CallRuntime(glue, RTSTUB_ID(HasProperty), {receiver, IntToTaggedInt(middleIndex)});
+#endif
                     BRANCH(TaggedIsTrue(middleValueHasProp), &middleValueHasProperty, &afterGettingmiddleValue);
                     Bind(&middleValueHasProperty);
                     {
@@ -240,23 +248,39 @@ GateRef BuiltinsArrayStubBuilder::DoSortOptimised(GateRef glue, GateRef receiver
                 }
                 Bind(&afterGettingmiddleValue);
                 {
-                    Label intOrDouble(env);
-                    Label notIntAndDouble(env);
+                    Label isInt(env);
+                    Label notInt(env);
+                    Label isDouble(env);
+                    Label notDouble(env);
                     Label exchangeIndex(env);
                     GateRef middleVal = *middleValue;
                     GateRef presentVal = *presentValue;
                     DEFVARIABLE(compareResult, VariableType::INT32(), Int32(0));
-                    GateRef intDoubleCheck = BitOr(BitAnd(TaggedIsInt(middleVal), TaggedIsInt(presentVal)),
-                                                   BitAnd(TaggedIsDouble(middleVal), TaggedIsDouble(presentVal)));
-                    BRANCH(intDoubleCheck, &intOrDouble, &notIntAndDouble);
-                    Bind(&intOrDouble);
+                    GateRef intCheck = LogicAndBuilder(env)
+                                       .And(TaggedIsInt(middleVal))
+                                       .And(TaggedIsInt(presentVal))
+                                       .Done();
+                    BRANCH(intCheck, &isInt, &notInt);
+                    Bind(&isInt);
                     {
                         compareResult =
-                            CallNGCRuntime(glue, RTSTUB_ID(FastArraySort), {*middleValue, *presentValue});
+                            CallNGCRuntime(glue, RTSTUB_ID(IntLexicographicCompare), {*middleValue, *presentValue});
                         Jump(&exchangeIndex);
                     }
-                    Bind(&notIntAndDouble);
+                    Bind(&notInt);
                     {
+                        GateRef doubleCheck = LogicAndBuilder(env)
+                                              .And(TaggedIsDouble(middleVal))
+                                              .And(TaggedIsDouble(presentVal))
+                                              .Done();
+                        BRANCH(doubleCheck, &isDouble, &notDouble);
+                        Bind(&isDouble);
+                        {
+                            compareResult = CallNGCRuntime(glue,
+                                RTSTUB_ID(DoubleLexicographicCompare), {*middleValue, *presentValue});
+                            Jump(&exchangeIndex);
+                        }
+                        Bind(&notDouble);
                         Label isString(env);
                         GateRef strBool = LogicAndBuilder(env)
                                           .And(TaggedIsString(middleVal))
@@ -320,8 +344,13 @@ GateRef BuiltinsArrayStubBuilder::DoSortOptimised(GateRef glue, GateRef receiver
                     BRANCH(TaggedIsHole(*previousValue), &previousValueIsHole, &afterGettingpreviousValue);
                     Bind(&previousValueIsHole);
                     {
+#if ENABLE_NEXT_OPTIMIZATION
+                        GateRef previousValueHasProp =
+                            HasProperty(glue, receiver, IntToTaggedPtr(Int64Sub(*j, Int64(1))), hir);
+#else
                         GateRef previousValueHasProp = CallRuntime(glue, RTSTUB_ID(HasProperty),
                                                                    {receiver, IntToTaggedInt(Int64Sub(*j, Int64(1)))});
+#endif
                         BRANCH(TaggedIsTrue(previousValueHasProp),
                                &previousValueHasProperty, &afterGettingpreviousValue);
                         Bind(&previousValueHasProperty);
@@ -472,18 +501,36 @@ GateRef BuiltinsArrayStubBuilder::DoSortOptimisedFast(GateRef glue, GateRef rece
                         Jump(&exchangeIndex);
                     }
                     Bind(&presentNotUndefined);
-                    GateRef intDoubleCheck = BitOr(BitAnd(TaggedIsInt(*middleValue),
-                                                          TaggedIsInt(*presentValue)),
-                                                   BitAnd(TaggedIsDouble(*middleValue),
-                                                          TaggedIsDouble(*presentValue)));
-                    BRANCH(intDoubleCheck, &intOrDouble, &notIntAndDouble);
-                    Bind(&intOrDouble);
+                    Label isInt(env);
+                    Label notInt(env);
+                    Label isDouble(env);
+                    Label notDouble(env);
+                    GateRef middleVal = *middleValue;
+                    GateRef presentVal = *presentValue;
+                    GateRef intCheck = LogicAndBuilder(env)
+                                       .And(TaggedIsInt(middleVal))
+                                       .And(TaggedIsInt(presentVal))
+                                       .Done();
+                    BRANCH(intCheck, &isInt, &notInt);
+                    Bind(&isInt);
                     {
                         compareResult =
-                            CallNGCRuntime(glue, RTSTUB_ID(FastArraySort), {*middleValue, *presentValue});
+                            CallNGCRuntime(glue, RTSTUB_ID(IntLexicographicCompare), {*middleValue, *presentValue});
                         Jump(&exchangeIndex);
                     }
-                    Bind(&notIntAndDouble);
+                    Bind(&notInt);
+                    GateRef doubleCheck = LogicAndBuilder(env)
+                                          .And(TaggedIsDouble(middleVal))
+                                          .And(TaggedIsDouble(presentVal))
+                                          .Done();
+                    BRANCH(doubleCheck, &isDouble, &notDouble);
+                    Bind(&isDouble);
+                    {
+                        compareResult = CallNGCRuntime(glue,
+                            RTSTUB_ID(DoubleLexicographicCompare), {*middleValue, *presentValue});
+                        Jump(&exchangeIndex);
+                    }
+                    Bind(&notDouble);
                     Label isString(env);
                     GateRef stringCheck = BitAnd(TaggedIsString(*middleValue),
                                                  TaggedIsString(*presentValue));
@@ -1608,7 +1655,12 @@ void BuiltinsArrayStubBuilder::VisitAll(GateRef glue, GateRef thisValue, GateRef
             Label notHasException1(env);
             BRANCH_NO_WEIGHT(Int64LessThan(*i, *thisArrLen), &next, exit);
             Bind(&next);
+#if ENABLE_NEXT_OPTIMIZATION
+            GateRef hasProp = CallCommonStub(glue, CommonStubCSigns::JSTaggedValueHasProperty,
+                                             { glue, thisValue, IntToTaggedPtr(*i) });
+#else
             GateRef hasProp = CallRuntime(glue, RTSTUB_ID(HasProperty), {thisValue, IntToTaggedInt(*i)});
+#endif
             BRANCH_LIKELY(TaggedIsTrue(hasProp), &hasProperty, &loopEnd);
             Bind(&hasProperty);
             kValue = FastGetPropertyByIndex(glue, thisValue, TruncInt64ToInt32(*i), ProfileOperation());

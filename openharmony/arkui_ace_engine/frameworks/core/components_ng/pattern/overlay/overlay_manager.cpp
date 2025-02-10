@@ -75,6 +75,7 @@
 #include "core/components_ng/pattern/overlay/sheet_view.h"
 #include "core/components_ng/pattern/overlay/sheet_wrapper_pattern.h"
 #include "core/components_ng/pattern/picker/datepicker_dialog_view.h"
+#include "core/components_ng/pattern/select_overlay/magnifier_pattern.h"
 #include "core/components_ng/pattern/text_field/text_field_manager.h"
 #include "core/components_ng/pattern/text_picker/textpicker_dialog_view.h"
 #include "core/components_ng/pattern/time_picker/timepicker_dialog_view.h"
@@ -149,6 +150,8 @@ constexpr int32_t UIEXTNODE_ANGLE_180 = 180;
 constexpr int32_t UIEXTNODE_ANGLE_270 = 270;
 
 constexpr double DISTANCE_THRESHOLD = 20.0;
+constexpr uint64_t DEFAULT_DISPLAY_ID = 0;
+constexpr uint64_t VIRTUAL_DISPLAY_ID = 999;
 
 const std::unordered_set<std::string> EMBEDDED_DIALOG_NODE_TAG = { V2::ALERT_DIALOG_ETS_TAG,
     V2::ACTION_SHEET_DIALOG_ETS_TAG, V2::DIALOG_ETS_TAG };
@@ -1219,6 +1222,15 @@ void OverlayManager::OnPopMenuAnimationFinished(const WeakPtr<FrameNode> menuWK,
     }
     overlayManager->RemoveMenuNotInSubWindow(menuWK, rootWeak, weak);
     overlayManager->SetIsMenuShow(false);
+    ToOpenMenuAtAnimationFinished();
+}
+
+void OverlayManager::ToOpenMenuAtAnimationFinished()
+{
+    if (openNextMenu_) {
+        openNextMenu_();
+        openNextMenu_ = nullptr;
+    }
 }
 
 void OverlayManager::PopMenuAnimation(const RefPtr<FrameNode>& menu, bool showPreviewAnimation, bool startDrag)
@@ -2192,6 +2204,27 @@ void OverlayManager::HideMenuInSubWindow(bool showPreviewAnimation, bool startDr
             PopMenuAnimation(node, showPreviewAnimation, startDrag);
         }
     }
+}
+
+RefPtr<FrameNode> OverlayManager::GetMenuNodeWithExistContent(const RefPtr<UINode>& node)
+{
+    CHECK_NULL_RETURN(node, nullptr);
+    auto iter = menuMap_.begin();
+    while (iter != menuMap_.end()) {
+        auto menuNode = (*iter).second;
+        CHECK_NULL_RETURN(menuNode, nullptr);
+        auto menuWrapperPattern = menuNode->GetPattern<NG::MenuWrapperPattern>();
+        CHECK_NULL_RETURN(menuWrapperPattern, nullptr);
+        auto menu = menuWrapperPattern->GetMenu();
+        CHECK_NULL_RETURN(menu, nullptr);
+        auto menuPattern = AceType::DynamicCast<MenuPattern>(menu->GetPattern());
+        CHECK_NULL_RETURN(menuPattern, nullptr);
+        if (menuPattern->GetCustomNode() == node) {
+            return menuNode;
+        }
+        iter++;
+    }
+    return nullptr;
 }
 
 RefPtr<FrameNode> OverlayManager::GetMenuNode(int32_t targetId)
@@ -3289,14 +3322,25 @@ bool OverlayManager::RemoveOverlay(bool isBackPressed, bool isPageRouter)
             }
         }
         if (!InstanceOf<KeyboardPattern>(pattern)) {
-            if (overlay->GetTag() != V2::SHEET_WRAPPER_TAG) {
-                rootNode->RemoveChild(overlay);
-            }
-            rootNode->MarkDirtyNode(PROPERTY_UPDATE_BY_CHILD_REQUEST);
-            return true;
+            return RemoveNonKeyboardOverlay(overlay);
         }
     }
     return false;
+}
+
+bool OverlayManager::RemoveNonKeyboardOverlay(const RefPtr<FrameNode>& overlay)
+{
+    auto rootNode = rootNodeWeak_.Upgrade();
+    CHECK_NULL_RETURN(rootNode && overlay, true);
+    auto pattern = overlay->GetPattern();
+    if (overlay->GetTag() != V2::SHEET_WRAPPER_TAG) {
+        rootNode->RemoveChild(overlay);
+    }
+    rootNode->MarkDirtyNode(PROPERTY_UPDATE_BY_CHILD_REQUEST);
+    CHECK_NULL_RETURN(overlay->GetTag() == V2::MAGNIFIER_TAG, true);
+    auto magnifierPattern = DynamicCast<MagnifierPattern>(pattern);
+    CHECK_NULL_RETURN(magnifierPattern, true);
+    return magnifierPattern->IsStopBackPress();
 }
 
 RefPtr<FrameNode> OverlayManager::GetOverlayFrameNode()
@@ -6656,7 +6700,7 @@ void OverlayManager::MarkDirtyOverlay()
             sheet->MarkDirtyNode(PROPERTY_UPDATE_MEASURE);
         }
     }
-    if (overlayNode->GetTag() == V2::DIALOG_ETS_TAG) {
+    if (EMBEDDED_DIALOG_NODE_TAG.find(overlayNode->GetTag()) != EMBEDDED_DIALOG_NODE_TAG.end()) {
         overlayNode->MarkDirtyNode(PROPERTY_UPDATE_MEASURE);
     }
 }
@@ -6716,6 +6760,7 @@ int32_t OverlayManager::GetMaskNodeIdWithDialogId(int32_t dialogId)
 void OverlayManager::MountGatherNodeToRootNode(const RefPtr<FrameNode>& frameNode,
     const std::vector<GatherNodeChildInfo>& gatherNodeChildrenInfo)
 {
+    CHECK_NULL_VOID(frameNode);
     auto rootNode = rootNodeWeak_.Upgrade();
     CHECK_NULL_VOID(rootNode);
     frameNode->MountToParent(rootNode);
@@ -7287,6 +7332,7 @@ void OverlayManager::RemoveMenuWrapperNode(const RefPtr<UINode>& rootNode)
         auto node = DynamicCast<FrameNode>(child);
         if (node && node->GetTag() == V2::MENU_WRAPPER_ETS_TAG) {
             rootNode->RemoveChild(node);
+            return;
         }
     }
 }
@@ -7329,20 +7375,15 @@ RefPtr<FrameNode> OverlayManager::GetLastChildNotRemoving(const RefPtr<UINode>& 
 SafeAreaInsets OverlayManager::GetSafeAreaInsets(const RefPtr<FrameNode>& frameNode, bool useCurrentWindow)
 {
     auto pipeline = PipelineContext::GetMainPipelineContext();
-    CHECK_NULL_RETURN(pipeline, {});
-    if (Container::LessThanAPITargetVersion(PlatformVersion::VERSION_SIXTEEN)) {
-        return pipeline->GetSafeAreaWithoutProcess();
-    }
-
     if (useCurrentWindow) {
         CHECK_NULL_RETURN(frameNode, {});
         pipeline = frameNode->GetContextRefPtr();
-        CHECK_NULL_RETURN(pipeline, {});
     }
 
+    CHECK_NULL_RETURN(pipeline, {});
     auto containerId = pipeline->GetInstanceId();
     ContainerScope scope(containerId);
-    return pipeline->GetScbSafeArea();
+    return pipeline->GetSafeAreaWithoutProcess();
 }
 
 void OverlayManager::FireNavigationLifecycle(const RefPtr<UINode>& node, int32_t lifecycle,
@@ -7392,5 +7433,45 @@ bool OverlayManager::isCurrentNodeProcessRemoveOverlay(const RefPtr<FrameNode>& 
         return true;
     }
     return false;
+}
+
+Rect OverlayManager::GetDisplayAvailableRect(const RefPtr<FrameNode>& frameNode)
+{
+    auto mainPipeline = PipelineContext::GetMainPipelineContext();
+    CHECK_NULL_RETURN(mainPipeline, Rect());
+
+    auto rect = mainPipeline->GetDisplayAvailableRect();
+    if (!SystemProperties::IsSuperFoldDisplayDevice()) {
+        return rect;
+    }
+
+    CHECK_NULL_RETURN(frameNode, rect);
+    auto pipeContext = frameNode->GetContextRefPtr();
+    CHECK_NULL_RETURN(pipeContext, rect);
+    auto container = AceEngine::Get().GetContainer(pipeContext->GetInstanceId());
+    CHECK_NULL_RETURN(container, rect);
+    if (!container->IsSubContainer()) {
+        return rect;
+    }
+
+    rect = container->GetDisplayAvailableRect();
+    if (container->GetCurrentFoldStatus() == FoldStatus::EXPAND) {
+        return rect;
+    }
+
+    // foldStatus need exclude crease area
+    auto foldCreaseRects = container->GetCurrentFoldCreaseRegion();
+    if (foldCreaseRects.empty()) {
+        return rect;
+    }
+
+    auto foldCreaseRect = foldCreaseRects.front();
+    if (container->GetDisplayId() == DEFAULT_DISPLAY_ID) {
+        return Rect(rect.Left(), rect.Top(), rect.Width(), std::min(rect.Bottom(), foldCreaseRect.Top()) - rect.Top());
+    } else if (container->GetDisplayId() == VIRTUAL_DISPLAY_ID) {
+        return Rect(rect.Left(), 0.0, rect.Width(), rect.Bottom() - std::max(rect.Top(), foldCreaseRect.Bottom()));
+    } else {
+        return rect;
+    }
 }
 } // namespace OHOS::Ace::NG

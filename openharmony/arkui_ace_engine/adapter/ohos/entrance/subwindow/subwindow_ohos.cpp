@@ -33,6 +33,9 @@
 #include "adapter/ohos/entrance/ace_rosen_sync_task.h"
 #endif
 
+#include "bundlemgr/bundle_mgr_interface.h"
+#include "iservice_registry.h"
+
 #include "adapter/ohos/entrance/ace_view_ohos.h"
 #include "adapter/ohos/entrance/dialog_container.h"
 #include "adapter/ohos/entrance/ui_content_impl.h"
@@ -40,7 +43,6 @@
 #include "base/log/frame_report.h"
 #include "base/utils/system_properties.h"
 #include "base/utils/utils.h"
-#include "bundlemgr/bundle_mgr_interface.h"
 #include "core/common/connect_server_manager.h"
 #include "core/common/container_scope.h"
 #include "core/common/frontend.h"
@@ -55,7 +57,6 @@
 #include "core/components_ng/render/adapter/rosen_window.h"
 #include "frameworks/bridge/common/utils/engine_helper.h"
 #include "frameworks/bridge/declarative_frontend/declarative_frontend.h"
-#include "iservice_registry.h"
 #ifdef OS_ACCOUNT_EXISTS
 #include "os_account_manager.h"
 #endif
@@ -172,6 +173,31 @@ void SetUIExtensionSubwindowFlag(OHOS::sptr<OHOS::Rosen::WindowOption>& windowOp
     }
 }
 
+void SetSubWindowCutout(const RefPtr<PipelineBase> parentPipeline, int32_t childContainerId)
+{
+    auto parentPipelineContext = AceType::DynamicCast<NG::PipelineContext>(parentPipeline);
+    CHECK_NULL_VOID(parentPipelineContext);
+    auto parentSafeAreaManager = parentPipelineContext->GetSafeAreaManager();
+    CHECK_NULL_VOID(parentSafeAreaManager);
+    auto parentUseCutout = parentSafeAreaManager->GetUseCutout();
+
+    auto subPipelineContext = Platform::AceContainer::GetContainer(childContainerId)->GetPipelineContext();
+    auto subPipelineContextNG = AceType::DynamicCast<NG::PipelineContext>(subPipelineContext);
+    CHECK_NULL_VOID(subPipelineContextNG);
+    auto subSafeAreaManager = subPipelineContextNG->GetSafeAreaManager();
+    CHECK_NULL_VOID(subSafeAreaManager);
+    subSafeAreaManager->SetUseCutout(parentUseCutout);
+}
+
+Size GetSubWindowSize(int32_t parentContainerId, uint32_t displayId)
+{
+    auto defaultDisplay = Rosen::DisplayManager::GetInstance().GetDisplayById(displayId);
+    CHECK_NULL_RETURN(defaultDisplay, Size());
+
+    // @todo: parentWindow is sceneboard or crossDisplay, return fullscreen size
+    return Size(defaultDisplay->GetWidth(), defaultDisplay->GetHeight());
+}
+
 bool SubwindowOhos::InitContainer()
 {
     auto parentContainer = Platform::AceContainer::GetContainer(parentContainerId_);
@@ -222,13 +248,17 @@ bool SubwindowOhos::InitContainer()
             isAppSubwindow = true;
         }
         auto displayId = parentContainer->GetCurrentDisplayId();
-        TAG_LOGI(AceLogTag::ACE_SUB_WINDOW,
-            "The display id obtained from parent window is %{public}u", (uint32_t)displayId);
         auto defaultDisplay = Rosen::DisplayManager::GetInstance().GetDisplayById(displayId);
         if (!defaultDisplay) {
-            TAG_LOGE(AceLogTag::ACE_SUB_WINDOW, "DisplayManager GetDefaultDisplay failed");
+            TAG_LOGE(AceLogTag::ACE_SUB_WINDOW, "DisplayManager failed to getDisplay by id: %{public}u",
+                (uint32_t)displayId);
             return false;
         }
+
+        TAG_LOGI(AceLogTag::ACE_SUB_WINDOW, "Parent window displayId: %{public}u width: %{public}d height: %{public}d",
+            (uint32_t)displayId, defaultDisplay->GetWidth(), defaultDisplay->GetHeight());
+        auto windowSize = GetSubWindowSize(parentContainerId_, displayId);
+        windowOption->SetWindowRect({ 0, 0, windowSize.Width(), windowSize.Height() });
         windowOption->SetWindowRect({ 0, 0, defaultDisplay->GetWidth(), defaultDisplay->GetHeight() });
         windowOption->SetWindowMode(Rosen::WindowMode::WINDOW_MODE_FLOATING);
         SetUIExtensionSubwindowFlag(windowOption, isAppSubwindow, parentWindow);
@@ -240,6 +270,7 @@ bool SubwindowOhos::InitContainer()
             TAG_LOGW(AceLogTag::ACE_SUB_WINDOW, "Window create failed, errCode is %{public}d", ret);
             return false;
         }
+        window_->SetExclusivelyHighlighted(false);
     }
     std::string url = "";
     auto subSurface = window_->GetSurfaceNode();
@@ -334,6 +365,7 @@ bool SubwindowOhos::InitContainer()
     subPipelineContext->SetMaxAppFontScale(parentPipeline->GetMaxAppFontScale());
     subPipelineContext->SetFollowSystem(parentPipeline->IsFollowSystem());
     subPipelineContext->SetFontScale(parentPipeline->GetFontScale());
+    SetSubWindowCutout(parentPipeline, childContainerId_);
     return true;
 }
 
@@ -396,10 +428,8 @@ std::function<void()> SubwindowOhos::GetInitToastDelayTask(const NG::ToastInfo& 
 void SubwindowOhos::ResizeWindow()
 {
     CHECK_NULL_VOID(window_);
-    auto displayId = window_->GetDisplayId();
-    auto defaultDisplay = Rosen::DisplayManager::GetInstance().GetDisplayById(displayId);
-    CHECK_NULL_VOID(defaultDisplay);
-    auto ret = window_->Resize(defaultDisplay->GetWidth(), defaultDisplay->GetHeight());
+    auto windowSize = GetSubWindowSize(parentContainerId_, window_->GetDisplayId());
+    auto ret = window_->Resize(windowSize.Width(), windowSize.Height());
     if (ret != Rosen::WMError::WM_OK) {
         TAG_LOGW(AceLogTag::ACE_SUB_WINDOW, "Resize window by default display failed with errCode: %{public}d",
             static_cast<int32_t>(ret));
@@ -407,6 +437,49 @@ void SubwindowOhos::ResizeWindow()
     }
     TAG_LOGI(AceLogTag::ACE_SUB_WINDOW,
         "SubwindowOhos window rect is resized to x: %{public}d, y: %{public}d, width: %{public}u, height: %{public}u",
+        window_->GetRect().posX_, window_->GetRect().posY_, window_->GetRect().width_, window_->GetRect().height_);
+}
+
+void SubwindowOhos::ResizeWindowForMenu()
+{
+    CHECK_NULL_VOID(window_);
+    auto container = Container::Current();
+    CHECK_NULL_VOID(container);
+    auto containerId = Container::CurrentId();
+    if (container->IsSubContainer()) {
+        containerId = SubwindowManager::GetInstance()->GetParentContainerId(containerId);
+        container = Platform::AceContainer::GetContainer(containerId);
+        CHECK_NULL_VOID(container);
+    }
+    auto pipeline = DynamicCast<NG::PipelineContext>(container->GetPipelineContext());
+    CHECK_NULL_VOID(pipeline);
+    auto theme = pipeline->GetTheme<SelectTheme>();
+    CHECK_NULL_VOID(theme);
+    Rosen::WMError ret;
+    if (!(theme->GetExpandDisplay()) && SystemProperties::GetDeviceOrientation() == DeviceOrientation::LANDSCAPE) {
+        if (container->IsUIExtensionWindow()) {
+            auto subwindow = SubwindowManager::GetInstance()->GetSubwindow(containerId);
+            CHECK_NULL_VOID(subwindow);
+            auto rect = subwindow->GetUIExtensionHostWindowRect();
+            ret = window_->Resize(rect.Width(), rect.Height());
+        } else {
+            auto rect = pipeline->GetDisplayWindowRectInfo();
+            ret = window_->Resize(rect.Width(), rect.Height());
+        }
+    } else {
+        auto displayId = window_->GetDisplayId();
+        auto defaultDisplay = Rosen::DisplayManager::GetInstance().GetDisplayById(displayId);
+        CHECK_NULL_VOID(defaultDisplay);
+        ret = window_->Resize(defaultDisplay->GetWidth(), defaultDisplay->GetHeight());
+    }
+    if (ret != Rosen::WMError::WM_OK) {
+        TAG_LOGW(AceLogTag::ACE_SUB_WINDOW, "Resize window by default display failed with errCode: %{public}d",
+            static_cast<int32_t>(ret));
+        return;
+    }
+    TAG_LOGI(AceLogTag::ACE_SUB_WINDOW,
+        "SubwindowOhos window rect is resized for menu to x: %{public}d, y: %{public}d, width: %{public}u, height: "
+        "%{public}u",
         window_->GetRect().posX_, window_->GetRect().posY_, window_->GetRect().width_, window_->GetRect().height_);
 }
 
@@ -766,7 +839,7 @@ void SubwindowOhos::ShowMenuNG(const RefPtr<NG::FrameNode> customNode, const NG:
         menuWrapperPattern->RegisterMenuCallback(menuNode, menuParam);
         menuWrapperPattern->SetMenuTransitionEffect(menuNode, menuParam);
     }
-    ResizeWindow();
+    ResizeWindowForMenu();
     ShowWindow();
     CHECK_NULL_VOID(window_);
     window_->SetTouchable(true);
@@ -784,7 +857,7 @@ void SubwindowOhos::ShowMenuNG(std::function<void()>&& buildFunc, std::function<
     ContainerScope scope(childContainerId_);
     auto overlay = GetOverlayManager();
     CHECK_NULL_VOID(overlay);
-    ResizeWindow();
+    ResizeWindowForMenu();
     ShowWindow();
     CHECK_NULL_VOID(window_);
     window_->SetTouchable(true);
@@ -1906,7 +1979,7 @@ void SubwindowOhos::ResizeWindowForFoldStatus()
         return;
     }
     TAG_LOGI(AceLogTag::ACE_SUB_WINDOW,
-        "SubwindowOhos window rect is resized to x: %{public}d, y: %{public}d, width: %{public}u, height: %{public}u",
+        "foldStatus is changed, subwindowOhos is resized to [%{public}d, %{public}d, %{public}u, %{public}u]",
         window_->GetRect().posX_, window_->GetRect().posY_, window_->GetRect().width_, window_->GetRect().height_);
 }
 
@@ -2024,7 +2097,7 @@ void SubwindowOhos::InitializeSafeArea()
     auto cutoutSafeArea = container->GetViewSafeAreaByType(Rosen::AvoidAreaType::TYPE_CUTOUT, windowRect);
     pipeline->UpdateCutoutSafeArea(cutoutSafeArea);
 
-    auto safeAreaInsets = pipeline->GetScbSafeArea();
+    auto safeAreaInsets = pipeline->GetSafeAreaWithoutProcess();
     TAG_LOGI(AceLogTag::ACE_SUB_WINDOW, "initializeSafeArea by windowRect: %{public}s, safeAreaInsets: %{public}s",
         windowRect.value_or(NG::RectF()).ToString().c_str(), safeAreaInsets.ToString().c_str());
 }

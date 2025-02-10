@@ -857,6 +857,7 @@ void ArcIndexerPattern::UpdateIndexerRender()
 
 std::string ArcIndexerPattern::GetChildNodeContent(int32_t index)
 {
+    index = std::clamp(index, 0, static_cast<int32_t>(arcArrayValue_.size()) - 1);
     auto nodeStr = autoCollapse_ && (arcArrayValue_[index].second != ArcIndexerBarState::INVALID) ?
         (arcArrayValue_[index].second == ArcIndexerBarState::COLLAPSED ?
         StringUtils::Str16ToStr8(ARC_INDEXER_STR_COLLAPSED) :
@@ -942,7 +943,8 @@ void ArcIndexerPattern::SetChildNodeStyle(int32_t index, const std::string &node
         nodeLayoutProperty->UpdateEllipsisMode(EllipsisMode::TAIL);
         nodeLayoutProperty->UpdateTextAlign(TextAlign::CENTER);
         nodeLayoutProperty->UpdateAlignment(Alignment::CENTER);
-        nodeLayoutProperty->UpdateBorderWidth({ borderWidth, borderWidth, borderWidth, borderWidth });
+        nodeLayoutProperty->UpdateBorderWidth(
+            { borderWidth, borderWidth, borderWidth, borderWidth, borderWidth, borderWidth });
         childRenderContext->ResetBlendBorderColor();
         auto defaultFont = layoutProperty->GetFont().value_or(indexerTheme->GetDefaultTextStyle());
         nodeLayoutProperty->UpdateFontSize(defaultFont.GetFontSize());
@@ -982,7 +984,7 @@ void ArcIndexerPattern::SetFocusIndexStyle(int32_t index, const std::string &nod
     nodeLayoutProperty->UpdateTextAlign(TextAlign::CENTER);
     nodeLayoutProperty->UpdateAlignment(Alignment::CENTER);
     childRenderContext->UpdateBackgroundColor(
-        paintProperty->GetSelectedBackgroundColor().value_or(indexerTheme->GetSelectedBackgroundColor()));
+        paintProperty->GetSelectedBackgroundColor().value_or(indexerTheme->GetSelectedBackgroundColorArc()));
     if (index != childFocusIndex_) {
         childRenderContext->ResetBlendBorderColor();
     }
@@ -1236,8 +1238,8 @@ void ArcIndexerPattern::UpdateBubbleLetterStackAndLetterTextView()
     letterLayoutProperty->UpdateAlignment(Alignment::CENTER);
 
     auto textPadding = Dimension(ARC_INDEXER_PADDING_LEFT, DimensionUnit::VP).ConvertToPx();
-    letterLayoutProperty->UpdatePadding(
-        { CalcLength(textPadding), CalcLength(textPadding), CalcLength(textPadding), CalcLength(textPadding) });
+    letterLayoutProperty->UpdatePadding({ CalcLength(textPadding), CalcLength(textPadding), CalcLength(textPadding),
+        CalcLength(textPadding), CalcLength(textPadding), CalcLength(textPadding) });
 
     auto BubbleSize = Dimension(ARC_BUBBLE_BOX_SIZE, DimensionUnit::VP).ConvertToPx();
     letterLayoutProperty->UpdateUserDefinedIdealSize(
