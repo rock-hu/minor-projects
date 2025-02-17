@@ -38,7 +38,7 @@
     },
     {
       "name": "jump_text_one",
-      "value": "This is message number %d:"
+      "value": "This is message number %d !"
     },
     {
       "name": "two_days_ago",
@@ -67,6 +67,10 @@
     {
       "name": "pic_text_list",
       "value": "picture and text list"
+    },
+    {
+      "name": "userName",
+      "value": "userName_%d"
     }
   ]
 }

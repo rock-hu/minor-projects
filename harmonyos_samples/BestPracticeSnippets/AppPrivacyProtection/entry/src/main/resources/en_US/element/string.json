@@ -25,10 +25,6 @@
       "value": "Get approximately location"
     },
     {
-      "name": "use_location_button",
-      "value": "Use location button"
-    },
-    {
       "name": "use_picker",
       "value": "Accessing files using picker"
     },
@@ -39,10 +35,6 @@
     {
       "name": "use_approximately_location",
       "value": "Use approximately location"
-    },
-    {
-      "name": "punch_successfully",
-      "value": "Punch successfully"
     },
     {
       "name": "select_picture",

@@ -52,10 +52,11 @@ export class FriendMomentsData extends BasicDataSource<FriendMoment> {
       if (item.id) {
         item.id = Math.floor(this.totalCount() / 10) + item.id;
       }
+      item.userName = resourceManager.getStringSync($r('app.string.userName').id, parseInt(item.id) + 1);
       if (this.mode === Constants.NAV_DESTINATION_ITEM_3) {
         item.text = resourceManager.getStringSync($r('app.string.with_func_title'), parseInt(item.id) + 1);
       } else {
-        item.text = resourceManager.getStringSync($r('app.string.jump_text_one'), parseInt(item.id) + 1) + item.text;
+        item.text = resourceManager.getStringSync($r('app.string.jump_text_one'), parseInt(item.id) + 1);
       }
       this.pushData(item);
     })

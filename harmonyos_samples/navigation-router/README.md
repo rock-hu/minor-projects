@@ -1,7 +1,7 @@
-# 应用导航设计
+# 基于路由模块和动态加载实现应用页面路由导航功能
 
 ### 介绍
-通过设计单独的路由模块和动态加载方法，解决一个Navigation组件下多har/hsp间路由跳转依赖耦合问题。
+通过设计单独的路由模块和动态加载方法，将路由功能抽取为单独的模块供其他模块使用，实现业务模块间的解耦。帮助开发者在页面跳转开发场景中，解决了一个Navigation组件下多har/hsp间路由跳转依赖耦合问题。
 
 ### 效果预览
 ![路由导航效果预览](screenshots/device/demonstration.gif)
@@ -66,8 +66,8 @@
 
 1. 本示例仅支持标准系统上运行，支持设备：华为手机。
 
-2. HarmonyOS系统：HarmonyOS NEXT Developer Beta1及以上。
+2. HarmonyOS系统：HarmonyOS 5.0.0 Release及以上。
 
-3. DevEco Studio版本：DevEco Studio NEXT Developer Beta1及以上。
+3. DevEco Studio版本：DevEco Studio 5.0.0 Release及以上。
 
-4. HarmonyOS SDK版本：HarmonyOS NEXT Developer Beta1 SDK及以上。
+4. HarmonyOS SDK版本：HarmonyOS 5.0.0 Release SDK及以上。

@@ -1,11 +1,8 @@
-# UIAbility的启动模式
+# 基于Stage模型中的UIAbility组件启动模式
 
 ### 介绍
 
-本示例展示了在一个Stage模型中，实现multiton、singleton、specified多种模式场景。
-
-本实例参考开发指南。
-本实例需要使用aa工具(hdc shell执行后，执行aa dump -a命令即可)查看应用Ability模式信息。
+本示例展示了在一个stage模型中，针对不同的业务场景，实现UIAbility实例在启动时的不同呈现状态，提供了三种启动模式： singleton启动模式为单实例模式， multiton启动模式为多实例模式， specified启动模式为指定实例模式。
 
 ### 效果预览
 

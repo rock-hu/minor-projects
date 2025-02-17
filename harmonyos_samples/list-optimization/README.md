@@ -1,4 +1,4 @@
-# 长列表性能对比
+# 基于ForEach和LazyForEach实现长列表
 
 ### 介绍
 本示例分别使用ForEach与LazyForEach实现了长列表，并在LazyForEach懒加载的基础上实现了缓存列表项与组件复用，旨在不同大小的数据下，对比ForEach与LazyForEach的性能，包括完全显示所用时间、丢帧率等性能指标。

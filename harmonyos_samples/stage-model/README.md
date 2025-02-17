@@ -1,8 +1,8 @@
-# Stage模型
+# 基于AbilityKit实现Stage模型Ability管理的相关能力
 
 ### 介绍
 
-本示例基于AbilityKit展示了Stage模型Ability管理的相关能力。
+本示例基于AbilityKit实现Stage模型Ability管理的相关能力，实现跳转AbilityContent页面、AbilityAccessCtrl页面、Window页面等功能。
 
 ### 效果预览
 

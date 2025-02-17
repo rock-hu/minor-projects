@@ -1,7 +1,7 @@
-# 网络管理
+# 实现网络管理的功能
 
 ### 介绍
-本实例展示如何查询网络详情、域名解析、网络状态监听等功能。
+本示例通过@ohos.net.connection接口实现网络的详情、域名解析、网络监听等功能，注意需要申请ohos.permission.GET_NETWORK_INFO和ohos.permission.INTERNET权限。帮助开发者掌握如何处理检查网络、监听网络等的网络相关场景。
 
 ### 效果预览：
 ![image](screenshots/network.gif)

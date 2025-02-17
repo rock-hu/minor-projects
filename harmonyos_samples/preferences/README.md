@@ -1,8 +1,8 @@
-#  首选项
+# 实现首选项数据持久化功能
 
 ### 简介
 
-本示例使用@ohos.data.preferences接口，展示了使用首选项持久化存储数据的功能。
+本示例使用@ohos.data.preferences接口，展示了使用首选项持久化存储数据的功能。帮助开发者实现主题切换且主题数据缓存读取的场景。
 
 ### 效果预览 
 
@@ -58,6 +58,3 @@ Preferences.flush()保存并刷新文件内容。
 3.DevEco Studio版本：DevEco Studio NEXT Developer Beta1及以上。
 
 4.HarmonyOS SDK版本：HarmonyOS NEXT Developer Beta1 SDK及以上。
-
-
-

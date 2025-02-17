@@ -25,10 +25,6 @@
       "value": "使用模糊定位获取位置信息"
     },
     {
-      "name": "use_location_button",
-      "value": "使用LocationButton获取位置信息"
-    },
-    {
       "name": "use_picker",
       "value": "使用Picker访问文件"
     },
@@ -39,10 +35,6 @@
     {
       "name": "use_approximately_location",
       "value": "使用模糊定位"
-    },
-    {
-      "name": "punch_successfully",
-      "value": "打开成功"
     },
     {
       "name": "select_picture",

@@ -38,7 +38,7 @@
     },
     {
       "name": "jump_text_one",
-      "value": "这是第%d条消息："
+      "value": "这是第%d条消息 !"
     },
     {
       "name": "two_days_ago",
@@ -67,6 +67,10 @@
     {
       "name": "pic_text_list",
       "value": "图文列表"
+    },
+    {
+      "name": "userName",
+      "value": "用户名称_%d"
     }
   ]
 }

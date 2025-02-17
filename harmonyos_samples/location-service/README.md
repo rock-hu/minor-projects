@@ -32,7 +32,7 @@
 │  ├──model
 │  │  └──LocationInter.ets                // 位置经纬度信息
 │  └──pages
-│     └──index.ets                        // 主页面
+│     └──Index.ets                        // 主页面
 └──entry/src/main/resources               // 应用静态资源目录
 ```
 
@@ -64,10 +64,10 @@ ohos.permission.GET_NETWORK_INFO：允许应用获取设备网络连接信息。
 
 ### 约束与限制
 
-1.本示例仅支持标准系统上运行，支持设备：华为手机。
+1. 本示例仅支持标准系统上运行，支持设备：华为手机。
 
-2.HarmonyOS系统：HarmonyOS 5.0.0 Release及以上。
+2. HarmonyOS系统：HarmonyOS 5.0.0 Release及以上。
 
-3.DevEco Studio版本：DevEco Studio 5.0.0 Release及以上。
+3. DevEco Studio版本：DevEco Studio 5.0.0 Release及以上。
 
-4.HarmonyOS SDK版本：HarmonyOS 5.0.0 Release SDK及以上。
+4. HarmonyOS SDK版本：HarmonyOS 5.0.0 Release SDK及以上。

@@ -1,8 +1,8 @@
-## Web用户代理
+## 基于Web组件实现设置和获取用户代理的功能
 
 ### 介绍
 
-本示例基于ArkTS和Web组件实现了User Agent的设置和获取功能。
+本示例基于ArkTS和Web组件实现了User Agent（用户代理）的设置和获取功能。帮助开发者在Web开发中掌握获取默认用户默认代理信息，设置、获取自定义用户代理等功能的开发实现方案。
 
 ### 效果预览
 ![](screenshots/devices/webuseragent.png)
@@ -45,8 +45,8 @@
 
 1. 本示例仅支持标准系统上运行，支持设备：华为手机。
 
-2. HarmonyOS系统：HarmonyOS NEXT Developer Beta1及以上。
+2. HarmonyOS系统：HarmonyOS 5.0.0 Release及以上。
 
-3. DevEco Studio版本：DevEco Studio NEXT Developer Beta1及以上。
+3. DevEco Studio版本：DevEco Studio 5.0.0 Release及以上。
 
-4. HarmonyOS SDK版本：HarmonyOS NEXT Developer Beta1 SDK及以上。
+4. HarmonyOS SDK版本：HarmonyOS 5.0.0 Release SDK及以上。

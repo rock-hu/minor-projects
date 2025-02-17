@@ -1,8 +1,8 @@
-# 多线程任务
+# 基于线程池实现多线程任务功能
 
 ### 介绍
 
-本示例通过@ohos.taskpool和@ohos.worker接口，展示了如何启动worker线程和taskpool线程。
+本示例通过@ohos.taskpool和@ohos.worker接口，展示了如何启动worker线程和taskpool线程实现任务的多线程处理。帮助开发者掌握多线程的使用方法，提升多任务处理的效率和灵活性。
 
 ### 效果预览
 

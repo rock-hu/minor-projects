@@ -1,8 +1,8 @@
-# 网络性能分析示例
+# 实现网络性能分析功能
 
 ### 介绍
 
-本示例为开发者展示http数据请求的性能分析API：PerformanceTiming，以表格的形式展示从request到对应阶段完成的耗时。
+本示例为开发者展示http数据请求的性能分析API：PerformanceTiming，以表格的形式展示从request到对应阶段完成的耗时，包括DNS、TCP、TLS、FirstSend、FirstReceive、TotalFinish等阶段耗时。
 
 ### 效果预览
 ![](./screenshots/device/network.png)

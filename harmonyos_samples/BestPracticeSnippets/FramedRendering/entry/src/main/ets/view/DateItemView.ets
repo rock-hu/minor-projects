@@ -17,6 +17,7 @@ import { displaySync } from '@kit.ArkGraphics2D';
 import { Month } from '../model/MonthDataSource';
 import { hiTraceMeter } from '@kit.PerformanceAnalysisKit';
 import { CommonConstants } from '../common/CommonConstants';
+import { i18n } from '@kit.LocalizationKit';
 
 const WEEK: Resource[] =
   [
@@ -144,7 +145,7 @@ export struct DateItemView {
             .fontSize(18)
             .fontWeight(700)
             .lineHeight(24)
-          Span(this.lunarDays[index] === '' ? '' : this.lunarDays[index])
+          Span(this.lunarDays[index] === '' || i18n.System.getSystemLanguage() === 'en-Latn-US' ? '' : this.lunarDays[index])
             .fontSize(10)
             .fontWeight(400)
             .lineHeight(13)

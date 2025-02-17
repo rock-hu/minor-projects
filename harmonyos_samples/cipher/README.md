@@ -1,18 +1,14 @@
-# 加解密
+# 基于cryptoFramework实现字符串加解密
 
 ### 介绍
 
-本示例使用cryptoFramework接口的Cipher对象相关方法实现了字符串加解密算法，包括RSA加密算法与AES加密算法。
-
-RSA加密算法：RSA公开密钥密码体制是一种使用不同的加密密钥与解密密钥，由已知加密密钥推导出解密密钥在计算上是不可行的密码体制。
-
-AES加密算法：AES密码学中的高级加密标准，又称Rijndael加密法，是美国联邦政府采用的一种区块加密标准。
+本示例通过cryptoFramework接口实现字符串加解密，主要用到2种加密算法，RSA加解密、AES加解密。帮助开发者掌握应用侧使用Cipher处理加解密，处理自己业务需要字符串加解密的场景。
 
 ### 效果预览
 
-|主页|加密页面|解密页面|
-|--------------------------------|--------------------------------|--------------------------------|
-|![](screenshots/device/index.png)| ![](screenshots/device/encrypt.png) |![](screenshots/device/decrypt.png)|
+| 主页                                | 加密页面                                | 解密页面                                |
+|-----------------------------------|-------------------------------------|-------------------------------------|
+| ![](screenshots/device/index.png) | ![](screenshots/device/encrypt.png) | ![](screenshots/device/decrypt.png) |
 
 使用说明
 

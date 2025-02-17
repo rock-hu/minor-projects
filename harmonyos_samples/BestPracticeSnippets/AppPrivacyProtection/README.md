@@ -6,9 +6,9 @@
 
 ### 效果预览
 
-| 模糊定位权限申请                                  | LocationButton                    | 使用Picker获取图片                              | 相机权限申请                                    |
-|-------------------------------------------|-----------------------------------------|-------------------------------------------|-------------------------------------------|
-| ![pic1.png](screenshots/devices/pic1.png) | ![pic2.png](screenshots/devices/pic2.png) | ![pic1.png](screenshots/devices/pic3.png) | ![pic3.png](screenshots/devices/pic4.png) |
+| 模糊定位权限申请                                  | 使用Picker获取图片                              | 相机权限申请                                    |
+|-------------------------------------------|-------------------------------------------|-------------------------------------------|
+| ![pic1.png](screenshots/devices/pic1.png) | ![pic2.png](screenshots/devices/pic3.png) | ![pic3.png](screenshots/devices/pic4.png) |
 
 ### 目录结构
 
@@ -19,7 +19,6 @@
 │  ├──pages
 │  │  ├──ApproximatelyLocationDemo.ets    // 模糊定位示例
 │  │  ├──Index.ets                        // 应用入口页
-│  │  ├──LocationButtonDemo.ets           // 位置控件示例
 │  │  └──PickerDemo.ets                   // 文件选择器示例
 │  └──utils   
 │     └──Logger.ets                       // 日志工具类
@@ -29,7 +28,6 @@
 ### 具体实现
 
 * 使用geoLocationManager模块的[getCurrentLocation](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-geolocationmanager-V5#geolocationmanagergetcurrentlocation-2)方法获取位置信息，参考：[获取设备的位置信息开发指导](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/location-guidelines-V5)。
-* 使用安全控件LocationButton获取位置信息，参考：[使用位置控件](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/locationbutton-V5)。
 * 获取用户图片通过PhotoViewPicker来实现，参考：[选择用户文件](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/select-user-file-V5)。
 
 ### 相关权限
