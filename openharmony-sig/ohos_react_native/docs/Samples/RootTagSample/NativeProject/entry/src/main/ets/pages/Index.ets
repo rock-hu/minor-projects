@@ -21,7 +21,8 @@ import {
 
 @Builder
 function buildCustomComponent(ctx: ComponentBuilderContext) {
-  Stack() {}
+  Stack() {
+  }
   .position({ x: 0, y: 0 })
 }
 
@@ -57,62 +58,66 @@ export struct Index {
       enableCAPIArchitecture: true,
       arkTsComponentNames: []
     });
-    await this.instance.runJSBundle(new ResourceJSBundleProvider(getContext().resourceManager, this.bundlePath)).then(() => {
-      this.isBundleReady = true;
-    })
-
+    await this.instance.runJSBundle(new ResourceJSBundleProvider(getContext().resourceManager, this.bundlePath))
+      .then(() => {
+        this.isBundleReady = true;
+      })
   }
 
   build() {
     NavDestination() {
       if (this.isBundleReady) {
-      Column() {
-        Row() {
-          RNSurface({
-            surfaceConfig: {
-              appKey: 'Hotel_Page',
-            },
-            ctx: new RNComponentContext(
-              RNOHContext.fromCoreContext(this.rnohCoreContext!, this.instance),
-              wrappedCustomRNComponentBuilder,
-              wrapBuilder(buildRNComponentForTag),
-              new Map()
-            ),
-            updateViewRootTag: (rnInstance: RNInstance, rootViewTag: Tag) => {
-              // 将当前RNSurface的RNInstance和rootTag保存起来
-              this.receivedRootTag = rootViewTag;
-              this.receivedInstance = rnInstance;
-            }
-          })
-        }
-        .height("45%")
-        Row() {
-          Button("CLICK ME")
-            .onClick(() => {
-              // 向RN发送消息
-              this.instance?.emitDeviceEvent("clickEvent", { params: ({
-                rootTag: this.receivedRootTag
-              } as Params) })
+        Column() {
+          Row() {
+            RNSurface({
+              surfaceConfig: {
+                appKey: 'Hotel_Page',
+              },
+              ctx: new RNComponentContext(
+                RNOHContext.fromCoreContext(this.rnohCoreContext!, this.instance),
+                wrappedCustomRNComponentBuilder,
+                wrapBuilder(buildRNComponentForTag),
+                new Map()
+              ),
+              updateViewRootTag: (rnInstance: RNInstance, rootViewTag: Tag) => {
+                // 将当前RNSurface的RNInstance和rootTag保存起来
+                this.receivedRootTag = rootViewTag;
+                this.receivedInstance = rnInstance;
+              }
             })
+          }
+          .height("45%")
+
+          Row() {
+            Button("CLICK ME")
+              .onClick(() => {
+                // 向RN发送消息
+                this.instance?.emitDeviceEvent("clickEvent", {
+                  params: ({
+                    rootTag: this.receivedRootTag
+                  } as Params)
+                })
+              })
+          }
+          .height("10%")
+
+          Row() {
+            RNSurface({
+              surfaceConfig: {
+                appKey: 'Ticket_Page',
+              },
+              ctx: new RNComponentContext(
+                RNOHContext.fromCoreContext(this.rnohCoreContext!, this.instance),
+                wrappedCustomRNComponentBuilder,
+                wrapBuilder(buildRNComponentForTag),
+                new Map()
+              ),
+            })
+          }
+          .height("45%")
         }
-        .height("10%")
-        Row() {
-          RNSurface({
-            surfaceConfig: {
-              appKey: 'Ticket_Page',
-            },
-            ctx: new RNComponentContext(
-              RNOHContext.fromCoreContext(this.rnohCoreContext!, this.instance),
-              wrappedCustomRNComponentBuilder,
-              wrapBuilder(buildRNComponentForTag),
-              new Map()
-            ),
-          })
-        }
-        .height("45%")
-      }
-      .width('100%')
-      .height('100%')
+        .width('100%')
+        .height('100%')
       }
     }
   }

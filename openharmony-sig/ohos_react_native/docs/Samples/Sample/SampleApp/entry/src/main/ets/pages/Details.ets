@@ -9,7 +9,6 @@ import { RNInstance } from '@rnoh/react-native-openharmony';
 import { BaseRN, LoadManager } from '../rn';
 import { MetroBaseRN } from '../rn/MetroBaseRN'
 
-
 @Component
 export default struct Details {
   private instance: RNInstance = LoadManager.bpInstance

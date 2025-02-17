@@ -44,14 +44,15 @@ export struct SelectBox {
         this.onDescriptorWrapperChange(new RNC.SelectBox.DescriptorWrapper(descriptor))
       }
     ))
-    this.cleanUpCallbacks.push(new RNC.SelectBox.CommandReceiver(this.ctx.componentCommandReceiver, this.tag).subscribe("emitNativeEvent", (argv) => {
+    this.cleanUpCallbacks.push(new RNC.SelectBox.CommandReceiver(this.ctx.componentCommandReceiver,
+      this.tag).subscribe("emitNativeEvent", (argv) => {
       console.log(`收到 RN 传来的消息 ================ ${JSON.stringify(argv)}`);
       this.mutil = argv[0] || false
     }))
   }
 
   private onDescriptorWrapperChange(descriptorWrapper: RNC.SelectBox.DescriptorWrapper) {
-    this.descriptorWrapper =  descriptorWrapper
+    this.descriptorWrapper = descriptorWrapper
     this.data = []
     const data = this.descriptorWrapper.props.data;
     const value = this.descriptorWrapper.props.value;

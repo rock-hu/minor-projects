@@ -20,7 +20,8 @@ import {
 import { createRNPackages } from '../RNPackagesFactory';
 
 @Builder
-export function buildCustomRNComponent(ctx: ComponentBuilderContext) {};
+export function buildCustomRNComponent(ctx: ComponentBuilderContext) {
+};
 
 const wrappedCustomRNComponentBuilder = wrapBuilder(buildCustomRNComponent);
 

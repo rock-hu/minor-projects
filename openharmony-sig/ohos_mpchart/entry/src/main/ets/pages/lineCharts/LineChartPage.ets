@@ -417,8 +417,8 @@ struct LineChartPage {
       this.rightAxis.setLabelCount(8, false);
       this.rightAxis.setDrawGridLines(false);
       this.rightAxis.setSpaceTop(15);
-      this.rightAxis.setAxisMinimum(0);
-      this.rightAxis.setAxisMaximum(200);
+      this.rightAxis.setAxisMinimum(10);
+      this.rightAxis.setAxisMaximum(300);
       this.rightAxis.setEnabled(false);
     }
 
@@ -615,10 +615,17 @@ struct LineChartPage {
               }
 
               MpSlider({ name: $r('app.string.visible_xrange_maximum'), min: 3, max: 10, value: this.maxLabelSize!! })
-
-              Button('moveViewTo(6,100)')
+              Button('moveViewToAnimated(10,100)')
                 .onClick(()=>{
-                  this.model.moveViewTo(6, 100, AxisDependency.RIGHT);
+                  this.model.moveViewToAnimated(10, 100, AxisDependency.RIGHT, 4000);
+                }).margin(10)
+              Button('moveViewToAnimated(12,80)')
+                .onClick(()=>{
+                  this.model.moveViewToAnimated(12, 80, AxisDependency.LEFT, 4000);
+                }).margin(10)
+              Button('moveViewTo(11,100)')
+                .onClick(()=>{
+                  this.model.moveViewTo(11, 100, AxisDependency.RIGHT);
                 }).margin(10)
               Button('centerViewTo(6,100)')
                 .onClick(()=>{

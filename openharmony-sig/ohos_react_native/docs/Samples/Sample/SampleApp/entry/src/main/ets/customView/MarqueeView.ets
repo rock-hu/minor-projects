@@ -31,9 +31,10 @@ export struct MarqueeView {
     this.start = true
     this.descriptor = this.ctx.descriptorRegistry.getDescriptor<MarqueeViewDescriptor>(this.tag)
 
-    this.unregisterDescriptorChangesListener = this.ctx.descriptorRegistry.subscribeToDescriptorChanges(this.tag, (newDescriptor) => {
-      this.descriptor = (newDescriptor as MarqueeViewDescriptor)
-    })
+    this.unregisterDescriptorChangesListener =
+      this.ctx.descriptorRegistry.subscribeToDescriptorChanges(this.tag, (newDescriptor) => {
+        this.descriptor = (newDescriptor as MarqueeViewDescriptor)
+      })
 
     console.log('MarqueeView rawProps = ', JSON.stringify(this.descriptor.rawProps), this.tag)
     console.log('MarqueeView props = ', JSON.stringify(this.descriptor.props), this.tag)

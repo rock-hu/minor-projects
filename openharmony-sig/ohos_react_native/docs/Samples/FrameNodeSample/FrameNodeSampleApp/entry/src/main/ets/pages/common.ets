@@ -29,7 +29,6 @@ function myRNPageBuilder(params: Params) {
       FrameNodeRNPage(params)
         .width('100%')
         .height('30%')
-
     }
   }
 }

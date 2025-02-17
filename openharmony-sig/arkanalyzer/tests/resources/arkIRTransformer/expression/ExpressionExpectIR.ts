@@ -392,84 +392,133 @@ export const NewExpression_Expect_IR = {
 };
 
 export const LiteralExpression_Expect_IR = {
-    stmts: [
-        {
-            text: 'this = this: @expression/LiteralExpressionTest.ts: %dflt',
-            operandOriginalPositions: [
-                null, null,
-            ],
-        },
+    stmts: [{
+        text: 'this = this: @expression/LiteralExpressionTest.ts: %dflt',
+        operandOriginalPositions: [null, null],
+    },
         {
             text: '%0 = newarray (number)[3]',
-            operandOriginalPositions: [
-                [16, 14, 16, 23], [16, 14, 16, 23], [-1, -1, -1, -1],
-            ],
+            operandOriginalPositions: [[16, 14, 16, 23], [16, 14, 16, 23], [-1, -1, -1, -1]],
         },
         {
             text: '%0[0] = 1',
-            operandOriginalPositions: [
-                [16, 14, 16, 23], [16, 14, 16, 23], [-1, -1, -1, -1], [16, 15, 16, 16],
-            ],
+            operandOriginalPositions: [[16, 14, 16, 23], [16, 14, 16, 23], [-1, -1, -1, -1], [16, 15, 16, 16]],
         },
         {
             text: '%0[1] = 2',
-            operandOriginalPositions: [
-                [16, 14, 16, 23], [16, 14, 16, 23], [-1, -1, -1, -1], [16, 18, 16, 19],
-            ],
+            operandOriginalPositions: [[16, 14, 16, 23], [16, 14, 16, 23], [-1, -1, -1, -1], [16, 18, 16, 19]],
         },
         {
             text: '%0[2] = 3',
-            operandOriginalPositions: [
-                [16, 14, 16, 23], [16, 14, 16, 23], [-1, -1, -1, -1], [16, 21, 16, 22],
-            ],
+            operandOriginalPositions: [[16, 14, 16, 23], [16, 14, 16, 23], [-1, -1, -1, -1], [16, 21, 16, 22]],
         },
         {
             text: 'arr1 = %0',
-            operandOriginalPositions: [
-                [16, 7, 16, 11], [16, 14, 16, 23],
-            ],
+            operandOriginalPositions: [[16, 7, 16, 11], [16, 14, 16, 23]],
         },
         {
             text: '%1 = newarray (any)[0]',
-            operandOriginalPositions: [
-                [17, 14, 17, 16], [17, 14, 17, 16], [-1, -1, -1, -1],
-            ],
+            operandOriginalPositions: [[17, 14, 17, 16], [17, 14, 17, 16], [-1, -1, -1, -1]],
         },
         {
             text: 'arr2 = %1',
-            operandOriginalPositions: [
-                [17, 7, 17, 11], [17, 14, 17, 16],
-            ],
+            operandOriginalPositions: [[17, 7, 17, 11], [17, 14, 17, 16]],
         },
         {
             text: '%2 = newarray (number|string)[3]',
-            operandOriginalPositions: [
-                [18, 12, 18, 23], [18, 12, 18, 23], [-1, -1, -1, -1],
-            ],
+            operandOriginalPositions: [[18, 12, 18, 23], [18, 12, 18, 23], [-1, -1, -1, -1]],
         },
         {
             text: '%2[0] = 1',
-            operandOriginalPositions: [
-                [18, 12, 18, 23], [18, 12, 18, 23], [-1, -1, -1, -1], [18, 13, 18, 14],
-            ],
+            operandOriginalPositions: [[18, 12, 18, 23], [18, 12, 18, 23], [-1, -1, -1, -1], [18, 13, 18, 14]],
         },
         {
             text: '%2[1] = 2',
-            operandOriginalPositions: [
-                [18, 12, 18, 23], [18, 12, 18, 23], [-1, -1, -1, -1], [18, 16, 18, 17],
-            ],
+            operandOriginalPositions: [[18, 12, 18, 23], [18, 12, 18, 23], [-1, -1, -1, -1], [18, 16, 18, 17]],
         },
         {
             text: '%2[2] = \'3\'',
-            operandOriginalPositions: [
-                [18, 12, 18, 23], [18, 12, 18, 23], [-1, -1, -1, -1], [18, 19, 18, 22],
-            ],
+            operandOriginalPositions: [[18, 12, 18, 23], [18, 12, 18, 23], [-1, -1, -1, -1], [18, 19, 18, 22]],
         },
         {
             text: 'arr3 = %2',
-            operandOriginalPositions: [
-                [18, 5, 18, 9], [18, 12, 18, 23],
-            ],
+            operandOriginalPositions: [[18, 5, 18, 9], [18, 12, 18, 23]],
+        },
+        {
+            text: 'noSubstitutionTemplateLiteral = \'no substitution template literal\'',
+            operandOriginalPositions: [[21, 7, 21, 36], [21, 39, 21, 73]],
+        },
+        {
+            text: 'placeholder1 = 1',
+            operandOriginalPositions: [[22, 7, 22, 19], [22, 30, 22, 31]],
+        },
+        {
+            text: '%3 = instanceinvoke placeholder1.<@%unk/%unk: .toString()>()',
+            operandOriginalPositions: [[23, 40, 23, 52], [23, 40, 23, 52], [23, 40, 23, 52]],
+        },
+        {
+            text: '%4 = \'raw text1, \' + %3',
+            operandOriginalPositions: [[23, 26, 23, 52], [23, 26, 23, 52], [23, 26, 23, 40], [23, 40, 23, 52]],
+        },
+        {
+            text: 'templateLiteral1 = %4',
+            operandOriginalPositions: [[23, 7, 23, 23], [23, 26, 23, 52]],
+        },
+        {
+            text: 'placeholder2 = \'placeholder2\'',
+            operandOriginalPositions: [[24, 7, 24, 19], [24, 30, 24, 44]],
+        },
+        {
+            text: '%5 = instanceinvoke placeholder2.<@%unk/%unk: .toString()>()',
+            operandOriginalPositions: [[25, 29, 25, 41], [25, 29, 25, 41], [25, 29, 25, 41]],
+        },
+        {
+            text: '%6 = %5 + \', raw text2\'',
+            operandOriginalPositions: [[25, 29, 25, 54], [25, 29, 25, 54], [25, 29, 25, 41], [25, 41, 25, 54]],
+        },
+        {
+            text: 'templateLiteral2 = %6',
+            operandOriginalPositions: [[25, 7, 25, 23], [25, 29, 25, 54]],
+        },
+        {
+            text: 'placeholder3 = 3',
+            operandOriginalPositions: [[32, 7, 32, 19], [32, 30, 32, 31]],
+        },
+        {
+            text: 'placeholder4 = \'placeholder4\'',
+            operandOriginalPositions: [[33, 7, 33, 19], [33, 30, 33, 44]],
+        },
+        {
+            text: '%7 = newarray (string)[3]',
+            operandOriginalPositions: [[-1, -1, -1, -1], [-1, -1, -1, -1], [-1, -1, -1, -1]],
+        },
+        {
+            text: '%7[0] = \'raw text3, \'',
+            operandOriginalPositions: [[-1, -1, -1, -1], [-1, -1, -1, -1], [-1, -1, -1, -1], [34, 21, 34, 35]],
+        },
+        {
+            text: '%7[1] = \' raw text4 \'',
+            operandOriginalPositions: [[-1, -1, -1, -1], [-1, -1, -1, -1], [-1, -1, -1, -1], [34, 47, 34, 61]],
+        },
+        {
+            text: '%7[2] = \'.\'',
+            operandOriginalPositions: [[-1, -1, -1, -1], [-1, -1, -1, -1], [-1, -1, -1, -1], [34, 73, 34, 76]],
+        },
+        {
+            text: '%8 = newarray (any)[2]',
+            operandOriginalPositions: [[-1, -1, -1, -1], [-1, -1, -1, -1], [-1, -1, -1, -1]],
+        },
+        {
+            text: '%8[0] = placeholder3',
+            operandOriginalPositions: [[-1, -1, -1, -1], [-1, -1, -1, -1], [-1, -1, -1, -1], [34, 35, 34, 47]],
+        },
+        {
+            text: '%8[1] = placeholder4',
+            operandOriginalPositions: [[-1, -1, -1, -1], [-1, -1, -1, -1], [-1, -1, -1, -1], [34, 61, 34, 73]],
+        },
+        {
+            text: 'output = staticinvoke <@expression/LiteralExpressionTest.ts: %dflt.myTag(any, any[])>(%7, %8)',
+            operandOriginalPositions: [[34, 7, 34, 13], [34, 16, 34, 76], [-1, -1, -1, -1], [-1, -1, -1, -1]],
         },
         {
             text: 'return',
@@ -479,90 +528,65 @@ export const LiteralExpression_Expect_IR = {
 };
 
 export const Operator_Expect_IR = {
-    stmts: [
-        {
-            text: 'this = this: @expression/OperatorTest.ts: %dflt',
-            operandOriginalPositions: [
-                null, null,
-            ],
-        },
+    stmts: [{
+        text: 'this = this: @expression/OperatorTest.ts: %dflt',
+        operandOriginalPositions: [null, null],
+    },
         {
             text: '%0 = new @%unk/%unk: Point',
-            operandOriginalPositions: [
-                [17, 9, 17, 20], [17, 9, 17, 20],
-            ],
+            operandOriginalPositions: [[17, 9, 17, 20], [17, 9, 17, 20]],
         },
         {
             text: 'instanceinvoke %0.<@%unk/%unk: Point.constructor()>()',
-            operandOriginalPositions: [
-                [17, 9, 17, 20], [17, 9, 17, 20],
-            ],
+            operandOriginalPositions: [[17, 9, 17, 20], [17, 9, 17, 20]],
         },
         {
             text: 'p = %0',
-            operandOriginalPositions: [
-                [17, 5, 17, 6], [17, 9, 17, 20],
-            ],
+            operandOriginalPositions: [[17, 5, 17, 6], [17, 9, 17, 20]],
         },
         {
             text: '%1 = delete p.<@%unk/%unk: Point.y>',
-            operandOriginalPositions: [
-                [18, 1, 18, 11], [18, 1, 18, 11], [18, 8, 18, 11], [18, 8, 18, 9],
-            ],
+            operandOriginalPositions: [[18, 1, 18, 11], [18, 1, 18, 11], [18, 8, 18, 11], [18, 8, 18, 9]],
         },
         {
             text: 'a = 0',
-            operandOriginalPositions: [
-                [21, 5, 21, 6], [21, 9, 21, 10],
-            ],
+            operandOriginalPositions: [[21, 5, 21, 6], [21, 9, 21, 10]],
+        },
+        {
+            text: '%2 = a',
+            operandOriginalPositions: [[22, 6, 22, 7], [22, 6, 22, 7]],
         },
         {
             text: 'b = 1',
-            operandOriginalPositions: [
-                [23, 5, 23, 6], [23, 9, 23, 10],
-            ],
+            operandOriginalPositions: [[23, 5, 23, 6], [23, 9, 23, 10]],
         },
         {
-            text: '%2 = a + b',
-            operandOriginalPositions: [
-                [24, 7, 24, 12], [24, 7, 24, 12], [24, 7, 24, 8], [24, 11, 24, 12],
-            ],
+            text: '%3 = a + b',
+            operandOriginalPositions: [[24, 7, 24, 12], [24, 7, 24, 12], [24, 7, 24, 8], [24, 11, 24, 12]],
         },
         {
-            text: '%3 = await 10',
-            operandOriginalPositions: [
-                [27, 1, 27, 9], [27, 1, 27, 9], [27, 7, 27, 9],
-            ],
+            text: '%4 = await 10',
+            operandOriginalPositions: [[27, 1, 27, 9], [27, 1, 27, 9], [27, 7, 27, 9]],
         },
         {
             text: 'x = await 11',
-            operandOriginalPositions: [
-                [28, 7, 28, 8], [28, 11, 28, 19], [28, 17, 28, 19],
-            ],
+            operandOriginalPositions: [[28, 7, 28, 8], [28, 11, 28, 19], [28, 17, 28, 19]],
         },
         {
-            text: '%4 = yield 20',
-            operandOriginalPositions: [
-                [31, 1, 31, 9], [31, 1, 31, 9], [31, 7, 31, 9],
-            ],
+            text: '%5 = yield 20',
+            operandOriginalPositions: [[31, 1, 31, 9], [31, 1, 31, 9], [31, 7, 31, 9]],
         },
         {
             text: 'isCat = cat instanceof Cat',
-            operandOriginalPositions: [
-                [34, 5, 34, 10], [34, 13, 34, 31], [34, 13, 34, 16],
-            ],
+            operandOriginalPositions: [[34, 5, 34, 10], [34, 13, 34, 31], [34, 13, 34, 16]],
         },
         {
             text: 'foo1 = <Foo>bar',
-            operandOriginalPositions: [
-                [37, 5, 37, 9], [37, 12, 37, 22], [37, 12, 37, 15],
-            ],
+            operandOriginalPositions: [[37, 5, 37, 9], [37, 12, 37, 22], [37, 12, 37, 15]],
         },
         {
             text: 'foo2 = <Foo>bar',
-            operandOriginalPositions: [
-                [38, 5, 38, 9], [38, 12, 38, 20], [38, 17, 38, 20],
-            ],
+            operandOriginalPositions: [[38, 5, 38, 9], [38, 12, 38, 20], [38, 17, 38, 20]],
         },
         {
             text: 'return',
@@ -626,6 +650,95 @@ export const CallExpression_Expect_IR = {
             operandOriginalPositions: [
                 [27, 5, 27, 9], [27, 12, 27, 47], [27, 12, 27, 21], [27, 30, 27, 37], [27, 39, 27, 46],
             ],
+        },
+        {
+            text: 'return',
+            operandOriginalPositions: [],
+        },
+    ],
+};
+
+export const ExpressionStatements_Expect_IR = {
+    stmts: [
+        {
+            text: 'this = this: @expression/ExpressionStatementsTest.ts: %dflt',
+            operandOriginalPositions: [null, null],
+        },
+        {
+            text: 'i = 1',
+            operandOriginalPositions: [[17, 5, 17, 6], [17, 9, 17, 10]],
+        },
+        {
+            text: '%0 = i',
+            operandOriginalPositions: [[18, 1, 18, 2], [18, 1, 18, 2]],
+        },
+        {
+            text: '%1 = new @expression/ExpressionStatementsTest.ts: Foo',
+            operandOriginalPositions: [[32, 11, 32, 20], [32, 11, 32, 20]],
+        },
+        {
+            text: 'instanceinvoke %1.<@expression/ExpressionStatementsTest.ts: Foo.constructor()>()',
+            operandOriginalPositions: [[32, 11, 32, 20], [32, 11, 32, 20]],
+        },
+        {
+            text: 'foo = %1',
+            operandOriginalPositions: [[32, 5, 32, 8], [32, 11, 32, 20]],
+        },
+        {
+            text: '%2 = foo.<@expression/ExpressionStatementsTest.ts: Foo.b>',
+            operandOriginalPositions: [[33, 1, 33, 6], [33, 1, 33, 6], [33, 1, 33, 4]],
+        },
+        {
+            text: 'instanceinvoke foo.<@expression/ExpressionStatementsTest.ts: Foo.bar()>()',
+            operandOriginalPositions: [[34, 1, 34, 10], [34, 1, 34, 4]],
+        },
+        {
+            text: '%3 = 1',
+            operandOriginalPositions: [[37, 1, 37, 2], [37, 1, 37, 2]],
+        },
+        {
+            text: '%4 = \'str\'',
+            operandOriginalPositions: [[38, 1, 38, 6], [38, 1, 38, 6]],
+        },
+        {
+            text: '%5 = \'no substitution template literal\'',
+            operandOriginalPositions: [[39, 1, 39, 35], [39, 1, 39, 35]],
+        },
+        {
+            text: '%6 = false',
+            operandOriginalPositions: [[40, 1, 40, 6], [40, 1, 40, 6]],
+        },
+        {
+            text: '%7 = /"/',
+            operandOriginalPositions: [[41, 1, 41, 4], [41, 1, 41, 4]],
+        },
+        {
+            text: 'i1 = 1',
+            operandOriginalPositions: [[44, 5, 44, 7], [44, 10, 44, 11]],
+        },
+        {
+            text: '%8 = i1 + 2',
+            operandOriginalPositions: [[45, 1, 45, 7], [45, 1, 45, 7], [45, 1, 45, 3], [45, 6, 45, 7]],
+        },
+        {
+            text: '%9 = 3',
+            operandOriginalPositions: [[46, 6, 46, 7], [46, 6, 46, 7]],
+        },
+        {
+            text: '%10 = 3',
+            operandOriginalPositions: [[47, 6, 47, 7], [47, 6, 47, 7]],
+        },
+        {
+            text: '%11 = undefined === \'3\'',
+            operandOriginalPositions: [[47, 1, 47, 15], [47, 1, 47, 15], [-1, -1, -1, -1], [47, 12, 47, 15]],
+        },
+        {
+            text: '%12 = new @expression/ExpressionStatementsTest.ts: Foo',
+            operandOriginalPositions: [[48, 1, 48, 10], [48, 1, 48, 10]],
+        },
+        {
+            text: 'instanceinvoke %12.<@expression/ExpressionStatementsTest.ts: Foo.constructor()>()',
+            operandOriginalPositions: [[48, 1, 48, 10], [48, 1, 48, 10]],
         },
         {
             text: 'return',

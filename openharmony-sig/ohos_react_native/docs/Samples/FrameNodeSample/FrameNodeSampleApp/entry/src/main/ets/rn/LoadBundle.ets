@@ -16,34 +16,30 @@ import {
   buildRNComponentForTag,
 } from '@rnoh/react-native-openharmony';
 import { createRNPackages } from './RNPackagesFactory'
-
 import { ENABLE_CAPI_ARCHITECTURE } from './config';
 
 export const arkTsComponentNames = [];
 
-@Builder export function buildCustomComponent(ctx: ComponentBuilderContext) {
-  Stack(){
+@Builder
+export function buildCustomComponent(ctx: ComponentBuilderContext) {
+  Stack() {
   }
-  .position({x:0, y:0})
+  .position({ x: 0, y: 0 })
 }
 
 export class LoadManager {
-
   private static loadedBundle: Set<string> = new Set();
   public static metroInstance: RNInstance;
   public static cpInstance: RNInstance;
   public static bpInstance: RNInstance;
-
   private static shouldResetMetroInstance: Boolean = true;
   static ctx: RNComponentContext;
 
   public static loadBundle(instance: RNInstance, bundlePath: string, useBundleCache: boolean = true): Promise<void> {
-    if (LoadManager.loadedBundle.has(bundlePath) && useBundleCache)
-    {
+    if (LoadManager.loadedBundle.has(bundlePath) && useBundleCache) {
       return Promise.resolve();
-    } 
-    if (useBundleCache)
-    {
+    }
+    if (useBundleCache) {
       LoadManager.loadedBundle.add(bundlePath);
     }
     return instance.runJSBundle(new ResourceJSBundleProvider(getContext().resourceManager, bundlePath));
@@ -70,7 +66,8 @@ export class LoadManager {
       const provider = new MetroJSBundleProvider();
       await LoadManager.metroInstance.runJSBundle(provider);
 
-      const jsBundleExecutionStatus: string = LoadManager.metroInstance.getBundleExecutionStatus(provider.getURL()) as string;
+      const jsBundleExecutionStatus: string =
+        LoadManager.metroInstance.getBundleExecutionStatus(provider.getURL()) as string;
       LoadManager.shouldResetMetroInstance = false;
       if (jsBundleExecutionStatus === "DONE") {
         return true

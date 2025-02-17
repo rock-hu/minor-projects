@@ -20,7 +20,8 @@ import {
 
 @Builder
 function buildCustomComponent(ctx: ComponentBuilderContext) {
-  Stack() {}
+  Stack() {
+  }
   .position({ x: 0, y: 0 })
 }
 
@@ -52,34 +53,33 @@ export struct Index {
       enableCAPIArchitecture: true,
       arkTsComponentNames: []
     });
-    await this.instance.runJSBundle(new ResourceJSBundleProvider(getContext().resourceManager, this.bundlePath)).then(() => {
-      this.isBundleReady = true;
-      console.log('instance 加载完成' + this.bundlePath);
-    })
-
+    await this.instance.runJSBundle(new ResourceJSBundleProvider(getContext().resourceManager, this.bundlePath))
+      .then(() => {
+        this.isBundleReady = true;
+        console.log('instance 加载完成' + this.bundlePath);
+      })
   }
 
   build() {
     NavDestination() {
       if (this.isBundleReady) {
-      Column() {
-        RNSurface({
-          surfaceConfig: {
-            appKey: this.moduleName,
-          },
-          ctx: new RNComponentContext(
-            RNOHContext.fromCoreContext(this.rnohCoreContext!, this.instance),
-            wrappedCustomRNComponentBuilder,
-            wrapBuilder(buildRNComponentForTag),
-            new Map()
-          ),
-        })
-      }
-      .width('100%')
-      .height('100%')
+        Column() {
+          RNSurface({
+            surfaceConfig: {
+              appKey: this.moduleName,
+            },
+            ctx: new RNComponentContext(
+              RNOHContext.fromCoreContext(this.rnohCoreContext!, this.instance),
+              wrappedCustomRNComponentBuilder,
+              wrapBuilder(buildRNComponentForTag),
+              new Map()
+            ),
+          })
+        }
+        .width('100%')
+        .height('100%')
       }
     }
-
   }
 }
    

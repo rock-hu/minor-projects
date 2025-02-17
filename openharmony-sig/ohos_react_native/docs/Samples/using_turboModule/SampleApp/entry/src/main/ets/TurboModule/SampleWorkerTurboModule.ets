@@ -12,8 +12,7 @@ import { AnyThreadTurboModule, } from '@rnoh/react-native-openharmony/ts';
 import { preferences } from '../entryability/EntryAbility';
 import { BusinessError } from '@ohos.base';
 
-export class SampleWorkerTurboModule extends AnyThreadTurboModule{
-
+export class SampleWorkerTurboModule extends AnyThreadTurboModule {
   registerFunction(onComplete: (value: string) => void): void {
     console.log(`RNOH SampleTurboModule::registerFunction + trigger`);
     setTimeout(() => {
@@ -38,7 +37,9 @@ export class SampleWorkerTurboModule extends AnyThreadTurboModule{
   }
 
   getPreferencesData(key: string): string {
-    if (!preferences) return 'null';
+    if (!preferences) {
+      return 'null';
+    }
     try {
       let val = preferences.getSync(key, '默认值') as string;
       return val;
@@ -48,7 +49,9 @@ export class SampleWorkerTurboModule extends AnyThreadTurboModule{
   }
 
   putPreferencesData(key: string, value: string) {
-    if (!preferences) return;
+    if (!preferences) {
+      return;
+    }
     preferences.putSync(key, value);
     try {
       preferences.flush((err: BusinessError) => {

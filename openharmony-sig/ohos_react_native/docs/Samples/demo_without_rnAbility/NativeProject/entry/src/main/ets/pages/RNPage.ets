@@ -6,10 +6,11 @@
  */
 
 import { RNInfo, UPReactView, UPRNSDK } from 'library';
+
 @Entry
 @Component
 export struct RNPage {
-  rnInfo: RNInfo = {businessId: 'App', bundlePath: 'bundle.harmony.js', isFromMetro: false};
+  rnInfo: RNInfo = { businessId: 'App', bundlePath: 'bundle.harmony.js', isFromMetro: false };
   @StorageLink('UPRNSDK') rnSdk: UPRNSDK | undefined = undefined;
 
   onBackPress(): boolean | void {

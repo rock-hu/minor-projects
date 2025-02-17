@@ -18,12 +18,13 @@ import {
   RNOHCoreContext
 } from '@rnoh/react-native-openharmony';
 import { createRNPackages } from '../RNPackagesFactory';
-import { SelectBox } from "../rnc/SelectBox"
+import { SelectBox } from "../RNComponent/SelectBox"
 
 const arkTsComponentNames: Array<string> = [SelectBox.NAME];
+
 @Builder
 export function buildCustomRNComponent(ctx: ComponentBuilderContext) {
-  Stack(){
+  Stack() {
     if (ctx.componentName === SelectBox.NAME) {
       SelectBox({
         ctx: ctx.rnComponentContext,
@@ -31,7 +32,7 @@ export function buildCustomRNComponent(ctx: ComponentBuilderContext) {
       })
     }
   }
-  .position({x:0, y: 0})
+  .position({ x: 0, y: 0 })
 
 }
 
@@ -43,7 +44,6 @@ struct Index {
   @StorageLink('RNOHCoreContext') private rnohCoreContext: RNOHCoreContext | undefined = undefined
   @State shouldShow: boolean = false
   private logger!: RNOHLogger
-
 
   aboutToAppear() {
     this.logger = this.rnohCoreContext!.logger.clone("Index")

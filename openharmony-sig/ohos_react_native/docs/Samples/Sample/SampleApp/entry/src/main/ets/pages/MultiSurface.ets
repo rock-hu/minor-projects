@@ -73,11 +73,13 @@ export struct MultiSurface {
       wrapBuilder(buildRNComponentForTag),
       new Map()
     );
-    await this.instance1.runJSBundle(new ResourceJSBundleProvider(getContext().resourceManager, 'bundle/basic/basic.harmony.bundle'));
-    await this.instance1.runJSBundle(new ResourceJSBundleProvider(getContext().resourceManager, this.bundlePath1)).then(() => {
-      this.isBundleReady1 = true
-      console.log('instance1 加载完成' + this.bundlePath1)
-    })
+    await this.instance1.runJSBundle(new ResourceJSBundleProvider(getContext().resourceManager,
+      'bundle/basic/basic.harmony.bundle'));
+    await this.instance1.runJSBundle(new ResourceJSBundleProvider(getContext().resourceManager, this.bundlePath1))
+      .then(() => {
+        this.isBundleReady1 = true
+        console.log('instance1 加载完成' + this.bundlePath1)
+      })
 
     this.instance2 = await this.rnohCoreContext.createAndRegisterRNInstance({
       createRNPackages: createRNPackages,
@@ -92,11 +94,13 @@ export struct MultiSurface {
       wrapBuilder(buildRNComponentForTag),
       new Map()
     );
-    await this.instance2.runJSBundle(new ResourceJSBundleProvider(getContext().resourceManager, 'bundle/basic/basic.harmony.bundle'));
-    await this.instance2.runJSBundle(new ResourceJSBundleProvider(getContext().resourceManager, this.bundlePath2)).then(() => {
-      this.isBundleReady2 = true
-      console.log('instance2 加载完成' + this.bundlePath2)
-    })
+    await this.instance2.runJSBundle(new ResourceJSBundleProvider(getContext().resourceManager,
+      'bundle/basic/basic.harmony.bundle'));
+    await this.instance2.runJSBundle(new ResourceJSBundleProvider(getContext().resourceManager, this.bundlePath2))
+      .then(() => {
+        this.isBundleReady2 = true
+        console.log('instance2 加载完成' + this.bundlePath2)
+      })
 
     this.instance3 = await this.rnohCoreContext.createAndRegisterRNInstance({
       createRNPackages: createRNPackages,
@@ -111,11 +115,11 @@ export struct MultiSurface {
       wrapBuilder(buildRNComponentForTag),
       new Map()
     );
-    await this.instance3.runJSBundle(new ResourceJSBundleProvider(getContext().resourceManager, this.bundlePath3)).then(() => {
-      this.isBundleReady3 = true
-      console.log('instance3 加载完成' + this.bundlePath3)
-    })
-
+    await this.instance3.runJSBundle(new ResourceJSBundleProvider(getContext().resourceManager, this.bundlePath3))
+      .then(() => {
+        this.isBundleReady3 = true
+        console.log('instance3 加载完成' + this.bundlePath3)
+      })
   }
 
   @Builder
@@ -163,7 +167,6 @@ export struct MultiSurface {
       .width('100%')
       .height('100%')
     }
-
   }
 }
    

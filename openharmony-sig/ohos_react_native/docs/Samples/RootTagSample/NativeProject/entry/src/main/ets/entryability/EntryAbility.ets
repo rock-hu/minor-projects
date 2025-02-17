@@ -6,7 +6,6 @@
  */
 
 import { RNAbility, } from '@rnoh/react-native-openharmony';
-
 import dataPreferences from '@ohos.data.preferences';
 import window from '@ohos.window';
 
@@ -27,7 +26,6 @@ export default class EntryAbility extends RNAbility {
     } catch (err) {
       console.error('Failed to get preferences');
     }
-
     AppStorage.setOrCreate('RNAbility', this);
   }
 }

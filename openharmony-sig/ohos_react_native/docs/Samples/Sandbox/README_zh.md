@@ -7,7 +7,7 @@
 ```
 ├── SandBoxNativeProject
 |   └── Index.ets
-|       ├── downloadBundle # OpenHarmony 侧推送 raw 文件到沙箱中
+|       ├── downloadBundle #OpenHarmony 侧推送 raw 文件到沙箱中
 |       └── new FileJSBundleProvider #OpenHarmony 侧加载沙箱中的文件
 └── SandBoxRnProject
     └── example.tsx  # React Native 侧加载沙箱中的图片

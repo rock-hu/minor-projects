@@ -127,6 +127,9 @@ export function AnimatedTest() {
           <ColorInterpolationExample />
         </TestCase.Example>
       </TestSuite>
+      <TestCase.Example itShould="test event animated crash when detach native event">
+          <AnimatedDetachNativeEventCrashTest />
+        </TestCase.Example>
       <TestSuite name="forkEvent + unforkEvent">
         <TestCase.Example itShould="stop updating current offset after detaching listener (fork/unfork event)">
           <AnimatedForkUnforkEventTest />
@@ -140,6 +143,77 @@ export function AnimatedTest() {
     </TestSuite>
   );
 }
+
+const AnimatedDetachNativeEventCrashTest = () => {
+  const ref = useRef<ScrollView>(null);
+  const animatedValue = new Animated.Value(0);
+  const translation = animatedValue.interpolate({
+    inputRange: [0, 200],
+    outputRange: [0, 200],
+    extrapolate: 'clamp',
+  });
+  let detach: any;
+  useEffect(() => {
+    if (ref !== null) {
+      // @ts-ignore
+      
+      detach = Animated.attachNativeEvent(ref.current, 'onScroll', [
+        {nativeEvent: {contentOffset: {y: animatedValue, x: animatedValue}}},
+      ]);
+    }
+  }, [ref]);
+  const detachNativeEvent = () => {
+    if (ref !== null) {
+      detach.detach();
+    }
+  }
+
+  return (
+    <View
+      style={{
+        width: '100%',
+        height: 100,
+        position: 'relative',
+        overflow: 'hidden',
+      }}>
+      <Button
+        label={'detach Native Event'}
+        onPress={detachNativeEvent}
+      />
+      <ScrollView
+        ref={ref}
+        style={{width: '100%', height: '100%'}}
+        contentContainerStyle={{alignItems: 'center', justifyContent: 'center'}}
+        scrollEventThrottle={16}>
+        {new Array(3).fill(0).map((_, idx) => {
+          return (
+            <View
+              key={idx}
+              style={{
+                width: '100%',
+                height: 50,
+                backgroundColor: 'gray',
+                marginBottom: 50,
+              }}
+            />
+          );
+        })}
+      </ScrollView>
+      <Animated.View
+        style={[
+          {
+            position: 'absolute',
+            bottom: 0,
+            transform: [{translateX: translation}],
+            width: 32,
+            height: 32,
+            backgroundColor: 'red',
+          },
+        ]}
+      />
+    </View>
+  );
+};
 
 const AnimatedAttachNativeEventTest = () => {
   const ref = useRef<ScrollView>(null);

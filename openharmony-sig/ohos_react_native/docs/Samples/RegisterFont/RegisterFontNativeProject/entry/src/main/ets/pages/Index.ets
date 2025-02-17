@@ -21,7 +21,8 @@ import { createRNPackages } from '../RNPackagesFactory';
 import fs from '@ohos.file.fs';
 
 @Builder
-export function buildCustomRNComponent(ctx: ComponentBuilderContext) {};
+export function buildCustomRNComponent(ctx: ComponentBuilderContext) {
+};
 const wrappedCustomRNComponentBuilder = wrapBuilder(buildCustomRNComponent);
 
 @Entry
@@ -56,8 +57,8 @@ struct Index {
         }
         if (this.rnAbility) {
           RNApp({
-            rnInstanceConfig: { 
-              createRNPackages,             
+            rnInstanceConfig: {
+              createRNPackages,
               enableCAPIArchitecture: true,
               arkTsComponentNames: [],
               fontResourceByFontFamily: {

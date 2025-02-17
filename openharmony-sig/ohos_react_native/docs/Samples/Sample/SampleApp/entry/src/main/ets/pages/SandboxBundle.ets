@@ -50,7 +50,8 @@ export default struct SandBoxApp {
   async downloadBundle() {
     if (this.rnAbility) {
       // 将bundlejs下载并保存到沙箱
-      let uint8Array = await this.rnAbility.context.resourceManager.getRawFileContent('rawfile/bundle/bp/sandbox.harmony.bundle')
+      let uint8Array =
+        await this.rnAbility.context.resourceManager.getRawFileContent('rawfile/bundle/bp/sandbox.harmony.bundle')
       let rawBuffer = uint8Array.buffer
       let num = rawBuffer.byteLength
       // 获取沙箱路径
@@ -104,7 +105,7 @@ export default struct SandBoxApp {
             arkTsComponentNames: [],
           },
           appKey: "Sandbox",
-          initialProps: {'params1': '哈哈哈'},
+          initialProps: { 'params1': '哈哈哈' },
           wrappedCustomRNComponentBuilder: wrapBuilder(buildCustomComponent),
           onSetUp: (rnInstance) => {
             rnInstance.enableFeatureFlag("ENABLE_RN_INSTANCE_CLEAN_UP")

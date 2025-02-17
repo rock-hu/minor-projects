@@ -139,8 +139,8 @@ void AnimatedNodesManager::removeAnimatedEventFromView(
       m_eventDrivers.begin(), m_eventDrivers.end(), [&](auto& driver) {
         return driver->getViewTag() == viewTag &&
             driver->getEventName() == eventName &&
-            driver->getNodeTag() == animatedValueTag;
-      }));
+            driver->getNodeTag() == animatedValueTag;}), 
+            m_eventDrivers.end());
     }
  
 }

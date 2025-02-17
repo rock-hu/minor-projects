@@ -6,12 +6,10 @@
  */
 
 import { RNAbility, } from '@rnoh/react-native-openharmony';
-
 import dataPreferences from '@ohos.data.preferences'
 import window from '@ohos.window';
 
 export let preferences: dataPreferences.Preferences | null = null
-
 
 export default class EntryAbility extends RNAbility {
   getPagePath() {

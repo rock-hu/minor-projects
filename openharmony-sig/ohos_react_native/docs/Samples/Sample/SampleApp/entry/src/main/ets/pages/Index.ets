@@ -22,7 +22,6 @@ import { createRNPackages, LoadManager, buildCustomComponent } from '../rn';
 import { ENABLE_CAPI_ARCHITECTURE } from '../rn'
 import { arkTsComponentNames } from '../rn/LoadBundle';
 
-
 @Entry()
 @Component
 struct Index {
@@ -37,7 +36,9 @@ struct Index {
   }
 
   aboutToAppear() {
-    if (!this.rnohCoreContext) return;
+    if (!this.rnohCoreContext) {
+      return;
+    }
     this.loadMetroBundle()
   }
 
@@ -47,7 +48,9 @@ struct Index {
   }
 
   subscribeReload() {
-    if (!this.rnohCoreContext) return;
+    if (!this.rnohCoreContext) {
+      return;
+    }
     this.cleanUpCallbacks.forEach(cleanUp => cleanUp())
     this.cleanUpCallbacks.push(this.rnohCoreContext!.devToolsController.eventEmitter.subscribe("RELOAD", async () => {
       this.isBundleReady = false
@@ -76,12 +79,14 @@ struct Index {
       })
     })
 
-    this.cleanUpCallbacks.push(LoadManager.metroInstance.getTurboModule<LogBoxTurboModule>(LogBoxTurboModule.NAME).eventEmitter.subscribe("SHOW", () => {
-      this.logBoxDialogController.open()
-    }))
-    this.cleanUpCallbacks.push(LoadManager.metroInstance.getTurboModule<LogBoxTurboModule>(LogBoxTurboModule.NAME).eventEmitter.subscribe("HIDE", () => {
-      this.logBoxDialogController.close()
-    }))
+    this.cleanUpCallbacks.push(LoadManager.metroInstance.getTurboModule<LogBoxTurboModule>(LogBoxTurboModule.NAME).eventEmitter.subscribe("SHOW",
+      () => {
+        this.logBoxDialogController.open()
+      }))
+    this.cleanUpCallbacks.push(LoadManager.metroInstance.getTurboModule<LogBoxTurboModule>(LogBoxTurboModule.NAME).eventEmitter.subscribe("HIDE",
+      () => {
+        this.logBoxDialogController.close()
+      }))
   }
 
   loadMetroBundle() {
@@ -98,8 +103,9 @@ struct Index {
   }
 
   async register(): Promise<Map<string, RNInstance>> {
-    if (!this.rnohCoreContext)
+    if (!this.rnohCoreContext) {
       return new Map()
+    }
 
     if (this.isMetroAvailable) {
       this.isBundleReady = true

@@ -68,7 +68,9 @@ export class SampleTurboModule extends TurboModule {
   }
 
   getPreferencesData(key: string): string {
-    if (!SampleTurboModule.preferences) return 'null';
+    if (!SampleTurboModule.preferences) {
+      return 'null';
+    }
     try {
       let val = SampleTurboModule.preferences.getSync(key, '默认值') as string
       return val
@@ -78,7 +80,9 @@ export class SampleTurboModule extends TurboModule {
   }
 
   putPreferencesData(key: string, value: string) {
-    if (!SampleTurboModule.preferences) return;
+    if (!SampleTurboModule.preferences) {
+      return;
+    }
     SampleTurboModule.preferences.putSync(key, value)
     try {
       SampleTurboModule.preferences.flush((err: BusinessError) => {

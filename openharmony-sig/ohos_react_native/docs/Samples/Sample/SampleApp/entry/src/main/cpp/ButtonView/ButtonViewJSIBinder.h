@@ -19,7 +19,6 @@ namespace rnoh {
     
         facebook::jsi::Object createDirectEventTypes(facebook::jsi::Runtime &rt) override {
             facebook::jsi::Object events(rt);
-
             events.setProperty(rt, "topButtonClick", createDirectEvent(rt, "onButtonClick"));
             return events;
         }

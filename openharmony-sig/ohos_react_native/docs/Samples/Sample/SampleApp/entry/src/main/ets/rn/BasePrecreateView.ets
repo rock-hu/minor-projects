@@ -73,7 +73,6 @@ export struct BasePrecreateView {
       this.shouldShow = true
       console.log("BasePrecreateView 预创建的 RNInstance 已完成 JSBundle 加载，直接展示页面")
     }
-
   }
 
   private async getOrCreateRNInstance(): Promise<CachedInstance> {
@@ -132,7 +131,8 @@ export struct BasePrecreateView {
       instance.status = "DONE"
 
       console.log("BasePrecreateView status = ", instance.status)
-      console.log("BasePrecreateView 预加载 JSBundle 完成，RNInstance ID = " + rnInstance.getId() + " instances.count = " + instances.length)
+      console.log("BasePrecreateView 预加载 JSBundle 完成，RNInstance ID = " + rnInstance.getId() +
+        " instances.count = " + instances.length)
       console.log("BasePrecreateView End ======================================================= ")
     }
   }

@@ -8,10 +8,8 @@
 import { RNOHCoreContext, ComponentBuilderContext, } from '@rnoh/react-native-openharmony';
 import { NodeController, FrameNode, BuilderNode, Size } from '@ohos.arkui.node';
 import { LoadManager } from '../rn';
-
 import { promptAction } from '@kit.ArkUI';
 import FrameNodeRNPage from './FrameNodeRNPage';
-
 import { Params, BuilderData } from './BuilderType';
 import { getRNController } from './common';
 

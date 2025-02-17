@@ -43,6 +43,7 @@ import { EventControl, EventType } from '../listener/EventControl';
 import { LogUtil } from '../utils/LogUtil';
 import HashMap from '@ohos.util.HashMap';
 import CanvasUtil from '../utils/CanvasUtil';
+import AnimatedMoveViewJob from '../jobs/AnimatedMoveViewJob';
 
 /**
  * Base-class of LineChart, BarChart, ScatterChart and CandleStickChart.
@@ -1166,22 +1167,21 @@ extends Chart<T> implements BarLineScatterCandleBubbleDataProvider {
    *
    * @param xValue
    * @param yValue
-   * @param axis
+   * @param axis - which axis should be used as a reference for the y axis
    * @param duration the duration of the animation in milliseconds
    */
   public moveViewToAnimated(xValue: number, yValue: number, axis: AxisDependency, duration: number): void {
-
     let bounds: MPPointD = this.getValuesByTouchPoint(this.mViewPortHandler.contentLeft(), this.mViewPortHandler.contentTop(), axis);
-
     let yInView: number = this.getAxisRange(axis) / this.mViewPortHandler.getScaleY();
-    // let job:Runnable = AnimatedMoveViewJob.getInstance(this.mViewPortHandler, xValue, yValue + yInView / 2,
-    //         this.getTransformer(axis), this, bounds.x, bounds.y, duration);
-
-    // this.addViewportJob(job);
-
-    MPPointD.recycleInstance(bounds);
+    const transformer = this.getTransformer(axis);
+    if (transformer) {
+      let job: AnimatedMoveViewJob = AnimatedMoveViewJob.getInstance(this.mViewPortHandler, xValue, yValue + yInView / 2,
+        transformer, this, bounds.x, bounds.y, duration);
+      this.addViewportJob(job);
+    }
   }
-
+  
+  
   /**
    * Centers the viewport to the specified y value on the y-axis.
    * This also refreshes the chart by calling invalidate().

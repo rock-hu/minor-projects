@@ -41,7 +41,6 @@ export struct MultiSurface {
   private moduleName = 'App';
   @State isBundleReady: boolean = false;
 
-
   async aboutToAppear() {
     console.log("MultiSurface=====")
     if (!this.rnohCoreContext) {

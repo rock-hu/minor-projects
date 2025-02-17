@@ -33,8 +33,7 @@ export function buildCustomComponent(ctx: ComponentBuilderContext) {
         tag: ctx.tag,
         buildCustomComponent: buildCustomComponent
       })
-    }
-    else if (ctx.componentName === MarqueeView.NAME) {
+    } else if (ctx.componentName === MarqueeView.NAME) {
       MarqueeView({
         ctx: ctx.rnComponentContext,
         tag: ctx.tag
@@ -54,9 +53,12 @@ export class LoadManager {
   static ctx: RNComponentContext;
 
   public static loadBundle(instance: RNInstance, bundlePath: string, useBundleCache: boolean = true): Promise<void> {
-    if (LoadManager.loadedBundle.has(bundlePath) && useBundleCache) return Promise.resolve();
-    if (useBundleCache) LoadManager.loadedBundle.add(bundlePath);
-
+    if (LoadManager.loadedBundle.has(bundlePath) && useBundleCache) {
+      return Promise.resolve();
+    }
+    if (useBundleCache) {
+      LoadManager.loadedBundle.add(bundlePath);
+    }
     return instance.runJSBundle(new ResourceJSBundleProvider(getContext().resourceManager, bundlePath));
   }
 
@@ -80,7 +82,8 @@ export class LoadManager {
       const provider = new MetroJSBundleProvider()
       await LoadManager.metroInstance.runJSBundle(provider)
 
-      const jsBundleExecutionStatus: string = LoadManager.metroInstance.getBundleExecutionStatus(provider.getURL()) as string
+      const jsBundleExecutionStatus: string =
+        LoadManager.metroInstance.getBundleExecutionStatus(provider.getURL()) as string
       console.log("SampleApp --- getBundleExecutionStatus", jsBundleExecutionStatus);
       LoadManager.shouldResetMetroInstance = false
       if (jsBundleExecutionStatus === "DONE") {

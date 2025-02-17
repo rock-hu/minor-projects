@@ -46,6 +46,7 @@ import { JArrayList } from '../utils/JArrayList';
 import MoveViewJob from '../jobs/MoveViewJob';
 import GCUtil from '../utils/GCUtils';
 import CanvasUtil from '../utils/CanvasUtil';
+import AnimatedMoveViewJob from '../jobs/AnimatedMoveViewJob';
 
 /**
  * Baseclass of all Chart-Views.
@@ -62,7 +63,7 @@ export enum LastGesture {
 }
 
 export default abstract class ChartModel<T extends ChartData<IDataSet<EntryOhos>>> implements ChartInterface, AnimatorUpdateListener {
-  public mJobs: JArrayList<MoveViewJob> = new JArrayList<MoveViewJob>();
+  public mJobs: JArrayList<MoveViewJob | AnimatedMoveViewJob> = new JArrayList<MoveViewJob>();
   public static LOG_TAG: string = "mpchart: ";
   /**
    * flag that indicates if logging is enabled or not
@@ -291,7 +292,7 @@ export default abstract class ChartModel<T extends ChartData<IDataSet<EntryOhos>
    *
    * @param job
    */
-  public addViewportJob(job: MoveViewJob) {
+  public addViewportJob(job: MoveViewJob | AnimatedMoveViewJob) {
     if (this.mViewPortHandler.hasChartDimens()) {
       job.run();
     } else {
@@ -1581,7 +1582,11 @@ export default abstract class ChartModel<T extends ChartData<IDataSet<EntryOhos>
   public clearJobs() {
     const length = this.mJobs.length();
     for (let i = 0; i < length; i++) {
-      MoveViewJob.recycleInstance(this.mJobs.get(i));
+      if (this.mJobs.get(i) instanceof MoveViewJob) {
+        MoveViewJob.recycleInstance(this.mJobs.get(i) as MoveViewJob);
+      } else {
+        AnimatedMoveViewJob.recycleInstance(this.mJobs.get(i) as AnimatedMoveViewJob);
+      }
     }
   }
 }

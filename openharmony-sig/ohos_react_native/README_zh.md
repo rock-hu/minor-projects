@@ -7,16 +7,20 @@
 ### 前提条件
 
 #### 安装了HarmonyOS NEXT的模拟器或真机
+
 该项目需要HarmonyOS NEXT上进行测试。
 
 #### 华为开发者账号
+
 运行应用程序时，需要用到华为开发者账号进行签名。
 
 #### DevEco Studio
+
 从[官网](https://developer.huawei.com/consumer/cn/deveco-studio/)下载并安装最新版本 DevEco Studio。
 
 ### 启动项目
-> 如果是编译源码，在拉取工程后需要在工程的根目录执行`git submodule update --init`命令，拉取三方库依赖。 
+
+> 如果是编译源码，在拉取工程后需要在工程的根目录执行`git submodule update --init --recursive`命令，拉取三方库依赖。
 
 1. 打开终端（命令行工具）并导航到react-native-harmony-cli目录，然后执行 `npm i && npm pack`。
 1. 在终端中导航到react-native-harmony-sample-package目录，然后执行 `npm i && npm pack`。
@@ -35,16 +39,20 @@
 - RNOH的使用问题可查阅[中文文档](./docs/zh-cn/README.md)或[英文文档](./docs/en/README.md)。
 
 ## 版本说明
+
 当前发布的最新正式版本：
+
 - [RNOH v5.0.0.813（2024-12-26）](./docs/zh-cn/release-notes/react-native-harmony-v5.0.0.813.md)
 
 历史发布的正式版本：
+
 - [RNOH v5.0.0.812（2024-12-14）](./docs/zh-cn/release-notes/react-native-harmony-v5.0.0.812.md)
 - [RNOH v5.0.0.715（2024-10-25）](./docs/zh-cn/release-notes/react-native-harmony-v5.0.0.715.md)
 - [RNOH v5.0.0.601（2024-09-26）](./docs/zh-cn/release-notes/react-native-harmony-v5.0.0.601.md)
 - [RNOH v5.0.0.500（2024-08-27）](./docs/zh-cn/release-notes/react-native-harmony-v5.0.0.500.md)
 
 ## 分支说明
+
 - 0.72.5-ohos-5.0-release分支：release分支，如需下载源码，请从此分支下载上述正式版本对应的tag点源码。
 - master分支：主分支，请勿从此分支拉取源码用于商用版本，不保证质量。
 - dev分支/partner-dev分支：开发分支，请勿从此分支拉取源码，不保证质量。

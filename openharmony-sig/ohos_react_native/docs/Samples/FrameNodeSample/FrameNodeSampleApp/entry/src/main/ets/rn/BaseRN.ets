@@ -42,7 +42,7 @@ export struct BaseRN {
         RNSurface({
           surfaceConfig: {
             appKey: this.moduleName,
-            initialProps:  { "propA": "good" } as Record<string, string>,
+            initialProps: { "propA": "good" } as Record<string, string>,
           } as SurfaceConfig2,
           ctx: new RNComponentContext(
             RNOHContext.fromCoreContext(this.rnohCoreContext!, this.rnInstance),

@@ -22,7 +22,8 @@ import { createRNPackages } from '../RNPackagesFactory';
 import fs from '@ohos.file.fs';
 
 @Builder
-export function buildCustomRNComponent(ctx: ComponentBuilderContext) {};
+export function buildCustomRNComponent(ctx: ComponentBuilderContext) {
+};
 const wrappedCustomRNComponentBuilder = wrapBuilder(buildCustomRNComponent);
 
 @Entry
@@ -49,7 +50,8 @@ struct Index {
   async downloadBundle() {
     if (this.rnAbility) {
       // 将bundlejs下载并保存到沙箱。
-      let uint8Array = await this.rnAbility.context.resourceManager.getRawFileContent('rawfile/bundle/sandbox.harmony.bundle');
+      let uint8Array =
+        await this.rnAbility.context.resourceManager.getRawFileContent('rawfile/bundle/sandbox.harmony.bundle');
       let rawBuffer = uint8Array.buffer;
       let num = rawBuffer.byteLength;
       // 获取沙箱路径
@@ -96,8 +98,8 @@ struct Index {
         }
         if (this.rnAbility && this.hasBundle) {
           RNApp({
-            rnInstanceConfig: { 
-              createRNPackages,             
+            rnInstanceConfig: {
+              createRNPackages,
               enableCAPIArchitecture: true,
               arkTsComponentNames: []
             },

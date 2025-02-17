@@ -1,4 +1,13 @@
 # Changelog
+
+## v0.72.57
+- chore: update to version 0.72.57,([e10c9b86e](https://gitee.com/openharmony-sig/ohos_react_native/commit/e10c9b86e27d638261e28d8f18048bafb5ef47a1))
+- fix:crash when Animated remove native event,([62fd10343](https://gitee.com/openharmony-sig/ohos_react_native/commit/62fd10343f8061dac00ad3c0f72ccc45855b15ec))
+- fix lineHeight inconsistency,([325a3319c](https://gitee.com/openharmony-sig/ohos_react_native/commit/325a3319c642880e007aa0cffcebe8b32cc351ef))
+- chore: update to version 5.1.0.202(0.72.56),([6d5003245](https://gitee.com/openharmony-sig/ohos_react_native/commit/6d5003245109243b330adeb32156a0fe9de28575))
+- fix(codecheck): unsafe memcpy,([9b42afd1a](https://gitee.com/openharmony-sig/ohos_react_native/commit/9b42afd1aa3aa6c4200e51577aa1260fdd75479d))
+- feat(mmap): speed up bundle loading with mmap,([1451c57a5](https://gitee.com/openharmony-sig/ohos_react_native/commit/1451c57a5c5a63607a0020c1b1ca4cb861372805))
+
 ## v0.72.56
 - fix: 解决bundle加载状态精准度问题,([d6152766](https://gitee.com/openharmony-sig/ohos_react_native/commit/d6152766fc9d4f3653aaf3c1c41db6802a4a5a3c))
 - fix: Fix the issue of accessibility and inability to click,([749e1142](https://gitee.com/openharmony-sig/ohos_react_native/commit/749e114265807198047a0d9b9a0e5838e529575c))

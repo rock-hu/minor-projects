@@ -7,7 +7,7 @@
 ```
 ├── RegisterFontNativeProject
 |   └── Index.ets
-|       ├── fontResourceByFontFamily # OpenHarmony 侧注册字体的方法1
+|       ├── fontResourceByFontFamily #OpenHarmony 侧注册字体的方法1
 |       └── rnInstance.registerFont #OpenHarmony 侧自定义注册字体的方法2，随时可以注册字体文件
 └── RegisterFontRnProject
     └── example.tsx  # React Native 侧展示使用字体的效果
