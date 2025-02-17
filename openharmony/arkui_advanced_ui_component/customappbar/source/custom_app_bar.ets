@@ -32,7 +32,7 @@ const MENU_BACK_COLOR: string = '#99FFFFFF';
 const MENU_MARGIN_TOP: number = 10;
 // 半屏参数
 const BUTTON_IMAGE_SIZE: number = 18;
-const HALF_CONTAINER_BORFER_SIZE: number = 32;
+const HALF_CONTAINER_BORDER_SIZE: number = 32;
 const HALF_BUTTON_BACK_COLOR: string = '#0D000000';
 const HALF_BUTTON_IMAGE_COLOR: string = '#0C000000';
 const HALF_MENU_MARGIN: number = 16;
@@ -46,11 +46,13 @@ const TITLE_MARGIN_RIGHT: number = 12;
 const TITLE_MARGIN_TOP: number = 8;
 const TITLE_LABEL_MARGIN: number = 8.5;
 const TITLE_TEXT_MARGIN: number = 3;
-const MAX_WIDTH: string = '60%';
-const MAX_WIDTH_LIMIT: number = 600;
+const MD_WIDTH: number = 480;
+const LG_WIDTH_LIMIT: number = 0.6;
+const LG_WIDTH_HEIGHT_RATIO: number = 1.95;
 const ARKUI_APP_BAR_COLOR_CONFIGURATION: string = 'arkui_app_bar_color_configuration';
 const ARKUI_APP_BAR_MENU_SAFE_AREA: string = 'arkui_app_bar_menu_safe_area';
 const ARKUI_APP_BAR_CONTENT_SAFE_AREA: string = 'arkui_app_bar_content_safe_area';
+
 const ARKUI_APP_BAR_BAR_INFO: string = 'arkui_app_bar_info';
 const ARKUI_APP_BAR_SCREEN: string = 'arkui_app_bar_screen';
 const ARKUI_APP_BG_COLOR: string = 'arkui_app_bg_color';
@@ -58,6 +60,7 @@ const ARKUI_APP_BG_COLOR: string = 'arkui_app_bg_color';
 const EVENT_NAME_CUSTOM_APP_BAR_MENU_CLICK = 'arkui_custom_app_bar_menu_click';
 const EVENT_NAME_CUSTOM_APP_BAR_CLOSE_CLICK = 'arkui_custom_app_bar_close_click';
 const EVENT_NAME_CUSTOM_APP_BAR_DID_BUILD = 'arkui_custom_app_bar_did_build';
+const EVENT_NAME_CUSTOM_APP_BAR_CREATE_SERVICE_PANEL = 'arkui_custom_app_bar_create_service_panel';
 
 /**
  * 适配不同颜色模式集合
@@ -70,6 +73,13 @@ class ColorGroup {
     this.light = light;
     this.dark = dark;
   }
+}
+
+enum BreakPointsType {
+  NONE = 'NONE',
+  SM = 'SM',
+  MD = 'MD',
+  LG = 'LG'
 }
 
 const colorMap: Map<string, ColorGroup> = new Map<string, ColorGroup>([
@@ -108,20 +118,22 @@ export struct CustomAppBar {
   @State contentMarginLeft: number = 0;
   @State contentMarginRight: number = 0;
   @State contentMarginBottom: number = 0;
-  @State appBarOpacity: number = 0;
   // 半屏参数
   @State isHalfScreen: boolean = true;
-  @State containerHeight: string = '0%';
-  @State containerWidth: string = '100%';
-  @State borderSize: number = HALF_CONTAINER_BORFER_SIZE;
-  @State titleOpacity: number = 1;
+  @State containerHeight: string | number = '0%';
+  @State containerWidth: string | number = '100%';
+  @State stackHeight: string = '100%';
+  @State titleOpacity: number = 0;
   @State buttonOpacity: number = 1;
   @State titleHeight: number = 0;
+  @State titleOffset: number = 0;
   @State maskOpacity: number = 0;
+  @State maskBlurScale: number = 0;
   @State contentBgColor: ResourceColor = '#FFFFFFFF';
-  @State isShowPanel: boolean = false;
   @State statusBarHeight: number = 0;
-  private listener = mediaquery.matchMediaSync('(orientation: landscape)');
+  @State ratio: number | undefined = undefined;
+  @State @Watch('onBreakPointChange') breakPoint: BreakPointsType = BreakPointsType.NONE
+  private isHalfToFullScreen: boolean = false;
   private isDark: boolean = true;
   private bundleName: string = '';
   private labelName: string = '';
@@ -129,47 +141,60 @@ export struct CustomAppBar {
   private fullContentMarginTop: number = 0;
   private windowWidth: number = 0;
   private windowHeight: number = 0;
+  private smListener: mediaquery.MediaQueryListener = mediaquery.matchMediaSync('(0vp<width) and (width<600vp)')
+  private mdListener: mediaquery.MediaQueryListener = mediaquery.matchMediaSync('(600vp<=width) and (width<840vp)')
+  private lgListener: mediaquery.MediaQueryListener = mediaquery.matchMediaSync('(840vp<=width)')
 
   aboutToAppear(): void {
-    let displayData = display.getDefaultDisplaySync();
-    this.windowWidth = px2vp(displayData.width)
-    this.windowHeight = px2vp(displayData.height);
     if (this.isHalfScreen) {
       this.contentBgColor = Color.Transparent;
-      this.halfScreenShowAnimation();
-      if (this.windowWidth > MAX_WIDTH_LIMIT) {
-        this.containerWidth = MAX_WIDTH;
-      }
       this.titleHeight = EYELASH_HEIGHT + 2 * TITLE_MARGIN_TOP + this.statusBarHeight;
+      this.halfScreenShowAnimation();
     } else {
       this.containerHeight = '100%';
       this.containerWidth = '100%';
-      this.appBarOpacity = 1;
     }
-    let portraitFunc =
-      (mediaQueryResult: mediaquery.MediaQueryResult): void => this.onPortrait(mediaQueryResult);
-    this.listener.on('change', portraitFunc);
   }
 
-  onPortrait(mediaQueryResult: mediaquery.MediaQueryResult): void {
-    console.log(`onPortrait this.windowWidth = ${this.windowWidth}  this.windowHeight = ${this.windowHeight}`)
-    let displayData = display.getDefaultDisplaySync();
-    this.windowWidth = px2vp(displayData.width)
-    this.windowHeight = px2vp(displayData.height);
-    if (this.isHalfScreen && this.windowWidth > MAX_WIDTH_LIMIT) {
-      animateTo({
-        duration: 250,
-        curve: Curve.Sharp,
-      }, () => {
-        this.containerWidth = MAX_WIDTH;
-      })
-    } else {
-      animateTo({
-        duration: 250,
-        curve: Curve.Sharp,
-      }, () => {
+  aboutToDisappear(): void {
+    this.smListener.off('change');
+    this.mdListener.off('change');
+    this.lgListener.off('change');
+  }
+
+  initBreakPointListener(): void {
+    this.smListener.on('change', (mediaQueryResult: mediaquery.MediaQueryResult) => {
+      if (mediaQueryResult.matches) {
+        this.breakPoint = BreakPointsType.SM
+      }
+    })
+    this.mdListener.on('change', (mediaQueryResult: mediaquery.MediaQueryResult) => {
+      if (mediaQueryResult.matches) {
+        this.breakPoint = BreakPointsType.MD
+      }
+    })
+    this.lgListener.on('change', (mediaQueryResult: mediaquery.MediaQueryResult) => {
+      if (mediaQueryResult.matches) {
+        this.breakPoint = BreakPointsType.LG
+      }
+    })
+  }
+
+  onBreakPointChange(): void {
+    if (this.windowWidth === 0) {
+      let displayData = display.getDefaultDisplaySync();
+      this.windowWidth = px2vp(displayData.width)
+      this.windowHeight = px2vp(displayData.height);
+    }
+    if (this.isHalfScreen) {
+      if (this.breakPoint === BreakPointsType.SM) {
         this.containerWidth = '100%';
-      })
+      } else if (this.breakPoint === BreakPointsType.MD) {
+        this.containerWidth = MD_WIDTH
+      } else if (this.breakPoint === BreakPointsType.LG) {
+        this.containerWidth =
+          this.windowWidth > this.windowHeight ? this.windowHeight * LG_WIDTH_LIMIT : this.windowWidth * LG_WIDTH_LIMIT;
+      }
     }
   }
 
@@ -228,6 +253,7 @@ export struct CustomAppBar {
       this.labelName = splitArray[1];
     } else if (eventName === ARKUI_APP_BAR_SCREEN) {
       this.isHalfScreen = this.parseBoolean(param);
+      this.initBreakPointListener();
     } else if (eventName === ARKUI_APP_BG_COLOR) {
       this.contentBgColor = param;
     }
@@ -269,6 +295,12 @@ export struct CustomAppBar {
   }
 
   /**
+   * 点击title栏
+   */
+  onEyelashTitleClick(): void {
+  }
+
+  /**
    * 触发构建回调
    */
   onDidBuild(): void {
@@ -283,13 +315,23 @@ export struct CustomAppBar {
       curve: Curve.Sharp,
     }, () => {
       this.maskOpacity = 0.3;
-    })
+      this.maskBlurScale = 1;
+    });
     animateTo({
-      duration: 100,
+      duration: 250,
       curve: curves.interpolatingSpring(0, 1, 328, 36),
     }, () => {
       this.containerHeight = '100%';
-    })
+      this.ratio = this.breakPoint === BreakPointsType.LG ? 1 / LG_WIDTH_HEIGHT_RATIO : undefined;
+
+    });
+    // 标题栏渐显
+    animateTo({
+      duration: 100,
+      curve: curves.cubicBezierCurve(0.2, 0, 0.2, 1),
+    }, () => {
+      this.titleOpacity = 1;
+    });
   }
 
   /**
@@ -297,65 +339,78 @@ export struct CustomAppBar {
    */
   expendContainerAnimation(): void {
     animateTo({
-      duration: 100,
-      curve: curves.interpolatingSpring(0, 1, 328, 36),
-    }, () => {
-      this.containerHeight = '100%';
-      this.borderSize = 0;
-      this.containerWidth = '100%';
-      this.contentMarginTop = this.fullContentMarginTop;
-      this.titleHeight = 0;
-    })
-    // 标题栏消失
-    animateTo({
       duration: 150,
-      curve: curves.cubicBezierCurve(0.2, 0, 0.2, 1),
+      curve: curves.interpolatingSpring(0, 1, 328, 36),
       onFinish: () => {
-        this.isHalfScreen = false;
         this.contentBgColor = '#FFFFFF';
+        this.isHalfToFullScreen = true;
       }
     }, () => {
-      this.titleOpacity = 0;
-      this.appBarOpacity = 1;
-    })
-    // 按钮消失
+      this.containerWidth = '100%';
+      this.contentMarginTop = this.fullContentMarginTop;
+      this.titleOffset = -this.titleHeight;
+      this.isHalfScreen = false;
+    });
+    // 标题栏渐隐
     animateTo({
-      duration: 150,
-      curve: curves.cubicBezierCurve(0.33, 0, 0.67, 1),
+      duration: 100,
+      curve: curves.cubicBezierCurve(0.2, 0, 0.2, 1),
     }, () => {
-      this.buttonOpacity = 0;
-    })
+      this.titleOpacity = 0;
+    });
   }
 
   /**
-   * 半屏嵌入式关闭动效
+   * 嵌入式关闭动效
    */
   closeContainerAnimation(): void {
+    if (this.isHalfScreen) {
+      this.closeHalfContainerAnimation();
+      return;
+    }
+    if (this.isHalfToFullScreen) {
+      // 关闭弹框
+      animateTo({
+        duration: 250,
+        curve: curves.interpolatingSpring(0, 1, 328, 36),
+        onFinish: () => {
+          this.onCloseButtonClick();
+        }
+      }, () => {
+        this.stackHeight = '0%';
+      });
+    } else {
+      this.onCloseButtonClick();
+    }
+  }
+
+  closeHalfContainerAnimation() {
     // 关闭弹框
     animateTo({
-      duration: 100,
+      duration: 250,
       curve: curves.interpolatingSpring(0, 1, 328, 36),
       onFinish: () => {
         this.onCloseButtonClick();
       }
     }, () => {
       this.containerHeight = '0%';
-      this.borderSize = 0;
-    })
+      this.ratio = undefined;
+    });
     // 蒙层渐隐
     animateTo({
       duration: 250,
       curve: Curve.Sharp,
     }, () => {
       this.maskOpacity = 0;
-    })
+      this.maskBlurScale = 0;
+    });
     // 标题栏渐隐
     animateTo({
-      duration: 200,
+      duration: 100,
       curve: curves.cubicBezierCurve(0.2, 0, 0.2, 1),
     }, () => {
       this.titleOpacity = 0;
-    })
+    });
   }
 
   @Builder
@@ -396,7 +451,6 @@ export struct CustomAppBar {
             .height(IMAGE_SIZE)
             .fillColor(this.closeFillColor)
             .draggable(false)
-            .draggable(false)
             .interpolation(ImageInterpolation.High)
         }
         .id('AtomicServiceCloseId')
@@ -406,7 +460,7 @@ export struct CustomAppBar {
         .width(BUTTON_SIZE)
         .height(VIEW_HEIGHT)
         .gesture(TapGesture().onAction(() => {
-          this.onCloseButtonClick();
+          this.closeContainerAnimation();
         }))
       }
       .borderRadius(MENU_RADIUS)
@@ -417,11 +471,11 @@ export struct CustomAppBar {
       .width(VIEW_WIDTH)
       .align(Alignment.Top)
       .draggable(false)
+      .geometryTransition('menubar')
       .id('AtomicServiceMenubarId')
     }
     .id('AtomicServiceMenubarRowId')
     .margin({ top: this.statusBarHeight + MENU_MARGIN_TOP, left: VIEW_MARGIN_RIGHT, right: VIEW_MARGIN_RIGHT })
-    .opacity(this.appBarOpacity)
     .justifyContent(FlexAlign.End)
     .height(VIEW_HEIGHT)
     .hitTestBehavior(HitTestMode.Transparent)
@@ -471,8 +525,7 @@ export struct CustomAppBar {
         })
         .borderRadius(EYELASH_HEIGHT / 2)
         .onClick(() => {
-          console.info(LOG_TAG, ' show panel is ' + this.isShowPanel);
-          this.isShowPanel = true;
+          this.onEyelashTitleClick();
         })
         .margin({ start: LengthMetrics.vp(TITLE_MARGIN_RIGHT) })
       }
@@ -487,6 +540,7 @@ export struct CustomAppBar {
     }
     .justifyContent(FlexAlign.Start)
     .height(this.titleHeight)
+    .offset({ y: this.titleOffset })
     .hitTestBehavior(HitTestMode.Transparent)
   }
 
@@ -494,74 +548,53 @@ export struct CustomAppBar {
   halfScreenMenuBar() {
     Column() {
       Row() {
-        Button({ type: ButtonType.Circle }) {
-          SymbolGlyph($r('sys.symbol.arrow_up_left_and_arrow_down_right'))
-            .height(BUTTON_IMAGE_SIZE)
-            .width(BUTTON_IMAGE_SIZE)
-            .fontWeight(FontWeight.Medium)
-            .fontColor([this.halfButtonImageColor])
-        }.width(BUTTON_SIZE).height(BUTTON_SIZE).backgroundColor(this.halfButtonBackColor)
-        .onClick(() => {
-          this.expendContainerAnimation();
-        })
+        Row() {
+          Button({ type: ButtonType.Circle }) {
+            SymbolGlyph($r('sys.symbol.arrow_up_left_and_arrow_down_right'))
+              .fontSize(BUTTON_IMAGE_SIZE)
+              .fontWeight(FontWeight.Medium)
+              .fontColor([this.halfButtonImageColor])
+          }.width(BUTTON_SIZE).height(BUTTON_SIZE).backgroundColor(this.halfButtonBackColor)
+          .onClick(() => {
+            this.expendContainerAnimation();
+          })
 
-        Button({ type: ButtonType.Circle }) {
-          SymbolGlyph($r('sys.symbol.xmark'))
-            .height(BUTTON_IMAGE_SIZE)
-            .width(BUTTON_IMAGE_SIZE)
-            .fontWeight(FontWeight.Medium)
-            .fontColor([this.halfButtonImageColor])
+          Button({ type: ButtonType.Circle }) {
+            SymbolGlyph($r('sys.symbol.xmark'))
+              .fontSize(BUTTON_IMAGE_SIZE)
+              .fontWeight(FontWeight.Medium)
+              .fontColor([this.halfButtonImageColor])
+          }
+          .width(BUTTON_SIZE)
+          .height(BUTTON_SIZE)
+          .margin({
+            start: LengthMetrics.vp(VIEW_MARGIN_RIGHT),
+          })
+          .backgroundColor(this.halfButtonBackColor)
+          .onClick(() => {
+            this.closeContainerAnimation();
+          })
         }
-        .width(BUTTON_SIZE)
+        .geometryTransition('menubar')
+        .justifyContent(FlexAlign.End)
+        .transition(TransitionEffect.OPACITY)
+        .borderRadius(MENU_RADIUS)
         .height(BUTTON_SIZE)
-        .margin({ start: LengthMetrics.vp(VIEW_MARGIN_RIGHT), end: LengthMetrics.vp(HALF_MENU_MARGIN) })
-        .backgroundColor(this.halfButtonBackColor)
-        .onClick(() => {
-          this.closeContainerAnimation();
+        .margin({
+          top: LengthMetrics.vp(this.titleHeight + HALF_MENU_MARGIN),
+          end: LengthMetrics.vp(HALF_MENU_MARGIN)
         })
       }
       .width(this.containerWidth)
       .height(this.containerHeight)
+      .aspectRatio(this.ratio)
       .alignItems(VerticalAlign.Top)
       .justifyContent(FlexAlign.End)
-      .margin({
-        top: LengthMetrics.vp(this.titleHeight + HALF_MENU_MARGIN)
-      })
       .opacity(this.buttonOpacity)
     }.height('100%')
     .width('100%')
     .justifyContent(FlexAlign.End)
     .hitTestBehavior(HitTestMode.Transparent)
-  }
-
-  @Builder
-  panelBuilder() {
-    UIExtensionComponent({
-      bundleName: 'com.huawei.hmos.asde',
-      abilityName: 'PanelAbility',
-      moduleName: 'panel',
-      parameters: {
-        'ability.want.params.uiExtensionType': 'sysDialog/atomicServicePanel',
-        'bundleName': this.bundleName,
-        'pageName': 'DETAIL'
-      }
-    })
-      .defaultFocus(true)
-      .height('100%')
-      .width('100%')
-      .onError(
-        err => {
-          this.isShowPanel = false;
-          console.error(LOG_TAG, 'call up UIExtension error! %{public}s', err.message);
-        }
-      )
-      .onReceive(() => {
-        console.error(LOG_TAG, 'call up UIExtension error!');
-      })
-      .onTerminated(() => {
-        console.error(LOG_TAG, 'onTerminated');
-        this.isShowPanel = false;
-      })
   }
 
   build() {
@@ -574,7 +607,7 @@ export struct CustomAppBar {
             .height('100%')
             .backgroundColor('#262626')
             .opacity(this.maskOpacity)
-            .foregroundBlurStyle(BlurStyle.BACKGROUND_REGULAR)
+            .foregroundBlurStyle(BlurStyle.BACKGROUND_REGULAR, { scale: this.maskBlurScale })
             .onClick(() => {
               this.closeContainerAnimation();
             })
@@ -596,8 +629,8 @@ export struct CustomAppBar {
             .backgroundColor(Color.Transparent)
             .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
             .borderRadius({
-              topLeft: this.borderSize,
-              topRight: this.borderSize,
+              topLeft: HALF_CONTAINER_BORDER_SIZE,
+              topRight: HALF_CONTAINER_BORDER_SIZE,
             })
             .clip(true)
             .alignItems(VerticalAlign.Bottom)
@@ -606,19 +639,21 @@ export struct CustomAppBar {
           }
           .height(this.containerHeight)
           .width(this.containerWidth)
+          .aspectRatio(this.ratio)
           .justifyContent(FlexAlign.End)
           .hitTestBehavior(HitTestMode.Transparent)
         }.height('100%')
         .width('100%')
         .justifyContent(FlexAlign.End)
         .hitTestBehavior(HitTestMode.Transparent)
+
         if (this.isHalfScreen) {
           this.halfScreenMenuBar()
         } else {
           this.fullScreenMenubar()
         }
       }
-      .height('100%')
+      .height(this.stackHeight)
       .width('100%')
       .backgroundColor(this.contentBgColor)
       .hitTestBehavior(HitTestMode.Transparent)
@@ -629,6 +664,5 @@ export struct CustomAppBar {
     .justifyContent(FlexAlign.End)
     .backgroundColor(Color.Transparent)
     .hitTestBehavior(HitTestMode.Transparent)
-    .bindContentCover(this.isShowPanel, this.panelBuilder())
   }
 }

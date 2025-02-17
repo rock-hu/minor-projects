@@ -54,7 +54,7 @@ void ArcIndexerPattern::InitArrayValue(bool& autoCollapseModeChanged)
     auto layoutProperty = host->GetLayoutProperty<ArcIndexerLayoutProperty>();
     CHECK_NULL_VOID(layoutProperty);
     if (!isNewHeightCalculated_) {
-        auto autoCollapse = layoutProperty->GetAutoCollapse().value_or(false);
+        auto autoCollapse = layoutProperty->GetAutoCollapse().value_or(true);
         autoCollapseModeChanged = autoCollapse != autoCollapse_;
         autoCollapse_ = autoCollapse;
         auto newArray = layoutProperty->GetArrayValue().value_or(std::vector<std::string>());
@@ -411,22 +411,31 @@ void ArcIndexerPattern::BuildArrayValueItems()
     if (layoutProperty->GetIsPopupValue(false)) {
         lastChildCount -= 1;
     }
+    auto autoCollapse = layoutProperty->GetAutoCollapse().value_or(true);
     if (indexerSize != lastChildCount) {
         host->Clean();
         layoutProperty->UpdateIsPopup(false);
-        for (int32_t index = 0; index < indexerSize - 1; index++) {
+        if (autoCollapse) {
+            indexerSize -= 1;
+        }
+        for (int32_t index = 0; index < indexerSize; index++) {
             auto indexerChildNode = FrameNode::CreateFrameNode(
                 V2::TEXT_ETS_TAG, ElementRegister::GetInstance()->MakeUniqueId(), AceType::MakeRefPtr<TextPattern>());
             CHECK_NULL_VOID(indexerChildNode);
             host->AddChild(indexerChildNode);
         }
-        auto icon = BuildIcon();
-        CHECK_NULL_VOID(icon);
-        host->AddChild(icon);
+        if (autoCollapse) {
+            auto icon = BuildIcon();
+            CHECK_NULL_VOID(icon);
+            host->AddChild(icon);
+        }
     }
     std::vector<std::string> arrayValueStrs;
     auto it = arcArrayValue_.begin();
-    while (it != arcArrayValue_.end() - 1) {
+    while (it != arcArrayValue_.end()) {
+        if (autoCollapse && (it == arcArrayValue_.end() - 1)) {
+            break;
+        }
         arrayValueStrs.push_back(it->first);
         ++it;
     }
@@ -499,7 +508,10 @@ void ArcIndexerPattern::UpdateStartAndEndIndexbySelected()
         if (endIndex_ > arraySize) {
             endIndex_ = arraySize;
         }
-        if (selected_ >= endIndex_ - 1) {
+        if (selected_ >= startIndex_ && selected_ < endIndex_) {
+            selected_ -= startIndex_;
+            focusIndex_ = selected_;
+        } else if (selected_ >= endIndex_ - 1) {
             endIndex_ = selected_ + 1;
             if (endIndex_ > arraySize) {
                 endIndex_ = arraySize;

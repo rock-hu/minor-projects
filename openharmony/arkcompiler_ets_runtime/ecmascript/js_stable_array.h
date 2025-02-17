@@ -27,6 +27,25 @@
 namespace panda::ecmascript {
 class JSStableArray {
 public:
+    enum class ComparisonType: uint8_t {
+        STRICT_EQUAL,
+        SAME_VALUE_ZERO,
+    };
+
+    enum class IndexOfReturnType: uint8_t {
+        TAGGED_FOUND_INDEX,
+        TAGGED_FOUND_OR_NOT,
+        UNTAGGED_FOUND_INDEX,
+        UNTAGGED_FOUND_OR_NOT,
+    };
+
+    struct IndexOfOptions {
+        ComparisonType compType = ComparisonType::STRICT_EQUAL;
+        IndexOfReturnType returnType = IndexOfReturnType::TAGGED_FOUND_INDEX;
+        bool reversedOrder = false;
+        bool holeAsUndefined = false;
+    };
+
 #if !ENABLE_NEXT_OPTIMIZATION
     enum SeparatorFlag : int { MINUS_ONE = -1, MINUS_TWO = -2 };
 #endif
@@ -161,7 +180,7 @@ private:
 
 #if ENABLE_NEXT_OPTIMIZATION
     // When Array length is no more than 64, use array (stack memory) instead of vector to store the elements.
-    static constexpr size_t USE_STACK_MEMORY_THRESHOLD = 64;
+    static constexpr int64_t USE_STACK_MEMORY_THRESHOLD = 64;
     inline static bool WorthUseTreeString(uint32_t sepLength, size_t allocateLength, uint32_t len);
     template <typename Container>
     static void ProcessElements(JSThread *thread, JSHandle<JSTaggedValue> receiverValue, uint32_t len,

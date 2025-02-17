@@ -16,7 +16,7 @@ import { ProgressButton } from '@kit.ArkUI'
 ```
 
 ## 属性
-支持[通用属性](ts-universal-attributes-size.md)
+不支持[通用属性](ts-universal-attributes-size.md)
 
 ## ProgressButton
 
@@ -54,7 +54,7 @@ ProgressButton({progress: number, content: string, progressButtonWidth?: Length,
 | backgroundColor | [ResourceStr](ts-types.md#resourcestr) | 否  | 按钮背景色。  |
 
 ## 事件
-支持[通用事件](ts-universal-events-click.md)
+不支持[通用事件](ts-universal-events-click.md)
 
 ## 示例
 
@@ -71,7 +71,6 @@ struct Index {
   @State ButtonWidth: number = 200
   @State isRunning: boolean = false
   @State enableState: boolean = true
-  @State value: number = 0
 
   build() {
     Column() {
@@ -127,7 +126,6 @@ struct Index {
   @State ButtonWidth: number = 200
   @State isRunning: boolean = false
   @State enableState: boolean = true
-  @State value: number = 0
 
   build() {
     Column() {
@@ -187,7 +185,6 @@ struct Index {
   @State ButtonWidth: number = 200
   @State isRunning: boolean = false
   @State enableState: boolean = true
-  @State value: number = 0
 
   build() {
     Column() {

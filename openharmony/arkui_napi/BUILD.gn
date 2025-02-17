@@ -352,12 +352,15 @@ if (!ark_standalone_build) {
       deps += [ "jsvm:libjsvm" ]
     }
     if (target_cpu == "arm64" || target_cpu == "x86_64") {
-      deps += [ "interfaces/inner_api/cjffi/ark_interop:ark_interop" ]
+      deps += [
+        "interfaces/inner_api/cjffi/ark_interop:ark_interop",
+        "interfaces/inner_api/cjffi/ark_interop:ark_interop_loader",
+      ]
     }
   }
 
-  if (!build_ohos_ndk && !is_arkui_x && !ohos_indep_compiler_enable) {
-    group("napi_packages_test") {
+  group("napi_packages_test") {
+    if (!build_ohos_ndk && !is_arkui_x && !ohos_indep_compiler_enable) {
       testonly = true
 
       deps = [
