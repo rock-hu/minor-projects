@@ -805,6 +805,8 @@ HWTEST_F(SheetPresentationTestTwoNg, AvoidKeyboardBySheetMode004, TestSize.Level
     EXPECT_NE(sheetPattern->keyboardAvoidMode_, SheetKeyboardAvoidMode::NONE);
     EXPECT_NE(sheetPattern->keyboardHeight_, safeAreaManager->GetKeyboardInset().Length());
     EXPECT_FALSE(sheetPattern->isDismissProcess_);
+    auto focusHub = host->GetFocusHub();
+    focusHub->currentFocus_ = true;
     EXPECT_TRUE(sheetPattern->AvoidKeyboardBeforeTranslate());
     sheetPattern->AvoidKeyboardBySheetMode();
     SheetPresentationTestTwoNg::TearDownTestCase();
@@ -2137,7 +2139,7 @@ HWTEST_F(SheetPresentationTestTwoNg, CalculateSheetOffsetInOtherScenes001, TestS
      */
     auto layoutWrapper =
         AceType::MakeRefPtr<LayoutWrapperNode>(sheetNode, sheetNode->GetGeometryNode(), sheetNode->GetLayoutProperty());
-    sheetLayoutAlgorithm->CalculateSheetOffsetInOtherScenes(layoutWrapper.GetRawPtr());
+    sheetLayoutAlgorithm->CalculateSheetOffsetInOtherScenes(Referenced::RawPtr(layoutWrapper));
     EXPECT_EQ(sheetLayoutAlgorithm->sheetOffsetY_,
         SHEET_HOVERMODE_UP_HEIGHT.ConvertToPx() + (1000 - SHEET_HOVERMODE_UP_HEIGHT.ConvertToPx() - 500) / 2);
 
@@ -2166,7 +2168,7 @@ HWTEST_F(SheetPresentationTestTwoNg, CalculateSheetOffsetInOtherScenes001, TestS
      */
     layoutWrapper =
         AceType::MakeRefPtr<LayoutWrapperNode>(sheetNode, sheetNode->GetGeometryNode(), sheetNode->GetLayoutProperty());
-    sheetLayoutAlgorithm->CalculateSheetOffsetInOtherScenes(layoutWrapper.GetRawPtr());
+    sheetLayoutAlgorithm->CalculateSheetOffsetInOtherScenes(Referenced::RawPtr(layoutWrapper));
     EXPECT_EQ(sheetLayoutAlgorithm->sheetOffsetY_,
         4500 + (2000 - SHEET_HOVERMODE_DOWN_HEIGHT.ConvertToPx() - 4500 - 600) / 2);
     SheetPresentationTestTwoNg::TearDownTestCase();

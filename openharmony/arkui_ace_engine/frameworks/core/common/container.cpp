@@ -255,7 +255,7 @@ void Container::DestroyToastSubwindow(int32_t instanceId)
 void Container::DestroySelectOverlaySubwindow(int32_t instanceId)
 {
     auto subwindow = SubwindowManager::GetInstance()->GetSelectOverlaySubwindow(instanceId);
-    if (subwindow && subwindow->IsToastSubWindow()) {
+    if (subwindow && subwindow->GetIsSelectOverlaySubWindow()) {
         subwindow->DestroyWindow();
         TAG_LOGI(AceLogTag::ACE_SUB_WINDOW, "Destroy selectOverlay subwindow, instanceId is %{public}d", instanceId);
     }
@@ -341,5 +341,13 @@ bool Container::IsNodeInKeyGuardWindow(const RefPtr<NG::FrameNode>& node)
 #else
     return false;
 #endif
+}
+bool Container::CheckRunOnThreadByThreadId(int32_t currentId, bool defaultRes)
+{
+    auto container = GetContainer(currentId);
+    CHECK_NULL_RETURN(container, defaultRes);
+    auto executor = container->GetTaskExecutor();
+    CHECK_NULL_RETURN(executor, defaultRes);
+    return executor->WillRunOnCurrentThread(TaskExecutor::TaskType::UI);
 }
 } // namespace OHOS::Ace

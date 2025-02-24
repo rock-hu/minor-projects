@@ -768,6 +768,18 @@ void WebDelegate::UnRegisterScreenLockFunction()
     }
 }
 
+void WebWindowFocusChangedListener::AfterFocused()
+{
+    auto delegate = webDelegate_.Upgrade();
+    if (!delegate) {
+        TAG_LOGW(AceLogTag::ACE_WEB, "Dragdrop, AfterFocused error delegate is nullptr");
+        return;
+    }
+    delegate->OnDragAttach();
+    delegate->UnRegisterWebWindowFocusChangedListener();
+    TAG_LOGI(AceLogTag::ACE_WEB, "Dragdrop, AfterFocused, end attach ime, remove listener");
+}
+
 void WebAvoidAreaChangedListener::OnAvoidAreaChanged(
     const OHOS::Rosen::AvoidArea avoidArea, OHOS::Rosen::AvoidAreaType type)
 {
@@ -2903,6 +2915,53 @@ void WebDelegate::RegisterAvoidAreaChangeListener(int32_t instanceId)
     }
 }
 
+void WebDelegate::RegisterWebWindowFocusChangedListener()
+{
+    auto container = AceType::DynamicCast<Platform::AceContainer>(Container::Current());
+    CHECK_NULL_VOID(container);
+    int32_t instanceId = container->GetInstanceId();
+    auto window = Platform::AceContainer::GetUIWindow(instanceId);
+    CHECK_NULL_VOID(window);
+    if (webWindowFocusChangedListener_) {
+        return;
+    }
+    webWindowFocusChangedListener_ = new WebWindowFocusChangedListener(AceType::WeakClaim(this));
+    OHOS::Rosen::WMError result = window->RegisterLifeCycleListener(webWindowFocusChangedListener_);
+    if (OHOS::Rosen::WMError::WM_OK == result) {
+        TAG_LOGE(AceLogTag::ACE_WEB, "Dragdrop, RegisterWebWindowFocusChangedListener after drop action success.");
+    } else {
+        TAG_LOGI(AceLogTag::ACE_WEB,
+            "Dragdrop, RegisterWebWindowFocusChangedListener after drop action fail. result:%{public}d", (int) result);
+        webWindowFocusChangedListener_ = nullptr;
+    }
+}
+
+void WebDelegate::UnRegisterWebWindowFocusChangedListener()
+{
+    CHECK_NULL_VOID(webWindowFocusChangedListener_);
+    auto container = AceType::DynamicCast<Platform::AceContainer>(Container::Current());
+    CHECK_NULL_VOID(container);
+    int32_t instanceId = container->GetInstanceId();
+    auto window = Platform::AceContainer::GetUIWindow(instanceId);
+    CHECK_NULL_VOID(window);
+    OHOS::Rosen::WMError result = window->UnregisterLifeCycleListener(webWindowFocusChangedListener_);
+    if (OHOS::Rosen::WMError::WM_OK == result) {
+        webWindowFocusChangedListener_ = nullptr;
+        TAG_LOGE(AceLogTag::ACE_WEB, "Dragdrop, UnRegisterWebWindowFocusChangedListener success.");
+    } else {
+        TAG_LOGI(AceLogTag::ACE_WEB,
+            "Dragdrop, UnRegisterWebWindowFocusChangedListener fail. result:%{public}d", (int) result);
+    }
+}
+
+void WebDelegate::OnDragAttach()
+{
+    if (nweb_) {
+        TAG_LOGI(AceLogTag::ACE_WEB, "Dragdrop, after drop action, OnDragAttach");
+        nweb_->OnDragAttach();
+    }
+}
+
 class NWebAutoFillCallbackImpl : public OHOS::NWeb::NWebMessageValueCallback {
 public:
     NWebAutoFillCallbackImpl(const WeakPtr<WebDelegate>& delegate) : delegate_(delegate) {}
@@ -3194,17 +3253,17 @@ void WebDelegate::DragResize(const double& width, const double& height,
         TaskExecutor::TaskType::PLATFORM, "ArkUIWebDragResize");
 }
 
-void WebDelegate::UpdateSmoothDragResizeEnabled(bool isSmoothDragResizeEnabled)
-{
-    isSmoothDragResizeEnabled_ = isSmoothDragResizeEnabled;
-}
-
 bool WebDelegate::GetIsSmoothDragResizeEnabled()
 {
-    if (OHOS::system::GetDeviceType() != "2in1") {
-        isSmoothDragResizeEnabled_ = false;
+    if (!nweb_) {
+        return false;
     }
-    return isSmoothDragResizeEnabled_;
+    bool isBrowserUsage = nweb_->IsNWebEx();
+    if (OHOS::system::GetDeviceType() != "2in1" || !isBrowserUsage) {
+        TAG_LOGD(AceLogTag::ACE_WEB, "Smooth drag resize only support browser in 2in1");
+        return false;
+    }
+    return true;
 }
 
 void WebDelegate::SetDragResizeStartFlag(bool isDragResizeStart)
@@ -3801,6 +3860,7 @@ void WebDelegate::OnConfigurationUpdated(const OHOS::AppExecFwk::Configuration& 
     CHECK_NULL_VOID(executor);
 
     std::string colorMode = configuration.GetItem(OHOS::AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE);
+    std::string weightScale = configuration.GetItem(OHOS::AAFwk::GlobalConfigurationKey::SYSTEM_FONT_WEIGHT_SCALE);
     std::string themeTag = configuration.GetItem(OHOS::AAFwk::GlobalConfigurationKey::THEME);
     uint8_t themeFlags = static_cast<uint8_t>(OHOS::NWeb::SystemThemeFlags::NONE);
     if (!themeTag.empty()) {
@@ -3812,7 +3872,7 @@ void WebDelegate::OnConfigurationUpdated(const OHOS::AppExecFwk::Configuration& 
     }
 
     executor->PostTask(
-        [weak = WeakClaim(this), colorMode, themeFlags, dark_mode = current_dark_mode_]() {
+        [weak = WeakClaim(this), colorMode, themeFlags, dark_mode = current_dark_mode_, weightScale]() {
             auto delegate = weak.Upgrade();
             CHECK_NULL_VOID(delegate);
             auto nweb = delegate->GetNweb();
@@ -3833,6 +3893,9 @@ void WebDelegate::OnConfigurationUpdated(const OHOS::AppExecFwk::Configuration& 
             } else if (auto_dark_mode && colorMode == "light") {
                 setting->PutDarkSchemeEnabled(false);
                 setting->PutForceDarkModeEnabled(false);
+            }
+            if (delegate->enableFollowSystemFontWeight_) {
+                setting->SetFontWeightScale(stof(weightScale));
             }
         },
         TaskExecutor::TaskType::PLATFORM, "ArkUIWebConfigurationUpdated");
@@ -4072,6 +4135,32 @@ void WebDelegate::UpdateScrollBarColor(const std::string& colorValue)
             }
         },
         TaskExecutor::TaskType::PLATFORM, "ArkUIWebPutScrollBarColor");
+}
+
+void WebDelegate::UpdateEnableFollowSystemFontWeight(bool enableFollowSystemFontWeight)
+{
+    TAG_LOGI(AceLogTag::ACE_WEB, "WebDelegate::UpdateEnableFollowSystemFontWeight isfollow:%{public}d",
+        enableFollowSystemFontWeight);
+    enableFollowSystemFontWeight_ = enableFollowSystemFontWeight;
+    if (!enableFollowSystemFontWeight_) {
+        return;
+    }
+    auto context = context_.Upgrade();
+    if (!context) {
+        return;
+    }
+    float fontWeightScale = SystemProperties::GetFontWeightScale();
+    context->GetTaskExecutor()->PostTask(
+        [weak = WeakClaim(this), fontWeightScale]() {
+            auto delegate = weak.Upgrade();
+            if (delegate && delegate->nweb_) {
+                std::shared_ptr<OHOS::NWeb::NWebPreference> setting = delegate->nweb_->GetPreference();
+                if (setting) {
+                    setting->SetFontWeightScale(fontWeightScale);
+                }
+            }
+        },
+        TaskExecutor::TaskType::PLATFORM, "ArkUIWebSetFontWeightScale");
 }
 
 void WebDelegate::LoadUrl()
@@ -5895,10 +5984,10 @@ void WebDelegate::HandleAxisEvent(const double& x, const double& y, const double
 }
 
 void WebDelegate::WebHandleAxisEvent(const double& x, const double& y,
-    const double& deltaX, const double& deltaY, const std::vector<int32_t>& pressedCodes)
+    const double& deltaX, const double& deltaY, const std::vector<int32_t>& pressedCodes, const int32_t source)
 {
     if (nweb_) {
-        nweb_->WebSendMouseWheelEvent(x, y, deltaX, deltaY, pressedCodes);
+        nweb_->WebSendMouseWheelEventV2(x, y, deltaX, deltaY, pressedCodes, source);
     }
 }
 

@@ -188,7 +188,8 @@ public:
                                     napi_value const *argv,
                                     size_t argc) = 0;
     virtual bool RunScriptPath(const char* path, bool checkPath = false) = 0;
-    virtual napi_value RunScriptBuffer(const char* path, std::vector<uint8_t>& buffer, bool isBundle) = 0;
+    virtual napi_value RunScriptBuffer(const char* path, std::vector<uint8_t>& buffer, bool isBundle,
+        bool needUpdate = false) = 0;
     virtual bool RunScriptBuffer(const std::string &path, uint8_t* buffer, size_t size, bool isBundle) = 0;
     virtual napi_value RunBufferScript(std::vector<uint8_t>& buffer) = 0;
     virtual napi_value RunActor(uint8_t* buffer, size_t bufferSize,
@@ -234,6 +235,7 @@ public:
 
     virtual void DumpHeapSnapshot(const std::string &path, bool isVmMode = true,
         DumpFormat dumpFormat = DumpFormat::JSON, bool isPrivate = false, bool captureNumericValue = false) = 0;
+    virtual void DumpHeapSnapshot(int fd, bool isFullGC, const std::function<void(uint8_t)> &callback) = 0;
     virtual void DumpCpuProfile() = 0;
     virtual void DumpHeapSnapshot(bool isVmMode = true, DumpFormat dumpFormat = DumpFormat::JSON,
         bool isPrivate = false, bool isFullGC = true) = 0;

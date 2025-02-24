@@ -52,7 +52,6 @@ class ConstantPool;
 class JSPromise;
 class RegExpExecResultCache;
 class EcmaHandleScope;
-class GlobalIndexMap;
 class SustainingJSHandleList;
 class SustainingJSHandle;
 enum class PromiseRejectionEvent : uint8_t;
@@ -705,21 +704,6 @@ public:
     void JoinStackPopFastPath(JSHandle<JSTaggedValue> receiver);
     void JoinStackPop(JSHandle<JSTaggedValue> receiver);
 
-    void SetJsonStringifyCache(size_t index, CVector<std::pair<CString, int>> &value)
-    {
-        stringifyCache_[index] = value;
-    }
-
-    CVector<std::pair<CString, int>> GetJsonStringifyCache(size_t index)
-    {
-        return stringifyCache_[index];
-    }
-
-    bool IsAotEntry()
-    {
-        return isAotEntry_;
-    }
-
     std::tuple<uint64_t, uint8_t *, int, kungfu::CalleeRegAndOffsetVec> CalCallSiteInfo(uintptr_t retAddr,
                                                                                         bool isDeopt) const;
 
@@ -797,7 +781,6 @@ private:
     JSTaggedValue stringSplitResultCache_ {JSTaggedValue::Hole()};
     JSTaggedValue stringToListResultCache_ {JSTaggedValue::Hole()};
     JSTaggedValue globalEnv_ {JSTaggedValue::Hole()};
-    JSTaggedValue pointerToIndexDictionary_ {JSTaggedValue::Hole()};
     JSTaggedValue regexpCache_ {JSTaggedValue::Hole()};
     JSTaggedValue regexpGlobal_ {JSTaggedValue::Hole()};
     JSTaggedValue microJobQueue_ {JSTaggedValue::Hole()};
@@ -879,10 +862,6 @@ private:
     // Join Stack
     static constexpr uint32_t MIN_JOIN_STACK_SIZE = 2;
     CVector<JSTaggedValue> joinStack_ {JSTaggedValue::Hole(), JSTaggedValue::Hole()};
-    // json stringify cache
-    static constexpr uint32_t STRINGIFY_CACHE_SIZE = 64;
-    std::array<CVector<std::pair<CString, int>>, STRINGIFY_CACHE_SIZE> stringifyCache_ {};
-    bool isAotEntry_ { false };
 
     // SustainingJSHandleList for jit compile hold ref
     SustainingJSHandleList *sustainingJSHandleList_ {nullptr};
@@ -894,7 +873,6 @@ private:
     friend class ObjectFactory;
     friend class panda::JSNApi;
     friend class AOTFileManager;
-    friend class GlobalIndexMap;
 };
 }  // namespace ecmascript
 }  // namespace panda

@@ -1592,7 +1592,7 @@ GateRef SlowPathLowering::LowerUpdateArrayHClassAtDefine(GateRef gate, GateRef a
 {
     ElementsKind kind = acc_.TryGetElementsKind(gate);
     if (!Elements::IsGeneric(kind)) {
-        size_t hclassIndex = static_cast<size_t>(compilationEnv_->GetArrayHClassIndexMap().at(kind).first);
+        size_t hclassIndex = static_cast<size_t>(compilationEnv_->GetArrayHClassIndex(kind, false));
         GateRef gConstAddr = builder_.Load(VariableType::JS_POINTER(), glue_,
             builder_.IntPtr(JSThread::GlueData::GetGlobalConstOffset(false)));
         GateRef constantIndex = builder_.IntPtr(JSTaggedValue::TaggedTypeSize() * hclassIndex);
@@ -3179,12 +3179,12 @@ void SlowPathLowering::LowerWideCallrangePrefImm16V8(GateRef gate)
         vec.emplace_back(acc_.GetValueIn(gate, i));
     }
 
-    vec.emplace_back(glue_);
-    vec.emplace_back(callTarget);
-    vec.emplace_back(thisObj);
+    vec1.emplace_back(glue_);
+    vec1.emplace_back(callTarget);
+    vec1.emplace_back(thisObj);
     // add args
     for (size_t i = 0; i < numIns - fixedInputsNum; i++) { // skip acc
-        vec.emplace_back(acc_.GetValueIn(gate, i));
+        vec1.emplace_back(acc_.GetValueIn(gate, i));
     }
     LowerToJSCall(gate, vec, vec1);
 }

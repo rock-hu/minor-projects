@@ -658,7 +658,8 @@ public:
                          void **data,
                          JSValueRef **arrayBuffer,
                          size_t *byteOffset);
-    void TryGetArrayLength(const EcmaVM *vm, bool *isArrayOrSharedArray, uint32_t *arrayLength);
+    void TryGetArrayLength(const EcmaVM *vm, bool *isPendingException,
+        bool *isArrayOrSharedArray, uint32_t *arrayLength);
 
 private:
     JSTaggedType value_;
@@ -1824,6 +1825,9 @@ public:
     static void NotifyTaskFinished(const EcmaVM *vm);
     static bool IsMultiThreadCheckEnabled(const EcmaVM *vm);
     static uint32_t GetCurrentThreadId();
+
+    //set VM apiVersion
+    static void SetVMAPIVersion(EcmaVM *vm, const int32_t apiVersion);
 
     // Napi Update SubStackInfo
     static void UpdateStackInfo(EcmaVM *vm, void *currentStackInfo, uint32_t opKind);

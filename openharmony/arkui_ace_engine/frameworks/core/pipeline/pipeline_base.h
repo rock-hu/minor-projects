@@ -784,6 +784,11 @@ public:
         return isFormRender_;
     }
 
+    bool IsFormRenderExceptDynamicComponent() const
+    {
+        return isFormRender_ && !isDynamicRender_;
+    }
+
     void SetIsDynamicRender(bool isDynamicRender)
     {
         isDynamicRender_ = isDynamicRender;
@@ -1092,11 +1097,12 @@ public:
     }
     virtual void NotifyMemoryLevel(int32_t level) {}
 
-    void SetDisplayWindowRectInfo(const Rect& displayWindowRectInfo)
+    virtual void SetDisplayWindowRectInfo(const Rect& displayWindowRectInfo)
     {
         displayWindowRectInfo_ = displayWindowRectInfo;
     }
 
+    virtual void SetIsWindowSizeChangeFlag(bool result) {}
 
     // This method can get the coordinates and size of the current window,
     // which can be added to the return value of the GetGlobalOffset method to get the window coordinates of the node.
@@ -1519,6 +1525,8 @@ protected:
 
     std::function<void()> GetWrappedAnimationCallback(const AnimationOption& option,
         const std::function<void()>& finishCallback, const std::optional<int32_t>& count = std::nullopt);
+    
+    bool MarkUpdateSubwindowKeyboardInsert(int32_t instanceId, double keyboardHeight, int32_t type);
 
     std::map<int32_t, configChangedCallback> configChangedCallback_;
     std::map<int32_t, virtualKeyBoardCallback> virtualKeyBoardCallback_;

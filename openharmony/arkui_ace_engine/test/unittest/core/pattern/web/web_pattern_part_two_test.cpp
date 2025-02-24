@@ -1937,7 +1937,7 @@ HWTEST_F(WebPatternPartTwoTest, OnAttachContext_001, TestSize.Level1)
     ASSERT_NE(webPattern->delegate_, nullptr);
     MockPipelineContext::SetUp();
     auto pipelineContext = MockPipelineContext::GetCurrent();
-    webPattern->OnAttachContext(pipelineContext.GetRawPtr());
+    webPattern->OnAttachContext(Referenced::RawPtr(pipelineContext));
     MockPipelineContext::TearDown();
     EXPECT_EQ(webPattern->instanceId_, 0);
 
@@ -1967,9 +1967,56 @@ HWTEST_F(WebPatternPartTwoTest, OnAttachContext_002, TestSize.Level1)
     webPattern->renderSurface_ = nullptr;
     MockPipelineContext::SetUp();
     auto pipelineContext = MockPipelineContext::GetCurrent();
-    webPattern->OnAttachContext(pipelineContext.GetRawPtr());
+    webPattern->OnAttachContext(Referenced::RawPtr(pipelineContext));
     MockPipelineContext::TearDown();
     EXPECT_EQ(webPattern->instanceId_, 0);
+
+#endif
+}
+
+/**
+ * @tc.name: OnEnableFollowSystemFontWeightUpdate_001
+ * @tc.desc: OnEnableFollowSystemFontWeightUpdate.
+ * @tc.type: FUNC
+ */
+HWTEST_F(WebPatternPartTwoTest, OnEnableFollowSystemFontWeightUpdate_001, TestSize.Level1)
+{
+#ifdef OHOS_STANDARD_SYSTEM
+    auto* stack = ViewStackProcessor::GetInstance();
+    ASSERT_NE(stack, nullptr);
+    auto nodeId = stack->ClaimNodeId();
+    auto frameNode =
+        FrameNode::GetOrCreateFrameNode(V2::WEB_ETS_TAG, nodeId, []() { return AceType::MakeRefPtr<WebPattern>(); });
+
+    stack->Push(frameNode);
+    auto webPattern = frameNode->GetPattern<WebPattern>();
+    ASSERT_NE(webPattern, nullptr);
+    webPattern->OnModifyDone();
+    ASSERT_NE(webPattern->delegate_, nullptr);
+    webPattern->OnEnableFollowSystemFontWeightUpdate(true);
+
+#endif
+}
+
+/**
+ * @tc.name: OnEnableFollowSystemFontWeightUpdate_002
+ * @tc.desc: OnEnableFollowSystemFontWeightUpdate.
+ * @tc.type: FUNC
+ */
+HWTEST_F(WebPatternPartTwoTest, OnEnableFollowSystemFontWeightUpdate_002, TestSize.Level1)
+{
+#ifdef OHOS_STANDARD_SYSTEM
+    auto* stack = ViewStackProcessor::GetInstance();
+    ASSERT_NE(stack, nullptr);
+    auto nodeId = stack->ClaimNodeId();
+    auto frameNode =
+        FrameNode::GetOrCreateFrameNode(V2::WEB_ETS_TAG, nodeId, []() { return AceType::MakeRefPtr<WebPattern>(); });
+
+    stack->Push(frameNode);
+    auto webPattern = frameNode->GetPattern<WebPattern>();
+    ASSERT_NE(webPattern, nullptr);
+    webPattern->delegate_ = nullptr;
+    webPattern->OnEnableFollowSystemFontWeightUpdate(true);
 
 #endif
 }

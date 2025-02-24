@@ -99,8 +99,6 @@ bool EcmaContext::Initialize()
         *hClassHandle,
         GlobalEnv::SIZE,
         JSType::GLOBAL_ENV);
-    auto arrayHClassIndexMaps = Elements::InitializeHClassMap();
-    thread_->SetArrayHClassIndexMap(arrayHClassIndexMaps);
     JSHandle<GlobalEnv> globalEnv = factory_->NewGlobalEnv(*globalEnvClass);
     globalEnv->Init(thread_);
     globalEnv_ = globalEnv.GetTaggedValue();
@@ -298,10 +296,6 @@ EcmaContext::~EcmaContext()
     }
     // clear join stack
     joinStack_.clear();
-
-    for (auto v : stringifyCache_) {
-        v.clear();
-    }
 }
 
 JSTaggedValue EcmaContext::InvokeEcmaAotEntrypoint(JSHandle<JSFunction> mainFunc, JSHandle<JSTaggedValue> &thisArg,
@@ -490,7 +484,6 @@ void EcmaContext::CJSExecution(JSHandle<JSFunction> &func, JSHandle<JSTaggedValu
     RequireManager::InitializeCommonJS(thread_, cjsInfo);
     if (aotFileManager_->IsLoadMain(jsPandaFile, entryPoint.data())) {
         EcmaRuntimeStatScope runtimeStateScope(vm_);
-        isAotEntry_ = true;
         InvokeEcmaAotEntrypoint(func, thisArg, jsPandaFile, entryPoint, &cjsInfo);
     } else {
         // Execute main function
@@ -1025,9 +1018,6 @@ void EcmaContext::Iterate(RootVisitor &v)
     }
     if (!microJobQueue_.IsHole()) {
         v.VisitRoot(Root::ROOT_VM, ObjectSlot(reinterpret_cast<uintptr_t>(&microJobQueue_)));
-    }
-    if (!pointerToIndexDictionary_.IsHole()) {
-        v.VisitRoot(Root::ROOT_VM, ObjectSlot(reinterpret_cast<uintptr_t>(&pointerToIndexDictionary_)));
     }
 
     if (functionProtoTransitionTable_) {

@@ -22,17 +22,17 @@
 #include <chrono>
 #include <thread>
 
+#include "ark_native_engine.h"
+#include "gtest/gtest.h"
 #include "hilog/log.h"
+#include "napi/native_api.h"
+#include "napi/native_common.h"
+#include "napi/native_node_api.h"
+#include "native_create_env.h"
+#include "securec.h"
 #include "test.h"
 #include "test_common.h"
-#include "gtest/gtest.h"
-#include "napi/native_api.h"
-#include "napi/native_node_api.h"
-#include "napi/native_common.h"
-#include "securec.h"
 #include "utils/log.h"
-#include "native_engine/impl/ark/ark_native_engine.h"
-#include "native_engine/native_create_env.h"
 
 using panda::RuntimeOption;
 
@@ -64,6 +64,9 @@ static constexpr int64_t TEST_INT64 = 9007199254740991;
 static constexpr const char TEST_CHAR_STRING[] = "TestString";
 static constexpr const char TEST_CHAR_ASYNCWORK[] = "AsyncWorkTest";
 static constexpr const char16_t TEST_CHAR16_STRING[] = u"TestString";
+static constexpr const char TEST_CHAR_ERROR_CODE[] = "500";
+static constexpr const char TEST_CHAR_ERROR_MESSAGE[] = "Common error";
+static constexpr const char TEST_CHAR_TEST_FUNC[] = "testFunc";
 
 class NapiBasicTest : public NativeEngineTest {
 public:
@@ -400,6 +403,21 @@ HWTEST_F(NapiBasicTest, ToNativeBindingObjectTest004, testing::ext::TestSize.Lev
     uint32_t numData = 0;
     napi_get_value_uint32(env, number, &numData);
     ASSERT_EQ(numData, 2000);
+}
+
+/**
+ * @tc.name: ToNativeBindingObjectTest005
+ * @tc.desc: Test nativeBinding object type.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NapiBasicTest, ToNativeBindingObjectTest005, testing::ext::TestSize.Level1)
+{
+    napi_env env = (napi_env)engine_;
+    napi_value object = nullptr;
+    napi_status status = napi_create_object(env, &object);
+    ASSERT_EQ(status, napi_status::napi_ok);
+    status = napi_add_detached_finalizer(env, object, TestDetachFinalizer, nullptr);
+    ASSERT_EQ(status, napi_status::napi_object_expected);
 }
 
 /**
@@ -4254,7 +4272,7 @@ HWTEST_F(NapiBasicTest, AsyncInitTest002, testing::ext::TestSize.Level1)
     napi_status status = napi_async_init(env, nullptr, resourceName, contextPtr);
     EXPECT_EQ(status, napi_invalid_arg);
 }
- 
+
 /**
  * @tc.name: AsyncInitTest003
  * @tc.desc: Test napi_async_init with invalid arguments.
@@ -7186,6 +7204,20 @@ HWTEST_F(NapiBasicTest, NapiUnwrapTest005, testing::ext::TestSize.Level1)
     ASSERT_EQ(status, napi_object_expected);
 }
 
+HWTEST_F(NapiBasicTest, NapiUnwrapTest006, testing::ext::TestSize.Level1)
+{
+    napi_env env = reinterpret_cast<napi_env>(engine_);
+    napi_value obj;
+    char **testStr = nullptr;
+    auto func = [](napi_env env, napi_callback_info info) -> napi_value {
+        return nullptr;
+    };
+
+    napi_create_function(env, nullptr, 0, func, nullptr, &obj);
+    napi_status status = napi_unwrap(env, obj, (void **)testStr);
+    ASSERT_EQ(status, napi_invalid_arg);
+}
+
 HWTEST_F(NapiBasicTest, NapiRemoveWrapTest001, testing::ext::TestSize.Level1)
 {
     napi_env env = reinterpret_cast<napi_env>(engine_);
@@ -7240,6 +7272,20 @@ HWTEST_F(NapiBasicTest, NapiRemoveWrapTest005, testing::ext::TestSize.Level1)
     ASSERT_EQ(status, napi_object_expected);
 }
 
+HWTEST_F(NapiBasicTest, NapiRemoveWrapTest006, testing::ext::TestSize.Level1)
+{
+    napi_env env = reinterpret_cast<napi_env>(engine_);
+    napi_value obj;
+    char **testStr = nullptr;
+    auto func = [](napi_env env, napi_callback_info info) -> napi_value {
+        return nullptr;
+    };
+
+    napi_create_function(env, nullptr, 0, func, nullptr, &obj);
+    napi_status status = napi_remove_wrap(env, obj, (void **)testStr);
+    ASSERT_EQ(status, napi_invalid_arg);
+}
+
 HWTEST_F(NapiBasicTest, NapiCreateAsyncWorkTest001, testing::ext::TestSize.Level1)
 {
     napi_env env = reinterpret_cast<napi_env>(engine_);
@@ -7287,17 +7333,6 @@ HWTEST_F(NapiBasicTest, NapiCreateAsyncWorkTest004, testing::ext::TestSize.Level
 HWTEST_F(NapiBasicTest, NapiCreateAsyncWorkTest005, testing::ext::TestSize.Level1)
 {
     napi_env env = reinterpret_cast<napi_env>(engine_);
-    napi_async_work* work = nullptr;
-    napi_value resourceName = nullptr;
-    napi_create_string_utf8(env, TEST_STRING, NAPI_AUTO_LENGTH, &resourceName);
-    napi_status status = napi_create_async_work(env, nullptr, resourceName, [](napi_env value, void* data) {},
-                           nullptr, nullptr, work);
-    ASSERT_EQ(status, napi_invalid_arg);
-}
-
-HWTEST_F(NapiBasicTest, NapiCreateAsyncWorkTest006, testing::ext::TestSize.Level1)
-{
-    napi_env env = reinterpret_cast<napi_env>(engine_);
     napi_async_work work = nullptr;
     napi_value resourceName = nullptr;
     napi_create_string_utf8(env, TEST_CHAR_ASYNCWORK, NAPI_AUTO_LENGTH, &resourceName);
@@ -7311,6 +7346,24 @@ HWTEST_F(NapiBasicTest, NapiCreateAsyncWorkTest006, testing::ext::TestSize.Level
     auto asyncWork = reinterpret_cast<NativeAsyncWork*>(work);
     auto asyncWorkTraceDesc = asyncWork->GetTraceDescription();
     ASSERT_TRUE(asyncWorkTraceDesc.find(TEST_CHAR_ASYNCWORK) != std::string::npos);
+}
+
+HWTEST_F(NapiBasicTest, NapiCreateAsyncWorkTest006, testing::ext::TestSize.Level1)
+{
+    napi_env env = reinterpret_cast<napi_env>(engine_);
+    napi_async_work work = nullptr;
+    napi_value resourceName = nullptr;
+    napi_get_null(env, &resourceName);
+    napi_status status = napi_create_async_work(
+        env, nullptr, resourceName,
+        [](napi_env env, void *data) {},
+        [](napi_env env, napi_status status, void *data) {},
+        nullptr, &work);
+    ASSERT_EQ(status, napi_ok);
+
+    auto asyncWork = reinterpret_cast<NativeAsyncWork*>(work);
+    auto asyncWorkTraceDesc = asyncWork->GetTraceDescription();
+    ASSERT_FALSE(asyncWorkTraceDesc.find(TEST_CHAR_ASYNCWORK) != std::string::npos);
 }
 
 HWTEST_F(NapiBasicTest, NapiCreateAsyncWorkTest007, testing::ext::TestSize.Level1)
@@ -7895,6 +7948,19 @@ HWTEST_F(NapiBasicTest, NapiGetDateValueTest003, testing::ext::TestSize.Level1)
     napi_status status = napi_create_object(env, &date);
     status = napi_get_date_value(env, date, &result);
     ASSERT_EQ(status, napi_date_expected);
+}
+
+HWTEST_F(NapiBasicTest, NapiGetDateValueTest004, testing::ext::TestSize.Level1)
+{
+    napi_env env = reinterpret_cast<napi_env>(engine_);
+    double time = 202110181203150;
+    napi_value date;
+    double result;
+
+    napi_status status = napi_create_date(env, time, &date);
+    status = napi_get_date_value(env, date, &result);
+    ASSERT_EQ(status, napi_ok);
+    ASSERT_EQ(time, result);
 }
 
 HWTEST_F(NapiBasicTest, NapiCreateBigintInt64Test001, testing::ext::TestSize.Level1)
@@ -10033,6 +10099,143 @@ HWTEST_F(NapiBasicTest, NapiGetArrayLengthTest002, testing::ext::TestSize.Level1
     ASSERT_CHECK_CALL(napi_get_boolean(env, true, &boolean));
     auto res = napi_get_array_length(env, boolean, &arrayLength);
     ASSERT_EQ(res, napi_array_expected);
+}
+
+/**
+ * @tc.name: NapiGetArrayLengthTest
+ * @tc.desc: Test interface of napi_get_array_length
+ * @tc.type: FUNC
+ */
+HWTEST_F(NapiBasicTest, NapiGetArrayLengthTest003, testing::ext::TestSize.Level1)
+{
+    ASSERT_NE(engine_, nullptr);
+    napi_env env = reinterpret_cast<napi_env>(engine_);
+    napi_value arr = nullptr;
+    uint32_t arrayLength = TEST_UINT32_1000;
+    ASSERT_CHECK_CALL(napi_create_array_with_length(env, INT_THREE, &arr));
+    napi_status status = napi_get_array_length(env, arr, &arrayLength);
+    ASSERT_EQ(status, napi_ok);
+    ASSERT_EQ(arrayLength, INT_THREE);
+}
+
+/**
+ * @tc.name: NapiGetArrayLengthTest
+ * @tc.desc: Test interface of napi_get_array_length
+ * @tc.type: FUNC
+ */
+HWTEST_F(NapiBasicTest, NapiGetArrayLengthTest004, testing::ext::TestSize.Level1)
+{
+    ASSERT_NE(engine_, nullptr);
+    napi_env env = reinterpret_cast<napi_env>(engine_);
+    napi_value arr = nullptr;
+    uint32_t arrayLength = TEST_UINT32_1000;
+    ASSERT_CHECK_CALL(napi_create_array_with_length(env, INT_THREE, &arr));
+    ASSERT_CHECK_CALL(napi_throw_error(env, TEST_CHAR_ERROR_CODE, TEST_CHAR_ERROR_MESSAGE));
+    bool isPendingException = false;
+    ASSERT_CHECK_CALL(napi_is_exception_pending(env, &isPendingException));
+    ASSERT_EQ(isPendingException, true);
+    napi_status status = napi_get_array_length(env, arr, &arrayLength);
+    ASSERT_EQ(status, napi_pending_exception);
+    ASSERT_EQ(arrayLength, 0);
+}
+
+/**
+ * @tc.name: NapiGetArrayLengthTest
+ * @tc.desc: Test interface of napi_get_array_length
+ * @tc.type: FUNC
+ */
+HWTEST_F(NapiBasicTest, NapiGetArrayLengthTest005, testing::ext::TestSize.Level1)
+{
+    ASSERT_NE(engine_, nullptr);
+    napi_env env = reinterpret_cast<napi_env>(engine_);
+
+    napi_value arr = nullptr;
+    ASSERT_CHECK_CALL(napi_create_array_with_length(env, INT_THREE, &arr));
+
+    // throw error by function-call
+    napi_value funcValue = nullptr;
+    ASSERT_CHECK_CALL(napi_create_function(env, TEST_CHAR_TEST_FUNC, NAPI_AUTO_LENGTH, TestCallFunc, nullptr, &funcValue));
+    ASSERT_NE(funcValue, nullptr);
+    napi_status status = napi_call_function(env, nullptr, funcValue, 0, nullptr, nullptr);
+    ASSERT_EQ(status, napi_pending_exception);
+    status = napi_ok; // reset status
+
+    bool isPendingException = false;
+    ASSERT_CHECK_CALL(napi_is_exception_pending(env, &isPendingException));
+    ASSERT_EQ(isPendingException, true);
+
+    uint32_t arrayLength = TEST_UINT32_1000;
+    status = napi_get_array_length(env, arr, &arrayLength);
+    ASSERT_EQ(status, napi_pending_exception);
+    ASSERT_EQ(arrayLength, TEST_UINT32_1000);
+}
+
+/**
+ * @tc.name: NapiGetArrayLengthTest
+ * @tc.desc: Test interface of napi_get_array_length
+ * @tc.type: FUNC
+ */
+HWTEST_F(NapiBasicTest, NapiGetArrayLengthTest006, testing::ext::TestSize.Level1)
+{
+    ASSERT_NE(engine_, nullptr);
+    ASSERT_EQ(engine_->lastException_.IsEmpty(), true);
+    napi_env env = reinterpret_cast<napi_env>(engine_);
+    napi_value arr = nullptr;
+    ASSERT_CHECK_CALL(napi_create_array_with_length(env, INT_THREE, &arr));
+    ASSERT_CHECK_CALL(napi_throw_error(env, TEST_CHAR_ERROR_CODE, TEST_CHAR_ERROR_MESSAGE));
+    bool isPendingException = false;
+    ASSERT_CHECK_CALL(napi_is_exception_pending(env, &isPendingException));
+    ASSERT_EQ(isPendingException, true);
+    ASSERT_EQ(engine_->lastException_.IsEmpty(), true);
+    napi_status status = napi_get_array_length(env, arr, nullptr);
+    ASSERT_EQ(status, napi_invalid_arg);
+    ASSERT_EQ(engine_->lastException_.IsEmpty(), false);
+}
+
+/**
+ * @tc.name: NapiGetArrayLengthTest
+ * @tc.desc: Test interface of napi_get_array_length
+ * @tc.type: FUNC
+ */
+HWTEST_F(NapiBasicTest, NapiGetArrayLengthTest007, testing::ext::TestSize.Level1)
+{
+    ASSERT_NE(engine_, nullptr);
+    ASSERT_EQ(engine_->lastException_.IsEmpty(), true);
+    napi_env env = reinterpret_cast<napi_env>(engine_);
+    napi_value arr = nullptr;
+    ASSERT_CHECK_CALL(napi_create_array_with_length(env, INT_THREE, &arr));
+    ASSERT_CHECK_CALL(napi_throw_error(env, TEST_CHAR_ERROR_CODE, TEST_CHAR_ERROR_MESSAGE));
+    bool isPendingException = false;
+    ASSERT_CHECK_CALL(napi_is_exception_pending(env, &isPendingException));
+    ASSERT_EQ(isPendingException, true);
+    ASSERT_EQ(engine_->lastException_.IsEmpty(), true);
+    uint32_t arrayLength = TEST_UINT32_1000;
+    napi_status status = napi_get_array_length(env, nullptr, &arrayLength);
+    ASSERT_EQ(status, napi_invalid_arg);
+    ASSERT_EQ(engine_->lastException_.IsEmpty(), false);
+}
+
+/**
+ * @tc.name: NapiGetArrayLengthTest
+ * @tc.desc: Test interface of napi_get_array_length
+ * @tc.type: FUNC
+ */
+HWTEST_F(NapiBasicTest, NapiGetArrayLengthTest008, testing::ext::TestSize.Level1)
+{
+    ASSERT_NE(engine_, nullptr);
+    ASSERT_EQ(engine_->lastException_.IsEmpty(), true);
+    napi_env env = reinterpret_cast<napi_env>(engine_);
+    napi_value noArr = nullptr;
+    ASSERT_CHECK_CALL(napi_create_uint32(env, TEST_UINT32_1000, &noArr));
+    ASSERT_CHECK_CALL(napi_throw_error(env, TEST_CHAR_ERROR_CODE, TEST_CHAR_ERROR_MESSAGE));
+    bool isPendingException = false;
+    ASSERT_CHECK_CALL(napi_is_exception_pending(env, &isPendingException));
+    ASSERT_EQ(isPendingException, true);
+    ASSERT_EQ(engine_->lastException_.IsEmpty(), true);
+    uint32_t arrayLength = TEST_UINT32_1000;
+    napi_status status = napi_get_array_length(env, noArr, &arrayLength);
+    ASSERT_EQ(status, napi_array_expected);
+    ASSERT_EQ(engine_->lastException_.IsEmpty(), false);
 }
 
 /**

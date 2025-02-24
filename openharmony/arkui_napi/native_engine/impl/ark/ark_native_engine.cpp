@@ -2019,6 +2019,18 @@ void ArkNativeEngine::DumpHeapSnapshot(const std::string& path, bool isVmMode, D
     }
 }
 
+void ArkNativeEngine::DumpHeapSnapshot(int fd, bool isFullGC,
+                                       const std::function<void(uint8_t)> &callback)
+{
+    panda::ecmascript::DumpSnapShotOption dumpOption;
+    dumpOption.isVmMode = true;
+    dumpOption.isPrivate = false;
+    dumpOption.isFullGC = isFullGC;
+    dumpOption.isSync = false;
+    dumpOption.dumpFormat = panda::ecmascript::DumpFormat::BINARY;
+    DFXJSNApi::DumpHeapSnapshot(vm_, fd, dumpOption, callback);
+}
+
 void ArkNativeEngine::DumpCpuProfile()
 {
     DFXJSNApi::DumpCpuProfile(vm_);
@@ -2580,7 +2592,8 @@ bool ArkNativeEngine::IsValidScriptBuffer(uint8_t* scriptBuffer, size_t bufferSi
 }
 
 // The security interface needs to be modified accordingly.
-napi_value ArkNativeEngine::RunScriptBuffer(const char* path, std::vector<uint8_t>& buffer, bool isBundle)
+napi_value ArkNativeEngine::RunScriptBuffer(const char* path, std::vector<uint8_t>& buffer, bool isBundle,
+    bool needUpdate)
 {
     if (!IsValidScriptBuffer(buffer.data(), buffer.size())) {
         HILOG_ERROR("invalid script buffer");
@@ -2593,7 +2606,7 @@ napi_value ArkNativeEngine::RunScriptBuffer(const char* path, std::vector<uint8_
     if (isBundle) {
         ret = panda::JSNApi::Execute(vm_, buffer.data(), buffer.size(), PANDA_MAIN_FUNCTION, path);
     } else {
-        ret = panda::JSNApi::ExecuteModuleBuffer(vm_, buffer.data(), buffer.size(), path);
+        ret = panda::JSNApi::ExecuteModuleBuffer(vm_, buffer.data(), buffer.size(), path, needUpdate);
     }
 
     if (panda::JSNApi::HasPendingException(vm_)) {

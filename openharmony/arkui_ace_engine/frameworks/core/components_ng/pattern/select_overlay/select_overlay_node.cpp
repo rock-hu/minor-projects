@@ -660,6 +660,7 @@ std::vector<OptionParam> GetOptionsParams(const std::shared_ptr<SelectOverlayInf
 
 std::unordered_map<std::string, std::function<void()>> GetSystemCallback(const std::shared_ptr<SelectOverlayInfo>& info)
 {
+    CHECK_NULL_RETURN(info, {});
     std::unordered_map<std::string, std::function<void()>> systemCallback = {
         { OH_DEFAULT_CUT, info->menuCallback.onCut }, { OH_DEFAULT_COPY, info->menuCallback.onCopy },
         { OH_DEFAULT_SELECT_ALL, info->menuCallback.onSelectAll }, { OH_DEFAULT_PASTE, info->menuCallback.onPaste },
@@ -748,6 +749,15 @@ std::string GetItemContent(const std::string& id, const std::string& content)
     return content;
 }
 
+void CloseOverlayIfNecessary(const RefPtr<SelectOverlayManager>& overlayManager)
+{
+    CHECK_NULL_VOID(overlayManager);
+    overlayManager->DestroySelectOverlay(true);
+    auto contentOverlayManager = overlayManager->GetSelectContentOverlayManager();
+    CHECK_NULL_VOID(contentOverlayManager);
+    contentOverlayManager->CloseCurrent(true, CloseReason::CLOSE_REASON_TOOL_BAR);
+}
+
 std::vector<OptionParam> GetCreateMenuOptionsParams(const std::vector<MenuOptionsParam>& menuOptionItems,
     const std::shared_ptr<SelectOverlayInfo>& info, int32_t startIndex)
 {
@@ -788,7 +798,7 @@ std::vector<OptionParam> GetCreateMenuOptionsParams(const std::vector<MenuOption
                 systemEvent();
             }
             if (!systemEvent && !result) {
-                overlayManager->DestroySelectOverlay(true);
+                CloseOverlayIfNecessary(overlayManager);
             }
         };
         params.emplace_back(
@@ -1581,7 +1591,7 @@ std::function<void(WeakPtr<NG::FrameNode>)> SelectOverlayNode::GetSymbolFunc(con
         symbol = [symbolId, symbolSize](WeakPtr<NG::FrameNode> weak) {
             auto node = weak.Upgrade();
             CHECK_NULL_VOID(node);
-            auto symbolNode = node.GetRawPtr();
+            auto symbolNode = Referenced::RawPtr(node);
             SymbolModelNG::InitialSymbol(symbolNode, symbolId);
             SymbolModelNG::SetFontSize(symbolNode, symbolSize);
         };
@@ -1809,9 +1819,9 @@ void SelectOverlayNode::AddCreateMenuExtensionMenuParams(const std::vector<MenuO
             auto symbolId = (symbolIdFunc->second)(textOverlayTheme);
             auto symbolSize = textOverlayTheme->GetSymbolSize();
             symbol = [symbolId, symbolSize](WeakPtr<NG::FrameNode> weak) {
-                auto symbolNode = weak.Upgrade().GetRawPtr();
-                SymbolModelNG::InitialSymbol(symbolNode, symbolId);
-                SymbolModelNG::SetFontSize(symbolNode, symbolSize);
+                auto symbolNode = weak.Upgrade();
+                SymbolModelNG::InitialSymbol(RawPtr(symbolNode), symbolId);
+                SymbolModelNG::SetFontSize(RawPtr(symbolNode), symbolSize);
             };
         }
         auto param = OptionParam(content, GetSystemIconPath(item.id, item.icon.value_or(" ")), callback, symbol);
