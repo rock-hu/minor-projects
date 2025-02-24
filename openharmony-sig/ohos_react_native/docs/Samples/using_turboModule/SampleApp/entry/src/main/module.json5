@@ -6,8 +6,8 @@
         "value": "false"
       },
       {
-        "name" :  "OPTLazyForEach",
-        "value":  "true"
+        "name": "OPTLazyForEach",
+        "value": "true"
       }
     ],
     "name": "entry",
@@ -22,9 +22,9 @@
     "deliveryWithInstall": true,
     "installationFree": false,
     "pages": "$profile:main_pages",
-    "requestPermissions":[
+    "requestPermissions": [
       {
-        "name" : "ohos.permission.INTERNET"
+        "name": "ohos.permission.INTERNET"
       },
     ],
     "abilities": [

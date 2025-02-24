@@ -142,7 +142,7 @@ Codegen 的详细使用方法，可以参考[Codegen](Codegen.md)文档。
 
 1. 创建用于实现模块的 `CalculatorModule.ts`。
 
-    在 `entry/src/main/ets` 路径下新建文件夹 `turbomodule`，并在文件夹中新增`CalculatorModule.ts`。
+    在 `entry/src/main/ets` 路径下新建文件夹 `turbomodule`，并在文件夹中新增 `CalculatorModule.ts`。
     如果是 ArkTSTurboModule，需要在此处实现：
 
     ```typescript
@@ -438,7 +438,7 @@ Codegen 的详细使用方法，可以参考[Codegen](Codegen.md)文档。
       - `hasTurboModule`：用于判断该 name 对应的 TurboModule 是否存在；
    - TurboModule 类 `CalculatorModule` 应该继承 `AnyThreadTurboModule`；
 
-2. 配置TurboModule运行在worker线程,需要继承RNability后重载`getRNOHWorkerScriptUrl`，代码修改方式如下所示：
+2. 配置TurboModule运行在worker线程,需要继承RNability后重载 `getRNOHWorkerScriptUrl` ，代码修改方式如下所示：
     ```typescript
     // entry/src/main/ets/entryability/EntryAbility.ets
     import {RNAbility} from '@rnoh/react-native-openharmony';
@@ -450,10 +450,10 @@ Codegen 的详细使用方法，可以参考[Codegen](Codegen.md)文档。
     ...
     }
     ```
-   在ets路径下右击，选择`New`选项，右侧展开菜单选择`Woker`选项： 
+   在ets路径下右击，选择 `New` 选项，右侧展开菜单选择 `Woker` 选项：  
    ![create_worker](./figures/create-worker.png)  
-   选择后在弹出的窗口中取名`RNOHWorker.ets`： 
-   ![christen_RNOHWorker](./figures/christen-RNOHWorker.png) 
+   选择后在弹出的窗口中取名 `RNOHWorker.ets`： 
+   ![christen_RNOHWorker](./figures/christen-RNOHWorker.png)   
    此时目录结构为:
     ```
     └── ets

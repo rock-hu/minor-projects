@@ -15,8 +15,8 @@ import {
   View,
 } from 'react-native';
 import { TestSuite, TestCase } from '@rnoh/testerino';
-import {useState, useRef} from 'react';
-import {Button, Effect, StateKeeper} from '../components';
+import { useState, useRef } from 'react';
+import { Button, Effect, StateKeeper } from '../components';
 
 export function TextInputTest() {
   return (
@@ -31,7 +31,7 @@ export function TextInputTest() {
       </TestCase>
       <TestCase modal itShould="render textInput with Pacifico Regular font">
         <TextInputWithText
-          style={[styles.textInput, {fontFamily: 'Pacifico-Regular'}]}
+          style={[styles.textInput, { fontFamily: 'Pacifico-Regular' }]}
         />
       </TestCase>
       <TestCase modal itShould="render textInput with caret hidden">
@@ -42,7 +42,7 @@ export function TextInputTest() {
           modal
           itShould="blur text on submit (singleline)"
           initialState={false}
-          arrange={({setState}) => {
+          arrange={({ setState }) => {
             return (
               <>
                 <TextInputWithText
@@ -53,7 +53,7 @@ export function TextInputTest() {
               </>
             );
           }}
-          assert={({expect, state}) => {
+          assert={({ expect, state }) => {
             expect(state).to.be.true;
           }}
         />
@@ -61,7 +61,7 @@ export function TextInputTest() {
           modal
           itShould="blur text after switching to another textinput"
           initialState={false}
-          arrange={({setState}) => {
+          arrange={({ setState }) => {
             return (
               <>
                 <TextInputWithText
@@ -75,7 +75,7 @@ export function TextInputTest() {
               </>
             );
           }}
-          assert={({expect, state}) => {
+          assert={({ expect, state }) => {
             expect(state).to.be.true;
           }}
         />
@@ -83,7 +83,7 @@ export function TextInputTest() {
           modal
           itShould="not blur text on submit"
           skip
-          //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/403
+        //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/403
         >
           <TextInputWithText style={styles.textInput} blurOnSubmit={false} />
           <TextInputWithText
@@ -96,14 +96,14 @@ export function TextInputTest() {
           modal
           itShould="automatically focus textInput when displayed"
           initialState={false}
-          arrange={({setState}) => (
+          arrange={({ setState }) => (
             <TextInputWithText
               style={styles.textInput}
               autoFocus
               onFocus={() => setState(true)}
             />
           )}
-          assert={({expect, state}) => {
+          assert={({ expect, state }) => {
             expect(state).to.be.true;
           }}
         />
@@ -111,13 +111,13 @@ export function TextInputTest() {
           modal
           itShould="focus textInput on click"
           initialState={false}
-          arrange={({setState}) => (
+          arrange={({ setState }) => (
             <TextInput
               style={styles.textInput}
               onFocus={() => setState(true)}
             />
           )}
-          assert={({expect, state}) => {
+          assert={({ expect, state }) => {
             expect(state).to.be.true;
           }}
         />
@@ -125,8 +125,8 @@ export function TextInputTest() {
           modal
           itShould="focus textInput when pressing the button"
           initialState={false}
-          arrange={({setState}) => <FocusTextInputTest setState={setState} />}
-          assert={({state, expect}) => {
+          arrange={({ setState }) => <FocusTextInputTest setState={setState} />}
+          assert={({ state, expect }) => {
             expect(state).to.be.true;
           }}
         />
@@ -135,7 +135,7 @@ export function TextInputTest() {
         modal
         itShould="render textInput with blue underline"
         skip
-        //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/404
+      //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/404
       >
         <TextInputWithText
           style={styles.textInput}
@@ -159,7 +159,7 @@ export function TextInputTest() {
         modal
         itShould="render multiline text input with Pacifico Regular font">
         <TextInputWithText
-          style={[styles.textInputBigger, {fontFamily: 'Pacifico-Regular'}]}
+          style={[styles.textInputBigger, { fontFamily: 'Pacifico-Regular' }]}
           multiline
         />
       </TestCase>
@@ -194,7 +194,7 @@ export function TextInputTest() {
         modal
         itShould="toggle between different capitalization modes"
         skip
-        //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/408
+      //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/408
       >
         <AutoCapitalize />
       </TestCase>
@@ -202,13 +202,13 @@ export function TextInputTest() {
         modal
         itShould="trigger onSubmitEditing event after submiting"
         initialState={false}
-        arrange={({setState}) => (
+        arrange={({ setState }) => (
           <TextInputWithText
             style={styles.textInput}
             onSubmitEditing={() => setState(true)}
           />
         )}
-        assert={({expect, state}) => {
+        assert={({ expect, state }) => {
           expect(state).to.be.true;
         }}
       />
@@ -224,14 +224,14 @@ export function TextInputTest() {
         //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/736
         itShould="trigger onKeyPress event after pressing key (press 'A' to pass)"
         initialState={''}
-        arrange={({setState}) => (
+        arrange={({ setState }) => (
           <TextInputWithText
             style={styles.textInput}
             autoFocus
             onKeyPress={event => setState(event.nativeEvent.key)}
           />
         )}
-        assert={({expect, state}) => {
+        assert={({ expect, state }) => {
           expect(state).to.be.eq('A');
         }}
       />
@@ -242,7 +242,7 @@ export function TextInputTest() {
         modal
         itShould="trigger onLayout event on mount"
         initialState={{}}
-        arrange={({setState, state}) => {
+        arrange={({ setState, state }) => {
           return (
             <>
               <Text>{JSON.stringify(state)}</Text>
@@ -255,7 +255,7 @@ export function TextInputTest() {
             </>
           );
         }}
-        assert={({expect, state}) => {
+        assert={({ expect, state }) => {
           expect(state).to.include.all.keys('width', 'height', 'x', 'y');
         }}
       />
@@ -284,18 +284,18 @@ export function TextInputTest() {
           defaultValue="Not scaled"
         />
         <TextInputWithText
-          style={[styles.textInput, {fontSize: 40}]}
+          style={[styles.textInput, { fontSize: 40 }]}
           allowFontScaling={true}
           defaultValue="Scaled big"
         />
         <TextInputWithText
-          style={[styles.textInput, {fontSize: 40}]}
+          style={[styles.textInput, { fontSize: 40 }]}
           allowFontScaling={false}
           defaultValue="Not scaled big"
         />
       </TestCase>
       <TestCase itShould="show textInput with padding" modal>
-        <View style={{width: 300, height: 200}}>
+        <View style={{ width: 300, height: 200 }}>
           <TextInputWithText
             style={{
               paddingLeft: 10,
@@ -308,7 +308,7 @@ export function TextInputTest() {
         </View>
       </TestCase>
       <TestCase itShould="show textInput multiline with padding" modal>
-        <View style={{width: 300, height: 200}}>
+        <View style={{ width: 300, height: 200 }}>
           <TextInputWithText
             style={{
               paddingLeft: 10,
@@ -340,7 +340,7 @@ export function TextInputTest() {
         />
       </TestCase>
       <TestCase modal itShould="render textinput with red text color">
-        <TextInputWithText style={[styles.textInput, {color: 'red'}]} />
+        <TextInputWithText style={[styles.textInput, { color: 'red' }]} />
       </TestCase>
       <TestCase modal itShould="clear text on focus">
         {/* iOS only */}
@@ -366,7 +366,7 @@ const TextInputKeyboardType = (props: TextInputProps) => {
     <>
       <Text>{props.keyboardType}</Text>
       <TextInput
-        style={{...styles.textInputSmall, marginBottom: 10}}
+        style={{ ...styles.textInputSmall, marginBottom: 10 }}
         keyboardType={props.keyboardType}
       />
     </>

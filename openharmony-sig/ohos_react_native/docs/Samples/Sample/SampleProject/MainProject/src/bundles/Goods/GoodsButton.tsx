@@ -6,13 +6,13 @@
  */
 
 import React from 'react';
-import {Pressable, Text, StyleSheet} from 'react-native';
+import { Pressable, Text, StyleSheet } from 'react-native';
 
-const GoodsButton = ({onPress, buttonText}) => {
+const GoodsButton = ({ onPress, buttonText }) => {
   return (
     <Pressable
       style={styles.textContainer}
-      hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}
+      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
       onPress={onPress}>
       <Text style={styles.titleTextFont}>{buttonText}</Text>
     </Pressable>

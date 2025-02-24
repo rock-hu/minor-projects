@@ -117,8 +117,7 @@ export default abstract class AxisRenderer extends Renderer {
    * @param min - the minimum value in the data object for this axis
    * @param max - the maximum value in the data object for this axis
    */
-  public computeAxis(min: number, max: number, inverted: boolean) {
-
+  public computeAxis(min: number, max: number, inverted: boolean, customYAxisLabels?: number[]) {
     // calculate the starting and entry point of the y-labels (depending on
     // zoom / contentrect bounds)
     if (this.mTrans && this.mViewPortHandler != null && this.mViewPortHandler.contentWidth() > 10 && !this.mViewPortHandler.isFullyZoomedOutY()) {
@@ -141,8 +140,17 @@ export default abstract class AxisRenderer extends Renderer {
         MPPointD.recycleInstance(p2);
       }
     }
-
-    this.computeAxisValues(min, max);
+    let filterCustomYAxis: number[] = [];
+    if (customYAxisLabels != null && customYAxisLabels != undefined && customYAxisLabels.length > 0) {
+      let i: number = 0;
+      for (let index = 0; index < customYAxisLabels.length; index++) {
+        if (customYAxisLabels[index] > min && customYAxisLabels[index] < max) {
+          filterCustomYAxis[i] = customYAxisLabels[index];
+          i++;
+        }
+      }
+    }
+    this.computeAxisValues(min, max, filterCustomYAxis);
   }
 
   /**
@@ -150,7 +158,7 @@ export default abstract class AxisRenderer extends Renderer {
    *
    * @return
    */
-  protected computeAxisValues(min: number, max: number) {
+  protected computeAxisValues(min: number, max: number, customYAxisLabels?: number[]) {
     let yMin = min;
     let yMax = max;
 
@@ -192,21 +200,57 @@ export default abstract class AxisRenderer extends Renderer {
       if (this.mAxis.isForceLabelsEnabled()) {
 
         interval = range / (labelCount - 1);
-        this.mAxis.mEntryCount = labelCount;
-
-        if (this.mAxis.mEntries.length < labelCount) {
-          // Ensure stops contains at least numStops elements.
+        if (customYAxisLabels != null && customYAxisLabels != undefined && customYAxisLabels.length > 0){
+          this.mAxis.mEntryCount = labelCount + customYAxisLabels.length;
+        } else {
+          this.mAxis.mEntryCount = labelCount;
+        }
+        // Ensure stops contains at least numStops elements.
+        if (customYAxisLabels != null && customYAxisLabels != undefined && customYAxisLabels.length > 0){
+          this.mAxis.mEntries = new Array<number>(labelCount + customYAxisLabels.length );
+        } else {
           this.mAxis.mEntries = new Array<number>(labelCount);
         }
 
         let v = min;
-
-        for (let i = 0; i < labelCount; i++) {
-          this.mAxis.mEntries[i] = v;
-          v += interval;
+        if (customYAxisLabels != null && customYAxisLabels != undefined&& customYAxisLabels.length > 0) {
+          let index: number = 0
+          let customYAxisIndex: number = 0;
+          for (let i = 0; i < labelCount; i++) {
+            for (customYAxisIndex; customYAxisIndex < customYAxisLabels.length; customYAxisIndex++) {
+              if ((v - interval) < customYAxisLabels[customYAxisIndex] && customYAxisLabels[customYAxisIndex] <= v) {
+                if (this.mAxis.mEntries.indexOf(customYAxisLabels[customYAxisIndex]) < 0) {
+                  this.mAxis.mEntries[index] = customYAxisLabels[customYAxisIndex]
+                  index++;
+                }
+              } else {
+                break;
+              }
+            }
+            if (this.mAxis.mEntries.indexOf(Math.round(v)) < 0) {
+              this.mAxis.mEntries[index] = v;
+              index++;
+            }
+            v += interval;
+          }
+          //Data below the maximum value is not within the range, but should be displayed
+          if (customYAxisIndex < customYAxisLabels.length) {
+            for (let y = customYAxisIndex; y < customYAxisLabels.length; y++) {
+              this.mAxis.mEntries[index] = customYAxisLabels[y];
+              index ++;
+            }
+          }
+        } else {
+          for (let i = 0; i < labelCount; i++) {
+            this.mAxis.mEntries[i] = v;
+            v += interval;
+          }
         }
-
-        n = labelCount;
+        if (customYAxisLabels != null && customYAxisLabels != undefined && customYAxisLabels.length > 0) {
+          n = labelCount + customYAxisLabels.length;
+        } else {
+          n = labelCount;
+        }
 
         // no forced count
       } else {
@@ -215,9 +259,7 @@ export default abstract class AxisRenderer extends Renderer {
         if (this.mAxis.isCenterAxisLabelsEnabled()) {
           first -= interval;
         }
-
         let last = interval == 0.0 ? 0.0 : Utils.nextUp(Math.floor(yMax / interval) * interval);
-
         let f: number = 0;
         let i: number = 0;
 
@@ -225,24 +267,54 @@ export default abstract class AxisRenderer extends Renderer {
           for (f = first; f <= last; f += interval) {
             ++n;
           }
-        }
-        else if (last == first && n == 0) {
+        } else if (last == first && n == 0) {
           n = 1;
         }
-
-        this.mAxis.mEntryCount = n;
-
-        if (this.mAxis.mEntries.length < n) {
-          // Ensure stops contains at least numStops elements.
+        if (customYAxisLabels != null && customYAxisLabels != undefined && customYAxisLabels.length > 0){
+          this.mAxis.mEntryCount = n + customYAxisLabels.length;
+        } else {
+          this.mAxis.mEntryCount = n;
+        }
+        if (customYAxisLabels) {
+          this.mAxis.mEntries = new Array<number>(n + customYAxisLabels.length);
+        } else {
           this.mAxis.mEntries = new Array<number>(n);
         }
+        if (customYAxisLabels) {
+          let customYAxisIndex : number = 0;
+          let index : number = 0
+          for (f = first, i = 0; i < n; f += interval, ++i) {
+            if (f == 0.0) // Fix for negative zero case (Where value == -0.0, and 0.0 == -0.0)
+              f = 0.0;
+            for (customYAxisIndex; customYAxisIndex < customYAxisLabels.length ; customYAxisIndex ++ ) {
+              if ((f - interval) < customYAxisLabels[customYAxisIndex] && customYAxisLabels[customYAxisIndex] <= f) {
+                if (this.mAxis.mEntries.indexOf(customYAxisLabels[customYAxisIndex]) < 0) {
+                  this.mAxis.mEntries[index] = customYAxisLabels[customYAxisIndex]
+                  index ++;
+                }
+              } else {
+                break;
+              }
+            }
+            if (this.mAxis.mEntries.indexOf(f) < 0) {
+              this.mAxis.mEntries[index] = f;
+              index ++;
+            }
+          }
+          //Data below the maximum value is not within the range, but should be displayed
+          if (customYAxisIndex < customYAxisLabels.length) {
+            for (let y = customYAxisIndex; y < customYAxisLabels.length; y++) {
+              this.mAxis.mEntries[index] = customYAxisLabels[y];
+              index ++;
+            }
+          }
+        } else {
+          for (f = first, i = 0; i < n; f += interval, ++i) {
+            if (f == 0.0) // Fix for negative zero case (Where value == -0.0, and 0.0 == -0.0)
+              f = 0.0;
 
-        for (f = first, i = 0; i < n; f += interval, ++i) {
-
-          if (f == 0.0) // Fix for negative zero case (Where value == -0.0, and 0.0 == -0.0)
-            f = 0.0;
-
-          this.mAxis.mEntries[i] = f;
+            this.mAxis.mEntries[i] = f;
+          }
         }
       }
 

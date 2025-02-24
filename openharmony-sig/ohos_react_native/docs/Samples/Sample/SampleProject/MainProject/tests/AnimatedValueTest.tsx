@@ -5,10 +5,10 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-import React, {useEffect, useRef, useState} from 'react';
-import {Animated, View, Text} from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Animated, View, Text } from 'react-native';
 import { TestCase, TestSuite } from '@rnoh/testerino';
-import {Button, Effect} from '../components';
+import { Button, Effect } from '../components';
 
 export function AnimatedValueTest() {
   return (
@@ -17,10 +17,10 @@ export function AnimatedValueTest() {
         <TestCase
           itShould="move square 200px to the right and stop animation on pressing setValue"
           initialState={0}
-          arrange={({setState}) => (
+          arrange={({ setState }) => (
             <SetValueView singular setState={setState} />
           )}
-          assert={({expect, state}) => {
+          assert={({ expect, state }) => {
             expect(state).to.be.eq(200);
           }}
         />
@@ -35,8 +35,8 @@ export function AnimatedValueTest() {
         <TestCase
           itShould="move square 100px to the right and stop animation on pressing setValue"
           initialState={0}
-          arrange={({setState}) => <SetValueView setState={setState} />}
-          assert={({expect, state}) => {
+          arrange={({ setState }) => <SetValueView setState={setState} />}
+          assert={({ expect, state }) => {
             expect(state).to.be.eq(100);
           }}
         />
@@ -49,8 +49,8 @@ export function AnimatedValueTest() {
         <TestCase<Object>
           itShould="get layout of animated value on press"
           initialState={{}}
-          arrange={({setState}) => {
-            const animValue = new Animated.ValueXY({x: 1, y: 1});
+          arrange={({ setState }) => {
+            const animValue = new Animated.ValueXY({ x: 1, y: 1 });
             return (
               <Effect
                 onMount={() => {
@@ -59,9 +59,9 @@ export function AnimatedValueTest() {
               />
             );
           }}
-          assert={({state, expect}) => {
+          assert={({ state, expect }) => {
             expect(JSON.stringify(state)).to.be.eq(
-              JSON.stringify({left: 1, top: 1}),
+              JSON.stringify({ left: 1, top: 1 }),
             );
           }}
         />
@@ -92,7 +92,7 @@ const ExtractOffsetView = () => {
     ]),
   );
   return (
-    <View style={{width: '100%'}}>
+    <View style={{ width: '100%' }}>
       <Animated.View
         style={{
           height: 20,
@@ -106,7 +106,7 @@ const ExtractOffsetView = () => {
           ],
         }}
       />
-      <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
         <Button
           label="start"
           onPress={() => {
@@ -138,7 +138,7 @@ const FlattenOffsetView = () => {
   );
   value.setOffset(100);
   return (
-    <View style={{width: '100%'}}>
+    <View style={{ width: '100%' }}>
       <Animated.View
         style={{
           height: 20,
@@ -152,7 +152,7 @@ const FlattenOffsetView = () => {
           ],
         }}
       />
-      <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
         <Button
           label="start"
           onPress={() => {
@@ -171,9 +171,9 @@ const FlattenOffsetView = () => {
     </View>
   );
 };
-const SetOffsetView = (props: {singular: boolean}) => {
+const SetOffsetView = (props: { singular: boolean }) => {
   const animValue = useRef(new Animated.Value(0)).current;
-  const animValueXY = useRef(new Animated.ValueXY({x: 0, y: 0})).current;
+  const animValueXY = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current;
   if (props.singular) {
     return (
       <MovingSquare
@@ -187,18 +187,18 @@ const SetOffsetView = (props: {singular: boolean}) => {
       <MovingSquareXY
         animValueXY={animValueXY}
         labels={['set offset']}
-        onPresses={[() => animValueXY.setOffset({x: 100, y: 0})]}
+        onPresses={[() => animValueXY.setOffset({ x: 100, y: 0 })]}
       />
     );
   }
 };
 
-const ListenerView = (props: {singular: boolean}) => {
+const ListenerView = (props: { singular: boolean }) => {
   const [text, setText] = useState('');
   const [listeners, setListeners] = useState<string[]>([]);
   const animValue = useRef(new Animated.Value(0)).current;
-  const animValueXY = useRef(new Animated.ValueXY({x: 0, y: 0})).current;
-  const listener = () => {};
+  const animValueXY = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current;
+  const listener = () => { };
   const addListener = () => {
     listeners.push(animValue.addListener(listener));
     setListeners(listeners);
@@ -247,17 +247,17 @@ const SetValueView = (props: {
   setState: React.Dispatch<React.SetStateAction<number>>;
 }) => {
   const animValue = useRef(new Animated.Value(0)).current;
-  const animValueXY = useRef(new Animated.ValueXY({x: 0, y: 0})).current;
+  const animValueXY = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current;
 
   useEffect(() => {
     if (props.singular) {
-      animValue.addListener(({value}) => {
+      animValue.addListener(({ value }) => {
         if (value === 200) {
           props.setState(value);
         }
       });
     } else {
-      animValueXY.addListener(({x}) => {
+      animValueXY.addListener(({ x }) => {
         if (x === 100) {
           props.setState(x);
         }
@@ -278,7 +278,7 @@ const SetValueView = (props: {
       <MovingSquareXY
         animValueXY={animValueXY}
         labels={['set valueXY']}
-        onPresses={[() => animValueXY.setValue({x: 100, y: 0})]}
+        onPresses={[() => animValueXY.setValue({ x: 100, y: 0 })]}
       />
     );
   }
@@ -319,7 +319,7 @@ const MovingSquare = (props: {
     <Button label={value} onPress={props.onPresses[index]} key={index} />
   ));
   return (
-    <View style={{width: '100%'}}>
+    <View style={{ width: '100%' }}>
       <Animated.View
         style={{
           height: 20,
@@ -333,7 +333,7 @@ const MovingSquare = (props: {
           ],
         }}
       />
-      <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
         <Button label="animate" onPress={animate} />
         {buttons}
       </View>
@@ -350,12 +350,12 @@ const MovingSquareXY = (props: {
   const animation = Animated.loop(
     Animated.sequence([
       Animated.timing(props.animValueXY, {
-        toValue: {x: 25, y: 25},
+        toValue: { x: 25, y: 25 },
         duration: 500,
         useNativeDriver: true,
       }),
       Animated.timing(props.animValueXY, {
-        toValue: {x: 0, y: 0},
+        toValue: { x: 0, y: 0 },
         duration: 500,
         useNativeDriver: true,
       }),
@@ -364,7 +364,7 @@ const MovingSquareXY = (props: {
   const animate = () => {
     if (isRunning) {
       animation.stop();
-      props.animValueXY.setOffset({x: 0, y: 0});
+      props.animValueXY.setOffset({ x: 0, y: 0 });
       setIsRunning(false);
     } else {
       setIsRunning(true);
@@ -375,7 +375,7 @@ const MovingSquareXY = (props: {
     <Button label={value} onPress={props.onPresses[index]} key={index} />
   ));
   return (
-    <View style={{width: '100%', height: 100}}>
+    <View style={{ width: '100%', height: 100 }}>
       <Animated.View
         style={{
           height: 20,
@@ -386,11 +386,11 @@ const MovingSquareXY = (props: {
             {
               translateX: props.animValueXY.x,
             },
-            {translateY: props.animValueXY.y},
+            { translateY: props.animValueXY.y },
           ],
         }}
       />
-      <View style={{flexDirection: 'row', flexWrap: 'wrap', marginTop: 20}}>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 20 }}>
         <Button label="animate" onPress={animate} />
         {buttons}
       </View>

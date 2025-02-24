@@ -12,8 +12,7 @@
   },
   "dependencies": {
     "react": "18.2.0",
-    "react-native": "0.72.5",
-    "react-native-harmony": "file:../react-native-harmony/rnoh-react-native-harmony-xxx.tgz"
+    "react-native": "0.72.5"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

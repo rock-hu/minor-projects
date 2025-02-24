@@ -5,12 +5,12 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-import React, {useState} from 'react';
-import {Animated, View, Button, StyleSheet, Text} from 'react-native';
+import React, { useState } from 'react';
+import { Animated, View, Button, StyleSheet, Text } from 'react-native';
 
 export function AnimatedRenderExample() {
   const translateXYalue = React.useRef(
-    new Animated.ValueXY({x: 0, y: 0}),
+    new Animated.ValueXY({ x: 0, y: 0 }),
   ).current;
   const [num, setNum] = useState(0);
   const [animated, setAnimated] = useState(true);
@@ -18,7 +18,7 @@ export function AnimatedRenderExample() {
   const onPress = React.useRef(
     Animated.loop(
       Animated.timing(translateXYalue, {
-        toValue: {x: 100, y: 100},
+        toValue: { x: 100, y: 100 },
         useNativeDriver: true,
       }),
     ),
@@ -38,10 +38,10 @@ export function AnimatedRenderExample() {
       <Animated.View
         style={[
           styles.viewBlock,
-          {marginBottom: 100},
+          { marginBottom: 100 },
           animated
-            ? {transform: translateXYalue.getTranslateTransform()}
-            : {transform: [{translateX: 50}, {translateY: 50}]},
+            ? { transform: translateXYalue.getTranslateTransform() }
+            : { transform: [{ translateX: 50 }, { translateY: 50 }] },
         ]}
       />
       <Text>{num}</Text>

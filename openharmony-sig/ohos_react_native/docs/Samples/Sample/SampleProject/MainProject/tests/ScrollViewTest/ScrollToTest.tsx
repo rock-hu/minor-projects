@@ -6,10 +6,10 @@
  */
 
 import { TestSuite, TestCase } from '@rnoh/testerino';
-import {View, ScrollView, StyleSheet, ScrollViewProps} from 'react-native';
-import {COMMON_PROPS} from './fixtures';
+import { View, ScrollView, StyleSheet, ScrollViewProps } from 'react-native';
+import { COMMON_PROPS } from './fixtures';
 import React from 'react';
-import {Button} from '../../components';
+import { Button } from '../../components';
 
 export function ScrollToTest() {
   return (
@@ -24,13 +24,13 @@ export function ScrollToTest() {
         modal
         itShould="call onScroll once when scrolling without animation"
         initialState={0}
-        arrange={({setState}) => (
+        arrange={({ setState }) => (
           <ScrollToTestCase
             animated={false}
             onScroll={() => setState(c => c + 1)}
           />
         )}
-        assert={({state, expect}) => {
+        assert={({ state, expect }) => {
           expect(state).to.eq(1);
         }}
       />
@@ -39,7 +39,7 @@ export function ScrollToTest() {
         itShould="call onScroll multiple times when scrolling with animation"
         initialState={0}
         arrange={AnimatedScrollToEventCountTestCase}
-        assert={({state, expect}) => {
+        assert={({ state, expect }) => {
           expect(state).to.be.greaterThan(10);
         }}
       />
@@ -50,11 +50,11 @@ export function ScrollToTest() {
 function ScrollToTestCase({
   animated,
   onScroll,
-}: {animated: boolean} & ScrollViewProps) {
+}: { animated: boolean } & ScrollViewProps) {
   const scrollToOffset = 600;
   const scrollRef = React.useRef<ScrollView>(null);
   const scrollTo = () => {
-    scrollRef.current?.scrollTo({y: scrollToOffset, animated});
+    scrollRef.current?.scrollTo({ y: scrollToOffset, animated });
   };
 
   return (

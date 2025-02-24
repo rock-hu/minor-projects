@@ -7,8 +7,8 @@
 
 import { TestCase, TestSuite } from '@rnoh/testerino';
 import React from 'react';
-import {StyleSheet, View, DevSettings} from 'react-native';
-import {Button} from '../components';
+import { StyleSheet, View, DevSettings } from 'react-native';
+import { Button } from '../components';
 
 export const DevSettingsTest = () => {
   return (
@@ -16,8 +16,8 @@ export const DevSettingsTest = () => {
       <TestCase
         itShould="add custom DevMenu item and react to presses after opening DevMenu"
         initialState={false}
-        arrange={({setState}) => <AddMenuItemTest setState={setState} />}
-        assert={({state, expect}) => {
+        arrange={({ setState }) => <AddMenuItemTest setState={setState} />}
+        assert={({ state, expect }) => {
           expect(state).to.be.true;
         }}
       />

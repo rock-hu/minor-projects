@@ -18,14 +18,13 @@ import {
   RNOHError,
   WorkerRNInstanceInternal,
   WorkerTurboModule,
-  WorkerTurboModuleContext,
   SafeAreaInsetsProvider,
   AnyThreadTurboModule,
-  AnyThreadTurboModuleFactory
 } from "./RNOH/ts"
 import { RNOHCorePackage } from "./RNOHCorePackage/Package"
 import { EtsWorkerTurboModuleContext } from "./RNOH/EtsRNOHContext"
 import { UITaskRunner, UITask } from "./RNOH/UITaskRunner"
+import { WorkerTask } from "./RNOH/WorkerTaskRunner"
 import common from '@ohos.app.ability.common'
 
 
@@ -123,6 +122,12 @@ interface WorkerTurboModuleDeps {
   turboModuleProvider: TurboModuleProvider<WorkerTurboModule | AnyThreadTurboModule>
 }
 
+interface WorkerScheduleTaskResultPayload {
+  rnInstanceId: number
+  taskId: string,
+  result: lang.ISendable | undefined
+}
+
 /**
  * @api: RN_APP_DEVELOPER
  * @thread: WORKER
@@ -185,7 +190,9 @@ export async function setupRNOHWorker(config: RNOHWorkerConfig) {
             turboModuleProvider =
               await createTurboModuleProvider(etsWorkerTurboModuleContext, packages, localLogger)
             turboModuleDepsByRNInstanceId.set(rnInstanceId, {
-              uiTaskRunner, rnInstance, turboModuleProvider
+              uiTaskRunner,
+              rnInstance,
+              turboModuleProvider,
             })
             napiBridge.registerWorkerTurboModuleProvider(turboModuleProvider, rnInstanceId)
             localLogger.info("registered WorkerTurboModuleProvider")
@@ -228,6 +235,23 @@ export async function setupRNOHWorker(config: RNOHWorkerConfig) {
             turboModuleDepsByRNInstanceId.delete(destroyWorkerRNInstancePayload.rnInstanceId)
             postMessage("RNOH_DESTROY_WORKER_RN_INSTANCE_ACK",
               new DestroyWorkerRNInstanceAckPayload(destroyWorkerRNInstancePayload.rnInstanceId))
+            break;
+          case "RNOH_WORKER_SCHEDULE_TASK":
+            const task = messagePayload as WorkerTask;
+            const rnInstanceId = task.rnInstanceId;
+            const turboModuleDeps = turboModuleDepsByRNInstanceId.get(rnInstanceId);
+            if (!turboModuleDeps) {
+              throw new RNOHError({
+                whatHappened: "Tried to schedule task in a not existing WorkerRNInstance",
+                howCanItBeFixed: []
+              })
+            }
+            const result = task.runnable.run(turboModuleDeps.rnInstance, task.params);
+            postMessage("RNOH_WORKER_SCHEDULE_TASK_RESULT", {
+              rnInstanceId,
+              taskId: task.id,
+              result
+            } as WorkerScheduleTaskResultPayload);
             break;
         }
       }

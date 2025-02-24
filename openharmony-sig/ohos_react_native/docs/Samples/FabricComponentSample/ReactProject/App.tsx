@@ -52,12 +52,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-   backgroundColor: 'green',
-   color: 'white',
-   fontSize: 20,
-   padding: 8,
-   textAlign: 'center'
+    backgroundColor: 'green',
+    color: 'white',
+    fontSize: 20,
+    padding: 8,
+    textAlign: 'center'
   }
- });
+});
 
 export default App;

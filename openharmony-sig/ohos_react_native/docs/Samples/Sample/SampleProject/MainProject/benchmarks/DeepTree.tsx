@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import {StyleSheet, View, ViewProps} from 'react-native';
+import { StyleSheet, View, ViewProps } from 'react-native';
 
 export function DeepTree({
   breadth,
@@ -23,7 +23,7 @@ export function DeepTree({
     <Box color={id % 3} layout={depth % 2 === 0 ? 'row' : 'column'} outer>
       {depth === 0 && <Box color={(id % 3) + 3} fixed />}
       {depth !== 0 &&
-        Array.from({length: breadth}).map((el, i) => (
+        Array.from({ length: breadth }).map((el, i) => (
           <DeepTree
             breadth={breadth}
             depth={depth - 1}

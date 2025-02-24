@@ -6,7 +6,7 @@
  */
 
 import * as React from 'react';
-import {useState, useRef} from 'react';
+import { useState, useRef } from 'react';
 import {
   Text,
   StyleSheet,
@@ -57,7 +57,7 @@ function AppGoods() {
         <MarqueeView
           src="双十一大促，消费是社会再生产过程中的一个重要环节，也是最终环节。它是指利用社会产品来满足人们各种需要的过程。"
           ref={nativeRef}
-          style={{height: 180, width: '100%', backgroundColor: '#1980E6'}}
+          style={{ height: 180, width: '100%', backgroundColor: '#1980E6' }}
           onStop={(e) => {
             SampleTurboModule.rnLog(
               'native调用了RN的 onStop，isStop = ' + e.nativeEvent.isStop,
@@ -66,12 +66,12 @@ function AppGoods() {
           }}
         />
 
-      if (isCAPI) {
+        if (isCAPI) {
           <ButtonView
             buttonText={'ButtonView: ' + (buttonClick ? 'Click' : 'No Click')}
             ref={nativeRefButton}
-            style={{height: 50, width: 200, backgroundColor: 'blue'}}
-        onButtonClick={(e) => {
+            style={{ height: 50, width: 200, backgroundColor: 'blue' }}
+            onButtonClick={(e) => {
               setButtonClick(e.nativeEvent.isButtonClick);
             }}
           />
@@ -162,7 +162,7 @@ function AppGoods() {
         <GoodsButton
           buttonText={'•调用TurboModule2的getObject方法'}
           onPress={() => {
-            SampleTurboModule2.getObject({x: 100});
+            SampleTurboModule2.getObject({ x: 100 });
           }}
         />
         <GoodsButton
@@ -197,7 +197,7 @@ function AppGoods() {
                   '调用TurboModule2的checkPwd回调了success',
                 );
               },
-              () => {},
+              () => { },
             );
           }}
         />
@@ -206,7 +206,7 @@ function AppGoods() {
             '•点击上方的跑马灯接收原生发送的消息：native -> js = ' +
             nativeEmitterParam
           }
-          onPress={() => {}}
+          onPress={() => { }}
         />
         <GoodsButton
           buttonText={

@@ -13,8 +13,8 @@ import {
   StyleSheet,
 } from 'react-native';
 import { TestCase, TestSuite } from '@rnoh/testerino';
-import {useState} from 'react';
-import {Button} from '../components';
+import { useState } from 'react';
+import { Button } from '../components';
 
 if (
   Platform.OS === 'android' &&
@@ -59,7 +59,7 @@ function LayoutAnimationExample() {
             setTimeout(() => {
               LayoutAnimation.configureNext({
                 duration: 500,
-                update: {type: 'spring'},
+                update: { type: 'spring' },
               });
               setBoxPosition('right');
               setTimeout(() => {
@@ -91,7 +91,7 @@ function LayoutAnimationExample() {
               backgroundColor: 'orange',
               position: 'absolute',
             },
-            boxPosition === 'left' ? null : {left: 200},
+            boxPosition === 'left' ? null : { left: 200 },
           ])}
         />
       )}

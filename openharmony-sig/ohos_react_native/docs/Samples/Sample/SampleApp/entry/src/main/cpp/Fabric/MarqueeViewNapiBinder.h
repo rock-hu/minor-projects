@@ -5,7 +5,6 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-
 #pragma once
 //#include "MarqueeViewComponentDescriptor.h"
 #include "RNOHCorePackage/ComponentBinders/ViewComponentNapiBinder.h"

@@ -5,4 +5,5 @@
 *.drawio.*
 package-lock.json
 # build
+tester/harmony/react_native_openharmony/src/main/cpp/include
 .hvigor/

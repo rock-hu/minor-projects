@@ -16,8 +16,8 @@ import { BusinessError } from '@kit.BasicServicesKit';
 import common from '@ohos.app.ability.common';
 import window from '@ohos.window';
 
-export class UPRNSDKImpl{
-  private context:common.UIAbilityContext | null = null;
+export class UPRNSDKImpl {
+  private context: common.UIAbilityContext | null = null;
   protected isDebugModeEnabled_: boolean = true
   private rnInstancesCoordinator!: RNInstancesCoordinator
   private logger!: RNOHLogger
@@ -58,7 +58,7 @@ export class UPRNSDKImpl{
     AppStorage.setOrCreate('RNOHCoreContext', this.rnInstancesCoordinator.getRNOHCoreContext())
   }
 
-  public async onAppSetup(windowStage: window.WindowStage){
+  public async onAppSetup(windowStage: window.WindowStage) {
     const mainWindow = await windowStage.getMainWindow();
     const onWindowSizeChange = (windowSize: window.Size) => {
       this.rnInstancesCoordinator?.onWindowSizeChange(windowSize)
@@ -75,6 +75,7 @@ export class UPRNSDKImpl{
     stopTracing()
     return true;
   }
+
   /**
    * Invoked when the React application doesn't handle the device back press.
    */
@@ -86,7 +87,6 @@ export class UPRNSDKImpl{
    * @returns HttpClient shared by RNInstances
    */
   protected onCreateDefaultHttpClient(): undefined | HttpClient {
-    return new DefaultHttpClient({logger: this.logger});
+    return new DefaultHttpClient({ logger: this.logger });
   }
-
 }

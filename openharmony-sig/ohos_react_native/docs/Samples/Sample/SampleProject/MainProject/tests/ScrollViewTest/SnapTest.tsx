@@ -6,8 +6,8 @@
  */
 
 import { TestCase, TestSuite } from '@rnoh/testerino';
-import {ScrollViewProps} from 'react-native';
-import {ScrollViewComparator, getScrollViewContent} from './fixtures';
+import { ScrollViewProps } from 'react-native';
+import { ScrollViewComparator, getScrollViewContent } from './fixtures';
 
 const ITEM_HEIGHT = 50;
 
@@ -16,19 +16,19 @@ export function SnapTest() {
     <>
       <TestSuite name="snapTo*">
         <SnapTestCases
-          scrollViewProps={{disableIntervalMomentum: false, horizontal: false}}
+          scrollViewProps={{ disableIntervalMomentum: false, horizontal: false }}
         />
       </TestSuite>
       <TestSuite name="disableIntervalMomentum">
         <SnapTestCases
-          scrollViewProps={{disableIntervalMomentum: true, horizontal: false}}
+          scrollViewProps={{ disableIntervalMomentum: true, horizontal: false }}
         />
       </TestSuite>
     </>
   );
 }
 
-function SnapTestCases(props: {scrollViewProps: ScrollViewProps}) {
+function SnapTestCases(props: { scrollViewProps: ScrollViewProps }) {
   return (
     <>
       <TestCase
@@ -39,10 +39,10 @@ function SnapTestCases(props: {scrollViewProps: ScrollViewProps}) {
           commonProps={{
             ...props.scrollViewProps,
             snapToOffsets: [ITEM_HEIGHT * 5],
-            children: getScrollViewContent({amountOfChildren: 25}),
+            children: getScrollViewContent({ amountOfChildren: 25 }),
           }}
-          lhsProps={{snapToEnd: true}}
-          rhsProps={{snapToEnd: false}}
+          lhsProps={{ snapToEnd: true }}
+          rhsProps={{ snapToEnd: false }}
         />
       </TestCase>
       <TestCase
@@ -53,10 +53,10 @@ function SnapTestCases(props: {scrollViewProps: ScrollViewProps}) {
           commonProps={{
             ...props.scrollViewProps,
             snapToOffsets: [ITEM_HEIGHT * 5],
-            children: getScrollViewContent({amountOfChildren: 25}),
+            children: getScrollViewContent({ amountOfChildren: 25 }),
           }}
-          lhsProps={{snapToStart: true}}
-          rhsProps={{snapToStart: false}}
+          lhsProps={{ snapToStart: true }}
+          rhsProps={{ snapToStart: false }}
         />
       </TestCase>
       <TestCase modal itShould="snap to page">
@@ -64,10 +64,10 @@ function SnapTestCases(props: {scrollViewProps: ScrollViewProps}) {
           scrollViewLength={ITEM_HEIGHT * 5}
           commonProps={{
             ...props.scrollViewProps,
-            children: getScrollViewContent({amountOfChildren: 25}),
+            children: getScrollViewContent({ amountOfChildren: 25 }),
           }}
-          lhsProps={{pagingEnabled: false}}
-          rhsProps={{pagingEnabled: true}}
+          lhsProps={{ pagingEnabled: false }}
+          rhsProps={{ pagingEnabled: true }}
         />
       </TestCase>
       <TestCase modal itShould="snap to item 1, 3, 5, 7, 9, ...">
@@ -75,10 +75,10 @@ function SnapTestCases(props: {scrollViewProps: ScrollViewProps}) {
           scrollViewLength={ITEM_HEIGHT * 5}
           commonProps={{
             ...props.scrollViewProps,
-            children: getScrollViewContent({amountOfChildren: 25}),
+            children: getScrollViewContent({ amountOfChildren: 25 }),
           }}
           lhsProps={{}}
-          rhsProps={{snapToInterval: ITEM_HEIGHT * 2}}
+          rhsProps={{ snapToInterval: ITEM_HEIGHT * 2 }}
         />
       </TestCase>
       <TestCase modal itShould="snap to item 2, 3, 7, and 11 and 21">
@@ -86,7 +86,7 @@ function SnapTestCases(props: {scrollViewProps: ScrollViewProps}) {
           scrollViewLength={ITEM_HEIGHT * 5}
           commonProps={{
             ...props.scrollViewProps,
-            children: getScrollViewContent({amountOfChildren: 25}),
+            children: getScrollViewContent({ amountOfChildren: 25 }),
           }}
           lhsProps={{}}
           rhsProps={{
@@ -105,11 +105,11 @@ function SnapTestCases(props: {scrollViewProps: ScrollViewProps}) {
             scrollViewLength={ITEM_HEIGHT * 1.5}
             commonProps={{
               ...props.scrollViewProps,
-              children: getScrollViewContent({amountOfChildren: 25}),
+              children: getScrollViewContent({ amountOfChildren: 25 }),
               snapToInterval: ITEM_HEIGHT,
             }}
-            lhsProps={{snapToAlignment: 'start'}}
-            rhsProps={{snapToAlignment: 'center'}}
+            lhsProps={{ snapToAlignment: 'start' }}
+            rhsProps={{ snapToAlignment: 'center' }}
           />
         </TestCase>
         <TestCase modal itShould="snap to item {lhs: start, rhs: end}">
@@ -117,11 +117,11 @@ function SnapTestCases(props: {scrollViewProps: ScrollViewProps}) {
             scrollViewLength={ITEM_HEIGHT * 1.5}
             commonProps={{
               ...props.scrollViewProps,
-              children: getScrollViewContent({amountOfChildren: 25}),
+              children: getScrollViewContent({ amountOfChildren: 25 }),
               snapToInterval: ITEM_HEIGHT,
             }}
-            lhsProps={{snapToAlignment: 'start'}}
-            rhsProps={{snapToAlignment: 'end'}}
+            lhsProps={{ snapToAlignment: 'start' }}
+            rhsProps={{ snapToAlignment: 'end' }}
           />
         </TestCase>
       </TestSuite>

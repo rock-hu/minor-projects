@@ -1099,14 +1099,14 @@ export default class BarLineChartTouchListener extends ChartTouchListener<BarLin
       this.animatorResult = animator.create(options);
     }
 
-    this.animatorResult.onframe = (value) => {
+    this.animatorResult.onFrame = (value) => {
       let x = (dragDistanceX * value);
       let y = (dragDistanceY * value);
       this.performDrag(false, event, x, y);
       this.mMatrix = this.mChart.getViewPortHandler().refresh(this.mMatrix, this.mChart, true);
     }
 
-    this.animatorResult.onfinish = () => {
+    this.animatorResult.onFinish = () => {
       this.animatorIsPlaying = false;
     }
     this.animatorResult.play();

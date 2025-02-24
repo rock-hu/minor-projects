@@ -19,9 +19,9 @@ const Ticket_Page = () => {
     }, 1000)
   })
   return (
-    <View style={{flex: 1, backgroundColor: 'green', alignItems: 'center', justifyContent: 'center'}}>
-      <Text style={{fontSize: 20, color: 'white'}}>Here is the flight ticket page.</Text>
-      <Text style={{fontSize: 20, color: 'white'}}>{msg}</Text>
+    <View style={{ flex: 1, backgroundColor: 'green', alignItems: 'center', justifyContent: 'center' }}>
+      <Text style={{ fontSize: 20, color: 'white' }}>Here is the flight ticket page.</Text>
+      <Text style={{ fontSize: 20, color: 'white' }}>{msg}</Text>
     </View>
   );
 };

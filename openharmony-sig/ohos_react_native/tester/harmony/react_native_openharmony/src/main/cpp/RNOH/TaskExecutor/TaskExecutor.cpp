@@ -20,6 +20,7 @@ TaskExecutor::TaskExecutor(
     napi_env mainEnv,
     std::unique_ptr<AbstractTaskRunner> workerTaskRunner,
     bool shouldEnableBackground) {
+    std::srand(std::time(nullptr));
   auto mainTaskRunner = std::make_shared<NapiTaskRunner>("RNOH_MAIN", mainEnv);
   auto jsTaskRunner = std::make_shared<ThreadTaskRunner>("RNOH_JS");
   auto backgroundExecutor = shouldEnableBackground
@@ -65,9 +66,14 @@ void TaskExecutor::setTaskThreadPriority(QoS_Level level) {
 }
 
 void TaskExecutor::runTask(TaskThread thread, Task&& task) {
-  facebook::react::SystraceSection s("#RNOH::TaskExecutor::runTask");
-  auto taskRunner = this->getTaskRunner(thread);
-  taskRunner->runAsyncTask(std::move(task));
+    int taskId = generateTaskId();
+    facebook::react::SystraceSection s("#RNOH::TaskExecutor::runTask t", taskId);
+    auto taskRunner = this->getTaskRunner(thread);
+    taskRunner->runAsyncTask([task = std::move(task), taskId]() mutable {
+        facebook::react::SystraceSection s(
+            "#RNOH::TaskExecutor::runningTask t", taskId);
+        task();
+    });
 }
 
 void TaskExecutor::runSyncTask(TaskThread thread, Task&& task) {
@@ -136,6 +142,11 @@ void TaskExecutor::setExceptionHandler(ExceptionHandler handler) {
       taskRunner->setExceptionHandler(handler);
     }
   }
+}
+
+inline int TaskExecutor::generateTaskId()
+{
+    return std::rand();
 }
 
 AbstractTaskRunner::Shared TaskExecutor::getTaskRunner(

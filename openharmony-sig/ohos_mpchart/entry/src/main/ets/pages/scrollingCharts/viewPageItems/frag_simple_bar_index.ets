@@ -29,7 +29,6 @@ interface legendArrItem {
   legendItem: LegendEntry
 }
 
-@Entry
 @ComponentV2
 export default struct fragSimpleBarIndex {
   @Param barModel: BarChartModel = new BarChartModel();

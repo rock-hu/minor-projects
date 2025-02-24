@@ -55,6 +55,8 @@ void MountingManagerArkTS::didMount(MutationList const& mutations) {
   this->triggerUICallback(mutations);
 }
 
+void MountingManagerArkTS::finalizeMutationUpdates(MutationList const& mutations) {}
+
 void MountingManagerArkTS::dispatchCommand(
     const facebook::react::ShadowView& shadowView,
     const std::string& commandName,

@@ -6,6 +6,7 @@
  */
 
 #pragma once
+#include <random>
 #include <js_native_api.h>
 #include <js_native_api_types.h>
 #include <array>
@@ -76,6 +77,7 @@ class TaskExecutor {
   std::array<std::shared_ptr<AbstractTaskRunner>, TaskThread::WORKER + 1>
       m_taskRunners;
   std::array<std::optional<TaskThread>, TaskThread::WORKER + 1> m_waitsOnThread;
+    inline static int generateTaskId();
 };
 
 } // namespace rnoh

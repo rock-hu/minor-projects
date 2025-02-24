@@ -27,6 +27,8 @@ import { WorkerThread } from "./WorkerThread"
 import { SafeAreaInsetsProvider } from './SafeAreaInsetsProvider';
 import { bundleManager } from '@kit.AbilityKit';
 import { EventEmitter } from './EventEmitter';
+import { WorkerTaskRunner } from './WorkerTaskRunner';
+import { EtsUITurboModuleContext } from '.';
 
 /**
  * This interface allows providing dependencies in any order.
@@ -199,6 +201,7 @@ export class RNInstancesCoordinator {
   private defaultBackPressHandler: () => void
   private globalRNOHErrorEventEmitter: RNOHErrorEventEmitter
   private envId: number;
+  private workerTaskRunner: WorkerTaskRunner
   private onDestroyCallbacks: Function[];
   private timerId: number = 0;
   private lastChangeTime: number = 0;
@@ -244,6 +247,8 @@ export class RNInstancesCoordinator {
         this.rnohCoreContext.reportRNOHError(rnohError);
       }
     }) : undefined
+    this.workerTaskRunner = new WorkerTaskRunner(workerThreadPromise)
+
     this.rnInstanceRegistry = new RNInstanceRegistry(
       uiAbilityContext,
       this.envId,
@@ -251,7 +256,9 @@ export class RNInstancesCoordinator {
       this.globalRNOHErrorEventEmitter,
       napiBridge,
       this.devToolsController,
-      (rnInstance) => new UITurboModuleContext(RNOHContext.fromCoreContext(this.rnohCoreContext, rnInstance)),
+      (rnInstance) => new EtsUITurboModuleContext({
+        rnohContext: RNOHContext.fromCoreContext(this.rnohCoreContext, rnInstance)
+      }),
       httpClientProvider,
       options?.defaultHttpClient,
       this.uiAbilityContext.resourceManager,
@@ -271,7 +278,8 @@ export class RNInstancesCoordinator {
       defaultBackPressHandler: this.defaultBackPressHandler,
       devToolsController: this.devToolsController,
       devMenu: this.devMenu,
-      rnohErrorEventEmitter: this.globalRNOHErrorEventEmitter
+      rnohErrorEventEmitter: this.globalRNOHErrorEventEmitter,
+      erasedWorkerTaskRunner: this.workerTaskRunner
     });
     this.onDestroyCallbacks = onDestroyCallbacks ?? []
   }
@@ -293,6 +301,7 @@ export class RNInstancesCoordinator {
     this.onDestroyCallbacks.forEach(cb => {
       cb()
     });
+    this.workerTaskRunner.onDestroy()
     stopTracing()
   }
 

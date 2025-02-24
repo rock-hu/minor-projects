@@ -1,4 +1,7 @@
 # Changelog
+## [v2.2.5-rc.2] 2025.02
+- Add device types
+
 ## [v2.2.5-rc.1] 2025.01
 - Log rectification
 

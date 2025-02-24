@@ -2694,25 +2694,30 @@ public getHitTestMode(): HitTestMode
 
 柱状图基础类
 
-| 方法名                    | 描述                                               |
-| ------------------------- | -------------------------------------------------- |
-| calcMinMax                | 计算坐标的最大最小值。                             |
-| calculateOffsets          | 计算图表offset。                                   |
-| drawGridBackground        | 绘制图表背景。                                     |
-| getAxis                   | 根据Y轴位置获取Y轴对象。                           |
-| getAxisLeft               | 获取左Y轴对象。                                    |
-| getAxisRight              | 获取右Y轴对象。                                    |
-| getMinOffset              | 获取最小Offset值。                                 |
-| getRendererLeftYAxis      | 获取左Y轴渲染器。                                  |
-| getRendererRightYAxis     | 获取右Y轴渲染器。                                  |
-| getRendererXAxis          | 获取X轴渲染器。                                    |
-| setLongPressCursorEnabled | 设置长按游标能力标识。                             |
-| getLongPressCursorEnabled | 获取长按游标能力标识。                             |
-| setLongPressDuration      | 设置长按响应时长。                                 |
-| getLongPressDuration      | 获取长按响应时长。                                 |
-| setSwipeEnabled           | 设置手势滑动响应能力（结合长按游标能力使用）。     |
-| getSwipeEnabled           | 获取手势滑动响应能力标识（结合长按游标能力使用）。 |
-
+| 方法名                         | 描述                                               |
+|-----------------------------| -------------------------------------------------- |
+| calcMinMax                  | 计算坐标的最大最小值。                             |
+| calculateOffsets            | 计算图表offset。                                   |
+| drawGridBackground          | 绘制图表背景。                                     |
+| getAxis                     | 根据Y轴位置获取Y轴对象。                           |
+| getAxisLeft                 | 获取左Y轴对象。                                    |
+| getAxisRight                | 获取右Y轴对象。                                    |
+| getMinOffset                | 获取最小Offset值。                                 |
+| getRendererLeftYAxis        | 获取左Y轴渲染器。                                  |
+| getRendererRightYAxis       | 获取右Y轴渲染器。                                  |
+| getRendererXAxis            | 获取X轴渲染器。                                    |
+| setLongPressCursorEnabled   | 设置长按游标能力标识。                             |
+| getLongPressCursorEnabled   | 获取长按游标能力标识。                             |
+| setLongPressDuration        | 设置长按响应时长。                                 |
+| getLongPressDuration        | 获取长按响应时长。                                 |
+| setSwipeEnabled             | 设置手势滑动响应能力（结合长按游标能力使用）。     |
+| getSwipeEnabled             | 获取手势滑动响应能力标识（结合长按游标能力使用）。 |
+| moveViewTo                  | 移动图表到指定位置。                                                                                |
+| moveViewToAnimated          | 在设定的时间内，动态移动图表到指定位置。                                                                      |
+| setCustomYAxisLabels        | 设置Y轴坐标数据集合。                                                                               |
+| getCustomYAxisLabels        | 获取Y轴坐标数据集合。                                                                               |
+| removeYAxisCustomLabel      | 删除Y轴坐标数据集合。                                                                               |
+| setEnableCustomYAxisLabels  | 设置Y轴是否完全自定义。 
 **1.calcMinMax**
 
 protected calcMinMax(): void;
@@ -2910,6 +2915,86 @@ public getSwipeEnabled(): boolean;
 | 类型      | 说明        |
 |---------|-----------|
 | boolean | 手势滑动响应能力标识。 |
+
+**17.moveViewTo**
+
+public moveViewTo(xValue: number, yValue: number, axis: AxisDependency): void;
+
+移动图表到指定位置。
+
+参数：
+
+| 参数名 | 类型      | 必填 | 说明             |
+| ------ |---------| ---- |----------------|
+| xValue   | number | 是   | 移动到的图表上的坐标点X值。 |
+| yValue   | number | 是   | 移动到的图表上的坐标点Y值。 |
+| axis   | AxisDependency | 是   | 移动的基准坐标轴。          |
+
+**18.moveViewToAnimated**
+
+public moveViewToAnimated(xValue: number, yValue: number, axis: AxisDependency, duration: number): void;
+
+在设定的时间内，动态移动图表到指定位置。
+
+参数：
+
+| 参数名 | 类型      | 必填 | 说明             |
+| ------ |---------| ---- |----------------|
+| xValue   | number | 是   | 移动到的图表上的坐标点X值。 |
+| yValue   | number | 是   | 移动到的图表上的坐标点Y值。 |
+| axis   | AxisDependency | 是   | 移动的基准坐标轴。          |
+| duration   | number | 是   | 动画的持续时间，以毫秒为单位。          |
+
+**19.setCustomYAxisLabels**
+
+public setCustomYAxisLabels(axis: AxisDependency, numbers: number[]): void;
+
+设置Y轴坐标数据集合。
+
+参数：
+
+| 参数名 | 类型            | 必填    | 说明        |
+| ------ |---------------|-------|-----------|
+| axis   | AxisDependency | 是     | 基准坐标轴。    |
+| numbers   | number[]      | 是     | 添加的Y轴坐标数据集合。 |
+
+**20.getCustomYAxisLabels**
+
+public getCustomYAxisLabels(axis: AxisDependency): number[];
+
+获取Y轴坐标数据集合。
+
+参数：
+
+| 类型       | 说明           |
+|----------|--------------|
+| number[] | 添加的Y轴坐标数据集合。 |
+
+**21.removeYAxisCustomLabel**
+
+public removeYAxisCustomLabel(axis: AxisDependency, numbers: number[]): void;
+
+删除Y轴坐标数据集合。
+
+参数：
+
+| 参数名 | 类型            | 必填    | 说明        |
+| ------ |---------------|-------|-----------|
+| axis   | AxisDependency | 是     | 基准坐标轴。    |
+| numbers   | number[]      | 是     | 删除Y轴坐标数据集合。 |
+
+**22.setEnableCustomYAxisLabels**
+
+public setEnableCustomYAxisLabels(axis: AxisDependency, enableCustomYAxisLabels: boolean): void;
+
+设置Y轴是否完全自定义,ture:Y轴坐标自定义  false:Y轴坐标添加数据。请结合setCustomYAxisLabels接口使用。
+
+参数：
+
+| 参数名 | 类型             | 必填    | 说明        |
+| ------ |----------------|-------|-----------|
+| axis   | AxisDependency | 是     | 基准坐标轴。    |
+| enableCustomYAxisLabels   | boolean        | 是     | 设置Y轴是否完全自定义,ture:Y轴坐标自定义  false:Y轴坐标添加数据。 |
 
 ### **三、ComponentBase**
 
@@ -3331,24 +3416,29 @@ public isDrawCustomLabels(): boolean
 
 Y轴对象。
 
-| 方法名                | 描述                                                         |
-| --------------------- | ------------------------------------------------------------ |
-| calculate             | 计算轴上的预期的最大最小值。                                 |
-| getAxisDependency     | 获取Y轴位置。                                                |
-| setPosition           | 设置Y轴标签的位置。                                          |
-| getLabelPosition      | 获取Y轴标签的位置。                                          |
-| setLabelXOffset       | 设置Y轴标签的X轴方向上的Offset。                             |
-| getLabelXOffset       | 获取Y轴标签的X轴方向上的Offset。                             |
-| setDrawZeroLine       | 设置是否绘制0线。                                            |
-| EventControl          | 事件控制类，EventType 为枚举类型(单击、双击、长按)           |
-| setEventEnable        | 启用事件。                                                   |
-| setEventDisable       | 禁用事件。                                                   |
-| eventIsEnable         | 事件是否启用。                                               |
-| eventIsDisable        | 事件是否被禁用。                                             |
-| setYAxisExtensionLine | 设置y轴延伸线。                                              |
-| addGridLine           | 添加自定义网格线。                                           |
-| getGridLines          | 获取自定义网格线。                                           |
-| setGridAlpha          | 设置网格线颜色不透明度（不包含addGridLine添加的自定义网格线，自定义网格线可通过color属性传入带透明度的颜色） |
+| 方法名                        | 描述                                                         |
+|----------------------------| ------------------------------------------------------------ |
+| calculate                  | 计算轴上的预期的最大最小值。                                 |
+| getAxisDependency          | 获取Y轴位置。                                                |
+| setPosition                | 设置Y轴标签的位置。                                          |
+| getLabelPosition           | 获取Y轴标签的位置。                                          |
+| setLabelXOffset            | 设置Y轴标签的X轴方向上的Offset。                             |
+| getLabelXOffset            | 获取Y轴标签的X轴方向上的Offset。                             |
+| setDrawZeroLine            | 设置是否绘制0线。                                            |
+| EventControl               | 事件控制类，EventType 为枚举类型(单击、双击、长按)           |
+| setEventEnable             | 启用事件。                                                   |
+| setEventDisable            | 禁用事件。                                                   |
+| eventIsEnable              | 事件是否启用。                                               |
+| eventIsDisable             | 事件是否被禁用。                                             |
+| setYAxisExtensionLine      | 设置y轴延伸线。                                              |
+| addGridLine                | 添加自定义网格线。                                           |
+| getGridLines               | 获取自定义网格线。                                           |
+| setGridAlpha               | 设置网格线颜色不透明度（不包含addGridLine添加的自定义网格线，自定义网格线可通过color属性传入带透明度的颜色） |
+| setCustomYAxisLabels       | 设置自定义Y轴坐标数据。                                                   |
+| getCustomYAxisLabels       | 获取自定义Y轴坐标数据。                                                   |
+| removeYAxisCustomLabel     | 删除自定义Y轴坐标值。                                                    |
+| setEnableCustomYAxisLabels | 设置Y轴坐标是否是自定义。                                                  |
+| getEnableCustomYAxisLabels | 获取Y轴坐标自定义属性值 。                                                 |
 
 **1.calculate**
 
@@ -3540,6 +3630,67 @@ public setGridAlpha(alpha: number): void
 | 参数名   | 类型     | 必填  | 说明                                     |
 |-------|--------|-----|----------------------------------------|
 | alpha | number | 是   | 设置网格线颜色不透明度,取值0到255之间，0是完全透明，255是完全不透明 |
+
+**17.setCustomYAxisLabels**
+
+public setCustomYAxisLabels(numbers: number[]): void
+
+设置Y轴自定义坐标的数据集合。
+
+参数：
+
+| 参数名   | 类型     | 必填  | 说明             |
+|-------|--------|-----|----------------|
+| numbers | number[] | 是   | 设置Y轴自定义坐标的数据集合 |
+
+**18.getCustomYAxisLabels**
+
+public getCustomYAxisLabels(): number[]
+
+获取Y轴自定义坐标的数据集合。
+
+参数：
+
+| 类型                    | 说明       |
+|-----------------------|----------|
+| number[] | 获取Y轴坐标自定义属性值 |
+
+**19.removeYAxisCustomLabel**
+
+public removeYAxisCustomLabel(numbers: number[]): void
+
+删除自定义Y轴坐标值,只能删除之前添加的自定义Y轴坐标。
+
+参数：
+
+| 参数名   | 类型     | 必填  | 说明             |
+|-------|--------|-----|----------------|
+| numbers | number[] | 是   | 删除自定义Y轴坐标值 |
+
+**20.setEnableCustomYAxisLabels**
+
+public setEnableCustomYAxisLabels(enableCustomYAxisLabels: boolean): void
+
+设置Y轴坐标是否是完全自定义，true:Y轴坐标自定义 false：Y轴坐标添加。
+
+参数：
+
+| 参数名   | 类型      | 必填  | 说明                                    |
+|-------|---------|-----|---------------------------------------|
+| enableCustomYAxisLabels | boolean | 是   | 设置自定义Y轴坐标数据，true:Y轴坐标自定义 false：Y轴坐标添加 |
+
+**21.getEnableCustomYAxisLabels**
+
+public getEnableCustomYAxisLabels(): boolean
+
+获取自定义Y轴坐标数据。
+
+参数：
+
+| 类型      | 说明       |
+|---------|----------|
+| boolean | 获取自定义Y轴坐标数据 |                                                   |
+
 
 ```
 // 示例代码参见 CustomGridLineChartPage

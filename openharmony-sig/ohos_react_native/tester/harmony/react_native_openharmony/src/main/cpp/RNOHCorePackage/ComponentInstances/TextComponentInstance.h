@@ -46,7 +46,8 @@ class TextComponentInstance
   void onPropsChanged(SharedConcreteProps const& props) override;
   void onStateChanged(SharedConcreteState const& textState) override;
   const std::string& getAccessibilityLabel() const override;
-
+  void onFinalizeUpdates() override;
+  
  private:
   void setTextAttributes(const facebook::react::TextAttributes& textAttributes);
   void updateFragmentTouchTargets(

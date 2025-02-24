@@ -9,6 +9,6 @@
   repository: {},
   version: "1.0.0",
   dependencies: {
-    "@rnoh/react-native-openharmony/": "./react_native_openharmony",
+    "@rnoh/react-native-openharmony": "./react_native_openharmony",
   },
 }

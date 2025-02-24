@@ -15,7 +15,7 @@ import {
   ViewProps,
 } from 'react-native';
 import { TestCase, TestSuite } from '@rnoh/testerino';
-import {useState} from 'react';
+import { useState } from 'react';
 
 export const TouchablesTest = () => {
   const [pressCountHighlight, setPressCountHighlight] = useState(0);
@@ -23,7 +23,7 @@ export const TouchablesTest = () => {
     <TestSuite name="Touchables">
       <TestCase
         itShould="export Touchable"
-        fn={({expect}) => {
+        fn={({ expect }) => {
           expect(Touchable).to.be.not.undefined;
         }}
       />
@@ -31,7 +31,7 @@ export const TouchablesTest = () => {
         <TouchableHighlight
           activeOpacity={1}
           underlayColor="cyan"
-          onPress={() => {}}>
+          onPress={() => { }}>
           <PressMe />
         </TouchableHighlight>
       </TestCase>
@@ -43,7 +43,7 @@ export const TouchablesTest = () => {
       </TestCase>
       <TestCase
         itShould="export TouchableNativeFeedback (Android only)"
-        fn={({expect}) => {
+        fn={({ expect }) => {
           expect(TouchableNativeFeedback).to.be.not.undefined;
         }}
       />
@@ -53,23 +53,23 @@ export const TouchablesTest = () => {
       <TestCase
         itShould="handle presses on empty views"
         initialState={false}
-        arrange={({setState}) => {
+        arrange={({ setState }) => {
           return (
-            <View style={{height: 100, backgroundColor: 'red'}}>
+            <View style={{ height: 100, backgroundColor: 'red' }}>
               <TouchableWithoutFeedback onPress={() => setState(true)}>
-                <View style={{height: '100%', width: '100%'}} />
+                <View style={{ height: '100%', width: '100%' }} />
               </TouchableWithoutFeedback>
             </View>
           );
         }}
-        assert={({expect, state}) => {
+        assert={({ expect, state }) => {
           expect(state).to.be.true;
         }}
       />
       <TestCase
         itShould="pass when blue background is pressed"
         initialState={false}
-        arrange={({setState}) => (
+        arrange={({ setState }) => (
           <View
             style={{
               backgroundColor: 'blue',
@@ -77,11 +77,11 @@ export const TouchablesTest = () => {
               position: 'relative',
             }}>
             <TouchableWithoutFeedback
-              hitSlop={{top: 48, left: 48, bottom: 48, right: 48}}
+              hitSlop={{ top: 48, left: 48, bottom: 48, right: 48 }}
               onPress={() => {
                 setState(true);
               }}>
-              <View style={{width: 48, height: 48, margin: 48}} />
+              <View style={{ width: 48, height: 48, margin: 48 }} />
             </TouchableWithoutFeedback>
             <View
               style={{
@@ -98,7 +98,7 @@ export const TouchablesTest = () => {
             />
           </View>
         )}
-        assert={({expect, state}) => {
+        assert={({ expect, state }) => {
           expect(state).to.be.true;
         }}
       />
@@ -115,10 +115,10 @@ function TouchableWithoutFeedbackDemo() {
   );
 }
 
-function PressMe(props: ViewProps & {endLabel?: string | number}) {
+function PressMe(props: ViewProps & { endLabel?: string | number }) {
   return (
-    <View {...props} style={{padding: 16, borderWidth: 1}}>
-      <Text style={{color: 'blue', height: 24, width: '100%'}}>
+    <View {...props} style={{ padding: 16, borderWidth: 1 }}>
+      <Text style={{ color: 'blue', height: 24, width: '100%' }}>
         Press me{props.endLabel !== undefined ? ` (${props.endLabel})` : ''}
       </Text>
     </View>

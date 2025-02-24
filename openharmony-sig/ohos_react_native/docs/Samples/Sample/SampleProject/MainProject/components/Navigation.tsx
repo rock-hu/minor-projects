@@ -5,16 +5,16 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-import React, {useEffect} from 'react';
-import {FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import React, { useEffect } from 'react';
+import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const NavigationContext = React.createContext<
   | {
-      currentPageName: string;
-      navigateTo: (pageName: string) => void;
-      registerPageName: (pageName: string) => void;
-      registeredPageNames: string[];
-    }
+    currentPageName: string;
+    navigateTo: (pageName: string) => void;
+    registerPageName: (pageName: string) => void;
+    registeredPageNames: string[];
+  }
   | undefined
 >(undefined);
 
@@ -57,8 +57,8 @@ export function useNavigation() {
   return React.useContext(NavigationContext)!;
 }
 
-export function Page({name, children}: {name: string; children: any}) {
-  const {currentPageName, navigateTo, registerPageName} = useNavigation();
+export function Page({ name, children }: { name: string; children: any }) {
+  const { currentPageName, navigateTo, registerPageName } = useNavigation();
 
   useEffect(() => {
     if (name !== 'INDEX') {
@@ -67,7 +67,7 @@ export function Page({name, children}: {name: string; children: any}) {
   }, [name]);
 
   return name === currentPageName ? (
-    <View style={{width: '100%', height: '100%'}}>
+    <View style={{ width: '100%', height: '100%' }}>
       {name !== 'INDEX' && (
         <TouchableOpacity
           onPress={() => {
@@ -82,12 +82,12 @@ export function Page({name, children}: {name: string; children: any}) {
 }
 
 export function IndexPage() {
-  const {navigateTo, registeredPageNames} = useNavigation();
+  const { navigateTo, registeredPageNames } = useNavigation();
 
   return (
     <FlatList
       data={registeredPageNames}
-      renderItem={({item}) => {
+      renderItem={({ item }) => {
         return (
           <TouchableOpacity
             onPress={() => {
@@ -98,7 +98,7 @@ export function IndexPage() {
         );
       }}
       ItemSeparatorComponent={() => (
-        <View style={{height: 1, backgroundColor: 'silver'}} />
+        <View style={{ height: 1, backgroundColor: 'silver' }} />
       )}
     />
   );

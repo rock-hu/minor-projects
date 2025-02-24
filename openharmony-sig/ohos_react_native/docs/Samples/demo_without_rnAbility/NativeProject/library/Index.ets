@@ -7,7 +7,11 @@
 
 // export { add } from "./src/main/ets/utils/Calc"
 export * from "./src/main/ets/UPRNSDK"
+
 export * from "./src/main/ets/UPRNSDKImpl"
+
 export * from "./src/main/ets/model/RNInfo"
+
 export * from "./src/main/ets/pages/UPReactView"
+
 export * from "@rnoh/react-native-openharmony"

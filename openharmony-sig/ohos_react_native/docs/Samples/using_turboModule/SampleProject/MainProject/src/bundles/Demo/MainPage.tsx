@@ -35,7 +35,7 @@ function App() {
   const [nativeWorkerAsyncCallbackValue, setNativeWorkerAsyncCallbackValue] = useState("");
 
   return (
-    <ScrollView style={{marginTop: 30}}>
+    <ScrollView style={{ marginTop: 30 }}>
       <View style={styles.container}>
         <Button
           title={'•调用TurboModule回调方法：' + nativeCallbackValue}

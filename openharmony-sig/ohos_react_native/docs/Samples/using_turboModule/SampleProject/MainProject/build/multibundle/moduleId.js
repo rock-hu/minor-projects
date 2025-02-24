@@ -56,22 +56,22 @@ function postProcessModulesFilterWrap(projectRootPath) {
       path.indexOf('__prelude__') >= 0 ||
       path.indexOf(
         pathSep +
-          'node_modules' +
-          pathSep +
-          '@react-native' +
-          pathSep +
-          // 'js-polyfills',
-          'polyfills',
+        'node_modules' +
+        pathSep +
+        '@react-native' +
+        pathSep +
+        // 'js-polyfills',
+        'polyfills',
       ) >= 0 ||
       path.indexOf(
         pathSep +
-          'node_modules' +
-          pathSep +
-          'metro-runtime' +
-          pathSep +
-          'src' +
-          pathSep +
-          'polyfills',
+        'node_modules' +
+        pathSep +
+        'metro-runtime' +
+        pathSep +
+        'src' +
+        pathSep +
+        'polyfills',
       ) >= 0
     ) {
       return false;
@@ -93,7 +93,7 @@ function postProcessModulesFilterWrap(projectRootPath) {
     ) {
       return false;
     }
-    
+
     return true;
   };
 }

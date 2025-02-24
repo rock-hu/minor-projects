@@ -13,17 +13,14 @@
 #include <react/renderer/componentregistry/ComponentDescriptorRegistry.h>
 #include <react/renderer/debug/SystraceSection.h>
 #include <react/renderer/scheduler/Scheduler.h>
-#include "NativeLogger.h"
 #include "RNOH/EventBeat.h"
 #include "RNOH/MessageQueueThread.h"
-#include "RNOH/Performance/NativeTracing.h"
 #include "RNOH/RNOHError.h"
 #include "RNOH/SchedulerDelegate.h"
 #include "RNOH/ShadowViewRegistry.h"
 #include "RNOH/TurboModuleFactory.h"
 #include "RNOH/TurboModuleProvider.h"
 #include "RNOH/SchedulerDelegate.h"
-#include "hermes/executor/HermesExecutorFactory.h"
 
 using namespace facebook;
 using namespace rnoh;

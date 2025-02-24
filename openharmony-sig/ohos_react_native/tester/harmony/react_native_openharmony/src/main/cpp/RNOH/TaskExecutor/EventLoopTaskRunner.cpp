@@ -92,7 +92,6 @@ void EventLoopTaskRunner::executeTask() {
   Task task = popNextTask();
   if (task) {
     try {
-      facebook::react::SystraceSection s("#RNOH::TaskRunner::task");
       task();
       // ensure the resources captured by the task are cleaned up
       task = nullptr;

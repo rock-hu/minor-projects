@@ -6,7 +6,10 @@
  */
 
 export { EtsWorkerTurboModule } from "./EtsWorkerTurboModule"
-export { UITaskRunnable, SupportedUITaskParams} from "./UITaskRunner"
+export { EtsUITurboModule } from "./EtsUITurboModule"
+export { SupportedTaskParams } from "./TaskRunner"
+export { UITaskRunnable, SupportedUITaskParams } from "./UITaskRunner"
+export { WorkerTaskRunnable } from "./WorkerTaskRunner"
 export * from "./EtsRNOHContext"
 export * from "./RNDevLoadingView"
 export * from "./CustomRNComponentFrameNodeFactory"

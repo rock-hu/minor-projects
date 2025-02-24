@@ -6,8 +6,8 @@
  */
 
 import { TestSuite, TestCase } from '@rnoh/testerino';
-import {useEffect, useState} from 'react';
-import {ActivityIndicator} from 'react-native';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator } from 'react-native';
 
 // https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/290
 export function ActivityIndicatorTest() {

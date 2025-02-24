@@ -6,9 +6,9 @@
  */
 
 import { TestSuite, TestCase } from '@rnoh/testerino';
-import React, {useState, useEffect} from 'react';
-import {Text, Appearance, ColorSchemeName} from 'react-native';
-import {Button} from '../components';
+import React, { useState, useEffect } from 'react';
+import { Text, Appearance, ColorSchemeName } from 'react-native';
+import { Button } from '../components';
 
 export function AppearanceTest() {
   const [colorScheme, setColorScheme] = useState<ColorSchemeName>(
@@ -35,7 +35,7 @@ export function AppearanceTest() {
     <TestSuite name="Appearance">
       <TestCase
         itShould="return sensible value"
-        fn={({expect}) => {
+        fn={({ expect }) => {
           expect(Appearance.getColorScheme()).to.oneOf(['light', 'dark', null]);
         }}
       />

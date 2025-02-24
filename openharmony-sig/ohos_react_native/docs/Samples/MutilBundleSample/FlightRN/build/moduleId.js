@@ -37,8 +37,8 @@ function postProcessModulesFilterWrap(projectRootPath) {
     const pathRelative = modulePath.substr(projectRootPath.length + 1);
     const moduleId = basicModuleIds[pathRelative];
     if (pathRelative.indexOf('__prelude__') >= 0 ||
-        pathRelative.indexOf(`node_modules${path.sep}@react-native${path.sep}polyfills`) >= 0 ||
-        pathRelative.indexOf(`node_modules${path.sep}metro-runtime${path.sep}src${path.sep}polyfills`) >= 0) {
+      pathRelative.indexOf(`node_modules${path.sep}@react-native${path.sep}polyfills`) >= 0 ||
+      pathRelative.indexOf(`node_modules${path.sep}metro-runtime${path.sep}src${path.sep}polyfills`) >= 0) {
       return false;
     }
     return !moduleId

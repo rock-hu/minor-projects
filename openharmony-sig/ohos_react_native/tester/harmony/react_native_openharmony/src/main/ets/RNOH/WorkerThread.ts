@@ -16,7 +16,12 @@ interface WorkerThreadDependencies {
   onWorkerError: (rnohError: RNOHError) => void
 }
 
-type WorkerThreadMessageListener = (string, unknown) => void
+type WorkerThreadMessageListener = (string, WorkerMessage) => void
+
+/**
+ * @internal
+ */
+export interface WorkerMessage {}
 
 /**
  * @internal

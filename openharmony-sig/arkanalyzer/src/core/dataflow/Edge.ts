@@ -15,14 +15,6 @@
 
 import { Stmt } from '../base/Stmt';
 
-export class Edge {
-    kind: number = 0;
-
-    public static getKind(srcStmt: Stmt, tgtStmt: Stmt): number {
-        return 0;
-    }
-}
-
 export class PathEdgePoint<D> {
     public node:Stmt;
     public fact:D;

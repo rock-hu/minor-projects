@@ -246,21 +246,21 @@ void TextInputNode::setFont(
     fontStyle = ARKUI_FONT_STYLE_ITALIC;
   }
 
-  float fontSize = 16;
-  if (!std::isnan(textAttributes.fontSize)) {
-    fontSize = static_cast<float>(textAttributes.fontSize);
-  }
-  bool allowFontScaling = true;
-  if (textAttributes.allowFontScaling.has_value()) {
+    float fontSize = defaultFontSize;
+    if (!std::isnan(textAttributes.fontSize)) {
+        fontSize = static_cast<float>(textAttributes.fontSize);
+    }
+    bool allowFontScaling = true;
+    if (textAttributes.allowFontScaling.has_value()) {
         allowFontScaling = textAttributes.allowFontScaling.value();
-  }
-  if (!allowFontScaling) {
-    maybeThrow(NativeNodeApi::getInstance()->setLengthMetricUnit(
-        m_nodeHandle, ArkUI_LengthMetricUnit::ARKUI_LENGTH_METRIC_UNIT_VP));
-  } else {
-    maybeThrow(NativeNodeApi::getInstance()->setLengthMetricUnit(
-        m_nodeHandle, ArkUI_LengthMetricUnit::ARKUI_LENGTH_METRIC_UNIT_FP));
-  }
+    }
+    if (!allowFontScaling) {
+        maybeThrow(NativeNodeApi::getInstance()->setLengthMetricUnit(
+            m_nodeHandle, ArkUI_LengthMetricUnit::ARKUI_LENGTH_METRIC_UNIT_VP));
+    } else {
+        maybeThrow(NativeNodeApi::getInstance()->setLengthMetricUnit(
+            m_nodeHandle, ArkUI_LengthMetricUnit::ARKUI_LENGTH_METRIC_UNIT_FP));
+    }
 
   std::array<ArkUI_NumberValue, 3> value = {
       {{.f32 = fontSize},

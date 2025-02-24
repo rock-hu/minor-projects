@@ -115,6 +115,9 @@ class ComponentInstance
   void removeChild(ComponentInstance::Shared childComponentInstance);
 
   virtual facebook::react::Props::Shared getProps() const = 0;
+  
+    
+  virtual bool getAccessibilityGroup() const = 0;
 
   /**
    * TODO: change to protected — those methods are intended to be called

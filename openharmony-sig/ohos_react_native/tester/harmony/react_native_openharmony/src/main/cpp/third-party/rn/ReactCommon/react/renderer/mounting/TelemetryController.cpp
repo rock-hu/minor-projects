@@ -7,6 +7,7 @@
 
 #include "TelemetryController.h"
 
+#include <react/renderer/debug/SystraceSection.h>
 #include <react/renderer/mounting/MountingCoordinator.h>
 
 namespace facebook::react {
@@ -41,7 +42,12 @@ bool TelemetryController::pullTransaction(
 
   compoundTelemetry.incorporate(telemetry, numberOfMutations);
 
-  didMount(transaction, compoundTelemetry);
+    {
+        facebook::react::SystraceSection s(
+            "#RNOH::TelemetryController::didMount ",
+            transaction.getMutations().size());
+        didMount(transaction, compoundTelemetry);
+    }
 
   mutex_.lock();
   compoundTelemetry_ = compoundTelemetry;

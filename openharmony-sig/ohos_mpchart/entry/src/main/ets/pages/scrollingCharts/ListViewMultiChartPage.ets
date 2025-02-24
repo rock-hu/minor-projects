@@ -159,7 +159,7 @@ struct ListViewMultiChartPage {
                 BarChartItem({ data: item.itemData })
               }
             }
-          }.editable(false)
+          }
         }, (item: valueItem) => item.index + "")
       }
       .margin({ bottom: 100 })

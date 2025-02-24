@@ -46,7 +46,7 @@ export default class ChartAnimator {
       end: 1
     };
     let animatorResult = animator.create(options);
-    animatorResult.onframe = (value) => {
+    animatorResult.onFrame = (value) => {
       this.mPhaseX = value;
       if (this.isShowXCallback && this.mListener) {
         this.mListener.onAnimationUpdate(animatorResult);
@@ -68,7 +68,7 @@ export default class ChartAnimator {
       end: 1
     };
     let animatorResult = animator.create(options);
-    animatorResult.onframe = (value) => {
+    animatorResult.onFrame = (value) => {
       this.mPhaseY = value;
       if (this.isShowYCallback && this.mListener) {
         this.mListener.onAnimationUpdate(animatorResult);

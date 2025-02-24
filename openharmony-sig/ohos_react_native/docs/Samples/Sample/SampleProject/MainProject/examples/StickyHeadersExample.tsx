@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import {StyleSheet, Text, View, SectionList} from 'react-native';
+import { StyleSheet, Text, View, SectionList } from 'react-native';
 
 const DATA = [
   {
@@ -31,12 +31,12 @@ export const StickyHeadersExample = () => (
   <SectionList
     sections={DATA}
     keyExtractor={(item, index) => item + index}
-    renderItem={({item}) => (
+    renderItem={({ item }) => (
       <View style={styles.item}>
         <Text style={styles.title}>{item}</Text>
       </View>
     )}
-    renderSectionHeader={({section: {title}}) => (
+    renderSectionHeader={({ section: { title } }) => (
       <Text style={styles.header}>{title}</Text>
     )}
     stickySectionHeadersEnabled

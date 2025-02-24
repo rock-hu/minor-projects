@@ -6,13 +6,13 @@
  */
 
 import React from 'react';
-import {View, StyleSheet, Image, Text, TextInput} from 'react-native';
+import { View, StyleSheet, Image, Text, TextInput } from 'react-native';
 
 export function ChessboardExample() {
   const [username, setUsername] = React.useState('');
 
   return (
-    <View style={{backgroundColor: '#333', height: '100%'}}>
+    <View style={{ backgroundColor: '#333', height: '100%' }}>
       <UserInfo avatar="https://i.pravatar.cc/100?img=8" />
       <View style={styles.centerX}>
         <Chessboard />
@@ -26,10 +26,10 @@ export function ChessboardExample() {
   );
 }
 
-function UserInfo({name, avatar}: any) {
+function UserInfo({ name, avatar }: any) {
   return (
     <View style={styles.userInfoContainer}>
-      <Image style={styles.placeholder} source={{uri: avatar}} />
+      <Image style={styles.placeholder} source={{ uri: avatar }} />
       <Text style={styles.username}>{name || 'Guest'}</Text>
     </View>
   );
@@ -88,8 +88,8 @@ function Chessboard() {
 }
 
 const CELL_BG_COLOR_BY_VARIANT = {
-  light: {inactive: 'hsl(62, 42%, 87%)', active: 'hsl(60, 88%, 73%)'},
-  dark: {inactive: 'hsl(89, 27%, 46%)', active: 'hsl(67, 58%, 52%)'},
+  light: { inactive: 'hsl(62, 42%, 87%)', active: 'hsl(60, 88%, 73%)' },
+  dark: { inactive: 'hsl(89, 27%, 46%)', active: 'hsl(67, 58%, 52%)' },
 } as const;
 
 function ChessboardCell({
@@ -115,7 +115,7 @@ function ChessboardCell({
         {
           backgroundColor:
             CELL_BG_COLOR_BY_VARIANT[variant][
-              isSelected ? 'active' : 'inactive'
+            isSelected ? 'active' : 'inactive'
             ],
         },
       ]}>

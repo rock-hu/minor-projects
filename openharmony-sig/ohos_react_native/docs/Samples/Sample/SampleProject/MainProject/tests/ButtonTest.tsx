@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import {View, Button, StyleSheet, Text} from 'react-native';
+import { View, Button, StyleSheet, Text } from 'react-native';
 import { TestCase, TestSuite } from '@rnoh/testerino';
 
 export const ButtonTest = () => {

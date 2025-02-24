@@ -5,7 +5,7 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   View,
   SectionList,
@@ -17,7 +17,7 @@ import {
   ViewabilityConfig,
 } from 'react-native';
 import { TestCase, TestSuite } from '@rnoh/testerino';
-import {Button, Modal, ObjectDisplayer} from '../components';
+import { Button, Modal, ObjectDisplayer } from '../components';
 
 interface SectionData {
   id: string;
@@ -49,13 +49,13 @@ const DATA: SectionData[] = [
 ];
 
 const commonProps = {
-  style: {width: 256},
+  style: { width: 256 },
   sections: DATA,
   keyExtractor: (item, _index) => item.id,
-  renderSectionHeader: ({section}) => (
+  renderSectionHeader: ({ section }) => (
     <Text style={styles.title}>{section.title}</Text>
   ),
-  renderItem: ({item}) => (
+  renderItem: ({ item }) => (
     <View style={styles.item}>
       <Text style={styles.title}>{item}</Text>
     </View>
@@ -71,12 +71,12 @@ export const SectionListTest = () => {
             <SectionList
               sections={DATA}
               keyExtractor={(item, index) => item + index}
-              renderItem={({item}) => (
+              renderItem={({ item }) => (
                 <View style={styles.item}>
                   <Text style={styles.title}>{item}</Text>
                 </View>
               )}
-              renderSectionHeader={({section: {title}}) => (
+              renderSectionHeader={({ section: { title } }) => (
                 <Text style={styles.title}>{title}</Text>
               )}
             />
@@ -90,7 +90,7 @@ export const SectionListTest = () => {
               return (
                 <SectionList
                   {...commonProps}
-                  viewabilityConfig={{viewAreaCoveragePercentThreshold: 100}}
+                  viewabilityConfig={{ viewAreaCoveragePercentThreshold: 100 }}
                   onViewableItemsChanged={item => {
                     setObject(item.viewableItems.map(i => i.item));
                   }}
@@ -105,7 +105,7 @@ export const SectionListTest = () => {
           <SectionList
             {...commonProps}
             windowSize={2}
-            renderItem={({item}) => {
+            renderItem={({ item }) => {
               return (
                 <DelayedDisplayer
                   delayInMs={1000}
@@ -130,7 +130,7 @@ export const SectionListTest = () => {
                 <SectionList
                   {...commonProps}
                   onMomentumScrollBegin={e => {
-                    setObject({nativeEvent: e.nativeEvent});
+                    setObject({ nativeEvent: e.nativeEvent });
                   }}
                 />
               );
@@ -146,7 +146,7 @@ export const SectionListTest = () => {
                 <SectionList
                   {...commonProps}
                   onMomentumScrollEnd={e => {
-                    setObject({nativeEvent: e.nativeEvent});
+                    setObject({ nativeEvent: e.nativeEvent });
                   }}
                 />
               );
@@ -184,7 +184,7 @@ export const SectionListTest = () => {
       </TestCase>
       <TestCase itShould="show horizontal scroll indicator">
         <Modal>
-          <View style={{width: 200, height: '100%'}}>
+          <View style={{ width: 200, height: '100%' }}>
             <SectionList
               {...commonProps}
               showsHorizontalScrollIndicator={true}
@@ -195,7 +195,7 @@ export const SectionListTest = () => {
       </TestCase>
       <TestCase itShould="hide horizontal scroll indicator">
         <Modal>
-          <View style={{width: 200, height: '100%'}}>
+          <View style={{ width: 200, height: '100%' }}>
             <SectionList
               {...commonProps}
               showsHorizontalScrollIndicator={false}
@@ -221,7 +221,7 @@ export const SectionListTest = () => {
                     // only RefreshControl can be provided
                     <RefreshControl
                       onRefresh={() => {
-                        setObject({onRefreshCalled: true});
+                        setObject({ onRefreshCalled: true });
                       }}
                       refreshing={false}
                       tintColor={'red'} // iOS. It's unknown how to set the color of the refreshing widget in ArkUI.
@@ -242,7 +242,7 @@ export const SectionListTest = () => {
                 <SectionList
                   {...commonProps}
                   onRefresh={() => {
-                    setObject({onRefreshCalled: true});
+                    setObject({ onRefreshCalled: true });
                   }}
                   refreshing={false}
                 />
@@ -306,7 +306,7 @@ export const SectionListTest = () => {
         </Modal>
       </TestCase>
       <TestCase itShould="click on 'Record interaction' button changes the first three items background color to blue">
-        <Modal contentContainerStyle={{width: '85%'}}>
+        <Modal contentContainerStyle={{ width: '85%' }}>
           <SectionListRecordInteractionTest />
         </Modal>
       </TestCase>
@@ -431,9 +431,9 @@ function SectionListRecordInteractionTest() {
 
   return (
     <>
-      <View style={{marginBottom: 10}}>
+      <View style={{ marginBottom: 10 }}>
         <Button label="Record interaction" onPress={handleOnPress} />
-        <Text style={{padding: 10}}>
+        <Text style={{ padding: 10 }}>
           Visible Items are: {JSON.stringify(visibleItems)}
         </Text>
       </View>
@@ -442,10 +442,10 @@ function SectionListRecordInteractionTest() {
         sections={DATA}
         scrollEnabled={false}
         keyExtractor={(_, index) => String(index)}
-        renderSectionHeader={({section}) => (
+        renderSectionHeader={({ section }) => (
           <Text style={styles.title}>{section.title}</Text>
         )}
-        renderItem={({item}) => (
+        renderItem={({ item }) => (
           <View
             style={[
               {
@@ -453,7 +453,7 @@ function SectionListRecordInteractionTest() {
                 backgroundColor: 'lightblue',
                 marginBottom: 10,
               },
-              visibleItems.includes(item) && {backgroundColor: 'blue'},
+              visibleItems.includes(item) && { backgroundColor: 'blue' },
             ]}>
             <Text
               style={{

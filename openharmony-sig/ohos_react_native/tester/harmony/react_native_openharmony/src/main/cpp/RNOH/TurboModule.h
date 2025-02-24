@@ -29,6 +29,8 @@ class TurboModule : public facebook::react::TurboModule {
   TurboModule(Context ctx, std::string name)
       : facebook::react::TurboModule(name, ctx.jsInvoker) {}
 
+  virtual ~TurboModule();
+
   void set(
       facebook::jsi::Runtime& rt,
       const facebook::jsi::PropNameID& name,

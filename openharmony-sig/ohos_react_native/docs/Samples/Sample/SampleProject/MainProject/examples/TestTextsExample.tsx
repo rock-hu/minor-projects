@@ -7,10 +7,10 @@
 
 import { Tester, Filter } from '@rnoh/testerino';
 import * as React from 'react';
-import {ScrollView, StyleSheet} from 'react-native';
-import {TextTest} from '../tests';
+import { ScrollView, StyleSheet } from 'react-native';
+import { TextTest } from '../tests';
 
-export function TextTestsExample({filter}: {filter: Filter}) {
+export function TextTestsExample({ filter }: { filter: Filter }) {
   return (
     <Tester filter={filter}>
       <ScrollView style={styles.container}>

@@ -43,7 +43,6 @@ class ButtonViewPackageComponentInstanceFactoryDelegate : public ComponentInstan
         }
 };
 
-
 EventEmitRequestHandlers SampleTurboModulePackage::createEventEmitRequestHandlers() {
     return {std::make_shared<MarqueeViewEventEmitRequestHandler>()};
 }

@@ -22,7 +22,6 @@ import { ColorTemplate } from '@ohos/mpchart';
 import { MPPointF } from '@ohos/mpchart';
 import { Legend, LegendVerticalAlignment, LegendOrientation, LegendHorizontalAlignment } from '@ohos/mpchart';
 
-@Entry
 @ComponentV2
 export default struct fragmentSimplePieIndex {
   pieData: PieData | null = null;

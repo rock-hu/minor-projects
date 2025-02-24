@@ -13,14 +13,14 @@ import {
   View,
 } from 'react-native';
 import { TestCase, TestSuite } from '@rnoh/testerino';
-import {useRef} from 'react';
+import { useRef } from 'react';
 
 export const PanResponderTest = () => {
   return (
     <TestSuite name="PanResponder">
       <TestCase
         itShould="create PanResponder"
-        fn={({expect}) => {
+        fn={({ expect }) => {
           expect(PanResponder.create({})).to.be.not.empty;
         }}
       />
@@ -38,7 +38,7 @@ const PanResponderInScrollView = () => {
     PanResponder.create({
       onMoveShouldSetPanResponder: () => true,
       onPanResponderMove: Animated.event(
-        [null, {dx: pan.x, dy: pan.y}],
+        [null, { dx: pan.x, dy: pan.y }],
         undefined,
       ),
       onPanResponderRelease: () => {
@@ -52,7 +52,7 @@ const PanResponderInScrollView = () => {
       <View style={[styles.base, styles.view1]}>
         <Animated.View
           style={{
-            transform: [{translateX: pan.x}, {translateY: pan.y}],
+            transform: [{ translateX: pan.x }, { translateY: pan.y }],
           }}
           {...panResponder.panHandlers}>
           <View style={styles.box} />

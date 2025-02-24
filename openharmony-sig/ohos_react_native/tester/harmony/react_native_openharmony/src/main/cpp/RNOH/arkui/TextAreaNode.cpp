@@ -171,28 +171,29 @@ void TextAreaNode::setFont(
     fontStyle = ARKUI_FONT_STYLE_ITALIC;
   }
 
-  float fontSize = 16;
-  if (!std::isnan(textAttributes.fontSize)) {
-    fontSize = static_cast<float>(textAttributes.fontSize);
-  }
-  bool allowFontScaling = true;
-  if (textAttributes.allowFontScaling.has_value()) {
+    float fontSize = defaultFontSize;
+    if (!std::isnan(textAttributes.fontSize)) {
+        fontSize = static_cast<float>(textAttributes.fontSize);
+    }
+    bool allowFontScaling = true;
+    if (textAttributes.allowFontScaling.has_value()) {
         allowFontScaling = textAttributes.allowFontScaling.value();
-  }
-  if (!allowFontScaling) {
-    maybeThrow(NativeNodeApi::getInstance()->setLengthMetricUnit(
-        m_nodeHandle, ArkUI_LengthMetricUnit::ARKUI_LENGTH_METRIC_UNIT_VP));
-  } else {
-    maybeThrow(NativeNodeApi::getInstance()->setLengthMetricUnit(
-        m_nodeHandle, ArkUI_LengthMetricUnit::ARKUI_LENGTH_METRIC_UNIT_FP));
-  }
-  std::array<ArkUI_NumberValue, 3> value = {
-      {{.f32 = fontSize},
-       {.i32 = static_cast<int32_t>(fontStyle)},
-       {.i32 = static_cast<int32_t>(fontWeight)}}};
-  ArkUI_AttributeItem item = {value.data(), value.size(), fontFamily.c_str()};
-  maybeThrow(NativeNodeApi::getInstance()->setAttribute(
-      m_nodeHandle, NODE_TEXT_AREA_PLACEHOLDER_FONT, &item));
+    }
+    if (!allowFontScaling) {
+        maybeThrow(NativeNodeApi::getInstance()->setLengthMetricUnit(
+            m_nodeHandle, ArkUI_LengthMetricUnit::ARKUI_LENGTH_METRIC_UNIT_VP));
+    } else {
+        maybeThrow(NativeNodeApi::getInstance()->setLengthMetricUnit(
+            m_nodeHandle, ArkUI_LengthMetricUnit::ARKUI_LENGTH_METRIC_UNIT_FP));
+    }
+    const int32_t arraySize = 3;
+    std::array<ArkUI_NumberValue, arraySize> value = {
+        {{.f32 = fontSize},
+        {.i32 = static_cast<int32_t>(fontStyle)},
+        {.i32 = static_cast<int32_t>(fontWeight)}}};
+    ArkUI_AttributeItem item = {value.data(), value.size(), fontFamily.c_str()};
+    maybeThrow(NativeNodeApi::getInstance()->setAttribute(
+        m_nodeHandle, NODE_TEXT_AREA_PLACEHOLDER_FONT, &item));
 }
 
 void TextAreaNode::setCaretColor(facebook::react::SharedColor const& color) {

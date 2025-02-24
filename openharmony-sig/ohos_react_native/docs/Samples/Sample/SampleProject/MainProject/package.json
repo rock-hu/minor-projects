@@ -8,13 +8,13 @@
     "lint": "eslint .",
     "start": "react-native start",
     "test": "jest",
-    "dev:basic":    "react-native bundle-harmony --dev false --entry-file ./src/bundles/basic/basic.js    --bundle-output ../../SampleApp/entry/src/main/resources/rawfile/bundle/basic/basic.harmony.bundle  --config ./basic.config.js",
+    "dev:basic": "react-native bundle-harmony --dev false --entry-file ./src/bundles/basic/basic.js    --bundle-output ../../SampleApp/entry/src/main/resources/rawfile/bundle/basic/basic.harmony.bundle  --config ./basic.config.js",
     "dev:homepage": "react-native bundle-harmony --dev false --entry-file ./src/bundles/HomePage/index.js --bundle-output ../../SampleApp/entry/src/main/resources/rawfile/bundle/cp/homepage.harmony.bundle  --config ./homepage.config.js",
-    "dev:goods":    "react-native bundle-harmony --dev false --entry-file ./src/bundles/Goods/index.js    --bundle-output ../../SampleApp/entry/src/main/resources/rawfile/bundle/cp/goods.harmony.bundle     --config ./goods.config.js",
-    "dev:details":  "react-native bundle-harmony --dev false --entry-file ./src/bundles/Details/index.js  --bundle-output ../../SampleApp/entry/src/main/resources/rawfile/bundle/bp/details.harmony.bundle   --config ./details.config.js",
-    "dev:test":     "react-native bundle-harmony --dev false --entry-file ./src/bundles/test/index.js     --bundle-output ../../SampleApp/entry/src/main/resources/rawfile/bundle/bp/test.harmony.bundle      --assets-dest ../../SampleApp/entry/src/main/resources/rawfile/assets --config ./test.config.js",
-    "dev:sandbox":  "react-native bundle-harmony --dev false --entry-file ./src/bundles/Sandbox/index.js  --bundle-output ../../SampleApp/entry/src/main/resources/rawfile/bundle/bp/sandbox.harmony.bundle   --assets-dest ../../SampleApp/entry/src/main/resources/rawfile/assets --config ./sandbox.config.js",
-    "dev:all":      "npm run dev:basic && npm run dev:homepage && npm run dev:goods && npm run dev:details && npm run dev:test && npm run dev:sandbox"
+    "dev:goods": "react-native bundle-harmony --dev false --entry-file ./src/bundles/Goods/index.js    --bundle-output ../../SampleApp/entry/src/main/resources/rawfile/bundle/cp/goods.harmony.bundle     --config ./goods.config.js",
+    "dev:details": "react-native bundle-harmony --dev false --entry-file ./src/bundles/Details/index.js  --bundle-output ../../SampleApp/entry/src/main/resources/rawfile/bundle/bp/details.harmony.bundle   --config ./details.config.js",
+    "dev:test": "react-native bundle-harmony --dev false --entry-file ./src/bundles/test/index.js     --bundle-output ../../SampleApp/entry/src/main/resources/rawfile/bundle/bp/test.harmony.bundle      --assets-dest ../../SampleApp/entry/src/main/resources/rawfile/assets --config ./test.config.js",
+    "dev:sandbox": "react-native bundle-harmony --dev false --entry-file ./src/bundles/Sandbox/index.js  --bundle-output ../../SampleApp/entry/src/main/resources/rawfile/bundle/bp/sandbox.harmony.bundle   --assets-dest ../../SampleApp/entry/src/main/resources/rawfile/assets --config ./sandbox.config.js",
+    "dev:all": "npm run dev:basic && npm run dev:homepage && npm run dev:goods && npm run dev:details && npm run dev:test && npm run dev:sandbox"
   },
   "dependencies": {
     "crypto-js": "4.2.0",

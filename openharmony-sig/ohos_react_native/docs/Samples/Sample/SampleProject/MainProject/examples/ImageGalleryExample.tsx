@@ -5,15 +5,15 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-import React, {useState} from 'react';
-import {Image, ScrollView, StyleSheet, TextInput, View} from 'react-native';
+import React, { useState } from 'react';
+import { Image, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
 export function ImageGalleryExample() {
   const [numberOfComponents, setNumberOfComponents] = useState(300);
 
   return (
-    <ScrollView style={{flex: 1}}>
-      <View style={{flexDirection: 'column'}}>
+    <ScrollView style={{ flex: 1 }}>
+      <View style={{ flexDirection: 'column' }}>
         <TextInput
           style={styles.textInput}
           value={numberOfComponents.toString()}

@@ -5,8 +5,6 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-
-
 #include "MarqueeViewEventEmitter.h"
 
 namespace facebook {

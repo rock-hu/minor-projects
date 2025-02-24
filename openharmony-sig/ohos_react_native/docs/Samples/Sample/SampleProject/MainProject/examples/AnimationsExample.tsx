@@ -5,9 +5,9 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-import React, {useEffect, useState} from 'react';
-import {Animated, ScrollView, Text, TextInput, View} from 'react-native';
-import {Button} from '../components';
+import React, { useEffect, useState } from 'react';
+import { Animated, ScrollView, Text, TextInput, View } from 'react-native';
+import { Button } from '../components';
 
 export function AnimationsExample() {
   const [isIntervalRunning, setIsIntervalRunning] = useState(false);
@@ -22,8 +22,8 @@ export function AnimationsExample() {
   useEffect(() => {
     const timerId = isIntervalRunning
       ? setInterval(() => {
-          setTimeout(() => {}, 1);
-        }, 1)
+        setTimeout(() => { }, 1);
+      }, 1)
       : undefined;
     return () => {
       if (timerId) {
@@ -140,7 +140,7 @@ export function AnimationsExample() {
 
   return (
     <ScrollView>
-      <View style={{flexDirection: 'row'}}>
+      <View style={{ flexDirection: 'row' }}>
         <Button
           label={isIntervalRunning ? 'Stop running interval' : 'Run interval'}
           onPress={() => {
@@ -170,7 +170,7 @@ export function AnimationsExample() {
           setNumberOfComponents(parseInt(value) || 0);
         }}
       />
-      <View style={{width: '100%'}}>
+      <View style={{ width: '100%' }}>
         {new Array(numberOfComponents).fill(0).map((_, idx) => {
           return (
             <View
@@ -201,46 +201,46 @@ export function AnimationsExample() {
             left: xAnim,
             backgroundColor: 'red',
           }}>
-          <Text style={{height: 24}}>Position</Text>
+          <Text style={{ height: 24 }}>Position</Text>
         </Animated.View>
         <>
           <Animated.View
             style={{
               height: 100,
               width: 100,
-              transform: [{translateX: xAnim}],
+              transform: [{ translateX: xAnim }],
               backgroundColor: 'red',
             }}>
-            <Text style={{height: 24}}>Transform</Text>
+            <Text style={{ height: 24 }}>Transform</Text>
           </Animated.View>
           <Animated.View
             style={{
               height: 100,
               width: 100,
-              transform: [{translateX: xAnimNative}],
+              transform: [{ translateX: xAnimNative }],
               backgroundColor: 'red',
             }}>
-            <Text style={{height: 24}}>Native driver</Text>
+            <Text style={{ height: 24 }}>Native driver</Text>
           </Animated.View>
           <Animated.View
             style={{
               height: 100,
               width: 100,
-              transform: [{translateX: Animated.add(xAnimNative, 50)}],
+              transform: [{ translateX: Animated.add(xAnimNative, 50) }],
               backgroundColor: 'red',
             }}>
-            <Text style={{height: 48}}>Native driver Addition</Text>
+            <Text style={{ height: 48 }}>Native driver Addition</Text>
           </Animated.View>
           <Animated.View
             style={{
               height: 100,
               width: 100,
               transform: [
-                {translateX: Animated.multiply(xAnimNative, yAnimNative)},
+                { translateX: Animated.multiply(xAnimNative, yAnimNative) },
               ],
               backgroundColor: 'red',
             }}>
-            <Text style={{height: 48}}>Native driver Multiplication</Text>
+            <Text style={{ height: 48 }}>Native driver Multiplication</Text>
           </Animated.View>
           <Animated.View
             style={{
@@ -256,45 +256,45 @@ export function AnimationsExample() {
               ],
               backgroundColor: 'red',
             }}>
-            <Text style={{height: 48}}>Native driver Division</Text>
+            <Text style={{ height: 48 }}>Native driver Division</Text>
           </Animated.View>
           <Animated.View
             style={{
               height: 100,
               width: 100,
-              transform: [{translateX: Animated.subtract(xAnimNative, 50)}],
+              transform: [{ translateX: Animated.subtract(xAnimNative, 50) }],
               backgroundColor: 'red',
             }}>
-            <Text style={{height: 48}}>Native driver Subtraction</Text>
+            <Text style={{ height: 48 }}>Native driver Subtraction</Text>
           </Animated.View>
           <Animated.View
             style={{
               height: 100,
               width: 100,
               transform: [
-                {scaleX: Animated.add(Animated.divide(xAnimNative, 100), 0.5)},
+                { scaleX: Animated.add(Animated.divide(xAnimNative, 100), 0.5) },
               ],
               backgroundColor: 'red',
             }}>
-            <Text style={{height: 48}}>Native driver scale</Text>
+            <Text style={{ height: 48 }}>Native driver scale</Text>
           </Animated.View>
           <Animated.View
             style={{
               height: 100,
               width: 100,
-              transform: [{rotate: spin}],
+              transform: [{ rotate: spin }],
               backgroundColor: 'red',
             }}>
-            <Text style={{height: 48}}>Native driver rotate</Text>
+            <Text style={{ height: 48 }}>Native driver rotate</Text>
           </Animated.View>
           <Animated.View
             style={{
               height: 100,
               width: 100,
-              transform: [{rotateX: spin}, {rotateY: spin}],
+              transform: [{ rotateX: spin }, { rotateY: spin }],
               backgroundColor: 'red',
             }}>
-            <Text style={{height: 48}}>Native driver rotate X&Y</Text>
+            <Text style={{ height: 48 }}>Native driver rotate X&Y</Text>
           </Animated.View>
         </>
         {isComponentVisible && (

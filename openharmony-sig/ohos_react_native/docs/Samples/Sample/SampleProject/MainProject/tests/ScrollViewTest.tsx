@@ -17,9 +17,9 @@ import {
   ScrollViewProps,
 } from 'react-native';
 import { TestSuite, TestCase } from '@rnoh/testerino';
-import React, {useEffect, useRef, useState} from 'react';
-import {Button, ObjectDisplayer} from '../components';
-import {GestureResponderEvent} from 'react-native/Libraries/Types/CoreEventTypes';
+import React, { useEffect, useRef, useState } from 'react';
+import { Button, ObjectDisplayer } from '../components';
+import { GestureResponderEvent } from 'react-native/Libraries/Types/CoreEventTypes';
 
 const COMMON_PROPS = {
   style: {
@@ -282,7 +282,7 @@ export function ScrollViewTest() {
         <TestCase
           skip={Platform.OS === 'android'}
           itShould="stick item 13 and 20 to the bottom (invertStickyHeaders)"
-          //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/309
+        //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/309
         >
           <View style={styles.wrapperView}>
             <ScrollView
@@ -307,8 +307,8 @@ export function ScrollViewTest() {
       <TestSuite name="pointer events">
         <TestCase
           itShould="call inner and outer view when pressing inner"
-          initialState={{inner: false, outer: false, outerContainer: false}}
-          arrange={({setState, reset}) => {
+          initialState={{ inner: false, outer: false, outerContainer: false }}
+          arrange={({ setState, reset }) => {
             return (
               <PointerEventsView
                 pointerEventsOuter="auto"
@@ -317,7 +317,7 @@ export function ScrollViewTest() {
               />
             );
           }}
-          assert={({expect, state}) => {
+          assert={({ expect, state }) => {
             expect(state).to.be.deep.eq({
               inner: true,
               outer: true,
@@ -329,8 +329,8 @@ export function ScrollViewTest() {
           //it seems there's a bug on Android, which causes pointerEvents to not work correctly for Scrollviews
           skip // https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/424
           itShould="[FAILS on Android/Harmony] call only outer when pressing inner view"
-          initialState={{inner: false, outer: false, outerContainer: true}}
-          arrange={({setState, reset}) => {
+          initialState={{ inner: false, outer: false, outerContainer: true }}
+          arrange={({ setState, reset }) => {
             return (
               <PointerEventsView
                 pointerEventsOuter="box-only"
@@ -339,7 +339,7 @@ export function ScrollViewTest() {
               />
             );
           }}
-          assert={({expect, state}) => {
+          assert={({ expect, state }) => {
             expect(state).to.be.deep.eq({
               inner: false,
               outer: true,
@@ -350,8 +350,8 @@ export function ScrollViewTest() {
         <TestCase
           //it seems there's a bug on Android, which causes pointerEvents to not work correctly for Scrollviews
           itShould="[FAILS on Android] call inner and outer only when pressing inner view"
-          initialState={{inner: false, outer: false, outerContainer: false}}
-          arrange={({setState, reset}) => {
+          initialState={{ inner: false, outer: false, outerContainer: false }}
+          arrange={({ setState, reset }) => {
             return (
               <PointerEventsView
                 disableOuterContainerTouch
@@ -361,7 +361,7 @@ export function ScrollViewTest() {
               />
             );
           }}
-          assert={({expect, state}) => {
+          assert={({ expect, state }) => {
             expect(state.inner).to.be.true;
             expect(state.outer).to.be.true;
           }}
@@ -369,8 +369,8 @@ export function ScrollViewTest() {
         <TestCase
           //it seems there's a bug on Android, which causes pointerEvents to not work correctly for Scrollviews
           itShould="[FAILS on Android] not call inner or outer when pressing inner or outer views"
-          initialState={{inner: false, outer: false, outerContainer: false}}
-          arrange={({setState, reset}) => {
+          initialState={{ inner: false, outer: false, outerContainer: false }}
+          arrange={({ setState, reset }) => {
             return (
               <PointerEventsView
                 pointerEventsOuter="none"
@@ -379,7 +379,7 @@ export function ScrollViewTest() {
               />
             );
           }}
-          assert={({expect, state}) => {
+          assert={({ expect, state }) => {
             expect(state).to.be.deep.eq({
               inner: false,
               outer: false,
@@ -390,12 +390,12 @@ export function ScrollViewTest() {
       </TestSuite>
       <TestSuite name="snapTo*">
         <SnapTestCases
-          scrollViewProps={{disableIntervalMomentum: false, horizontal: false}}
+          scrollViewProps={{ disableIntervalMomentum: false, horizontal: false }}
         />
       </TestSuite>
       <TestSuite name="disableIntervalMomentum">
         <SnapTestCases
-          scrollViewProps={{disableIntervalMomentum: true, horizontal: false}}
+          scrollViewProps={{ disableIntervalMomentum: true, horizontal: false }}
         />
       </TestSuite>
       <TestSuite name="other props">
@@ -418,14 +418,14 @@ export function ScrollViewTest() {
         <TestCase
           modal
           itShould="display ScrollView with the third view at the top (contentOffset)"
-          //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/305
+        //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/305
         >
           <ContentOffsetTestCase />
         </TestCase>
         <TestCase
           modal
           itShould="scroll when contentOffset property is changed (contentOffset)"
-          //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/305
+        //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/305
         >
           <ToggleContentOffsetTestCase />
         </TestCase>
@@ -438,12 +438,12 @@ export function ScrollViewTest() {
           modal
           skip
           itShould="[FAILS on Harmony/Android] display ScrollView with different contentInsets (contentInset)"
-          //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/304
+        //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/304
         >
           <View style={styles.wrapperView}>
             <ScrollView
               {...COMMON_PROPS}
-              contentInset={{top: 10, right: 20, bottom: 30, left: 40}}
+              contentInset={{ top: 10, right: 20, bottom: 30, left: 40 }}
             />
           </View>
         </TestCase>
@@ -451,7 +451,7 @@ export function ScrollViewTest() {
           modal
           skip
           itShould="[FAILS on Harmony/Android] adjust the scrollview when showing keyboard (automaticallyAdjustKeyboardInsets)"
-          //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/302
+        //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/302
         >
           <View style={styles.wrapperView}>
             <TextInput style={styles.textInput} />
@@ -477,7 +477,7 @@ export function ScrollViewTest() {
                 <ScrollView
                   {...COMMON_PROPS}
                   scrollEventThrottle={1000}
-                  onScroll={(e: {nativeEvent: Object}) => {
+                  onScroll={(e: { nativeEvent: Object }) => {
                     setObject(e.nativeEvent);
                   }}
                 />
@@ -488,7 +488,7 @@ export function ScrollViewTest() {
         <TestCase
           modal
           itShould="the left scrollview should decelerate faster (stops earlier) than the right one (decelarationRate)">
-          <View style={[styles.wrapperView, {flexDirection: 'row'}]}>
+          <View style={[styles.wrapperView, { flexDirection: 'row' }]}>
             <ScrollView {...COMMON_PROPS} decelerationRate={0.8} />
             <ScrollView {...COMMON_PROPS} decelerationRate={0.999} />
           </View>
@@ -497,11 +497,11 @@ export function ScrollViewTest() {
           modal
           skip
           itShould="the left scrollview should dismiss the keyboard on scroll and the right one shouldn't (keyboardDismissMode)"
-          //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/310
+        //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/310
         >
           <View>
             <TextInput style={styles.textInput} />
-            <View style={[styles.wrapperView, {flexDirection: 'row'}]}>
+            <View style={[styles.wrapperView, { flexDirection: 'row' }]}>
               <ScrollView {...COMMON_PROPS} keyboardDismissMode={'on-drag'}>
                 {getScrollViewContent({})}
               </ScrollView>
@@ -515,11 +515,11 @@ export function ScrollViewTest() {
           modal
           skip
           itShould="[FAILS on Harmony/ Android Emulator] the left scrollview should dismiss the keyboard on tap and the right one shouldn't (keyboardShouldPersistTaps)"
-          //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/311
+        //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/311
         >
           <View>
             <TextInput style={styles.textInput} />
-            <View style={[styles.wrapperView, {flexDirection: 'row'}]}>
+            <View style={[styles.wrapperView, { flexDirection: 'row' }]}>
               <ScrollView
                 {...COMMON_PROPS}
                 keyboardShouldPersistTaps={'never'}
@@ -534,7 +534,7 @@ export function ScrollViewTest() {
         <TestCase
           modal
           itShould="the left scrollview should bounce (briefly scroll beyond the content to show the view below and then come back to top/bottom accordingly)">
-          <View style={[styles.wrapperView, {flexDirection: 'row'}]}>
+          <View style={[styles.wrapperView, { flexDirection: 'row' }]}>
             <ScrollView {...COMMON_PROPS} />
             <ScrollView {...COMMON_PROPS} bounces={false} />
           </View>
@@ -543,7 +543,7 @@ export function ScrollViewTest() {
           modal
           skip
           itShould="[FAILS on Harmony/Android] scroll outside of the content when pressing the button (scrollToOverflowEnabled)"
-          //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/315
+        //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/315
         >
           <ScrollToOverflowEnabledTestCase />
         </TestCase>
@@ -551,12 +551,12 @@ export function ScrollViewTest() {
           modal
           skip
           itShould="the left scrollview should allow for nested scroll while the right one shouldn't (nestedScrollEnabled)"
-          //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/312
+        //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/312
         >
           <View
             style={[
               styles.wrapperView,
-              {flexDirection: 'row', alignContent: 'space-between'},
+              { flexDirection: 'row', alignContent: 'space-between' },
             ]}>
             <ScrollView {...COMMON_PROPS}>
               <ScrollView
@@ -568,7 +568,7 @@ export function ScrollViewTest() {
                   borderWidth: 2,
                 }}>
                 {getScrollViewContent({
-                  style: {backgroundColor: 'green'},
+                  style: { backgroundColor: 'green' },
                   amountOfChildren: 5,
                 })}
               </ScrollView>
@@ -584,7 +584,7 @@ export function ScrollViewTest() {
                   borderWidth: 2,
                 }}>
                 {getScrollViewContent({
-                  style: {backgroundColor: 'green'},
+                  style: { backgroundColor: 'green' },
                   amountOfChildren: 5,
                 })}
               </ScrollView>
@@ -616,7 +616,7 @@ export function ScrollViewTest() {
   );
 }
 
-function SnapTestCases(props: {scrollViewProps: ScrollViewProps}) {
+function SnapTestCases(props: { scrollViewProps: ScrollViewProps }) {
   return (
     <>
       <TestCase
@@ -627,10 +627,10 @@ function SnapTestCases(props: {scrollViewProps: ScrollViewProps}) {
           commonProps={{
             ...props.scrollViewProps,
             snapToOffsets: [ITEM_HEIGHT * 5],
-            children: getScrollViewContent({amountOfChildren: 25}),
+            children: getScrollViewContent({ amountOfChildren: 25 }),
           }}
-          lhsProps={{snapToEnd: true}}
-          rhsProps={{snapToEnd: false}}
+          lhsProps={{ snapToEnd: true }}
+          rhsProps={{ snapToEnd: false }}
         />
       </TestCase>
       <TestCase
@@ -641,10 +641,10 @@ function SnapTestCases(props: {scrollViewProps: ScrollViewProps}) {
           commonProps={{
             ...props.scrollViewProps,
             snapToOffsets: [ITEM_HEIGHT * 5],
-            children: getScrollViewContent({amountOfChildren: 25}),
+            children: getScrollViewContent({ amountOfChildren: 25 }),
           }}
-          lhsProps={{snapToStart: true}}
-          rhsProps={{snapToStart: false}}
+          lhsProps={{ snapToStart: true }}
+          rhsProps={{ snapToStart: false }}
         />
       </TestCase>
       <TestCase modal itShould="snap to page">
@@ -652,10 +652,10 @@ function SnapTestCases(props: {scrollViewProps: ScrollViewProps}) {
           scrollViewLength={ITEM_HEIGHT * 5}
           commonProps={{
             ...props.scrollViewProps,
-            children: getScrollViewContent({amountOfChildren: 25}),
+            children: getScrollViewContent({ amountOfChildren: 25 }),
           }}
-          lhsProps={{pagingEnabled: false}}
-          rhsProps={{pagingEnabled: true}}
+          lhsProps={{ pagingEnabled: false }}
+          rhsProps={{ pagingEnabled: true }}
         />
       </TestCase>
       <TestCase modal itShould="snap to item 1, 3, 5, 7, 9, ...">
@@ -663,10 +663,10 @@ function SnapTestCases(props: {scrollViewProps: ScrollViewProps}) {
           scrollViewLength={ITEM_HEIGHT * 5}
           commonProps={{
             ...props.scrollViewProps,
-            children: getScrollViewContent({amountOfChildren: 25}),
+            children: getScrollViewContent({ amountOfChildren: 25 }),
           }}
           lhsProps={{}}
-          rhsProps={{snapToInterval: ITEM_HEIGHT * 2}}
+          rhsProps={{ snapToInterval: ITEM_HEIGHT * 2 }}
         />
       </TestCase>
       <TestCase modal itShould="snap to item 2, 3, 7, and 11 and 21">
@@ -674,7 +674,7 @@ function SnapTestCases(props: {scrollViewProps: ScrollViewProps}) {
           scrollViewLength={ITEM_HEIGHT * 5}
           commonProps={{
             ...props.scrollViewProps,
-            children: getScrollViewContent({amountOfChildren: 25}),
+            children: getScrollViewContent({ amountOfChildren: 25 }),
           }}
           lhsProps={{}}
           rhsProps={{
@@ -693,11 +693,11 @@ function SnapTestCases(props: {scrollViewProps: ScrollViewProps}) {
             scrollViewLength={ITEM_HEIGHT * 1.5}
             commonProps={{
               ...props.scrollViewProps,
-              children: getScrollViewContent({amountOfChildren: 25}),
+              children: getScrollViewContent({ amountOfChildren: 25 }),
               snapToInterval: ITEM_HEIGHT,
             }}
-            lhsProps={{snapToAlignment: 'start'}}
-            rhsProps={{snapToAlignment: 'center'}}
+            lhsProps={{ snapToAlignment: 'start' }}
+            rhsProps={{ snapToAlignment: 'center' }}
           />
         </TestCase>
         <TestCase modal itShould="snap to item {lhs: start, rhs: end}">
@@ -705,18 +705,18 @@ function SnapTestCases(props: {scrollViewProps: ScrollViewProps}) {
             scrollViewLength={ITEM_HEIGHT * 1.5}
             commonProps={{
               ...props.scrollViewProps,
-              children: getScrollViewContent({amountOfChildren: 25}),
+              children: getScrollViewContent({ amountOfChildren: 25 }),
               snapToInterval: ITEM_HEIGHT,
             }}
-            lhsProps={{snapToAlignment: 'start'}}
-            rhsProps={{snapToAlignment: 'end'}}
+            lhsProps={{ snapToAlignment: 'start' }}
+            rhsProps={{ snapToAlignment: 'end' }}
           />
         </TestCase>
       </TestSuite>
     </>
   );
 }
-const Item = (props: {label: string; mode: 'dark' | 'light'}) => {
+const Item = (props: { label: string; mode: 'dark' | 'light' }) => {
   const stylesheet = StyleSheet.create({
     dark: {
       backgroundColor: '#47443D',
@@ -741,7 +741,7 @@ const Item = (props: {label: string; mode: 'dark' | 'light'}) => {
   );
 };
 
-const ITEMS = Array.from({length: 20}, (_, index) => (
+const ITEMS = Array.from({ length: 20 }, (_, index) => (
   <Item
     label={`Item${index}`}
     key={`item${index}`}
@@ -840,14 +840,14 @@ function MomentumTestCase() {
           setHasMomentumEnded(0);
         }}
       />
-      <View style={{backgroundColor: 'white', width: '100%'}}>
-        <Text style={{height: 16}}>hasMomentumBegan: {hasMomentumBegan}</Text>
-        <Text style={{height: 16}}>hasMomentumEnded: {hasMomentumEnded}</Text>
-        <Text style={{height: 16}}>hasDragBegan: {hasDragBegan}</Text>
-        <Text style={{height: 16}}>hasDragEnded: {hasDragEnded}</Text>
+      <View style={{ backgroundColor: 'white', width: '100%' }}>
+        <Text style={{ height: 16 }}>hasMomentumBegan: {hasMomentumBegan}</Text>
+        <Text style={{ height: 16 }}>hasMomentumEnded: {hasMomentumEnded}</Text>
+        <Text style={{ height: 16 }}>hasDragBegan: {hasDragBegan}</Text>
+        <Text style={{ height: 16 }}>hasDragEnded: {hasDragEnded}</Text>
       </View>
 
-      <View style={{width: 200, height: 200}}>
+      <View style={{ width: 200, height: 200 }}>
         <ScrollView
           onScrollBeginDrag={() => {
             setHasDragBegan(p => p + 1);
@@ -861,12 +861,12 @@ function MomentumTestCase() {
           onMomentumScrollEnd={() => {
             setHasMomentumEnded(p => p + 1);
           }}>
-          <View style={{backgroundColor: 'red', width: '100%', height: 150}} />
-          <View style={{backgroundColor: 'blue', width: '100%', height: 150}} />
+          <View style={{ backgroundColor: 'red', width: '100%', height: 150 }} />
+          <View style={{ backgroundColor: 'blue', width: '100%', height: 150 }} />
           <View
-            style={{backgroundColor: 'green', width: '100%', height: 150}}
+            style={{ backgroundColor: 'green', width: '100%', height: 150 }}
           />
-          <View style={{backgroundColor: 'red', width: '100%', height: 150}} />
+          <View style={{ backgroundColor: 'red', width: '100%', height: 150 }} />
         </ScrollView>
       </View>
     </>
@@ -880,10 +880,10 @@ function ScrollEnabledTestCase() {
       <Button
         label={'Scroll To offset y 150'}
         onPress={() => {
-          scrollRef.current?.scrollTo({x: 0, y: 150, animated: false});
+          scrollRef.current?.scrollTo({ x: 0, y: 150, animated: false });
         }}
       />
-      <ScrollView style={{flex: 1}} scrollEnabled={false} ref={scrollRef}>
+      <ScrollView style={{ flex: 1 }} scrollEnabled={false} ref={scrollRef}>
         {getScrollViewContent({})}
       </ScrollView>
     </View>
@@ -901,7 +901,7 @@ function FlashIndicatorsTest() {
         }}
       />
       <ScrollView
-        style={{flex: 1}}
+        style={{ flex: 1 }}
         scrollEnabled={true}
         showsVerticalScrollIndicator={false}
         ref={scrollRef}>
@@ -918,7 +918,7 @@ function ScrollToOverflowEnabledTestCase() {
       <Button
         label={'Scroll outside of the content'}
         onPress={() => {
-          ref.current?.scrollTo({x: 0, y: -60, animated: true});
+          ref.current?.scrollTo({ x: 0, y: -60, animated: true });
         }}
       />
       <ScrollView scrollToOverflowEnabled={true} ref={ref}>
@@ -933,7 +933,7 @@ function OnContentSizeChangeTestCase() {
     <ObjectDisplayer
       renderContent={setObject => {
         return (
-          <View style={{width: '100%', height: '70%'}}>
+          <View style={{ width: '100%', height: '70%' }}>
             <Button
               label={'Add one more item'}
               onPress={() => {
@@ -942,9 +942,9 @@ function OnContentSizeChangeTestCase() {
             />
             <ScrollView
               onContentSizeChange={(_, contentHeight) => {
-                setObject({contentHeight});
+                setObject({ contentHeight });
               }}>
-              {getScrollViewContent({amountOfChildren: amountOfChildren})}
+              {getScrollViewContent({ amountOfChildren: amountOfChildren })}
             </ScrollView>
           </View>
         );
@@ -960,7 +960,7 @@ function ContentOffsetTestCase() {
         style={{
           ...styles.wrapperView,
         }}
-        contentOffset={{x: 0, y: 100}}>
+        contentOffset={{ x: 0, y: 100 }}>
         {getScrollViewContent({})}
       </ScrollView>
     </View>
@@ -984,7 +984,7 @@ function ToggleContentOffsetTestCase() {
         style={{
           ...styles.wrapperView,
         }}
-        contentOffset={{x: 0, y: contentOffset}}>
+        contentOffset={{ x: 0, y: contentOffset }}>
         {getScrollViewContent({})}
       </ScrollView>
     </View>
@@ -1006,7 +1006,7 @@ function BackfaceVisibilityTestCase() {
         style={{
           ...styles.wrapperView,
           backfaceVisibility: backfaceVisibility ? 'visible' : 'hidden',
-          transform: [{rotateX: '180deg'}],
+          transform: [{ rotateX: '180deg' }],
         }}>
         {getScrollViewContent({})}
       </ScrollView>
@@ -1045,7 +1045,7 @@ function getScrollViewContent({
         ]}
         pointerEvents={pointerEvents}
         onTouchEnd={onTouchEnd}>
-        <Text style={{textAlign: 'center', height: 15}}> {idx + 1}</Text>
+        <Text style={{ textAlign: 'center', height: 15 }}> {idx + 1}</Text>
       </View>
     );
   });
@@ -1068,7 +1068,7 @@ function getScrollViewContentHorizontal({
           },
           style,
         ]}>
-        <Text style={{textAlign: 'center', height: 15}}> {idx + 1}</Text>
+        <Text style={{ textAlign: 'center', height: 15 }}> {idx + 1}</Text>
       </View>
     );
   });
@@ -1087,15 +1087,15 @@ function PointerEventsView(props: {
   reset: () => void;
 }) {
   return (
-    <View style={{height: 100, width: '100%', flexDirection: 'row'}}>
+    <View style={{ height: 100, width: '100%', flexDirection: 'row' }}>
       <View
-        style={{backgroundColor: 'red'}}
+        style={{ backgroundColor: 'red' }}
         onTouchEnd={
           props.disableOuterContainerTouch
             ? undefined
             : () => {
-                props.setState(prev => ({...prev, outerContainer: true}));
-              }
+              props.setState(prev => ({ ...prev, outerContainer: true }));
+            }
         }>
         <ScrollView
           nestedScrollEnabled
@@ -1107,12 +1107,12 @@ function PointerEventsView(props: {
           }}
           pointerEvents={props.pointerEventsOuter}
           onTouchEnd={() => {
-            props.setState(prev => ({...prev, outer: true}));
+            props.setState(prev => ({ ...prev, outer: true }));
           }}>
           {getScrollViewContent({
             amountOfChildren: 3,
             onTouchEnd: () => {
-              props.setState(prev => ({...prev, inner: true}));
+              props.setState(prev => ({ ...prev, inner: true }));
             },
             pointerEvents: props.pointerEventsInner,
           })}
@@ -1135,23 +1135,23 @@ function ScrollViewComparator({
   rhsProps: ScrollViewProps;
 }) {
   return (
-    <View style={{width: '100%'}}>
+    <View style={{ width: '100%' }}>
       <View
-        style={{flexDirection: 'row', width: '100%', alignItems: 'flex-end'}}>
-        <View style={{flex: 1}}>
-          <Text style={{fontSize: 12}}>{JSON.stringify(lhsProps)}</Text>
-          <View style={{height: scrollViewLength}}>
+        style={{ flexDirection: 'row', width: '100%', alignItems: 'flex-end' }}>
+        <View style={{ flex: 1 }}>
+          <Text style={{ fontSize: 12 }}>{JSON.stringify(lhsProps)}</Text>
+          <View style={{ height: scrollViewLength }}>
             <ScrollView
-              style={{flex: 1, height: scrollViewLength}}
-              {...{...commonProps, ...lhsProps}}
+              style={{ flex: 1, height: scrollViewLength }}
+              {...{ ...commonProps, ...lhsProps }}
             />
           </View>
         </View>
-        <View style={{width: 4, height: '100%', backgroundColor: 'gray'}} />
-        <View style={{flex: 1}}>
-          <Text style={{fontSize: 12}}>{JSON.stringify(rhsProps)}</Text>
-          <View style={{height: scrollViewLength}}>
-            <ScrollView {...{...commonProps, ...rhsProps}} style={{flex: 1}} />
+        <View style={{ width: 4, height: '100%', backgroundColor: 'gray' }} />
+        <View style={{ flex: 1 }}>
+          <Text style={{ fontSize: 12 }}>{JSON.stringify(rhsProps)}</Text>
+          <View style={{ height: scrollViewLength }}>
+            <ScrollView {...{ ...commonProps, ...rhsProps }} style={{ flex: 1 }} />
           </View>
         </View>
       </View>

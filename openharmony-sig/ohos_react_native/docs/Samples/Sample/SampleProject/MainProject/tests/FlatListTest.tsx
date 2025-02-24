@@ -5,7 +5,7 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-import React, {useCallback, useRef, useState} from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import {
   View,
   FlatList,
@@ -19,7 +19,7 @@ import {
   Platform,
 } from 'react-native';
 import { TestCase, TestSuite } from '@rnoh/testerino';
-import {Button, ObjectDisplayer} from '../components';
+import { Button, ObjectDisplayer } from '../components';
 interface ItemData {
   title: string;
   id: string;
@@ -47,9 +47,9 @@ const DATA: ItemData[] = [
   },
 ];
 
-type ItemProps = {title: string};
+type ItemProps = { title: string };
 
-const Item = ({title}: ItemProps) => (
+const Item = ({ title }: ItemProps) => (
   <View style={styles.item}>
     <Text style={styles.title}>{title}</Text>
   </View>
@@ -60,7 +60,7 @@ const commonProps = {
   },
   data: DATA,
   nestedScrollEnabled: true,
-  renderItem: ({item}) => <Item title={item.title} />,
+  renderItem: ({ item }) => <Item title={item.title} />,
   keyExtractor: item => item.id,
 } satisfies FlatListProps<any>;
 
@@ -104,13 +104,13 @@ export const FlatListTest = () => {
         <MaxToRenderPerBatchTestCase />
       </TestCase>
       <TestCase itShould="display empty list with a text saying that the list is empty ">
-        <View style={{height: 40}}>
+        <View style={{ height: 40 }}>
           <FlatList
             data={[]}
             nestedScrollEnabled
             renderItem={() => null}
             ListEmptyComponent={
-              <Text style={{textAlign: 'center'}}>This list is empty</Text>
+              <Text style={{ textAlign: 'center' }}>This list is empty</Text>
             }
           />
         </View>
@@ -130,17 +130,17 @@ export const FlatListTest = () => {
         modal
         skip={Platform.OS === 'android'}
         itShould="support sticky headers (fails on Android with enabled Fabric)">
-        <View style={{height: 100, backgroundColor: '#fff'}}>
+        <View style={{ height: 100, backgroundColor: '#fff' }}>
           <FlatList
             data={DATA}
-            renderItem={({item}) => (
+            renderItem={({ item }) => (
               <View
                 style={{
                   padding: 20,
                   borderBottomWidth: 1,
                   borderBottomColor: '#ccc',
                 }}>
-                <Text style={{fontSize: 16}}>{item.title}</Text>
+                <Text style={{ fontSize: 16 }}>{item.title}</Text>
               </View>
             )}
             keyExtractor={item => item.id}
@@ -152,7 +152,7 @@ export const FlatListTest = () => {
                   justifyContent: 'center',
                   alignItems: 'center',
                 }}>
-                <Text style={{fontSize: 18, fontWeight: 'bold'}}>
+                <Text style={{ fontSize: 18, fontWeight: 'bold' }}>
                   Sticky Header
                 </Text>
               </View>
@@ -164,36 +164,36 @@ export const FlatListTest = () => {
       <TestCase
         itShould="Get the node number - getScrollableNode()"
         initialState={undefined}
-        arrange={({state, setState}) => {
+        arrange={({ state, setState }) => {
           return (
             <FlatListGetScrollableNode state={state} setState={setState} />
           );
         }}
-        assert={({state, expect}) => {
+        assert={({ state, expect }) => {
           expect(state).to.be.an('number');
         }}
       />
       <TestCase
         itShould="Get the nativeScrollRef - getNativeScrollRef()"
         initialState={undefined}
-        arrange={({state, setState}) => {
+        arrange={({ state, setState }) => {
           return (
             <FlatListGetNativeScrollRef state={state} setState={setState} />
           );
         }}
-        assert={({state, expect}) => {
+        assert={({ state, expect }) => {
           expect(state).to.be.not.undefined;
         }}
       />
       <TestCase
         itShould="Get the scroll responder - getScrollResponder()"
         initialState={undefined}
-        arrange={({state, setState}) => {
+        arrange={({ state, setState }) => {
           return (
             <FlatListGetScrollResponder state={state} setState={setState} />
           );
         }}
-        assert={({state, expect}) => {
+        assert={({ state, expect }) => {
           expect(state).to.be.not.undefined;
         }}
       />
@@ -201,17 +201,17 @@ export const FlatListTest = () => {
         modal
         skip={Platform.OS === 'android'}
         itShould="stick first item to the bottom (invertStickyHeaders, fails on Android with enabled Fabric)">
-        <View style={{height: 100, backgroundColor: '#fff'}}>
+        <View style={{ height: 100, backgroundColor: '#fff' }}>
           <FlatList
             data={DATA}
-            renderItem={({item}) => (
+            renderItem={({ item }) => (
               <View
                 style={{
                   padding: 20,
                   borderBottomWidth: 1,
                   borderBottomColor: '#ccc',
                 }}>
-                <Text style={{fontSize: 16}}>{item.title}</Text>
+                <Text style={{ fontSize: 16 }}>{item.title}</Text>
               </View>
             )}
             keyExtractor={item => item.id}
@@ -223,7 +223,7 @@ export const FlatListTest = () => {
                   justifyContent: 'center',
                   alignItems: 'center',
                 }}>
-                <Text style={{fontSize: 18, fontWeight: 'bold'}}>Header</Text>
+                <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Header</Text>
               </View>
             )}
             stickyHeaderIndices={[1]}
@@ -246,7 +246,7 @@ function InitialNumToRenderTestCase() {
         }}
         data={DATA}
         nestedScrollEnabled
-        renderItem={({item}) => {
+        renderItem={({ item }) => {
           return <Item title={item.title} />;
         }}
         keyExtractor={item => item.id}
@@ -261,14 +261,14 @@ function ViewabilityConfigTest({
 }: {
   setObject: (obj: Object) => void;
 }) {
-  const viewabilityConfig = {viewAreaCoveragePercentThreshold: 100};
+  const viewabilityConfig = { viewAreaCoveragePercentThreshold: 100 };
   const onViewableItemsChanged = useRef(
-    (item: {viewableItems: Array<ViewToken>; changed: Array<ViewToken>}) => {
+    (item: { viewableItems: Array<ViewToken>; changed: Array<ViewToken> }) => {
       setObject(item.viewableItems.map(i => i.item));
     },
   );
   return (
-    <View style={{height: 300}}>
+    <View style={{ height: 300 }}>
       <FlatList
         {...commonProps}
         viewabilityConfig={viewabilityConfig}
@@ -281,13 +281,13 @@ function ViewabilityConfigTest({
 function MaxToRenderPerBatchTestCase() {
   const [data, setData] = useState<string[]>([]);
 
-  const renderItem = ({item}: {item: string; index: number}) => {
-    return <Text style={{height: 20}}>{item}</Text>;
+  const renderItem = ({ item }: { item: string; index: number }) => {
+    return <Text style={{ height: 20 }}>{item}</Text>;
   };
 
   return (
-    <View style={{height: 500}}>
-      <View style={{flexDirection: 'row'}}>
+    <View style={{ height: 500 }}>
+      <View style={{ flexDirection: 'row' }}>
         <FlatList
           data={data}
           renderItem={renderItem}
@@ -306,7 +306,7 @@ function MaxToRenderPerBatchTestCase() {
         onPress={() => {
           setData(prevData => [
             ...prevData,
-            ...Array.from({length: 60}, (_, i) => `New item ${i + 1}`),
+            ...Array.from({ length: 60 }, (_, i) => `New item ${i + 1}`),
           ]);
         }}
       />
@@ -331,7 +331,7 @@ class SelectableListItem extends React.PureComponent<SelectableListItemProps> {
     return (
       <TouchableOpacity onPress={this._onPress}>
         <View>
-          <Text style={{color: textColor}}>{this.props.title}</Text>
+          <Text style={{ color: textColor }}>{this.props.title}</Text>
         </View>
       </TouchableOpacity>
     );
@@ -353,11 +353,11 @@ class ExtraDataTestCase extends React.PureComponent<{}, MultiSelectListState> {
     this.setState(state => {
       const selected = new Map(state.selected);
       selected.set(id, !selected.get(id));
-      return {selected};
+      return { selected };
     });
   };
 
-  _renderItem = ({item}: {item: ItemData}) => (
+  _renderItem = ({ item }: { item: ItemData }) => (
     <SelectableListItem
       id={item.id}
       onPressItem={this._onPressItem}
@@ -368,7 +368,7 @@ class ExtraDataTestCase extends React.PureComponent<{}, MultiSelectListState> {
 
   render() {
     return (
-      <View style={{height: 200}}>
+      <View style={{ height: 200 }}>
         <FlatList
           data={DATA}
           extraData={this.state}

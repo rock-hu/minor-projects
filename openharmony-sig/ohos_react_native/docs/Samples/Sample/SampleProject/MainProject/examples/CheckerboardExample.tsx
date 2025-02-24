@@ -5,8 +5,8 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-import React, {useState} from 'react';
-import {Animated, Text, View} from 'react-native';
+import React, { useState } from 'react';
+import { Animated, Text, View } from 'react-native';
 
 const N_ROWS = 100;
 const N_COLS = 100;
@@ -16,7 +16,7 @@ export function CheckerboardExample() {
   const [isCheckerboardVisible, setIsCheckerboardVisible] = useState(false);
 
   return (
-    <View style={{backgroundColor: 'black', width: '100%', height: '100%'}}>
+    <View style={{ backgroundColor: 'black', width: '100%', height: '100%' }}>
       <AnimatedRectangle />
       <Button
         label="Show checkerboard"
@@ -26,7 +26,7 @@ export function CheckerboardExample() {
       {isCheckerboardVisible &&
         new Array(N_ROWS).fill(0).map((_, rowId) => {
           return (
-            <View key={rowId} style={{flexDirection: 'row', width: '100%'}}>
+            <View key={rowId} style={{ flexDirection: 'row', width: '100%' }}>
               {new Array(N_COLS).fill(0).map((__, colId) => {
                 return <Box key={colId} colorId={(rowId + colId) % 3} />;
               })}
@@ -37,19 +37,19 @@ export function CheckerboardExample() {
   );
 }
 
-function Button({onPress}: {label: string; onPress: () => void}) {
+function Button({ onPress }: { label: string; onPress: () => void }) {
   return (
     <View
       onTouchEnd={onPress}
-      style={{backgroundColor: 'blue', width: 192, height: 24}}>
-      <Text style={{width: '100%', height: '100%', color: 'white'}}>
+      style={{ backgroundColor: 'blue', width: 192, height: 24 }}>
+      <Text style={{ width: '100%', height: '100%', color: 'white' }}>
         Show checkerboard
       </Text>
     </View>
   );
 }
 
-function Box({colorId}: {colorId: number}) {
+function Box({ colorId }: { colorId: number }) {
   function getColor() {
     if (colorId === 1) {
       return '#0F0';
@@ -60,7 +60,7 @@ function Box({colorId}: {colorId: number}) {
     return '#F00';
   }
   return (
-    <View style={{width: SIZE, height: SIZE, backgroundColor: getColor()}} />
+    <View style={{ width: SIZE, height: SIZE, backgroundColor: getColor() }} />
   );
 }
 

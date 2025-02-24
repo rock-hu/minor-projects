@@ -11,9 +11,9 @@ import {
   getScrollViewContent,
   getScrollViewContentHorizontal,
 } from './fixtures';
-import {ScrollView, StyleSheet, View} from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import React from 'react';
-import {Button} from '../../components';
+import { Button } from '../../components';
 
 export function ScrollBarsTest() {
   return (
@@ -88,7 +88,7 @@ function FlashIndicatorsTest() {
         }}
       />
       <ScrollView
-        style={{flex: 1}}
+        style={{ flex: 1 }}
         scrollEnabled={true}
         showsVerticalScrollIndicator={false}
         ref={scrollRef}>
@@ -105,7 +105,7 @@ function ScrollViewScrollIndicatorInsetsTest() {
         style={{
           ...styles.wrapperView,
         }}
-        scrollIndicatorInsets={{right: 50, bottom: 200, top: 200}}>
+        scrollIndicatorInsets={{ right: 50, bottom: 200, top: 200 }}>
         {getScrollViewContent({})}
       </ScrollView>
     </View>
@@ -119,8 +119,8 @@ function ScrollViewContentInsetsTest() {
         style={{
           ...styles.wrapperView,
         }}
-        contentInset={{left: 50, bottom: 100, top: 100}}
-        scrollIndicatorInsets={{left: 50, bottom: 100, top: 100}}>
+        contentInset={{ left: 50, bottom: 100, top: 100 }}
+        scrollIndicatorInsets={{ left: 50, bottom: 100, top: 100 }}>
         {getScrollViewContent({})}
       </ScrollView>
     </View>

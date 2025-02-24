@@ -5,8 +5,8 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-import React, {useState} from 'react';
-import {View, Switch, StyleSheet, Text} from 'react-native';
+import React, { useState } from 'react';
+import { View, Switch, StyleSheet, Text } from 'react-native';
 import { TestCase, TestSuite } from '@rnoh/testerino';
 
 export function SwitchTest() {
@@ -17,12 +17,12 @@ export function SwitchTest() {
     <TestSuite name="Switch">
       <TestCase itShould="Render a working switch and display it's state and SwitchChangeEvent details">
         <View style={styles.container}>
-          <Text style={{height: 30}}>
+          <Text style={{ height: 30 }}>
             Switch isEnabled: {isEnabled.toString()}
           </Text>
-          <Text style={{height: 30}}>OnChange event: {event}</Text>
+          <Text style={{ height: 30 }}>OnChange event: {event}</Text>
           <Switch
-            trackColor={{false: 'green', true: 'firebrick'}}
+            trackColor={{ false: 'green', true: 'firebrick' }}
             thumbColor={'beige'}
             onValueChange={toggleSwitch}
             value={isEnabled}
@@ -33,7 +33,7 @@ export function SwitchTest() {
       <TestCase itShould="Render a disabled switch">
         <View style={styles.container}>
           <Switch
-            trackColor={{false: 'green', true: 'firebrick'}}
+            trackColor={{ false: 'green', true: 'firebrick' }}
             thumbColor={'beige'}
             disabled
           />

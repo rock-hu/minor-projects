@@ -19,7 +19,6 @@ import { BarChart, BarChartModel } from '@ohos/mpchart'
 import { XAxis, XAxisPosition } from '@ohos/mpchart'
 import { YAxis, AxisDependency, YAxisLabelPosition } from '@ohos/mpchart'
 
-@Entry
 @Preview
 @ComponentV2
 export default struct BarChartItem {

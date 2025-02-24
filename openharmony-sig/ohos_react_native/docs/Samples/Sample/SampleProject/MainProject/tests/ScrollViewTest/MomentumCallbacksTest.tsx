@@ -6,9 +6,9 @@
  */
 
 import { TestCase } from '@rnoh/testerino';
-import {useState} from 'react';
-import {ScrollView, Text, View} from 'react-native';
-import {Button} from '../../components';
+import { useState } from 'react';
+import { ScrollView, Text, View } from 'react-native';
+import { Button } from '../../components';
 
 export function MomentumCallbacksTest() {
   return (
@@ -37,14 +37,14 @@ function MomentumTestCase() {
           setHasMomentumEnded(0);
         }}
       />
-      <View style={{backgroundColor: 'white', width: '100%'}}>
-        <Text style={{height: 16}}>hasMomentumBegan: {hasMomentumBegan}</Text>
-        <Text style={{height: 16}}>hasMomentumEnded: {hasMomentumEnded}</Text>
-        <Text style={{height: 16}}>hasDragBegan: {hasDragBegan}</Text>
-        <Text style={{height: 16}}>hasDragEnded: {hasDragEnded}</Text>
+      <View style={{ backgroundColor: 'white', width: '100%' }}>
+        <Text style={{ height: 16 }}>hasMomentumBegan: {hasMomentumBegan}</Text>
+        <Text style={{ height: 16 }}>hasMomentumEnded: {hasMomentumEnded}</Text>
+        <Text style={{ height: 16 }}>hasDragBegan: {hasDragBegan}</Text>
+        <Text style={{ height: 16 }}>hasDragEnded: {hasDragEnded}</Text>
       </View>
 
-      <View style={{width: 200, height: 200}}>
+      <View style={{ width: 200, height: 200 }}>
         <ScrollView
           onScrollBeginDrag={() => {
             setHasDragBegan(p => p + 1);
@@ -58,12 +58,12 @@ function MomentumTestCase() {
           onMomentumScrollEnd={() => {
             setHasMomentumEnded(p => p + 1);
           }}>
-          <View style={{backgroundColor: 'red', width: '100%', height: 150}} />
-          <View style={{backgroundColor: 'blue', width: '100%', height: 150}} />
+          <View style={{ backgroundColor: 'red', width: '100%', height: 150 }} />
+          <View style={{ backgroundColor: 'blue', width: '100%', height: 150 }} />
           <View
-            style={{backgroundColor: 'green', width: '100%', height: 150}}
+            style={{ backgroundColor: 'green', width: '100%', height: 150 }}
           />
-          <View style={{backgroundColor: 'red', width: '100%', height: 150}} />
+          <View style={{ backgroundColor: 'red', width: '100%', height: 150 }} />
         </ScrollView>
       </View>
     </>

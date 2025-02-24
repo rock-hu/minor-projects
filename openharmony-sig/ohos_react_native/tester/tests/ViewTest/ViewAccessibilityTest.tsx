@@ -137,6 +137,24 @@ const ANNOUNCEMENT_BY_PLATFORM_BY_ROLE = new Map<
 export function ViewAccessibilityTest() {
   return (
     <TestSuite name="Accessibility props">
+      <TestSuite name="accessible">
+        <TestCase.Example itShould="make screen reader gain focus on the cyan container, but not on the pink container">
+          <View
+            style={{padding: 32, backgroundColor: 'cyan'}}
+            accessible={true}>
+            <Text style={{backgroundColor: 'red', padding: 16}}>
+              The cyan container is accessible...
+            </Text>
+          </View>
+          <View
+            style={{padding: 32, backgroundColor: 'pink'}}
+            accessible={false}>
+            <Text style={{backgroundColor: 'red', padding: 16}}>
+              ...and the pink container is not.
+            </Text>
+          </View>
+        </TestCase.Example>
+      </TestSuite>
       <TestSuite name="accessibilityLabel">
         <TestCase.Example itShould="make the screen reader announce 'I am reading accessibilityLabel content' after focusing the view below in accessibility mode">
           <View
@@ -234,6 +252,38 @@ export function ViewAccessibilityTest() {
             accessibilityLabel="option">
             <Text>1. Enable screen reader</Text>
             <Text>2. Focus on this view</Text>
+          </View>
+        </TestCase.Example>
+      </TestSuite>
+      <TestSuite name="aria-hidden">
+        <TestCase.Example itShould="only announce 'aria hidden false' after gaining focus on a view wrapping both texts">
+          <View accessible={true}>
+            <View style={{padding: 16}}>
+              <Text>aria-hidden: false</Text>
+            </View>
+            <View
+              style={{padding: 16, backgroundColor: '#EEE'}}
+              aria-hidden={true}>
+              <Text>aria-hidden: true</Text>
+            </View>
+          </View>
+        </TestCase.Example>
+        <TestCase.Example itShould="be able to gain focus only on the second item">
+          <Text>View: aria-hidden=true</Text>
+          <View
+            style={{flex: 1, borderColor: 'silver', borderWidth: 5}}
+            accessible={true}
+            aria-hidden={true}>
+            <Text style={{padding: 10}}>This item shouldn't be focusable</Text>
+          </View>
+          <Text style={{paddingTop: 16}}>View: aria-hidden=false</Text>
+          <View
+            style={{flex: 1, borderColor: 'silver', borderWidth: 5}}
+            accessible={true}
+            aria-hidden={false}>
+            <Text style={{padding: 10}}>
+              This item should be focusable and announced
+            </Text>
           </View>
         </TestCase.Example>
       </TestSuite>

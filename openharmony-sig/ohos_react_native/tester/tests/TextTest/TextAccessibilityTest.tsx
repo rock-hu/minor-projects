@@ -14,7 +14,6 @@ export function TextAccessibilityTest() {
     <TestSuite name="text accessibility">
       <TestCase
         modal
-        skip // no screen reader to test it - issue not created
         itShould='make the screen reader say "This is accessible text"'>
         <Text accessible={true}>This is accessible text</Text>
       </TestCase>

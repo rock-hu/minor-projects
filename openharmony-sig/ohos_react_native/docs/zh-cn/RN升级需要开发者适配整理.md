@@ -4,7 +4,7 @@
 
 1. **RN** 新架构中的 `NativeModules` 改为 `TurboModule`，其他调用地方统一改为调用 RNBridge 中封装的该方法。
 
-2. **RN** 中`Dimensions`，`DeviceEventEmitter`，`Appstate`，`Appearance`，`Keyboard`， `AccessibilityInfo`，`NativeEventEmitter`，`Linking`等 `removeEventListener` 或  `removeListener` 在新版本已经废弃，更改为 `remove()`。
+2. **RN** 中 `Dimensions`，`DeviceEventEmitter`，`Appstate`，`Appearance`，`Keyboard`， `AccessibilityInfo`，`NativeEventEmitter`，`Linking` 等 `removeEventListener` 或  `removeListener` 在新版本已经废弃，更改为 `remove()`。
 
 3. 增加 OpenHarmony 判断方法 `PlatformUtils.isHarmony()`，`PlatformUtils.isAPP()` 已经包含OpenHarmony 判断，如果要写单独的 OpenHarmony RN 文件，文件后缀改为 `index.harmony.tsx`。
 

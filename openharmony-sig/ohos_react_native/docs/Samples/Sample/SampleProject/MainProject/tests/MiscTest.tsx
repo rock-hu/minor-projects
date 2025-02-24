@@ -20,9 +20,9 @@ import {
   View,
 } from 'react-native';
 import { TestCase, TestSuite } from '@rnoh/testerino';
-import {useContext} from 'react';
+import { useContext } from 'react';
 import React from 'react';
-import {Button} from '../components';
+import { Button } from '../components';
 
 export const MiscPropsTest = () => {
   const rootTag: RootTag = useContext(RootTagContext);
@@ -34,21 +34,21 @@ export const MiscPropsTest = () => {
       </TestCase>
       <TestCase
         itShould="pass when __DEV__ is defined and have boolean type"
-        fn={({expect}) => {
+        fn={({ expect }) => {
           expect(typeof __DEV__).to.be.eq('boolean');
         }}
       />
       <TestCase
         skip={Platform.OS === 'android'}
         itShould="represent a color as a number"
-        fn={({expect}) => {
+        fn={({ expect }) => {
           expect(processColor('red')).to.be.eq(0xffff0000);
         }}
       />
       {Platform.OS === 'harmony' && (
         <TestCase
           itShould="export harmony specific utils: registerViewConfig, ReactNativeViewAttributes and dispatchCommand"
-          fn={({expect}) => {
+          fn={({ expect }) => {
             expect(registerViewConfig).to.be.not.undefined;
             expect(ReactNativeViewAttributes).to.be.not.undefined;
             expect(dispatchCommand).to.be.not.undefined;
@@ -57,25 +57,25 @@ export const MiscPropsTest = () => {
       )}
       <TestCase
         itShould="export DeviceEventEmitter"
-        fn={({expect}) => {
+        fn={({ expect }) => {
           expect(DeviceEventEmitter).to.be.not.undefined;
         }}
       />
       <TestCase
         itShould="export findNodeHandle"
-        fn={({expect}) => {
+        fn={({ expect }) => {
           expect(findNodeHandle).to.be.not.undefined;
         }}
       />
       <TestCase
         itShould="export DrawerLayoutAndroid"
-        fn={({expect}) => {
+        fn={({ expect }) => {
           expect(DrawerLayoutAndroid).to.be.not.undefined;
         }}
       />
       <TestCase
         itShould="pass when RootTagContext is defined and have sensible value"
-        fn={({expect}) => {
+        fn={({ expect }) => {
           expect(rootTag).to.be.greaterThan(0);
         }}
       />
@@ -91,7 +91,7 @@ function DisplayNoneUpdateTest() {
   const [counter, setCounter] = React.useState(0);
   return (
     <View>
-      <Text style={{display, backgroundColor: 'red'}}>{counter}</Text>
+      <Text style={{ display, backgroundColor: 'red' }}>{counter}</Text>
       <Button
         onPress={() => setDisplay(display ? undefined : 'none')}
         label={display ? 'Show' : 'Hide'}

@@ -5,8 +5,8 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-import React, {useState} from 'react';
-import {Pressable, StyleSheet, View} from 'react-native';
+import React, { useState } from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { TestCase, TestSuite } from '@rnoh/testerino';
 
 export function PressableTest() {
@@ -18,16 +18,16 @@ export function PressableTest() {
           onPressIn: false,
           onPress: false,
         }}
-        arrange={({setState}) => {
+        arrange={({ setState }) => {
           return (
             <Pressable
-              onPressIn={() => setState(prev => ({...prev, onPressIn: true}))}
-              onPress={() => setState(prev => ({...prev, onPress: true}))}>
+              onPressIn={() => setState(prev => ({ ...prev, onPressIn: true }))}
+              onPress={() => setState(prev => ({ ...prev, onPress: true }))}>
               <View style={styles.unpressed} />
             </Pressable>
           );
         }}
-        assert={({expect, state}) => {
+        assert={({ expect, state }) => {
           expect(state).to.be.deep.eq({
             onPressIn: true,
             onPress: true,
@@ -39,14 +39,14 @@ export function PressableTest() {
         initialState={{
           onLongPress: false,
         }}
-        arrange={({setState}) => {
+        arrange={({ setState }) => {
           return (
-            <Pressable onLongPress={() => setState({onLongPress: true})}>
+            <Pressable onLongPress={() => setState({ onLongPress: true })}>
               <View style={styles.unpressed} />
             </Pressable>
           );
         }}
-        assert={({expect, state}) => {
+        assert={({ expect, state }) => {
           expect(state).to.be.deep.eq({
             onLongPress: true,
           });
@@ -57,14 +57,14 @@ export function PressableTest() {
         initialState={{
           onPressOut: false,
         }}
-        arrange={({setState}) => {
+        arrange={({ setState }) => {
           return (
-            <Pressable onPressOut={() => setState({onPressOut: true})}>
+            <Pressable onPressOut={() => setState({ onPressOut: true })}>
               <View style={styles.unpressed} />
             </Pressable>
           );
         }}
-        assert={({expect, state}) => {
+        assert={({ expect, state }) => {
           expect(state).to.be.deep.eq({
             onPressOut: true,
           });
@@ -76,20 +76,20 @@ export function PressableTest() {
           tested: false,
           pressed: false,
         }}
-        arrange={({setState}) => {
+        arrange={({ setState }) => {
           return (
             <Pressable
-              onPress={() => setState(prev => ({...prev, tested: true}))}
+              onPress={() => setState(prev => ({ ...prev, tested: true }))}
               style={styles.pressed}>
               <Pressable
-                onPress={() => setState(prev => ({...prev, pressed: true}))}
+                onPress={() => setState(prev => ({ ...prev, pressed: true }))}
                 style={styles.unpressed}
                 disabled
               />
             </Pressable>
           );
         }}
-        assert={({expect, state}) => {
+        assert={({ expect, state }) => {
           expect(state).to.be.deep.eq({
             tested: true,
             pressed: false,
@@ -99,14 +99,14 @@ export function PressableTest() {
       <TestCase
         itShould="change color to blue on hover"
         skip
-        //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/417
+      //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/417
       >
         <HoverView />
       </TestCase>
       <TestCase
         itShould="pass when blue background is pressed"
         initialState={false}
-        arrange={({setState}) => (
+        arrange={({ setState }) => (
           <View
             style={{
               backgroundColor: 'blue',
@@ -114,7 +114,7 @@ export function PressableTest() {
               position: 'relative',
             }}>
             <Pressable
-              hitSlop={{top: 48, left: 48, bottom: 48, right: 48}}
+              hitSlop={{ top: 48, left: 48, bottom: 48, right: 48 }}
               style={{
                 width: 48,
                 height: 48,
@@ -140,7 +140,7 @@ export function PressableTest() {
             />
           </View>
         )}
-        assert={({expect, state}) => {
+        assert={({ expect, state }) => {
           expect(state).to.be.true;
         }}
       />
@@ -158,7 +158,7 @@ const HoverView = () => {
       onHoverOut={() => {
         setHovered(false);
       }}
-      style={{...styles.unpressed, backgroundColor: hovered ? 'blue' : 'red'}}
+      style={{ ...styles.unpressed, backgroundColor: hovered ? 'blue' : 'red' }}
     />
   );
 };

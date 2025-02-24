@@ -13,7 +13,7 @@ export const BlobTest = () => {
     <TestSuite name="Blob">
       <TestCase
         itShould="return blob size and type correctly"
-        fn={async ({expect}) => {
+        fn={async ({ expect }) => {
           const blob = new Blob(['aaabbbccc'], {
             type: 'text/plain',
             lastModified: Date.now(),

@@ -6,7 +6,7 @@
  */
 
 import { TestSuite, TestCase } from '@rnoh/testerino';
-import {Button} from 'react-native';
+import { Button } from 'react-native';
 
 const SEVERITIES = ['log', 'info', 'warn', 'error', 'debug'] as const;
 

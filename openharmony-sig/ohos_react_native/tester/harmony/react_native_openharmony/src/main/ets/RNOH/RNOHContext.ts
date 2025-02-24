@@ -41,6 +41,7 @@ type RNOHCoreContextDependencies = {
   devMenu: DevMenu;
   safeAreaInsetsProvider: SafeAreaInsetsProvider;
   launchUri?: string;
+  erasedWorkerTaskRunner: unknown;
 };
 
 /**
@@ -152,6 +153,10 @@ export class RNOHCoreContext {
 
   get safeAreaInsetsProvider() {
     return this._rnohCoreContextDeps.safeAreaInsetsProvider;
+  }
+
+  protected get erasedWorkerTaskRunner() {
+    return this._rnohCoreContextDeps.erasedWorkerTaskRunner;
   }
 }
 

@@ -66,7 +66,7 @@ class RNInstance {
 
   using Weak = std::weak_ptr<RNInstance>;
 
-  virtual ~RNInstance() = default;
+  virtual ~RNInstance();
 
   virtual ContextContainer const& getContextContainer() const = 0;
   virtual TurboModule::Shared getTurboModule(const std::string& name) = 0;

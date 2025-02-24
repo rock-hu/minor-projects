@@ -5,13 +5,41 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-import type { lang } from '@kit.ArkTS';
-import { WorkerTurboModuleContext } from "./RNOHContext"
-import type { SupportedUITaskParams, UITaskRunnable, UITaskRunner } from "./UITaskRunner"
+import { UITurboModuleContext, WorkerTurboModuleContext } from "./RNOHContext"
+import type { SupportedTaskParams, } from "./TaskRunner"
+import type { UITaskRunnable, UITaskRunner, } from './UITaskRunner'
+import type { WorkerTaskRunnable, WorkerTaskRunner } from './WorkerTaskRunner'
 import type { WorkerTurboModuleContextDependencies } from "./RNOHContext"
 import { RNOHContext } from "./RNOHContext"
 import { DescriptorWrapper, Tag } from "./DescriptorBase"
 import { RNComponentDataSource } from './RNComponentDataSource'
+import lang from '@arkts.lang'
+
+export interface EtsUITurboModuleContextDependencies {
+  rnohContext: RNOHContext
+}
+
+/**
+ * @api
+ */
+export class EtsUITurboModuleContext extends UITurboModuleContext {
+  private deps: EtsUITurboModuleContextDependencies
+
+  /**
+   * @internal
+   */
+  constructor(deps: EtsUITurboModuleContextDependencies) {
+    super(deps.rnohContext);
+    this.deps = deps;
+  }
+
+  public async runOnWorkerThread<TParams extends SupportedTaskParams, TResult extends lang.ISendable | void, TRunnable extends WorkerTaskRunnable<TParams, TResult>>(runnable: TRunnable,
+    params: TParams): Promise<TResult> {
+    const workerTaskRunner = this.erasedWorkerTaskRunner as WorkerTaskRunner;
+    const rnInstanceId = this.rnInstance.getId();
+    return workerTaskRunner.run(workerTaskRunner.createTask(rnInstanceId, runnable, params));
+  }
+}
 
 /**
  * @internal
@@ -35,9 +63,10 @@ export class EtsWorkerTurboModuleContext extends WorkerTurboModuleContext {
     this.deps = deps
   }
 
-  async runOnUIThread<TParams extends SupportedUITaskParams, TResult extends lang.ISendable | void, TRunnable extends UITaskRunnable<TParams, TResult>>(runnable: TRunnable,
+  async runOnUIThread<TParams extends SupportedTaskParams, TResult extends lang.ISendable | void, TRunnable extends UITaskRunnable<TParams, TResult>>(runnable: TRunnable,
     params: TParams): Promise<TResult> {
-    return this.deps.uiTaskRunner.run(runnable, params) as Promise<TResult>
+    const uiTaskRunner = this.deps.uiTaskRunner;
+    return uiTaskRunner.run(uiTaskRunner.createTask(runnable, params));
   }
 }
 
@@ -102,6 +131,13 @@ export class RNComponentContext extends RNOHContext {
 
   public getContentForTag(tag: Tag): Content | undefined {
     return this.contentByTag.get(tag)
+  }
+
+  public async runOnWorkerThread<TParams extends SupportedTaskParams, TResult extends lang.ISendable | void, TRunnable extends WorkerTaskRunnable<TParams, TResult>>(runnable: TRunnable,
+    params: TParams): Promise<TResult> {
+    const workerTaskRunner = this.erasedWorkerTaskRunner as WorkerTaskRunner;
+    const rnInstanceId = this.rnInstance.getId();
+    return workerTaskRunner.run(workerTaskRunner.createTask(rnInstanceId, runnable, params));
   }
 
   /**

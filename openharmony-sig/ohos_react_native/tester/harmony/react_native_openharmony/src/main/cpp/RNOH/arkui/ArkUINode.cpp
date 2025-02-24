@@ -489,6 +489,38 @@ ArkUINode& ArkUINode::setAccessibilityLevel(
   return *this;
 }
 
+ArkUINode& ArkUINode::setAccessibilityMode(
+    facebook::react::ImportantForAccessibility importance) {
+  switch (importance) {
+    case facebook::react::ImportantForAccessibility::Auto:
+      this->setAccessibilityMode(
+          ArkUI_AccessibilityMode::ARKUI_ACCESSIBILITY_MODE_AUTO);
+      break;
+    case facebook::react::ImportantForAccessibility::Yes:
+      this->setAccessibilityMode(
+          ArkUI_AccessibilityMode::ARKUI_ACCESSIBILITY_MODE_ENABLED);
+      break;
+    case facebook::react::ImportantForAccessibility::No:
+      this->setAccessibilityMode(
+          ArkUI_AccessibilityMode::ARKUI_ACCESSIBILITY_MODE_DISABLED);
+      break;
+    case facebook::react::ImportantForAccessibility::NoHideDescendants:
+      this->setAccessibilityMode(
+          ArkUI_AccessibilityMode::
+              ARKUI_ACCESSIBILITY_MODE_DISABLED_FOR_DESCENDANTS);
+      break;
+    default:
+      DLOG(WARNING) << "Unsupported importantForAccessibility value";
+  }
+  return *this;
+}
+
+ArkUINode& ArkUINode::setAccessibilityMode(ArkUI_AccessibilityMode mode) {
+  ArkUI_NumberValue value = {.i32 = mode};
+  setAttribute(NODE_ACCESSIBILITY_MODE, {value});
+  return *this;
+}
+
 ArkUINode& ArkUINode::setAccessibilityText(
     std::string const& accessibilityLabel) {
   ArkUI_AttributeItem textItem = {.string = accessibilityLabel.c_str()};
@@ -497,8 +529,8 @@ ArkUINode& ArkUINode::setAccessibilityText(
   return *this;
 }
 
-ArkUINode& ArkUINode::setAccessibilityGroup(bool accessible) {
-  ArkUI_NumberValue groupValue[] = {{.i32 = static_cast<int32_t>(accessible)}};
+ArkUINode& ArkUINode::setAccessibilityGroup(bool enableGroup) {
+  ArkUI_NumberValue groupValue[] = {{.i32 = static_cast<int32_t>(enableGroup)}};
   ArkUI_AttributeItem groupItem = {
       .value = groupValue,
       .size = sizeof(groupValue) / sizeof(ArkUI_NumberValue)};
@@ -796,13 +828,6 @@ void ArkUINode::setAttribute(
     int32_t size = values.size();
     ArkUI_AttributeItem item{.value = std::data(values), .size = size};
     setAttribute(attribute, item);
-}
-
-ArkUINode& ArkUINode::setAccessibilityMode(ArkUI_AccessibilityMode mode) 
-{
-    ArkUI_NumberValue value = {.i32 = mode};
-    setAttribute(NODE_ACCESSIBILITY_MODE, {value});
-    return *this;
 }
 
 } // namespace rnoh

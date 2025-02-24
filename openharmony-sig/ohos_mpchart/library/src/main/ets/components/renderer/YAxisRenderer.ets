@@ -48,6 +48,57 @@ export default class YAxisRenderer extends AxisRenderer {
   }
 
   /**
+   * Computes the axis values.
+   *
+   * @param min - the minimum value in the data object for this axis
+   * @param max - the maximum value in the data object for this axis
+   */
+  public computeAxis(min: number, max: number, inverted: boolean) {
+    //The handling of the Y-axis is fully customizable
+    if (this.mYAxis?.getEnableCustomYAxisLabels()) {
+      if (this.mTrans && this.mViewPortHandler != null && this.mViewPortHandler.contentWidth() > 10 && !this.mViewPortHandler.isFullyZoomedOutY()) {
+        let p1: MPPointD | undefined = this.mTrans.getValuesByTouchPoint(this.mViewPortHandler.contentLeft(), this.mViewPortHandler.contentTop());
+        let p2: MPPointD | undefined = this.mTrans.getValuesByTouchPoint(this.mViewPortHandler.contentLeft(), this.mViewPortHandler.contentBottom());
+        if (!!p1 && !!p2) {
+          if (!inverted) {
+            min = p2.y;
+            max = p1.y;
+          } else {
+            min = p1.y;
+            max = p2.y;
+          }
+          MPPointD.recycleInstance(p1);
+          MPPointD.recycleInstance(p2);
+        }
+      }
+      //handle y axis label
+      let customYAxisLabels : number[] = this.mYAxis.getCustomYAxisLabels();
+      let customYAxisLabelsFilter : number[] = [];
+      let i : number = 0;
+      let index : number = 0;
+      for (i = 0; i < customYAxisLabels.length; i++) {
+        if (customYAxisLabels[i] >= min && customYAxisLabels[i] <= max) {
+          customYAxisLabelsFilter[index] = customYAxisLabels[i]
+          index ++;
+        }
+      }
+      this.mYAxis.mEntries = customYAxisLabelsFilter
+      this.mYAxis.mCenteredEntries = new Array<number>();
+      this.mYAxis.mEntryCount = customYAxisLabelsFilter.length;
+    } else {
+      if (this.mYAxis) {
+        if (this.mYAxis.getCustomYAxisLabels().length > 0) {
+          super.computeAxis(min, max, inverted, this.mYAxis.getCustomYAxisLabels().sort((a, b) => {
+            return a-b;
+          }))
+        } else {
+          super.computeAxis(min, max, inverted)
+        }
+      }
+    }
+  }
+
+  /**
    * draws the y-axis labels to the screen
    */
   public renderAxisLabels(c: CanvasRenderingContext2D, isHorizontalFlip: boolean, isLeftAxis: boolean): void {

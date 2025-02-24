@@ -6,9 +6,9 @@
  */
 
 import React from 'react';
-import {Vibration} from 'react-native';
+import { Vibration } from 'react-native';
 import { TestCase, TestSuite } from '@rnoh/testerino';
-import {Button} from '../components';
+import { Button } from '../components';
 
 export const VibrationTest = () => {
   const ONE_SECOND_IN_MS = 1000;

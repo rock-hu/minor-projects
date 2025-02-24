@@ -5,7 +5,7 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-import React, {useRef, useState} from 'react';
+import React, { useRef, useState } from 'react';
 import {
   RefreshControl,
   Text,
@@ -15,7 +15,7 @@ import {
   VirtualizedList,
 } from 'react-native';
 import { TestCase, TestSuite } from '@rnoh/testerino';
-import {Button} from '../components';
+import { Button } from '../components';
 
 type OnScrollToIndexFailed = {
   index: number;
@@ -35,15 +35,15 @@ const getItem = (_data: unknown, index: number): ItemData => ({
 
 const getItemCountVirtualized = (_data: unknown): number => 50;
 
-const Item = ({title}: {title: string}) => (
-  <View style={{height: 48, padding: 16, borderWidth: 1}}>
-    <Text style={{width: '100%', height: 24}}>{title}</Text>
+const Item = ({ title }: { title: string }) => (
+  <View style={{ height: 48, padding: 16, borderWidth: 1 }}>
+    <Text style={{ width: '100%', height: 24 }}>{title}</Text>
   </View>
 );
 
-const HorizontalItem = ({title}: {title: string}) => (
-  <View style={{borderWidth: 1, width: 48, height: '100%'}}>
-    <Text style={{width: '100%', height: '100%'}}>{title}</Text>
+const HorizontalItem = ({ title }: { title: string }) => (
+  <View style={{ borderWidth: 1, width: 48, height: '100%' }}>
+    <Text style={{ width: '100%', height: '100%' }}>{title}</Text>
   </View>
 );
 
@@ -52,13 +52,13 @@ export function VirtualizedListTest() {
     <TestSuite name="VirtualizedList">
       <TestCase itShould="display list of 3 items">
         <VirtualizedList<number[]>
-          style={{height: 64}}
+          style={{ height: 64 }}
           data={[1, 2, 3]}
           getItem={(data, idx) => data[idx]}
           getItemCount={() => 3}
-          renderItem={({item}) => (
-            <View style={{height: 48, padding: 16}}>
-              <Text style={{width: '100%', height: 24}}>{item}</Text>
+          renderItem={({ item }) => (
+            <View style={{ height: 48, padding: 16 }}>
+              <Text style={{ width: '100%', height: 24 }}>{item}</Text>
             </View>
           )}
           keyExtractor={(_, index) => String(index)}
@@ -68,19 +68,19 @@ export function VirtualizedListTest() {
         modal
         itShould="trigger onStartReached event when start of the content is within half the visible length of the list"
         initialState={-1}
-        arrange={({setState}) => {
+        arrange={({ setState }) => {
           const data = [1, 2, 3, 4, 5];
           return (
             <VirtualizedList
               data={data}
               getItem={(items: number[], idx: number) => items[idx]}
               getItemCount={() => data.length}
-              renderItem={({item}: {item: number}) => (
-                <View style={{height: 100, padding: 16, borderWidth: 1}}>
-                  <Text style={{width: '100%', height: 24}}>{item}</Text>
+              renderItem={({ item }: { item: number }) => (
+                <View style={{ height: 100, padding: 16, borderWidth: 1 }}>
+                  <Text style={{ width: '100%', height: 24 }}>{item}</Text>
                 </View>
               )}
-              style={{height: 200}}
+              style={{ height: 200 }}
               onStartReachedThreshold={0.5}
               onStartReached={({
                 distanceFromStart,
@@ -92,7 +92,7 @@ export function VirtualizedListTest() {
             />
           );
         }}
-        assert={({state, expect}) => {
+        assert={({ state, expect }) => {
           expect(state).to.be.lessThanOrEqual(100);
         }}
       />
@@ -100,7 +100,7 @@ export function VirtualizedListTest() {
         modal
         itShould="display event sent to by onScrollToIndexFailed when pressing the button before scrolling"
         initialState={undefined}
-        arrange={({state, setState}) => {
+        arrange={({ state, setState }) => {
           return (
             <VirtualizedListOnScrollToIndexFailed
               state={state}
@@ -108,7 +108,7 @@ export function VirtualizedListTest() {
             />
           );
         }}
-        assert={({state, expect}) => {
+        assert={({ state, expect }) => {
           expect(state).to.be.not.undefined;
           expect(state).to.have.all.keys([
             'index',
@@ -138,7 +138,7 @@ export function VirtualizedListTest() {
           modal
           itShould="scroll to the end of the list - scrollToEnd()"
           initialState={false}
-          arrange={({state, setState}) => {
+          arrange={({ state, setState }) => {
             return (
               <VirtualizedListGetScrollToEnd
                 state={state}
@@ -146,7 +146,7 @@ export function VirtualizedListTest() {
               />
             );
           }}
-          assert={({state, expect}) => {
+          assert={({ state, expect }) => {
             expect(state).to.be.true;
           }}
         />
@@ -154,7 +154,7 @@ export function VirtualizedListTest() {
           modal
           itShould="get the node number - getScrollableNode()"
           initialState={undefined}
-          arrange={({state, setState}) => {
+          arrange={({ state, setState }) => {
             return (
               <VirtualizedListGetScrollableNode
                 state={state}
@@ -162,7 +162,7 @@ export function VirtualizedListTest() {
               />
             );
           }}
-          assert={({state, expect}) => {
+          assert={({ state, expect }) => {
             expect(state).to.be.not.undefined;
             expect(state).to.be.an('number');
           }}
@@ -172,12 +172,12 @@ export function VirtualizedListTest() {
           modal
           itShould="get the scroll ref - getScrollRef()"
           initialState={undefined}
-          arrange={({state, setState}) => {
+          arrange={({ state, setState }) => {
             return (
               <VirtualizedListGetScrollRef state={state} setState={setState} />
             );
           }}
-          assert={({state, expect}) => {
+          assert={({ state, expect }) => {
             expect(state).to.be.not.undefined;
           }}
         />
@@ -186,7 +186,7 @@ export function VirtualizedListTest() {
         modal
         itShould="click (call on ref.recordInteraction()) on button before first scroll should trigger onViewableItemsChanged and change the first two items background color to blue"
         initialState={[]}
-        arrange={({state, setState}) => {
+        arrange={({ state, setState }) => {
           return (
             <VirtualizedListRecordInteractionTest
               state={state}
@@ -194,7 +194,7 @@ export function VirtualizedListTest() {
             />
           );
         }}
-        assert={({state, expect}) => {
+        assert={({ state, expect }) => {
           expect(state).to.be.not.empty;
           expect(state).to.be.an('array');
           expect(state).to.have.lengthOf(2);
@@ -290,24 +290,24 @@ function VirtualizedListOnScrollToIndexFailed({
 
   const handleOnPress = () => {
     if (ref.current) {
-      ref.current.scrollToIndex({index: 20, animated: true});
+      ref.current.scrollToIndex({ index: 20, animated: true });
     }
   };
 
   return (
     <>
       <Button label="Scroll to NOT_EXISTING index" onPress={handleOnPress} />
-      <View style={{height: 50, backgroundColor: 'lightblue'}}>
+      <View style={{ height: 50, backgroundColor: 'lightblue' }}>
         <Text>{state ? JSON.stringify(state) : ''}</Text>
       </View>
       <VirtualizedList
         initialNumToRender={5}
         windowSize={5}
         ref={ref}
-        style={{height: 128}}
+        style={{ height: 128 }}
         getItem={getItem}
         getItemCount={getItemCountVirtualized}
-        renderItem={({item}: {item: ItemData}) => <Item title={item.title} />}
+        renderItem={({ item }: { item: ItemData }) => <Item title={item.title} />}
         keyExtractor={(item: ItemData) => item.id}
         onScrollToIndexFailed={(failInfo: OnScrollToIndexFailed) => {
           // @ts-ignore
@@ -318,7 +318,7 @@ function VirtualizedListOnScrollToIndexFailed({
   );
 }
 
-const GENERATED_DATA = Array.from({length: 100}, (_, index) => ({
+const GENERATED_DATA = Array.from({ length: 100 }, (_, index) => ({
   id: String(index),
   title: `Item ${index + 1}`,
 }));
@@ -328,7 +328,7 @@ function VirtualizedListScrollToIndexTest() {
 
   const handleOnPress = () => {
     if (ref.current) {
-      ref.current?.scrollToIndex({index: 10, animated: true});
+      ref.current?.scrollToIndex({ index: 10, animated: true });
     }
   };
 
@@ -337,10 +337,10 @@ function VirtualizedListScrollToIndexTest() {
       <Button label="Scroll to index = 10" onPress={handleOnPress} />
       <VirtualizedList
         ref={ref}
-        style={{height: 128}}
+        style={{ height: 128 }}
         getItem={(_, index: number) => GENERATED_DATA[index]}
         getItemCount={() => GENERATED_DATA.length}
-        renderItem={({item}: {item: ItemData}) => <Item title={item.title} />}
+        renderItem={({ item }: { item: ItemData }) => <Item title={item.title} />}
         keyExtractor={(item: ItemData) => item.id}
       />
     </>
@@ -352,7 +352,7 @@ function VirtualizedListScrollToItemTest() {
 
   const handleOnPress = () => {
     if (ref.current) {
-      ref.current.scrollToItem({item: GENERATED_DATA[2], animated: true});
+      ref.current.scrollToItem({ item: GENERATED_DATA[2], animated: true });
     }
   };
 
@@ -361,7 +361,7 @@ function VirtualizedListScrollToItemTest() {
       <Button label="Scroll to item = 3" onPress={handleOnPress} />
       <VirtualizedList
         ref={ref}
-        style={{height: 256}}
+        style={{ height: 256 }}
         data={GENERATED_DATA}
         getItem={(_, index: number) => GENERATED_DATA[index]}
         getItemCount={() => GENERATED_DATA.length}
@@ -370,7 +370,7 @@ function VirtualizedListScrollToItemTest() {
           offset: 48 * index,
           index,
         })}
-        renderItem={({item}: {item: ItemData}) => <Item title={item.title} />}
+        renderItem={({ item }: { item: ItemData }) => <Item title={item.title} />}
         keyExtractor={(item: ItemData) => item.id}
       />
     </>
@@ -380,7 +380,7 @@ function VirtualizedListScrollToItemTest() {
 function InvertedVirtualizedListTest() {
   return (
     <VirtualizedList
-      style={{height: 256}}
+      style={{ height: 256 }}
       data={GENERATED_DATA}
       getItem={(_, index: number) => GENERATED_DATA[index]}
       getItemCount={() => GENERATED_DATA.length}
@@ -390,7 +390,7 @@ function InvertedVirtualizedListTest() {
         index,
       })}
       inverted
-      renderItem={({item}: {item: ItemData}) => (
+      renderItem={({ item }: { item: ItemData }) => (
         <TouchableOpacity onPress={() => console.log(item.title)}>
           <Item title={item.title} />
         </TouchableOpacity>
@@ -403,7 +403,7 @@ function InvertedVirtualizedListTest() {
 function InitialScrollIndexTest() {
   return (
     <VirtualizedList
-      style={{height: 256}}
+      style={{ height: 256 }}
       data={GENERATED_DATA}
       getItem={(_, index: number) => GENERATED_DATA[index]}
       getItemCount={() => GENERATED_DATA.length}
@@ -413,7 +413,7 @@ function InitialScrollIndexTest() {
         index,
       })}
       initialScrollIndex={80}
-      renderItem={({item}: {item: ItemData}) => <Item title={item.title} />}
+      renderItem={({ item }: { item: ItemData }) => <Item title={item.title} />}
       keyExtractor={(item: ItemData) => item.id}
     />
   );
@@ -440,15 +440,15 @@ function VirtualizedListGetScrollableNode({
   return (
     <>
       <Button label="Get ScrollableNode" onPress={handleOnPress} />
-      <View style={{height: 50, backgroundColor: 'lightblue'}}>
+      <View style={{ height: 50, backgroundColor: 'lightblue' }}>
         <Text>{`ScrollableNode = ${state}`}</Text>
       </View>
       <VirtualizedList
         ref={ref}
-        style={{height: 128}}
+        style={{ height: 128 }}
         getItem={getItem}
         getItemCount={getItemCountVirtualized}
-        renderItem={({item}: {item: ItemData}) => <Item title={item.title} />}
+        renderItem={({ item }: { item: ItemData }) => <Item title={item.title} />}
         keyExtractor={(item: ItemData) => item.id}
       />
     </>
@@ -473,15 +473,15 @@ function VirtualizedListGetScrollRef({
   return (
     <>
       <Button label="Get ScrollRef" onPress={handleOnPress} />
-      <View style={{height: 50, backgroundColor: 'lightblue'}}>
+      <View style={{ height: 50, backgroundColor: 'lightblue' }}>
         <Text>{`ScrollRef is defined: ${state}`}</Text>
       </View>
       <VirtualizedList
         ref={ref}
-        style={{height: 128}}
+        style={{ height: 128 }}
         getItem={getItem}
         getItemCount={getItemCountVirtualized}
-        renderItem={({item}: {item: ItemData}) => <Item title={item.title} />}
+        renderItem={({ item }: { item: ItemData }) => <Item title={item.title} />}
         keyExtractor={(item: ItemData) => item.id}
       />
     </>
@@ -499,21 +499,21 @@ function VirtualizedListGetScrollToEnd({
 
   const handleOnPress = () => {
     if (ref.current) {
-      ref.current.scrollToEnd({animated: true});
+      ref.current.scrollToEnd({ animated: true });
     }
   };
   return (
     <>
       <Button label="Scroll to the end" onPress={handleOnPress} />
-      <View style={{height: 50, backgroundColor: 'lightblue'}}>
+      <View style={{ height: 50, backgroundColor: 'lightblue' }}>
         <Text>{`End is reached: ${state}`}</Text>
       </View>
       <VirtualizedList
         ref={ref}
-        style={{height: 128}}
+        style={{ height: 128 }}
         getItem={getItem}
         getItemCount={getItemCountVirtualized}
-        renderItem={({item}: {item: ItemData}) => <Item title={item.title} />}
+        renderItem={({ item }: { item: ItemData }) => <Item title={item.title} />}
         keyExtractor={(item: ItemData) => item.id}
         onEndReached={() => setState(true)}
       />
@@ -574,14 +574,14 @@ const MockedVideoPlayer = ({
         marginBottom: 5,
         justifyContent: 'center',
       }}>
-      <Text style={{textAlign: 'center'}}>Item with id: {itemId}</Text>
-      <Text style={{textAlign: 'center'}}>Mocked Video Player</Text>
-      <Text style={{textAlign: 'center'}}>
+      <Text style={{ textAlign: 'center' }}>Item with id: {itemId}</Text>
+      <Text style={{ textAlign: 'center' }}>Mocked Video Player</Text>
+      <Text style={{ textAlign: 'center' }}>
         {playMockVideo
           ? 'Playing'
           : prefetchMockVideo
-          ? 'Prefetching...'
-          : 'Waiting to be visible'}
+            ? 'Prefetching...'
+            : 'Waiting to be visible'}
       </Text>
     </View>
   );
@@ -615,19 +615,19 @@ function VirtualizedListRecordInteractionTest({
   };
 
   return (
-    <View style={{height: 600}}>
-      <View style={{marginBottom: 10}}>
+    <View style={{ height: 600 }}>
+      <View style={{ marginBottom: 10 }}>
         <Button label="Record interaction" onPress={handleOnPress} />
-        <Text style={{padding: 10}}>
+        <Text style={{ padding: 10 }}>
           Visible Items are: {JSON.stringify(visibleItems)}
         </Text>
       </View>
       <VirtualizedList
         ref={ref}
-        style={{height: 128}}
+        style={{ height: 128 }}
         getItem={getItem}
         getItemCount={getItemCountVirtualized}
-        renderItem={({item}: {item: ItemData}) => (
+        renderItem={({ item }: { item: ItemData }) => (
           <MockedVideoPlayer
             itemId={item.id}
             playMockVideo={visibleItems.includes(item.id)}
@@ -683,8 +683,8 @@ function VirtualizedListTestViewabiliyConfigCallbackPairs() {
   ];
 
   return (
-    <View style={{height: 600}}>
-      <View style={{marginBottom: 10}}>
+    <View style={{ height: 600 }}>
+      <View style={{ marginBottom: 10 }}>
         <Text>
           First threshold {firstViewabilityConfig.itemVisiblePercentThreshold}%{' '}
           visible items are: {JSON.stringify(firstVisibleItems)}
@@ -695,10 +695,10 @@ function VirtualizedListTestViewabiliyConfigCallbackPairs() {
         </Text>
       </View>
       <VirtualizedList
-        style={{height: 128}}
+        style={{ height: 128 }}
         getItem={getItem}
         getItemCount={getItemCountVirtualized}
-        renderItem={({item}: {item: ItemData}) => (
+        renderItem={({ item }: { item: ItemData }) => (
           <MockedVideoPlayer
             height={300}
             itemId={item.id}
@@ -733,18 +733,18 @@ function VirtualizedListViewabilityConfigViewTime() {
   };
 
   return (
-    <View style={{height: 600}}>
-      <View style={{marginBottom: 10}}>
-        <Text style={{padding: 10}}>
+    <View style={{ height: 600 }}>
+      <View style={{ marginBottom: 10 }}>
+        <Text style={{ padding: 10 }}>
           Visible Items after {thirdViewabilityConfig.minimumViewTime}ms are:{' '}
           {JSON.stringify(visibleItems)}
         </Text>
       </View>
       <VirtualizedList
-        style={{height: 128}}
+        style={{ height: 128 }}
         getItem={getItem}
         getItemCount={getItemCountVirtualized}
-        renderItem={({item}: {item: ItemData}) => (
+        renderItem={({ item }: { item: ItemData }) => (
           <MockedVideoPlayer
             itemId={item.id}
             playMockVideo={visibleItems.includes(item.id)}
@@ -761,7 +761,7 @@ function VirtualizedListViewabilityConfigViewTime() {
 function VirtualizedListCellRendererComponent() {
   return (
     <VirtualizedList
-      style={{height: 128}}
+      style={{ height: 128 }}
       data={GENERATED_DATA}
       getItem={(_, index: number) => GENERATED_DATA[index]}
       getItemCount={() => GENERATED_DATA.length}
@@ -770,7 +770,7 @@ function VirtualizedListCellRendererComponent() {
         offset: 48 * index,
         index,
       })}
-      renderItem={({item}: {item: ItemData}) => <Item title={item.title} />}
+      renderItem={({ item }: { item: ItemData }) => <Item title={item.title} />}
       keyExtractor={(item: ItemData) => item.id}
       CellRendererComponent={({
         index,
@@ -798,7 +798,7 @@ function VirtualizedListCellRendererComponent() {
 function VirtualizedListItemSeparatorTest() {
   return (
     <VirtualizedList
-      style={{height: 128}}
+      style={{ height: 128 }}
       data={GENERATED_DATA}
       getItem={(_, index: number) => GENERATED_DATA[index]}
       getItemCount={() => GENERATED_DATA.length}
@@ -807,7 +807,7 @@ function VirtualizedListItemSeparatorTest() {
         offset: 48 * index,
         index,
       })}
-      renderItem={({item}: {item: ItemData}) => <Item title={item.title} />}
+      renderItem={({ item }: { item: ItemData }) => <Item title={item.title} />}
       keyExtractor={(item: ItemData) => item.id}
       ItemSeparatorComponent={() => (
         <View
@@ -827,11 +827,11 @@ function VirtualizedListItemSeparatorTest() {
 function VirtualizedListListEmptyComponentTest() {
   return (
     <VirtualizedList
-      style={{height: 128}}
+      style={{ height: 128 }}
       data={[]}
       getItem={(_, index: number) => GENERATED_DATA[index]}
       getItemCount={() => 0}
-      renderItem={({item}: {item: ItemData}) => <Item title={item.title} />}
+      renderItem={({ item }: { item: ItemData }) => <Item title={item.title} />}
       keyExtractor={(item: ItemData) => item.id}
       ListEmptyComponent={() => (
         <View
@@ -851,7 +851,7 @@ function VirtualizedListListEmptyComponentTest() {
 function VirtualizedListListItemComponent() {
   return (
     <VirtualizedList
-      style={{height: 128}}
+      style={{ height: 128 }}
       data={GENERATED_DATA}
       getItem={(_, index: number) => GENERATED_DATA[index]}
       getItemCount={() => GENERATED_DATA.length}
@@ -871,8 +871,8 @@ function VirtualizedListListItemComponent() {
             borderBottomWidth: 1,
             justifyContent: 'center',
           }}>
-          <Text style={{textAlign: 'center'}}>Item Component</Text>
-          <Text style={{textAlign: 'center'}}>{props.item.title}</Text>
+          <Text style={{ textAlign: 'center' }}>Item Component</Text>
+          <Text style={{ textAlign: 'center' }}>{props.item.title}</Text>
         </View>
       )}
     />
@@ -882,7 +882,7 @@ function VirtualizedListListItemComponent() {
 function VirtualizedListListFooterComponent() {
   return (
     <VirtualizedList
-      style={{height: 128}}
+      style={{ height: 128 }}
       data={GENERATED_DATA}
       getItem={(_, index: number) => GENERATED_DATA[index]}
       getItemCount={() => GENERATED_DATA.length}
@@ -901,10 +901,10 @@ function VirtualizedListListFooterComponent() {
             borderBottomWidth: 1,
             justifyContent: 'center',
           }}>
-          <Text style={{textAlign: 'center'}}>List Footer Component</Text>
+          <Text style={{ textAlign: 'center' }}>List Footer Component</Text>
         </View>
       )}
-      renderItem={({item}: {item: ItemData}) => <Item title={item.title} />}
+      renderItem={({ item }: { item: ItemData }) => <Item title={item.title} />}
       keyExtractor={(item: ItemData) => item.id}
     />
   );
@@ -913,7 +913,7 @@ function VirtualizedListListFooterComponent() {
 function VirtualizedListListFooterComponentStyles() {
   return (
     <VirtualizedList
-      style={{height: 128}}
+      style={{ height: 128 }}
       data={GENERATED_DATA}
       getItem={(_, index: number) => GENERATED_DATA[index]}
       getItemCount={() => GENERATED_DATA.length}
@@ -924,7 +924,7 @@ function VirtualizedListListFooterComponentStyles() {
       })}
       ListFooterComponent={() => (
         <View>
-          <Text style={{textAlign: 'center'}}>List Footer Component</Text>
+          <Text style={{ textAlign: 'center' }}>List Footer Component</Text>
         </View>
       )}
       ListFooterComponentStyle={{
@@ -935,7 +935,7 @@ function VirtualizedListListFooterComponentStyles() {
         borderBottomWidth: 1,
         justifyContent: 'center',
       }}
-      renderItem={({item}: {item: ItemData}) => <Item title={item.title} />}
+      renderItem={({ item }: { item: ItemData }) => <Item title={item.title} />}
       keyExtractor={(item: ItemData) => item.id}
     />
   );
@@ -944,7 +944,7 @@ function VirtualizedListListFooterComponentStyles() {
 function VirtualizedListListHeaderComponent() {
   return (
     <VirtualizedList
-      style={{height: 128}}
+      style={{ height: 128 }}
       data={GENERATED_DATA}
       getItem={(_, index: number) => GENERATED_DATA[index]}
       getItemCount={() => GENERATED_DATA.length}
@@ -958,7 +958,7 @@ function VirtualizedListListHeaderComponent() {
           style={{
             backgroundColor: 'lightgray',
           }}>
-          <Text style={{textAlign: 'center'}}>List Header Component</Text>
+          <Text style={{ textAlign: 'center' }}>List Header Component</Text>
         </View>
       )}
       ListHeaderComponentStyle={{
@@ -969,7 +969,7 @@ function VirtualizedListListHeaderComponent() {
         borderBottomWidth: 1,
         justifyContent: 'center',
       }}
-      renderItem={({item}: {item: ItemData}) => <Item title={item.title} />}
+      renderItem={({ item }: { item: ItemData }) => <Item title={item.title} />}
       keyExtractor={(item: ItemData) => item.id}
     />
   );
@@ -980,7 +980,7 @@ function VirtualizedListDebugTest() {
     <VirtualizedList
       debug
       disableVirtualization
-      style={{height: 256}}
+      style={{ height: 256 }}
       data={GENERATED_DATA}
       getItem={(_, index: number) => GENERATED_DATA[index]}
       getItemCount={() => GENERATED_DATA.length}
@@ -989,7 +989,7 @@ function VirtualizedListDebugTest() {
         offset: 48 * index,
         index,
       })}
-      renderItem={({item}: {item: ItemData}) => <Item title={item.title} />}
+      renderItem={({ item }: { item: ItemData }) => <Item title={item.title} />}
       keyExtractor={(item: ItemData) => item.id}
     />
   );
@@ -1020,7 +1020,7 @@ function VirtualizedListExtraDataTest() {
     <View>
       <Button label="Select 5 item" onPress={() => setSelectedId('4')} />
       <VirtualizedList
-        style={{height: 256}}
+        style={{ height: 256 }}
         data={items}
         getItem={(_, index: number) => items[index]}
         getItemCount={() => items.length}
@@ -1030,7 +1030,7 @@ function VirtualizedListExtraDataTest() {
           index,
         })}
         extraData={selectedId}
-        renderItem={({item}: {item: ItemData}) => (
+        renderItem={({ item }: { item: ItemData }) => (
           <CustomItem isSelected={selectedId === item.id} title={item.title} />
         )}
         keyExtractor={(item: ItemData) => item.id}
@@ -1042,7 +1042,7 @@ function VirtualizedListExtraDataTest() {
 function VirtualizedListHorizontalTest() {
   return (
     <VirtualizedList
-      style={{height: 256}}
+      style={{ height: 256 }}
       horizontal
       data={GENERATED_DATA}
       getItem={(_, index: number) => GENERATED_DATA[index]}
@@ -1052,7 +1052,7 @@ function VirtualizedListHorizontalTest() {
         offset: 48 * index,
         index,
       })}
-      renderItem={({item}: {item: ItemData}) => (
+      renderItem={({ item }: { item: ItemData }) => (
         <HorizontalItem title={item.title} />
       )}
       keyExtractor={(item: ItemData) => item.id}
@@ -1063,7 +1063,7 @@ function VirtualizedListHorizontalTest() {
 function VirtualizedListHorizontalInvertedTest() {
   return (
     <VirtualizedList
-      style={{height: 256}}
+      style={{ height: 256 }}
       horizontal
       inverted
       data={GENERATED_DATA}
@@ -1074,7 +1074,7 @@ function VirtualizedListHorizontalInvertedTest() {
         offset: 48 * index,
         index,
       })}
-      renderItem={({item}: {item: ItemData}) => (
+      renderItem={({ item }: { item: ItemData }) => (
         <HorizontalItem title={item.title} />
       )}
       keyExtractor={(item: ItemData) => item.id}
@@ -1102,7 +1102,7 @@ function VirtualizedListOnRefreshTest() {
         <Text>{refreshing ? 'isRefreshing' : 'Refresh!'}</Text>
       </View>
       <VirtualizedList
-        style={{height: 256}}
+        style={{ height: 256 }}
         onRefresh={handleOnRefresh}
         refreshing={refreshing}
         data={GENERATED_DATA}
@@ -1113,7 +1113,7 @@ function VirtualizedListOnRefreshTest() {
           offset: 48 * index,
           index,
         })}
-        renderItem={({item}: {item: ItemData}) => <Item title={item.title} />}
+        renderItem={({ item }: { item: ItemData }) => <Item title={item.title} />}
         keyExtractor={(item: ItemData) => item.id}
       />
     </View>
@@ -1123,7 +1123,7 @@ function VirtualizedListOnRefreshTest() {
 function VirtualizedListPersistentScrollbarTest() {
   return (
     <VirtualizedList
-      style={{height: 256}}
+      style={{ height: 256 }}
       persistentScrollbar
       data={GENERATED_DATA}
       getItem={(_, index: number) => GENERATED_DATA[index]}
@@ -1133,7 +1133,7 @@ function VirtualizedListPersistentScrollbarTest() {
         offset: 48 * index,
         index,
       })}
-      renderItem={({item}: {item: ItemData}) => <Item title={item.title} />}
+      renderItem={({ item }: { item: ItemData }) => <Item title={item.title} />}
       keyExtractor={(item: ItemData) => item.id}
     />
   );
@@ -1142,7 +1142,7 @@ function VirtualizedListPersistentScrollbarTest() {
 function VirtualizedListUpdateCellsBatchingPeriodTest() {
   return (
     <VirtualizedList
-      style={{height: 128}}
+      style={{ height: 128 }}
       data={GENERATED_DATA}
       getItem={(_, index: number) => GENERATED_DATA[index]}
       getItemCount={() => GENERATED_DATA.length}
@@ -1151,7 +1151,7 @@ function VirtualizedListUpdateCellsBatchingPeriodTest() {
         offset: 48 * index,
         index,
       })}
-      renderItem={({item}: {item: ItemData}) => <Item title={item.title} />}
+      renderItem={({ item }: { item: ItemData }) => <Item title={item.title} />}
       keyExtractor={(item: ItemData) => item.id}
       updateCellsBatchingPeriod={2000}
       maxToRenderPerBatch={1}
@@ -1171,7 +1171,7 @@ function VirtualizedListRefreshControlTest() {
 
   return (
     <VirtualizedList
-      style={{height: 256}}
+      style={{ height: 256 }}
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={handleOnRefresh} />
       }
@@ -1183,7 +1183,7 @@ function VirtualizedListRefreshControlTest() {
         offset: 48 * index,
         index,
       })}
-      renderItem={({item}: {item: ItemData}) => <Item title={item.title} />}
+      renderItem={({ item }: { item: ItemData }) => <Item title={item.title} />}
       keyExtractor={(item: ItemData) => item.id}
     />
   );

@@ -5,10 +5,10 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-import {Portal} from '@gorhom/portal';
-import {useState} from 'react';
-import {StyleProp, StyleSheet, View, ViewStyle} from 'react-native';
-import {Button} from '../components';
+import { Portal } from '@gorhom/portal';
+import { useState } from 'react';
+import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import { Button } from '../components';
 
 export function Modal(props: {
   children: any;
@@ -42,7 +42,7 @@ export function Modal(props: {
         ]}>
         <View
           style={[
-            {backgroundColor: 'white', padding: 16},
+            { backgroundColor: 'white', padding: 16 },
             props.contentContainerStyle,
           ]}
           onTouchEnd={e => e.stopPropagation()}>

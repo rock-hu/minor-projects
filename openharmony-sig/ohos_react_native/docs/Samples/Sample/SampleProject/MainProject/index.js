@@ -5,7 +5,7 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-import {AppRegistry, Text, View, StyleSheet} from 'react-native';
+import { AppRegistry, Text, View, StyleSheet } from 'react-native';
 import AppGoods from './src/bundles/Goods/GoodsMainPage';
 import AppHome from './src/bundles/HomePage/HomePage';
 
@@ -17,11 +17,11 @@ import SandBox from './src/bundles/Sandbox/examples'
 // 使用setWrapperComponentProvider来包装根组件。
 // children: 渲染RN侧组件；<Text> 鸿蒙侧传递过来的数据内容。
 AppRegistry.setWrapperComponentProvider(appParams => {
-    return function({children, ...otherProps}) {
-        if (Object.keys(otherProps.initialProps).includes('styles') && 
-        Object.keys(otherProps.initialProps).includes('stringParam')) {
+    return function ({ children, ...otherProps }) {
+        if (Object.keys(otherProps.initialProps).includes('styles') &&
+            Object.keys(otherProps.initialProps).includes('stringParam')) {
             return <View style={otherProps.initialProps.styles.container}>
-                <View style={{'borderRadius': 10, 'backgroundColor': '#FAE6B1', height: 100, justifyContent: 'center', alignItems: 'center'}}>
+                <View style={{ 'borderRadius': 10, 'backgroundColor': '#FAE6B1', height: 100, justifyContent: 'center', alignItems: 'center' }}>
                     <Text style={otherProps.initialProps.styles.apiFontSize}>{otherProps.initialProps.stringParam}</Text>
                 </View>
                 <View>{children}</View>

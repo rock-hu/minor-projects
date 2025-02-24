@@ -25,7 +25,6 @@ import { MPPointF } from '@ohos/mpchart';
 import { ScatterChart } from '@ohos/mpchart';
 import { LimitLine, ChartShape } from '@ohos/mpchart';
 
-@Entry
 @ComponentV2
 export default struct fragSimpleScatterIndex {
   minOffset: number = 15;

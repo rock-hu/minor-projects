@@ -34,6 +34,8 @@ facebook::jsi::Value preparePromiseResolverResult(
 std::string preparePromiseRejectionResult(
     const std::vector<folly::dynamic> args);
 
+TurboModule::~TurboModule() {};
+
 ArkTSTurboModule::ArkTSTurboModule(Context ctx, std::string name)
     : m_ctx(ctx), TurboModule(ctx, name) {}
 

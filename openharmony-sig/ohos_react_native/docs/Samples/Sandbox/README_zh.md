@@ -8,7 +8,7 @@
 ├── SandBoxNativeProject
 |   └── Index.ets
 |       ├── downloadBundle #OpenHarmony 侧推送 raw 文件到沙箱中
-|       └── new FileJSBundleProvider #OpenHarmony 侧加载沙箱中的文件
+|       └── new FileJSBundleProvider # OpenHarmony 侧加载沙箱中的文件
 └── SandBoxRnProject
     └── example.tsx  # React Native 侧加载沙箱中的图片
 
@@ -27,8 +27,8 @@
 
 1. 在 `SandBoxRnProject` 目录下执行 **npm i @react-native-oh/react-native-harmony@x.x.x**或**yarn add @react-native-oh/react-native-harmony@x.x.x** 安装依赖，执行 **npm run dev** 生成 bundle；
 2. 在 `entry` 目录下执行 **ohpm i @rnoh/react-native-openharmony@x.x.x** 安装依赖；
-3. 检查 `SandBoxRnProject`、`entry` 目录下是否生成 `oh-modules` 文件夹；
-4. 用 DevEco Studio 打开 SandBoxNativeProject **Sync and Refresh Project**；
+3. 检查 `SandBoxNativeProject`、`entry` 目录下是否生成 `oh-modules` 文件夹；
+4. 用 DevEco Studio 打开 `SandBoxNativeProject`，执行 **Sync and Refresh Project**；
 5. 点击右上角的 **run** 启动项目；
 6. 确保鸿蒙和 rn 侧依赖下载无缺，版本配套正常；
 7. 打开生成的 app 来确认文件已正确加载。

@@ -751,6 +751,14 @@ axios.get<string, AxiosResponse<string>, null>('/user/12345')
 | SESSION_RUNNING<sup>7+</sup> | number | 是 | 否 | 下载会话正在进行中。 |
 | SESSION_SUCCESSFUL<sup>7+</sup> | number | 是 | 否 | 下载会话已完成。 |
 
+## 关于混淆
+- 代码混淆，请查看[代码混淆简介](https://docs.openharmony.cn/pages/v5.0/zh-cn/application-dev/arkts-utils/source-obfuscation.md)
+- 如果希望axios库在代码混淆过程中不会被混淆，需要在混淆规则配置文件obfuscation-rules.txt中添加相应的排除规则：
+```
+-keep
+./oh_modules/@ohos/axios
+```
+
 ## 约束与限制
 
 在下述版本验证通过：

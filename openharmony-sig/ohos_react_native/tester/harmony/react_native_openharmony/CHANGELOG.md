@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.72.58
+- feat(dfx): add trace slices for linking task generation/execution and functions performed on main thread,([f26cd9c6](https://gitee.com/openharmony-sig/ohos_react_native/commit/f26cd9c629b3707763a4c1a42f55840c307971ed))
+- fix: Fix cross-module dynamic conversion failure.,([48c8f948](https://gitee.com/openharmony-sig/ohos_react_native/commit/48c8f948dc73f0ed9a2ef7de034da273c61592f7))
+- fix：TextInput的onEndEditing和onSubmitEditing问题修复,([7d590a14](https://gitee.com/openharmony-sig/ohos_react_native/commit/7d590a148ec5d0d6beb40f8bc7dbc7e3fc9f2e7c))
+- finalizeMutationUpdates不再新起一个Thread,([1d954da6](https://gitee.com/openharmony-sig/ohos_react_native/commit/1d954da6c82531d4569398117a143a85c16ed9d8))
+- 删除掉didMount中的finalizeMutationUpdates,([138db056](https://gitee.com/openharmony-sig/ohos_react_native/commit/138db0567792988c910eac89df2ade54cfc2d914))
+- fix：TextAreaNode format code,([9ded13f1](https://gitee.com/openharmony-sig/ohos_react_native/commit/9ded13f136a560735a12fb474508fe51ad2b3e5f))
+- fix：TextInput的allowFontScaling问题修复,([30b7d596](https://gitee.com/openharmony-sig/ohos_react_native/commit/30b7d59610440cd5091e7838af47ca20c653558a))
+- fix: default Image accessibility behavior On Android images can be focused by default in accessibility mode, on OHOS they are not. This MR fixes this problem. Also, in bridgeless mode `importantForAccessibility` doesn't work, because RN chooses view configs defined on JS side. Run the following demo. I didn't add a test case because currently tester doesn't render all test cases properly. (https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/1502),([c7defe99](https://gitee.com/openharmony-sig/ohos_react_native/commit/c7defe9919e31fb5425ea3bf3c8bbbe2c66531c2))
+- The time when finalizeMutationUpdates is triggered due to mutation submission is fixed.,([63271c43](https://gitee.com/openharmony-sig/ohos_react_native/commit/63271c43fc40d116c0bd28d48ccdcf2bda32c7a9))
+- Text visible for screen reader This PR makes text visible for screen reader by default. - Set `ARKUI_ACCESSIBILITY_MODE_ENABLED` if text isn't in component with `AccessibilityGroup` set to true 1. Open tester app. 2. Run "Text::make the screen reader say "This is accessible text". - [ ] Project compiles and the tester application works. Closes: #1404,([78bce0e2](https://gitee.com/openharmony-sig/ohos_react_native/commit/78bce0e2ea237289efbc7635a87b877a0b171530))
+- fix: map the accessible prop correctly The `accessible` prop was mapped improperly. - fixed behavior of the accessible prop - deprecated ArkUINode::setAccessibilityLevel Run test cases added in this PR. - [x] Project compiles and the tester application works. Closes https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/1381,([8c035cd3](https://gitee.com/openharmony-sig/ohos_react_native/commit/8c035cd32ebbdb98997f692ef4dc34ac671a9bcf))
+- feat: TextInput/TextArea textContentType extends,([d593c8b1](https://gitee.com/openharmony-sig/ohos_react_native/commit/d593c8b1a289796e6365680996d4ba8d20c354fc))
+- feat: add runOnWorkerThread,([ae4e47d6](https://gitee.com/openharmony-sig/ohos_react_native/commit/ae4e47d6290ecf4a4970efa3116d568fb25c21f1))
+- Sources for jsvm_executor and hermes_executor,([2c39d2d5](https://gitee.com/openharmony-sig/ohos_react_native/commit/2c39d2d58b59abb526a4d4c0610aa202ae7ec154))
+- add react-native-harmony.cmake,([425a01ad](https://gitee.com/openharmony-sig/ohos_react_native/commit/425a01ad4cecdb5f4db9390cf55767e3790ded94))
+
 ## v0.72.57
 - chore: update to version 0.72.57,([e10c9b86e](https://gitee.com/openharmony-sig/ohos_react_native/commit/e10c9b86e27d638261e28d8f18048bafb5ef47a1))
 - fix:crash when Animated remove native event,([62fd10343](https://gitee.com/openharmony-sig/ohos_react_native/commit/62fd10343f8061dac00ad3c0f72ccc45855b15ec))

@@ -33,7 +33,6 @@ export function buildCustomRNComponent(ctx: ComponentBuilderContext) {
     }
   }
   .position({ x: 0, y: 0 })
-
 }
 
 const wrappedCustomRNComponentBuilder = wrapBuilder(buildCustomRNComponent)

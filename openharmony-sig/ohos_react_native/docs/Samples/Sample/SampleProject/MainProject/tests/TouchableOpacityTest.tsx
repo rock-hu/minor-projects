@@ -5,9 +5,9 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-import {Text, TouchableOpacity, View, ViewProps} from 'react-native';
+import { Text, TouchableOpacity, View, ViewProps } from 'react-native';
 import { TestCase, TestSuite } from '@rnoh/testerino';
-import {useState} from 'react';
+import { useState } from 'react';
 
 export const TouchableOpacityTest = () => {
   const [pressCountOpacity, setPressCountOpacity] = useState(0);
@@ -15,12 +15,12 @@ export const TouchableOpacityTest = () => {
   return (
     <TestSuite name="TouchableOpacity">
       <TestCase itShould="make the text less visible on press">
-        <TouchableOpacity onPress={() => {}}>
+        <TouchableOpacity onPress={() => { }}>
           <PressMe />
         </TouchableOpacity>
       </TestCase>
       <TestCase itShould="make the text slightly less visible on press (activeOpacity)">
-        <TouchableOpacity activeOpacity={0.5} onPress={() => {}}>
+        <TouchableOpacity activeOpacity={0.5} onPress={() => { }}>
           <PressMe />
         </TouchableOpacity>
       </TestCase>
@@ -63,10 +63,10 @@ export const TouchableOpacityTest = () => {
   );
 };
 
-function PressMe(props: ViewProps & {endLabel?: string | number}) {
+function PressMe(props: ViewProps & { endLabel?: string | number }) {
   return (
-    <View {...props} style={{padding: 16, borderWidth: 1}}>
-      <Text style={{color: 'blue', height: 24, width: '100%'}}>
+    <View {...props} style={{ padding: 16, borderWidth: 1 }}>
+      <Text style={{ color: 'blue', height: 24, width: '100%' }}>
         Press me{props.endLabel !== undefined ? ` (${props.endLabel})` : ''}
       </Text>
     </View>

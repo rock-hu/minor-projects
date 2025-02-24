@@ -17,7 +17,6 @@ import router from '@ohos.router';
 import { ComponentContent } from '@kit.ArkUI';
 import { BusinessError } from '@kit.BasicServicesKit';
 
-@Entry
 @ComponentV2
 export default struct ChartTitle {
   @Param model: ChartTitleModel = new ChartTitleModel()

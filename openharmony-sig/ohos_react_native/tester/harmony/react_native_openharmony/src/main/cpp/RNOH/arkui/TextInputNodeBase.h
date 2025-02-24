@@ -18,6 +18,7 @@ class TextInputNodeBase : public ArkUINode {
   TextInputNodeBase(ArkUI_NodeType nodeType);
   void setCommonFontAttributes(
       facebook::react::TextAttributes const& textAttributes);
+    const float defaultFontSize = 16.0;
 
  public:
   void setPadding(

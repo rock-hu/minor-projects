@@ -5,9 +5,9 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-import {Text, TouchableHighlight} from 'react-native';
+import { Text, TouchableHighlight } from 'react-native';
 
-export function Button({label, onPress}: {onPress: () => void; label: string}) {
+export function Button({ label, onPress }: { onPress: () => void; label: string }) {
   return (
     <TouchableHighlight
       underlayColor="hsl(210, 80%, 35%)"
@@ -19,7 +19,7 @@ export function Button({label, onPress}: {onPress: () => void; label: string}) {
         borderColor: 'hsl(210, 50%, 35%)',
       }}
       onPress={onPress}>
-      <Text style={{color: 'white', fontWeight: 'bold', fontSize: 12}}>
+      <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 12 }}>
         {label}
       </Text>
     </TouchableHighlight>

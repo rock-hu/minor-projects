@@ -729,6 +729,14 @@ axios.get<string, AxiosResponse<string>, null>('/user/12345')
 | SESSION_RUNNING<sup>7+</sup> | number | Yes| No| Download in progress.|
 | SESSION_SUCCESSFUL<sup>7+</sup> | number | Yes| No| Successful download.|
 
+## About obfuscation
+- Code obfuscation, please see[Code Obfuscation](https://docs.openharmony.cn/pages/v5.0/zh-cn/application-dev/arkts-utils/source-obfuscation.md)
+- If you want the axios library not to be obfuscated during code obfuscation, you need to add corresponding exclusion rules in the obfuscation rule configuration file obfuscation-rules.txt：
+```
+-keep
+./oh_modules/@ohos/axios
+```
+
 ## Constraints
 
 Axios has been verified in the following versions:

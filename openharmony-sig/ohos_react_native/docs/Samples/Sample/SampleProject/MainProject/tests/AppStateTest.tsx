@@ -6,8 +6,8 @@
  */
 
 import { TestCase, TestSuite } from '@rnoh/testerino';
-import React, {useEffect, useState} from 'react';
-import {GestureResponderEvent, ScrollView, TextInput} from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { GestureResponderEvent, ScrollView, TextInput } from 'react-native';
 import {
   AppState,
   AppStateStatus,
@@ -17,14 +17,14 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
-import {Button, Effect} from '../components';
+import { Button, Effect } from '../components';
 
 export function AppStateTest() {
   return (
     <TestSuite name="AppState">
       <TestCase
         itShould="return active"
-        fn={({expect}) => {
+        fn={({ expect }) => {
           expect(AppState.currentState).to.equal('active');
         }}
       />
@@ -42,18 +42,18 @@ export function AppStateTest() {
           childrenCount: 1,
           textInputValue: '99',
         }}
-        arrange={({setState, state}) => {
+        arrange={({ setState, state }) => {
           return (
             <View>
               <Effect
                 onMount={() => {
                   AppState.addEventListener('memoryWarning', () => {
-                    setState(prev => ({...prev, didEmitMemoryEvent: true}));
+                    setState(prev => ({ ...prev, didEmitMemoryEvent: true }));
                   });
                 }}
                 children={<></>}
               />
-              <View style={{flexDirection: 'row'}}>
+              <View style={{ flexDirection: 'row' }}>
                 <Text>Number of items to add</Text>
                 <TextInput
                   value={state.textInputValue}
@@ -64,7 +64,7 @@ export function AppStateTest() {
                       textInputValue: e.nativeEvent?.text,
                     }));
                   }}
-                  style={{borderWidth: 1, width: 50, marginLeft: 10}}
+                  style={{ borderWidth: 1, width: 50, marginLeft: 10 }}
                   maxLength={6}
                 />
               </View>
@@ -92,7 +92,7 @@ export function AppStateTest() {
             </View>
           );
         }}
-        assert={({expect, state}) => {
+        assert={({ expect, state }) => {
           expect(state).to.be.true;
         }}
       />
@@ -162,7 +162,7 @@ function getScrollViewContent({
         ]}
         pointerEvents={pointerEvents}
         onTouchEnd={onTouchEnd}>
-        <Text style={{textAlign: 'center', height: 15}}> {idx + 1}</Text>
+        <Text style={{ textAlign: 'center', height: 15 }}> {idx + 1}</Text>
       </View>
     );
   });

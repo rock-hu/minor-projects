@@ -5,7 +5,7 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-import {InteractionManager} from 'react-native';
+import { InteractionManager } from 'react-native';
 import { TestCase, TestSuite } from '@rnoh/testerino';
 
 export function InteractionManagerTest() {

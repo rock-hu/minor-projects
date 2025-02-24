@@ -31,7 +31,6 @@ interface legendItem {
   legendItem: LegendEntry
 }
 
-@Entry
 @ComponentV2
 export default struct fragSimpleLineIndex {
   minOffset: number = 15;

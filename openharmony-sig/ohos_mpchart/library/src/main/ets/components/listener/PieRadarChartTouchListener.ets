@@ -309,12 +309,12 @@ export default class PieRadarChartTouchListener extends ChartTouchListener<PieRa
     } else {
       this.animatorResult = animator.create(options)
     }
-    this.animatorResult.onframe = (value) => {
+    this.animatorResult.onFrame = (value) => {
       this.mChart.setRotationAngle(value);
       this.mChart.invalidate();
     }
 
-    this.animatorResult.onfinish = () => {
+    this.animatorResult.onFinish = () => {
       this.animatorIsPlaying = false;
     }
 

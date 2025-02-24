@@ -50,7 +50,7 @@ const App = () => {
           setMutil(!mutil)
         }
       }}>
-        <Text style={styles.title}>{`现在是${ mutil ? '多选' : '单选' }`}</Text>
+        <Text style={styles.title}>{`现在是${mutil ? '多选' : '单选'}`}</Text>
       </Pressable>
       <SelectBox
         ref={boxRef}
@@ -64,23 +64,23 @@ const App = () => {
           console.log(event.nativeEvent)
         }}
       />
-  </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
- container: {
-   backgroundColor: 'white',
-   height: 250,
-   justifyContent: 'center',
- },
- title: {
-  backgroundColor: 'green',
-  color: 'white',
-  fontSize: 20,
-  padding: 8,
-  textAlign: 'center'
- }
+  container: {
+    backgroundColor: 'white',
+    height: 250,
+    justifyContent: 'center',
+  },
+  title: {
+    backgroundColor: 'green',
+    color: 'white',
+    fontSize: 20,
+    padding: 8,
+    textAlign: 'center'
+  }
 });
 
 export default App;

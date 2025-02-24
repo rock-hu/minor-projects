@@ -6,27 +6,27 @@
  */
 
 import * as React from 'react';
-import {useCallback, useRef, useState} from 'react';
+import { useCallback, useRef, useState } from 'react';
 import HomeListPage from './HomeListPage';
-import {GoodsProps} from './HomeListPage';
+import { GoodsProps } from './HomeListPage';
 import CategoryButton from './CategoryButton';
 import PagerView from 'react-native-pager-view';
-import type {PagerViewOnPageSelectedEvent} from 'react-native-pager-view';
+import type { PagerViewOnPageSelectedEvent } from 'react-native-pager-view';
 
-import {SafeAreaView, ScrollView, StyleSheet, View} from 'react-native';
+import { SafeAreaView, ScrollView, StyleSheet, View } from 'react-native';
 
 function App(): JSX.Element {
   const good0: GoodsProps = {
     name: '关注A',
-    onPress: () => {},
+    onPress: () => { },
   };
   const good1: GoodsProps = {
     name: '品牌A',
-    onPress: () => {},
+    onPress: () => { },
   };
   const good2: GoodsProps = {
     name: '直播A',
-    onPress: () => {},
+    onPress: () => { },
   };
   const categories = ['关注', '推荐', '直播'];
   const goods = [

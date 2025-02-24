@@ -2,6 +2,7 @@
   "modelVersion": "5.0.0",
   "dependencies": {
     "@rnoh/hvigor-plugin": "../../../react-native-harmony/harmony/rnoh-hvigor-plugin-0.2.0.tgz", // <PROJECT_ROOT>/node_modules/<RNOH>/harmony/rnoh-hvigor-plugin-X.X.X.tgz
+    "@rnoh/inner-hvigor-plugin": "../../../react-native-harmony-inner-hvigor-plugin/rnoh-inner-hvigor-plugin-0.0.1.tgz",
   },
   "execution": {
     // "analyze": "default",                    /* Define the build analyze mode. Value: [ "default" | "verbose" | false ]. Default: "default" */

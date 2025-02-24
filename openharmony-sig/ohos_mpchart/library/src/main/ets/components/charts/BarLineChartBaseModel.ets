@@ -1181,7 +1181,6 @@ extends Chart<T> implements BarLineScatterCandleBubbleDataProvider {
     }
   }
   
-  
   /**
    * Centers the viewport to the specified y value on the y-axis.
    * This also refreshes the chart by calling invalidate().
@@ -2010,4 +2009,61 @@ extends Chart<T> implements BarLineScatterCandleBubbleDataProvider {
   getHeight(): number {
     return this.height
   };
+
+  /**
+   * Set Y-axis custom labels
+   * @param axis Reference coordinate axis
+   * @param numbers Customize Y-axis dataset
+   */
+  public setCustomYAxisLabels(axis: AxisDependency, numbers: number[]): void {
+    if (axis == AxisDependency.LEFT) {
+      this.mAxisLeft?.setCustomYAxisLabels(numbers);
+    }
+    if (axis == AxisDependency.RIGHT) {
+      this.mAxisRight?.setCustomYAxisLabels(numbers);
+    }
+  }
+
+  /**
+   * get Y-axis custom labels
+   * @param axis Reference coordinate axis
+   */
+  public getCustomYAxisLabels(axis: AxisDependency): number[] {
+    let customYAxisLabels: number[] | undefined = [];
+    if (axis == AxisDependency.LEFT) {
+      customYAxisLabels = this.mAxisLeft?.getCustomYAxisLabels();
+    }
+    if (axis == AxisDependency.RIGHT) {
+      customYAxisLabels = this.mAxisRight?.getCustomYAxisLabels();
+    }
+    return customYAxisLabels ? customYAxisLabels : [];
+  }
+
+  /**
+   * remove Y-axis custom labels
+   * @param axis Reference coordinate axis
+   * @param numbers Deleted labels dataset
+   */
+  public removeYAxisCustomLabel(axis: AxisDependency, numbers: number[]): void {
+    if (axis == AxisDependency.LEFT) {
+      this.mAxisLeft?.removeYAxisCustomLabel(numbers);
+    }
+    if (axis == AxisDependency.RIGHT) {
+      this.mAxisRight?.removeYAxisCustomLabel(numbers);
+    }
+  }
+
+  /**
+   * Set whether to fully use custom labels
+   * @param axis Reference coordinate axis
+   * @param enableCustomYAxisLabels Is the Y-axis coordinate a fully customized variable
+   */
+  public setEnableCustomYAxisLabels(axis: AxisDependency, enableCustomYAxisLabels: boolean): void {
+    if (axis == AxisDependency.LEFT) {
+      this.mAxisLeft?.setEnableCustomYAxisLabels(enableCustomYAxisLabels);
+    }
+    if (axis == AxisDependency.RIGHT) {
+      this.mAxisRight?.setEnableCustomYAxisLabels(enableCustomYAxisLabels);
+    }
+  }
 }

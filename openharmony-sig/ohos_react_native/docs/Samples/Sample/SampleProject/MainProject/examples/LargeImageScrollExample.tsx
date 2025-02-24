@@ -5,8 +5,8 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-import React, {useState} from 'react';
-import {Image, ScrollView, StyleSheet, TextInput, View} from 'react-native';
+import React, { useState } from 'react';
+import { Image, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
 export function LargeImageScrollExample() {
   const [numberOfComponents, setNumberOfComponents] = useState(300);

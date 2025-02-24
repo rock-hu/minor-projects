@@ -5,7 +5,7 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-import React, {useRef} from 'react';
+import React, { useRef } from 'react';
 import {
   View,
   StyleSheet,
@@ -15,7 +15,7 @@ import {
   findNodeHandle,
 } from 'react-native';
 import { TestCase, TestSuite } from '@rnoh/testerino';
-import {Effect, Ref, Button} from '../components';
+import { Effect, Ref, Button } from '../components';
 
 export function UIManagerTest() {
   return (
@@ -23,10 +23,10 @@ export function UIManagerTest() {
       <TestCase
         itShould="not round text measurement to integers"
         initialState={{
-          view: {width: 0, height: 0},
-          text: {width: 0, height: 0},
+          view: { width: 0, height: 0 },
+          text: { width: 0, height: 0 },
         }}
-        arrange={({setState}) => {
+        arrange={({ setState }) => {
           return (
             <Ref<View>
               render={refView => {
@@ -41,7 +41,7 @@ export function UIManagerTest() {
                                 (x, y, width, height, _left, _top) => {
                                   setState(prev => ({
                                     ...prev,
-                                    text: {width, height},
+                                    text: { width, height },
                                   }));
                                 },
                               );
@@ -49,7 +49,7 @@ export function UIManagerTest() {
                                 (x, y, width, height, _left, _top) => {
                                   setState(prev => ({
                                     ...prev,
-                                    view: {width, height},
+                                    view: { width, height },
                                   }));
                                 },
                               );
@@ -87,7 +87,7 @@ export function UIManagerTest() {
             />
           );
         }}
-        assert={({expect, state}) => {
+        assert={({ expect, state }) => {
           expect(state.view.width).to.be.closeTo(16.5, 0.4);
           expect(state.view.width).not.to.be.eq(16);
           expect(state.view.width).not.to.be.eq(17);
@@ -104,19 +104,19 @@ export function UIManagerTest() {
       </TestCase>
       <TestCase
         itShould="return view manager config"
-        fn={({expect}) => {
+        fn={({ expect }) => {
           expect(UIManager.getViewManagerConfig('RCTView')).to.be.an('object');
         }}
       />
       <TestCase
         itShould="not return view manager config for non-existing view"
-        fn={({expect}) => {
+        fn={({ expect }) => {
           expect(UIManager.getViewManagerConfig('RCTNotAView')).to.be.null;
         }}
       />
       <TestCase
         itShould="check if view manager config exists"
-        fn={({expect}) => {
+        fn={({ expect }) => {
           expect(UIManager.hasViewManagerConfig('RCTView')).to.be.true;
           expect(UIManager.hasViewManagerConfig('RCTNotAView')).to.be.false;
         }}
@@ -124,10 +124,10 @@ export function UIManagerTest() {
       <TestCase
         itShould="measure the view with respect to the window"
         initialState={
-          {} as {x: number; y: number; width: number; height: number}
+          {} as { x: number; y: number; width: number; height: number }
         }
-        arrange={({setState}) => <MeasureInWindowTest setState={setState} />}
-        assert={({state, expect}) => {
+        arrange={({ setState }) => <MeasureInWindowTest setState={setState} />}
+        assert={({ state, expect }) => {
           expect(state.width).to.be.equal(20);
           expect(state.height).to.be.equal(20);
           expect(state.x).to.be.greaterThan(10);
@@ -137,10 +137,10 @@ export function UIManagerTest() {
       <TestCase
         itShould="measure the view with respect to the parent"
         initialState={
-          {} as {x: number; y: number; width: number; height: number}
+          {} as { x: number; y: number; width: number; height: number }
         }
-        arrange={({setState}) => <MeasureLayoutTest setState={setState} />}
-        assert={({state, expect}) => {
+        arrange={({ setState }) => <MeasureLayoutTest setState={setState} />}
+        assert={({ state, expect }) => {
           expect(state.width).to.be.equal(20);
           expect(state.height).to.be.equal(20);
           expect(state.x).to.be.equal(10);
@@ -152,7 +152,7 @@ export function UIManagerTest() {
 }
 const MeasureLayoutTest = (props: {
   setState: React.Dispatch<
-    React.SetStateAction<{x: number; y: number; width: number; height: number}>
+    React.SetStateAction<{ x: number; y: number; width: number; height: number }>
   >;
 }) => {
   const ref = useRef<View>(null);
@@ -184,10 +184,10 @@ const MeasureLayoutTest = (props: {
             ref.current?.measureLayout(
               containerRef.current,
               (x, y, width, height) => {
-                props.setState({x: x, y: y, width: width, height: height});
+                props.setState({ x: x, y: y, width: width, height: height });
               },
               () => {
-                props.setState({x: -1, y: -1, width: -1, height: -1});
+                props.setState({ x: -1, y: -1, width: -1, height: -1 });
               },
             );
           }
@@ -199,7 +199,7 @@ const MeasureLayoutTest = (props: {
 
 const MeasureInWindowTest = (props: {
   setState: React.Dispatch<
-    React.SetStateAction<{x: number; y: number; width: number; height: number}>
+    React.SetStateAction<{ x: number; y: number; width: number; height: number }>
   >;
 }) => {
   const ref = useRef<View>(null);
@@ -217,7 +217,7 @@ const MeasureInWindowTest = (props: {
         label="measureInWindow"
         onPress={() => {
           ref.current?.measureInWindow((x, y, width, height) => {
-            props.setState({x: x, y: y, width: width, height: height});
+            props.setState({ x: x, y: y, width: width, height: height });
           });
         }}
       />
@@ -230,9 +230,9 @@ function DispatchCommandTest() {
 
   return (
     <View>
-      <ScrollView ref={ref} style={{height: 100}}>
-        <View style={[styles.box, {backgroundColor: 'red'}]} />
-        <View style={[styles.box, {backgroundColor: 'blue'}]} />
+      <ScrollView ref={ref} style={{ height: 100 }}>
+        <View style={[styles.box, { backgroundColor: 'red' }]} />
+        <View style={[styles.box, { backgroundColor: 'blue' }]} />
       </ScrollView>
       <Button
         label="scroll to bottom"

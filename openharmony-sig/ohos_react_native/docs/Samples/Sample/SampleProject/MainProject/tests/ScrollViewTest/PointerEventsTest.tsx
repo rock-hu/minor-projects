@@ -6,17 +6,17 @@
  */
 
 import { TestCase, TestSuite } from '@rnoh/testerino';
-import {Platform, ScrollView, View} from 'react-native';
-import {getScrollViewContent} from './fixtures';
-import {Button} from '../../components';
+import { Platform, ScrollView, View } from 'react-native';
+import { getScrollViewContent } from './fixtures';
+import { Button } from '../../components';
 
 export function PointerEventsTest() {
   return (
     <TestSuite name="pointer events">
       <TestCase
         itShould="call inner and outer view when pressing inner"
-        initialState={{inner: false, outer: false, outerContainer: false}}
-        arrange={({setState, reset}) => {
+        initialState={{ inner: false, outer: false, outerContainer: false }}
+        arrange={({ setState, reset }) => {
           return (
             <PointerEventsView
               pointerEventsOuter="auto"
@@ -25,7 +25,7 @@ export function PointerEventsTest() {
             />
           );
         }}
-        assert={({expect, state}) => {
+        assert={({ expect, state }) => {
           expect(state).to.be.deep.eq({
             inner: true,
             outer: true,
@@ -40,8 +40,8 @@ export function PointerEventsTest() {
           harmony: 'fails on Android',
         })} // https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/424
         itShould="call only outer when pressing inner view"
-        initialState={{inner: false, outer: false, outerContainer: true}}
-        arrange={({setState, reset}) => {
+        initialState={{ inner: false, outer: false, outerContainer: true }}
+        arrange={({ setState, reset }) => {
           return (
             <PointerEventsView
               pointerEventsOuter="box-only"
@@ -50,7 +50,7 @@ export function PointerEventsTest() {
             />
           );
         }}
-        assert={({expect, state}) => {
+        assert={({ expect, state }) => {
           expect(state).to.be.deep.eq({
             inner: false,
             outer: true,
@@ -64,8 +64,8 @@ export function PointerEventsTest() {
           android: 'known bug',
         })}
         itShould="call inner and outer only when pressing inner view"
-        initialState={{inner: false, outer: false, outerContainer: false}}
-        arrange={({setState, reset}) => {
+        initialState={{ inner: false, outer: false, outerContainer: false }}
+        arrange={({ setState, reset }) => {
           return (
             <PointerEventsView
               disableOuterContainerTouch
@@ -75,7 +75,7 @@ export function PointerEventsTest() {
             />
           );
         }}
-        assert={({expect, state}) => {
+        assert={({ expect, state }) => {
           expect(state.inner).to.be.true;
           expect(state.outer).to.be.true;
         }}
@@ -86,8 +86,8 @@ export function PointerEventsTest() {
           android: 'known bug',
         })}
         itShould="not call inner or outer when pressing inner or outer views"
-        initialState={{inner: false, outer: false, outerContainer: false}}
-        arrange={({setState, reset}) => {
+        initialState={{ inner: false, outer: false, outerContainer: false }}
+        arrange={({ setState, reset }) => {
           return (
             <PointerEventsView
               pointerEventsOuter="none"
@@ -96,7 +96,7 @@ export function PointerEventsTest() {
             />
           );
         }}
-        assert={({expect, state}) => {
+        assert={({ expect, state }) => {
           expect(state).to.be.deep.eq({
             inner: false,
             outer: false,
@@ -122,15 +122,15 @@ function PointerEventsView(props: {
   reset: () => void;
 }) {
   return (
-    <View style={{height: 100, width: '100%', flexDirection: 'row'}}>
+    <View style={{ height: 100, width: '100%', flexDirection: 'row' }}>
       <View
-        style={{backgroundColor: 'red'}}
+        style={{ backgroundColor: 'red' }}
         onTouchEnd={
           props.disableOuterContainerTouch
             ? undefined
             : () => {
-                props.setState(prev => ({...prev, outerContainer: true}));
-              }
+              props.setState(prev => ({ ...prev, outerContainer: true }));
+            }
         }>
         <ScrollView
           nestedScrollEnabled
@@ -142,12 +142,12 @@ function PointerEventsView(props: {
           }}
           pointerEvents={props.pointerEventsOuter}
           onTouchEnd={() => {
-            props.setState(prev => ({...prev, outer: true}));
+            props.setState(prev => ({ ...prev, outer: true }));
           }}>
           {getScrollViewContent({
             amountOfChildren: 3,
             onTouchEnd: () => {
-              props.setState(prev => ({...prev, inner: true}));
+              props.setState(prev => ({ ...prev, inner: true }));
             },
             pointerEvents: props.pointerEventsInner,
           })}

@@ -370,7 +370,11 @@ struct LineChartPage {
     this.titleModel.title = this.title
 
     this.model.setOnChartValueSelectedListener(this.valueSelectedListener);
-
+    //设置完全自定义Y轴
+    this.model.setEnableCustomYAxisLabels(AxisDependency.LEFT, false)
+    this.model.setCustomYAxisLabels(AxisDependency.LEFT, [0,25,35,180,190])
+    this.model.setEnableCustomYAxisLabels(AxisDependency.RIGHT, false)
+    this.model.setCustomYAxisLabels(AxisDependency.RIGHT, [25,35,66,70,80,99])
     let description: Description | null = this.model.getDescription();
     if (description) {
       description.setEnabled(false);
@@ -615,6 +619,11 @@ struct LineChartPage {
               }
 
               MpSlider({ name: $r('app.string.visible_xrange_maximum'), min: 3, max: 10, value: this.maxLabelSize!! })
+              Button('removeYAxisCustomLabel(35)').onClick(()=>{
+                this.model.removeYAxisCustomLabel(AxisDependency.LEFT, [35]);
+                this.model?.notifyDataSetChanged();
+                this.model?.invalidate();
+              }).margin(10)
               Button('moveViewToAnimated(10,100)')
                 .onClick(()=>{
                   this.model.moveViewToAnimated(10, 100, AxisDependency.RIGHT, 4000);

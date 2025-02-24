@@ -26,7 +26,6 @@ export default class EntryAbility extends RNAbility {
     } catch (err) {
       console.error('Failed to get preferences')
     }
-
     AppStorage.setOrCreate('RNAbility', this);
   }
 }

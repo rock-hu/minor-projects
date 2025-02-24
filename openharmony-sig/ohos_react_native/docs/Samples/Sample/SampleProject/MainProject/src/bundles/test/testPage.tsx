@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import {ScrollView, StyleSheet, View} from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import {
   AnimatedRenderExample,
   AnimationsExample,
@@ -23,9 +23,9 @@ import {
   TabsAndScrollViewExample,
   NestedScrollingExample,
 } from '../../../examples';
-import {NavigationContainer, Page} from '../../../components';
-import {Benchmarker, DeepTree, SierpinskiTriangle} from '../../../benchmarks';
-import {PortalHost, PortalProvider} from '@gorhom/portal';
+import { NavigationContainer, Page } from '../../../components';
+import { Benchmarker, DeepTree, SierpinskiTriangle } from '../../../benchmarks';
+import { PortalHost, PortalProvider } from '@gorhom/portal';
 import * as tests from '../../../tests';
 import { Tester } from '@rnoh/testerino';
 
@@ -40,8 +40,8 @@ function AppTest() {
             <Page
               key={testSuiteName}
               name={`TESTS: ${testSuiteName.replace('Test', '')}`}>
-              <Tester style={{flex: 1}}>
-                <ScrollView style={{flex: 1}}>
+              <Tester style={{ flex: 1 }}>
+                <ScrollView style={{ flex: 1 }}>
                   <TestSuite key={testSuiteName} />
                 </ScrollView>
               </Tester>
@@ -138,7 +138,7 @@ function AppTest() {
         <View
           style={[
             StyleSheet.absoluteFill,
-            {zIndex: 100, pointerEvents: 'box-none'},
+            { zIndex: 100, pointerEvents: 'box-none' },
           ]}>
           <PortalHost name="ModalHost" />
         </View>

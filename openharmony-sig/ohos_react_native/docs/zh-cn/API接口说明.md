@@ -194,7 +194,7 @@ onBackground(): void
 | ------------------------------- | ------------------------------- | ---- | ------------------------------------------------------------ |
 | rnInstanceConfig                | RNInstanceConfig                | 是   | 用于创建`RNInstance`的`RNInstance`或`RNInstanceOptions`。如果提供了[RNInstanceOptions](#rninstanceoptions)，则此组件负责创建和管理`RNInstance`。 |
 | appKey                          | string                          | 是   | 开发者在JS侧使用`AppRegistry.registerComponent`注册的名称。   |
-| jsBundleProvider                | JSBundleProvider                | 否   | 在`RNInstance`中运行JS Bundle。Bundle被加载后创建Surface(跟容器)。 |
+| jsBundleProvider                | JSBundleProvider                | 否   | 在`RNInstance`中运行JS Bundle。Bundle被加载后创建Surface(根容器)。 |
 | initialProps                    | Record<string, string>          | 否   | React Native应用的初始化原生参数。                           |
 | wrappedCustomRNComponentBuilder | WrappedCustomRNComponentBuilder | 是   | 构建自定义Fabric组件构造器。                                   |
 | onSetUp                         | void                            | 否   | 在`RNInstance`创建完成且Surface可见前，调用此回调函数。        |
@@ -811,6 +811,37 @@ dispatchBackPress: () => void
 | wrappedCustomRNComponentBuilder | WrappedCustomRNComponentBuilder | 是 | 用于构造ArkTS侧自定义组件的构造器。 |
 | wrappedRNComponentBuilder | WrappedRNComponentBuilder | 是 | 用于构造 ArkTS 侧 **RN** 子组件的构造器。 |
 | rnComponentDataSourceFactoriesByDescriptorType | Map<string, RNComponentDataSourceFactory> | 是 | 用来存储 LazyForEach 的 DataSource 对象。 |
+
+### 方法
+
+#### runOnWorkerThread<TParams, TResult, TRunnable>(runnable, params)
+
+| 泛型类型     | 继承父类型       | 必填 | 说明                 |
+| ---------- | ---------- | ---- | -------------------- |
+| TParams | SupportedTaskParams | 是   | 参数类型, 受**WORKER** 线程通信机制限制, 必须为可序列化类型 |
+| TResult | lang.ISendable \| void | 是   | 返回值类型, 受**WORKER** 线程通信机制限制, 必须为可序列化类型 |
+| TRunnable | WorkerTaskRunnable<TParams, TResult> | 是   | 可执行任务对象类型 |
+
+| 参数名     | 类型       | 必填 | 说明                 |
+| ---------- | ---------- | ---- | -------------------- |
+| runnable | TRunnable | 是   | 可执行任务对象 |
+| params  | TParams | 是   | 可执行任务参数 |
+
+以`params`作为参数，在**WORKER** 线程并行执行`runnable.run()`，返回一个`Promise<TResult>`对象，可用于读取`runnable.run()`的返回值。
+
+使用本特性前需启用**WORKER** 线程特性。如何启用**WORKER** 线程特性详见[架构介绍.md#worker线程](./架构介绍.md#worker线程)。
+
+使用示例详见[常见开发场景.md#如何在worker-线程并行执行自定义任务](./常见开发场景.md#如何在worker-线程并行执行自定义任务)。
+
+## EtsUITurboModuleContext
+
+`EtsUITurboModuleContext` 是 React Native for OpenHarmony 构造`EtsUITurboModule`时使用的上下文信息，是 `RNOHContext` 的子类。
+
+### 方法
+
+#### runOnWorkerThread<TParams, TResult, TRunnable>(runnable, params)
+
+同上文[API接口说明.md#runonworkerthreadtparams-tresult-trunnablerunnable-params](./API接口说明.md#runonworkerthreadtparams-tresult-trunnablerunnable-params)。
 
 ## JSBundleProvider
 

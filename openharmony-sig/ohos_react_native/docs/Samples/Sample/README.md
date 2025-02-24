@@ -11,7 +11,7 @@
 **Configure a React Native project:**
 1. Run **npm i @react-native-oh/react-native-harmony@x.x.x** in the `SampleProject/MainProject` directory to install the dependency.
 
-2. Run **npm run dev:all** to generate a local bundle. Run the following command to generate the `bundle` and `assets` folders in the `SampleApp/entry/src/main/resources/rawfile` directory.
+2. Run **npm run dev:all** to generate a local bundle. Run the command to generate the `bundle` and `assets` folders in the `SampleApp/entry/src/main/resources/rawfile` directory.
 
 3. Use Metro to generate a bundle. If you want to use the Metro service to update bundles in real time, connect to a real device and run the following commands:
   
@@ -22,7 +22,7 @@
 
 **Configure a OpenHarmony project:**
 
-1. Specify the version of `react-native-openharmony` in `entry/oh-package.json5`.
+1. Specify the version of `react-native-openharmony` in `entry/oh-package.json5` and `oh-package.json5`in the root.
 2. Open `SampleApp` in DevEco Studio and run **Sync and Refresh Project**.
 3. Click **run** in the upper right corner to start the project.
 
@@ -31,7 +31,7 @@
 ​ On the React Native side, an empty project consists of **HomePage**, **Goods**, **test**, and **Detail** modules. On OpenHarmony, the bundles of the four service modules are loaded to create the corresponding RNSurfaces, which are then embedded into the ArkUI page components to build the OpenHarmony page.
 
 - HomePage: The third-party library react-native-pager-view is used to implement the split-view layout of tabs.
-- Goods: The scrollbar component on the top is customized by ArkUI and imported and rendered on the RN side. The bottom provides the examples of using multiple TuboModule methods.
+- Goods: The scrollbar component on the top is customized by ArkUI and imported and rendered on the RN side. The bottom provides the examples of using multiple TurboModule methods.
 - Test: Multiple common code example pages are provided.
 - Detail: The **ArkUI** and **RN** components are used for hybrid rendering. In the **RN** component, the data transferred from the OpenHarmony side is used for style and content rendering.
   

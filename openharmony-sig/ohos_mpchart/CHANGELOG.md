@@ -1,9 +1,13 @@
+## 4.0.0-rc.1
+- Mpchart supports animation to move charts to specified positions
+- Mpchart supports setting custom y-axis labels
+
 ## 4.0.0-rc.0
-- 合入3.0.9至3.0.11的修改，修改打印日志方法
+- Incorporate modifications from 3.0.9 to 3.0.11 and modify the printing log method
 - incorporating modifications from 3.0.12 to 3.0.15
 
 ## 3.1.0-rc.0
-- 升级状态管理器V2
+- Upgrade Status Manager V2
 
 ## 3.0.17
 - Fix the issue where pool objects were not being recycled

@@ -153,7 +153,7 @@ module.exports = {
 };
 ```
 
-​ 每个 optoins 内都有很多配置选项，而对于拆包打包来说，最重要的是 `serializer` 选项内的`createModuleIdFactory` 与 `processModuleFilter`。
+​ 每个 options 内都有很多配置选项，而对于拆包打包来说，最重要的是 `serializer` 选项内的 `createModuleIdFactory` 与 `processModuleFilter`。
 
 ![image](./figures/RN-JS-serializer.png)
 
@@ -269,7 +269,7 @@ module.exports = {
 2. 通过 `Basic` 模块和 `HomePage` 模块举例说明，基础包为 `Basic` 模块，业务包为 `HomePage` 模块。
 
    - 首先需要创建两个模块各自的 `metro.config.js` 文件：`basic.config.js` 和 `homepage.config.js`。在执行打包命令的时候需要配置到 `--config` 配置选项中。
-   - `basic.config.js` 中的 `config` 对象需要配置 `serializer` 属性的`createModuleIdFactory` 为上一步自定义的 `createModuleIdFactoryWrap` 方法，传入project根目录和模块名，最后在使用 `mergeConfig` 方式时将 `config` 对象作为入参传进去。
+   - `basic.config.js` 中的 `config` 对象需要配置 `serializer` 属性的 `createModuleIdFactory` 为上一步自定义的 `createModuleIdFactoryWrap` 方法，传入project根目录和模块名，最后在使用 `mergeConfig` 方式时将 `config` 对象作为入参传进去。
 
      ```javascript
      // SampleProject/MainProject/basic.config.js

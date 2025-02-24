@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 
 export interface GoodsProps {
   name: string;
@@ -17,7 +17,7 @@ export interface ListProps {
   goods: GoodsProps[];
 }
 
-export default function HomeListPage({goods}: ListProps) {
+export default function HomeListPage({ goods }: ListProps) {
   return (
     <View style={styles.container}>
       {goods.map((good, index) => (

@@ -15,7 +15,7 @@
   "main": "index.js",
   "repository": "https://gitee.com/openharmony-sig/ohos_axios.git",
   "type": "module",
-  "version": "2.2.5-rc.1",
+  "version": "2.2.5-rc.2",
   "tags": [
     "Network"
   ],

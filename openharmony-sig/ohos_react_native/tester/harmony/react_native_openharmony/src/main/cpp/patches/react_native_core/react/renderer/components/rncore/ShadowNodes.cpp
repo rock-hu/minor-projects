@@ -21,6 +21,7 @@ extern const char AndroidHorizontalScrollContentViewComponentName[] = "AndroidHo
 extern const char SwitchComponentName[] = "Switch";
 extern const char TraceUpdateOverlayComponentName[] = "TraceUpdateOverlay";
 extern const char UnimplementedNativeViewComponentName[] = "UnimplementedNativeView";
+extern const char ModalHostViewComponentName[] = "ModalHostView";
 
 } // namespace react
 } // namespace facebook

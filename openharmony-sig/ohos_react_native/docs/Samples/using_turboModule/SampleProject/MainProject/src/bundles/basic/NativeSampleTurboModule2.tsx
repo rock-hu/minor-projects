@@ -17,8 +17,8 @@ export interface EnglishNovelModel {
     note: string
     dateline: string
     img: string
-  }
-  
+}
+
 export interface ResultModel {
     code: number
     result: EnglishNovelModel
@@ -31,12 +31,12 @@ export interface Error {
     stack?: string;
 }
 
-export interface SpecSampleTurboModule2 extends TurboModule {  
-    checkPwd(param:{}, success: (res: {})=>void, failure: (res: {})=>void): void;
+export interface SpecSampleTurboModule2 extends TurboModule {
+    checkPwd(param: {}, success: (res: {}) => void, failure: (res: {}) => void): void;
     eatFruit(fruit: Fruit): void;
     test(): void;
     getRequest(): Promise<ResultModel>;
-    getObject(obj:{}): void;
+    getObject(obj: {}): void;
 }
-  
+
 export default TurboModuleRegistry.getEnforcing<SpecSampleTurboModule2>('SampleTurboModule2');

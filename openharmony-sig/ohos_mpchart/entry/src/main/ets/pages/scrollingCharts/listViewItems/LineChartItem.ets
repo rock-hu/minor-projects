@@ -19,8 +19,6 @@ import { LineData } from '@ohos/mpchart';
 import { LimitLine } from '@ohos/mpchart'
 
 
-@Entry
-@Preview
 @ComponentV2
 export default struct LineChartItem {
   @Param data: LineData | null = null;

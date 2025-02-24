@@ -11,7 +11,7 @@
 **React Native工程配置：**
 1. 在 `SampleProject/MainProject` 目录下执行 **npm i @react-native-oh/react-native-harmony@x.x.x**或**yarn add @react-native-oh/react-native-harmony@x.x.x** 安装依赖；
 
-2. 运行 **npm run dev:all** 生成本地bundle。执行以下命令，完成后会在`SampleApp/entry/src/main/resources/rawfile`目录下生成一个名为`bundle`和`assets`的文件夹；
+2. 运行 **npm run dev:all** 生成本地bundle。执行此命令后会在`SampleApp/entry/src/main/resources/rawfile`目录下生成一个名为`bundle`和`assets`的文件夹；
 
 3. 使用Metro生成bundle。如果您想使用Metro服务实时更新bundle，请连接真机，分别执行以下命令：
   
@@ -22,16 +22,16 @@
 
 **鸿蒙工程配置：**
 
-1. 在 `entry/oh-package.json5` 中指定 `react-native-openharmony` 的版本。
+1. 在 `entry/oh-package.json5` 和根目录下的 `oh-package.json5` 中指定 `react-native-openharmony` 的版本。
 2. 用 DevEco Studio 打开 `SampleApp` 执行 **Sync and Refresh Project**。
 3. 点击右上角的 **run** 启动项目。
 
 ## 工程内容介绍
 
-​ 空工程的业务内容包括首页HomePage、商品Goods、测试用例test、商品详情Detail四个模块，由React Native侧实现。在鸿蒙侧，通过加载四个业务模块的bundle包创建对应的RNSurface，最后将RNSurface嵌入ArtkUI的页面组件中完成鸿蒙侧的页面构建。
+​ 空工程的业务内容包括首页HomePage、商品Goods、测试用例test、商品详情Detail四个模块，由React Native侧实现。在鸿蒙侧，通过加载四个业务模块的bundle包创建对应的RNSurface，最后将RNSurface嵌入ArkUI的页面组件中完成鸿蒙侧的页面构建。
 
 - 首页：使用了三方库react-native-pager-view，实现了tabs分栏效果；
-- 商品：顶部的滚动条组件由ArkUI实现自定义组件，在RN侧导入并渲染；底部提供了多个TuboModule方法的使用示例；
+- 商品：顶部的滚动条组件由ArkUI实现自定义组件，在RN侧导入并渲染；底部提供了多个TurboModule方法的使用示例；
 - 测试用例：提供了多个常用的代码示例页面；
 - 商品详情：同时使用了ArkUI组件和RN组件混合渲染，并在RN组件中使用了鸿蒙侧传递过来的数据进行样式和内容的渲染。
   

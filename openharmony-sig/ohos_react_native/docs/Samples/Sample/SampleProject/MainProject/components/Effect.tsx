@@ -5,7 +5,7 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-import {useEffect} from 'react';
+import { useEffect } from 'react';
 
 export function Effect({
   onMount,
@@ -15,7 +15,7 @@ export function Effect({
   children?: any;
 }) {
   useEffect(() => {
-    let cleanUp: () => void = () => {};
+    let cleanUp: () => void = () => { };
     (async () => {
       const cleanUp_ = await onMount();
       if (cleanUp_) {

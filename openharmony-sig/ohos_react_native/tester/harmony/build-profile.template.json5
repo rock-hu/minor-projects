@@ -10,6 +10,17 @@
           "nativeCompiler": "BiSheng"
         }
       },
+      {
+        name: 'abc',
+        signingConfig: 'default',
+        compatibleSdkVersion: '5.0.0(12)',
+        runtimeOS: 'HarmonyOS',
+        buildOption: {
+          strictMode: {
+            useNormalizedOHMUrl: true
+          }
+        }
+      }
     ],
     buildModeSet: [
       {

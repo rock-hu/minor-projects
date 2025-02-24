@@ -6,9 +6,9 @@
  */
 
 import { TestSuite, TestCase } from '@rnoh/testerino';
-import {Button} from '../components';
-import {Alert, Text, View} from 'react-native';
-import {useState} from 'react';
+import { Button } from '../components';
+import { Alert, Text, View } from 'react-native';
+import { useState } from 'react';
 
 export function AlertTest() {
   return (
@@ -16,38 +16,38 @@ export function AlertTest() {
       <TestCase
         itShould="show simple alert on click"
         initialState={false}
-        arrange={({setState, reset}) => (
-          <View style={{flexDirection: 'row'}}>
+        arrange={({ setState, reset }) => (
+          <View style={{ flexDirection: 'row' }}>
             <Button
               label="show alert"
               onPress={() => {
                 Alert.alert('Test Alert', 'Message', [
-                  {text: 'OK', onPress: () => setState(true)},
+                  { text: 'OK', onPress: () => setState(true) },
                 ]);
               }}
             />
             <Button label="reset" onPress={reset} />
           </View>
         )}
-        assert={({state, expect}) => {
+        assert={({ state, expect }) => {
           expect(state).to.be.true;
         }}
       />
       <TestCase
         itShould="display name of the button clicked in alert"
         initialState={false}
-        arrange={({setState, reset}) => (
+        arrange={({ setState, reset }) => (
           <AlertView setState={setState} reset={reset} />
         )}
-        assert={({state, expect}) => {
+        assert={({ state, expect }) => {
           expect(state).to.be.true;
         }}
       />
       <TestCase
         itShould="cancel alert on press outside its window"
         initialState={false}
-        arrange={({setState, reset}) => (
-          <View style={{flexDirection: 'row'}}>
+        arrange={({ setState, reset }) => (
+          <View style={{ flexDirection: 'row' }}>
             <Button
               label="show alert"
               onPress={() => {
@@ -60,7 +60,7 @@ export function AlertTest() {
             <Button label="reset" onPress={reset} />
           </View>
         )}
-        assert={({state, expect}) => {
+        assert={({ state, expect }) => {
           expect(state).to.be.true;
         }}
       />
@@ -84,13 +84,13 @@ const AlertView = (props: {
   return (
     <>
       <Text>{text}</Text>
-      <View style={{flexDirection: 'row'}}>
+      <View style={{ flexDirection: 'row' }}>
         <Button
           label="show alert"
           onPress={() => {
             Alert.alert('Test Alert', 'Message', [
-              {text: 'Cancel', onPress: cancelOnPress},
-              {text: 'OK', onPress: okOnPress},
+              { text: 'Cancel', onPress: cancelOnPress },
+              { text: 'OK', onPress: okOnPress },
             ]);
           }}
         />

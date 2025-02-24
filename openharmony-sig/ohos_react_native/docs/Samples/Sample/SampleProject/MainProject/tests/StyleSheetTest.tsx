@@ -5,7 +5,7 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-import {StyleSheet} from 'react-native';
+import { StyleSheet } from 'react-native';
 import { TestCase, TestSuite } from '@rnoh/testerino';
 
 export const StyleSheetTest = () => {
@@ -13,13 +13,13 @@ export const StyleSheetTest = () => {
     <TestSuite name="Stylesheet">
       <TestCase
         itShould="see if StyleSheet.create returns reference to an object with the correct props"
-        fn={({expect}) => {
+        fn={({ expect }) => {
           expect(styles.test).to.be.eql(testStyle);
         }}
       />
       <TestCase
         itShould="compose styles correctly"
-        fn={({expect}) => {
+        fn={({ expect }) => {
           const composed = StyleSheet.compose(testStyle, testStyle2);
           expect(composed).to.be.an('array');
           expect(composed).to.include(testStyle);
@@ -28,7 +28,7 @@ export const StyleSheetTest = () => {
       />
       <TestCase
         itShould="flatten styles correctly"
-        fn={({expect}) => {
+        fn={({ expect }) => {
           expect(StyleSheet.flatten([testStyle, testStyle2])).to.be.eql(
             flattenedStyle,
           );
@@ -36,7 +36,7 @@ export const StyleSheetTest = () => {
       />
       <TestCase
         itShould="return a sensible hairlineWidth value"
-        fn={({expect}) => {
+        fn={({ expect }) => {
           expect(StyleSheet.hairlineWidth).to.be.greaterThan(0).and.lessThan(2);
         }}
       />

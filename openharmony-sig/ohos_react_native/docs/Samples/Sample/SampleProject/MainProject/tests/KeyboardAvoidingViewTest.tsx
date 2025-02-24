@@ -17,7 +17,7 @@ import {
 } from 'react-native';
 import { TestCase, TestSuite } from '@rnoh/testerino';
 import React from 'react';
-import {Modal} from '../components';
+import { Modal } from '../components';
 
 export const KeyboardAvoidingViewTest = () => {
   return (
@@ -39,8 +39,8 @@ export const KeyboardAvoidingViewTest = () => {
         <KeyboardAvoidingViewTestCase
           behavior="position"
           justifyContent="flex-end"
-          contentContainerStyle={{borderWidth: 4, borderColor: 'firebrick'}}
-          style={{borderWidth: 4, borderColor: 'green'}}
+          contentContainerStyle={{ borderWidth: 4, borderColor: 'firebrick' }}
+          style={{ borderWidth: 4, borderColor: 'green' }}
         />
       </TestCase>
       <TestCase itShould="avoid keyboard by changing padding">
@@ -56,13 +56,13 @@ export const KeyboardAvoidingViewTest = () => {
 type KeyboardAvoidingViewTestCaseProps = {
   behavior?: 'height' | 'position' | 'padding' | undefined;
   justifyContent?:
-    | 'flex-start'
-    | 'flex-end'
-    | 'center'
-    | 'space-between'
-    | 'space-around'
-    | 'space-evenly'
-    | undefined;
+  | 'flex-start'
+  | 'flex-end'
+  | 'center'
+  | 'space-between'
+  | 'space-around'
+  | 'space-evenly'
+  | undefined;
   contentContainerStyle?: StyleProp<ViewStyle> | undefined;
   enabled?: boolean | undefined;
   style?: StyleProp<ViewStyle> | undefined;
@@ -72,7 +72,7 @@ function KeyboardAvoidingViewTestCase(
 ) {
   return (
     <>
-      <Modal contentContainerStyle={{height: '100%'}}>
+      <Modal contentContainerStyle={{ height: '100%' }}>
         <KeyboardAvoidingView
           behavior={props.behavior}
           keyboardVerticalOffset={75} //magic value, corresponding to the height of the wrapper etc.
@@ -81,13 +81,13 @@ function KeyboardAvoidingViewTestCase(
           style={[styles.container, props.style]}>
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <View
-              style={{height: '100%', justifyContent: props.justifyContent}}>
+              style={{ height: '100%', justifyContent: props.justifyContent }}>
               <TextInput placeholder="TextInput" style={styles.textInput} />
               <View
-                style={{height: 150, width: 150, backgroundColor: 'firebrick'}}
+                style={{ height: 150, width: 150, backgroundColor: 'firebrick' }}
               />
               <View
-                style={{height: 150, width: 150, backgroundColor: 'beige'}}
+                style={{ height: 150, width: 150, backgroundColor: 'beige' }}
               />
             </View>
           </TouchableWithoutFeedback>

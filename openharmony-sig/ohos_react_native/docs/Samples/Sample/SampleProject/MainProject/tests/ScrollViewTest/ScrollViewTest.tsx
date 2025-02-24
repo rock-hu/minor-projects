@@ -5,20 +5,20 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-import {View, ScrollView, Text, StyleSheet} from 'react-native';
+import { View, ScrollView, Text, StyleSheet } from 'react-native';
 import { TestSuite, TestCase } from '@rnoh/testerino';
-import React, {useState} from 'react';
-import {Button} from '../../components';
-import {StylesTest} from './StylesTest';
-import {ContentContainerStyleTest} from './ContentContainerStyleTest';
-import {ScrollBarsTest} from './ScrollBarsTest';
-import {StickyHeadersTest} from './StickyHeadersTest';
-import {PointerEventsTest} from './PointerEventsTest';
-import {SnapTest} from './SnapTest';
-import {MomentumCallbacksTest} from './MomentumCallbacksTest';
-import {KeyboardTest} from './KeyboardTest';
-import {MiscPropsTest} from './MiscPropsTest';
-import {ScrollToTest} from './ScrollToTest';
+import React, { useState } from 'react';
+import { Button } from '../../components';
+import { StylesTest } from './StylesTest';
+import { ContentContainerStyleTest } from './ContentContainerStyleTest';
+import { ScrollBarsTest } from './ScrollBarsTest';
+import { StickyHeadersTest } from './StickyHeadersTest';
+import { PointerEventsTest } from './PointerEventsTest';
+import { SnapTest } from './SnapTest';
+import { MomentumCallbacksTest } from './MomentumCallbacksTest';
+import { KeyboardTest } from './KeyboardTest';
+import { MiscPropsTest } from './MiscPropsTest';
+import { ScrollToTest } from './ScrollToTest';
 
 export function ScrollViewTest() {
   return (
@@ -48,7 +48,7 @@ export function ScrollViewTest() {
   );
 }
 
-const Item = (props: {label: string; mode: 'dark' | 'light'}) => {
+const Item = (props: { label: string; mode: 'dark' | 'light' }) => {
   const stylesheet = StyleSheet.create({
     dark: {
       backgroundColor: '#47443D',
@@ -73,7 +73,7 @@ const Item = (props: {label: string; mode: 'dark' | 'light'}) => {
   );
 };
 
-const ITEMS = Array.from({length: 20}, (_, index) => (
+const ITEMS = Array.from({ length: 20 }, (_, index) => (
   <Item
     label={`Item${index}`}
     key={`item${index}`}

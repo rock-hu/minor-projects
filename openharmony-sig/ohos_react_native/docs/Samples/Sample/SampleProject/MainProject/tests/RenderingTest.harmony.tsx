@@ -7,13 +7,13 @@
 
 import { TestSuite, TestCase } from '@rnoh/testerino';
 import React from 'react';
-import {useState} from 'react';
+import { useState } from 'react';
 import {
   View,
   registerViewConfig,
   ReactNativeViewAttributes,
 } from 'react-native';
-import {Button} from '../components';
+import { Button } from '../components';
 
 const PropsDisplayer: typeof View = registerViewConfig('PropsDisplayer', () => {
   return {
@@ -43,7 +43,7 @@ export function RenderingTest() {
         <Timeout
           ms={1000}
           renderItem={refreshKey => (
-            <View style={{height: 64}}>
+            <View style={{ height: 64 }}>
               {refreshKey % 2 === 0 ? (
                 <Rectangle backgroundColor={'red'} />
               ) : null}
@@ -66,9 +66,9 @@ export function RenderingTest() {
                   borderTopColor: 'red',
                   borderRadius: 4,
                   borderBottomRightRadius: 8,
-                  transform: [{translateX: 1}],
+                  transform: [{ translateX: 1 }],
                   pointerEvents: 'auto',
-                  shadowOffset: {width: 0, height: 0},
+                  shadowOffset: { width: 0, height: 0 },
                   shadowOpacity: 0.9,
                   shadowRadius: 9,
                   flexDirection: 'row',
@@ -86,7 +86,7 @@ export function RenderingTest() {
   );
 }
 
-function Rectangle({backgroundColor}: {backgroundColor: string}) {
+function Rectangle({ backgroundColor }: { backgroundColor: string }) {
   return (
     <View
       style={{

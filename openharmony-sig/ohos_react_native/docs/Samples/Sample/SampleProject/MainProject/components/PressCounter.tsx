@@ -5,8 +5,8 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-import {useState} from 'react';
-import {Button} from 'react-native';
+import { useState } from 'react';
+import { Button } from 'react-native';
 
 export function PressCounter() {
   const [counter, setCounter] = useState(0);

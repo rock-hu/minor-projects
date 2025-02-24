@@ -5,9 +5,9 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-import {RefObject, useRef} from 'react';
+import { RefObject, useRef } from 'react';
 
-export function Ref<T>({render}: {render: (ref: RefObject<T>) => any}) {
+export function Ref<T>({ render }: { render: (ref: RefObject<T>) => any }) {
   const ref = useRef<T>(null);
   return render(ref);
 }

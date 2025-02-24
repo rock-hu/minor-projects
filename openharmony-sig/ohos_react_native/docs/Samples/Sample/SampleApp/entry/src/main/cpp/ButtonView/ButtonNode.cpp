@@ -26,7 +26,6 @@ ButtonNode::~ButtonNode() {
   }
 }
 
-
 ButtonNode& ButtonNode::setButtonNodeDelegate(
     ButtonNodeDelegate* buttonNodeDelegate) {
   m_buttonNodeDelegate = buttonNodeDelegate;

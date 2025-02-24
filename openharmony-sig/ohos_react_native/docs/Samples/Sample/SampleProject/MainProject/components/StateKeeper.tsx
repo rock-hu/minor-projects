@@ -5,7 +5,7 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-import {useState} from 'react';
+import { useState } from 'react';
 
 export function StateKeeper<T>(props: {
   initialValue: T;

@@ -788,22 +788,6 @@ export function ViewTest() {
       </TestCase.Example>
       <TestCase.Example
         modal
-        itShould="make the screen reader hide 'Hidden layout'">
-        <View accessible={true} style={styles.accessibilityContainer}>
-          <View
-            style={[styles.accessibilityLayout, {backgroundColor: 'green'}]}
-            importantForAccessibility="yes">
-            <Text>First layout</Text>
-          </View>
-          <View
-            style={[styles.accessibilityLayout, {backgroundColor: 'yellow'}]}
-            aria-hidden={true}>
-            <Text>Hidden Layout</Text>
-          </View>
-        </View>
-      </TestCase.Example>
-      <TestCase.Example
-        modal
         skip="only works on iOS"
         itShould="make the screen reader hide 'Hidden layout' accessibilityHidden">
         <View accessible={true} style={styles.accessibilityContainer}>

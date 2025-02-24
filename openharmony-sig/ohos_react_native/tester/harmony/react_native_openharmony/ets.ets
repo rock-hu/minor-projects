@@ -21,7 +21,8 @@ export { RNComponentContext,
   RNInstancesCoordinatorOptions,
   RNInstancesCoordinatorDependencies,
   RNOHPackage,
-  EtsWorkerTurboModule } from "./src/main/ets/RNOH/ets"
+  EtsWorkerTurboModule,
+  EtsUITurboModule } from "./src/main/ets/RNOH/ets"
 
 export * from "./src/main/ets/RNOHCorePackage/components/RNComponentFactory"
 

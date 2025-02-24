@@ -5,17 +5,17 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-import React, {useState} from 'react';
-import {ScrollView, TextInput, View} from 'react-native';
-import {Button} from '../components';
+import React, { useState } from 'react';
+import { ScrollView, TextInput, View } from 'react-native';
+import { Button } from '../components';
 
 export function ManyComponentsExample() {
   const [numberOfComponents, setNumberOfComponents] = useState(100);
   const [shouldShowComponents, setShouldShowComponents] = useState(true);
 
   return (
-    <ScrollView contentContainerStyle={{height: 1000}}>
-      <View style={{flexDirection: 'row'}}>
+    <ScrollView contentContainerStyle={{ height: 1000 }}>
+      <View style={{ flexDirection: 'row' }}>
         <Button
           label={shouldShowComponents ? 'Hide components' : 'Show components'}
           onPress={() => {
@@ -36,7 +36,7 @@ export function ManyComponentsExample() {
         }}
       />
       {shouldShowComponents && (
-        <View style={{width: '100%', height: 600}}>
+        <View style={{ width: '100%', height: 600 }}>
           {new Array(numberOfComponents).fill(0).map((_, idx) => {
             return (
               <View

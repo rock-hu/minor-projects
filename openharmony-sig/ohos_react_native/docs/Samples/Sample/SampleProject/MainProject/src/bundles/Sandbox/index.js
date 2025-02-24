@@ -5,7 +5,7 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-import {AppRegistry} from 'react-native';
+import { AppRegistry } from 'react-native';
 import App from './examples';
 
 AppRegistry.registerComponent('Sandbox', () => App);

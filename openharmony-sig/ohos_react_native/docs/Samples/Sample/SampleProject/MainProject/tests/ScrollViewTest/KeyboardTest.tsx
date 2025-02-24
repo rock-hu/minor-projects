@@ -6,8 +6,8 @@
  */
 
 import { TestCase, TestSuite } from '@rnoh/testerino';
-import {Platform, ScrollView, StyleSheet, TextInput, View} from 'react-native';
-import {COMMON_PROPS, getScrollViewContent} from './fixtures';
+import { Platform, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { COMMON_PROPS, getScrollViewContent } from './fixtures';
 
 export function KeyboardTest() {
   return (
@@ -16,11 +16,11 @@ export function KeyboardTest() {
         modal
         skip
         itShould="the left scrollview should dismiss the keyboard on scroll and the right one shouldn't (keyboardDismissMode)"
-        //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/310
+      //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/310
       >
         <View>
           <TextInput style={styles.textInput} />
-          <View style={[styles.wrapperView, {flexDirection: 'row'}]}>
+          <View style={[styles.wrapperView, { flexDirection: 'row' }]}>
             <ScrollView {...COMMON_PROPS} keyboardDismissMode={'on-drag'}>
               {getScrollViewContent({})}
             </ScrollView>
@@ -32,9 +32,9 @@ export function KeyboardTest() {
       </TestCase>
       <TestCase
         modal
-        skip={Platform.select({android: 'fails', harmony: 'fails on Android'})}
+        skip={Platform.select({ android: 'fails', harmony: 'fails on Android' })}
         itShould="adjust the scrollview when showing keyboard (automaticallyAdjustKeyboardInsets)"
-        //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/302
+      //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/302
       >
         <View style={styles.wrapperView}>
           <TextInput style={styles.textInput} />
@@ -48,11 +48,11 @@ export function KeyboardTest() {
           harmony: 'fails on Android Emulator',
         })}
         itShould="the left scrollview should dismiss the keyboard on tap and the right one shouldn't (keyboardShouldPersistTaps)"
-        //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/311
+      //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/311
       >
         <View>
           <TextInput style={styles.textInput} />
-          <View style={[styles.wrapperView, {flexDirection: 'row'}]}>
+          <View style={[styles.wrapperView, { flexDirection: 'row' }]}>
             <ScrollView {...COMMON_PROPS} keyboardShouldPersistTaps={'never'} />
             <ScrollView
               {...COMMON_PROPS}

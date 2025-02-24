@@ -66,7 +66,7 @@ struct ManyBarChartsPage {
                 .width('100%')
                 .height('30%')
             }
-          }.editable(false)
+          }
         }, (item: valueItem) => item.index + "")
       }
       .listDirection(Axis.Vertical) // 排列方向

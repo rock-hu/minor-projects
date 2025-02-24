@@ -5,7 +5,7 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-import {StyleSheet, Text, View} from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { TestSuite, TestCase } from '@rnoh/testerino';
 
 export function TransformTest() {
@@ -20,7 +20,7 @@ export function TransformTest() {
             style={[
               styles.box,
               {
-                transform: [{scale: 2}],
+                transform: [{ scale: 2 }],
               },
             ]}>
             <Text style={styles.text}>Scale by 2</Text>
@@ -29,7 +29,7 @@ export function TransformTest() {
             style={[
               styles.box,
               {
-                transform: [{scaleX: 2}],
+                transform: [{ scaleX: 2 }],
               },
             ]}>
             <Text style={styles.text}>ScaleX by 2</Text>
@@ -38,7 +38,7 @@ export function TransformTest() {
             style={[
               styles.box,
               {
-                transform: [{scaleY: 2}],
+                transform: [{ scaleY: 2 }],
               },
             ]}>
             <Text style={styles.text}>ScaleY by 2</Text>
@@ -54,7 +54,7 @@ export function TransformTest() {
             style={[
               styles.box,
               {
-                transform: [{rotate: '45deg'}],
+                transform: [{ rotate: '45deg' }],
               },
             ]}>
             <Text style={styles.text}>Rotate by 45 deg</Text>
@@ -64,7 +64,7 @@ export function TransformTest() {
             style={[
               styles.box,
               {
-                transform: [{rotateX: '45deg'}, {rotateZ: '45deg'}],
+                transform: [{ rotateX: '45deg' }, { rotateZ: '45deg' }],
               },
             ]}>
             <Text style={styles.text}>Rotate X&Z by 45 deg</Text>
@@ -74,7 +74,7 @@ export function TransformTest() {
             style={[
               styles.box,
               {
-                transform: [{rotateY: '45deg'}, {rotateZ: '45deg'}],
+                transform: [{ rotateY: '45deg' }, { rotateZ: '45deg' }],
               },
             ]}>
             <Text style={styles.text}>Rotate Y&Z by 45 deg</Text>
@@ -90,7 +90,7 @@ export function TransformTest() {
             style={[
               styles.box,
               {
-                transform: [{skewX: '45deg'}],
+                transform: [{ skewX: '45deg' }],
               },
             ]}>
             <Text style={styles.text}>SkewX by 45 deg</Text>
@@ -100,7 +100,7 @@ export function TransformTest() {
             style={[
               styles.box,
               {
-                transform: [{skewY: '45deg'}],
+                transform: [{ skewY: '45deg' }],
               },
             ]}>
             <Text style={styles.text}>SkewY by 45 deg</Text>
@@ -109,7 +109,7 @@ export function TransformTest() {
             style={[
               styles.box,
               {
-                transform: [{skewX: '30deg'}, {skewY: '30deg'}],
+                transform: [{ skewX: '30deg' }, { skewY: '30deg' }],
               },
             ]}>
             <Text style={styles.text}>Skew X&Y by 30 deg</Text>
@@ -125,7 +125,7 @@ export function TransformTest() {
             style={[
               styles.box,
               {
-                transform: [{translateX: -20}],
+                transform: [{ translateX: -20 }],
               },
             ]}>
             <Text style={styles.text}>TranslateX by -20 </Text>
@@ -135,7 +135,7 @@ export function TransformTest() {
             style={[
               styles.box,
               {
-                transform: [{translateY: 20}],
+                transform: [{ translateY: 20 }],
               },
             ]}>
             <Text style={styles.text}>TranslateY by 20 </Text>

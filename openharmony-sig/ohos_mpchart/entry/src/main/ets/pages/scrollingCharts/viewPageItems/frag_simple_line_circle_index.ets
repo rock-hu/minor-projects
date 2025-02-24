@@ -28,7 +28,6 @@ import Nlogn from '../data/Nlogn';
 import Square from '../data/Square';
 import Three from '../data/Three';
 
-@Entry
 @ComponentV2
 export default struct fragSimpleLineCircleIndex {
   topAxis: XAxis = new XAxis(); //顶部X轴

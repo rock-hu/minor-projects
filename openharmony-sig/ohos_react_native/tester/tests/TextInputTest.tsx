@@ -17,6 +17,7 @@ import {
   TextInput,
   TextInputProps,
   View,
+  ScrollView
 } from 'react-native';
 import {TestSuite} from '@rnoh/testerino';
 import {useState, useRef} from 'react';
@@ -609,6 +610,11 @@ export function TextInputTest() {
         itShould="change the text input value programmatically when submitted">
         <TextInputValueSetProgrammaticallyWhenSubmitted />
       </TestCase.Example>
+      <TestCase.Example
+        modal
+        itShould="extended textContentType test (based on SDK API 16)">
+        <TextInputTextContentType />
+      </TestCase.Example>
     </TestSuite>
   );
 }
@@ -935,6 +941,82 @@ const TextInputValueSetProgrammaticallyWhenSubmitted = () => {
     </>
   );
 };
+
+const TextInputTextContentType = () => {
+
+  return (
+    <ScrollView>
+      <Text>PassportNumber Input:</Text>
+      <TextInput
+        style={styles.textInput}
+        textContentType="passPortNumber"
+      />
+
+      <Text>validity Input:</Text>
+      <TextInput
+        style={styles.textInput}
+        textContentType="validity"
+      />
+
+      <Text>issueAt Input:</Text>
+      <TextInput
+        style={styles.textInput}
+        textContentType="issueAt"
+      />
+    
+      <Text>organization Input:</Text>
+      <TextInput
+        style={styles.textInput}
+        textContentType="organization"
+      />
+
+      <Text>taxId Input:</Text>
+      <TextInput
+        style={styles.textInput}
+        textContentType="taxId"
+      />
+
+      <Text>addressCityAndState Input:</Text>
+      <TextInput
+        style={styles.textInput}
+        textContentType="addressCityAndState"
+      />
+
+      <Text>flightNumber Input:</Text>
+      <TextInput
+        style={styles.textInput}
+        textContentType="flightNumber"
+      />
+
+      <Text>licenseNumber Input:</Text>
+      <TextInput
+        style={styles.textInput}
+        textContentType="licenseNumber"
+      />
+
+      <Text>licenseFileNumber Input:</Text>
+      <TextInput
+        style={styles.textInput}
+        textContentType="licenseFileNumber"
+
+      />
+
+      <Text>engineNumber Input:</Text>
+      <TextInput
+        style={styles.textInput}
+        textContentType="engineNumber"
+
+      />  
+
+      <Text>licenseChassisNumber Input:</Text>
+      <TextInput
+        style={styles.textInput}
+        textContentType="licenseChassisNumber"
+
+      />
+    </ScrollView>
+  )
+}
 
 const styles = StyleSheet.create({
   container: {

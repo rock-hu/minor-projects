@@ -53,10 +53,14 @@ void MountingManagerCAPI::willMount(MutationList const& mutations) {
 }
 
 void MountingManagerCAPI::doMount(MutationList const& mutations) {
-  m_arkTsMountingManager->doMount(mutations);
+    facebook::react::SystraceSection s(
+        "#RNOH::MountingManager::doMount");
+    m_arkTsMountingManager->doMount(mutations);
 }
 
 void MountingManagerCAPI::didMount(MutationList const& mutations) {
+    facebook::react::SystraceSection s(
+        "#RNOH::MountingManager::didMount ", mutations.size());
     auto validMutations = getValidMutations(mutations);
     m_arkTsMountingManager->didMount(validMutations);
  
@@ -71,7 +75,6 @@ void MountingManagerCAPI::didMount(MutationList const& mutations) {
                  << " failed: " << e.what();
     }
   }
-  this->finalizeMutationUpdates(mutations);
   HarmonyReactMarker::logMarker(
       HarmonyReactMarker::HarmonyReactMarkerId::FABRIC_BATCH_EXECUTION_END);
 }
@@ -135,7 +138,11 @@ void MountingManagerCAPI::dispatchCommand(
     const facebook::react::ShadowView& shadowView,
     const std::string& commandName,
     folly::dynamic const& args) {
-
+    facebook::react::SystraceSection s(
+        "#RNOH::MountingManager::dispatchCommand ",
+        shadowView.tag,
+        " ",
+        commandName);
   if (!isCAPIComponent(shadowView)) {
     m_arkTsMountingManager->dispatchCommand(shadowView, commandName, args);
   }
@@ -354,6 +361,8 @@ void MountingManagerCAPI::finalizeMutationUpdates(
 void MountingManagerCAPI::schedulerDidSendAccessibilityEvent(
   const facebook::react::ShadowView& shadowView,
   std::string const& eventType) {
+    facebook::react::SystraceSection s(
+        "#RNOH::MountingManager::schedulerDidSendAccessibilityEvent");
     auto componentInstance =
       m_componentInstanceRegistry->findByTag(shadowView.tag);
     folly::dynamic payload = folly::dynamic::object("type", eventType)(
@@ -361,7 +370,6 @@ void MountingManagerCAPI::schedulerDidSendAccessibilityEvent(
     m_arkTSChannel->postMessage(
       "RNOH::schedulerDidSendAccessibilityEvent", payload);
 };
-
 
 void MountingManagerCAPI::clearPreallocatedViews() {
   m_componentInstanceProvider->clearPreallocatedViews();

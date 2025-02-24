@@ -5,8 +5,8 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-import {useEffect, useState} from 'react';
-import {Text, TouchableOpacity, View} from 'react-native';
+import { useEffect, useState } from 'react';
+import { Text, TouchableOpacity, View } from 'react-native';
 
 export function Benchmarker({
   samplesCount,
@@ -46,7 +46,7 @@ export function Benchmarker({
   }, [refreshKey, status, samplesCount]);
 
   return (
-    <View style={{height: '100%', padding: 16}}>
+    <View style={{ height: '100%', padding: 16 }}>
       <TouchableOpacity onPress={start}>
         <Text
           style={{
@@ -65,7 +65,7 @@ export function Benchmarker({
       </View> */}
 
       {status !== 'READY' && (
-        <View style={{height: 600}}>{renderContent(refreshKey)}</View>
+        <View style={{ height: 600 }}>{renderContent(refreshKey)}</View>
       )}
     </View>
   );

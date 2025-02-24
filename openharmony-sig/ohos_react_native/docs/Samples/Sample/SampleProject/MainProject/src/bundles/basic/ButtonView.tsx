@@ -10,7 +10,7 @@ import {
     HostComponent,
     requireNativeComponent,  // Fabric
 } from 'react-native';
-import type { 
+import type {
     DirectEventHandler
 } from "react-native/Libraries/Types/CodegenTypes";
 import codegenNativeComponent from "react-native/Libraries/Utilities/codegenNativeComponent";

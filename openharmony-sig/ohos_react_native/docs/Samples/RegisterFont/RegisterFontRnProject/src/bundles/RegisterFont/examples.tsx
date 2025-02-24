@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import {Text, View, StyleSheet} from 'react-native';
+import { Text, View, StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
   //创建样式
@@ -29,11 +29,11 @@ const RegisterFont = () => {
       <Text style={styles.text}>
         文字测试---默认字体
       </Text>
-      <Text style={[styles.text, {fontFamily: "Pacifico-Regular"}]}>
-       文字测试---Pacifico-Regular
+      <Text style={[styles.text, { fontFamily: "Pacifico-Regular" }]}>
+        文字测试---Pacifico-Regular
       </Text>
-      <Text style={[styles.text, {fontFamily: "StintUltraCondensed-Regular"}]}>
-       文字测试---StintUltraCondensed-Regular
+      <Text style={[styles.text, { fontFamily: "StintUltraCondensed-Regular" }]}>
+        文字测试---StintUltraCondensed-Regular
       </Text>
     </View>
   );

@@ -5,8 +5,6 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-
-
 #include <react/renderer/components/rncore/Props.h>
 #include <react/renderer/core/PropsParserContext.h>
 #include <react/renderer/core/propsConversions.h>

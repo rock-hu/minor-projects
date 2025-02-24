@@ -5,8 +5,8 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-const {mergeConfig, getDefaultConfig} = require('@react-native/metro-config');
-const {createHarmonyMetroConfig} = require('@react-native-oh/react-native-harmony/metro.config');
+const { mergeConfig, getDefaultConfig } = require('@react-native/metro-config');
+const { createHarmonyMetroConfig } = require('@react-native-oh/react-native-harmony/metro.config');
 
 /**
  * @type {import("metro-config").ConfigT}

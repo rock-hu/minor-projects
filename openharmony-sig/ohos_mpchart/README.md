@@ -2694,24 +2694,30 @@ Return Value
 
 Defines base class of the bar chart.
 
-| API                   | Description                                                                                                                           |
-| ------------------------- |---------------------------------------------------------------------------------------------------------------------------------------|
-| calcMinMax                | Calculates the maximum and minimum values of coordinates.                                                                             |
-| calculateOffsets          | Calculates the chart offsets.                                                                                                         |
-| drawGridBackground        | Draws the chart background.                                                                                                           |
-| getAxis                   | Obtains the Y-axis object based on the Y-axis position.                                                                               |
-| getAxisLeft               | Obtains the left Y-axis object.                                                                                                       |
-| getAxisRight              | Obtains the right Y-axis object.                                                                                                      |
-| getMinOffset              | Obtains the minimum offset value.                                                                                                     |
-| getRendererLeftYAxis      | Obtains the left Y-axis renderer.                                                                                                     |
-| getRendererRightYAxis     | Obtains the right Y-axis renderer.                                                                                                    |
-| getRendererXAxis          | Obtains the X-axis renderer.                                                                                                          |
-| setLongPressCursorEnabled | Sets whether to display the pointer when a chart is long-pressed on.                                                                  |
-| getLongPressCursorEnabled | Obtains whether the pointer is displayed when a chart is long-pressed on.                                                              |
-| setLongPressDuration      | Sets the response duration for a long press event.                                                                                    |
-| getLongPressDuration      | Obtains the response duration of a long press.                                                                                        |
-| setSwipeEnabled           | Sets whether to enable the capability to respond to swipe gestures. This API is used together with **setLongPressCursorEnabled**.     |
-| getSwipeEnabled           | Obtains whether the capability to respond to swipe gestures is enabled. This API is used together with **setLongPressCursorEnabled**. |
+| API                         | Description                                                                                                                            |
+|-----------------------------|----------------------------------------------------------------------------------------------------------------------------------------|
+| calcMinMax                  | Calculates the maximum and minimum values of coordinates.                                                                              |
+| calculateOffsets            | Calculates the chart offsets.                                                                                                          |
+| drawGridBackground          | Draws the chart background.                                                                                                            |
+| getAxis                     | Obtains the Y-axis object based on the Y-axis position.                                                                                |
+| getAxisLeft                 | Obtains the left Y-axis object.                                                                                                        |
+| getAxisRight                | Obtains the right Y-axis object.                                                                                                       |
+| getMinOffset                | Obtains the minimum offset value.                                                                                                      |
+| getRendererLeftYAxis        | Obtains the left Y-axis renderer.                                                                                                      |
+| getRendererRightYAxis       | Obtains the right Y-axis renderer.                                                                                                     |
+| getRendererXAxis            | Obtains the X-axis renderer.                                                                                                           |
+| setLongPressCursorEnabled   | Sets whether to display the pointer when a chart is long-pressed on.                                                                   |
+| getLongPressCursorEnabled   | Obtains whether the pointer is displayed when a chart is long-pressed on.                                                              |
+| setLongPressDuration        | Sets the response duration for a long press event.                                                                                     |
+| getLongPressDuration        | Obtains the response duration of a long press.                                                                                         |
+| setSwipeEnabled             | Sets whether to enable the capability to respond to swipe gestures. This API is used together with **setLongPressCursorEnabled**.      |
+| getSwipeEnabled             | Obtains whether the capability to respond to swipe gestures is enabled. This API is used together with **setLongPressCursorEnabled**.  |
+| moveViewTo                  | Move the chart to the specified location.                                                                                              |
+| moveViewToAnimated          | Dynamically move the chart to the specified position within the set time.                                                              |
+| setCustomYAxisLabels        | Set the Y-axis coordinate dataset.                                                                                                     |
+| getCustomYAxisLabels        | Retrieve the Y-axis coordinate dataset.                                                                                                |
+| removeYAxisCustomLabel      | Delete the Y-axis coordinate dataset.                                                                                                  |
+| setEnableCustomYAxisLabels  | Set whether the Y-axis is fully customized.                                                                                            |
 
 **1.calcMinMax**
 
@@ -2910,6 +2916,87 @@ Return Value
 | Type     | Description       |
 |---------|-----------|
 | boolean | Identifier of whether the capability to respond to swipe gestures is enabled.|
+
+**17.moveViewTo**
+
+public moveViewTo(xValue: number, yValue: number, axis: AxisDependency): void;
+
+Move the chart to the specified location.
+
+Parameters
+
+| Name| Type     | Mandatory | Description                                                                           |
+| ------ |---------|-----------|---------------------------------------------------------------------------------------|
+| xValue   | number | Yes       | The X value corresponding to the coordinate point on the chart that has been moved to. |
+| yValue   | number | Yes         | The Y value corresponding to the coordinate point on the chart that has been moved to. |
+| axis   | AxisDependency | Yes         | Moving reference coordinate axis.                                                     |
+
+**18.moveViewToAnimated**
+
+public moveViewToAnimated(xValue: number, yValue: number, axis: AxisDependency, duration: number): void;
+
+Dynamically move the chart to the specified position within the set time.
+
+Parameters
+
+| Name| Type     | Mandatory | Description                                                                          |
+| ------ |---------|-----------|--------------------------------------------------------------------------------------|
+| xValue   | number | Yes        | The X value corresponding to the coordinate point on the chart that has been moved to. |
+| yValue   | number | Yes         | The Y value corresponding to the coordinate point on the chart that has been moved to. |
+| axis   | AxisDependency | Yes         | Moving reference coordinate axis.                                                     |
+| duration   | number | Yes         | The duration of the animation, measured in milliseconds.                             |
+
+**19.setCustomYAxisLabels**
+
+public setCustomYAxisLabels(axis: AxisDependency, numbers: number[]): void;
+
+Set Y-axis coordinate dataset.
+
+Parameters
+
+| Name| Type     | Mandatory | Description   |
+| ------ |---------------|-----------|-----------|
+| axis   | AxisDependency | Yes       | Reference coordinate axis.    |
+| numbers   | number[]      | Yes         | Added Y-axis coordinate dataset. |
+
+**20.getCustomYAxisLabels**
+
+public getCustomYAxisLabels(axis: AxisDependency): number[];
+
+Get Y-axis coordinate dataset.
+
+Parameters
+
+| Type     | Description    |
+|----------|----------------|
+| number[] | Retrieve the added Y-axis coordinate dataset. |
+
+**21.removeYAxisCustomLabel**
+
+public removeYAxisCustomLabel(axis: AxisDependency, numbers: number[]): void;
+
+Delete Y-axis coordinate dataset.
+
+Parameters
+
+| Name| Type     | Mandatory | Description                     |
+| ------ |---------------|-----------|---------------------------------|
+| axis   | AxisDependency | Yes       | Reference coordinate axis.       |
+| numbers   | number[]      | Yes         | Delete Y-axis coordinate dataset. |
+
+**22.setEnableCustomYAxisLabels**
+
+public setEnableCustomYAxisLabels(axis: AxisDependency, enableCustomYAxisLabels: boolean): void;
+
+Set whether the Y-axis is fully customized, and customize the Y-axis coordinates with 'ure', 'false', and 'Y-axis coordinates' to add data. Please use it in conjunction with the setCustoms YAxis Labels interface.
+
+Parameters
+
+| Name| Type     | Mandatory | Description                                                                                                              |
+| ------ |----------------|-------|--------------------------------------------------------------------------------------------------------------------------|
+| axis   | AxisDependency | Yes     | Reference coordinate axis.                                                                                               |
+| enableCustomYAxisLabels   | boolean        | Yes     | Set whether the Y-axis is fully customized, ture: Y-axis coordinate customization, false: Y-axis coordinate adding data. |
+
 
 ### **3. ComponentBase**
 
@@ -3331,24 +3418,30 @@ Parameter: none
 
 Defines an Y-axis object.
 
-| API               | Description                                                        |
-| --------------------- | ------------------------------------------------------------ |
-| calculate             | Calculates the expected maximum and minimum values on the axis.                                |
-| getAxisDependency     | Obtains the position of the Y-axis.                                               |
-| setPosition           | Sets the position of the Y-axis label.                                         |
-| getLabelPosition      | Obtains the position of the Y-axis label.                                         |
-| setLabelXOffset       | Sets the offset of the Y-axis label to the X-axis.                            |
-| getLabelXOffset       | Obtains the offset of the Y-axis label to the X-axis.                            |
-| setDrawZeroLine       | Sets whether to draw the 0 line.                                           |
-| EventControl          | Defines the event control class. EventType is of the enum class (**SingleTap**, **DoubleTap**, and **LongPress**).          |
-| setEventEnable        | Enables an event.                                                  |
-| setEventDisable       | Disable an event.                                                  |
-| eventIsEnable         | Checks whether an event is enabled.                                              |
-| eventIsDisable        | Checks whether an event is disabled.                                            |
-| setYAxisExtensionLine | Sets the extension line of the Y-axis.                                             |
-| addGridLine           | Adds a custom gridline.                                          |
-| getGridLines          | Obtains a custom gridline.                                          |
-| setGridAlpha          | Sets the alpha of the gridline color. (The custom gridline added by **addGridLine** is not included. The color with alpha can be passed to the custom gridline through the **color** property.)|
+| API                        | Description                                                                                                                                                                                     |
+|----------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| calculate                  | Calculates the expected maximum and minimum values on the axis.                                                                                                                                 |
+| getAxisDependency          | Obtains the position of the Y-axis.                                                                                                                                                             |
+| setPosition                | Sets the position of the Y-axis label.                                                                                                                                                          |
+| getLabelPosition           | Obtains the position of the Y-axis label.                                                                                                                                                       |
+| setLabelXOffset            | Sets the offset of the Y-axis label to the X-axis.                                                                                                                                              |
+| getLabelXOffset            | Obtains the offset of the Y-axis label to the X-axis.                                                                                                                                           |
+| setDrawZeroLine            | Sets whether to draw the 0 line.                                                                                                                                                                |
+| EventControl               | Defines the event control class. EventType is of the enum class (**SingleTap**, **DoubleTap**, and **LongPress**).                                                                              |
+| setEventEnable             | Enables an event.                                                                                                                                                                               |
+| setEventDisable            | Disable an event.                                                                                                                                                                               |
+| eventIsEnable              | Checks whether an event is enabled.                                                                                                                                                             |
+| eventIsDisable             | Checks whether an event is disabled.                                                                                                                                                            |
+| setYAxisExtensionLine      | Sets the extension line of the Y-axis.                                                                                                                                                          |
+| addGridLine                | Adds a custom gridline.                                                                                                                                                                         |
+| getGridLines               | Obtains a custom gridline.                                                                                                                                                                      |
+| setGridAlpha               | Sets the alpha of the gridline color. (The custom gridline added by **addGridLine** is not included. The color with alpha can be passed to the custom gridline through the **color** property.) |
+| setCustomYAxisLabels       | Set custom Y-axis coordinate data.                                                                                                                                                               |
+| getCustomYAxisLabels       | Get custom Y-axis coordinate data.                                                                                                                                                               |
+| removeYAxisCustomLabel     | Delete custom Y-axis coordinate values.                                                                                                                                                         |
+| setEnableCustomYAxisLabels | Is setting the Y-axis coordinate custom.                                                                                                                                                        |
+| getEnableCustomYAxisLabels | Get custom attribute values for Y-axis coordinates.                                                                                                                                             |
+
 
 **1.calculate**
 
@@ -3540,6 +3633,66 @@ Parameters
 | Name  | Type    | Mandatory | Description                                    |
 |-------|--------|-----|----------------------------------------|
 | alpha | number | Yes  | Gridline opacity. The value ranges from 0 to 255. The value 0 indicates that the gridline is completely transparent, and the value 255 indicates that the gridline is completely opaque.|
+
+**17.setCustomYAxisLabels**
+
+public setCustomYAxisLabels(numbers: number[]): void
+
+Set a dataset for custom Y-axis coordinates.
+
+Parameters
+
+| Name  | Type      | Mandatory | Description                                  |
+|-------|-----------|-----------|----------------------------------------------|
+| numbers | number[]  | Yes       | Set a dataset for custom Y-axis coordinates. |
+
+**18.getCustomYAxisLabels**
+
+public getCustomYAxisLabels(): number[]
+
+Get a dataset of custom Y-axis coordinates.
+
+Parameters
+
+| Type                    | Description                                 |
+|-----------------------|---------------------------------------------|
+| number[] | Get a dataset of custom Y-axis coordinates. |
+
+**19.removeYAxisCustomLabel**
+
+public removeYAxisCustomLabel(numbers: number[]): void
+
+Deleting custom Y-axis coordinate values can only delete previously added custom Y-axis coordinates.
+
+Parameters
+
+| Name  | Type      | Mandatory | Description                             |
+|-------|--------|-----------|-----------------------------------------|
+| numbers | number[] | Yes       | Delete custom Y-axis coordinate values. |
+
+**20.setEnableCustomYAxisLabels**
+
+public setEnableCustomYAxisLabels(enableCustomYAxisLabels: boolean): void
+
+Set whether the Y-axis coordinate is fully customized, true: Y-axis coordinate customization, false: Y-axis coordinate addition.
+
+Parameters
+
+| Name   | Type      | Mandatory  | Description                                                                                                                      |
+|-------|---------|-----|----------------------------------------------------------------------------------------------------------------------------------|
+| enableCustomYAxisLabels | boolean | Yes   | Set whether the Y-axis coordinate is fully customized, true: Y-axis coordinate customization, false: Y-axis coordinate addition. |
+
+**21.getEnableCustomYAxisLabels**
+
+public getEnableCustomYAxisLabels(): boolean
+
+Get custom Y-axis coordinate data.
+
+Parameters
+
+| Name      | Description                        |
+|---------|------------------------------------|
+| boolean | Get custom Y-axis coordinate data. |
 
 ```
 // For the sample code, see CustomGridLineChartPage.

@@ -13,7 +13,7 @@ export interface UPRNSDK {
 
   createAndRegisterRNInstance(options: RNInstanceOptions): Promise<RNInstance>
 
-  createRNOHContext({rnInstance}: { rnInstance: RNInstance }): RNOHContext;
+  createRNOHContext({ rnInstance }: { rnInstance: RNInstance }): RNOHContext;
 
   onBackPress(): boolean;
 }

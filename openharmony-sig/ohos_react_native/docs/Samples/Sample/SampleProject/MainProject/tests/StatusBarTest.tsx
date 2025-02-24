@@ -5,8 +5,8 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-import React, {useState} from 'react';
-import {StyleSheet, StatusBar, Text, View, StatusBarStyle} from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, StatusBar, Text, View, StatusBarStyle } from 'react-native';
 import { TestCase, TestSuite } from '@rnoh/testerino';
 
 export function StatusBarTest() {
@@ -119,7 +119,7 @@ function StatusBarView() {
       </TestCase>
       <TestCase
         itShould="return correct status bar height for device"
-        fn={({expect}) => {
+        fn={({ expect }) => {
           expect(StatusBar.currentHeight).to.be.closeTo(38.8, 0.1);
         }}
       />

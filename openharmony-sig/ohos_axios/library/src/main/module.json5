@@ -4,7 +4,11 @@
     "type": "har",
     "deviceTypes": [
       "default",
-      "tablet"
+      "phone",
+      "tablet",
+      "2in1",
+      "wearable",
+      "car"
     ]
   }
 }

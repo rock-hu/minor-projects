@@ -37,6 +37,10 @@ export const commandCodegenHarmony: Command = {
       description: 'Specifies the relative path to the rnoh OHOS module',
     },
     {
+      name: '--ets-output-path <path>',
+      description: 'Specifies the relative path to the output directory intended for storing generated ETS files.',
+    },
+    {
       name: '--cpp-output-path <path>',
       description:
         'Specifies the relative path to the output directory intended for storing generated C++ files',
@@ -65,7 +69,10 @@ export const commandCodegenHarmony: Command = {
       const MAX_SUPPORTED_CODEGEN_VERSION = 2;
       // prepare the input data
       validateArgs(args);
-      const etsOutputPath = new AbsolutePath(
+      const etsOutputPath = args.etsOutputPath && new AbsolutePath(
+        args.etsOutputPath
+      ).copyWithNewSegment('generated');
+      const rnohModulePath = args.rnohModulePath && new AbsolutePath(
         args.rnohModulePath
       ).copyWithNewSegment('generated');
       const enableSafetyCheck: boolean = args.safetyCheck;
@@ -106,16 +113,18 @@ export const commandCodegenHarmony: Command = {
       const uberGeneratorV1 = new UberGeneratorV1(
         cppOutputPath,
         etsOutputPath,
+        rnohModulePath,
         [...codegenNoticeLines, '', '@generatorVersion: 1']
       );
       const uberGeneratorV2 = new UberGeneratorV2(
         cppOutputPath,
         etsOutputPath,
+        rnohModulePath,
         [...codegenNoticeLines, '', '@generatorVersion: 2']
       );
       const glueCodeGenerator = new AppBuildTimeGlueCodeGenerator(
         cppOutputPath,
-        etsOutputPath,
+        etsOutputPath || rnohModulePath,
         codegenNoticeLines
       );
 
@@ -151,7 +160,7 @@ export const commandCodegenHarmony: Command = {
         fs,
         fileContentByPath,
         cppOutputPath,
-        etsOutputPath,
+        etsOutputPath || rnohModulePath,
         enableSafetyCheck
       );
       logCodegenResult(logger, fileContentByPath, projectRootPath);
@@ -166,12 +175,13 @@ export const commandCodegenHarmony: Command = {
 };
 
 function validateArgs(args: any) {
-  if (!args.rnohModulePath) {
+  if (!args.rnohModulePath && !args.etsOutputPath) {
     throw new DescriptiveError({
-      whatHappened: "--rnoh-module-path argument wasn't provided",
+      whatHappened: "--ets-output-path or --rnoh-module-path parameter must provide one",
       whatCanUserDo: {
         default: [
-          'Please provide a path to the native React Native for Open Harmony module (rnoh) which is probably located somewhere in "<PROJECT_ROOT>/harmony" directory',
+          'Use the "--ets-output-path" parameter to specify the relative path to the output directory intended for storing generated ETS files.',
+          'Use the "--rnoh-module-path" parameter to specify the path to the native React Native for Open Harmony module (rnoh) which is probably located somewhere in "<PROJECT_ROOT>/harmony" directory.',
         ],
       },
     });

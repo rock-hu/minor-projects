@@ -103,6 +103,17 @@ export default class YAxis extends AxisBase {
    * default: Float.POSITIVE_INFINITY (no maximum specified)
    */
   protected mMaxWidth: number = Number.POSITIVE_INFINITY;
+
+  /**
+   * Customize Y-axis labels
+   */
+  private customYAxisLabels: number[] = [];
+
+  /**
+   * Is it a fully customized y-axis label
+   */
+  private enableCustomYAxisLabels: boolean = false;
+
   textSizeCache = new HashMap<string, TextMetrics>();
 
   constructor(position ?: AxisDependency) {
@@ -116,6 +127,63 @@ export default class YAxis extends AxisBase {
     }
     this.mYOffset = 0;
   }
+
+  /**
+   * Set Y-axis custom labels
+   * @param numbers labels
+   */
+  public setCustomYAxisLabels(numbers: number[]): void {
+    this.customYAxisLabels = numbers;
+  }
+
+  /**
+   * Get Y-axis custom labels
+   * @param numbers labels
+   */
+  public getCustomYAxisLabels(): number[] {
+    return this.customYAxisLabels;
+  }
+
+  /**
+   * Delete Y-axis custom labels
+   * @param numbers labels
+   */
+  public removeYAxisCustomLabel(numbers: number[]): void {
+    let YAxisLabels: number[] = [];
+    if (numbers != null && numbers != undefined) {
+      let flag: boolean = false;
+      for (let i: number = 0; i < this.customYAxisLabels.length; i ++){
+        flag = false;
+        for (let index: number = 0; index < numbers.length; index ++){
+          if (this.customYAxisLabels[i] == numbers[index]) {
+            flag = true;
+            break;
+          }
+        }
+        if (!flag) {
+          YAxisLabels.push(this.customYAxisLabels[i]);
+        }
+      }
+      this.customYAxisLabels = YAxisLabels;
+    }
+  }
+
+  /**
+   *  Set whether to fully use custom labels
+   * @param numbers labels
+   */
+  public setEnableCustomYAxisLabels(enableCustomYAxisLabels: boolean): void {
+    this.enableCustomYAxisLabels = enableCustomYAxisLabels;
+  }
+
+  /**
+   *  Get whether to fully use custom labels
+   * @param numbers labels
+   */
+  public getEnableCustomYAxisLabels(): boolean {
+    return this.enableCustomYAxisLabels;
+  }
+
 
   public getAxisDependency(): AxisDependency {
     return this.mAxisDependency;

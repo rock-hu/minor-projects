@@ -22,6 +22,8 @@ ImageComponentInstance::ImageComponentInstance(Context context)
   this->getLocalRootArkUINode().setInterpolation(
       ARKUI_IMAGE_INTERPOLATION_HIGH);
   this->getLocalRootArkUINode().setDraggable(false);
+  this->getLocalRootArkUINode().setAccessibilityMode(
+    facebook::react::ImportantForAccessibility::Auto);
 }
 
 std::string ImageComponentInstance::FindLocalCacheByUri(std::string const& uri) {

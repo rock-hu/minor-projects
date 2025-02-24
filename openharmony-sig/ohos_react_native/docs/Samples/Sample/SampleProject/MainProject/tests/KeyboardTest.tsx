@@ -13,16 +13,16 @@ import {
   KeyboardEvent,
   Dimensions,
 } from 'react-native';
-import {Button} from '../components';
-import {useEffect} from 'react';
-import {EmitterSubscription} from 'react-native/Libraries/vendor/emitter/EventEmitter';
+import { Button } from '../components';
+import { useEffect } from 'react';
+import { EmitterSubscription } from 'react-native/Libraries/vendor/emitter/EventEmitter';
 
 export function KeyboardTest() {
   return (
     <TestSuite name="Keyboard">
       <TestCase
         itShould="not crash when using keyboard module"
-        fn={({expect}) => {
+        fn={({ expect }) => {
           expect(Keyboard.isVisible()).to.be.false;
         }}
       />
@@ -39,7 +39,7 @@ export function KeyboardTest() {
           keyboardEvent: {} as KeyboardEvent,
         }}
         itShould="not open the keyboard after opening the modal"
-        arrange={({setState, reset}) => {
+        arrange={({ setState, reset }) => {
           return (
             <KeyboardEventsView
               listenToShow
@@ -49,11 +49,11 @@ export function KeyboardTest() {
             />
           );
         }}
-        assert={({expect, state}) => {
+        assert={({ expect, state }) => {
           expect(state.keyboardDidShow).to.be.false;
           expect(state.keyboardDidHide).to.be.false;
         }}
-        // https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/380
+      // https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/380
       />
       <TestCase
         modal
@@ -63,7 +63,7 @@ export function KeyboardTest() {
           keyboardEvent: {} as KeyboardEvent,
         }}
         itShould="pass after opening the keyboard"
-        arrange={({setState, reset}) => {
+        arrange={({ setState, reset }) => {
           return (
             <KeyboardEventsView
               listenToShow
@@ -73,7 +73,7 @@ export function KeyboardTest() {
             />
           );
         }}
-        assert={({expect, state}) => {
+        assert={({ expect, state }) => {
           expect(state.keyboardDidShow).to.be.true;
           expect(state.keyboardDidHide).to.be.false;
           expect(state.keyboardEvent.endCoordinates.height).to.be.greaterThan(
@@ -94,7 +94,7 @@ export function KeyboardTest() {
           keyboardEvent: {} as KeyboardEvent,
         }}
         itShould="pass after dismissing the keyboard"
-        arrange={({setState, reset}) => {
+        arrange={({ setState, reset }) => {
           return (
             <KeyboardEventsView
               listenToHide
@@ -104,7 +104,7 @@ export function KeyboardTest() {
             />
           );
         }}
-        assert={({expect, state}) => {
+        assert={({ expect, state }) => {
           expect(state.keyboardDidHide).to.be.true;
           expect(state.keyboardDidShow).to.be.false;
           expect(state.keyboardEvent.endCoordinates.height).to.be.equal(0);
@@ -160,7 +160,7 @@ function KeyboardEventsView(props: {
     if (props.checkIfKeyboardIsVisible) {
       setTimeout(() => {
         if (!Keyboard.isVisible()) {
-          props.onSetState(prev => ({...prev, keyboardDidShow: false}));
+          props.onSetState(prev => ({ ...prev, keyboardDidShow: false }));
         }
       }, 1000);
     }

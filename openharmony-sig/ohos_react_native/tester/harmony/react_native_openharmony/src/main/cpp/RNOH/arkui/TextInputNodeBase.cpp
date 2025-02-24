@@ -92,29 +92,26 @@ void TextInputNodeBase::setCommonFontAttributes(
         m_nodeHandle, NODE_FONT_FAMILY, &item));
   }
 
-  if (std::isnan(textAttributes.fontSize)) {
-    maybeThrow(NativeNodeApi::getInstance()->resetAttribute(
-        m_nodeHandle, NODE_FONT_SIZE));
-  } else {
     bool allowFontScaling = true;
     if (textAttributes.allowFontScaling.has_value()) {
         allowFontScaling = textAttributes.allowFontScaling.value();
     }
-
-    float fontSize = static_cast<float>(textAttributes.fontSize);
     if (!allowFontScaling) {
-      maybeThrow(NativeNodeApi::getInstance()->setLengthMetricUnit(
-          m_nodeHandle, ArkUI_LengthMetricUnit::ARKUI_LENGTH_METRIC_UNIT_VP));
+        maybeThrow(NativeNodeApi::getInstance()->setLengthMetricUnit(
+            m_nodeHandle, ArkUI_LengthMetricUnit::ARKUI_LENGTH_METRIC_UNIT_VP));
     } else {
-      maybeThrow(NativeNodeApi::getInstance()->setLengthMetricUnit(
-          m_nodeHandle, ArkUI_LengthMetricUnit::ARKUI_LENGTH_METRIC_UNIT_FP));
+        maybeThrow(NativeNodeApi::getInstance()->setLengthMetricUnit(
+            m_nodeHandle, ArkUI_LengthMetricUnit::ARKUI_LENGTH_METRIC_UNIT_FP));
     }
-    std::array<ArkUI_NumberValue, 1> value = {
-        {{.f32 = fontSize}}};
+    
+    float fontSize = defaultFontSize;
+    if (!std::isnan(textAttributes.fontSize)) {
+        fontSize = static_cast<float>(textAttributes.fontSize);
+    }
+    std::array<ArkUI_NumberValue, 1> value = {{{.f32 = fontSize}}};
     ArkUI_AttributeItem item = {value.data(), value.size()};
     maybeThrow(NativeNodeApi::getInstance()->setAttribute(
         m_nodeHandle, NODE_FONT_SIZE, &item));
-  }
 
   if (textAttributes.fontWeight.has_value()) {
     std::array<ArkUI_NumberValue, 1> value = {

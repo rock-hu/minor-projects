@@ -5,8 +5,8 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-import {useState} from 'react';
-import {Text, View} from 'react-native';
+import { useState } from 'react';
+import { Text, View } from 'react-native';
 
 export function ObjectDisplayer(props: {
   renderContent: (setObject: (obj: Object) => void) => any;
@@ -14,7 +14,7 @@ export function ObjectDisplayer(props: {
   const [object, setObject] = useState<Object>();
 
   return (
-    <View style={{width: '100%'}}>
+    <View style={{ width: '100%' }}>
       <Text
         style={{
           width: '100%',

@@ -6,8 +6,8 @@
  */
 
 import { TestCase, TestSuite } from '@rnoh/testerino';
-import {Platform, ScrollView, StyleSheet, Text, View} from 'react-native';
-import {getScrollViewContent} from './fixtures';
+import { Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { getScrollViewContent } from './fixtures';
 
 export function StickyHeadersTest() {
   return (
@@ -38,7 +38,7 @@ export function StickyHeadersTest() {
       <TestCase
         skip={Platform.OS === 'android'}
         itShould="stick item 13 and 20 to the bottom (invertStickyHeaders)"
-        //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/309
+      //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/309
       >
         <View style={styles.wrapperView}>
           <ScrollView

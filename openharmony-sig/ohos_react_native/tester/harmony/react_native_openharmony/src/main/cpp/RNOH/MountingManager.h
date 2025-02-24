@@ -36,6 +36,8 @@ class MountingManager {
 
   virtual void didMount(MutationList const& mutations) = 0;
 
+  virtual void finalizeMutationUpdates(MutationList const& mutations) = 0;
+    
   virtual void dispatchCommand(
       const facebook::react::ShadowView& shadowView,
       const std::string& commandName,

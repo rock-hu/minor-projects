@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import {Text, Image, View, StyleSheet} from 'react-native';
+import { Text, Image, View, StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
   //创建样式
@@ -26,7 +26,7 @@ const Sandbox = () => {
         marginLeft: 'auto',
         marginRight: 'auto',
       }}>
-      <Text style={{fontWeight: 600, marginTop: 20}}>沙箱bundle渲染</Text>
+      <Text style={{ fontWeight: 600, marginTop: 20 }}>沙箱bundle渲染</Text>
       <View
         style={{
           display: 'flex',
@@ -43,7 +43,7 @@ const Sandbox = () => {
           }}
         />
         <Image
-          source={{uri: 'file:///data/storage/el2/base/files/call.png'}}
+          source={{ uri: 'file:///data/storage/el2/base/files/call.png' }}
           style={{
             width: 100,
             height: 100,

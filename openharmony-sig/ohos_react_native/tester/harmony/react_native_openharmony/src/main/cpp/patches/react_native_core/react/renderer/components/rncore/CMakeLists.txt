@@ -11,7 +11,7 @@ add_compile_options(
         -DLOG_TAG=\"Fabric\")
 
 file(GLOB react_codegen_rncore_SRC CONFIGURE_DEPENDS *.cpp)
-add_library(react_codegen_rncore STATIC ${react_codegen_rncore_SRC})
+add_library(react_codegen_rncore SHARED ${react_codegen_rncore_SRC})
 
 target_include_directories(react_codegen_rncore PUBLIC ${REACT_COMMON_DIR})
 

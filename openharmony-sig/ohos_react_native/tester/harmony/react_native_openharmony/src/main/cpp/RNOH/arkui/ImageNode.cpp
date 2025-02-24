@@ -213,6 +213,16 @@ ImageNode& ImageNode::setFadeDuration(int32_t duration) {
   return *this;
 }
 
+ImageNode& ImageNode::setAccessibilityMode(
+  facebook::react::ImportantForAccessibility importance) {
+  if (importance == facebook::react::ImportantForAccessibility::Auto) {
+    ArkUINode::setAccessibilityMode(
+        ArkUI_AccessibilityMode::ARKUI_ACCESSIBILITY_MODE_ENABLED);
+  } else {
+    ArkUINode::setAccessibilityMode(importance);
+  }
+  return *this;
+}
 ImageNode& ImageNode::resetFocusable() {
   maybeThrow(NativeNodeApi::getInstance()->resetAttribute(
       m_nodeHandle, NODE_FOCUSABLE));

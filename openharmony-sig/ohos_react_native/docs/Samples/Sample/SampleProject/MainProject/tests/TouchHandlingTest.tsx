@@ -6,7 +6,7 @@
  */
 
 import { TestCase, TestSuite } from '@rnoh/testerino';
-import {useEffect, useRef, useState} from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Animated,
   PanResponder,
@@ -17,7 +17,7 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
-import {Button} from '../components';
+import { Button } from '../components';
 import React from 'react';
 
 export function TouchHandlingTest() {
@@ -26,7 +26,7 @@ export function TouchHandlingTest() {
       <TestCase
         itShould="pass when pressed red rectangle"
         initialState={false}
-        arrange={({setState}) => {
+        arrange={({ setState }) => {
           return (
             <TouchIssue1
               onPress={() => {
@@ -35,7 +35,7 @@ export function TouchHandlingTest() {
             />
           );
         }}
-        assert={({expect, state}) => {
+        assert={({ expect, state }) => {
           expect(state).to.be.true;
         }}
       />
@@ -43,69 +43,69 @@ export function TouchHandlingTest() {
       <TestCase
         itShould="register a touch after native transform animation"
         initialState={false}
-        arrange={({setState}) => (
+        arrange={({ setState }) => (
           <RectangleSlider
             onPress={() => {
               setState(prev => !prev);
             }}
           />
         )}
-        assert={({expect, state}) => {
+        assert={({ expect, state }) => {
           expect(state).to.be.true;
         }}
       />
       <TestCase
         itShould="handle press on rotated view"
         initialState={false}
-        arrange={({setState}) => (
+        arrange={({ setState }) => (
           <TouchableTransformedTest
             setState={setState}
-            transform={[{rotate: '180deg'}, {translateX: 100}]}
+            transform={[{ rotate: '180deg' }, { translateX: 100 }]}
           />
         )}
-        assert={({expect, state}) => {
+        assert={({ expect, state }) => {
           expect(state).to.be.true;
         }}
       />
       <TestCase
         itShould="handle press on scaled view"
         initialState={false}
-        arrange={({setState}) => (
+        arrange={({ setState }) => (
           <TouchableTransformedTest
             setState={setState}
-            transform={[{scaleX: -1}, {translateX: 100}]}
+            transform={[{ scaleX: -1 }, { translateX: 100 }]}
           />
         )}
-        assert={({expect, state}) => {
+        assert={({ expect, state }) => {
           expect(state).to.be.true;
         }}
       />
       <TestCase itShould="report transformed touch coordinates">
         <TouchCoordinatesTest
           transform={[
-            {rotate: '45deg'},
-            {translateY: 50},
-            {translateX: -50},
-            {scaleY: -1},
-            {scale: 0.75},
+            { rotate: '45deg' },
+            { translateY: 50 },
+            { translateX: -50 },
+            { scaleY: -1 },
+            { scale: 0.75 },
           ]}
         />
       </TestCase>
       <TestCase itShould="report transformed touch coordinates">
         <TouchCoordinatesTest
           transform={[
-            {rotate: '-45deg'},
-            {translateY: 50},
-            {translateX: -50},
-            {scaleX: -1},
-            {scaleY: 1.25},
+            { rotate: '-45deg' },
+            { translateY: 50 },
+            { translateX: -50 },
+            { scaleX: -1 },
+            { scaleY: 1.25 },
           ]}
         />
       </TestCase>
       <TestCase
         itShould="respond to touches on disabled components when wrapped in Touchables"
         initialState={false}
-        arrange={({setState}) => (
+        arrange={({ setState }) => (
           <TouchableOpacity
             onPress={() => {
               setState(true);
@@ -120,7 +120,7 @@ export function TouchHandlingTest() {
             />
           </TouchableOpacity>
         )}
-        assert={({expect, state}) => {
+        assert={({ expect, state }) => {
           expect(state).to.be.true;
         }}
       />
@@ -133,7 +133,7 @@ export function TouchHandlingTest() {
   );
 }
 
-function RectangleSlider(props: {onPress: () => void}) {
+function RectangleSlider(props: { onPress: () => void }) {
   const square1Anim = useRef(new Animated.Value(0)).current;
   const animation = Animated.timing(square1Anim, {
     toValue: 64,
@@ -194,10 +194,10 @@ function TouchCoordinatesTest({
 }: {
   transform?: ViewStyle['transform'];
 }) {
-  const [position, setPosition] = React.useState({x: 0, y: 0});
+  const [position, setPosition] = React.useState({ x: 0, y: 0 });
 
   return (
-    <View style={{height: 250}}>
+    <View style={{ height: 250 }}>
       <Text>Touch coordinates: {JSON.stringify(position)}</Text>
       <View
         style={{
@@ -226,7 +226,7 @@ function TouchCoordinatesTest({
   );
 }
 
-const TouchIssue1 = ({onPress}: {onPress: () => void}) => {
+const TouchIssue1 = ({ onPress }: { onPress: () => void }) => {
   const nPressesRef = useRef(0);
   const [nRenders, setNRenders] = useState(0);
   const [label, setLabel] = useState('hello');
@@ -242,7 +242,7 @@ const TouchIssue1 = ({onPress}: {onPress: () => void}) => {
 
   if (nRenders > 0) {
     return (
-      <View style={{opacity: 1, marginTop: 50}}>
+      <View style={{ opacity: 1, marginTop: 50 }}>
         <View collapsable={false}>
           <TouchableOpacity
             onPress={() => {
@@ -253,7 +253,7 @@ const TouchIssue1 = ({onPress}: {onPress: () => void}) => {
             <Text>{label}</Text>
             <View
               id="foo"
-              style={{height: 100, width: 100, backgroundColor: 'red'}}
+              style={{ height: 100, width: 100, backgroundColor: 'red' }}
             />
           </TouchableOpacity>
         </View>
@@ -261,9 +261,9 @@ const TouchIssue1 = ({onPress}: {onPress: () => void}) => {
     );
   } else {
     return (
-      <View style={{opacity: 0, marginTop: 50}}>
+      <View style={{ opacity: 0, marginTop: 50 }}>
         <View collapsable={false}>
-          <View style={{height: 100, width: 100}} />
+          <View style={{ height: 100, width: 100 }} />
         </View>
       </View>
     );
@@ -294,12 +294,12 @@ class ScrollViewLockedIssue extends React.Component {
 
   render(): React.ReactNode {
     return (
-      <ScrollView style={{height: '75%'}}>
-        <View style={{height: 100}}>
+      <ScrollView style={{ height: '75%' }}>
+        <View style={{ height: 100 }}>
           <Text>this is first part</Text>
         </View>
         <View
-          style={{height: 300, backgroundColor: 'green'}}
+          style={{ height: 300, backgroundColor: 'green' }}
           {...this._gestureHandlers.panHandlers}>
           <Text>this is second part</Text>
         </View>
@@ -310,7 +310,7 @@ class ScrollViewLockedIssue extends React.Component {
           }}
           {...this._gestureHandlers.panHandlers}>
           <TouchableOpacity>
-            <Text style={{backgroundColor: 'gray', height: 100}}>
+            <Text style={{ backgroundColor: 'gray', height: 100 }}>
               SWIPE HORIZONTALLY HERE
             </Text>
           </TouchableOpacity>

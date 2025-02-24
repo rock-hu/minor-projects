@@ -15,7 +15,11 @@ import {
   buildRNComponentForTag,
   RNPackageContext,
   RNPackage,
-  ComponentBuilderContext
+  ComponentBuilderContext,
+  TraceJSBundleProviderDecorator,
+  AnyJSBundleProvider,
+  FileJSBundleProvider,
+  MetroJSBundleProvider
 } from '@rnoh/react-native-openharmony';
 
 @Builder
@@ -53,11 +57,19 @@ export struct Index {
       enableCAPIArchitecture: true,
       arkTsComponentNames: []
     });
-    await this.instance.runJSBundle(new ResourceJSBundleProvider(getContext().resourceManager, this.bundlePath))
-      .then(() => {
-        this.isBundleReady = true;
-        console.log('instance 加载完成' + this.bundlePath);
-      })
+    await this.instance.runJSBundle(new TraceJSBundleProviderDecorator(
+      new AnyJSBundleProvider([
+        new ResourceJSBundleProvider(getContext().resourceManager, this.bundlePath),
+        new MetroJSBundleProvider(),
+        new FileJSBundleProvider('/data/storage/el2/base/files/bundle.harmony.js'),
+        new ResourceJSBundleProvider(this.rnohCoreContext.uiAbilityContext.resourceManager, 'hermes_bundle.hbc'),
+        new ResourceJSBundleProvider(this.rnohCoreContext.uiAbilityContext.resourceManager, 'bundle.harmony.js')
+  ]),this.rnohCoreContext.logger))
+  .then(() => {
+    this.isBundleReady = true;
+    console.log('instance 加载完成' + this.bundlePath);
+  })
+
   }
 
   build() {

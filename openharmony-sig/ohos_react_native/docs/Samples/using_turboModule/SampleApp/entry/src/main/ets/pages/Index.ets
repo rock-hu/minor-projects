@@ -21,7 +21,8 @@ import { SampleTurboModulePackage } from '../TurboModule/SampleTurboModulePackag
 
 @Builder
 export function buildCustomComponent(ctx: ComponentBuilderContext) {
-  Stack() {}.position({ x: 0, y: 0 })
+  Stack() {
+  }.position({ x: 0, y: 0 })
 }
 
 const wrappedCustomRNComponentBuilder = wrapBuilder(buildCustomComponent);
@@ -70,7 +71,7 @@ export struct MultiSurface {
       new ResourceJSBundleProvider(
         getContext().resourceManager,
         this.bundlePath
-    )).then(() => {
+      )).then(() => {
       this.isBundleReady = true;
       console.log('instance 加载完成' + this.bundlePath);
     })

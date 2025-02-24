@@ -5,12 +5,12 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-import React, {useRef, useState} from 'react';
+import React, { useRef, useState } from 'react';
 
-import {Animated, Pressable, Text, View} from 'react-native';
+import { Animated, Pressable, Text, View } from 'react-native';
 
 import { TestCase, TestSuite } from '@rnoh/testerino';
-import {Button} from '../components';
+import { Button } from '../components';
 
 export function AnimatedTest() {
   return (
@@ -119,11 +119,11 @@ const AnimatedScrollViewTestCase = () => {
         overflow: 'hidden',
       }}>
       <Animated.ScrollView
-        style={{width: '100%', height: '100%'}}
-        contentContainerStyle={{alignItems: 'center', justifyContent: 'center'}}
+        style={{ width: '100%', height: '100%' }}
+        contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}
         scrollEventThrottle={16}
         onScroll={Animated.event(
-          [{nativeEvent: {contentOffset: {y: scrollY}}}],
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
           {
             useNativeDriver: true,
           },
@@ -147,7 +147,7 @@ const AnimatedScrollViewTestCase = () => {
           {
             position: 'absolute',
             bottom: 0,
-            transform: [{translateX: translation}],
+            transform: [{ translateX: translation }],
             width: 32,
             height: 32,
             backgroundColor: 'red',
@@ -158,7 +158,7 @@ const AnimatedScrollViewTestCase = () => {
   );
 };
 
-function FadeInOut({nativeDriver = false}) {
+function FadeInOut({ nativeDriver = false }) {
   const fadeAnim = React.useRef(new Animated.Value(1)).current;
 
   const handleFadePress = () => {
@@ -186,7 +186,7 @@ function FadeInOut({nativeDriver = false}) {
           opacity: fadeAnim,
           backgroundColor: 'red',
         }}>
-        <Text style={{width: 100, height: 48}}>
+        <Text style={{ width: 100, height: 48 }}>
           Press me to fade{nativeDriver && ' using native driver'}
         </Text>
       </Animated.View>
@@ -299,9 +299,9 @@ const AnimatedRotatingSquaresView = (props: {
 }) => {
   return (
     <Pressable
-      style={{height: 100, width: '100%'}}
+      style={{ height: 100, width: '100%' }}
       onPress={props.handleAnimation}>
-      <View style={{flexDirection: 'row'}}>
+      <View style={{ flexDirection: 'row' }}>
         <Animated.View
           style={{
             height: 50,
@@ -335,7 +335,7 @@ const AnimatedRotatingSquaresView = (props: {
           }}
         />
       </View>
-      <Text style={{height: 20}}>Press me to start animation</Text>
+      <Text style={{ height: 20 }}>Press me to start animation</Text>
     </Pressable>
   );
 };
@@ -353,7 +353,7 @@ const AnimatedPressableView = () => {
     animation.start();
   };
   return (
-    <View style={{height: 80, width: '100%'}}>
+    <View style={{ height: 80, width: '100%' }}>
       <AnimatedPressable
         style={{
           width: 100,
@@ -369,7 +369,7 @@ const AnimatedPressableView = () => {
           ],
         }}
         onPress={onPress}>
-        <Text style={{height: 40}}>Press me to start animation</Text>
+        <Text style={{ height: 40 }}>Press me to start animation</Text>
       </AnimatedPressable>
     </View>
   );
@@ -397,7 +397,7 @@ const Spring = () => {
   };
 
   return (
-    <Pressable style={{height: 120, width: '100%'}} onPress={handleAnimation}>
+    <Pressable style={{ height: 120, width: '100%' }} onPress={handleAnimation}>
       <Animated.View
         style={{
           height: 50,
@@ -428,7 +428,7 @@ const Spring = () => {
           ],
         }}
       />
-      <Text style={{height: 20}}>Press me to start animation</Text>
+      <Text style={{ height: 20 }}>Press me to start animation</Text>
     </Pressable>
   );
 };
@@ -455,7 +455,7 @@ const Decay = () => {
   };
 
   return (
-    <Pressable style={{height: 120, width: '100%'}} onPress={handleAnimation}>
+    <Pressable style={{ height: 120, width: '100%' }} onPress={handleAnimation}>
       <Animated.View
         style={{
           height: 50,
@@ -480,7 +480,7 @@ const Decay = () => {
           ],
         }}
       />
-      <Text style={{height: 20}}>Press me to start animation</Text>
+      <Text style={{ height: 20 }}>Press me to start animation</Text>
     </Pressable>
   );
 };
@@ -501,7 +501,7 @@ const Multiply = () => {
   };
 
   return (
-    <Pressable style={{height: 120, width: '100%'}} onPress={handleAnimation}>
+    <Pressable style={{ height: 120, width: '100%' }} onPress={handleAnimation}>
       <Animated.View
         style={{
           height: 50,
@@ -526,7 +526,7 @@ const Multiply = () => {
           ],
         }}
       />
-      <Text style={{height: 20}}>Press me to start animation</Text>
+      <Text style={{ height: 20 }}>Press me to start animation</Text>
     </Pressable>
   );
 };
@@ -550,7 +550,7 @@ const DiffClamp = () => {
   };
 
   return (
-    <Pressable style={{width: '100%'}} onPress={handleAnimation}>
+    <Pressable style={{ width: '100%' }} onPress={handleAnimation}>
       <Animated.View
         style={{
           height: 50,
@@ -563,32 +563,32 @@ const DiffClamp = () => {
           ],
         }}
       />
-      <Text style={{height: 20}}>Press me to start animation</Text>
+      <Text style={{ height: 20 }}>Press me to start animation</Text>
     </Pressable>
   );
 };
 
 const ValueXY = () => {
-  const square1Anim = useRef(new Animated.ValueXY({x: 50, y: 50})).current;
+  const square1Anim = useRef(new Animated.ValueXY({ x: 50, y: 50 })).current;
 
   const animation = Animated.sequence([
     Animated.timing(square1Anim, {
-      toValue: {x: 0, y: 0},
+      toValue: { x: 0, y: 0 },
       duration: 1000,
       useNativeDriver: true,
     }),
     Animated.timing(square1Anim, {
-      toValue: {x: 0, y: 50},
+      toValue: { x: 0, y: 50 },
       duration: 1000,
       useNativeDriver: true,
     }),
     Animated.timing(square1Anim, {
-      toValue: {x: 50, y: 0},
+      toValue: { x: 50, y: 0 },
       duration: 1000,
       useNativeDriver: true,
     }),
     Animated.timing(square1Anim, {
-      toValue: {x: 50, y: 50},
+      toValue: { x: 50, y: 50 },
       duration: 1000,
       useNativeDriver: true,
     }),
@@ -599,8 +599,8 @@ const ValueXY = () => {
   };
 
   return (
-    <Pressable style={{height: 120, width: '100%'}} onPress={handleAnimation}>
-      <View style={{height: 100}}>
+    <Pressable style={{ height: 120, width: '100%' }} onPress={handleAnimation}>
+      <View style={{ height: 100 }}>
         <Animated.View
           style={{
             height: 40,
@@ -617,7 +617,7 @@ const ValueXY = () => {
           }}
         />
       </View>
-      <Text style={{height: 20}}>Press me to start animation</Text>
+      <Text style={{ height: 20 }}>Press me to start animation</Text>
     </Pressable>
   );
 };
@@ -677,14 +677,14 @@ const TrackingValue = () => {
   };
 
   return (
-    <Pressable style={{height: 120, width: '100%'}} onPress={handleAnimation}>
-      <View style={{height: 100}}>
+    <Pressable style={{ height: 120, width: '100%' }} onPress={handleAnimation}>
+      <View style={{ height: 100 }}>
         <Animated.View
           style={{
             height: 40,
             width: 40,
             backgroundColor: 'red',
-            transform: [{translateX: square1Anim}],
+            transform: [{ translateX: square1Anim }],
           }}
         />
         <Animated.View
@@ -692,11 +692,11 @@ const TrackingValue = () => {
             height: 40,
             width: 40,
             backgroundColor: 'blue',
-            transform: [{translateX: square2Anim}],
+            transform: [{ translateX: square2Anim }],
           }}
         />
       </View>
-      <Text style={{height: 20}}>Press me to start animation</Text>
+      <Text style={{ height: 20 }}>Press me to start animation</Text>
     </Pressable>
   );
 };
@@ -716,7 +716,7 @@ const Modulo = () => {
   };
 
   return (
-    <Pressable style={{height: 120, width: '100%'}} onPress={handleAnimation}>
+    <Pressable style={{ height: 120, width: '100%' }} onPress={handleAnimation}>
       <Animated.View
         style={{
           height: 50,
@@ -741,7 +741,7 @@ const Modulo = () => {
           ],
         }}
       />
-      <Text style={{height: 20}}>Press me to start animation</Text>
+      <Text style={{ height: 20 }}>Press me to start animation</Text>
     </Pressable>
   );
 };
@@ -760,8 +760,8 @@ const Perspective = () => {
   };
 
   return (
-    <Pressable style={{height: 120, width: '100%'}} onPress={handleAnimation}>
-      <View style={{height: 100, justifyContent: 'center'}}>
+    <Pressable style={{ height: 120, width: '100%' }} onPress={handleAnimation}>
+      <View style={{ height: 100, justifyContent: 'center' }}>
         <Animated.View
           style={{
             height: 50,
@@ -778,7 +778,7 @@ const Perspective = () => {
           }}
         />
       </View>
-      <Text style={{height: 20}}>Press me to start animation</Text>
+      <Text style={{ height: 20 }}>Press me to start animation</Text>
     </Pressable>
   );
 };

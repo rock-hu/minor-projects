@@ -75,6 +75,14 @@ export function TurboModuleTest() {
             expect(result.hardcodedEnum1 === SomeEnum1.FOO).to.be.true;
           }}
         />
+        <TestCase.Logical
+          itShould="calculate fibonacci numbers on the Worker thread"
+          fn={async ({expect}) => {
+            const result =
+              await GeneratedSampleTurboModule.calculateOnWorker(25);
+            expect(result).to.equal(75025);
+          }}
+        />
       </TestSuite>
       <TestSuite name="WorkerTurboModule">
         <TestCase.Logical

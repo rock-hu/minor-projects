@@ -5,9 +5,9 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-import React, {useRef} from 'react';
+import React, { useRef } from 'react';
 
-import {Animated, View, Easing, EasingFunction} from 'react-native';
+import { Animated, View, Easing, EasingFunction } from 'react-native';
 
 import { TestCase, TestSuite } from '@rnoh/testerino';
 
@@ -27,7 +27,7 @@ export function AnimatedEasingTest() {
   );
 }
 
-const EasingView = (props: {easing: EasingFunction}) => {
+const EasingView = (props: { easing: EasingFunction }) => {
   const translateValue = useRef(new Animated.Value(0)).current;
   const animation = Animated.timing(translateValue, {
     toValue: 200,
@@ -40,7 +40,7 @@ const EasingView = (props: {easing: EasingFunction}) => {
     animation.start();
   };
   return (
-    <View style={{height: 60, width: '100%'}} onTouchEnd={handleAnimation}>
+    <View style={{ height: 60, width: '100%' }} onTouchEnd={handleAnimation}>
       <Animated.View
         style={{
           height: 40,

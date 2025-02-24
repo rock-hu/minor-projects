@@ -5,7 +5,7 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import {
   Animated,
   DeviceEventEmitter,
@@ -51,8 +51,8 @@ export class TabsAndScrollViewExample extends Component<any, any> {
       height: Dimensions.get('window').height,
       slideDirection: 'slideDown',
       oldSlideDirection: 'slideDown',
-      slideUpViewStyle: {zIndex: 2, opacity: 1},
-      slideDownViewStyle: {zIndex: -1, opacity: 2},
+      slideUpViewStyle: { zIndex: 2, opacity: 1 },
+      slideDownViewStyle: { zIndex: -1, opacity: 2 },
     };
     this.appScrollView = React.createRef();
     this.slideUpViewObj = React.createRef();
@@ -65,8 +65,8 @@ export class TabsAndScrollViewExample extends Component<any, any> {
       if (this.slideDirection !== 'slideUp') {
         this.slideDirection = 'slideUp';
         this.setState({
-          slideUpViewStyle: {zIndex: 2, opacity: 1},
-          slideDownViewStyle: {zIndex: -1, opacity: 0},
+          slideUpViewStyle: { zIndex: 2, opacity: 1 },
+          slideDownViewStyle: { zIndex: -1, opacity: 0 },
         });
       }
     } else if (Math.ceil(this.scrollViewStartOffsetY) > scrollY) {
@@ -74,15 +74,15 @@ export class TabsAndScrollViewExample extends Component<any, any> {
       if (this.slideDirection !== 'slideDown') {
         this.slideDirection = 'slideDown';
         this.setState({
-          slideUpViewStyle: {zIndex: -1, opacity: 0},
-          slideDownViewStyle: {zIndex: 2, opacity: 1},
+          slideUpViewStyle: { zIndex: -1, opacity: 0 },
+          slideDownViewStyle: { zIndex: 2, opacity: 1 },
         });
       }
     }
     if (scrollY === 0) {
       this.setState({
-        slideUpViewStyle: {zIndex: 2, opacity: 1},
-        slideDownViewStyle: {zIndex: -1, opacity: 0},
+        slideUpViewStyle: { zIndex: 2, opacity: 1 },
+        slideDownViewStyle: { zIndex: -1, opacity: 0 },
       });
     }
     this.scrollViewStartOffsetY = scrollY;
@@ -109,49 +109,49 @@ export class TabsAndScrollViewExample extends Component<any, any> {
     );
     return this.state.resultList.length > 0
       ? images.map((image, imageIndex) => {
-          return (
-            <View
-              style={{
-                width: 300,
-                height: 140,
-                borderRadius: 40,
-                borderWidth: 5,
-                backgroundColor: 'pink',
+        return (
+          <View
+            style={{
+              width: 300,
+              height: 140,
+              borderRadius: 40,
+              borderWidth: 5,
+              backgroundColor: 'pink',
+            }}
+            key={imageIndex}>
+            <ImageBackground
+              source={{
+                uri: 'https://images.unsplash.com/photo-1556740749-887f6717d7e4',
               }}
-              key={imageIndex}>
-              <ImageBackground
-                source={{
-                  uri: 'https://images.unsplash.com/photo-1556740749-887f6717d7e4',
-                }}
+              style={{
+                flex: 1,
+                marginVertical: 4,
+                marginHorizontal: 16,
+                borderRadius: 5,
+                overflow: 'hidden',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <View
                 style={{
-                  flex: 1,
-                  marginVertical: 4,
-                  marginHorizontal: 16,
+                  backgroundColor: 'rgba(0,0,0, 0.7)',
+                  paddingHorizontal: 24,
+                  paddingVertical: 8,
                   borderRadius: 5,
-                  overflow: 'hidden',
-                  alignItems: 'center',
-                  justifyContent: 'center',
                 }}>
-                <View
+                <Text
                   style={{
-                    backgroundColor: 'rgba(0,0,0, 0.7)',
-                    paddingHorizontal: 24,
-                    paddingVertical: 8,
-                    borderRadius: 5,
+                    color: 'white',
+                    fontSize: 16,
+                    fontWeight: 'bold',
                   }}>
-                  <Text
-                    style={{
-                      color: 'white',
-                      fontSize: 16,
-                      fontWeight: 'bold',
-                    }}>
-                    {'Image - ' + imageIndex}
-                  </Text>
-                </View>
-              </ImageBackground>
-            </View>
-          );
-        })
+                  {'Image - ' + imageIndex}
+                </Text>
+              </View>
+            </ImageBackground>
+          </View>
+        );
+      })
       : null;
   };
   renderFlatList = () => {
@@ -172,7 +172,7 @@ export class TabsAndScrollViewExample extends Component<any, any> {
           [
             {
               nativeEvent: {
-                contentOffset: {y: this.scrollY},
+                contentOffset: { y: this.scrollY },
               },
             },
           ],
@@ -216,7 +216,7 @@ export class TabsAndScrollViewExample extends Component<any, any> {
         }}>
         {sortFiledList.map((item, index) => (
           <View
-            style={{backgroundColor: 'yellow', width: '25%'}}
+            style={{ backgroundColor: 'yellow', width: '25%' }}
             key={item.sortCode + '_' + index}>
             {item.sortCode !== '-1' ? (
               <TouchableWithoutFeedback
@@ -253,7 +253,7 @@ export class TabsAndScrollViewExample extends Component<any, any> {
                   <Text
                     ellipsizeMode={'tail'}
                     numberOfLines={1}
-                    style={{fontSize: 12}}>
+                    style={{ fontSize: 12 }}>
                     {item.sortName}
                   </Text>
                 </View>
@@ -286,8 +286,8 @@ export class TabsAndScrollViewExample extends Component<any, any> {
               ],
             },
           ]}>
-          <View style={{height: 56, backgroundColor: 'green'}} />
-          <View style={{height: 94, backgroundColor: 'green'}} />
+          <View style={{ height: 56, backgroundColor: 'green' }} />
+          <View style={{ height: 94, backgroundColor: 'green' }} />
           {this.renderSort()}
         </Animated.View>
         <View
@@ -303,8 +303,8 @@ export class TabsAndScrollViewExample extends Component<any, any> {
             },
             this.state.slideDownViewStyle,
           ]}>
-          <View style={{height: 56, backgroundColor: 'green'}} />
-          <View style={{height: 94, backgroundColor: 'green'}} />
+          <View style={{ height: 56, backgroundColor: 'green' }} />
+          <View style={{ height: 94, backgroundColor: 'green' }} />
           {this.renderSort()}
         </View>
       </>
@@ -313,7 +313,7 @@ export class TabsAndScrollViewExample extends Component<any, any> {
   render() {
     return (
       <SafeAreaView>
-        <View style={{width: '100%', height: 40, backgroundColor: 'grey'}}>
+        <View style={{ width: '100%', height: 40, backgroundColor: 'grey' }}>
           <View>
             {this.renderFlatList()}
             {this.renderHeader()}

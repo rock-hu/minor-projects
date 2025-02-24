@@ -5,7 +5,7 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-import {Text, TouchableHighlight, StyleProp, TextStyle} from 'react-native';
+import { Text, TouchableHighlight, StyleProp, TextStyle } from 'react-native';
 
 export interface ButtonProps {
   label: string;
@@ -32,7 +32,7 @@ export default function CategoryButton({
         justifyContent: 'center',
       }}
       onPress={onPress}>
-      <Text style={[{color: 'white', marginTop: 40}, textStyle]}>{label}</Text>
+      <Text style={[{ color: 'white', marginTop: 40 }, textStyle]}>{label}</Text>
     </TouchableHighlight>
   );
 }

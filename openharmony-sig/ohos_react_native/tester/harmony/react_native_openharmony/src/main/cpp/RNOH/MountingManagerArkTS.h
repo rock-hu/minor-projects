@@ -56,6 +56,8 @@ class MountingManagerArkTS final : public MountingManager {
 
   void didMount(MutationList const& mutations) override;
 
+  void finalizeMutationUpdates(MutationList const& mutations) override;
+
   void dispatchCommand(
       const facebook::react::ShadowView& shadowView,
       const std::string& commandName,

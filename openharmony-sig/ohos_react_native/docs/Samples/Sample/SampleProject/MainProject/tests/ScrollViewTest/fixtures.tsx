@@ -56,7 +56,7 @@ export function getScrollViewContent({
         ]}
         pointerEvents={pointerEvents}
         onTouchEnd={onTouchEnd}>
-        <Text style={{textAlign: 'center', height: 15}}> {idx + 1}</Text>
+        <Text style={{ textAlign: 'center', height: 15 }}> {idx + 1}</Text>
       </View>
     );
   });
@@ -79,7 +79,7 @@ export function getScrollViewContentHorizontal({
           },
           style,
         ]}>
-        <Text style={{textAlign: 'center', height: 15}}> {idx + 1}</Text>
+        <Text style={{ textAlign: 'center', height: 15 }}> {idx + 1}</Text>
       </View>
     );
   });
@@ -97,23 +97,23 @@ export function ScrollViewComparator({
   rhsProps: ScrollViewProps;
 }) {
   return (
-    <View style={{width: '100%'}}>
+    <View style={{ width: '100%' }}>
       <View
-        style={{flexDirection: 'row', width: '100%', alignItems: 'flex-end'}}>
-        <View style={{flex: 1}}>
-          <Text style={{fontSize: 12}}>{JSON.stringify(lhsProps)}</Text>
-          <View style={{height: scrollViewLength}}>
+        style={{ flexDirection: 'row', width: '100%', alignItems: 'flex-end' }}>
+        <View style={{ flex: 1 }}>
+          <Text style={{ fontSize: 12 }}>{JSON.stringify(lhsProps)}</Text>
+          <View style={{ height: scrollViewLength }}>
             <ScrollView
-              style={{flex: 1, height: scrollViewLength}}
-              {...{...commonProps, ...lhsProps}}
+              style={{ flex: 1, height: scrollViewLength }}
+              {...{ ...commonProps, ...lhsProps }}
             />
           </View>
         </View>
-        <View style={{width: 4, height: '100%', backgroundColor: 'gray'}} />
-        <View style={{flex: 1}}>
-          <Text style={{fontSize: 12}}>{JSON.stringify(rhsProps)}</Text>
-          <View style={{height: scrollViewLength}}>
-            <ScrollView {...{...commonProps, ...rhsProps}} style={{flex: 1}} />
+        <View style={{ width: 4, height: '100%', backgroundColor: 'gray' }} />
+        <View style={{ flex: 1 }}>
+          <Text style={{ fontSize: 12 }}>{JSON.stringify(rhsProps)}</Text>
+          <View style={{ height: scrollViewLength }}>
+            <ScrollView {...{ ...commonProps, ...rhsProps }} style={{ flex: 1 }} />
           </View>
         </View>
       </View>

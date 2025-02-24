@@ -5,8 +5,8 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-import React, {useState} from 'react';
-import {ScrollView, Text, TextInput, View} from 'react-native';
+import React, { useState } from 'react';
+import { ScrollView, Text, TextInput, View } from 'react-native';
 
 export function TextScrollExample() {
   const [numberOfComponents, setNumberOfComponents] = useState(100);
@@ -24,9 +24,9 @@ export function TextScrollExample() {
   };
 
   const textWidgetsArray = Array.from(
-    {length: numberOfComponents},
+    { length: numberOfComponents },
     (_, index) => (
-      <Text key={index} style={{height: 53}}>
+      <Text key={index} style={{ height: 53 }}>
         {generateRandomText(100)}
       </Text>
     ),

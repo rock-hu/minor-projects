@@ -5,9 +5,9 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-import {View, ScrollView, StyleSheet} from 'react-native';
+import { View, ScrollView, StyleSheet } from 'react-native';
 import { TestSuite, TestCase } from '@rnoh/testerino';
-import {COMMON_PROPS} from './fixtures';
+import { COMMON_PROPS } from './fixtures';
 
 export function StylesTest() {
   return (

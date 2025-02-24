@@ -6,9 +6,9 @@
  */
 
 import { TestCase, TestSuite } from '@rnoh/testerino';
-import React, {useEffect} from 'react';
-import {AppState, AppStateStatus, Text} from 'react-native';
-import {Button} from '../components';
+import React, { useEffect } from 'react';
+import { AppState, AppStateStatus, Text } from 'react-native';
+import { Button } from '../components';
 
 async function wait(ms: number) {
   return new Promise(resolve => {
@@ -24,7 +24,7 @@ export function TimerTest() {
       <TestCase
         itShould="take three seconds to finish this test (setTimeout)"
         initialState={0}
-        arrange={({setState}) => {
+        arrange={({ setState }) => {
           return (
             <Button
               label="Start Timeout"
@@ -34,7 +34,7 @@ export function TimerTest() {
             />
           );
         }}
-        assert={async ({expect}) => {
+        assert={async ({ expect }) => {
           const waitTimeInMs = 3000;
           const time1 = new Date().getTime();
           await wait(waitTimeInMs);
@@ -50,7 +50,7 @@ export function TimerTest() {
       <TestCase
         itShould="take three seconds to finish this test (setInterval)"
         initialState={0}
-        arrange={({setState}) => {
+        arrange={({ setState }) => {
           return (
             <Button
               label="Start Interval"
@@ -60,7 +60,7 @@ export function TimerTest() {
             />
           );
         }}
-        assert={async ({expect}) => {
+        assert={async ({ expect }) => {
           await wait(3000);
           let i = 0;
           const time1 = new Date().getTime();
@@ -80,11 +80,11 @@ export function TimerTest() {
           );
         }}
       />
-      <TestCase<{date: Date; appStateStatus: AppStateStatus}[]>
+      <TestCase<{ date: Date; appStateStatus: AppStateStatus }[]>
         modal
         itShould="not trigger updates when the application is in background"
         initialState={[]}
-        arrange={({state, setState}) => {
+        arrange={({ state, setState }) => {
           return (
             <Effect
               onEffect={() => {
@@ -121,7 +121,7 @@ export function TimerTest() {
             </Effect>
           );
         }}
-        assert={({expect, state}) => {
+        assert={({ expect, state }) => {
           expect(
             state.filter(tick => tick.appStateStatus !== 'active').length,
           ).to.be.eq(0);

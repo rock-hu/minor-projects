@@ -14,7 +14,9 @@
         obfuscation: {
           ruleOptions: {
             enable: true,
-            files: ["./obfuscation-rules.txt"],
+            files: [
+              "./obfuscation-rules.txt"
+            ],
           },
         },
       },

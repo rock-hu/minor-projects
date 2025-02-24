@@ -5,9 +5,9 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-import {Text, StyleSheet, View, Animated, Pressable} from 'react-native';
-import React, {useEffect, useRef} from 'react';
-import SampleTurboModule2, {ResultModel} from '../basic/SampleTurboModule2';
+import { Text, StyleSheet, View, Animated, Pressable } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import SampleTurboModule2, { ResultModel } from '../basic/SampleTurboModule2';
 
 function AppDetails() {
   const zIndexAnim = useRef(new Animated.Value(0)).current;
@@ -38,7 +38,7 @@ function AppDetails() {
         style={[
           styles.textContainer,
           styles.box1,
-          {opacity: opacityInterpolation},
+          { opacity: opacityInterpolation },
         ]}>
         <Text style={styles.apiFontSize}>容器1和文字由RN渲染</Text>
       </Animated.View>
@@ -46,12 +46,12 @@ function AppDetails() {
         style={[
           styles.textContainer,
           styles.box2,
-          {opacity: opacityInterpolation},
+          { opacity: opacityInterpolation },
         ]}>
         <Text style={styles.apiFontSize}>容器2和文字由RN渲染</Text>
       </Animated.View>
       <Pressable
-        style={{height: 200}}
+        style={{ height: 200 }}
         onPress={() => {
           SampleTurboModule2.getRequest()
             .then((result: ResultModel) => {
@@ -62,7 +62,7 @@ function AppDetails() {
               console.log(JSON.stringify(err));
             });
         }}>
-        <Text style={[styles.apiFontSize, {backgroundColor: '#FF8080'}]}>
+        <Text style={[styles.apiFontSize, { backgroundColor: '#FF8080' }]}>
           点击获取网络请求数据
         </Text>
       </Pressable>

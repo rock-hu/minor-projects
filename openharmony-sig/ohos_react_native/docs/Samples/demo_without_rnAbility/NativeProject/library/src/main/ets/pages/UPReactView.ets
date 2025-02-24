@@ -8,10 +8,21 @@
 import { UPRNSDK } from '../UPRNSDK'
 import { createRNPackages } from '../rn/RNPackagesFactory'
 import { RNInfo } from '../model/RNInfo'
-import { RNInstance, ResourceJSBundleProvider, RNSurface, ComponentBuilderContext, RNAbility, RNOHCoreContext, RNComponentContext, RNOHContext, buildRNComponentForTag } from "@rnoh/react-native-openharmony";
+import {
+  RNInstance,
+  ResourceJSBundleProvider,
+  RNSurface,
+  ComponentBuilderContext,
+  RNAbility,
+  RNOHCoreContext,
+  RNComponentContext,
+  RNOHContext,
+  buildRNComponentForTag
+} from "@rnoh/react-native-openharmony";
 
 @Builder
-export function buildCustomComponent(ctx: ComponentBuilderContext) { }
+export function buildCustomComponent(ctx: ComponentBuilderContext) {
+}
 
 @Entry
 @Component
@@ -22,7 +33,10 @@ export struct UPReactView {
   @State isBundleReady: boolean = false;
   @StorageLink('RNAbility') private rnAbility: RNAbility = {} as RNAbility
   private rnohCoreContext: RNOHCoreContext | undefined = AppStorage.get('RNOHCoreContext')
-  @Builder public buildCustomComponent(ctx: ComponentBuilderContext) {}
+
+  @Builder
+  public buildCustomComponent(ctx: ComponentBuilderContext) {
+  }
 
   async aboutToAppear() {
     if (this.rnSdk) {
@@ -33,7 +47,8 @@ export struct UPReactView {
         enableCAPIArchitecture: true,
         arkTsComponentNames: []
       });
-      await this.rnInstance.runJSBundle(new ResourceJSBundleProvider(getContext().resourceManager, this.rnInfo.bundlePath)).then(() => {
+      await this.rnInstance.runJSBundle(new ResourceJSBundleProvider(getContext().resourceManager,
+        this.rnInfo.bundlePath)).then(() => {
         this.isBundleReady = true
       })
     }

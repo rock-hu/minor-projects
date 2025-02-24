@@ -11,7 +11,7 @@ import { TestSuite, TestCase } from '@rnoh/testerino';
 export function CustomNativeComponentTest() {
   return (
     <TestSuite name="Custom Native Component">
-      <TestCase itShould="platform not supported" fn={() => {}} />
+      <TestCase itShould="platform not supported" fn={() => { }} />
     </TestSuite>
   );
 }

@@ -5,7 +5,6 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-
 #pragma once
 
 #include <react/renderer/core/ConcreteComponentDescriptor.h>

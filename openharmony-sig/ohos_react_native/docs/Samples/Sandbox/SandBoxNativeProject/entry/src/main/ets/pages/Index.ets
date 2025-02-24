@@ -87,7 +87,6 @@ struct Index {
     // when handled by RN。
     this.rnohCoreContext!.dispatchBackPress();
     return true;
-
   }
 
   build() {

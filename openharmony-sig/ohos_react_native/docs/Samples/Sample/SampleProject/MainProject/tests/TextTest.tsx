@@ -5,10 +5,10 @@
  * LICENSE-MIT file in the root directory of this source tree.
  */
 
-import {Platform, StyleSheet, Text, View} from 'react-native';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 import { TestSuite, TestCase } from '@rnoh/testerino';
-import {Button, PressCounter} from '../components';
-import {useState} from 'react';
+import { Button, PressCounter } from '../components';
+import { useState } from 'react';
 
 const SAMPLE_PARAGRAPH_TEXT =
   'Quis exercitation do eu in laboris nulla sit elit officia. Incididunt ipsum aliquip commodo proident ad laborum aliquip fugiat sunt aute ea laboris mollit reprehenderit. Culpa non incididunt cupidatat esse laborum nulla quis mollit voluptate proident commodo. Consectetur ad deserunt do nulla sunt veniam magna laborum reprehenderit et ullamco fugiat fugiat.';
@@ -24,14 +24,14 @@ export function TextTest() {
         </View>
       </TestCase>
       <TestCase itShould="render text in one line">
-        <View style={{flexDirection: 'row'}}>
-          <Text style={{fontSize: 10}}>/ {'100'}</Text>
+        <View style={{ flexDirection: 'row' }}>
+          <Text style={{ fontSize: 10 }}>/ {'100'}</Text>
         </View>
       </TestCase>
       <TestCase
         itShould="show 3 texts each with a different line break startegy"
         skip
-        //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/274
+      //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/274
       >
         <View style={styles.bigContainer}>
           <Text style={styles.smallTextWidth} lineBreakStrategyIOS="none">
@@ -48,7 +48,7 @@ export function TextTest() {
       <TestCase
         itShould="wrap two texts differently (hangul-word linebreak stategy)"
         skip
-        //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/274
+      //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/274
       >
         <View style={styles.container}>
           <Text style={styles.smallTextWidth} lineBreakStrategyIOS="none">
@@ -90,23 +90,23 @@ export function TextTest() {
         itShould="fire onTextLayoutEvent after layout change"
         initialState={false}
         arrange={ctx => <OnTextLayoutView ctx={ctx} />}
-        assert={({expect, state}) => {
+        assert={({ expect, state }) => {
           expect(state).to.be.true;
         }}
         skip
-        //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/277
+      //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/277
       />
       <TestCase
         itShould="fire onLayout event after layout change"
         initialState={{}}
         arrange={ctx => <OnLayoutView ctx={ctx} />}
-        assert={({expect, state}) => {
+        assert={({ expect, state }) => {
           expect(state).to.have.all.keys('x', 'y', 'width', 'height');
         }}
       />
       <TestSuite name="TextStyle">
         <TestCase itShould="show text with the Pacifico Regular font">
-          <View style={{height: 30, width: '100%'}}>
+          <View style={{ height: 30, width: '100%' }}>
             <Text
               style={{
                 ...styles.blackText,
@@ -118,18 +118,18 @@ export function TextTest() {
           </View>
         </TestCase>
         <TestCase itShould="show text with different horizontal alignments">
-          <Text style={{textAlign: 'left'}}>Left:</Text>
-          <Text style={{fontSize: 8}}>{SAMPLE_PARAGRAPH_TEXT}</Text>
-          <Text style={{textAlign: 'center'}}>Center:</Text>
-          <Text style={{fontSize: 8, textAlign: 'center'}}>
+          <Text style={{ textAlign: 'left' }}>Left:</Text>
+          <Text style={{ fontSize: 8 }}>{SAMPLE_PARAGRAPH_TEXT}</Text>
+          <Text style={{ textAlign: 'center' }}>Center:</Text>
+          <Text style={{ fontSize: 8, textAlign: 'center' }}>
             {SAMPLE_PARAGRAPH_TEXT}
           </Text>
-          <Text style={{textAlign: 'right'}}>Right:</Text>
-          <Text style={{fontSize: 8, textAlign: 'right'}}>
+          <Text style={{ textAlign: 'right' }}>Right:</Text>
+          <Text style={{ fontSize: 8, textAlign: 'right' }}>
             {SAMPLE_PARAGRAPH_TEXT}
           </Text>
-          <Text style={{textAlign: 'justify'}}>Justify:</Text>
-          <Text style={{fontSize: 8, textAlign: 'justify'}}>
+          <Text style={{ textAlign: 'justify' }}>Justify:</Text>
+          <Text style={{ fontSize: 8, textAlign: 'justify' }}>
             {SAMPLE_PARAGRAPH_TEXT}
           </Text>
         </TestCase>
@@ -162,7 +162,7 @@ export function TextTest() {
         <TestCase itShould="show text with different vertical alignments (verticalAlign)">
           <View style={styles.smallContainerRow}>
             <Text style={styles.blueShortText}>Auto</Text>
-            <Text style={{...styles.blueShortText, verticalAlign: 'top'}}>
+            <Text style={{ ...styles.blueShortText, verticalAlign: 'top' }}>
               Top
             </Text>
             <Text
@@ -183,14 +183,14 @@ export function TextTest() {
         </TestCase>
         <TestCase itShould="format nested Text components">
           <View style={styles.container}>
-            <Text style={{...styles.text, textAlign: 'right'}}>
-              <Text style={{fontWeight: 'bold'}}>Bold</Text>
-              <Text style={{fontStyle: 'italic'}}>Italic</Text>
+            <Text style={{ ...styles.text, textAlign: 'right' }}>
+              <Text style={{ fontWeight: 'bold' }}>Bold</Text>
+              <Text style={{ fontStyle: 'italic' }}>Italic</Text>
             </Text>
           </View>
         </TestCase>
         <TestCase itShould="test the the left and right padding of the text">
-          <View style={{height: 32, flexDirection: 'row'}}>
+          <View style={{ height: 32, flexDirection: 'row' }}>
             <Text
               style={{
                 height: '100%',
@@ -202,13 +202,13 @@ export function TextTest() {
               left
             </Text>
             <Text
-              style={{height: '100%', backgroundColor: 'red', color: 'white'}}>
+              style={{ height: '100%', backgroundColor: 'red', color: 'white' }}>
               right
             </Text>
           </View>
         </TestCase>
         <TestCase itShould="align text same way after adding padding">
-          <View style={{height: 70, flexDirection: 'column'}}>
+          <View style={{ height: 70, flexDirection: 'column' }}>
             <Text
               style={{
                 paddingLeft: 10,
@@ -252,10 +252,10 @@ export function TextTest() {
         <TestCase itShould="show text with different textDecorationLines">
           <View style={styles.container}>
             <Text style={styles.text}>None</Text>
-            <Text style={{...styles.text, textDecorationLine: 'underline'}}>
+            <Text style={{ ...styles.text, textDecorationLine: 'underline' }}>
               underline
             </Text>
-            <Text style={{...styles.text, textDecorationLine: 'line-through'}}>
+            <Text style={{ ...styles.text, textDecorationLine: 'line-through' }}>
               line-through
             </Text>
           </View>
@@ -263,7 +263,7 @@ export function TextTest() {
         <TestCase
           itShould="show lined-through text with text decoration color or font color"
           skip
-          //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/271
+        //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/271
         >
           <View style={styles.container}>
             <Text
@@ -285,7 +285,7 @@ export function TextTest() {
         </TestCase>
         <TestCase itShould="show text with big letter spacing">
           <View style={styles.smallContainer}>
-            <Text style={{...styles.smallText, letterSpacing: 8}}>
+            <Text style={{ ...styles.smallText, letterSpacing: 8 }}>
               Spacing: 8
             </Text>
           </View>
@@ -293,7 +293,7 @@ export function TextTest() {
         <TestCase
           itShould="show text with shadow"
           skip
-          //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/278
+        //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/278
         >
           <View>
             <Text
@@ -302,7 +302,7 @@ export function TextTest() {
                 fontSize: 20,
                 fontWeight: '900',
                 textShadowColor: 'rgba(0,0,255,0.8)',
-                textShadowOffset: {width: 1, height: 1},
+                textShadowOffset: { width: 1, height: 1 },
                 textShadowRadius: 20,
               }}>
               Text with shadow
@@ -311,7 +311,7 @@ export function TextTest() {
         </TestCase>
         <TestCase
           itShould="show text with correct textTransform"
-          //  123 1one is added to the end of text to see if the code correctly handles number
+        //  123 1one is added to the end of text to see if the code correctly handles number
         >
           <View style={styles.bigContainer}>
             <Text style={styles.smallText}>Text transform none 123 1one</Text>
@@ -341,7 +341,7 @@ export function TextTest() {
         <TestCase
           itShould="show text with different writing direction"
           skip
-          //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/280
+        //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/280
         >
           <View style={styles.container}>
             <Text style={styles.smallText}>Writing direction auto</Text>
@@ -364,7 +364,7 @@ export function TextTest() {
         <TestCase
           itShould="show text aligned vertically with/without font padding included"
           skip
-          //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/281
+        //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/281
         >
           <View style={styles.smallContainerRow}>
             <Text
@@ -415,7 +415,7 @@ export function TextTest() {
               },
             ].map((item, index) => (
               <View
-                style={{width: '20%', flexDirection: 'column'}}
+                style={{ width: '20%', flexDirection: 'column' }}
                 key={item.sortCode + '_' + index}>
                 <View
                   style={{
@@ -428,7 +428,7 @@ export function TextTest() {
                   <Text
                     ellipsizeMode={'tail'}
                     numberOfLines={1}
-                    style={{fontSize: 14, lineHeight: 19}}>
+                    style={{ fontSize: 14, lineHeight: 19 }}>
                     {item.sortName}
                   </Text>
                 </View>
@@ -437,35 +437,35 @@ export function TextTest() {
           </View>
         </TestCase>
         <TestCase itShould="display all texts in one line">
-          <View style={{alignSelf: 'flex-start', flexDirection: 'row'}}>
-            <Text style={{backgroundColor: 'cyan'}}>
+          <View style={{ alignSelf: 'flex-start', flexDirection: 'row' }}>
+            <Text style={{ backgroundColor: 'cyan' }}>
               {'0:12'}
               {'场'}
             </Text>
           </View>
-          <View style={{alignSelf: 'flex-start', flexDirection: 'row'}}>
-            <Text style={{backgroundColor: 'pink'}}>
+          <View style={{ alignSelf: 'flex-start', flexDirection: 'row' }}>
+            <Text style={{ backgroundColor: 'pink' }}>
               {'0;12'}
               {'场'}
             </Text>
           </View>
-          <View style={{alignSelf: 'flex-start', flexDirection: 'row'}}>
-            <Text style={{backgroundColor: 'cyan'}}>
+          <View style={{ alignSelf: 'flex-start', flexDirection: 'row' }}>
+            <Text style={{ backgroundColor: 'cyan' }}>
               {'0.12'}
               {'场'}
             </Text>
           </View>
-          <View style={{alignSelf: 'flex-start', flexDirection: 'row'}}>
-            <Text style={{backgroundColor: 'pink'}}>
+          <View style={{ alignSelf: 'flex-start', flexDirection: 'row' }}>
+            <Text style={{ backgroundColor: 'pink' }}>
               {'0,12'}
               {'场'}
             </Text>
           </View>
         </TestCase>
         <TestCase itShould="display: 'FOO''BAR' next to each other">
-          <View style={{alignSelf: 'flex-start', flexDirection: 'row'}}>
-            <Text style={{height: '100%', backgroundColor: 'pink'}}>FOO</Text>
-            <Text style={{height: '100%', backgroundColor: 'cyan'}}>BAR</Text>
+          <View style={{ alignSelf: 'flex-start', flexDirection: 'row' }}>
+            <Text style={{ height: '100%', backgroundColor: 'pink' }}>FOO</Text>
+            <Text style={{ height: '100%', backgroundColor: 'cyan' }}>BAR</Text>
           </View>
         </TestCase>
         <TestCase itShould="display: 'FOO''BAR' in two lines">
@@ -475,14 +475,14 @@ export function TextTest() {
               flexDirection: 'row',
               borderWidth: 1,
             }}>
-            <Text style={{height: '100%', backgroundColor: 'pink'}}>
+            <Text style={{ height: '100%', backgroundColor: 'pink' }}>
               FOO BAR
             </Text>
           </View>
         </TestCase>
         <TestCase itShould="display: 'FOO''BAR' next to each other with different fonts">
           <View
-            style={{height: 32, alignSelf: 'flex-start', flexDirection: 'row'}}>
+            style={{ height: 32, alignSelf: 'flex-start', flexDirection: 'row' }}>
             <Text
               style={{
                 height: '100%',
@@ -502,7 +502,7 @@ export function TextTest() {
           </View>
         </TestCase>
         <TestCase itShould="display: 'FOO''BAR' next to each other with different letterSpacing">
-          <View style={{alignSelf: 'flex-start', flexDirection: 'row'}}>
+          <View style={{ alignSelf: 'flex-start', flexDirection: 'row' }}>
             <Text
               style={{
                 height: '100%',
@@ -522,51 +522,51 @@ export function TextTest() {
           </View>
         </TestCase>
         <TestCase itShould="text should not exceed cyan background (measuring text on cpp side)">
-          <View style={{alignSelf: 'flex-start', flexDirection: 'row'}}>
-            <Text style={{backgroundColor: 'silver'}}>FONT SIZE</Text>
+          <View style={{ alignSelf: 'flex-start', flexDirection: 'row' }}>
+            <Text style={{ backgroundColor: 'silver' }}>FONT SIZE</Text>
           </View>
-          <View style={{alignSelf: 'flex-start', flexDirection: 'row'}}>
-            <Text style={{fontSize: 20, backgroundColor: 'cyan'}}>
+          <View style={{ alignSelf: 'flex-start', flexDirection: 'row' }}>
+            <Text style={{ fontSize: 20, backgroundColor: 'cyan' }}>
               FONT SIZE
             </Text>
           </View>
-          <View style={{alignSelf: 'flex-start', flexDirection: 'row'}}>
-            <Text style={{backgroundColor: 'silver'}}>FONT WEIGHT</Text>
+          <View style={{ alignSelf: 'flex-start', flexDirection: 'row' }}>
+            <Text style={{ backgroundColor: 'silver' }}>FONT WEIGHT</Text>
           </View>
-          <View style={{alignSelf: 'flex-start', flexDirection: 'row'}}>
-            <Text style={{fontWeight: 'bold', backgroundColor: 'cyan'}}>
+          <View style={{ alignSelf: 'flex-start', flexDirection: 'row' }}>
+            <Text style={{ fontWeight: 'bold', backgroundColor: 'cyan' }}>
               FONT WEIGHT
             </Text>
           </View>
-          <View style={{alignSelf: 'flex-start', flexDirection: 'row'}}>
-            <Text style={{backgroundColor: 'silver'}}>LETTER SPACING!</Text>
+          <View style={{ alignSelf: 'flex-start', flexDirection: 'row' }}>
+            <Text style={{ backgroundColor: 'silver' }}>LETTER SPACING!</Text>
           </View>
           {/* On Android letter spacing may cause the bounding box to be full width (remove ! to see the problem) */}
-          <View style={{alignSelf: 'flex-start', flexDirection: 'row'}}>
-            <Text style={{letterSpacing: 1, backgroundColor: 'cyan'}}>
+          <View style={{ alignSelf: 'flex-start', flexDirection: 'row' }}>
+            <Text style={{ letterSpacing: 1, backgroundColor: 'cyan' }}>
               LETTER SPACING!
             </Text>
           </View>
-          <View style={{alignSelf: 'flex-start', flexDirection: 'row'}}>
-            <Text style={{backgroundColor: 'silver'}}>
+          <View style={{ alignSelf: 'flex-start', flexDirection: 'row' }}>
+            <Text style={{ backgroundColor: 'silver' }}>
               NUMBER OF LINES @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @
               @ @ @
             </Text>
           </View>
-          <View style={{alignSelf: 'flex-start', flexDirection: 'row'}}>
+          <View style={{ alignSelf: 'flex-start', flexDirection: 'row' }}>
             <Text
-              style={{width: 256, backgroundColor: 'cyan'}}
+              style={{ width: 256, backgroundColor: 'cyan' }}
               numberOfLines={1}>
               NUMBER OF LINES @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @
               @ @ @
             </Text>
           </View>
-          <View style={{alignSelf: 'flex-start', flexDirection: 'row'}}>
-            <Text style={{backgroundColor: 'silver'}}>LINE HEIGHT</Text>
+          <View style={{ alignSelf: 'flex-start', flexDirection: 'row' }}>
+            <Text style={{ backgroundColor: 'silver' }}>LINE HEIGHT</Text>
           </View>
-          <View style={{alignSelf: 'flex-start', flexDirection: 'row'}}>
+          <View style={{ alignSelf: 'flex-start', flexDirection: 'row' }}>
             <Text
-              style={{lineHeight: 32, backgroundColor: 'cyan'}}
+              style={{ lineHeight: 32, backgroundColor: 'cyan' }}
               numberOfLines={1}>
               LINE HEIGHT
             </Text>
@@ -574,37 +574,37 @@ export function TextTest() {
         </TestCase>
         <TestSuite name="views in text">
           <TestCase itShould="vertically align text and view">
-            <Text style={{color: 'red', lineHeight: 82}}>
+            <Text style={{ color: 'red', lineHeight: 82 }}>
               {'Hello World'}
-              <View style={{width: 12, height: 12, backgroundColor: 'blue'}} />
+              <View style={{ width: 12, height: 12, backgroundColor: 'blue' }} />
             </Text>
           </TestCase>
           <TestCase itShould="not crash when a view is trimmed by number of lines (#1)">
             <Text numberOfLines={1}>
               '中文测试中文测试中文测试中文测试中文测试中文测试中文测试中文测试'
-              {<View style={{width: 64, height: 64, backgroundColor: 'red'}} />}
+              {<View style={{ width: 64, height: 64, backgroundColor: 'red' }} />}
             </Text>
           </TestCase>
           <TestCase itShould="not crash when a view is trimmed by number of lines (#2)">
             <Text numberOfLines={1}>
               {'中文测试中文测试'}
-              {<View style={{width: 308, height: 5, backgroundColor: 'red'}} />}
+              {<View style={{ width: 308, height: 5, backgroundColor: 'red' }} />}
             </Text>
           </TestCase>
           <TestCase itShould="wrap first and second paragraph in the same way">
-            <View style={{width: 200, backgroundColor: 'silver'}}>
+            <View style={{ width: 200, backgroundColor: 'silver' }}>
               <Text>
                 天地玄黄 宇宙洪荒 日月盈昃 辰宿列张 寒来暑往 秋收冬藏 闰馀成岁
               </Text>
-              <Text style={{marginTop: 16}}>
-                <Text style={{fontWeight: 'bold'}}>天地玄黄</Text> 宇宙洪荒
+              <Text style={{ marginTop: 16 }}>
+                <Text style={{ fontWeight: 'bold' }}>天地玄黄</Text> 宇宙洪荒
                 日月盈昃 辰宿列张 寒来暑往 秋收冬藏 闰馀成岁
               </Text>
             </View>
           </TestCase>
           <TestCase itShould="not crash the app">
             <Text>
-              <View style={{width: 64, height: 64, backgroundColor: 'red'}} />
+              <View style={{ width: 64, height: 64, backgroundColor: 'red' }} />
             </Text>
           </TestCase>
           <TestCase itShould="render red rectangle after 'FOO'">
@@ -614,9 +614,9 @@ export function TextTest() {
                 alignSelf: 'flex-start',
                 flexDirection: 'row',
               }}>
-              <Text style={{height: '100%', backgroundColor: 'pink'}}>
+              <Text style={{ height: '100%', backgroundColor: 'pink' }}>
                 FOO
-                <View style={{width: 32, height: 16, backgroundColor: 'red'}} />
+                <View style={{ width: 32, height: 16, backgroundColor: 'red' }} />
                 BAR
               </Text>
             </View>
@@ -653,7 +653,7 @@ export function TextTest() {
                   flexDirection: 'row',
                 }}>
                 FOO
-                <View style={{flex: 1, height: 32, backgroundColor: 'red'}} />
+                <View style={{ flex: 1, height: 32, backgroundColor: 'red' }} />
                 BAR
               </Text>
             </View>
@@ -665,10 +665,10 @@ export function TextTest() {
                 alignSelf: 'flex-start',
                 flexDirection: 'row',
               }}>
-              <Text style={{height: '100%', backgroundColor: 'pink'}}>
+              <Text style={{ height: '100%', backgroundColor: 'pink' }}>
                 FOO
                 <View
-                  style={{width: '50%', height: '50%', backgroundColor: 'red'}}
+                  style={{ width: '50%', height: '50%', backgroundColor: 'red' }}
                 />
                 BAR
               </Text>
@@ -681,9 +681,9 @@ export function TextTest() {
                 alignSelf: 'flex-start',
                 flexDirection: 'row',
               }}>
-              <Text style={{height: '100%', backgroundColor: 'pink'}}>
+              <Text style={{ height: '100%', backgroundColor: 'pink' }}>
                 FOO
-                <View style={{backgroundColor: 'red'}}>
+                <View style={{ backgroundColor: 'red' }}>
                   <Text>BAZ</Text>
                 </View>
                 BAR
@@ -695,15 +695,15 @@ export function TextTest() {
           <Text>{SAMPLE_PARAGRAPH_TEXT}</Text>
         </TestCase>
         <TestCase itShould="show a long text without a space below or above (fontFamily)">
-          <Text style={{fontFamily: 'StintUltraCondensed-Regular'}}>
+          <Text style={{ fontFamily: 'StintUltraCondensed-Regular' }}>
             {SAMPLE_PARAGRAPH_TEXT}
           </Text>
         </TestCase>
         <TestCase itShould="show a long text without a space below or above (font size)">
-          <Text style={{fontSize: 8}}>{SAMPLE_PARAGRAPH_TEXT}</Text>
+          <Text style={{ fontSize: 8 }}>{SAMPLE_PARAGRAPH_TEXT}</Text>
         </TestCase>
         <TestCase itShould="show a long text without a space below or above (line height)">
-          <Text style={{lineHeight: 21}}>{SAMPLE_PARAGRAPH_TEXT}</Text>
+          <Text style={{ lineHeight: 21 }}>{SAMPLE_PARAGRAPH_TEXT}</Text>
         </TestCase>
         <TestCase itShould="show 2 lines of text">
           <Text numberOfLines={2}>{SAMPLE_PARAGRAPH_TEXT}</Text>
@@ -714,7 +714,7 @@ export function TextTest() {
               Nostrud irure ex sunt dolor [\n]{'\n'}cillum irure laboris ex ut
               adipisicing magna reprehenderit Lorem.
             </Text>
-            <Text style={{fontSize: 24}}>
+            <Text style={{ fontSize: 24 }}>
               Do ullamco excepteur quis labore Lorem mollit tempor ex minim.
             </Text>
             <Text>
@@ -726,15 +726,15 @@ export function TextTest() {
         <TestCase
           itShould="show text without a space below or above (fragments with different fonts)"
           skip
-          //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/564
-          //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/565
+        //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/564
+        //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/565
         >
           <Text>
-            <Text style={{fontFamily: 'StintUltraCondensed-Regular'}}>
+            <Text style={{ fontFamily: 'StintUltraCondensed-Regular' }}>
               Nostrud irure ex sunt dolor [\n]{'\n'}cillum irure laboris ex ut
               adipisicing magna reprehenderit Lorem.
             </Text>
-            <Text style={{fontSize: 24, fontFamily: 'Pacifico-Regular'}}>
+            <Text style={{ fontSize: 24, fontFamily: 'Pacifico-Regular' }}>
               Do ullamco excepteur quis labore Lorem mollit tempor ex minim.
             </Text>
             <Text>
@@ -746,14 +746,14 @@ export function TextTest() {
       </TestSuite>
       <TestSuite name="padding">
         <TestCase itShould="preserve a gap of atleast 24 pixels from each container edge">
-          <View style={{width: 300}}>
-            <Text style={{padding: 24, borderWidth: 1}}>
-              <Text style={{color: 'blue'}}>Fragment1</Text>
+          <View style={{ width: 300 }}>
+            <Text style={{ padding: 24, borderWidth: 1 }}>
+              <Text style={{ color: 'blue' }}>Fragment1</Text>
               {
                 'Fragment2 Fragment2 Fragment2 Fragment2 Fragment2 Fragment2 Fragment2 '
               }
             </Text>
-            <Text style={{padding: 24, borderWidth: 1}}>
+            <Text style={{ padding: 24, borderWidth: 1 }}>
               Fragment1 Fragment1 Fragment1 Fragment1 Fragment1 Fragment1
               Fragment1 Fragment1
             </Text>
@@ -765,7 +765,7 @@ export function TextTest() {
             harmony: 'RN problem, also fails on Android',
           })}
           itShould="display the attachment inline with text">
-          <Text style={{padding: 20}}>
+          <Text style={{ padding: 20 }}>
             Fragment1ii
             <PressCounter />
           </Text>
@@ -773,7 +773,7 @@ export function TextTest() {
         <TestCase
           skip // Inserting zero-width space in RNSimpleText that fixes this issue breaks wrapping. This problem needs to be fixed on ArkUI's side.
           itShould="insert ellipsis at same location">
-          <View style={{width: 300}}>
+          <View style={{ width: 300 }}>
             <Text
               style={{
                 paddingRight: 10,
@@ -807,8 +807,8 @@ export function TextTest() {
             style={{
               flexDirection: 'row',
             }}>
-            <Text style={{lineHeight: 20, backgroundColor: 'green'}}>
-              <Text style={{lineHeight: 25, backgroundColor: 'yellow'}}>
+            <Text style={{ lineHeight: 20, backgroundColor: 'green' }}>
+              <Text style={{ lineHeight: 25, backgroundColor: 'yellow' }}>
                 INNER
               </Text>
               OUTER
@@ -826,40 +826,40 @@ export function TextTest() {
             style={{
               flexDirection: 'row',
             }}>
-            <Text style={{backgroundColor: 'red'}}>
-              <Text style={{backgroundColor: 'green'}}>INNER</Text>
+            <Text style={{ backgroundColor: 'red' }}>
+              <Text style={{ backgroundColor: 'green' }}>INNER</Text>
               OUTER
             </Text>
           </View>
         </TestCase>
         <TestCase itShould="show text with different vertical alignments (verticalAlign)">
-          <View style={{...styles.smallContainerRow}}>
-            <Text style={{verticalAlign: 'auto'}}>
+          <View style={{ ...styles.smallContainerRow }}>
+            <Text style={{ verticalAlign: 'auto' }}>
               -<Text style={styles.blueShortText}>Auto</Text>-
             </Text>
-            <Text style={{verticalAlign: 'top'}}>
+            <Text style={{ verticalAlign: 'top' }}>
               -<Text style={styles.blueShortText}>Top</Text>-
             </Text>
-            <Text style={{verticalAlign: 'middle'}}>
+            <Text style={{ verticalAlign: 'middle' }}>
               -<Text style={styles.blueShortText}>Middle</Text>-
             </Text>
-            <Text style={{verticalAlign: 'bottom'}}>
+            <Text style={{ verticalAlign: 'bottom' }}>
               -<Text style={styles.blueShortText}>Bottom</Text>-
             </Text>
           </View>
         </TestCase>
         <TestCase itShould="show text with different fontStyles">
-          <View style={{...styles.smallContainerRow}}>
-            <Text style={{fontStyle: 'normal'}}>
+          <View style={{ ...styles.smallContainerRow }}>
+            <Text style={{ fontStyle: 'normal' }}>
               <Text style={styles.blueShortText}>Normal</Text>
             </Text>
-            <Text style={{fontStyle: 'italic'}}>
+            <Text style={{ fontStyle: 'italic' }}>
               <Text style={styles.blueShortText}>Top</Text>
             </Text>
           </View>
         </TestCase>
         <TestCase itShould="show text with different text decorations">
-          <View style={{...styles.smallContainerRow}}>
+          <View style={{ ...styles.smallContainerRow }}>
             <Text
               style={{
                 textDecorationLine: 'line-through',
@@ -879,13 +879,13 @@ export function TextTest() {
         <TestCase
           itShould="show text with shadow"
           skip
-          //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/278
+        //https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/278
         >
           <View style={styles.smallContainer}>
             <Text
               style={{
                 textShadowColor: 'rgba(0,0,255,0.8)',
-                textShadowOffset: {width: 1, height: 1},
+                textShadowOffset: { width: 1, height: 1 },
                 textShadowRadius: 20,
               }}>
               <Text style={styles.smallText}>Text with shadow</Text>
@@ -894,7 +894,7 @@ export function TextTest() {
         </TestCase>
         <TestCase
           itShould="show text with correct textTransform "
-          //  123 1one is added to the end of text to see if the code correctly handles number
+        //  123 1one is added to the end of text to see if the code correctly handles number
         >
           <View style={styles.bigContainer}>
             <Text style={styles.smallText}>Text transform none 123 1one</Text>
@@ -925,47 +925,47 @@ export function TextTest() {
           </View>
         </TestCase>
         <TestCase itShould="show text with different vertical alignments (textAlignVertical)">
-          <View style={{...styles.smallContainerRow}}>
-            <Text style={{textAlignVertical: 'auto'}}>
+          <View style={{ ...styles.smallContainerRow }}>
+            <Text style={{ textAlignVertical: 'auto' }}>
               -<Text style={styles.blueShortText}>Auto</Text>-
             </Text>
-            <Text style={{textAlignVertical: 'top'}}>
+            <Text style={{ textAlignVertical: 'top' }}>
               -<Text style={styles.blueShortText}>Top</Text>-
             </Text>
-            <Text style={{textAlignVertical: 'center'}}>
+            <Text style={{ textAlignVertical: 'center' }}>
               -<Text style={styles.blueShortText}>Center</Text>-
             </Text>
-            <Text style={{textAlignVertical: 'bottom'}}>
+            <Text style={{ textAlignVertical: 'bottom' }}>
               -<Text style={styles.blueShortText}>Bottom</Text>-
             </Text>
           </View>
         </TestCase>
         <TestCase itShould="align text vertically">
-          <View style={{width: 300, borderRightWidth: 1}}>
+          <View style={{ width: 300, borderRightWidth: 1 }}>
             <Text>
-              <Text style={{lineHeight: 64, backgroundColor: 'red'}}>
+              <Text style={{ lineHeight: 64, backgroundColor: 'red' }}>
                 lineHeight: 64
               </Text>
-              <Text style={{lineHeight: 16, backgroundColor: 'blue'}}>
+              <Text style={{ lineHeight: 16, backgroundColor: 'blue' }}>
                 lineHeight: 16; lineHeight: 16; lineHeight: 16; lineHeight: 16;
               </Text>
               <View
-                style={{backgroundColor: 'purple', width: 16, height: 16}}
+                style={{ backgroundColor: 'purple', width: 16, height: 16 }}
               />
             </Text>
-            <Text style={{marginTop: 16}}>
-              <Text style={{lineHeight: 16, backgroundColor: 'blue'}}>
+            <Text style={{ marginTop: 16 }}>
+              <Text style={{ lineHeight: 16, backgroundColor: 'blue' }}>
                 lineHeight: 16
               </Text>
-              <Text style={{lineHeight: 64, backgroundColor: 'red'}}>
+              <Text style={{ lineHeight: 64, backgroundColor: 'red' }}>
                 lineHeight: 64; lineHeight: 64; lineHeight: 64; lineHeight: 64
               </Text>
               <View
-                style={{backgroundColor: 'purple', width: 16, height: 16}}
+                style={{ backgroundColor: 'purple', width: 16, height: 16 }}
               />
             </Text>
 
-            <Text style={{marginTop: 16}}>
+            <Text style={{ marginTop: 16 }}>
               <Text
                 style={{
                   lineHeight: 64,
@@ -987,50 +987,50 @@ export function TextTest() {
           </View>
         </TestCase>
         <TestCase itShould="show text with different horizontal alignments">
-          <Text style={{textAlign: 'left'}}>
+          <Text style={{ textAlign: 'left' }}>
             <Text>Left: </Text>
-            <Text style={{fontSize: 8}}>{SAMPLE_PARAGRAPH_TEXT}</Text>
+            <Text style={{ fontSize: 8 }}>{SAMPLE_PARAGRAPH_TEXT}</Text>
           </Text>
-          <Text style={{textAlign: 'center'}}>
+          <Text style={{ textAlign: 'center' }}>
             <Text>Center: </Text>
-            <Text style={{fontSize: 8}}>{SAMPLE_PARAGRAPH_TEXT}</Text>
+            <Text style={{ fontSize: 8 }}>{SAMPLE_PARAGRAPH_TEXT}</Text>
           </Text>
-          <Text style={{textAlign: 'right'}}>
+          <Text style={{ textAlign: 'right' }}>
             <Text>Right: </Text>
-            <Text style={{fontSize: 8}}>{SAMPLE_PARAGRAPH_TEXT}</Text>
+            <Text style={{ fontSize: 8 }}>{SAMPLE_PARAGRAPH_TEXT}</Text>
           </Text>
-          <Text style={{textAlign: 'justify'}}>
+          <Text style={{ textAlign: 'justify' }}>
             <Text>Justify: </Text>
-            <Text style={{fontSize: 8}}>{SAMPLE_PARAGRAPH_TEXT}</Text>
+            <Text style={{ fontSize: 8 }}>{SAMPLE_PARAGRAPH_TEXT}</Text>
           </Text>
         </TestCase>
         <TestCase itShould="display 1 line of text">
-          <View style={{width: 200, backgroundColor: 'silver'}}>
-            <Text style={{textAlign: 'left'}} numberOfLines={1}>
-              <Text style={{fontSize: 12, backgroundColor: 'cyan'}}>{'>'}</Text>
-              <Text style={{fontSize: 8}}>{SAMPLE_PARAGRAPH_TEXT}</Text>
+          <View style={{ width: 200, backgroundColor: 'silver' }}>
+            <Text style={{ textAlign: 'left' }} numberOfLines={1}>
+              <Text style={{ fontSize: 12, backgroundColor: 'cyan' }}>{'>'}</Text>
+              <Text style={{ fontSize: 8 }}>{SAMPLE_PARAGRAPH_TEXT}</Text>
             </Text>
           </View>
         </TestCase>
         <TestCase itShould="display 2 lines of text">
-          <Text style={{textAlign: 'left'}} numberOfLines={2}>
-            <Text style={{fontSize: 12, backgroundColor: 'cyan'}}>
+          <Text style={{ textAlign: 'left' }} numberOfLines={2}>
+            <Text style={{ fontSize: 12, backgroundColor: 'cyan' }}>
               {'@@@@@'}
             </Text>
-            <Text style={{fontSize: 8}}>{SAMPLE_PARAGRAPH_TEXT}</Text>
+            <Text style={{ fontSize: 8 }}>{SAMPLE_PARAGRAPH_TEXT}</Text>
           </Text>
         </TestCase>
         <TestCase itShould="display 2 lines of text (placeholder test)">
-          <Text style={{textAlign: 'left'}} numberOfLines={2}>
-            <View style={{width: 0, height: 8, backgroundColor: 'red'}} />
-            <Text style={{fontSize: 8}}>{SAMPLE_PARAGRAPH_TEXT}</Text>
+          <Text style={{ textAlign: 'left' }} numberOfLines={2}>
+            <View style={{ width: 0, height: 8, backgroundColor: 'red' }} />
+            <Text style={{ fontSize: 8 }}>{SAMPLE_PARAGRAPH_TEXT}</Text>
           </Text>
         </TestCase>
         <TestCase itShould="wrap long words">
-          <View style={{backgroundColor: 'silver', width: 200}}>
-            <Text style={{textAlign: 'left'}}>
-              <View style={{width: 8, height: 8, backgroundColor: 'red'}} />
-              <Text style={{fontSize: 8}}>
+          <View style={{ backgroundColor: 'silver', width: 200 }}>
+            <Text style={{ textAlign: 'left' }}>
+              <View style={{ width: 8, height: 8, backgroundColor: 'red' }} />
+              <Text style={{ fontSize: 8 }}>
                 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
               </Text>
             </Text>
@@ -1045,12 +1045,12 @@ export function TextTest() {
               textAlign: 'justify',
               backgroundColor: 'green',
             }}>
-            <Text style={{fontSize: 16}}>Justify te st</Text>
-            <Text style={{fontSize: 8, backgroundColor: 'purple'}}>
+            <Text style={{ fontSize: 16 }}>Justify te st</Text>
+            <Text style={{ fontSize: 8, backgroundColor: 'purple' }}>
               Quis exercitation do eu in laboris nulla sit elit officia.
               Incididunt ipsum aliquip IncididuntIncididunt commodo proident
             </Text>
-            <Text style={{fontSize: 38, backgroundColor: 'blue'}}>
+            <Text style={{ fontSize: 38, backgroundColor: 'blue' }}>
               Quis exercitation do eu in laboris nulla sit elit officia.
               Incididunt ipsum aliquip IncididuntIncididunrumbumlublum commodo
               proident
@@ -1162,16 +1162,16 @@ export function TextTest() {
           skip // https://gl.swmansion.com/rnoh/react-native-harmony/-/issues/586
           itShould="render Text with different text decoration styles">
           <View>
-            <Text style={[styles.styledBox, {textDecorationStyle: 'dashed'}]}>
+            <Text style={[styles.styledBox, { textDecorationStyle: 'dashed' }]}>
               Text decoration style dashed
             </Text>
-            <Text style={[styles.styledBox, {textDecorationStyle: 'dotted'}]}>
+            <Text style={[styles.styledBox, { textDecorationStyle: 'dotted' }]}>
               Text decoration style dotted
             </Text>
-            <Text style={[styles.styledBox, {textDecorationStyle: 'double'}]}>
+            <Text style={[styles.styledBox, { textDecorationStyle: 'double' }]}>
               Text decoration style double
             </Text>
-            <Text style={[styles.styledBox, {textDecorationStyle: 'solid'}]}>
+            <Text style={[styles.styledBox, { textDecorationStyle: 'solid' }]}>
               Text decoration style solid
             </Text>
           </View>
@@ -1182,10 +1182,10 @@ export function TextTest() {
         <TestCase modal itShould="render text with allowFontScaling">
           <Text allowFontScaling>Scaled</Text>
           <Text allowFontScaling={false}>Not scaled</Text>
-          <Text style={{fontSize: 40}} allowFontScaling>
+          <Text style={{ fontSize: 40 }} allowFontScaling>
             Scaled big
           </Text>
-          <Text style={{fontSize: 40}} allowFontScaling={false}>
+          <Text style={{ fontSize: 40 }} allowFontScaling={false}>
             Not scaled big
           </Text>
         </TestCase>
@@ -1273,8 +1273,8 @@ const TextPressRetentionOffsetTest = () => {
   const [pressCount, setPressCount] = useState(0);
 
   return (
-    <View style={{height: 500, justifyContent: 'center'}}>
-      <Text style={{textAlign: 'center'}}> Press count: {pressCount} </Text>
+    <View style={{ height: 500, justifyContent: 'center' }}>
+      <Text style={{ textAlign: 'center' }}> Press count: {pressCount} </Text>
       <View
         style={{
           backgroundColor: 'lightblue',
@@ -1308,17 +1308,17 @@ const TextPressNestedTest = () => {
   const [pressCount, setPressCount] = useState(0);
 
   return (
-    <View style={{height: 500, justifyContent: 'center'}}>
-      <Text style={{textAlign: 'center'}}> Press count: {pressCount} </Text>
+    <View style={{ height: 500, justifyContent: 'center' }}>
+      <Text style={{ textAlign: 'center' }}> Press count: {pressCount} </Text>
       <View
         style={{
           backgroundColor: 'lightblue',
           height: 250,
           justifyContent: 'center',
         }}>
-        <Text style={{backgroundColor: 'green', height: 250}}>
+        <Text style={{ backgroundColor: 'green', height: 250 }}>
           <Text
-            style={{backgroundColor: 'purple', height: 150, fontSize: 34}}
+            style={{ backgroundColor: 'purple', height: 150, fontSize: 34 }}
             onPress={() => setPressCount(pressCount + 1)}>
             press me (on android press below also triggers event)
           </Text>
@@ -1330,16 +1330,16 @@ const TextPressNestedTest = () => {
 
 const TextAdjustsFontSizeToFitTest = () => {
   const testCases = [
-    {adjustsFontSizeToFit: true, minimumFontScale: 0.1},
-    {adjustsFontSizeToFit: true, minimumFontScale: 0.5},
-    {adjustsFontSizeToFit: true, minimumFontScale: 0.9},
-    {adjustsFontSizeToFit: false, minimumFontScale: 0.2},
+    { adjustsFontSizeToFit: true, minimumFontScale: 0.1 },
+    { adjustsFontSizeToFit: true, minimumFontScale: 0.5 },
+    { adjustsFontSizeToFit: true, minimumFontScale: 0.9 },
+    { adjustsFontSizeToFit: false, minimumFontScale: 0.2 },
   ];
   return (
-    <View style={{height: 400, marginTop: 50}}>
+    <View style={{ height: 400, marginTop: 50 }}>
       {testCases.map((testCase, index) => (
-        <View key={index} style={{backgroundColor: 'purple'}}>
-          <Text {...testCase} style={{fontSize: 50}} numberOfLines={1}>
+        <View key={index} style={{ backgroundColor: 'purple' }}>
+          <Text {...testCase} style={{ fontSize: 50 }} numberOfLines={1}>
             4x Very long text Very long text Very long text Very long text
           </Text>
         </View>
