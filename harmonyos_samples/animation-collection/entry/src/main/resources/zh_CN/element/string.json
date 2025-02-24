@@ -13,6 +13,10 @@
       "value": "AnimationCollection"
     },
     {
+      "name": "animation_collection",
+      "value": "动效合集"
+    },
+    {
       "name": "common_bar_chart_height",
       "value": "30%"
     },
@@ -46,7 +50,7 @@
     },
     {
       "name": "search_placeholder",
-      "value": "Please enter your search..."
+      "value": "搜索"
     },
     {
       "name": "memo_counts",
@@ -54,7 +58,7 @@
     },
     {
       "name": "memo_title",
-      "value": "All notes"
+      "value": "笔记"
     },
     {
       "name": "shared_desc",
@@ -647,6 +651,14 @@
     {
       "name": "voice_record_dynamic_effect_app_name",
       "value": "允许应用在云因录制和声音动效场景使用麦克风。"
+    },
+    {
+      "name": "memo_info_title_1",
+      "value": "学习HarmonyOS"
+    },
+    {
+      "name": "memo_info_content_1",
+      "value": "学习HarmonyOS"
     }
   ]
 }

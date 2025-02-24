@@ -13,6 +13,10 @@
       "value": "AnimationCollection"
     },
     {
+      "name": "animation_collection",
+      "value": "Animation Collection"
+    },
+    {
       "name": "common_bar_chart_height",
       "value": "30%"
     },
@@ -118,7 +122,7 @@
     },
     {
       "name": "sound_hound",
-      "value": "identify song"
+      "value": "Identify song"
     },
     {
       "name": "is_listening",
@@ -126,7 +130,7 @@
     },
     {
       "name": "click_to_listen",
-      "value": "click to start identifying songs"
+      "value": "Click to start identifying songs"
     },
     {
       "name": "width_ninety_percent",
@@ -587,6 +591,14 @@
     {
       "name": "voice_record_dynamic_effect_app_name",
       "value": "Allow the use of microphones in cloud recording and sound animation scenarios."
+    },
+    {
+      "name": "memo_info_title_1",
+      "value": "Learning HarmonyOS"
+    },
+    {
+      "name": "memo_info_content_1",
+      "value": "Learning HarmonyOS"
     }
   ]
 }

@@ -23,20 +23,19 @@ export struct WaterRipples {
   build() {
     Column() {
       Text($r('app.string.sound_hound'))
-        .fontColor(Color.White)
         .fontSize($r('app.float.water_ripples_font_size'))
         .margin({ top: $r('app.integer.margin_large') })
 
       ButtonWithWaterRipples({ isListening: this.isListening })
 
       Text(this.isListening ? $r('app.string.is_listening') : $r('app.string.click_to_listen'))
-        .fontColor(Color.White)
         .margin({ bottom: $r('app.integer.margin_large') })
     }
-    .backgroundColor(Color.Black)
+    .backgroundColor('#F1F3F5')
     .justifyContent(FlexAlign.SpaceBetween)
     .width(CommonConstants.ONE_HUNDRED_PERCENT)
     .height(CommonConstants.ONE_HUNDRED_PERCENT)
+    .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
   }
 }
 
@@ -45,12 +44,13 @@ interface Scale {
   y: number;
 }
 
+// [Start construct_component]
 @Component
 struct ButtonWithWaterRipples {
   @Link isListening: boolean;
-  @State immediatelyOpacity: number = 0.8;
+  @State immediatelyOpacity: number = 0.5;
   @State immediatelyScale: Scale = { x: 1, y: 1 };
-  @State delayOpacity: number = 0.8;
+  @State delayOpacity: number = 0.5;
   @State delayScale: Scale = { x: 1, y: 1 };
   private readonly BUTTON_SIZE: number = 120;
   private readonly BUTTON_CLICK_SCALE: number = 0.8;
@@ -61,7 +61,7 @@ struct ButtonWithWaterRipples {
     .width(this.BUTTON_SIZE * this.BUTTON_CLICK_SCALE)
     .height(this.BUTTON_SIZE * this.BUTTON_CLICK_SCALE)
     .borderRadius(this.BUTTON_SIZE * this.BUTTON_CLICK_SCALE / 2)
-    .backgroundColor(Color.White)
+    .backgroundColor(Color.Red)
   }
 
   build() {
@@ -74,6 +74,7 @@ struct ButtonWithWaterRipples {
         .ripplesStyle()
         .opacity(this.delayOpacity)
         .scale(this.delayScale)
+      // [Start set_animation_and_delay]
       Button() {
         Image($r('app.media.ic_public_music_filled'))
           .width($r('app.float.water_ripples_width'))
@@ -85,6 +86,7 @@ struct ButtonWithWaterRipples {
       .width(this.BUTTON_SIZE)
       .height(this.BUTTON_SIZE)
       .zIndex(1)
+      // [StartExclude construct_component]
       .onClick(() => {
         this.isListening = !this.isListening;
         if (this.isListening) {
@@ -127,16 +129,20 @@ struct ButtonWithWaterRipples {
           })
         }
       })
+      // [StartExclude construct_component]
+      // [End set_animation_and_delay]
     }
   }
 }
+// [End construct_component]
 
 @Builder
 export function getPageWaterRipples(name: string): void {
   if (name === 'PageWaterRipples') {
     NavDestination() {
-      WaterRipples();
-    };
+      WaterRipples()
+    }
+    .backgroundColor('#F1F3F5')
   }
 }
 

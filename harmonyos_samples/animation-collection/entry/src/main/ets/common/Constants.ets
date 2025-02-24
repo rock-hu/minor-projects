@@ -16,10 +16,6 @@
 import { NavDestinationItem } from '../viewmodel/NavDestinationItem';
 
 export default class Constants {
-  /**
-   * NavDestinationTitle.
-   */
-  static readonly NavDestinationTitle: string = '动效合集';
 
   /**
    * FontWeight.borderRadius

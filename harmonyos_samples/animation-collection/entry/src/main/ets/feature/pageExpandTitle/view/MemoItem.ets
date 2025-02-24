@@ -24,11 +24,11 @@ export default struct MemoItem {
   build() {
     Row() {
       Column({ space: Constants.MEMO_COL_SPACE }) {
-        Text(this.memoItem.title)
+        Text($r(this.memoItem.title))
           .fontSize($r('app.float.font_size_normal'))
           .memoTextExpand()
           .fontColor($r('app.color.font_color_light_dark'))
-        Text(this.memoItem.content)
+        Text($r(this.memoItem.content))
           .fontSize($r('app.float.font_size_smaller'))
           .memoTextExpand()
           .margin({ top: $r('app.float.layout_10'), bottom: $r('app.float.layout_10') })

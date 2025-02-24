@@ -44,6 +44,7 @@ export struct PageExpandTitle {
 
   build() {
     Stack({ alignContent: Alignment.Bottom }) {
+      // [Start set_animation]
       Column() {
         Row() {
           Text(!this.isExpanded ? $r('app.string.memo_title') : '')
@@ -83,7 +84,9 @@ export struct PageExpandTitle {
       }
       .height(Constants.LAYOUT_MAX_PERCENT)
       .width(Constants.LAYOUT_MAX_PERCENT)
+      // [End set_animation]
 
+      // [Start set_touch_event]
       Column() {
         List({ space: Constants.SEARCH_MEMO_SPACE }) {
           ListItem() {
@@ -103,6 +106,7 @@ export struct PageExpandTitle {
         .scrollBar(BarState.Off)
         .margin({ left: $r('app.float.layout_10'), right: $r('app.float.layout_10') })
         .width(Constants.LAYOUT_NINETY_PERCENT)
+        .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
         .onReachStart(() => {
           this.atStart = true;
         })
@@ -111,8 +115,9 @@ export struct PageExpandTitle {
       .height(this.heightValue)
       .animation({ duration: this.duration, curve: Curve.FastOutLinearIn })
       .onTouch((event: TouchEvent) => this.handleTouchEvent(event))
+      // [End set_touch_event]
     }
-    .backgroundColor($r('app.color.background_color'))
+    .backgroundColor('#F1F3F5')
   }
 
   getMenuTranslateOptions(): TranslateOptions {
@@ -145,6 +150,7 @@ export struct PageExpandTitle {
     return this.isMoving && this.isExpanded && this.offsetY >= Constants.CONTENT_DOWN_Y_THRESHOLD;
   }
 
+  // [Start handle_touch_event]
   handleTouchEvent(event: TouchEvent): void {
     switch (event.type) {
       case TouchType.Down:
@@ -179,6 +185,7 @@ export struct PageExpandTitle {
         break;
     }
   }
+  // [End handle_touch_event]
 
   animateToThrottle(fn: Callback<void>, delay: number) {
     if (this.throttleStatus) {
@@ -199,6 +206,7 @@ export function getPageExpandTitle(name: string): void {
     NavDestination() {
       PageExpandTitle()
     }
+    .backgroundColor('#F1F3F5')
   }
 }
 

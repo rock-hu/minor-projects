@@ -19,15 +19,18 @@ import { MemoInfo } from './MemoInfo';
  * Analog Data.
  */
 export const MEMO_DATA: MemoInfo[] = [
-  new MemoInfo('1646121972443', 'One step', 'Just now', 'app.media.ic_comm_pic1',
-    'For analyzing the data gathered in the previous experiment.'),
-  new MemoInfo('1646121972444', 'Love is love', '5 min ago', '', 'Start whenever you want.'),
-  new MemoInfo('1646121972445', 'To solve a problem', 'Yesterday', 'app.media.ic_comm_pic2',
-    'To solve a problem. First, you need to gain empty mind.'),
-  new MemoInfo('1646121972446', 'Lunches', '02.18.2024', 'app.media.ic_comm_pic3',
-    'Sweet and sour ribs potato shreds'),
-  new MemoInfo('1646121972447', 'Computer Lessons', '02.22.2024', '', 'Learning HarmonyOS'),
-  new MemoInfo('1646121972448', 'Morning Exercise', '02.20.2024', 'app.media.ic_comm_pic4', 'Long run 3 km'),
-  new MemoInfo('1646121972449', 'Breakfast', '02.17.2024', 'app.media.ic_comm_pic5', 'Milk and bread'),
-  new MemoInfo('1646121972450', 'Go to work', '02.15.2024', 'app.media.ic_comm_pic6', 'Take the 11th bus')
+  new MemoInfo('1646121972443', 'app.string.memo_info_title_1', '02.18.2024', 'app.media.ic_comm_pic1',
+    'app.string.memo_info_content_1'),
+  new MemoInfo('1646121972443', 'app.string.memo_info_title_1', '02.19.2024', 'app.media.ic_comm_pic2',
+    'app.string.memo_info_content_1'),
+  new MemoInfo('1646121972443', 'app.string.memo_info_title_1', '03.18.2024', 'app.media.ic_comm_pic3',
+    'app.string.memo_info_content_1'),
+  new MemoInfo('1646121972443', 'app.string.memo_info_title_1', '03.20.2024', 'app.media.ic_comm_pic4',
+    'app.string.memo_info_content_1'),
+  new MemoInfo('1646121972443', 'app.string.memo_info_title_1', '05.18.2024', 'app.media.ic_comm_pic5',
+    'app.string.memo_info_content_1'),
+  new MemoInfo('1646121972443', 'app.string.memo_info_title_1', '06.18.2024', 'app.media.ic_comm_pic6',
+    'app.string.memo_info_content_1'),
+  new MemoInfo('1646121972443', 'app.string.memo_info_title_1', '08.18.2024', 'app.media.ic_comm_pic7',
+    'app.string.memo_info_content_1')
 ];

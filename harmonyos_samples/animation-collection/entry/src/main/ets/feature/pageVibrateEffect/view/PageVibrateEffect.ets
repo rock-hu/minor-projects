@@ -120,8 +120,8 @@ export struct PageVibrateEffect {
                     .fontSize($r('app.integer.read_check_font_size'))
                     .textAlign(TextAlign.Center)
                     .backgroundColor($r('app.color.ohos_id_color_foreground'))
-                    .width($r('app.integer.text_width'))
-                    .height($r('app.integer.mark_height'))
+                    .width(120)
+                    .height(30)
                     .position({
                       x: CONFIGURATION.MARK_POSITION_X,
                       y: CONFIGURATION.MARK_POSITION_Y
@@ -142,6 +142,7 @@ export struct PageVibrateEffect {
             .width(Constants.LAYOUT_MAX_PERCENT)
           }
 
+          // [Start invoke_animation]
           Button($r('app.string.login_in'))
             .type(ButtonType.Normal)
             .borderRadius($r('app.integer.comm_border_radius'))
@@ -158,6 +159,7 @@ export struct PageVibrateEffect {
                 });
               }
             })
+          // [End invoke_animation]
 
           Text($r('app.string.other_login_methods'))
             .fontColor($r('app.color.ohos_id_color_palette8'))
@@ -197,6 +199,7 @@ export struct PageVibrateEffect {
     }
   }
 
+  // [Start keyframe_animate_to]
   startAnimation() {
     if (!this.uiContext) {
       return;
@@ -217,6 +220,7 @@ export struct PageVibrateEffect {
       }
     ]);
   }
+  // [End keyframe_animate_to]
 }
 
 @Builder

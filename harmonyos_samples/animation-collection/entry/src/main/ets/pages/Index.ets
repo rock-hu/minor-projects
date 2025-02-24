@@ -37,42 +37,58 @@ struct Index {
   }
 
   build() {
-    Column() {
-      Navigation(this.pageInfos) {
-
-        SearchComponent()
-        SwiperComponent()
-
-        List({ space: Constants.LIST_SPACE }) {
-          ForEach(this.NavDestinationData, (item: NavDestinationItem) => {
-            ListItem() {
-              Text(item.detail)
-                .width($r('app.string.full_size'))
-                .height(Constants.DETAIL_HEIGHT)
-                .backgroundColor($r('app.color.start_window_background'))
-                .borderRadius(Constants.BORDER_RADIUS)
-                .fontSize($r('app.string.search_history_font_size2'))
-                .fontColor(Color.Black)
-                .fontWeight(Constants.FONT_WEIGHT)
-                .textAlign(TextAlign.Center)
-                .onClick(() => {
-                  this.pageInfos.pushPathByName(item.name, '');
-                })
-            }
-          }, (item: NavDestinationItem) => JSON.stringify(item))
+    Navigation(this.pageInfos) {
+      Column() {
+        Column() {
+          Text($r('app.string.animation_collection'))
+            .width('100%')
+            .fontColor('#E6000000')
+            .fontSize(30)
+            .fontWeight(700)
+            .lineHeight(40)
+            .textAlign(TextAlign.Start)
+            .padding({
+              left: 16,
+              right: 16,
+            })
+          Blank()
+          SearchComponent()
+          SwiperComponent()
         }
-        .scrollBar(BarState.Off)
+        .height('40%')
+
+        Column() {
+          List({ space: Constants.LIST_SPACE }) {
+            ForEach(this.NavDestinationData, (item: NavDestinationItem) => {
+              ListItem() {
+                Text(item.detail)
+                  .width($r('app.string.full_size'))
+                  .height(Constants.DETAIL_HEIGHT)
+                  .backgroundColor($r('app.color.start_window_background'))
+                  .borderRadius(Constants.BORDER_RADIUS)
+                  .fontSize($r('app.string.search_history_font_size2'))
+                  .fontColor(Color.Black)
+                  .fontWeight(Constants.FONT_WEIGHT)
+                  .textAlign(TextAlign.Center)
+                  .onClick(() => {
+                    this.pageInfos.pushPathByName(item.name, '');
+                  })
+              }
+            }, (item: NavDestinationItem) => JSON.stringify(item))
+          }
+          .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
+          .scrollBar(BarState.Off)
+        }
         .width($r('app.string.common_navigation_width'))
         .height($r('app.string.common_navigation_height'))
-        .margin({ top: $r('app.string.main_page_padding') })
+        .padding({ top: 24 })
       }
-      .mode(NavigationMode.Stack)
-      .titleMode(NavigationTitleMode.Mini)
-      .title(Constants.NavDestinationTitle)
-      .navDestination(this.PagesMap)
+      .height($r('app.string.full_size'))
+      .width($r('app.string.full_size'))
     }
-    .height($r('app.string.full_size'))
-    .width($r('app.string.full_size'))
+    .hideTitleBar(true)
+    .mode(NavigationMode.Stack)
+    .navDestination(this.PagesMap)
     .backgroundColor($r('app.color.start_background'))
   }
 }
