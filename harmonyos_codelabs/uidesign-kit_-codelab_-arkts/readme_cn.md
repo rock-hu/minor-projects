@@ -25,7 +25,7 @@ UI Design Kit是华为提供的符合华为HarmonyOS Design System定义的UI界
 
 <img src="screenshots/device/layeredIconProcessedScreen.png" width="296" height="640" /><img src="screenshots/device/iconProcessedScreen.png" width="296" height="640" />
 
-### Project directory
+### 工程目录
 ```
 ├─entry/src/main/ets                         // 代码区
 │  ├─entryability
@@ -136,6 +136,8 @@ UI Design Kit是华为提供的符合华为HarmonyOS Design System定义的UI界
 ```
 
 ### 约束与限制
-1. HarmonyOS系统：HarmonyOS NEXT Developer Beta2及以上。
-2. DevEco Studio版本：DevEco Studio NEXT Developer Beta2及以上。
-3. HarmonyOS SDK版本：HarmonyOS NEXT Developer Beta2 SDK及以上。
+1. 本示例仅支持标准系统上运行，支持设备：华为手机、2in1、平板。
+2. 本示例不支持大字体模式、横屏模式、深色模式，多语言仅支持中英文。
+3. HarmonyOS系统：HarmonyOS NEXT Developer Beta2及以上。
+4. DevEco Studio版本：DevEco Studio NEXT Developer Beta2及以上。
+5. HarmonyOS SDK版本：HarmonyOS NEXT Developer Beta2 SDK及以上。

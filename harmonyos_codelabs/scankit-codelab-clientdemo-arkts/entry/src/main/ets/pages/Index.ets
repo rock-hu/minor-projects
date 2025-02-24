@@ -50,10 +50,10 @@ struct Index {
 
 @Component
 export struct CustomButton {
-  public mText: string | Resource = ''
-  private mHeight: number = 40
+  public mText: string | Resource = '';
+  private mHeight: number = 40;
   public mOnClick: () => void = () => {
-  }
+  };
 
   build() {
     Column() {

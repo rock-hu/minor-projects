@@ -27,8 +27,8 @@ const SCAN_TYPE: Record<number, string> = {
 @Entry
 @Component
 struct ScanBarcodePage {
-  @State inputValue: string = ''
-  @State scanType: number = -1
+  @State inputValue: string = '';
+  @State scanType: number = -1;
 
   build() {
     Column() {
@@ -55,7 +55,7 @@ struct ScanBarcodePage {
               this.inputValue = result.originalValue;
               hilog.debug(0x0001, TAG, `Succeeded in getting ScanResult by promise with options.`);
             }).catch((error: BusinessError) => {
-              if (error.code == scanCore.ScanErrorCode.SCAN_SERVICE_CANCELED) {
+              if (error.code === scanCore.ScanErrorCode.SCAN_SERVICE_CANCELED) {
                 hilog.info(0x0001, TAG, `Disabling the Scanning Service.`);
               } else {
                 hilog.error(0x0001, TAG,
@@ -75,15 +75,15 @@ struct ScanBarcodePage {
     .alignItems(HorizontalAlign.Center)
   }
 
-  getScanTypeKey(type: number): string {
-    return SCAN_TYPE[type] || ''
+  public getScanTypeKey(type: number): string {
+    return SCAN_TYPE[type] || '';
   }
 }
 
 @Component
 export struct CustomTextBox {
-  @Prop inputValue: string = ''
-  @Prop scanType: string = ''
+  @Prop inputValue: string = '';
+  @Prop scanType: string = '';
 
   build() {
     Column() {

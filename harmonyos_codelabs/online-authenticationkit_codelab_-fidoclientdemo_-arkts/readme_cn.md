@@ -11,7 +11,7 @@
 | 应用入口 | 应用主页| 接口使用按钮 |
 | --------------- | --------------- | -------------- |
 | 点击图标打开应用 | 应用主页显示在设备屏幕   | 点击接口测试按钮调用接口  |
-| <img src="./image/startIcon.png" style="zoom:50%;" /> | <img src="./image/homepage.png" style="zoom:25%;" /> | <img src="./image/results.png" style="zoom:25%;" /> |
+| <img src="./image/startIcon.png" style="zoom:50%;" /> | <img src="./image/homepage_cn.png" style="zoom:25%;" /> | <img src="./image/results.png" style="zoom:25%;" /> |
 
 ## 工程目录
 ```
@@ -43,9 +43,9 @@
 
 ## 具体实现（接口参考@hms.security.fido）
 以FIDO开启功能为例，业务使用时，需要先进行import导入如下fido API:
-* function discover(context: common.Context): Promise<DiscoveryData>;
-* function processUAFOperation(context: common.Context, uafRequest: UAFMessage, channelBindings: ChannelBinding):Promise<UAFMessage>;
-* function notifyUAFResult(context: common.Context, uafResponse: UAFMessage): Promise<void>;
+* function discover(context: common.Context): Promise&lt;DiscoveryData&gt;;
+* function processUAFOperation(context: common.Context, uafRequest: UAFMessage, channelBindings?: ChannelBinding):Promise&lt;UAFMessage&gt;;
+* function notifyUAFResult(context: common.Context, uafResponse: UAFMessage): Promise&lt;void&gt;;
 
 业务使用时，首先需要调用discover()接口初始化认证器；processUAFOperation()提供统一接口，通过构造开启uafRequest数据选择开启功能；调用notifyUAFResult()接口进行注册结果通知。
 具体用例请参考Index.ets。
@@ -53,7 +53,7 @@
 
 ## 相关权限
 
-1. 获取振动权限：ohos.permission.INTERNET。
+1. 获取振动权限：ohos.permission.VIBRATE。
 2. 获取生物识别权限：ohos.permission.ACCESS_BIOMETRIC。
 
 ## 依赖
@@ -64,5 +64,7 @@
 
 1. 本示例仅支持标准系统上运行，支持设备：华为手机、平板、2in1；
 2. 本示例需要使用DevEco Studio NEXT Developer Beta1才可编译运行；
-3. 若使用人脸认证功能，设备须支持3D人脸；
-4. FIDO客户端接口仅提供端侧能力，无法独立进行开启/认证服务；ConnectService.ets提供连云服务模板，如需连云请通过修改服务器url地址接入云端服务器。
+3. HarmonyOS系统：HarmonyOS NEXT Beta1及以上。
+4. HarmonyOS SDK版本：HarmonyOS NEXT Beta1 SDK及以上。
+5. 若使用人脸认证功能，设备须支持3D人脸；
+6. FIDO客户端接口仅提供端侧能力，无法独立进行开启/认证服务；ConnectService.ets提供连云服务模板，如需连云请通过修改服务器url地址接入云端服务器。

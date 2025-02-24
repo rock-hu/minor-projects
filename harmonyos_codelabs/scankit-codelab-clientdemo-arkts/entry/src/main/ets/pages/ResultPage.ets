@@ -4,7 +4,7 @@ import { scanBarcode, scanCore } from '@kit.ScanKit';
 import { display, router } from '@kit.ArkUI';
 import { MockSetup } from '@ohos/hamock';
 
-const TAG: string = 'ScanKit scanResult';
+const TAG: string = 'ScanKit ResultPage';
 const SCAN_TYPE: Record<number, string> = {
   0: 'FORMAT_UNKNOWN',
   1: 'AZTEC_CODE',
@@ -25,29 +25,36 @@ const SCAN_TYPE: Record<number, string> = {
   101: 'TWO_D_CODE'
 };
 
+class ParamsType {
+  public result: scanBarcode.ScanResult[] = []
+  public uri: string = ''
+  public infoW: number = 0
+  public infoH: number = 0
+}
+
 @Entry
 @Component
 struct ScanResultPage {
-  @State params: object = router.getParams()
-  @State cameraHeight: number = 1412
-  @State cameraWidth: number = 720
-  @State layTop: number = 226
-  @State layLeft: number = 0
-  @State screen: number = 1
-  @State rx: number = 0
-  @State ry: number = 0
-  @State rw: number = 0
-  @State rh: number = 0
-  public scroller: Scroller = new Scroller()
-  private statusHeight: number = 39
+  @State params: ParamsType = router.getParams() as ParamsType;
+  @State cameraHeight: number = 1412;
+  @State cameraWidth: number = 720;
+  @State layTop: number = 226;
+  @State layLeft: number = 0;
+  @State screen: number = 1;
+  @State rx: number = 0;
+  @State ry: number = 0;
+  @State rw: number = 0;
+  @State rh: number = 0;
+  public scroller: Scroller = new Scroller();
+  private statusHeight: number = 39;
   private result: Array<scanBarcode.ScanResult> = [];
-  private uri: string = ''
-  private infoW: number = 0
-  private infoH: number = 0
+  private uri: string = '';
+  private infoW: number = 0;
+  private infoH: number = 0;
 
   @MockSetup
   mock() {
-    this.params = [];
+    this.params = new ParamsType();
     let mockScanResult: scanBarcode.ScanResult = {
       scanType: scanCore.ScanType.QR_CODE,
       originalValue: 'mock',
@@ -57,8 +64,8 @@ struct ScanResultPage {
         top: 200,
         bottom: 300
       }
-    }
-    this.params['result'] = [mockScanResult];
+    };
+    this.params.result = [mockScanResult];
     this.result = [mockScanResult];
   }
 
@@ -66,14 +73,13 @@ struct ScanResultPage {
     let isFold: boolean = display.isFoldable();
     this.setDisplay();
     hilog.info(0x0001, TAG, 'aboutToAppear ResultPage');
-    let getParams = this.params as Record<string, number | string | Array<scanBarcode.ScanResult>>;
+    let getParams = this.params as ParamsType;
     // Return the barcode recognition result.
     this.result = getParams.result as Array<scanBarcode.ScanResult>;
     this.uri = getParams.uri as string;
     this.infoW = getParams.infoW as number;
     this.infoH = getParams.infoH as number;
-    hilog.info(0x0001, TAG, `Succeeded in getting params.`);
-    hilog.info(0x0001, TAG, `Succeeded in getting result.`);
+    hilog.info(0x0001, TAG, `Succeeded in getting Params.`);
     hilog.info(0x0001, TAG,
       `Succeeded in getting uri: ${this.uri}, this.infoW: ${this.infoW}, this.infoH: ${this.infoH}`);
     this.calculate();
@@ -90,7 +96,7 @@ struct ScanResultPage {
     }
   }
 
-  setDisplay(): void {
+  public setDisplay(): void {
     hilog.info(0x0001, TAG, 'setDisplay start');
     let displayClass: display.Display | null = null;
     try {
@@ -109,7 +115,7 @@ struct ScanResultPage {
     }
   }
 
-  calculate() {
+  public calculate() {
     // Calculate the proportion conversion of the width and height of the current image and the width and height of the screen.
     if (this.infoW && this.infoH && this.cameraHeight && this.cameraWidth) {
       if (this.infoW / this.infoH > this.cameraWidth / this.cameraHeight) {
@@ -223,7 +229,7 @@ struct ScanResultPage {
     })
   }
 
-  getScanTypeKey(type: number): string {
-    return SCAN_TYPE[type] || ''
+  public getScanTypeKey(type: number): string {
+    return SCAN_TYPE[type] || '';
   }
 }

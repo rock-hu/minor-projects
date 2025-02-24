@@ -23,6 +23,23 @@ Scan Kit is a basic capability provided by the HarmonyOS SDK. It provides functi
   </tr>
 </table>
 
+## Project Directory
+├──entry/src/main/ets  
+│  ├──entryability  
+│  │  ├──EntryAbility.ts       // Ability for local startup  
+│  └──pages  
+│  │  ├──BarcodePage.ets       // Default barcode scanning UI  
+│  │  ├──CreateBarcode.ets     // Barcode image generation UI  
+│  │  ├──CustomPage.ets        // Custom barcode scanning UI  
+│  │  ├──CustomResultPage.ets  // Result page for barcode scanning using the custom UI  
+│  │  ├──DetectBarcode.ets     // Page for recognizing barcodes in an image  
+│  │  ├──Index.ets             // Entry for selecting functions  
+│  │  └──ResultPage.ets        // Result page for image-based barcode recognition  
+│  │  └──ScanAccess.ets        // Scan-to-access page  
+│  └──utils  
+│  │  ├──Common.ets            // Method for obtaining the XComponent layout of the preview stream  
+│  │  ├──PermissionsUtil.ets   // Request camera permission from the user  
+└──entry/src/main/resources    // Directory of resource files
 
 ## Required Permissions
 

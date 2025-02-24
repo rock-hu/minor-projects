@@ -39,10 +39,10 @@ export class Util {
             // 可选，默认为60000ms
             connectTimeout: 60000,
             // 可选，默认为60000ms
-            readTimeout: 60000,
+            readTimeout: 60000
           },
           (err, data) => {
-            hilog.info(0x0000, 'TAG', `test... ${JSON.stringify(err)}`);
+            console.error(`Failed to connectFidoServer. Code: ${err.code}, message: ${err.message}`);
             if (!err) {
               hilog.info(0x0000, 'TAG', `test... ${JSON.stringify(data)}`);
               let result = data.result.toString();
@@ -80,10 +80,10 @@ export class Util {
             extraData: str,
             priority: 1, // 可选，默认为1
             connectTimeout: 60000, // 可选，默认为60000ms
-            readTimeout: 60000, // 可选，默认为60000ms
+            readTimeout: 60000 // 可选，默认为60000ms
           },
           (err, data) => {
-            hilog.info(0x0000, 'TAG', `test... ${JSON.stringify(err)}`);
+            console.error(`Failed to connectFidoServer1. Code: ${err.code}, message: ${err.message}`);
             if (!err) {
               hilog.info(0x0000, 'TAG', `test... ${JSON.stringify(data)}`);
               let result = data.result.toString();

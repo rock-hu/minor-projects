@@ -41,7 +41,7 @@ struct Index {
             let authParam : userAuth.AuthParam = {
               challenge: ifaaChallenge,
               authType: [userAuth.UserAuthType.FINGERPRINT],
-              authTrustLevel: userAuth.AuthTrustLevel.ATL4,
+              authTrustLevel: userAuth.AuthTrustLevel.ATL4
             };
             let userAuthInstance = userAuth.getUserAuthInstance(authParam,  {title: '请认证'});
             userAuthInstance.on('result', {

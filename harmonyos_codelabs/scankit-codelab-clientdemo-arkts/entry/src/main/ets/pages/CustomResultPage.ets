@@ -40,20 +40,27 @@ const SCAN_TYPE: Record<number, string> = {
   101: 'TWO_D_CODE'
 };
 
+class ParamsType {
+  public result: scanBarcode.ScanResult[] = []
+  public uri: string = ''
+  public infoW: number = 0
+  public infoH: number = 0
+}
+
 @Entry
 @Component
 struct CustomResultPage {
-  @State params: object = router.getParams()
-  private result: Array<scanBarcode.ScanResult> = []
-  public scroller: Scroller = new Scroller()
+  @State params: ParamsType = router.getParams() as ParamsType;
+  private result: Array<scanBarcode.ScanResult> = [];
+  public scroller: Scroller = new Scroller();
 
   aboutToAppear() {
-    this.result = this.params['result'] as Array<scanBarcode.ScanResult>;
+    this.result = this.params.result as Array<scanBarcode.ScanResult>;
   }
 
   @MockSetup
   mock() {
-    this.params = [];
+    this.params = new ParamsType();
     let mockScanResult: scanBarcode.ScanResult = {
       scanType: scanCore.ScanType.QR_CODE,
       originalValue: 'mock',
@@ -63,9 +70,9 @@ struct CustomResultPage {
         top: 10,
         bottom: 100
       }
-    }
-    this.params['result'] = [mockScanResult];
-    this.result = this.params['result'] as Array<scanBarcode.ScanResult>;
+    };
+    this.params.result = [mockScanResult];
+    this.result = this.params.result as Array<scanBarcode.ScanResult>;
   }
 
   @Builder
@@ -148,7 +155,7 @@ struct CustomResultPage {
     })
   }
 
-  getScanTypeKey(type: number): string {
-    return SCAN_TYPE[type] || ''
+  public getScanTypeKey(type: number): string {
+    return SCAN_TYPE[type] || '';
   }
 }

@@ -12,7 +12,7 @@ You can import IFAA APIs through **@kit.OnlineAuthenticationKit** to enable, per
 | App entry| App home page| API call buttons|
 | --------------- | --------------- | -------------- |
 | App icon for opening the app| App home page displayed on the device screen  | Tapping a button to call the corresponding API |
-| <img src=".\image\startIcon.png" style="zoom:50%;" /> | <img src=".\image\homepage.jpeg" style="zoom:25%;" /> | <img src=".\image\results.jpeg" style="zoom:25%;" /> |
+| <img src=".\image\startIcon.png" style="zoom:50%;" /> | <img src=".\image\homepage_en.jpeg" style="zoom:25%;" /> | <img src=".\image\results_en.jpeg" style="zoom:25%;" /> |
 
 ## Project Directory
 
@@ -21,9 +21,11 @@ You can import IFAA APIs through **@kit.OnlineAuthenticationKit** to enable, per
 │    ├── entryability
 │    │    └── EntryAbility.ets       // Entry point class.
 │    ├── model
-│    │    └── IfaaModel.ts           // Enabling, performing, and disabling IFAA password-free identity verification
+│    │    └── IfaaModel.ets          // Enabling, performing, and disabling IFAA password-free identity verification
 │    └── pages
 │         └── Index.ets              // Home page
+│    └── util
+│         └── Util.ets               // Utility class
 ```
 
 
@@ -40,8 +42,8 @@ You can import IFAA APIs through **@kit.OnlineAuthenticationKit** to enable, per
 The following uses performing IFAA password-free identity verification as an example. You need to import the following IFAA APIs first:
 
 import { ifaa } from '@kit.OnlineAuthenticationKit'
-* function preAuth():Promise<Uint8Array>;
-* function auth(authToken: Uint8Array, authData: Uint8Array):Promise<Uint8Array>;
+* function preAuthSync(): Uint8Array;
+* function auth(authToken: Uint8Array, authData: Uint8Array):Promise&lt;Uint8Array&gt;;
 
 Record the fingerprint/3D face information onto the device first. Then, call the **preAuth()** API to obtain a temporary challenge for the current IFAA authentication. The challenge value must be the same as the one used for biometric authentication. The IFAA service verifies the validity period of the challenge. If the challenge is not used for a long time after being obtained, the authentication will fail.
 After obtaining the fingerprint/face information by calling Authentication Kit, call the **auth()** API for identity verification. If the operation is successful, a signed packet is returned. If the operation fails, an exception is thrown.
@@ -50,7 +52,7 @@ For details about the code, see **Index.ets**.
 
 ## Required Permissions
 
-N/A
+1. **ohos.permission.ACCESS_BIOMETRIC**: permission for biometric recognition.
 
 ## Dependencies
 
@@ -58,6 +60,8 @@ UserAuthenticationKit
 
 ## Constraints
 
-1. The sample app is only supported on devices with standard systems.
+1. The sample app is only supported on devices with standard systems.Supported devices: Huawei phones, tablets, and 2in1.
 2. The DevEco Studio version used in this sample must be DevEco Studio NEXT Developer Beta1.
-3. The sample code requires packets signed by the IIFAA central server for correct results.
+3. The HarmonyOS version must be  HarmonyOS NEXT Beta1 or later.
+4. The HarmonyOS SDK version must be HarmonyOS NEXT Beta1 SDK or later.
+5. The sample code requires packets signed by the IIFAA central server for correct results.

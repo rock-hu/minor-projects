@@ -32,11 +32,11 @@ export class IfaaModel {
       this.queryReqFace = parseData.queryReqFace;
       this.queryReqFp = parseData.queryReqFp;
     } catch (err) {
-      hilog.error(0x0000, 'TAG', `connectServiceExtensionAbility failed, code is ${err.code}, message is ${err.message}`);
+      console.error(`Failed to connectServiceExtensionAbility. Code: ${err.code}, message: ${err.message}`);
     }
     this.sampleData = {
       "face": [this.tlvRegisterReqFace, this.tlvAuthReqFace, this.tlvDeregisterReqFace, this.queryReqFace],
-      "fp": [this.tlvRegisterReqFp, this.tlvAuthReqFp, this.tlvDeregisterReqFp, this.queryReqFp],
+      "fp": [this.tlvRegisterReqFp, this.tlvAuthReqFp, this.tlvDeregisterReqFp, this.queryReqFp]
     };
   }
 

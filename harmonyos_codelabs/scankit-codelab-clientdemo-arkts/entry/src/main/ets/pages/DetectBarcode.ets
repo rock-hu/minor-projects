@@ -7,7 +7,7 @@ import { router, promptAction } from '@kit.ArkUI';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { scanCore, detectBarcode, scanBarcode } from '@kit.ScanKit';
 
-const TAG = 'ScanKit detectBarcode';
+const TAG: string = 'ScanKit DetectBarcode';
 
 @Entry
 @Component
@@ -27,7 +27,7 @@ struct DetectBarcodePage {
           let options: scanBarcode.ScanOptions = {
             scanTypes: [scanCore.ScanType.ALL],
             enableMultiMode: false // Set this parameter to false to recognize only one barcode, and to true to enable scanning of multiple barcodes.
-          }
+          };
           try {
             // Open the picker to select an image from the gallery.
             let photoOption = new photoAccessHelper.PhotoSelectOptions();
@@ -78,10 +78,9 @@ struct DetectBarcodePage {
                         result: result,
                         uri: photoResult.photoUris[0],
                         infoW: infoW,
-                        infoH: infoH,
-                        options: options
+                        infoH: infoH
                       }
-                    })
+                    });
                   } else {
                     promptAction.showToast({
                       message: $r('app.string.Scan_diaLog_not_found'),
@@ -101,11 +100,11 @@ struct DetectBarcodePage {
               } catch (error) {
                 hilog.error(0x0001, TAG, `Failed to decode. Code: ${error.code}, message: ${error.message}`);
               }
-            })
+            });
           } catch (error) {
             hilog.error(0x0001, TAG, `Failed to select photo. Code: ${error.code}, message: ${error.message}`);
           }
-        });
+        })
     }
     .width('100%')
     .height('100%')

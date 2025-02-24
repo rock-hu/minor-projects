@@ -135,7 +135,9 @@ The APIs that you need to use for icon processing are packaged into **@kit.UIDes
 ```
 
 ### Constraints
-1. The HarmonyOS version must be HarmonyOS NEXT Developer Beta2 or later.
-2. The DevEco Studio version must be DevEco Studio NEXT Developer Beta2 or later.
-3. The HarmonyOS SDK version must be HarmonyOS NEXT Developer Beta2 SDK or later.
+1. The sample app is only supported on Huawei phones, 2in1 devices, and tablets with standard systems.
+2. The sample app does not support large font mode, landscape mode, or any other languages other than Chinese and English.
+3. The HarmonyOS version must be HarmonyOS NEXT Developer Beta2 or later.
+4. The DevEco Studio version must be DevEco Studio NEXT Developer Beta2 or later.
+5. The HarmonyOS SDK version must be HarmonyOS NEXT Developer Beta2 SDK or later.
 

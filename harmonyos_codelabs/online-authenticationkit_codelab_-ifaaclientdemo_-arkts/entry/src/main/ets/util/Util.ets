@@ -25,7 +25,7 @@ export class Util {
             readTimeout: 60000
           },
           (err, data) => {
-            hilog.info(0x0000, 'TAG', `test... ${JSON.stringify(err)}`);
+            console.error(`Failed to connectIfaaServer. Code: ${err.code}, message: ${err.message}`);
             if (!err) {
               hilog.info(0x0000, 'TAG', `test... ${JSON.stringify(data)}`);
               let result = data.result.toString();

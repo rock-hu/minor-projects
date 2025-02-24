@@ -12,7 +12,7 @@
 | 应用入口 | 应用主页| 接口使用按钮 |
 | --------------- | --------------- | -------------- |
 | 点击图标打开应用 | 应用主页显示在设备屏幕   | 点击接口测试按钮调用接口  |
-| <img src=".\image\startIcon.png" style="zoom:50%;" /> | <img src=".\image\homepage.jpeg" style="zoom:25%;" /> | <img src=".\image\results.jpeg" style="zoom:25%;" /> |
+| <img src=".\image\startIcon.png" style="zoom:50%;" /> | <img src=".\image\homepage_cn.jpeg" style="zoom:25%;" /> | <img src=".\image\results_cn.jpeg" style="zoom:25%;" /> |
 
 ## 工程目录
 
@@ -21,9 +21,11 @@
 │    ├── entryability
 │    │    └── EntryAbility.ets       // 程序入口类
 │    ├── model
-│    │    └── IfaaModel.ts           // 开通、认证、关闭功能实现
+│    │    └── IfaaModel.ets          // 开通、认证、关闭功能实现
 │    └── pages
 │         └── Index.ets              // 主页面入口
+│    └── util
+│         └── Util.ets               // 工具类
 ```
 
 
@@ -40,8 +42,8 @@
 以IFAA认证功能为例，业务使用时，需要先进行import导入如下IFAA API:
 
 import { ifaa } from '@kit.OnlineAuthenticationKit'
-* function preAuth():Promise<Uint8Array>;
-* function auth(authToken: Uint8Array, authData: Uint8Array):Promise<Uint8Array>;
+* function preAuthSync(): Uint8Array;
+* function auth(authToken: Uint8Array, authData: Uint8Array):Promise&lt;Uint8Array&gt;
 
 业务使用时，首先需要在设备中存入指纹或3D人脸；首先通过调用preAuth()接口获取本次验证临时challenge参数，该数值需与生物认证所用challenge保持一致，IFAA服务会进行时效校验，获取参数后长时间未使用会导致验证失败；
 通过调用User Authentication Kit成功获取指纹/人脸信息后，使用auth()接口进行身份认证，认证成功返回签名报文，失败会抛出异常。
@@ -60,4 +62,6 @@ UserAuthenticationKit
 
 1. 本示例仅支持标准系统上运行，支持设备：华为手机、平板、2in1；
 2. 本示例需要使用DevEco Studio NEXT Developer Beta1才可编译运行；
-3. 样例代码需要使用IIFAA中心服务器签名的报文才能取得正确的结果。
+3. HarmonyOS系统：HarmonyOS NEXT Beta1及以上。
+4. HarmonyOS SDK版本：HarmonyOS NEXT Beta1 SDK及以上。
+5. 样例代码需要使用IIFAA中心服务器签名的报文才能取得正确的结果。

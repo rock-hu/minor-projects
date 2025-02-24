@@ -20,10 +20,12 @@ export class PermissionsUtil {
       hilog.error(0x0001, TAG, `Failed to get bundle info for self. Code: ${error.code}, message: ${error.message}`);
     }
     // Check whether the app has been granted the required permission.
-    try {
-      grantStatus = await atManager.checkAccessToken(tokenId, permission);
-    } catch (error) {
-      hilog.error(0x0001, TAG, `Failed to check access token. Code: ${error.code}, message: ${error.message}`);
+    if (tokenId) {
+      try {
+        grantStatus = await atManager.checkAccessToken(tokenId, permission);
+      } catch (error) {
+        hilog.error(0x0001, TAG, `Failed to check access token. Code: ${error.code}, message: ${error.message}`);
+      }
     }
     return grantStatus;
   }

@@ -8,6 +8,24 @@ Scan Kit（统一扫码服务）是HarmonyOS SDK的基础能力，提供了“�
 |:-----------------------------------:|:---------------------------------------:|:--------------------------------------:|:-------------------------------------:|:-------------------------------------:|:-------------------------------------:|
 | ![](entry/src/screenshots/home.jpg) | ![](entry/src/screenshots/generate.jpg) | ![](entry/src/screenshots/default.jpg) | ![](entry/src/screenshots/custom.jpg) | ![](entry/src/screenshots/detect.jpg) | ![](entry/src/screenshots/access.jpg) |
 
+## 工程目录
+├──entry/src/main/ets  
+│  ├──entryability  
+│  │  ├──EntryAbility.ts       // 本地启动ability  
+│  └──pages  
+│  │  ├──BarcodePage.ets       // 默认界面扫码  
+│  │  ├──CreateBarcode.ets     // 码图生成的界面  
+│  │  ├──CustomPage.ets        // 自定义界面扫码  
+│  │  ├──CustomResultPage.ets  // 自定义界面扫码的结果界面  
+│  │  ├──DetectBarcode.ets     // 图片识码的界面  
+│  │  ├──Index.ets             // 选择功能入口  
+│  │  └──ResultPage.ets        // 图片识码的结果界面  
+│  │  └──ScanAccess.ets        // 扫码直达服务界面  
+│  └──utils  
+│  │  ├──Common.ets            // 获取预览流XComponent布局方法  
+│  │  ├──PermissionsUtil.ets   // 请求用户授权相机权限  
+└──entry/src/main/resources    // 资源文件目录
+
 ## 相关权限
 
 自定义扫码功能获取相机权限: ohos.permission.CAMERA。

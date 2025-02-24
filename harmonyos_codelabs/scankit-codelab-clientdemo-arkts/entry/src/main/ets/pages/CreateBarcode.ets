@@ -6,10 +6,10 @@ import { BusinessError } from '@kit.BasicServicesKit';
 import { scanCore, generateBarcode } from '@kit.ScanKit';
 import { buffer } from '@kit.ArkTS';
 
-const TAG: string = 'ScanKit createBarcode';
+const TAG: string = 'ScanKit CreateBarcode';
 
 @Extend(Text)
-function demoText() {
+function textTitle() {
   .width(60)
   .height(35)
   .fontSize(14)
@@ -18,7 +18,7 @@ function demoText() {
 }
 
 @Extend(TextInput)
-function demoTextInput() {
+function textInput() {
   .caretColor(Color.Blue)
   .fontSize(14)
   .fontWeight(FontWeight.Bold)
@@ -27,7 +27,7 @@ function demoTextInput() {
 }
 
 @Extend(TextArea)
-function demoTextArea() {
+function textTitleArea() {
   .caretColor(Color.Black)
   .fontSize(14)
   .fontColor(Color.Black)
@@ -46,8 +46,7 @@ function demoSelect() {
 }
 
 @Extend(Row)
-function demoRow() {
-  .margin({ bottom: 15 })
+function rowLine() {
   .justifyContent(FlexAlign.Center)
 }
 
@@ -57,7 +56,6 @@ function genButton() {
   .fontColor($r('sys.color.ohos_id_color_text_primary_activated'))
   .align(Alignment.Center)
   .type(ButtonType.Capsule)
-  .margin({ bottom: 12 })
   .width('90%')
   .height(40)
 }
@@ -65,211 +63,225 @@ function genButton() {
 @Entry
 @Component
 struct CreateBarcodePage {
-  @State pixelMap: image.PixelMap | undefined = undefined
-  @State mContext: string = '123' // Default content of the QR code.
-  @State mScanType: number = scanCore.ScanType.QR_CODE // Default barcode type, which is QR code.
-  @State mWidth: string = '800' // Default barcode width, in px.
-  @State mHeight: string = '800' // Default barcode height, in px.
-  @State mMargin: number = 1 // Default barcode margin, in px.
-  @State mLevel: generateBarcode.ErrorCorrectionLevel =
-    generateBarcode.ErrorCorrectionLevel.LEVEL_H // Default error correction level of the barcode image.
-  @State mBackgroundColor: number = 0xffffff // Default background color of the barcode image.
-  @State mPixelMapColor: number = 0x000000 // Default color of the barcode image.
+  @State pixelMap: image.PixelMap | undefined = undefined;
+  @State codeContext: string = '123'; // Default content of the QR code.
+  @State codeScanType: number = scanCore.ScanType.QR_CODE; // Default barcode type, which is QR code.
+  @State codeWidth: string = '800'; // Default barcode width, in px.
+  @State codeHeight: string = '800'; // Default barcode height, in px.
+  @State codeMargin: number = 1; // Default barcode margin, in px.
+  @State codeLevel: generateBarcode.ErrorCorrectionLevel =
+    generateBarcode.ErrorCorrectionLevel.LEVEL_H; // Default error correction level of the barcode image.
+  @State codeBackgroundColor: number = 0xffffff; // Default background color of the barcode image.
+  @State codePixelMapColor: number = 0x000000; // Default color of the barcode image.
+  @State pixelMapWidth: number = 300;
 
   build() {
-
-    Flex({
-      direction: FlexDirection.Row,
-      wrap: FlexWrap.Wrap,
-      alignItems: ItemAlign.Center,
-      justifyContent: FlexAlign.Center
-    }) {
+    Column() {
       Column() {
-      }.height(30)
 
-      Row() {
-        // Set the QR code content.
-        Text($r('app.string.barcode_content')).demoText()
-        TextArea({ placeholder: this.mContext })
-          .demoTextArea()
-          .onChange((value: string) => {
-            this.mContext = value;
-          })
-      }.width('100%').demoRow()
-
-      // Set the QR code width.
-      Row() {
-        Text($r('app.string.barcode_width')).demoText()
-        TextInput({ placeholder: '800' }).demoTextInput()
-          .type(InputType.Number)
-          .onChange((value: string) => {
-            this.mWidth = value;
-          })
-      }.width('50%').demoRow()
-
-      // Set the QR code height.
-      Row() {
-        Text($r('app.string.barcode_height')).demoText()
-        TextInput({ placeholder: '800' }).demoTextInput()
-          .type(InputType.Number)
-          .onChange((value: string) => {
-            this.mHeight = value;
-          })
-      }.width('50%').demoRow()
-
-      // Set the QR code type.
-      Row() {
-        Text($r('app.string.barcode_type')).demoText()
-        Column() {
-          Select(ScanConstant.codeTypeItems)
-            .value('QR_CODE')
-            .selected(10)
-            .demoSelect()
-            .onSelect((index: number, value?: string) => {
-              hilog.info(0x0001, TAG, `Succeeded in selecting scanType, index is ${index}`);
-              this.mScanType = getTypeNum(value);
+        Row() {
+          // Set the QR code content.
+          Text($r('app.string.barcode_content')).textTitle()
+          TextArea({ placeholder: this.codeContext })
+            .textTitleArea()
+            .onChange((value: string) => {
+              this.codeContext = value;
             })
+        }.width('100%').rowLine()
+
+        Row() {
+          // Set the QR code width.
+          Row() {
+            Text($r('app.string.barcode_width')).textTitle()
+            TextInput({ placeholder: this.codeWidth }).textInput()
+              .type(InputType.Number)
+              .onChange((value: string) => {
+                this.codeWidth = value;
+              })
+          }.width('50%').rowLine()
+
+          // Set the QR code height.
+          Row() {
+            Text($r('app.string.barcode_height')).textTitle()
+            TextInput({ placeholder: this.codeHeight }).textInput()
+              .type(InputType.Number)
+              .onChange((value: string) => {
+                this.codeHeight = value;
+              })
+          }.width('50%').rowLine()
         }
-      }.width('50%').demoRow()
 
-      // Set the QR code margin.
-      Row() {
-        Text($r('app.string.barcode_margin')).demoText()
-        TextInput({ placeholder: '1' }).demoTextInput()
-          .type(InputType.Number)
-          .onChange((value: string) => {
-            this.mMargin = Number.parseInt(value);
-          })
-      }.width('50%').demoRow()
+        Row() {
+          // Set the QR code type.
+          Row() {
+            Text($r('app.string.barcode_type')).textTitle()
+            Column() {
+              Select(ScanConstant.codeTypeItems)
+                .value('QR_CODE')
+                .selected(10)
+                .demoSelect()
+                .onSelect((index: number, value?: string) => {
+                  hilog.info(0x0001, TAG, `Succeeded in selecting scanType, index is ${index}`);
+                  this.codeScanType = getTypeNum(value);
+                })
+            }
+          }.width('50%').rowLine()
 
-      // Set the QR code color.
-      Row() {
-        Text($r('app.string.barcode_color')).demoText()
-        Column() {
-          Select(ScanConstant.colorItems)
-            .selected(0)
-            .value('Black')
-            .width(100)
-            .demoSelect()
-            .onSelect((index: number, value?: string) => {
-              hilog.info(0x0001, TAG, `Succeeded in selecting pixelMapColor, index is ${index}`);
-              this.mPixelMapColor = getColorType(value);
-            })
+          // Set the QR code margin.
+          Row() {
+            Text($r('app.string.barcode_margin')).textTitle()
+            TextInput({ placeholder: '1' }).textInput()
+              .type(InputType.Number)
+              .onChange((value: string) => {
+                this.codeMargin = Number.parseInt(value);
+              })
+          }.width('50%').rowLine()
         }
-      }.width('50%').demoRow()
 
-      // Set the QR code background color.
-      Row() {
-        Text($r('app.string.barcode_backgroundcolor')).demoText()
-        Column() {
-          Select(ScanConstant.colorItems)
-            .selected(7)
-            .value('White')
-            .width(80)
-            .demoSelect()
-            .onSelect((index: number, value?: string) => {
-              hilog.info(0x0001, TAG, `Succeeded in selecting backgroundColor, index is ${index}`);
-              this.mBackgroundColor = getColorType(value);
-            })
-            .align(Alignment.Center)
+        Row() {
+          // Set the QR code color.
+          Row() {
+            Text($r('app.string.barcode_color')).textTitle()
+            Column() {
+              Select(ScanConstant.colorItems)
+                .selected(0)
+                .value('Black')
+                .width(100)
+                .demoSelect()
+                .onSelect((index: number, value?: string) => {
+                  hilog.info(0x0001, TAG, `Succeeded in selecting pixelMapColor, index is ${index}`);
+                  this.codePixelMapColor = getColorType(value);
+                })
+            }
+          }.width('50%').rowLine()
+
+          // Set the QR code background color.
+          Row() {
+            Text($r('app.string.barcode_backgroundcolor')).textTitle()
+            Column() {
+              Select(ScanConstant.colorItems)
+                .selected(7)
+                .value('White')
+                .width(80)
+                .demoSelect()
+                .onSelect((index: number, value?: string) => {
+                  hilog.info(0x0001, TAG, `Succeeded in selecting backgroundColor, index is ${index}`);
+                  this.codeBackgroundColor = getColorType(value);
+                })
+                .align(Alignment.Center)
+            }
+          }.width('50%').rowLine()
         }
-      }.width('50%').demoRow()
 
-      // Set the QR code error correction level.
-      Row() {
-        Text($r('app.string.barcode_error_level')).demoText()
-        Column() {
-          Select(ScanConstant.errorLevelItems)
-            .selected(3)
-            .value('LEVEL_H')
-            .width('60%')
-            .demoSelect()
-            .onSelect((index: number, value?: string) => {
-              hilog.info(0x0001, TAG, `Succeeded in selecting errorLevel, index is ${index}`);
-              this.mLevel = getLevelType(value);
-            })
+        Row() {
+          // Set the QR code error correction level.
+          Row() {
+            Text($r('app.string.barcode_error_level')).textTitle()
+            Column() {
+              Select(ScanConstant.errorLevelItems)
+                .selected(3)
+                .value('LEVEL_H')
+                .demoSelect()
+                .onSelect((index: number, value?: string) => {
+                  hilog.info(0x0001, TAG, `Succeeded in selecting errorLevel, index is ${index}`);
+                  this.codeLevel = getLevelType(value);
+                })
+            }
+          }.width('50%').rowLine()
+
+          Row() {
+          }.width('50%').rowLine()
         }
-      }.width('55%').demoRow()
 
-      Row() {
-      }.width('45%').demoRow()
-
-      // Generate a barcode image from text using a promise.
-      Button($r('app.string.generate_barcode')).genButton()
-        .onClick(() => {
-          this.pixelMap = undefined;
-          let content = this.mContext;
-          let options: generateBarcode.CreateOptions = {
-            scanType: this.mScanType,
-            width: Number(this.mWidth),
-            height: Number(this.mHeight),
-            margin: Number(this.mMargin),
-            level: this.mLevel,
-            backgroundColor: this.mBackgroundColor,
-            pixelMapColor: this.mPixelMapColor,
-          }
-          try {
-            generateBarcode.createBarcode(content, options).then((result: image.PixelMap) => {
-              this.pixelMap = result;
-            }).catch((error: BusinessError) => {
+        // Generate a barcode image from text using a promise.
+        Button($r('app.string.generate_barcode')).genButton()
+          .onClick(() => {
+            this.pixelMap = undefined;
+            let content = this.codeContext;
+            let options: generateBarcode.CreateOptions = {
+              scanType: this.codeScanType,
+              width: Number(this.codeWidth),
+              height: Number(this.codeHeight),
+              margin: Number(this.codeMargin),
+              level: this.codeLevel,
+              backgroundColor: this.codeBackgroundColor,
+              pixelMapColor: this.codePixelMapColor,
+            };
+            try {
+              generateBarcode.createBarcode(content, options).then((result: image.PixelMap) => {
+                this.pixelMap = result;
+              }).catch((error: BusinessError) => {
+                showError(error);
+                hilog.error(0x0001, TAG,
+                  `Failed to get pixelMap by promise with options. Code: ${error.code}, message: ${error.message}`);
+              });
+            } catch (error) {
               showError(error);
-              hilog.error(0x0001, TAG,
-                `Failed to get pixelMap by promise with options. Code: ${error.code}, message: ${error.message}`);
-            })
-          } catch (error) {
-            showError(error);
-            hilog.error(0x0001, TAG, `Failed to createBarCode. Code: ${error.code}, message: ${error.message}`);
-          }
-        })
+              hilog.error(0x0001, TAG, `Failed to createBarCode. Code: ${error.code}, message: ${error.message}`);
+            }
+          })
 
-      // Generate a barcode image from a byte array using a promise.
-      Button($r('app.string.generate_trip_barcode')).genButton()
-        .onClick(() => {
-          this.pixelMap = undefined;
-          let content = this.mContext;
-          let pattern = /^[0-9a-fA-F]+$/;
-          if (content && !pattern.test(content)) {
-            promptAction.showToast({
-              message: $r('app.string.trip_barcode_tip'),
-              duration: 2000
-            });
-            return;
-          }
-          if (content.length % 2 !== 0) {
-            content = '0' + content;
-          }
-          let contentBuffer: ArrayBuffer = buffer.from(content, 'hex').buffer;
-          let options: generateBarcode.CreateOptions = {
-            scanType: this.mScanType,
-            height: Number(this.mHeight),
-            width: Number(this.mWidth),
-            margin: Number(this.mMargin),
-            level: this.mLevel,
-            backgroundColor: this.mBackgroundColor,
-            pixelMapColor: this.mPixelMapColor,
-          }
-
-          try {
-            generateBarcode.createBarcode(contentBuffer, options).then((result: image.PixelMap) => {
-              this.pixelMap = result;
-              hilog.info(0x0001, TAG, 'Succeeded in creating barCode.');
-            }).catch((error: BusinessError) => {
+        // Generate a barcode image from a byte array using a promise.
+        Button($r('app.string.generate_trip_barcode')).genButton()
+          .onClick(() => {
+            this.pixelMap = undefined;
+            let content = this.codeContext;
+            let pattern = /^[0-9a-fA-F]+$/;
+            if (content.length && !pattern.test(content)) {
+              promptAction.showToast({
+                message: $r('app.string.trip_barcode_tip'),
+                duration: 2000
+              });
+              return;
+            }
+            if (content.length % 2 !== 0) {
+              content = '0' + content;
+            }
+            let contentBuffer: ArrayBuffer = buffer.from(content, 'hex').buffer;
+            let options: generateBarcode.CreateOptions = {
+              scanType: this.codeScanType,
+              height: Number(this.codeHeight),
+              width: Number(this.codeWidth),
+              margin: Number(this.codeMargin),
+              level: this.codeLevel,
+              backgroundColor: this.codeBackgroundColor,
+              pixelMapColor: this.codePixelMapColor,
+            };
+            try {
+              generateBarcode.createBarcode(contentBuffer, options).then((result: image.PixelMap) => {
+                this.pixelMap = result;
+                hilog.info(0x0001, TAG, 'Succeeded in creating barCode.');
+              }).catch((error: BusinessError) => {
+                showError(error);
+                hilog.error(0x0001, TAG,
+                  `Failed to createBarcode. Code: ${error.code}, message: ${error.message}`);
+              })
+            } catch (error) {
               showError(error);
-              hilog.error(0x0001, TAG,
-                `catch Failed to create barCode. Code: ${error.code}, message: ${error.message}`);
-            })
-          } catch (error) {
-            showError(error);
-            hilog.error(0x0001, TAG, `000 Failed to create barCode. Code: ${error.code}, message: ${error.message}`);
-          }
-        })
+              hilog.error(0x0001, TAG, `Failed to catch createBarcode. Code: ${error.code}, message: ${error.message}`);
+            }
+          })
+      }
+      .width('100%')
+      .height(340)
+      .margin({ bottom: 10 })
+      .justifyContent(FlexAlign.SpaceBetween)
 
       // Barcode generated. The image size is (300, 300).
       Column() {
         if (this.pixelMap) {
-          Image(this.pixelMap).width(300).height(300).objectFit(ImageFit.Contain)
+          Image(this.pixelMap).width(this.pixelMapWidth).height(this.pixelMapWidth).objectFit(ImageFit.Contain)
         }
-      }.width(300).height(300).margin(10)
+      }
+      .width('100%')
+      .margin(10)
+      .layoutWeight(1)
+      .onAreaChange((_: Area, newvalue: Area) => {
+        let min = Math.min(newvalue.width as number, newvalue.height as number);
+        if (min < 320) {
+          this.pixelMapWidth = min - 20;
+        }
+      })
 
     }
     .width('100%')
@@ -388,7 +400,7 @@ function getLevelType(type?: string): generateBarcode.ErrorCorrectionLevel {
     'LEVEL_M': generateBarcode.ErrorCorrectionLevel.LEVEL_M,
     'LEVEL_Q': generateBarcode.ErrorCorrectionLevel.LEVEL_Q,
     'LEVEL_H': generateBarcode.ErrorCorrectionLevel.LEVEL_H
-  }
+  };
   return type ? LEVEL_TYPE[type] || LEVEL_TYPE['LEVEL_H'] : LEVEL_TYPE['LEVEL_H'];
 }
 
@@ -423,6 +435,6 @@ function getTypeNum(type?: string): scanCore.ScanType {
     'QR_CODE': scanCore.ScanType.QR_CODE,
     'UPC_A_CODE': scanCore.ScanType.UPC_A_CODE,
     'UPC_E_CODE': scanCore.ScanType.UPC_E_CODE
-  }
+  };
   return type ? SCAN_TYPE[type] || SCAN_TYPE['QR_CODE'] : SCAN_TYPE['QR_CODE'];
 }

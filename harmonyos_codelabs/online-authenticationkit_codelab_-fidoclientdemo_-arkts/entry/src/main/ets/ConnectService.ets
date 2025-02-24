@@ -46,7 +46,7 @@ export class ConnectService {
             hilog.info(0x0000, 'TAG', 'get result');
           })
           .catch((err: BusinessError) => {
-            hilog.error(0x0000, 'TAG', `send request got exception: ${JSON.stringify(err)}`);
+            console.error(`Failed to send request. Code: ${err.code}, message: ${err.message}`);
           })
           .finally(() => {
             data.reclaim();
@@ -65,9 +65,7 @@ export class ConnectService {
     try {
       uiContext.connectServiceExtensionAbility(want, options);
     } catch (err) {
-      let code = (err as BusinessError).code;
-      let message = (err as BusinessError).message;
-      hilog.error(0x0000, 'TAG', `connectServiceExtensionAbility failed, code is ${code}, message is ${message}`);
+      console.error(`Failed to connectServiceExtensionAbility. Code: ${err.code}, message: ${err.message}`);
     }
   }
 

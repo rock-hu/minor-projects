@@ -1,41 +1,55 @@
+/*
+ * Copyright (c) Huawei Technologies Co., Ltd. 2024-2025. All rights reserved.
+ */
 import { AbilityConstant, UIAbility, Want } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { window } from '@kit.ArkUI';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 export default class EntryAbility extends UIAbility {
+  logTag: string = 'EntryAbility';
+  domainId: number = 0x0000;
+
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
-    hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onCreate');
+    hilog.info(this.domainId, this.logTag, 'Ability onCreate');
   }
 
   onDestroy(): void {
-    hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onDestroy');
+    hilog.info(this.domainId, this.logTag, 'Ability onDestroy');
   }
 
   onWindowStageCreate(windowStage: window.WindowStage): void {
-    // Main window is created, set main page for this ability
-    hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onWindowStageCreate');
+    hilog.info(this.domainId, this.logTag, 'Ability onWindowStageCreate');
+    // 1. Obtain the main window of the app.
+    const windowClass: window.Window = windowStage.getMainWindowSync();
+    // 2. Set the immersive mode.
+    const isLayoutFullScreen = true;
+    windowClass.setWindowLayoutFullScreen(isLayoutFullScreen).then(() => {
+      hilog.info(this.domainId, this.logTag, 'Succeeded in setting WindowLayoutFullScreen.');
+    }).catch((error: BusinessError) => {
+      hilog.error(this.domainId, this.logTag,
+        `Failed to setWindowLayoutFullScreen. errCode is ${error.code}, errMessage is ${error.message}`);
+    });
 
-    windowStage.loadContent('pages/Index', (err) => {
-      if (err.code) {
-        hilog.error(0x0000, 'testTag', 'Failed to load the content. Cause: %{public}s', JSON.stringify(err) ?? '');
+    windowStage.loadContent('pages/Index', (error) => {
+      if (error.code) {
+        hilog.error(this.domainId, this.logTag,
+          `Failed to load the content. errCode is ${error.code}, errMessage is ${error.message}`);
         return;
       }
-      hilog.info(0x0000, 'testTag', 'Succeeded in loading the content.');
+      hilog.info(this.domainId, this.logTag, 'Succeeded in loading the content.');
     });
   }
 
   onWindowStageDestroy(): void {
-    // Main window is destroyed, release UI related resources
-    hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onWindowStageDestroy');
+    hilog.info(this.domainId, this.logTag, 'Ability onWindowStageDestroy');
   }
 
   onForeground(): void {
-    // Ability has brought to foreground
-    hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onForeground');
+    hilog.info(this.domainId, this.logTag, 'Ability onForeground');
   }
 
   onBackground(): void {
-    // Ability has back to background
-    hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onBackground');
+    hilog.info(this.domainId, this.logTag, 'Ability onBackground');
   }
 }
