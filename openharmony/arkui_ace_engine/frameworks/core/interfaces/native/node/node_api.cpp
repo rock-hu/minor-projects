@@ -1974,6 +1974,41 @@ ArkUI_Int32 SetLevelOrder(ArkUIDialogHandle handle, ArkUI_Float64 levelOrder)
     return CustomDialog::SetLevelOrder(handle, levelOrder);
 }
 
+ArkUI_Int32 SetFocusable(ArkUIDialogHandle handle, ArkUI_Bool focusable)
+{
+    return CustomDialog::SetFocusable(handle, focusable);
+}
+
+ArkUI_Int32 RegisterOnWillAppear(ArkUIDialogHandle handle, void* userData, void (*callback)(void* userData))
+{
+    return CustomDialog::RegisterOnWillAppearDialog(handle, userData, callback);
+}
+
+ArkUI_Int32 RegisterOnDidAppear(ArkUIDialogHandle handle, void* userData, void (*callback)(void* userData))
+{
+    return CustomDialog::RegisterOnDidAppearDialog(handle, userData, callback);
+}
+
+ArkUI_Int32 RegisterOnWillDisappear(ArkUIDialogHandle handle, void* userData, void (*callback)(void* userData))
+{
+    return CustomDialog::RegisterOnWillDisappearDialog(handle, userData, callback);
+}
+
+ArkUI_Int32 RegisterOnDidDisappear(ArkUIDialogHandle handle, void* userData, void (*callback)(void* userData))
+{
+    return CustomDialog::RegisterOnDidDisappearDialog(handle, userData, callback);
+}
+
+ArkUI_Int32 OpenCustomDialog(ArkUIDialogHandle handle, void (*callback)(ArkUI_Int32 dialogId))
+{
+    return CustomDialog::OpenCustomDialog(handle, callback);
+}
+
+ArkUI_Int32 CloseCustomDialog(ArkUI_Int32 dialogId)
+{
+    return CustomDialog::CloseCustomDialog(dialogId);
+}
+
 const ArkUIDialogAPI* GetDialogAPI()
 {
     CHECK_INITIALIZED_FIELDS_BEGIN(); // don't move this line
@@ -2001,6 +2036,13 @@ const ArkUIDialogAPI* GetDialogAPI()
         .setLevelUniqueId = SetDialogLevelUniqueId,
         .setImmersiveMode = SetDialogImmersiveMode,
         .setLevelOrder = SetLevelOrder,
+        .setFocusable = SetFocusable,
+        .registerOnWillAppear = RegisterOnWillAppear,
+        .registerOnDidAppear = RegisterOnDidAppear,
+        .registerOnWillDisappear = RegisterOnWillDisappear,
+        .registerOnDidDisappear = RegisterOnDidDisappear,
+        .openCustomDialog = OpenCustomDialog,
+        .closeCustomDialog = CloseCustomDialog,
     };
     CHECK_INITIALIZED_FIELDS_END(dialogImpl, 0, 0, 0); // don't move this line
     return &dialogImpl;

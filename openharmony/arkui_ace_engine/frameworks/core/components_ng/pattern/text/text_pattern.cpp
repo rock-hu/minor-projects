@@ -58,6 +58,7 @@ const std::u16string SYMBOL_TRANS = u"\uF0001";
 const std::u16string WIDE_NEWLINE = u"\n";
 constexpr float RICH_DEFAULT_SHADOW_COLOR = 0x33000000;
 constexpr float RICH_DEFAULT_ELEVATION = 120.0f;
+constexpr Dimension CLICK_THRESHOLD = 5.0_vp;
 const OffsetF DEFAULT_NEGATIVE_CARET_OFFSET {-1.0f, -1.0f};
 
 bool IsJumpLink(const std::string& content)
@@ -401,7 +402,7 @@ bool TextPattern::ShowShadow(const PointF& textOffset, const Color& color)
                 MarkDirtySelf();
                 return false;
             }
-            auto inter = GetStartAndEnd(start);
+            auto inter = GetStartAndEnd(start, item);
             auto rects = GetSelectedRects(inter.first, inter.second);
             overlayMod_->SetSelectedForegroundColorAndRects(rects, color.GetValue());
             MarkDirtySelf();
@@ -414,7 +415,7 @@ bool TextPattern::ShowShadow(const PointF& textOffset, const Color& color)
     return false;
 }
 
-std::pair<int32_t, int32_t> TextPattern::GetStartAndEnd(int32_t start)
+std::pair<int32_t, int32_t> TextPattern::GetStartAndEnd(int32_t start, const RefPtr<SpanItem>& spanItem)
 {
     auto spanBases = styledString_->GetSpans(0, styledString_->GetLength(), SpanType::Url);
     for (const auto& spanBase : spanBases) {
@@ -964,6 +965,16 @@ void TextPattern::HandleSingleClickEvent(GestureEvent& info)
     textContentRect.SetHeight(contentRect_.Height() - std::max(baselineOffset_, 0.0f));
     PointF textOffset = { info.GetLocalLocation().GetX() - textContentRect.GetX(),
         info.GetLocalLocation().GetY() - textContentRect.GetY() };
+
+    if (IsUsingMouse() && isMousePressed_ && leftMousePressed_) {
+        Offset clickOffset {textOffset.GetX(), textOffset.GetY()};
+        auto distance = (clickOffset - leftMousePressedOffset_).GetDistance();
+        if (distance >= CLICK_THRESHOLD.ConvertToPx()) {
+            TAG_LOGI(ACE_TEXT, "TextOffset not match not trigger click");
+            return;
+        }
+    }
+
     if (IsSelectableAndCopy() || NeedShowAIDetect()) {
         CheckClickedOnSpanOrText(textContentRect, info.GetLocalLocation());
     }
@@ -972,6 +983,9 @@ void TextPattern::HandleSingleClickEvent(GestureEvent& info)
     }
     if (selectOverlay_->SelectOverlayIsOn() && !selectOverlay_->IsUsingMouse() &&
         GlobalOffsetInSelectedArea(info.GetGlobalLocation())) {
+        if (!IsLocationInFrameRegion(info.GetLocalLocation())) {
+            return;
+        }
         selectOverlay_->ToggleMenu();
         selectOverlay_->SwitchToOverlayMode();
         return;
@@ -1803,6 +1817,7 @@ void TextPattern::HandleMouseLeftButton(const MouseInfo& info, const Offset& tex
 void TextPattern::HandleMouseLeftPressAction(const MouseInfo& info, const Offset& textOffset)
 {
     isMousePressed_ = true;
+    CheckPressedSpanPosition(textOffset);
     leftMousePressed_ = true;
     ShowShadow({ textOffset.GetX(), textOffset.GetY() }, GetUrlPressColor());
     if (BetweenSelectedPosition(info.GetGlobalLocation())) {
@@ -1824,6 +1839,11 @@ void TextPattern::HandleMouseLeftPressAction(const MouseInfo& info, const Offset
     if (scrollableParent_.Upgrade() && host) {
         host->RegisterNodeChangeListener();
     }
+}
+
+void TextPattern::CheckPressedSpanPosition(const Offset& textOffset)
+{
+    leftMousePressedOffset_ = textOffset;
 }
 
 void TextPattern::HandleMouseLeftReleaseAction(const MouseInfo& info, const Offset& textOffset)
@@ -2889,6 +2909,23 @@ bool TextPattern::BetweenSelectedPosition(const Offset& globalOffset)
     return IsDraggable(localOffset);
 }
 
+void TextPattern::LogForFormRender(const std::string& logTag)
+{
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto pipeline = host->GetContext();
+    CHECK_NULL_VOID(pipeline);
+    if (pipeline->IsFormRender() && !IsSetObscured()) {
+        auto textLayoutProperty = GetLayoutProperty<TextLayoutProperty>();
+        CHECK_NULL_VOID(textLayoutProperty);
+        auto content = textLayoutProperty->GetContent().value_or(u"");
+        if (content.length() == 1) {
+            TAG_LOGI(AceLogTag::ACE_TEXT, "%{public}s, content:%{public}s id:%{public}d", logTag.c_str(),
+                UtfUtils::Str16ToStr8(content).c_str(), host->GetId());
+        }
+    }
+}
+
 // end of TextDragBase implementations
 // ===========================================================
 
@@ -2903,7 +2940,9 @@ void TextPattern::OnModifyDone()
     CHECK_NULL_VOID(renderContext);
     auto nowTime = static_cast<unsigned long long>(GetSystemTimestamp());
     ACE_TEXT_SCOPED_TRACE("OnModifyDone[Text][id:%d][time:%llu]", host->GetId(), nowTime);
-    DumpRecord("OnModifyDone:" + std::to_string(nowTime));
+    auto logTag = "OnModifyDone:" + std::to_string(nowTime);
+    DumpRecord(logTag, true);
+    LogForFormRender(logTag);
     auto pipeline = host->GetContext();
     if (!(pipeline && pipeline->GetMinPlatformVersion() > API_PROTEXTION_GREATER_NINE)) {
         bool shouldClipToContent =
@@ -5382,5 +5421,16 @@ void TextPattern::OnWindowSizeChanged(int32_t width, int32_t height, WindowSizeC
 {
     CHECK_NULL_VOID(selectOverlay_);
     selectOverlay_->UpdateMenuOnWindowSizeChanged(type);
+}
+
+bool TextPattern::IsLocationInFrameRegion(const Offset& localOffset) const
+{
+    auto host = GetHost();
+    CHECK_NULL_RETURN(host, false);
+    auto geometryNode = host->GetGeometryNode();
+    CHECK_NULL_RETURN(geometryNode, false);
+    auto frameSize = geometryNode->GetFrameSize();
+    auto frameRect = RectF(OffsetF(0.0f, 0.0f), frameSize);
+    return frameRect.IsInRegion(PointF(localOffset.GetX(), localOffset.GetY()));
 }
 } // namespace OHOS::Ace::NG

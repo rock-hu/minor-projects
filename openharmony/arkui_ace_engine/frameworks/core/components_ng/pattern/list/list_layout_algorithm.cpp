@@ -112,7 +112,6 @@ void ListLayoutAlgorithm::Measure(LayoutWrapper* layoutWrapper)
     contentMainSize_ = 0.0f;
     totalItemCount_ = layoutWrapper->GetTotalChildCount() - itemStartIndex_;
     scrollSnapAlign_ = listLayoutProperty->GetScrollSnapAlign().value_or(ScrollSnapAlign::NONE);
-    ProcessStackFromEnd();
     if (childrenSize_) {
         childrenSize_->ResizeChildrenSize(totalItemCount_);
     }
@@ -148,16 +147,17 @@ void ListLayoutAlgorithm::Measure(LayoutWrapper* layoutWrapper)
         spaceWidth_ = ConvertToPx(space, layoutConstraint.scaleProperty, mainPercentRefer).value_or(0);
         ReviseSpace(listLayoutProperty);
         CheckJumpToIndex();
-        currentOffset_ = currentDelta_;
-        startMainPos_ = currentOffset_;
-        endMainPos_ = currentOffset_ + contentMainSize_;
         CalculateLanes(listLayoutProperty, layoutConstraint, contentIdealSize.CrossSize(axis_), axis_);
-        listItemAlign_ = listLayoutProperty->GetListItemAlign().value_or(V2::ListItemAlign::START);
-        // calculate child layout constraint.
-        UpdateListItemConstraint(axis_, contentIdealSize, childLayoutConstraint_);
         if (posMap_) {
             posMap_->UpdatePosMap(layoutWrapper, GetLanes(), spaceWidth_, childrenSize_);
         }
+        ProcessStackFromEnd();
+        currentOffset_ = currentDelta_;
+        startMainPos_ = currentOffset_;
+        endMainPos_ = currentOffset_ + contentMainSize_;
+        listItemAlign_ = listLayoutProperty->GetListItemAlign().value_or(V2::ListItemAlign::START);
+        // calculate child layout constraint.
+        UpdateListItemConstraint(axis_, contentIdealSize, childLayoutConstraint_);
         MeasureList(layoutWrapper);
     } else {
         itemPosition_.clear();
@@ -821,6 +821,7 @@ void ListLayoutAlgorithm::MeasureList(LayoutWrapper* layoutWrapper)
     }
     auto prevTotalItemCount = pattern->GetMaxListItemIndex() + 1;
     ReverseItemPosition(itemPosition_, prevTotalItemCount, prevContentMainSize_);
+    ReverseItemPosition(cachedItemPosition_, prevTotalItemCount, prevContentMainSize_);
     preStartIndex_ = isStackFromEnd_ ? prevTotalItemCount - pattern->GetEndIndexInItemPosition() - 1:
                                        pattern->GetStartIndexInItemPosition();
     if (jumpIndex_ && scrollAlign_ == ScrollAlign::AUTO) {
@@ -944,7 +945,7 @@ void ListLayoutAlgorithm::MeasureList(LayoutWrapper* layoutWrapper)
             }
             if (childrenSize_) {
                 CheckAndMeasureStartItem(layoutWrapper, startIndex, startPos, startItemIsGroup, true);
-                posMap_->OptimizeBeforeMeasure(startIndex, startPos, currentOffset_, contentMainSize_, isStackFromEnd_);
+                posMap_->OptimizeBeforeMeasure(startIndex, startPos, currentOffset_, contentMainSize_);
             }
             LayoutForward(layoutWrapper, startIndex, startPos);
             if (GetStartIndex() > 0 && GreatNotEqual(GetStartPositionWithChainOffset(), startMainPos_)) {
@@ -960,7 +961,7 @@ void ListLayoutAlgorithm::MeasureList(LayoutWrapper* layoutWrapper)
             }
             if (childrenSize_) {
                 CheckAndMeasureStartItem(layoutWrapper, endIndex, endPos, endItemIsGroup, false);
-                posMap_->OptimizeBeforeMeasure(endIndex, endPos, currentOffset_, contentMainSize_, isStackFromEnd_);
+                posMap_->OptimizeBeforeMeasure(endIndex, endPos, currentOffset_, contentMainSize_);
             }
             LayoutBackward(layoutWrapper, endIndex, endPos);
             if (GetEndIndex() < (totalItemCount_ - 1) && LessNotEqual(GetEndPosition(), endMainPos_)) {
@@ -1665,6 +1666,8 @@ void ListLayoutAlgorithm::Layout(LayoutWrapper* layoutWrapper)
     UpdateOverlay(layoutWrapper);
     ProcessStackFromEnd();
     ReverseItemPosition(itemPosition_, totalItemCount_, contentMainSize_);
+    ReverseItemPosition(cachedItemPosition_, totalItemCount_, contentMainSize_);
+    ReverseItemPosition(recycledItemPosition_, totalItemCount_, contentMainSize_);
     totalOffset_ += currentOffset_;
     FixPredictSnapPos();
     FixPredictSnapOffset(listProps);
@@ -2594,7 +2597,7 @@ void ListLayoutAlgorithm::ReverseItemPosition(
 
 void ListLayoutAlgorithm::ProcessStackFromEnd()
 {
-    if (isStackFromEnd_) {
+    if (isStackFromEnd_ && totalItemCount_ > 0) {
         currentDelta_ = -currentDelta_;
         std::swap(canOverScrollStart_, canOverScrollEnd_);
         std::swap(contentStartOffset_, contentEndOffset_);
@@ -2603,7 +2606,7 @@ void ListLayoutAlgorithm::ProcessStackFromEnd()
         } else if (scrollAlign_ == ScrollAlign::END) {
             scrollAlign_ = ScrollAlign::START;
         }
-        if (posMap_ && GetLanes() > 1) {
+        if (posMap_) {
             posMap_->ReversePosMap();
         }
     }

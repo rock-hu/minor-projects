@@ -58,6 +58,10 @@
 #include "core/pipeline_ng/ui_task_scheduler.h"
 
 namespace OHOS::Ace::NG {
+namespace {
+constexpr int32_t MAX_SIZE_OF_LOG = 2000;
+}
+
 class InspectorFilter;
 enum class Status { DRAGGING, FLOATING, ON_DROP, NONE };
 using CalculateHandleFunc = std::function<void()>;
@@ -707,10 +711,15 @@ public:
         paintInfo_ = area + paintOffset.ToString();
     }
 
-    void DumpRecord(const std::string& record)
+    void DumpRecord(const std::string& record, bool stateChange = false)
     {
-        frameRecord_ = record;
+        if (stateChange || frameRecord_.length() > MAX_SIZE_OF_LOG) {
+            frameRecord_.clear();
+        }
+        frameRecord_.append("[" + record + "]");
     }
+
+    void LogForFormRender(const std::string& logTag);
 
     void SetIsUserSetResponseRegion(bool isUserSetResponseRegion)
     {
@@ -882,6 +891,7 @@ protected:
     void StartGestureSelection(int32_t start, int32_t end, const Offset& startOffset) override;
 
     void SetImageNodeGesture(RefPtr<ImageSpanNode> imageNode);
+    virtual std::pair<int32_t, int32_t> GetStartAndEnd(int32_t start, const RefPtr<SpanItem>& spanItem);
 
     bool enabled_ = true;
     Status status_ = Status::NONE;
@@ -959,7 +969,6 @@ private:
     void HandleUrlTouchEvent(const TouchEventInfo& info);
     void URLOnHover(bool isHover);
     bool HandleUrlClick();
-    std::pair<int32_t, int32_t> GetStartAndEnd(int32_t start);
     Color GetUrlHoverColor();
     Color GetUrlPressColor();
     void SetAccessibilityAction();
@@ -1015,6 +1024,7 @@ private:
     bool GlobalOffsetInSelectedArea(const Offset& globalOffset);
     bool LocalOffsetInSelectedArea(const Offset& localOffset);
     void HandleOnCopyWithoutSpanString(const std::string& pasteData);
+    void CheckPressedSpanPosition(const Offset& textOffset);
     void EncodeTlvNoChild(const std::string& pasteData, std::vector<uint8_t>& buff);
     void EncodeTlvFontStyleNoChild(std::vector<uint8_t>& buff);
     void EncodeTlvTextLineStyleNoChild(std::vector<uint8_t>& buff);
@@ -1023,6 +1033,7 @@ private:
     void ProcessVisibleAreaCallback();
     void PauseSymbolAnimation();
     void ResumeSymbolAnimation();
+    bool IsLocationInFrameRegion(const Offset& localOffset) const;
 
     bool isMeasureBoundary_ = false;
     bool isMousePressed_ = false;
@@ -1034,6 +1045,7 @@ private:
     bool isSensitive_ = false;
     bool hasSpanStringLongPressEvent_ = false;
     int32_t clickedSpanPosition_ = -1;
+    Offset leftMousePressedOffset_;
     bool isEnableHapticFeedback_ = true;
 
     bool urlTouchEventInitialized_ = false;

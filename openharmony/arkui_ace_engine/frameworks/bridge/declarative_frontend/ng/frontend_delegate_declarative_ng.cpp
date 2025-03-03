@@ -802,7 +802,8 @@ DialogProperties FrontendDelegateDeclarativeNG::ParsePropertiesFromAttr(const Pr
         .isUserCreatedDialog = dialogAttr.isUserCreatedDialog,
         .dialogImmersiveMode = dialogAttr.dialogImmersiveMode,
         .blurStyleOption = dialogAttr.blurStyleOption,
-        .effectOption = dialogAttr.effectOption
+        .effectOption = dialogAttr.effectOption,
+        .focusable = dialogAttr.focusable,
     };
 #if defined(PREVIEW)
     if (dialogProperties.isShowInSubWindow) {
@@ -1007,7 +1008,7 @@ void FrontendDelegateDeclarativeNG::OnMediaQueryUpdate(bool isSynchronous)
             delegate->mediaQueryCallback_(listenerId, info);
             delegate->mediaQueryInfo_->ResetListenerId();
         },
-        TaskExecutor::TaskType::JS, "ArkUIMediaQueryUpdate", PriorityType::VIP);
+        TaskExecutor::TaskType::JS, "ArkUIMediaQueryUpdate");
 }
 
 void FrontendDelegateDeclarativeNG::OnLayoutCompleted(const std::string& componentId)

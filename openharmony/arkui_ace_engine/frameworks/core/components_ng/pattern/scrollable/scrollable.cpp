@@ -37,7 +37,10 @@ constexpr uint32_t MULTI_FLING_DISTANCE = 125;
 constexpr double FRICTION = 0.6;
 constexpr double API11_FRICTION = 0.7;
 constexpr double API12_FRICTION = 0.75;
+constexpr double SLOW_FRICTION_THRESHOLD = 3000.0;
+constexpr double SLOW_FRICTION = 1.0;
 constexpr double VELOCITY_SCALE = 1.0;
+constexpr double SLOW_VELOCITY_SCALE = 1.2;
 constexpr double NEW_VELOCITY_SCALE = 1.5;
 constexpr double ADJUSTABLE_VELOCITY = 3000.0;
 #else
@@ -74,10 +77,13 @@ constexpr float DISPLAY_CONTROL_RATIO_FAST = 1.35f;
 constexpr float CROWN_SENSITIVITY_LOW = 0.8f;
 constexpr float CROWN_SENSITIVITY_MEDIUM = 1.0f;
 constexpr float CROWN_SENSITIVITY_HIGH = 1.2f;
+constexpr float RESPONSIVE_SPRING_AMPLITUDE_RATIO = 0.00025f;
 
 constexpr int32_t CROWN_EVENT_NUN_THRESH = 30;
 constexpr char CROWN_VIBRATOR_WEAK[] = "watchhaptic.feedback.crown.strength3";
 constexpr char CROWN_VIBRATOR_STRONG[] = "watchhaptic.feedback.crown.impact";
+#else
+constexpr float RESPONSIVE_SPRING_AMPLITUDE_RATIO = 0.001f;
 #endif
 } // namespace
 
@@ -367,6 +373,7 @@ void Scrollable::HandleCrownActionEnd(const TimeStamp& timeStamp, double mainDel
             event(gestureInfo);
         });
     isDragging_ = false;
+    isCrownDragging_ = false;
     auto context = context_.Upgrade();
     CHECK_NULL_VOID(context);
     auto taskExecutor = SingleTaskExecutor::Make(context->GetTaskExecutor(), TaskExecutor::TaskType::UI);
@@ -481,6 +488,9 @@ void Scrollable::HandleTouchUp()
 
 void Scrollable::HandleTouchCancel()
 {
+    if (isDragging_) {
+        return;
+    }
     isTouching_ = false;
     ACE_SCOPED_TRACE("HandleTouchCancel, id:%d, tag:%s", nodeId_, nodeTag_.c_str());
     if (state_ != AnimationState::SPRING && scrollOverCallback_) {
@@ -719,8 +729,9 @@ void Scrollable::ProcessAxisUpdateEvent(float mainDelta, bool fromScrollBar)
 
 void Scrollable::LayoutDirectionEst(double gestureVelocity, double velocityScale, bool isScrollFromTouchPad)
 {
+    auto defaultVelocityScale = isSlow_ ? SLOW_VELOCITY_SCALE : velocityScale;
     double ret = SystemProperties::GetSrollableVelocityScale();
-    velocityScale = !NearZero(ret) ? ret : velocityScale;
+    velocityScale = !NearZero(ret) ? ret : defaultVelocityScale;
     velocityScale = isScrollFromTouchPad ? velocityScale * touchPadVelocityScaleRate_ : velocityScale;
     if (isReverseCallback_ && isReverseCallback_()) {
         currentVelocity_ = -gestureVelocity * velocityScale * GetGain(GetDragOffset());
@@ -753,6 +764,7 @@ void Scrollable::HandleDragEnd(const GestureEvent& info)
     isDragUpdateStop_ = false;
     scrollPause_ = false;
     lastGestureVelocity_ = GetPanDirection() == Axis::NONE ? 0.0 : info.GetMainVelocity();
+    isSlow_ = LessNotEqual(std::abs(lastGestureVelocity_), SLOW_FRICTION_THRESHOLD);
     SetDragEndPosition(GetMainOffset(Offset(info.GetGlobalPoint().GetX(), info.GetGlobalPoint().GetY())));
     lastPos_ = GetDragOffset();
     JankFrameReport::GetInstance().ClearFrameJankFlag(JANK_RUNNING_SCROLL);
@@ -837,8 +849,9 @@ void Scrollable::StartScrollAnimation(float mainPosition, float correctVelocity,
         mainPosition, correctVelocity);
     double frictionTmp = friction_;
     if (NearEqual(friction_, -1.0)) {
+        auto defaultFriction = isSlow_ ? SLOW_FRICTION : defaultFriction_;
         double ret = SystemProperties::GetSrollableFriction();
-        frictionTmp = !NearZero(ret) ? ret : defaultFriction_;
+        frictionTmp = !NearZero(ret) ? ret : defaultFriction;
     }
     float friction = frictionTmp;
     initVelocity_ = correctVelocity;
@@ -1096,6 +1109,7 @@ void Scrollable::StartScrollSnapAnimation(float scrollSnapDelta, float scrollSna
     option.SetDuration(CUSTOM_SPRING_ANIMATION_DURATION);
     auto curve = AceType::MakeRefPtr<ResponsiveSpringMotion>(DEFAULT_SPRING_RESPONSE, DEFAULT_SPRING_DAMP, 0.0f);
     auto minimumAmplitudeRatio = DEFAULT_MINIMUM_AMPLITUDE_PX / std::abs(scrollSnapDelta);
+    minimumAmplitudeRatio = std::min(minimumAmplitudeRatio, RESPONSIVE_SPRING_AMPLITUDE_RATIO);
     if (LessNotEqualCustomPrecision(minimumAmplitudeRatio,
         ResponsiveSpringMotion::DEFAULT_RESPONSIVE_SPRING_AMPLITUDE_RATIO)) {
         curve->UpdateMinimumAmplitudeRatio(minimumAmplitudeRatio);

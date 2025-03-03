@@ -1971,7 +1971,7 @@ HWTEST_F(PipelineContextTestNg, PipelineContextTestNg094, TestSize.Level1)
     ASSERT_NE(context_, nullptr);
     context_->windowManager_ = AceType::MakeRefPtr<WindowManager>();
 
-    SystemProperties::SetColorMode(ColorMode::DARK);
+    MockContainer::SetMockColorMode(ColorMode::DARK);
     context_->SetAppBgColor(Color::BLACK);
     context_->ChangeDarkModeBrightness();
     context_->SetIsJsCard(true);
@@ -1984,7 +1984,7 @@ HWTEST_F(PipelineContextTestNg, PipelineContextTestNg094, TestSize.Level1)
     context_->ChangeDarkModeBrightness();
     context_->SetAppBgColor(Color::BLUE);
     context_->ChangeDarkModeBrightness();
-    SystemProperties::SetColorMode(ColorMode::COLOR_MODE_UNDEFINED);
+    MockContainer::SetMockColorMode(ColorMode::COLOR_MODE_UNDEFINED);
     context_->ChangeDarkModeBrightness();
     EXPECT_NE(context_->stageManager_, nullptr);
 }
@@ -2056,6 +2056,23 @@ HWTEST_F(PipelineContextTestNg, PipelineContextTestNg102, TestSize.Level1)
         EXPECT_EQ(mouseEvents.size(), 0);
     }
     context_->mouseEvents_.clear();
+}
+
+/**
+ * @tc.name: PipelineContextTestNg103
+ * @tc.desc: Test the function IsFormRenderExceptDynamicComponent
+ * @tc.type: FUNC
+ */
+HWTEST_F(PipelineContextTestNg, PipelineContextTestNg103, TestSize.Level1)
+{
+    /**
+     * @tc.steps1: initialize parameters.
+     * @tc.expected: All pointer is non-null.
+     */
+    ASSERT_NE(context_, nullptr);
+    context_->minPlatformVersion_ = static_cast<int32_t>(PlatformVersion::VERSION_THIRTEEN);
+    bool isFormRender = context_->IsFormRenderExceptDynamicComponent();
+    ASSERT_EQ(isFormRender, true);
 }
 
 /**

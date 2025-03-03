@@ -205,6 +205,7 @@ public:
     bool NeedRequestAutoSave();
     // DFX info.
     virtual void DumpTree(int32_t depth, bool hasJson = false);
+    void DumpTreeJsonForDiff(std::unique_ptr<JsonValue>& json);
     void DumpSimplifyTree(int32_t depth, std::unique_ptr<JsonValue>& current);
     virtual bool IsContextTransparent();
 
@@ -722,6 +723,11 @@ public:
         return instanceId_;
     }
 
+    static std::set<std::string> GetLayoutTags()
+    {
+        return layoutTags_;
+    }
+
     virtual void SetGeometryTransitionInRecursive(bool isGeometryTransitionIn)
     {
         for (const auto& child : GetChildren()) {
@@ -856,6 +862,9 @@ public:
     void setIsMoving(bool isMoving)
     {
         isMoving_ = isMoving;
+        for (auto& child : children_) {
+            child->setIsMoving(isMoving);
+        }
     }
 
     bool isCrossLanguageAttributeSetting() const
@@ -883,10 +892,10 @@ public:
         isDestroyingState_ = isDestroying;
     }
     virtual void SetDestroying(bool isDestroying = true, bool cleanStatus = true);
-    bool GreatOrEqualAPITargetVersion(PlatformVersion version) const
-    {
-        return apiVersion_ >= static_cast<int32_t>(version);
-    }
+
+    bool GreatOrEqualAPITargetVersion(PlatformVersion version) const;
+
+    bool LessThanAPITargetVersion(PlatformVersion version) const;
 
     bool IsArkTsRenderNode() const
     {
@@ -1013,6 +1022,7 @@ private:
     bool isArkTsRenderNode_ = false;
     bool isTraversing_ = false;
     bool isAllowUseParentTheme_ = true;
+    const static std::set<std::string> layoutTags_;
     NodeStatus nodeStatus_ = NodeStatus::NORMAL_NODE;
     RootNodeType rootNodeType_ = RootNodeType::PAGE_ETS_TAG;
     RefPtr<ExportTextureInfo> exportTextureInfo_;

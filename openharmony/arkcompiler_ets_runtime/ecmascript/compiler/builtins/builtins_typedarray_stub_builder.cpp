@@ -2459,6 +2459,15 @@ void BuiltinsTypedArrayStubBuilder::ToSorted(GateRef glue, GateRef thisValue,
     NewObjectStubBuilder newBuilder(this);
     newBuilder.SetParameters(glue, 0);
     GateRef newArray = newBuilder.NewTypedArraySameType(glue, thisValue, jsType, TruncInt64ToInt32(thisLen));
+    Label hasException0(env);
+    Label notHasException0(env);
+    BRANCH(HasPendingException(glue), &hasException0, &notHasException0);
+    Bind(&hasException0);
+    {
+        result->WriteVariable(Exception());
+        Jump(exit);
+    }
+    Bind(&notHasException0);
     CallNGCRuntime(glue, RTSTUB_ID(CopyTypedArrayBuffer),
                    { glue, thisValue, newArray, Int32(0), Int32(0), TruncInt64ToInt32(thisLen) });
     DoSort(glue, newArray, result, exit, slowPath);
@@ -2628,6 +2637,7 @@ void BuiltinsTypedArrayStubBuilder::Map(GateRef glue, GateRef thisValue, GateRef
         NewObjectStubBuilder newBuilder(this);
         newBuilder.SetParameters(glue, 0);
         GateRef newArray = newBuilder.NewTypedArray(glue, thisValue, jsType, TruncInt64ToInt32(thisLen));
+        GateRef newArrayType = GetObjectType(LoadHClass(newArray));
         Label loopHead(env);
         Label loopEnd(env);
         Label loopNext(env);
@@ -2639,7 +2649,7 @@ void BuiltinsTypedArrayStubBuilder::Map(GateRef glue, GateRef thisValue, GateRef
             Label notHasException1(env);
             BRANCH(Int64LessThan(*i, thisLen), &loopNext, &loopExit);
             Bind(&loopNext);
-            kValue = FastGetPropertyByIndex(glue, thisValue, TruncInt64ToInt32(*i), jsType);
+            kValue = FastGetPropertyByIndex(glue, thisValue, TruncInt64ToInt32(*i), newArrayType);
             GateRef key = Int64ToTaggedInt(*i);
             JSCallArgs callArgs(JSCallMode::CALL_THIS_ARG3_WITH_RETURN);
             callArgs.callThisArg3WithReturnArgs = { argHandle, *kValue, key, thisValue };
@@ -2653,7 +2663,7 @@ void BuiltinsTypedArrayStubBuilder::Map(GateRef glue, GateRef thisValue, GateRef
 
             Bind(&notHasException1);
             {
-                FastSetPropertyByIndex(glue, retValue, newArray, TruncInt64ToInt32(*i), jsType);
+                FastSetPropertyByIndex(glue, retValue, newArray, TruncInt64ToInt32(*i), newArrayType);
                 Jump(&loopEnd);
             }
         }

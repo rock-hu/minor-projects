@@ -393,14 +393,6 @@ void UpdatePreviewVisibleAreaByFrame(const RefPtr<RenderContext>& clipContext,
     clipContext->ClipWithRoundRect(roundRectInstance);
 }
 
-void ConvertPercentToPX(const RefPtr<MenuPreviewPattern>& previewPattern, Dimension& radius)
-{
-    if (radius.Unit() == DimensionUnit::PERCENT) {
-        auto previewWidth = previewPattern->GetCustomPreviewWidth();
-        radius = Dimension(radius.Value() * previewWidth, DimensionUnit::PX);
-    }
-}
-
 BorderRadiusProperty GetPreviewBorderRadiusFromPattern(
     const RefPtr<MenuPreviewPattern>& previewPattern, const RefPtr<MenuTheme>& menuTheme)
 {
@@ -412,32 +404,28 @@ BorderRadiusProperty GetPreviewBorderRadiusFromPattern(
     CHECK_NULL_RETURN(menuTheme, {});
     auto radius = menuTheme->GetPreviewBorderRadius().ConvertToPx();
     auto menuParam = menuWrapperPattern->GetMenuParam();
-    if (menuParam.previewBorderRadius.has_value() && !menuParam.previewBorderRadius->multiValued) {
-        auto paramRadius = menuParam.previewBorderRadius->radiusTopLeft;
-        radius = (paramRadius->Unit() == DimensionUnit::PERCENT)
-                     ? paramRadius->Value() * previewPattern->GetCustomPreviewWidth()
-                     : paramRadius->ConvertToPx();
-    }
+    BorderRadiusProperty previewBorderRadius = BorderRadiusProperty(Dimension(radius));
 
-    if (menuParam.previewBorderRadius.has_value() && menuParam.previewBorderRadius->multiValued) {
-        BorderRadiusProperty previewBorderRadius;
+    if (menuParam.previewBorderRadius.has_value()) {
+        auto previewWidth = previewPattern->GetCustomPreviewWidth();
         if (menuParam.previewBorderRadius->radiusTopLeft.has_value()) {
-            ConvertPercentToPX(previewPattern, menuParam.previewBorderRadius->radiusTopLeft.value());
+            previewBorderRadius.radiusTopLeft =
+                Dimension(menuParam.previewBorderRadius->radiusTopLeft->ConvertToPxWithSize(previewWidth));
         }
         if (menuParam.previewBorderRadius->radiusTopRight.has_value()) {
-            ConvertPercentToPX(previewPattern, menuParam.previewBorderRadius->radiusTopRight.value());
+            previewBorderRadius.radiusTopRight =
+                Dimension(menuParam.previewBorderRadius->radiusTopRight->ConvertToPxWithSize(previewWidth));
         }
         if (menuParam.previewBorderRadius->radiusBottomLeft.has_value()) {
-            ConvertPercentToPX(previewPattern, menuParam.previewBorderRadius->radiusBottomLeft.value());
+            previewBorderRadius.radiusBottomLeft =
+                Dimension(menuParam.previewBorderRadius->radiusBottomLeft->ConvertToPxWithSize(previewWidth));
         }
         if (menuParam.previewBorderRadius->radiusBottomRight.has_value()) {
-            ConvertPercentToPX(previewPattern, menuParam.previewBorderRadius->radiusBottomRight.value());
+            previewBorderRadius.radiusBottomRight =
+                Dimension(menuParam.previewBorderRadius->radiusBottomRight->ConvertToPxWithSize(previewWidth));
         }
-        previewBorderRadius.SetRadius(Dimension(radius));
-        previewBorderRadius.UpdateWithCheck(menuParam.previewBorderRadius.value());
-        return previewBorderRadius;
     }
-    return BorderRadiusProperty(Dimension(radius));
+    return previewBorderRadius;
 }
 
 void UpdateHoverImagePreviewScale(const RefPtr<FrameNode>& hoverImageStackNode,
@@ -1004,6 +992,62 @@ Alignment ConvertTxtTextAlign(bool IsRightToLeft, TextAlign textAlign)
     }
     return convertValue;
 }
+
+void SetBackgroundBlurStyle(const RefPtr<FrameNode>& host, const BlurStyleOption& bgBlurStyle)
+{
+    CHECK_NULL_VOID(host);
+    auto pipeline = host->GetContext();
+    CHECK_NULL_VOID(pipeline);
+    if (bgBlurStyle.policy == BlurStyleActivePolicy::FOLLOWS_WINDOW_ACTIVE_STATE) {
+        pipeline->AddWindowFocusChangedCallback(host->GetId());
+    } else {
+        pipeline->RemoveWindowFocusChangedCallback(host->GetId());
+    }
+    auto renderContext = host->GetRenderContext();
+    if (renderContext) {
+        if (renderContext->GetBackgroundEffect().has_value()) {
+            renderContext->UpdateBackgroundEffect(std::nullopt);
+        }
+        renderContext->UpdateBackBlurStyle(bgBlurStyle);
+        if (renderContext->GetBackBlurRadius().has_value()) {
+            renderContext->UpdateBackBlurRadius(Dimension());
+        }
+    }
+}
+
+void SetBackgroundEffect(const RefPtr<FrameNode>& host, const EffectOption &effectOption)
+{
+    CHECK_NULL_VOID(host);
+    auto pipeline = host->GetContext();
+    CHECK_NULL_VOID(pipeline);
+    if (effectOption.policy == BlurStyleActivePolicy::FOLLOWS_WINDOW_ACTIVE_STATE) {
+        pipeline->AddWindowFocusChangedCallback(host->GetId());
+    } else {
+        pipeline->RemoveWindowFocusChangedCallback(host->GetId());
+    }
+    auto renderContext = host->GetRenderContext();
+    if (renderContext) {
+        if (renderContext->GetBackBlurRadius().has_value()) {
+            renderContext->UpdateBackBlurRadius(Dimension());
+        }
+        if (renderContext->GetBackBlurStyle().has_value()) {
+            renderContext->UpdateBackBlurStyle(std::nullopt);
+        }
+        renderContext->UpdateBackgroundEffect(effectOption);
+    }
+}
+
+void UpdateMenuBackgroundStyleOption(const RefPtr<FrameNode>& menuNode, const MenuParam& menuParam)
+{
+    if (menuParam.backgroundBlurStyleOption.has_value()) {
+        BlurStyleOption backgroundBlurStyleOption = menuParam.backgroundBlurStyleOption.value();
+        SetBackgroundBlurStyle(menuNode, backgroundBlurStyleOption);
+    }
+    if (menuParam.backgroundEffectOption.has_value()) {
+        EffectOption backgroundEffectOption = menuParam.backgroundEffectOption.value();
+        SetBackgroundEffect(menuNode, backgroundEffectOption);
+    }
+}
 } // namespace
 
 void MenuView::CalcHoverScaleInfo(const RefPtr<FrameNode>& menuNode)
@@ -1346,9 +1390,8 @@ RefPtr<FrameNode> MenuView::Create(
     scrollPattern->SetIsSelectScroll(true);
     scroll->MountToParent(menuNode);
     scroll->MarkModifyDone();
-    menuNode->MarkModifyDone();
-
     menuPattern->SetIsSelectMenu(true);
+    menuNode->MarkModifyDone();
     return wrapperNode;
 }
 
@@ -1467,12 +1510,13 @@ void MenuView::UpdateMenuBackgroundStyle(const RefPtr<FrameNode>& menuNode, cons
             }
             menuNodeRenderContext->UpdateBackgroundEffect(menuParam.effectOption.value());
         }
+        UpdateMenuBackgroundStyleOption(menuNode, menuParam);
     } else {
-        UpdateMenuBackgroundColor(menuNode, menuParam);
+        UpdateMenuBackgroundStyleSub(menuNode, menuParam);
     }
 }
 
-void MenuView::UpdateMenuBackgroundColor(const RefPtr<FrameNode>& menuNode, const MenuParam& menuParam)
+void MenuView::UpdateMenuBackgroundStyleSub(const RefPtr<FrameNode>& menuNode, const MenuParam& menuParam)
 {
     auto menuNodeRenderContext = menuNode->GetRenderContext();
     auto pipeLineContext = menuNode->GetContextWithCheck();
@@ -1481,6 +1525,7 @@ void MenuView::UpdateMenuBackgroundColor(const RefPtr<FrameNode>& menuNode, cons
     CHECK_NULL_VOID(selectTheme);
     menuNodeRenderContext->UpdateBackgroundColor(
         menuParam.backgroundColor.value_or(selectTheme->GetBackgroundColor()));
+    UpdateMenuBackgroundStyleOption(menuNode, menuParam);
 }
 
 void MenuView::NeedAgingUpdateNode(const RefPtr<FrameNode>& optionNode)

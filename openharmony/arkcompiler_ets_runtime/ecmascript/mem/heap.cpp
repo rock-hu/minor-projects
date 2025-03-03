@@ -86,12 +86,51 @@ void SharedHeap::DestroyInstance()
     instance_ = nullptr;
 }
 
+void SharedHeap::ForceCollectGarbageWithoutDaemonThread(TriggerGCType gcType, GCReason gcReason, JSThread *thread)
+{
+    ASSERT(!dThread_->IsRunning());
+    SuspendAllScope scope(thread);
+    SharedGCScope sharedGCScope;  // SharedGCScope should be after SuspendAllScope.
+    RecursionScope recurScope(this, HeapType::SHARED_HEAP);
+    CheckInHeapProfiler();
+    GetEcmaGCStats()->RecordStatisticBeforeGC(gcType, gcReason);
+    if (UNLIKELY(ShouldVerifyHeap())) { // LCOV_EXCL_BR_LINE
+        // pre gc heap verify
+        LOG_ECMA(DEBUG) << "pre gc shared heap verify";
+        sharedGCMarker_->MergeBackAndResetRSetWorkListHandler();
+        SharedHeapVerification(this, VerifyKind::VERIFY_PRE_SHARED_GC).VerifyAll();
+    }
+    switch (gcType) { // LCOV_EXCL_BR_LINE
+        case TriggerGCType::SHARED_PARTIAL_GC:
+        case TriggerGCType::SHARED_GC: {
+            sharedGC_->RunPhases();
+            break;
+        }
+        case TriggerGCType::SHARED_FULL_GC: {
+            sharedFullGC_->RunPhases();
+            break;
+        }
+        default: // LOCV_EXCL_BR_LINE
+            LOG_ECMA(FATAL) << "this branch is unreachable";
+            UNREACHABLE();
+            break;
+    }
+    if (UNLIKELY(ShouldVerifyHeap())) { // LCOV_EXCL_BR_LINE
+        // pre gc heap verify
+        LOG_ECMA(DEBUG) << "after gc shared heap verify";
+        SharedHeapVerification(this, VerifyKind::VERIFY_POST_SHARED_GC).VerifyAll();
+    }
+    CollectGarbageFinish(false, gcType);
+    InvokeSharedNativePointerCallbacks();
+}
+
 bool SharedHeap::CheckAndTriggerSharedGC(JSThread *thread)
 {
     if (thread->IsSharedConcurrentMarkingOrFinished() && !ObjectExceedMaxHeapSize()) {
         return false;
     }
-    if ((OldSpaceExceedLimit() || GetHeapObjectSize() > globalSpaceAllocLimit_) &&
+    size_t sharedGCThreshold = globalSpaceAllocLimit_ + spaceOvershoot_.load(std::memory_order_relaxed);
+    if ((OldSpaceExceedLimit() || GetHeapObjectSize() > sharedGCThreshold) &&
         !NeedStopCollection()) {
         CollectGarbage<TriggerGCType::SHARED_GC, GCReason::ALLOCATION_LIMIT>(thread);
         return true;
@@ -104,7 +143,8 @@ bool SharedHeap::CheckHugeAndTriggerSharedGC(JSThread *thread, size_t size)
     if (thread->IsSharedConcurrentMarkingOrFinished() && !ObjectExceedMaxHeapSize()) {
         return false;
     }
-    if ((sHugeObjectSpace_->CommittedSizeExceed(size) || GetHeapObjectSize() > globalSpaceAllocLimit_) &&
+    size_t sharedGCThreshold = globalSpaceAllocLimit_ + spaceOvershoot_.load(std::memory_order_relaxed);
+    if ((sHugeObjectSpace_->CommittedSizeExceed(size) || GetHeapObjectSize() > sharedGCThreshold) &&
         !NeedStopCollection()) {
         CollectGarbage<TriggerGCType::SHARED_GC, GCReason::ALLOCATION_LIMIT>(thread);
         return true;
@@ -507,7 +547,7 @@ void SharedHeap::ReclaimRegions(TriggerGCType gcType)
 void SharedHeap::DisableParallelGC(JSThread *thread)
 {
     WaitAllTasksFinished(thread);
-    dThread_->Stop();
+    dThread_->WaitFinished();
     parallelGC_ = false;
     maxMarkTaskCount_ = 0;
     sSweeper_->ConfigConcurrentSweep(false);
@@ -595,6 +635,7 @@ void SharedHeap::CollectGarbageFinish(bool inDaemon, TriggerGCType gcType)
     UpdateHeapStatsAfterGC(gcType);
     // Adjust shared gc trigger threshold
     AdjustGlobalSpaceAllocLimit();
+    spaceOvershoot_.store(0, std::memory_order_relaxed);
     GetEcmaGCStats()->RecordStatisticAfterGC();
     GetEcmaGCStats()->PrintGCStatistic();
     ProcessAllGCListeners();
@@ -660,6 +701,20 @@ bool SharedHeap::NeedStopCollection()
         return true;
     }
     return false;
+}
+
+void SharedHeap::TryAdjustSpaceOvershootByConfigSize()
+{
+    if (InGC() || !IsReadyToConcurrentMark()) {
+        // no need to reserve space if SharedGC or SharedConcurrentMark is already triggered
+        return;
+    }
+    // set overshoot size to increase gc threashold larger 8MB than current heap size.
+    int64_t heapObjectSize = static_cast<int64_t>(GetHeapObjectSize());
+    int64_t remainSizeBeforeGC = static_cast<int64_t>(globalSpaceAllocLimit_) - heapObjectSize;
+    int64_t overshootSize = static_cast<int64_t>(config_.GetOldSpaceStepOvershootSize()) - remainSizeBeforeGC;
+    // overshoot size should be larger than 0.
+    spaceOvershoot_.store(std::max(overshootSize, (int64_t)0), std::memory_order_relaxed);
 }
 
 void SharedHeap::CompactHeapBeforeFork(JSThread *thread)
@@ -2123,15 +2178,12 @@ void Heap::ChangeGCParams(bool inBackground)
         if (sHeap_->GetHeapObjectSize() - sHeap_->GetHeapAliveSizeAfterGC() > BACKGROUND_GROW_LIMIT &&
             sHeap_->GetCommittedSize() >= MIN_BACKGROUNG_GC_LIMIT &&
             doubleOne * sHeap_->GetHeapObjectSize() / sHeap_->GetCommittedSize() <= MIN_OBJECT_SURVIVAL_RATE) {
-            sHeap_->CollectGarbage<TriggerGCType::SHARED_FULL_GC, GCReason::SWITCH_BACKGROUND>(thread_);
+            sHeap_->CompressCollectGarbageNotWaiting<GCReason::SWITCH_BACKGROUND>(thread_);
         }
         if (GetMemGrowingType() != MemGrowingType::PRESSURE) {
             SetMemGrowingType(MemGrowingType::CONSERVATIVE);
             LOG_GC(DEBUG) << "Heap Growing Type CONSERVATIVE";
         }
-        maxMarkTaskCount_ = std::min<size_t>(ecmaVm_->GetJSOptions().GetGcThreadNum(),
-            (Taskpool::GetCurrentTaskpool()->GetTotalThreadNum() - 1) / 2);  // 2 means half.
-        maxEvacuateTaskCount_ = Taskpool::GetCurrentTaskpool()->GetTotalThreadNum() / 2; // 2 means half.
         Taskpool::GetCurrentTaskpool()->SetThreadPriority(PriorityMode::BACKGROUND);
     } else {
         LOG_GC(INFO) << "app is not inBackground";
@@ -2333,6 +2385,12 @@ void Heap::TryIncreaseNewSpaceOvershootByConfigSize()
         static_cast<int64_t>(config_.GetOldSpaceStepOvershootSize()) - semiRemainSize;
     // overshoot size should be larger than 0.
     GetNewSpace()->SetOverShootSize(std::max(overshootSize, (int64_t)0));
+}
+
+void Heap::TryIncreaseOvershootByConfigSize()
+{
+    TryIncreaseNewSpaceOvershootByConfigSize();
+    sHeap_->TryAdjustSpaceOvershootByConfigSize();
 }
 
 bool Heap::CheckIfNeedStopCollectionByStartup()

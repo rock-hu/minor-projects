@@ -83,6 +83,7 @@
 #include "core/components_ng/token_theme/token_theme_storage.h"
 #include "core/components_ng/pattern/checkbox/checkbox_theme_wrapper.h"
 #include "core/components_ng/pattern/counter/counter_theme_wrapper.h"
+#include "core/components_ng/pattern/progress/progress_theme_wrapper.h"
 #include "core/components_ng/pattern/divider/divider_theme_wrapper.h"
 #include "core/components_ng/pattern/rich_editor/rich_editor_theme_wrapper.h"
 #include "core/components_ng/pattern/search/search_theme_wrapper.h"
@@ -191,6 +192,7 @@ const std::unordered_map<ThemeType, RefPtr<NG::TokenThemeWrapper>(*)(const RefPt
         { TextTheme::TypeId(), &ThemeWrapperBuildFunc<NG::TextThemeWrapper::WrapperBuilder> },
         { TextFieldTheme::TypeId(), &ThemeWrapperBuildFunc<NG::TextFieldThemeWrapper::WrapperBuilder> },
         { PickerTheme::TypeId(), &ThemeWrapperBuildFunc<NG::PickerThemeWrapper::WrapperBuilder> },
+        { ProgressTheme::TypeId(), &ThemeWrapperBuildFunc<NG::ProgressThemeWrapper::WrapperBuilder> },
         { SelectTheme::TypeId(), &ThemeWrapperBuildFunc<NG::SelectThemeWrapper::WrapperBuilder> },
         { NavigationBarTheme::TypeId(), &ThemeWrapperBuildFunc<NG::NavigationBarThemeWrapper::WrapperBuilder> },
         { AgingAdapationDialogTheme::TypeId(),
@@ -242,7 +244,7 @@ RefPtr<Theme> ThemeManagerImpl::GetThemeOrigin(ThemeType type)
 
     if (auto pipelineContext = NG::PipelineContext::GetCurrentContext(); pipelineContext) {
         ColorMode localMode = pipelineContext->GetLocalColorMode();
-        ColorMode systemMode = SystemProperties::GetColorMode();
+        ColorMode systemMode = pipelineContext->GetColorMode();
         bool needRestore = false;
         if (localMode != ColorMode::COLOR_MODE_UNDEFINED && localMode != systemMode) {
             // Ordinary themes should work in system color mode. Only theme wrappers support local color mode.
@@ -273,7 +275,7 @@ RefPtr<Theme> ThemeManagerImpl::GetThemeKit(ThemeType type)
 
     if (auto pipelineContext = NG::PipelineContext::GetCurrentContext(); pipelineContext) {
         ColorMode localMode = pipelineContext->GetLocalColorMode();
-        ColorMode systemMode = SystemProperties::GetColorMode();
+        ColorMode systemMode = pipelineContext->GetColorMode();
         bool needRestore = false;
         if (localMode != ColorMode::COLOR_MODE_UNDEFINED && localMode != systemMode) {
             // Ordinary themes should work in system color mode. Only theme wrappers support local color mode.
@@ -378,7 +380,7 @@ ThemeManagerImpl::ThemeWrappers& ThemeManagerImpl::GetThemeWrappers(ColorMode mo
 ColorMode ThemeManagerImpl::GetCurrentColorMode() const
 {
     auto pipelineContext = NG::PipelineContext::GetCurrentContext();
-    ColorMode systemMode = SystemProperties::GetColorMode();
+    ColorMode systemMode = Container::CurrentColorMode();
     CHECK_NULL_RETURN(pipelineContext, systemMode);
     ColorMode localMode = pipelineContext->GetLocalColorMode();
     return localMode == ColorMode::COLOR_MODE_UNDEFINED ? systemMode : localMode;

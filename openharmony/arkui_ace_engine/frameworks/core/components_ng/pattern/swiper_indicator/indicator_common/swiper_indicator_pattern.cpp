@@ -620,12 +620,12 @@ void SwiperIndicatorPattern::GetMouseClickIndex()
 
     auto [start, end] = CalMouseClickIndexStartAndEnd(itemCount, currentIndex);
     for (int32_t i = start; (start > end ? i > end : i < end); start > end ? i -= step : i += step) {
+        if (hoverPoint.GetX() >= centerX && hoverPoint.GetX() <= centerX + itemWidth &&
+            hoverPoint.GetY() >= centerY && hoverPoint.GetY() <= centerY + itemHeight) {
+            mouseClickIndex_ = i;
+            break;
+        }
         if (i != currentIndex) {
-            if (hoverPoint.GetX() >= centerX && hoverPoint.GetX() <= centerX + itemWidth &&
-                hoverPoint.GetY() >= centerY && hoverPoint.GetY() <= centerY + itemHeight) {
-                mouseClickIndex_ = i;
-                break;
-            }
             centerX += itemWidth + space;
         } else {
             centerX += selectedItemWidth + space;
@@ -1155,7 +1155,7 @@ RefPtr<OverlengthDotIndicatorPaintMethod> SwiperIndicatorPattern::CreateOverlong
 
     overlongDotIndicatorModifier_->SetAnimationDuration(swiperPattern->GetDuration());
     overlongDotIndicatorModifier_->SetLongPointHeadCurve(
-        swiperPattern->GetCurveIncludeMotion(), swiperPattern->GetMotionVelocity());
+        swiperPattern->GetIndicatorHeadCurve(), swiperPattern->GetMotionVelocity());
     overlongDotIndicatorModifier_->SetUserSetSwiperCurve(swiperPattern->GetCurve());
 
     auto swiperLayoutProperty = swiperPattern->GetLayoutProperty<SwiperLayoutProperty>();
@@ -1179,7 +1179,7 @@ RefPtr<DotIndicatorPaintMethod> SwiperIndicatorPattern::CreateDotIndicatorPaintM
 
     dotIndicatorModifier_->SetAnimationDuration(swiperPattern->GetDuration());
     dotIndicatorModifier_->SetLongPointHeadCurve(
-        swiperPattern->GetCurveIncludeMotion(), swiperPattern->GetMotionVelocity());
+        swiperPattern->GetIndicatorHeadCurve(), swiperPattern->GetMotionVelocity());
     dotIndicatorModifier_->SetUserSetSwiperCurve(swiperPattern->GetCurve());
     auto swiperLayoutProperty = swiperPattern->GetLayoutProperty<SwiperLayoutProperty>();
     CHECK_NULL_RETURN(swiperLayoutProperty, nullptr);
@@ -1249,7 +1249,7 @@ void SwiperIndicatorPattern::CheckDragAndUpdate(
 void SwiperIndicatorPattern::UpdateOverlongPaintMethod(
     const RefPtr<SwiperPattern>& swiperPattern, RefPtr<OverlengthDotIndicatorPaintMethod>& overlongPaintMethod)
 {
-    auto animationStartIndex = swiperPattern->GetLoopIndex(swiperPattern->GetCurrentIndex());
+    auto animationStartIndex = swiperPattern->GetLoopIndex(swiperPattern->GetCurrentIndex(true));
     auto animationEndIndex = swiperPattern->GetLoopIndex(swiperPattern->GetCurrentFirstIndex());
 
     auto paintMethodTemp = DynamicCast<DotIndicatorPaintMethod>(overlongPaintMethod);
@@ -1409,13 +1409,9 @@ void SwiperIndicatorPattern::SwipeTo(std::optional<int32_t> mouseClickIndex)
     CHECK_NULL_VOID(swiperPattern);
     if (swiperPattern->IsSwipeByGroup()) {
         auto clickPageIndex = SwiperUtils::ComputePageIndex(mouseClickIndex.value(), swiperPattern->GetDisplayCount());
-        if (clickPageIndex == swiperPattern->GetCurrentIndex()) {
-            mouseClickIndex_ = std::nullopt;
-            return;
-        }
         mouseClickIndex_ = clickPageIndex;
     }
-    swiperPattern->SwipeTo(mouseClickIndex.value());
+    swiperPattern->SwipeTo(mouseClickIndex_.value());
 }
 
 std::pair<int32_t, int32_t> SwiperIndicatorPattern::CalculateStepAndItemCountDefault() const

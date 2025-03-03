@@ -14,7 +14,7 @@
  */
 
 import { BusinessError, Callback } from '@ohos.base';
-import { curves, LengthMetrics, SymbolGlyphModifier, window } from '@kit.ArkUI';
+import { curves, LengthMetrics, SymbolGlyphModifier, window, AtomicServiceBar } from '@kit.ArkUI';
 import { bundleManager, common } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { i18n } from '@kit.LocalizationKit';
@@ -48,7 +48,12 @@ const SIDE_BAR_EMBED_MIN_WIDTH = 240;
 const SIDE_BAR_OVERLAY_WIDTH = 304;
 const SIDE_BAR_COMMON_WIDTH = 360;
 const CONTENT_MIN_WIDTH = 600;
-const ATOMIC_SERVICE_CAPSULE_WIDTH = 81.5;
+/**
+ * menubar避让区域宽度计算修正时用到的数据
+ */
+const MENUBAR_X_FIRST_THRESHOLD: number = 200;
+const MENUBAR_X_SECOND_THRESHOLD: number = 40;
+const MENUBAR_CORRECTION_OFFSET_VALUE: number = 92;
 
 /**
  * 背景颜色的不透明度的枚举类型
@@ -136,6 +141,7 @@ export struct AtomicServiceNavigation {
   @State private currentBreakPoint: string = BREAK_POINT_SM;
   @State private sideBarAttribute: sideBarAttributeSet = new sideBarAttributeSet();
   @State private controlButtonVisible: boolean = true;
+  @State private titleBuilderPaddingEndWidth: number = 0;
   @BuilderParam menus?: CustomBuilder | Array<NavigationMenuItem>;
   stateChangeCallback?: Callback<boolean>;
   modeChangeCallback?: Callback<NavigationMode>;
@@ -161,7 +167,8 @@ export struct AtomicServiceNavigation {
     Canvas(this.context)
       .opacity(transparencyMapArray[(gradientBackground.alpha === undefined) ? GradientAlpha.OPACITY_20 :
       gradientBackground.alpha])
-      .blur(BLUR_CONSTANT)
+      .backdropBlur(BLUR_CONSTANT)
+      .height(this.navigationHeight)
       .backgroundColor(gradientBackground.backgroundTheme === undefined ? backGroundColor[2] :
       backGroundColor[gradientBackground.backgroundTheme - 1])
       .onReady(() => {
@@ -217,6 +224,29 @@ export struct AtomicServiceNavigation {
   }
 
   /**
+   * 窗口初始化或者尺寸发生变化时，让menubar避让宽度更新
+   */
+  private freshMenubarAvoidAreaWidth(mainWindow: window.Window): void {
+    setTimeout(() => {
+      const atomicServiceBar: Nullable<AtomicServiceBar> = this.getUIContext().getAtomicServiceBar();
+      if (!atomicServiceBar) {
+        this.titleBuilderPaddingEndWidth = 0;
+        return;
+      }
+      let menubarX: number = atomicServiceBar.getBarRect().x;
+      let corretionWidth: number = 0;
+      if (menubarX > MENUBAR_X_FIRST_THRESHOLD) {
+        const mainWindowWidth: number = px2vp(mainWindow.getWindowProperties()?.windowRect?.width) - menubarX;
+        corretionWidth = mainWindowWidth > MENUBAR_X_FIRST_THRESHOLD ? 0 : mainWindowWidth;
+      } else if (menubarX < MENUBAR_X_SECOND_THRESHOLD) {
+        corretionWidth = menubarX + MENUBAR_CORRECTION_OFFSET_VALUE;
+      }
+      let currentWidth: number = atomicServiceBar.getBarRect().width;
+      this.titleBuilderPaddingEndWidth = corretionWidth > currentWidth ? corretionWidth : currentWidth;
+    }, 100);
+  }
+
+  /**
    * 初始化window，并设置windowSizeChange监听，更新断点信息
    */
   private initWindow(): void {
@@ -230,8 +260,10 @@ export struct AtomicServiceNavigation {
         this.sideBarHelper?.updateLayout(this.currentBreakPoint, this.sideBarAttribute);
       }
       this.updateBreakPoint(mainWindow.getWindowProperties()?.windowRect?.width);
+      this.freshMenubarAvoidAreaWidth(mainWindow);
       this.onWindowSizeChangeCallback = ((windowSize) => {
         this.updateBreakPoint(windowSize?.width);
+        this.freshMenubarAvoidAreaWidth(mainWindow);
       });
       mainWindow.on('windowSizeChange', this.onWindowSizeChangeCallback);
     }).catch((err: Error) => {
@@ -364,7 +396,7 @@ export struct AtomicServiceNavigation {
         // 在Stack模式，或者非分栏模式下右侧需要有一定padding值，避免超长文本时不能避让menuBar
         end: ((this.currentBreakPoint === BREAK_POINT_SM &&
           (this.mode === NavigationMode.Auto || !this.mode)) || this.mode === NavigationMode.Stack) ?
-        LengthMetrics.vp(ATOMIC_SERVICE_CAPSULE_WIDTH + 16) : LengthMetrics.vp(0)
+        LengthMetrics.vp(this.titleBuilderPaddingEndWidth) : LengthMetrics.vp(0)
       })
       .width('100%')
     }
@@ -380,6 +412,9 @@ export struct AtomicServiceNavigation {
     .width('100%')
     .height('100%')
     .accessibilityLevel('no')
+    .onClick(() => {
+      this.changeSideBarWithAnimation(false);
+    })
   }
 
   @Styles
@@ -419,6 +454,11 @@ export struct AtomicServiceNavigation {
         Button({ type: ButtonType.Circle }) {
           SymbolGlyph()
             .attributeModifier(this.sideBarOptions?.sideBarIcon)
+            .fontSize($r('sys.float.ohos_id_text_size_headline7'))
+            .size({
+              width: $r('sys.float.ohos_id_text_size_headline7'),
+              height: $r('sys.float.ohos_id_text_size_headline7')
+            })
         }
         .controlButtonStyle()
       } else {
@@ -438,6 +478,11 @@ export struct AtomicServiceNavigation {
         Button({ type: ButtonType.Circle }) {
           SymbolGlyph()
             .attributeModifier(this.titleOptions?.titleIcon)
+            .fontSize($r('sys.float.ohos_id_text_size_headline7'))
+            .size({
+              width: $r('sys.float.ohos_id_text_size_headline7'),
+              height: $r('sys.float.ohos_id_text_size_headline7')
+            })
         }
         .controlButtonStyle()
       } else {
@@ -477,7 +522,7 @@ export struct AtomicServiceNavigation {
 
   @Styles
   roundIconStyle() {
-    .backgroundColor($r('sys.color.ohos_id_color_button_normal'))
+    .backgroundColor('rgba(0, 0, 0, 0)')
     .width(36)
     .height(36)
     .borderRadius(18)
@@ -501,7 +546,13 @@ export struct AtomicServiceNavigation {
       Button({ type: ButtonType.Circle }) {
         SymbolGlyph()
           .attributeModifier(this.titleOptions?.titleIcon)
+          .fontSize($r('sys.float.ohos_id_text_size_headline7'))
+          .size({
+            width: $r('sys.float.ohos_id_text_size_headline7'),
+            height: $r('sys.float.ohos_id_text_size_headline7')
+          })
       }
+      .stateEffect(false)
       .roundIconStyle()
     } else {
       Image(this.titleOptions?.titleIcon ?? this.atomicServiceIcon)
@@ -512,6 +563,7 @@ export struct AtomicServiceNavigation {
   @Styles
   longIconStyles() {
     .height(36)
+    .width(36)
     .margin({
       start: LengthMetrics.vp(this.marginWindowLeft),
       end: LengthMetrics.vp(-12),
@@ -523,6 +575,7 @@ export struct AtomicServiceNavigation {
       start: LengthMetrics.vp(0),
       top: LengthMetrics.vp(0)
     })
+    .backgroundColor('rgba(0, 0, 0, 0)')
   }
 
   @Builder
@@ -531,10 +584,15 @@ export struct AtomicServiceNavigation {
       Button() {
         SymbolGlyph()
           .attributeModifier(this.titleOptions?.titleIcon)
+          .fontSize($r('sys.float.ohos_id_text_size_headline7'))
+          .size({
+            width: $r('sys.float.ohos_id_text_size_headline7'),
+            height: $r('sys.float.ohos_id_text_size_headline7')
+          })
       }
-      .backgroundColor($r('sys.color.ohos_id_color_button_normal'))
-      .width(36)
       .longIconStyles()
+      .stateEffect(false)
+      .type(ButtonType.Normal)
     } else {
       Image(this.titleOptions?.titleIcon ?? this.atomicServiceIcon)
         .longIconStyles()
@@ -655,6 +713,7 @@ export struct AtomicServiceNavigation {
         .onNavigationModeChange(this.modeChangeCallback)
       }
     }
+    .align(Alignment.TopStart)
     .width('100%')
     .height('100%')
     .onSizeChange((oldValue: SizeOptions, newValue: SizeOptions) => {

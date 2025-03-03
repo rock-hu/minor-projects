@@ -788,6 +788,7 @@ struct ArkUIMenuDividerOptions {
     ArkUI_Uint32 color;
     ArkUIDimensionType startMargin;
     ArkUIDimensionType endMargin;
+    ArkUI_Int32 mode;
 };
 
 struct ArkUIBackdropBlur {
@@ -5148,6 +5149,8 @@ struct ArkUISelectModifier {
     void (*resetSelectDividerNull)(ArkUINodeHandle node);
     void (*setSelectDirection)(ArkUINodeHandle node, ArkUI_Int32 direction);
     void (*resetSelectDirection)(ArkUINodeHandle node);
+    void (*setSelectDividerStyle)(ArkUINodeHandle node, ArkUIMenuDividerOptions* menuItemDividerInfo);
+    void (*resetSelectDividerStyle)(ArkUINodeHandle node);
 };
 
 /** Common for all API variants.*/
@@ -5498,6 +5501,13 @@ struct ArkUIXComponentModifier {
     void (*startImageAnalyzer)(ArkUINodeHandle node, void* arkuiNode, void* userData,
         XComponentAnalyzerCallback callback);
     void (*stopImageAnalyzer)(ArkUINodeHandle node);
+    void* (*createSurfaceHolder)(ArkUINodeHandle node);
+    void (*dispose)(ArkUINodeHandle node);
+    ArkUI_Int32 (*setAutoInitialize)(ArkUINodeHandle node, ArkUI_Bool autoInitialize);
+    ArkUI_Int32 (*initialize)(ArkUINodeHandle node);
+    ArkUI_Int32 (*isInitialized)(ArkUINodeHandle node, ArkUI_Bool* isInitialized);
+    ArkUI_Int32 (*finalize)(ArkUINodeHandle node);
+    ArkUI_Bool (*getXComponentIsBindNative)(ArkUINodeHandle node);
 };
 
 struct ArkUIStateModifier {
@@ -6017,6 +6027,13 @@ struct ArkUIDialogAPI {
     ArkUI_Int32 (*setLevelUniqueId)(ArkUIDialogHandle handle, ArkUI_Int32 uniqueId);
     ArkUI_Int32 (*setImmersiveMode)(ArkUIDialogHandle handle, ArkUI_Int32 mode);
     ArkUI_Int32 (*setLevelOrder)(ArkUIDialogHandle handle, ArkUI_Float64 levelOrder);
+    ArkUI_Int32 (*setFocusable)(ArkUIDialogHandle handle, ArkUI_Bool focusable);
+    ArkUI_Int32 (*registerOnWillAppear)(ArkUIDialogHandle handle, void* userData, void (*callback)(void* userData));
+    ArkUI_Int32 (*registerOnDidAppear)(ArkUIDialogHandle handle, void* userData, void (*callback)(void* userData));
+    ArkUI_Int32 (*registerOnWillDisappear)(ArkUIDialogHandle handle, void* userData, void (*callback)(void* userData));
+    ArkUI_Int32 (*registerOnDidDisappear)(ArkUIDialogHandle handle, void* userData, void (*callback)(void* userData));
+    ArkUI_Int32 (*openCustomDialog)(ArkUIDialogHandle handle, void (*callback)(ArkUI_Int32 dialogId));
+    ArkUI_Int32 (*closeCustomDialog)(ArkUI_Int32 dialogId);
 };
 
 struct ArkUIBasicNodeAPI {

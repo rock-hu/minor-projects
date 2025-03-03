@@ -2233,7 +2233,7 @@ int32_t ViewAbstract::ClosePopup(const RefPtr<UINode>& customNode)
     }
     if (!popupInfo.isCurrentOnShow) {
         TAG_LOGE(AceLogTag::ACE_DIALOG, "The popup is not on show.");
-        return ERROR_CODE_INTERNAL_ERROR;
+        return ERROR_CODE_DIALOG_CONTENT_NOT_FOUND;
     }
     popupInfo.markNeedUpdate = true;
     overlayManager->HidePopup(targetId, popupInfo);
@@ -2408,10 +2408,17 @@ int32_t ViewAbstract::UpdateMenu(const NG::MenuParam& menuParam, const RefPtr<NG
         if (!menuItemPattern) {
             continue;
         }
-        menuItemPattern->HideEmbedded();
+        menuItemPattern->HideEmbedded(false);
     }
-    wrapperPattern->HideSubMenu();
+    uint32_t minChildrenSize = 1;
+    if (menuWrapperNode->GetChildren().size() > minChildrenSize) {
+        auto subMenu = menuWrapperNode->GetChildren().back();
+        if (subMenu && subMenu->GetTag() == V2::MENU_ETS_TAG) {
+            wrapperPattern->HideSubMenu();
+        }
+    }
     menuWrapperNode->MarkDirtyNode(PROPERTY_UPDATE_MEASURE_SELF_AND_CHILD);
+    menu->MarkDirtyNode(PROPERTY_UPDATE_MEASURE_SELF_AND_CHILD);
     if (pipeline) {
         pipeline->FlushUITasks();
         wrapperPattern->SetForceUpdateEmbeddedMenu(false);

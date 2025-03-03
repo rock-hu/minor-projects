@@ -19,6 +19,23 @@
 #include "ark_interop_log.h"
 #include "cj_envsetup.h"
 
+#include <mutex>
+#include <map>
+
+#ifdef USE_LIBS_ARM64
+#define LIBS_NAME "arm64"
+#elif defined(USE_LIBS_ARM)
+#define LIBS_NAME "arm"
+#elif defined(USE_LIBS_x86_64)
+#define LIBS_NAME "x86_64"
+#else
+#error current platform not supported
+#endif
+
+static std::mutex g_mutex;
+static bool g_isInited = false;
+static std::map<napi_env, std::map<std::string, napi_ref>> envMap = {};
+
 static bool ParseLoadParams(napi_env env, napi_callback_info info, char* nameBuf, size_t& size)
 {
     napi_value libNameValue;
@@ -56,8 +73,21 @@ static bool ParseLoadParams(napi_env env, napi_callback_info info, char* nameBuf
 static bool LoadArkCJModule(void *handle, napi_env env, const char* libName, napi_value* result)
 {
     auto engine = reinterpret_cast<NativeEngine*>(env);
+    std::lock_guard<std::mutex> lock(g_mutex);
+    std::string str(libName);
+    if (envMap.find(env) != envMap.end() && envMap[env].find(str) != envMap[env].end()) {
+        napi_value callback = nullptr;
+        napi_get_reference_value(env, envMap[env][str], &callback);
+        *result = callback;
+        return true;
+    }
     auto runtime = OHOS::CJEnv::LoadInstance();
     if (handle == nullptr) {
+        LOGE("get handle failed");
+        return false;
+    }
+    if (runtime == nullptr) {
+        LOGE("load Instance failed");
         return false;
     }
     if (auto symbol = runtime->getSymbol(handle, "ARKTS_LoadModuleByNapiEnv")) {
@@ -70,6 +100,9 @@ static bool LoadArkCJModule(void *handle, napi_env env, const char* libName, nap
     } else {
         return false;
     }
+    napi_ref callbackRef = nullptr;
+    napi_create_reference(env, *result, 1, &callbackRef);
+    envMap[env][str] = callbackRef;
 
     return true;
 }
@@ -85,6 +118,10 @@ static void *GetArkInteropLibHandle(napi_env env)
     targetName = "libark_interop.so";
 #endif
     auto runtime = OHOS::CJEnv::LoadInstance();
+    if (!runtime) {
+        LOGE("load Instance failed");
+        return nullptr;
+    }
     auto handle = runtime->loadLibrary(0, targetName);
     if (!handle) {
         LOGE("open '%{public}s' failed", targetName);
@@ -96,6 +133,10 @@ static void *GetArkInteropLibHandle(napi_env env)
 static bool RegisterStackInfoCallbacks(void *arkInteropLibHandle)
 {
     auto runtime = OHOS::CJEnv::LoadInstance();
+    if (!runtime) {
+        LOGE("load Instance failed");
+        return false;
+    }
     auto updateStackInfoFunc = runtime->getSymbol(arkInteropLibHandle, "ARKTS_UpdateStackInfo");
     if (updateStackInfoFunc == nullptr) {
         LOGE("load symbol ARKTS_UpdateStackInfo failed");
@@ -120,25 +161,35 @@ static napi_value LoadCJModule(napi_env env, napi_callback_info info)
     if (!ParseLoadParams(env, info, nameBuf, realSize)) {
         return result;
     }
-    auto runtime = OHOS::CJEnv::LoadInstance();
-    runtime->initCJChipSDKNS("/system/lib64/chipset-pub-sdk");
-    runtime->initCJAppNS("/data/storage/el1/bundle/libs/arm64");
-    runtime->initCJSDKNS("/data/storage/el1/bundle/libs/arm64/ohos:"
-                                 "/data/storage/el1/bundle/libs/arm64/runtime");
-    runtime->initCJSysNS("/system/lib64:/system/lib64/platformsdk:/system/lib64/module:/system/lib64/ndk");
-    if (!runtime->startRuntime()) {
-        LOGE("start cjruntime failed");
-        return result;
-    }
-    arkInteropHandle = GetArkInteropLibHandle(env);
-    RegisterStackInfoCallbacks(arkInteropHandle);
-    auto engine = reinterpret_cast<NativeEngine*>(env);
-    auto vm = const_cast<EcmaVM*>(engine->GetEcmaVm());
-    auto vmAddr = static_cast<unsigned long long>(reinterpret_cast<uintptr_t>(vm));
-    runtime->registerArkVMInRuntime(vmAddr);
-    if (!runtime->startUIScheduler()) {
-        LOGE("start cj ui context failed");
-        return result;
+    if (!g_isInited) {
+        std::lock_guard<std::mutex> lock(g_mutex);
+        if (!g_isInited) {
+            auto runtime = OHOS::CJEnv::LoadInstance();
+            if (!runtime) {
+                LOGE("load Instance failed");
+                return result;
+            }
+            runtime->initCJChipSDKNS("/system/lib64/chipset-pub-sdk");
+            runtime->initCJAppNS("/data/storage/el1/bundle/libs/" LIBS_NAME);
+            runtime->initCJSDKNS("/data/storage/el1/bundle/libs/" LIBS_NAME "/ohos:"
+                                 "/data/storage/el1/bundle/libs/" LIBS_NAME "/runtime");
+            runtime->initCJSysNS("/system/lib64:/system/lib64/platformsdk:/system/lib64/module:/system/lib64/ndk");
+            if (!runtime->startRuntime()) {
+                LOGE("start cjruntime failed");
+                return result;
+            }
+            arkInteropHandle = GetArkInteropLibHandle(env);
+            RegisterStackInfoCallbacks(arkInteropHandle);
+            auto engine = reinterpret_cast<NativeEngine*>(env);
+            auto vm = const_cast<EcmaVM*>(engine->GetEcmaVm());
+            auto vmAddr = static_cast<unsigned long long>(reinterpret_cast<uintptr_t>(vm));
+            runtime->registerArkVMInRuntime(vmAddr);
+            if (!runtime->startUIScheduler()) {
+                LOGE("start cj ui context failed");
+                return result;
+            }
+            g_isInited = true;
+        }
     }
     
     LoadArkCJModule(arkInteropHandle, env, nameBuf, &result);

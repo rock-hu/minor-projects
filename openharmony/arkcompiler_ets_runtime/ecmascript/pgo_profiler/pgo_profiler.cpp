@@ -139,6 +139,15 @@ void PGOProfiler::ProfileProtoTransitionClass(JSHandle<JSFunction> func,
         ProfileClassRootHClass(func.GetTaggedType(), hclass.GetTaggedType());
         return;
     }
+
+    // In the case of `subclass.prototype = Object.create(superclass)`, the current PGO is
+    // unable to collect the pgotype of Object.create(superclass). As a result, when subclass.prototype is modified,
+    // ts hclass cannot be reconstructed during the AOT phase, leading to deoptimization.
+    JSHClass *baseRoot = JSHClass::FindRootHClass(JSHClass::Cast(JSTaggedValue(baseIhc).GetTaggedObject()));
+    if (GetProfileType(baseRoot).IsNone()) {
+        return;
+    }
+
     JSHandle<JSTaggedValue> keyHandle(thread, thread->GlobalConstants()->GetGlobalConstantObject(
         static_cast<size_t>(ConstantIndex::PROTO_TRANS_ROOT_HCLASS_SYMBOL_INDEX)));
     PropertyDescriptor desc(thread);
@@ -188,6 +197,14 @@ void PGOProfiler::ProfileProtoTransitionPrototype(JSHandle<JSFunction> func,
     JSHandle<JSTaggedValue> transIhc(thread, JSTaggedValue::Undefined());
     JSHandle<JSTaggedValue> transPhc(thread, prototype->GetTaggedObject()->GetClass());
     if (JSHandle<JSHClass>(baseIhc)->IsDictionaryMode() || JSHandle<JSHClass>(transPhc)->IsDictionaryMode()) {
+        return;
+    }
+
+    // In the case of `subclass.prototype = Object.create(superclass)`, the current PGO is
+    // unable to collect the pgotype of Object.create(superclass). As a result, when subclass.prototype is modified,
+    // ts hclass cannot be reconstructed during the AOT phase, leading to deoptimization.
+    JSHClass *baseRoot = JSHClass::FindRootHClass(JSHClass::Cast(baseIhc.GetTaggedValue().GetTaggedObject()));
+    if (GetProfileType(baseRoot).IsNone()) {
         return;
     }
     auto *transitionTable = thread->GetCurrentEcmaContext()->GetFunctionProtoTransitionTable();
@@ -597,8 +614,7 @@ void PGOProfiler::TrySaveByDumpThread()
     // trigger save every 50 methods and duration greater than 30s
     if (methodCount_ >= MERGED_EVERY_COUNT && interval > mergeMinInterval) {
         LOG_PGO(INFO) << "trigger save task, methodCount_ = " << methodCount_;
-        // possible state: START
-        state_->SetState(State::SAVE);
+        state_->SetSaveAndNotify();
         manager_->SavePGOInfo();
         SetSaveTimestamp(std::chrono::system_clock::now());
         methodCount_ = 0;

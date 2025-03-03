@@ -196,6 +196,9 @@ void OnMessage(const std::string &message)
                 LOGI("stopDebugger start");
                 g_inspector->setDebugMode_();
             }
+            if (g_setConnectCallBack != nullptr) {
+                g_setConnectCallBack(false);
+            }
         }
         OnInspectorRecordMessage(message);
     }
@@ -361,7 +364,7 @@ void SetWMSCallback(const std::function<void(const char *)> &wMSCallback)
     g_inspector->wMSCallback_ = wMSCallback;
 }
 
-void SetCangjieCallback(const std::function<void(const std::string& message, SendMsgCB sendMsg)> &cangjieCallback)
+void SetCangjieCallback(CJCallback &cangjieCallback)
 {
     std::lock_guard<std::mutex> lock(g_connectMutex);
     if (g_inspector == nullptr) {

@@ -282,6 +282,14 @@ JSRef<JSObject> JSRichEditor::CreateJSParagraphStyle(const TextStyleResult& text
     return paragraphStyleObj;
 }
 
+void JSRichEditor::SetJSUrlStyle(const std::u16string& urlAddress, JSRef<JSObject>& resultObj)
+{
+    CHECK_NULL_VOID(!urlAddress.empty());
+    JSRef<JSObject> urlStyleObj = JSRef<JSObject>::New();
+    urlStyleObj->SetProperty<std::u16string>("url", urlAddress);
+    resultObj->SetPropertyObject("urlStyle", urlStyleObj);
+}
+
 JSRef<JSObject> JSRichEditor::CreateJSSymbolSpanStyleResult(const SymbolSpanStyle& symbolSpanStyle)
 {
     JSRef<JSObject> symbolSpanStyleObj = JSRef<JSObject>::New();
@@ -300,6 +308,7 @@ JSRef<JSObject> JSRichEditor::CreateJSSymbolSpanStyleResult(const SymbolSpanStyl
 JSRef<JSObject> JSRichEditor::CreateJSValueResource(const RefPtr<ResourceObject>& valueResource)
 {
     JSRef<JSObject> valueResourceObj = JSRef<JSObject>::New();
+    CHECK_NULL_RETURN(valueResource, valueResourceObj);
     valueResourceObj->SetProperty<std::string>("bundleName", valueResource->GetBundleName());
     valueResourceObj->SetProperty<std::string>("moduleName", valueResource->GetModuleName());
     valueResourceObj->SetProperty<uint32_t>("id", valueResource->GetId());
@@ -382,6 +391,7 @@ void JSRichEditor::SetJSSpanResultObject(JSRef<JSObject>& resultObj, const Resul
         resultObj->SetProperty<std::u16string>("previewText", resultObject.previewText);
         resultObj->SetPropertyObject("textStyle", CreateJSTextStyleResult(resultObject.textStyle));
         resultObj->SetPropertyObject("paragraphStyle", CreateJSParagraphStyle(resultObject.textStyle));
+        SetJSUrlStyle(resultObject.urlAddress, resultObj);
     } else if (resultObject.type == SelectSpanType::TYPESYMBOLSPAN) {
         resultObj->SetProperty<std::u16string>("value", resultObject.valueString);
         resultObj->SetPropertyObject("symbolSpanStyle", CreateJSSymbolSpanStyleResult(resultObject.symbolSpanStyle));
@@ -722,6 +732,7 @@ JSRef<JSVal> JSRichEditor::CreateJsOnIMEInputComplete(const NG::RichEditorAbstra
     onIMEInputCompleteObj->SetPropertyObject("textStyle", textStyleObj);
     onIMEInputCompleteObj->SetPropertyObject("offsetInSpan", offsetInSpan);
     onIMEInputCompleteObj->SetPropertyObject("paragraphStyle", CreateJSParagraphStyle(textSpanResult.GetTextStyle()));
+    SetJSUrlStyle(textSpanResult.GetUrlAddress(), onIMEInputCompleteObj);
     return JSRef<JSVal>::Cast(onIMEInputCompleteObj);
 }
 
@@ -778,6 +789,7 @@ void JSRichEditor::SetJSDeleteSpan(JSRef<JSObject>& spanResultObj, const NG::Ric
             spanResultObj->SetProperty<std::u16string>("previewText", it.GetPreviewText());
             spanResultObj->SetPropertyObject("textStyle", textStyleObj);
             spanResultObj->SetPropertyObject("paragraphStyle", CreateJSParagraphStyle(it.GetTextStyle()));
+            SetJSUrlStyle(it.GetUrlAddress(), spanResultObj);
             break;
         }
         case NG::SpanResultType::IMAGE: {
@@ -845,6 +857,7 @@ void JSRichEditor::SetTextChangeSpanResult(JSRef<JSObject>& resultObj,
     resultObj->SetProperty<std::u16string>("previewText", spanResult.GetPreviewText());
     resultObj->SetPropertyObject("textStyle", textStyleObj);
     resultObj->SetPropertyObject("paragraphStyle", CreateJSParagraphStyle(spanResult.GetTextStyle()));
+    SetJSUrlStyle(spanResult.GetUrlAddress(), resultObj);
 }
 
 void JSRichEditor::SetSymbolChangeSpanResult(JSRef<JSObject>& resultObj,
@@ -1562,6 +1575,19 @@ void JSRichEditorController::ParseJsSymbolSpanStyle(
     }
 }
 
+void JSRichEditorBaseController::ParseTextUrlStyle(const JSRef<JSObject>& jsObject,
+    std::optional<std::u16string>& urlAddressOpt)
+{
+    ContainerScope scope(instanceId_ < 0 ? Container::CurrentId() : instanceId_);
+    JSRef<JSObject> urlStyleObj = JSObjectCast(jsObject->GetProperty("urlStyle"));
+    CHECK_NULL_VOID(!urlStyleObj->IsUndefined());
+ 
+    JSRef<JSVal> urlObj = urlStyleObj->GetProperty("url");
+    CHECK_NULL_VOID(!urlObj->IsEmpty() && urlObj->IsString());
+ 
+    urlAddressOpt = urlObj->ToU16String();
+}
+
 void JSRichEditorController::ParseUserGesture(
     const JSCallbackInfo& args, UserGestureOptions& gestureOption, const std::string& spanType)
 {
@@ -1845,6 +1871,7 @@ void JSRichEditorController::AddTextSpan(const JSCallbackInfo& args)
         if (ParseParagraphStyle(paraStyleObj, style)) {
             options.paraStyle = style;
         }
+        ParseTextUrlStyle(spanObject, options.urlAddress);
         UserGestureOptions gestureOption;
         ParseUserGesture(args, gestureOption, "TextSpan");
         options.userGestureOption = std::move(gestureOption);
@@ -2272,6 +2299,7 @@ void JSRichEditorController::UpdateSpanStyle(const JSCallbackInfo& info)
         TextStyle symbolTextStyle;
         ParseJsSymbolSpanStyle(richEditorSymbolSpanStyle, symbolTextStyle, updateSpanStyle_);
     }
+    ParseTextUrlStyle(jsObject, updateSpanStyle_.updateUrlAddress);
 
     auto richEditorController = AceType::DynamicCast<RichEditorControllerBase>(controller);
     CHECK_NULL_VOID(richEditorController);

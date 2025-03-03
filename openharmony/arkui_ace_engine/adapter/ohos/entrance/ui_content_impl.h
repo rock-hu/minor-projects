@@ -421,6 +421,7 @@ private:
     RefPtr<PopupParam> CreateCustomPopupParam(bool isShow, const CustomPopupUIExtensionConfig& config);
     void OnPopupStateChange(const std::string& event, const CustomPopupUIExtensionConfig& config, int32_t nodeId);
     void SetCustomPopupConfig(int32_t nodeId, const CustomPopupUIExtensionConfig& config, int32_t popupId);
+    bool IfNeedTouchOutsideListener(const std::string& windowName);
 
     void AddWatchSystemParameter();
     void StoreConfiguration(const std::shared_ptr<OHOS::AppExecFwk::Configuration>& config);
@@ -431,6 +432,7 @@ private:
     void UnSubscribeEventsPassThroughMode();
     bool GetWindowSizeChangeReason(OHOS::Rosen::WindowSizeChangeReason lastReason,
         OHOS::Rosen::WindowSizeChangeReason reason);
+    void ChangeDisplayAvailableAreaListener(uint64_t displayId);
     std::weak_ptr<OHOS::AbilityRuntime::Context> context_;
     void* runtime_ = nullptr;
     OHOS::Rosen::Window* window_ = nullptr;

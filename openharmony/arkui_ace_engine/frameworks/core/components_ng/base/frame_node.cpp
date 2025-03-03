@@ -88,9 +88,6 @@ constexpr int32_t DEFAULT_PRECISION = 2;
 } // namespace
 namespace OHOS::Ace::NG {
 
-const std::set<std::string> FrameNode::layoutTags_ = { "Flex", "Stack", "Row", "Column", "WindowScene", "root",
-    "__Common__", "Swiper", "Grid", "GridItem", "page", "stage", "FormComponent", "Tabs", "TabContent" };
-
 class FrameNode::FrameProxy final : public RecursiveLock {
 public:
     struct FrameChildNode {
@@ -264,7 +261,6 @@ public:
             } else {
                 LOGW("[%{public}d:%{public}s] reset children while in use",
                     hostNode_->GetId(), hostNode_->GetTag().c_str());
-                LogBacktrace();
             }
             delayReset_ = true;
             needResetChild_ = needResetChild;
@@ -898,6 +894,24 @@ void FrameNode::DumpOnSizeChangeInfo()
     }
 }
 
+void FrameNode::DumpKeyboardShortcutInfo()
+{
+    auto eventHub = GetEventHubOnly<EventHub>();
+    if (!eventHub) {
+        return;
+    }
+    auto keyboardShortcuts = eventHub->GetKeyboardShortcut();
+    std::string result;
+    for (auto& keyboardShortcut : keyboardShortcuts) {
+        result.append("KeyboardShortcut: ")
+            .append("keys: ")
+            .append(std::to_string(keyboardShortcut.keys))
+            .append(" value: ")
+            .append(keyboardShortcut.value);
+    }
+    DumpLog::GetInstance().AddDesc(result);
+}
+
 void FrameNode::DumpOverlayInfo()
 {
     if (!layoutProperty_->IsOverlayNode()) {
@@ -1050,6 +1064,7 @@ void FrameNode::DumpInfo()
 {
     DumpCommonInfo();
     DumpOnSizeChangeInfo();
+    DumpKeyboardShortcutInfo();
     if (pattern_) {
         pattern_->DumpInfo();
     }
@@ -1062,6 +1077,7 @@ void FrameNode::DumpAdvanceInfo()
 {
     DumpCommonInfo();
     DumpOnSizeChangeInfo();
+    DumpKeyboardShortcutInfo();
     if (pattern_) {
         pattern_->DumpInfo();
         pattern_->DumpAdvanceInfo();
@@ -1285,7 +1301,9 @@ void FrameNode::OnAttachToMainTree(bool recursive)
     if (isActive_ && SystemProperties::GetDeveloperModeOn()) {
         PaintDebugBoundary(SystemProperties::GetDebugBoundaryEnabled());
     }
-    bool forceMeasure = !GetPattern()->ReusedNodeSkipMeasure();
+    bool forceMeasure =
+        !(GetPattern()->ReusedNodeSkipMeasure() ||
+            AceApplicationInfo::GetInstance().GreatOrEqualTargetAPIVersion(PlatformVersion::VERSION_SIXTEEN));
     // node may have been measured before AttachToMainTree
     if (geometryNode_->GetParentLayoutConstraint().has_value() && !UseOffscreenProcess() && forceMeasure) {
         layoutProperty_->UpdatePropertyChangeFlag(PROPERTY_UPDATE_MEASURE_SELF);
@@ -1395,8 +1413,19 @@ void FrameNode::FireColorNDKCallback()
     std::shared_lock<std::shared_mutex> lock(colorModeCallbackMutex_);
     if (ndkColorModeUpdateCallback_) {
         auto colorModeChange = ndkColorModeUpdateCallback_;
-        colorModeChange(SystemProperties::GetColorMode() == ColorMode::DARK);
+        auto context = GetContext();
+        CHECK_NULL_VOID(context);
+        colorModeChange(context->GetColorMode() == ColorMode::DARK);
     }
+}
+
+void FrameNode::SetNDKColorModeUpdateCallback(const std::function<void(int32_t)>&& callback)
+{
+    std::unique_lock<std::shared_mutex> lock(colorModeCallbackMutex_);
+    ndkColorModeUpdateCallback_ = callback;
+    auto context = GetContext();
+    CHECK_NULL_VOID(context);
+    colorMode_ = context->GetColorMode();
 }
 
 void FrameNode::FireFontNDKCallback(const ConfigurationChange& configurationChange)
@@ -3102,7 +3131,7 @@ std::vector<RectF> FrameNode::GetResponseRegionListForTouch(const RectF& rect)
         ACE_LAYOUT_TRACE_END()
         return responseRegionList;
     }
-    auto offset = GetPositionToScreen();
+    auto offset = GetPositionToScreenWithTransform();
     if (gestureHub->GetResponseRegion().empty()) {
         RectF rectToScreen{round(offset.GetX()), round(offset.GetY()), round(rect.Width()), round(rect.Height())};
         responseRegionList.emplace_back(rectToScreen);
@@ -3133,7 +3162,7 @@ void FrameNode::GetResponseRegionListByTraversal(std::vector<RectF>& responseReg
     auto origRect = renderContext_->GetPaintRectWithoutTransform();
     auto pipelineContext = GetContext();
     CHECK_NULL_VOID(pipelineContext);
-    auto offset = GetPositionToScreen();
+    auto offset = GetPositionToScreenWithTransform();
     RectF rectToScreen{offset.GetX(), offset.GetY(), origRect.Width(), origRect.Height()};
     auto window = pipelineContext->GetCurrentWindowRect();
     RectF windowRect{window.Left(), window.Top(), window.Width(), window.Height()};
@@ -3559,6 +3588,25 @@ VectorF FrameNode::GetTransformScaleRelativeToWindow() const
         parent = parent->GetAncestorNodeOfFrame(true);
     }
     return finalScale;
+}
+
+int32_t FrameNode::GetTransformRotateRelativeToWindow(bool excludeSelf)
+{
+    int32_t FULL_CIRCLE_ANGLE = 360;
+    int32_t rotateDegree = 0;
+    auto context = GetRenderContext();
+    if (context && !excludeSelf) {
+        rotateDegree = context->GetRotateDegree();
+    }
+    auto parent = GetAncestorNodeOfFrame(true);
+    while (parent) {
+        auto contextParent = parent->GetRenderContext();
+        if (contextParent) {
+            rotateDegree += contextParent->GetRotateDegree();
+        }
+        parent = parent->GetAncestorNodeOfFrame(true);
+    }
+    return rotateDegree %= FULL_CIRCLE_ANGLE;
 }
 
 // returns a node's rect relative to window
@@ -4387,7 +4435,7 @@ void FrameNode::Measure(const std::optional<LayoutConstraintF>& parentConstraint
         auto height = width / aspectRatio;
         geometryNode_->SetFrameSize(SizeF({ width, height }));
     }
-    if (Container::GreatOrEqualAPITargetVersion(PlatformVersion::VERSION_SIXTEEN)) {
+    if (GreatOrEqualAPITargetVersion(PlatformVersion::VERSION_SIXTEEN)) {
         auto size = geometryNode_->GetFrameSize();
         geometryNode_->SetFrameSize(SizeF({ round(size.Width()), round(size.Height()) }));
     }
@@ -5649,7 +5697,8 @@ bool FrameNode::IsContextTransparent()
     if (renderContext_->GetOpacity().has_value() && renderContext_->GetOpacity().value() <= MIN_OPACITY) {
         return true;
     }
-    if (layoutTags_.find(GetTag()) == layoutTags_.end()) {
+    auto layoutTags = GetLayoutTags();
+    if (layoutTags.find(GetTag()) == layoutTags.end()) {
         if (width > MIN_WIDTH && height > MIN_HEIGHT &&
             static_cast<int32_t>(layoutProperty_->GetVisibility().value_or(VisibleType::VISIBLE)) == 0) {
             return false;

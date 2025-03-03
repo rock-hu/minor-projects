@@ -155,10 +155,6 @@ UIExtensionPattern::UIExtensionPattern(
     isAsyncModalBinding_(isAsyncModalBinding), sessionType_(sessionType)
 {
     uiExtensionId_ = UIExtensionIdUtility::GetInstance().ApplyExtensionId();
-    sessionWrapper_ = SessionWrapperFactory::CreateSessionWrapper(
-        sessionType, AceType::WeakClaim(this), instanceId_, isTransferringCaller_);
-    accessibilitySessionAdapter_ =
-        AceType::MakeRefPtr<AccessibilitySessionAdapterUIExtension>(sessionWrapper_);
     UIEXT_LOGI("The %{public}smodal UIExtension is created.", isModal_ ? "" : "non");
 }
 
@@ -205,6 +201,19 @@ void UIExtensionPattern::LogoutModalUIExtension()
     overlay->ResetRootNode(-(sessionId));
 }
 
+void UIExtensionPattern::Initialize()
+{
+    if (hasInitialize_) {
+        return;
+    }
+
+    sessionWrapper_ = SessionWrapperFactory::CreateSessionWrapper(
+        sessionType_, AceType::WeakClaim(this), instanceId_, isTransferringCaller_);
+    accessibilitySessionAdapter_ =
+        AceType::MakeRefPtr<AccessibilitySessionAdapterUIExtension>(sessionWrapper_);
+    hasInitialize_ = true;
+}
+
 RefPtr<LayoutAlgorithm> UIExtensionPattern::CreateLayoutAlgorithm()
 {
     return MakeRefPtr<UIExtensionLayoutAlgorithm>();
@@ -218,6 +227,143 @@ FocusPattern UIExtensionPattern::GetFocusPattern() const
 RefPtr<AccessibilitySessionAdapter> UIExtensionPattern::GetAccessibilitySessionAdapter()
 {
     return accessibilitySessionAdapter_;
+}
+
+void UIExtensionPattern::OnAttachToMainTree()
+{
+    UIEXT_LOGI("OnAttachToMainTree, isMoving: %{public}d", IsMoving());
+}
+
+void UIExtensionPattern::OnDetachFromMainTree()
+{
+    UIEXT_LOGI("OnDetachFromMainTree, isMoving: %{public}d", IsMoving());
+}
+
+void UIExtensionPattern::OnAttachContext(PipelineContext *context)
+{
+    CHECK_NULL_VOID(context);
+    auto newInstanceId = context->GetInstanceId();
+    bool isMoving = IsMoving();
+    UIEXT_LOGI("OnAttachContext newInstanceId: %{public}d, oldInstanceId: %{public}d,"
+        " isMoving: %{public}d.", newInstanceId, instanceId_, isMoving);
+    if (newInstanceId != instanceId_) {
+        UnRegisterEvent(instanceId_);
+        RegisterEvent(newInstanceId);
+        instanceId_ = newInstanceId;
+        UpdateSessionInstanceId(newInstanceId);
+    }
+}
+
+void UIExtensionPattern::UpdateSessionInstanceId(int32_t instanceId)
+{
+    auto sessionWrapperImpl = AceType::DynamicCast<SessionWrapperImpl>(sessionWrapper_);
+    if (!sessionWrapperImpl) {
+        UIEXT_LOGW("DynamicCast failed, sessionWrapperImpl is nullptr");
+        return;
+    }
+
+    sessionWrapperImpl->UpdateInstanceId(instanceId);
+}
+
+void UIExtensionPattern::RegisterEvent(int32_t instanceId)
+{
+    RegisterUIExtensionManagerEvent(instanceId);
+    RegisterPipelineEvent(instanceId);
+    hasDetachContext_ = false;
+}
+
+void UIExtensionPattern::RegisterPipelineEvent(int32_t instanceId)
+{
+    ContainerScope scope(instanceId);
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto pipeline = PipelineContext::GetContextByContainerId(instanceId);
+    CHECK_NULL_VOID(pipeline);
+    RegisterPipelineEvent(pipeline);
+}
+
+void UIExtensionPattern::RegisterUIExtensionManagerEvent(int32_t instanceId)
+{
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto pipeline = PipelineContext::GetContextByContainerId(instanceId);
+    CHECK_NULL_VOID(pipeline);
+    auto uiExtensionManager = pipeline->GetUIExtensionManager();
+    CHECK_NULL_VOID(uiExtensionManager);
+    // 1. Add alive uec in uiExtensionManager
+    uiExtensionManager->AddAliveUIExtension(host->GetId(), WeakClaim(this));
+
+    // 2. Add focus uec in uiExtensionManager
+    auto focusHub = host->GetFocusHub();
+    CHECK_NULL_VOID(focusHub);
+    bool isFocusd = focusHub && focusHub->IsCurrentFocus();
+    if (isFocusd) {
+        uiExtensionManager->RegisterUIExtensionInFocus(WeakClaim(this), sessionWrapper_);
+    }
+    UIEXT_LOGI("RegisterUIExtensionManagerEvent");
+}
+
+void UIExtensionPattern::OnDetachContext(PipelineContext *context)
+{
+    CHECK_NULL_VOID(context);
+    auto instanceId = context->GetInstanceId();
+    if (instanceId != instanceId_) {
+        UIEXT_LOGW("InstanceId(%{public}d) is inconsistent with the exist Id(%{public}d),",
+            instanceId, instanceId_);
+        return;
+    }
+
+    bool isMoving = IsMoving();
+    UIEXT_LOGI("OnDetachContext instanceId: %{public}d, isMoving: %{public}d,"
+        " isOnDetachContext: %{public}d.", instanceId, isMoving, hasDetachContext_);
+    if (!isMoving && !hasDetachContext_) {
+        UnRegisterEvent(instanceId);
+    }
+}
+
+void UIExtensionPattern::UnRegisterEvent(int32_t instanceId)
+{
+    UnRegisterUIExtensionManagerEvent(instanceId);
+    UnRegisterPipelineEvent(instanceId);
+    hasDetachContext_ = true;
+}
+
+void UIExtensionPattern::UnRegisterPipelineEvent(int32_t instanceId)
+{
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto pipeline = PipelineContext::GetContextByContainerId(instanceId);
+    CHECK_NULL_VOID(pipeline);
+    ContainerScope scope(instanceId);
+    UnRegisterPipelineEvent(pipeline, AceType::RawPtr(host));
+}
+
+void UIExtensionPattern::UnRegisterUIExtensionManagerEvent(int32_t instanceId)
+{
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto pipeline = PipelineContext::GetContextByContainerId(instanceId);
+    CHECK_NULL_VOID(pipeline);
+    auto uiExtensionManager = pipeline->GetUIExtensionManager();
+    CHECK_NULL_VOID(uiExtensionManager);
+    // 1. Delete alive uec in uiExtensionManager
+    uiExtensionManager->RemoveDestroyedUIExtension(GetNodeId());
+
+    // 2. Delete focus uec in uiExtensionManager
+    auto focusHub = host->GetFocusHub();
+    CHECK_NULL_VOID(focusHub);
+    bool isFocusd = focusHub && focusHub->IsCurrentFocus();
+    if (isFocusd) {
+        uiExtensionManager->RegisterUIExtensionInFocus(nullptr, nullptr);
+    }
+    UIEXT_LOGI("UnRegisterUIExtensionManagerEvent");
+}
+
+bool UIExtensionPattern::IsMoving()
+{
+    auto host = GetHost();
+    CHECK_NULL_RETURN(host, false);
+    return host->IsMoving();
 }
 
 void UIExtensionPattern::UpdateWant(const RefPtr<OHOS::Ace::WantWrap>& wantWrap)
@@ -710,10 +856,21 @@ private:
 void UIExtensionPattern::OnAttachToFrameNode()
 {
     ContainerScope scope(instanceId_);
+    Initialize();
     auto host = GetHost();
     CHECK_NULL_VOID(host);
     auto pipeline = host->GetContextRefPtr();
     CHECK_NULL_VOID(pipeline);
+    RegisterPipelineEvent(pipeline);
+    UIEXT_LOGI("OnAttachToFrameNode");
+}
+
+void UIExtensionPattern::RegisterPipelineEvent(
+    const RefPtr<PipelineContext>& pipeline)
+{
+    CHECK_NULL_VOID(pipeline);
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
     auto eventHub = host->GetEventHub<EventHub>();
     CHECK_NULL_VOID(eventHub);
     OnAreaChangedFunc onAreaChangedFunc = [weak = WeakClaim(this)](
@@ -745,7 +902,7 @@ void UIExtensionPattern::OnAttachToFrameNode()
     CHECK_NULL_VOID(frontend);
     auto accessibilityManager = frontend->GetAccessibilityManager();
     CHECK_NULL_VOID(accessibilityManager);
-    accessibilityManager->SendFrameNodeToAccessibility(host, true);
+    accessibilityManager->AddFrameNodeToUecStatusVec(host);
     host->RegisterNodeChangeListener();
     accessibilitySAObserverCallback_ = std::make_shared<UECAccessibilitySAObserverCallback>(
         WeakClaim(this), host->GetAccessibilityId());
@@ -753,7 +910,7 @@ void UIExtensionPattern::OnAttachToFrameNode()
     accessibilityManager->RegisterAccessibilitySAObserverCallback(host->GetAccessibilityId(),
         accessibilitySAObserverCallback_);
 #endif
-    UIEXT_LOGI("OnAttachToFrameNode");
+    UIEXT_LOGI("RegisterPipelineEvent");
 }
 
 void UIExtensionPattern::OnDetachFromFrameNode(FrameNode* frameNode)
@@ -763,6 +920,15 @@ void UIExtensionPattern::OnDetachFromFrameNode(FrameNode* frameNode)
     ContainerScope scope(instanceId_);
     auto pipeline = frameNode->GetContextRefPtr();
     CHECK_NULL_VOID(pipeline);
+    UnRegisterPipelineEvent(pipeline, frameNode);
+}
+
+void UIExtensionPattern::UnRegisterPipelineEvent(
+    const RefPtr<PipelineContext>& pipeline, FrameNode* frameNode)
+{
+    CHECK_NULL_VOID(pipeline);
+    CHECK_NULL_VOID(frameNode);
+    auto id = frameNode->GetId();
     pipeline->RemoveOnAreaChangeNode(id);
     pipeline->RemoveWindowSizeChangeCallback(id);
     pipeline->RemoveWindowStateChangedCallback(id);
@@ -774,6 +940,7 @@ void UIExtensionPattern::OnDetachFromFrameNode(FrameNode* frameNode)
     CHECK_NULL_VOID(accessibilityManager);
     accessibilityManager->DeregisterAccessibilitySAObserverCallback(frameNode->GetAccessibilityId());
 #endif
+    UIEXT_LOGI("UnRegisterPipelineEvent");
 }
 
 void UIExtensionPattern::OnModifyDone()
@@ -1546,6 +1713,11 @@ void UIExtensionPattern::RegisterVisibleAreaChange()
 
 void UIExtensionPattern::HandleVisibleAreaChange(bool visible, double ratio)
 {
+    if (IsMoving()) {
+        UIEXT_LOGI("HandleVisibleAreaChange when uec is moving.");
+        return;
+    }
+
     UIEXT_LOGI("HandleVisibleAreaChange visible: %{public}d, curVisible: %{public}d, "
         "ratio: %{public}f, displayArea: %{public}s.", visible, curVisible_,
         ratio, displayArea_.ToString().c_str());
@@ -1938,11 +2110,37 @@ AccessibilityParentRectInfo UIExtensionPattern::GetAccessibilityRectInfo() const
         auto accessibilityManager = pipeline->GetAccessibilityManager();
         if (accessibilityManager) {
             auto windowInfo = accessibilityManager->GenerateWindowInfo(host, pipeline);
-            rectInfo.left =
-                rectInfo.left * windowInfo.scaleX + static_cast<int32_t>(windowInfo.left);
-            rectInfo.top = rectInfo.top * windowInfo.scaleY + static_cast<int32_t>(windowInfo.top);
+            auto rectFinal = accessibilityManager->GetFinalRealRectInfo(host);
+            rectInfo.left = static_cast<int32_t>(rectFinal.Left());
+            rectInfo.top = static_cast<int32_t>(rectFinal.Top());
+            RotateTransform rotateData;
+            RotateTransform windowRotateData = windowInfo.rotateTransform;
+            rotateData.rotateDegree = host->GetTransformRotateRelativeToWindow();
+            AccessibilityRect rotateRect(rectFinal.Left(), rectFinal.Top(),
+                rectFinal.Width(), rectFinal.Height());
+            if (windowRotateData.rotateDegree) {
+                rotateRect.Rotate(windowRotateData.innerCenterX, windowRotateData.innerCenterY,
+                    windowRotateData.rotateDegree);
+                rotateRect.ApplyTransformation(windowRotateData, windowInfo.scaleX, windowInfo.scaleY);
+                rotateData.rotateDegree += windowRotateData.rotateDegree;
+            } else {
+                RotateTransform roateDataTemp(0, windowInfo.left, windowInfo.top, 0, 0);
+                rotateRect.ApplyTransformation(roateDataTemp, windowInfo.scaleX, windowInfo.scaleY);
+            }
+            rectInfo.left = rotateRect.GetX();
+            rectInfo.top = rotateRect.GetY();
             rectInfo.scaleX *= windowInfo.scaleX;
             rectInfo.scaleY *= windowInfo.scaleY;
+            if (rotateData.rotateDegree) {
+                rotateData.centerX = static_cast<int32_t>(rotateRect.GetWidth()) * 0.5f + rotateRect.GetX();
+                rotateData.centerY = static_cast<int32_t>(rotateRect.GetHeight()) * 0.5f + rotateRect.GetY();
+                auto renderContext = host->GetRenderContext();
+                CHECK_NULL_RETURN(renderContext, rectInfo);
+                auto rectOrigin = renderContext->GetPaintRectWithoutTransform();
+                rotateData.innerCenterX = rectOrigin.Width() * 0.5f;
+                rotateData.innerCenterY = rectOrigin.Height() * 0.5f;
+            }
+            rectInfo.rotateTransform = rotateData;
         }
     }
     return rectInfo;
@@ -1960,6 +2158,11 @@ void UIExtensionPattern::TransferAccessibilityRectInfo(bool isForce)
     data.SetParam("top", parentRectInfo.top);
     data.SetParam("scaleX", parentRectInfo.scaleX);
     data.SetParam("scaleY", parentRectInfo.scaleY);
+    data.SetParam("centerX", parentRectInfo.rotateTransform.centerX);
+    data.SetParam("centerY", parentRectInfo.rotateTransform.centerY);
+    data.SetParam("innerCenterX", parentRectInfo.rotateTransform.innerCenterX);
+    data.SetParam("innerCenterY", parentRectInfo.rotateTransform.innerCenterY);
+    data.SetParam("rotateDegree", parentRectInfo.rotateTransform.rotateDegree);
     TAG_LOGI(AceLogTag::ACE_UIEXTENSIONCOMPONENT,
         "UEC Transform rect param[scaleX:%{public}f, scaleY:%{public}f].",
         parentRectInfo.scaleX, parentRectInfo.scaleY);

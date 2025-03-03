@@ -146,10 +146,6 @@ void EcmaVM::PostFork()
     processStartRealtime_ = InitializeStartRealTime();
 
     Jit::GetInstance()->SetJitEnablePostFork(this, bundleName);
-    ModuleLogger *moduleLogger = thread_->GetCurrentEcmaContext()->GetModuleLogger();
-    if (moduleLogger != nullptr) {
-        moduleLogger->PostModuleLoggerTask(thread_->GetThreadId(), this);
-    }
 #if defined(PANDA_TARGET_OHOS) && !defined(STANDALONE_MODE)
     int arkProperties = OHOS::system::GetIntParameter<int>("persist.ark.properties", -1);
     GetJSOptions().SetArkProperties(arkProperties);
@@ -158,6 +154,7 @@ void EcmaVM::PostFork()
     heap_->NotifyPostFork();
     heap_->NotifyFinishColdStartSoon();
 #endif
+    DaemonThread::GetInstance()->EnsureRunning();
 }
 
 EcmaVM::EcmaVM(JSRuntimeOptions options, EcmaParamConfiguration config)

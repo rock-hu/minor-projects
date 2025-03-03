@@ -559,7 +559,8 @@ void ImagePattern::StartDecoding(const SizeF& dstSize)
         return;
     }
 
-    ACE_SCOPED_TRACE("StartDecoding imageInfo: [%s]", imageDfxConfig_.ToStringWithSrc().c_str());
+    ACE_SCOPED_TRACE("StartDecoding imageInfo: [%d-%d-%s]", imageDfxConfig_.nodeId_,
+        static_cast<int32_t>(imageDfxConfig_.accessibilityId_), imageDfxConfig_.imageSrc_.c_str());
 
     const auto& props = DynamicCast<ImageLayoutProperty>(host->GetLayoutProperty());
     CHECK_NULL_VOID(props);
@@ -1518,11 +1519,11 @@ void ImagePattern::DumpImageSourceInfo(const RefPtr<OHOS::Ace::NG::ImageLayoutPr
     DumpLog::GetInstance().AddDesc(
         std::string("SrcType: ").append(std::to_string(static_cast<int32_t>(src.GetSrcType()))));
     DumpLog::GetInstance().AddDesc(
-        std::string("AbilityName: ").append(std::to_string(static_cast<int32_t>(SystemProperties::GetColorMode()))));
+        std::string("AbilityName: ").append(std::to_string(static_cast<int32_t>(Container::CurrentColorMode()))));
     DumpLog::GetInstance().AddDesc(std::string("BundleName: ").append(src.GetBundleName()));
     DumpLog::GetInstance().AddDesc(std::string("ModuleName: ").append(src.GetModuleName()));
     DumpLog::GetInstance().AddDesc(
-        std::string("ColorMode: ").append(std::to_string(static_cast<int32_t>(SystemProperties::GetColorMode()))));
+        std::string("ColorMode: ").append(std::to_string(static_cast<int32_t>(Container::CurrentColorMode()))));
     DumpLog::GetInstance().AddDesc(
         std::string("LocalColorMode: ").append(std::to_string(static_cast<int32_t>(src.GetLocalColorMode()))));
 }

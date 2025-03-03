@@ -185,7 +185,11 @@ void MenuWrapperPattern::HandleMouseEvent(const MouseInfo& info, RefPtr<MenuItem
     CHECK_NULL_VOID(subMenuPattern);
     auto currentHoverMenuItem = subMenuPattern->GetParentMenuItem();
     CHECK_NULL_VOID(currentHoverMenuItem);
-
+    auto geometryNode = subMenuNode->GetGeometryNode();
+    CHECK_NULL_VOID(geometryNode);
+    auto offset = subMenuNode->GetPaintRectOffset(false, true);
+    auto frameSize = geometryNode->GetFrameSize();
+    auto menuZone = RectF(offset.GetX(), offset.GetY(), frameSize.Width(), frameSize.Height());
     auto menuItemNode = menuItemPattern->GetHost();
     CHECK_NULL_VOID(menuItemNode);
     if (currentHoverMenuItem->GetId() != menuItemNode->GetId()) {
@@ -194,11 +198,19 @@ void MenuWrapperPattern::HandleMouseEvent(const MouseInfo& info, RefPtr<MenuItem
     const auto& mousePosition = info.GetGlobalLocation();
     if (!menuItemPattern->IsInHoverRegions(mousePosition.GetX(), mousePosition.GetY()) &&
         menuItemPattern->IsSubMenuShowed()) {
-        HideSubMenu();
-        menuItemPattern->OnHover(false);
-        menuItemPattern->SetIsSubMenuShowed(false);
-        menuItemPattern->ClearHoverRegions();
-        menuItemPattern->ResetWrapperMouseEvent();
+        menuItemPattern->CheckHideSubMenu(
+            [weak = WeakClaim(this), weakSubMenu = WeakClaim(RawPtr(subMenuNode))] {
+                auto pattern = weak.Upgrade();
+                CHECK_NULL_VOID(pattern);
+                auto subMenu = weakSubMenu.Upgrade();
+                CHECK_NULL_VOID(subMenu);
+                if (subMenu == pattern->GetShowedSubMenu()) {
+                    pattern->HideSubMenu();
+                }
+            },
+            PointF(mousePosition.GetX(), mousePosition.GetY()), menuZone);
+    } else {
+        menuItemPattern->CancelHideSubMenuTask(PointF(mousePosition.GetX(), mousePosition.GetY()));
     }
 }
 
@@ -851,16 +863,6 @@ void MenuWrapperPattern::StopPreviewMenuAnimation()
 
     RefPtr<RenderContext> previewPositionContext;
     RefPtr<RenderContext> previewScaleContext;
-    RefPtr<RenderContext> previewDisappearContext;
-
-    GetPreviewRenderContexts(previewPositionContext, previewScaleContext, previewDisappearContext);
-
-    AnimatePreviewMenu(previewPositionContext, previewScaleContext, menuContext, previewDisappearContext);
-}
-
-void MenuWrapperPattern::GetPreviewRenderContexts(RefPtr<RenderContext>& previewPositionContext,
-    RefPtr<RenderContext>& previewScaleContext, RefPtr<RenderContext>& previewDisappearContext)
-{
     if (isShowHoverImage_) {
         auto flexNode = GetHoverImageFlexNode();
         CHECK_NULL_VOID(flexNode);
@@ -878,17 +880,9 @@ void MenuWrapperPattern::GetPreviewRenderContexts(RefPtr<RenderContext>& preview
         CHECK_NULL_VOID(previewPositionContext);
         previewScaleContext = previewPositionContext;
     }
-    auto previewNode = GetPreview();
-    CHECK_NULL_VOID(previewNode);
-    previewDisappearContext = previewNode->GetRenderContext();
-}
 
-void MenuWrapperPattern::AnimatePreviewMenu(RefPtr<RenderContext> previewPositionContext,
-    RefPtr<RenderContext> previewScaleContext, RefPtr<RenderContext> menuContext,
-    RefPtr<RenderContext> previewDisappearContext)
-{
     auto option = AnimationOption(Curves::LINEAR, 0);
-    AnimationUtils::Animate(option, [previewPositionContext, previewScaleContext, menuContext, previewDisappearContext,
+    AnimationUtils::Animate(option, [previewPositionContext, previewScaleContext, menuContext,
                                         previewStopOffset = previewDisappearStartOffset_,
                                         animationInfo = animationInfo_]() {
         auto previewOffset = previewStopOffset.NonOffset() ? animationInfo.previewOffset : previewStopOffset;
@@ -910,8 +904,6 @@ void MenuWrapperPattern::AnimatePreviewMenu(RefPtr<RenderContext> previewPositio
             previewScaleContext->UpdateTransformScale(VectorF(animationInfo.previewScale, animationInfo.previewScale));
             if (PreviewBorderRadiusHasPositive(animationInfo.borderRadius)) {
                 previewScaleContext->UpdateBorderRadius(animationInfo.borderRadius);
-                CHECK_NULL_VOID(previewDisappearContext);
-                previewDisappearContext->UpdateBorderRadius(animationInfo.borderRadius);
             }
         }
     });

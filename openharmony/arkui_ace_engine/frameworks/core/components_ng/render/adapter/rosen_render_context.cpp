@@ -3516,6 +3516,7 @@ void RosenRenderContext::SetPositionToRSNode()
         rsNode_->SetFrame(
             rect.GetX() + frameOffset_->GetX(), rect.GetY() + frameOffset_->GetY(), rect.Width(), rect.Height());
     }
+    frameNode->OnSyncGeometryFrameFinish(rect);
     ElementRegister::GetInstance()->ReSyncGeometryTransition(GetHost());
 }
 
@@ -6307,6 +6308,12 @@ void RosenRenderContext::SetMarkNodeGroup(bool isNodeGroup)
 {
     CHECK_NULL_VOID(rsNode_);
     rsNode_->MarkNodeGroup(isNodeGroup);
+}
+
+int32_t RosenRenderContext::GetRotateDegree()
+{
+    CHECK_NULL_RETURN(rsNode_, 0);
+    return static_cast<int32_t>(rsNode_->GetStagingProperties().GetRotation());
 }
 
 void RosenRenderContext::ResetSurface(int width, int height)

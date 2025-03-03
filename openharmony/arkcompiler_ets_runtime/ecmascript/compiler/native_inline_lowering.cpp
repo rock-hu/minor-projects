@@ -267,9 +267,6 @@ void NativeInlineLowering::RunNativeInlineLowering()
             case BuiltinsStubCSigns::ID::MapKeys:
                 InlineStubBuiltin(gate, 0U, argc, id, circuit_->MapKeys(), skipThis);
                 break;
-            case BuiltinsStubCSigns::ID::MapValues:
-                InlineStubBuiltin(gate, 0U, argc, id, circuit_->MapValues(), skipThis);
-                break;
             case BuiltinsStubCSigns::ID::MapEntries:
                 InlineStubBuiltin(gate, 0U, argc, id, circuit_->MapEntries(), skipThis);
                 break;
@@ -742,7 +739,7 @@ void NativeInlineLowering::TryInlineTypedArrayIteratorBuiltin(GateRef gate,
     }
 
     GateRef ret = builder_.BuildTypedArrayIterator(acc_.GetValueIn(gate, 0), op);
-    acc_.ReplaceHirAndDeleteIfException(gate, builder_.GetStateDepend(), ret);
+    ReplaceGateWithPendingException(gate, ret);
 }
 
 void NativeInlineLowering::TryInlineMathUnaryBuiltin(GateRef gate, size_t argc, BuiltinsStubCSigns::ID id,

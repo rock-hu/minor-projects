@@ -192,7 +192,7 @@
         "name": "OH_ArkUI_SetGestureRecognizerEnabled"
     },
     {
-        "first_introduced": "16",
+        "first_introduced": "15",
         "name": "OH_ArkUI_SetGestureRecognizerLimitFingerCount"
     },
     {
@@ -1528,11 +1528,11 @@
         "name": "OH_ArkUI_NodeUtils_GetNodeType"
     },
     {
-        "first_introduced": "16",
+        "first_introduced": "15",
         "name": "OH_ArkUI_NodeUtils_GetAttachedNodeHandleById"
     },
     {
-        "first_introduced": "16",
+        "first_introduced": "15",
         "name": "OH_ArkUI_NodeUtils_GetWindowInfo"
     },
     {
@@ -2672,6 +2672,18 @@
         "name": "OH_ArkUI_ProgressLinearStyleOption_GetStrokeRadius"
     },
     {
+        "first_introduced": "15",
+        "name": "OH_ArkUI_DragEvent_StartDataLoading"
+    },
+    {
+        "first_introduced": "15",
+        "name": "OH_ArkUI_CancelDataLoading"
+    },
+    {
+        "first_introduced": "15",
+        "name": "OH_ArkUI_DisableDropDataPrefetchOnNode"
+    },
+    {
         "first_introduced": "16",
         "name": "OH_ArkUI_PostFrameCallback"
     },
@@ -2692,11 +2704,11 @@
         "name": "OH_ArkUI_FocusSetAutoTransfer"
     },
     { 
-        "first_introduced": "16",
+        "first_introduced": "15",
         "name": "OH_ArkUI_HostWindowInfo_GetName"
     },
     {
-        "first_introduced": "16",
+        "first_introduced": "15",
         "name": "OH_ArkUI_HostWindowInfo_Destroy"
     },
     {
@@ -2742,18 +2754,6 @@
     {
         "first_introduced": "16",
         "name": "OH_ArkUI_XComponent_StopImageAnalyzer"
-    },
-    {
-        "first_introduced": "16",
-        "name": "OH_ArkUI_DragEvent_StartDataLoading"
-    },
-    {
-        "first_introduced": "16",
-        "name": "OH_ArkUI_CancelDataLoading"
-    },
-    {
-        "first_introduced": "16",
-        "name": "OH_ArkUI_DisableDropDataPrefetchOnNode"
     },
     {
         "first_introduced": "16",
@@ -3070,5 +3070,97 @@
     {
         "first_introduced": "16",
         "name": "OH_ArkUI_SwiperArrowStyle_Destroy"
+    },
+    {
+        "first_introduced": "16",
+        "name": "OH_ArkUI_CustomDialog_CreateOptions"
+    },
+    {
+        "first_introduced": "16",
+        "name": "OH_ArkUI_CustomDialog_DisposeOptions"
+    },
+    {
+        "first_introduced": "16",
+        "name": "OH_ArkUI_CustomDialog_OpenDialog"
+    },
+    {
+        "first_introduced": "16",
+        "name": "OH_ArkUI_CustomDialog_CloseDialog"
+    },
+    {
+        "first_introduced": "16",
+        "name": "OH_ArkUI_CustomDialog_SetLevelMode"
+    },
+    {
+        "first_introduced": "16",
+        "name": "OH_ArkUI_CustomDialog_SetLevelUniqueId"
+    },
+    {
+        "first_introduced": "16",
+        "name": "OH_ArkUI_CustomDialog_SetImmersiveMode"
+    },
+    {
+        "first_introduced": "16",
+        "name": "OH_ArkUI_SurfaceHolder_Create"
+    },
+    {
+        "first_introduced": "16",
+        "name": "OH_ArkUI_SurfaceHolder_Dispose"
+    },
+    {
+        "first_introduced": "16",
+        "name": "OH_ArkUI_SurfaceHolder_SetUserData"
+    },
+    {
+        "first_introduced": "16",
+        "name": "OH_ArkUI_SurfaceHolder_GetUserData"
+    },
+    {
+        "first_introduced": "16",
+        "name": "OH_ArkUI_SurfaceCallback_Create"
+    },
+    {
+        "first_introduced": "16",
+        "name": "OH_ArkUI_SurfaceCallback_Dispose"
+    },
+    {
+        "first_introduced": "16",
+        "name": "OH_ArkUI_SurfaceCallback_SetSurfaceCreatedEvent"
+    },
+    {
+        "first_introduced": "16",
+        "name": "OH_ArkUI_SurfaceCallback_SetSurfaceChangedEvent"
+    },
+    {
+        "first_introduced": "16",
+        "name": "OH_ArkUI_SurfaceCallback_SetSurfaceDestroyedEvent"
+    },
+    {
+        "first_introduced": "16",
+        "name": "OH_ArkUI_SurfaceHolder_AddSurfaceCallback"
+    },
+    {
+        "first_introduced": "16",
+        "name": "OH_ArkUI_SurfaceHolder_RemoveSurfaceCallback"
+    },
+    {
+        "first_introduced": "16",
+        "name": "OH_ArkUI_XComponent_GetNativeWindow"
+    },
+    {
+        "first_introduced": "16",
+        "name": "OH_ArkUI_XComponent_SetAutoInitialize"
+    },
+    {
+        "first_introduced": "16",
+        "name": "OH_ArkUI_XComponent_Initialize"
+    },
+    {
+        "first_introduced": "16",
+        "name": "OH_ArkUI_XComponent_Finalize"
+    },
+    {
+        "first_introduced": "16",
+        "name": "OH_ArkUI_XComponent_IsInitialized"
     }
 ]
