@@ -5,9 +5,9 @@
 This sample shows how to dynamically create a component in the declarative UI.
 
 ### Preview
-| Home Page                                 | Ad Closing Popup                                 |
-|--------------------------------------|-----------------------------------------|
-| ![](screenshots/device/MainPage.en.png) | ![](screenshots/device/CloseDialog.en.png) |
+| Home Page                                 | Ad Closing Popup                            |
+|--------------------------------------|---------------------------------------|
+| ![](screenshots/device/MainPage.en.png) | ![](screenshots/device/Dialog.en.png) |
 
 **How to Use**
 

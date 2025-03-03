@@ -12,17 +12,67 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+import { ImperativeViewComponent } from '../view/ImperativeView';
 import { MainPage } from './MainPage';
-import { titleBar } from './TitleBar';
 
 @Entry
 @Component
 struct mainPageView {
-  build() {
+  @Builder
+  NavigationTitle() {
     Column() {
-      titleBar();
-      MainPage();
+      Text($r('app.string.tab1'))
+        .width(328)
+        .height(40)
+        .margin({ left: '16' })
+        .fontSize(30)
+        .fontWeight(FontWeight.Bold)
+    }.alignItems(HorizontalAlign.Start)
+  }
+
+
+  build() {
+    Navigation() {
+      Column() {
+        NavRouter() {
+          Button($r('app.string.tab2'))
+            .width(328)
+            .height(40)
+            .margin({ bottom: '12' })
+
+          NavDestination() {
+            Flex({ direction: FlexDirection.Row }) {
+              Column() {
+                MainPage();
+              }
+            }
+          }.title(this.ResourceToString($r('app.string.tab2')))
+        }
+
+        NavRouter() {
+          Button($r('app.string.tab3'))
+            .width(328)
+            .height(40)
+            .margin({ bottom: '16' })
+
+          NavDestination() {
+            Flex({ direction: FlexDirection.Row }) {
+              ImperativeViewComponent();
+            }
+          }.title(this.ResourceToString($r('app.string.tab3')))
+        }
+      }
+      .justifyContent(FlexAlign.End)
+      .width('100%')
+      .height('100%')
     }
+    .title(this.NavigationTitle())
+    .titleMode(NavigationTitleMode.Full)
+    .mode(NavigationMode.Stack)
+
+  }
+
+  ResourceToString(resource:Resource):string{
+    return getContext(this).resourceManager.getStringSync(resource);
   }
 }

@@ -1,9 +1,11 @@
 # App Navigation Design
 
 ### Overview
+
 This sample uses an independent router module and dynamic loading method to resolve the issue of routing dependency coupling between multiple HARs/HSPs under a **Navigation** component.
 
 ### Preview
+
 ![Route navigation effect preview](screenshots/device/demonstration.en.gif)
 
 ### Project Directory
@@ -53,6 +55,7 @@ This sample uses an independent router module and dynamic loading method to reso
 ```
 
 ### How to Implement
+
 1. Extract the routing feature as an independent module named RouterModule in the format of a .har package.
 2. The RouterModule manages routes internally and exposes a RouterModule object for other modules to use.
 3. Use the main entry module as the dependency registration center of service modules. Use the **Navigation** component in the entry module and configure its dependencies on the service modules.
@@ -61,13 +64,15 @@ This sample uses an independent router module and dynamic loading method to reso
 ![Module dependencies](screenshots/device/module_dependency.jpg)
 
 ### Required Permissions
+
 N/A
+
 ### Constraints
 
-1. The sample app is supported only on Huawei phones running the standard system.
+1. The sample is only supported on Huawei phones with standard systems.
 
-2. The HarmonyOS version must be HarmonyOS NEXT Developer Beta1 or later.
+2. The HarmonyOS version must be HarmonyOS 5.0.0 Release or later.
 
-3. The DevEco Studio version must be DevEco Studio NEXT Developer Beta1 or later.
+3. The DevEco Studio version must be DevEco Studio 5.0.0 Release or later.
 
-4. The HarmonyOS SDK version must be HarmonyOS NEXT Developer Beta1 or later.
+4. The HarmonyOS SDK version must be HarmonyOS 5.0.0 Release SDK or later.

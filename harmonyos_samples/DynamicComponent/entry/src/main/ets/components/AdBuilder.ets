@@ -43,7 +43,6 @@ struct AdComponent {
 @Builder
 function picAdBuilder(closeAdDialogController: CustomDialogController) {
   Stack() {
-    // 左侧示意缩略图
     Image($r('app.media.AdImage'))
       .objectFit(ImageFit.Cover)
       .borderRadius($r('app.string.border_radius_s'))

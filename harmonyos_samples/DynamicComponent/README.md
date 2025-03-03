@@ -5,13 +5,14 @@
 本示例通过NodeController绑定自定义节点BuilderNode和布局组件NodeContainer实现组件的动态创建，可以节省组件的创建时间，提升用户体验，同时还可以将独立的逻辑进行封装，有助于应用的模块化开发。
 
 ### 效果图预览
-| 主页面                                  | 广告关闭弹窗                                  |
-|--------------------------------------|-----------------------------------------|
-| ![](screenshots/device/MainPage.png) | ![](screenshots/device/CloseDialog.png) |
+| 主页面                                                       | 列表流广告页面                                                 | 动态生成页面                                                             |
+|-----------------------------------------------------------|---------------------------------------------------------|--------------------------------------------------------------------|
+| <img src="screenshots/device/MainPage.png" width="300px"> | <img src="screenshots/device/Dialog.png" width="300px"> | <img src="screenshots/device/DynamicallyGeneratePages.png" width="300px"> |
 
 **使用说明**
 
-1. 进入应用后，广告组件随即被动态创建。其分为两种，分别为图片广告与视频广告。
+1. 进入列表流广告组件实践案例后，广告组件随即被动态创建。其分为两种，分别为图片广告与视频广告。
+2. 进入动态生成页面实践案例后，点击刷新，即可更换主题图片。
 
 ### 实现思路
 
@@ -37,10 +38,12 @@
     │   ├───model
     │   │   ├───AdParams.ets                             // 广告组件参数
     │   │   └───CardData.ets                             // 卡片参数
-    │   └───pages
-    │       ├───Index.ets                                // 应用入口
-    │       ├───MainPage.ets                             // 主页面
-    │       └───TitleBar.ets                             // 标题头
+    │   ├───pages
+    │   │   ├───Index.ets                                // 应用入口
+    │   │   ├───MainPage.ets                             // 主页面
+    │   │   └───TitleBar.ets                             // 标题头
+    │   └───view
+    │       └───ImperativeView.ets                       // 动态生成页面案例
     └───entry/src/main/resources                         // 应用静态资源目录
    ```
 
@@ -52,8 +55,8 @@
 
 1.本示例仅支持标准系统上运行，支持设备：华为手机。
 
-2.HarmonyOS系统：HarmonyOS NEXT Developer Beta3及以上。
+2.HarmonyOS系统：HarmonyOS 5.0.0 Release及以上。
 
-3.DevEco Studio版本：DevEco Studio NEXT Developer Beta3及以上。
+3.DevEco Studio版本：DevEco Studio 5.0.0 Release及以上。
 
-4.HarmonyOS SDK版本：HarmonyOS NEXT Developer Beta3 SDK 及以上。
+4.HarmonyOS SDK版本：HarmonyOS 5.0.0 Release SDK 及以上。

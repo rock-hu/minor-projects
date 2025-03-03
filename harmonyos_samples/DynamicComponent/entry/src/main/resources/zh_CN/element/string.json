@@ -43,6 +43,18 @@
     {
       "name": "text_dialog_shield",
       "value": "屏蔽"
+    },
+    {
+      "name": "tab1",
+      "value": "组件动态创建开发实践"
+    },
+    {
+      "name": "tab2",
+      "value": "列表流广告组件实践案例"
+    },
+    {
+      "name": "tab3",
+      "value": "动态生成页面实践案例"
     }
   ]
 }

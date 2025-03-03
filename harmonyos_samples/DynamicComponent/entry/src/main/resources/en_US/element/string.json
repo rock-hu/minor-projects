@@ -43,6 +43,18 @@
     {
       "name": "text_dialog_shield",
       "value": "Block"
+    },
+    {
+      "name": "tab1",
+      "value": "Dynamic Components"
+    },
+    {
+      "name": "tab2",
+      "value": "List stream ad component"
+    },
+    {
+      "name": "tab3",
+      "value": "Dynamically generate pages"
     }
   ]
 }
