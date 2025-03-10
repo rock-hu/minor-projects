@@ -101,6 +101,6 @@ feature：应用的特性模块，一个应用中可以包含一个或者多个f
 
 2.HarmonyOS系统：HarmonyOS 5.0.0 Release及以上。
 
-3.DevEco Studio版本：HarmonyOS 5.0.0 Release及以上。
+3.DevEco Studio版本：DevEco Studio 5.0.0 Release及以上。
 
-4.HarmonyOS SDK版本：HarmonyOS 5.0.0 Release及以上。
+4.HarmonyOS SDK版本：HarmonyOS 5.0.0 Release SDK及以上。
