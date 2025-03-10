@@ -369,6 +369,7 @@ declare class ArkImageComponent extends ArkComponent implements ImageAttribute {
     border(value: BorderOptions): this;
     opacity(value: number | Resource): this;
     transition(value: TransitionOptions | TransitionEffect): this;
+    resizable(value: ResizableOptions): this;
 }
 declare class ImageAnimatorImagesModifier extends ModifierWithKey<Array<ImageFrameInfo>> {
     constructor(value: Array<ImageFrameInfo>);
@@ -958,6 +959,7 @@ declare class ArkSelectComponent extends ArkComponent implements SelectAttribute
     space(value: Length): this;
     arrowPosition(value: ArrowPosition): this;
     menuAlign(alignType: MenuAlignType, offset?: Offset): this;
+    avoidance(mode: AvoidanceMode): this;
 }
 declare class ArkRadioComponent extends ArkComponent implements RadioAttribute {
     constructor(nativePtr: KNode, classType?: ModifierType);

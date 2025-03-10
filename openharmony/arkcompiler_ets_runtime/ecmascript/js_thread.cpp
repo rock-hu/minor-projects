@@ -828,7 +828,13 @@ size_t JSThread::GetAsmStackLimit()
 {
 #if !defined(PANDA_TARGET_WINDOWS) && !defined(PANDA_TARGET_MACOS) && !defined(PANDA_TARGET_IOS)
     // js stack limit
-    size_t result = GetCurrentStackPosition() - EcmaParamConfiguration::GetDefalutStackSize();
+    uintptr_t currentStackPos = GetCurrentStackPosition();
+    size_t defaultStackSize = EcmaParamConfiguration::GetDefalutStackSize();
+    if (currentStackPos < defaultStackSize) {
+        LOG_FULL(FATAL) << "Too small stackSize to run jsvm"
+           << ", currentStackPos: " << reinterpret_cast<void *>(currentStackPos);
+    }
+    size_t result = currentStackPos - defaultStackSize;
     int ret = -1;
     void *stackAddr = nullptr;
     size_t size = 0;
@@ -890,15 +896,23 @@ size_t JSThread::GetAsmStackLimit()
 
     LOG_INTERPRETER(DEBUG) << "Current thread stack start: " << reinterpret_cast<void *>(threadStackStart);
     LOG_INTERPRETER(DEBUG) << "Used stack before js stack start: "
-                           << reinterpret_cast<void *>(threadStackStart - GetCurrentStackPosition());
+                           << reinterpret_cast<void *>(threadStackStart - currentStackPos);
     LOG_INTERPRETER(DEBUG) << "Current thread asm stack limit: " << reinterpret_cast<void *>(result);
-
+    uintptr_t currentThreadAsmStackLimit = result;
     // To avoid too much times of stack overflow checking, we only check stack overflow before push vregs or
     // parameters of variable length. So we need a reserved size of stack to make sure stack won't be overflowed
     // when push other data.
     result += EcmaParamConfiguration::GetDefaultReservedStackSize();
     if (threadStackStart <= result) {
-        LOG_FULL(FATAL) << "Too small stackSize to run jsvm";
+        LOG_FULL(FATAL) << "Too small stackSize to run jsvm"
+                        << ", CurrentStackPosition: " << reinterpret_cast<void *>(currentStackPos)
+                        << ", StackAddr: " << stackAddr << ", Size: " << reinterpret_cast<void *>(size)
+                        << ", ThreadStackLimit: " << reinterpret_cast<void *>(threadStackLimit)
+                        << ", ThreadStackStart: " << reinterpret_cast<void *>(threadStackStart)
+                        << ", Used stack before js stack start: "
+                        << reinterpret_cast<void *>(threadStackStart - currentStackPos)
+                        << ", Current thread asm stack limit: " << reinterpret_cast<void *>(currentThreadAsmStackLimit)
+                        << ", Result: " << reinterpret_cast<void *>(result);
     }
     return result;
 #else

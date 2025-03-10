@@ -1,0 +1,21 @@
+# Hid_KeyCodeArray
+
+
+## 概述
+
+键值属性数组。
+
+**起始版本：** 11
+
+**相关模块：**[HID DDK](_hid_ddk.md)
+
+
+## 汇总
+
+
+### 成员变量
+
+| 名称 | 描述 | 
+| -------- | -------- |
+| [Hid_KeyCode](_hid_ddk.md#hid_keycode) \* [hidKeyCode](_hid_ddk.md#hidkeycode) | 键值编码 | 
+| uint16_t [length](_hid_ddk.md#length-25) | 数组长度 | 

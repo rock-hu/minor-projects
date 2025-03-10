@@ -579,6 +579,7 @@ void WebPattern::SetPreviewSelectionMenu(const std::shared_ptr<WebPreviewSelecti
         return;
     }
     previewSelectionMenuMap_[key] = param;
+    TAG_LOGD(AceLogTag::ACE_WEB, "muneParam hapticFeedbackMode:%{public}d", param->menuParam.hapticFeedbackMode);
 }
 
 std::shared_ptr<WebPreviewSelectionMenuParam> WebPattern::GetPreviewSelectionMenuParams(
@@ -766,6 +767,7 @@ bool WebPattern::NeedSoftKeyboard() const
 void WebPattern::OnAttachToMainTree()
 {
     TAG_LOGI(AceLogTag::ACE_WEB, "OnAttachToMainTree WebId %{public}d", GetWebId());
+    isAttachedToMainTree_ = true;
     InitSlideUpdateListener();
     // report component is in foreground.
     delegate_->OnRenderToForeground();
@@ -774,6 +776,7 @@ void WebPattern::OnAttachToMainTree()
 void WebPattern::OnDetachFromMainTree()
 {
     TAG_LOGI(AceLogTag::ACE_WEB, "OnDetachFromMainTree WebId %{public}d", GetWebId());
+    isAttachedToMainTree_ = false;
     // report component is in background.
     delegate_->OnRenderToBackground();
 }
@@ -1913,7 +1916,7 @@ bool WebPattern::NotifyStartDragTask(bool isDelayed)
     // received web kernel drag callback, enable drag
     frameNode->SetDraggable(true);
     gestureHub->SetPixelMap(delegate_->GetDragPixelMap());
-    if (IsPreviewImageNodeExist()) {
+    if (!IsPreviewImageNodeExist()) {
         StartVibraFeedback("longPress.light");
     }
     if (!isMouseEvent_) {
@@ -4672,6 +4675,14 @@ void WebPattern::GetVisibleRectToWeb(int& visibleX, int& visibleY, int& visibleW
     visibleHeight = visibleInnerRect.Height();
 }
 
+void WebPattern::RestoreRenderFit()
+{
+    TAG_LOGI(AceLogTag::ACE_WEB, "WebPattern::RestoreRenderFit, webId: %{public}d", GetWebId());
+    if (renderContextForSurface_) {
+        renderContextForSurface_->SetRenderFit(RenderFit::TOP_LEFT);
+    }
+}
+
 void WebPattern::AttachCustomKeyboard()
 {
     TAG_LOGI(AceLogTag::ACE_WEB, "WebCustomKeyboard AttachCustomKeyboard enter");
@@ -5217,6 +5228,10 @@ void WebPattern::OnWindowSizeChanged(int32_t width, int32_t height, WindowSizeCh
 {
     CHECK_NULL_VOID(delegate_);
     TAG_LOGD(AceLogTag::ACE_WEB, "WindowSizeChangeReason type: %{public}d ", type);
+    if (type == WindowSizeChangeReason::MAXIMIZE) {
+        WindowMaximize();
+        return;
+    }
     bool isSmoothDragResizeEnabled = delegate_->GetIsSmoothDragResizeEnabled();
     if (!isSmoothDragResizeEnabled) {
                 return;
@@ -5262,6 +5277,32 @@ void WebPattern::WindowDrag(int32_t width, int32_t height)
             }
             delegate_->SetDragResizePreSize(pre_height * ADJUST_RATIO, pre_width * ADJUST_RATIO);
         }
+    }
+}
+
+void WebPattern::WindowMaximize()
+{
+    if (!SystemProperties::GetWebDebugMaximizeResizeOptimize()) {
+        TAG_LOGI(AceLogTag::ACE_WEB, "WebPattern::WindowMaximize not enabled");
+        return;
+    }
+    WebInfoType webInfoType = GetWebInfoType();
+    if (webInfoType != WebInfoType::TYPE_2IN1) {
+        return;
+    }
+    if (layoutMode_ != WebLayoutMode::NONE || renderMode_ != RenderMode::ASYNC_RENDER) {
+        TAG_LOGI(AceLogTag::ACE_WEB, "WebPattern::WindowMaximize not support");
+        return;
+    }
+    if (!isAttachedToMainTree_ || !isVisible_) {
+        return;
+    }
+    TAG_LOGI(AceLogTag::ACE_WEB, "WebPattern::WindowMaximize, webId: %{public}d", GetWebId());
+    if (renderContextForSurface_) {
+        renderContextForSurface_->SetRenderFit(RenderFit::RESIZE_FILL);
+    }
+    if (delegate_) {
+        delegate_->MaximizeResize();
     }
 }
 

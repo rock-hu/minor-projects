@@ -360,5 +360,41 @@ int PGOTypeManager::RecordAndGetHclassIndexForJIT(JSHClass* hclass)
     return pos_++;
 }
 
+void PGOTypeManager::MergeRepresentationForProtoTransition()
+{
+    for (auto &protoTransType : protoTransTypes_) {
+        JSTaggedValue ihc = QueryHClass(protoTransType.ihcType, protoTransType.ihcType);
+        JSTaggedValue baseIhc = QueryHClass(protoTransType.baseRootType, protoTransType.baseType);
+        JSTaggedValue transIhc = QueryHClass(protoTransType.transIhcType, protoTransType.transIhcType);
+        JSTaggedValue transPhc = QueryHClass(protoTransType.transPhcType, protoTransType.transPhcType);
+        if (ihc.IsUndefined() || baseIhc.IsUndefined() || transIhc.IsUndefined() || transPhc.IsUndefined()) {
+            LOG_COMPILER(DEBUG) << "broken prototype transition info!";
+            continue;
+        }
+        JSHClass::MergeRepresentation(thread_, JSHClass::Cast(baseIhc.GetTaggedObject()),
+            JSHClass::Cast(transPhc.GetTaggedObject()));
+        JSHClass::MergeRepresentation(thread_, JSHClass::Cast(ihc.GetTaggedObject()),
+            JSHClass::Cast(transIhc.GetTaggedObject()));
+    }
+}
 
+uint32_t PGOTypeManager::GetMaxPropsNum(uint32_t literalLength) const
+{
+    auto it = maxPropsNum_.find(literalLength);
+    if (it != maxPropsNum_.end()) {
+        return it->second;
+    }
+    LOG_ECMA(FATAL) << "this branch is unreachable";
+    UNREACHABLE();
+}
+
+void PGOTypeManager::SetMaxPropsNum(uint32_t literalLength, uint32_t maxPropsNum) const
+{
+    auto it = maxPropsNum_.find(literalLength);
+    if (it != maxPropsNum_.end()) {
+        it->second = std::max(it->second, maxPropsNum);
+    } else {
+        maxPropsNum_[literalLength] = maxPropsNum;
+    }
+}
 }  // namespace panda::ecmascript

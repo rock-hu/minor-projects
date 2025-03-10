@@ -20,14 +20,21 @@ import type {IOptions} from '../configs/IOptions';
 import { stringPropsSet, structPropsSet, enumPropsSet } from '../utils/OhsUtil';
 import type { MergedConfig } from '../ArkObfuscator';
 
-export let scanProjectConfig: {
+// The interface of settings for collect while lists
+export interface ScanProjectConfig {
   mPropertyObfuscation?: boolean,
   mKeepStringProperty?: boolean,
   mExportObfuscation?: boolean,
   mkeepFilesAndDependencies?: Set<string>,
-  isHarCompiled?: boolean
-  mStripSystemApiArgs?: boolean;
-} = {};
+  isHarCompiled?: boolean,
+  mStripSystemApiArgs?: boolean,
+  mEnableAtKeep: boolean
+}
+
+// Settings for collect white lists.
+export let scanProjectConfig: ScanProjectConfig = {
+  mEnableAtKeep: false
+};
 
 /**
  * if rename property is not open, api read and extract can be skipped
@@ -70,6 +77,7 @@ function initScanProjectConfig(customProfiles: IOptions, isHarCompiled?: boolean
   scanProjectConfig.mExportObfuscation = customProfiles.mExportObfuscation;
   scanProjectConfig.mkeepFilesAndDependencies = customProfiles.mKeepFileSourceCode?.mkeepFilesAndDependencies;
   scanProjectConfig.isHarCompiled = isHarCompiled;
+  scanProjectConfig.mEnableAtKeep = customProfiles.mNameObfuscation?.mEnableAtKeep;
 }
 
 /**
@@ -109,8 +117,6 @@ export function readProjectPropertiesByCollectedPaths(filesForCompilation: Set<s
   } else {
     scanningCommonType = apiType.CONSTRUCTOR_PROPERTY;
   }
-  // The purpose of collecting constructor properties is to avoid generating the same name as the constructor property when obfuscating identifier names.
-  ApiExtractor.mConstructorPropertySet = new Set();
 
   initScanProjectConfig(customProfiles, isHarCompiled);
 
@@ -144,7 +150,9 @@ export function readProjectPropertiesByCollectedPaths(filesForCompilation: Set<s
   }
 
   // scanProjectConfig needs to be cleared to prevent affecting incremental compilation
-  scanProjectConfig = {};
+  scanProjectConfig = {
+    mEnableAtKeep: false
+  };
 
   return {
     structPropertySet: structPropertySet,

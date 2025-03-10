@@ -304,6 +304,10 @@ public:
     GateRef TaggedTrue();
     GateRef TaggedFalse();
     GateRef TaggedUndefined();
+    GateRef Int64BitReverse(GateRef x);
+    GateRef Int32BitReverse(GateRef x);
+    GateRef Int16BitReverse(GateRef x);
+    GateRef Int8BitReverse(GateRef x);
     // compare operation
     GateRef Int8Equal(GateRef x, GateRef y);
     GateRef Int8GreaterThanOrEqual(GateRef x, GateRef y);
@@ -537,6 +541,7 @@ public:
     void SetBitFieldToHClass(GateRef glue, GateRef hClass, GateRef bitfield);
     void SetIsAllTaggedProp(GateRef glue, GateRef hclass, GateRef hasRep);
     void SetPrototypeToHClass(VariableType type, GateRef glue, GateRef hClass, GateRef proto);
+    GateRef GetProtoChangeDetails(GateRef hClass);
     void SetProtoChangeDetailsToHClass(VariableType type, GateRef glue, GateRef hClass,
                                        GateRef protoChange);
     void SetLayoutToHClass(VariableType type, GateRef glue, GateRef hClass, GateRef attr,

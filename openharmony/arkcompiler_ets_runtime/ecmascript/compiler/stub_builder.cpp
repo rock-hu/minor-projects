@@ -2840,7 +2840,7 @@ GateRef StubBuilder::ICStoreElement(GateRef glue, GateRef receiver, GateRef key,
                     if (updateHandler) {
                         Label update(env);
                         GateRef oldHandler = GetValueFromTaggedArray(profileTypeInfo, slotId);
-                        BRANCH(Equal(oldHandler, Hole()), &handerInfoNotJSArray, &update);
+                        BRANCH(Equal(oldHandler, *varHandler), &update, &handerInfoNotJSArray);
                         Bind(&update);
                         handler = Int64ToTaggedInt(UpdateSOutOfBoundsForHandler(handlerInfo));
                         SetValueToTaggedArray(VariableType::JS_ANY(), glue, profileTypeInfo, slotId, handler);
@@ -3140,6 +3140,8 @@ GateRef StubBuilder::StoreWithTransition(GateRef glue, GateRef receiver, GateRef
     Label indexLessCapacity(env);
     Label capacityIsZero(env);
     Label capacityNotZero(env);
+    Label isPrototype(env);
+    Label notPrototype(env);
     DEFVARIABLE(result, VariableType::JS_ANY(), Undefined());
     GateRef newHClass;
     GateRef handlerInfo;
@@ -3154,6 +3156,13 @@ GateRef StubBuilder::StoreWithTransition(GateRef glue, GateRef receiver, GateRef
     GateRef oldHClass = LoadHClass(receiver);
     GateRef prototype = GetPrototypeFromHClass(oldHClass);
     StorePrototype(glue, newHClass, prototype);
+    BRANCH(IsPrototypeHClass(newHClass), &isPrototype, &notPrototype);
+    Bind(&isPrototype);
+    {
+        SetProtoChangeDetailsToHClass(VariableType::INT64(), glue, newHClass, GetProtoChangeDetails(oldHClass));
+        Jump(&notPrototype);
+    }
+    Bind(&notPrototype);
     // Because we currently only supports Fast ElementsKind
     GateRef oldKind = GetElementsKindFromHClass(LoadHClass(receiver));
     RestoreElementsKindToGeneric(glue, newHClass);
@@ -6672,6 +6681,7 @@ GateRef StubBuilder::FastStrictEqual(GateRef glue, GateRef left, GateRef right, 
     Label stringCompare(env);
     Label updataPGOTypeWithInternString(env);
     Label bigIntEqualCheck(env);
+    Label undefinedCheck(env);
     Label exit(env);
     BRANCH(TaggedIsNumber(left), &leftIsNumber, &leftIsNotNumber);
     Bind(&leftIsNumber);
@@ -6785,7 +6795,7 @@ GateRef StubBuilder::FastStrictEqual(GateRef glue, GateRef left, GateRef right, 
     {
         Label leftIsBigInt(env);
         Label leftIsNotBigInt(env);
-        BRANCH(TaggedIsBigInt(left), &leftIsBigInt, &exit);
+        BRANCH(TaggedIsBigInt(left), &leftIsBigInt, &undefinedCheck);
         Bind(&leftIsBigInt);
         {
             Label rightIsBigInt(env);
@@ -6799,6 +6809,16 @@ GateRef StubBuilder::FastStrictEqual(GateRef glue, GateRef left, GateRef right, 
     Bind(&updataPGOTypeWithInternString);
     {
         callback.ProfileOpType(TaggedInt(PGOSampleType::InternStringType()));
+        Jump(&exit);
+    }
+    Bind(&undefinedCheck);
+    {
+        if (!callback.IsEmpty()) {
+            Label updateProfileOpTypeWithAny(env);
+            BRANCH(TaggedIsUndefined(left), &updateProfileOpTypeWithAny, &exit);
+            Bind(&updateProfileOpTypeWithAny);
+            callback.ProfileOpType(TaggedInt(PGOSampleType::UndefinedOrNullType()));
+        }
         Jump(&exit);
     }
     Bind(&exit);
@@ -11741,6 +11761,26 @@ void StubBuilder::ArrayCopyAndHoleToUndefined(GateRef glue, GateRef srcObj, Gate
     }
     Bind(&exit);
     env->SubCfgExit();
+}
+
+GateRef StubBuilder::Int64BitReverse(GateRef x)
+{
+    return env_->GetBuilder()->Int64Rev(x);
+}
+
+GateRef StubBuilder::Int32BitReverse(GateRef x)
+{
+    return env_->GetBuilder()->Int32Rev(x);
+}
+
+GateRef StubBuilder::Int16BitReverse(GateRef x)
+{
+    return env_->GetBuilder()->Int16Rev(x);
+}
+
+GateRef StubBuilder::Int8BitReverse(GateRef x)
+{
+    return env_->GetBuilder()->Int8Rev(x);
 }
 
 int64_t StubBuilder::SPECIAL_VALUE[SPECIAL_VALUE_NUM] = {

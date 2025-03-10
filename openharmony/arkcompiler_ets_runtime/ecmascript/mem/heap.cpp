@@ -165,7 +165,7 @@ void SharedHeap::CollectGarbageNearOOM(JSThread *thread)
 void SharedHeap::AdjustGlobalSpaceAllocLimit()
 {
     globalSpaceAllocLimit_ = std::max(GetHeapObjectSize() * growingFactor_,
-                                      config_.GetDefaultGlobalAllocLimit() * 2); // 2: double
+                                      config_.GetDefaultGlobalAllocLimit());
     globalSpaceAllocLimit_ = std::min(std::min(globalSpaceAllocLimit_, GetCommittedSize() + growingStep_),
                                       config_.GetMaxHeapSize());
     globalSpaceConcurrentMarkLimit_ = static_cast<size_t>(globalSpaceAllocLimit_ *
@@ -1277,6 +1277,7 @@ void Heap::CollectGarbageImpl(TriggerGCType gcType, GCReason reason)
                         TriggerConcurrentMarking();
                         oldGCRequested_ = true;
                         ProcessGCListeners();
+                        memController_->ResetCalculationWithoutGC();
                         return;
                     }
                     partialGC_->RunPhases();
@@ -1948,6 +1949,9 @@ void Heap::TryTriggerConcurrentMarking()
         TriggerConcurrentMarking();
         return;
     }
+    if (InSensitiveStatus() && !ObjectExceedHighSensitiveThresholdForCM()) {
+        return;
+    }
     if (IsJustFinishStartup() && !ObjectExceedJustFinishStartupThresholdForCM()) {
         return;
     }
@@ -2353,6 +2357,13 @@ bool Heap::ObjectExceedMaxHeapSize() const
     return GetHeapObjectSize() > configMaxHeapSize - overshootSize;
 }
 
+bool Heap::ObjectExceedHighSensitiveThresholdForCM() const
+{
+    size_t recordSizeBeforeSensitive = GetRecordHeapObjectSizeBeforeSensitive();
+    return GetHeapObjectSize() > (recordSizeBeforeSensitive + config_.GetIncObjSizeThresholdInSensitive())
+                                 * MIN_SENSITIVE_OBJECT_SURVIVAL_RATE;
+}
+
 bool Heap::ObjectExceedJustFinishStartupThresholdForGC() const
 {
     size_t heapObjectSizeThresholdForGC = config_.GetMaxHeapSize() * JUST_FINISH_STARTUP_LOCAL_THRESHOLD_RATIO;
@@ -2415,18 +2426,10 @@ bool Heap::CheckIfNeedStopCollectionByStartup()
     return false;
 }
 
-bool Heap::NeedStopCollection()
+bool Heap::CheckIfNeedStopCollectionByHighSensitive()
 {
-    // gc is not allowed during value serialize
-    if (onSerializeEvent_) {
-        return true;
-    }
-
-    if (CheckIfNeedStopCollectionByStartup()) {
-        return true;
-    }
-
-    if (!InSensitiveStatus()) {
+    AppSensitiveStatus sensitiveStatus = GetSensitiveStatus();
+    if (sensitiveStatus != AppSensitiveStatus::ENTER_HIGH_SENSITIVE) {
         return false;
     }
 
@@ -2448,7 +2451,27 @@ bool Heap::NeedStopCollection()
     }
 
     OPTIONAL_LOG(ecmaVm_, INFO) << "SmartGC: heap obj size: " << GetHeapObjectSize()
-        << " exceed sensitive gc threshold, have to trigger gc";
+        << ", exceed sensitive gc threshold";
+    return false;
+}
+
+bool Heap::NeedStopCollection()
+{
+    // gc is not allowed during value serialize
+    if (onSerializeEvent_) {
+        return true;
+    }
+
+    // check high sensitive before checking startup because we still need to record
+    // current heap object size when high sensitive happens in startup duration
+    if (CheckIfNeedStopCollectionByHighSensitive()) {
+        return true;
+    }
+
+    if (CheckIfNeedStopCollectionByStartup()) {
+        return true;
+    }
+
     return false;
 }
 

@@ -1078,7 +1078,11 @@ DEF_CALL_SIGNATURE(Builtins)
         VariableType::JS_ANY(),            // arg1
         VariableType::JS_ANY(),            // arg2
     };
+#if ENABLE_NEXT_OPTIMIZATION
+    callSign->SetVariadicArgs(false);
+#else
     callSign->SetVariadicArgs(true);
+#endif
     callSign->SetParameters(params.data());
     callSign->SetTargetKind(CallSignature::TargetKind::BUILTINS_STUB);
     callSign->SetCallConv(CallSignature::CallConv::CCallConv);
@@ -3360,6 +3364,21 @@ DEF_CALL_SIGNATURE(BatchBarrier)
 {
     constexpr size_t paramCount = 4;
     CallSignature signature("BatchBarrier", 0, paramCount, ArgumentsOrder::DEFAULT_ORDER, VariableType::VOID());
+    *callSign = signature;
+    std::array<VariableType, paramCount> params = {
+        VariableType::NATIVE_POINTER(),
+        VariableType::NATIVE_POINTER(),
+        VariableType::NATIVE_POINTER(),
+        VariableType::INT32(),
+    };
+    callSign->SetParameters(params.data());
+    callSign->SetGCLeafFunction(true);
+    callSign->SetCallConv(CallSignature::CallConv::CCallConv);;
+}
+DEF_CALL_SIGNATURE(ReverseBarrier)
+{
+    constexpr size_t paramCount = 4;
+    CallSignature signature("ReverseBarrier", 0, paramCount, ArgumentsOrder::DEFAULT_ORDER, VariableType::VOID());
     *callSign = signature;
     std::array<VariableType, paramCount> params = {
         VariableType::NATIVE_POINTER(),

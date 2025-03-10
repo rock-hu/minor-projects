@@ -197,12 +197,13 @@ void SemiSpace::Restart(size_t overShootSize)
 size_t SemiSpace::CalculateNewOverShootSize()
 {
     return committedSize_ <= maximumCapacity_ ?
-           0 : AlignUp((committedSize_ - maximumCapacity_) / 2, DEFAULT_REGION_SIZE); // 2 is the half.
+           0 : AlignUp(static_cast<size_t>((committedSize_ - maximumCapacity_) * HPPGC_NEWSPACE_SIZE_RATIO),
+                       DEFAULT_REGION_SIZE);
 }
 
 bool SemiSpace::CommittedSizeIsLarge()
 {
-    return committedSize_ >= maximumCapacity_ * 2; // 2 is the half.
+    return committedSize_ >= maximumCapacity_ * 2; // 2 means double.
 }
 
 uintptr_t SemiSpace::AllocateSync(size_t size)
@@ -280,6 +281,7 @@ bool SemiSpace::AdjustCapacity(size_t allocatedSizeSinceGC, JSThread *thread)
     double curObjectSurvivalRate = static_cast<double>(survivalObjectSize_) / allocatedSizeSinceGC;
     double committedSurvivalRate = static_cast<double>(committedSize) / initialCapacity_;
     SetOverShootSize(0);
+    double allocSpeed = localHeap_->GetMemController()->GetNewSpaceAllocationThroughputPerMS();
     if (curObjectSurvivalRate > GROW_OBJECT_SURVIVAL_RATE || committedSurvivalRate > GROW_OBJECT_SURVIVAL_RATE) {
         size_t newCapacity = initialCapacity_ * GROWING_FACTOR;
         while (committedSize >= newCapacity && newCapacity < maximumCapacity_) {
@@ -296,12 +298,21 @@ bool SemiSpace::AdjustCapacity(size_t allocatedSizeSinceGC, JSThread *thread)
                 JSObjectResizingStrategy::PROPERTIES_GROW_SIZE * 2);   // 2: double
         }
         return true;
+    } else if (initialCapacity_ < (MIN_GC_INTERVAL_MS * allocSpeed) &&
+        initialCapacity_ < maximumCapacity_) {
+        size_t newCapacity = initialCapacity_ * GROWING_FACTOR;
+        SetInitialCapacity(std::min(newCapacity, maximumCapacity_));
+        if (newCapacity == maximumCapacity_) {
+            localHeap_->GetJSObjectResizingStrategy()->UpdateGrowStep(
+                thread,
+                JSObjectResizingStrategy::PROPERTIES_GROW_SIZE * 2);   // 2: double
+        }
+        return true;
     } else if (curObjectSurvivalRate < SHRINK_OBJECT_SURVIVAL_RATE) {
         if (initialCapacity_ <= minimumCapacity_) {
             return false;
         }
-        double speed = localHeap_->GetMemController()->GetNewSpaceAllocationThroughputPerMS();
-        if (speed > LOW_ALLOCATION_SPEED_PER_MS) {
+        if (allocSpeed > LOW_ALLOCATION_SPEED_PER_MS) {
             return false;
         }
         size_t newCapacity = initialCapacity_ / GROWING_FACTOR;

@@ -45,6 +45,7 @@ const EVENT_NAME_CUSTOM_APP_BAR_DID_BUILD = 'arkui_custom_app_bar_did_build';
 const EVENT_NAME_MIN_CLICK = 'arkui_custom_min_click';
 const EVENT_NAME_CLOSE_CLICK = 'arkui_custom_close_click';
 const EVENT_NAME_CUSTOM_MAX_CLICK = 'arkui_custom_max_click';
+const ARKUI_APP_BAR_MENU_SAFE_AREA = 'arkui_app_bar_menu_safe_area';
 
 class ColorGroup {
     constructor(light, dark) {
@@ -90,6 +91,7 @@ export class CustomAppBarForPC extends ViewPU {
         this.__contentMarginBottom = new ObservedPropertySimplePU('0vp', this, 'contentMarginBottom');
         this.__isAdaptPC = new ObservedPropertySimplePU(false, this, 'isAdaptPC');
         this.__maximizeResource = new ObservedPropertyObjectPU(this.getIconResource(maximizeButtonResourceId), this, 'maximizeResource');
+        this.__statusBarHeight = new ObservedPropertySimplePU(0, this, 'statusBarHeight');
         this.isDark = true;
         this.windowClass = undefined;
         this.setInitiallyProvidedValue(params);
@@ -135,6 +137,9 @@ export class CustomAppBarForPC extends ViewPU {
         if (params.maximizeResource !== undefined) {
             this.maximizeResource = params.maximizeResource;
         }
+        if (params.statusBarHeight !== undefined) {
+            this.statusBarHeight = params.statusBarHeight;
+        }
         if (params.isDark !== undefined) {
             this.isDark = params.isDark;
         }
@@ -158,6 +163,7 @@ export class CustomAppBarForPC extends ViewPU {
         this.__contentMarginBottom.purgeDependencyOnElmtId(rmElmtId);
         this.__isAdaptPC.purgeDependencyOnElmtId(rmElmtId);
         this.__maximizeResource.purgeDependencyOnElmtId(rmElmtId);
+        this.__statusBarHeight.purgeDependencyOnElmtId(rmElmtId);
     }
     aboutToBeDeleted() {
         this.__menuResource.aboutToBeDeleted();
@@ -173,6 +179,7 @@ export class CustomAppBarForPC extends ViewPU {
         this.__contentMarginBottom.aboutToBeDeleted();
         this.__isAdaptPC.aboutToBeDeleted();
         this.__maximizeResource.aboutToBeDeleted();
+        this.__statusBarHeight.aboutToBeDeleted();
         SubscriberManager.Get().delete(this.id__());
         this.aboutToBeDeletedInternal();
     }
@@ -254,6 +261,12 @@ export class CustomAppBarForPC extends ViewPU {
     set maximizeResource(newValue) {
         this.__maximizeResource.set(newValue);
     }
+    get statusBarHeight() {
+        return this.__statusBarHeight.get();
+    }
+    set statusBarHeight(newValue) {
+        this.__statusBarHeight.set(newValue);
+    }
     async aboutToAppear() {
         let bundleFlags = bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_HAP_MODULE;
         try {
@@ -284,6 +297,9 @@ export class CustomAppBarForPC extends ViewPU {
                 console.info('windowStatusChange  windowStatusType: ' + JSON.stringify(windowStatusType));
                 this.updateMaximizeResource(windowStatusType);
             });
+            if (!this.isAdaptPC) {
+                this.windowClass?.setWindowTitleMoveEnabled(false);
+            }
         }).catch((err) => {
             if (err.code) {
                 console.error(`Failed to obtain the main window. Cause code: ${err.code}, message: ${err.message}`);
@@ -331,6 +347,7 @@ export class CustomAppBarForPC extends ViewPU {
             if (splitArray.length < 4) {
                 return;
             }
+            this.statusBarHeight = Number(splitArray[0]);
             this.contentMarginTop = splitArray[0];
             this.contentMarginLeft = splitArray[1];
             this.contentMarginRight = splitArray[2];
@@ -413,7 +430,7 @@ export class CustomAppBarForPC extends ViewPU {
             Row.create();
             Row.id('AtomicServiceMenubarRowId');
             Row.justifyContent(FlexAlign.End);
-            Row.margin({ top: LengthMetrics.vp(VIEW_MARGIN_TOP), end: LengthMetrics.vp(VIEW_MARGIN_RIGHT) });
+            Row.margin({ top: LengthMetrics.vp(this.statusBarHeight + VIEW_MARGIN_TOP), end: LengthMetrics.vp(VIEW_MARGIN_RIGHT) });
             Row.height(VIEW_HEIGHT);
             Row.hitTestBehavior(HitTestMode.Transparent);
         }, Row);

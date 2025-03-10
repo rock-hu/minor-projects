@@ -550,6 +550,9 @@ public:
     void OnAccessibilityEventForVirtualNode(AccessibilityEventType eventType, int64_t accessibilityId);
 
     void OnAccessibilityEvent(
+        AccessibilityEventType eventType, int32_t startIndex, int32_t endIndex);
+
+    void OnAccessibilityEvent(
         AccessibilityEventType eventType, std::string beforeText, std::string latestContent);
 
     void OnAccessibilityEvent(
@@ -1280,6 +1283,7 @@ public:
     {
         topWindowBoundary_ = topWindowBoundary;
     }
+    bool CheckVisibleOrActive() override;
 
 protected:
     void DumpInfo() override;

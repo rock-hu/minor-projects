@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+import { KeepInfo } from './ProjectCollections';
+
 // This records the collections related to property obfuscation.
 export namespace PropCollections {
   // global mangled properties table used by all files in a project
@@ -52,7 +54,7 @@ export namespace UnobfuscationCollections {
   export let reservedExportNameAndProp: Set<string> = new Set();
   export let reservedStrProp: Set<string> = new Set();
   export let reservedEnum: Set<string> = new Set();
-  
+
   // The mapping between the unobfuscated names and their reasons.
   export let unobfuscatedPropMap: Map<string, Set<string>> = new Map();
   export let unobfuscatedNamesMap: Map<string, Set<string>> = new Map();
@@ -83,4 +85,23 @@ export namespace LocalVariableCollections {
   export function clear(): void {
     reservedConfig.clear();
   }
+}
+
+export namespace AtKeepCollections {
+  export let keepSymbol: KeepInfo = {
+    propertyNames: new Set<string>(),
+    globalNames: new Set<string>()
+  };
+
+  export let keepAsConsumer: KeepInfo = {
+    propertyNames: new Set<string>(),
+    globalNames: new Set<string>()
+  };
+
+  export function clear(): void {
+    keepSymbol.globalNames.clear();
+    keepSymbol.propertyNames.clear();
+    keepAsConsumer.globalNames.clear();
+    keepAsConsumer.propertyNames.clear();
+  };
 }

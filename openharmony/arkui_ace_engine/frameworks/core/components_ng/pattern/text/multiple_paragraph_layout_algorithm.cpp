@@ -221,6 +221,9 @@ void MultipleParagraphLayoutAlgorithm::GetSpanParagraphStyle(
     if (lineStyle->HasHalfLeading()) {
         pStyle.halfLeading = lineStyle->GetHalfLeadingValue();
     }
+    if (lineStyle->HasParagraphSpacing()) {
+        pStyle.paragraphSpacing = lineStyle->GetParagraphSpacingValue();
+    }
     if (layoutWrapper) {
         pStyle.direction = GetTextDirection(spanItem->content, layoutWrapper);
     } else {
@@ -422,7 +425,8 @@ ParagraphStyle MultipleParagraphLayoutAlgorithm::GetParagraphStyle(
         .lineBreakStrategy = textStyle.GetLineBreakStrategy(),
         .textOverflow = textStyle.GetTextOverflow(),
         .indent = textStyle.GetTextIndent(),
-        .halfLeading = textStyle.GetHalfLeading()
+        .halfLeading = textStyle.GetHalfLeading(),
+        .paragraphSpacing = textStyle.GetParagraphSpacing()
         };
 }
 
@@ -617,7 +621,7 @@ bool MultipleParagraphLayoutAlgorithm::UpdateParagraphBySpan(LayoutWrapper* layo
 
 void MultipleParagraphLayoutAlgorithm::InheritParentTextStyle(const TextStyle& textStyle)
 {
-    if (Container::LessThanAPITargetVersion(PlatformVersion::VERSION_SIXTEEN)) {
+    if (Container::LessThanAPITargetVersion(PlatformVersion::VERSION_EIGHTEEN)) {
         inheritTextStyle_ = textStyle_.value_or(TextStyle());
     } else {
         inheritTextStyle_ = textStyle;
