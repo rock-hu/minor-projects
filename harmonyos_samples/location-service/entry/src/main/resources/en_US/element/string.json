@@ -22,15 +22,15 @@
     },
     {
       "name": "current_geocoded_location",
-      "value": "Current location inverse geocoding results: "
+      "value": "Current location reverse geocoding results: "
     },
     {
       "name": "cache_geocoded_location",
-      "value": "Cached location inverse geocoding results: "
+      "value": "Cached location reverse geocoding results: "
     },
     {
       "name": "geocoded_location",
-      "value": "Inverse geocoding results"
+      "value": "Reverse geocoding results"
     },
     {
       "name": "get_cache_location",

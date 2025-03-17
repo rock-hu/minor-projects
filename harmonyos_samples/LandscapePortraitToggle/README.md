@@ -6,9 +6,9 @@
 
 ### 效果预览
 
-| 竖屏                                                | 横屏                                                  | 
-|---------------------------------------------------|-----------------------------------------------------|
-| ![portrait.png](screenshots/devices/portrait.png) | ![landscape.png](screenshots/devices/landscape.png) |
+| 竖屏                                                      | 横屏                                                                                                            | 
+|---------------------------------------------------------|---------------------------------------------------------------------------------------------------------------|
+| <img src="screenshots/devices/portrait.png" width='320'> | <img src="screenshots/devices/landscape.png" > |
 
 使用说明
 

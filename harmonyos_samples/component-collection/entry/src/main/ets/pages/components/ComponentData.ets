@@ -334,10 +334,6 @@ const NAVIGATION: ThirdLevelCategory =
         url: 'pages/components/navigation/navigationSample/NavigationSample'
       },
       {
-        title: $r('app.string.navigator_title'),
-        url: 'pages/components/navigation/navigatorSample/NavigatorSample'
-      },
-      {
         title: $r('app.string.tabs_title'),
         url: "pages/components/navigation/tabSample/TabSample"
       },
@@ -348,10 +344,6 @@ const NAVIGATION: ThirdLevelCategory =
       {
         title: $r('app.string.stepper_title'),
         url: "pages/components/navigation/stepperAndStepperItemSample/StepperAndStepperItemSample"
-      },
-      {
-        title: $r('app.string.navRouter_title'),
-        url: 'pages/components/navigation/navRouterSample/NavRouterSample'
       }
     ]
   }

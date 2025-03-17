@@ -16,6 +16,7 @@
 import { AbilityConstant, UIAbility, Want } from '@kit.AbilityKit';
 import Logger from '../util/Logger';
 import { window } from '@kit.ArkUI';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 const TAG: string = 'MainAbility';
 
@@ -43,12 +44,12 @@ export default class MainAbility extends UIAbility {
         let systemBarProperties: window.SystemBarProperties = {
           statusBarColor: "#f1f3f5"
         };
-        windowClass.setWindowSystemBarProperties(systemBarProperties, (err) => {
-          if (err.code) {
-            Logger.error('Failed to set the system bar properties. Cause: ' + JSON.stringify(err));
-            return;
-          }
+        let promise = windowClass.setWindowSystemBarProperties(systemBarProperties);
+        promise.then(() => {
           Logger.info('Succeeded in setting the system bar properties.');
+        }).catch((err: BusinessError) => {
+          Logger.error('Failed to set the system bar properties. Cause: ' + JSON.stringify(err));
+          return;
         })
       })
     } catch (exception) {

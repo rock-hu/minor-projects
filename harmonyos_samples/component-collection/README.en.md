@@ -218,12 +218,6 @@ This sample shows the ArkUI component collection, which includes the **component
 │  │  │  ├──navigation
 │  │  │  │  ├──navigationSample
 │  │  │  │  │  └──NavigationSample.ets                 // Navigation root container
-│  │  │  │  ├──navigatorSample
-│  │  │  │  │  ├──NavigatorSample.ets                  // Routing
-│  │  │  │  │  ├──NavigatorSecondPage.ets
-│  │  │  │  │  └──NavigatorThirdPage.ets
-│  │  │  │  ├──navRouterSample
-│  │  │  │  │  └──NavRouterSample.ets                  // Component for routing and navigation
 │  │  │  │  ├──stepperAndStepperItemSample
 │  │  │  │  │  └──StepperAndStepperItemSample.ets      // Component used to create step-by-step navigation
 │  │  │  │  ├──tabContentSample
@@ -457,7 +451,7 @@ In this sample, the **Tabs** container component is used to set up the app frame
 
         * Navigation
 
-            List navigation, navigator, tabs, stepper, and navigation components.
+            List navigation, tabs, stepper, and navigation components.
 
         * Canvas and graphics drawing
 
@@ -526,8 +520,8 @@ N/A
 
 1. The sample app is supported only on Huawei phones running the standard system.
 
-2. The HarmonyOS version must be HarmonyOS NEXT Developer Beta1 or later.
+2. The HarmonyOS version must be HarmonyOS 5.0.2 Release or later.
 
-3. The DevEco Studio version must be DevEco Studio NEXT Developer Beta1 or later.
+3. The DevEco Studio version must be DevEco Studio HarmonyOS 5.0.2 Release or later.
 
-4. The HarmonyOS SDK version must be HarmonyOS NEXT Developer Beta1 or later.
+4. The HarmonyOS SDK version must be HarmonyOS 5.0.2 Release SDK or later.

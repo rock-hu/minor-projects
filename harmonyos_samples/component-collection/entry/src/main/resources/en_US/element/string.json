@@ -2377,10 +2377,6 @@
       "value": "Swiper"
     },
     {
-      "name": "nav_router",
-      "value": "NavRouter"
-    },
-    {
       "name": "tabs_name",
       "value": "Tabs"
     },
@@ -4524,40 +4520,8 @@
       "value": "Previous page"
     },
     {
-      "name": "navRouter_title",
-      "value": "NavRouter"
-    },
-    {
       "name": "navigation_title",
       "value": "Navigation"
-    },
-    {
-      "name": "navigation_first_page",
-      "value": "First page of Navigation"
-    },
-    {
-      "name": "navigation_second_page",
-      "value": "Second page of Navigation"
-    },
-    {
-      "name": "navigation_third_page",
-      "value": "Third page of Navigation"
-    },
-    {
-      "name": "navigation_first_page_push",
-      "value": "Go to the second page"
-    },
-    {
-      "name": "navigation_first_page_active",
-      "value": "Click to toggle activate status"
-    },
-    {
-      "name": "navigation_second_page_push",
-      "value": "Go to the third page"
-    },
-    {
-      "name": "navigation_third_page_back",
-      "value": "Go back to the first page"
     },
     {
       "name": "tabs_title",
@@ -5270,42 +5234,6 @@
     {
       "name": "particle_spawn_stop",
       "value": "Stop"
-    },
-    {
-      "name": "navigator_title",
-      "value": "Navigator"
-    },
-    {
-      "name": "navigator_first_page",
-      "value": "First page of Navigaor"
-    },
-    {
-      "name": "navigator_second_page",
-      "value": "Second page of Navigator"
-    },
-    {
-      "name": "navigator_third_page",
-      "value": "Third page of Navigator"
-    },
-    {
-      "name": "navigator_first_page_push",
-      "value": "Go to the second page"
-    },
-    {
-      "name": "navigator_first_page_active",
-      "value": "Click to toggle activate status"
-    },
-    {
-      "name": "navigator_second_page_push",
-      "value": "Go to the third page"
-    },
-    {
-      "name": "navigator_third_page_back",
-      "value": "Go back to the first page"
-    },
-    {
-      "name": "navigator_return_message",
-      "value": "hello! This is a param form the first page"
     },
     {
       "name": "swipe_action_button",

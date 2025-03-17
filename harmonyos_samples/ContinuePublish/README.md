@@ -50,9 +50,15 @@
 ## 约束与限制
 
 1. 本示例仅支持标准系统上运行，支持设备：华为手机。
-2. HarmonyOS系统：HarmonyOS NEXT Release及以上。 
-3. DevEco Studio版本：DevEco Studio NEXT Release及以上。 
-4. HarmonyOS SDK版本：HarmonyOS NEXT Release SDK及以上。
-5. 双端设备需要登录同一华为账号。 
+
+2. HarmonyOS系统：HarmonyOS 5.0.2 Release及以上。
+
+3. DevEco Studio版本：DevEco Studio 5.0.2 Release及以上。
+
+4. HarmonyOS SDK版本：HarmonyOS 5.0.2 Release SDK及以上。
+
+5. 双端设备需要登录同一华为账号。
+
 6. 双端设备需要打开Wi-Fi和蓝牙开关。条件允许时，建议双端设备接入同一个局域网，可提升数据传输的速度。 
+
 7. 应用接续只能在同应用（UIAbility）之间触发，双端设备都需要有该应用。

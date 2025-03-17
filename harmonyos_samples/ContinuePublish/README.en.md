@@ -49,10 +49,16 @@ N/A
 
 ## Constraints
 
-1. The sample is supported only on Huawei phones with standard systems.
-2. The HarmonyOS version must be HarmonyOS NEXT Release or later.
-3. The DevEco Studio version must be DevEco Studio NEXT Release or later.
-4. The HarmonyOS SDK version must be HarmonyOS NEXT Release SDK or later.
+1. The sample is only supported on Huawei phones with standard systems.
+
+2. The HarmonyOS version must be HarmonyOS 5.0.2 Release or later.
+
+3. The DevEco Studio version must be DevEco Studio 5.0.2 Release or later.
+
+4. The HarmonyOS SDK version must be HarmonyOS 5.0.2 Release SDK or later.
+
 5. The same HUAWEI ID is logged on both devices.
+
 6. Wi-Fi and Bluetooth must be enabled on both devices. If possible, both devices should be connected to the same LAN for faster data transmission.
+
 7. Application continuation can be triggered only between the same application (UIAbility) of both devices, that is, the application must have been installed on the two devices.

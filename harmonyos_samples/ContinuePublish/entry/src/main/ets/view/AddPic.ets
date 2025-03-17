@@ -73,7 +73,7 @@ export struct AddPic {
   PixelMapToBuffer(pixelMap: image.PixelMap, displayName: string): void {
     const imagePackerApi: image.ImagePacker = image.createImagePacker();
     let packOpts: image.PackingOption = { format: 'image/jpeg', quality: 100 };
-    imagePackerApi.packing(pixelMap, packOpts).then((data: ArrayBuffer) => {
+    imagePackerApi.packToData(pixelMap, packOpts).then((data: ArrayBuffer) => {
       this.writeDistributedFile(data, displayName)
     })
   }

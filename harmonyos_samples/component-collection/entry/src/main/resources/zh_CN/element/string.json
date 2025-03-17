@@ -1908,10 +1908,6 @@
       "value": "Swiper 翻页"
     },
     {
-      "name": "nav_router",
-      "value": "点击跳转路由页面"
-    },
-    {
       "name": "tabs_name",
       "value": "Tabs 页签"
     },
@@ -3884,40 +3880,8 @@
       "value": "上一页"
     },
     {
-      "name": "navRouter_title",
-      "value": "NavRouter"
-    },
-    {
       "name": "navigation_title",
       "value": "Navigation"
-    },
-    {
-      "name": "navigation_first_page",
-      "value": "Navigation 第一个页面"
-    },
-    {
-      "name": "navigation_second_page",
-      "value": "Navigation 第二个页面"
-    },
-    {
-      "name": "navigation_third_page",
-      "value": "Navigation 第三个页面"
-    },
-    {
-      "name": "navigation_first_page_push",
-      "value": "去往第二个页面"
-    },
-    {
-      "name": "navigation_first_page_active",
-      "value": "点击切换 activate 状态"
-    },
-    {
-      "name": "navigation_second_page_push",
-      "value": "去往第三个页面"
-    },
-    {
-      "name": "navigation_third_page_back",
-      "value": "返回第一个页面"
     },
     {
       "name": "tabs_title",
@@ -4362,38 +4326,6 @@
     {
       "name": "particle_spawn_stop",
       "value": "停止"
-    },
-    {
-      "name": "navigator_first_page",
-      "value": "Navigator 第一个页面"
-    },
-    {
-      "name": "navigator_second_page",
-      "value": "Navigator 第二个页面"
-    },
-    {
-      "name": "navigator_third_page",
-      "value": "Navigator 第三个页面"
-    },
-    {
-      "name": "navigator_first_page_push",
-      "value": "去往第二个页面"
-    },
-    {
-      "name": "navigator_first_page_active",
-      "value": "点击切换 activate 状态"
-    },
-    {
-      "name": "navigator_second_page_push",
-      "value": "去往第三个页面"
-    },
-    {
-      "name": "navigator_third_page_back",
-      "value": "返回第一个页面"
-    },
-    {
-      "name": "navigator_return_message",
-      "value": "hello! 这是第一个页面传过来的参数"
     },
     {
       "name": "side_bar_type_embed",

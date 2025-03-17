@@ -176,7 +176,7 @@ class HuksModel {
    */
   Uint8ArrayToString(data: Uint8Array) {
     let textDecoder = util.TextDecoder.create('utf-8');
-    return textDecoder.decodeWithStream(data);
+    return textDecoder.decodeToString(data);
   }
 
   /**

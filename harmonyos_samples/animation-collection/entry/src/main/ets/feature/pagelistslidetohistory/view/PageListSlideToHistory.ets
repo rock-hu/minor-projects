@@ -165,7 +165,7 @@ async function getFriendMomentFromRawfile(): Promise<void> {
   }
 
   const textDecoder = util.TextDecoder.create();
-  const friendMomentArray = (JSON.parse(textDecoder.decodeWithStream(res)) as MyJsonModel).friendMoments;
+  const friendMomentArray = (JSON.parse(textDecoder.decodeToString(res)) as MyJsonModel).friendMoments;
 
   friendMomentArray.forEach(item => {
     item.id = Math.floor(momentData.totalCount() / 10) + item.id;

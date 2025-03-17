@@ -7,13 +7,13 @@
 ### 效果预览
 
 
-| 翻转动效                                    | 标题下拉缩放                                   | 状态栏显隐切换                                 | 水波纹动效                                     |
-|-----------------------------------------|------------------------------------------|-----------------------------------------|-------------------------------------------|
-| ![image](screenshots/device/Flag.gif)   | ![image](screenshots/device/Drag.gif)    | ![image](screenshots/device/Hide.gif)   | ![image](screenshots/device/Water.gif)    |
-| 滑动到指定列表                                 | 跑马灯                                      | swiper高度变化效果                            | 自定义进度动画                                   |
-| ![image](screenshots/device/Move.gif)   | ![image](screenshots/device/Marquee.gif) | ![image](screenshots/device/Swiper.gif) | ![image](screenshots/device/Progress.gif) |
-| 数字滚动动效                                  | 卡片预览效果                                   | 投票动效                                    | 语音录制动效                                    |
-| ![image](screenshots/device/Scroll.gif) | ![image](screenshots/device/Preview.gif) | ![image](screenshots/device/Vote.gif)   | ![image](screenshots/device/Voice.gif)    |
+| 翻转动效                                    | 标题下拉缩放                                   | 状态栏显隐切换                                 | 水波纹动效                                                                                       |
+|-----------------------------------------|------------------------------------------|-----------------------------------------|---------------------------------------------------------------------------------------------|
+| ![image](screenshots/device/Flag.gif)   | ![image](screenshots/device/Drag.gif)    | ![image](screenshots/device/Hide.gif)   | ![image](screenshots/device/Water.gif)                                                      |
+| 滑动到指定列表                                 | 跑马灯                                      | swiper高度变化效果                            | 自定义进度动画                                                                                     |
+| ![image](screenshots/device/Move.gif)   | ![image](screenshots/device/Marquee.gif) | ![image](screenshots/device/Swiper.gif) | ![image](screenshots/device/Progress.gif)                                                   |
+| 数字滚动动效                                  | 卡片预览效果                                   | 投票动效                                    | 语音录制动效                                                                                      |
+| ![image](screenshots/device/Scroll.gif) | ![image](screenshots/device/Preview.gif) | ![image](screenshots/device/Vote.gif)   | <img src="screenshots/device/Voice.gif" width="320"> |
 
 
 **使用说明**
@@ -36,8 +36,8 @@
 
 1. 本示例仅支持标准系统上运行，支持设备：华为手机。
 
-2. HarmonyOS系统：HarmonyOS NEXT Developer Beta1及以上。
+2. HarmonyOS系统：HarmonyOS 5.0.0 Release及以上。
 
-3. DevEco Studio版本：DevEco Studio NEXT Developer Beta1及以上。
+3. DevEco Studio版本：DevEco Studio 5.0.0 Release及以上。
 
-4. HarmonyOS SDK版本：HarmonyOS NEXT Developer Beta1 SDK及以上。
+4. HarmonyOS SDK版本：HarmonyOS 5.0.0 Release SDK及以上。

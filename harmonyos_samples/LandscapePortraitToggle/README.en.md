@@ -6,9 +6,9 @@ This sample implements the function of automatically switching between landscape
 
 ### Preview
 
-| Portrait                                                | Landscape                                                 |
-|---------------------------------------------------------|-----------------------------------------------------------|
-| ![portrait.en.png](screenshots/devices/portrait.en.png) | ![landscape.en.png](screenshots/devices/landscape.en.png) |
+| Portrait                                                    | Landscape                                                 |
+|-------------------------------------------------------------|-----------------------------------------------------------|
+| <img src="screenshots/devices/portrait.en.png" width='320'> | ![landscape.en.png](screenshots/devices/landscape.png) |
 
 ### How to Use
 
