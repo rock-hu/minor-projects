@@ -417,6 +417,7 @@ public:
     void SetSelectedMarkListener(std::function<void(int& selectedColumnId)>& listener);
     void SetSelectedMark(bool focus = true, bool notify = true, bool reRender = true);
     void SetSelectedMarkId(const int strColumnId);
+    void UpdateUserSetSelectColor(void);
 #ifdef SUPPORT_DIGITAL_CROWN
     int32_t& GetSelectedColumnId();
     bool IsCrownEventEnded();
@@ -440,7 +441,6 @@ private:
     bool HandleDirectionKey(KeyCode code);
     void SetSelectedMarkPaint(bool paint);
     void UpdateSelectedTextColor(const RefPtr<PickerTheme>& pickerTheme);
-    Color GetSelectedTextColor();
 #ifdef SUPPORT_DIGITAL_CROWN
     void HandleCrownBeginEvent(const CrownEvent& event);
     void HandleCrownMoveEvent(const CrownEvent& event);
@@ -623,6 +623,7 @@ private:
     PickerColumnPatternCircleUtils<TextPickerColumnPattern> *circleUtils_ = nullptr;
     int32_t selectedColumnId_ = -1;
     std::function<void(int& selectedColumnId)> focusedListerner_ = nullptr;
+    bool isUserSetSelectColor_ = false;
 #ifdef SUPPORT_DIGITAL_CROWN
     bool isCrownEventEnded_ = true;
     int32_t crownSensitivity_ = INVALID_CROWNSENSITIVITY;

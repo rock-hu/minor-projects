@@ -734,10 +734,10 @@
 
 **系统能力：** SystemCapability.ArkUI.ArkUI.Full
 
-| 名称      | 说明                              |
-| --------- | --------------------------------- |
-| DEFAULT   | 白底蓝字（深色主题：白底=黑底）。 |
-| HIGHLIGHT | 蓝底白字。                        |
+| 名称      | 值   | 说明                              |
+| --------- | ---- | --------------------------------- |
+| DEFAULT   | 0    | 白底蓝字（深色主题：白底=黑底）。 |
+| HIGHLIGHT | 1    | 蓝底白字。                        |
 
 ## TextHeightAdaptivePolicy<sup>10+</sup>
 
@@ -770,9 +770,9 @@
 
 **系统能力：** SystemCapability.ArkUI.ArkUI.Full
 
-| 名称        | 说明                     |
-| ----------- | ------------------------ |
-| PLACEHOLDER | 显示的数据为通用占位符。 |
+| 名称        | 值 | 说明                     |
+| ----------- | -- | ------------------------ |
+| PLACEHOLDER | 0 |显示的数据为通用占位符。 |
 
 ## ColoringStrategy<sup>10+</sup>
 
@@ -838,11 +838,7 @@
 
 ## Nullable\<T><sup>11+</sup>
 
-Nullable\<T> {
-
-(data: T);
-
-}
+type Nullable\<T> = T | undefined;
 
 开发者在使用该类型时候，该类型的对象可以是自定义类型，也可以是undefined。
 
@@ -850,9 +846,9 @@ Nullable\<T> {
 
 **系统能力**：SystemCapability.ArkUI.ArkUI.Full
 
-| 名称 | 类型 | 必填 | 说明                       |
-| ---- | ---- | ---- | -------------------------- |
-| data | T    | 是   | 该类型申明的对象可以是自定义类型，也可以是undefined。 |
+| 名称 | 说明                       |
+| ---- | -------------------------- |
+| T \| undefined | 该类型申明的对象可以是自定义类型，也可以是undefined。 |
 
 ## WordBreak<sup>11+</sup>
 
@@ -922,11 +918,11 @@ Nullable\<T> {
 
 **系统能力：** SystemCapability.ArkUI.ArkUI.Full
 
-| 名称            | 说明                                     |
-| ------------- | -------------------------------------- |
-| START | 水平方向：位于父组件最左侧，垂直方向：位于父组件最上侧。 |
-| CENTER | 位于父组件居中位置。 |
-| END | 水平方向：位于父组件最右侧，垂直方向：位于父组件最下侧。 |
+| 名称            | 值           | 说明                                     |
+| ------------- | -------------------------------------- | -------------------------------------- |
+| START | 'Start' | 水平方向：位于父组件最左侧，垂直方向：位于父组件最上侧。 |
+| CENTER | 'Center' | 位于父组件居中位置。 |
+| END | 'End' | 水平方向：位于父组件最右侧，垂直方向：位于父组件最下侧。 |
 
 ## OptionWidthMode<sup>11+</sup>
 
@@ -934,10 +930,10 @@ Nullable\<T> {
 
 **系统能力：** SystemCapability.ArkUI.ArkUI.Full
 
-| 名称        | 说明                           |
-| ----------- | ------------------------------ |
-| FIT_CONTENT | 设置该值时，下拉菜单宽度按默认2栅格显示。            |
-| FIT_TRIGGER | 设置下拉菜单继承下拉按钮宽度。 |
+| 名称        | 值       | 说明                           |
+| ----------- | ------------------------------ | ------------------------------ |
+| FIT_CONTENT | 'fit_content' | 设置该值时，下拉菜单宽度按默认2栅格显示。            |
+| FIT_TRIGGER | 'fit_trigger' | 设置下拉菜单继承下拉按钮宽度。 |
 
 ## PixelRoundCalcPolicy<sup>11+</sup>
 
@@ -1056,10 +1052,10 @@ Nullable\<T> {
 
 **系统能力**：SystemCapability.ArkUI.ArkUI.Full
 
-| 名称     | 说明                            |
-| ------ | ----------------------------- |
-| TOP_SCREEN | 上半屏。|
-| BOTTOM_SCREEN | 下半屏。|
+| 名称     | 值    | 说明                            |
+| ------ | ----------------------------- | ----------------------------- |
+| TOP_SCREEN | 0 | 上半屏。|
+| BOTTOM_SCREEN | 1 | 下半屏。|
 
 ## WidthBreakpoint<sup>13+</sup>
 
@@ -1099,7 +1095,7 @@ Nullable\<T> {
 
 **系统能力：**  SystemCapability.ArkUI.ArkUI.Full
 
-| 名称    | 值   | 描述                               |
+| 名称    | 值   | 说明                               |
 | ------- | ---- | ---------------------------------- |
 | ABS_X  | 0    | 游戏手柄X轴。 |
 | ABS_Y  | 1    | 游戏手柄Y轴。 |
@@ -1156,11 +1152,11 @@ Nullable\<T> {
 > - 示意图中，蓝色区域表示内容，橙黄色区域表示节点大小。
 > - 不同的内容填充方式在宽高动画过程中效果不一致，开发者需要选择合适的内容填充方式以实现需要的动画效果。
 
-## CrownAction<sup>16+</sup>
+## CrownAction<sup>18+</sup>
 
 旋转表冠动作。
 
-**原子化服务API：** 从API version 16开始，该接口支持在原子化服务中使用。
+**原子化服务API：** 从API version 18开始，该接口支持在原子化服务中使用。
 
 **系统能力：** SystemCapability.ArkUI.ArkUI.Full
 
@@ -1170,11 +1166,11 @@ Nullable\<T> {
 | UPDATE	        | 1  | 表冠转动中。                            |
 | END	            | 2  | 表冠停止转动。                          |
 
-## CrownSensitivity<sup>16+</sup>
+## CrownSensitivity<sup>18+</sup>
 
 旋转表冠灵敏度。
 
-**原子化服务API：** 从API version 16开始，该接口支持在原子化服务中使用。
+**原子化服务API：** 从API version 18开始，该接口支持在原子化服务中使用。
 
 **系统能力：** SystemCapability.ArkUI.ArkUI.Full
 

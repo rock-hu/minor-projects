@@ -29,6 +29,7 @@ const ICON_SIZE: number = 27;
 const ICON_FILL_COLOR_DEFAULT: string = '#182431';
 const BORDER_COLOR_DEFAULT: string = '#33000000';
 const MENU_BACK_COLOR: string = '#99FFFFFF';
+const MENU_BACK_BLUR: number = 5;
 const MENU_MARGIN_TOP: number = 10;
 const SM_MENU_MARGIN_END: number = 16;
 const MD_MENU_MARGIN_END: number = 24;
@@ -59,7 +60,8 @@ const ARKUI_APP_BAR_CONTENT_SAFE_AREA: string = 'arkui_app_bar_content_safe_area
 const ARKUI_APP_BAR_BAR_INFO: string = 'arkui_app_bar_info';
 const ARKUI_APP_BAR_SCREEN: string = 'arkui_app_bar_screen';
 const ARKUI_APP_BG_COLOR: string = 'arkui_app_bg_color';
-
+const ARKUI_APP_BAR_SERVICE_PANEL: string = 'arkui_app_bar_service_panel';
+const ARKUI_APP_BAR_CLOSE: string = 'arkui_app_bar_close';
 const EVENT_NAME_CUSTOM_APP_BAR_MENU_CLICK = 'arkui_custom_app_bar_menu_click';
 const EVENT_NAME_CUSTOM_APP_BAR_CLOSE_CLICK = 'arkui_custom_app_bar_close_click';
 const EVENT_NAME_CUSTOM_APP_BAR_DID_BUILD = 'arkui_custom_app_bar_did_build';
@@ -144,6 +146,8 @@ export struct CustomAppBar {
   @State statusBarHeight: number = 0;
   @State ratio: number | undefined = undefined;
   @State @Watch('onBreakPointChange') breakPoint: BreakPointsType = BreakPointsType.NONE;
+  @State serviceMenuRead: string = this.getStringByResourceToken(ARKUI_APP_BAR_SERVICE_PANEL);
+  @State closeRead: string = this.getStringByResourceToken(ARKUI_APP_BAR_CLOSE);
   private isHalfToFullScreen: boolean = false;
   private isDark: boolean = true;
   private bundleName: string = '';
@@ -227,6 +231,15 @@ export struct CustomAppBar {
       }
     }
     return defaultColor;
+  }
+
+  getStringByResourceToken(resName: string): string {
+    try {
+        return getContext(this).resourceManager.getStringByNameSync(resName);
+    } catch (err) {
+        console.error(LOG_TAG, `getAccessibilityDescription, error: ${err.toString()}`);
+    }
+    return '';
   }
 
   /**
@@ -446,6 +459,10 @@ export struct CustomAppBar {
         .backgroundColor(Color.Transparent)
         .width(BUTTON_SIZE)
         .height(VIEW_HEIGHT)
+        .accessibilityText(this.serviceMenuRead)
+        .onAccessibilityHover(() => {
+          this.serviceMenuRead = this.getStringByResourceToken(ARKUI_APP_BAR_SERVICE_PANEL);
+        })
         .gesture(TapGesture().onAction(() => {
           this.onMenuButtonClick();
         }))
@@ -473,6 +490,10 @@ export struct CustomAppBar {
         .borderRadius({ topRight: MENU_RADIUS, bottomRight: MENU_RADIUS })
         .width(BUTTON_SIZE)
         .height(VIEW_HEIGHT)
+        .accessibilityText(this.closeRead)
+        .onAccessibilityHover(() => {
+          this.closeRead = this.getStringByResourceToken(ARKUI_APP_BAR_CLOSE);
+        })
         .gesture(TapGesture().onAction(() => {
           this.closeContainerAnimation();
         }))
@@ -481,6 +502,7 @@ export struct CustomAppBar {
       .borderWidth(BORDER_WIDTH)
       .borderColor(this.menubarBorderColor)
       .backgroundColor(this.menubarBackColor)
+      .backdropBlur(MENU_BACK_BLUR)
       .height(VIEW_HEIGHT)
       .width(VIEW_WIDTH)
       .align(Alignment.Top)
@@ -649,6 +671,7 @@ export struct CustomAppBar {
             .clip(true)
             .alignItems(VerticalAlign.Bottom)
             .hitTestBehavior(HitTestMode.Transparent)
+            .width('100%')
             .id('AtomicServiceStageId')
           }
           .height(this.containerHeight)

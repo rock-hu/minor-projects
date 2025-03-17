@@ -34,6 +34,7 @@ const ICON_SIZE = 27;
 const ICON_FILL_COLOR_DEFAULT = '#182431';
 const BORDER_COLOR_DEFAULT = '#33000000';
 const MENU_BACK_COLOR = '#99FFFFFF';
+const MENU_BACK_BLUR = 5;
 const MENU_MARGIN_TOP = 10;
 const SM_MENU_MARGIN_END = 16;
 const MD_MENU_MARGIN_END = 24;
@@ -67,6 +68,8 @@ const EVENT_NAME_CUSTOM_APP_BAR_MENU_CLICK = 'arkui_custom_app_bar_menu_click';
 const EVENT_NAME_CUSTOM_APP_BAR_CLOSE_CLICK = 'arkui_custom_app_bar_close_click';
 const EVENT_NAME_CUSTOM_APP_BAR_DID_BUILD = 'arkui_custom_app_bar_did_build';
 const EVENT_NAME_CUSTOM_APP_BAR_CREATE_SERVICE_PANEL = 'arkui_custom_app_bar_create_service_panel';
+const ARKUI_APP_BAR_SERVICE_PANEL = 'arkui_app_bar_service_panel';
+const ARKUI_APP_BAR_CLOSE = 'arkui_app_bar_close';
 
 /**
  * 适配不同颜色模式集合
@@ -132,6 +135,8 @@ export class CustomAppBar extends ViewPU {
         this.__statusBarHeight = new ObservedPropertySimplePU(0, this, 'statusBarHeight');
         this.__ratio = new ObservedPropertyObjectPU(undefined, this, 'ratio');
         this.__breakPoint = new ObservedPropertySimplePU(BreakPointsType.NONE, this, 'breakPoint');
+        this.__serviceMenuRead = new ObservedPropertySimplePU(this.getStringByResourceToken(ARKUI_APP_BAR_SERVICE_PANEL), this, 'serviceMenuRead');
+        this.__closeRead = new ObservedPropertySimplePU(this.getStringByResourceToken(ARKUI_APP_BAR_CLOSE), this, 'closeRead');
         this.isHalfToFullScreen = false;
         this.isDark = true;
         this.bundleName = '';
@@ -232,6 +237,12 @@ export class CustomAppBar extends ViewPU {
         if (params.breakPoint !== undefined) {
             this.breakPoint = params.breakPoint;
         }
+        if (params.serviceMenuRead !== undefined) {
+            this.serviceMenuRead = params.serviceMenuRead;
+        }
+        if (params.closeRead !== undefined) {
+            this.closeRead = params.closeRead;
+        }
         if (params.isHalfToFullScreen !== undefined) {
             this.isHalfToFullScreen = params.isHalfToFullScreen;
         }
@@ -297,6 +308,8 @@ export class CustomAppBar extends ViewPU {
         this.__statusBarHeight.purgeDependencyOnElmtId(rmElmtId);
         this.__ratio.purgeDependencyOnElmtId(rmElmtId);
         this.__breakPoint.purgeDependencyOnElmtId(rmElmtId);
+        this.__serviceMenuRead.purgeDependencyOnElmtId(rmElmtId);
+        this.__closeRead.purgeDependencyOnElmtId(rmElmtId);
     }
     aboutToBeDeleted() {
         this.__menuResource.aboutToBeDeleted();
@@ -327,6 +340,8 @@ export class CustomAppBar extends ViewPU {
         this.__statusBarHeight.aboutToBeDeleted();
         this.__ratio.aboutToBeDeleted();
         this.__breakPoint.aboutToBeDeleted();
+        this.__serviceMenuRead.aboutToBeDeleted();
+        this.__closeRead.aboutToBeDeleted();
         SubscriberManager.Get().delete(this.id__());
         this.aboutToBeDeletedInternal();
     }
@@ -498,6 +513,18 @@ export class CustomAppBar extends ViewPU {
     set breakPoint(newValue) {
         this.__breakPoint.set(newValue);
     }
+    get serviceMenuRead() {
+        return this.__serviceMenuRead.get();
+    }
+    set serviceMenuRead(newValue) {
+        this.__serviceMenuRead.set(newValue);
+    }
+    get closeRead() {
+        return this.__closeRead.get();
+    }
+    set closeRead(newValue) {
+        this.__closeRead.set(newValue);
+    }
     aboutToAppear() {
         if (this.isHalfScreen) {
             this.contentBgColor = Color.Transparent;
@@ -567,6 +594,14 @@ export class CustomAppBar extends ViewPU {
             }
         }
         return defaultColor;
+    }
+    getStringByResourceToken(resName) {
+        try {
+            return getContext(this).resourceManager.getStringByNameSync(resName);
+        } catch (err) {
+            console.error(LOG_TAG, `getAccessibilityDescription, error: ${err.toString()}`);
+        }
+        return '';
     }
     /**
      * atomicservice侧的事件变化回调
@@ -791,6 +826,7 @@ export class CustomAppBar extends ViewPU {
             Row.borderWidth(BORDER_WIDTH);
             Row.borderColor(this.menubarBorderColor);
             Row.backgroundColor(this.menubarBackColor);
+            Row.backdropBlur(MENU_BACK_BLUR);
             Row.height(VIEW_HEIGHT);
             Row.width(VIEW_WIDTH);
             Row.align(Alignment.Top);
@@ -806,6 +842,10 @@ export class CustomAppBar extends ViewPU {
             Button.backgroundColor(Color.Transparent);
             Button.width(BUTTON_SIZE);
             Button.height(VIEW_HEIGHT);
+            Button.accessibilityText(this.serviceMenuRead);
+            Button.onAccessibilityHover(() => {
+                this.serviceMenuRead = this.getStringByResourceToken(ARKUI_APP_BAR_SERVICE_PANEL);
+            });
             Gesture.create(GesturePriority.Low);
             TapGesture.create();
             TapGesture.onAction(() => {
@@ -841,6 +881,10 @@ export class CustomAppBar extends ViewPU {
             Button.borderRadius({ topRight: MENU_RADIUS, bottomRight: MENU_RADIUS });
             Button.width(BUTTON_SIZE);
             Button.height(VIEW_HEIGHT);
+            Button.accessibilityText(this.closeRead);
+            Button.onAccessibilityHover(() => {
+                this.closeRead = this.getStringByResourceToken(ARKUI_APP_BAR_CLOSE);
+            });
             Gesture.create(GesturePriority.Low);
             TapGesture.create();
             TapGesture.onAction(() => {
@@ -1099,6 +1143,7 @@ export class CustomAppBar extends ViewPU {
             Row.clip(true);
             Row.alignItems(VerticalAlign.Bottom);
             Row.hitTestBehavior(HitTestMode.Transparent);
+            Row.width('100%');
             Row.id('AtomicServiceStageId');
         }, Row);
         Row.pop();

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_ACE_FRAMEWORKS_CORE_COMPONENTS_NG_PATTERN_SCROLL_VIEW_GRID_LAZY_LAYOUT_ALGORITHM_H
-#define FOUNDATION_ACE_FRAMEWORKS_CORE_COMPONENTS_NG_PATTERN_SCROLL_VIEW_GRID_LAZY_LAYOUT_ALGORITHM_H
+#ifndef FOUNDATION_ACE_FRAMEWORKS_CORE_COMPONENTS_NG_PATTERN_LAZY_LAYOUT_LAZY_GRID_LAYOUT_ALGORITHM_H
+#define FOUNDATION_ACE_FRAMEWORKS_CORE_COMPONENTS_NG_PATTERN_LAZY_LAYOUT_LAZY_GRID_LAYOUT_ALGORITHM_H
 
 #include <optional>
 #include "base/geometry/axis.h"
@@ -63,12 +63,17 @@ public:
         needAllLayout_ = false;
     }
 
+    int32_t LanesFloor(int32_t index) const;
+    int32_t LanesCeil(int32_t index) const;
+
+    static std::optional<ViewPosReference> GetReferencePos(RefPtr<FrameNode> frameNode);
+
 private:
     void SetFrameSize(LayoutWrapper* layoutWrapper, OptionalSizeF& contentIdealSize, const PaddingPropertyF& padding);
     bool CheckNeedMeasure(const RefPtr<LayoutWrapper>& layoutWrapper, int32_t laneIdx) const;
     void UpdateGridItemConstraint(const OptionalSizeF& selfIdealSize, LayoutConstraintF& contentConstraint);
     void UpdateGap(const RefPtr<LazyGridLayoutProperty>& layoutProperty, const OptionalSizeF& selfIdealSize);
-    void UpdateReferencePos(LayoutWrapper* layoutWrapper, const std::optional<ViewPosReference>& posRef);
+    void UpdateReferencePos(LayoutWrapper* layoutWrapper, std::optional<ViewPosReference>& posRef);
     void MeasureGridItemAll(LayoutWrapper* layoutWrapper);
     void MeasureGridItemLazy(LayoutWrapper* layoutWrapper);
     void GetStartIndexInfo(int32_t& index, float& pos);
@@ -86,6 +91,7 @@ private:
     void LayoutCachedItemsBackward(LayoutWrapper* layoutWrapper, float crossSize, const OffsetF& paddingOffset);
     void PredictLayoutForward(LayoutWrapper* layoutWrapper, float crossSize, const OffsetF& paddingOffset);
     void PredictLayoutBackward(LayoutWrapper* layoutWrapper, float crossSize, const OffsetF& paddingOffset);
+    void SyncPredictLayoutInfo(LayoutWrapper* layoutWrapper);
     void FixPosMapBackward(int32_t index);
     void FixPosMapForward(int32_t index, LayoutWrapper* layoutWrapper, float crossSize, const OffsetF& paddingOffset);
 
@@ -126,4 +132,4 @@ private:
 };
 } // namespace OHOS::Ace::NG
 
-#endif // FOUNDATION_ACE_FRAMEWORKS_CORE_COMPONENTS_NG_PATTERN_SCROLL_VIEW_GRID_LAZY_LAYOUT_ALGORITHM_H
+#endif // FOUNDATION_ACE_FRAMEWORKS_CORE_COMPONENTS_NG_PATTERN_LAZY_LAYOUT_LAZY_GRID_LAYOUT_ALGORITHM_H

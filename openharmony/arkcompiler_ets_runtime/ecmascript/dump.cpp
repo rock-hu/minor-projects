@@ -3525,6 +3525,7 @@ void ProtoChangeMarker::Dump(std::ostream &os) const
 {
     os << " - HasChanged: " << GetHasChanged() << "\n";
     os << " - HasAccessorChanged: " << GetAccessorHasChanged() << "\n";
+    os << " - HasNotFoundChanged" << GetNotFoundHasChanged() << "\n";
 }
 
 void MarkerCell::Dump(std::ostream &os) const
@@ -3589,6 +3590,9 @@ void SourceTextModule::Dump(std::ostream &os) const
     os << " - EcmaModuleRecordName: ";
     os << GetEcmaModuleRecordNameString();
     os << "\n";
+    os << " - ModuleRequests: ";
+    GetModuleRequests().Dump(os);
+    os << "\n";
     os << " - RequestedModules: ";
     GetRequestedModules().Dump(os);
     os << "\n";
@@ -3649,8 +3653,8 @@ void SourceTextModule::Dump(std::ostream &os) const
 
 void ImportEntry::Dump(std::ostream &os) const
 {
-    os << " - ModuleRequest: ";
-    GetModuleRequest().Dump(os);
+    os << " - ModuleRequestIndex: ";
+    os << GetModuleRequestIndex();
     os << "\n";
     os << " - ImportName: ";
     GetImportName().Dump(os);
@@ -3677,8 +3681,8 @@ void IndirectExportEntry::Dump(std::ostream &os) const
     os << " - ExportName: ";
     GetExportName().Dump(os);
     os << "\n";
-    os << " - ModuleRequest: ";
-    GetModuleRequest().Dump(os);
+    os << " - ModuleRequestIndex: ";
+    os << GetModuleRequestIndex();
     os << "\n";
     os << " - ImportName: ";
     GetImportName().Dump(os);
@@ -3687,8 +3691,8 @@ void IndirectExportEntry::Dump(std::ostream &os) const
 
 void StarExportEntry::Dump(std::ostream &os) const
 {
-    os << " - ModuleRequest: ";
-    GetModuleRequest().Dump(os);
+    os << " - ModuleRequestIndex: ";
+    os << GetModuleRequestIndex();
     os << "\n";
 }
 
@@ -5851,6 +5855,7 @@ void SourceTextModule::DumpForSnapshot(std::vector<Reference> &vec) const
     vec.reserve(vec.size() + NUM_OF_ITEMS);
     vec.emplace_back(CString("Environment"), GetEnvironment());
     vec.emplace_back(CString("Namespace"), GetNamespace());
+    vec.emplace_back(CString("ModuleRequests"), GetModuleRequests());
     vec.emplace_back(CString("RequestedModules"), GetRequestedModules());
     vec.emplace_back(CString("ImportEntries"), GetImportEntries());
     vec.emplace_back(CString("LocalExportEntries"), GetLocalExportEntries());
@@ -5872,7 +5877,7 @@ void SourceTextModule::DumpForSnapshot(std::vector<Reference> &vec) const
 
 void ImportEntry::DumpForSnapshot(std::vector<Reference> &vec) const
 {
-    vec.emplace_back(CString("ModuleRequest"), GetModuleRequest());
+    vec.emplace_back(CString("ModuleRequestIndex"), JSTaggedValue(GetModuleRequestIndex()));
     vec.emplace_back(CString("ImportName"), GetImportName());
     vec.emplace_back(CString("LocalName"), GetLocalName());
 }
@@ -5886,13 +5891,13 @@ void LocalExportEntry::DumpForSnapshot(std::vector<Reference> &vec) const
 void IndirectExportEntry::DumpForSnapshot(std::vector<Reference> &vec) const
 {
     vec.emplace_back(CString("ExportName"), GetExportName());
-    vec.emplace_back(CString("ModuleRequest"), GetModuleRequest());
+    vec.emplace_back(CString("ModuleRequest"), JSTaggedValue(GetModuleRequestIndex()));
     vec.emplace_back(CString("ImportName"), GetImportName());
 }
 
 void StarExportEntry::DumpForSnapshot(std::vector<Reference> &vec) const
 {
-    vec.emplace_back(CString("ModuleRequest"), GetModuleRequest());
+    vec.emplace_back(CString("ModuleRequest"), JSTaggedValue(GetModuleRequestIndex()));
 }
 
 void ResolvedBinding::DumpForSnapshot(std::vector<Reference> &vec) const

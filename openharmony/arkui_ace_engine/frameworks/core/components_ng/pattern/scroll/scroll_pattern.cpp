@@ -607,6 +607,7 @@ bool ScrollPattern::UpdateCurrentOffset(float delta, int32_t source)
     }
 #endif
     host->MarkDirtyNode(PROPERTY_UPDATE_MEASURE_SELF);
+    MarkScrollBarProxyDirty();
     return true;
 }
 
@@ -973,15 +974,15 @@ void ScrollPattern::CaleSnapOffsets()
 
 void ScrollPattern::CaleSnapOffsetsByInterval(ScrollSnapAlign scrollSnapAlign)
 {
-    CHECK_NULL_VOID(GreatOrEqual(intervalSize_.Value(), SCROLL_SNAP_INTERVAL_SIZE_MIN_VALUE));
     auto mainSize = GetMainAxisSize(viewPort_, GetAxis());
+    auto intervalSize = intervalSize_.Unit() == DimensionUnit::PERCENT ?
+                        intervalSize_.Value() * mainSize : intervalSize_.ConvertToPx();
+    CHECK_NULL_VOID(GreatOrEqual(intervalSize, SCROLL_SNAP_INTERVAL_SIZE_MIN_VALUE));
     auto extentMainSize = GetMainAxisSize(viewPortExtent_, GetAxis());
     auto start = 0.0f;
     auto end = -scrollableDistance_;
     auto snapOffset = 0.0f;
     auto sizeDelta = 0.0f;
-    auto intervalSize = intervalSize_.Unit() == DimensionUnit::PERCENT ?
-                        intervalSize_.Value() * mainSize : intervalSize_.ConvertToPx();
     float temp = static_cast<int32_t>(extentMainSize / intervalSize) * intervalSize;
     switch (scrollSnapAlign) {
         case ScrollSnapAlign::START:
@@ -1041,11 +1042,11 @@ void ScrollPattern::CaleSnapOffsetsByPaginations(ScrollSnapAlign scrollSnapAlign
     auto nextElement = snapPaginations[length + 1];
     for (; length < size; length++) {
         element = snapPaginations[length];
-        nextElement = snapPaginations[length + 1];
         current = element.Unit() == DimensionUnit::PERCENT ? element.Value() * mainSize : element.ConvertToPx();
         if (length == size - 1) {
             next = extentMainSize;
         } else {
+            nextElement = snapPaginations[length + 1];
             next = nextElement.Unit() == DimensionUnit::PERCENT ? nextElement.Value() * mainSize
                                                                 : nextElement.ConvertToPx();
         }

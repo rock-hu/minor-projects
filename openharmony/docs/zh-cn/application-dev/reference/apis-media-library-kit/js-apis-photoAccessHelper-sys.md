@@ -24,7 +24,7 @@ createAsset(displayName: string, callback: AsyncCallback&lt;PhotoAsset&gt;): voi
 待创建的文件名参数规格为：
 - 应包含有效文件主名和图片或视频扩展名。
 - 文件名字符串长度为1~255。
-- 文件主名中不允许出现的非法英文字符，包括：<br> . .. \ / : * ? " ' ` < > | { } [ ]
+- 文件主名中不允许出现的非法英文字符。<br>API18开始，非法字符包括： \ / : * ? " < > | <br>API10-17，非法字符包括：. .. \ / : * ? " ' ` < > | { } [ ]
 
 **系统接口**：此接口为系统接口。
 
@@ -78,7 +78,7 @@ createAsset(displayName: string): Promise&lt;PhotoAsset&gt;
 待创建的文件名参数规格为：
 - 应包含有效文件主名和图片或视频扩展名。
 - 文件名字符串长度为1~255。
-- 文件主名中不允许出现的非法英文字符，包括：<br> . .. \ / : * ? " ' ` < > | { } [ ]
+- 文件主名中不允许出现的非法英文字符。<br>API18开始，非法字符包括： \ / : * ? " < > | <br>API10-17，非法字符包括：. .. \ / : * ? " ' ` < > | { } [ ]
 
 **系统接口**：此接口为系统接口。
 
@@ -136,7 +136,7 @@ createAsset(displayName: string, options: PhotoCreateOptions, callback: AsyncCal
 待创建的文件名参数规格为：
 - 应包含有效文件主名和图片或视频扩展名。
 - 文件名字符串长度为1~255。
-- 文件主名中不允许出现的非法英文字符，包括：<br> . .. \ / : * ? " ' ` < > | { } [ ]
+- 文件主名中不允许出现的非法英文字符。<br>API18开始，非法字符包括： \ / : * ? " < > | <br>API10-17，非法字符包括：. .. \ / : * ? " ' ` < > | { } [ ]
 
 **系统接口**：此接口为系统接口。
 
@@ -194,7 +194,7 @@ createAsset(displayName: string, options: PhotoCreateOptions): Promise&lt;PhotoA
 待创建的文件名参数规格为：
 - 应包含有效文件主名和图片或视频扩展名。
 - 文件名字符串长度为1~255。
-- 文件主名中不允许出现的非法英文字符，包括：<br> . .. \ / : * ? " ' ` < > | { } [ ]
+- 文件主名中不允许出现的非法英文字符。<br>API18开始，非法字符包括： \ / : * ? " < > | <br>API10-17，非法字符包括：. .. \ / : * ? " ' ` < > | { } [ ]
 
 **系统接口**：此接口为系统接口。
 
@@ -1553,7 +1553,8 @@ async function example() {
   }
 }
 ```
-### getKeyFrameThumbnail<sup>16+</sup>
+
+### getKeyFrameThumbnail<sup>18+</sup>
 
 getKeyFrameThumbnail(beginFrameTimeMs: number, type: ThumbnailType): Promise<image.PixelMap>
 
@@ -3524,7 +3525,7 @@ async function example() {
 
 | 名称           | 类型    | 只读   | 可选  | 说明   |
 | ------------ | ------ | ---- | ---- | ------- |
-| lpath<sup>16+</sup>    | string | 是    | 是   | 相册虚拟路径。<br>**系统接口**：此接口为系统接口。|
+| lpath<sup>18+</sup>    | string | 是    | 是   | 相册虚拟路径。<br>**系统接口**：此接口为系统接口。|
 
 ### recoverAssets<sup>(deprecated)</sup>
 
@@ -3999,7 +4000,7 @@ static createAssetRequest(context: Context, displayName: string, options?: Photo
 待创建的文件名参数规格为：
 - 应包含有效文件主名和图片或视频扩展名。
 - 文件名字符串长度为1~255。
-- 文件主名中不允许出现非法字符，包括：<br> . .. \ / : * ? " ' ` < > | { } [ ]
+- 文件主名中不允许出现的非法英文字符。<br>API18开始，非法字符包括： \ / : * ? " < > | <br>API10-17，非法字符包括：. .. \ / : * ? " ' ` < > | { } [ ]
 
 **系统接口**：此接口为系统接口。
 
@@ -4510,7 +4511,7 @@ async function example() {
 }
 ```
 
-### deleteLocalAssetsPermanently<sup>16+</sup>
+### deleteLocalAssetsPermanently<sup>18+</sup>
 
 static deleteLocalAssetsPermanently(context: Context, assets: Array\<PhotoAsset>): Promise&lt;void&gt;
 
@@ -4572,6 +4573,62 @@ struct Index {
     } catch (err) {
       console.error(`deleteAssetsPermanentlyDemo failed with error: ${err.code}, ${err.message}`);
     }
+  }
+}
+```
+
+### setDisplayName<sup>18+</sup>
+
+setDisplayName(displayName: string): void
+
+修改媒体资产的文件名（含扩展名）。
+
+**系统接口**：此接口为系统接口。
+
+**系统能力**：SystemCapability.FileManagement.PhotoAccessHelper.Core
+
+**参数：**
+
+| 参数名        | 类型      | 必填   | 说明                                 |
+| ---------- | ------- | ---- | ---------------------------------- |
+| displayName | string | 是   | 待修改的资产文件名（含扩展名）。<br>参数规格：<br>- 需要包含扩展名。<br>- 文件名（不含扩展名）的字符串长度为1~255。<br>- 文件名中不允许出现非法字符，如：\ / : * ? " < > \| |
+
+**错误码：**
+
+接口抛出错误码的详细介绍请参见[通用错误码](../errorcode-universal.md)和[文件管理错误码](../apis-core-file-kit/errorcode-filemanagement.md)。
+
+| 错误码ID | 错误信息 |
+| -------- | ---------------------------------------- |
+| 202        |  Called by non-system application.         |
+| 401 | Parameter error. Possible causes: 1. Mandatory parameters are left unspecified; 2. Incorrect parameter types; 3. Parameter verification failed. | 
+| 14000011       | Internal system error.         |
+
+**示例：**
+
+```ts
+import { dataSharePredicates } from '@kit.ArkData';
+import { photoAccessHelper } from '@kit.MediaLibraryKit';
+
+const context = getContext(this);
+let phAccessHelper = photoAccessHelper.getPhotoAccessHelper(context);
+
+async function example() {
+  console.info('setDisplayNameDemo');
+  let predicates: dataSharePredicates.DataSharePredicates = new dataSharePredicates.DataSharePredicates();
+  let fetchOption: photoAccessHelper.FetchOptions = {
+    fetchColumns: [],
+    predicates: predicates
+  };
+  try {
+    let fetchResult: photoAccessHelper.FetchResult<photoAccessHelper.PhotoAsset> = await phAccessHelper.getAssets(fetchOption);
+    let asset = await fetchResult.getFirstObject();
+    let assetChangeRequest: photoAccessHelper.MediaAssetChangeRequest = new photoAccessHelper.MediaAssetChangeRequest(asset);
+    let newDisplayName: string = 'newDisplayName.jpg';
+    assetChangeRequest.setDisplayName(newDisplayName);
+    await phAccessHelper.applyChanges(assetChangeRequest);
+    console.info('apply setDisplayName successfully');
+  } catch (err) {
+    console.error(`apply setDisplayName failed with error: ${err.code}, ${err.message}`);
   }
 }
 ```
@@ -5660,7 +5717,7 @@ async function example() {
 }
 ```
 
-### setSubTitle<sup>16+</sup>
+### setSubTitle<sup>18+</sup> 
 
 setSubTitle(title: string): void
 
@@ -5725,13 +5782,13 @@ async function example() {
 }
 ```
 
-## MediaAnalysisAlbumChangeRequest<sup>16+</sup>
+## MediaAnalysisAlbumChangeRequest<sup>18+</sup> 
 
 智慧相册变更请求。
 
 **系统能力**：SystemCapability.FileManagement.PhotoAccessHelper.Core
 
-### constructor<sup>16+</sup>
+### constructor<sup>18+</sup> 
 
 constructor(album: Album)
 
@@ -5781,7 +5838,7 @@ async function example() {
 }
 ```
 
-### setOrderPosition<sup>16+</sup>
+### setOrderPosition<sup>18+</sup> 
 
 setOrderPosition(assets: Array&lt;PhotoAsset&gt;, position: Array&lt;number&gt;): void
 
@@ -5855,13 +5912,13 @@ async function example() {
 }
 ```
 
-## AnalysisAlbum<sup>16+</sup>
+## AnalysisAlbum<sup>18+</sup> 
 
 智慧相册。
 
 **系统能力**：SystemCapability.FileManagement.PhotoAccessHelper.Core
 
-### constructor<sup>16+</sup>
+### constructor<sup>18+</sup> 
 
 constructor(album: Album)
 
@@ -5910,7 +5967,7 @@ async function example() {
 }
 ```
 
-### getOrderPosition<sup>16+</sup>
+### getOrderPosition<sup>18+</sup> 
 
 getOrderPosition(assets: Array&lt;PhotoAsset&gt;): Promise&lt;Array&lt;number&gt;&gt;
 
@@ -6907,7 +6964,7 @@ async function example() {
 
 | 名称                              | 值                    | 说明                                                       |
 | --------------------------------- | -------------------- | ----------------------------------------------------- |
-| ALBUM_LPATH<sup>16+</sup>         | 'lpath'                 | 相册的虚拟路径。<br>**系统接口**：此接口为系统接口。            |
+| ALBUM_LPATH<sup>18+</sup>          | 'lpath'                 | 相册的虚拟路径。<br>**系统接口**：此接口为系统接口。            |
 
 ## HiddenPhotosDisplayMode<sup>11+</sup>
 

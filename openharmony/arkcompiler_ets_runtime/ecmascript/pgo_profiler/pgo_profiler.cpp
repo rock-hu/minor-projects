@@ -1062,8 +1062,6 @@ bool PGOProfiler::DumpICLoadByNameWithHandler(ApEntityId abcId, const CString &r
         if (CheckProtoChangeMarker(cellValue)) {
             return ret;
         }
-        auto holder = prototypeHandler->GetHolder();
-        auto holderHClass = holder.GetTaggedObject()->GetClass();
         JSTaggedValue handlerInfoVal = prototypeHandler->GetHandlerInfo();
         if (!handlerInfoVal.IsInt()) {
             return ret;
@@ -1072,6 +1070,8 @@ bool PGOProfiler::DumpICLoadByNameWithHandler(ApEntityId abcId, const CString &r
         if (HandlerBase::IsNonExist(handlerInfo)) {
             return ret;
         }
+        auto holder = prototypeHandler->GetHolder();
+        auto holderHClass = holder.GetTaggedObject()->GetClass();
         auto accessorMethodId = prototypeHandler->GetAccessorMethodId();
         if (!AddObjectInfo(abcId, recordName, methodId, bcOffset, hclass, holderHClass,
                            holderHClass, accessorMethodId)) {
@@ -1570,6 +1570,7 @@ bool PGOProfiler::AddTransitionObjectInfo(ProfileType recordType,
     PGOObjectInfo info(receiverRootType, receiverType, holdRootType, holdType, holdRootType, holdTraType,
                        accessorMethod);
     UpdatePrototypeChainInfo(receiver, hold, info);
+    
     recordInfos_->AddObjectInfo(recordType, methodId, bcOffset, info);
     return true;
 }
@@ -1940,9 +1941,8 @@ ProfileType PGOProfiler::GetRecordProfileType(const std::shared_ptr<JSPandaFile>
                                               const CString &recordName)
 {
     ASSERT(pf != nullptr);
-    JSRecordInfo *recordInfo = nullptr;
-    bool hasRecord = pf->CheckAndGetRecordInfo(recordName, &recordInfo);
-    if (!hasRecord) {
+    JSRecordInfo *recordInfo = pf->CheckAndGetRecordInfo(recordName);
+    if (recordInfo == nullptr) {
         LOG_PGO(ERROR) << "Get recordInfo failed. recordName: " << recordName;
         return ProfileType::PROFILE_TYPE_NONE;
     }
@@ -2069,7 +2069,11 @@ JSTaggedValue PGOProfiler::TryFindKeyInPrototypeChain(TaggedObject *currObj, JSH
                 return JSTaggedValue(currHC);
             }
         }
-        currObj = currHC->GetProto().GetTaggedObject();
+        auto proto = currHC->GetProto();
+        if (!proto.IsHeapObject()) {
+            return JSTaggedValue::Undefined();
+        }
+        currObj = proto.GetTaggedObject();
         if (JSTaggedValue(currObj).IsUndefinedOrNull()) {
             break;
         }

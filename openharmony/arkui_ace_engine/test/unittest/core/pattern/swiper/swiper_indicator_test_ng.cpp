@@ -522,16 +522,16 @@ HWTEST_F(SwiperIndicatorTestNg, SwiperIndicatorPatternTouchBottom002, TestSize.L
     info.mainDelta_ = 1.0f;
     TouchLocationInfo touchLocationInfo("down", 0);
     touchLocationInfo.SetTouchType(TouchType::DOWN);
-    EXPECT_FALSE(indicatorPattern->CheckIsTouchBottom(info));
-    EXPECT_TRUE(indicatorPattern->CheckIsTouchBottom(touchLocationInfo));
+    EXPECT_FALSE(indicatorPattern->SwiperIndicatorPattern::CheckIsTouchBottom(info));
+    EXPECT_TRUE(indicatorPattern->SwiperIndicatorPattern::CheckIsTouchBottom(touchLocationInfo));
 
     pattern_->currentIndex_ = 0;
     layoutProperty_->UpdateLoop(false);
     pattern_->leftButtonId_ = 1;
     pattern_->rightButtonId_ = 1;
     pattern_->GetLayoutProperty<SwiperLayoutProperty>()->UpdateShowIndicator(true);
-    EXPECT_TRUE(indicatorPattern->CheckIsTouchBottom(info));
-    EXPECT_TRUE(indicatorPattern->CheckIsTouchBottom(touchLocationInfo));
+    EXPECT_TRUE(indicatorPattern->SwiperIndicatorPattern::CheckIsTouchBottom(info));
+    EXPECT_TRUE(indicatorPattern->SwiperIndicatorPattern::CheckIsTouchBottom(touchLocationInfo));
 }
 
 /**
@@ -687,6 +687,78 @@ HWTEST_F(SwiperIndicatorTestNg, SwiperIndicatorGetMouseClickIndex004, TestSize.L
     indicatorPattern->GetMouseClickIndex();
     EXPECT_EQ(indicatorPattern->mouseClickIndex_, 0);
 }
+
+/**
+ * @tc.name: GetIndicatorDragAngleThreshold001
+ * @tc.desc: GetIndicatorDragAngleThreshold
+ * @tc.type: FUNC
+ */
+ HWTEST_F(SwiperIndicatorTestNg, GetIndicatorDragAngleThreshold001, TestSize.Level1)
+ {
+     SwiperModelNG model = CreateSwiper();
+     model.SetDirection(Axis::VERTICAL);
+     CreateSwiperItems();
+     CreateSwiperDone();
+     auto indicatorNode = GetChildFrameNode(frameNode_, 4);
+     auto indicatorPattern = indicatorNode->GetPattern<SwiperIndicatorPattern>();
+     EXPECT_TRUE(indicatorPattern->GetIndicatorDragAngleThreshold(true));
+ }
+ 
+ /**
+  * @tc.name: GetIndicatorDragAngleThreshold002
+  * @tc.desc: GetIndicatorDragAngleThreshold
+  * @tc.type: FUNC
+  */
+ HWTEST_F(SwiperIndicatorTestNg, GetIndicatorDragAngleThreshold002, TestSize.Level1)
+ {
+     SwiperModelNG model = CreateSwiper();
+     model.SetDirection(Axis::VERTICAL);
+     CreateSwiperItems();
+     CreateSwiperDone();
+     auto indicatorNode = GetChildFrameNode(frameNode_, 4);
+     auto indicatorPattern = indicatorNode->GetPattern<SwiperIndicatorPattern>();
+     EXPECT_TRUE(indicatorPattern->GetIndicatorDragAngleThreshold(false));
+ }
+ 
+ /**
+  * @tc.name: DumpAdvanceInfo001
+  * @tc.desc: DumpAdvanceInfo
+  * @tc.type: FUNC
+  */
+ HWTEST_F(SwiperIndicatorTestNg, DumpAdvanceInfo001, TestSize.Level1)
+ {
+     SwiperModelNG model = CreateSwiper();
+     model.SetDirection(Axis::VERTICAL);
+     model.SetIndicatorType(SwiperIndicatorType::DOT);
+     CreateSwiperItems();
+     CreateSwiperDone();
+     auto indicatorNode = GetChildFrameNode(frameNode_, 4);
+     auto indicatorPattern = indicatorNode->GetPattern<SwiperIndicatorPattern>();
+     auto json = JsonUtil::Create(true);
+     EXPECT_EQ(indicatorPattern->GetIndicatorType(), SwiperIndicatorType::DOT);
+     indicatorPattern->DumpAdvanceInfo(json);
+     EXPECT_EQ(json->GetString("SwiperIndicatorType"), "DOT");
+ }
+ 
+ /**
+  * @tc.name: DumpAdvanceInfo002
+  * @tc.desc: DumpAdvanceInfo
+  * @tc.type: FUNC
+  */
+ HWTEST_F(SwiperIndicatorTestNg, DumpAdvanceInfo002, TestSize.Level1)
+ {
+     SwiperModelNG model = CreateSwiper();
+     model.SetDirection(Axis::VERTICAL);
+     model.SetIndicatorType(SwiperIndicatorType::DIGIT);
+     CreateSwiperItems();
+     CreateSwiperDone();
+     auto indicatorNode = GetChildFrameNode(frameNode_, 4);
+     auto indicatorPattern = indicatorNode->GetPattern<SwiperIndicatorPattern>();
+     auto json = JsonUtil::Create(true);
+     EXPECT_EQ(indicatorPattern->GetIndicatorType(), SwiperIndicatorType::DIGIT);
+     indicatorPattern->DumpAdvanceInfo(json);
+     EXPECT_EQ(json->GetString("SwiperIndicatorType"), "DIGIT");
+ }
 
 /**
  * @tc.name: SwiperIndicatorPatternTestNg0020
@@ -913,5 +985,35 @@ HWTEST_F(SwiperIndicatorTestNg, CircleSwiperIndicatorPatternConvertAngleWithArcD
         179.0f);
     EXPECT_EQ(indicatorPattern->ConvertAngleWithArcDirection(SwiperArcDirection::NINE_CLOCK_DIRECTION, 1.0f),
         -89.0f);
+}
+
+/**
+ * @tc.name: DynamicChangeIndicatorType001
+ * @tc.desc: Dynamic change indicator type
+ * @tc.type: FUNC
+ */
+HWTEST_F(SwiperIndicatorTestNg, DynamicChangeIndicatorType001, TestSize.Level1)
+{
+    SwiperModelNG model = CreateSwiper();
+    model.SetIndicatorType(SwiperIndicatorType::DOT);
+    CreateSwiperDone();
+    FlushUITasks();
+
+    EXPECT_EQ(pattern_->lastSwiperIndicatorType_, SwiperIndicatorType::DOT);
+
+    auto indicatorId = pattern_->GetIndicatorId();
+    layoutProperty_->UpdateIndicatorType(SwiperIndicatorType::DIGIT);
+    pattern_->InitIndicator();
+    FlushUITasks();
+    EXPECT_EQ(pattern_->lastSwiperIndicatorType_, SwiperIndicatorType::DIGIT);
+    auto newIndicatorId = pattern_->GetIndicatorId();
+    EXPECT_NE(indicatorId, newIndicatorId);
+
+    layoutProperty_->UpdateIndicatorType(SwiperIndicatorType::DOT);
+    pattern_->InitIndicator();
+    FlushUITasks();
+    EXPECT_EQ(pattern_->lastSwiperIndicatorType_, SwiperIndicatorType::DOT);
+    auto lastIndicatorId = pattern_->GetIndicatorId();
+    EXPECT_NE(lastIndicatorId, newIndicatorId);
 }
 } // namespace OHOS::Ace::NG
