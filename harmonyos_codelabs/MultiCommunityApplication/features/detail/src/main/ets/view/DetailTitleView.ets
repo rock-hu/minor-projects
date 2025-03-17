@@ -14,7 +14,7 @@
  */
 
 import { deviceInfo } from '@kit.BasicServicesKit';
-import { BreakpointConstants as Breakpoint, BreakpointType, CommonConstants as BaseCommon } from '@ohos/base';
+import { BreakpointConstants as Breakpoint, BreakpointType, CommonConstants as BaseCommon } from 'base';
 
 @Component
 export struct DetailTitleView {

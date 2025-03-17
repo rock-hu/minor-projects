@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { BreakpointConstants as Breakpoint, CommonConstants as BaseCommon } from '@ohos/base';
+import { BreakpointConstants as Breakpoint, CommonConstants as BaseCommon } from 'base';
 import { CommonConstants as Common } from '../constants/CommonConstants';
 
 @Component

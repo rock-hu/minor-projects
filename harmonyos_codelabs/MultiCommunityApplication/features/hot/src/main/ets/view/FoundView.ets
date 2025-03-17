@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-import { BreakpointConstants as Breakpoint, CommonConstants as BaseCommon, BreakpointType } from '@ohos/base';
-import { CommentBarView, MircoBlogView } from '@ohos/detail';
-import { CardArrayViewModel, CardArray } from '@ohos/detail';
-import { CardItem } from '@ohos/detail';
+import { BreakpointConstants as Breakpoint, CommonConstants as BaseCommon, BreakpointType } from 'base';
+import { CommentBarView, MircoBlogView } from 'detail';
+import { CardArrayViewModel, CardArray } from 'detail';
+import { CardItem } from 'detail';
 import { CommonConstants as Common } from '../constants/CommonConstants';
 import { HotColumnView } from '../view/HotColumnView';
 

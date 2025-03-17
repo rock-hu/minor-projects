@@ -8,8 +8,8 @@
   "version": "1.0.0",
   "dynamicDependencies": {},
   "dependencies": {
-    "@ohos/rank": "file:../rank",
-    "@ohos/base": "file:../../commons/base",
-    "@ohos/detail": "file:../detail"
+    "rank": "file:../rank",
+    "base": "file:../../commons/base",
+    "detail": "file:../detail"
   }
 }

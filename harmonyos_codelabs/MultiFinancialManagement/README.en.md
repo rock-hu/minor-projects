@@ -6,15 +6,15 @@ This codelab implements a bank wealth management app based on the adaptive layou
 
 The figure shows the effect on the mobile phone:
 
-![](screenshots/device/phone.en.png)
+<img src='./screenshots/device/phone.en.png' width='320'>
 
 The figure shows the effect on the foldable phone:
 
-![](screenshots/device/foldable.en.png)
+<img src='./screenshots/device/foldable.en.png' width='480'>
 
 The figure shows the effect on the tablet:
 
-![](screenshots/device/pad.en.png)
+<img src='./screenshots/device/pad.en.png' width='800'>
 
 ### Permissions
 
@@ -31,6 +31,6 @@ N/A
 ### Constraints
 
 1. The sample app is supported only on Huawei phones running the standard system.
-2. HarmonyOS: HarmonyOS NEXT Developer Beta 1 or later
-3. DevEco Studio: DevEco Studio NEXT Developer Beta 1 or later
-4. HarmonyOS SDK: HarmonyOS NEXT Developer Beta 1 SDK or later
+2. HarmonyOS: HarmonyOS 5.0.0 Release or later
+3. DevEco Studio: DevEco Studio 5.0.0 Release or later
+4. HarmonyOS SDK: HarmonyOS 5.0.0 Release SDK or later

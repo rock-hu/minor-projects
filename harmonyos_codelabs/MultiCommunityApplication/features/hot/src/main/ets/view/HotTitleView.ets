@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { BreakpointConstants as Breakpoint, CommonConstants as BaseCommon, BreakpointType } from '@ohos/base';
+import { BreakpointConstants as Breakpoint, CommonConstants as BaseCommon, BreakpointType } from 'base';
 import { SearchBarView } from '../view/SearchBarView';
 
 @Component

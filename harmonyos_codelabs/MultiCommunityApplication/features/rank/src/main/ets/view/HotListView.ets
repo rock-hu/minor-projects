@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { HOST_LIST_ARRAY, CommonConstants as BaseCommon, HotItemInterface } from '@ohos/base';
+import { HOST_LIST_ARRAY, CommonConstants as BaseCommon, HotItemInterface } from 'base';
 import { HotListItemView } from './HotListItemView';
 
 @Component

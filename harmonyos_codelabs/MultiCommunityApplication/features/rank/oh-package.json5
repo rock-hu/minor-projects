@@ -8,6 +8,6 @@
   "version": "1.0.0",
   "dynamicDependencies": {},
   "dependencies": {
-    "@ohos/base": "file:../../commons/base"
+    "base": "file:../../commons/base"
   }
 }

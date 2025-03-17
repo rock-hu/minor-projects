@@ -1,8 +1,8 @@
-# UIAbility和自定义组件生命周期
+# 实现UIAbility和自定义组件生命周期管理
 
 ### 简介
 
-本篇Codelab主要介绍UIAbility和自定义组件生命周期。
+本篇Codelab主要介绍UIAbility和自定义组件生命周期，通过日志打印可以在控制台观察生命周期的调用过程，为开发者讲解UIAbility声明周期的过程。
 
 ### 相关概念
 
@@ -21,6 +21,6 @@
 ### 约束与限制
 
 1. 本示例仅支持标准系统上运行，支持设备：华为手机。
-2. HarmonyOS系统：HarmonyOS NEXT Developer Beta1及以上。
-3. DevEco Studio版本：DevEco Studio NEXT Developer Beta1及以上。
-4. HarmonyOS SDK版本：HarmonyOS NEXT Developer Beta1 SDK及以上。
+2. HarmonyOS系统：HarmonyOS 5.0.0 Release及以上。
+3. DevEco Studio版本：DevEco Studio 5.0.0 Release及以上。
+4. HarmonyOS SDK版本：HarmonyOS 5.0.0 Release SDK及以上。

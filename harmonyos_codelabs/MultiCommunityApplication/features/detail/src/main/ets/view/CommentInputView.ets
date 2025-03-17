@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { CommonConstants as BaseCommon } from '@ohos/base';
+import { CommonConstants as BaseCommon } from 'base';
 import { CommonConstants as Common } from '../constants/CommonConstants';
 
 const TEXTAREA_KEY: string = 'textarea';
@@ -27,7 +27,7 @@ export struct CommentInputView {
   build() {
     Row() {
       TextArea({ placeholder: $r('app.string.detail_write_comment'), text: this.content })
-        .key(TEXTAREA_KEY)
+        .id(TEXTAREA_KEY)
         .maxLines(Common.TEXT_AREA_MAX_LINES)
         .constraintSize({
           minHeight: $r('app.float.constraint_size')
@@ -50,7 +50,7 @@ export struct CommentInputView {
           left: $r('app.float.toolbar_sent_ml'),
           bottom: $r('app.float.toolbar_sent_mb')
         })
-        .key(BUTTON_KEY)
+        .id(BUTTON_KEY)
         .onClick(() => {
           AppStorage.setOrCreate('isShowInput', false);
           focusControl.requestFocus(BUTTON_KEY);

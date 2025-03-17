@@ -14,8 +14,8 @@
  */
 
 import { deviceInfo } from '@kit.BasicServicesKit';
-import { CommonConstants as BaseCommon, BreakpointConstants as Breakpoint } from '@ohos/base'
-import { MircoBlogView, CommentListView, CommentBarView, CardArrayViewModel, CardArray } from '@ohos/detail';
+import { CommonConstants as BaseCommon, BreakpointConstants as Breakpoint } from 'base'
+import { MircoBlogView, CommentListView, CommentBarView, CardArrayViewModel, CardArray } from 'detail';
 
 @Component
 export struct DetailVertical {

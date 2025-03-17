@@ -14,7 +14,7 @@
  */
 
 import { App as app } from '@kit.ArkUI';
-import { BreakpointConstants as Breakpoint, CommonConstants as BaseCommon, BreakpointType } from '@ohos/base';
+import { BreakpointConstants as Breakpoint, CommonConstants as BaseCommon, BreakpointType } from 'base';
 import { CommonConstants as Common } from '../constants/CommonConstants'
 import { FollowItemInterface, FOLLOW_LIST, TITLE_DETAIL_LIST } from '../model/FollowModel';
 

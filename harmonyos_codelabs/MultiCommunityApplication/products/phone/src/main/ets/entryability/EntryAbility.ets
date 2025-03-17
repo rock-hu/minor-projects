@@ -17,7 +17,7 @@ import { UIAbility, Want, AbilityConstant } from '@kit.AbilityKit';
 import { BusinessError, deviceInfo } from '@kit.BasicServicesKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { window, display } from '@kit.ArkUI';
-import { CommonConstants as BaseCommon, BreakpointConstants } from '@ohos/base'
+import { CommonConstants as BaseCommon, BreakpointConstants } from 'base'
 
 export default class EntryAbility extends UIAbility {
 

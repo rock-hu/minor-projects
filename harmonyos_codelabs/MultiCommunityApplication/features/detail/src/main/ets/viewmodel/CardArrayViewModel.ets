@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { CardItemInterface, CARD_LIST } from '@ohos/base';
+import { CardItemInterface, CARD_LIST } from 'base';
 import { CardItem } from './CardViewModel';
 
 export class CardArray {

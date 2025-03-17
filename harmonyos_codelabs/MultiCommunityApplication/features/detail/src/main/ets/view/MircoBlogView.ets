@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { CardItemInterface, BreakpointConstants as Breakpoint, CommonConstants as BaseCommon } from '@ohos/base';
+import { CardItemInterface, BreakpointConstants as Breakpoint, CommonConstants as BaseCommon } from 'base';
 import { CardItem } from '../viewmodel/CardViewModel';
 import { CommonConstants as Common } from '../constants/CommonConstants';
 
@@ -50,11 +50,7 @@ export struct MircoBlogView {
 
   jump(index: number) {
     AppStorage.setOrCreate('selectCardIndex', this.index);
-    if (this.isDetailPage) {
-      this.pageInfos.replacePath({ name: 'pictureDetail', param: index });
-    } else {
-      this.pageInfos.pushPath({ name: 'pictureDetail', param: index });
-    }
+    this.pageInfos.pushPath({ name: 'pictureDetail', param: index });
   }
 
   build() {

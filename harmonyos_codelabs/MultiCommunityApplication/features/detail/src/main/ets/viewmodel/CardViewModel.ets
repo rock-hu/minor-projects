@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { COMMENT_LIST, CommentItemInterface, CardItemInterface, CommentItem, PICTURE_ARRAY_LIST } from '@ohos/base';
+import { COMMENT_LIST, CommentItemInterface, CardItemInterface, CommentItem, PICTURE_ARRAY_LIST } from 'base';
 
 export class CardItem implements CardItemInterface {
   icon: ResourceStr;

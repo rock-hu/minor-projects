@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-import { BreakpointConstants as Breakpoint, CommonConstants as Common } from '@ohos/base';
-import { DetailPage } from '@ohos/detail';
-import { HotRankPage } from '@ohos/rank';
-import { PictureDetail } from '@ohos/picture';
+import { BreakpointConstants as Breakpoint, CommonConstants as Common } from 'base';
+import { DetailPage } from 'detail';
+import { HotRankPage } from 'rank';
+import { PictureDetail } from 'picture';
 import { TabContentView } from '../view/TabContentView';
 
 @Entry

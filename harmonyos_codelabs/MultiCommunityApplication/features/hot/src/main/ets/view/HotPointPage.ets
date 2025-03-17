@@ -14,7 +14,7 @@
  */
 
 import { deviceInfo } from '@kit.BasicServicesKit';
-import { BreakpointConstants as Breakpoint, CommonConstants as BaseCommon } from '@ohos/base/';
+import { BreakpointConstants as Breakpoint, CommonConstants as BaseCommon } from 'base/';
 import { FoundView } from './FoundView';
 import { FollowView } from './FollowView';
 import { HotTitleView } from './HotTitleView';

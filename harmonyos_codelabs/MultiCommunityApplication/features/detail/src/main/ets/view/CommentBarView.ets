@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { CommonConstants as BaseCommon, BreakpointConstants as Breakpoint } from '@ohos/base';
+import { CommonConstants as BaseCommon, BreakpointConstants as Breakpoint } from 'base';
 import { CommonConstants as Common } from '../constants/CommonConstants';
 
 const KEY_TEXTAREA: string = 'textarea_input';
@@ -97,7 +97,7 @@ export struct CommentBarView {
               .onChange((value: string) => {
                 this.content = value;
               })
-              .key(KEY_TEXTAREA)
+              .id(KEY_TEXTAREA)
               .onAppear(() => {
                 focusControl.requestFocus(KEY_TEXTAREA)
               })

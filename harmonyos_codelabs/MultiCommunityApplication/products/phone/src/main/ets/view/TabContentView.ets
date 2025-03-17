@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-import { BreakpointConstants as Breakpoint, CommonConstants as Common } from '@ohos/base';
-import { HotPointPage } from '@ohos/hot';
+import { BreakpointConstants as Breakpoint, CommonConstants as Common } from 'base';
+import { HotPointPage } from 'hot';
 import { BarItemInterface } from '../model/TabBarModel';
 import { TabBarViewModel } from '../viewmodel/TabBarViewModel';
 

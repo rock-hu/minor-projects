@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { BreakpointConstants as Breakpoint, CommonConstants as BaseCommon, CommentItemInterface, } from '@ohos/base';
+import { BreakpointConstants as Breakpoint, CommonConstants as BaseCommon, CommentItemInterface, } from 'base';
 import { CommonConstants as Common } from '../constants/CommonConstants';
 import { CommentItemView } from '../view/CommentItemView';
 import { CommentBarView } from '../view/CommentBarView';

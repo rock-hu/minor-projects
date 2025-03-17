@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-import { BreakpointConstants as Breakpoint, CommonConstants as BaseCommon, BreakpointType } from '@ohos/base';
-import { HotItemInterface, HOST_LIST_ARRAY } from '@ohos/base';
-import { HotListItemView } from '@ohos/rank';
+import { BreakpointConstants as Breakpoint, CommonConstants as BaseCommon, BreakpointType } from 'base';
+import { HotItemInterface, HOST_LIST_ARRAY } from 'base';
+import { HotListItemView } from 'rank';
 import { CommonConstants as Common } from '../constants/CommonConstants';
 import { ToRankView } from './ToRankView';
 

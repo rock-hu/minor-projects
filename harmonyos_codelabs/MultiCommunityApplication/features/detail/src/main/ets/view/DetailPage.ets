@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { BreakpointConstants as Breakpoint, CommonConstants as Common, BreakpointType } from '@ohos/base';
+import { BreakpointConstants as Breakpoint, CommonConstants as Common, BreakpointType } from 'base';
 import { DetailTitleView } from './DetailTitleView';
 import { MircoBlogView } from './MircoBlogView';
 import { CommentListView } from './CommentListView';
@@ -160,7 +160,7 @@ export struct DetailPage {
             .height(Common.FULL_PERCENT)
             .backgroundColor(Color.Black)
             .opacity($r('app.float.text_input_bgc_opacity'))
-            .key(KEY_BACKGROUND)
+            .id(KEY_BACKGROUND)
             .onClick(() => {
               AppStorage.setOrCreate('isShowInput', false);
               focusControl.requestFocus(KEY_BACKGROUND);

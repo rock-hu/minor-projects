@@ -18,7 +18,7 @@ import {
   CommonConstants as BaseCommon,
   BreakpointType,
   BreakpointConstants as Breakpoint
-} from '@ohos/base';
+} from 'base';
 import { CommonConstants as Common } from '../constants/CommonConstants';
 
 @Component

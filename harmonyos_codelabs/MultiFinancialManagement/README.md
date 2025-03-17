@@ -1,4 +1,4 @@
-# 优秀实践-一次开发，多端部署-银行理财
+# 一次开发，多端部署-银行理财
 
 ### 简介
 
@@ -6,15 +6,15 @@
 
 手机效果图如下：
 
-![](screenshots/device/phone.png)
+<img src='./screenshots/device/phone.png' width='320'>
 
 折叠屏效果图如下：
 
-![](screenshots/device/foldable.png)
+<img src='./screenshots/device/foldable.png' width='480'>
 
 平板效果图如下：
 
-![](screenshots/device/pad.png)
+<img src='./screenshots/device/pad.png' width='800'>
 
 ### 相关权限
 
@@ -31,6 +31,6 @@
 ### 约束与限制
 
 1. 本示例仅支持标准系统上运行，支持设备：华为手机。
-2. HarmonyOS系统：HarmonyOS NEXT Developer Beta1及以上。
-3. DevEco Studio版本：DevEco Studio NEXT Developer Beta1及以上。
-4. HarmonyOS SDK版本：HarmonyOS NEXT Developer Beta1 SDK及以上。
+2. HarmonyOS系统：HarmonyOS 5.0.0 Release及以上。
+3. DevEco Studio版本：DevEco Studio 5.0.0 Release及以上。
+4. HarmonyOS SDK版本：HarmonyOS 5.0.0 Release SDK及以上。

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-import { BreakpointConstants as Breakpoint, CommonConstants as BaseCommon, BreakpointType } from '@ohos/base/';
-import { CardArrayViewModel, CardArray, CommentInputView } from '@ohos/detail/';
+import { BreakpointConstants as Breakpoint, CommonConstants as BaseCommon, BreakpointType } from 'base/';
+import { CardArrayViewModel, CardArray, CommentInputView } from 'detail/';
 import { DetailVertical } from './DetailVerticalView';
 
 const KEY_BACKGROUND: string = 'background';
@@ -120,6 +120,7 @@ export struct PictureDetail {
               .index(this.index)
               .onClick(() => {
                 if (this.isDetailPage) {
+                  this.pageInfos.pop();
                   this.pageInfos.replacePath({ name: 'detailPage' });
                 } else {
                   this.pageInfos.pop();
@@ -131,6 +132,7 @@ export struct PictureDetail {
                 .aspectRatio(1)
                 .onClick(() => {
                   if (this.isDetailPage) {
+                    this.pageInfos.pop();
                     this.pageInfos.replacePath({ name: 'detailPage' });
                   } else {
                     this.pageInfos.pop();
@@ -173,7 +175,7 @@ export struct PictureDetail {
             .height(BaseCommon.FULL_PERCENT)
             .backgroundColor(Color.Black)
             .opacity($r('app.float.text_input_bgc_opacity'))
-            .key(KEY_BACKGROUND)
+            .id(KEY_BACKGROUND)
             .onClick(() => {
               AppStorage.setOrCreate('isShowInput', false);
               focusControl.requestFocus(KEY_BACKGROUND);
