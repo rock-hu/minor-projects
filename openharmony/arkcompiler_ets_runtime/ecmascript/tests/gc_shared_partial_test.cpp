@@ -72,7 +72,7 @@ private:
 
 void SharedPartialGCTest::InitTaggedArray(TaggedObject *obj, size_t arrayLen)
 {
-    JSHClass *arrayClass = JSHClass::Cast(thread->GlobalConstants()->GetArrayClass().GetTaggedObject());
+    JSHClass *arrayClass = JSHClass::Cast(thread->GlobalConstants()->GetTaggedArrayClass().GetTaggedObject());
     obj->SynchronizedSetClass(thread, arrayClass);
     TaggedArray::Cast(obj)->InitializeWithSpecialValue(JSTaggedValue::Undefined(), arrayLen);
 }
@@ -115,7 +115,7 @@ HWTEST_F_L0(SharedPartialGCTest, PartialGCTest)
     }
     space->FillBumpPointer();
     EXPECT_TRUE(sHeap->CheckCanTriggerConcurrentMarking(thread));
-    sHeap->TriggerConcurrentMarking<TriggerGCType::SHARED_PARTIAL_GC, GCReason::OTHER>(thread);
+    sHeap->TriggerConcurrentMarking<TriggerGCType::SHARED_PARTIAL_GC, MarkReason::OTHER>(thread);
     while (!thread->HasSuspendRequest());
     thread->CheckSafepointIfSuspended();
     if (thread->IsSharedConcurrentMarkingOrFinished()) {

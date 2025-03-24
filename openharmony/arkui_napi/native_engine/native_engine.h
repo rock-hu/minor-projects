@@ -108,8 +108,9 @@ using PostTask = std::function<void(bool needSync)>;
 using CleanEnv = std::function<void()>;
 using InitWorkerFunc = std::function<void(NativeEngine* engine)>;
 using GetAssetFunc = std::function<void(const std::string& uri, uint8_t **buff, size_t *buffSize,
-    std::vector<uint8_t>& content, std::string& ami, bool &useSecureMem, bool isRestricted)>;
+    std::vector<uint8_t>& content, std::string& ami, bool &useSecureMem, void** mapper, bool isRestricted)>;
 using OffWorkerFunc = std::function<void(NativeEngine* engine)>;
+using ReleaseWorkerSafeMemFunc = std::function<void(void* mapper)>;
 using DebuggerPostTask = std::function<void(std::function<void()>&&)>;
 using NapiUncaughtExceptionCallback = std::function<void(napi_value value)>;
 using PermissionCheckCallback = std::function<bool()>;
@@ -129,6 +130,7 @@ using NapiAllUnhandledRejectionCallback = std::function<bool(napi_env env,
 using NapiAllPromiseRejectCallback = std::function<void(napi_value* args)>;
 using NapiHasOnErrorCallback = std::function<bool()>;
 using NapiHasAllUnhandledRejectionCallback = std::function<bool()>;
+
 class NAPI_EXPORT NativeEngine {
 public:
     explicit NativeEngine(void* jsEngine);
@@ -269,43 +271,39 @@ public:
     virtual void TriggerFatalException(panda::Local<panda::JSValueRef> exceptionValue) = 0;
     virtual bool AdjustExternalMemory(int64_t ChangeInBytes, int64_t* AdjustedValue) = 0;
 
-    void MarkWorkerThread()
-    {
-        jsThreadType_.Update(static_cast<uintptr_t>(JSThreadType::WORKER_THREAD));
-    }
-    void MarkRestrictedWorkerThread()
-    {
-        jsThreadType_.Update(static_cast<uintptr_t>(JSThreadType::RESTRICTEDWORKER_THREAD));
-    }
-    void MarkTaskPoolThread()
-    {
-        jsThreadType_.Update(static_cast<uintptr_t>(JSThreadType::TASKPOOL_THREAD));
-    }
-    void MarkNativeThread()
-    {
-        jsThreadType_.Update(static_cast<uintptr_t>(JSThreadType::NATIVE_THREAD));
-    }
-    bool IsWorkerThread() const
-    {
-        return static_cast<JSThreadType>(jsThreadType_.GetData()) == JSThreadType::WORKER_THREAD;
-    }
-    bool IsRestrictedWorkerThread() const
-    {
-        return static_cast<JSThreadType>(jsThreadType_.GetData()) == JSThreadType::RESTRICTEDWORKER_THREAD;
-    }
-    bool IsTaskPoolThread() const
-    {
-        return static_cast<JSThreadType>(jsThreadType_.GetData()) == JSThreadType::TASKPOOL_THREAD;
-    }
-    bool IsMainThread() const
-    {
-        return static_cast<JSThreadType>(jsThreadType_.GetData()) == JSThreadType::MAIN_THREAD;
-    }
-    bool IsNativeThread() const
-    {
-        return static_cast<JSThreadType>(jsThreadType_.GetData()) == JSThreadType::NATIVE_THREAD;
+#define NATIVE_ENGINE_THREAD_TYPE(XX)                   \
+    XX(MainThread, MAIN_THREAD)                         \
+    XX(WorkerThread, WORKER_THREAD)                     \
+    XX(RestrictedWorkerThread, RESTRICTEDWORKER_THREAD) \
+    XX(TaskPoolThread, TASKPOOL_THREAD)                 \
+    XX(FormThread, FORM_THREAD)                         \
+    XX(NativeThread, NATIVE_THREAD)
+
+#define GEN_THREAD_TYPE_METHOD(name, type)                                               \
+    void Mark##name()                                                                    \
+    {                                                                                    \
+        jsThreadType_.Update(static_cast<uintptr_t>(JSThreadType::type));                \
+    }                                                                                    \
+    bool Is##name() const                                                                \
+    {                                                                                    \
+        return static_cast<JSThreadType>(jsThreadType_.GetData()) == JSThreadType::type; \
     }
 
+    NATIVE_ENGINE_THREAD_TYPE(GEN_THREAD_TYPE_METHOD)
+
+#undef GEN_THREAD_TYPE_METHOD
+
+private:
+    // the old worker api use before api9, the new worker api start with api9
+#define GEN_THREAD_TYPE_ENUM(_, type) type,
+    enum JSThreadType { NATIVE_ENGINE_THREAD_TYPE(GEN_THREAD_TYPE_ENUM) };
+#undef GEN_THREAD_TYPE_ENUM
+
+#undef NATIVE_ENGINE_THREAD_TYPE
+
+    DataProtector jsThreadType_ {DataProtector(uintptr_t(JSThreadType::MAIN_THREAD))};
+
+public:
     bool CheckAndSetWorkerVersion(WorkerVersion expected, WorkerVersion desired)
     {
         return workerVersion_.compare_exchange_strong(expected, desired);
@@ -340,12 +338,15 @@ public:
     GetAssetFunc GetGetAssetFunc() const;
     virtual void SetOffWorkerFunc(OffWorkerFunc func);
     OffWorkerFunc GetOffWorkerFunc() const;
+    virtual void SetReleaseWorkerSafeMemFunc(ReleaseWorkerSafeMemFunc func);
+    ReleaseWorkerSafeMemFunc GetReleaseWorkerSafeMemFunc() const;
 
     // call init worker func
     virtual bool CallInitWorkerFunc(NativeEngine* engine);
     virtual bool CallGetAssetFunc(const std::string& uri, uint8_t **buff, size_t *buffSize,
-        std::vector<uint8_t>& content, std::string& ami, bool &useSecureMem, bool isRestricted);
+        std::vector<uint8_t>& content, std::string& ami, bool &useSecureMem, void** mapper, bool isRestricted);
     virtual bool CallOffWorkerFunc(NativeEngine* engine);
+    virtual bool CallReleaseWorkerSafeMemFunc(void* mapper);
 
     // adapt worker to ace container
     virtual void SetGetContainerScopeIdFunc(GetContainerScopeIdCallback func);
@@ -448,8 +449,9 @@ public:
     napi_value RunScriptForAbc(const char* path, char* entryPoint = nullptr);
     napi_value RunScript(const char* path, char* entryPoint = nullptr);
     napi_value RunScriptInRestrictedThread(const char* path);
+    napi_value GetAbcBufferAndRunActor(std::string pathStr, char* entryPoint);
     bool GetAbcBuffer(const char* path, uint8_t **buffer, size_t* bufferSize, std::vector<uint8_t>& content,
-        std::string& ami, bool isRestrictedWorker = false);
+        std::string& ami, void** mapper, bool isRestrictedWorker = false);
 
     const char* GetModuleFileName();
 
@@ -514,6 +516,9 @@ public:
     napi_status StopEventLoop();
 
     virtual bool IsCrossThreadCheckEnabled() const = 0;
+#ifdef ENABLE_CONTAINER_SCOPE
+    virtual bool IsContainerScopeEnabled() const = 0;
+#endif
 
     bool IsInDestructor() const
     {
@@ -589,7 +594,7 @@ protected:
     NativeEngine* hostEngine_ {nullptr};
     bool isAppModule_ = false;
     WorkerThreadState* workerThreadState_;
-
+    ReleaseWorkerSafeMemFunc releaseWorkerSafeMemFunc_ {nullptr};
 public:
     uint64_t openHandleScopes_ = 0;
     panda::Local<panda::ObjectRef> lastException_;
@@ -609,9 +614,6 @@ private:
     int32_t apiVersion_ = 8;
     int32_t realApiVersion_ = 8;
 
-    // the old worker api use before api9, the new worker api start with api9
-    enum JSThreadType { MAIN_THREAD, WORKER_THREAD, TASKPOOL_THREAD, RESTRICTEDWORKER_THREAD, NATIVE_THREAD };
-    DataProtector jsThreadType_ {DataProtector(uintptr_t(JSThreadType::MAIN_THREAD))};
     // current is hostengine, can create old worker, new worker, or no workers on hostengine
     std::atomic<WorkerVersion> workerVersion_ { WorkerVersion::NONE };
 #if !defined(PREVIEW)

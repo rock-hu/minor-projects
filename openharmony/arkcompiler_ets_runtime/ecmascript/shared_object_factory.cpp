@@ -36,14 +36,14 @@ void ObjectFactory::NewSObjectHook() const
         if (count % (CONCURRENT_MARK_FREQUENCY_FACTOR * frequency) == 0) {
             sHeap_->CollectGarbage<TriggerGCType::SHARED_GC, GCReason::OTHER>(thread_);
         } else if (sHeap_->CheckCanTriggerConcurrentMarking(thread_)) {
-            sHeap_->TriggerConcurrentMarking<TriggerGCType::SHARED_GC, GCReason::OTHER>(thread_);
+            sHeap_->TriggerConcurrentMarking<TriggerGCType::SHARED_GC, MarkReason::OTHER>(thread_);
         }
         if (!ecmascript::AnFileDataManager::GetInstance()->IsEnable()) {
             if (count % (CONCURRENT_MARK_FREQUENCY_FACTOR * frequency) == 0) {
                 sHeap_->WaitGCFinished(thread_);
                 sHeap_->CollectGarbage<TriggerGCType::SHARED_FULL_GC, GCReason::OTHER>(thread_);
             } else if (sHeap_->CheckCanTriggerConcurrentMarking(thread_)) {
-                sHeap_->TriggerConcurrentMarking<TriggerGCType::SHARED_PARTIAL_GC, GCReason::OTHER>(thread_);
+                sHeap_->TriggerConcurrentMarking<TriggerGCType::SHARED_PARTIAL_GC, MarkReason::OTHER>(thread_);
             }
         }
     }
@@ -367,7 +367,7 @@ JSHandle<TaggedArray> ObjectFactory::CopySArray(const JSHandle<TaggedArray> &old
     ASSERT(!old->GetClass()->IsMutantTaggedArray());
 
     size_t size = TaggedArray::ComputeSize(JSTaggedValue::TaggedTypeSize(), newLength);
-    JSHClass *arrayClass = JSHClass::Cast(thread_->GlobalConstants()->GetArrayClass().GetTaggedObject());
+    JSHClass *arrayClass = JSHClass::Cast(thread_->GlobalConstants()->GetTaggedArrayClass().GetTaggedObject());
     TaggedObject *header = sHeap_->AllocateOldOrHugeObject(thread_, arrayClass, size);
     JSHandle<TaggedArray> newArray(thread_, header);
     newArray->SetLength(newLength);
@@ -389,7 +389,7 @@ JSHandle<TaggedArray> ObjectFactory::ExtendSArray(const JSHandle<TaggedArray> &o
     JSHClass *arrayClass = nullptr;
     // Shared-array does not support Mutantarray yet.
     ASSERT(!old->GetClass()->IsMutantTaggedArray());
-    arrayClass = JSHClass::Cast(thread_->GlobalConstants()->GetArrayClass().GetTaggedObject());
+    arrayClass = JSHClass::Cast(thread_->GlobalConstants()->GetTaggedArrayClass().GetTaggedObject());
 
     TaggedObject *header = sHeap_->AllocateOldOrHugeObject(thread_, arrayClass, size);
     JSHandle<TaggedArray> newArray(thread_, header);
@@ -411,7 +411,7 @@ JSHandle<TaggedArray> ObjectFactory::NewSTaggedArrayWithoutInit(uint32_t length,
     NewSObjectHook();
     size_t size = TaggedArray::ComputeSize(JSTaggedValue::TaggedTypeSize(), length);
     TaggedObject *header;
-    auto arrayClass = JSHClass::Cast(thread_->GlobalConstants()->GetArrayClass().GetTaggedObject());
+    auto arrayClass = JSHClass::Cast(thread_->GlobalConstants()->GetTaggedArrayClass().GetTaggedObject());
     switch (spaceType) {
         case MemSpaceType::SHARED_OLD_SPACE:
             header = sHeap_->AllocateOldOrHugeObject(thread_, arrayClass, size);
@@ -531,7 +531,7 @@ JSHandle<TaggedArray> ObjectFactory::NewSEmptyArray()
 {
     NewSObjectHook();
     auto header = sHeap_->AllocateReadOnlyOrHugeObject(thread_,
-        JSHClass::Cast(thread_->GlobalConstants()->GetArrayClass().GetTaggedObject()), TaggedArray::SIZE);
+        JSHClass::Cast(thread_->GlobalConstants()->GetTaggedArrayClass().GetTaggedObject()), TaggedArray::SIZE);
     JSHandle<TaggedArray> array(thread_, header);
     array->SetLength(0);
     array->SetExtraLength(0);
@@ -582,10 +582,10 @@ JSHandle<JSNativePointer> ObjectFactory::NewSJSNativePointer(void *externalPoint
         // Check and try trigger concurrent mark here.
         size_t nativeSizeAfterLastGC = sHeap_->GetNativeSizeAfterLastGC();
         if (nativeSizeAfterLastGC > sHeap_->GetNativeSizeTriggerSharedGC()) {
-            sHeap_->CollectGarbage<TriggerGCType::SHARED_GC, GCReason::ALLOCATION_FAILED>(thread_);
+            sHeap_->CollectGarbage<TriggerGCType::SHARED_GC, GCReason::NATIVE_LIMIT>(thread_);
         } else if (sHeap_->CheckCanTriggerConcurrentMarking(thread_) &&
             nativeSizeAfterLastGC > sHeap_->GetNativeSizeTriggerSharedCM()) {
-            sHeap_->TriggerConcurrentMarking<TriggerGCType::SHARED_GC, GCReason::ALLOCATION_LIMIT>(thread_);
+            sHeap_->TriggerConcurrentMarking<TriggerGCType::SHARED_GC, MarkReason::NATIVE_LIMIT>(thread_);
         }
     }
     return obj;
@@ -690,7 +690,7 @@ JSHandle<TaggedArray> ObjectFactory::NewSTaggedArray(uint32_t length, JSTaggedVa
 
     size_t size = TaggedArray::ComputeSize(JSTaggedValue::TaggedTypeSize(), length);
     TaggedObject *header = nullptr;
-    JSHClass *arrayClass = JSHClass::Cast(thread_->GlobalConstants()->GetArrayClass().GetTaggedObject());
+    JSHClass *arrayClass = JSHClass::Cast(thread_->GlobalConstants()->GetTaggedArrayClass().GetTaggedObject());
     switch (spaceType) {
         case MemSpaceType::SHARED_OLD_SPACE:
             header = sHeap_->AllocateOldOrHugeObject(thread_, arrayClass, size);

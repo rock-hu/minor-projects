@@ -649,9 +649,6 @@ bool JsonStringifier::SerializeJSONHashMap(const JSHandle<JSTaggedValue> &value,
         }
         keyHandle.Update(node->GetKey());
         valueHandle.Update(node->GetValue());
-        if (valueHandle->IsUndefined()) {
-            continue;
-        }
         if (UNLIKELY(!keyHandle->IsString())) {
             result_ += "\"";
             SerializeJSONProperty(keyHandle, replacer);
@@ -701,10 +698,7 @@ bool JsonStringifier::SerializeJSONHashSet(const JSHandle<JSTaggedValue> &value,
             continue;
         }
         currentKey.Update(node->GetKey());
-        JSTaggedValue res = SerializeJSONProperty(currentKey, replacer);
-        if (res.IsUndefined()) {
-            result_ += "null";
-        }
+        SerializeJSONProperty(currentKey, replacer);
         result_ += ",";
         needRemove = true;
     }
@@ -738,12 +732,10 @@ bool JsonStringifier::SerializeLinkedHashMap(const JSHandle<LinkedHashMap> &hash
     while (index < totalElements) {
         keyHandle.Update(hashMap->GetKey(index++));
         valHandle.Update(hashMap->GetValue(index - 1));
-        if (keyHandle->IsHole() || valHandle->IsUndefined()) {
+        if (keyHandle->IsHole()) {
             continue;
         }
-        if (UNLIKELY(keyHandle->IsUndefined())) {
-            result_ += "\"undefined\"";
-        } else if (UNLIKELY(!keyHandle->IsString())) {
+        if (UNLIKELY(!keyHandle->IsString())) {
             result_ += "\"";
             SerializeJSONProperty(keyHandle, replacer);
             result_ += "\"";
@@ -787,10 +779,7 @@ bool JsonStringifier::SerializeLinkedHashSet(const JSHandle<LinkedHashSet> &hash
         if (keyHandle->IsHole()) {
             continue;
         }
-        JSTaggedValue res = SerializeJSONProperty(keyHandle, replacer);
-        if (res.IsUndefined()) {
-            result_ += "null";
-        }
+        SerializeJSONProperty(keyHandle, replacer);
         result_ += ",";
         needRemove = true;
     }
@@ -1169,15 +1158,13 @@ bool JsonStringifier::SerializeKeys(const JSHandle<JSObject> &obj, const JSHandl
             LayoutInfo *layoutInfo = LayoutInfo::Cast(jsHclass->GetLayout().GetTaggedObject());
             JSTaggedValue key = layoutInfo->GetKey(i);
             if (!hasChangedToDictionaryMode) {
-                if (key.IsString() && layoutInfo->GetAttr(i).IsEnumerable()) {
+                PropertyAttributes attr(layoutInfo->GetAttr(i));
+                ASSERT(static_cast<int>(attr.GetOffset()) == i);
+                if (key.IsString() && attr.IsEnumerable()) {
                     handleKey_.Update(key);
-                    JSTaggedValue value;
-                    int index = JSHClass::FindPropertyEntry(thread_, *jsHclass, key);
-                    PropertyAttributes attr(layoutInfo->GetAttr(index));
-                    ASSERT(static_cast<int>(attr.GetOffset()) == index);
-                    value = attr.IsInlinedProps()
-                            ? obj->GetPropertyInlinedPropsWithRep(static_cast<uint32_t>(index), attr)
-                            : propertiesArr->Get(static_cast<uint32_t>(index) - jsHclass->GetInlinedProperties());
+                    JSTaggedValue value = attr.IsInlinedProps()
+                        ? obj->GetPropertyInlinedPropsWithRep(static_cast<uint32_t>(i), attr)
+                        : propertiesArr->Get(static_cast<uint32_t>(i) - jsHclass->GetInlinedProperties());
                     if (attr.IsInlinedProps() && value.IsHole()) {
                         continue;
                     }

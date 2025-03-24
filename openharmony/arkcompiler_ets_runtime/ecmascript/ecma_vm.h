@@ -114,7 +114,6 @@ using RequestAotCallback =
 using SearchHapPathCallBack = std::function<bool(const std::string moduleName, std::string &hapPath)>;
 using DeviceDisconnectCallback = std::function<bool()>;
 using UncatchableErrorHandler = std::function<void(panda::TryCatch&)>;
-using OnErrorCallback = std::function<void(Local<ObjectRef> value, void *data)>;
 using StopPreLoadSoCallback = std::function<void()>;
 
 enum class IcuFormatterType: uint8_t {
@@ -346,6 +345,64 @@ public:
         return optionalLogEnabled_;
     }
 
+    JSTaggedType *GetHandleScopeStorageNext() const
+    {
+        return handleScopeStorageNext_;
+    }
+
+    void SetHandleScopeStorageNext(JSTaggedType *value)
+    {
+        handleScopeStorageNext_ = value;
+    }
+
+    JSTaggedType *GetHandleScopeStorageEnd() const
+    {
+        return handleScopeStorageEnd_;
+    }
+
+    void SetHandleScopeStorageEnd(JSTaggedType *value)
+    {
+        handleScopeStorageEnd_ = value;
+    }
+
+    int GetCurrentHandleStorageIndex() const
+    {
+        return currentHandleStorageIndex_;
+    }
+
+    JSTaggedType *GetPrimitiveScopeStorageNext() const
+    {
+        return primitiveScopeStorageNext_;
+    }
+
+    void SetPrimitiveScopeStorageNext(JSTaggedType *value)
+    {
+        primitiveScopeStorageNext_ = value;
+    }
+
+    JSTaggedType *GetPrimitiveScopeStorageEnd() const
+    {
+        return primitiveScopeStorageEnd_;
+    }
+
+    void SetPrimitiveScopeStorageEnd(JSTaggedType *value)
+    {
+        primitiveScopeStorageEnd_ = value;
+    }
+
+    int GetCurrentPrimitiveStorageIndex() const
+    {
+        return currentPrimitiveStorageIndex_;
+    }
+
+    uintptr_t *ExpandHandleStorage();
+    void ShrinkHandleStorage(int prevIndex);
+    void DeleteHandleStorage();
+    uintptr_t *ExpandPrimitiveStorage();
+    void ShrinkPrimitiveStorage(int prevIndex);
+    void DeletePrimitiveStorage();
+
+    size_t IterateHandle(RootVisitor &visitor);
     void Iterate(RootVisitor &v, VMRootVisitType type);
 
     const Heap *GetHeap() const
@@ -491,22 +548,6 @@ public:
     {
         concurrentCallback_ = callback;
         concurrentData_ = data;
-    }
-
-    void SetOnErrorCallback(OnErrorCallback callback, void* data)
-    {
-        onErrorCallback_ = callback;
-        onErrorData_ = data;
-    }
-
-    OnErrorCallback GetOnErrorCallback()
-    {
-        return onErrorCallback_;
-    }
-
-    void* GetOnAllData()
-    {
-        return onErrorData_;
     }
 
     void AddStopPreLoadCallback(const StopPreLoadSoCallback &cb)
@@ -1021,10 +1062,6 @@ public:
     void PrintCollectedByteCode();
 #endif
 
-protected:
-
-    void PrintJSErrorInfo(const JSHandle<JSTaggedValue> &exceptionInfo) const;
-
 private:
     void ClearBufferData();
     void CheckStartCpuProfiler();
@@ -1115,10 +1152,6 @@ private:
     ConcurrentCallback concurrentCallback_ {nullptr};
     void *concurrentData_ {nullptr};
 
-    // Error callback
-    OnErrorCallback onErrorCallback_ {nullptr};
-    void *onErrorData_ {nullptr};
-
     // serch happath callback
     SearchHapPathCallBack SearchHapPathCallBack_ {nullptr};
 
@@ -1188,6 +1221,21 @@ private:
 #if ECMASCRIPT_ENABLE_COLLECTING_OPCODES
     std::stack<std::unordered_map<BytecodeInstruction::Opcode, int>> bytecodeStatsStack_;
 #endif
+
+    // HandleScope
+    static const uint32_t NODE_BLOCK_SIZE_LOG2 = 10;
+    static const uint32_t NODE_BLOCK_SIZE = 1U << NODE_BLOCK_SIZE_LOG2;
+    static constexpr int32_t MIN_HANDLE_STORAGE_SIZE = 2;
+    JSTaggedType *handleScopeStorageNext_ {nullptr};
+    JSTaggedType *handleScopeStorageEnd_ {nullptr};
+    std::vector<std::array<JSTaggedType, NODE_BLOCK_SIZE> *> handleStorageNodes_ {};
+    int32_t currentHandleStorageIndex_ {-1};
+    // PrimitveScope
+    static constexpr int32_t MIN_PRIMITIVE_STORAGE_SIZE = 2;
+    JSTaggedType *primitiveScopeStorageNext_ {nullptr};
+    JSTaggedType *primitiveScopeStorageEnd_ {nullptr};
+    std::vector<std::array<JSTaggedType, NODE_BLOCK_SIZE> *> primitiveStorageNodes_ {};
+    int32_t currentPrimitiveStorageIndex_ {-1};
 };
 }  // namespace ecmascript
 }  // namespace panda
