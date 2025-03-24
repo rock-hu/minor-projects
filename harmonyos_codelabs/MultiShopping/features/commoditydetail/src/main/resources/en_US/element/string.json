@@ -1,0 +1,128 @@
+{
+  "string": [
+    {
+      "name": "rmb",
+      "value": "￥"
+    },
+    {
+      "name": "quantity",
+      "value": "quantity"
+    },
+    {
+      "name": "share",
+      "value": "share"
+    },
+    {
+      "name": "collection",
+      "value": "collection"
+    },
+    {
+      "name": "reduction",
+      "value": "Reduction Notice"
+    },
+    {
+      "name": "choice",
+      "value": "Selected"
+    },
+    {
+      "name": "send",
+      "value": "Delivered"
+    },
+    {
+      "name": "send_hint",
+      "value": "Please select your address"
+    },
+    {
+      "name": "service",
+      "value": "Service"
+    },
+    {
+      "name": "evaluate_favorable",
+      "value": "rave reviews"
+    },
+    {
+      "name": "evaluate_show_more",
+      "value": "See more reviews"
+    },
+    {
+      "name": "cart",
+      "value": "Shopping cart"
+    },
+    {
+      "name": "index",
+      "value": "Home"
+    },
+    {
+      "name": "insert_cart_success",
+      "value": "Add to cart"
+    },
+    {
+      "name": "commodity_desc",
+      "value": "【%s】%s"
+    },
+    {
+      "name": "insert_cart",
+      "value": "Add to cart"
+    },
+    {
+      "name": "buy_now",
+      "value": "Buy Now"
+    },
+    {
+      "name": "user_evaluate_title",
+      "value": "User comments (2000+)"
+    },
+    {
+      "name": "user_evaluate_content1",
+      "value": "Matched the description, loved it, well made, nice color, original genuine."
+    },
+    {
+      "name": "user_evaluate_content2",
+      "value": "Matched the description, loved it, well made, nice color, original genuine."
+    },
+    {
+      "name": "user_evaluate_content3",
+      "value": "Matched the description, loved it, well made, nice color, original genuine."
+    },
+    {
+      "name": "user_evaluate_content4",
+      "value": "Matched the description, loved it, well made, nice color, original genuine."
+    },
+    {
+      "name": "user_evaluate_content5",
+      "value": "Matched the description, loved it, well made, nice color, original genuine."
+    },
+    {
+      "name": "user_evaluate_content6",
+      "value": "Matched the description, loved it, well made, nice color, original genuine."
+    },
+    {
+      "name": "service_content_1",
+      "value": "Free Shipping (Subject to order submission)"
+    },
+    {
+      "name": "service_content_2",
+      "value": "Store Delivery&Post-Sales"
+    },
+    {
+      "name": "service_content_3",
+      "value": "Seven-day no-fault returns"
+    },
+    {
+      "name": "case_color",
+      "value": "Color"
+    },
+    {
+      "name": "case_version",
+      "value": "Version"
+    },
+    {
+      "name": "case_network_standard",
+      "value": "Network Standard"
+    },
+    {
+      "name": "case_type",
+      "value": "Type"
+    }
+  ]
+}

@@ -45,7 +45,7 @@ export class CommonConstants {
       $r('app.string.entertainment_hot_search'), $r('app.string.food_hot_search')];
 
   /**
-   * Device 2in1.
+   * Device PC/2in1.
    */
   static readonly DEVICE_2IN1: string = '2in1';
 }
