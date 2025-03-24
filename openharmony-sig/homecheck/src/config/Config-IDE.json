@@ -1,0 +1,33 @@
+{
+  "projectName":"OpenSource",
+  "sdkPath":"sdkPath--undefined",
+  "projectPath": "C:/work/applications_photos",
+  "product": "default",
+  "files": [
+    "**/*.ets",
+    "**/*.ts"
+  ],
+  "ignored": [
+    "**/node_modules/**/*",
+    "**/build/**/*"
+  ],
+  "ignoreLines": [
+    {
+      "filePath": "xxx",
+      "disableLine": [
+        {
+          "line": 1,
+          "rules": ["rule1","rule2"]
+        },
+        {
+        }
+      ]
+    }
+  ],
+  "excluded": [],
+  "rules": [],
+  "ruleSet": [
+    "plugin:@performance/recommended"
+  ],
+  "overrides": []
+}
