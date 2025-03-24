@@ -117,7 +117,7 @@
 ```
 ## HMRouter简介
 
-HMRouter作为HarmonyOS的页面跳转场景解决方案，聚焦解决应用内原生页面的跳转逻辑。
+HMRouter作为HarmonyOS的页面跳转场景解决方案，聚焦解决应用内ArkUI页面的跳转逻辑。
 
 HMRouter底层对系统Navigation进行封装，集成了Navigation、NavDestination、NavPathStack的系统能力，提供了可复用的路由拦截、页面生命周期、自定义转场动画，并且在跳转传参、额外的生命周期、服务型路由方面对系统能力进行了扩展。
 
@@ -145,7 +145,7 @@ HarmonyOS NEXT Beta1及以上
 
 [查看详情](https://gitee.com/hadss/hmrouter/blob/master/HMRouterLibrary/README.md)
 
-## 原生到原生页面跳转场景解决方案
+## 应用内ArkUI页面跳转场景解决方案
 
 [查看详情](https://gitee.com/hadss/hmrouter/blob/master/docs/Scene.md)
 

@@ -13,18 +13,68 @@
  * limitations under the License.
  */
 
-import { buildText } from '../uitls/DialogComponent';
-import { PromptAction } from '@kit.ArkUI';
+import { PromptActionClass } from '../uitls/PromptActionClass';
+import { ComponentContent } from '@kit.ArkUI';
+
+class Params {
+  text: string = ""
+
+  constructor(text: string) {
+    this.text = text;
+  }
+}
+
+
+@Builder
+function buildText(params: Params) {
+  Column() {
+    Row() {
+      Text('Title')
+        .fontSize(20)
+        .fontWeight(FontWeight.Bold)
+    }
+    .width('100%')
+    .height(56)
+    .justifyContent(FlexAlign.Center)
+
+    Text(params.text)
+      .fontSize(14)
+
+    Button('CONFIRM')
+      .fontSize(16)
+      .fontColor('#0A59F7')
+      .backgroundColor(Color.White)
+      .onClick(() => {
+        PromptActionClass.closeDialog();
+      })
+      .width('100%')
+      .margin({
+        top: 8,
+        bottom: 16
+      })
+  }
+  .padding({
+    left: 24,
+    right: 24
+  })
+  .justifyContent(FlexAlign.Center)
+  .alignItems(HorizontalAlign.Center)
+  .backgroundColor(Color.White)
+  .borderRadius(32)
+  .margin({ left: 16, right: 16 })
+}
 
 @Component
 export struct GlobalDialogDecoupledFromThePage {
-  promptAction: PromptAction = this.getUIContext().getPromptAction();
-  @State message: string = 'This is a dialog content.';
-  @Consume('NavPathStack') pageStack: NavPathStack;
+  @State message: string = "This is a dialog content.";
+  private ctx: UIContext = this.getUIContext();
+  private contentNode: ComponentContent<Object> =
+    new ComponentContent(this.ctx, wrapBuilder(buildText), new Params(this.message));
 
-  @Builder
-  customDialogComponent() {
-    buildText({ message: this.message })
+  aboutToAppear(): void {
+    PromptActionClass.setContext(this.ctx);
+    PromptActionClass.setContentNode(this.contentNode);
+    PromptActionClass.setOptions({ alignment: DialogAlignment.Center, maskColor: 'rgba(0, 0, 0, 0.2)' });
   }
 
   build() {
@@ -38,15 +88,7 @@ export struct GlobalDialogDecoupledFromThePage {
             .margin({ bottom: 16 })
             .backgroundColor('#0A59F7')
             .onClick(() => {
-              this.promptAction.openCustomDialog({
-                builder: () => {
-                  this.customDialogComponent()
-                },
-                alignment: DialogAlignment.Center,
-                maskColor: 'rgba(0, 0, 0, 0.2)',
-              }).then((dialogId: number) => {
-                AppStorage.setOrCreate('dialogId', dialogId);
-              })
+              PromptActionClass.openDialog();
             })
         }
         .width('100%')

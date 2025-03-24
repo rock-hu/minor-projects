@@ -542,7 +542,7 @@
     },
     {
       "name": "case_description",
-      "value": "This example is mainly used in tablet or 2-in1 scenarios, such as the group chat sidebar displays group members, which is different from the effect on mobile phones. Implement the fade in and out of the SideBarContainer sidebar by explicitly animating it (this effect is not available on mobile phones).\n 1. Click on the triangle on the right to show or hide the sidebar\n 2. Place the mouse on the edge of the sidebar, wait for the mouse to change the two-way arrow style, press and hold the left mouse button and drag left and right to change the sidebar size"
+      "value": "This example is mainly used in tablet or PC/2in1 scenarios, such as the group chat sidebar displays group members, which is different from the effect on mobile phones. Implement the fade in and out of the SideBarContainer sidebar by explicitly animating it (this effect is not available on mobile phones).\n 1. Click on the triangle on the right to show or hide the sidebar\n 2. Place the mouse on the edge of the sidebar, wait for the mouse to change the two-way arrow style, press and hold the left mouse button and drag left and right to change the sidebar size"
     },
     {
       "name": "other_login_methods",

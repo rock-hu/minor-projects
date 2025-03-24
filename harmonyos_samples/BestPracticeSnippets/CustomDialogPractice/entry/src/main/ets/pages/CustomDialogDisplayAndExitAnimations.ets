@@ -82,17 +82,9 @@ export struct CustomDialogDisplayAndExitAnimations {
                 transition: TransitionEffect.asymmetric(
                   TransitionEffect.OPACITY
                     .animation({ duration: 1000 })
-                    .combine(
-                      TransitionEffect
-                        .translate({ y: 1000 })
-                        .animation({ duration: 1000 }))
                   ,
                   TransitionEffect.OPACITY
-                    .animation({ delay: 1000, duration: 1000 })
-                    .combine(
-                      TransitionEffect
-                        .translate({ y: 1000 })
-                        .animation({ duration: 1000 }))
+                    .animation({ delay: 500, duration: 1000 })
                 )
               }).then((dialogId: number) => {
                 this.customDialogComponentId = dialogId;

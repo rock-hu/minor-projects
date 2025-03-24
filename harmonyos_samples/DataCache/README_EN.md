@@ -70,6 +70,6 @@ Use the APIs provided by `@hadss/datacache` to read and write data. The overall 
 ### Constraints
 
 1. The sample app is supported only on Huawei phones running the standard system.
-2. The HarmonyOS version must be HarmonyOS NEXT Developer Beta5 or later.
-3. The DevEco Studio version must be DevEco Studio NEXT Developer Beta5 or later.
-4. The HarmonyOS SDK version must be HarmonyOS NEXT Developer Beta5 or later.
+2. The HarmonyOS version must be HarmonyOS 5.0.0 Release or later.
+3. The DevEco Studio version must be DevEco Studio 5.0.0 Release or later.
+4. The HarmonyOS SDK version must be HarmonyOS 5.0.0 Release or later.

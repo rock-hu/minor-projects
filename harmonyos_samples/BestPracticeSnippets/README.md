@@ -16,6 +16,7 @@
 * [ImageEditTaskPool：基于TaskPool实现图片编辑功能](ImageEditTaskPool)
 * [SegmentedPhotograph：实现相机分段式拍照功能](SegmentedPhotograph)
 * [ScreenFlickerSolution：解决应用动效闪屏的方案](ScreenFlickerSolution)
+* [VisibleComponent：不可见组件低功耗建议](VisibleComponent)
 
 ## 使用说明
 
