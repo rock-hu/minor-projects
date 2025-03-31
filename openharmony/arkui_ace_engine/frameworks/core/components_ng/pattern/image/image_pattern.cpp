@@ -460,6 +460,11 @@ void ImagePattern::OnImageLoadSuccess()
     if (SystemProperties::GetDebugEnabled()) {
         TAG_LOGI(AceLogTag::ACE_IMAGE, "ImageLoadSuccess %{public}s", imageDfxConfig_.ToStringWithSrc().c_str());
     }
+    auto context = host->GetRenderContext();
+    auto pixelMap = image_->GetPixelMap();
+    if (context && pixelMap) {
+        context->SetIsWideColorGamut(pixelMap->GetIsWideColorGamut());
+    }
     host->MarkNeedRenderOnly();
 }
 
@@ -572,7 +577,7 @@ void ImagePattern::StartDecoding(const SizeF& dstSize)
     const std::optional<SizeF>& sourceSize = props->GetSourceSize();
     auto renderProp = host->GetPaintProperty<ImageRenderProperty>();
     bool hasValidSlice = renderProp && (renderProp->HasImageResizableSlice() || renderProp->HasImageResizableLattice());
-    bool isHdrDecoderNeed = renderProp && renderProp->HasDynamicMode();
+    bool isHdrDecoderNeed = renderProp && (renderProp->HasDynamicMode() || renderProp->HasHdrBrightness());
 
     if (loadingCtx_) {
         loadingCtx_->SetIsHdrDecoderNeed(isHdrDecoderNeed);
@@ -662,6 +667,9 @@ void ImagePattern::CreateModifier()
     }
     if (!overlayMod_) {
         overlayMod_ = MakeRefPtr<ImageOverlayModifier>(selectedColor_);
+    }
+    if (!imagePaintMethod_) {
+        imagePaintMethod_ = MakeRefPtr<ImagePaintMethod>(nullptr);
     }
 }
 

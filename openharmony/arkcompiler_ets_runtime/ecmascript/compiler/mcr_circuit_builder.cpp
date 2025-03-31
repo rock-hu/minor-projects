@@ -1354,32 +1354,6 @@ GateRef CircuitBuilder::TryGetHashcodeFromString(GateRef string)
     return ret;
 }
 
-GateRef CircuitBuilder::GetStringDataFromLineOrConstantString(GateRef str)
-{
-    Label subentry(env_);
-    SubCfgEntry(&subentry);
-    Label exit(env_);
-    Label isConstantString(env_);
-    Label isLineString(env_);
-    DEFVALUE(result, env_, VariableType::NATIVE_POINTER(), IntPtr(0));
-    BRANCH(IsConstantString(str), &isConstantString, &isLineString);
-    Bind(&isConstantString);
-    {
-        GateRef address = ChangeTaggedPointerToInt64(PtrAdd(str, IntPtr(ConstantString::CONSTANT_DATA_OFFSET)));
-        result = Load(VariableType::NATIVE_POINTER(), address, IntPtr(0));
-        Jump(&exit);
-    }
-    Bind(&isLineString);
-    {
-        result = ChangeTaggedPointerToInt64(PtrAdd(str, IntPtr(LineEcmaString::DATA_OFFSET)));
-        Jump(&exit);
-    }
-    Bind(&exit);
-    auto ret = *result;
-    SubCfgExit();
-    return ret;
-}
-
 void CircuitBuilder::CopyChars(GateRef glue, GateRef dst, GateRef source,
     GateRef sourceLength, GateRef charSize, VariableType type)
 {
@@ -1463,39 +1437,6 @@ GateRef CircuitBuilder::ComputeTaggedArraySize(GateRef length)
         PtrMul(IntPtr(JSTaggedValue::TaggedTypeSize()), length));
 }
 
-GateRef CircuitBuilder::GetEnumCacheKind(GateRef glue, GateRef enumCache)
-{
-    Label entry(env_);
-    SubCfgEntry(&entry);
-    Label exit(env_);
-    DEFVALUE(result, env_, VariableType::INT32(), Int32(static_cast<int32_t>(EnumCacheKind::NONE)));
-
-    Label enumCacheIsArray(env_);
-    Label isEmptyArray(env_);
-    Label notEmptyArray(env_);
-
-    BRANCH(TaggedIsUndefinedOrNull(enumCache), &exit, &enumCacheIsArray);
-    Bind(&enumCacheIsArray);
-    GateRef emptyArray = GetEmptyArray(glue);
-    BRANCH(Int64Equal(enumCache, emptyArray), &isEmptyArray, &notEmptyArray);
-    Bind(&isEmptyArray);
-    {
-        result = Int32(static_cast<int32_t>(EnumCacheKind::SIMPLE));
-        Jump(&exit);
-    }
-    Bind(&notEmptyArray);
-    {
-        GateRef taggedKind = GetValueFromTaggedArray(enumCache, Int32(EnumCache::ENUM_CACHE_KIND_OFFSET));
-        result = TaggedGetInt(taggedKind);
-        Jump(&exit);
-    }
-
-    Bind(&exit);
-    auto ret = *result;
-    SubCfgExit();
-    return ret;
-}
-
 GateRef CircuitBuilder::IsEnumCacheValid(GateRef receiver, GateRef cachedHclass, GateRef kind)
 {
     Label entry(env_);
@@ -1506,9 +1447,10 @@ GateRef CircuitBuilder::IsEnumCacheValid(GateRef receiver, GateRef cachedHclass,
     Label isSameHclass(env_);
     Label isSimpleEnumCache(env_);
     Label notSimpleEnumCache(env_);
-    Label prototypeIsEcmaObj(env_);
-    Label isProtoChangeMarker(env_);
-    Label protoNotChanged(env_);
+    Label isEnumCache(env_);
+    Label isProtoChainEnumCache(env_);
+    Label prototypeIsHeapObj(env_);
+    Label protoChainNotChanged(env_);
 
     GateRef hclass = LoadHClass(receiver);
     BRANCH(Int64Equal(hclass, cachedHclass), &isSameHclass, &exit);
@@ -1521,18 +1463,25 @@ GateRef CircuitBuilder::IsEnumCacheValid(GateRef receiver, GateRef cachedHclass,
         Jump(&exit);
     }
     Bind(&notSimpleEnumCache);
+    BRANCH(Int32Equal(kind, Int32(static_cast<int32_t>(EnumCacheKind::NONE))),
+           &exit, &isProtoChainEnumCache);
+    Bind(&isProtoChainEnumCache);
     GateRef prototype = GetPrototypeFromHClass(hclass);
-    BRANCH(IsEcmaObject(prototype), &prototypeIsEcmaObj, &exit);
-    Bind(&prototypeIsEcmaObj);
-    GateRef protoChangeMarker = GetProtoChangeMarkerFromHClass(hclass);
-    BRANCH(TaggedIsProtoChangeMarker(protoChangeMarker), &isProtoChangeMarker, &exit);
-    Bind(&isProtoChangeMarker);
-    BRANCH(GetHasChanged(protoChangeMarker), &exit, &protoNotChanged);
-    Bind(&protoNotChanged);
+    BRANCH(TaggedIsHeapObject(prototype), &prototypeIsHeapObj, &protoChainNotChanged);
+    Bind(&prototypeIsHeapObj);
+    GateRef protoHClass = LoadHClass(prototype);
+    GateRef enumCache = GetEnumCacheFromHClass(protoHClass);
+    BRANCH(TaggedIsEnumCache(enumCache), &isEnumCache, &exit);
+    Bind(&isEnumCache);
+    GateRef protoEnumCacheAll = GetEnumCacheAllFromEnumCache(enumCache);
+    BRANCH(TaggedIsNull(protoEnumCacheAll), &exit, &protoChainNotChanged);
+    
+    Bind(&protoChainNotChanged);
     {
         result = True();
         Jump(&exit);
     }
+    
     Bind(&exit);
     auto ret = *result;
     SubCfgExit();

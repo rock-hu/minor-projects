@@ -17,6 +17,7 @@
 #include "ecmascript/builtins/builtins.h"
 #include "ecmascript/builtins/builtins_errors.h"
 #include "ecmascript/ecma_string-inl.h"
+#include "ecmascript/enum_cache.h"
 #include "ecmascript/ic/ic_handler.h"
 #include "ecmascript/ic/profile_type_info.h"
 #include "ecmascript/ic/proto_change_details.h"
@@ -59,6 +60,7 @@
 #include "ecmascript/js_for_in_iterator.h"
 #include "ecmascript/js_map.h"
 #include "ecmascript/js_map_iterator.h"
+#include "ecmascript/js_object.h"
 #include "ecmascript/js_primitive_ref.h"
 #include "ecmascript/js_promise.h"
 #include "ecmascript/js_realm.h"
@@ -122,7 +124,7 @@ JSHandle<Method> ObjectFactory::NewMethodForNativeFunction(const void *func, Fun
     auto method = NewSMethod(nullptr, methodSpaceType);
     method->SetNativePointer(const_cast<void *>(func));
     method->SetNativeBit(true);
-    if (builtinId != kungfu::BuiltinsStubCSigns::INVALID) {
+    if (builtinId != BUILTINS_STUB_ID(INVALID)) {
         bool isFast = kungfu::BuiltinsStubCSigns::IsFastBuiltin(builtinId);
         method->SetFastBuiltinBit(isFast);
         method->SetBuiltinId(static_cast<uint8_t>(builtinId));
@@ -829,20 +831,24 @@ JSHandle<TaggedArray> ObjectFactory::NewJsonFixedArray(size_t start, size_t leng
     return array;
 }
 
+// For slow keys, cacheHclass != receiver's hclass.
 JSHandle<JSForInIterator> ObjectFactory::NewJSForinIterator(const JSHandle<JSTaggedValue> &obj,
                                                             const JSHandle<JSTaggedValue> keys,
-                                                            const JSHandle<JSTaggedValue> cachedHclass)
+                                                            const JSHandle<JSTaggedValue> cachedHClass,
+                                                            const uint32_t enumCacheKind)
 {
     JSHandle<GlobalEnv> env = vm_->GetGlobalEnv();
     JSHandle<JSHClass> hclass(env->GetForinIteratorClass());
-
-    JSHandle<JSForInIterator> it = JSHandle<JSForInIterator>::Cast(NewJSObject(hclass));
-    it->SetObject(thread_, obj);
-    it->SetCachedHclass(thread_, cachedHclass);
-    it->SetKeys(thread_, keys);
-    it->SetIndex(EnumCache::ENUM_CACHE_HEADER_SIZE);
     uint32_t enumLength = JSHandle<TaggedArray>::Cast(keys)->GetLength();
+    JSHandle<JSForInIterator> it = JSHandle<JSForInIterator>::Cast(NewJSObject(hclass));
+
+    it->SetCachedHClass(thread_, cachedHClass);
+    it->SetCacheKind(enumCacheKind);
+    it->SetIndex(0);
+    it->SetKeys(thread_, keys);
+    it->SetObject(thread_, obj);
     it->SetLength(enumLength);
+    
     return it;
 }
 
@@ -1851,7 +1857,7 @@ JSHandle<JSFunction> ObjectFactory::NewJSFunction(const JSHandle<GlobalEnv> &env
                                                   MemSpaceType methodSpaceType)
 {
     JSHandle<JSHClass> hclass = GetHClassByFunctionKind(env, kind);
-    if (builtinId != kungfu::BuiltinsStubCSigns::INVALID) {
+    if (builtinId != BUILTINS_STUB_ID(INVALID)) {
         JSHandle<Method> method = NewMethodForNativeFunction(nativeFunc, kind, builtinId, methodSpaceType);
         return NewJSFunctionByHClass(method, hclass);
     }
@@ -1873,7 +1879,7 @@ JSHandle<JSFunction> ObjectFactory::NewSFunction(const JSHandle<GlobalEnv> &env,
                                                  MemSpaceType spaceType)
 {
     JSHandle<JSHClass> hclass = JSHandle<JSHClass>::Cast(env->GetSFunctionClassWithoutProto());
-    if (builtinId != kungfu::BuiltinsStubCSigns::INVALID) {
+    if (builtinId != BUILTINS_STUB_ID(INVALID)) {
         JSHandle<Method> method = NewSMethodForNativeFunction(nativeFunc, kind, builtinId, spaceType);
         return NewSFunctionByHClass(method, hclass);
     }
@@ -1995,12 +2001,12 @@ JSHandle<JSHClass> ObjectFactory::CreateDefaultClassPrototypeHClass(JSHClass *hc
     layout->AddKey(thread_, ClassInfoExtractor::CONSTRUCTOR_INDEX,
         thread_->GlobalConstants()->GetConstructorString(), attributes);
 
-    JSHandle<JSHClass> defaultHclass = NewEcmaHClass(hclass, JSObject::SIZE, JSType::JS_OBJECT, size);
-    defaultHclass->SetLayout(thread_, layout);
-    defaultHclass->SetNumberOfProps(size);
-    defaultHclass->SetClassPrototype(true);
-    defaultHclass->SetIsPrototype(true);
-    return defaultHclass;
+    JSHandle<JSHClass> defaultHClass = NewEcmaHClass(hclass, JSObject::SIZE, JSType::JS_OBJECT, size);
+    defaultHClass->SetLayout(thread_, layout);
+    defaultHClass->SetNumberOfProps(size);
+    defaultHClass->SetClassPrototype(true);
+    defaultHClass->SetIsPrototype(true);
+    return defaultHClass;
 }
 
 JSHandle<JSHClass> ObjectFactory::CreateDefaultClassConstructorHClass(JSHClass *hclass)
@@ -2025,12 +2031,12 @@ JSHandle<JSHClass> ObjectFactory::CreateDefaultClassConstructorHClass(JSHClass *
         layout->AddKey(thread_, index, array->Get(index), attributes);
     }
 
-    JSHandle<JSHClass> defaultHclass = NewEcmaHClass(hclass, JSFunction::SIZE, JSType::JS_FUNCTION, size);
-    defaultHclass->SetLayout(thread_, layout);
-    defaultHclass->SetNumberOfProps(size);
-    defaultHclass->SetClassConstructor(true);
-    defaultHclass->SetConstructor(true);
-    return defaultHclass;
+    JSHandle<JSHClass> defaultHClass = NewEcmaHClass(hclass, JSFunction::SIZE, JSType::JS_FUNCTION, size);
+    defaultHClass->SetLayout(thread_, layout);
+    defaultHClass->SetNumberOfProps(size);
+    defaultHClass->SetClassConstructor(true);
+    defaultHClass->SetConstructor(true);
+    return defaultHClass;
 }
 
 void ObjectFactory::SetCodeEntryToFunctionFromMethod(const JSHandle<JSFunction> &func, const JSHandle<Method> &method)
@@ -2253,7 +2259,7 @@ JSHandle<JSFunction> ObjectFactory::NewSpecificTypedArrayFunction(const JSHandle
                                                                   kungfu::BuiltinsStubCSigns::ID builtinId)
 {
     JSHandle<JSHClass> hclass = JSHandle<JSHClass>::Cast(env->GetSpecificTypedArrayFunctionClass());
-    if (builtinId != kungfu::BuiltinsStubCSigns::INVALID) {
+    if (builtinId != BUILTINS_STUB_ID(INVALID)) {
         JSHandle<Method> method = NewMethodForNativeFunction(nativeFunc, FunctionKind::BUILTIN_CONSTRUCTOR, builtinId);
         return NewJSFunctionByHClass(method, hclass);
     }
@@ -2666,6 +2672,15 @@ JSHandle<PromiseCapability> ObjectFactory::NewPromiseCapability()
     obj->SetResolve(thread_, JSTaggedValue::Undefined());
     obj->SetReject(thread_, JSTaggedValue::Undefined());
     return obj;
+}
+
+JSHandle<JSPromise> ObjectFactory::NewJSPromise()
+{
+    NewObjectHook();
+    JSHandle<GlobalEnv> env = vm_->GetGlobalEnv();
+    JSHandle<JSFunction> promiseObj(env->GetPromiseFunction());
+    JSHandle<JSPromise> jsPromise = JSHandle<JSPromise>(NewJSObjectByConstructor(promiseObj));
+    return jsPromise;
 }
 
 JSHandle<PromiseReaction> ObjectFactory::NewPromiseReaction()
@@ -3238,11 +3253,10 @@ JSHandle<TaggedArray> ObjectFactory::CopyArray(const JSHandle<TaggedArray> &old,
     return newArray;
 }
 
-JSHandle<TaggedArray> ObjectFactory::CopyFromEnumCache(const JSHandle<TaggedArray> &old)
+JSHandle<TaggedArray> ObjectFactory::CopyFromKeyArray(const JSHandle<TaggedArray> &old)
 {
     NewObjectHook();
-    uint32_t oldLength = old->GetLength();
-    uint32_t newLength = oldLength - EnumCache::ENUM_CACHE_HEADER_SIZE;
+    uint32_t newLength = old->GetLength();
     size_t size = TaggedArray::ComputeSize(JSTaggedValue::TaggedTypeSize(), newLength);
     TaggedObject *header = heap_->AllocateYoungOrHugeObject(
         JSHClass::Cast(thread_->GlobalConstants()->GetTaggedArrayClass().GetTaggedObject()), size);
@@ -3251,7 +3265,7 @@ JSHandle<TaggedArray> ObjectFactory::CopyFromEnumCache(const JSHandle<TaggedArra
     newArray->SetExtraLength(old->GetExtraLength());
 
     for (uint32_t i = 0; i < newLength; i++) {
-        JSTaggedValue value = old->Get(i + EnumCache::ENUM_CACHE_HEADER_SIZE);
+        JSTaggedValue value = old->Get(i);
         newArray->Set(thread_, i, value);
     }
     return newArray;
@@ -3442,8 +3456,7 @@ JSHandle<EcmaString> ObjectFactory::GetStringFromStringTable(const uint16_t *utf
 }
 
 // NB! don't do special case for C0 80, it means '\u0000', so don't convert to UTF-8
-EcmaString *ObjectFactory::GetRawStringFromStringTable(StringData sd, MemSpaceType type, bool isConstantString,
-    uint32_t idOffset) const
+EcmaString *ObjectFactory::GetRawStringFromStringTable(StringData sd, MemSpaceType type) const
 {
     NewObjectHook();
     uint32_t utf16Len = sd.utf16_length;
@@ -3454,16 +3467,13 @@ EcmaString *ObjectFactory::GetRawStringFromStringTable(StringData sd, MemSpaceTy
     bool canBeCompressed = sd.is_ascii;
     const uint8_t *mutf8Data = sd.data;
     if (canBeCompressed) {
-        // This branch will use constant string, which has a pointer at the string in the pandafile.
-        return vm_->GetEcmaStringTable()->GetOrInternString(vm_, mutf8Data, utf16Len, true, type,
-                                                            isConstantString, idOffset);
+        return vm_->GetEcmaStringTable()->GetOrInternString(vm_, mutf8Data, utf16Len, true, type);
     }
     return vm_->GetEcmaStringTable()->GetOrInternString(vm_, mutf8Data, utf16Len, type);
 }
 
 // used in jit thread, which unsupport create jshandle
-EcmaString *ObjectFactory::GetRawStringFromStringTableWithoutJSHandle(StringData sd, MemSpaceType type,
-    bool isConstantString, uint32_t idOffset) const
+EcmaString *ObjectFactory::GetRawStringFromStringTableWithoutJSHandle(StringData sd, MemSpaceType type) const
 {
     NewObjectHook();
     uint32_t utf16Len = sd.utf16_length;
@@ -3474,9 +3484,7 @@ EcmaString *ObjectFactory::GetRawStringFromStringTableWithoutJSHandle(StringData
     bool canBeCompressed = sd.is_ascii;
     const uint8_t *mutf8Data = sd.data;
     if (canBeCompressed) {
-        // This branch will use constant string, which has a pointer at the string in the pandafile.
-        return vm_->GetEcmaStringTable()->GetOrInternStringWithoutJSHandleForJit(vm_, mutf8Data, utf16Len, true, type,
-                                                                                 isConstantString, idOffset);
+        return vm_->GetEcmaStringTable()->GetOrInternStringWithoutJSHandleForJit(vm_, mutf8Data, utf16Len, true, type);
     }
     return vm_->GetEcmaStringTable()->GetOrInternStringWithoutJSHandleForJit(vm_, mutf8Data, utf16Len, type);
 }
@@ -3489,6 +3497,19 @@ JSHandle<PropertyBox> ObjectFactory::NewPropertyBox(const JSHandle<JSTaggedValue
     JSHandle<PropertyBox> box(thread_, header);
     box->SetValue(thread_, value);
     return box;
+}
+
+JSHandle<EnumCache> ObjectFactory::NewEnumCache()
+{
+    NewObjectHook();
+    TaggedObject *header = heap_->AllocateYoungOrHugeObject(
+        JSHClass::Cast(thread_->GlobalConstants()->GetEnumCacheClass().GetTaggedObject()));
+    JSHandle<EnumCache> enumCache(thread_, header);
+    JSObject::SetEnumCacheKind(thread_, enumCache, EnumCacheKind::NONE);
+    enumCache->SetEnumCacheAll(thread_, JSTaggedValue::Null());
+    enumCache->SetEnumCacheOwn(thread_, JSTaggedValue::Null());
+    enumCache->SetProtoChainInfoEnumCache(thread_, JSTaggedValue::Null());
+    return enumCache;
 }
 
 JSHandle<ProtoChangeMarker> ObjectFactory::NewProtoChangeMarker()
@@ -4131,7 +4152,7 @@ JSHandle<JSHClass> ObjectFactory::SetLayoutInObjHClass(const JSHandle<TaggedArra
                                                        const JSHandle<JSHClass> &objClass)
 {
     JSMutableHandle<JSTaggedValue> key(thread_, JSTaggedValue::Undefined());
-    JSHandle<JSHClass> newObjHclass(objClass);
+    JSHandle<JSHClass> newObjHClass(objClass);
 
     for (size_t fieldOffset = 0; fieldOffset < length; fieldOffset++) {
         key.Update(properties->Get(fieldOffset * 2)); // 2 : pair of key and value
@@ -4146,9 +4167,9 @@ JSHandle<JSHClass> ObjectFactory::SetLayoutInObjHClass(const JSHandle<TaggedArra
         attributes.SetOffset(fieldOffset);
         attributes.SetRepresentation(Representation::TAGGED);
         auto rep = PropertyAttributes::TranslateToRep(value);
-        newObjHclass = JSHClass::SetPropertyOfObjHClass(thread_, newObjHclass, key, attributes, rep);
+        newObjHClass = JSHClass::SetPropertyOfObjHClass(thread_, newObjHClass, key, attributes, rep);
     }
-    return newObjHclass;
+    return newObjHClass;
 }
 
 bool ObjectFactory::CanObjectLiteralHClassCache(size_t length)

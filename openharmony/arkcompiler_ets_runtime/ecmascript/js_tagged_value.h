@@ -491,7 +491,6 @@ public:
     bool IsBigInt() const;
     bool IsString() const;
     bool IsLineString() const;
-    bool IsConstantString() const;
     bool IsTreeString() const;
     bool IsSlicedString() const;
     bool IsStringOrSymbol() const;
@@ -676,6 +675,7 @@ public:
     bool IsTransWithProtoHandler() const;
     bool IsStoreAOTHandler() const;
     bool IsPropertyBox() const;
+    bool IsEnumCache() const;
     bool IsProtoChangeMarker() const;
     bool IsProtoChangeDetails() const;
     bool IsMarkerCell() const;
@@ -709,6 +709,9 @@ public:
 
     bool PUBLIC_API IsInSharedHeap() const;
     bool IsInSharedSweepableSpace() const;
+    bool IsEnumCacheAllValid() const;
+    bool IsEnumCacheOwnValid() const;
+    bool IsEnumCacheProtoInfoUndefined() const;
     static bool IsSameTypeOrHClass(JSTaggedValue x, JSTaggedValue y);
 
     static ComparisonResult Compare(JSThread *thread, const JSHandle<JSTaggedValue> &x,
@@ -729,6 +732,7 @@ public:
     void DumpTaggedValue(std::ostream &os) const DUMP_API_ATTR;
     void DumpTaggedValueType(std::ostream &os) const DUMP_API_ATTR;
     void Dump(std::ostream &os, bool isPrivacy = false) const DUMP_API_ATTR;
+    void DumpHeapObjAddress(std::ostream &os) const DUMP_API_ATTR;
     void D() const DUMP_API_ATTR;
     void DumpForSnapshot(std::vector<Reference> &vec, bool isVmMode = true) const;
     static void DesensitizedDump(const JSHandle<JSTaggedValue> &obj);

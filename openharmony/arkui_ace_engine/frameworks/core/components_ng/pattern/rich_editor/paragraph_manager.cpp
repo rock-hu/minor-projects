@@ -438,6 +438,7 @@ std::vector<std::pair<std::vector<RectF>, ParagraphStyle>> ParagraphManager::Get
             std::vector<RectF> rects;
             selectData.relativeStart = std::max(0, start - info.start);
             selectData.relativeEnd = end - info.start;
+            selectData.paragraphSpacing = info.paragraphStyle.paragraphSpacing.ConvertToPx();
             if (rectHeightPolicy == RectHeightPolicy::COVER_TEXT) {
                 info.paragraph->GetTightRectsForRange(selectData.relativeStart, selectData.relativeEnd, rects);
             } else {
@@ -462,13 +463,20 @@ void ParagraphManager::MakeBlankLineRectsInParagraph(std::vector<RectF>& result,
     const SelectData& selectData)
 {
     const int32_t realEnd = info.end - info.start;
-    const bool isLastParagraph = (selectData.relativeEnd == 0) || (selectData.relativeEnd < realEnd);
+    const bool isLastParagraph = (selectData.relativeEnd == 0) || (selectData.relativeEnd <= realEnd);
+    AppendParagraphSpacingBlankRect(result, selectData);
     if (isLastParagraph && !result.empty() && IsRectOutByHandler(result.back(), selectData)) {
+        auto lastRect = result.back();
         result.pop_back();
+        AddParagraphSpacingBlankRect(result, lastRect, selectData);
         return;
     }
     CHECK_NULL_VOID(info.paragraph);
     float height = info.paragraph->GetHeight();
+    if (Positive(selectData.paragraphSpacing) && !isLastParagraph && !result.empty() &&
+        NearZero(result.back().Width()) && selectData.relativeEnd != realEnd) {
+        result.emplace_back(RectF(0.0f, height - selectData.paragraphSpacing, 0.0f, selectData.paragraphSpacing));
+    }
     const float lastBottom = result.empty() ? MIN_RECT_TOP : result.back().Bottom();
     int32_t loopStart = std::min(realEnd, selectData.relativeEnd);
     int32_t loopEnd = std::max(0, selectData.relativeStart);
@@ -492,6 +500,31 @@ void ParagraphManager::MakeBlankLineRectsInParagraph(std::vector<RectF>& result,
     }
     std::reverse(rects.begin(), rects.end());
     result.insert(result.end(), rects.begin(), rects.end());
+}
+
+void ParagraphManager::AppendParagraphSpacingBlankRect(std::vector<RectF>& rects, const SelectData& selectData)
+{
+    if (!Positive(selectData.paragraphSpacing) || rects.empty()) {
+        return;
+    }
+    std::vector<RectF> selectedRects = std::move(rects);
+    for (auto it = selectedRects.begin(); it != selectedRects.end(); it++) {
+        auto rect = *it;
+        if (NearZero(rect.Width()) && (it == selectedRects.begin() || !NearEqual(rect.Top(), std::prev(it)->Top()))) {
+            rect.SetHeight(rect.Height() + selectData.paragraphSpacing);
+        }
+        rects.push_back(rect);
+    }
+}
+
+void ParagraphManager::AddParagraphSpacingBlankRect(
+    std::vector<RectF>& rects, const RectF& lastRect, const SelectData& selectData)
+{
+    if (!Positive(selectData.paragraphSpacing) || rects.empty() || NearEqual(rects.back().Top(), lastRect.Top())) {
+        return;
+    }
+    rects.emplace_back(
+        RectF(lastRect.Left(), lastRect.Top() - selectData.paragraphSpacing, 0.0f, selectData.paragraphSpacing));
 }
 
 std::vector<std::pair<std::vector<RectF>, ParagraphStyle>> ParagraphManager::GetRichEditorBoxesForSelect(

@@ -965,6 +965,16 @@ DEF_RUNTIME_STUBS(DumpObject)
     return JSTaggedValue::True().GetRawData();
 }
 
+DEF_RUNTIME_STUBS(DumpHeapObjectAddress)
+{
+    RUNTIME_STUBS_HEADER(DumpHeapObjectAddress);
+    JSHandle<JSTaggedValue> target = GetHArg<JSTaggedValue>(argv, argc, 0);  // 0: means the zeroth parameter
+    std::ostringstream oss;
+    target->DumpHeapObjAddress(oss);
+    LOG_ECMA(INFO) << "dump log for instance of target: " << oss.str();
+    return JSTaggedValue::True().GetRawData();
+}
+
 DEF_RUNTIME_STUBS(BigIntConstructor)
 {
     RUNTIME_STUBS_HEADER(BigIntConstructor);
@@ -1699,6 +1709,25 @@ DEF_RUNTIME_STUBS(StoreICByName)
     StoreICRuntime icRuntime(
         thread, JSHandle<ProfileTypeInfo>::Cast(profileHandle), slotId.GetInt(), ICKind::NamedStoreIC);
     return icRuntime.StoreMiss(receiverHandle, keyHandle, valueHandle).GetRawData();
+}
+
+DEF_RUNTIME_STUBS(StoreOwnICByName)
+{
+    RUNTIME_STUBS_HEADER(StoreOwnICByName);
+    JSHandle<JSTaggedValue> profileHandle = GetHArg<JSTaggedValue>(argv, argc, 0);  // 0: means the zeroth parameter
+    JSHandle<JSTaggedValue> receiverHandle = GetHArg<JSTaggedValue>(argv, argc, 1);  // 1: means the first parameter
+    JSHandle<JSTaggedValue> keyHandle = GetHArg<JSTaggedValue>(argv, argc, 2);  // 2: means the second parameter
+    JSHandle<JSTaggedValue> valueHandle = GetHArg<JSTaggedValue>(argv, argc, 3);  // 3: means the third parameter
+    JSTaggedValue slotId = GetArg(argv, argc, 4);   // 4: means the fourth parameter
+
+    if (profileHandle->IsUndefined()) {
+        JSTaggedValue::SetProperty(thread, receiverHandle, keyHandle, valueHandle, true);
+        RETURN_VALUE_IF_ABRUPT_COMPLETION(thread, JSTaggedValue::Exception().GetRawData());
+        return JSTaggedValue::True().GetRawData();
+    }
+    StoreICRuntime icRuntime(
+        thread, JSHandle<ProfileTypeInfo>::Cast(profileHandle), slotId.GetInt(), ICKind::NamedStoreIC);
+    return icRuntime.StoreMiss(receiverHandle, keyHandle, valueHandle, true, true).GetRawData();
 }
 
 DEF_RUNTIME_STUBS(SetFunctionNameNoPrefix)
@@ -3123,9 +3152,6 @@ DEF_RUNTIME_STUBS(DecodeURIComponent)
         } else {
             result = RuntimeDecodeURIComponent<uint16_t>(thread, string, stringAcc.GetDataUtf16());
         }
-    } else if (stringAcc.IsConstantString()) {
-        ASSERT(stringAcc.IsUtf8());
-        result = RuntimeDecodeURIComponent<uint8_t>(thread, string, stringAcc.GetDataUtf8());
     } else {
         ASSERT(stringAcc.IsSlicedString());
         auto parent = SlicedString::Cast(string.GetTaggedValue())->GetParent();
@@ -3423,7 +3449,7 @@ JSTaggedValue RuntimeStubs::GetStringToListCacheArray(uintptr_t argGlue)
 {
     DISALLOW_GARBAGE_COLLECTION;
     auto thread = JSThread::GlueToJSThread(argGlue);
-    return thread->GetCurrentEcmaContext()->GetStringToListResultCache().GetTaggedValue();
+    return thread->GetGlobalEnv()->GetStringToListResultCache().GetTaggedValue();
 }
 
 double RuntimeStubs::TimeClip(double time)
@@ -4237,6 +4263,44 @@ DEF_RUNTIME_STUBS(SetPrototypeTransition)
     JSHClass::SetPrototypeTransition(thread, obj, proto);
     JSObject::TryMigrateToGenericKindForJSObject(thread, obj, oldKind);
     return JSTaggedValue::Hole().GetRawData();
+}
+
+DEF_RUNTIME_STUBS(JSProxyGetProperty)
+{
+    RUNTIME_STUBS_HEADER(JSProxyGetProperty);
+    JSHandle<JSTaggedValue> obj = GetHArg<JSTaggedValue>(argv, argc, 0);  // 0: means the zeroth parameter
+    JSHandle<JSTaggedValue> keyHandle = GetHArg<JSTaggedValue>(argv, argc, 1);  // 1: means the first parameter
+    JSHandle<JSTaggedValue> receiver = GetHArg<JSTaggedValue>(argv, argc, 2); // 2: means the second parameter
+    return JSProxy::GetProperty(thread, JSHandle<JSProxy>(obj), keyHandle, receiver).GetValue()->GetRawData();
+}
+
+DEF_RUNTIME_STUBS(JSProxySetProperty)
+{
+    RUNTIME_STUBS_HEADER(JSProxySetProperty);
+    JSHandle<JSTaggedValue> obj = GetHArg<JSTaggedValue>(argv, argc, 0);  // 0: means the zeroth parameter
+    JSHandle<JSTaggedValue> keyHandle = GetHArg<JSTaggedValue>(argv, argc, 1);  // 1: means the first parameter
+    JSHandle<JSTaggedValue> valueHandle = GetHArg<JSTaggedValue>(argv, argc, 2); // 2: means the second parameter
+    JSHandle<JSTaggedValue> receiver = GetHArg<JSTaggedValue>(argv, argc, 3); // 3: means the third parameter
+    return JSTaggedValue(JSProxy::SetProperty(thread, JSHandle<JSProxy>(obj), keyHandle,
+                                              valueHandle, receiver, true)).GetRawData();
+}
+
+DEF_RUNTIME_STUBS(CheckGetTrapResult)
+{
+    RUNTIME_STUBS_HEADER(CheckGetTrapResult);
+    JSHandle<JSTaggedValue> targetHandle = GetHArg<JSTaggedValue>(argv, argc, 0);  // 0: means the zeroth parameter
+    JSHandle<JSTaggedValue> keyHandle = GetHArg<JSTaggedValue>(argv, argc, 1);  // 1: means the first parameter
+    JSHandle<JSTaggedValue> resutlHandle = GetHArg<JSTaggedValue>(argv, argc, 2);  // 2: means the second parameter
+    return JSProxy::CheckGetTrapResult(thread, targetHandle, keyHandle, resutlHandle).GetValue()->GetRawData();
+}
+
+DEF_RUNTIME_STUBS(CheckSetTrapResult)
+{
+    RUNTIME_STUBS_HEADER(CheckSetTrapResult);
+    JSHandle<JSTaggedValue> targetHandle = GetHArg<JSTaggedValue>(argv, argc, 0);  // 0: means the zeroth parameter
+    JSHandle<JSTaggedValue> keyHandle = GetHArg<JSTaggedValue>(argv, argc, 1);  // 1: means the first parameter
+    JSHandle<JSTaggedValue> valueHandle = GetHArg<JSTaggedValue>(argv, argc, 2);  // 2: means the second parameter
+    return JSTaggedValue(JSProxy::CheckSetTrapResult(thread, targetHandle, keyHandle, valueHandle)).GetRawData();
 }
 
 DEF_RUNTIME_STUBS(JSProxyHasProperty)

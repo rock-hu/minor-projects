@@ -300,6 +300,8 @@ public:
     virtual void SetContentRectToFrame(RectF rect) {}
     virtual void SetSecurityLayer(bool isSecure) {}
     virtual void SetHDRBrightness(float hdrBrightness) {}
+    virtual void SetImageHDRBrightness(float hdrBrightness) {}
+    virtual void SetImageHDRPresent(bool hdrPresent) {}
     virtual void SetTransparentLayer(bool isTransparentLayer) {}
     virtual void SetScreenId(uint64_t screenId) {}
     virtual void UpdateBackBlurRadius(const Dimension& radius) {}
@@ -406,6 +408,11 @@ public:
     }
 
     virtual RectF GetPaintRectWithoutTransform()
+    {
+        return {};
+    }
+
+    virtual RectF GetPaintRectWithTransformWithoutDegree()
     {
         return {};
     }
@@ -521,6 +528,7 @@ public:
     virtual void OnBackgroundColorUpdate(const Color& value) {}
     virtual void OnOpacityUpdate(double opacity) {}
     virtual void OnDynamicRangeModeUpdate(DynamicRangeMode dynamicRangeMode) {}
+    virtual void SetIsWideColorGamut(bool isWideColorGamut) {}
     virtual void SetAlphaOffscreen(bool isOffScreen) {}
     virtual void OnSphericalEffectUpdate(double radio) {}
     virtual void OnPixelStretchEffectUpdate(const PixStretchEffectOption& option) {}

@@ -93,6 +93,7 @@ module_test_list = [
   "forin_dictionary_mode",
   "forin_empty_prototype",
   "forin_enum_cache",
+  "forin_enum_cache_chain",
   "forin_non_empty_prototype",
   "forin_primitive",
   "forin_special_object",
@@ -158,6 +159,7 @@ module_test_list = [
   "sharedcheck",
   "sharedarray",
   "shareduse",
+  "enum_cache_sendable",
   "sharedtypedarray",
   "sharedcollectionsexception",
   "definesendableclass",
@@ -253,6 +255,7 @@ group("ark_js_assert_moduletest") {
     "yieldstar",
     "esmnestedimportcjs",
     "regexp",
+    "regexpcache",
     "deregistermodule",
     "getpropertybyic",
     "regressbufferdetach",
@@ -279,7 +282,9 @@ group("ark_js_assert_moduletest") {
       "multiconstpoolconstructor",
       "multiconstpoolfunc",
       "multiconstpoolobj",
+      "proxyget",
       "proxyrelease",
+      "proxyset",
     ]
 
     foreach(test, release_test_assert_list) {
@@ -390,7 +395,9 @@ group("ark_asm_assert_test") {
       "multiconstpoolconstructor",
       "multiconstpoolfunc",
       "multiconstpoolobj",
+      "proxyget",
       "proxyrelease",
+      "proxyset",
     ]
 
     foreach(test, release_test_assert_list) {
@@ -455,6 +462,7 @@ group("ark_asm_single_step_test") {
     "forin_dictionary_mode",
     "forin_empty_prototype",
     "forin_enum_cache",
+    "forin_enum_cache_chain",
     "forin_non_empty_prototype",
     "forin_primitive",
     "forin_special_object",
@@ -495,6 +503,7 @@ group("ark_asm_single_step_test") {
     "sharedcheck",
     "sharedarray",
     "shareduse",
+    "enum_cache_sendable",
     "sharedtypedarray",
     "sharedcollectionsexception",
     "definesendableclass",
@@ -592,7 +601,9 @@ group("ark_asm_single_step_assert_test") {
       "multiconstpoolconstructor",
       "multiconstpoolfunc",
       "multiconstpoolobj",
+      "proxyget",
       "proxyrelease",
+      "proxyset",
     ]
 
     foreach(test, release_test_assert_list) {

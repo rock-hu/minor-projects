@@ -583,6 +583,53 @@ HWTEST_F(RichEditorStyledStringTestNg, StyledStringController008, TestSize.Level
 }
 
 /**
+ * @tc.name: StyledStringController009
+ * @tc.desc: Test SetStyledString.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RichEditorStyledStringTestNg, StyledStringController009, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. create styledString with text
+     */
+    auto mutableStr = CreateTextStyledString(INIT_U16STRING_1);
+
+    /**
+     * @tc.steps: step2. get richEditor styledString controller and set styledString
+     */
+    ASSERT_NE(richEditorNode_, nullptr);
+    auto richEditorPattern = richEditorNode_->GetPattern<RichEditorPattern>();
+    ASSERT_NE(richEditorPattern, nullptr);
+    auto styledStringController = richEditorPattern->GetRichEditorStyledStringController();
+    ASSERT_NE(styledStringController, nullptr);
+
+    /**
+     * @tc.steps: step3. SetOnWillChange
+     */
+    auto onWillChange = [styledStringController, mutableStr](const StyledStringChangeValue& changeValue) {
+        onStyledStringWillChangeValue = changeValue;
+        styledStringController->SetStyledString(mutableStr);
+        return false;
+    };
+    styledStringController->SetOnWillChange(onWillChange);
+
+    /**
+     * @tc.steps: step4. enable preview text
+     */
+    richEditorPattern->previewTextRecord_.previewContent = u"test";
+    richEditorPattern->previewTextRecord_.previewTextHasStarted = true;
+    richEditorPattern->previewTextRecord_.startOffset = 0;
+    richEditorPattern->previewTextRecord_.endOffset = 4;
+
+    /**
+     * @tc.steps: step3. insert value
+     */
+    richEditorPattern->caretPosition_ = 0;
+    richEditorPattern->InsertValue(INIT_STRING_2);
+    EXPECT_EQ(richEditorPattern->GetTextContentLength(), 7);
+}
+
+/**
  * @tc.name: StyledStringInsertValue001
  * @tc.desc: Test insert value in styledString mode.
  * @tc.type: FUNC
@@ -660,169 +707,6 @@ HWTEST_F(RichEditorStyledStringTestNg, StyledStringInsertValue002, TestSize.Leve
     richEditorPattern->textSelector_.Update(13, 14);
     richEditorPattern->InsertValue(INIT_STRING_1);
     EXPECT_EQ(richEditorPattern->GetTextContentLength(), 29);
-}
-
-/**
- * @tc.name: StyledStringDeleteBackward001
- * @tc.desc: Test delete backward in styledString mode.
- * @tc.type: FUNC
- */
-HWTEST_F(RichEditorStyledStringTestNg, StyledStringDeleteBackward001, TestSize.Level1)
-{
-    /**
-     * @tc.steps: step1. create styledString with customSpan、image and text
-     */
-    auto mutableStr = CreateCustomSpanStyledString();
-    auto mutableTextStr = CreateTextStyledString(INIT_U16STRING_1);
-    auto mutableImageStr = CreateImageStyledString();
-    mutableStr->AppendSpanString(mutableTextStr);
-    mutableStr->InsertSpanString(3, mutableImageStr);
-
-    /**
-     * @tc.steps: step2. set styledString
-     */
-    ASSERT_NE(richEditorNode_, nullptr);
-    auto richEditorPattern = richEditorNode_->GetPattern<RichEditorPattern>();
-    ASSERT_NE(richEditorPattern, nullptr);
-    richEditorPattern->SetStyledString(mutableStr);
-
-    /**
-     * @tc.steps: step3. delete backward
-     */
-    richEditorPattern->caretPosition_ = 1;
-    richEditorPattern->DeleteBackward(1);
-    EXPECT_EQ(richEditorPattern->GetTextContentLength(), 8);
-
-    richEditorPattern->caretPosition_ = 3;
-    richEditorPattern->DeleteBackward(1);
-    EXPECT_EQ(richEditorPattern->GetTextContentLength(), 7);
-
-    richEditorPattern->caretPosition_ = 2;
-    richEditorPattern->DeleteBackward(1);
-    EXPECT_EQ(richEditorPattern->GetTextContentLength(), 6);
-}
-
-/**
- * @tc.name: StyledStringDeleteBackward002
- * @tc.desc: Test delete backward in styledString mode.
- * @tc.type: FUNC
- */
-HWTEST_F(RichEditorStyledStringTestNg, StyledStringDeleteBackward002, TestSize.Level1)
-{
-    /**
-     * @tc.steps: step1. create styledString with customSpan、image and text
-     */
-    auto mutableStr = CreateCustomSpanStyledString();
-    auto mutableTextStr = CreateTextStyledString(INIT_U16STRING_1);
-    auto mutableImageStr = CreateImageStyledString();
-    mutableStr->AppendSpanString(mutableTextStr);
-    mutableStr->InsertSpanString(3, mutableImageStr);
-
-    /**
-     * @tc.steps: step2. set styledString
-     */
-    ASSERT_NE(richEditorNode_, nullptr);
-    auto richEditorPattern = richEditorNode_->GetPattern<RichEditorPattern>();
-    ASSERT_NE(richEditorPattern, nullptr);
-    richEditorPattern->SetStyledString(mutableStr);
-
-    /**
-     * @tc.steps: step3. delete backward
-     */
-    richEditorPattern->textSelector_.Update(0, 2);
-    richEditorPattern->caretPosition_ = 2;
-    richEditorPattern->DeleteBackward(1);
-    EXPECT_EQ(richEditorPattern->GetTextContentLength(), 7);
-
-    richEditorPattern->textSelector_.Update(2, 5);
-    richEditorPattern->caretPosition_ = 5;
-    richEditorPattern->DeleteBackward(1);
-    EXPECT_EQ(richEditorPattern->GetTextContentLength(), 4);
-
-    richEditorPattern->textSelector_.Update(1, 3);
-    richEditorPattern->caretPosition_ = 3;
-    richEditorPattern->DeleteBackward(1);
-    EXPECT_EQ(richEditorPattern->GetTextContentLength(), 2);
-}
-
-/**
- * @tc.name: StyledStringDeleteForward001
- * @tc.desc: Test delete forward in styledString mode.
- * @tc.type: FUNC
- */
-HWTEST_F(RichEditorStyledStringTestNg, StyledStringDeleteForward001, TestSize.Level1)
-{
-    /**
-     * @tc.steps: step1. create styledString with customSpan、image and text
-     */
-    auto mutableStr = CreateCustomSpanStyledString();
-    auto mutableTextStr = CreateTextStyledString(INIT_U16STRING_1);
-    auto mutableImageStr = CreateImageStyledString();
-    mutableStr->AppendSpanString(mutableTextStr);
-    mutableStr->InsertSpanString(3, mutableImageStr);
-
-    /**
-     * @tc.steps: step2. set styledString
-     */
-    ASSERT_NE(richEditorNode_, nullptr);
-    auto richEditorPattern = richEditorNode_->GetPattern<RichEditorPattern>();
-    ASSERT_NE(richEditorPattern, nullptr);
-    richEditorPattern->SetStyledString(mutableStr);
-
-    /**
-     * @tc.steps: step3. delete forward
-     */
-    richEditorPattern->caretPosition_ = 0;
-    richEditorPattern->DeleteForward(1);
-    EXPECT_EQ(richEditorPattern->GetTextContentLength(), 8);
-
-    richEditorPattern->caretPosition_ = 2;
-    richEditorPattern->DeleteForward(1);
-    EXPECT_EQ(richEditorPattern->GetTextContentLength(), 7);
-
-    richEditorPattern->caretPosition_ = 1;
-    richEditorPattern->DeleteForward(1);
-    EXPECT_EQ(richEditorPattern->GetTextContentLength(), 6);
-}
-
-/**
- * @tc.name: StyledStringDeleteForward002
- * @tc.desc: Test delete backward in styledString mode.
- * @tc.type: FUNC
- */
-HWTEST_F(RichEditorStyledStringTestNg, StyledStringDeleteForward002, TestSize.Level1)
-{
-    /**
-     * @tc.steps: step1. create styledString with customSpan、image and text
-     */
-    auto mutableStr = CreateCustomSpanStyledString();
-    auto mutableTextStr = CreateTextStyledString(INIT_U16STRING_1);
-    auto mutableImageStr = CreateImageStyledString();
-    mutableStr->AppendSpanString(mutableTextStr);
-    mutableStr->InsertSpanString(3, mutableImageStr);
-
-    /**
-     * @tc.steps: step2. set styledString
-     */
-    ASSERT_NE(richEditorNode_, nullptr);
-    auto richEditorPattern = richEditorNode_->GetPattern<RichEditorPattern>();
-    ASSERT_NE(richEditorPattern, nullptr);
-    richEditorPattern->SetStyledString(mutableStr);
-
-    /**
-     * @tc.steps: step3. delete forward
-     */
-    richEditorPattern->textSelector_.Update(0, 2);
-    richEditorPattern->DeleteForward(1);
-    EXPECT_EQ(richEditorPattern->GetTextContentLength(), 7);
-
-    richEditorPattern->textSelector_.Update(2, 5);
-    richEditorPattern->DeleteForward(1);
-    EXPECT_EQ(richEditorPattern->GetTextContentLength(), 4);
-
-    richEditorPattern->textSelector_.Update(1, 3);
-    richEditorPattern->DeleteForward(1);
-    EXPECT_EQ(richEditorPattern->GetTextContentLength(), 2);
 }
 
 /**
@@ -1312,5 +1196,186 @@ HWTEST_F(RichEditorStyledStringTestNg, CreateStyledStringByTextStyle, TestSize.L
     ASSERT_NE(fontStyle, nullptr);
     EXPECT_EQ(fontStyle->GetFontFamily(), FONT_FAMILY_VALUE);
     EXPECT_EQ(fontStyle->GetTextColor(), TEXT_COLOR_VALUE);
+}
+
+/**
+ * @tc.name: StyledStringDeleteBackward001
+ * @tc.desc: Test delete backward in styledString mode.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RichEditorStyledStringTestNg, StyledStringDeleteBackward001, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. create styledString with customSpan、image and text
+     */
+    auto mutableStr = CreateCustomSpanStyledString();
+    auto mutableTextStr = CreateTextStyledString(INIT_U16STRING_1);
+    auto mutableImageStr = CreateImageStyledString();
+    mutableStr->AppendSpanString(mutableTextStr);
+    mutableStr->InsertSpanString(3, mutableImageStr);
+
+    /**
+     * @tc.steps: step2. set styledString
+     */
+    ASSERT_NE(richEditorNode_, nullptr);
+    auto richEditorPattern = richEditorNode_->GetPattern<RichEditorPattern>();
+    ASSERT_NE(richEditorPattern, nullptr);
+    richEditorPattern->SetStyledString(mutableStr);
+
+    /**
+     * @tc.steps: step3. delete backward
+     */
+    richEditorPattern->caretPosition_ = 1;
+    richEditorPattern->DeleteBackward(1);
+    EXPECT_EQ(richEditorPattern->GetTextContentLength(), 8);
+
+    richEditorPattern->caretPosition_ = 3;
+    richEditorPattern->DeleteBackward(1);
+    EXPECT_EQ(richEditorPattern->GetTextContentLength(), 7);
+
+    richEditorPattern->caretPosition_ = 2;
+    richEditorPattern->DeleteBackward(1);
+    EXPECT_EQ(richEditorPattern->GetTextContentLength(), 6);
+}
+
+/**
+ * @tc.name: StyledStringDeleteBackward002
+ * @tc.desc: Test delete backward in styledString mode.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RichEditorStyledStringTestNg, StyledStringDeleteBackward002, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. create styledString with customSpan、image and text
+     */
+    auto mutableStr = CreateCustomSpanStyledString();
+    auto mutableTextStr = CreateTextStyledString(INIT_U16STRING_1);
+    auto mutableImageStr = CreateImageStyledString();
+    mutableStr->AppendSpanString(mutableTextStr);
+    mutableStr->InsertSpanString(3, mutableImageStr);
+
+    /**
+     * @tc.steps: step2. set styledString
+     */
+    ASSERT_NE(richEditorNode_, nullptr);
+    auto richEditorPattern = richEditorNode_->GetPattern<RichEditorPattern>();
+    ASSERT_NE(richEditorPattern, nullptr);
+    richEditorPattern->SetStyledString(mutableStr);
+
+    /**
+     * @tc.steps: step3. delete backward
+     */
+    richEditorPattern->textSelector_.Update(0, 2);
+    richEditorPattern->caretPosition_ = 2;
+    richEditorPattern->DeleteBackward(1);
+    EXPECT_EQ(richEditorPattern->GetTextContentLength(), 7);
+
+    richEditorPattern->textSelector_.Update(2, 5);
+    richEditorPattern->caretPosition_ = 5;
+    richEditorPattern->DeleteBackward(1);
+    EXPECT_EQ(richEditorPattern->GetTextContentLength(), 4);
+
+    richEditorPattern->textSelector_.Update(1, 3);
+    richEditorPattern->caretPosition_ = 3;
+    richEditorPattern->DeleteBackward(1);
+    EXPECT_EQ(richEditorPattern->GetTextContentLength(), 2);
+}
+
+/**
+ * @tc.name: StyledStringDeleteForward001
+ * @tc.desc: Test delete forward in styledString mode.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RichEditorStyledStringTestNg, StyledStringDeleteForward001, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. create styledString with customSpan、image and text
+     */
+    auto mutableStr = CreateCustomSpanStyledString();
+    auto mutableTextStr = CreateTextStyledString(INIT_U16STRING_1);
+    auto mutableImageStr = CreateImageStyledString();
+    mutableStr->AppendSpanString(mutableTextStr);
+    mutableStr->InsertSpanString(3, mutableImageStr);
+
+    /**
+     * @tc.steps: step2. set styledString
+     */
+    ASSERT_NE(richEditorNode_, nullptr);
+    auto richEditorPattern = richEditorNode_->GetPattern<RichEditorPattern>();
+    ASSERT_NE(richEditorPattern, nullptr);
+    richEditorPattern->SetStyledString(mutableStr);
+
+    /**
+     * @tc.steps: step3. delete forward
+     */
+    richEditorPattern->caretPosition_ = 0;
+    richEditorPattern->DeleteForward(1);
+    EXPECT_EQ(richEditorPattern->GetTextContentLength(), 8);
+
+    richEditorPattern->caretPosition_ = 2;
+    richEditorPattern->DeleteForward(1);
+    EXPECT_EQ(richEditorPattern->GetTextContentLength(), 7);
+
+    richEditorPattern->caretPosition_ = 1;
+    richEditorPattern->DeleteForward(1);
+    EXPECT_EQ(richEditorPattern->GetTextContentLength(), 6);
+}
+
+/**
+ * @tc.name: StyledStringDeleteForward002
+ * @tc.desc: Test delete backward in styledString mode.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RichEditorStyledStringTestNg, StyledStringDeleteForward002, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. create styledString with customSpan、image and text
+     */
+    auto mutableStr = CreateCustomSpanStyledString();
+    auto mutableTextStr = CreateTextStyledString(INIT_U16STRING_1);
+    auto mutableImageStr = CreateImageStyledString();
+    mutableStr->AppendSpanString(mutableTextStr);
+    mutableStr->InsertSpanString(3, mutableImageStr);
+
+    /**
+     * @tc.steps: step2. set styledString
+     */
+    ASSERT_NE(richEditorNode_, nullptr);
+    auto richEditorPattern = richEditorNode_->GetPattern<RichEditorPattern>();
+    ASSERT_NE(richEditorPattern, nullptr);
+    richEditorPattern->SetStyledString(mutableStr);
+
+    /**
+     * @tc.steps: step3. delete forward
+     */
+    richEditorPattern->textSelector_.Update(0, 2);
+    richEditorPattern->DeleteForward(1);
+    EXPECT_EQ(richEditorPattern->GetTextContentLength(), 7);
+
+    richEditorPattern->textSelector_.Update(2, 5);
+    richEditorPattern->DeleteForward(1);
+    EXPECT_EQ(richEditorPattern->GetTextContentLength(), 4);
+
+    richEditorPattern->textSelector_.Update(1, 3);
+    richEditorPattern->DeleteForward(1);
+    EXPECT_EQ(richEditorPattern->GetTextContentLength(), 2);
+}
+
+/**
+ * @tc.name: DeleteValueInStyledString001
+ * @tc.desc: test DeleteValueInStyledString
+ * @tc.type: FUNC
+ */
+HWTEST_F(RichEditorStyledStringTestNg, DeleteValueInStyledString002, TestSize.Level1)
+{
+    ASSERT_NE(richEditorNode_, nullptr);
+    auto richEditorPattern = richEditorNode_->GetPattern<RichEditorPattern>();
+    ASSERT_NE(richEditorPattern, nullptr);
+    richEditorPattern->styledString_ = AceType::MakeRefPtr<MutableSpanString>(INIT_VALUE_3);
+    richEditorPattern->previewLongPress_ = true;
+    auto focusHub = richEditorPattern->GetFocusHub();
+    focusHub->currentFocus_ = true;
+    richEditorPattern->DeleteValueInStyledString(0, 10, true, false);
+    EXPECT_FALSE(richEditorPattern->previewLongPress_);
 }
 } // namespace OHOS::Ace::NG

@@ -16,8 +16,6 @@
 #include "ecmascript/ecma_context.h"
 
 #include "ecmascript/builtins/builtins.h"
-#include "ecmascript/builtins/builtins_regexp.h"
-#include "ecmascript/builtins/builtins_number.h"
 #include "ecmascript/compiler/aot_constantpool_patcher.h"
 #include "ecmascript/compiler/pgo_type/pgo_type_manager.h"
 #include "ecmascript/compiler/rt_call_signature.h"
@@ -106,12 +104,6 @@ bool EcmaContext::Initialize()
     thread_->SetEnableLazyBuiltins(builtinsLazyEnabled);
     builtins.Initialize(globalEnv, thread_, builtinsLazyEnabled);
 
-    SetupRegExpResultCache();
-    SetupRegExpGlobalResult();
-    SetupNumberToStringResultCache();
-    SetupStringSplitResultCache();
-    SetupStringToListResultCache();
-    microJobQueue_ = factory_->NewMicroJobQueue().GetTaggedValue();
     moduleManager_ = new ModuleManager(vm_);
     ptManager_ = new kungfu::PGOTypeManager(vm_);
     optCodeProfiler_ = new OptCodeProfiler();
@@ -202,8 +194,6 @@ EcmaContext::~EcmaContext()
         thread_->SetUnsharedConstpools(reinterpret_cast<uintptr_t>(nullptr));
         thread_->SetUnsharedConstpoolsArrayLen(0);
     }
-    // clear join stack
-    joinStack_.clear();
 }
 
 JSTaggedValue EcmaContext::InvokeEcmaAotEntrypoint(JSHandle<JSFunction> mainFunc, JSHandle<JSTaggedValue> &thisArg,
@@ -307,7 +297,7 @@ Expected<JSTaggedValue, bool> EcmaContext::CommonInvokeEcmaEntrypoint(const JSPa
 
         if (!thread_->HasPendingException() && IsStaticImport(executeType)) {
             JSHandle<JSTaggedValue> handleResult(thread_, result);
-            job::MicroJobQueue::ExecutePendingJob(thread_, GetMicroJobQueue());
+            job::MicroJobQueue::ExecutePendingJob(thread_, vm_->GetMicroJobQueue());
             result = handleResult.GetTaggedValue();
         }
     }
@@ -623,7 +613,7 @@ JSTaggedValue EcmaContext::FindCachedConstpoolAndLoadAiIfNeeded(const JSPandaFil
     }
     // Getting the cached constpool in runtime means the ai data has not been loaded in current thread.
     // And we need to reload it
-    aotFileManager_->LoadAiFile(jsPandaFile);
+    aotFileManager_->LoadAiFile(jsPandaFile, vm_);
     return constpool;
 }
 
@@ -680,14 +670,6 @@ JSHandle<JSTaggedValue> EcmaContext::GetAndClearEcmaUncaughtException() const
     return exceptionHandle;
 }
 
-void EcmaContext::RelocateConstantString(const JSPandaFile *jsPandaFile)
-{
-    if (!jsPandaFile->IsFirstMergedAbc()) {
-        return;
-    }
-    vm_->GetEcmaStringTable()->RelocateConstantData(vm_, jsPandaFile);
-}
-
 JSHandle<JSTaggedValue> EcmaContext::GetEcmaUncaughtException() const
 {
     if (!thread_->HasPendingException()) {
@@ -695,34 +677,6 @@ JSHandle<JSTaggedValue> EcmaContext::GetEcmaUncaughtException() const
     }
     JSHandle<JSTaggedValue> exceptionHandle(thread_, thread_->GetException());
     return exceptionHandle;
-}
-
-bool EcmaContext::HasPendingJob()
-{
-    // This interface only determines whether PromiseJobQueue is empty, rather than ScriptJobQueue.
-    if (UNLIKELY(thread_->HasTerminated())) {
-        return false;
-    }
-    TaggedQueue* promiseQueue = TaggedQueue::Cast(GetMicroJobQueue()->GetPromiseJobQueue().GetTaggedObject());
-    return !promiseQueue->Empty();
-}
-
-bool EcmaContext::ExecutePromisePendingJob()
-{
-    if (isProcessingPendingJob_) {
-        LOG_ECMA(DEBUG) << "EcmaVM::ExecutePromisePendingJob can not reentrant";
-        return false;
-    }
-    if (!thread_->HasPendingException()) {
-        isProcessingPendingJob_ = true;
-        job::MicroJobQueue::ExecutePendingJob(thread_, GetMicroJobQueue());
-        if (thread_->HasPendingException()) {
-            JsStackInfo::BuildCrashInfo(thread_);
-        }
-        isProcessingPendingJob_ = false;
-        return true;
-    }
-    return false;
 }
 
 void EcmaContext::ClearBufferData()
@@ -741,20 +695,9 @@ void EcmaContext::SetGlobalEnv(GlobalEnv *global)
     }
 }
 
-void EcmaContext::SetMicroJobQueue(job::MicroJobQueue *queue)
-{
-    ASSERT(queue != nullptr);
-    microJobQueue_ = JSTaggedValue(queue);
-}
-
 JSHandle<GlobalEnv> EcmaContext::GetGlobalEnv() const
 {
     return JSHandle<GlobalEnv>(reinterpret_cast<uintptr_t>(&globalEnv_));
-}
-
-JSHandle<job::MicroJobQueue> EcmaContext::GetMicroJobQueue() const
-{
-    return JSHandle<job::MicroJobQueue>(reinterpret_cast<uintptr_t>(&microJobQueue_));
 }
 
 void EcmaContext::MountContext(JSThread *thread)
@@ -787,31 +730,6 @@ void EcmaContext::CheckAndDestroy(JSThread *thread, EcmaContext *context)
     LOG_ECMA(FATAL) << "CheckAndDestroy a nonexistent context.";
 }
 
-void EcmaContext::SetupRegExpResultCache()
-{
-    regexpCache_ = builtins::RegExpExecResultCache::CreateCacheTable(thread_);
-}
-
-void EcmaContext::SetupRegExpGlobalResult()
-{
-    regexpGlobal_ = builtins::RegExpGlobalResult::CreateGlobalResultTable(thread_);
-}
-
-void EcmaContext::SetupNumberToStringResultCache()
-{
-    numberToStringResultCache_ = builtins::NumberToStringResultCache::CreateCacheTable(thread_);
-}
-
-void EcmaContext::SetupStringSplitResultCache()
-{
-    stringSplitResultCache_ = builtins::StringSplitResultCache::CreateCacheTable(thread_);
-}
-
-void EcmaContext::SetupStringToListResultCache()
-{
-    stringToListResultCache_ = builtins::StringToListResultCache::CreateCacheTable(thread_);
-}
-
 void EcmaContext::IterateMegaIC(RootVisitor &v)
 {
     if (ecmaData_.loadMegaICCache_ != nullptr) {
@@ -828,24 +746,6 @@ void EcmaContext::Iterate(RootVisitor &v)
     globalConst_.Iterate(v);
 
     v.VisitRoot(Root::ROOT_VM, ObjectSlot(reinterpret_cast<uintptr_t>(&globalEnv_)));
-    if (!regexpCache_.IsHole()) {
-        v.VisitRoot(Root::ROOT_VM, ObjectSlot(reinterpret_cast<uintptr_t>(&regexpCache_)));
-    }
-    if (!regexpGlobal_.IsHole()) {
-        v.VisitRoot(Root::ROOT_VM, ObjectSlot(reinterpret_cast<uintptr_t>(&regexpGlobal_)));
-    }
-    if (!numberToStringResultCache_.IsHole()) {
-        v.VisitRoot(Root::ROOT_VM, ObjectSlot(reinterpret_cast<uintptr_t>(&numberToStringResultCache_)));
-    }
-    if (!stringSplitResultCache_.IsHole()) {
-        v.VisitRoot(Root::ROOT_VM, ObjectSlot(reinterpret_cast<uintptr_t>(&stringSplitResultCache_)));
-    }
-    if (!stringToListResultCache_.IsHole()) {
-        v.VisitRoot(Root::ROOT_VM, ObjectSlot(reinterpret_cast<uintptr_t>(&stringToListResultCache_)));
-    }
-    if (!microJobQueue_.IsHole()) {
-        v.VisitRoot(Root::ROOT_VM, ObjectSlot(reinterpret_cast<uintptr_t>(&microJobQueue_)));
-    }
 
     if (functionProtoTransitionTable_) {
         functionProtoTransitionTable_->Iterate(v);
@@ -866,11 +766,6 @@ void EcmaContext::Iterate(RootVisitor &v)
 
     if (sustainingJSHandleList_) {
         sustainingJSHandleList_->Iterate(v);
-    }
-
-    if (!joinStack_.empty()) {
-        v.VisitRangeRoot(Root::ROOT_VM, ObjectSlot(ToUintPtr(&joinStack_.front())),
-            ObjectSlot(ToUintPtr(&joinStack_.back()) + JSTaggedValue::TaggedTypeSize()));
     }
 
     auto start = ObjectSlot(ToUintPtr(unsharedConstpools_));
@@ -936,58 +831,6 @@ void EcmaContext::PrintOptStat()
 void EcmaContext::DumpAOTInfo() const
 {
     aotFileManager_->DumpAOTInfo();
-}
-
-bool EcmaContext::JoinStackPushFastPath(JSHandle<JSTaggedValue> receiver)
-{
-    if (JSTaggedValue::SameValue(joinStack_[0], JSTaggedValue::Hole())) {
-        joinStack_[0] = receiver.GetTaggedValue();
-        return true;
-    }
-    return JoinStackPush(receiver);
-}
-
-bool EcmaContext::JoinStackPush(JSHandle<JSTaggedValue> receiver)
-{
-    uint32_t capacity = joinStack_.size();
-    JSTaggedValue receiverValue = receiver.GetTaggedValue();
-    for (size_t i = 0; i < capacity; ++i) {
-        if (JSTaggedValue::SameValue(joinStack_[i], JSTaggedValue::Hole())) {
-            joinStack_[i] = receiverValue;
-            return true;
-        }
-        if (JSTaggedValue::SameValue(joinStack_[i], receiverValue)) {
-            return false;
-        }
-    }
-    joinStack_.emplace_back(receiverValue);
-    return true;
-}
-
-void EcmaContext::JoinStackPopFastPath(JSHandle<JSTaggedValue> receiver)
-{
-    uint32_t length = joinStack_.size();
-    if (JSTaggedValue::SameValue(joinStack_[0], receiver.GetTaggedValue()) && length == MIN_JOIN_STACK_SIZE) {
-        joinStack_[0] = JSTaggedValue::Hole();
-    } else {
-        JoinStackPop(receiver);
-    }
-}
-
-void EcmaContext::JoinStackPop(JSHandle<JSTaggedValue> receiver)
-{
-    uint32_t length = joinStack_.size();
-    for (size_t i = 0; i < length; ++i) {
-        if (JSTaggedValue::SameValue(joinStack_[i], receiver.GetTaggedValue())) {
-            if (i == 0 && length > MIN_JOIN_STACK_SIZE) {
-                joinStack_ = {JSTaggedValue::Hole(), JSTaggedValue::Hole()};
-                break;
-            } else {
-                joinStack_[i] = JSTaggedValue::Hole();
-                break;
-            }
-        }
-    }
 }
 
 std::tuple<uint64_t, uint8_t *, int, kungfu::CalleeRegAndOffsetVec> EcmaContext::CalCallSiteInfo(

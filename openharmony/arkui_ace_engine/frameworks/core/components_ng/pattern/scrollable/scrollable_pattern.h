@@ -135,7 +135,7 @@ public:
         return false;
     }
     virtual bool IsAtTop() const = 0;
-    virtual bool IsAtBottom() const = 0;
+    virtual bool IsAtBottom(bool considerRepeat = false) const = 0;
     virtual bool IsAtTopWithDelta() const
     {
         return IsAtTop();
@@ -175,8 +175,8 @@ public:
     virtual bool OnScrollCallback(float offset, int32_t source);
     virtual void OnScrollStartCallback();
     virtual void FireOnScrollStart();
-    virtual void FireOnReachStart(const OnReachEvent& onReachStart) {}
-    virtual void FireOnReachEnd(const OnReachEvent& onReachEnd) {}
+    virtual void FireOnReachStart(const OnReachEvent& onReachStart, const OnReachEvent& onJSFrameNodeReachStart) {}
+    virtual void FireOnReachEnd(const OnReachEvent& onReachEnd, const OnReachEvent& onJSFrameNodeReachEnd) {}
     bool ScrollableIdle()
     {
         return !scrollableEvent_ || scrollableEvent_->Idle();
@@ -848,7 +848,8 @@ protected:
     void FireObserverOnScrollStop();
     void FireObserverOnDidScroll(float finalOffset);
 
-    virtual void OnScrollStop(const OnScrollStopEvent& onScrollStop);
+    virtual void OnScrollStop(const OnScrollStopEvent& onScrollStop, const OnScrollStopEvent& onJSFrameNodeScrollStop);
+    void FireOnScrollStop(const OnScrollStopEvent& onScrollStop, const OnScrollStopEvent& onJSFrameNodeScrollStop);
 
     float FireOnWillScroll(float offset) const;
 

@@ -16,6 +16,7 @@
 
 #include "ecmascript/ecma_context.h"
 #include "ecmascript/global_env_constants-inl.h"
+#include "ecmascript/js_tagged_value.h"
 #include "ecmascript/pgo_profiler/pgo_profiler.h"
 #include "ecmascript/pgo_profiler/pgo_profiler_layout.h"
 #include "ecmascript/ic/proto_change_details.h"
@@ -175,7 +176,6 @@ bool JSHClass::IsJSTypeShared(JSType type)
         case JSType::JS_SENDABLE_ARRAY_BUFFER:
         case JSType::BIGINT:
         case JSType::LINE_STRING:
-        case JSType::CONSTANT_STRING:
         case JSType::SLICED_STRING:
         case JSType::TREE_STRING:
             isShared = true;
@@ -1159,6 +1159,11 @@ JSHandle<ProtoChangeDetails> JSHClass::GetProtoChangeDetails(const JSThread *thr
 {
     JSHandle<JSHClass> jshclass(thread, obj->GetJSHClass());
     return GetProtoChangeDetails(thread, jshclass);
+}
+
+JSHandle<TaggedArray> JSHClass::GetEnumCacheOwnWithOutCheck(const JSThread *thread, const JSHandle<JSHClass> &jshclass)
+{
+    return JSHandle<TaggedArray>(thread, EnumCache::Cast(jshclass->GetEnumCache())->GetEnumCacheOwn());
 }
 
 void JSHClass::RefreshUsers(const JSThread *thread, const JSHandle<JSHClass> &oldHclass,

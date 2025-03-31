@@ -144,7 +144,7 @@ public:
     void NotifyDataChange(int32_t index, int32_t count) override;
 
     bool IsAtTop() const override;
-    bool IsAtBottom() const override;
+    bool IsAtBottom(bool considerRepeat = false) const override;
     void OnTouchDown(const TouchEventInfo& info) override;
     OverScrollOffset GetOutBoundaryOffset(float delta, bool useChainDelta = true) const;
     OverScrollOffset GetOverScrollOffset(double delta) const override;
@@ -470,8 +470,8 @@ protected:
     bool isStackFromEnd_ = true;
 private:
     void OnScrollEndCallback() override;
-    void FireOnReachStart(const OnReachEvent& onReachStart) override;
-    void FireOnReachEnd(const OnReachEvent& onReachEnd) override;
+    void FireOnReachStart(const OnReachEvent& onReachStart, const OnReachEvent& onJSFrameNodeReachStart) override;
+    void FireOnReachEnd(const OnReachEvent& onReachEnd, const OnReachEvent& onJSFrameNodeReachEnd) override;
     void FireOnScrollIndex(bool indexChanged, const OnScrollIndexEvent& onScrollIndex);
     void ChangeAxis(RefPtr<UINode> node);
     bool HandleTargetIndex(bool isJump);

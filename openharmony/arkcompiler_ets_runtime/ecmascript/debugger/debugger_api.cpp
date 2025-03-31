@@ -16,6 +16,7 @@
 #include "ecmascript/debugger/debugger_api.h"
 
 #include "ecmascript/debugger/js_debugger.h"
+#include "ecmascript/dfx/stackinfo/async_stack_trace.h"
 #include "ecmascript/interpreter/slow_runtime_stub.h"
 #include "ecmascript/interpreter/fast_runtime_stub-inl.h"
 #include "ecmascript/tagged_hash_array.h"
@@ -743,8 +744,8 @@ void DebuggerApi::GetIndirectExportVariables(const EcmaVM *ecmaVm, Local<ObjectR
         JSTaggedValue key = ee->GetImportName();
         name.Update(key);
         if (key.IsString()) {
-            JSHandle<JSTaggedValue> importModule =
-                SourceTextModule::GetRequestedModule(thread, module, requestedModules, ee->GetModuleRequestIndex());
+            JSHandle<JSTaggedValue> importModule = JSHandle<JSTaggedValue>::Cast(
+                SourceTextModule::GetRequestedModule(thread, requestedModules, ee->GetModuleRequestIndex()));
             RETURN_IF_ABRUPT_COMPLETION(thread);
             std::string importName = EcmaStringAccessor(ee->GetImportName()).ToStdString();
             Local<JSValueRef> value = GetModuleValue(ecmaVm, importModule, importName);
@@ -780,8 +781,8 @@ void DebuggerApi::GetImportVariables(const EcmaVM *ecmaVm, Local<ObjectRef> &mod
         JSTaggedValue localName = ee->GetLocalName();
         name.Update(localName);
         if (JSTaggedValue::SameValue(key, starString.GetTaggedValue())) {
-            JSHandle<JSTaggedValue> importModule =
-                SourceTextModule::GetRequestedModule(thread, module, requestedModules, ee->GetModuleRequestIndex());
+            JSHandle<JSTaggedValue> importModule = JSHandle<JSTaggedValue>::Cast(
+                SourceTextModule::GetRequestedModule(thread, requestedModules, ee->GetModuleRequestIndex()));
             RETURN_IF_ABRUPT_COMPLETION(thread);
             Local<ObjectRef> importModuleObj = ObjectRef::New(ecmaVm);
             GetLocalExportVariables(ecmaVm, importModuleObj, importModule, true);
@@ -1278,13 +1279,17 @@ Local<JSValueRef> DebuggerApi::GetVectorValue(const EcmaVM *ecmaVm, Local<JSValu
     return jsValueRef;
 }
 
+std::shared_ptr<AsyncStack> DebuggerApi::GetCurrentAsyncParent(const EcmaVM *ecmaVm)
+{
+    return ecmaVm->GetAsyncStackTrace()->GetCurrentAsyncParent();
+}
+
 bool DebuggerApi::CheckPromiseQueueSize(const EcmaVM *ecmaVm)
 {
     auto *debuggerMgr = ecmaVm->GetJsDebuggerManager();
     uint32_t queueSizeEntry = debuggerMgr->GetPromiseQueueSizeRecordOfTopFrame();
     JSThread *thread = ecmaVm->GetJSThread();
-    EcmaContext *context = thread->GetCurrentEcmaContext();
-    uint32_t queueSizeCurrent = job::MicroJobQueue::GetPromiseQueueSize(thread, context->GetMicroJobQueue());
+    uint32_t queueSizeCurrent = job::MicroJobQueue::GetPromiseQueueSize(thread, ecmaVm->GetMicroJobQueue());
     return queueSizeEntry == queueSizeCurrent;
 }
 

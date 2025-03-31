@@ -1917,6 +1917,13 @@ struct ArkUIImageResizableSlice {
     ArkUI_Float32 bottom;
 };
 
+struct EventBindingInfo {
+    bool baseEventRegistered;
+    bool nodeEventRegistered;
+    bool nativeEventRegistered;
+    bool builtInEventRegistered;
+};
+
 struct ArkUICommonModifier {
     void (*setBackgroundColor)(ArkUINodeHandle node, ArkUI_Uint32 color);
     void (*resetBackgroundColor)(ArkUINodeHandle node);
@@ -5319,6 +5326,8 @@ struct ArkUISelectModifier {
     void (*setMenuOutline)(ArkUINodeHandle node, const ArkUI_Float32* width, ArkUI_Int32 widthSize,
         const ArkUI_Uint32* color, ArkUI_Int32 colorSize);
     void (*resetMenuOutline)(ArkUINodeHandle node);
+    void (*setSelectSymbolValue)(ArkUINodeHandle node, ArkUI_CharPtr* values,
+        void** symbolFunction, ArkUI_Uint32 length);
 };
 
 /** Common for all API variants.*/
@@ -5820,6 +5829,7 @@ struct ArkUIFrameNodeModifier {
     ArkUI_Bool (*getCrossLanguageOptions)(ArkUINodeHandle node);
     ArkUI_Bool (*checkIfCanCrossLanguageAttributeSetting)(ArkUINodeHandle node);
     void (*setKeyProcessingMode)(ArkUI_Int32 instanceId, ArkUI_Int32 mode);
+    EventBindingInfo (*getInteractionEventBindingInfo)(ArkUINodeHandle node, int type);
 };
 
 struct ArkUINodeContentEvent {
@@ -6223,6 +6233,10 @@ struct ArkUIDialogAPI {
     ArkUI_Int32 (*updateCustomDialog)(ArkUIDialogHandle handle, void (*callback)(ArkUI_Int32 dialogId));
     ArkUI_Int32 (*closeCustomDialog)(ArkUI_Int32 dialogId);
     ArkUI_Int32 (*setSubwindowMode)(ArkUIDialogHandle handle, ArkUI_Bool showInSubWindow);
+    ArkUI_Int32 (*setBackgroundBlurStyleOptions)(ArkUIDialogHandle handle, ArkUI_Int32 (*intArray)[3],
+        ArkUI_Float32 scale, ArkUI_Uint32 (*uintArray)[3], ArkUI_Bool isValidColor);
+    ArkUI_Int32 (*setBackgroundEffect)(ArkUIDialogHandle handle, ArkUI_Float32 (*floatArray)[3],
+        ArkUI_Int32 (*intArray)[2], ArkUI_Uint32 (*uintArray)[4], ArkUI_Bool isValidColor);
 };
 
 struct ArkUIBasicNodeAPI {

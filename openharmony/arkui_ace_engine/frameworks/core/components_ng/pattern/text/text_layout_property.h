@@ -98,6 +98,7 @@ public:
         ResetTextMarqueeOptions();
         ResetCursorColor();
         ResetSelectedBackgroundColor();
+        ResetTextColorFlagByUser();
         propNeedReCreateParagraph_ = true;
     }
 
@@ -170,7 +171,7 @@ public:
     ACE_DEFINE_PROPERTY_ITEM_WITHOUT_GROUP(UrlPressedColor, Color, PROPERTY_UPDATE_MEASURE_SELF);
 
     // symbol
-    ACE_DEFINE_PROPERTY_ITEM_WITHOUT_GROUP(SymbolSourceInfo, SymbolSourceInfo, PROPERTY_UPDATE_MEASURE);
+    ACE_DEFINE_TEXT_PROPERTY_ITEM_WITHOUT_GROUP(SymbolSourceInfo, SymbolSourceInfo, PROPERTY_UPDATE_MEASURE);
     ACE_DEFINE_PROPERTY_ITEM_WITH_GROUP(
         FontStyle, SymbolColorList, std::vector<Color>, PROPERTY_UPDATE_MEASURE_SELF);
     ACE_DEFINE_TEXT_PROPERTY_ITEM_WITH_GROUP(
@@ -231,6 +232,8 @@ public:
 
     // Used to mark whether a paragraph needs to be recreated for Measure.
     ACE_DEFINE_PROPERTY_ITEM_WITHOUT_GROUP_GET(NeedReCreateParagraph, bool);
+
+    ACE_DEFINE_PROPERTY_ITEM_WITHOUT_GROUP(TextColorFlagByUser, bool, PROPERTY_UPDATE_NORMAL);
 
     std::string GetTextMarqueeOptionsString() const;
     void UpdateMarqueeOptionsFromJson(const std::unique_ptr<JsonValue>& json);

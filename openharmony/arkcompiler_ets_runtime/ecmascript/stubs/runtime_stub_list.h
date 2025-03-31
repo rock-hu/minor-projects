@@ -315,6 +315,7 @@ namespace panda::ecmascript {
     V(SetClassConstructorLength)                \
     V(LoadICByName)                             \
     V(StoreICByName)                            \
+    V(StoreOwnICByName)                         \
     V(UpdateHotnessCounter)                     \
     V(CheckSafePoint)                           \
     V(PGODump)                                  \
@@ -477,12 +478,17 @@ namespace panda::ecmascript {
     V(FunctionDefineOwnProperty)                \
     V(DefineOwnProperty)                        \
     V(AOTEnableProtoChangeMarker)               \
+    V(CheckGetTrapResult)                       \
+    V(CheckSetTrapResult)                       \
+    V(JSProxyGetProperty)                       \
+    V(JSProxySetProperty)                       \
     V(JSProxyHasProperty)                       \
     V(JSTypedArrayHasProperty)                  \
     V(ModuleNamespaceHasProperty)               \
     V(JSObjectHasProperty)                      \
     V(HasProperty)                              \
     V(DumpObject)                               \
+    V(DumpHeapObjectAddress)                    \
     V(TryGetInternString)                       \
     V(FastCopyFromArrayToTypedArray)            \
     V(BigIntConstructor)                        \

@@ -136,12 +136,6 @@ GateRef CircuitBuilder::IsLineString(GateRef obj)
     return Int32Equal(objectType, Int32(static_cast<int32_t>(JSType::LINE_STRING)));
 }
 
-GateRef CircuitBuilder::IsConstantString(GateRef obj)
-{
-    GateRef objectType = GetObjectType(LoadHClass(obj));
-    return Int32Equal(objectType, Int32(static_cast<int32_t>(JSType::CONSTANT_STRING)));
-}
-
 GateRef CircuitBuilder::ComputeSizeUtf8(GateRef length)
 {
     return PtrAdd(IntPtr(LineEcmaString::DATA_OFFSET), length);
@@ -218,6 +212,32 @@ GateRef CircuitBuilder::LoadPrototypeOfPrototypeHClass(GateRef object)
     GateRef objectPrototypeHClass = LoadHClassByConstOffset(objectPrototype);
     GateRef objectPrototypeOfPrototype = LoadPrototype(objectPrototypeHClass);
     return LoadHClass(objectPrototypeOfPrototype);
+}
+
+GateRef CircuitBuilder::GetEnumCacheKindFromEnumCache(GateRef enumCache)
+{
+    GateRef enumCacheKind = Load(VariableType::INT32(), enumCache, IntPtr(EnumCache::ENUM_CACHE_KIND_OFFSET));
+    return enumCacheKind;
+}
+
+GateRef CircuitBuilder::GetEnumCacheOwnFromEnumCache(GateRef enumCache)
+{
+    GateRef enumCacheOwn = Load(VariableType::JS_ANY(), enumCache,
+        IntPtr(EnumCache::ENUM_CACHE_OWN_OFFSET));
+    return enumCacheOwn;
+}
+
+GateRef CircuitBuilder::GetEnumCacheAllFromEnumCache(GateRef enumCache)
+{
+    GateRef enumCacheAll = Load(VariableType::JS_ANY(), enumCache, IntPtr(EnumCache::ENUM_CACHE_ALL_OFFSET));
+    return enumCacheAll;
+}
+
+GateRef CircuitBuilder::GetProtoChainInfoEnumCacheFromEnumCache(GateRef enumCache)
+{
+    GateRef protoChainInfoEnumCache = Load(VariableType::JS_ANY(), enumCache,
+        IntPtr(EnumCache::PROTO_CHAIN_INFO_ENUM_CACHE_OFFSET));
+    return protoChainInfoEnumCache;
 }
 
 GateRef CircuitBuilder::GetObjectSizeFromHClass(GateRef hClass)

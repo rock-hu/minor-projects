@@ -80,14 +80,14 @@ JSTaggedValue ConstantPool::GetStringFromCacheForJit(JSThread *thread, JSTaggedV
     if (!allowAlloc && val.IsHole()) {
         return JSTaggedValue::Undefined();
     }
+
     if (val.IsHole()) {
         JSPandaFile *jsPandaFile = taggedPool->GetJSPandaFile();
         panda_file::File::EntityId id = taggedPool->GetEntityId(index);
         auto foundStr = jsPandaFile->GetStringData(id);
         EcmaVM *vm = thread->GetEcmaVM();
         ObjectFactory *factory = vm->GetFactory();
-        auto string = factory->GetRawStringFromStringTableWithoutJSHandle(foundStr, MemSpaceType::SHARED_OLD_SPACE,
-            jsPandaFile->IsFirstMergedAbc(), id.GetOffset());
+        auto string = factory->GetRawStringFromStringTableWithoutJSHandle(foundStr, MemSpaceType::SHARED_OLD_SPACE);
         val = JSTaggedValue(string);
     }
     return val;
@@ -112,8 +112,7 @@ JSTaggedValue ConstantPool::GetStringFromCache(JSThread *thread, JSTaggedValue c
         EcmaVM *vm = thread->GetEcmaVM();
         ObjectFactory *factory = vm->GetFactory();
         JSHandle<ConstantPool> constpoolHandle(thread, constpool);
-        auto string = factory->GetRawStringFromStringTable(foundStr, MemSpaceType::SHARED_OLD_SPACE,
-            jsPandaFile->IsFirstMergedAbc(), id.GetOffset());
+        auto string = factory->GetRawStringFromStringTable(foundStr, MemSpaceType::SHARED_OLD_SPACE);
 
         val = JSTaggedValue(string);
         CASSetObjectToCache(thread, constpoolHandle.GetTaggedValue(), index, val);
@@ -186,7 +185,7 @@ JSTaggedValue ConstantPool::GetMethodFromCache(JSTaggedValue constpool, uint32_t
     auto val = taggedPool->GetObjectFromCache(index);
     JSPandaFile *jsPandaFile = taggedPool->GetJSPandaFile();
 
-    if (IsLoadedMethodInfoFromAOT(jsPandaFile, val)) {
+    if (IsLoadingAOTMethodInfo(jsPandaFile, val)) {
         val = JSTaggedValue::Hole();
     }
 

@@ -20,6 +20,7 @@
 #include "ecmascript/base/number_helper.h"
 #include "ecmascript/compiler/builtins/builtins_call_signature.h"
 #include "ecmascript/ecma_string.h"
+#include "ecmascript/enum_cache.h"
 #include "ecmascript/js_function_kind.h"
 #include "ecmascript/js_handle.h"
 #include "ecmascript/js_hclass.h"
@@ -169,6 +170,7 @@ class TransitionHandler;
 class PrototypeHandler;
 class TransWithProtoHandler;
 class StoreAOTHandler;
+class EnumCache;
 class PropertyBox;
 class ProtoChangeMarker;
 class ProtoChangeDetails;
@@ -204,7 +206,7 @@ public:
     ~ObjectFactory() = default;
     JSHandle<Method> NewMethodForNativeFunction(const void *func, FunctionKind kind = FunctionKind::NORMAL_FUNCTION,
                                                 kungfu::BuiltinsStubCSigns::ID builtinId =
-                                                kungfu::BuiltinsStubCSigns::INVALID,
+                                                BUILTINS_STUB_ID(INVALID),
                                                 MemSpaceType methodSpaceType = SHARED_OLD_SPACE);
 
     JSHandle<ProfileTypeInfo> NewProfileTypeInfo(uint32_t length);
@@ -235,12 +237,12 @@ public:
     // use for native function
     JSHandle<JSFunction> NewJSFunction(const JSHandle<GlobalEnv> &env, const void *nativeFunc = nullptr,
                                        FunctionKind kind = FunctionKind::NORMAL_FUNCTION,
-                                       kungfu::BuiltinsStubCSigns::ID builtinId = kungfu::BuiltinsStubCSigns::INVALID,
+                                       kungfu::BuiltinsStubCSigns::ID builtinId = BUILTINS_STUB_ID(INVALID),
                                        MemSpaceType methodSpaceType = SHARED_OLD_SPACE);
     JSHandle<JSFunction> NewSFunction(const JSHandle<GlobalEnv> &env,
                                       const void *nativeFunc = nullptr,
                                       FunctionKind kind = FunctionKind::NORMAL_FUNCTION,
-                                      kungfu::BuiltinsStubCSigns::ID builtinId = kungfu::BuiltinsStubCSigns::INVALID,
+                                      kungfu::BuiltinsStubCSigns::ID builtinId = BUILTINS_STUB_ID(INVALID),
                                       MemSpaceType spaceType = SHARED_OLD_SPACE);
     void InitializeMethod(const MethodLiteral *methodLiteral, JSHandle<Method> &method);
     // use for method
@@ -256,7 +258,7 @@ public:
     JSHandle<JSFunction> NewSpecificTypedArrayFunction(const JSHandle<GlobalEnv> &env,
                                                        const void *nativeFunc = nullptr,
                                                        kungfu::BuiltinsStubCSigns::ID builtinId =
-                                                       kungfu::BuiltinsStubCSigns::INVALID);
+                                                       BUILTINS_STUB_ID(INVALID));
 
     JSHandle<JSObject> OrdinaryNewJSObjectCreate(const JSHandle<JSTaggedValue> &proto);
 
@@ -318,6 +320,8 @@ public:
     JSHandle<AccessorData> NewInternalAccessor(void *setter, void *getter);
 
     JSHandle<PromiseCapability> NewPromiseCapability();
+
+    JSHandle<JSPromise> NewJSPromise();
 
     JSHandle<PromiseReaction> NewPromiseReaction();
 
@@ -389,12 +393,15 @@ public:
     JSHandle<TaggedArray> PUBLIC_API NewDictionaryArray(uint32_t length);
     JSHandle<JSForInIterator> NewJSForinIterator(const JSHandle<JSTaggedValue> &obj,
                                                  const JSHandle<JSTaggedValue> keys,
-                                                 const JSHandle<JSTaggedValue> cachedHclass);
+                                                 const JSHandle<JSTaggedValue> cachedHclass,
+                                                 const uint32_t enumCacheKind);
 
     JSHandle<ByteArray> NewByteArray(uint32_t length, uint32_t size, void *srcData = nullptr,
                                      MemSpaceType spaceType = MemSpaceType::SEMI_SPACE);
 
     JSHandle<PropertyBox> NewPropertyBox(const JSHandle<JSTaggedValue> &name);
+    
+    JSHandle<EnumCache> NewEnumCache();
 
     JSHandle<ProtoChangeMarker> NewProtoChangeMarker();
 
@@ -412,7 +419,7 @@ public:
                                                JSTaggedValue initVal = JSTaggedValue::Hole(),
                                                MemSpaceType type = MemSpaceType::SEMI_SPACE,
                                                ElementsKind kind = ElementsKind::GENERIC);
-    JSHandle<TaggedArray> CopyFromEnumCache(const JSHandle<TaggedArray> &old);
+    JSHandle<TaggedArray> CopyFromKeyArray(const JSHandle<TaggedArray> &old);
     JSHandle<TaggedArray> CloneProperties(const JSHandle<TaggedArray> &old);
     JSHandle<TaggedArray> CloneProperties(const JSHandle<TaggedArray> &old, const JSHandle<JSTaggedValue> &env,
                                           const JSHandle<JSObject> &obj);
@@ -621,7 +628,6 @@ public:
     inline EcmaString *AllocReadOnlyLineStringObject(size_t size);
     inline EcmaString *AllocNonMovableLineStringObject(size_t size);
     inline EcmaString *AllocSlicedStringObject(MemSpaceType type);
-    inline EcmaString *AllocConstantStringObject(MemSpaceType type);
     inline EcmaString *AllocTreeStringObject();
 
     JSHandle<EcmaString> ConcatFromString(const JSHandle<EcmaString> &firstString,
@@ -779,7 +785,7 @@ public:
 
     JSHandle<Method> NewSMethodForNativeFunction(const void *func, FunctionKind kind = FunctionKind::NORMAL_FUNCTION,
                                                 kungfu::BuiltinsStubCSigns::ID builtinId =
-                                                kungfu::BuiltinsStubCSigns::INVALID,
+                                                BUILTINS_STUB_ID(INVALID),
                                                 MemSpaceType spaceType = SHARED_OLD_SPACE);
 
     JSHandle<JSFunction> NewSFunctionByHClass(const JSHandle<Method> &methodHandle,
@@ -791,14 +797,14 @@ public:
 
     JSHandle<JSFunction> NewSFunctionByHClass(const void *func, const JSHandle<JSHClass> &hclass,
         FunctionKind kind,
-        kungfu::BuiltinsStubCSigns::ID builtinId = kungfu::BuiltinsStubCSigns::INVALID,
+        kungfu::BuiltinsStubCSigns::ID builtinId = BUILTINS_STUB_ID(INVALID),
         MemSpaceType spaceType = SHARED_OLD_SPACE);
 
     JSHandle<JSFunction> NewSFunctionWithAccessor(
         const void *func,
         const JSHandle<JSHClass> &hclass,
         FunctionKind kind,
-        kungfu::BuiltinsStubCSigns::ID builtinId = kungfu::BuiltinsStubCSigns::INVALID,
+        kungfu::BuiltinsStubCSigns::ID builtinId = BUILTINS_STUB_ID(INVALID),
         MemSpaceType spaceType = SHARED_OLD_SPACE);
 
     JSHandle<Method> NewSMethod(const MethodLiteral *methodLiteral, MemSpaceType methodSpaceType = SHARED_OLD_SPACE);
@@ -971,12 +977,9 @@ private:
                                                           bool canBeCompress = true) const;
     // For MUtf-8 string data
     EcmaString *PUBLIC_API GetRawStringFromStringTable(StringData sd,
-                                                       MemSpaceType type = MemSpaceType::SHARED_OLD_SPACE,
-                                                       bool isConstantString = false, uint32_t idOffset = 0) const;
+                                                       MemSpaceType type = MemSpaceType::SHARED_OLD_SPACE) const;
     EcmaString *GetRawStringFromStringTableWithoutJSHandle(StringData sd,
-                                                           MemSpaceType type = MemSpaceType::SHARED_OLD_SPACE,
-                                                           bool isConstantString = false,
-                                                           uint32_t idOffset = 0) const;
+                                                           MemSpaceType type = MemSpaceType::SHARED_OLD_SPACE) const;
 
     JSHandle<EcmaString> GetStringFromStringTable(const uint16_t *utf16Data, uint32_t utf16Len,
                                                   bool canBeCompress) const;

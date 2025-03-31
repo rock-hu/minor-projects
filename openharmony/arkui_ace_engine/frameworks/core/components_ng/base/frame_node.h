@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -86,6 +86,11 @@ struct CacheMatrixInfo {
     Matrix4 revertMatrix = Matrix4::CreateIdentity();
     Matrix4 localMatrix = Matrix4::CreateIdentity();
     RectF paintRectWithTransform;
+};
+
+enum {
+    RET_FAILED = 11,
+    RET_SUCCESS = 10,
 };
 
 // FrameNode will display rendering region in the screen.
@@ -436,11 +441,6 @@ public:
     void AnimateHoverEffect(bool isHovered) const;
 
     bool IsAtomicNode() const override;
-
-    int32_t OnRecvCommand(const std::string& command) override
-    {
-        return 0;
-    }
 
     void MarkNeedSyncRenderTree(bool needRebuild = false) override;
 
@@ -1158,7 +1158,7 @@ public:
     void SetDeleteRsNode(bool isDelete) {
         isDeleteRsNode_ = isDelete;
     }
- 
+
     bool GetIsDelete() const {
         return isDeleteRsNode_;
     }
@@ -1166,7 +1166,7 @@ public:
     void SetPositionZ(bool hasPositionZ) {
         hasPositionZ_ = hasPositionZ;
     }
- 
+
     bool HasPositionZ() const {
         return hasPositionZ_;
     }
@@ -1343,6 +1343,8 @@ public:
 
     std::string PrintVisibilityDumpInfo() const;
 
+    int32_t OnRecvCommand(const std::string& command) override;
+
 protected:
     void DumpInfo() override;
     std::unordered_map<std::string, std::function<void()>> destroyCallbacksMap_;
@@ -1408,6 +1410,8 @@ private:
     void BuildLayoutInfo(std::unique_ptr<JsonValue>& json);
 
     void DumpSafeAreaInfo();
+    // add flexLayout && direction && align && aspectRatio dumpInfo
+    void DumpLayoutInfo();
     void DumpAlignRulesInfo();
     void DumpExtensionHandlerInfo();
     void DumpAdvanceInfo() override;

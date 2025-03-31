@@ -229,7 +229,7 @@ private:
                                           JSHandle<JSObject>& newArrayHandle);
 
 #define BUILTIN_SENDABLE_ARRAY_FUNCTION_ENTRY(name, method, length, id) \
-    base::BuiltinFunctionEntry::Create(name, BuiltinsSharedArray::method, length, kungfu::BuiltinsStubCSigns::id),
+    base::BuiltinFunctionEntry::Create(name, BuiltinsSharedArray::method, length, BUILTINS_STUB_ID(id)),
 
     static constexpr std::array SENDABLE_ARRAY_FUNCTIONS  = {
         BUILTIN_SHARED_ARRAY_FUNCTIONS(BUILTIN_SENDABLE_ARRAY_FUNCTION_ENTRY)
@@ -251,7 +251,7 @@ private:
     static JSTaggedValue LastIndexOfSlowPath(EcmaRuntimeCallInfo *argv, JSThread *thread,
                                              const JSHandle<JSTaggedValue> &thisObjVal, int64_t fromIndex);
     static JSTaggedValue ToLocaleStringInternalHandle(EcmaRuntimeCallInfo *argv, JSThread *thread,
-            EcmaContext *context, ObjectFactory *factory, const JSHandle<JSTaggedValue> &thisHandle, int64_t len);
+                                                      const JSHandle<JSTaggedValue> &thisHandle, int64_t len);
     static JSTaggedValue ReduceRightInternalHandle(EcmaRuntimeCallInfo *argv, JSThread *thread,
             const JSHandle<JSTaggedValue> &thisHandle, JSHandle<JSObject>& thisObjHandle, uint32_t argc, int64_t len);
 

@@ -439,7 +439,8 @@ bool GateAccessor::IsInternStringType(GateRef gate) const
 
 GlobalTSTypeRef GateAccessor::GetFuncGT(GateRef gate) const
 {
-    ASSERT(GetOpCode(gate) == OpCode::JSINLINETARGET_TYPE_CHECK);
+    ASSERT(GetOpCode(gate) == OpCode::JSINLINETARGET_TYPE_CHECK ||
+           GetOpCode(gate) == OpCode::JSINLINETARGET_HEAPCONSTANT_CHECK);
     Gate *gatePtr = circuit_->LoadGatePtr(gate);
     auto value = static_cast<uint32_t>((gatePtr->GetOneParameterMetaData()->GetValue()));
     return GlobalTSTypeRef(value);
@@ -515,7 +516,7 @@ size_t GateAccessor::GetVirtualRegisterIndex(GateRef gate) const
 
 uint64_t GateAccessor::GetConstantValue(GateRef gate) const
 {
-    ASSERT(GetOpCode(gate) == OpCode::CONSTANT);
+    ASSERT(GetOpCode(gate) == OpCode::CONSTANT || GetOpCode(gate) == OpCode::HEAP_CONSTANT);
     Gate *gatePtr = circuit_->LoadGatePtr(gate);
     return gatePtr->GetOneParameterMetaData()->GetValue();
 }
@@ -1001,6 +1002,11 @@ size_t GateAccessor::GetValueUsesCount(GateRef gate)
 void GateAccessor::GetAllGates(std::vector<GateRef>& gates) const
 {
     circuit_->GetAllGates(gates);
+}
+
+bool GateAccessor::IsBoolType(GateRef gate) const
+{
+    return GetMachineType(gate) == MachineType::I1;
 }
 
 bool GateAccessor::IsInGateNull(GateRef gate, size_t idx) const

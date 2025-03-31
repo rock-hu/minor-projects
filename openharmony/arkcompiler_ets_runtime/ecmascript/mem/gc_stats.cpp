@@ -48,7 +48,8 @@ void GCStats::PrintGCStatistic()
                         << sizeToMB(recordData_[(uint8_t)RecordData::END_COMMIT_SIZE]) << ") MB, "
                         << scopeDuration_[Scope::ScopeId::TotalGC] << "(+"
                         << GetConcurrrentMarkDuration()
-                        << ")ms, " << GCReasonToString(gcReason_);
+                        << ")ms, GCReason: " << GCReasonToString()
+                        << ", MarkReason: " << MarkReasonToString();
         LOG_GC(INFO) << "IsInBackground: " << heap_->IsInBackground() << "; "
             << "SensitiveStatus: " << static_cast<int>(heap_->GetSensitiveStatus()) << "; "
             << "StartupStatus: " << std::to_string(static_cast<int>(heap_->GetStartupStatus())) << "; "
@@ -85,6 +86,16 @@ const char *GCStats::GCReasonToString(GCReason reason)
             return "Worker Destruction";
         case GCReason::TRIGGER_BY_JS:
             return "Trigger by JS";
+        case GCReason::HINT_GC:
+            return "Trigger by hint";
+        case GCReason::NATIVE_LIMIT:
+            return "Native reach limit";
+        case GCReason::SHARED_LIMIT:
+            return "Shared reach limit";
+        case GCReason::IDLE_NATIVE:
+            return "Idle time task by native";
+        case GCReason::HANDLE_MARKING_FINISHED:
+            return "ConcurrentMark finished";
         case GCReason::TRIGGER_BY_ARKUI:
             return "Trigger by ArkUI";
         case GCReason::TRIGGER_BY_ABILITY:
@@ -93,6 +104,41 @@ const char *GCStats::GCReasonToString(GCReason reason)
             return "Trigger by Mem tools";
         case GCReason::TRIGGER_BY_TASKPOOL:
             return "Trigger by taskPool";
+        default: // LCOV_EXCL_BR_LINE
+            return "Other";
+    }
+}
+
+const char *GCStats::MarkReasonToString()
+{
+    return concurrentMark_ ? MarkReasonToString(markReason_) : "Not ConcurrentMark";
+}
+
+const char *GCStats::MarkReasonToString(MarkReason reason)
+{
+    switch (reason) {
+        case MarkReason::ALLOCATION_LIMIT:
+            return "Memory reach limit";
+        case MarkReason::OLD_GC_WITHOUT_FULLMARK:
+            return "OldGC without concurrent full mark";
+        case MarkReason::IDLE:
+            return "Idle time task";
+        case MarkReason::EXIT_HIGH_SENSITIVE:
+            return "Exit high sensitive";
+        case MarkReason::EXTERNAL_TRIGGER:
+            return "Externally triggered";
+        case MarkReason::WORKER_DESTRUCTION:
+            return "Worker Destruction";
+        case MarkReason::TRIGGER_BY_JS:
+            return "Trigger by JS";
+        case MarkReason::HINT_GC:
+            return "Trigger by hint";
+        case MarkReason::NATIVE_LIMIT:
+            return "Native reach limit";
+        case MarkReason::SHARED_LIMIT:
+            return "Shared reach limit";
+        case MarkReason::EXIT_SERIALIZE:
+            return "Exit serialize";
         default: // LCOV_EXCL_BR_LINE
             return "Other";
     }
@@ -150,18 +196,6 @@ void GCStats::PrintGCMemoryStatistic()
                     << STATS_DATA_FORMAT(sizeToKB(heap_->GetNonMovableSpace()->GetHeapObjectSize())) << "KB"
                     << "     committed:"
                     << STATS_DATA_FORMAT(sizeToKB(heap_->GetNonMovableSpace()->GetCommittedSize())) << "KB\n"
-                    << "MachineCodeSpace used:"
-                    << STATS_DATA_FORMAT(sizeToKB(heap_->GetMachineCodeSpace()->GetHeapObjectSize())) << "KB"
-                    << "     committed:"
-                    << STATS_DATA_FORMAT(sizeToKB(heap_->GetMachineCodeSpace()->GetCommittedSize())) << "KB\n"
-                    << "HugeMachineCodeSpace used:"
-                    << STATS_DATA_FORMAT(sizeToKB(heap_->GetHugeMachineCodeSpace()->GetHeapObjectSize())) << "KB"
-                    << "     committed:"
-                    << STATS_DATA_FORMAT(sizeToKB(heap_->GetHugeMachineCodeSpace()->GetCommittedSize())) << "KB\n"
-                    << "SnapshotSpace    used:"
-                    << STATS_DATA_FORMAT(sizeToKB(heap_->GetSnapshotSpace()->GetHeapObjectSize())) << "KB"
-                    << "     committed:"
-                    << STATS_DATA_FORMAT(sizeToKB(heap_->GetSnapshotSpace()->GetCommittedSize())) << "KB\n"
                     << "AppSpawnSpace    used:"
                     << STATS_DATA_FORMAT(sizeToKB(heap_->GetAppSpawnSpace()->GetHeapObjectSize())) << "KB"
                     << "     committed:"
@@ -178,8 +212,6 @@ void GCStats::PrintGCMemoryStatistic()
                     << STATS_DESCRIPTION_FORMAT("ArrayBufferNativeSize:")
                     << STATS_DATA_FORMAT(sizeToKB(heap_->GetNativeAreaAllocator()->GetArrayBufferNativeSize()))
                     << "KB\n"
-                    << STATS_DESCRIPTION_FORMAT("RegExpByteCodeNativeSize:")
-                    << STATS_DATA_FORMAT(sizeToKB(heap_->GetNativeAreaAllocator()->GetRegExpNativeSize())) << "KB\n"
                     << STATS_DESCRIPTION_FORMAT("ChunkNativeSize:")
                     << STATS_DATA_FORMAT(sizeToKB(heap_->GetNativeAreaAllocator()->GetChunkNativeSize())) << "KB";
     switch (gcType_) {
@@ -486,6 +518,7 @@ void GCStats::ProcessAfterLongGCStats()
     if (IsLongGC(gcReason_, heap_->InSensitiveStatus(), heap_->IsInBackground(), gcTotalTime)) {
         longGCStats->SetGCType(static_cast<int>(gcType_));
         longGCStats->SetGCReason(static_cast<int>(gcReason_));
+        longGCStats->SetMarkReason(static_cast<int>(markReason_));
         longGCStats->SetGCIsSensitive(heap_->InSensitiveStatus());
         longGCStats->SetGCIsInBackground(heap_->IsInBackground());
         longGCStats->SetGCTotalTime(gcTotalTime);
@@ -660,7 +693,9 @@ void SharedGCStats::PrintGCStatistic()
                      << sizeToMB(recordData_[(uint8_t)RecordData::START_COMMIT_SIZE]) << ") -> "
                      << sizeToMB(recordData_[(uint8_t)RecordData::END_OBJ_SIZE]) << " ("
                      << sizeToMB(recordData_[(uint8_t)RecordData::END_COMMIT_SIZE]) << ") MB, "
-                     << scopeDuration_[Scope::ScopeId::TotalGC] << "ms, " << GCReasonToString(gcReason_);
+                     << scopeDuration_[Scope::ScopeId::TotalGC]
+                     << "ms, GCReason: " << GCReasonToString()
+                     << ", MarkReason: " << MarkReasonToString();
         PrintSharedGCDuration();
         PrintGCMemoryStatistic();
         PrintSharedGCSummaryStatistic();
@@ -817,6 +852,7 @@ void SharedGCStats::ProcessAfterLongGCStats()
     if (IsLongGC(gcReason_, sHeap_->InSensitiveStatus(), sHeap_->IsInBackground(), gcTotalTime)) {
         longGCStats->SetGCType(static_cast<int>(gcType_));
         longGCStats->SetGCReason(static_cast<int>(gcReason_));
+        longGCStats->SetMarkReason(static_cast<int>(markReason_));
         longGCStats->SetGCIsSensitive(sHeap_->InSensitiveStatus());
         longGCStats->SetGCIsInBackground(sHeap_->IsInBackground());
         longGCStats->SetGCTotalTime(gcTotalTime);

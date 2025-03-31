@@ -949,6 +949,7 @@ bool HeapProfiler::DumpRawHeap(Stream *stream, uint32_t &fileOffset, CVector<uin
 //  * 4 byte: section_num
 bool HeapProfiler::BinaryDump(Stream *stream, const DumpSnapShotOption &dumpOption)
 {
+    [[maybe_unused]] EcmaHandleScope ecmaHandleScope(vm_->GetJSThread());
     DumpSnapShotOption option;
     auto stringTable = chunk_.New<StringHashMap>(vm_);
     auto snapshot = chunk_.New<HeapSnapshot>(vm_, stringTable, option, false, entryIdMap_);
@@ -1359,6 +1360,9 @@ void HeapProfiler::WriteToLeakStackTraceFd(std::ostringstream &buffer) const
 
 void HeapProfiler::SetLeakStackTraceFd(const int32_t fd)
 {
+#if defined(PANDA_TARGET_OHOS)
+    fdsan_exchange_owner_tag(fd, 0, LOG_DOMAIN);
+#endif
     leakStackTraceFd_ = fd;
 }
 
@@ -1371,7 +1375,11 @@ void HeapProfiler::CloseLeakStackTraceFd()
 {
     if (leakStackTraceFd_ != -1) {
         FSync(reinterpret_cast<fd_t>(leakStackTraceFd_));
+#if defined(PANDA_TARGET_OHOS)
+        fdsan_close_with_tag(reinterpret_cast<fd_t>(leakStackTraceFd_), LOG_DOMAIN);
+#else
         Close(reinterpret_cast<fd_t>(leakStackTraceFd_));
+#endif
         leakStackTraceFd_ = -1;
     }
 }
@@ -1446,6 +1454,7 @@ void RawHeapDump::DumpRootTable()
     for (auto &root : roots_) {
         uint64_t addr = reinterpret_cast<uint64_t>(root);
         WriteU64(addr);
+        ProcessMarkObjectsFromRoot(root);
     }
     secIndexVec_.push_back(sizeof(TaggedObject *) * rootObjCnt + sizeof(rootTableHeader));
     LOG_ECMA(INFO) << "rawheap dump, root count " << rootObjCnt;
@@ -1590,7 +1599,6 @@ void RawHeapDump::HandleRootValue(JSTaggedValue value)
         return;
     }
     TaggedObject *root = value.GetWeakReferentUnChecked();
-    ProcessMarkObjectsFromRoot(root);
     roots_.insert(root);
 }
 

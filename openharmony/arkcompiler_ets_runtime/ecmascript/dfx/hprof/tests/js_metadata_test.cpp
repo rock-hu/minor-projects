@@ -172,7 +172,6 @@ public:
             {JSType::CLASS_LITERAL, {"Array", "CLASS_LITERAL"}},
             {JSType::COMPLETION_RECORD, {"Value", "COMPLETION_RECORD"}},
             {JSType::CONSTANT_POOL, {"CONSTANT_POOL"}},
-            {JSType::CONSTANT_STRING, {"RelocatedData", "CONSTANT_STRING"}},
             {JSType::COW_MUTANT_TAGGED_ARRAY, {"COW_MUTANT_TAGGED_ARRAY"}},
             {JSType::COW_TAGGED_ARRAY, {"COW_TAGGED_ARRAY"}},
             {JSType::EXTRA_PROFILE_TYPE_INFO, {"ReceiverObject", "HolderObject", "EXTRA_PROFILE_TYPE_INFO"}},
@@ -251,7 +250,7 @@ public:
                                                 "MaybeUnregister", "Next", "Prev", "JS_FINALIZATION_REGISTRY"}},
             {JSType::JS_FLOAT32_ARRAY, {"ViewedArrayBufferOrByteArray", "TypedArrayName", "JS_FLOAT32_ARRAY"}},
             {JSType::JS_FLOAT64_ARRAY, {"ViewedArrayBufferOrByteArray", "TypedArrayName", "JS_FLOAT64_ARRAY"}},
-            {JSType::JS_FORIN_ITERATOR, {"Object", "CachedHclass", "Keys", "JS_FORIN_ITERATOR"}},
+            {JSType::JS_FORIN_ITERATOR, {"Object", "CachedHClass", "Keys", "JS_FORIN_ITERATOR"}},
             {JSType::JS_FUNCTION, {"ProtoOrHClass", "LexicalEnv", "MachineCode", "BaselineCode", "RawProfileTypeInfo",
                                    "HomeObject", "Module", "JS_FUNCTION"}},
             {JSType::JS_FUNCTION_BASE, {"Method", "JS_FUNCTION_BASE"}},
@@ -377,6 +376,7 @@ public:
             {JSType::PROTOTYPE_HANDLER, {"HandlerInfo", "ProtoCell", "Holder",
                                          "AccessorJSFunction", "PROTOTYPE_HANDLER"}},
             {JSType::PROTOTYPE_INFO, {"ChangeListener", "PROTOTYPE_INFO"}},
+            {JSType::ENUM_CACHE, {"ENUM_CACHE"}},
             {JSType::PROTO_CHANGE_MARKER, {"PROTO_CHANGE_MARKER"}},
             {JSType::RB_TREENODE, {"Left", "Right", "IsRed", "RB_TREENODE"}},
             {JSType::RESOLVEDBINDING_RECORD, {"Module", "BindingName", "RESOLVEDBINDING_RECORD"}},
@@ -413,7 +413,7 @@ public:
                 JSHClass::PROTOTYPE_OFFSET, JSHClass::LAYOUT_OFFSET, JSHClass::TRANSTIONS_OFFSET,
                 JSHClass::PARENT_OFFSET, JSHClass::PROTO_CHANGE_MARKER_OFFSET,
                 JSHClass::PROTO_CHANGE_DETAILS_OFFSET,
-                JSHClass::ENUM_CACHE_OFFSET, JSHClass::PROFILE_TYPE,
+                JSHClass::ENUM_CACHE_OFFSET, JSHClass::PROFILE_TYPE_OFFSET,
                 JSHClass::BIT_FIELD_OFFSET, JSHClass::BIT_FIELD1_OFFSET,
                 JSHClass::LAST_OFFSET - JSHClass::PROTOTYPE_OFFSET}},
             {JSType::ACCESSOR_DATA, {AccessorData::GETTER_OFFSET, AccessorData::SETTER_OFFSET,
@@ -445,8 +445,6 @@ public:
             {JSType::COMPLETION_RECORD, {CompletionRecord::VALUE_OFFSET,
                                          CompletionRecord::SIZE - CompletionRecord::VALUE_OFFSET}},
             {JSType::CONSTANT_POOL, {0}},
-            {JSType::CONSTANT_STRING, {ConstantString::RELOCTAED_DATA_OFFSET,
-                                       ConstantString::LAST_OFFSET - ConstantString::RELOCTAED_DATA_OFFSET}},
             {JSType::COW_MUTANT_TAGGED_ARRAY, {0}},
             {JSType::COW_TAGGED_ARRAY, {0}},
             {JSType::EXTRA_PROFILE_TYPE_INFO, {
@@ -1037,7 +1035,6 @@ public:
             {JSType::CLASS_LITERAL, {"TAGGED_OBJECT"}},
             {JSType::COMPLETION_RECORD, {"RECORD"}},
             {JSType::CONSTANT_POOL, {"TAGGED_ARRAY"}},
-            {JSType::CONSTANT_STRING, {"ECMA_STRING"}},
             {JSType::COW_MUTANT_TAGGED_ARRAY, {"MUTANT_TAGGED_ARRAY"}},
             {JSType::COW_TAGGED_ARRAY, {"TAGGED_ARRAY"}},
             {JSType::EXTRA_PROFILE_TYPE_INFO, {"TAGGED_OBJECT"}},
@@ -1243,8 +1240,8 @@ public:
                               JSHClass::PROTO_CHANGE_MARKER_OFFSET - JSHClass::PARENT_OFFSET,
                               JSHClass::PROTO_CHANGE_DETAILS_OFFSET - JSHClass::PROTO_CHANGE_MARKER_OFFSET,
                               JSHClass::ENUM_CACHE_OFFSET - JSHClass::PROTO_CHANGE_DETAILS_OFFSET,
-                              JSHClass::PROFILE_TYPE - JSHClass::ENUM_CACHE_OFFSET,
-                              JSHClass::BIT_FIELD_OFFSET - JSHClass::PROFILE_TYPE,
+                              JSHClass::PROFILE_TYPE_OFFSET - JSHClass::ENUM_CACHE_OFFSET,
+                              JSHClass::BIT_FIELD_OFFSET - JSHClass::PROFILE_TYPE_OFFSET,
                               JSHClass::BIT_FIELD1_OFFSET - JSHClass::BIT_FIELD_OFFSET,
                               JSHClass::LAST_OFFSET - JSHClass::BIT_FIELD1_OFFSET}},
             {JSType::ACCESSOR_DATA, {AccessorData::SETTER_OFFSET - AccessorData::GETTER_OFFSET,
@@ -1271,7 +1268,6 @@ public:
             {JSType::CLASS_LITERAL, {ClassLiteral::IS_AOT_USED_OFFSET - ClassLiteral::ARRAY_OFFSET}},
             {JSType::COMPLETION_RECORD, {CompletionRecord::BIT_FIELD_OFFSET - CompletionRecord::VALUE_OFFSET}},
             {JSType::CONSTANT_POOL, {}},
-            {JSType::CONSTANT_STRING, {ConstantString::ENTITY_ID_OFFSET - ConstantString::RELOCTAED_DATA_OFFSET}},
             {JSType::COW_MUTANT_TAGGED_ARRAY, {}},
             {JSType::COW_TAGGED_ARRAY, {}},
             {JSType::EXTRA_PROFILE_TYPE_INFO, {
@@ -1436,7 +1432,7 @@ public:
             {JSType::JS_FORIN_ITERATOR, {
                 JSForInIterator::CACHED_HCLASS_OFFSET - JSForInIterator::OBJECT_OFFSET,
                 JSForInIterator::KEYS_OFFSET - JSForInIterator::CACHED_HCLASS_OFFSET,
-                JSForInIterator::INDEX_OFFSET - JSForInIterator::KEYS_OFFSET}},
+                JSForInIterator::CACHE_KIND_OFFSET - JSForInIterator::KEYS_OFFSET}},
             {JSType::JS_FUNCTION, {
                 JSFunction::LEXICAL_ENV_OFFSET - JSFunction::PROTO_OR_DYNCLASS_OFFSET,
                 JSFunction::MACHINECODE_OFFSET - JSFunction::LEXICAL_ENV_OFFSET,
@@ -2304,19 +2300,6 @@ HWTEST_F_L0(JSMetadataTest, TestConstantPoolMetadata)
     tester.ReadAndParseMetadataJson(metadataFilePath, metadata);
     ASSERT_TRUE(metadata.status == JSMetadataTestHelper::INITIALIZED);
     ASSERT_TRUE(tester.Test(JSType::CONSTANT_POOL, metadata));
-}
-
-HWTEST_F_L0(JSMetadataTest, TestConstantStringMetadata)
-{
-#if defined(PANDA_TARGET_AMD64) || defined(PANDA_TARGET_ARM64)
-    JSMetadataTestHelper tester {};
-    std::string metadataFilePath = METADATA_SOURCE_FILE_DIR"constant_string.json";
-    JSMetadataTestHelper::Metadata metadata {};
-
-    tester.ReadAndParseMetadataJson(metadataFilePath, metadata);
-    ASSERT_TRUE(metadata.status == JSMetadataTestHelper::INITIALIZED);
-    ASSERT_TRUE(tester.Test(JSType::CONSTANT_STRING, metadata));
-#endif
 }
 
 HWTEST_F_L0(JSMetadataTest, TestCowMutantTaggedArrayMetadata)

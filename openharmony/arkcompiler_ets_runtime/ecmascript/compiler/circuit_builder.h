@@ -239,6 +239,7 @@ public:
     GateRef Int32(int32_t value);
     GateRef Int64(int64_t value);
     GateRef IntPtr(int64_t val);
+    GateRef HeapConstant(uint32_t val);
     GateRef StringPtr(std::string_view str);
     GateRef StringPtr(const std::string &str);
     GateRef Boolean(bool value);
@@ -359,16 +360,18 @@ public:
     GateRef GetPrototypeFromHClass(GateRef hClass);
     GateRef GetEnumCacheFromHClass(GateRef hClass);
     GateRef GetProtoChangeMarkerFromHClass(GateRef hClass);
+    GateRef GetCacheKindFromForInIterator(GateRef iter);
     GateRef GetLengthFromForInIterator(GateRef iter);
     GateRef GetIndexFromForInIterator(GateRef iter);
     GateRef GetKeysFromForInIterator(GateRef iter);
     GateRef GetObjectFromForInIterator(GateRef iter);
-    GateRef GetCachedHclassFromForInIterator(GateRef iter);
+    GateRef GetCachedHClassFromForInIterator(GateRef iter);
     void SetLengthOfForInIterator(GateRef glue, GateRef iter, GateRef length);
+    void SetCacheKindForInIterator(GateRef glue, GateRef iter, GateRef cacheKind);
     void SetIndexOfForInIterator(GateRef glue, GateRef iter, GateRef index);
     void SetKeysOfForInIterator(GateRef glue, GateRef iter, GateRef keys);
     void SetObjectOfForInIterator(GateRef glue, GateRef iter, GateRef object);
-    void SetCachedHclassOfForInIterator(GateRef glue, GateRef iter, GateRef hclass);
+    void SetCachedHClassOfForInIterator(GateRef glue, GateRef iter, GateRef hclass);
     void IncreaseIteratorIndex(GateRef glue, GateRef iter, GateRef index);
     void IncreaseArrayIteratorIndex(GateRef glue, GateRef iter, GateRef index);
     void SetNextIndexOfArrayIterator(GateRef glue, GateRef iter, GateRef nextIndex);
@@ -789,6 +792,7 @@ public:
     inline GateRef TaggedIsStableArray(GateRef glue, GateRef obj);
     inline GateRef TaggedIsStringOrSymbol(GateRef obj);
     inline GateRef TaggedIsSymbol(GateRef obj);
+    inline GateRef TaggedIsEnumCache(GateRef obj);
     inline GateRef TaggedIsProtoChangeMarker(GateRef obj);
     inline GateRef TaggedObjectIsJSMap(GateRef obj);
     inline GateRef TaggedObjectIsJSSet(GateRef obj);
@@ -814,7 +818,6 @@ public:
     inline GateRef IsSlicedString(GateRef obj);
     inline GateRef IsSpecialSlicedString(GateRef obj);
     inline GateRef IsLineString(GateRef obj);
-    inline GateRef IsConstantString(GateRef obj);
     inline GateRef TreeStringIsFlat(GateRef string);
     inline GateRef GetFirstFromTreeString(GateRef string);
     inline GateRef GetSecondFromTreeString(GateRef string);
@@ -829,11 +832,9 @@ public:
     GateRef GetHashcodeFromString(GateRef glue, GateRef value, GateRef hir = Circuit::NullGate());
     GateRef TryGetHashcodeFromString(GateRef string);
     GateRef IsIntegerString(GateRef string);
-    GateRef IsLiteralString(GateRef string);
     GateRef CanBeConcat(GateRef leftString, GateRef rightString, GateRef isValidOpt);
     GateRef CanBackStore(GateRef rightString, GateRef isValidOpt);
     GateRef GetRawHashFromString(GateRef value);
-    GateRef GetStringDataFromLineOrConstantString(GateRef str);
     void CopyUtf8AsUtf16(GateRef glue, GateRef dst, GateRef src, GateRef sourceLength);
     void CopyChars(GateRef glue, GateRef dst, GateRef source, GateRef sourceLength,
         GateRef charSize, VariableType type);
@@ -878,7 +879,11 @@ public:
     GateRef IsASCIICharacter(GateRef gate);
 
     // for in
-    GateRef GetEnumCacheKind(GateRef glue, GateRef enumCache);
+    inline GateRef GetEnumCacheKindFromEnumCache(GateRef enumCache);
+    inline GateRef GetEnumCacheOwnFromEnumCache(GateRef enumCache);
+    inline GateRef GetEnumCacheAllFromEnumCache(GateRef enumCache);
+    inline GateRef GetProtoChainInfoEnumCacheFromEnumCache(GateRef enumCache);
+
     GateRef IsEnumCacheValid(GateRef receiver, GateRef cachedHclass, GateRef kind);
     GateRef NeedCheckProperty(GateRef receiver);
 

@@ -418,11 +418,6 @@ public:
                     LineEcmaString::Cast(object)->VisitRangeSlot<visitType>(visitor);
                 }
                 break;
-            case JSType::CONSTANT_STRING:
-                if constexpr (visitType == VisitType::ALL_VISIT) {
-                    ConstantString::Cast(object)->VisitRangeSlot<visitType>(visitor);
-                }
-                break;
             case JSType::TREE_STRING:
                 TreeEcmaString::Cast(object)->VisitRangeSlot<visitType>(visitor);
                 break;
@@ -484,6 +479,9 @@ public:
                 break;
             case JSType::SYMBOL:
                 JSSymbol::Cast(object)->VisitRangeSlot<visitType>(visitor);
+                break;
+            case JSType::ENUM_CACHE:
+                EnumCache::Cast(object)->VisitRangeSlot<visitType>(visitor);
                 break;
             case JSType::JS_GENERATOR_CONTEXT:
                 GeneratorContext::Cast(object)->VisitRangeSlot<visitType>(visitor);

@@ -22,6 +22,7 @@ namespace OHOS::Ace {
 namespace {
 constexpr uint64_t DEFAULT_DISPLAY_ID = 0;
 constexpr uint64_t VIRTUAL_DISPLAY_ID = 999;
+constexpr int32_t TIPS_TIME_MAX = 4000; // ms
 } // namespace
 std::mutex SubwindowManager::instanceMutex_;
 std::shared_ptr<SubwindowManager> SubwindowManager::instance_;
@@ -44,10 +45,11 @@ std::shared_ptr<SubwindowManager> SubwindowManager::GetInstance()
 void SubwindowManager::AddContainerId(uint32_t windowId, int32_t containerId)
 {
     std::lock_guard<std::mutex> lock(mutex_);
-    auto result = containerMap_.try_emplace(windowId, containerId);
-    if (!result.second) {
+    auto result = containerMap_.find(windowId);
+    if (result != containerMap_.end()) {
         TAG_LOGW(AceLogTag::ACE_SUB_WINDOW, "Already have container of this windowId, windowId: %{public}u", windowId);
     }
+    containerMap_.emplace(windowId, containerId);
 }
 
 void SubwindowManager::RemoveContainerId(uint32_t windowId)
@@ -501,7 +503,7 @@ void SubwindowManager::ShowTipsNG(const RefPtr<NG::FrameNode>& targetNode, const
     if (containerId >= MIN_SUBCONTAINER_ID && !GetIsExpandDisplay()) {
         return;
     }
-
+    auto targetId = targetNode->GetId();
     auto manager = SubwindowManager::GetInstance();
     CHECK_NULL_VOID(manager);
     auto subwindow = manager->GetSubwindowByType(containerId, SubwindowType::TYPE_POPUP);
@@ -511,7 +513,33 @@ void SubwindowManager::ShowTipsNG(const RefPtr<NG::FrameNode>& targetNode, const
         CHECK_NULL_VOID(subwindow->GetIsRosenWindowCreate());
         manager->AddSubwindow(containerId, SubwindowType::TYPE_POPUP, subwindow);
     }
-    subwindow->ShowTipsNG(targetNode->GetId(), popupInfo, appearingTime, appearingTimeWithContinuousOperation);
+    auto overlayManager = subwindow->GetOverlayManager();
+    CHECK_NULL_VOID(overlayManager);
+
+    overlayManager->UpdateTipsEnterAndLeaveInfoBool(targetId);
+    auto duration = appearingTime;
+    if (overlayManager->TipsInfoListIsEmpty()) {
+        overlayManager->UpdateTipsStatus(targetId, false);
+        duration = appearingTime;
+    } else {
+        overlayManager->UpdateTipsStatus(targetId, true);
+        overlayManager->UpdatePreviousDisappearingTime(targetId);
+        duration = appearingTimeWithContinuousOperation;
+    }
+    if (duration > TIPS_TIME_MAX) {
+        duration = TIPS_TIME_MAX;
+    }
+    overlayManager->UpdateTipsEnterAndLeaveInfo(targetId);
+    auto taskExecutor = Container::CurrentTaskExecutor();
+    CHECK_NULL_VOID(taskExecutor);
+    bool isSubwindow = true;
+    auto times = overlayManager->GetTipsEnterAndLeaveInfo(targetId);
+    taskExecutor->PostDelayedTask(
+        [subwindow, targetId, popupInfo, appearingTime, times, isSubwindow] {
+            CHECK_NULL_VOID(subwindow);
+            subwindow->ShowTipsNG(targetId, popupInfo, appearingTime, times, isSubwindow);
+        },
+        TaskExecutor::TaskType::UI, duration, "ArkUIOverlayContinuousTips");
 }
 
 void SubwindowManager::HideTipsNG(int32_t targetId, int32_t disappearingTime, int32_t instanceId)
@@ -1281,15 +1309,26 @@ void SubwindowManager::HideToastSubWindowNG()
 void SubwindowManager::ResizeWindowForFoldStatus(int32_t parentContainerId)
 {
     auto containerId = Container::CurrentId();
-    auto subwindow = parentContainerId < 0 || parentContainerId >= MIN_PA_SERVICE_ID ?
-        GetDialogSubwindow(parentContainerId) : GetToastSubwindow(containerId);
-    if (!subwindow) {
+    std::vector<RefPtr<Subwindow>> serviceToastSubwindows;
+    auto subwindow = parentContainerId < 0 || parentContainerId >= MIN_PA_SERVICE_ID
+                         ? GetDialogSubwindow(parentContainerId)
+                         : GetToastSubwindow(containerId);
+    if (subwindow) {
+        serviceToastSubwindows.push_back(subwindow);
+    }
+    auto systemToastWindow = GetSystemToastWindow(parentContainerId);
+    if (systemToastWindow) {
+        serviceToastSubwindows.push_back(systemToastWindow);
+    }
+    if (serviceToastSubwindows.empty()) {
         TAG_LOGW(AceLogTag::ACE_SUB_WINDOW,
             "Get Subwindow error, containerId = %{public}d, parentContainerId = %{public}d", containerId,
             parentContainerId);
         return;
     }
-    subwindow->ResizeWindowForFoldStatus(parentContainerId);
+    for (const auto& window : serviceToastSubwindows) {
+        window->ResizeWindowForFoldStatus(parentContainerId);
+    }
 }
 
 void MarkSubwindowSafeAreaDirtyByType(std::shared_ptr<SubwindowManager> manager,

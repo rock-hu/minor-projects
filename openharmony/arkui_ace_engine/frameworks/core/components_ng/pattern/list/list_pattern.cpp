@@ -475,20 +475,28 @@ void ListPattern::ProcessEvent(bool indexChanged, float finalOffset, bool isJump
     if (onDidScroll) {
         FireOnScroll(finalOffset, onDidScroll);
     }
+    auto onJSFrameNodeDidScroll = listEventHub->GetJSFrameNodeOnDidScroll();
+    if (onJSFrameNodeDidScroll) {
+        FireOnScroll(finalOffset, onJSFrameNodeDidScroll);
+    }
     auto onScrollIndex = listEventHub->GetOnScrollIndex();
+    auto onJSFrameNodeScrollIndex = listEventHub->GetJSFrameNodeOnListScrollIndex();
     FireOnScrollIndex(indexChanged, onScrollIndex);
+    FireOnScrollIndex(indexChanged, onJSFrameNodeScrollIndex);
     if (startIndexChanged_ || endIndexChanged_) {
         host->OnAccessibilityEvent(AccessibilityEventType::SCROLLING_EVENT, startIndex_, endIndex_);
     }
     OnScrollVisibleContentChange(listEventHub, indexChanged);
     auto onReachStart = listEventHub->GetOnReachStart();
-    FireOnReachStart(onReachStart);
+    auto onJSFrameNodeReachStart = listEventHub->GetJSFrameNodeOnReachStart();
+    FireOnReachStart(onReachStart, onJSFrameNodeReachStart);
     auto onReachEnd = listEventHub->GetOnReachEnd();
-    FireOnReachEnd(onReachEnd);
-    OnScrollStop(listEventHub->GetOnScrollStop());
+    auto onJSFrameNodeReachEnd = listEventHub->GetJSFrameNodeOnReachEnd();
+    FireOnReachEnd(onReachEnd, onJSFrameNodeReachEnd);
+    OnScrollStop(listEventHub->GetOnScrollStop(), listEventHub->GetJSFrameNodeOnScrollStop());
 }
 
-void ListPattern::FireOnReachStart(const OnReachEvent& onReachStart)
+void ListPattern::FireOnReachStart(const OnReachEvent& onReachStart, const OnReachEvent& onJSFrameNodeReachStart)
 {
     auto host = GetHost();
     CHECK_NULL_VOID(host);
@@ -500,16 +508,21 @@ void ListPattern::FireOnReachStart(const OnReachEvent& onReachStart)
             GreatOrEqual(startMainPos_, contentStartOffset_);
         if (scrollUpToStart || scrollDownToStart) {
             FireObserverOnReachStart();
-            CHECK_NULL_VOID(onReachStart);
+            CHECK_NULL_VOID(onReachStart || onJSFrameNodeReachStart);
             ACE_SCOPED_TRACE("OnReachStart, scrollUpToStart:%u, scrollDownToStart:%u, id:%d, tag:List",
                 scrollUpToStart, scrollDownToStart, static_cast<int32_t>(host->GetAccessibilityId()));
-            onReachStart();
+            if (onReachStart) {
+                onReachStart();
+            }
+            if (onJSFrameNodeReachStart) {
+                onJSFrameNodeReachStart();
+            }
             AddEventsFiredInfo(ScrollableEventType::ON_REACH_START);
         }
     }
 }
 
-void ListPattern::FireOnReachEnd(const OnReachEvent& onReachEnd)
+void ListPattern::FireOnReachEnd(const OnReachEvent& onReachEnd, const OnReachEvent& onJSFrameNodeReachEnd)
 {
     auto host = GetHost();
     CHECK_NULL_VOID(host);
@@ -522,10 +535,15 @@ void ListPattern::FireOnReachEnd(const OnReachEvent& onReachEnd)
         auto scrollSource = GetScrollSource();
         if (scrollUpToEnd || (scrollDownToEnd && scrollSource != SCROLL_FROM_NONE)) {
             FireObserverOnReachEnd();
-            CHECK_NULL_VOID(onReachEnd);
+            CHECK_NULL_VOID(onReachEnd || onJSFrameNodeReachEnd);
             ACE_SCOPED_TRACE("OnReachEnd, scrollUpToEnd:%u, scrollDownToEnd:%u, scrollSource:%d, id:%d, tag:List",
                 scrollUpToEnd, scrollDownToEnd, scrollSource, static_cast<int32_t>(host->GetAccessibilityId()));
-            onReachEnd();
+            if (onReachEnd) {
+                onReachEnd();
+            }
+            if (onJSFrameNodeReachEnd) {
+                onJSFrameNodeReachEnd();
+            }
             AddEventsFiredInfo(ScrollableEventType::ON_REACH_END);
         }
     }
@@ -661,7 +679,7 @@ void ListPattern::SetLayoutAlgorithmParams(
     }
     listLayoutAlgorithm->SetIsSpringEffect(IsScrollableSpringEffect());
     listLayoutAlgorithm->SetCanOverScrollStart(CanOverScrollStart(GetScrollSource()) && IsAtTop());
-    listLayoutAlgorithm->SetCanOverScrollEnd(CanOverScrollEnd(GetScrollSource()) && IsAtBottom());
+    listLayoutAlgorithm->SetCanOverScrollEnd(CanOverScrollEnd(GetScrollSource()) && IsAtBottom(true));
     if (chainAnimation_ && GetEffectEdge() == EffectEdge::ALL) {
         SetChainAnimationLayoutAlgorithm(listLayoutAlgorithm, listLayoutProperty);
         SetChainAnimationToPosMap();
@@ -782,7 +800,7 @@ bool ListPattern::IsAtTop() const
            NonNegative(startMainPos - currentDelta_ + GetChainDelta(0) - contentStartOffset_);
 }
 
-bool ListPattern::IsAtBottom() const
+bool ListPattern::IsAtBottom(bool considerRepeat) const
 {
     bool groupAtStart = true;
     bool groupAtEnd = true;
@@ -794,7 +812,8 @@ bool ListPattern::IsAtBottom() const
     if (GreatNotEqual(contentMainSize, endMainPos - startMainPos) && !isStackFromEnd_) {
         endMainPos = startMainPos + contentMainSize;
     }
-    return (endIndex == GetMaxIndexByRepeat() && groupAtEnd) &&
+    auto maxListItemIndex = considerRepeat ? GetMaxIndexByRepeat() : maxListItemIndex_;
+    return (endIndex == maxListItemIndex && groupAtEnd) &&
            LessOrEqual(endMainPos - currentDelta_ + GetChainDelta(endIndex), contentMainSize_ - contentEndOffset_);
 }
 
@@ -1661,7 +1680,7 @@ void ListPattern::ScrollTo(float position)
 void ListPattern::ScrollToIndex(int32_t index, bool smooth, ScrollAlign align, std::optional<float> extraOffset)
 {
     SetScrollSource(SCROLL_FROM_JUMP);
-    if (!smooth) {
+    if (!smooth && !lastSnapTargetIndex_.has_value()) {
         StopAnimate();
         targetIndex_.reset();
         targetIndexInGroup_.reset();
@@ -2529,7 +2548,7 @@ void ListPattern::ProcessDragUpdate(float dragOffset, int32_t source)
     if (source == SCROLL_FROM_UPDATE && GetCanOverScroll()) {
         float tempDelta = currentDelta_;
         currentDelta_ -= dragOffset;
-        bool isAtEdge = IsAtTop() || IsAtBottom();
+        bool isAtEdge = IsAtTop() || IsAtBottom(true);
         currentDelta_ = tempDelta;
         SetCanOverScroll(isAtEdge);
     }
@@ -2999,9 +3018,15 @@ void ListPattern::OnScrollVisibleContentChange(const RefPtr<ListEventHub>& listE
     bool startChanged = UpdateStartListItemIndex();
     bool endChanged = UpdateEndListItemIndex();
     auto onScrollVisibleContentChange = listEventHub->GetOnScrollVisibleContentChange();
+    auto OnJSFrameNodeScrollVisibleContentChange = listEventHub->GetJSFrameNodeOnScrollVisibleContentChange();
     if (onScrollVisibleContentChange) {
         if (indexChanged || startChanged || endChanged) {
             onScrollVisibleContentChange(startInfo_, endInfo_);
+        }
+    }
+    if (OnJSFrameNodeScrollVisibleContentChange) {
+        if (indexChanged || startChanged || endChanged) {
+            OnJSFrameNodeScrollVisibleContentChange(startInfo_, endInfo_);
         }
     }
 }

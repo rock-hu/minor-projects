@@ -64,7 +64,6 @@ CString JSHClass::DumpJSType(JSType type)
         case JSType::COW_MUTANT_TAGGED_ARRAY:
             return "COWMutantTaggedArray";
         case JSType::LINE_STRING:
-        case JSType::CONSTANT_STRING:
         case JSType::TREE_STRING:
         case JSType::SLICED_STRING:
             return "BaseString";
@@ -318,6 +317,8 @@ CString JSHClass::DumpJSType(JSType type)
             return "JSAsyncGeneratorObject";
         case JSType::JS_GENERATOR_CONTEXT:
             return "JSGeneratorContext";
+        case JSType::ENUM_CACHE:
+            return "EnumCache";
         case JSType::PROTO_CHANGE_MARKER:
             return "ProtoChangeMarker";
         case JSType::MARKER_CELL:
@@ -677,7 +678,6 @@ static void DumpObject(TaggedObject *obj, std::ostream &os, bool isPrivacy)
             ExtraProfileTypeInfo::Cast(obj)->Dump(os);
             break;
         case JSType::LINE_STRING:
-        case JSType::CONSTANT_STRING:
         case JSType::TREE_STRING:
         case JSType::SLICED_STRING:
             DumpStringClass(EcmaString::Cast(obj), os);
@@ -1045,6 +1045,9 @@ static void DumpObject(TaggedObject *obj, std::ostream &os, bool isPrivacy)
         case JSType::TRACK_INFO:
             TrackInfo::Cast(obj)->Dump(os);
             break;
+        case JSType::ENUM_CACHE:
+            EnumCache::Cast(obj)->Dump(os);
+            break;
         case JSType::PROTO_CHANGE_MARKER:
             ProtoChangeMarker::Cast(obj)->Dump(os);
             break;
@@ -1311,6 +1314,16 @@ void JSTaggedValue::Dump(std::ostream &os, bool isPrivacy) const
     if (IsHeapObject()) {
         TaggedObject *obj = IsWeak() ? GetTaggedWeakRef() : GetTaggedObject();
         DumpObject(obj, os, isPrivacy);
+    }
+}
+
+void JSTaggedValue::DumpHeapObjAddress(std::ostream &os) const
+{
+    if (IsHeapObject()) {
+        TaggedObject *obj = IsWeak() ? GetTaggedWeakRef() : GetTaggedObject();
+        os << obj << "\n";
+    } else {
+        os << "not a heapobject\n";
     }
 }
 
@@ -2037,7 +2050,7 @@ void JSForInIterator::Dump(std::ostream &os) const
     os << " - Object : ";
     GetObject().DumpTaggedValue(os);
     os << " - CachedHclass : ";
-    GetCachedHclass().DumpTaggedValue(os);
+    GetCachedHClass().DumpTaggedValue(os);
     os << "\n";
     os << " - Keys : ";
     GetKeys().DumpTaggedValue(os);
@@ -3521,6 +3534,18 @@ void GeneratorContext::Dump(std::ostream &os) const
     os << "\n";
 }
 
+void EnumCache::Dump(std::ostream &os) const
+{
+    os << " - EnumCacheOwn: " << GetEnumCacheOwn();
+    os << "\n";
+    os << " - EnumCacheAll: " << GetEnumCacheAll();
+    os << "\n";
+    os << " - ProtoChainInfoEnumCache: " << GetProtoChainInfoEnumCache();
+    os << "\n";
+    os << " - EnumCacheKind: " << GetEnumCacheKind();
+    os << "\n";
+}
+
 void ProtoChangeMarker::Dump(std::ostream &os) const
 {
     os << " - HasChanged: " << GetHasChanged() << "\n";
@@ -3958,7 +3983,6 @@ static void DumpObject(TaggedObject *obj, std::vector<Reference> &vec, bool isVm
             ProfileTypeInfo::Cast(obj)->DumpForSnapshot(vec);
             break;
         case JSType::LINE_STRING:
-        case JSType::CONSTANT_STRING:
         case JSType::TREE_STRING:
         case JSType::SLICED_STRING:
             DumpStringClass(EcmaString::Cast(obj), vec);
@@ -4403,6 +4427,9 @@ static void DumpObject(TaggedObject *obj, std::vector<Reference> &vec, bool isVm
                 break;
             case JSType::GLOBAL_ENV:
                 GlobalEnv::Cast(obj)->DumpForSnapshot(vec);
+                break;
+            case JSType::ENUM_CACHE:
+                EnumCache::Cast(obj)->DumpForSnapshot(vec);
                 break;
             case JSType::PROTO_CHANGE_MARKER:
                 ProtoChangeMarker::Cast(obj)->DumpForSnapshot(vec);
@@ -4917,7 +4944,7 @@ void JSSharedMap::DumpForSnapshot(std::vector<Reference> &vec) const
 void JSForInIterator::DumpForSnapshot(std::vector<Reference> &vec) const
 {
     vec.emplace_back(CString("Object"), GetObject());
-    vec.emplace_back(CString("CachedHclass"), GetCachedHclass());
+    vec.emplace_back(CString("CachedHclass"), GetCachedHClass());
     vec.emplace_back(CString("Keys"), GetKeys());
     vec.emplace_back(CString("Index"), JSTaggedValue(GetIndex()));
     vec.emplace_back(CString("Length"), JSTaggedValue(GetLength()));
@@ -5803,9 +5830,19 @@ void GeneratorContext::DumpForSnapshot(std::vector<Reference> &vec) const
     vec.emplace_back(CString("BCOffset"),  JSTaggedValue(GetBCOffset()));
 }
 
+void EnumCache::DumpForSnapshot(std::vector<Reference> &vec) const
+{
+    constexpr int16_t NUM_OF_ITEMS = 4;
+    vec.reserve(vec.size() + NUM_OF_ITEMS);
+    vec.emplace_back(CString("EnumCacheOwn"), GetEnumCacheOwn());
+    vec.emplace_back(CString("EnumCacheAll"), GetEnumCacheAll());
+    vec.emplace_back(CString("ProtoChainInfoEnumCache"), GetProtoChainInfoEnumCache());
+    vec.emplace_back(CString("EnumCacheKind"), JSTaggedValue(GetEnumCacheKind()));
+}
+
 void ProtoChangeMarker::DumpForSnapshot(std::vector<Reference> &vec) const
 {
-    vec.emplace_back(CString("Promise"), JSTaggedValue(GetHasChanged()));
+    vec.emplace_back(CString("HasChanged"), JSTaggedValue(GetHasChanged()));
 }
 
 void MarkerCell::DumpForSnapshot(std::vector<Reference> &vec) const

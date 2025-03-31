@@ -18,6 +18,7 @@
 #include "ecmascript/base/json_stringifier.h"
 #include "ecmascript/base/typed_array_helper-inl.h"
 #include "ecmascript/builtins/builtins_object.h"
+#include "ecmascript/shared_objects/concurrent_api_scope.h"
 #if defined(ECMASCRIPT_SUPPORT_CPUPROFILER)
 #include "ecmascript/dfx/cpu_profiler/cpu_profiler.h"
 #endif
@@ -2027,7 +2028,7 @@ bool PromiseCapabilityRef::Resolve(const EcmaVM *vm, uintptr_t value)
     JSFunction::Call(info);
     RETURN_VALUE_IF_ABRUPT(thread, false);
 
-    thread->GetCurrentEcmaContext()->ExecutePromisePendingJob();
+    EcmaVM::ConstCast(vm)->ExecutePromisePendingJob();
     RETURN_VALUE_IF_ABRUPT(thread, false);
     thread->GetCurrentEcmaContext()->ClearKeptObjects();
     return true;
@@ -2054,7 +2055,7 @@ bool PromiseCapabilityRef::Resolve(const EcmaVM *vm, Local<JSValueRef> value)
     JSFunction::Call(info);
     RETURN_VALUE_IF_ABRUPT(thread, false);
 
-    thread->GetCurrentEcmaContext()->ExecutePromisePendingJob();
+    EcmaVM::ConstCast(vm)->ExecutePromisePendingJob();
     RETURN_VALUE_IF_ABRUPT(thread, false);
     thread->GetCurrentEcmaContext()->ClearKeptObjects();
     return true;
@@ -2082,7 +2083,7 @@ bool PromiseCapabilityRef::Reject(const EcmaVM *vm, uintptr_t reason)
     JSFunction::Call(info);
     RETURN_VALUE_IF_ABRUPT(thread, false);
 
-    thread->GetCurrentEcmaContext()->ExecutePromisePendingJob();
+    EcmaVM::ConstCast(vm)->ExecutePromisePendingJob();
     RETURN_VALUE_IF_ABRUPT(thread, false);
     thread->GetCurrentEcmaContext()->ClearKeptObjects();
     return true;
@@ -2110,7 +2111,7 @@ bool PromiseCapabilityRef::Reject(const EcmaVM *vm, Local<JSValueRef> reason)
     JSFunction::Call(info);
     RETURN_VALUE_IF_ABRUPT(thread, false);
 
-    thread->GetCurrentEcmaContext()->ExecutePromisePendingJob();
+    EcmaVM::ConstCast(vm)->ExecutePromisePendingJob();
     RETURN_VALUE_IF_ABRUPT(thread, false);
     thread->GetCurrentEcmaContext()->ClearKeptObjects();
     return true;
@@ -3938,6 +3939,8 @@ Local<JSValueRef> SendableArrayRef::GetValueAt(const EcmaVM *vm, Local<JSValueRe
     CROSS_THREAD_AND_EXCEPTION_CHECK_WITH_RETURN(vm, JSValueRef::Undefined(vm));
     ecmascript::ThreadManagedScope managedScope(thread);
     JSHandle<JSTaggedValue> object = JSNApiHelper::ToJSHandle(obj);
+    // Add Concurrent check for shared array
+    [[maybe_unused]] ecmascript::ConcurrentApiScope<ecmascript::JSSharedArray> scope(thread, object);
     JSHandle<JSTaggedValue> result = ecmascript::JSSharedArray::FastGetPropertyByValue(thread, object, index);
     return JSNApiHelper::ToLocal<JSValueRef>(result);
 }
@@ -3982,9 +3985,8 @@ FunctionCallScope::~FunctionCallScope()
 {
     vm_->DecreaseCallDepth();
     if (vm_->IsTopLevelCallDepth()) {
-        JSThread *thread = vm_->GetJSThread();
         ecmascript::ThreadManagedScope managedScope(vm_->GetJSThread());
-        thread->GetCurrentEcmaContext()->ExecutePromisePendingJob();
+        vm_->ExecutePromisePendingJob();
     }
 }
 
@@ -5218,48 +5220,21 @@ void JSNApi::GenerateTimeoutTraceIfNeeded(const EcmaVM *vm, std::chrono::system_
     }
 }
 
-void JSNApi::LoadAotFileInternal(EcmaVM *vm, const std::string &moduleName, std::string &aotFileName)
-{
-    if (vm->GetJSOptions().WasAOTOutputFileSet()) {
-        aotFileName = vm->GetJSOptions().GetAOTOutputFile();
-    }
-#if defined(CROSS_PLATFORM) && defined(ANDROID_PLATFORM)
-    else if (vm->GetJSOptions().GetEnableAOT())
-#else
-    else if (ecmascript::AnFileDataManager::GetInstance()->IsEnable())
-#endif
-    {
-        aotFileName = ecmascript::AnFileDataManager::GetInstance()->GetDir() + moduleName;
-    } else {
-        std::string hapPath = "";
-        ecmascript::SearchHapPathCallBack callback = vm->GetSearchHapPathCallBack();
-        if (callback) {
-            callback(moduleName, hapPath);
-        }
-        aotFileName = ecmascript::OhosPreloadAppInfo::GetPreloadAOTFileName(hapPath, moduleName);
-    }
-    if (aotFileName.empty()) {
-        LOG_ECMA(INFO) << "can not find aot file";
-        return;
-    }
-    if (ecmascript::pgo::PGOProfilerManager::GetInstance()->IsDisableAot()) {
-        LOG_ECMA(INFO) << "can't load disable aot file: " << aotFileName;
-        return;
-    }
-    LOG_ECMA(INFO) << "start to load aot file: " << aotFileName;
-}
-
 void JSNApi::LoadAotFile(EcmaVM *vm, const std::string &moduleName)
 {
     CROSS_THREAD_AND_EXCEPTION_CHECK(vm);
     ecmascript::ThreadManagedScope scope(thread);
 
-    std::string aotFileName;
-    LoadAotFileInternal(vm, moduleName, aotFileName);
+    std::string aotFileName = ecmascript::AOTFileManager::GetAOTFileFullPath(vm, moduleName);
+    if (aotFileName.empty()) {
+        LOG_ECMA(INFO) << "can not find aot file";
+        return;
+    }
     // Disable PGO for applications when an/ai file exists
     if (isForked_) {
         vm->DisablePGOProfilerWithAOTFile(aotFileName);
     }
+    LOG_ECMA(INFO) << "start to load aot file: " << aotFileName;
     thread->GetCurrentEcmaContext()->LoadAOTFiles(aotFileName);
 }
 
@@ -5270,8 +5245,12 @@ void JSNApi::LoadAotFile(EcmaVM *vm, [[maybe_unused]] const std::string &bundleN
     CROSS_THREAD_AND_EXCEPTION_CHECK(vm);
     ecmascript::ThreadManagedScope scope(thread);
 
-    std::string aotFileName;
-    LoadAotFileInternal(vm, moduleName, aotFileName);
+    std::string aotFileName = ecmascript::AOTFileManager::GetAOTFileFullPath(vm, moduleName);
+    if (aotFileName.empty()) {
+        LOG_ECMA(INFO) << "can not find aot file";
+        return;
+    }
+    LOG_ECMA(INFO) << "start to load aot file: " << aotFileName;
     thread->GetCurrentEcmaContext()->LoadAOTFiles(aotFileName, cb);
 }
 #endif
@@ -5570,13 +5549,13 @@ bool JSNApi::HasPendingException(const EcmaVM *vm)
 
 bool JSNApi::IsExecutingPendingJob(const EcmaVM *vm)
 {
-    return vm->GetAssociatedJSThread()->GetCurrentEcmaContext()->IsExecutingPendingJob();
+    return EcmaVM::ConstCast(vm)->IsExecutingPendingJob();
 }
 
 bool JSNApi::HasPendingJob(const EcmaVM *vm)
 {
     ecmascript::ThreadManagedScope managedScope(vm->GetJSThread());
-    return vm->GetAssociatedJSThread()->GetCurrentEcmaContext()->HasPendingJob();
+    return EcmaVM::ConstCast(vm)->HasPendingJob();
 }
 
 void JSNApi::EnableUserUncaughtErrorHandler(EcmaVM *vm)
@@ -5597,7 +5576,7 @@ void JSNApi::ExecutePendingJob(const EcmaVM *vm)
 {
     CROSS_THREAD_AND_EXCEPTION_CHECK(vm);
     ecmascript::ThreadManagedScope managedScope(thread);
-    EcmaVM::ConstCast(vm)->GetJSThread()->GetCurrentEcmaContext()->ExecutePromisePendingJob();
+    EcmaVM::ConstCast(vm)->ExecutePromisePendingJob();
 }
 
 uintptr_t JSNApi::GetHandleAddr(const EcmaVM *vm, uintptr_t localAddress)
@@ -5779,8 +5758,7 @@ void HostPromiseRejectionTracker(const EcmaVM *vm,
                                  void* data)
 {
     CROSS_THREAD_AND_EXCEPTION_CHECK(vm);
-    ecmascript::PromiseRejectCallback promiseRejectCallback =
-        thread->GetCurrentEcmaContext()->GetPromiseRejectCallback();
+    ecmascript::PromiseRejectCallback promiseRejectCallback = vm->GetPromiseRejectCallback();
     if (promiseRejectCallback != nullptr) {
         Local<JSValueRef> promiseVal = JSNApiHelper::ToLocal<JSValueRef>(JSHandle<JSTaggedValue>::Cast(promise));
         PromiseRejectInfo promiseRejectInfo(promiseVal, JSNApiHelper::ToLocal<JSValueRef>(reason),
@@ -5792,10 +5770,9 @@ void HostPromiseRejectionTracker(const EcmaVM *vm,
 void JSNApi::SetHostPromiseRejectionTracker(EcmaVM *vm, void *cb, void* data)
 {
     CROSS_THREAD_CHECK(vm);
-    thread->GetCurrentEcmaContext()->SetHostPromiseRejectionTracker(HostPromiseRejectionTracker);
-    thread->GetCurrentEcmaContext()->SetPromiseRejectCallback(
-        reinterpret_cast<ecmascript::PromiseRejectCallback>(cb));
-    thread->GetCurrentEcmaContext()->SetData(data);
+    vm->SetHostPromiseRejectionTracker(HostPromiseRejectionTracker);
+    vm->SetPromiseRejectCallback(reinterpret_cast<ecmascript::PromiseRejectCallback>(cb));
+    vm->SetPromiseRejectInfoData(data);
 }
 
 void JSNApi::SetTimerTaskCallback(EcmaVM *vm, TimerTaskCallback callback)
@@ -5862,7 +5839,7 @@ void JSNApi::SetHostEnqueueJob(const EcmaVM *vm, Local<JSValueRef> cb, QueueType
     ecmascript::ThreadManagedScope scope(thread);
     JSHandle<JSFunction> fun = JSHandle<JSFunction>::Cast(JSNApiHelper::ToJSHandle(cb));
     JSHandle<TaggedArray> array = vm->GetFactory()->EmptyArray();
-    JSHandle<MicroJobQueue> job = thread->GetCurrentEcmaContext()->GetMicroJobQueue();
+    JSHandle<MicroJobQueue> job = vm->GetMicroJobQueue();
     MicroJobQueue::EnqueueJob(thread, job, queueType, fun, array);
 }
 

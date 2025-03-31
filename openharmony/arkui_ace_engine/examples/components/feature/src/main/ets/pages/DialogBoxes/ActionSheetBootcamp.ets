@@ -79,6 +79,10 @@ export struct ActionSheetBootcamp {
   @State enableCurve: boolean = false;
   @State sheetsIcon: Resource = $r('sys.media.ohos_ic_public_device_phone');
   @State enableSheetsIcon: boolean = false;
+  scroller: Scroller = new Scroller();
+  aboutToAppear(): void {
+    AppStorage.setOrCreate('scroller', this.scroller)
+  }
 
   build() {
     NavDestination() {
@@ -87,6 +91,9 @@ export struct ActionSheetBootcamp {
         showParameters: $showParameters,
         content: () => {
           this.Content()
+        },
+        generic: () => {
+          this.Generic()
         },
         parameters: () => {
           this.Parameters()
@@ -207,7 +214,7 @@ export struct ActionSheetBootcamp {
 
   @Builder
   Parameters() {
-    Scroll() {
+    Scroll(this.scroller) {
       Column({ space: 8 }) {
         RadioBlock({
           title: 'autoCancel',
@@ -511,5 +518,11 @@ export struct ActionSheetBootcamp {
       }.width('100%')
     }
     .height('52%')
+    .id('scroll')
+  }
+
+  @Builder
+  Generic() {
+
   }
 }
