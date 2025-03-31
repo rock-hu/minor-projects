@@ -31,7 +31,7 @@
 │  │  ├──InterceptReturn01.ets                          // 拦截物理返回按钮、手势滑动关闭弹窗示例一
 │  │  └──InterceptReturn02.ets                          // 拦截物理返回按钮、手势滑动关闭弹窗示例二
 │  └──utils.ets
-│     └──DialogComponent.ets                            // 自定义弹窗封装组件
+│     └──PromptActionClass.ets                            // 自定义弹窗封装Class
 └──entry/src/main/resources                             // 应用资源目录
 ``` 
 ## 使用说明

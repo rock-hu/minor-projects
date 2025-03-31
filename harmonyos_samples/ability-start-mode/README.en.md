@@ -10,9 +10,7 @@ In this sample, you need to use the Ability Assistant (AA) tool to view the abil
 
 ### Preview
 
-| Home page                                | Multiton launch mode                                                |Singleton launch mode|Specified launch mode|
-|------------------------------------------|----------------------------------------------------------------|--------------------------------|--------------------------------|
-| ![home](screenshots/devices/home.en.png) | ![Multiton launch mode](screenshots/devices/MultitonAbilityMsg.jpeg)|![Singleton launch mode](screenshots/devices/singletonAbilityMsg.jpeg)|![Specified launch mode](screenshots/devices/specifiedAbilityMsg.jpeg)|
+![](./screenshots/devices/effect_en.gif)
 
 ### How to Use
 
@@ -40,7 +38,7 @@ In this sample, you need to use the Ability Assistant (AA) tool to view the abil
 
    (3) On the blueberry details page, touch the walnut icon. The walnut ability is reused, and the data on the page is refreshed to show the walnut details.
 
-   (4) Use the AA tool to view the ability information. The following abilities are displayed: one walnut ability, one blueberry ability, and one home page ability.
+   (4) Use the [AA tool](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/aa-tool) to view the ability information. The following abilities are displayed: one walnut ability, one blueberry ability, and one home page ability.
 
 ### Project Directory
 ```

@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+// DocsCode 1
 import { PromptAction } from '@kit.ArkUI';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
@@ -83,7 +84,7 @@ export struct InterceptReturn01 {
                 alignment: DialogAlignment.Center,
                 maskColor: 'rgba(0, 0, 0, 0.2)',
                 onWillDismiss: (dismissDialogAction: DismissDialogAction) => {
-                  hilog.info(0xFF00, "testTag", JSON.stringify(dismissDialogAction.reason));
+                  hilog.info(0xFF00, 'testTag', JSON.stringify(dismissDialogAction.reason));
                 }
               }).then((dialogId: number) => {
                 this.customDialogComponentId = dialogId
@@ -103,3 +104,5 @@ export struct InterceptReturn01 {
     }
   }
 }
+
+// DocsCode 1

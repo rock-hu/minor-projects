@@ -87,6 +87,7 @@ struct RefreshExample {
     }
   }
 }
+
 // DocsCode 1
 
 // DocsCode 2
@@ -106,7 +107,8 @@ struct ImageAnimatorTest {
     node?.commonEvent.setOnVisibleAreaApproximateChange(
       { ratios: [0], expectedUpdateInterval: 500 },
       (isVisible, currentRatio) => {
-        hilog.info(0x0000, 'testTag', `Method aboutToAppear: setOnVisibleAreaApproximateChange isVisible:${isVisible}, currentRatio:${currentRatio}`);
+        hilog.info(0x0000, 'testTag',
+          `Method aboutToAppear: setOnVisibleAreaApproximateChange isVisible:${isVisible}, currentRatio:${currentRatio}`);
         this.running = isVisible;
       })
   }
@@ -124,29 +126,31 @@ struct ImageAnimatorTest {
         .duration(3000)
         .fillMode(FillMode.None)
         .iterations(-1)
-        .state(this.running ? AnimationStatus.Running : AnimationStatus.Paused)
-        // Method 2: Directly use onVisibleAreaChange
+        .state(this.running ? AnimationStatus.Running :
+        AnimationStatus.Paused)// Method 2: Directly use onVisibleAreaChange
         .onVisibleAreaChange([0.0, 1.0], (isVisible: boolean, currentRatio: number) => {
-          hilog.info(0x0000, 'testTag', `Method Direct: onVisibleAreaChange isVisible:${isVisible}, currentRatio:${currentRatio}`);
+          hilog.info(0x0000, 'testTag',
+            `Method Direct: onVisibleAreaChange isVisible:${isVisible}, currentRatio:${currentRatio}`);
           if (isVisible && currentRatio >= 1.0) {
             this.running = true;
           }
           if (!isVisible && currentRatio <= 0.0) {
             this.running = false;
           }
-        })
-        // Method 3: use onAppear to register a setOnVisibleAreaApproximateChange
+        })// Method 3: use onAppear to register a setOnVisibleAreaApproximateChange
         .onAppear(() => {
           let node = this.getUIContext().getFrameNodeById(`ImageAnimator${this.index}`);
           node?.commonEvent.setOnVisibleAreaApproximateChange(
             { ratios: [0], expectedUpdateInterval: 500 },
             (isVisible, currentRatio) => {
               this.running = isVisible;
-              hilog.info(0x0000, 'testTag', `Method onAppear: setOnVisibleAreaApproximateChange isVisible:${isVisible}, currentRatio:${currentRatio}`);
+              hilog.info(0x0000, 'testTag',
+                `Method onAppear: setOnVisibleAreaApproximateChange isVisible:${isVisible}, currentRatio:${currentRatio}`);
             }
           )
         })
     }
   }
 }
+
 // DocsCode 2

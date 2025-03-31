@@ -13,9 +13,11 @@
  * limitations under the License.
  */
 
+// DocsCode 1
 import { BusinessError } from '@kit.BasicServicesKit';
 import { ComponentContent, promptAction } from '@kit.ArkUI';
 import { UIContext } from '@ohos.arkui.UIContext';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 export class PromptActionClass {
   static ctx: UIContext;
@@ -39,12 +41,12 @@ export class PromptActionClass {
       PromptActionClass.ctx.getPromptAction()
         .openCustomDialog(PromptActionClass.contentNode, PromptActionClass.options)
         .then(() => {
-          console.info('OpenCustomDialog complete.')
+          hilog.info(0x0000, 'testTag', 'OpenCustomDialog complete.');
         })
         .catch((error: BusinessError) => {
           let message = (error as BusinessError).message;
           let code = (error as BusinessError).code;
-          console.error(`OpenCustomDialog args error code is ${code}, message is ${message}`);
+          hilog.error(0x0000, 'testTag', `OpenCustomDialog args error code is ${code}, message is ${message}`);
         })
     }
   }
@@ -54,16 +56,18 @@ export class PromptActionClass {
       PromptActionClass.ctx.getPromptAction()
         .closeCustomDialog(PromptActionClass.contentNode)
         .then(() => {
-          console.info('CloseCustomDialog complete.')
+          hilog.info(0x0000, 'testTag', 'CloseCustomDialog complete.');
           if (PromptActionClass.contentNode !== null) {
-            PromptActionClass.contentNode.dispose();   // 释放contentNode
+            PromptActionClass.contentNode.dispose(); // release contentNode.
           }
         })
         .catch((error: BusinessError) => {
           let message = (error as BusinessError).message;
           let code = (error as BusinessError).code;
-          console.error(`CloseCustomDialog args error code is ${code}, message is ${message}`);
+          hilog.error(0x0000, 'testTag', `CloseCustomDialog args error code is ${code}, message is ${message}`);
         })
     }
   }
 }
+
+// DocsCode 1

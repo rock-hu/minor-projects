@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+// DocsCode 1
 import { PromptAction } from '@kit.ArkUI';
 
 @Component
@@ -104,3 +105,5 @@ export struct CustomDialogDisplayAndExitAnimations {
     }
   }
 }
+
+// DocsCode 1

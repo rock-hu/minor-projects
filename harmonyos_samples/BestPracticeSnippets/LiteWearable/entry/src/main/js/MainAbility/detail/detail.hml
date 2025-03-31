@@ -1,0 +1,9 @@
+<!-- [Start 1] -- >
+<!-- index.hml -->
+<div class="container">
+    <text class="title">
+        Hello World
+    </text>
+    <input class="btn" type="button" value="View" onclick="clickAction"></input>
+</div>
+<!-- [End 1] -->

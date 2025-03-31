@@ -1,0 +1,9 @@
+<!-- [Start 1] -- >
+<!-- style中是组件的样式信息，关于样式的相关介绍会在下一小节详细讲述 -->
+<div style="width: 466px; height: 466px;">
+    <text style="width: 200px; height: 100px;">
+    <!-- <text>组件中要显示的内容 -->
+        Hello World
+    </text>
+</div>
+<!-- [End 1] -- >

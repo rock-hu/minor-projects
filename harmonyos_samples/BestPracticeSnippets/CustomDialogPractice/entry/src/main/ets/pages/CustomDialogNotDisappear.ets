@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+// DocsCode 1
 @Component
 export struct CustomDialogNotDisappear {
   @Consume('NavPathStack') pageStack: NavPathStack;
@@ -127,8 +128,8 @@ export struct PageOne {
         }
         .backgroundColor('#F1F3F5')
         .padding({
-            left: 16,
-            right: 16
+          left: 16,
+          right: 16
         })
         .height('100%')
         .width('100%')
@@ -138,6 +139,7 @@ export struct PageOne {
     }
     .backgroundColor('#F1F3F5')
     .hideTitleBar(true)
-    .mode(NavDestinationMode.DIALOG)
   }
 }
+
+// DocsCode 1

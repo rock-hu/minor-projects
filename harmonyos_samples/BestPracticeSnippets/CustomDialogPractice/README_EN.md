@@ -31,7 +31,7 @@ On some permission configuration pages, when a user accesses an application for 
 │  │  ├──InterceptReturn01.ets                          // Example 1 of blocking to close a dialog box through the Back button or swiping
 │  │  └──InterceptReturn02.ets                          // Example 2 of blocking to close a dialog box through the Back button or swiping
 │  └──utils.ets
-│     └──DialogComponent.ets                            // Encapsulated custom dialog box component
+│     └──PromptActionClass.ets                            // Encapsulated custom dialog box class
 └──entry/src/main/resources                             // Application resources
 ``` 
 ## How to Use

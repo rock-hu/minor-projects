@@ -6,9 +6,7 @@
 
 ### 效果预览
 
-| 主页                                    | 普通多实例Ability信息                                                 |单实例Ability信息|指定多实例Ability信息|
-|---------------------------------------|----------------------------------------------------------------|--------------------------------|--------------------------------|
-| ![home](screenshots/devices/home.png) | ![普通多实例Ability信息](screenshots/devices/MultitonAbilityMsg.jpeg) |![单实例Ability信息](screenshots/devices/singletonAbilityMsg.jpeg)|![指定多实例Ability信息](screenshots/devices/specifiedAbilityMsg.jpeg)|
+![](./screenshots/devices/effect.gif)
 
 使用说明
 
@@ -36,7 +34,7 @@
 
 3）在蓝莓的详情界面，点击核桃，会复用已存在的核桃的Ability，实现specified模式下的单实例特性，页面数据会刷新并展示核桃的详情；
 
-4）使用aa工具查看Ability信息，此时存在以下Ability：1个核桃的Ability、1个蓝莓的Ability、1个首页Ability；
+4）使用[aa工具](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/aa-tool)查看Ability信息，此时存在以下Ability：1个核桃的Ability、1个蓝莓的Ability、1个首页Ability；
 
 ### 工程目录
 ```

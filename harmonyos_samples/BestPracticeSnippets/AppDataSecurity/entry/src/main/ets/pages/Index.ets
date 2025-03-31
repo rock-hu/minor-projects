@@ -15,7 +15,7 @@
 import { common, contextConstant } from '@kit.AbilityKit';
 import { fileIo } from '@kit.CoreFileKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
-import { buffer } from '@kit.ArkTS';
+import { buffer, util } from '@kit.ArkTS';
 import { huks } from '@kit.UniversalKeystoreKit';
 
 @Entry
@@ -110,20 +110,14 @@ function readFile(filePath: string): object {
   return [readLen, buf.toString()]
 }
 
-function StringToUint8Array(str: String) {
-  let arr: number[] = new Array();
-  for (let i = 0, j = str.length; i < j; ++i) {
-    arr.push(str.charCodeAt(i));
-  }
-  return new Uint8Array(arr);
+function StringToUint8Array(str: string) {
+  let textEncoder = util.TextEncoder.create('utf-8');
+  return textEncoder.encodeInto(str);
 }
 
 function Uint8ArrayToString(fileData: Uint8Array) {
-  let dataString = '';
-  for (let i = 0; i < fileData.length; i++) {
-    dataString += String.fromCharCode(fileData[i]);
-  }
-  return dataString;
+  let textDecoder = util.TextDecoder.create('utf-8');
+  return textDecoder.decodeToString(fileData);
 }
 
 function GetAesGenerateProperties() {

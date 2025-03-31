@@ -13,17 +13,17 @@
  * limitations under the License.
  */
 
+// DocsCode 1
 import { PromptActionClass } from '../uitls/PromptActionClass';
 import { ComponentContent } from '@kit.ArkUI';
 
 class Params {
-  text: string = ""
+  text: string = '';
 
   constructor(text: string) {
     this.text = text;
   }
 }
-
 
 @Builder
 function buildText(params: Params) {
@@ -45,7 +45,7 @@ function buildText(params: Params) {
       .fontColor('#0A59F7')
       .backgroundColor(Color.White)
       .onClick(() => {
-        PromptActionClass.closeDialog();
+        PromptActionClass.closeDialog(); // Close customDialog.
       })
       .width('100%')
       .margin({
@@ -66,7 +66,7 @@ function buildText(params: Params) {
 
 @Component
 export struct GlobalDialogDecoupledFromThePage {
-  @State message: string = "This is a dialog content.";
+  @State message: string = 'This is a dialog content.';
   private ctx: UIContext = this.getUIContext();
   private contentNode: ComponentContent<Object> =
     new ComponentContent(this.ctx, wrapBuilder(buildText), new Params(this.message));
@@ -88,7 +88,7 @@ export struct GlobalDialogDecoupledFromThePage {
             .margin({ bottom: 16 })
             .backgroundColor('#0A59F7')
             .onClick(() => {
-              PromptActionClass.openDialog();
+              PromptActionClass.openDialog(); // Open customDialog.
             })
         }
         .width('100%')
@@ -104,3 +104,5 @@ export struct GlobalDialogDecoupledFromThePage {
     }
   }
 }
+
+// DocsCode 1
