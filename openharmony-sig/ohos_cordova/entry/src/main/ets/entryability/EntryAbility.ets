@@ -25,6 +25,7 @@ export default class EntryAbility extends UIAbility {
       .setIgnoreSslError(true)
       .setCustomUserAgent(' testAppVersion/1.0.0')
     CordovaManager.init(cordovaConfig)
+    // 初始化插件
     CordovaManager.appendBridgeEntry({
       service: 'HelloBridge',
       factory: () => new HelloBridgePlugin()
