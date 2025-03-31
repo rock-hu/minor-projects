@@ -17,8 +17,8 @@ import { StyleConstants } from '@ohos/common';
 
 @Component
 export struct HeaderBar {
-  private title: string | Resource = '';
-  private onBack: () => void = () => {};
+  public title: string | Resource = '';
+  public onBack: () => void = () => {};
 
   build() {
     Flex({ alignItems: ItemAlign.Center }) {

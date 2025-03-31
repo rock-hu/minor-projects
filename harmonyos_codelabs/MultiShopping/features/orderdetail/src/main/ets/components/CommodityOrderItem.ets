@@ -17,7 +17,7 @@ import { Order, StyleConstants } from '@ohos/common';
 
 @Component
 export struct CommodityOrderItem {
-  private orderData?: Order;
+  public orderData?: Order;
   private onCommodityClick: () => void = () => {};
 
   @Styles flexStyles(){

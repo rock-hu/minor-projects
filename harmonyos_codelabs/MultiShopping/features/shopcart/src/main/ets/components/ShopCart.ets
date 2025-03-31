@@ -31,7 +31,7 @@ import { SelectProducts, UpdateShopProps } from '@ohos/common/src/main/ets/viewm
 
 @Component
 export struct ShopCart {
-  private onNeedUpdate?: () => void;
+  public onNeedUpdate?: () => void;
   @StorageProp('currentBreakpoint') currentBreakpoint: string = 'sm';
   @Link @Watch('onListChange') products: Array<Product>;
   @State sumPrice: number = 0;

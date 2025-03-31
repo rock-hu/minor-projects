@@ -24,7 +24,7 @@ import { LiveDataModel } from '../viewmodel/PersonalData';
 export struct LiveList {
   @StorageProp('currentBreakpoint') currentBreakpoint: string = 'md';
   @Prop count: number = 0;
-  private liveList: LiveDataModel[] = [];
+  public liveList: LiveDataModel[] = [];
 
   build() {
     if (this.liveList.length > 0) {

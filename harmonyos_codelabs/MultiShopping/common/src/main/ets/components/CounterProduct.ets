@@ -17,9 +17,9 @@
 export struct CounterProduct {
   @State @Watch('onChange') quantityCount: number = 1;
   @State disabled: boolean = true;
-  private count: number = 1;
+  public count: number = 1;
   private counterMin: number = 1;
-  private onNumberChange: (n: number) => void = () => {};
+  public onNumberChange: (n: number) => void = () => {};
 
   aboutToAppear() {
     this.quantityCount = this.count;

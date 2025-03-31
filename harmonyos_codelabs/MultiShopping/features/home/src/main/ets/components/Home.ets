@@ -23,7 +23,7 @@ export struct Home {
   @State titleIndex: number = 0;
   @State activityTitleIndex: number = 0;
   private localDataManger: LocalDataManager = LocalDataManager.instance();
-  private onClickItem = (Commodity: Commodity) => {};
+  public onClickItem = (Commodity: Commodity) => {};
 
   aboutToAppear() {
     this.commodityList = this.localDataManger.queryCommodityList();

@@ -18,7 +18,7 @@ import { StyleConstants } from '@ohos/common';
 
 @Component
 export struct CapsuleGroupButton {
-  private configs: ButtonType[] = [];
+  public configs: ButtonType[] = [];
 
   @Styles flex(){
     .flexBasis(StyleConstants.FLEX_BASIC)

@@ -37,7 +37,7 @@ export struct OrderListContent {
   @StorageProp('currentBreakpoint') currentBreakpoint: string = 'sm';
   @Consume orderList: Order[];
   @Consume commodityList: Commodity[];
-  private status: OrderOperationStatus = OrderOperationStatus.ALLStatus;
+  public status: OrderOperationStatus = OrderOperationStatus.ALLStatus;
   private localDataManager: LocalDataManager = LocalDataManager.instance();
 
   paymentHandler(orderId: string, status: number, msg: Resource) {

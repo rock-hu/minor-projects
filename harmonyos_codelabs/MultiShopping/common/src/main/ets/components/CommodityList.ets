@@ -25,7 +25,7 @@ import { CommonDataSource } from '../utils/CommonDataSource';
 export struct CommodityList {
   @Link commodityList: Commodity[];
   @Prop column: number = 0;
-  private onClickItem? = (Commodity: Commodity) => {};
+  public onClickItem? = (Commodity: Commodity) => {};
 
   @Builder
   CommodityItem(info: Commodity) {

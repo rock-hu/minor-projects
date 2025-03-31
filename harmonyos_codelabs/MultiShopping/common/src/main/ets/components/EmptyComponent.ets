@@ -17,7 +17,7 @@ import { StyleConstants } from '../constants/StyleConstants';
 
 @Component
 export struct EmptyComponent {
-  private outerHeight?: number | string = StyleConstants.FULL_HEIGHT;
+  public outerHeight?: number | string = StyleConstants.FULL_HEIGHT;
 
   build() {
     Flex({
