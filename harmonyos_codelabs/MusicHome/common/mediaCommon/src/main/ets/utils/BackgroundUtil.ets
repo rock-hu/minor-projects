@@ -19,7 +19,6 @@ import { BusinessError } from '@kit.BasicServicesKit';
 import { Logger } from './Logger';
 
 export class BackgroundUtil {
-
   /**
    * Start background task.
    *
@@ -44,15 +43,17 @@ export class BackgroundUtil {
 
     wantAgent.getWantAgent(wantAgentInfo).then((wantAgentObj: Object) => {
       try {
-        backgroundTaskManager.startBackgroundRunning(context,
-          backgroundTaskManager.BackgroundMode.AUDIO_PLAYBACK, wantAgentObj).then(() => {
-          Logger.info('this avPlayer: ', 'startBackgroundRunning succeeded');
-        }).catch((error: BusinessError) => {
-          Logger.error('this avPlayer: ', `startBackgroundRunning failed Cause: code ${error.code}`);
-        });
+        if (canIUse('SystemCapability.ResourceSchedule.BackgroundTaskManager.Core')) {
+          backgroundTaskManager.startBackgroundRunning(context,
+            backgroundTaskManager.BackgroundMode.AUDIO_PLAYBACK, wantAgentObj).then(() => {
+            Logger.info('this avPlayer: ', 'startBackgroundRunning succeeded');
+          }).catch((error: BusinessError) => {
+            Logger.error('this avPlayer: ', `startBackgroundRunning failed Cause: code ${error.code}`);
+          });
+        }
       } catch (error) {
-        Logger.error('this avPlayer: ', `startBackgroundRunning failed. code ${(error as BusinessError).code}
-         message ${(error as BusinessError).message}`);
+        Logger.error('this avPlayer: ',
+          `startBackgroundRunning failed. code ${(error as BusinessError).code} message ${(error as BusinessError).message}`);
       }
     });
   }
@@ -63,15 +64,17 @@ export class BackgroundUtil {
    * @param context
    */
   public static stopContinuousTask(context: common.UIAbilityContext): void {
-    try {
-      backgroundTaskManager.stopBackgroundRunning(context).then(() => {
-        Logger.info('this avPlayer: ', 'stopBackgroundRunning succeeded');
-      }).catch((error: BusinessError) => {
-        Logger.error('this avPlayer: ', `stopBackgroundRunning failed Cause: code ${error.code}`);
-      });
-    } catch (error) {
-      Logger.error('this avPlayer: ', `stopBackgroundRunning failed. code ${(error as BusinessError).code}
-       message ${(error as BusinessError).message}`);
+    if (canIUse('SystemCapability.ResourceSchedule.BackgroundTaskManager.Core')) {
+      try {
+        backgroundTaskManager.stopBackgroundRunning(context).then(() => {
+          Logger.info('this avPlayer: ', 'stopBackgroundRunning succeeded');
+        }).catch((error: BusinessError) => {
+          Logger.error('this avPlayer: ', `stopBackgroundRunning failed Cause: code ${error.code}`);
+        });
+      } catch (error) {
+        Logger.error('this avPlayer: ',
+          `stopBackgroundRunning failed. code ${(error as BusinessError).code} message ${(error as BusinessError).message}`);
+      }
     }
   }
 }

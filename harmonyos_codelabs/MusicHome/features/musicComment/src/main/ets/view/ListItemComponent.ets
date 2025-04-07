@@ -19,7 +19,7 @@ import { CommonConstants } from '../constants/CommonConstants';
 
 @Component
 export struct ListItemComponent {
-  private item: Comment = new Comment('', '', '', $r('app.media.ic_avatar12'));
+  public item: Comment = new Comment('', '', '', $r('app.media.ic_avatar12'));
 
   build() {
     Row() {

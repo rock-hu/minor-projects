@@ -1,8 +1,8 @@
-﻿# 新闻数据加载
+﻿# 实现新闻数据加载功能
 
 ### 简介
 
-本篇Codelab是基于ArkTS的声明式开发范式实现的样例，主要介绍了数据请求和touch事件的使用。
+本篇Codelab通过HTTP数据请求能力实现新闻分类和新闻列表数据获取，通过OnTouch触摸事件实现上拉加载下拉刷新能力。帮助开发者在新闻类场景开发中，实现数据的加载及刷新等功能。
 
 ![](screenshots/device/news.gif)
 
@@ -45,6 +45,6 @@
 ### 约束与限制
 
 1. 本示例仅支持标准系统上运行，支持设备：华为手机。
-2. HarmonyOS系统：HarmonyOS NEXT Developer Beta1及以上。
-3. DevEco Studio版本：DevEco Studio NEXT Developer Beta1及以上。
-4. HarmonyOS SDK版本：HarmonyOS NEXT Developer Beta1 SDK及以上。
+2. HarmonyOS系统：HarmonyOS 5.0.0 Release及以上。
+3. DevEco Studio版本：DevEco Studio 5.0.0 Release及以上。
+4. HarmonyOS SDK版本：HarmonyOS 5.0.0 Release SDK及以上。

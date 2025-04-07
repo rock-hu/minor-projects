@@ -1,8 +1,8 @@
-# 待办列表
+# 实现待办事项列表
 
 ## 简介
 
-本篇Codelab基于ArkTS声明式语法和ArkTS基础组件，实现简易待办事项的案例。效果如图所示：
+本篇Codelab将介绍如何使用ArkTS声明式语法和基础组件，实现简易待办列表。效果为点击某一事项，替换标签图片、虚化文字。
 
 ![](screenshots/device/ToDoList.gif)
 
@@ -27,6 +27,6 @@
 ## 约束与限制
 
 1. 本示例仅支持标准系统上运行，支持设备：华为手机。
-2. HarmonyOS系统：HarmonyOS NEXT Developer Beta1及以上。
-3. DevEco Studio版本：DevEco Studio NEXT Developer Beta1及以上。
-4. HarmonyOS SDK版本：HarmonyOS NEXT Developer Beta1 SDK及以上。
+2. HarmonyOS系统：HarmonyOS 5.0.0 Release及以上。
+3. DevEco Studio版本：DevEco Studio 5.0.0 Release及以上。
+4. HarmonyOS SDK版本：HarmonyOS 5.0.0 Release SDK及以上。

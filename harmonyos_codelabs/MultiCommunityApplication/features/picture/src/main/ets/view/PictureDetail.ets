@@ -127,7 +127,7 @@ export struct PictureDetail {
                 }
               })
 
-              Image($r('app.media.ic_public_back'))
+              Image($r('app.media.ic_public_back_white'))
                 .width($r('app.float.back_width'))
                 .aspectRatio(1)
                 .onClick(() => {

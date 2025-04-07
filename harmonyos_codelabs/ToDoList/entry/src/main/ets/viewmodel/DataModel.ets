@@ -22,7 +22,7 @@ export class DataModel {
   /**
    * Saved Data.
    */
-  private tasks: Array<Resource> = CommonConstants.TODO_DATA;
+  public tasks: Array<Resource> = CommonConstants.TODO_DATA;
 
   /**
    * Get the data.

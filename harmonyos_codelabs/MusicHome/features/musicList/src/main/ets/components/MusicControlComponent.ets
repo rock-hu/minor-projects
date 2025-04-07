@@ -110,6 +110,7 @@ export struct MusicControlComponent {
                 left: $r('app.float.margin_small'),
                 right: $r('app.float.margin_small')
               })
+
               GridCol({
                 span: { md: BreakpointConstants.SPAN_SM }
               }) {
@@ -157,6 +158,7 @@ export struct MusicControlComponent {
                   bottom: $r('app.float.common_margin')
                 })
               }
+
               GridCol({
                 span: { md: BreakpointConstants.SPAN_SM, lg: BreakpointConstants.SPAN_MD },
                 offset: { lg: BreakpointConstants.OFFSET_MD }
@@ -242,7 +244,7 @@ export struct MusicControlComponent {
    */
   getImageColor() {
     if (!this.context) {
-      return ;
+      return;
     }
     this.context.resourceManager.getMediaContent(this.songList[this.selectIndex].label)
       .then((value: Uint8Array) => {

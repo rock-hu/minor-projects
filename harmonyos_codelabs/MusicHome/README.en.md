@@ -16,10 +16,6 @@ The figure shows the effect on the tablet.
 
 ![](screenshots/device/pad.en.png)
 
-### Permissions
-
-N/A
-
 ### How to Use
 
 1. Install and open an app on a mobile phone, foldable phone, or tablet. The responsive layout and adaptive layout are used to display different effects on the app pages over different devices.
@@ -27,6 +23,10 @@ N/A
 3. Tap the blank area in the playback control area or a song in the list to go to the playback screen.
 4. Tap the comment button on the page to go to the corresponding comment page.
 5. Other buttons do not have actual tap events or functions.
+
+### Permissions
+
+N/A
 
 ### Constraints
 

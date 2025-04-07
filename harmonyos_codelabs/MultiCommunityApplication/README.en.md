@@ -24,9 +24,6 @@ The figure shows the effect on the tablet:
 - GridRow: It is a container that is used in a grid layout, together with its child component **<GridCol>**.
 - GridCol: It is a container that must be used as a child component of the **<GridRow>** container.
 
-### Permissions
-
-N/A.
 
 ### How to Use
 
@@ -36,6 +33,10 @@ N/A.
 4. Tap the button for viewing complete rankings. The hot search rankings page is displayed. You can swipe up, down, left, or right on the hot search rankings page and tap the back button to return to the hot topics page.
 5. Tap an image on the hot topics page to go to the image details page. Only images are displayed on mobile phones, while the content and comments are displayed with images on foldable phones and tablets. Tap the image or the back button to return to the hot topics page.
 6. Tap the widget body on the hot topics page to go to the details page. The text area on the details page can be zoomed in or out with two fingers. You can tap the button in the upper right corner of the foldable phone to switch between the left-right layout and top-down layout. Tap the back button to return to the hot topics page.
+
+### Permissions
+
+N/A.
 
 ### Constraints
 

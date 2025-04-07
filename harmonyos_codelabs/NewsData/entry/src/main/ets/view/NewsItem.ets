@@ -21,7 +21,7 @@ import { CommonConstant as Const } from '../common/constant/CommonConstant';
  */
 @Component
 export default struct NewsItem {
-  private newsData: NewsData = new NewsData();
+  public newsData: NewsData = new NewsData();
 
   build() {
     Column() {

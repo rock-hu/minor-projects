@@ -17,7 +17,7 @@ import CommonConstants from '../common/constant/CommonConstant';
 
 @Component
 export default struct ToDoItem {
-  private content?: string;
+  public content?: string;
   @State isComplete: boolean = false;
 
   @Builder labelIcon(icon: Resource) {

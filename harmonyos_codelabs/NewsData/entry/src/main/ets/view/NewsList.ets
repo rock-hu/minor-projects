@@ -14,10 +14,7 @@
  */
 
 import { promptAction } from '@kit.ArkUI';
-import {
-  CommonConstant as Const,
-  PageState
-} from '../common/constant/CommonConstant';
+import { CommonConstant as Const, PageState } from '../common/constant/CommonConstant';
 import NewsItem from './NewsItem';
 import LoadMoreLayout from './LoadMoreLayout';
 import RefreshLayout from './RefreshLayout';
@@ -33,8 +30,29 @@ import NewsModel from '../viewmodel/NewsModel';
  */
 @Component
 export default struct NewsList {
-  @State newsModel: NewsModel = new NewsModel();
+  @State @Watch('newCustom') newsModel: NewsModel = new NewsModel();
+  @State customRefreshLoadClass: CustomRefreshLoadLayoutClass = new CustomRefreshLoadLayoutClass(true,
+    $r('app.media.ic_pull_up_load'), $r('app.string.pull_up_load_text'), this.newsModel.pullDownRefreshHeight);
+  @State refreshLayoutClass: CustomRefreshLoadLayoutClass =
+    new CustomRefreshLoadLayoutClass(this.newsModel.isVisiblePullDown,
+      this.newsModel.pullDownRefreshImage, this.newsModel.pullDownRefreshText,
+      this.newsModel.pullDownRefreshHeight);
+  @State loadMoreLayoutClass: CustomRefreshLoadLayoutClass =
+    new CustomRefreshLoadLayoutClass(this.newsModel.isVisiblePullUpLoad,
+      this.newsModel.pullUpLoadImage,
+      this.newsModel.pullUpLoadText, this.newsModel.pullUpLoadHeight);
   @Link currentIndex: number;
+
+  newCustom() {
+    this.refreshLayoutClass =
+      new CustomRefreshLoadLayoutClass(this.newsModel.isVisiblePullDown,
+        this.newsModel.pullDownRefreshImage, this.newsModel.pullDownRefreshText,
+        this.newsModel.pullDownRefreshHeight);
+    this.loadMoreLayoutClass =
+      new CustomRefreshLoadLayoutClass(this.newsModel.isVisiblePullUpLoad,
+        this.newsModel.pullUpLoadImage,
+        this.newsModel.pullUpLoadText, this.newsModel.pullUpLoadHeight);
+  }
 
   changeCategory() {
     this.newsModel.currentPage = 1;
@@ -85,17 +103,17 @@ export default struct NewsList {
     })
   }
 
-  @Builder LoadingLayout() {
-    CustomRefreshLoadLayout({ customRefreshLoadClass: new CustomRefreshLoadLayoutClass(true,
-      $r('app.media.ic_pull_up_load'), $r('app.string.pull_up_load_text'), this.newsModel.pullDownRefreshHeight) })
+  @Builder
+  LoadingLayout() {
+    CustomRefreshLoadLayout({ customRefreshLoadClass: this.customRefreshLoadClass })
   }
 
-  @Builder ListLayout() {
+  @Builder
+  ListLayout() {
     List() {
       ListItem() {
         RefreshLayout({
-          refreshLayoutClass: new CustomRefreshLoadLayoutClass(this.newsModel.isVisiblePullDown, this.newsModel.pullDownRefreshImage,
-            this.newsModel.pullDownRefreshText, this.newsModel.pullDownRefreshHeight)
+          refreshLayoutClass: this.refreshLayoutClass
         })
       }
 
@@ -112,8 +130,7 @@ export default struct NewsList {
       ListItem() {
         if (this.newsModel.hasMore) {
           LoadMoreLayout({
-            loadMoreLayoutClass: new CustomRefreshLoadLayoutClass(this.newsModel.isVisiblePullUpLoad, this.newsModel.pullUpLoadImage,
-              this.newsModel.pullUpLoadText, this.newsModel.pullUpLoadHeight)
+            loadMoreLayoutClass: this.loadMoreLayoutClass
           })
         } else {
           NoMoreLayout()
@@ -139,7 +156,8 @@ export default struct NewsList {
     })
   }
 
-  @Builder FailLayout() {
+  @Builder
+  FailLayout() {
     Image($r('app.media.none'))
       .height(Const.NewsListConstant_NONE_IMAGE_SIZE)
       .width(Const.NewsListConstant_NONE_IMAGE_SIZE)
