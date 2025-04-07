@@ -669,7 +669,7 @@ void RatingPattern::InitOnKeyEvent(const RefPtr<FocusHub>& focusHub)
             pattern->GetInnerFocusPaintRect(paintRect);
         }
     });
-    focusHub->SetOnFocusInternal([wp = WeakClaim(this)]() {
+    focusHub->SetOnFocusInternal([wp = WeakClaim(this)](FocusReason reason) {
         auto pattern = wp.Upgrade();
         CHECK_NULL_VOID(pattern);
         pattern->OnFocusEvent();
@@ -942,9 +942,6 @@ void RatingPattern::OnModifyDone()
     FireBuilder();
     auto host = GetHost();
     CHECK_NULL_VOID(host);
-    if (host->GreatOrEqualAPITargetVersion(PlatformVersion::VERSION_TWENTY)) {
-        HandleEnabled();
-    }
     auto pipeline = host->GetContext();
     CHECK_NULL_VOID(pipeline);
     auto ratingTheme = pipeline->GetTheme<RatingTheme>();

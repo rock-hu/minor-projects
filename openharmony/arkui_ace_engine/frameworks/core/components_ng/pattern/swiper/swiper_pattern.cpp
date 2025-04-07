@@ -524,8 +524,8 @@ void SwiperPattern::BeforeCreateLayoutWrapper()
         UpdateCurrentFocus();
         host->ChildrenUpdatedFrom(-1);
     }
-
     CheckLoopChange();
+    SetLazyLoadIsLoop();
     auto lastCurrentIndex = currentIndex_;
     auto userSetCurrentIndex = CurrentIndex();
     userSetCurrentIndex = CheckUserSetIndex(userSetCurrentIndex);
@@ -1532,22 +1532,7 @@ void SwiperPattern::FireChangeEvent(int32_t preIndex, int32_t currentIndex, bool
         CHECK_NULL_VOID(host);
         host->OnAccessibilityEvent(AccessibilityEventType::SCROLL_END);
     }
-#if !defined(PREVIEW) && !defined(ACE_UNITTEST) && defined(OHOS_PLATFORM)
-    if (!UiSessionManager::GetInstance()->IsHasReportObject()) {
-        return;
-    }
-    auto params = InspectorJsonUtil::CreateObject();
-    CHECK_NULL_VOID(params);
-    params->Put("index", currentIndex);
-    auto json = InspectorJsonUtil::Create();
-    CHECK_NULL_VOID(json);
-    json->Put("cmd", "onChange");
-    json->Put("params", params);
-    int32_t nodeId = GetNodeId();
-    TAG_LOGI(AceLogTag::ACE_SWIPER, "Report onChange event, the nodeId:%{public}d, details:%{public}s", nodeId,
-        json->ToString().c_str());
-    UiSessionManager::GetInstance()->ReportComponentChangeEvent(nodeId, "event", json);
-#endif
+    ReportComponentChangeEvent("onChange", currentIndex, false);
 }
 
 void SwiperPattern::FireAnimationStartEvent(
@@ -1574,24 +1559,7 @@ void SwiperPattern::FireAnimationEndEvent(
     auto host = GetHost();
     CHECK_NULL_VOID(host);
     host->OnAccessibilityEvent(AccessibilityEventType::SCROLL_END);
-#if !defined(PREVIEW) && !defined(ACE_UNITTEST) && defined(OHOS_PLATFORM)
-    if (!UiSessionManager::GetInstance()->IsHasReportObject()) {
-        return;
-    }
-    auto params = InspectorJsonUtil::CreateObject();
-    CHECK_NULL_VOID(params);
-    params->Put("index", currentIndex);
-    auto offset = info.currentOffset.value_or(0.0);
-    params->Put("currentOffset", offset);
-    auto json = InspectorJsonUtil::Create();
-    CHECK_NULL_VOID(json);
-    json->Put("cmd", "onAnimationEnd");
-    json->Put("params", params);
-    int32_t nodeId = GetNodeId();
-    TAG_LOGI(AceLogTag::ACE_SWIPER, "Report onAnimationEnd event, the nodeId:%{public}d, details:%{public}s", nodeId,
-        json->ToString().c_str());
-    UiSessionManager::GetInstance()->ReportComponentChangeEvent(nodeId, "event", json);
-#endif
+    ReportComponentChangeEvent("onAnimationEnd", currentIndex, true, info.currentOffset.value_or(0.0));
 }
 
 void SwiperPattern::FireGestureSwipeEvent(int32_t currentIndex, const AnimationCallbackInfo& info) const
@@ -2719,7 +2687,7 @@ void SwiperPattern::InitTouchEvent(const RefPtr<GestureEventHub>& gestureHub)
 
 void SwiperPattern::InitOnFocusInternal(const RefPtr<FocusHub>& focusHub)
 {
-    auto focusTask = [weak = WeakClaim(this)]() {
+    auto focusTask = [weak = WeakClaim(this)](FocusReason reason) {
         auto pattern = weak.Upgrade();
         if (pattern) {
             pattern->HandleFocusInternal();
@@ -3372,13 +3340,19 @@ void SwiperPattern::TriggerAddTabBarEvent() const
     }
 }
 
-void SwiperPattern::HandleDragEnd(double dragVelocity, float mainDelta)
+void SwiperPattern::ReportTraceOnDragEnd() const
 {
     if (!hasTabsAncestor_) {
         PerfMonitor::GetPerfMonitor()->EndCommercial(PerfConstants::APP_SWIPER_SCROLL, false);
     } else {
         AceAsyncTraceEndCommercial(0, APP_TABS_SCROLL);
     }
+}
+
+void SwiperPattern::HandleDragEnd(double dragVelocity, float mainDelta)
+{
+    ReportTraceOnDragEnd();
+
     isTouchDown_ = false;
     isTouchDownOnOverlong_ = false;
     if (!CheckSwiperPanEvent(dragVelocity) || !CheckContentWillScroll(dragVelocity, mainDelta)) {
@@ -3392,6 +3366,10 @@ void SwiperPattern::HandleDragEnd(double dragVelocity, float mainDelta)
 
     auto pipeline = GetContext();
     CHECK_NULL_VOID(pipeline);
+    if (SupportSwiperCustomAnimation()) {
+        pipeline->FlushDirtyNodeUpdate();
+    }
+
     pipeline->FlushUITasks();
     if (itemPosition_.empty()) {
         EventReport::ReportScrollableErrorEvent(
@@ -5281,18 +5259,19 @@ void SwiperPattern::SetLazyLoadIsLoop() const
     CHECK_NULL_VOID(host);
     auto targetNode = FindLazyForEachNode(host);
     if (targetNode.has_value()) {
+        auto isLoop = IsLoop();
         auto lazyForEachNode = AceType::DynamicCast<LazyForEachNode>(targetNode.value());
         if (lazyForEachNode) {
-            lazyForEachNode->SetIsLoop(IsLoop());
+            lazyForEachNode->SetIsLoop(isLoop);
         }
         auto repeatVirtualNode = AceType::DynamicCast<RepeatVirtualScrollNode>(targetNode.value());
         if (repeatVirtualNode) {
-            repeatVirtualNode->SetIsLoop(IsLoop());
+            repeatVirtualNode->SetIsLoop(isLoop);
         }
 
         auto repeatVirtualNode2 = AceType::DynamicCast<RepeatVirtualScroll2Node>(targetNode.value());
         if (repeatVirtualNode2) {
-            repeatVirtualNode2->SetIsLoop(IsLoop());
+            repeatVirtualNode2->SetIsLoop(isLoop);
         }
     }
 }
@@ -7270,8 +7249,9 @@ bool SwiperPattern::HasRepeatTotalCountDifference(RefPtr<UINode> node) const
         auto repeat2 = AceType::DynamicCast<RepeatVirtualScroll2Node>(child);
         if (repeat2 && repeat2->GetTotalCount() > repeat2->FrameCount()) {
             return true;
-        } else if (AceType::InstanceOf<LazyForEachNode>(child) || AceType::InstanceOf<RepeatVirtualScrollNode>(child) ||
-                   AceType::InstanceOf<ForEachNode>(child)) {
+        } else if (AceType::InstanceOf<FrameNode>(child) || AceType::InstanceOf<LazyForEachNode>(child) ||
+                   AceType::InstanceOf<RepeatVirtualScrollNode>(child) || AceType::InstanceOf<ForEachNode>(child) ||
+                   AceType::InstanceOf<CustomNode>(child)) {
             continue;
         } else {
             if (HasRepeatTotalCountDifference(child)) {
@@ -7373,5 +7353,30 @@ int32_t SwiperPattern::GetNodeId() const
         return tabsNode->GetId();
     }
     return host->GetId();
+}
+
+void SwiperPattern::ReportComponentChangeEvent(
+    const std::string& eventType, int32_t currentIndex, bool includeOffset, float offset) const
+{
+    if (!UiSessionManager::GetInstance()->IsHasReportObject()) {
+        return;
+    }
+    auto params = JsonUtil::Create();
+    CHECK_NULL_VOID(params);
+    params->Put("index", currentIndex);
+    if (includeOffset) {
+        params->Put("currentOffset", offset);
+    }
+    auto json = JsonUtil::Create();
+    CHECK_NULL_VOID(json);
+    json->Put("cmd", eventType.data());
+    json->Put("params", params);
+
+    auto result = JsonUtil::Create();
+    CHECK_NULL_VOID(result);
+    int32_t nodeId = GetNodeId();
+    result->Put("nodeId", nodeId);
+    result->Put("event", json);
+    UiSessionManager::GetInstance()->ReportComponentChangeEvent("result", result->ToString());
 }
 } // namespace OHOS::Ace::NG

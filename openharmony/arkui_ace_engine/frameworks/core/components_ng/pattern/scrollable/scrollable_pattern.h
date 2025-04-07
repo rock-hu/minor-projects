@@ -684,8 +684,8 @@ public:
     void GetPaintPropertyDumpInfo();
     void GetPaintPropertyDumpInfo(std::unique_ptr<JsonValue>& json);
 
-    void GetEventDumpInfo();
-    void GetEventDumpInfo(std::unique_ptr<JsonValue>& json);
+    virtual void GetEventDumpInfo();
+    virtual void GetEventDumpInfo(std::unique_ptr<JsonValue>& json);
 
     void DumpAdvanceInfo() override;
     void DumpAdvanceInfo(std::unique_ptr<JsonValue>& json) override;
@@ -923,6 +923,11 @@ protected:
 
     void RecordScrollEvent(Recorder::EventType eventType);
 
+    bool IsBackToTopRunning() const
+    {
+        return isBackToTopRunning_;
+    }
+
 #ifdef SUPPORT_DIGITAL_CROWN
     void SetDigitalCrownEvent();
     CrownSensitivity crownSensitivity_ = CrownSensitivity::MEDIUM;
@@ -1112,7 +1117,7 @@ private:
     std::shared_ptr<AnimationUtils::Animation> curveAnimation_;
     uint64_t lastVsyncTime_ = 0;
     bool isAnimationStop_ = true; // graphic animation flag
-    bool isClickAnimationStop_ = false; // interrupt scrolling after click statubar.
+    bool isBackToTopRunning_ = false;
     float currentVelocity_ = 0.0f;
     float lastPosition_ = 0.0f;
     float finalPosition_ = 0.0f;

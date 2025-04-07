@@ -16,7 +16,6 @@
 #include "ecmascript/ecma_context.h"
 
 #include "ecmascript/builtins/builtins.h"
-#include "ecmascript/compiler/aot_constantpool_patcher.h"
 #include "ecmascript/compiler/pgo_type/pgo_type_manager.h"
 #include "ecmascript/compiler/rt_call_signature.h"
 #include "ecmascript/dfx/vmstat/opt_code_profiler.h"
@@ -33,7 +32,6 @@
 #include "ecmascript/jspandafile/abc_buffer_cache.h"
 #include "ecmascript/platform/aot_crash_info.h"
 #include "ecmascript/platform/ecma_context.h"
-#include "ecmascript/regexp/regexp_parser_cache.h"
 #include "ecmascript/require/js_require_manager.h"
 #include "ecmascript/snapshot/mem/snapshot.h"
 #include "ecmascript/stubs/runtime_stubs.h"
@@ -74,20 +72,6 @@ bool EcmaContext::Initialize()
     LOG_ECMA(DEBUG) << "EcmaContext::Initialize";
     ECMA_BYTRACE_NAME(HITRACE_TAG_ARK, "EcmaContext::Initialize");
     [[maybe_unused]] EcmaHandleScope scope(thread_);
-    ecmaData_.propertiesCache_ = new PropertiesCache();
-    if (vm_->GetJSOptions().IsEnableMegaIC()) {
-        ecmaData_.loadMegaICCache_ = new MegaICCache();
-        ecmaData_.storeMegaICCache_ = new MegaICCache();
-    }
-    regExpParserCache_ = new RegExpParserCache();
-    unsharedConstpools_ = new(std::nothrow) JSTaggedValue[GetUnsharedConstpoolsArrayLen()];
-    if (unsharedConstpools_ == nullptr) {
-        LOG_ECMA(FATAL) << "allocate unshared constpool array fail during initing";
-        UNREACHABLE();
-    }
-    std::fill(unsharedConstpools_, unsharedConstpools_ + GetUnsharedConstpoolsArrayLen(), JSTaggedValue::Hole());
-    thread_->SetUnsharedConstpools(reinterpret_cast<uintptr_t>(unsharedConstpools_));
-    thread_->SetUnsharedConstpoolsArrayLen(unsharedConstpoolsArrayLen_);
 
     thread_->SetGlobalConst(&globalConst_);
     globalConst_.Init(thread_);
@@ -104,18 +88,13 @@ bool EcmaContext::Initialize()
     thread_->SetEnableLazyBuiltins(builtinsLazyEnabled);
     builtins.Initialize(globalEnv, thread_, builtinsLazyEnabled);
 
-    moduleManager_ = new ModuleManager(vm_);
     ptManager_ = new kungfu::PGOTypeManager(vm_);
     optCodeProfiler_ = new OptCodeProfiler();
     abcBufferCache_ = new AbcBufferCache();
     if (vm_->GetJSOptions().GetTypedOpProfiler()) {
         typedOpProfiler_ = new TypedOpProfiler();
     }
-    if (vm_->GetJSOptions().EnableModuleLog()) {
-        moduleLogger_ = new ModuleLogger(vm_);
-    }
     functionProtoTransitionTable_ = new FunctionProtoTransitionTable(thread_);
-    sustainingJSHandleList_ = new SustainingJSHandleList();
     initialized_ = true;
     return true;
 }
@@ -127,7 +106,6 @@ EcmaContext::~EcmaContext()
         vm_->GetJit()->ClearTask(this);
     }
 
-    ClearBufferData();
     // clear c_address: c++ pointer delete
     if (!vm_->IsBundlePack()) {
         std::shared_ptr<JSPandaFile> jsPandaFile =
@@ -145,41 +123,14 @@ EcmaContext::~EcmaContext()
         delete typedOpProfiler_;
         typedOpProfiler_ = nullptr;
     }
-    if (moduleManager_ != nullptr) {
-        delete moduleManager_;
-        moduleManager_ = nullptr;
-    }
-    if (moduleLogger_ != nullptr) {
-        delete moduleLogger_;
-        moduleLogger_ = nullptr;
-    }
     if (ptManager_ != nullptr) {
         delete ptManager_;
         ptManager_ = nullptr;
     }
-    if (regExpParserCache_ != nullptr) {
-        delete regExpParserCache_;
-        regExpParserCache_ = nullptr;
-    }
     if (aotFileManager_ != nullptr) {
         aotFileManager_ = nullptr;
     }
-    if (ecmaData_.loadMegaICCache_ != nullptr) {
-        delete ecmaData_.loadMegaICCache_;
-        ecmaData_.loadMegaICCache_ = nullptr;
-    }
-    if (ecmaData_.storeMegaICCache_ != nullptr) {
-        delete ecmaData_.storeMegaICCache_;
-        ecmaData_.storeMegaICCache_ = nullptr;
-    }
-    if (ecmaData_.propertiesCache_ != nullptr) {
-        delete ecmaData_.propertiesCache_;
-        ecmaData_.propertiesCache_ = nullptr;
-    }
-    if (sustainingJSHandleList_ != nullptr) {
-        delete sustainingJSHandleList_;
-        sustainingJSHandleList_ = nullptr;
-    }
+
     if (functionProtoTransitionTable_ != nullptr) {
         delete functionProtoTransitionTable_;
         functionProtoTransitionTable_ = nullptr;
@@ -187,12 +138,6 @@ EcmaContext::~EcmaContext()
     if (abcBufferCache_ != nullptr) {
         delete abcBufferCache_;
         abcBufferCache_ = nullptr;
-    }
-    if (unsharedConstpools_ != nullptr) {
-        delete[] unsharedConstpools_;
-        unsharedConstpools_ = nullptr;
-        thread_->SetUnsharedConstpools(reinterpret_cast<uintptr_t>(nullptr));
-        thread_->SetUnsharedConstpoolsArrayLen(0);
     }
 }
 
@@ -238,7 +183,7 @@ Expected<JSTaggedValue, bool> EcmaContext::CommonInvokeEcmaEntrypoint(const JSPa
         THROW_REFERENCE_ERROR_AND_RETURN(thread_, msg.c_str(), Unexpected(false));
     }
 
-    ModuleLogger *moduleLogger = GetModuleLogger();
+    ModuleLogger *moduleLogger = thread_->GetModuleLogger();
     if (moduleLogger != nullptr) {
         moduleLogger->SetStartTime(entry);
     }
@@ -252,7 +197,7 @@ Expected<JSTaggedValue, bool> EcmaContext::CommonInvokeEcmaEntrypoint(const JSPa
         if (jsPandaFile->IsSharedModule(recordInfo)) {
             module = SharedModuleManager::GetInstance()->GetSModule(thread_, entry);
         } else {
-            module = moduleManager_->HostGetImportedModule(moduleName);
+            module = thread_->GetModuleManager()->HostGetImportedModule(moduleName);
         }
         // esm -> SourceTextModule; cjs or script -> string of recordName
         module->SetSendableEnv(thread_, JSTaggedValue::Undefined());
@@ -417,252 +362,6 @@ void EcmaContext::ResetProtoTransitionTableOnConstpool(JSTaggedValue constpool)
     ConstantPool::Cast(constpool.GetTaggedObject())->SetProtoTransTableInfo(thread_, JSTaggedValue::Undefined());
 }
 
-// just find unshared constpool, not create
-JSTaggedValue EcmaContext::FindUnsharedConstpool(JSTaggedValue sharedConstpool)
-{
-    ConstantPool *shareCp = ConstantPool::Cast(sharedConstpool.GetTaggedObject());
-    int32_t constpoolIndex = shareCp->GetUnsharedConstpoolIndex();
-    // unshared constpool index is default INT32_MAX.
-    ASSERT(0 <= constpoolIndex && constpoolIndex != ConstantPool::CONSTPOOL_TYPE_FLAG);
-    if (constpoolIndex >= GetUnsharedConstpoolsArrayLen()) {
-        return JSTaggedValue::Hole();
-    }
-    return unsharedConstpools_[constpoolIndex];
-}
-
-JSTaggedValue EcmaContext::FindOrCreateUnsharedConstpool(JSTaggedValue sharedConstpool)
-{
-    JSTaggedValue unsharedConstpool = FindUnsharedConstpool(sharedConstpool);
-    if (unsharedConstpool.IsHole()) {
-        ConstantPool *shareCp = ConstantPool::Cast(sharedConstpool.GetTaggedObject());
-        int32_t constpoolIndex = shareCp->GetUnsharedConstpoolIndex();
-        // unshared constpool index is default INT32_MAX.
-        ASSERT(0 <= constpoolIndex && constpoolIndex != INT32_MAX);
-        JSHandle<ConstantPool> unshareCp =
-            ConstantPool::CreateUnSharedConstPoolBySharedConstpool(vm_, shareCp->GetJSPandaFile(), shareCp);
-        unsharedConstpool = unshareCp.GetTaggedValue();
-        SetUnsharedConstpool(constpoolIndex, unsharedConstpool);
-    }
-    return unsharedConstpool;
-}
-
-void EcmaContext::EraseUnusedConstpool(const JSPandaFile *jsPandaFile, int32_t index, int32_t constpoolIndex)
-{
-    // unshared constpool index is default INT32_MAX.
-    ASSERT(0 <= constpoolIndex && constpoolIndex < GetUnsharedConstpoolsArrayLen());
-
-    SetUnsharedConstpool(constpoolIndex, JSTaggedValue::Hole());
-    auto iter = cachedSharedConstpools_.find(jsPandaFile);
-    if (iter == cachedSharedConstpools_.end()) {
-        return;
-    }
-    auto constpoolIter = iter->second.find(index);
-    if (constpoolIter == iter->second.end()) {
-        return;
-    }
-
-    iter->second.erase(constpoolIter);
-    if (iter->second.size() == 0) {
-        cachedSharedConstpools_.erase(iter);
-    }
-}
-
-std::optional<std::reference_wrapper<CMap<int32_t, JSTaggedValue>>> EcmaContext::FindConstpools(
-    const JSPandaFile *jsPandaFile)
-{
-    return Runtime::GetInstance()->FindConstpools(jsPandaFile);
-}
-
-// For new version instruction.
-JSTaggedValue EcmaContext::FindConstpool(const JSPandaFile *jsPandaFile, panda_file::File::EntityId id)
-{
-    panda_file::IndexAccessor indexAccessor(*jsPandaFile->GetPandaFile(), id);
-    int32_t index = static_cast<int32_t>(indexAccessor.GetHeaderIndex());
-    return FindConstpool(jsPandaFile, index);
-}
-
-JSTaggedValue EcmaContext::FindConstpool(const JSPandaFile *jsPandaFile, int32_t index)
-{
-    JSTaggedValue contextCache = FindConstpoolFromContextCache(jsPandaFile, index);
-    if (!contextCache.IsHole()) {
-        return contextCache;
-    }
-    return Runtime::GetInstance()->FindConstpool(jsPandaFile, index);
-}
-
-JSTaggedValue EcmaContext::FindConstpoolFromContextCache(const JSPandaFile *jsPandaFile, int32_t index)
-{
-    auto iter = cachedSharedConstpools_.find(jsPandaFile);
-    if (iter != cachedSharedConstpools_.end()) {
-        auto constpoolIter = iter->second.find(index);
-        if (constpoolIter != iter->second.end()) {
-            return constpoolIter->second;
-        }
-    }
-    return JSTaggedValue::Hole();
-}
-
-bool EcmaContext::HasCachedConstpool(const JSPandaFile *jsPandaFile) const
-{
-    if (cachedSharedConstpools_.find(jsPandaFile) != cachedSharedConstpools_.end()) {
-        return true;
-    }
-
-    return Runtime::GetInstance()->HasCachedConstpool(jsPandaFile);
-}
-
-JSHandle<ConstantPool> EcmaContext::AddOrUpdateConstpool(const JSPandaFile *jsPandaFile,
-                                                         JSHandle<ConstantPool> constpool,
-                                                         int32_t index)
-{
-    constpool = Runtime::GetInstance()->AddOrUpdateConstpool(jsPandaFile, constpool, index);
-    AddContextConstpoolCache(jsPandaFile, constpool, index);
-    return constpool;
-}
-
-void EcmaContext::AddContextConstpoolCache(const JSPandaFile *jsPandaFile,
-                                           JSHandle<ConstantPool> constpool,
-                                           int32_t index)
-{
-    if (cachedSharedConstpools_.find(jsPandaFile) == cachedSharedConstpools_.end()) {
-        cachedSharedConstpools_[jsPandaFile] = CMap<int32_t, JSTaggedValue>();
-    }
-    auto &constpoolMap = cachedSharedConstpools_[jsPandaFile];
-    ASSERT(constpoolMap.find(index) == constpoolMap.end());
-    constpoolMap.insert({index, constpool.GetTaggedValue()});
-}
-
-void EcmaContext::SetUnsharedConstpool(JSHandle<ConstantPool> sharedConstpool, JSTaggedValue unsharedConstpool)
-{
-    int32_t constpoolIndex = sharedConstpool->GetUnsharedConstpoolIndex();
-    SetUnsharedConstpool(constpoolIndex, unsharedConstpool);
-}
-
-void EcmaContext::SetUnsharedConstpool(int32_t constpoolIndex, JSTaggedValue unsharedConstpool)
-{
-    GrowUnsharedConstpoolArray(constpoolIndex);
-    ASSERT(0 <= constpoolIndex && constpoolIndex < ConstantPool::CONSTPOOL_TYPE_FLAG);
-    unsharedConstpools_[constpoolIndex] = unsharedConstpool;
-}
-
-void EcmaContext::GrowUnsharedConstpoolArray(int32_t index)
-{
-    if (index == ConstantPool::CONSTPOOL_TYPE_FLAG) {
-        LOG_ECMA(FATAL) << "index has exceed unshared constpool array limit";
-        UNREACHABLE();
-    }
-    int32_t oldCapacity = GetUnsharedConstpoolsArrayLen();
-    if (index >= oldCapacity) {
-        int32_t minCapacity = index + 1;
-        ResizeUnsharedConstpoolArray(oldCapacity, minCapacity);
-    }
-}
-
-void EcmaContext::ResizeUnsharedConstpoolArray(int32_t oldCapacity, int32_t minCapacity)
-{
-    int32_t newCapacity = oldCapacity * 2; // 2: Double the value
-    if (newCapacity - minCapacity < 0) {
-        newCapacity = minCapacity;
-    }
-
-    if (newCapacity >= (INT32_MAX >> 1)) {
-        newCapacity = INT32_MAX;
-    }
-
-    JSTaggedValue *newUnsharedConstpools = new(std::nothrow) JSTaggedValue[newCapacity];
-    if (newUnsharedConstpools == nullptr) {
-        LOG_ECMA(FATAL) << "allocate unshared constpool array fail during resizing";
-        UNREACHABLE();
-    }
-    std::fill(newUnsharedConstpools, newUnsharedConstpools + newCapacity, JSTaggedValue::Hole());
-    std::copy(unsharedConstpools_, unsharedConstpools_ + GetUnsharedConstpoolsArrayLen(), newUnsharedConstpools);
-    ClearUnsharedConstpoolArray();
-    unsharedConstpools_ = newUnsharedConstpools;
-    thread_->SetUnsharedConstpools(reinterpret_cast<uintptr_t>(unsharedConstpools_));
-    thread_->SetUnsharedConstpoolsArrayLen(newCapacity);
-    SetUnsharedConstpoolsArrayLen(newCapacity);
-}
-
-void EcmaContext::UpdateConstpoolWhenDeserialAI(const std::string& fileName,
-                                                JSHandle<ConstantPool> aiCP, int32_t index)
-{
-    auto pf = JSPandaFileManager::GetInstance()->FindJSPandaFile(fileName.c_str());
-    if (pf == nullptr) {
-        return;
-    }
-    JSTaggedValue sharedConstpool = FindConstpool(pf.get(), index);
-    JSHandle<ConstantPool> sharedCPHandle = JSHandle<ConstantPool>(thread_, sharedConstpool);
-    if (sharedConstpool.IsHole()) {
-        return;
-    }
-    JSTaggedValue unsharedConstpool = FindOrCreateUnsharedConstpool(sharedCPHandle.GetTaggedValue());
-    JSHandle<ConstantPool> unsharedCP = JSHandle<ConstantPool>(thread_, unsharedConstpool);
-    JSHandle<ConstantPool> sharedCP = JSHandle<ConstantPool>(thread_, sharedCPHandle.GetTaggedValue());
-    ConstantPool::UpdateConstpoolWhenDeserialAI(vm_, aiCP, sharedCP, unsharedCP);
-}
-
-JSTaggedValue EcmaContext::FindCachedConstpoolAndLoadAiIfNeeded(const JSPandaFile *jsPandaFile, int32_t index)
-{
-    JSTaggedValue constpool = FindConstpoolFromContextCache(jsPandaFile, index);
-    if (!constpool.IsHole()) {
-        return constpool;
-    }
-    constpool = Runtime::GetInstance()->FindConstpool(jsPandaFile, index);
-    if (!constpool.IsHole()) {
-        AddContextConstpoolCache(jsPandaFile, JSHandle<ConstantPool>(thread_, constpool), index);
-    }
-    // Getting the cached constpool in runtime means the ai data has not been loaded in current thread.
-    // And we need to reload it
-    aotFileManager_->LoadAiFile(jsPandaFile, vm_);
-    return constpool;
-}
-
-JSHandle<ConstantPool> EcmaContext::FindOrCreateConstPool(const JSPandaFile *jsPandaFile, panda_file::File::EntityId id)
-{
-    panda_file::IndexAccessor indexAccessor(*jsPandaFile->GetPandaFile(), id);
-    int32_t index = static_cast<int32_t>(indexAccessor.GetHeaderIndex());
-    JSTaggedValue constpool = FindCachedConstpoolAndLoadAiIfNeeded(jsPandaFile, index);
-    if (constpool.IsHole()) {
-        JSHandle<ConstantPool> newConstpool = ConstantPool::CreateUnSharedConstPool(vm_, jsPandaFile, id);
-        JSHandle<ConstantPool> newSConstpool;
-        if (jsPandaFile->IsLoadedAOT()) {
-            AotConstantpoolPatcher::SetObjectFunctionFromConstPool(thread_, newConstpool);
-            newSConstpool = ConstantPool::CreateSharedConstPoolForAOT(vm_, newConstpool, index);
-        } else {
-            newSConstpool = ConstantPool::CreateSharedConstPool(vm_, jsPandaFile, id, index);
-        }
-        newSConstpool = AddOrUpdateConstpool(jsPandaFile, newSConstpool, index);
-        SetUnsharedConstpool(newSConstpool, newConstpool.GetTaggedValue());
-        return newSConstpool;
-    } else if (jsPandaFile->IsLoadedAOT()) {
-        // For aot, after getting the cached shared constpool,
-        // worker thread need to create and bind the correspoding unshared constpool.
-        JSHandle<ConstantPool> newConstpool = JSHandle<ConstantPool>(thread_, FindOrCreateUnsharedConstpool(constpool));
-        AotConstantpoolPatcher::SetObjectFunctionFromConstPool(thread_, newConstpool);
-    }
-    return JSHandle<ConstantPool>(thread_, constpool);
-}
-
-void EcmaContext::CreateAllConstpool(const JSPandaFile *jsPandaFile)
-{
-    auto headers = jsPandaFile->GetPandaFile()->GetIndexHeaders();
-    uint32_t index = 0;
-    for (const auto &header : headers) {
-        auto constpoolSize = header.method_idx_size;
-        JSHandle<ConstantPool> sconstpool = factory_->NewSConstantPool(constpoolSize);
-        sconstpool->SetJSPandaFile(jsPandaFile);
-        sconstpool->SetIndexHeader(&header);
-        sconstpool->SetSharedConstpoolId(JSTaggedValue(index));
-        sconstpool = AddOrUpdateConstpool(jsPandaFile, sconstpool, index);
-        index++;
-
-        JSHandle<ConstantPool> constpool = factory_->NewConstantPool(constpoolSize);
-        constpool->SetJSPandaFile(jsPandaFile);
-        constpool->SetIndexHeader(&header);
-        SetUnsharedConstpool(sconstpool, constpool.GetTaggedValue());
-    }
-}
-
 JSHandle<JSTaggedValue> EcmaContext::GetAndClearEcmaUncaughtException() const
 {
     JSHandle<JSTaggedValue> exceptionHandle = GetEcmaUncaughtException();
@@ -677,13 +376,6 @@ JSHandle<JSTaggedValue> EcmaContext::GetEcmaUncaughtException() const
     }
     JSHandle<JSTaggedValue> exceptionHandle(thread_, thread_->GetException());
     return exceptionHandle;
-}
-
-void EcmaContext::ClearBufferData()
-{
-    cachedSharedConstpools_.clear();
-    thread_->SetUnsharedConstpools(reinterpret_cast<uintptr_t>(nullptr));
-    thread_->SetUnsharedConstpoolsArrayLen(0);
 }
 
 void EcmaContext::SetGlobalEnv(GlobalEnv *global)
@@ -730,16 +422,6 @@ void EcmaContext::CheckAndDestroy(JSThread *thread, EcmaContext *context)
     LOG_ECMA(FATAL) << "CheckAndDestroy a nonexistent context.";
 }
 
-void EcmaContext::IterateMegaIC(RootVisitor &v)
-{
-    if (ecmaData_.loadMegaICCache_ != nullptr) {
-        ecmaData_.loadMegaICCache_->Iterate(v);
-    }
-    if (ecmaData_.storeMegaICCache_ != nullptr) {
-        ecmaData_.storeMegaICCache_->Iterate(v);
-    }
-}
-
 void EcmaContext::Iterate(RootVisitor &v)
 {
     // visit global Constant
@@ -750,28 +432,9 @@ void EcmaContext::Iterate(RootVisitor &v)
     if (functionProtoTransitionTable_) {
         functionProtoTransitionTable_->Iterate(v);
     }
-    if (moduleManager_) {
-        moduleManager_->Iterate(v);
-    }
     if (ptManager_) {
         ptManager_->Iterate(v);
     }
-    if (ecmaData_.propertiesCache_ != nullptr) {
-        ecmaData_.propertiesCache_->Clear();
-    }
-    if (regExpParserCache_ != nullptr) {
-        regExpParserCache_->Clear();
-    }
-    IterateMegaIC(v);
-
-    if (sustainingJSHandleList_) {
-        sustainingJSHandleList_->Iterate(v);
-    }
-
-    auto start = ObjectSlot(ToUintPtr(unsharedConstpools_));
-    auto end = ObjectSlot(ToUintPtr(&unsharedConstpools_[GetUnsharedConstpoolsArrayLen() - 1]) +
-        JSTaggedValue::TaggedTypeSize());
-    v.VisitRangeRoot(Root::ROOT_VM, start, end);
 }
 
 void EcmaContext::LoadStubFile()
@@ -838,20 +501,6 @@ std::tuple<uint64_t, uint8_t *, int, kungfu::CalleeRegAndOffsetVec> EcmaContext:
 {
     auto loader = aotFileManager_;
     return loader->CalCallSiteInfo(retAddr, isDeopt);
-}
-
-void EcmaContext::AddSustainingJSHandle(SustainingJSHandle *sustainingHandle)
-{
-    if (sustainingJSHandleList_) {
-        sustainingJSHandleList_->AddSustainingJSHandle(sustainingHandle);
-    }
-}
-
-void EcmaContext::RemoveSustainingJSHandle(SustainingJSHandle *sustainingHandle)
-{
-    if (sustainingJSHandleList_) {
-        sustainingJSHandleList_->RemoveSustainingJSHandle(sustainingHandle);
-    }
 }
 
 void EcmaContext::ClearKeptObjects()

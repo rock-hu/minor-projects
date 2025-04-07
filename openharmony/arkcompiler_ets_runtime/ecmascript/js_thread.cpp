@@ -20,6 +20,8 @@
 #include "ecmascript/js_date.h"
 #include "ecmascript/js_object-inl.h"
 #include "ecmascript/js_tagged_value.h"
+#include "ecmascript/module/module_logger.h"
+#include "ecmascript/module/js_module_manager.h"
 #include "ecmascript/runtime_call_id.h"
 
 #if !defined(PANDA_TARGET_WINDOWS) && !defined(PANDA_TARGET_MACOS) && !defined(PANDA_TARGET_IOS)
@@ -131,6 +133,17 @@ JSThread::JSThread(EcmaVM *vm) : id_(os::thread::GetCurrentThreadId()), vm_(vm)
     vmThreadControl_ = new VmThreadControl(this);
     SetBCStubStatus(BCStubStatus::NORMAL_BC_STUB);
     dateUtils_ = new DateUtils();
+
+    glueData_.propertiesCache_ = new PropertiesCache();
+    if (vm_->GetJSOptions().IsEnableMegaIC()) {
+        glueData_.loadMegaICCache_ = new MegaICCache();
+        glueData_.storeMegaICCache_ = new MegaICCache();
+    }
+
+    glueData_.moduleManager_ = new ModuleManager(vm_);
+    if (vm_->GetJSOptions().EnableModuleLog()) {
+        glueData_.moduleLogger_ = new ModuleLogger(vm_);
+    }
 }
 
 JSThread::JSThread(EcmaVM *vm, ThreadType threadType) : id_(os::thread::GetCurrentThreadId()),
@@ -161,6 +174,19 @@ JSThread::~JSThread()
         globalDebugStorage_ = nullptr;
     }
 
+    if (glueData_.loadMegaICCache_ != nullptr) {
+        delete glueData_.loadMegaICCache_;
+        glueData_.loadMegaICCache_ = nullptr;
+    }
+    if (glueData_.storeMegaICCache_ != nullptr) {
+        delete glueData_.storeMegaICCache_;
+        glueData_.storeMegaICCache_ = nullptr;
+    }
+    if (glueData_.propertiesCache_ != nullptr) {
+        delete glueData_.propertiesCache_;
+        glueData_.propertiesCache_ = nullptr;
+    }
+
     for (auto item : contexts_) {
         delete item;
     }
@@ -169,12 +195,12 @@ JSThread::~JSThread()
         GetNativeAreaAllocator()->Free(glueData_.frameBase_, sizeof(JSTaggedType) *
                                        vm_->GetEcmaParamConfiguration().GetMaxStackSize());
     }
-    GetNativeAreaAllocator()->FreeArea(regExpCache_);
+    GetNativeAreaAllocator()->FreeArea(regExpCacheArea_);
 
     glueData_.frameBase_ = nullptr;
     nativeAreaAllocator_ = nullptr;
     heapRegionAllocator_ = nullptr;
-    regExpCache_ = nullptr;
+    regExpCacheArea_ = nullptr;
     if (vmThreadControl_ != nullptr) {
         delete vmThreadControl_;
         vmThreadControl_ = nullptr;
@@ -186,6 +212,14 @@ JSThread::~JSThread()
     if (dateUtils_ != nullptr) {
         delete dateUtils_;
         dateUtils_ = nullptr;
+    }
+    if (glueData_.moduleManager_ != nullptr) {
+        delete glueData_.moduleManager_;
+        glueData_.moduleManager_ = nullptr;
+    }
+    if (glueData_.moduleLogger_ != nullptr) {
+        delete glueData_.moduleLogger_;
+        glueData_.moduleLogger_ = nullptr;
     }
 }
 
@@ -375,6 +409,16 @@ void JSThread::SetJitCodeMap(JSTaggedType exception,  MachineCode* machineCode, 
     }
 }
 
+void JSThread::IterateMegaIC(RootVisitor &v)
+{
+    if (glueData_.loadMegaICCache_ != nullptr) {
+        glueData_.loadMegaICCache_->Iterate(v);
+    }
+    if (glueData_.storeMegaICCache_ != nullptr) {
+        glueData_.storeMegaICCache_->Iterate(v);
+    }
+}
+
 void JSThread::Iterate(RootVisitor &visitor)
 {
     if (!glueData_.exception_.IsHole()) {
@@ -407,6 +451,17 @@ void JSThread::Iterate(RootVisitor &visitor)
             LOG_ECMA(WARN) << "Global reference count is " << globalCount << ",It exceed the upper limit 100000!";
             hasCheckedGlobalCount = true;
         }
+    }
+
+    IterateMegaIC(visitor);
+
+    if (glueData_.propertiesCache_ != nullptr) {
+        glueData_.propertiesCache_->Clear();
+    }
+
+    ModuleManager *moduleManager = GetModuleManager();
+    if (moduleManager) {
+        moduleManager->Iterate(visitor);
     }
 }
 void JSThread::IterateJitCodeMap(const JitCodeMapVisitor &jitCodeMapVisitor)
@@ -1048,26 +1103,24 @@ bool JSThread::EraseContext(EcmaContext *context)
     return false;
 }
 
-void JSThread::ClearContextCachedConstantPool()
+void JSThread::ClearVMCachedConstantPool()
 {
-    for (EcmaContext *context : contexts_) {
-        context->ClearCachedConstantPool();
-    }
+    vm_->ClearCachedConstantPool();
 }
 
 PropertiesCache *JSThread::GetPropertiesCache() const
 {
-    return glueData_.currentContext_->GetPropertiesCache();
+    return glueData_.propertiesCache_;
 }
 
 MegaICCache *JSThread::GetLoadMegaICCache() const
 {
-    return glueData_.currentContext_->GetLoadMegaICCache();
+    return glueData_.loadMegaICCache_;
 }
 
 MegaICCache *JSThread::GetStoreMegaICCache() const
 {
-    return glueData_.currentContext_->GetStoreMegaICCache();
+    return glueData_.storeMegaICCache_;
 }
 
 const GlobalEnvConstants *JSThread::GetFirstGlobalConst() const
@@ -1085,12 +1138,12 @@ bool JSThread::IsReadyToUpdateDetector() const
     return !GetEnableLazyBuiltins() && IsAllContextsInitialized();
 }
 
-Area *JSThread::GetOrCreateRegExpCache()
+Area *JSThread::GetOrCreateRegExpCacheArea()
 {
-    if (regExpCache_ == nullptr) {
-        regExpCache_ = nativeAreaAllocator_->AllocateArea(MAX_REGEXP_CACHE_SIZE);
+    if (regExpCacheArea_ == nullptr) {
+        regExpCacheArea_ = nativeAreaAllocator_->AllocateArea(MAX_REGEXP_CACHE_SIZE);
     }
-    return regExpCache_;
+    return regExpCacheArea_;
 }
 
 void JSThread::InitializeBuiltinObject(const std::string& key)
@@ -1130,10 +1183,8 @@ void JSThread::InitializeBuiltinObject()
 
 bool JSThread::IsPropertyCacheCleared() const
 {
-    for (EcmaContext *context : contexts_) {
-        if (!context->GetPropertiesCache()->IsCleared()) {
-            return false;
-        }
+    if (!GetPropertiesCache()->IsCleared()) {
+        return false;
     }
     return true;
 }

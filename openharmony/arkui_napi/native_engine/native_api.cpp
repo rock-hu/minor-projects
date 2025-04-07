@@ -2213,7 +2213,6 @@ NAPI_EXTERN napi_status napi_delete_reference(napi_env env, napi_ref ref)
     uint32_t refCount = reference->GetRefCount();
     if (refCount > 0 || reference->GetFinalRun()) {
         delete reference;
-        reference = nullptr;
     } else {
         reference->SetDeleteSelf();
     }
@@ -2771,7 +2770,7 @@ NAPI_EXTERN napi_status napi_create_typedarray(napi_env env,
     RETURN_STATUS_IF_FALSE(env, value->IsArrayBuffer(vm), napi_status::napi_arraybuffer_expected);
     Local<panda::ArrayBufferRef> arrayBuf(value);
 
-    if (!reinterpret_cast<NativeEngine*>(env)->NapiNewTypedArray(vm, typedArrayType, arrayBuf,
+    if (!reinterpret_cast<NativeEngine*>(env)->NapiNewTypedArray(typedArrayType, arrayBuf,
                                                                  byte_offset, length, result)) {
         HILOG_ERROR("%{public}s invalid arg", __func__);
         return napi_set_last_error(env, napi_invalid_arg);
@@ -2797,7 +2796,7 @@ NAPI_EXTERN napi_status napi_create_sendable_typedarray(napi_env env,
     RETURN_STATUS_IF_FALSE(env, value->IsSendableArrayBuffer(vm), napi_status::napi_arraybuffer_expected);
     Local<panda::SendableArrayBufferRef> arrayBuf(value);
 
-    if (!reinterpret_cast<NativeEngine*>(env)->NapiNewSendableTypedArray(vm, typedArrayType,
+    if (!reinterpret_cast<NativeEngine*>(env)->NapiNewSendableTypedArray(typedArrayType,
                                                                          arrayBuf, byte_offset,
                                                                          length, result)) {
         HILOG_ERROR("%{public}s invalid arg", __func__);
@@ -4027,6 +4026,7 @@ NAPI_EXTERN napi_status napi_coerce_to_native_binding_object(napi_env env,
     if (res) {
         return napi_clear_last_error(env);
     }
+    delete data;
     return napi_status::napi_generic_failure;
 }
 

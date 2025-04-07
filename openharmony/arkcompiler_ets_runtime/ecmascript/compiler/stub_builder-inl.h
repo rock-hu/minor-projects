@@ -1824,6 +1824,12 @@ inline GateRef StubBuilder::GetPrototypeHandlerHandlerInfo(GateRef object)
     return Load(VariableType::JS_ANY(), object, handlerInfoOffset);
 }
 
+inline void StubBuilder::SetPrototypeHandlerHandlerInfo(GateRef glue, GateRef obj, GateRef value)
+{
+    GateRef handlerInfoOffset = IntPtr(PrototypeHandler::HANDLER_INFO_OFFSET);
+    Store(VariableType::JS_ANY(), glue, obj, handlerInfoOffset, value);
+}
+
 inline GateRef StubBuilder::GetStoreAOTHandlerHolder(GateRef object)
 {
     GateRef holderOffset = IntPtr(StoreAOTHandler::HOLDER_OFFSET);
@@ -4079,45 +4085,61 @@ inline void StubBuilder::SetArrayBufferByteLength(GateRef glue, GateRef buffer, 
     Store(VariableType::INT32(), glue, buffer, offset, length);
 }
 
-inline GateRef StubBuilder::GetPropertiesCache(GateRef glue)
+inline GateRef StubBuilder::GetCurrentEcmaContext(GateRef glue)
 {
     GateRef currentContextOffset = IntPtr(JSThread::GlueData::GetCurrentContextOffset(env_->Is32Bit()));
-    GateRef currentContext = Load(VariableType::NATIVE_POINTER(), glue, currentContextOffset);
-    GateRef propertiesCacheOffset = IntPtr(EcmaContext::EcmaData::GetPropertiesCacheOffset(env_->Is32Bit()));
-    return Load(VariableType::NATIVE_POINTER(), currentContext, propertiesCacheOffset);
+    return Load(VariableType::NATIVE_POINTER(), glue, currentContextOffset);
+}
+
+inline GateRef StubBuilder::GetPropertiesCache(GateRef glue)
+{
+    GateRef propertiesCacheOffset = IntPtr(JSThread::GlueData::GetPropertiesCacheOffset(env_->Is32Bit()));
+    return Load(VariableType::NATIVE_POINTER(), glue, propertiesCacheOffset);
 }
 
 inline GateRef StubBuilder::GetMegaICCache(GateRef glue, MegaICCache::MegaICKind kind)
 {
-    GateRef currentContextOffset = IntPtr(JSThread::GlueData::GetCurrentContextOffset(env_->Is32Bit()));
-    GateRef currentContext = Load(VariableType::NATIVE_POINTER(), glue, currentContextOffset);
     GateRef megaICCache_Offset;
     if (kind == MegaICCache::Load) {
-        megaICCache_Offset = IntPtr(EcmaContext::EcmaData::GetLoadMegaICCacheOffset(env_->Is32Bit()));
+        megaICCache_Offset = IntPtr(JSThread::GlueData::GetLoadMegaICCacheOffset(env_->Is32Bit()));
     } else {
-        megaICCache_Offset = IntPtr(EcmaContext::EcmaData::GetStoreMegaICCacheOffset(env_->Is32Bit()));
+        megaICCache_Offset = IntPtr(JSThread::GlueData::GetStoreMegaICCacheOffset(env_->Is32Bit()));
     }
-    return Load(VariableType::NATIVE_POINTER(), currentContext, megaICCache_Offset);
+    return Load(VariableType::NATIVE_POINTER(), glue, megaICCache_Offset);
+}
+
+inline GateRef StubBuilder::GetModuleLogger(GateRef glue)
+{
+    GateRef moduleLoggerOffset = IntPtr(JSThread::GlueData::GetModuleLoggerOffset(env_->Is32Bit()));
+    return Load(VariableType::NATIVE_POINTER(), glue, moduleLoggerOffset);
+}
+
+inline GateRef StubBuilder::GetStageOfHotReload(GateRef glue)
+{
+    GateRef stageOfColdReloadOffset = IntPtr(JSThread::GlueData::GetStageOfHotReloadOffset(env_->Is32Bit()));
+    return Load(VariableType::INT32(), glue, stageOfColdReloadOffset);
+}
+
+inline GateRef StubBuilder::GetModuleManager(GateRef glue)
+{
+    GateRef moduleManagerOffset = IntPtr(JSThread::GlueData::GetModuleManagerOffset(env_->Is32Bit()));
+    return Load(VariableType::NATIVE_POINTER(), glue, moduleManagerOffset);
 }
 
 inline void StubBuilder::IncMegaProbeCount([[maybe_unused]]GateRef glue)
 {
 #if ECMASCRIPT_ENABLE_MEGA_PROFILER
-    GateRef currentContextOffset = IntPtr(JSThread::GlueData::GetCurrentContextOffset(env_->Is32Bit()));
-    GateRef currentContext = Load(VariableType::NATIVE_POINTER(), glue, currentContextOffset);
-    GateRef megaProbeCountOffset = IntPtr(EcmaContext::EcmaData::GetMegaProbesCountOffset(env_->Is32Bit()));
-    GateRef before = Load(VariableType::INT64(), currentContext, megaProbeCountOffset);
-    Store(VariableType::INT64(), glue, currentContext, megaProbeCountOffset, Int64Add(before, Int64(1)));
+    GateRef megaProbeCountOffset = IntPtr(JSThread::GlueData::GetMegaProbesCountOffset(env_->Is32Bit()));
+    GateRef before = Load(VariableType::INT64(), glue, megaProbeCountOffset);
+    Store(VariableType::INT64(), glue, glue, megaProbeCountOffset, Int64Add(before, Int64(1)));
 #endif
 }
 inline void StubBuilder::IncMegaHitCount([[maybe_unused]]GateRef glue)
 {
 #if ECMASCRIPT_ENABLE_MEGA_PROFILER
-    GateRef currentContextOffset = IntPtr(JSThread::GlueData::GetCurrentContextOffset(env_->Is32Bit()));
-    GateRef currentContext = Load(VariableType::NATIVE_POINTER(), glue, currentContextOffset);
-    GateRef megaHitCountOffset = IntPtr(EcmaContext::EcmaData::GetMegaHitCountOffset(env_->Is32Bit()));
-    GateRef before = Load(VariableType::INT64(), currentContext, megaHitCountOffset);
-    Store(VariableType::INT64(), glue, currentContext, megaHitCountOffset, Int64Add(before, Int64(1)));
+    GateRef megaHitCountOffset = IntPtr(JSThread::GlueData::GetMegaHitCountOffset(env_->Is32Bit()));
+    GateRef before = Load(VariableType::INT64(), glue, megaHitCountOffset);
+    Store(VariableType::INT64(), glue, glue, megaHitCountOffset, Int64Add(before, Int64(1)));
 #endif
 }
 
@@ -4197,6 +4219,113 @@ inline GateRef StubBuilder::GetPrototype(GateRef glue, GateRef object)
 inline GateRef StubBuilder::GetLengthOfJSArray(GateRef array)
 {
     return env_->GetBuilder()->GetLengthOfJSArray(array);
+}
+
+inline void StubBuilder::ResolvedModuleMustBeSourceTextModule([[maybe_unused]] GateRef resolvedModule)
+{
+    ASM_ASSERT(GET_MESSAGE_STRING_ID(CurrentModuleNotSourceTextModule), IsSourceTextModule(resolvedModule));
+}
+
+inline void StubBuilder::RecordNameMustBeString([[maybe_unused]] GateRef recordName)
+{
+    ASM_ASSERT(GET_MESSAGE_STRING_ID(RecordNameMustBeString), TaggedIsString(recordName));
+}
+
+inline GateRef StubBuilder::GetNameDictionary(GateRef module)
+{
+    GateRef nameDictionaryOffset = IntPtr(SourceTextModule::NAME_DICTIONARY_OFFSET);
+    return Load(VariableType::JS_ANY(), module, nameDictionaryOffset);
+}
+
+inline GateRef StubBuilder::GetCurrentModuleEnv(GateRef curModule)
+{
+    GateRef sourceTextModuleOffset = IntPtr(SourceTextModule::SOURCE_TEXT_MODULE_OFFSET);
+    return Load(VariableType::JS_ANY(), curModule, sourceTextModuleOffset);
+}
+
+inline GateRef StubBuilder::GetBitFieldFromSourceTextModule(GateRef curModule)
+{
+    GateRef bitFieldOffset = IntPtr(SourceTextModule::BIT_FIELD_OFFSET);
+    return Load(VariableType::INT32(), curModule, bitFieldOffset);
+}
+
+inline GateRef StubBuilder::GetResolveModuleFromResolvedIndexBinding(GateRef resolvedBinding)
+{
+    GateRef moduleOffset = IntPtr(ResolvedIndexBinding::MODULE_OFFSET);
+    return Load(VariableType::JS_ANY(), resolvedBinding, moduleOffset);
+}
+
+inline GateRef StubBuilder::GetResolveModuleFromResolvedBinding(GateRef resolvedBinding)
+{
+    GateRef moduleOffset = IntPtr(ResolvedBinding::MODULE_OFFSET);
+    return Load(VariableType::JS_ANY(), resolvedBinding, moduleOffset);
+}
+
+inline GateRef StubBuilder::GetIndexFromResolvedBinding(GateRef resolvedBinding)
+{
+    GateRef indexOffset = IntPtr(ResolvedIndexBinding::INDEX_OFFSET);
+    return Load(VariableType::INT32(), resolvedBinding, indexOffset);
+}
+
+inline GateRef StubBuilder::GetModuleRecord(GateRef resolvedBinding)
+{
+    GateRef moduleRecordIdxOffset = IntPtr(ResolvedRecordIndexBinding::MODULE_RECORD_INDEX_OFFSET);
+    return Load(VariableType::JS_ANY(), resolvedBinding, moduleRecordIdxOffset);
+}
+
+inline GateRef StubBuilder::GetBindingName(GateRef resolvedBinding)
+{
+    GateRef bindingNameOffset = IntPtr(ResolvedRecordBinding::BINDING_NAME_OFFSET);
+    return Load(VariableType::JS_ANY(), resolvedBinding, bindingNameOffset);
+}
+
+inline GateRef StubBuilder::IsResolvedIndexBinding(GateRef resolvedBinding)
+{
+    GateRef objectType = GetObjectType(LoadHClass(resolvedBinding));
+    return Int32Equal(objectType, Int32(static_cast<int32_t>(JSType::RESOLVEDINDEXBINDING_RECORD)));
+}
+
+inline GateRef StubBuilder::IsResolvedBinding(GateRef resolvedBinding)
+{
+    GateRef objectType = GetObjectType(LoadHClass(resolvedBinding));
+    return Int32Equal(objectType, Int32(static_cast<int32_t>(JSType::RESOLVEDBINDING_RECORD)));
+}
+
+inline GateRef StubBuilder::IsResolvedRecordIndexBinding(GateRef resolvedBinding)
+{
+    GateRef objectType = GetObjectType(LoadHClass(resolvedBinding));
+    return Int32Equal(objectType, Int32(static_cast<int32_t>(JSType::RESOLVEDRECORDINDEXBINDING_RECORD)));
+}
+
+inline GateRef StubBuilder::IsResolvedRecordBinding(GateRef resolvedBinding)
+{
+    GateRef objectType = GetObjectType(LoadHClass(resolvedBinding));
+    return Int32Equal(objectType, Int32(static_cast<int32_t>(JSType::RESOLVEDRECORDBINDING_RECORD)));
+}
+
+inline GateRef StubBuilder::IsLdEndExecPatchMain(GateRef glue)
+{
+    return Int32Equal(GetStageOfHotReload(glue),
+                      Int32(static_cast<int>(StageOfHotReload::LOAD_END_EXECUTE_PATCHMAIN)));
+}
+
+inline GateRef StubBuilder::GetModuleType(GateRef module)
+{
+    GateRef bitfield = GetBitFieldFromSourceTextModule(module);
+    return Int32And(Int32LSR(bitfield, Int32(SourceTextModule::STATUS_BITS)),
+                    Int32((1LU << SourceTextModule::MODULE_TYPE_BITS) - 1));
+}
+
+inline GateRef StubBuilder::IsNativeOrCjsModule(GateRef module)
+{
+    GateRef moduleType = GetModuleType(module);
+    return LogicOrBuilder(env_)
+        .Or(Int32Equal(moduleType, Int32(static_cast<int>(ModuleTypes::OHOS_MODULE))))
+        .Or(Int32Equal(moduleType, Int32(static_cast<int>(ModuleTypes::APP_MODULE))))
+        .Or(Int32Equal(moduleType, Int32(static_cast<int>(ModuleTypes::NATIVE_MODULE))))
+        .Or(Int32Equal(moduleType, Int32(static_cast<int>(ModuleTypes::INTERNAL_MODULE))))
+        .Or(Int32Equal(moduleType, Int32(static_cast<int>(ModuleTypes::CJS_MODULE))))
+        .Done();
 }
 } //  namespace panda::ecmascript::kungfu
 #endif // ECMASCRIPT_COMPILER_STUB_INL_H

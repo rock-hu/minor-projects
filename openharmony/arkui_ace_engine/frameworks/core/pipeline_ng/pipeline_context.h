@@ -50,6 +50,7 @@
 #include "core/components_ng/manager/safe_area/safe_area_manager.h"
 #include "core/components_ng/manager/select_overlay/select_overlay_manager.h"
 #include "core/components_ng/manager/shared_overlay/shared_overlay_manager.h"
+#include "core/components_ng/manager/toolbar/toolbar_manager.h"
 #include "core/components_ng/pattern/custom/custom_node.h"
 #ifdef WINDOW_SCENE_SUPPORTED
 #include "core/components_ng/pattern/ui_extension/ui_extension_manager.h"
@@ -531,11 +532,11 @@ public:
 
     bool GetIsFocusActive() const
     {
-        return isFocusActive_;
+        return focusManager_ ? focusManager_->GetIsFocusActive() : false;
     }
 
     bool SetIsFocusActive(bool isFocusActive,
-        FocusActiveReason reason = FocusActiveReason::KEYBOARD_EVENT, bool autoFocusInactive = true);
+        FocusActiveReason reason = FocusActiveReason::DEFAULT, bool autoFocusInactive = true);
 
     void AddIsFocusActiveUpdateEvent(const RefPtr<FrameNode>& node, const std::function<void(bool)>& eventCallback);
     void RemoveIsFocusActiveUpdateEvent(const RefPtr<FrameNode>& node);
@@ -929,6 +930,11 @@ public:
         return privacySensitiveManager_;
     }
 
+    const RefPtr<ToolbarManager>& GetToolbarManager() const
+    {
+        return toolbarManager_;
+    }
+
     void ChangeSensitiveNodes(bool flag) override
     {
         privacySensitiveManager_->TriggerFrameNodesSensitive(flag);
@@ -1031,7 +1037,7 @@ public:
         return isDensityChanged_;
     }
 
-    void GetInspectorTree();
+    void GetInspectorTree(bool onlyNeedVisible);
     void NotifyAllWebPattern(bool isRegister);
     void AddFrameNodeChangeListener(const WeakPtr<FrameNode>& node);
     void RemoveFrameNodeChangeListener(int32_t nodeId);
@@ -1378,6 +1384,7 @@ private:
     RefPtr<SafeAreaManager> safeAreaManager_ = MakeRefPtr<SafeAreaManager>();
     RefPtr<FrameRateManager> frameRateManager_ = MakeRefPtr<FrameRateManager>();
     RefPtr<PrivacySensitiveManager> privacySensitiveManager_ = MakeRefPtr<PrivacySensitiveManager>();
+    RefPtr<ToolbarManager> toolbarManager_ = MakeRefPtr<ToolbarManager>();
     Rect displayAvailableRect_;
     WeakPtr<FrameNode> dirtyFocusNode_;
     WeakPtr<FrameNode> dirtyFocusScope_;
@@ -1391,7 +1398,6 @@ private:
     uint64_t animationTimeStamp_ = 0;
     bool hasIdleTasks_ = false;
     bool isFocusingByTab_ = false;
-    bool isFocusActive_ = false;
     bool isWindowHasFocused_ = false;
     bool onShow_ = false;
     MockFlushEventType isNeedFlushMouseEvent_ = MockFlushEventType::NONE;
@@ -1429,7 +1435,6 @@ private:
     std::list<FrameInfo> dumpFrameInfos_;
     std::list<std::function<void()>> animationClosuresList_;
 
-    std::map<int32_t, std::function<void(bool)>> isFocusActiveUpdateEvents_;
     mutable std::mutex navigationMutex_;
     std::map<std::string, WeakPtr<FrameNode>> navigationNodes_;
     std::list<DelayedTask> delayedTasks_;
@@ -1475,7 +1480,6 @@ private:
     CancelableCallback<void()> foldStatusDelayTask_;
     bool isFirstRootLayout_ = true;
     bool isFirstFlushMessages_ = true;
-    bool autoFocusInactive_ = true;
     AxisEventChecker axisEventChecker_;
     std::unordered_set<UINode*> attachedNodeSet_;
     std::list<std::function<void()>> afterReloadAnimationTasks_;

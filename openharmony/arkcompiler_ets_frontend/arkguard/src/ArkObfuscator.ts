@@ -74,6 +74,7 @@ import {
   EventList,
   TimeAndMemTimeTracker,
   clearTimeAndMemPrinterData,
+  disablePrinterTimeAndMemConfig,
   initPerformanceTimeAndMemPrinter,
 } from './utils/PrinterTimeAndMemUtils';
 
@@ -89,9 +90,11 @@ export {
 } from './utils/PrinterUtils';
 export {
   EventList,
+  PerfMode,
   TimeAndMemTimeTracker,
-  enableTimeAndMemoryPrint,
   blockTimeAndMemPrinter,
+  configurePerformancePrinter,
+  enableTimeAndMemoryPrint,
 } from './utils/PrinterTimeAndMemUtils';
 import { Extension, type ProjectInfo, type FilePathObj } from './common/type';
 export { type HvigorErrorInfo } from './common/type';
@@ -111,7 +114,7 @@ export { separateUniversalReservedItem, containWildcards, wildcardTransformer } 
 export type { ReservedNameInfo } from './utils/TransformUtil';
 export type { ReseverdSetForArkguard } from './common/ApiReader';
 
-export { initObfuscationConfig, initPrinterTimeAndMemConfig, printerTimeAndMemConfig, printerTimeAndMemDataConfig } from './initialization/Initializer';
+export { initObfuscationConfig, printerTimeAndMemDataConfig } from './initialization/Initializer';
 export { nameCacheMap, unobfuscationNamesObj } from './initialization/CommonObject';
 export {
   collectResevedFileNameInIDEConfig, // For running unit test.
@@ -170,6 +173,7 @@ export function clearGlobalCaches(): void {
   clearUnobfuscationNamesObj();
   clearHistoryUnobfuscatedMap();
   clearTimeAndMemPrinterData();
+  disablePrinterTimeAndMemConfig();
   ApiExtractor.mConstructorPropertySet.clear();
   ApiExtractor.mEnumMemberSet.clear();
 }
@@ -360,9 +364,8 @@ export class ArkObfuscator {
     this.mTransformers = new TransformerManager(this.mCustomProfiles).getTransformers();
 
     initPerformancePrinter(this.mCustomProfiles);
-    
-    initPerformanceTimeAndMemPrinter(this.mCustomProfiles);
 
+    initPerformanceTimeAndMemPrinter();
     if (needReadApiInfo(this.mCustomProfiles)) {
       // if -enable-property-obfuscation or -enable-export-obfuscation, collect language reserved keywords.
       let languageSet: Set<string> = new Set();
@@ -454,25 +457,42 @@ export class ArkObfuscator {
         updatedCache[newKey] = value;
         continue;
       }
+
+      const parts = scopeName.split('#');
+      // 1: Get the last word 'zz' in '#xx#yy#zz'.
+      const lastScopeName: string = parts[parts.length - 1];
+
       const startPosition: SourceMapSegmentObj | null = sourceMapLink.traceSegment(
         // 1: The line number in originalCache starts from 1 while in source map starts from 0.
         Number(oldStartLine) - 1, Number(oldStartColumn) - 1, ''); // Minus 1 to get the correct original position.
-      if (!startPosition) {
-        // Do not save methods that do not exist in the source code, e.g. 'build' in ArkUI.
+      if (!startPosition && lastScopeName === value) {
+        // Do not save methods that do not exist in the source code and not be obfuscated, e.g. 'build' in ArkUI.
         continue;
       }
       const endPosition: SourceMapSegmentObj | null = sourceMapLink.traceSegment(
         Number(oldEndLine) - 1, Number(oldEndColumn) - 1, ''); // 1: Same as above.
-      if (!endPosition) {
-        // Do not save methods that do not exist in the source code, e.g. 'build' in ArkUI.
+      if (!endPosition && lastScopeName === value) {
+        // Do not save methods that do not exist in the source code and not be obfuscated, e.g. 'build' in ArkUI.
         continue;
       }
-      const startLine = startPosition.line + 1; // 1: The final line number in updatedCache should starts from 1.
-      const endLine = endPosition.line + 1; // 1: Same as above.
-      newKey = `${scopeName}:${startLine}:${endLine}`;
-      updatedCache[newKey] = value;
+
+      if (!startPosition || !endPosition) {
+        updatedCache[scopeName] = value;
+      } else {
+        const startLine = startPosition.line + 1; // 1: The final line number in updatedCache should starts from 1.
+        const endLine = endPosition.line + 1; // 1: Same as above.
+        newKey = `${scopeName}:${startLine}:${endLine}`;
+        updatedCache[newKey] = value;
+      }
     }
     return updatedCache;
+  }
+
+  public convertLineBasedOnSourceMapForTest(
+    targetCache: string, 
+    sourceMapLink?: SourceMapLink
+  ): Map<string, string> {
+    return this.convertLineBasedOnSourceMap(targetCache, sourceMapLink);
   }
 
   /**
