@@ -28,7 +28,6 @@ function cardStyle() {
 @Entry
 @Component
 struct XComponentSample {
-  private surfaceId: string = '';
   xcomponentController: XComponentController = new XComponentController();
 
   build() {
@@ -39,12 +38,11 @@ struct XComponentSample {
         Column() {
           XComponent({
             id: 'xcomponent',
-            type: 'surface',
+            type: XComponentType.SURFACE,
             controller: this.xcomponentController
           })
             .onLoad(() => {
               this.xcomponentController.setXComponentSurfaceRect({ surfaceWidth: 500, surfaceHeight: 500 })
-              this.surfaceId = this.xcomponentController.getXComponentSurfaceId()
             })
             .width('400px')
             .height('400px')
