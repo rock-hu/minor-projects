@@ -1,4 +1,4 @@
-import { router } from '@kit.ArkUI';
+import { UIContextSelf } from '../utils/UIContextSelf';
 
 @Entry
 @Component
@@ -8,7 +8,7 @@ struct Index {
 
       CustomButton({
         mText: $r('app.string.generate_QR_code'), mOnClick: () => {
-          router.pushUrl({
+          UIContextSelf.getRouter().pushUrl({
             url: 'pages/CreateBarcode'
           });
         }
@@ -16,7 +16,7 @@ struct Index {
 
       CustomButton({
         mText: $r('app.string.default_view_decode'), mOnClick: () => {
-          router.pushUrl({
+          UIContextSelf.getRouter().pushUrl({
             url: 'pages/BarcodePage'
           });
         }
@@ -24,7 +24,7 @@ struct Index {
 
       CustomButton({
         mText: $r('app.string.customized_view_decode'), mOnClick: () => {
-          router.pushUrl({
+          UIContextSelf.getRouter().pushUrl({
             url: 'pages/CustomPage',
             params: {
               hasOptions: true,
@@ -36,7 +36,7 @@ struct Index {
 
       CustomButton({
         mText: $r('app.string.bitmap_view_decode'), mOnClick: () => {
-          router.pushUrl({
+          UIContextSelf.getRouter().pushUrl({
             url: 'pages/DetectBarcode'
           });
         }

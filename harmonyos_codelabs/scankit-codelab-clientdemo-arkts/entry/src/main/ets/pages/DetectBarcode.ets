@@ -3,9 +3,9 @@ import { image } from '@kit.ImageKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { fileIo } from '@kit.CoreFileKit';
 import { photoAccessHelper } from '@kit.MediaLibraryKit';
-import { router, promptAction } from '@kit.ArkUI';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { scanCore, detectBarcode, scanBarcode } from '@kit.ScanKit';
+import { UIContextSelf } from '../utils/UIContextSelf';
 
 const TAG: string = 'ScanKit DetectBarcode';
 
@@ -72,7 +72,7 @@ struct DetectBarcodePage {
                 detectBarcode.decode(inputImage, options).then((result: Array<scanBarcode.ScanResult>) => {
                   hilog.info(0x0001, TAG, `Succeeded in getting ScanResult by promise with options.`);
                   if (result && result.length > 0) {
-                    router.pushUrl({
+                    UIContextSelf.getRouter().pushUrl({
                       url: 'pages/ResultPage',
                       params: {
                         result: result,
@@ -82,14 +82,14 @@ struct DetectBarcodePage {
                       }
                     });
                   } else {
-                    promptAction.showToast({
+                    UIContextSelf.getPromptAction().showToast({
                       message: $r('app.string.Scan_diaLog_not_found'),
                       duration: 2000
                     });
                   }
                 }).catch((error: BusinessError) => {
                   if (photoResult.photoUris[0]) {
-                    promptAction.showToast({
+                    UIContextSelf.getPromptAction().showToast({
                       message: $r('app.string.Scan_diaLog_not_found'),
                       duration: 2000
                     });

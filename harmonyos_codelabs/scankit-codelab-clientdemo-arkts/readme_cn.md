@@ -11,7 +11,7 @@ Scan Kit（统一扫码服务）是HarmonyOS SDK的基础能力，提供了“�
 ## 工程目录
 ├──entry/src/main/ets  
 │  ├──entryability  
-│  │  ├──EntryAbility.ts       // 本地启动ability  
+│  │  ├──EntryAbility.ets       // 本地启动ability  
 │  └──pages  
 │  │  ├──BarcodePage.ets       // 默认界面扫码  
 │  │  ├──CreateBarcode.ets     // 码图生成的界面  
@@ -24,6 +24,7 @@ Scan Kit（统一扫码服务）是HarmonyOS SDK的基础能力，提供了“�
 │  └──utils  
 │  │  ├──Common.ets            // 获取预览流XComponent布局方法  
 │  │  ├──PermissionsUtil.ets   // 请求用户授权相机权限  
+│  │  ├──UIContextSelf.ets     // UIContext管理类  
 └──entry/src/main/resources    // 资源文件目录
 
 ## 相关权限

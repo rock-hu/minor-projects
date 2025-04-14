@@ -1,9 +1,10 @@
 // PermissionsUtil.ets
 import { bundleManager, common, abilityAccessCtrl, PermissionRequestResult, Permissions } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
+import { UIContextSelf } from './UIContextSelf';
 
 const TAG: string = 'ScanKit Permission';
-let context = getContext(this) as common.UIAbilityContext;
+let context = UIContextSelf.getHostContext() as common.UIAbilityContext;
 
 export class PermissionsUtil {
   public static async checkAccessToken(permission: Permissions): Promise<abilityAccessCtrl.GrantStatus> {

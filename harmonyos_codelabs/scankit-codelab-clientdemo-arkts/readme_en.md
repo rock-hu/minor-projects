@@ -1,4 +1,4 @@
-# Codelab Sample Code Demo
+# CodeLab Sample Code Demo
 
 # Overview
 
@@ -26,7 +26,7 @@ Scan Kit is a basic capability provided by the HarmonyOS SDK. It provides functi
 ## Project Directory
 ├──entry/src/main/ets  
 │  ├──entryability  
-│  │  ├──EntryAbility.ts       // Ability for local startup  
+│  │  ├──EntryAbility.ets       // Ability for local startup  
 │  └──pages  
 │  │  ├──BarcodePage.ets       // Default barcode scanning UI  
 │  │  ├──CreateBarcode.ets     // Barcode image generation UI  
@@ -39,6 +39,7 @@ Scan Kit is a basic capability provided by the HarmonyOS SDK. It provides functi
 │  └──utils  
 │  │  ├──Common.ets            // Method for obtaining the XComponent layout of the preview stream  
 │  │  ├──PermissionsUtil.ets   // Request camera permission from the user  
+│  │  ├──UIContextSelf.ets     // UIContext management class  
 └──entry/src/main/resources    // Directory of resource files
 
 ## Required Permissions

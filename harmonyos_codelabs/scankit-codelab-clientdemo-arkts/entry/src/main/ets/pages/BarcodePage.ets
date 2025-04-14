@@ -2,6 +2,7 @@
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { scanCore, scanBarcode } from '@kit.ScanKit';
 import { BusinessError } from '@kit.BasicServicesKit';
+import { UIContextSelf } from '../utils/UIContextSelf';
 
 const TAG: string = 'ScanKit scanBarcode';
 const SCAN_TYPE: Record<number, string> = {
@@ -49,19 +50,21 @@ struct ScanBarcodePage {
             enableAlbum: true
           };
           try {
-            scanBarcode.startScanForResult(getContext(this), options).then((result: scanBarcode.ScanResult) => {
-              // Receive the correct barcode scanning result.
-              this.scanType = result.scanType;
-              this.inputValue = result.originalValue;
-              hilog.debug(0x0001, TAG, `Succeeded in getting ScanResult by promise with options.`);
-            }).catch((error: BusinessError) => {
-              if (error.code === scanCore.ScanErrorCode.SCAN_SERVICE_CANCELED) {
-                hilog.info(0x0001, TAG, `Disabling the Scanning Service.`);
-              } else {
-                hilog.error(0x0001, TAG,
-                  `Failed to start the scanning service. Code: ${error.code}, message: ${error.message}`);
-              }
-            });
+            scanBarcode.startScanForResult(UIContextSelf.getHostContext(), options)
+              .then((result: scanBarcode.ScanResult) => {
+                // Receive the correct barcode scanning result.
+                this.scanType = result.scanType;
+                this.inputValue = result.originalValue;
+                hilog.debug(0x0001, TAG, `Succeeded in getting ScanResult by promise with options.`);
+              })
+              .catch((error: BusinessError) => {
+                if (error.code === scanCore.ScanErrorCode.SCAN_SERVICE_CANCELED) {
+                  hilog.info(0x0001, TAG, `Disabling the Scanning Service.`);
+                } else {
+                  hilog.error(0x0001, TAG,
+                    `Failed to start the scanning service. Code: ${error.code}, message: ${error.message}`);
+                }
+              });
           } catch (error) {
             hilog.error(0x0001, TAG, `Failed to start scan. Code: ${error.code}, message: ${error.message}`);
           }

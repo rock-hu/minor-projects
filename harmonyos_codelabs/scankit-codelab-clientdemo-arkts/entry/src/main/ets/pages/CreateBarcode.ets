@@ -1,10 +1,10 @@
 // CreateBarcode.ets Generate a barcode image.
 import { image } from '@kit.ImageKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
-import { promptAction } from '@kit.ArkUI';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { scanCore, generateBarcode } from '@kit.ScanKit';
 import { buffer } from '@kit.ArkTS';
+import { UIContextSelf } from '../utils/UIContextSelf';
 
 const TAG: string = 'ScanKit CreateBarcode';
 
@@ -228,7 +228,7 @@ struct CreateBarcodePage {
             let content = this.codeContext;
             let pattern = /^[0-9a-fA-F]+$/;
             if (content.length && !pattern.test(content)) {
-              promptAction.showToast({
+              UIContextSelf.getPromptAction().showToast({
                 message: $r('app.string.trip_barcode_tip'),
                 duration: 2000
               });
@@ -299,7 +299,7 @@ struct CreateBarcodePage {
 // Error message.
 function showError(businessError: BusinessError): void {
   try {
-    promptAction.showToast({
+    UIContextSelf.getPromptAction().showToast({
       message: `Error Code: '${businessError.code}', message: ${businessError.message}`,
       duration: 2000
     });

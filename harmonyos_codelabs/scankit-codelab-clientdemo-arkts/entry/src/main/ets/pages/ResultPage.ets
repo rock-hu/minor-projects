@@ -1,8 +1,9 @@
 // ResultPage.ets Display the recognition result and the position for drawing the barcode.
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { scanBarcode, scanCore } from '@kit.ScanKit';
-import { display, router } from '@kit.ArkUI';
+import { display } from '@kit.ArkUI';
 import { MockSetup } from '@ohos/hamock';
+import { UIContextSelf } from '../utils/UIContextSelf';
 
 const TAG: string = 'ScanKit ResultPage';
 const SCAN_TYPE: Record<number, string> = {
@@ -35,7 +36,7 @@ class ParamsType {
 @Entry
 @Component
 struct ScanResultPage {
-  @State params: ParamsType = router.getParams() as ParamsType;
+  @State params: ParamsType = UIContextSelf.getRouter().getParams() as ParamsType;
   @State cameraHeight: number = 1412;
   @State cameraWidth: number = 720;
   @State layTop: number = 226;
@@ -107,9 +108,9 @@ struct ScanResultPage {
     }
 
     if (displayClass !== null) {
-      displayClass.height = displayClass.height - vp2px(this.statusHeight);
-      this.cameraHeight = Math.round(px2lpx(displayClass.height));
-      this.cameraWidth = Math.round(px2lpx(displayClass.width));
+      displayClass.height = displayClass.height - UIContextSelf.uiContext.vp2px(this.statusHeight);
+      this.cameraHeight = Math.round(UIContextSelf.uiContext.px2lpx(displayClass.height));
+      this.cameraWidth = Math.round(UIContextSelf.uiContext.px2lpx(displayClass.width));
       hilog.info(0x0001, TAG, `Succeeded in getting cameraHeight: ${this.cameraHeight}`);
       hilog.info(0x0001, TAG, `Succeeded in getting cameraWidth: ${this.cameraWidth}`);
     }
@@ -197,7 +198,7 @@ struct ScanResultPage {
             .position({ x: 0, y: 0 })
             .zIndex(10)
             .onClick(async () => {
-              router.back();
+              UIContextSelf.getRouter().back();
             })
           Column() {
             Text($r('app.string.title_result'))

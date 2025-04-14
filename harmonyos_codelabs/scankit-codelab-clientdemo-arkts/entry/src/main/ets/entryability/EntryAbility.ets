@@ -2,6 +2,7 @@ import { router, window } from '@kit.ArkUI';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { Want, UIAbility, AbilityConstant } from '@kit.AbilityKit';
 import { BusinessError } from '@kit.BasicServicesKit';
+import { UIContextSelf } from '../utils/UIContextSelf';
 
 const TAG: string = 'ScanKit EntryAbility';
 
@@ -32,25 +33,28 @@ export default class EntryAbility extends UIAbility {
         }
         hilog.info(0x0000, TAG, 'setWindowLayoutFullScreen Succeed!');
       })
-    });
 
-    windowStage.loadContent(this.page, (error, data) => {
-      if (error.code) {
-        hilog.error(0x0000, TAG, `Failed to load the content. Code: ${error.code}, message: ${error.message}`);
-        return;
+      try {
+        windowStage.loadContent(this.page).then(() => {
+          hilog.info(0x0000, TAG, 'Succeeded in loading the content.');
+          UIContextSelf.setUIContext(windowObj);
+        }).catch((error: BusinessError) => {
+          hilog.error(0x0000, TAG, `Failed to load the content. Code: ${error.code}.`);
+        })
+      } catch (error) {
+        hilog.error(0x0000, TAG, `Failed to load the content. Code: ${error.code}.`);
       }
-      hilog.info(0x0000, TAG, 'Succeeded in loading the content.');
     });
   }
 
-  onNewWant(want: Want, launchParam: AbilityConstant.LaunchParam): void {
+  onNewWant(want: Want, _: AbilityConstant.LaunchParam): void {
     hilog.info(0x0000, TAG, 'Ability onNewWant');
     // Obtain the uri field from the want information.
     let uri = want?.uri;
-    let status: router.RouterState = router.getState();
+    let status: router.RouterState = UIContextSelf.getRouter().getState();
     if (status && status.name !== 'ScanAccess' && uri) {
       // Process the service based on the URI.
-      router.pushUrl({
+      UIContextSelf.getRouter().pushUrl({
         url: 'pages/ScanAccess'
       });
     }

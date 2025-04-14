@@ -1,7 +1,7 @@
 // CustomResultPage.ets Display the result of barcode scanning using the custom UI.
-import { router } from '@kit.ArkUI';
 import { scanBarcode, scanCore } from '@kit.ScanKit';
 import { MockSetup } from '@ohos/hamock';
+import { UIContextSelf } from '../utils/UIContextSelf';
 
 @Extend(Text)
 function textName() {
@@ -50,7 +50,7 @@ class ParamsType {
 @Entry
 @Component
 struct CustomResultPage {
-  @State params: ParamsType = router.getParams() as ParamsType;
+  @State params: ParamsType = UIContextSelf.getRouter().getParams() as ParamsType;
   private result: Array<scanBarcode.ScanResult> = [];
   public scroller: Scroller = new Scroller();
 
@@ -122,10 +122,10 @@ struct CustomResultPage {
       .zIndex(10)
       .position({ x: 15, y: 0 })
       .onClick(async () => {
-        router.pushUrl({
+        UIContextSelf.getRouter().pushUrl({
           url: 'pages/Index'
         }).then(() => {
-          router.clear();
+          UIContextSelf.getRouter().clear();
         });
       })
 

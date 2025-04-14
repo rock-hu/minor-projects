@@ -1,5 +1,6 @@
 // Common.ets
 import { display } from '@kit.ArkUI';
+import { UIContextSelf } from './UIContextSelf';
 
 const TAG: string = 'ScanKit common';
 // Camera preview stream aspect ratio. The common ratio is 1, 4/3, or 16/9. You can customize the ratio.
@@ -30,8 +31,8 @@ function getRatio(ratio: number): number {
 export function getXComDisplay(): xComDisplay {
   // Obtain the screen size.
   let displayClass = display.getDefaultDisplaySync();
-  let width: number = px2vp(displayClass.width);
-  let height: number = px2vp(displayClass.height);
+  let width: number = UIContextSelf.uiContext.px2vp(displayClass.width);
+  let height: number = UIContextSelf.uiContext.px2vp(displayClass.height);
   let result: xComDisplay = {
     width: 360,
     height: 640,

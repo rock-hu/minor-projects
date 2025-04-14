@@ -1,11 +1,12 @@
 // CustomPage.ets Scan barcodes using the custom UI.
-import { curves, display, promptAction, router } from '@kit.ArkUI';
+import { curves, display } from '@kit.ArkUI';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { scanCore, scanBarcode, customScan } from '@kit.ScanKit';
 import { AsyncCallback, BusinessError } from '@kit.BasicServicesKit';
 import { xComDisplay, getXComDisplay } from '../utils/Common';
 import { PermissionsUtil } from '../utils/PermissionsUtil';
 import { abilityAccessCtrl, Permissions } from '@kit.AbilityKit';
+import { UIContextSelf } from '../utils/UIContextSelf';
 
 const TAG: string = 'ScanKit CustomPage';
 let setInterFlag: number;
@@ -205,7 +206,7 @@ struct CustomScanPage {
           .height(30)
           .objectFit(ImageFit.Contain)
           .onClick(async () => {
-            router.back();
+            UIContextSelf.getRouter().back();
           })
       }.padding({ left: 24, right: 24, top: 24 })
 
@@ -399,7 +400,7 @@ struct CustomScanPage {
                 scanCodeRect: this.scanCodeRect[index].scanCodeRect
               }
               result.push(scanResult);
-              router.replaceUrl({
+              UIContextSelf.getRouter().replaceUrl({
                 url: 'pages/CustomResultPage',
                 params: {
                   result: result
@@ -458,7 +459,7 @@ struct CustomScanPage {
       this.isShowScanResult = true;
       if (this.scanCodeRectLength === 1) {
         toResultPage = setTimeout(() => {
-          router.replaceUrl({
+          UIContextSelf.getRouter().replaceUrl({
             url: 'pages/CustomResultPage',
             params: {
               result: result
@@ -503,7 +504,7 @@ struct CustomScanPage {
     try {
       customScan.start(this.viewControl, this.callback, this.frameCallback);
       // Tap the animation.
-      animateTo({
+      UIContextSelf.uiContext.animateTo({
         duration: 1500, // Animation duration.
         curve: curves.cubicBezierCurve(0.33, 0, 0.67, 1), // Animation curve.
         delay: 100,
@@ -515,7 +516,7 @@ struct CustomScanPage {
       // Display a message when no barcode is recognized.
       setInterFlag = setTimeout(() => {
         if (this.userGrant && this.scanCodeRectLength === 0) {
-          promptAction.showToast({
+          UIContextSelf.getPromptAction().showToast({
             message: $r('app.string.Scan_diaLog_not_found'),
             duration: 2000
           });
