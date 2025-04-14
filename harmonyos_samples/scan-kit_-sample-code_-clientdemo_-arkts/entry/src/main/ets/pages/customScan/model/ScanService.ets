@@ -30,6 +30,8 @@ export enum ScanStatus {
 
 @Observed
 export class ScanService {
+  public baseZoom: number = 1;
+  public zoomRatio: number = 1;
   public scanStatus: ScanStatus = ScanStatus.FORBIDDEN;
   public isAlbumLoading: boolean = false;
   public scanResult: ScanResults = new ScanResults();
@@ -97,19 +99,58 @@ export class ScanService {
     let zoom = 1;
     try {
       zoom = customScan.getZoom();
-      Logger.info(TAG, `getZoom, zoom: ${zoom}`);
+      Logger.info(TAG, `getZoom end, zoom: ${zoom}`);
     } catch (error) {
-      Logger.error(TAG, 'Catch: customScan getZoom. Code: ${error.code}, message: ${error?.message}');
+      Logger.error(TAG, `Failed to getZoom. Code: ${error.code}, message: ${error?.message}`);
     }
     return zoom;
   }
 
-  public setZoom(pinchValue: number): void {
+  public setZoom(zoomRatio: number): void {
     try {
-      customScan.setZoom(pinchValue);
-      Logger.info(TAG, `setZoom, pinchValue: ${pinchValue}`);
+      customScan.setZoom(zoomRatio);
+      Logger.info(TAG, `setZoom end, zoomRatio: ${zoomRatio}`);
     } catch (error) {
-      Logger.error(TAG, 'Catch: customScan setZoom. Code: ${error.code}, message: ${error?.message}');
+      Logger.error(TAG, `Failed to setZoom. Code: ${error.code}, message: ${error?.message}`);
+    }
+  }
+
+  public tapGesture(): void {
+    this.baseZoom = this.getZoom();
+    Logger.info(TAG, `tapGesture. baseZoom: ${this.baseZoom}`);
+    if (this.baseZoom === CommonConstants.MIN_ZOOM_RATIO) {
+      this.setZoom(CommonConstants.MAX_ZOOM_RATIO);
+    } else {
+      this.setZoom(CommonConstants.MIN_ZOOM_RATIO);
+    }
+  }
+
+  public pinchGestureStart(): void {
+    this.baseZoom = this.getZoom();
+    this.zoomRatio = this.baseZoom;
+    Logger.info(TAG, `pinchGestureStart. baseZoom: ${this.baseZoom}`);
+  }
+
+  public pinchGestureUpdate(scale: number): void {
+    Logger.info(TAG, `pinchGestureUpdate. scale: ${scale}`);
+    let tmpZoom: number = scale * this.baseZoom;
+    if (scale > 1) {
+      if (tmpZoom <= CommonConstants.MAX_ZOOM_RATIO) {
+        this.updateZoom(tmpZoom);
+      }
+    } else {
+      if (tmpZoom < CommonConstants.MIN_ZOOM_RATIO) {
+        tmpZoom = CommonConstants.MIN_ZOOM_RATIO;
+      }
+      this.updateZoom(tmpZoom);
+    }
+  }
+
+  public updateZoom(tmpZoom: number): void {
+    if (Math.abs(tmpZoom - this.zoomRatio) > 0.01) {
+      Logger.info(TAG, `updateZoom. tmpZoom: ${tmpZoom}`);
+      this.zoomRatio = tmpZoom;
+      this.setZoom(this.zoomRatio);
     }
   }
 

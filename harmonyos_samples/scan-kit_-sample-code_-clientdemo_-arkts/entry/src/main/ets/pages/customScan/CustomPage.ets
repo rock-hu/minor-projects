@@ -1,6 +1,7 @@
-import { LengthMetrics, router } from '@kit.ArkUI';
+import { LengthMetrics } from '@kit.ArkUI';
 import { CustomButton } from '../../common/CommonComponents'
 import { StatusBar } from '../../common/StatusBar';
+import { UIContextSelf } from './model/UIContextSelf';
 
 @Entry
 @Component
@@ -14,7 +15,7 @@ struct CustomPage {
       Column() {
         CustomButton({
           mText: $r('app.string.customized_view_decode'), mOnClick: () => {
-            router.pushUrl({
+            UIContextSelf.getRouter().pushUrl({
               url: "pages/customScan/pages/ScanPage"
             })
           }

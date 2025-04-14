@@ -149,7 +149,7 @@ export class ScanLayout {
 
   /**
    * When the width is less than 600, the height breakpoints are: 300, 480.
-   * REAKPOINT_SM, BREAKPOINT_MD, BREAKPOINT_LG, or BREAKPOINT_XL
+   * BREAKPOINT_SM, BREAKPOINT_MD, BREAKPOINT_LG, or BREAKPOINT_XL
    * When the width is greater than or equal to 600, the height breakpoints are: 480, 600.
    * BREAKPOINT_SM or BREAKPOINT_MD, BREAKPOINT_LG, BREAKPOINT_XL
    */

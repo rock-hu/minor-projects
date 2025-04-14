@@ -1,8 +1,9 @@
 import { bundleManager, common, abilityAccessCtrl, PermissionRequestResult, Permissions } from '@kit.AbilityKit';
 import Logger from './Logger';
+import { UIContextSelf } from '../pages/customScan/model/UIContextSelf';
 
 const TAG = 'Scan SampleCode PermissionsUtil';
-let context = getContext(this) as common.UIAbilityContext;
+let context = UIContextSelf.getHostContext() as common.UIAbilityContext;
 
 export class PermissionsUtil {
   public static async checkAccessToken(permission: Permissions): Promise<abilityAccessCtrl.GrantStatus> {

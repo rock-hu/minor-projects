@@ -1,7 +1,8 @@
-import { AnimatorResult, curves, Animator } from '@kit.ArkUI';
+import { AnimatorResult, curves } from '@kit.ArkUI';
 import Logger from '../../../common/Logger';
 import { BreakpointConstants } from '../constants/BreakpointConstants';
 import { ScanLayout } from '../model/ScanLayout';
+import { UIContextSelf } from '../model/UIContextSelf';
 
 const TAG = 'ScanLine';
 
@@ -65,18 +66,24 @@ export struct ScanLine {
     emitRate: 60,
     shape: ParticleEmitterShape.RECTANGLE
   }
-  private backAnimator: AnimatorResult | undefined = Animator.create({
-    duration: 2000,
-    easing: 'smooth',
-    delay: 0,
-    fill: 'none',
-    direction: 'alternate',
-    iterations: -1,
-    begin: 0,
-    end: 100
-  }); // Scanning line animation.
+  private backAnimator?: AnimatorResult; // Scanning line animation.
 
   async backAnimatorCreate(): Promise<void> {
+    try {
+      this.backAnimator = UIContextSelf.uiContext.createAnimator({
+        duration: 2000,
+        easing: 'smooth',
+        delay: 0,
+        fill: 'none',
+        direction: 'alternate',
+        iterations: -1,
+        begin: 0,
+        end: 100
+      }); // Scanning line animation.
+    } catch (error) {
+      Logger.error(TAG, `Failed to create animator. Code: ${error.code}`);
+    }
+
     if (this.backAnimator) {
       this.backAnimator.onRepeat = () => {
         this.reverse = !this.reverse;

@@ -5,6 +5,7 @@ import { CommonEventManager } from '../pages/customScan/model/CommonEventManager
 import Logger from '../common/Logger';
 import { WindowService } from '../pages/customScan/model/WindowService';
 import { DeviceService } from '../pages/customScan/model/DeviceService';
+import { UIContextSelf } from '../pages/customScan/model/UIContextSelf';
 
 const TAG = 'Scan SampleCode EntryAbility';
 
@@ -54,20 +55,26 @@ export default class EntryAbility extends UIAbility {
   onWindowStageCreate(windowStage: window.WindowStage): void {
     // The window has been created. Configure the main UI for the function.
     Logger.info(TAG, 'Ability onWindowStageCreate');
-
-    windowStage.getMainWindow().then((windowObj: window.Window) => {
-      WindowService.getInstance().initWindowObj(windowObj);
-
-      windowStage.loadContent(this.page, (error, _) => {
-        if (error && error.code) {
+    try {
+      windowStage.getMainWindow().then((windowObj: window.Window) => {
+        Logger.info(TAG, 'Succeeded in getMainWindow.');
+        try {
+          windowStage.loadContent(this.page).then(() => {
+            Logger.info(TAG, 'Succeeded in loading the content.');
+            UIContextSelf.setUIContext(windowObj);
+            WindowService.getInstance().initWindowObj(windowObj);
+          }).catch((error: BusinessError) => {
+            Logger.error(TAG, `Failed to load the content. Code: ${error.code}.`);
+          })
+        } catch (error) {
           Logger.error(TAG, `Failed to load the content. Code: ${error.code}.`);
-          return;
         }
-        Logger.info(TAG, 'Succeeded in loading the content.');
+      }).catch((error: BusinessError) => {
+        Logger.error(TAG, `Failed to get getMainWindow by windowStage. Code: ${error.code}.`);
       });
-    }).catch((error: BusinessError) => {
+    } catch (error) {
       Logger.error(TAG, `Failed to get getMainWindow by windowStage. Code: ${error.code}.`);
-    });
+    }
   }
 
   // Obtain the code value through the onNewWant callback in warm launch scenarios.
@@ -75,10 +82,10 @@ export default class EntryAbility extends UIAbility {
     Logger.info(TAG, 'Ability onNewWant');
     // Obtain the uri field from the want information.
     let uri = want?.uri;
-    let status: router.RouterState = router.getState();
+    let status: router.RouterState = UIContextSelf.getRouter().getState();
     if (status && status.name !== 'ScanAccess' && uri) {
       // Process the service based on the URI.
-      router.pushUrl({
+      UIContextSelf.getRouter().pushUrl({
         url: 'pages/access/ScanAccess'
       });
     }

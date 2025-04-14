@@ -1,5 +1,5 @@
-import { router } from '@kit.ArkUI';
 import { CustomButton } from '../common/CommonComponents'
+import { UIContextSelf } from './customScan/model/UIContextSelf';
 
 @Entry
 @Component
@@ -11,7 +11,7 @@ struct Index {
       Text($r('app.string.demo_title'))
         .fontSize(24)
         .fontWeight(FontWeight.Bold)
-        .fontColor('#000000')
+        .fontColor($r('sys.color.black'))
 
       Column() {
         Text($r('app.string.demo_subject'))
@@ -20,7 +20,7 @@ struct Index {
           })
           .fontSize(24)
           .textAlign(TextAlign.Center)
-          .fontColor('#000000')
+          .fontColor($r('sys.color.black'))
         Text($r('app.string.demo_detail'))
           .margin({
             top: 16,
@@ -29,7 +29,7 @@ struct Index {
             bottom: 20,
           })
           .fontSize(18)
-          .fontColor('#99000000')
+          .fontColor($r('sys.color.mask_secondary'))
       }
       .backgroundColor('#0a000000')
       .borderRadius(12)
@@ -45,7 +45,7 @@ struct Index {
           Column() {
             CustomButton({
               mText: $r('app.string.default_view_decode'), mOnClick: () => {
-                router.pushUrl({
+                UIContextSelf.getRouter().pushUrl({
                   url: 'pages/defaultScan/DefaultScan'
                 })
               }
@@ -53,14 +53,14 @@ struct Index {
 
             CustomButton({
               mText: $r('app.string.customized_view_decode'), mOnClick: () => {
-                router.pushUrl({
+                UIContextSelf.getRouter().pushUrl({
                   url: 'pages/customScan/CustomPage'
                 })
               }
             })
             CustomButton({
               mText: $r('app.string.bitmap_api_decode'), mOnClick: () => {
-                router.pushUrl({
+                UIContextSelf.getRouter().pushUrl({
                   url: "pages/detectBarcode/DecodeBarcode"
                 })
               }
@@ -68,7 +68,7 @@ struct Index {
 
             CustomButton({
               mText: $r('app.string.generate_QR_code'), mOnClick: () => {
-                router.pushUrl({
+                UIContextSelf.getRouter().pushUrl({
                   url: 'pages/generateBarcode/CreateBarcode',
                 })
               }

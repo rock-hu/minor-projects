@@ -1,6 +1,7 @@
-import { LengthMetrics, router } from '@kit.ArkUI';
+import { LengthMetrics } from '@kit.ArkUI';
 import { CustomButton } from '../../common/CommonComponents';
 import { StatusBar } from '../../common/StatusBar';
+import { UIContextSelf } from '../customScan/model/UIContextSelf';
 
 @Entry
 @Component
@@ -22,7 +23,7 @@ struct ScanAccess {
 
         CustomButton({
           mText: $r('app.string.access_integration_process'), mOnClick: () => {
-            router.pushUrl({
+            UIContextSelf.getRouter().pushUrl({
               url: 'pages/access/ScanDetail'
             })
           }

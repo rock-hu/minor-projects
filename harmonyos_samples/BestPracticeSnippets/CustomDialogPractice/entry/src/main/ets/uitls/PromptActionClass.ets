@@ -57,9 +57,6 @@ export class PromptActionClass {
         .closeCustomDialog(PromptActionClass.contentNode)
         .then(() => {
           hilog.info(0x0000, 'testTag', 'CloseCustomDialog complete.');
-          if (PromptActionClass.contentNode !== null) {
-            PromptActionClass.contentNode.dispose(); // release contentNode.
-          }
         })
         .catch((error: BusinessError) => {
           let message = (error as BusinessError).message;

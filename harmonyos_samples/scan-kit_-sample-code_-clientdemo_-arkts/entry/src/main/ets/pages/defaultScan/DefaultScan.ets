@@ -1,10 +1,11 @@
-import { LengthMetrics, router } from '@kit.ArkUI';
+import { LengthMetrics } from '@kit.ArkUI';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { scanBarcode, scanCore } from '@kit.ScanKit';
 import { CustomButton } from '../../common/CommonComponents';
 import Logger from '../../common/Logger';
 import { StatusBar } from '../../common/StatusBar';
 import { showError } from '../../common/Utils';
+import { UIContextSelf } from '../customScan/model/UIContextSelf';
 
 const TAG = 'Default Scan';
 
@@ -21,13 +22,13 @@ struct DefaultScan {
         CustomButton({
           mText: $r('app.string.default_view_decode'), mOnClick: () => {
             try {
-              scanBarcode.startScanForResult(getContext(this), {
+              scanBarcode.startScanForResult(UIContextSelf.getHostContext(), {
                 scanTypes: [scanCore.ScanType.ALL],
                 enableMultiMode: true,
                 enableAlbum: true
               }).then((result: scanBarcode.ScanResult) => {
                 Logger.info(TAG, `Promise scan result: ${JSON.stringify(result)}`);
-                router.pushUrl({
+                UIContextSelf.getRouter().pushUrl({
                   url: 'pages/resultPage/ResultPage',
                   params: {
                     originalValue: result.originalValue,

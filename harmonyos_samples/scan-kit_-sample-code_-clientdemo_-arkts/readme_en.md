@@ -124,11 +124,11 @@ How to Use
 │ │ │ │ ├─BreakpointType.ets // Breakpoint type   
 │ │ │ │ ├─CommonEventManager.ts // Common event manager  
 │ │ │ │ ├─DeviceService.ets // Device management class  
-│ │ │ │ ├─FontSizeScale.ets // Font size scaling   
 │ │ │ │ ├─OpenPhoto.ets // Gallery   
 │ │ │ │ ├─PromptTone.ts // Prompt tone   
 │ │ │ │ ├─ScanLayout.ets // Barcode scanning UI layout management class   
 │ │ │ │ ├─ScanService.ets // Barcode scanning customization   
+│ │ │ │ ├─UIContextSelf.ets // UIContext management class   
 │ │ │ │ ├─WindowService.ets // Window management class   
 │ │ │ │ ├─XComponentService.ets // XComponent management class   
 │ │ │ ├─pages // Pages   
