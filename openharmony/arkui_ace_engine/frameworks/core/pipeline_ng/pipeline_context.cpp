@@ -735,6 +735,7 @@ void PipelineContext::FlushMouseEventVoluntarily()
     }
     CHECK_RUN_ON(UI);
     CHECK_NULL_VOID(rootNode_);
+    ACE_SCOPED_TRACE("FlushMouseEventVoluntarily x:%f y:%f", lastMouseEvent_->x, lastMouseEvent_->y);
 
     MouseEvent event;
     if (isNeedFlushMouseEvent_ == MockFlushEventType::REJECT) {
@@ -2237,6 +2238,7 @@ void PipelineContext::OnVirtualKeyboardHeightChange(float keyboardHeight, double
         auto lastKeyboardOffset = context->safeAreaManager_->GetKeyboardOffset();
         float newKeyboardOffset = context->CalcNewKeyboardOffset(keyboardHeight,
             positionY, height, rootSize, onFocusField && manager->GetIfFocusTextFieldIsInline());
+        newKeyboardOffset = round(newKeyboardOffset);
         if (NearZero(keyboardHeight) || LessOrEqual(newKeyboardOffset, lastKeyboardOffset) ||
             manager->GetOnFocusTextFieldId() == manager->GetLastAvoidFieldId()) {
             context->safeAreaManager_->UpdateKeyboardOffset(newKeyboardOffset);
@@ -3154,7 +3156,7 @@ bool PipelineContext::OnDumpInfo(const std::vector<std::string>& params) const
         }
     } else if (params[0] == "-event") {
         if (eventManager_) {
-            eventManager_->DumpEvent(EventTreeType::TOUCH, hasJson);
+            eventManager_->DumpEventWithCount(params, EventTreeType::TOUCH, hasJson);
         }
         DumpUIExt();
     } else if (params[0] == "-postevent") {
@@ -3713,6 +3715,7 @@ void PipelineContext::FlushMouseEvent()
 
     CHECK_RUN_ON(UI);
     CHECK_NULL_VOID(rootNode_);
+    ACE_SCOPED_TRACE("FlushMouseEvent x:%f y:%f", lastMouseEvent_->x, lastMouseEvent_->y);
     auto scaleEvent = event.CreateScaleEvent(viewScale_);
     TouchRestrict touchRestrict { TouchRestrict::NONE };
     touchRestrict.sourceType = event.sourceType;
@@ -5320,6 +5323,7 @@ void PipelineContext::StopWindowAnimation()
     if (taskScheduler_ && !taskScheduler_->IsPredictTaskEmpty()) {
         RequestFrame();
     }
+    OnRotationAnimationEnd();
 }
 
 void PipelineContext::AddSyncGeometryNodeTask(std::function<void()>&& task)
@@ -5890,6 +5894,7 @@ void PipelineContext::FlushMouseEventForHover()
     CHECK_RUN_ON(UI);
     auto container = Container::Current();
     CHECK_NULL_VOID(container);
+    ACE_SCOPED_TRACE("FlushMouseEventForHover x:%f y:%f", lastMouseEvent_->x, lastMouseEvent_->y);
     MouseEvent event;
     event.x = lastMouseEvent_->x;
     event.y = lastMouseEvent_->y;
@@ -5904,14 +5909,12 @@ void PipelineContext::FlushMouseEventForHover()
     event.touchEventId = lastMouseEvent_->touchEventId;
     event.mockFlushEvent = true;
     event.pointerEvent = lastMouseEvent_->pointerEvent;
+    TAG_LOGD(AceLogTag::ACE_MOUSE,
+        "the mock mouse event action: %{public}d x: %{public}f y: %{public}f", event.action, event.x, event.y);
     TouchRestrict touchRestrict { TouchRestrict::NONE };
     touchRestrict.sourceType = event.sourceType;
     touchRestrict.hitTestType = SourceType::MOUSE;
     touchRestrict.inputEventType = InputEventType::MOUSE_BUTTON;
-    // The purpose of setting the action here as WINDOW_ENTER is to force the hover node to recalculate.
-    if (windowSizeChangeReason_ == WindowSizeChangeReason::MAXIMIZE) {
-        event.action = MouseAction::WINDOW_ENTER;
-    }
     if (container->IsSceneBoardWindow()) {
         eventManager_->MouseTest(event, lastMouseEvent_->node.Upgrade(), touchRestrict);
     } else {
@@ -5943,10 +5946,7 @@ void PipelineContext::FlushMouseEventInVsync()
         FlushMouseEventVoluntarily();
         isNeedFlushMouseEvent_ = MockFlushEventType::NONE;
     }
-    if (!lastMouseEvent_) {
-        return;
-    }
-    if (isTransFlag_ && (mouseEventSize == 0 || lastMouseEvent_->mockFlushEvent)) {
+    if (lastMouseEvent_ && isTransFlag_ && (mouseEventSize == 0 || lastMouseEvent_->mockFlushEvent)) {
         FlushMouseEventForHover();
         isTransFlag_ = false;
     }
@@ -5964,5 +5964,14 @@ void PipelineContext::OnDumpInjection(const std::vector<std::string>& params) co
     auto frameNode = DynamicCast<FrameNode>(ElementRegister::GetInstance()->GetUINodeById(nodeId));
     CHECK_NULL_VOID(frameNode);
     frameNode->OnRecvCommand(params[1]);
+}
+
+void PipelineContext::OnRotationAnimationEnd()
+{
+    for (auto&& [id, callback] : rotationEndCallbackMap_) {
+        if (callback) {
+            callback();
+        }
+    }
 }
 } // namespace OHOS::Ace::NG

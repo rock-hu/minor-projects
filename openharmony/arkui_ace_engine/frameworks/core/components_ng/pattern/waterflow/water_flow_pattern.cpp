@@ -255,7 +255,8 @@ void WaterFlowPattern::TriggerPostLayoutEvents()
     CHECK_NULL_VOID(eventHub);
     float delta = layoutInfo_->GetDelta(prevOffset_);
     PrintOffsetLog(AceLogTag::ACE_WATERFLOW, host->GetId(), delta);
-
+    ACE_SCOPED_TRACE("processed offset:%f, id:%d, tag:%s", delta,
+        static_cast<int32_t>(host->GetAccessibilityId()), host->GetTag().c_str());
     FireObserverOnDidScroll(delta);
     auto onScroll = eventHub->GetOnScroll();
     if (onScroll) {
@@ -345,7 +346,7 @@ bool WaterFlowPattern::OnDirtyLayoutWrapperSwap(const RefPtr<LayoutWrapper>& dir
     }
     layoutInfo_->UpdateStartIndex();
     prevOffset_ = layoutInfo_->Offset();
-    layoutInfo_->jumpIndex_ = EMPTY_JUMP_INDEX;
+    layoutInfo_->jumpIndex_ = WaterFlowLayoutInfoBase::EMPTY_JUMP_INDEX;
     layoutInfo_->duringPositionCalc_ = false;
     layoutInfo_->targetIndex_.reset();
     layoutInfo_->extraOffset_.reset();
@@ -565,7 +566,7 @@ void WaterFlowPattern::ScrollToIndex(int32_t index, bool smooth, ScrollAlign ali
     StopAnimate();
     auto footer = footer_.Upgrade();
     const int32_t itemCnt = footer ? GetChildrenCount() - footer->FrameCount() : GetChildrenCount();
-    if (index > EMPTY_JUMP_INDEX && index < itemCnt) {
+    if (index > WaterFlowLayoutInfoBase::EMPTY_JUMP_INDEX && index < itemCnt) {
         if (smooth) {
             SetExtraOffset(extraOffset);
             if (!ScrollToTargetIndex(index)) {

@@ -25,7 +25,7 @@
 namespace OHOS::Ace::NG {
 enum class PanGestureState : int32_t;
 
-class PanRecognizer : public MultiFingersRecognizer {
+class ACE_FORCE_EXPORT PanRecognizer : public MultiFingersRecognizer {
     DECLARE_ACE_TYPE(PanRecognizer, MultiFingersRecognizer);
 
 public:
@@ -78,6 +78,16 @@ public:
     PanDirection GetDirection() const
     {
         return direction_;
+    }
+
+    void SetDistanceMap(const PanDistanceMap& distanceMap)
+    {
+        distanceMap_ = distanceMap;
+    }
+
+    PanDistanceMap GetDistanceMap() const
+    {
+        return distanceMap_;
     }
 
     void HandlePanGestureAccept(

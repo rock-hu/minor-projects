@@ -24,6 +24,7 @@
 
 #include "test/mock/core/pipeline/mock_pipeline_context.h"
 
+#include "base/log/dump_log.h"
 #include "base/web/webview/ohos_nweb/include/nweb_handler.h"
 #include "core/components_ng/base/view_stack_processor.h"
 
@@ -255,6 +256,7 @@ HWTEST_F(WebPatternTestNg, WebPatternTestNg_002, TestSize.Level1)
     webPattern->OnHorizontalScrollBarAccessEnabledUpdate(true);
     webPattern->OnVerticalScrollBarAccessEnabledUpdate(true);
     webPattern->OnOptimizeParserBudgetEnabledUpdate(true);
+    webPattern->OnWebMediaAVSessionEnabledUpdate(true);
 #endif
 }
 
@@ -2040,6 +2042,28 @@ HWTEST_F(WebPatternTestNg, WebRequestFocus_001, TestSize.Level1)
 }
 
 /**
+ * @tc.name: IsCurrentFocus_001
+ * @tc.desc: IsCurrentFocus.
+ * @tc.type: FUNC
+ */
+HWTEST_F(WebPatternTestNg, IsCurrentFocus_001, TestSize.Level1)
+{
+#ifdef OHOS_STANDARD_SYSTEM
+    auto* stack = ViewStackProcessor::GetInstance();
+    ASSERT_NE(stack, nullptr);
+    auto nodeId = stack->ClaimNodeId();
+    auto frameNode =
+        FrameNode::GetOrCreateFrameNode(V2::WEB_ETS_TAG, nodeId, []() { return AceType::MakeRefPtr<WebPattern>(); });
+    stack->Push(frameNode);
+    auto webPattern = frameNode->GetPattern<WebPattern>();
+    ASSERT_NE(webPattern, nullptr);
+    webPattern->OnModifyDone();
+    ASSERT_NE(webPattern->delegate_, nullptr);
+    webPattern->IsCurrentFocus();
+#endif
+}
+
+/**
  * @tc.name: UpdateContentOffset_001
  * @tc.desc: UpdateContentOffset.
  * @tc.type: FUNC
@@ -2108,6 +2132,70 @@ HWTEST_F(WebPatternTestNg, HandleFocusEvent_002, TestSize.Level1)
     webPattern->needOnFocus_ = true;
     webPattern->HandleFocusEvent();
     EXPECT_TRUE(webPattern->needOnFocus_);
+#endif
+}
+
+/**
+ * @tc.name: DumpInfo_001
+ * @tc.desc: DumpInfo.
+ * @tc.type: FUNC
+ */
+HWTEST_F(WebPatternTestNg, DumpInfo_001, TestSize.Level1)
+{
+#ifdef OHOS_STANDARD_SYSTEM
+    auto* stack = ViewStackProcessor::GetInstance();
+    ASSERT_NE(stack, nullptr);
+    auto nodeId = stack->ClaimNodeId();
+    auto frameNode =
+        FrameNode::GetOrCreateFrameNode(V2::WEB_ETS_TAG, nodeId, []() { return AceType::MakeRefPtr<WebPattern>(); });
+    stack->Push(frameNode);
+    auto webPattern = frameNode->GetPattern<WebPattern>();
+    ASSERT_NE(webPattern, nullptr);
+    webPattern->OnModifyDone();
+    ASSERT_NE(webPattern->delegate_, nullptr);
+    std::unique_ptr<std::ostream> ostream = std::make_unique<std::ostringstream>();
+    ASSERT_NE(ostream, nullptr);
+    DumpLog::GetInstance().SetDumpFile(std::move(ostream));
+    webPattern->DumpInfo();
+    webPattern->delegate_ = nullptr;
+    webPattern->DumpGpuInfo();
+    webPattern->renderSurface_ = nullptr;
+    webPattern->DumpSurfaceInfo();
+#endif
+}
+
+/**
+ * @tc.name: OnCompleteSwapWithNewSize_001
+ * @tc.desc: OnCompleteSwapWithNewSize.
+ * @tc.type: FUNC
+ */
+HWTEST_F(WebPatternTestNg, OnCompleteSwapWithNewSize_001, TestSize.Level1)
+{
+#ifdef OHOS_STANDARD_SYSTEM
+    auto* stack = ViewStackProcessor::GetInstance();
+    ASSERT_NE(stack, nullptr);
+    auto nodeId = stack->ClaimNodeId();
+    auto frameNode =
+        FrameNode::GetOrCreateFrameNode(V2::WEB_ETS_TAG, nodeId, []() { return AceType::MakeRefPtr<WebPattern>(); });
+    stack->Push(frameNode);
+    auto webPattern = frameNode->GetPattern<WebPattern>();
+    ASSERT_NE(webPattern, nullptr);
+    webPattern->isInWindowDrag_ = true;
+    webPattern->isWaiting_ = true;
+    webPattern->OnCompleteSwapWithNewSize();
+    EXPECT_FALSE(webPattern->isWaiting_);
+    webPattern->isInWindowDrag_ = false;
+    webPattern->isWaiting_ = true;
+    webPattern->OnCompleteSwapWithNewSize();
+    EXPECT_TRUE(webPattern->isWaiting_);
+    webPattern->isInWindowDrag_ = true;
+    webPattern->isWaiting_ = false;
+    webPattern->OnCompleteSwapWithNewSize();
+    EXPECT_FALSE(webPattern->isWaiting_);
+    webPattern->isInWindowDrag_ = false;
+    webPattern->isWaiting_ = false;
+    webPattern->OnCompleteSwapWithNewSize();
+    EXPECT_FALSE(webPattern->isWaiting_);
 #endif
 }
 } // namespace OHOS::Ace::NG

@@ -87,7 +87,9 @@ constexpr char APP_TABS_FLING[] = "APP_TABS_FLING";
 constexpr char APP_TABS_SCROLL[] = "APP_TABS_SCROLL";
 constexpr char APP_TABS_NO_ANIMATION_SWITCH[] = "APP_TABS_NO_ANIMATION_SWITCH";
 constexpr char APP_TABS_FRAME_ANIMATION[] = "APP_TABS_FRAME_ANIMATION";
-
+#ifdef SUPPORT_DIGITAL_CROWN
+constexpr char HAPTIC_STRENGTH3[] = "watchhaptic.feedback.crown.strength3";
+#endif
 constexpr int32_t COMPONENT_SWIPER_FLING = 1;
 constexpr int32_t PAGE_FLIP_MODE_SIZE = 2;
 const RefPtr<FrameRateRange> SWIPER_DEFAULT_FRAME_RATE =
@@ -1236,7 +1238,6 @@ bool SwiperPattern::OnDirtyLayoutWrapperSwap(const RefPtr<LayoutWrapper>& dirty,
     mainSizeIsMeasured_ = algo->GetMainSizeIsMeasured();
     contentCrossSize_ = algo->GetContentCrossSize();
     currentDelta_ = 0.0f;
-    contentMainSize_ = algo->GetContentMainSize();
     oldContentMainSize_ = contentMainSize_;
     crossMatchChild_ = algo->IsCrossMatchChild();
     ignoreBlankOffset_ = algo->GetIgnoreBlankOffset();
@@ -1397,6 +1398,7 @@ void SwiperPattern::UpdateLayoutProperties(const RefPtr<SwiperLayoutAlgorithm>& 
     layoutConstraint_ = algo->GetLayoutConstraint();
     itemPosition_ = std::move(algo->GetItemPosition());
     currentOffset_ -= algo->GetCurrentOffset();
+    contentMainSize_ = algo->GetContentMainSize();
 }
 
 float SwiperPattern::AdjustIgnoreBlankOverScrollOffSet(bool isStartOverScroll) const
@@ -2097,6 +2099,7 @@ void SwiperPattern::FastAnimation(int32_t targetIndex)
         CHECK_NULL_VOID(pipeline);
         pipeline->FlushUITaskWithSingleDirtyNode(host);
         pipeline->FlushSyncGeometryNodeTasks();
+        SetIndicatorIsInFast(true);
     }
 }
 
@@ -2662,7 +2665,9 @@ void SwiperPattern::AddPanEvent(const RefPtr<GestureEventHub>& gestureHub, Gestu
 
     panEvent_ = MakeRefPtr<PanEvent>(
         std::move(actionStart), std::move(actionUpdate), std::move(actionEnd), std::move(actionCancel));
-    gestureHub->AddPanEvent(panEvent_, panDirection_, 1, DEFAULT_PAN_DISTANCE);
+    PanDistanceMap distanceMap = { { SourceTool::UNKNOWN, DEFAULT_PAN_DISTANCE.ConvertToPx() },
+        { SourceTool::PEN, DEFAULT_PEN_PAN_DISTANCE.ConvertToPx() } };
+    gestureHub->AddPanEvent(panEvent_, panDirection_, 1, distanceMap);
 }
 
 void SwiperPattern::InitTouchEvent(const RefPtr<GestureEventHub>& gestureHub)
@@ -3806,6 +3811,7 @@ void SwiperPattern::PlayPropertyTranslateAnimation(
     };
     propertyAnimationIsRunning_ = true;
     propertyAnimationIndex_ = nextIndex;
+    contentMainSizeBeforeAni_ = contentMainSize_;
     FireSelectedEvent(currentIndex_, nextIndex);
     FireUnselectedEvent(GetLoopIndex(currentIndex_), GetLoopIndex(nextIndex));
     ElementRegister::GetInstance()->ReSyncGeometryTransition(GetHost(), option);
@@ -3879,14 +3885,28 @@ void SwiperPattern::OnPropertyTranslateAnimationFinish(const OffsetF& offset)
     propertyAnimationIsRunning_ = false;
     syncCancelAniIsFailed_ = false;
     fastCurrentIndex_.reset();
+    auto correctOffset = offset.GetMainOffset(GetDirection());
+    // before targetIndex be reset.
+    CheckTargetPositon(correctOffset);
     targetIndex_.reset();
     // reset translate.
     UpdateTranslateForSwiperItem(itemPositionInAnimation_, OffsetF());
     itemPositionInAnimation_.clear();
     UpdateTranslateForCaptureNode(OffsetF());
     // update postion info.
-    UpdateOffsetAfterPropertyAnimation(offset.GetMainOffset(GetDirection()));
+    UpdateOffsetAfterPropertyAnimation(correctOffset);
     OnTranslateFinish(propertyAnimationIndex_, false, isFinishAnimation_);
+}
+
+void SwiperPattern::CheckTargetPositon(float& correctOffset)
+{
+    if (contentMainSizeBeforeAni_ != contentMainSize_ && targetIndex_.has_value() && !itemPosition_.empty()) {
+        auto iter = itemPosition_.find(targetIndex_.value());
+        if (iter != itemPosition_.end()) {
+            correctOffset = -iter->second.startPos;
+            TAG_LOGI(AceLogTag::ACE_SWIPER, "Swiper correctOffset: %{public}f", correctOffset);
+        }
+    }
 }
 
 void SwiperPattern::PropertyCancelAnimationFinish(
@@ -5882,8 +5902,10 @@ ScrollResult SwiperPattern::HandleScroll(float offset, int32_t source, NestedSta
     if (state == NestedState::CHILD_CHECK_OVER_SCROLL) {
         return HandleOutBoundary(offset, source, velocity);
     }
-    if (IsDisableSwipe() || (source == SCROLL_FROM_ANIMATION && DuringTranslateAnimation()) ||
-        !CheckSwiperPanEvent(offset) || !CheckContentWillScroll(offset, offset)) {
+    if (source == SCROLL_FROM_ANIMATION && DuringTranslateAnimation()) {
+        return { 0.0f, true };
+    }
+    if (IsDisableSwipe() || !CheckSwiperPanEvent(offset) || !CheckContentWillScroll(offset, offset)) {
         // deny conflicting animation from child
         return { offset, true };
     }
@@ -6221,7 +6243,9 @@ void SwiperPattern::SetSwiperEventCallback(bool disableSwipe)
         CHECK_NULL_VOID(gestureHub);
         gestureHub->AddTouchEvent(swiperPattern->touchEvent_);
         if (!disableSwipe) {
-            gestureHub->AddPanEvent(swiperPattern->panEvent_, swiperPattern->panDirection_, 1, DEFAULT_PAN_DISTANCE);
+            PanDistanceMap distanceMap = { { SourceTool::UNKNOWN, DEFAULT_PAN_DISTANCE.ConvertToPx() },
+                { SourceTool::PEN, DEFAULT_PEN_PAN_DISTANCE.ConvertToPx() } };
+            gestureHub->AddPanEvent(swiperPattern->panEvent_, swiperPattern->panDirection_, 1, distanceMap);
         }
     };
     swiperController_->SetAddSwiperEventCallback(std::move(addSwiperEventCallback));
@@ -6454,6 +6478,33 @@ std::optional<bool> SwiperPattern::OnContentWillScroll(int32_t currentIndex, int
     return ret;
 }
 
+void SwiperPattern::UpdateBottomTypeOnMultipleRTL(int32_t currentFirstIndex)
+{
+    CHECK_NULL_VOID(targetIndex_);
+    auto targetIndex = targetIndex_.value();
+    if (targetIndex < currentIndex_ && GetLoopIndex(targetIndex) == 0) {
+        touchBottomType_ = TouchBottomTypeLoop::TOUCH_BOTTOM_TYPE_LOOP_NONE;
+        return;
+    }
+
+    if (targetIndex > currentIndex_ && GetLoopIndex(targetIndex) == TotalCount() - 1) {
+        touchBottomType_ = TouchBottomTypeLoop::TOUCH_BOTTOM_TYPE_LOOP_NONE;
+        return;
+    }
+
+    if (targetIndex != currentIndex_ && currentFirstIndex == TotalCount() - 1 &&
+        gestureState_ == GestureState::GESTURE_STATE_RELEASE_RIGHT) {
+        touchBottomType_ = TouchBottomTypeLoop::TOUCH_BOTTOM_TYPE_LOOP_RIGHT;
+        return;
+    }
+
+    if (targetIndex != currentIndex_ && currentFirstIndex == 0 &&
+        gestureState_ == GestureState::GESTURE_STATE_RELEASE_LEFT) {
+        touchBottomType_ = TouchBottomTypeLoop::TOUCH_BOTTOM_TYPE_LOOP_LEFT;
+        return;
+    }
+}
+
 void SwiperPattern::HandleTouchBottomLoopOnRTL()
 {
     auto currentFirstIndex = GetLoopIndex(currentFirstIndex_);
@@ -6488,6 +6539,37 @@ void SwiperPattern::HandleTouchBottomLoopOnRTL()
     }
 
     if (releaseRightTouchBottom && currentIndex == 0 &&
+        gestureState_ == GestureState::GESTURE_STATE_RELEASE_RIGHT) {
+        touchBottomType_ = TouchBottomTypeLoop::TOUCH_BOTTOM_TYPE_LOOP_RIGHT;
+        return;
+    }
+
+    if (GetDisplayCount() > 1) {
+        UpdateBottomTypeOnMultipleRTL(currentFirstIndex);
+    }
+}
+
+void SwiperPattern::UpdateBottomTypeOnMultiple(int32_t currentFirstIndex)
+{
+    CHECK_NULL_VOID(targetIndex_);
+    auto targetIndex = targetIndex_.value();
+    if (targetIndex < currentIndex_ && GetLoopIndex(targetIndex) == 0) {
+        touchBottomType_ = TouchBottomTypeLoop::TOUCH_BOTTOM_TYPE_LOOP_NONE;
+        return;
+    }
+
+    if (targetIndex > currentIndex_ && GetLoopIndex(targetIndex) == TotalCount() - 1) {
+        touchBottomType_ = TouchBottomTypeLoop::TOUCH_BOTTOM_TYPE_LOOP_NONE;
+        return;
+    }
+
+    if (targetIndex != currentIndex_ && currentFirstIndex == TotalCount() - 1 &&
+        gestureState_ == GestureState::GESTURE_STATE_RELEASE_LEFT) {
+        touchBottomType_ = TouchBottomTypeLoop::TOUCH_BOTTOM_TYPE_LOOP_LEFT;
+        return;
+    }
+
+    if (targetIndex != currentIndex_ && currentFirstIndex == 0 &&
         gestureState_ == GestureState::GESTURE_STATE_RELEASE_RIGHT) {
         touchBottomType_ = TouchBottomTypeLoop::TOUCH_BOTTOM_TYPE_LOOP_RIGHT;
         return;
@@ -6528,12 +6610,17 @@ void SwiperPattern::HandleTouchBottomLoop()
         if (currentIndex == 0) {
             // left bottom
             touchBottomType_ = TouchBottomTypeLoop::TOUCH_BOTTOM_TYPE_LOOP_LEFT;
+            return;
         } else if (releaseTouchBottom) {
             // right bottom
             touchBottomType_ = TouchBottomTypeLoop::TOUCH_BOTTOM_TYPE_LOOP_RIGHT;
+            return;
         }
     }
-    return;
+
+    if (GetDisplayCount() > 1) {
+        UpdateBottomTypeOnMultiple(currentFirstIndex);
+    }
 }
 
 void SwiperPattern::CalculateGestureStateOnRTL(float additionalOffset, float currentTurnPageRate, int32_t preFirstIndex)
@@ -6936,6 +7023,22 @@ void SwiperPattern::SetIndicatorJumpIndex(std::optional<int32_t> jumpIndex)
     CHECK_NULL_VOID(indicatorPattern);
 
     indicatorPattern->SetJumpIndex(jumpIndex);
+}
+
+void SwiperPattern::SetIndicatorIsInFast(std::optional<bool> isInFast)
+{
+    if (GetMaxDisplayCount() <= 0) {
+        return;
+    }
+    auto indicatorNode = GetCommonIndicatorNode();
+    if (!indicatorNode || !IsIndicator(indicatorNode->GetTag())) {
+        return;
+    }
+
+    auto indicatorPattern = indicatorNode->GetPattern<SwiperIndicatorPattern>();
+    CHECK_NULL_VOID(indicatorPattern);
+
+    indicatorPattern->SetIsInFast(isInFast);
 }
 
 void SwiperPattern::ToJsonValue(std::unique_ptr<JsonValue>& json, const InspectorFilter& filter) const
@@ -7379,4 +7482,187 @@ void SwiperPattern::ReportComponentChangeEvent(
     result->Put("event", json);
     UiSessionManager::GetInstance()->ReportComponentChangeEvent("result", result->ToString());
 }
+#ifdef SUPPORT_DIGITAL_CROWN
+void SwiperPattern::InitOnCrownEventInternal(const RefPtr<FocusHub>& focusHub)
+{
+    // Only Swiser supports crown events, Tabs does not support it.
+    if (hasTabsAncestor_) {
+        return;
+    }
+    auto host = GetHost();
+    auto onCrownEvent = [weak = WeakClaim(this), weakNode = AceType::WeakClaim(AceType::RawPtr(host))](
+                            const CrownEvent& event) -> bool {
+        auto pattern = weak.Upgrade();
+        CHECK_NULL_RETURN(pattern, false);
+        // Not responding to events during the flipping animation
+        if (pattern->DuringTranslateAnimation() || pattern->DuringFadeAnimation()) {
+            return true;
+        }
+        auto node = weakNode.Upgrade();
+        CHECK_NULL_RETURN(node, false);
+
+        auto offset = node->GetGeometryNode()->GetFrameOffset();
+        auto contentSize = node->GetGeometryNode()->GetFrameSize();
+        auto swiperPattern = node->GetPattern<SwiperPattern>();
+        float centerX = contentSize.Width() * 0.5 + offset.GetX();
+        float centerY = contentSize.Height() * 0.5 + offset.GetY();
+        OffsetF center;
+        center.SetX(centerX);
+        center.SetY(centerY);
+        pattern->HandleCrownEvent(event, center, offset);
+        return true;
+    };
+    focusHub->SetOnCrownEventInternal(std::move(onCrownEvent));
+    // focus blur need to call event end.
+    focusHub->SetOnBlurReasonInternal([weak = WeakClaim(this)](const BlurReason& blurReason) {
+        auto pattern = weak.Upgrade();
+        CHECK_NULL_VOID(pattern);
+        GestureEvent info;
+        info.SetSourceDevice(SourceType::CROWN);
+        info.SetSourceTool(SourceTool::UNKNOWN);
+        pattern->HandleCrownActionEnd(info);
+    });
+}
+
+void SwiperPattern::HandleCrownEvent(const CrownEvent& event, const OffsetF& center, const OffsetF& offset)
+{
+    DimensionOffset centerDimension(center);
+    Offset globalLocation(centerDimension.GetX().ConvertToPx(), centerDimension.GetY().ConvertToPx());
+    GestureEvent info;
+    info.SetSourceDevice(SourceType::CROWN);
+    info.SetSourceTool(SourceTool::UNKNOWN);
+    info.SetGlobalLocation(globalLocation);
+    double mainDelta = GetCrownRotatePx(event);
+    UpdateCrownVelocity(event.degree);
+    info.SetMainDelta(mainDelta);
+    info.SetMainVelocity(crownRealVelocity_);
+    switch (event.action) {
+        case CrownAction::BEGIN:
+            HandleCrownActionBegin(info);
+            break;
+        case CrownAction::UPDATE:
+            HandleCrownActionUpdate(event.degree, mainDelta, info);
+            break;
+        case CrownAction::END:
+            HandleCrownActionEnd(info);
+            break;
+        default:
+            // The event cancel is handled using event end.
+            HandleCrownActionEnd(info);
+            break;
+    }
+}
+
+double SwiperPattern::GetCrownRotatePx(const CrownEvent& event)
+{
+    double velocity = event.degree;
+    double px = 0.0;
+    auto pipelineContext = GetContext();
+    CHECK_NULL_RETURN(pipelineContext, 0.0);
+    auto theme = pipelineContext->GetTheme<SwiperIndicatorTheme>();
+    CHECK_NULL_RETURN(theme, 0.0);
+
+    if (LessOrEqualCustomPrecision(velocity, theme->GetSlowVelocityThreshold(), 0.01f)) {
+        px = theme->GetDisplayControlRatioVerySlow() * velocity;
+    } else if (LessOrEqualCustomPrecision(velocity, theme->GetMediumVelocityThreshold(), 0.01f)) {
+        px = theme->GetDisplayControlRatioSlow() * velocity;
+    } else if (LessOrEqualCustomPrecision(velocity, theme->GetFastVelocityThreshold(), 0.01f)) {
+        px = theme->GetDisplayControlRatioMedium() * velocity;
+    } else {
+        px = theme->GetDisplayControlRatioFast() * velocity;
+    }
+
+    switch (crownSensitivity_) {
+        case CrownSensitivity::LOW:
+            px *= theme->GetCrownSensitivityLow();
+            break;
+        case CrownSensitivity::MEDIUM:
+            px *= theme->GetCrownSensitivityMedium();
+            break;
+        case CrownSensitivity::HIGH:
+            px *= theme->GetCrownSensitivityHigh();
+            break;
+        default:
+            break;
+    }
+    return px;
+}
+
+void SwiperPattern::HandleCrownActionBegin(GestureEvent& info)
+{
+    ActionStartTask()(info);
+    isCrownActionStarted_ = true;
+}
+
+void SwiperPattern::HandleCrownActionUpdate(double degree, double mainDelta, GestureEvent& info)
+{
+    if (!isCrownActionStarted_) {
+        ActionStartTask()(info);
+        isCrownActionStarted_ = true;
+        return;
+    }
+    if (!IsLoop() && ((currentIndex_ == 0 && Positive(mainDelta)) ||
+                         (currentIndex_ == TotalCount() - GetDisplayCount() && Negative(mainDelta)))) {
+        ActionUpdateTask()(info);
+        return;
+    }
+    auto pipelineContext = GetContext();
+    CHECK_NULL_VOID(pipelineContext);
+    auto theme = pipelineContext->GetTheme<SwiperIndicatorTheme>();
+    CHECK_NULL_VOID(theme);
+    if (GreatOrEqual(std::abs(degree), theme->GetSpringVelocityThreshold())) {
+        HandleDragEnd(crownAdjustedVelocity_);
+        StartVibraFeedback();
+        isCrownActionStarted_ = false;
+    } else {
+        auto firstItem = GetFirstItemInfoInVisibleArea();
+        auto halfItemLength = (firstItem.second.endPos - firstItem.second.startPos) * 0.5;
+        if ((Positive(mainDelta) && LessOrEqual(firstItem.second.endPos + mainDelta, halfItemLength)) ||
+            (Negative(mainDelta) && GreatOrEqual(firstItem.second.endPos + mainDelta, halfItemLength))) {
+            HandleDragEnd(crownAdjustedVelocity_);
+            StartVibraFeedback();
+            isCrownActionStarted_ = false;
+        }
+    }
+    // If the DragEnd is not triggered, DragUpdate need to be processed
+    if (isCrownActionStarted_) {
+        ActionUpdateTask()(info);
+    }
+}
+
+void SwiperPattern::HandleCrownActionEnd(GestureEvent& info)
+{
+    if (!isCrownActionStarted_) {
+        return;
+    }
+    ActionEndTask()(info);
+    isCrownActionStarted_ = false;
+}
+
+void SwiperPattern::UpdateCrownVelocity(double degree)
+{
+    auto turnVelocity = Container::GreatOrEqualAPIVersion(PlatformVersion::VERSION_ELEVEN) ? newMinTurnPageVelocity_
+                                                                                           : MIN_TURN_PAGE_VELOCITY;
+    auto pipelineContext = GetContext();
+    CHECK_NULL_VOID(pipelineContext);
+    auto theme = pipelineContext->GetTheme<SwiperIndicatorTheme>();
+    CHECK_NULL_VOID(theme);
+
+    // Covert degree to velocity. crownAdjustedVelocity_ is only used in the scenario of initiating page flipping
+    if (GreatOrEqual(std::abs(degree), theme->GetSpringVelocityThreshold())) {
+        crownAdjustedVelocity_ = degree * turnVelocity / theme->GetSpringVelocityThreshold();
+    } else {
+        crownAdjustedVelocity_ = Positive(degree) ? turnVelocity + 1 : -turnVelocity - 1;
+    }
+    crownRealVelocity_ = degree * turnVelocity / theme->GetSpringVelocityThreshold();
+}
+
+void SwiperPattern::StartVibraFeedback()
+{
+    // Vibration is only triggered when starting the page flipping animation
+    if (DuringTranslateAnimation() || DuringFadeAnimation()) {
+        VibratorUtils::StartVibraFeedback(HAPTIC_STRENGTH3);
+    }
+}
+#endif
 } // namespace OHOS::Ace::NG

@@ -106,6 +106,15 @@ void RecordChange(RefPtr<FrameNode> host, int32_t index, const std::string& valu
         }
     }
 }
+
+static std::string ConvertVectorToString(std::vector<std::string> vec)
+{
+    std::ostringstream oss;
+    for (size_t i = 0; i < vec.size(); ++i) {
+        oss << ((i == 0) ? "" : ",") << vec[i];
+    }
+    return oss.str();
+}
 } // namespace
 
 void SelectPattern::OnAttachToFrameNode()
@@ -209,7 +218,7 @@ void SelectPattern::ShowSelectMenu()
     } else {
         offset.AddY(selectSize_.Height());
     }
-
+    ShowScrollBar();
     TAG_LOGI(AceLogTag::ACE_SELECT_COMPONENT, "select click to show menu.");
     overlayManager->ShowMenu(host->GetId(), offset, menuWrapper_);
 }
@@ -1287,7 +1296,7 @@ void SelectPattern::ToJsonArrowAndText(std::unique_ptr<JsonValue>& json, const I
         CHECK_NULL_VOID(rowProps);
         json->PutExtAttr("space", rowProps->GetSpaceValue(Dimension()).ToString().c_str(), filter);
 
-        if (rowProps->GetFlexDirection().value() == FlexDirection::ROW) {
+        if (rowProps->GetFlexDirection().value_or(FlexDirection::ROW) == FlexDirection::ROW) {
             json->PutExtAttr("arrowPosition", "ArrowPosition.END", filter);
         } else {
             json->PutExtAttr("arrowPosition", "ArrowPosition.START", filter);
@@ -1490,6 +1499,17 @@ void SelectPattern::UpdateTargetSize()
         UpdateOptionsWidth(selectWidth);
     }
     menu->MarkDirtyNode(PROPERTY_UPDATE_MEASURE);
+}
+
+void SelectPattern::ShowScrollBar()
+{
+    auto menu = GetMenuNode();
+    CHECK_NULL_VOID(menu);
+    auto scroll = DynamicCast<FrameNode>(menu->GetFirstChild());
+    CHECK_NULL_VOID(scroll);
+    auto scrollPattern = scroll->GetPattern<ScrollPattern>();
+    CHECK_NULL_VOID(scrollPattern);
+    scrollPattern->TriggerScrollBarDisplay();
 }
 
 void SelectPattern::SetSpace(const Dimension& value)
@@ -2070,5 +2090,31 @@ void SelectPattern::UpdateSelectedOptionFontFromPattern(const RefPtr<MenuItemPat
     } else if (optionFont_.FontWeight.has_value()) {
         optionPattern->SetFontWeight(optionFont_.FontWeight.value());
     }
+}
+
+void SelectPattern::DumpInfo()
+{
+    DumpLog::GetInstance().AddDesc("Selected: " + std::to_string(selected_));
+    DumpLog::GetInstance().AddDesc("FontColor: " + fontColor_.value_or(Color()).ToString());
+    DumpLog::GetInstance().AddDesc(
+        "SelectedOptionFontSize: " + selectedFont_.FontSize.value_or(Dimension()).ToString());
+    DumpLog::GetInstance().AddDesc(
+        "SelectedOptionFontStyle: " + StringUtils::ToString(selectedFont_.FontStyle.value_or(Ace::FontStyle::NORMAL)));
+    DumpLog::GetInstance().AddDesc("SelectedOptionFontWeight: " +
+        StringUtils::FontWeightToString(selectedFont_.FontWeight.value_or(FontWeight::NORMAL)));
+    DumpLog::GetInstance().AddDesc("SelectedOptionFontFamily: " +
+        ConvertVectorToString(selectedFont_.FontFamily.value_or(std::vector<std::string>())));
+    DumpLog::GetInstance().AddDesc("SelectedOptionFontColor: " + selectedFont_.FontColor.value_or(Color()).ToString());
+    DumpLog::GetInstance().AddDesc("SelectedBgColor: " + selectedBgColor_.value_or(Color()).ToString());
+    DumpLog::GetInstance().AddDesc("OptionFontSize: " + optionFont_.FontSize.value_or(Dimension()).ToString());
+    DumpLog::GetInstance().AddDesc(
+        "OptionFontStyle: " + StringUtils::ToString(optionFont_.FontStyle.value_or(Ace::FontStyle::NORMAL)));
+    DumpLog::GetInstance().AddDesc(
+        "OptionFontWeight: " + StringUtils::FontWeightToString(optionFont_.FontWeight.value_or(FontWeight::NORMAL)));
+    DumpLog::GetInstance().AddDesc(
+        "OptionFontFamily: " + ConvertVectorToString(optionFont_.FontFamily.value_or(std::vector<std::string>())));
+    DumpLog::GetInstance().AddDesc("OptionFontColor: " + optionFont_.FontColor.value_or(Color()).ToString());
+    DumpLog::GetInstance().AddDesc("OptionBgColor: " + optionBgColor_.value_or(Color()).ToString());
+    DumpLog::GetInstance().AddDesc("ControlSize: " + ConvertControlSizeToString(controlSize_));
 }
 } // namespace OHOS::Ace::NG

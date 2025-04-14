@@ -3986,6 +3986,10 @@ void ArkUINativeModule::RegisterImageAttributes(Local<panda::ObjectRef> object, 
         panda::FunctionRef::New(const_cast<panda::EcmaVM*>(vm), ImageBridge::SetDynamicRangeMode));
     image->Set(vm, panda::StringRef::NewFromUtf8(vm, "resetDynamicRangeMode"),
         panda::FunctionRef::New(const_cast<panda::EcmaVM*>(vm), ImageBridge::ResetDynamicRangeMode));
+    image->Set(vm, panda::StringRef::NewFromUtf8(vm, "setHdrBrightness"),
+        panda::FunctionRef::New(const_cast<panda::EcmaVM*>(vm), ImageBridge::SetHdrBrightness));
+    image->Set(vm, panda::StringRef::NewFromUtf8(vm, "resetHdrBrightness"),
+        panda::FunctionRef::New(const_cast<panda::EcmaVM*>(vm), ImageBridge::ResetHdrBrightness));
     image->Set(vm, panda::StringRef::NewFromUtf8(vm, "setOrientation"),
         panda::FunctionRef::New(const_cast<panda::EcmaVM*>(vm), ImageBridge::SetOrientation));
     image->Set(vm, panda::StringRef::NewFromUtf8(vm, "resetOrientation"),
@@ -4388,7 +4392,6 @@ void ArkUINativeModule::RegisterSideBarContainerAttributes(Local<panda::ObjectRe
 
 void ArkUINativeModule::RegisterCalendarPickerAttributes(Local<panda::ObjectRef> object, EcmaVM* vm)
 {
-#ifndef ARKUI_WEARABLE
     auto calendarPicker = panda::ObjectRef::New(vm);
     calendarPicker->Set(vm, panda::StringRef::NewFromUtf8(vm, "setTextStyle"),
         panda::FunctionRef::New(const_cast<panda::EcmaVM*>(vm), CalendarPickerBridge::SetTextStyle));
@@ -4427,7 +4430,6 @@ void ArkUINativeModule::RegisterCalendarPickerAttributes(Local<panda::ObjectRef>
     calendarPicker->Set(vm, panda::StringRef::NewFromUtf8(vm, "resetCalendarPickerOnChange"),
         panda::FunctionRef::New(const_cast<panda::EcmaVM*>(vm), CalendarPickerBridge::ResetCalendarPickerOnChange));
     object->Set(vm, panda::StringRef::NewFromUtf8(vm, "calendarPicker"), calendarPicker);
-#endif
 }
 
 void ArkUINativeModule::RegisterMenuItemAttributes(Local<panda::ObjectRef> object, EcmaVM* vm)
@@ -5601,6 +5603,10 @@ void ArkUINativeModule::RegisterSwiperAttributes(Local<panda::ObjectRef> object,
 void ArkUINativeModule::RegisterListItemAttributes(Local<panda::ObjectRef> object, EcmaVM* vm)
 {
     auto listItem = panda::ObjectRef::New(vm);
+    listItem->Set(vm, panda::StringRef::NewFromUtf8(vm, "setListItemInitialize"),
+        panda::FunctionRef::New(const_cast<panda::EcmaVM*>(vm), ListItemBridge::SetListItemInitialize));
+    listItem->Set(vm, panda::StringRef::NewFromUtf8(vm, "resetListItemInitialize"),
+        panda::FunctionRef::New(const_cast<panda::EcmaVM*>(vm), ListItemBridge::ResetListItemInitialize));
     listItem->Set(vm, panda::StringRef::NewFromUtf8(vm, "setListItemSelected"),
         panda::FunctionRef::New(const_cast<panda::EcmaVM*>(vm), ListItemBridge::SetListItemSelected));
     listItem->Set(vm, panda::StringRef::NewFromUtf8(vm, "resetListItemSelected"),

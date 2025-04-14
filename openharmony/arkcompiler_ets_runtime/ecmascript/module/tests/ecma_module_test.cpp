@@ -1897,7 +1897,7 @@ HWTEST_F_L0(EcmaModuleTest, ResolveExportObject)
     JSHandle<NativeModuleFailureInfo> nativeModuleFailureInfo = objectFactory->NewNativeModuleFailureInfo();
     JSHandle<JSTaggedValue> res1 = SourceTextModule::ResolveExportObject(
         thread, module1, JSHandle<JSTaggedValue>::Cast(nativeModuleFailureInfo), exportName);
-    EXPECT_TRUE(res1->IsResolvedIndexBinding());
+    EXPECT_TRUE(res1->IsNull());
 
     JSHandle<JSFunction> ctor(thread->GetEcmaVM()->GetGlobalEnv()->GetObjectFunction());
     JSHandle<JSObject> obj(objectFactory->NewJSObjectByConstructor(ctor));
@@ -2878,7 +2878,7 @@ HWTEST_F_L0(EcmaModuleTest, ProcessModuleLoadInfoForESM)
     JSTaggedValue res5 = ModuleTools::ProcessLazyModuleLoadInfo(thread, module1, indexBinding.GetTaggedValue(), 0);
     EXPECT_EQ(res5, val.GetTaggedValue());
 
-    thread->GetCurrentEcmaContext()->AddPatchModule(recordName2, JSHandle<JSTaggedValue>::Cast(module2));
+    thread->GetEcmaVM()->AddPatchModule(recordName2, JSHandle<JSTaggedValue>::Cast(module2));
     JSTaggedValue res6 = ModuleTools::ProcessModuleLoadInfo(thread, module1, indexBinding.GetTaggedValue(), 0);
     EXPECT_EQ(res6, val.GetTaggedValue());
     JSTaggedValue res7 = ModuleTools::ProcessLazyModuleLoadInfo(thread, module1, indexBinding.GetTaggedValue(), 0);

@@ -39,11 +39,8 @@
 #include "core/components_ng/syntax/repeat_virtual_scroll_2_node.h"
 #include "core/components_ng/syntax/repeat_virtual_scroll_node.h"
 #include "core/pipeline_ng/pipeline_context.h"
-
-#ifdef ARKUI_CIRCLE_FEATURE
 #include "core/components_ng/pattern/arc_scroll/inner/arc_scroll_bar.h"
 #include "core/components_ng/pattern/arc_scroll/inner/arc_scroll_bar_overlay_modifier.h"
-#endif // ARKUI_CIRCLE_FEATURE
 
 namespace OHOS::Ace::NG {
 namespace {
@@ -58,9 +55,7 @@ constexpr uint32_t EVENTS_FIRED_INFO_COUNT = 50;
 constexpr uint32_t SCROLLABLE_FRAME_INFO_COUNT = 50;
 constexpr Dimension LIST_FADINGEDGE = 32.0_vp;
 constexpr double ARC_INITWIDTH_VAL = 4.0;
-#ifdef ARKUI_CIRCLE_FEATURE
 constexpr double ARC_INITWIDTH_HALF_VAL = 2.0;
-#endif
 const std::string SCROLLABLE_DRAG_SCENE = "scrollable_drag_scene";
 const std::string SCROLL_BAR_DRAG_SCENE = "scrollBar_drag_scene";
 const std::string SCROLLABLE_MOTION_SCENE = "scrollable_motion_scene";
@@ -1042,11 +1037,9 @@ void ScrollablePattern::InitScrollBarGestureEvent()
 
 RefPtr<ScrollBar> ScrollablePattern::CreateScrollBar()
 {
-#ifdef ARKUI_CIRCLE_FEATURE
     if (isRoundScroll_) {
         return AceType::MakeRefPtr<ArcScrollBar>();
     }
-#endif
     return AceType::MakeRefPtr<ScrollBar>();
 }
 
@@ -1126,10 +1119,8 @@ void ScrollablePattern::SetScrollBar(const std::unique_ptr<ScrollBarProperty>& p
             if (isRoundScroll_) {
                 scrollBar_->SetNormalWidth(Dimension(ARC_INITWIDTH_VAL));
                 scrollBar_->SetInactiveWidth(Dimension(ARC_INITWIDTH_VAL));
-#ifdef ARKUI_CIRCLE_FEATURE
                 scrollBar_->SetActiveBackgroundWidth(barWidth.value());
                 scrollBar_->SetActiveScrollBarWidth(barWidth.value() - Dimension(ARC_INITWIDTH_HALF_VAL));
-#endif
             } else {
                 scrollBar_->SetInactiveWidth(barWidth.value());
                 scrollBar_->SetNormalWidth(barWidth.value());
@@ -1256,7 +1247,6 @@ void ScrollablePattern::SetScrollBarProxy(const RefPtr<ScrollBarProxy>& scrollBa
 
 RefPtr<ScrollBarOverlayModifier> ScrollablePattern::CreateOverlayModifier()
 {
-#ifdef ARKUI_CIRCLE_FEATURE
     if (isRoundScroll_ && scrollBar_) {
         auto arcScrollBarOverlayModifier = AceType::MakeRefPtr<ArcScrollBarOverlayModifier>();
         auto arcScrollBar = AceType::DynamicCast<ArcScrollBar>(scrollBar_);
@@ -1267,7 +1257,6 @@ RefPtr<ScrollBarOverlayModifier> ScrollablePattern::CreateOverlayModifier()
         }
         return arcScrollBarOverlayModifier;
     }
-#endif
     return AceType::MakeRefPtr<ScrollBarOverlayModifier>();
 }
 
@@ -1428,6 +1417,7 @@ void ScrollablePattern::AnimateTo(
         PlaySpringAnimation(position, DEFAULT_SCROLL_TO_VELOCITY, DEFAULT_SCROLL_TO_MASS, DEFAULT_SCROLL_TO_STIFFNESS,
             DEFAULT_SCROLL_TO_DAMPING, useTotalOffset);
     } else {
+        useTotalOffset_ = true;
         PlayCurveAnimation(position, duration, curve, canOverScroll);
     }
     if (!GetIsDragging()) {
@@ -1442,7 +1432,6 @@ void ScrollablePattern::AnimateTo(
 
 void ScrollablePattern::OnAnimateFinish()
 {
-    useTotalOffset_ = true;
     auto host = GetHost();
     CHECK_NULL_VOID(host);
     if (isAnimationStop_) {
@@ -1711,7 +1700,9 @@ void ScrollablePattern::InitMouseEvent()
             std::move(actionEndTask), std::move(actionCancelTask));
     }
     PanDirection panDirection = { .type = PanDirection::ALL };
-    gestureHub->AddPanEvent(boxSelectPanEvent_, panDirection, 1, DEFAULT_PAN_DISTANCE);
+    PanDistanceMap distanceMap = { { SourceTool::UNKNOWN, DEFAULT_PAN_DISTANCE.ConvertToPx() },
+        { SourceTool::PEN, DEFAULT_PEN_PAN_DISTANCE.ConvertToPx() } };
+    gestureHub->AddPanEvent(boxSelectPanEvent_, panDirection, 1, distanceMap);
     gestureHub->SetPanEventType(GestureTypeName::BOXSELECT);
     gestureHub->SetExcludedAxisForPanEvent(true);
     gestureHub->SetOnGestureJudgeNativeBegin([](const RefPtr<NG::GestureInfo>& gestureInfo,
@@ -2237,8 +2228,8 @@ ScrollResult ScrollablePattern::HandleScrollSelfFirst(float& offset, int32_t sou
     offset -= overOffset;
     auto result = parent->HandleScroll(overOffset + remainOffset, source, NestedState::CHILD_SCROLL, GetVelocity());
     if (NearZero(result.remain)) {
-        SetCanOverScroll(!InstanceOf<ScrollablePattern>(parent));
-        return { 0, false };
+        SetCanOverScroll(!InstanceOf<ScrollablePattern>(parent) || result.reachEdge);
+        return { 0, GetCanOverScroll() };
     }
     if (state == NestedState::CHILD_SCROLL) {
         SetCanOverScroll(false);
@@ -2676,7 +2667,7 @@ void ScrollablePattern::OnStatusBarClick()
         return;
     }
 
-    auto pipeline = GetContext();
+    auto pipeline = PipelineContext::GetCurrentContextSafelyWithCheck();
     CHECK_NULL_VOID(pipeline);
     auto host = GetHost();
     CHECK_NULL_VOID(host);

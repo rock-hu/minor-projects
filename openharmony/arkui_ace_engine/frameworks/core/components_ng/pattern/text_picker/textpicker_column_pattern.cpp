@@ -140,10 +140,10 @@ void TextPickerColumnPattern::OnModifyDone()
 
 void TextPickerColumnPattern::InitHapticController(const RefPtr<FrameNode>& host)
 {
-    if (Container::LessThanAPITargetVersion(PlatformVersion::VERSION_EIGHTEEN)) {
+    CHECK_NULL_VOID(host);
+    if (host->LessThanAPITargetVersion(PlatformVersion::VERSION_EIGHTEEN)) {
         return;
     }
-    CHECK_NULL_VOID(host);
     auto blendNode = DynamicCast<FrameNode>(host->GetParent());
     CHECK_NULL_VOID(blendNode);
     auto stackNode = DynamicCast<FrameNode>(blendNode->GetParent());
@@ -1306,7 +1306,9 @@ void TextPickerColumnPattern::InitPanEvent(const RefPtr<GestureEventHub>& gestur
     panDirection.type = PanDirection::VERTICAL;
     panEvent_ = MakeRefPtr<PanEvent>(
         std::move(actionStartTask), std::move(actionUpdateTask), std::move(actionEndTask), std::move(actionCancelTask));
-    gestureHub->AddPanEvent(panEvent_, panDirection, DEFAULT_PAN_FINGER, DEFAULT_PAN_DISTANCE);
+    PanDistanceMap distanceMap = { { SourceTool::UNKNOWN, DEFAULT_PAN_DISTANCE.ConvertToPx() },
+        { SourceTool::PEN, DEFAULT_PEN_PAN_DISTANCE.ConvertToPx() } };
+    gestureHub->AddPanEvent(panEvent_, panDirection, DEFAULT_PAN_FINGER, distanceMap);
 }
 
 RefPtr<TextPickerLayoutProperty> TextPickerColumnPattern::GetParentLayout() const
@@ -1619,11 +1621,18 @@ double TextPickerColumnPattern::GetShiftDistance(int32_t index, ScrollDirection 
     return distance;
 }
 
+bool TextPickerColumnPattern::IsDisableTextStyleAnimation() const
+{
+    RefPtr<TextPickerLayoutProperty> layout = GetParentLayout();
+    CHECK_NULL_RETURN(layout, false);
+    return layout->GetDisableTextStyleAnimation().value_or(false);
+}
+
 double TextPickerColumnPattern::GetSelectedDistance(int32_t index, int32_t nextIndex, ScrollDirection dir)
 {
     double distance = 0.0;
     double val = 0.0;
-    if (columnKind_ == TEXT && !isDisableTextStyleAnimation_) {
+    if (columnKind_ == TEXT && !IsDisableTextStyleAnimation()) {
         if (GreatOrEqual(optionProperties_[nextIndex].fontheight, optionProperties_[nextIndex].height)) {
             distance = (dir == ScrollDirection::UP) ?
                 - optionProperties_[nextIndex].height : optionProperties_[index].height;
@@ -1650,7 +1659,7 @@ double TextPickerColumnPattern::GetUpCandidateDistance(int32_t index, int32_t ne
     if (index > maxIndex || index < minIndex || nextIndex > maxIndex || nextIndex < minIndex) {
         return distance;
     }
-    if (columnKind_ == TEXT && !isDisableTextStyleAnimation_) {
+    if (columnKind_ == TEXT && !IsDisableTextStyleAnimation()) {
         if (dir == ScrollDirection::UP) {
             distance = -optionProperties_[nextIndex].height;
         } else {
@@ -1669,7 +1678,7 @@ double TextPickerColumnPattern::GetDownCandidateDistance(int32_t index, int32_t 
 {
     double distance = 0.0;
     double val = 0.0;
-    if (columnKind_ == TEXT && !isDisableTextStyleAnimation_) {
+    if (columnKind_ == TEXT && !IsDisableTextStyleAnimation()) {
         if (dir == ScrollDirection::DOWN) {
             distance = optionProperties_[index].height;
         } else {
@@ -2196,7 +2205,7 @@ void TextPickerColumnPattern::UpdateAnimationColor(const RefPtr<PickerTheme>& pi
             pickerTheme->GetOptionStyle(true, false).GetTextColor());
     }
 
-    int32_t middleIndex = GetShowOptionCount() / PICKER_SELECT_AVERAGE;
+    uint32_t middleIndex = GetShowOptionCount() / PICKER_SELECT_AVERAGE;
     if (middleIndex - NEXT_COLOUM_DIFF >= 0 && animationProperties_.size() > middleIndex) {
         animationProperties_[middleIndex - NEXT_COLOUM_DIFF].downColor = color;
         animationProperties_[middleIndex + NEXT_COLOUM_DIFF].upColor = color;

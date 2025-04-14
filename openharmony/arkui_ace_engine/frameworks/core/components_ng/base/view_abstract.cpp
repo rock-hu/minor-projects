@@ -2130,7 +2130,7 @@ void ViewAbstract::BindTips(
     if (tipsInfo.popupNode) {
         showInSubWindow = false;
     } else {
-        auto subwindow = SubwindowManager::GetInstance()->GetSubwindowByType(instanceId, SubwindowType::TYPE_POPUP);
+        auto subwindow = SubwindowManager::GetInstance()->GetSubwindowByType(instanceId, SubwindowType::TYPE_TIPS);
         if (subwindow) {
             subwindow->GetPopupInfoNG(targetId, tipsInfo);
         }
@@ -2138,6 +2138,7 @@ void ViewAbstract::BindTips(
             showInSubWindow = true;
         }
     }
+    targetNode->SetBindTips(true);
     HandleHoverTipsInfo(param, targetNode, tipsInfo, showInSubWindow, spanString);
 }
 
@@ -2159,9 +2160,7 @@ void ViewAbstract::HandleHoverTipsInfo(const RefPtr<PopupParam>& param, const Re
     RefPtr<BubblePattern> popupPattern;
     tipsInfo.markNeedUpdate = true;
     popupNode = BubbleView::CreateBubbleNode(targetTag, targetId, param, spanString);
-    if (popupNode) {
-        popupId = popupNode->GetId();
-    }
+    popupId = popupNode ? popupNode->GetId() : popupId;
     if (!showInSubWindow) {
         auto destructor = [id = targetNode->GetId()]() {
             auto pipeline = NG::PipelineContext::GetCurrentContext();
@@ -2175,7 +2174,7 @@ void ViewAbstract::HandleHoverTipsInfo(const RefPtr<PopupParam>& param, const Re
     } else {
         auto destructor = [id = targetNode->GetId(), containerId = instanceId]() {
             auto subwindow =
-                SubwindowManager::GetInstance()->GetSubwindowByType(containerId, SubwindowType::TYPE_POPUP);
+                SubwindowManager::GetInstance()->GetSubwindowByType(containerId, SubwindowType::TYPE_TIPS);
             CHECK_NULL_VOID(subwindow);
             auto overlayManager = subwindow->GetOverlayManager();
             CHECK_NULL_VOID(overlayManager);
@@ -2184,14 +2183,25 @@ void ViewAbstract::HandleHoverTipsInfo(const RefPtr<PopupParam>& param, const Re
         };
         targetNode->PushDestroyCallbackWithTag(destructor, std::to_string(popupId));
     }
+    UpdateTipsInfo(tipsInfo, popupId, popupNode, param, true);
+    if (popupNode) {
+        popupNode->MarkModifyDone();
+        auto accessibilityProperty = popupNode->GetAccessibilityProperty<NG::AccessibilityProperty>();
+        if (accessibilityProperty) {
+            accessibilityProperty->SetAccessibilityHoverPriority(param->IsBlockEvent());
+        }
+    }
+    AddHoverEventForTips(param, targetNode, tipsInfo, showInSubWindow);
+}
+
+void ViewAbstract::UpdateTipsInfo(PopupInfo& tipsInfo, int32_t popupId, const RefPtr<FrameNode>& popupNode,
+    const RefPtr<PopupParam>& param, bool isAvoidKeyboard)
+{
     tipsInfo.popupId = popupId;
     tipsInfo.popupNode = popupNode;
     tipsInfo.isBlockEvent = param->IsBlockEvent();
+    tipsInfo.isAvoidKeyboard = isAvoidKeyboard;
     tipsInfo.isTips = true;
-    if (popupNode) {
-        popupNode->MarkModifyDone();
-    }
-    AddHoverEventForTips(param, targetNode, tipsInfo, showInSubWindow);
 }
 
 void ViewAbstract::AddHoverEventForTips(
@@ -2211,13 +2221,14 @@ void ViewAbstract::AddHoverEventForTips(
     auto targetId = targetNode->GetId();
     auto context = targetNode->GetContext();
     CHECK_NULL_VOID(context);
+    auto containerId = context->GetInstanceId();
     auto overlayManager = context->GetOverlayManager();
     auto eventHub = targetNode->GetEventHub<EventHub>();
     CHECK_NULL_VOID(eventHub);
     auto inputHub = eventHub->GetOrCreateInputEventHub();
     CHECK_NULL_VOID(inputHub);
-    auto hoverTask = [targetNode, targetId, tipsInfo, param, overlayManager, showInSubWindow, popupId, popupNode](
-                         bool isHover) {
+    auto hoverTask = [targetNode, targetId, tipsInfo, param, overlayManager, showInSubWindow, popupId, popupNode,
+                         containerId](bool isHover) {
         if (!overlayManager->GetPopupInfo(targetId).isTips && overlayManager->GetPopupInfo(targetId).popupNode) {
             return;
         }
@@ -2233,13 +2244,14 @@ void ViewAbstract::AddHoverEventForTips(
                 targetId, tipsInfo, param->GetAppearingTime(), param->GetAppearingTimeWithContinuousOperation(), false);
         } else {
             if (showInSubWindow) {
-                SubwindowManager::GetInstance()->HideTipsNG(targetId, param->GetDisappearingTime());
+                SubwindowManager::GetInstance()->HideTipsNG(targetId, param->GetDisappearingTime(), containerId);
                 return;
             }
             overlayManager->HideTips(targetId, tipsInfo, param->GetDisappearingTime());
         }
     };
     auto hoverEvent = AceType::MakeRefPtr<InputEvent>(std::move(hoverTask));
+    hoverEvent->SetIstips(true);
     inputHub->AddOnHoverEvent(hoverEvent);
 }
 
@@ -2282,11 +2294,11 @@ int32_t ViewAbstract::OpenPopup(const RefPtr<PopupParam>& param, const RefPtr<UI
         TAG_LOGE(AceLogTag::ACE_DIALOG, "The customNode of popup is null.");
         return ERROR_CODE_DIALOG_CONTENT_ERROR;
     }
-    if (param->GetTargetId().empty() || std::stoi(param->GetTargetId()) < 0) {
+    int32_t targetId = StringUtils::StringToInt(param->GetTargetId(), -1);
+    if (targetId < 0) {
         TAG_LOGE(AceLogTag::ACE_DIALOG, "The targetId is error.");
         return ERROR_CODE_TARGET_INFO_NOT_EXIST;
     }
-    int32_t targetId = std::stoi(param->GetTargetId());
     auto targetNode = ElementRegister::GetInstance()->GetSpecificItemById<NG::FrameNode>(targetId);
     if (!targetNode) {
         TAG_LOGE(AceLogTag::ACE_DIALOG, "The targetNode does not exist when oepn popup.");
@@ -2334,11 +2346,11 @@ int32_t ViewAbstract::UpdatePopup(const RefPtr<PopupParam>& param, const RefPtr<
         TAG_LOGE(AceLogTag::ACE_DIALOG, "The customNode of popup is null.");
         return ERROR_CODE_DIALOG_CONTENT_ERROR;
     }
-    if (param->GetTargetId().empty() || std::stoi(param->GetTargetId()) < 0) {
+    int32_t targetId = StringUtils::StringToInt(param->GetTargetId(), -1);
+    if (targetId < 0) {
         TAG_LOGE(AceLogTag::ACE_DIALOG, "The targetId is error.");
         return ERROR_CODE_INTERNAL_ERROR;
     }
-    int32_t targetId = std::stoi(param->GetTargetId());
     auto targetNode = ElementRegister::GetInstance()->GetSpecificItemById<NG::FrameNode>(targetId);
     if (!targetNode) {
         TAG_LOGE(AceLogTag::ACE_DIALOG, "The targetNode does not exist when update popup.");
@@ -2374,11 +2386,11 @@ int32_t ViewAbstract::ClosePopup(const RefPtr<UINode>& customNode)
         TAG_LOGE(AceLogTag::ACE_DIALOG, "GetPopupParam failed");
         return result;
     }
-    if (param->GetTargetId().empty() || std::stoi(param->GetTargetId()) < 0) {
+    int32_t targetId = StringUtils::StringToInt(param->GetTargetId(), -1);
+    if (targetId < 0) {
         TAG_LOGE(AceLogTag::ACE_DIALOG, "The targetId is error.");
         return ERROR_CODE_INTERNAL_ERROR;
     }
-    int32_t targetId = std::stoi(param->GetTargetId());
     auto overlayManager = BubbleView::GetPopupOverlayManager(customNode, targetId);
     if (!overlayManager) {
         TAG_LOGE(AceLogTag::ACE_DIALOG, "The overlayManager of popup is null.");
@@ -2408,7 +2420,8 @@ int32_t ViewAbstract::GetPopupParam(RefPtr<PopupParam>& param, const RefPtr<UINo
     CHECK_NULL_RETURN(popupPattern, ERROR_CODE_INTERNAL_ERROR);
     param = popupPattern->GetPopupParam();
     CHECK_NULL_RETURN(param, ERROR_CODE_INTERNAL_ERROR);
-    if (param->GetTargetId().empty() || std::stoi(param->GetTargetId()) < 0) {
+    int32_t targetId = StringUtils::StringToInt(param->GetTargetId(), -1);
+    if (targetId < 0) {
         return ERROR_CODE_INTERNAL_ERROR;
     }
     return ERROR_CODE_NO_ERROR;

@@ -15,6 +15,7 @@
 
 #include "core/components_ng/pattern/slider/slider_pattern.h"
 
+#include "base/log/dump_log.h"
 #include "base/geometry/ng/point_t.h"
 #include "base/geometry/ng/size_t.h"
 #include "base/geometry/offset.h"
@@ -58,9 +59,8 @@ const std::string SLIDER_EFFECT_ID_NAME = "haptic.slide";
 constexpr float CROWN_SENSITIVITY_LOW = 0.5f;
 constexpr float CROWN_SENSITIVITY_MEDIUM = 1.0f;
 constexpr float CROWN_SENSITIVITY_HIGH = 2.0f;
-constexpr int32_t CROWN_EVENT_NUN_THRESH = 30;
+constexpr int64_t CROWN_TIME_THRESH = 30;
 constexpr char CROWN_VIBRATOR_WEAK[] = "watchhaptic.feedback.crown.strength2";
-constexpr char CROWN_VIBRATOR_STRONG[] = "watchhaptic.feedback.crown.impact";
 #endif
 
 bool GetReverseValue(RefPtr<SliderLayoutProperty> layoutProperty)
@@ -72,6 +72,69 @@ bool GetReverseValue(RefPtr<SliderLayoutProperty> layoutProperty)
         return AceApplicationInfo::GetInstance().IsRightToLeft() ? !reverse : reverse;
     }
     return direction == TextDirection::RTL ? !reverse : reverse;
+}
+
+inline std::string ToString(const bool boolean)
+{
+    return std::string(boolean ? "true" : "false");
+}
+
+inline std::string ToString(const SliderModel::SliderMode& mode)
+{
+    static const LinearEnumMapNode<SliderModel::SliderMode, std::string> table[] = {
+        { SliderModel::SliderMode::OUTSET, "OUTSET" },
+        { SliderModel::SliderMode::INSET, "INSET" },
+        { SliderModel::SliderMode::NONE, "NONE" },
+        { SliderModel::SliderMode::CAPSULE, "CAPSULE" },
+    };
+    auto iter = BinarySearchFindIndex(table, ArraySize(table), mode);
+    return iter != -1 ? table[iter].value : "";
+}
+
+inline std::string ToString(const Axis& direction)
+{
+    static const LinearEnumMapNode<Axis, std::string> table[] = {
+        { Axis::VERTICAL, "VERTICAL" },
+        { Axis::HORIZONTAL, "HORIZONTAL" },
+        { Axis::FREE, "FREE" },
+        { Axis::NONE, "NONE" },
+    };
+    auto iter = BinarySearchFindIndex(table, ArraySize(table), direction);
+    return iter != -1 ? table[iter].value : "";
+}
+
+inline std::string ToString(const SliderModel::BlockStyleType& type)
+{
+    static const LinearEnumMapNode<SliderModel::BlockStyleType, std::string> table[] = {
+        { SliderModel::BlockStyleType::DEFAULT, "DEFAULT" },
+        { SliderModel::BlockStyleType::IMAGE, "IMAGE" },
+        { SliderModel::BlockStyleType::SHAPE, "SHAPE" },
+    };
+    auto iter = BinarySearchFindIndex(table, ArraySize(table), type);
+    return iter != -1 ? table[iter].value : "";
+}
+
+inline std::string ToString(const SliderModel::SliderInteraction& interaction)
+{
+    static const LinearEnumMapNode<SliderModel::SliderInteraction, std::string> table[] = {
+        { SliderModel::SliderInteraction::SLIDE_AND_CLICK, "SLIDE_AND_CLICK" },
+        { SliderModel::SliderInteraction::SLIDE_ONLY, "SLIDE_ONLY" },
+        { SliderModel::SliderInteraction::SLIDE_AND_CLICK_UP, "SLIDE_AND_CLICK_UP" },
+    };
+    auto iter = BinarySearchFindIndex(table, ArraySize(table), interaction);
+    return iter != -1 ? table[iter].value : "";
+}
+
+inline std::string ToString(const BasicShapeType& type)
+{
+    static const LinearEnumMapNode<BasicShapeType, std::string> table[] = {
+        { BasicShapeType::NONE, "NONE" },  { BasicShapeType::INSET, "INSET" },
+        { BasicShapeType::CIRCLE, "CIRCLE" }, { BasicShapeType::ELLIPSE, "ELLIPSE" },
+        { BasicShapeType::POLYGON, "POLYGON" }, { BasicShapeType::PATH, "PATH" },
+        { BasicShapeType::RECT, "RECT" },
+    };
+    auto iter = BinarySearchFindIndex(table, ArraySize(table), type);
+    return iter != -1 ? table[iter].value : "";
 }
 } // namespace
 
@@ -321,6 +384,34 @@ void SliderPattern::InitAccessibilityVirtualNodeTask()
                 CHECK_NULL_VOID(sliderPattern);
                 sliderPattern->isInitAccessibilityVirtualNode_ = sliderPattern->InitAccessibilityVirtualNode();
             });
+        auto sliderPaintProperty = host->GetPaintProperty<SliderPaintProperty>();
+        CHECK_NULL_VOID(sliderPaintProperty);
+        float step = sliderPaintProperty->GetStep().value_or(1.0f);
+        float min = sliderPaintProperty->GetMin().value_or(SLIDER_MIN);
+        float max = sliderPaintProperty->GetMax().value_or(SLIDER_MAX);
+        float initValue = sliderPaintProperty->GetValue().value_or(min);
+
+        if (NearZero(step)) {
+            return;
+        }
+    
+        auto validSlideRange = sliderPaintProperty->GetValidSlideRange();
+        if (validSlideRange.has_value() && validSlideRange.value()->HasValidValues()) {
+            value_ =
+                std::clamp(initValue, validSlideRange.value()->GetFromValue(), validSlideRange.value()->GetToValue());
+            if (NearEqual(value_, validSlideRange.value()->GetToValue())) {
+                sliderPaintProperty->UpdateValue(value_);
+                return;
+            }
+        } else {
+            value_ = std::clamp(initValue, min, max);
+            if (NearEqual(value_, max)) {
+                sliderPaintProperty->UpdateValue(value_);
+                return;
+            }
+        }
+        value_ = std::round((value_ - min) / step) * step + min;
+        sliderPaintProperty->UpdateValue(value_);
     }
 }
 
@@ -701,6 +792,10 @@ bool SliderPattern::UpdateParameters()
                                         : theme->GetInsetHotBlockShadowWidth();
 
     auto direction = sliderLayoutProperty->GetDirectionValue(Axis::HORIZONTAL);
+    if (direction_ != direction && isAccessibilityOn_) {
+        ClearSliderVirtualNode();
+        direction_ = direction;
+    }
     auto blockLength = direction == Axis::HORIZONTAL ? blockSize_.Width() : blockSize_.Height();
 
     hotBlockShadowWidth_ = static_cast<float>(hotBlockShadowWidth.ConvertToPx());
@@ -1243,8 +1338,10 @@ void SliderPattern::InitPanEvent(const RefPtr<GestureEventHub>& gestureHub)
     CHECK_NULL_VOID(host);
     auto pipeline = host->GetContextWithCheck();
     CHECK_NULL_VOID(pipeline);
-    gestureHub->AddPanEvent(
-        panEvent_, panDirection, 1, pipeline->IsFormRender() ? FORM_PAN_DISTANCE : DEFAULT_PAN_DISTANCE);
+    PanDistanceMap distanceMap = { { SourceTool::UNKNOWN, pipeline->IsFormRender() ? FORM_PAN_DISTANCE.ConvertToPx() :
+        DEFAULT_PAN_DISTANCE.ConvertToPx() }, { SourceTool::PEN, pipeline->IsFormRender() ?
+        FORM_PAN_DISTANCE.ConvertToPx() : DEFAULT_PEN_PAN_DISTANCE.ConvertToPx() } };
+    gestureHub->AddPanEvent(panEvent_, panDirection, 1, distanceMap);
 }
 
 RefPtr<PanEvent> SliderPattern::CreatePanEvent()
@@ -1727,13 +1824,11 @@ void SliderPattern::HandleCrownAction(double mainDelta)
 
 void SliderPattern::StartVibrateFeedback()
 {
-    crownEventNum_ = reachBoundary_ ? 0 : crownEventNum_ + 1;
-    if (valueChangeFlag_ && reachBoundary_) {
-        VibratorUtils::StartVibraFeedback(CROWN_VIBRATOR_STRONG);
-        TAG_LOGD(AceLogTag::ACE_SELECT_COMPONENT, "slider StartVibrateFeedback %{public}s", CROWN_VIBRATOR_STRONG);
-    } else if (!reachBoundary_ && (crownEventNum_ % CROWN_EVENT_NUN_THRESH == 0)) {
+    timestampCur_ = GetCurrentTimestamp();
+    if (!reachBoundary_ && (timeStampCur_ - timestampPre_ >= CROWN_TIME_THRESH)) {
         VibratorUtils::StartVibraFeedback(CROWN_VIBRATOR_WEAK);
         TAG_LOGD(AceLogTag::ACE_SELECT_COMPONENT, "slider StartVibrateFeedback %{public}s", CROWN_VIBRATOR_WEAK);
+        timeStampPre_ = timeStampCur_;
     }
 }
 #endif
@@ -2281,5 +2376,112 @@ bool SliderPattern::OnThemeScopeUpdate(int32_t themeScopeId)
         !paintProperty->HasSelectColor() ||
         !paintProperty->HasStepColor();
     return result;
+}
+
+void SliderPattern::DumpInfo()
+{
+    auto paintProperty = GetPaintProperty<SliderPaintProperty>();
+    CHECK_NULL_VOID(paintProperty);
+
+    if (paintProperty->HasValue()) {
+        DumpLog::GetInstance().AddDesc("Value: " + std::to_string(paintProperty->GetValue().value()));
+    }
+    if (paintProperty->HasMin()) {
+        DumpLog::GetInstance().AddDesc("Min: " + std::to_string(paintProperty->GetMin().value()));
+    }
+    if (paintProperty->HasMax()) {
+        DumpLog::GetInstance().AddDesc("Max: " + std::to_string(paintProperty->GetMax().value()));
+    }
+    if (paintProperty->HasStep()) {
+        DumpLog::GetInstance().AddDesc("Step: " + std::to_string(paintProperty->GetStep().value()));
+    }
+    if (paintProperty->HasSliderMode()) {
+        DumpLog::GetInstance().AddDesc("Style: " + ToString(paintProperty->GetSliderMode().value()));
+    }
+    if (paintProperty->HasDirection()) {
+        DumpLog::GetInstance().AddDesc("Direction: " + ToString(paintProperty->GetDirection().value()));
+    }
+    if (paintProperty->HasReverse()) {
+        DumpLog::GetInstance().AddDesc("Reverse: " + ToString(paintProperty->GetReverse().value()));
+    }
+    if (paintProperty->HasBlockColor()) {
+        DumpLog::GetInstance().AddDesc("BlockColor: " + paintProperty->GetBlockColor().value().ToString());
+    }
+    if (paintProperty->HasTrackBackgroundColor()) {
+        std::vector<GradientColor> gradientColors = paintProperty->GetTrackBackgroundColor().value().GetColors();
+        std::ostringstream oss;
+        for (const auto& gradientColor : gradientColors) {
+            oss << gradientColor.GetLinearColor().ToColor().ToString() << " ";
+        }
+        DumpLog::GetInstance().AddDesc("TrackBackgroundColor: " + oss.str());
+    }
+    if (paintProperty->HasSelectColor()) {
+        DumpLog::GetInstance().AddDesc("SelectColor: " + paintProperty->GetSelectColor().value().ToString());
+    }
+    if (paintProperty->HasMinResponsiveDistance()) {
+        DumpLog::GetInstance().AddDesc(
+            "MinResponsiveDistance: " + std::to_string(paintProperty->GetMinResponsiveDistance().value()));
+    }
+    if (paintProperty->HasShowSteps()) {
+        DumpLog::GetInstance().AddDesc("ShowSteps: " + ToString(paintProperty->GetShowSteps().value()));
+    }
+    if (paintProperty->HasShowTips()) {
+        DumpLog::GetInstance().AddDesc("ShowTips: " + ToString(paintProperty->GetShowTips().value()));
+    }
+
+    DumpSubInfo(paintProperty);
+}
+
+void SliderPattern::DumpSubInfo(RefPtr<SliderPaintProperty> paintProperty)
+{
+    auto layoutProperty = GetLayoutProperty<SliderLayoutProperty>();
+    CHECK_NULL_VOID(layoutProperty);
+
+    if (layoutProperty->HasThickness()) {
+        DumpLog::GetInstance().AddDesc("Thickness: " + layoutProperty->GetThickness().value().ToString());
+    }
+    if (paintProperty->HasBlockBorderColor()) {
+        DumpLog::GetInstance().AddDesc("BlockBorderColor: " + paintProperty->GetBlockBorderColor().value().ToString());
+    }
+    if (paintProperty->HasBlockBorderWidth()) {
+        DumpLog::GetInstance().AddDesc("BlockBorderWidth: " + paintProperty->GetBlockBorderWidth().value().ToString());
+    }
+    if (paintProperty->HasStepColor()) {
+        DumpLog::GetInstance().AddDesc("StepColor: " + paintProperty->GetStepColor().value().ToString());
+    }
+    if (paintProperty->HasStepSize()) {
+        DumpLog::GetInstance().AddDesc("StepSize: " + paintProperty->GetStepSize().value().ToString());
+    }
+    if (paintProperty->HasTrackBorderRadius()) {
+        DumpLog::GetInstance().AddDesc(
+            "TrackBorderRadius: " + paintProperty->GetTrackBorderRadius().value().ToString());
+    }
+    if (paintProperty->HasSelectedBorderRadius()) {
+        DumpLog::GetInstance().AddDesc(
+            "SelectedBorderRadius: " + paintProperty->GetSelectedBorderRadius().value().ToString());
+    }
+    if (layoutProperty->HasBlockSize()) {
+        SizeT<Dimension> size = layoutProperty->GetBlockSize().value();
+        std::stringstream ss;
+        ss << "[" << size.Width().ToString() << " x " << size.Height().ToString() << "]";
+        DumpLog::GetInstance().AddDesc("BlockSize: " + ss.str());
+    }
+    if (paintProperty->HasBlockType()) {
+        DumpLog::GetInstance().AddDesc("BlockType: " + ToString(paintProperty->GetBlockType().value()));
+    }
+    if (paintProperty->HasBlockImage()) {
+        DumpLog::GetInstance().AddDesc("BlockImage: " + paintProperty->GetBlockImage().value());
+    }
+    if (paintProperty->HasBlockShape()) {
+        DumpLog::GetInstance().AddDesc(
+            "BlockShape: " + ToString(paintProperty->GetBlockShape().value()->GetBasicShapeType()));
+    }
+    if (paintProperty->HasSliderInteractionMode()) {
+        DumpLog::GetInstance().AddDesc(
+            "SliderInteractionMode: " + ToString(paintProperty->GetSliderInteractionMode().value()));
+    }
+    if (paintProperty->HasValidSlideRange()) {
+        DumpLog::GetInstance().AddDesc("SlideRange: " + paintProperty->GetValidSlideRange().value()->ToString());
+    }
 }
 } // namespace OHOS::Ace::NG

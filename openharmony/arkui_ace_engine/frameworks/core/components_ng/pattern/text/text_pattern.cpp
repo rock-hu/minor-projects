@@ -47,6 +47,10 @@
 #include "core/components/custom_paint/rosen_render_custom_paint.h"
 #endif
 
+#ifdef ACE_ENABLE_VK
+#include "render_service_base/include/platform/common/rs_system_properties.h"
+#endif
+
 namespace OHOS::Ace::NG {
 namespace {
 constexpr double DIMENSION_VALUE = 16.0;
@@ -149,6 +153,11 @@ void TextPattern::OnDetachFromFrameNode(FrameNode* node)
     if (fontManager) {
         fontManager->UnRegisterCallbackNG(frameNode);
         fontManager->RemoveVariationNodeNG(frameNode);
+#ifdef ACE_ENABLE_VK
+        if (Rosen::RSSystemProperties::GetHybridRenderEnabled()) {
+            fontManager->RemoveHybridRenderNode(frameNode);
+        }
+#endif
     }
     pipeline->RemoveOnAreaChangeNode(node->GetId());
     pipeline->RemoveWindowStateChangedCallback(node->GetId());
@@ -1377,6 +1386,7 @@ RectF TextPattern::CalcAIMenuPosition(const AISpan& aiSpan, const CalculateHandl
         auto left = textContentGlobalOffset.GetX();
         auto right = textContentGlobalOffset.GetX() + contentRect_.Width();
         aiRect = RectT(left, top, right - left, bottom - top);
+        AdjustAIEntityRect(aiRect);
     } else {
         aiRect = textSelector_.firstHandle.CombineRectT(textSelector_.secondHandle);
     }
@@ -2430,10 +2440,7 @@ void TextPattern::UpdateSpanItemDragStatus(const std::list<ResultObject>& result
     }
     auto dragStatusUpdateAction = [weakPtr = WeakClaim(this), isDragging](const ResultObject& resultObj) {
         auto pattern = weakPtr.Upgrade();
-        CHECK_NULL_VOID(pattern);
-        if (pattern->spans_.empty()) {
-            return;
-        }
+        CHECK_NULL_VOID(pattern && !pattern->spans_.empty());
         auto it = pattern->spans_.begin();
         if (resultObj.spanPosition.spanIndex >= static_cast<int32_t>(pattern->spans_.size())) {
             std::advance(it, !pattern->spans_.empty() ? static_cast<int32_t>(pattern->spans_.size()) - 1 : 0);
@@ -2448,6 +2455,7 @@ void TextPattern::UpdateSpanItemDragStatus(const std::list<ResultObject>& result
                 spanItem = resultObj.span.Upgrade();
                 CHECK_NULL_VOID(spanItem);
             }
+            spanItem->MarkDirty();
             if (isDragging) {
                 spanItem->StartDrag(resultObj.offsetInSpan[RichEditorSpanRange::RANGESTART],
                     resultObj.offsetInSpan[RichEditorSpanRange::RANGEEND]);
@@ -2457,7 +2465,7 @@ void TextPattern::UpdateSpanItemDragStatus(const std::list<ResultObject>& result
             }
             return;
         }
-
+        spanItem->MarkDirty();
         if (resultObj.type == SelectSpanType::TYPEIMAGE) {
             if (isDragging) {
                 pattern->dragSpanItems_.emplace_back(spanItem);
@@ -3876,8 +3884,24 @@ void TextPattern::DumpSimplifyInfo(std::unique_ptr<JsonValue>& json)
 {
     auto textLayoutProp = GetLayoutProperty<TextLayoutProperty>();
     CHECK_NULL_VOID(textLayoutProp);
-    if (!IsSetObscured()) {
-        json->Put("content", UtfUtils::Str16DebugToStr8(textLayoutProp->GetContent().value_or(u" ")).c_str());
+    auto textValue = UtfUtils::Str16DebugToStr8(textLayoutProp->GetContent().value_or(u" ")).c_str();
+    if (!IsSetObscured() && textValue[0] != '\0') {
+        json->Put("content", textValue);
+        return;
+    }
+
+    CHECK_NULL_VOID(pManager_);
+    auto paragraphs = pManager_->GetParagraphs();
+    if (paragraphs.empty()) {
+        return;
+    }
+
+    for (auto&& info : paragraphs) {
+        auto paragraph = info.paragraph;
+        if (paragraph) {
+            auto text = StringUtils::Str16ToStr8(paragraph->GetParagraphText());
+            json->Put("content", text.c_str());
+        }
     }
 }
 
@@ -4288,13 +4312,14 @@ void TextPattern::ResetCustomFontColor()
 
 OffsetF TextPattern::GetDragUpperLeftCoordinates()
 {
-    if (dragBoxes_.empty()) {
+    auto dragBoxes = GetTextBoxes();
+    if (dragBoxes.empty()) {
         return { 0.0f, 0.0f };
     }
-    auto startY = dragBoxes_.front().Top();
-    auto startX = dragBoxes_.front().Left();
+    auto startY = dragBoxes.front().Top();
+    auto startX = dragBoxes.front().Left();
 
-    auto endY = dragBoxes_.back().Top();
+    auto endY = dragBoxes.back().Top();
     OffsetF offset;
     if (NearEqual(startY, endY)) {
         offset = { contentRect_.GetX() + startX, startY + contentRect_.GetY() };
@@ -5155,12 +5180,12 @@ void TextPattern::UpdateFontColor(const Color& value)
     CHECK_NULL_VOID(host);
     const auto& children = host->GetChildren();
     if (children.empty() && spans_.empty() && !NeedShowAIDetect()) {
+        if (textStyle_.has_value()) {
+            textStyle_->SetTextColor(value);
+        }
         if (contentMod_) {
             contentMod_->TextColorModifier(value);
         } else if (pManager_) {
-            if (textStyle_.has_value()) {
-                textStyle_->SetTextColor(value);
-            }
             for (auto&& info : pManager_->GetParagraphs()) {
                 auto paragraph = info.paragraph;
                 CHECK_NULL_VOID(paragraph);
@@ -5171,9 +5196,6 @@ void TextPattern::UpdateFontColor(const Color& value)
     } else {
         host->MarkDirtyNode(PROPERTY_UPDATE_MEASURE_SELF);
     }
-    auto textLayoutProperty = GetLayoutProperty<TextLayoutProperty>();
-    CHECK_NULL_VOID(textLayoutProperty);
-    textLayoutProperty->OnPropertyChangeMeasure();
 }
 
 void TextPattern::MarkDirtyNodeRender()

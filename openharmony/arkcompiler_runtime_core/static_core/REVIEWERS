@@ -67,10 +67,10 @@ static_core/platforms/**/*mem*                           ^dmitriitr @udav
 static_core/plugins/ets/playground                       @anton-sysoev @dreamdoomwalker
 static_core/runtime/arch/                                @Prof1983
 static_core/runtime/bridge/                              @Prof1983
-static_core/runtime/coroutines/                          ^dmitriitr @konstanting
+static_core/runtime/coroutines/                          ^dmitriitr @konstanting ^ychen3
 static_core/runtime/entrypoints/                         @Prof1983
 static_core/runtime/entrypoints/entrypoints.*            @mbolshov
-static_core/runtime/fibers/                              @konstanting
+static_core/runtime/fibers/                              @konstanting ^ychen3
 static_core/runtime/jit/                                 @Prof1983
 static_core/runtime/mem/                                 ^dmitriitr @udav
 static_core/runtime/tooling/                             @ragnvald
@@ -94,21 +94,22 @@ static_core/plugins/ets/irtoc_scripts/                   @Prof1983 @mbolshov
 static_core/plugins/ets/isa/                             @mbolshov
 static_core/plugins/ets/libllvmbackend/                  ^Prof1983 ^kosovpavel @asidorov
 static_core/plugins/ets/runtime/                         @vpukhov
-static_core/plugins/ets/runtime/*coroutine*              ^dmitriitr @konstanting
+static_core/plugins/ets/runtime/*coroutine*              ^dmitriitr @konstanting ^ychen3
 static_core/plugins/ets/runtime/ani                      @liwentao_uiw @v-cherkashin ^slynkodenis
 static_core/plugins/ets/runtime/ets_entrypoints*         @Prof1983 @mbolshov
 static_core/plugins/ets/runtime/ets_handle*              ^dmitriitr @udav
 static_core/plugins/ets/runtime/ets_libbase_runtime.yaml @Prof1983
 static_core/plugins/ets/runtime/ets_runtime_interface*   @Prof1983
 static_core/plugins/ets/runtime/job_queue.h              @dmitriitr
-static_core/plugins/ets/sdk/                             ^anton-sysoev @aleksander-sotov ^ivan-tyulyandin @dreamdoomwalker
+static_core/plugins/ets/sdk/                             ^anton-sysoev @aleksander-sotov ^ivan-tyulyandin @dreamdoomwalker @yuan-yao14
 static_core/plugins/ets/stdlib/                          ^anton-sysoev @aleksander-sotov ^ivan-tyulyandin @dreamdoomwalker
 static_core/plugins/ets/tests/ani                        @liwentao_uiw @v-cherkashin ^slynkodenis
 static_core/plugins/ets/verification/                    @igelhaus
 static_core/runtime/include/mem/                         ^dmitriitr @udav
 static_core/runtime/include/tooling/                     @ragnvald
 static_core/runtime/tests/tooling/                       @ragnvald
-static_core/plugins/ets/runtime/interop_js/              @nazarovkonstantin @vpukhov
+static_core/plugins/ets/runtime/finalreg/*                                    ^dmitriitr @udav @ipetrov ^shemetovphilip
+static_core/plugins/ets/runtime/interop_js/                                   @nazarovkonstantin @vpukhov
 static_core/plugins/ets/runtime/interop_js/*promise*                          ^dmitriitr @konstanting
 static_core/plugins/ets/runtime/interop_js/sts_vm_interface_impl*             ^dmitriitr @udav ^ipetrov ^molotkovmikhail
 static_core/plugins/ets/runtime/intrinsics/compiler_intrinsics.cpp            @Prof1983
@@ -130,11 +131,11 @@ static_core/plugins/ets/templates/stdlib/                                     ^a
 static_core/plugins/ets/tests/benchmarks/ani                                  @ignatenkooleg @v-cherkashin @Prof1983 @asidorov
 static_core/plugins/ets/tests/benchmarks/interop_js                           @nazarovkonstantin @ignatenkooleg @Prof1983
 static_core/plugins/ets/tests/checked/                                        @Prof1983
-static_core/plugins/ets/tests/ets-templates/                                  @Prof1983 @igelhaus @ragnvald @fotograf ^amate ^sergeyandreev ^lindvladimir_f9b8
-static_core/plugins/ets/tests/ets_es_checked/                                 ^anton-sysoev @aleksander-sotov ^ivan-tyulyandin
-static_core/plugins/ets/tests/ets_sdk/                                        ^anton-sysoev @aleksander-sotov ^ivan-tyulyandin
+static_core/plugins/ets/tests/ets-templates/                                  ^Prof1983 @igelhaus ^ragnvald @fotograf @zsw_zhushiwei ^amate ^sergeyandreev ^lindvladimir_f9b8
+static_core/plugins/ets/tests/ets_es_checked/                                 ^anton-sysoev @aleksander-sotov ^ivan-tyulyandin @dreamdoomwalker
+static_core/plugins/ets/tests/ets_sdk/                                        ^anton-sysoev @aleksander-sotov ^ivan-tyulyandin @dreamdoomwalker @yuan-yao14
 static_core/plugins/ets/tests/interop_js/                                     ^igelhaus @nazarovkonstantin ^rokashevichsvetlana ^kurnevichstanislav
-static_core/plugins/ets/tests/stdlib-templates/                               ^anton-sysoev @aleksander-sotov ^ivan-tyulyandin
+static_core/plugins/ets/tests/stdlib-templates/                               ^anton-sysoev @aleksander-sotov ^ivan-tyulyandin @dreamdoomwalker
 static_core/plugins/ets/tests/test-lists/                                     ^amate ^sergeyandreev @kuchkovairina
 static_core/plugins/ets/tests/test-lists/declgenets2ts                        ^amate ^sergeyandreev @kuchkovairina @dreamdoomwalker
 static_core/plugins/ets/tools/declgen_ts2sts/                                 @dreamdoomwalker ^trubachevilya ^hufeng20 @nazarovkonstantin
@@ -142,12 +143,12 @@ static_core/tests/tests-u-runner/runner/plugins/declgenets2ts                 @d
 static_core/tests/tests-u-runner/tools/generate-es-checked/                   ^anton-sysoev @aleksander-sotov ^ivan-tyulyandin @dreamdoomwalker
 static_core/plugins/ets/runtime/interop_js/ets_proxy/shared_reference*        ^dmitriitr @udav ^ipetrov
 static_core/plugins/ets/runtime/interop_js/xgc/                               ^dmitriitr @udav ^ipetrov
-static_core/plugins/ets/stdlib/std/concurrency/                               @konstanting ^dmitriitr ^udav ^wang_zhaoyong
+static_core/plugins/ets/stdlib/std/concurrency/                               @konstanting ^dmitriitr ^udav ^wang_zhaoyong ^ychen3
 static_core/plugins/ets/stdlib/std/containers/BlockingQueue.sts               @konstanting
-static_core/plugins/ets/stdlib/std/core/Coroutine.sts                         ^dmitriitr @konstanting
+static_core/plugins/ets/stdlib/std/core/Coroutine.sts                         ^dmitriitr @konstanting ^ychen3
 static_core/plugins/ets/stdlib/std/core/EnumConstant.sts                      @aleksander-sotov ^anton-sysoev @dreamdoomwalker
 static_core/plugins/ets/stdlib/std/core/Field.sts                             @aleksander-sotov ^anton-sysoev @dreamdoomwalker
-static_core/plugins/ets/stdlib/std/core/FinalizationRegistry.sts              ^dmitriitr @udav
+static_core/plugins/ets/stdlib/std/core/FinalizationRegistry.sts              ^dmitriitr @udav ^shemetovphilip
 static_core/plugins/ets/stdlib/std/core/GC.sts                                ^dmitriitr @udav
 static_core/plugins/ets/stdlib/std/core/Method.sts                            @aleksander-sotov ^anton-sysoev @dreamdoomwalker
 static_core/plugins/ets/stdlib/std/core/Object.sts                            @aleksander-sotov ^anton-sysoev @dreamdoomwalker
@@ -164,6 +165,8 @@ static_core/plugins/ets/tests/ets_test_suite/atomics/                         @k
 static_core/plugins/ets/tests/ets_test_suite/containers/blocking_queue.sts    @konstanting
 static_core/plugins/ets/tests/ets_test_suite/coroutines/                      @konstanting
 static_core/plugins/ets/tests/ets_test_suite/gc/                              @udav
+static_core/plugins/ets/tests/ets_test_suite/gc/*finalization*                @udav ^shemetovphilip
+static_core/plugins/ets/tests/ets_test_suite/gc/*finreg*                      @udav ^shemetovphilip
 static_core/plugins/ets/tests/ets_test_suite/taskpool/                        ^konstanting @ipetrov
 static_core/plugins/ets/tests/interop_js/tests/                               ^igelhaus @nazarovkonstantin ^ignatenkooleg ^rokashevichsvetlana ^kurnevichstanislav
 static_core/plugins/ets/tests/native/promise/                                 @konstanting

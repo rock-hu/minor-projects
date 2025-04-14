@@ -3495,11 +3495,10 @@ DEF_CALL_SIGNATURE(JSProxySetProperty)
 
 DEF_CALL_SIGNATURE(FindPatchModule)
 {
-    // 3 : 3 input parameters
-    CallSignature findPatchModule("FindPatchModule", 0, 3, ArgumentsOrder::DEFAULT_ORDER, VariableType::JS_ANY());
+    // 2 : 2 input parameters
+    CallSignature findPatchModule("FindPatchModule", 0, 2, ArgumentsOrder::DEFAULT_ORDER, VariableType::JS_ANY());
     *callSign = findPatchModule;
-    std::array<VariableType, 3> params = { // 3 : 3 input parameters
-        VariableType::NATIVE_POINTER(),
+    std::array<VariableType, 2> params = { // 2 : 2 input parameters
         VariableType::NATIVE_POINTER(),
         VariableType::JS_ANY(),
     };
@@ -3517,6 +3516,20 @@ DEF_CALL_SIGNATURE(FatalPrintMisstakenResolvedBinding)
     *callSign = fatalPrintMisstakenResolvedBinding;
     std::array<VariableType, 2> params = { // 2 : 2 input parameters
         VariableType::INT32(),
+        VariableType::JS_ANY(),
+    };
+    callSign->SetParameters(params.data());
+    callSign->SetGCLeafFunction(true);
+    callSign->SetTargetKind(CallSignature::TargetKind::RUNTIME_STUB_NO_GC);
+}
+
+DEF_CALL_SIGNATURE(LoadNativeModuleFailed)
+{
+    // 3 : 3 input parameters
+    CallSignature LoadNativeModuleFailed("LoadNativeModuleFailed", 0, 1, ArgumentsOrder::DEFAULT_ORDER,
+                                         VariableType::JS_ANY());
+    *callSign = LoadNativeModuleFailed;
+    std::array<VariableType, 1> params = { // 1 : 1 input parameters
         VariableType::JS_ANY(),
     };
     callSign->SetParameters(params.data());

@@ -22,6 +22,7 @@
 #include "core/common/layout_inspector.h"
 #include "core/components_ng/pattern/scrollable/scrollable_theme.h"
 #include "core/pipeline_ng/pipeline_context.h"
+#include "base/log/event_report.h"
 
 namespace OHOS::Ace::NG {
 namespace {
@@ -170,11 +171,13 @@ void Scrollable::InitPanRecognizerNG()
     PanDirection panDirection;
     panDirection.type = axis_ == Axis::VERTICAL ? PanDirection::VERTICAL : PanDirection::HORIZONTAL;
     double distance = SystemProperties::GetScrollableDistance();
+    PanDistanceMap distanceMap = { { SourceTool::UNKNOWN, distance } };
     if (LessOrEqual(distance, 0.0)) {
-        distance = DEFAULT_PAN_DISTANCE.ConvertToPx();
+        distanceMap = { { SourceTool::UNKNOWN, DEFAULT_PAN_DISTANCE.ConvertToPx() },
+            { SourceTool::PEN, DEFAULT_PEN_PAN_DISTANCE.ConvertToPx() } };
     }
     panRecognizerNG_ =
-        AceType::MakeRefPtr<NG::PanRecognizer>(DEFAULT_PAN_FINGER, panDirection, distance);
+        AceType::MakeRefPtr<NG::PanRecognizer>(DEFAULT_PAN_FINGER, panDirection, distanceMap);
     panRecognizerNG_->SetIsAllowMouse(false);
     SetOnActionStart();
     SetOnActionUpdate();
@@ -758,13 +761,19 @@ void Scrollable::LayoutDirectionEst(double gestureVelocity, double velocityScale
     double ret = SystemProperties::GetSrollableVelocityScale();
     velocityScale = !NearZero(ret) ? ret : defaultVelocityScale;
     velocityScale = isScrollFromTouchPad ? velocityScale * touchPadVelocityScaleRate_ : velocityScale;
+    double gain = GetGain(GetDragOffset());
     if (isReverseCallback_ && isReverseCallback_()) {
-        currentVelocity_ = -gestureVelocity * velocityScale * GetGain(GetDragOffset());
+        currentVelocity_ = -gestureVelocity * velocityScale * gain;
     } else {
-        currentVelocity_ = gestureVelocity * velocityScale * GetGain(GetDragOffset());
+        currentVelocity_ = gestureVelocity * velocityScale * gain;
     }
     // Apply max fling velocity limit, it must be calculated after all fling velocity gain.
     currentVelocity_ = std::clamp(currentVelocity_, -maxFlingVelocity_ + slipFactor_, maxFlingVelocity_ - slipFactor_);
+    slidInfo_.gestureVelocity = gestureVelocity;
+    slidInfo_.velocityScale = velocityScale;
+    slidInfo_.gain = gain;
+    slidInfo_.maxFlingVelocity = maxFlingVelocity_;
+    slidInfo_.slipFactor = slipFactor_;
 }
 
 void Scrollable::HandleDragEnd(const GestureEvent& info, bool isFromPanEnd)
@@ -881,6 +890,8 @@ void Scrollable::StartScrollAnimation(float mainPosition, float correctVelocity,
         frictionTmp = !NearZero(ret) ? ret : defaultFriction;
     }
     float friction = frictionTmp;
+    slidInfo_.friction = friction;
+    EventReport::ReportPageSlidInfo(slidInfo_);
     initVelocity_ = correctVelocity;
     finalPosition_ = mainPosition + correctVelocity / (friction * -FRICTION_SCALE);
     if (fixScrollParamCallback_) {

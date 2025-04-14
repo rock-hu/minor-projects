@@ -453,23 +453,12 @@ void ListPattern::ProcessEvent(bool indexChanged, float finalOffset, bool isJump
     CHECK_NULL_VOID(listEventHub);
     paintStateFlag_ = !NearZero(finalOffset) && !isJump;
     isFramePaintStateValid_ = true;
+    ACE_SCOPED_TRACE("processed offset:%f, id:%d, tag:%s", finalOffset,
+        static_cast<int32_t>(host->GetAccessibilityId()), host->GetTag().c_str());
     auto onScroll = listEventHub->GetOnScroll();
     PrintOffsetLog(AceLogTag::ACE_LIST, host->GetId(), finalOffset);
     if (onScroll) {
-        if (Container::GreatOrEqualAPIVersion(PlatformVersion::VERSION_TEN)) {
-            FireOnScroll(finalOffset, onScroll);
-        } else {
-            if (!NearZero(finalOffset)) {
-                auto offsetPX = Dimension(finalOffset);
-                auto offsetVP = Dimension(offsetPX.ConvertToVp(), DimensionUnit::VP);
-                auto source = GetScrollSource();
-                if (source == SCROLL_FROM_AXIS || source == SCROLL_FROM_BAR ||
-                    source == SCROLL_FROM_ANIMATION_CONTROLLER) {
-                    source = SCROLL_FROM_NONE;
-                }
-                onScroll(offsetVP, GetScrollState(source));
-            }
-        }
+        FireOnScrollWithVersionCheck(finalOffset, onScroll);
     }
     FireObserverOnDidScroll(finalOffset);
     auto onDidScroll = listEventHub->GetOnDidScroll();
@@ -495,6 +484,23 @@ void ListPattern::ProcessEvent(bool indexChanged, float finalOffset, bool isJump
     auto onJSFrameNodeReachEnd = listEventHub->GetJSFrameNodeOnReachEnd();
     FireOnReachEnd(onReachEnd, onJSFrameNodeReachEnd);
     OnScrollStop(listEventHub->GetOnScrollStop(), listEventHub->GetJSFrameNodeOnScrollStop());
+}
+
+void ListPattern::FireOnScrollWithVersionCheck(float finalOffset, OnScrollEvent& onScroll)
+{
+    if (Container::GreatOrEqualAPIVersion(PlatformVersion::VERSION_TEN)) {
+        FireOnScroll(finalOffset, onScroll);
+    } else {
+        if (!NearZero(finalOffset)) {
+            auto offsetPX = Dimension(finalOffset);
+            auto offsetVP = Dimension(offsetPX.ConvertToVp(), DimensionUnit::VP);
+            auto source = GetScrollSource();
+            if (source == SCROLL_FROM_AXIS || source == SCROLL_FROM_BAR || source == SCROLL_FROM_ANIMATION_CONTROLLER) {
+                source = SCROLL_FROM_NONE;
+            }
+            onScroll(offsetVP, GetScrollState(source));
+        }
+    }
 }
 
 void ListPattern::FireOnReachStart(const OnReachEvent& onReachStart, const OnReachEvent& onJSFrameNodeReachStart)
@@ -1944,7 +1950,7 @@ bool ListPattern::AnimateToTarget(int32_t index, std::optional<int32_t> indexInG
         }
     }
     if (!NearZero(targetPos)) {
-        AnimateTo(targetPos + currentOffset_, -1, nullptr, true, false);
+        AnimateTo(targetPos + currentOffset_, -1, nullptr, true, false, false);
         if (predictSnapOffset_.has_value() && AnimateRunning()) {
             scrollSnapVelocity_ = 0.0f;
             predictSnapOffset_.reset();
@@ -2190,6 +2196,21 @@ Rect ListPattern::GetItemRectInGroup(int32_t index, int32_t indexInGroup) const
         groupItemGeometry->GetFrameRect().Width(), groupItemGeometry->GetFrameRect().Height());
 }
 
+bool ListPattern::CalculateJumpOffset()
+{
+    for (const auto& pos : itemPosition_) {
+        if (pos.second.groupInfo && !pos.second.groupInfo.value().atStart) {
+            continue;
+        }
+        PositionInfo info = posMap_->GetPositionInfo(pos.first);
+        if (!Negative(info.mainSize)) {
+            currentOffset_ = info.mainPos - pos.second.startPos;
+            return true;
+        }
+    }
+    return false;
+}
+
 float ListPattern::UpdateTotalOffset(const RefPtr<ListLayoutAlgorithm>& listLayoutAlgorithm, bool isJump)
 {
     float relativeOffset = listLayoutAlgorithm->GetCurrentOffset();
@@ -2199,13 +2220,21 @@ float ListPattern::UpdateTotalOffset(const RefPtr<ListLayoutAlgorithm>& listLayo
         currentOffset_ = itemPosition_.empty() ? 0.0f :
             posMap_->GetPos(itemPosition_.begin()->first, itemPosition_.begin()->second.startPos);
     } else {
-        if (isJump || needReEstimateOffset_) {
+        if (isJump && !needReEstimateOffset_) {
+            if (CalculateJumpOffset()) {
+                relativeOffset = 0.0f;
+            } else {
+                needReEstimateOffset_ = true;
+            }
+        }
+        if (needReEstimateOffset_) {
+            posMap_->ClearPosMap();
             auto calculate = ListHeightOffsetCalculator(itemPosition_, spaceWidth_, lanes_, GetAxis(), itemStartIndex_);
+            calculate.SetPosMap(posMap_, true);
             calculate.GetEstimateHeightAndOffset(GetHost());
             currentOffset_ = calculate.GetEstimateOffset();
             relativeOffset = 0;
             needReEstimateOffset_ = false;
-            posMap_->ClearPosMap();
         }
         CalculateCurrentOffset(relativeOffset, listLayoutAlgorithm->GetRecycledItemPosition());
     }
@@ -2222,7 +2251,7 @@ float ListPattern::UpdateTotalOffset(const RefPtr<ListLayoutAlgorithm>& listLayo
             if (!NearEqual(relativeOffset + prevOffset, currentOffset_, epsilon) ||
                 !NearEqual(target.targetOffset, targetPos, epsilon)) {
                 target.targetOffset = targetPos;
-                AnimateTo(targetPos, -1, nullptr, true);
+                AnimateTo(targetPos, -1, nullptr, true, false, false);
             }
         }
     }
@@ -2244,7 +2273,8 @@ void ListPattern::CalculateCurrentOffset(float delta, const ListLayoutAlgorithm:
     auto& groupInfo = itemPos.begin()->second.groupInfo;
     bool groupAtStart = (!groupInfo || groupInfo.value().atStart);
     if (startIndex == 0 && groupAtStart) {
-        currentOffset_ = -startPos;
+        // startPos has a small accuracy error.
+        currentOffset_ = NearZero(startPos) ? 0.0f : -startPos;
         UpdatePosMap(itemPos);
         return;
     }
@@ -2350,14 +2380,18 @@ void ListPattern::UpdateScrollBarOffset()
         estimatedHeight = estimatedHeight - spaceWidth_;
     }
 
-    currentOffset += contentStartOffset_;
-    estimatedHeight += contentStartOffset_ + contentEndOffset_;
-
     // calculate padding offset of list
     auto layoutPriority = host->GetLayoutProperty();
     CHECK_NULL_VOID(layoutPriority);
     auto padding = layoutPriority->CreatePaddingAndBorder();
     auto paddingMain = GetAxis() == Axis::VERTICAL ? padding.Height() : padding.Width();
+
+    auto mainSize = GetAxis() == Axis::VERTICAL ? size.Height() : size.Width();
+    if (IsNeedAddContentOffset(LessOrEqual(estimatedHeight + paddingMain, mainSize))) {
+        currentOffset += contentStartOffset_;
+        estimatedHeight += contentStartOffset_ + contentEndOffset_;
+    }
+
     UpdateScrollBarRegion(currentOffset, estimatedHeight + paddingMain, size, Offset(0.0f, 0.0f));
 }
 
@@ -3103,6 +3137,9 @@ void ListPattern::NotifyDataChange(int32_t index, int32_t count)
 {
     if (!maintainVisibleContentPosition_ || itemPosition_.empty() || count == 0) {
         return;
+    }
+    if (index == 0 && count > 0 && IsBackToTopRunning()) {
+        SetUseTotalOffset(false);
     }
     auto startIndex = itemPosition_.begin()->first;
     auto endIndex = itemPosition_.rbegin()->first;

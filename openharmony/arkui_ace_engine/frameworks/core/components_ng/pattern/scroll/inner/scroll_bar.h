@@ -95,13 +95,13 @@ public:
     {
         foregroundColor_ = foregroundColor;
     }
-    void SetForegroundHoverColor(const Color& foregroundHoverBlendColor)
+    void SetForegroundHoverBlendColor(const Color& foregroundHoverBlendColor)
     {
-        foregroundHoverColor_ = foregroundColor_.BlendColor(foregroundHoverBlendColor);
+        foregroundHoverBlendColor_ = foregroundHoverBlendColor;
     }
-    void SetForegroundPressedColor(const Color& foregroundPressedBlendColor)
+    void SetForegroundPressedBlendColor(const Color& foregroundPressedBlendColor)
     {
-        foregroundPressedColor_ = foregroundColor_.BlendColor(foregroundPressedBlendColor);
+        foregroundPressedBlendColor_ = foregroundPressedBlendColor;
     }
     double GetTopAngle() const
     {
@@ -391,7 +391,6 @@ public:
     void DumpAdvanceInfo(std::unique_ptr<JsonValue>& json);
     void StopFlingAnimation();
 
-#ifdef ARKUI_CIRCLE_FEATURE
     void SetActiveBackgroundWidth(const Dimension& activeBackgroundWidth)
     {
         activeBackgroundWidth_ = activeBackgroundWidth;
@@ -420,7 +419,6 @@ public:
     {
         return IsPressed() ? arcForegroundColor_.BlendColor(PRESSED_BLEND_COLOR) : arcForegroundColor_;
     }
-#endif
 
 protected:
     void InitTheme();
@@ -433,7 +431,6 @@ protected:
         return normalWidth_;
     }
 
-#ifdef ARKUI_CIRCLE_FEATURE
     void SetMouseEventMember(RefPtr<InputEvent> mouseEvent)
     {
         mouseEvent_ = mouseEvent;
@@ -604,7 +601,6 @@ protected:
     {
         return activeScrollBarWidth_;
     }
-#endif
 
     double GetMinAngle() const
     {
@@ -635,8 +631,8 @@ private:
     Edge padding_;
     Color backgroundColor_;
     Color foregroundColor_;
-    Color foregroundHoverColor_;
-    Color foregroundPressedColor_;
+    Color foregroundHoverBlendColor_;
+    Color foregroundPressedBlendColor_;
     Rect touchRegion_;
     Rect hoverRegion_;
     Rect barRect_;
@@ -705,7 +701,6 @@ private:
     bool needAddLayoutInfo = false;
     bool isMousePressed_ = false;
 
-#ifdef ARKUI_CIRCLE_FEATURE
     Dimension normalBackgroundWidth_;
     Dimension activeBackgroundWidth_;
     double normalStartAngle_ = 0.0;
@@ -716,7 +711,6 @@ private:
     Dimension activeScrollBarWidth_;
     Color arcBackgroundColor_;
     Color arcForegroundColor_;
-#endif // ARKUI_CIRCLE_FEATURE
 };
 
 } // namespace OHOS::Ace::NG

@@ -15,6 +15,7 @@
 
 #include "core/components_ng/pattern/toggle/switch_pattern.h"
 
+#include "base/log/dump_log.h"
 #include "core/common/recorder/node_data_cache.h"
 #include "core/components/toggle/toggle_theme.h"
 #include "core/pipeline_ng/pipeline_context.h"
@@ -521,7 +522,9 @@ void SwitchPattern::InitPanEvent(const RefPtr<GestureEventHub>& gestureHub)
 
     panEvent_ = MakeRefPtr<PanEvent>(
         std::move(actionStartTask), std::move(actionUpdateTask), std::move(actionEndTask), std::move(actionCancelTask));
-    gestureHub->AddPanEvent(panEvent_, panDirection, 1, DEFAULT_PAN_DISTANCE);
+    PanDistanceMap distanceMap = { { SourceTool::UNKNOWN, DEFAULT_PAN_DISTANCE.ConvertToPx() },
+        { SourceTool::PEN, DEFAULT_PEN_PAN_DISTANCE.ConvertToPx() } };
+    gestureHub->AddPanEvent(panEvent_, panDirection, 1, distanceMap);
 }
 
 void SwitchPattern::InitClickEvent()
@@ -786,6 +789,31 @@ bool SwitchPattern::OnThemeScopeUpdate(int32_t themeScopeId)
     }
 
     return result;
+}
+
+void SwitchPattern::DumpInfo()
+{
+    auto paintProperty = GetPaintProperty<SwitchPaintProperty>();
+    CHECK_NULL_VOID(paintProperty);
+    if (paintProperty->HasIsOn()) {
+        DumpLog::GetInstance().AddDesc("IsOn: " + std::string(paintProperty->GetIsOn().value() ? "true" : "false"));
+    }
+    if (paintProperty->HasSelectedColor()) {
+        DumpLog::GetInstance().AddDesc("SelectedColor: " + paintProperty->GetSelectedColor().value().ToString());
+    }
+    if (paintProperty->HasUnselectedColor()) {
+        DumpLog::GetInstance().AddDesc("UnselectedColor: " + paintProperty->GetUnselectedColor().value().ToString());
+    }
+    if (paintProperty->HasSwitchPointColor()) {
+        DumpLog::GetInstance().AddDesc("SwitchPointColor: " + paintProperty->GetSwitchPointColor().value().ToString());
+    }
+    if (paintProperty->HasPointRadius()) {
+        DumpLog::GetInstance().AddDesc("PointRadius: " + paintProperty->GetPointRadius().value().ToString());
+    }
+    if (paintProperty->HasTrackBorderRadius()) {
+        DumpLog::GetInstance().AddDesc(
+            "TrackBorderRadius: " + paintProperty->GetTrackBorderRadius().value().ToString());
+    }
 }
 
 void SwitchPattern::SetSwitchIsOn(bool ison)

@@ -146,6 +146,11 @@ public:
         checkboxFlag_ = checkboxFlag;
     }
 
+    void SetBindTips(bool hasBindTips)
+    {
+        hasBindTips_ = hasBindTips;
+    }
+
     bool GetCheckboxFlag() const
     {
         return checkboxFlag_;
@@ -599,6 +604,12 @@ public:
     void PushDestroyCallbackWithTag(std::function<void()>&& callback, std::string tag)
     {
         destroyCallbacksMap_[tag] = callback;
+    }
+
+    void SetConfigurationModeUpdateCallback(
+        const std::function<void(const ConfigurationChange& configurationChange)>&& callback)
+    {
+        configurationUpdateCallback_ = callback;
     }
 
     void SetColorModeUpdateCallback(const std::function<void()>&& callback)
@@ -1352,6 +1363,13 @@ public:
 
     int32_t OnRecvCommand(const std::string& command) override;
 
+    void ResetLastFrameNodeRect()
+    {
+        if (lastFrameNodeRect_) {
+            lastFrameNodeRect_.reset();
+        }
+    }
+
 protected:
     void DumpInfo() override;
     std::unordered_map<std::string, std::function<void()>> destroyCallbacksMap_;
@@ -1492,6 +1510,12 @@ private:
     bool ProcessMouseTestHit(const PointF& globalPoint, const PointF& localPoint,
     TouchRestrict& touchRestrict, TouchTestResult& newComingTargets);
 
+    bool ProcessTipsMouseTestHit(const PointF& globalPoint, const PointF& localPoint,
+        TouchRestrict& touchRestrict, TouchTestResult& newComingTargets);
+
+    void TipsTouchTest(const PointF& globalPoint, const PointF& parentLocalPoint, const PointF& parentRevertPoint,
+        TouchRestrict& touchRestrict, TouchTestResult& result, ResponseLinkResult& responseLinkResult, bool isDispatch);
+
     void ResetPredictNodes();
 
     const char* GetPatternTypeName() const;
@@ -1503,6 +1527,7 @@ private:
     std::multiset<WeakPtr<FrameNode>, ZIndexComparator> frameChildren_;
     RefPtr<GeometryNode> geometryNode_ = MakeRefPtr<GeometryNode>();
 
+    std::function<void(const ConfigurationChange& configurationChange)> configurationUpdateCallback_;
     std::function<void()> colorModeUpdateCallback_;
     std::function<void(int32_t)> ndkColorModeUpdateCallback_;
     std::function<void(float, float)> ndkFontUpdateCallback_;
@@ -1599,6 +1624,7 @@ private:
     bool exposeInnerGestureFlag_ = false;
     bool isDeleteRsNode_ = false;
     bool hasPositionZ_ = false;
+    bool hasBindTips_ = false;
 
     RefPtr<FrameNode> overlayNode_;
 

@@ -882,7 +882,9 @@ void TimePickerColumnPattern::InitPanEvent(const RefPtr<GestureEventHub>& gestur
     panDirection.type = PanDirection::VERTICAL;
     panEvent_ = MakeRefPtr<PanEvent>(
         std::move(actionStartTask), std::move(actionUpdateTask), std::move(actionEndTask), std::move(actionCancelTask));
-    gestureHub->AddPanEvent(panEvent_, panDirection, DEFAULT_PAN_FINGER, DEFAULT_PAN_DISTANCE);
+    PanDistanceMap distanceMap = { { SourceTool::UNKNOWN, DEFAULT_PAN_DISTANCE.ConvertToPx() },
+        { SourceTool::PEN, DEFAULT_PEN_PAN_DISTANCE.ConvertToPx() } };
+    gestureHub->AddPanEvent(panEvent_, panDirection, DEFAULT_PAN_FINGER, distanceMap);
 }
 
 void TimePickerColumnPattern::HandleDragStart(const GestureEvent& event)
@@ -1690,8 +1692,8 @@ void TimePickerColumnPattern::UpdateUserSetSelectColor()
 void TimePickerColumnPattern::UpdateAnimationColor(const RefPtr<PickerTheme>& pickerTheme)
 {
     Color color;
-    int showCount = GetShowCount();
-    int32_t middleIndex = showCount / PICKER_SELECT_AVERAGE;
+    uint32_t showCount = GetShowCount();
+    uint32_t middleIndex = showCount / PICKER_SELECT_AVERAGE;
     GetAnimationColor(middleIndex, showCount, color, true);
     if (middleIndex - NEXT_COLOUM_DIFF >= 0 && animationProperties_.size() > middleIndex) {
         animationProperties_[middleIndex - NEXT_COLOUM_DIFF].downColor = color;

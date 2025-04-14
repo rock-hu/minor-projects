@@ -160,6 +160,7 @@ public:
     }
     void PlayHapticFeedback(bool isShowSteps, float step, float oldValue);
     bool OnThemeScopeUpdate(int32_t themeScopeId) override;
+    void DumpInfo() override;
 
 #ifdef SUPPORT_DIGITAL_CROWN
     void SetDigitalCrownSensitivity(CrownSensitivity sensitivity)
@@ -288,7 +289,7 @@ private:
                 crownEventNum_ = 0;
                 reachBoundary_ = false;
                 HandleCrownAction(mainDelta);
-                StartVibrateFeedback();
+                timeStampPre_ = GetCurrentTimestamp();
                 UpdateMarkDirtyNode(PROPERTY_UPDATE_RENDER);
                 FireChangeEvent(SliderChangeMode::Begin);
                 OpenTranslateAnimation(SliderStatus::MOVE);
@@ -376,6 +377,7 @@ private:
     {
         return skipGestureEvents_;
     }
+    void DumpSubInfo(RefPtr<SliderPaintProperty> paintProperty);
 
     Axis direction_ = Axis::HORIZONTAL;
     enum SliderChangeMode { Begin = 0, Moving = 1, End = 2, Click = 3 };
@@ -418,6 +420,8 @@ private:
     double crownMovingLength_ = 0.0;
     int32_t crownEventNum_ = 0;
     bool reachBoundary_ = false;
+    int64_t timeStampCur_ = 0;
+    int64_t timeStampPre_ = 0;
 #endif
 
     RefPtr<TouchEventImpl> touchEvent_;

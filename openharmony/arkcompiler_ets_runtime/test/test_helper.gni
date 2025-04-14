@@ -860,7 +860,35 @@ template("host_moduletest_assert_action") {
 
     outputs = [ "$target_out_dir/${_target_name_}Assert/" ]
   }
+  if (ark_standalone_build && host_os == "linux" && target_os == "ohos") {
+    import("$ark_third_party_root/musl/musl_template.gni")
+    import("$build_root/config/qemu/config.gni")
 
+    action("${_target_name_}ActionWithQemu") {
+      testonly = true
+
+      deps = [ ":gen_${_target_name_}_abc" ]
+      _test_abc_path_ = "$target_out_dir/${_target_name_}.abc"
+      script = "${js_root}/script/run_ark_executable.py"
+
+      args = [
+        "--qemu-binary-path",
+        "${QEMU_INSTALLATION_PATH}/bin/qemu-${musl_arch}",
+        "--L",
+        "./common/common/libc/",
+        "--expect-output",
+        "1",
+        "--arkjsvmpath",
+        "./arkcompiler/ets_runtime/ark_js_vm",
+        "--test-abc-path",
+        "$target_out_dir/${_target_name_}.abc",
+      ]
+
+      inputs = [ _test_abc_path_ ]
+
+      outputs = [ "$target_out_dir/${_target_name_}WithQemu/" ]
+    }
+  }
   action("${_target_name_}ContextAssertAction") {
     testonly = true
 
@@ -1943,6 +1971,10 @@ template("host_aot_js_test_action") {
         "$ark_third_party_root/musl:soft_create_linker_for_qemu",
         _host_jsvm_target_,
       ]
+      if (is_ohos && run_with_qemu) {
+        deps +=
+            [ "//arkcompiler/ets_runtime/ecmascript/compiler:gen_stub_file" ]
+      }
       deps += _deps_
 
       script = "//arkcompiler/ets_runtime/script/run_ark_executable.py"
@@ -3755,6 +3787,10 @@ template("host_aot_test_action") {
         "$ark_third_party_root/musl:soft_create_linker_for_qemu",
         _host_jsvm_target_,
       ]
+      if (is_ohos && run_with_qemu) {
+        deps +=
+            [ "//arkcompiler/ets_runtime/ecmascript/compiler:gen_stub_file" ]
+      }
       if (!defined(invoker.is_only_typed_path) || !invoker.is_only_typed_path) {
         deps += [ ":${_target_name_}AotActionSlowPathWithLiteCGQemu" ]
       }

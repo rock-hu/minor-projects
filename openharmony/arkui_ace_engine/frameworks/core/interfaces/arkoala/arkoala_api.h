@@ -29,10 +29,10 @@
 extern "C" {
 #endif
 
-#define ARKUI_FULL_API_VERSION 138
+#define ARKUI_FULL_API_VERSION 140
 // When changing ARKUI_BASIC_API_VERSION, ARKUI_FULL_API_VERSION must be
 // increased as well.
-#define ARKUI_NODE_API_VERSION 138
+#define ARKUI_NODE_API_VERSION 140
 
 #define ARKUI_BASIC_API_VERSION 8
 #define ARKUI_EXTENDED_API_VERSION 8
@@ -2751,6 +2751,8 @@ struct ArkUIImageModifier {
     void (*resetResizable)(ArkUINodeHandle node);
     void (*setDynamicRangeMode)(ArkUINodeHandle node, ArkUI_Int32 dynamicRangeMode);
     void (*resetDynamicRangeMode)(ArkUINodeHandle node);
+    void (*setHdrBrightness)(ArkUINodeHandle node, ArkUI_Float32 hdrBrightness);
+    void (*resetHdrBrightness)(ArkUINodeHandle node);
     void (*setImageRotateOrientation)(ArkUINodeHandle node, ArkUI_Int32 orientation);
     void (*resetImageRotateOrientation)(ArkUINodeHandle node);
     void (*setEnhancedImageQuality)(ArkUINodeHandle node, ArkUI_Int32 imageQuality);
@@ -3441,6 +3443,8 @@ struct ArkUIListItemModifier {
     void (*resetListItemSwipeAction)(ArkUINodeHandle node);
     void (*setListItemOnSelectCallback)(ArkUINodeHandle node, void* callback);
     void (*resetListItemOnSelectCallback)(ArkUINodeHandle node);
+    void (*setListItemStyle)(ArkUINodeHandle node, ArkUI_Uint32 style);
+    void (*resetListItemStyle)(ArkUINodeHandle node);
 };
 
 struct ArkUIScrollBarModifier {
@@ -3660,6 +3664,8 @@ struct ArkUIGestureModifier {
     ArkUI_Int32 (*getLongPressGestureDuration)(ArkUIGestureRecognizer* recognizer, int* duration);
     ArkUI_Int32 (*getRotationGestureAngle)(ArkUIGestureRecognizer* recognizer, double* angle);
     ArkUI_Int32 (*getTapGestureDistanceThreshold)(ArkUIGestureRecognizer* recognizer, double* distanceThreshold);
+    ArkUI_Int32 (*setDistanceMap)(ArkUIGesture* gesture, int size, int* toolTypeArray, double* distanceArray);
+    ArkUI_Int32 (*getDistanceByToolType)(ArkUIGestureRecognizer* recognizer, int toolType, double* distance);
     ArkUI_Bool (*isBuiltInGesture)(ArkUIGestureRecognizer* recognizer);
     ArkUI_Int32 (*getGestureTag)(
         ArkUIGestureRecognizer* recognizer, char* buffer, ArkUI_Int32 bufferSize, ArkUI_Int32* result);

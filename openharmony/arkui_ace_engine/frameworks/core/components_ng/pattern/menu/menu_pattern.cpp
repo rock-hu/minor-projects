@@ -1980,7 +1980,9 @@ void MenuPattern::InitPanEvent(const RefPtr<GestureEventHub>& gestureHub)
     PanDirection panDirection;
     panDirection.type = PanDirection::ALL;
     auto panEvent = MakeRefPtr<PanEvent>(nullptr, nullptr, std::move(actionEndTask), nullptr);
-    gestureHub->AddPanEvent(panEvent, panDirection, 1, DEFAULT_PAN_DISTANCE);
+    PanDistanceMap distanceMap = { { SourceTool::UNKNOWN, DEFAULT_PAN_DISTANCE.ConvertToPx() },
+        { SourceTool::PEN, DEFAULT_PEN_PAN_DISTANCE.ConvertToPx() } };
+    gestureHub->AddPanEvent(panEvent, panDirection, 1, distanceMap);
     gestureHub->AddPreviewMenuHandleDragEnd(std::move(actionScrollEndTask));
 }
 
@@ -2037,7 +2039,7 @@ float MenuPattern::GetSelectMenuWidth()
         finalWidth = defaultWidth;
     }
 
-    if (finalWidth < minSelectWidth) {
+    if (LessNotEqual(finalWidth, minSelectWidth)) {
         finalWidth = defaultWidth;
     }
 
@@ -2107,16 +2109,18 @@ void MenuPattern::HandlePrevPressed(const RefPtr<UINode>& parent, int32_t index,
         }
     } else {
         auto syntaxNode = GetSyntaxNode(parent);
-        if (parent->GetParent()->GetChildIndex(parent) == 0 && syntaxNode) {
+        auto grandParent = parent->GetParent();
+        CHECK_NULL_VOID(grandParent);
+        if (grandParent->GetChildIndex(parent) == 0 && syntaxNode) {
             prevNode = GetForEachMenuItem(syntaxNode, false);
         }
         bool matchFirstItemInIfElse = parent->GetTag() == V2::MENU_ITEM_GROUP_ETS_TAG &&
-            parent->GetParent()->GetChildIndex(parent) == 0 &&
-            parent->GetParent()->GetTag() == V2::JS_IF_ELSE_ETS_TAG;
+            grandParent->GetChildIndex(parent) == 0 &&
+            grandParent->GetTag() == V2::JS_IF_ELSE_ETS_TAG;
         if (matchFirstItemInIfElse) { // the first item in first group in ifElse
-            prevNode = GetOutsideForEachMenuItem(parent->GetParent(), false);
+            prevNode = GetOutsideForEachMenuItem(grandParent, false);
         }
-        bool notFirstGroupInMenu = parent->GetParent()->GetChildIndex(parent) > 0 &&
+        bool notFirstGroupInMenu = grandParent->GetChildIndex(parent) > 0 &&
             parent->GetTag() == V2::MENU_ITEM_GROUP_ETS_TAG;
         if (notFirstGroupInMenu) {
             prevNode = GetOutsideForEachMenuItem(parent, false);
@@ -2372,7 +2376,7 @@ float MenuPattern::GetSelectMenuWidthFromTheme() const
     auto theme = context->GetTheme<SelectTheme>();
     CHECK_NULL_RETURN(theme, minSelectWidth);
     float finalWidth = (theme->GetMenuNormalWidth() + OPTION_MARGIN).ConvertToPx();
-    if (finalWidth < minSelectWidth) {
+    if (LessNotEqual(finalWidth, minSelectWidth)) {
         finalWidth = defaultWidth;
     }
     return finalWidth;

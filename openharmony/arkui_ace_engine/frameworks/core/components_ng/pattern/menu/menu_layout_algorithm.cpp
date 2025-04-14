@@ -206,6 +206,7 @@ const std::map<Placement, std::vector<Placement>> PLACEMENT_STATES = {
         } },
 };
 
+// Provide positional enumeration order for select avoidance mode.
 const std::map<Placement, std::vector<Placement>> SELECT_PLACEMENT_STATES = {
     { Placement::BOTTOM_LEFT,
         {
@@ -1902,28 +1903,28 @@ void MenuLayoutAlgorithm::ProcessArrowParams(const LayoutWrapper* layoutWrapper,
         case Placement::LEFT:
         case Placement::LEFT_TOP:
         case Placement::LEFT_BOTTOM:
-            if (menuSize.Height() >= radiusTopRight + radiusBottomRight + arrowWidth_) {
+            if (GreatOrEqual(menuSize.Height(), radiusTopRight + radiusBottomRight + arrowWidth_)) {
                 arrowInMenu_ = true;
             }
             break;
         case Placement::RIGHT:
         case Placement::RIGHT_TOP:
         case Placement::RIGHT_BOTTOM:
-            if (menuSize.Height() >= radiusTopLeft + radiusBottomLeft + arrowWidth_) {
+            if (GreatOrEqual(menuSize.Height(), radiusTopLeft + radiusBottomLeft + arrowWidth_)) {
                 arrowInMenu_ = true;
             }
             break;
         case Placement::TOP:
         case Placement::TOP_LEFT:
         case Placement::TOP_RIGHT:
-            if (menuSize.Width() >= radiusBottomLeft + radiusBottomRight + arrowWidth_) {
+            if (GreatOrEqual(menuSize.Width(), radiusBottomLeft + radiusBottomRight + arrowWidth_)) {
                 arrowInMenu_ = true;
             }
             break;
         case Placement::BOTTOM:
         case Placement::BOTTOM_LEFT:
         case Placement::BOTTOM_RIGHT:
-            if (menuSize.Width() >= radiusTopLeft + radiusTopRight + arrowWidth_) {
+            if (GreatOrEqual(menuSize.Width(), radiusTopLeft + radiusTopRight + arrowWidth_)) {
                 arrowInMenu_ = true;
             }
             break;
@@ -2063,6 +2064,7 @@ OffsetF MenuLayoutAlgorithm::ComputeMenuPositionByOffset(
     return menuTrimOffset;
 }
 
+// Adapt to the menualign specification in select avoidance mode.
 void MenuLayoutAlgorithm::ComputePlacementByAlignType(const RefPtr<MenuLayoutProperty>& menuProp)
 {
     auto alignType = menuProp->GetAlignType().value_or(MenuAlignType::START);
@@ -2106,7 +2108,8 @@ OffsetF MenuLayoutAlgorithm::MenuLayoutAvoidAlgorithm(const RefPtr<MenuLayoutPro
     CHECK_NULL_RETURN(menuPattern, OffsetF(0, 0));
     float x = 0.0f;
     float y = 0.0f;
-    if (menuProp->GetMenuPlacement().has_value() && (targetSize_.Width() > 0.0 || targetSize_.Height() > 0.0)) {
+    if (menuProp->GetMenuPlacement().has_value() &&
+        (GreatNotEqual(targetSize_.Width(), 0.0) || GreatNotEqual(targetSize_.Height(), 0.0))) {
         placement_ = menuProp->GetMenuPlacement().value();
         if (layoutWrapper != nullptr) {
             PlacementRTL(layoutWrapper, placement_);
@@ -2136,7 +2139,7 @@ OffsetF MenuLayoutAlgorithm::SelectLayoutAvoidAlgorithm(const RefPtr<MenuLayoutP
     CHECK_NULL_RETURN(layoutWrapper, OffsetF(0, 0));
     float x = 0.0f;
     float y = 0.0f;
-    if (targetSize_.Width() > 0.0 || targetSize_.Height() > 0.0) {
+    if (GreatNotEqual(targetSize_.Width(), 0.0) || GreatNotEqual(targetSize_.Height(), 0.0)) {
         placement_ = Placement::BOTTOM_LEFT;
         ComputePlacementByAlignType(menuProp);
         if (layoutWrapper != nullptr) {
@@ -2252,7 +2255,7 @@ void MenuLayoutAlgorithm::UpdateConstraintHeight(LayoutWrapper* layoutWrapper, L
         if (menuPattern->IsHeightModifiedBySelect()) {
             auto menuLayoutProps = AceType::DynamicCast<MenuLayoutProperty>(layoutWrapper->GetLayoutProperty());
             auto selectModifiedHeight = menuLayoutProps->GetSelectModifiedHeight().value();
-            if (selectModifiedHeight < maxSpaceHeight) {
+            if (LessNotEqual(selectModifiedHeight, maxSpaceHeight)) {
                 maxSpaceHeight = selectModifiedHeight;
             }
         }
@@ -2286,7 +2289,7 @@ void MenuLayoutAlgorithm::UpdateConstraintSelectHeight(LayoutWrapper* layoutWrap
     auto rightSpace =
         std::min<float>(wrapperRect_.Right() - targetRect.Right() - targetSecurity_ - paddingEnd_, maxWidth);
     auto leftSpace = std::min<float>(targetRect.Left() - xAvoid - targetSecurity_, maxWidth);
-    if (selectMenuWidth >= rightSpace && selectMenuWidth >= leftSpace) {
+    if (GreatOrEqual(selectMenuWidth, rightSpace) && GreatOrEqual(selectMenuWidth, leftSpace)) {
         maxSpaceHeight = std::max(topSpace, bottomSpace);
     }
     if (lastPosition_.has_value() && holdEmbeddedMenuPosition_) {
@@ -2297,7 +2300,7 @@ void MenuLayoutAlgorithm::UpdateConstraintSelectHeight(LayoutWrapper* layoutWrap
         if (menuPattern->IsHeightModifiedBySelect()) {
             auto menuLayoutProps = AceType::DynamicCast<MenuLayoutProperty>(layoutWrapper->GetLayoutProperty());
             auto selectModifiedHeight = menuLayoutProps->GetSelectModifiedHeight().value();
-            if (selectModifiedHeight < maxSpaceHeight) {
+            if (LessNotEqual(selectModifiedHeight, maxSpaceHeight)) {
                 maxSpaceHeight = selectModifiedHeight;
             }
         }
@@ -2438,17 +2441,17 @@ float MenuLayoutAlgorithm::HorizontalLayout(const SizeF& size, float position, b
 {
     float wrapperWidth = wrapperSize_.Width();
     // can fit menu on the right side of position
-    if (rightSpace_ >= size.Width()) {
+    if (GreatOrEqual(rightSpace_, size.Width())) {
         return position + margin_;
     }
 
     // fit menu on the left side
-    if (!isSelectMenu && leftSpace_ >= size.Width()) {
+    if (!isSelectMenu && GreatOrEqual(leftSpace_, size.Width())) {
         return position - size.Width();
     }
 
     // line up right side of menu with right boundary of the screen
-    if (size.Width() < wrapperWidth) {
+    if (LessNotEqual(size.Width(), wrapperWidth)) {
         if (isSelectMenu) {
             return position + margin_;
         }
@@ -2672,11 +2675,9 @@ OffsetF MenuLayoutAlgorithm::GetSelectChildPosition(const SizeF& childSize, bool
         targetOffset_.GetY() + targetSize_.Height() + targetSpace_);
     OffsetF topPosition = OffsetF(targetOffset_.GetX() + (targetSize_.Width() - childSize.Width()) / HALF,
         targetOffset_.GetY() - childSize.Height() - targetSpace_);
-    OffsetF defaultPosition = OffsetF(targetOffset_.GetX() + (targetSize_.Width() - childSize.Width()) / HALF,
-        targetOffset_.GetY() + (targetSize_.Height() - childSize.Height()) / HALF);
 
     OffsetF childPosition;
-    OffsetF position = defaultPosition;
+    OffsetF position;
     std::vector<Placement> currentPlacementStates = SELECT_PLACEMENT_STATES.find(Placement::BOTTOM_LEFT)->second;
     auto it = SELECT_PLACEMENT_STATES.find(placement_);
     if (it != SELECT_PLACEMENT_STATES.end()) {
@@ -2696,36 +2697,7 @@ OffsetF MenuLayoutAlgorithm::GetSelectChildPosition(const SizeF& childSize, bool
     }
     if (placement_ == Placement::NONE) {
         position = GetSelectAdjustPosition(currentPlacementStates, childSize, topPosition, bottomPosition);
-        if (NearEqual(position, OffsetF(0.0f, 0.0f))) {
-            position = HandleNoValidPlacement(topPosition, bottomPosition, layoutWrapper);
-        }
     }
-    return position;
-}
-
-OffsetF MenuLayoutAlgorithm::HandleNoValidPlacement(const OffsetF& topPosition, const OffsetF& bottomPosition,
-    LayoutWrapper* layoutWrapper)
-{
-    auto menuLayoutProperty = AceType::DynamicCast<MenuLayoutProperty>(layoutWrapper->GetLayoutProperty());
-    CHECK_NULL_RETURN(menuLayoutProperty, OffsetF(0.0f, 0.0f));
-
-    auto constraint = menuLayoutProperty->CreateChildConstraint();
-
-    float yAvoid = wrapperRect_.Top() + paddingTop_ + param_.topSecurity;
-    float maxSpaceHeight = wrapperRect_.Height() * HEIGHT_CONSTRAINT_FACTOR;
-    Rect targetRect(targetOffset_.GetX(), targetOffset_.GetY(), targetSize_.Width(), targetSize_.Height());
-    float bottomSpace = std::min<float>(wrapperRect_.Bottom() -
-        targetRect.Bottom() - targetSecurity_ - paddingBottom_, maxSpaceHeight);
-    float topSpace = std::min<float>(targetRect.Top() - yAvoid - targetSecurity_, maxSpaceHeight);
-    OffsetF position;
-    if (topSpace > bottomSpace) {
-        position = topPosition;
-        constraint.maxSize.SetHeight(topSpace);
-    } else {
-        position = bottomPosition;
-        constraint.maxSize.SetHeight(bottomSpace);
-    }
-
     return position;
 }
 
@@ -2818,7 +2790,7 @@ OffsetF MenuLayoutAlgorithm::AdjustPosition(const OffsetF& position, float width
         default:
             break;
     }
-    if (xMax < xMin || yMax < yMin) {
+    if (LessNotEqual(xMax, xMin) || LessNotEqual(yMax, yMin)) {
         return OffsetF(0.0f, 0.0f);
     }
     auto x = std::clamp(position.GetX(), xMin, xMax);

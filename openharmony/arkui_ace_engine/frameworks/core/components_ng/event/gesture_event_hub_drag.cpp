@@ -681,12 +681,12 @@ bool GestureEventHub::ParsePixelMapAsync(DragDropInfo& dragDropInfo, const DragD
                 return true;
             }
         }
-    }
-
-    if (dragDropInfo.pixelMap == nullptr && dragDropInfo.customNode == nullptr && dragPreviewInfo.pixelMap == nullptr &&
-        dragPreviewInfo.customNode == nullptr && pixelMap_ != nullptr && !frameNode->GetDragPreview().onlyForLifting) {
-        dragDropInfo.pixelMap = pixelMap_;
-        return true;
+        if (dragDropInfo.pixelMap == nullptr && dragDropInfo.customNode == nullptr &&
+            dragPreviewInfo.pixelMap == nullptr && dragPreviewInfo.customNode == nullptr && pixelMap_ != nullptr &&
+            !frameNode->GetDragPreview().onlyForLifting) {
+            dragDropInfo.pixelMap = pixelMap_;
+            return true;
+        }
     }
     if (dragPreviewInfo.pixelMap != nullptr) {
         ACE_SCOPED_TRACE("drag: handling with pixelmap directly");
@@ -1853,6 +1853,7 @@ void GestureEventHub::SetDragEvent(
     const RefPtr<DragEvent>& dragEvent, PanDirection direction, int32_t fingers, Dimension distance)
 {
     if (!dragEventActuator_ || dragEventActuator_->GetIsNewFwk()) {
+        isDragNewFwk_ = false;
         dragEventActuator_ = MakeRefPtr<DragEventActuator>(WeakClaim(this), direction, fingers, distance.ConvertToPx());
     }
     dragEventActuator_->ReplaceDragEvent(dragEvent);

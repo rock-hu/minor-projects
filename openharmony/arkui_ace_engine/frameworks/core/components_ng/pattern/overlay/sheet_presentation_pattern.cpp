@@ -515,7 +515,9 @@ void SheetPresentationPattern::InitPanEvent()
     panDirection.type = PanDirection::VERTICAL;
     panEvent_ = MakeRefPtr<PanEvent>(
         std::move(actionStartTask), std::move(actionUpdateTask), std::move(actionEndTask), std::move(actionCancelTask));
-    gestureHub->AddPanEvent(panEvent_, panDirection, 1, DEFAULT_PAN_DISTANCE);
+    PanDistanceMap distanceMap = { { SourceTool::UNKNOWN, DEFAULT_PAN_DISTANCE.ConvertToPx() },
+        { SourceTool::PEN, DEFAULT_PEN_PAN_DISTANCE.ConvertToPx() } };
+    gestureHub->AddPanEvent(panEvent_, panDirection, 1, distanceMap);
 }
 
 void SheetPresentationPattern::InitOnkeyEvent(const RefPtr<FocusHub>& focusHub)
@@ -1688,13 +1690,13 @@ void SheetPresentationPattern::CheckSheetHeightChange()
         wrapperHeight_ = GetWrapperHeight();
         isFirstInit_ = false;
     } else {
-        if (sheetType_ != GetSheetType()) {
+        if (typeChanged_) {
             if (sheetType_ == SheetType::SHEET_POPUP) {
                 MarkSheetPageNeedRender();
             }
             SetSheetBorderWidth();
         }
-        if (SheetHeightNeedChanged() || (sheetType_ != GetSheetType()) || windowChanged_ || topSafeAreaChanged_) {
+        if (SheetHeightNeedChanged() || typeChanged_ || windowChanged_ || topSafeAreaChanged_) {
             sheetHeight_ = sheetGeometryNode->GetFrameSize().Height();
             wrapperHeight_ = GetWrapperHeight();
             const auto& overlayManager = GetOverlayManager();
@@ -1718,6 +1720,7 @@ void SheetPresentationPattern::CheckSheetHeightChange()
             }
             windowChanged_ = false;
             topSafeAreaChanged_ = false;
+            typeChanged_ = false;
         }
     }
     GetBuilderInitHeight();
@@ -1989,8 +1992,15 @@ void SheetPresentationPattern::InitSheetMode()
 
 void SheetPresentationPattern::GetSheetTypeWithAuto(SheetType& sheetType)
 {
-    auto rootHeight = PipelineContext::GetCurrentRootHeight();
-    auto rootWidth = PipelineContext::GetCurrentRootWidth();
+    double rootWidth = 0.0;
+    double rootHeight = 0.0;
+    if (windowSize_.has_value()) {
+        rootWidth = windowSize_.value().Width();
+        rootHeight = windowSize_.value().Height();
+    } else {
+        rootWidth = PipelineContext::GetCurrentRootWidth();
+        rootHeight = PipelineContext::GetCurrentRootHeight();
+    }
     auto pipeline = PipelineContext::GetCurrentContext();
     auto sheetTheme = pipeline->GetTheme<SheetTheme>();
     CHECK_NULL_VOID(sheetTheme);
@@ -3324,6 +3334,7 @@ void SheetPresentationPattern::UpdateSheetWhenSheetTypeChanged()
             MarkSheetPageNeedRender();
         }
         sheetType_ = sheetType;
+        typeChanged_ = true;
         SetSheetBorderWidth();
     }
 }

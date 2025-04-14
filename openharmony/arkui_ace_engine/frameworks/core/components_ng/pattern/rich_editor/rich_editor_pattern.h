@@ -524,7 +524,6 @@ public:
     void ResetBeforePaste();
     void ResetAfterPaste();
 
-    void OnVisibleChange(bool isVisible) override;
     void OnModifyDone() override;
     void BeforeCreateLayoutWrapper() override;
     bool OnDirtyLayoutWrapperSwap(const RefPtr<LayoutWrapper>& dirty, const DirtySwapConfig& config) override;
@@ -562,6 +561,7 @@ public:
     std::u16string DeleteForwardOperation(int32_t length);
     void SetInputMethodStatus(bool keyboardShown) override;
     bool ClickAISpan(const PointF& textOffset, const AISpan& aiSpan) override;
+    void AdjustAIEntityRect(RectF& aiRect) override;
     WindowMode GetWindowMode();
     bool GetIsMidScene();
     void NotifyKeyboardClosedByUser() override
@@ -1339,7 +1339,7 @@ private:
     void HandleTouchDown(const TouchLocationInfo& info);
     void HandleTouchUp();
     void StartFloatingCaretLand();
-    void ResetTouchAndMoveCaretState();
+    void ResetTouchAndMoveCaretState(bool needAnimation = true);
     void ResetTouchSelectState();
     void HandleTouchUpAfterLongPress();
     void HandleTouchCancelAfterLongPress();

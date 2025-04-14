@@ -42,6 +42,7 @@ constexpr uint32_t CRITICAL_TIME = 50;     // ms. If show time of image is less 
 constexpr int64_t MICROSEC_TO_MILLISEC = 1000;
 constexpr int32_t DEFAULT_ITERATIONS = 1;
 constexpr int32_t MEMORY_LEVEL_CRITICAL_STATUS = 2;
+constexpr float DEFAULT_HDR_BRIGHTNESS = 1.0f;
 
 std::string GetImageInterpolation(ImageInterpolation interpolation)
 {
@@ -613,7 +614,11 @@ void ImagePattern::SetImagePaintConfig(const RefPtr<CanvasImage>& canvasImage, c
     config.imageFit_ = layoutProps->GetImageFit().value_or(ImageFit::COVER);
     config.isSvg_ = sourceInfo.IsSvg();
     config.frameCount_ = frameCount;
-    config.orientation_ = joinOrientation_;
+    if (GreatNotEqual(frameCount, 1)) {
+        config.orientation_ = ImageRotateOrientation::UP;
+    } else {
+        config.orientation_ = joinOrientation_;
+    }
     canvasImage->SetPaintConfig(config);
 }
 
@@ -1703,6 +1708,13 @@ void ImagePattern::DumpRenderInfo()
     DumpSmoothEdge(renderProp);
     DumpBorderRadiusProperties(renderProp);
     DumpResizable(renderProp);
+    DumpHdrBrightness(renderProp);
+}
+
+inline void ImagePattern::DumpHdrBrightness(const RefPtr<OHOS::Ace::NG::ImageRenderProperty>& renderProp)
+{
+    auto hdrBrightness = renderProp->GetHdrBrightness().value_or(DEFAULT_HDR_BRIGHTNESS);
+    DumpLog::GetInstance().AddDesc(std::string("hdrBrightness: ").append(std::to_string(hdrBrightness)));
 }
 
 inline void ImagePattern::DumpRenderMode(const RefPtr<OHOS::Ace::NG::ImageRenderProperty>& renderProp)
@@ -2114,9 +2126,6 @@ bool ImagePattern::hasSceneChanged()
     CHECK_NULL_RETURN(imageLayoutProperty, false);
     auto src = imageLayoutProperty->GetImageSourceInfo().value_or(ImageSourceInfo(""));
     UpdateInternalResource(src);
-    if (loadingCtx_ && loadingCtx_->GetSourceInfo() == src && srcRect_ == dstRect_) {
-        return false;
-    }
     return true;
 }
 

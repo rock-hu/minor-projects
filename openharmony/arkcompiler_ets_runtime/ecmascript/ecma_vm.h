@@ -20,15 +20,18 @@
 
 #include "ecmascript/base/config.h"
 #include "ecmascript/builtins/builtins_method_index.h"
+#include "ecmascript/global_handle_collection.h"
 #include "ecmascript/js_handle.h"
 #include "ecmascript/js_runtime_options.h"
 #include "ecmascript/mem/c_containers.h"
 #include "ecmascript/mem/c_string.h"
-#include "ecmascript/mem/gc_stats.h"
 #include "ecmascript/mem/gc_key_stats.h"
+#include "ecmascript/mem/gc_stats.h"
 #include "ecmascript/mem/heap_region_allocator.h"
 #include "ecmascript/napi/include/dfx_jsnapi.h"
 #include "ecmascript/napi/include/jsnapi.h"
+#include "ecmascript/patch/patch_loader.h"
+#include "ecmascript/stackmap/ark_stackmap.h"
 #include "ecmascript/taskpool/taskpool.h"
 #include "ecmascript/waiter_list.h"
 #include "libpandafile/bytecode_instruction-inl.h"
@@ -71,6 +74,15 @@ namespace pgo {
     class PGOProfiler;
 } // namespace pgo
 
+class OptCodeProfiler;
+class TypedOpProfiler;
+class FunctionProtoTransitionTable;
+struct CJSInfo;
+
+namespace kungfu {
+class PGOTypeManager;
+} // namespace kungfu
+
 using PGOProfiler = pgo::PGOProfiler;
 #if !WIN_OR_MAC_OR_IOS_PLATFORM
 class HeapProfilerInterface;
@@ -102,6 +114,8 @@ class Jit;
 class JitThread;
 class SustainingJSHandle;
 class SustainingJSHandleList;
+class AbcBufferCache;
+struct CJSInfo;
 enum class CompareStringsOption : uint8_t;
 
 using NativePtrGetter = void* (*)(void* info);
@@ -1150,8 +1164,80 @@ public:
     {
         return &waiterListNode_;
     }
+
+    AbcBufferCache *GetAbcBufferCache() const
+    {
+        return abcBufferCache_;
+    }
+
     void AddSustainingJSHandle(SustainingJSHandle *sustainingHandle);
     void RemoveSustainingJSHandle(SustainingJSHandle *sustainingHandle);
+
+    kungfu::PGOTypeManager* GetPTManager() const
+    {
+        return ptManager_;
+    }
+
+    OptCodeProfiler* GetOptCodeProfiler() const
+    {
+        return optCodeProfiler_;
+    }
+
+    TypedOpProfiler* GetTypedOpProfiler() const
+    {
+        return typedOpProfiler_;
+    }
+
+    FunctionProtoTransitionTable* GetFunctionProtoTransitionTable() const
+    {
+        return functionProtoTransitionTable_;
+    }
+
+    void PrintOptStat();
+    void DumpAOTInfo() const DUMP_API_ATTR;
+    std::tuple<uint64_t, uint8_t*, int, kungfu::CalleeRegAndOffsetVec> CalCallSiteInfo(uintptr_t retAddr,
+                                                                                       bool isDeopt) const;
+    void LoadStubFile();
+    bool LoadAOTFilesInternal(const std::string& aotFileName);
+    bool LoadAOTFiles(const std::string& aotFileName);
+    void PUBLIC_API LoadProtoTransitionTable(JSTaggedValue constpool);
+    void PUBLIC_API ResetProtoTransitionTableOnConstpool(JSTaggedValue constpool);
+
+    void AddPatchModule(const CString &recordName, const JSHandle<JSTaggedValue> moduleRecord)
+    {
+        cachedPatchModules_.emplace(recordName, moduleRecord);
+    }
+
+    JSHandle<JSTaggedValue> FindPatchModule(const CString &recordName) const
+    {
+        auto iter = cachedPatchModules_.find(recordName);
+        if (iter != cachedPatchModules_.end()) {
+            return iter->second;
+        }
+        return JSHandle<JSTaggedValue>(thread_, JSTaggedValue::Hole());
+    }
+
+    void ClearPatchModules()
+    {
+        GlobalHandleCollection globalHandleCollection(thread_);
+        for (auto &item : cachedPatchModules_) {
+            globalHandleCollection.Dispose(item.second);
+        }
+        cachedPatchModules_.clear();
+    }
+
+    StageOfColdReload GetStageOfColdReload() const
+    {
+        return stageOfColdReload_;
+    }
+
+    void SetStageOfColdReload(StageOfColdReload stageOfColdReload)
+    {
+        stageOfColdReload_ = stageOfColdReload;
+    }
+
+    JSTaggedValue ExecuteAot(size_t actualNumArgs, JSTaggedType *args, const JSTaggedType *prevFp,
+                             bool needPushArgv);
 
 private:
     void ClearBufferData();
@@ -1188,6 +1274,18 @@ private:
     {
         unsharedConstpoolsArrayLen_ = len;
     }
+
+    void CJSExecution(JSHandle<JSFunction> &func, JSHandle<JSTaggedValue> &thisArg,
+                      const JSPandaFile *jsPandaFile, std::string_view entryPoint);
+    JSTaggedValue InvokeEcmaAotEntrypoint(JSHandle<JSFunction> mainFunc, JSHandle<JSTaggedValue> &thisArg,
+                                          const JSPandaFile *jsPandaFile, std::string_view entryPoint,
+                                          CJSInfo *cjsInfo = nullptr);
+    Expected<JSTaggedValue, bool> InvokeEcmaEntrypoint(const JSPandaFile *jsPandaFile, std::string_view entryPoint,
+                                                       const ExecuteTypes &executeType = ExecuteTypes::STATIC);
+    Expected<JSTaggedValue, bool> InvokeEcmaEntrypointForHotReload(
+        const JSPandaFile *jsPandaFile, std::string_view entryPoint, const ExecuteTypes &executeType);
+    Expected<JSTaggedValue, bool> CommonInvokeEcmaEntrypoint(const JSPandaFile *jsPandaFile,
+        std::string_view entryPoint, JSHandle<JSFunction> &func, const ExecuteTypes &executeType);
 
     NO_MOVE_SEMANTIC(EcmaVM);
     NO_COPY_SEMANTIC(EcmaVM);
@@ -1304,6 +1402,7 @@ private:
 
     //AOT File Manager
     AOTFileManager *aotFileManager_ {nullptr};
+    kungfu::PGOTypeManager* ptManager_ {nullptr};
 
     // c++ call js
     size_t callDepth_ {0};
@@ -1372,10 +1471,21 @@ private:
     JSTaggedType *primitiveScopeStorageEnd_ {nullptr};
     std::vector<std::array<JSTaggedType, NODE_BLOCK_SIZE> *> primitiveStorageNodes_ {};
     int32_t currentPrimitiveStorageIndex_ {-1};
+    // for recording the transition of function prototype
+    FunctionProtoTransitionTable* functionProtoTransitionTable_ {nullptr};
+    // opt code Profiler
+    OptCodeProfiler* optCodeProfiler_ {nullptr};
+    // opt code loop hoist
+    TypedOpProfiler* typedOpProfiler_ {nullptr};
     // RegExpParserCache
     RegExpParserCache *regExpParserCache_ {nullptr};
     // WaiterListNode(atomics)
     WaiterListNode waiterListNode_;
+    AbcBufferCache *abcBufferCache_ {nullptr};
+
+    // for HotReload of module.
+    CMap<CString, JSHandle<JSTaggedValue>> cachedPatchModules_;
+    StageOfColdReload stageOfColdReload_ = StageOfColdReload::NOT_COLD_RELOAD;
 };
 }  // namespace ecmascript
 }  // namespace panda

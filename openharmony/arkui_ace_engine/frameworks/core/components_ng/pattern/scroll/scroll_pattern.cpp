@@ -120,6 +120,8 @@ bool ScrollPattern::OnDirtyLayoutWrapperSwap(const RefPtr<LayoutWrapper>& dirty,
     CHECK_NULL_RETURN(eventHub, false);
     PrintOffsetLog(AceLogTag::ACE_SCROLL, host->GetId(), prevOffset_ - currentOffset_);
     FireOnDidScroll(prevOffset_ - currentOffset_);
+    ACE_SCOPED_TRACE("processed offset:%f, id:%d, tag:%s", prevOffset_ - currentOffset_,
+        static_cast<int32_t>(host->GetAccessibilityId()), host->GetTag().c_str());
     auto onReachStart = eventHub->GetOnReachStart();
     auto onJSFrameNodeReachStart = eventHub->GetJSFrameNodeOnReachStart();
     FireOnReachStart(onReachStart, onJSFrameNodeReachStart);
@@ -600,7 +602,7 @@ void ScrollPattern::StartVibrateFeedback()
 bool ScrollPattern::UpdateCurrentOffset(float delta, int32_t source)
 {
 #ifdef SUPPORT_DIGITAL_CROWN
-    if (source == SCROLL_FROM_CROWN) {
+    if (source == SCROLL_FROM_CROWN && !ReachStart(true) && !ReachEnd(true)) {
         StartVibrateFeedback();
     }
 #endif
@@ -1532,5 +1534,13 @@ SizeF ScrollPattern::GetChildrenExpandedSize()
         return SizeF(viewPortExtent_.Width(), viewPort_.Height());
     }
     return SizeF();
+}
+
+void ScrollPattern::TriggerScrollBarDisplay()
+{
+    auto scrollBar = GetScrollBar();
+    CHECK_NULL_VOID(scrollBar);
+    scrollBar->PlayScrollBarAppearAnimation();
+    scrollBar->ScheduleDisappearDelayTask();
 }
 } // namespace OHOS::Ace::NG

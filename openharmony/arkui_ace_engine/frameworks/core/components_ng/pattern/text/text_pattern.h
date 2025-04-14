@@ -109,9 +109,11 @@ public:
         auto textLayoutProperty = GetLayoutProperty<TextLayoutProperty>();
         if (textLayoutProperty &&
             textLayoutProperty->GetTextOverflowValue(TextOverflow::CLIP) == TextOverflow::MARQUEE) {
-            return MakeRefPtr<TextLayoutAlgorithm>(spans_, pManager_, isSpanStringMode_, true);
+            return MakeRefPtr<TextLayoutAlgorithm>(
+                spans_, pManager_, isSpanStringMode_, textStyle_.value_or(TextStyle()), true);
         } else {
-            return MakeRefPtr<TextLayoutAlgorithm>(spans_, pManager_, isSpanStringMode_);
+            return MakeRefPtr<TextLayoutAlgorithm>(
+                spans_, pManager_, isSpanStringMode_, textStyle_.value_or(TextStyle()));
         }
     }
 
@@ -830,6 +832,7 @@ protected:
     bool TryLinkJump(const RefPtr<SpanItem>& span);
     void ActTextOnClick(GestureEvent& info);
     RectF CalcAIMenuPosition(const AISpan& aiSpan, const CalculateHandleFunc& calculateHandleFunc);
+    virtual void AdjustAIEntityRect(RectF& aiRect) {}
     bool ShowAIEntityMenu(const AISpan& aiSpan, const CalculateHandleFunc& calculateHandleFunc = nullptr,
         const ShowSelectOverlayFunc& showSelectOverlayFunc = nullptr);
     void SetOnClickMenu(const AISpan& aiSpan, const CalculateHandleFunc& calculateHandleFunc,

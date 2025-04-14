@@ -2503,7 +2503,7 @@ void RuntimeStubs::RuntimeSetPatchModule(JSThread *thread, const JSHandle<JSFunc
 {
     JSHandle<Method> methodHandle(thread, Method::Cast(func->GetMethod()));
     const JSHandle<JSTaggedValue> coldReloadRecordName =
-            thread->GetCurrentEcmaContext()->FindPatchModule(MethodLiteral::GetRecordName(
+            thread->GetEcmaVM()->FindPatchModule(MethodLiteral::GetRecordName(
                 methodHandle->GetJSPandaFile(), methodHandle->GetMethodId()));
     if (!coldReloadRecordName->IsHole()) {
         func->SetModule(thread, coldReloadRecordName.GetTaggedValue());
@@ -2973,7 +2973,7 @@ JSTaggedValue RuntimeStubs::GetResultValue(JSThread *thread, bool isAotMethod, J
             }
             resultValue = thread->GetEcmaVM()->FastCallAot(size, values.data(), prevFp);
         } else {
-            resultValue = thread->GetCurrentEcmaContext()->ExecuteAot(size, values.data(), prevFp, needPushArgv);
+            resultValue = thread->GetEcmaVM()->ExecuteAot(size, values.data(), prevFp, needPushArgv);
         }
     } else {
         EcmaRuntimeCallInfo *info =

@@ -3025,6 +3025,7 @@ void TextFieldPattern::HandleTripleClickEvent(GestureEvent& info)
     }
     if (CanChangeSelectState()) {
         selectController_->UpdateSelectPragraphByOffset(info.GetLocalLocation());
+        UpdateCaretInfoToController();
     }
     if (IsSelected()) {
         StopTwinkling();
@@ -4042,7 +4043,9 @@ void TextFieldPattern::InitPanEvent()
             std::move(actionEndTask), std::move(actionCancelTask));
     }
     PanDirection panDirection = { .type = PanDirection::ALL };
-    gestureHub->AddPanEvent(boxSelectPanEvent_, panDirection, 1, DEFAULT_PAN_DISTANCE);
+    PanDistanceMap distanceMap = { { SourceTool::UNKNOWN, DEFAULT_PAN_DISTANCE.ConvertToPx() },
+        { SourceTool::PEN, DEFAULT_PEN_PAN_DISTANCE.ConvertToPx() } };
+    gestureHub->AddPanEvent(boxSelectPanEvent_, panDirection, 1, distanceMap);
     gestureHub->SetPanEventType(GestureTypeName::TEXTFIELD_BOXSELECT);
     gestureHub->SetOnGestureJudgeNativeBegin([weak = WeakClaim(this)](const RefPtr<NG::GestureInfo>& gestureInfo,
                                                  const std::shared_ptr<BaseGestureEvent>& info) -> GestureJudgeResult {
@@ -4974,6 +4977,7 @@ void TextFieldPattern::ExecuteInsertValueCommand(const InsertCommandInfo& info)
     auto isIME = (info.reason == InputReason::IME);
     auto layoutProperty = GetLayoutProperty<TextFieldLayoutProperty>();
     CHECK_NULL_VOID(layoutProperty);
+    TwinklingByFocus();
     auto start = selectController_->GetStartIndex();
     auto end = selectController_->GetEndIndex();
     auto caretStart = IsSelected() ? start : selectController_->GetCaretIndex();
@@ -5026,7 +5030,6 @@ void TextFieldPattern::ExecuteInsertValueCommand(const InsertCommandInfo& info)
     if (isIME) {
         AfterIMEInsertValue(contentController_->GetInsertValue());
     }
-    TwinklingByFocus();
 }
 
 void TextFieldPattern::TwinklingByFocus()
@@ -9209,15 +9212,7 @@ void TextFieldPattern::SetPreviewTextOperation(PreviewTextInfo info)
     auto layoutProperty = host->GetLayoutProperty<TextFieldLayoutProperty>();
     CHECK_NULL_VOID(layoutProperty);
     if (!hasPreviewText_) {
-        auto fullStr = GetTextUtf16Value();
-        if (host->GreatOrEqualAPITargetVersion(PlatformVersion::VERSION_TWENTY) && IsSelected()) {
-            uint32_t startIndex = static_cast<uint32_t>(selectController_->GetStartIndex());
-            uint32_t endIndex = static_cast<uint32_t>(selectController_->GetEndIndex());
-            if (startIndex < fullStr.length() && endIndex <= fullStr.length()) {
-                fullStr.erase(startIndex, endIndex - startIndex);
-            }
-        }
-        bodyTextInPreivewing_ = fullStr;
+        bodyTextInPreivewing_ = GetTextUtf16Value();
     }
     auto rangeStart = info.range.start;
     auto rangeEnd = info.range.end;
@@ -9663,22 +9658,25 @@ void TextFieldPattern::OnTextGestureSelectionEnd(const TouchLocationInfo& locati
     if (IsContentRectNonPositive()) {
         return;
     }
-    if (!isScrolling) {
-        auto localLocation = locationInfo.GetLocalLocation();
-        if (LessNotEqual(localLocation.GetX(), contentRect_.Left()) ||
-            LessNotEqual(localLocation.GetY(), contentRect_.Top())) {
-            selectController_->MoveFirstHandleToContentRect(selectController_->GetFirstHandleIndex(), false);
-        } else if (GreatNotEqual(localLocation.GetX(), contentRect_.Right()) ||
-                   GreatNotEqual(localLocation.GetY(), contentRect_.Bottom())) {
-            selectController_->MoveSecondHandleToContentRect(selectController_->GetSecondHandleIndex(), false);
+    do {
+        if (!isScrolling) {
+            auto localLocation = locationInfo.GetLocalLocation();
+            if (LessNotEqual(localLocation.GetX(), contentRect_.Left()) ||
+                LessNotEqual(localLocation.GetY(), contentRect_.Top())) {
+                selectController_->MoveFirstHandleToContentRect(selectController_->GetFirstHandleIndex(), false);
+                break;
+            } else if (GreatNotEqual(localLocation.GetX(), contentRect_.Right()) ||
+                       GreatNotEqual(localLocation.GetY(), contentRect_.Bottom())) {
+                selectController_->MoveSecondHandleToContentRect(selectController_->GetSecondHandleIndex(), false);
+                break;
+            }
         }
-    } else {
         if (Positive(contentScroller_.stepOffset)) {
             selectController_->MoveFirstHandleToContentRect(selectController_->GetFirstHandleIndex(), false);
         } else if (Negative(contentScroller_.stepOffset)) {
             selectController_->MoveSecondHandleToContentRect(selectController_->GetSecondHandleIndex(), false);
         }
-    }
+    } while (false);
     if (HasFocus()) {
         ProcessOverlay({ .animation = true });
     }
@@ -9776,8 +9774,6 @@ bool TextFieldPattern::IsShowAIWrite()
         TAG_LOGW(AceLogTag::ACE_TEXT_FIELD, "Failed to obtain AI write package name!");
         return false;
     }
-    aiWriteAdapter_->SetBundleName(bundleName);
-    aiWriteAdapter_->SetAbilityName(abilityName);
 
     auto isAISupport = false;
     if (textFieldTheme->GetAIWriteIsSupport() == "true") {
@@ -9785,18 +9781,30 @@ bool TextFieldPattern::IsShowAIWrite()
     }
     TAG_LOGI(AceLogTag::ACE_TEXT_FIELD, "Whether the device supports AI write: %{public}d, nodeId: %{public}d",
         isAISupport, host->GetId());
+    if (isAISupport) {
+        auto pipeline = host->GetContext();
+        CHECK_NULL_RETURN(pipeline, false);
+        aiWriteAdapter_ = pipeline->GetOrCreateAIWriteAdapter(); // initialize TextFieldPattern's aiWriteAdapter_ here.
+        auto aiWriteAdapter = aiWriteAdapter_.Upgrade();
+        CHECK_NULL_RETURN(aiWriteAdapter, false);
+        aiWriteAdapter->SetBundleName(bundleName);
+        aiWriteAdapter->SetAbilityName(abilityName);
+    }
+
     return isAISupport;
 }
 
 void TextFieldPattern::GetAIWriteInfo(AIWriteInfo& info)
 {
+    auto aiWriteAdapter = aiWriteAdapter_.Upgrade();
+    CHECK_NULL_VOID(aiWriteAdapter);
     // serialize the selected text
     info.selectStart = selectController_->GetStartIndex();
     info.selectEnd = selectController_->GetEndIndex();
     auto selectContent = contentController_->GetSelectedValue(info.selectStart, info.selectEnd);
     RefPtr<SpanString> spanString = AceType::MakeRefPtr<SpanString>(selectContent);
     spanString->EncodeTlv(info.selectBuffer);
-    info.selectLength = static_cast<int32_t>(aiWriteAdapter_->GetSelectLengthOnlyText(spanString->GetU16string()));
+    info.selectLength = static_cast<int32_t>(aiWriteAdapter->GetSelectLengthOnlyText(spanString->GetU16string()));
     TAG_LOGD(AceLogTag::ACE_TEXT_FIELD, "Selected range=[%{public}d--%{public}d], content size=%{public}zu",
         info.selectStart, info.selectEnd, spanString->GetString().size());
 
@@ -9806,13 +9814,13 @@ void TextFieldPattern::GetAIWriteInfo(AIWriteInfo& info)
     auto sentenceStart = 0;
     auto sentenceEnd = textSize;
     for (int32_t i = info.selectStart; i >= 0; --i) {
-        if (aiWriteAdapter_->IsSentenceBoundary(contentAll[i])) {
+        if (aiWriteAdapter->IsSentenceBoundary(contentAll[i])) {
             sentenceStart = i + 1;
             break;
         }
     }
     for (int32_t i = info.selectEnd; i < textSize; i++) {
-        if (aiWriteAdapter_->IsSentenceBoundary(contentAll[i])) {
+        if (aiWriteAdapter->IsSentenceBoundary(contentAll[i])) {
             sentenceEnd = i;
             break;
         }
@@ -9837,6 +9845,8 @@ void TextFieldPattern::GetAIWriteInfo(AIWriteInfo& info)
 
 void TextFieldPattern::HandleOnAIWrite()
 {
+    auto aiWriteAdapter = aiWriteAdapter_.Upgrade();
+    CHECK_NULL_VOID(aiWriteAdapter);
     AIWriteInfo info;
     GetAIWriteInfo(info);
     CloseSelectOverlay();
@@ -9846,14 +9856,15 @@ void TextFieldPattern::HandleOnAIWrite()
         auto pattern = weak.Upgrade();
         CHECK_NULL_VOID(pattern);
         pattern->HandleAIWriteResult(info.selectStart, info.selectEnd, buffer);
-        auto aiWriteAdapter = pattern->aiWriteAdapter_;
+        auto weakAiWriteAdapter = pattern->aiWriteAdapter_;
+        auto aiWriteAdapter = weakAiWriteAdapter.Upgrade();
         CHECK_NULL_VOID(aiWriteAdapter);
         aiWriteAdapter->CloseModalUIExtension();
     };
     auto pipeline = PipelineContext::GetCurrentContextSafelyWithCheck();
     CHECK_NULL_VOID(pipeline);
-    aiWriteAdapter_->SetPipelineContext(pipeline);
-    aiWriteAdapter_->ShowModalUIExtension(info, callback);
+    aiWriteAdapter->SetPipelineContext(pipeline);
+    aiWriteAdapter->ShowModalUIExtension(info, callback);
 }
 
 void TextFieldPattern::HandleAIWriteResult(int32_t start, int32_t end, std::vector<uint8_t>& buffer)

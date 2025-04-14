@@ -18,6 +18,8 @@
 #include "ecmascript/dfx/hprof/heap_snapshot.h"
 #include "ecmascript/dfx/hprof/heap_profiler.h"
 #include "ecmascript/dfx/hprof/heap_root_visitor.h"
+#include "ecmascript/dfx/hprof/rawheap_translate/rawheap_translate.h"
+#include "ecmascript/dfx/hprof/heap_marker.h"
 #include "ecmascript/global_env.h"
 #include "ecmascript/jspandafile/js_pandafile_manager.h"
 #include "ecmascript/js_api/js_api_arraylist.h"
@@ -127,6 +129,25 @@ public:
         outputString.clear();
         auto ret = heapProfile->GenerateHeapSnapshot(inputPath, outputPath);
         return ret;
+    }
+
+    bool DecodeRawHeapObjectTable(std::string &filePath, CSet<JSTaggedType> &result)
+    {
+        uint64_t fileSize = rawheap_translate::GetFileSize(filePath);
+        std::ifstream file(filePath, std::ios::binary);
+        rawheap_translate::RawHeapTranslate translator;
+
+        std::vector<uint32_t> sections;
+        if (!translator.ReadSectionInfo(file, fileSize, sections) ||
+            !translator.ReadObjTableBySection(file, sections)) {
+            return false;
+        }
+
+        for (auto &it : translator.nodesMap_) {
+            result.insert(it.first);
+        }
+        GTEST_LOG_(INFO) << "DecodeRawHeapObjectTable count " << translator.nodesMap_.size();
+        return true;
     }
 
     bool MatchHeapDumpString(const std::string &filePath, std::string targetStr)
@@ -721,7 +742,7 @@ HWTEST_F_L0(HeapDumpTest, TestHeapDumpFunctionUrl)
     ASSERT_TRUE(funcTempMatched);
 }
 
-HWTEST_F_L0(HeapDumpTest, DISABLED_TestAllocationMassiveMoveNode)
+HWTEST_F_L0(HeapDumpTest, TestAllocationMassiveMoveNode)
 {
     const std::string abcFileName = HPROF_TEST_ABC_FILES_DIR"allocation.abc";
     HeapProfilerInterface *heapProfile = HeapProfilerInterface::GetInstance(ecmaVm_);
@@ -1120,42 +1141,33 @@ HWTEST_F_L0(HeapDumpTest, TestHeapDumpBinaryDump)
 {
     ObjectFactory *factory = ecmaVm_->GetFactory();
     HeapDumpTestHelper tester(ecmaVm_);
-    // PROMISE_ITERATOR_RECORD
-    tester.NewPromiseIteratorRecord();
-    // PROMISE_RECORD
-    factory->NewPromiseRecord();
-    // JS_ARRAY_BUFFER
-    factory->NewJSArrayBuffer(10);
-    // JS_SHARED_ARRAY_BUFFER
-    factory->NewJSSharedArrayBuffer(10);
-    // PROMISE_REACTIONS
-    factory->NewPromiseReaction();
-    // PROMISE_CAPABILITY
-    factory->NewPromiseCapability();
-    // RESOLVING_FUNCTIONS_RECORD
-    factory->NewResolvingFunctionsRecord();
-    // JS_PROMISE
-    JSHandle<JSTaggedValue> proto = ecmaVm_->GetGlobalEnv()->GetFunctionPrototype();
-    tester.NewObject(JSPromise::SIZE, JSType::JS_PROMISE, proto);
-    // ASYNC_GENERATOR_REQUEST
-    factory->NewAsyncGeneratorRequest();
-    // JS_WEAK_SET
-    tester.NewJSWeakSet();
-    // JS_WEAK_MAP
-    tester.NewJSWeakMap();
+    auto obj1 = tester.NewPromiseIteratorRecord();          // PROMISE_ITERATOR_RECORD
+    auto obj2 = factory->NewPromiseRecord();                // PROMISE_RECORD
+    auto obj3 = factory->NewJSArrayBuffer(10);              // JS_ARRAY_BUFFER
+    auto obj4 = factory->NewJSSharedArrayBuffer(10);        // JS_SHARED_ARRAY_BUFFER
+    auto obj5 = factory->NewPromiseReaction();              // PROMISE_REACTIONS
+    auto obj6 = factory->NewPromiseCapability();            // PROMISE_CAPABILITY
+    auto obj7 = factory->NewResolvingFunctionsRecord();     // RESOLVING_FUNCTIONS_RECORD
+    auto obj8 = factory->NewAsyncGeneratorRequest();        // ASYNC_GENERATOR_REQUEST
+    auto obj9 = tester.NewJSWeakSet();                      // JS_WEAK_SET
+    auto obj10 = tester.NewJSWeakMap();                     // JS_WEAK_MAP
+
     std::string rawHeapPath("test_binary_dump.raw");
-    bool ret = tester.GenerateRawHeapSnashot(rawHeapPath);
-    ASSERT_TRUE(ret);
-    std::ifstream file(rawHeapPath, std::ios::binary);
-    std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-    ASSERT_TRUE(content.size() > 0);
-    auto u64Ptr = reinterpret_cast<const uint64_t *>(content.c_str());
-    ASSERT_TRUE(u64Ptr[1] > 0);
-    std::string snapshotPath("test_binary_dump.heapsnapshot");
-    tester.DecodeRawHeapSnashot(rawHeapPath, snapshotPath);
-    ASSERT_TRUE(tester.MatchHeapDumpString(snapshotPath, "\"SharedArrayBuffer\""));
-    ASSERT_TRUE(tester.MatchHeapDumpString(snapshotPath, "\"WeakSet\""));
-    ASSERT_TRUE(tester.MatchHeapDumpString(snapshotPath, "\"WeakMap\""));
+    ASSERT_TRUE(tester.GenerateRawHeapSnashot(rawHeapPath));
+
+    CSet<JSTaggedType> dumpObjects;
+    ASSERT_TRUE(tester.DecodeRawHeapObjectTable(rawHeapPath, dumpObjects));
+
+    ASSERT_TRUE(dumpObjects.find(obj1.GetTaggedType()) != dumpObjects.end());
+    ASSERT_TRUE(dumpObjects.find(obj2.GetTaggedType()) != dumpObjects.end());
+    ASSERT_TRUE(dumpObjects.find(obj3.GetTaggedType()) != dumpObjects.end());
+    ASSERT_TRUE(dumpObjects.find(obj4.GetTaggedType()) != dumpObjects.end());
+    ASSERT_TRUE(dumpObjects.find(obj5.GetTaggedType()) != dumpObjects.end());
+    ASSERT_TRUE(dumpObjects.find(obj6.GetTaggedType()) != dumpObjects.end());
+    ASSERT_TRUE(dumpObjects.find(obj7.GetTaggedType()) != dumpObjects.end());
+    ASSERT_TRUE(dumpObjects.find(obj8.GetTaggedType()) != dumpObjects.end());
+    ASSERT_TRUE(dumpObjects.find(obj9.GetTaggedType()) != dumpObjects.end());
+    ASSERT_TRUE(dumpObjects.find(obj10.GetTaggedType()) != dumpObjects.end());
 }
 
 #ifdef PANDA_TARGET_ARM32
@@ -1253,5 +1265,78 @@ HWTEST_F_L0(HeapDumpTest, TestSharedFullGCInHeapDump)
     ASSERT_TRUE(tester.MatchHeapDumpString("testGenerateNodeName_4.heapsnapshot", "\"WeakMap\""));
     ASSERT_TRUE(tester.MatchHeapDumpString("testGenerateNodeName_4.heapsnapshot", "\"JSArray\""));
     ASSERT_TRUE(tester.MatchHeapDumpString("testGenerateNodeName_4.heapsnapshot", "\"Typed Array\""));
+}
+
+HWTEST_F_L0(HeapDumpTest, TestMarkObjects)
+{
+    HeapDumpTestHelper tester(ecmaVm_);
+    JSHandle<JSMap> jsMap = tester.NewJSMap();
+    JSHandle<JSSet> jsSet = tester.NewJSSet();
+    JSHandle<JSAPIArrayList> jsAPIArrayList = tester.NewJSAPIArrayList();
+    [[maybe_unused]] JSHandle<JSAPIDeque> jsAPIDeque = tester.NewJSAPIDeque();
+    [[maybe_unused]] JSHandle<JSSharedMap> jsSharedMap = tester.NewJSSharedMap();
+    [[maybe_unused]] JSHandle<JSWeakMap> jsWeakMap = tester.NewJSWeakMap();
+
+    HeapMarker marker {};
+    marker.Mark(jsMap.GetTaggedType());
+    marker.Mark(jsSet.GetTaggedType());
+    marker.Mark(jsAPIArrayList.GetTaggedType());
+
+    ASSERT_TRUE(marker.IsMarked(jsMap.GetTaggedType()));
+    ASSERT_FALSE(marker.IsMarked(jsSharedMap.GetTaggedType()));
+}
+
+HWTEST_F_L0(HeapDumpTest, TestIterateMarkedObjects)
+{
+    HeapDumpTestHelper tester(ecmaVm_);
+    JSHandle<JSMap> jsMap = tester.NewJSMap();
+    JSHandle<JSSet> jsSet = tester.NewJSSet();
+    JSHandle<JSAPIArrayList> jsAPIArrayList = tester.NewJSAPIArrayList();
+    [[maybe_unused]] JSHandle<JSAPIDeque> jsAPIDeque = tester.NewJSAPIDeque();
+    [[maybe_unused]] JSHandle<JSSharedMap> jsSharedMap = tester.NewJSSharedMap();
+    [[maybe_unused]] JSHandle<JSWeakMap> jsWeakMap = tester.NewJSWeakMap();
+
+    HeapMarker marker {};
+    marker.Mark(jsMap.GetTaggedType());
+    marker.Mark(jsSet.GetTaggedType());
+    marker.Mark(jsAPIArrayList.GetTaggedType());
+
+    std::unordered_set<uintptr_t> markedObjects;
+    markedObjects.emplace(jsMap.GetTaggedType());
+    markedObjects.emplace(jsSet.GetTaggedType());
+    markedObjects.emplace(jsAPIArrayList.GetTaggedType());
+    std::function<void(JSTaggedType addr)> callback = [markedObjects](JSTaggedType addr) {
+        ASSERT_TRUE(markedObjects.find(addr) != markedObjects.end());
+    };
+    marker.IterateMarked(callback);
+}
+
+HWTEST_F_L0(HeapDumpTest, TestRemoveUnmarkedObjects)
+{
+    HeapDumpTestHelper tester(ecmaVm_);
+    JSHandle<JSMap> jsMap = tester.NewJSMap();
+    JSHandle<JSSet> jsSet = tester.NewJSSet();
+    JSHandle<JSAPIArrayList> jsAPIArrayList = tester.NewJSAPIArrayList();
+    JSHandle<JSAPIDeque> jsAPIDeque = tester.NewJSAPIDeque();
+    JSHandle<JSSharedMap> jsSharedMap = tester.NewJSSharedMap();
+    JSHandle<JSWeakMap> jsWeakMap = tester.NewJSWeakMap();
+
+    EntryIdMap entryIdMap {};
+    entryIdMap.InsertId(jsMap.GetTaggedType(), entryIdMap.GetNextId());
+    entryIdMap.InsertId(jsSet.GetTaggedType(), entryIdMap.GetNextId());
+    entryIdMap.InsertId(jsAPIArrayList.GetTaggedType(), entryIdMap.GetNextId());
+    entryIdMap.InsertId(jsAPIDeque.GetTaggedType(), entryIdMap.GetNextId());
+    entryIdMap.InsertId(jsSharedMap.GetTaggedType(), entryIdMap.GetNextId());
+    entryIdMap.InsertId(jsWeakMap.GetTaggedType(), entryIdMap.GetNextId());
+    ASSERT_EQ(entryIdMap.GetIdMap()->size(), 6);
+
+    HeapMarker marker {};
+    marker.Mark(jsMap.GetTaggedType());
+    marker.Mark(jsSet.GetTaggedType());
+    marker.Mark(jsAPIArrayList.GetTaggedType());
+    marker.Mark(jsAPIDeque.GetTaggedType());
+
+    entryIdMap.RemoveUnmarkedObjects(marker);
+    ASSERT_EQ(entryIdMap.GetIdMap()->size(), 4);
 }
 }
