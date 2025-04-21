@@ -36,9 +36,11 @@
 #include "adapter/ohos/osal/view_data_wrap_ohos.h"
 #include "adapter/ohos/osal/window_utils.h"
 #include "base/i18n/localization.h"
+#include "base/log/event_report.h"
 #include "base/log/jank_frame_report.h"
 #include "base/thread/background_task_executor.h"
 #include "base/thread/task_dependency_manager.h"
+#include "base/subwindow/subwindow_manager.h"
 #include "bridge/card_frontend/card_frontend.h"
 #include "bridge/card_frontend/form_frontend_declarative.h"
 #include "bridge/common/utils/engine_helper.h"
@@ -228,7 +230,7 @@ void LoadSystemThemeFromJson(const RefPtr<AssetManager>& assetManager, const Ref
             std::string systemThemeValue = themeRootJson->GetString("systemTheme", ""); // e.g. $theme:125829872
             if (!systemThemeValue.empty() && StringUtils::StartWith(systemThemeValue, themePrefix) &&
                 systemThemeValue.size() > sizeof(themePrefix) - 1) {
-                auto systemThemeId = std::stoi(systemThemeValue.substr(sizeof(themePrefix) - 1));
+                auto systemThemeId = StringUtils::StringToInt(systemThemeValue.substr(sizeof(themePrefix) - 1));
                 auto themeManager = pipelineContext->GetThemeManager();
                 CHECK_NULL_VOID(themeManager);
                 themeManager->SetSystemThemeId(systemThemeId);
@@ -1307,12 +1309,13 @@ void AceContainer::InitializeCallback()
         ACE_SCOPED_TRACE("DensityChangeCallback(%lf)", density);
         auto callback = [context, density, id]() {
             context->OnSurfaceDensityChanged(density);
-            if (context->IsDensityChanged()) {
+            if (context->IsNeedReloadDensity()) {
                 auto container = Container::GetContainer(id);
                 CHECK_NULL_VOID(container);
                 auto aceContainer = DynamicCast<AceContainer>(container);
                 CHECK_NULL_VOID(aceContainer);
                 aceContainer->NotifyDensityUpdate(density);
+                context->SetIsNeedReloadDensity(false);
             }
         };
         auto taskExecutor = context->GetTaskExecutor();

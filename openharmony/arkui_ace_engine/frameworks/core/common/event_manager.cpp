@@ -832,7 +832,16 @@ void EventManager::LogTouchTestRecognizerStates(int32_t touchEventId)
         }
         std::string gestureLog = "{";
         gestureLog += "types: " + gestureSnapshot->type.substr(0, gestureSnapshot->type.find("Recognizer"));
-        gestureLog += ", node: " + hitFrameNode[gestureSnapshot->nodeId];
+        gestureLog += ", tag: " + hitFrameNode[gestureSnapshot->nodeId];
+#ifndef IS_RELEASE_VERSION
+        auto frameNode =
+            NG::FrameNode::GetFrameNodeOnly(hitFrameNode[gestureSnapshot->nodeId], gestureSnapshot->nodeId);
+        if (!frameNode) {
+            LOGI("frameNodeId:%{public}d not found", gestureSnapshot->nodeId);
+        } else {
+            gestureLog += ", inspectorId: " + frameNode->GetInspectorId().value_or("");
+        }
+#endif
 
         auto stateHistorys = gestureSnapshot->stateHistory;
         for (auto stateHistory : stateHistorys) {
@@ -1557,6 +1566,9 @@ bool EventManager::DispatchMouseHoverEventNG(const MouseEvent& event)
         }
         if (std::find(currHoverTestResults_.begin(), currHoverTestResults_.end(), hoverResult) ==
             currHoverTestResults_.end()) {
+            if (!hoverResult->GetLastHoverState().has_value()) {
+                TAG_LOGI(AceLogTag::ACE_MOUSE, "onHover-false trigger abnormal firstly");
+            }
             hoverResult->HandleHoverEvent(false, event);
         }
         if ((iterCountLast >= lastHoverDispatchLength_) && (lastHoverDispatchLength_ != 0)) {
@@ -1586,6 +1598,9 @@ bool EventManager::DispatchMouseHoverEventNG(const MouseEvent& event)
     for (auto hoverResultIt = lastHoverTestResults_.begin(); hoverResultIt != lastHoverEndNode; ++hoverResultIt) {
         // there may have previous hover nodes in the invalid part of current hover nodes. Those nodes exit hover also
         if (std::find(currHoverEndNode, currHoverTestResults_.end(), *hoverResultIt) != currHoverTestResults_.end()) {
+            if (!(*hoverResultIt)->GetLastHoverState().has_value()) {
+                TAG_LOGI(AceLogTag::ACE_MOUSE, "onHover-false trigger abnormal secondly");
+            }
             (*hoverResultIt)->HandleHoverEvent(false, event);
         }
     }

@@ -376,6 +376,14 @@ public:
     }
 
     template<typename T>
+    RefPtr<T> GetOrCreateEventHub()
+    {
+        CreateEventHubInner();
+        CHECK_NULL_RETURN(eventHub_, nullptr);
+        return DynamicCast<T>(eventHub_);
+    }
+
+    template<typename T>
     RefPtr<T> GetEventHubOnly()
     {
         return DynamicCast<T>(eventHub_);
@@ -1517,6 +1525,7 @@ private:
         TouchRestrict& touchRestrict, TouchTestResult& result, ResponseLinkResult& responseLinkResult, bool isDispatch);
 
     void ResetPredictNodes();
+    void HandleAreaChangeDestruct();
 
     const char* GetPatternTypeName() const;
     const char* GetLayoutPropertyTypeName() const;

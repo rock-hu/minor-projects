@@ -1036,6 +1036,16 @@ public:
         return isDensityChanged_;
     }
 
+    bool IsNeedReloadDensity() const override
+    {
+        return isNeedReloadDensity_;
+    }
+
+    void SetIsNeedReloadDensity(bool isNeedReloadDensity) override
+    {
+        isNeedReloadDensity_ = isNeedReloadDensity;
+    }
+
     void GetInspectorTree(bool onlyNeedVisible);
     void NotifyAllWebPattern(bool isRegister);
     void AddFrameNodeChangeListener(const WeakPtr<FrameNode>& node);
@@ -1085,6 +1095,7 @@ public:
 
     void SyncSafeArea(SafeAreaSyncType syncType = SafeAreaSyncType::SYNC_TYPE_NONE);
     bool CheckThreadSafe();
+    void UpdateOcclusionCullingStatus(bool enable, const RefPtr<FrameNode>& keyOcclusionNode);
 
     bool IsHoverModeChange() const
     {
@@ -1189,7 +1200,7 @@ public:
 
     void UnregisterRotationEndCallback(int32_t callbackId)
     {
-        surfaceChangedCallbackMap_.erase(callbackId);
+        rotationEndCallbackMap_.erase(callbackId);
     }
 
 protected:
@@ -1427,6 +1438,7 @@ private:
     bool canUseLongPredictTask_ = false;
     bool isWindowSceneConsumed_ = false;
     bool isDensityChanged_ = false;
+    bool isNeedReloadDensity_ = false;
     bool isBeforeDragHandleAxis_ = false;
     WeakPtr<FrameNode> activeNode_;
     bool isWindowAnimation_ = false;

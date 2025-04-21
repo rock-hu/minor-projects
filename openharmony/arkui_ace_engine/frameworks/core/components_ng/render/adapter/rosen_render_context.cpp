@@ -347,8 +347,8 @@ void RosenRenderContext::OnNodeDisappear(bool recursive)
     }
     CHECK_NULL_VOID(rsNode_);
     auto host = GetHost();
-    if (!recursive && host && host->GetEventHub<EventHub>()) {
-        host->GetEventHub<EventHub>()->SetEnabledInternal(false);
+    if (!recursive && host && host->GetOrCreateEventHub<EventHub>()) {
+        host->GetOrCreateEventHub<EventHub>()->SetEnabledInternal(false);
     }
     auto rect = GetPaintRectWithoutTransform();
     // only start default transition on the break point of render node tree.
@@ -3499,7 +3499,7 @@ void RosenRenderContext::OnePixelRounding(uint16_t flag)
         nodeWidthI -= 1.0f;
         roundToPixelErrorX -= 1.0f;
     }
-    if (roundToPixelErrorX < -0.5f) {
+    if (roundToPixelErrorX < -0.5f && !floorLeft && !floorRight) {
         nodeWidthI += 1.0f;
         roundToPixelErrorX += 1.0f;
     }
@@ -3515,7 +3515,7 @@ void RosenRenderContext::OnePixelRounding(uint16_t flag)
         nodeHeightI -= 1.0f;
         roundToPixelErrorY -= 1.0f;
     }
-    if (roundToPixelErrorY < -0.5f) {
+    if (roundToPixelErrorY < -0.5f && !floorTop && !floorBottom) {
         nodeHeightI += 1.0f;
         roundToPixelErrorY += 1.0f;
     }
@@ -4071,6 +4071,21 @@ std::shared_ptr<Rosen::RSNode> RosenRenderContext::GetRsNodeByFrame(const RefPtr
     return rsnode;
 }
 
+bool RosenRenderContext::CanNodeBeDeleted(const RefPtr<FrameNode>& node) const
+{
+    CHECK_NULL_RETURN(node, false);
+    auto rsNode = GetRsNodeByFrame(node);
+    CHECK_NULL_RETURN(rsNode, false);
+    std::list <RefPtr<FrameNode>> childChildrenList;
+    node->GenerateOneDepthVisibleFrameWithTransition(childChildrenList);
+    if (rsNode->GetIsDrawn() || rsNode->GetType() != Rosen::RSUINodeType::CANVAS_NODE
+        || childChildrenList.empty() || node->GetTag() == V2::PAGE_ETS_TAG
+        || node->GetTag() == V2::STAGE_ETS_TAG) {
+        return false;
+    }
+    return true;
+}
+
 void RosenRenderContext::GetLiveChildren(const RefPtr<FrameNode>& node, std::list<RefPtr<FrameNode>>& childNodes)
 {
     CHECK_NULL_VOID(node);
@@ -4079,11 +4094,7 @@ void RosenRenderContext::GetLiveChildren(const RefPtr<FrameNode>& node, std::lis
     CHECK_NULL_VOID(pipeline);
     node->GenerateOneDepthVisibleFrameWithTransition(childrenList);
     for (auto& child : childrenList) {
-        auto rsChild = GetRsNodeByFrame(child);
-        std::list<RefPtr<FrameNode>> childChildrenList;
-        child->GenerateOneDepthVisibleFrameWithTransition(childChildrenList);
-        if (rsChild && (rsChild->GetIsDrawn() || rsChild->GetType() != Rosen::RSUINodeType::CANVAS_NODE ||
-                           childChildrenList.empty())) {
+        if (!CanNodeBeDeleted(child)) {
             childNodes.emplace_back(child);
             if (pipeline && child->HasPositionZ()) {
                 pipeline->AddPositionZNode(child->GetId());
@@ -4104,12 +4115,7 @@ void RosenRenderContext::GetLiveChildren(const RefPtr<FrameNode>& node, std::lis
     CHECK_NULL_VOID(overlayNode);
     auto property = overlayNode->GetLayoutProperty();
     if (property && property->GetVisibilityValue(VisibleType::VISIBLE) == VisibleType::VISIBLE) {
-        auto rsoverlayNode = GetRsNodeByFrame(overlayNode);
-        std::list<RefPtr<FrameNode>> childChildrenList;
-        overlayNode->GenerateOneDepthVisibleFrameWithTransition(childChildrenList);
-        if (rsoverlayNode &&
-            (rsoverlayNode->GetIsDrawn() || rsoverlayNode->GetType() != Rosen::RSUINodeType::CANVAS_NODE ||
-                childChildrenList.empty())) {
+        if (!CanNodeBeDeleted(overlayNode)) {
             childNodes.emplace_back(overlayNode);
             if (pipeline && overlayNode->HasPositionZ()) {
                 pipeline->AddPositionZNode(overlayNode->GetId());
@@ -6670,6 +6676,22 @@ void RosenRenderContext::OnAttractionEffectUpdate(const AttractionEffect& effect
     Rosen::Vector2f destinationPoint(effect.destinationX.ConvertToPx(), effect.destinationY.ConvertToPx());
     rsNode_->SetAttractionEffect(effect.fraction, destinationPoint);
     RequestNextFrame();
+}
+
+void RosenRenderContext::UpdateOcclusionCullingStatus(bool enable, const RefPtr<FrameNode>& KeyOcclusionNode)
+{
+    CHECK_NULL_VOID(rsNode_);
+    auto rsRootNode = rsNode_->ReinterpretCastTo<Rosen::RSRootNode>();
+    CHECK_NULL_VOID(rsRootNode);
+    if (KeyOcclusionNode == nullptr) {
+        rsRootNode->UpdateOcclusionCullingStatus(enable, 0);
+        return;
+    }
+    auto rosenRenderContext = DynamicCast<RosenRenderContext>(KeyOcclusionNode->renderContext_);
+    CHECK_NULL_VOID(rosenRenderContext);
+    auto keyRsNode = rosenRenderContext->GetRSNode();
+    CHECK_NULL_VOID(keyRsNode);
+    rsRootNode->UpdateOcclusionCullingStatus(enable, keyRsNode->GetId());
 }
 
 PipelineContext* RosenRenderContext::GetPipelineContext() const

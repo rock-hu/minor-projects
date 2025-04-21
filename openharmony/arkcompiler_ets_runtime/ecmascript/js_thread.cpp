@@ -144,6 +144,8 @@ JSThread::JSThread(EcmaVM *vm) : id_(os::thread::GetCurrentThreadId()), vm_(vm)
     if (vm_->GetJSOptions().EnableModuleLog()) {
         glueData_.moduleLogger_ = new ModuleLogger(vm_);
     }
+
+    glueData_.globalConst_ = new GlobalEnvConstants();
 }
 
 JSThread::JSThread(EcmaVM *vm, ThreadType threadType) : id_(os::thread::GetCurrentThreadId()),
@@ -220,6 +222,10 @@ JSThread::~JSThread()
     if (glueData_.moduleLogger_ != nullptr) {
         delete glueData_.moduleLogger_;
         glueData_.moduleLogger_ = nullptr;
+    }
+    if (glueData_.globalConst_ != nullptr) {
+        delete glueData_.globalConst_;
+        glueData_.globalConst_ = nullptr;
     }
 }
 
@@ -385,9 +391,7 @@ void JSThread::WriteToStackTraceFd(std::ostringstream &buffer) const
 
 void JSThread::SetStackTraceFd(int32_t fd)
 {
-#if defined(PANDA_TARGET_OHOS)
-    fdsan_exchange_owner_tag(fd, 0, LOG_DOMAIN);
-#endif
+    FdsanExchangeOwnerTag(reinterpret_cast<fd_t>(fd));
     stackTraceFd_ = fd;
 }
 
@@ -395,11 +399,7 @@ void JSThread::CloseStackTraceFd()
 {
     if (stackTraceFd_ != -1) {
         FSync(reinterpret_cast<fd_t>(stackTraceFd_));
-#if defined(PANDA_TARGET_OHOS)
-        fdsan_close_with_tag(reinterpret_cast<fd_t>(stackTraceFd_), LOG_DOMAIN);
-#else
         Close(reinterpret_cast<fd_t>(stackTraceFd_));
-#endif
         stackTraceFd_ = -1;
     }
 }
@@ -469,6 +469,10 @@ void JSThread::Iterate(RootVisitor &visitor)
     ModuleManager *moduleManager = GetModuleManager();
     if (moduleManager) {
         moduleManager->Iterate(visitor);
+    }
+
+    if (glueData_.globalConst_ != nullptr) {
+        glueData_.globalConst_->Iterate(visitor);
     }
 }
 void JSThread::IterateJitCodeMap(const JitCodeMapVisitor &jitCodeMapVisitor)
@@ -627,27 +631,6 @@ bool JSThread::DoStackLimitCheck()
         return true;
     }
     return false;
-}
-
-void JSThread::NotifyArrayPrototypeChangedGuardians(JSHandle<JSObject> receiver)
-{
-    if (!glueData_.arrayPrototypeChangedGuardians_) {
-        return;
-    }
-    if (!receiver->GetJSHClass()->IsPrototype() && !receiver->IsJSArray()) {
-        return;
-    }
-    auto env = vm_->GetGlobalEnv();
-    if (receiver.GetTaggedValue() == env->GetObjectFunctionPrototype().GetTaggedValue() ||
-        receiver.GetTaggedValue() == env->GetArrayPrototype().GetTaggedValue()) {
-        glueData_.arrayPrototypeChangedGuardians_ = false;
-        return;
-    }
-}
-
-void JSThread::ResetGuardians()
-{
-    glueData_.arrayPrototypeChangedGuardians_ = true;
 }
 
 void JSThread::SetInitialBuiltinHClass(
@@ -1043,7 +1026,7 @@ void JSThread::PopContext()
     glueData_.currentContext_ = contexts_.back();
 }
 
-void JSThread::SwitchCurrentContext(EcmaContext *currentContext, bool isInIterate)
+void JSThread::SwitchCurrentContext(EcmaContext *currentContext, [[maybe_unused]] bool isInIterate)
 {
     ASSERT(std::count(contexts_.begin(), contexts_.end(), currentContext));
     glueData_.currentContext_->SetGlobalEnv(GetGlueGlobalEnv());
@@ -1083,10 +1066,6 @@ void JSThread::SwitchCurrentContext(EcmaContext *currentContext, bool isInIterat
         if (!currentContext->GetGlobalEnv()->GetGlobalObject().IsUndefined()) {
             SetGlobalObject(currentContext->GetGlobalEnv()->GetGlobalObject());
         }
-    }
-    if (!isInIterate) {
-        // If isInIterate is true, it means it is in GC iterate and global variables are no need to change.
-        glueData_.globalConst_ = const_cast<GlobalEnvConstants *>(currentContext->GlobalConstants());
     }
 
     glueData_.currentContext_ = currentContext;
@@ -1128,11 +1107,6 @@ MegaICCache *JSThread::GetLoadMegaICCache() const
 MegaICCache *JSThread::GetStoreMegaICCache() const
 {
     return glueData_.storeMegaICCache_;
-}
-
-const GlobalEnvConstants *JSThread::GetFirstGlobalConst() const
-{
-    return contexts_[0]->GlobalConstants();
 }
 
 bool JSThread::IsAllContextsInitialized() const

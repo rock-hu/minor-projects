@@ -527,6 +527,8 @@ public:
     GateRef GetProtoChangeMarkerFromHClass(GateRef hClass);
     GateRef GetLayoutFromHClass(GateRef hClass);
     GateRef GetBitFieldFromHClass(GateRef hClass);
+    GateRef GetArrayElementsGuardians(GateRef env);
+    void SetArrayElementsGuardians(GateRef glue, GateRef env, GateRef value);
     GateRef GetLengthFromString(GateRef value);
     GateRef CalcHashcodeForInt(GateRef value);
     void CalcHashcodeForDouble(GateRef value, Variable *res, Label *exit);
@@ -1115,7 +1117,7 @@ public:
     GateRef GetNativeOrCjsModuleValue(GateRef glue, GateRef module, GateRef index);
     GateRef GetModuleValueByIndex(GateRef glue, GateRef module, GateRef index, GateRef isThrow);
     GateRef GetModuleValue(GateRef glue, GateRef module, GateRef index);
-    GateRef GetModuleValueByName(GateRef glue, GateRef module, GateRef bindingName);
+    GateRef GetNativeOrCjsModuleValueByName(GateRef glue, GateRef module, GateRef bindingName);
     GateRef ResolveElementOfObject(GateRef glue, GateRef hClass, GateRef exportName,
                                    GateRef module, GateRef layOutInfo);
     GateRef ResolveExportObject(GateRef glue, GateRef module, GateRef exports, GateRef exportName);
@@ -1133,6 +1135,10 @@ public:
     void StartTraceLoadGetter(GateRef glue);
     void StartTraceLoadSlowPath(GateRef glue);
     void EndTraceLoad(GateRef glue);
+    void StartTraceStoreDetail(GateRef glue, GateRef receiver, GateRef profileTypeInfo, GateRef slotId);
+    void StartTraceStoreFastPath(GateRef glue);
+    void StartTraceStoreSlowPath(GateRef glue);
+    void EndTraceStore(GateRef glue);
     GateRef GetIsFastCall(GateRef machineCode);
     // compute new elementKind from sub elements
     GateRef ComputeTaggedArrayElementKind(GateRef array, GateRef offset, GateRef end);

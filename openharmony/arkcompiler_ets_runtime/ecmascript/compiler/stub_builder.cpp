@@ -4138,9 +4138,10 @@ void StubBuilder::NotifyArrayPrototypeChangedGuardians(GateRef glue, GateRef rec
     Label subEntry(env);
     env->SubCfgEntry(&subEntry);
     Label exit(env);
-    GateRef guardiansOffset =
-                IntPtr(JSThread::GlueData::GetArrayElementsGuardiansOffset(env->Is32Bit()));
-    GateRef guardians = Load(VariableType::BOOL(), glue, guardiansOffset);
+    GateRef glueGlobalEnvOffset = IntPtr(JSThread::GlueData::GetGlueGlobalEnvOffset(env->Is32Bit()));
+    GateRef glueGlobalEnv = Load(VariableType::NATIVE_POINTER(), glue, glueGlobalEnvOffset);
+    GateRef guardians = GetArrayElementsGuardians(glueGlobalEnv);
+
     Label isGuardians(env);
     BRANCH(Equal(guardians, True()), &isGuardians, &exit);
     Bind(&isGuardians);
@@ -4151,8 +4152,6 @@ void StubBuilder::NotifyArrayPrototypeChangedGuardians(GateRef glue, GateRef rec
         Bind(&isPrototype);
         {
             Label isEnvPrototype(env);
-            GateRef glueGlobalEnvOffset = IntPtr(JSThread::GlueData::GetGlueGlobalEnvOffset(env->Is32Bit()));
-            GateRef glueGlobalEnv = Load(VariableType::NATIVE_POINTER(), glue, glueGlobalEnvOffset);
             GateRef isEnvPrototypeCheck = LogicOrBuilder(env)
                 .Or(Equal(GetGlobalEnvValue(VariableType::JS_ANY(), glueGlobalEnv,
                                             GlobalEnv::OBJECT_FUNCTION_PROTOTYPE_INDEX), receiver))
@@ -4161,7 +4160,7 @@ void StubBuilder::NotifyArrayPrototypeChangedGuardians(GateRef glue, GateRef rec
                 .Done();
             BRANCH(isEnvPrototypeCheck, &isEnvPrototype, &exit);
             Bind(&isEnvPrototype);
-            Store(VariableType::BOOL(), glue, glue, guardiansOffset, False());
+            SetArrayElementsGuardians(glue, glueGlobalEnv, False());
             Jump(&exit);
         }
     }
@@ -10040,9 +10039,9 @@ GateRef StubBuilder::IsStableJSArguments(GateRef glue, GateRef obj)
         BRANCH(IsStableArguments(jsHclass), &targetIsStableArguments, &exit);
         Bind(&targetIsStableArguments);
         {
-            GateRef guardiansOffset =
-                IntPtr(JSThread::GlueData::GetArrayElementsGuardiansOffset(env->Is32Bit()));
-            result = Load(VariableType::BOOL(), glue, guardiansOffset);
+            GateRef glueGlobalEnvOffset = IntPtr(JSThread::GlueData::GetGlueGlobalEnvOffset(env->Is32Bit()));
+            GateRef glueGlobalEnv = Load(VariableType::NATIVE_POINTER(), glue, glueGlobalEnvOffset);
+            result = GetArrayElementsGuardians(glueGlobalEnv);
             Jump(&exit);
         }
     }
@@ -10072,9 +10071,9 @@ GateRef StubBuilder::IsStableJSArray(GateRef glue, GateRef obj)
             BRANCH_UNLIKELY(IsJSArrayPrototypeModified(jsHClass), &exit, &isPrototypeNotModified);
             Bind(&isPrototypeNotModified);
             {
-                GateRef guardiansOffset =
-                    IntPtr(JSThread::GlueData::GetArrayElementsGuardiansOffset(env->Is32Bit()));
-                GateRef guardians = Load(VariableType::BOOL(), glue, guardiansOffset);
+                GateRef glueGlobalEnvOffset = IntPtr(JSThread::GlueData::GetGlueGlobalEnvOffset(env->Is32Bit()));
+                GateRef glueGlobalEnv = Load(VariableType::NATIVE_POINTER(), glue, glueGlobalEnvOffset);
+                GateRef guardians = GetArrayElementsGuardians(glueGlobalEnv);
                 result.WriteVariable(guardians);
                 Jump(&exit);
             }
@@ -11516,7 +11515,7 @@ GateRef StubBuilder::GetModuleValue(GateRef glue, GateRef module, GateRef index)
     return ret;
 }
 
-GateRef StubBuilder::GetModuleValueByName(GateRef glue, GateRef module, GateRef bindingName)
+GateRef StubBuilder::GetNativeOrCjsModuleValueByName(GateRef glue, GateRef module, GateRef bindingName)
 {
     auto env = GetEnvironment();
     Label subentry(env);
@@ -11824,7 +11823,7 @@ GateRef StubBuilder::LoadExternalmodulevar(GateRef glue, GateRef index, GateRef 
             ResolvedModuleMustBeSourceTextModule(resolvedModule);
             Label isNativeOrCjsModule(env);
             GateRef checkNativeOrCjsModule = BitOr(IsNativeModule(resolvedModule), IsCjsModule(resolvedModule));
-            BRANCH(checkNativeOrCjsModule, &isNativeOrCjsModule, &judgeResolvedRecordIndexBinding);
+            BRANCH(checkNativeOrCjsModule, &isNativeOrCjsModule, &misstakenResolvedBinding);
 
             Bind(&isNativeOrCjsModule);
             {
@@ -11857,7 +11856,7 @@ GateRef StubBuilder::LoadExternalmodulevar(GateRef glue, GateRef index, GateRef 
         Bind(&isResolvedRecordBinding);
         {
             GateRef resolvedModule = GetResolvedRecordBindingModule(glue, curModule, resolvedBinding);
-            result = GetModuleValueByName(glue, resolvedModule, GetBindingName(resolvedBinding));
+            result = GetNativeOrCjsModuleValueByName(glue, resolvedModule, GetBindingName(resolvedBinding));
             Jump(&exit);
         }
     }
@@ -11883,8 +11882,8 @@ GateRef StubBuilder::LoadExternalmodulevar(GateRef glue, GateRef index, GateRef 
 
     Bind(&notNullPtr);
     {
-        result = CallRuntime(glue, RTSTUB_ID(ProcessModuleLoadInfo),
-                             {curModule, resolvedBinding, IntToTaggedInt(index)});
+        result = CallRuntime(glue, RTSTUB_ID(GetModuleValueOuterInternal),
+                             {curModule, IntToTaggedInt(index)});
         Jump(&exit);
     }
 
@@ -12138,6 +12137,35 @@ void StubBuilder::EndTraceLoad([[maybe_unused]]GateRef glue)
 {
 #if ECMASCRIPT_ENABLE_TRACE_LOAD
     CallRuntime(glue, RTSTUB_ID(TraceLoadEnd), {});
+#endif
+}
+
+void StubBuilder::StartTraceStoreDetail([[maybe_unused]] GateRef glue, [[maybe_unused]] GateRef receiver,
+                                       [[maybe_unused]] GateRef profileTypeInfo, [[maybe_unused]] GateRef slotId)
+{
+#if ECMASCRIPT_ENABLE_TRACE_STORE
+    CallRuntime(glue, RTSTUB_ID(TraceStoreDetail), {receiver, profileTypeInfo, slotId});
+#endif
+}
+
+void StubBuilder::StartTraceStoreFastPath([[maybe_unused]] GateRef glue)
+{
+#if ECMASCRIPT_ENABLE_TRACE_STORE
+    CallRuntime(glue, RTSTUB_ID(TraceStoreFastPath), {});
+#endif
+}
+
+void StubBuilder::StartTraceStoreSlowPath([[maybe_unused]] GateRef glue)
+{
+#if ECMASCRIPT_ENABLE_TRACE_STORE
+    CallRuntime(glue, RTSTUB_ID(TraceStoreSlowPath), {});
+#endif
+}
+
+void StubBuilder::EndTraceStore([[maybe_unused]] GateRef glue)
+{
+#if ECMASCRIPT_ENABLE_TRACE_STORE
+    CallRuntime(glue, RTSTUB_ID(TraceStoreEnd), {});
 #endif
 }
 

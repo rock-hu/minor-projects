@@ -18,6 +18,7 @@
 #include "base/geometry/ng/offset_t.h"
 #include "base/memory/ace_type.h"
 #include "base/memory/referenced.h"
+#include "base/subwindow/subwindow_manager.h"
 #include "base/utils/utils.h"
 #include "core/common/container.h"
 #include "core/components/button/button_theme.h"
@@ -123,7 +124,7 @@ void UpdateTextProperties(const RefPtr<PopupParam>& param, const RefPtr<TextLayo
 
 void SetHitTestMode(RefPtr<FrameNode>& popupNode, bool isBlockEvent)
 {
-    auto hub = popupNode->GetEventHub<BubbleEventHub>();
+    auto hub = popupNode->GetOrCreateEventHub<BubbleEventHub>();
     if (hub) {
         auto ges = hub->GetOrCreateGestureEventHub();
         CHECK_NULL_VOID(ges);
@@ -170,7 +171,7 @@ RefPtr<FrameNode> BubbleView::CreateBubbleNode(const std::string& targetTag, int
     auto useCustom = param->IsUseCustom();
 
     // onstateChange.
-    auto bubbleHub = popupNode->GetEventHub<BubbleEventHub>();
+    auto bubbleHub = popupNode->GetOrCreateEventHub<BubbleEventHub>();
     if (bubbleHub) {
         bubbleHub->SetOnStateChange(param->GetOnStateChange());
     }
@@ -366,7 +367,7 @@ RefPtr<FrameNode> BubbleView::CreateCustomBubbleNode(
     auto popupId = ElementRegister::GetInstance()->MakeUniqueId();
     auto popupNode =
         FrameNode::CreateFrameNode(V2::POPUP_ETS_TAG, popupId, AceType::MakeRefPtr<BubblePattern>(targetId, targetTag));
-    auto bubbleHub = popupNode->GetEventHub<BubbleEventHub>();
+    auto bubbleHub = popupNode->GetOrCreateEventHub<BubbleEventHub>();
     if (bubbleHub) {
         bubbleHub->SetOnStateChange(param->GetOnStateChange());
     }
@@ -672,7 +673,7 @@ void BubbleView::UpdateCommonParam(int32_t popupId, const RefPtr<PopupParam>& pa
 {
     auto popupNode = FrameNode::GetFrameNode(V2::POPUP_ETS_TAG, popupId);
     CHECK_NULL_VOID(popupNode);
-    auto bubbleHub = popupNode->GetEventHub<BubbleEventHub>();
+    auto bubbleHub = popupNode->GetOrCreateEventHub<BubbleEventHub>();
     if (bubbleHub && (!(param->GetIsPartialUpdate().has_value()))) {
         bubbleHub->SetOnStateChange(param->GetOnStateChange());
     }

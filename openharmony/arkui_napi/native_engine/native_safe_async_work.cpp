@@ -100,10 +100,7 @@ NativeSafeAsyncWork::NativeSafeAsyncWork(NativeEngine* engine,
 #endif
 
 #if defined(ENABLE_EVENT_HANDLER)
-    std::shared_ptr<EventRunner> runner = EventRunner::Current();
-    if (runner != nullptr) {
-        eventHandler_ = std::make_shared<EventHandler>(runner);
-    }
+    runner_ = EventRunner::Current();
 #endif
 }
 
@@ -389,8 +386,7 @@ void NativeSafeAsyncWork::CleanUp()
 
 bool NativeSafeAsyncWork::IsSameTid()
 {
-    auto tid = pthread_self();
-    return (tid == engine_->GetTid()) ? true : false;
+    return pthread_self() == engine_->GetTid();
 }
 
 napi_status NativeSafeAsyncWork::PostTask(void *data, int32_t priority, bool isTail)
@@ -398,22 +394,25 @@ napi_status NativeSafeAsyncWork::PostTask(void *data, int32_t priority, bool isT
 #if defined(ENABLE_EVENT_HANDLER)
     HILOG_DEBUG("NativeSafeAsyncWork::PostTask called");
     std::unique_lock<std::mutex> lock(eventHandlerMutex_);
-    if (engine_ == nullptr || eventHandler_ == nullptr) {
-        HILOG_ERROR("post task failed due to nullptr engine or eventHandler");
+    if (runner_ == nullptr || engine_ == nullptr) {
+        HILOG_ERROR("post task failed due to nullptr engine or eventRunner");
         return napi_status::napi_generic_failure;
     }
     // the task will be execute at main thread or worker thread
     auto task = [this, data]() {
         HILOG_DEBUG("The task is executing in main thread or worker thread");
-        panda::LocalScope scope(this->engine_->GetEcmaVm());
-        napi_value func_ = (this->ref_ == nullptr) ? nullptr : this->ref_->Get(engine_);
-        if (this->callJsCallback_ != nullptr) {
-            this->callJsCallback_(engine_, func_, context_, data);
+        panda::LocalScope scope(engine_->GetEcmaVm());
+        napi_value func_ = (ref_ == nullptr) ? nullptr : ref_->Get(engine_);
+        if (callJsCallback_ != nullptr) {
+            callJsCallback_(engine_, func_, context_, data);
         } else {
             CallJs(engine_, func_, context_, data);
         }
     };
 
+    if (UNLIKELY(eventHandler_ == nullptr)) {
+        eventHandler_ = std::make_shared<EventHandler>(runner_);
+    }
     bool res = false;
     if (isTail) {
         HILOG_DEBUG("The task is posted from tail");

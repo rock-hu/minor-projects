@@ -85,6 +85,7 @@
 #include "core/pipeline_ng/pipeline_context.h"
 #include "frameworks/base/utils/system_properties.h"
 #include "frameworks/core/components_ng/base/ui_node.h"
+#include "web_accessibility_session_adapter.h"
 #include "web_pattern.h"
 #include "nweb_handler.h"
 
@@ -94,6 +95,7 @@ const std::string IMAGE_POINTER_CONTEXT_MENU_PATH = "etc/webview/ohos_nweb/conte
 const std::string IMAGE_POINTER_ALIAS_PATH = "etc/webview/ohos_nweb/alias.svg";
 const std::string AUTO_FILL_VIEW_DATA_PAGE_URL = "autofill_viewdata_origin_pageurl";
 const std::string AUTO_FILL_VIEW_DATA_OTHER_ACCOUNT = "autofill_viewdata_other_account";
+const std::string AUTO_FILL_START_POPUP_WINDOW = "persist.sys.abilityms.autofill.is_passwd_popup_window";
 const std::string WEB_INFO_PC = "8";
 const std::string WEB_INFO_TABLET = "4";
 const std::string WEB_INFO_PHONE = "2";
@@ -179,6 +181,15 @@ constexpr int32_t HALF = 2;
 constexpr int32_t AI_TIMEOUT_LIMIT = 200;
 constexpr int32_t CHECK_PRE_SIZE = 5;
 constexpr int32_t ADJUST_RATIO = 10;
+
+struct TranslateTextExtraData {
+    bool needTranslate = false;
+    std::string registerObjectName = "";
+    std::string registerFunctionName = "";
+    std::string translateScript = "";
+    std::string initScript = "";
+};
+TranslateTextExtraData g_translateTextData;
 
 bool ParseDateTimeJson(const std::string& timeJson, NWeb::DateTime& result)
 {
@@ -892,7 +903,7 @@ void WebPattern::InitEvent()
 {
     auto host = GetHost();
     CHECK_NULL_VOID(host);
-    auto eventHub = host->GetEventHub<WebEventHub>();
+    auto eventHub = host->GetOrCreateEventHub<WebEventHub>();
     CHECK_NULL_VOID(eventHub);
 
     auto gestureHub = eventHub->GetOrCreateGestureEventHub();
@@ -1452,7 +1463,7 @@ void WebPattern::HandleMouseEvent(MouseInfo& info)
 
     auto host = GetHost();
     CHECK_NULL_VOID(host);
-    auto eventHub = host->GetEventHub<WebEventHub>();
+    auto eventHub = host->GetOrCreateEventHub<WebEventHub>();
     CHECK_NULL_VOID(eventHub);
     auto mouseEventCallback = eventHub->GetOnMouseEvent();
     CHECK_NULL_VOID(mouseEventCallback);
@@ -1533,7 +1544,7 @@ void WebPattern::ResetDragAction()
     auto frameNode = GetHost();
     CHECK_NULL_VOID(frameNode);
     frameNode->SetDraggable(false);
-    auto eventHub = frameNode->GetEventHub<WebEventHub>();
+    auto eventHub = frameNode->GetOrCreateEventHub<WebEventHub>();
     CHECK_NULL_VOID(eventHub);
     auto gestureHub = eventHub->GetOrCreateGestureEventHub();
     CHECK_NULL_VOID(gestureHub);
@@ -1767,7 +1778,7 @@ void WebPattern::InitCommonDragDropEvent(const RefPtr<GestureEventHub>& gestureH
 {
     auto frameNode = GetHost();
     CHECK_NULL_VOID(frameNode);
-    auto eventHub = frameNode->GetEventHub<WebEventHub>();
+    auto eventHub = frameNode->GetOrCreateEventHub<WebEventHub>();
     CHECK_NULL_VOID(eventHub);
 
     isDisableDrag_ = false;
@@ -1932,7 +1943,7 @@ bool WebPattern::NotifyStartDragTask(bool isDelayed)
     isDragging_ = true;
     auto frameNode = GetHost();
     CHECK_NULL_RETURN(frameNode, false);
-    auto eventHub = frameNode->GetEventHub<WebEventHub>();
+    auto eventHub = frameNode->GetOrCreateEventHub<WebEventHub>();
     CHECK_NULL_RETURN(eventHub, false);
     auto gestureHub = eventHub->GetOrCreateGestureEventHub();
     CHECK_NULL_RETURN(gestureHub, false);
@@ -1970,7 +1981,7 @@ void WebPattern::InitDragEvent(const RefPtr<GestureEventHub>& gestureHub)
 
     auto host = GetHost();
     CHECK_NULL_VOID(host);
-    auto eventHub = host->GetEventHub<WebEventHub>();
+    auto eventHub = host->GetOrCreateEventHub<WebEventHub>();
     CHECK_NULL_VOID(eventHub);
 
     auto userOnDragStartFunc = eventHub->GetOnDragStart();
@@ -2024,7 +2035,7 @@ void WebPattern::HandleDragStart(int32_t x, int32_t y)
         auto frameNode = GetHost();
         CHECK_NULL_VOID(frameNode);
         frameNode->SetDraggable(false);
-        auto eventHub = frameNode->GetEventHub<WebEventHub>();
+        auto eventHub = frameNode->GetOrCreateEventHub<WebEventHub>();
         CHECK_NULL_VOID(eventHub);
         auto gestureHub = eventHub->GetOrCreateGestureEventHub();
         CHECK_NULL_VOID(gestureHub);
@@ -2039,7 +2050,7 @@ void WebPattern::HandleDragStart(int32_t x, int32_t y)
     if (!isDragStartFromWeb_ && isMouseEvent_) {
         auto frameNode = GetHost();
         CHECK_NULL_VOID(frameNode);
-        auto eventHub = frameNode->GetEventHub<WebEventHub>();
+        auto eventHub = frameNode->GetOrCreateEventHub<WebEventHub>();
         CHECK_NULL_VOID(eventHub);
         auto gestureHub = eventHub->GetOrCreateGestureEventHub();
         CHECK_NULL_VOID(gestureHub);
@@ -2231,7 +2242,7 @@ void WebPattern::HandleDragEnd(int32_t x, int32_t y)
         delegate_->HandleDragEvent(localX, localY, DragAction::DRAG_END);
     }
     if (isSetMouseDragMonitorState) {
-        auto eventHub = host->GetEventHub<WebEventHub>();
+        auto eventHub = host->GetOrCreateEventHub<WebEventHub>();
         CHECK_NULL_VOID(eventHub);
         auto gestureHub = eventHub->GetOrCreateGestureEventHub();
         CHECK_NULL_VOID(gestureHub);
@@ -2366,7 +2377,7 @@ bool WebPattern::HandleKeyEvent(const KeyEvent& keyEvent)
 
     auto host = GetHost();
     CHECK_NULL_RETURN(host, ret);
-    auto eventHub = host->GetEventHub<WebEventHub>();
+    auto eventHub = host->GetOrCreateEventHub<WebEventHub>();
     CHECK_NULL_RETURN(eventHub, ret);
 
     KeyEventInfo info(keyEvent);
@@ -2479,7 +2490,7 @@ void WebPattern::WebRequestFocus()
 {
     auto host = GetHost();
     CHECK_NULL_VOID(host);
-    auto eventHub = host->GetEventHub<WebEventHub>();
+    auto eventHub = host->GetOrCreateEventHub<WebEventHub>();
     CHECK_NULL_VOID(eventHub);
     auto focusHub = eventHub->GetOrCreateFocusHub();
     CHECK_NULL_VOID(focusHub);
@@ -4420,6 +4431,9 @@ bool WebPattern::HandleAutoFillEvent(const std::shared_ptr<OHOS::NWeb::NWebMessa
 
     auto eventType = viewDataCommon_->GetEventType();
     if (eventType == OHOS::NWeb::NWebAutofillEvent::FILL) {
+        if (isPasswordFill_ && !system::GetBoolParameter(AUTO_FILL_START_POPUP_WINDOW, false)) {
+            return RequestAutoFill(GetFocusedType());
+        }
         auto host = GetHost();
         CHECK_NULL_RETURN(host, false);
         auto context = host->GetContext();
@@ -4896,7 +4910,7 @@ void WebPattern::OnSelectPopupMenu(std::shared_ptr<OHOS::NWeb::NWebSelectPopupMe
     CHECK_NULL_VOID(callback);
     auto host = GetHost();
     CHECK_NULL_VOID(host);
-    auto eventHub = host->GetEventHub<WebEventHub>();
+    auto eventHub = host->GetOrCreateEventHub<WebEventHub>();
     CHECK_NULL_VOID(eventHub);
     auto context = PipelineContext::GetCurrentContext();
     CHECK_NULL_VOID(context);
@@ -5192,7 +5206,7 @@ void WebPattern::InitSelectPopupMenuViewOption(const std::vector<RefPtr<FrameNod
             optionPattern->UpdateNextNodeDivider(false);
             optionPaintProperty->UpdateNeedDivider(false);
         }
-        auto hub = option->GetEventHub<MenuItemEventHub>();
+        auto hub = option->GetOrCreateEventHub<MenuItemEventHub>();
         CHECK_NULL_VOID(hub);
         if (optionIndex >= 0 && static_cast<uint32_t>(optionIndex) < items.size()) {
             hub->SetEnabled(items[optionIndex]->GetIsEnabled());
@@ -5486,6 +5500,7 @@ void WebPattern::OnVisibleAreaChange(bool isVisible)
 
     isVisible_ = isVisible;
     if (!isVisible_) {
+        OnCursorChange(OHOS::NWeb::CursorType::CT_POINTER, nullptr);
         CloseSelectOverlay();
         SelectCancel();
         DestroyAnalyzerOverlay();
@@ -6518,7 +6533,7 @@ void WebPattern::OnShowAutofillPopup(
         };
         auto optionNode = AceType::DynamicCast<FrameNode>(option);
         if (optionNode) {
-            auto hub = optionNode->GetEventHub<MenuItemEventHub>();
+            auto hub = optionNode->GetOrCreateEventHub<MenuItemEventHub>();
             auto optionPattern = optionNode->GetPattern<MenuItemPattern>();
             if (!hub || !optionPattern) {
                 continue;
@@ -6571,7 +6586,7 @@ void WebPattern::OnShowAutofillPopupV2(
         };
         auto optionNode = AceType::DynamicCast<FrameNode>(option);
         if (optionNode) {
-            auto hub = optionNode->GetEventHub<MenuItemEventHub>();
+            auto hub = optionNode->GetOrCreateEventHub<MenuItemEventHub>();
             auto optionPattern = optionNode->GetPattern<MenuItemPattern>();
             if (!hub || !optionPattern) {
                 continue;
@@ -6871,7 +6886,7 @@ bool WebPattern::IsCurrentFocus()
 {
     auto host = GetHost();
     CHECK_NULL_RETURN(host, false);
-    auto eventHub = host->GetEventHub<WebEventHub>();
+    auto eventHub = host->GetOrCreateEventHub<WebEventHub>();
     CHECK_NULL_RETURN(eventHub, false);
     auto focusHub = eventHub->GetOrCreateFocusHub();
     CHECK_NULL_RETURN(focusHub, false);
@@ -6967,21 +6982,10 @@ void WebPattern::DestroyAnalyzerOverlay()
     awaitingOnTextSelected_ = false;
 }
 
-bool WebPattern::OnAccessibilityHoverEvent(const PointF& point)
+void WebPattern::OnAccessibilityHoverEvent(const PointF& point, bool isHoverEnter)
 {
-    CHECK_NULL_RETURN(delegate_, false);
-    auto host = GetHost();
-    CHECK_NULL_RETURN(host, false);
-    auto pipelineContext = host->GetContextRefPtr();
-    CHECK_NULL_RETURN(pipelineContext, false);
-    auto viewScale = pipelineContext->GetViewScale();
-    int32_t globalX = static_cast<int32_t>(point.GetX()) * viewScale;
-    int32_t globalY = static_cast<int32_t>(point.GetY()) * viewScale;
-    auto offset = GetCoordinatePoint().value_or(OffsetF());
-    globalX = static_cast<int32_t>(globalX - offset.GetX());
-    globalY = static_cast<int32_t>(globalY - offset.GetY());
-    delegate_->HandleAccessibilityHoverEvent(globalX, globalY);
-    return true;
+    CHECK_NULL_VOID(delegate_);
+    delegate_->HandleAccessibilityHoverEvent(point.GetX(), point.GetY(), isHoverEnter);
 }
 
 void WebPattern::RegisterTextBlurCallback(TextBlurCallback&& callback)
@@ -7071,6 +7075,9 @@ bool WebPattern::OnAccessibilityChildTreeRegister()
     CHECK_NULL_RETURN(pipeline, false);
     auto accessibilityManager = pipeline->GetAccessibilityManager();
     CHECK_NULL_RETURN(accessibilityManager, false);
+    if (accessibilitySessionAdapter_ == nullptr) {
+        accessibilitySessionAdapter_ = AceType::MakeRefPtr<WebAccessibilitySessionAdapter>(WeakClaim(this));
+    }
     auto frameNode = frameNode_.Upgrade();
     CHECK_NULL_RETURN(frameNode, false);
     int64_t accessibilityId = frameNode->GetAccessibilityId();
@@ -7185,7 +7192,12 @@ void WebPattern::DumpSurfaceInfo()
 
 RefPtr<WebEventHub> WebPattern::GetWebEventHub()
 {
-    return GetEventHub<WebEventHub>();
+    return GetOrCreateEventHub<WebEventHub>();
+}
+
+RefPtr<AccessibilitySessionAdapter> WebPattern::GetAccessibilitySessionAdapter()
+{
+    return accessibilitySessionAdapter_;
 }
 
 void WebPattern::OnOptimizeParserBudgetEnabledUpdate(bool value)
@@ -7241,6 +7253,116 @@ void WebPattern::OnEnableFollowSystemFontWeightUpdate(bool value)
     }
 }
 
+void WebPattern::GetTranslateTextCallback(const std::string& result)
+{
+    TAG_LOGI(AceLogTag::ACE_WEB, "GetTranslateTextCallback WebId:%{public}d | Text.length:%{public}d",
+        GetWebId(), static_cast<int32_t>(result.size()));
+#if !defined(PREVIEW) && !defined(ACE_UNITTEST) && defined(OHOS_PLATFORM)
+    auto frameNode = frameNode_.Upgrade();
+    CHECK_NULL_VOID(frameNode);
+    auto id = frameNode->GetId();
+    UiSessionManager::GetInstance()->SendWebTextToAI(id, result);
+#endif
+}
+
+void WebPattern::RegisterTranslateTextJavaScript()
+{
+    TAG_LOGI(AceLogTag::ACE_WEB, "RegisterTranslateTextJavaScript WebId:%{public}d", GetWebId());
+    std::vector<std::string> methods;
+    methods.push_back(g_translateTextData.registerFunctionName);
+    auto lambda = [weak = AceType::WeakClaim(this)](const std::vector<std::string>& param) {
+        auto webPattern = weak.Upgrade();
+        if (webPattern && param.size() > 0) {
+            webPattern->GetTranslateTextCallback(param[0]);
+        }
+    };
+    std::vector<std::function<void(const std::vector<std::string>&)>> funcs;
+    funcs.push_back(std::move(lambda));
+    std::string permission = "";
+    CHECK_NULL_VOID(delegate_);
+    delegate_->RegisterNativeJavaScriptProxy(g_translateTextData.registerObjectName,
+        methods, funcs, false, permission, true);
+}
+
+void WebPattern::RunJsInit()
+{
+    if (!g_translateTextData.needTranslate) {
+        return;
+    }
+    if (!isRegisterJsObject_) {
+        isRegisterJsObject_ = true;
+        RegisterTranslateTextJavaScript();
+        return;
+    }
+    TAG_LOGI(AceLogTag::ACE_WEB, "run java TranslateScript and InitScript. WebId:%{public}d", GetWebId());
+    CHECK_NULL_VOID(delegate_);
+    delegate_->ExecuteTypeScript(g_translateTextData.translateScript, [](std::string result) {});
+    delegate_->ExecuteTypeScript(g_translateTextData.initScript, [](std::string result) {});
+}
+
+void WebPattern::GetTranslateText(std::string extraData, std::function<void(std::string)> callback, bool isContinued)
+{
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto context = host->GetContext();
+    CHECK_NULL_VOID(context);
+    auto taskExecutor = context->GetTaskExecutor();
+    CHECK_NULL_VOID(taskExecutor);
+    taskExecutor->PostTask([weak = AceType::WeakClaim(this), jsonData = extraData]() {
+        std::unique_ptr<JsonValue> json = JsonUtil::ParseJsonString(jsonData);
+        g_translateTextData.registerObjectName = json->GetString("registerObjectName");
+        g_translateTextData.registerFunctionName = json->GetString("registerFunctionName");
+        g_translateTextData.translateScript = json->GetString("translateScript");
+        g_translateTextData.initScript = json->GetString("initScript");
+
+        auto webPattern = weak.Upgrade();
+        TAG_LOGI(AceLogTag::ACE_WEB, "GetTranslateText WebId:%{public}d", webPattern->GetWebId());
+        TAG_LOGI(AceLogTag::ACE_WEB,
+            "GetTranslateText 'registerObjectName':%{public}s; 'registerFunctionName':%{public}s",
+            g_translateTextData.registerObjectName.c_str(), g_translateTextData.registerFunctionName.c_str());
+        g_translateTextData.needTranslate = true;
+        webPattern->RunJsInit();
+        }, TaskExecutor::TaskType::UI, "ArkUIWebGetTranslateText");
+}
+
+void WebPattern::SendTranslateResult(std::vector<std::string> results, std::vector<int32_t> ids)
+{
+    return;
+}
+
+void WebPattern::SendTranslateResult(std::string jscode)
+{
+    TAG_LOGI(AceLogTag::ACE_WEB, "SendTranslateResult WebId:%{public}d; Text.length:%{public}d",
+        GetWebId(), static_cast<int32_t>(jscode.size()));
+    CHECK_NULL_VOID(delegate_);
+    delegate_->ExecuteTypeScript(jscode, [](std::string result) {});
+}
+
+void WebPattern::EndTranslate()
+{
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto context = host->GetContext();
+    CHECK_NULL_VOID(context);
+    auto taskExecutor = context->GetTaskExecutor();
+    CHECK_NULL_VOID(taskExecutor);
+    taskExecutor->PostTask([weak = AceType::WeakClaim(this)]() {
+        g_translateTextData.needTranslate = false;
+        g_translateTextData.translateScript = "";
+        g_translateTextData.initScript = "";
+        auto webPattern = weak.Upgrade();
+        if (webPattern->isRegisterJsObject_) {
+            CHECK_NULL_VOID(webPattern->delegate_);
+            std::string p = g_translateTextData.registerObjectName;
+            TAG_LOGI(AceLogTag::ACE_WEB, "UnRegister TranslateText JsObject %{public}s", p.c_str());
+            webPattern->delegate_->UnRegisterNativeArkJSFunction(std::move(p));
+            webPattern->isRegisterJsObject_ = false;
+            webPattern->delegate_->Reload();
+        }
+        TAG_LOGI(AceLogTag::ACE_WEB, "EndTranslateText WebId:%{public}d", webPattern->GetWebId());
+        }, TaskExecutor::TaskType::UI, "ArkUIWebEndTranslate");
+}
+
 void WebPattern::RegisterSurfaceDensityCallback()
 {
     auto pipeline = PipelineBase::GetCurrentContextSafely();
@@ -7279,10 +7401,8 @@ void WebPattern::UninitRotationEventCallback()
 
     auto context = PipelineContext::GetCurrentContext();
     CHECK_NULL_VOID(context);
-    if (rotationEndCallbackId_ != 0) {
-        context->UnregisterRotationEndCallback(rotationEndCallbackId_);
-        rotationEndCallbackId_ = 0;
-    }
+    context->UnregisterRotationEndCallback(rotationEndCallbackId_);
+    rotationEndCallbackId_ = 0;
 }
 
 void WebPattern::AdjustRotationRenderFit(WindowSizeChangeReason type)
@@ -7297,7 +7417,7 @@ void WebPattern::AdjustRotationRenderFit(WindowSizeChangeReason type)
     bool isNwebEx = delegate_->IsNWebEx();
     TAG_LOGD(AceLogTag::ACE_WEB, "WebPattern::AdjustRotationRenderFit, isNwebEx: %{public}d", isNwebEx);
     if (isNwebEx && SystemProperties::GetDeviceType() == DeviceType::TWO_IN_ONE &&
-        isVisible_) {
+        isVisible_ && renderMode_ == RenderMode::ASYNC_RENDER) {
         isRotating_ = true;
         TAG_LOGD(AceLogTag::ACE_WEB, "WebPattern::AdjustRotationRenderFit, webId: %{public}d", GetWebId());
         if (renderContextForSurface_) {

@@ -29,6 +29,7 @@
 #include "core/components_ng/pattern/list/list_item_pattern.h"
 #include "core/components_ng/pattern/text/text_pattern.h"
 #include "core/components_ng/render/adapter/component_snapshot.h"
+#include "base/subwindow/subwindow_manager.h"
 
 namespace OHOS::Ace::NG {
 namespace {
@@ -810,7 +811,7 @@ bool DragDropFuncWrapper::IsSelectedItemNode(const RefPtr<UINode>& uiNode)
     CHECK_NULL_RETURN(frameNode, false);
     auto gestureHub = frameNode->GetOrCreateGestureEventHub();
     CHECK_NULL_RETURN(gestureHub, false);
-    auto eventHub = frameNode->GetEventHub<EventHub>();
+    auto eventHub = frameNode->GetOrCreateEventHub<EventHub>();
     CHECK_NULL_RETURN(eventHub, false);
     auto dragPreview = frameNode->GetDragPreviewOption();
     if (!dragPreview.isMultiSelectionEnabled) {
@@ -865,7 +866,7 @@ bool DragDropFuncWrapper::IsSelfAndParentDragForbidden(const RefPtr<FrameNode>& 
 {
     auto parent = frameNode;
     while (parent) {
-        auto eventHub = parent->GetEventHub<EventHub>();
+        auto eventHub = parent->GetOrCreateEventHub<EventHub>();
         parent = parent->GetAncestorNodeOfFrame(true);
         if (!eventHub) {
             continue;
@@ -1481,5 +1482,13 @@ RefPtr<DragDropManager> DragDropFuncWrapper::GetDragDropManagerForDragAnimation(
     dragDropManager = nodePipeline->GetDragDropManager();
     dragDropManager->SetPixelMapOffset(pixelMapOffset);
     return dragDropManager;
+}
+
+void DragDropFuncWrapper::SetMenuSubWindowTouchable(bool touchable)
+{
+    auto containerId = Container::CurrentId();
+    auto subwindow = SubwindowManager::GetInstance()->GetSubwindowByType(containerId, SubwindowType::TYPE_MENU);
+    CHECK_NULL_VOID(subwindow);
+    subwindow->SetWindowTouchable(touchable);
 }
 } // namespace OHOS::Ace::NG

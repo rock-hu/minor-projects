@@ -49,7 +49,26 @@
 #include "interfaces/inner_api/ace/modal_ui_extension_config.h"
 
 namespace OHOS::Ace::NG {
-
+enum class HideMenuType : int32_t {
+    NORMAL = 0,
+    IS_SHOW,
+    OPEN_MENU,
+    CLOSE_MENU,
+    WRAPPER_LOSE_FOCUS,
+    WRAPPER_TOUCH_DOWN,
+    TOUCH_OUT_SIDE,
+    OPEN_OTHER_MENU,
+    MENU_TOUCH_UP,
+    SCROLL_DRAG_END,
+    ITEM_SELECT_PROCESS,
+    SELECT_SELECTED,
+    ITEM_CLOSE_MENU,
+    PREVIEW_DRAG_END,
+    MENU_DRAG_END,
+    VIEW_DRAG_END,
+    CLOSE_AI_MENU,
+    REMOVE_MENU,
+};
 struct PopupInfo {
     int32_t popupId = -1;
     WeakPtr<FrameNode> target;
@@ -175,7 +194,8 @@ public:
     }
 
     void ShowMenu(int32_t targetId, const NG::OffsetF& offset, RefPtr<FrameNode> menu = nullptr);
-    void HideMenu(const RefPtr<FrameNode>& menu, int32_t targetId, bool isMenuOnTouch = false);
+    void HideMenu(const RefPtr<FrameNode>& menu, int32_t targetId, bool isMenuOnTouch = false,
+        const HideMenuType& reason = HideMenuType::NORMAL);
     void DeleteMenu(int32_t targetId);
     void ShowMenuInSubWindow(int32_t targetId, const NG::OffsetF& offset, RefPtr<FrameNode> menu = nullptr);
     void HideMenuInSubWindow(const RefPtr<FrameNode>& menu, int32_t targetId);
@@ -277,6 +297,7 @@ public:
     bool IsProhibitedRemoveByNavigation(const RefPtr<FrameNode>& topModalNode);
     bool RemoveOverlayInSubwindow();
     bool RemoveNonKeyboardOverlay(const RefPtr<FrameNode>& overlay);
+    bool RemoveMenuInSubWindow(const RefPtr<FrameNode>& menuWrapper);
 
     void RegisterOnHideDialog(std::function<void()> callback)
     {
@@ -802,6 +823,8 @@ private:
     void OpenDialogAnimationInner(const RefPtr<FrameNode>& node, const DialogProperties& dialogProps);
     void OpenDialogAnimation(const RefPtr<FrameNode>& node, const DialogProperties& dialogProps);
     void CloseDialogAnimation(const RefPtr<FrameNode>& node);
+    void SetTransitionCallbacks(const RefPtr<FrameNode>& node, const RefPtr<FrameNode>& contentNode,
+        const RefPtr<FrameNode>& maskNode, const DialogProperties& dialogProps);
     void SetDialogTransitionEffect(const RefPtr<FrameNode>& node, const DialogProperties& dialogProps);
     void SendDialogAccessibilityEvent(const RefPtr<FrameNode>& node, AccessibilityEventType eventType);
     void UpdateChildInvisible(const RefPtr<FrameNode>& node, const RefPtr<FrameNode>& child);
@@ -833,10 +856,13 @@ private:
     void PopLevelOrder(int32_t nodeId);
     RefPtr<FrameNode> GetPrevNodeWithOrder(std::optional<double> levelOrder);
     RefPtr<FrameNode> GetBottomOrderFirstNode(std::optional<double> levelOrder);
+    RefPtr<FrameNode> GetTopOrderNode();
+    int32_t GetTopOrderNodeId();
     bool GetNodeFocusable(const RefPtr<FrameNode>& node);
     RefPtr<FrameNode> GetTopFocusableNode();
     int32_t GetTopFocusableNodeId();
     void FocusNextOrderNode(int32_t topNodeId);
+    void SendAccessibilityEventToNextOrderNode(int32_t topNodeId);
     bool IsTopOrder(std::optional<double> levelOrder);
     void RemoveDialogFromMap(const RefPtr<FrameNode>& node);
     void RemoveMaskFromMap(const RefPtr<FrameNode>& dialogNode);

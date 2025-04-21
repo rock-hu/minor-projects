@@ -40,14 +40,17 @@
 #include "system_ability_definition.h"
 #include "wm_common.h"
 
+#include "base/log/event_report.h"
 #include "base/log/log_wrapper.h"
 #include "base/memory/referenced.h"
 #include "base/ressched/ressched_report.h"
+#include "base/subwindow/subwindow_manager.h"
 #include "base/thread/background_task_executor.h"
 #include "base/utils/utils.h"
 #include "core/components/common/layout/constants.h"
 #include "core/components_ng/base/frame_node.h"
 #include "core/components_ng/render/animation_utils.h"
+#include "core/pipeline/container_window_manager.h"
 
 #if !defined(ACE_UNITTEST)
 #include "core/components_ng/base/transparent_node_detector.h"
@@ -112,6 +115,7 @@
 #include "core/components_ng/base/view_abstract.h"
 #include "core/components_ng/pattern/container_modal/container_modal_view.h"
 #include "core/components_ng/pattern/container_modal/enhance/container_modal_view_enhance.h"
+#include "core/components_ng/pattern/overlay/overlay_mask_manager.h"
 #include "core/components_ng/pattern/text_field/text_field_manager.h"
 #include "core/components_ng/pattern/ui_extension/ui_extension_component/ui_extension_pattern.h"
 #include "core/components_ng/pattern/ui_extension/ui_extension_config.h"
@@ -275,6 +279,7 @@ bool CloseGlobalModalUIExtension(int32_t instanceId, int32_t sessionId, const st
     auto parentNode = modalPageNode->GetParent();
     if (parentNode) {
         parentNode->RemoveChild(modalPageNode);
+        parentNode->RebuildRenderContextTree();
     }
     modalPageNode->MountToParent(globalPipeline->GetRootElement());
     auto globalOverlay = globalPipeline->GetOverlayManager();
@@ -2354,7 +2359,7 @@ UIContentErrorCode UIContentImpl::CommonInitialize(
         safeAreaTaskKey);
 
     InitializeDisplayAvailableRect(container);
-    InitDragSummaryMap(container);
+    NG::OverlayMaskManager::GetInstance().RegisterOverlayHostMaskEventCallback();
 
     // set container temp dir
     if (abilityContext) {
@@ -2465,14 +2470,6 @@ void UIContentImpl::InitializeDisplayAvailableRect(const RefPtr<Platform::AceCon
 
     if (!defaultDisplay) {
         TAG_LOGE(AceLogTag::ACE_WINDOW, "DisplayManager failed to get display by id: %{public}u", (uint32_t)displayId);
-    }
-}
-
-void UIContentImpl::InitDragSummaryMap(const RefPtr<Platform::AceContainer>& container)
-{
-    auto pipeline = container->GetPipelineContext();
-    if (pipeline && container->IsUIExtensionWindow()) {
-        pipeline->RequireSummary();
     }
 }
 
@@ -3073,11 +3070,26 @@ void UIContentImpl::CacheAnimateInfo(const ViewportConfig& config,
 
 void UIContentImpl::ExecKeyFrameCachedAnimateAction()
 {
+    TAG_LOGD(AceLogTag::ACE_WINDOW, "exec keyframe cache in");
+    auto container = Platform::AceContainer::GetContainer(instanceId_);
+    CHECK_NULL_VOID(container);
+    auto taskExecutor = container->GetTaskExecutor();
+    CHECK_NULL_VOID(taskExecutor);
+
     if (cachedAnimateFlag_.load()) {
-        TAG_LOGD(AceLogTag::ACE_WINDOW, "ExecKeyFrameCachedAnimateAction.");
-        UpdateViewportConfig(cachedConfig_, cachedReason_, cachedRsTransaction_, cachedAvoidAreas_);
-        cachedAnimateFlag_.store(false);
+        const uint32_t delay = 50;
+        auto task = [cachedConfig = cachedConfig_, cachedReason = cachedReason_,
+            cachedRsTransaction = cachedRsTransaction_, cachedAvoidAreas = cachedAvoidAreas_,
+            UICONTENT_IMPL_HELPER(content)] () {
+            UICONTENT_IMPL_HELPER_GUARD(content, return);
+            TAG_LOGD(AceLogTag::ACE_WINDOW, "exec keyframe cache");
+            UICONTENT_IMPL_PTR(content)->UpdateViewportConfig(cachedConfig, cachedReason,
+                cachedRsTransaction, cachedAvoidAreas);
+        };
+        taskExecutor->PostDelayedTask(task, TaskExecutor::TaskType::UI, delay,
+            "ArkUIExecKeyFrameCachedAnimateTask", PriorityType::HIGH);
     }
+    cachedAnimateFlag_.store(false);
 }
 
 void UIContentImpl::KeyFrameDragStartPolicy(RefPtr<NG::PipelineContext> context)
@@ -3147,6 +3159,7 @@ bool UIContentImpl::KeyFrameActionPolicy(const ViewportConfig& config,
             return true;
         case OHOS::Rosen::WindowSizeChangeReason::DRAG_END:
             rosenRenderContext->SetIsDraggingFlag(false);
+            [[fallthrough]];
         case OHOS::Rosen::WindowSizeChangeReason::DRAG:
             animateRes = rosenRenderContext->SetCanvasNodeOpacityAnimation(
                 config.GetKeyFrameConfig().animationDuration_,
@@ -3384,6 +3397,9 @@ void UIContentImpl::UpdateViewportConfigWithAnimation(const ViewportConfig& conf
         }
         viewportConfigMgr_->UpdateConfigSync(aceViewportConfig, std::move(task));
         if (rsTransaction != nullptr) {
+            viewportConfigMgr_->CancelAllPromiseTaskLocked();
+        } else if (reason == OHOS::Rosen::WindowSizeChangeReason::UPDATE_DPI_SYNC) {
+            viewportConfigMgr_->CancelUselessTaskLocked();
             viewportConfigMgr_->CancelAllPromiseTaskLocked();
         }
     } else if (rsTransaction != nullptr || !avoidAreas.empty()) {
@@ -4712,12 +4728,13 @@ void UIContentImpl::SetContainerButtonStyle(const Rosen::DecorButtonStyle& butto
     ContainerScope scope(instanceId_);
     auto taskExecutor = Container::CurrentTaskExecutor();
     CHECK_NULL_VOID(taskExecutor);
+    Ace::DecorButtonStyle decorButtonStyle;
+    ConvertDecorButtonStyle(buttonStyle, decorButtonStyle);
     taskExecutor->PostTask(
-        [container, buttonStyle]() {
+        [container, decorButtonStyle]() {
             auto pipelineContext = AceType::DynamicCast<NG::PipelineContext>(container->GetPipelineContext());
             CHECK_NULL_VOID(pipelineContext);
-            NG::ContainerModalViewEnhance::SetContainerButtonStyle(pipelineContext, buttonStyle.buttonBackgroundSize,
-                buttonStyle.spacingBetweenButtons, buttonStyle.closeButtonRightMargin, buttonStyle.colorMode);
+            NG::ContainerModalViewEnhance::SetContainerButtonStyle(pipelineContext, decorButtonStyle);
         },
         TaskExecutor::TaskType::UI, "SetContainerButtonStyle");
 }
@@ -5267,5 +5284,16 @@ void UIContentImpl::ChangeDisplayAvailableAreaListener(uint64_t displayId)
         listenedDisplayId_ = displayId;
         manager.RegisterAvailableAreaListener(availableAreaChangedListener_, listenedDisplayId_);
     }
+}
+
+void UIContentImpl::ConvertDecorButtonStyle(const Rosen::DecorButtonStyle& buttonStyle,
+    Ace::DecorButtonStyle& decorButtonStyle)
+{
+    decorButtonStyle.buttonBackgroundCornerRadius = buttonStyle.buttonBackgroundCornerRadius;
+    decorButtonStyle.buttonBackgroundSize = buttonStyle.buttonBackgroundSize;
+    decorButtonStyle.buttonIconSize = buttonStyle.buttonIconSize;
+    decorButtonStyle.closeButtonRightMargin = buttonStyle.closeButtonRightMargin;
+    decorButtonStyle.colorMode = buttonStyle.colorMode;
+    decorButtonStyle.spacingBetweenButtons = buttonStyle.spacingBetweenButtons;
 }
 } // namespace OHOS::Ace

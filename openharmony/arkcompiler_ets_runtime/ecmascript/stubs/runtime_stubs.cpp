@@ -44,8 +44,7 @@
 #include "ecmascript/stubs/runtime_stubs.h"
 #include "ecmascript/linked_hash_table.h"
 #include "ecmascript/builtins/builtins_object.h"
-#include "ecmascript/module/module_tools.h"
-#include "ecmascript/module/module_manager_helper.h"
+#include "ecmascript/module/module_value_accessor.h"
 #include "ecmascript/module/module_path_helper.h"
 #ifdef ARK_SUPPORT_INTL
 #include "ecmascript/js_collator.h"
@@ -1979,15 +1978,13 @@ DEF_RUNTIME_STUBS(LdModuleVar)
     return RuntimeLdModuleVar(thread, key, innerFlag).GetRawData();
 }
 
-DEF_RUNTIME_STUBS(ProcessModuleLoadInfo)
+DEF_RUNTIME_STUBS(GetModuleValueOuterInternal)
 {
-    RUNTIME_STUBS_HEADER(ProcessModuleLoadInfo);
-    JSHandle<SourceTextModule> curModuleHdl =
-        GetHArg<SourceTextModule>(argv, argc, 0); // 0: means the zeroth parameter
-    JSTaggedValue resolvedBinding = GetArg(argv, argc, 1); // 1: means the first parameter
+    RUNTIME_STUBS_HEADER(GetModuleValueOuterInternal);
+    JSTaggedValue curModule = GetArg(argv, argc, 0); // 0: means the zeroth parameter
     int32_t index =
-        JSTaggedValue::ToInt32(thread, GetHArg<JSTaggedValue>(argv, argc, 2));  // 2: means the second parameter
-    return ModuleTools::ProcessModuleLoadInfo(thread, curModuleHdl, resolvedBinding, index).GetRawData();
+        JSTaggedValue::ToInt32(thread, GetHArg<JSTaggedValue>(argv, argc, 1));  // 2: means the second parameter
+    return ModuleValueAccessor::GetModuleValueOuterInternal(thread, index, curModule, false).GetRawData();
 }
 
 DEF_RUNTIME_STUBS(GetModuleName)
@@ -4194,12 +4191,20 @@ void RuntimeStubs::FillObject(JSTaggedType *dst, JSTaggedType value, uint32_t co
     std::fill_n(dst, count, value);
 }
 
+bool RuntimeStubs::IsTargetBundleName(uintptr_t argGlue)
+{
+    auto thread = JSThread::GlueToJSThread(argGlue);
+    auto targetBundleName = thread->GetEcmaVM()->GetJSOptions().GetTraceLoadStoreBundleName();
+    if (thread->GetEcmaVM()->GetBundleName() != ConvertToString(targetBundleName)) {
+        return false;
+    }
+    return true;
+}
+
 DEF_RUNTIME_STUBS(TraceLoadSlowPath)
 {
 #if ECMASCRIPT_ENABLE_TRACE_LOAD
-    auto thread = JSThread::GlueToJSThread(argGlue);
-    auto target_bundle_name = thread->GetEcmaVM()->GetJSOptions().GetTraceLoadBundleName();
-    if (thread->GetEcmaVM()->GetBundleName() != ConvertToString(target_bundle_name)) {
+    if (!IsTargetBundleName(argGlue)) {
         return JSTaggedValue::Undefined().GetRawData();
     }
 
@@ -4211,9 +4216,7 @@ DEF_RUNTIME_STUBS(TraceLoadSlowPath)
 DEF_RUNTIME_STUBS(TraceLoadGetter)
 {
 #if ECMASCRIPT_ENABLE_TRACE_LOAD
-    auto thread = JSThread::GlueToJSThread(argGlue);
-    auto target_bundle_name = thread->GetEcmaVM()->GetJSOptions().GetTraceLoadBundleName();
-    if (thread->GetEcmaVM()->GetBundleName() != ConvertToString(target_bundle_name)) {
+    if (!IsTargetBundleName(argGlue)) {
         return JSTaggedValue::Undefined().GetRawData();
     }
 
@@ -4225,9 +4228,7 @@ DEF_RUNTIME_STUBS(TraceLoadGetter)
 DEF_RUNTIME_STUBS(TraceLoadDetail)
 {
 #if ECMASCRIPT_ENABLE_TRACE_LOAD
-    auto thread = JSThread::GlueToJSThread(argGlue);
-    auto target_bundle_name = thread->GetEcmaVM()->GetJSOptions().GetTraceLoadBundleName();
-    if (thread->GetEcmaVM()->GetBundleName() != ConvertToString(target_bundle_name)) {
+    if (!IsTargetBundleName(argGlue)) {
         return JSTaggedValue::Undefined().GetRawData();
     }
 
@@ -4268,6 +4269,7 @@ DEF_RUNTIME_STUBS(TraceLoadDetail)
             msg += "poly, ";
         }
 #if ECMASCRIPT_ENABLE_TRACE_LOAD_MORE
+        auto thread = JSThread::GlueToJSThread(argGlue);
         auto AddType = [&msg] (std::string_view s, JSHandle<JSTaggedValue> value) {
             msg += s;
             msg += " type: ";
@@ -4311,13 +4313,95 @@ DEF_RUNTIME_STUBS(TraceLoadDetail)
 DEF_RUNTIME_STUBS(TraceLoadEnd)
 {
 #if ECMASCRIPT_ENABLE_TRACE_LOAD
-    auto thread = JSThread::GlueToJSThread(argGlue);
-    auto target_bundle_name = thread->GetEcmaVM()->GetJSOptions().GetTraceLoadBundleName();
-    if (thread->GetEcmaVM()->GetBundleName() != ConvertToString(target_bundle_name)) {
+    if (!IsTargetBundleName(argGlue)) {
         return JSTaggedValue::Undefined().GetRawData();
     }
 
     ECMA_BYTRACE_FINISH_TRACE(HITRACE_TAG_ARK);
+#endif
+    return JSTaggedValue::Undefined().GetRawData();
+}
+
+DEF_RUNTIME_STUBS(TraceStoreFastPath)
+{
+#if ECMASCRIPT_ENABLE_TRACE_STORE
+    if (!IsTargetBundleName(argGlue)) {
+        return JSTaggedValue::Undefined().GetRawData();
+    }
+
+    ECMA_BYTRACE_START_TRACE(HITRACE_TAG_ARK, "[DFX]TraceStoreFastPath");
+#endif
+    return JSTaggedValue::Undefined().GetRawData();
+}
+
+DEF_RUNTIME_STUBS(TraceStoreSlowPath)
+{
+#if ECMASCRIPT_ENABLE_TRACE_STORE
+    if (!IsTargetBundleName(argGlue)) {
+        return JSTaggedValue::Undefined().GetRawData();
+    }
+
+    ECMA_BYTRACE_START_TRACE(HITRACE_TAG_ARK, "[DFX]TraceStoreSlowPath");
+#endif
+    return JSTaggedValue::Undefined().GetRawData();
+}
+
+DEF_RUNTIME_STUBS(TraceStoreEnd)
+{
+#if ECMASCRIPT_ENABLE_TRACE_STORE
+    if (!IsTargetBundleName(argGlue)) {
+        return JSTaggedValue::Undefined().GetRawData();
+    }
+
+    ECMA_BYTRACE_FINISH_TRACE(HITRACE_TAG_ARK);
+#endif
+    return JSTaggedValue::Undefined().GetRawData();
+}
+
+DEF_RUNTIME_STUBS(TraceStoreDetail)
+{
+#if ECMASCRIPT_ENABLE_TRACE_STORE
+    if (!IsTargetBundleName(argGlue)) {
+        return JSTaggedValue::Undefined().GetRawData();
+    }
+
+    JSHandle<JSTaggedValue> receiver = GetHArg<JSTaggedValue>(argv, argc, 0);  // 0: means the first parameter
+    JSHandle<JSTaggedValue> profile = GetHArg<JSTaggedValue>(argv, argc, 1);   // 1: means the second parameter
+    JSTaggedValue slotId = GetArg(argv, argc, 2);  // 2: means the third parameter
+    CString msg = "[DFX]Trace Store Detail: ";
+    if (profile->IsUndefined()) {
+        msg += "ProfileTypeInfo Undefine";
+    } else {
+        auto prof = JSHandle<ProfileTypeInfo>::Cast(profile);
+        auto slot = slotId.GetInt();
+        auto first = prof->GetIcSlot(slot);
+        auto second = prof->GetIcSlot(slot + 1);
+        if (first.IsHole()) {
+            if (second.IsHole()) {
+                msg += "mega, ";
+            }
+        } else if (first.IsUndefined()) {
+            msg += "undedfine slot, ";
+        } else if (first.IsWeak()) {
+            if (second.IsPrototypeHandler()) {
+                msg += "mono prototype, ";
+            } else if (second.IsTransitionHandler()) {
+                msg += "mono transition, ";
+            } else if (second.IsTransWithProtoHandler()) {
+                msg += "mono transition with proto, ";
+            } else {
+                msg += "mono, ";
+            }
+        } else {
+            msg += "poly, ";
+        }
+    }
+    if (!receiver->IsHeapObject()) {
+        msg += "prim_obj";
+    } else {
+        msg += "heap_obj";
+    }
+    ECMA_BYTRACE_START_TRACE(HITRACE_TAG_ARK, msg.c_str());
 #endif
     return JSTaggedValue::Undefined().GetRawData();
 }

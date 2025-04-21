@@ -128,7 +128,11 @@ namespace panda::ecmascript {
     V(TraceLoadGetter)                          \
     V(TraceLoadSlowPath)                        \
     V(TraceLoadDetail)                          \
-    V(TraceLoadEnd)
+    V(TraceLoadEnd)                             \
+    V(TraceStoreFastPath)                       \
+    V(TraceStoreSlowPath)                       \
+    V(TraceStoreDetail)                         \
+    V(TraceStoreEnd)
 
 #define RUNTIME_STUB_WITHOUT_GC_LIST(V)        \
     V(Dump)                                    \
@@ -344,7 +348,7 @@ namespace panda::ecmascript {
     V(LdLocalModuleVarByIndexOnJSFunc)          \
     V(LdExternalModuleVarByIndexOnJSFunc)       \
     V(LdModuleVar)                              \
-    V(ProcessModuleLoadInfo)                    \
+    V(GetModuleValueOuterInternal)              \
     V(GetModuleName)                            \
     V(ThrowExportsIsHole)                       \
     V(NewResolvedIndexBindingRecord)            \

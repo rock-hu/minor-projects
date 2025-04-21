@@ -171,10 +171,10 @@ public:
 
     void DumpAdvanceInfo() override;
     void DumpInfo() override;
+    void DumpSimplifyInfo(std::unique_ptr<JsonValue>& json) override;
     void DumpInfo(std::unique_ptr<JsonValue>& json) override;
     void DumpAdvanceInfo(std::unique_ptr<JsonValue>& json) override;
     void SetTextStyleDumpInfo(std::unique_ptr<JsonValue>& json);
-    void DumpSimplifyInfo(std::unique_ptr<JsonValue>& json) override;
     void DumpTextStyleInfo();
     void DumpTextStyleInfo2();
     void DumpTextStyleInfo3();
@@ -394,6 +394,7 @@ public:
     std::string GetFontInJson() const;
     std::string GetBindSelectionMenuInJson() const;
     virtual void FillPreviewMenuInJson(const std::unique_ptr<JsonValue>& jsonValue) const {}
+    std::string GetFontSizeWithThemeInJson(const std::optional<Dimension>& value) const;
 
     const std::vector<std::u16string>& GetDragContents() const
     {
@@ -737,6 +738,10 @@ public:
     void OnTextOverflowChanged();
 
     void MarkDirtyNodeRender();
+    void ChangeHandleHeight(const GestureEvent& event, bool isFirst, bool isOverlayMode);
+    void ChangeFirstHandleHeight(const Offset& touchOffset, RectF& handleRect);
+    void ChangeSecondHandleHeight(const Offset& touchOffset, RectF& handleRect);
+    virtual void CalculateDefaultHandleHeight(float& height);
 
     uint64_t GetSystemTimestamp()
     {
@@ -745,26 +750,21 @@ public:
                 .count());
     }
 
-    void ChangeHandleHeight(const GestureEvent& event, bool isFirst, bool isOverlayMode);
-    void ChangeFirstHandleHeight(const Offset& touchOffset, RectF& handleRect);
-    void ChangeSecondHandleHeight(const Offset& touchOffset, RectF& handleRect);
-    virtual void CalculateDefaultHandleHeight(float& height);
-
     void SetEnableHapticFeedback(bool isEnabled)
     {
         isEnableHapticFeedback_ = isEnabled;
     }
 
     bool HasContent();
-    void SetupMagnifier();
 
     virtual bool IsEnabledObscured() const
     {
         return true;
     }
+    void SetupMagnifier();
+    void DoTextSelectionTouchCancel() override;
 
     virtual Color GetUrlSpanColor();
-    void DoTextSelectionTouchCancel() override;
     void BeforeSyncGeometryProperties(const DirtySwapConfig& config) override;
 
     void RegisterAfterLayoutCallback(std::function<void()> callback)
@@ -958,6 +958,7 @@ protected:
     bool ShowShadow(const PointF& textOffset, const Color& color);
     virtual PointF GetTextOffset(const Offset& localLocation, const RectF& contentRect);
     bool hasUrlSpan_ = false;
+    WeakPtr<PipelineContext> pipeline_;
 
 private:
     void InitLongPressEvent(const RefPtr<GestureEventHub>& gestureHub);
@@ -1082,7 +1083,6 @@ private:
     std::optional<void*> externalParagraph_;
     std::optional<ParagraphStyle> externalParagraphStyle_;
     bool isUserSetResponseRegion_ = false;
-    WeakPtr<PipelineContext> pipeline_;
     WeakPtr<ScrollablePattern> scrollableParent_;
     ACE_DISALLOW_COPY_AND_MOVE(TextPattern);
     std::optional<std::function<void()>> afterLayoutCallback_;

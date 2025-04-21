@@ -800,7 +800,7 @@ void PipelineContext::InspectDrew()
             if (node->GetInspectorId().has_value()) {
                 OnDrawCompleted(node->GetInspectorId()->c_str());
             }
-            auto eventHub = node->GetEventHub<NG::EventHub>();
+            auto eventHub = node->GetOrCreateEventHub<NG::EventHub>();
             CHECK_NULL_VOID(eventHub);
             eventHub->FireDrawCompletedNDKCallback(this);
         }
@@ -1540,11 +1540,14 @@ void PipelineContext::OnDrawCompleted(const std::string& componentId)
 
 void PipelineContext::ExecuteSurfaceChangedCallbacks(int32_t newWidth, int32_t newHeight, WindowSizeChangeReason type)
 {
-    for (auto&& [id, callback] : surfaceChangedCallbackMap_) {
+    SurfaceChangedCallbackMap callbackMap;
+    std::swap(callbackMap, surfaceChangedCallbackMap_);
+    for (auto&& [id, callback] : callbackMap) {
         if (callback) {
             callback(newWidth, newHeight, rootWidth_, rootHeight_, type);
         }
     }
+    std::swap(callbackMap, surfaceChangedCallbackMap_);
 }
 
 void PipelineContext::OnSurfacePositionChanged(int32_t posX, int32_t posY)
@@ -2700,6 +2703,7 @@ void PipelineContext::OnTouchEvent(
         historyPointsById_.erase(scalePoint.id);
     }
     if (scalePoint.type == TouchType::DOWN) {
+        SetUiDvsyncSwitch(false);
         // Set focus state inactive while touch down event received
         SetIsFocusActive(false, FocusActiveReason::POINTER_EVENT);
         TouchRestrict touchRestrict { TouchRestrict::NONE };
@@ -2932,12 +2936,13 @@ void PipelineContext::OnSurfaceDensityChanged(double density)
     CHECK_RUN_ON(UI);
     if (!NearEqual(density, density_)) {
         isDensityChanged_ = true;
+        isNeedReloadDensity_ = true;
     }
     density_ = density;
     if (!NearZero(viewScale_)) {
         dipScale_ = density_ / viewScale_;
     }
-    if (isDensityChanged_) {
+    if (isNeedReloadDensity_) {
         UIObserverHandler::GetInstance().NotifyDensityChange(density_);
         PipelineBase::OnSurfaceDensityChanged(density);
     }
@@ -3055,7 +3060,8 @@ void PipelineContext::DumpData(
     auto paramSize = params.size();
     auto container = Container::GetContainer(instanceId_);
     if (container && (container->IsUIExtensionWindow())) {
-        paramSize = std::distance(params.begin(), std::find(params.begin(), params.end(), PID_FLAG));
+        paramSize =
+            static_cast<uint32_t>(std::distance(params.begin(), std::find(params.begin(), params.end(), PID_FLAG)));
     }
     if (paramSize < used_id_flag) {
         node->DumpTree(depth, hasJson);
@@ -3542,6 +3548,7 @@ void PipelineContext::UpdateLastMoveEvent(const MouseEvent& event)
     lastMouseEvent_->mockFlushEvent = event.mockFlushEvent;
     lastMouseEvent_->pointerEvent = event.pointerEvent;
     lastMouseEvent_->deviceId = event.deviceId;
+    lastMouseEvent_->sourceTool = event.sourceTool;
     lastSourceType_ = event.sourceType;
 }
 
@@ -4549,16 +4556,19 @@ void PipelineContext::FirePageChanged(int32_t pageId, bool isOnShow)
 
 void PipelineContext::FlushWindowSizeChangeCallback(int32_t width, int32_t height, WindowSizeChangeReason type)
 {
-    auto iter = onWindowSizeChangeCallbacks_.begin();
-    while (iter != onWindowSizeChangeCallbacks_.end()) {
+    std::list<int32_t> callbacks;
+    std::swap(callbacks, onWindowSizeChangeCallbacks_);
+    auto iter = callbacks.begin();
+    while (iter != callbacks.end()) {
         auto node = ElementRegister::GetInstance()->GetUINodeById(*iter);
         if (!node) {
-            iter = onWindowSizeChangeCallbacks_.erase(iter);
+            iter = callbacks.erase(iter);
         } else {
             node->OnWindowSizeChanged(width, height, type);
             ++iter;
         }
     }
+    std::swap(callbacks, onWindowSizeChangeCallbacks_);
 }
 
 void PipelineContext::RequireSummary()
@@ -5761,6 +5771,13 @@ bool PipelineContext::CheckThreadSafe()
     return true;
 }
 
+void PipelineContext::UpdateOcclusionCullingStatus(bool enable, const RefPtr<FrameNode>& keyOcclusionNode)
+{
+    auto rootContext = rootNode_->GetRenderContext();
+    CHECK_NULL_VOID(rootContext);
+    rootContext->UpdateOcclusionCullingStatus(enable, keyOcclusionNode);
+}
+
 uint64_t PipelineContext::AdjustVsyncTimeStamp(uint64_t nanoTimestamp)
 {
     auto period = window_->GetVSyncPeriod();
@@ -5948,8 +5965,8 @@ void PipelineContext::FlushMouseEventInVsync()
     }
     if (lastMouseEvent_ && isTransFlag_ && (mouseEventSize == 0 || lastMouseEvent_->mockFlushEvent)) {
         FlushMouseEventForHover();
-        isTransFlag_ = false;
     }
+    isTransFlag_ = false;
     windowSizeChangeReason_ = WindowSizeChangeReason::UNDEFINED;
 }
 
@@ -5960,7 +5977,10 @@ void PipelineContext::SetWindowSizeChangeReason(WindowSizeChangeReason reason)
 
 void PipelineContext::OnDumpInjection(const std::vector<std::string>& params) const
 {
-    auto nodeId = std::stoi(params[PARAM_NUM]);
+    int32_t nodeId = StringUtils::StringToInt(params[PARAM_NUM], -1);
+    if (nodeId < 0) {
+        return;
+    }
     auto frameNode = DynamicCast<FrameNode>(ElementRegister::GetInstance()->GetUINodeById(nodeId));
     CHECK_NULL_VOID(frameNode);
     frameNode->OnRecvCommand(params[1]);
