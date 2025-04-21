@@ -71,11 +71,11 @@
 │ │ │ │ ├─BreakpointType.ets // 断点  
 │ │ │ │ ├─CommonEventManager.ts // 公共事件管理  
 │ │ │ │ ├─DeviceService.ets // 设备管理类  
+│ │ │ │ ├─FontSizeScale.ets // 字体大小缩放  
 │ │ │ │ ├─OpenPhoto.ets // 图库  
 │ │ │ │ ├─PromptTone.ts // 提示音  
 │ │ │ │ ├─ScanLayout.ets // 扫码界面布局管理类  
 │ │ │ │ ├─ScanService.ets // 自定义扫码  
-│ │ │ │ ├─UIContextSelf.ets // UIContext管理类  
 │ │ │ │ ├─WindowService.ets // 窗口管理类  
 │ │ │ │ ├─XComponentService.ets // XComponent管理类  
 │ │ │ ├─pages // 页面  

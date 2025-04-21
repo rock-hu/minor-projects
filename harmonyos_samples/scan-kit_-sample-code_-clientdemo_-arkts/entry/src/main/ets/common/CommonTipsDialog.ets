@@ -2,7 +2,6 @@ import { TipsDialog } from '@kit.ArkUI';
 import { common, Want } from '@kit.AbilityKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import Logger from './Logger';
-import { UIContextSelf } from '../pages/customScan/model/UIContextSelf';
 
 const TAG: string = 'Common Tips Dialog';
 
@@ -41,7 +40,7 @@ export struct CommonTipsDialog {
 
   openPermissionsInSystemSettings(): void {
     Logger.info(TAG, 'Start to open permissions in system settings.');
-    let context = UIContextSelf.getHostContext() as common.UIAbilityContext;
+    let context = getContext(this) as common.UIAbilityContext;
     // Start the MainAbility of com.huawei.hmos.settings and match the URI of application_info_entry.
     let wantInfo: Want = {
       bundleName: 'com.huawei.hmos.settings',

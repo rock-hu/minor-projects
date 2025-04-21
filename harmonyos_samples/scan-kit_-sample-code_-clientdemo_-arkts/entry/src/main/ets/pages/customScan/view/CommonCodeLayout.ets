@@ -1,4 +1,4 @@
-import { curves } from '@kit.ArkUI';
+import { curves, router } from '@kit.ArkUI';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { vibrator } from '@kit.SensorServiceKit';
 import Logger from '../../../common/Logger';
@@ -9,7 +9,6 @@ import { funcDelayer } from '../../../common/Utils';
 import { scanBarcode } from '@kit.ScanKit';
 import { XComponentService } from '../model/XComponentService';
 import { DeviceService } from '../model/DeviceService';
-import { UIContextSelf } from '../model/UIContextSelf';
 
 @Extend(Image)
 function selected(scanState: boolean, x: number, y: number) {
@@ -258,7 +257,7 @@ export struct CodeLayout {
     this.fadeOutScale = 0.3;
     this.fadeOutOpacity = 0;
     // Radio button animation.
-    UIContextSelf.uiContext.animateTo({
+    animateTo({
       duration: 350,
       curve: curves.cubicBezierCurve(0.33, 0, 0.67, 1),
       delay: 100,
@@ -276,7 +275,7 @@ export struct CodeLayout {
   terminateSelfPage(): void {
     if (this.scanResults && this.scanResults.size > 0) {
       try {
-        UIContextSelf.getRouter().pushUrl({
+        router.pushUrl({
           url: 'pages/resultPage/ResultPage',
           params: this.scanResults.data[this.multiSelectedIndex]
         })
@@ -290,14 +289,14 @@ export struct CodeLayout {
   }
 
   terminateScan() {
-    UIContextSelf.getRouter().back();
+    router.back();
   }
 
   singleCodeBreathe(): void {
     // Single-barcode scanning breathing effect.
     this.singleCodeOpacity = 0.3;
     this.singleCodeScale = 0.3;
-    UIContextSelf.uiContext.animateTo({
+    animateTo({
       duration: 300,
       curve: curves.cubicBezierCurve(0.33, 0, 0.67, 1), // Animation curve.
       delay: 0,
@@ -320,7 +319,7 @@ export struct CodeLayout {
    * */
   multiAppear(): void {
     this.multiCodeScale = 0.3;
-    UIContextSelf.uiContext.animateTo({
+    animateTo({
       duration: 350,
       curve: curves.cubicBezierCurve(0.33, 0, 0.67, 1), // Animation curve.
       delay: 0,
@@ -336,7 +335,7 @@ export struct CodeLayout {
   }
 
   multiAppearEnd(): void {
-    UIContextSelf.uiContext.animateTo({
+    animateTo({
       duration: 250,
       curve: curves.cubicBezierCurve(0.33, 0, 0.67, 1), // Animation curve.
       delay: 0,
@@ -355,7 +354,7 @@ export struct CodeLayout {
   multiCodeBreathe(): void {
     // Multi-barcode scanning breathing effect.
     this.multiCodeScale = 1;
-    UIContextSelf.uiContext.animateTo({
+    animateTo({
       duration: 300,
       curve: curves.cubicBezierCurve(0.33, 0, 0.67, 1), // Animation curve.
       delay: 0,
@@ -372,7 +371,7 @@ export struct CodeLayout {
   }
 
   toRedirectPage(): void {
-    UIContextSelf.uiContext.animateTo({
+    animateTo({
       duration: 250,
       curve: curves.cubicBezierCurve(0.33, 0, 0.67, 1), // Animation curve.
       delay: 0,

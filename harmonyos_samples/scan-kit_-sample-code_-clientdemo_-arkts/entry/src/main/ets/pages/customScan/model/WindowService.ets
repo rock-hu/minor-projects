@@ -5,7 +5,6 @@ import { ScanLayout } from './ScanLayout';
 import { XComponentService } from './XComponentService';
 import Logger from '../../../common/Logger';
 import { DeviceService } from './DeviceService';
-import { UIContextSelf } from './UIContextSelf';
 
 const TAG: string = 'WindowService';
 
@@ -80,7 +79,7 @@ export class WindowService {
     if (this.windowObj) {
       try {
         this.windowObj.on('avoidAreaChange', (data) => {
-          let topAvoidHeight: number = UIContextSelf.uiContext.px2vp(data.area.topRect.height + data.area.topRect.top);
+          let topAvoidHeight: number = px2vp(data.area.topRect.height + data.area.topRect.top);
           if (data.type === window.AvoidAreaType.TYPE_SYSTEM && topAvoidHeight !== this.topAvoidHeight) {
             Logger.info(TAG, `topAvoidHeight has changed, topAvoidHeight: ${topAvoidHeight}`);
             this.topAvoidHeight = topAvoidHeight;
@@ -122,7 +121,7 @@ export class WindowService {
     if (this.windowObj) {
       try {
         let avoidArea: window.AvoidArea = this.windowObj.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);
-        this.topAvoidHeight = UIContextSelf.uiContext.px2vp(avoidArea.topRect.height + avoidArea.topRect.top);
+        this.topAvoidHeight = px2vp(avoidArea.topRect.height + avoidArea.topRect.top);
         Logger.info(TAG,
           `Succeed in getting topAvoidHeight by extensionWindowObj. topAvoidHeight: ${this.topAvoidHeight}`);
       } catch (error) {
@@ -137,10 +136,10 @@ export class WindowService {
     if (window && (window.width !== this.windowSizePX.width || window.height !== this.windowSizePX.height)) {
       // Update the window width and height.
       this.windowSizePX = window;
-      this.width = UIContextSelf.uiContext.px2vp(window.width);
-      this.height = UIContextSelf.uiContext.px2vp(window.height);
-      this.refreshCustomScanLayout();
+      this.width = px2vp(window.width);
+      this.height = px2vp(window.height);
       if (window.height > 0 && window.width > 0 && this.isCustomScanPage) {
+        this.refreshCustomScanLayout();
         // Send a notification if the dimensions change.
         let eventData: emitter.EventData = {
           data: {

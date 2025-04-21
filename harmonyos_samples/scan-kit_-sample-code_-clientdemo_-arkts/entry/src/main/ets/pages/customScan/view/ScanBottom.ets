@@ -3,6 +3,7 @@ import { BreakpointConstants } from '../constants/BreakpointConstants';
 import { CommonConstants } from '../constants/CommonConstants';
 import { BreakpointType } from '../model/BreakpointType';
 import { ScanService } from '../model/ScanService';
+import { FontSizeScale } from '../model/FontSizeScale';
 import { ScanLayout } from '../model/ScanLayout';
 import { LengthMetrics } from '@kit.ArkUI';
 
@@ -75,8 +76,8 @@ export struct FlashLight {
         })
       Text(this.scanService.isFlashlight ? $r('app.string.Scan_light_to_off') : $r('app.string.Scan_light_to_on'))
         .lightText()
-        .fontSize($r('sys.float.Body_S'))
-        .maxFontSize(CommonConstants.SCAN_FONT_SIZE_SCALE_LIMIT_SYMBOL_TEXT)
+        .fontSize(FontSizeScale.getLimitFontSize(this.fontSizeScale,
+          CommonConstants.SCAN_FONT_SIZE_SCALE_LIMIT_SYMBOL_TEXT, $r('sys.float.Body_S')))
     }
     .height(CommonConstants.FLASH_HEIGHT)
     .padding({
@@ -92,6 +93,7 @@ export struct FlashLight {
 
 @Component
 export struct ScanBottom {
+  @StorageLink('currentBreakpoint') currentBreakpoint: string = BreakpointConstants.BREAKPOINT_LG;
   @State scanService: ScanService = ScanService.getInstance();
   @State scanLayout: ScanLayout = ScanLayout.getInstance();
   @Prop enableAlbum: boolean = false;

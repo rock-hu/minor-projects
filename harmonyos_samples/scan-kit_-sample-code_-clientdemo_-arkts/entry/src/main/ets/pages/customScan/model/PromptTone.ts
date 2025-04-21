@@ -14,18 +14,18 @@ export class PromptTone {
     rendererFlags: 0
   };
 
-  constructor(context: common.Context) {
+  constructor(context: common.UIAbilityContext) {
     this.initPlayer(context);
   }
 
-  public static getInstance(context: common.Context): PromptTone {
+  public static getInstance(context: common.UIAbilityContext): PromptTone {
     if (PromptTone.instance === null) {
       PromptTone.instance = new PromptTone(context);
     }
     return PromptTone.instance;
   }
 
-  public async initPlayer(context: common.Context): Promise<void> {
+  public async initPlayer(context: common.UIAbilityContext): Promise<void> {
     if (!this.avPlayer) {
       try {
         this.avPlayer = await media.createAVPlayer();

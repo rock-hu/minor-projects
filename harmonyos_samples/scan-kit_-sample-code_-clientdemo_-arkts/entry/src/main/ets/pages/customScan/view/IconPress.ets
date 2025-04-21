@@ -1,6 +1,7 @@
 import { accessibility } from '@kit.AccessibilityKit';
 import { BreakpointConstants } from '../constants/BreakpointConstants';
 import { CommonConstants } from '../constants/CommonConstants';
+import { FontSizeScale } from '../model/FontSizeScale';
 import { ScanLayout } from '../model/ScanLayout';
 
 @Extend(Column)
@@ -72,7 +73,7 @@ export struct IconPress {
       },
       normal: {
         .iconContainerMaskLayer()
-        .backgroundColor($r('sys.color.titlebar_icon_background_color'))
+        .backgroundColor('#00000000')
       }
     })
     .margin({
@@ -89,8 +90,8 @@ export struct IconPress {
   @Builder
   textBuilder() {
     Text(this.text).iconText()
-      .fontSize($r('sys.float.Body_S'))
-      .maxFontSize(CommonConstants.SCAN_FONT_SIZE_SCALE_LIMIT_SYMBOL_TEXT)
+      .fontSize(FontSizeScale.getLimitFontSize(this.fontSizeScale,
+        CommonConstants.SCAN_FONT_SIZE_SCALE_LIMIT_SYMBOL_TEXT, $r('sys.float.Body_S')))
       .margin({
         bottom: TEXT_MARGIN_BOTTOM,
         top: TEXT_MARGIN_TOP

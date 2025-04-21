@@ -2,7 +2,7 @@ import { ConfigurationConstant } from '@kit.AbilityKit';
 import { curves } from '@kit.ArkUI';
 import { funcDelayer } from '../../../common/Utils';
 import { CommonConstants } from '../constants/CommonConstants';
-import { UIContextSelf } from '../model/UIContextSelf';
+import { FontSizeScale } from '../model/FontSizeScale';
 import { WindowService } from '../model/WindowService';
 
 @Extend(Text)
@@ -51,8 +51,7 @@ function dialogContentContainer() {
 @Component
 export struct PickerDialog {
   @StorageLink('scanFontSizeScale') fontSizeScale: number = 1;
-  @StorageLink('scanColorMode') darkMode: ConfigurationConstant.ColorMode =
-    ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET;
+  @StorageLink('scanColorMode') darkMode: ConfigurationConstant.ColorMode = ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET;
   @Prop text: Resource;
   @Prop dialogScale: number = 0.85;
   @State dialogWidth: number = 368;
@@ -62,12 +61,11 @@ export struct PickerDialog {
 
   @Builder
   DialogText() {
-    Text(this.text)
-      .textClass(this.darkMode === ConfigurationConstant.ColorMode.COLOR_MODE_DARK ?
-      $r('sys.color.ohos_id_color_text_primary_dark') : $r('sys.color.ohos_id_color_text_primary'), TextAlign.Center)
-      .fontSize($r('sys.float.Body_L'))
-      .maxFontSize(CommonConstants.SCAN_FONT_SIZE_SCALE_LIMIT_DIALOG_TEXT)
-
+      Text(this.text)
+        .textClass(this.darkMode === ConfigurationConstant.ColorMode.COLOR_MODE_DARK ?
+        $r('sys.color.ohos_id_color_text_primary_dark') : $r('sys.color.ohos_id_color_text_primary'), TextAlign.Center)
+        .fontSize(FontSizeScale.getLimitFontSize(this.fontSizeScale,
+          CommonConstants.SCAN_FONT_SIZE_SCALE_LIMIT_DIALOG_TEXT, $r('sys.float.Body_L')))
   }
 
   @Builder
@@ -76,7 +74,7 @@ export struct PickerDialog {
       .width('100%')
       .height(40)
       .onClick(() => {
-        UIContextSelf.uiContext.animateTo({
+        animateTo({
           duration: 250,
           curve: Curve.Friction,
           delay: 0,
@@ -92,7 +90,7 @@ export struct PickerDialog {
   }
 
   appearAnimation() {
-    UIContextSelf.uiContext.animateTo({
+    animateTo({
       duration: 250,
       curve: curves.cubicBezierCurve(0.38, 1.33, 0.6, 1),
       delay: 0,

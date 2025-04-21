@@ -1,7 +1,7 @@
 import { scanCore, type scanBarcode, generateBarcode } from '@kit.ScanKit';
+import { promptAction } from '@kit.ArkUI';
 import { type BusinessError } from '@kit.BasicServicesKit';
 import Logger from './Logger';
-import { UIContextSelf } from '../pages/customScan/model/UIContextSelf';
 
 const TAG = 'Utils';
 
@@ -72,7 +72,7 @@ export function getColorType(type: string | undefined): number {
 
 export function showError(businessError: BusinessError): void {
   try {
-    UIContextSelf.uiContext.getPromptAction().showToast({
+    promptAction.showToast({
       message: `Error Code: ${businessError.code} ${businessError.message}`,
       duration: 2000
     });
@@ -83,7 +83,7 @@ export function showError(businessError: BusinessError): void {
 
 export function showMessage(message: Resource): void {
   try {
-    UIContextSelf.uiContext.getPromptAction().showToast({
+    promptAction.showToast({
       message: message,
       duration: 2000
     });

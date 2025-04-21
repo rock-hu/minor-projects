@@ -1,8 +1,0 @@
-<!-- [Start 1] -- >
-<!-- index.hml -->
-<div class="container">
-    <text class="title" style="font-size: {{fontSize}}; color: {{fontColor}};">
-        Hello World
-    </text>
-</div>
-<!-- [End 1] -- >

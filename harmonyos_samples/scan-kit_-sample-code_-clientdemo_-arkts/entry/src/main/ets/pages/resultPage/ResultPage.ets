@@ -1,15 +1,14 @@
-import { LengthMetrics } from '@kit.ArkUI';
+import { LengthMetrics, router } from '@kit.ArkUI';
 import { scanBarcode } from '@kit.ScanKit';
 import { StatusBar } from '../../common/StatusBar';
 import { getScanTypeKey } from '../../common/Utils'
-import { UIContextSelf } from '../customScan/model/UIContextSelf';
 import { WindowService } from '../customScan/model/WindowService';
 
 @Extend(Text)
 function labelText() {
   .fontSize(20)
   .textAlign(TextAlign.Start)
-  .fontColor($r('sys.color.black'))
+  .fontColor('#000000')
 }
 
 @Extend(Text)
@@ -19,13 +18,13 @@ function valueText() {
   })
   .fontSize(16)
   .textAlign(TextAlign.Start)
-  .fontColor($r('sys.color.mask_secondary'))
+  .fontColor('#99000000')
 }
 
 @Entry
 @Component
 struct ResultPage {
-  @State result: scanBarcode.ScanResult = UIContextSelf.getRouter().getParams() as scanBarcode.ScanResult;
+  @State result: scanBarcode.ScanResult = router.getParams() as scanBarcode.ScanResult;
   @State windowService: WindowService = WindowService.getInstance();
 
   build() {
