@@ -51,7 +51,7 @@ struct RefreshSample {
   @State counter: number = 0;
   @State isRefreshing: boolean = false;
   @State mOffset: number = 0;
-  @State mFriction: number = 62;
+  @State mFriction: number = 1;
   private dataArray: number[] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
   @Builder
@@ -72,8 +72,6 @@ struct RefreshSample {
       Column() {
         Refresh({
           refreshing: $$this.isRefreshing,
-          offset: this.mOffset,
-          friction: this.mFriction,
           builder: this.refreshBuilder
         }) {
           Scroll() {
@@ -101,6 +99,8 @@ struct RefreshSample {
             this.isRefreshing = false;
           }, 1000)
         })
+        .refreshOffset(this.mOffset)
+        .pullDownRatio(this.mFriction)
 
         Blank(20)
         Column() {
@@ -129,12 +129,12 @@ struct RefreshSample {
           Row() {
             Text($r('app.string.auxiliary_refresh_minvalue'))
               .leftTitleStyle()
-            Slider({ value: this.mFriction, min: 0, max: 100 })
+            Slider({ value: this.mFriction, min: 0, max: 1, step: 0.01 })
               .onChange((value) => {
                 this.mFriction = value;
               })
               .layoutWeight(1)
-            Text($r('app.string.auxiliary_refresh_maxvalue'))
+            Text($r('app.string.auxiliary_refresh_friction_maxvalue'))
               .leftTitleStyle()
           }.width('100%')
           .padding(12)

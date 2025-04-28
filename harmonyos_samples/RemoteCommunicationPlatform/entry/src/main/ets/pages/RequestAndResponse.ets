@@ -15,15 +15,35 @@
 
 import { rcp } from '@kit.RemoteCommunicationKit';
 import { url } from '@kit.ArkTS';
-import { CommonConstants } from '../common/CommonConstants';
-import { NetworkStateSimulator } from '../utils/NetworkStateSimulator';
-import { RequestUrlChangeInterceptor, ResponseHeaderRemoveInterceptor } from '../utils/Interceptors';
 import { fileIo as fs } from '@kit.CoreFileKit';
+import { CommonConstants } from '../common/CommonConstants';
+import { ResponseCachingInterceptor, ResponseHeaderRemoveInterceptor, ResponseCache } from '../utils/Interceptors';
+import Logger from '../common/Logger';
 
 @Builder
 export function RequestAndResponseBuilder() {
   RequestAndResponse()
 }
+
+// DocsCode 8
+const cache = new ResponseCache();
+const sessionConfig: rcp.SessionConfiguration = {
+  interceptors: [
+    new ResponseCachingInterceptor(cache),
+    new ResponseHeaderRemoveInterceptor()
+  ],
+  requestConfiguration: {
+    security: {
+      tlsOptions: {
+        tlsVersion: 'TlsV1.3'
+      }
+    }
+  }
+};
+
+const session = rcp.createSession(sessionConfig);
+
+// DocsCode 8
 
 @Component
 export struct RequestAndResponse {
@@ -37,31 +57,7 @@ export struct RequestAndResponse {
 
   private async getImage() {
     this.isImageDownloaded = false;
-    const networkStateSimulator = new NetworkStateSimulator();
-    // DocsCode 8
-    const sessionConfig: rcp.SessionConfiguration = {
-      interceptors: [
-        new RequestUrlChangeInterceptor(networkStateSimulator),
-        new ResponseHeaderRemoveInterceptor()
-      ],
-      requestConfiguration:{
-        security:{
-          tlsOptions: {
-            tlsVersion: 'TlsV1.3'
-          }
-        }
-      }
-    };
-
-    const session = rcp.createSession(sessionConfig);
-    // DocsCode 8
-    if (this.simulateSlowNetwork) {
-      networkStateSimulator.simulateSlowNetwork();
-    } else {
-      networkStateSimulator.simulateFastNetwork();
-    }
-
-    const request = new rcp.Request('http://www.example.com/Panda.jpg', 'GET');
+    const request = new rcp.Request(`http://www.example.com/Panda.jpg`, 'GET');
     this.requestUrl = request.url;
 
     request.destination = {
@@ -69,12 +65,14 @@ export struct RequestAndResponse {
       file: this.pathToImage
     };
 
-    if (!this.storageLink) {
+    try {
       const response = await session.fetch(request);
-      const isFileCreated =  fs.accessSync(this.pathToImage);
+      const isFileCreated = fs.accessSync(this.pathToImage);
       if (response.statusCode === 200 && isFileCreated) {
         this.isImageDownloaded = true;
       }
+    } catch (err) {
+      Logger.error(`err: err code is ${err.code}, err message is ${JSON.stringify(err)}`);
     }
 
     if (this.simulateSlowNetwork) {
@@ -89,7 +87,7 @@ export struct RequestAndResponse {
       Column() {
         Column() {
           Row() {
-            Text($r('app.string.simulate_slow_network'))
+            Text($r('app.string.enable_request_caching'))
             Toggle({ type: ToggleType.Switch, isOn: this.simulateSlowNetwork })
               .onChange((isOn) => {
                 this.simulateSlowNetwork = isOn;

@@ -1,0 +1,8 @@
+<!-- [Start init_page] -- >
+<!-- 输出text组件内容 -->
+<div class="container">
+    <text class="title">
+        Hello {{ title }}
+    </text>
+</div>
+<!-- [End init_page] -->

@@ -133,8 +133,8 @@
       "value": "图片请求地址："
     },
     {
-      "name": "simulate_slow_network",
-      "value": "模拟慢速网络"
+      "name": "enable_request_caching",
+      "value": "开启请求缓存"
     },
     {
       "name": "configuration_information",

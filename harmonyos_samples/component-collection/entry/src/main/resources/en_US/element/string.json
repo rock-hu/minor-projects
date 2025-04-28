@@ -2162,7 +2162,7 @@
     },
     {
       "name": "auxiliary_refresh_offset",
-      "value": "offset:"
+      "value": "refreshOffset:"
     },
     {
       "name": "auxiliary_refresh_minvalue",
@@ -2173,8 +2173,12 @@
       "value": "100"
     },
     {
+      "name": "auxiliary_refresh_friction_maxvalue",
+      "value": "1"
+    },
+    {
       "name": "auxiliary_refresh_friction",
-      "value": "friction:"
+      "value": "pullDownRatio:"
     },
     {
       "name": "auxiliary_panel",
@@ -2266,7 +2270,7 @@
     },
     {
       "name": "text_clock_timeformattwo",
-      "value": "YY:MM:dd"
+      "value": "yyyy:MM:dd"
     },
     {
       "name": "text_clock_timeformatthree",

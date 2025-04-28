@@ -40,7 +40,7 @@ struct requestContent {
 
       Divider().color('gray').strokeWidth(1)
       Column({ space: 20 }) {
-        Button('Subscribe')
+        Button($r('app.string.Subscribe'))
           .width('100%')
           .height(40)
           .margin({ top: '11%' })
@@ -50,7 +50,7 @@ struct requestContent {
           .borderRadius(20)
           .onClick(this.getNetworkQosOn)
 
-        Button('Unsubscribe')
+        Button($r('app.string.UnSubscribe'))
           .width('100%')
           .height(40)
           .margin({ top: '11%' })
@@ -60,7 +60,7 @@ struct requestContent {
           .borderRadius(20)
           .onClick(this.getNetworkQosOff)
 
-        Text('Result')
+        Text($r('app.string.Result'))
           .width('100%')
           .height(40)
           .margin({ top: '11%' })
@@ -74,7 +74,7 @@ struct requestContent {
           .height(260)
           .margin({ top: '11%' })
           .backgroundColor('0x317AFF')
-          .fontColor('#FFFFFFFF')
+          .fontColor($r('sys.color.black'))
           .fontSize(24)
           .fontWeight(500)
           .borderRadius(10)

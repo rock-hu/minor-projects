@@ -42,7 +42,7 @@ struct TextInputSample {
   @State endSelect: number = 0;
   @State maxSelect: number = 0;
   @State selects: string[] = ['0'];
-  private select: number = 1;
+  private select: number = 0;
   private maxLength: number = 12;
   private context: Context = getContext(this);
   private inputController: TextInputController = new TextInputController();
@@ -210,6 +210,9 @@ struct TextInputSample {
                   this.selects[i] = i.toString();
                 }
               })
+              .onFocus(() => {
+                this.inputSelectController.setTextSelection(this.startSelect, this.endSelect);
+              })
             Row() {
               Text($r('app.string.text_input_set_text_selection_start_select'))
               Column() {
@@ -237,8 +240,13 @@ struct TextInputSample {
               Button($r('app.string.text_area_set_text_selection'))
                 .id('button_to_select')
                 .onClick(() => {
-                  this.inputSelectController.setTextSelection(this.startSelect, this.endSelect);
-                  Logger.info(`startSelect: ${this.startSelect}, endSelect: ${this.endSelect}`);
+                  if (this.startSelect > this.endSelect) {
+                    this.getUIContext().getPromptAction()
+                      .showToast({ message: $r('app.string.text_area_set_text_selection_end_select_error') });
+                  } else {
+                    focusControl.requestFocus('test_input_to_select');
+                    Logger.info(`startSelect: ${this.startSelect}, endSelect: ${this.endSelect}`);
+                  }
                 })
             }
             .justifyContent(FlexAlign.SpaceAround)

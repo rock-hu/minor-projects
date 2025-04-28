@@ -15,34 +15,42 @@
 
 // DocsCode 7
 import { rcp } from '@kit.RemoteCommunicationKit';
-import { url } from '@kit.ArkTS';
 import Logger from '../common/Logger';
-import { NetworkQualityProvider } from './NetworkStateSimulator';
 
-// Define the RequestUrlChangeInterceptor interceptor
-export class RequestUrlChangeInterceptor implements rcp.Interceptor {
-  private readonly networkQualityProvider: NetworkQualityProvider;
+export class ResponseCache {
+  public readonly cache: Record<string, rcp.Response> = {};
 
-  constructor(networkQualityProvider: NetworkQualityProvider) {
-    this.networkQualityProvider = networkQualityProvider
+  getResponse(url: string): rcp.Response {
+    return this.cache[url];
   }
 
-  // Custom Request processing Logic
+  setResponse(url: string, response: rcp.Response): void {
+    this.cache[url] = response;
+  }
+}
+
+// Define the ResponseCachingInterceptor interceptor
+export class ResponseCachingInterceptor implements rcp.Interceptor {
+  public readonly cache: ResponseCache;
+
+  constructor(cache: ResponseCache) {
+    this.cache = cache;
+  }
+
   async intercept(context: rcp.RequestContext, next: rcp.RequestHandler): Promise<rcp.Response> {
-    if (context.request.method === 'GET' && !this.networkQualityProvider.isNetworkFast()) {
-      Logger.info('[RequestUrlChangeInterceptor]: Slow network is detected');
-      const parts = context.request.url.pathname.split('.');
-      if (parts.length === 2) {
-        const changed = url.URL.parseURL(context.request.url.href);
-        changed.pathname = parts[0] + '_small.' + parts[1];
-        Logger.info(`[RequestUrlChangeInterceptor]: Replace URL from "${context.request.url.href}" to "${changed}"`);
-        AppStorage.setOrCreate('ReplacedInfo',`[RequestUrlChangeInterceptor]: Replace URL from "${context.request.url.href}" to "${changed}"`);
-        context.request.url = changed;
-      }
-    } else {
-      Logger.info('[RequestUrlChangeInterceptor]: Network is fast');
+    const url = context.request.url.href;
+    const responseFromCache = this.cache.getResponse(url);
+    if (responseFromCache) {
+      return Promise.resolve(responseFromCache);
     }
-    return next.handle(context);
+    AppStorage.setOrCreate('ReplacedInfo',
+      `[ResponseCachingInterceptor]: Request URL is "${context.request.url.href}"`);
+    const promise = next.handle(context);
+    promise.then((resp) => {
+      resp.statusCode;
+      this.cache.setResponse(url, resp);
+    });
+    return promise;
   }
 }
 
@@ -66,4 +74,5 @@ export class ResponseHeaderRemoveInterceptor implements rcp.Interceptor {
     return toReturn;
   }
 }
+
 // DocsCode 7

@@ -1,0 +1,31 @@
+.container {
+    width: 100%;/* 容器宽度设置为 100% */
+    height: 100%;/* 容器高度设置为 100% */
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background-color: aquamarine;/* 设置背景色为碧绿色 */
+}
+
+.stackContainer {
+    width: 50%;
+    height: 50%;
+    background-color: white;
+}
+
+.button {
+    top: 10%;/* 设置y轴上距离父组件为父组件高度的10%位置 */
+    left: 10%;/* 设置x轴上距离父组件为父组件宽度的10%位置 */
+    width: 50%;
+    height: 30%;
+    font-size: 30px;
+    background-color: black;
+}
+
+.button2 {
+    width: 50%;
+    height: 20%;
+    font-size: 30px;
+    background-color: black;
+    margin-top: 2%;/* 父组件高度的2% */
+}

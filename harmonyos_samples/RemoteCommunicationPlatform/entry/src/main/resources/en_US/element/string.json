@@ -133,8 +133,8 @@
       "value": "Image request address："
     },
     {
-      "name": "simulate_slow_network",
-      "value": "Simulate slow network"
+      "name": "enable_request_caching",
+      "value": "enable request caching"
     },
     {
       "name": "configuration_information",
