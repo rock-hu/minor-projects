@@ -10,7 +10,7 @@ import Logger from '../utils/Logger';
 let logger = Logger.getLogger('[Posters]');
 
 @Component
-export default struct Posters {
+export default struct LinkScenario {
 
   private async share() {
     let shareData: systemShare.SharedData = new systemShare.SharedData({

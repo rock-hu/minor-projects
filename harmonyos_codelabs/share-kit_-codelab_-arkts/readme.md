@@ -44,7 +44,8 @@
 │  │  ├─LinkScenario.ets                     // 链接分享
 │  │  ├─PostersScenario.ets                  // 海报+链接分享
 │  │  ├─TextScenario.ets                     // 纯文本分享
-│  │  └─VideoScenario.ets                    // 视频分享
+│  │  ├─VideoScenario.ets                    // 视频分享
+│  │  └─ZipScenario.ets                      // 压缩包分享
 │  └─utils                                   // 工具类
 ├─entry/src/main/resources                   // 应用资源目录
 │  ├─base
@@ -72,10 +73,10 @@
    + 路径：entry/src/main/ets/components/ReferralContact.ets
 
 ## 约束与限制
-1. 本示例仅支持标准系统上运行，支持设备：支持设备：华为手机、华为平板、2in1。
-2. HarmonyOS系统：HarmonyOS NEXT Developer Beta1及以上。
-3. DevEco Studio版本：DevEco Studio 5.0.1 Beta3及以上。
-4. HarmonyOS SDK版本：HarmonyOS SDK 5.0.1 Beta3及以上。
+1. 本示例仅支持标准系统上运行，支持设备：华为手机、华为平板、2in1。
+2. HarmonyOS系统：HarmonyOS 5.0.3 Release及以上。
+3. DevEco Studio版本：DevEco Studio 5.0.3 Release及以上。
+4. HarmonyOS SDK版本：HarmonyOS 5.0.3 Release SDK及以上。
 
 需同时满足以下条件，才能使用该功能：
 - 宿主应用和目标应用定义数据类型须遵照[UDMF](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V13/js-apis-data-unifieddatachannel-V13)（统一数据管理框架）定义的[UTD](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V13/js-apis-data-uniformtypedescriptor-V13)（统一类型描述符）规范。目标应用需要在应用配置文件中，配置支持的类型。如支持全部图片类型，可声明为：general.image。

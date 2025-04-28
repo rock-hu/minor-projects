@@ -185,6 +185,10 @@
       "value": "Video Type"
     },
     {
+      "name": "compressed_package_type",
+      "value": "Compressed Package Type"
+    },
+    {
       "name": "select",
       "value": "Selecting"
     },
@@ -281,6 +285,10 @@
       "value": "White card up and down layout"
     },
     {
+      "name": "reject_title",
+      "value": "Reject this sharing"
+    },
+    {
       "name": "knock_listening",
       "value": "knock event listening"
     },
@@ -301,6 +309,10 @@
       "value": "When the aspect ratio of the preview image is greater than 1:1, the top-down layout of the white card is used."
     },
     {
+      "name": "reject_timer",
+      "value": "When a touch callback is received, if the data is not ready to be shared within 3 seconds, use this method to reject the sharing and provide the reason to the user."
+    },
+    {
       "name": "precautions",
       "value": "Precautions:"
     },
@@ -314,7 +326,7 @@
     },
     {
       "name": "knock_precautions_3",
-      "value": "3. When the application returns to the background, use the harmonyShare.off() method to register the touch listening event."
+      "value": "3. When the application returns to the background, use the harmonyShare.off() method to cancel the touch listening event."
     },
     {
       "name": "gesture_title",

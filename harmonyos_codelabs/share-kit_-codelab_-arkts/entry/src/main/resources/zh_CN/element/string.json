@@ -165,8 +165,8 @@
       "value": "接收到的分享内容"
     },
     {
-      "name": "image_type",
-      "value": "图片类型"
+      "name": "compressed_package_type",
+      "value": "压缩包类型"
     },
     {
       "name": "link_type",
@@ -183,6 +183,10 @@
     {
       "name": "video_type",
       "value": "视频类型"
+    },
+    {
+      "name": "image_type",
+      "value": "图片类型"
     },
     {
       "name": "select",
@@ -281,6 +285,10 @@
       "value": "白卡上下布局"
     },
     {
+      "name": "reject_title",
+      "value": "拒绝本次分享"
+    },
+    {
       "name": "knock_listening",
       "value": "碰一碰事件监听中"
     },
@@ -301,6 +309,10 @@
       "value": "当预览图宽高比大于1:1时，使用白卡上下布局。"
     },
     {
+      "name": "reject_timer",
+      "value": "当接收到碰一碰回调时，如果在3秒内无法准备好分享数据，请使用本方法拒绝本次分享，并提供原因给用户。"
+    },
+    {
       "name": "precautions",
       "value": "注意事项："
     },
@@ -314,7 +326,7 @@
     },
     {
       "name": "knock_precautions_3",
-      "value": "3.当应用退至后台时，使用harmonyShare.off()方法注册碰一碰监听事件。"
+      "value": "3.当应用退至后台时，使用harmonyShare.off()方法取消碰一碰监听事件。"
     },
     {
       "name": "gesture_title",

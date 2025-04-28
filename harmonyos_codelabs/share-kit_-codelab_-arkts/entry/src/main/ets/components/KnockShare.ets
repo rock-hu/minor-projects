@@ -15,6 +15,7 @@ export default struct KnockShare {
   @State purityStatus: boolean = false;
   @State immersiveStatus: boolean = false;
   @State whiteStatus: boolean = false;
+  @State rejectStatus: boolean = false;
 
   aboutToAppear(): void {
     if (this.isNoListening()) {
@@ -53,6 +54,9 @@ export default struct KnockShare {
     }
     if (this.whiteStatus) {
       this.whiteDisablingListening();
+    }
+    if (this.rejectStatus) {
+      this.rejectDisablingListening();
     }
   }
 
@@ -133,6 +137,26 @@ export default struct KnockShare {
   private whiteDisablingListening() {
     harmonyShare.off('knockShare', this.whiteCallback);
     this.whiteStatus = false;
+  }
+
+  private rejectCallback(sharableTarget: harmonyShare.SharableTarget) {
+    setTimeout(() => {
+      sharableTarget.reject(harmonyShare.SharableErrorCode.DOWNLOAD_ERROR);
+    }, 1000);
+  }
+
+  private rejectListening() {
+    if (this.isNoListening()) {
+      harmonyShare.on('knockShare', this.rejectCallback);
+      this.rejectStatus = true;
+    } else {
+      promptAction.showToast({ message: $r('app.string.knock_close_other') });
+    }
+  }
+
+  private rejectDisablingListening() {
+    harmonyShare.off('knockShare', this.rejectCallback);
+    this.rejectStatus = false;
   }
 
   @Builder
@@ -301,6 +325,61 @@ export default struct KnockShare {
   }
 
   @Builder
+  RejectMode() {
+    Flex({ direction: FlexDirection.Row }) {
+      Row() {
+        Image($r('app.media.knock_reject'))
+          .width(100)
+      }
+      .width(150)
+      .margin({ right: 12 })
+
+      Column() {
+        Text($r('app.string.reject_title'))
+          .flexGrow(1)
+          .fontSize(20)
+          .fontWeight(500)
+
+        Stack() {
+          if (this.rejectStatus) {
+            Button() {
+              Row() {
+                LoadingProgress().width(20).height(20).margin({ left: 12 }).color(0xFFFFFF)
+                Text($r('app.string.knock_listening')).fontSize(12).fontColor(0xffffff).margin({ left: 5, right: 12 })
+              }.alignItems(VerticalAlign.Center)
+            }
+            .width(200)
+            .height(30)
+            .margin({ left: 8 })
+            .onClick(() => {
+              this.rejectDisablingListening();
+            })
+          } else {
+            Button($r('app.string.knock_click'))
+              .width(200)
+              .height(30)
+              .fontSize(14)
+              .margin({ left: 8 })
+              .onClick(() => {
+                this.rejectListening();
+              })
+          }
+        }.margin({ top: 12 })
+
+        Column() {
+          Text($r('app.string.reject_timer'))
+            .width('100%')
+            .margin({ top: 12 })
+            .fontWeight(FontWeight.Bold)
+        }.width('100%')
+      }
+      .flexGrow(1)
+      .alignItems(HorizontalAlign.Start)
+    }
+    .margin({ bottom: 20 })
+  }
+
+  @Builder
   KnockExplain() {
     Column() {
       Text($r('app.string.precautions'))
@@ -341,6 +420,8 @@ export default struct KnockShare {
         this.ImmersiveCard()
 
         this.WhiteCard()
+
+        this.RejectMode()
       }
       .width('100%')
       .constraintSize({ minHeight: '100%' })

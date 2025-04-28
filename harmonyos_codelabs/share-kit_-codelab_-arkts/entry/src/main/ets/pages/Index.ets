@@ -31,6 +31,7 @@ struct Index {
       [context.resourceManager.getMediaContentSync($r('app.media.exampleKnock1')), '/exampleKnock1.jpg'],
       [context.resourceManager.getMediaContentSync($r('app.media.exampleKnock2')), '/exampleKnock2.png'],
       [context.resourceManager.getMediaContentSync($r('app.media.exampleKnock3')), '/exampleKnock3.jpg'],
+      [context.resourceManager.getMediaContentSync($r('app.media.exampleZip')), '/exampleZip.zip'],
     ].forEach(item => {
       let file = fs.openSync(filesDir + item[1], fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE);
       let writeLen = fs.writeSync(file.fd, (item[0] as Uint8Array).buffer);

@@ -30,15 +30,17 @@ struct MainPage {
       Divider().color('gray').strokeWidth(1)
       Button({ type: ButtonType.Normal }) {
         Column() {
-          Text('Network quality assessment')
+          Text($r('app.string.Network_quality_assessment'))
             .fontSize(20)
             .fontWeight(500)
             .fontColor('#FFFFFFFF')
+            .width('100%')
+            .textAlign(TextAlign.Center)
         }
         .width(300)
         .height('100%')
-        .alignItems(HorizontalAlign.Start)
-        .padding({ left: 5, top: 25 })
+        .alignItems(HorizontalAlign.Center)
+        .justifyContent(FlexAlign.Center)
       }
       .width('100%')
       .height(80)
@@ -48,15 +50,17 @@ struct MainPage {
 
       Button({ type: ButtonType.Normal }) {
         Column() {
-          Text('Network scenario identification')
+          Text($r('app.string.Network_scenario_identification'))
             .fontSize(20)
             .fontWeight(500)
             .fontColor('#FFFFFFFF')
+            .width('100%')
+            .textAlign(TextAlign.Center)
         }
         .width(300)
         .height('100%')
-        .alignItems(HorizontalAlign.Start)
-        .padding({ left: 5, top: 25 })
+        .alignItems(HorizontalAlign.Center)
+        .justifyContent(FlexAlign.Center)
       }
       .width('100%')
       .height(80)
@@ -66,15 +70,17 @@ struct MainPage {
 
       Button({ type: ButtonType.Normal }) {
         Column() {
-          Text('App data transmission quality feedback')
+          Text($r('app.string.App_data_transmission_quality_feedback'))
             .fontSize(20)
             .fontWeight(500)
             .fontColor('#FFFFFFFF')
+            .width('100%')
+            .textAlign(TextAlign.Center)
         }
         .width(300)
         .height('100%')
-        .alignItems(HorizontalAlign.Start)
-        .padding({ left: 5, top: 15 })
+        .alignItems(HorizontalAlign.Center)
+        .justifyContent(FlexAlign.Center)
       }
       .width('100%')
       .height(80)
@@ -84,15 +90,17 @@ struct MainPage {
 
       Button({ type: ButtonType.Normal }) {
         Column() {
-          Text('Network handover notification')
+          Text($r('app.string.Network_handover_notification'))
             .fontSize(20)
             .fontWeight(500)
             .fontColor('#FFFFFFFF')
+            .width('100%')
+            .textAlign(TextAlign.Center)
         }
         .width(300)
         .height('100%')
-        .alignItems(HorizontalAlign.Start)
-        .padding({ left: 5, top: 25 })
+        .alignItems(HorizontalAlign.Center)
+        .justifyContent(FlexAlign.Center)
       }
       .width('100%')
       .height(80)
@@ -102,15 +110,17 @@ struct MainPage {
 
       Button({ type: ButtonType.Normal }) {
         Column() {
-          Text('Network handover mode setting')
+          Text($r('app.string.Network_handover_mode_setting'))
             .fontSize(20)
             .fontWeight(500)
             .fontColor('#FFFFFFFF')
+            .width('100%')
+            .textAlign(TextAlign.Center)
         }
         .width(300)
         .height('100%')
-        .alignItems(HorizontalAlign.Start)
-        .padding({ left: 5, top: 15 })
+        .alignItems(HorizontalAlign.Center)
+        .justifyContent(FlexAlign.Center)
       }
       .width('100%')
       .height(80)

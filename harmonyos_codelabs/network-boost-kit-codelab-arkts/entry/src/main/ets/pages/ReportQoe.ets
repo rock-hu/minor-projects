@@ -79,7 +79,7 @@ struct requestContent {
         .fontWeight(500)
         .borderRadius(10)
 
-      Button('Click to report qoe')
+      Button($r('app.string.Click_to_report_qoe'))
         .width('100%')
         .height(40)
         .margin({ top: '11%' })
@@ -89,7 +89,7 @@ struct requestContent {
         .borderRadius(20)
         .onClick(this.getReportQoe)
 
-      Text('Result')
+      Text($r('app.string.Result'))
         .fontSize(24)
         .fontWeight(500)
         .fontColor($r('sys.color.black'))
@@ -103,7 +103,7 @@ struct requestContent {
         .height(200)
         .margin({ top: '11%', left: 0 })
         .backgroundColor('0x317AFF')
-        .fontColor('#FFFFFFFF')
+        .fontColor($r('sys.color.black'))
         .fontSize(24)
         .fontWeight(500)
         .borderRadius(10)
