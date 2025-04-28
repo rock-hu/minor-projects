@@ -586,6 +586,8 @@ public:
     GateRef ElementsKindCheck(GateRef receiver, ElementsKind kind, ArrayMetaDataAccessor::Mode mode);
     GateRef COWArrayCheck(GateRef gate);
     GateRef EcmaStringCheck(GateRef gate);
+    GateRef StringKeyCheck(GateRef key, GateRef value);
+    GateRef InternStringKeyCheck(GateRef key, GateRef value);
     GateRef InternStringCheck(GateRef gate);
     GateRef EcmaMapCheck(GateRef gate);
     GateRef FlattenTreeStringCheck(GateRef gate);
@@ -607,6 +609,8 @@ public:
     GateRef CallTargetCheck(GateRef gate, GateRef function, GateRef id, const char* comment = nullptr);
     GateRef CallTargetCheck(GateRef gate, GateRef function, GateRef id, std::vector<GateRef> params,
                             const char* comment = nullptr);
+    GateRef InlineSuperCtorCheck(GateRef gate, GateRef function, GateRef newTarget, GateRef methodOffset,
+                                 const char* comment = nullptr);
     template<TypedCallTargetCheckOp Op>
     GateRef JSCallTargetTypeCheck(GateRef func, GateRef methodIndex, GateRef gate);
     template<TypedCallTargetCheckOp Op>
@@ -643,7 +647,7 @@ public:
     GateRef TypedConditionJump(MachineType type, TypedJumpOp jumpOp, uint32_t weight, ParamType paramType,
                                const std::vector<GateRef>& inList);
     GateRef TypedNewAllocateThis(GateRef ctor, GateRef hclass, GateRef size, GateRef frameState);
-    GateRef TypedSuperAllocateThis(GateRef superCtor, GateRef newTarget, GateRef frameState);
+    GateRef TypedSuperAllocateThis(GateRef superCtor, GateRef newTarget);
     template<TypedBinOp Op>
     inline GateRef TypedBinaryOp(GateRef x, GateRef y, ParamType paramType);
     template<TypedUnOp Op>
@@ -706,6 +710,12 @@ public:
     inline GateRef GetValueFromTaggedArray(VariableType valType, GateRef array, GateRef index);
     inline GateRef GetValueFromJSArrayWithElementsKind(VariableType type, GateRef array, GateRef index);
     inline GateRef GetArrayElementsGuardians(GateRef env);
+    inline GateRef GetMapIteratorDetector(GateRef env);
+    inline GateRef GetSetIteratorDetector(GateRef env);
+    inline GateRef GetStringIteratorDetector(GateRef env);
+    inline GateRef GetArrayIteratorDetector(GateRef env);
+    inline GateRef GetTypedArrayIteratorDetector(GateRef env);
+    inline GateRef GetTypedArraySpeciesProtectDetector(GateRef env);
     template<TypedLoadOp Op>
     GateRef LoadElement(GateRef receiver, GateRef index, OnHeapMode onHeap = OnHeapMode::NONE);
     GateRef LoadProperty(GateRef receiver, GateRef propertyLookupResult, bool isFunction);

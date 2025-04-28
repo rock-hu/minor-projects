@@ -518,7 +518,7 @@ HWTEST_F(TabsAttrTestNg, TabsModelNg001, TestSize.Level1)
     model.SetOnGestureSwipe(std::move(onGestureSwipe));
     CreateTabContents(TABCONTENT_NUMBER);
     CreateTabsDone(model);
-    auto eventHub = swiperNode_->GetEventHub<SwiperEventHub>();
+    auto eventHub = swiperNode_->GetOrCreateEventHub<SwiperEventHub>();
     EXPECT_NE(eventHub->gestureSwipeEvent_, nullptr);
 }
 
@@ -1406,7 +1406,7 @@ HWTEST_F(TabsAttrTestNg, TabsModelOnUpdateShowDivider005, TestSize.Level1)
     frameNode_->RemoveChildAtIndex(0);
     frameNode_->RemoveChildAtIndex(0);
     pattern_->OnUpdateShowDivider();
-    EXPECT_EQ(frameNode_->GetChildren().size(), 1);
+    EXPECT_EQ(frameNode_->GetChildren().size(), 2);
 }
 
 /**

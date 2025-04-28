@@ -314,7 +314,8 @@ static ArkUINodeType ParseNodeType(
         { "GridItem", ARKUI_GRID_ITEM }, { "SymbolGlyph", ARKUI_SYMBOL_GLYPH}, { "TextClock", ARKUI_TEXT_CLOCK },
         { "TextTimer", ARKUI_TEXT_TIMER }, { "Marquee", ARKUI_MARQUEE }, { "TextArea", ARKUI_TEXTAREA },
         { "Checkbox", ARKUI_CHECKBOX }, {"CheckboxGroup", ARKUI_CHECK_BOX_GROUP }, { "Rating", ARKUI_RATING},
-        { "Radio", ARKUI_RADIO }, { "Slider", ARKUI_SLIDER }, { "Select", ARKUI_SELECT }, { "Toggle", ARKUI_TOGGLE } };
+        { "Radio", ARKUI_RADIO }, { "Slider", ARKUI_SLIDER }, { "Select", ARKUI_SELECT }, { "Toggle", ARKUI_TOGGLE },
+        { "EmbeddedComponent", ARKUI_EMBEDDED_COMPONENT } };
     ArkUINodeType nodeType = ARKUI_CUSTOM;
     auto iter = typeMap.find(type);
     if (iter != typeMap.end()) {
@@ -828,13 +829,15 @@ ArkUINativeModuleValue FrameNodeBridge::SetOnDisappear(ArkUIRuntimeCallInfo* run
 
 Local<panda::ObjectRef> FrameNodeBridge::CreateKeyEventInfoObj(EcmaVM* vm, KeyEventInfo& info)
 {
-    const char* keys[] = { "type", "keyCode", "keyText", "keySource", "deviceId", "metaKey", "timestamp",
-        "stopPropagation", "getModifierKeyState", "intentionCode", "isNumLockOn", "isCapsLockOn", "isScrollLockOn" };
+    const char* keys[] = { "type", "keyCode", "keyText", "keySource", "deviceId", "metaKey", "unicode",
+        "timestamp", "stopPropagation", "getModifierKeyState", "intentionCode", "isNumLockOn", "isCapsLockOn",
+        "isScrollLockOn" };
     Local<JSValueRef> values[] = { panda::NumberRef::New(vm, static_cast<int32_t>(info.GetKeyType())),
         panda::NumberRef::New(vm, static_cast<int32_t>(info.GetKeyCode())),
         panda::StringRef::NewFromUtf8(vm, info.GetKeyText()),
         panda::NumberRef::New(vm, static_cast<int32_t>(info.GetKeySource())),
         panda::NumberRef::New(vm, info.GetDeviceId()), panda::NumberRef::New(vm, info.GetMetaKey()),
+        panda::NumberRef::New(vm, info.GetUnicode()),
         panda::NumberRef::New(vm, static_cast<double>(info.GetTimeStamp().time_since_epoch().count())),
         panda::FunctionRef::New(vm, Framework::JsStopPropagation),
         panda::FunctionRef::New(vm, NG::ArkTSUtils::JsGetModifierKeyState),
@@ -1736,7 +1739,8 @@ ArkUINativeModuleValue FrameNodeBridge::LayoutNode(ArkUIRuntimeCallInfo* runtime
     CHECK_NULL_RETURN(x->IsNumber(), defaultReturnValue);
     Local<JSValueRef> y = runtimeCallInfo->GetCallArgRef(2);
     CHECK_NULL_RETURN(y->IsNumber(), defaultReturnValue);
-    ArkUI_Float32 positionValue[2] = { x->ToNumber(vm)->Value(), y->ToNumber(vm)->Value() };
+    ArkUI_Float32 positionValue[2] = { static_cast<ArkUI_Float32>(x->ToNumber(vm)->Value()),
+        static_cast<ArkUI_Float32>(y->ToNumber(vm)->Value()) };
 
     ArkUIVMContext vmContext = nullptr;
     GetArkUIFullNodeAPI()->getExtendedAPI()->layoutNode(vmContext, nativeNode, &positionValue);

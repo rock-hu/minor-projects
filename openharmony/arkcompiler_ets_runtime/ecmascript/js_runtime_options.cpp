@@ -194,6 +194,7 @@ const std::string PUBLIC_API HELP_OPTION_MSG =
     "--async-load-abc:                     Enable asynchronous load abc. Default: 'true'\n"
     "--async-load-abc-test:                Enable asynchronous load abc test. Default: 'false'\n"
     "--compiler-enable-store-barrier:      Enable store barrier optimization. Default: 'true'\n"
+    "--compiler-enable-ldobjvalue-opt:     Enable ldobjvalue optimization. Default: 'true'\n"
     "--compiler-enable-concurrent:         Enable concurrent compile(only support in ark_stub_compiler).\n"
     "--compile-enable-jit-verify-pass:     Enable jit compile with verify pass. Default: 'false'\n\n"
     "                                      Default: 'true'\n"
@@ -347,6 +348,7 @@ bool JSRuntimeOptions::ParseCommand(const int argc, const char **argv)
         {"async-load-abc", required_argument, nullptr, OPTION_ASYNC_LOAD_ABC},
         {"async-load-abc-test", required_argument, nullptr, OPTION_ASYNC_LOAD_ABC_TEST},
         {"compiler-enable-store-barrier", required_argument, nullptr, OPTION_COMPILER_ENABLE_STORE_BARRIER_OPT},
+        {"compiler-enable-ldobjvalue-opt", required_argument, nullptr, OPTION_COMPILER_ENABLE_LDOBJVALUE_OPT},
         {"compiler-enable-concurrent", required_argument, nullptr, OPTION_COMPILER_ENABLE_CONCURRENT},
         {"compiler-opt-frame-state-elimination", required_argument, nullptr,
             OPTION_COMPILER_OPT_FRAME_STATE_ELIMINATION},
@@ -1358,6 +1360,14 @@ bool JSRuntimeOptions::ParseCommand(const int argc, const char **argv)
                     return false;
                 }
                 break;
+            case OPTION_COMPILER_ENABLE_LDOBJVALUE_OPT:
+                ret = ParseBoolParam(&argBool);
+                if (ret) {
+                    SetLdObjValueOpt(argBool);
+                } else {
+                    return false;
+                }
+                break;
             case OPTION_COMPILER_PGO_FORCE_DUMP:
                 ret = ParseBoolParam(&argBool);
                 if (ret) {
@@ -1457,7 +1467,7 @@ bool JSRuntimeOptions::ParseBoolParam(bool* argBool)
 
 bool JSRuntimeOptions::ParseDoubleParam(const std::string &option, double *argDouble)
 {
-    *argDouble = std::stod(optarg, nullptr);
+    *argDouble = std::strtod(optarg, nullptr);
     if (errno == ERANGE) {
         LOG_ECMA(ERROR) << "getopt: \"" << option << "\" argument has invalid parameter value \"" << optarg <<"\"\n";
         return false;
@@ -1467,17 +1477,20 @@ bool JSRuntimeOptions::ParseDoubleParam(const std::string &option, double *argDo
 
 bool JSRuntimeOptions::ParseIntParam(const std::string &option, int *argInt)
 {
+    int64_t val;
     if (StartsWith(optarg, "0x")) {
         const int HEX = 16;
-        *argInt = std::stoi(optarg, nullptr, HEX);
+        val = std::strtoll(optarg, nullptr, HEX);
     } else {
-        *argInt = std::stoi(optarg);
+        const int DEC = 10;
+        val = std::strtoll(optarg, nullptr, DEC);
     }
 
-    if (errno == ERANGE) {
+    if (errno == ERANGE || val < INT_MIN || val > INT_MAX) {
         LOG_ECMA(ERROR) << "getopt: \"" << option << "\" argument has invalid parameter value \"" << optarg <<"\"\n";
         return false;
     }
+    *argInt = static_cast<int>(val);
     return true;
 }
 

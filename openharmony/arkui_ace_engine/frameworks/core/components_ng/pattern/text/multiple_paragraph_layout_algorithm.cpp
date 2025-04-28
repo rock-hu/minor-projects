@@ -65,6 +65,7 @@ void MultipleParagraphLayoutAlgorithm::ConstructTextStyles(
     textStyle.SetTextStyleUid(frameNode->GetId() + 1);
     if (frameNode->GetTag() == V2::SYMBOL_ETS_TAG) {
         textStyle.SetSymbolUid(frameNode->GetId() + 1);
+        textStyle.isSymbolGlyph_ = true;
     }
     if (Negative(contentConstraint.maxSize.Width()) || Negative(contentConstraint.maxSize.Height())) {
         return;
@@ -144,7 +145,6 @@ void MultipleParagraphLayoutAlgorithm::UpdateSymbolStyle(TextStyle& textStyle, b
     if (!isSymbol) {
         return;
     }
-    textStyle.isSymbolGlyph_ = true;
     textStyle.SetRenderStrategy(textStyle.GetRenderStrategy() < 0 ? 0 : textStyle.GetRenderStrategy());
     textStyle.SetEffectStrategy(textStyle.GetEffectStrategy() < 0 ? 0 : textStyle.GetEffectStrategy());
 }
@@ -470,8 +470,8 @@ ParagraphStyle MultipleParagraphLayoutAlgorithm::GetParagraphStyle(const TextSty
         .ellipsisMode = textStyle.GetEllipsisMode(),
         .lineBreakStrategy = textStyle.GetLineBreakStrategy(),
         .textOverflow = textStyle.GetTextOverflow(),
-        .halfLeading = textStyle.GetHalfLeading(),
         .indent = textStyle.GetTextIndent(),
+        .halfLeading = textStyle.GetHalfLeading(),
         .paragraphSpacing = textStyle.GetParagraphSpacing()
         };
 }

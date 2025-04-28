@@ -1612,6 +1612,10 @@ void PipelineContext::StartWindowSizeChangeAnimate(int32_t width, int32_t height
             StartSplitWindowAnimation(width, height, type, rsTransaction);
             break;
         }
+        case WindowSizeChangeReason::MAXIMIZE_IN_IMPLICT: {
+            MaximizeInImplictAnimation(width, height, type, rsTransaction);
+            break;
+        }
         case WindowSizeChangeReason::ROTATION: {
             safeAreaManager_->UpdateKeyboardOffset(0.0);
             SetRootRect(width, height, 0.0);
@@ -1656,9 +1660,8 @@ void PipelineContext::PostKeyboardAvoidTask()
             TaskExecutor::TaskType::UI, "ArkUICustomKeyboardAvoid");
         return;
     }
-    CHECK_NULL_VOID(textFieldManager->GetLaterAvoid());
     auto container = Container::Current();
-    if (container) {
+    if (container && textFieldManager->GetLaterAvoid()) {
         auto displayInfo = container->GetDisplayInfo();
         if (displayInfo && textFieldManager->GetLaterOrientation() != (int32_t)displayInfo->GetRotation()) {
             TAG_LOGI(AceLogTag::ACE_KEYBOARD, "orientation not match, clear laterAvoid");
@@ -1666,13 +1669,14 @@ void PipelineContext::PostKeyboardAvoidTask()
             return;
         }
     }
-    TAG_LOGI(AceLogTag::ACE_KEYBOARD, "after rotation set root, trigger avoid now");
     taskExecutor_->PostTask(
         [weakContext = WeakClaim(this), weakManager = WeakPtr<TextFieldManagerNG>(textFieldManager)] {
             auto manager = weakManager.Upgrade();
             CHECK_NULL_VOID(manager);
+            CHECK_NULL_VOID(manager->GetLaterAvoid());
             auto context = weakContext.Upgrade();
             CHECK_NULL_VOID(context);
+            TAG_LOGI(AceLogTag::ACE_KEYBOARD, "after rotation set root, trigger avoid now");
             auto keyboardRect = manager->GetLaterAvoidKeyboardRect();
             auto positionY = manager->GetLaterAvoidPositionY();
             auto height = manager->GetLaterAvoidHeight();
@@ -1759,6 +1763,34 @@ void PipelineContext::StartSplitWindowAnimation(int32_t width, int32_t height, W
 {
     TAG_LOGI(AceLogTag::ACE_WINDOW_SCENE,
         "Root node start split window animation, type = %{public}d, width = %{public}d, height = %{public}d", type,
+        width, height);
+#ifdef ENABLE_ROSEN_BACKEND
+    if (rsTransaction) {
+        FlushMessages();
+        rsTransaction->Begin();
+    }
+#endif
+    auto curve = AceType::MakeRefPtr<InterpolatingSpring>(0.0f, 1.0f, 300.0f, 33.0f);
+    AnimationOption option;
+    option.SetCurve(curve);
+    Animate(option, curve, [width, height, weak = WeakClaim(this)]() {
+        auto pipeline = weak.Upgrade();
+        CHECK_NULL_VOID(pipeline);
+        pipeline->SetRootRect(width, height, 0.0);
+        pipeline->FlushUITasks();
+    });
+#ifdef ENABLE_ROSEN_BACKEND
+    if (rsTransaction) {
+        rsTransaction->Commit();
+    }
+#endif
+}
+
+void PipelineContext::MaximizeInImplictAnimation(int32_t width, int32_t height, WindowSizeChangeReason type,
+    const std::shared_ptr<Rosen::RSTransaction>& rsTransaction)
+{
+    TAG_LOGI(AceLogTag::ACE_WINDOW_SCENE,
+        "Maximize window in implict animation, type = %{public}d, width = %{public}d, height = %{public}d", type,
         width, height);
 #ifdef ENABLE_ROSEN_BACKEND
     if (rsTransaction) {
@@ -2667,6 +2699,9 @@ void PipelineContext::OnTouchEvent(
         formEventMgr->HandleEtsCardTouchEvent(point, etsSerializedGesture);
     }
 
+    if (point.type != TouchType::DOWN && !eventManager_->touchDelegatesMap_.empty()) {
+        eventManager_->DelegateTouchEvent(point);
+    }
     auto oriPoint = point;
     auto scalePoint = point.CreateScalePoint(GetViewScale());
     eventManager_->CheckDownEvent(scalePoint);
@@ -2726,6 +2761,9 @@ void PipelineContext::OnTouchEvent(
             formEventMgr->HandleEtsCardTouchEvent(oriPoint, etsSerializedGesture);
         }
 
+        if (!eventManager_->touchDelegatesMap_.empty()) {
+            eventManager_->DelegateTouchEvent(point);
+        }
         if (etsSerializedGesture.data.size() != 0) {
             GestureGroup rebirth(GestureMode::Exclusive);
             rebirth.Deserialize(etsSerializedGesture.data.data());
@@ -2839,6 +2877,9 @@ void PipelineContext::OnTouchEvent(
         touchPluginPipelineContext_.clear();
         if (formEventMgr) {
             formEventMgr->RemoveEtsCardTouchEventCallback(point.id);
+        }
+        if (!eventManager_->touchDelegatesMap_.empty()) {
+            eventManager_->UnregisterTouchDelegate(point.id);
         }
         if (scalePoint.type == TouchType::CANCEL) {
             dragEvents_.clear();
@@ -3465,6 +3506,7 @@ void PipelineContext::OnAccessibilityHoverEvent(const TouchEvent& point, const R
     // use mouse to collect accessibility hover target
     touchRestrict.hitTestType = SourceType::MOUSE;
     touchRestrict.inputEventType = InputEventType::TOUCH_SCREEN;
+    touchRestrict.touchEvent.type = TouchType::HOVER_ENTER;
     eventManager_->AccessibilityHoverTest(scaleEvent, targerNode, touchRestrict);
     eventManager_->DispatchAccessibilityHoverEventNG(scaleEvent);
     RequestFrame();
@@ -3828,6 +3870,9 @@ bool PipelineContext::ChangeMouseStyle(int32_t nodeId, MouseFormat format, int32
 {
     auto mouseStyleManager = eventManager_->GetMouseStyleManager();
     CHECK_NULL_RETURN(mouseStyleManager, false);
+    if (!windowId) {
+        windowId = static_cast<int32_t>(GetFocusWindowId());
+    }
     mouseStyleManager->SetMouseFormat(windowId, nodeId, format, isByPass, reason);
     RequestFrame();
     return true;

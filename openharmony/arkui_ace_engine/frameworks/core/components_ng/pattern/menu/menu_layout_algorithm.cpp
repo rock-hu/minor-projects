@@ -2139,8 +2139,13 @@ OffsetF MenuLayoutAlgorithm::SelectLayoutAvoidAlgorithm(const RefPtr<MenuLayoutP
     CHECK_NULL_RETURN(menuProp, OffsetF(0, 0));
     CHECK_NULL_RETURN(menuPattern, OffsetF(0, 0));
     CHECK_NULL_RETURN(layoutWrapper, OffsetF(0, 0));
+    auto geometryNode = layoutWrapper->GetGeometryNode();
+    CHECK_NULL_RETURN(geometryNode, OffsetF(0, 0));
     float x = 0.0f;
     float y = 0.0f;
+    float selectMenuHeight = geometryNode->GetFrameSize().Height();
+    Rect targetRect = Rect(targetOffset_.GetX(), targetOffset_.GetY(), targetSize_.Width(), targetSize_.Height());
+    auto bottomSpace = wrapperRect_.Bottom() - targetRect.Bottom() - targetSecurity_ - paddingBottom_;
     if (GreatNotEqual(targetSize_.Width(), 0.0) || GreatNotEqual(targetSize_.Height(), 0.0)) {
         placement_ = Placement::BOTTOM_LEFT;
         ComputePlacementByAlignType(menuProp);
@@ -2148,6 +2153,9 @@ OffsetF MenuLayoutAlgorithm::SelectLayoutAvoidAlgorithm(const RefPtr<MenuLayoutP
             PlacementRTL(layoutWrapper, placement_);
         }
         auto selectChildOffset = GetSelectChildPosition(size, didNeedArrow, layoutWrapper);
+        if (selectMenuHeight < bottomSpace) {
+            selectChildOffset += ComputeMenuPositionByOffset(menuProp, geometryNode);
+        }
         x = selectChildOffset.GetX();
         y = selectChildOffset.GetY();
     }
@@ -2755,36 +2763,37 @@ OffsetF MenuLayoutAlgorithm::AdjustPosition(const OffsetF& position, float width
 {
     float xMax = 0.0f;
     float yMax = 0.0f;
-    float xMin = paddingStart_;
+    float xMin = wrapperRect_.Left() + paddingStart_;
     float yMin = std::max(1.0f, static_cast<float>(wrapperRect_.Top()) + paddingTop_);
+    float wrapperRight = wrapperRect_.Right();
     float wrapperBottom = wrapperRect_.Bottom();
     switch (placement_) {
         case Placement::LEFT_TOP:
         case Placement::LEFT_BOTTOM:
         case Placement::LEFT: {
-            xMax = std::min(targetOffset_.GetX() - width - space, wrapperSize_.Width() - paddingEnd_ - width);
+            xMax = std::min(targetOffset_.GetX() - width - space, wrapperRight - paddingEnd_ - width);
             yMax = wrapperBottom - height - paddingBottom_;
             break;
         }
         case Placement::RIGHT_TOP:
         case Placement::RIGHT_BOTTOM:
         case Placement::RIGHT: {
-            xMin = std::max(targetOffset_.GetX() + targetSize_.Width() + space, paddingStart_);
-            xMax = wrapperSize_.Width() - width - paddingEnd_;
+            xMin = std::max(targetOffset_.GetX() + targetSize_.Width() + space, xMin);
+            xMax = wrapperRight - width - paddingEnd_;
             yMax = wrapperBottom - height - paddingBottom_;
             break;
         }
         case Placement::TOP_LEFT:
         case Placement::TOP_RIGHT:
         case Placement::TOP: {
-            xMax = wrapperSize_.Width() - width - paddingEnd_;
+            xMax = wrapperRight - width - paddingEnd_;
             yMax = std::min(targetOffset_.GetY() - height - space, wrapperBottom - paddingBottom_ - height);
             break;
         }
         case Placement::BOTTOM_LEFT:
         case Placement::BOTTOM_RIGHT:
         case Placement::BOTTOM: {
-            xMax = wrapperRect_.Right() - width - paddingEnd_;
+            xMax = wrapperRight - width - paddingEnd_;
             yMin = std::max(targetOffset_.GetY() + targetSize_.Height() + space, yMin);
             yMax = wrapperBottom - height - paddingBottom_;
             break;

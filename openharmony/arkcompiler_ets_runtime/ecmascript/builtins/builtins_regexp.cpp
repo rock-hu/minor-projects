@@ -24,7 +24,6 @@
 #include "ecmascript/js_regexp_iterator.h"
 #include "ecmascript/js_tagged_value-inl.h"
 #include "ecmascript/object_fast_operator-inl.h"
-#include "ecmascript/property_detector-inl.h"
 #include "ecmascript/regexp/regexp_executor.h"
 #include "ecmascript/regexp/regexp_parser_cache.h"
 #include "ecmascript/tagged_array-inl.h"
@@ -206,9 +205,8 @@ bool BuiltinsRegExp::IsFastRegExp(JSThread *thread, JSTaggedValue regexp,
 {
     DISALLOW_GARBAGE_COLLECTION;
     JSHandle<GlobalEnv> env = thread->GetEcmaVM()->GetGlobalEnv();
-    const GlobalEnvConstants *globalConst = thread->GlobalConstants();
     JSHClass *hclass = JSObject::Cast(regexp)->GetJSHClass();
-    JSHClass *originHClass = JSHClass::Cast(globalConst->GetJSRegExpClass().GetTaggedObject());
+    JSHClass *originHClass = JSHClass::Cast(env->GetRegExpFuncInstanceClass().GetTaggedValue().GetTaggedObject());
     // regexp instance hclass
     if (hclass != originHClass) {
         return false;
@@ -247,7 +245,7 @@ bool BuiltinsRegExp::IsFastRegExp(JSThread *thread, JSTaggedValue regexp,
             REGEXP_SYMBOL_FUNCTION_LIST(V)
 #undef V
     }
-    if (!PropertyDetector::IsRegExpFlagsDetectorValid(env)) {
+    if (env->GetRegExpFlagsDetector()) {
         return false;
     }
     return true;

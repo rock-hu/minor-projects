@@ -1062,11 +1062,13 @@ JSHandle<JSObject> ObjectFactory::CreateNapiObject()
     JSHandle<GlobalEnv> globalEnv = vm_->GetGlobalEnv();
     JSHandle<JSFunction> constructor(globalEnv->GetObjectFunction());
     JSHandle<JSHClass> ihc(globalEnv->GetObjectFunctionNapiClass());
-    if (globalEnv->GetTaggedObjectFunctionTsNapiClass().IsJSHClass()) {
-        ihc = JSHandle<JSHClass>(globalEnv->GetObjectFunctionTsNapiClass());
+    JSHandle<JSHClass> tsIhc(globalEnv->GetObjectFunctionTsNapiClass());
+    JSHandle<JSObject> jsObject;
+    if (ihc != tsIhc) {
+        jsObject = NewJSObjectWithInit(tsIhc);
+    } else {
+        jsObject = NewJSObjectWithInit(ihc);
     }
-    JSHandle<JSObject> jsObject(NewJSObjectWithInit(ihc));
-    JSHandle<JSTaggedValue> object(jsObject);
     return jsObject;
 }
 
@@ -2515,7 +2517,9 @@ JSHandle<GlobalEnv> ObjectFactory::NewGlobalEnv(JSHClass *globalEnvClass)
     //       the offsets of the properties as the address of Handles.
     TaggedObject *header = heap_->AllocateNonMovableOrHugeObject(globalEnvClass);
     InitObjectFields(header);
-    return JSHandle<GlobalEnv>(thread_, GlobalEnv::Cast(header));
+    JSHandle<GlobalEnv> globalEnv(thread_, GlobalEnv::Cast(header));
+    globalEnv->ClearBitField();
+    return globalEnv;
 }
 
 JSHandle<LexicalEnv> ObjectFactory::NewLexicalEnv(int numSlots)
@@ -3702,13 +3706,14 @@ JSHandle<JSAPIHashMapIterator> ObjectFactory::NewJSAPIHashMapIterator(const JSHa
 {
     NewObjectHook();
     const GlobalEnvConstants *globalConst = thread_->GlobalConstants();
-    JSHandle<JSTaggedValue> undefinedHandle = globalConst->GetHandledUndefined();
-    JSHandle<JSTaggedValue> proto(thread_, globalConst->GetHashMapIteratorPrototype());
+    JSHandle<JSTaggedValue> holeHandle = globalConst->GetHandledHole();
+    JSHandle<GlobalEnv> env = thread_->GetEcmaVM()->GetGlobalEnv();
+    JSHandle<JSTaggedValue> proto(env->GetHashMapIteratorPrototype());
     JSHandle<JSHClass> hclassHandle(globalConst->GetHandledJSAPIHashMapIteratorClass());
     hclassHandle->SetPrototype(thread_, proto);
     JSHandle<JSAPIHashMapIterator> iter(NewJSObject(hclassHandle));
     iter->GetJSHClass()->SetExtensible(true);
-    iter->SetCurrentNodeResult(thread_, undefinedHandle);
+    iter->SetCurrentNodeResult(thread_, holeHandle);
     iter->SetIteratedHashMap(thread_, hashMap);
     iter->SetNextIndex(0);
     iter->SetTaggedQueue(thread_, JSTaggedValue::Undefined());
@@ -3723,16 +3728,16 @@ JSHandle<JSAPIHashSetIterator> ObjectFactory::NewJSAPIHashSetIterator(const JSHa
 {
     NewObjectHook();
     const GlobalEnvConstants *globalConst = thread_->GlobalConstants();
-    JSHandle<JSTaggedValue> undefinedHandle = globalConst->GetHandledUndefined();
-    JSHandle<JSTaggedValue> proto(thread_, globalConst->GetHashSetIteratorPrototype());
+    JSHandle<JSTaggedValue> holeHandle = globalConst->GetHandledHole();
+    JSHandle<GlobalEnv> env = thread_->GetEcmaVM()->GetGlobalEnv();
+    JSHandle<JSTaggedValue> proto = env->GetHashSetIteratorPrototype();
     JSHandle<JSHClass> hclassHandle(globalConst->GetHandledJSAPIHashSetIteratorClass());
     hclassHandle->SetPrototype(thread_, proto);
     JSHandle<JSAPIHashSetIterator> iter(NewJSObject(hclassHandle));
     iter->GetJSHClass()->SetExtensible(true);
-    iter->SetCurrentNodeResult(thread_, undefinedHandle);
+    iter->SetCurrentNodeResult(thread_, holeHandle);
     iter->SetIteratedHashSet(thread_, hashSet);
     iter->SetNextIndex(0);
-    iter->SetTableIndex(0);
     iter->SetTaggedQueue(thread_, JSTaggedValue::Undefined());
     JSHandle<TaggedQueue> queue = NewTaggedQueue(0);
     iter->SetTaggedQueue(thread_, queue);
@@ -4529,7 +4534,8 @@ JSHandle<EcmaString> ObjectFactory::GetStringFromStringTable(const JSHandle<Ecma
 JSHandle<JSAPIArrayList> ObjectFactory::NewJSAPIArrayList(uint32_t capacity)
 {
     NewObjectHook();
-    JSHandle<JSFunction> builtinObj(thread_, thread_->GlobalConstants()->GetArrayListFunction());
+    JSHandle<GlobalEnv> env = thread_->GetEcmaVM()->GetGlobalEnv();
+    JSHandle<JSFunction> builtinObj = JSHandle<JSFunction>::Cast(env->GetArrayListFunction());
     JSHandle<JSAPIArrayList> obj = JSHandle<JSAPIArrayList>(NewJSObjectByConstructor(builtinObj));
     ObjectFactory *factory = thread_->GetEcmaVM()->GetFactory();
     JSHandle<TaggedArray> elements = factory->NewTaggedArray(capacity);
@@ -4542,7 +4548,8 @@ JSHandle<JSAPIArrayListIterator> ObjectFactory::NewJSAPIArrayListIterator(const 
 {
     NewObjectHook();
     const GlobalEnvConstants *globalConst = thread_->GlobalConstants();
-    JSHandle<JSTaggedValue> protoValue(thread_, globalConst->GetArrayListIteratorPrototype());
+    JSHandle<GlobalEnv> env = thread_->GetEcmaVM()->GetGlobalEnv();
+    JSHandle<JSTaggedValue> protoValue = env->GetArrayListIteratorPrototype();
     JSHandle<JSHClass> hclassHandle(globalConst->GetHandledJSAPIArrayListIteratorClass());
     hclassHandle->SetPrototype(thread_, protoValue);
     JSHandle<JSAPIArrayListIterator> iter(NewJSObject(hclassHandle));
@@ -4557,7 +4564,8 @@ JSHandle<JSAPILightWeightMapIterator> ObjectFactory::NewJSAPILightWeightMapItera
 {
     NewObjectHook();
     const GlobalEnvConstants *globalConst = thread_->GlobalConstants();
-    JSHandle<JSTaggedValue> protoValue(thread_, globalConst->GetLightWeightMapIteratorPrototype());
+    JSHandle<GlobalEnv> env = thread_->GetEcmaVM()->GetGlobalEnv();
+    JSHandle<JSTaggedValue> protoValue = env->GetLightWeightMapIteratorPrototype();
     JSHandle<JSHClass> hclassHandle(globalConst->GetHandledJSAPILightWeightMapIteratorClass());
     hclassHandle->SetPrototype(thread_, protoValue);
     JSHandle<JSAPILightWeightMapIterator> iter(NewJSObject(hclassHandle));
@@ -4572,8 +4580,9 @@ JSHandle<JSAPILightWeightSetIterator> ObjectFactory::NewJSAPILightWeightSetItera
     const JSHandle<JSAPILightWeightSet> &obj, IterationKind kind)
 {
     NewObjectHook();
+    JSHandle<GlobalEnv> env = thread_->GetEcmaVM()->GetGlobalEnv();
+    JSHandle<JSTaggedValue> protoValue = env->GetLightWeightSetIteratorPrototype();
     const GlobalEnvConstants *globalConst = thread_->GlobalConstants();
-    JSHandle<JSTaggedValue> protoValue(thread_, globalConst->GetLightWeightSetIteratorPrototype());
     JSHandle<JSHClass> hclassHandle(globalConst->GetHandledJSAPILightWeightSetIteratorClass());
     hclassHandle->SetPrototype(thread_, protoValue);
     JSHandle<JSAPILightWeightSetIterator> iter(NewJSObject(hclassHandle));
@@ -4587,7 +4596,8 @@ JSHandle<JSAPILightWeightSetIterator> ObjectFactory::NewJSAPILightWeightSetItera
 JSHandle<JSAPIPlainArray> ObjectFactory::NewJSAPIPlainArray(uint32_t capacity)
 {
     NewObjectHook();
-    JSHandle<JSFunction> builtinObj(thread_, thread_->GlobalConstants()->GetPlainArrayFunction());
+    JSHandle<GlobalEnv> env = thread_->GetEcmaVM()->GetGlobalEnv();
+    JSHandle<JSFunction> builtinObj = JSHandle<JSFunction>::Cast(env->GetPlainArrayFunction());
     JSHandle<JSAPIPlainArray> obj = JSHandle<JSAPIPlainArray>(NewJSObjectByConstructor(builtinObj));
     ObjectFactory *factory = thread_->GetEcmaVM()->GetFactory();
     JSHandle<TaggedArray> keyArray = factory->NewTaggedArray(capacity);
@@ -4602,7 +4612,8 @@ JSHandle<JSAPIPlainArrayIterator> ObjectFactory::NewJSAPIPlainArrayIterator(cons
                                                                             IterationKind kind)
 {
     NewObjectHook();
-    JSHandle<JSTaggedValue> protoValue(thread_, thread_->GlobalConstants()->GetPlainArrayIteratorPrototype());
+    JSHandle<GlobalEnv> env = thread_->GetEcmaVM()->GetGlobalEnv();
+    JSHandle<JSTaggedValue> protoValue = env->GetPlainArrayIteratorPrototype();
     const GlobalEnvConstants *globalConst = thread_->GlobalConstants();
     JSHandle<JSHClass> hclassHandle(globalConst->GetHandledJSAPIPlainArrayIteratorClass());
     hclassHandle->SetPrototype(thread_, protoValue);
@@ -4618,7 +4629,8 @@ JSHandle<JSAPIStackIterator> ObjectFactory::NewJSAPIStackIterator(const JSHandle
 {
     NewObjectHook();
     const GlobalEnvConstants *globalConst = thread_->GlobalConstants();
-    JSHandle<JSTaggedValue> protoValue(thread_, globalConst->GetStackIteratorPrototype());
+    JSHandle<GlobalEnv> env = thread_->GetEcmaVM()->GetGlobalEnv();
+    JSHandle<JSTaggedValue> protoValue = env->GetStackIteratorPrototype();
     JSHandle<JSHClass> hclassHandle(globalConst->GetHandledJSAPIStackIteratorClass());
     hclassHandle->SetPrototype(thread_, protoValue);
     JSHandle<JSAPIStackIterator> iter(NewJSObject(hclassHandle));
@@ -4655,8 +4667,9 @@ JSHandle<TaggedArray> ObjectFactory::CopyDeque(const JSHandle<TaggedArray> &old,
 JSHandle<JSAPIDequeIterator> ObjectFactory::NewJSAPIDequeIterator(const JSHandle<JSAPIDeque> &deque)
 {
     NewObjectHook();
+    JSHandle<GlobalEnv> env = thread_->GetEcmaVM()->GetGlobalEnv();
+    JSHandle<JSTaggedValue> protoValue = env->GetDequeIteratorPrototype();
     const GlobalEnvConstants *globalConst = thread_->GlobalConstants();
-    JSHandle<JSTaggedValue> protoValue(thread_, globalConst->GetDequeIteratorPrototype());
     JSHandle<JSHClass> hclassHandle(globalConst->GetHandledJSAPIDequeIteratorClass());
     hclassHandle->SetPrototype(thread_, protoValue);
     JSHandle<JSAPIDequeIterator> iter(NewJSObject(hclassHandle));
@@ -4693,8 +4706,9 @@ JSHandle<TaggedArray> ObjectFactory::CopyQueue(const JSHandle<TaggedArray> &old,
 JSHandle<JSAPIQueueIterator> ObjectFactory::NewJSAPIQueueIterator(const JSHandle<JSAPIQueue> &queue)
 {
     NewObjectHook();
+    JSHandle<GlobalEnv> env = thread_->GetEcmaVM()->GetGlobalEnv();
+    JSHandle<JSTaggedValue> protoValue = env->GetQueueIteratorPrototype();
     const GlobalEnvConstants *globalConst = thread_->GlobalConstants();
-    JSHandle<JSTaggedValue> protoValue(thread_, globalConst->GetQueueIteratorPrototype());
     JSHandle<JSHClass> hclassHandle(globalConst->GetHandledJSAPIQueueIteratorClass());
     hclassHandle->SetPrototype(thread_, protoValue);
     JSHandle<JSAPIQueueIterator> iter(NewJSObject(hclassHandle));
@@ -4708,8 +4722,9 @@ JSHandle<JSAPITreeMapIterator> ObjectFactory::NewJSAPITreeMapIterator(const JSHa
                                                                       IterationKind kind)
 {
     NewObjectHook();
+    JSHandle<GlobalEnv> env = thread_->GetEcmaVM()->GetGlobalEnv();
+    JSHandle<JSTaggedValue> proto = env->GetTreeMapIteratorPrototype();
     const GlobalEnvConstants *globalConst = thread_->GlobalConstants();
-    JSHandle<JSTaggedValue> proto(thread_, globalConst->GetTreeMapIteratorPrototype());
     JSHandle<JSHClass> hclassHandle(globalConst->GetHandledJSAPITreeMapIteratorClass());
     hclassHandle->SetPrototype(thread_, proto);
     JSHandle<JSAPITreeMapIterator> iter(NewJSObject(hclassHandle));
@@ -4725,8 +4740,9 @@ JSHandle<JSAPITreeSetIterator> ObjectFactory::NewJSAPITreeSetIterator(const JSHa
                                                                       IterationKind kind)
 {
     NewObjectHook();
+    JSHandle<GlobalEnv> env = thread_->GetEcmaVM()->GetGlobalEnv();
+    JSHandle<JSTaggedValue> proto = env->GetTreeSetIteratorPrototype();
     const GlobalEnvConstants *globalConst = thread_->GlobalConstants();
-    JSHandle<JSTaggedValue> proto(thread_, globalConst->GetTreeSetIteratorPrototype());
     JSHandle<JSHClass> hclassHandle(globalConst->GetHandledJSAPITreeSetIteratorClass());
     hclassHandle->SetPrototype(thread_, proto);
     JSHandle<JSAPITreeSetIterator> iter(NewJSObject(hclassHandle));
@@ -4741,7 +4757,8 @@ JSHandle<JSAPITreeSetIterator> ObjectFactory::NewJSAPITreeSetIterator(const JSHa
 JSHandle<JSAPIVector> ObjectFactory::NewJSAPIVector(uint32_t capacity)
 {
     NewObjectHook();
-    JSHandle<JSFunction> builtinObj(thread_, thread_->GlobalConstants()->GetVectorFunction());
+    JSHandle<GlobalEnv> env = thread_->GetEcmaVM()->GetGlobalEnv();
+    JSHandle<JSFunction> builtinObj = JSHandle<JSFunction>::Cast(env->GetVectorFunction());
     JSHandle<JSAPIVector> obj = JSHandle<JSAPIVector>(NewJSObjectByConstructor(builtinObj));
     JSHandle<TaggedArray> newVector = NewTaggedArray(capacity);
     obj->SetElements(thread_, newVector);
@@ -4752,8 +4769,9 @@ JSHandle<JSAPIVector> ObjectFactory::NewJSAPIVector(uint32_t capacity)
 JSHandle<JSAPIVectorIterator> ObjectFactory::NewJSAPIVectorIterator(const JSHandle<JSAPIVector> &vector)
 {
     NewObjectHook();
+    JSHandle<GlobalEnv> env = thread_->GetEcmaVM()->GetGlobalEnv();
+    JSHandle<JSTaggedValue> proto = env->GetVectorIteratorPrototype();
     const GlobalEnvConstants *globalConst = thread_->GlobalConstants();
-    JSHandle<JSTaggedValue> proto(thread_, globalConst->GetVectorIteratorPrototype());
     JSHandle<JSHClass> hclassHandle(globalConst->GetHandledJSAPIVectorIteratorClass());
     hclassHandle->SetPrototype(thread_, proto);
     JSHandle<JSAPIVectorIterator> iter(NewJSObject(hclassHandle));
@@ -4786,9 +4804,9 @@ JSHandle<JSAPIBitVector> ObjectFactory::NewJSAPIBitVector(uint32_t capacity)
 JSHandle<JSAPIBitVectorIterator> ObjectFactory::NewJSAPIBitVectorIterator(const JSHandle<JSAPIBitVector> &bitVector)
 {
     NewObjectHook();
-    const GlobalEnvConstants *globalConst = thread_->GlobalConstants();
     JSHandle<GlobalEnv> env = thread_->GetEcmaVM()->GetGlobalEnv();
     JSHandle<JSTaggedValue> proto(env->GetBitVectorIteratorPrototype());
+    const GlobalEnvConstants *globalConst = thread_->GlobalConstants();
     JSHandle<JSHClass> hclassHandle(globalConst->GetHandledJSAPIBitVectorIteratorClass());
     hclassHandle->SetPrototype(thread_, proto);
     JSHandle<JSAPIBitVectorIterator> iter(NewJSObject(hclassHandle));
@@ -4801,8 +4819,9 @@ JSHandle<JSAPIBitVectorIterator> ObjectFactory::NewJSAPIBitVectorIterator(const 
 JSHandle<JSAPILinkedListIterator> ObjectFactory::NewJSAPILinkedListIterator(const JSHandle<JSAPILinkedList> &linkedList)
 {
     NewObjectHook();
+    JSHandle<GlobalEnv> env = thread_->GetEcmaVM()->GetGlobalEnv();
+    JSHandle<JSTaggedValue> proto = env->GetLinkedListIteratorPrototype();
     const GlobalEnvConstants *globalConst = thread_->GlobalConstants();
-    JSHandle<JSTaggedValue> proto(thread_, globalConst->GetLinkedListIteratorPrototype());
     JSHandle<JSHClass> hclassHandle(globalConst->GetHandledJSAPILinkedListIteratorClass());
     hclassHandle->SetPrototype(thread_, proto);
     JSHandle<JSAPILinkedListIterator> iter(NewJSObject(hclassHandle));
@@ -4817,8 +4836,9 @@ JSHandle<JSAPILinkedListIterator> ObjectFactory::NewJSAPILinkedListIterator(cons
 JSHandle<JSAPIListIterator> ObjectFactory::NewJSAPIListIterator(const JSHandle<JSAPIList> &List)
 {
     NewObjectHook();
+    JSHandle<GlobalEnv> env = thread_->GetEcmaVM()->GetGlobalEnv();
+    JSHandle<JSTaggedValue> proto = env->GetListIteratorPrototype();
     const GlobalEnvConstants *globalConst = thread_->GlobalConstants();
-    JSHandle<JSTaggedValue> proto(thread_, globalConst->GetListIteratorPrototype());
     JSHandle<JSHClass> hclassHandle(globalConst->GetHandledJSAPIListIteratorClass());
     hclassHandle->SetPrototype(thread_, proto);
     JSHandle<JSAPIListIterator> iter(NewJSObject(hclassHandle));
@@ -4833,14 +4853,16 @@ JSHandle<JSAPIListIterator> ObjectFactory::NewJSAPIListIterator(const JSHandle<J
 JSHandle<JSAPIList> ObjectFactory::NewJSAPIList()
 {
     NewObjectHook();
-    JSHandle<JSFunction> function(thread_, thread_->GlobalConstants()->GetListFunction());
+    JSHandle<GlobalEnv> env = thread_->GetEcmaVM()->GetGlobalEnv();
+    JSHandle<JSFunction> function = JSHandle<JSFunction>::Cast(env->GetListFunction());
     return JSHandle<JSAPIList>::Cast(NewJSObjectByConstructor(function));
 }
 
 JSHandle<JSAPILinkedList> ObjectFactory::NewJSAPILinkedList()
 {
     NewObjectHook();
-    JSHandle<JSFunction> function(thread_, thread_->GlobalConstants()->GetLinkedListFunction());
+    JSHandle<GlobalEnv> env = thread_->GetEcmaVM()->GetGlobalEnv();
+    JSHandle<JSFunction> function = JSHandle<JSFunction>::Cast(env->GetLinkedListFunction());
     return JSHandle<JSAPILinkedList>::Cast(NewJSObjectByConstructor(function));
 }
 

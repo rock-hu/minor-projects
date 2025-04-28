@@ -286,7 +286,7 @@ HWTEST_F(RichEditorMouseTest, RichEditorPatternTestInitMouseEvent001, TestSize.L
 
     auto host = richEditorPattern->GetHost();
     ASSERT_NE(host, nullptr);
-    auto eventHub = host->GetEventHub<EventHub>();
+    auto eventHub = host->GetOrCreateEventHub<EventHub>();
     ASSERT_NE(eventHub, nullptr);
     auto inputHub = eventHub->GetOrCreateInputEventHub();
     ASSERT_NE(inputHub, nullptr);
@@ -918,6 +918,10 @@ HWTEST_F(RichEditorMouseTest, HandleMouseEvent005, TestSize.Level1)
     info.SetAction(MouseAction::PRESS);
     richEditorPattern->HandleMouseEvent(info);
     EXPECT_TRUE(info.GetAction() == MouseAction::PRESS);
+
+    richEditorPattern->textResponseType_ = TextResponseType::RIGHT_CLICK;
+    richEditorPattern->selectOverlay_->ProcessOverlay({ .animation = false });
+    EXPECT_TRUE(richEditorPattern->SelectOverlayIsOn());
 }
 
 /**

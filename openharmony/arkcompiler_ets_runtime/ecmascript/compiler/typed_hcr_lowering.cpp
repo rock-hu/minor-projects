@@ -40,6 +40,12 @@ GateRef TypedHCRLowering::VisitGate(GateRef gate)
         case OpCode::TYPED_ARRAY_CHECK:
             LowerTypedArrayCheck(gate);
             break;
+        case OpCode::STRING_KEY_CHECK:
+            LowerStringKeyCheck(gate);
+            break;
+        case OpCode::INTERN_STRING_KEY_CHECK:
+            LowerInternStringKeyCheck(gate);
+            break;
         case OpCode::ECMA_STRING_CHECK:
             LowerEcmaStringCheck(gate);
             break;
@@ -215,6 +221,12 @@ GateRef TypedHCRLowering::VisitGate(GateRef gate)
             break;
         case OpCode::ELEMENTSKIND_CHECK:
             LowerElementskindCheck(gate);
+            break;
+        case OpCode::INLINE_SUPER_CTOR_CHECK:
+            LowerInlineSuperCtorCheck(gate);
+            break;
+        case OpCode::CHECK_CONSTRUCTOR:
+            LowerCheckConstructor(gate, glue);
             break;
         default:
             break;
@@ -428,6 +440,34 @@ void TypedHCRLowering::LowerTypedArrayCheck(GateRef gate)
         GateRef check2 = builder_.Equal(receiverHClass, rootOnHeapHclass);
         builder_.DeoptCheck(builder_.BitOr(check1, check2), frameState, deoptType);
     }
+    acc_.ReplaceGate(gate, builder_.GetState(), builder_.GetDepend(), Circuit::NullGate());
+}
+
+void TypedHCRLowering::LowerStringKeyCheck(GateRef gate)
+{
+    Environment env(gate, circuit_, &builder_);
+    GateRef frameState = GetFrameState(gate);
+    GateRef key = acc_.GetValueIn(gate, 0);
+    GateRef value = acc_.GetValueIn(gate, 1);
+    builder_.DeoptCheck(builder_.TaggedIsString(key), frameState, DeoptType::NOTSTRING1);
+    builder_.DeoptCheck(builder_.StringEqual(key, value),
+                        frameState, DeoptType::KEYMISSMATCH);
+    acc_.ReplaceGate(gate, builder_.GetState(), builder_.GetDepend(), Circuit::NullGate());
+}
+
+void TypedHCRLowering::LowerInternStringKeyCheck(GateRef gate)
+{
+    Environment env(gate, circuit_, &builder_);
+    GateRef frameState = GetFrameState(gate);
+    GateRef key = acc_.GetValueIn(gate, 0);
+    GateRef value = acc_.GetValueIn(gate, 1);
+    builder_.HeapObjectCheck(key, frameState);
+    GateRef isString = builder_.TaggedObjectIsString(key);
+    builder_.DeoptCheck(isString, frameState, DeoptType::NOTSTRING1);
+    GateRef isInternString = builder_.IsInternString(key);
+    builder_.DeoptCheck(isInternString, frameState, DeoptType::NOTINTERNSTRING1);
+    GateRef isEqual = builder_.Equal(value, key);
+    builder_.DeoptCheck(isEqual, frameState, DeoptType::KEYMISSMATCH);
     acc_.ReplaceGate(gate, builder_.GetState(), builder_.GetDepend(), Circuit::NullGate());
 }
 
@@ -1690,6 +1730,32 @@ void TypedHCRLowering::LowerJSInlineTargetHeapConstantCheck(GateRef gate)
     acc_.ReplaceGate(gate, builder_.GetState(), builder_.GetDepend(), Circuit::NullGate());
 }
 
+void TypedHCRLowering::LowerInlineSuperCtorCheck(GateRef gate)
+{
+    Environment env(gate, circuit_, &builder_);
+    GateRef frameState = GetFrameState(gate);
+    auto func = acc_.GetValueIn(gate, 0);
+    GateRef newTarget = acc_.GetValueIn(gate, 2); // 2: newTarget
+    GateRef constant = acc_.GetValueIn(gate, 1); // 1: Heap constant or method ID
+    GateRef check = Circuit::NullGate();
+    if (acc_.GetOpCode(constant) == OpCode::HEAP_CONSTANT) {
+        check = LogicAndBuilder(&env)
+            .And(builder_.Equal(func, constant))
+            .And(builder_.BoolNot(builder_.TaggedIsUndefined(newTarget)))
+            .Done();
+    } else {
+        builder_.HeapObjectCheck(func, frameState);
+        check = LogicAndBuilder(&env)
+            .And(builder_.IsJSFunction(func))
+            .And(builder_.IsConstructor(func))
+            .And(builder_.Equal(builder_.GetMethodId(func), acc_.GetValueIn(gate, 1)))
+            .And(builder_.BoolNot(builder_.TaggedIsUndefined(newTarget)))
+            .Done();
+    }
+    builder_.DeoptCheck(check, frameState, DeoptType::INLINESUPERFAIL);
+    acc_.ReplaceGate(gate, builder_.GetState(), builder_.GetDepend(), Circuit::NullGate());
+}
+
 void TypedHCRLowering::LowerTypedNewAllocateThis(GateRef gate, GateRef glue)
 {
     Environment env(gate, circuit_, &builder_);
@@ -1727,7 +1793,7 @@ void TypedHCRLowering::LowerTypedSuperAllocateThis(GateRef gate, GateRef glue)
         builder_.Jump(&exit);
     }
     builder_.Bind(&exit);
-    acc_.ReplaceGate(gate, builder_.GetState(), builder_.GetDepend(), *thisObj);
+    ReplaceHirWithPendingException(gate, glue, builder_.GetState(), builder_.GetDepend(), *thisObj);
 }
 
 void TypedHCRLowering::LowerGetSuperConstructor(GateRef gate)
@@ -3304,5 +3370,16 @@ void TypedHCRLowering::LowerElementskindCheck(GateRef gate)
     }
     builder_.DeoptCheck(check, frameState, DeoptType::INCONSISTENTELEMENTSKIND);
     acc_.ReplaceGate(gate, builder_.GetState(), builder_.GetDepend(), Circuit::NullGate());
+}
+
+void TypedHCRLowering::LowerCheckConstructor(GateRef gate, GateRef glue)
+{
+    Environment env(gate, circuit_, &builder_);
+    NewObjectStubBuilder objBuilder(&env);
+    GateRef superFunc = acc_.GetValueIn(gate, 0); // 0 : Super func
+    GateRef ctorResult = acc_.GetValueIn(gate, 1); // 1: Constructor result
+    GateRef thisObj = acc_.GetValueIn(gate, 2); // 2: This object
+    GateRef result = objBuilder.ConstructorCheck(glue, superFunc, ctorResult, thisObj);
+    ReplaceHirWithPendingException(gate, glue, builder_.GetState(), builder_.GetDepend(), result);
 }
 }  // namespace panda::ecmascript::kungfu

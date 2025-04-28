@@ -2296,7 +2296,7 @@ GateRef StubBuilder::StringToElementIndex(GateRef glue, GateRef string)
                     Jump(&exit);
                 }
                 Bind(&loopEnd);
-                LoopEnd(&loopHead, env, glue);
+                LoopEnd(&loopHead);
                 Bind(&afterLoop);
                 {
                     Label lessThanMaxIndex(env);
@@ -9296,13 +9296,19 @@ GateRef StubBuilder::IsDetectorInvalid(GateRef glue, size_t indexDetector)
 
 void StubBuilder::HClassCompareAndCheckDetector(GateRef glue, GateRef hclass,
                                                 Label *match, Label *slowPath,
-                                                size_t indexHClass, size_t indexDetector)
+                                                size_t indexHClass, bool isMap)
 {
     auto env = GetEnvironment();
     Label matchHClass(env);
     FuncOrHClassCompare(glue, hclass, &matchHClass, slowPath, indexHClass);
     Bind(&matchHClass);
-    BRANCH(IsDetectorInvalid(glue, indexDetector), slowPath, match);
+    GateRef glueGlobalEnvOffset = IntPtr(JSThread::GlueData::GetGlueGlobalEnvOffset(env->Is32Bit()));
+    GateRef glueGlobalEnv = Load(VariableType::NATIVE_POINTER(), glue, glueGlobalEnvOffset);
+    if (isMap) {
+        BRANCH(GetMapIteratorDetector(glueGlobalEnv), slowPath, match);
+    } else {
+        BRANCH(GetSetIteratorDetector(glueGlobalEnv), slowPath, match);
+    }
 }
 
 void StubBuilder::GetIteratorResult(GateRef glue, Variable *result, GateRef obj,
@@ -9326,7 +9332,9 @@ void StubBuilder::TryFastGetArrayIterator(GateRef glue, GateRef hclass, GateRef 
     BRANCH(Int32Equal(jsType, Int32(static_cast<int32_t>(JSType::JS_ARRAY))), &tryArray, slowPath2);
     Bind(&tryArray);
     {
-        BRANCH(IsDetectorInvalid(glue, GlobalEnv::ARRAY_ITERATOR_DETECTOR_INDEX), slowPath2, &arrayDetectorValid);
+        GateRef glueGlobalEnvOffset = IntPtr(JSThread::GlueData::GetGlueGlobalEnvOffset(env->Is32Bit()));
+        GateRef glueGlobalEnv = Load(VariableType::NATIVE_POINTER(), glue, glueGlobalEnvOffset);
+        BRANCH(GetArrayIteratorDetector(glueGlobalEnv), slowPath2, &arrayDetectorValid);
         Bind(&arrayDetectorValid);
         {
             BuiltinsArrayStubBuilder arrayStubBuilder(this);
@@ -9357,9 +9365,9 @@ void StubBuilder::TryFastGetIterator(GateRef glue, GateRef obj, GateRef hclass,
     // When the symbol.iterator method remains unmodified
     // it is used to quickly process instances of Map, Set whose hclass == Map/Set's ihc.
     // In this situation we don't need to perform FastGetPropertyByName and CallRuntime.
-    HClassCompareAndCheckDetector(glue, hclass, &matchMap, &notmatchMap, GlobalEnv::MAP_CLASS_INDEX, GlobalEnv::MAP_ITERATOR_DETECTOR_INDEX);
+    HClassCompareAndCheckDetector(glue, hclass, &matchMap, &notmatchMap, GlobalEnv::MAP_CLASS_INDEX, true);
     Bind(&notmatchMap);
-    HClassCompareAndCheckDetector(glue, hclass, &matchSet, &notmatchSet, GlobalEnv::SET_CLASS_INDEX, GlobalEnv::SET_ITERATOR_DETECTOR_INDEX);
+    HClassCompareAndCheckDetector(glue, hclass, &matchSet, &notmatchSet, GlobalEnv::SET_CLASS_INDEX, false);
     Bind(&notmatchSet);
 
     GateRef jsType = GetObjectType(hclass);
@@ -9620,7 +9628,7 @@ GateRef StubBuilder::TryStringOrSymbolToElementIndex(GateRef glue, GateRef key)
                 }
             }
             Bind(&loopEnd);
-            LoopEnd(&loopHead, env, glue);
+            LoopEnd(&loopHead);
             Bind(&afterLoop);
             {
                 Label lessThanMaxIndex(env);
@@ -11893,6 +11901,84 @@ GateRef StubBuilder::LoadExternalmodulevar(GateRef glue, GateRef index, GateRef 
         Jump(&exit);
     }
 
+    Bind(&exit);
+    auto ret = *result;
+    env->SubCfgExit();
+    return ret;
+}
+
+GateRef StubBuilder::LoadModuleNamespaceByIndex(GateRef glue, GateRef index, GateRef module)
+{
+    auto env = GetEnvironment();
+    Label subentry(env);
+    env->SubCfgEntry(&subentry);
+    DEFVARIABLE(result, VariableType::JS_ANY(), Hole());
+    Label moduleUndefined(env);
+    Label moduleNotUndefined(env);
+    Label notSendableFunctionModule(env);
+    Label requestedModulesNotUndefined(env);
+    Label requiredModuleIsHeapObj(env);
+    Label requiredModuleIsSourceTextModule(env);
+    Label isNullPtr(env);
+    Label isNativeModule(env);
+    Label dictionaryNotUndefined(env);
+    Label notNativeModule(env);
+    Label isCjsModule(env);
+    Label notCjsModule(env);
+    Label namespaceNotUndefined(env);
+    Label slowPath(env);
+    Label exit(env);
+    BRANCH_UNLIKELY(TaggedIsUndefined(module), &moduleUndefined, &moduleNotUndefined);
+    Bind(&moduleUndefined);
+    {
+        FatalPrint(glue, {Int32(GET_MESSAGE_STRING_ID(CurrentModuleUndefined))});
+        Jump(&exit);
+    }
+    Bind(&moduleNotUndefined);
+    BRANCH_UNLIKELY(IsSendableFunctionModule(module), &slowPath, &notSendableFunctionModule);
+    Bind(&notSendableFunctionModule);
+    {
+        GateRef requestedModules = GetRequestedModules(module);
+        BRANCH_UNLIKELY(TaggedIsUndefined(requestedModules), &slowPath, &requestedModulesNotUndefined);
+        Bind(&requestedModulesNotUndefined);
+        GateRef requiredModule = GetValueFromTaggedArray(requestedModules, index);
+        BRANCH_LIKELY(TaggedIsHeapObject(requiredModule), &requiredModuleIsHeapObj, &slowPath);
+        Bind(&requiredModuleIsHeapObj);
+        BRANCH_LIKELY(IsSourceTextModule(requiredModule), &requiredModuleIsSourceTextModule, &slowPath);
+        Bind(&requiredModuleIsSourceTextModule);
+        BRANCH_LIKELY(IntPtrEuqal(GetModuleLogger(glue), IntPtr(0)), &isNullPtr, &slowPath);
+        Bind(&isNullPtr);
+        BRANCH(IsNativeModule(requiredModule), &isNativeModule, &notNativeModule);
+        Bind(&isNativeModule);
+        {
+            GateRef dictionary = GetNameDictionary(requiredModule);
+            BRANCH_UNLIKELY(TaggedIsUndefined(dictionary), &slowPath, &dictionaryNotUndefined);
+            Bind(&dictionaryNotUndefined);
+            result = GetValueFromTaggedArray(dictionary, Int32(0));
+            Jump(&exit);
+        }
+        Bind(&notNativeModule);
+        BRANCH(IsCjsModule(requiredModule), &isCjsModule, &notCjsModule);
+        Bind(&isCjsModule);
+        {
+            // CommonJS module involves CString, jump to slowPath here
+            Jump(&slowPath);
+        }
+        Bind(&notCjsModule);
+        {
+            // requiredModule is ESM
+            GateRef moduleNamespace = GetNamespaceFromSourceTextModule(requiredModule);
+            BRANCH_UNLIKELY(TaggedIsUndefined(moduleNamespace), &slowPath, &namespaceNotUndefined);
+            Bind(&namespaceNotUndefined);
+            result = moduleNamespace;
+            Jump(&exit);
+        }
+    }
+    Bind(&slowPath);
+    {
+        result = CallRuntime(glue, RTSTUB_ID(GetModuleNamespaceByIndex), { IntToTaggedInt(index) });
+        Jump(&exit);
+    }
     Bind(&exit);
     auto ret = *result;
     env->SubCfgExit();

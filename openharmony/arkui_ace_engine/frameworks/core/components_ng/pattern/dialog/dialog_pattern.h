@@ -69,7 +69,7 @@ public:
 
     bool ShouldDismiss() const
     {
-        if (onWillDismiss_) {
+        if (onWillDismiss_ && !isDialogDisposed_) {
             return true;
         }
         return false;
@@ -90,7 +90,7 @@ public:
 
     void CallOnWillDismiss(const int32_t reason, const int32_t instanceId)
     {
-        if (onWillDismiss_) {
+        if (onWillDismiss_ && !isDialogDisposed_) {
             onWillDismiss_(reason, instanceId);
         }
     }
@@ -311,6 +311,11 @@ public:
         return true;
     }
 
+    void SetIsDialogDisposed(bool isDialogDisposed)
+    {
+        isDialogDisposed_ = isDialogDisposed;
+    }
+
     bool IsShowInFreeMultiWindow();
     bool IsWaterfallWindowMode();
     bool IsShowInFloatingWindow();
@@ -411,6 +416,7 @@ private:
     void CheckScrollHeightIsNegative(const RefPtr<UINode>& contentColumn, const DialogProperties& props);
     RefPtr<OverlayManager> GetOverlayManager(const RefPtr<FrameNode>& host);
     void OnAttachToMainTree() override;
+    void OnDetachFromMainTree() override;
     RefPtr<DialogTheme> dialogTheme_;
     WeakPtr<UINode> customNode_;
     RefPtr<ClickEvent> onClick_;
@@ -451,6 +457,7 @@ private:
     std::function<void()> onWillDisappearCallback_ = nullptr;
     std::unordered_map<DialogContentNode, RefPtr<FrameNode>> contentNodeMap_;
     bool isUIExtensionSubWindow_ = false;
+    bool isDialogDisposed_ = false;
     RectF hostWindowRect_;
     UECHostMaskInfo hostMaskInfo_;
 };

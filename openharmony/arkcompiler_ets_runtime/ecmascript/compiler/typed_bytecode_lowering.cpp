@@ -567,7 +567,7 @@ void TypedBytecodeLowering::DeleteConstDataIfNoUser(GateRef gate)
 
 void TypedBytecodeLowering::LowerTypedLdObjByName(GateRef gate)
 {
-    LoadObjByNameTypeInfoAccessor tacc(compilationEnv_, circuit_, gate, chunk_);
+    LoadObjPropertyTypeInfoAccessor tacc(compilationEnv_, circuit_, gate, chunk_);
 
     if (TryLowerTypedLdobjBynameFromGloablBuiltin(gate)) {
         return;
@@ -1079,7 +1079,7 @@ bool TypedBytecodeLowering::TryLowerTypedLdObjByNameForGlobalsId(const LoadBulit
     } else if (globalsId.IsGlobalEnvId()) { // ctor Hclass
         GlobalEnvField index = static_cast<GlobalEnvField>(globalsId.GetGlobalEnvId());
         JSHClass *hclass = JSHClass::Cast(compilationEnv_->GetGlobalEnv()->GetGlobalEnvObjectByIndex(
-            static_cast<size_t>(index))->GetTaggedObject()->GetClass());
+            static_cast<size_t>(index))->GetTaggedObject());
         PropertyLookupResult plr = JSHClass::LookupPropertyInBuiltinHClass(compilationEnv_->GetJSThread(), hclass, key);
         if (!plr.IsFound() || plr.IsAccessor()) {
             return false;
@@ -1087,8 +1087,9 @@ bool TypedBytecodeLowering::TryLowerTypedLdObjByNameForGlobalsId(const LoadBulit
         AddProfiling(gate);
         // 1. check hclass
         builder_.HeapObjectCheck(receiver, frameState);
+        GateRef receiverHClass = builder_.LoadHClassByConstOffset(receiver);
         GateRef globalEnvObj = builder_.GetGlobalEnvObj(builder_.GetGlobalEnv(), static_cast<size_t>(index));
-        builder_.DeoptCheck(builder_.Equal(receiver, globalEnvObj), frameState,
+        builder_.DeoptCheck(builder_.Equal(receiverHClass, globalEnvObj), frameState,
                             DeoptType::INCONSISTENTHCLASS12);
         // 2. load property
         GateRef plrGate = builder_.Int32(plr.GetData());
@@ -1330,6 +1331,48 @@ bool TypedBytecodeLowering::TryLowerTypedLdObjByValueForBuiltin(GateRef gate)
 void TypedBytecodeLowering::LowerTypedLdObjByValue(GateRef gate)
 {
     if (TryLowerTypedLdObjByValueForBuiltin(gate)) {
+        return;
+    }
+    if (!compilationEnv_->SupportHeapConstant() || !compilationEnv_->GetJSOptions().IsLdObjValueOpt()) {
+        return;
+    }
+    LoadObjPropertyTypeInfoAccessor tacc(compilationEnv_, circuit_, gate, chunk_, true);
+    // only support for string named key.
+    if (tacc.TypesIsEmpty() || tacc.HasIllegalType()) {
+        return;
+    }
+    DEFVALUE(result, (&builder_), VariableType::JS_ANY(), builder_.Hole());
+    AddProfiling(gate);
+    GateRef frameState = acc_.FindNearestFrameState(gate);
+    if (tacc.IsMono()) {
+        if (!tacc.GetName()->IsString()) {
+            return;
+        }
+        GateRef receiver = tacc.GetReceiver();
+        EcmaString* ecmaString = EcmaString::Cast(tacc.GetName()->GetTaggedObject());
+        EcmaStringAccessor ecmaStringAccessor(ecmaString);
+        if (ecmaStringAccessor.IsInternString()) {
+            builder_.InternStringKeyCheck(tacc.GetKey(), builder_.HeapConstant(tacc.GetNameIdx()));
+        } else {
+            builder_.StringKeyCheck(tacc.GetKey(), builder_.HeapConstant(tacc.GetNameIdx()));
+        }
+        builder_.ObjectTypeCheck(false, receiver,
+                                 builder_.Int32(tacc.GetExpectedHClassIndex(0)), frameState);
+        if (tacc.IsReceiverEqHolder(0)) {
+            result = BuildNamedPropertyAccess(gate, receiver, receiver, tacc.GetAccessInfo(0).Plr());
+        } else {
+            builder_.ProtoChangeMarkerCheck(receiver, frameState);
+            PropertyLookupResult plr = tacc.GetAccessInfo(0).Plr();
+            GateRef plrGate = builder_.Int32(plr.GetData());
+            GateRef unsharedConstPoool = argAcc_.GetFrameArgsIn(gate, FrameArgIdx::UNSHARED_CONST_POOL);
+            size_t holderHClassIndex = static_cast<size_t>(tacc.GetAccessInfo(0).HClassIndex());
+            if (LIKELY(!plr.IsAccessor())) {
+                result = builder_.MonoLoadPropertyOnProto(receiver, plrGate, unsharedConstPoool, holderHClassIndex);
+            } else {
+                result = builder_.MonoCallGetterOnProto(gate, receiver, plrGate, unsharedConstPoool, holderHClassIndex);
+            }
+        }
+        acc_.ReplaceHirAndDeleteIfException(gate, builder_.GetStateDepend(), *result);
         return;
     }
 }
@@ -1718,13 +1761,10 @@ void TypedBytecodeLowering::LowerTypedSuperCall(GateRef gate)
     AddProfiling(gate);
 
     GateRef ctor = tacc.GetCtor();
-    // stateSplit maybe not a STATE_SPLIT
-    GateRef stateSplit = acc_.GetDep(gate);
 
-    GateRef frameState = acc_.FindNearestFrameState(stateSplit);
     GateRef superCtor = builder_.GetSuperConstructor(ctor);
     GateRef newTarget = argAcc_.GetFrameArgsIn(gate, FrameArgIdx::NEW_TARGET);
-    GateRef thisObj = builder_.TypedSuperAllocateThis(superCtor, newTarget, frameState);
+    GateRef thisObj = builder_.TypedSuperAllocateThis(superCtor, newTarget);
 
     // call constructor
     size_t range = acc_.GetNumValueIn(gate);

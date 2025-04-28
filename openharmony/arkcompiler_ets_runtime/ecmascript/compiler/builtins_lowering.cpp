@@ -31,9 +31,6 @@ void BuiltinLowering::LowerTypedCallBuitin(GateRef gate)
         case BUILTINS_STUB_ID(StringLocaleCompare):
             LowerTypedLocaleCompare(gate);
             break;
-        case BUILTINS_STUB_ID(ArraySort):
-            LowerTypedArraySort(gate);
-            break;
         case BUILTINS_STUB_ID(JsonStringify):
             LowerTypedStringify(gate);
             break;
@@ -217,14 +214,6 @@ void BuiltinLowering::LowerTypedLocaleCompare(GateRef gate)
     ReplaceHirWithValue(gate, result);
 }
 
-void BuiltinLowering::LowerTypedArraySort(GateRef gate)
-{
-    GateRef glue = acc_.GetGlueFromArgList();
-    GateRef thisObj = acc_.GetValueIn(gate, 0);
-    GateRef result = LowerCallRuntime(glue, gate, RTSTUB_ID(ArraySort), { thisObj });
-    ReplaceHirWithValue(gate, result);
-}
-
 GateRef BuiltinLowering::LowerCallTargetCheck(Environment *env, GateRef gate)
 {
     builder_.SetEnvironment(env);
@@ -278,31 +267,31 @@ GateRef BuiltinLowering::LowerCallTargetCheckWithGlobalEnv(GateRef gate, Builtin
 GateRef BuiltinLowering::LowerCallTargetCheckWithDetector(GateRef gate, BuiltinsStubCSigns::ID id)
 {
     JSType expectType = JSType::INVALID;
-    uint16_t detectorIndex = 0;
+    GateRef detectorValue = Gate::InvalidGateRef;
     switch (id) {
         case BuiltinsStubCSigns::ID::MapProtoIterator: {
             expectType = JSType::JS_MAP;
-            detectorIndex = GlobalEnv::MAP_ITERATOR_DETECTOR_INDEX;
+            detectorValue = builder_.BoolNot(builder_.GetMapIteratorDetector(builder_.GetGlobalEnv()));
             break;
         }
         case BuiltinsStubCSigns::ID::SetProtoIterator: {
             expectType = JSType::JS_SET;
-            detectorIndex = GlobalEnv::SET_ITERATOR_DETECTOR_INDEX;
+            detectorValue = builder_.BoolNot(builder_.GetSetIteratorDetector(builder_.GetGlobalEnv()));
             break;
         }
         case BuiltinsStubCSigns::ID::StringProtoIterator: {
             expectType = JSType::STRING_FIRST;
-            detectorIndex = GlobalEnv::STRING_ITERATOR_DETECTOR_INDEX;
+            detectorValue = builder_.BoolNot(builder_.GetStringIteratorDetector(builder_.GetGlobalEnv()));
             break;
         }
         case BuiltinsStubCSigns::ID::ArrayProtoIterator: {
             expectType = JSType::JS_ARRAY;
-            detectorIndex = GlobalEnv::ARRAY_ITERATOR_DETECTOR_INDEX;
+            detectorValue = builder_.BoolNot(builder_.GetArrayIteratorDetector(builder_.GetGlobalEnv()));
             break;
         }
         case BuiltinsStubCSigns::ID::TypedArrayProtoIterator: {
             expectType = JSType::JS_TYPED_ARRAY_FIRST;
-            detectorIndex = GlobalEnv::TYPED_ARRAY_ITERATOR_DETECTOR_INDEX;
+            detectorValue = builder_.BoolNot(builder_.GetTypedArrayIteratorDetector(builder_.GetGlobalEnv()));
             break;
         }
         default: {
@@ -314,7 +303,7 @@ GateRef BuiltinLowering::LowerCallTargetCheckWithDetector(GateRef gate, Builtins
     return LogicAndBuilder(builder_.GetCurrentEnvironment())
         .And(builder_.TaggedIsHeapObjectOp(obj))
         .And(builder_.IsSpecificObjectType(obj, expectType))
-        .And(builder_.IsMarkerCellValid(builder_.GetGlobalEnvObj(builder_.GetGlobalEnv(), detectorIndex)))
+        .And(detectorValue)
         .Done();
 }
 

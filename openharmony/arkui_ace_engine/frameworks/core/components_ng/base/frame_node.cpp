@@ -627,6 +627,9 @@ bool FrameNode::IsSupportDrawModifier()
 void FrameNode::ProcessOffscreenNode(const RefPtr<FrameNode>& node, bool needRemainActive)
 {
     CHECK_NULL_VOID(node);
+    if (node->GetRenderContext()) {
+        node->GetRenderContext()->SetDrawNode();
+    }
     auto task = [weak = AceType::WeakClaim(AceType::RawPtr(node)), needRemainActive]() {
         auto node = weak.Upgrade();
         CHECK_NULL_VOID(node);
@@ -869,7 +872,7 @@ void FrameNode::DumpDragInfo()
     dragPreviewStr.append(" extraInfo: ").append(dragPreviewInfo_.extraInfo.c_str());
     dragPreviewStr.append(" inspectorId: ").append(dragPreviewInfo_.inspectorId.c_str());
     DumpLog::GetInstance().AddDesc(dragPreviewStr);
-    auto eventHub = GetEventHubOnly<EventHub>();
+    auto eventHub = GetEventHub<EventHub>();
     DumpLog::GetInstance().AddDesc(std::string("Event: ")
                                        .append("OnDragStart: ")
                                        .append(eventHub && eventHub->HasOnDragStart() ? "YES" : "NO")
@@ -912,7 +915,7 @@ void FrameNode::DumpOnSizeChangeInfo()
 
 void FrameNode::DumpKeyboardShortcutInfo()
 {
-    auto eventHub = GetEventHubOnly<EventHub>();
+    auto eventHub = GetEventHub<EventHub>();
     if (!eventHub) {
         return;
     }
@@ -1197,6 +1200,11 @@ void FrameNode::ToJsonValue(std::unique_ptr<JsonValue>& json, const InspectorFil
         GeometryNodeToJsonValue(json, filter);
     }
     json->PutFixedAttr("id", propInspectorId_.value_or("").c_str(), filter, FIXED_ATTR_ID);
+    json->Put("isLayoutDirtyMarked", isLayoutDirtyMarked_);
+    json->Put("isRenderDirtyMarked", isRenderDirtyMarked_);
+    json->Put("isMeasureBoundary", isMeasureBoundary_);
+    json->Put("hasPendingRequest", hasPendingRequest_);
+    json->Put("isFirstBuilding", isFirstBuilding_);
     ExtraCustomPropertyToJsonValue(json, filter);
     if (IsCNode() || !IsJsCustomPropertyUpdated()) {
         auto jsonNode = JsonUtil::Create(true);
@@ -1605,6 +1613,11 @@ void FrameNode::SwapDirtyLayoutWrapperOnMainThread(const RefPtr<LayoutWrapper>& 
 
     // rebuild child render node.
     RebuildRenderContextTree();
+}
+
+void FrameNode::SetMeasureCallback(const std::function<void(RefPtr<Kit::FrameNode>)>& measureCallback)
+{
+    measureCallback_ = std::move(measureCallback);
 }
 
 void FrameNode::SetBackgroundLayoutConstraint(const RefPtr<FrameNode>& customNode)
@@ -2099,6 +2112,10 @@ void FrameNode::SetActive(bool active, bool needRebuildRenderContext)
 
 void FrameNode::SetGeometryNode(const RefPtr<GeometryNode>& node)
 {
+    if (node == nullptr) {
+        TAG_LOGW(AceLogTag::ACE_DEFAULT_DOMAIN, "SetGeometryNode failed: tag:%{public}s, id:%{public}d] ",
+            GetTag().c_str(), GetId());
+    }
     geometryNode_ = node;
 }
 
@@ -2160,7 +2177,7 @@ std::optional<UITask> FrameNode::CreateRenderTask(bool forceUseMainThread)
         }
         wrapper->FlushRender();
         paintProperty->CleanDirty();
-        auto eventHub = self->GetEventHubOnly<NG::EventHub>();
+        auto eventHub = self->GetEventHub<NG::EventHub>();
         if (self->GetInspectorId() || (eventHub && eventHub->HasNDKDrawCompletedCallback())) {
             CHECK_NULL_VOID(pipeline);
             pipeline->SetNeedRenderNode(weak);
@@ -2915,7 +2932,8 @@ HitTestResult FrameNode::TouchTest(const PointF& globalPoint, const PointF& pare
     bool consumed = false;
 
     HitTestMode onTouchInterceptresult = HitTestMode::HTMDEFAULT;
-    if (touchRestrict.inputEventType != InputEventType::MOUSE_BUTTON) {
+    if (touchRestrict.inputEventType != InputEventType::MOUSE_BUTTON &&
+            touchRestrict.touchEvent.type != TouchType::HOVER_ENTER) {
         onTouchInterceptresult = TriggerOnTouchIntercept(touchRestrict.touchEvent);
     }
     TouchResult touchRes;
@@ -4493,6 +4511,10 @@ void FrameNode::Measure(const std::optional<LayoutConstraintF>& parentConstraint
     if (pipeline && pipeline->GetPixelRoundMode() == PixelRoundMode::PIXEL_ROUND_AFTER_MEASURE) {
         auto size = geometryNode_->GetFrameSize();
         geometryNode_->SetFrameSize(SizeF({ round(size.Width()), round(size.Height()) }));
+    }
+
+    if (measureCallback_) {
+        measureCallback_(kitNode_);
     }
 
     layoutProperty_->UpdatePropertyChangeFlag(PROPERTY_UPDATE_LAYOUT);
@@ -6255,7 +6277,7 @@ void FrameNode::DumpDragInfo(std::unique_ptr<JsonValue>& json)
     dragPreview->Put("inspectorId", dragPreviewInfo_.inspectorId.c_str());
     json->Put("DragPreview", dragPreview);
 
-    auto eventHub = GetEventHubOnly<EventHub>();
+    auto eventHub = GetEventHub<EventHub>();
     std::unique_ptr<JsonValue> event = JsonUtil::Create(true);
     event->Put("OnDragStart", eventHub && eventHub->HasOnDragStart() ? "YES" : "NO");
     event->Put("OnDragEnter", eventHub && eventHub->HasOnDragEnter() ? "YES" : "NO");

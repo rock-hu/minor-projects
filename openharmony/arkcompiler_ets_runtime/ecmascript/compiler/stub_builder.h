@@ -386,7 +386,7 @@ public:
                            Label *isPendingException, Label *noPendingException);
     void HClassCompareAndCheckDetector(GateRef glue, GateRef hclass,
                                        Label *match, Label *slowPath,
-                                       size_t indexHClass, size_t indexDetector);
+                                       size_t indexHClass, bool isMap);
     void TryFastGetArrayIterator(GateRef glue, GateRef hclass, GateRef jsType,
                                  Label *slowPath2, Label *matchArray);
     void TryFastGetIterator(GateRef glue, GateRef obj, GateRef hclass,
@@ -528,6 +528,10 @@ public:
     GateRef GetLayoutFromHClass(GateRef hClass);
     GateRef GetBitFieldFromHClass(GateRef hClass);
     GateRef GetArrayElementsGuardians(GateRef env);
+    GateRef GetTypedArraySpeciesProtectDetector(GateRef env);
+    GateRef GetArrayIteratorDetector(GateRef env);
+    GateRef GetMapIteratorDetector(GateRef env);
+    GateRef GetSetIteratorDetector(GateRef env);
     void SetArrayElementsGuardians(GateRef glue, GateRef env, GateRef value);
     GateRef GetLengthFromString(GateRef value);
     GateRef CalcHashcodeForInt(GateRef value);
@@ -1095,6 +1099,8 @@ public:
     inline GateRef GetNameDictionary(GateRef module);
     inline GateRef GetCurrentModuleEnv(GateRef curModule);
     inline GateRef GetBitFieldFromSourceTextModule(GateRef curModule);
+    inline GateRef GetRequestedModules(GateRef module);
+    inline GateRef GetNamespaceFromSourceTextModule(GateRef module);
     inline GateRef GetResolveModuleFromResolvedIndexBinding(GateRef resolvedBinding);
     inline GateRef GetResolveModuleFromResolvedBinding(GateRef resolvedBinding);
     inline GateRef GetIdxOfResolvedIndexBinding(GateRef resolvedBinding);
@@ -1128,6 +1134,7 @@ public:
     GateRef LoadExternalmodulevar(GateRef glue, GateRef index, GateRef curModule);
     // end: Fast path of Loading Module variable.
 
+    GateRef LoadModuleNamespaceByIndex(GateRef glue, GateRef index, GateRef module);
     GateRef GetArgumentsElements(GateRef glue, GateRef argvTaggedArray, GateRef argv);
     void TryToJitReuseCompiledFunc(GateRef glue, GateRef jsFunc, GateRef profileTypeInfoCell);
     void TryToBaselineJitReuseCompiledFunc(GateRef glue, GateRef jsFunc, GateRef profileTypeInfoCell);

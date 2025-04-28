@@ -4259,6 +4259,19 @@ inline GateRef StubBuilder::GetBitFieldFromSourceTextModule(GateRef curModule)
     return Load(VariableType::INT32(), curModule, bitFieldOffset);
 }
 
+inline GateRef StubBuilder::GetRequestedModules(GateRef module)
+{
+    GateRef requestedModulesOffset = IntPtr(SourceTextModule::REQUESTED_MODULES_OFFSET);
+    return Load(VariableType::JS_ANY(), module, requestedModulesOffset);
+}
+
+inline GateRef StubBuilder::GetNamespaceFromSourceTextModule(GateRef module)
+{
+    GateRef namespaceOffset = IntPtr(SourceTextModule::NAMESPACE_OFFSET);
+    GateRef moduleNamespace = Load(VariableType::JS_ANY(), module, namespaceOffset);
+    return RemoveTaggedWeakTag(moduleNamespace);
+}
+
 inline GateRef StubBuilder::GetResolveModuleFromResolvedIndexBinding(GateRef resolvedBinding)
 {
     GateRef moduleOffset = IntPtr(ResolvedIndexBinding::MODULE_OFFSET);
@@ -4376,6 +4389,26 @@ inline void StubBuilder::SetArrayElementsGuardians(GateRef glue, GateRef env, Ga
     GateRef newVal = Int32Or(Int32And(bitfield, Int32Not(mask)),
         Int32LSL(oldValue, Int32(GlobalEnv::ArrayPrototypeChangedGuardiansBits::START_BIT)));
     Store(VariableType::INT32(), glue, env, offset, newVal);
+}
+
+inline GateRef StubBuilder::GetTypedArraySpeciesProtectDetector(GateRef env)
+{
+    return env_->GetBuilder()->GetTypedArraySpeciesProtectDetector(env);
+}
+
+inline GateRef StubBuilder::GetArrayIteratorDetector(GateRef env)
+{
+    return env_->GetBuilder()->GetArrayIteratorDetector(env);
+}
+
+inline GateRef StubBuilder::GetMapIteratorDetector(GateRef env)
+{
+    return env_->GetBuilder()->GetMapIteratorDetector(env);
+}
+
+inline GateRef StubBuilder::GetSetIteratorDetector(GateRef env)
+{
+    return env_->GetBuilder()->GetSetIteratorDetector(env);
 }
 } //  namespace panda::ecmascript::kungfu
 #endif // ECMASCRIPT_COMPILER_STUB_INL_H

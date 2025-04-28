@@ -61,6 +61,26 @@ public:
         return JitCompilationEnv::INVALID_HEAP_CONSTANT_INDEX;
     }
 
+    uint32_t TryGetInlineHeapConstantFunctionIndex(uint32_t callMethodId) const
+    {
+        if (compilationEnv_ == nullptr || !compilationEnv_->SupportHeapConstant()) {
+            return JitCompilationEnv::INVALID_HEAP_CONSTANT_INDEX;
+        }
+        ASSERT(compilationEnv_->IsJitCompiler());
+        auto *jitCompilationEnv = static_cast<const JitCompilationEnv*>(compilationEnv_);
+        const auto &callMethodId2HeapConstantIndex = jitCompilationEnv->GetCallMethodId2HeapConstantIndex();
+        auto itr = callMethodId2HeapConstantIndex.find(callMethodId);
+        if (itr != callMethodId2HeapConstantIndex.end()) {
+            return itr->second;
+        }
+        const auto &onlyInlineMethodId2HeapConstantIndex = jitCompilationEnv->GetOnlyInlineMethodId2HeapConstantIndex();
+        auto iter = onlyInlineMethodId2HeapConstantIndex.find(callMethodId);
+        if (iter != onlyInlineMethodId2HeapConstantIndex.end()) {
+            return iter->second;
+        }
+        return JitCompilationEnv::INVALID_HEAP_CONSTANT_INDEX;
+    }
+
     static bool IsTrustedBooleanType(GateAccessor acc, GateRef gate);
 
     static bool IsTrustedNumberType(GateAccessor acc, GateRef gate);
@@ -794,6 +814,7 @@ enum CallKind : uint8_t {
     CALL_INIT,
     CALL_SETTER,
     CALL_GETTER,
+    SUPER_CALL,
     INVALID
 };
 
@@ -820,6 +841,16 @@ public:
             }
         }
         return false;
+    }
+
+    bool IsEnableSuperCallInline() const
+    {
+        return IsValidCallMethodId() && !IsBuiltinFunctionId();
+    }
+
+    bool IsBuiltinFunctionId() const
+    {
+        return pgoType_.GetPGOSampleType()->GetProfileType().IsBuiltinFunctionId();
     }
 
     bool IsValidCallMethodId() const
@@ -877,6 +908,11 @@ public:
         return kind_ == CallKind::CALL_SETTER;
     }
 
+    bool IsSuperCall() const
+    {
+        return kind_ == CallKind::SUPER_CALL;
+    }
+
     uint32_t GetType() const
     {
         return GetFuncMethodOffsetFromPGO();
@@ -887,12 +923,33 @@ public:
         return plr_;
     }
 
+    GateRef GetReceiver() const
+    {
+        return receiver_;
+    }
+
+    void UpdateReceiver(GateRef gate)
+    {
+        receiver_ = gate;
+    }
+
+    GateRef GetThisObj() const
+    {
+        return thisObj_;
+    }
+
+    void UpdateThisObj(GateRef gate)
+    {
+        thisObj_ = gate;
+    }
+
 private:
     PropertyLookupResult GetAccessorPlr() const;
     PropertyLookupResult GetAccessorPlrInJIT() const;
     bool InitPropAndCheck(JSTaggedValue &prop) const;
 
     GateRef receiver_;
+    GateRef thisObj_;
     CallKind kind_ {CallKind::INVALID};
     PropertyLookupResult plr_ { PropertyLookupResult() };
 };
@@ -1289,7 +1346,7 @@ private:
     friend class JitAccessorStrategy;
 };
 
-class LoadObjByNameTypeInfoAccessor final : public ObjAccByNameTypeInfoAccessor {
+class LoadObjPropertyTypeInfoAccessor final : public ObjAccByNameTypeInfoAccessor {
 public:
     class AccessorStrategy {
     public:
@@ -1304,7 +1361,7 @@ public:
 
     class AotAccessorStrategy : public AccessorStrategy {
     public:
-        explicit AotAccessorStrategy(LoadObjByNameTypeInfoAccessor &parent) : parent_(parent)
+        explicit AotAccessorStrategy(LoadObjPropertyTypeInfoAccessor &parent) : parent_(parent)
         {
         }
 
@@ -1333,12 +1390,12 @@ public:
         bool GenerateObjectAccessInfo() override;
 
     private:
-        LoadObjByNameTypeInfoAccessor &parent_;
+        LoadObjPropertyTypeInfoAccessor &parent_;
     };
 
     class JitAccessorStrategy : public AccessorStrategy {
     public:
-        explicit JitAccessorStrategy(LoadObjByNameTypeInfoAccessor &parent) : parent_(parent)
+        explicit JitAccessorStrategy(LoadObjPropertyTypeInfoAccessor &parent) : parent_(parent)
         {
         }
 
@@ -1366,11 +1423,12 @@ public:
         bool GenerateObjectAccessInfo() override;
 
     private:
-        LoadObjByNameTypeInfoAccessor &parent_;
+        LoadObjPropertyTypeInfoAccessor &parent_;
     };
-    LoadObjByNameTypeInfoAccessor(const CompilationEnv *env, Circuit *circuit, GateRef gate, Chunk *chunk);
-    NO_COPY_SEMANTIC(LoadObjByNameTypeInfoAccessor);
-    NO_MOVE_SEMANTIC(LoadObjByNameTypeInfoAccessor);
+    LoadObjPropertyTypeInfoAccessor(const CompilationEnv *env, Circuit *circuit,
+                                    GateRef gate, Chunk *chunk, bool isByValue = false);
+    NO_COPY_SEMANTIC(LoadObjPropertyTypeInfoAccessor);
+    NO_MOVE_SEMANTIC(LoadObjPropertyTypeInfoAccessor);
 
     size_t GetTypeCount()
     {
@@ -1440,9 +1498,22 @@ public:
         }
     }
 
+    JSHandle<JSTaggedValue> GetName()
+    {
+        return name_;
+    }
+
+    uint32_t GetNameIdx()
+    {
+        return nameIdx_;
+    }
+
 private:
     ChunkVector<std::pair<ProfileTyper, ProfileTyper>> types_;
     ChunkVector<pgo::PGOObjectInfo> jitTypes_;
+    JSHandle<JSTaggedValue> name_;
+    uint32_t nameIdx_;
+    bool isByValue_;
 
     AccessorStrategy* strategy_;
     friend class AotAccessorStrategy;

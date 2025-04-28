@@ -137,6 +137,8 @@ private:
     void LowerStableArrayCheck(GateRef gate);
     void LowerTypedArrayCheck(GateRef gate);
     void LowerEcmaStringCheck(GateRef gate);
+    void LowerStringKeyCheck(GateRef gate);
+    void LowerInternStringKeyCheck(GateRef gate);
     void LowerInternStringCheck(GateRef gate);
     void LowerEcmaMapCheck(GateRef gate);
     void LowerFlattenTreeStringCheck(GateRef gate, GateRef glue);
@@ -233,6 +235,8 @@ private:
     void LowerMigrateArrayWithKind(GateRef gate);
     void LowerEcmaObjectCheck(GateRef gate);
     void LowerElementskindCheck(GateRef gate);
+    void LowerInlineSuperCtorCheck(GateRef gate);
+    void LowerCheckConstructor(GateRef gate, GateRef glue);
 
     GateRef LowerCallRuntime(GateRef glue, GateRef hirGate, int index, const std::vector<GateRef> &args,
                              bool useLabel = false);
