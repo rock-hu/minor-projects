@@ -3925,7 +3925,7 @@ bool TextFieldPattern::AllowCopy()
 
 void TextFieldPattern::OnDetachFromFrameNode(FrameNode* node)
 {
-    CloseSelectOverlay();
+    selectOverlay_->CloseOverlay(false, CloseReason::CLOSE_REASON_NORMAL);
     auto pipeline = node->GetContext();
     CHECK_NULL_VOID(pipeline);
     if (HasSurfaceChangedCallback()) {
@@ -8869,7 +8869,6 @@ void TextFieldPattern::OnWindowSizeChanged(int32_t width, int32_t height, Window
                 if (displayInfo) {
                     auto dmRotation = static_cast<int32_t>(displayInfo->GetRotation());
                     textFieldManager->SetFocusFieldOrientation(dmRotation);
-                    textFieldManager->SetFocusFieldAlreadyTriggerWsCallback(true);
                 }
             }
         },

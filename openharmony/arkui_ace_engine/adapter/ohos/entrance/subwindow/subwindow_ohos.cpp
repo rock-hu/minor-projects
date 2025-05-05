@@ -52,6 +52,8 @@
 #include "core/common/text_field_manager.h"
 #include "core/components/bubble/bubble_component.h"
 #include "core/components/popup/popup_component.h"
+#include "core/components_ng/pattern/dialog/dialog_mask_pattern.h"
+#include "core/components_ng/pattern/dialog/dialog_pattern.h"
 #include "core/components_ng/pattern/menu/menu_view.h"
 #include "core/components_ng/pattern/menu/wrapper/menu_wrapper_pattern.h"
 #include "core/components_ng/pattern/overlay/overlay_manager.h"
@@ -100,6 +102,12 @@ public:
             [subWindow, enable]() {
                 CHECK_NULL_VOID(subWindow);
                 subWindow->OnFreeMultiWindowSwitch(enable);
+                if (enable) {
+                    subWindow->SetFollowParentWindowLayoutEnabled(false);
+                    subWindow->ResizeWindow();
+                } else {
+                    subWindow->SetFollowParentWindowLayoutEnabled(true);
+                }
             },
             TaskExecutor::TaskType::UI, "ArkUIFreeMultiWindowSwitch");
     }
@@ -240,6 +248,7 @@ void SubwindowOhos::InitContainer()
         auto windowType = parentWindow->GetType();
         std::string windowTag = "";
         bool isAppSubwindow = false;
+        bool needFollowScreen = false;
         if (IsSystemTopMost()) {
             windowOption->SetWindowType(Rosen::WindowType::WINDOW_TYPE_SYSTEM_TOAST);
             windowTag = "TOAST_SYSTEM_";
@@ -252,6 +261,7 @@ void SubwindowOhos::InitContainer()
             windowTag = isSelectOverlay ? "TEXT_MENU_" : "TOAST_TOPMOST_";
         } else if (parentContainer->IsSceneBoardWindow() || windowType == Rosen::WindowType::WINDOW_TYPE_DESKTOP) {
             windowOption->SetWindowType(Rosen::WindowType::WINDOW_TYPE_SYSTEM_FLOAT);
+            needFollowScreen = true;
         } else if (windowType == Rosen::WindowType::WINDOW_TYPE_UI_EXTENSION) {
             auto hostWindowId = parentPipeline->GetFocusWindowId();
             windowOption->SetIsUIExtFirstSubWindow(true);
@@ -262,6 +272,7 @@ void SubwindowOhos::InitContainer()
         } else if (windowType >= Rosen::WindowType::SYSTEM_WINDOW_BASE) {
             windowOption->SetWindowType(Rosen::WindowType::WINDOW_TYPE_SYSTEM_SUB_WINDOW);
             windowOption->SetParentId(parentWindowId);
+            needFollowScreen = true;
         } else {
             windowOption->SetWindowType(Rosen::WindowType::WINDOW_TYPE_APP_SUB_WINDOW);
             windowOption->SetParentId(parentWindowId);
@@ -294,6 +305,7 @@ void SubwindowOhos::InitContainer()
         }
         CHECK_NULL_VOID(window_);
         window_->RegisterWindowAttachStateChangeListener(new MenuWindowSceneListener(WeakClaim(this)));
+        window_->SetFollowScreenChange(needFollowScreen);
         defaultDisplayId_ = displayId;
     }
     std::string url = "";
@@ -1228,9 +1240,10 @@ RefPtr<NG::FrameNode> SubwindowOhos::ShowDialogNG(
     auto dialogTheme = context->GetTheme<DialogTheme>();
     CHECK_NULL_RETURN(dialogTheme, nullptr);
     if (dialogTheme->GetExpandDisplay() || parentAceContainer->IsFreeMultiWindow()) {
+        SetFollowParentWindowLayoutEnabled(false);
         ResizeWindow();
     } else {
-        window_->SetFollowParentWindowLayoutEnabled(true);
+        SetFollowParentWindowLayoutEnabled(true);
     }
     ShowWindow(dialogProps.focusable);
     CHECK_NULL_RETURN(window_, nullptr);
@@ -1267,9 +1280,10 @@ RefPtr<NG::FrameNode> SubwindowOhos::ShowDialogNGWithNode(
     auto dialogTheme = context->GetTheme<DialogTheme>();
     CHECK_NULL_RETURN(dialogTheme, nullptr);
     if (dialogTheme->GetExpandDisplay() || parentAceContainer->IsFreeMultiWindow()) {
+        SetFollowParentWindowLayoutEnabled(false);
         ResizeWindow();
     } else {
-        window_->SetFollowParentWindowLayoutEnabled(true);
+        SetFollowParentWindowLayoutEnabled(true);
     }
     ShowWindow(dialogProps.focusable);
     CHECK_NULL_RETURN(window_, nullptr);
@@ -1320,9 +1334,10 @@ void SubwindowOhos::OpenCustomDialogNG(const DialogProperties& dialogProps, std:
     auto dialogTheme = context->GetTheme<DialogTheme>();
     CHECK_NULL_VOID(dialogTheme);
     if (dialogTheme->GetExpandDisplay() || parentAceContainer->IsFreeMultiWindow()) {
+        SetFollowParentWindowLayoutEnabled(false);
         ResizeWindow();
     } else {
-        window_->SetFollowParentWindowLayoutEnabled(true);
+        SetFollowParentWindowLayoutEnabled(true);
     }
     ShowWindow(dialogProps.focusable);
     CHECK_NULL_VOID(window_);
@@ -2329,5 +2344,73 @@ bool SubwindowOhos::ShowSelectOverlay(const RefPtr<NG::FrameNode>& overlayNode)
     window_->KeepKeyboardOnFocus(true);
     window_->SetFocusable(false);
     return true;
+}
+
+void SubwindowOhos::ShowDialogMaskNG(const RefPtr<NG::FrameNode>& dialog)
+{
+    TAG_LOGI(AceLogTag::ACE_SUB_WINDOW, "subwindow show dialog mask ng");
+    CHECK_NULL_VOID(dialog);
+    ContainerScope scope(childContainerId_);
+    CHECK_NULL_VOID(window_);
+    ShowWindow(false);
+    window_->SetFollowParentWindowLayoutEnabled(true);
+    window_->SetTouchable(true);
+    window_->SetFocusable(false);
+
+    // clear hostAreas, use the full window size of default hotArea
+    std::vector<Rosen::Rect> hotAreas;
+    window_->SetTouchHotAreas(hotAreas);
+    window_->SetRaiseByClickEnabled(false);
+
+    auto dialogPattern = dialog->GetPattern<NG::DialogPattern>();
+    CHECK_NULL_VOID(dialogPattern);
+    auto dialogProps = dialogPattern->GetDialogProperties();
+
+    DialogProperties maskarg;
+    maskarg.isMask = true;
+    maskarg.autoCancel = dialogProps.autoCancel;
+    maskarg.onWillDismiss = dialogProps.onWillDismiss;
+    maskarg.maskColor = dialogProps.maskColor;
+
+    auto maskNode = NG::FrameNode::CreateFrameNode(DIALOG_MASK_ETS_TAG, ElementRegister::GetInstance()->MakeUniqueId(),
+        AceType::MakeRefPtr<NG::DialogMaskPattern>(maskarg, dialog));
+    CHECK_NULL_VOID(maskNode);
+
+    auto aceContainer = Platform::AceContainer::GetContainer(childContainerId_);
+    CHECK_NULL_VOID(aceContainer);
+    auto pipeline = DynamicCast<NG::PipelineContext>(aceContainer->GetPipelineContext());
+    CHECK_NULL_VOID(pipeline);
+    auto rootNode = pipeline->GetRootElement();
+    CHECK_NULL_VOID(rootNode);
+    maskNode->MountToParent(rootNode);
+    rootNode->MarkDirtyNode(NG::PROPERTY_UPDATE_MEASURE_SELF_AND_CHILD);
+
+    auto maskPattern = maskNode->GetPattern<NG::DialogMaskPattern>();
+    CHECK_NULL_VOID(maskPattern);
+    maskPattern->ShowMask();
+    dialogPattern->SetUECMaskNode(maskNode);
+
+    // raise dialog window to top
+    auto dialogPipeline = dialog->GetContextRefPtr();
+    CHECK_NULL_VOID(dialogPipeline);
+    auto dialogWindow = aceContainer->GetUIWindow(dialogPipeline->GetInstanceId());
+    CHECK_NULL_VOID(dialogWindow);
+    if (dialogWindow->RaiseToAppTop() != OHOS::Rosen::WMError::WM_OK) {
+        TAG_LOGW(AceLogTag::ACE_SUB_WINDOW, "failed to raise window to top, windowId: %{public}d",
+            dialogWindow->GetWindowId());
+    }
+}
+
+void SubwindowOhos::CloseDialogMaskNG(const RefPtr<NG::FrameNode>& dialog)
+{
+    TAG_LOGI(AceLogTag::ACE_SUB_WINDOW, "subwindow close dialog mask ng");
+    CHECK_NULL_VOID(dialog);
+    auto dialogPattern = dialog->GetPattern<NG::DialogPattern>();
+    CHECK_NULL_VOID(dialogPattern);
+    auto maskNode = dialogPattern->GetUECMaskNode();
+    CHECK_NULL_VOID(maskNode);
+    auto maskPattern = maskNode->GetPattern<NG::DialogMaskPattern>();
+    CHECK_NULL_VOID(maskPattern);
+    maskPattern->CloseMask();
 }
 } // namespace OHOS::Ace

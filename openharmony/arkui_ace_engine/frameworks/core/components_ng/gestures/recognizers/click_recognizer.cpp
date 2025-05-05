@@ -93,7 +93,7 @@ ClickRecognizer::ClickRecognizer(int32_t fingers, int32_t count, double distance
     if (distanceThreshold_ <= 0) {
         distanceThreshold_ = std::numeric_limits<double>::infinity();
     }
-    
+
     SetOnAccessibility(GetOnAccessibilityEventFunc());
 }
 
@@ -607,10 +607,11 @@ bool ClickRecognizer::ReconcileFrom(const RefPtr<NGGestureRecognizer>& recognize
     }
 
     if (curr->count_ != count_ || curr->fingers_ != fingers_ || curr->priorityMask_ != priorityMask_ ||
-        curr->distanceThreshold_ != distanceThreshold_ || curr->isLimitFingerCount_ != isLimitFingerCount_) {
+        curr->distanceThreshold_ != distanceThreshold_) {
         ResetStatus();
         return false;
     }
+    isLimitFingerCount_ = curr->isLimitFingerCount_;
 
     onAction_ = std::move(curr->onAction_);
     ReconcileGestureInfoFrom(recognizer);

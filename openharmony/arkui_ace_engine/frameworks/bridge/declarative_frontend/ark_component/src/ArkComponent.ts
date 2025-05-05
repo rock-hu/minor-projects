@@ -148,13 +148,8 @@ function isResource(variable: any): variable is Resource {
   return (variable as Resource)?.bundleName !== undefined;
 }
 
-function isResourceEqual(stageValue: Resource, value: Resource): boolean {
-  return false;
-}
 function isBaseOrResourceEqual(stageValue: any, value: any): boolean {
-  if (isResource(stageValue) && isResource(value)) {
-    return isResourceEqual(stageValue, value);
-  } else if (!isResource(stageValue) && !isResource(value)) {
+  if (!isResource(stageValue) && !isResource(value)) {
     return (stageValue === value);
   }
   return false;
@@ -357,9 +352,7 @@ class BorderWidthModifier extends ModifierWithKey<Length | EdgeWidths> {
   }
 
   checkObjectDiff(): boolean {
-    if (isResource(this.stageValue) && isResource(this.value)) {
-      return !isResourceEqual(this.stageValue, this.value);
-    } else if (!isResource(this.stageValue) && !isResource(this.value)) {
+    if (!isResource(this.stageValue) && !isResource(this.value)) {
       if ((Object.keys(this.value).indexOf('start') >= 0) ||
           (Object.keys(this.value).indexOf('end') >= 0)) {
         return !((this.stageValue as LocalizedEdgeWidths).start === (this.value as LocalizedEdgeWidths).start &&
@@ -446,9 +439,7 @@ class BorderRadiusModifier extends ModifierWithKey<Length | BorderRadiuses | Loc
   }
 
   checkObjectDiff(): boolean {
-    if (isResource(this.stageValue) && isResource(this.value)) {
-      return !isResourceEqual(this.stageValue, this.value);
-    } else if (!isResource(this.stageValue) && !isResource(this.value)) {
+    if (!isResource(this.stageValue) && !isResource(this.value)) {
       if ((Object.keys(this.value).indexOf('topStart') >= 0) ||
           (Object.keys(this.value).indexOf('topEnd') >= 0) ||
           (Object.keys(this.value).indexOf('bottomStart') >= 0) ||
@@ -542,9 +533,7 @@ class BorderColorModifier extends ModifierWithKey<ResourceColor | EdgeColors | L
   }
 
   checkObjectDiff(): boolean {
-    if (isResource(this.stageValue) && isResource(this.value)) {
-      return !isResourceEqual(this.stageValue, this.value);
-    } else if (!isResource(this.stageValue) && !isResource(this.value)) {
+    if (!isResource(this.stageValue) && !isResource(this.value)) {
       if ((Object.keys(this.value).indexOf('start') >= 0) ||
           (Object.keys(this.value).indexOf('end') >= 0)) {
         return !((this.stageValue as LocalizedEdgeColors).start === (this.value as LocalizedEdgeColors).start &&
@@ -1159,9 +1148,7 @@ class OutlineColorModifier extends ModifierWithKey<ResourceColor | EdgeColors> {
   }
 
   checkObjectDiff(): boolean {
-    if (isResource(this.stageValue) && isResource(this.value)) {
-      return !isResourceEqual(this.stageValue, this.value);
-    } else if (!isResource(this.stageValue) && !isResource(this.value)) {
+    if (!isResource(this.stageValue) && !isResource(this.value)) {
       return !((this.stageValue as EdgeColors).left === (this.value as EdgeColors).left &&
         (this.stageValue as EdgeColors).right === (this.value as EdgeColors).right &&
         (this.stageValue as EdgeColors).top === (this.value as EdgeColors).top &&
@@ -1192,9 +1179,7 @@ class OutlineRadiusModifier extends ModifierWithKey<Dimension | OutlineRadiuses>
     }
   }
   checkObjectDiff(): boolean {
-    if (isResource(this.stageValue) && isResource(this.value)) {
-      return !isResourceEqual(this.stageValue, this.value);
-    } else if (!isResource(this.stageValue) && !isResource(this.value)) {
+    if (!isResource(this.stageValue) && !isResource(this.value)) {
       return !((this.stageValue as BorderRadiuses).topLeft === (this.value as BorderRadiuses).topLeft &&
         (this.stageValue as BorderRadiuses).topRight === (this.value as BorderRadiuses).topRight &&
         (this.stageValue as BorderRadiuses).bottomLeft === (this.value as BorderRadiuses).bottomLeft &&
@@ -1255,9 +1240,7 @@ class OutlineWidthModifier extends ModifierWithKey<Dimension | EdgeOutlineWidths
   }
 
   checkObjectDiff(): boolean {
-    if (isResource(this.stageValue) && isResource(this.value)) {
-      return !isResourceEqual(this.stageValue, this.value);
-    } else if (!isResource(this.stageValue) && !isResource(this.value)) {
+    if (!isResource(this.stageValue) && !isResource(this.value)) {
       return !((this.stageValue as EdgeOutlineWidths).left === (this.value as EdgeOutlineWidths).left &&
         (this.stageValue as EdgeOutlineWidths).right === (this.value as EdgeOutlineWidths).right &&
         (this.stageValue as EdgeOutlineWidths).top === (this.value as EdgeOutlineWidths).top &&
@@ -3604,6 +3587,27 @@ class ArkComponent implements CommonMethod<CommonAttribute> {
   _gestureEvent: UIGestureEvent;
   _instanceId: number;
   _needDiff: boolean;
+  private _clickEvent: ClickCallback = null;
+  private _touchEvent: TouchCallback = null;
+  private _onAppearEvent: VoidCallback = null;
+  private _onDisappearEvent: VoidCallback = null;
+  private _onAttach: VoidCallback = null;
+  private _onDetach: VoidCallback = null;
+  private _onKeyEvent: KeyEventCallback = null;
+  private _onKeyPreIme: Callback<KeyEvent, boolean> = null;
+  private _onKeyEventDispatch: Callback<KeyEvent, boolean> = null;
+  private _onFocus: VoidCallback = null;
+  private _onBlur: VoidCallback = null;
+  private _onHover: HoverEventCallback = null;
+  private _onHoverMove: HoverMoveEventCallback = null;
+  private _onMouse: MouseEventCallback = null;
+  private _onAxis: AxisEventCallback = null;
+  private _onSizeChange: SizeChangeEventCallback = null;
+  private _onAreaChange: AreaChangeEventCallback = null;
+  private _onGestureJudgeBegin: GestureJudgeBeginCallback = null;
+  private _onGestureRecognizerJudgeBegin: GestureRecognizerJudgeBeginCallback = null;
+  private _shouldBuiltInRecognizerParallelWith: ShouldBuiltInRecognizerParallelWithCallback = null;
+  private _onFocusAxisEvent: FocusAxisEventCallback = null;
 
   constructor(nativePtr: KNode, classType?: ModifierType) {
     this.nativePtr = nativePtr;
@@ -3694,18 +3698,22 @@ class ArkComponent implements CommonMethod<CommonAttribute> {
     });
   }
   onGestureJudgeBegin(callback: (gestureInfo: GestureInfo, event: BaseGestureEvent) => GestureJudgeResult): this {
+    this._onGestureJudgeBegin = callback;
     modifierWithKey(this._modifiersWithKeys, OnGestureJudgeBeginModifier.identity, OnGestureJudgeBeginModifier, callback);
     return this;
   }
   onGestureRecognizerJudgeBegin(callback: (event: BaseGestureEvent, current: GestureRecognizer, recognizers: Array<GestureRecognizer>) => GestureJudgeResult): this {
+    this._onGestureRecognizerJudgeBegin = callback;
     modifierWithKey(this._modifiersWithKeys, OnGestureRecognizerJudgeBeginModifier.identity, OnGestureRecognizerJudgeBeginModifier, callback);
     return this;
   }
   shouldBuiltInRecognizerParallelWith(callback: (current: GestureRecognizer, others: Array<GestureRecognizer>) => GestureRecognizer): this {
+    this._shouldBuiltInRecognizerParallelWith = callback;
     modifierWithKey(this._modifiersWithKeys, ShouldBuiltInRecognizerParallelWithModifier.identity, ShouldBuiltInRecognizerParallelWithModifier, callback);
     return this;
   }
   onSizeChange(callback: (oldValue: SizeOptions, newValue: SizeOptions) => void): this {
+    this._onSizeChange = callback;
     modifierWithKey(this._modifiersWithKeys, OnSizeChangeModifier.identity, OnSizeChangeModifier, callback);
     return this;
   }
@@ -4205,16 +4213,19 @@ class ArkComponent implements CommonMethod<CommonAttribute> {
   }
 
   onClick(event: (event?: ClickEvent) => void): this {
+    this._clickEvent = event;
     modifierWithKey(this._modifiersWithKeys, OnClickModifier.identity, OnClickModifier, event);
     return this;
   }
 
   onHover(event: (isHover?: boolean, event?: HoverEvent) => void): this {
+    this._onHover = event;
     modifierWithKey(this._modifiersWithKeys, OnHoverModifier.identity, OnHoverModifier, event);
     return this;
   }
 
   onHoverMove(event: (event?: HoverMoveEvent) => void): this {
+    this._onHoverMove = event;
     modifierWithKey(this._modifiersWithKeys, OnHoverMoveModifier.identity, OnHoverMoveModifier, event);
     return this;
   }
@@ -4225,36 +4236,43 @@ class ArkComponent implements CommonMethod<CommonAttribute> {
   }
 
   onMouse(event: (event?: MouseEvent) => void): this {
+    this._onMouse = event;
     modifierWithKey(this._modifiersWithKeys, OnMouseModifier.identity, OnMouseModifier, event);
     return this;
   }
 
   onAxisEvent(event: (event?: AxisEvent) => void): this {
+    this._onAxis = event;
     modifierWithKey(this._modifiersWithKeys, OnAxisEventModifier.identity, OnAxisEventModifier, event);
     return this;
   }
   
   onTouch(event: (event?: TouchEvent) => void): this {
+    this._touchEvent = event;
     modifierWithKey(this._modifiersWithKeys, OnTouchModifier.identity, OnTouchModifier, event);
     return this;
   }
 
   onKeyEvent(event: (event?: KeyEvent) => void): this {
+    this._onKeyEvent = event;
     modifierWithKey(this._modifiersWithKeys, OnKeyEventModifier.identity, OnKeyEventModifier, event);
     return this;
   }
 
   onKeyPreIme(event: Callback<KeyEvent, boolean>): this {
+    this._onKeyPreIme = event;
     modifierWithKey(this._modifiersWithKeys, OnKeyPreImeModifier.identity, OnKeyPreImeModifier, event);
     return this;
   }
 
   onKeyEventDispatch(event: Callback<KeyEvent, boolean>): this {
+    this._onKeyEventDispatch = event;
     modifierWithKey(this._modifiersWithKeys, OnKeyEventDispatchModifier.identity, OnKeyEventDispatchModifier, event);
     return this;
   }
 
   onFocusAxisEvent(event: (event?: FocusAxisEvent) => void): this {
+    this._onFocusAxisEvent = event;
     modifierWithKey(this._modifiersWithKeys, OnFocusAxisEventModifier.identity, OnFocusAxisEventModifier, event);
     return this;
   }
@@ -4278,11 +4296,13 @@ class ArkComponent implements CommonMethod<CommonAttribute> {
   }
 
   onFocus(event: () => void): this {
+    this._onFocus = event;
     modifierWithKey(this._modifiersWithKeys, OnFocusModifier.identity, OnFocusModifier, event);
     return this;
   }
 
   onBlur(event: () => void): this {
+    this._onBlur = event;
     modifierWithKey(this._modifiersWithKeys, OnBlurModifier.identity, OnBlurModifier, event);
     return this;
   }
@@ -4494,25 +4514,30 @@ class ArkComponent implements CommonMethod<CommonAttribute> {
   }
 
   onAppear(event: () => void): this {
+    this._onAppearEvent = event;
     modifierWithKey(this._modifiersWithKeys, OnAppearModifier.identity, OnAppearModifier, event);
     return this;
   }
 
   onDisAppear(event: () => void): this {
+    this._onDisappearEvent = event;
     modifierWithKey(this._modifiersWithKeys, OnDisappearModifier.identity, OnDisappearModifier, event);
     return this;
   }
 
   onAttach(event: () => void): this {
+    this._onAttach = event;
     modifierWithKey(this._modifiersWithKeys, OnAttachModifier.identity, OnAttachModifier, event);
     return this;
   }
 
   onDetach(event: () => void): this {
+    this._onDetach = event;
     modifierWithKey(this._modifiersWithKeys, OnDetachModifier.identity, OnDetachModifier, event);
     return this;
   }
   onAreaChange(event: (oldValue: Area, newValue: Area) => void): this {
+    this._onAreaChange = event;
     modifierWithKey(this._modifiersWithKeys, OnAreaChangeModifier.identity, OnAreaChangeModifier, event);
     return this;
   }

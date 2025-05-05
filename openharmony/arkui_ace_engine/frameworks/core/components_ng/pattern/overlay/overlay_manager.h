@@ -216,7 +216,7 @@ public:
     void ShowToast(const NG::ToastInfo& toastInfo, const std::function<void(int32_t)>& callback);
     void CloseToast(int32_t toastId, const std::function<void(int32_t)>& callback);
 
-    void FireAutoSave(const RefPtr<FrameNode>& ContainerNode);
+    void FireAutoSave(const RefPtr<FrameNode>& containerNode);
 
     std::unordered_map<int32_t, RefPtr<FrameNode>> GetDialogMap()
     {
@@ -284,6 +284,8 @@ public:
      */
     bool RemoveOverlay(bool isBackPressed, bool isPageRouter = false);
     bool RemoveDialog(const RefPtr<FrameNode>& overlay, bool isBackPressed, bool isPageRouter = false);
+    bool RemoveDialogWithContent(
+        const RefPtr<FrameNode>& overlay, const DialogProperties& props, bool isBackPressed, bool isPageRouter = false);
     bool RemoveBubble(const RefPtr<FrameNode>& overlay);
     bool RemoveMenu(const RefPtr<FrameNode>& overlay);
     bool RemoveDragPreview(const RefPtr<FrameNode>& overlay);
@@ -735,7 +737,7 @@ public:
     static SafeAreaInsets GetSafeAreaInsets(const RefPtr<FrameNode>& frameNode, bool useCurrentWindow = false);
     RefPtr<FrameNode> GetLastChildNotRemoving(const RefPtr<UINode>& rootNode);
     bool IsCurrentNodeProcessRemoveOverlay(const RefPtr<FrameNode>& currentNode, bool skipModal);
-    static Rect GetDisplayAvailableRect(const RefPtr<FrameNode>& frameNode);
+    static Rect GetDisplayAvailableRect(const RefPtr<FrameNode>& frameNode, int32_t type);
     void SkipMenuShow(int32_t targetId);
     void ResumeMenuShow(int32_t targetId);
     bool CheckSkipMenuShow(int32_t targetId);
@@ -860,12 +862,10 @@ private:
     RefPtr<FrameNode> GetPrevNodeWithOrder(std::optional<double> levelOrder);
     RefPtr<FrameNode> GetBottomOrderFirstNode(std::optional<double> levelOrder);
     RefPtr<FrameNode> GetTopOrderNode();
-    int32_t GetTopOrderNodeId();
     bool GetNodeFocusable(const RefPtr<FrameNode>& node);
     RefPtr<FrameNode> GetTopFocusableNode();
-    int32_t GetTopFocusableNodeId();
-    void FocusNextOrderNode(int32_t topNodeId);
-    void SendAccessibilityEventToNextOrderNode(int32_t topNodeId);
+    void FocusNextOrderNode(const RefPtr<FrameNode>& topNode);
+    void SendAccessibilityEventToNextOrderNode(const RefPtr<FrameNode>& topNode);
     bool IsTopOrder(std::optional<double> levelOrder);
     void RemoveDialogFromMap(const RefPtr<FrameNode>& node);
     void RemoveMaskFromMap(const RefPtr<FrameNode>& dialogNode);

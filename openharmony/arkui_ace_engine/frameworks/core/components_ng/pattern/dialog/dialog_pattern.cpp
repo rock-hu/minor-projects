@@ -1541,7 +1541,8 @@ void DialogPattern::UpdatePropertyForElderly(const std::vector<ButtonInfo>& butt
     TAG_LOGI(AceLogTag::ACE_DIALOG, "dialog GetContext fontScale : %{public}f", dialogContext->GetFontScale());
     if (GreatOrEqual(dialogContext->GetFontScale(), dialogTheme_->GetMinFontScaleForElderly())) {
         if (pipeline->GetRootHeight() < dialogTheme_->GetDialogLandscapeHeightBoundary().ConvertToPx() &&
-            windowManager->GetWindowMode() == WindowMode::WINDOW_MODE_SPLIT_PRIMARY) {
+            (windowManager->GetWindowMode() == WindowMode::WINDOW_MODE_SPLIT_PRIMARY ||
+                windowManager->GetWindowMode() == WindowMode::WINDOW_MODE_SPLIT_SECONDARY)) {
             notAdapationAging_ = true;
             return;
         }
@@ -2266,7 +2267,7 @@ void DialogPattern::OnAttachToMainTree()
 {
     auto host = GetHost();
     CHECK_NULL_VOID(host);
-    MountMaskToUECHost();
+    MountUECMask();
     auto parentNode = AceType::DynamicCast<FrameNode>(host->GetParent());
     CHECK_NULL_VOID(parentNode);
     if (parentNode->GetTag() != V2::NAVDESTINATION_VIEW_ETS_TAG) {
@@ -2278,22 +2279,6 @@ void DialogPattern::OnAttachToMainTree()
     CHECK_NULL_VOID(navDestinationPattern);
     auto zIndex = navDestinationPattern->GetTitlebarZIndex();
     dialogRenderContext->UpdateZIndex(zIndex + 1);
-
-    auto pipeline = host->GetContextRefPtr();
-    CHECK_NULL_VOID(pipeline);
-    auto containerId = pipeline->GetInstanceId();
-    auto subwindow = SubwindowManager::GetInstance()->GetSubwindowByType(containerId, SubwindowType::TYPE_DIALOG);
-    CHECK_NULL_VOID(subwindow);
-    subwindow->RegisterFreeMultiWindowSwitchCallback([containerId](bool enable) {
-        auto subwindow = SubwindowManager::GetInstance()->GetSubwindowByType(containerId, SubwindowType::TYPE_DIALOG);
-        CHECK_NULL_VOID(subwindow);
-        if (enable) {
-            subwindow->SetFollowParentWindowLayoutEnabled(false);
-            subwindow->ResizeWindow();
-        } else {
-            subwindow->SetFollowParentWindowLayoutEnabled(true);
-        }
-    });
 }
 
 void DialogPattern::OnDetachFromMainTree()
@@ -2307,20 +2292,13 @@ void DialogPattern::OnDetachFromMainTree()
     overlay->RemoveDialogFromMapForcefully(host);
 }
 
-void DialogPattern::MountMaskToUECHost()
+void DialogPattern::MountUECMask()
 {
-    auto hasHostMask = !hostMaskInfo_.uuid.empty();
-    if (dialogProperties_.isMask || hasHostMask) {
-        return;
-    }
-
     auto host = GetHost();
     CHECK_NULL_VOID(host);
 
     if (isUIExtensionSubWindow_ && dialogProperties_.isModal) {
-        auto pipeline = host->GetContextRefPtr();
-        auto instanceId = pipeline ? pipeline->GetInstanceId() : -1;
-        NG::OverlayMaskManager::GetInstance().SendDialogMaskInfoToHost(host, UECHostMaskAction::MOUNT, instanceId);
+        SubwindowManager::GetInstance()->ShowDialogMaskNG(host);
     }
 }
 

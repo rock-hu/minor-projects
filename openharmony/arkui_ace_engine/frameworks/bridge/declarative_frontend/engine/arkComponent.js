@@ -97,14 +97,9 @@ function applyUIAttributes(modifier, nativeNode, component) {
 function isResource(variable) {
   return (variable === null || variable === void 0 ? void 0 : variable.bundleName) !== undefined;
 }
-function isResourceEqual(stageValue, value) {
-  return false;
-}
+
 function isBaseOrResourceEqual(stageValue, value) {
-  if (isResource(stageValue) && isResource(value)) {
-    return isResourceEqual(stageValue, value);
-  }
-  else if (!isResource(stageValue) && !isResource(value)) {
+ if (!isResource(stageValue) && !isResource(value)) {
     return (stageValue === value);
   }
   return false;
@@ -227,10 +222,7 @@ class BorderWidthModifier extends ModifierWithKey {
     }
   }
   checkObjectDiff() {
-    if (isResource(this.stageValue) && isResource(this.value)) {
-      return !isResourceEqual(this.stageValue, this.value);
-    }
-    else if (!isResource(this.stageValue) && !isResource(this.value)) {
+    if (!isResource(this.stageValue) && !isResource(this.value)) {
       if ((Object.keys(this.value).indexOf('start') >= 0) ||
           (Object.keys(this.value).indexOf('end') >= 0)) {
         return !(this.stageValue.start === this.value.start &&
@@ -310,10 +302,7 @@ class BorderRadiusModifier extends ModifierWithKey {
     }
   }
   checkObjectDiff() {
-    if (isResource(this.stageValue) && isResource(this.value)) {
-      return !isResourceEqual(this.stageValue, this.value);
-    }
-    else if (!isResource(this.stageValue) && !isResource(this.value)) {
+    if (!isResource(this.stageValue) && !isResource(this.value)) {
       if ((Object.keys(this.value).indexOf('topStart') >= 0) ||
           (Object.keys(this.value).indexOf('topEnd') >= 0) ||
           (Object.keys(this.value).indexOf('bottomStart') >= 0) ||
@@ -395,10 +384,7 @@ class BorderColorModifier extends ModifierWithKey {
     }
   }
   checkObjectDiff() {
-    if (isResource(this.stageValue) && isResource(this.value)) {
-      return !isResourceEqual(this.stageValue, this.value);
-    }
-    else if (!isResource(this.stageValue) && !isResource(this.value)) {
+    if (!isResource(this.stageValue) && !isResource(this.value)) {
       if ((Object.keys(this.value).indexOf('start') >= 0) ||
           (Object.keys(this.value).indexOf('end') >= 0)) {
         return !(this.stageValue.start === this.value.start &&
@@ -986,10 +972,7 @@ class OutlineColorModifier extends ModifierWithKey {
     }
   }
   checkObjectDiff() {
-    if (isResource(this.stageValue) && isResource(this.value)) {
-      return !isResourceEqual(this.stageValue, this.value);
-    }
-    else if (!isResource(this.stageValue) && !isResource(this.value)) {
+    if (!isResource(this.stageValue) && !isResource(this.value)) {
       return !(this.stageValue.left === this.value.left &&
         this.stageValue.right === this.value.right &&
         this.stageValue.top === this.value.top &&
@@ -1020,10 +1003,7 @@ class OutlineRadiusModifier extends ModifierWithKey {
     }
   }
   checkObjectDiff() {
-    if (isResource(this.stageValue) && isResource(this.value)) {
-      return !isResourceEqual(this.stageValue, this.value);
-    }
-    else if (!isResource(this.stageValue) && !isResource(this.value)) {
+    if (!isResource(this.stageValue) && !isResource(this.value)) {
       return !(this.stageValue.topLeft === this.value.topLeft &&
         this.stageValue.topRight === this.value.topRight &&
         this.stageValue.bottomLeft === this.value.bottomLeft &&
@@ -1078,10 +1058,7 @@ class OutlineWidthModifier extends ModifierWithKey {
     }
   }
   checkObjectDiff() {
-    if (isResource(this.stageValue) && isResource(this.value)) {
-      return !isResourceEqual(this.stageValue, this.value);
-    }
-    else if (!isResource(this.stageValue) && !isResource(this.value)) {
+    if (!isResource(this.stageValue) && !isResource(this.value)) {
       return !(this.stageValue.left === this.value.left &&
         this.stageValue.right === this.value.right &&
         this.stageValue.top === this.value.top &&
@@ -3517,18 +3494,22 @@ class ArkComponent {
     });
   }
   onGestureJudgeBegin(callback) {
+    this._onGestureJudgeBegin = callback;
     modifierWithKey(this._modifiersWithKeys, OnGestureJudgeBeginModifier.identity, OnGestureJudgeBeginModifier, callback);
     return this;
   }
   onGestureRecognizerJudgeBegin(callback) {
+    this._onGestureRecognizerJudgeBegin = callback;
     modifierWithKey(this._modifiersWithKeys, OnGestureRecognizerJudgeBeginModifier.identity, OnGestureRecognizerJudgeBeginModifier, callback);
     return this;
   }
   shouldBuiltInRecognizerParallelWith(callback) {
+    this._shouldBuiltInRecognizerParallelWith = callback;
     modifierWithKey(this._modifiersWithKeys, ShouldBuiltInRecognizerParallelWithModifier.identity, ShouldBuiltInRecognizerParallelWithModifier, callback);
     return this;
   }
   onSizeChange(callback) {
+    this._onSizeChange = callback;
     modifierWithKey(this._modifiersWithKeys, OnSizeChangeModifier.identity, OnSizeChangeModifier, callback);
     return this;
   }
@@ -4006,14 +3987,17 @@ class ArkComponent {
     return this;
   }
   onClick(event) {
+    this._clickEvent = event;
     modifierWithKey(this._modifiersWithKeys, ClickModifier.identity, ClickModifier, event);
     return this;
   }
   onHover(event) {
+    this._onHover = event;
     modifierWithKey(this._modifiersWithKeys, OnHoverModifier.identity, OnHoverModifier, event);
     return this;
   }
   onHoverMove(event) {
+    this._onHoverMove = event;
     modifierWithKey(this._modifiersWithKeys, OnHoverMoveModifier.identity, OnHoverMoveModifier, event);
     return this;
   }
@@ -4022,30 +4006,37 @@ class ArkComponent {
     return this;
   }
   onMouse(event) {
+    this._onMouse = event;
     modifierWithKey(this._modifiersWithKeys, OnMouseModifier.identity, OnMouseModifier, event);
     return this;
   }
   onAxisEvent(event) {
+    this._onAxis = event;
     modifierWithKey(this._modifiersWithKeys, OnAxisEventModifier.identity, OnAxisEventModifier, event);
     return this;
   }
   onTouch(event) {
+    this._touchEvent = event;
     modifierWithKey(this._modifiersWithKeys, OnTouchModifier.identity, OnTouchModifier, event);
     return this;
   }
   onKeyEvent(event) {
+    this._onKeyEvent = event;
     modifierWithKey(this._modifiersWithKeys, OnKeyEventModifier.identity, OnKeyEventModifier, event);
     return this;
   }
   onKeyPreIme(event) {
+    this._onKeyPreIme = event;
     modifierWithKey(this._modifiersWithKeys, OnKeyPreImeModifier.identity, OnKeyPreImeModifier, event);
     return this;
   }
   onKeyEventDispatch(event) {
+    this._onKeyEventDispatch = event;
     modifierWithKey(this._modifiersWithKeys, OnKeyEventDispatchModifier.identity, OnKeyEventDispatchModifier, event);
     return this;
   }
   onFocusAxisEvent(event) {
+    this._onFocusAxisEvent = event;
     modifierWithKey(this._modifiersWithKeys, OnFocusAxisEventModifier.identity, OnFocusAxisEventModifier, event);
     return this;
   }
@@ -4281,22 +4272,27 @@ class ArkComponent {
     return this;
   }
   onAppear(event) {
+    this._onAppearEvent = event;
     modifierWithKey(this._modifiersWithKeys, OnAppearModifier.identity, OnAppearModifier, event);
     return this;
   }
   onDisAppear(event) {
+    this._onDisappearEvent = event;
     modifierWithKey(this._modifiersWithKeys, OnDisappearModifier.identity, OnDisappearModifier, event);
     return this;
   }
   onAttach(event) {
+    this._onAttach = event;
     modifierWithKey(this._modifiersWithKeys, OnAttachModifier.identity, OnAttachModifier, event);
     return this;
   }
   onDetach(event) {
+    this._onDetach = event;
     modifierWithKey(this._modifiersWithKeys, OnDetachModifier.identity, OnDetachModifier, event);
     return this;
   }
   onAreaChange(event) {
+    this._onAreaChange = event;
     modifierWithKey(this._modifiersWithKeys, OnAreaChangeModifier.identity, OnAreaChangeModifier, event);
     return this;
   }
@@ -7706,10 +7702,7 @@ class ImageBorderRadiusModifier extends ModifierWithKey {
     }
   }
   checkObjectDiff() {
-    if (isResource(this.stageValue) && isResource(this.value)) {
-      return !isResourceEqual(this.stageValue, this.value);
-    }
-    else if (!isResource(this.stageValue) && !isResource(this.value)) {
+    if (!isResource(this.stageValue) && !isResource(this.value)) {
       return !(this.stageValue.topLeft === this.value.topLeft &&
         this.stageValue.topRight === this.value.topRight &&
         this.stageValue.bottomLeft === this.value.bottomLeft &&
@@ -8768,9 +8761,7 @@ class ImageSpanBorderRadiusModifier extends ModifierWithKey {
     }
   }
   checkObjectDiff() {
-    if (isResource(this.stageValue) && isResource(this.value)) {
-      return !isResourceEqual(this.stageValue, this.value);
-    } else if (!isResource(this.stageValue) && !isResource(this.value)) {
+    if (!isResource(this.stageValue) && !isResource(this.value)) {
       return !(this.stageValue.topLeft === this.value.topLeft &&
         this.stageValue.topRight === this.value.topRight &&
         this.stageValue.bottomLeft === this.value.bottomLeft &&
@@ -10350,10 +10341,7 @@ class SearchDecorationModifier extends ModifierWithKey {
     if (this.stageValue.type !== this.value.type || this.stageValue.style !== this.value.style) {
       return true;
     }
-    if (isResource(this.stageValue.color) && isResource(this.value.color)) {
-      return !isResourceEqual(this.stageValue.color, this.value.color);
-    }
-    else if (!isResource(this.stageValue.color) && !isResource(this.value.color)) {
+    if (!isResource(this.stageValue.color) && !isResource(this.value.color)) {
       return !(this.stageValue.color === this.value.color);
     }
     else {
@@ -11319,14 +11307,10 @@ class SpanFontModifier extends ModifierWithKey {
       this.stageValue.enableVariableFontWeight !== this.value.enableVariableFontWeight) {
       return true;
     }
-    if (((isResource(this.stageValue.size) && isResource(this.value.size) &&
-      isResourceEqual(this.stageValue.size, this.value.size)) ||
-      (!isResource(this.stageValue.size) && !isResource(this.value.size) &&
-        this.stageValue.size === this.value.size)) &&
-      ((isResource(this.stageValue.family) && isResource(this.value.family) &&
-        isResourceEqual(this.stageValue.family, this.value.family)) ||
-        (!isResource(this.stageValue.family) && !isResource(this.value.family) &&
-          this.stageValue.family === this.value.family))) {
+    if ((!isResource(this.stageValue.size) && !isResource(this.value.size) &&
+      this.stageValue.size === this.value.size) &&
+      (!isResource(this.stageValue.family) && !isResource(this.value.family) &&
+        this.stageValue.family === this.value.family)) {
       return false;
     }
     else {
@@ -11351,10 +11335,7 @@ class SpanDecorationModifier extends ModifierWithKey {
     if (this.stageValue.type !== this.value.type || this.stageValue.style !== this.value.style) {
       return true;
     }
-    if (isResource(this.stageValue.color) && isResource(this.value.color)) {
-      return !isResourceEqual(this.stageValue.color, this.value.color);
-    }
-    else if (!isResource(this.stageValue.color) && !isResource(this.value.color)) {
+    if (!isResource(this.stageValue.color) && !isResource(this.value.color)) {
       return !(this.stageValue.color === this.value.color);
     }
     else {
@@ -12948,10 +12929,7 @@ class TextDecorationModifier extends ModifierWithKey {
     if (this.stageValue.type !== this.value.type || this.stageValue.style !== this.value.style) {
       return true;
     }
-    if (isResource(this.stageValue.color) && isResource(this.value.color)) {
-      return !isResourceEqual(this.stageValue.color, this.value.color);
-    }
-    else if (!isResource(this.stageValue.color) && !isResource(this.value.color)) {
+    if (!isResource(this.stageValue.color) && !isResource(this.value.color)) {
       return !(this.stageValue.color === this.value.color);
     }
     else {
@@ -12978,14 +12956,10 @@ class TextFontModifier extends ModifierWithKey {
       this.stageValue.enableVariableFontWeight !== this.value.enableVariableFontWeight) {
       return true;
     }
-    if (((isResource(this.stageValue.size) && isResource(this.value.size) &&
-      isResourceEqual(this.stageValue.size, this.value.size)) ||
-      (!isResource(this.stageValue.size) && !isResource(this.value.size) &&
-        this.stageValue.size === this.value.size)) &&
-      ((isResource(this.stageValue.family) && isResource(this.value.family) &&
-        isResourceEqual(this.stageValue.family, this.value.family)) ||
-        (!isResource(this.stageValue.family) && !isResource(this.value.family) &&
-          this.stageValue.family === this.value.family))) {
+    if ((!isResource(this.stageValue.size) && !isResource(this.value.size) &&
+      this.stageValue.size === this.value.size) &&
+      (!isResource(this.stageValue.family) && !isResource(this.value.family) &&
+        this.stageValue.family === this.value.family)) {
       return false;
     }
     else {
@@ -13561,10 +13535,7 @@ class TextAreaDecorationModifier extends ModifierWithKey {
     if (this.stageValue.type !== this.value.type || this.stageValue.style !== this.value.style) {
       return true;
     }
-    if (isResource(this.stageValue.color) && isResource(this.value.color)) {
-      return !isResourceEqual(this.stageValue.color, this.value.color);
-    }
-    else if (!isResource(this.stageValue.color) && !isResource(this.value.color)) {
+    if (!isResource(this.stageValue.color) && !isResource(this.value.color)) {
       return !(this.stageValue.color === this.value.color);
     }
     else {
@@ -14398,10 +14369,7 @@ class TextAreaBorderWidthModifier extends ModifierWithKey {
     }
   }
   checkObjectDiff() {
-    if (isResource(this.stageValue) && isResource(this.value)) {
-      return !isResourceEqual(this.stageValue, this.value);
-    }
-    else if (!isResource(this.stageValue) && !isResource(this.value)) {
+    if (!isResource(this.stageValue) && !isResource(this.value)) {
       if ((Object.keys(this.value).indexOf('start') >= 0) ||
           (Object.keys(this.value).indexOf('end') >= 0)) {
         return !(this.stageValue.start === this.value.start &&
@@ -14444,10 +14412,7 @@ class TextAreaBorderColorModifier extends ModifierWithKey {
     }
   }
   checkObjectDiff() {
-    if (isResource(this.stageValue) && isResource(this.value)) {
-      return !isResourceEqual(this.stageValue, this.value);
-    }
-    else if (!isResource(this.stageValue) && !isResource(this.value)) {
+    if (!isResource(this.stageValue) && !isResource(this.value)) {
       if ((Object.keys(this.value).indexOf('start') >= 0) ||
           (Object.keys(this.value).indexOf('end') >= 0)) {
         return !(this.stageValue.start === this.value.start &&
@@ -14525,10 +14490,7 @@ class TextAreaBorderRadiusModifier extends ModifierWithKey {
     }
   }
   checkObjectDiff() {
-    if (isResource(this.stageValue) && isResource(this.value)) {
-      return !isResourceEqual(this.stageValue, this.value);
-    }
-    else if (!isResource(this.stageValue) && !isResource(this.value)) {
+    if (!isResource(this.stageValue) && !isResource(this.value)) {
       if ((Object.keys(this.value).indexOf('topStart') >= 0) ||
           (Object.keys(this.value).indexOf('topEnd') >= 0) ||
           (Object.keys(this.value).indexOf('bottomStart') >= 0) ||
@@ -15230,10 +15192,7 @@ class TextInputDecorationModifier extends ModifierWithKey {
     if (this.stageValue.type !== this.value.type || this.stageValue.style !== this.value.style) {
       return true;
     }
-    if (isResource(this.stageValue.color) && isResource(this.value.color)) {
-      return !isResourceEqual(this.stageValue.color, this.value.color);
-    }
-    else if (!isResource(this.stageValue.color) && !isResource(this.value.color)) {
+    if (!isResource(this.stageValue.color) && !isResource(this.value.color)) {
       return !(this.stageValue.color === this.value.color);
     }
     else {
@@ -15552,14 +15511,10 @@ class TextInputPlaceholderFontModifier extends ModifierWithKey {
       return true;
     }
     else {
-      if (((isResource(this.stageValue.size) && isResource(this.value.size) &&
-        isResourceEqual(this.stageValue.size, this.value.size)) ||
-        (!isResource(this.stageValue.size) && !isResource(this.value.size) &&
-          this.stageValue.size === this.value.size)) &&
-        ((isResource(this.stageValue.family) && isResource(this.value.family) &&
-          isResourceEqual(this.stageValue.family, this.value.family)) ||
-          (!isResource(this.stageValue.family) && !isResource(this.value.family) &&
-            this.stageValue.family === this.value.family))) {
+      if ((!isResource(this.stageValue.size) && !isResource(this.value.size) &&
+        this.stageValue.size === this.value.size) &&
+        (!isResource(this.stageValue.family) && !isResource(this.value.family) &&
+          this.stageValue.family === this.value.family)) {
         return false;
       }
       else {
@@ -16281,10 +16236,7 @@ class TextInputBorderWidthModifier extends ModifierWithKey {
     }
   }
   checkObjectDiff() {
-    if (isResource(this.stageValue) && isResource(this.value)) {
-      return !isResourceEqual(this.stageValue, this.value);
-    }
-    else if (!isResource(this.stageValue) && !isResource(this.value)) {
+    if (!isResource(this.stageValue) && !isResource(this.value)) {
       if ((Object.keys(this.value).indexOf('start') >= 0) ||
           (Object.keys(this.value).indexOf('end') >= 0)) {
         return !(this.stageValue.start === this.value.start &&
@@ -16327,10 +16279,7 @@ class TextInputBorderColorModifier extends ModifierWithKey {
     }
   }
   checkObjectDiff() {
-    if (isResource(this.stageValue) && isResource(this.value)) {
-      return !isResourceEqual(this.stageValue, this.value);
-    }
-    else if (!isResource(this.stageValue) && !isResource(this.value)) {
+    if (!isResource(this.stageValue) && !isResource(this.value)) {
       if ((Object.keys(this.value).indexOf('start') >= 0) ||
           (Object.keys(this.value).indexOf('end') >= 0)) {
         return !(this.stageValue.start === this.value.start &&
@@ -16408,10 +16357,7 @@ class TextInputBorderRadiusModifier extends ModifierWithKey {
     }
   }
   checkObjectDiff() {
-    if (isResource(this.stageValue) && isResource(this.value)) {
-      return !isResourceEqual(this.stageValue, this.value);
-    }
-    else if (!isResource(this.stageValue) && !isResource(this.value)) {
+    if (!isResource(this.stageValue) && !isResource(this.value)) {
       if ((Object.keys(this.value).indexOf('topStart') >= 0) ||
           (Object.keys(this.value).indexOf('topEnd') >= 0) ||
           (Object.keys(this.value).indexOf('bottomStart') >= 0) ||
@@ -17932,32 +17878,24 @@ class ArkShadowInfoToArray {
     if (!value || !stageValue || !value.radius || !stageValue.radius) {
       return true;
     }
-    if (!((isResource(stageValue.radius) && isResource(value.radius) &&
-      isResourceEqual(stageValue.radius, value.radius)) ||
-      (isNumber(stageValue.radius) && isNumber(value.radius) &&
-        stageValue.radius === value.radius))) {
+    if (!(isNumber(stageValue.radius) && isNumber(value.radius) &&
+        stageValue.radius === value.radius)) {
       return true;
     }
     if (!(isNumber(stageValue.type) && isNumber(value.type) &&
       stageValue.type === value.type)) {
       return true;
     }
-    if (!((isResource(stageValue.color) && isResource(value.color) &&
-      isResourceEqual(stageValue.color, value.color)) ||
-      (!isResource(stageValue.color) && !isResource(value.color) &&
-        stageValue.color === value.color))) {
+    if (!(!isResource(stageValue.color) && !isResource(value.color) &&
+        stageValue.color === value.color)) {
       return true;
     }
-    if (!((isResource(stageValue.offsetX) && isResource(value.offsetX) &&
-      isResourceEqual(stageValue.offsetX, value.offsetX)) ||
-      (isNumber(stageValue.offsetX) && isNumber(value.offsetX) &&
-        stageValue.offsetX === value.offsetX))) {
+    if (!(isNumber(stageValue.offsetX) && isNumber(value.offsetX) &&
+        stageValue.offsetX === value.offsetX)) {
       return true;
     }
-    if (!((isResource(stageValue.offsetY) && isResource(value.offsetY) &&
-      isResourceEqual(stageValue.offsetY, value.offsetY)) ||
-      (isNumber(stageValue.offsetY) && isNumber(value.offsetY) &&
-        stageValue.offsetY === value.offsetY))) {
+    if (!(isNumber(stageValue.offsetY) && isNumber(value.offsetY) &&
+        stageValue.offsetY === value.offsetY)) {
       return true;
     }
     if (!(isBoolean(stageValue.fill) && isBoolean(value.fill) &&
@@ -18847,10 +18785,7 @@ class ButtonLabelStyleModifier extends ModifierWithKey {
     }
   }
   checkObjectDiff() {
-    if (isResource(this.stageValue) && isResource(this.value)) {
-      return !isResourceEqual(this.stageValue, this.value);
-    }
-    else if (!isResource(this.stageValue) && !isResource(this.value)) {
+    if (!isResource(this.stageValue) && !isResource(this.value)) {
       return !(this.value.overflow === this.stageValue.overflow &&
         this.value.maxLines === this.stageValue.maxLines &&
         this.value.minFontSize === this.stageValue.minFontSize &&
@@ -18954,10 +18889,7 @@ class ButtonBorderRadiusModifier extends ModifierWithKey {
     }
   }
   checkObjectDiff() {
-    if (isResource(this.stageValue) && isResource(this.value)) {
-      return !isResourceEqual(this.stageValue, this.value);
-    }
-    else if (!isResource(this.stageValue) && !isResource(this.value)) {
+    if (!isResource(this.stageValue) && !isResource(this.value)) {
       return !(this.stageValue.topLeft === this.value.topLeft &&
         this.stageValue.topRight === this.value.topRight &&
         this.stageValue.bottomLeft === this.value.bottomLeft &&
@@ -20146,10 +20078,7 @@ class TogglePaddingModifier extends ModifierWithKey {
     }
   }
   checkObjectDiff() {
-    if (isResource(this.stageValue) && isResource(this.value)) {
-      return !isResourceEqual(this.stageValue, this.value);
-    }
-    else if (!isResource(this.stageValue) && !isResource(this.value)) {
+    if (!isResource(this.stageValue) && !isResource(this.value)) {
       if (typeof this.stageValue === 'object' && typeof this.value === 'object') {
         return !(this.stageValue.left === this.value.left &&
           this.stageValue.right === this.value.right &&
@@ -20213,12 +20142,6 @@ class ToggleSwitchStyleModifier extends ModifierWithKey {
                 this.stageValue.unselectedColor === this.value.unselectedColor &&
                 this.stageValue.pointColor === this.value.pointColor &&
                 this.stageValue.trackBorderRadius === this.value.trackBorderRadius);
-        }
-        else if (isResource(this.stageValue) && isResource(this.value)){
-          return !(isResourceEqual(this.stageValue.pointRadius, this.value.pointRadius) &&
-          isResourceEqual(this.stageValue.unselectedColor, this.value.unselectedColor) &&
-          isResourceEqual(this.stageValue.pointColor, this.value.pointColor) &&
-          isResourceEqual(this.stageValue.trackBorderRadius, this.value.trackBorderRadius));
         }
         else {
             return true;
@@ -20629,7 +20552,7 @@ class MenuAlignModifier extends ModifierWithKey {
   isEqual(stageValue, value) {
     if ((!isUndefined(stageValue) && isResource(stageValue)) &&
       (!isUndefined(value) && isResource(value))) {
-      return !isResourceEqual(stageValue, value);
+      return true;
     }
     else {
       return stageValue !== value;
@@ -20673,9 +20596,7 @@ class SelectDividerStyleModifier extends ModifierWithKey {
     }
   }
   checkObjectDiff() {
-    if (isResource(this.stageValue) && isResource(this.value)) {
-      return !isResourceEqual(this.stageValue, this.value);
-    } else if (!isResource(this.stageValue) && !isResource(this.value)) {
+    if (!isResource(this.stageValue) && !isResource(this.value)) {
       return !(this.stageValue.strokeWidth === this.value.strokeWidth &&
         this.stageValue.color === this.value.color &&
         this.stageValue.startMargin === this.value.startMargin &&
@@ -21250,9 +21171,7 @@ class RadioPaddingModifier extends ModifierWithKey {
     }
   }
   checkObjectDiff() {
-    if (isResource(this.stageValue) && isResource(this.value)) {
-      return !isResourceEqual(this.stageValue, this.value);
-    } else if (!isResource(this.stageValue) && !isResource(this.value)) {
+    if (!isResource(this.stageValue) && !isResource(this.value)) {
       return !(this.stageValue.left === this.value.left &&
         this.stageValue.right === this.value.right &&
         this.stageValue.top === this.value.top &&
@@ -22260,14 +22179,6 @@ class BlockSizeModifier extends ModifierWithKey {
     }
     else {
       getUINativeModule().slider.setBlockSize(node, this.value.width, this.value.height);
-    }
-  }
-  checkObjectDiff() {
-    if (isResource(this.stageValue.height) && isResource(this.value.height) && isResource(this.stageValue.width) && isResource(this.value.width)) {
-      return !(isResourceEqual(this.stageValue.height, this.value.height) && isResourceEqual(this.stageValue.width, this.value.width));
-    }
-    else {
-      return true;
     }
   }
 }
@@ -25547,10 +25458,7 @@ class CalendarPickerBorderRadiusModifier extends ModifierWithKey {
     }
   }
   checkObjectDiff() {
-    if (isResource(this.stageValue) && isResource(this.value)) {
-      return !isResourceEqual(this.stageValue, this.value);
-    }
-    else if (!isResource(this.stageValue) && !isResource(this.value)) {
+    if (!isResource(this.stageValue) && !isResource(this.value)) {
       if ((Object.keys(this.value).indexOf('topStart') >= 0) ||
           (Object.keys(this.value).indexOf('topEnd') >= 0) ||
           (Object.keys(this.value).indexOf('bottomStart') >= 0) ||
@@ -25596,10 +25504,7 @@ class CalendarPickerBorderColorModifier extends ModifierWithKey {
     }
   }
   checkObjectDiff() {
-    if (isResource(this.stageValue) && isResource(this.value)) {
-      return !isResourceEqual(this.stageValue, this.value);
-    }
-    else if (!isResource(this.stageValue) && !isResource(this.value)) {
+    if (!isResource(this.stageValue) && !isResource(this.value)) {
       if ((Object.keys(this.value).indexOf('start') >= 0) ||
           (Object.keys(this.value).indexOf('end') >= 0)) {
         return !(this.stageValue.start === this.value.start &&
@@ -26857,10 +26762,7 @@ class RadiusModifier extends ModifierWithKey {
     }
   }
   checkObjectDiff() {
-    if (isResource(this.stageValue) && isResource(this.value)) {
-      return !isResourceEqual(this.stageValue, this.value);
-    }
-    else if (!isResource(this.stageValue) && !isResource(this.value)) {
+    if (!isResource(this.stageValue) && !isResource(this.value)) {
       return !(this.stageValue.topLeft === this.value.topLeft &&
         this.stageValue.topRight === this.value.topRight &&
         this.stageValue.bottomLeft === this.value.bottomLeft &&
@@ -26885,9 +26787,7 @@ class MenuItemDividerModifier extends ModifierWithKey {
     }
   }
   checkObjectDiff() {
-    if (isResource(this.stageValue) && isResource(this.value)) {
-      return !isResourceEqual(this.stageValue, this.value);
-    } else if (!isResource(this.stageValue) && !isResource(this.value)) {
+    if (!isResource(this.stageValue) && !isResource(this.value)) {
       return !(this.stageValue.strokeWidth === this.value.strokeWidth &&
         this.stageValue.color === this.value.color &&
         this.stageValue.startMargin === this.value.startMargin &&
@@ -26913,9 +26813,7 @@ class MenuItemGroupDividerModifier extends ModifierWithKey {
   }
 
   checkObjectDiff() {
-    if (isResource(this.stageValue) && isResource(this.value)) {
-      return !isResourceEqual(this.stageValue, this.value);
-    } else if (!isResource(this.stageValue) && !isResource(this.value)) {
+    if (!isResource(this.stageValue) && !isResource(this.value)) {
       return !(this.stageValue.strokeWidth === this.value.strokeWidth &&
         this.stageValue.color === this.value.color &&
         this.stageValue.startMargin === this.value.startMargin &&
@@ -27206,14 +27104,6 @@ class PluginWidthModifier extends ModifierWithKey {
       getUINativeModule().plugin.setWidth(node, this.value);
     }
   }
-  checkObjectDiff() {
-    if (isResource(this.stageValue) && isResource(this.value)) {
-      return !isResourceEqual(this.stageValue, this.value);
-    }
-    else {
-      return true;
-    }
-  }
 }
 PluginWidthModifier.identity = Symbol('pluginWidth');
 class PluginHeightModifier extends ModifierWithKey {
@@ -27226,14 +27116,6 @@ class PluginHeightModifier extends ModifierWithKey {
     }
     else {
       getUINativeModule().plugin.setHeight(node, this.value);
-    }
-  }
-  checkObjectDiff() {
-    if (isResource(this.stageValue) && isResource(this.value)) {
-      return !isResourceEqual(this.stageValue, this.value);
-    }
-    else {
-      return true;
     }
   }
 }
@@ -32461,10 +32343,7 @@ class TabBarModeModifier extends ModifierWithKey {
   }
   checkObjectDiff() {
     let _a, _b, _c, _d;
-    if (isResource(this.stageValue) && isResource(this.value)) {
-      return !isResourceEqual(this.stageValue, this.value);
-    }
-    else if (!isResource(this.stageValue) && !isResource(this.value)) {
+    if (!isResource(this.stageValue) && !isResource(this.value)) {
       return !(this.value.barMode === this.stageValue.barMode &&
         ((_a = this.value.options) === null || _a === void 0 ? void 0 : _a.margin) === ((_b = this.stageValue.options) === null ||
         _b === void 0 ? void 0 : _b.margin) &&
@@ -34755,13 +34634,6 @@ class SymbolSpanFontColorModifier extends ModifierWithKey {
     getUINativeModule().symbolSpan.setFontColor(node, this.value);
     }
   }
-  checkObjectDiff() {
-    if (isResource(this.stageValue) && isResource(this.value)) {
-      return !isResourceEqual(this.stageValue, this.value);;
-    } else {
-      return true;
-    }
-  }
 }
 SymbolSpanFontColorModifier.identity = Symbol('symbolSpanFontColor');
 class SymbolSpanFontSizeModifier extends ModifierWithKey {
@@ -34773,13 +34645,6 @@ class SymbolSpanFontSizeModifier extends ModifierWithKey {
       getUINativeModule().symbolSpan.resetFontSize(node);
     } else {
       getUINativeModule().symbolSpan.setFontSize(node, this.value);
-    }
-  }
-  checkObjectDiff() {
-    if (isResource(this.stageValue) && isResource(this.value)) {
-      return !isResourceEqual(this.stageValue, this.value);
-    } else {
-      return true;
     }
   }
 }
@@ -34795,13 +34660,6 @@ class SymbolSpanFontWeightModifier extends ModifierWithKey {
       getUINativeModule().symbolSpan.setFontWeight(node, this.value);
     }
   }
-  checkObjectDiff() {
-    if (isResource(this.stageValue) && isResource(this.value)) {
-      return !isResourceEqual(this.stageValue, this.value);
-    } else {
-      return true;
-    }
-  }
 }
 SymbolSpanFontWeightModifier.identity = Symbol('symbolSpanFontWeight');
 class SymbolSpanEffectStrategyModifier extends ModifierWithKey {
@@ -34815,13 +34673,6 @@ class SymbolSpanEffectStrategyModifier extends ModifierWithKey {
       getUINativeModule().symbolSpan.setEffectStrategy(node, this.value);
     }
   }
-  checkObjectDiff() {
-    if (isResource(this.stageValue) && isResource(this.value)) {
-      return !isResourceEqual(this.stageValue, this.value);
-    } else {
-      return true;
-    }
-  }
 }
 SymbolSpanEffectStrategyModifier.identity = Symbol('symbolSpanEffectStrategy');
 class SymbolSpanRenderingStrategyModifier extends ModifierWithKey {
@@ -34833,13 +34684,6 @@ class SymbolSpanRenderingStrategyModifier extends ModifierWithKey {
       getUINativeModule().symbolSpan.resetRenderingStrategy(node);
     } else {
       getUINativeModule().symbolSpan.setRenderingStrategy(node, this.value);
-    }
-  }
-  checkObjectDiff() {
-    if (isResource(this.stageValue) && isResource(this.value)) {
-      return !isResourceEqual(this.stageValue, this.value);
-    } else {
-      return true;
     }
   }
 }

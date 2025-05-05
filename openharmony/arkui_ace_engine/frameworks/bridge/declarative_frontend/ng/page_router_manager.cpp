@@ -16,7 +16,6 @@
 #include "frameworks/bridge/declarative_frontend/ng/page_router_manager.h"
 
 #include "base/i18n/localization.h"
-#include "base/thread/task_dependency_manager.h"
 #include "base/ressched/ressched_report.h"
 #include "base/perfmonitor/perf_monitor.h"
 #include "bridge/js_frontend/engine/jsi/ark_js_runtime.h"
@@ -1459,9 +1458,6 @@ void PageRouterManager::LoadPage(int32_t pageId, const RouterPageInfo& target, b
     ACE_SCOPED_TRACE_COMMERCIAL("load page: %s(id:%d)", target.url.c_str(), pageId);
     CHECK_RUN_ON(JS);
     auto pageNode = CreatePage(pageId, target);
-
-    TaskDependencyManager::GetInstance()->Sync();
-
     if (!pageNode) {
         TAG_LOGE(AceLogTag::ACE_ROUTER, "failed to create page in LoadPage");
         return;
@@ -1558,7 +1554,11 @@ RefPtr<FrameNode> PageRouterManager::CreatePage(int32_t pageId, const RouterPage
         TAG_LOGE(AceLogTag::ACE_ROUTER, "Update RootComponent Failed or LoadNamedRouter Failed");
 #if !defined(PREVIEW)
         if (!target.isNamedRouterMode && target.url.substr(0, strlen(BUNDLE_TAG)) != BUNDLE_TAG) {
-            ThrowError("Load Page Failed: " + target.url, ERROR_CODE_INTERNAL_ERROR);
+            const std::string errorMsg =
+                "Load Page Failed: " + target.url + ", probably caused by reasons as follows:\n"
+                "1. there is a js error in target page;\n"
+                "2. invalid moduleName or bundleName in target page.";
+            ThrowError(errorMsg, ERROR_CODE_INTERNAL_ERROR);
         }
 #endif
         pageRouterStack_.pop_back();
