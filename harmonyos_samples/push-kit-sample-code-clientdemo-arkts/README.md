@@ -38,9 +38,9 @@
 
 ## 开发准备
 1. 将app.json5文件中的包名替换为您自己应用的包名。
-2. 开通推送服务，详情请参考[指导](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/push-config-setting-V5#section13206419341)。
-3. 完成手动签名，详情请参考[指导](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/ide-signing-V5#section297715173233)。
-4. 为实现消息展示后可以点击跳转到应用页面，本示例工程已经在module.json5文件中配置好skills标签，如有需要可以参考[指导](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/push-send-alert-V5#section697519219136)自行修改。
+2. 开通推送服务，详情请参考[指导](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/push-config-setting)。
+3. 完成手动签名，详情请参考[指导](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/ide-signing#section297715173233)。
+4. 为实现消息展示后可以点击跳转到应用页面，本示例工程已经在module.json5文件中配置好skills标签，如有需要可以参考[指导](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/push-send-alert#section697519219136)自行修改。
 
 ## 使用说明
 ### 申请Token
@@ -48,27 +48,27 @@
 2. 点击**申请Token**按钮，申请结果将展示在页面上，请自行保存获取的Push Token。
 
 ### 推送通知消息
-1. 若需要推送服务与通讯类消息，请先完成[申请通知消息自分类权益](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/push-apply-right-V5#section16708911111611)；若仅需发送资讯营销类消息，则无需申请。
-2. 使用[消息通知-推送服务-服务端DEMO](https://gitee.com/harmonyos_samples/push-kit_-sample-code_-server-demo_-java)，或根据[指导](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/push-send-alert-V5)使用Postman等其它调试工具，推送通知消息。
+1. 若需要推送服务与通讯类消息，请先完成[申请通知消息自分类权益](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/push-apply-right#section16708911111611)；若仅需发送资讯营销类消息，则无需申请。
+2. 使用[消息通知-推送服务-服务端DEMO](https://gitee.com/harmonyos_samples/push-kit_-sample-code_-server-demo_-java)，或根据[指导](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/push-send-alert)使用Postman等其它调试工具，推送通知消息。
 3. 下拉状态栏，在通知中心查看消息。
 4. 点击通知栏消息，跳转应用的落地页。
 
 ### 消息撤回
-1. 使用[消息通知-推送服务-服务端DEMO](https://gitee.com/harmonyos_samples/push-kit_-sample-code_-server-demo_-java)，或根据[指导](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/push-send-alert-V5)使用Postman等其它调试工具，发送通知消息，发送时请指定[notifyId](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/push-scenariozed-api-request-param-V5#section17371529101117)。
+1. 使用[消息通知-推送服务-服务端DEMO](https://gitee.com/harmonyos_samples/push-kit_-sample-code_-server-demo_-java)，或根据[指导](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/push-send-alert)使用Postman等其它调试工具，发送通知消息，发送时请指定[notifyId](https://developer.huawei.com/consumer/cn/doc/harmonyos-references/push-scenariozed-api-request-param#section17371529101117)。
 2. 下拉状态栏，在通知中心查看消息。
-3. 使用[消息通知-推送服务-服务端DEMO](https://gitee.com/harmonyos_samples/push-kit_-sample-code_-server-demo_-java)，或根据[指导](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/push-revoke-alert-V5)使用Postman等其它调试工具，撤回通知消息，撤回时需要使用消息下发时的[notifyId](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/push-msg-revoke-V5#section166472121113)。
+3. 使用[消息通知-推送服务-服务端DEMO](https://gitee.com/harmonyos_samples/push-kit_-sample-code_-server-demo_-java)，或根据[指导](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/push-revoke-alert)使用Postman等其它调试工具，撤回通知消息，撤回时需要使用消息下发时的[notifyId](https://developer.huawei.com/consumer/cn/doc/harmonyos-references/push-msg-revoke#section166472121113)。
 4. 下拉状态栏，在通知中心查看消息已消失。
 
 ### 推送卡片刷新消息
 1. 长按桌面应用图标，点击服务卡片，将卡片添加到桌面，请自行保存卡片ID。
-2. 使用[消息通知-推送服务-服务端DEMO](https://gitee.com/harmonyos_samples/push-kit_-sample-code_-server-demo_-java)，或根据[指导](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/push-form-update-V5)使用Postman等其它调试工具，推送卡片刷新消息。
+2. 使用[消息通知-推送服务-服务端DEMO](https://gitee.com/harmonyos_samples/push-kit_-sample-code_-server-demo_-java)，或根据[指导](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/push-form-update)使用Postman等其它调试工具，推送卡片刷新消息。
 3. 滑动桌面至卡片可见后，查看卡片刷新结果。
 
 ### 推送通知扩展消息
-1. 推送通知扩展消息前，请先完成[申请推送通知扩展消息权益](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/push-apply-right-V5#section159981112245)。
-2. 保持应用在前台，使用[消息通知-推送服务-服务端DEMO](https://gitee.com/harmonyos_samples/push-kit_-sample-code_-server-demo_-java)，或根据[指导](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/push-send-extend-noti-V5)使用Postman等其它调试工具，推送通知扩展消息。
+1. 推送通知扩展消息前，请先完成[申请推送通知扩展消息权益](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/push-apply-right#section159981112245)。
+2. 保持应用在前台，使用[消息通知-推送服务-服务端DEMO](https://gitee.com/harmonyos_samples/push-kit_-sample-code_-server-demo_-java)，或根据[指导](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/push-send-extend-noti)使用Postman等其它调试工具，推送通知扩展消息。
 3. 查看应用在前台时，通知扩展消息的展示效果。
-4. 将应用切换至后台，使用[消息通知-推送服务-服务端DEMO](https://gitee.com/harmonyos_samples/push-kit_-sample-code_-server-demo_-java)，或根据[指导](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/push-send-extend-noti-V5)使用Postman等其它调试工具，再次推送通知扩展消息。
+4. 将应用切换至后台，使用[消息通知-推送服务-服务端DEMO](https://gitee.com/harmonyos_samples/push-kit_-sample-code_-server-demo_-java)，或根据[指导](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/push-send-extend-noti)使用Postman等其它调试工具，再次推送通知扩展消息。
 5. 下拉状态栏，在通知中心查看消息。
 6. 点击通知栏消息，跳转应用的落地页。
 
