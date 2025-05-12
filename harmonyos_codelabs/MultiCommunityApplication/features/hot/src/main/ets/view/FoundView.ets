@@ -99,7 +99,9 @@ export struct FoundView {
           .height($r('app.float.blank_height'))
           .visibility(this.currentBreakpoint === Breakpoint.BREAKPOINT_LG ? Visibility.Hidden : Visibility.Visible)
 
+        // [Start foundView]
         WaterFlow() {
+          // [StartExclude foundView]
           ForEach(this.cardArrayViewModel.cardArray, (item: CardItem, index: number) => {
             FlowItem() {
               Column() {
@@ -137,7 +139,11 @@ export struct FoundView {
                 $r('app.float.water_flow_margin') : $r('app.float.zero'))
             }
           }, (item: CardItem, index: number) => index + JSON.stringify(item))
+          // [EndExclude foundView]
         }
+        .columnsTemplate(this.currentBreakpoint !== Breakpoint.BREAKPOINT_LG ?
+        Common.WATER_FLOW_COLUMNS_TEMPLATE_NORMAL : Common.WATER_FLOW_COLUMNS_TEMPLATE_LG)
+        // [End foundView]
         .backgroundColor(this.currentBreakpoint === Breakpoint.BREAKPOINT_LG ?
         $r('app.color.water_flow_bgc_lg') : $r('app.color.water_flow_bgc'))
         .linearGradient({
@@ -153,8 +159,6 @@ export struct FoundView {
           scrollForward: NestedScrollMode.PARENT_FIRST,
           scrollBackward: NestedScrollMode.SELF_FIRST
         })
-        .columnsTemplate(this.currentBreakpoint !== Breakpoint.BREAKPOINT_LG ?
-        Common.WATER_FLOW_COLUMNS_TEMPLATE_NORMAL : Common.WATER_FLOW_COLUMNS_TEMPLATE_LG)
         .padding({
           left: this.currentBreakpoint === Breakpoint.BREAKPOINT_LG ? $r('app.float.water_flow_padding_lg') :
           $r('app.float.zero'),
