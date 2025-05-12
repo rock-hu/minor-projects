@@ -130,6 +130,7 @@ struct ScanPage {
   onPageHide(): void {
     Logger.info(TAG, 'onPageHide.');
     this.scanService.stopPreviewStream();
+    this.scanService.resetRetryScanTimes();
     this.scanService.updateScanStatus(ScanStatus.FORBIDDEN);
     this.clearTimer();
     this.userGrant = false;
@@ -212,6 +213,7 @@ struct ScanPage {
       openPicker: (async () => {
         if (this.scanService.scanStatus === ScanStatus.PREVIEW_DECODING) {
           await this.scanService.stopPreviewStream();
+          this.scanService.resetRetryScanTimes();
           this.clearTimer();
           this.scanService.updateScanStatus(ScanStatus.PHOTO_DECODING);
           Logger.info(TAG, `openAlbum, scanStatus: ${this.scanService.scanStatus}`);
@@ -267,6 +269,7 @@ struct ScanPage {
     .onClick(async () => {
       if (this.scanResult.size > 1) {
         Logger.info(TAG, 'Start to restartPreviewStream by close button.');
+        this.scanService.resetRetryScanTimes();
         this.restartPreviewStream();
       } else {
         Logger.info(TAG, 'router back');
@@ -453,6 +456,7 @@ struct ScanPage {
           this.foldStatus.oldFoldStatus = this.foldStatus.newFoldStatus;
           this.clearTimer();
           await this.scanService.stopPreviewStream();
+          this.scanService.resetRetryScanTimes();
           DeviceService.selectSuitableRatio();
           this.xComponentService.setScanXComponentSize();
         }

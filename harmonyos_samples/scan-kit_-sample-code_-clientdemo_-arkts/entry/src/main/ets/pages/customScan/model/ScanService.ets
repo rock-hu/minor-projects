@@ -77,7 +77,6 @@ export class ScanService {
     if (this.scanStatus === ScanStatus.PREVIEW_DECODING) {
       this.closeFlashLight();
       this.offLightingFlash();
-      this.resetRetryScanTimes();
       this.updateScanStatus(ScanStatus.NOT_STARTED);
       await this.stopCustomScan();
       await this.releaseCustomScan();
@@ -251,7 +250,7 @@ export class ScanService {
     }
   }
 
-  private resetRetryScanTimes(): void {
+  public resetRetryScanTimes(): void {
     Logger.info(TAG, 'Reset retry scan times.');
     this.retryScanTimes = 0;
   }
