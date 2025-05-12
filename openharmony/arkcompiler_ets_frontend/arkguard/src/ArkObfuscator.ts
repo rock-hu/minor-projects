@@ -35,7 +35,13 @@ import type {
 
 import path from 'path';
 
-import { AtKeepCollections, LocalVariableCollections, PropCollections } from './utils/CommonCollections';
+import {
+  AtIntentCollections,
+  AtKeepCollections,
+  BytecodeObfuscationCollections,
+  LocalVariableCollections,
+  PropCollections
+} from './utils/CommonCollections';
 import type { IOptions } from './configs/IOptions';
 import { FileUtils } from './utils/FileUtils';
 import { TransformerManager } from './transformers/TransformerManager';
@@ -169,6 +175,7 @@ export function clearGlobalCaches(): void {
   UnobfuscationCollections.clear();
   LocalVariableCollections.clear();
   AtKeepCollections.clear();
+  AtIntentCollections.clear();
   renameFileNameModule.clearCaches();
   clearUnobfuscationNamesObj();
   clearHistoryUnobfuscatedMap();
@@ -176,6 +183,7 @@ export function clearGlobalCaches(): void {
   disablePrinterTimeAndMemConfig();
   ApiExtractor.mConstructorPropertySet.clear();
   ApiExtractor.mEnumMemberSet.clear();
+  BytecodeObfuscationCollections.clear();
 }
 
 export type ObfuscationResultType = {

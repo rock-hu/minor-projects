@@ -13,7 +13,7 @@ label_0:
 label_2: 
 }
 
-slotNum = 0x8
+slotNum = 0xb
 .language ECMAScript
 .function any .func_main_0(any a0, any a1, any a2) {
 label_1: 
@@ -34,6 +34,13 @@ label_0:
 	sta v0
 	lda v1
 	callarg1 0x6, v0
+	tryldglobalbyname 0x8, print
+	sta v0
+	callruntime.ldlazymodulevar 0x2
+	sta v1
+	throw.undefinedifholewithname defaultImportValue
+	lda v0
+	callarg1 0x9, v1
 	returnundefined
 label_2: 
 }

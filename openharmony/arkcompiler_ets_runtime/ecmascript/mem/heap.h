@@ -75,7 +75,7 @@ using IdleNotifyStatusCallback = std::function<void(bool)>;
 using FinishGCListener = void (*)(void *);
 using GCListenerId = std::vector<std::pair<FinishGCListener, void *>>::const_iterator;
 using Clock = std::chrono::high_resolution_clock;
-using AppFreezeFilterCallback = std::function<bool(const int32_t pid)>;
+using AppFreezeFilterCallback = std::function<bool(const int32_t pid, const bool needDecreaseQuota)>;
 using BytesAndDuration = std::pair<uint64_t, double>;
 using MemoryReduceDegree = panda::JSNApi::MemoryReduceDegree;
 enum class IdleTaskType : uint8_t {
@@ -462,6 +462,8 @@ public:
     void AdjustGlobalSpaceAllocLimit();
 
     inline void OnMoveEvent(uintptr_t address, TaggedObject* forwardAddress, size_t size);
+
+    void ResetLargeCapacity();
 
     class ParallelMarkTask : public Task {
     public:
@@ -975,6 +977,7 @@ public:
     void Destroy() override;
     void Prepare();
     void GetHeapPrepare();
+    void ResetLargeCapacity();
     void Resume(TriggerGCType gcType);
     void ResumeForAppSpawn();
     void CompactHeapBeforeFork();

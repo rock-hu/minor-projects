@@ -18,3 +18,8 @@ export function lazyImportFunc(resolve) {
     print("lazy ImportFunc called");
     resolve(1);
 }
+
+export default function defaultImportFunc(resolve) {
+    print("lazy ImportFunc called");
+    resolve(1);
+}

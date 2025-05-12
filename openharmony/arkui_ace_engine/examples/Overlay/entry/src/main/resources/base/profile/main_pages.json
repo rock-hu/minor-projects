@@ -1,7 +1,0 @@
-{
-  "src": [
-    "pages/Index",
-    "extensionAbility/pages/Index",
-    "pages/components/dialog/embeddedDialogPageTwo"
-  ]
-}

@@ -32,7 +32,7 @@
 #include <memory>
 
 namespace panda::ecmascript {
-using AppfreezeFilterCallback = std::function<bool(const int32_t pid)>;
+using AppfreezeFilterCallback = std::function<bool(const int32_t pid, const bool needDecreaseQuota)>;
 class Runtime {
 public:
     PUBLIC_API static Runtime *GetInstance();
@@ -78,6 +78,16 @@ public:
                 cb(thread);
             }
         }
+    }
+
+    void SetEnableLargeHeap(bool value)
+    {
+        enableLargeHeap_ = value;
+    }
+
+    bool GetEnableLargeHeap() const
+    {
+        return enableLargeHeap_;
     }
 
     // Result may be inaccurate, just an approximate value.
@@ -288,7 +298,7 @@ private:
     uint32_t suspendNewCount_ {0};
     uint32_t serializeDataIndex_ {0};
     MutatorLock mutatorLock_;
-
+    std::atomic<bool> enableLargeHeap_ {false};
     bool sharedConstInited_ {false};
     GlobalEnvConstants globalConst_;
     JSTaggedValue globalEnv_ {JSTaggedValue::Hole()};

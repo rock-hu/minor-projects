@@ -55,6 +55,7 @@ const TITLE_MARGIN_RIGHT = 12;
 const TITLE_MARGIN_TOP = 8;
 const TITLE_LABEL_MARGIN = 8.5;
 const TITLE_TEXT_MARGIN = 3;
+const TITLE_CONSTRAINT_SIZE = 'calc(100% - 73.5vp)';
 const MD_WIDTH = 480;
 const LG_WIDTH_LIMIT = 0.6;
 const LG_WIDTH_HEIGHT_RATIO = 1.95;
@@ -567,7 +568,6 @@ export class CustomAppBar extends ViewPU {
         if (this.isHalfScreen) {
             this.contentBgColor = Color.Transparent;
             this.titleHeight = EYELASH_HEIGHT + 2 * TITLE_MARGIN_TOP + this.statusBarHeight;
-            this.provideService = this.getStringByResourceToken(ARKUI_APP_BAR_PROVIDE_SERVICE);
             this.halfScreenShowAnimation();
         }
         else {
@@ -644,8 +644,11 @@ export class CustomAppBar extends ViewPU {
         }
         return defaultColor;
     }
-    getStringByResourceToken(resName) {
+    getStringByResourceToken(resName, value) {
         try {
+            if (value) {
+                return getContext(this).resourceManager.getStringByNameSync(resName, value);
+            }
             return getContext(this).resourceManager.getStringByNameSync(resName);
         } catch (err) {
             console.error(LOG_TAG, `getAccessibilityDescription, error: ${err.toString()}`);
@@ -654,7 +657,7 @@ export class CustomAppBar extends ViewPU {
     }
     updateStringByResource() {
         if (this.isHalfScreen) {
-          this.provideService = this.getStringByResourceToken(ARKUI_APP_BAR_PROVIDE_SERVICE);
+          this.provideService = this.getStringByResourceToken(ARKUI_APP_BAR_PROVIDE_SERVICE, this.labelName);
           this.maximizeRead = this.getStringByResourceToken(ARKUI_APP_BAR_MAXIMIZE);
         }
         this.closeRead = this.getStringByResourceToken(ARKUI_APP_BAR_CLOSE);
@@ -884,7 +887,10 @@ export class CustomAppBar extends ViewPU {
             Row.borderWidth(BORDER_WIDTH);
             Row.borderColor(this.menubarBorderColor);
             Row.backgroundColor(this.menubarBackColor);
-            Row.backdropBlur(MENU_BACK_BLUR);
+            Row.backgroundEffect({
+                radius: MENU_BACK_BLUR,
+                color: this.menubarBackColor
+            });
             Row.height(VIEW_HEIGHT);
             Row.width(VIEW_WIDTH);
             Row.align(Alignment.Top);
@@ -1002,7 +1008,7 @@ export class CustomAppBar extends ViewPU {
             });
         }, Image);
         this.observeComponentCreation2((elmtId, isInitialRender) => {
-            Text.create(this.labelName);
+            Text.create(this.provideService);
             Text.fontSize(TITLE_FONT_SIZE);
             Text.lineHeight(TITLE_LINE_HEIGHT);
             Text.fontWeight(FontWeight.Medium);
@@ -1011,14 +1017,7 @@ export class CustomAppBar extends ViewPU {
             Text.maxLines(1);
             Text.textOverflow({ overflow: TextOverflow.Ellipsis });
             Text.ellipsisMode(EllipsisMode.END);
-        }, Text);
-        Text.pop();
-        this.observeComponentCreation2((elmtId, isInitialRender) => {
-            Text.create(this.provideService);
-            Text.fontSize(TITLE_FONT_SIZE);
-            Text.lineHeight(TITLE_LINE_HEIGHT);
-            Text.fontColor('#FFFFFF');
-            Text.margin({ start: LengthMetrics.vp(TITLE_TEXT_MARGIN) });
+            Text.constraintSize({ maxWidth: TITLE_CONSTRAINT_SIZE });
         }, Text);
         Text.pop();
         this.observeComponentCreation2((elmtId, isInitialRender) => {
@@ -1189,7 +1188,7 @@ export class CustomAppBar extends ViewPU {
             });
             Row.layoutWeight(1);
             Row.backgroundColor(Color.Transparent);
-            Row.backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK);
+            Row.backgroundBlurStyle(this.isHalfScreen ? BlurStyle.COMPONENT_ULTRA_THICK : undefined);
             Row.borderRadius({
                 topLeft: this.isHalfScreen ? HALF_CONTAINER_BORDER_SIZE : this.deviceBorderRadius,
                 topRight: this.isHalfScreen ? HALF_CONTAINER_BORDER_SIZE : this.deviceBorderRadius,
