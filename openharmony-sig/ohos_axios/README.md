@@ -1,3 +1,9 @@
+# 🚨 **重要提示 | IMPORTANT**
+>
+> **⚠️ 此代码仓已归档。新地址请访问 [ohos_axios](https://gitcode.com/openharmony-sig/ohos_axios)。| ⚠️ This repository has been archived. For the new address, please visit [ohos_axios](https://gitcode.com/openharmony-sig/ohos_axios).**
+>
+---
+>
 # Axios
 
 ## Introduction

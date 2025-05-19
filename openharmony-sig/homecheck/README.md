@@ -1,3 +1,9 @@
+# 🚨 **重要提示 | IMPORTANT**
+>
+> **⚠️ 此代码仓已归档。新地址请访问 [homecheck](https://gitcode.com/openharmony-sig/homecheck)。| ⚠️ This repository has been archived. For the new address, please visit [homecheck](https://gitcode.com/openharmony-sig/homecheck).**
+>
+---
+>
 # homecheck
 
 ## 项目简介
