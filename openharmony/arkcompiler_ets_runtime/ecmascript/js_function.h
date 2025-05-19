@@ -385,6 +385,7 @@ public:
 
     void SetJitCompiledFuncEntry(JSThread *thread, JSHandle<MachineCode> &machineCode, bool isFastCall);
     void SetJitHotnessCnt(uint16_t cnt);
+    uint16_t GetJitHotnessCnt() const;
 
     static void InitializeForConcurrentFunction(JSThread *thread, JSHandle<JSFunction> &func);
 
@@ -392,11 +393,18 @@ public:
     bool IsSharedFunction() const;
 
     static uint32_t CalcuExpotedOfProperties(const JSHandle<JSFunction> &fun, bool *isStartSlackTracking);
+    static void InitializeJSFunctionCommon(JSThread *thread, const JSHandle<JSFunction> &func, FunctionKind kind);
     static void InitializeJSFunction(JSThread *thread, const JSHandle<JSFunction> &func,
                                      FunctionKind kind = FunctionKind::NORMAL_FUNCTION);
+    static void InitializeJSBuiltinFunction(JSThread *thread, const JSHandle<GlobalEnv> &env,
+                                            const JSHandle<JSFunction> &func,
+                                            FunctionKind kind = FunctionKind::NORMAL_FUNCTION);
     static void InitializeSFunction(JSThread *thread, const JSHandle<JSFunction> &func,
                                     FunctionKind kind = FunctionKind::NORMAL_FUNCTION);
+    static void InitializeWithDefaultValueCommon(JSThread *thread, const JSHandle<JSFunction> &func);
     static void InitializeWithDefaultValue(JSThread *thread, const JSHandle<JSFunction> &func);
+    static void InitializeBuiltinWithDefaultValue(JSThread *thread, const JSHandle<GlobalEnv> &env,
+                                                  const JSHandle<JSFunction> &func);
     static JSHClass *PUBLIC_API GetOrCreateInitialJSHClass(JSThread *thread, const JSHandle<JSFunction> &fun);
     static JSHandle<JSHClass> GetInstanceJSHClass(JSThread *thread, JSHandle<JSFunction> constructor,
                                                   JSHandle<JSTaggedValue> newTarget);

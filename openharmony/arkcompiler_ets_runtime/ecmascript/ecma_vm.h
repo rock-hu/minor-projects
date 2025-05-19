@@ -29,12 +29,16 @@
 #include "ecmascript/mem/gc_stats.h"
 #include "ecmascript/mem/heap_region_allocator.h"
 #include "ecmascript/napi/include/dfx_jsnapi.h"
-#include "ecmascript/napi/include/jsnapi.h"
 #include "ecmascript/patch/patch_loader.h"
 #include "ecmascript/stackmap/ark_stackmap.h"
+#include "ecmascript/napi/include/jsnapi_expo.h"
 #include "ecmascript/taskpool/taskpool.h"
 #include "ecmascript/waiter_list.h"
 #include "libpandafile/bytecode_instruction-inl.h"
+
+#ifdef USE_CMC_GC
+#include "ecmascript/crt.h"
+#endif
 
 namespace panda {
 class JSNApi;
@@ -140,6 +144,10 @@ using HostPromiseRejectionTracker = void (*)(const EcmaVM* vm,
                                              PromiseRejectionEvent operation,
                                              void* data);
 using PromiseRejectCallback = void (*)(void* info);
+
+#ifdef USE_CMC_GC
+using namespace panda;
+#endif
 
 enum class IcuFormatterType: uint8_t {
     SIMPLE_DATE_FORMAT_DEFAULT,
@@ -310,7 +318,10 @@ public:
         return ecmaParamConfiguration_;
     }
 
-    JSHandle<GlobalEnv> PUBLIC_API GetGlobalEnv() const;
+    JSHandle<GlobalEnv> PUBLIC_API GetGlobalEnv() const
+    {
+        return thread_->GetGlobalEnv();
+    }
 
     static EcmaVM *ConstCast(const EcmaVM *vm)
     {
@@ -1200,6 +1211,8 @@ public:
     void LoadStubFile();
     bool LoadAOTFilesInternal(const std::string& aotFileName);
     bool LoadAOTFiles(const std::string& aotFileName);
+    bool LoadAOTFiles(const std::string &aotFileName,
+                      std::function<bool(std::string fileName, uint8_t **buff, size_t *buffSize)> cb);
     void PUBLIC_API LoadProtoTransitionTable(JSTaggedValue constpool);
     void PUBLIC_API ResetProtoTransitionTableOnConstpool(JSTaggedValue constpool);
 
@@ -1238,6 +1251,10 @@ public:
 
     JSTaggedValue ExecuteAot(size_t actualNumArgs, JSTaggedType *args, const JSTaggedType *prevFp,
                              bool needPushArgv);
+
+    static void ClearKeptObjects(JSThread *thread);
+    static void AddToKeptObjects(JSThread *thread, JSHandle<JSTaggedValue> value);
+    void AddModuleManager(ModuleManager *moduleManager);
 
 private:
     void ClearBufferData();
@@ -1421,7 +1438,6 @@ private:
     friend class ValueSerializer;
     friend class panda::JSNApi;
     friend class JSPandaFileExecutor;
-    friend class EcmaContext;
     friend class JitVM;
     CMap<uint32_t, EcmaVM *> workerList_ {};
     Mutex mutex_;
@@ -1486,6 +1502,9 @@ private:
     // for HotReload of module.
     CMap<CString, JSHandle<JSTaggedValue>> cachedPatchModules_;
     StageOfColdReload stageOfColdReload_ = StageOfColdReload::NOT_COLD_RELOAD;
+
+    // store multi-context module manager
+    std::vector<ModuleManager *> moduleManagers_ {};
 };
 }  // namespace ecmascript
 }  // namespace panda

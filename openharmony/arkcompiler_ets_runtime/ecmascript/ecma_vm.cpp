@@ -16,8 +16,13 @@
 #include "ecmascript/ecma_vm.h"
 
 #include "ecmascript/builtins/builtins_ark_tools.h"
+#include "ecmascript/checkpoint/thread_state_transition.h"
 #include "ecmascript/compiler/aot_constantpool_patcher.h"
 #include "ecmascript/compiler/pgo_type/pgo_type_manager.h"
+#ifdef USE_CMC_GC
+#include "common_interfaces/base_runtime.h"
+#include "ecmascript/crt.h"
+#endif
 #ifdef ARK_SUPPORT_INTL
 #include "ecmascript/builtins/builtins_collator.h"
 #include "ecmascript/builtins/builtins_date_time_format.h"
@@ -38,8 +43,10 @@
 #include "ecmascript/dfx/stackinfo/async_stack_trace.h"
 #include "ecmascript/dfx/tracing/tracing.h"
 #include "ecmascript/dfx/vmstat/function_call_timer.h"
+#include "ecmascript/dfx/vmstat/opt_code_profiler.h"
 #include "ecmascript/jit/jit_task.h"
 #include "ecmascript/jspandafile/abc_buffer_cache.h"
+#include "ecmascript/linked_hash_table.h"
 #include "ecmascript/mem/heap-inl.h"
 #include "ecmascript/mem/shared_heap/shared_concurrent_marker.h"
 #include "ecmascript/module/module_logger.h"
@@ -122,17 +129,22 @@ bool EcmaVM::Destroy(EcmaVM *vm)
 
 void EcmaVM::PreFork()
 {
+    Runtime::GetInstance()->PreFork(thread_);
+    auto sHeap = SharedHeap::GetInstance();
+#ifndef USE_CMC_GC
     heap_->CompactHeapBeforeFork();
     heap_->AdjustSpaceSizeForAppSpawn();
     heap_->GetReadOnlySpace()->SetReadOnly();
-    heap_->DisableParallelGC();
-    SetPostForked(false);
-
-    auto sHeap = SharedHeap::GetInstance();
     sHeap->CompactHeapBeforeFork(thread_);
+#endif
+
+    // CommonRuntime threads and GC Taskpool Thread should be merged together.
+    heap_->DisableParallelGC();
     sHeap->DisableParallelGC(thread_);
     heap_->GetWorkManager()->FinishInPreFork();
     sHeap->GetWorkManager()->FinishInPreFork();
+
+    SetPostForked(false);
     Jit::GetInstance()->PreFork();
 }
 
@@ -144,6 +156,7 @@ void EcmaVM::PostFork()
         SharedHeap::GetInstance()->ResetLargeCapacity();
         heap_->ResetLargeCapacity();
     }
+    Runtime::GetInstance()->PostFork();
     RandomGenerator::InitRandom(GetAssociatedJSThread());
     heap_->SetHeapMode(HeapMode::SHARE);
     GetAssociatedJSThread()->PostFork();
@@ -152,11 +165,12 @@ void EcmaVM::PostFork()
     heap_->GetWorkManager()->InitializeInPostFork();
     auto sHeap = SharedHeap::GetInstance();
     sHeap->GetWorkManager()->InitializeInPostFork();
-    SetPostForked(true);
-    LOG_ECMA(INFO) << "multi-thread check enabled: " << GetThreadCheckStatus();
-    SignalAllReg();
     SharedHeap::GetInstance()->EnableParallelGC(GetJSOptions());
     heap_->EnableParallelGC();
+    SetPostForked(true);
+
+    LOG_ECMA(INFO) << "multi-thread check enabled: " << GetThreadCheckStatus();
+    SignalAllReg();
     options_.SetPgoForceDump(false);
     std::string bundleName = PGOProfilerManager::GetInstance()->GetBundleName();
     pgo::PGOTrace::GetInstance()->SetEnable(ohos::AotTools::GetPgoTraceEnable());
@@ -303,13 +317,14 @@ bool EcmaVM::Initialize()
     abcBufferCache_ = new AbcBufferCache();
     auto globalConst = const_cast<GlobalEnvConstants *>(thread_->GlobalConstants());
     globalConst->Init(thread_);
-    auto context = new EcmaContext(thread_);
-    thread_->PushContext(context);
     [[maybe_unused]] EcmaHandleScope scope(thread_);
     thread_->SetReadyForGCIterating(true);
     thread_->SetSharedMarkStatus(DaemonThread::GetInstance()->GetSharedMarkStatus());
     snapshotEnv_ = new SnapshotEnv(this);
-    context->Initialize();
+    bool builtinsLazyEnabled = GetJSOptions().IsWorker() && GetJSOptions().GetEnableBuiltinsLazy();
+    thread_->SetEnableLazyBuiltins(builtinsLazyEnabled);
+    JSHandle<GlobalEnv> globalEnv = factory_->NewGlobalEnv(builtinsLazyEnabled);
+    thread_->SetCurrentEnv(globalEnv.GetTaggedValue());
     ptManager_ = new kungfu::PGOTypeManager(this);
     optCodeProfiler_ = new OptCodeProfiler();
     if (options_.GetTypedOpProfiler()) {
@@ -327,9 +342,6 @@ bool EcmaVM::Initialize()
     thread_->SetUnsharedConstpoolsArrayLen(unsharedConstpoolsArrayLen_);
 
     snapshotEnv_->AddGlobalConstToMap();
-    thread_->SetGlueGlobalEnv(reinterpret_cast<GlobalEnv *>(context->GetGlobalEnv().GetTaggedType()));
-    thread_->SetGlobalObject(GetGlobalEnv()->GetGlobalObject());
-    thread_->SetCurrentEcmaContext(context);
     GenerateInternalNativeMethods();
     quickFixManager_ = new QuickFixManager();
     if (options_.GetEnableAsmInterpreter()) {
@@ -341,8 +353,8 @@ bool EcmaVM::Initialize()
     microJobQueue_ = factory_->NewMicroJobQueue().GetTaggedValue();
     if (IsEnableFastJit() || IsEnableBaselineJit()) {
         Jit::GetInstance()->ConfigJit(this);
-        sustainingJSHandleList_ = new SustainingJSHandleList();
     }
+    sustainingJSHandleList_ = new SustainingJSHandleList();
     initialized_ = true;
     regExpParserCache_ = new RegExpParserCache();
     return true;
@@ -405,7 +417,9 @@ EcmaVM::~EcmaVM()
     }
 #endif
 
-    thread_->GetModuleManager()->NativeObjDestory();
+    for (auto &moduleManager : moduleManagers_) {
+        moduleManager->NativeObjDestory();
+    }
 
     if (!isBundlePack_) {
         std::shared_ptr<JSPandaFile> jsPandaFile = JSPandaFileManager::GetInstance()->FindJSPandaFile(assetPath_);
@@ -442,6 +456,7 @@ EcmaVM::~EcmaVM()
         sustainingJSHandleList_ = nullptr;
     }
 
+#ifndef USE_CMC_GC
     SharedHeap *sHeap = SharedHeap::GetInstance();
     const Heap *heap = Runtime::GetInstance()->GetMainThread()->GetEcmaVM()->GetHeap();
     if (IsWorkerThread() && Runtime::SharedGCRequest()) {
@@ -453,6 +468,7 @@ EcmaVM::~EcmaVM()
             sHeap->CollectGarbage<TriggerGCType::SHARED_GC, GCReason::WORKER_DESTRUCTION>(thread_);
         }
     }
+#endif
 
     intlCache_.ClearIcuCache(this);
 
@@ -516,11 +532,6 @@ EcmaVM::~EcmaVM()
         strategy_ = nullptr;
     }
 
-    if (thread_ != nullptr) {
-        delete thread_;
-        thread_ = nullptr;
-    }
-
     if (regExpParserCache_ != nullptr) {
         delete regExpParserCache_;
         regExpParserCache_ = nullptr;
@@ -553,6 +564,17 @@ EcmaVM::~EcmaVM()
     if (functionProtoTransitionTable_ != nullptr) {
         delete functionProtoTransitionTable_;
         functionProtoTransitionTable_ = nullptr;
+    }
+
+    for (auto &moduleManager : moduleManagers_) {
+        delete moduleManager;
+        moduleManager = nullptr;
+    }
+    moduleManagers_.clear();
+
+    if (thread_ != nullptr) {
+        delete thread_;
+        thread_ = nullptr;
     }
 }
 
@@ -606,11 +628,6 @@ void EcmaVM::SetRuntimeStatEnable(bool flag)
     if (runtimeStat_ != nullptr) {
         runtimeStat_->SetRuntimeStatEnabled(flag);
     }
-}
-
-JSHandle<GlobalEnv> EcmaVM::GetGlobalEnv() const
-{
-    return thread_->GetCurrentEcmaContext()->GetGlobalEnv();
 }
 
 void EcmaVM::CheckThread() const
@@ -811,6 +828,16 @@ void EcmaVM::ClearBufferData()
 
 void EcmaVM::CollectGarbage(TriggerGCType gcType, panda::ecmascript::GCReason reason) const
 {
+#ifdef USE_CMC_GC
+    GcType type = GcType::ASYNC;
+    if (gcType == TriggerGCType::FULL_GC || gcType == TriggerGCType::SHARED_FULL_GC ||
+        gcType == TriggerGCType::APPSPAWN_FULL_GC || gcType == TriggerGCType::APPSPAWN_SHARED_FULL_GC ||
+        reason == GCReason::ALLOCATION_FAILED) {
+        type = GcType::FULL;
+    }
+    BaseRuntime::GetInstance()->GetHeap().RequestGC(type);
+    return;
+#endif
     heap_->CollectGarbage(gcType, reason);
 }
 
@@ -863,6 +890,24 @@ void EcmaVM::Iterate(RootVisitor &v, VMRootVisitType type)
 
     if (ptManager_) {
         ptManager_->Iterate(v);
+    }
+#ifdef ARK_USE_SATB_BARRIER
+    auto iterator = cachedSharedConstpools_.begin();
+    while (iterator != cachedSharedConstpools_.end()) {
+        auto &constpools = iterator->second;
+        auto constpoolIter = constpools.begin();
+        while (constpoolIter != constpools.end()) {
+            JSTaggedValue constpoolVal = constpoolIter->second;
+            if (constpoolVal.IsHeapObject()) {
+                v.VisitRoot(Root::ROOT_VM, ObjectSlot(reinterpret_cast<uintptr_t>(&constpoolIter->second)));
+            }
+            ++constpoolIter;
+        }
+        ++iterator;
+    }
+#endif
+    for (ModuleManager *moduleManager : moduleManagers_) {
+        moduleManager->Iterate(v);
     }
 }
 
@@ -999,6 +1044,13 @@ bool EcmaVM::LoadAOTFilesInternal(const std::string& aotFileName)
 
 bool EcmaVM::LoadAOTFiles(const std::string& aotFileName)
 {
+    return LoadAOTFilesInternal(aotFileName);
+}
+
+bool EcmaVM::LoadAOTFiles(const std::string& aotFileName,
+    std::function<bool(std::string fileName, uint8_t **buff, size_t *buffSize)> cb)
+{
+    GetAOTFileManager()->SetJsAotReader(cb);
     return LoadAOTFilesInternal(aotFileName);
 }
 
@@ -1630,7 +1682,16 @@ void EcmaVM::ResizeUnsharedConstpoolArray(int32_t oldCapacity, int32_t minCapaci
         UNREACHABLE();
     }
     std::fill(newUnsharedConstpools, newUnsharedConstpools + newCapacity, JSTaggedValue::Hole());
-    std::copy(unsharedConstpools_, unsharedConstpools_ + GetUnsharedConstpoolsArrayLen(), newUnsharedConstpools);
+    int32_t copyLen = GetUnsharedConstpoolsArrayLen();
+#ifdef USE_READ_BARRIER
+    if (true) { // IsConcurrentCopying
+        Barriers::CopyObject<true, true>(thread_, nullptr, newUnsharedConstpools, unsharedConstpools_, copyLen);
+    } else {
+        std::copy(unsharedConstpools_, unsharedConstpools_ + copyLen, newUnsharedConstpools);
+    }
+#else
+    std::copy(unsharedConstpools_, unsharedConstpools_ + copyLen, newUnsharedConstpools);
+#endif
     ClearUnsharedConstpoolArray();
     unsharedConstpools_ = newUnsharedConstpools;
     thread_->SetUnsharedConstpools(reinterpret_cast<uintptr_t>(unsharedConstpools_));
@@ -1953,6 +2014,38 @@ void EcmaVM::CJSExecution(JSHandle<JSFunction> &func, JSHandle<JSTaggedValue> &t
         // Collecting module.exports : exports ---> module.exports --->Module._cache
         RequireManager::CollectExecutedExp(thread_, cjsInfo);
     }
+}
+
+void EcmaVM::ClearKeptObjects(JSThread *thread)
+{
+    JSHandle<GlobalEnv> globalEnv = thread->GetGlobalEnv();
+    if (LIKELY(globalEnv->GetTaggedWeakRefKeepObjects().IsUndefined())) {
+        return;
+    }
+    globalEnv->SetWeakRefKeepObjects(thread, JSTaggedValue::Undefined());
+}
+
+void EcmaVM::AddToKeptObjects(JSThread *thread, JSHandle<JSTaggedValue> value)
+{
+    if (value->IsInSharedHeap()) {
+        return;
+    }
+
+    JSHandle<GlobalEnv> globalEnv = thread->GetGlobalEnv();
+    JSHandle<LinkedHashSet> linkedSet;
+    if (globalEnv->GetWeakRefKeepObjects()->IsUndefined()) {
+        linkedSet = LinkedHashSet::Create(thread);
+    } else {
+        linkedSet = JSHandle<LinkedHashSet>(thread,
+            LinkedHashSet::Cast(globalEnv->GetWeakRefKeepObjects()->GetTaggedObject()));
+    }
+    linkedSet = LinkedHashSet::Add(thread, linkedSet, value);
+    globalEnv->SetWeakRefKeepObjects(thread, linkedSet);
+}
+
+void EcmaVM::AddModuleManager(ModuleManager *moduleManager)
+{
+    moduleManagers_.push_back(moduleManager);
 }
 
 }  // namespace panda::ecmascript

@@ -16,11 +16,15 @@
 #ifndef ECMASCRIPT_STACKINFO_STACK_TRACE_H
 #define ECMASCRIPT_STACKINFO_STACK_TRACE_H
 
+#include <memory>
 #include <string>
+
 #include "ecmascript/mem/c_containers.h"
 
 namespace panda::ecmascript {
 class JSPromise;
+class EcmaVM;
+class JSTaggedValue;
 
 // for async stack trace
 static constexpr int32_t MAX_CALL_STACK_SIZE_TO_CAPTURE = 200;
@@ -173,7 +177,7 @@ private:
     CMap<uint32_t, std::pair<std::string, int64_t>> asyncStackTrace_;
 
     std::vector<std::shared_ptr<AsyncStack>> currentAsyncParent_;
-    CMap<int32_t, std::shared_ptr<AsyncStack>> asyncTaskStacks_;
+    CMap<uint32_t, std::shared_ptr<AsyncStack>> asyncTaskStacks_;
 };
 } // namespace panda::ecmascript
 #endif  // ECMASCRIPT_STACKINFO_STACK_TRACE_H

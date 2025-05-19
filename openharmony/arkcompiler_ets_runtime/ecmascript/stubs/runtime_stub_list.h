@@ -153,6 +153,7 @@ namespace panda::ecmascript {
     V(SetBitAtomic)                            \
     V(MarkingBarrier)                          \
     V(SharedGCMarkingBarrier)                  \
+    V(CMCGCMarkingBarrier)                     \
     V(DoubleToInt)                             \
     V(SaturateTruncDoubleToInt32)           \
     V(FloatMod)                                \
@@ -211,7 +212,11 @@ namespace panda::ecmascript {
     V(LrInt)                                   \
     V(FindPatchModule)                         \
     V(FatalPrintMisstakenResolvedBinding)      \
-    V(LoadNativeModuleFailed)
+    V(LoadNativeModuleFailed)                  \
+    V(GetExternalModuleVar)                    \
+    V(ReadBarrier)                             \
+    V(CopyCallTarget)                          \
+    V(CopyArgvArray)
 
 #define RUNTIME_STUB_WITH_GC_LIST(V)            \
     V(HeapAlloc)                                \
@@ -223,6 +228,7 @@ namespace panda::ecmascript {
     V(TypedArrayCreateSameType)                 \
     V(CallInternalGetter)                       \
     V(CallInternalSetter)                       \
+    V(CallInternalSetterNoThrow)                \
     V(CallGetPrototype)                         \
     V(RegularJSObjDeletePrototype)              \
     V(CallJSObjDeletePrototype)                 \

@@ -18,6 +18,8 @@
 #include <getopt.h>
 
 #include "ecmascript/compiler/aot_file/an_file_data_manager.h"
+#include "ecmascript/compiler/assembler/assembler.h"
+#include "ecmascript/compiler/bc_call_signature.h"
 #include "ecmascript/compiler/ecma_opcode_des.h"
 #include "ecmascript/platform/os.h"
 
@@ -205,6 +207,11 @@ const std::string PUBLIC_API HELP_OPTION_MSG =
     "--compiler-an-file-max-size:          Max size of compiler .an file in MB. '0' means Default\n"
     "                                      Default: No limit for Host, '100' for TargetCompilerMode\n"
     "--compiler-enable-merge-poly:         Enable poly-merge optimization for ldobjbyname. Default: 'true'\n"
+    "--compiler-jit-method-dichotomy:      Find problematic method by dichotomy. Default: 'disable'\n"
+    "                                      'collect': collect methods during JIT runtime.\n"
+    "                                      'filter': only compile specified methods during JIT runtime.\n"
+    "--compiler-jit-method-path:           Store method names for jit method dichotomy.\n"
+    "                                      Default: 'method_compiled_by_jit.cfg'\n"
     // Please add new options above this line for keep a blank line after help message.
     "\n";
 
@@ -358,8 +365,9 @@ bool JSRuntimeOptions::ParseCommand(const int argc, const char **argv)
         {"compiler-an-file-max-size", required_argument, nullptr, OPTION_COMPILER_AN_FILE_MAX_SIZE},
         {"compiler-trace-builtins", required_argument, nullptr, OPTION_COMPILER_TRACE_BUILTINS},
         {"compiler-enable-merge-poly", required_argument, nullptr, OPTION_COMPILER_ENABLE_MERGE_POLY},
+        {"compiler-jit-method-dichotomy", required_argument, nullptr, OPTION_COMPILER_JIT_METHOD_DICHOTOMY},
+        {"compiler-jit-method-path", required_argument, nullptr, OPTION_COMPILER_JIT_METHOD_PATH},
         {nullptr, 0, nullptr, 0},
-        
     };
 
     int index = 0;
@@ -1432,6 +1440,12 @@ bool JSRuntimeOptions::ParseCommand(const int argc, const char **argv)
                     return false;
                 }
                 break;
+            case OPTION_COMPILER_JIT_METHOD_DICHOTOMY:
+                SetJitMethodDichotomy(optarg);
+                break;
+            case OPTION_COMPILER_JIT_METHOD_PATH:
+                SetJitMethodPath(optarg);
+                break;
             default:
                 LOG_ECMA(ERROR) << "Invalid option\n";
                 return false;
@@ -1581,6 +1595,39 @@ void JSRuntimeOptions::SetOptionsForTargetCompilation()
         SetFastAOTCompileMode(true);
         SetOptLevel(DEFAULT_OPT_LEVEL);
         SetEnableLoweringBuiltin(false);
+    }
+}
+
+void JSRuntimeOptions::ParseAsmInterOption()
+{
+    asmInterParsedOption_.enableAsm = enableAsmInterpreter_;
+    std::string strAsmOpcodeDisableRange = asmOpcodeDisableRange_;
+    if (strAsmOpcodeDisableRange.empty()) {
+        return;
+    }
+
+    // asm interpreter handle disable range
+    size_t pos = strAsmOpcodeDisableRange.find(",");
+    if (pos != std::string::npos) {
+        std::string strStart = strAsmOpcodeDisableRange.substr(0, pos);
+        std::string strEnd = strAsmOpcodeDisableRange.substr(pos + 1);
+        int64_t inputStart;
+        int64_t inputEnd;
+        if (!StringToInt64(strStart, inputStart)) {
+            inputStart = 0;
+            LOG_ECMA_IF(!strStart.empty(), INFO) << "when get start, strStart is " << strStart;
+        }
+        if (!StringToInt64(strEnd, inputEnd)) {
+            inputEnd = kungfu::BYTECODE_STUB_END_ID;
+            LOG_ECMA_IF(!strEnd.empty(), INFO) << "when get end, strEnd is " << strEnd;
+        }
+        int start = static_cast<int>(inputStart);
+        int end = static_cast<int>(inputEnd);
+        if (start >= 0 && start < kungfu::BytecodeStubCSigns::NUM_OF_ALL_NORMAL_STUBS && end >= 0 &&
+            end < kungfu::BytecodeStubCSigns::NUM_OF_ALL_NORMAL_STUBS && start <= end) {
+            asmInterParsedOption_.handleStart = start;
+            asmInterParsedOption_.handleEnd = end;
+        }
     }
 }
 }

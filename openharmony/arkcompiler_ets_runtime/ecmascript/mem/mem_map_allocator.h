@@ -16,6 +16,7 @@
 #ifndef ECMASCRIPT_MEM_MEM_MAP_ALLOCATOR_H
 #define ECMASCRIPT_MEM_MEM_MAP_ALLOCATOR_H
 
+#include <chrono>
 #include <deque>
 #include <map>
 #include <random>
@@ -164,6 +165,11 @@ public:
         freeList_.clear();
     }
 
+    void ResetCapacity(size_t capacity)
+    {
+        capacity_ = capacity;
+    }
+
     NO_COPY_SEMANTIC(MemMapFreeList);
     NO_MOVE_SEMANTIC(MemMapFreeList);
 
@@ -248,12 +254,14 @@ public:
     NO_COPY_SEMANTIC(MemMapAllocator);
     NO_MOVE_SEMANTIC(MemMapAllocator);
 
-    void Initialize(size_t alignment)
+    void Initialize(size_t alignment, bool isLargeHeap)
     {
-        AdapterSuitablePoolCapacity();
+        AdapterSuitablePoolCapacity(isLargeHeap);
         memMapTotalSize_ = 0;
+#ifndef USE_CMC_GC
         InitializeHugeRegionMap(alignment);
         InitializeRegularRegionMap(alignment);
+#endif
     }
 
     void Finalize()
@@ -264,7 +272,7 @@ public:
         memMapPool_.Finalize();
     }
 
-    uint64_t GetCapacity()
+    size_t GetCapacity()
     {
         return capacity_;
     }
@@ -272,6 +280,7 @@ public:
     void ResetLargePoolSize()
     {
         capacity_ = LARGE_HEAP_POOL_SIZE;
+        memMapFreeList_.ResetCapacity(capacity_);
     }
 
     void IncreaseMemMapTotalSize(size_t bytes)
@@ -289,10 +298,11 @@ public:
     static MemMapAllocator *GetInstance();
 
     MemMap Allocate(const uint32_t threadId, size_t size, size_t alignment,
-                    const std::string &spaceName, bool regular, bool isMachineCode,
+                    const std::string &spaceName, bool regular, bool isCompress, bool isMachineCode,
                     bool isEnableJitFort, bool shouldPageTag);
 
-    void CacheOrFree(void *mem, size_t size, bool isRegular, size_t cachedSize, bool shouldPageTag, bool skipCache);
+    void CacheOrFree(void *mem, size_t size, bool isRegular, bool isCompress, size_t cachedSize,
+                     bool shouldPageTag, bool skipCache);
 
     // This is only used when allocating region failed during GC, since it's unsafe to do HeapDump or throw OOM,
     // just make MemMapAllocator infinite to complete this GC, this will temporarily lead that all JSThread could
@@ -303,6 +313,14 @@ public:
 private:
     void InitializeRegularRegionMap(size_t alignment);
     void InitializeHugeRegionMap(size_t alignment);
+    void InitializeCompressRegionMap(size_t alignment);
+
+    MemMap AllocateFromMemPool(MemMapPool &pool, const uint32_t threadId, size_t size, size_t alignment,
+                               const std::string &spaceName, bool isMachineCode, bool isEnableJitFort,
+                               bool shouldPageTag, PageTagType type);
+    MemMap InitialMemPool(MemMap &mem, const uint32_t threadId, size_t size, const std::string &spaceName,
+                          bool isMachineCode, bool isEnableJitFort, bool shouldPageTag, PageTagType type);
+    MemMap AlignMemMapTo4G(const MemMap &memMap, size_t targetSize);
     // Random generate big mem map addr to avoid js heap is written by others
     void *RandomGenerateBigAddr(uint64_t addr)
     {
@@ -326,12 +344,13 @@ private:
     static constexpr size_t RANDOM_SHIFT_BIT = 28;
     static constexpr size_t MEM_MAP_RETRY_NUM = 10;
 
-    void AdapterSuitablePoolCapacity();
-    void Free(void *mem, size_t size, bool isRegular);
+    void AdapterSuitablePoolCapacity(bool isLargeHeap);
+    void Free(void *mem, size_t size, bool isRegular, bool isCompress);
     MemMapPool memMapPool_;
+    MemMapPool compressMemMapPool_;
     MemMapFreeList memMapFreeList_;
     std::atomic_size_t memMapTotalSize_ {0};
-    uint64_t capacity_ {0};
+    size_t capacity_ {0};
 };
 }  // namespace panda::ecmascript
 #endif  // ECMASCRIPT_MEM_MEM_MAP_ALLOCATOR_H

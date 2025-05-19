@@ -105,7 +105,7 @@ void DFXJSNApi::DumpHeapSnapshot([[maybe_unused]] const EcmaVM *vm, [[maybe_unus
 void DFXJSNApi::DumpCpuProfile([[maybe_unused]] const EcmaVM *vm)
 {
 #if ECMASCRIPT_ENABLE_MEGA_PROFILER
-    vm->GetJSThread()->GetCurrentEcmaContext()->PrintMegaICStat();
+    vm->GetJSThread()->PrintMegaICStat();
 #endif
 #if defined(ECMASCRIPT_SUPPORT_SNAPSHOT)
 #if defined(ENABLE_DUMP_IN_FAULTLOG)
@@ -1054,5 +1054,24 @@ uint32_t DFXJSNApi::GetCurrentThreadId()
 void DFXJSNApi::RegisterAsyncDetectCallBack(const EcmaVM *vm)
 {
     vm->GetAsyncStackTrace()->RegisterAsyncDetectCallBack();
+}
+
+void DFXJSNApi::GetMainThreadStackTrace(const EcmaVM *vm, std::string &stackTraceStr)
+{
+    auto thread = vm->GetJSThread();
+    if (thread->IsMainThread()) {
+        stackTraceStr = ecmascript::JsStackInfo::BuildJsStackTrace(
+            thread, false, false, ecmascript::JS_STACK_TRACE_DEPTH_MAX);
+    } else {
+        ecmascript::ThreadManagedScope runningScope(thread);
+        ecmascript::SuspendAllScope suspendScope(thread);
+        auto mainThread = ecmascript::Runtime::GetInstance()->GetMainThread();
+        stackTraceStr = ecmascript::JsStackInfo::BuildJsStackTrace(
+            mainThread, false, false, ecmascript::JS_STACK_TRACE_DEPTH_MAX);
+    }
+    auto sourceMapcb = vm->GetSourceMapCallback();
+    if (sourceMapcb != nullptr && !stackTraceStr.empty()) {
+        stackTraceStr = sourceMapcb(stackTraceStr);
+    }
 }
 } // namespace panda

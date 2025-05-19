@@ -1,0 +1,197 @@
+# Copyright (c) 2023 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+import("//build/test.gni")
+import("//foundation/arkui/ace_engine/ace_config.gni")
+
+pattern_test_output_path = "ace_engine/ace_engine/components"
+event_test_output_path = "ace_engine/ace_engine/events"
+base_test_output_path = "ace_engine/ace_engine/base"
+image_test_output_path = "ace_engine/ace_engine/image"
+basic_test_output_path = "ace_engine/ace_engine/basic"
+interface_test_output_path = "ace_engine/ace_engine/interfaces"
+adapter_test_output_path = "ace_engine/ace_engine/adapter"
+svg_test_output_path = "ace_engine/ace_engine/svg"
+bridge_test_output_path = "ace_engine/ace_engine/bridge"
+frameworks_test_output_path = "ace_engine/ace_engine/frameworks"
+
+template("ace_unittest") {
+  forward_variables_from(invoker, "*")
+
+  type = "components"
+  module_output = "components"
+  flutter_skia = false
+  render = false
+  ace_unittest_name = target_name
+  ace_unittest_config = [ "$ace_root/test/unittest:ace_unittest_config" ]
+  ace_external_deps = [ "googletest:gmock" ]
+  flutter_sources = []
+  flutter_external_deps = []
+  ace_unittest_deps = []
+  include_dir = []
+
+  # temporary support
+  if (defined(invoker.external_deps)) {
+    ace_external_deps += external_deps
+  }
+
+  if (defined(invoker.render)) {
+    render = invoker.render
+  }
+
+  if (defined(invoker.type)) {
+    type = invoker.type
+  }
+
+  if (defined(invoker.module_output)) {
+    module_output = invoker.module_output
+  }
+
+  if (defined(invoker.flutter_skia)) {
+    flutter_skia = invoker.flutter_skia
+  }
+
+  if (defined(invoker.extra_deps)) {
+    ace_unittest_deps += invoker.extra_deps
+  }
+
+  if (defined(invoker.include_dirs)) {
+    include_dir = invoker.include_dirs
+  }
+
+  # ----------------------------  temporary support
+  if (render) {
+    ace_external_deps += [
+      "graphic_2d:librender_service_base",
+      "graphic_2d:librender_service_client",
+    ]
+  }
+
+  if (flutter_skia) {
+    flutter_external_deps = [ "eventhandler:libeventhandler" ]
+  }
+
+  # ----------------------------
+
+  if (type == "components") {
+    ohos_unittest(ace_unittest_name) {
+      module_out_path = "ace_engine/ace_engine/${module_output}"
+
+      sources = []
+      sources += invoker.sources
+      sources += flutter_sources
+
+      deps = ace_unittest_deps
+      deps += [
+        "$ace_root/frameworks/core/components/theme:build_theme_code",
+        "$ace_root/test/unittest:ace_base",
+        "$ace_root/test/unittest:ace_components_base",
+        "$ace_root/test/unittest:ace_components_event",
+        "$ace_root/test/unittest:ace_components_gestures",
+        "$ace_root/test/unittest:ace_components_layout",
+        "$ace_root/test/unittest:ace_components_mock",
+        "$ace_root/test/unittest:ace_components_property",
+        "$ace_root/test/unittest:ace_components_render",
+        "$ace_root/test/unittest:ace_components_syntax",
+        "$ace_root/test/unittest:ace_core_animation",
+        "$ace_root/test/unittest:ace_core_extra",
+      ]
+
+      configs = []
+      configs += ace_unittest_config
+
+      external_deps = []
+      external_deps += ace_external_deps
+      external_deps += flutter_external_deps
+    }
+  } else if (type == "new") {
+    ohos_unittest(ace_unittest_name) {
+      module_out_path = "ace_engine/ace_engine/${module_output}"
+      sources = []
+      sources += invoker.sources
+      sources += flutter_sources
+      include_dirs = []
+      include_dirs += include_dir
+      deps = ace_unittest_deps
+      deps += [
+        "$ace_root/frameworks/core/components/theme:build_theme_code",
+        "$ace_root/test/unittest:ace_base",
+        "$ace_root/test/unittest:ace_components_base",
+        "$ace_root/test/unittest:ace_components_event",
+        "$ace_root/test/unittest:ace_components_gestures",
+        "$ace_root/test/unittest:ace_components_layout",
+        "$ace_root/test/unittest:ace_components_manager",
+        "$ace_root/test/unittest:ace_components_mock",
+        "$ace_root/test/unittest:ace_components_pattern",
+        "$ace_root/test/unittest:ace_components_property",
+        "$ace_root/test/unittest:ace_components_render",
+        "$ace_root/test/unittest:ace_components_syntax",
+        "$ace_root/test/unittest:ace_core_animation",
+        "$ace_root/test/unittest:ace_core_extra",
+      ]
+      if (defined(cflags)) {
+        cflags += [ "-fvisibility=hidden" ]
+      } else {
+        cflags = [ "-fvisibility=hidden" ]
+      }
+      configs = []
+      configs = ace_unittest_config
+
+      if (defined(invoker.defines)) {
+        defines += invoker.defines
+      }
+
+      external_deps = []
+      if (current_os == "ohos") {
+        external_deps = [ "c_utils:utils" ]
+      }
+      external_deps += ace_external_deps
+      external_deps += flutter_external_deps
+    }
+  } else if (type == "pipeline") {
+    ohos_unittest(ace_unittest_name) {
+      module_out_path = "ace_engine/ace_engine/${module_output}"
+      sources = []
+      sources += invoker.sources
+      sources += flutter_sources
+      include_dirs = []
+      include_dirs += include_dir
+      deps = ace_unittest_deps
+      deps += [
+        "$ace_root/frameworks/core/components/theme:build_theme_code",
+        "$ace_root/test/unittest:ace_base",
+        "$ace_root/test/unittest:ace_components_base",
+        "$ace_root/test/unittest:ace_components_event",
+        "$ace_root/test/unittest:ace_components_gestures",
+        "$ace_root/test/unittest:ace_components_layout",
+        "$ace_root/test/unittest:ace_components_manager",
+        "$ace_root/test/unittest:ace_components_pattern",
+        "$ace_root/test/unittest:ace_components_property",
+        "$ace_root/test/unittest:ace_components_render",
+        "$ace_root/test/unittest:ace_components_syntax",
+        "$ace_root/test/unittest:ace_core_animation",
+        "$ace_root/test/unittest:ace_core_extra",
+      ]
+
+      configs = []
+      configs = ace_unittest_config
+
+      external_deps = []
+      external_deps += ace_external_deps
+      external_deps += flutter_external_deps
+    }
+  } else {
+    assert(false)
+  }
+}

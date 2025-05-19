@@ -1,1 +1,2 @@
-TypeError: is not callable
+get 0
+TypeError: ,, is not callable

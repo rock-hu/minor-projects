@@ -95,6 +95,10 @@ public:
     static void MarkingBarrier([[maybe_unused]] uintptr_t argGlue,
         uintptr_t object, size_t offset, TaggedObject *value);
     static void SharedGCMarkingBarrier(uintptr_t argGlue, uintptr_t object, size_t offset, TaggedObject *value);
+    static void CMCGCMarkingBarrier(uintptr_t argGlue, uintptr_t object, size_t offset, TaggedObject *value);
+    static JSTaggedType ReadBarrier(uintptr_t argGlue, uintptr_t addr);
+    static void CopyCallTarget(uintptr_t argGlue, uintptr_t callTarget);
+    static void CopyArgvArray(uintptr_t argGlue, uintptr_t argv, uint64_t argc);
     static JSTaggedType GetActualArgvNoGC(uintptr_t argGlue);
     static void InsertOldToNewRSet([[maybe_unused]] uintptr_t argGlue, uintptr_t object, size_t offset);
     static void InsertLocalToShareRSet([[maybe_unused]] uintptr_t argGlue, uintptr_t object, size_t offset);
@@ -164,6 +168,8 @@ public:
     static JSTaggedValue FindPatchModule(uintptr_t argGlue, JSTaggedValue resolvedModule);
     static void FatalPrintMisstakenResolvedBinding(int32_t index, JSTaggedValue curModule);
     static void LoadNativeModuleFailed(JSTaggedValue curModule);
+    static JSTaggedValue GetExternalModuleVar(uintptr_t argGlue, JSFunction *jsFunc, int32_t index);
+
 private:
     static void DumpToStreamWithHint(std::ostream &out, std::string_view prompt, JSTaggedValue value);
 
@@ -457,7 +463,7 @@ private:
     static inline JSTaggedValue RuntimeGetUnmapedJSArgumentObj(JSThread *thread,
                                                                const JSHandle<TaggedArray> &argumentsList);
     static inline JSTaggedValue RuntimeOptNewLexicalEnvWithName(JSThread *thread, uint16_t numVars, uint16_t scopeId,
-                                                                JSHandle<JSTaggedValue> &currentLexEnv,
+                                                                JSHandle<JSTaggedValue> &currentEnv,
                                                                 JSHandle<JSTaggedValue> &func);
     static inline JSTaggedValue RuntimeOptCopyRestArgs(JSThread *thread, uint32_t actualArgc, uint32_t restIndex);
     static inline JSTaggedValue RuntimeOptSuspendGenerator(JSThread *thread, const JSHandle<JSTaggedValue> &genObj,

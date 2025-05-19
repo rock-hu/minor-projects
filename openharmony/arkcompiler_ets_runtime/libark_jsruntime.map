@@ -97,8 +97,8 @@
       panda::JSExecutionScope::*;
 
       panda::ecmascript::AotCrashInfo*;
-      panda::ecmascript::Log::*;
-      panda::ecmascript::AndroidLog*;
+      panda::Log::*;
+      panda::AndroidLog*;
       panda::ecmascript::Method::*;
       panda::ecmascript::JSPandaFileManager::*;
       panda::ecmascript::DebugInfoExtractor::*;
@@ -111,6 +111,7 @@
       panda::ecmascript::pgo::PGOProfilerEncoder::*;
       panda::ecmascript::pgo::ProfileType::PROFILE_TYPE_NONE;
       panda::ecmascript::containers::ContainerError::*;
+      panda::ecmascript::TaggedStateWord::BASE_ADDRESS;
       panda::ecmascript::NativeAreaAllocator::*;
       panda::ecmascript::StackFrame::*;
       panda::ecmascript::AsyncStack::*;
@@ -237,6 +238,7 @@
       panda::ecmascript::JSTaggedValue::IsInSharedHeap*;
       panda::ecmascript::JITProfiler::ProfileBytecode*;
       panda::ecmascript::JitThread::GetHostThread*;
+      panda::ecmascript::Jit::TimeScope::TimeScope*;
       panda::ecmascript::Jit::TimeScope::~TimeScope*;
       panda::ecmascript::Jit::GetInstance*;
       panda::ecmascript::Jit::IsEnableJitFort*;
@@ -381,6 +383,7 @@
       panda::ecmascript::pgo::PGOMethodInfo::CalcChecksum*;
       panda::ecmascript::pgo::PGOProfiler::*;
       panda::ecmascript::pgo::PGOProfilerManager::*;
+      panda::ecmascript::tooling::JsDebuggerManager::SetDebugMode*;
       panda::ecmascript::JITProfiler::ProfileBytecode*;
       panda::panda_file::ClassDataAccessor::ClassDataAccessor*;
       panda::panda_file::CodeDataAccessor::CatchBlock::CatchBlock*;

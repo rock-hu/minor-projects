@@ -67,7 +67,6 @@ bool EcmaContext::Initialize()
     LOG_ECMA(DEBUG) << "EcmaContext::Initialize";
     ECMA_BYTRACE_NAME(HITRACE_TAG_ARK, "EcmaContext::Initialize");
     [[maybe_unused]] EcmaHandleScope scope(thread_);
-
     const GlobalEnvConstants *globalConst = thread_->GlobalConstants();
     JSHandle<JSHClass> hClassHandle = JSHandle<JSHClass>(thread_, globalConst->GetHClassClass());
     JSHandle<JSHClass> globalEnvClass = factory_->NewEcmaHClass(

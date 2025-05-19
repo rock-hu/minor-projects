@@ -71,7 +71,9 @@ void FunctionEmitter::Generate(util::PatchFix *patchFixHelper)
     GenFunctionCatchTables();
     GenLiteralBuffers();
     GenConcurrentFunctionModuleRequests();
-    GenAnnotations();
+    if (pg_->Binder()->Program()->IsEnableAnnotations()) {
+        GenAnnotations();
+    }
     if (patchFixHelper != nullptr) {
         patchFixHelper->ProcessFunction(pg_, func_, literalBuffers_);
     }
@@ -209,11 +211,6 @@ void FunctionEmitter::GenInstructionDebugInfo(const IRNode *ins, panda::pandasm:
 
     if (pg_->IsDebug()) {
         size_t insLen = GetIRNodeWholeLength(ins);
-        if (insLen != 0) {
-            pandaIns->ins_debug.bound_left = offset_;
-            pandaIns->ins_debug.bound_right = offset_ + insLen;
-        }
-
         offset_ += insLen;
         pandaIns->ins_debug.column_number = columnNum;
     }
@@ -455,10 +452,9 @@ void FunctionEmitter::GenFunctionInstructions()
     func_->ins.reserve(pg_->Insns().size());
 
     for (const auto *ins : pg_->Insns()) {
-        auto &pandaIns = func_->ins.emplace_back();
-
-        ins->Transform(&pandaIns);
-        GenInstructionDebugInfo(ins, &pandaIns);
+        auto *pandaIns = ins->Transform();
+        func_->ins.emplace_back(pandaIns);
+        GenInstructionDebugInfo(ins, pandaIns);
     }
 }
 
@@ -1256,7 +1252,7 @@ void Emitter::DumpAsm(const panda::pandasm::Program *prog)
         ss << ") {" << std::endl;
 
         for (const auto &ins : func.ins) {
-            ss << (ins.set_label ? "" : "\t") << ins.ToString("", true, func.GetTotalRegs()) << std::endl;
+            ss << (ins->IsLabel() ? "" : "\t") << ins->ToString("", true, func.GetTotalRegs()) << std::endl;
         }
 
         ss << "}" << std::endl << std::endl;

@@ -107,6 +107,7 @@ namespace panda::ecmascript::kungfu {
     V(JSSetAdd)                       \
     V(JSProxyGetProperty)             \
     V(JSProxySetProperty)             \
+    V(JSProxySetPropertyNoThrow)      \
     V(CreateJSTypedArrayEntries)      \
     V(CreateJSTypedArrayKeys)         \
     V(CreateJSTypedArrayValues)       \
@@ -141,7 +142,8 @@ namespace panda::ecmascript::kungfu {
     V(MoveBarrierInRegion)            \
     V(MoveBarrierCrossRegion)         \
     V(FindEntryFromNameDictionary)    \
-    V(ReverseBarrier)
+    V(ReverseBarrier)                 \
+    V(GetValueWithBarrier)
 
 #define COMMON_STUB_ID_LIST(V)          \
     COMMON_STUB_LIST(V)

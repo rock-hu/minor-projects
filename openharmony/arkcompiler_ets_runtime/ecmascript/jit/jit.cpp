@@ -129,6 +129,9 @@ void Jit::ConfigOptions(EcmaVM *vm) const
 
     vm->SetEnableJitLogSkip(ohos::JitTools::GetSkipJitLogEnable());
 
+    std::string jitMethodDichotomy = ohos::JitTools::GetJitMethodDichotomy(options.GetJitMethodDichotomy());
+    options.SetJitMethodDichotomy(jitMethodDichotomy);
+
     LOG_JIT(INFO) << "enable jit bundle:" << bundleName_ <<
         ", litecg:" << jitEnableLitecg <<
         ", call threshold:" << static_cast<int>(jitCallThreshold) <<
@@ -141,6 +144,9 @@ void Jit::ConfigJit(EcmaVM *vm)
     SwitchProfileStubs(vm);
     ConfigOptions(vm);
     ConfigJitFortOptions(vm);
+    // initialize jit method dichotomy
+    CompileDecision::GetMethodNameCollector().Init(vm);
+    CompileDecision::GetMethodNameFilter().Init(vm);
 }
 
 void Jit::ConfigJitFortOptions(EcmaVM *vm)
@@ -377,14 +383,6 @@ void Jit::ClearTask(const std::function<bool(Task *task)> &checkClear)
     });
 }
 
-void Jit::ClearTask(EcmaContext *ecmaContext)
-{
-    ClearTask([ecmaContext](Task *task) {
-        JitTask::AsyncTask *asyncTask = static_cast<JitTask::AsyncTask*>(task);
-        return ecmaContext == asyncTask->GetEcmaContext();
-    });
-}
-
 void Jit::ClearTaskWithVm(EcmaVM *vm)
 {
     ClearTask([vm](Task *task) {
@@ -440,6 +438,22 @@ void Jit::ChangeTaskPoolState(bool inBackground)
             JitTaskpool::GetCurrentTaskpool()->SetThreadPriority(PriorityMode::BACKGROUND);
         } else {
             JitTaskpool::GetCurrentTaskpool()->SetThreadPriority(PriorityMode::FOREGROUND);
+        }
+    }
+}
+
+Jit::TimeScope::TimeScope(EcmaVM *vm, CString message, CompilerTier tier, bool outPutLog, bool isDebugLevel)
+    : vm_(vm), message_(message), tier_(tier), outPutLog_(outPutLog), isDebugLevel_(isDebugLevel)
+{
+    if (outPutLog_) {
+        if (isDebugLevel_) {
+            LOG_JIT(DEBUG) << tier_ << message_ << " begin.";
+        } else {
+            auto bundleName = vm_->GetBundleName();
+            if (vm_->GetEnableJitLogSkip() && bundleName != "" && message_.find(bundleName) == std::string::npos) {
+                return;
+            }
+            LOG_JIT(INFO) << tier_ << message_ << " begin.";
         }
     }
 }

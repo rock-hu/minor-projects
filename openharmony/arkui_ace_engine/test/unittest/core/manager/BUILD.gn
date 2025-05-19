@@ -1,0 +1,181 @@
+# Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//foundation/arkui/ace_engine/test/unittest/ace_unittest.gni")
+
+ace_unittest("avoid_info_manager_test_ng") {
+  type = "new"
+  module_output = "manager"
+  sources = [ "avoid_info_manager_test_ng.cpp" ]
+}
+
+ace_unittest("drag_animation_helper_test_ng") {
+  type = "new"
+  module_output = "manager"
+  sources = [ "drag_animation_helper_test_ng.cpp" ]
+}
+
+ace_unittest("drag_drop_controller_func_wrapper_test_ng") {
+  type = "new"
+  module_output = "manager"
+  sources = [ "drag_drop_controller_func_wrapper_test_ng.cpp" ]
+}
+
+ace_unittest("drag_drop_func_wrapper_test_ng") {
+  type = "new"
+  module_output = "manager"
+  sources = [
+    "./drag_drop/drag_drop_func_wrapper_test_ng_base.cpp",
+    "./drag_drop/drag_drop_func_wrapper_test_ng_coverage.cpp",
+  ]
+}
+
+ace_unittest("drag_drop_manager_test_ng") {
+  type = "new"
+  module_output = "manager"
+  sources = [
+    "drag_drop_manager_test_ng.cpp",
+    "drag_drop_manager_test_ng_coverage.cpp",
+    "drag_drop_manager_test_ng_property_config.cpp",
+  ]
+}
+
+ace_unittest("drag_drop_initiating_state_test_ng") {
+  type = "new"
+  module_output = "manager"
+  sources = [
+    "./drag_drop/drag_drop_initiating_handler_test_ng.cpp",
+    "./drag_drop/drag_drop_initiating_state_idle_test_ng.cpp",
+    "./drag_drop/drag_drop_initiating_state_lifting_test_ng.cpp",
+    "./drag_drop/drag_drop_initiating_state_machine_test_ng.cpp",
+    "./drag_drop/drag_drop_initiating_state_moving_test_ng.cpp",
+    "./drag_drop/drag_drop_initiating_state_press_test_ng.cpp",
+    "./drag_drop/drag_drop_initiating_state_ready_test_ng.cpp",
+  ]
+}
+
+ace_unittest("drag_drop_report_test_ng") {
+  type = "new"
+  module_output = "manager"
+  sources = [ "./drag_drop/drag_drop_report_test_ng.cpp" ]
+}
+
+ace_unittest("drag_drop_proxy_test_ng") {
+  type = "new"
+  module_output = "manager"
+  sources = [ "drag_drop_proxy_test_ng.cpp" ]
+}
+
+ace_unittest("full_screen_manager_test_ng") {
+  type = "new"
+  module_output = "manager"
+  sources = [ "full_screen_manager_test_ng.cpp" ]
+}
+
+ace_unittest("post_event_manager_test_ng") {
+  type = "new"
+  module_output = "manager"
+  sources = [ "post_event_manager_test_ng.cpp" ]
+}
+
+ace_unittest("select_overlay_manager_test_ng") {
+  type = "new"
+  module_output = "manager"
+  sources = [
+    "select_overlay_manager_test_ng.cpp",
+    "select_overlay_manager_testtwo_ng.cpp",
+  ]
+}
+
+ace_unittest("select_overlay_proxy_test_ng") {
+  type = "new"
+  module_output = "manager"
+  sources = [ "select_overlay_proxy_test_ng.cpp" ]
+}
+
+ace_unittest("shared_overlay_manager_test_ng") {
+  type = "new"
+  module_output = "manager"
+  sources = [ "shared_overlay_manager_test_ng.cpp" ]
+}
+
+ace_unittest("display_sync_manager_test_ng") {
+  type = "new"
+  module_output = "manager"
+  sources = [ "display_sync_manager_test.cpp" ]
+}
+
+ace_unittest("frame_rate_manager_test_ng") {
+  type = "new"
+  module_output = "manager"
+  sources = [ "frame_rate_manager_test.cpp" ]
+}
+
+ace_unittest("focus_manager_test_ng") {
+  type = "new"
+  module_output = "manager"
+  sources = [ "focus_manager_test_ng.cpp" ]
+}
+
+ace_unittest("focus_view_test_ng") {
+  type = "new"
+  module_output = "manager"
+  sources = [ "focus_view_test_ng.cpp" ]
+}
+
+ace_unittest("safe_area_manager_test_ng") {
+  type = "new"
+  module_output = "manager"
+  sources = [ "safe_area_manager_test_ng.cpp" ]
+}
+
+ace_unittest("navigation_manager_test_ng") {
+  type = "new"
+  module_output = "manager"
+  sources = [
+    "$ace_root/test/unittest/core/pattern/navigation/mock_navigation_stack.cpp",
+    "navigation_manager_test_ng.cpp",
+  ]
+}
+
+ace_unittest("drag_drop_behavior_reporter_test_ng") {
+  type = "new"
+  module_output = "manager"
+  sources = [ "./drag_drop/drag_drop_behavior_reporter_test_ng.cpp" ]
+}
+
+group("core_manager_unittest") {
+  testonly = true
+  deps = [
+    ":avoid_info_manager_test_ng",
+    ":display_sync_manager_test_ng",
+    ":drag_animation_helper_test_ng",
+    ":drag_drop_behavior_reporter_test_ng",
+    ":drag_drop_controller_func_wrapper_test_ng",
+    ":drag_drop_func_wrapper_test_ng",
+    ":drag_drop_initiating_state_test_ng",
+    ":drag_drop_manager_test_ng",
+    ":drag_drop_proxy_test_ng",
+    ":drag_drop_report_test_ng",
+    ":focus_manager_test_ng",
+    ":focus_view_test_ng",
+    ":frame_rate_manager_test_ng",
+    ":full_screen_manager_test_ng",
+    ":navigation_manager_test_ng",
+    ":post_event_manager_test_ng",
+    ":safe_area_manager_test_ng",
+    ":select_overlay_manager_test_ng",
+    ":select_overlay_proxy_test_ng",
+    ":shared_overlay_manager_test_ng",
+  ]
+}

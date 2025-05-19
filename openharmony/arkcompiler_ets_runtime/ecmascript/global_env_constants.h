@@ -51,7 +51,8 @@ class ObjectFactory;
     V(JSTaggedValue, BigIntClass, BIGINT_CLASS_INDEX, ecma_roots_class)                                               \
     V(JSTaggedValue, JSNativePointerClass, JS_NATIVE_POINTER_CLASS_INDEX, ecma_roots_class)                           \
     V(JSTaggedValue, SJSNativePointerClass, SENDABLE_JS_NATIVE_POINTER_CLASS_INDEX, ecma_roots_class)                 \
-    V(JSTaggedValue, EnvClass, ENV_CLASS_INDEX, ecma_roots_class)                                                     \
+    V(JSTaggedValue, LexicalEnvClass, LEXICAL_ENV_CLASS_INDEX, ecma_roots_class)                                      \
+    V(JSTaggedValue, SFunctionEnvClass, SFUNCTION_ENV_CLASS_INDEX, ecma_roots_class)                                  \
     V(JSTaggedValue, SymbolClass, SYMBOL_CLASS_INDEX, ecma_roots_class)                                               \
     V(JSTaggedValue, AccessorDataClass, ACCESSOR_DATA_CLASS_INDEX, ecma_roots_class)                                  \
     V(JSTaggedValue, InternalAccessorClass, INTERNAL_ACCESSOR_CLASS_INDEX, ecma_roots_class)                          \
@@ -100,7 +101,20 @@ class ObjectFactory;
     V(JSTaggedValue, VTableClass, VTABLE_CLASS_INDEX, ecma_roots_class)                                               \
     V(JSTaggedValue, ResolvedRecordIndexBindingClass, RESOLVED_RECORD_INEDX_BINDING_CLASS_INDEX, ecma_roots_class)    \
     V(JSTaggedValue, ResolvedRecordBindingClass, RESOLVED_RECORD_BINDING_CLASS_INDEX, ecma_roots_class)               \
-    V(JSTaggedValue, SendableEnvClass, SENDABLE_ENV_CLASS_INDEX, ecma_roots_class)                                    \
+    V(JSTaggedValue, SendableEnvClass, SENDABLE_ENV_CLASS_INDEX, ecma_roots_class)
+
+#ifdef USE_CMC_GC
+#define SHARED_GLOBAL_ENV_CONSTANT_SHARED_CLASS(V)                                                                    \
+    V(JSTaggedValue, SharedTaggedArrayClass, SHARED_TAGGED_ARRAY_CLASS_INDEX, ecma_roots_class)                       \
+    V(JSTaggedValue, SharedConstantPoolClass, SHARED_CONSTANT_POOL_CLASS_INDEX, ecma_roots_class)                     \
+    /* ProfileTypeInfo only in local now */                                                                           \
+    V(JSTaggedValue, SharedDictionaryClass, SHARED_DICTIONARY_CLASS_INDEX, ecma_roots_class)                          \
+    V(JSTaggedValue, SharedCOWArrayClass, SHARED_COW_ARRAY_CLASS_INDEX, ecma_roots_class)                             \
+    V(JSTaggedValue, SharedMutantTaggedArrayClass, SHARED_MUTANT_TAGGED_ARRAY_CLASS_INDEX, ecma_roots_class)          \
+    /* COWMutantTaggedArray only in local now */                                                                      \
+    V(JSTaggedValue, SharedAOTLiteralInfoClass, SHARED_AOT_LITERAL_INFO_CLASS_INDEX, ecma_roots_class)                \
+    /* VTable only in local now */
+#endif
 
 #define GLOBAL_ENV_CONSTANT_CLASS(V)                                                                                  \
     V(JSTaggedValue, JSProxyCallableClass, JS_PROXY_CALLABLE_CLASS_INDEX, ecma_roots_class)                           \
@@ -131,37 +145,19 @@ class ObjectFactory;
     V(JSTaggedValue, JSAPITreeSetIteratorClass, JS_API_TREE_SET_ITERATOR_CLASS_INDEX, ecma_roots_class)               \
     V(JSTaggedValue, ObjectClass, OBJECT_HCLASS_INDEX, initial_object_hclass)                                         \
     V(JSTaggedValue, ClassPrototypeClass, CLASS_PROTOTYPE_HCLASS_INDEX, ecma_roots_class)                             \
-    V(JSTaggedValue, ClassConstructorClass, CLASS_CONSTRUCTOR_HCLASS_INDEX, ecma_roots_class)                         \
-    V(JSTaggedValue, ElementNoneProtoClass, ELEMENT_NONE_PROTO_HCLASS_INDEX, ecma_roots_class)                        \
-    V(JSTaggedValue, ElementHoleProtoClass, ELEMENT_HOLE_PROTO_HCLASS_INDEX, ecma_roots_class)                        \
-    V(JSTaggedValue, ElementIntProtoClass, ELEMENT_INT_PROTO_HCLASS_INDEX, ecma_roots_class)                          \
-    V(JSTaggedValue, ElementNumberProtoClass, ELEMENT_NUMBER_PROTO_HCLASS_INDEX, ecma_roots_class)                    \
-    V(JSTaggedValue, ElementStringProtoClass, ELEMENT_STRING_PROTO_HCLASS_INDEX, ecma_roots_class)                    \
-    V(JSTaggedValue, ElementObjectProtoClass, ELEMENT_OBJECT_PROTO_HCLASS_INDEX, ecma_roots_class)                    \
-    V(JSTaggedValue, ElementTaggedProtoClass, ELEMENT_TAGGED_PROTO_HCLASS_INDEX, ecma_roots_class)                    \
-    V(JSTaggedValue, ElementHoleIntProtoClass, ELEMENT_HOLE_INT_PROTO_HCLASS_INDEX, ecma_roots_class)                 \
-    V(JSTaggedValue, ElementHoleNumberProtoClass, ELEMENT_HOLE_NUMBER_PROTO_HCLASS_INDEX, ecma_roots_class)           \
-    V(JSTaggedValue, ElementHoleStringProtoClass, ELEMENT_HOLE_STRING_PROTO_HCLASS_INDEX, ecma_roots_class)           \
-    V(JSTaggedValue, ElementHoleObjectProtoClass, ELEMENT_HOLE_OBJECT_PROTO_HCLASS_INDEX, ecma_roots_class)           \
-    V(JSTaggedValue, ElementHoleTaggedProtoClass, ELEMENT_HOLE_TAGGED_PROTO_HCLASS_INDEX, ecma_roots_class)           \
-    V(JSTaggedValue, ElementNoneClass, ELEMENT_NONE_HCLASS_INDEX, ecma_roots_class)                                   \
-    V(JSTaggedValue, ElementHoleClass, ELEMENT_HOLE_HCLASS_INDEX, ecma_roots_class)                                   \
-    V(JSTaggedValue, ElementIntClass, ELEMENT_INT_HCLASS_INDEX, ecma_roots_class)                                     \
-    V(JSTaggedValue, ElementNumberClass, ELEMENT_NUMBER_HCLASS_INDEX, ecma_roots_class)                               \
-    V(JSTaggedValue, ElementStringClass, ELEMENT_STRING_HCLASS_INDEX, ecma_roots_class)                               \
-    V(JSTaggedValue, ElementObjectClass, ELEMENT_OBJECT_HCLASS_INDEX, ecma_roots_class)                               \
-    V(JSTaggedValue, ElementTaggedClass, ELEMENT_TAGGED_HCLASS_INDEX, ecma_roots_class)                               \
-    V(JSTaggedValue, ElementHoleIntClass, ELEMENT_HOLE_INT_HCLASS_INDEX, ecma_roots_class)                            \
-    V(JSTaggedValue, ElementHoleNumberClass, ELEMENT_HOLE_NUMBER_HCLASS_INDEX, ecma_roots_class)                      \
-    V(JSTaggedValue, ElementHoleStringClass, ELEMENT_HOLE_STRING_HCLASS_INDEX, ecma_roots_class)                      \
-    V(JSTaggedValue, ElementHoleObjectClass, ELEMENT_HOLE_OBJECT_HCLASS_INDEX, ecma_roots_class)                      \
-    V(JSTaggedValue, ElementHoleTaggedClass, ELEMENT_HOLE_TAGGED_HCLASS_INDEX, ecma_roots_class)
+    V(JSTaggedValue, ClassConstructorClass, CLASS_CONSTRUCTOR_HCLASS_INDEX, ecma_roots_class)
 
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define GLOBAL_ENV_CONSTANT_SPECIAL(V)                                                                 \
     V(JSTaggedValue, EmptyLayoutInfo, EMPTY_LAYOUT_INFO_OBJECT_INDEX, ecma_roots_special)              \
     V(JSTaggedValue, DefaultSupers, DEFAULT_SUPERS_INDEX, ecma_roots_special)                          \
     V(JSTaggedValue, EmptyTaggedQueue, EMPTY_TAGGED_QUEUE_OBJECT_INDEX, ecma_roots_special)
+
+#if ENABLE_NEXT_OPTIMIZATION
+#define CONDITION_GLOBAL_REFLECT_HAS(V)
+#else
+#define CONDITION_GLOBAL_REFLECT_HAS(V) V(JSTaggedValue, ReflectHas, REFLECT_HAS_INDEX, ecma_roots_special)
+#endif
 
 // Use for builtins inlining
 #define GLOBAL_ENV_INLINED_BUILTINS(V)                                                                  \
@@ -230,7 +226,7 @@ class ObjectFactory;
     V(JSTaggedValue, ObjectGetPrototo, OBJECT_GET_PROTO_INDEX, ecma_roots_special)                      \
     V(JSTaggedValue, ObjectIsPrototypeOf, OBJECT_IS_PROTOTYPE_OF_INDEX, ecma_roots_special)             \
     V(JSTaggedValue, ReflectGetPrototypeOf, REFLECT_GET_PROTOTYPE_OF_INDEX, ecma_roots_special)         \
-    V(JSTaggedValue, ReflectHas, REFLECT_HAS_INDEX, ecma_roots_special)                                 \
+    CONDITION_GLOBAL_REFLECT_HAS(V)                                                                     \
     V(JSTaggedValue, ReflectConstruct, REFLECT_CONSTRUCT_INDEX, ecma_roots_special)                     \
     V(JSTaggedValue, ReflectApply, REFLECT_APPLY_INDEX, ecma_roots_special)                             \
     V(JSTaggedValue, FunctionHasInstance, FUNCTION_PROTOTYPE_HAS_INSTANCE_INDEX, ecma_roots_special)    \
@@ -601,6 +597,7 @@ class ObjectFactory;
     V(JSTaggedValue, SingleCharTable, SINGLE_CHAR_TABLE_INDEX, ecma_roots_special)                              \
     V(JSTaggedValue, EmptySLayoutInfo, EMPTY_SLAYOUT_INFO_OBJECT_INDEX, ecma_roots_special)                     \
     V(JSTaggedValue, EmptyArray, EMPTY_ARRAY_OBJECT_INDEX, ecma_roots_special)                                  \
+    V(JSTaggedValue, EmptySFunctionEnv, EMPTY_SFUNCTION_ENV_INDEX, ecma_roots_special)                          \
     V(JSTaggedValue, EmptyMutantArray, EMPTY_MUTANT_ARRAY_OBJECT_INDEX, ecma_roots_special)                     \
     V(JSTaggedValue, ProxyMethod, PROXY_METHOD_INDEX, ecma_roots_special)                                       \
     V(JSTaggedValue, Uint64MaxBigInt, UINT64_MAX_BIGINT_INDEX, ecma_roots_special)                              \
@@ -637,6 +634,9 @@ enum class ConstantIndex : size_t {
 #define INDEX_FILTER_STRING(Name, Index, Token) INDEX_FILTER_COMMON(Index)
     // Caveats: make sure shareds starts from 0 and placed before non-shareds.
     SHARED_GLOBAL_ENV_CONSTANT_CLASS(INDEX_FILTER_WITH_TYPE)
+#ifdef USE_CMC_GC
+    SHARED_GLOBAL_ENV_CONSTANT_SHARED_CLASS(INDEX_FILTER_WITH_TYPE)
+#endif
     SHARED_GLOBAL_ENV_CONSTANT_STRING(INDEX_FILTER_STRING)
     SHARED_GLOBAL_ENV_CONSTANT_ACCESSOR(INDEX_FILTER_WITH_TYPE)
     SHARED_GLOBAL_ENV_CONSTANT_SPECIAL(INDEX_FILTER_WITH_TYPE)
@@ -663,7 +663,7 @@ enum class ConstantIndex : size_t {
     SHARED_HCLASS_BEGIN = HCLASS_CLASS_INDEX,
     SHARED_HCLASS_END = VTABLE_CLASS_INDEX,
     NON_SHARED_HCLASS_BEGIN = JS_PROXY_CALLABLE_CLASS_INDEX,
-    NON_SHARED_HCLASS_END = ELEMENT_HOLE_TAGGED_HCLASS_INDEX,
+    NON_SHARED_HCLASS_END = CLASS_CONSTRUCTOR_HCLASS_INDEX,
     READ_ONLY_CONSTANT_BEGIN = CONSTANT_BEGIN,
     READ_ONLY_CONSTANT_END = CONSTANT_END,
 
@@ -690,8 +690,6 @@ public:
 
     void InitSpecialForSnapshot();
 
-    void InitElementKindHClass(const JSThread *thread, JSHandle<JSHClass> originHClass);
-
     void SetCachedLocales(JSTaggedValue value);
 
     void SetConstant(ConstantIndex index, JSTaggedValue value);
@@ -710,6 +708,9 @@ public:
 #define DECL_GET_WITH_TYPE(Type, Name, Index, Desc) DECL_GET_COMMON(Type, Name)
 #define DECL_GET_STRING(Name, Index, Token) DECL_GET_COMMON(JSTaggedValue, Name)
     SHARED_GLOBAL_ENV_CONSTANT_CLASS(DECL_GET_WITH_TYPE)
+#ifdef USE_CMC_GC
+    SHARED_GLOBAL_ENV_CONSTANT_SHARED_CLASS(DECL_GET_WITH_TYPE)
+#endif
     SHARED_GLOBAL_ENV_CONSTANT_STRING(DECL_GET_STRING)
     SHARED_GLOBAL_ENV_CONSTANT_ACCESSOR(DECL_GET_WITH_TYPE)
     SHARED_GLOBAL_ENV_CONSTANT_SPECIAL(DECL_GET_WITH_TYPE)
@@ -769,11 +770,11 @@ public:
 private:
     void InitSharedStrings(ObjectFactory *factory);
     void InitSharedRootsClasses(ObjectFactory *factory);
-    void InitSharedMiscellanious(JSThread *thread, ObjectFactory *factory);
+    void InitSharedMiscellaneous(JSThread *thread, ObjectFactory *factory);
     void InitRootsClasses(ObjectFactory *factory);
     void InitRootsClassesPartOne(JSHClass *hClass, ObjectFactory *factory);
     void InitRootsClassesPartTwo(JSHClass *hClass, ObjectFactory *factory);
-    void InitMiscellanious(JSThread *thread, ObjectFactory *factory);
+    void InitMiscellaneous(JSThread *thread, ObjectFactory *factory);
     void InitGlobalCaches();
 
     JSTaggedValue constants_[static_cast<int>(ConstantIndex::CONSTANT_COUNT)];  // NOLINT(modernize-avoid-c-arrays)

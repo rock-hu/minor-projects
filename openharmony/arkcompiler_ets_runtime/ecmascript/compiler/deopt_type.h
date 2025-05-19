@@ -97,6 +97,7 @@ namespace panda::ecmascript::kungfu {
     V(BuiltinPrototypeHClassMismatch2, BUILTINPROTOHCLASSMISMATCH2)    \
     V(PrototypeChanged1,               PROTOTYPECHANGED1)              \
     V(PrototypeChanged2,               PROTOTYPECHANGED2)              \
+    V(PrimTypePrototypeChanged,        PRIMTYPEPROTOTYPECHANGED)       \
     V(BuiltinIsHole1,                  BUILTINISHOLE1)                 \
     V(NewBuiltinCtorFail1,             NEWBUILTINCTORFAIL1)            \
     V(NewBuiltinCtorObject,            NEWBUILTINCTOROBJECT)           \
@@ -125,7 +126,8 @@ namespace panda::ecmascript::kungfu {
     V(ArrayLengthNotWritable,          ARRAYLENGTHNOTWRITABLE)         \
     V(InsufficientProfile,             INSUFFICIENTPROFILE)            \
     V(KeyMissmatch,                    KEYMISSMATCH)                   \
-    V(CallTargetNotCompiled,           CALLTARGETNOTCOMPILED)
+    V(CallTargetNotCompiled,           CALLTARGETNOTCOMPILED)          \
+    V(PropertyBoxInvalid,              PROPERTYBOXINVALID)
 
 enum class DeoptType : uint8_t {
     NONE = 0,

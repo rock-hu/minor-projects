@@ -58,7 +58,7 @@ public:
     }
     JSRuntimeOptions &GetJSOptions() const override;
     // thread
-    ConstantIndex GetArrayHClassIndex(ElementsKind kind, bool isProtoType) const override;
+    GlobalEnvField GetArrayHClassIndex(ElementsKind kind, bool isProtoType) const override;
     const BuiltinHClassEntries &GetBuiltinHClassEntries() const override;
     JSHClass *GetBuiltinPrototypeHClass(BuiltinTypeId type) const override;
     void SetTsManagerCompilationEnv();
@@ -135,6 +135,10 @@ public:
         functionSlotIdMap_[calleeOffset] = slotId;
         callee2CallerMap_[calleeOffset] = callerOffset;
     }
+    JSHandle<JSFunction> GetJsFunction() const
+    {
+        return jsFunction_;
+    }
 
     JSFunction *GetJsFunctionByMethodOffset(uint32_t methodOffset) const;
 
@@ -153,6 +157,24 @@ public:
         ASSERT(thread_->IsJitThread());
         auto jitThread = static_cast<JitThread*>(thread_);
         return jitThread->NewHandle(value);
+    }
+
+    void SetLdExtModuleVarResolved(uint32_t methodOffset, uint32_t pcOffset)
+    {
+        ldExtModuleVarResolved_[methodOffset][pcOffset] = true;
+    }
+
+    bool IsLdExtModuleVarResolved(uint32_t methodOffset, uint32_t bcOffset) const
+    {
+        auto itMethodOffset = ldExtModuleVarResolved_.find(methodOffset);
+        if (itMethodOffset != ldExtModuleVarResolved_.end()) {
+            auto &bcOffsetMap = itMethodOffset->second;
+            auto itBcOffset = bcOffsetMap.find(bcOffset);
+            if (itBcOffset != bcOffsetMap.end()) {
+                return itBcOffset->second;
+            }
+        }
+        return false;
     }
 
     JSHandle<JSTaggedValue> GetHeapConstantHandle(uint32_t heapConstantIndex) const;
@@ -186,6 +208,35 @@ public:
     {
         return heapConstantInfo_.onlyInlineMethodId2HeapConstantIndex;
     }
+
+    void RecordLdGlobalByNameBcOffset2HeapConstantIndex(uint32_t methodOffset,
+        uint32_t bcOffset, uint32_t heapConstantIndex)
+    {
+        heapConstantInfo_.ldGlobalByNameBcOffset2HeapConstantIndex[methodOffset][bcOffset] = heapConstantIndex;
+    }
+
+    uint32_t GetLdGlobalByNameBcOffset2HeapConstantIndex(uint32_t methodOffset, uint32_t bcOffset) const
+    {
+        auto itMethodOffset = heapConstantInfo_.ldGlobalByNameBcOffset2HeapConstantIndex.find(methodOffset);
+        if (itMethodOffset != heapConstantInfo_.ldGlobalByNameBcOffset2HeapConstantIndex.end()) {
+            auto &bcOffsetMap = itMethodOffset->second;
+            auto itBcOffset = bcOffsetMap.find(bcOffset);
+            if (itBcOffset != bcOffsetMap.end()) {
+                return itBcOffset->second;
+            }
+        }
+        return INVALID_HEAP_CONSTANT_INDEX;
+    }
+
+    void RecordHolderHClassIndex2HeapConstantIndex(int32_t holderHClassIndex, uint32_t heapConstantIndex)
+    {
+        heapConstantInfo_.holderHClassIndex2HeapConstantIndex[holderHClassIndex] = heapConstantIndex;
+    }
+
+    const std::unordered_map<int32_t, uint32_t> &GetHolderHClassIndex2HeapConstantIndex() const
+    {
+        return heapConstantInfo_.holderHClassIndex2HeapConstantIndex;
+    }
 private:
     JSThread *hostThread_ {nullptr};
     JSHandle<JSFunction> jsFunction_;
@@ -194,6 +245,7 @@ private:
     const uint8_t* pcStart_ {nullptr};
     pgo::ApEntityId abcId_ {0};
     JSHandle<ProfileTypeInfo> profileTypeInfo_;
+    std::unordered_map<uint32_t, std::unordered_map<uint32_t, bool>> ldExtModuleVarResolved_;
     std::map<uint32_t, uint32_t> functionSlotIdMap_;
     std::map<uint32_t, uint32_t> callee2CallerMap_;
     struct HeapConstantInfo {
@@ -202,6 +254,8 @@ private:
         std::map<int32_t, uint32_t> gate2HeapConstantIndex;
         std::unordered_map<uint32_t, uint32_t> callMethodId2HeapConstantIndex;
         std::unordered_map<uint32_t, uint32_t> onlyInlineMethodId2HeapConstantIndex;
+        std::unordered_map<uint32_t, std::unordered_map<uint32_t, uint32_t>> ldGlobalByNameBcOffset2HeapConstantIndex;
+        std::unordered_map<int32_t, uint32_t> holderHClassIndex2HeapConstantIndex;
     } heapConstantInfo_;
 };
 } // namespace panda::ecmascript

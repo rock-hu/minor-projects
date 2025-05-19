@@ -397,7 +397,7 @@ public:
     DECL_VISIT_OBJECT(HASH_OFFSET, SIZE);
 
     template <VisitType visitType, class DerivedVisitor>
-    void VisitObjects(EcmaObjectRangeVisitor<DerivedVisitor> &visitor)
+    void VisitObjects(BaseObjectVisitor<DerivedVisitor> &visitor)
     {
         // no field in this object
         VisitRangeSlot<visitType>(visitor);
@@ -727,6 +727,9 @@ public:
     void DumpForSnapshot(std::vector<Reference> &vec) const;
     static const CString ExtractConstructorAndRecordName(JSThread *thread, TaggedObject *obj, bool noAllocate = false,
                                                          bool *isCallGetter = nullptr);
+
+    static const CString ExtractFilePath(JSThread *thread, CString name, CString moduleName,
+                                         CString defaultName, CString fileName, int32_t line);
 
     static JSHandle<NameDictionary> PUBLIC_API TransitionToDictionary(const JSThread *thread,
                                                                       const JSHandle<JSObject> &receiver);

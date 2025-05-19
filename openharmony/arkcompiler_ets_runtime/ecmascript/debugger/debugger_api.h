@@ -59,7 +59,9 @@ public:
 
     private:
         JSThread *thread_ {nullptr};
+#ifndef USE_CMC_GC
         uint16_t oldThreadState_ {0};
+#endif
         bool hasSwitchState_ {false};
     };
     class PUBLIC_API DebuggerManagedScope {
@@ -71,7 +73,9 @@ public:
 
     private:
         JSThread *thread_ {nullptr};
+#ifndef USE_CMC_GC
         uint16_t oldThreadState_ {0};
+#endif
         bool hasSwitchState_ {false};
     };
 
@@ -157,6 +161,8 @@ public:
     static void GetObjectClassName(const EcmaVM *ecmaVM, Local<JSValueRef> &tagged, std::string &className);
     static bool RemoveBreakpointsByUrl(JSDebugger *debugger, const std::string &url);
     static void DisableFirstTimeFlag(JSDebugger *debugger);
+    static void SetSymbolicBreakpoint(JSDebugger *debugger, const std::unordered_set<std::string> &functionNamesSet);
+    static void RemoveSymbolicBreakpoint(JSDebugger *debugger, const std::string &functionName);
 
     // HotReload
     static std::vector<DebugInfoExtractor *> GetPatchExtractors(const EcmaVM *ecmaVm, const std::string &url);

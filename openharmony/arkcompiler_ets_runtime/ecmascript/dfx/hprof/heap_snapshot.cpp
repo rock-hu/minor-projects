@@ -193,7 +193,7 @@ void HeapSnapshot::MoveNode(uintptr_t address, TaggedObject *forwardAddress, siz
 
         Node *oldNode = entryMap_.FindAndEraseNode(Node::NewAddress(forwardAddress));
         if (oldNode != nullptr) {
-            oldNode->SetAddress(Node::NewAddress(TaggedObject::Cast(nullptr)));
+            oldNode->SetAddress(Node::NewAddress(static_cast<TaggedObject *>(nullptr)));
         }
 
         // Size and name may change during its life for some types(such as string, array and etc).
@@ -201,7 +201,7 @@ void HeapSnapshot::MoveNode(uintptr_t address, TaggedObject *forwardAddress, siz
             node->SetName(GenerateNodeName(forwardAddress));
         }
         if (JSTaggedValue(forwardAddress).IsString()) {
-            node->SetSelfSize(forwardAddress->GetClass()->SizeFromJSHClass(forwardAddress));
+            node->SetSelfSize(forwardAddress->GetSize());
         } else {
             node->SetSelfSize(size);
         }
@@ -223,7 +223,9 @@ CString *HeapSnapshot::GenerateNodeName(TaggedObject *entry)
         case JSType::JS_SHARED_TYPED_ARRAY:
             return GetArrayString(TaggedArray::Cast(entry), "ArkInternalArray[");
         case JSType::LEXICAL_ENV:
-            return GetArrayString(TaggedArray::Cast(entry), "LexicalEnv[");
+            return GetArrayString(TaggedArray::Cast(entry), "LexicalEnv[");    
+        case JSType::SFUNCTION_ENV:
+            return GetArrayString(TaggedArray::Cast(entry), "SFunctionEnv[");
         case JSType::SENDABLE_ENV:
             return GetArrayString(TaggedArray::Cast(entry), "SendableEnv[");
         case JSType::CONSTANT_POOL:
@@ -739,7 +741,7 @@ Node *HeapSnapshot::HandleObjectNode(JSTaggedValue &entry, size_t &size, bool &i
 Node *HeapSnapshot::HandleBaseClassNode(size_t size, bool idExist, NodeId &sequenceId,
                                         TaggedObject* obj, JSTaggedType &addr)
 {
-    size_t selfSize = (size != 0) ? size : obj->GetClass()->SizeFromJSHClass(obj);
+    size_t selfSize = (size != 0) ? size : obj->GetSize();
     size_t nativeSize = 0;
     if (obj->GetClass()->IsJSNativePointer()) {
         nativeSize = JSNativePointer::Cast(obj)->GetBindingSize();
@@ -1003,8 +1005,7 @@ Node *HeapSnapshot::GenerateStringNode(JSTaggedValue entry, size_t size, bool is
     }
     // Allocation Event will generate string node for "".
     // When we need to serialize and isFinish is true, the nodeName will be given the actual string content.
-    size_t selfsize = (size != 0) ? size :
-        entry.GetTaggedObject()->GetClass()->SizeFromJSHClass(entry.GetTaggedObject());
+    size_t selfsize = (size != 0) ? size : entry.GetTaggedObject()->GetSize();
     const CString *nodeName = &EMPTY_STRING;
     if (isInFinish || isBinMod) {
         nodeName = GetString(EntryVisitor::ConvertKey(entry));
@@ -1026,8 +1027,7 @@ Node *HeapSnapshot::GeneratePrivateStringNode(size_t size)
         return privateStringNode_;
     }
     JSTaggedValue stringValue = vm_->GetJSThread()->GlobalConstants()->GetStringString();
-    size_t selfsize = (size != 0) ? size :
-        stringValue.GetTaggedObject()->GetClass()->SizeFromJSHClass(stringValue.GetTaggedObject());
+    size_t selfsize = (size != 0) ? size : stringValue.GetTaggedObject()->GetSize();
     CString strContent;
     strContent.append(EntryVisitor::ConvertKey(stringValue));
     JSTaggedType addr = stringValue.GetRawData();
@@ -1052,16 +1052,24 @@ Node *HeapSnapshot::GenerateFunctionNode(JSTaggedValue entry, size_t size, bool 
     auto [idExist, sequenceId] = entryIdMap_->FindId(addr);
     if (existNode != nullptr) {
         if (isInFinish) {
-            existNode->SetName(GetString(ParseFunctionName(obj)));
+            CString *functionName = GetString(ParseFunctionName(obj));
+            existNode->SetName(functionName);
+            if (functionName->find("_GLOBAL") != std::string::npos) {
+                existNode->SetType(NodeType::FRAMEWORK);
+            }
         }
         existNode->SetLive(true);
         return existNode;
     }
-    size_t selfsize = (size != 0) ? size : obj->GetClass()->SizeFromJSHClass(obj);
+    size_t selfsize = (size != 0) ? size : obj->GetSize();
     Node *node = Node::NewNode(chunk_, sequenceId, nodeCount_, GetString("JSFunction"), NodeType::CLOSURE, selfsize,
                                0, addr);
     if (isInFinish) {
-        node->SetName(GetString(ParseFunctionName(obj)));
+        CString *functionName = GetString(ParseFunctionName(obj));
+        node->SetName(functionName);
+        if (functionName->find("_GLOBAL") != std::string::npos) {
+            node->SetType(NodeType::FRAMEWORK);
+        }
     }
     if (!idExist) {
         entryIdMap_->InsertId(addr, sequenceId);
@@ -1079,16 +1087,24 @@ Node *HeapSnapshot::GenerateObjectNode(JSTaggedValue entry, size_t size, bool is
     auto [idExist, sequenceId] = entryIdMap_->FindId(addr);
     if (existNode != nullptr) {
         if (isInFinish) {
-            existNode->SetName(GetString(ParseObjectName(obj)));
+            CString *objectName = GetString(ParseObjectName(obj));
+            existNode->SetName(objectName);
+            if (objectName->find("_GLOBAL") != std::string::npos) {
+                existNode->SetType(NodeType::FRAMEWORK);
+            }
         }
         existNode->SetLive(true);
         return existNode;
     }
-    size_t selfsize = (size != 0) ? size : obj->GetClass()->SizeFromJSHClass(obj);
+    size_t selfsize = (size != 0) ? size : obj->GetSize();
     Node *node = Node::NewNode(chunk_, sequenceId, nodeCount_, GetString("Object"), NodeType::OBJECT, selfsize,
                                0, addr);
     if (isInFinish) {
-        node->SetName(GetString(ParseObjectName(obj)));
+        CString *objectName = GetString(ParseObjectName(obj));
+        node->SetName(objectName);
+        if (objectName->find("_GLOBAL") != std::string::npos) {
+            node->SetType(NodeType::FRAMEWORK);
+        }
     }
     if (!idExist) {
         entryIdMap_->InsertId(addr, sequenceId);
@@ -1274,22 +1290,20 @@ CString HeapSnapshot::ParseFunctionName(TaggedObject *obj, bool isRawHeap)
     panda_file::File::EntityId methodId = methodLiteral->GetMethodId();
     const CString &nameStr = MethodLiteral::ParseFunctionNameToCString(jsPandaFile, methodId);
     const CString &moduleStr = method->GetRecordNameStr();
-
-    if (!moduleStr.empty()) {
-        result.append(moduleStr).append(" ");
-    }
-    if (nameStr.empty()) {
-        result.append("anonymous");
-    } else {
-        result.append(nameStr);
-    }
+    CString defaultName = "anonymous";
     DebugInfoExtractor *debugExtractor =
         JSPandaFileManager::GetInstance()->GetJSPtExtractor(jsPandaFile);
     if (debugExtractor == nullptr) {
-        return result;
+        if (nameStr.empty()) {
+            return defaultName;
+        } else {
+            return nameStr;
+        }
     }
+    // fileName: module|referencedModule|version/filePath
+    CString fileName = CString(debugExtractor->GetSourceFile(methodId));
     int32_t line = debugExtractor->GetFristLine(methodId);
-    return result.append("(line:").append(std::to_string(line)).append(")");
+    return JSObject::ExtractFilePath(vm_->GetJSThread(), nameStr, moduleStr, defaultName, fileName, line);
 }
 
 const CString HeapSnapshot::ParseObjectName(TaggedObject *obj)

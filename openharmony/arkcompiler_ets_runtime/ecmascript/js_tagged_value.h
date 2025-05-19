@@ -21,6 +21,8 @@
 #include "ecmascript/mem/c_string.h"
 #include "ecmascript/mem/mem_common.h"
 #include "ecmascript/js_tagged_value_internals.h"
+#include "libpandabase/mem/mem.h"
+
 namespace panda::ecmascript {
 class JSArray;
 class JSObject;
@@ -489,6 +491,7 @@ public:
     bool IsJSFinalizationRegistry() const;
     bool IsCellRecord() const;
     bool IsJSRegExp() const;
+    bool IsPrimitive(uint8_t primitiveType) const;
     bool IsNumber() const;
     bool IsBigInt() const;
     bool IsString() const;
@@ -497,6 +500,7 @@ public:
     bool IsSlicedString() const;
     bool IsStringOrSymbol() const;
     bool IsLexicalEnv() const;
+    bool IsSFunctionEnv() const;
     bool PUBLIC_API IsTaggedArray() const;
     bool IsDictionary() const;
     bool IsByteArray() const;

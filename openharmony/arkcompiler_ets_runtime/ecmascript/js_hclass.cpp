@@ -14,10 +14,10 @@
  */
 
 
-#include "ecmascript/ecma_context.h"
 #include "ecmascript/global_env_constants-inl.h"
-#include "ecmascript/js_tagged_value.h"
 #include "ecmascript/global_env.h"
+#include "ecmascript/js_tagged_value.h"
+#include "ecmascript/js_hclass.h"
 #include "ecmascript/pgo_profiler/pgo_profiler.h"
 #include "ecmascript/pgo_profiler/pgo_profiler_layout.h"
 #include "ecmascript/ic/proto_change_details.h"
@@ -209,11 +209,18 @@ void JSHClass::Initialize(const JSThread *thread, uint32_t size, JSType type,
     }
 }
 
+
+size_t JSHClass::GetCloneSize(JSHClass* jshclass)
+{
+    return IsJSTypeObject(jshclass->GetObjectType()) ? jshclass->GetInlinedPropsStartSize() :
+                                                       jshclass->GetObjectSize();
+}
+
 JSHandle<JSHClass> JSHClass::Clone(const JSThread *thread, const JSHandle<JSHClass> &jshclass,
                                    bool specificInlinedProps, uint32_t specificNumInlinedProps)
 {
     JSType type = jshclass->GetObjectType();
-    uint32_t size = IsJSTypeObject(type) ? jshclass->GetInlinedPropsStartSize() : jshclass->GetObjectSize();
+    uint32_t size = JSHClass::GetCloneSize(*jshclass);
     uint32_t numInlinedProps = specificInlinedProps ? specificNumInlinedProps : jshclass->GetInlinedProperties();
     JSHandle<JSHClass> newJsHClass;
     if (jshclass.GetTaggedValue().IsInSharedHeap()) {
@@ -317,7 +324,7 @@ void JSHClass::AddProperty(const JSThread *thread, const JSHandle<JSObject> &obj
         }
         // Because we currently only supports Fast ElementsKind
         RestoreElementsKindToGeneric(newClass);
-        obj->SynchronizedSetClass(thread, newClass);
+        obj->SynchronizedTransitionClass(thread, newClass);
 #if ECMASCRIPT_ENABLE_IC
         // The transition hclass from AOT, which does not have protochangemarker, needs to be reset here
         JSHandle<JSHClass> newHClass = JSHandle<JSHClass>(thread, newClass);
@@ -340,7 +347,7 @@ void JSHClass::AddProperty(const JSThread *thread, const JSHandle<JSObject> &obj
     JSHClass::NotifyHclassChanged(thread, jshclass, newJsHClass, key.GetTaggedValue());
 #endif
     // Because we currently only supports Fast ElementsKind
-    obj->SynchronizedSetClass(thread, *newJsHClass);
+    obj->SynchronizedTransitionClass(thread, *newJsHClass);
 }
 
 JSHandle<JSHClass> JSHClass::TransitionExtension(const JSThread *thread, const JSHandle<JSHClass> &jshclass)
@@ -443,7 +450,7 @@ void JSHClass::ReBuildFunctionInheritanceRelationship(const JSThread *thread,
     }
     // use transPhc to replace the hclass of proto
     JSHandle<JSHClass> oldPhc(thread, proto->GetTaggedObject()->GetClass());
-    proto->GetTaggedObject()->SynchronizedSetClass(thread, JSHClass::Cast(transPhc->GetTaggedObject()));
+    proto->GetTaggedObject()->SynchronizedTransitionClass(thread, JSHClass::Cast(transPhc->GetTaggedObject()));
     ASSERT(JSHClass::Cast(transPhc->GetTaggedObject())->IsPrototype());
     // update the prototype of new phc
     JSHClass::Cast(transPhc->GetTaggedObject())->SetPrototype(thread, oldPhc->GetPrototype());
@@ -454,6 +461,22 @@ void JSHClass::ReBuildFunctionInheritanceRelationship(const JSThread *thread,
     JSHClass::EnablePHCProtoChangeMarker(thread,
         JSHandle<JSHClass>(thread, parentPrototype->GetTaggedObject()->GetClass()));
     JSHClass::EnableProtoChangeMarker(thread, JSHandle<JSHClass>(transIhc));
+}
+
+bool JSHClass::ProtoIsFastJSArray(const JSHandle<GlobalEnv> &env,
+    const JSHandle<JSTaggedValue> proto, const JSHandle<JSHClass> hclass)
+{
+    // Since we currently only support ElementsKind for JSArray initial hclass,
+    // if an object's hclass has a non-generic ElementsKind, it must be one of the JSArray initial hclass.
+    // if an object's hclass has a Generic ElementsKind, it might be the JSArray initial generic elementskind hclass,
+    // which therefore needs further hclass comparison.
+    if (proto->IsJSArray()) {
+        JSTaggedValue genericArrayHClass = env->GetTaggedElementHOLE_TAGGEDClass();
+        if (!Elements::IsGeneric(hclass->GetElementsKind()) || hclass.GetTaggedValue() == genericArrayHClass) {
+            return true;
+        }
+    }
+    return false;
 }
 
 JSHandle<JSHClass> JSHClass::CloneWithAddProto(const JSThread *thread, const JSHandle<JSHClass> &jshclass,
@@ -492,6 +515,16 @@ void JSHClass::SetPrototype(const JSThread *thread, JSTaggedValue proto, bool is
     SetPrototype(thread, protoHandle, isChangeProto);
 }
 
+void JSHClass::SetPrototype(const JSThread *thread, const JSHandle<GlobalEnv> &env,
+    JSTaggedValue proto, bool isChangeProto)
+{
+    JSHandle<JSTaggedValue> protoHandle(thread, proto);
+    if (protoHandle.GetTaggedValue().IsJSObject()) {
+        OptimizePrototypeForIC(thread, env, protoHandle, isChangeProto);
+    }
+    SetProto(thread, protoHandle);
+}
+
 JSHandle<JSHClass> JSHClass::SetPrototypeWithNotification(const JSThread *thread,
                                                           const JSHandle<JSHClass> &hclass,
                                                           const JSHandle<JSTaggedValue> &proto,
@@ -514,7 +547,7 @@ void JSHClass::SetPrototypeTransition(JSThread *thread, const JSHandle<JSObject>
     JSHandle<JSHClass> hclass(thread, object->GetJSHClass());
     auto newClass = SetPrototypeWithNotification(thread, hclass, proto, isChangeProto);
     RestoreElementsKindToGeneric(*newClass);
-    object->SynchronizedSetClass(thread, *newClass);
+    object->SynchronizedTransitionClass(thread, *newClass);
     if (object->IsJSArray()) {
         thread->GetEcmaVM()->GetGlobalEnv()->NotifyArrayPrototypeChangedGuardians(object);
         newClass->SetIsJSArrayPrototypeModified(true);
@@ -526,15 +559,18 @@ void JSHClass::SetPrototype(const JSThread *thread, const JSHandle<JSTaggedValue
 {
     // Because the heap-space of hclass is non-movable, this function can be non-static.
     if (proto->IsJSObject()) {
-        OptimizePrototypeForIC(thread, proto, isChangeProto);
+        OptimizePrototypeForIC(thread, thread->GetGlobalEnv(), proto, isChangeProto);
     }
     SetProto(thread, proto);
 }
 
-void JSHClass::OptimizePrototypeForIC(const JSThread *thread, const JSHandle<JSTaggedValue> &proto, bool isChangeProto)
+void JSHClass::OptimizePrototypeForIC(const JSThread *thread, const JSHandle<GlobalEnv> &env,
+    const JSHandle<JSTaggedValue> &proto, bool isChangeProto)
 {
     JSHandle<JSHClass> hclass(thread, proto->GetTaggedObject()->GetClass());
+#ifndef USE_CMC_GC
     ASSERT(!Region::ObjectAddressToRange(reinterpret_cast<TaggedObject *>(*hclass))->InReadOnlySpace());
+#endif
     if (!hclass->IsPrototype()) {
         // Situations for clone proto hclass:
         // 1: unshared non-ts hclass
@@ -552,7 +588,7 @@ void JSHClass::OptimizePrototypeForIC(const JSThread *thread, const JSHandle<JST
             // At here, When a JSArray with initial hclass is set as a proto,
             // we substitute its hclass with preserved proto hclass.
             JSHandle<JSHClass> newProtoClass;
-            if (ProtoIsFastJSArray(thread, proto, hclass)) {
+            if (ProtoIsFastJSArray(env, proto, hclass)) {
                 newProtoClass = JSHandle<JSHClass>(thread, thread->GetArrayInstanceHClass(hclass->GetElementsKind(),
                                                                                           true));
             } else {
@@ -572,7 +608,7 @@ void JSHClass::OptimizePrototypeForIC(const JSThread *thread, const JSHandle<JST
             // After the hclass is updated, check whether the proto chain status of ic is updated.
             NotifyHclassChanged(thread, hclass, newProtoClass);
 #endif
-            JSObject::Cast(proto->GetTaggedObject())->SynchronizedSetClass(thread, *newProtoClass);
+            JSObject::Cast(proto->GetTaggedObject())->SynchronizedTransitionClass(thread, *newProtoClass);
             newProtoClass->SetIsPrototype(true);
             // still dump for class in this path now
             if (!isChangeProto) {
@@ -603,7 +639,7 @@ void JSHClass::TransitionToDictionary(const JSThread *thread, const JSHandle<JSO
         JSHClass::NotifyHclassChanged(thread, JSHandle<JSHClass>(thread, obj->GetJSHClass()), newJsHClass);
 #endif
         RestoreElementsKindToGeneric(*newJsHClass);
-        obj->SynchronizedSetClass(thread, *newJsHClass);
+        obj->SynchronizedTransitionClass(thread, *newJsHClass);
     }
 }
 
@@ -648,7 +684,7 @@ void JSHClass::OptimizeAsFastProperties(const JSThread *thread, const JSHandle<J
 #if ECMASCRIPT_ENABLE_IC
         JSHClass::NotifyHclassChanged(thread, JSHandle<JSHClass>(thread, obj->GetJSHClass()), newJsHClass);
 #endif
-        obj->SynchronizedSetClass(thread, *newJsHClass);
+        obj->SynchronizedTransitionClass(thread, *newJsHClass);
     }
 }
 
@@ -677,7 +713,7 @@ void JSHClass::TransitionForRepChange(const JSThread *thread, const JSHandle<JSO
     JSHClass::NotifyHclassChanged(thread, oldHClass, newHClass, key.GetTaggedValue());
 #endif
 
-    receiver->SynchronizedSetClass(thread, *newHClass);
+    receiver->SynchronizedTransitionClass(thread, *newHClass);
     // 4. Maybe Transition And Maintain subtypeing check
 }
 
@@ -697,7 +733,7 @@ bool JSHClass::TransitToElementsKindUncheck(const JSThread *thread, const JSHand
     JSHClass *objHclass = obj->GetClass();
     if (IsInitialArrayHClassWithElementsKind(thread, objHclass, current)) {
         JSHClass *hclass = thread->GetArrayInstanceHClass(newKind, objHclass->IsPrototype());
-        obj->SynchronizedSetClass(thread, hclass);
+        obj->SynchronizedTransitionClass(thread, hclass);
 #if ECMASCRIPT_ENABLE_IC
         JSHClass::NotifyHclassChanged(thread, JSHandle<JSHClass>(thread, objHclass),
                                       JSHandle<JSHClass>(thread, hclass));

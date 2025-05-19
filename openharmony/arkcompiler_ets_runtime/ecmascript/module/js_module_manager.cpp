@@ -20,6 +20,7 @@
 #include "ecmascript/module/module_data_extractor.h"
 #include "ecmascript/module/module_path_helper.h"
 #include "ecmascript/module/module_resolver.h"
+#include "ecmascript/object_factory-inl.h"
 #include "ecmascript/require/js_cjs_module.h"
 
 namespace panda::ecmascript {
@@ -33,6 +34,68 @@ JSHandle<JSTaggedValue> ModuleManager::GenerateSendableFuncModule(const JSHandle
 {
     // Clone isolate module at shared-heap to mark sendable class.
     return SendableClassModule::GenerateSendableFuncModule(vm_->GetJSThread(), module);
+}
+
+bool ModuleManager::CheckModuleValueOutterResolved(int32_t index, JSFunction *jsFunc)
+{
+    // check module resolved, if resolved, load var from module directly for jit compiled code.
+    ASSERT(jsFunc != nullptr);
+    JSTaggedValue currentModule = jsFunc->GetModule();
+    if (!currentModule.IsSourceTextModule()) {
+        return false;
+    }
+    if (SourceTextModule::IsSendableFunctionModule(currentModule)) {
+        return false;
+    }
+    JSTaggedValue moduleEnv = reinterpret_cast<SourceTextModule*>(currentModule.GetTaggedObject())->GetEnvironment();
+    if (!moduleEnv.IsTaggedArray()) {
+        return false;
+    }
+
+    JSTaggedValue resolvedBinding = TaggedArray::Cast(moduleEnv.GetTaggedObject())->Get(index);
+    if (!resolvedBinding.IsResolvedIndexBinding()) {
+        return false;
+    }
+
+    ResolvedIndexBinding *binding = ResolvedIndexBinding::Cast(resolvedBinding.GetTaggedObject());
+    SourceTextModule *resolvedModule = reinterpret_cast<SourceTextModule*>(binding->GetModule().GetTaggedObject());
+    ModuleTypes moduleType = resolvedModule->GetTypes();
+    if (moduleType != ModuleTypes::ECMA_MODULE) {
+        return false;
+    }
+
+    JSTaggedValue resolvedModuleDict = resolvedModule->GetNameDictionary();
+    if (!resolvedModuleDict.IsTaggedArray()) {
+        return false;
+    }
+    return true;
+}
+
+JSTaggedValue ModuleManager::GetExternalModuleVarFastPathForJIT(JSThread *thread, int32_t index, JSFunction *jsFunc)
+{
+    // fast path for jit load ecma module, check resolved in compiled
+    // with CheckModuleValueOutterResolved, avoid redundancy check in runtime.
+    ASSERT(jsFunc != nullptr);
+    ASSERT(thread != nullptr);
+    if (thread->GetStageOfHotReload() == StageOfHotReload::LOAD_END_EXECUTE_PATCHMAIN) {
+        return JSTaggedValue::Hole();
+    }
+
+    JSTaggedValue currentModule = jsFunc->GetModule();
+    ASSERT(currentModule.IsSourceTextModule());
+    JSTaggedValue moduleEnvironment =
+        reinterpret_cast<SourceTextModule*>(currentModule.GetTaggedObject())->GetEnvironment();
+    ASSERT(moduleEnvironment.IsTaggedArray());
+    JSTaggedValue resolvedBinding = TaggedArray::Cast(moduleEnvironment.GetTaggedObject())->Get(index);
+    ASSERT(resolvedBinding.IsResolvedIndexBinding());
+    ResolvedIndexBinding *binding = ResolvedIndexBinding::Cast(resolvedBinding.GetTaggedObject());
+    JSTaggedValue resolvedModule = binding->GetModule();
+    int32_t bindingIndex = binding->GetIndex();
+    ASSERT(resolvedModule.IsSourceTextModule());
+    JSTaggedValue dictionary =
+        reinterpret_cast<SourceTextModule*>(resolvedModule.GetTaggedObject())->GetNameDictionary();
+    TaggedArray *array = TaggedArray::Cast(dictionary.GetTaggedObject());
+    return array->Get(bindingIndex);
 }
 
 JSHandle<SourceTextModule> ModuleManager::GetImportedModule(const CString &referencing)
@@ -337,5 +400,16 @@ void ModuleManager::RemoveModuleNameFromList(const CString& recordName)
             ", when try to remove the module";
     }
     resolvedModules_.erase(recordName);
+}
+
+JSTaggedValue ModuleManager::CreateModuleManagerNativePointer(JSThread *thread)
+{
+    EcmaVM *vm = thread->GetEcmaVM();
+    ModuleManager *moduleManager = new ModuleManager(vm);
+    auto factory = vm->GetFactory();
+    JSHandle<JSNativePointer> nativePointer = factory->NewJSNativePointer(reinterpret_cast<void *>(moduleManager),
+                                                                          nullptr, nullptr, true);
+    vm->AddModuleManager(moduleManager);
+    return nativePointer.GetTaggedValue();
 }
 } // namespace panda::ecmascript

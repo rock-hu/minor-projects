@@ -349,7 +349,7 @@ void ICRuntimeStub::StoreWithTransition(JSThread *thread, JSObject *receiver, JS
     JSHandle<JSObject> objHandle(thread, receiver);
     ElementsKind oldKind = receiver->GetJSHClass()->GetElementsKind();
     JSHClass::RestoreElementsKindToGeneric(newHClass);
-    objHandle->SynchronizedSetClass(thread, newHClass);
+    objHandle->SynchronizedTransitionClass(thread, newHClass);
     JSObject::TryMigrateToGenericKindForJSObject(thread, objHandle, oldKind);
 
     ASSERT(HandlerBase::IsField(handlerInfo));
@@ -492,7 +492,7 @@ ARK_INLINE JSTaggedValue ICRuntimeStub::LoadICWithHandler(JSThread *thread, JSTa
         if (LIKELY(HandlerBase::IsField(handlerInfo))) {
             return LoadFromField(JSObject::Cast(holder.GetTaggedObject()), handlerInfo);
         }
-        if (HandlerBase::IsString(handlerInfo) || HandlerBase::IsNumber(handlerInfo)) {
+        if (HandlerBase::IsSupportedPrimitiveTypeICHandler(handlerInfo)) {
             return LoadFromField(JSObject::Cast(holder.GetTaggedObject()), handlerInfo);
         }
 

@@ -347,6 +347,16 @@ void DebuggerApi::DisableFirstTimeFlag(JSDebugger *debugger)
     return debugger->DisableFirstTimeFlag();
 }
 
+void DebuggerApi::SetSymbolicBreakpoint(JSDebugger *debugger, const std::unordered_set<std::string> &functionNamesSet)
+{
+    return debugger->SetSymbolicBreakpoint(functionNamesSet);
+}
+
+void DebuggerApi::RemoveSymbolicBreakpoint(JSDebugger* debugger, const std::string &functionName)
+{
+    return debugger->RemoveSymbolicBreakpoint(functionName);
+}
+
 // ScopeInfo
 Local<JSValueRef> DebuggerApi::GetProperties(const EcmaVM *ecmaVm, const FrameHandler *frameHandler,
                                              int32_t level, uint32_t slot)
@@ -354,7 +364,7 @@ Local<JSValueRef> DebuggerApi::GetProperties(const EcmaVM *ecmaVm, const FrameHa
     JSTaggedValue env = frameHandler->GetEnv();
     for (int i = 0; i < level; i++) {
         JSTaggedValue taggedParentEnv = LexicalEnv::Cast(env.GetTaggedObject())->GetParentEnv();
-        ASSERT(!taggedParentEnv.IsUndefined());
+        ASSERT(taggedParentEnv.IsLexicalEnv());
         env = taggedParentEnv;
     }
     JSTaggedValue value = LexicalEnv::Cast(env.GetTaggedObject())->GetProperties(slot);
@@ -368,7 +378,7 @@ void DebuggerApi::SetProperties(const EcmaVM *ecmaVm, const FrameHandler *frameH
     JSTaggedValue env = frameHandler->GetEnv();
     for (int i = 0; i < level; i++) {
         JSTaggedValue taggedParentEnv = LexicalEnv::Cast(env.GetTaggedObject())->GetParentEnv();
-        ASSERT(!taggedParentEnv.IsUndefined());
+        ASSERT(taggedParentEnv.IsLexicalEnv());
         env = taggedParentEnv;
     }
     JSTaggedValue target = JSNApiHelper::ToJSHandle(value).GetTaggedValue();
@@ -380,7 +390,7 @@ std::pair<int32_t, uint32_t> DebuggerApi::GetLevelSlot(const FrameHandler *frame
     int32_t level = 0;
     uint32_t slot = 0;
     JSTaggedValue curEnv = frameHandler->GetEnv();
-    for (; curEnv.IsTaggedArray(); curEnv = LexicalEnv::Cast(curEnv.GetTaggedObject())->GetParentEnv(), level++) {
+    for (; curEnv.IsLexicalEnv(); curEnv = LexicalEnv::Cast(curEnv.GetTaggedObject())->GetParentEnv(), level++) {
         LexicalEnv *lexicalEnv = LexicalEnv::Cast(curEnv.GetTaggedObject());
         if (lexicalEnv->GetScopeInfo().IsHole()) {
             continue;
@@ -1313,6 +1323,9 @@ void DebuggerApi::DropLastFrame(const EcmaVM *ecmaVm)
 DebuggerApi::DebuggerNativeScope::DebuggerNativeScope(const EcmaVM *vm)
 {
     thread_ = vm->GetAssociatedJSThread();
+#ifdef USE_CMC_GC
+    hasSwitchState_ = thread_->GetThreadHolder()->TransferToNativeIfInRunning();
+#else
     ecmascript::ThreadState oldState = thread_->GetState();
     if (oldState != ecmascript::ThreadState::RUNNING) {
         return;
@@ -1320,18 +1333,26 @@ DebuggerApi::DebuggerNativeScope::DebuggerNativeScope(const EcmaVM *vm)
     oldThreadState_ = static_cast<uint16_t>(oldState);
     hasSwitchState_ = true;
     thread_->UpdateState(ecmascript::ThreadState::NATIVE);
+#endif
 }
 
 DebuggerApi::DebuggerNativeScope::~DebuggerNativeScope()
 {
     if (hasSwitchState_) {
+#ifdef USE_CMC_GC
+        thread_->GetThreadHolder()->TransferToRunning();
+#else
         thread_->UpdateState(static_cast<ecmascript::ThreadState>(oldThreadState_));
+#endif
     }
 }
 
 DebuggerApi::DebuggerManagedScope::DebuggerManagedScope(const EcmaVM *vm)
 {
     thread_ = vm->GetAssociatedJSThread();
+#ifdef USE_CMC_GC
+    hasSwitchState_ = thread_->GetThreadHolder()->TransferToRunningIfInNative();
+#else
     ecmascript::ThreadState oldState = thread_->GetState();
     if (oldState == ecmascript::ThreadState::RUNNING) {
         return;
@@ -1339,12 +1360,17 @@ DebuggerApi::DebuggerManagedScope::DebuggerManagedScope(const EcmaVM *vm)
     oldThreadState_ = static_cast<uint16_t>(oldState);
     hasSwitchState_ = true;
     thread_->UpdateState(ecmascript::ThreadState::RUNNING);
+#endif
 }
 
 DebuggerApi::DebuggerManagedScope::~DebuggerManagedScope()
 {
     if (hasSwitchState_) {
+#ifdef USE_CMC_GC
+        thread_->GetThreadHolder()->TransferToNative();
+#else
         thread_->UpdateState(static_cast<ecmascript::ThreadState>(oldThreadState_));
+#endif
     }
 }
 }  // namespace panda::ecmascript::tooling

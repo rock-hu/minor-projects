@@ -16,7 +16,6 @@
 #include "ecmascript/dfx/hprof/heap_profiler_interface.h"
 #include "ecmascript/dfx/stackinfo/js_stackinfo.h"
 #include "ecmascript/dfx/vmstat/runtime_stat.h"
-#include "ecmascript/ecma_context.h"
 #include "ecmascript/mem/heap-inl.h"
 #include "ecmascript/mem/concurrent_marker.h"
 #include "ecmascript/mem/concurrent_sweeper.h"
@@ -302,6 +301,7 @@ HWTEST_F_L0(DFXJSNApiTests, GetArrayBufferSize_GetHeapTotalSize_GetHeapUsedSize)
     EXPECT_LE(processHeapLimitSize, MAX_MEM_POOL_CAPACITY);
 }
 
+#ifndef USE_CMC_GC
 HWTEST_F_L0(DFXJSNApiTests, DFXJSNApiForGCInfo)
 {
     size_t oldGCCount = DFXJSNApi::GetGCCount(vm_);
@@ -349,6 +349,7 @@ HWTEST_F_L0(DFXJSNApiTests, DFXJSNApiForGCInfo)
     size_t newGCDuration = DFXJSNApi::GetGCDuration(vm_);
     EXPECT_TRUE(oldGCDuration < newGCDuration);
 }
+#endif
 
 HWTEST_F_L0(DFXJSNApiTests, NotifyApplicationState)
 {
@@ -430,6 +431,7 @@ HWTEST_F_L0(DFXJSNApiTests, NotifyIdleStatusControl)
     EXPECT_TRUE(receivedValue);
 }
 
+#ifndef USE_CMC_GC
 HWTEST_F_L0(DFXJSNApiTests, NotifyIdleTime)
 {
     auto heap = const_cast<ecmascript::Heap *>(vm_->GetHeap());
@@ -437,6 +439,7 @@ HWTEST_F_L0(DFXJSNApiTests, NotifyIdleTime)
     DFXJSNApi::NotifyIdleTime(vm_, 10);
     EXPECT_EQ(vm_->GetEcmaGCStats()->GetGCReason(), GCReason::IDLE);
 }
+#endif
 
 HWTEST_F_L0(DFXJSNApiTests, NotifyHighSensitive)
 {
@@ -749,5 +752,12 @@ HWTEST_F_L0(DFXJSNApiTests, GetObjectHashCode_4)
     object->SetNativePointerField(vm_, 33, vp1, callBack, vp2);
     auto hash = DFXJSNApi::GetObjectHashCode(vm_, object);
     ASSERT_TRUE(hash != 0);
+}
+
+HWTEST_F_L0(DFXJSNApiTests, GetMainThreadStackTrace_1)
+{
+    std::string stackTraceStr;
+    DFXJSNApi::GetMainThreadStackTrace(vm_, stackTraceStr);
+    ASSERT_TRUE(stackTraceStr.empty());
 }
 } // namespace panda::test

@@ -91,7 +91,7 @@ static JSHandle<JSSharedSet> CreateJSSharedSet(JSThread *thread)
     auto emptySLayout = thread->GlobalConstants()->GetHandledEmptySLayoutInfo();
     JSHandle<JSHClass> setClass = factory->NewSEcmaHClass(JSSharedSet::SIZE, 0,
         JSType::JS_SHARED_SET, proto, emptySLayout);
-    JSHandle<JSSharedSet> jsSet = JSHandle<JSSharedSet>::Cast(factory->NewJSObjectWithInit(setClass));
+    JSHandle<JSSharedSet> jsSet = JSHandle<JSSharedSet>::Cast(factory->NewSharedOldSpaceJSObjectWithInit(setClass));
     JSHandle<LinkedHashSet> linkedSet(
         LinkedHashSet::Create(thread, LinkedHashSet::MIN_CAPACITY, MemSpaceKind::SHARED));
     jsSet->SetLinkedSet(thread, linkedSet);
@@ -487,7 +487,7 @@ HWTEST_F_L0(JsonStringifierTest, Stringify_010)
     JSHandle<JSTaggedValue> key2(factory->NewFromASCII("key2"));
     JSHandle<JSTaggedValue> value2(factory->NewFromASCII("val"));
     JSSharedMap::Set(thread, sharedMap1, key2, value2);
-    
+
     JSHandle<JSTaggedValue> handleMap1 = JSHandle<JSTaggedValue>(sharedMap1);
     JSHandle<JSTaggedValue> handleReplacer1(thread, JSTaggedValue::Undefined());
     JSHandle<JSTaggedValue> handleGap1(thread, JSTaggedValue::Undefined());
@@ -520,7 +520,7 @@ HWTEST_F_L0(JsonStringifierTest, Stringify_011)
     JSHandle<JSTaggedValue> key2(factory->NewFromASCII("key2"));
     JSHandle<JSTaggedValue> value2(factory->NewFromASCII("val"));
     JSMap::Set(thread, jsMap1, key2, value2);
-    
+
     JSHandle<JSTaggedValue> handleMap1 = JSHandle<JSTaggedValue>(jsMap1);
     JSHandle<JSTaggedValue> handleReplacer1(thread, JSTaggedValue::Undefined());
     JSHandle<JSTaggedValue> handleGap1(thread, JSTaggedValue::Undefined());
@@ -551,7 +551,7 @@ HWTEST_F_L0(JsonStringifierTest, Stringify_012)
 
     JSHandle<JSTaggedValue> value2(factory->NewFromASCII("val"));
     JSSharedSet::Add(thread, sharedSet1, value2);
-    
+
     JSHandle<JSTaggedValue> handleSet1 = JSHandle<JSTaggedValue>(sharedSet1);
     JSHandle<JSTaggedValue> handleReplacer1(thread, JSTaggedValue::Undefined());
     JSHandle<JSTaggedValue> handleGap1(thread, JSTaggedValue::Undefined());
@@ -582,7 +582,7 @@ HWTEST_F_L0(JsonStringifierTest, Stringify_013)
 
     JSHandle<JSTaggedValue> value2(factory->NewFromASCII("val"));
     JSSet::Add(thread, jsSet1, value2);
-    
+
     JSHandle<JSTaggedValue> handleSet1 = JSHandle<JSTaggedValue>(jsSet1);
     JSHandle<JSTaggedValue> handleReplacer1(thread, JSTaggedValue::Undefined());
     JSHandle<JSTaggedValue> handleGap1(thread, JSTaggedValue::Undefined());
@@ -615,7 +615,7 @@ HWTEST_F_L0(JsonStringifierTest, Stringify_014)
     JSHandle<JSTaggedValue> key2(factory->NewFromASCII("key2"));
     JSHandle<JSTaggedValue> value2(factory->NewFromASCII("val"));
     JSAPIHashMap::Set(thread, hashMap1, key2, value2);
-    
+
     JSHandle<JSTaggedValue> handleMap1 = JSHandle<JSTaggedValue>(hashMap1);
     JSHandle<JSTaggedValue> handleReplacer1(thread, JSTaggedValue::Undefined());
     JSHandle<JSTaggedValue> handleGap1(thread, JSTaggedValue::Undefined());
@@ -646,7 +646,7 @@ HWTEST_F_L0(JsonStringifierTest, Stringify_015)
 
     JSHandle<JSTaggedValue> value2(factory->NewFromASCII("val"));
     JSAPIHashSet::Add(thread, hashSet1, value2);
-    
+
     JSHandle<JSTaggedValue> handleSet1 = JSHandle<JSTaggedValue>(hashSet1);
     JSHandle<JSTaggedValue> handleReplacer1(thread, JSTaggedValue::Undefined());
     JSHandle<JSTaggedValue> handleGap1(thread, JSTaggedValue::Undefined());
@@ -672,7 +672,7 @@ HWTEST_F_L0(JsonStringifierTest, Stringify_016)
     JSHandle<JSTaggedValue> value2(factory->NewFromASCII("val"));
     JSSharedMap::Set(thread, sharedMap1, key2, value2);
     JSSharedMap::Set(thread, sharedMap1, key1, value1);
-    
+
     JSHandle<JSTaggedValue> handleMap1 = JSHandle<JSTaggedValue>(sharedMap1);
     JSHandle<JSTaggedValue> handleReplacer1(thread, JSTaggedValue::Undefined());
     JSHandle<JSTaggedValue> handleGap1(thread, JSTaggedValue::Undefined());
@@ -695,7 +695,7 @@ HWTEST_F_L0(JsonStringifierTest, Stringify_017)
     JSHandle<JSTaggedValue> value2(factory->NewFromASCII("val"));
     JSSharedSet::Add(thread, sharedSet1, value2);
     JSSharedSet::Add(thread, sharedSet1, value1);
-    
+
     JSHandle<JSTaggedValue> handleSet1 = JSHandle<JSTaggedValue>(sharedSet1);
     JSHandle<JSTaggedValue> handleReplacer1(thread, JSTaggedValue::Undefined());
     JSHandle<JSTaggedValue> handleGap1(thread, JSTaggedValue::Undefined());
@@ -794,5 +794,72 @@ HWTEST_F_L0(JsonStringifierTest, Stringify_021)
     EXPECT_TRUE(resultString1->IsString());
     JSHandle<EcmaString> handleEcmaStr1(resultString1);
     EXPECT_STREQ("[null]", EcmaStringAccessor(handleEcmaStr1).ToCString().c_str());
+}
+
+HWTEST_F_L0(JsonStringifierTest, AppendSpecialDouble_01)
+{
+    struct TestCase {
+        double value;
+        const char* expected;
+    };
+    TestCase testCases[] = {
+        { 0.0, "0" },
+        { NAN, "NaN" },
+        { INFINITY, "Infinity" },
+        { -INFINITY, "-Infinity" },
+    };
+    CString str;
+    for (const auto& testCase : testCases) {
+        bool appended = AppendSpecialDouble(str, testCase.value);
+        ASSERT_TRUE(appended);
+        EXPECT_STREQ(testCase.expected, str.c_str());
+        str.clear();
+    }
+}
+
+HWTEST_F_L0(JsonStringifierTest, AppendDoubleToString_01)
+{
+    struct TestCase {
+        double value;
+        const char* expected;
+    };
+    TestCase testCases[] = {
+        { 123000.0, "123000" },
+        { -456000.0, "-456000" },
+        { 1234.5678, "1234.5678" },
+        { -8765.4321, "-8765.4321" },
+        { 0.00123, "0.00123" },
+        { -0.0456, "-0.0456" },
+        { 1.2345e24, "1.2345e+24" },
+        { -6.789e22, "-6.789e+22" },
+        { 0.00000000123, "1.23e-9" },
+        { -0.0000000456, "-4.56e-8" }
+    };
+    CString str;
+    for (const auto& testCase : testCases) {
+        AppendDoubleToString(str, testCase.value);
+        EXPECT_STREQ(testCase.expected, str.c_str());
+        str.clear();
+    }
+}
+
+HWTEST_F_L0(JsonStringifierTest, ConvertToCStringAndAppend_01)
+{
+    struct TestCase {
+        JSTaggedValue value;
+        const char* expected;
+    };
+    TestCase testCases[] = {
+        { JSTaggedValue(NAN), "NaN" },
+        { JSTaggedValue(INFINITY), "Infinity" },
+        { JSTaggedValue(42), "42" },
+        { JSTaggedValue(-3.14), "-3.14" }
+    };
+    CString str;
+    for (const auto& testCase : testCases) {
+        ConvertToCStringAndAppend(str, testCase.value);
+        EXPECT_STREQ(testCase.expected, str.c_str());
+        str.clear();
+    }
 }
 }  // namespace panda::test

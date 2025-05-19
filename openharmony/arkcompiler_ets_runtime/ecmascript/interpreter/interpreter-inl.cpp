@@ -240,8 +240,12 @@ using CommonStubCSigns = kungfu::CommonStubCSigns;
         if (!funcValue.IsCallable()) {                                          \
             {                                                                   \
                 [[maybe_unused]] EcmaHandleScope handleScope(thread);           \
+                JSHandle<JSTaggedValue>func(thread, funcValue);                 \
+                std::string message = EcmaStringAccessor(                       \
+                    JSTaggedValue::ToString(thread, func)).ToStdString();       \
+                message.append(" is not callable");                             \
                 JSHandle<JSObject> error = factory->GetJSError(                 \
-                    ErrorType::TYPE_ERROR, "is not callable", StackCheck::NO);  \
+                    ErrorType::TYPE_ERROR, message.c_str(), StackCheck::NO);    \
                 thread->SetException(error.GetTaggedValue());                   \
             }                                                                   \
             INTERPRETER_GOTO_EXCEPTION_HANDLER();                               \
@@ -262,8 +266,12 @@ using CommonStubCSigns = kungfu::CommonStubCSigns;
         if (!funcValue.IsCallable()) {                                          \
             {                                                                   \
                 [[maybe_unused]] EcmaHandleScope handleScope(thread);           \
+                JSHandle<JSTaggedValue>func(thread, funcValue);                 \
+                std::string message = EcmaStringAccessor(                       \
+                    JSTaggedValue::ToString(thread, func)).ToStdString();       \
+                message.append(" is not callable");                             \
                 JSHandle<JSObject> error = factory->GetJSError(                 \
-                    ErrorType::TYPE_ERROR, "is not callable", StackCheck::NO);  \
+                    ErrorType::TYPE_ERROR, message.c_str(), StackCheck::NO);    \
                 thread->SetException(error.GetTaggedValue());                   \
             }                                                                   \
             INTERPRETER_GOTO_EXCEPTION_HANDLER();                               \
@@ -4967,15 +4975,18 @@ NO_UB_SANITIZE void EcmaInterpreter::RunInternal(JSThread *thread, const uint8_t
 
         auto res = SlowRuntimeStub::DefineFunc(thread, constpool, methodId, currentFunc->GetModule(),
             length, envHandle, currentFunc->GetHomeObject());
-        JSHandle<JSFunction> jsFunc(thread, res);
+        {
+            [[maybe_unused]] EcmaHandleScope handleScope(thread);
+            JSHandle<JSFunction> jsFunc(thread, res);
 #if ECMASCRIPT_ENABLE_IC
-        if (!jsFunc->IsSharedFunction()) {
-            auto profileTypeInfo = GetRuntimeProfileTypeInfo(sp);
-            uint16_t slotId = READ_INST_8_0();
-            UpdateProfileTypeInfoCellToFunction(thread, jsFunc, profileTypeInfo, slotId);
-        }
+            if (!jsFunc->IsSharedFunction()) {
+                auto profileTypeInfo = GetRuntimeProfileTypeInfo(sp);
+                uint16_t slotId = READ_INST_8_0();
+                UpdateProfileTypeInfoCellToFunction(thread, jsFunc, profileTypeInfo, slotId);
+            }
 #endif
-        SET_ACC(jsFunc.GetTaggedValue());
+            SET_ACC(jsFunc.GetTaggedValue());
+        }
         DISPATCH(DEFINEFUNC_IMM8_ID16_IMM8);
     }
     HANDLE_OPCODE(DEFINEFUNC_IMM16_ID16_IMM8) {
@@ -4990,15 +5001,18 @@ NO_UB_SANITIZE void EcmaInterpreter::RunInternal(JSThread *thread, const uint8_t
 
         auto res = SlowRuntimeStub::DefineFunc(thread, constpool, methodId, currentFunc->GetModule(),
             length, envHandle, currentFunc->GetHomeObject());
-        JSHandle<JSFunction> jsFunc(thread, res);
+        {
+            [[maybe_unused]] EcmaHandleScope handleScope(thread);
+            JSHandle<JSFunction> jsFunc(thread, res);
 #if ECMASCRIPT_ENABLE_IC
-        if (!jsFunc->IsSharedFunction()) {
-            auto profileTypeInfo = GetRuntimeProfileTypeInfo(sp);
-            uint16_t slotId = READ_INST_16_0();
-            UpdateProfileTypeInfoCellToFunction(thread, jsFunc, profileTypeInfo, slotId);
-        }
+            if (!jsFunc->IsSharedFunction()) {
+                auto profileTypeInfo = GetRuntimeProfileTypeInfo(sp);
+                uint16_t slotId = READ_INST_16_0();
+                UpdateProfileTypeInfoCellToFunction(thread, jsFunc, profileTypeInfo, slotId);
+            }
 #endif
-        SET_ACC(jsFunc.GetTaggedValue());
+            SET_ACC(jsFunc.GetTaggedValue());
+        }
         DISPATCH(DEFINEFUNC_IMM16_ID16_IMM8);
     }
     HANDLE_OPCODE(DEFINEMETHOD_IMM8_ID16_IMM8) {

@@ -17,6 +17,7 @@
 #define ECMASCRIPT_GLOBAL_ENV_H
 
 #include "ecmascript/accessor_data.h"
+#include "ecmascript/base_env.h"
 #include "ecmascript/js_global_object.h"
 #include "ecmascript/js_thread.h"
 #include "ecmascript/global_env_constants-inl.h"
@@ -26,7 +27,7 @@
 
 namespace panda::ecmascript {
 class JSThread;
-class GlobalEnv : public TaggedObject {
+class GlobalEnv : public BaseEnv {
 public:
     using Field = GlobalEnvField;
 
@@ -111,7 +112,7 @@ public:
     // For work serialize, remove old value from snapshot env map
     bool RemoveValueFromSnapshotEnv(SnapshotEnv *snapshotEnv, JSTaggedValue value, uint32_t offset)
     {
-        JSTaggedValue oldValue(Barriers::GetValue<JSTaggedType>(this, offset));
+        JSTaggedValue oldValue(Barriers::GetTaggedValue(this, offset));
         if (oldValue == value) {
             return false;
         }
@@ -120,6 +121,29 @@ public:
             snapshotEnv->Remove(oldValue.GetRawData());
         }
         return true;
+    }
+
+    void InitElementKindHClass(const JSThread *thread, JSHandle<JSHClass> originHClass)
+    {
+        {
+            JSHandle<JSHClass> hclass;
+#define INIT_ARRAY_HCLASS_INDEX_ARRAYS(name)                                                            \
+            hclass = JSHClass::CloneWithElementsKind(thread, originHClass, ElementsKind::name, false);  \
+            this->SetElement##name##Class(thread, hclass);
+
+            ELEMENTS_KIND_INIT_HCLASS_LIST(INIT_ARRAY_HCLASS_INDEX_ARRAYS)
+#undef INIT_ARRAY_HCLASS_INDEX_ARRAYS
+        }
+        this->SetElementHOLE_TAGGEDClass(thread, originHClass);
+        {
+            JSHandle<JSHClass> hclass;
+#define INIT_ARRAY_HCLASS_INDEX_ARRAYS(name)                                                            \
+            hclass = JSHClass::CloneWithElementsKind(thread, originHClass, ElementsKind::name, true);   \
+            this->SetElement##name##ProtoClass(thread, hclass);
+
+            ELEMENTS_KIND_INIT_HCLASS_LIST(INIT_ARRAY_HCLASS_INDEX_ARRAYS)
+#undef INIT_ARRAY_HCLASS_INDEX_ARRAYS
+        }
     }
 
     JSHandle<JSTaggedValue> GetSymbol(JSThread *thread, const JSHandle<JSTaggedValue> &string);
@@ -156,8 +180,11 @@ public:
 #define GLOBAL_ENV_FIELD_ACCESSORS(type, name, index)                                                   \
     inline JSHandle<type> Get##name() const                                                             \
     {                                                                                                   \
-        const uintptr_t address =                                                                       \
-            reinterpret_cast<uintptr_t>(this) + HEADER_SIZE + index * JSTaggedValue::TaggedTypeSize();  \
+        /* every GLOBAL_ENV_FIELD is JSTaggedValue */                                                   \
+        size_t offset = HEADER_SIZE + (index) * JSTaggedValue::TaggedTypeSize();                        \
+        const uintptr_t address = reinterpret_cast<uintptr_t>(this) + offset;                           \
+        JSTaggedType value = Barriers::GetTaggedValue(address);                                         \
+        *reinterpret_cast<JSTaggedType *>(address) = value;                                             \
         JSHandle<type> result(address);                                                                 \
         if (result.GetTaggedValue().IsInternalAccessor()) {                                             \
             JSThread *thread = GetJSThread();                                                           \
@@ -169,7 +196,7 @@ public:
     inline JSTaggedValue GetTagged##name() const                                                        \
     {                                                                                                   \
         uint32_t offset = HEADER_SIZE + index * JSTaggedValue::TaggedTypeSize();                        \
-        JSTaggedValue result(Barriers::GetValue<JSTaggedType>(this, offset));                           \
+        JSTaggedValue result(Barriers::GetTaggedValue(this, offset));                                   \
         if (result.IsInternalAccessor()) {                                                              \
             JSThread *thread = GetJSThread();                                                           \
             AccessorData *accessor = AccessorData::Cast(result.GetTaggedObject());                      \
@@ -212,7 +239,7 @@ public:
     GLOBAL_ENV_FIELDS(GLOBAL_ENV_FIELD_ACCESSORS)
 #undef GLOBAL_ENV_FIELD_ACCESSORS
 
-    static constexpr size_t HEADER_SIZE = TaggedObjectSize();
+    static constexpr size_t HEADER_SIZE = BaseEnv::DATA_OFFSET;
     static constexpr size_t DATA_SIZE = HEADER_SIZE + FINAL_INDEX * JSTaggedValue::TaggedTypeSize();
     static constexpr size_t BIT_FIELD_OFFSET = DATA_SIZE + RESERVED_LENGTH * JSTaggedValue::TaggedTypeSize();
 

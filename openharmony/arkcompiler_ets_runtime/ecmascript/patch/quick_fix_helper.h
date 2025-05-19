@@ -15,9 +15,8 @@
 #ifndef ECMASCRIPT_PATCH_QUICK_FIX_HELPER_H
 #define ECMASCRIPT_PATCH_QUICK_FIX_HELPER_H
 
-#include "ecmascript/ecma_context.h"
 #include "ecmascript/js_function.h"
-#include "ecmascript/napi/include/jsnapi.h"
+#include "ecmascript/napi/include/jsnapi_internals.h"
 
 namespace panda::ecmascript {
 class QuickFixHelper {

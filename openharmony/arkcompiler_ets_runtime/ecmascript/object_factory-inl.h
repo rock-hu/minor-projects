@@ -116,9 +116,11 @@ JSHandle<JSNativePointer> ObjectFactory::NewJSNativePointer(void *externalPointe
     heap_->IncreaseNativeBindingSize(fixedNativeBindingsize);
     if (callBack != nullptr) {
         vm_->PushToNativePointerList(static_cast<JSNativePointer *>(header), isConcurrent);
+#ifndef USE_CMC_GC
         // In some cases, the size of JS/TS object is too small and the native binding size is too large.
         // Check and try trigger concurrent mark here.
         heap_->TryTriggerFullMarkOrGCByNativeSize();
+#endif
     }
     return obj;
 }
@@ -128,7 +130,7 @@ LexicalEnv *ObjectFactory::InlineNewLexicalEnv(int numSlots)
     NewObjectHook();
     size_t size = LexicalEnv::ComputeSize(numSlots);
     auto header = heap_->TryAllocateYoungGeneration(
-        JSHClass::Cast(thread_->GlobalConstants()->GetEnvClass().GetTaggedObject()), size);
+        JSHClass::Cast(thread_->GlobalConstants()->GetLexicalEnvClass().GetTaggedObject()), size);
     if (UNLIKELY(header == nullptr)) {
         return nullptr;
     }

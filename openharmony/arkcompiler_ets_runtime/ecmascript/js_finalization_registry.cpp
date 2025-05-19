@@ -15,7 +15,6 @@
 
 #include "ecmascript/js_finalization_registry.h"
 
-#include "ecmascript/ecma_context.h"
 #include "ecmascript/global_env.h"
 #include "ecmascript/jobs/micro_job_queue.h"
 #include "ecmascript/js_object-inl.h"
@@ -122,6 +121,10 @@ void JSFinalizationRegistry::CheckAndCall(JSThread *thread)
     [[maybe_unused]] EcmaHandleScope handleScope(thread);
     CheckAndCallScope scope(thread);
     JSHandle<GlobalEnv> env = thread->GetEcmaVM()->GetGlobalEnv();
+    JSHandle<JSTaggedValue> maybeEnv(env);
+    if (maybeEnv->IsHole()) {
+        return;
+    }
     JSHandle<JSTaggedValue> prev = env->GetFinRegLists();
 
     if (prev->IsUndefined()) {

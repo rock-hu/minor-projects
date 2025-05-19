@@ -35,10 +35,6 @@
 #include "ecmascript/platform/map.h"
 #include "ecmascript/stackmap/ark_stackmap.h"
 
-#if defined(CROSS_PLATFORM) && defined(ANDROID_PLATFORM)
-#include "ecmascript/ecma_context.h"
-#endif
-
 namespace panda::ecmascript {
 class JSpandafile;
 class JSThread;
@@ -98,7 +94,7 @@ public:
 
     inline JSTaggedValue GetIhc() const
     {
-        return JSTaggedValue(Barriers::GetValue<JSTaggedType>(GetData(), GetIhcOffset()));
+        return JSTaggedValue(Barriers::GetTaggedValue(GetData(), GetIhcOffset()));
     }
 
     inline void SetChc(JSTaggedValue value)
@@ -108,7 +104,7 @@ public:
 
     inline JSTaggedValue GetChc() const
     {
-        return JSTaggedValue(Barriers::GetValue<JSTaggedType>(GetData(), GetChcOffset()));
+        return JSTaggedValue(Barriers::GetTaggedValue(GetData(), GetChcOffset()));
     }
 
     inline void SetLiteralType(JSTaggedValue value)
@@ -118,7 +114,7 @@ public:
 
     inline int GetLiteralType() const
     {
-        return JSTaggedValue(Barriers::GetValue<JSTaggedType>(GetData(), GetLiteralTypeOffset())).GetInt();
+        return JSTaggedValue(Barriers::GetTaggedValue(GetData(), GetLiteralTypeOffset())).GetInt();
     }
 
     void SetObjectToCache(JSThread *thread, uint32_t index, JSTaggedValue value);
@@ -145,6 +141,8 @@ private:
     }
 };
 
+using JsAotReaderCallback = std::function<bool(std::string fileName, uint8_t **buff, size_t *buffSize)>;
+
 class AOTFileManager {
 public:
     explicit AOTFileManager(EcmaVM* vm);
@@ -154,10 +152,9 @@ public:
     static constexpr char FILE_EXTENSION_AI[] = ".ai";
     static constexpr uint32_t STUB_FILE_INDEX = 1;
 
-#if defined(CROSS_PLATFORM) && defined(ANDROID_PLATFORM)
     static void SetJsAotReader(JsAotReaderCallback cb);
     static JsAotReaderCallback GetJsAotReader();
-#endif
+
     void LoadStubFile(const std::string& fileName);
     static bool LoadAnFile(const std::string& fileName);
     static AOTFileInfo::CallSiteInfo CalCallSiteInfo(uintptr_t retAddr, bool isDeopt);
@@ -221,9 +218,7 @@ private:
     ObjectFactory *factory_ {nullptr};
     AIDatum aiDatum_ {};
     kungfu::ArkStackMapParser *arkStackMapParser_ {nullptr};
-#if defined(CROSS_PLATFORM) && defined(ANDROID_PLATFORM)
     static JsAotReaderCallback jsAotReader_;
-#endif
 
     friend class AnFileInfo;
     friend class StubFileInfo;

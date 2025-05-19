@@ -22,7 +22,6 @@
 #include "ecmascript/module/js_module_source_text.h"
 #include "ecmascript/module/js_shared_module.h"
 #include "ecmascript/napi/jsnapi_helper.h"
-#include "ecmascript/napi/jsnapi_helper.h"
 #include "ecmascript/tagged_dictionary.h"
 
 namespace panda::ecmascript {
@@ -97,7 +96,6 @@ private:
     RecursiveMutex sharedMutex_;
 
     friend class SourceTextModule;
-    friend class EcmaContext;
     friend class ModuleManager;
 };
 } // namespace panda::ecmascript

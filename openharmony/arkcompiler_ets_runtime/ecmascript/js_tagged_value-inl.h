@@ -282,6 +282,11 @@ inline bool JSTaggedValue::IsLexicalEnv() const
     return IsHeapObject() && GetTaggedObject()->GetClass()->IsLexicalEnv();
 }
 
+inline bool JSTaggedValue::IsSFunctionEnv() const
+{
+    return IsHeapObject() && GetTaggedObject()->GetClass()->IsSFunctionEnv();
+}
+
 inline bool JSTaggedValue::IsDictionary() const
 {
     return IsHeapObject() && GetTaggedObject()->GetClass()->IsDictionary();
@@ -1454,7 +1459,7 @@ inline bool JSTaggedValue::IsPureString(JSTaggedValue key)
 inline JSHandle<JSTaggedValue> JSTaggedValue::PublishSharedValue(JSThread *thread, JSHandle<JSTaggedValue> value)
 {
     ASSERT(value->IsSharedType());
-    ASSERT(!value->IsHeapObject() || value->IsInSharedHeap());
+    ASSERT(!value->IsHeapObject() || value->IsJSShared());
     if (value->IsTreeString()) {
         return PublishSharedValueSlow(thread, value);
     }

@@ -156,8 +156,8 @@ public:
         // typeName: Type name in JSType Enum
         fieldNameTable_ = {
             {JSType::HCLASS, {
-                "Proto", "Layout", "Transitions", "Parent", "ProtoChangeMarker",
-                "ProtoChangeDetails", "EnumCache", "ProfilerType", "BitField", "BitField1", "HCLASS"}},
+                "BitField", "BitField1", "Proto", "Layout", "Transitions", "Parent", "ProtoChangeMarker",
+                "ProtoChangeDetails", "EnumCache", "ProfilerType", "HCLASS"}},
             {JSType::ACCESSOR_DATA, {"Getter", "Setter", "ACCESSOR_DATA"}},
             {JSType::AOT_LITERAL_INFO, {"AOT_LITERAL_INFO"}},
             {JSType::ASYNC_GENERATOR_REQUEST, {"Completion", "Capability", "ASYNC_GENERATOR_REQUEST"}},
@@ -410,12 +410,11 @@ public:
         // endOffset: LAST_OFFSET - (start offset of the first field of this type)
         fieldOffsetTable_ = {
             {JSType::HCLASS, {
-                JSHClass::PROTOTYPE_OFFSET, JSHClass::LAYOUT_OFFSET, JSHClass::TRANSTIONS_OFFSET,
-                JSHClass::PARENT_OFFSET, JSHClass::PROTO_CHANGE_MARKER_OFFSET,
-                JSHClass::PROTO_CHANGE_DETAILS_OFFSET,
+                JSHClass::BIT_FIELD_OFFSET, JSHClass::BIT_FIELD1_OFFSET, JSHClass::PROTOTYPE_OFFSET,
+                JSHClass::LAYOUT_OFFSET, JSHClass::TRANSTIONS_OFFSET, JSHClass::PARENT_OFFSET,
+                JSHClass::PROTO_CHANGE_MARKER_OFFSET, JSHClass::PROTO_CHANGE_DETAILS_OFFSET,
                 JSHClass::ENUM_CACHE_OFFSET, JSHClass::PROFILE_TYPE_OFFSET,
-                JSHClass::BIT_FIELD_OFFSET, JSHClass::BIT_FIELD1_OFFSET,
-                JSHClass::LAST_OFFSET - JSHClass::PROTOTYPE_OFFSET}},
+                JSHClass::LAST_OFFSET - JSHClass::BIT_FIELD_OFFSET}},
             {JSType::ACCESSOR_DATA, {AccessorData::GETTER_OFFSET, AccessorData::SETTER_OFFSET,
                                      AccessorData::SIZE - AccessorData::GETTER_OFFSET}},
             {JSType::AOT_LITERAL_INFO, {TaggedArray::LAST_OFFSET - TaggedArray::LENGTH_OFFSET}},
@@ -1039,7 +1038,7 @@ public:
             {JSType::COW_TAGGED_ARRAY, {"TAGGED_ARRAY"}},
             {JSType::EXTRA_PROFILE_TYPE_INFO, {"TAGGED_OBJECT"}},
             {JSType::FUNCTION_TEMPLATE, {"TAGGED_OBJECT"}},
-            {JSType::GLOBAL_ENV, {"TAGGED_OBJECT"}},
+            {JSType::GLOBAL_ENV, {"TAGGED_ARRAY"}},
             {JSType::IMPORTENTRY_RECORD, {"RECORD"}},
             {JSType::INDIRECT_EXPORTENTRY_RECORD, {"RECORD"}},
             {JSType::INTERNAL_ACCESSOR, {"RECORD"}},
@@ -1234,16 +1233,16 @@ public:
         };
         // { typeName: [size of all fields' in the same order as declared in .h files]}
         fieldSizeTable_ = {
-            {JSType::HCLASS, {JSHClass::LAYOUT_OFFSET - JSHClass::PROTOTYPE_OFFSET,
+            {JSType::HCLASS, {JSHClass::BIT_FIELD1_OFFSET - JSHClass::BIT_FIELD_OFFSET,
+                              JSHClass::PROTOTYPE_OFFSET - JSHClass::BIT_FIELD1_OFFSET,
+                              JSHClass::LAYOUT_OFFSET - JSHClass::PROTOTYPE_OFFSET,
                               JSHClass::TRANSTIONS_OFFSET - JSHClass::LAYOUT_OFFSET,
                               JSHClass::PARENT_OFFSET - JSHClass::TRANSTIONS_OFFSET,
                               JSHClass::PROTO_CHANGE_MARKER_OFFSET - JSHClass::PARENT_OFFSET,
                               JSHClass::PROTO_CHANGE_DETAILS_OFFSET - JSHClass::PROTO_CHANGE_MARKER_OFFSET,
                               JSHClass::ENUM_CACHE_OFFSET - JSHClass::PROTO_CHANGE_DETAILS_OFFSET,
                               JSHClass::PROFILE_TYPE_OFFSET - JSHClass::ENUM_CACHE_OFFSET,
-                              JSHClass::BIT_FIELD_OFFSET - JSHClass::PROFILE_TYPE_OFFSET,
-                              JSHClass::BIT_FIELD1_OFFSET - JSHClass::BIT_FIELD_OFFSET,
-                              JSHClass::LAST_OFFSET - JSHClass::BIT_FIELD1_OFFSET}},
+                              JSHClass::LAST_OFFSET - JSHClass::PROFILE_TYPE_OFFSET}},
             {JSType::ACCESSOR_DATA, {AccessorData::SETTER_OFFSET - AccessorData::GETTER_OFFSET,
                                      AccessorData::SIZE - AccessorData::SETTER_OFFSET}},
             {JSType::AOT_LITERAL_INFO, {}},
@@ -1709,7 +1708,7 @@ public:
                 ResolvingFunctionsRecord::REJECT_FUNCTION_OFFSET - ResolvingFunctionsRecord::RESOLVE_FUNCTION_OFFSET,
                 ResolvingFunctionsRecord::SIZE - ResolvingFunctionsRecord::REJECT_FUNCTION_OFFSET}},
             {JSType::SENDABLE_ENV, {}},
-            {JSType::SLICED_STRING, {SlicedString::STARTINDEX_OFFSET - SlicedString::PARENT_OFFSET}},
+            {JSType::SLICED_STRING, {SlicedString::STARTINDEX_AND_FLAGS_OFFSET - SlicedString::PARENT_OFFSET}},
             {JSType::SOURCE_TEXT_MODULE_RECORD, {
                 SourceTextModule::NAMESPACE_OFFSET - SourceTextModule::SOURCE_TEXT_MODULE_OFFSET,
                 SourceTextModule::MODULE_REQUESTS_OFFSET - SourceTextModule::NAMESPACE_OFFSET,

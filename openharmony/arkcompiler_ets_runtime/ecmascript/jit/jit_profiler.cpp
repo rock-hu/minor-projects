@@ -29,9 +29,11 @@ JITProfiler::JITProfiler(EcmaVM *vm) : vm_(vm)
 void JITProfiler::ProfileBytecode(JSThread *thread, const JSHandle<ProfileTypeInfo> &profileTypeInfo,
                                   ProfileTypeInfo *rawProfileTypeInfo,
                                   EntityId methodId, ApEntityId abcId, const uint8_t *pcStart, uint32_t codeSize,
-                                  [[maybe_unused]]const panda_file::File::Header *header, bool useRawProfileTypeInfo)
+                                  [[maybe_unused]]const panda_file::File::Header *header,
+                                  JSHandle<JSFunction> jsFunction, bool useRawProfileTypeInfo)
 {
     Clear();
+    jsFunction_ = jsFunction;
     if (useRawProfileTypeInfo) {
         profileTypeInfo_ = rawProfileTypeInfo;
     }
@@ -89,6 +91,27 @@ void JITProfiler::ProfileBytecode(JSThread *thread, const JSHandle<ProfileTypeIn
                 ConvertICByValue(bcOffset, slotId, BCType::LOAD);
                 break;
             }
+            case EcmaOpcode::TRYLDGLOBALBYNAME_IMM8_ID16: {
+                Jit::JitLockHolder lock(thread);
+                if (!useRawProfileTypeInfo) {
+                    profileTypeInfo_ = *profileTypeInfo;
+                }
+                uint32_t slotId = READ_INST_8_0();
+                ASSERT(bcOffset >= 0);
+                ConvertTryldGlobalByName(static_cast<uint32_t>(bcOffset), slotId);
+                break;
+            }
+            case EcmaOpcode::TRYLDGLOBALBYNAME_IMM16_ID16: {
+                Jit::JitLockHolder lock(thread);
+                if (!useRawProfileTypeInfo) {
+                    profileTypeInfo_ = *profileTypeInfo;
+                }
+                uint32_t slotId = READ_INST_16_0();
+                ASSERT(bcOffset >= 0);
+                ConvertTryldGlobalByName(static_cast<uint32_t>(bcOffset), slotId);
+                break;
+            }
+
             case EcmaOpcode::STOBJBYNAME_IMM8_ID16_V8:
             case EcmaOpcode::STTHISBYNAME_IMM8_ID16:
             case EcmaOpcode::DEFINEPROPERTYBYNAME_IMM8_ID16_V8:
@@ -133,6 +156,18 @@ void JITProfiler::ProfileBytecode(JSThread *thread, const JSHandle<ProfileTypeIn
                 }
                 uint16_t slotId = READ_INST_16_0();
                 ConvertICByValue(bcOffset, slotId, BCType::STORE);
+                break;
+            }
+            case EcmaOpcode::LDEXTERNALMODULEVAR_IMM8: {
+                Jit::JitLockHolder lock(thread);
+                uint32_t index = READ_INST_8_0();
+                ConvertExternalModuleVar(index, bcOffset);
+                break;
+            }
+            case EcmaOpcode::WIDE_LDEXTERNALMODULEVAR_PREF_IMM16: {
+                Jit::JitLockHolder lock(thread);
+                uint32_t index = READ_INST_16_1();
+                ConvertExternalModuleVar(index, bcOffset);
                 break;
             }
             // Op
@@ -552,9 +587,17 @@ void JITProfiler::HandleLoadTypePrototypeHandler(ApEntityId &abcId, int32_t &bcO
             ->UpdateFuncSlotIdMap(accessorMethodId, methodId_.GetOffset(), slotId);
     }
     if (AddBuiltinsInfoByNameInProt(abcId, bcOffset, hclass, holderHClass)) {
-        return ;
+        return;
     }
-    AddObjectInfo(abcId, bcOffset, hclass, holderHClass, holderHClass, accessorMethodId, name);
+    if (compilationEnv_->SupportHeapConstant()) {
+        auto *jitCompilationEnv = static_cast<JitCompilationEnv*>(compilationEnv_);
+        JSHandle<JSTaggedValue> holderHandler = jitCompilationEnv->NewJSHandle(holder);
+        uint32_t heapConstantIndex = jitCompilationEnv->RecordHeapConstant(holderHandler);
+        int32_t holderHClassIndex = ptManager_->RecordAndGetHclassIndexForJIT(holderHClass);
+        jitCompilationEnv->RecordHolderHClassIndex2HeapConstantIndex(holderHClassIndex, heapConstantIndex);
+    }
+    auto primitiveType = HandlerBase::TryGetPrimitiveType(handlerInfo);
+    AddObjectInfo(abcId, bcOffset, hclass, holderHClass, holderHClass, accessorMethodId, primitiveType, name);
 }
 
 void JITProfiler::HandleOtherTypes(ApEntityId &abcId, int32_t &bcOffset,
@@ -718,7 +761,7 @@ void JITProfiler::ConvertICByValueWithHandler(ApEntityId abcId, int32_t bcOffset
                 AddBuiltinsInfo(abcId, bcOffset, hclass, hclass, onHeap);
                 return;
             }
-            AddObjectInfo(abcId, bcOffset, hclass, hclass, hclass, INVALID_METHOD_INDEX, name);
+            AddObjectInfo(abcId, bcOffset, hclass, hclass, hclass, INVALID_METHOD_INDEX, PRIMITIVE_TYPE_INVALID, name);
         } else if (secondValue.IsPrototypeHandler()) {
             HandleLoadTypePrototypeHandler(abcId, bcOffset, hclass, secondValue, slotId, name);
         }
@@ -851,6 +894,21 @@ void JITProfiler::ConvertICByValueWithPoly(ApEntityId abcId, int32_t bcOffset,
     }
 }
 
+void JITProfiler::ConvertExternalModuleVar(uint32_t index, uint32_t bcOffset)
+{
+    auto *jitCompilationEnv = static_cast<JitCompilationEnv*>(compilationEnv_);
+    auto jsfunc = *jsFunction_;
+    // check resolve
+    if (jsfunc == nullptr) {
+        return;
+    }
+    if (!ModuleManager::CheckModuleValueOutterResolved(index, jsfunc)) {
+        return;
+    }
+
+    jitCompilationEnv->SetLdExtModuleVarResolved(methodId_.GetOffset(), bcOffset);
+}
+
 void JITProfiler::ConvertInstanceof(int32_t bcOffset, uint32_t slotId)
 {
     JSTaggedValue firstValue = profileTypeInfo_->Get(slotId);
@@ -879,6 +937,28 @@ void JITProfiler::ConvertInstanceof(int32_t bcOffset, uint32_t slotId)
     }
     // Poly Not Consider now
     return;
+}
+
+void JITProfiler::ConvertTryldGlobalByName(uint32_t bcOffset, uint32_t slotId)
+{
+    auto *jitCompilationEnv = static_cast<JitCompilationEnv*>(compilationEnv_);
+    if (!jitCompilationEnv->SupportHeapConstant()) {
+        return;
+    }
+    JSTaggedValue handler = profileTypeInfo_->Get(slotId);
+    if (handler.IsHeapObject()) {
+        ASSERT(handler.IsPropertyBox());
+        PropertyBox *cell = PropertyBox::Cast(handler.GetTaggedObject());
+        if (cell->IsInvalid() || cell->GetValue().IsAccessorData()) {
+            return;
+        }
+        JSHandle<JSTaggedValue> boxHandle = jitCompilationEnv->NewJSHandle(handler);
+        uint32_t heapConstantIndex = jitCompilationEnv->RecordHeapConstant(boxHandle);
+        if (heapConstantIndex != JitCompilationEnv::INVALID_HEAP_CONSTANT_INDEX) {
+            jitCompilationEnv->RecordLdGlobalByNameBcOffset2HeapConstantIndex(methodId_.GetOffset(),
+                bcOffset, heapConstantIndex);
+        }
+    }
 }
 
 JSTaggedValue JITProfiler::TryFindKeyInPrototypeChain(TaggedObject *currObj, JSHClass *currHC, JSTaggedValue key)
@@ -945,23 +1025,23 @@ void JITProfiler::AddObjectInfoImplement(int32_t bcOffset, const PGOObjectInfo &
 }
 
 bool JITProfiler::AddObjectInfo(ApEntityId abcId, int32_t bcOffset, JSHClass *receiver, JSHClass *hold,
-                                JSHClass *holdTra, uint32_t accessorMethodId, JSTaggedValue name)
+    JSHClass *holdTra, uint32_t accessorMethodId, PrimitiveType primitiveType, JSTaggedValue name)
 {
     PGOSampleType accessor = PGOSampleType::CreateProfileType(abcId, accessorMethodId, ProfileType::Kind::MethodId);
     // case: obj = Object.create(null) => LowerProtoChangeMarkerCheck Crash
     if (receiver->GetPrototype().IsNull()) {
         return false;
     }
-    return AddTranstionObjectInfo(bcOffset, receiver, hold, holdTra, accessor, name);
+    return AddTranstionObjectInfo(bcOffset, receiver, hold, holdTra, accessor, primitiveType, name);
 }
 
 bool JITProfiler::AddTranstionObjectInfo(int32_t bcOffset, JSHClass *receiver, JSHClass *hold,
-                                         JSHClass *holdTra, PGOSampleType accessorMethod, JSTaggedValue name)
+    JSHClass *holdTra, PGOSampleType accessorMethod, PrimitiveType primitiveType, JSTaggedValue name)
 {
     ptManager_->RecordAndGetHclassIndexForJIT(receiver);
     ptManager_->RecordAndGetHclassIndexForJIT(hold);
     ptManager_->RecordAndGetHclassIndexForJIT(holdTra);
-    PGOObjectInfo info(ProfileType::CreateJITType(), receiver, hold, holdTra, accessorMethod);
+    PGOObjectInfo info(ProfileType::CreateJITType(), receiver, hold, holdTra, accessorMethod, primitiveType);
     AddObjectInfoImplement(bcOffset, info, name);
     return true;
 }

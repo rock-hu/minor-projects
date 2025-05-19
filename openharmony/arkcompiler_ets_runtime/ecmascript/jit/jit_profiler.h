@@ -20,7 +20,7 @@
 #include "ecmascript/compiler/bytecodes.h"
 #include "ecmascript/compiler/compilation_env.h"
 #include "ecmascript/elements.h"
-#include "ecmascript/ecma_context.h"
+#include "ecmascript/js_primitive_ref.h"
 #include "ecmascript/js_tagged_value.h"
 #include "ecmascript/jspandafile/method_literal.h"
 #include "ecmascript/mem/c_containers.h"
@@ -52,6 +52,7 @@ public:
                                     ProfileTypeInfo *rawProfileTypeInfo,
                                     EntityId methodId, ApEntityId abcId, const uint8_t *pcStart,
                                     uint32_t codeSize, const panda_file::File::Header *header,
+                                    JSHandle<JSFunction> jsFunction,
                                     bool useRawProfileTypeInfo = false);
 
     std::unordered_map<int32_t, const PGOSampleType *> GetOpTypeMap()
@@ -138,15 +139,20 @@ private:
                                   JSTaggedValue name, JSTaggedValue cacheValue,
                                   BCType type, uint32_t slotId);
     void ConvertInstanceof(int32_t bcOffset, uint32_t slotId);
+    void ConvertTryldGlobalByName(uint32_t bcOffset, uint32_t slotId);
+
+    void ConvertExternalModuleVar(uint32_t index, uint32_t bcOffset);
 
     // RwOpType related
     void AddObjectInfoWithMega(int32_t bcOffset);
     void AddObjectInfoImplement(int32_t bcOffset, const PGOObjectInfo &info,
                                 JSTaggedValue name = JSTaggedValue::Undefined());
     bool AddTranstionObjectInfo(int32_t bcOffset, JSHClass *receiver, JSHClass *hold, JSHClass *holdTra,
-                                PGOSampleType accessorMethod, JSTaggedValue name = JSTaggedValue::Undefined());
+                                PGOSampleType accessorMethod, PrimitiveType primitiveType = PRIMITIVE_TYPE_INVALID,
+                                JSTaggedValue name = JSTaggedValue::Undefined());
     bool AddObjectInfo(ApEntityId abcId, int32_t bcOffset, JSHClass *receiver,
                        JSHClass *hold, JSHClass *holdTra, uint32_t accessorMethodId = INVALID_METHOD_INDEX,
+                       PrimitiveType primitiveType = PRIMITIVE_TYPE_INVALID,
                        JSTaggedValue name = JSTaggedValue::Undefined());
     void AddBuiltinsInfo(ApEntityId abcId, int32_t bcOffset, JSHClass *receiver,
                          JSHClass *transitionHClass, OnHeapMode onHeap = OnHeapMode::NONE,
@@ -198,6 +204,7 @@ private:
     RecursiveMutex mutex_;
     CompilationEnv *compilationEnv_ {nullptr};
     Chunk *chunk_ {nullptr};
+    JSHandle<JSFunction> jsFunction_;
 };
 
 }

@@ -66,6 +66,8 @@ class SharedHeap;
 class JSSharedArray;
 class LayoutInfo;
 class NameDictionary;
+class ObjectFactory;
+class GlobalEnv;
 namespace pgo {
     class HClassLayoutDesc;
     class PGOHClassTreeDesc;
@@ -237,6 +239,7 @@ struct Reference;
         MUTANT_TAGGED_ARRAY, /* ///////////////////////////////////////////////////////////////////////////-PADDING */ \
         BYTE_ARRAY,   /* //////////////////////////////////////////////////////////////////////////////////-PADDING */ \
         LEXICAL_ENV,  /* //////////////////////////////////////////////////////////////////////////////////-PADDING */ \
+        SFUNCTION_ENV, /* /////////////////////////////////////////////////////////////////////////////////-PADDING */ \
         SENDABLE_ENV,  /* //////////////////////////////////////////////////////////////////////////////////-PADDING */\
         TAGGED_DICTIONARY, /* /////////////////////////////////////////////////////////////////////////////-PADDING */ \
         CONSTANT_POOL, /* /////////////////////////////////////////////////////////////////////////////////-PADDING */ \
@@ -405,6 +408,7 @@ public:
     // for sharedHeap
     void Initialize(const JSThread *thread, uint32_t size, JSType type, uint32_t inlinedProps,
         const JSHandle<JSTaggedValue> &layout);
+    static size_t GetCloneSize(JSHClass* jshclass);
     static JSHandle<JSHClass> Clone(const JSThread *thread, const JSHandle<JSHClass> &jshclass,
                                     bool specificInlinedProps = false, uint32_t specificNumInlinedProps = 0);
     static JSHandle<JSHClass> CloneAndIncInlinedProperties(const JSThread *thread, const JSHandle<JSHClass> &jshclass,
@@ -675,6 +679,7 @@ public:
             case JSType::TAGGED_ARRAY:
             case JSType::TAGGED_DICTIONARY:
             case JSType::LEXICAL_ENV:
+            case JSType::SFUNCTION_ENV:
             case JSType::SENDABLE_ENV:
             case JSType::CONSTANT_POOL:
             case JSType::PROFILE_TYPE_INFO:
@@ -693,6 +698,12 @@ public:
     {
         return GetObjectType() == JSType::LEXICAL_ENV;
     }
+
+    inline bool IsSFunctionEnv() const
+    {
+        return GetObjectType() == JSType::SFUNCTION_ENV;
+    }
+
     inline bool IsByteArray() const
     {
         return GetObjectType() == JSType::BYTE_ARRAY;
@@ -1040,6 +1051,13 @@ public:
     {
         return GetObjectType() == JSType::JS_SHARED_FUNCTION;
     }
+
+#ifdef USE_CMC_GC
+    bool IsInSharedHeap() const
+    {
+        return IsJSShared();
+    }
+#endif
 
     bool IsJSShared() const
     {
@@ -2017,7 +2035,9 @@ public:
     static PUBLIC_API PropertyLookupResult LookupPropertyInBuiltinHClass(const JSThread *thread, JSHClass *hclass,
                                                                          JSTaggedValue key);
 
-    static constexpr size_t PROTOTYPE_OFFSET = TaggedObjectSize();
+    static constexpr size_t BIT_FIELD_OFFSET = TaggedObjectSize();
+    ACCESSORS_PRIMITIVE_FIELD(BitField, uint32_t, BIT_FIELD_OFFSET, BIT_FIELD1_OFFSET);
+    ACCESSORS_PRIMITIVE_FIELD(BitField1, uint32_t, BIT_FIELD1_OFFSET, PROTOTYPE_OFFSET);
     ACCESSORS(Proto, PROTOTYPE_OFFSET, LAYOUT_OFFSET);
     ACCESSORS_SYNCHRONIZED(Layout, LAYOUT_OFFSET, TRANSTIONS_OFFSET);
     ACCESSORS(Transitions, TRANSTIONS_OFFSET, PARENT_OFFSET);
@@ -2025,9 +2045,7 @@ public:
     ACCESSORS(ProtoChangeMarker, PROTO_CHANGE_MARKER_OFFSET, PROTO_CHANGE_DETAILS_OFFSET);
     ACCESSORS(ProtoChangeDetails, PROTO_CHANGE_DETAILS_OFFSET, ENUM_CACHE_OFFSET);
     ACCESSORS(EnumCache, ENUM_CACHE_OFFSET, PROFILE_TYPE_OFFSET);
-    ACCESSORS_PRIMITIVE_FIELD(ProfileType, uint64_t, PROFILE_TYPE_OFFSET, BIT_FIELD_OFFSET);
-    ACCESSORS_PRIMITIVE_FIELD(BitField, uint32_t, BIT_FIELD_OFFSET, BIT_FIELD1_OFFSET);
-    ACCESSORS_PRIMITIVE_FIELD(BitField1, uint32_t, BIT_FIELD1_OFFSET, LAST_OFFSET);
+    ACCESSORS_PRIMITIVE_FIELD(ProfileType, uint64_t, PROFILE_TYPE_OFFSET, LAST_OFFSET);
     DEFINE_ALIGN_SIZE(LAST_OFFSET);
 
     static JSHandle<JSHClass> SetPrototypeWithNotification(const JSThread *thread,
@@ -2038,10 +2056,12 @@ public:
                                        const JSHandle<JSTaggedValue> &proto,
                                        bool isChangeProto = false);
     void SetPrototype(const JSThread *thread, JSTaggedValue proto, bool isChangeProto = false);
+    void SetPrototype(const JSThread *thread, const JSHandle<GlobalEnv> &env,
+                      JSTaggedValue proto, bool isChangeProto = false);
     void PUBLIC_API SetPrototype(const JSThread *thread,
                                  const JSHandle<JSTaggedValue> &proto,
                                  bool isChangeProto = false);
-    static void OptimizePrototypeForIC(const JSThread *thread,
+    static void OptimizePrototypeForIC(const JSThread *thread, const JSHandle<GlobalEnv> &env,
                                        const JSHandle<JSTaggedValue> &proto,
                                        bool isChangeProto = false);
     inline JSTaggedValue GetPrototype() const
@@ -2090,8 +2110,8 @@ public:
 
 private:
 
-    static inline bool ProtoIsFastJSArray(const JSThread *thread, const JSHandle<JSTaggedValue> proto,
-                                          const JSHandle<JSHClass> hclass);
+    static inline bool ProtoIsFastJSArray(const JSHandle<GlobalEnv> &env,
+                                          const JSHandle<JSTaggedValue> proto, const JSHandle<JSHClass> hclass);
 
     static void CreateSInlinedLayout(JSThread *thread,
                                      const std::vector<PropertyDescriptor> &descs,
