@@ -14,16 +14,18 @@
  */
 import { TitleBar } from '../../../../common/TitleBar';
 
-const RIGH_TEXT = getContext(this).resourceManager.getStringSync($r('app.string.H1_title')) +
-  getContext(this).resourceManager.getStringSync($r('app.string.H1_italic')) +
-  getContext(this).resourceManager.getStringSync($r('app.string.H1_underline')) +
-  getContext(this).resourceManager.getStringSync($r('app.string.H2_title')) +
-  getContext(this).resourceManager.getStringSync($r('app.string.H3_title')) +
-  getContext(this).resourceManager.getStringSync($r('app.string.P_common')) +
-  getContext(this).resourceManager.getStringSync($r('app.string.font_title_desc')) +
-  getContext(this).resourceManager.getStringSync($r('app.string.font_title')) +
-  getContext(this).resourceManager.getStringSync($r('app.string.font_content_desc')) +
-  getContext(this).resourceManager.getStringSync($r('app.string.font_content')) // Inorder to better reflect the rich text effect, this constant content includes Chinese characters
+const uiContext: UIContext | undefined = AppStorage.get('uiContext');
+
+const RIGH_TEXT = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.H1_title')) +
+  uiContext?.getHostContext()!.resourceManager.getStringSync($r('app.string.H1_italic')) +
+  uiContext?.getHostContext()!.resourceManager.getStringSync($r('app.string.H1_underline')) +
+  uiContext?.getHostContext()!.resourceManager.getStringSync($r('app.string.H2_title')) +
+  uiContext?.getHostContext()!.resourceManager.getStringSync($r('app.string.H3_title')) +
+  uiContext?.getHostContext()!.resourceManager.getStringSync($r('app.string.P_common')) +
+  uiContext?.getHostContext()!.resourceManager.getStringSync($r('app.string.font_title_desc')) +
+  uiContext?.getHostContext()!.resourceManager.getStringSync($r('app.string.font_title')) +
+  uiContext?.getHostContext()!.resourceManager.getStringSync($r('app.string.font_content_desc')) +
+  uiContext?.getHostContext()!.resourceManager.getStringSync($r('app.string.font_content')) // Inorder to better reflect the rich text effect, this constant content includes Chinese characters
 
 @Extend(Text)
 function leftTitleStyle() {

@@ -15,6 +15,7 @@
 
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
+// [Start CardData_start]
 export class CardData {
   private id: string = '';
   private mIsAdCard: boolean = false;
@@ -23,7 +24,7 @@ export class CardData {
     this.mIsAdCard = isAdCard;
     this.id = id;
   }
-
+  // [StartExclude CardData_start]
   public isAdCard(): boolean {
     return this.mIsAdCard;
   }
@@ -31,7 +32,9 @@ export class CardData {
   public getId(): string {
     return this.id;
   }
+  // [EndExclude CardData_start]
 }
+// [End CardData_start]
 
 
 // Basic implementation of IDataSource to handle data listener

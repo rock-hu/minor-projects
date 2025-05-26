@@ -1,0 +1,151 @@
+{
+  "lockVersion": "1.0",
+  "settings": {
+    "resolveConflict": true,
+    "resolveConflictStrict": false,
+    "installAll": true
+  },
+  "overrides": {},
+  "overrideDependencyMap": {},
+  "modules": {
+    ".": {
+      "name": "",
+      "dependencies": {},
+      "devDependencies": {},
+      "dynamicDependencies": {},
+      "maskedByOverrideDependencyMap": false
+    },
+    "common/constantsCommon": {
+      "name": "constantsCommon",
+      "dependencies": {},
+      "devDependencies": {},
+      "dynamicDependencies": {},
+      "maskedByOverrideDependencyMap": false
+    },
+    "common/mediaCommon": {
+      "name": "mediaCommon",
+      "dependencies": {
+        "@ohos/constantsCommon": {
+          "specifier": "file:common/constantsCommon",
+          "version": "file:common/constantsCommon"
+        }
+      },
+      "devDependencies": {},
+      "dynamicDependencies": {},
+      "maskedByOverrideDependencyMap": false
+    },
+    "features/live": {
+      "name": "live",
+      "dependencies": {},
+      "devDependencies": {},
+      "dynamicDependencies": {},
+      "maskedByOverrideDependencyMap": false
+    },
+    "features/musicComment": {
+      "name": "musicComment",
+      "dependencies": {
+        "@ohos/mediaCommon": {
+          "specifier": "file:common/mediaCommon",
+          "version": "file:common/mediaCommon"
+        },
+        "@ohos/constantsCommon": {
+          "specifier": "file:common/constantsCommon",
+          "version": "file:common/constantsCommon"
+        }
+      },
+      "devDependencies": {},
+      "dynamicDependencies": {},
+      "maskedByOverrideDependencyMap": false
+    },
+    "features/musicList": {
+      "name": "musicList",
+      "dependencies": {
+        "@ohos/mediaCommon": {
+          "specifier": "file:common/mediaCommon",
+          "version": "file:common/mediaCommon"
+        },
+        "@ohos/constantsCommon": {
+          "specifier": "file:common/constantsCommon",
+          "version": "file:common/constantsCommon"
+        }
+      },
+      "devDependencies": {},
+      "dynamicDependencies": {},
+      "maskedByOverrideDependencyMap": false
+    },
+    "products/phone": {
+      "name": "phone",
+      "dependencies": {
+        "@ohos/constantsCommon": {
+          "specifier": "file:common/constantsCommon",
+          "version": "file:common/constantsCommon"
+        },
+        "@ohos/live": {
+          "specifier": "file:features/live",
+          "version": "file:features/live"
+        },
+        "@ohos/musicComment": {
+          "specifier": "file:features/musicComment",
+          "version": "file:features/musicComment"
+        },
+        "@ohos/musicList": {
+          "specifier": "file:features/musicList",
+          "version": "file:features/musicList"
+        }
+      },
+      "devDependencies": {},
+      "dynamicDependencies": {},
+      "maskedByOverrideDependencyMap": false
+    }
+  },
+  "packages": {
+    "@ohos/constantsCommon@file:common/constantsCommon": {
+      "storePath": "common/constantsCommon",
+      "dependencies": {},
+      "dynamicDependencies": {},
+      "dev": false,
+      "dynamic": false,
+      "maskedByOverrideDependencyMap": false
+    },
+    "@ohos/mediaCommon@file:common/mediaCommon": {
+      "storePath": "common/mediaCommon",
+      "dependencies": {
+        "@ohos/constantsCommon": "common/constantsCommon"
+      },
+      "dynamicDependencies": {},
+      "dev": false,
+      "dynamic": false,
+      "maskedByOverrideDependencyMap": false
+    },
+    "@ohos/live@file:features/live": {
+      "storePath": "features/live",
+      "dependencies": {},
+      "dynamicDependencies": {},
+      "dev": false,
+      "dynamic": false,
+      "maskedByOverrideDependencyMap": false
+    },
+    "@ohos/musicComment@file:features/musicComment": {
+      "storePath": "features/musicComment",
+      "dependencies": {
+        "@ohos/mediaCommon": "common/mediaCommon",
+        "@ohos/constantsCommon": "common/constantsCommon"
+      },
+      "dynamicDependencies": {},
+      "dev": false,
+      "dynamic": false,
+      "maskedByOverrideDependencyMap": false
+    },
+    "@ohos/musicList@file:features/musicList": {
+      "storePath": "features/musicList",
+      "dependencies": {
+        "@ohos/mediaCommon": "common/mediaCommon",
+        "@ohos/constantsCommon": "common/constantsCommon"
+      },
+      "dynamicDependencies": {},
+      "dev": false,
+      "dynamic": false,
+      "maskedByOverrideDependencyMap": false
+    }
+  }
+}

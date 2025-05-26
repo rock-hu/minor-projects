@@ -124,7 +124,7 @@ struct ThirdLevelNavigation {
           if (this.thirdLevelCategory) {
             if (this.thirdLevelCategory.childNodes === undefined) {
               // Click to jump to the corresponding page
-              router.pushUrl({
+              this.getUIContext().getRouter().pushUrl({
                 url: this.thirdLevelCategory.url as string
               })
             } else {
@@ -176,7 +176,7 @@ struct FourthLevelNavigation {
     .onClick(() => {
       if (this.fourthLevelCategory) {
         // Click to jump to the corresponding page
-        router.pushUrl({
+        this.getUIContext().getRouter().pushUrl({
           url: this.fourthLevelCategory.url
         })
       }

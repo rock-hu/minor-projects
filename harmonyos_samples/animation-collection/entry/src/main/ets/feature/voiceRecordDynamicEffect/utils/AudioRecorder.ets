@@ -20,6 +20,8 @@ import { BusinessError } from '@kit.BasicServicesKit';
 import { CommonConstants as Const } from '../common/CommonConstants';
 import Logger from '../../../common/Logger';
 
+const context = AppStorage.get("context") as UIContext;
+
 export class AudioRecorderDemo {
   private avRecorder: media.AVRecorder | undefined = undefined;
   public maxAmplitude: number = 0;
@@ -59,8 +61,7 @@ export class AudioRecorderDemo {
     this.avRecorder = await media.createAVRecorder();
     this.setAudioRecorderCallback();
     // 2.获取录制文件fd赋予avConfig里的url；参考FilePicker文档
-    const context = getContext(this);
-    const path = context.filesDir;
+    const path = context.getHostContext()!.filesDir;
     const filepath = path + '/01.mp3';
 
     const file = fileIo.openSync(filepath, fileIo.OpenMode.READ_WRITE | fileIo.OpenMode.CREATE);
@@ -179,8 +180,7 @@ export class AVPlayerDemo {
     this.setAVPlayerCallback(avPlayer);
     let fdPath = 'fd://';
     // 通过UIAbilityContext获取沙箱地址filesDir
-    const context = getContext(this) as common.UIAbilityContext;
-    const pathDir = context.filesDir;
+    const pathDir = context.getHostContext()!.filesDir;
     const path = pathDir + '/01.mp3';
     // 打开相应的资源文件地址获取fd，并为url赋值触发initialized状态机上报
     const file = await fileIo.open(path);

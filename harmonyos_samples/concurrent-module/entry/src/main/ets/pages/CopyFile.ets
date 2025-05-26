@@ -24,7 +24,7 @@ const TAG: string = '[ConcurrentModule].[CopyFile]';
 @Component
 struct Watcher {
   @State message: Resource = $r('app.string.copyFileText');
-  @State myContext: Context = getContext(this) as common.UIAbilityContext;
+  @State myContext: Context = this.getUIContext().getHostContext() as common.UIAbilityContext;
   @State filePathSize: Array<number> = [];
   @State showFilePath: Array<string> = [];
   @State eventFilePath: Array<string> = [];
@@ -88,7 +88,7 @@ struct Watcher {
               .align(Alignment.Start)
               .margin({ top: 13, bottom: 15, left: 26, right: 18 })
               .onClick(() => {
-                router.back();
+                this.getUIContext().getRouter().back();
               })
             Text(this.message)
               .fontSize(20)

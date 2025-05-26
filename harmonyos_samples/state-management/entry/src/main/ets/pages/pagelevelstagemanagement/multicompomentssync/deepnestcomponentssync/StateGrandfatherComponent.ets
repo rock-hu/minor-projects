@@ -20,9 +20,6 @@ import { COLOR_SELECT_DATA } from '../data/ColorData';
 import { getResourceString } from '../../../../utils/ResourceUtils';
 import { ViewCodeText } from '../../../../commoncomponents/ViewCodeText';
 
-// 声明一个上下文变量
-const CONTEXT: common.UIAbilityContext = getContext(this) as common.UIAbilityContext;
-
 @Component
 export struct StateGrandfatherComponent {
   // 初始化爷组件@State的圆形颜色
@@ -44,7 +41,8 @@ export struct StateGrandfatherComponent {
       Row() {
         Select(this.selectColors)
           .selected(this.currentSelectIndex)
-          .value(getResourceString(CONTEXT, this.selectColors[this.currentSelectIndex].value))
+          .value(getResourceString(this.getUIContext().getHostContext() as common.UIAbilityContext,
+            this.selectColors[this.currentSelectIndex].value))
           .fontColor($r('app.color.button_text_color'))
           .font({ size: $r('app.float.tips_font_size') })
           .selectedOptionFont({ size: $r('app.float.tips_font_size') })

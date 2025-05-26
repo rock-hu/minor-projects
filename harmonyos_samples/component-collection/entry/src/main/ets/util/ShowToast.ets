@@ -15,12 +15,14 @@
 
 import { promptAction } from '@kit.ArkUI';
 
+const uiContext: UIContext | undefined = AppStorage.get('uiContext');
+
 class ShowToast {
   private longToastTime: number = 3000;
   private shortToastTime: number = 1000;
 
   showToast(message: ResourceStr, duration: number) {
-    promptAction.showToast({ message: message, duration: duration });
+    uiContext?.getPromptAction().showToast({ message: message, duration: duration });
   }
 
   shortToast(message: ResourceStr) {

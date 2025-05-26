@@ -205,7 +205,7 @@ export struct SignatureDetail {
       .height(CommonConstants.FULL_PERCENT)
       .justifyContent(FlexAlign.SpaceBetween)
     }
-    .title(getResourceString(this.SignatureItem.name, this))
+    .title(getResourceString(this.SignatureItem.name, this.getUIContext()))
     .backgroundColor($r('app.color.background_page'))
   }
 }

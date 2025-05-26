@@ -213,7 +213,7 @@ export struct Encrypt {
                 .backgroundColor('#007DFF')
                 .onClick(() => {
                   if (this.textFileUri === '' || this.keyFileUri === '') {
-                    promptAction.showToast({
+                    this.getUIContext().getPromptAction().showToast({
                       message: $r('app.string.null_message')
                     });
                   } else {
@@ -286,7 +286,7 @@ export struct Encrypt {
 
   async encryptFunc() {
     if (this.plainText === '' || this.keyFileUri === '') {
-      promptAction.showToast({
+      this.getUIContext().getPromptAction().showToast({
         message: $r('app.string.null_message')
       });
       return;
@@ -295,12 +295,12 @@ export struct Encrypt {
       this.cipherText = await this.CryptoOperation.aesConvertAndEncrypt(this.keyString, this.plainText);
     } catch (error) {
       Logger.error(TAG, `encrypt failed, ${error}`);
-      promptAction.showToast({
+      this.getUIContext().getPromptAction().showToast({
         message: $r('app.string.encrypt_fail')
       });
     }
     if (this.cipherText === '' || this.cipherText === undefined || this.cipherText === null) {
-      promptAction.showToast({
+      this.getUIContext().getPromptAction().showToast({
         message: $r('app.string.encrypt_fail')
       });
       return;
@@ -312,11 +312,11 @@ export struct Encrypt {
       }
     }
     if (this.encryptedFileUri === '' || typeof (this.encryptedFileUri) == 'undefined') {
-      promptAction.showToast({
+      this.getUIContext().getPromptAction().showToast({
         message: $r('app.string.encrypt_fail')
       });
     } else {
-      promptAction.showToast({
+      this.getUIContext().getPromptAction().showToast({
         message: $r('app.string.encrypt_success')
       });
     }
@@ -329,7 +329,7 @@ export struct Encrypt {
       Logger.error(TAG, `gen aes key failed, ${error}`);
     }
     if (this.keyString === '' || typeof (this.keyString) == 'undefined') {
-      promptAction.showToast({
+      this.getUIContext().getPromptAction().showToast({
         message: $r('app.string.gen_key_fail')
       });
       return;
@@ -341,11 +341,11 @@ export struct Encrypt {
       }
     }
     if (this.createKeyUri === '' || typeof (this.createKeyUri) == 'undefined') {
-      promptAction.showToast({
+      this.getUIContext().getPromptAction().showToast({
         message: $r('app.string.gen_key_fail')
       });
     } else {
-      promptAction.showToast({
+      this.getUIContext().getPromptAction().showToast({
         message: $r('app.string.gen_key_success')
       });
     }

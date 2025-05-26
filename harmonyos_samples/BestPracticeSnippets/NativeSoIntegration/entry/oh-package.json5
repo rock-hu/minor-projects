@@ -1,0 +1,20 @@
+// DocsCode1
+// entry/oh-package.json5
+{
+  // DocsDot
+  "name": "entry",
+  "version": "1.0.0",
+  "description": "Please describe the basic information.",
+  "main": "",
+  "author": "",
+  "license": "",
+  // DocsDot
+  "dependencies": {
+    // DocsDot
+    "libentry.so": "file:./src/main/cpp/types/libentry",
+    // DocsDot
+    // 声明的依赖名称应与引用的so库名称一致
+    "libmultiply.so": "file:./src/main/cpp/types/libmultiply"
+  }
+}
+// DocsCode1

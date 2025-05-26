@@ -13,7 +13,11 @@
  *   limitations under the License.
  */
 
-import { HMRouter, HMRouterMgr } from '@hadss/hmrouter';
+/**
+ * 最佳实践：基于HMRouter路由框架的页面跳转开发实践
+ */
+
+import { HMPopInfo, HMRouter, HMRouterMgr } from '@hadss/hmrouter';
 import { BreakpointConstants } from '../common/constants/BreakpointConstants';
 import { CommonConstants } from '../common/constants/CommonConstants';
 import { ResourceUtil } from '../common/utils/ResourceUtil';
@@ -214,9 +218,11 @@ function recommendCard() {
   .padding({top: 16, right: 16, bottom: 16});
 }
 
+// [Start HMRouter_home_content]
 @HMRouter({pageUrl: PageConstant.HOME_CONTENT, singleton: true, lifecycle: 'ExitAppLifecycle'})
 @Component
 export struct HomeContent {
+  // [StartExclude HMRouter_home_content]
   @StorageLink('currentBreakpoint') currentBreakpoint: string = BreakpointConstants.BREAKPOINT_SM;
   private scroller: Scroller = new Scroller();
 
@@ -250,7 +256,19 @@ export struct HomeContent {
             };
           }
           .onClick(() => {
-            HMRouterMgr.push({pageUrl: 'ProductContent'});
+            // [Start HMRouterMgr]
+            HMRouterMgr.push({
+              pageUrl: 'ProductContent',
+              navigationId: "mainNavigationId",
+              param: { a: 1, b: 2 },
+            }, {
+              onResult(popInfo: HMPopInfo) {
+                const pageName = popInfo.srcPageInfo.name;
+                const params = popInfo.result;
+                console.log(`page name is ${pageName}, params is ${JSON.stringify(params)}`);
+              }
+            });
+            // [End HMRouterMgr]
           })
           .columnsGap(12)
           .rowsGap(12)
@@ -276,4 +294,6 @@ export struct HomeContent {
     .width(CommonConstants.FULL_PERCENT)
     .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM]);
   }
+  // [EndExclude HMRouter_home_content]
 }
+// [End HMRouter_home_content]

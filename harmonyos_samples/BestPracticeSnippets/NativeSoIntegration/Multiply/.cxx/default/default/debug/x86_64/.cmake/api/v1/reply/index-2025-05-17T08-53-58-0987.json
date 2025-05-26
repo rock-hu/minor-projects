@@ -1,0 +1,89 @@
+{
+	"cmake" : 
+	{
+		"generator" : 
+		{
+			"multiConfig" : false,
+			"name" : "Ninja"
+		},
+		"paths" : 
+		{
+			"cmake" : "D:/dev-5.0.11/DevEco Studio/sdk/default/openharmony/native/build-tools/cmake/bin/cmake.exe",
+			"cpack" : "D:/dev-5.0.11/DevEco Studio/sdk/default/openharmony/native/build-tools/cmake/bin/cpack.exe",
+			"ctest" : "D:/dev-5.0.11/DevEco Studio/sdk/default/openharmony/native/build-tools/cmake/bin/ctest.exe",
+			"root" : "D:/dev-5.0.11/DevEco Studio/sdk/default/openharmony/native/build-tools/cmake/share/cmake-3.28"
+		},
+		"version" : 
+		{
+			"isDirty" : false,
+			"major" : 3,
+			"minor" : 28,
+			"patch" : 2,
+			"string" : "3.28.2",
+			"suffix" : ""
+		}
+	},
+	"objects" : 
+	[
+		{
+			"jsonFile" : "codemodel-v2-83181a311d1c9e1dd286.json",
+			"kind" : "codemodel",
+			"version" : 
+			{
+				"major" : 2,
+				"minor" : 6
+			}
+		},
+		{
+			"jsonFile" : "cache-v2-95ee4ff4fa6388759e39.json",
+			"kind" : "cache",
+			"version" : 
+			{
+				"major" : 2,
+				"minor" : 0
+			}
+		},
+		{
+			"jsonFile" : "cmakeFiles-v1-d05fdaa1cecb7e9c9bd6.json",
+			"kind" : "cmakeFiles",
+			"version" : 
+			{
+				"major" : 1,
+				"minor" : 0
+			}
+		}
+	],
+	"reply" : 
+	{
+		"cache-v2" : 
+		{
+			"jsonFile" : "cache-v2-95ee4ff4fa6388759e39.json",
+			"kind" : "cache",
+			"version" : 
+			{
+				"major" : 2,
+				"minor" : 0
+			}
+		},
+		"cmakeFiles-v1" : 
+		{
+			"jsonFile" : "cmakeFiles-v1-d05fdaa1cecb7e9c9bd6.json",
+			"kind" : "cmakeFiles",
+			"version" : 
+			{
+				"major" : 1,
+				"minor" : 0
+			}
+		},
+		"codemodel-v2" : 
+		{
+			"jsonFile" : "codemodel-v2-83181a311d1c9e1dd286.json",
+			"kind" : "codemodel",
+			"version" : 
+			{
+				"major" : 2,
+				"minor" : 6
+			}
+		}
+	}
+}

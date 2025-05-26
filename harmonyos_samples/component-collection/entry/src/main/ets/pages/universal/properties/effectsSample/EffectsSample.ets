@@ -433,7 +433,7 @@ struct Effects {
                   Text('0')
                   Slider({ value: this.mPixelStretchBottomEffect, min: 0, max: 100, step: 1 })
                     .onChange((value) => {
-                      animateTo({ duration: 2000 }, () => {
+                      this.getUIContext().animateTo({ duration: 2000 }, () => {
                         this.mPixelStretchBottomEffect = value;
                       })
                     })

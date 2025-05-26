@@ -20,7 +20,8 @@ import { httpRequest } from '../utils/NetRequest';
 import Logger from '../utils/Logger';
 
 // Obtain the path of the application file
-let context = getContext(this) as common.UIAbilityContext;
+const uiContext: UIContext | undefined = AppStorage.get('uiContext');
+let context = uiContext?.getHostContext() as common.UIAbilityContext;
 let filesDir = context.filesDir;
 let fileUrl = filesDir + '/xxx.png'; // The image's network address suffix needs to be replaced by the real url.
 let para: Record<string, PixelMap | undefined> = { 'imageData': undefined };

@@ -17,9 +17,6 @@ import { common } from '@kit.AbilityKit';
 import { ViewCodeText } from '../../../commoncomponents/ViewCodeText';
 import { startSpecifiedAbility } from '../../../utils/StartAbilityUtils';
 
-// Declare a context information.
-const CONTEXT: common.UIAbilityContext = getContext(this) as common.UIAbilityContext;
-
 @Component
 export default struct ApplyGlobalDataSyncCode {
   // And Ability1, Ability2 page bidirectional synchronization content font size.
@@ -105,7 +102,7 @@ export default struct ApplyGlobalDataSyncCode {
       .backgroundColor($r('app.color.button_background_color'))
       .padding($r('app.float.page_padding'))
       .onClick(() => {
-        startSpecifiedAbility(CONTEXT, 'StoragePropAbility');
+        startSpecifiedAbility(this.getUIContext().getHostContext() as common.UIAbilityContext, 'StoragePropAbility');
       })
 
       Button() {
@@ -120,7 +117,7 @@ export default struct ApplyGlobalDataSyncCode {
       .backgroundColor($r('app.color.button_background_color'))
       .padding($r('app.float.page_padding'))
       .onClick(() => {
-        startSpecifiedAbility(CONTEXT, 'StorageLinkAbility');
+        startSpecifiedAbility(this.getUIContext().getHostContext() as common.UIAbilityContext, 'StorageLinkAbility');
       })
     }.padding($r('app.float.page_padding'))
   }

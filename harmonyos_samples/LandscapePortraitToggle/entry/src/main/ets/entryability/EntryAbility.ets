@@ -15,6 +15,7 @@
 
 import { UIAbility } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 import { window } from '@kit.ArkUI';
 
 export default class EntryAbility extends UIAbility {
@@ -34,8 +35,6 @@ export default class EntryAbility extends UIAbility {
     windowStage.getMainWindowSync().setWindowLayoutFullScreen(true);
     let naviBarArea: window.AvoidArea = windowClass.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR);
     let area: window.AvoidArea = windowClass.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);
-    AppStorage.setOrCreate<number>('naviIndicatorHeight', px2vp(naviBarArea.bottomRect.height));
-    AppStorage.setOrCreate<number>('statusBarHeight', px2vp(area.topRect.height));
 
     let mainWindow = windowStage.getMainWindowSync();
     let SystemBarProperties: window.SystemBarProperties = {
@@ -48,6 +47,22 @@ export default class EntryAbility extends UIAbility {
         hilog.error(0x0000, 'testTag', 'Failed to load the content. Cause: %{public}s', JSON.stringify(err) ?? '');
         return;
       }
+
+      windowStage.getMainWindow((err: BusinessError, data) => {
+        let errCode: number = err.code;
+        if (errCode) {
+          console.error(`Failed to obtain the main window. Cause code: ${err.code}, message: ${err.message}`);
+          return;
+        }
+        windowClass = data;
+        console.info('Succeeded in obtaining the main window. Data: ' + JSON.stringify(data));
+        // 获取UIContext实例。
+        let UIContext: UIContext | null = null;
+        UIContext = windowClass.getUIContext();
+
+        AppStorage.setOrCreate<number>('naviIndicatorHeight', UIContext.px2vp(naviBarArea.bottomRect.height));
+        AppStorage.setOrCreate<number>('statusBarHeight', UIContext.px2vp(area.topRect.height));
+      });
       hilog.info(0x0000, 'testTag', 'Succeeded in loading the content.');
     });
   }

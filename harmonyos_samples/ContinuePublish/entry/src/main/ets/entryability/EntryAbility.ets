@@ -30,7 +30,7 @@ export default class EntryAbility extends UIAbility {
   private curBp: string = '';
   private imageUriArray: Array<ImageInfo> = [];
   private distributedObject: distributedDataObject.DataObject | undefined = undefined;
-
+  // [Start on_create]
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
     hilog.info(0x0000, '[EntryAbility]', 'Ability onCreate');
     this.restoreDistributedObject(want, launchParam);
@@ -82,7 +82,8 @@ export default class EntryAbility extends UIAbility {
     this.distributedObject.setSessionId(sessionId);
     this.context.restoreWindowStage(new LocalStorage());
   }
-
+  // [End on_create]
+  // [Start on_continue]
   async onContinue(wantParam: Record<string, Object | undefined>): Promise<AbilityConstant.OnContinueResult> {
     wantParam.imageUriArray = JSON.stringify(AppStorage.get<Array<PixelMap>>('imageUriArray'));
     try {
@@ -120,7 +121,9 @@ export default class EntryAbility extends UIAbility {
     }
     return AbilityConstant.OnContinueResult.AGREE;
   }
+  // [End on_continue]
 
+  // [Start file_copy]
   /**
    * Copy distributed files.
    * @param attachmentRecord
@@ -162,14 +165,14 @@ export default class EntryAbility extends UIAbility {
       hilog.error(0x0000, '[EntryAbility]', `DocumentViewPicker failed with err: ${JSON.stringify(err)}`);
     }
   }
-
+  // [End file_copy]
   /**
    * Obtain distributed file asset information.
    * @param append
    * @returns
    */
   private getAssetInfo(append: ImageInfo): commonType.Asset {
-    let filePath = getContext().distributedFilesDir + '/' + append.imageName;
+    let filePath = this.context.distributedFilesDir + '/' + append.imageName;
     fs.statSync(filePath);
     let uri: string = fileUri.getUriFromPath(filePath);
     let stat = fs.statSync(filePath);
@@ -263,7 +266,7 @@ export default class EntryAbility extends UIAbility {
       try {
         let avoidArea = this.windowClass.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);
         // Set the height of the status bar.
-        AppStorage.setOrCreate('statusBarHeight', px2vp(avoidArea.topRect.height));
+        AppStorage.setOrCreate('statusBarHeight', this.windowClass.getUIContext().px2vp(avoidArea.topRect.height));
         // Hidden status bar.
         this.windowClass.setSpecificSystemBarEnabled('status', false);
       } catch (exception) {

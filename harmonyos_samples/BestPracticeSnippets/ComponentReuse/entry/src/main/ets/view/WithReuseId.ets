@@ -17,6 +17,7 @@ import { Constants } from '../common/Constants';
 import { FriendMoment } from '../model/BasicDataSource';
 import { FriendMomentsData } from '../model/FriendMomentData'
 
+// [Start with_reuse_id]
 @Entry
 @Component
 struct WithReuseId {
@@ -83,6 +84,7 @@ export struct OneMoment {
     })
   }
 }
+// [End with_reuse_id]
 
 @Builder
 function getWithReuseId(name: string): void {

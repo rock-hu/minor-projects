@@ -24,8 +24,10 @@ const operationUrls: Array<string> = ['pages/Calendar', 'pages/TextProcessing'];
 @Entry
 @Component
 struct Index {
+  UIContext = this.getUIContext();
+
   @State operations: Array<string> = [];
-  private context: common.UIAbilityContext = getContext(this) as common.UIAbilityContext;
+  private context: common.UIAbilityContext = this.UIContext.getHostContext() as common.UIAbilityContext;
 
   aboutToAppear() {
     this.getOperation();
@@ -42,7 +44,7 @@ struct Index {
         Row() {
           OperationView({
             operationKey: item, handleClick: () => {
-              router.pushUrl({
+              this.UIContext.getRouter().pushUrl({
                 url: operationUrls[index]
               })
             }

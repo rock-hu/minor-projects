@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { common } from '@kit.AbilityKit';
 import { UIAbility , Want ,AbilityConstant } from '@kit.AbilityKit';
 import { window  } from '@kit.ArkUI';
 import { BusinessError } from '@kit.BasicServicesKit'
@@ -32,8 +33,19 @@ export default class EntryAbility extends UIAbility {
   onWindowStageCreate(windowStage: window.WindowStage): void {
     // Main window is created, set main page for this ability
     Logger.info(TAG, 'EntryAbility onWindowStageCreate');
-    requestFullScreen(windowStage, this.context);
-    windowStage.loadContent('pages/Index');
+    windowStage.loadContent('pages/Index', (err) => {
+      if (err.code) {
+        return;
+      }
+    });
+    windowStage.getMainWindow((err, data) => {
+      if (err.code) {
+        return;
+      }
+      let windowClass: window.Window = data;
+      let uiContext: UIContext = windowClass.getUIContext();
+      requestFullScreen(windowStage, uiContext);
+    });
   }
 
   onWindowStageDestroy(): void {
@@ -51,12 +63,9 @@ export default class EntryAbility extends UIAbility {
     Logger.info(TAG, 'MainAbility onBackground');
   }
 
-
-
-
 }
 
-function requestFullScreen(windowStage: window.WindowStage, context: Context): void {
+function requestFullScreen(windowStage: window.WindowStage, UIContext: UIContext): void {
   windowStage.getMainWindow((err: BusinessError, data: window.Window) => {
     if (err.code) {
       Logger.error(TAG, 'Failed to obtain the main window. Cause: ' + JSON.stringify(err));
@@ -71,7 +80,7 @@ function requestFullScreen(windowStage: window.WindowStage, context: Context): v
       let type = window.AvoidAreaType.TYPE_SYSTEM;
       // Get status bar height.
       let area: window.AvoidArea = windowClass.getWindowAvoidArea(type);
-      getDeviceSize(context, area);
+      getDeviceSize(UIContext, area);
       let promise: Promise<void> = windowClass.setWindowLayoutFullScreen(isLayoutFullScreen);
       promise.then(() => {
         windowStage.getMainWindowSync().setWindowBackgroundColor('#F1F3F5');
@@ -85,14 +94,16 @@ function requestFullScreen(windowStage: window.WindowStage, context: Context): v
   });
 }
 
-function getDeviceSize(context: Context, area: window.AvoidArea): void {
+function getDeviceSize(UIContext: UIContext, area: window.AvoidArea): void {
+  let context = UIContext.getHostContext() as common.UIAbilityContext;
+
   // Get device height.
   window.getLastWindow(context).then((data: window.Window) => {
     let properties = data.getWindowProperties();
     if (area.topRect.height > 0) {
-      AppStorage.setOrCreate<number>('statusBarHeight', px2vp(area.topRect.height));
+      AppStorage.setOrCreate<number>('statusBarHeight', UIContext.px2vp(area.topRect.height));
     }
-    AppStorage.setOrCreate<number>('deviceHeight', px2vp(properties.windowRect.height));
-    AppStorage.setOrCreate<number>('deviceWidth', px2vp(properties.windowRect.width));
+    AppStorage.setOrCreate<number>('deviceHeight', UIContext.px2vp(properties.windowRect.height));
+    AppStorage.setOrCreate<number>('deviceWidth', UIContext.px2vp(properties.windowRect.width));
   });
 }

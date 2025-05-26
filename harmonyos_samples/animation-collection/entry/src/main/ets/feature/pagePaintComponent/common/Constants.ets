@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+const context = AppStorage.get("context") as UIContext;
+
 /**
  * Common constants for all features.
  */
@@ -55,7 +57,7 @@ export default class Constants {
   /**
    * Converts a number in vp units to a number in px units.
    */
-  static readonly RADIUS_IN_PX: number = vp2px(Constants.DIAMETER / 2.0);
+  static readonly RADIUS_IN_PX: number = context.vp2px(Constants.DIAMETER / 2.0);
 
   /**
    * Big Diameter.

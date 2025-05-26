@@ -104,7 +104,7 @@ export struct SummaryDetail {
       .height(CommonConstants.FULL_PERCENT)
       .justifyContent(FlexAlign.SpaceBetween)
     }
-    .title(getResourceString(this.SummaryItem.name, this))
+    .title(getResourceString(this.SummaryItem.name, this.getUIContext()))
     .backgroundColor($r('app.color.background_page'))
   }
 }

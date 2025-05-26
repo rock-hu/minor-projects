@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-// DocsCode 7
+// [Start response_header_remove_interceptor]
 import { rcp } from '@kit.RemoteCommunicationKit';
 import Logger from '../common/Logger';
 
@@ -74,5 +74,4 @@ export class ResponseHeaderRemoveInterceptor implements rcp.Interceptor {
     return toReturn;
   }
 }
-
-// DocsCode 7
+// [End response_header_remove_interceptor]

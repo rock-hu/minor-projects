@@ -13,6 +13,6 @@
  * limitations under the License.
  */
 
-export async function resourceToString(source: Resource): Promise<string> {
-  return getContext().resourceManager.getStringValue(source);
+export async function resourceToString(uiContext: UIContext, source: Resource): Promise<string> {
+  return uiContext.getHostContext()!.resourceManager.getStringValue(source);
 }

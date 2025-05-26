@@ -29,7 +29,7 @@ export struct TitleBar {
           .margin({ left: 26 })
           .objectFit(ImageFit.Contain)
           .onClick(() => {
-            router.back()
+            this.getUIContext().getRouter().back()
           })
           .id('backBtn')
         Text(this.title)

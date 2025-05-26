@@ -49,7 +49,7 @@ struct ShareElementTransitionSample {
             }
           })
           .onClick(() => {
-            router.pushUrl({
+            this.getUIContext().getRouter().pushUrl({
               url: 'pages/animations/TransitionAnimations/shareElementTransitionSample/ShareElementTransitionSampleTo',
               params: { image: item, id: index }
             })

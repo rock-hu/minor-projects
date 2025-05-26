@@ -15,7 +15,7 @@
 
 import { router } from '@kit.ArkUI';
 
-// DocsCode 1
+// [Start negative_of_property]
 @Entry
 @Component
 struct NegativeOfProperty {
@@ -50,7 +50,7 @@ struct NegativeOfProperty {
           });
         })
 
-        Text($r('app.string.negative_of_property'))
+        Text('Component property counterexamples')
           .fontSize(20)
           .fontWeight(700)
           .height(26)
@@ -82,4 +82,4 @@ struct NegativeOfProperty {
   }
 }
 
-// DocsCode 1
+// [End negative_of_property]

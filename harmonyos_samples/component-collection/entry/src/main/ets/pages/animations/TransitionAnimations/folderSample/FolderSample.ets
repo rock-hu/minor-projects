@@ -35,7 +35,7 @@ struct FolderSample {
       this.heightSize = 80;
       this.translateY = 0;
     }
-    animateTo({ duration: 500 }, () => {
+    this.getUIContext().animateTo({ duration: 500 }, () => {
       this.isOpen = !this.isOpen;
     });
   }

@@ -34,7 +34,7 @@ struct MotionPathSample {
               rotatable: true
             })
             .onClick(() => {
-              animateTo({ duration: 4000, curve: Curve.Linear }, () => {
+              this.getUIContext().animateTo({ duration: 4000, curve: Curve.Linear }, () => {
                 this.toggle = !this.toggle; // Change the position of the component through this.toggle
               })
             })

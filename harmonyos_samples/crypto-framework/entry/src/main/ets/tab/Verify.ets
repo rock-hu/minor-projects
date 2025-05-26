@@ -200,7 +200,7 @@ export struct Verify {
                 .backgroundColor('#007DFF')
                 .onClick(() => {
                   if (this.textFileUri === '' || this.keyFileUri === '' || this.signFileUri === '') {
-                    promptAction.showToast({
+                    this.getUIContext().getPromptAction().showToast({
                       message: $r('app.string.null_message')
                     });
                   } else {
@@ -294,7 +294,7 @@ export struct Verify {
   async verifyFunc() {
     let verifyRes: Boolean = false;
     if (this.plainText === '' || this.keyFileUri === '' || this.signText === '') {
-      promptAction.showToast({
+      this.getUIContext().getPromptAction().showToast({
         message: $r('app.string.null_message')
       });
       return;
@@ -305,12 +305,12 @@ export struct Verify {
       Logger.error(TAG, `verify failed, ${error}`);
     }
     if (verifyRes != true) {
-      promptAction.showToast({
+      this.getUIContext().getPromptAction().showToast({
         message: $r('app.string.verify_fail')
       });
       return;
     } else {
-      promptAction.showToast({
+      this.getUIContext().getPromptAction().showToast({
         message: $r('app.string.verify_success')
       });
     }

@@ -17,7 +17,9 @@ import { util } from '@kit.ArkTS';
 import { BasicDataSource, FriendMoment } from '../model/BasicDataSource';
 import { OneMoment } from './OneMoment';
 import { Constants } from '../common/Constants';
+import { common } from '@kit.AbilityKit';
 
+const context = AppStorage.get("context") as UIContext;
 @Component
 export struct PageListSlideToHistory {
   @State cachedCountNumber: number = 3;
@@ -157,7 +159,7 @@ class FriendMomentsData extends BasicDataSource<FriendMoment> {
 const momentData: FriendMomentsData = new FriendMomentsData();
 
 async function getFriendMomentFromRawfile(): Promise<void> {
-  const resourceManager = getContext().resourceManager;
+  const resourceManager = context.getHostContext()!.resourceManager;
   const res = await resourceManager.getRawFileContent('mockFriendMomentOneModelData.json');
 
   interface MyJsonModel {

@@ -13,6 +13,10 @@
  *   limitations under the License.
  */
 
+/**
+ * 最佳实践：基于HMRouter路由框架的页面跳转开发实践
+ */
+
 import { HMLifecycle, HMRouter, HMRouterMgr, IHMLifecycle } from '@hadss/hmrouter';
 import { PageConstant } from '../../constant/PageConstant';
 import { BreakpointConstants } from '../common/constants/BreakpointConstants';
@@ -70,14 +74,16 @@ export interface PriceParamType {
   pageUrl: string;
 }
 
+// [Start HMRouter_lifecycle]
 @HMRouter({
-  pageUrl: PageConstant.PAY_DIALOG_CONTENT,
+  pageUrl: 'PayDialogContent',
   dialog: true,
   lifecycle: 'ExitPayDialog',
   interceptors: ['LoginCheckInterceptor']
 })
 @Component
 export struct PayDialogContent {
+  // [StartExclude HMRouter_lifecycle]
   @StorageLink('currentBreakpoint') currentBreakpoint: string = BreakpointConstants.BREAKPOINT_SM;
   @State totalPrice: number = 0;
   pageUrl: string = '';
@@ -143,7 +149,10 @@ export struct PayDialogContent {
     VerticalAlign.Center)
     .justifyContent(FlexAlign.Center);
   }
+  // [EndExclude HMRouter_lifecycle]
 }
+// [End HMRouter_lifecycle]
+
 
 @HMLifecycle({ lifecycleName: 'ExitPayDialog' })
 export class ExitPayDialog implements IHMLifecycle {
@@ -154,6 +163,18 @@ export class ExitPayDialog implements IHMLifecycle {
     return true;
   }
 }
+
+// [Start exit_pay_lifecycle]
+@HMLifecycle({ lifecycleName: 'ExitPayLifecycle' })
+export class ExitPayLifecycle implements IHMLifecycle {
+  model: ObservedModel = new ObservedModel();
+
+  onBackPressed(): boolean {
+    HMRouterMgr.push({ pageUrl: 'PayCancel', param: this.model.pageUrl });
+    return true;
+  }
+}
+// [End exit_pay_lifecycle]
 
 export class ObservedModel {
   pageUrl: string = '';

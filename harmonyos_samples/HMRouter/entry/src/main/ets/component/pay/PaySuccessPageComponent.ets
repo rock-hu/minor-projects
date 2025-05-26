@@ -13,6 +13,10 @@
  *   limitations under the License.
  */
 
+/**
+ * 最佳实践：基于HMRouter路由框架的页面跳转开发实践
+ */
+
 import { HMLifecycle, HMRouter, HMRouterMgr, IHMLifecycle } from '@hadss/hmrouter';
 import { PageConstant } from '../../constant/PageConstant';
 import { DetailConstants } from '../common/constants/DetailConstants';
@@ -103,7 +107,9 @@ export struct PaySuccessPageComponent {
             .fontColor($r('app.color.pay_success_font_color'))
             .onClick(() => {
               this.currentIndex = 0;
-              HMRouterMgr.pop({ navigationId: 'mainNavigationId', pageUrl: 'HomeContent' });
+              // [Start HMRouterMgr_pop]
+              HMRouterMgr.pop({ navigationId: 'mainNavigationId', pageUrl: 'HomeContent', param: '' });
+              // [End HMRouterMgr_pop]
             });
         };
       };

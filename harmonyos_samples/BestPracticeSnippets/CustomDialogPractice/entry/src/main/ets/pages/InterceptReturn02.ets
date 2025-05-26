@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-// DocsCode 1
+// [Start InterceptReturn02_start]
 @Component
 export struct InterceptReturn02 {
   @Consume('NavPathStack') pageStack: NavPathStack;
@@ -104,5 +104,4 @@ export struct DialogPage1 {
     .borderColor(Color.White)
   }
 }
-
-// DocsCode 1
+// [End InterceptReturn02_start]

@@ -14,15 +14,22 @@
  */
 
 import { LearningResource } from '../model/LearningResource';
-
+// [Start segment_start]
 @Component
 @Reusable
 export struct ReusableArticleCardView {
   @Prop articleItem: LearningResource = new LearningResource();
   @Prop isCollected: boolean = false;
   @Prop isLiked: boolean = false;
+  onCollected?: () => void;
+  onLiked?: () => void;
 
+  aboutToReuse(params: Record<string, Object>): void {
+    this.onCollected = params.onCollected as () => void;
+    this.onLiked = params.onLiked as () => void;
+  }
   build() {
+    // [StartExclude segment_start]
     Row({ space: 16 }) {
       Column() {
         Column() {
@@ -87,7 +94,9 @@ export struct ReusableArticleCardView {
     .height($r('app.float.article_card_height'))
 
   }
+  // [EndExclude segment_start]
 }
+// [End segment_start]
 
 @Builder
 function ActionButtonBuilder(imgResource: Resource, count: number, textWidth: Resource) {

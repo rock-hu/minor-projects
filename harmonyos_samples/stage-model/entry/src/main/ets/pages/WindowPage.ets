@@ -19,7 +19,7 @@ import { PublicTitleBar } from './component/PublicTitleBar'
 @Entry
 @Component
 struct WindowPage {
-  private windows: WindowController = new WindowController()
+  private windows: WindowController = new WindowController(this.getUIContext())
 
   build() {
     Column() {
@@ -29,12 +29,12 @@ struct WindowPage {
 
           Button($r('app.string.set_preferred_orientation'))
             .fancy(() => {
-              this.windows.setPreferredOrientation(getContext(this))
+              this.windows.setPreferredOrientation(this.getUIContext().getHostContext()!)
             })
 
           Button($r('app.string.get_top_window'))
             .fancy(() => {
-              this.windows.getTopWindow(getContext(this))
+              this.windows.getTopWindow(this.getUIContext().getHostContext()!)
             })
         }
         .width('100%')

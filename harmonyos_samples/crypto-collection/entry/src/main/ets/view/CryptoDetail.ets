@@ -34,13 +34,13 @@ export struct CryptoDetail {
   @State cryptoItem: CryptoItem =
     new CryptoItem($r('app.string.empty'), $r('app.string.empty'), $r('app.string.empty'), '');
   @State original: string = '';
-  @State encrypt: string = getResourceString($r('app.string.encrypted_text'), this);
+  @State encrypt: string = getResourceString($r('app.string.encrypted_text'), this.getUIContext());
   @State isCrypto: boolean = false;
-  @State decrypt: string | Resource = getResourceString($r('app.string.decrypted_text'), this);
+  @State decrypt: string | Resource = getResourceString($r('app.string.decrypted_text'), this.getUIContext());
   @State pk: string =
     '04F848A2FC3CAAEE6976100EA9C33D3AC91CACC33B68D03C2EFDB99CDDC203AAFE977071F34339A9CB8C0E0CD3A93D18E839D4E6469581B6F5A666A34C0B8EFD1B';
   @State sk: string = '0575D0ECB625C99672FE860B777CC1DD547057B903C2D4033D21DC016D3838AF';
-  @State encryptTextJava: string = getResourceString($r('app.string.encrypted_text'), this);
+  @State encryptTextJava: string = getResourceString($r('app.string.encrypted_text'), this.getUIContext());
   private cipherParam: string = '';
   private gcmParamsSpec?: cryptoFramework.GcmParamsSpec;
   private ivParamsSpec?: cryptoFramework.IvParamsSpec;
@@ -56,8 +56,8 @@ export struct CryptoDetail {
     NavDestination() {
       Scroll() {
         Column() {
-          if (getResourceString(this.cryptoItem.name, this) ===
-            getResourceString($r('app.string.format_conversion'), this)) {
+          if (getResourceString(this.cryptoItem.name, this.getUIContext()) ===
+            getResourceString($r('app.string.format_conversion'), this.getUIContext())) {
             Row() {
               Text($r('app.string.private_key'))
                 .fontSize($r('app.float.count_size'))
@@ -237,8 +237,8 @@ export struct CryptoDetail {
                     160,
                     10, 6, 8, 42, 129, 28, 207, 85, 1, 130, 45]);
                 // Public key, private key u8 type
-                if (getResourceString(this.cryptoItem.name, this) ===
-                  getResourceString($r('app.string.format_conversion'), this)) {
+                if (getResourceString(this.cryptoItem.name, this.getUIContext()) ===
+                  getResourceString($r('app.string.format_conversion'), this.getUIContext())) {
                   // Public key conversion to SM2 key.
                   let pksData = await DataConversion.convertStrToPubKey(this.pk)
                   // Private key conversion to SM2 key.
@@ -257,7 +257,7 @@ export struct CryptoDetail {
                 let encryptText = await CryptoUtil.encryptPublicKeyMessagePromise(this.cipherParam, this.keyPair.pubKey,
                   plainText);
                 this.encryptTextJava =
-                  new DataConversion().d2i_SM2_Ciphertext(buffer.from(encryptText.data).toString('hex'))
+                  new DataConversion(this.getUIContext()).d2i_SM2_Ciphertext(buffer.from(encryptText.data).toString('hex'))
                 let base = new util.Base64Helper();
                 let encodeString = base.encodeToStringSync(encryptText.data);
                 this.encrypt = encodeString;
@@ -293,8 +293,8 @@ export struct CryptoDetail {
           .width(CommonConstants.FULL_PERCENT)
           .justifyContent(FlexAlign.Start)
 
-          if (getResourceString(this.cryptoItem.name, this) ===
-            getResourceString($r('app.string.format_conversion'), this)) {
+          if (getResourceString(this.cryptoItem.name, this.getUIContext()) ===
+            getResourceString($r('app.string.format_conversion'), this.getUIContext())) {
             Row() {
               Text($r('app.string.ASN_1'))
                 .fontSize($r('app.float.count_size'))
@@ -330,8 +330,8 @@ export struct CryptoDetail {
             bottom: $r('app.float.small_padding')
           })
 
-          if (getResourceString(this.cryptoItem.name, this) ===
-            getResourceString($r('app.string.format_conversion'), this)) {
+          if (getResourceString(this.cryptoItem.name, this.getUIContext()) ===
+            getResourceString($r('app.string.format_conversion'), this.getUIContext())) {
             Row() {
               Text($r('app.string.naked_ciphertext'))
                 .fontSize($r('app.float.count_size'))
@@ -501,13 +501,13 @@ export struct CryptoDetail {
           right: $r('app.float.medium_padding')
         })
       }
-      .align(getResourceString(this.cryptoItem.name, this) ===
-        getResourceString($r('app.string.format_conversion'), this) ? Alignment.TopStart : Alignment.Center)
-      .height(getResourceString(this.cryptoItem.name, this) ===
-        getResourceString($r('app.string.format_conversion'), this) ? '100%' : '90%')
+      .align(getResourceString(this.cryptoItem.name, this.getUIContext()) ===
+        getResourceString($r('app.string.format_conversion'), this.getUIContext()) ? Alignment.TopStart : Alignment.Center)
+      .height(getResourceString(this.cryptoItem.name, this.getUIContext()) ===
+        getResourceString($r('app.string.format_conversion'), this.getUIContext()) ? '100%' : '90%')
     }
     .padding({ bottom: 16 })
-    .title(getResourceString(this.cryptoItem.name, this))
+    .title(getResourceString(this.cryptoItem.name, this.getUIContext()))
     .backgroundColor($r('app.color.background_page'))
   }
 }

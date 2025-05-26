@@ -20,6 +20,8 @@ export default struct TitleBar {
   private title: string | Resource = $r('app.string.app_name')
   private hasBackPress: boolean = false
 
+  UIContext = this.getUIContext();
+
   build() {
     Row() {
       if (this.hasBackPress) {
@@ -33,7 +35,7 @@ export default struct TitleBar {
         .aspectRatio(1)
         .margin({ left: 24 })
         .onClick(() => {
-          router.back();
+          this.UIContext.getRouter().back();
         })
       }
       Text(this.title)

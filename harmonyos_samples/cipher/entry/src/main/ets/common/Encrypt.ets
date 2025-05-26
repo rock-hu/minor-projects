@@ -60,7 +60,7 @@ export struct Encrypt {
             .id('encryptionBtn')
             .onClick(() => {
               if (this.message === '') {
-                promptAction.showToast({
+                this.getUIContext().getPromptAction().showToast({
                   message: 'This message is null.'
                 })
               } else {

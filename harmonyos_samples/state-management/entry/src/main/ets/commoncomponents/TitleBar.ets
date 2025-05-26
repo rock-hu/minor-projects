@@ -13,12 +13,9 @@
  * limitations under the License.
  */
 
-import {router} from '@kit.ArkUI';
+import { router } from '@kit.ArkUI';
 import { common } from '@kit.AbilityKit';
 import { startSpecifiedAbility } from '../utils/StartAbilityUtils';
-
-// Declare a context information.
-const CONTEXT: common.UIAbilityContext = getContext(this) as common.UIAbilityContext;
 
 @Component
 export struct TitleBar {
@@ -35,7 +32,9 @@ export struct TitleBar {
         .backgroundColor($r('app.color.background_shallow_grey'))
         .id('titleBar')
         .onClick(() => {
-          this.isAbility ? startSpecifiedAbility(CONTEXT, 'EntryAbility') : router.back();
+          this.isAbility ?
+          startSpecifiedAbility(this.getUIContext().getHostContext() as common.UIAbilityContext, 'EntryAbility') :
+          this.getUIContext().getRouter().back();
         })
 
         Text(this.title)

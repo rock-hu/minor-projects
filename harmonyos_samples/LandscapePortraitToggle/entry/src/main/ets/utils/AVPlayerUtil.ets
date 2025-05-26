@@ -22,6 +22,11 @@ export class AVPlayerUtil {
   private avPlayer: media.AVPlayer | undefined = undefined;
   private callBack: Function = () => {
   };
+  private UIContext: UIContext
+
+  constructor(UIContext: UIContext) {
+    this.UIContext = UIContext
+  }
 
   setSurfaceId(surfaceId: string) {
     this.surfaceId = surfaceId;
@@ -77,7 +82,7 @@ export class AVPlayerUtil {
     this.callBack = callBack;
     this.setAVPlayerCallback(this.avPlayer);
 
-    let context = getContext(this) as common.UIAbilityContext;
+    let context = this.UIContext.getHostContext() as common.UIAbilityContext;
     let fileDescriptor = await context.resourceManager.getRawFd(url);
     let avFileDescriptor: media.AVFileDescriptor =
       { fd: fileDescriptor.fd, offset: fileDescriptor.offset, length: fileDescriptor.length };

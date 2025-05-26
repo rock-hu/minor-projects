@@ -31,7 +31,7 @@ export struct TopArea {
             .width($r('app.integer.cancel_icon_size'))
             .height($r('app.integer.cancel_icon_size'))
             .onClick(() => {
-              let context = getContext() as common.UIAbilityContext;
+              let context = this.getUIContext().getHostContext() as common.UIAbilityContext;
               context.terminateSelf();
             })
         }
@@ -54,7 +54,7 @@ export struct TopArea {
           .width($r('app.integer.cancel_icon_size'))
           .height($r('app.integer.cancel_icon_size'))
           .onClick(() => {
-            promptAction.showToast({ message: $r('app.string.trigger_event') });
+            this.getUIContext().getPromptAction().showToast({ message: $r('app.string.trigger_event') });
           })
       }
       .justifyContent(FlexAlign.Center)

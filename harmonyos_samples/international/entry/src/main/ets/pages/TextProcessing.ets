@@ -41,8 +41,11 @@ struct TextProcessing {
   @State areaTextValue: string = '';
   @State areaTextResult: string[] = [];
   @State textTypes: Array<string> = [];
+
+  UIContext = this.getUIContext();
+
   private breakIterator = i18n.getLineInstance(LOCALE);
-  private context: common.UIAbilityContext = getContext(this) as common.UIAbilityContext;
+  private context: common.UIAbilityContext = this.UIContext.getHostContext() as common.UIAbilityContext;
 
   async aboutToAppear() {
     this.textTypes = await ResourceUtil.getStringArray($r('app.strarray.text_type_arr').id, this.context);

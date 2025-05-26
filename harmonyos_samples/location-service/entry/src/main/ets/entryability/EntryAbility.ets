@@ -45,7 +45,6 @@ export default class EntryAbility extends UIAbility {
   onWindowStageCreate(windowStage: window.WindowStage): void {
     // Main window is created, set main page for this ability
     hilog.info(0x0000, TAG, `EntryAbility onWindowStageCreate`);
-
     windowStage.getMainWindow((err, windowClass: window.Window) => {
       if (err.code) {
         hilog.error(0x0000, TAG, `Failed to obtain the main window. Code:${err.code}, message:${err.message}`);
@@ -55,11 +54,14 @@ export default class EntryAbility extends UIAbility {
     });
 
     windowStage.loadContent('pages/Index', (err) => {
+      AppStorage.setOrCreate('uiContext', windowStage.getMainWindowSync().getUIContext());
       if (err.code) {
         hilog.error(0x0000, 'testTag', 'Failed to load the content. Cause: %{public}s', JSON.stringify(err) ?? '');
         return;
       }
       hilog.info(0x0000, 'testTag', 'Succeeded in loading the content.');
+      let uiContext:  UIContext | undefined = windowStage.getMainWindowSync().getUIContext()
+      AppStorage.setOrCreate('uiContext', uiContext);
     });
     let windowClass: window.Window = windowStage.getMainWindowSync();
 

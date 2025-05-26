@@ -58,7 +58,7 @@ struct ListDialogSample {
             Button($r('app.string.alert_dialog_top'))
               .buttonStyle(0)
               .onClick(() => {
-                ActionSheet.show(
+                this.getUIContext().showActionSheet(
                   {
                     title: $r('app.string.alert_dialog_prompt'),
                     message: $r('app.string.alert_dialog_top'),
@@ -99,7 +99,7 @@ struct ListDialogSample {
             Button($r('app.string.alert_dialog_center'))
               .buttonStyle(0)
               .onClick(() => {
-                ActionSheet.show(
+                this.getUIContext().showActionSheet(
                   {
                     title: $r('app.string.alert_dialog_prompt'),
                     message: $r('app.string.alert_dialog_center'),
@@ -140,7 +140,7 @@ struct ListDialogSample {
             Button($r('app.string.alert_dialog_bottom'))
               .buttonStyle(0)
               .onClick(() => {
-                ActionSheet.show(
+                this.getUIContext().showActionSheet(
                   {
                     title: $r('app.string.alert_dialog_prompt'),
                     message: $r('app.string.alert_dialog_bottom'),
@@ -186,7 +186,7 @@ struct ListDialogSample {
             Button($r('app.string.alert_dialog_true'))
               .buttonStyle(0)
               .onClick(() => {
-                ActionSheet.show(
+                this.getUIContext().showActionSheet(
                   {
                     title: $r('app.string.alert_dialog_prompt'),
                     message: $r('app.string.alert_dialog_true'),
@@ -227,7 +227,7 @@ struct ListDialogSample {
             Button($r('app.string.alert_dialog_false'))
               .buttonStyle(0)
               .onClick(() => {
-                ActionSheet.show(
+                this.getUIContext().showActionSheet(
                   {
                     title: $r('app.string.alert_dialog_prompt'),
                     message: $r('app.string.alert_dialog_false'),
@@ -273,7 +273,7 @@ struct ListDialogSample {
             Button($r('app.string.alert_dialog_left'))
               .buttonStyle(0)
               .onClick(() => {
-                ActionSheet.show(
+                this.getUIContext().showActionSheet(
                   {
                     title: $r('app.string.alert_dialog_prompt'),
                     message: $r('app.string.alert_dialog_left'),
@@ -315,7 +315,7 @@ struct ListDialogSample {
             Button($r('app.string.alert_dialog_right'))
               .buttonStyle(0)
               .onClick(() => {
-                ActionSheet.show(
+                this.getUIContext().showActionSheet(
                   {
                     title: $r('app.string.alert_dialog_prompt'),
                     message: $r('app.string.alert_dialog_right'),
@@ -361,7 +361,7 @@ struct ListDialogSample {
             Button($r('app.string.action_sheet_dialog_click_content'))
               .buttonStyle(0)
               .onClick(() => {
-                ActionSheet.show(
+                this.getUIContext().showActionSheet(
                   {
                     title: $r('app.string.alert_dialog_prompt'),
                     message: $r('app.string.action_sheet_dialog_click_content'),
@@ -415,7 +415,7 @@ struct ListDialogSample {
                 .buttonStyle(0)
                 .onClick(() => {
                   this.mTextInputController.setTextSelection(1, 2)
-                  ActionSheet.show(
+                  this.getUIContext().showActionSheet(
                     {
                       title: $r('app.string.alert_dialog_prompt'),
                       message: $r('app.string.alert_dialog_bottom'),

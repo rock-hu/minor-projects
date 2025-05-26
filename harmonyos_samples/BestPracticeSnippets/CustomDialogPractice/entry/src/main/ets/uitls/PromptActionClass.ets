@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-// DocsCode 1
+// [Start PromptActionClass_start]
 import { BusinessError } from '@kit.BasicServicesKit';
 import { ComponentContent, promptAction } from '@kit.ArkUI';
 import { UIContext } from '@ohos.arkui.UIContext';
 import { hilog } from '@kit.PerformanceAnalysisKit';
-
+const uiContext: UIContext | undefined = AppStorage.get('uiContext');
 export class PromptActionClass {
   static ctx: UIContext;
   static contentNode: ComponentContent<Object>;
@@ -38,7 +38,7 @@ export class PromptActionClass {
 
   static openDialog() {
     if (PromptActionClass.contentNode !== null) {
-      PromptActionClass.ctx.getPromptAction()
+      uiContext!.getPromptAction()
         .openCustomDialog(PromptActionClass.contentNode, PromptActionClass.options)
         .then(() => {
           hilog.info(0x0000, 'testTag', 'OpenCustomDialog complete.');
@@ -53,7 +53,7 @@ export class PromptActionClass {
 
   static closeDialog() {
     if (PromptActionClass.contentNode !== null) {
-      PromptActionClass.ctx.getPromptAction()
+      uiContext!.getPromptAction()
         .closeCustomDialog(PromptActionClass.contentNode)
         .then(() => {
           hilog.info(0x0000, 'testTag', 'CloseCustomDialog complete.');
@@ -66,5 +66,4 @@ export class PromptActionClass {
     }
   }
 }
-
-// DocsCode 1
+// [End PromptActionClass_start]

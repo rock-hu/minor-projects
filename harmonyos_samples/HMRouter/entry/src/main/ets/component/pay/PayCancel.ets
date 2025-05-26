@@ -13,37 +13,47 @@
  *   limitations under the License.
  */
 
+/**
+ * 最佳实践：基于HMRouter路由框架的页面跳转开发实践
+ */
+
 import { HMRouter, HMRouterMgr } from '@hadss/hmrouter';
 import { PageConstant } from '../../constant/PageConstant';
 import { ConfirmDialog } from '../common/ConfirmDialog';
 import { PayConstants } from '../common/constants/PayConstants'
 
+// [Start HMRouter_confirmDialog]
 @HMRouter({pageUrl: PageConstant.PAY_CANCEL, dialog: true})
 @Component
 export struct PayCancel {
+  // [StartExclude HMRouter_confirmDialog]
   pageUrl: string = '';
 
   aboutToAppear(): void {
     let pageUrl = HMRouterMgr.getCurrentParam() as string;
     this.pageUrl = pageUrl;
   }
-
+  // [EndExclude HMRouter_confirmDialog]
   build() {
     Stack({alignContent: Alignment.Center}) {
+      // [StartExclude HMRouter_confirmDialog]
       Column()
         .width('100%')
         .height('100%')
         .backgroundColor('rgba(0,0,0,0.5)')
         .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM]);
+      // [EndExclude HMRouter_confirmDialog]
       ConfirmDialog({
-        title: PayConstants.PAY_CANCEL_TITLE,
-        content: PayConstants.PAY_CANCEL_CONTENT,
-        leftButtonName: PayConstants.PAY_CANCEL_BUTTON1,
-        rightButtonName: PayConstants.PAY_CANCEL_BUTTON2,
+        title: '取消订单',
+        content:'您确认要取消此订单吗?',
+        leftButtonName: '再看看',
+        rightButtonName: '取消订单',
         leftButtonFunc: () => {
+          // [StartExclude HMRouter_confirmDialog]
           HMRouterMgr.pop({
             navigationId: this.queryNavigationInfo()?.navigationId
           });
+          // [EndExclude HMRouter_confirmDialog]
         },
         rightButtonFunc: () => {
           let pathStack = HMRouterMgr.getPathStack(this.queryNavigationInfo()?.navigationId!);
@@ -63,3 +73,4 @@ export struct PayCancel {
     .height('100%');
   }
 }
+// [End HMRouter_confirmDialog]

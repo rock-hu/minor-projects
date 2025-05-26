@@ -33,7 +33,7 @@ export struct BottomToolbar {
   @Link isShowLocalInfo: boolean;
   @Link isKeyboard: boolean;
   @Link isShowToolbar: boolean;
-  private context: common.UIAbilityContext = getContext(this) as common.UIAbilityContext;
+  private context: common.UIAbilityContext = this.getUIContext().getHostContext() as common.UIAbilityContext;
   private latitude: number = 0;
   private longitude: number = 0;
   private locale: string = new intl.Locale().language;
@@ -113,7 +113,7 @@ export struct BottomToolbar {
   getResourceString(resource: Resource): string {
     let resourceString: string = '';
     try {
-      resourceString = getContext(this).resourceManager.getStringSync(resource.id);
+      resourceString = this.getUIContext().getHostContext()!.resourceManager.getStringSync(resource.id);
     } catch (error) {
       hilog.error(0x0000, '[BottomToolbar]', 'getResourceString err:' + JSON.stringify(error));
     }
@@ -237,7 +237,7 @@ export struct BottomToolbar {
           .margin({ right: $r('app.integer.comm_padding_margin') })
           .objectFit(ImageFit.Cover)
           .onClick(() => {
-            promptAction.showToast({ message: $r('app.string.trigger_event') });
+            this.getUIContext().getPromptAction().showToast({ message: $r('app.string.trigger_event') });
           })
         Image(this.isKeyboard ? $r('app.media.ic_symbol2') : $r('app.media.ic_public_keyboard'))
           .focusable(true)
@@ -256,7 +256,7 @@ export struct BottomToolbar {
           .margin({ right: $r('app.integer.comm_padding_margin') })
           .objectFit(ImageFit.Cover)
           .onClick(() => {
-            promptAction.showToast({ message: $r('app.string.trigger_event') });
+            this.getUIContext().getPromptAction().showToast({ message: $r('app.string.trigger_event') });
           })
         Image($r('app.media.ic_symbol4'))
           .width($r('app.integer.bottom_icon_size'))
@@ -264,7 +264,7 @@ export struct BottomToolbar {
           .margin({ right: $r('app.integer.comm_padding_margin') })
           .objectFit(ImageFit.Cover)
           .onClick(() => {
-            promptAction.showToast({ message: $r('app.string.trigger_event') });
+            this.getUIContext().getPromptAction().showToast({ message: $r('app.string.trigger_event') });
           })
       }
       .width(CommonConstants.FULL_PERCENT)

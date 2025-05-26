@@ -27,7 +27,7 @@ struct ShareElementTransitionSampleTo {
         .objectFit(ImageFit.Contain)
         .sharedTransition(`sharedImage_${this.sharedTransitionID}`)
         .onClick(() => {
-          router.back()
+          this.getUIContext().getRouter().back()
         }).id('test_back')
     }
     .padding(12)
@@ -36,7 +36,7 @@ struct ShareElementTransitionSampleTo {
   }
 
   aboutToAppear() {
-    let params: Record<string, Object> = router.getParams() as Record<string, Object>;
+    let params: Record<string, Object> = this.getUIContext().getRouter().getParams() as Record<string, Object>;
     this.image = params['image'] as Resource;
     this.sharedTransitionID = params['id'] as number;
   }

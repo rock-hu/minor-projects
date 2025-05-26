@@ -27,7 +27,7 @@ export default struct CardComponent {
   @State cardWith: number = this.cardInfo.width;
   @State cardHeight: number = this.cardInfo.height;
   @State isTablet: boolean = false;
-  @State screenW: number = px2vp(display.getDefaultDisplaySync().width);
+  @State screenW: number = this.getUIContext().px2vp(display.getDefaultDisplaySync().width);
   @State isPhotoShow: boolean = false;
   @Prop cardOffset: number = 0;
   @Prop showingCard: number = 0;
@@ -115,7 +115,7 @@ export default struct CardComponent {
   }
 
   animateFunc() {
-    animateTo({
+    this.getUIContext().animateTo({
       duration: Constants.DURATION,
       curve: Curve.Friction
     }, () => {

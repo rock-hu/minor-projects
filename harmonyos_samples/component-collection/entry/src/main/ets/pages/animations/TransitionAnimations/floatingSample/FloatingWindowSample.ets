@@ -44,8 +44,8 @@ struct FloatingWindowSample {
       this.displayHalfHeight = data[0].height / 2;
       // Convert the obtained px to vp
       Logger.info(TAG, `aboutToAppear getAllDisplays data 1 width:${this.displayHalfWidth}, height:${this.displayHalfHeight}`);
-      this.displayHalfWidth = px2vp(this.displayHalfWidth);
-      this.displayHalfHeight = px2vp(this.displayHalfHeight);
+      this.displayHalfWidth = this.getUIContext().px2vp(this.displayHalfWidth);
+      this.displayHalfHeight = this.getUIContext().px2vp(this.displayHalfHeight);
       Logger.info(TAG, `aboutToAppear getAllDisplays data 2 width:${this.displayHalfWidth}, height:${this.displayHalfHeight}`);
     })
   }
@@ -81,7 +81,7 @@ struct FloatingWindowSample {
               Logger.info(TAG, `move ing, moveSumLengthX:${this.moveSumLengthX}, moveSumLengthY:${this.moveSumLengthY}`);
 
               // Hand-following process, using responsiveSpringMotion curve
-              animateTo({ curve: curves.responsiveSpringMotion() }, () => {
+              this.getUIContext().animateTo({ curve: curves.responsiveSpringMotion() }, () => {
                 // Subtract the radius to move the center of the ball to the finger position
                 this.positionX = event.touches[0].windowX - this.diameter / 2;
                 this.positionY = event.touches[0].windowY - this.diameter / 2 - 120;
@@ -100,7 +100,7 @@ struct FloatingWindowSample {
               Logger.info(TAG, `moveEnd, s:${s}, t:${t}, v:${v}`);
 
               // When leaving the hand, use the springMotion curve and assign the moving speed to the leaving speed
-              animateTo({ curve: curves.springMotion(), tempo: v }, () => {
+              this.getUIContext().animateTo({ curve: curves.springMotion(), tempo: v }, () => {
                 if (this.positionX >= this.displayHalfWidth) {
                   // If you scroll to the right, it will be positioned to the right side of the screen minus its own width 80, and then minus 10 to leave a gap
                   this.positionX = this.displayHalfWidth * 2 - 90;

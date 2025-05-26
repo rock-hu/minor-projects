@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+// [Start tabs_error]
 @Entry
 @Component
 struct TabsContainer {
@@ -109,3 +110,4 @@ struct TabsContainer {
     .width('100%')
   }
 }
+// [End tabs_error]

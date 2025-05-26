@@ -107,7 +107,7 @@ struct PositiveOfGrid {
 struct ReusableChildComponent {
   @State item: number = 0;
 
-  // DocsCode 1
+  // [Start positive_of_grid]
   // ...
   aboutToReuse(params: Record<string, number>): void {
     hiTraceMeter.startTrace('ReuseOfGrid', 1001);
@@ -116,7 +116,7 @@ struct ReusableChildComponent {
   }
 
   // ...
-  // DocsCode 1
+  // [End no_redundant_operation]
 
   build() {
     Column() {

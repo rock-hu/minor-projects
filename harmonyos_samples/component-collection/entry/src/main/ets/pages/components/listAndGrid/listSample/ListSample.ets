@@ -99,7 +99,7 @@ struct ListSample {
       // Status bar
       IntroductionTitle({ introduction: $r('app.string.list_introduction_state') })
       Column() {
-        Text(getContext(this).resourceManager.getStringSync($r('app.string.status_bar_desc1')) + String(this.initIndex) + getContext(this).resourceManager.getStringSync($r('app.string.status_bar_desc2')))
+        Text(this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.status_bar_desc1')) + String(this.initIndex) + this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.status_bar_desc2')))
           .textAlign(TextAlign.Center)
           .fontColor(Color.Red)
       }

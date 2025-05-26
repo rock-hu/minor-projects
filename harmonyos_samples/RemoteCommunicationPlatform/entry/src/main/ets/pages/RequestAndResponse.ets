@@ -25,7 +25,7 @@ export function RequestAndResponseBuilder() {
   RequestAndResponse()
 }
 
-// DocsCode 8
+// [Start create_session]
 const cache = new ResponseCache();
 const sessionConfig: rcp.SessionConfiguration = {
   interceptors: [
@@ -42,8 +42,7 @@ const sessionConfig: rcp.SessionConfiguration = {
 };
 
 const session = rcp.createSession(sessionConfig);
-
-// DocsCode 8
+// [End create_session]
 
 @Component
 export struct RequestAndResponse {
@@ -52,7 +51,7 @@ export struct RequestAndResponse {
   @State requestUrl: url.URL | string = '';
   @State url: string = '';
   @StorageLink('ReplacedInfo') storageLink: string = '';
-  private readonly pathToImage: string = getContext().filesDir + '/panda.jpg';
+  private readonly pathToImage: string = this.getUIContext().getHostContext()!.filesDir + '/panda.jpg';
   private simulateSlowNetwork: boolean = false;
 
   private async getImage() {

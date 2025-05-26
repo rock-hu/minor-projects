@@ -26,69 +26,65 @@ export struct WiFiQuery {
   @State text: ResourceStr = '';
   @State textArea: string = '';
 
-  // DocsCode 1
+  // [Start get_wifi_status]
   getWifiStatus() {
     try {
       let isWifiActive = wifiManager.isWifiActive();
       hilog.info(0x0000, 'Sample', 'isWifiActive: %{public}s', isWifiActive);
-      // DocsDot
+      // [StartExclude get_wifi_status]
       this.textArea = 'isWifiActive:' + isWifiActive;
-      // DocsDot
+      // [EndExclude get_wifi_status]
     } catch (error) {
       hilog.error(0x0000, 'Sample', 'failed: err->: %{public}s', JSON.stringify(error));
     }
   }
+  // [End get_wifi_status]
 
-  // DocsCode 1
-
-  // DocsCode 2
+  // [Start get_wifi_is_connected]
   getWifiIsConnected() {
     try {
       let ret = wifiManager.isConnected();
       hilog.info(0x0000, 'Sample', 'isConnected: %{public}s', ret);
-      // DocsDot
+      // [StartExclude get_wifi_is_connected]
       this.textArea = 'isConnected:' + ret;
-      // DocsDot
+      // [EndExclude get_wifi_is_connected]
     } catch (error) {
       hilog.error(0x0000, 'Sample', 'failed: err->: %{public}s', JSON.stringify(error));
     }
   }
+  // [End get_wifi_is_connected]
 
-  // DocsCode 2
-
-  // DocsCode 3
+  // [Start get_scan_info_list]
   getScanInfoList() {
     try {
       let scanInfoList = wifiManager.getScanInfoList();
       hilog.info(0x0000, 'Sample', 'scanInfoList: %{public}s', JSON.stringify(scanInfoList));
-      // DocsDot
+      // [StartExclude get_scan_info_list]
       this.textArea = 'scanInfoList:' + JSON.stringify(scanInfoList);
-      // DocsDot
+      // [EndExclude get_scan_info_list]
     } catch (error) {
       hilog.error(0x0000, 'Sample', 'failed: err->: %{public}s', JSON.stringify(error));
     }
   }
+  // [End get_scan_info_list]
 
-  // DocsCode 3
-
-  // DocsCode 4
+  // [Start get_signal_level]
   getSignalLevel() {
     try {
       let rssi = 0;
       let band = 0;
       let level = wifiManager.getSignalLevel(rssi, band);
       hilog.info(0x0000, 'Sample', 'level: %{public}s', JSON.stringify(level));
-      // DocsDot
+      // [StartExclude get_signal_level]
       this.textArea = 'level:' + JSON.stringify(level);
-      // DocsDot
+      // [EndExclude get_signal_level]
     } catch (error) {
       hilog.error(0x0000, 'Sample', 'failed: err->: %{public}s', JSON.stringify(error));
     }
   }
+  // [End get_signal_level]
 
-  // DocsCode 4
-
-  // DocsCode 5
+  // [Start add_candidate_config]
   addCandidateConfig() {
     try {
       let config: wifiManager.WifiDeviceConfig = {
@@ -101,15 +97,14 @@ export struct WiFiQuery {
       }).catch((err: number) => {
         hilog.error(0x0000, 'Sample', 'failed: err->: %{public}s', JSON.stringify(err));
       });
-      // DocsDot
+      // [StartExclude add_candidate_config]
       this.textArea = JSON.stringify(config);
-      // DocsDot
+      // [EndExclude add_candidate_config]
     } catch (error) {
       hilog.error(0x0000, 'Sample', 'failed: err->: %{public}s', JSON.stringify(error));
     }
   }
-
-  // DocsCode 5
+  // [End add_candidate_config]
 
   @Builder
   NavDestinationTitle() {

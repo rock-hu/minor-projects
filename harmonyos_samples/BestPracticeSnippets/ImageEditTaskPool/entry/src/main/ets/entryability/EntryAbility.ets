@@ -62,11 +62,6 @@ export default class EntryAbility extends UIAbility {
         `Failed to set the system bar properties. Cause code: ${err.code}, message: ${err.message}`);
     });
 
-    let navigationBarArea: window.AvoidArea =
-      windowClass.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR);
-    let area: window.AvoidArea = windowClass.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);
-    AppStorage.setOrCreate<number>('naviIndicatorHeight', px2vp(navigationBarArea.bottomRect.height));
-    AppStorage.setOrCreate<number>('statusBarHeight', px2vp(area.topRect.height));
 
     windowStage.loadContent('pages/HomePage', (err, data) => {
       if (err.code) {
@@ -74,6 +69,12 @@ export default class EntryAbility extends UIAbility {
           JSON.stringify(err) ?? '');
         return;
       }
+      const uiContext = windowClass.getUIContext();
+      let navigationBarArea: window.AvoidArea =
+        windowClass.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR);
+      let area: window.AvoidArea = windowClass.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);
+      AppStorage.setOrCreate<number>('naviIndicatorHeight', uiContext.px2vp(navigationBarArea.bottomRect.height));
+      AppStorage.setOrCreate<number>('statusBarHeight', uiContext.px2vp(area.topRect.height));
       hilog.info(0x0000, TAG, 'Succeeded in loading the content. Data: %{public}s',
         JSON.stringify(data) ?? '');
     });

@@ -95,8 +95,8 @@ export struct PageOne {
       Column() {
         if (this.isShowStridePixel) {
           Image(this.stridePixel)
-            .width(px2vp(this.imageWidth))
-            .height(px2vp(this.imageHeight))
+            .width(this.getUIContext().px2vp(this.imageWidth))
+            .height(this.getUIContext().px2vp(this.imageHeight))
             .margin({ top: 150 })
             .rotate({
               z: 0.5,

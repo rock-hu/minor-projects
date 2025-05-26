@@ -16,7 +16,7 @@
 import { router } from '@kit.ArkUI';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
-// DocsCode 1
+// [Start conditional_rendering]
 @Entry
 @Component
 struct MyComponent {
@@ -42,7 +42,7 @@ struct MyComponent {
           });
         })
 
-        Text($r('app.string.conditional_rendering'))
+        Text('Conditional rendering')
           .fontSize(20)
           .fontWeight(700)
           .height(26)
@@ -127,4 +127,4 @@ struct CustomComponentB {
   }
 }
 
-// DocsCode 1
+// [End conditional_rendering]

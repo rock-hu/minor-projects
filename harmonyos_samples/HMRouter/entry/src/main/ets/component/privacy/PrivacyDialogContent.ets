@@ -13,15 +13,22 @@
  *   limitations under the License.
  */
 
+/**
+ * 最佳实践：基于HMRouter路由框架的页面跳转开发实践
+ */
+
 import { HMRouter, HMRouterMgr } from '@hadss/hmrouter';
 import { PageConstant } from '../../constant/PageConstant';
 
 /**
  * privacy background
  */
+
+// [Start HMRouter_dialog]
 @HMRouter({pageUrl: PageConstant.PRIVACY_DIALOG, dialog: true})
 @Component
 export struct PrivacyDialogContent {
+  // [StartExclude HMRouter_dialog]
   scroller: Scroller = new Scroller();
 
   aboutToAppear(): void {
@@ -39,4 +46,6 @@ export struct PrivacyDialogContent {
         .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM]);
     };
   }
+  // [EndExclude HMRouter_dialog]
 }
+// [End HMRouter_dialog]

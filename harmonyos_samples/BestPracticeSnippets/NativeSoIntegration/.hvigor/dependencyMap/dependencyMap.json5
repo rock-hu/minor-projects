@@ -1,0 +1,1 @@
+{"basePath":"D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\.hvigor\\dependencyMap\\dependencyMap.json5","rootDependency":"./oh-package.json5","dependencyMap":{"entry":"./entry/oh-package.json5","Multiply":"./Multiply/oh-package.json5"},"modules":[{"name":"entry","srcPath":"..\\..\\..\\entry"},{"name":"Multiply","srcPath":"..\\..\\..\\Multiply"}]}

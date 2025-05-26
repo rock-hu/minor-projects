@@ -1,5 +1,7 @@
+// [Start approximately_location]
 {
   "module": {
+    // [StartExclude approximately_location]
     "name": "entry",
     "type": "entry",
     "description": "$string:module_desc",
@@ -48,6 +50,7 @@
         ]
       }
     ],
+    // [EndExclude approximately_location]
     "requestPermissions": [
       {
         "name": "ohos.permission.APPROXIMATELY_LOCATION",
@@ -59,6 +62,7 @@
           "when": "always"
         }
       },
+      // [StartExclude approximately_location]
       {
         "name": "ohos.permission.CAMERA",
         "reason": "$string:camera_reason",
@@ -69,6 +73,8 @@
           "when": "always"
         }
       }
+      // [EndExclude approximately_location]
     ]
   }
 }
+// [End approximately_location]

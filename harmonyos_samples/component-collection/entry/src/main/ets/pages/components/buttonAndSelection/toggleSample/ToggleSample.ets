@@ -31,7 +31,7 @@ struct ToggleSample {
   @State testIndexId: string = 'testIndexId';
   @State isNormalSelect: boolean = false;
   @State isCustomSelect: boolean = true;
-  private context: Context = getContext(this);
+  private context: Context = this.getUIContext().getHostContext()!;
   private toggleState: string = this.context.resourceManager.getStringSync($r('app.string.toggle_state').id);
 
   build() {

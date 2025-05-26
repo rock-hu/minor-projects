@@ -20,7 +20,7 @@ import { PublicTitleBar } from './component/PublicTitleBar'
 @Entry
 @Component
 struct AbilityAccessCtrlPage {
-  private abilityAccessCtrl: AbilityAccessCtrlController = new AbilityAccessCtrlController()
+  private abilityAccessCtrl: AbilityAccessCtrlController = new AbilityAccessCtrlController(this.getUIContext())
 
   build() {
     Column() {

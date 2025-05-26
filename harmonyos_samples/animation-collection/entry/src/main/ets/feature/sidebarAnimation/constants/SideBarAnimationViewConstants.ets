@@ -1,3 +1,5 @@
+import { common } from "@kit.AbilityKit";
+
 /*
  * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,6 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+const context = AppStorage.get("context") as UIContext;
 
 export class SideBarAnimationViewConstants {
   /**
@@ -165,6 +169,6 @@ export class SideBarAnimationViewConstants {
   static readonly GROUP_NAME: string = this.ResourceToString($r('app.string.group_name'));
 
   static ResourceToString(resource:Resource):string{
-    return getContext(resource).resourceManager.getStringSync(resource)
+    return context.getHostContext()!.resourceManager.getStringSync(resource)
   }
 }

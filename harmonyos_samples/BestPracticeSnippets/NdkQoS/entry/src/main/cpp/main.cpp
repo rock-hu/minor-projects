@@ -33,7 +33,7 @@ static double g_durationTime = 0; // Calculate task time consumption
 static int g_mask = 2; // bind cpu
 static int *g_affinity = &g_mask;
 
-// DocsCode2
+// [Start do_fid]
 // Perform Fibonacci sequence calculations
 long long DoFib(double n) {
     if (n == ONE) {
@@ -99,10 +99,9 @@ void SetQoS(QoS_Level level) {
         return;
     }
 }
+// [End do_fid]
 
-// DocsCode2
-
-// DocsCode1
+// [Start add_loads]
 // the Load task
 void AddLoads(int n) {
     if (!n) {
@@ -134,9 +133,9 @@ void AddLoads(int n) {
     // reset load flag
     g_addLoad = false;
 }
-// DocsCode1
+// [End add_loads]
 
-// DocsCode4
+// [Start high_qos_calculate]
 static napi_value highQoSCalculate(napi_env env, napi_callback_info info) {
     g_durationTime = 0;
     // Simulate system load
@@ -159,9 +158,9 @@ static napi_value highQoSCalculate(napi_env env, napi_callback_info info) {
     napi_create_double(env, g_durationTime, &res);
     return res;
 }
-// DocsCode4
+// [End high_qos_calculate]
 
-// DocsCode3
+// [Start low_qos_calculate]
 static napi_value lowQoSCalculate(napi_env env, napi_callback_info info) {
     g_durationTime = 0;
     // Simulate system load
@@ -185,7 +184,7 @@ static napi_value lowQoSCalculate(napi_env env, napi_callback_info info) {
     napi_create_double(env, g_durationTime, &res);
     return res;
 }
-// DocsCode3
+// [End low_qos_calculate]
 
 EXTERN_C_START
 static napi_value Init(napi_env env, napi_value exports) {

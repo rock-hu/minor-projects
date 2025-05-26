@@ -176,7 +176,7 @@ export struct Sign {
                 .backgroundColor('#007DFF')
                 .onClick(() => {
                   if (this.textFileUri === '' || this.keyFileUri === '') {
-                    promptAction.showToast({
+                    this.getUIContext().getPromptAction().showToast({
                       message: $r('app.string.null_message')
                     });
                   } else {
@@ -257,7 +257,7 @@ export struct Sign {
 
   async signFunc() {
     if (this.plainText === '' || this.keyFileUri === '') {
-      promptAction.showToast({
+      this.getUIContext().getPromptAction().showToast({
         message: $r('app.string.null_message')
       });
       return;
@@ -265,13 +265,13 @@ export struct Sign {
     try {
       this.cipherText = await this.CryptoOperation.rsaConvertAndSign(this.keyString, this.plainText);
     } catch (error) {
-      promptAction.showToast({
+      this.getUIContext().getPromptAction().showToast({
         message: $r('app.string.sign_fail')
       });
       Logger.error(TAG, `sign failed, ${error}`);
     }
     if (this.cipherText === '' || this.cipherText === null || this.cipherText === undefined) {
-      promptAction.showToast({
+      this.getUIContext().getPromptAction().showToast({
         message: $r('app.string.sign_fail')
       });
       return;
@@ -279,18 +279,18 @@ export struct Sign {
       await this.createTextFileAndWrite();
     }
     if (this.signFileUri === '' || typeof (this.signFileUri) == 'undefined') {
-      promptAction.showToast({
+      this.getUIContext().getPromptAction().showToast({
         message: $r('app.string.sign_fail')
       });
     } else {
-      promptAction.showToast({
+      this.getUIContext().getPromptAction().showToast({
         message: $r('app.string.sign_success')
       });
     }
   }
 
   async genRsaKey() {
-    promptAction.showToast({
+    this.getUIContext().getPromptAction().showToast({
       message: $r('app.string.slow_rsa_key_gen')
     });
     try {
@@ -299,7 +299,7 @@ export struct Sign {
       Logger.error(TAG, `gen rsa key failed, ${error}`);
     }
     if (this.keyString === '' || typeof (this.keyString) == 'undefined') {
-      promptAction.showToast({
+      this.getUIContext().getPromptAction().showToast({
         message: $r('app.string.gen_key_fail')
       });
       return;
@@ -311,11 +311,11 @@ export struct Sign {
       }
     }
     if (this.createKeyUri === '' || typeof (this.createKeyUri) == 'undefined') {
-      promptAction.showToast({
+      this.getUIContext().getPromptAction().showToast({
         message: $r('app.string.gen_key_fail')
       });
     } else {
-      promptAction.showToast({
+      this.getUIContext().getPromptAction().showToast({
         message: $r('app.string.gen_key_success')
       });
     }

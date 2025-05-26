@@ -39,7 +39,7 @@ struct VideoSample {
   @State videoFit: ImageFit = ImageFit.Auto;
   @State videoLoop: boolean = false;
   controller: VideoController = new VideoController();
-  private context: Context = getContext(this);
+  private context: Context = this.getUIContext().getHostContext()!;
 
   build() {
     Column() {

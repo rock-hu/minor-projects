@@ -16,7 +16,8 @@
 import Logger from '../util/Logger';
 import { BusinessError } from '@kit.BasicServicesKit';
 
-let context = getContext(this);
+const uiContext: UIContext | undefined = AppStorage.get('uiContext');
+let context = uiContext?.getHostContext()!;
 
 export function getStringArrayData(resourceArrayData: Resource[]): string[] {
   if (!resourceArrayData) {

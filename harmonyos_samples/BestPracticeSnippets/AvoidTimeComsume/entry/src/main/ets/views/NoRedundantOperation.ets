@@ -16,7 +16,7 @@
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { router } from '@kit.ArkUI';
 
-// DocsCode 1
+// [Start no_redundant_operation]
 // Redundancy operation example
 @Entry
 @Component
@@ -48,7 +48,7 @@ struct NoRedundantOperation {
           });
         })
 
-        Text($r('app.string.no_redundant_operation'))
+        Text('No redundant operations')
           .fontSize(20)
           .fontWeight(700)
           .height(26)
@@ -80,14 +80,15 @@ struct NoRedundantOperation {
       .borderRadius(20)
       .onWillScroll(() => {
         // Business logic
-        // ...
+        // [StartExclude no_redundant_operation]
         hilog.info(0x0000, 'Sample', '%{public}s', 'Empty callback');
       })
     }
     .backgroundColor('#F5F5F5')
     .height('100%')
     .padding({ left: 16, right: 16, bottom: 16 })
+    // [EndExclude no_redundant_operation]
   }
 }
 
-// DocsCode 1
+// [End no_redundant_operation]

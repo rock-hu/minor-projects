@@ -27,21 +27,21 @@ struct Index {
 
           Button($r('app.string.ability_context_page'))
             .fancy(() => {
-              router.pushUrl({
+              this.getUIContext().getRouter().pushUrl({
                 url: 'pages/AbilityContextPage'
               })
             })
 
           Button($r('app.string.ability_access_ctrl_page'))
             .fancy(() => {
-              router.pushUrl({
+              this.getUIContext().getRouter().pushUrl({
                 url: 'pages/AbilityAccessCtrlPage'
               })
             })
 
           Button($r('app.string.window_page'))
             .fancy(() => {
-              router.pushUrl({
+              this.getUIContext().getRouter().pushUrl({
                 url: 'pages/WindowPage'
               })
             })

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-// DocsCode 1
+// [Start CustomDialogNotDisappear_start]
 @Component
 export struct CustomDialogNotDisappear {
   @Consume('NavPathStack') pageStack: NavPathStack;
@@ -141,5 +141,4 @@ export struct PageOne {
     .hideTitleBar(true)
   }
 }
-
-// DocsCode 1
+// [End CustomDialogNotDisappear_start]

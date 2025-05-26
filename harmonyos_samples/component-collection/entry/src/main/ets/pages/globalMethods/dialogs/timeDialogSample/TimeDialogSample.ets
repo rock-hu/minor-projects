@@ -42,7 +42,7 @@ function rowStyle() {
 struct TimeDialogSample {
   @State fullTime: string = getStringData($r('app.string.time_picker_dialog_timeone'));
   @State halfTime: string = getStringData($r('app.string.time_picker_dialog_timeone'));
-  private context: Context = getContext(this);
+  private context: Context = this.getUIContext().getHostContext()!;
   private selectTime: Date = new Date(getStringData($r('app.string.time_picker_dialog_timetwo')));
 
   build() {
@@ -57,7 +57,7 @@ struct TimeDialogSample {
             Text(this.fullTime)
               .textStyle()
               .onClick(() => {
-                TimePickerDialog.show({
+                this.getUIContext().showTimePickerDialog({
                   selected: this.selectTime,
                   useMilitaryTime: true,
                   onAccept: (value: TimePickerResult) => {
@@ -80,7 +80,7 @@ struct TimeDialogSample {
             Text(this.halfTime)
               .textStyle()
               .onClick(() => {
-                TimePickerDialog.show({
+                this.getUIContext().showTimePickerDialog({
                   selected: this.selectTime,
                   useMilitaryTime: false,
                   onAccept: (value: TimePickerResult) => {

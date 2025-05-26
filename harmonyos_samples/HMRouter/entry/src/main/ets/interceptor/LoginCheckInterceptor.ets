@@ -13,13 +13,20 @@
  *   limitations under the License.
  */
 
+/**
+ * 最佳实践：基于HMRouter路由框架的页面跳转开发实践
+ */
+
 import { HMInterceptor, HMInterceptorAction, HMInterceptorInfo, HMRouterMgr, IHMInterceptor } from '@hadss/hmrouter';
 import { LoginConstants } from '../component/common/constants/LoginConstants';
 
+// [Start hm_interceptor]
 @HMInterceptor({interceptorName: 'LoginCheckInterceptor'})
 export class LoginCheckInterceptor implements IHMInterceptor {
   handle(info: HMInterceptorInfo): HMInterceptorAction {
+    // [StartExclude hm_interceptor]
     if(info.srcName === 'PayCard') {
+      // [EndExclude hm_interceptor]
       if(!!AppStorage.get('isLogin')) {
         return HMInterceptorAction.DO_NEXT;
       } else {
@@ -42,6 +49,9 @@ export class LoginCheckInterceptor implements IHMInterceptor {
         });
         return HMInterceptorAction.DO_REJECT;
       }
+      // [StartExclude hm_interceptor]
     }
+    // [EndExclude hm_interceptor]
   }
 }
+// [End hm_interceptor]

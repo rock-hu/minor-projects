@@ -13,6 +13,10 @@
  *   limitations under the License.
  */
 
+/**
+ * 最佳实践：基于HMRouter路由框架的页面跳转开发实践
+ */
+
 import { KeyboardAvoidMode, window } from '@kit.ArkUI';
 import {
   HMAnimator,
@@ -32,6 +36,9 @@ import { CommonConstants } from '../common/constants/CommonConstants';
 import { BreakpointType } from '../common/utils/BreakpointType';
 import { Live } from './Live';
 import { PageConstant } from '../../constant/PageConstant';
+import { CommentNodeController } from './CommentInput';
+
+const uiContext: UIContext | undefined = AppStorage.get('uiContext');
 
 @Observed
 export class VideoSrc {
@@ -41,8 +48,11 @@ export class VideoSrc {
   }
 }
 
+// [Start live_home_life_cycle]
 @HMLifecycle({lifecycleName: 'liveHomeLifecycle'})
 export class LiveHomeLifecycle implements IHMLifecycle {
+  commentRenderNode: CommentNodeController = new CommentNodeController();
+  // [StartExclude live_home_life_cycle]
   videoSrc: VideoSrc = new VideoSrc($rawfile('camera-ais.mp4'));
 
   onShown(ctx: HMLifecycleContext): void {
@@ -68,11 +78,22 @@ export class LiveHomeLifecycle implements IHMLifecycle {
       });
     });
   }
-}
+  // [EndExclude live_home_life_cycle]
+  onAppear(ctx: HMLifecycleContext): void {
+    this.commentRenderNode.makeNode(ctx.uiContext);
+  }
 
+  onDisAppear(ctx: HMLifecycleContext): void {
+    this.commentRenderNode.dispose();
+  }
+}
+// [End live_home_life_cycle]
+
+// [Start live_inter_active]
 @HMAnimator({animatorName: 'liveInteractiveAnimator'})
 export class LiveInteractiveAnimator implements IHMAnimator {
   effect(enterHandle: HMAnimatorHandle, exitHandle: HMAnimatorHandle): void {
+    // [StartExclude live_inter_active]
     enterHandle.start((translateOption: TranslateOption, scaleOption: ScaleOption,
       opacityOption: OpacityOption) => {
       translateOption.x = '100%';
@@ -104,6 +125,7 @@ export class LiveInteractiveAnimator implements IHMAnimator {
       translateOption.x = '0';
       opacityOption.opacity = 0.4;
     });
+    // [EndExclude live_inter_active]
   }
 
   interactive(handle: HMAnimatorHandle): void {
@@ -145,7 +167,9 @@ export class LiveInteractiveAnimator implements IHMAnimator {
     });
   }
 }
+// [End live_inter_active]
 
+// [Start HMRouter_singleton]
 @HMRouter({
   pageUrl: PageConstant.LIVE_HOME,
   singleton: true,
@@ -154,6 +178,7 @@ export class LiveInteractiveAnimator implements IHMAnimator {
 })
 @Component
 export struct LiveHome {
+  // [StartExclude HMRouter_singleton]
   @State isMoreDetail: boolean = false;
   @State detailType: string = CommonConstants.BIND_SHEET_PAGE_TYPES[0];
   @StorageLink('currentBreakpoint') currentBreakpoint: string = BreakpointConstants.BREAKPOINT_LG;
@@ -178,4 +203,6 @@ export struct LiveHome {
     .height('100%')
     .width('100%');
   }
+  // [EndExclude HMRouter_singleton]
 }
+// [End HMRouter_singleton]

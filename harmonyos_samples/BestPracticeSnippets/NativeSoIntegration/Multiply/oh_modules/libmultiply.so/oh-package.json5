@@ -1,0 +1,9 @@
+// DocsCode1
+// src/main/cpp/types/libmultiply/oh-package.json5
+{
+  "name": "libmultiply.so",
+  "types": "./Index.d.ts",
+  "version": "1.0.0",
+  "description": "Please describe the basic information."
+}
+// DocsCode1

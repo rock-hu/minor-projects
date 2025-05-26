@@ -29,6 +29,7 @@ export struct MainPage {
   private idList: ArrayList<string> = new ArrayList();
 
   // Saves the NodeController required for creating the Map.
+  // [Start aboutToAppear_start]
   aboutToAppear() {
     for (let i = 0; i <= 100; i++) {
       let id = i.toString();
@@ -43,9 +44,11 @@ export struct MainPage {
       }
     }
   }
+  // [End aboutToAppear_start]
 
   build() {
     NavDestination() {
+      // [Start List_start]
       List({ space: 3 }) {
         // Iteratively generating a node tree
         LazyForEach(this.data, (item: CardData) => {
@@ -67,12 +70,13 @@ export struct MainPage {
       .width($r('app.string.percent_100'))
       .height($r('app.string.percent_100'))
       .cachedCount(5)
+      // [End List_start]
     }
     .layoutWeight(1)
     .title(this.ResourceToString($r('app.string.tab2')))
   }
 
   ResourceToString(resource:Resource):string{
-    return getContext(this).resourceManager.getStringSync(resource);
+    return this.getUIContext().getHostContext()!.resourceManager.getStringSync(resource);
   }
 }

@@ -61,14 +61,14 @@ struct SizeTransitionSample {
 
   onPageShow() {
     this.intervalID = setInterval(() => {
-      animateTo({ duration: 2000 }, () => {
+      this.getUIContext().animateTo({ duration: 2000 }, () => {
         this.mWidth = (this.mWidth == 400 || this.mVisible == Visibility.Hidden) ? 200 : 400;
         if (this.mVisible == Visibility.Visible) {
           this.mFontSize = this.mFontSize == 20 ? 40 : 20;
         }
       })
       setTimeout(() => {
-        animateTo({ duration: 2000 }, () => {
+        this.getUIContext().animateTo({ duration: 2000 }, () => {
           if (this.mWidth == 200 && this.mVisible == Visibility.Visible) {
             this.mVisible = Visibility.Hidden;
           }

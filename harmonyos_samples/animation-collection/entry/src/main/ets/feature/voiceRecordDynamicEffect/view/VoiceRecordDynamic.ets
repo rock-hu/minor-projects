@@ -88,7 +88,7 @@ struct GestureGroupExample {
   AVPlayer = new AVPlayerDemo();
 
   aboutToAppear() {
-    const context: common.UIAbilityContext = getContext(this) as common.UIAbilityContext;
+    const context = this.getUIContext().getHostContext() as common.UIAbilityContext;
     reqPermissionsFromUser(permissions, context);
   }
 
@@ -255,7 +255,8 @@ struct GestureGroupExample {
                           this.minNumber = Const.OPACITY_FALSE;
                         }
                         if (this.isListening) {
-                          animateTo({ duration: Const.ANIMATION_DURATION, curve: Curve.EaseInOut }, () => {
+                          
+                          this.getUIContext().animateTo({ duration: Const.ANIMATION_DURATION, curve: Curve.EaseInOut }, () => {
                             Logger.info(this.timeStart.toString() + 'ANIMATION_DURATION' + Const.ANIMATION_DURATION);
                             this.yMax = this.maxNumber;
                             this.yMin = this.minNumber;
@@ -277,7 +278,7 @@ struct GestureGroupExample {
                     })
                     .onActionEnd(() => {
                       this.isListening = false;
-                      animateTo({ duration: Const.OPACITY_FALSE }, () => {
+                      this.getUIContext().animateTo({ duration: Const.OPACITY_FALSE }, () => {
                         this.yMax = Const.OPACITY_FALSE;
                         this.yMin = Const.OPACITY_FALSE;
                       });
@@ -292,13 +293,13 @@ struct GestureGroupExample {
                     this.timeAv = this.timeEnd - this.timeStart;
                     clearInterval(this.count);
                     // 当不需要动画时设置duration为0打断动画。
-                    animateTo({ duration: Const.OPACITY_FALSE }, () => {
+                    this.getUIContext().animateTo({ duration: Const.OPACITY_FALSE }, () => {
                       this.yMax = Const.OPACITY_FALSE;
                       this.yMin = Const.OPACITY_FALSE;
                     });
                     this.flagUpOpacity = Const.OPACITY_FALSE;
                     if (this.timeStart === 0 || this.isListening === false) {
-                      promptAction.showToast({
+                      this.getUIContext().getPromptAction().showToast({
                         message: Const.SHOW_TOAST_MESSAGE,
                         duration: Const.SHOW_TOAST_DURATION
                       });

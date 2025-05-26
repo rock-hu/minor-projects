@@ -19,9 +19,6 @@ import { COLOR_SELECT_DATA } from '../data/ColorData';
 import { getResourceString } from '../../../../utils/ResourceUtils';
 import { ViewCodeText } from '../../../../commoncomponents/ViewCodeText';
 
-// Declare a context variable.
-const CONTEXT: common.UIAbilityContext = getContext(this) as common.UIAbilityContext;
-
 @Component
 export struct ConsumeDescendentComponent {
   // Initializes a color array of data.
@@ -38,7 +35,8 @@ export struct ConsumeDescendentComponent {
       Row() {
         Select(this.selectColors)
           .selected(this.currentSelectIndex)
-          .value(getResourceString(CONTEXT, this.selectColors[this.currentSelectIndex].value))
+          .value(getResourceString(this.getUIContext().getHostContext() as common.UIAbilityContext,
+            this.selectColors[this.currentSelectIndex].value))
           .fontColor($r('app.color.button_text_color'))
           .font({ size: $r('app.float.tips_font_size') })
           .selectedOptionFont({ size: $r('app.float.tips_font_size') })

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-// DocsCode 1
+// [Start CustomDialogDisplayAndExitAnimations_start]
 import { PromptAction } from '@kit.ArkUI';
 
 @Component
@@ -43,7 +43,7 @@ export struct CustomDialogDisplayAndExitAnimations {
         .fontColor('#0A59F7')
         .backgroundColor(Color.White)
         .onClick(() => {
-          this.promptAction.closeCustomDialog(this.customDialogComponentId);
+          this.getUIContext().getPromptAction().closeCustomDialog(this.customDialogComponentId);
         })
         .width('100%')
         .margin({
@@ -73,7 +73,7 @@ export struct CustomDialogDisplayAndExitAnimations {
             .margin({ bottom: 16 })
             .backgroundColor('#0A59F7')
             .onClick(() => {
-              this.promptAction.openCustomDialog({
+              this.getUIContext().getPromptAction().openCustomDialog({
                 builder: () => {
                   this.customDialogComponent();
                 },
@@ -105,5 +105,4 @@ export struct CustomDialogDisplayAndExitAnimations {
     }
   }
 }
-
-// DocsCode 1
+// [End CustomDialogDisplayAndExitAnimations_start]

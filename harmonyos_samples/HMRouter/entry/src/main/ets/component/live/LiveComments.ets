@@ -13,6 +13,10 @@
  *   limitations under the License.
  */
 
+/**
+ * 最佳实践：基于HMRouter路由框架的页面跳转开发实践
+ */
+
 import { window } from '@kit.ArkUI';
 import { HMLifecycle, HMLifecycleContext, HMRouter, HMRouterMgr, IHMLifecycle } from '@hadss/hmrouter';
 import { LiveCommentsHeader } from './LiveCommentsHeader';

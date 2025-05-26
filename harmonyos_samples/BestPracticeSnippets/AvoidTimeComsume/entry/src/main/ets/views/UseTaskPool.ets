@@ -44,7 +44,7 @@ struct WaterFlowExample {
       .objectFit(ImageFit.Fill)
   }
 
-  // DocsCode 1
+  // [Start use_task_pool]
   build() {
     Column({ space: 2 }) {
       Row({ space: 5 }) {
@@ -76,9 +76,9 @@ struct WaterFlowExample {
       WaterFlow() {
         LazyForEach(this.dataSource, (item: number) => {
           FlowItem() {
-            // DocsDot
+            // [StartExclude use_task_pool]
             this.imageCom(item)
-            // DocsDot
+            // [EndExclude use_task_pool]
           }
           .onAppear(() => {
             // Add data in advance when you are about to hit the bottom
@@ -91,14 +91,14 @@ struct WaterFlowExample {
               })
             }
           })
-          // DocsDot
+          // [StartExclude use_task_pool]
           .width('100%')
           .height(320)
 
-          // DocsDot
+          // [EndExclude use_task_pool]
         }, (item: number) => item.toString())
       }
-      // DocsDot
+      // [StartExclude use_task_pool]
       .cachedCount(2)
       .columnsTemplate('1fr 1fr')
       .columnsGap(12)
@@ -109,17 +109,17 @@ struct WaterFlowExample {
         return { offsetRemain: offset };
       })
 
-      // DocsDot
+      // [EndExclude use_task_pool]
     }
     .padding(16)
     .height('100%')
     .backgroundColor('#F5F5F5')
   }
 
-  // DocsCode 1
+  // [End use_task_pool]
 }
 
-// DocsCode 2
+// [Start task_pool_execute]
 // The following methods are defined outside of the component
 async function taskPoolExecute(): Promise<Item[]> {
   let task: taskpool.Task = new taskpool.Task(mockRequestData, getContext());
@@ -138,4 +138,4 @@ async function mockRequestData(context: Context): Promise<Item[]> {
   return arr;
 }
 
-// DocsCode 2
+// [End task_pool_execute]

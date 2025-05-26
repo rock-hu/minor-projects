@@ -123,7 +123,7 @@ export struct CommonItemSelect {
   private selectIndex: number = 0;
   private fontSize: Font = { size: 15, weight: FontWeight.Medium };
   private isItemStyle: boolean = true;
-  private text: string = getContext(this).resourceManager.getStringSync($r('app.string.choose_please'));
+  private text: string = this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.choose_please'));
 
   aboutToAppear() {
     this.selects.forEach((selects, index) => {
@@ -179,7 +179,7 @@ export struct CommonItemColorSelect {
   ]
 
   changeResourceToString(resourceData: Resource) {
-    let context = getContext(this) as common.UIAbilityContext;
+    let context = this.getUIContext().getHostContext() as common.UIAbilityContext;
     return context.resourceManager.getStringSync(resourceData.id);
   }
 

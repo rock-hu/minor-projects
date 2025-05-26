@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+import { common } from '@kit.AbilityKit';
 import { LearningResource } from '../model/LearningResource';
 import { ObservedArray } from '../utils/ObservedArray';
 import { ArticleCardView } from '../components/ArticleCardView';
@@ -29,9 +30,14 @@ function bufferToString(buffer: ArrayBufferLike): string {
   return resultPut;
 }
 
+// [Start ForEachListPage1_start]
 @Entry
 @Component
 export struct ForEachListPage {
+  UIContext = this.getUIContext()
+  context = this.UIContext.getHostContext() as common.UIAbilityContext;
+
+  // [StartExclude ForEachListPage1_start]
   @State articleList: LearningResource[] = [];
   @State collectedIds: ObservedArray<string> = ['1', '2', '3', '4', '5', '6'];
   @State likedIds: ObservedArray<string> = ['1', '2', '3', '4', '5', '6'];
@@ -46,7 +52,7 @@ export struct ForEachListPage {
   }
 
   getArticleModelObjFromJSON() {
-    getContext(this).resourceManager.getRawFileContent('article1000.json').then(value => {
+    this.context.resourceManager.getRawFileContent('article1000.json').then(value => {
       let jsonObj = JSON.parse(bufferToString(value.buffer)) as LearningResource[];
       let resources: LearningResource[] = [];
       jsonObj.forEach((res: LearningResource) => {
@@ -63,7 +69,7 @@ export struct ForEachListPage {
   isLiked(resourceId: string): boolean {
     return this.likedIds.some((id: string) => id === resourceId);
   }
-
+  // [EndExclude ForEachListPage1_start]
 
   build() {
     Column() {
@@ -89,6 +95,7 @@ export struct ForEachListPage {
     .backgroundColor($r('app.color.text_background'))
   }
 }
+// [End ForEachListPage1_start]
 
 @Builder
 function Header() {

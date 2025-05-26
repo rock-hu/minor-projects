@@ -25,10 +25,11 @@ const WEEK: Resource[] =
     $r('app.string.april'), $r('app.string.may'), $r('app.string.june')
   ]; // Set calendar week, starting on Sunday
 const allDisplaySyncArray: displaySync.DisplaySync[] = [];
-
+// [Start Case2]
 @Reusable
 @Component
 export struct DateItemView {
+  // [StartExclude Case2]
   monthItem: Month = {
     month: '',
     num: 0,
@@ -47,12 +48,13 @@ export struct DateItemView {
   private step: number = 0;
   private maxStep: number = 2;
   private readonly MAX_EVERY_FRAME: number = 5; // Only five-day data is updated for one frame
-
+  // [Start Case4]
   aboutToReuse(params: Record<string, Object>): void {
     hiTraceMeter.startTrace('reuse_' + (params.monthItem as Month).month, 1);
     this.temp.push(params.monthItem as Month);
     hiTraceMeter.finishTrace('reuse_' + (params.monthItem as Month).month, 1);
   }
+  // [End Case4]
 
   aboutToRecycle(): void {
     hiTraceMeter.startTrace('recycle_', 1);
@@ -61,7 +63,7 @@ export struct DateItemView {
     this.maxStep = 2;
     hiTraceMeter.finishTrace('recycle_', 1);
   }
-
+  // [EndExclude Case2]
   aboutToAppear(): void {
     hiTraceMeter.startTrace('appear_', 1);
     this.displaySync = displaySync.create();
@@ -72,6 +74,8 @@ export struct DateItemView {
     };
     this.displaySync.setExpectedFrameRateRange(range);
     this.displaySync.on('frame', () => {
+      // [StartExclude Case2]
+      // [Start Case3]
       if (this.temp.length > 0) {
         if (this.step === 0) {
           // Step 1: Add the monthly data and calculate the maximum number of frames required to complete the data operation.
@@ -99,13 +103,15 @@ export struct DateItemView {
           this.step += 1;
         }
       }
+      // [End Case3]
+      // [EndExclude Case2]
     });
     this.displaySync.start();
     allDisplaySyncArray.push(this.displaySync);
     this.temp.push(this.monthItem);
     hiTraceMeter.finishTrace('appear_', 1);
   }
-
+  // [StartExclude Case2]
   aboutToDisappear(): void {
     if (allDisplaySyncArray.length > 0) {
       allDisplaySyncArray.forEach((displaySync: displaySync.DisplaySync) => {
@@ -167,4 +173,7 @@ export struct DateItemView {
     .margin({ top: 5 })
     .width(CommonConstants.FULL_PERCENT)
   }
+  // [EndExclude Case2]
+  // [EndExclude date_item]
 }
+// [End Case2]

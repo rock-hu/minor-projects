@@ -82,7 +82,7 @@ struct Index {
   }
 
   async getPreferencesFromStorage() {
-    let context = getContext(this) as Context
+    let context = this.getUIContext().getHostContext() as Context
     preferenceTheme = await preferences.getPreferences(context, PREFERENCES_NAME)
   }
 

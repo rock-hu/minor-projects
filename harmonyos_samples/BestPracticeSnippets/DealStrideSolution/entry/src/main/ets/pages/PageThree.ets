@@ -23,6 +23,7 @@ export function PageThreeBuilder() {
   PageThree()
 }
 
+// [Start PageThree_start]
 @Component
 export struct PageThree {
   pathStack: NavPathStack = new NavPathStack();
@@ -45,6 +46,7 @@ export struct PageThree {
     CameraService.releaseCamera();
   }
 
+  // [StartExclude PageThree_start]
   @Builder
   navDestinationTitleImg(res:Resource,fun:()=>void) {
     Image(res)
@@ -89,22 +91,27 @@ export struct PageThree {
     .backgroundColor('#F1F3F5')
   }
 
+  // [EndExclude PageThree_start]
   build() {
     NavDestination() {
+      // [StartExclude PageThree_start]
       this.navDestinationTitle()
+      // [EndExclude PageThree_start]
       Column() {
         if (this.isShowStridePixel) {
           Image(this.stridePixel)
-            .width(px2vp(this.imageWidth))
-            .height(px2vp(this.imageHeight))
+            .width(this.getUIContext().px2vp(this.imageWidth))
+            .height(this.getUIContext().px2vp(this.imageHeight))
             .margin({ top: 150 })
             .rotate({
               z: 0.5,
               angle: this.previewRotate
             })
         }
+        // [StartExclude PageThree_start]
         Blank()
         PublishView()
+        // [EndExclude PageThree_start]
       }
       .justifyContent(FlexAlign.Center)
       .height('90%')
@@ -121,6 +128,7 @@ export struct PageThree {
     })
   }
 }
+// [End PageThree_start]
 
 // Share components at the bottom of the page
 @Component

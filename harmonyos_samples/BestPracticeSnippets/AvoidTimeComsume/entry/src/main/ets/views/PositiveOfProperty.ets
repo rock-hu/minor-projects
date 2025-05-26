@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-// DocsCode 1
+// [Start positive_of_property]
 import { taskpool } from '@kit.ArkTS'; // Task pools
 import { router } from '@kit.ArkUI';
 import { hilog } from '@kit.PerformanceAnalysisKit';
@@ -63,7 +63,7 @@ struct PositiveOfProperty {
           });
         })
 
-        Text($r('app.string.positive_of_property'))
+        Text('Component property examples')
           .fontSize(20)
           .fontWeight(700)
           .height(26)
@@ -97,4 +97,4 @@ struct PositiveOfProperty {
   }
 }
 
-// DocsCode 1
+// [End positive_of_property]

@@ -26,7 +26,7 @@ struct Detail {
   @State detailData: DetailData = new DetailData();
 
   aboutToAppear() {
-    this.detailData = (router.getParams() as DetailData)['detailData'];
+    this.detailData = (this.getUIContext().getRouter().getParams() as DetailData)['detailData'];
     Logger.info(TAG, `this.detailData = ${JSON.stringify(this.detailData)}`);
   }
 
@@ -306,7 +306,8 @@ struct Detail {
     }
   }
 
-  @Builder textComponent(name: Resource, value: Resource | string) {
+  @Builder
+  textComponent(name: Resource, value: Resource | string) {
     Row() {
       Text(name)
         .fontSize(16)
@@ -325,7 +326,7 @@ struct Detail {
           .margin({ left: 20 })
           .size({ width: 30, height: 30 })
           .onClick(() => {
-            router.back();
+            this.getUIContext().getRouter().back();
           })
           .id('back')
         Text($r('app.string.detail'))
@@ -342,15 +343,20 @@ struct Detail {
             Text($r('app.string.network_registration_status'))
               .fontSize(20)
             if (this.detailData?.networkState) {
-              this.textComponent($r('app.string.network_state_long_operator_name'), this.detailData?.networkState.longOperatorName);
-              this.textComponent($r('app.string.network_state_short_operator_name'), this.detailData?.networkState.shortOperatorName);
+              this.textComponent($r('app.string.network_state_long_operator_name'),
+                this.detailData?.networkState.longOperatorName);
+              this.textComponent($r('app.string.network_state_short_operator_name'),
+                this.detailData?.networkState.shortOperatorName);
               this.textComponent($r('app.string.plmn_numeric'), this.detailData?.networkState.plmnNumeric);
               this.textComponent($r('app.string.is_roaming'), JSON.stringify(this.detailData?.networkState.isRoaming));
               this.textComponent($r('app.string.reg_state'), this.regState(this.detailData?.networkState.regState));
-              this.textComponent($r('app.string.cfg_tech'), this.radioTechnology(this.detailData?.networkState.cfgTech));
+              this.textComponent($r('app.string.cfg_tech'),
+                this.radioTechnology(this.detailData?.networkState.cfgTech));
               this.textComponent($r('app.string.nsa_state'), this.nsaState(this.detailData?.networkState.nsaState));
-              this.textComponent($r('app.string.is_ca_active'), JSON.stringify(this.detailData?.networkState.isCaActive));
-              this.textComponent($r('app.string.is_emergency'), JSON.stringify(this.detailData?.networkState.isEmergency));
+              this.textComponent($r('app.string.is_ca_active'),
+                JSON.stringify(this.detailData?.networkState.isCaActive));
+              this.textComponent($r('app.string.is_emergency'),
+                JSON.stringify(this.detailData?.networkState.isEmergency));
             }
           }
           .margin({
@@ -378,7 +384,8 @@ struct Detail {
           Column() {
             Text($r('app.string.cellular_data'))
               .fontSize(20)
-            this.textComponent($r('app.string.cellular_data_flow_type'), this.dataFlowType(this.detailData?.dataFlowType))
+            this.textComponent($r('app.string.cellular_data_flow_type'),
+              this.dataFlowType(this.detailData?.dataFlowType))
           }
           .margin({
             top: 10,

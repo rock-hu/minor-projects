@@ -1,0 +1,16 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "module description"
+    },
+    {
+      "name": "ContactDataAbility_desc",
+      "value": "description"
+    },
+    {
+      "name": "ContactDataAbility_label",
+      "value": "label"
+    }
+  ]
+}

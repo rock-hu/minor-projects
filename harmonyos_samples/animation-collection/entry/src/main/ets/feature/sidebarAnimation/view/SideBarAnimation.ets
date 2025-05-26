@@ -32,7 +32,7 @@ export struct SideBarAnimation {
   deviceType: resourceManager.DeviceType = resourceManager.DeviceType.DEVICE_TYPE_PHONE;
 
   aboutToAppear(): void {
-    this.deviceType = getContext(this).resourceManager.getDeviceCapabilitySync().deviceType;
+    this.deviceType = this.getUIContext().getHostContext()!.resourceManager.getDeviceCapabilitySync().deviceType;
     if (this.deviceType === resourceManager.DeviceType.DEVICE_TYPE_PHONE) {
       this.sidebarType = SideBarContainerType.Overlay;
     }

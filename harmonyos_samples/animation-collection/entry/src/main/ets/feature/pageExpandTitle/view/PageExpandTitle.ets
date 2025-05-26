@@ -189,7 +189,7 @@ export struct PageExpandTitle {
 
   animateToThrottle(fn: Callback<void>, delay: number) {
     if (this.throttleStatus) {
-      animateTo({
+      this.getUIContext().animateTo({
         duration: this.duration, curve: Curve.FastOutLinearIn
       }, fn);
       this.throttleStatus = false;

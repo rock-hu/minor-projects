@@ -44,7 +44,7 @@ struct TextInputSample {
   @State selects: string[] = ['0'];
   private select: number = 0;
   private maxLength: number = 12;
-  private context: Context = getContext(this);
+  private context: Context = this.getUIContext().getHostContext()!;
   private inputController: TextInputController = new TextInputController();
   private inputSelectController: TextInputController = new TextInputController();
 

@@ -1,0 +1,416 @@
+{
+  "string": [
+    {
+      "name": "shared_desc",
+      "value": "description"
+    },
+    {
+      "name": "NAV_ROUTER_LIST1",
+      "value": "手机"
+    },
+    {
+      "name": "NAV_ROUTER_LIST2",
+      "value": "穿戴"
+    },
+    {
+      "name": "NAV_ROUTER_LIST3",
+      "value": "平板"
+    },
+    {
+      "name": "NAV_ROUTER_LIST4",
+      "value": "笔记本"
+    },
+    {
+      "name": "NAV_ROUTER_LIST5",
+      "value": "台显打印"
+    },
+    {
+      "name": "NAV_ROUTER_LIST6",
+      "value": "耳机音响"
+    },
+    {
+      "name": "NAV_ROUTER_LIST7",
+      "value": "智慧屏"
+    },
+    {
+      "name": "NAV_ROUTER_LIST8",
+      "value": "门锁路由"
+    },
+    {
+      "name": "NAV_ROUTER_LIST9",
+      "value": "出行车品"
+    },
+    {
+      "name": "NAV_ROUTER_LIST10",
+      "value": "数码配件"
+    },
+    {
+      "name": "NAV_ROUTER_LIST11",
+      "value": "华为服务"
+    },
+    {
+      "name": "NAV_ROUTER_LIST12",
+      "value": "数字内容"
+    },
+    {
+      "name": "NAV_ROUTER_LIST13",
+      "value": "商用终端"
+    },
+    {
+      "name": "NAV_ROUTER_LIST14",
+      "value": "华为智选"
+    },
+    {
+      "name": "NAV_ROUTER_LIST15",
+      "value": "家用电器"
+    },
+    {
+      "name": "SHOP_TITLE_LIST1",
+      "value": "新品上市"
+    },
+    {
+      "name": "SHOP_TITLE_LIST2",
+      "value": "HUAWEI Mate系列"
+    },
+    {
+      "name": "SHOP_TITLE_LIST3",
+      "value": "HUAWEI P系列"
+    },
+    {
+      "name": "search",
+      "value": "搜索"
+    },
+    {
+      "name": "FOOTER_TOPIC_LIST1",
+      "value": "首页"
+    },
+    {
+      "name": "FOOTER_TOPIC_LIST2",
+      "value": "分类"
+    },
+    {
+      "name": "FOOTER_TOPIC_LIST3",
+      "value": "发现"
+    },
+    {
+      "name": "FOOTER_TOPIC_LIST4",
+      "value": "购物袋"
+    },
+    {
+      "name": "FOOTER_TOPIC_LIST5",
+      "value": "我的"
+    },
+    {
+      "name": "TOP_BAR_TEXTS1",
+      "value": "华为"
+    },
+    {
+      "name": "TOP_BAR_TEXTS2",
+      "value": "AITO汽车"
+    },
+    {
+      "name": "TOP_BAR_TEXTS3",
+      "value": "华为智选"
+    },
+    {
+      "name": "TOP_BAR_TEXTS4",
+      "value": "生态周边"
+    },
+    {
+      "name": "searching",
+      "value": "搜索..."
+    },
+    {
+      "name": "GOOD_CATEGORIES1",
+      "value": "智慧办公"
+    },
+    {
+      "name": "GOOD_CATEGORIES3",
+      "value": "华为手机"
+    },
+    {
+      "name": "GOOD_CATEGORIES2",
+      "value": "智慧家居"
+    },
+    {
+      "name": "GOOD_CATEGORIES4",
+      "value": "影音娱乐"
+    },
+    {
+      "name": "GOOD_CATEGORIES5",
+      "value": "运动健康"
+    },
+    {
+      "name": "GOOD_CATEGORIES6",
+      "value": "AITO汽车"
+    },
+    {
+      "name": "GOOD_CATEGORIES7",
+      "value": "华为智选"
+    },
+    {
+      "name": "GOOD_CATEGORIES8",
+      "value": "鸿蒙智联"
+    },
+    {
+      "name": "GOOD_CATEGORIES9",
+      "value": "企业商用"
+    },
+    {
+      "name": "GOOD_CATEGORIES10",
+      "value": "全屋智能"
+    },
+    {
+      "name": "PRICE_UNIT",
+      "value": "起"
+    },
+    {
+      "name": "HOME_TITLES1",
+      "value": "福利专区"
+    },
+    {
+      "name": "HOME_TITLES2",
+      "value": "甄选推荐"
+    },
+    {
+      "name": "HOME_TITLES3",
+      "value": "限时秒杀"
+    },
+    {
+      "name": "BUTTON_TEXTS1",
+      "value": "立即领券"
+    },
+    {
+      "name": "BUTTON_TEXTS2",
+      "value": "立即购买"
+    },
+    {
+      "name": "TIP_TEXTS1",
+      "value": "用券价"
+    },
+    {
+      "name": "TIP_TEXTS2",
+      "value": "更多"
+    },
+    {
+      "name": "TIP_TEXTS3",
+      "value": "新品"
+    },
+    {
+      "name": "SECTION_PRODUCTS_TITLES1",
+      "value": "MateBook X Pro 12代"
+    },
+    {
+      "name": "SECTION_PRODUCTS_TITLES2",
+      "value": "新品"
+    },
+    {
+      "name": "SECTION_PRODUCTS_INFO1",
+      "value": "北斗卫星消息 | 低电量应急模式"
+    },
+    {
+      "name": "SECTION_PRODUCTS_INFO2",
+      "value": "144Hz高割全面屏"
+    },
+    {
+      "name": "SECTION_PRODUCTS_INFO3",
+      "value": "32GB大内存 | 13代酷睿处理器 | 超级终端"
+    },
+    {
+      "name": "SECTION_PRODUCTS_FEATURES1",
+      "value": "V1-V5优惠400元/12期免息"
+    },
+    {
+      "name": "SECTION_PRODUCTS_FEATURES2",
+      "value": "新一代直屏旗舰机"
+    },
+    {
+      "name": "SECTION_PRODUCTS_FEATURES3",
+      "value": "最高省100"
+    },
+    {
+      "name": "SECTION_PRODUCTS_FEATURES4",
+      "value": "限时直降300"
+    },
+    {
+      "name": "SECTION_PRODUCTS_FEATURES5",
+      "value": "最高省300"
+    },
+    {
+      "name": "SHOPPING_BAG_TITLES1",
+      "value": "购物袋"
+    },
+    {
+      "name": "SHOPPING_BAG_TITLES2",
+      "value": "管理"
+    },
+    {
+      "name": "SHOPPING_BAG_TITLES3",
+      "value": "华为官方旗舰店"
+    },
+    {
+      "name": "SHOPPING_CARD_FOOT_TITLES1",
+      "value": "全选"
+    },
+    {
+      "name": "SHOPPING_CARD_FOOT_TITLES2",
+      "value": "总计："
+    },
+    {
+      "name": "SHOPPING_CARD_FOOT_TITLES3",
+      "value": "已优惠 ￥1000"
+    },
+    {
+      "name": "SHOPPING_CARD_FOOT_TITLES4",
+      "value": "领券结算(1)"
+    },
+    {
+      "name": "HOME_REVIEW",
+      "value": "2571人评论 95%好评"
+    },
+    {
+      "name": "Hot_Seller",
+      "value": "热品爆款"
+    },
+    {
+      "name": "New_Launch",
+      "value": "新品上市"
+    },
+    {
+      "name": "SECTION_PRODUCTS_INFO4",
+      "value": "前置6000万超广角镜头"
+    },
+    {
+      "name": "SECTION_PRODUCTS_INFO5",
+      "value": "2.5K高刷护眼屏 | 轻薄长续航"
+    },
+    {
+      "name": "SECTION_PRODUCTS_INFO6",
+      "value": "超轻薄｜超平整｜超可靠"
+    },
+    {
+      "name": "FLASH_SALE_PRODUCT_FEATURES1",
+      "value": "新一代直屏旗舰机"
+    },
+    {
+      "name": "FLASH_SALE_PRODUCT_FEATURES2",
+      "value": "赠积分"
+    },
+    {
+      "name": "FLASH_SALE_PRODUCT_FEATURES3",
+      "value": "限时享6期免息"
+    },
+    {
+      "name": "FLASH_SALE_PRODUCT_FEATURES4",
+      "value": "V1-V5优惠100 | 赠经典耳机"
+    },
+    {
+      "name": "FLASH_SALE_PRODUCT_FEATURES5",
+      "value": "性能版新品预定立省200"
+    },
+    {
+      "name": "PRODUCT_NAME_LIST1",
+      "value": "HUAWEI Mate 50 Pro 256GB 冰霜银（昆仑玻璃）"
+    },
+    {
+      "name": "PRODUCT_NAME_LIST2",
+      "value": "HUAWEI Mate 60 12GB+1TB 雅丹黑（官方标配）"
+    },
+    {
+      "name": "PRODUCT_NAME_LIST3",
+      "value": "【现货速发】HUAWEI Mate X5 12GB+512GB 幻影紫"
+    },
+    {
+      "name": "PRODUCT_TYPE_LIST1",
+      "value": "冰霜银（昆仑玻璃）256GB 官方标配（含充电套装），现货速发"
+    },
+    {
+      "name": "PRODUCT_TYPE_LIS2",
+      "value": "雅丹黑，12GB+1TB，官方标配（含充电套装），可提前预定"
+    },
+    {
+      "name": "PRODUCT_TYPE_LIST3",
+      "value": "幻影紫，512GB+12GB，官方标配（含充电套装），现货速发"
+    },
+    {
+      "name": "PRODUCT_PREFERENTIALList_LIST_MESSAGE1",
+      "value": "0分期利息"
+    },
+    {
+      "name": "PRODUCT_PREFERENTIALList_LIST_MESSAGE2",
+      "value": "限时特惠"
+    },
+    {
+      "name": "PRODUCT_PREFERENTIALList_LIST_MESSAGE3",
+      "value": "新一代直屏旗舰机"
+    },
+    {
+      "name": "PRODUCT_PREFERENTIALList_LIST_MESSAGE4",
+      "value": "赠积分"
+    },
+    {
+      "name": "PRODUCT_PRESENT_LIST_MESSAGE1",
+      "value": "HUAWEI FreeLace 无限耳机 …"
+    },
+    {
+      "name": "PRODUCT_PRESENT_LIST_MESSAGE2",
+      "value": "HUAWEI Mate 60 环闪保护壳（黑色）"
+    },
+    {
+      "name": "PRODUCT_PRESENT_LIST_MESSAGE3",
+      "value": "HUAWEI Mate 50 环闪保护壳（银色）"
+    },
+    {
+      "name": "PRODUCT_SERVICE_LIST_message",
+      "value": "无忧服务"
+    },
+    {
+      "name": "PREFERENCE_DETAILS_TITLE_MESSAGE1",
+      "value": "商品总价"
+    },
+    {
+      "name": "PREFERENCE_DETAILS_TITLE_MESSAGE12",
+      "value": "活动优惠"
+    },
+    {
+      "name": "PREFERENCE_DETAILS_TITLE_MESSAGE2",
+      "value": "优惠券"
+    },
+    {
+      "name": "PREFERENCE_DETAILS_TITLE_MESSAGE3",
+      "value": "共优惠"
+    },
+    {
+      "name": "PREFERENCE_DETAILS_TITLE_MESSAGE4",
+      "value": "合计"
+    },
+    {
+      "name": "PREFERENCE_DETAILS_TITLE_MESSAGE5",
+      "value": "优惠明细"
+    },
+    {
+      "name": "PREFERENCE_DETAILS_TITLE_MESSAGE6",
+      "value": "实际优惠金额请以下单页面为准"
+    },
+    {
+      "name": "PREFERENCE_DETAILS_TITLE_MESSAGE7",
+      "value": "配送"
+    },
+    {
+      "name": "PREFERENCE_DETAILS_TITLE_MESSAGE8",
+      "value": "标注配送"
+    },
+    {
+      "name": "PREFERENCE_DETAILS_TITLE_MESSAGE9",
+      "value": "电子普通发票-个人"
+    },
+    {
+      "name": "PREFERENCE_DETAILS_TITLE_MESSAGE10",
+      "value": "【赠品】"
+    },
+    {
+      "name": "PREFERENCE_DETAILS_TITLE_MESSAGE11",
+      "value": "【服务】"
+    }
+  ]
+}

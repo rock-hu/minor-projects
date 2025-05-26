@@ -188,22 +188,28 @@ struct SliderCustom {
     }
   }
 
+  // [Start postProcess_start]
   async postProcess(type: AdjustId, value: number) {
+    // [StartExclude postProcess_start]
     if (!this.pixelMap) {
       return;
     }
     let sliderValue = type === AdjustId.BRIGHTNESS ? this.brightnessLastSlider : this.saturationLastSlider;
     const bufferArray = new ArrayBuffer(this.pixelMap.getPixelBytesNumber());
+    // [EndExclude postProcess_start]
     this.pixelMap.readPixelsToBuffer(bufferArray)
       .then(() => {
         const buffers: ArrayBuffer[] = splitArrayBuffer(bufferArray, 240);
         const group = splitTask(buffers, type, sliderValue, value);
+        // [StartExclude postProcess_start]
+        // [Start execute_start]
         taskpool.execute(group, taskpool.Priority.HIGH).then((ret) => {
           // Combine the results of each task execution
           const entireArrayBuffer = mergeArrayBuffers(ret);
           // Update the UI based on the calculation results
           this.updatePixelMap(entireArrayBuffer);
         });
+        // [End execute_start]
         if (this.postState) {
           this.deviceListDialogController.open();
         }
@@ -213,9 +219,10 @@ struct SliderCustom {
         } else {
           this.saturationLastSlider = Math.round(value);
         }
+        // [EndExclude postProcess_start]
       })
   }
-
+  // [StartExclude postProcess_start]
   updatePixelMap(ret: ArrayBuffer) {
     const newPixel = this.pixelMap as image.PixelMap;
     newPixel.writeBufferToPixels(ret);
@@ -240,7 +247,7 @@ export struct Dialog {
   }
 }
 
-
+// [EndExclude postProcess_start]
 /**
  * Each task processes a portion of the pixel data and adds the task to the task group.
  *
@@ -259,6 +266,7 @@ function splitTask(buffers: ArrayBuffer[], type: AdjustId, sliderValue: number, 
   }
   return group;
 }
+// [End postProcess_start]
 
 @Concurrent
 async function imageProcessing(args: ImageProcessing) {

@@ -47,16 +47,17 @@ struct NegativeOfLazyForEach {
   private data: MyDataSource = new MyDataSource();
   private item: number = 0;
 
-  // DocsCode 1
-  // ...
+  // [Start negative_of_lazy_for_each]
+  // [StartExclude negative_of_lazy_for_each]
+  // [EndExclude negative_of_lazy_for_each]
   aboutToAppear(): void {
-    // DocsDot
+    // [StartExclude negative_of_lazy_for_each]
     for (let i = 1; i < 1000; i++) {
       this.data.pushData(i);
     }
     this.item = this.itemGeneratorFunc(0);
     hilog.info(0x0000, 'Sample', '%{public}s', `item: ${this.item}`);
-    // DocsDot
+    // [EndExclude negative_of_lazy_for_each]
   }
 
   // Simulate time-consuming operations
@@ -88,7 +89,7 @@ struct NegativeOfLazyForEach {
           });
         })
 
-        Text($r('app.string.negative_of_lazy_forEach'))
+        Text('Loop rendering counterexamples')
           .fontSize(20)
           .fontWeight(700)
           .height(26)
@@ -107,20 +108,20 @@ struct NegativeOfLazyForEach {
             }
           }, (item: number) => item.toString())
         }
-        // DocsDot
+        // [StartExclude negative_of_lazy_for_each]
         .cachedCount(2)
         .columnsTemplate('1fr 1fr 1fr 1fr')
         .columnsGap(10)
         .rowsGap(10)
 
-        // DocsDot
+        // [EndExclude negative_of_lazy_for_each]
       }
       .margin({ top: 12 })
     }
     .backgroundColor('#F5F5F5')
   }
 
-  // DocsCode 1
+  // [End negative_of_lazy_for_each]
 }
 
 // Custom components are decorated @Reusable decorators, which signify their ability to be reused by components
@@ -138,6 +139,9 @@ struct ReusableChildComponent {
     return temp;
   }
 
+  // [Start about_to_reuse]
+  // [StartExclude about_to_reuse]
+  // [EndExclude about_to_reuse]
   aboutToReuse(params: Record<string, number>): void {
     hiTraceMeter.startTrace('ReuseOfGrid', 1001);
     this.item = params.item;
@@ -145,6 +149,9 @@ struct ReusableChildComponent {
     this.count();
     hiTraceMeter.finishTrace('ReuseOfGrid', 1001)
   }
+  // [StartExclude about_to_reuse]
+  // [EndExclude about_to_reuse]
+  // [Start about_to_reuse]
 
   build() {
     Column() {

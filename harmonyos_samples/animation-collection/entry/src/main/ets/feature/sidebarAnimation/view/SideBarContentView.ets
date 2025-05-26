@@ -27,7 +27,7 @@ export struct SideBarContentView {
   switchTabBar() {
     // When the button is clicked, the explicit animation is used to control the display and hiding of the sidebar.
     // Because only this.isShowSideBar is changed, all related animations need to be associated with it.
-    animateTo({ duration: SideBarAnimationViewConstants.SIDEBAR_ANIMATION_DURATION, curve: Curve.Friction }, () => {
+    this.getUIContext().animateTo({ duration: SideBarAnimationViewConstants.SIDEBAR_ANIMATION_DURATION, curve: Curve.Friction }, () => {
       this.isShowSideBar = !this.isShowSideBar;
       if (this.deviceType === resourceManager.DeviceType.DEVICE_TYPE_PHONE) {
         if (this.isShowSideBar) {
@@ -93,7 +93,7 @@ export struct SideBarContentView {
               .height(SideBarAnimationViewConstants.INPUT_BOX_HEIGHT)
             Button(SideBarAnimationViewConstants.BTN_SEND_MSG)
               .onClick(() => {
-                promptAction.showToast({ message: SideBarAnimationViewConstants.NOT_IMPLEMENT_PROMPT });
+                this.getUIContext().getPromptAction().showToast({ message: SideBarAnimationViewConstants.NOT_IMPLEMENT_PROMPT });
               })
               .margin($r('sys.float.ohos_id_card_margin_end'))
           }

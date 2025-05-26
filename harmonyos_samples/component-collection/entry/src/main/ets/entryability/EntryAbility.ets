@@ -56,6 +56,7 @@ export default class MainAbility extends UIAbility {
       Logger.error('Failed to obtain the top window. Cause: ' + JSON.stringify(exception));
     }
     windowStage.loadContent('pages/Index', (err, data) => {
+      AppStorage.setOrCreate('uiContext', windowStage.getMainWindowSync().getUIContext());
       if (err) {
         Logger.error(TAG, `Failed to load the content. Cause: ${JSON.stringify(err)}`);
         return;

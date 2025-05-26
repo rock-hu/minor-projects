@@ -1,0 +1,5 @@
+D:/git_developmentPractice/BestPracticeSnippets/NativeSoIntegration/Multiply/.cxx/default/default/debug/x86_64/CMakeFiles/multiply.dir
+D:/git_developmentPractice/BestPracticeSnippets/NativeSoIntegration/Multiply/.cxx/default/default/debug/x86_64/CMakeFiles/nativeAdd.dir
+D:/git_developmentPractice/BestPracticeSnippets/NativeSoIntegration/Multiply/.cxx/default/default/debug/x86_64/CMakeFiles/nativeSub.dir
+D:/git_developmentPractice/BestPracticeSnippets/NativeSoIntegration/Multiply/.cxx/default/default/debug/x86_64/CMakeFiles/edit_cache.dir
+D:/git_developmentPractice/BestPracticeSnippets/NativeSoIntegration/Multiply/.cxx/default/default/debug/x86_64/CMakeFiles/rebuild_cache.dir

@@ -60,7 +60,7 @@ struct ComponentTransitionSample {
                   this.show = $r('app.string.component_transition_hide');
                 }
                 // When using TransitionOptions to specify transition, you must use animate to produce animation
-                animateTo({ duration: 1000 }, () => {
+                this.getUIContext().animateTo({ duration: 1000 }, () => {
                   this.flag = !this.flag;
                 })
               })

@@ -17,6 +17,7 @@ import { Constants } from '../common/Constants';
 import { FriendMoment } from '../model/BasicDataSource';
 import { FriendMomentsData } from '../model/FriendMomentData';
 
+// [Start with_func_param]
 @Entry
 @Component
 struct WithFuncParam {
@@ -145,6 +146,7 @@ export struct OneMoment {
   }
 }
 
+// [Start with_func_param]
 @Builder
 function getWithFuncParam(name: string): void {
   if (name === Constants.NAV_DESTINATION_ITEM_3) {

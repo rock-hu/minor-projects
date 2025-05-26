@@ -16,7 +16,8 @@
 import { FULL_HEIGHT, FULL_WIDTH } from '../common/constant/CommonConstants';
 import TabBar from '../view/TabBar';
 
-let storage = LocalStorage.getShared();
+const uiContext: UIContext | undefined = AppStorage.get('uiContext');
+const storage = uiContext?.getSharedLocalStorage()
 
 @Entry(storage)
 @Component

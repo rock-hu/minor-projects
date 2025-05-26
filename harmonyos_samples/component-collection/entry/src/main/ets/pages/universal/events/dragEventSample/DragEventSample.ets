@@ -95,7 +95,7 @@ struct DragEventSample {
             .margin({ left: 26 })
             .objectFit(ImageFit.Contain)
             .onClick(() => {
-              router.back()
+              this.getUIContext().getRouter().back()
             })
             .id('backBtn')
           Text($r('app.string.drag_drop_event'))
@@ -219,7 +219,7 @@ struct DragEventSample {
                   .onDragStart(() => {
                     this.backgroundBlur = false;
                     // Close menu while dragging
-                    ContextMenu.close();
+                    this.getUIContext().getContextMenuController().close();
                     return this.pixelMapBuilder;
                   })
                   .onTouch((event: TouchEvent) => {

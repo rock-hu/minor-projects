@@ -21,7 +21,7 @@ import { TitleBar } from '../../../../common/TitleBar';
 @Component
 struct SelectSample {
   @State selectIndex: number = 0;
-  private context: Context = getContext(this);
+  private context: Context = this.getUIContext().getHostContext()!;
   private indexTitle: string = this.context.resourceManager.getStringSync($r('app.string.select_index').id);
   private valueTitle: string = this.context.resourceManager.getStringSync($r('app.string.select_value').id);
   private selectIcon: ResourceStr[] = [

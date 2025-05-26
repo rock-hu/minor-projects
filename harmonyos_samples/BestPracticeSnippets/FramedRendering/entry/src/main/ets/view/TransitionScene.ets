@@ -20,7 +20,7 @@ import displaySync from '@ohos.graphics.displaySync';
 import { hiTraceMeter } from '@kit.PerformanceAnalysisKit';
 import { CommonConstants } from '../common/CommonConstants';
 import { ProductDetailModel, ProductIntroductionModel } from '../model/BasicDataSource';
-
+// [Start Case1]
 @Entry
 @Component
 struct TransitionScene {
@@ -87,6 +87,7 @@ struct TransitionScene {
       right: 16
     })
   }
+  // [End Case1]
 
   @Builder
   typeSwiper() {

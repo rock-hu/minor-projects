@@ -111,7 +111,7 @@ export struct AuthCodeDetail {
       .height(CommonConstants.FULL_PERCENT)
       .justifyContent(FlexAlign.SpaceBetween)
     }
-    .title(getResourceString(this.AuthCodeItem.name, this))
+    .title(getResourceString(this.AuthCodeItem.name, this.getUIContext()))
     .backgroundColor($r('app.color.background_page'))
   }
 }

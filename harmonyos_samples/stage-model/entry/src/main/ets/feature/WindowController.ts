@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { window,promptAction } from '@kit.ArkUI';
+import { window, promptAction, UIContext } from '@kit.ArkUI';
 import Logger from '../util/Logger'
 
 const TAG: string = 'WindowController'
@@ -21,6 +21,11 @@ const TAG: string = 'WindowController'
 let windowClass = null
 
 export default class WindowController {
+  UIContext: UIContext
+
+  constructor(UIContext: UIContext) {
+    this.UIContext = UIContext
+  }
 
   // Obtain the last window displayed in the current application and
   // use the callback asynchronous callback function.
@@ -29,7 +34,7 @@ export default class WindowController {
     window.getLastWindow(context, (err, data) => {
       if (err.code) {
         Logger.info(TAG, `Failed to obtain the top window. Cause: ${JSON.stringify(err)}`)
-        promptAction.showToast({
+        this.UIContext.getPromptAction().showToast({
           message: `Failed to obtain the top window. Cause: ${JSON.stringify(err)}`
         })
         return
@@ -48,7 +53,7 @@ export default class WindowController {
     window.getLastWindow(context, (err, data) => {
       if (err.code) {
         Logger.info(TAG, `Failed to obtain the top window. Cause: ${JSON.stringify(err)}`)
-        promptAction.showToast({
+        this.UIContext.getPromptAction().showToast({
           message: `Failed to obtain the top window. Cause: ${JSON.stringify(err)}`
         })
         return
@@ -58,12 +63,12 @@ export default class WindowController {
       let promise = windowClass.setPreferredOrientation(orientation)
       promise.then((data) => {
         Logger.info(TAG, `Succeeded in setting the window orientation. Data: ${JSON.stringify(data)}`)
-        promptAction.showToast({
+        this.UIContext.getPromptAction().showToast({
           message: `Succeeded in setting the window orientation`
         })
       }).catch((error) => {
         Logger.error(TAG, `Failed to set the window orientation. Cause: ${JSON.stringify(error)}`)
-        promptAction.showToast({
+        this.UIContext.getPromptAction().showToast({
           message: `Failed to set the window orientation. Cause: ${JSON.stringify(error)}`
         })
       })

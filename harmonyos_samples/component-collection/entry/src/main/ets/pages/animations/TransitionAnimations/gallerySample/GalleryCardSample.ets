@@ -33,7 +33,7 @@ struct GalleryCardSample {
             .margin({ top: 10 })
             .borderRadius(20)
             .onClick(() => {
-              animateTo({ duration: 800 }, () => {
+              this.getUIContext().animateTo({ duration: 800 }, () => {
                 this.active = true;
               })
             })
@@ -48,7 +48,7 @@ struct GalleryCardSample {
               .width('100%')
               .align(Alignment.Center)
               .onClick(() => {
-                animateTo({ duration: 800 }, () => {
+                this.getUIContext().animateTo({ duration: 800 }, () => {
                   this.active = false;
                 })
               })

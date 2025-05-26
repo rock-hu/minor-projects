@@ -90,7 +90,7 @@ struct ButtonWithWaterRipples {
       .onClick(() => {
         this.isListening = !this.isListening;
         if (this.isListening) {
-          animateTo({
+          this.getUIContext().animateTo({
             duration: this.ANIMATION_DURATION,
             iterations: CommonConstants.ITERATIONS,
             curve: Curve.EaseInOut
@@ -101,7 +101,7 @@ struct ButtonWithWaterRipples {
               y: CommonConstants.COMMON_NUMBER_6
             };
           })
-          animateTo({
+          this.getUIContext().animateTo({
             duration: this.ANIMATION_DURATION,
             iterations: CommonConstants.ITERATIONS,
             curve: Curve.EaseInOut,
@@ -115,7 +115,7 @@ struct ButtonWithWaterRipples {
           })
         } else {
           // Break the animation by modifying the variable with a closure of duration 0.
-          animateTo({ duration: CommonConstants.COMMON_NUMBER_0 }, () => {
+          this.getUIContext().animateTo({ duration: CommonConstants.COMMON_NUMBER_0 }, () => {
             this.immediatelyOpacity = CommonConstants.COMMON_NUMBER;
             this.delayOpacity = CommonConstants.COMMON_NUMBER;
             this.immediatelyScale = {

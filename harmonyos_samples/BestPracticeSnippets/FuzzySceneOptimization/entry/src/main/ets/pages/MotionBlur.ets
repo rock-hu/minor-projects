@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+// [Start dynamic_start]
 import { window } from '@kit.ArkUI';
 
 @Component
@@ -22,13 +23,13 @@ export struct MotionBlur {
   @State bottomSafeHeight: number = 0; // bottom navigation bar height
 
   aboutToAppear() {
-    window.getLastWindow(getContext(this), (err, windowBar) => {
+    window.getLastWindow(this.getUIContext().getHostContext()!, (err, windowBar) => {
       if (err.code) {
         return;
       }
       // get the height of the bottom navigation bar
       this.bottomSafeHeight =
-        px2vp(windowBar.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR).bottomRect.height);
+        this.getUIContext().px2vp(windowBar.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR).bottomRect.height);
       windowBar.setWindowLayoutFullScreen(true);
     });
   }
@@ -75,3 +76,4 @@ export struct MotionBlur {
     .hideTitleBar(true)
   }
 }
+// [End dynamic_start]

@@ -13,6 +13,9 @@
  *   limitations under the License.
  */
 
+/**
+ * 最佳实践：页面重开数据恢复
+ */
 import { BuilderNode, FrameNode, NodeController } from '@kit.ArkUI';
 import {
   HMAnimator,
@@ -54,11 +57,12 @@ export class LiveCommentsAnimator implements IHMAnimator {
   }
 }
 
+// [Start comment_render_node]
 @Component
 export struct CommentInput {
   @StorageLink('changeVideoHeight') videoHeight: string | number = CommonConstants.FULL_PERCENT;
   commentRenderNode: CommentNodeController = new CommentNodeController();
-
+  // [StartExclude comment_render_node]
   aboutToAppear(): void {
     console.log('make node');
     this.commentRenderNode.makeNode(this.getUIContext());
@@ -129,11 +133,15 @@ export struct CommentInput {
     .margin({
       top: 10
     });
+    // [EndExclude comment_render_node]
   }
+  // [End comment_render_node]
 }
 
+// [Start comment_node_controller]
 @Builder
 function buildComment(liveComments: LiveCommentsProduct[]) {
+  // [StartExclude comment_node_controller]
   Column() {
     List({space: 16}) {
       ForEach(liveComments, (item: LiveCommentsProduct) => {
@@ -165,6 +173,7 @@ function buildComment(liveComments: LiveCommentsProduct[]) {
 
     LiveCommentFooter();
   }.height('100%');
+  // [EndExclude comment_node_controller]
 }
 
 export class CommentNodeController extends NodeController {
@@ -194,3 +203,4 @@ export class CommentNodeController extends NodeController {
     }
   }
 }
+// [End comment_node_controller]

@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+// [Start static_start]
 import { image } from '@kit.ImageKit';
 import { effectKit } from '@kit.ArkGraphics2D';
 import { window } from '@kit.ArkUI';
@@ -26,19 +27,19 @@ export struct StaticBlur {
   @State bottomSafeHeight: number = 0; // bottom navigation bar height
 
   aboutToAppear() {
-    window.getLastWindow(getContext(this), (err, windowBar) => {
+    window.getLastWindow(this.getUIContext().getHostContext()!, (err, windowBar) => {
       if (err.code) {
         return;
       }
       // get the height of the bottom navigation bar
       this.bottomSafeHeight =
-        px2vp(windowBar.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR).bottomRect.height);
+        this.getUIContext().px2vp(windowBar.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR).bottomRect.height);
       windowBar.setWindowLayoutFullScreen(true);
     });
   }
 
   async staticBlur() {
-    let context = getContext(this);
+    let context = this.getUIContext().getHostContext()!;
     let resourceMgr = context.resourceManager; // retrieve the resourceManager object
     const fileData = await resourceMgr.getRawFileContent('test.png'); // retrieve images from the rawfile directory
     let buffer: ArrayBuffer = fileData.buffer.slice(0); // create an ArrayBuffer instance
@@ -109,3 +110,4 @@ export struct StaticBlur {
     .hideTitleBar(true)
   }
 }
+// [End static_start]

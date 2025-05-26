@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+const uiContext: UIContext | undefined = AppStorage.get('uiContext');
+
 export let numberKeyboardData: Menu[] = [
   {
     text: ',',
@@ -130,70 +132,70 @@ export let EnglishKeyboardData: Menu[][] = [
       text: 'q',
       upperText: 'Q',
       backgroundColor: $r('app.color.menu_color_white'),
-      width: 30 + px2vp(6) + 'vp',
+      width: 30 + uiContext!.px2vp(6) + 'vp',
       height: '43vp'
     },
     {
       text: 'w',
       upperText: 'W',
       backgroundColor: $r('app.color.menu_color_white'),
-      width: 30 + px2vp(6) + 'vp',
+      width: 30 + uiContext!.px2vp(6) + 'vp',
       height: '43vp'
     },
     {
       text: 'e',
       upperText: 'E',
       backgroundColor: $r('app.color.menu_color_white'),
-      width: 30 + px2vp(6) + 'vp',
+      width: 30 + uiContext!.px2vp(6) + 'vp',
       height: '43vp'
     },
     {
       text: 'r',
       upperText: 'R',
       backgroundColor: $r('app.color.menu_color_white'),
-      width: 30 + px2vp(6) + 'vp',
+      width: 30 + uiContext!.px2vp(6) + 'vp',
       height: '43vp'
     },
     {
       text: 't',
       upperText: 'T',
       backgroundColor: $r('app.color.menu_color_white'),
-      width: 30 + px2vp(6) + 'vp',
+      width: 30 + uiContext!.px2vp(6) + 'vp',
       height: '43vp'
     },
     {
       text: 'y',
       upperText: 'Y',
       backgroundColor: $r('app.color.menu_color_white'),
-      width: 30 + px2vp(6) + 'vp',
+      width: 30 + uiContext!.px2vp(6) + 'vp',
       height: '43vp'
     },
     {
       text: 'u',
       upperText: 'U',
       backgroundColor: $r('app.color.menu_color_white'),
-      width: 30 + px2vp(6) + 'vp',
+      width: 30 + uiContext!.px2vp(6) + 'vp',
       height: '43vp'
     },
     {
       text: 'i',
       upperText: 'I',
       backgroundColor: $r('app.color.menu_color_white'),
-      width: 30 + px2vp(6) + 'vp',
+      width: 30 + uiContext!.px2vp(6) + 'vp',
       height: '43vp'
     },
     {
       text: 'o',
       upperText: 'O',
       backgroundColor: $r('app.color.menu_color_white'),
-      width: 30 + px2vp(6) + 'vp',
+      width: 30 + uiContext!.px2vp(6) + 'vp',
       height: '43vp'
     },
     {
       text: 'p',
       upperText: 'P',
       backgroundColor: $r('app.color.menu_color_white'),
-      width: 30 + px2vp(6) + 'vp',
+      width: 30 + uiContext!.px2vp(6) + 'vp',
       height: '43vp'
     }
   ],
@@ -202,63 +204,63 @@ export let EnglishKeyboardData: Menu[][] = [
       text: 'a',
       upperText: 'A',
       backgroundColor: $r('app.color.menu_color_white'),
-      width: 30 + px2vp(6) + 'vp',
+      width: 30 + uiContext!.px2vp(6) + 'vp',
       height: '43vp'
     },
     {
       text: 's',
       upperText: 'S',
       backgroundColor: $r('app.color.menu_color_white'),
-      width: 30 + px2vp(6) + 'vp',
+      width: 30 + uiContext!.px2vp(6) + 'vp',
       height: '43vp'
     },
     {
       text: 'd',
       upperText: 'D',
       backgroundColor: $r('app.color.menu_color_white'),
-      width: 30 + px2vp(6) + 'vp',
+      width: 30 + uiContext!.px2vp(6) + 'vp',
       height: '43vp'
     },
     {
       text: 'f',
       upperText: 'F',
       backgroundColor: $r('app.color.menu_color_white'),
-      width: 30 + px2vp(6) + 'vp',
+      width: 30 + uiContext!.px2vp(6) + 'vp',
       height: '43vp'
     },
     {
       text: 'g',
       upperText: 'G',
       backgroundColor: $r('app.color.menu_color_white'),
-      width: 30 + px2vp(6) + 'vp',
+      width: 30 + uiContext!.px2vp(6) + 'vp',
       height: '43vp'
     },
     {
       text: 'h',
       upperText: 'H',
       backgroundColor: $r('app.color.menu_color_white'),
-      width: 30 + px2vp(6) + 'vp',
+      width: 30 + uiContext!.px2vp(6) + 'vp',
       height: '43vp'
     },
     {
       text: 'j',
       upperText: 'J',
       backgroundColor: $r('app.color.menu_color_white'),
-      width: 30 + px2vp(6) + 'vp',
+      width: 30 + uiContext!.px2vp(6) + 'vp',
       height: '43vp'
     },
     {
       text: 'k',
       upperText: 'K',
       backgroundColor: $r('app.color.menu_color_white'),
-      width: 30 + px2vp(6) + 'vp',
+      width: 30 + uiContext!.px2vp(6) + 'vp',
       height: '43vp'
     },
     {
       text: 'l',
       upperText: 'L',
       backgroundColor: $r('app.color.menu_color_white'),
-      width: 30 + px2vp(6) + 'vp',
+      width: 30 + uiContext!.px2vp(6) + 'vp',
       height: '43vp'
     }
   ],
@@ -267,62 +269,62 @@ export let EnglishKeyboardData: Menu[][] = [
       text: $r('app.media.arrowshape_up'),
       upperText: $r('app.media.arrowshape_up_fill'),
       backgroundColor: $r('app.color.menu_color_gray'),
-      width: 49 + px2vp(6) + 'vp',
+      width: 49 + uiContext!.px2vp(6) + 'vp',
       height: '43vp'
     },
     {
       text: 'z',
       upperText: 'Z',
       backgroundColor: $r('app.color.menu_color_white'),
-      width: 30 + px2vp(6) + 'vp',
+      width: 30 + uiContext!.px2vp(6) + 'vp',
       height: '43vp'
     },
     {
       text: 'x',
       upperText: 'X',
       backgroundColor: $r('app.color.menu_color_white'),
-      width: 30 + px2vp(6) + 'vp',
+      width: 30 + uiContext!.px2vp(6) + 'vp',
       height: '43vp'
     },
     {
       text: 'c',
       upperText: 'C',
       backgroundColor: $r('app.color.menu_color_white'),
-      width: 30 + px2vp(6) + 'vp',
+      width: 30 + uiContext!.px2vp(6) + 'vp',
       height: '43vp'
     },
     {
       text: 'v',
       upperText: 'V',
       backgroundColor: $r('app.color.menu_color_white'),
-      width: 30 + px2vp(6) + 'vp',
+      width: 30 + uiContext!.px2vp(6) + 'vp',
       height: '43vp'
     },
     {
       text: 'b',
       upperText: 'B',
       backgroundColor: $r('app.color.menu_color_white'),
-      width: 30 + px2vp(6) + 'vp',
+      width: 30 + uiContext!.px2vp(6) + 'vp',
       height: '43vp'
     },
     {
       text: 'n',
       upperText: 'N',
       backgroundColor: $r('app.color.menu_color_white'),
-      width: 30 + px2vp(6) + 'vp',
+      width: 30 + uiContext!.px2vp(6) + 'vp',
       height: '43vp'
     },
     {
       text: 'm',
       upperText: 'M',
       backgroundColor: $r('app.color.menu_color_white'),
-      width: 30 + px2vp(6) + 'vp',
+      width: 30 + uiContext!.px2vp(6) + 'vp',
       height: '43vp'
     },
     {
       text: $r('app.string.keyboardButton_delete'),
       backgroundColor: $r('app.color.menu_color_gray'),
-      width: 49 + px2vp(6) + 'vp',
+      width: 49 + uiContext!.px2vp(6) + 'vp',
       height: '43vp'
     }
   ],
@@ -330,19 +332,19 @@ export let EnglishKeyboardData: Menu[][] = [
     {
       text: $r('app.string.tabButton_number_text'),
       backgroundColor: $r('app.color.menu_color_gray'),
-      width: 72 + px2vp(6) + 'vp',
+      width: 72 + uiContext!.px2vp(6) + 'vp',
       height: '43vp'
     },
     {
       text: $r('app.string.keyboardButton_space'),
       backgroundColor: $r('app.color.menu_color_white'),
-      width: 212 + px2vp(6) + 'vp',
+      width: 212 + uiContext!.px2vp(6) + 'vp',
       height: '43vp'
     },
     {
       text: $r('app.string.keyboardButton_finish'),
       backgroundColor: $r('app.color.menu_color_gray'),
-      width: 72 + px2vp(6) + 'vp',
+      width: 72 + uiContext!.px2vp(6) + 'vp',
       height: '43vp'
     }
   ]

@@ -78,7 +78,7 @@ struct MessageAuthenticationCode {
         right: $r('app.float.medium_padding')
       })
     }
-    .title(getResourceString($r('app.string.code_btn'), this))
+    .title(getResourceString($r('app.string.code_btn'), this.getUIContext()))
     .backgroundColor($r('app.color.background_page'))
   }
 }

@@ -74,7 +74,7 @@ export struct PageVibrateEffect {
                   .fontColor($r('app.color.ohos_id_color_palette8'))
                   .fontSize($r('app.integer.comm_font_size'))
                   .onClick(() => {
-                    promptAction.showToast({
+                    this.getUIContext().getPromptAction().showToast({
                       message: $r('app.string.prompt_text')
                     });
                   })
@@ -85,7 +85,7 @@ export struct PageVibrateEffect {
                   .fontColor($r('app.color.ohos_id_color_palette8'))
                   .fontSize($r('app.integer.comm_font_size'))
                   .onClick(() => {
-                    promptAction.showToast({
+                    this.getUIContext().getPromptAction().showToast({
                       message: $r('app.string.prompt_text')
                     });
                   })
@@ -93,7 +93,7 @@ export struct PageVibrateEffect {
                   .fontColor($r('app.color.ohos_id_color_palette8'))
                   .fontSize($r('app.integer.comm_font_size'))
                   .onClick(() => {
-                    promptAction.showToast({
+                    this.getUIContext().getPromptAction().showToast({
                       message: $r('app.string.prompt_text')
                     });
                   })
@@ -154,7 +154,7 @@ export struct PageVibrateEffect {
                 this.startVibrate();
                 this.startAnimation();
               } else {
-                promptAction.showToast({
+                this.getUIContext().getPromptAction().showToast({
                   message: $r('app.string.login_text')
                 });
               }
@@ -166,7 +166,7 @@ export struct PageVibrateEffect {
             .fontSize($r('app.integer.other_login_font_size'))
             .backgroundColor($r('app.color.ohos_id_color_background'))
             .onClick(() => {
-              promptAction.showToast({
+              this.getUIContext().getPromptAction().showToast({
                 message: $r('app.string.prompt_text')
               });
             })

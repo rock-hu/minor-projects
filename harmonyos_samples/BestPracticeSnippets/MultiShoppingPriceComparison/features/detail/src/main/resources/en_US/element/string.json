@@ -1,0 +1,304 @@
+{
+  "string": [
+    {
+      "name": "shared_desc",
+      "value": "description"
+    },
+    {
+      "name": "comment_placeholder",
+      "value": "What to say ..."
+    },
+    {
+      "name": "official_review",
+      "value": "official"
+    },
+    {
+      "name": "store_name",
+      "value": "Official live broadcast room"
+    },
+    {
+      "name": "number_of_viewers",
+      "value": "738,600 people watch"
+    },
+    {
+      "name": "preferential_scheme",
+      "value": "XX yuan store universal red envelope"
+    },
+    {
+      "name": "pocket_baby",
+      "value": "Pocket"
+    },
+    {
+      "name": "currency_symbol",
+      "value": "￥ "
+    },
+    {
+      "name": "OP_CAR_PRODUCT_REMARK_LIST1",
+      "value": "BeiDou Msg | Low Batt Emergency"
+    },
+    {
+      "name": "OP_CAR_PRODUCT_REMARK_LIST2",
+      "value": "Thin, Flat, Reliable"
+    },
+    {
+      "name": "OP_CAR_PRODUCT_REMARK_LIST3",
+      "value": "2.5K HR Screen | Light & Long Battery"
+    },
+    {
+      "name": "Gifted_points",
+      "value": "Gift points"
+    },
+    {
+      "name": "flagship_machine",
+      "value": "New straight-screen flagship"
+    },
+    {
+      "name": "cheaper",
+      "value": "Pre-order & save $200 on performance ed."
+    },
+    {
+      "name": "Shopping_bag",
+      "value": "Shopping bag"
+    },
+    {
+      "name": "search",
+      "value": "search"
+    },
+    {
+      "name": "Order",
+      "value": "Order"
+    },
+    {
+      "name": "all",
+      "value": "All"
+    },
+    {
+      "name": "phone",
+      "value": "Phone"
+    },
+    {
+      "name": "mac",
+      "value": "Tablet"
+    },
+    {
+      "name": "PC",
+      "value": "PC"
+    },
+    {
+      "name": "watch",
+      "value": "Watch"
+    },
+    {
+      "name": "earphone",
+      "value": "Earphone"
+    },
+    {
+      "name": "LIVE_COMMENTS_LIST1",
+      "value": "Visionary & Intelligent. Recap of Mate 60 Pro launch."
+    },
+    {
+      "name": "LIVE_COMMENTS_LIST2",
+      "value": "123XXXXXX posted multiple comments!"
+    },
+    {
+      "name": "LIVE_COMMENTS_LIST3",
+      "value": "Congrats, 123XXXXXX! Flash sale discount won!"
+    },
+    {
+      "name": "buy_now",
+      "value": "Buy now"
+    },
+    {
+      "name": "living",
+      "value": "Living"
+    },
+    {
+      "name": "store",
+      "value": "Huawei official flagship store"
+    },
+    {
+      "name": "buy",
+      "value": "Buy"
+    },
+    {
+      "name": "CUSTOMER_SERVICE_CONTENTS1",
+      "value": "HUAWEI Mate X5 12GB+512GB Phantom Purple: Ultra-thin Fold, HD Dual Screens, Smart Comm."
+    },
+    {
+      "name": "CUSTOMER_SERVICE_CONTENTS2",
+      "value": "Hello! Want to consult the latest mobile phone released this fall ~"
+    },
+    {
+      "name": "CUSTOMER_SERVICE_CONTENTS3",
+      "value": "Hello, smart customer service assistant will serve you!"
+    },
+    {
+      "name": "CUSTOMER_SERVICE_CONTENTS4",
+      "value": "Welcome to the Huawei official mall. In order to improve the quality of service, your consultation may be recorded. At present, there are fewer store customer service. It is recommended that you give priority to obtaining product information through the product details page or Huawei official website. If the smart customer service cannot solve your problem, you can enter \"manual\" to contact artificial customer service. Thank you for your understanding and support ~"
+    },
+    {
+      "name": "COLOR_SELECT_NAME_LIST1",
+      "value": "Phantom Purple"
+    },
+    {
+      "name": "COLOR_SELECT_NAME_LIST2",
+      "value": "Feather Black"
+    },
+    {
+      "name": "COLOR_SELECT_NAME_LIST3",
+      "value": "Feather White"
+    },
+    {
+      "name": "COLOR_SELECT_NAME_LIST4",
+      "value": "Mountain Green"
+    },
+    {
+      "name": "Official_standard",
+      "value": "Official std config"
+    },
+    {
+      "name": "add_cart",
+      "value": "Add to Cart"
+    },
+    {
+      "name": "SELECT_NAME_LIST1",
+      "value": "color"
+    },
+    {
+      "name": "SELECT_NAME_LIST2",
+      "value": "Storage capacity"
+    },
+    {
+      "name": "SELECT_NAME_LIST3",
+      "value": "Package type"
+    },
+    {
+      "name": "pay_info1",
+      "value": "Room XX, Unit XX, Building XXXXX, XXXX Avenue"
+    },
+    {
+      "name": "pay_info2",
+      "value": "Contact: +8610000000000"
+    },
+    {
+      "name": "pay_info3",
+      "value": "Huawei Wallet Payment"
+    },
+    {
+      "name": "pay_info4",
+      "value": "Pay now"
+    },
+    {
+      "name": "PRODUCT_CONFIG_NAMES1",
+      "value": "Selected"
+    },
+    {
+      "name": "PRODUCT_CONFIG_NAMES2",
+      "value": "Phantom Purple 512GB, Fast Ship"
+    },
+    {
+      "name": "PRODUCT_CONFIG_NAMES3",
+      "value": "Pair"
+    },
+    {
+      "name": "PRODUCT_CONFIG_NAMES5",
+      "value": "Recycle"
+    },
+    {
+      "name": "PRODUCT_CONFIG_NAMES6",
+      "value": "High recycling, extra subsidies"
+    },
+    {
+      "name": "PRODUCT_CONFIG_NAMES7",
+      "value": "Free ship over 48 yuan"
+    },
+    {
+      "name": "PRODUCT_CONFIG_NAMES8",
+      "value": "Huawei Terminal: products, shipping, service"
+    },
+    {
+      "name": "USER_COMMENT_NAMES1",
+      "value": "User reviews (1500+)"
+    },
+    {
+      "name": "USER_COMMENT_NAMES2",
+      "value": "Top 77"
+    },
+    {
+      "name": "USER_COMMENT_NAMES3",
+      "value": "858 contents"
+    },
+    {
+      "name": "USER_COMMENT_NAMES4",
+      "value": "217 imgs"
+    },
+    {
+      "name": "USER_COMMENT_NAMES5",
+      "value": "JI**********"
+    },
+    {
+      "name": "USER_COMMENT_NAMES6",
+      "value": "Huawei phones: long battery, clear cams, smooth ops, strong feats, stunning looks. Highly recommend!"
+    },
+    {
+      "name": "USER_COMMENT_NAMES7",
+      "value": "All reviews"
+    },
+    {
+      "name": "USER_COMMENT_NAMES8",
+      "value": "Gold Black 256GB, Fast Ship"
+    },
+    {
+      "name": "compare",
+      "value": "Compare"
+    },
+    {
+      "name": "PRODUCT_DISCOUNT_NAMES1",
+      "value": "[In Stock & Fast Shipping] HUAWEI Mate X5 12GB+512GB Phantom Purple"
+    },
+    {
+      "name": "PRODUCT_DISCOUNT_NAMES2",
+      "value": "[Huawei New Season]1、Gift: ¥299 Smart Case (Ltd)2、Student Discount: ¥1003、Trade-in: Up to ¥500 | More Phones >> Ultra-clear Screens, Ultra-slim Fold"
+    },
+    {
+      "name": "PRODUCT_DISCOUNT_NAMES3",
+      "value": "Limited Giveaway: Free Infinity Earphones (Vitality Edition)"
+    },
+    {
+      "name": "PRODUCT_PRICE_NAMES1",
+      "value": "Time remaining until the end:"
+    },
+    {
+      "name": "PRODUCT_PRICE_NAMES2",
+      "value": "Enjoy up to 12 interest-free installments"
+    },
+    {
+      "name": "PRODUCT_PRICE_NAMES3",
+      "value": "Boutique"
+    },
+    {
+      "name": "PRODUCT_PRICE_NAMES4",
+      "value": "Direct ¥800 off (Ltd Time)"
+    },
+    {
+      "name": "PRODUCT_PRICE_NAMES5",
+      "value": "Trade-in subsidy"
+    },
+    {
+      "name": "PRODUCT_PRICE_NAMES6",
+      "value": "Disc."
+    },
+    {
+      "name": "PRODUCT_PRICE_NAMES7",
+      "value": "Longgang, Shenzhen, Guangdong"
+    },
+    {
+      "name": "PRODUCT_PRICE_NAMES8",
+      "value": "In stock"
+    },
+    {
+      "name": "PRODUCT_CONFIG_NAMES4",
+      "value": "Rec. "
+    }
+  ]
+}

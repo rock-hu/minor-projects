@@ -25,6 +25,12 @@ export class DataConversion {
    * @param keyStr Hexadecimal public key。
    * @returns Promise<cryptoFramework.PubKey>.
    */
+  context: UIContext;
+
+  constructor(context: UIContext) {
+    this.context = context
+  }
+
   public static async convertStrToPubKey(keyStr: string): Promise<cryptoFramework.PubKey> {
     const puKeyStr = keyStr.startsWith('04') ? keyStr.slice(2) : keyStr;
     const pkPart1 = puKeyStr.slice(0, puKeyStr.length / 2);
@@ -87,7 +93,7 @@ export class DataConversion {
         data = data.slice(70, data.length);
       } else {
         hilog.error(0, 'd2i_SM2_Ciphertext',
-          getContext(this).resourceManager.getStringSync($r('app.string.format_error').id));
+          this.context.getHostContext()!.resourceManager.getStringSync($r('app.string.format_error').id));
       }
     }
     sm2_sequence.C1x = xy[0];
@@ -102,12 +108,12 @@ export class DataConversion {
       data = data.slice(C2_lenHex.length, data.length);
       if (this.lenHex2number(C2_lenHex) !== data.length / 2) {
         hilog.error(0, 'd2i_SM2_Ciphertext',
-          getContext(this).resourceManager.getStringSync($r('app.string.format_error').id));
+          this.context.getHostContext()!.resourceManager.getStringSync($r('app.string.format_error').id));
       }
       sm2_sequence.C2 = data;
     } else {
       hilog.error(0, 'd2i_SM2_Ciphertext',
-        getContext(this).resourceManager.getStringSync($r('app.string.format_error').id));
+        this.context.getHostContext()!.resourceManager.getStringSync($r('app.string.format_error').id));
     }
     return data;
   }
@@ -118,7 +124,7 @@ export class DataConversion {
       data = data.slice(68, data.length);
     } else {
       hilog.error(0, 'd2i_SM2_Ciphertext',
-        getContext(this).resourceManager.getStringSync($r('app.string.format_error').id));
+        this.context.getHostContext()!.resourceManager.getStringSync($r('app.string.format_error').id));
     }
     return data;
   }
@@ -149,7 +155,7 @@ export class DataConversion {
     let message: string = standard_data;
     if (!message.startsWith('30')) {
       hilog.error(0, 'd2i_SM2_Ciphertext',
-        getContext(this).resourceManager.getStringSync($r('app.string.format_error').id));
+        this.context.getHostContext()!.resourceManager.getStringSync($r('app.string.format_error').id));
     }
     message = message.slice('30'.length, message.length);
 
@@ -160,7 +166,7 @@ export class DataConversion {
 
     if (sequence_len !== message.length / 2) {
       hilog.error(0x0000, 'd2i_SM2_Ciphertext',
-        getContext(this).resourceManager.getStringSync($r('app.string.format_error').id));
+        this.context.getHostContext()!.resourceManager.getStringSync($r('app.string.format_error').id));
     }
 
     let sm2_sequence = new SM2Sequence();

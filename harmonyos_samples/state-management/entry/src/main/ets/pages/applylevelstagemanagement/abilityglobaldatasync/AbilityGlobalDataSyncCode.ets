@@ -13,13 +13,9 @@
  * limitations under the License.
  */
 
-import { router } from '@kit.ArkUI';
 import { common } from '@kit.AbilityKit';
 import { ViewCodeText } from '../../../commoncomponents/ViewCodeText';
 import { startSpecifiedAbility } from '../../../utils/StartAbilityUtils';
-
-// Declare a context information.
-const CONTEXT: common.UIAbilityContext = getContext(this) as common.UIAbilityContext;
 
 @Component
 export struct AbilityGlobalDataSyncCode {
@@ -104,7 +100,7 @@ export struct AbilityGlobalDataSyncCode {
       .backgroundColor($r('app.color.button_background_color'))
       .padding($r('app.float.page_padding'))
       .onClick(() => {
-        router.pushUrl({ url: 'pages/applylevelstagemanagement/abilityglobaldatasync/LocalStoragePropPage' });
+        this.getUIContext().getRouter().pushUrl({ url: 'pages/applylevelstagemanagement/abilityglobaldatasync/LocalStoragePropPage' });
       })
 
       Button() {
@@ -119,7 +115,7 @@ export struct AbilityGlobalDataSyncCode {
       .backgroundColor($r('app.color.button_background_color'))
       .padding($r('app.float.page_padding'))
       .onClick(() => {
-        router.pushUrl({ url: 'pages/applylevelstagemanagement/abilityglobaldatasync/LocalStorageLinkPage' });
+        this.getUIContext().getRouter().pushUrl({ url: 'pages/applylevelstagemanagement/abilityglobaldatasync/LocalStorageLinkPage' });
       })
 
       Divider().width('100%').strokeWidth(1)
@@ -135,7 +131,7 @@ export struct AbilityGlobalDataSyncCode {
       .backgroundColor($r('app.color.button_background_color'))
       .padding($r('app.float.page_padding'))
       .onClick(() => {
-        startSpecifiedAbility(CONTEXT, 'OutOfSyncAbility');
+        startSpecifiedAbility(this.getUIContext().getHostContext() as common.UIAbilityContext, 'OutOfSyncAbility');
       })
     }
     .width('100%')

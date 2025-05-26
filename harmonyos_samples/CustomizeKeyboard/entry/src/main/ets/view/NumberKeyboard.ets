@@ -17,6 +17,7 @@ import { Menu, numberKeyboardData } from '../viewmodel/MenuModel';
 import { KeyboardController } from '../model/KeyboardController';
 import { Constants } from '../constants/Constants';
 
+// [Start NumberKeyboard_start]
 @Component
 export struct NumberKeyboard {
   @Consume inputText: string;
@@ -55,3 +56,4 @@ export struct NumberKeyboard {
     .columnsGap($r('app.float.number_keyboard_grid_gap'))
   }
 }
+// [End NumberKeyboard_start]

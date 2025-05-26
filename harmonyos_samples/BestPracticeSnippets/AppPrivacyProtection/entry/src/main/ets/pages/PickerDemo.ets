@@ -13,8 +13,10 @@
  * limitations under the License.
  */
 
+// [Start picker_demo]
 import { photoAccessHelper } from '@kit.MediaLibraryKit';
 import { BusinessError } from '@kit.BasicServicesKit';
+// [End picker_demo]
 import Logger from '../utils/Logger';
 
 @Entry
@@ -41,6 +43,7 @@ struct PickerDemo {
           middle: { anchor: '__container__', align: HorizontalAlign.Center }
         })
         .onClick(() => {
+          // [Start picker_demo]
           const photoSelectOptions = new photoAccessHelper.PhotoSelectOptions();
           photoSelectOptions.MIMEType = photoAccessHelper.PhotoViewMIMETypes.IMAGE_TYPE;
           photoSelectOptions.maxSelectNumber = 5;
@@ -51,6 +54,7 @@ struct PickerDemo {
           }).catch((err: BusinessError) => {
             Logger.error(`PhotoViewPicker.select failed with err: ${JSON.stringify(err)}`)
           })
+          // [End picker_demo]
         })
     }
     .height('100%')

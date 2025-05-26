@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-// DocsCode 1
+// [Start PromptActionClass_open]
 import { PromptActionClass } from '../uitls/PromptActionClass';
 import { ComponentContent } from '@kit.ArkUI';
 
@@ -110,5 +110,4 @@ export struct GlobalDialogDecoupledFromThePage {
     }
   }
 }
-
-// DocsCode 1
+// [End PromptActionClass_open]

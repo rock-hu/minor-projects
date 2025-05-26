@@ -83,7 +83,7 @@ struct MenuSample {
       .onClick(() => {
         // Close menu on click
         ShowToast.shortToast($r('app.string.global_menu_close'));
-        ContextMenu.close();
+        this.getUIContext().getContextMenuController().close();
       })
     }
     .width('100%')

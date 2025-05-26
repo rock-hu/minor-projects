@@ -13,8 +13,10 @@
  * limitations under the License.
  */
 
+// [Start import_connection]
 import { connection } from '@kit.NetworkKit';
 import { BusinessError } from '@kit.BasicServicesKit';
+// [End import_connection]
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
 @Builder
@@ -27,7 +29,7 @@ export struct GetNetworkConnectionInfo {
   @State text: ResourceStr = '';
   @State textArea: string = '';
 
-  // DocsCode 1
+  // [Start get_network_connection_type]
   getNetworkConnectionType() {
     try {
       let netHandle = connection.getDefaultNetSync();
@@ -36,19 +38,18 @@ export struct GetNetworkConnectionInfo {
       }
       let netCapability = connection.getNetCapabilitiesSync(netHandle);
       hilog.info(0x0000, 'Sample', 'bearerTypes: %{public}s', JSON.stringify(netCapability.bearerTypes));
-      // DocsDot
+      // [StartExclude get_network_connection_type]
       this.textArea = 'bearerTypes:' + JSON.stringify(netCapability.bearerTypes);
-      // DocsDot
+      // [EndExclude get_network_connection_type]
     } catch (e) {
       let err = e as BusinessError;
       hilog.error(0x0000, 'Sample', 'errCode: %{public}s, errMessage: %{public}s', (err as BusinessError).code,
         (err as BusinessError).message);
     }
   }
+  // [End get_network_connection_type]
 
-  // DocsCode 1
-
-  // DocsCode 2
+  // [Start fuction_judge_has_net]
   judgeHasNet(): boolean {
     try {
       let netHandle = connection.getDefaultNetSync();
@@ -60,15 +61,15 @@ export struct GetNetworkConnectionInfo {
       if (cap.includes(connection.NetCap.NET_CAPABILITY_VALIDATED)) {
         // connection.NetCap.NET_CAPABILITY_VALIDATED，The value indicates that the network is normal and HTTP and HTTPS requests can be initiated。
         // The network information changes and the network is available
-        // DocsDot
+        // [StartExclude fuction_judge_has_net]
         this.textArea = 'true';
-        // DocsDot
+        // [EndExclude fuction_judge_has_net]
         return true;
       } else {
         // The network information changes and the network is unavailable.
-        // DocsDot
+        // [StartExclude fuction_judge_has_net]
         this.textArea = 'false';
-        // DocsDot
+        // [EndExclude fuction_judge_has_net]
         return false;
       }
     } catch (e) {
@@ -77,10 +78,9 @@ export struct GetNetworkConnectionInfo {
     }
     return false;
   }
+  // [End fuction_judge_has_net]
 
-  // DocsCode 2
-
-  // DocsCode 3
+  // [Start get_route_info_and_link_address]
   getRouteInfoAndLinkAddress() {
     connection.getDefaultNet().then((netHandle: connection.NetHandle) => {
       if (!netHandle || netHandle.netId === 0) {
@@ -95,15 +95,14 @@ export struct GetNetworkConnectionInfo {
         hilog.info(0x0000, 'Sample', 'Succeeded to get data: %{public}s', JSON.stringify(data));
         let routeInfo = data.routes;
         let linkAddress = data.linkAddresses;
-        // DocsDot
+        // [StartExclude get_route_info_and_link_address]
         this.textArea =
           'routeInfo is: ' + JSON.stringify(routeInfo) + '\n' + 'linkAddress is: ' + JSON.stringify(linkAddress);
-        // DocsDot
+        // [EndExclude get_route_info_and_link_address]
       })
     });
   }
-
-  // DocsCode 3
+  // [End get_route_info_and_link_address]
 
   @Builder
   NavDestinationTitle() {

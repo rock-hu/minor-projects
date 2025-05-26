@@ -13,9 +13,14 @@
  *   limitations under the License.
  */
 
+/**
+ * 最佳实践：基于HMRouter路由框架的页面跳转开发实践
+ */
+
 import { HMLifecycle, HMLifecycleContext, IHMLifecycle } from '@hadss/hmrouter';
 import { CommonConstants } from '../component/common/constants/CommonConstants'
 
+// [Start exit_app_lifecyle ]
 @HMLifecycle({lifecycleName: 'ExitAppLifecycle'})
 export class ExitAppLifecycle implements IHMLifecycle {
   private lastTime: number = 0;
@@ -24,7 +29,7 @@ export class ExitAppLifecycle implements IHMLifecycle {
     if(time - this.lastTime > 1000) {
       this.lastTime = time;
       ctx.uiContext.getPromptAction().showToast({
-        message: CommonConstants.EXIT_TOAST,
+        message: '再次返回退出应用',
         duration: 1000
       });
       return true;
@@ -33,3 +38,4 @@ export class ExitAppLifecycle implements IHMLifecycle {
     }
   }
 }
+// [End exit_app_lifecyle]

@@ -34,7 +34,7 @@ struct Index {
           .height(40)
           .fontWeight(FontWeight.Bold)
           .onClick(() => {
-            router.pushUrl({ url: 'pages/ClickError' });
+            this.getUIContext().getRouter().pushUrl({ url: 'pages/ClickError' });
           })
           .margin({ bottom: 12 })
 
@@ -44,7 +44,7 @@ struct Index {
           .height(40)
           .fontWeight(FontWeight.Bold)
           .onClick(() => {
-            router.pushUrl({ url: 'pages/ClickRight' });
+            this.getUIContext().getRouter().pushUrl({ url: 'pages/ClickRight' });
           })
           .margin({ bottom: 12 })
 
@@ -54,7 +54,7 @@ struct Index {
           .height(40)
           .fontWeight(FontWeight.Bold)
           .onClick(() => {
-            router.pushUrl({ url: 'pages/TabsError' });
+            this.getUIContext().getRouter().pushUrl({ url: 'pages/TabsError' });
           })
           .margin({ bottom: 12 })
 
@@ -64,7 +64,7 @@ struct Index {
           .height(40)
           .fontWeight(FontWeight.Bold)
           .onClick(() => {
-            router.pushUrl({ url: 'pages/TabsRight' });
+            this.getUIContext().getRouter().pushUrl({ url: 'pages/TabsRight' });
           })
           .margin({ bottom: 12 })
 
@@ -74,7 +74,7 @@ struct Index {
           .height(40)
           .fontWeight(FontWeight.Bold)
           .onClick(() => {
-            router.pushUrl({ url: 'pages/PullToRefreshError' });
+            this.getUIContext().getRouter().pushUrl({ url: 'pages/PullToRefreshError' });
           })
           .margin({ bottom: 12 })
 
@@ -84,7 +84,7 @@ struct Index {
           .height(40)
           .fontWeight(FontWeight.Bold)
           .onClick(() => {
-            router.pushUrl({ url: 'pages/PullToRefreshRight' });
+            this.getUIContext().getRouter().pushUrl({ url: 'pages/PullToRefreshRight' });
           })
           .margin({ bottom: 12 })
       }

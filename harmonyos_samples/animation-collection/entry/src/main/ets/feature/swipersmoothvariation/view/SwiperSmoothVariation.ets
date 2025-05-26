@@ -132,7 +132,7 @@ struct SwiperSmoothVariation {
       .effectMode(EdgeEffect.None)
       .loop(false)
       .onGestureSwipe((index: number, extraInfo: SwiperAnimationEvent) => {
-        animateTo({
+        this.getUIContext().animateTo({
           duration: Const.DURATION_SWIPER,
           curve: Curve.EaseOut,
           playMode: PlayMode.Normal
@@ -158,7 +158,7 @@ struct SwiperSmoothVariation {
       })
       .onAnimationStart((_: number, targetIndex: number) => {
         // Smoothly changing animation effects.
-        animateTo({
+        this.getUIContext().animateTo({
           duration: Const.DURATION_DOWN_PAGE,
           curve: Curve.EaseOut,
           playMode: PlayMode.Normal

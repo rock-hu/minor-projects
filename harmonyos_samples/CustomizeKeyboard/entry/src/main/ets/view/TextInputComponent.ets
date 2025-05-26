@@ -18,12 +18,14 @@ import { KeyboardController } from '../model/KeyboardController';
 import { CustomKeyboard } from './CustomKeyboard';
 import { TabView } from './TabView';
 
+// [Start TextInputComponent_start]
 @Component
 export struct TextInputComponent {
+  @Provide inputText: string = '';
+  // [StartExclude TextInputComponent_start]
   @Provide keyBoardController: KeyboardController = new KeyboardController();
   @Provide isCustomKeyboardAttach: boolean = true;
   @Provide isTabViewShow: boolean = false;
-  @Provide inputText: string = '';
   @Provide systemKeyboardHeight: number = 0;
   @Provide customKeyboardHeight: number = 0;
   @Provide bottomRectHeight: number = 0;
@@ -31,12 +33,12 @@ export struct TextInputComponent {
 
   aboutToAppear(): void {
     this.keyBoardController.textInputController = this.textInputController;
-    window.getLastWindow(getContext(), (err, data) => {
+    window.getLastWindow(this.getUIContext().getHostContext(), (err, data) => {
       let avoidArea = data.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR);
-      this.bottomRectHeight = px2vp(avoidArea.bottomRect.height);
+      this.bottomRectHeight = this.getUIContext().px2vp(avoidArea.bottomRect.height);
       data.on('keyboardHeightChange', (value) => {
         if (value) {
-          this.systemKeyboardHeight = px2vp(value);
+          this.systemKeyboardHeight = this.getUIContext().px2vp(value);
           let avoidHeight: number =
             (this.isCustomKeyboardAttach ? this.customKeyboardHeight : this.systemKeyboardHeight)
               - this.bottomRectHeight;
@@ -45,23 +47,36 @@ export struct TextInputComponent {
       })
     })
   }
-
+  // [EndExclude TextInputComponent_start]
+  // [Start customKeyboard_start]
   build() {
     Column() {
+      // [Start TextInput_start]
+      // [Start switchover_start]
       TextInput({
         placeholder: $r('app.string.textInput_placeholder_custom'),
         text: this.inputText,
         controller: this.textInputController
       })
+        // [StartExclude TextInput_start]
+        // [StartExclude TextInputComponent_start]
+        // [StartExclude customKeyboard_start]
+        // [StartExclude switchover_start]
         .margin({
           top: $r('app.float.main_page_margin_top'),
           left: $r('app.float.main_page_margin'),
           right: $r('app.float.main_page_margin')
         })
+          // [EndExclude switchover_start]
+          // [EndExclude customKeyboard_start]
         .customKeyboard(this.isCustomKeyboardAttach ? this.customKeyboard() : null)
+          // [End switchover_start]
+          // [StartExclude customKeyboard_start]
+          // [EndExclude TextInput_start]
         .onTextSelectionChange((start: number, end: number) => {
           this.keyBoardController.setCaretPosition(start, end);
         })
+          // [StartExclude TextInput_start]
         .onBlur(() => {
           this.isTabViewShow = false;
           this.keyBoardController.changeAvoidHeight(0);
@@ -82,11 +97,17 @@ export struct TextInputComponent {
         .height($r('app.float.main_page_textInput_height'))
       TabView()
         .visibility(this.isTabViewShow ? Visibility.Visible : Visibility.Hidden)
+      // [EndExclude customKeyboard_start]
+      // [EndExclude TextInputComponent_start]
     }
   }
-
+  // [StartExclude TextInputComponent_start]
   @Builder
   customKeyboard() {
     CustomKeyboard()
   }
+  // [EndExclude TextInputComponent_start]
 }
+// [EndExclude TextInput_start]
+// [End TextInput_start]
+// [End customKeyboard_start]

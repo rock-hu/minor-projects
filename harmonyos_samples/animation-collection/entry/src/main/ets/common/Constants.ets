@@ -15,6 +15,8 @@
 
 import { NavDestinationItem } from '../viewmodel/NavDestinationItem';
 
+const context = AppStorage.get("context") as UIContext;
+
 export default class Constants {
 
   /**
@@ -86,6 +88,6 @@ export default class Constants {
   ];
 
   static ResourceToString(resource:Resource):string{
-    return getContext(resource).resourceManager.getStringSync(resource)
+    return context.getHostContext()!.resourceManager.getStringSync(resource)
   }
 }

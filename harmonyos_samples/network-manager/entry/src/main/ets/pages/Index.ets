@@ -34,7 +34,7 @@ struct Index {
   private controller: TabsController = new TabsController();
   private netHandle: connection.NetHandle | null = null;
   private netCon: connection.NetConnection | null = null;
-  private myResourceManager: resourceManager.ResourceManager = getContext(this).resourceManager;
+  private myResourceManager: resourceManager.ResourceManager = this.getUIContext().getHostContext()!.resourceManager;
   scroller: Scroller = new Scroller();
 
   aboutToDisappear(): void {
@@ -281,7 +281,7 @@ struct Index {
     if (this.netHandle) {
       connection.getNetCapabilities(this.netHandle, (error, netCap) => {
         if (error) {
-          this.netMessage = this.myResourceManager.getStringSync($r('app.string.network_type_error')) ;
+          this.netMessage = this.myResourceManager.getStringSync($r('app.string.network_type_error'));
           Logger.error('getNetCapabilities error:' + error.message);
           return;
         }
@@ -347,7 +347,7 @@ struct Index {
         Logger.error('register error:' + error.message);
         return;
       }
-      promptAction.showToast({
+      this.getUIContext().getPromptAction().showToast({
         message: $r('app.string.register_network_listener_message'),
         duration: 1000
       });
@@ -382,7 +382,7 @@ struct Index {
           Logger.error('unregister error:' + error.message);
           return;
         }
-        promptAction.showToast({
+        this.getUIContext().getPromptAction().showToast({
           message: this.myResourceManager.getStringSync($r('app.string.unregister_network_listener_message')),
           duration: 1000
         });

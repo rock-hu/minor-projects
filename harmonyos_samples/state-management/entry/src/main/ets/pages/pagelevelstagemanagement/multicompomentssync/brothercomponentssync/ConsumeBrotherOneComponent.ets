@@ -19,8 +19,6 @@ import { COLOR_SELECT_DATA } from '../data/ColorData';
 import { getResourceString } from '../../../../utils/ResourceUtils';
 import { ViewCodeText } from '../../../../commoncomponents/ViewCodeText';
 
-const CONTEXT: common.UIAbilityContext = getContext(this) as common.UIAbilityContext;
-
 @Component
 export struct ConsumeBrotherOneComponent {
   @State selectColors: ColorType[] = COLOR_SELECT_DATA;
@@ -42,7 +40,8 @@ export struct ConsumeBrotherOneComponent {
         Select(this.selectColors)
           .id('consumeSelectCompA')
           .selected(this.currentSelectIndex)
-          .value(getResourceString(CONTEXT, this.selectColors[this.currentSelectIndex].value))
+          .value(getResourceString(this.getUIContext().getHostContext() as common.UIAbilityContext,
+            this.selectColors[this.currentSelectIndex].value))
           .fontColor($r('app.color.button_text_color'))
           .font({ size: $r('app.float.select_font_size') })
           .selectedOptionFont({ size: $r('app.float.select_font_size') })

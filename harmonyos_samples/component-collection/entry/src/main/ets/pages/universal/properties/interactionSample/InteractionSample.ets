@@ -176,7 +176,7 @@ struct Interaction {
     }
   }
 
-  private context: Context = getContext(this);
+  private context: Context = this.getUIContext().getHostContext()!;
   private placementsNameArray = placementsNameData;
   private hitTestModeNameArray = hitTestModeNameData;
   private hoverEffectNameArray = hoverEffectNameData;
@@ -192,7 +192,7 @@ struct Interaction {
 
       if (this.mTabIndex === index) {
         Row()
-          .width(MeasureText.measureTextSize({ textContent: name }).width)
+          .width(this.getUIContext().getMeasureUtils().measureTextSize({ textContent: name }).width)
           .backgroundColor($r('app.color.title_colorone'))
           .height(2)
       }
@@ -214,7 +214,7 @@ struct Interaction {
               Button($r('app.string.button'))
                 .enabled(!this.buttonIsDisabled)
                 .onClick(() => {
-                  promptAction.showToast({
+                  this.getUIContext().getPromptAction().showToast({
                     message: 'Button Clicked'
                   })
                 })
@@ -278,7 +278,7 @@ struct Interaction {
 
                 Button($r('app.string.interaction_show_one_alert'))
                   .onClick(() => {
-                    AlertDialog.show(
+                    this.getUIContext().showAlertDialog(
                       {
                         title: 'Alert',
                         message: 'Show alert',
@@ -297,7 +297,7 @@ struct Interaction {
                   }).id('test_oneButton')
                 Button($r('app.string.interaction_show_two_alert'))
                   .onClick(() => {
-                    AlertDialog.show(
+                    this.getUIContext().showAlertDialog(
                       {
                         title: 'Alert',
                         message: "Show alert",
@@ -723,7 +723,7 @@ struct Interaction {
                   .leftTitleStyle()
                 Button($r('app.string.multi_short_key'))
                   .onClick(() => {
-                    promptAction.showToast({
+                    this.getUIContext().getPromptAction().showToast({
                       message: getStringData($r('app.string.short_key_pressed')),
                       duration: 1000,
                     });
@@ -807,7 +807,7 @@ struct Interaction {
         this.mBackgroundHandleClick = false;
         this.mForgroundChildHandleClick = false;
         this.mForgroundHandleClick = false;
-        promptAction.showToast({
+        this.getUIContext().getPromptAction().showToast({
           message: this.mTouchableTestResult
         })
         this.mToastTimer = null;

@@ -1,0 +1,78 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"jsonFile" : "directory-.-Debug-d0094a50bb2071803777.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.6.0"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "NativeSoIntegration",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "multiply::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-multiply-Debug-af530864ab7dfecd448c.json",
+					"name" : "multiply",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "nativeAdd::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-nativeAdd-Debug-6ae236cb6a0429f38fd9.json",
+					"name" : "nativeAdd",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "nativeSub::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-nativeSub-Debug-f5963f186191c1195ee0.json",
+					"name" : "nativeSub",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "D:/git_developmentPractice/BestPracticeSnippets/NativeSoIntegration/Multiply/.cxx/default/default/debug/x86_64",
+		"source" : "D:/git_developmentPractice/BestPracticeSnippets/NativeSoIntegration/Multiply/src/main/cpp"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 6
+	}
+}

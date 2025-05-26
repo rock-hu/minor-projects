@@ -41,7 +41,7 @@ export default struct FolderItem {
             .margin({ top: 3 })
         }
         .onClick(() => {
-          promptAction.showToast({
+          this.getUIContext().getPromptAction().showToast({
             message: `click APP ${this.name}`,
             duration: 1000,
           });

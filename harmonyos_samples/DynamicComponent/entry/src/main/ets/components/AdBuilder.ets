@@ -16,6 +16,7 @@
 import { AdParams } from '../model/AdParams';
 import { AdNodeController, nodeMap } from './AdController';
 
+// [Start AdComponent_start]
 @Builder
 export function adBuilder(param: AdParams) {
   AdComponent({ params: param });
@@ -39,6 +40,7 @@ struct AdComponent {
     }
   }
 }
+// [End AdComponent_start]
 
 @Builder
 function picAdBuilder(closeAdDialogController: CustomDialogController) {
@@ -196,6 +198,7 @@ struct CloseAdDialog {
               top: $r('app.string.spacing_m')
             })
 
+          // [Start block_start]
           Button($r('app.string.text_dialog_shield'))
             .onClick(() => {
               let node: AdNodeController | undefined = nodeMap.get(this.adId);
@@ -205,6 +208,7 @@ struct CloseAdDialog {
               }
               this.dialogController.close();
             })
+              // [End block_start]
             .role(ButtonRole.ERROR)
             .buttonStyle(ButtonStyleMode.TEXTUAL)
             .height($r('app.string.dialog_button_height'))

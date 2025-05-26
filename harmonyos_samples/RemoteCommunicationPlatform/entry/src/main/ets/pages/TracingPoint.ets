@@ -29,7 +29,7 @@ export struct TracingPoint {
   @StorageLink('TracingPoint') storageLinkTracingPoint: string = '';
 
   setTracingPoint() {
-    // DocsCode 9
+    // [Start custom_http_events_handler]
     // Define a custom response handler
     const customHttpEventsHandler: rcp.HttpEventsHandler = {
       onDataReceive: (incomingData: ArrayBuffer) => {
@@ -71,7 +71,7 @@ export struct TracingPoint {
     }).catch((err: BusinessError) => {
       Logger.error(`err: err code is ${err.code}, err message is ${JSON.stringify(err)}`);
     });
-    // DocsCode 9
+    // [End custom_http_events_handler]
     this.detailInfo = JSON.stringify(tracingConfig, null, 2);
     AppStorage.setOrCreate('TracingPoint', this.detailInfo);
   }

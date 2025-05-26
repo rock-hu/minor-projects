@@ -78,7 +78,7 @@ struct SignatureVerification {
         right: $r('app.float.medium_padding')
       })
     }
-    .title(getResourceString($r('app.string.signature_btn'), this))
+    .title(getResourceString($r('app.string.signature_btn'), this.getUIContext()))
     .backgroundColor($r('app.color.background_page'))
   }
 }

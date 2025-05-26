@@ -45,7 +45,7 @@ struct PageTransitionSampleTo {
         .fontColor($r('app.color.font_color_shallow'))
         .backgroundColor($r('app.color.pop_up_background'))
         .onClick(() => {
-          router.back()
+          this.getUIContext().getRouter().back()
         })
         .margin({ top: 100 })
     }
@@ -60,7 +60,7 @@ struct PageTransitionSampleTo {
   }
 
   aboutToAppear() {
-    let params: Record<string, Object> = router.getParams() as Record<string, Object>;
+    let params: Record<string, Object> = this.getUIContext().getRouter().getParams() as Record<string, Object>;
     this.transitionType = params['type'] as SlideEffect;
     this.angle = params['angle'] as number;
     this.zoom = params['zoom'] as number;

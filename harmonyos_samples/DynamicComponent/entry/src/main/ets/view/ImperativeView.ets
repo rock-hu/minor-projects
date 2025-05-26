@@ -12,12 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { FrameNode, NodeController, promptAction, UIContext } from '@kit.ArkUI';
+import { FrameNode, NodeController, UIContext } from '@kit.ArkUI';
 import data from 'resources/rawfile/structure.json';
 import dataEn from 'resources/rawfile/structure_en.json';
 import { typeNode } from '@ohos.arkui.node';
 import { i18n } from '@kit.LocalizationKit';
+import { common } from '@kit.AbilityKit';
 
+// [Start VM_start]
 class VM {
   type?: string;
   content?: string;
@@ -25,7 +27,9 @@ class VM {
   children?: VM[];
   id?: string;
 }
+// [End VM_start]
 
+// [Start carouselNodes_start]
 let carouselNodes: typeNode.Image[] = [];
 
 function FrameNodeFactory(vm: VM, context: UIContext): FrameNode | null {
@@ -38,6 +42,7 @@ function FrameNodeFactory(vm: VM, context: UIContext): FrameNode | null {
     });
     return node;
   } else if (vm.type === "Row") {
+    // [StartExclude carouselNodes_start]
     let node = typeNode.createNode(context, "Row");
     setRowNodeAttr(node, vm.css);
     vm.children?.forEach(kid => {
@@ -45,7 +50,9 @@ function FrameNodeFactory(vm: VM, context: UIContext): FrameNode | null {
       node.appendChild(child);
     });
     return node;
+    // [EndExclude carouselNodes_start]
   } else if (vm.type === "Swiper") {
+    // [StartExclude carouselNodes_start]
     let node = typeNode.createNode(context, "Swiper");
     node.attribute.width(vm.css.width);
     node.attribute.height(vm.css.height);
@@ -54,19 +61,23 @@ function FrameNodeFactory(vm: VM, context: UIContext): FrameNode | null {
       node.appendChild(child);
     });
     return node;
+    // [EndExclude carouselNodes_start]
   } else if (vm.type === "Image") {
+    // [StartExclude carouselNodes_start]
     let node = typeNode.createNode(context, "Image");
     node.attribute.width(vm.css.width);
     node.attribute.height(vm.css.height);
     node.attribute.borderRadius(vm.css.borderRadius);
     node.attribute.objectFit(ImageFit.Fill);
     node.attribute.onClick(() => {
-      promptAction.showToast({ message: $r("app.string.imperative_demo_toast_tips") });
+      context.getPromptAction().showToast({ message: $r("app.string.imperative_demo_toast_tips") });
     });
     node.initialize($r(vm.content));
     carouselNodes.push(node);
     return node;
+    // [EndExclude carouselNodes_start]
   } else if (vm.type === "Text") {
+    // [StartExclude carouselNodes_start]
     let node = typeNode.createNode(context, "Text");
     node.attribute.fontSize(vm.css.fontSize);
     node.attribute.width(vm.css.width);
@@ -89,11 +100,12 @@ function FrameNodeFactory(vm: VM, context: UIContext): FrameNode | null {
       })
     } else {
       node.attribute.onClick(() => {
-        promptAction.showToast({ message: $r("app.string.imperative_demo_toast_tips") });
+        context.getPromptAction().showToast({ message: $r("app.string.imperative_demo_toast_tips") });
       });
     }
     node.initialize(vm.content);
     return node;
+    // [EndExclude carouselNodes_start]
   }
   return null;
 }
@@ -126,6 +138,8 @@ function setRowNodeAttr(node: typeNode.Row, css: ESObject) {
   }
   node.attribute.justifyContent(FlexAlign.SpaceBetween);
 }
+// [End carouselNodes_start]
+
 
 
 class ImperativeController extends NodeController {
@@ -147,6 +161,7 @@ export function ImperativeViewComponentBuilder() {
 @Component
 export struct ImperativeViewComponent {
   controller: ImperativeController = new ImperativeController();
+  context = this.getUIContext().getHostContext() as common.UIAbilityContext;
 
   build() {
     NavDestination() {
@@ -161,6 +176,6 @@ export struct ImperativeViewComponent {
   }
 
   ResourceToString(resource:Resource):string{
-    return getContext(this).resourceManager.getStringSync(resource);
+    return this.context.resourceManager.getStringSync(resource);
   }
 }

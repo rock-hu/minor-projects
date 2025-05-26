@@ -61,10 +61,12 @@ export struct EnglishKeyboard {
   }
 }
 
+// [Start EnglishButton_start]
 @Component
 struct EnglishButton {
-  @Prop item: Menu;
   @Consume inputText: string;
+  // [StartExclude EnglishButton_start]
+  @Prop item: Menu;
   @Consume keyBoardController: KeyboardController;
 
   getEnglishText(item: Menu): string | Resource {
@@ -74,9 +76,12 @@ struct EnglishButton {
       return item.text;
     }
   }
+  // [EndExclude EnglishButton_start]
 
   build() {
-    Button({ type: ButtonType.Normal }) {
+    Button({ type: ButtonType.Normal })
+    // [StartExclude EnglishButton_start]
+    {
       if (typeof this.getEnglishText(this.item) === 'string' ||
         (this.getEnglishText(this.item) as Resource).type !== Constants.RESOURCE_TYPE_MEDIA) {
         Text(this.getEnglishText(this.item))
@@ -93,8 +98,10 @@ struct EnglishButton {
     .padding(0)
     .width(this.item.width)
     .height(this.item.height)
+    // [EndExclude EnglishButton_start]
     .onClick(() => {
       this.inputText = this.keyBoardController.onInput(this.getEnglishText(this.item));
     })
   }
 }
+// [End EnglishButton_start]

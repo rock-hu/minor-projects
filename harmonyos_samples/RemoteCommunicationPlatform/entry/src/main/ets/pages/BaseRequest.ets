@@ -36,7 +36,7 @@ export struct BaseRequest {
   @StorageLink('BaseAddress') storageLinkBaseAddress: string = '';
 
   patchRequest() {
-    // DocsCode 1
+    // [Start session_fetch]
     // Define the headers
     let headers: rcp.RequestHeaders = {
       'accept': 'application/json'
@@ -60,13 +60,13 @@ export struct BaseRequest {
     }).catch((err: BusinessError) => {
       Logger.error(`err: err code is ${err.code}, err message is ${JSON.stringify(err)}`);
     });
-    // DocsCode 1
+    // [End session_fetch]
     this.patchHeaders = JSON.stringify(req, null, 2);
     AppStorage.setOrCreate('PatchHeaders', this.patchHeaders);
   }
 
   setBaseAddress() {
-    // DocsCode 2
+    // [Start session_config]
     // Define the sessionConfig object
     const sessionConfig: rcp.SessionConfiguration = {
       baseAddress: 'http://api.example.com',
@@ -84,7 +84,7 @@ export struct BaseRequest {
     };
     // Create the communication session object session and input sessionConfig
     const session = rcp.createSession(sessionConfig);
-    // DocsCode 2
+    // [End session_config]
     let req = new rcp.Request('http://example.com', 'GET');
     session.fetch(req).then((response) => {
       Logger.info(`Request succeeded, message is ${JSON.stringify(response)}`);

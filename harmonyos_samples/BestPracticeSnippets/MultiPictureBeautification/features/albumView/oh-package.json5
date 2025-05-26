@@ -1,0 +1,12 @@
+{
+  "license": "Apache-2.0",
+  "devDependencies": {},
+  "main": "Index.ets",
+  "author": "",
+  "name": "albumview",
+  "description": "Please describe the basic information.",
+  "version": "1.0.0",
+  "dependencies": {
+    "@ohos/commons": "file:../../commons/base"
+  }
+}

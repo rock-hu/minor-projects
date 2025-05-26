@@ -13,6 +13,10 @@
  *   limitations under the License.
  */
 
+/**
+ * 最佳实践：基于HMRouter路由框架的页面跳转开发实践
+ */
+
 import { taskpool } from '@kit.ArkTS';
 import { uiObserver } from '@kit.ArkUI';
 import {
@@ -30,15 +34,20 @@ import { PageConstant } from '../../constant/PageConstant';
 import { TempObj } from '../../service/ServiceSample';
 import { BreakpointConstants } from '../common/constants/BreakpointConstants';
 
+// [Start newwork_request]
 @Concurrent
 async function networkRequest(lifecycle: string): Promise<string> {
+  // [StartExclude newwork_request]
   return await new Promise<string>((resolve) => {
     setTimeout(() => {
       resolve(`${lifecycle} request Http sucess`);
     }, 5000);
   });
+  // [EndExclude newwork_request]
 }
+// [End newwork_request]
 
+// [Start example_life_cycle]
 @HMLifecycle({lifecycleName: 'requestLifecycle'})
 export class ExampleLifecycle implements IHMLifecycle {
   private requestModel: RequestModel = new RequestModel();
@@ -49,19 +58,22 @@ export class ExampleLifecycle implements IHMLifecycle {
       console.log(res + '');
     });
   }
-
+  // [StartExclude example_life_cycle]
   onBackPressed(ctx: HMLifecycleContext): boolean {
     HMRouterMgr.pop({navigationId: 'mainNavigationId', animator: false});
     return true;
   }
+  // [EndExclude example_life_cycle]
 }
+// [End example_life_cycle]
 
 @Observed
 export class RequestModel {
   data: string = 'lifecycle onPrepare init data';
 }
 
-
+// [Start HMRouter_life_cycle_name]
+// [Start HMRouter_interceptors]
 @HMRouter({
   pageUrl: PageConstant.SHOPPING_BAG,
   singleton: true,
@@ -70,6 +82,8 @@ export class RequestModel {
 })
 @Component
 export struct ShoppingBagContent {
+  // [StartExclude HMRouter_interceptors]
+  // [StartExclude HMRouter_life_cycle_name]
   @StorageLink('currentBreakpoint') currentBreakpoint: string = BreakpointConstants.BREAKPOINT_SM;
   @State showTabsBtn: boolean = true;
   @Provide('ShoppingNavModifier') modifier: ShoppingNavModifier = new ShoppingNavModifier();
@@ -122,4 +136,8 @@ export struct ShoppingBagContent {
       ShoppingBagContentNavBar({showTabsBtn: this.showTabsBtn});
     };
   }
+  // [EndExclude HMRouter_interceptors]
+  // [EndExclude HMRouter_life_cycle_name]
 }
+// [End HMRouter_interceptors]
+// [End HMRouter_life_cycle_name]

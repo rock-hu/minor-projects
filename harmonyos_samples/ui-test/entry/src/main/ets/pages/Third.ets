@@ -13,8 +13,6 @@
  * limitations under the License.
  */
 
-import { router } from '@kit.ArkUI';
-
 @Entry
 @Component
 struct Third{
@@ -35,7 +33,7 @@ struct Third{
       })
       .backgroundColor('#0D9FFB')
       .onClick(() => {
-        router.back();
+        this.getUIContext().getRouter().back();
       })
     }
     .width('100%')

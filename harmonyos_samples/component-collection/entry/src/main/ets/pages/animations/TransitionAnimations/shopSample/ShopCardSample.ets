@@ -54,7 +54,7 @@ struct ShopCardSample {
               .transition({ type: TransitionType.Delete })
               .onClick(e => {
                 // When using TransitionOptions to specify transition，you must use animateTo to produce animation
-                animateTo({ duration: 350 }, () => {
+                this.getUIContext().animateTo({ duration: 350 }, () => {
                   this.isUnfold = true;
                 })
               })
@@ -70,7 +70,7 @@ struct ShopCardSample {
               .transition({ type: TransitionType.Delete })
               .onClick(e => {
                 // When using TransitionOptions to specify transition，you must use animateTo to produce animation
-                animateTo({ duration: 350 }, () => {
+                this.getUIContext().animateTo({ duration: 350 }, () => {
                   this.isUnfold = false;
                 })
               })

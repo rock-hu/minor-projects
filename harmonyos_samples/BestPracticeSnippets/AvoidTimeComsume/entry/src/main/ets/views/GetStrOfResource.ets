@@ -13,9 +13,11 @@
  * limitations under the License.
  */
 
-// DocsCode 1
+// [Start get_str_of_resource]
 import { hiTraceMeter } from '@kit.PerformanceAnalysisKit';
 import { router } from '@kit.ArkUI';
+
+const uiContext: UIContext | undefined = AppStorage.get('uiContext');
 
 @Entry
 @Component
@@ -25,7 +27,7 @@ struct GetStrOfResource {
   aboutToAppear(): void {
     hiTraceMeter.startTrace('getStringSync', 1);
     // The input parameter of the getStringSync operation directly uses the resource and does not use the resource ID
-    getContext().resourceManager.getStringSync($r('app.string.test'))
+    this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.test'))
     hiTraceMeter.finishTrace('getStringSync', 1)
   }
 
@@ -48,7 +50,7 @@ struct GetStrOfResource {
           });
         })
 
-        Text($r('app.string.get_str_of_resource'))
+        Text('Through resource objects')
           .fontSize(20)
           .fontWeight(700)
           .height(26)
@@ -67,4 +69,4 @@ struct GetStrOfResource {
   }
 }
 
-// DocsCode 1
+// [End get_str_of_resource]

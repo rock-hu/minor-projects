@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+// [Start click_error]
 @Entry
 @Component
 struct ClickError {
@@ -33,7 +34,7 @@ struct ClickError {
       .scale({ x: this.scaleValue, y: this.scaleValue })
       .onClick(() => {
         // When the animation is delivered, the count is increased by 1
-        animateTo({
+        this.getUIContext().animateTo({
           curve: Curve.EaseInOut,
           duration: 350,
           onFinish: () => {
@@ -57,3 +58,4 @@ struct ClickError {
     .width('100%')
   }
 }
+// [End click_error]

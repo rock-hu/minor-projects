@@ -35,7 +35,7 @@ export struct DNSSetting {
   @StorageLink('DnsOverHttp') storageLinkDnsOverHttp: string = '';
 
   setDnsServers() {
-    // DocsCode 4
+    // [Start session_with_custom_dns]
     // Configure a User-Defined DNS Server
     const customDnsServers: rcp.DnsServers = [
       { ip: '8.8.8.8' },
@@ -60,14 +60,14 @@ export struct DNSSetting {
     }).catch((err: BusinessError) => {
       Logger.error(`err: err code is ${err.code}, err message is ${JSON.stringify(err)}`);
     });
-    // DocsCode 4
+    // [End session_with_custom_dns]
     this.customizingDNS = JSON.stringify(customDnsServers, null, 2);
     this.textArea = this.customizingDNS;
     AppStorage.setOrCreate('CustomizingDNS', this.customizingDNS);
   }
 
   setStaticDnsRules() {
-    // DocsCode 5
+    // [Start custom_static_dns]
     // When hostname is matched, the specified address is used preferentially
     const staticDnsRules: rcp.StaticDnsRules = [
       {
@@ -95,14 +95,14 @@ export struct DNSSetting {
     }).catch((err: BusinessError) => {
       Logger.error(`err: err code is ${err.code}, err message is ${JSON.stringify(err)}`);
     });
-    // DocsCode 5
+    // [End custom_static_dns]
     this.staticDNS = JSON.stringify(staticDnsRules, null, 2);
     this.textArea = this.staticDNS;
     AppStorage.setOrCreate('StaticDNS', this.staticDNS);
   }
 
   setDnsOverHttps() {
-    // DocsCode 6
+    // [Start config_dns_on_https]
     // DNS over HTTPS Configuration
     const dohConfig: rcp.DnsOverHttpsConfiguration = {
       url: 'https://dns.example.com/dns-query',
@@ -127,7 +127,7 @@ export struct DNSSetting {
     }).catch((err: BusinessError) => {
       Logger.error(`err: err code is ${err.code}, err message is ${JSON.stringify(err)}`);
     });
-    // DocsCode 6
+    // [End config_dns_on_https]
     this.dnsOverHttp = JSON.stringify(dohConfig, null, 2);
     this.textArea = this.dnsOverHttp;
     AppStorage.setOrCreate('DnsOverHttp', this.dnsOverHttp);

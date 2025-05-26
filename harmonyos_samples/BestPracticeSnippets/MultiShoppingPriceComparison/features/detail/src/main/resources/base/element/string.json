@@ -1,0 +1,304 @@
+{
+  "string": [
+    {
+      "name": "shared_desc",
+      "value": "description"
+    },
+    {
+      "name": "comment_placeholder",
+      "value": "What to say ..."
+    },
+    {
+      "name": "official_review",
+      "value": "Official anchor"
+    },
+    {
+      "name": "store_name",
+      "value": "Official live broadcast room"
+    },
+    {
+      "name": "number_of_viewers",
+      "value": "738,600 people watch"
+    },
+    {
+      "name": "preferential_scheme",
+      "value": "XX yuan store universal red envelope"
+    },
+    {
+      "name": "pocket_baby",
+      "value": "Pocket goods"
+    },
+    {
+      "name": "currency_symbol",
+      "value": "￥ "
+    },
+    {
+      "name": "OP_CAR_PRODUCT_REMARK_LIST1",
+      "value": "Beidou Satellite News ｜ Low -electricity emergency mode"
+    },
+    {
+      "name": "OP_CAR_PRODUCT_REMARK_LIST2",
+      "value": "Ultra -thin ｜ Super flat ｜ Ultra -reliable"
+    },
+    {
+      "name": "OP_CAR_PRODUCT_REMARK_LIST3",
+      "value": "2.5K high brush eye screen ｜ Light and long battery life"
+    },
+    {
+      "name": "Gifted_points",
+      "value": "Gifted points"
+    },
+    {
+      "name": "flagship_machine",
+      "value": "The new generation of straight screen flagship machine"
+    },
+    {
+      "name": "cheaper",
+      "value": "Performance version of the new product is scheduled for cheaper 200 yuan"
+    },
+    {
+      "name": "Shopping_bag",
+      "value": "Shopping bag"
+    },
+    {
+      "name": "search",
+      "value": "search"
+    },
+    {
+      "name": "Order",
+      "value": "Order"
+    },
+    {
+      "name": "all",
+      "value": "all"
+    },
+    {
+      "name": "phone",
+      "value": "Phone"
+    },
+    {
+      "name": "mac",
+      "value": "Tablet"
+    },
+    {
+      "name": "PC",
+      "value": "PC"
+    },
+    {
+      "name": "watch",
+      "value": "Watch"
+    },
+    {
+      "name": "earphone",
+      "value": "Earphone"
+    },
+    {
+      "name": "LIVE_COMMENTS_LIST1",
+      "value": "Farters of outstanding consciousness, wisdom to see everything. The new product of Huawei Mate60 Pro series was released."
+    },
+    {
+      "name": "LIVE_COMMENTS_LIST2",
+      "value": "123xxxxxx published comments, published comments, published comments and comments!"
+    },
+    {
+      "name": "LIVE_COMMENTS_LIST3",
+      "value": "Congratulations to 123xxxxxx to get the official spike discount!"
+    },
+    {
+      "name": "buy_now",
+      "value": "Buy now"
+    },
+    {
+      "name": "living",
+      "value": "Living"
+    },
+    {
+      "name": "store",
+      "value": "Huawei official flagship store"
+    },
+    {
+      "name": "buy",
+      "value": "Buy"
+    },
+    {
+      "name": "CUSTOMER_SERVICE_CONTENTS1",
+      "value": "HUAWEI MATE X5 12GB+512GB Phantom ultra-light four folding ultra-high-definition high-resolution two-screen super smart rhino communication"
+    },
+    {
+      "name": "CUSTOMER_SERVICE_CONTENTS2",
+      "value": "Hello! Want to consult the latest mobile phone released this fall ~"
+    },
+    {
+      "name": "CUSTOMER_SERVICE_CONTENTS3",
+      "value": "Hello, smart customer service assistant will serve you!"
+    },
+    {
+      "name": "CUSTOMER_SERVICE_CONTENTS4",
+      "value": "Welcome to the Huawei official mall. In order to improve the quality of service, your consultation may be recorded. At present, there are fewer store customer service. It is recommended that you give priority to obtaining product information through the product details page or Huawei official website. If the smart customer service cannot solve your problem, you can enter \"manual\" to contact artificial customer service. Thank you for your understanding and support ~"
+    },
+    {
+      "name": "COLOR_SELECT_NAME_LIST1",
+      "value": "Phantom Purple"
+    },
+    {
+      "name": "COLOR_SELECT_NAME_LIST2",
+      "value": "Feather Sand Black"
+    },
+    {
+      "name": "COLOR_SELECT_NAME_LIST3",
+      "value": "Feather Sand White"
+    },
+    {
+      "name": "COLOR_SELECT_NAME_LIST4",
+      "value": "Qing Shan Dai"
+    },
+    {
+      "name": "Official_standard",
+      "value": "Official standard"
+    },
+    {
+      "name": "add_cart",
+      "value": "Add to cart"
+    },
+    {
+      "name": "SELECT_NAME_LIST1",
+      "value": "Body color"
+    },
+    {
+      "name": "SELECT_NAME_LIST2",
+      "value": "Storage capacity"
+    },
+    {
+      "name": "SELECT_NAME_LIST3",
+      "value": "Package Type"
+    },
+    {
+      "name": "pay_info1",
+      "value": "XXXX Avenue XXXX Building XX Unit XX"
+    },
+    {
+      "name": "pay_info2",
+      "value": "Contact +8610000000000"
+    },
+    {
+      "name": "pay_info3",
+      "value": "Huawei Wallet Payment"
+    },
+    {
+      "name": "pay_info4",
+      "value": "Pay now"
+    },
+    {
+      "name": "PRODUCT_CONFIG_NAMES1",
+      "value": "Selected"
+    },
+    {
+      "name": "PRODUCT_CONFIG_NAMES2",
+      "value": "Phantom Purple · 512GB · Instant Delivery in Stock"
+    },
+    {
+      "name": "PRODUCT_CONFIG_NAMES3",
+      "value": "Suggest"
+    },
+    {
+      "name": "PRODUCT_CONFIG_NAMES5",
+      "value": "Recycle"
+    },
+    {
+      "name": "PRODUCT_CONFIG_NAMES6",
+      "value": "High-priced recycling sends more re-subsidies"
+    },
+    {
+      "name": "PRODUCT_CONFIG_NAMES7",
+      "value": "Free shipping for orders over 48 yuan"
+    },
+    {
+      "name": "PRODUCT_CONFIG_NAMES8",
+      "value": "Products, shipping invoices, and after-sales services provided by Huawei terminals"
+    },
+    {
+      "name": "USER_COMMENT_NAMES1",
+      "value": "User reviews (1500+)"
+    },
+    {
+      "name": "USER_COMMENT_NAMES2",
+      "value": "Most Popular 77"
+    },
+    {
+      "name": "USER_COMMENT_NAMES3",
+      "value": "Content 858"
+    },
+    {
+      "name": "USER_COMMENT_NAMES4",
+      "value": "There is Figures 217"
+    },
+    {
+      "name": "USER_COMMENT_NAMES5",
+      "value": "Y**********"
+    },
+    {
+      "name": "USER_COMMENT_NAMES6",
+      "value": "Huawei phones have good battery life, clear camera performance, smooth operation, and powerful functions. The key is their outstanding appearance, which is highly recommended!"
+    },
+    {
+      "name": "USER_COMMENT_NAMES7",
+      "value": "All reviews"
+    },
+    {
+      "name": "USER_COMMENT_NAMES8",
+      "value": "Yaojin Black, 256GB, in stock quick delivery"
+    },
+    {
+      "name": "compare",
+      "value": "Compare"
+    },
+    {
+      "name": "PRODUCT_DISCOUNT_NAMES1",
+      "value": "【 Stock Quick Release 】 HUAWEI Mate X5 12GB+512GB Phantom Purple"
+    },
+    {
+      "name": "PRODUCT_DISCOUNT_NAMES2",
+      "value": "【 Huawei Super New Product Season 】 1. Limited edition purchase with a smart window protection case worth 299 yuan 2. Student authentication discount of 100 yuan (click down to learn more) 3. Trade in for new up to 500 yuan subsidy | More selected phones click to learn>>Ultra clear mirror dual screen | Ultra thin four fold folding"
+    },
+    {
+      "name": "PRODUCT_DISCOUNT_NAMES3",
+      "value": "Limited edition gift with unlimited earphones, Vitality Edition"
+    },
+    {
+      "name": "PRODUCT_PRICE_NAMES1",
+      "value": "There are still"
+    },
+    {
+      "name": "PRODUCT_PRICE_NAMES2",
+      "value": "Enjoy up to 12 periods of interest with 0 installments"
+    },
+    {
+      "name": "PRODUCT_PRICE_NAMES3",
+      "value": "Premium"
+    },
+    {
+      "name": "PRODUCT_PRICE_NAMES4",
+      "value": "￥800 off"
+    },
+    {
+      "name": "PRODUCT_PRICE_NAMES5",
+      "value": "Trade in subsidy"
+    },
+    {
+      "name": "PRODUCT_PRICE_NAMES6",
+      "value": "P.P"
+    },
+    {
+      "name": "PRODUCT_PRICE_NAMES7",
+      "value": "Longgang District, Shenzhen City, Guangdong Province"
+    },
+    {
+      "name": "PRODUCT_PRICE_NAMES8",
+      "value": "Spot"
+    },
+    {
+      "name": "PRODUCT_CONFIG_NAMES4",
+      "value": " 推荐"
+    }
+  ]
+}

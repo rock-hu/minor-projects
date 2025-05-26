@@ -34,7 +34,7 @@ struct Index {
             .height('60')
             .id('strSort')
             .onClick(() => {
-              router.pushUrl({
+              this.getUIContext().getRouter().pushUrl({
                 url: 'pages/StrSort',
                 params: {
                   data: 'message',
@@ -52,7 +52,7 @@ struct Index {
             .height('60')
             .id('fileCopy')
             .onClick(() => {
-              router.pushUrl({
+              this.getUIContext().getRouter().pushUrl({
                 url: 'pages/CopyFile',
                 params: {
                   data3: 'message',

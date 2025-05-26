@@ -21,8 +21,6 @@ import { ConsumeDescendentComponent } from './ConsumeDescendentComponent';
 import { ViewCodeText } from '../../../../commoncomponents/ViewCodeText';
 import { getResourceString } from '../../../../utils/ResourceUtils';
 
-const CONTEXT: common.UIAbilityContext = getContext(this) as common.UIAbilityContext;
-
 @Component
 export struct ProvideGrandfatherComponent {
   @State selectColors: ColorType[] = COLOR_SELECT_DATA;
@@ -44,7 +42,8 @@ export struct ProvideGrandfatherComponent {
       Row() {
         Select(this.selectColors)
           .selected(this.currentSelectIndex)
-          .value(getResourceString(CONTEXT, this.selectColors[this.currentSelectIndex].value))
+          .value(getResourceString(this.getUIContext().getHostContext() as common.UIAbilityContext,
+            this.selectColors[this.currentSelectIndex].value))
           .fontColor($r('app.color.button_text_color'))
           .font({ size: $r('app.float.tips_font_size') })
           .selectedOptionFont({ size: $r('app.float.tips_font_size') })

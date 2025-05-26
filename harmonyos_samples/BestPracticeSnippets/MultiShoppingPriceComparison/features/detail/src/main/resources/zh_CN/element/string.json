@@ -1,0 +1,304 @@
+{
+  "string": [
+    {
+      "name": "shared_desc",
+      "value": "description"
+    },
+    {
+      "name": "comment_placeholder",
+      "value": "说点什么…"
+    },
+    {
+      "name": "official_review",
+      "value": "官方主播"
+    },
+    {
+      "name": "store_name",
+      "value": "官方直播间"
+    },
+    {
+      "name": "number_of_viewers",
+      "value": "73.86万人观看"
+    },
+    {
+      "name": "preferential_scheme",
+      "value": "XX元店铺通用红包"
+    },
+    {
+      "name": "pocket_baby",
+      "value": "口袋宝贝"
+    },
+    {
+      "name": "currency_symbol",
+      "value": "￥ "
+    },
+    {
+      "name": "OP_CAR_PRODUCT_REMARK_LIST1",
+      "value": "北斗卫星消息｜低电量应急模式"
+    },
+    {
+      "name": "OP_CAR_PRODUCT_REMARK_LIST2",
+      "value": "超轻薄｜超平整｜超可靠"
+    },
+    {
+      "name": "OP_CAR_PRODUCT_REMARK_LIST3",
+      "value": "2.5K高刷护眼屏｜轻薄长续航"
+    },
+    {
+      "name": "Gifted_points",
+      "value": "赠积分"
+    },
+    {
+      "name": "flagship_machine",
+      "value": "新一代直屏旗舰机"
+    },
+    {
+      "name": "cheaper",
+      "value": "性能版新品预定立省200"
+    },
+    {
+      "name": "Shopping_bag",
+      "value": "购物袋"
+    },
+    {
+      "name": "search",
+      "value": "搜索"
+    },
+    {
+      "name": "Order",
+      "value": "订单"
+    },
+    {
+      "name": "all",
+      "value": "全部"
+    },
+    {
+      "name": "phone",
+      "value": "手机"
+    },
+    {
+      "name": "mac",
+      "value": "平板"
+    },
+    {
+      "name": "PC",
+      "value": "笔记本"
+    },
+    {
+      "name": "watch",
+      "value": "手表"
+    },
+    {
+      "name": "earphone",
+      "value": "耳机"
+    },
+    {
+      "name": "LIVE_COMMENTS_LIST1",
+      "value": "远见卓识，智见万象。华为Mate60 Pro系列新品发布精彩回顾。"
+    },
+    {
+      "name": "LIVE_COMMENTS_LIST2",
+      "value": "123XXXXXX发表评论发表评论发表评论发表评论！"
+    },
+    {
+      "name": "LIVE_COMMENTS_LIST3",
+      "value": "恭喜123XXXXXX获得官方秒杀优惠！"
+    },
+    {
+      "name": "buy_now",
+      "value": "立即购买"
+    },
+    {
+      "name": "living",
+      "value": "直播中"
+    },
+    {
+      "name": "store",
+      "value": "华为官方旗舰店"
+    },
+    {
+      "name": "buy",
+      "value": "购买"
+    },
+    {
+      "name": "CUSTOMER_SERVICE_CONTENTS1",
+      "value": "HUAWEI Mate X5 12GB+512GB 幻影紫 超轻薄四曲折叠 超高清高分辨率临境双屏 超智慧灵犀通信"
+    },
+    {
+      "name": "CUSTOMER_SERVICE_CONTENTS2",
+      "value": "您好！想咨询一下今年秋季最新发布的手机～"
+    },
+    {
+      "name": "CUSTOMER_SERVICE_CONTENTS3",
+      "value": "您好，智能客服助手为您服务！"
+    },
+    {
+      "name": "CUSTOMER_SERVICE_CONTENTS4",
+      "value": "欢迎光临华为官方商城，为提升服务质量，您的咨询可能会被记录。目前店铺客服数量较少，建议您优先通过商品详情页或华为官网获取商品信息，若智能客服无法解决您的问题，您可以输入“人工”联系人工客服。感谢您的理解和支持～"
+    },
+    {
+      "name": "COLOR_SELECT_NAME_LIST1",
+      "value": "幻影紫"
+    },
+    {
+      "name": "COLOR_SELECT_NAME_LIST2",
+      "value": "羽砂黑"
+    },
+    {
+      "name": "COLOR_SELECT_NAME_LIST3",
+      "value": "羽砂白"
+    },
+    {
+      "name": "COLOR_SELECT_NAME_LIST4",
+      "value": "青山黛"
+    },
+    {
+      "name": "Official_standard",
+      "value": "官方标配"
+    },
+    {
+      "name": "add_cart",
+      "value": "加入购物袋"
+    },
+    {
+      "name": "SELECT_NAME_LIST1",
+      "value": "机身颜色"
+    },
+    {
+      "name": "SELECT_NAME_LIST2",
+      "value": "储存容量"
+    },
+    {
+      "name": "SELECT_NAME_LIST3",
+      "value": "套餐类型"
+    },
+    {
+      "name": "pay_info1",
+      "value": "XXXX大道XXXXX楼XX单元XX号"
+    },
+    {
+      "name": "pay_info2",
+      "value": "联系人  +8610000000000"
+    },
+    {
+      "name": "pay_info3",
+      "value": "华为钱包支付"
+    },
+    {
+      "name": "pay_info4",
+      "value": "立即支付"
+    },
+    {
+      "name": "PRODUCT_CONFIG_NAMES1",
+      "value": "已选"
+    },
+    {
+      "name": "PRODUCT_CONFIG_NAMES2",
+      "value": "幻影紫·512GB·现货速发"
+    },
+    {
+      "name": "PRODUCT_CONFIG_NAMES3",
+      "value": "搭配"
+    },
+    {
+      "name": "PRODUCT_CONFIG_NAMES4",
+      "value": "推荐"
+    },
+    {
+      "name": "PRODUCT_CONFIG_NAMES5",
+      "value": "回收"
+    },
+    {
+      "name": "PRODUCT_CONFIG_NAMES6",
+      "value": "高价回收送多重新补贴"
+    },
+    {
+      "name": "PRODUCT_CONFIG_NAMES7",
+      "value": "满48元包邮"
+    },
+    {
+      "name": "PRODUCT_CONFIG_NAMES8",
+      "value": "由华为终端提供商品、发货开票及售后服务"
+    },
+    {
+      "name": "USER_COMMENT_NAMES1",
+      "value": "用户评价（1500+）"
+    },
+    {
+      "name": "USER_COMMENT_NAMES2",
+      "value": "最热门77"
+    },
+    {
+      "name": "USER_COMMENT_NAMES3",
+      "value": "有内容858"
+    },
+    {
+      "name": "USER_COMMENT_NAMES4",
+      "value": "有图217"
+    },
+    {
+      "name": "USER_COMMENT_NAMES5",
+      "value": "几**********"
+    },
+    {
+      "name": "USER_COMMENT_NAMES6",
+      "value": "华为手机续航很好，拍照清晰，运行畅快，功能也很强大，关键是颜值出众，非常值得推荐！"
+    },
+    {
+      "name": "USER_COMMENT_NAMES7",
+      "value": "全部评价"
+    },
+    {
+      "name": "USER_COMMENT_NAMES8",
+      "value": "曜金黑，256GB，现货速发"
+    },
+    {
+      "name": "compare",
+      "value": "机型对比"
+    },
+    {
+      "name": "PRODUCT_DISCOUNT_NAMES1",
+      "value": "【现货速发】HUAWEI Mate X5 12GB+512GB 幻影紫"
+    },
+    {
+      "name": "PRODUCT_DISCOUNT_NAMES2",
+      "value": "【华为超级新品季】1.限量买赠价值299元智能视窗保护套 2.学生认证优惠100元（下拉了了解详情）3.以旧换新至高补贴500元｜更多甄选手机点击了解>>超清临镜双屏｜超轻薄四曲折叠"
+    },
+    {
+      "name": "PRODUCT_DISCOUNT_NAMES3",
+      "value": "限量赠无限耳机活力版"
+    },
+    {
+      "name": "PRODUCT_PRICE_NAMES1",
+      "value": "距离结束还剩"
+    },
+    {
+      "name": "PRODUCT_PRICE_NAMES2",
+      "value": "最高可享12期0分期利息"
+    },
+    {
+      "name": "PRODUCT_PRICE_NAMES3",
+      "value": "精品"
+    },
+    {
+      "name": "PRODUCT_PRICE_NAMES4",
+      "value": "限时直降800元"
+    },
+    {
+      "name": "PRODUCT_PRICE_NAMES5",
+      "value": "以旧换新补贴"
+    },
+    {
+      "name": "PRODUCT_PRICE_NAMES6",
+      "value": "优惠"
+    },
+    {
+      "name": "PRODUCT_PRICE_NAMES8",
+      "value": "现货"
+    },
+    {
+      "name": "PRODUCT_PRICE_NAMES7",
+      "value": "广东 深圳市 龙岗区"
+    }
+  ]
+}

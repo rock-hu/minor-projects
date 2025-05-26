@@ -14,7 +14,7 @@
  */
 
 import Logger from './Logger';
-import { Want } from '@kit.AbilityKit';
+import { common, Want } from '@kit.AbilityKit';
 
 const TAG = '[Sample_StartMode]';
 let contextCaller: AbilityContext, want:Want;
@@ -33,11 +33,9 @@ class  EventData {
   launchWant: Want | null = null
 }
 
-let that = this;
-
 export function getContextData(): Want {
   Logger.info(TAG, 'UtilPage getContextData start');
-  let context = getContext(that);
+  let context = AppStorage.get("context") as common.UIAbilityContext;
   let data: EventData = new EventData();
   context.eventHub.emit('getAbilityData', data);
   // Obtain the global context, which is similar to globalThis.mainAbilityContext.
@@ -66,16 +64,14 @@ export function startMode(wantParameters: Record<string, string|number>, ability
   Logger.info(TAG, `${abilityName} end`);
 }
 
-export function totast() {
-  AlertDialog.show(
-    {
-      message: $r('app.string.totast'),
-      secondaryButton: {
-        value: 'ok',
-        action: () => {
-          Logger.info(TAG, 'Callback when the second button is clicked')
-        }
+export function totast(context: UIContext) {
+  context.showAlertDialog({
+    message: $r('app.string.totast'),
+    secondaryButton: {
+      value: 'ok',
+      action: () => {
+        Logger.info(TAG, 'Callback when the second button is clicked')
       }
     }
-  )
+  });
 }

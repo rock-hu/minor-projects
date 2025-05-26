@@ -75,12 +75,12 @@ export struct SearchComponent {
   }
 
   /**
-   * 1.Search box into the search page animateTo Explicit animation.
+   * 1.Search box into the search page this.getUIContext().animateTo Explicit animation.
    * 2.Two search boxes are bound to the same geometryId.
    */
   private onSearchClicked(): void {
     this.geometryId = 'search';
-    animateTo({
+    this.getUIContext().animateTo({
       duration: Constants.CLICK_SEARCH_ANIMATION_DURATION,
       // Constructs an interpolator spring curve object to generate an animation curve from 0 to 1.
       curve: curves.interpolatingSpring(
@@ -99,7 +99,7 @@ export struct SearchComponent {
 
   private onArrowClicked(): void {
     this.geometryId = 'search';
-    animateTo({
+    this.getUIContext().animateTo({
       curve: curves.interpolatingSpring(
         Constants.ANIMATION_CURVE_VELOCITY,
         Constants.ANIMATION_CURVE_MASS,
@@ -118,7 +118,7 @@ export struct SearchComponent {
   // Click Prompt List/History to enter the example page.
   private onItemClicked(): void {
     this.geometryId = 'search';
-    animateTo({
+    this.getUIContext().animateTo({
       curve: Curve.Ease,
       duration: Constants.TO_EXAMPLE_PAGE_DURATION,
       onFinish: () => {
@@ -172,7 +172,7 @@ export struct SearchComponent {
           })
           .borderRadius($r('app.string.main_page_top_borderRadius'))
           .geometryTransition(this.geometryId, { follow: true })
-          .width(px2vp(this.screenWidth) - Constants.SEARCH_WIDTH)
+          .width(this.getUIContext().px2vp(this.screenWidth) - Constants.SEARCH_WIDTH)
           .height($r('app.string.search_height'))
           .margin({ left: $r('app.string.search_back_size_margin') })
           .backgroundColor($r('app.string.search_background_color'))
@@ -189,7 +189,7 @@ export struct SearchComponent {
           Image($r('app.media.ic_public_delete'))
             .width($r('app.string.search_history_delete_size'))
             .onClick(() => {
-              promptAction.showDialog({
+              this.getUIContext().getPromptAction().showDialog({
                 message: $r('app.string.search_delete_title'),
                 alignment: DialogAlignment.Center,
                 buttons: [

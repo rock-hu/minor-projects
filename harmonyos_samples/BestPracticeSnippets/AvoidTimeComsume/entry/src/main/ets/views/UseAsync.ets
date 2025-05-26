@@ -18,6 +18,8 @@ import { WaterFlowDataSource } from './WaterFlowDataSource';
 import { buffer } from '@kit.ArkTS';
 import { router } from '@kit.ArkUI';
 
+const uiContext: UIContext | undefined = AppStorage.get('uiContext');
+
 @Entry
 @Component
 struct WaterFlowExample2 {
@@ -44,7 +46,7 @@ struct WaterFlowExample2 {
       .objectFit(ImageFit.Fill)
   }
 
-  // DocsCode 1
+  // [Start use_async]
   build() {
     Column({ space: 2 }) {
       Row({ space: 5 }) {
@@ -64,7 +66,7 @@ struct WaterFlowExample2 {
           });
         })
 
-        Text($r('app.string.use_async'))
+        Text('Use asynchronous')
           .fontSize(20)
           .fontWeight(700)
           .height(26)
@@ -77,9 +79,9 @@ struct WaterFlowExample2 {
       WaterFlow() {
         LazyForEach(this.dataSource, (item: number) => {
           FlowItem() {
-            // DocsDot
+            // [StartExclude use_async]
             this.imageCom(item);
-            // DocsDot
+            // [EndExclude use_async]
           }
           .onAppear(() => {
             // Add data in advance when you are about to hit the bottom
@@ -92,14 +94,14 @@ struct WaterFlowExample2 {
               })
             }
           })
-          // DocsDot
+          // [StartExclude use_async]
           .width('100%')
           .height(320)
 
-          // DocsDot
+          // [EndExclude use_async]
         }, (item: number) => item.toString())
       }
-      // DocsDot
+      // [StartExclude use_async]
       .cachedCount(2)
       .columnsTemplate('1fr 1fr')
       .columnsGap(12)
@@ -110,7 +112,7 @@ struct WaterFlowExample2 {
         return { offsetRemain: offset };
       })
 
-      // DocsDot
+      // [EndExclude use_async]
     }
     .padding(16)
     .height('100%')
@@ -120,7 +122,7 @@ struct WaterFlowExample2 {
   async mockRequestData(): Promise<Item[]> {
     let res: ResponseData = new ResponseData();
     // data.json is the local json data, which is about 20 MB in size, and simulates getting data from the network
-    await getContext().resourceManager.getRawFileContent('data.json').then((data: Uint8Array) => {
+    await this.getUIContext().getHostContext()!.resourceManager.getRawFileContent('data.json').then((data: Uint8Array) => {
       // parse json
       let str = buffer.from(data).toString();
       res = JSON.parse(str);
@@ -128,5 +130,5 @@ struct WaterFlowExample2 {
     return dataToItem(res.data)
   }
 
-  // DocsCode 1
+  // [End use_async]
 }

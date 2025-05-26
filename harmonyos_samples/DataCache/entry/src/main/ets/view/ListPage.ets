@@ -18,6 +18,7 @@ import Item from './NewsItem';
 import ListModel from '../model/ListModel';
 import { ResData, Refresh } from '../common/types/CommonTypes';
 import { getUrl, loadMore, refreshing, refreshState } from '../common/utils/Refresh';
+import { common } from '@kit.AbilityKit';
 
 @Component
 export default struct ListPage {
@@ -25,7 +26,7 @@ export default struct ListPage {
   @State newsModel: ListModel = new ListModel();
   @Watch('getInitData') @LocalStorageLink('List') List: ResData[] = [];
   @LocalStorageLink('Fail') isFail: boolean = false;
-  context = getContext();
+  context = this.getUIContext().getHostContext() as common.UIAbilityContext;
 
   getInitData() {
     this.newsModel.currentPage = 1;

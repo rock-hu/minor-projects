@@ -33,20 +33,25 @@ struct ApproximatelyLocationDemo {
 
     return new Promise((resolve, reject) => {
       if (grantStatus === abilityAccessCtrl.GrantStatus.PERMISSION_DENIED) {
-        accessManager.requestPermissionsFromUser(getContext(this), permissions)
+        // [Start request_permission]
+        accessManager.requestPermissionsFromUser(this.getUIContext().getHostContext(), ['ohos.permission.APPROXIMATELY_LOCATION'])
           .then((data) => {
+            // [StartExclude request_permission]
             let grantStatus: Array<number> = data.authResults;
             if (grantStatus.length > 0 && grantStatus[0] === 0) {
               Logger.info('request permissions granted');
               resolve(0);
             } else {
               Logger.info('request permissions denied');
-              promptAction.showToast({
+              this.getUIContext().getPromptAction().showToast({
                 message: 'This function requires the location permission. Go to the settings page to authorize the permission'
               });
               resolve(-1);
             }
+            // [EndExclude quick_start]
+            Logger.info(`request permissions result: ${JSON.stringify(data)}`);
           })
+            // [End request_permission]
           .catch((error: BusinessError) => {
             Logger.error(`request permissions exception, Catch error:${JSON.stringify(error)}`);
             reject(error);
@@ -57,7 +62,9 @@ struct ApproximatelyLocationDemo {
     });
   }
 
+
   getLocation() {
+    // [Start request_permissions ]
     this.requestPermissions().then(data => {
       if (data === 0) {
         let requestInfo: geoLocationManager.LocationRequest = {
@@ -67,15 +74,17 @@ struct ApproximatelyLocationDemo {
           'distanceInterval': 0,
           'maxAccuracy': 0
         };
-
         geoLocationManager.getCurrentLocation(requestInfo).then(result => {
           Logger.info(`geoLocation current location:error: ${JSON.stringify(result)}`)
+          // [StartExclude request_permissions]
           this.message = JSON.stringify(result);
+          // [EndExclude request_permissions]
         })
       }
     }).catch((error: BusinessError) => {
       Logger.error(`geoLocation getCurrentLocation: error: ${JSON.stringify(error)}`)
     });
+    // [End request_permissions]
   }
 
   build() {

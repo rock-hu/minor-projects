@@ -27,7 +27,7 @@ import { MineContent } from './MineContent';
 import { MineConstants } from '../common/constants/MineConstants'
 
 /**
- * Page for setting transition animation
+ * 最佳实践：转场动效场景
  */
 @Component
 export struct AnimatorTransition {
@@ -190,6 +190,7 @@ export struct AnimatorTransition {
                     HMRouterMgr.registerGlobalAnimator('mainNavigationId', 'standard', effect.toAnimator());
                     HMRouterMgr.registerGlobalAnimator('mainNavigationId', 'dialog', effect.toAnimator());
                   } else if(this.selectIndex === 2) {
+                    // [Start hm_animator]
                     let effect: IHMAnimator.Effect = new IHMAnimator.Effect({
                       scale: {
                         centerX: '50%',
@@ -199,6 +200,7 @@ export struct AnimatorTransition {
                       },
                       opacity: {opacity: 0.3}
                     });
+                    // [End hm_animator]
                     HMRouterMgr.registerGlobalAnimator('mainNavigationId', 'standard', effect.toAnimator());
                     HMRouterMgr.registerGlobalAnimator('mainNavigationId', 'dialog', effect.toAnimator());
                   }

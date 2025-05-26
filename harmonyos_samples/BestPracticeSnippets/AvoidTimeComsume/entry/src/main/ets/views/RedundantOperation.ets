@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-// DocsCode 1
+// [Start redundant_operation]
 import { hilog, hiTraceMeter } from '@kit.PerformanceAnalysisKit';
 import { router } from '@kit.ArkUI';
 
@@ -48,7 +48,7 @@ struct RedundantOperation {
           });
         })
 
-        Text($r('app.string.redundant_operation'))
+        Text('Redundant operations')
           .fontSize(20)
           .fontWeight(700)
           .height(26)
@@ -87,8 +87,8 @@ struct RedundantOperation {
 
         hilog.debug(0x0000, 'Sample', 'Debug %{public}s', 'contents: logs');
         // Business logic
-        // ...
-
+        // [StartExclude redundant_operation]
+        // [EndExclude redundant_operation]
         hiTraceMeter.finishTrace('ScrollSlide', 1001);
       })
     }
@@ -98,4 +98,4 @@ struct RedundantOperation {
   }
 }
 
-// DocsCode 1
+// [End redundant_operation]

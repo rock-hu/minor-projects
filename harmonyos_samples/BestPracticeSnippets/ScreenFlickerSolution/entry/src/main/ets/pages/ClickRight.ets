@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+// [Start click_right]
 @Entry
 @Component
 struct ClickRight {
@@ -35,7 +36,7 @@ struct ClickRight {
       .onClick(() => {
         // When the animation is delivered, the count is increased by 1
         this.cnt = this.cnt + 1;
-        animateTo({
+        this.getUIContext().animateTo({
           curve: Curve.EaseInOut,
           duration: 350,
           onFinish: () => {
@@ -62,3 +63,4 @@ struct ClickRight {
     .width('100%')
   }
 }
+// [End click_right]

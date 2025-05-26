@@ -14,7 +14,7 @@
  */
 
 import { abilityAccessCtrl,common } from '@kit.AbilityKit'
-import { promptAction } from '@kit.ArkUI';
+import { promptAction, UIContext } from '@kit.ArkUI';
 import Logger from '../util/Logger'
 
 const TAG: string = 'AbilityContextController'
@@ -37,9 +37,11 @@ let serviceWant = {
 
 export default class AbilityContextController {
   private context: common.UIAbilityContext
+  private UIContext: UIContext
 
-  constructor(context: common.UIAbilityContext) {
+  constructor(context: common.UIAbilityContext, UIContext: UIContext) {
     this.context = context
+    this.UIContext = UIContext
   }
 
   private regOnRelease(caller) {
@@ -99,12 +101,12 @@ export default class AbilityContextController {
   disconnectAbility() {
     this.context.disconnectServiceExtensionAbility(connectionNumber).then((data) => {
       Logger.info(TAG, `disconnectAbility success, data: ${JSON.stringify(data)}`)
-      promptAction.showToast({
+      this.UIContext.getPromptAction().showToast({
         message: 'disconnectAbility success'
       })
     }).catch((error) => {
       Logger.error(TAG, `disconnectAbility fail, error: ${JSON.stringify(error)}`)
-      promptAction.showToast({
+      this.UIContext.getPromptAction().showToast({
         message: 'disconnectAbility'
       })
     })
@@ -117,7 +119,7 @@ export default class AbilityContextController {
     try {
       atManager.requestPermissionsFromUser(this.context, ['ohos.permission.ABILITY_BACKGROUND_COMMUNICATION']).then((data) => {
         Logger.info(TAG, `data: ${JSON.stringify(data)}`)
-        promptAction.showToast({
+        this.UIContext.getPromptAction().showToast({
           message: 'requestPermissionsFromUser success'
         })
       }).catch((err) => {
@@ -132,7 +134,7 @@ export default class AbilityContextController {
   setMissionLabel() {
     this.context.setMissionLabel('test', (result) => {
       Logger.info(TAG, `setMissionLabel: ${JSON.stringify(result)}`)
-      promptAction.showToast({
+      this.UIContext.getPromptAction().showToast({
         message: 'setMissionLabel success'
       })
     })
@@ -141,7 +143,7 @@ export default class AbilityContextController {
   // Check whether the ability is in terminating state.
   isTerminating() {
     const isTerminating = this.context.isTerminating()
-    promptAction.showToast({
+    this.UIContext.getPromptAction().showToast({
       message: 'isTerminating success'
     })
     Logger.info(TAG, `ability state: ${JSON.stringify(isTerminating)}`)

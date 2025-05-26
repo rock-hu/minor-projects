@@ -86,7 +86,7 @@ export struct ArrayTypeCode {
       case 1:
         if (this.arrayTypeData.length === 0) {
           // When there is no data, click the delete button and a pop-up window will appear.
-          promptAction.showToast({
+          this.getUIContext().getPromptAction().showToast({
             message: $r('app.string.array_type_deletetoast')
           });
         } else {
@@ -97,7 +97,7 @@ export struct ArrayTypeCode {
       case 2:
         if (this.arrayTypeData.length === 0) {
           // When there is no data, click the update button and a pop-up window will appear.
-          promptAction.showToast({
+          this.getUIContext().getPromptAction().showToast({
             message: $r('app.string.array_type_updatetoast')
           });
           break;

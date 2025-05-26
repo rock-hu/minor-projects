@@ -69,7 +69,7 @@ export struct PageTurningAnimation {
   }
 
   private pageTurningAnimate() {
-    animateTo({
+    this.getUIContext().animateTo({
       duration: Constants.ANIMATE_DURATION,
       onFinish: () => {
         this.pageNumTextA = this.animatePageNumTextB;

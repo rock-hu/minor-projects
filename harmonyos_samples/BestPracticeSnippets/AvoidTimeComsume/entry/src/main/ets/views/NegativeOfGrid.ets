@@ -107,8 +107,9 @@ struct NegativeOfGrid {
 struct ReusableChildComponent {
   @State item: number = 0;
 
-  // DocsCode 1
-  // ...
+  // [Start negative_of_grid]
+  // [StartExclude negative_of_grid]
+  // [EndExclude negative_of_grid]
   // Simulate time-consuming operations with loop functions
   count(): number {
     let temp: number = 0;
@@ -126,8 +127,9 @@ struct ReusableChildComponent {
     hiTraceMeter.finishTrace('ReuseOfGrid', 1001);
   }
 
-  // ...
-  // DocsCode 1
+  // [StartExclude negative_of_grid]
+  // [EndExclude negative_of_grid]
+  // [End negative_of_grid]
 
   build() {
     Column() {

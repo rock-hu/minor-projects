@@ -72,6 +72,7 @@ export default class EntryAbility extends UIAbility {
       });
     });
     windowStage.loadContent('pages/home/Home', this.storage);
+    AppStorage.setOrCreate('uiContext', this.context);
   }
 
   onWindowStageDestroy(): void {

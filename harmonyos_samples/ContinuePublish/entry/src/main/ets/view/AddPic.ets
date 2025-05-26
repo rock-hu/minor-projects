@@ -34,7 +34,7 @@ export struct AddPic {
   @StorageLink('attachments') attachments: Object = [];
   @State pixelMapImage: PixelMap | Resource | null = null;
   // Get the UIAbilityContext information of device A.
-  private context = getContext(this) as common.UIAbilityContext;
+  private context = this.getUIContext().getHostContext() as common.UIAbilityContext;
 
   /**
    * Select picture method.
@@ -77,7 +77,7 @@ export struct AddPic {
       this.writeDistributedFile(data, displayName)
     })
   }
-
+  // [Start write_distributed_file]
   writeDistributedFile(buf: ArrayBuffer, displayName: string): void {
     // The asset is written to the distributed file directory.
     // Obtain the distributed file directory path.
@@ -98,7 +98,7 @@ export struct AddPic {
         `Failed to openSync / writeSync / closeSync. Code: ${err.code}, message: ${err.message}`);
     }
   }
-
+  // [End write_distributed_file]
   build() {
     Column() {
       this.addPic()
@@ -168,7 +168,7 @@ export struct AddPic {
       if (this.imageUriArray.length < CommonConstants.MAX_ADD_PIC) {
         this.selectImage();
       } else {
-        promptAction.showToast({ message: $r('app.string.add_picture_prompt') });
+        this.getUIContext().getPromptAction().showToast({ message: $r('app.string.add_picture_prompt') });
       }
     })
   }

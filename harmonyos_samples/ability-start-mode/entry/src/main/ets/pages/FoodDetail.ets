@@ -312,7 +312,8 @@ struct StartModeCard {
       }, 'MultitonAbility')
     } else if (this.modeName == 'specified') {
       if (this.foodItemId == foodItemId) {
-        totast();
+        const context = this.getUIContext();
+        totast(context);
         return;
       }
       startMode({

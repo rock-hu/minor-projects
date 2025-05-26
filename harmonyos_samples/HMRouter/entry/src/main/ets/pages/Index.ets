@@ -13,6 +13,10 @@
  *   limitations under the License.
  */
 
+/**
+ * 最佳实践：转场动效场景
+ */
+
 import { HMDefaultGlobalAnimator, HMNavigation, HMRouterMgr } from '@hadss/hmrouter';
 import { AttributeUpdater, uiObserver } from '@kit.ArkUI';
 import { JumpInfoInterceptor } from '../interceptor/JumpInfoInterceptor';
@@ -60,12 +64,14 @@ struct Index {
 
   build() {
     Column() {
+      // [Start hum_navigation]
       HMNavigation({
         navigationId: 'mainNavigationId', homePageUrl: 'HomeContent', options: {
           standardAnimator: HMDefaultGlobalAnimator.STANDARD_ANIMATOR,
           modifier: this.modifier
         }
       });
+      // [End hum_navigation]
     }
     .height('100%')
     .width('100%');

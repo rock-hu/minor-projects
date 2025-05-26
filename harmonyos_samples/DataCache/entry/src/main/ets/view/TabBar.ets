@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-import { promptAction } from '@kit.ArkUI';
 import { DataCache } from '@hadss/datacache';
 import ListPage from './ListPage';
 import * as Const from '../common/constant/CommonConstants';
 import { TabType } from '../common/types/CommonTypes';
+import { common } from '@kit.AbilityKit';
 
 @Component
 export default struct TabBar {
@@ -25,6 +25,7 @@ export default struct TabBar {
   @State currentIndex: number = 0;
   @State currentPage: number = 1;
   private controller: TabsController = new TabsController();
+  context = this.getUIContext().getHostContext() as common.UIAbilityContext;
 
   build() {
     Column() {
@@ -52,8 +53,8 @@ export default struct TabBar {
           .fontSize(Const.CLEAR_FONT_SIZE)
           .fontWeight(Const.CLEAR_FONT_WEIGHT)
           .onClick(() => {
-            DataCache.getInstance(getContext(this)).clear().then(() => {
-              promptAction.showToast({
+            DataCache.getInstance(this.context).clear().then(() => {
+              this.getUIContext().getPromptAction().showToast({
                 message: $r('app.string.clear_success'),
                 duration: Const.ANIMATION_DURATION
               });

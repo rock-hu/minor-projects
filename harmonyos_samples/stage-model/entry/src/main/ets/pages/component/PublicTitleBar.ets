@@ -25,7 +25,7 @@ export struct PublicTitleBar {
         .width(32)
         .height(32)
         .onClick(() => {
-          router.back()
+          this.getUIContext().getRouter().back()
         })
 
       Text(this.textName)

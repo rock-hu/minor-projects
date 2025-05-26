@@ -23,10 +23,10 @@ export struct CardComponent {
   @State private cardAbstract: string = '';
 
   aboutToAppear() {
-    resourceToString($r('app.string.text_card_title')).then(value => {
+    resourceToString(this.getUIContext(), $r('app.string.text_card_title')).then(value => {
       this.cardTitle = value + this.cardData!.getId();
     })
-    resourceToString($r('app.string.text_card_abstract')).then(value => {
+    resourceToString(this.getUIContext(), $r('app.string.text_card_abstract')).then(value => {
       this.cardAbstract = value + this.cardData!.getId();
     })
   }

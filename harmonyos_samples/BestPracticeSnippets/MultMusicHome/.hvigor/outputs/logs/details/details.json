@@ -1,0 +1,62 @@
+{
+  "HVIGOR_OHOS_PLUGIN": {
+    "MODULES": [
+      {
+        "MODULE_NAME": "f7a42fe7211f98ac7a60a285ac3a9e87",
+        "API_TYPE": "stageMode"
+      },
+      {
+        "MODULE_NAME": "ccfb8864cde22fda8c67ad82cb2aef1a",
+        "API_TYPE": "stageMode"
+      },
+      {
+        "MODULE_NAME": "e6fcf4f8f7877ae69a3710ebd0822a24",
+        "API_TYPE": "stageMode"
+      },
+      {
+        "MODULE_NAME": "d0dbe915091d400bd8ee7f27f0791303",
+        "API_TYPE": "stageMode"
+      },
+      {
+        "MODULE_NAME": "d124f6095682b86e08e59497ea144ecf",
+        "API_TYPE": "stageMode"
+      },
+      {
+        "MODULE_NAME": "efe738d10c20d77513d84f285cc0ebe0",
+        "API_TYPE": "stageMode"
+      }
+    ],
+    "BUILD_MODE": "debug"
+  },
+  "HVIGOR": {
+    "IS_INCREMENTAL": true,
+    "IS_DAEMON": true,
+    "IS_PARALLEL": true,
+    "IS_HVIGORFILE_TYPE_CHECK": false,
+    "TASK_TIME": {
+      "f7a42fe7211f98ac7a60a285ac3a9e87": {
+        "clean": 147147600
+      },
+      "ccfb8864cde22fda8c67ad82cb2aef1a": {
+        "clean": 6669900
+      },
+      "e6fcf4f8f7877ae69a3710ebd0822a24": {
+        "clean": 6445700
+      },
+      "d0dbe915091d400bd8ee7f27f0791303": {
+        "clean": 6386100
+      },
+      "d124f6095682b86e08e59497ea144ecf": {
+        "clean": 6426500
+      },
+      "efe738d10c20d77513d84f285cc0ebe0": {
+        "clean": 6424400
+      },
+      "APP": {
+        "clean": 642700
+      }
+    },
+    "TOTAL_TIME": 421720100,
+    "BUILD_ID": "202505161758084020"
+  }
+}

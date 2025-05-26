@@ -1,0 +1,2091 @@
+[2025-05-12T14:33:16.739] [DEBUG] debug-file - env: nodejsVersion=v18.20.1
+[2025-05-12T14:33:17.197] [DEBUG] debug-file - Hvigor init with startParameters:{
+  hvigorfileTypeCheck: false,
+  parallelExecution: true,
+  incrementalExecution: true,
+  printStackTrace: false,
+  daemon: false,
+  analyze: 0,
+  logLevel: Level { level: 20000, levelStr: 'INFO', colour: 'green' }
+}
+[2025-05-12T14:33:17.215] [DEBUG] debug-file - hvigorfile, resolving D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\hvigorfile.ts
+[2025-05-12T14:33:18.635] [DEBUG] debug-file - hvigorfile, require result:  { default: { system: [Function: appTasks], plugins: [] } }
+[2025-05-12T14:33:18.837] [DEBUG] debug-file - Start initialize project's product build option map with build mode debug.
+[2025-05-12T14:33:18.842] [DEBUG] debug-file - Product 'default' using build option: {
+  "debuggable": true,
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  }
+} in this build.
+[2025-05-12T14:33:18.857] [DEBUG] debug-file - Local scan or download HarmonyOS sdk components toolchains,ets,js,native,previewer
+[2025-05-12T14:33:18.860] [DEBUG] debug-file - Local scan or download hmscore sdk components toolchains,ets,native
+[2025-05-12T14:33:18.868] [DEBUG] debug-file - Start recording SDK configuration permission data.
+[2025-05-12T14:33:18.893] [DEBUG] debug-file - Sdk init in 40 ms 
+[2025-05-12T14:33:18.920] [DEBUG] debug-file - Project task initialization takes 25 ms 
+[2025-05-12T14:33:18.932] [DEBUG] debug-file - hvigorfile, resolving D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\entry\hvigorfile.ts
+[2025-05-12T14:33:18.961] [DEBUG] debug-file - Start initialize module-target build option map, moduleName=entry, buildMode=debug
+[2025-05-12T14:33:18.973] [DEBUG] debug-file - Module entry task initialization takes 6 ms 
+[2025-05-12T14:33:18.992] [DEBUG] debug-file - hvigorfile, resolving D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\Multiply\hvigorfile.ts
+[2025-05-12T14:33:19.007] [DEBUG] debug-file - Start initialize module-target build option map, moduleName=Multiply, buildMode=debug
+[2025-05-12T14:33:19.011] [DEBUG] debug-file - Module Multiply task initialization takes 1 ms 
+[2025-05-12T14:33:19.015] [DEBUG] debug-file - project has submodules:entry,Multiply
+[2025-05-12T14:33:19.070] [DEBUG] debug-file - Configuration task cost before running: 1 s 894 ms 
+[2025-05-12T14:33:19.074] [DEBUG] debug-file - Executing task :entry:clean
+[2025-05-12T14:33:19.077] [DEBUG] debug-file - entry : clean cost memory 0.2418212890625
+[2025-05-12T14:33:19.081] [DEBUG] debug-file - Executing task :Multiply:clean
+[2025-05-12T14:33:19.084] [DEBUG] debug-file - Multiply : clean cost memory 0.23813629150390625
+[2025-05-12T14:33:19.100] [DEBUG] debug-file - Module 'entry' target 'default' using build option: {
+  "debuggable": true,
+  "copyFrom": "default",
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "debug"
+} in this build.
+[2025-05-12T14:33:16.741] [DEBUG] debug-file - env: hvigor-config.json5 content = {
+  modelVersion: '5.0.0',
+  dependencies: {},
+  execution: {},
+  logging: {},
+  debugging: {},
+  nodeOptions: {}
+}
+[2025-05-12T14:33:17.198] [DEBUG] debug-file - Since current hvigor version 5.16.2 differs from last hvigor version 
+      undefined, delete file-cache.json and task-cache.json.
+[2025-05-12T14:33:19.128] [DEBUG] debug-file - Create  resident worker with id: 0.
+[2025-05-12T14:33:18.636] [DEBUG] debug-file - hvigorfile, binding system plugins [Function: appTasks]
+[2025-05-12T14:33:18.837] [DEBUG] debug-file - Picking option from product 'default' with build mode 'debug'.
+[2025-05-12T14:33:18.843] [DEBUG] debug-file - not found resModel json file in : D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\entry\src\ohosTest\module.json5
+[2025-05-12T14:33:18.920] [DEBUG] debug-file - hvigorfile, binding custom plugins []
+[2025-05-12T14:33:18.941] [DEBUG] debug-file - hvigorfile, require result:  { default: { system: [Function: hapTasks], plugins: [] } }
+[2025-05-12T14:33:18.961] [DEBUG] debug-file - Target 'default' config: {}
+[2025-05-12T14:33:18.973] [DEBUG] debug-file - hvigorfile, binding custom plugins []
+[2025-05-12T14:33:18.998] [DEBUG] debug-file - hvigorfile, require result:  { default: { system: [Function: hapTasks], plugins: [] } }
+[2025-05-12T14:33:19.008] [DEBUG] debug-file - Target 'default' config: {}
+[2025-05-12T14:33:19.012] [DEBUG] debug-file - hvigorfile, binding custom plugins []
+[2025-05-12T14:33:19.017] [DEBUG] debug-file - start to load updatedOhPackageInfo to the disk
+[2025-05-12T14:33:19.074] [DEBUG] debug-file - clean: Worker pool is inactive.
+[2025-05-12T14:33:19.077] [DEBUG] debug-file - runTaskFromQueue task cost before running: 1 s 901 ms 
+[2025-05-12T14:33:19.082] [DEBUG] debug-file - clean: Worker pool is inactive.
+[2025-05-12T14:33:19.085] [DEBUG] debug-file - runTaskFromQueue task cost before running: 1 s 908 ms 
+[2025-05-12T14:33:19.104] [DEBUG] debug-file - Module 'entry' target 'ohosTest' using build option: {
+  "debuggable": true,
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "default"
+} in this build.
+[2025-05-12T14:33:16.744] [DEBUG] debug-file - env: daemon=false
+[2025-05-12T14:33:17.199] [DEBUG] debug-file - Cache service initialization finished in 2 ms 
+[2025-05-12T14:33:19.130] [DEBUG] debug-file - Create  resident worker with id: 1.
+[2025-05-12T14:33:18.838] [DEBUG] debug-file - Product 'default' build option: {}
+[2025-05-12T14:33:18.849] [DEBUG] debug-file - not found resModel json file in : D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\Multiply\src\ohosTest\module.json5
+[2025-05-12T14:33:18.920] [DEBUG] debug-file - hvigorfile, no custom plugins were found in D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\hvigorfile.ts
+[2025-05-12T14:33:18.941] [DEBUG] debug-file - hvigorfile, binding system plugins [Function: hapTasks]
+[2025-05-12T14:33:18.962] [DEBUG] debug-file - Target 'ohosTest' config: {}
+[2025-05-12T14:33:18.973] [DEBUG] debug-file - hvigorfile, no custom plugins were found in D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\entry\hvigorfile.ts
+[2025-05-12T14:33:18.998] [DEBUG] debug-file - hvigorfile, binding system plugins [Function: hapTasks]
+[2025-05-12T14:33:19.008] [DEBUG] debug-file - Target 'ohosTest' config: {}
+[2025-05-12T14:33:19.012] [DEBUG] debug-file - hvigorfile, no custom plugins were found in D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\Multiply\hvigorfile.ts
+[2025-05-12T14:33:19.024] [DEBUG] debug-file - load to the disk finished
+[2025-05-12T14:33:19.079] [INFO] debug-file - Finished :entry:clean... after 4 ms 
+[2025-05-12T14:33:19.085] [INFO] debug-file - Finished :Multiply:clean... after 4 ms 
+[2025-05-12T14:33:19.110] [DEBUG] debug-file - Module 'Multiply' target 'default' using build option: {
+  "debuggable": true,
+  "copyFrom": "default",
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "debug"
+} in this build.
+[2025-05-12T14:33:16.744] [DEBUG] debug-file - no-daemon, use the parent process.execArgv --max-old-space-size=8192,--expose-gc
+[2025-05-12T14:33:19.132] [DEBUG] debug-file - Current worker pool is stopped or closed.
+[2025-05-12T14:33:18.838] [DEBUG] debug-file - End initialize project's product build option map with build mode 'debug'.
+[2025-05-12T14:33:18.852] [DEBUG] debug-file - No signingConfig found, initRemoteHspCache failed.
+[2025-05-12T14:33:18.920] [DEBUG] debug-file - hvigorfile, resolve finished D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\hvigorfile.ts
+[2025-05-12T14:33:18.963] [DEBUG] debug-file - Module 'entry' target 'default' build option: {
+  "debuggable": true,
+  "copyFrom": "default",
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "debug"
+}
+[2025-05-12T14:33:18.973] [DEBUG] debug-file - hvigorfile, resolve finished D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\entry\hvigorfile.ts
+[2025-05-12T14:33:19.008] [DEBUG] debug-file - Module 'Multiply' target 'default' build option: {
+  "debuggable": true,
+  "copyFrom": "default",
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "debug"
+}
+[2025-05-12T14:33:19.012] [DEBUG] debug-file - hvigorfile, resolve finished D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\Multiply\hvigorfile.ts
+[2025-05-12T14:33:19.026] [DEBUG] debug-file - Start to initialize dependency information.
+[2025-05-12T14:33:19.085] [DEBUG] debug-file - Executing task ::clean
+[2025-05-12T14:33:19.114] [DEBUG] debug-file - Module 'Multiply' target 'ohosTest' using build option: {
+  "debuggable": true,
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "default"
+} in this build.
+[2025-05-12T14:33:19.133] [DEBUG] debug-file - Clear worker 0.
+[2025-05-12T14:33:18.963] [DEBUG] debug-file - Module 'entry' target 'ohosTest' build option: {
+  "debuggable": true,
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "default"
+}
+[2025-05-12T14:33:19.008] [DEBUG] debug-file - Module 'Multiply' target 'ohosTest' build option: {
+  "debuggable": true,
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "default"
+}
+[2025-05-12T14:33:19.047] [DEBUG] debug-file - Module NativeSoIntegration Collected Dependency: 
+[2025-05-12T14:33:19.085] [DEBUG] debug-file - clean: Worker pool is inactive.
+[2025-05-12T14:33:19.126] [DEBUG] debug-file - Since there is no instance or instance is terminated, create a new worker pool.
+[2025-05-12T14:33:19.133] [DEBUG] debug-file - Worker 0 has been cleared.
+[2025-05-12T14:33:18.963] [DEBUG] debug-file - End initialize module-target build option map, moduleName=entry
+[2025-05-12T14:33:19.008] [DEBUG] debug-file - End initialize module-target build option map, moduleName=Multiply
+[2025-05-12T14:33:19.047] [DEBUG] debug-file - Module NativeSoIntegration's total dependency: 0
+[2025-05-12T14:33:19.086] [DEBUG] debug-file - NativeSoIntegration : clean cost memory 0.03037261962890625
+[2025-05-12T14:33:19.126] [DEBUG] debug-file - Worker pool is initialized with config:  {
+  minPoolNum: 2,
+  maxPoolNum: undefined,
+  maxCoreSize: undefined,
+  cacheCapacity: undefined,
+  cacheTtl: undefined
+}
+[2025-05-12T14:33:19.133] [DEBUG] debug-file - Current idle worker size: 1.
+[2025-05-12T14:33:19.008] [DEBUG] debug-file - Module 'Multiply' target 'default' using build option: {
+  "debuggable": true,
+  "copyFrom": "default",
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "debug"
+} in this build.
+[2025-05-12T14:33:18.963] [DEBUG] debug-file - Module 'entry' target 'default' using build option: {
+  "debuggable": true,
+  "copyFrom": "default",
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "debug"
+} in this build.
+[2025-05-12T14:33:19.086] [DEBUG] debug-file - runTaskFromQueue task cost before running: 1 s 910 ms 
+[2025-05-12T14:33:19.133] [DEBUG] debug-file - Current busy worker size: 0.
+[2025-05-12T14:33:19.049] [DEBUG] debug-file - Start to initialize dependency information.
+[2025-05-12T14:33:19.086] [INFO] debug-file - Finished ::clean... after 1 ms 
+[2025-05-12T14:33:19.133] [DEBUG] debug-file - Clear worker 1.
+[2025-05-12T14:33:19.055] [DEBUG] debug-file - Module entry Collected Dependency: D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\entry\src\main\cpp\types\libentry,D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\entry\src\main\cpp\types\libmultiply
+[2025-05-12T14:33:19.086] [DEBUG] debug-file - Executing task :entry:init
+[2025-05-12T14:33:19.133] [DEBUG] debug-file - Worker 1 has been cleared.
+[2025-05-12T14:33:19.055] [DEBUG] debug-file - Module entry's total dependency: 2
+[2025-05-12T14:33:19.086] [DEBUG] debug-file - entry : init cost memory 0.010223388671875
+[2025-05-12T14:33:19.133] [DEBUG] debug-file - Current idle worker size: 0.
+[2025-05-12T14:33:19.060] [DEBUG] debug-file - Start to initialize dependency information.
+[2025-05-12T14:33:19.087] [DEBUG] debug-file - runTaskFromQueue task cost before running: 1 s 910 ms 
+[2025-05-12T14:33:19.133] [DEBUG] debug-file - Current busy worker size: 0.
+[2025-05-12T14:33:19.064] [DEBUG] debug-file - Module Multiply Collected Dependency: D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\Multiply\src\main\cpp\types\libmultiply
+[2025-05-12T14:33:19.087] [INFO] debug-file - Finished :entry:init... after 1 ms 
+[2025-05-12T14:33:19.134] [DEBUG] debug-file - hvigor build process will be closed.
+[2025-05-12T14:33:19.064] [DEBUG] debug-file - Module Multiply's total dependency: 1
+[2025-05-12T14:33:19.087] [DEBUG] debug-file - Executing task :Multiply:init
+[2025-05-12T14:33:19.141] [DEBUG] debug-file - worker[0] exits with exit code 0.
+[2025-05-12T14:33:19.066] [DEBUG] debug-file - Configuration phase cost:1 s 861 ms 
+[2025-05-12T14:33:19.087] [DEBUG] debug-file - Multiply : init cost memory 0.00806427001953125
+[2025-05-12T14:33:19.141] [DEBUG] debug-file - worker[1] exits with exit code 0.
+[2025-05-12T14:33:19.087] [DEBUG] debug-file - runTaskFromQueue task cost before running: 1 s 911 ms 
+[2025-05-12T14:33:19.142] [DEBUG] debug-file - Current worker pool is terminated.
+[2025-05-12T14:33:19.087] [INFO] debug-file - Finished :Multiply:init... after 1 ms 
+[2025-05-12T14:33:19.087] [DEBUG] debug-file - Executing task ::init
+[2025-05-12T14:33:19.087] [DEBUG] debug-file - NativeSoIntegration : init cost memory 0.0091094970703125
+[2025-05-12T14:33:19.087] [DEBUG] debug-file - runTaskFromQueue task cost before running: 1 s 911 ms 
+[2025-05-12T14:33:19.088] [INFO] debug-file - Finished ::init... after 1 ms 
+[2025-05-12T14:33:21.577] [DEBUG] debug-file - env: nodejsVersion=v18.20.1
+[2025-05-12T14:33:22.001] [DEBUG] debug-file - env: daemon=true
+[2025-05-12T14:33:21.579] [DEBUG] debug-file - env: hvigor-config.json5 content = {
+  modelVersion: '5.0.0',
+  dependencies: {},
+  execution: {},
+  logging: {},
+  debugging: {},
+  nodeOptions: {}
+}
+[2025-05-12T14:33:23.982] [DEBUG] debug-file - java daemon tryConnect failed Error: connect ECONNREFUSED 127.0.0.1:45050
+[2025-05-12T14:33:24.017] [DEBUG] debug-file - java daemon started at port 45050 pid 12680
+[2025-05-12T14:33:24.047] [DEBUG] debug-file - session manager: set active socket. socketId=eZLAplJf8-N4NhjhAAAB
+[2025-05-12T14:33:24.683] [DEBUG] debug-file - watch worker: worker id should be larger than 0. Nothing will be sent to any worker thread.
+[2025-05-12T14:33:24.705] [DEBUG] debug-file - Hvigor init with startParameters:{
+  hvigorfileTypeCheck: false,
+  parallelExecution: true,
+  incrementalExecution: true,
+  printStackTrace: false,
+  daemon: true,
+  analyze: 0,
+  logLevel: Level { level: 20000, levelStr: 'INFO', colour: 'green' }
+}
+[2025-05-12T14:33:24.708] [DEBUG] debug-file - Cache service initialization finished in 3 ms 
+[2025-05-12T14:33:24.721] [DEBUG] debug-file - hvigorfile, resolving D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\hvigorfile.ts
+[2025-05-12T14:33:26.256] [DEBUG] debug-file - hvigorfile, require result:  { default: { plugins: [] } }
+[2025-05-12T14:33:26.256] [DEBUG] debug-file - hvigorfile, binding system plugins null
+[2025-05-12T14:33:26.478] [DEBUG] debug-file - Start initialize project's product build option map with build mode debug.
+[2025-05-12T14:33:26.478] [DEBUG] debug-file - Picking option from product 'default' with build mode 'debug'.
+[2025-05-12T14:33:26.479] [DEBUG] debug-file - Product 'default' build option: {}
+[2025-05-12T14:33:26.479] [DEBUG] debug-file - End initialize project's product build option map with build mode 'debug'.
+[2025-05-12T14:33:26.483] [DEBUG] debug-file - Product 'default' using build option: {
+  "debuggable": true,
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  }
+} in this build.
+[2025-05-12T14:33:26.484] [DEBUG] debug-file - not found resModel json file in : D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\entry\src\ohosTest\module.json5
+[2025-05-12T14:33:26.493] [DEBUG] debug-file - not found resModel json file in : D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\Multiply\src\ohosTest\module.json5
+[2025-05-12T14:33:26.495] [DEBUG] debug-file - No signingConfig found, initRemoteHspCache failed.
+[2025-05-12T14:33:26.499] [DEBUG] debug-file - Local scan or download HarmonyOS sdk components toolchains,ets,js,native,previewer
+[2025-05-12T14:33:26.503] [DEBUG] debug-file - Local scan or download hmscore sdk components toolchains,ets,native
+[2025-05-12T14:33:26.509] [DEBUG] debug-file - Start recording SDK configuration permission data.
+[2025-05-12T14:33:26.540] [DEBUG] debug-file - Sdk init in 44 ms 
+[2025-05-12T14:33:26.563] [DEBUG] debug-file - Project task initialization takes 21 ms 
+[2025-05-12T14:33:26.564] [DEBUG] debug-file - hvigorfile, binding custom plugins []
+[2025-05-12T14:33:26.564] [DEBUG] debug-file - hvigorfile, no custom plugins were found in D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\hvigorfile.ts
+[2025-05-12T14:33:26.564] [DEBUG] debug-file - hvigorfile, resolve finished D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\hvigorfile.ts
+[2025-05-12T14:33:26.570] [DEBUG] debug-file - hvigorfile, resolving D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\entry\hvigorfile.ts
+[2025-05-12T14:33:26.576] [DEBUG] debug-file - hvigorfile, require result:  { default: { plugins: [] } }
+[2025-05-12T14:33:26.577] [DEBUG] debug-file - hvigorfile, binding system plugins null
+[2025-05-12T14:33:26.591] [DEBUG] debug-file - Start initialize module-target build option map, moduleName=entry, buildMode=debug
+[2025-05-12T14:33:26.591] [DEBUG] debug-file - Target 'default' config: {}
+[2025-05-12T14:33:26.592] [DEBUG] debug-file - Target 'ohosTest' config: {}
+[2025-05-12T14:33:26.593] [DEBUG] debug-file - Module 'entry' target 'default' build option: {
+  "debuggable": true,
+  "copyFrom": "default",
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "debug"
+}
+[2025-05-12T14:33:26.593] [DEBUG] debug-file - Module 'entry' target 'ohosTest' build option: {
+  "debuggable": true,
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "default"
+}
+[2025-05-12T14:33:26.593] [DEBUG] debug-file - End initialize module-target build option map, moduleName=entry
+[2025-05-12T14:33:26.593] [DEBUG] debug-file - Module 'entry' target 'default' using build option: {
+  "debuggable": true,
+  "copyFrom": "default",
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "debug"
+} in this build.
+[2025-05-12T14:33:26.601] [DEBUG] debug-file - Module entry task initialization takes 5 ms 
+[2025-05-12T14:33:26.601] [DEBUG] debug-file - hvigorfile, binding custom plugins []
+[2025-05-12T14:33:26.601] [DEBUG] debug-file - hvigorfile, no custom plugins were found in D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\entry\hvigorfile.ts
+[2025-05-12T14:33:26.601] [DEBUG] debug-file - hvigorfile, resolve finished D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\entry\hvigorfile.ts
+[2025-05-12T14:33:26.609] [DEBUG] debug-file - hvigorfile, resolving D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\Multiply\hvigorfile.ts
+[2025-05-12T14:33:26.615] [DEBUG] debug-file - hvigorfile, require result:  { default: { plugins: [] } }
+[2025-05-12T14:33:26.615] [DEBUG] debug-file - hvigorfile, binding system plugins null
+[2025-05-12T14:33:26.621] [DEBUG] debug-file - Start initialize module-target build option map, moduleName=Multiply, buildMode=debug
+[2025-05-12T14:33:26.621] [DEBUG] debug-file - Target 'default' config: {}
+[2025-05-12T14:33:26.621] [DEBUG] debug-file - Target 'ohosTest' config: {}
+[2025-05-12T14:33:26.621] [DEBUG] debug-file - Module 'Multiply' target 'default' build option: {
+  "debuggable": true,
+  "copyFrom": "default",
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "debug"
+}
+[2025-05-12T14:33:26.621] [DEBUG] debug-file - Module 'Multiply' target 'ohosTest' build option: {
+  "debuggable": true,
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "default"
+}
+[2025-05-12T14:33:26.622] [DEBUG] debug-file - End initialize module-target build option map, moduleName=Multiply
+[2025-05-12T14:33:26.622] [DEBUG] debug-file - Module 'Multiply' target 'default' using build option: {
+  "debuggable": true,
+  "copyFrom": "default",
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "debug"
+} in this build.
+[2025-05-12T14:33:26.624] [DEBUG] debug-file - Module Multiply task initialization takes 1 ms 
+[2025-05-12T14:33:26.624] [DEBUG] debug-file - hvigorfile, binding custom plugins []
+[2025-05-12T14:33:26.624] [DEBUG] debug-file - hvigorfile, no custom plugins were found in D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\Multiply\hvigorfile.ts
+[2025-05-12T14:33:26.624] [DEBUG] debug-file - hvigorfile, resolve finished D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\Multiply\hvigorfile.ts
+[2025-05-12T14:33:26.646] [DEBUG] debug-file - hvigorfile, resolve hvigorfile dependencies in 21 ms 
+[2025-05-12T14:33:26.647] [DEBUG] debug-file - project has submodules:entry,Multiply
+[2025-05-12T14:33:26.649] [DEBUG] debug-file - start to load updatedOhPackageInfo to the disk
+[2025-05-12T14:33:26.656] [DEBUG] debug-file - load to the disk finished
+[2025-05-12T14:33:26.657] [DEBUG] debug-file - Start to initialize dependency information.
+[2025-05-12T14:33:26.665] [DEBUG] debug-file - Module NativeSoIntegration Collected Dependency: 
+[2025-05-12T14:33:26.665] [DEBUG] debug-file - Module NativeSoIntegration's total dependency: 0
+[2025-05-12T14:33:26.666] [DEBUG] debug-file - Start to initialize dependency information.
+[2025-05-12T14:33:26.671] [DEBUG] debug-file - Module entry Collected Dependency: D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\entry\src\main\cpp\types\libentry,D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\entry\src\main\cpp\types\libmultiply
+[2025-05-12T14:33:26.671] [DEBUG] debug-file - Module entry's total dependency: 2
+[2025-05-12T14:33:26.677] [DEBUG] debug-file - Start to initialize dependency information.
+[2025-05-12T14:33:26.680] [DEBUG] debug-file - Module Multiply Collected Dependency: D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\Multiply\src\main\cpp\types\libmultiply
+[2025-05-12T14:33:26.680] [DEBUG] debug-file - Module Multiply's total dependency: 1
+[2025-05-12T14:33:26.683] [DEBUG] debug-file - Configuration phase cost:1 s 970 ms 
+[2025-05-12T14:33:26.686] [DEBUG] debug-file - Configuration task cost before running: 1 s 999 ms 
+[2025-05-12T14:33:26.689] [DEBUG] debug-file - jsonObjWithoutParam {"libentry.so":"file:./src/main/cpp/types/libentry","libmultiply.so":"file:./src/main/cpp/types/libmultiply"} at undefined
+[2025-05-12T14:33:26.689] [DEBUG] debug-file - jsonObjWithoutParam {"name":"entry","version":"1.0.0","description":"Please describe the basic information.","main":"","author":"","license":"","dependencies":{"libentry.so":"file:./src/main/cpp/types/libentry","libmultiply.so":"file:./src/main/cpp/types/libmultiply"}} at undefined
+[2025-05-12T14:33:26.693] [DEBUG] debug-file - Executing task :entry:default@PreBuild
+[2025-05-12T14:33:26.698] [DEBUG] debug-file - jsonObjWithoutParam {"libentry.so":"file:./src/main/cpp/types/libentry","libmultiply.so":"file:./src/main/cpp/types/libmultiply"} at undefined
+[2025-05-12T14:33:26.698] [DEBUG] debug-file - jsonObjWithoutParam {"name":"entry","version":"1.0.0","description":"Please describe the basic information.","main":"","author":"","license":"","dependencies":{"libentry.so":"file:./src/main/cpp/types/libentry","libmultiply.so":"file:./src/main/cpp/types/libmultiply"}} at undefined
+[2025-05-12T14:33:26.854] [DEBUG] debug-file - current product is not Atomic service.
+[2025-05-12T14:33:26.854] [DEBUG] debug-file - Use tool [win32: JAVA_HOME, CLASSPATH]
+ [
+  { JAVA_HOME: 'D:\\dev-5.0.11\\DevEco Studio\\jbr' },
+  { CLASSPATH: undefined }
+]
+[2025-05-12T14:33:26.855] [DEBUG] debug-file - Use tool [win32: NODE_HOME]
+ [ { NODE_HOME: 'D:\\dev-5.0.11\\DevEco Studio\\tools\\node' } ]
+[2025-05-12T14:33:26.855] [DEBUG] debug-file - entry : default@PreBuild cost memory -1.8554534912109375
+[2025-05-12T14:33:26.856] [DEBUG] debug-file - runTaskFromQueue task cost before running: 2 s 168 ms 
+[2025-05-12T14:33:26.857] [INFO] debug-file - Finished :entry:default@PreBuild... after 163 ms 
+[2025-05-12T14:33:26.859] [DEBUG] debug-file - jsonObjWithoutParam {"libentry.so":"file:./src/main/cpp/types/libentry","libmultiply.so":"file:./src/main/cpp/types/libmultiply"} at undefined
+[2025-05-12T14:33:26.859] [DEBUG] debug-file - jsonObjWithoutParam {"name":"entry","version":"1.0.0","description":"Please describe the basic information.","main":"","author":"","license":"","dependencies":{"libentry.so":"file:./src/main/cpp/types/libentry","libmultiply.so":"file:./src/main/cpp/types/libmultiply"}} at undefined
+[2025-05-12T14:33:26.859] [DEBUG] debug-file - Executing task :entry:default@ConfigureCmake
+[2025-05-12T14:33:26.859] [DEBUG] debug-file - jsonObjWithoutParam {"libentry.so":"file:./src/main/cpp/types/libentry","libmultiply.so":"file:./src/main/cpp/types/libmultiply"} at undefined
+[2025-05-12T14:33:26.860] [DEBUG] debug-file - jsonObjWithoutParam {"name":"entry","version":"1.0.0","description":"Please describe the basic information.","main":"","author":"","license":"","dependencies":{"libentry.so":"file:./src/main/cpp/types/libentry","libmultiply.so":"file:./src/main/cpp/types/libmultiply"}} at undefined
+[2025-05-12T14:33:26.867] [DEBUG] debug-file - entry : default@ConfigureCmake cost memory 0.137939453125
+[2025-05-12T14:33:26.868] [DEBUG] debug-file - runTaskFromQueue task cost before running: 2 s 180 ms 
+[2025-05-12T14:33:26.868] [INFO] debug-file - Finished :entry:default@ConfigureCmake... after 9 ms 
+[2025-05-12T14:33:26.870] [DEBUG] debug-file - jsonObjWithoutParam {"libentry.so":"file:./src/main/cpp/types/libentry","libmultiply.so":"file:./src/main/cpp/types/libmultiply"} at undefined
+[2025-05-12T14:33:26.870] [DEBUG] debug-file - jsonObjWithoutParam {"name":"entry","version":"1.0.0","description":"Please describe the basic information.","main":"","author":"","license":"","dependencies":{"libentry.so":"file:./src/main/cpp/types/libentry","libmultiply.so":"file:./src/main/cpp/types/libmultiply"}} at undefined
+[2025-05-12T14:33:26.870] [DEBUG] debug-file - Executing task :entry:default@BuildNativeWithCmake
+[2025-05-12T14:33:26.871] [DEBUG] debug-file - jsonObjWithoutParam {"libentry.so":"file:./src/main/cpp/types/libentry","libmultiply.so":"file:./src/main/cpp/types/libmultiply"} at undefined
+[2025-05-12T14:33:26.871] [DEBUG] debug-file - jsonObjWithoutParam {"name":"entry","version":"1.0.0","description":"Please describe the basic information.","main":"","author":"","license":"","dependencies":{"libentry.so":"file:./src/main/cpp/types/libentry","libmultiply.so":"file:./src/main/cpp/types/libmultiply"}} at undefined
+[2025-05-12T14:33:26.875] [DEBUG] debug-file - Use tool [Cmake]
+ [
+  'D:\\dev-5.0.11\\DevEco Studio\\sdk\\default\\openharmony\\native\\build-tools\\cmake\\bin\\cmake.exe',
+  '-HD:\\git_developmentPractice\\DevelopmentPractice\\NativeSoIntegration\\entry\\src\\main\\cpp',
+  '-BD:\\git_developmentPractice\\DevelopmentPractice\\NativeSoIntegration\\entry\\.cxx\\default\\default\\debug\\arm64-v8a',
+  '-DOHOS_ARCH=arm64-v8a',
+  '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=D:\\git_developmentPractice\\DevelopmentPractice\\NativeSoIntegration\\entry\\build\\default\\intermediates\\cmake\\default\\obj\\arm64-v8a',
+  '-DCMAKE_BUILD_TYPE=Debug',
+  '-DOHOS_SDK_NATIVE=D:\\dev-5.0.11\\DevEco Studio\\sdk\\default\\openharmony\\native',
+  '-DCMAKE_SYSTEM_NAME=OHOS',
+  '-DCMAKE_OHOS_ARCH_ABI=arm64-v8a',
+  '-DCMAKE_EXPORT_COMPILE_COMMANDS=ON',
+  '-DCMAKE_TOOLCHAIN_FILE=D:\\dev-5.0.11\\DevEco Studio\\sdk\\default\\hms\\native\\build\\cmake\\hmos.toolchain.cmake',
+  '-GNinja',
+  '-DCMAKE_MAKE_PROGRAM=D:\\dev-5.0.11\\DevEco Studio\\sdk\\default\\openharmony\\native\\build-tools\\cmake\\bin\\ninja.exe',
+  '-DCMAKE_FIND_ROOT_PATH=D:\\git_developmentPractice\\DevelopmentPractice\\NativeSoIntegration\\entry\\.cxx\\default\\default\\debug\\hvigor\\arm64-v8a',
+  '-DPACKAGE_FIND_FILE=D:\\git_developmentPractice\\DevelopmentPractice\\NativeSoIntegration\\entry\\.cxx\\default\\default\\debug\\hvigor\\arm64-v8a\\summary.cmake',
+  '--no-warn-unused-cli',
+  '-DHMOS_SDK_NATIVE=D:\\dev-5.0.11\\DevEco Studio\\sdk\\default\\hms\\native'
+]
+[2025-05-12T14:33:26.879] [DEBUG] debug-file - Clean CMakeCache.txt due to outdated CMake configuration.
+[2025-05-12T14:33:26.879] [DEBUG] debug-file - - no fingerprint file, will remove stale cache CMakeCache.txt
+[2025-05-12T14:33:26.881] [DEBUG] debug-file - Since there is no instance or instance is terminated, create a new worker pool.
+[2025-05-12T14:33:26.881] [DEBUG] debug-file - Worker pool is initialized with config:  {
+  minPoolNum: 2,
+  maxPoolNum: undefined,
+  maxCoreSize: undefined,
+  cacheCapacity: undefined,
+  cacheTtl: undefined
+}
+[2025-05-12T14:33:26.882] [DEBUG] debug-file - Create  resident worker with id: 0.
+[2025-05-12T14:33:26.885] [DEBUG] debug-file - Create  resident worker with id: 1.
+[2025-05-12T14:33:26.888] [DEBUG] debug-file - default@BuildNativeWithCmake work[0] is submitted.
+[2025-05-12T14:33:26.889] [DEBUG] debug-file - default@BuildNativeWithCmake work[0] is pushed to ready queue.
+[2025-05-12T14:33:26.889] [DEBUG] debug-file - A work dispatched to worker[7] failed because unable to get work from ready queue.
+[2025-05-12T14:33:26.890] [DEBUG] debug-file - Create  resident worker with id: 6.
+[2025-05-12T14:33:26.891] [DEBUG] debug-file - default@BuildNativeWithCmake work[0] has been dispatched to worker[6].
+[2025-05-12T14:33:26.891] [DEBUG] debug-file - default@BuildNativeWithCmake work[0] is dispatched.
+[2025-05-12T14:33:26.893] [DEBUG] debug-file - Use tool [Cmake]
+ [
+  'D:\\dev-5.0.11\\DevEco Studio\\sdk\\default\\openharmony\\native\\build-tools\\cmake\\bin\\cmake.exe',
+  '-HD:\\git_developmentPractice\\DevelopmentPractice\\NativeSoIntegration\\entry\\src\\main\\cpp',
+  '-BD:\\git_developmentPractice\\DevelopmentPractice\\NativeSoIntegration\\entry\\.cxx\\default\\default\\debug\\x86_64',
+  '-DOHOS_ARCH=x86_64',
+  '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=D:\\git_developmentPractice\\DevelopmentPractice\\NativeSoIntegration\\entry\\build\\default\\intermediates\\cmake\\default\\obj\\x86_64',
+  '-DCMAKE_BUILD_TYPE=Debug',
+  '-DOHOS_SDK_NATIVE=D:\\dev-5.0.11\\DevEco Studio\\sdk\\default\\openharmony\\native',
+  '-DCMAKE_SYSTEM_NAME=OHOS',
+  '-DCMAKE_OHOS_ARCH_ABI=x86_64',
+  '-DCMAKE_EXPORT_COMPILE_COMMANDS=ON',
+  '-DCMAKE_TOOLCHAIN_FILE=D:\\dev-5.0.11\\DevEco Studio\\sdk\\default\\hms\\native\\build\\cmake\\hmos.toolchain.cmake',
+  '-GNinja',
+  '-DCMAKE_MAKE_PROGRAM=D:\\dev-5.0.11\\DevEco Studio\\sdk\\default\\openharmony\\native\\build-tools\\cmake\\bin\\ninja.exe',
+  '-DCMAKE_FIND_ROOT_PATH=D:\\git_developmentPractice\\DevelopmentPractice\\NativeSoIntegration\\entry\\.cxx\\default\\default\\debug\\hvigor\\x86_64',
+  '-DPACKAGE_FIND_FILE=D:\\git_developmentPractice\\DevelopmentPractice\\NativeSoIntegration\\entry\\.cxx\\default\\default\\debug\\hvigor\\x86_64\\summary.cmake',
+  '--no-warn-unused-cli',
+  '-DHMOS_SDK_NATIVE=D:\\dev-5.0.11\\DevEco Studio\\sdk\\default\\hms\\native'
+]
+[2025-05-12T14:33:26.897] [DEBUG] debug-file - Clean CMakeCache.txt due to outdated CMake configuration.
+[2025-05-12T14:33:26.897] [DEBUG] debug-file - - no fingerprint file, will remove stale cache CMakeCache.txt
+[2025-05-12T14:33:26.899] [DEBUG] debug-file - default@BuildNativeWithCmake work[1] is submitted.
+[2025-05-12T14:33:26.900] [DEBUG] debug-file - default@BuildNativeWithCmake work[1] is pushed to ready queue.
+[2025-05-12T14:33:26.900] [DEBUG] debug-file - A work dispatched to worker[7] failed because unable to get work from ready queue.
+[2025-05-12T14:33:26.900] [DEBUG] debug-file - A work dispatched to worker[6] failed because of worker busy.
+[2025-05-12T14:33:26.900] [DEBUG] debug-file - Create  resident worker with id: 5.
+[2025-05-12T14:33:26.901] [DEBUG] debug-file - default@BuildNativeWithCmake work[1] has been dispatched to worker[5].
+[2025-05-12T14:33:26.901] [DEBUG] debug-file - default@BuildNativeWithCmake work[1] is dispatched.
+[2025-05-12T14:33:26.901] [DEBUG] debug-file - entry : default@BuildNativeWithCmake cost memory 1.7058334350585938
+[2025-05-12T14:33:28.196] [DEBUG] debug-file - Not searching for unused variables given on the command line.
+
+[2025-05-12T14:33:28.196] [DEBUG] debug-file - Not searching for unused variables given on the command line.
+
+[2025-05-12T14:33:29.316] [DEBUG] debug-file - -- The C compiler identification is Clang 15.0.4
+
+[2025-05-12T14:33:29.316] [DEBUG] debug-file - -- The C compiler identification is Clang 15.0.4
+
+[2025-05-12T14:33:30.157] [DEBUG] debug-file - -- The CXX compiler identification is Clang 15.0.4
+
+[2025-05-12T14:33:30.157] [DEBUG] debug-file - -- The CXX compiler identification is Clang 15.0.4
+
+[2025-05-12T14:33:31.513] [DEBUG] debug-file - -- Detecting C compiler ABI info
+
+[2025-05-12T14:33:31.513] [DEBUG] debug-file - -- Detecting C compiler ABI info
+
+[2025-05-12T14:33:34.087] [DEBUG] debug-file - -- Detecting C compiler ABI info - done
+
+[2025-05-12T14:33:34.087] [DEBUG] debug-file - -- Detecting C compiler ABI info - done
+
+[2025-05-12T14:33:34.105] [DEBUG] debug-file - -- Check for working C compiler: D:/dev-5.0.11/DevEco Studio/sdk/default/openharmony/native/llvm/bin/clang.exe - skipped
+
+[2025-05-12T14:33:34.105] [DEBUG] debug-file - -- Check for working C compiler: D:/dev-5.0.11/DevEco Studio/sdk/default/openharmony/native/llvm/bin/clang.exe - skipped
+
+[2025-05-12T14:33:34.113] [DEBUG] debug-file - -- Detecting C compile features
+
+[2025-05-12T14:33:34.113] [DEBUG] debug-file - -- Detecting C compile features
+
+[2025-05-12T14:33:34.124] [DEBUG] debug-file - -- Detecting C compile features - done
+
+[2025-05-12T14:33:34.124] [DEBUG] debug-file - -- Detecting C compile features - done
+
+[2025-05-12T14:33:34.801] [DEBUG] debug-file - -- Detecting CXX compiler ABI info
+
+[2025-05-12T14:33:34.801] [DEBUG] debug-file - -- Detecting CXX compiler ABI info
+
+[2025-05-12T14:33:37.234] [DEBUG] debug-file - -- Detecting CXX compiler ABI info - done
+
+[2025-05-12T14:33:37.234] [DEBUG] debug-file - -- Detecting CXX compiler ABI info - done
+
+[2025-05-12T14:33:37.251] [DEBUG] debug-file - -- Check for working CXX compiler: D:/dev-5.0.11/DevEco Studio/sdk/default/openharmony/native/llvm/bin/clang++.exe - skipped
+
+[2025-05-12T14:33:37.251] [DEBUG] debug-file - -- Check for working CXX compiler: D:/dev-5.0.11/DevEco Studio/sdk/default/openharmony/native/llvm/bin/clang++.exe - skipped
+
+[2025-05-12T14:33:37.251] [DEBUG] debug-file - -- Detecting CXX compile features
+
+[2025-05-12T14:33:37.252] [DEBUG] debug-file - -- Detecting CXX compile features
+
+[2025-05-12T14:33:37.252] [DEBUG] debug-file - -- Detecting CXX compile features - done
+
+[2025-05-12T14:33:37.253] [DEBUG] debug-file - -- Detecting CXX compile features - done
+
+[2025-05-12T14:33:37.267] [DEBUG] debug-file - -- Configuring done (9.1s)
+
+[2025-05-12T14:33:37.267] [DEBUG] debug-file - -- Configuring done (9.1s)
+
+[2025-05-12T14:33:37.275] [DEBUG] debug-file - -- Generating done (0.0s)
+
+[2025-05-12T14:33:37.275] [DEBUG] debug-file - -- Generating done (0.0s)
+
+[2025-05-12T14:33:37.351] [DEBUG] debug-file - -- Build files have been written to: D:/git_developmentPractice/DevelopmentPractice/NativeSoIntegration/entry/.cxx/default/default/debug/x86_64
+
+[2025-05-12T14:33:37.351] [DEBUG] debug-file - -- Build files have been written to: D:/git_developmentPractice/DevelopmentPractice/NativeSoIntegration/entry/.cxx/default/default/debug/arm64-v8a
+
+[2025-05-12T14:33:37.357] [DEBUG] debug-file - worker[5] has one work done.
+[2025-05-12T14:33:37.387] [DEBUG] debug-file - worker[6] has one work done.
+[2025-05-12T14:33:37.431] [DEBUG] debug-file - default@BuildNativeWithCmake work[1] done.
+[2025-05-12T14:33:37.431] [DEBUG] debug-file - A work dispatched to worker[5] failed because unable to get work from ready queue.
+[2025-05-12T14:33:37.433] [DEBUG] debug-file - default@BuildNativeWithCmake work[0] done.
+[2025-05-12T14:33:37.434] [DEBUG] debug-file - A work dispatched to worker[6] failed because unable to get work from ready queue.
+[2025-05-12T14:33:37.434] [INFO] debug-file - Finished :entry:default@BuildNativeWithCmake... after 9 s 381 ms 
+[2025-05-12T14:33:37.436] [DEBUG] debug-file - Executing task :entry:compileNative
+[2025-05-12T14:33:37.436] [DEBUG] debug-file - entry : compileNative cost memory 0.01178741455078125
+[2025-05-12T14:33:37.436] [DEBUG] debug-file - runTaskFromQueue task cost before running: 12 s 749 ms 
+[2025-05-12T14:33:37.436] [INFO] debug-file - Finished :entry:compileNative... after 1 ms 
+[2025-05-12T14:33:37.443] [DEBUG] debug-file - BUILD SUCCESSFUL in 12 s 756 ms 
+[2025-05-12T14:33:37.444] [DEBUG] debug-file - Update task entry:default@PreBuild input file:D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\AppScope\app.json5 cache by regenerate.
+[2025-05-12T14:33:37.445] [DEBUG] debug-file - Update task entry:default@PreBuild input file:D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\entry\src\main\module.json5 cache by regenerate.
+[2025-05-12T14:33:37.445] [DEBUG] debug-file - Update task entry:default@PreBuild input file:D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\build-profile.json5 cache by regenerate.
+[2025-05-12T14:33:37.445] [DEBUG] debug-file - Update task entry:default@PreBuild input file:D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\entry\build-profile.json5 cache by regenerate.
+[2025-05-12T14:33:37.445] [DEBUG] debug-file - Update task entry:default@PreBuild input file:D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\entry\src\main\resources\base\profile\main_pages.json cache by regenerate.
+[2025-05-12T14:33:37.445] [DEBUG] debug-file - Update task entry:default@PreBuild input file:D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\hvigor\hvigor-config.json5 cache by regenerate.
+[2025-05-12T14:33:37.446] [DEBUG] debug-file - Update task entry:default@PreBuild input file:D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\entry\oh-package.json5 cache by regenerate.
+[2025-05-12T14:33:37.446] [DEBUG] debug-file - Update task entry:default@PreBuild input file:D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\oh-package.json5 cache by regenerate.
+[2025-05-12T14:33:37.446] [DEBUG] debug-file - Incremental task entry:default@PreBuild post-execution cost:3 ms .
+[2025-05-12T14:33:37.459] [DEBUG] debug-file - Cleanup worker 0.
+[2025-05-12T14:33:37.459] [DEBUG] debug-file - Worker 0 has been cleaned up.
+[2025-05-12T14:33:37.459] [DEBUG] debug-file - Current idle worker size: 3.
+[2025-05-12T14:33:37.459] [DEBUG] debug-file - Current resident worker size: 4.
+[2025-05-12T14:33:37.459] [DEBUG] debug-file - Cleanup worker 1.
+[2025-05-12T14:33:37.459] [DEBUG] debug-file - Worker 1 has been cleaned up.
+[2025-05-12T14:33:37.460] [DEBUG] debug-file - Current idle worker size: 2.
+[2025-05-12T14:33:37.460] [DEBUG] debug-file - Current resident worker size: 4.
+[2025-05-12T14:33:37.461] [DEBUG] debug-file - hvigor build process will be closed.
+[2025-05-12T14:33:37.461] [DEBUG] debug-file - worker[0] exits with exit code 1.
+[2025-05-12T14:33:37.463] [DEBUG] debug-file - session manager: send message to worker process.
+[2025-05-12T14:33:37.463] [DEBUG] debug-file - session manager: send message to worker process.
+[2025-05-12T14:33:37.463] [DEBUG] debug-file - watch worker: worker id should be larger than 0. Nothing will be sent to any worker thread.
+[2025-05-12T14:33:37.464] [DEBUG] debug-file - watch worker: worker id should be larger than 0. Nothing will be sent to any worker thread.
+[2025-05-12T14:33:37.465] [DEBUG] debug-file - worker[1] exits with exit code 1.
+[2025-05-12T14:33:38.095] [DEBUG] debug-file - session manager: set active socket. socketId=UghDfvU-QCaFZZR-AAAD
+[2025-05-12T14:33:38.111] [DEBUG] debug-file - watch worker: worker id should be larger than 0. Nothing will be sent to any worker thread.
+[2025-05-12T14:33:38.132] [DEBUG] debug-file - Hvigor init with startParameters:{
+  hvigorfileTypeCheck: false,
+  parallelExecution: true,
+  incrementalExecution: true,
+  printStackTrace: false,
+  daemon: true,
+  analyze: 0,
+  logLevel: Level { level: 20000, levelStr: 'INFO', colour: 'green' }
+}
+[2025-05-12T14:33:38.134] [DEBUG] debug-file - Cache service initialization finished in 3 ms 
+[2025-05-12T14:33:38.149] [DEBUG] debug-file - hvigorfile, resolving D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\hvigorfile.ts
+[2025-05-12T14:33:38.156] [DEBUG] debug-file - hvigorfile, require result:  { default: { plugins: [] } }
+[2025-05-12T14:33:38.156] [DEBUG] debug-file - hvigorfile, binding system plugins null
+[2025-05-12T14:33:38.163] [DEBUG] debug-file - Start initialize project's product build option map with build mode debug.
+[2025-05-12T14:33:38.163] [DEBUG] debug-file - Picking option from product 'default' with build mode 'debug'.
+[2025-05-12T14:33:38.163] [DEBUG] debug-file - Product 'default' build option: {}
+[2025-05-12T14:33:38.163] [DEBUG] debug-file - End initialize project's product build option map with build mode 'debug'.
+[2025-05-12T14:33:38.165] [DEBUG] debug-file - Product 'default' using build option: {
+  "debuggable": true,
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  }
+} in this build.
+[2025-05-12T14:33:38.165] [DEBUG] debug-file - not found resModel json file in : D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\entry\src\ohosTest\module.json5
+[2025-05-12T14:33:38.168] [DEBUG] debug-file - not found resModel json file in : D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\Multiply\src\ohosTest\module.json5
+[2025-05-12T14:33:38.170] [DEBUG] debug-file - No signingConfig found, initRemoteHspCache failed.
+[2025-05-12T14:33:38.178] [DEBUG] debug-file - Start recording SDK configuration permission data.
+[2025-05-12T14:33:38.200] [DEBUG] debug-file - Sdk init in 30 ms 
+[2025-05-12T14:33:38.219] [DEBUG] debug-file - Project task initialization takes 19 ms 
+[2025-05-12T14:33:38.220] [DEBUG] debug-file - hvigorfile, binding custom plugins []
+[2025-05-12T14:33:38.220] [DEBUG] debug-file - hvigorfile, no custom plugins were found in D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\hvigorfile.ts
+[2025-05-12T14:33:38.220] [DEBUG] debug-file - hvigorfile, resolve finished D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\hvigorfile.ts
+[2025-05-12T14:33:38.225] [DEBUG] debug-file - hvigorfile, resolving D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\entry\hvigorfile.ts
+[2025-05-12T14:33:38.230] [DEBUG] debug-file - hvigorfile, require result:  { default: { plugins: [] } }
+[2025-05-12T14:33:38.230] [DEBUG] debug-file - hvigorfile, binding system plugins null
+[2025-05-12T14:33:38.236] [DEBUG] debug-file - Start initialize module-target build option map, moduleName=entry, buildMode=debug
+[2025-05-12T14:33:38.236] [DEBUG] debug-file - Target 'default' config: {}
+[2025-05-12T14:33:38.236] [DEBUG] debug-file - Target 'ohosTest' config: {}
+[2025-05-12T14:33:38.237] [DEBUG] debug-file - Module 'entry' target 'default' build option: {
+  "debuggable": true,
+  "copyFrom": "default",
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "debug"
+}
+[2025-05-12T14:33:38.237] [DEBUG] debug-file - Module 'entry' target 'ohosTest' build option: {
+  "debuggable": true,
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "default"
+}
+[2025-05-12T14:33:38.237] [DEBUG] debug-file - End initialize module-target build option map, moduleName=entry
+[2025-05-12T14:33:38.237] [DEBUG] debug-file - Module 'entry' target 'default' using build option: {
+  "debuggable": true,
+  "copyFrom": "default",
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "debug"
+} in this build.
+[2025-05-12T14:33:38.239] [DEBUG] debug-file - Module entry task initialization takes 1 ms 
+[2025-05-12T14:33:38.240] [DEBUG] debug-file - hvigorfile, binding custom plugins []
+[2025-05-12T14:33:38.240] [DEBUG] debug-file - hvigorfile, no custom plugins were found in D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\entry\hvigorfile.ts
+[2025-05-12T14:33:38.240] [DEBUG] debug-file - hvigorfile, resolve finished D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\entry\hvigorfile.ts
+[2025-05-12T14:33:38.246] [DEBUG] debug-file - hvigorfile, resolving D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\Multiply\hvigorfile.ts
+[2025-05-12T14:33:38.249] [DEBUG] debug-file - hvigorfile, require result:  { default: { plugins: [] } }
+[2025-05-12T14:33:38.249] [DEBUG] debug-file - hvigorfile, binding system plugins null
+[2025-05-12T14:33:38.254] [DEBUG] debug-file - Start initialize module-target build option map, moduleName=Multiply, buildMode=debug
+[2025-05-12T14:33:38.255] [DEBUG] debug-file - Target 'default' config: {}
+[2025-05-12T14:33:38.255] [DEBUG] debug-file - Target 'ohosTest' config: {}
+[2025-05-12T14:33:38.255] [DEBUG] debug-file - Module 'Multiply' target 'default' build option: {
+  "debuggable": true,
+  "copyFrom": "default",
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "debug"
+}
+[2025-05-12T14:33:38.255] [DEBUG] debug-file - Module 'Multiply' target 'ohosTest' build option: {
+  "debuggable": true,
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "default"
+}
+[2025-05-12T14:33:38.255] [DEBUG] debug-file - End initialize module-target build option map, moduleName=Multiply
+[2025-05-12T14:33:38.255] [DEBUG] debug-file - Module 'Multiply' target 'default' using build option: {
+  "debuggable": true,
+  "copyFrom": "default",
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "debug"
+} in this build.
+[2025-05-12T14:33:38.257] [DEBUG] debug-file - Module Multiply task initialization takes 1 ms 
+[2025-05-12T14:33:38.258] [DEBUG] debug-file - hvigorfile, binding custom plugins []
+[2025-05-12T14:33:38.258] [DEBUG] debug-file - hvigorfile, no custom plugins were found in D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\Multiply\hvigorfile.ts
+[2025-05-12T14:33:38.258] [DEBUG] debug-file - hvigorfile, resolve finished D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\Multiply\hvigorfile.ts
+[2025-05-12T14:33:38.281] [DEBUG] debug-file - hvigorfile, resolve hvigorfile dependencies in 22 ms 
+[2025-05-12T14:33:38.282] [DEBUG] debug-file - project has submodules:entry,Multiply
+[2025-05-12T14:33:38.284] [DEBUG] debug-file - start to load updatedOhPackageInfo to the disk
+[2025-05-12T14:33:38.287] [DEBUG] debug-file - load to the disk finished
+[2025-05-12T14:33:38.288] [DEBUG] debug-file - Start to initialize dependency information.
+[2025-05-12T14:33:38.291] [DEBUG] debug-file - Module NativeSoIntegration Collected Dependency: 
+[2025-05-12T14:33:38.291] [DEBUG] debug-file - Module NativeSoIntegration's total dependency: 0
+[2025-05-12T14:33:38.291] [DEBUG] debug-file - Start to initialize dependency information.
+[2025-05-12T14:33:38.294] [DEBUG] debug-file - Module entry Collected Dependency: D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\entry\src\main\cpp\types\libentry,D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\entry\src\main\cpp\types\libmultiply
+[2025-05-12T14:33:38.294] [DEBUG] debug-file - Module entry's total dependency: 2
+[2025-05-12T14:33:38.297] [DEBUG] debug-file - Start to initialize dependency information.
+[2025-05-12T14:33:38.299] [DEBUG] debug-file - Module Multiply Collected Dependency: D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\Multiply\src\main\cpp\types\libmultiply
+[2025-05-12T14:33:38.299] [DEBUG] debug-file - Module Multiply's total dependency: 1
+[2025-05-12T14:33:38.301] [DEBUG] debug-file - Configuration phase cost:161 ms 
+[2025-05-12T14:33:38.303] [DEBUG] debug-file - Configuration task cost before running: 189 ms 
+[2025-05-12T14:33:38.304] [DEBUG] debug-file - jsonObjWithoutParam {"libmultiply.so":"file:./src/main/cpp/types/libmultiply"} at undefined
+[2025-05-12T14:33:38.304] [DEBUG] debug-file - jsonObjWithoutParam {"name":"multiply","version":"1.0.0","description":"Please describe the basic information.","main":"","author":"","license":"","dependencies":{"libmultiply.so":"file:./src/main/cpp/types/libmultiply"}} at undefined
+[2025-05-12T14:33:38.306] [DEBUG] debug-file - Executing task :Multiply:default@PreBuild
+[2025-05-12T14:33:38.308] [DEBUG] debug-file - jsonObjWithoutParam {"libmultiply.so":"file:./src/main/cpp/types/libmultiply"} at undefined
+[2025-05-12T14:33:38.308] [DEBUG] debug-file - jsonObjWithoutParam {"name":"multiply","version":"1.0.0","description":"Please describe the basic information.","main":"","author":"","license":"","dependencies":{"libmultiply.so":"file:./src/main/cpp/types/libmultiply"}} at undefined
+[2025-05-12T14:33:38.311] [DEBUG] debug-file - current product is not Atomic service.
+[2025-05-12T14:33:38.311] [DEBUG] debug-file - Use tool [win32: JAVA_HOME, CLASSPATH]
+ [
+  { JAVA_HOME: 'D:\\dev-5.0.11\\DevEco Studio\\jbr' },
+  { CLASSPATH: undefined }
+]
+[2025-05-12T14:33:38.311] [DEBUG] debug-file - Use tool [win32: NODE_HOME]
+ [ { NODE_HOME: 'D:\\dev-5.0.11\\DevEco Studio\\tools\\node' } ]
+[2025-05-12T14:33:38.311] [DEBUG] debug-file - Multiply : default@PreBuild cost memory 0.36629486083984375
+[2025-05-12T14:33:38.311] [DEBUG] debug-file - runTaskFromQueue task cost before running: 198 ms 
+[2025-05-12T14:33:38.312] [INFO] debug-file - Finished :Multiply:default@PreBuild... after 6 ms 
+[2025-05-12T14:33:38.314] [DEBUG] debug-file - jsonObjWithoutParam {"libmultiply.so":"file:./src/main/cpp/types/libmultiply"} at undefined
+[2025-05-12T14:33:38.314] [DEBUG] debug-file - jsonObjWithoutParam {"name":"multiply","version":"1.0.0","description":"Please describe the basic information.","main":"","author":"","license":"","dependencies":{"libmultiply.so":"file:./src/main/cpp/types/libmultiply"}} at undefined
+[2025-05-12T14:33:38.314] [DEBUG] debug-file - Executing task :Multiply:default@ConfigureCmake
+[2025-05-12T14:33:38.314] [DEBUG] debug-file - jsonObjWithoutParam {"libmultiply.so":"file:./src/main/cpp/types/libmultiply"} at undefined
+[2025-05-12T14:33:38.314] [DEBUG] debug-file - jsonObjWithoutParam {"name":"multiply","version":"1.0.0","description":"Please describe the basic information.","main":"","author":"","license":"","dependencies":{"libmultiply.so":"file:./src/main/cpp/types/libmultiply"}} at undefined
+[2025-05-12T14:33:38.316] [DEBUG] debug-file - Multiply : default@ConfigureCmake cost memory 0.0784912109375
+[2025-05-12T14:33:38.317] [DEBUG] debug-file - runTaskFromQueue task cost before running: 203 ms 
+[2025-05-12T14:33:38.317] [INFO] debug-file - Finished :Multiply:default@ConfigureCmake... after 3 ms 
+[2025-05-12T14:33:38.318] [DEBUG] debug-file - jsonObjWithoutParam {"libmultiply.so":"file:./src/main/cpp/types/libmultiply"} at undefined
+[2025-05-12T14:33:38.318] [DEBUG] debug-file - jsonObjWithoutParam {"name":"multiply","version":"1.0.0","description":"Please describe the basic information.","main":"","author":"","license":"","dependencies":{"libmultiply.so":"file:./src/main/cpp/types/libmultiply"}} at undefined
+[2025-05-12T14:33:38.319] [DEBUG] debug-file - Executing task :Multiply:default@BuildNativeWithCmake
+[2025-05-12T14:33:38.319] [DEBUG] debug-file - jsonObjWithoutParam {"libmultiply.so":"file:./src/main/cpp/types/libmultiply"} at undefined
+[2025-05-12T14:33:38.319] [DEBUG] debug-file - jsonObjWithoutParam {"name":"multiply","version":"1.0.0","description":"Please describe the basic information.","main":"","author":"","license":"","dependencies":{"libmultiply.so":"file:./src/main/cpp/types/libmultiply"}} at undefined
+[2025-05-12T14:33:38.321] [DEBUG] debug-file - Use tool [Cmake]
+ [
+  'D:\\dev-5.0.11\\DevEco Studio\\sdk\\default\\openharmony\\native\\build-tools\\cmake\\bin\\cmake.exe',
+  '-HD:\\git_developmentPractice\\DevelopmentPractice\\NativeSoIntegration\\Multiply\\src\\main\\cpp',
+  '-BD:\\git_developmentPractice\\DevelopmentPractice\\NativeSoIntegration\\Multiply\\.cxx\\default\\default\\debug\\arm64-v8a',
+  '-DOHOS_ARCH=arm64-v8a',
+  '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=D:\\git_developmentPractice\\DevelopmentPractice\\NativeSoIntegration\\Multiply\\build\\default\\intermediates\\cmake\\default\\obj\\arm64-v8a',
+  '-DCMAKE_BUILD_TYPE=Debug',
+  '-DOHOS_SDK_NATIVE=D:\\dev-5.0.11\\DevEco Studio\\sdk\\default\\openharmony\\native',
+  '-DCMAKE_SYSTEM_NAME=OHOS',
+  '-DCMAKE_OHOS_ARCH_ABI=arm64-v8a',
+  '-DCMAKE_EXPORT_COMPILE_COMMANDS=ON',
+  '-DCMAKE_TOOLCHAIN_FILE=D:\\dev-5.0.11\\DevEco Studio\\sdk\\default\\hms\\native\\build\\cmake\\hmos.toolchain.cmake',
+  '-GNinja',
+  '-DCMAKE_MAKE_PROGRAM=D:\\dev-5.0.11\\DevEco Studio\\sdk\\default\\openharmony\\native\\build-tools\\cmake\\bin\\ninja.exe',
+  '-DCMAKE_FIND_ROOT_PATH=D:\\git_developmentPractice\\DevelopmentPractice\\NativeSoIntegration\\Multiply\\.cxx\\default\\default\\debug\\hvigor\\arm64-v8a',
+  '-DPACKAGE_FIND_FILE=D:\\git_developmentPractice\\DevelopmentPractice\\NativeSoIntegration\\Multiply\\.cxx\\default\\default\\debug\\hvigor\\arm64-v8a\\summary.cmake',
+  '--no-warn-unused-cli',
+  '-DHMOS_SDK_NATIVE=D:\\dev-5.0.11\\DevEco Studio\\sdk\\default\\hms\\native'
+]
+[2025-05-12T14:33:38.323] [DEBUG] debug-file - Clean CMakeCache.txt due to outdated CMake configuration.
+[2025-05-12T14:33:38.324] [DEBUG] debug-file - - no fingerprint file, will remove stale cache CMakeCache.txt
+[2025-05-12T14:33:38.324] [DEBUG] debug-file - default@BuildNativeWithCmake work[2] is submitted.
+[2025-05-12T14:33:38.325] [DEBUG] debug-file - default@BuildNativeWithCmake work[2] is pushed to ready queue.
+[2025-05-12T14:33:38.325] [DEBUG] debug-file - default@BuildNativeWithCmake work[2] is not dispatched.
+[2025-05-12T14:33:38.327] [DEBUG] debug-file - Use tool [Cmake]
+ [
+  'D:\\dev-5.0.11\\DevEco Studio\\sdk\\default\\openharmony\\native\\build-tools\\cmake\\bin\\cmake.exe',
+  '-HD:\\git_developmentPractice\\DevelopmentPractice\\NativeSoIntegration\\Multiply\\src\\main\\cpp',
+  '-BD:\\git_developmentPractice\\DevelopmentPractice\\NativeSoIntegration\\Multiply\\.cxx\\default\\default\\debug\\x86_64',
+  '-DOHOS_ARCH=x86_64',
+  '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=D:\\git_developmentPractice\\DevelopmentPractice\\NativeSoIntegration\\Multiply\\build\\default\\intermediates\\cmake\\default\\obj\\x86_64',
+  '-DCMAKE_BUILD_TYPE=Debug',
+  '-DOHOS_SDK_NATIVE=D:\\dev-5.0.11\\DevEco Studio\\sdk\\default\\openharmony\\native',
+  '-DCMAKE_SYSTEM_NAME=OHOS',
+  '-DCMAKE_OHOS_ARCH_ABI=x86_64',
+  '-DCMAKE_EXPORT_COMPILE_COMMANDS=ON',
+  '-DCMAKE_TOOLCHAIN_FILE=D:\\dev-5.0.11\\DevEco Studio\\sdk\\default\\hms\\native\\build\\cmake\\hmos.toolchain.cmake',
+  '-GNinja',
+  '-DCMAKE_MAKE_PROGRAM=D:\\dev-5.0.11\\DevEco Studio\\sdk\\default\\openharmony\\native\\build-tools\\cmake\\bin\\ninja.exe',
+  '-DCMAKE_FIND_ROOT_PATH=D:\\git_developmentPractice\\DevelopmentPractice\\NativeSoIntegration\\Multiply\\.cxx\\default\\default\\debug\\hvigor\\x86_64',
+  '-DPACKAGE_FIND_FILE=D:\\git_developmentPractice\\DevelopmentPractice\\NativeSoIntegration\\Multiply\\.cxx\\default\\default\\debug\\hvigor\\x86_64\\summary.cmake',
+  '--no-warn-unused-cli',
+  '-DHMOS_SDK_NATIVE=D:\\dev-5.0.11\\DevEco Studio\\sdk\\default\\hms\\native'
+]
+[2025-05-12T14:33:38.329] [DEBUG] debug-file - Clean CMakeCache.txt due to outdated CMake configuration.
+[2025-05-12T14:33:38.329] [DEBUG] debug-file - - no fingerprint file, will remove stale cache CMakeCache.txt
+[2025-05-12T14:33:38.330] [DEBUG] debug-file - default@BuildNativeWithCmake work[3] is submitted.
+[2025-05-12T14:33:38.331] [DEBUG] debug-file - default@BuildNativeWithCmake work[3] is pushed to ready queue.
+[2025-05-12T14:33:38.331] [DEBUG] debug-file - default@BuildNativeWithCmake work[3] is not dispatched.
+[2025-05-12T14:33:38.331] [DEBUG] debug-file - Multiply : default@BuildNativeWithCmake cost memory 1.16497802734375
+[2025-05-12T14:33:38.440] [DEBUG] debug-file - A work dispatched to worker[7] failed because unable to get work from ready queue.
+[2025-05-12T14:33:38.440] [DEBUG] debug-file - default@BuildNativeWithCmake work[2] has been dispatched to worker[6].
+[2025-05-12T14:33:38.440] [DEBUG] debug-file - A work dispatched to worker[7] failed because unable to get work from ready queue.
+[2025-05-12T14:33:38.440] [DEBUG] debug-file - A work dispatched to worker[6] failed because of worker busy.
+[2025-05-12T14:33:38.440] [DEBUG] debug-file - default@BuildNativeWithCmake work[3] has been dispatched to worker[5].
+[2025-05-12T14:33:38.495] [DEBUG] debug-file - Not searching for unused variables given on the command line.
+
+[2025-05-12T14:33:38.495] [DEBUG] debug-file - Not searching for unused variables given on the command line.
+
+[2025-05-12T14:33:39.000] [DEBUG] debug-file - -- The C compiler identification is Clang 15.0.4
+
+[2025-05-12T14:33:39.000] [DEBUG] debug-file - -- The C compiler identification is Clang 15.0.4
+
+[2025-05-12T14:33:39.506] [DEBUG] debug-file - -- The CXX compiler identification is Clang 15.0.4
+
+[2025-05-12T14:33:39.507] [DEBUG] debug-file - -- The CXX compiler identification is Clang 15.0.4
+
+[2025-05-12T14:33:40.229] [DEBUG] debug-file - -- Detecting C compiler ABI info
+
+[2025-05-12T14:33:40.229] [DEBUG] debug-file - -- Detecting C compiler ABI info
+
+[2025-05-12T14:33:42.245] [DEBUG] debug-file - -- Detecting C compiler ABI info - done
+
+[2025-05-12T14:33:42.246] [DEBUG] debug-file - -- Detecting C compiler ABI info - done
+
+[2025-05-12T14:33:42.261] [DEBUG] debug-file - -- Check for working C compiler: D:/dev-5.0.11/DevEco Studio/sdk/default/openharmony/native/llvm/bin/clang.exe - skipped
+
+[2025-05-12T14:33:42.261] [DEBUG] debug-file - -- Detecting C compile features
+
+[2025-05-12T14:33:42.262] [DEBUG] debug-file - -- Detecting C compile features - done
+
+[2025-05-12T14:33:42.263] [DEBUG] debug-file - -- Check for working C compiler: D:/dev-5.0.11/DevEco Studio/sdk/default/openharmony/native/llvm/bin/clang.exe - skipped
+
+[2025-05-12T14:33:42.263] [DEBUG] debug-file - -- Detecting C compile features
+
+[2025-05-12T14:33:42.264] [DEBUG] debug-file - -- Detecting C compile features - done
+
+[2025-05-12T14:33:42.704] [DEBUG] debug-file - -- Detecting CXX compiler ABI info
+
+[2025-05-12T14:33:42.705] [DEBUG] debug-file - -- Detecting CXX compiler ABI info
+
+[2025-05-12T14:33:44.684] [DEBUG] debug-file - -- Detecting CXX compiler ABI info - done
+
+[2025-05-12T14:33:44.684] [DEBUG] debug-file - -- Detecting CXX compiler ABI info - done
+
+[2025-05-12T14:33:44.701] [DEBUG] debug-file - -- Check for working CXX compiler: D:/dev-5.0.11/DevEco Studio/sdk/default/openharmony/native/llvm/bin/clang++.exe - skipped
+
+[2025-05-12T14:33:44.701] [DEBUG] debug-file - -- Detecting CXX compile features
+
+[2025-05-12T14:33:44.701] [DEBUG] debug-file - -- Check for working CXX compiler: D:/dev-5.0.11/DevEco Studio/sdk/default/openharmony/native/llvm/bin/clang++.exe - skipped
+
+[2025-05-12T14:33:44.701] [DEBUG] debug-file - -- Detecting CXX compile features
+
+[2025-05-12T14:33:44.702] [DEBUG] debug-file - -- Detecting CXX compile features - done
+
+[2025-05-12T14:33:44.703] [DEBUG] debug-file - -- Detecting CXX compile features - done
+
+[2025-05-12T14:33:44.708] [DEBUG] debug-file - -- Configuring done (6.2s)
+
+[2025-05-12T14:33:44.708] [DEBUG] debug-file - -- Configuring done (6.2s)
+
+[2025-05-12T14:33:44.719] [DEBUG] debug-file - -- Generating done (0.0s)
+
+[2025-05-12T14:33:44.719] [DEBUG] debug-file - -- Generating done (0.0s)
+
+[2025-05-12T14:33:44.804] [DEBUG] debug-file - -- Build files have been written to: D:/git_developmentPractice/DevelopmentPractice/NativeSoIntegration/Multiply/.cxx/default/default/debug/arm64-v8a
+
+[2025-05-12T14:33:44.804] [DEBUG] debug-file - -- Build files have been written to: D:/git_developmentPractice/DevelopmentPractice/NativeSoIntegration/Multiply/.cxx/default/default/debug/x86_64
+
+[2025-05-12T14:33:44.809] [DEBUG] debug-file - worker[6] has one work done.
+[2025-05-12T14:33:44.843] [DEBUG] debug-file - worker[5] has one work done.
+[2025-05-12T14:33:44.888] [DEBUG] debug-file - default@BuildNativeWithCmake work[2] done.
+[2025-05-12T14:33:44.888] [DEBUG] debug-file - A work dispatched to worker[6] failed because unable to get work from ready queue.
+[2025-05-12T14:33:44.890] [DEBUG] debug-file - default@BuildNativeWithCmake work[3] done.
+[2025-05-12T14:33:44.890] [DEBUG] debug-file - A work dispatched to worker[5] failed because unable to get work from ready queue.
+[2025-05-12T14:33:44.891] [INFO] debug-file - Finished :Multiply:default@BuildNativeWithCmake... after 6 s 382 ms 
+[2025-05-12T14:33:44.892] [DEBUG] debug-file - Executing task :Multiply:compileNative
+[2025-05-12T14:33:44.892] [DEBUG] debug-file - Multiply : compileNative cost memory 0.01190948486328125
+[2025-05-12T14:33:44.892] [DEBUG] debug-file - runTaskFromQueue task cost before running: 6 s 779 ms 
+[2025-05-12T14:33:44.893] [INFO] debug-file - Finished :Multiply:compileNative... after 1 ms 
+[2025-05-12T14:33:44.898] [DEBUG] debug-file - BUILD SUCCESSFUL in 6 s 785 ms 
+[2025-05-12T14:33:44.899] [DEBUG] debug-file - Update task Multiply:default@PreBuild input file:D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\AppScope\app.json5 cache by regenerate.
+[2025-05-12T14:33:44.899] [DEBUG] debug-file - Update task Multiply:default@PreBuild input file:D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\Multiply\src\main\module.json5 cache by regenerate.
+[2025-05-12T14:33:44.899] [DEBUG] debug-file - Update task Multiply:default@PreBuild input file:D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\build-profile.json5 cache by regenerate.
+[2025-05-12T14:33:44.900] [DEBUG] debug-file - Update task Multiply:default@PreBuild input file:D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\Multiply\build-profile.json5 cache by regenerate.
+[2025-05-12T14:33:44.900] [DEBUG] debug-file - Update task Multiply:default@PreBuild input file:D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\Multiply\src\main\resources\base\profile\main_pages.json cache by regenerate.
+[2025-05-12T14:33:44.900] [DEBUG] debug-file - Update task Multiply:default@PreBuild input file:D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\hvigor\hvigor-config.json5 cache by regenerate.
+[2025-05-12T14:33:44.900] [DEBUG] debug-file - Update task Multiply:default@PreBuild input file:D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\Multiply\oh-package.json5 cache by regenerate.
+[2025-05-12T14:33:44.901] [DEBUG] debug-file - Update task Multiply:default@PreBuild input file:D:\git_developmentPractice\DevelopmentPractice\NativeSoIntegration\oh-package.json5 cache by regenerate.
+[2025-05-12T14:33:44.901] [DEBUG] debug-file - Incremental task Multiply:default@PreBuild post-execution cost:3 ms .
+[2025-05-12T14:33:44.911] [DEBUG] debug-file - hvigor build process will be closed.
+[2025-05-12T14:33:44.917] [DEBUG] debug-file - session manager: send message to worker process.
+[2025-05-12T14:33:44.918] [DEBUG] debug-file - session manager: send message to worker process.
+[2025-05-12T14:33:44.918] [DEBUG] debug-file - watch worker: worker id should be larger than 0. Nothing will be sent to any worker thread.
+[2025-05-12T14:33:44.918] [DEBUG] debug-file - watch worker: worker id should be larger than 0. Nothing will be sent to any worker thread.
+[2025-05-17T16:53:46.122] [DEBUG] debug-file - env: nodejsVersion=v18.20.1
+[2025-05-17T16:53:46.629] [DEBUG] debug-file - Hvigor init with startParameters:{
+  hvigorfileTypeCheck: false,
+  parallelExecution: true,
+  incrementalExecution: true,
+  printStackTrace: false,
+  daemon: false,
+  analyze: 0,
+  logLevel: Level { level: 20000, levelStr: 'INFO', colour: 'green' }
+}
+[2025-05-17T16:53:46.653] [DEBUG] debug-file - hvigorfile, resolving D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\hvigorfile.ts
+[2025-05-17T16:53:48.174] [DEBUG] debug-file - hvigorfile, require result:  { default: { system: [Function: appTasks], plugins: [] } }
+[2025-05-17T16:53:48.375] [DEBUG] debug-file - Start initialize project's product build option map with build mode debug.
+[2025-05-17T16:53:48.380] [DEBUG] debug-file - Product 'default' using build option: {
+  "debuggable": true,
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  }
+} in this build.
+[2025-05-17T16:53:48.395] [DEBUG] debug-file - Local scan or download HarmonyOS sdk components toolchains,ets,js,native,previewer
+[2025-05-17T16:53:48.398] [DEBUG] debug-file - Local scan or download hmscore sdk components toolchains,ets,native
+[2025-05-17T16:53:48.406] [DEBUG] debug-file - Start recording SDK configuration permission data.
+[2025-05-17T16:53:48.430] [DEBUG] debug-file - Sdk init in 40 ms 
+[2025-05-17T16:53:48.456] [DEBUG] debug-file - Project task initialization takes 24 ms 
+[2025-05-17T16:53:48.465] [DEBUG] debug-file - hvigorfile, resolving D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\entry\hvigorfile.ts
+[2025-05-17T16:53:48.488] [DEBUG] debug-file - Start initialize module-target build option map, moduleName=entry, buildMode=debug
+[2025-05-17T16:53:48.496] [DEBUG] debug-file - Module entry task initialization takes 5 ms 
+[2025-05-17T16:53:48.505] [DEBUG] debug-file - hvigorfile, resolving D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\Multiply\hvigorfile.ts
+[2025-05-17T16:53:48.516] [DEBUG] debug-file - Start initialize module-target build option map, moduleName=Multiply, buildMode=debug
+[2025-05-17T16:53:48.519] [DEBUG] debug-file - Module Multiply task initialization takes 1 ms 
+[2025-05-17T16:53:48.522] [DEBUG] debug-file - project has submodules:entry,Multiply
+[2025-05-17T16:53:48.559] [DEBUG] debug-file - Configuration task cost before running: 1 s 954 ms 
+[2025-05-17T16:53:48.575] [DEBUG] debug-file - Module 'entry' target 'default' using build option: {
+  "debuggable": true,
+  "copyFrom": "default",
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "debug"
+} in this build.
+[2025-05-17T16:53:46.124] [DEBUG] debug-file - env: hvigor-config.json5 content = {
+  modelVersion: '5.0.0',
+  dependencies: {},
+  execution: {},
+  logging: {},
+  debugging: {},
+  nodeOptions: {}
+}
+[2025-05-17T16:53:46.633] [DEBUG] debug-file - Cache service initialization finished in 4 ms 
+[2025-05-17T16:53:48.601] [DEBUG] debug-file - Create  resident worker with id: 0.
+[2025-05-17T16:53:48.175] [DEBUG] debug-file - hvigorfile, binding system plugins [Function: appTasks]
+[2025-05-17T16:53:48.375] [DEBUG] debug-file - Picking option from product 'default' with build mode 'debug'.
+[2025-05-17T16:53:48.380] [DEBUG] debug-file - not found resModel json file in : D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\entry\src\ohosTest\module.json5
+[2025-05-17T16:53:48.456] [DEBUG] debug-file - hvigorfile, binding custom plugins []
+[2025-05-17T16:53:48.471] [DEBUG] debug-file - hvigorfile, require result:  { default: { system: [Function: hapTasks], plugins: [] } }
+[2025-05-17T16:53:48.488] [DEBUG] debug-file - Target 'default' config: {}
+[2025-05-17T16:53:48.496] [DEBUG] debug-file - hvigorfile, binding custom plugins []
+[2025-05-17T16:53:48.510] [DEBUG] debug-file - hvigorfile, require result:  { default: { system: [Function: hapTasks], plugins: [] } }
+[2025-05-17T16:53:48.516] [DEBUG] debug-file - Target 'default' config: {}
+[2025-05-17T16:53:48.519] [DEBUG] debug-file - hvigorfile, binding custom plugins []
+[2025-05-17T16:53:48.523] [DEBUG] debug-file - start to load updatedOhPackageInfo to the disk
+[2025-05-17T16:53:48.559] [DEBUG] debug-file - Executing task :entry:init
+[2025-05-17T16:53:48.579] [DEBUG] debug-file - Module 'entry' target 'ohosTest' using build option: {
+  "debuggable": true,
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "default"
+} in this build.
+[2025-05-17T16:53:46.126] [DEBUG] debug-file - env: daemon=false
+[2025-05-17T16:53:48.604] [DEBUG] debug-file - Create  resident worker with id: 1.
+[2025-05-17T16:53:48.375] [DEBUG] debug-file - Product 'default' build option: {}
+[2025-05-17T16:53:48.387] [DEBUG] debug-file - not found resModel json file in : D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\Multiply\src\ohosTest\module.json5
+[2025-05-17T16:53:48.456] [DEBUG] debug-file - hvigorfile, no custom plugins were found in D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\hvigorfile.ts
+[2025-05-17T16:53:48.471] [DEBUG] debug-file - hvigorfile, binding system plugins [Function: hapTasks]
+[2025-05-17T16:53:48.489] [DEBUG] debug-file - Target 'ohosTest' config: {}
+[2025-05-17T16:53:48.496] [DEBUG] debug-file - hvigorfile, no custom plugins were found in D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\entry\hvigorfile.ts
+[2025-05-17T16:53:48.510] [DEBUG] debug-file - hvigorfile, binding system plugins [Function: hapTasks]
+[2025-05-17T16:53:48.516] [DEBUG] debug-file - Target 'ohosTest' config: {}
+[2025-05-17T16:53:48.519] [DEBUG] debug-file - hvigorfile, no custom plugins were found in D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\Multiply\hvigorfile.ts
+[2025-05-17T16:53:48.529] [DEBUG] debug-file - load to the disk finished
+[2025-05-17T16:53:48.560] [DEBUG] debug-file - entry : init cost memory 0.0118560791015625
+[2025-05-17T16:53:48.584] [DEBUG] debug-file - Module 'Multiply' target 'default' using build option: {
+  "debuggable": true,
+  "copyFrom": "default",
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "debug"
+} in this build.
+[2025-05-17T16:53:46.126] [DEBUG] debug-file - no-daemon, use the parent process.execArgv --max-old-space-size=8192,--expose-gc
+[2025-05-17T16:53:48.606] [DEBUG] debug-file - Current worker pool is stopped or closed.
+[2025-05-17T16:53:48.375] [DEBUG] debug-file - End initialize project's product build option map with build mode 'debug'.
+[2025-05-17T16:53:48.390] [DEBUG] debug-file - No signingConfig found, initRemoteHspCache failed.
+[2025-05-17T16:53:48.456] [DEBUG] debug-file - hvigorfile, resolve finished D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\hvigorfile.ts
+[2025-05-17T16:53:48.489] [DEBUG] debug-file - Module 'entry' target 'default' build option: {
+  "debuggable": true,
+  "copyFrom": "default",
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "debug"
+}
+[2025-05-17T16:53:48.496] [DEBUG] debug-file - hvigorfile, resolve finished D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\entry\hvigorfile.ts
+[2025-05-17T16:53:48.516] [DEBUG] debug-file - Module 'Multiply' target 'default' build option: {
+  "debuggable": true,
+  "copyFrom": "default",
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "debug"
+}
+[2025-05-17T16:53:48.519] [DEBUG] debug-file - hvigorfile, resolve finished D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\Multiply\hvigorfile.ts
+[2025-05-17T16:53:48.529] [DEBUG] debug-file - Start to initialize dependency information.
+[2025-05-17T16:53:48.560] [DEBUG] debug-file - runTaskFromQueue task cost before running: 1 s 955 ms 
+[2025-05-17T16:53:48.588] [DEBUG] debug-file - Module 'Multiply' target 'ohosTest' using build option: {
+  "debuggable": true,
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "default"
+} in this build.
+[2025-05-17T16:53:48.606] [DEBUG] debug-file - Clear worker 0.
+[2025-05-17T16:53:48.489] [DEBUG] debug-file - Module 'entry' target 'ohosTest' build option: {
+  "debuggable": true,
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "default"
+}
+[2025-05-17T16:53:48.516] [DEBUG] debug-file - Module 'Multiply' target 'ohosTest' build option: {
+  "debuggable": true,
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "default"
+}
+[2025-05-17T16:53:48.538] [DEBUG] debug-file - Module NativeSoIntegration Collected Dependency: 
+[2025-05-17T16:53:48.561] [INFO] debug-file - Finished :entry:init... after 1 ms 
+[2025-05-17T16:53:48.599] [DEBUG] debug-file - Since there is no instance or instance is terminated, create a new worker pool.
+[2025-05-17T16:53:48.607] [DEBUG] debug-file - Worker 0 has been cleared.
+[2025-05-17T16:53:48.489] [DEBUG] debug-file - End initialize module-target build option map, moduleName=entry
+[2025-05-17T16:53:48.517] [DEBUG] debug-file - End initialize module-target build option map, moduleName=Multiply
+[2025-05-17T16:53:48.538] [DEBUG] debug-file - Module NativeSoIntegration's total dependency: 0
+[2025-05-17T16:53:48.562] [DEBUG] debug-file - Executing task :Multiply:init
+[2025-05-17T16:53:48.600] [DEBUG] debug-file - Worker pool is initialized with config:  {
+  minPoolNum: 2,
+  maxPoolNum: undefined,
+  maxCoreSize: undefined,
+  cacheCapacity: undefined,
+  cacheTtl: undefined
+}
+[2025-05-17T16:53:48.607] [DEBUG] debug-file - Current idle worker size: 1.
+[2025-05-17T16:53:48.489] [DEBUG] debug-file - Module 'entry' target 'default' using build option: {
+  "debuggable": true,
+  "copyFrom": "default",
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "debug"
+} in this build.
+[2025-05-17T16:53:48.517] [DEBUG] debug-file - Module 'Multiply' target 'default' using build option: {
+  "debuggable": true,
+  "copyFrom": "default",
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "debug"
+} in this build.
+[2025-05-17T16:53:48.539] [DEBUG] debug-file - Start to initialize dependency information.
+[2025-05-17T16:53:48.562] [DEBUG] debug-file - Multiply : init cost memory 0.00818634033203125
+[2025-05-17T16:53:48.607] [DEBUG] debug-file - Current busy worker size: 0.
+[2025-05-17T16:53:48.545] [DEBUG] debug-file - Module entry Collected Dependency: D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\entry\src\main\cpp\types\libentry,D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\entry\src\main\cpp\types\libmultiply
+[2025-05-17T16:53:48.562] [DEBUG] debug-file - runTaskFromQueue task cost before running: 1 s 957 ms 
+[2025-05-17T16:53:48.607] [DEBUG] debug-file - Clear worker 1.
+[2025-05-17T16:53:48.545] [DEBUG] debug-file - Module entry's total dependency: 2
+[2025-05-17T16:53:48.562] [INFO] debug-file - Finished :Multiply:init... after 1 ms 
+[2025-05-17T16:53:48.607] [DEBUG] debug-file - Worker 1 has been cleared.
+[2025-05-17T16:53:48.549] [DEBUG] debug-file - Start to initialize dependency information.
+[2025-05-17T16:53:48.562] [DEBUG] debug-file - Executing task ::init
+[2025-05-17T16:53:48.607] [DEBUG] debug-file - Current idle worker size: 0.
+[2025-05-17T16:53:48.553] [DEBUG] debug-file - Module Multiply Collected Dependency: D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\Multiply\src\main\cpp\types\libmultiply
+[2025-05-17T16:53:48.562] [DEBUG] debug-file - NativeSoIntegration : init cost memory 0.00893402099609375
+[2025-05-17T16:53:48.607] [DEBUG] debug-file - Current busy worker size: 0.
+[2025-05-17T16:53:48.553] [DEBUG] debug-file - Module Multiply's total dependency: 1
+[2025-05-17T16:53:48.562] [DEBUG] debug-file - runTaskFromQueue task cost before running: 1 s 958 ms 
+[2025-05-17T16:53:48.607] [DEBUG] debug-file - hvigor build process will be closed.
+[2025-05-17T16:53:48.555] [DEBUG] debug-file - Configuration phase cost:1 s 914 ms 
+[2025-05-17T16:53:48.562] [INFO] debug-file - Finished ::init... after 1 ms 
+[2025-05-17T16:53:48.614] [DEBUG] debug-file - worker[0] exits with exit code 0.
+[2025-05-17T16:53:48.614] [DEBUG] debug-file - worker[1] exits with exit code 0.
+[2025-05-17T16:53:48.615] [DEBUG] debug-file - Current worker pool is terminated.
+[2025-05-17T16:53:50.024] [DEBUG] debug-file - java daemon tryConnect failed Error: connect ECONNREFUSED 127.0.0.1:45050
+[2025-05-17T16:53:50.028] [DEBUG] debug-file - java daemon started at port 45050 pid 7676
+[2025-05-17T16:53:49.452] [DEBUG] debug-file - env: nodejsVersion=v18.20.1
+[2025-05-17T16:53:49.496] [DEBUG] debug-file - env: daemon=true
+[2025-05-17T16:53:49.454] [DEBUG] debug-file - env: hvigor-config.json5 content = {
+  modelVersion: '5.0.0',
+  dependencies: {},
+  execution: {},
+  logging: {},
+  debugging: {},
+  nodeOptions: {}
+}
+[2025-05-17T16:53:50.129] [DEBUG] debug-file - session manager: set active socket. socketId=GbYt2DAwdhnibWoCAAAB
+[2025-05-17T16:53:50.881] [DEBUG] debug-file - watch worker: worker id should be larger than 0. Nothing will be sent to any worker thread.
+[2025-05-17T16:53:50.905] [DEBUG] debug-file - Hvigor init with startParameters:{
+  hvigorfileTypeCheck: false,
+  parallelExecution: true,
+  incrementalExecution: true,
+  printStackTrace: false,
+  daemon: true,
+  analyze: 0,
+  logLevel: Level { level: 20000, levelStr: 'INFO', colour: 'green' }
+}
+[2025-05-17T16:53:50.909] [DEBUG] debug-file - Cache service initialization finished in 4 ms 
+[2025-05-17T16:53:50.921] [DEBUG] debug-file - hvigorfile, resolving D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\hvigorfile.ts
+[2025-05-17T16:53:52.538] [DEBUG] debug-file - hvigorfile, require result:  { default: { plugins: [] } }
+[2025-05-17T16:53:52.539] [DEBUG] debug-file - hvigorfile, binding system plugins null
+[2025-05-17T16:53:52.745] [DEBUG] debug-file - Start initialize project's product build option map with build mode debug.
+[2025-05-17T16:53:52.745] [DEBUG] debug-file - Picking option from product 'default' with build mode 'debug'.
+[2025-05-17T16:53:52.746] [DEBUG] debug-file - Product 'default' build option: {}
+[2025-05-17T16:53:52.746] [DEBUG] debug-file - End initialize project's product build option map with build mode 'debug'.
+[2025-05-17T16:53:52.750] [DEBUG] debug-file - Product 'default' using build option: {
+  "debuggable": true,
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  }
+} in this build.
+[2025-05-17T16:53:52.751] [DEBUG] debug-file - not found resModel json file in : D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\entry\src\ohosTest\module.json5
+[2025-05-17T16:53:52.759] [DEBUG] debug-file - not found resModel json file in : D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\Multiply\src\ohosTest\module.json5
+[2025-05-17T16:53:52.762] [DEBUG] debug-file - No signingConfig found, initRemoteHspCache failed.
+[2025-05-17T16:53:52.766] [DEBUG] debug-file - Local scan or download HarmonyOS sdk components toolchains,ets,js,native,previewer
+[2025-05-17T16:53:52.770] [DEBUG] debug-file - Local scan or download hmscore sdk components toolchains,ets,native
+[2025-05-17T16:53:52.776] [DEBUG] debug-file - Start recording SDK configuration permission data.
+[2025-05-17T16:53:52.804] [DEBUG] debug-file - Sdk init in 41 ms 
+[2025-05-17T16:53:52.825] [DEBUG] debug-file - Project task initialization takes 20 ms 
+[2025-05-17T16:53:52.826] [DEBUG] debug-file - hvigorfile, binding custom plugins []
+[2025-05-17T16:53:52.826] [DEBUG] debug-file - hvigorfile, no custom plugins were found in D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\hvigorfile.ts
+[2025-05-17T16:53:52.826] [DEBUG] debug-file - hvigorfile, resolve finished D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\hvigorfile.ts
+[2025-05-17T16:53:52.833] [DEBUG] debug-file - hvigorfile, resolving D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\entry\hvigorfile.ts
+[2025-05-17T16:53:52.839] [DEBUG] debug-file - hvigorfile, require result:  { default: { plugins: [] } }
+[2025-05-17T16:53:52.839] [DEBUG] debug-file - hvigorfile, binding system plugins null
+[2025-05-17T16:53:52.852] [DEBUG] debug-file - Start initialize module-target build option map, moduleName=entry, buildMode=debug
+[2025-05-17T16:53:52.853] [DEBUG] debug-file - Target 'default' config: {}
+[2025-05-17T16:53:52.854] [DEBUG] debug-file - Target 'ohosTest' config: {}
+[2025-05-17T16:53:52.854] [DEBUG] debug-file - Module 'entry' target 'default' build option: {
+  "debuggable": true,
+  "copyFrom": "default",
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "debug"
+}
+[2025-05-17T16:53:52.854] [DEBUG] debug-file - Module 'entry' target 'ohosTest' build option: {
+  "debuggable": true,
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "default"
+}
+[2025-05-17T16:53:52.854] [DEBUG] debug-file - End initialize module-target build option map, moduleName=entry
+[2025-05-17T16:53:52.854] [DEBUG] debug-file - Module 'entry' target 'default' using build option: {
+  "debuggable": true,
+  "copyFrom": "default",
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "debug"
+} in this build.
+[2025-05-17T16:53:52.862] [DEBUG] debug-file - Module entry task initialization takes 5 ms 
+[2025-05-17T16:53:52.862] [DEBUG] debug-file - hvigorfile, binding custom plugins []
+[2025-05-17T16:53:52.862] [DEBUG] debug-file - hvigorfile, no custom plugins were found in D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\entry\hvigorfile.ts
+[2025-05-17T16:53:52.862] [DEBUG] debug-file - hvigorfile, resolve finished D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\entry\hvigorfile.ts
+[2025-05-17T16:53:52.870] [DEBUG] debug-file - hvigorfile, resolving D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\Multiply\hvigorfile.ts
+[2025-05-17T16:53:52.875] [DEBUG] debug-file - hvigorfile, require result:  { default: { plugins: [] } }
+[2025-05-17T16:53:52.875] [DEBUG] debug-file - hvigorfile, binding system plugins null
+[2025-05-17T16:53:52.880] [DEBUG] debug-file - Start initialize module-target build option map, moduleName=Multiply, buildMode=debug
+[2025-05-17T16:53:52.880] [DEBUG] debug-file - Target 'default' config: {}
+[2025-05-17T16:53:52.880] [DEBUG] debug-file - Target 'ohosTest' config: {}
+[2025-05-17T16:53:52.881] [DEBUG] debug-file - Module 'Multiply' target 'default' build option: {
+  "debuggable": true,
+  "copyFrom": "default",
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "debug"
+}
+[2025-05-17T16:53:52.881] [DEBUG] debug-file - Module 'Multiply' target 'ohosTest' build option: {
+  "debuggable": true,
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "default"
+}
+[2025-05-17T16:53:52.881] [DEBUG] debug-file - End initialize module-target build option map, moduleName=Multiply
+[2025-05-17T16:53:52.881] [DEBUG] debug-file - Module 'Multiply' target 'default' using build option: {
+  "debuggable": true,
+  "copyFrom": "default",
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "debug"
+} in this build.
+[2025-05-17T16:53:52.883] [DEBUG] debug-file - Module Multiply task initialization takes 1 ms 
+[2025-05-17T16:53:52.883] [DEBUG] debug-file - hvigorfile, binding custom plugins []
+[2025-05-17T16:53:52.883] [DEBUG] debug-file - hvigorfile, no custom plugins were found in D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\Multiply\hvigorfile.ts
+[2025-05-17T16:53:52.883] [DEBUG] debug-file - hvigorfile, resolve finished D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\Multiply\hvigorfile.ts
+[2025-05-17T16:53:52.904] [DEBUG] debug-file - hvigorfile, resolve hvigorfile dependencies in 20 ms 
+[2025-05-17T16:53:52.905] [DEBUG] debug-file - project has submodules:entry,Multiply
+[2025-05-17T16:53:52.907] [DEBUG] debug-file - start to load updatedOhPackageInfo to the disk
+[2025-05-17T16:53:52.913] [DEBUG] debug-file - load to the disk finished
+[2025-05-17T16:53:52.914] [DEBUG] debug-file - Start to initialize dependency information.
+[2025-05-17T16:53:52.922] [DEBUG] debug-file - Module NativeSoIntegration Collected Dependency: 
+[2025-05-17T16:53:52.922] [DEBUG] debug-file - Module NativeSoIntegration's total dependency: 0
+[2025-05-17T16:53:52.923] [DEBUG] debug-file - Start to initialize dependency information.
+[2025-05-17T16:53:52.929] [DEBUG] debug-file - Module entry Collected Dependency: D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\entry\src\main\cpp\types\libentry,D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\entry\src\main\cpp\types\libmultiply
+[2025-05-17T16:53:52.929] [DEBUG] debug-file - Module entry's total dependency: 2
+[2025-05-17T16:53:52.935] [DEBUG] debug-file - Start to initialize dependency information.
+[2025-05-17T16:53:52.938] [DEBUG] debug-file - Module Multiply Collected Dependency: D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\Multiply\src\main\cpp\types\libmultiply
+[2025-05-17T16:53:52.938] [DEBUG] debug-file - Module Multiply's total dependency: 1
+[2025-05-17T16:53:52.940] [DEBUG] debug-file - Configuration phase cost:2 s 27 ms 
+[2025-05-17T16:53:52.944] [DEBUG] debug-file - Configuration task cost before running: 2 s 59 ms 
+[2025-05-17T16:53:52.947] [DEBUG] debug-file - jsonObjWithoutParam {"libentry.so":"file:./src/main/cpp/types/libentry","libmultiply.so":"file:./src/main/cpp/types/libmultiply"} at undefined
+[2025-05-17T16:53:52.947] [DEBUG] debug-file - jsonObjWithoutParam {"name":"entry","version":"1.0.0","description":"Please describe the basic information.","main":"","author":"","license":"","dependencies":{"libentry.so":"file:./src/main/cpp/types/libentry","libmultiply.so":"file:./src/main/cpp/types/libmultiply"}} at undefined
+[2025-05-17T16:53:52.951] [DEBUG] debug-file - Executing task :entry:default@PreBuild
+[2025-05-17T16:53:52.957] [DEBUG] debug-file - entry:default@PreBuild is not up-to-date, since the input file 'D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\AppScope\app.json5' has been changed.
+[2025-05-17T16:53:52.957] [DEBUG] debug-file - Incremental task entry:default@PreBuild pre-execution cost: 3 ms .
+[2025-05-17T16:53:52.957] [DEBUG] debug-file - jsonObjWithoutParam {"libentry.so":"file:./src/main/cpp/types/libentry","libmultiply.so":"file:./src/main/cpp/types/libmultiply"} at undefined
+[2025-05-17T16:53:52.958] [DEBUG] debug-file - jsonObjWithoutParam {"name":"entry","version":"1.0.0","description":"Please describe the basic information.","main":"","author":"","license":"","dependencies":{"libentry.so":"file:./src/main/cpp/types/libentry","libmultiply.so":"file:./src/main/cpp/types/libmultiply"}} at undefined
+[2025-05-17T16:53:53.117] [DEBUG] debug-file - current product is not Atomic service.
+[2025-05-17T16:53:53.118] [DEBUG] debug-file - Use tool [win32: JAVA_HOME, CLASSPATH]
+ [
+  { JAVA_HOME: 'D:\\dev-5.0.11\\DevEco Studio\\jbr' },
+  { CLASSPATH: undefined }
+]
+[2025-05-17T16:53:53.118] [DEBUG] debug-file - Use tool [win32: NODE_HOME]
+ [ { NODE_HOME: 'D:\\dev-5.0.11\\DevEco Studio\\tools\\node' } ]
+[2025-05-17T16:53:53.119] [DEBUG] debug-file - entry : default@PreBuild cost memory -2.09747314453125
+[2025-05-17T16:53:53.120] [DEBUG] debug-file - runTaskFromQueue task cost before running: 2 s 235 ms 
+[2025-05-17T16:53:53.122] [INFO] debug-file - Finished :entry:default@PreBuild... after 169 ms 
+[2025-05-17T16:53:53.124] [DEBUG] debug-file - jsonObjWithoutParam {"libentry.so":"file:./src/main/cpp/types/libentry","libmultiply.so":"file:./src/main/cpp/types/libmultiply"} at undefined
+[2025-05-17T16:53:53.124] [DEBUG] debug-file - jsonObjWithoutParam {"name":"entry","version":"1.0.0","description":"Please describe the basic information.","main":"","author":"","license":"","dependencies":{"libentry.so":"file:./src/main/cpp/types/libentry","libmultiply.so":"file:./src/main/cpp/types/libmultiply"}} at undefined
+[2025-05-17T16:53:53.125] [DEBUG] debug-file - Executing task :entry:default@ConfigureCmake
+[2025-05-17T16:53:53.125] [DEBUG] debug-file - jsonObjWithoutParam {"libentry.so":"file:./src/main/cpp/types/libentry","libmultiply.so":"file:./src/main/cpp/types/libmultiply"} at undefined
+[2025-05-17T16:53:53.125] [DEBUG] debug-file - jsonObjWithoutParam {"name":"entry","version":"1.0.0","description":"Please describe the basic information.","main":"","author":"","license":"","dependencies":{"libentry.so":"file:./src/main/cpp/types/libentry","libmultiply.so":"file:./src/main/cpp/types/libmultiply"}} at undefined
+[2025-05-17T16:53:53.130] [DEBUG] debug-file - entry : default@ConfigureCmake cost memory 0.30905914306640625
+[2025-05-17T16:53:53.130] [DEBUG] debug-file - runTaskFromQueue task cost before running: 2 s 245 ms 
+[2025-05-17T16:53:53.130] [INFO] debug-file - Finished :entry:default@ConfigureCmake... after 6 ms 
+[2025-05-17T16:53:53.132] [DEBUG] debug-file - jsonObjWithoutParam {"libentry.so":"file:./src/main/cpp/types/libentry","libmultiply.so":"file:./src/main/cpp/types/libmultiply"} at undefined
+[2025-05-17T16:53:53.132] [DEBUG] debug-file - jsonObjWithoutParam {"name":"entry","version":"1.0.0","description":"Please describe the basic information.","main":"","author":"","license":"","dependencies":{"libentry.so":"file:./src/main/cpp/types/libentry","libmultiply.so":"file:./src/main/cpp/types/libmultiply"}} at undefined
+[2025-05-17T16:53:53.133] [DEBUG] debug-file - Executing task :entry:default@BuildNativeWithCmake
+[2025-05-17T16:53:53.133] [DEBUG] debug-file - jsonObjWithoutParam {"libentry.so":"file:./src/main/cpp/types/libentry","libmultiply.so":"file:./src/main/cpp/types/libmultiply"} at undefined
+[2025-05-17T16:53:53.133] [DEBUG] debug-file - jsonObjWithoutParam {"name":"entry","version":"1.0.0","description":"Please describe the basic information.","main":"","author":"","license":"","dependencies":{"libentry.so":"file:./src/main/cpp/types/libentry","libmultiply.so":"file:./src/main/cpp/types/libmultiply"}} at undefined
+[2025-05-17T16:53:53.138] [DEBUG] debug-file - Use tool [Cmake]
+ [
+  'D:\\dev-5.0.11\\DevEco Studio\\sdk\\default\\openharmony\\native\\build-tools\\cmake\\bin\\cmake.exe',
+  '-HD:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\entry\\src\\main\\cpp',
+  '-BD:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\entry\\.cxx\\default\\default\\debug\\arm64-v8a',
+  '-DOHOS_ARCH=arm64-v8a',
+  '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\entry\\build\\default\\intermediates\\cmake\\default\\obj\\arm64-v8a',
+  '-DCMAKE_BUILD_TYPE=Debug',
+  '-DOHOS_SDK_NATIVE=D:\\dev-5.0.11\\DevEco Studio\\sdk\\default\\openharmony\\native',
+  '-DCMAKE_SYSTEM_NAME=OHOS',
+  '-DCMAKE_OHOS_ARCH_ABI=arm64-v8a',
+  '-DCMAKE_EXPORT_COMPILE_COMMANDS=ON',
+  '-DCMAKE_TOOLCHAIN_FILE=D:\\dev-5.0.11\\DevEco Studio\\sdk\\default\\hms\\native\\build\\cmake\\hmos.toolchain.cmake',
+  '-GNinja',
+  '-DCMAKE_MAKE_PROGRAM=D:\\dev-5.0.11\\DevEco Studio\\sdk\\default\\openharmony\\native\\build-tools\\cmake\\bin\\ninja.exe',
+  '-DCMAKE_FIND_ROOT_PATH=D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\entry\\.cxx\\default\\default\\debug\\hvigor\\arm64-v8a',
+  '-DPACKAGE_FIND_FILE=D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\entry\\.cxx\\default\\default\\debug\\hvigor\\arm64-v8a\\summary.cmake',
+  '--no-warn-unused-cli',
+  '-DHMOS_SDK_NATIVE=D:\\dev-5.0.11\\DevEco Studio\\sdk\\default\\hms\\native'
+]
+[2025-05-17T16:53:53.147] [DEBUG] debug-file - Clean CMakeCache.txt due to outdated CMake configuration.
+[2025-05-17T16:53:53.148] [DEBUG] debug-file - - a hard configure file changed, will remove stale cache CMakeCache.txt
+[2025-05-17T16:53:53.149] [DEBUG] debug-file -   - D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\entry\.cxx\default\default\debug\arm64-v8a\metadata_generation_command.txt (LAST_MODIFIED_CHANGED)
+[2025-05-17T16:53:53.149] [DEBUG] debug-file - Since there is no instance or instance is terminated, create a new worker pool.
+[2025-05-17T16:53:53.150] [DEBUG] debug-file - Worker pool is initialized with config:  {
+  minPoolNum: 2,
+  maxPoolNum: undefined,
+  maxCoreSize: undefined,
+  cacheCapacity: undefined,
+  cacheTtl: undefined
+}
+[2025-05-17T16:53:53.151] [DEBUG] debug-file - Create  resident worker with id: 0.
+[2025-05-17T16:53:53.154] [DEBUG] debug-file - Create  resident worker with id: 1.
+[2025-05-17T16:53:53.156] [DEBUG] debug-file - default@BuildNativeWithCmake work[0] is submitted.
+[2025-05-17T16:53:53.158] [DEBUG] debug-file - default@BuildNativeWithCmake work[0] is pushed to ready queue.
+[2025-05-17T16:53:53.158] [DEBUG] debug-file - A work dispatched to worker[7] failed because unable to get work from ready queue.
+[2025-05-17T16:53:53.158] [DEBUG] debug-file - Create  resident worker with id: 6.
+[2025-05-17T16:53:53.159] [DEBUG] debug-file - default@BuildNativeWithCmake work[0] has been dispatched to worker[6].
+[2025-05-17T16:53:53.160] [DEBUG] debug-file - default@BuildNativeWithCmake work[0] is dispatched.
+[2025-05-17T16:53:53.162] [DEBUG] debug-file - Use tool [Cmake]
+ [
+  'D:\\dev-5.0.11\\DevEco Studio\\sdk\\default\\openharmony\\native\\build-tools\\cmake\\bin\\cmake.exe',
+  '-HD:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\entry\\src\\main\\cpp',
+  '-BD:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\entry\\.cxx\\default\\default\\debug\\x86_64',
+  '-DOHOS_ARCH=x86_64',
+  '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\entry\\build\\default\\intermediates\\cmake\\default\\obj\\x86_64',
+  '-DCMAKE_BUILD_TYPE=Debug',
+  '-DOHOS_SDK_NATIVE=D:\\dev-5.0.11\\DevEco Studio\\sdk\\default\\openharmony\\native',
+  '-DCMAKE_SYSTEM_NAME=OHOS',
+  '-DCMAKE_OHOS_ARCH_ABI=x86_64',
+  '-DCMAKE_EXPORT_COMPILE_COMMANDS=ON',
+  '-DCMAKE_TOOLCHAIN_FILE=D:\\dev-5.0.11\\DevEco Studio\\sdk\\default\\hms\\native\\build\\cmake\\hmos.toolchain.cmake',
+  '-GNinja',
+  '-DCMAKE_MAKE_PROGRAM=D:\\dev-5.0.11\\DevEco Studio\\sdk\\default\\openharmony\\native\\build-tools\\cmake\\bin\\ninja.exe',
+  '-DCMAKE_FIND_ROOT_PATH=D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\entry\\.cxx\\default\\default\\debug\\hvigor\\x86_64',
+  '-DPACKAGE_FIND_FILE=D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\entry\\.cxx\\default\\default\\debug\\hvigor\\x86_64\\summary.cmake',
+  '--no-warn-unused-cli',
+  '-DHMOS_SDK_NATIVE=D:\\dev-5.0.11\\DevEco Studio\\sdk\\default\\hms\\native'
+]
+[2025-05-17T16:53:53.172] [DEBUG] debug-file - Clean CMakeCache.txt due to outdated CMake configuration.
+[2025-05-17T16:53:53.173] [DEBUG] debug-file - - a hard configure file changed, will remove stale cache CMakeCache.txt
+[2025-05-17T16:53:53.174] [DEBUG] debug-file -   - D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\entry\.cxx\default\default\debug\x86_64\metadata_generation_command.txt (LAST_MODIFIED_CHANGED)
+[2025-05-17T16:53:53.174] [DEBUG] debug-file - default@BuildNativeWithCmake work[1] is submitted.
+[2025-05-17T16:53:53.176] [DEBUG] debug-file - default@BuildNativeWithCmake work[1] is pushed to ready queue.
+[2025-05-17T16:53:53.176] [DEBUG] debug-file - A work dispatched to worker[7] failed because unable to get work from ready queue.
+[2025-05-17T16:53:53.176] [DEBUG] debug-file - A work dispatched to worker[6] failed because of worker busy.
+[2025-05-17T16:53:53.176] [DEBUG] debug-file - Create  resident worker with id: 5.
+[2025-05-17T16:53:53.177] [DEBUG] debug-file - default@BuildNativeWithCmake work[1] has been dispatched to worker[5].
+[2025-05-17T16:53:53.177] [DEBUG] debug-file - default@BuildNativeWithCmake work[1] is dispatched.
+[2025-05-17T16:53:53.177] [DEBUG] debug-file - entry : default@BuildNativeWithCmake cost memory 2.1312408447265625
+[2025-05-17T16:53:54.337] [DEBUG] debug-file - Not searching for unused variables given on the command line.
+
+[2025-05-17T16:53:54.337] [DEBUG] debug-file - Not searching for unused variables given on the command line.
+
+[2025-05-17T16:53:55.130] [DEBUG] debug-file - -- The C compiler identification is Clang 15.0.4
+
+[2025-05-17T16:53:55.130] [DEBUG] debug-file - -- The C compiler identification is Clang 15.0.4
+
+[2025-05-17T16:53:55.468] [DEBUG] debug-file - -- The CXX compiler identification is Clang 15.0.4
+
+[2025-05-17T16:53:55.468] [DEBUG] debug-file - -- The CXX compiler identification is Clang 15.0.4
+
+[2025-05-17T16:53:56.006] [DEBUG] debug-file - -- Detecting C compiler ABI info
+
+[2025-05-17T16:53:56.006] [DEBUG] debug-file - -- Detecting C compiler ABI info
+
+[2025-05-17T16:53:56.390] [DEBUG] debug-file - -- Detecting C compiler ABI info - done
+
+[2025-05-17T16:53:56.391] [DEBUG] debug-file - -- Detecting C compiler ABI info - done
+
+[2025-05-17T16:53:56.408] [DEBUG] debug-file - -- Check for working C compiler: D:/dev-5.0.11/DevEco Studio/sdk/default/openharmony/native/llvm/bin/clang.exe - skipped
+
+[2025-05-17T16:53:56.409] [DEBUG] debug-file - -- Check for working C compiler: D:/dev-5.0.11/DevEco Studio/sdk/default/openharmony/native/llvm/bin/clang.exe - skipped
+
+[2025-05-17T16:53:56.417] [DEBUG] debug-file - -- Detecting C compile features
+
+[2025-05-17T16:53:56.417] [DEBUG] debug-file - -- Detecting C compile features
+
+[2025-05-17T16:53:56.428] [DEBUG] debug-file - -- Detecting C compile features - done
+
+[2025-05-17T16:53:56.428] [DEBUG] debug-file - -- Detecting C compile features - done
+
+[2025-05-17T16:53:56.498] [DEBUG] debug-file - -- Detecting CXX compiler ABI info
+
+[2025-05-17T16:53:56.498] [DEBUG] debug-file - -- Detecting CXX compiler ABI info
+
+[2025-05-17T16:53:56.809] [DEBUG] debug-file - -- Detecting CXX compiler ABI info - done
+
+[2025-05-17T16:53:56.810] [DEBUG] debug-file - -- Detecting CXX compiler ABI info - done
+
+[2025-05-17T16:53:56.826] [DEBUG] debug-file - -- Check for working CXX compiler: D:/dev-5.0.11/DevEco Studio/sdk/default/openharmony/native/llvm/bin/clang++.exe - skipped
+
+[2025-05-17T16:53:56.827] [DEBUG] debug-file - -- Detecting CXX compile features
+
+[2025-05-17T16:53:56.827] [DEBUG] debug-file - -- Check for working CXX compiler: D:/dev-5.0.11/DevEco Studio/sdk/default/openharmony/native/llvm/bin/clang++.exe - skipped
+
+[2025-05-17T16:53:56.827] [DEBUG] debug-file - -- Detecting CXX compile features
+
+[2025-05-17T16:53:56.828] [DEBUG] debug-file - -- Detecting CXX compile features - done
+
+[2025-05-17T16:53:56.828] [DEBUG] debug-file - -- Detecting CXX compile features - done
+
+[2025-05-17T16:53:56.831] [DEBUG] debug-file - -- Configuring done (2.5s)
+
+[2025-05-17T16:53:56.832] [DEBUG] debug-file - -- Configuring done (2.5s)
+
+[2025-05-17T16:53:56.839] [DEBUG] debug-file - -- Generating done (0.0s)
+
+[2025-05-17T16:53:56.839] [DEBUG] debug-file - -- Generating done (0.0s)
+
+[2025-05-17T16:53:56.904] [DEBUG] debug-file - -- Build files have been written to: D:/git_developmentPractice/BestPracticeSnippets/NativeSoIntegration/entry/.cxx/default/default/debug/x86_64
+
+[2025-05-17T16:53:56.904] [DEBUG] debug-file - -- Build files have been written to: D:/git_developmentPractice/BestPracticeSnippets/NativeSoIntegration/entry/.cxx/default/default/debug/arm64-v8a
+
+[2025-05-17T16:53:56.910] [DEBUG] debug-file - worker[5] has one work done.
+[2025-05-17T16:53:56.946] [DEBUG] debug-file - worker[6] has one work done.
+[2025-05-17T16:53:57.000] [DEBUG] debug-file - default@BuildNativeWithCmake work[0] done.
+[2025-05-17T16:53:57.001] [DEBUG] debug-file - default@BuildNativeWithCmake work[1] done.
+[2025-05-17T16:53:57.003] [INFO] debug-file - Finished :entry:default@BuildNativeWithCmake... after 2 s 766 ms 
+[2025-05-17T16:53:57.005] [DEBUG] debug-file - Executing task :entry:compileNative
+[2025-05-17T16:53:57.006] [DEBUG] debug-file - entry : compileNative cost memory 0.01180267333984375
+[2025-05-17T16:53:57.006] [DEBUG] debug-file - runTaskFromQueue task cost before running: 6 s 121 ms 
+[2025-05-17T16:53:57.007] [INFO] debug-file - Finished :entry:compileNative... after 1 ms 
+[2025-05-17T16:53:57.015] [DEBUG] debug-file - BUILD SUCCESSFUL in 6 s 129 ms 
+[2025-05-17T16:53:57.016] [DEBUG] debug-file - Update task entry:default@PreBuild input file:D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\AppScope\app.json5 cache from map.
+[2025-05-17T16:53:57.016] [DEBUG] debug-file - Update task entry:default@PreBuild input file:D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\entry\src\main\module.json5 cache by regenerate.
+[2025-05-17T16:53:57.017] [DEBUG] debug-file - Update task entry:default@PreBuild input file:D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\build-profile.json5 cache by regenerate.
+[2025-05-17T16:53:57.017] [DEBUG] debug-file - Update task entry:default@PreBuild input file:D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\entry\build-profile.json5 cache by regenerate.
+[2025-05-17T16:53:57.017] [DEBUG] debug-file - Update task entry:default@PreBuild input file:D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\entry\src\main\resources\base\profile\main_pages.json cache by regenerate.
+[2025-05-17T16:53:57.018] [DEBUG] debug-file - Update task entry:default@PreBuild input file:D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\hvigor\hvigor-config.json5 cache by regenerate.
+[2025-05-17T16:53:57.018] [DEBUG] debug-file - Update task entry:default@PreBuild input file:D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\entry\oh-package.json5 cache by regenerate.
+[2025-05-17T16:53:57.019] [DEBUG] debug-file - Update task entry:default@PreBuild input file:D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\oh-package.json5 cache by regenerate.
+[2025-05-17T16:53:57.020] [DEBUG] debug-file - Incremental task entry:default@PreBuild post-execution cost:5 ms .
+[2025-05-17T16:53:57.038] [DEBUG] debug-file - Cleanup worker 0.
+[2025-05-17T16:53:57.039] [DEBUG] debug-file - Worker 0 has been cleaned up.
+[2025-05-17T16:53:57.039] [DEBUG] debug-file - Current idle worker size: 3.
+[2025-05-17T16:53:57.039] [DEBUG] debug-file - Current resident worker size: 4.
+[2025-05-17T16:53:57.039] [DEBUG] debug-file - Cleanup worker 1.
+[2025-05-17T16:53:57.039] [DEBUG] debug-file - Worker 1 has been cleaned up.
+[2025-05-17T16:53:57.039] [DEBUG] debug-file - Current idle worker size: 2.
+[2025-05-17T16:53:57.039] [DEBUG] debug-file - Current resident worker size: 4.
+[2025-05-17T16:53:57.043] [DEBUG] debug-file - session manager: send message to worker process.
+[2025-05-17T16:53:57.043] [DEBUG] debug-file - session manager: send message to worker process.
+[2025-05-17T16:53:57.040] [DEBUG] debug-file - hvigor build process will be closed.
+[2025-05-17T16:53:57.044] [DEBUG] debug-file - watch worker: worker id should be larger than 0. Nothing will be sent to any worker thread.
+[2025-05-17T16:53:57.044] [DEBUG] debug-file - watch worker: worker id should be larger than 0. Nothing will be sent to any worker thread.
+[2025-05-17T16:53:57.053] [DEBUG] debug-file - worker[1] exits with exit code 1.
+[2025-05-17T16:53:57.056] [DEBUG] debug-file - worker[0] exits with exit code 1.
+[2025-05-17T16:53:57.520] [DEBUG] debug-file - session manager: set active socket. socketId=GBYKwvxCUTKEGU5FAAAD
+[2025-05-17T16:53:57.530] [DEBUG] debug-file - watch worker: worker id should be larger than 0. Nothing will be sent to any worker thread.
+[2025-05-17T16:53:57.547] [DEBUG] debug-file - Hvigor init with startParameters:{
+  hvigorfileTypeCheck: false,
+  parallelExecution: true,
+  incrementalExecution: true,
+  printStackTrace: false,
+  daemon: true,
+  analyze: 0,
+  logLevel: Level { level: 20000, levelStr: 'INFO', colour: 'green' }
+}
+[2025-05-17T16:53:57.549] [DEBUG] debug-file - Cache service initialization finished in 3 ms 
+[2025-05-17T16:53:57.560] [DEBUG] debug-file - hvigorfile, resolving D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\hvigorfile.ts
+[2025-05-17T16:53:57.565] [DEBUG] debug-file - hvigorfile, require result:  { default: { plugins: [] } }
+[2025-05-17T16:53:57.566] [DEBUG] debug-file - hvigorfile, binding system plugins null
+[2025-05-17T16:53:57.572] [DEBUG] debug-file - Start initialize project's product build option map with build mode debug.
+[2025-05-17T16:53:57.572] [DEBUG] debug-file - Picking option from product 'default' with build mode 'debug'.
+[2025-05-17T16:53:57.572] [DEBUG] debug-file - Product 'default' build option: {}
+[2025-05-17T16:53:57.573] [DEBUG] debug-file - End initialize project's product build option map with build mode 'debug'.
+[2025-05-17T16:53:57.574] [DEBUG] debug-file - Product 'default' using build option: {
+  "debuggable": true,
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  }
+} in this build.
+[2025-05-17T16:53:57.575] [DEBUG] debug-file - not found resModel json file in : D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\entry\src\ohosTest\module.json5
+[2025-05-17T16:53:57.577] [DEBUG] debug-file - not found resModel json file in : D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\Multiply\src\ohosTest\module.json5
+[2025-05-17T16:53:57.579] [DEBUG] debug-file - No signingConfig found, initRemoteHspCache failed.
+[2025-05-17T16:53:57.586] [DEBUG] debug-file - Start recording SDK configuration permission data.
+[2025-05-17T16:53:57.610] [DEBUG] debug-file - Sdk init in 31 ms 
+[2025-05-17T16:53:57.628] [DEBUG] debug-file - Project task initialization takes 18 ms 
+[2025-05-17T16:53:57.628] [DEBUG] debug-file - hvigorfile, binding custom plugins []
+[2025-05-17T16:53:57.628] [DEBUG] debug-file - hvigorfile, no custom plugins were found in D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\hvigorfile.ts
+[2025-05-17T16:53:57.628] [DEBUG] debug-file - hvigorfile, resolve finished D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\hvigorfile.ts
+[2025-05-17T16:53:57.645] [DEBUG] debug-file - hvigorfile, resolving D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\entry\hvigorfile.ts
+[2025-05-17T16:53:57.651] [DEBUG] debug-file - hvigorfile, require result:  { default: { plugins: [] } }
+[2025-05-17T16:53:57.652] [DEBUG] debug-file - hvigorfile, binding system plugins null
+[2025-05-17T16:53:57.659] [DEBUG] debug-file - Start initialize module-target build option map, moduleName=entry, buildMode=debug
+[2025-05-17T16:53:57.659] [DEBUG] debug-file - Target 'default' config: {}
+[2025-05-17T16:53:57.660] [DEBUG] debug-file - Target 'ohosTest' config: {}
+[2025-05-17T16:53:57.660] [DEBUG] debug-file - Module 'entry' target 'default' build option: {
+  "debuggable": true,
+  "copyFrom": "default",
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "debug"
+}
+[2025-05-17T16:53:57.660] [DEBUG] debug-file - Module 'entry' target 'ohosTest' build option: {
+  "debuggable": true,
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "default"
+}
+[2025-05-17T16:53:57.660] [DEBUG] debug-file - End initialize module-target build option map, moduleName=entry
+[2025-05-17T16:53:57.660] [DEBUG] debug-file - Module 'entry' target 'default' using build option: {
+  "debuggable": true,
+  "copyFrom": "default",
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "debug"
+} in this build.
+[2025-05-17T16:53:57.663] [DEBUG] debug-file - Module entry task initialization takes 2 ms 
+[2025-05-17T16:53:57.663] [DEBUG] debug-file - hvigorfile, binding custom plugins []
+[2025-05-17T16:53:57.664] [DEBUG] debug-file - hvigorfile, no custom plugins were found in D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\entry\hvigorfile.ts
+[2025-05-17T16:53:57.664] [DEBUG] debug-file - hvigorfile, resolve finished D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\entry\hvigorfile.ts
+[2025-05-17T16:53:57.678] [DEBUG] debug-file - hvigorfile, resolving D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\Multiply\hvigorfile.ts
+[2025-05-17T16:53:57.685] [DEBUG] debug-file - hvigorfile, require result:  { default: { plugins: [] } }
+[2025-05-17T16:53:57.685] [DEBUG] debug-file - hvigorfile, binding system plugins null
+[2025-05-17T16:53:57.692] [DEBUG] debug-file - Start initialize module-target build option map, moduleName=Multiply, buildMode=debug
+[2025-05-17T16:53:57.693] [DEBUG] debug-file - Target 'default' config: {}
+[2025-05-17T16:53:57.693] [DEBUG] debug-file - Target 'ohosTest' config: {}
+[2025-05-17T16:53:57.694] [DEBUG] debug-file - Module 'Multiply' target 'default' build option: {
+  "debuggable": true,
+  "copyFrom": "default",
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "debug"
+}
+[2025-05-17T16:53:57.694] [DEBUG] debug-file - Module 'Multiply' target 'ohosTest' build option: {
+  "debuggable": true,
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "default"
+}
+[2025-05-17T16:53:57.694] [DEBUG] debug-file - End initialize module-target build option map, moduleName=Multiply
+[2025-05-17T16:53:57.694] [DEBUG] debug-file - Module 'Multiply' target 'default' using build option: {
+  "debuggable": true,
+  "copyFrom": "default",
+  "strictMode": {
+    "caseSensitiveCheck": true,
+    "useNormalizedOHMUrl": true
+  },
+  "externalNativeOptions": {
+    "path": "./src/main/cpp/CMakeLists.txt",
+    "arguments": "",
+    "cppFlags": "",
+    "abiFilters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "name": "debug"
+} in this build.
+[2025-05-17T16:53:57.696] [DEBUG] debug-file - Module Multiply task initialization takes 1 ms 
+[2025-05-17T16:53:57.697] [DEBUG] debug-file - hvigorfile, binding custom plugins []
+[2025-05-17T16:53:57.697] [DEBUG] debug-file - hvigorfile, no custom plugins were found in D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\Multiply\hvigorfile.ts
+[2025-05-17T16:53:57.697] [DEBUG] debug-file - hvigorfile, resolve finished D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\Multiply\hvigorfile.ts
+[2025-05-17T16:53:57.723] [DEBUG] debug-file - hvigorfile, resolve hvigorfile dependencies in 26 ms 
+[2025-05-17T16:53:57.724] [DEBUG] debug-file - project has submodules:entry,Multiply
+[2025-05-17T16:53:57.725] [DEBUG] debug-file - start to load updatedOhPackageInfo to the disk
+[2025-05-17T16:53:57.735] [DEBUG] debug-file - load to the disk finished
+[2025-05-17T16:53:57.737] [DEBUG] debug-file - Start to initialize dependency information.
+[2025-05-17T16:53:57.741] [DEBUG] debug-file - Module NativeSoIntegration Collected Dependency: 
+[2025-05-17T16:53:57.741] [DEBUG] debug-file - Module NativeSoIntegration's total dependency: 0
+[2025-05-17T16:53:57.742] [DEBUG] debug-file - Start to initialize dependency information.
+[2025-05-17T16:53:57.748] [DEBUG] debug-file - Module entry Collected Dependency: D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\entry\src\main\cpp\types\libentry,D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\entry\src\main\cpp\types\libmultiply
+[2025-05-17T16:53:57.749] [DEBUG] debug-file - Module entry's total dependency: 2
+[2025-05-17T16:53:57.751] [DEBUG] debug-file - Start to initialize dependency information.
+[2025-05-17T16:53:57.754] [DEBUG] debug-file - Module Multiply Collected Dependency: D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\Multiply\src\main\cpp\types\libmultiply
+[2025-05-17T16:53:57.754] [DEBUG] debug-file - Module Multiply's total dependency: 1
+[2025-05-17T16:53:57.756] [DEBUG] debug-file - Configuration phase cost:202 ms 
+[2025-05-17T16:53:57.758] [DEBUG] debug-file - Configuration task cost before running: 226 ms 
+[2025-05-17T16:53:57.760] [DEBUG] debug-file - jsonObjWithoutParam {"libmultiply.so":"file:./src/main/cpp/types/libmultiply"} at undefined
+[2025-05-17T16:53:57.760] [DEBUG] debug-file - jsonObjWithoutParam {"name":"multiply","version":"1.0.0","description":"Please describe the basic information.","main":"","author":"","license":"","dependencies":{"libmultiply.so":"file:./src/main/cpp/types/libmultiply"}} at undefined
+[2025-05-17T16:53:57.763] [DEBUG] debug-file - Executing task :Multiply:default@PreBuild
+[2025-05-17T16:53:57.766] [DEBUG] debug-file - Multiply:default@PreBuild is not up-to-date, since the input file 'D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\Multiply\src\main\module.json5' has been changed.
+[2025-05-17T16:53:57.766] [DEBUG] debug-file - Incremental task Multiply:default@PreBuild pre-execution cost: 3 ms .
+[2025-05-17T16:53:57.766] [DEBUG] debug-file - jsonObjWithoutParam {"libmultiply.so":"file:./src/main/cpp/types/libmultiply"} at undefined
+[2025-05-17T16:53:57.766] [DEBUG] debug-file - jsonObjWithoutParam {"name":"multiply","version":"1.0.0","description":"Please describe the basic information.","main":"","author":"","license":"","dependencies":{"libmultiply.so":"file:./src/main/cpp/types/libmultiply"}} at undefined
+[2025-05-17T16:53:57.771] [DEBUG] debug-file - current product is not Atomic service.
+[2025-05-17T16:53:57.771] [DEBUG] debug-file - Use tool [win32: JAVA_HOME, CLASSPATH]
+ [
+  { JAVA_HOME: 'D:\\dev-5.0.11\\DevEco Studio\\jbr' },
+  { CLASSPATH: undefined }
+]
+[2025-05-17T16:53:57.771] [DEBUG] debug-file - Use tool [win32: NODE_HOME]
+ [ { NODE_HOME: 'D:\\dev-5.0.11\\DevEco Studio\\tools\\node' } ]
+[2025-05-17T16:53:57.771] [DEBUG] debug-file - Multiply : default@PreBuild cost memory 0.425323486328125
+[2025-05-17T16:53:57.771] [DEBUG] debug-file - runTaskFromQueue task cost before running: 239 ms 
+[2025-05-17T16:53:57.772] [INFO] debug-file - Finished :Multiply:default@PreBuild... after 9 ms 
+[2025-05-17T16:53:57.774] [DEBUG] debug-file - jsonObjWithoutParam {"libmultiply.so":"file:./src/main/cpp/types/libmultiply"} at undefined
+[2025-05-17T16:53:57.775] [DEBUG] debug-file - jsonObjWithoutParam {"name":"multiply","version":"1.0.0","description":"Please describe the basic information.","main":"","author":"","license":"","dependencies":{"libmultiply.so":"file:./src/main/cpp/types/libmultiply"}} at undefined
+[2025-05-17T16:53:57.775] [DEBUG] debug-file - Executing task :Multiply:default@ConfigureCmake
+[2025-05-17T16:53:57.775] [DEBUG] debug-file - jsonObjWithoutParam {"libmultiply.so":"file:./src/main/cpp/types/libmultiply"} at undefined
+[2025-05-17T16:53:57.775] [DEBUG] debug-file - jsonObjWithoutParam {"name":"multiply","version":"1.0.0","description":"Please describe the basic information.","main":"","author":"","license":"","dependencies":{"libmultiply.so":"file:./src/main/cpp/types/libmultiply"}} at undefined
+[2025-05-17T16:53:57.777] [DEBUG] debug-file - Multiply : default@ConfigureCmake cost memory 0.06072235107421875
+[2025-05-17T16:53:57.778] [DEBUG] debug-file - runTaskFromQueue task cost before running: 246 ms 
+[2025-05-17T16:53:57.781] [INFO] debug-file - Finished :Multiply:default@ConfigureCmake... after 4 ms 
+[2025-05-17T16:53:57.783] [DEBUG] debug-file - jsonObjWithoutParam {"libmultiply.so":"file:./src/main/cpp/types/libmultiply"} at undefined
+[2025-05-17T16:53:57.783] [DEBUG] debug-file - jsonObjWithoutParam {"name":"multiply","version":"1.0.0","description":"Please describe the basic information.","main":"","author":"","license":"","dependencies":{"libmultiply.so":"file:./src/main/cpp/types/libmultiply"}} at undefined
+[2025-05-17T16:53:57.784] [DEBUG] debug-file - Executing task :Multiply:default@BuildNativeWithCmake
+[2025-05-17T16:53:57.785] [DEBUG] debug-file - jsonObjWithoutParam {"libmultiply.so":"file:./src/main/cpp/types/libmultiply"} at undefined
+[2025-05-17T16:53:57.785] [DEBUG] debug-file - jsonObjWithoutParam {"name":"multiply","version":"1.0.0","description":"Please describe the basic information.","main":"","author":"","license":"","dependencies":{"libmultiply.so":"file:./src/main/cpp/types/libmultiply"}} at undefined
+[2025-05-17T16:53:57.788] [DEBUG] debug-file - Use tool [Cmake]
+ [
+  'D:\\dev-5.0.11\\DevEco Studio\\sdk\\default\\openharmony\\native\\build-tools\\cmake\\bin\\cmake.exe',
+  '-HD:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\Multiply\\src\\main\\cpp',
+  '-BD:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\Multiply\\.cxx\\default\\default\\debug\\arm64-v8a',
+  '-DOHOS_ARCH=arm64-v8a',
+  '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\Multiply\\build\\default\\intermediates\\cmake\\default\\obj\\arm64-v8a',
+  '-DCMAKE_BUILD_TYPE=Debug',
+  '-DOHOS_SDK_NATIVE=D:\\dev-5.0.11\\DevEco Studio\\sdk\\default\\openharmony\\native',
+  '-DCMAKE_SYSTEM_NAME=OHOS',
+  '-DCMAKE_OHOS_ARCH_ABI=arm64-v8a',
+  '-DCMAKE_EXPORT_COMPILE_COMMANDS=ON',
+  '-DCMAKE_TOOLCHAIN_FILE=D:\\dev-5.0.11\\DevEco Studio\\sdk\\default\\hms\\native\\build\\cmake\\hmos.toolchain.cmake',
+  '-GNinja',
+  '-DCMAKE_MAKE_PROGRAM=D:\\dev-5.0.11\\DevEco Studio\\sdk\\default\\openharmony\\native\\build-tools\\cmake\\bin\\ninja.exe',
+  '-DCMAKE_FIND_ROOT_PATH=D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\Multiply\\.cxx\\default\\default\\debug\\hvigor\\arm64-v8a',
+  '-DPACKAGE_FIND_FILE=D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\Multiply\\.cxx\\default\\default\\debug\\hvigor\\arm64-v8a\\summary.cmake',
+  '--no-warn-unused-cli',
+  '-DHMOS_SDK_NATIVE=D:\\dev-5.0.11\\DevEco Studio\\sdk\\default\\hms\\native'
+]
+[2025-05-17T16:53:57.794] [DEBUG] debug-file - Clean CMakeCache.txt due to outdated CMake configuration.
+[2025-05-17T16:53:57.795] [DEBUG] debug-file - - a hard configure file changed, will remove stale cache CMakeCache.txt
+[2025-05-17T16:53:57.796] [DEBUG] debug-file -   - D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\Multiply\.cxx\default\default\debug\arm64-v8a\metadata_generation_command.txt (LAST_MODIFIED_CHANGED)
+[2025-05-17T16:53:57.796] [DEBUG] debug-file - default@BuildNativeWithCmake work[2] is submitted.
+[2025-05-17T16:53:57.797] [DEBUG] debug-file - default@BuildNativeWithCmake work[2] is pushed to ready queue.
+[2025-05-17T16:53:57.797] [DEBUG] debug-file - default@BuildNativeWithCmake work[2] is not dispatched.
+[2025-05-17T16:53:57.799] [DEBUG] debug-file - Use tool [Cmake]
+ [
+  'D:\\dev-5.0.11\\DevEco Studio\\sdk\\default\\openharmony\\native\\build-tools\\cmake\\bin\\cmake.exe',
+  '-HD:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\Multiply\\src\\main\\cpp',
+  '-BD:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\Multiply\\.cxx\\default\\default\\debug\\x86_64',
+  '-DOHOS_ARCH=x86_64',
+  '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\Multiply\\build\\default\\intermediates\\cmake\\default\\obj\\x86_64',
+  '-DCMAKE_BUILD_TYPE=Debug',
+  '-DOHOS_SDK_NATIVE=D:\\dev-5.0.11\\DevEco Studio\\sdk\\default\\openharmony\\native',
+  '-DCMAKE_SYSTEM_NAME=OHOS',
+  '-DCMAKE_OHOS_ARCH_ABI=x86_64',
+  '-DCMAKE_EXPORT_COMPILE_COMMANDS=ON',
+  '-DCMAKE_TOOLCHAIN_FILE=D:\\dev-5.0.11\\DevEco Studio\\sdk\\default\\hms\\native\\build\\cmake\\hmos.toolchain.cmake',
+  '-GNinja',
+  '-DCMAKE_MAKE_PROGRAM=D:\\dev-5.0.11\\DevEco Studio\\sdk\\default\\openharmony\\native\\build-tools\\cmake\\bin\\ninja.exe',
+  '-DCMAKE_FIND_ROOT_PATH=D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\Multiply\\.cxx\\default\\default\\debug\\hvigor\\x86_64',
+  '-DPACKAGE_FIND_FILE=D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\Multiply\\.cxx\\default\\default\\debug\\hvigor\\x86_64\\summary.cmake',
+  '--no-warn-unused-cli',
+  '-DHMOS_SDK_NATIVE=D:\\dev-5.0.11\\DevEco Studio\\sdk\\default\\hms\\native'
+]
+[2025-05-17T16:53:57.807] [DEBUG] debug-file - Clean CMakeCache.txt due to outdated CMake configuration.
+[2025-05-17T16:53:57.807] [DEBUG] debug-file - - a hard configure file changed, will remove stale cache CMakeCache.txt
+[2025-05-17T16:53:57.807] [DEBUG] debug-file -   - D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\Multiply\.cxx\default\default\debug\x86_64\metadata_generation_command.txt (LAST_MODIFIED_CHANGED)
+[2025-05-17T16:53:57.808] [DEBUG] debug-file - default@BuildNativeWithCmake work[3] is submitted.
+[2025-05-17T16:53:57.808] [DEBUG] debug-file - default@BuildNativeWithCmake work[3] is pushed to ready queue.
+[2025-05-17T16:53:57.808] [DEBUG] debug-file - default@BuildNativeWithCmake work[3] is not dispatched.
+[2025-05-17T16:53:57.808] [DEBUG] debug-file - Multiply : default@BuildNativeWithCmake cost memory 1.4047775268554688
+[2025-05-17T16:53:57.911] [DEBUG] debug-file - A work dispatched to worker[7] failed because unable to get work from ready queue.
+[2025-05-17T16:53:57.912] [DEBUG] debug-file - default@BuildNativeWithCmake work[2] has been dispatched to worker[6].
+[2025-05-17T16:53:57.938] [DEBUG] debug-file - Not searching for unused variables given on the command line.
+
+[2025-05-17T16:53:58.018] [DEBUG] debug-file - -- The C compiler identification is Clang 15.0.4
+
+[2025-05-17T16:53:58.022] [DEBUG] debug-file - A work dispatched to worker[7] failed because unable to get work from ready queue.
+[2025-05-17T16:53:58.022] [DEBUG] debug-file - A work dispatched to worker[6] failed because of worker busy.
+[2025-05-17T16:53:58.023] [DEBUG] debug-file - default@BuildNativeWithCmake work[3] has been dispatched to worker[5].
+[2025-05-17T16:53:58.048] [DEBUG] debug-file - Not searching for unused variables given on the command line.
+
+[2025-05-17T16:53:58.120] [DEBUG] debug-file - -- The CXX compiler identification is Clang 15.0.4
+
+[2025-05-17T16:53:58.120] [DEBUG] debug-file - -- The C compiler identification is Clang 15.0.4
+
+[2025-05-17T16:53:58.198] [DEBUG] debug-file - -- Detecting C compiler ABI info
+
+[2025-05-17T16:53:58.227] [DEBUG] debug-file - -- The CXX compiler identification is Clang 15.0.4
+
+[2025-05-17T16:53:58.308] [DEBUG] debug-file - -- Detecting C compiler ABI info
+
+[2025-05-17T16:53:58.460] [DEBUG] debug-file - -- Detecting C compiler ABI info - done
+
+[2025-05-17T16:53:58.477] [DEBUG] debug-file - -- Check for working C compiler: D:/dev-5.0.11/DevEco Studio/sdk/default/openharmony/native/llvm/bin/clang.exe - skipped
+
+[2025-05-17T16:53:58.478] [DEBUG] debug-file - -- Detecting C compile features
+
+[2025-05-17T16:53:58.478] [DEBUG] debug-file - -- Detecting C compile features - done
+
+[2025-05-17T16:53:58.521] [DEBUG] debug-file - -- Detecting CXX compiler ABI info
+
+[2025-05-17T16:53:58.562] [DEBUG] debug-file - -- Detecting C compiler ABI info - done
+
+[2025-05-17T16:53:58.580] [DEBUG] debug-file - -- Check for working C compiler: D:/dev-5.0.11/DevEco Studio/sdk/default/openharmony/native/llvm/bin/clang.exe - skipped
+
+[2025-05-17T16:53:58.581] [DEBUG] debug-file - -- Detecting C compile features
+
+[2025-05-17T16:53:58.581] [DEBUG] debug-file - -- Detecting C compile features - done
+
+[2025-05-17T16:53:58.620] [DEBUG] debug-file - -- Detecting CXX compiler ABI info
+
+[2025-05-17T16:53:58.778] [DEBUG] debug-file - -- Detecting CXX compiler ABI info - done
+
+[2025-05-17T16:53:58.796] [DEBUG] debug-file - -- Check for working CXX compiler: D:/dev-5.0.11/DevEco Studio/sdk/default/openharmony/native/llvm/bin/clang++.exe - skipped
+
+[2025-05-17T16:53:58.796] [DEBUG] debug-file - -- Detecting CXX compile features
+
+[2025-05-17T16:53:58.797] [DEBUG] debug-file - -- Detecting CXX compile features - done
+
+[2025-05-17T16:53:58.801] [DEBUG] debug-file - -- Configuring done (0.9s)
+
+[2025-05-17T16:53:58.809] [DEBUG] debug-file - -- Generating done (0.0s)
+
+[2025-05-17T16:53:58.873] [DEBUG] debug-file - -- Detecting CXX compiler ABI info - done
+
+[2025-05-17T16:53:58.887] [DEBUG] debug-file - -- Build files have been written to: D:/git_developmentPractice/BestPracticeSnippets/NativeSoIntegration/Multiply/.cxx/default/default/debug/arm64-v8a
+
+[2025-05-17T16:53:58.890] [DEBUG] debug-file - -- Check for working CXX compiler: D:/dev-5.0.11/DevEco Studio/sdk/default/openharmony/native/llvm/bin/clang++.exe - skipped
+
+[2025-05-17T16:53:58.891] [DEBUG] debug-file - -- Detecting CXX compile features
+
+[2025-05-17T16:53:58.892] [DEBUG] debug-file - -- Detecting CXX compile features - done
+
+[2025-05-17T16:53:58.892] [DEBUG] debug-file - worker[6] has one work done.
+[2025-05-17T16:53:58.895] [DEBUG] debug-file - -- Configuring done (0.8s)
+
+[2025-05-17T16:53:58.904] [DEBUG] debug-file - -- Generating done (0.0s)
+
+[2025-05-17T16:53:58.939] [DEBUG] debug-file - default@BuildNativeWithCmake work[2] done.
+[2025-05-17T16:53:58.987] [DEBUG] debug-file - -- Build files have been written to: D:/git_developmentPractice/BestPracticeSnippets/NativeSoIntegration/Multiply/.cxx/default/default/debug/x86_64
+
+[2025-05-17T16:53:58.992] [DEBUG] debug-file - worker[5] has one work done.
+[2025-05-17T16:53:59.039] [DEBUG] debug-file - default@BuildNativeWithCmake work[3] done.
+[2025-05-17T16:53:59.041] [INFO] debug-file - Finished :Multiply:default@BuildNativeWithCmake... after 1 s 105 ms 
+[2025-05-17T16:53:59.052] [DEBUG] debug-file - Executing task :Multiply:compileNative
+[2025-05-17T16:53:59.053] [DEBUG] debug-file - Multiply : compileNative cost memory 0.0118255615234375
+[2025-05-17T16:53:59.053] [DEBUG] debug-file - runTaskFromQueue task cost before running: 1 s 521 ms 
+[2025-05-17T16:53:59.053] [INFO] debug-file - Finished :Multiply:compileNative... after 1 ms 
+[2025-05-17T16:53:59.064] [DEBUG] debug-file - BUILD SUCCESSFUL in 1 s 532 ms 
+[2025-05-17T16:53:59.065] [DEBUG] debug-file - Update task Multiply:default@PreBuild input file:D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\AppScope\app.json5 cache by regenerate.
+[2025-05-17T16:53:59.065] [DEBUG] debug-file - Update task Multiply:default@PreBuild input file:D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\Multiply\src\main\module.json5 cache from map.
+[2025-05-17T16:53:59.065] [DEBUG] debug-file - Update task Multiply:default@PreBuild input file:D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\build-profile.json5 cache by regenerate.
+[2025-05-17T16:53:59.065] [DEBUG] debug-file - Update task Multiply:default@PreBuild input file:D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\Multiply\build-profile.json5 cache by regenerate.
+[2025-05-17T16:53:59.065] [DEBUG] debug-file - Update task Multiply:default@PreBuild input file:D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\Multiply\src\main\resources\base\profile\main_pages.json cache by regenerate.
+[2025-05-17T16:53:59.066] [DEBUG] debug-file - Update task Multiply:default@PreBuild input file:D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\hvigor\hvigor-config.json5 cache by regenerate.
+[2025-05-17T16:53:59.066] [DEBUG] debug-file - Update task Multiply:default@PreBuild input file:D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\Multiply\oh-package.json5 cache by regenerate.
+[2025-05-17T16:53:59.066] [DEBUG] debug-file - Update task Multiply:default@PreBuild input file:D:\git_developmentPractice\BestPracticeSnippets\NativeSoIntegration\oh-package.json5 cache by regenerate.
+[2025-05-17T16:53:59.066] [DEBUG] debug-file - Incremental task Multiply:default@PreBuild post-execution cost:3 ms .
+[2025-05-17T16:53:59.082] [DEBUG] debug-file - hvigor build process will be closed.
+[2025-05-17T16:53:59.108] [DEBUG] debug-file - session manager: send message to worker process.
+[2025-05-17T16:53:59.108] [DEBUG] debug-file - session manager: send message to worker process.
+[2025-05-17T16:53:59.108] [DEBUG] debug-file - watch worker: worker id should be larger than 0. Nothing will be sent to any worker thread.
+[2025-05-17T16:53:59.108] [DEBUG] debug-file - watch worker: worker id should be larger than 0. Nothing will be sent to any worker thread.

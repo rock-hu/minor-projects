@@ -38,7 +38,7 @@ struct AnimationToSample {
           Button($r('app.string.attribute_animation_change_size'))
             .onClick(() => {
               if (this.flag) {
-                animateTo({
+                this.getUIContext().animateTo({
                   duration: 2000,
                   curve: Curve.EaseOut,
                   iterations: 1,
@@ -50,7 +50,7 @@ struct AnimationToSample {
                   this.heightSize = 60;
                 });
               } else {
-                animateTo({}, () => {
+                this.getUIContext().animateTo({}, () => {
                   this.heightSize = 80;
                 });
               }
@@ -62,7 +62,7 @@ struct AnimationToSample {
 
           Button($r('app.string.attribute_animation_change_rotation'))
             .onClick(() => {
-              animateTo({
+              this.getUIContext().animateTo({
                 duration: 1200,
                 curve: Curve.Friction,
                 delay: 500,
@@ -81,7 +81,7 @@ struct AnimationToSample {
 
           Button($r('app.string.attribute_animation_set_curve'))
             .onClick(() => {
-              animateTo({
+              this.getUIContext().animateTo({
                 duration: 1200,
                 curve: Curve.Sharp,
                 delay: 500,
@@ -101,7 +101,7 @@ struct AnimationToSample {
           Button($r('app.string.attribute_animation_delay'))
             .id('animate_btn_delay')
             .onClick(() => {
-              animateTo({
+              this.getUIContext().animateTo({
                 duration: 1200,
                 curve: Curve.Friction,
                 delay: 3000,
@@ -120,7 +120,7 @@ struct AnimationToSample {
 
           Button($r('app.string.attribute_animation_play_count'))
             .onClick(() => {
-              animateTo({
+              this.getUIContext().animateTo({
                 duration: 1200,
                 curve: Curve.Friction,
                 delay: 500,
@@ -139,7 +139,7 @@ struct AnimationToSample {
 
           Button($r('app.string.attribute_animation_play_speed'))
             .onClick(() => {
-              animateTo({
+              this.getUIContext().animateTo({
                 duration: 1200,
                 curve: Curve.Friction,
                 delay: 500,
@@ -159,7 +159,7 @@ struct AnimationToSample {
 
           Button($r('app.string.attribute_animation_unlimited_playback'))
             .onClick(() => {
-              animateTo({
+              this.getUIContext().animateTo({
                 duration: 1200,
                 curve: Curve.Friction,
                 delay: 500,
@@ -176,7 +176,7 @@ struct AnimationToSample {
 
           Button($r('app.string.attribute_animation_play_complete'))
             .onClick(() => {
-              animateTo({
+              this.getUIContext().animateTo({
                 duration: 1200,
                 curve: Curve.Friction,
                 delay: 500,

@@ -41,7 +41,7 @@ struct Index {
             .width('40%')
             .height('10%')
             .onClick(() => {
-              router.pushUrl({
+              this.getUIContext().getRouter().pushUrl({
                 url: 'pages/Second',
                 params: paramsInfo
               })
@@ -54,7 +54,7 @@ struct Index {
             .width('40%')
             .height('10%')
             .onClick(() => {
-              router.pushUrl({
+              this.getUIContext().getRouter().pushUrl({
                 url: 'pages/Second',
                 params: {
                   flag: false

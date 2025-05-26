@@ -18,61 +18,97 @@ import { AVPlayerUtil } from '../utils/AVPlayerUtil';
 import Logger from '../utils/Logger';
 import { common } from '@kit.AbilityKit';
 
-const context: Context = getContext(this);
-
 @Component
 export struct VideoPlayView {
+  UIContext: UIContext = this.getUIContext()
+
+  context = this.UIContext?.getHostContext();
+
   @State aspect: number = 9 / 16; // default video height/width ratio value
-  @State xComponentWidth: number = px2vp(display.getDefaultDisplaySync().width);
-  @State xComponentHeight: number = px2vp(display.getDefaultDisplaySync().width * this.aspect);
+  // [Start get_default_displaySync]
+  @State xComponentWidth: number = this.UIContext.px2vp(display.getDefaultDisplaySync().width);
+  @State xComponentHeight: number = this.UIContext.px2vp(display.getDefaultDisplaySync().width * this.aspect);
+  // [End get_default_displaySync]
   @State isLandscape: boolean = false; // Whether it is in full-screen playback state
   @State isVideoLock: boolean = false; // Whether the video playback is locked
   @State orientationLockState: string = '1'; // control center switch rotation ,value 1:enable 0：disable
   private xComponentController: XComponentController = new XComponentController();
   private player?: AVPlayerUtil;
-  private windowClass = (context as common.UIAbilityContext).windowStage.getMainWindowSync();
+  private windowClass = (this.context as common.UIAbilityContext).windowStage.getMainWindowSync();
 
+  // [Start about_to_appear]
   aboutToAppear(): void {
     // Get the rotation lock on state
-    this.orientationLockState = settings.getValueSync(getContext(this), settings.general.ACCELEROMETER_ROTATION_STATUS,
+    // [StartExclude about_to_appear]
+    this.orientationLockState = settings.getValueSync(this.context, settings.general.ACCELEROMETER_ROTATION_STATUS,
       settings.domainName.DEVICE_SHARED);
-
+    // [EndExclude about_to_appear]
+    // [Start window_size_change]
+    // [Start window_size_change_two]
     this.windowClass.on('windowSizeChange', (size) => {
-      let viewWidth = px2vp(size.width);
-      let viewHeight = px2vp(size.height);
+      // [StartExclude about_to_appear]
+      let viewWidth = this.UIContext.px2vp(size.width);
+      let viewHeight = this.UIContext.px2vp(size.height);
+      // [End window_size_change_two]
+      // [End window_size_change]
 
       if (this.isExpandedOrHalfFolded()) {
         this.xComponentWidth = viewWidth;
         this.xComponentHeight = viewWidth * this.aspect;
       } else {
+        // [Start window_size_change]
+        // [Start window_size_change_two]
         if (viewWidth > viewHeight) {
-          this.xComponentWidth = viewHeight / this.aspect;
-          this.xComponentHeight = viewHeight;
-          this.isLandscape = true;
+          // [StartExclude window_size_change]
+          if (display.getFoldStatus() === display.FoldStatus.FOLD_STATUS_EXPANDED || display.getFoldStatus() === display.FoldStatus.FOLD_STATUS_HALF_FOLDED) {
+            this.xComponentHeight = viewWidth * this.aspect;
+            this.xComponentWidth = viewWidth;
+          } else {
+            this.xComponentWidth = viewHeight / this.aspect;
+            this.xComponentHeight = viewHeight;
+            this.isLandscape = true;
+          }
           this.windowClass.setSpecificSystemBarEnabled('navigationIndicator', false); // hide bottom navigation bar
+          // [EndExclude window_size_change]
         } else {
+          // [StartExclude window_size_change]
           this.xComponentHeight = viewWidth * this.aspect;
           this.xComponentWidth = viewWidth;
           this.windowClass.setSpecificSystemBarEnabled('navigationIndicator', true); // show bottom navigation bar
           this.isLandscape = false;
+          // [EndExclude window_size_change]
         }
+        // [End window_size_change]
       }
+      // [Start window_size_change]
+      // [EndExclude about_to_appear]
     });
+    // [End window_size_change]
+    // [End window_size_change_two]
+
 
     // Listen to get the rotary lock switch chapter table
-    settings.registerKeyObserver(context, settings.general.ACCELEROMETER_ROTATION_STATUS,
+    // [StartExclude about_to_appear]
+    // [Start register_key_observer]
+    settings.registerKeyObserver(this.context, settings.general.ACCELEROMETER_ROTATION_STATUS,
       settings.domainName.DEVICE_SHARED, () => {
         this.orientationLockState =
-          settings.getValueSync(getContext(this), settings.general.ACCELEROMETER_ROTATION_STATUS,
+          settings.getValueSync(this.context, settings.general.ACCELEROMETER_ROTATION_STATUS,
             settings.domainName.DEVICE_SHARED);
       });
+    // [End register_key_observer]
+    // [EndExclude about_to_appear]
   }
+  // [End about_to_appear]
 
+  // [Start is_expanded_or_halfFolded]
   isExpandedOrHalfFolded(): boolean {
     return display.getFoldStatus() === display.FoldStatus.FOLD_STATUS_EXPANDED ||
       display.getFoldStatus() == display.FoldStatus.FOLD_STATUS_HALF_FOLDED
   }
+  // [End is_expanded_or_halfFolded]
 
+  // [Start set_orientation]
   setOrientation(orientation: number) {
     this.windowClass.setPreferredOrientation(orientation).then(() => {
       Logger.info('setWindowOrientation: ' + orientation + ' Succeeded.');
@@ -80,51 +116,69 @@ export struct VideoPlayView {
       Logger.info('setWindowOrientation: ' + orientation + ' Failed. Cause: ' + JSON.stringify(err));
     });
   }
+  // [End set_orientation]
 
+  // [Start about_to_disappear]
   aboutToDisappear(): void {
-    settings.unregisterKeyObserver(context, settings.general.ACCELEROMETER_ROTATION_STATUS,
+    // [StartExclude about_to_disappear]
+    settings.unregisterKeyObserver(this.context, settings.general.ACCELEROMETER_ROTATION_STATUS,
       settings.domainName.DEVICE_SHARED);
-
+    // [EndExclude about_to_disappear]
     this.windowClass.off('windowSizeChange');
   }
+  // [End about_to_disappear]
 
   build() {
     Stack() {
       Column() {
+        // [Start X_component]
         XComponent({ id: 'video_player_id', type: XComponentType.SURFACE, controller: this.xComponentController })
           .onLoad(() => {
-            this.player = new AVPlayerUtil();
+            // [StartExclude X_component]
+            this.player = new AVPlayerUtil(this.UIContext);
             this.player.setSurfaceId(this.xComponentController.getXComponentSurfaceId());
             this.player.initPlayer('videoTest.mp4', (aspect: number) => {
               this.aspect = aspect;
-              this.xComponentHeight = px2vp(display.getDefaultDisplaySync().width * aspect);
-              this.xComponentWidth = px2vp(display.getDefaultDisplaySync().width);
+              this.xComponentHeight = this.UIContext.px2vp(display.getDefaultDisplaySync().width * aspect);
+              this.xComponentWidth = this.UIContext.px2vp(display.getDefaultDisplaySync().width);
             });
+            // [EndExclude X_component]
           })
           .width(this.xComponentWidth)
           .height(this.xComponentHeight)
+        // [End X_component]
       }
 
       RelativeContainer() {
         if (!this.isVideoLock) {
+          // [Start icon_back]
           Image($r('app.media.icon_back'))
+            // [StartExclude icon_back]
             .height(24)
             .width(24)
             .margin({
               left: 16,
               top: this.isLandscape ? (AppStorage.get<number>('statusBarHeight') || 0) : 12
             })
+              // [EndExclude icon_back]
             .onClick(() => {
+              // [StartExclude icon_back]
               if (this.isExpandedOrHalfFolded()) {
                 this.isLandscape = false;
               } else {
+                // [EndExclude icon_back]
                 this.setOrientation(window.Orientation.USER_ROTATION_PORTRAIT);
+                // [StartExclude icon_back]
               }
+              // [EndExclude icon_back]
             })
+          // [End icon_back]
         }
 
         if (this.isLandscape) {
+          // [Start is_video_lock_image]
           Image(this.isVideoLock ? $r('app.media.icon_lock') : $r('app.media.icon_lock_open'))
+            // [StartExclude is_video_lock_image]
             .height(24)
             .width(24)
             .fillColor(Color.White)
@@ -134,23 +188,29 @@ export struct VideoPlayView {
             })
             .margin({ left: (AppStorage.get<number>('statusBarHeight') || 0) })
             .offset({ y: -12 })
+              // [EndExclude is_video_lock_image]
             .onClick(() => {
               this.isVideoLock = !this.isVideoLock;
-
+              // [StartExclude is_video_lock_image]
               if (this.isExpandedOrHalfFolded() || this.orientationLockState === '0') {
                 return;
               }
-
+              // [EndExclude is_video_lock_image]
+              // [Start is_video_lock]
               if (this.isVideoLock) {
                 this.setOrientation(window.Orientation.AUTO_ROTATION_LANDSCAPE);
               } else {
                 this.setOrientation(window.Orientation.AUTO_ROTATION_UNSPECIFIED);
               }
+              // [End is_video_lock]
             })
+          // [End is_video_lock_image]
         }
 
         if (!this.isLandscape) {
+          // [Start icon_zoom_in]
           Image($r('app.media.icon_zoom_in'))
+            // [StartExclude icon_zoom_in]
             .height(24)
             .width(24)
             .alignRules({
@@ -161,6 +221,7 @@ export struct VideoPlayView {
               right: 16,
               bottom: 8
             })
+              // [EndExclude icon_zoom_in]
             .onClick(() => {
               if (this.isExpandedOrHalfFolded()) {
                 this.isLandscape = true;
@@ -168,6 +229,7 @@ export struct VideoPlayView {
                 this.setOrientation(window.Orientation.USER_ROTATION_LANDSCAPE);
               }
             })
+          // [End icon_zoom_in]
         }
       }
       .width('100%')
@@ -179,3 +241,53 @@ export struct VideoPlayView {
     .padding({ top: this.isLandscape ? 0 : (AppStorage.get<number>('statusBarHeight') || 0) })
   }
 }
+
+// [Start freeze_when_inactive]
+@Component({ freezeWhenInactive: true })  // Added custom component freezing function
+struct VideoDetailView {
+  build() {
+    Scroll() {
+      // [StartExclude freeze_when_inactive]
+      Text('Hello')
+        .fontSize(14)
+        .fontColor($r('sys.color.mask_secondary'))
+      // [EndExclude freeze_when_inactive]
+    }
+  }
+}
+// [End freeze_when_inactive]
+
+// [Start Image_item]
+@Builder
+function ImageItem(imageSrc:ResourceStr) {
+  Stack({}) {
+    Image(imageSrc)
+      .width('100%')
+      .height('100%')
+      .autoResize(true)  // Use auto_resize attributes on images
+      .borderRadius(8)
+      .objectFit(ImageFit.Fill)
+      .backgroundColor('#1AFFFFFF')
+  }
+}
+// [End Image_item]
+
+//[Start Tabs_view]
+@Component
+struct TabsView {
+  @State isLayoutFullScreen:boolean = false;
+
+  build() {
+    Tabs() {
+      // [StartExclude Tabs_view]
+      TabContent(){
+        Text('Hello')
+          .fontWeight(FontWeight.Regular)
+          .fontColor(Color.Red)
+      }
+      // [EndExclude Tabs_view]
+    }
+    .barHeight(this.isLayoutFullScreen ? 0 : 50) // Hide the height of the Tabs tab bar by whether the user needs to click to enter the full screen and hide it
+  }
+}
+// [End Tabs_view]

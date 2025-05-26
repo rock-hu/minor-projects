@@ -29,11 +29,11 @@ struct CardSwiperAnimation {
 
   aboutToAppear(): void {
     const displayData: display.Display = display.getDefaultDisplaySync();
-    this.displayWidth = px2vp(displayData.width);
+    this.displayWidth = this.getUIContext().px2vp(displayData.width);
     if (canIUse('SystemCapability.Window.SessionManager')) {
       if ((display.isFoldable() && display.getFoldStatus() === display.FoldStatus.FOLD_STATUS_EXPANDED) ||
         this.displayWidth >= Constants.DEVICE_SIZE) {
-        this.displayWidth = px2vp(displayData.width) / 2;
+        this.displayWidth = this.getUIContext().px2vp(displayData.width) / 2;
       }
     }
     Constants.CARD_TEST_CASE.forEach((item) => {

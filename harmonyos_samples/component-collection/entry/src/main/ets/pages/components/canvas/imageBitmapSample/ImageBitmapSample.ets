@@ -103,7 +103,7 @@ struct DataPanelSample {
       func: () => {
         let dataURL = this.context.toDataURL();
         Logger.info('Canvas toDataURL', `Succeeded in generating the DataURL. DataURL: ${dataURL}`);
-        AlertDialog.show(
+        this.getUIContext().showAlertDialog(
           {
             message: $r('app.string.canvas_show_message'),
             autoCancel: true,

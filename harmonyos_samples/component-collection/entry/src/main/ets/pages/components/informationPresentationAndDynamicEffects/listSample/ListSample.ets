@@ -67,7 +67,7 @@ struct ListSample {
             .swipeAction({
               end: {
                 onAction: () => {
-                  animateTo({ duration: 1000 }, () => {
+                  this.getUIContext().animateTo({ duration: 1000 }, () => {
                     let index = this.arr.indexOf(item);
                     this.arr.splice(index, 1);
                   })

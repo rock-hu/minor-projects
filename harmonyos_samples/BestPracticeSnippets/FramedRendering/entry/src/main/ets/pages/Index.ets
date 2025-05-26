@@ -38,7 +38,7 @@ struct Index {
             this.pageStack.pushPathByName(CommonConstants.NAV_DESTINATION_ITEM_1, '');
           })
       }
-      .padding({ left: 16, right: 16, bottom: (16 + px2vp(this.bottomHeight)) })
+      .padding({ left: 16, right: 16, bottom: (16 + this.getUIContext().px2vp(this.bottomHeight)) })
       .justifyContent(FlexAlign.End)
       .alignItems(HorizontalAlign.Center)
       .width(CommonConstants.FULL_PERCENT)
@@ -49,7 +49,7 @@ struct Index {
       height: 112
     })
     .navDestination(this.PagesMap)
-    .padding({ top: px2vp(this.topRectHeight) })
+    .padding({ top: this.getUIContext().px2vp(this.topRectHeight) })
     .backgroundColor('#F1F3F5')
   }
 

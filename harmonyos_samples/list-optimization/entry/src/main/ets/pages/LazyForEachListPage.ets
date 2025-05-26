@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+import { common } from '@kit.AbilityKit';
 import { LearningResource } from '../model/LearningResource';
 import ArticleListData from '../model/ArticleListData';
 import { ObservedArray } from '../utils/ObservedArray';
@@ -31,9 +32,18 @@ function bufferToString(buffer: ArrayBufferLike): string {
   return resultPut;
 }
 
+// [Start LazyForEachListPage2_start]
+// [Start LazyForEachListPage3_start]
+// [Start LazyForEachListPage4_start]
 @Entry
 @Component
 export struct LazyForEachListPage {
+  UIContext = this.getUIContext()
+  context = this.UIContext.getHostContext() as common.UIAbilityContext;
+
+  // [StartExclude LazyForEachListPage3_start]
+  // [StartExclude LazyForEachListPage2_start]
+  // [StartExclude LazyForEachListPage4_start]
   @State collectedIds: ObservedArray<string> = ['1', '2', '3', '4', '5', '6'];
   @State likedIds: ObservedArray<string> = ['1', '2', '3', '4', '5', '6'];
   @State isListReachEnd: boolean = false;
@@ -48,7 +58,7 @@ export struct LazyForEachListPage {
   }
 
   getArticleModelObjFromJSON() {
-    getContext(this).resourceManager.getRawFileContent('article1000.json').then(value => {
+    this.context.resourceManager.getRawFileContent('article1000.json').then(value => {
       let jsonObj = JSON.parse(bufferToString(value.buffer)) as LearningResource[];
       let resources: LearningResource[] = [];
       jsonObj.forEach((res: LearningResource) => {
@@ -65,7 +75,9 @@ export struct LazyForEachListPage {
   isLiked(resourceId: string): boolean {
     return this.likedIds.some((id: string) => id === resourceId);
   }
-
+  // [EndExclude LazyForEachListPage2_start]
+  // [EndExclude LazyForEachListPage3_start]
+  // [EndExclude LazyForEachListPage4_start]
 
   build() {
     Column() {
@@ -92,12 +104,17 @@ export struct LazyForEachListPage {
       .height(Constants.FULL_SCREEN)
       .padding({ left: 10, right: 10 })
       .layoutWeight(1)
+      // [StartExclude LazyForEachListPage2_start]
       // Optimization method 2：Use cachedCount
       .cachedCount(3);
+      // [EndExclude LazyForEachListPage2_start]
     }
     .backgroundColor($r('app.color.text_background'))
   }
 }
+// [End LazyForEachListPage2_start]
+// [End LazyForEachListPage3_start]
+// [End LazyForEachListPage4_start]
 
 @Builder
 function Header() {

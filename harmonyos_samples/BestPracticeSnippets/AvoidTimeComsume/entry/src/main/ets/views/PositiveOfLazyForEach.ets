@@ -45,15 +45,17 @@ class MyDataSource implements IDataSource {
 struct PositiveOfLazyForEach {
   // Data sources
   private data: MyDataSource = new MyDataSource();
-  // DocsCode 1
+  // [Start positive_of_lazy_for_each]
   // The value calculated by the time-consuming operation
   private timeConsumingValue: number = 0;
+  // [StartExclude positive_of_lazy_for_each]
 
   aboutToAppear(): void {
     for (let i = 1; i < 1000; i++) {
       this.data.pushData(i);
     }
   }
+  // [EndExclude positive_of_lazy_for_each]
 
   // Execute time-consuming asynchronous functions elsewhere
   // Simulate time-consuming operations
@@ -84,7 +86,7 @@ struct PositiveOfLazyForEach {
           });
         })
 
-        Text($r('app.string.positive_of_lazy_forEach'))
+        Text('Circular rendering normal')
           .fontSize(20)
           .fontWeight(700)
           .height(26)
@@ -103,20 +105,20 @@ struct PositiveOfLazyForEach {
             }
           }, (item: number) => item.toString())
         }
-        // DocsDot
+        // [StartExclude positive_of_lazy_for_each]
         .cachedCount(2)
         .columnsTemplate('1fr 1fr 1fr 1fr')
         .columnsGap(10)
         .rowsGap(10)
 
-        // DocsDot
+        // [EndExclude positive_of_lazy_for_each]
       }
       .margin({ top: 12 })
     }
     .backgroundColor('#F5F5F5')
   }
 
-  // DocsCode 1
+  // [Start positive_of_lazy_for_each]
 }
 
 // Custom components are decorated @Reusable decorators, which signify their ability to be reused by components

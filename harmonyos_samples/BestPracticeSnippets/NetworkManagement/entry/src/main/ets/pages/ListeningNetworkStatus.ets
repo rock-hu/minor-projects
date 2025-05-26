@@ -15,9 +15,13 @@
 
 import { connection } from '@kit.NetworkKit';
 import { promptAction } from '@kit.ArkUI';
+// [Start import_netQuality]
 import { BusinessError } from '@kit.BasicServicesKit';
 import { netHandover, netQuality } from '@kit.NetworkBoostKit';
+// [End import_netQuality]
+// [Start import_wifi_manager]
 import { wifiManager } from '@kit.ConnectivityKit';
+// [End import_wifi_manager]
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
 @Builder
@@ -25,10 +29,12 @@ export function ListeningNetworkStatusBuilder() {
   ListeningNetworkStatus()
 }
 
+// [Start video_player]
 @Component
 export struct ListeningNetworkStatus {
   controller: VideoController = new VideoController();
   @State videoSrc: Resource = $rawfile('video.mp4'); // Replace it with the actual video loading URL.
+  // [End video_player]
   private netCon: connection.NetConnection | null = null;
   private networkPause: boolean = false; // Listen to the loading status
   private isLowQuality: boolean = false;
@@ -41,7 +47,7 @@ export struct ListeningNetworkStatus {
     this.handoverChangeListen();
   }
 
-  // DocsCode 1
+  // [Start net_con_unregister]
   aboutToDisappear(): void {
     this.netCon?.unregister((error: BusinessError) => {
       if (error) {
@@ -49,10 +55,9 @@ export struct ListeningNetworkStatus {
       }
     });
   }
+  // [End net_con_unregister]
 
-  // DocsCode 1
-
-  // DocsCode 2
+  // [Start function_network_listen]
   networkListen() {
     this.netCon = connection.createNetConnection();
     this.netCon.register((error: BusinessError) => {
@@ -66,7 +71,9 @@ export struct ListeningNetworkStatus {
       hilog.info(0x0000, 'Sample', 'Succeeded to get netAvailable: %{public}s', JSON.stringify(data));
       if (connection.hasDefaultNetSync()) {
         if (this.networkPause) {
+          // [Start video_start]
           this.controller?.start();
+          // [End video_start]
           this.networkPause = false;
         }
       }
@@ -75,7 +82,9 @@ export struct ListeningNetworkStatus {
     // Subscribe to network loss events
     this.netCon.on('netLost', (data: connection.NetHandle) => {
       if (connection.getAllNetsSync().length == 0) {
+        // [Start video_pause]
         this.controller?.pause();
+        // [End video_pause]
         this.networkPause = true;
       }
       hilog.info(0x0000, 'Sample', 'Succeeded to get netLost: %{public}s', JSON.stringify(data));
@@ -89,10 +98,8 @@ export struct ListeningNetworkStatus {
       hilog.info(0x0000, 'Sample', 'Succeeded to get unavailable net event');
     });
   }
+  // [End function_network_listen]
 
-  // DocsCode 2
-
-  // DocsCode 3
   judgeHasNet(): boolean {
     try {
       let netHandle = connection.getDefaultNetSync();
@@ -117,16 +124,13 @@ export struct ListeningNetworkStatus {
     return false;
   }
 
-  // DocsCode 3
-
-  // DocsCode 4
+  // [Start toggle_low_definition]
   toggleLowDefinition() {
     this.videoSrc = $rawfile('lowQuality.mp4');
   }
+  // [End toggle_low_definition]
 
-  // DocsCode 4
-
-  // DocsCode 5
+  // [Start net_quality_listen]
   netQualityListen() {
     try {
       netQuality.on('netQosChange', (list: Array<netQuality.NetworkQos>) => {
@@ -148,10 +152,9 @@ export struct ListeningNetworkStatus {
         (err as BusinessError).message);
     }
   }
+  // [End net_quality_listen]
 
-  // DocsCode 5
-
-  // DocsCode 6
+  // [Start wifi_change_listen]
   wifiChangeListen() {
     this.netCon = connection.createNetConnection({
       netCapabilities: {
@@ -187,10 +190,9 @@ export struct ListeningNetworkStatus {
     wifiManager.on('wifiStateChange', recvPowerNotifyFunc);
     wifiManager.on('wifiConnectionChange', recvWifiConnectionChangeFunc);
   }
+  // [End wifi_change_listen]
 
-  // DocsCode 6
-
-  // DocsCode 7
+  // [Start scene_change_listen]
   sceneChangeListen() {
     try {
       netQuality.on('netSceneChange', (list: Array<netQuality.NetworkScene>) => {
@@ -198,11 +200,20 @@ export struct ListeningNetworkStatus {
           list.forEach((networkScene) => {
             // Callback information processing
             hilog.info(0x0000, 'Sample', 'Succeeded receive netSceneChange info');
+            // [Start weak_signal_congestion]
             if (networkScene.scene === 'weakSignal' || networkScene.scene === 'congestion') {
               // Indicates the weak network scenario.
+              // [End weak_signal_congestion]
               hilog.info(0x0000, 'Sample', 'The current network is weak');
               this.networkWeak();
+              // [Start weak_signal_congestion]
             }
+            // [End weak_signal_congestion]
+            // [Start weak_signal_prediction]
+            if (networkScene.weakSignalPrediction) {
+              // Weak signal prediction processing
+            }
+            // [End weak_signal_prediction]
           });
         }
       });
@@ -211,20 +222,18 @@ export struct ListeningNetworkStatus {
         (err as BusinessError).message);
     }
   }
+  // [End scene_change_listen]
 
-  // DocsCode 7
-
-  // DocsCode 8
+  // [Start network_weak]
   networkWeak() {
-    promptAction.showToast({
+    this.getUIContext().getPromptAction().showToast({
       message: $r('app.string.weak_network_environment_message'),
       duration: 2000
     });
   }
+  // [End network_weak]
 
-  // DocsCode 8
-
-  // DocsCode 9
+  // [Start handover_change_listen]
   handoverChangeListen() {
     try {
       netHandover.on('handoverChange', (info: netHandover.HandoverInfo) => {
@@ -241,8 +250,7 @@ export struct ListeningNetworkStatus {
         (err as BusinessError).message);
     }
   }
-
-  // DocsCode 9
+  // [End handover_change_listen]
 
   @Builder
   NavDestinationTitle() {
@@ -256,19 +264,20 @@ export struct ListeningNetworkStatus {
     }
     .width('100%')
   }
-
+  // [Start video_player]
   build() {
     NavDestination() {
       Video({
         src: this.videoSrc,
         controller: this.controller
       })
+        // [End video_player]
         .objectFit(ImageFit.Cover)
         .onStart(() => {
           let judgeHasNet = this.judgeHasNet();
           if (!judgeHasNet) {
             this.controller?.reset();
-            promptAction.showToast({
+            this.getUIContext().getPromptAction().showToast({
               message: $r('app.string.network_unavailable_message'),
               duration: 2000
             });
@@ -279,7 +288,7 @@ export struct ListeningNetworkStatus {
       Column() {
         Button($r('app.string.simulate_network_unavailable')).onClick(() => {
           this.controller.pause();
-          promptAction.showToast({
+          this.getUIContext().getPromptAction().showToast({
             message: $r('app.string.network_unavailable_message'),
             duration: 2000
           });
@@ -289,7 +298,7 @@ export struct ListeningNetworkStatus {
           .backgroundColor('#0A59F7')
         Button($r('app.string.simulate_network_lost')).onClick(() => {
           this.controller.pause();
-          promptAction.showToast({
+          this.getUIContext().getPromptAction().showToast({
             message: $r('app.string.simulate_network_disconnected_message'),
             duration: 2000
           });
@@ -299,7 +308,7 @@ export struct ListeningNetworkStatus {
           .backgroundColor('#0A59F7')
         Button($r('app.string.simulate_weak_network_environment')).onClick(() => {
           this.controller.pause();
-          promptAction.showToast({
+          this.getUIContext().getPromptAction().showToast({
             message: $r('app.string.weak_network_toggle_video'),
             duration: 2000
           });
@@ -309,7 +318,7 @@ export struct ListeningNetworkStatus {
           .backgroundColor('#0A59F7')
         Button($r('app.string.Simulate_low_quality_network_environment')).onClick(() => {
           this.controller.pause();
-          promptAction.showToast({
+          this.getUIContext().getPromptAction().showToast({
             message: $r('app.string.low_quality_network_environment_message'),
             duration: 2000
           });
@@ -321,13 +330,13 @@ export struct ListeningNetworkStatus {
           if (!this.isLowQuality) {
             this.toggleLowDefinition();
             this.isLowQuality = true;
-            promptAction.showToast({
+            this.getUIContext().getPromptAction().showToast({
               message: $r('app.string.toggle_low_definition_message'),
               duration: 2000
             });
             this.controller?.reset();
           } else {
-            promptAction.showToast({
+            this.getUIContext().getPromptAction().showToast({
               message: $r('app.string.toggle_definition_message_fail'),
               duration: 2000
             });
@@ -340,7 +349,7 @@ export struct ListeningNetworkStatus {
           this.videoSrc = $rawfile('video.mp4');
           this.isLowQuality = false;
           this.controller?.reset();
-          promptAction.showToast({
+          this.getUIContext().getPromptAction().showToast({
             message: $r('app.string.toggle_high_definition_message'),
             duration: 2000
           });
@@ -352,7 +361,11 @@ export struct ListeningNetworkStatus {
       .height(346)
       .padding({ left: 16, right: 16, bottom: 24 })
       .margin({ bottom: 16 })
+      // [Start video_player]
     }
+    // [End video_player]
     .title(this.NavDestinationTitle())
+    // [Start video_player]
   }
 }
+// [End video_player]

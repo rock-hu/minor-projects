@@ -14,21 +14,20 @@
  */
 
 @Sendable
-// DocsCode1
+// [Start item]
 export class Item {
   url: string = '';
   id: number = 0;
   name: string = '';
-
-  // DocsDot
+  // [StartExclude item]
   constructor(url:string,id:number,name:string) {
     this.url = url;
     this.id = id;
     this.name = name;
   }
-  // DocsDot
+  // [EndExclude item]
 }
-// DocsCode1
+// [Start item]
 
 export class ResponseData{
   public data: Item[] = [];

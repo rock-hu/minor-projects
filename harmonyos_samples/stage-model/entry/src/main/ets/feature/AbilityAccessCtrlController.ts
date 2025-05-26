@@ -13,14 +13,18 @@
  * limitations under the License.
  */
 import { abilityAccessCtrl,bundleManager } from '@kit.AbilityKit'
-import { promptAction } from '@kit.ArkUI';
+import { promptAction, UIContext } from '@kit.ArkUI';
 import Logger from '../util/Logger'
 
 const TAG: string = 'AbilityAccessCtrlController'
 
 
 export default class AbilityAccessCtrlController {
+  private UIContext: UIContext
 
+  constructor(UIContext: UIContext) {
+    this.UIContext = UIContext
+  }
   // Checks whether the permission is granted to the application and returns the result asynchronously in Promise mode.
   // Corresponding to verifyPermission() of the FA model
   verifyAccessToken() {
@@ -34,7 +38,7 @@ export default class AbilityAccessCtrlController {
     }
     let tokenID = bundledata.appInfo.accessTokenId
     let promise = AtManager.verifyAccessTokenSync(tokenID, "ohos.permission.GRANT_SENSITIVE_PERMISSIONS");
-    promptAction.showToast({
+    this.UIContext.getPromptAction().showToast({
       message: `promise: data: ${JSON.stringify(promise)}`
     })
   }

@@ -9,7 +9,7 @@ export default {
         title: 'World'
     },
     clickAction() {
-        router.replaceUrl({
+        this.getUIContext().getRouter().replaceUrl({
             uri: 'pages/details/details'
         });
     },

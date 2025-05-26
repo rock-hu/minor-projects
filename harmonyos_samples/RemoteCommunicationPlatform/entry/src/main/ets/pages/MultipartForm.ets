@@ -56,7 +56,7 @@ export struct MultipartForm {
   }
 
   multipartFormSubmit() {
-    // DocsCode 3
+    // [Start upload_form]
     // Defines the request header type
     let headers: rcp.RequestHeaders = {
       'accept': 'application/json'
@@ -110,7 +110,7 @@ export struct MultipartForm {
     }).catch((err: BusinessError) => {
       Logger.error(`err: err code is ${err.code}, err message is ${JSON.stringify(err)}`);
     });
-    // DocsCode 3
+    // [End upload_form]
     this.multipartFormHeaders = JSON.stringify(multiForm, null, 2);
     AppStorage.setOrCreate('MultipartFormHeaders', this.multipartFormHeaders);
   }

@@ -49,7 +49,7 @@ struct LayoutAnimationSample {
 
   onPageShow() {
     this.intervalID = setInterval(() => {
-      animateTo({ duration: 2000 }, () => {
+      this.getUIContext().animateTo({ duration: 2000 }, () => {
         this.mColor = this.mColor == Color.Pink ? Color.Orange : Color.Pink;
         this.mPadding = this.mPadding == 5 ? 20 : 5;
         this.mMargin = this.mMargin == 5 ? 20 : 5;

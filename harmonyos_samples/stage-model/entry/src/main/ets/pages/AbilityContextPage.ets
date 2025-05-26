@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { promptAction } from '@kit.ArkUI';
+import { promptAction, UIContext } from '@kit.ArkUI';
 import { common } from '@kit.AbilityKit';
 import AbilityContextController from '../feature/AbilityContextController'
 import { PublicTitleBar } from './component/PublicTitleBar'
@@ -21,8 +21,8 @@ import { PublicTitleBar } from './component/PublicTitleBar'
 @Entry
 @Component
 struct AbilityContextPage {
-  private appContext: common.UIAbilityContext = getContext(this) as common.UIAbilityContext;
-  private abilityContext: AbilityContextController = new AbilityContextController(this.appContext);
+  private appContext: common.UIAbilityContext = this.getUIContext().getHostContext()! as common.UIAbilityContext;
+  private abilityContext: AbilityContextController = new AbilityContextController(this.appContext, this.getUIContext());
 
   build() {
     Column() {
@@ -63,7 +63,7 @@ struct AbilityContextPage {
           Button($r('app.string.ability_info'))
             .fancy(() => {
               this.appContext.abilityInfo
-              promptAction.showToast({
+              this.getUIContext().getPromptAction().showToast({
                 message: `${JSON.stringify(this.appContext.abilityInfo)}`
               })
             })
@@ -73,7 +73,7 @@ struct AbilityContextPage {
           Button($r('app.string.current_hap_module_info'))
             .fancy(() => {
               this.appContext.currentHapModuleInfo
-              promptAction.showToast({
+              this.getUIContext().getPromptAction().showToast({
                 message: `${JSON.stringify(this.appContext.currentHapModuleInfo)}`
               })
             })
@@ -82,7 +82,7 @@ struct AbilityContextPage {
           Button($r('app.string.config'))
             .fancy(() => {
               this.appContext.config
-              promptAction.showToast({
+              this.getUIContext().getPromptAction().showToast({
                 message: `${JSON.stringify(this.appContext.config)}`
               })
             })
@@ -91,7 +91,7 @@ struct AbilityContextPage {
           Button($r('app.string.resource_manager'))
             .fancy(() => {
               this.appContext.resourceManager
-              promptAction.showToast({
+              this.getUIContext().getPromptAction().showToast({
                 message: `${JSON.stringify(this.appContext.resourceManager)}`
               })
             })
@@ -100,7 +100,7 @@ struct AbilityContextPage {
           Button($r('app.string.application_info'))
             .fancy(() => {
               this.appContext.applicationInfo
-              promptAction.showToast({
+              this.getUIContext().getPromptAction().showToast({
                 message: `${JSON.stringify(this.appContext.applicationInfo)}`
               })
             })
@@ -110,7 +110,7 @@ struct AbilityContextPage {
           Button($r('app.string.cache_dir'))
             .fancy(() => {
               this.appContext.cacheDir
-              promptAction.showToast({
+              this.getUIContext().getPromptAction().showToast({
                 message: `${JSON.stringify(this.appContext.cacheDir)}`
               })
             })
@@ -119,7 +119,7 @@ struct AbilityContextPage {
           Button($r('app.string.temp_dir'))
             .fancy(() => {
               this.appContext.tempDir
-              promptAction.showToast({
+              this.getUIContext().getPromptAction().showToast({
                 message: `${JSON.stringify(this.appContext.tempDir)}`
               })
             })
@@ -128,7 +128,7 @@ struct AbilityContextPage {
           Button($r('app.string.files_dir'))
             .fancy(() => {
               this.appContext.filesDir
-              promptAction.showToast({
+              this.getUIContext().getPromptAction().showToast({
                 message: `${JSON.stringify(this.appContext.filesDir)}`
               })
             })
@@ -137,7 +137,7 @@ struct AbilityContextPage {
           Button($r('app.string.database_dir'))
             .fancy(() => {
               this.appContext.databaseDir
-              promptAction.showToast({
+              this.getUIContext().getPromptAction().showToast({
                 message: `${JSON.stringify(this.appContext.databaseDir)}`
               })
             })
@@ -146,7 +146,7 @@ struct AbilityContextPage {
           Button($r('app.string.preferences_dir'))
             .fancy(() => {
               this.appContext.preferencesDir
-              promptAction.showToast({
+              this.getUIContext().getPromptAction().showToast({
                 message: `${JSON.stringify(this.appContext.preferencesDir)}`
               })
             })
@@ -156,7 +156,7 @@ struct AbilityContextPage {
           Button($r('app.string.distributed_files_dir'))
             .fancy(() => {
               this.appContext.distributedFilesDir
-              promptAction.showToast({
+              this.getUIContext().getPromptAction().showToast({
                 message: `${JSON.stringify(this.appContext.distributedFilesDir)}`
               })
             })
@@ -165,7 +165,7 @@ struct AbilityContextPage {
           Button($r('app.string.direction'))
             .fancy(() => {
               this.appContext.config.direction
-              promptAction.showToast({
+              this.getUIContext().getPromptAction().showToast({
                 message: `${JSON.stringify(this.appContext.config.direction)}`
               })
             })
@@ -174,7 +174,7 @@ struct AbilityContextPage {
           Button($r('app.string.area'))
             .fancy(() => {
               this.appContext.area
-              promptAction.showToast({
+              this.getUIContext().getPromptAction().showToast({
                 message: `${JSON.stringify(this.appContext.area)}`
               })
             })
@@ -183,7 +183,7 @@ struct AbilityContextPage {
           Button($r('app.string.stage_mode'))
             .fancy(() => {
               this.appContext.stageMode
-              promptAction.showToast({
+              this.getUIContext().getPromptAction().showToast({
                 message: `${JSON.stringify(this.appContext.stageMode)}`
               })
             })
@@ -193,7 +193,7 @@ struct AbilityContextPage {
           Button($r('app.string.get_application_context'))
             .fancy(() => {
               this.appContext.getApplicationContext()
-              promptAction.showToast({
+              this.getUIContext().getPromptAction().showToast({
                 message: `${JSON.stringify(this.appContext.getApplicationContext())}`
               })
             })
@@ -202,7 +202,7 @@ struct AbilityContextPage {
           Button($r('app.string.bundle_name'))
             .fancy(() => {
               this.appContext.abilityInfo.bundleName
-              promptAction.showToast({
+              this.getUIContext().getPromptAction().showToast({
                 message: `${JSON.stringify(this.appContext.abilityInfo.bundleName)}`
               })
             })
@@ -212,7 +212,7 @@ struct AbilityContextPage {
           Button($r('app.string.description_id'))
             .fancy(() => {
               this.appContext.abilityInfo.descriptionId
-              promptAction.showToast({
+              this.getUIContext().getPromptAction().showToast({
                 message: `${JSON.stringify(this.appContext.abilityInfo.descriptionId)}`
               })
             })
@@ -222,7 +222,7 @@ struct AbilityContextPage {
           Button($r('app.string.name'))
             .fancy(() => {
               this.appContext.abilityInfo.name
-              promptAction.showToast({
+              this.getUIContext().getPromptAction().showToast({
                 message: `${JSON.stringify(this.appContext.abilityInfo.name)}`
               })
             })
@@ -240,8 +240,8 @@ struct AbilityContextPage {
   }
 
   aboutToAppear() {
-    this.appContext = getContext(this) as common.UIAbilityContext;
-    this.abilityContext = new AbilityContextController(this.appContext);
+    this.appContext = this.getUIContext().getHostContext()! as common.UIAbilityContext;
+    this.abilityContext = new AbilityContextController(this.appContext, this.getUIContext());
   }
 }
 

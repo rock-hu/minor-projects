@@ -27,20 +27,23 @@ struct Index {
     const bundleFlags = bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION;
     const bundleInfo = bundleManager.getBundleInfoForSelfSync(bundleFlags);
     const grantStatus = accessManager.checkAccessTokenSync(bundleInfo.appInfo.accessTokenId, permissions[0]);
-
     if (grantStatus === abilityAccessCtrl.GrantStatus.PERMISSION_DENIED) {
-      accessManager.requestPermissionsFromUser(getContext(this), permissions)
+      // [Start permission_camera]
+      accessManager.requestPermissionsFromUser(this.getUIContext().getHostContext(), ['ohos.permission.CAMERA'])
         .then((data) => {
           let grantStatus: Array<number> = data.authResults;
           if (grantStatus.length > 0 && grantStatus[0] === 0) {
             Logger.info('request permissions granted');
           } else {
             Logger.info('request permissions denied');
-            promptAction.showToast({
+            // [StartExclude permission_camera]
+            this.getUIContext().getPromptAction().showToast({
               message: 'This function requires the camera permission. Go to the settings page to authorize the permission'
             });
+            // [EndExclude permission_camera]
           }
         })
+          // [End permission_camera]
         .catch((error: BusinessError) => {
           Logger.error(`request permissions exception, Catch error:${JSON.stringify(error)}`);
         })
@@ -55,13 +58,13 @@ struct Index {
         .height(40)
         .width('100%')
         .onClick(() => {
-          router.pushUrl({ url: 'pages/ApproximatelyLocationDemo' });
+          this.getUIContext().getRouter().pushUrl({ url: 'pages/ApproximatelyLocationDemo' });
         })
       Button($r('app.string.use_picker'))
         .height(40)
         .width('100%')
         .onClick(() => {
-          router.pushUrl({ url: 'pages/PickerDemo' });
+          this.getUIContext().getRouter().pushUrl({ url: 'pages/PickerDemo' });
         })
       Button($r('app.string.apply_camera_permissions'))
         .height(40)

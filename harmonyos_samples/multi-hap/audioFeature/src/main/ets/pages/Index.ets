@@ -111,6 +111,6 @@ struct Index {
   }
 
   aboutToAppear() {
-    this.context = getContext(this) as common.UIAbilityContext
+    this.context = this.getUIContext().getHostContext() as common.UIAbilityContext
   }
 }

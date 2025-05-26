@@ -60,7 +60,7 @@ struct WarningDialogSample {
             Button($r('app.string.alert_dialog_type_one'))
               .buttonStyle(0)
               .onClick(() => {
-                AlertDialog.show(
+                this.getUIContext().showAlertDialog(
                   {
                     title: $r('app.string.alert_dialog_prompt'),
                     message: $r('app.string.alert_dialog_type_one'),
@@ -80,7 +80,7 @@ struct WarningDialogSample {
             Button($r('app.string.alert_dialog_type_two'))
               .buttonStyle(0)
               .onClick(() => {
-                AlertDialog.show(
+                this.getUIContext().showAlertDialog(
                   {
                     title: $r('app.string.alert_dialog_warning'),
                     message: $r('app.string.alert_dialog_info'),
@@ -113,7 +113,7 @@ struct WarningDialogSample {
             Button($r('app.string.alert_dialog_top'))
               .buttonStyle(0)
               .onClick(() => {
-                AlertDialog.show(
+                this.getUIContext().showAlertDialog(
                   {
                     title: $r('app.string.alert_dialog_prompt'),
                     message: $r('app.string.alert_dialog_top'),
@@ -134,7 +134,7 @@ struct WarningDialogSample {
             Button($r('app.string.alert_dialog_center'))
               .buttonStyle(0)
               .onClick(() => {
-                AlertDialog.show(
+                this.getUIContext().showAlertDialog(
                   {
                     title: $r('app.string.alert_dialog_prompt'),
                     message: $r('app.string.alert_dialog_center'),
@@ -155,7 +155,7 @@ struct WarningDialogSample {
             Button($r('app.string.alert_dialog_bottom'))
               .buttonStyle(0)
               .onClick(() => {
-                AlertDialog.show(
+                this.getUIContext().showAlertDialog(
                   {
                     title: $r('app.string.alert_dialog_prompt'),
                     message: $r('app.string.alert_dialog_bottom'),
@@ -181,7 +181,7 @@ struct WarningDialogSample {
             Button($r('app.string.alert_dialog_true'))
               .buttonStyle(0)
               .onClick(() => {
-                AlertDialog.show(
+                this.getUIContext().showAlertDialog(
                   {
                     title: $r('app.string.alert_dialog_prompt'),
                     message: $r('app.string.alert_dialog_true'),
@@ -202,7 +202,7 @@ struct WarningDialogSample {
             Button($r('app.string.alert_dialog_false'))
               .buttonStyle(0)
               .onClick(() => {
-                AlertDialog.show(
+                this.getUIContext().showAlertDialog(
                   {
                     title: $r('app.string.alert_dialog_prompt'),
                     message: $r('app.string.alert_dialog_false'),
@@ -228,7 +228,7 @@ struct WarningDialogSample {
             Button($r('app.string.alert_dialog_left'))
               .buttonStyle(0)
               .onClick(() => {
-                AlertDialog.show(
+                this.getUIContext().showAlertDialog(
                   {
                     title: $r('app.string.alert_dialog_prompt'),
                     message: $r('app.string.alert_dialog_left'),
@@ -249,7 +249,7 @@ struct WarningDialogSample {
             Button($r('app.string.alert_dialog_right'))
               .buttonStyle(0)
               .onClick(() => {
-                AlertDialog.show(
+                this.getUIContext().showAlertDialog(
                   {
                     title: $r('app.string.alert_dialog_prompt'),
                     message: $r('app.string.alert_dialog_right'),
@@ -275,7 +275,7 @@ struct WarningDialogSample {
             Button($r('app.string.alert_dialog_grid_two'))
               .buttonStyle(0)
               .onClick(() => {
-                AlertDialog.show(
+                this.getUIContext().showAlertDialog(
                   {
                     title: $r('app.string.alert_dialog_prompt'),
                     message: $r('app.string.alert_dialog_grid_two'),
@@ -296,7 +296,7 @@ struct WarningDialogSample {
             Button($r('app.string.alert_dialog_grid_three'))
               .buttonStyle(0)
               .onClick(() => {
-                AlertDialog.show(
+                this.getUIContext().showAlertDialog(
                   {
                     title: $r('app.string.alert_dialog_prompt'),
                     message: $r('app.string.alert_dialog_grid_three'),
@@ -317,7 +317,7 @@ struct WarningDialogSample {
             Button($r('app.string.alert_dialog_grid_four'))
               .buttonStyle(0)
               .onClick(() => {
-                AlertDialog.show(
+                this.getUIContext().showAlertDialog(
                   {
                     title: $r('app.string.alert_dialog_prompt'),
                     message: $r('app.string.alert_dialog_grid_four'),
@@ -353,7 +353,7 @@ struct WarningDialogSample {
                 .buttonStyle(0)
                 .onClick(() => {
                   this.mTextInputController.setTextSelection(1, 2);
-                  AlertDialog.show(
+                  this.getUIContext().showAlertDialog(
                     {
                       title: $r('app.string.alert_dialog_prompt'),
                       message: $r('app.string.alert_dialog_bottom'),

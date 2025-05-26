@@ -13,8 +13,14 @@
  *   limitations under the License.
  */
 
-import { HMLifecycleContext, IHMLifecycle } from '@hadss/hmrouter';
+/**
+ * 最佳实践：页面埋点开发
+ */
 
+import { HMLifecycle, HMLifecycleContext, IHMLifecycle } from '@hadss/hmrouter';
+
+// [Start page_duration_life_cycle]
+@HMLifecycle({ lifecycleName: 'PageDurationLifecycle', global: true })
 export class PageDurationLifecycle implements IHMLifecycle {
   private timeMap: Map<string, number> = new Map();
   onShown(ctx: HMLifecycleContext): void {
@@ -33,3 +39,4 @@ export class PageDurationLifecycle implements IHMLifecycle {
     }
   }
 }
+// [End page_duration_life_cycle]

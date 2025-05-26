@@ -15,6 +15,7 @@
 
 import util from '@ohos.util';
 import { PullToRefresh, PullToRefreshConfigurator } from '@ohos/pulltorefresh/index';
+import { common } from '@kit.AbilityKit';
 
 @Entry
 @Component
@@ -32,9 +33,11 @@ struct PullToRefreshError {
   @State private angle1?: number | string = 0;
   @State private angle2?: number | string = 0;
   @State loadText: ResourceStr = '';
+  private context: common.UIAbilityContext = this.getUIContext().getHostContext() as common.UIAbilityContext;
+
 
   aboutToAppear() {
-    const arrayModelMockData: Array<NewsData> = getNews('mockDataOne.json');
+    const arrayModelMockData: Array<NewsData> = getNews('mockDataOne.json', this.context);
     this.newsData = arrayModelMockData;
   }
 
@@ -80,9 +83,9 @@ struct PullToRefreshError {
                 let newsModelMockData: Array<NewsData> = [];
                 // Switch the obtained data file according to mockFlag
                 if (this.mockFlag) {
-                  newsModelMockData = getNews('mockDataTwo.json');
+                  newsModelMockData = getNews('mockDataTwo.json', this.context);
                 } else {
-                  newsModelMockData = getNews('mockDataOne.json');
+                  newsModelMockData = getNews('mockDataOne.json', this.context);
                 }
                 this.mockFlag = !this.mockFlag;
                 const array = this.newsData.slice();
@@ -101,7 +104,7 @@ struct PullToRefreshError {
               if (this.newsDataListIndex < 4) {
                 // Simulate network request operation, get data after 1.5 seconds of network request, notify the component to change the list data
                 setTimeout(() => {
-                  let newsModelMockData: Array<NewsData> = getNews('mockDataOne.json');
+                  let newsModelMockData: Array<NewsData> = getNews('mockDataOne.json', this.context);
                   const array = this.newsData;
                   array.push(...newsModelMockData);
                   this.newsData = array;
@@ -207,6 +210,7 @@ struct PullToRefreshError {
     .backgroundColor('#F1F3F5')
   }
 
+  // [Start get_list_view_error]
   @Builder
   private getListView() {
     List({
@@ -237,6 +241,7 @@ struct PullToRefreshError {
     // You must set the list to slide to edge to have no effect, otherwise the pullToRefresh component's slide up and drop down method cannot be triggered.
     .edgeEffect(EdgeEffect.None)
   }
+  // [End get_list_view_error]
 
   aboutToDisappear() {
     this.newsData = [];
@@ -336,9 +341,9 @@ class JsonObject {
   }
 
   // Get data
-  getNewsData(): Array<NewsData> {
+  getNewsData(context: common.UIAbilityContext): Array<NewsData> {
     // Get data from a local file
-    const value = getContext().resourceManager.getRawFileContentSync(this.jsonFileDir);
+    const value = context?.resourceManager.getRawFileContentSync(this.jsonFileDir);
     // Decode to utf-8 format
     const textDecoder = util.TextDecoder.create('utf-8', {
       ignoreBOM: true
@@ -357,8 +362,8 @@ class JsonObject {
   }
 }
 
-function getNews(mockFileDir: string): Array<NewsData> {
+function getNews(mockFileDir: string, context: common.UIAbilityContext): Array<NewsData> {
   const jsonObj: JsonObject = new JsonObject(mockFileDir);
-  const newsModelMockData: Array<NewsData> = jsonObj.getNewsData();
+  const newsModelMockData: Array<NewsData> = jsonObj.getNewsData(context);
   return newsModelMockData;
 }

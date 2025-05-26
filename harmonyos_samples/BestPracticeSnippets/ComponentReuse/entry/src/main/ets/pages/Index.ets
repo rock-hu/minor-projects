@@ -66,7 +66,7 @@ struct Index {
     .height(Constants.LAYOUT_MAX)
     .width(Constants.LAYOUT_MAX)
     .backgroundColor('#F1F3F5')
-    .padding({ top: px2vp(this.topRectHeight) })
+    .padding({ top: this.getUIContext().px2vp(this.topRectHeight) })
   }
 
   @Builder

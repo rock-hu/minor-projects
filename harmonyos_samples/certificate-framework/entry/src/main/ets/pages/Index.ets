@@ -189,7 +189,7 @@ struct Index {
                 if (result == true) {
                   Logger.info(TAG, 'verify: PASS!!!');
                   try {
-                    promptAction.showToast(
+                    this.getUIContext().getPromptAction().showToast(
                       {
                         message: $r('app.string.verify_success'),
                         duration: 2000,
@@ -202,7 +202,7 @@ struct Index {
                 } else {
                   Logger.info(TAG, 'verify: FAILED!!!');
                   try {
-                    promptAction.showToast(
+                    this.getUIContext().getPromptAction().showToast(
                       {
                         message: $r('app.string.verify_fail'),
                         duration: 2000,

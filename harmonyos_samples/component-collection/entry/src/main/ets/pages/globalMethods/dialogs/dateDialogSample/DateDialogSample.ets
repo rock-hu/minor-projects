@@ -42,7 +42,7 @@ function rowStyle() {
 struct DataDialogSample {
   @State lunarDate: string = getStringData($r('app.string.date_picker_dialog_datetimeone'));
   @State gregorianDate: string = getStringData($r('app.string.date_picker_dialog_datetimeone'));
-  private context = getContext(this);
+  private context = this.getUIContext().getHostContext()!;
   private selectedDate: Date = new Date(getStringData($r('app.string.date_picker_dialog_datetimeone')));
 
   build() {
@@ -57,7 +57,7 @@ struct DataDialogSample {
             Text(this.lunarDate)
               .textStyle()
               .onClick(() => {
-                DatePickerDialog.show({
+                this.getUIContext().showDatePickerDialog({
                   start: new Date(getStringData($r('app.string.date_picker_dialog_datetimetwo'))),
                   end: new Date(getStringData($r('app.string.date_picker_dialog_datetimethree'))),
                   selected: this.selectedDate,
@@ -82,7 +82,7 @@ struct DataDialogSample {
             Text(this.gregorianDate)
               .textStyle()
               .onClick(() => {
-                DatePickerDialog.show({
+                this.getUIContext().showDatePickerDialog({
                   start: new Date(getStringData($r('app.string.date_picker_dialog_datetimetwo'))),
                   end: new Date(getStringData($r('app.string.date_picker_dialog_datetimethree'))),
                   selected: this.selectedDate,

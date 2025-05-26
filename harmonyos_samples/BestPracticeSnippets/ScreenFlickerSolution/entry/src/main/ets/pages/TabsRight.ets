@@ -43,6 +43,7 @@ struct TabsRight {
     .width('100%')
   }
 
+  // [Start tabs_right_build]
   build() {
     Stack({ alignContent: Alignment.TopStart }) {
       Tabs({ barPosition: BarPosition.Start }) {
@@ -123,7 +124,9 @@ struct TabsRight {
     }
     .width('100%')
   }
+  // [End tabs_right_build]
 
+  // [Start get_current_indicator_info]
   private getCurrentIndicatorInfo(index: number, event: TabsAnimationEvent): Record<string, number> {
     let nextIndex = index;
     if (index > 0 && event.currentOffset > 0) {
@@ -144,7 +147,7 @@ struct TabsRight {
 
   private startAnimateTo(duration: number, leftMargin: number, width: number) {
     this.isStartAnimateTo = true;
-    animateTo({
+    this.getUIContext().animateTo({
       duration: duration, // duration
       curve: Curve.Linear, // curve
       iterations: 1, // iterations
@@ -157,4 +160,5 @@ struct TabsRight {
       this.indicatorWidth = width;
     });
   }
+  // [End get_current_indicator_info]
 }

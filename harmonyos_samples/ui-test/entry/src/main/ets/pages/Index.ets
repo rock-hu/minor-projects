@@ -13,8 +13,6 @@
 * limitations under the License.
 */
 
-import { router } from '@kit.ArkUI';
-
 @Entry
 @Component
 struct Index {
@@ -66,7 +64,7 @@ struct Index {
             Text("ButtonTest")
           }.id("btnTest")
           .onClick(() => {
-            router.replaceUrl({
+            this.getUIContext().getRouter().replaceUrl({
               url: 'pages/Scroller'
             })
           })
@@ -83,7 +81,7 @@ struct Index {
             Text("Drag")
           }.id("drag")
           .onClick(() => {
-            router.pushUrl({
+            this.getUIContext().getRouter().pushUrl({
               url: 'pages/Drag'
             })
           })
@@ -92,7 +90,7 @@ struct Index {
             Text("Pinch")
           }.id("inch")
           .onClick(() => {
-            router.pushUrl({
+            this.getUIContext().getRouter().pushUrl({
               url: 'pages/Pinch'
             })
           })
@@ -161,7 +159,7 @@ struct Index {
           .gesture(
             TapGesture({ count: 2 })
               .onAction(() => {
-                router.pushUrl({ url: 'pages/Swipe' })
+                this.getUIContext().getRouter().pushUrl({ url: 'pages/Swipe' })
               })
           )
       }

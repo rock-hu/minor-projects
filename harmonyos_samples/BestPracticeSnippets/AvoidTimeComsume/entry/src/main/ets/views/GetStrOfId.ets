@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-// DocsCode 1
+// [Start get_str_of_id]
 import { hiTraceMeter } from '@kit.PerformanceAnalysisKit';
 import { router } from '@kit.ArkUI';
 
@@ -25,7 +25,7 @@ struct GetStrOfId {
   aboutToAppear(): void {
     hiTraceMeter.startTrace('getStringSyncAfter', 1);
     // The input parameter of the getStringSync operation directly uses the resource and does use the resource ID
-    getContext().resourceManager.getStringSync($r('app.string.test').id)
+    this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.test').id)
     hiTraceMeter.finishTrace('getStringSyncAfter', 1)
   }
 
@@ -67,4 +67,4 @@ struct GetStrOfId {
   }
 }
 
-// DocsCode 1
+// [End get_str_of_id]

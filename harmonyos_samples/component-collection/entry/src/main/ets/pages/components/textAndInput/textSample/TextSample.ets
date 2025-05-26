@@ -39,7 +39,7 @@ struct TextSample {
   @State textOverFlow: TextOverflow = TextOverflow.None;
   @State styleForDecorative: TextDecorationType = TextDecorationType.None;
   @State textContent: Resource = $r('app.string.text_content');
-  textSize: SizeOptions = MeasureText.measureTextSize({
+  textSize: SizeOptions = this.getUIContext().getMeasureUtils().measureTextSize({
     textContent: $r('app.string.text_content'),
   })
 

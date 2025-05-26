@@ -1,0 +1,35 @@
+{
+  "module": {
+    "name": "ContactData",
+    "type": "feature",
+    "description": "$string:module_desc",
+    "mainElement": "ContactDataAbility",
+    "deviceTypes": [
+      "phone",
+      "tablet",
+      "2in1"
+    ],
+    "deliveryWithInstall": true,
+    "installationFree": false,
+    "pages": "$profile:main_pages",
+    "abilities": [
+      {
+        /**
+        * 最佳实践：应用安全编码实践
+        * 场景四：对外交互的应用组件应设置合理的访问权限
+        */
+        // [Start module_json_permissions]
+        "name": "ContactDataAbility",
+        "srcEntry": "./ets/contactdataability/ContactDataAbility.ets",
+        "description": "$string:ContactDataAbility_desc",
+        "exported": true,
+        "permissions": ["ohos.permission.READ_CONTACTS"],
+        // [End module_json_permissions]
+        "icon": "$media:layered_image",
+        "label": "$string:ContactDataAbility_label",
+        "startWindowIcon": "$media:startIcon",
+        "startWindowBackground": "$color:start_window_background",
+      }
+    ]
+  }
+}

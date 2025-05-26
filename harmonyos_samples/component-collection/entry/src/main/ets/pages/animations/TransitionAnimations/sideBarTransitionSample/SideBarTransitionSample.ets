@@ -60,7 +60,7 @@ struct SideBarTransitionSample {
           Column() {
             Button(this.mShowSideBar ? $r('app.string.hide_side_bar') : $r('app.string.show_side_bar'))
               .onClick(() => {
-                animateTo({ duration: 2000 }, () => {
+                this.getUIContext().animateTo({ duration: 2000 }, () => {
                   this.mShowSideBar = !this.mShowSideBar;
                 })
               })

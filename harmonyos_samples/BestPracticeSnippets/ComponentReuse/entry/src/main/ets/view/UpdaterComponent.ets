@@ -21,6 +21,7 @@ import { ColorData } from '../model/ColorData';
 
 const TAG = 'UpdaterComponent'
 
+// [Start updater_component]
 export class MyTextUpdater extends AttributeUpdater<TextAttribute> {
   private color: string | number | Resource | Color = '';
 
@@ -90,7 +91,7 @@ export struct OneMomentNoModifier {
         .fontColor(Color.Black)
         .opacity(0.6)
       Column() {
-        Text($r('app.string.update_component_internal_text'))
+        Text('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
           .attributeModifier(this.textUpdater) // Precise refresh
           .textAlign(TextAlign.Start)
           .fontSize(16)
@@ -114,6 +115,7 @@ export struct OneMomentNoModifier {
     })
   }
 }
+// [End updater_component]
 
 @Builder
 function getUpdaterComponent(name: string): void {

@@ -16,7 +16,7 @@
 import { hilog, hiTraceMeter } from '@kit.PerformanceAnalysisKit';
 import { router } from '@kit.ArkUI';
 
-// DocsCode 1
+// [Start positive_of_on_scroll]
 // onWillScroll high-frequency event callback positive example
 @Entry
 @Component
@@ -86,4 +86,4 @@ struct PositiveOfOnScroll {
   }
 }
 
-// DocsCode 1
+// [End positive_of_on_scroll]

@@ -36,7 +36,7 @@ export struct DigitalScrollDetail {
     }
     this.currentData = tempArr;
     this.currentData.forEach((item: number, index: number) => {
-      animateTo({
+      this.getUIContext().animateTo({
         duration: Math.abs(item - this.preData[index]) * CommonConstants.DURATION_TIME,
         curve: Curve.LinearOutSlowIn,
         onFinish: () => {

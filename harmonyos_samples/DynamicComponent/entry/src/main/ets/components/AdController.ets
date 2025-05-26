@@ -20,6 +20,7 @@ import { adBuilder } from './AdBuilder';
 // Saves the NodeController required for creating the Map.
 export let nodeMap: Map<string, AdNodeController | undefined> = new Map();
 
+// [Start AdNodeController_start]
 export class AdNodeController extends NodeController {
   private rootNode: FrameNode | null = null;
   private adNode: BuilderNode<[AdParams]> | null = null;
@@ -53,7 +54,9 @@ export class AdNodeController extends NodeController {
     this.isRemove = true;
   }
 }
+// [End AdNodeController_start]
 
+// [Start getAdNodeController_start]
 // Customizing the Interface for Obtaining the NodeController
 export const getAdNodeController = (uiContext: UIContext, id: string): AdNodeController | undefined => {
   let baseNode = new AdNodeController();
@@ -69,3 +72,4 @@ function queryAdById(id: string): string {
     return 'video';
   }
 }
+// [End getAdNodeController_start]

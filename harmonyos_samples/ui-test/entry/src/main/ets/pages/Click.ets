@@ -13,8 +13,6 @@
  * limitations under the License.
  */
 
-import { router } from '@kit.ArkUI';
-
 @Entry
 @Component
 struct Click {
@@ -42,13 +40,13 @@ struct Click {
         .gesture(
           TapGesture({ count: 2 })
             .onAction(() => {
-              router.pushUrl({ url: 'pages/Third' });
+              this.getUIContext().getRouter().pushUrl({ url: 'pages/Third' });
             })
         )
         .gesture(
           LongPressGesture({ repeat: false })
             .onAction((event: GestureEvent) => {
-              router.pushUrl({ url: 'pages/Fourth' });
+              this.getUIContext().getRouter().pushUrl({ url: 'pages/Fourth' });
             })
         )
       }

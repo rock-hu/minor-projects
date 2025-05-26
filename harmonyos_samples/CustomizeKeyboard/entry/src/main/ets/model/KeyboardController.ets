@@ -25,14 +25,18 @@ export class KeyboardController {
   keyBoardType: string = Constants.NUMBER_KEYBOARD;
   isUpperCase: boolean = false;
 
+  // [Start onInput_start]
   onInput(value: string | Resource): string {
+    // [StartExclude onInput_start]
     if (typeof value === 'string') {
       this.text = this.text.substring(0, this.leftCaretPos) + value + this.text.substring(this.rightCaretPos);
       this.targetCaretPos = this.leftCaretPos + value.length;
       return this.text;
     }
+    // [EndExclude onInput_start]
 
     switch (value.id) {
+      // [StartExclude onInput_start]
       case $r('app.string.keyboardButton_delete').id:
         if (this.rightCaretPos === this.leftCaretPos && this.leftCaretPos > 0) {
           this.leftCaretPos--;
@@ -44,9 +48,11 @@ export class KeyboardController {
         this.text = '';
         this.targetCaretPos = 0;
         break;
+    // [EndExclude onInput_start]
       case $r('app.string.keyboardButton_finish').id:
         this.textInputController?.stopEditing();
         break;
+    // [StartExclude onInput_start]
       case $r('app.string.tabButton_english_text').id:
         this.keyBoardType = Constants.ENGLISH_KEYBOARD;
         break;
@@ -61,21 +67,25 @@ export class KeyboardController {
       case $r('app.media.arrowshape_up_fill').id:
         this.isUpperCase = !this.isUpperCase;
         break;
+      // [EndExclude onInput_start]
     }
     return this.text;
   }
+  // [End onInput_start]
 
   onPaste(value: string) {
     this.text = this.text.substring(0, this.leftCaretPos) + value + this.text.substring(this.rightCaretPos);
     this.targetCaretPos = this.leftCaretPos + value.length;
   }
 
+  // [Start textInputController_start]
   onChange(value: string) {
     this.text = value;
     if (this.keyBoardType !== Constants.SYSTEM_KEYBOARD) {
       this.textInputController?.caretPosition(this.targetCaretPos);
     }
   }
+  // [End textInputController_start]
 
   setCaretPosition(start: number, end: number) {
     this.leftCaretPos = start;
@@ -87,6 +97,7 @@ export class KeyboardController {
     this.targetCaretPos = this.leftCaretPos;
   }
 
+  // [Start changeAvoidHeight_start]
   changeAvoidHeight(value: number) {
     let event: emitter.InnerEvent = {
       eventId: Constants.AVOID_EVENT_ID
@@ -98,4 +109,5 @@ export class KeyboardController {
     };
     emitter.emit(event, eventData);
   }
+  // [End changeAvoidHeight_start]
 }

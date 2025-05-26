@@ -43,13 +43,20 @@ class CameraService {
   };
   surfaceId: string = '';
 
+  // [Start onImageArrival_start]
+  // [Start Case1_start]
+  // [Start Case2_start]
   onImageArrival(receiver: image.ImageReceiver): void {
+    // [StartExclude Case1_start]
+    // [StartExclude Case2_start]
     receiver.on('imageArrival', () => {
       receiver.readNextImage((err: BusinessError, nextImage: image.Image) => {
         if (err || nextImage === undefined) {
           Logger.error(TAG, `requestPermissionsFromUser call Failed! error: ${err.code}`);
           return;
         }
+        // [EndExclude Case2_start]
+        // [EndExclude Case1_start]
         if (nextImage) {
           nextImage.getComponent(image.ComponentType.JPEG,
             async (err, component: image.Component) => {
@@ -92,6 +99,9 @@ class CameraService {
       });
     })
   }
+  // [End Case2_start]
+  // [End Case1_start]
+  // [End onImageArrival_start]
 
   getPreviewProfile(cameraOutputCapability: camera.CameraOutputCapability): camera.Profile | undefined {
     let previewProfiles = cameraOutputCapability.previewProfiles;

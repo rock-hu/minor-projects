@@ -36,7 +36,7 @@ export struct VotingComponent {
     this.fillOpacity = Constants.END_FILL_OPACITY;
     const leftOptionPercent: number =
       this.leftOptionChoose / (this.leftOptionChoose + this.rightOptionChoose) * Constants.PERCENTAGE;
-    animateTo(this.animateParam, () => {
+    this.getUIContext().animateTo(this.animateParam, () => {
       this.leftOptionWidth = leftOptionPercent.toFixed(0) + '%';
       this.rightOptionWidth = (Constants.PERCENTAGE - leftOptionPercent).toFixed(0) + '%';
       this.points = Constants.END_POINTS;
@@ -184,7 +184,7 @@ export struct VotingComponent {
   }
 
   ResourceToString(resource:Resource):string {
-    return getContext(resource).resourceManager.getStringSync(resource)
+    return this.getUIContext().getHostContext()!.resourceManager.getStringSync(resource)
  }
 }
 

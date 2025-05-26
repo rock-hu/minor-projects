@@ -41,7 +41,7 @@ struct LocationService {
 
   aboutToAppear(): void {
     if (!this.judgeHasNet()) {
-      promptAction.showToast({
+      this.getUIContext().getPromptAction().showToast({
         message: $r('app.string.internet_switch'),
         duration: 2000
       });
@@ -76,7 +76,9 @@ struct LocationService {
    */
   getPreLocationPosition(): void {
     try {
+      // [Start get_last_location]
       let location = geoLocationManager.getLastLocation();
+      // [End get_last_location]
       this.getAddress({
         latitude: location.latitude,
         longitude: location.longitude
@@ -90,56 +92,78 @@ struct LocationService {
   /**
    * Get current location information
    */
+  // [Start get_location_position]
   getLocationPosition(): void {
     let request: geoLocationManager.SingleLocationRequest = {
-      locatingPriority: CommonConstants.PRIORITY_LOCATING_SPEED,
-      locatingTimeoutMs: CommonConstants.LOCATING_TIMEOUT_MS
+      locatingPriority: 0x502,
+      locatingTimeoutMs: 10000
     };
+    // [End get_location_position]
+    // [Start get_current_location]
     geoLocationManager.getCurrentLocation(request).then((location: geoLocationManager.Location) => {
+      // [StartExclude get_current_location]
       this.getAddress({
         latitude: location.latitude,
         longitude: location.longitude
       })
+      // [EndExclude get_current_location]
     }).catch((err: BusinessError) => {
       hilog.error(0x0000, TAG, `getCurrentLocationPosition failed, code: ${err.code}, message: ${err.message}`);
+      // [StartExclude get_current_location]
       this.locationFailedAlert(err.code);
+      // [EndExclude get_current_location]
     });
+    // [End get_current_location]
   }
 
   /**
    * Start position change listening
    */
+  // [Start on_location_change]
   onLocationChange(): void {
+    // [Start Continuous_location_request]
     let request: geoLocationManager.ContinuousLocationRequest = {
       interval: 1,
-      locationScenario: CommonConstants.NAVIGATION
+      locationScenario: 0x401
     };
+    // [End Continuous_location_request]
     try {
+      // [Start location_change_on]
       geoLocationManager.on('locationChange', request, this.locationChange);
+      // [End location_change_on]
+      // [StartExclude on_location_change]
       if (!this.judgeHasNet()) {
-        promptAction.showToast({
+        this.getUIContext().getPromptAction().showToast({
           message: $r('app.string.internet_switch'),
           duration: 2000
         });
         this.marker?.setInfoWindowVisible(false);
         this.address = '';
+        // [EndExclude on_location_change]
       }
     } catch (err) {
       hilog.error(0x0000, TAG, `onLocationChange failed, code: ${err.code}, message: ${err.message}`);
+      // [StartExclude on_location_change]
       this.locationFailedAlert(err.code);
+      // [EndExclude on_location_change]
     }
   }
+  // [End on_location_change]
 
   /**
    * Stop position change listening
    */
+  // [Start off_location_change]
   offLocationChange(): void {
+    // [Start location_change_off]
     try {
       geoLocationManager.off('locationChange', this.locationChange);
     } catch (err) {
       hilog.error(0x0000, TAG, `offLocationChange failed, code: ${err.code}, message: ${err.message}`);
     }
+    // [End location_change_off]
   }
+  // [End off_location_change]
 
   locationChange = (location: geoLocationManager.Location): void => {
     this.getAddress({
@@ -179,27 +203,33 @@ struct LocationService {
         this.marker.setPosition(mapLocation);
       }
       let reverseGeocodeRequest: geoLocationManager.ReverseGeoCodeRequest = {
-        locale: getContext(this).resourceManager.getStringSync($r('app.string.language')),
+        locale: this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.language')),
         latitude: location.latitude,
         longitude: location.longitude,
         maxItems: 1
       };
+      // [Start get_addresses_from_location]
       geoLocationManager.getAddressesFromLocation(reverseGeocodeRequest, async (err, data) => {
         if (data) {
           this.address = data[0]?.placeName || '';
+          // [StartExclude  get_addresses_from_location]
           this.marker?.setInfoWindowVisible(true);
           this.marker?.setSnippet(this.address);
           hilog.info(0x0000, TAG, `The address is: ${this.address}`);
           if (this.isBackgroundRunning || this.isOnLocationChange) {
             this.isCacheLocation = false;
           }
+          // [EndExclude  get_addresses_from_location]
         } else {
           hilog.error(0x0000, TAG, `getAddressesFromLocation failed, code: ${err.code}, message: ${err.message}`);
+          // [StartExclude  get_addresses_from_location]
           if (!this.isOnLocationChange && !this.isBackgroundRunning) {
             this.locationFailedAlert(err.code);
           }
+          // [EndExclude  get_addresses_from_location]
         }
       });
+      // [End get_addresses_from_location]
     } catch (error) {
       hilog.error(0x0000, TAG, `getAddress failed, code: ${error.code}, message: ${error.message}`);
     }
@@ -208,8 +238,9 @@ struct LocationService {
   /**
    * Start Background Location
    */
+  // [Start start_continuous_task]
   startContinuousTask(): void {
-    let context = getContext(this) as common.UIAbilityContext;
+    let context = this.getUIContext().getHostContext() as common.UIAbilityContext;
     if (!context) {
       return;
     }
@@ -235,12 +266,14 @@ struct LocationService {
       });
     });
   }
+  // [End start_continuous_task]
 
   /**
    * Stop Background Location
    */
+  // [Start stop_continuous_task]
   stopContinuousTask(): void {
-    let context = getContext(this) as common.UIAbilityContext;
+    let context = this.getUIContext().getHostContext() as common.UIAbilityContext;
     if (!context) {
       return;
     }
@@ -253,25 +286,26 @@ struct LocationService {
       hilog.error(0x0000, TAG, `stopBackgroundRunning failed, cause:  ${JSON.stringify(err)}`);
     });
   }
+  // [End stop_continuous_task]
 
   locationFailedAlert(errCode: number) {
     if (errCode === CommonConstants.LOCATION_SWITCH_OFF) {
-      promptAction.showToast({
+      this.getUIContext().getPromptAction().showToast({
         message: $r('app.string.location_switch'),
         duration: 2000
       });
     } else if (errCode === CommonConstants.LOCATION_FAILED) {
-      promptAction.showToast({
+      this.getUIContext().getPromptAction().showToast({
         message: $r('app.string.internet_switch'),
         duration: 2000
       });
     } else if (errCode === CommonConstants.REVERSE_GEOCODING_FAILED) {
-      promptAction.showToast({
+      this.getUIContext().getPromptAction().showToast({
         message: $r('app.string.internet_switch'),
         duration: 2000
       });
     } else if (errCode === CommonConstants.WIFI_BLUETOOTH_OFF) {
-      promptAction.showToast({
+      this.getUIContext().getPromptAction().showToast({
         message: $r('app.string.wifi_bluetooth_switch'),
         duration: 2000
       });
@@ -452,7 +486,7 @@ struct LocationService {
     }
     .height('100%')
     .padding({
-      bottom: px2vp(this.bottomRectHeight)
+      bottom: this.getUIContext().px2vp(this.bottomRectHeight)
     })
   }
 

@@ -132,7 +132,7 @@ struct Index {
         .width('40%')
         .onClick(() => {
           Logger.info(TAG, `detailData is = ${JSON.stringify(detailData)}`);
-          router.pushUrl({
+          this.getUIContext().getRouter().pushUrl({
             url: 'pages/Detail',
             params: {
               detailData: detailData

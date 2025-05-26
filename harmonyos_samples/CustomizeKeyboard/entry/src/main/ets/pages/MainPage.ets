@@ -17,6 +17,7 @@ import { emitter } from '@kit.BasicServicesKit';
 import { Constants } from '../constants/Constants';
 import { TextInputComponent } from '../view/TextInputComponent';
 
+// [Start MainPage_start]
 @Entry
 @Component
 struct MainPage {
@@ -41,6 +42,7 @@ struct MainPage {
   build() {
     Navigation() {
       Column() {
+        // [StartExclude MainPage_start]
         Image($r('app.media.arkui_background'))
           .height($r('app.float.main_page_image_height'))
           .width('100%')
@@ -48,14 +50,18 @@ struct MainPage {
           .padding({ left: $r('app.float.main_page_margin'), right: $r('app.float.main_page_margin') })
 
         TextInputComponent()
+        // [EndExclude MainPage_start]
       }
+      .padding({ bottom: this.bottomPadding })
+      // [StartExclude MainPage_start]
       .height('100%')
       .justifyContent(FlexAlign.End)
-      .padding({ bottom: this.bottomPadding })
       .expandSafeArea([SafeAreaType.KEYBOARD, SafeAreaType.SYSTEM])
+      // [EndExclude MainPage_start]
     }
     .mode(NavigationMode.Stack)
     .titleMode(NavigationTitleMode.Full)
     .title($r('app.string.main_page_title'))
   }
 }
+// [End MainPage_start]

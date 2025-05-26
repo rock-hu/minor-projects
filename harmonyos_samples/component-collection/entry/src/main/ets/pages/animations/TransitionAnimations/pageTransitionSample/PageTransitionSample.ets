@@ -46,7 +46,7 @@ struct PageTransitionSample {
             .textStyle()
             .margin({ top: 50 })
             .onClick(() => {
-              router.pushUrl({
+              this.getUIContext().getRouter().pushUrl({
                 url: ANIMATION_URL,
                 params: { type: SlideEffect.Top, angle: 0, zoom: this.zoom }
               })
@@ -54,7 +54,7 @@ struct PageTransitionSample {
           Text($r('app.string.page_transition_bottom'))
             .textStyle()
             .onClick(() => {
-              router.pushUrl({
+              this.getUIContext().getRouter().pushUrl({
                 url: ANIMATION_URL,
                 params: { type: SlideEffect.Bottom, angle: 0, zoom: this.zoom }
               })
@@ -62,7 +62,7 @@ struct PageTransitionSample {
           Text($r('app.string.page_transition_left'))
             .textStyle()
             .onClick(() => {
-              router.pushUrl({
+              this.getUIContext().getRouter().pushUrl({
                 url: ANIMATION_URL,
                 params: { type: SlideEffect.Left, angle: 0, zoom: this.zoom }
               })
@@ -70,7 +70,7 @@ struct PageTransitionSample {
           Text($r('app.string.page_transition_right'))
             .textStyle()
             .onClick(() => {
-              router.pushUrl({
+              this.getUIContext().getRouter().pushUrl({
                 url: ANIMATION_URL,
                 params: { type: SlideEffect.Right, angle: 0, zoom: this.zoom }
               })
@@ -78,7 +78,7 @@ struct PageTransitionSample {
           Text($r('app.string.page_transition_rotate'))
             .textStyle()
             .onClick(() => {
-              router.pushUrl({
+              this.getUIContext().getRouter().pushUrl({
                 url: ANIMATION_URL,
                 params: { type: SlideEffect.Bottom, angle: this.angle, zoom: this.zoom }
               })

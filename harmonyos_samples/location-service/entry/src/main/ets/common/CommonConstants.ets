@@ -12,7 +12,8 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-
+const uiContext: UIContext | undefined = AppStorage.get('uiContext');
+let context = uiContext!.getHostContext()!;
 export class CommonConstants {
   /**
    * locatingTimeoutMs
@@ -52,5 +53,5 @@ export class CommonConstants {
   /**
    * Information Window Title
    */
-  static MARKER_TITLE: string = getContext(this).resourceManager.getStringSync($r('app.string.geocoded_location'));
+  static MARKER_TITLE: string = uiContext!.getHostContext()!.resourceManager!.getStringSync($r('app.string.geocoded_location'));
 }

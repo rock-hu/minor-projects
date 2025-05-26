@@ -196,7 +196,7 @@ export struct Decrypt {
                 .backgroundColor('#007DFF')
                 .onClick(() => {
                   if (this.textFileUri === '' || this.keyFileUri === '') {
-                    promptAction.showToast({
+                    this.getUIContext().getPromptAction().showToast({
                       message: $r('app.string.null_message')
                     });
                   } else {
@@ -260,7 +260,7 @@ export struct Decrypt {
 
   async decryptFunc() {
     if (this.cipherText === '' || this.keyFileUri === '') {
-      promptAction.showToast({
+      this.getUIContext().getPromptAction().showToast({
         message: $r('app.string.null_message')
       });
       return;
@@ -269,13 +269,13 @@ export struct Decrypt {
       this.plainText = await this.CryptoOperation.aesConvertAndDecrypt(this.keyString, this.cipherText);
     } catch (error) {
       Logger.error(TAG, `decrypt failed, ${error}`);
-      promptAction.showToast({
+      this.getUIContext().getPromptAction().showToast({
         message: $r('app.string.decrypt_fail')
       });
       return;
     }
     if (this.plainText === '' || this.plainText === null || this.plainText === undefined) {
-      promptAction.showToast({
+      this.getUIContext().getPromptAction().showToast({
         message: $r('app.string.decrypt_fail')
       });
       return;
@@ -287,11 +287,11 @@ export struct Decrypt {
       }
     }
     if (this.decryptedFileUri === '' || typeof (this.decryptedFileUri) == 'undefined') {
-      promptAction.showToast({
+      this.getUIContext().getPromptAction().showToast({
         message: $r('app.string.decrypt_fail')
       });
     } else {
-      promptAction.showToast({
+      this.getUIContext().getPromptAction().showToast({
         message: $r('app.string.decrypt_success')
       });
     }

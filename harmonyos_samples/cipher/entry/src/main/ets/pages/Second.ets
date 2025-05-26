@@ -20,7 +20,7 @@ import { Encrypt } from '../common/Encrypt';
 @Entry
 @Component
 struct Second {
-  private params: rouTmp = router.getParams() as rouTmp;
+  private params: rouTmp = this.getUIContext().getRouter().getParams() as rouTmp;
   private flag: boolean = this.params.flag;
 
   build() {
@@ -37,7 +37,7 @@ struct Second {
         }
         .layoutWeight(1)
         .onClick(() => {
-          router.back();
+          this.getUIContext().getRouter().back();
         })
         .id('back')
 

@@ -64,19 +64,23 @@ struct Index {
     .padding(16)
   }
 
+  // [Start get_el2_path]
   getEl2Path() {
-    let context = getContext(this) as common.UIAbilityContext;
+    let context = this.getUIContext().getHostContext() as common.UIAbilityContext;
     context.area = contextConstant.AreaMode.EL2;
     let filePath = context.filesDir + '/health_data.txt';
     this.message = filePath;
   }
+  // [End get_el2_path]
 
+  // [Start get_el1_path]
   getEl1Path() {
-    let context = getContext(this) as common.UIAbilityContext;
+    let context = this.getUIContext().getHostContext() as common.UIAbilityContext;
     context.area = contextConstant.AreaMode.EL1;
     let filePath = context.filesDir + '/health_data.txt';
     this.message = filePath;
   }
+  // [End get_el1_path]
 }
 
 let aesKeyAlias = 'test_aesKeyAlias';
@@ -85,12 +89,14 @@ let plainText = '123456';
 let IV = '001122334455';
 let cipherData: Uint8Array;
 
+// [Start write_file]
 function writeFile(filePath: string, data: string) {
   let file = fileIo.openSync(filePath, fileIo.OpenMode.READ_WRITE | fileIo.OpenMode.CREATE);
   let writeLen = fileIo.writeSync(file.fd, data);
   hilog.info(0x0000, 'AppDataSecurity', 'The length of str is: ' + writeLen);
   fileIo.closeSync(file);
 }
+
 
 function readFile(filePath: string): object {
   let file = fileIo.openSync(filePath, fileIo.OpenMode.READ_WRITE | fileIo.OpenMode.CREATE);
@@ -109,6 +115,7 @@ function readFile(filePath: string): object {
   fileIo.closeSync(file);
   return [readLen, buf.toString()]
 }
+// [End write_file]
 
 function StringToUint8Array(str: string) {
   let textEncoder = util.TextEncoder.create('utf-8');
@@ -120,6 +127,7 @@ function Uint8ArrayToString(fileData: Uint8Array) {
   return textDecoder.decodeToString(fileData);
 }
 
+// [Start get_aes_generate_properties]
 function GetAesGenerateProperties() {
   let properties: Array<huks.HuksParam> = [{
     tag: huks.HuksTag.HUKS_TAG_ALGORITHM,
@@ -134,7 +142,9 @@ function GetAesGenerateProperties() {
   }];
   return properties;
 }
+// [End get_aes_generate_properties]
 
+// [Start get_aes_encrypt_properties]
 function GetAesEncryptProperties() {
   let properties: Array<huks.HuksParam> = [{
     tag: huks.HuksTag.HUKS_TAG_ALGORITHM,
@@ -157,7 +167,9 @@ function GetAesEncryptProperties() {
   }];
   return properties;
 }
+// [End get_aes_encrypt_properties]
 
+// [Start get_aes_decrypt_properties]
 function GetAesDecryptProperties() {
   let properties: Array<huks.HuksParam> = [{
     tag: huks.HuksTag.HUKS_TAG_ALGORITHM,
@@ -180,7 +192,9 @@ function GetAesDecryptProperties() {
   }];
   return properties;
 }
+// [End get_aes_decrypt_properties]
 
+// [Start generate_aes_key]
 async function GenerateAesKey() {
   let genProperties = GetAesGenerateProperties();
   let options: huks.HuksOptions = {
@@ -194,7 +208,9 @@ async function GenerateAesKey() {
       hilog.error(0x0000, 'AppDataSecurity', `promise: generate AES Key failed, ${JSON.stringify(error)}`);
     })
 }
+// [End generate_aes_key]
 
+// [Start encrypt_data]
 async function EncryptData() {
   let encryptProperties = GetAesEncryptProperties();
   let options: huks.HuksOptions = {
@@ -241,6 +257,7 @@ async function DecryptData() {
       hilog.error(0x0000, 'AppDataSecurity', `promise: decrypt data failed, ${JSON.stringify(error)}`);
     })
 }
+// [End encrypt_data]
 
 async function DeleteKey() {
   let emptyOptions: huks.HuksOptions = {

@@ -16,7 +16,7 @@
 import { hilog, hiTraceMeter } from '@kit.PerformanceAnalysisKit';
 import { router } from '@kit.ArkUI';
 
-// DocsCode 1
+// [Start negative_of_on_scroll]
 // onWillScroll high-frequency event callback counterexample
 @Entry
 @Component
@@ -96,4 +96,4 @@ struct NegativeOfOnScroll {
   }
 }
 
-// DocsCode 1
+// [End negative_of_on_scroll]

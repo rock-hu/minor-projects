@@ -13,8 +13,10 @@
  * limitations under the License.
  */
 
-import { BusinessError } from '@kit.BasicServicesKit';
+// [Start import_radio]
 import { radio } from '@kit.TelephonyKit';
+import { BusinessError } from '@kit.BasicServicesKit';
+// [End import_radio]
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
 @Builder
@@ -27,7 +29,7 @@ export struct CellularNetworkQuery {
   @State text: ResourceStr = '';
   @State textArea: string = '';
 
-  // DocsCode 1
+  // [Start get_network_status]
   getNetworkStatus() {
     radio.getNetworkState((err: BusinessError, data: radio.NetworkState) => {
       if (err) {
@@ -35,15 +37,14 @@ export struct CellularNetworkQuery {
         return;
       }
       hilog.info(0x0000, 'Sample', 'getNetworkState success, callback: data->: %{public}s', JSON.stringify(data));
-      // DocsDot
+      // [StartExclude get_network_status]
       this.textArea = `getNetworkState success, callback: data->${JSON.stringify(data)}`;
-      // DocsDot
+      // [EndExclude get_network_status]
     });
   }
+  // [End get_network_status]
 
-  // DocsCode 1
-
-  // DocsCode 2
+  // [Start get_signal_type]
   getSignalType() {
     let slotId: number = 0;
     radio.getSignalInformation(slotId, (err: BusinessError, data: Array<radio.SignalInformation>) => {
@@ -53,32 +54,30 @@ export struct CellularNetworkQuery {
       }
       hilog.info(0x0000, 'Sample', 'getSignalInformation success, callback: data->: %{public}s', JSON.stringify(data));
       let signalType = data[0]?.signalType;
-      // DocsDot
+      // [StartExclude get_signal_type]
       this.textArea = `signalType is: ${signalType}`;
-      // DocsDot
+      // [EndExclude get_signal_type]
     });
   }
+  // [End get_signal_type]
 
-  // DocsCode 2
-
-  // DocsCode 3
+  // [Start get_radio_status]
   getRadioStatus() {
     radio.isRadioOn((err: BusinessError, data: boolean) => {
       if (err) {
         hilog.error(0x0000, 'Sample', 'isRadioOn failed, callback: err->: %{public}s', JSON.stringify(err));
-        // DocsDot
+        // [StartExclude get_radio_status]
         this.textArea = `isRadioOn failed, callback: err->${JSON.stringify(err)}`;
-        // DocsDot
+        // [EndExclude get_radio_status]
         return;
       }
       hilog.info(0x0000, 'Sample', 'isRadioOn success, callback: data->: %{public}s', JSON.stringify(data));
-      // DocsDot
+      // [StartExclude get_radio_status]
       this.textArea = `isRadioOn success, callback: data->${JSON.stringify(data)}`;
-      // DocsDot
+      // [EndExclude get_radio_status]
     });
   }
-
-  // DocsCode 3
+  // [End get_radio_status]
 
   @Builder
   NavDestinationTitle() {

@@ -17,14 +17,16 @@ import { common } from '@kit.AbilityKit';
 import { ViewCodeText } from '../../../../../commoncomponents/ViewCodeText';
 import { getResourceString } from '../../../../../utils/ResourceUtils';
 
-const CONTEXT: common.UIAbilityContext = getContext(this) as common.UIAbilityContext;
-
 @Component
 export struct ClassObjectTypeCode {
   // Object type state variable initialization.
-  @State classObjectData: ParentClass = new ParentClass(getResourceString(CONTEXT, $r('app.string.class_object')),
-                                        getResourceString(CONTEXT, $r('app.string.class_attribute')), 1,
-                                        new ChildClass(getResourceString(CONTEXT, $r('app.string.class_child_attribute')), 2));
+  @State classObjectData: ParentClass =
+    new ParentClass(getResourceString(this.getUIContext().getHostContext() as common.UIAbilityContext,
+      $r('app.string.class_object')),
+      getResourceString(this.getUIContext().getHostContext() as common.UIAbilityContext,
+        $r('app.string.class_attribute')), 1,
+      new ChildClass(getResourceString(this.getUIContext().getHostContext() as common.UIAbilityContext,
+        $r('app.string.class_child_attribute')), 2));
   // The number of times an object was updated.
   private clickedCount: number = 0;
 
@@ -72,10 +74,15 @@ export struct ClassObjectTypeCode {
         .onClick(() => {
           // Update the object, assigning the new object directly to the state variable.
           this.clickedCount++;
-          let objectTitle: string = getResourceString(CONTEXT, $r('app.string.class_object')) + this.clickedCount;
-          let attributeTitle: string = getResourceString(CONTEXT, $r('app.string.class_attribute')) + this.clickedCount;
-          let childAttributeTitle: string = getResourceString(CONTEXT, $r('app.string.class_child_attribute'))
-          + this.clickedCount;
+          let objectTitle: string = getResourceString(this.getUIContext().getHostContext() as common.UIAbilityContext,
+            $r('app.string.class_object')) + this.clickedCount;
+          let attributeTitle: string =
+            getResourceString(this.getUIContext().getHostContext() as common.UIAbilityContext,
+              $r('app.string.class_attribute')) + this.clickedCount;
+          let childAttributeTitle: string =
+            getResourceString(this.getUIContext().getHostContext() as common.UIAbilityContext,
+              $r('app.string.class_child_attribute'))
+              + this.clickedCount;
           let newObject = new ParentClass(objectTitle, attributeTitle, this.classObjectData.attribute + 1,
                           new ChildClass(childAttributeTitle, this.classObjectData.child.attribute + 1));
           this.classObjectData = newObject;
