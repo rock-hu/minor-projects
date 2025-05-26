@@ -1455,7 +1455,7 @@ void Heap::CollectGarbage(TriggerGCType gcType, GCReason reason)
         reason == GCReason::ALLOCATION_FAILED) {
         type = GcType::FULL;
     }
-    BaseRuntime::GetInstance()->GetHeap().RequestGC(type);
+    BaseRuntime::RequestGC(type);
     return;
 #endif
     CollectGarbageImpl(gcType, reason);
@@ -1470,6 +1470,8 @@ void Heap::ProcessGCCallback()
     // PostTask for ProcessNativeDelete
     CleanCallback();
     JSFinalizationRegistry::CheckAndCall(thread_);
+    // clear env cache
+    thread_->GetGlobalEnv()->ClearCache(thread_);
 }
 
 void BaseHeap::ThrowOutOfMemoryError(JSThread *thread, size_t size, std::string functionName,

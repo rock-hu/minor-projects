@@ -349,13 +349,12 @@ void MovingPhotoPattern::UpdateImageNode()
 
 void MovingPhotoPattern::UpdateImageHdrMode(const RefPtr<FrameNode>& imageNode)
 {
+    DynamicRangeModeConvert(dynamicRangeMode_);
+    ACE_UPDATE_NODE_PAINT_PROPERTY(ImageRenderProperty, DynamicMode, dynamicRangeMode_, imageNode);
+    ACE_UPDATE_NODE_RENDER_CONTEXT(DynamicRangeMode, dynamicRangeMode_, imageNode);
     if (dynamicRangeMode_ == DynamicRangeMode::STANDARD) {
         ACE_RESET_NODE_PAINT_PROPERTY(ImageRenderProperty, DynamicMode, imageNode);
         ACE_RESET_NODE_RENDER_CONTEXT(RenderContext, DynamicRangeMode, imageNode);
-    } else {
-        DynamicRangeModeConvert(dynamicRangeMode_);
-        ACE_UPDATE_NODE_PAINT_PROPERTY(ImageRenderProperty, DynamicMode, dynamicRangeMode_, imageNode);
-        ACE_UPDATE_NODE_RENDER_CONTEXT(DynamicRangeMode, dynamicRangeMode_, imageNode);
     }
 }
 
@@ -1165,7 +1164,7 @@ void MovingPhotoPattern::OnMediaPlayerStatusChanged(PlaybackStatus status)
 void MovingPhotoPattern::OnMediaPlayerInitialized()
 {
     TAG_LOGI(AceLogTag::ACE_MOVING_PHOTO, "MediaPlayer OnMediaPlayerInitialized.");
-    if (!isSetAutoPlayPeriod_ && autoAndRepeatLevel_ == PlaybackMode::AUTO && !isAutoChangePlayMode_) {
+    if (!isSetAutoPlayPeriod_ && autoAndRepeatLevel_ == PlaybackMode::AUTO) {
         isSetAutoPlayPeriod_ = true;
         SetAutoPlayPeriod(autoPlayPeriodStartTime_, autoPlayPeriodEndTime_);
     }

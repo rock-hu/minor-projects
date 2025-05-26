@@ -410,6 +410,8 @@ void PinchRecognizer::OnResetStatus()
 
 void PinchRecognizer::SendCallbackMsg(const std::unique_ptr<GestureEventFunc>& callback, GestureCallbackType type)
 {
+    std::string callbackName = GetCallbackName(callback);
+    ACE_SCOPED_TRACE("PinchRecognizer %s, currentDev_: %f", callbackName.c_str(), currentDev_);
     if (gestureInfo_ && gestureInfo_->GetDisposeTag()) {
         return;
     }
@@ -439,7 +441,9 @@ void PinchRecognizer::SendCallbackMsg(const std::unique_ptr<GestureEventFunc>& c
             info.SetHorizontalAxis(lastAxisEvent_.horizontalAxis);
             info.SetSourceTool(lastAxisEvent_.sourceTool);
             info.SetPressedKeyCodes(lastAxisEvent_.pressedCodes);
+            info.CopyConvertInfoFrom(lastAxisEvent_.convertInfo);
         } else {
+            info.CopyConvertInfoFrom(lastTouchEvent_.convertInfo);
             info.SetSourceTool(lastTouchEvent_.sourceTool);
             info.SetPressedKeyCodes(lastTouchEvent_.pressedKeyCodes_);
         }

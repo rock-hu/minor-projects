@@ -18,6 +18,8 @@
 
 #include "common_components/common_runtime/src/heap/allocator/region_space.h"
 #include "common_components/common_runtime/src/heap/collector/trace_collector.h"
+#include "common_interfaces/base_runtime.h"
+
 namespace panda {
 
 class CopyTable {
@@ -55,7 +57,7 @@ public:
     void MarkNewObject(BaseObject* obj) override;
 
     bool ShouldIgnoreRequest(GCRequest& request) override;
-    bool MarkObject(BaseObject* obj) const override;
+    bool MarkObject(BaseObject* obj, size_t cellCount = 0) const override;
     bool ResurrectObject(BaseObject* obj) override;
 
     void EnumRefFieldRoot(RefField<>& ref, RootSet& rootSet) const override;
@@ -75,11 +77,11 @@ public:
     {
         auto useStwGc = std::getenv("arkUseStwGc");
         if (useStwGc == nullptr) {
-            return 2; // default to 2
+            return 0; // default to 0
         }
         if (strlen(useStwGc) != 1) {
             LOG_COMMON(ERROR) << "unsupported value of arkUseStwGc, should be 0 or 1.";
-            return 2; // default to 2
+            return 0; // default to 2
         }
 
         switch (useStwGc[0]) {
@@ -90,9 +92,9 @@ public:
             case '2':
                 return 2; // 2: stw-gc
             default:
-                LOG_COMMON(ERROR) << "unsupported value of arkUseStwGc, should be 0 or 1.";
+                LOG_COMMON(ERROR) << "unsupported value of arkUseStwGc, should be 0 or 1 or 2.";
         }
-        return 2; // default to 2
+        return 0; // default to 0
     }
 
     void AddRawPointerObject(BaseObject* obj) override
@@ -132,7 +134,7 @@ public:
 
 protected:
     BaseObject* CopyObjectImpl(BaseObject* obj);
-    BaseObject* CopyObjectExclusive(BaseObject* obj) override;
+    BaseObject* CopyObjectAfterExclusive(BaseObject* obj) override;
 
     bool TryUntagRefField(BaseObject* obj, RefField<>& field, BaseObject*& target) const override;
 
@@ -165,7 +167,6 @@ protected:
         RegionSpace& space = reinterpret_cast<RegionSpace&>(theAllocator_);
         GCStats& stats = GetGCStats();
         stats.pinnedSpaceSize = space.PinnedSpaceSize();
-        stats.pinnedGarbageSize = space.CollectPinnedGarbage();
         stats.collectedBytes += stats.pinnedGarbageSize;
     }
 

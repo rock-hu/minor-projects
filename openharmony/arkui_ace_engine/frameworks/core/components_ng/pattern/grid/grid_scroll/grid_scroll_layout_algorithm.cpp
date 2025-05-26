@@ -324,7 +324,7 @@ void GridScrollLayoutAlgorithm::Layout(LayoutWrapper* layoutWrapper)
             }
             auto frameNode = DynamicCast<FrameNode>(wrapper);
             if (frameNode) {
-                frameNode->MarkAndCheckNewOpIncNode();
+                frameNode->MarkAndCheckNewOpIncNode(axis_);
             }
             auto gridItemProp = DynamicCast<GridItemLayoutProperty>(wrapper->GetLayoutProperty());
             CHECK_NULL_CONTINUE(gridItemProp);
@@ -468,6 +468,8 @@ void GridScrollLayoutAlgorithm::FillGridViewportAndMeasureChildren(
                 ModifyCurrentOffsetWhenReachEnd(mainSize, layoutWrapper);
             }
         }
+    } else {
+        info_.UpdateEndIndex(info_.currentOffset_, mainSize, mainGap_);
     }
     layoutWrapper->GetHostNode()->ChildrenUpdatedFrom(-1);
     if (info_.targetIndex_.has_value()) {
@@ -620,7 +622,7 @@ void GridScrollLayoutAlgorithm::ModifyCurrentOffsetWhenReachEnd(float mainSize, 
             info_.reachEnd_ = false;
             return;
         } else if (!isChildrenUpdated_) {
-            if (LessNotEqual(lengthOfItemsInViewport, mainSize)) {
+            if (LessNotEqual(lengthOfItemsInViewport, mainSize) && NearEqual(mainSize, info_.lastMainSize_)) {
                 return;
             }
         }

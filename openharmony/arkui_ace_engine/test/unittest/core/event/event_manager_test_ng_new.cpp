@@ -1312,6 +1312,9 @@ HWTEST_F(EventManagerTestNg, EventManagerTest070, TestSize.Level1)
     
     event.action = MouseAction::WINDOW_ENTER;
     eventManager->MouseTest(event, pageNode, touchRestrict);
+    EXPECT_FALSE(touchRestrict.touchEvent.isMouseTouchTest);
+    event.button = MouseButton::LEFT_BUTTON;
+    eventManager->MouseTest(event, pageNode, touchRestrict);
     EXPECT_TRUE(touchRestrict.touchEvent.isMouseTouchTest);
     AceApplicationInfo::GetInstance().SetApiTargetVersion(backupApiVersion);
 }
@@ -1807,6 +1810,38 @@ HWTEST_F(EventManagerTestNg, EventManagerTest088, TestSize.Level1)
     EXPECT_EQ(touchPoint.isFalsified, false);
 }
 
+/**
+ * @tc.name: EventManagerTest089
+ * @tc.desc: Test MouseTest For API12.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EventManagerTestNg, EventManagerTest089, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. Create EventManager.
+     * @tc.expected: eventManager is not null.
+     */
+    auto eventManager = AceType::MakeRefPtr<EventManager>();
+    ASSERT_NE(eventManager, nullptr);
+    int32_t settingApiVersion = 11;
+    int32_t backupApiVersion = AceApplicationInfo::GetInstance().GetApiTargetVersion();
+    AceApplicationInfo::GetInstance().SetApiTargetVersion(settingApiVersion);
+
+    auto pagePattern = AceType::MakeRefPtr<PagePattern>(AceType::MakeRefPtr<PageInfo>());
+    auto pageNode = FrameNode::CreateFrameNode(V2::PAGE_ETS_TAG, 1, pagePattern);
+
+    MouseEvent event;
+    event.action = MouseAction::PRESS;
+    event.button = MouseButton::RIGHT_BUTTON;
+    TouchRestrict touchRestrict;
+    eventManager->MouseTest(event, pageNode, touchRestrict);
+    EXPECT_FALSE(touchRestrict.touchEvent.isMouseTouchTest);
+    event.button = MouseButton::LEFT_BUTTON;
+    eventManager->MouseTest(event, pageNode, touchRestrict);
+    EXPECT_TRUE(touchRestrict.touchEvent.isMouseTouchTest);
+    AceApplicationInfo::GetInstance().SetApiTargetVersion(backupApiVersion);
+}
+
 #ifdef SUPPORT_DIGITAL_CROWN
 /**
  * @tc.name: EventManagerTest089
@@ -1930,5 +1965,28 @@ HWTEST_F(EventManagerTestNg, DispatchTouchCancelToRecognizer, TestSize.Level1)
     EXPECT_EQ(touchTestResult[1].size(), 1);
     eventManager->DispatchTouchCancelToRecognizer(AceType::RawPtr(targetRefs[1]), items[1]);
     EXPECT_EQ(touchTestResult.size(), 0);
+}
+
+/**
+ * @tc.name: DispatchTouchCancelToRecognizer_ItemsEmpty
+ * @tc.desc: Test DispatchTouchCancelToRecognizer when items is empty.
+ * @tc.type: FUNC
+ */
+HWTEST_F(EventManagerTestNg, DispatchTouchCancelToRecognizer_ItemsEmpty, TestSize.Level1)
+{
+    auto eventManager = AceType::MakeRefPtr<EventManager>();
+    auto& touchTestResult = eventManager->touchTestResults_;
+    RefPtr<TouchEventActuator> target = AceType::MakeRefPtr<TouchEventActuator>();
+    using TouchRecognizerTarget = std::vector<std::pair<int32_t, TouchTestResult::iterator>>;
+ 
+    TouchTestResult resultList;
+    resultList.push_back(target);
+    touchTestResult[1] = resultList;
+    TouchRecognizerTarget items;
+ 
+    eventManager->DispatchTouchCancelToRecognizer(AceType::RawPtr(target), items);
+    EXPECT_EQ(touchTestResult.size(), 1);
+    EXPECT_EQ(touchTestResult.count(1), 1);
+    EXPECT_EQ(touchTestResult[1].size(), 1);
 }
 } // namespace OHOS::Ace::NG

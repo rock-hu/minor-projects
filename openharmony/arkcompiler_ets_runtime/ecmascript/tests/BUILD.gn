@@ -151,12 +151,66 @@ host_unittest_action("JS_Dump_Test") {
   deps += hiviewdfx_deps
 }
 
-host_unittest_action("ECMA_String_Test") {
+host_unittest_action("JS_DynamicTypeConverter_Test") {
   module_out_path = module_output_path
 
   sources = [
     # test file
-    #"ecma_string_test.cpp",
+    "dynamic_type_converter_test.cpp",
+  ]
+
+  configs = [
+    "../../:asm_interp_enable_config",
+    "../../:ecma_test_config",
+  ]
+
+  deps = [ "../../:libark_jsruntime_test" ]
+
+  # hiviewdfx libraries
+  external_deps = hiviewdfx_ext_deps
+  external_deps += [
+    "icu:shared_icui18n",
+    "icu:shared_icuuc",
+    "runtime_core:libarkassembler_static",
+    "runtime_core:libarkverifier",
+    "zlib:libz",
+  ]
+  deps += hiviewdfx_deps
+}
+
+host_unittest_action("ECMA_StringHash_Test") {
+  module_out_path = module_output_path
+
+  sources = [
+    # test file
+    "ecma_string_hash_test.cpp",
+  ]
+
+  configs = [
+    "../../:asm_interp_enable_config",
+    "../../:ecma_test_config",
+  ]
+
+  deps = [ "../../:libark_jsruntime_test" ]
+
+  # hiviewdfx libraries
+  external_deps = hiviewdfx_ext_deps
+  external_deps += [
+    "icu:shared_icui18n",
+    "icu:shared_icuuc",
+    "runtime_core:libarkassembler_static",
+    "runtime_core:libarkverifier",
+    "zlib:libz",
+  ]
+  deps += hiviewdfx_deps
+}
+
+host_unittest_action("BASE_String_Test") {
+  module_out_path = module_output_path
+
+  sources = [
+    # test file
+    "base_string_test.cpp",
   ]
 
   configs = [
@@ -1417,6 +1471,32 @@ host_unittest_action("JS_NumberFormat_Test") {
   sources = [
     # test file
     "js_number_format_test.cpp",
+  ]
+
+  configs = [
+    "../../:ecma_test_config",
+    "../../:icu_path_test_config",
+  ]
+
+  deps = [ "../../:libark_jsruntime_test" ]
+
+  # hiviewdfx libraries
+  external_deps = hiviewdfx_ext_deps
+  external_deps += [
+    "icu:shared_icui18n",
+    "icu:shared_icuuc",
+    "runtime_core:libarkassembler_static",
+    "runtime_core:libarkverifier",
+  ]
+  deps += hiviewdfx_deps
+}
+
+host_unittest_action("Dynamic_Object_Accessor_Test") {
+  module_out_path = module_output_path
+
+  sources = [
+    # test file
+    "dynamic_object_accessor_test.cpp",
   ]
 
   configs = [
@@ -3363,9 +3443,10 @@ group("unittest") {
     ":Builtins_Test",
     ":ECMA_StringAccessor_Test",
     ":ECMA_StringEquals_Test",
+    ":ECMA_StringHash_Test",
     ":ECMA_StringTable_Test",
 
-    #":ECMA_String_Test",
+    ":BASE_String_Test",
     ":ECMA_VM_Test",
     ":GC_ConcurrentMarking_Test",
     ":GC_ConcurrentSweep_Test",
@@ -3491,6 +3572,12 @@ group("unittest") {
     ":Sendable_JsSharedArray_Test",
     ":Sendable_SharedObjectFactory_Test",
   ]
+  if (ets_runtime_enable_cmc_gc) {
+    deps += [
+      ":Dynamic_Object_Accessor_Test",
+      ":JS_DynamicTypeConverter_Test",
+    ]
+  }
 }
 
 group("host_unittest") {
@@ -3501,9 +3588,10 @@ group("host_unittest") {
     ":Builtins_TestAction",
     ":ECMA_StringAccessor_TestAction",
     ":ECMA_StringEquals_TestAction",
+    ":ECMA_StringHash_TestAction",
     ":ECMA_StringTable_TestAction",
 
-    #":ECMA_String_TestAction",
+    ":BASE_String_TestAction",
     ":ECMA_VM_TestAction",
     ":GC_ConcurrentMarking_TestAction",
     ":GC_ConcurrentSweep_TestAction",
@@ -3635,9 +3723,10 @@ group("host_unittest") {
       ":Builtins_TestAction",
       ":ECMA_StringAccessor_TestAction",
       ":ECMA_StringEquals_TestAction",
+      ":ECMA_StringHash_TestAction",
       ":ECMA_StringTable_TestAction",
 
-      #":ECMA_String_TestAction",
+      ":BASE_String_TestAction",
       ":ECMA_VM_TestAction",
       ":GC_ConcurrentMarking_TestAction",
       ":GC_ConcurrentSweep_TestAction",
@@ -3766,7 +3855,7 @@ group("host_unittest") {
   }
 
   # TODO: CMC-GC UT FIX LATER
-  if (defined(enable_cmc_gc) && enable_cmc_gc) {
+  if (ets_runtime_enable_cmc_gc) {
     deps -= [
       ":GC_ConcurrentMarking_TestAction",
       ":GC_First_TestAction",
@@ -3791,6 +3880,11 @@ group("host_unittest") {
       ":JS_TaggedArray_TestAction",
       ":JS_ThreadState_TestAction",
       ":Sendable_JsSharedArray_TestAction",
+    ]
+
+    deps += [
+      ":Dynamic_Object_Accessor_TestAction",
+      ":JS_DynamicTypeConverter_TestAction",
     ]
   }
 }

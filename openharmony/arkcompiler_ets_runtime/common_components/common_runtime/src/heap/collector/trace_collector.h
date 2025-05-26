@@ -173,7 +173,7 @@ public:
         return obj->IsToVersion();
     }
 
-    virtual bool MarkObject(BaseObject* obj) const
+    virtual bool MarkObject(BaseObject* obj, size_t cellCount = 0) const
     {
         bool marked = RegionSpace::MarkObject(obj);
         if (!marked) {
@@ -231,7 +231,7 @@ public:
     void CopyObject(const BaseObject& fromObj, BaseObject& toObj, size_t size) const;
 
 protected:
-    virtual BaseObject* CopyObjectExclusive(BaseObject* obj) = 0;
+    virtual BaseObject* CopyObjectAfterExclusive(BaseObject* obj) = 0;
     virtual void CopyFromSpace();
     virtual void ExemptFromSpace();
 
@@ -315,13 +315,5 @@ private:
     void VisitStaticRoots(const RefFieldVisitor& visitor) const;
     void VisitFinalizerRoots(const RootVisitor& visitor) const;
 };
-
-
-using WorkStackAddHookType = void (*)(void *workStack, uint64_t *obj);
-using EnumStaticRootsHookType = void (*)(void *workStack, WorkStackAddHookType hook);
-
-
-extern "C" PUBLIC_API void ArkRegisterEnumStaticRootsHook(EnumStaticRootsHookType hook);
-
 } // namespace panda
 #endif

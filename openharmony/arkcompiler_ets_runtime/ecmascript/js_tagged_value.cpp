@@ -20,6 +20,7 @@
 #include "ecmascript/interpreter/interpreter.h"
 #include "ecmascript/js_api/js_api_arraylist.h"
 #include "ecmascript/js_api/js_api_bitvector.h"
+#include "ecmascript/js_api/js_api_buffer.h"
 #include "ecmascript/js_api/js_api_deque.h"
 #include "ecmascript/js_api/js_api_linked_list.h"
 #include "ecmascript/js_api/js_api_list.h"
@@ -1717,16 +1718,12 @@ JSTaggedNumber JSTaggedValue::StringToNumber(JSTaggedValue tagged)
         return JSTaggedNumber(0);
     }
     if (strLen < MAX_ELEMENT_INDEX_LEN && strAccessor.IsUtf8()) {
-        uint32_t index;
-        // fast path: get integer from string's hash value
-        if (strAccessor.TryToGetInteger(&index)) {
-            return JSTaggedNumber(index);
-        }
-        Span<const uint8_t> str = strAccessor.FastToUtf8Span();
+        CVector<uint8_t> buf;
+        Span<const uint8_t> str = strAccessor.ToUtf8Span(buf);
         if (strAccessor.GetLength() == 0) {
             return JSTaggedNumber(0);
         }
-        auto [isSuccess, result] = base::NumberHelper::FastStringToNumber(str.begin(), str.end(), tagged);
+        auto [isSuccess, result] = base::NumberHelper::FastStringToNumber(str.begin(), str.end());
         if (isSuccess) {
             return result;
         }
@@ -1788,6 +1785,9 @@ OperationResult JSTaggedValue::GetJSAPIProperty(JSThread *thread, const JSHandle
             case JSType::JS_API_BITVECTOR: {
                 return JSAPIBitVector::GetProperty(thread, JSHandle<JSAPIBitVector>::Cast(obj), key);
             }
+            case JSType::JS_API_FAST_BUFFER: {
+                return JSAPIFastBuffer::GetProperty(thread, JSHandle<JSAPIFastBuffer>::Cast(obj), key);
+            }
             default: {
                 return JSObject::GetProperty(thread, JSHandle<JSObject>(obj), key);
             }
@@ -1833,6 +1833,9 @@ bool JSTaggedValue::SetJSAPIProperty(JSThread *thread, const JSHandle<JSTaggedVa
             }
             case JSType::JS_API_BITVECTOR: {
                 return JSAPIBitVector::SetProperty(thread, JSHandle<JSAPIBitVector>::Cast(obj), key, value);
+            }
+            case JSType::JS_API_FAST_BUFFER: {
+                return JSAPIFastBuffer::SetProperty(thread, JSHandle<JSAPIFastBuffer>::Cast(obj), key, value);
             }
             default: {
                 return JSObject::SetProperty(thread, JSHandle<JSObject>::Cast(obj), key, value);

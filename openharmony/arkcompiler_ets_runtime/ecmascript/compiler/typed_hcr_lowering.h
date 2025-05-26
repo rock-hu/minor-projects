@@ -134,6 +134,7 @@ private:
     void LowerIndexCheck(GateRef gate);
     void LowerObjectTypeCheck(GateRef glue, GateRef gate);
     void LowerSimpleHClassCheck(GateRef glue, GateRef gate);
+    GateRef BuildCompareHClass(GateRef glue, GateRef gate, GateRef frameState);
     void LowerStableArrayCheck(GateRef glue, GateRef gate);
     void LowerTypedArrayCheck(GateRef glue, GateRef gate);
     void LowerEcmaStringCheck(GateRef gate, GateRef glue);
@@ -153,7 +154,7 @@ private:
     void LowerCallSetter(GateRef gate, GateRef glue);
     void LowerLoadArrayLength(GateRef gate);
     void LowerStoreElement(GateRef gate, GateRef glue);
-    void LowerLoadElement(GateRef gate);
+    void LowerLoadElement(GateRef gate, GateRef glue);
     void LowerLoadFromTaggedArray(GateRef gate);
     void LowerStoreToTaggedArray(GateRef gate, GateRef glue);
     void LowerRangeCheckPredicate(GateRef gate);
@@ -177,7 +178,7 @@ private:
     void LowerArrayLoadElement(GateRef gate, ArrayState arrayState, TypedLoadOp op);
     void LowerCowArrayCheck(GateRef gate, GateRef glue);
     void LowerTypedArrayLoadElement(GateRef gate, BuiltinTypeId id);
-    void LowerStringLoadElement(GateRef gate);
+    void LowerStringLoadElement(GateRef gate, GateRef glue);
     GateRef BuildOnHeapTypedArrayLoadElement(GateRef glue, GateRef receiver, GateRef offset, VariableType type);
     GateRef BuildNotOnHeapTypedArrayLoadElement(GateRef glue, GateRef receiver, GateRef offset, VariableType type);
     GateRef BuildTypedArrayLoadElement(GateRef glue, GateRef receiver, GateRef offset, VariableType type,
@@ -233,6 +234,7 @@ private:
     GateRef NewJSPrimitiveRef(PrimitiveType type, GateRef glue, GateRef value);
     void ReplaceGateWithPendingException(GateRef glue, GateRef gate, GateRef state, GateRef depend, GateRef value);
     void LowerOrdinaryHasInstance(GateRef gate, GateRef glue);
+    void LowerOrdinaryHasInstanceForJIT(GateRef gate, GateRef glue);
     void LowerProtoChangeMarkerCheck(GateRef glue, GateRef gate);
     void LowerPrimitiveTypeProtoChangeMarkerCheck(GateRef glue, GateRef gate);
     void GetPropertyHolderFromProtoChain(GateRef glue, ProtoTypeHolderInfo holderInfo, Label *loadHolder,

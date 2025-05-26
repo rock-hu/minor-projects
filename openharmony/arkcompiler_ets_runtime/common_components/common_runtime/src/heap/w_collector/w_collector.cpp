@@ -33,7 +33,7 @@ bool WCollector::IsUnmovableFromObject(BaseObject* obj) const
     return regionInfo->IsUnmovableFromRegion();
 }
 
-bool WCollector::MarkObject(BaseObject* obj) const
+bool WCollector::MarkObject(BaseObject* obj, size_t cellCount) const
 {
     bool marked = RegionSpace::MarkObject(obj);
     if (!marked) {
@@ -45,8 +45,9 @@ bool WCollector::MarkObject(BaseObject* obj) const
             LOG_COMMON(FATAL) << "Unresolved fatal";
             UNREACHABLE_CC();
         }
-
-        DLOG(TRACE, "mark obj %p<%p>(%zu) in region %p(%u)@%#zx, live %u", obj, obj->GetTypeInfo(), obj->GetSize(),
+        size_t size = cellCount == 0 ? obj->GetSize() : (cellCount + 1) * sizeof(uint64_t);
+        region->AddLiveByteCount(size);
+        DLOG(TRACE, "mark obj %p<%p>(%zu) in region %p(%u)@%#zx, live %u", obj, obj->GetTypeInfo(), size,
              region, region->GetRegionType(), region->GetRegionStart(), region->GetLiveByteCount());
     }
     return marked;
@@ -304,16 +305,6 @@ BaseObject* WCollector::ForwardUpdateRawRef(ObjectRef& root)
     return oldObj;
 }
 
-using ForwardUpdateRawRefHookType = void (*)(WCollector *collector, uint64_t *obj);
-using ForwardUpdateWeakRawRefHookType = bool (*)(WCollector *collector, uint64_t *obj);
-using PreforwardStaticRootsHookType =
-    void (*)(WCollector *collector, ForwardUpdateRawRefHookType hook, ForwardUpdateWeakRawRefHookType weakHook);
-PreforwardStaticRootsHookType g_preforwardStaticRootsHook = nullptr;
-
-extern "C" PUBLIC_API void RegisterPreforwardStaticRootsHook(PreforwardStaticRootsHookType hook) {
-    g_preforwardStaticRootsHook = hook;
-}
-
 void WCollector::PreforwardStaticRoots()
 {
     panda::RefFieldVisitor visitor = [this](RefField<>& refField) {
@@ -451,6 +442,7 @@ void WCollector::DoGarbageCollection()
 
         CopyFromSpace();
         FixHeap();
+        CollectPinnedGarbage();
 
         TransitionToGCPhase(GCPhase::GC_PHASE_IDLE, true);
         ClearAllGCInfo();
@@ -474,7 +466,9 @@ void WCollector::DoGarbageCollection()
         CollectLargeGarbage();
 
         CopyFromSpace();
+        reinterpret_cast<RegionSpace&>(theAllocator_).PrepareFixForPin();
         FixHeap();
+        CollectPinnedGarbage();
 
         TransitionToGCPhase(GCPhase::GC_PHASE_IDLE, true);
         ClearAllGCInfo();
@@ -500,7 +494,9 @@ void WCollector::DoGarbageCollection()
     CollectLargeGarbage();
 
     CopyFromSpace();
+    reinterpret_cast<RegionSpace&>(theAllocator_).PrepareFixForPin();
     FixHeap();
+    CollectPinnedGarbage();
 
     TransitionToGCPhase(GCPhase::GC_PHASE_IDLE, true);
     ClearAllGCInfo();
@@ -596,8 +592,8 @@ BaseObject* WCollector::CopyObjectImpl(BaseObject* obj)
         }
 
         // 3. hope we can copy this object
-        if (obj->TryLockObject(oldWord)) {
-            return CopyObjectExclusive(obj);
+        if (obj->TryLockExclusive(oldWord)) {
+            return CopyObjectAfterExclusive(obj);
         }
     } while (true);
     LOG_COMMON(FATAL) << "forwardObject exit in wrong path";
@@ -605,14 +601,18 @@ BaseObject* WCollector::CopyObjectImpl(BaseObject* obj)
     return nullptr;
 }
 
-BaseObject* WCollector::CopyObjectExclusive(BaseObject* obj)
+BaseObject* WCollector::CopyObjectAfterExclusive(BaseObject* obj)
 {
     size_t size = RegionSpace::GetAllocSize(*obj);
+    // 8: size of free object, but free object can not be copied.
+    if (size == 8) {
+        LOG_COMMON(FATAL) << "forward free obj: " << obj << "is survived: " << IsSurvivedObject(obj) ? "true" : "false";
+    }
     BaseObject* toObj = fwdTable_.RouteObject(obj, size);
     if (toObj == nullptr) {
         ASSERT_LOGF(0, "OOM");
         // ConcurrentGC
-        obj->UnlockObject(panda::BaseStateWord::ForwardState::NORMAL);
+        obj->UnlockExclusive(panda::BaseStateWord::ForwardState::NORMAL);
         return toObj;
     }
     DLOG(COPY, "copy obj %p<%p>(%zu) to %p", obj, obj->GetTypeInfo(), size, toObj);
@@ -625,7 +625,7 @@ BaseObject* WCollector::CopyObjectExclusive(BaseObject* obj)
     }
     std::atomic_thread_fence(std::memory_order_release);
     obj->SetSizeForwarded(size);
-    obj->SetForwardingPointerExclusive(toObj);
+    obj->SetForwardingPointerAfterExclusive(toObj);
     return toObj;
 }
 

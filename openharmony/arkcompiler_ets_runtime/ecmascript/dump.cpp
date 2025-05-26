@@ -373,6 +373,8 @@ CString JSHClass::DumpJSType(JSType type)
             return "BitVector";
         case JSType::JS_API_BITVECTOR_ITERATOR:
             return "BitVectorIterator";
+        case JSType::JS_API_FAST_BUFFER:
+            return "Buffer";
         case JSType::JS_API_QUEUE:
             return "Queue";
         case JSType::JS_API_QUEUE_ITERATOR:
@@ -1077,6 +1079,9 @@ static void DumpObject(TaggedObject *obj, std::ostream &os, bool isPrivacy)
             break;
         case JSType::JS_API_BITVECTOR_ITERATOR:
             JSAPIBitVectorIterator::Cast(obj)->Dump(os);
+            break;
+        case JSType::JS_API_FAST_BUFFER:
+            JSAPIFastBuffer::Cast(obj)->Dump(os);
             break;
         case JSType::JS_API_LIGHT_WEIGHT_MAP:
             JSAPILightWeightMap::Cast(obj)->Dump(os);
@@ -2544,6 +2549,15 @@ void JSAPIBitVectorIterator::Dump(std::ostream &os) const
     JSObject::Dump(os);
 }
 
+void JSAPIFastBuffer::Dump(std::ostream &os) const
+{
+    os << " - ByteLength: " << std::dec << GetSize() << "\n";
+    os << " - Length: " << std::dec << GetLength() << "\n";
+    auto array = JSTypedArray::Cast(GetFastBufferData().GetTaggedObject());
+    array->Dump(os);
+    JSObject::Dump(os);
+}
+
 void JSStringIterator::Dump(std::ostream &os) const
 {
     EcmaString *str = EcmaString::Cast(GetIteratedString().GetTaggedObject());
@@ -3558,7 +3572,7 @@ void ProtoChangeMarker::Dump(std::ostream &os) const
 {
     os << " - HasChanged: " << GetHasChanged() << "\n";
     os << " - HasAccessorChanged: " << GetAccessorHasChanged() << "\n";
-    os << " - HasNotFoundChanged" << GetNotFoundHasChanged() << "\n";
+    os << " - HasNotFoundChanged: " << GetNotFoundHasChanged() << "\n";
 }
 
 void MarkerCell::Dump(std::ostream &os) const
@@ -4353,6 +4367,9 @@ static void DumpObject(TaggedObject *obj, std::vector<Reference> &vec, bool isVm
             break;
         case JSType::JS_API_BITVECTOR_ITERATOR:
             JSAPIBitVectorIterator::Cast(obj)->DumpForSnapshot(vec);
+            break;
+        case JSType::JS_API_FAST_BUFFER:
+            JSAPIFastBuffer::Cast(obj)->DumpForSnapshot(vec);
             break;
         case JSType::JS_API_QUEUE:
             JSAPIQueue::Cast(obj)->DumpForSnapshot(vec);
@@ -5271,6 +5288,11 @@ void JSAPIBitVectorIterator::DumpForSnapshot(std::vector<Reference> &vec) const
     vec.emplace_back("iteratedbitvector", GetIteratedBitVector());
     vector->DumpForSnapshot(vec);
     vec.emplace_back(CString("NextIndex"), JSTaggedValue(GetNextIndex()));
+    JSObject::DumpForSnapshot(vec);
+}
+
+void JSAPIFastBuffer::DumpForSnapshot(std::vector<Reference> &vec) const
+{
     JSObject::DumpForSnapshot(vec);
 }
 

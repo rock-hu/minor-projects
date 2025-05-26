@@ -24,6 +24,11 @@ using StateWordType = uint64_t;
 using MAddress = uint64_t;
 class TypeInfo;
 
+enum class LanguageType : uint64_t {
+    DYNAMIC = 0,
+    STATIC = 1,
+};
+
 class BaseStateWord {
 public:
     static constexpr size_t PADDING_WIDTH = 60;
@@ -38,11 +43,6 @@ public:
         FORWARDING,
         FORWARDED,
         TO_VERSION
-    };
-
-    enum class Language : uint64_t {
-        DYNAMIC = 0,
-        STATIC = 1,
     };
 
     inline void SetForwarding()
@@ -92,11 +92,28 @@ public:
         return state_.forwardState_;
     }
 
+    StateWordType GetBaseClassAddress() const
+    {
+#ifdef USE_CMC_GC
+        return state_.padding_;
+#else
+        return header_;
+#endif
+    }
+
+    void SetFullBaseClassAddress(StateWordType address)
+    {
+#ifdef USE_CMC_GC
+        state_.padding_ = address;
+#else
+        header_ = address;
+#endif
+    }
 private:
     // Little endian
     struct State {
         StateWordType padding_     : PADDING_WIDTH;
-        Language language_         : LANGUAGE_WIDTH;
+        LanguageType language_     : LANGUAGE_WIDTH;
         ForwardState forwardState_ : FORWARD_WIDTH;
     };
 
@@ -140,24 +157,19 @@ private:
         return state_.forwardState_ == ForwardState::FORWARDED;
     }
 
-    inline void SetStatic()
+    inline void SetLanguageType(LanguageType language)
     {
-        state_.language_ = Language::STATIC;
+        state_.language_ = language;
     }
 
     inline bool IsStatic() const
     {
-        return state_.language_ == Language::STATIC;
+        return state_.language_ == LanguageType::STATIC;
     }
 
-    inline void SetDynamic()
+    inline bool IsDynamic() const
     {
-        state_.language_ = Language::DYNAMIC;
-    }
-
-    inline bool IsDynamic()
-    {
-        return state_.language_ == Language::DYNAMIC;
+        return state_.language_ == LanguageType::DYNAMIC;
     }
 
     friend class BaseObject;

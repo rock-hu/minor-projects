@@ -390,6 +390,8 @@ void SwipeRecognizer::OnResetStatus()
 
 void SwipeRecognizer::SendCallbackMsg(const std::unique_ptr<GestureEventFunc>& callback, GestureCallbackType type)
 {
+    std::string callbackName = GetCallbackName(callback);
+    ACE_SCOPED_TRACE("SwipeRecognizer %s", callbackName.c_str());
     if (gestureInfo_ && gestureInfo_->GetDisposeTag()) {
         return;
     }
@@ -419,9 +421,11 @@ void SwipeRecognizer::SendCallbackMsg(const std::unique_ptr<GestureEventFunc>& c
             info.SetHorizontalAxis(lastAxisEvent_.horizontalAxis);
             info.SetSourceTool(lastAxisEvent_.sourceTool);
             info.SetPressedKeyCodes(lastAxisEvent_.pressedCodes);
+            info.CopyConvertInfoFrom(lastAxisEvent_.convertInfo);
         } else {
             info.SetSourceTool(lastTouchEvent_.sourceTool);
             info.SetPressedKeyCodes(lastTouchEvent_.pressedKeyCodes_);
+            info.CopyConvertInfoFrom(lastTouchEvent_.convertInfo);
         }
         info.SetPointerEvent(lastPointEvent_);
         if (prevAngle_) {

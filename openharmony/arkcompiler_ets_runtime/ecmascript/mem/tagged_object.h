@@ -47,7 +47,7 @@ public:
 
     JSHClass *SynchronizedGetClass() const;
 #ifdef USE_CMC_GC
-    void SetForwardingPointerExclusive(BaseObject *fwdPtr)
+    void SetForwardingPointerAfterExclusive(BaseObject *fwdPtr)
     {
         reinterpret_cast<TaggedStateWord *>(this)->SetForwardingAddress(reinterpret_cast<uintptr_t>(fwdPtr));
     }
@@ -66,12 +66,12 @@ public:
 #else
     JSHClass *GetClass() const
     {
-        return reinterpret_cast<JSHClass *>(class_);
+        return reinterpret_cast<JSHClass *>(GetBaseClass());
     }
 
     size_t GetSize();
 
-    void SetForwardingPointerExclusive([[maybe_unused]]BaseObject *fwdPtr) {}
+    void SetForwardingPointerAfterExclusive([[maybe_unused]]BaseObject *fwdPtr) {}
 
     BaseObject *GetForwardingPointer() const
     {
@@ -90,10 +90,6 @@ public:
 
 private:
     void SetClass(const JSThread *thread, JSHClass *hclass);
-
-#ifndef USE_CMC_GC
-    MarkWordType class_;
-#endif
 
     friend class BaseHeap;
     friend class Heap;

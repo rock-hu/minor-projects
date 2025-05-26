@@ -25,11 +25,11 @@ struct StringInfoGateRef;
 
 class BuiltinsStringStubBuilder : public BuiltinsStubBuilder {
 public:
-    explicit BuiltinsStringStubBuilder(StubBuilder *parent)
-        : BuiltinsStubBuilder(parent) {}
-    BuiltinsStringStubBuilder(CallSignature *callSignature, Environment *env)
-        : BuiltinsStubBuilder(callSignature, env) {}
-    explicit BuiltinsStringStubBuilder(Environment* env): BuiltinsStubBuilder(env) {}
+    explicit BuiltinsStringStubBuilder(StubBuilder *parent, GateRef globalEnv)
+        : BuiltinsStubBuilder(parent, globalEnv) {}
+    BuiltinsStringStubBuilder(CallSignature *callSignature, Environment *env, GateRef globalEnv)
+        : BuiltinsStubBuilder(callSignature, env, globalEnv) {}
+    explicit BuiltinsStringStubBuilder(Environment* env, GateRef globalEnv): BuiltinsStubBuilder(env, globalEnv) {}
     ~BuiltinsStringStubBuilder() override = default;
     NO_MOVE_SEMANTIC(BuiltinsStringStubBuilder);
     NO_COPY_SEMANTIC(BuiltinsStringStubBuilder);
@@ -83,6 +83,8 @@ BUILTINS_WITH_STRING_STUB_BUILDER(DECLARE_BUILTINS_SRRING_STUB_BUILDER)
         const StringInfoGateRef &rStringInfoGate, GateRef pos);
     GateRef GetSubString(GateRef glue, GateRef thisValue, GateRef from, GateRef len);
     GateRef GetFastSubString(GateRef glue, GateRef thisValue, GateRef start, GateRef len);
+    GateRef StringToUint(GateRef glue, GateRef string, uint64_t maxValue);
+    GateRef StringDataToUint(GateRef dataUtf8, GateRef len, uint64_t maxValue);
 private:
     GateRef ChangeStringTaggedPointerToInt64(GateRef x)
     {
@@ -101,7 +103,7 @@ private:
 class FlatStringStubBuilder : public StubBuilder {
 public:
     explicit FlatStringStubBuilder(StubBuilder *parent)
-        : StubBuilder(parent), builtinsStringStubBuilder_(parent) {}
+        : StubBuilder(parent) {}
     ~FlatStringStubBuilder() override = default;
     NO_MOVE_SEMANTIC(FlatStringStubBuilder);
     NO_COPY_SEMANTIC(FlatStringStubBuilder);
@@ -114,13 +116,17 @@ public:
         GateRef offset = IntPtr(SlicedString::PARENT_OFFSET);
         return Load(VariableType::JS_POINTER(), glue, string, offset);
     }
-    GateRef GetStartIndexFromSlicedString(GateRef string)
-    {
-        return builtinsStringStubBuilder_.LoadStartIndex(string);
+
+    GateRef GetStartIndexFromSlicedString(GateRef string) {
+        GateRef offset = IntPtr(SlicedString::STARTINDEX_AND_FLAGS_OFFSET);
+        GateRef mixStartIndex = LoadPrimitive(VariableType::INT32(), string, offset);
+        return Int32LSR(mixStartIndex, Int32(SlicedString::StartIndexBits::START_BIT));
     }
-    GateRef GetHasBackingStoreFromSlicedString(GateRef string)
-    {
-        return builtinsStringStubBuilder_.LoadHasBackingStore(string);
+
+    GateRef GetHasBackingStoreFromSlicedString(GateRef string) {
+        GateRef offset = IntPtr(SlicedString::STARTINDEX_AND_FLAGS_OFFSET);
+        GateRef mixStartIndex = LoadPrimitive(VariableType::INT32(), string, offset);
+        return TruncInt32ToInt1(Int32And(mixStartIndex, Int32((1 << SlicedString::HasBackingStoreBit::SIZE) - 1)));
     }
 
     GateRef GetFlatString()
@@ -142,16 +148,15 @@ private:
     Variable flatString_ { GetEnvironment(), VariableType::JS_POINTER(), NextVariableId(), Undefined() };
     Variable startIndex_ { GetEnvironment(), VariableType::INT32(), NextVariableId(), Int32(0) };
     GateRef length_ { Circuit::NullGate() };
-    BuiltinsStringStubBuilder builtinsStringStubBuilder_;
 };
 
 struct StringInfoGateRef {
     GateRef string_ { Circuit::NullGate() };
     GateRef startIndex_ { Circuit::NullGate() };
     GateRef length_ { Circuit::NullGate() };
-    StringInfoGateRef(FlatStringStubBuilder *flatString) : string_(flatString->GetFlatString()),
-                                                           startIndex_(flatString->GetStartIndex()),
-                                                           length_(flatString->GetLength()) {}
+    explicit StringInfoGateRef(FlatStringStubBuilder* flatString) : string_(flatString->GetFlatString()),
+                                                                    startIndex_(flatString->GetStartIndex()),
+                                                                    length_(flatString->GetLength()) {}
     GateRef GetString() const
     {
         return string_;

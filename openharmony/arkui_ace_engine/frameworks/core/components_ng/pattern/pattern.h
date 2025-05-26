@@ -85,6 +85,8 @@ public:
         return false;
     }
 
+    virtual void OnForegroundColorUpdate() {}
+
     virtual void ProcessSafeAreaPadding() {}
 
     virtual bool IsNeedPercent() const
@@ -128,7 +130,7 @@ public:
         return false;
     }
 
-    virtual bool IsEnableWrap()
+    virtual bool IsEnableFix()
     {
         return false;
     }
@@ -632,8 +634,10 @@ public:
         layoutProperty->CheckLocalizedBorderImageSlice(layoutDirection);
         layoutProperty->CheckLocalizedBorderImageWidth(layoutDirection);
         layoutProperty->CheckLocalizedBorderImageOutset(layoutDirection);
+        // Reset for safeAreaExpand's Cache in GeometryNode
         host->ResetSafeAreaPadding();
         layoutProperty->CheckLocalizedSafeAreaPadding(layoutDirection);
+        layoutProperty->CheckIgnoreLayoutSafeArea(layoutDirection);
     }
 
     virtual void OnFrameNodeChanged(FrameNodeChangeInfoFlag flag) {}

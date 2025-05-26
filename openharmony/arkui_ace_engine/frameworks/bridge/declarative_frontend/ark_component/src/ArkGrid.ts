@@ -137,6 +137,10 @@ class ArkGridComponent extends ArkScrollable<GridAttribute> implements GridAttri
     modifierWithKey(this._modifiersWithKeys, GridFrictionModifier.identity, GridFrictionModifier, value);
     return this;
   }
+  focusWrapMode(value: FocusWrapMode): this {
+    modifierWithKey(this._modifiersWithKeys, GridFocusWrapModeModifier.identity, GridFocusWrapModeModifier, value);
+    return this;
+  }
   onScroll(event: (scrollOffset: number, scrollState: ScrollState) => void): this {
     throw new Error('Method not implemented.');
   }
@@ -419,6 +423,20 @@ class GridFrictionModifier extends ModifierWithKey<number | Resource> {
 
   checkObjectDiff(): boolean {
     return !isBaseOrResourceEqual(this.stageValue, this.value);
+  }
+}
+
+class GridFocusWrapModeModifier extends ModifierWithKey<FocusWrapMode> {
+  constructor(value: FocusWrapMode) {
+    super(value);
+  }
+  static identity: Symbol = Symbol('gridFocusWrapMode');
+  applyPeer(node: KNode, reset: boolean): void {
+    if (reset) {
+      getUINativeModule().grid.resetFocusWrapMode(node);
+    } else {
+      getUINativeModule().grid.setFocusWrapMode(node, this.value);
+    }
   }
 }
 
@@ -742,4 +760,62 @@ globalThis.Grid.attributeModifier = function (modifier: ArkComponent): void {
   }, (nativePtr: KNode, classType: ModifierType, modifierJS: ModifierJS) => {
     return new modifierJS.GridModifier(nativePtr, classType);
   });
+};
+
+globalThis.Grid.onScrollBarUpdate = function (value: (index: number, offset: number) => ComputedBarAttribute): void {
+  let nodePtr = getUINativeModule().frameNode.getStackTopNode();
+  getUINativeModule().grid.setOnScrollBarUpdate(nodePtr, value);
+};
+globalThis.Grid.onItemDragEnter = function (value: (event: ItemDragInfo) => void): void {
+  let nodePtr = getUINativeModule().frameNode.getStackTopNode();
+  getUINativeModule().grid.setOnItemDragEnter(nodePtr, value);
+};
+globalThis.Grid.onItemDragMove = function (value: (event: ItemDragInfo, itemIndex: number, insertIndex: number) => void): void {
+  let nodePtr = getUINativeModule().frameNode.getStackTopNode();
+  getUINativeModule().grid.setOnItemDragMove(nodePtr, value);
+};
+globalThis.Grid.onItemDragLeave = function (value: (event: ItemDragInfo, itemIndex: number) => void): void {
+  let nodePtr = getUINativeModule().frameNode.getStackTopNode();
+  getUINativeModule().grid.setOnItemDragLeave(nodePtr, value);
+};
+globalThis.Grid.onItemDragStart = function (value: (event: ItemDragInfo, itemIndex: number) => void | (() => any)): void {
+  let nodePtr = getUINativeModule().frameNode.getStackTopNode();
+  getUINativeModule().grid.setOnItemDragStart(nodePtr, value);
+};
+globalThis.Grid.onItemDrop = function (value: (event: ItemDragInfo, itemIndex: number, insertIndex: number, isSuccess: boolean) => void): void {
+  let nodePtr = getUINativeModule().frameNode.getStackTopNode();
+  getUINativeModule().grid.setOnItemDrop(nodePtr, value);
+};
+globalThis.Grid.onReachStart = function (value: () => void): void {
+  let nodePtr = getUINativeModule().frameNode.getStackTopNode();
+  getUINativeModule().grid.setOnReachStart(nodePtr, value);
+};
+globalThis.Grid.onReachEnd = function (value: () => void): void {
+  let nodePtr = getUINativeModule().frameNode.getStackTopNode();
+  getUINativeModule().grid.setOnReachEnd(nodePtr, value);
+};
+globalThis.Grid.onScrollStart = function (value: () => void): void {
+  let nodePtr = getUINativeModule().frameNode.getStackTopNode();
+  getUINativeModule().grid.setOnScrollStart(nodePtr, value);
+};
+globalThis.Grid.onScrollStop = function (value: () => void): void {
+  let nodePtr = getUINativeModule().frameNode.getStackTopNode();
+  getUINativeModule().grid.setOnScrollStop(nodePtr, value);
+};
+globalThis.Grid.onScrollIndex = function (value: (first: number, last: number) => void): void {
+  let nodePtr = getUINativeModule().frameNode.getStackTopNode();
+  getUINativeModule().grid.setOnScrollIndex(nodePtr, value);
+};
+globalThis.Grid.onScrollFrameBegin = function (value: (offset: number, state: ScrollState) => { offsetRemain: number; }): void {
+  let nodePtr = getUINativeModule().frameNode.getStackTopNode();
+  getUINativeModule().grid.setOnScrollFrameBegin(nodePtr, value);
+};
+globalThis.Grid.onWillScroll = function (value: (xOffset: number, yOffset: number,
+  scrollState: ScrollState, scrollSource: ScrollSource) => void | OffsetResult): void {
+  let nodePtr = getUINativeModule().frameNode.getStackTopNode();
+  getUINativeModule().grid.setOnWillScroll(nodePtr, value);
+};
+globalThis.Grid.onDidScroll = function (value: (xOffset: number, yOffset: number, scrollState: ScrollState) => void): void {
+  let nodePtr = getUINativeModule().frameNode.getStackTopNode();
+  getUINativeModule().grid.setOnDidScroll(nodePtr, value);
 };

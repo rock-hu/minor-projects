@@ -1107,6 +1107,13 @@ bool ArkTSUtils::ParseJsFontFamiliesFromResource(const EcmaVM *vm, const Local<J
 
 bool ArkTSUtils::ParseJsLengthMetrics(const EcmaVM* vm, const Local<JSValueRef>& jsValue, CalcDimension& result)
 {
+    RefPtr<ResourceObject> resourceObj;
+    return ParseJsLengthMetrics(vm, jsValue, result, resourceObj);
+}
+
+bool ArkTSUtils::ParseJsLengthMetrics(const EcmaVM* vm, const Local<JSValueRef>& jsValue, CalcDimension& result,
+    RefPtr<ResourceObject>& resourceObj)
+{
     if (!jsValue->IsObject(vm)) {
         return false;
     }
@@ -1122,6 +1129,13 @@ bool ArkTSUtils::ParseJsLengthMetrics(const EcmaVM* vm, const Local<JSValueRef>&
     }
     CalcDimension dimension(value->ToNumber(vm)->Value(), unit);
     result = dimension;
+    auto jsRes = jsObj->Get(vm, panda::StringRef::NewFromUtf8(vm, "res"));
+    if (SystemProperties::ConfigChangePerform() && !jsRes->IsUndefined() &&
+        !jsRes->IsNull() && !jsRes->IsObject(vm)) {
+        auto jsObjRes = jsRes->ToObject(vm);
+        CompleteResourceObject(vm, jsObjRes);
+        resourceObj = GetResourceObject(vm, jsObjRes);
+    }
     return true;
 }
 
@@ -1612,8 +1626,15 @@ bool ArkTSUtils::ParseResponseRegion(
 
 uint32_t ArkTSUtils::parseShadowColor(const EcmaVM* vm, const Local<JSValueRef>& jsValue)
 {
+    RefPtr<ResourceObject> resObj;
+    return parseShadowColorWithResObj(vm, jsValue, resObj);
+}
+
+uint32_t ArkTSUtils::parseShadowColorWithResObj(const EcmaVM* vm, const Local<JSValueRef>& jsValue,
+    RefPtr<ResourceObject>& resObj)
+{
     Color color = DEFAULT_TEXT_SHADOW_COLOR;
-    if (!ParseJsColorAlpha(vm, jsValue, color)) {
+    if (!ParseJsColorAlpha(vm, jsValue, color, resObj)) {
         color = DEFAULT_TEXT_SHADOW_COLOR;
     }
     return color.GetValue();
@@ -1637,8 +1658,15 @@ uint32_t ArkTSUtils::parseShadowType(const EcmaVM* vm, const Local<JSValueRef>& 
 
 double ArkTSUtils::parseShadowRadius(const EcmaVM* vm, const Local<JSValueRef>& jsValue)
 {
+    RefPtr<ResourceObject> resObj;
+    return parseShadowRadiusWithResObj(vm, jsValue, resObj);
+}
+
+double ArkTSUtils::parseShadowRadiusWithResObj(const EcmaVM* vm, const Local<JSValueRef>& jsValue,
+    RefPtr<ResourceObject>& resObj)
+{
     double radius = 0.0;
-    ArkTSUtils::ParseJsDouble(vm, jsValue, radius);
+    ArkTSUtils::ParseJsDouble(vm, jsValue, radius, resObj);
     if (LessNotEqual(radius, 0.0)) {
         radius = 0.0;
     }
@@ -1647,10 +1675,17 @@ double ArkTSUtils::parseShadowRadius(const EcmaVM* vm, const Local<JSValueRef>& 
 
 double ArkTSUtils::parseShadowOffset(const EcmaVM* vm, const Local<JSValueRef>& jsValue)
 {
+    RefPtr<ResourceObject> resObj;
+    return parseShadowOffsetWithResObj(vm, jsValue, resObj);
+}
+
+double ArkTSUtils::parseShadowOffsetWithResObj(const EcmaVM* vm, const Local<JSValueRef>& jsValue,
+    RefPtr<ResourceObject>& resObj)
+{
     CalcDimension offset;
-    if (ArkTSUtils::ParseJsResource(vm, jsValue, offset)) {
+    if (ArkTSUtils::ParseJsResource(vm, jsValue, offset, resObj)) {
         return offset.Value();
-    } else if (ArkTSUtils::ParseJsDimensionVp(vm, jsValue, offset)) {
+    } else if (ArkTSUtils::ParseJsDimensionVp(vm, jsValue, offset, resObj)) {
         return offset.Value();
     }
     return 0.0;
@@ -2383,5 +2418,106 @@ Local<panda::ArrayRef> ArkTSUtils::ChoosePointToJSValue(const EcmaVM* vm, std::v
         arr->SetValueAt(vm, arr, i, ToJSValueWithVM(vm, input[i]));
     }
     return arr;
+}
+
+void ArkTSUtils::ParseJsAngle(const EcmaVM *vm, const Local<JSValueRef> &value, std::optional<float> &angle)
+{
+    if (value->IsNumber()) {
+        angle = static_cast<float>(value->ToNumber(vm)->Value());
+        return;
+    }
+    if (value->IsString(vm)) {
+        angle = static_cast<float>(StringUtils::StringToDegree(value->ToString(vm)->ToString(vm)));
+        return;
+    }
+    return;
+}
+
+bool ArkTSUtils::ParseJsInt32(const EcmaVM *vm, const Local<JSValueRef> &value, int32_t &result)
+{
+    if (value->IsNumber()) {
+        result = value->Int32Value(vm);
+        return true;
+    }
+    if (value->IsString(vm)) {
+        result = StringUtils::StringToInt(value->ToString(vm)->ToString(vm));
+        return true;
+    }
+
+    return false;
+}
+
+void ArkTSUtils::ParseGradientCenter(
+    const EcmaVM* vm, const Local<JSValueRef>& value, std::vector<ArkUIInt32orFloat32>& values)
+{
+    bool hasValueX = false;
+    bool hasValueY = false;
+    CalcDimension valueX;
+    CalcDimension valueY;
+    if (value->IsArray(vm)) {
+        auto array = panda::Local<panda::ArrayRef>(value);
+        auto length = array->Length(vm);
+        if (length == NUM_2) {
+            hasValueX =
+                ArkTSUtils::ParseJsDimensionVp(vm, panda::ArrayRef::GetValueAt(vm, array, NUM_0), valueX, false);
+            hasValueY =
+                ArkTSUtils::ParseJsDimensionVp(vm, panda::ArrayRef::GetValueAt(vm, array, NUM_1), valueY, false);
+        }
+    }
+    values.push_back({.i32 = static_cast<ArkUI_Int32>(hasValueX)});
+    values.push_back({.f32 = static_cast<ArkUI_Float32>(valueX.Value())});
+    values.push_back({.i32 = static_cast<ArkUI_Int32>(valueX.Unit())});
+    values.push_back({.i32 = static_cast<ArkUI_Int32>(hasValueY)});
+    values.push_back({.f32 = static_cast<ArkUI_Float32>(valueY.Value())});
+    values.push_back({.i32 = static_cast<ArkUI_Int32>(valueY.Unit())});
+}
+
+void ArkTSUtils::ParseGradientColorStops(
+    const EcmaVM* vm, const Local<JSValueRef>& value, std::vector<ArkUIInt32orFloat32>& colors)
+{
+    if (!value->IsArray(vm)) {
+        return;
+    }
+    auto array = panda::Local<panda::ArrayRef>(value);
+    auto length = array->Length(vm);
+    for (uint32_t index = 0; index < length; index++) {
+        auto item = panda::ArrayRef::GetValueAt(vm, array, index);
+        if (!item->IsArray(vm)) {
+            continue;
+        }
+        auto itemArray = panda::Local<panda::ArrayRef>(item);
+        auto itemLength = itemArray->Length(vm);
+        if (itemLength < NUM_1) {
+            continue;
+        }
+        Color color;
+        auto colorParams = panda::ArrayRef::GetValueAt(vm, itemArray, NUM_0);
+        if (!ArkTSUtils::ParseJsColorAlpha(vm, colorParams, color)) {
+            continue;
+        }
+        bool hasDimension = false;
+        double dimension = 0.0;
+        if (itemLength > NUM_1) {
+            auto stopDimension = panda::ArrayRef::GetValueAt(vm, itemArray, NUM_1);
+            if (ArkTSUtils::ParseJsDouble(vm, stopDimension, dimension)) {
+                hasDimension = true;
+            }
+        }
+        colors.push_back({.u32 = static_cast<ArkUI_Uint32>(color.GetValue())});
+        colors.push_back({.i32 = static_cast<ArkUI_Int32>(hasDimension)});
+        colors.push_back({.f32 = static_cast<ArkUI_Float32>(dimension)});
+    }
+}
+
+void ArkTSUtils::ParseGradientAngle(
+    const EcmaVM* vm, const Local<JSValueRef>& value, std::vector<ArkUIInt32orFloat32>& values)
+{
+    std::optional<float> degree;
+    ParseJsAngle(vm, value, degree);
+    auto angleHasValue = degree.has_value();
+    auto angleValue = angleHasValue ? degree.value() : 0.0f;
+    degree.reset();
+    values.push_back({ .i32 = static_cast<ArkUI_Int32>(angleHasValue) });
+    values.push_back({ .f32 = static_cast<ArkUI_Float32>(angleValue) });
 }
 } // namespace OHOS::Ace::NG

@@ -152,7 +152,7 @@ GateRef NewObjectStubBuilder::NewJSFunctionByHClass(GateRef glue,
     GateRef result = NewJSObject(glue, hclass);
     SetExtensibleToBitfield(glue, hclass, true);
     GateRef kind = GetFuncKind(method);
-    BuiltinsFunctionStubBuilder builtinsFunctionStubBuilder(this);
+    BuiltinsFunctionStubBuilder builtinsFunctionStubBuilder(this, GetGlobalEnv(glue));
     builtinsFunctionStubBuilder.InitializeJSFunction(glue, result, kind, targetKind);
     builtinsFunctionStubBuilder.InitializeFunctionWithMethod(glue, result, method, hclass);
     return result;
@@ -163,7 +163,7 @@ GateRef NewObjectStubBuilder::NewSFunctionByHClass(GateRef glue,
 {
     GateRef result = result = NewSObject(glue, hclass);
     GateRef kind = GetFuncKind(method);
-    BuiltinsFunctionStubBuilder builtinsFunctionStubBuilder(this);
+    BuiltinsFunctionStubBuilder builtinsFunctionStubBuilder(this, GetGlobalEnv(glue));
     builtinsFunctionStubBuilder.InitializeSFunction(glue, result, kind, targetKind);
     builtinsFunctionStubBuilder.InitializeFunctionWithMethod(glue, result, method, hclass);
     return result;
@@ -575,7 +575,7 @@ GateRef NewObjectStubBuilder::NewJSProxy(GateRef glue, GateRef target, GateRef h
         GateRef proxyMethod = GetGlobalConstantValue(
             VariableType::JS_POINTER(), glue, ConstantIndex::PROXY_METHOD_INDEX);
         StoreHClass(glue_, *result, *hclass, MemoryAttribute::NoBarrier());
-        BuiltinsProxyStubBuilder builtinsProxyStubBuilder(this);
+        BuiltinsProxyStubBuilder builtinsProxyStubBuilder(this, GetGlobalEnv(glue));
         builtinsProxyStubBuilder.SetMethod(glue, *result, proxyMethod);
         builtinsProxyStubBuilder.SetTarget(glue, *result, target);
         builtinsProxyStubBuilder.SetHandler(glue, *result, handler);
@@ -1149,6 +1149,30 @@ void NewObjectStubBuilder::NewJSFunction(GateRef glue, GateRef jsFunc, GateRef i
     }
 }
 
+GateRef NewObjectStubBuilder::NewJSFunction(GateRef glue, GateRef method, GateRef homeObject)
+{
+    ASM_ASSERT(GET_MESSAGE_STRING_ID(IsEcmaObject), TaggedObjectIsEcmaObject(glue, homeObject));
+
+    GateRef globalEnv = GetGlobalEnv(glue);
+    GateRef hclass = GetGlobalEnvValue(VariableType::JS_ANY(), glue, globalEnv, GlobalEnv::FUNCTION_CLASS_WITHOUT_PROTO);
+
+    GateRef jsFunc = NewJSFunctionByHClass(glue, method, hclass);
+    SetHomeObjectToFunction(glue, jsFunc, homeObject);
+    ASM_ASSERT(GET_MESSAGE_STRING_ID(HasPendingException), BoolNot(HasPendingException(glue)));
+    return jsFunc;
+}
+
+GateRef NewObjectStubBuilder::DefineMethod(GateRef glue, GateRef method, GateRef homeObject, GateRef length,
+                                           GateRef lexEnv, GateRef module)
+{
+    GateRef func = NewJSFunction(glue, method, homeObject);
+    
+    SetLengthToFunction(glue, func, length);
+    SetLexicalEnvToFunction(glue, func, lexEnv);
+    SetModuleToFunction(glue, func, module);
+    return func;
+}
+
 void NewObjectStubBuilder::SetProfileTypeInfoCellToFunction(GateRef jsFunc, GateRef definedFunc, GateRef slotId)
 {
     auto env = GetEnvironment();
@@ -1260,12 +1284,14 @@ GateRef NewObjectStubBuilder::EnumerateObjectProperties(GateRef glue, GateRef ob
     Bind(&checkNativePointer);
     BRANCH(IsNativePointer(glue, *object), &empty, &tryGetEnumCache);
     Bind(&tryGetEnumCache);
-    GateRef enumCache = TryGetEnumCache(glue, *object);
-    BRANCH(TaggedIsUndefined(enumCache), &slowpath, &cacheHit);
+    GateRef enumCacheAll = TryGetEnumCache(glue, *object);
+    BRANCH(TaggedIsUndefined(enumCacheAll), &slowpath, &cacheHit);
     Bind(&cacheHit);
     {
         GateRef hclass = LoadHClass(glue, *object);
-        result = NewJSForinIterator(glue, *object, enumCache, hclass, GetEnumCacheKindFromEnumCache(enumCache));
+        GateRef enumCache = GetEnumCacheFromHClass(glue, hclass);
+        result = NewJSForinIterator(glue, *object, enumCacheAll, hclass,
+            GetEnumCacheKindFromEnumCache(enumCache));
         Jump(&exit);
     }
     Bind(&empty);
@@ -1722,8 +1748,9 @@ void NewObjectStubBuilder::AllocLineStringObject(Variable *result, Label *exit, 
 
     Bind(&afterAllocate);
     StoreHClass(glue_, result->ReadVariable(), stringClass);
+    StoreBaseAddressForBaseClass(glue_, result->ReadVariable(), stringClass);
     InitStringLengthAndFlags(glue_, result->ReadVariable(), length, compressed);
-    SetRawHashcode(glue_, result->ReadVariable(), Int32(0), False());
+    SetRawHashcode(glue_, result->ReadVariable(), Int32(0));
     Jump(exit);
 }
 
@@ -1740,15 +1767,16 @@ void NewObjectStubBuilder::AllocSlicedStringObject(Variable *result, Label *exit
 
     Bind(&afterAllocate);
     StoreHClass(glue_, result->ReadVariable(), stringClass);
+    StoreBaseAddressForBaseClass(glue_, result->ReadVariable(), stringClass);
     GateRef mixLength = LoadPrimitive(VariableType::INT32(), flatString->GetFlatString(),
-                                      IntPtr(EcmaString::LENGTH_AND_FLAGS_OFFSET));
-    GateRef compressedStatus = TruncInt32ToInt1(Int32And(Int32((1 << EcmaString::CompressedStatusBit::SIZE) - 1),
+                                      IntPtr(BaseString::LENGTH_AND_FLAGS_OFFSET));
+    GateRef compressedStatus = TruncInt32ToInt1(Int32And(Int32((1 << BaseString::CompressedStatusBit::SIZE) - 1),
                                                          mixLength));
     InitStringLengthAndFlags(glue_, result->ReadVariable(), length, BoolNot(compressedStatus));
     // decode compressedStatus to bool
 
-    SetRawHashcode(glue_, result->ReadVariable(), Int32(0), False());
-    BuiltinsStringStubBuilder builtinsStringStubBuilder(this);
+    SetRawHashcode(glue_, result->ReadVariable(), Int32(0));
+    BuiltinsStringStubBuilder builtinsStringStubBuilder(this, GetGlobalEnv(glue_));
     builtinsStringStubBuilder.StoreParent(glue_, result->ReadVariable(), flatString->GetFlatString());
     builtinsStringStubBuilder.StoreStartIndexAndBackingStore(glue_, result->ReadVariable(),
                                                              Int32Add(from, flatString->GetStartIndex()),
@@ -1761,7 +1789,7 @@ void NewObjectStubBuilder::AllocTreeStringObject(Variable *result, Label *exit, 
 {
     auto env = GetEnvironment();
 
-    size_ = AlignUp(IntPtr(TreeEcmaString::SIZE), IntPtr(static_cast<size_t>(MemAlignment::MEM_ALIGN_OBJECT)));
+    size_ = AlignUp(IntPtr(TreeString::SIZE), IntPtr(static_cast<size_t>(MemAlignment::MEM_ALIGN_OBJECT)));
     Label afterAllocate(env);
     GateRef stringClass = GetGlobalConstantValue(VariableType::JS_POINTER(), glue_,
                                                  ConstantIndex::TREE_STRING_CLASS_INDEX);
@@ -1769,10 +1797,11 @@ void NewObjectStubBuilder::AllocTreeStringObject(Variable *result, Label *exit, 
 
     Bind(&afterAllocate);
     StoreHClass(glue_, result->ReadVariable(), stringClass);
+    StoreBaseAddressForBaseClass(glue_, result->ReadVariable(), stringClass);
     InitStringLengthAndFlags(glue_, result->ReadVariable(), length, compressed);
-    SetRawHashcode(glue_, result->ReadVariable(), Int32(0), False());
-    Store(VariableType::JS_POINTER(), glue_, result->ReadVariable(), IntPtr(TreeEcmaString::FIRST_OFFSET), first);
-    Store(VariableType::JS_POINTER(), glue_, result->ReadVariable(), IntPtr(TreeEcmaString::SECOND_OFFSET), second);
+    SetRawHashcode(glue_, result->ReadVariable(), Int32(0));
+    Store(VariableType::JS_POINTER(), glue_, result->ReadVariable(), IntPtr(TreeString::FIRST_OFFSET), first);
+    Store(VariableType::JS_POINTER(), glue_, result->ReadVariable(), IntPtr(TreeString::SECOND_OFFSET), second);
     Jump(exit);
 }
 
@@ -2386,8 +2415,25 @@ GateRef NewObjectStubBuilder::NewTypedArraySameType(GateRef glue, GateRef srcTyp
     BRANCH(Int32LessThanOrEqual(newByteLength, Int32(RangeInfo::TYPED_ARRAY_ONHEAP_MAX)), &next, &slowPath);
     Bind(&next);
     {
+        Label passFastGuard(env);
+        Label checkSize(env);
         Label newByteArrayExit(env);
+        /* 1. HClass pointer equality guard
+         *    - if the instance already uses the canonical on-heap HClass, we can skip size comparison */
         GateRef onHeapHClass = GetOnHeapHClassFromType(glue, srcType);
+        BRANCH(Equal(hclass, onHeapHClass), &passFastGuard, &checkSize);
+
+        /* 2. size guard
+         *    - pointer differs (sub-class, etc).
+         *      ensure object size still match before staying on fast-path; otherwise fall back to slowPath. */
+        Bind(&checkSize);
+        GateRef originalSize = GetObjectSizeFromHClass(hclass);
+        GateRef onHeapSize = GetObjectSizeFromHClass(onHeapHClass);
+        BRANCH(Equal(originalSize, onHeapSize), &passFastGuard, &slowPath);
+
+        /* 3. all guards passed
+         *    - safe to stay on fast-path */
+        Bind(&passFastGuard);
         NewByteArray(&buffer, &newByteArrayExit, elementSize, length);
         Bind(&newByteArrayExit);
         StoreHClass(glue, obj, onHeapHClass);
@@ -2629,10 +2675,10 @@ GateRef NewObjectStubBuilder::NewEnumCache(GateRef glue)
     auto env = GetEnvironment();
     Label entry(env);
     env->SubCfgEntry(&entry);
-    
+
     Label initialize(env);
     DEFVARIABLE(result, VariableType::JS_ANY(), Undefined());
-    
+
     auto hclass = GetGlobalConstantValue(VariableType::JS_POINTER(), glue,
         ConstantIndex::ENUM_CACHE_CLASS_INDEX);
     GateRef size = GetObjectSizeFromHClass(hclass);
@@ -3053,7 +3099,7 @@ GateRef NewObjectStubBuilder::CreateListFromArrayLike(GateRef glue, GateRef arra
         {
             GateRef int32Len = GetLengthOfJSTypedArray(arrayObj);
             GateRef array = NewTaggedArray(glue, int32Len);
-            BuiltinsTypedArrayStubBuilder arrayStubBuilder(this);
+            BuiltinsTypedArrayStubBuilder arrayStubBuilder(this, GetGlobalEnv(glue));
             arrayStubBuilder.FastCopyElementToArray(glue, arrayObj, array);
             // c. ReturnIfAbrupt(next).
             Label noPendingException1(env);

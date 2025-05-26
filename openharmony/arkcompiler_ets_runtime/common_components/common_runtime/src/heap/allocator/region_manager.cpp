@@ -20,6 +20,7 @@
 #include <cstdint>
 #include <unistd.h>
 
+#include "common_components/base_runtime/hooks.h"
 #include "common_components/common_runtime/src/heap/allocator/region_desc.h"
 #include "common_components/common_runtime/src/heap/allocator/region_space.h"
 #include "common_components/common_runtime/src/base/c_string.h"
@@ -35,17 +36,12 @@
 #include "common_components/common_runtime/src/sanitizer/sanitizer_interface.h"
 #endif
 #include "common_components/log/log.h"
+#include "common_interfaces/base_runtime.h"
 
 namespace panda {
 uintptr_t RegionDesc::UnitInfo::totalUnitCount = 0;
 uintptr_t RegionDesc::UnitInfo::unitInfoStart = 0;
 uintptr_t RegionDesc::UnitInfo::heapStartAddress = 0;
-
-FillFreeObjectHookType g_fillFreeObjectHook = nullptr;
-
-extern "C" PUBLIC_API void ArkRegisterFillFreeObjectHook(FillFreeObjectHookType hook) {
-    g_fillFreeObjectHook = hook;
-}
 
 static size_t GetPageSize() noexcept
 {
@@ -138,6 +134,23 @@ const char* RegionDesc::GetTypeName() const
 
 void RegionDesc::VisitAllObjects(const std::function<void(BaseObject*)>&& func)
 {
+    if (IsFixedRegion()) {
+        size_t size = static_cast<size_t>(GetRegionCellCount()) * sizeof(uint64_t);
+        uintptr_t position = GetRegionStart();
+        uintptr_t end = GetRegionEnd();
+        while (position < end) {
+            BaseObject* obj = reinterpret_cast<BaseObject*>(position);
+            position += size;
+            if (position > end) {
+                break;
+            }
+            if (IsFreePinnedObject(obj)) {
+                continue;
+            }
+            func(obj);
+        }
+        return;
+    }
     if (IsLargeRegion()) {
         func(reinterpret_cast<BaseObject*>(GetRegionStart()));
     } else if (IsSmallRegion()) {
@@ -149,6 +162,24 @@ void RegionDesc::VisitAllObjects(const std::function<void(BaseObject*)>&& func)
             size_t size = RegionSpace::GetAllocSize(*reinterpret_cast<BaseObject*>(position));
             position += size;
         }
+    }
+}
+
+void RegionDesc::VisitAllObjectsWithFixedSize(size_t cellCount, const std::function<void(BaseObject*)>&& func)
+{
+    CHECK_CC(GetRegionType() == RegionType::FIXED_PINNED_REGION ||
+        GetRegionType() == RegionType::FULL_FIXED_PINNED_REGION);
+    size_t size = (cellCount + 1) * sizeof(uint64_t);
+    uintptr_t position = GetRegionStart();
+    uintptr_t end = GetRegionEnd();
+    while (position < end) {
+        // GetAllocSize should before call func, because object maybe destroy in compact gc.
+        BaseObject* obj = reinterpret_cast<BaseObject*>(position);
+        position += size;
+        if (position > end) {
+            break;
+        }
+        func(obj);
     }
 }
 
@@ -348,12 +379,12 @@ size_t FreeRegionManager::ReleaseGarbageRegions(size_t targetCachedSize)
 
 void RegionManager::SetMaxUnitCountForRegion()
 {
-    maxUnitCountPerRegion_ = ArkCommonRuntime::GetHeapParam().regionSize * KB / RegionDesc::UNIT_SIZE;
+    maxUnitCountPerRegion_ = BaseRuntime::GetInstance()->GetHeapParam().regionSize * KB / RegionDesc::UNIT_SIZE;
 }
 
 void RegionManager::SetLargeObjectThreshold()
 {
-    size_t regionSize = ArkCommonRuntime::GetHeapParam().regionSize * KB;
+    size_t regionSize = BaseRuntime::GetInstance()->GetHeapParam().regionSize * KB;
     if (regionSize < RegionDesc::LARGE_OBJECT_DEFAULT_THRESHOLD) {
         largeObjectThreshold_ = regionSize;
     } else {
@@ -363,7 +394,7 @@ void RegionManager::SetLargeObjectThreshold()
 
 void RegionManager::SetGarbageThreshold()
 {
-    fromSpaceGarbageThreshold_ = ArkCommonRuntime::GetGCParam().garbageThreshold;
+    fromSpaceGarbageThreshold_ = BaseRuntime::GetInstance()->GetGCParam().garbageThreshold;
 }
 
 void RegionManager::Initialize(size_t nRegion, uintptr_t regionInfoAddr)
@@ -382,7 +413,7 @@ void RegionManager::Initialize(size_t nRegion, uintptr_t regionInfoAddr)
     // propagate region heap layout
     RegionDesc::Initialize(nRegion, regionInfoAddr, regionHeapStart_);
     freeRegionManager_.Initialize(nRegion);
-    exemptedRegionThreshold_ = ArkCommonRuntime::GetHeapParam().exemptionThreshold;
+    exemptedRegionThreshold_ = BaseRuntime::GetInstance()->GetHeapParam().exemptionThreshold;
 
     DLOG(REPORT, "region info @0x%zx+%zu, heap [0x%zx, 0x%zx), unit count %zu", regionInfoAddr, metadataSize,
          regionHeapStart_, regionHeapEnd_, nRegion);
@@ -454,6 +485,10 @@ void RegionManager::AssemblePinnedGarbageCandidates(bool collectAll)
         }
 
         region = nextRegion;
+    }
+    for (size_t i = 0; i < FIXED_PINNED_REGION_COUNT; i++) {
+        oldFixedPinnedRegionList_[i]->MergeRegionList(*fixedPinnedRegionList_[i],
+            RegionDesc::RegionType::FULL_FIXED_PINNED_REGION);
     }
 }
 
@@ -594,6 +629,18 @@ uintptr_t RegionManager::AllocRegion()
 {
     RegionDesc* region = TakeRegion(maxUnitCountPerRegion_, RegionDesc::UnitRole::SMALL_SIZED_UNITS, false, false);
     DCHECK_CC(region != nullptr);
+
+    GCPhase phase = Mutator::GetMutator()->GetMutatorPhase();
+    if (phase == GC_PHASE_ENUM || phase == GC_PHASE_MARK || phase == GC_PHASE_REMARK_SATB ||
+        phase == GC_PHASE_POST_MARK) {
+        region->SetTraceLine();
+    } else if (phase == GC_PHASE_PRECOPY || phase == GC_PHASE_COPY) {
+        region->SetCopyLine();
+    } else if (phase == GC_PHASE_FIX) {
+        region->SetCopyLine();
+        region->SetFixLine();
+    }
+
     DLOG(REGION, "alloc small object region %p @0x%zx+%zu units[%zu+%zu, %zu) type %u",
         region, region->GetRegionStart(), region->GetRegionSize(),
         region->GetUnitIdx(), region->GetUnitCount(), region->GetUnitIdx() + region->GetUnitCount(),
@@ -611,6 +658,17 @@ uintptr_t RegionManager::AllocPinnedRegion()
 {
     RegionDesc* region = TakeRegion(maxUnitCountPerRegion_, RegionDesc::UnitRole::SMALL_SIZED_UNITS, false, false);
     DCHECK_CC(region != nullptr);
+    GCPhase phase = Mutator::GetMutator()->GetMutatorPhase();
+    if (phase == GC_PHASE_ENUM || phase == GC_PHASE_MARK || phase == GC_PHASE_REMARK_SATB ||
+        phase == GC_PHASE_POST_MARK) {
+        region->SetTraceLine();
+    } else if (phase == GC_PHASE_PRECOPY || phase == GC_PHASE_COPY) {
+        region->SetCopyLine();
+    } else if (phase == GC_PHASE_FIX) {
+        region->SetCopyLine();
+        region->SetFixLine();
+    }
+
     DLOG(REGION, "alloc pinned region @0x%zx+%zu type %u", region->GetRegionStart(),
          region->GetRegionAllocatedSize(),
          region->GetRegionType());
@@ -688,43 +746,6 @@ void RegionManager::CopyFromRegions()
     }
 }
 
-void RegionManager::CollectFreePinnedSlots(RegionDesc* region)
-{
-    // traverse pinned region to reclaim free pinned objects.
-    TraceCollector& collector = reinterpret_cast<TraceCollector&>(Heap::GetHeap().GetCollector());
-    region->VisitAllObjects([this, &collector](BaseObject* object) {
-        if (!collector.IsSurvivedObject(object)) {
-            DLOG(ALLOC, "reclaim pinned obj %p<%p>(%zu)", object, object->GetTypeInfo(), object->GetSize());
-            std::lock_guard<std::mutex> lock(freePinnedSlotListMutex_);
-            freePinnedSlotLists_.PushFront(object);
-        }
-    });
-}
-
-size_t RegionManager::CollectPinnedGarbage()
-{
-    {
-        std::lock_guard<std::mutex> lock(freePinnedSlotListMutex_);
-        freePinnedSlotLists_.Clear();
-    }
-    size_t garbageSize = 0;
-    RegionDesc* region = oldPinnedRegionList_.GetHeadRegion();
-    while (region != nullptr) {
-        if (region->GetLiveByteCount() == 0) {
-            RegionDesc* del = region;
-            region = region->GetNextRegion();
-            oldPinnedRegionList_.DeleteRegion(del);
-
-            garbageSize += CollectRegion(del);
-            continue;
-        } else {
-            CollectFreePinnedSlots(region);
-            region = region->GetNextRegion();
-        }
-    }
-    return garbageSize;
-}
-
 static void FixRecentRegion(TraceCollector& collector, RegionDesc* region)
 {
     // use fixline to skip new region after fix
@@ -741,7 +762,7 @@ static void FixRecentRegion(TraceCollector& collector, RegionDesc* region)
         } else if (region->IsNewObjectSinceTrace(object) || collector.IsSurvivedObject(object)) {
             collector.FixObjectRefFields(object);
         } else { // handle dead objects in tl-regions for concurrent gc.
-            g_fillFreeObjectHook(object, RegionSpace::GetAllocSize(*object));
+            FillFreeObject(object, RegionSpace::GetAllocSize(*object));
             DLOG(FIX, "skip dead obj %p<%p>(%zu)", object, object->GetTypeInfo(), object->GetSize());
         }
     });
@@ -776,9 +797,38 @@ static void FixOldRegion(TraceCollector& collector, RegionDesc* region)
         if (collector.IsSurvivedObject(object)) {
             collector.FixObjectRefFields(object);
         } else {
+            FillFreeObject(object, RegionSpace::GetAllocSize(*object));
             DLOG(FIX, "fix: skip dead old obj %p<%p>(%zu)", object, object->GetTypeInfo(), object->GetSize());
         }
     });
+}
+
+void RegionManager::FixFixedRegionList(TraceCollector& collector, RegionList& list, size_t cellCount, GCStats& stats)
+{
+    size_t garbageSize = 0;
+    RegionDesc* region = list.GetHeadRegion();
+    while (region != nullptr) {
+        if (region->GetLiveByteCount() == 0) {
+            RegionDesc* del = region;
+            region = region->GetNextRegion();
+            list.DeleteRegion(del);
+
+            garbageSize += CollectRegion(del);
+            continue;
+        }
+        region->VisitAllObjectsWithFixedSize(cellCount,
+            [&collector, &region, &cellCount, &garbageSize](BaseObject* object) {
+            if (collector.IsSurvivedObject(object)) {
+                collector.FixObjectRefFields(object);
+            } else {
+                DLOG(ALLOC, "reclaim pinned obj %p", object);
+                garbageSize += (cellCount + 1) * sizeof(uint64_t);
+                region->CollectPinnedGarbage(object, cellCount);
+            }
+        });
+        region = region->GetNextRegion();
+    }
+    stats.pinnedGarbageSize += garbageSize;
 }
 
 static void FixOldRegionList(TraceCollector& collector, RegionList& list)
@@ -789,16 +839,35 @@ static void FixOldRegionList(TraceCollector& collector, RegionList& list)
     });
 }
 
+void RegionManager::FixOldPinnedRegionList(TraceCollector& collector, RegionList& list, GCStats& stats)
+{
+    size_t garbageSize = 0;
+    RegionDesc* region = list.GetHeadRegion();
+    while (region != nullptr) {
+        if (region->GetLiveByteCount() == 0) {
+            RegionDesc* del = region;
+            region = region->GetNextRegion();
+            list.DeleteRegion(del);
+
+            garbageSize += CollectRegion(del);
+            continue;
+        }
+        DLOG(REGION, "fix region %p@%#zx+%zu", region, region->GetRegionStart(), region->GetLiveByteCount());
+        FixOldRegion(collector, region);
+        region = region->GetNextRegion();
+    }
+    stats.pinnedGarbageSize += garbageSize;
+}
+
 void RegionManager::FixAllRegionLists()
 {
     TraceCollector& collector = reinterpret_cast<TraceCollector&>(Heap::GetHeap().GetCollector());
     // fix all objects.
     FixToRegionList(collector, toRegionList_);
     FixToRegionList(collector, tlToRegionList_);
-
+    GCStats& stats = Heap::GetHeap().GetCollector().GetGCStats();
     // fix only survived objects.
     FixOldRegionList(collector, exemptedFromRegionList_);
-    FixOldRegionList(collector, oldPinnedRegionList_);
     FixOldRegionList(collector, oldLargeRegionList_);
 
     // fix survived object but should be with line judgement.
@@ -807,6 +876,11 @@ void RegionManager::FixAllRegionLists()
     FixRecentRegionList(collector, recentLargeRegionList_);
     FixRecentRegionList(collector, recentPinnedRegionList_);
     FixRecentRegionList(collector, rawPointerRegionList_);
+    FixOldPinnedRegionList(collector, oldPinnedRegionList_, stats);
+    for (size_t i = 0; i < FIXED_PINNED_REGION_COUNT; i++) {
+        FixFixedRegionList(collector, *oldFixedPinnedRegionList_[i], i, stats);
+        FixRecentRegionList(collector, *fixedPinnedRegionList_[i]);
+    }
 }
 
 size_t RegionManager::CollectLargeGarbage()
@@ -1049,7 +1123,7 @@ void RegionManager::RequestForRegion(size_t size)
     double heuAllocRate = std::cos((pi / 2.0) * allocatedBytes / availableBytesAfterGC) * gcstats.collectionRate;
     // for maximum performance, choose the larger one.
     double allocRate = std::max(
-        static_cast<double>(ArkCommonRuntime::GetHeapParam().allocationRate) * MB / SECOND_TO_NANO_SECOND,
+        static_cast<double>(BaseRuntime::GetInstance()->GetHeapParam().allocationRate) * MB / SECOND_TO_NANO_SECOND,
         heuAllocRate);
     ASSERT_LOGF(allocRate > 0.00001, "allocRate is zero"); // If it is less than 0.00001, it is considered as 0
     size_t waitTime = static_cast<size_t>(size / allocRate);
@@ -1059,7 +1133,7 @@ void RegionManager::RequestForRegion(size_t size)
         return;
     }
 
-    uint64_t sleepTime = std::min<uint64_t>(ArkCommonRuntime::GetHeapParam().allocationWaitTime,
+    uint64_t sleepTime = std::min<uint64_t>(BaseRuntime::GetInstance()->GetHeapParam().allocationWaitTime,
                                   prevRegionAllocTime_ + waitTime - now);
     DLOG(ALLOC, "wait %zu ns to alloc %zu(B)", sleepTime, size);
     std::this_thread::sleep_for(std::chrono::nanoseconds{ sleepTime });
@@ -1098,26 +1172,20 @@ void RegionManager::CopyRegion(RegionDesc* region)
     }
 }
 
-uintptr_t RegionManager::AllocPinnedFromFreeList(size_t size)
+uintptr_t RegionManager::AllocPinnedFromFreeList(size_t cellCount)
 {
-    std::lock_guard<std::mutex> lock(freePinnedSlotListMutex_);
     GCPhase mutatorPhase = Mutator::GetMutator()->GetMutatorPhase();
-    // For preventing missing mark, do not allocate object from slot list when gc phase is post trace.
-    if (mutatorPhase == GCPhase::GC_PHASE_POST_MARK) {
-        return 0;
-    }
-    uintptr_t allocPtr = freePinnedSlotLists_.PopFront(size);
+    RegionList* list = oldFixedPinnedRegionList_[cellCount];
+    std::lock_guard<std::mutex> lock(list->GetListMutex());
+    uintptr_t allocPtr = list->AllocFromFreeListInLock();
     // For making bitmap comform with live object count, do not mark object repeated.
-    if (allocPtr == 0 ||
-        (mutatorPhase != GCPhase::GC_PHASE_ENUM &&
-        mutatorPhase != GCPhase::GC_PHASE_MARK &&
-        mutatorPhase != GCPhase::GC_PHASE_REMARK_SATB)) {
+    if (allocPtr == 0 || mutatorPhase == GCPhase::GC_PHASE_IDLE) {
         return allocPtr;
     }
 
     // Mark new allocated pinned object.
     BaseObject* object = reinterpret_cast<BaseObject*>(allocPtr);
-    (reinterpret_cast<TraceCollector*>(&Heap::GetHeap().GetCollector()))->MarkObject(object);
+    (reinterpret_cast<TraceCollector*>(&Heap::GetHeap().GetCollector()))->MarkObject(object, cellCount);
     return allocPtr;
 }
 } // namespace panda

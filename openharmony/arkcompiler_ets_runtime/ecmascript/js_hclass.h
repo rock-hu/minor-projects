@@ -82,6 +82,11 @@ struct Reference;
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define JSTYPE_DECL       /* //////////////////////////////////////////////////////////////////////////////-PADDING */ \
     INVALID = 0,          /* //////////////////////////////////////////////////////////////////////////////-PADDING */ \
+                          /* COMMON_TYPE ////////////////////////////////////////////////////////////////////////// */ \
+        LINE_STRING,   /* /////////////////////////////////////////////////////////////////////////////////-PADDING */ \
+        SLICED_STRING,  /* ////////////////////////////////////////////////////////////////////////////////-PADDING */ \
+        TREE_STRING,  /* //////////////////////////////////////////////////////////////////////////////////-PADDING */ \
+                                                                                                                       \
         JS_OBJECT,        /* JS_OBJECT_FIRST ////////////////////////////////////////////////////////////////////// */ \
         JS_SHARED_OBJECT, /* //////////////////////////////////////////////////////////////////////////////-PADDING */ \
         JS_REALM,         /* //////////////////////////////////////////////////////////////////////////////-PADDING */ \
@@ -196,6 +201,7 @@ struct Reference;
         JS_API_DEQUE,      /* /////////////////////////////////////////////////////////////////////////////-PADDING */ \
         JS_API_STACK,      /* /////////////////////////////////////////////////////////////////////////////-PADDING */ \
         JS_API_PLAIN_ARRAY, /* ////////////////////////////////////////////////////////////////////////////-PADDING */ \
+        JS_API_FAST_BUFFER, /* /////////////////////////////////////////////////////////////////////////////-PADDING */\
         JS_API_QUEUE,      /* /////////////////////////////////////////////////////////////////////////////-PADDING */ \
         JS_TYPED_ARRAY, /* JS_TYPED_ARRAY_FIRST /////////////////////////////////////////////////////////////////// */ \
         JS_INT8_ARRAY,  /* ////////////////////////////////////////////////////////////////////////////////-PADDING */ \
@@ -231,9 +237,6 @@ struct Reference;
         JS_PROXY, /* ECMA_OBJECT_LAST ///////////////////////////////////////////////////////////////////////////// */ \
                                                                                                                        \
         HCLASS,       /* //////////////////////////////////////////////////////////////////////////////////-PADDING */ \
-        LINE_STRING,   /* /////////////////////////////////////////////////////////////////////////////////-PADDING */ \
-        SLICED_STRING,  /* ////////////////////////////////////////////////////////////////////////////////-PADDING */ \
-        TREE_STRING,  /* //////////////////////////////////////////////////////////////////////////////////-PADDING */ \
         BIGINT,       /* //////////////////////////////////////////////////////////////////////////////////-PADDING */ \
         TAGGED_ARRAY, /* //////////////////////////////////////////////////////////////////////////////////-PADDING */ \
         MUTANT_TAGGED_ARRAY, /* ///////////////////////////////////////////////////////////////////////////-PADDING */ \
@@ -344,6 +347,13 @@ enum class JSType : uint8_t {
     JSTYPE_DECL,
 };
 
+static_assert(static_cast<uint8_t>(JSType::LINE_STRING) == static_cast<uint8_t>(CommonType::LINE_STRING) &&
+    "line string type should be same with common type");
+static_assert(static_cast<uint8_t>(JSType::SLICED_STRING) == static_cast<uint8_t>(CommonType::SLICED_STRING) &&
+    "sliced string type should be same with common type");
+static_assert(static_cast<uint8_t>(JSType::TREE_STRING) == static_cast<uint8_t>(CommonType::TREE_STRING) &&
+    "tree string type should be same with common type");
+
 struct TransitionResult {
     bool isTagged;
     bool isTransition;
@@ -375,7 +385,8 @@ public:
     using IsOnHeap = IsJSFunctionBit::NextFlag;                                                   // 27
     using IsJSSharedBit = IsOnHeap::NextFlag;                                                     // 28
     using ConstructionCounterBits = IsJSSharedBit::NextField<uint8_t, CONSTRUCTION_COUNTER_BITFIELD_NUM>; // 29-31
-    using BitFieldLastBit = ConstructionCounterBits;
+    using IsStableBit = ConstructionCounterBits::NextFlag;                                           // 32
+    using BitFieldLastBit = IsStableBit;
     static_assert(BitFieldLastBit::START_BIT + BitFieldLastBit::SIZE <= sizeof(uint32_t) * BITS_PER_BYTE, "Invalid");
 
     static constexpr int DEFAULT_CAPACITY_OF_IN_OBJECTS = 4;
@@ -476,7 +487,8 @@ public:
     static void VisitAndUpdateLayout(JSHClass *ownHClass, const PropertyAttributes &attr);
     static void VisitTransitionAndUpdateObjSize(JSHClass *ownHClass, uint32_t finalInObjPropsNum);
     static uint32_t VisitTransitionAndFindMaxNumOfProps(JSHClass *ownHClass);
-
+    
+    static void NotifyLeafHClassChanged(JSThread *thread, const JSHandle<JSHClass> &jsHClass);
     static JSHandle<JSTaggedValue> PUBLIC_API EnableProtoChangeMarker(
         const JSThread *thread, const JSHandle<JSHClass> &jshclass);
     static JSHandle<JSTaggedValue> EnablePHCProtoChangeMarker(
@@ -485,11 +497,12 @@ public:
     static void NotifyHclassChanged(const JSThread *thread, JSHandle<JSHClass> oldHclass, JSHandle<JSHClass> newHclass,
                                     JSTaggedValue addedKey = JSTaggedValue::Undefined());
     
-    static void NotifyHClassChangedForNotFound(const JSThread *thread, const JSHandle<JSHClass> oldHclass,
+    static void NotifyHClassChangedForAot(const JSThread *thread, const JSHandle<JSHClass> oldHclass,
                                                const JSHandle<JSHClass> newHclass, const JSTaggedValue addedKey);
     
     static void NotifyAccessorChanged(const JSThread *thread, JSHandle<JSHClass> hclass);
-
+    static void NotifyAccessorChangedThroughChain(const JSThread *thread, JSHandle<JSHClass> hclass);
+    
     static void RegisterOnProtoChain(const JSThread *thread, const JSHandle<JSHClass> &jshclass);
 
     static bool UnregisterOnProtoChain(const JSThread *thread, const JSHandle<JSHClass> &jshclass);
@@ -505,10 +518,10 @@ public:
     inline void UpdatePropertyMetaData(const JSThread *thread, const JSTaggedValue &key,
                                       const PropertyAttributes &metaData);
     
-    template<bool isOnlyIncludeNotFound>
+    template<bool isForAot>
     static void MarkProtoChanged(const JSThread *thread, const JSHandle<JSHClass> &jshclass);
     
-    template<bool isOnlyIncludeNotFound = false>
+    template<bool isForAot = false>
     static void NoticeThroughChain(const JSThread *thread, const JSHandle<JSHClass> &jshclass,
                                    JSTaggedValue addedKey = JSTaggedValue::Undefined());
 
@@ -524,9 +537,9 @@ public:
 
     inline void ClearBitField()
     {
-        SetProfileType(0ULL);
         SetBitField(0UL);
         SetBitField1(0UL);
+        SetProfileType(0ULL);
     }
 
     inline JSType GetObjectType() const
@@ -602,6 +615,17 @@ public:
     inline void SetIsOnHeap(bool flag) const
     {
         IsOnHeap::Set<uint32_t>(flag, GetBitFieldAddr());
+    }
+
+    inline void SetIsStable(bool flag) const
+    {
+        IsStableBit::Set<uint32_t>(flag, GetBitFieldAddr());
+    }
+
+    inline bool IsStable() const
+    {
+        uint32_t bits = GetBitField();
+        return IsStableBit::Decode(bits);
     }
 
     inline bool IsJSObject() const
@@ -762,6 +786,11 @@ public:
     inline bool HasOrdinaryGet() const
     {
         return (IsSpecialContainer() || IsModuleNamespace() || IsBigInt64Array());
+    }
+
+    inline bool HasDependentInfos() const
+    {
+        return GetDependentInfos() != JSTaggedValue::Undefined();
     }
 
     inline bool IsJSTypedArray() const
@@ -1174,7 +1203,7 @@ public:
 
     inline bool IsRegularObject() const
     {
-        return GetObjectType() < JSType::JS_API_ARRAY_LIST;
+        return GetObjectType() < JSType::JS_API_ARRAY_LIST &&  GetObjectType() > JSType::STRING_LAST;
     }
 
     inline bool IsJSAPIArrayList() const
@@ -1295,6 +1324,10 @@ public:
     inline bool IsJSAPIBitVectorIterator() const
     {
         return GetObjectType() == JSType::JS_API_BITVECTOR_ITERATOR;
+    }
+    inline bool IsJSAPIBuffer() const
+    {
+        return GetObjectType() == JSType::JS_API_FAST_BUFFER;
     }
 
     inline bool IsAccessorData() const
@@ -2044,7 +2077,8 @@ public:
     ACCESSORS(Parent, PARENT_OFFSET, PROTO_CHANGE_MARKER_OFFSET);
     ACCESSORS(ProtoChangeMarker, PROTO_CHANGE_MARKER_OFFSET, PROTO_CHANGE_DETAILS_OFFSET);
     ACCESSORS(ProtoChangeDetails, PROTO_CHANGE_DETAILS_OFFSET, ENUM_CACHE_OFFSET);
-    ACCESSORS(EnumCache, ENUM_CACHE_OFFSET, PROFILE_TYPE_OFFSET);
+    ACCESSORS(EnumCache, ENUM_CACHE_OFFSET, DEPENDENT_INFOS_OFFSET);
+    ACCESSORS(DependentInfos, DEPENDENT_INFOS_OFFSET, PROFILE_TYPE_OFFSET);
     ACCESSORS_PRIMITIVE_FIELD(ProfileType, uint64_t, PROFILE_TYPE_OFFSET, LAST_OFFSET);
     DEFINE_ALIGN_SIZE(LAST_OFFSET);
 
@@ -2170,6 +2204,7 @@ public:
     using WritableField = OffsetBits::NextFlag;
     using RepresentationBits = WritableField::NextField<Representation, PropertyAttributes::REPRESENTATION_NUM>;
     using IsInlinedPropsBits = RepresentationBits::NextFlag;
+    using IsLoadFromIterResultBit = IsInlinedPropsBits::NextFlag;
 
     explicit PropertyLookupResult(uint32_t data = 0) : data_(data) {}
     ~PropertyLookupResult() = default;
@@ -2270,6 +2305,16 @@ public:
     inline bool IsInlinedProps()
     {
         return IsInlinedPropsBits::Get(data_);
+    }
+
+    inline void SetIsLoadFromIterResult(bool flag)
+    {
+        IsLoadFromIterResultBit::Set(flag, &data_);
+    }
+
+    inline bool IsLoadFromIterResult() const
+    {
+        return IsLoadFromIterResultBit::Get(data_);
     }
 
     inline uint32_t GetData() const

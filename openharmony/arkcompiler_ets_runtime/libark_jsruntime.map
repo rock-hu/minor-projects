@@ -95,10 +95,19 @@
       panda::JsiNativeScope::*;
       panda::JsiFastNativeScope::*;
       panda::JSExecutionScope::*;
+      panda::BaseRuntime::*;
+      panda::VisitDynamicRoots*;
+      panda::VisitDynamicWeakRoots*;
+      panda::BaseObject::*;
+      panda::VisitJSThread*;
+      panda::FillFreeObject*;
+      panda::SetBaseAddress*;
+      panda::JSGCCallback*;
 
       panda::ecmascript::AotCrashInfo*;
       panda::Log::*;
       panda::AndroidLog*;
+      panda::ecmascript::ThreadHolder::*;
       panda::ecmascript::Method::*;
       panda::ecmascript::JSPandaFileManager::*;
       panda::ecmascript::DebugInfoExtractor::*;
@@ -134,6 +143,7 @@
       panda::Logger::logger*;
       panda::ecmascript::AnFileInfo::GenerateMethodToEntryIndexMap*;
       panda::ecmascript::AnFileInfo::Save*;
+      panda::ecmascript::AOTFileManager::IsEnableAOT*;
       panda::ecmascript::AOTFileVersion::GetAOTVersion*;
       panda::ecmascript::AOTFileVersion::CheckAOTVersion*;
       panda::ecmascript::Barriers::Update*;
@@ -162,7 +172,7 @@
       panda::ecmascript::EcmaVM::FindOrCreateUnsharedConstpool*;
       panda::ecmascript::EcmaRuntimeStat::StartCount*;
       panda::ecmascript::EcmaRuntimeStat::StopCount*;
-      panda::ecmascript::EcmaString::ComputeHashcode*;
+      panda::ecmascript::EcmaString::ComputeRawHashcode*;
       panda::ecmascript::EcmaString::Flatten*;
       panda::ecmascript::EcmaString::GetUtf16DataFlat*;
       panda::ecmascript::EcmaString::GetUtf8DataFlat*;
@@ -181,6 +191,7 @@
       panda::ecmascript::EcmaVM::IsEnableJit*;
       panda::ecmascript::EcmaVM::GetMultiThreadCheck*;
       panda::ecmascript::EcmaVM::PrintAOTSnapShotStats*;
+      panda::ecmascript::EcmaVM::GetAOTFileManager*;
       panda::ecmascript::EcmaVM::multiThreadCheck_;
       panda::ecmascript::ElementAccessor::ConvertTaggedValueWithElementsKind*;
       panda::ecmascript::ElementAccessor::Get*;
@@ -232,6 +243,8 @@
       panda::ecmascript::JSPandaFile::GetRecordNameWithBundlePack*;
       panda::ecmascript::JSProxy::IsArray*;
       panda::ecmascript::JSSharedMap::Set*;
+      panda::ecmascript::JSTaggedValue::IsBoolean*;
+      panda::ecmascript::JSTaggedValue::IsBigInt*;
       panda::ecmascript::JSTaggedValue::IsTaggedArray*;
       panda::ecmascript::JSTaggedValue::IsJSProxy*;
       panda::ecmascript::JSTaggedValue::IsJSCOWArray*;
@@ -373,6 +386,7 @@
       panda::ecmascript::kungfu::PGOTypeRecorder::GetTransitionElementsKindsForUser*;
       panda::ecmascript::kungfu::ReviseData::Resolve*;
       panda::ecmascript::kungfu::SnapshotConstantPoolData::Record*;
+      panda::ecmascript::kungfu::LazyDeoptAllDependencies::DependOnStableProtoChain*;
       panda::ecmascript::ohos::DecrypRemoveKey*;
       panda::ecmascript::ohos::DecryptAssociateKey*;
       panda::ecmascript::ohos::DecryptSetKey*;
@@ -408,6 +422,7 @@
       step_ark_with_record_jit;
       ark_write_jit_code;
       GetAOTVersion;
+      LazyDeoptEntry;
     };
   local:
     *;

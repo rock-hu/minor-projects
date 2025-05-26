@@ -157,7 +157,8 @@ public:
         fieldNameTable_ = {
             {JSType::HCLASS, {
                 "BitField", "BitField1", "Proto", "Layout", "Transitions", "Parent", "ProtoChangeMarker",
-                "ProtoChangeDetails", "EnumCache", "ProfilerType", "HCLASS"}},
+                "ProtoChangeDetails", "EnumCache", "DependentInfos",
+                "ProfilerType", "HCLASS"}},
             {JSType::ACCESSOR_DATA, {"Getter", "Setter", "ACCESSOR_DATA"}},
             {JSType::AOT_LITERAL_INFO, {"AOT_LITERAL_INFO"}},
             {JSType::ASYNC_GENERATOR_REQUEST, {"Completion", "Capability", "ASYNC_GENERATOR_REQUEST"}},
@@ -386,6 +387,7 @@ public:
                                                          "AbcFileName", "RESOLVEDRECORDINDEXBINDING_RECORD"}},
             {JSType::RESOLVING_FUNCTIONS_RECORD, {"ResolveFunction", "RejectFunction", "RESOLVING_FUNCTIONS_RECORD"}},
             {JSType::SENDABLE_ENV, {"SENDABLE_ENV"}},
+            {JSType::SFUNCTION_ENV, {"SFUNCTION_ENV"}},
             {JSType::SLICED_STRING, {"Parent", "SLICED_STRING"}},
             {JSType::SOURCE_TEXT_MODULE_RECORD, {"Environment", "Namespace", "ModuleRequests", "RequestedModules",
                                                  "ImportEntries", "LocalExportEntries",
@@ -413,7 +415,8 @@ public:
                 JSHClass::BIT_FIELD_OFFSET, JSHClass::BIT_FIELD1_OFFSET, JSHClass::PROTOTYPE_OFFSET,
                 JSHClass::LAYOUT_OFFSET, JSHClass::TRANSTIONS_OFFSET, JSHClass::PARENT_OFFSET,
                 JSHClass::PROTO_CHANGE_MARKER_OFFSET, JSHClass::PROTO_CHANGE_DETAILS_OFFSET,
-                JSHClass::ENUM_CACHE_OFFSET, JSHClass::PROFILE_TYPE_OFFSET,
+                JSHClass::ENUM_CACHE_OFFSET,
+                JSHClass::DEPENDENT_INFOS_OFFSET, JSHClass::PROFILE_TYPE_OFFSET,
                 JSHClass::LAST_OFFSET - JSHClass::BIT_FIELD_OFFSET}},
             {JSType::ACCESSOR_DATA, {AccessorData::GETTER_OFFSET, AccessorData::SETTER_OFFSET,
                                      AccessorData::SIZE - AccessorData::GETTER_OFFSET}},
@@ -896,7 +899,7 @@ public:
             {JSType::JS_WEAK_SET, {
                 JSWeakSet::LINKED_SET_OFFSET, JSWeakSet::SIZE - JSWeakSet::LINKED_SET_OFFSET}},
             {JSType::LEXICAL_ENV, {TaggedArray::SIZE - TaggedArray::SIZE}},
-            {JSType::LINE_STRING, {LineEcmaString::SIZE - LineEcmaString::SIZE}},
+            {JSType::LINE_STRING, {LineString::SIZE - LineString::SIZE}},
             {JSType::LINKED_NODE, {LinkedNode::NEXT_OFFSET, LinkedNode::LAST_OFFSET - LinkedNode::NEXT_OFFSET}},
             {JSType::LOCAL_EXPORTENTRY_RECORD, {
                 LocalExportEntry::LOCAL_EXPORT_ENTRY_OFFSET,
@@ -977,6 +980,7 @@ public:
                 ResolvingFunctionsRecord::REJECT_FUNCTION_OFFSET,
                 ResolvingFunctionsRecord::SIZE - ResolvingFunctionsRecord::RESOLVE_FUNCTION_OFFSET}},
             {JSType::SENDABLE_ENV, {TaggedArray::SIZE - TaggedArray::SIZE}},
+            {JSType::SFUNCTION_ENV, {TaggedArray::SIZE - TaggedArray::SIZE}},
             {JSType::SLICED_STRING, {SlicedString::PARENT_OFFSET, SlicedString::SIZE - SlicedString::PARENT_OFFSET}},
             {JSType::SOURCE_TEXT_MODULE_RECORD, {
                 SourceTextModule::SOURCE_TEXT_MODULE_OFFSET,
@@ -1016,8 +1020,8 @@ public:
                 TransWithProtoHandler::TRANSITION_HCLASS_OFFSET,
                 TransWithProtoHandler::PROTO_CELL_OFFSET,
                 TransWithProtoHandler::SIZE - TransWithProtoHandler::HANDLER_INFO_OFFSET}},
-            {JSType::TREE_STRING, {TreeEcmaString::FIRST_OFFSET, TreeEcmaString::SECOND_OFFSET,
-                                   TreeEcmaString::SIZE - TreeEcmaString::FIRST_OFFSET}},
+            {JSType::TREE_STRING, {TreeString::FIRST_OFFSET, TreeString::SECOND_OFFSET,
+                                   TreeString::SIZE - TreeString::FIRST_OFFSET}},
             {JSType::VTABLE, {TaggedArray::LAST_OFFSET - TaggedArray::LENGTH_OFFSET}}
         };
         // { typeName: [all parents of this type]}
@@ -1217,6 +1221,7 @@ public:
             {JSType::RESOLVEDRECORDINDEXBINDING_RECORD, {"RECORD"}},
             {JSType::RESOLVING_FUNCTIONS_RECORD, {"RECORD"}},
             {JSType::SENDABLE_ENV, {"TAGGED_ARRAY"}},
+            {JSType::SFUNCTION_ENV, {"TAGGED_ARRAY"}},
             {JSType::SLICED_STRING, {"ECMA_STRING"}},
             {JSType::SOURCE_TEXT_MODULE_RECORD, {"MODULE_RECORD"}},
             {JSType::STAR_EXPORTENTRY_RECORD, {"RECORD"}},
@@ -1241,7 +1246,8 @@ public:
                               JSHClass::PROTO_CHANGE_MARKER_OFFSET - JSHClass::PARENT_OFFSET,
                               JSHClass::PROTO_CHANGE_DETAILS_OFFSET - JSHClass::PROTO_CHANGE_MARKER_OFFSET,
                               JSHClass::ENUM_CACHE_OFFSET - JSHClass::PROTO_CHANGE_DETAILS_OFFSET,
-                              JSHClass::PROFILE_TYPE_OFFSET - JSHClass::ENUM_CACHE_OFFSET,
+                              JSHClass::DEPENDENT_INFOS_OFFSET - JSHClass::ENUM_CACHE_OFFSET,
+                              JSHClass::PROFILE_TYPE_OFFSET - JSHClass::DEPENDENT_INFOS_OFFSET,
                               JSHClass::LAST_OFFSET - JSHClass::PROFILE_TYPE_OFFSET}},
             {JSType::ACCESSOR_DATA, {AccessorData::SETTER_OFFSET - AccessorData::GETTER_OFFSET,
                                      AccessorData::SIZE - AccessorData::SETTER_OFFSET}},
@@ -1708,6 +1714,7 @@ public:
                 ResolvingFunctionsRecord::REJECT_FUNCTION_OFFSET - ResolvingFunctionsRecord::RESOLVE_FUNCTION_OFFSET,
                 ResolvingFunctionsRecord::SIZE - ResolvingFunctionsRecord::REJECT_FUNCTION_OFFSET}},
             {JSType::SENDABLE_ENV, {}},
+            {JSType::SFUNCTION_ENV, {}},
             {JSType::SLICED_STRING, {SlicedString::STARTINDEX_AND_FLAGS_OFFSET - SlicedString::PARENT_OFFSET}},
             {JSType::SOURCE_TEXT_MODULE_RECORD, {
                 SourceTextModule::NAMESPACE_OFFSET - SourceTextModule::SOURCE_TEXT_MODULE_OFFSET,
@@ -1743,8 +1750,8 @@ public:
                 TransWithProtoHandler::TRANSITION_HCLASS_OFFSET - TransWithProtoHandler::HANDLER_INFO_OFFSET,
                 TransWithProtoHandler::PROTO_CELL_OFFSET - TransWithProtoHandler::TRANSITION_HCLASS_OFFSET,
                 TransWithProtoHandler::SIZE - TransWithProtoHandler::PROTO_CELL_OFFSET}},
-            {JSType::TREE_STRING, {TreeEcmaString::SECOND_OFFSET - TreeEcmaString::FIRST_OFFSET,
-                                   TreeEcmaString::SIZE - TreeEcmaString::SECOND_OFFSET}},
+            {JSType::TREE_STRING, {TreeString::SECOND_OFFSET - TreeString::FIRST_OFFSET,
+                                   TreeString::SIZE - TreeString::SECOND_OFFSET}},
             {JSType::VTABLE, {}}
         };
     }
@@ -4314,6 +4321,17 @@ HWTEST_F_L0(JSMetadataTest, TestSendableEnvMetadata)
     tester.ReadAndParseMetadataJson(metadataFilePath, metadata);
     ASSERT_TRUE(metadata.status == JSMetadataTestHelper::INITIALIZED);
     ASSERT_TRUE(tester.Test(JSType::SENDABLE_ENV, metadata));
+}
+
+HWTEST_F_L0(JSMetadataTest, TestSFunctionEnvMetadata)
+{
+    JSMetadataTestHelper tester {};
+    std::string metadataFilePath = METADATA_SOURCE_FILE_DIR"sfunction_env.json";
+    JSMetadataTestHelper::Metadata metadata {};
+
+    tester.ReadAndParseMetadataJson(metadataFilePath, metadata);
+    ASSERT_TRUE(metadata.status == JSMetadataTestHelper::INITIALIZED);
+    ASSERT_TRUE(tester.Test(JSType::SFUNCTION_ENV, metadata));
 }
 
 HWTEST_F_L0(JSMetadataTest, TestSlicedStringMetadata)

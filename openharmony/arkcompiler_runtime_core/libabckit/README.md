@@ -10,6 +10,19 @@ Documentation:
 
 ## How to download and build
 
+AbcKit should be built on Linux.
+
+### Install dependencies:
+
+Ensure the following components are installed:
+- repo
+- clang++-14
+- clang-format-14
+- clang-tidy-14
+- doxygen
+- graphviz
+- Git LFS
+
 ### Download:
 
 ```sh
@@ -22,7 +35,10 @@ repo forall -c 'git lfs pull'
 ### Build AbcKit:
 
 ```sh
+# Linux Version
 ./ark.py x64.release abckit_packages --gn-args="is_standard_system=true abckit_enable=true"
+# Windows Version
+./ark.py mingw_x86_64.release abckit_packages --gn-args="is_standard_system=true abckit_enable=true"
 ```
 
 ### Generate doxygen documentation

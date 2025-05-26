@@ -104,7 +104,7 @@ public:
     void SetStopAndNotify();
     bool SetStartIfStop();
     void TrySave();
-    void DumpBeforeDestroy();
+    void DumpBeforeDestroy(JSThread *thread);
 
 private:
     class WorkNode;
@@ -367,6 +367,9 @@ private:
     Mutex skipCtorMethodIdMutex_;
     JITProfiler* jitProfiler_ {nullptr};
     CVector<ProfileType> recordedTransRootType_;
+#ifdef USE_CMC_GC
+    ThreadHolder *holder_ {nullptr};
+#endif
     friend class PGOProfilerManager;
 };
 

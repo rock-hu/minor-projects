@@ -733,7 +733,6 @@ void PanRecognizer::OnResetStatus()
     mainDelta_ = 0.0;
     isFlushTouchEventsEnd_ = false;
     isForDrag_ = false;
-    isAllowMouse_ = true;
     isStartTriggered_ = false;
 }
 
@@ -782,16 +781,17 @@ GestureEvent PanRecognizer::GetGestureEventInfo()
         info.SetHorizontalAxis(lastAxisEvent_.horizontalAxis);
         info.SetPressedKeyCodes(lastAxisEvent_.pressedCodes);
         info.SetPointerEventId(lastAxisEvent_.touchEventId);
+        info.CopyConvertInfoFrom(lastAxisEvent_.convertInfo);
     } else {
         info.SetScreenLocation(lastTouchEvent_.GetScreenOffset());
         info.SetSourceTool(lastTouchEvent_.sourceTool);
         info.SetPressedKeyCodes(lastTouchEvent_.pressedKeyCodes_);
         info.SetPointerEventId(lastTouchEvent_.touchEventId);
+        info.CopyConvertInfoFrom(lastTouchEvent_.convertInfo);
     }
     info.SetGlobalPoint(globalPoint_).SetLocalLocation(Offset(localPoint.GetX(), localPoint.GetY()));
     info.SetTarget(GetEventTarget().value_or(EventTarget()));
     info.SetInputEventType(inputEventType_);
-    info.SetOriginInputEventType(originInputEventType_);
     info.SetForce(lastTouchEvent_.force);
     info.SetTiltX(lastTouchEvent_.tiltX.value_or(0.0));
     info.SetTiltY(lastTouchEvent_.tiltY.value_or(0.0));
@@ -804,6 +804,8 @@ GestureEvent PanRecognizer::GetGestureEventInfo()
 
 void PanRecognizer::SendCallbackMsg(const std::unique_ptr<GestureEventFunc>& callback, GestureCallbackType type)
 {
+    std::string callbackName = GetCallbackName(callback);
+    ACE_SCOPED_TRACE("PanRecognizer %s, mainDelta: %f", callbackName.c_str(), mainDelta_);
     if ((type == GestureCallbackType::END || type == GestureCallbackType::CANCEL) && !IsEnabled()) {
         if (panEndOnDisableState_ && *panEndOnDisableState_ && (!gestureInfo_ || !gestureInfo_->GetDisposeTag())) {
             GestureEvent info = GetGestureEventInfo();

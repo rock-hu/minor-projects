@@ -15,11 +15,8 @@
 #include "common_components/common_runtime/src/mutator/mutator_manager.h"
 
 #include <thread>
-#ifdef __RTOS__
-#include <private/futex.h>
-#endif
+
 #include "common_components/common_runtime/src/base/time_utils.h"
-#include "common_components/common_runtime/src/common/runtime.h"
 #include "common_components/common_runtime/src/heap/collector/finalizer_processor.h"
 #include "common_components/common_runtime/src/heap/collector/trace_collector.h"
 #include "common_components/common_runtime/src/heap/heap.h"
@@ -48,8 +45,6 @@ void MutatorManager::BindMutator(Mutator& mutator) const
     if (UNLIKELY_CC(tlData->buffer == nullptr)) {
         (void)AllocationBuffer::GetOrCreateAllocBuffer();
     }
-    mutator.SetSafepointStatePtr(&tlData->safepointState);
-    mutator.SetSafepointActive(false);
     tlData->mutator = &mutator;
 }
 
@@ -59,7 +54,6 @@ void MutatorManager::UnbindMutator(Mutator& mutator) const
     ASSERT_LOGF(tlData->mutator == &mutator, "mutator in ThreadLocalData doesn't match in arkthread");
     tlData->mutator = nullptr;
     tlData->buffer = nullptr;
-    mutator.SetSafepointStatePtr(nullptr);
 }
 
 Mutator* MutatorManager::CreateMutator()
@@ -133,8 +127,8 @@ Mutator* MutatorManager::CreateRuntimeMutator(ThreadType threadType)
     ThreadLocal::SetMutator(mutator);
     ThreadLocal::SetThreadType(threadType);
     ThreadLocal::SetProcessorFlag(true);
-    ThreadLocalData* threadData = ArkCommonGetThreadLocalData();
-    ArkCommonPreRunManagedCode(mutator, 2, threadData); // 2 layers
+    ThreadLocalData* threadData = GetThreadLocalData();
+    PreRunManagedCode(mutator, 2, threadData); // 2 layers
     // only running mutator can enter saferegion.
     MutatorManagementRUnlock();
     return mutator;
@@ -169,7 +163,10 @@ void MutatorManager::Init()
 #endif
 }
 
-MutatorManager& MutatorManager::Instance() noexcept { return Runtime::Current().GetMutatorManager(); }
+MutatorManager& MutatorManager::Instance() noexcept
+{
+    return BaseRuntime::GetInstance()->GetMutatorManager();
+}
 
 void MutatorManager::AcquireMutatorManagementWLock()
 {
@@ -377,9 +374,12 @@ void MutatorManager::TransitionAllMutatorsToGCPhase(GCPhase phase)
 
     std::list<Mutator*> undoneMutators;
     // Broadcast mutator phase transition signal to all mutators
-    VisitAllMutators([&undoneMutators](Mutator& mutator) {
+    VisitAllMutators([&undoneMutators, phase](Mutator& mutator) {
         mutator.SetSuspensionFlag(Mutator::SuspensionType::SUSPENSION_FOR_GC_PHASE);
-        mutator.SetSafepointActive(true);
+        // Request finalize callback in each vm-thread when gc finished.
+        if (phase == GCPhase::GC_PHASE_IDLE) {
+            mutator.SetCallbackRequest();
+        }
         undoneMutators.push_back(&mutator);
     });
     EnsurePhaseTransition(phase, undoneMutators);

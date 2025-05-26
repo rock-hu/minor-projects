@@ -19,6 +19,7 @@
 #include "ecmascript/mem/visitor.h"
 #include "ecmascript/runtime_lock.h"
 namespace panda::ecmascript {
+#if !ENABLE_NEXT_OPTIMIZATION
 void EcmaStringTableCleaner::PostSweepWeakRefTask(const WeakRootVisitor &visitor)
 {
     StartSweepWeakRefTask();
@@ -260,7 +261,7 @@ EcmaString *EcmaStringTable::GetOrInternStringFromCompressedSubString(EcmaVM *vm
     EcmaString *str = EcmaStringAccessor::CreateFromUtf8CompressedSubString(vm, string, offset, utf8Len,
         MemSpaceType::SHARED_OLD_SPACE);
     JSHandle<EcmaString> strHandle(thread, str);
-    strHandle->SetMixHashcode(hashcode);
+    strHandle->SetRawHashcode(hashcode);
     return AtomicGetOrInternStringImpl(thread, strHandle, hashcode);
 }
 
@@ -304,7 +305,7 @@ EcmaString *EcmaStringTable::GetOrInternString(EcmaVM *vm, const JSHandle<EcmaSt
         EcmaStringAccessor::Concat(vm, firstFlat, secondFlat, MemSpaceType::SHARED_OLD_SPACE));
     JSHandle<EcmaString> flattenConcatHandle(thread,
         EcmaStringAccessor::Flatten(vm, concatHandle, MemSpaceType::SHARED_OLD_SPACE));
-    flattenConcatHandle->SetMixHashcode(hashcode);
+    flattenConcatHandle->SetRawHashcode(hashcode);
     return AtomicGetOrInternStringImpl(thread, flattenConcatHandle, hashcode);
 }
 
@@ -324,7 +325,7 @@ EcmaString *EcmaStringTable::GetOrInternString(EcmaVM *vm, const uint8_t *utf8Da
     }
     JSHandle<EcmaString> strHandle(thread,
         EcmaStringAccessor::CreateFromUtf8(vm, utf8Data, utf8Len, canBeCompress, type));
-    strHandle->SetMixHashcode(hashcode);
+    strHandle->SetRawHashcode(hashcode);
     return AtomicGetOrInternStringImpl(thread, strHandle, hashcode);
 }
 
@@ -351,7 +352,7 @@ EcmaString *EcmaStringTable::GetOrInternString(EcmaVM *vm, const uint16_t *utf16
     }
     JSHandle<EcmaString> strHandle(thread,
         EcmaStringAccessor::CreateFromUtf16(vm, utf16Data, utf16Len, canBeCompress, MemSpaceType::SHARED_OLD_SPACE));
-    strHandle->SetMixHashcode(hashcode);
+    strHandle->SetRawHashcode(hashcode);
     return AtomicGetOrInternStringImpl(thread, strHandle, hashcode);
 }
 
@@ -412,7 +413,7 @@ EcmaString *EcmaStringTable::GetOrInternStringWithoutJSHandleForJit(EcmaVM *vm, 
     }
     EcmaString *str = nullptr;
     str = EcmaStringAccessor::CreateFromUtf8(vm, utf8Data, utf8Len, canBeCompress, type);
-    str->SetMixHashcode(hashcode);
+    str->SetRawHashcode(hashcode);
     InternStringThreadUnsafe(str, hashcode);
     return str;
 }
@@ -438,7 +439,7 @@ EcmaString *EcmaStringTable::GetOrInternStringWithoutJSHandleForJit(EcmaVM *vm, 
         return result;
     }
     EcmaString *str = EcmaStringAccessor::CreateFromUtf16(vm, u16Buffer.data(), utf16Len, false, type);
-    str->SetMixHashcode(hashcode);
+    str->SetRawHashcode(hashcode);
     InternStringThreadUnsafe(str, hashcode);
     return str;
 }
@@ -555,7 +556,7 @@ EcmaString *EcmaStringTable::GetOrInternStringThreadUnsafe(EcmaVM *vm,
     JSHandle<EcmaString> concatHandle(thread,
         EcmaStringAccessor::Concat(vm, firstFlat, secondFlat, MemSpaceType::SHARED_OLD_SPACE));
     EcmaString *concatString = EcmaStringAccessor::Flatten(vm, concatHandle, MemSpaceType::SHARED_OLD_SPACE);
-    concatString->SetMixHashcode(hashcode);
+    concatString->SetRawHashcode(hashcode);
     InternStringThreadUnsafe(concatString, hashcode);
     return concatString;
 }
@@ -572,7 +573,7 @@ EcmaString *EcmaStringTable::GetOrInternStringThreadUnsafe(EcmaVM *vm, const uin
     }
     EcmaString *str =
         EcmaStringAccessor::CreateFromUtf8(vm, utf8Data, utf8Len, canBeCompress, MemSpaceType::SHARED_OLD_SPACE);
-    str->SetMixHashcode(hashcode);
+    str->SetRawHashcode(hashcode);
     InternStringThreadUnsafe(str, hashcode);
     return str;
 }
@@ -623,4 +624,5 @@ EcmaString *EcmaStringTable::GetStringThreadUnsafe(const uint16_t *utf16Data, ui
     }
     return nullptr;
 }
+#endif
 }  // namespace panda::ecmascript

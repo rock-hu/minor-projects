@@ -99,6 +99,8 @@ void MultipleParagraphLayoutAlgorithm::ConstructTextStyles(
     }
     UpdateFontFamilyWithSymbol(textStyle, fontFamilies, frameNode->GetTag() == V2::SYMBOL_ETS_TAG);
     UpdateSymbolStyle(textStyle, frameNode->GetTag() == V2::SYMBOL_ETS_TAG);
+    auto lineThicknessScale = textLayoutProperty->GetLineThicknessScale().value_or(1.0f);
+    textStyle.SetLineThicknessScale(lineThicknessScale);
     auto textColor = textLayoutProperty->GetTextColorValue(textTheme->GetTextStyle().GetTextColor());
     if (contentModifier) {
         if (textLayoutProperty->GetIsAnimationNeededValue(true)) {
@@ -107,14 +109,79 @@ void MultipleParagraphLayoutAlgorithm::ConstructTextStyles(
         }
         contentModifier->SetFontReady(false);
     }
+    UpdateShaderStyle(textLayoutProperty, textStyle);
     textStyle.SetHalfLeading(textLayoutProperty->GetHalfLeadingValue(pipeline->GetHalfLeading()));
+    textStyle.SetEnableAutoSpacing(textLayoutProperty->GetEnableAutoSpacingValue(false));
     SetAdaptFontSizeStepToTextStyle(textStyle, textLayoutProperty->GetAdaptFontSizeStep());
-    // Register callback for fonts.
-    FontRegisterCallback(frameNode, textStyle);
+    FontRegisterCallback(frameNode, textStyle); // Register callback for fonts.
     textStyle.SetTextDirection(GetTextDirection(content, layoutWrapper));
     textStyle.SetLocale(Localization::GetInstance()->GetFontLocale());
     UpdateTextColorIfForeground(frameNode, textStyle, textColor);
     inheritTextStyle_ = textStyle;
+}
+
+void MultipleParagraphLayoutAlgorithm::UpdateShaderStyle(
+    const RefPtr<TextLayoutProperty>& layoutProperty, TextStyle& textStyle)
+{
+    if (layoutProperty->HasGradientShaderStyle()) {
+        auto gradients = layoutProperty->GetGradientShaderStyle().value_or(Gradient());
+        auto gradient = ToGradient(gradients);
+        textStyle.SetGradient(gradient);
+    }
+}
+
+std::optional<OHOS::Ace::Gradient> MultipleParagraphLayoutAlgorithm::ToGradient(const NG::Gradient& gradient)
+{
+    OHOS::Ace::Gradient retGradient;
+    retGradient.SetType(static_cast<OHOS::Ace::GradientType>(gradient.GetType()));
+    if (retGradient.GetType() == OHOS::Ace::GradientType::LINEAR) {
+        auto angle = gradient.GetLinearGradient()->angle;
+        if (angle.has_value()) {
+            retGradient.GetLinearGradient().angle = ToAnimatableDimension(angle.value());
+        }
+        auto linearX = gradient.GetLinearGradient()->linearX;
+        if (linearX.has_value()) {
+            retGradient.GetLinearGradient().linearX = static_cast<OHOS::Ace::GradientDirection>(linearX.value());
+        }
+        auto linearY = gradient.GetLinearGradient()->linearY;
+        if (linearY.has_value()) {
+            retGradient.GetLinearGradient().linearY = static_cast<OHOS::Ace::GradientDirection>(linearY.value());
+        }
+    }
+    if (retGradient.GetType() == OHOS::Ace::GradientType::RADIAL) {
+        auto radialCenterX = gradient.GetRadialGradient()->radialCenterX;
+        if (radialCenterX.has_value()) {
+            retGradient.GetRadialGradient().radialCenterX = ToAnimatableDimension(radialCenterX.value());
+        }
+        auto radialCenterY = gradient.GetRadialGradient()->radialCenterY;
+        if (radialCenterY.has_value()) {
+            retGradient.GetRadialGradient().radialCenterY = ToAnimatableDimension(radialCenterY.value());
+        }
+        auto radialVerticalSize = gradient.GetRadialGradient()->radialVerticalSize;
+        if (radialVerticalSize.has_value()) {
+            retGradient.GetRadialGradient().radialVerticalSize = ToAnimatableDimension(radialVerticalSize.value());
+        }
+        auto radialHorizontalSize = gradient.GetRadialGradient()->radialHorizontalSize;
+        if (radialVerticalSize.has_value()) {
+            retGradient.GetRadialGradient().radialHorizontalSize = ToAnimatableDimension(radialHorizontalSize.value());
+        }
+    }
+    retGradient.SetRepeat(gradient.GetRepeat());
+    const auto& colorStops = gradient.GetColors();
+    for (const auto& item : colorStops) {
+        OHOS::Ace::GradientColor gradientColor;
+        gradientColor.SetColor(item.GetColor());
+        gradientColor.SetHasValue(item.GetHasValue());
+        gradientColor.SetDimension(item.GetDimension());
+        retGradient.AddColor(gradientColor);
+    }
+    return retGradient;
+}
+
+AnimatableDimension MultipleParagraphLayoutAlgorithm::ToAnimatableDimension(const Dimension& dimension)
+{
+    AnimatableDimension result(dimension);
+    return result;
 }
 
 void MultipleParagraphLayoutAlgorithm::UpdateFontFamilyWithSymbol(TextStyle& textStyle,
@@ -364,9 +431,10 @@ void MultipleParagraphLayoutAlgorithm::SetDecorationPropertyToModifier(const Ref
     }
     auto textDecoration = layoutProperty->GetTextDecoration();
     if (textDecoration.has_value()) {
-        modifier->SetTextDecoration(textDecoration.value());
+        auto value = textDecoration.value().size() > 0 ? textDecoration.value()[0] : TextDecoration::NONE;
+        modifier->SetTextDecoration(value, false);
     } else {
-        modifier->SetTextDecoration(textStyle.GetTextDecoration(), true);
+        modifier->SetTextDecoration(textStyle.GetTextDecorationFirst(), true);
     }
 }
 
@@ -473,7 +541,9 @@ ParagraphStyle MultipleParagraphLayoutAlgorithm::GetParagraphStyle(const TextSty
         .indent = textStyle.GetTextIndent(),
         .halfLeading = textStyle.GetHalfLeading(),
         .paragraphSpacing = textStyle.GetParagraphSpacing(),
-        .isOnlyBetweenLines = textStyle.GetIsOnlyBetweenLines()
+        .optimizeTrailingSpace = textStyle.GetOptimizeTrailingSpace(),
+        .isOnlyBetweenLines = textStyle.GetIsOnlyBetweenLines(),
+        .enableAutoSpacing = textStyle.GetEnableAutoSpacing()
         };
 }
 

@@ -28,10 +28,6 @@
 #include "common_interfaces/thread/thread_holder.h"
 
 namespace panda {
-using JSGCCallbackHookType = void (*)(void *ecmaVM);
-
-extern "C" PUBLIC_API void ArkRegisterJSGCCallbackHook(JSGCCallbackHookType hook);
-
 class Mutator {
 public:
     using SuspensionType = MutatorBase::SuspensionType;
@@ -43,7 +39,7 @@ public:
     void Init()
     {
         mutatorBase_.Init();
-        mutatorBase_.mutator = reinterpret_cast<void*>(this);
+        mutatorBase_.mutator_ = reinterpret_cast<void*>(this);
         holder_ = new ThreadHolder(&mutatorBase_);
     }
 
@@ -61,7 +57,6 @@ public:
         Mutator* mutator = new (std::nothrow) Mutator();
         LOGF_CHECK(mutator != nullptr) << "new Mutator failed";
         mutator->Init();
-        mutator->SetMutatorPhase(Heap::GetHeap().GetGCPhase());
         return mutator;
     }
 
@@ -109,19 +104,6 @@ public:
     }
 
     // This interface can only be invoked in current thread environment.
-#ifdef _WIN64
-    __attribute__((always_inline)) void UpdateUnwindContext()
-    {
-        Runtime& runtime = Runtime::Current();
-        WinModuleManager& winModuleManager = runtime.GetWinModuleManager();
-        uintptr_t rip = 0;
-        uintptr_t rsp = 0;
-        GetContextWin64(&rip, &rsp);
-        FrameInfo curFrame = GetCurFrameInfo(winModuleManager, rip, rsp);
-        UnwindContextStatus ucs = uwContext.GetUnwindContextStatus();
-        uwContext.frameInfo = GetCallerFrameInfo(winModuleManager, curFrame.mFrame, ucs);
-    }
-#else
     __attribute__((always_inline)) void UpdateUnwindContext()
     {
         // void* ip = __builtin_return_address(0)
@@ -129,7 +111,6 @@ public:
         // uwContext.frameInfo.mFrame.SetIP(static_cast<uint32_t*>(ip))
         // uwContext.frameInfo.mFrame.SetFA(static_cast<FrameAddress*>(fa)->callerFrameAddress)
     }
-#endif
 
     // Force current mutator enter saferegion, internal use only.
     __attribute__((always_inline)) inline void DoEnterSaferegion();
@@ -181,14 +162,9 @@ public:
         return mutatorBase_.HasSuspensionRequest(flag);
     }
 
-    void SetSafepointStatePtr(uint64_t* slot)
+    void SetCallbackRequest()
     {
-        mutatorBase_.SetSafepointStatePtr(slot);
-    }
-
-    void SetSafepointActive(bool value)
-    {
-        mutatorBase_.SetSafepointActive(value);
+        mutatorBase_.SetCallbackRequest();
     }
 
     // Ensure that mutator phase is changed only once by mutator itself or GC
@@ -215,9 +191,9 @@ public:
     void DumpMutator() const
     {
         LOG_COMMON(ERROR) << "mutator " << this << ": inSaferegion " <<
-            mutatorBase_.inSaferegion.load(std::memory_order_relaxed) << ", tid " << tid_ <<
-            ", observerCnt " << mutatorBase_.observerCnt.load() << ", gc phase: " <<
-            mutatorBase_.mutatorPhase.load() << ", suspension request "<< mutatorBase_.suspensionFlag.load();
+            mutatorBase_.inSaferegion_.load(std::memory_order_relaxed) << ", tid " << tid_ <<
+            ", observerCnt " << mutatorBase_.observerCnt_.load() << ", gc phase: " <<
+            mutatorBase_.mutatorPhase_.load() << ", suspension request "<< mutatorBase_.suspensionFlag_.load();
     }
 
     // Init after fork.
@@ -225,11 +201,6 @@ public:
     {
         // tid changed after fork, so we re-initialize it.
         InitTid();
-    }
-
-    const void* GetSafepointPage() const
-    {
-        return mutatorBase_.GetSafepointPage();
     }
 
 #if defined(GCINFO_DEBUG) && GCINFO_DEBUG
@@ -281,22 +252,6 @@ public:
     void MutatorUnlock()
     {
         mutatorBase_.MutatorBaseUnlock();
-    }
-
-    void PreparedToRun(ThreadLocalData* tlData)
-    {
-        if (UNLIKELY_CC(tlData->buffer == nullptr)) {
-            (void)AllocationBuffer::GetOrCreateAllocBuffer();
-        }
-        DoLeaveSaferegion();
-        SetSafepointStatePtr(&tlData->safepointState);
-        SetSafepointActive(false);
-    }
-
-    void PreparedToPark(void* pc, void* fa)
-    {
-        LOG_COMMON(FATAL) << "Unresolved fatal";
-        UNREACHABLE_CC();
     }
 
     // temporary impl
@@ -361,13 +316,9 @@ private:
 
 // This function is mainly used to initialize the context of mutator.
 // Ensured that updated fa is the caller layer of the managed function to be called.
-extern "C" void ArkCommonPreRunManagedCode(Mutator* mutator, int layers,
-                                           ThreadLocalData* threadData);
+void PreRunManagedCode(Mutator* mutator, int layers, ThreadLocalData* threadData);
 
-using AllocBufferAddHookType = void (*)(uint64_t *obj);
-using EnumThreadStackRootType = void (*)(void* vm, AllocBufferAddHookType hook);
-extern "C" PUBLIC_API void ArkRegisterEnumThreadStackRootHook(EnumThreadStackRootType hook);
-ThreadLocalData *ArkCommonGetThreadLocalData();
+ThreadLocalData *GetThreadLocalData();
 } // namespace panda
 
 #endif // ARK_COMMON_MUTATOR_H

@@ -1764,7 +1764,7 @@ void AsmInterpreterCall::PushVregs(ExtendedAssembler *assembler,
 //        X20 - callTarget
 //        X21 - method
 void AsmInterpreterCall::DispatchCall(ExtendedAssembler *assembler, Register pcRegister,
-    Register newSpRegister, Register accRegister)
+    Register newSpRegister, Register accRegister, bool hasException)
 {
     Register glueRegister = __ GlueRegister();
     Register callTargetRegister = __ CallDispatcherArgument(kungfu::CallDispatchInputs::CALL_TARGET);
@@ -1787,7 +1787,11 @@ void AsmInterpreterCall::DispatchCall(ExtendedAssembler *assembler, Register pcR
 
     Register bcIndexRegister = __ AvailableRegister1();
     Register tempRegister = __ AvailableRegister2();
-    __ Ldrb(bcIndexRegister.W(), MemoryOperand(pcRegister, 0));
+    if (hasException) {
+        __ Mov(bcIndexRegister.W(), Immediate(kungfu::BytecodeStubCSigns::ID_ExceptionHandler));
+    } else {
+        __ Ldrb(bcIndexRegister.W(), MemoryOperand(pcRegister, 0));
+    }
     __ Add(tempRegister, glueRegister, Operand(bcIndexRegister.W(), UXTW, FRAME_SLOT_SIZE_LOG2));
     __ Ldr(tempRegister, MemoryOperand(tempRegister, JSThread::GlueData::GetBCStubEntriesOffset(false)));
     __ Br(tempRegister);
@@ -1936,8 +1940,6 @@ void AsmInterpreterCall::CallBCStub(ExtendedAssembler *assembler, Register &newS
 
 void AsmInterpreterCall::CallNativeEntry(ExtendedAssembler *assembler, bool isJsProxy)
 {
-    Label callFastBuiltin;
-    Label callNativeBuiltin;
     Register glue(X0);
     Register argv(X5);
     Register function(X1);
@@ -1948,12 +1950,9 @@ void AsmInterpreterCall::CallNativeEntry(ExtendedAssembler *assembler, bool isJs
         Register method(X2);
         __ Ldr(nativeCode, MemoryOperand(method, Method::NATIVE_POINTER_OR_BYTECODE_ARRAY_OFFSET));
     } else {
-        Register callFieldRegister(X3);
         __ Ldr(nativeCode, MemoryOperand(function, JSFunctionBase::CODE_ENTRY_OFFSET));
-        __ Tbnz(callFieldRegister, MethodLiteral::IsFastBuiltinBit::START_BIT, &callFastBuiltin);
     }
 
-    __ Bind(&callNativeBuiltin);
     Register sp(SP);
     // 2: function & align
     __ Stp(function, Register(Zero), MemoryOperand(sp, -2 * FRAME_SLOT_SIZE, AddrMode::PREINDEX));
@@ -1966,91 +1965,6 @@ void AsmInterpreterCall::CallNativeEntry(ExtendedAssembler *assembler, bool isJs
 
     // 4: skip function
     __ Add(sp, sp, Immediate(4 * FRAME_SLOT_SIZE));
-    __ Ret();
-
-    __ Bind(&callFastBuiltin);
-    CallFastBuiltin(assembler, &callNativeBuiltin);
-}
-
-void AsmInterpreterCall::CallFastBuiltin(ExtendedAssembler *assembler, Label *callNativeBuiltin)
-{
-    Label lCall1;
-    Label lCall2;
-    Label lCall3;
-    Label callEntry;
-    Register sp(SP);
-    Register glue(X0);
-    Register function(X1);
-    Register method(X2);
-    Register argc(X4);
-    Register argv(X5);
-    Register nativeCode(X7);
-
-    Register builtinId = __ AvailableRegister1();
-    Register temp = __ AvailableRegister2();
-    // get builtinid
-    __ Ldr(builtinId, MemoryOperand(method, Method::EXTRA_LITERAL_INFO_OFFSET));  // get extra literal
-    __ And(builtinId.W(), builtinId.W(), LogicalImmediate::Create(0xff, RegWSize));
-    __ Cmp(builtinId.W(), Immediate(BUILTINS_STUB_ID(BUILTINS_CONSTRUCTOR_STUB_FIRST)));
-    __ B(Condition::GE, callNativeBuiltin);
-
-    __ Cmp(argc, Immediate(3)); // 3: number of args
-    __ B(Condition::HI, callNativeBuiltin);
-
-    // get builtin func addr
-    __ Add(builtinId, glue, Operand(builtinId.W(), UXTW, FRAME_SLOT_SIZE_LOG2));
-    __ Ldr(builtinId, MemoryOperand(builtinId, JSThread::GlueData::GetBuiltinsStubEntriesOffset(false)));
-    // create frame
-    PushAsmBridgeFrame(assembler);
-    __ Mov(temp, function);
-    __ Mov(X1, nativeCode);
-    __ Mov(X2, temp);
-    __ Mov(temp, argv);
-    __ Mov(X5, argc);
-    __ Ldr(X3, MemoryOperand(temp, FRAME_SLOT_SIZE));
-    __ Ldr(X4, MemoryOperand(temp, DOUBLE_SLOT_SIZE));
-
-    __ Cmp(Register(X5), Immediate(0));
-    __ B(Condition::NE, &lCall1);
-    __ Mov(Register(X6), Immediate(JSTaggedValue::VALUE_UNDEFINED));
-    __ Mov(Register(X7), Immediate(JSTaggedValue::VALUE_UNDEFINED));
-    __ Stp(Register(X7), Register(X7), MemoryOperand(sp, -DOUBLE_SLOT_SIZE, PREINDEX));
-    __ B(&callEntry);
-
-    __ Bind(&lCall1);
-    {
-        __ Cmp(Register(X5), Immediate(1));
-        __ B(Condition::NE, &lCall2);
-        __ Ldr(Register(X6), MemoryOperand(temp, TRIPLE_SLOT_SIZE));
-        __ Mov(Register(X7), Immediate(JSTaggedValue::VALUE_UNDEFINED));  // reset x7
-        __ Stp(Register(X7), Register(X7), MemoryOperand(sp, -DOUBLE_SLOT_SIZE, PREINDEX));
-        __ B(&callEntry);
-    }
-
-    __ Bind(&lCall2);
-    {
-        __ Cmp(Register(X5), Immediate(2)); // 2: number of args
-        __ B(Condition::NE, &lCall3);
-        __ Mov(Register(X7), Immediate(JSTaggedValue::VALUE_UNDEFINED));
-        __ Stp(Register(X7), Register(X7), MemoryOperand(sp, -DOUBLE_SLOT_SIZE, PREINDEX));
-        __ Ldp(Register(X6), Register(X7), MemoryOperand(temp, TRIPLE_SLOT_SIZE));
-        __ B(&callEntry);
-    }
-
-    __ Bind(&lCall3);
-    {
-        __ Ldr(Register(X7), MemoryOperand(temp, QUINTUPLE_SLOT_SIZE));
-        __ Stp(Register(X7), Register(X7), MemoryOperand(sp, -DOUBLE_SLOT_SIZE, PREINDEX));
-        __ Ldp(Register(X6), Register(X7), MemoryOperand(temp, TRIPLE_SLOT_SIZE));  // get arg0 arg1
-        __ B(&callEntry);
-    }
-
-    __ Bind(&callEntry);
-    {
-        __ Blr(builtinId);
-        __ Add(sp, sp, Immediate(DOUBLE_SLOT_SIZE));
-    }
-    PopAsmBridgeFrame(assembler);
     __ Ret();
 }
 

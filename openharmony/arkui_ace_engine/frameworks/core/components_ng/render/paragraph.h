@@ -157,8 +157,10 @@ struct ParagraphStyle {
     Dimension paragraphSpacing;
     bool isEndAddParagraphSpacing = false;
     int32_t textStyleUid = 0;
+    bool optimizeTrailingSpace = false;
     bool isOnlyBetweenLines = false;
     bool isFirstParagraphLineSpacing = true;
+    bool enableAutoSpacing = false;
 
     bool operator==(const ParagraphStyle others) const
     {
@@ -167,7 +169,8 @@ struct ParagraphStyle {
                ellipsisMode == others.ellipsisMode && textOverflow == others.textOverflow &&
                leadingMargin == others.leadingMargin && fontSize == others.fontSize &&
                halfLeading == others.halfLeading && indent == others.indent &&
-               paragraphSpacing == others.paragraphSpacing && isOnlyBetweenLines == others.isOnlyBetweenLines;
+               paragraphSpacing == others.paragraphSpacing && isOnlyBetweenLines == others.isOnlyBetweenLines &&
+               enableAutoSpacing == others.enableAutoSpacing;
     }
 
     bool operator!=(const ParagraphStyle others) const
@@ -193,6 +196,8 @@ struct ParagraphStyle {
         result += indent.ToString();
         result += ", paragraphSpacing: ";
         result += paragraphSpacing.ToString();
+        result += ", enableAutoSpacing: ";
+        result += enableAutoSpacing;
         return result;
     }
 };
@@ -259,6 +264,7 @@ public:
     virtual void Layout(float width) = 0;
     // interfaces for reLayout
     virtual void ReLayout(float width, const ParagraphStyle& paraStyle, const std::vector<TextStyle>& textStyles) = 0;
+    virtual void ReLayoutForeground(const TextStyle& textStyle) = 0;
     virtual float GetHeight() = 0;
     virtual float GetTextWidth() = 0;
     virtual size_t GetLineCount() = 0;

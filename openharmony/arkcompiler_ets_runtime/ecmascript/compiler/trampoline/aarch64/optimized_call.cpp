@@ -1191,6 +1191,29 @@ void OptimizedCall::PopOptimizedArgsConfigFrame(ExtendedAssembler *assembler)
     __ RestoreFpAndLr();
 }
 
+void OptimizedCall::PushAsmBridgeFrame(ExtendedAssembler *assembler)
+{
+    Register sp(SP);
+    TempRegister2Scope temp2Scope(assembler);
+    Register frameType = __ TempRegister2();
+    __ PushFpAndLr();
+    // construct frame
+    __ Mov(frameType, Immediate(static_cast<int64_t>(FrameType::ASM_BRIDGE_FRAME)));
+    // 2 : 2 means pairs. X19 means calleesave and 16bytes align
+    __ Stp(Register(X19), frameType, MemoryOperand(sp, -FRAME_SLOT_SIZE * 2, AddrMode::PREINDEX));
+    __ Add(Register(FP), sp, Immediate(DOUBLE_SLOT_SIZE));
+}
+
+void OptimizedCall::PopAsmBridgeFrame(ExtendedAssembler *assembler)
+{
+    TempRegister2Scope temp2Scope(assembler);
+    Register sp(SP);
+    Register frameType = __ TempRegister2();
+    // 2 : 2 means pop call site sp and type
+    __ Ldp(Register(X19), frameType, MemoryOperand(sp, FRAME_SLOT_SIZE * 2, AddrMode::POSTINDEX));
+    __ RestoreFpAndLr();
+}
+
 // * uint64_t PushOptimizedUnfoldArgVFrame(uintptr_t glue, uint32_t argc, JSTaggedType calltarget,
 //                                         JSTaggedType new, JSTaggedType this, JSTaggedType argV[])
 // * cc calling convention call js function()
@@ -1363,12 +1386,14 @@ void OptimizedCall::DeoptEnterAsmInterpOrBaseline(ExtendedAssembler *assembler)
     Register sp(SP);
     Register depth(X20);
     Register tmpReg(X21);
+    Register hasExceptionRegister(X25);
     Label loopBegin;
     Label stackOverflow;
     Label pushArgv;
+    Label gotoExceptionHandler;
 
     __ PushFpAndLr();
-
+    __ Ldr(hasExceptionRegister, MemoryOperand(context, AsmStackContext::GetHasExceptionOffset(false)));
     __ Ldr(depth, MemoryOperand(context, AsmStackContext::GetInlineDepthOffset(false)));
     __ Add(context, context, Immediate(AsmStackContext::GetSize(false)));
     __ Mov(Register(X23), Immediate(0));
@@ -1469,13 +1494,52 @@ void OptimizedCall::DeoptEnterAsmInterpOrBaseline(ExtendedAssembler *assembler)
 
         __ Align16(currentSlotRegister);
         __ Mov(Register(SP), currentSlotRegister);
-        AsmInterpreterCall::DispatchCall(assembler, Register(X20), opRegister, Register(X23));
+
+        __ Cmp(hasExceptionRegister, Immediate(0));
+        __ B(Condition::NE, &gotoExceptionHandler);
+        AsmInterpreterCall::DispatchCall(assembler, Register(X20), opRegister, Register(X23), false);
+        __ Bind(&gotoExceptionHandler);
+        AsmInterpreterCall::DispatchCall(assembler, Register(X20), opRegister, Register(X23), true);
     }
     __ Bind(&stackOverflow);
     {
         Register temp(X1);
         AsmInterpreterCall::ThrowStackOverflowExceptionAndReturnToAsmInterpBridgeFrame(
             assembler, glueRegister, sp, temp);
+    }
+}
+
+void OptimizedCall::DeoptPushAsmInterpBridgeFrame(ExtendedAssembler *assembler, Register context)
+{
+    Register fp(X29);
+    Register sp(SP);
+
+    [[maybe_unused]] TempRegister1Scope scope1(assembler);
+    Label processLazyDeopt;
+    Label exit;
+    Register frameTypeRegister = __ TempRegister1();
+
+    __ Ldr(frameTypeRegister, MemoryOperand(context, AsmStackContext::GetIsFrameLazyDeoptOffset(false)));
+    __ Cmp(frameTypeRegister, Immediate(0));
+    __ B(Condition::NE, &processLazyDeopt);
+    {
+        __ Mov(frameTypeRegister, Immediate(static_cast<int64_t>(FrameType::ASM_INTERPRETER_BRIDGE_FRAME)));
+        __ B(&exit);
+    }
+    __ Bind(&processLazyDeopt);
+    {
+        __ Mov(frameTypeRegister, (static_cast<uint64_t>(FrameType::ASM_INTERPRETER_BRIDGE_FRAME) |
+            (1ULL << FrameIterator::LAZY_DEOPT_FLAG_BIT)));
+    }
+    __ Bind(&exit);
+    // 2 : return addr & frame type
+    __ Stp(frameTypeRegister, Register(X30), MemoryOperand(sp, -2 * FRAME_SLOT_SIZE, AddrMode::PREINDEX));
+    // 2 : prevSp & pc
+    __ Stp(Register(Zero), Register(FP), MemoryOperand(sp, -2 * FRAME_SLOT_SIZE, AddrMode::PREINDEX));
+    __ Add(fp, sp, Immediate(24));  // 24: skip frame type, prevSp, pc
+
+    if (!assembler->FromInterpreterHandler()) {
+        __ CalleeSave();
     }
 }
 
@@ -1494,10 +1558,10 @@ void OptimizedCall::DeoptHandlerAsm(ExtendedAssembler *assembler)
     __ CalleeSave();
 
     Register deoptType(X1);
-    Register depth(X2);
+    Register maybeAcc(X2);
     Register argC(X3);
     Register runtimeId(X4);
-    __ Stp(deoptType, depth, MemoryOperand(sp, -DOUBLE_SLOT_SIZE, AddrMode::PREINDEX));
+    __ Stp(deoptType, maybeAcc, MemoryOperand(sp, -DOUBLE_SLOT_SIZE, AddrMode::PREINDEX));
     __ Mov(argC, Immediate(2)); // 2: argc
     __ Mov(runtimeId, Immediate(RTSTUB_ID(DeoptHandler)));
     __ Stp(runtimeId, argC, MemoryOperand(sp, -DOUBLE_SLOT_SIZE, AddrMode::PREINDEX));
@@ -1521,7 +1585,7 @@ void OptimizedCall::DeoptHandlerAsm(ExtendedAssembler *assembler)
     __ Mov(sp, temp);
     __ Ldr(Register(X30), MemoryOperand(context, AsmStackContext::GetReturnAddressOffset(false)));
 
-    PushAsmInterpBridgeFrame(assembler);
+    DeoptPushAsmInterpBridgeFrame(assembler, context);
     __ Bl(&target);
     PopAsmInterpBridgeFrame(assembler);
     __ Ret();

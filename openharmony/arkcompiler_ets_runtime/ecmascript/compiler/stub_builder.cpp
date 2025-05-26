@@ -2244,139 +2244,25 @@ GateRef StubBuilder::TaggedIsInternalAccessor(GateRef glue, GateRef x)
 GateRef StubBuilder::IsUtf16String(GateRef string)
 {
     // compressedStringsEnabled fixed to true constant
-    GateRef len = LoadPrimitive(VariableType::INT32(), string, IntPtr(EcmaString::LENGTH_AND_FLAGS_OFFSET));
+    GateRef len = LoadPrimitive(VariableType::INT32(), string, IntPtr(BaseString::LENGTH_AND_FLAGS_OFFSET));
     return Int32Equal(
-        Int32And(len, Int32((1 << EcmaString::CompressedStatusBit::SIZE) - 1)),
-        Int32(EcmaString::STRING_UNCOMPRESSED));
+        Int32And(len, Int32((1 << BaseString::CompressedStatusBit::SIZE) - 1)),
+        Int32(BaseString::STRING_UNCOMPRESSED));
 }
 
 GateRef StubBuilder::IsUtf8String(GateRef string)
 {
     // compressedStringsEnabled fixed to true constant
-    GateRef len = LoadPrimitive(VariableType::INT32(), string, IntPtr(EcmaString::LENGTH_AND_FLAGS_OFFSET));
+    GateRef len = LoadPrimitive(VariableType::INT32(), string, IntPtr(BaseString::LENGTH_AND_FLAGS_OFFSET));
     return Int32Equal(
-        Int32And(len, Int32((1 << EcmaString::CompressedStatusBit::SIZE) - 1)),
-        Int32(EcmaString::STRING_COMPRESSED));
+        Int32And(len, Int32((1 << BaseString::CompressedStatusBit::SIZE) - 1)),
+        Int32(BaseString::STRING_COMPRESSED));
 }
 
 GateRef StubBuilder::IsDigit(GateRef ch)
 {
     return BitAnd(Int32LessThanOrEqual(ch, Int32('9')),
         Int32GreaterThanOrEqual(ch, Int32('0')));
-}
-
-void StubBuilder::TryToGetInteger(GateRef string, Variable *num, Label *success, Label *failed)
-{
-    auto env = GetEnvironment();
-    Label exit(env);
-    Label inRange(env);
-    Label isInteger(env);
-
-    GateRef len = GetLengthFromString(string);
-    BRANCH(Int32LessThan(len, Int32(MAX_ELEMENT_INDEX_LEN)), &inRange, failed);
-    Bind(&inRange);
-    {
-        BRANCH(IsIntegerString(string), &isInteger, failed);
-        Bind(&isInteger);
-        {
-            GateRef integerNum = ZExtInt32ToInt64(GetRawHashFromString(string));
-            num->WriteVariable(integerNum);
-            Jump(success);
-        }
-    }
-}
-
-GateRef StubBuilder::StringToElementIndex(GateRef glue, GateRef string)
-{
-    auto env = GetEnvironment();
-    Label entry(env);
-    env->SubCfgEntry(&entry);
-    Label exit(env);
-    DEFVARIABLE(result, VariableType::INT64(), Int64(-1));
-    Label greatThanZero(env);
-    Label inRange(env);
-    Label flattenFastPath(env);
-    auto len = GetLengthFromString(string);
-    BRANCH(Int32Equal(len, Int32(0)), &exit, &greatThanZero);
-    Bind(&greatThanZero);
-    BRANCH(Int32GreaterThan(len, Int32(MAX_ELEMENT_INDEX_LEN)), &exit, &inRange);
-    Bind(&inRange);
-    {
-        Label isUtf8(env);
-        GateRef isUtf16String = IsUtf16String(string);
-        BRANCH(isUtf16String, &exit, &isUtf8);
-        Bind(&isUtf8);
-        {
-            Label getFailed(env);
-            TryToGetInteger(string, &result, &exit, &getFailed);
-            Bind(&getFailed);
-            DEFVARIABLE(c, VariableType::INT32(), Int32(0));
-            FlatStringStubBuilder thisFlat(this);
-            thisFlat.FlattenString(glue, string, &flattenFastPath);
-            Bind(&flattenFastPath);
-            StringInfoGateRef stringInfoGate(&thisFlat);
-            GateRef dataUtf8 = GetNormalStringData(glue, stringInfoGate);
-            c = ZExtInt8ToInt32(LoadZeroOffsetPrimitive(VariableType::INT8(), dataUtf8));
-            Label isDigitZero(env);
-            Label notDigitZero(env);
-            BRANCH(Int32Equal(*c, Int32('0')), &isDigitZero, &notDigitZero);
-            Bind(&isDigitZero);
-            {
-                Label lengthIsOne(env);
-                BRANCH(Int32Equal(len, Int32(1)), &lengthIsOne, &exit);
-                Bind(&lengthIsOne);
-                {
-                    result = Int64(0);
-                    Jump(&exit);
-                }
-            }
-            Bind(&notDigitZero);
-            {
-                Label isDigit(env);
-                DEFVARIABLE(i, VariableType::INT32(), Int32(1));
-                DEFVARIABLE(n, VariableType::INT64(), Int64Sub(ZExtInt32ToInt64(*c), Int64('0')));
-                BRANCH(IsDigit(*c), &isDigit, &exit);
-                Label loopHead(env);
-                Label loopEnd(env);
-                Label afterLoop(env);
-                Bind(&isDigit);
-                BRANCH(Int32UnsignedLessThan(*i, len), &loopHead, &afterLoop);
-                LoopBegin(&loopHead);
-                {
-                    c = ZExtInt8ToInt32(LoadPrimitive(VariableType::INT8(), dataUtf8, ZExtInt32ToPtr(*i)));
-                    Label isDigit2(env);
-                    Label notDigit2(env);
-                    BRANCH(IsDigit(*c), &isDigit2, &notDigit2);
-                    Bind(&isDigit2);
-                    {
-                        // 10 means the base of digit is 10.
-                        n = Int64Add(Int64Mul(*n, Int64(10)), Int64Sub(ZExtInt32ToInt64(*c), Int64('0')));
-                        i = Int32Add(*i, Int32(1));
-                        BRANCH(Int32UnsignedLessThan(*i, len), &loopEnd, &afterLoop);
-                    }
-                    Bind(&notDigit2);
-                    Jump(&exit);
-                }
-                Bind(&loopEnd);
-                LoopEnd(&loopHead);
-                Bind(&afterLoop);
-                {
-                    Label lessThanMaxIndex(env);
-                    BRANCH(Int64LessThan(*n, Int64(JSObject::MAX_ELEMENT_INDEX)),
-                           &lessThanMaxIndex, &exit);
-                    Bind(&lessThanMaxIndex);
-                    {
-                        result = *n;
-                        Jump(&exit);
-                    }
-                }
-            }
-        }
-    }
-    Bind(&exit);
-    auto ret = *result;
-    env->SubCfgExit();
-    return ret;
 }
 
 GateRef StubBuilder::TryToElementsIndex(GateRef glue, GateRef key)
@@ -2402,7 +2288,8 @@ GateRef StubBuilder::TryToElementsIndex(GateRef glue, GateRef key)
         BRANCH(TaggedIsString(glue, key), &isString, &notString);
         Bind(&isString);
         {
-            resultKey = StringToElementIndex(glue, key);
+            BuiltinsStringStubBuilder stringStub(this, GetGlobalEnv(glue));
+            resultKey = stringStub.StringToUint(glue, key, JSObject::MAX_ELEMENT_INDEX - 1);
             Jump(&exit);
         }
         Bind(&notString);
@@ -2809,7 +2696,7 @@ GateRef StubBuilder::LoadStringElement(GateRef glue, GateRef receiver, GateRef k
         Bind(&lengthLessIndex);
         Jump(&exit);
         Bind(&lengthNotLessIndex);
-        BuiltinsStringStubBuilder stringBuilder(this);
+        BuiltinsStringStubBuilder stringBuilder(this, GetGlobalEnv(glue));
         StringInfoGateRef stringInfoGate(&thisFlat);
         result = stringBuilder.CreateFromEcmaString(glue, index, stringInfoGate);
         Jump(&exit);
@@ -2912,7 +2799,7 @@ GateRef StubBuilder::ICStoreElement(GateRef glue, GateRef receiver, GateRef key,
             {
                 GateRef hclass = LoadHClass(glue, receiver);
                 GateRef jsType = GetObjectType(hclass);
-                BuiltinsTypedArrayStubBuilder typedArrayBuilder(this);
+                BuiltinsTypedArrayStubBuilder typedArrayBuilder(this, GetGlobalEnv(glue));
                 result = typedArrayBuilder.StoreTypedArrayElement(glue, receiver, index64, value, jsType);
                 Jump(&exit);
             }
@@ -3480,7 +3367,7 @@ GateRef StubBuilder::GetPropertyByIndex(GateRef glue, GateRef receiver,
             BRANCH(IsFastTypeArray(jsType), &isFastTypeArray, &notFastTypeArray);
             Bind(&isFastTypeArray);
             {
-                BuiltinsTypedArrayStubBuilder typedArrayStubBuilder(this);
+                BuiltinsTypedArrayStubBuilder typedArrayStubBuilder(this, GetGlobalEnv(glue));
                 result = typedArrayStubBuilder.FastGetPropertyByIndex(glue, *holder, index, jsType);
                 Jump(&exit);
             }
@@ -3507,7 +3394,7 @@ GateRef StubBuilder::GetPropertyByIndex(GateRef glue, GateRef receiver,
                 BRANCH(Int32LessThan(index, length), &getSubString, &notString);
                 Bind(&getSubString);
                 Label flattenFastPath(env);
-                BuiltinsStringStubBuilder stringBuilder(this);
+                BuiltinsStringStubBuilder stringBuilder(this, GetGlobalEnv(glue));
                 FlatStringStubBuilder thisFlat(this);
                 thisFlat.FlattenString(glue, *holder, &flattenFastPath);
                 Bind(&flattenFastPath);
@@ -4020,6 +3907,7 @@ void StubBuilder::CopyAllHClass(GateRef glue, GateRef dstHClass, GateRef srcHCla
     SetParentToHClass(VariableType::INT64(), glue, dstHClass, Undefined());
     SetProtoChangeDetailsToHClass(VariableType::INT64(), glue, dstHClass, Null());
     SetEnumCacheToHClass(VariableType::INT64(), glue, dstHClass, Null());
+    SetDependentInfosToHClass(VariableType::INT64(), glue, dstHClass, Undefined());
     SetLayoutToHClass(VariableType::JS_POINTER(),
                       glue,
                       dstHClass,
@@ -5653,6 +5541,11 @@ GateRef StubBuilder::SetPropertyByValue(GateRef glue,
                     BRANCH(IsInternalString(*varKey), &setByName, &notIntenalString);
                     Bind(&notIntenalString);
                     {
+                    #if ENABLE_NEXT_OPTIMIZATION
+                        GateRef res = CallRuntime(glue, RTSTUB_ID(GetOrInternStringFromHashTrieTable), { *varKey });
+                        varKey = res;
+                        Jump(&checkDetector);
+                    #else
                         Label notFind(env);
                         Label find(env);
                         GateRef res = CallRuntime(glue, RTSTUB_ID(TryGetInternString), { *varKey });
@@ -5668,6 +5561,7 @@ GateRef StubBuilder::SetPropertyByValue(GateRef glue,
                             varKey = res;
                             Jump(&checkDetector);
                         }
+                    #endif
                     }
                 }
             }
@@ -5744,6 +5638,11 @@ GateRef StubBuilder::DefinePropertyByValue(GateRef glue, GateRef receiver, GateR
                     BRANCH(IsInternalString(*varKey), &setByName, &notIntenalString);
                     Bind(&notIntenalString);
                     {
+                    #if ENABLE_NEXT_OPTIMIZATION
+                        GateRef res = CallRuntime(glue, RTSTUB_ID(GetOrInternStringFromHashTrieTable), { *varKey });
+                        varKey = res;
+                        Jump(&checkDetector);
+                    #else
                         Label notFind(env);
                         Label find(env);
                         GateRef res = CallRuntime(glue, RTSTUB_ID(TryGetInternString), { *varKey });
@@ -5759,6 +5658,7 @@ GateRef StubBuilder::DefinePropertyByValue(GateRef glue, GateRef receiver, GateR
                             varKey = res;
                             Jump(&checkDetector);
                         }
+                    #endif
                     }
                 }
             }
@@ -6217,6 +6117,11 @@ void StubBuilder::FastSetPropertyByName(GateRef glue, GateRef obj, GateRef key, 
             Jump(&getByName);
             Bind(&notIntenalString);
             {
+            #if ENABLE_NEXT_OPTIMIZATION
+                GateRef res = CallRuntime(glue, RTSTUB_ID(GetOrInternStringFromHashTrieTable), { *keyVar });
+                keyVar = res;
+                Jump(&getByName);
+            #else
                 Label notFind(env);
                 Label find(env);
                 GateRef res = CallRuntime(glue, RTSTUB_ID(TryGetInternString), { *keyVar });
@@ -6232,6 +6137,7 @@ void StubBuilder::FastSetPropertyByName(GateRef glue, GateRef obj, GateRef key, 
                     keyVar = res;
                     Jump(&getByName);
                 }
+            #endif
             }
         }
         Bind(&getByName);
@@ -6797,7 +6703,7 @@ GateRef StubBuilder::FastStringEqual(GateRef glue, GateRef left, GateRef right)
             rightFlat.FlattenString(glue, right, &rightFlattenFastPath);
             Bind(&rightFlattenFastPath);
             {
-                BuiltinsStringStubBuilder stringBuilder(this);
+                BuiltinsStringStubBuilder stringBuilder(this, GetGlobalEnv(glue));
                 StringInfoGateRef leftStrInfoGate(&leftFlat);
                 StringInfoGateRef rightStrInfoGate(&rightFlat);
                 GateRef leftStrToInt = stringBuilder.StringAt(glue, leftStrInfoGate, Int32(0));
@@ -6868,7 +6774,7 @@ GateRef StubBuilder::StringCompareContents(GateRef glue, GateRef left, GateRef r
         BRANCH(Int32UnsignedLessThan(*i, minLength), &loopBody, &exit);
         Bind(&loopBody);
         {
-            BuiltinsStringStubBuilder stringBuilder(this);
+            BuiltinsStringStubBuilder stringBuilder(this, GetGlobalEnv(glue));
             GateRef leftStrToInt = stringBuilder.StringAt(glue, leftStrInfoGate, *i);
             GateRef rightStrToInt = stringBuilder.StringAt(glue, rightStrInfoGate, *i);
             Label notEqual(env);
@@ -8062,7 +7968,7 @@ GateRef StubBuilder::TryStringAdd(Environment *env, GateRef glue, GateRef left, 
         Label hasPendingException(env);
         // NOTICE-PGO: support string and number
         callback.ProfileOpType(TaggedInt(PGOSampleType::NumberOrStringType()));
-        BuiltinsStringStubBuilder builtinsStringStubBuilder(this);
+        BuiltinsStringStubBuilder builtinsStringStubBuilder(this, GetGlobalEnv(glue));
         result = builtinsStringStubBuilder.StringConcat(glue, left, NumberToString(glue, right));
         BRANCH(HasPendingException(glue), &hasPendingException, &exit);
         Bind(&hasPendingException);
@@ -8074,7 +7980,7 @@ GateRef StubBuilder::TryStringAdd(Environment *env, GateRef glue, GateRef left, 
         Label hasPendingException(env);
         // NOTICE-PGO: support string and number
         callback.ProfileOpType(TaggedInt(PGOSampleType::NumberOrStringType()));
-        BuiltinsStringStubBuilder builtinsStringStubBuilder(this);
+        BuiltinsStringStubBuilder builtinsStringStubBuilder(this, GetGlobalEnv(glue));
         result = builtinsStringStubBuilder.StringConcat(glue, NumberToString(glue, left), right);
         BRANCH(HasPendingException(glue), &hasPendingException, &exit);
         Bind(&hasPendingException);
@@ -8085,7 +7991,7 @@ GateRef StubBuilder::TryStringAdd(Environment *env, GateRef glue, GateRef left, 
     {
         Label hasPendingException(env);
         callback.ProfileOpType(TaggedInt(PGOSampleType::StringType()));
-        BuiltinsStringStubBuilder builtinsStringStubBuilder(this);
+        BuiltinsStringStubBuilder builtinsStringStubBuilder(this, GetGlobalEnv(glue));
         result = builtinsStringStubBuilder.StringConcat(glue, left, right);
         BRANCH(HasPendingException(glue), &hasPendingException, &exit);
         Bind(&hasPendingException);
@@ -9536,7 +9442,7 @@ void StubBuilder::TryFastGetArrayIterator(GateRef glue, GateRef hclass, GateRef 
         BRANCH(GetArrayIteratorDetector(globalEnv), slowPath2, &arrayDetectorValid);
         Bind(&arrayDetectorValid);
         {
-            BuiltinsArrayStubBuilder arrayStubBuilder(this);
+            BuiltinsArrayStubBuilder arrayStubBuilder(this, globalEnv);
             arrayStubBuilder.ElementsKindHclassCompare(glue, hclass, matchArray, slowPath2);
         }
     }
@@ -9600,17 +9506,17 @@ void StubBuilder::TryFastGetIterator(GateRef glue, GateRef obj, GateRef hclass,
 
     Bind(&matchMap);
     {
-        BuiltinsCollectionStubBuilder<JSMap> collectionStubBuilder(this, glue, obj, Int32(0));
+        BuiltinsCollectionStubBuilder<JSMap> collectionStubBuilder(this, glue, obj, Int32(0), GetGlobalEnv(glue));
         collectionStubBuilder.Entries(&result, exit, slowPath);
     }
     Bind(&matchSet);
     {
-        BuiltinsCollectionStubBuilder<JSSet> collectionStubBuilder(this, glue, obj, Int32(0));
+        BuiltinsCollectionStubBuilder<JSSet> collectionStubBuilder(this, glue, obj, Int32(0), GetGlobalEnv(glue));
         collectionStubBuilder.Values(&result, exit, slowPath);
     }
     Bind(&matchArray);
     {
-        BuiltinsArrayStubBuilder arrayStubBuilder(this);
+        BuiltinsArrayStubBuilder arrayStubBuilder(this, GetGlobalEnv(glue));
         arrayStubBuilder.Values(glue, obj, Int32(0), &result, exit, slowPath);
     }
 }
@@ -9888,7 +9794,7 @@ GateRef StubBuilder::GetTypeArrayPropertyByName(GateRef glue, GateRef receiver, 
         BRANCH(Int32GreaterThanOrEqual(index, Int32(0)), &validIndex, &notValidIndex);
         Bind(&validIndex);
         {
-            BuiltinsTypedArrayStubBuilder typedArrayStubBuilder(this);
+            BuiltinsTypedArrayStubBuilder typedArrayStubBuilder(this, GetGlobalEnv(glue));
             result = typedArrayStubBuilder.FastGetPropertyByIndex(glue, holder, index, jsType);
             Jump(&exit);
         }
@@ -9998,7 +9904,7 @@ GateRef StubBuilder::GetNormalStringData([[maybe_unused]] GateRef glue, const St
     Label isUtf16(env);
     DEFVARIABLE(result, VariableType::NATIVE_POINTER(), Undefined());
     GateRef data = ChangeTaggedPointerToInt64(
-        PtrAdd(stringInfoGate.GetString(), IntPtr(LineEcmaString::DATA_OFFSET)));
+        PtrAdd(stringInfoGate.GetString(), IntPtr(LineString::DATA_OFFSET)));
     BRANCH(IsUtf8String(stringInfoGate.GetString()), &isUtf8, &isUtf16);
     Bind(&isUtf8);
     {
@@ -10523,7 +10429,7 @@ GateRef StubBuilder::IntToEcmaString(GateRef glue, GateRef number)
         newBuilder.AllocLineStringObject(&result, &afterNew, Int32(1), true);
         Bind(&afterNew);
         n = Int32Add(Int32('0'), *n);
-        GateRef dst = ChangeTaggedPointerToInt64(PtrAdd(*result, IntPtr(LineEcmaString::DATA_OFFSET)));
+        GateRef dst = ChangeTaggedPointerToInt64(PtrAdd(*result, IntPtr(LineString::DATA_OFFSET)));
         Store(VariableType::INT8(), glue, dst, IntPtr(0), TruncInt32ToInt8(*n));
         Jump(&exit);
     }
@@ -12953,5 +12859,64 @@ ConstantIndex StubBuilder::SPECIAL_STRING_INDEX[SPECIAL_VALUE_NUM] = {
 GateRef StubBuilder::ThreeInt64Min(GateRef first, GateRef second, GateRef third)
 {
     return env_->GetBuilder()->ThreeInt64Min(first, second, third);
+}
+
+void StubBuilder::ComputeRawHashcode(GateRef glue, Label *exit, Variable* result, StringInfoGateRef stringGate, bool isUtf8)
+{
+    auto env= GetEnvironment();
+    Label loopHead(env);
+    Label loopEnd(env);
+    Label doLoop(env);
+    GateRef hashShift = Int32(static_cast<uint32_t>(BaseString::HASH_SHIFT));
+    GateRef length = stringGate.GetLength();
+    GateRef data = GetNormalStringData(glue, stringGate);
+    DEFVARIABLE(i, VariableType::INT32(), Int32(0));
+    Jump(&loopHead);
+    LoopBegin(&loopHead);
+    {
+        BRANCH_LIKELY(Int32LessThan(*i, length), &doLoop, exit);
+        Bind(&doLoop);
+        {
+            GateRef offset = isUtf8 ? *i : Int32LSL(*i, Int32(1));
+            GateRef c = LoadPrimitive(isUtf8 ? VariableType::INT8() : VariableType::INT16(), data, offset);
+            GateRef u32c = isUtf8 ? ZExtInt8ToInt32(c) : ZExtInt16ToInt32(c);
+            GateRef preHash = result->ReadVariable();
+            result->WriteVariable(Int32Add(Int32Sub(Int32LSL(preHash, hashShift), preHash), u32c));
+            Jump(&loopEnd);
+        }
+    }
+    Bind(&loopEnd);
+    i = Int32Add(*i, Int32(1));
+    LoopEnd(&loopHead);
+}
+
+GateRef StubBuilder::ComputeStringHashcode(GateRef glue, GateRef str)
+{
+    auto env = GetEnvironment();
+    Label entry(env);
+    env->SubCfgEntry(&entry);
+    Label exit(env);
+    DEFVARIABLE(result, VariableType::INT32(), Int32(0));
+
+    FlatStringStubBuilder flatBuilder(this);
+    Label afterFlatten(env);
+    flatBuilder.FlattenString(glue, str, &afterFlatten);
+    Bind(&afterFlatten);
+    StringInfoGateRef stringInfoGate(&flatBuilder);
+    Label isUtf8(env);
+    Label isUtf16(env);
+    BRANCH(IsUtf8String(stringInfoGate.GetString()), &isUtf8, &isUtf16);
+    Bind(&isUtf8);
+    {
+        ComputeRawHashcode(glue, &exit, &result, stringInfoGate, true);
+    }
+    Bind(&isUtf16);
+    {
+        ComputeRawHashcode(glue, &exit, &result, stringInfoGate, false);
+    }
+    Bind(&exit);
+    auto ret = *result;
+    env->SubCfgExit();
+    return ret;
 }
 }  // namespace panda::ecmascript::kungfu

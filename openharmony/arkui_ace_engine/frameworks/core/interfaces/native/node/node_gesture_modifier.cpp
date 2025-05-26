@@ -42,6 +42,7 @@
 namespace OHOS::Ace::NG {
 namespace {
     constexpr int32_t MAX_POINTS = 10;
+    constexpr int32_t API_TARGET_VERSION_MASK = 1000;
 }
 ArkUIGesture* createPanGesture(
     ArkUI_Int32 fingers, ArkUI_Int32 direction, ArkUI_Float64 distance, bool limitFingerCount, void* userData = nullptr)
@@ -497,7 +498,7 @@ void SendGestureEvent(GestureEvent& info, int32_t eventKind, void* extraParam)
     eventData.nodeId = 0;
     eventData.extraParam = reinterpret_cast<ArkUI_Int64>(extraParam);
     eventData.gestureAsyncEvent.subKind = eventKind;
-    eventData.apiVersion = AceApplicationInfo::GetInstance().GetApiTargetVersion();
+    eventData.apiVersion = AceApplicationInfo::GetInstance().GetApiTargetVersion() % API_TARGET_VERSION_MASK;
     GetGestureEvent(eventData.gestureAsyncEvent, info);
     if (info.GetInputEventType() == InputEventType::AXIS) {
         ArkUIAxisEvent rawInputEvent;
@@ -663,10 +664,10 @@ void clearGestures(ArkUINodeHandle node)
 }
 
 // <fingerid, iterator of touchTestResults in eventManager>
-using TouchRecoginerTarget = std::vector<std::pair<int32_t, TouchTestResult::iterator>>;
-using TouchRecognizerMap = std::map<TouchEventTarget*, TouchRecoginerTarget>;
-
-bool IsFingerCollectedByTarget(TouchRecoginerTarget& target, int32_t fingerId)
+using TouchRecognizerTarget = std::vector<std::pair<int32_t, TouchTestResult::iterator>>;
+using TouchRecognizerMap = std::map<TouchEventTarget*, TouchRecognizerTarget>;
+ 
+bool IsFingerCollectedByTarget(TouchRecognizerTarget& target, int32_t fingerId)
 {
     for (const auto& item : target) {
         if (item.first == fingerId) {
@@ -752,7 +753,7 @@ ArkUI_Bool touchRecognizerCancelTouch(void* recognizer)
 {
     auto iter = static_cast<TouchRecognizerMap::value_type*>(recognizer);
     TouchEventTarget* touchEventTarget = iter->first;
-    TouchRecoginerTarget& touchRecognizerTarget = iter->second;
+    TouchRecognizerTarget& touchRecognizerTarget = iter->second;
     auto node = touchEventTarget->GetAttachedNode().Upgrade();
     CHECK_NULL_RETURN(node, false);
     auto pipeline = node->GetContext();
@@ -805,8 +806,8 @@ void setGestureInterrupterToNodeWithUserData(
         }
         interruptInfo.responseLinkRecognizer = othersRecognizer;
         interruptInfo.count = count;
-        ArkUI_UIInputEvent inputEvent { ARKUI_UIINPUTEVENT_TYPE_TOUCH, C_TOUCH_EVENT_ID,
-            &rawInputEvent };
+        ArkUI_UIInputEvent inputEvent { ARKUI_UIINPUTEVENT_TYPE_TOUCH, C_TOUCH_EVENT_ID, &rawInputEvent };
+        inputEvent.apiVersion = AceApplicationInfo::GetInstance().GetApiTargetVersion() % API_TARGET_VERSION_MASK;
         ArkUIGestureEvent arkUIGestureEvent { gestureEvent, nullptr };
         interruptInfo.inputEvent = &inputEvent;
         interruptInfo.gestureEvent = &arkUIGestureEvent;

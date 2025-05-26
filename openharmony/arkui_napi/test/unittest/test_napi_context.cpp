@@ -30,6 +30,7 @@ constexpr const char SENDABLE_FUNCTION_NAME[] = "func";
 constexpr const char STRING_TEST[] = "a";
 constexpr const char TEST_WRAP_STRING[] = "testWrapStr";
 constexpr const int32_t LENGTH = 1024;
+constexpr const char TEST_STR[] = "test";
 
 static napi_value SendableFunc(napi_env env, napi_callback_info info)
 {
@@ -66,11 +67,7 @@ public:
     {
         auto arkNativeEngine = reinterpret_cast<ArkNativeEngine* >(engine_);
         arkNativeEngine->isMainEnvContext_ = isMainContext;
-        if (isMainContext) {
-            EXPECT_TRUE(arkNativeEngine->IsMainEnvContext());
-        } else {
-            EXPECT_FALSE(arkNativeEngine->IsMainEnvContext());
-        }
+        ASSERT_EQ(arkNativeEngine->IsMainEnvContext(), isMainContext);
     }
 
 private:
@@ -124,21 +121,13 @@ HWTEST_F(NapiContextTest, NapiCreateContextTest003, testing::ext::TestSize.Level
     napi_env env = reinterpret_cast<napi_env>(engine_);
 
     // mock exception
-    napi_status status = napi_throw_error(env, TEST_ERROR_CODE, TEST_ERROR_MESSAGE);
-    EXPECT_EQ(status, napi_ok);
+    NAPI_THROW_ERROR(env, TEST_ERROR_CODE, TEST_ERROR_MESSAGE);
 
-    NativeEngineProxy newEngine;
-    napi_env newEnv = napi_env(newEngine);
-
-    auto context = newEngine->context_;
-    (newEngine->context_).Empty();
-    status = napi_create_ark_context(env, &newEnv);
-    EXPECT_EQ(status, napi_pending_exception);
-    newEngine->context_ = context;
+    napi_env newEnv = nullptr;
+    EXPECT_EQ(napi_create_ark_context(env, &newEnv), napi_pending_exception);
     //clear exception
     napi_value error = nullptr;
-    status = napi_get_and_clear_last_exception(env, &error);
-    EXPECT_EQ(status, napi_ok);
+    EXPECT_EQ(napi_get_and_clear_last_exception(env, &error), napi_ok);
 }
 
 /**
@@ -173,11 +162,11 @@ HWTEST_F(NapiContextTest, NapiCreateContextTest005, testing::ext::TestSize.Level
     ASSERT_NE(engine_, nullptr);
     napi_env env = reinterpret_cast<napi_env>(engine_);
 
-    NativeEngineProxy newEngine;
-    napi_env newEnv = napi_env(newEngine);
+    napi_env newEnv = nullptr;
 
     napi_status status = napi_create_ark_context(env, &newEnv);
-    EXPECT_EQ(status, napi_generic_failure);
+    EXPECT_EQ(status, napi_ok);
+    EXPECT_EQ(napi_destroy_ark_context(newEnv), napi_ok);
 }
 
 /**
@@ -243,43 +232,21 @@ HWTEST_F(NapiContextTest, NapiSwitchContextTest003, testing::ext::TestSize.Level
     ASSERT_NE(engine_, nullptr);
     napi_env env = reinterpret_cast<napi_env>(engine_);
 
-    // mock exception
-    napi_status status = napi_throw_error(env, TEST_ERROR_CODE, TEST_ERROR_MESSAGE);
-    EXPECT_EQ(status, napi_ok);
+    NAPI_THROW_ERROR(env, TEST_ERROR_CODE, TEST_ERROR_MESSAGE);
 
-    status = napi_switch_ark_context(env);
-    EXPECT_EQ(status, napi_pending_exception);
+    EXPECT_EQ(napi_switch_ark_context(env), napi_pending_exception);
 
     //clear exception
     napi_value error = nullptr;
-    status = napi_get_and_clear_last_exception(env, &error);
-    EXPECT_EQ(status, napi_ok);
+    EXPECT_EQ(napi_get_and_clear_last_exception(env, &error), napi_ok);
 }
 
 /**
  * @tc.name: NapiSwitchContextTest004
- * @tc.desc: Test napi_switch_ark_context when context is empty.
- * @tc.type: FUNC
- */
-HWTEST_F(NapiContextTest, NapiSwitchContextTest004, testing::ext::TestSize.Level1)
-{
-    ASSERT_NE(engine_, nullptr);
-    napi_env env = reinterpret_cast<napi_env>(engine_);
-    auto arkNativeEngine = reinterpret_cast<ArkNativeEngine* >(engine_);
-    auto context = arkNativeEngine->context_;
-    arkNativeEngine->context_ = panda::Global<panda::JSValueRef>();
-
-    napi_status status = napi_switch_ark_context(env);
-    EXPECT_EQ(status, napi_generic_failure);
-    arkNativeEngine->context_ = context;
-}
-
-/**
- * @tc.name: NapiSwitchContextTest005
  * @tc.desc: Test napi_switch_ark_context successfully.
  * @tc.type: FUNC
  */
-HWTEST_F(NapiContextTest, NapiSwitchContextTest005, testing::ext::TestSize.Level1)
+HWTEST_F(NapiContextTest, NapiSwitchContextTest004, testing::ext::TestSize.Level1)
 {
     ASSERT_NE(engine_, nullptr);
     napi_env env = reinterpret_cast<napi_env>(engine_);
@@ -298,22 +265,20 @@ HWTEST_F(NapiContextTest, NapiDestroyContextTest001, testing::ext::TestSize.Leve
     EXPECT_EQ(status, napi_invalid_arg);
 }
 
+
 /**
  * @tc.name: NapiDestroyContextTest002
- * @tc.desc: Test napi_destroy_ark_context when context is empty.
+ * @tc.desc: Test napi_destroy_ark_context when current env is using.
  * @tc.type: FUNC
  */
 HWTEST_F(NapiContextTest, NapiDestroyContextTest002, testing::ext::TestSize.Level1)
 {
-    ASSERT_NE(engine_, nullptr);
-    napi_env env = reinterpret_cast<napi_env>(engine_);
-    auto arkNativeEngine = reinterpret_cast<ArkNativeEngine* >(engine_);
-    auto context = arkNativeEngine->context_;
-    arkNativeEngine->context_ = panda::Global<panda::JSValueRef>();
-
+    NativeEngineProxy engine(engine_);
+    napi_env env = napi_env(engine);
+    EXPECT_EQ(napi_switch_ark_context(env), napi_ok);
     napi_status status = napi_destroy_ark_context(env);
-    EXPECT_EQ(status, napi_generic_failure);
-    arkNativeEngine->context_ = context;
+    EXPECT_EQ(status, napi_invalid_arg);
+    EXPECT_EQ(napi_switch_ark_context(reinterpret_cast<napi_env>(engine_)), napi_ok);
 }
 
 /**
@@ -354,21 +319,6 @@ HWTEST_F(NapiContextTest, NapiDestroyContextTest004, testing::ext::TestSize.Leve
 }
 
 /**
- * @tc.name: NapiDestroyContextTest005
- * @tc.desc: Test napi_destroy_ark_context when current env is using.
- * @tc.type: FUNC
- */
-HWTEST_F(NapiContextTest, NapiDestroyContextTest005, testing::ext::TestSize.Level1)
-{
-    NativeEngineProxy engine;
-    napi_env env = napi_env(engine);
-    SetMainEnvContext(false);
-    napi_status status = napi_destroy_ark_context(env);
-    EXPECT_EQ(status, napi_invalid_arg);
-    SetMainEnvContext(true);
-}
-
-/**
  * @tc.name: NapiGetUvEventLoopWithMultiContextTest001
  * @tc.desc: Test napi_get_uv_event_loop when designated env is generated by napi_create_ark_context interface.
  * @tc.type: FUNC
@@ -403,12 +353,12 @@ HWTEST_F(NapiContextTest, CreateSendableArrayWithMultiContext001, testing::ext::
 }
 
 /**
- * @tc.name: CreateSendableArrayWithLengthWithMuLtiContext001
+ * @tc.name: CreateSendableArrayWithLengthWithMultiContext001
  * @tc.desc: Test napi_create_sendable_array_with_length when designated env is generated by napi_create_ark_context
  *           interface.
  * @tc.type: FUNC
  */
-HWTEST_F(NapiContextTest, CreateSendableArrayWithLengthWithMuLtiContext001, testing::ext::TestSize.Level1)
+HWTEST_F(NapiContextTest, CreateSendableArrayWithLengthWithMultiContext001, testing::ext::TestSize.Level1)
 {
     ASSERT_NE(engine_, nullptr);
     napi_env env = reinterpret_cast<napi_env>(engine_);
@@ -683,4 +633,115 @@ HWTEST_F(NapiContextTest, CreateSendableTypedArrayWithMultiContext001, testing::
     res = napi_create_sendable_typedarray(env, napi_uint8_clamped_array, LENGTH / 2, arraybuffer, 1, &result);
     ASSERT_EQ(res, napi_invalid_arg);
     SetMainEnvContext(true);
+}
+
+/**
+ * @tc.name: ExternalTestWithMultiContext001
+ * @tc.desc: Test external type.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NapiContextTest, ExternalTestWithMultiContext001, testing::ext::TestSize.Level1)
+{
+    ASSERT_NE(engine_, nullptr);
+    napi_env env = (napi_env)engine_;
+    // mock not main env context case
+    EXPECT_TRUE(engine_->IsMainEnvContext());
+    auto arkNativeEngine = reinterpret_cast<ArkNativeEngine* >(engine_);
+    arkNativeEngine->isMainEnvContext_ = false;
+
+    napi_value external = nullptr;
+    napi_create_external(
+        env, (void*)TEST_STR,
+        [](napi_env env, void* data, void* hint) { ASSERT_STREQ((const char*)data, (const char*)hint); },
+        (void*)TEST_STR, &external);
+
+    ASSERT_CHECK_VALUE_TYPE(env, external, napi_external);
+    void* tmpExternal = nullptr;
+    napi_get_value_external(env, external, &tmpExternal);
+    ASSERT_TRUE(tmpExternal);
+    ASSERT_EQ(tmpExternal, TEST_STR);
+    arkNativeEngine->isMainEnvContext_ = true;
+}
+
+/**
+ * @tc.name: CreateExternalWithSizeAndMultiContextTest001
+ * @tc.desc: Test create external with size.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NapiContextTest, CreateExternalWithSizeTest001, testing::ext::TestSize.Level1)
+{
+    ASSERT_NE(engine_, nullptr);
+    napi_env env = (napi_env)engine_;
+    // mock not main env context case
+    EXPECT_TRUE(engine_->IsMainEnvContext());
+    auto arkNativeEngine = reinterpret_cast<ArkNativeEngine* >(engine_);
+    arkNativeEngine->isMainEnvContext_ = false;
+
+    size_t size = sizeof(TEST_STR) / sizeof(char);
+    napi_value external = nullptr;
+    napi_create_external_with_size(
+        env, (void*)TEST_STR,
+        [](napi_env env, void* data, void* hint) { ASSERT_STREQ((const char*)data, (const char*)hint); },
+        (void*)TEST_STR, &external, size);
+
+    ASSERT_CHECK_VALUE_TYPE(env, external, napi_external);
+    void* tempExternal = nullptr;
+    napi_get_value_external(env, external, &tempExternal);
+    ASSERT_TRUE(tempExternal);
+    ASSERT_EQ(tempExternal, TEST_STR);
+    arkNativeEngine->isMainEnvContext_ = true;
+}
+
+/**
+ * @tc.name: NapiCreateExternalArraybufferWithMultiContextTest001
+ * @tc.desc: Test interface of napi_create_external_arraybuffer
+ * @tc.type: FUNC
+ */
+HWTEST_F(NapiContextTest, NapiCreateExternalArraybufferWithMultiContextTest001, testing::ext::TestSize.Level1)
+{
+    ASSERT_NE(engine_, nullptr);
+    napi_env env = reinterpret_cast<napi_env>(engine_);
+    // mock not main env context case
+    EXPECT_TRUE(engine_->IsMainEnvContext());
+    auto arkNativeEngine = reinterpret_cast<ArkNativeEngine* >(engine_);
+    arkNativeEngine->isMainEnvContext_ = false;
+
+    napi_value external = nullptr;
+    auto res = napi_create_external_arraybuffer(
+        env, (void*)TEST_STR, strlen(TEST_STR),
+        [](napi_env env, void* data, void* hint) { ASSERT_STREQ((const char*)data, (const char*)hint); },
+        (void*)TEST_STR, &external);
+    ASSERT_EQ(res, napi_ok);
+
+    arkNativeEngine->isMainEnvContext_ = true;
+}
+
+/**
+ * @tc.name: NapiCreateExternalBufferWithMultiContextTest001
+ * @tc.desc: Test interface of napi_create_external_buffer
+ * @tc.type: FUNC
+ */
+HWTEST_F(NapiContextTest, NapiCreateExternalBufferWithMultiContextTest001, testing::ext::TestSize.Level1)
+{
+    static constexpr int32_t NAPI_BUFFER_SIZE = 64;
+    napi_env env = (napi_env)engine_;
+
+    napi_value buffer = nullptr;
+    char testStr[] = "test";
+    void* bufferPtr = testStr;
+
+    size_t bufferSize = NAPI_BUFFER_SIZE;
+    napi_status status = napi_create_external_buffer(
+        env, bufferSize, bufferPtr, [](napi_env env, void* data, void* hint) {
+            ASSERT_STREQ((const char*)data, (const char*)hint);
+        }, (void*)testStr, &buffer);
+    ASSERT_EQ(status, napi_ok);
+    void* tmpBufferPtr = nullptr;
+    size_t bufferLength = 0;
+    status = napi_get_buffer_info(env, buffer, &tmpBufferPtr, &bufferLength);
+    ASSERT_EQ(status, napi_ok);
+    bool isBuffer = false;
+    status = napi_is_buffer(env, buffer, &isBuffer);
+    ASSERT_EQ(status, napi_ok);
+    ASSERT_EQ(bufferSize, bufferLength);
 }

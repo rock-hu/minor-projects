@@ -355,6 +355,8 @@ void RotationRecognizer::OnResetStatus()
 
 void RotationRecognizer::SendCallbackMsg(const std::unique_ptr<GestureEventFunc>& callback, GestureCallbackType type)
 {
+    std::string callbackName = GetCallbackName(callback);
+    ACE_SCOPED_TRACE("RotationRecognizer %s, resultAngle_: %f", callbackName.c_str(), resultAngle_);
     if (gestureInfo_ && gestureInfo_->GetDisposeTag()) {
         return;
     }
@@ -387,9 +389,11 @@ void RotationRecognizer::SendCallbackMsg(const std::unique_ptr<GestureEventFunc>
             info.SetHorizontalAxis(lastAxisEvent_.horizontalAxis);
             info.SetSourceTool(lastAxisEvent_.sourceTool);
             info.SetPressedKeyCodes(lastAxisEvent_.pressedCodes);
+            info.CopyConvertInfoFrom(lastAxisEvent_.convertInfo);
         } else {
             info.SetSourceTool(touchPoint.sourceTool);
             info.SetPressedKeyCodes(touchPoint.pressedKeyCodes_);
+            info.CopyConvertInfoFrom(touchPoint.convertInfo);
         }
         info.SetPointerEvent(lastPointEvent_);
         info.SetInputEventType(inputEventType_);

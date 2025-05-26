@@ -239,6 +239,7 @@ public:
     {
         return VRegCountField::Get(value_);
     }
+    static bool IsBytecodeNoThrow(EcmaOpcode &opcode);
 
 private:
     BytecodeMetaData() = default;
@@ -827,6 +828,11 @@ public:
     bool HasFrameState() const
     {
         return HasFrameArgs() || !NoThrow();
+    }
+
+    bool NeedFrameStateInPlace() const
+    {
+        return IsCall() || IsAccessorBC() || !NoThrow();
     }
 
     bool IsCall() const

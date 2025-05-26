@@ -38,6 +38,7 @@
 #include "core/components_ng/property/magic_layout_property.h"
 #include "core/components_ng/property/measure_property.h"
 #include "core/components_ng/property/property.h"
+#include "ui/properties/safe_area_insets.h"
 
 namespace OHOS::Ace::NG {
 
@@ -138,6 +139,11 @@ public:
 
     TextDirection GetNonAutoLayoutDirection() const;
 
+    uint32_t GetBackgroundIgnoresLayoutSafeAreaEdges() const
+    {
+        return backgroundIgnoresLayoutSafeAreaEdges_.value_or(NG::SAFE_AREA_EDGE_NONE);
+    }
+
     RefPtr<GeometryTransition> GetGeometryTransition() const;
 
     MeasureType GetMeasureType(MeasureType defaultType = MeasureType::MATCH_CONTENT) const
@@ -172,6 +178,7 @@ public:
     }
 
     void UpdateLayoutDirection(TextDirection value);
+    void UpdateBackgroundIgnoresLayoutSafeAreaEdges(uint32_t value);
 
     void UpdateGeometryTransition(const std::string& id,
         bool followWithoutTransition = false, bool doRegisterSharedTransition = true);
@@ -203,6 +210,8 @@ public:
 
     void UpdateLayoutPolicyProperty(const LayoutCalPolicy layoutPolicy, bool isWidth);
 
+    bool UpdateLayoutPolicyWithCheck(const LayoutCalPolicy layoutPolicy, bool isWidth);
+
     std::optional<NG::LayoutPolicyProperty> GetLayoutPolicyProperty();
 
     void ClearUserDefinedIdealSize(bool clearWidth, bool clearHeight);
@@ -212,6 +221,8 @@ public:
     virtual void UpdateCalcMaxSize(const CalcSize& value);
 
     std::pair<std::vector<std::string>, std::vector<std::string>> CalcToString(const CalcSize& calcSize);
+
+    virtual void ExpandConstraintWithSafeArea();
 
     void UpdateLayoutConstraint(const LayoutConstraintF& parentConstraint);
 
@@ -325,6 +336,20 @@ public:
 
     void UpdateSafeAreaExpandOpts(const SafeAreaExpandOpts& opts);
 
+    void UpdateIgnoreLayoutSafeAreaOpts(const IgnoreLayoutSafeAreaOpts& opts);
+
+    bool IsExpandConstraintNeeded();
+
+    const std::unique_ptr<IgnoreLayoutSafeAreaOpts>& GetIgnoreLayoutSafeAreaOpts() const
+    {
+        return ignoreLayoutSafeAreaOpts_;
+    }
+
+    bool IsIgnoreOptsValid() const
+    {
+        return ignoreLayoutSafeAreaOpts_ && ignoreLayoutSafeAreaOpts_->NeedIgnoreLayoutSafeArea();
+    }
+
     bool IsUsingPosition() const
     {
         return usingPosition_;
@@ -416,6 +441,7 @@ public:
     void CheckLocalizedBorderImageWidth(const TextDirection& direction);
     void CheckLocalizedBorderImageOutset(const TextDirection& direction);
     void CheckLocalizedSafeAreaPadding(const TextDirection& direction);
+    void CheckIgnoreLayoutSafeArea(const TextDirection& direction);
 
     virtual void OnPropertyChangeMeasure() {}
 
@@ -443,6 +469,8 @@ private:
 
     void PaddingToJsonValue(std::unique_ptr<JsonValue>& json, const InspectorFilter& filter) const;
     void MarginToJsonValue(std::unique_ptr<JsonValue>& json, const InspectorFilter& filter) const;
+    void IgnoreLayoutSafeAreaToJsonValue(std::unique_ptr<JsonValue>& json, const InspectorFilter& filter) const;
+    void SafeAreaExpandToJsonValue(std::unique_ptr<JsonValue>& json, const InspectorFilter& filter) const;
     void SafeAreaPaddingToJsonValue(std::unique_ptr<JsonValue>& json, const InspectorFilter& filter) const;
 
     // available in measure process.
@@ -463,6 +491,7 @@ private:
     std::optional<NG::LayoutPolicyProperty> layoutPolicy_;
 
     std::unique_ptr<SafeAreaExpandOpts> safeAreaExpandOpts_;
+    std::unique_ptr<IgnoreLayoutSafeAreaOpts> ignoreLayoutSafeAreaOpts_;
     std::unique_ptr<SafeAreaInsets> safeAreaInsets_;
 
     std::unique_ptr<BorderWidthProperty> borderWidth_;
@@ -475,6 +504,7 @@ private:
     std::optional<TextDirection> layoutDirection_;
     std::optional<RectF> layoutRect_;
     std::optional<Dimension> markAnchorStart_;
+    std::optional<uint32_t> backgroundIgnoresLayoutSafeAreaEdges_;
 
     WeakPtr<GeometryTransition> geometryTransition_;
 

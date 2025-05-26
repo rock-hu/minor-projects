@@ -17,33 +17,22 @@
 #include <stack>
 #include <unistd.h>
 
-#include "allocator/region_manager.h"
+#include "common_components/base_runtime/hooks.h"
 #include "common_components/common_runtime/src/common/type_def.h"
-#if defined(__RTOS__)
-#include <private/futex.h>
-#elif defined(_WIN64)
+#if defined(_WIN64)
 #define NOGDI
 #include <windows.h>
 #endif
+#include "common_components/common_runtime/src/heap/allocator/region_manager.h"
 #include "common_components/common_runtime/src/heap/collector/trace_collector.h"
 #include "common_components/common_runtime/src/common/scoped_object_access.h"
 #include "common_components/common_runtime/src/mutator/mutator_manager.h"
-#ifdef _WIN64
-#include "common_components/common_runtime/src/os/windows/win_module_manager.h"
-#endif
 
 namespace panda {
-JSGCCallbackHookType g_jsGCCallbackHook = nullptr;
-
-extern "C" PUBLIC_API void ArkRegisterJSGCCallbackHook(JSGCCallbackHookType hook)
-{
-    g_jsGCCallbackHook = hook;
-}
-
-ThreadLocalData *ArkCommonGetThreadLocalData()
+ThreadLocalData *GetThreadLocalData()
 {
     uintptr_t tlDataAddr = reinterpret_cast<uintptr_t>(ThreadLocal::GetThreadLocalData());
-#if defined(__aarch64__) && not defined(__RTOS__)
+#if defined(__aarch64__)
     if (Heap::GetHeap().IsGcStarted()) {
         // Since the TBI(top bit ignore) feature in Aarch64,
         // set gc phase to high 8-bit of ThreadLocalData Address for gc barrier fast path.
@@ -58,10 +47,10 @@ ThreadLocalData *ArkCommonGetThreadLocalData()
 bool MutatorBase::TransitionGCPhase(bool bySelf)
 {
     do {
-        GCPhaseTransitionState state = transitionState.load();
+        GCPhaseTransitionState state = transitionState_.load();
         // If this mutator phase transition has finished, just return
         if (state == FINISH_TRANSITION) {
-            bool result = mutatorPhase.load() == Heap::GetHeap().GetGCPhase();
+            bool result = mutatorPhase_.load() == Heap::GetHeap().GetGCPhase();
             if (!bySelf && !result) { // why check bySelf?
                 LOG_COMMON(FATAL) << "Unresolved fatal";
                 UNREACHABLE_CC();
@@ -85,9 +74,9 @@ bool MutatorBase::TransitionGCPhase(bool bySelf)
 
         // Current thread set atomic variable to ensure atomicity of phase transition
         CHECK_CC(state == NEED_TRANSITION);
-        if (transitionState.compare_exchange_weak(state, IN_TRANSITION)) {
+        if (transitionState_.compare_exchange_weak(state, IN_TRANSITION)) {
             TransitionToGCPhaseExclusive(Heap::GetHeap().GetGCPhase());
-            transitionState.store(FINISH_TRANSITION, std::memory_order_release);
+            transitionState_.store(FINISH_TRANSITION, std::memory_order_release);
             return true;
         }
     } while (true);
@@ -123,10 +112,10 @@ void MutatorBase::HandleSuspensionRequest()
 
 void MutatorBase::HandleJSGCCallback()
 {
-    if (mutator != nullptr) {
-        void *vm = reinterpret_cast<Mutator*>(mutator)->GetEcmaVMPtr();
+    if (mutator_ != nullptr) {
+        void *vm = reinterpret_cast<Mutator*>(mutator_)->GetEcmaVMPtr();
         if (vm != nullptr) {
-            g_jsGCCallbackHook(vm);
+            JSGCCallback(vm);
         }
     }
 }
@@ -227,18 +216,8 @@ inline void CheckAndPush(BaseObject* obj, std::set<BaseObject*>& rootSet, std::s
     }
 }
 
-EnumThreadStackRootType g_enumThreadStackRootHook = nullptr;
-extern "C" PUBLIC_API void ArkRegisterEnumThreadStackRootHook(EnumThreadStackRootType hook) {
-    g_enumThreadStackRootHook = hook;
-}
-
 inline void MutatorBase::GcPhaseEnum(GCPhase newPhase)
 {
-     // below function is registed by arkts
-    AllocBufferAddHookType allocBufferAddHook = [](uint64_t *obj) {
-        AllocationBuffer* buffer = AllocationBuffer::GetOrCreateAllocBuffer();
-        buffer->PushRoot(obj);
-    };
 }
 
 // comment all
@@ -249,8 +228,8 @@ inline void MutatorBase::GCPhasePreForward(GCPhase newPhase)
 inline void MutatorBase::HandleGCPhase(GCPhase newPhase)
 {
     if (newPhase == GCPhase::GC_PHASE_POST_MARK) {
-        std::lock_guard<std::mutex> lg(mutatorBaseLock);
-        Mutator *actMutator = reinterpret_cast<Mutator*>(mutator);
+        std::lock_guard<std::mutex> lg(mutatorBaseLock_);
+        Mutator *actMutator = reinterpret_cast<Mutator*>(mutator_);
         if (actMutator->satbNode_ != nullptr) {
             DCHECK_CC(actMutator->satbNode_->IsEmpty());
             SatbBuffer::Instance().RetireNode(actMutator->satbNode_);
@@ -261,8 +240,8 @@ inline void MutatorBase::HandleGCPhase(GCPhase newPhase)
     } else if (newPhase == GCPhase::GC_PHASE_PRECOPY) {
         GCPhasePreForward(newPhase);
     } else if (newPhase == GCPhase::GC_PHASE_REMARK_SATB || newPhase == GCPhase::GC_PHASE_FINAL_MARK) {
-        std::lock_guard<std::mutex> lg(mutatorBaseLock);
-        Mutator *actMutator = reinterpret_cast<Mutator*>(mutator);
+        std::lock_guard<std::mutex> lg(mutatorBaseLock_);
+        Mutator *actMutator = reinterpret_cast<Mutator*>(mutator_);
         if (actMutator->satbNode_ != nullptr) {
             SatbBuffer::Instance().RetireNode(actMutator->satbNode_);
             actMutator->satbNode_ = nullptr;
@@ -276,10 +255,9 @@ inline void MutatorBase::HandleGCPhase(GCPhase newPhase)
 void MutatorBase::TransitionToGCPhaseExclusive(GCPhase newPhase)
 {
     HandleGCPhase(newPhase);
-    SetSafepointActive(false);
     // Clear mutator's suspend request after phase transition
     ClearSuspensionFlag(SUSPENSION_FOR_GC_PHASE);
-    mutatorPhase.store(newPhase, std::memory_order_release); // handshake between muator & mainGC thread
+    mutatorPhase_.store(newPhase, std::memory_order_release); // handshake between muator & mainGC thread
 }
 
 inline void MutatorBase::HandleCpuProfile()
@@ -291,11 +269,10 @@ inline void MutatorBase::HandleCpuProfile()
 void MutatorBase::TransitionToCpuProfileExclusive()
 {
     HandleCpuProfile();
-    SetSafepointActive(false);
     ClearSuspensionFlag(SUSPENSION_FOR_CPU_PROFILE);
 }
 
-extern "C" void ArkCommonPreRunManagedCode(Mutator* mutator, int layers, ThreadLocalData* threadData)
+void PreRunManagedCode(Mutator* mutator, int layers, ThreadLocalData* threadData)
 {
     if (UNLIKELY_CC(MutatorManager::Instance().StwTriggered())) {
         mutator->SetSuspensionFlag(Mutator::SuspensionType::SUSPENSION_FOR_STW);

@@ -590,6 +590,26 @@ HWTEST_F(ImageProviderTestNg, ImageProviderTestNg007, TestSize.Level1)
 }
 
 /**
+ * @tc.name: GetImageSize005
+ * @tc.desc: Test GetImageSize
+ * @tc.type: FUNC
+ */
+HWTEST_F(ImageProviderTestNg, GetImageSize005, TestSize.Level1)
+{
+    auto src = ImageSourceInfo(SRC_JPG);
+    auto ctx = AceType::MakeRefPtr<ImageLoadingContext>(src, LoadNotifier(nullptr, nullptr, nullptr), true);
+    EXPECT_EQ(ctx->stateManager_->GetCurrentState(), ImageLoadingState::UNLOADED);
+    auto size = ctx->GetImageSize();
+    EXPECT_EQ(size, SizeF(-1, -1));
+
+    ctx->imageObj_ =
+        AceType::MakeRefPtr<NG::StaticImageObject>(ImageSourceInfo(SRC_JPG), SizeF(LENGTH_63, LENGTH_128), nullptr);
+    ctx->GetImageObject()->SetOrientation(ImageRotateOrientation::LEFT);
+    size = ctx->GetImageSize();
+    EXPECT_EQ(size, SizeF(LENGTH_128, LENGTH_63));
+}
+
+/**
  * @tc.name: RoundUp001
  * @tc.desc: Test RoundUp with invalid input (infinite loop)
  * @tc.type: FUNC
@@ -1723,6 +1743,7 @@ HWTEST_F(ImageProviderTestNg, ImageProviderFailCallback001, TestSize.Level1)
 
     // Define the error message.
     auto errorMsg = "error";
+    // Define the error information.
     ImageErrorInfo errorInfo;
 
     // Invoke FailCallback to trigger the failure callback.
@@ -1768,6 +1789,7 @@ HWTEST_F(ImageProviderTestNg, ImageProviderFailCallback002, TestSize.Level1)
 
     // Define the error message.
     auto errorMsg = "error";
+    // Define the error information.
     ImageErrorInfo errorInfo;
 
     // Invoke FailCallback to trigger the failure callback.

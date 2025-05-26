@@ -17,7 +17,10 @@
 #include "ecmascript/checkpoint/thread_state_transition.h"
 #ifdef USE_CMC_GC
 #include "common_interfaces/base_runtime.h"
-#include "ecmascript/crt.h"
+#include "ecmascript/dynamic_object_accessor.h"
+#include "ecmascript/dynamic_object_descriptor.h"
+#include "ecmascript/dynamic_type_converter.h"
+#include "common_interfaces/thread/thread_holder_manager.h"
 #endif
 #include "ecmascript/jit/jit.h"
 #include "ecmascript/jspandafile/program_object.h"
@@ -85,13 +88,24 @@ void Runtime::CreateIfFirstVm(const JSRuntimeOptions &options)
         instance_->SetEnableLargeHeap(options.GetLargeHeap());
         SharedHeap::CreateNewInstance();
 #ifdef USE_CMC_GC
-        // create CommonRuntime before daemon thread because creating mutator may access gcphase in heap
+        // Init BaseRuntime before daemon thread because creating mutator may access gcphase in heap
         LOG_ECMA(INFO) << "start run with cmc gc";
-        CommonRuntime::Create();
-        CommonRuntime::GetInstance()->Init();
+        BaseRuntime::GetInstance()->Init();
 #endif
         DaemonThread::CreateNewInstance();
         firstVmCreated_ = true;
+    } else {
+#ifdef USE_CMC_GC
+        JSThread *mainThread = Runtime::GetInstance()->GetMainThread();
+        ASSERT(mainThread != nullptr);
+        EcmaVM *mainVM = mainThread->GetEcmaVM();
+        ASSERT(mainVM != nullptr);
+        if (mainVM->IsPreForked() && !mainVM->IsPostForked()) {
+            LOG_ECMA(ERROR) << "create ecmavm after pre fork, but not post pork";
+            ASSERT(!DaemonThread::GetInstance()->IsRunning());
+            mainVM->PostFork();
+        }
+#endif
     }
 }
 
@@ -119,6 +133,11 @@ void Runtime::InitializeIfFirstVm(EcmaVM *vm)
 void Runtime::PreInitialization(const EcmaVM *vm)
 {
     DynamicObjectOperator::Initialize();
+#ifdef USE_CMC_GC
+    DynamicObjectAccessor::Initialize();
+    DynamicObjectDescriptor::Initialize();
+    DynamicTypeConverter::Initialize();
+#endif
     mainThread_ = vm->GetAssociatedJSThread();
     mainThread_->SetMainThread();
     nativeAreaAllocator_ = std::make_unique<NativeAreaAllocator>();
@@ -148,9 +167,8 @@ void Runtime::DestroyIfLastVm()
         SharedHeap::GetInstance()->WaitAllTasksFinishedAfterAllJSThreadEliminated();
         DaemonThread::DestroyInstance();
 #ifdef USE_CMC_GC
-        // destroy CommonRuntime after daemon thread because it will unregister mutator
-        CommonRuntime::GetInstance()->Fini();
-        CommonRuntime::Destroy();
+        // Finish BaseRuntime after daemon thread because it will unregister mutator
+        BaseRuntime::GetInstance()->Fini();
 #endif
         SharedHeap::DestroyInstance();
         AnFileDataManager::GetInstance()->SafeDestroyAllData();
@@ -158,6 +176,7 @@ void Runtime::DestroyIfLastVm()
         PGOProfilerManager::GetInstance()->Destroy();
         SharedModuleManager::GetInstance()->Destroy();
 #ifdef USE_CMC_GC
+        // Destroy BaseRuntime after daemon thread because it will unregister mutator
         BaseRuntime::DestroyInstance();
 #endif
         ASSERT(instance_ != nullptr);
@@ -175,6 +194,7 @@ void Runtime::RegisterThread(JSThread* newThread)
         threads_.emplace_back(newThread);
     }
 #ifdef USE_CMC_GC
+    newThread->GetThreadHolder()->BindMutator();
     newThread->GetThreadHolder()->RegisterJSThread(newThread);
 #else
     // send all current suspended requests to the new thread
@@ -198,6 +218,7 @@ void Runtime::UnregisterThread(JSThread* thread)
     void *mutator = holder->GetMutator();
     ASSERT(mutator != nullptr);
     holder->UnregisterJSThread(thread);
+    holder->UnbindMutator();
 #endif
 }
 

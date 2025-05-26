@@ -1283,7 +1283,8 @@ void NativeInlineLowering::TryInlineReflectGet(GateRef gate, size_t argc, Builti
     }
 
     GateRef target = acc_.GetValueIn(gate, firstParam);
-    GateRef ret = builder_.BuildControlDependOp(circuit_->ReflectGet(), { target, key });
+    GateRef ret = builder_.BuildControlDependOp(circuit_->ReflectGet(),
+        { target, key }, { acc_.GetFrameState(gate) });
     ReplaceGateWithPendingException(gate, ret);
 }
 
@@ -1342,7 +1343,8 @@ void NativeInlineLowering::TryInlineReflectConstruct(GateRef gate, size_t argc, 
         AddTraceLogs(gate, id);
     }
 
-    GateRef ret = builder_.BuildControlDependOp(circuit_->ReflectConstruct(), { target });
+    GateRef ret = builder_.BuildControlDependOp(circuit_->ReflectConstruct(),
+        { target }, { acc_.GetFrameState(gate) });
     ReplaceGateWithPendingException(gate, ret);
 }
 
@@ -1368,7 +1370,8 @@ void NativeInlineLowering::TryInlineReflectApply(GateRef gate, size_t argc, Buil
         AddTraceLogs(gate, id);
     }
 
-    GateRef ret = builder_.BuildControlDependOp(circuit_->ReflectApply(), { target, thisValue, argumentsList });
+    GateRef ret = builder_.BuildControlDependOp(circuit_->ReflectApply(),
+        { target, thisValue, argumentsList }, { acc_.GetFrameState(gate) });
     ReplaceGateWithPendingException(gate, ret);
 }
 
@@ -1496,7 +1499,7 @@ void NativeInlineLowering::TryInlineIndexOfIncludes(GateRef gate, size_t argc, B
         GateRef fromIndexHandler = acc_.GetValueIn(gate, 2);
         builder_.DeoptCheck(builder_.TaggedIsNumber(fromIndexHandler), acc_.GetFrameState(gate),
                             DeoptType::INDEXNOTINT);
-        GateRef fromIndex = BuiltinsArrayStubBuilder(&env).MakeFromIndex(
+        GateRef fromIndex = BuiltinsArrayStubBuilder(&env, builder_.GetGlobalEnv(glue_)).MakeFromIndex(
             fromIndexHandler, thisLen,
             (id == BuiltinsStubCSigns::ID::ArrayLastIndexOf));
         ret = builder_.ArrayIncludesIndexOf(elements, targetElement, fromIndex, thisLen, callID, arrayKind);

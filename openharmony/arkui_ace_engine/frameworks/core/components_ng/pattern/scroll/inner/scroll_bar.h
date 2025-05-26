@@ -211,6 +211,14 @@ public:
     {
         return isHover_;
     }
+    void SetHoverSlider(bool hover)
+    {
+        isHoverSlider_ = hover;
+    }
+    bool IsHoverSlider() const
+    {
+        return isHoverSlider_;
+    }
     OpacityAnimationType GetOpacityAnimationType() const
     {
         return opacityAnimationType_;
@@ -330,6 +338,15 @@ public:
     void SetAxis(Axis axis)
     {
         axis_ = axis;
+    }
+    void SetScrollBarMargin(const ScrollBarMargin& scrollBarMargin)
+    {
+        scrollBarMargin_ = scrollBarMargin;
+        isScrollBarMarginUpdate_ = true;
+    }
+    const std::optional<ScrollBarMargin>& GetScrollBarMargin() const
+    {
+        return scrollBarMargin_;
     }
     void SetScrollPageCallback(ScrollPageCallback&& scrollPageCallback)
     {
@@ -666,6 +683,7 @@ private:
     bool isPressed_ = false;
     bool isDriving_ = false; // false: scroll driving; true: bar driving
     bool isHover_ = false;
+    bool isHoverSlider_ = false;
     bool positionModeUpdate_ = false;
     bool normalWidthUpdate_ = false;
     bool isUserNormalWidth_ = false;
@@ -673,6 +691,7 @@ private:
     bool isReverse_ = false;
     bool isReverseUpdate_ = false;
     bool isShowScrollBar_ = false;
+    bool isScrollBarMarginUpdate_ = false;
     Offset paintOffset_;
     Size viewPortSize_;
     Offset lastOffset_;
@@ -693,6 +712,7 @@ private:
     CancelableCallback<void()> disappearDelayTask_;
     DragFRCSceneCallback dragFRCSceneCallback_;
     Axis axis_ = Axis::VERTICAL;
+    std::optional<ScrollBarMargin> scrollBarMargin_;
     RefPtr<ClickEvent> clickevent_;
     RefPtr<LongPressRecognizer> longPressRecognizer_;
     Offset locationInfo_;

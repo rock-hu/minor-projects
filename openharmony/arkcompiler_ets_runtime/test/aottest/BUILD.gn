@@ -36,6 +36,7 @@ group("ark_aot_js_test") {
     "lower_jscode_0001",
     "lower_jscode_0002",
     "fallback_type_conversion",
+    "typedarray_to_reversed",
   ]
 
   deps = []
@@ -145,6 +146,8 @@ group("ark_aot_ts_test") {
     "exception_case15",
     "exception_case16",
     "exception_case17",
+    "exception_case18",
+    "exception_case19",
     "exception_case2",
     "exception_case3",
     "exception_case4",

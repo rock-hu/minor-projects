@@ -185,6 +185,14 @@ GateRef CircuitBuilder::TaggedIsString(GateRef glue, GateRef obj)
     return ret;
 }
 
+GateRef CircuitBuilder::TaggedIsLineUtf8String(GateRef glue, GateRef obj)
+{
+    return LogicAndBuilder(env_).And(TaggedIsString(glue, obj))
+                                .And(IsLineString(glue, obj))
+                                .And(IsUtf8String(obj))
+                                .Done();
+}
+
 GateRef CircuitBuilder::TaggedIsStringIterator(GateRef glue, GateRef obj)
 {
     Label entry(env_);
@@ -613,7 +621,7 @@ inline GateRef CircuitBuilder::TypedCallBuiltin(GateRef hirGate, const std::vect
     std::vector<GateRef> inList { currentControl, currentDepend };
     inList.insert(inList.end(), args.begin(), args.end());
     inList.push_back(Int16(static_cast<int16_t>(id)));
-    AppendFrameArgs(inList, hirGate);
+    AppendFrameState(inList, hirGate);
 
     auto builtinOp = TypedCallOperator(hirGate, MachineType::I64, inList, isSideEffect);
     currentLabel->SetControl(builtinOp);
@@ -754,13 +762,13 @@ GateRef CircuitBuilder::TreeStringIsFlat(GateRef glue, GateRef string)
 
 GateRef CircuitBuilder::GetFirstFromTreeString(GateRef glue, GateRef string)
 {
-    GateRef offset = IntPtr(TreeEcmaString::FIRST_OFFSET);
+    GateRef offset = IntPtr(TreeString::FIRST_OFFSET);
     return Load(VariableType::JS_POINTER(), glue, string, offset);
 }
 
 GateRef CircuitBuilder::GetSecondFromTreeString(GateRef glue, GateRef string)
 {
-    GateRef offset = IntPtr(TreeEcmaString::SECOND_OFFSET);
+    GateRef offset = IntPtr(TreeString::SECOND_OFFSET);
     return Load(VariableType::JS_POINTER(), glue, string, offset);
 }
 

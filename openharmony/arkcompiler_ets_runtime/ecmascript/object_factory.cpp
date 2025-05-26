@@ -13,11 +13,10 @@
  * limitations under the License.
  */
 
+#include "ecmascript/dependent_infos.h"
 #include "ecmascript/dfx/native_module_failure_info.h"
+#include "ecmascript/base/typed_array_helper-inl.h"
 #include "ecmascript/mem/barriers.h"
-#ifdef USE_CMC_GC
-#include "ecmascript/crt.h"
-#endif
 #include "ecmascript/builtins/builtins.h"
 #include "ecmascript/builtins/builtins_errors.h"
 #include "ecmascript/ecma_string-inl.h"
@@ -30,6 +29,7 @@
 #include "ecmascript/js_api/js_api_arraylist_iterator.h"
 #include "ecmascript/js_api/js_api_bitvector.h"
 #include "ecmascript/js_api/js_api_bitvector_iterator.h"
+#include "ecmascript/js_api/js_api_buffer.h"
 #include "ecmascript/js_api/js_api_deque.h"
 #include "ecmascript/js_api/js_api_deque_iterator.h"
 #include "ecmascript/js_api/js_api_hashmap_iterator.h"
@@ -73,6 +73,7 @@
 #include "ecmascript/js_set.h"
 #include "ecmascript/js_set_iterator.h"
 #include "ecmascript/js_string_iterator.h"
+#include "ecmascript/js_typed_array.h"
 #include "ecmascript/js_weak_container.h"
 #include "ecmascript/js_weak_ref.h"
 #include "ecmascript/jspandafile/program_object.h"
@@ -1608,6 +1609,12 @@ void ObjectFactory::InitializeJSObject(const JSHandle<JSObject> &obj, const JSHa
             JSAPIBitVector::Cast(*obj)->SetModRecord(0);
             break;
         }
+        case JSType::JS_API_FAST_BUFFER: {
+            JSAPIFastBuffer::Cast(*obj)->SetFastBufferData(thread_, JSTaggedValue::Undefined());
+            JSAPIFastBuffer::Cast(*obj)->SetLength(0);
+            JSAPIFastBuffer::Cast(*obj)->SetOffset(0);
+            break;
+        }
         case JSType::JS_API_LIST: {
             JSAPIList::Cast(*obj)->SetSingleList(thread_, JSTaggedValue::Undefined());
             JSAPIList::Cast(*obj)->SetBitField(0UL);
@@ -1912,6 +1919,12 @@ JSHandle<JSFunction> ObjectFactory::NewSFunction(const JSHandle<GlobalEnv> &env,
         return NewSFunctionByHClass(method, hclass);
     }
     return NewNativeSFunctionByHClass(hclass, nativeFunc, kind);
+}
+
+JSHandle<DependentInfos> ObjectFactory::NewDependentInfos(uint32_t capacity)
+{
+    JSHandle<WeakVector> weakVector = WeakVector::Create(thread_, capacity);
+    return JSHandle<DependentInfos>::Cast(weakVector);
 }
 
 JSHandle<JSHClass> ObjectFactory::CreateFunctionClass(FunctionKind kind, uint32_t size, JSType type,
@@ -3607,7 +3620,7 @@ void ObjectFactory::NewObjectHook() const
         !heap_->InSensitiveStatus() && heap_->TriggerCollectionOnNewObjectEnabled()) {
         if (vm_->GetJSOptions().ForceFullGC()) {
 #ifdef USE_CMC_GC
-           BaseRuntime::GetInstance()->GetHeap().RequestGC(GcType::ASYNC);
+           BaseRuntime::RequestGC(GcType::ASYNC);
 #else
             vm_->CollectGarbage(TriggerGCType::YOUNG_GC);
             vm_->CollectGarbage(TriggerGCType::OLD_GC);
@@ -4379,7 +4392,7 @@ JSHandle<EcmaString> ObjectFactory::NewFromUtf8WithoutStringTable(std::string_vi
     EcmaString *str =
         EcmaStringAccessor::CreateFromUtf8(vm_, utf8Data, utf8Len, canBeCompress, MemSpaceType::SHARED_OLD_SPACE);
     uint32_t hashCode = EcmaStringAccessor::ComputeHashcodeUtf8(utf8Data, utf8Len, canBeCompress);
-    str->SetMixHashcode(hashCode);
+    str->SetRawHashcode(hashCode);
     return JSHandle<EcmaString>(thread_, str);
 }
 
@@ -4416,7 +4429,7 @@ JSHandle<EcmaString> ObjectFactory::NewFromUtf16WithoutStringTable(std::u16strin
     EcmaString *str =
         EcmaStringAccessor::CreateFromUtf16(vm_, utf16Data, utf16Len, canBeCompress, MemSpaceType::SHARED_OLD_SPACE);
     uint32_t hashCode = EcmaStringAccessor::ComputeHashcodeUtf16(const_cast<uint16_t *>(utf16Data), utf16Len);
-    str->SetMixHashcode(hashCode);
+    str->SetRawHashcode(hashCode);
     return JSHandle<EcmaString>(thread_, str);
 }
 
@@ -4445,7 +4458,7 @@ JSHandle<EcmaString> ObjectFactory::NewFromUtf8WithoutStringTable(const uint8_t 
     EcmaString *str =
         EcmaStringAccessor::CreateFromUtf8(vm_, utf8Data, utf8Len, canBeCompress, MemSpaceType::SHARED_OLD_SPACE);
     uint32_t hashCode = EcmaStringAccessor::ComputeHashcodeUtf8(utf8Data, utf8Len, canBeCompress);
-    str->SetMixHashcode(hashCode);
+    str->SetRawHashcode(hashCode);
     return JSHandle<EcmaString>(thread_, str);
 }
 
@@ -4465,7 +4478,7 @@ JSHandle<EcmaString> ObjectFactory::NewFromUtf16WithoutStringTable(const uint16_
     EcmaString *str =
         EcmaStringAccessor::CreateFromUtf16(vm_, utf16Data, utf16Len, canBeCompress, MemSpaceType::SHARED_OLD_SPACE);
     uint32_t hashCode = EcmaStringAccessor::ComputeHashcodeUtf16(const_cast<uint16_t *>(utf16Data), utf16Len);
-    str->SetMixHashcode(hashCode);
+    str->SetRawHashcode(hashCode);
     return JSHandle<EcmaString>(thread_, str);
 }
 
@@ -4833,6 +4846,51 @@ JSHandle<JSAPIBitVector> ObjectFactory::NewJSAPIBitVector(uint32_t capacity)
     obj->SetNativePointer(thread_, pointer);
 
     return obj;
+}
+
+// Creaete a fastbuffer without alloc arraybuffer under TypedArray.
+JSHandle<JSAPIFastBuffer> ObjectFactory::NewJSAPIBufferWithoutInit()
+{
+    NewObjectHook();
+    JSHandle<GlobalEnv> env = thread_->GetEcmaVM()->GetGlobalEnv();
+    JSHandle<JSTaggedValue> handleTagValFunc = env->GetUint8ArrayFunction();
+    JSHandle<JSObject> obj = NewJSObjectByConstructor(JSHandle<JSFunction>(handleTagValFunc), handleTagValFunc);
+    JSHandle<JSTypedArray> handleUint8Array = JSHandle<JSTypedArray>::Cast(obj);
+
+    handleUint8Array->SetByteLength(0);
+    handleUint8Array->SetByteOffset(0);
+    handleUint8Array->SetArrayLength(0);
+    handleUint8Array->SetContentType(ContentType::Number);
+    JSHandle<JSFunction> builtinObj(thread_->GetEcmaVM()->GetGlobalEnv()->GetBufferFunction());
+    JSHandle<JSAPIFastBuffer> buffer = JSHandle<JSAPIFastBuffer>(NewJSObjectByConstructor(builtinObj));
+    buffer->SetFastBufferData(thread_, handleUint8Array);
+    buffer->SetLength(0);
+
+    return buffer;
+}
+
+// create fastbuffer shared same arraybufer under typedArray
+JSHandle<JSAPIFastBuffer> ObjectFactory::NewJSAPIBuffer(JSHandle<JSTypedArray> typedArrayHandle)
+{
+    NewObjectHook();
+    JSHandle<JSFunction> builtinObj(thread_->GetEcmaVM()->GetGlobalEnv()->GetBufferFunction());
+    JSHandle<JSAPIFastBuffer> buffer = JSHandle<JSAPIFastBuffer>(NewJSObjectByConstructor(builtinObj));
+    buffer->SetFastBufferData(thread_, typedArrayHandle);
+    buffer->SetLength(typedArrayHandle->GetByteLength());
+    return buffer;
+}
+
+// Create a fastbuffer with length and byteOffset
+JSHandle<JSAPIFastBuffer> ObjectFactory::NewJSAPIBuffer(uint32_t length, uint32_t byteOffset)
+{
+    NewObjectHook();
+    JSHandle<JSTypedArray> handleUint8Array = JSAPIFastBuffer::NewUint8Array(thread_, length, byteOffset);
+    JSHandle<JSFunction> builtinObj(thread_->GetEcmaVM()->GetGlobalEnv()->GetBufferFunction());
+    JSHandle<JSAPIFastBuffer> buffer = JSHandle<JSAPIFastBuffer>(NewJSObjectByConstructor(builtinObj));
+    buffer->SetFastBufferData(thread_, handleUint8Array);
+    buffer->SetLength(length);
+    buffer->SetOffset(0);
+    return buffer;
 }
 
 JSHandle<JSAPIBitVectorIterator> ObjectFactory::NewJSAPIBitVectorIterator(const JSHandle<JSAPIBitVector> &bitVector)

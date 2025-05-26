@@ -23,9 +23,6 @@
 #include "ecmascript/dfx/cpu_profiler/cpu_profiler.h"
 #endif
 #include "ecmascript/checkpoint/thread_state_transition.h"
-#ifdef USE_CMC_GC
-#include "ecmascript/crt.h"
-#endif
 #include "ecmascript/ecma_global_storage.h"
 #include "ecmascript/interpreter/fast_runtime_stub-inl.h"
 #include "ecmascript/interpreter/interpreter_assembly.h"
@@ -3382,7 +3379,7 @@ Local<SendableArrayBufferRef> SendableTypedArrayRef::GetArrayBuffer(const EcmaVM
 }
 
 // ----------------------------------- FunctionRef --------------------------------------
-Local<FunctionRef> FunctionRef::New(EcmaVM *vm, FunctionCallback nativeFunc,
+Local<FunctionRef> FunctionRef::New(EcmaVM *vm, const Local<JSValueRef> &context, FunctionCallback nativeFunc,
     NativePointerCallback deleter, void *data, bool callNapi, size_t nativeBindingsize)
 {
     CROSS_THREAD_AND_EXCEPTION_CHECK_WITH_RETURN(vm, JSValueRef::Undefined(vm));
@@ -3393,10 +3390,20 @@ Local<FunctionRef> FunctionRef::New(EcmaVM *vm, FunctionCallback nativeFunc,
     JSFunction::SetFunctionExtraInfo(thread, current, reinterpret_cast<void *>(nativeFunc),
                                      deleter, data, nativeBindingsize);
     current->SetCallNapi(callNapi);
+    current->SetLexicalEnv(thread, JSHandle<GlobalEnv>(JSNApiHelper::ToJSHandle(context)), ecmascript::SKIP_BARRIER);
     return JSNApiHelper::ToLocal<FunctionRef>(JSHandle<JSTaggedValue>(current));
 }
 
-Local<FunctionRef> FunctionRef::NewConcurrent(EcmaVM *vm, FunctionCallback nativeFunc,
+Local<FunctionRef> FunctionRef::New(EcmaVM *vm, FunctionCallback nativeFunc,
+    NativePointerCallback deleter, void *data, bool callNapi, size_t nativeBindingsize)
+{
+    CROSS_THREAD_AND_EXCEPTION_CHECK_WITH_RETURN(vm, JSValueRef::Undefined(vm));
+    ecmascript::ThreadManagedScope managedScope(thread);
+    Local<JSValueRef> context = JSNApiHelper::ToLocal<JSValueRef>(JSHandle<JSTaggedValue>(thread->GetGlobalEnv()));
+    return New(vm, context, nativeFunc, deleter, data, callNapi, nativeBindingsize);
+}
+
+Local<FunctionRef> FunctionRef::NewConcurrent(EcmaVM *vm, const Local<JSValueRef> &context, FunctionCallback nativeFunc,
     NativePointerCallback deleter, void *data, bool callNapi, size_t nativeBindingsize)
 {
     CROSS_THREAD_AND_EXCEPTION_CHECK_WITH_RETURN(vm, JSValueRef::Undefined(vm));
@@ -3407,10 +3414,20 @@ Local<FunctionRef> FunctionRef::NewConcurrent(EcmaVM *vm, FunctionCallback nativ
     JSFunction::SetFunctionExtraInfo(thread, current, reinterpret_cast<void *>(nativeFunc), deleter,
                                      data, nativeBindingsize, Concurrent::YES);
     current->SetCallNapi(callNapi);
+    current->SetLexicalEnv(thread, JSHandle<GlobalEnv>(JSNApiHelper::ToJSHandle(context)), ecmascript::SKIP_BARRIER);
     return JSNApiHelper::ToLocal<FunctionRef>(JSHandle<JSTaggedValue>(current));
 }
 
-Local<FunctionRef> FunctionRef::New(EcmaVM *vm, InternalFunctionCallback nativeFunc,
+Local<FunctionRef> FunctionRef::NewConcurrent(EcmaVM *vm, FunctionCallback nativeFunc,
+    NativePointerCallback deleter, void *data, bool callNapi, size_t nativeBindingsize)
+{
+    CROSS_THREAD_AND_EXCEPTION_CHECK_WITH_RETURN(vm, JSValueRef::Undefined(vm));
+    ecmascript::ThreadManagedScope managedScope(thread);
+    Local<JSValueRef> context = JSNApiHelper::ToLocal<JSValueRef>(JSHandle<JSTaggedValue>(thread->GetGlobalEnv()));
+    return NewConcurrent(vm, context, nativeFunc, deleter, data, callNapi, nativeBindingsize);
+}
+
+Local<FunctionRef> FunctionRef::New(EcmaVM *vm, const Local<JSValueRef> &context, InternalFunctionCallback nativeFunc,
     NativePointerCallback deleter, void *data, bool callNapi, size_t nativeBindingsize)
 {
     CROSS_THREAD_AND_EXCEPTION_CHECK_WITH_RETURN(vm, JSValueRef::Undefined(vm));
@@ -3420,7 +3437,17 @@ Local<FunctionRef> FunctionRef::New(EcmaVM *vm, InternalFunctionCallback nativeF
     JSHandle<JSFunction> current(factory->NewJSFunction(env, reinterpret_cast<void *>(nativeFunc)));
     JSFunction::SetFunctionExtraInfo(thread, current, nullptr, deleter, data, nativeBindingsize);
     current->SetCallNapi(callNapi);
+    current->SetLexicalEnv(thread, JSHandle<GlobalEnv>(JSNApiHelper::ToJSHandle(context)), ecmascript::SKIP_BARRIER);
     return JSNApiHelper::ToLocal<FunctionRef>(JSHandle<JSTaggedValue>(current));
+}
+
+Local<FunctionRef> FunctionRef::New(EcmaVM *vm, InternalFunctionCallback nativeFunc,
+    NativePointerCallback deleter, void *data, bool callNapi, size_t nativeBindingsize)
+{
+    CROSS_THREAD_AND_EXCEPTION_CHECK_WITH_RETURN(vm, JSValueRef::Undefined(vm));
+    ecmascript::ThreadManagedScope managedScope(thread);
+    Local<JSValueRef> context = JSNApiHelper::ToLocal<JSValueRef>(JSHandle<JSTaggedValue>(thread->GetGlobalEnv()));
+    return New(vm, context, nativeFunc, deleter, data, callNapi, nativeBindingsize);
 }
 
 Local<FunctionRef> FunctionRef::NewSendable(EcmaVM *vm,
@@ -3437,11 +3464,14 @@ Local<FunctionRef> FunctionRef::NewSendable(EcmaVM *vm,
     JSHandle<JSFunction> current(factory->NewSFunction(env, reinterpret_cast<void *>(nativeFunc)));
     JSFunction::SetSFunctionExtraInfo(thread, current, nullptr, deleter, data, nativeBindingsize);
     current->SetCallNapi(callNapi);
+    JSTaggedValue sFunctionEnv = thread->GlobalConstants()->GetEmptySFunctionEnv();
+    current->SetLexicalEnv(thread, JSHandle<GlobalEnv>(thread, sFunctionEnv), ecmascript::SKIP_BARRIER);
     return JSNApiHelper::ToLocal<FunctionRef>(JSHandle<JSTaggedValue>(current));
 }
 
-Local<FunctionRef> FunctionRef::NewConcurrent(EcmaVM *vm, InternalFunctionCallback nativeFunc,
-    NativePointerCallback deleter, void *data, bool callNapi, size_t nativeBindingsize)
+Local<FunctionRef> FunctionRef::NewConcurrent(EcmaVM *vm, const Local<JSValueRef> &context,
+    InternalFunctionCallback nativeFunc, NativePointerCallback deleter, void *data, bool callNapi,
+    size_t nativeBindingsize)
 {
     CROSS_THREAD_AND_EXCEPTION_CHECK_WITH_RETURN(vm, JSValueRef::Undefined(vm));
     ecmascript::ThreadManagedScope managedScope(thread);
@@ -3450,7 +3480,17 @@ Local<FunctionRef> FunctionRef::NewConcurrent(EcmaVM *vm, InternalFunctionCallba
     JSHandle<JSFunction> current(factory->NewJSFunction(env, reinterpret_cast<void *>(nativeFunc)));
     JSFunction::SetFunctionExtraInfo(thread, current, nullptr, deleter, data, nativeBindingsize, Concurrent::YES);
     current->SetCallNapi(callNapi);
+    current->SetLexicalEnv(thread, JSHandle<GlobalEnv>(JSNApiHelper::ToJSHandle(context)), ecmascript::SKIP_BARRIER);
     return JSNApiHelper::ToLocal<FunctionRef>(JSHandle<JSTaggedValue>(current));
+}
+
+Local<FunctionRef> FunctionRef::NewConcurrent(EcmaVM *vm, InternalFunctionCallback nativeFunc,
+    NativePointerCallback deleter, void *data, bool callNapi, size_t nativeBindingsize)
+{
+    CROSS_THREAD_AND_EXCEPTION_CHECK_WITH_RETURN(vm, JSValueRef::Undefined(vm));
+    ecmascript::ThreadManagedScope managedScope(thread);
+    Local<JSValueRef> context = JSNApiHelper::ToLocal<JSValueRef>(JSHandle<JSTaggedValue>(thread->GetGlobalEnv()));
+    return NewConcurrent(vm, context, nativeFunc, deleter, data, callNapi, nativeBindingsize);
 }
 
 static void InitClassFunction(EcmaVM *vm, JSHandle<JSFunction> &func, bool callNapi)
@@ -3474,8 +3514,8 @@ static void InitClassFunction(EcmaVM *vm, JSHandle<JSFunction> &func, bool callN
     func->SetCallNapi(callNapi);
 }
 
-Local<FunctionRef> FunctionRef::NewClassFunction(EcmaVM *vm, FunctionCallback nativeFunc,
-    NativePointerCallback deleter, void *data, bool callNapi, size_t nativeBindingsize)
+Local<FunctionRef> FunctionRef::NewClassFunction(EcmaVM *vm, const Local<JSValueRef> &context,
+    FunctionCallback nativeFunc, NativePointerCallback deleter, void *data, bool callNapi, size_t nativeBindingsize)
 {
     CROSS_THREAD_AND_EXCEPTION_CHECK_WITH_RETURN(vm, JSValueRef::Undefined(vm));
     ecmascript::ThreadManagedScope managedScope(thread);
@@ -3490,11 +3530,22 @@ Local<FunctionRef> FunctionRef::NewClassFunction(EcmaVM *vm, FunctionCallback na
     JSFunction::SetFunctionExtraInfo(thread, current, reinterpret_cast<void *>(nativeFunc),
                                      deleter, data, nativeBindingsize);
     Local<FunctionRef> result = JSNApiHelper::ToLocal<FunctionRef>(JSHandle<JSTaggedValue>(current));
+    current->SetLexicalEnv(thread, JSHandle<GlobalEnv>(JSNApiHelper::ToJSHandle(context)), ecmascript::SKIP_BARRIER);
     return scope.Escape(result);
 }
 
-Local<FunctionRef> FunctionRef::NewConcurrentClassFunction(EcmaVM *vm, InternalFunctionCallback nativeFunc,
+Local<FunctionRef> FunctionRef::NewClassFunction(EcmaVM *vm, FunctionCallback nativeFunc,
     NativePointerCallback deleter, void *data, bool callNapi, size_t nativeBindingsize)
+{
+    CROSS_THREAD_AND_EXCEPTION_CHECK_WITH_RETURN(vm, JSValueRef::Undefined(vm));
+    ecmascript::ThreadManagedScope managedScope(thread);
+    Local<JSValueRef> context = JSNApiHelper::ToLocal<JSValueRef>(JSHandle<JSTaggedValue>(thread->GetGlobalEnv()));
+    return NewClassFunction(vm, context, nativeFunc, deleter, data, callNapi, nativeBindingsize);
+}
+
+Local<FunctionRef> FunctionRef::NewConcurrentClassFunction(EcmaVM *vm, const Local<JSValueRef> &context,
+    InternalFunctionCallback nativeFunc, NativePointerCallback deleter, void *data, bool callNapi,
+    size_t nativeBindingsize)
 {
     CROSS_THREAD_AND_EXCEPTION_CHECK_WITH_RETURN(vm, JSValueRef::Undefined(vm));
     ecmascript::ThreadManagedScope managedScope(thread);
@@ -3508,11 +3559,22 @@ Local<FunctionRef> FunctionRef::NewConcurrentClassFunction(EcmaVM *vm, InternalF
     InitClassFunction(vm, current, callNapi);
     JSFunction::SetFunctionExtraInfo(thread, current, nullptr, deleter, data, nativeBindingsize, Concurrent::YES);
     Local<FunctionRef> result = JSNApiHelper::ToLocal<FunctionRef>(JSHandle<JSTaggedValue>(current));
+    current->SetLexicalEnv(thread, JSHandle<GlobalEnv>(JSNApiHelper::ToJSHandle(context)), ecmascript::SKIP_BARRIER);
     return scope.Escape(result);
 }
 
-Local<FunctionRef> FunctionRef::NewClassFunction(EcmaVM *vm, InternalFunctionCallback nativeFunc,
+Local<FunctionRef> FunctionRef::NewConcurrentClassFunction(EcmaVM *vm, InternalFunctionCallback nativeFunc,
     NativePointerCallback deleter, void *data, bool callNapi, size_t nativeBindingsize)
+{
+    CROSS_THREAD_AND_EXCEPTION_CHECK_WITH_RETURN(vm, JSValueRef::Undefined(vm));
+    ecmascript::ThreadManagedScope managedScope(thread);
+    Local<JSValueRef> context = JSNApiHelper::ToLocal<JSValueRef>(JSHandle<JSTaggedValue>(thread->GetGlobalEnv()));
+    return NewConcurrentClassFunction(vm, context, nativeFunc, deleter, data, callNapi, nativeBindingsize);
+}
+
+Local<FunctionRef> FunctionRef::NewClassFunction(EcmaVM *vm, const Local<JSValueRef> &context,
+    InternalFunctionCallback nativeFunc, NativePointerCallback deleter, void *data, bool callNapi,
+    size_t nativeBindingsize)
 {
     CROSS_THREAD_AND_EXCEPTION_CHECK_WITH_RETURN(vm, JSValueRef::Undefined(vm));
     ecmascript::ThreadManagedScope managedScope(thread);
@@ -3526,7 +3588,17 @@ Local<FunctionRef> FunctionRef::NewClassFunction(EcmaVM *vm, InternalFunctionCal
     InitClassFunction(vm, current, callNapi);
     JSFunction::SetFunctionExtraInfo(thread, current, nullptr, deleter, data, nativeBindingsize);
     Local<FunctionRef> result = JSNApiHelper::ToLocal<FunctionRef>(JSHandle<JSTaggedValue>(current));
+    current->SetLexicalEnv(thread, JSHandle<GlobalEnv>(JSNApiHelper::ToJSHandle(context)), ecmascript::SKIP_BARRIER);
     return scope.Escape(result);
+}
+
+Local<FunctionRef> FunctionRef::NewClassFunction(EcmaVM *vm, InternalFunctionCallback nativeFunc,
+    NativePointerCallback deleter, void *data, bool callNapi, size_t nativeBindingsize)
+{
+    CROSS_THREAD_AND_EXCEPTION_CHECK_WITH_RETURN(vm, JSValueRef::Undefined(vm));
+    ecmascript::ThreadManagedScope managedScope(thread);
+    Local<JSValueRef> context = JSNApiHelper::ToLocal<JSValueRef>(JSHandle<JSTaggedValue>(thread->GetGlobalEnv()));
+    return NewClassFunction(vm, context, nativeFunc, deleter, data, callNapi, nativeBindingsize);
 }
 
 Local<FunctionRef> FunctionRef::NewSendableClassFunction(const EcmaVM *vm,
@@ -4599,7 +4671,7 @@ void JSNApi::TriggerGC(const EcmaVM *vm, ecmascript::GCReason reason, TRIGGER_GC
             reason == ecmascript::GCReason::ALLOCATION_FAILED) {
             type = GcType::FULL;
         }
-        panda::BaseRuntime::GetInstance()->GetHeap().RequestGC(type);
+        panda::BaseRuntime::RequestGC(type);
 #else  // add ALL_GC_TYPE here for toolchain
         auto sHeap = ecmascript::SharedHeap::GetInstance();
         switch (gcType) {
@@ -5753,6 +5825,38 @@ void *JSNApi::SerializeValue(const EcmaVM *vm, Local<JSValueRef> value, Local<JS
         GenerateTimeoutTraceIfNeeded(vm, startTime, endTime, true);
     }
     if (data == nullptr) {
+        return nullptr;
+    } else {
+        return reinterpret_cast<void *>(data.release());
+    }
+}
+
+void *JSNApi::SerializeValueWithError(const EcmaVM *vm, Local<JSValueRef> value, Local<JSValueRef> transfer,
+                                      Local<JSValueRef> cloneList, std::string &error, bool defaultTransfer,
+                                      bool defaultCloneShared)
+{
+    CROSS_THREAD_AND_EXCEPTION_CHECK_WITH_RETURN(vm, nullptr);
+    ecmascript::ThreadManagedScope scope(thread);
+    JSHandle<JSTaggedValue> arkValue = JSNApiHelper::ToJSHandle(value);
+    JSHandle<JSTaggedValue> arkTransfer = JSNApiHelper::ToJSHandle(transfer);
+    JSHandle<JSTaggedValue> arkCloneList = JSNApiHelper::ToJSHandle(cloneList);
+    bool serializationTimeoutCheckEnabled = IsSerializationTimeoutCheckEnabled(vm);
+    std::chrono::system_clock::time_point startTime;
+    std::chrono::system_clock::time_point endTime;
+    if (serializationTimeoutCheckEnabled) {
+        startTime = std::chrono::system_clock::now();
+    }
+    ecmascript::ValueSerializer serializer(thread, defaultTransfer, defaultCloneShared);
+    std::unique_ptr<ecmascript::SerializeData> data;
+    if (serializer.WriteValue(thread, arkValue, arkTransfer, arkCloneList)) {
+        data = serializer.Release();
+    }
+    if (serializationTimeoutCheckEnabled) {
+        endTime = std::chrono::system_clock::now();
+        GenerateTimeoutTraceIfNeeded(vm, startTime, endTime, true);
+    }
+    if (data == nullptr) {
+        error = serializer.Release()->GetErrorMessage();
         return nullptr;
     } else {
         return reinterpret_cast<void *>(data.release());

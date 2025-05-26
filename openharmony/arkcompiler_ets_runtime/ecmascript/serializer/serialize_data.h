@@ -72,6 +72,7 @@ enum class EncodeFlag : uint8_t {
     JS_ERROR,
     JS_REG_EXP,
     SHARED_OBJECT,
+    GLOBAL_ENV,
     LAST
 };
 
@@ -131,7 +132,7 @@ public:
     static size_t AlignUpRegionAvailableSize(size_t size)
     {
 #ifdef USE_CMC_GC
-        size_t regionSize = ArkGetRegionSize();
+        size_t regionSize = SerializeUtils::GetRegionSize();
         if (size == 0) {
             return regionSize;
         }
@@ -470,6 +471,16 @@ public:
         nativeBindingDetachInfos_.insert(detachInfo);
     }
 
+    void SetErrorMessage(const std::string &errorMessage)
+    {
+        errorMessage_ = errorMessage;
+    } 
+
+    const std::string &GetErrorMessage() const
+    {
+        return errorMessage_;
+    }
+
 private:
     static constexpr size_t U8_SIZE = 1;
     static constexpr size_t U16_SIZE = 2;
@@ -489,6 +500,7 @@ private:
     size_t sharedOldSpaceSize_ {0};
     size_t sharedNonMovableSpaceSize_ {0};
     bool incompleteData_ {false};
+    std::string errorMessage_;
 #ifdef USE_CMC_GC
     std::vector<size_t> regularRemainSizeVector_ {};
     std::vector<size_t> pinRemainSizeVector_ {};

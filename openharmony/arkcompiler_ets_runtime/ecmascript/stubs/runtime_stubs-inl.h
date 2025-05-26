@@ -2329,6 +2329,9 @@ JSTaggedValue RuntimeStubs::RuntimeDefinefunc(JSThread *thread, const JSHandle<J
                 thread, JSHandle<SourceTextModule>::Cast(module)->GetSendableEnv());
         }
         result->SetModule(thread, sendableFuncModule.GetTaggedValue());
+        auto globalConst = thread->GlobalConstants();
+        JSHandle<JSTaggedValue> emptySFunctionEnvHandle = globalConst->GetHandledEmptySFunctionEnv();
+        result->SetLexicalEnv(thread, emptySFunctionEnvHandle.GetTaggedValue(), SKIP_BARRIER);
     } else {
         result = factory->NewJSFunction(methodHandle);
         result->SetModule(thread, module.GetTaggedValue());
@@ -3435,8 +3438,13 @@ JSTaggedValue RuntimeStubs::ArrayNumberSort(JSThread *thread, JSHandle<JSObject>
 JSTaggedType RuntimeStubs::RuntimeTryGetInternString(uintptr_t argGlue, const JSHandle<EcmaString> &string)
 {
     auto thread = JSThread::GlueToJSThread(argGlue);
+#if ENABLE_NEXT_OPTIMIZATION
+    EcmaString *str =
+        thread->GetEcmaVM()->GetEcmaStringTable()->TryGetInternString(string);
+#else
     EcmaString *str =
         thread->GetEcmaVM()->GetEcmaStringTable()->TryGetInternString(thread, string);
+#endif
     if (str == nullptr) {
         return JSTaggedValue::Hole().GetRawData();
     }

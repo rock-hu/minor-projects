@@ -133,11 +133,105 @@ void CallThis3StubStubBuilder::GenerateCircuit()
     Return(callBuilder.CallStubDispatch());
 }
 
+void NewFloat32ArrayWithNoArgsStubBuilder::GenerateCircuit()
+{
+    auto env = GetEnvironment();
+    GateRef glue = PtrArgument(0);
+    NewObjectStubBuilder objBuilder(env);
+    objBuilder.SetParameters(glue, 0);
+    GateRef res = objBuilder.NewFloat32ArrayWithSize(glue, Int32(0));
+    Return(res);
+}
+
+void NewFloat32ArrayStubBuilder::GenerateCircuit()
+{
+    auto env = GetEnvironment();
+    GateRef glue = PtrArgument(0);
+    GateRef ctor = TaggedArgument(1);
+    GateRef arg0 = TaggedArgument(2); /* 2 : length */
+
+    DEFVARIABLE(res, VariableType::JS_ANY(), Undefined());
+
+    Label slowPath(env);
+    Label exit(env);
+    DEFVALUE(arrayLength, (env), VariableType::INT64(), Int64(0));
+    Label arrayCreateByLength(env);
+    Label argIsNumber(env);
+    BRANCH(TaggedIsNumber(arg0), &argIsNumber, &slowPath);
+    Bind(&argIsNumber);
+    {
+        Label argIsInt(env);
+        Label argIsDouble(env);
+        BRANCH(TaggedIsInt(arg0), &argIsInt, &argIsDouble);
+        Bind(&argIsInt);
+        {
+            Label validIntLength(env);
+            GateRef intLen = GetInt64OfTInt(arg0);
+            GateRef isGEZero = Int64GreaterThanOrEqual(intLen, Int64(0));
+            GateRef isLEMaxLen = Int64LessThanOrEqual(intLen, Int64(JSObject::MAX_GAP));
+            BRANCH(BitAnd(isGEZero, isLEMaxLen), &validIntLength, &slowPath);
+            Bind(&validIntLength);
+            {
+                arrayLength = intLen;
+                Jump(&arrayCreateByLength);
+            }
+        }
+        Bind(&argIsDouble);
+        {
+            Label validDoubleLength(env);
+            GateRef doubleLength = GetDoubleOfTDouble(arg0);
+            GateRef doubleToInt = DoubleToInt(glue, doubleLength, base::INT32_BITS);
+            GateRef intToDouble = CastInt64ToFloat64(SExtInt32ToInt64(doubleToInt));
+            GateRef doubleEqual = DoubleEqual(doubleLength, intToDouble);
+            GateRef doubleLEMaxLen = DoubleLessThanOrEqual(doubleLength, Double(JSObject::MAX_GAP));
+            BRANCH(BitAnd(doubleEqual, doubleLEMaxLen), &validDoubleLength, &slowPath);
+            Bind(&validDoubleLength);
+            {
+                arrayLength = SExtInt32ToInt64(doubleToInt);
+                Jump(&arrayCreateByLength);
+            }
+        }
+    }
+    NewObjectStubBuilder newBuilder(env);
+    newBuilder.SetParameters(glue, 0);
+    Bind(&arrayCreateByLength);
+    {
+        GateRef truncedLength = TruncInt64ToInt32(*arrayLength);
+        res = newBuilder.NewFloat32ArrayWithSize(glue, truncedLength);
+        Jump(&exit);
+    }
+    Bind(&slowPath);
+    {
+        // no need to alloc in slowpath.
+        GateRef thisObj = Undefined();
+        GateRef argc = Int64(4); // 4: means func newtarget thisObj arg0
+        GateRef argv = IntPtr(0);
+        std::vector<GateRef> args { glue, argc, argv, ctor, ctor, thisObj, arg0 };
+        const CallSignature *cs = RuntimeStubCSigns::Get(RTSTUB_ID(JSCallNew));
+        GateRef target = IntPtr(RTSTUB_ID(JSCallNew));
+        auto depend = env->GetCurrentLabel()->GetDepend();
+        res = env->GetBuilder()->Call(cs, glue, target, depend, args, Circuit::NullGate(), "NewFloat32Array stub slowpath");
+        Jump(&exit);
+    }
+    Bind(&exit);
+    Return(*res);
+}
+
+void StringLoadElementStubBuilder::GenerateCircuit()
+{
+    GateRef glue = PtrArgument(0);
+    GateRef string = TaggedArgument(1);
+    GateRef index = Int32Argument(2);
+    BuiltinsStringStubBuilder builder(this, GetGlobalEnv(glue));
+    GateRef result = builder.GetSingleCharCodeByIndex(glue, string, index);
+    Return(result);
+}
+
 void ConvertCharToInt32StubBuilder::GenerateCircuit()
 {
     GateRef glue = PtrArgument(0);
     GateRef charCode = Int32Argument(1);
-    BuiltinsStringStubBuilder builder(this);
+    BuiltinsStringStubBuilder builder(this, GetGlobalEnv(glue));
     // char to string
     GateRef result = builder.CreateStringBySingleCharCode(glue, charCode);
     // string to number
@@ -151,13 +245,23 @@ void ConvertCharToDoubleStubBuilder::GenerateCircuit()
 {
     GateRef glue = PtrArgument(0);
     GateRef charCode = Int32Argument(1);
-    BuiltinsStringStubBuilder builder(this);
+    BuiltinsStringStubBuilder builder(this, GetGlobalEnv(glue));
     // char to string
     GateRef result = builder.CreateStringBySingleCharCode(glue, charCode);
     // string to number
     result = CallNGCRuntime(glue, RTSTUB_ID(StringToNumber), {result, Int32(0)}, charCode);
     // get double from number
     result = GetDoubleOfTNumber(result);
+    Return(result);
+}
+
+void ConvertCharToStringStubBuilder::GenerateCircuit()
+{
+    GateRef glue = PtrArgument(0);
+    GateRef charCode = Int32Argument(1);
+    BuiltinsStringStubBuilder builder(this, GetGlobalEnv(glue));
+    // char to string
+    GateRef result = builder.CreateStringBySingleCharCode(glue, charCode);
     Return(result);
 }
 
@@ -338,6 +442,14 @@ void InstanceofStubBuilder::GenerateCircuit()
     GateRef slotId = Int32Argument(4); // 4 : 5th pars
     GateRef profileTypeInfo = UpdateProfileTypeInfo(glue, jsFunc);
     Return(InstanceOf(glue, object, target, profileTypeInfo, slotId, ProfileOperation()));
+}
+
+void OrdinaryHasInstanceStubBuilder::GenerateCircuit()
+{
+    GateRef glue = PtrArgument(0);
+    GateRef object = TaggedArgument(1);
+    GateRef target = TaggedArgument(2); // 2: 3rd argument
+    Return(OrdinaryHasInstance(glue, target, object));
 }
 
 void IncStubBuilder::GenerateCircuit()
@@ -1101,7 +1213,7 @@ void GetSingleCharCodeByIndexStubBuilder::GenerateCircuit()
     GateRef glue = PtrArgument(0);
     GateRef str = TaggedArgument(1);
     GateRef index = Int32Argument(2);
-    BuiltinsStringStubBuilder builder(this);
+    BuiltinsStringStubBuilder builder(this, Gate::InvalidGateRef);
     GateRef result = builder.GetSingleCharCodeByIndex(glue, str, index);
     Return(result);
 }
@@ -1110,7 +1222,7 @@ void CreateStringBySingleCharCodeStubBuilder::GenerateCircuit()
 {
     GateRef glue = PtrArgument(0);
     GateRef charCode = Int32Argument(1);
-    BuiltinsStringStubBuilder builder(this);
+    BuiltinsStringStubBuilder builder(this, Gate::InvalidGateRef);
     GateRef result = builder.CreateStringBySingleCharCode(glue, charCode);
     Return(result);
 }
@@ -1147,7 +1259,7 @@ void FastStringAddStubBuilder::GenerateCircuit()
     GateRef str1 = TaggedArgument(1);
     GateRef str2 = Int32Argument(2);
 
-    BuiltinsStringStubBuilder builtinsStringStubBuilder(this);
+    BuiltinsStringStubBuilder builtinsStringStubBuilder(this, GetGlobalEnv(glue));
     GateRef result = builtinsStringStubBuilder.StringConcat(glue, str1, str2);
     Return(result);
 }
@@ -1159,7 +1271,7 @@ void StringAddStubBuilder::GenerateCircuit()
     GateRef str2 = TaggedArgument(2);       // 2: 3rd argument
     GateRef status = Int32Argument(3);      // 3: 4th argument
 
-    BuiltinsStringStubBuilder builtinsStringStubBuilder(this);
+    BuiltinsStringStubBuilder builtinsStringStubBuilder(this, GetGlobalEnv(glue));
     GateRef result = builtinsStringStubBuilder.StringAdd(glue, str1, str2, status);
     Return(result);
 }
@@ -1225,7 +1337,7 @@ void StringIteratorNextStubBuilder::GenerateCircuit()
 
     DEFVARIABLE(result, VariableType::JS_ANY(), Undefined());
 
-    BuiltinsStringStubBuilder builder(this);
+    BuiltinsStringStubBuilder builder(this, GetGlobalEnv(glue));
     builder.StringIteratorNext(glue, obj, Gate::InvalidGateRef, &result, &exit, &slowpath);
     Bind(&slowpath);
     {
@@ -1247,7 +1359,7 @@ void ArrayIteratorNextStubBuilder::GenerateCircuit()
 
     DEFVARIABLE(result, VariableType::JS_ANY(), Undefined());
 
-    BuiltinsArrayStubBuilder builder(this);
+    BuiltinsArrayStubBuilder builder(this, GetGlobalEnv(glue));
     builder.ArrayIteratorNext(glue, obj, Gate::InvalidGateRef, &result, &exit, &slowpath);
     Bind(&slowpath);
     {
@@ -1268,7 +1380,7 @@ void MapIteratorNextStubBuilder::GenerateCircuit()
 
     DEFVARIABLE(result, VariableType::JS_ANY(), Undefined());
 
-    BuiltinsCollectionIteratorStubBuilder<JSMapIterator> builder(this, glue, obj, Gate::InvalidGateRef);
+    BuiltinsCollectionIteratorStubBuilder<JSMapIterator> builder(this, glue, obj, Gate::InvalidGateRef, GetGlobalEnv(glue));
     builder.Next(&result, &exit);
     Bind(&exit);
     Return(*result);
@@ -1284,7 +1396,7 @@ void SetIteratorNextStubBuilder::GenerateCircuit()
 
     DEFVARIABLE(result, VariableType::JS_ANY(), Undefined());
 
-    BuiltinsCollectionIteratorStubBuilder<JSSetIterator> builder(this, glue, obj, Gate::InvalidGateRef);
+    BuiltinsCollectionIteratorStubBuilder<JSSetIterator> builder(this, glue, obj, Gate::InvalidGateRef, GetGlobalEnv(glue));
     builder.Next(&result, &exit);
     Bind(&exit);
     Return(*result);
@@ -1305,7 +1417,7 @@ void JSMapGetStubBuilder::GenerateCircuit()
     GateRef obj = TaggedArgument(1);
     GateRef key = TaggedArgument(2U);
 
-    LinkedHashTableStubBuilder<LinkedHashMap, LinkedHashMapObject> builder(this, glue);
+    LinkedHashTableStubBuilder<LinkedHashMap, LinkedHashMapObject> builder(this, glue, GetGlobalEnv(glue));
     GateRef linkedTable = builder.GetLinked(obj);
     Return(builder.Get(linkedTable, key));
 }
@@ -1316,7 +1428,7 @@ void JSMapHasStubBuilder::GenerateCircuit()
     GateRef obj = TaggedArgument(1);
     GateRef key = TaggedArgument(2U);
 
-    LinkedHashTableStubBuilder<LinkedHashMap, LinkedHashMapObject> builder(this, glue);
+    LinkedHashTableStubBuilder<LinkedHashMap, LinkedHashMapObject> builder(this, glue, GetGlobalEnv(glue));
     GateRef linkedTable = builder.GetLinked(obj);
     Return(builder.Has(linkedTable, key));
 }
@@ -1327,7 +1439,7 @@ void JSSetHasStubBuilder::GenerateCircuit()
     GateRef obj = TaggedArgument(1);
     GateRef key = TaggedArgument(2U);
 
-    LinkedHashTableStubBuilder<LinkedHashSet, LinkedHashSetObject> builder(this, glue);
+    LinkedHashTableStubBuilder<LinkedHashSet, LinkedHashSetObject> builder(this, glue, GetGlobalEnv(glue));
     GateRef linkedTable = builder.GetLinked(obj);
     Return(builder.Has(linkedTable, key));
 }
@@ -1338,7 +1450,7 @@ void JSProxyGetPropertyStubBuilder::GenerateCircuit()
     GateRef holder = TaggedArgument(1);
     GateRef key = TaggedArgument(2U);
     GateRef receiver = TaggedArgument(3U);
-    BuiltinsProxyStubBuilder proxyStubBuilder(this, glue);
+    BuiltinsProxyStubBuilder proxyStubBuilder(this, glue, GetGlobalEnv(glue));
     GateRef result = proxyStubBuilder.GetProperty(holder, key, receiver);
     Return(result);
 }
@@ -1350,7 +1462,7 @@ void JSProxySetPropertyStubBuilder::GenerateCircuit()
     GateRef key = TaggedArgument(2U);
     GateRef value = TaggedArgument(3U);
     GateRef receiver = TaggedArgument(4U);
-    BuiltinsProxyStubBuilder proxyStubBuilder(this, glue);
+    BuiltinsProxyStubBuilder proxyStubBuilder(this, glue, GetGlobalEnv(glue));
     GateRef result = proxyStubBuilder.SetProperty(holder, key, value, receiver, true);
     Return(result);
 }
@@ -1362,7 +1474,7 @@ void JSProxySetPropertyNoThrowStubBuilder::GenerateCircuit()
     GateRef key = TaggedArgument(2U);
     GateRef value = TaggedArgument(3U);
     GateRef receiver = TaggedArgument(4U);
-    BuiltinsProxyStubBuilder proxyStubBuilder(this, glue);
+    BuiltinsProxyStubBuilder proxyStubBuilder(this, glue, GetGlobalEnv(glue));
     GateRef result = proxyStubBuilder.SetProperty(holder, key, value, receiver, false);
     Return(result);
 }
@@ -1424,7 +1536,7 @@ void JSMapDeleteStubBuilder::GenerateCircuit()
     GateRef obj = TaggedArgument(1);
     GateRef key = TaggedArgument(2U);
 
-    LinkedHashTableStubBuilder<LinkedHashMap, LinkedHashMapObject> builder(this, glue);
+    LinkedHashTableStubBuilder<LinkedHashMap, LinkedHashMapObject> builder(this, glue, GetGlobalEnv(glue));
     GateRef linkedTable = builder.GetLinked(obj);
     Return(builder.Delete(linkedTable, key));
 }
@@ -1435,7 +1547,7 @@ void JSSetDeleteStubBuilder::GenerateCircuit()
     GateRef obj = TaggedArgument(1);
     GateRef key = TaggedArgument(2U);
 
-    LinkedHashTableStubBuilder<LinkedHashSet, LinkedHashSetObject> builder(this, glue);
+    LinkedHashTableStubBuilder<LinkedHashSet, LinkedHashSetObject> builder(this, glue, GetGlobalEnv(glue));
     GateRef linkedTable = builder.GetLinked(obj);
     Return(builder.Delete(linkedTable, key));
 }
@@ -1446,7 +1558,7 @@ void JSSetAddStubBuilder::GenerateCircuit()
     GateRef obj = TaggedArgument(1);
     GateRef key = TaggedArgument(2U);
 
-    LinkedHashTableStubBuilder<LinkedHashSet, LinkedHashSetObject> builder(this, glue);
+    LinkedHashTableStubBuilder<LinkedHashSet, LinkedHashSetObject> builder(this, glue, GetGlobalEnv(glue));
     GateRef linkedTable = builder.GetLinked(obj);
     GateRef newTable = builder.Insert(linkedTable, key, key);
     builder.Store(VariableType::JS_ANY(), glue, obj, IntPtr(JSSet::LINKED_SET_OFFSET), newTable);
@@ -1459,7 +1571,7 @@ void GrowElementsCapacityStubBuilder::GenerateCircuit()
     GateRef thisValue = TaggedArgument(1);
     GateRef newLength = Int32Argument(2U);
     DEFVARIABLE(result, VariableType::JS_ANY(), Undefined());
-    BuiltinsArrayStubBuilder builder(this);
+    BuiltinsArrayStubBuilder builder(this, GetGlobalEnv(glue));
     result = builder.GrowElementsCapacity(glue, thisValue, newLength);
     Return(*result);
 }
@@ -1535,6 +1647,14 @@ void FindEntryFromNameDictionaryStubBuilder::GenerateCircuit()
     GateRef key = PtrArgument(2);
     GateRef entry = FindEntryFromHashTable<NameDictionary>(glue, taggedArray, key);
     Return(entry);
+}
+
+void ComputeStringHashcodeStubBuilder::GenerateCircuit()
+{
+    GateRef glue = PtrArgument(0);
+    GateRef str = PtrArgument(1);
+    GateRef hash = ComputeStringHashcode(glue, str);
+    Return(hash);
 }
 
 CallSignature CommonStubCSigns::callSigns_[CommonStubCSigns::NUM_OF_STUBS];

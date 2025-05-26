@@ -47,10 +47,47 @@ namespace OHOS::Ace {
 class SpanString;
 }
 namespace OHOS::Ace::NG {
+constexpr int32_t MAT4_ZERO = 0;
+constexpr int32_t MAT4_ONE = 1;
+constexpr int32_t MAT4_TWO = 2;
+constexpr int32_t MAT4_THREE = 3;
+constexpr int32_t MAT4_FOUR = 4;
+constexpr int32_t MAT4_FIVE = 5;
+constexpr int32_t MAT4_SIX = 6;
+constexpr int32_t MAT4_SEVEN = 7;
+constexpr int32_t MAT4_EIGHT = 8;
+constexpr int32_t MAT4_NINE = 9;
+constexpr int32_t MAT4_TEN = 10;
+constexpr int32_t MAT4_ELEVEN = 11;
+constexpr int32_t MAT4_TWELVE = 12;
+constexpr int32_t MAT4_THIRTEEN = 13;
+constexpr int32_t MAT4_FOURTEEN = 14;
+constexpr int32_t MAT4_FIFTEEN = 15;
+
 class ACE_FORCE_EXPORT ViewAbstractModelNG : public ViewAbstractModel {
 public:
     ~ViewAbstractModelNG() override = default;
 
+    void CreateWithForegroundColorResourceObj(const RefPtr<ResourceObject>& resObj) override
+    {
+        ViewAbstract::CreateWithForegroundColorResourceObj(resObj);
+    }
+    void CreateWithOuterBorderColorResourceObj(const RefPtr<ResourceObject>& resObj) override
+    {
+        ViewAbstract::CreateWithOuterBorderColorResourceObj(resObj);
+    }
+    void CreateWithOuterBorderRadiusResourceObj(const RefPtr<ResourceObject>& resObj) override
+    {
+        ViewAbstract::CreateWithOuterBorderRadiusResourceObj(resObj);
+    }
+    void CreateWithLightColorResourceObj(const RefPtr<ResourceObject>& resObj) override
+    {
+        ViewAbstract::CreateWithLightColorResourceObj(resObj);
+    }
+    void CreateWithOuterBorderWidthResourceObj(const RefPtr<ResourceObject>& resObj) override
+    {
+        ViewAbstract::CreateWithOuterBorderWidthResourceObj(resObj);
+    }
     void SetWidth(const CalcDimension& width) override
     {
         if (width.Unit() == DimensionUnit::CALC) {
@@ -58,6 +95,11 @@ public:
         } else {
             ViewAbstract::SetWidth(NG::CalcLength(width));
         }
+    }
+
+    void SetWidth(const RefPtr<ResourceObject>& resObj) override
+    {
+        ViewAbstract::SetWidth(resObj);
     }
 
     void SetHeight(const CalcDimension& height) override
@@ -77,6 +119,11 @@ public:
         if (layoutProperty) {
             layoutProperty->UpdateLayoutPolicyProperty(layoutPolicy, isSetWidth);
         }
+    }
+
+    void SetHeight(const RefPtr<ResourceObject>& resObj) override
+    {
+        ViewAbstract::SetHeight(resObj);
     }
 
     void ClearWidthOrHeight(bool isWidth) override
@@ -101,6 +148,11 @@ public:
         }
     }
 
+    void SetMinWidth(const RefPtr<ResourceObject>& resObj) override
+    {
+        ViewAbstract::SetMinWidth(resObj);
+    }
+
     void SetMinHeight(const CalcDimension& minHeight) override
     {
         if (minHeight.Unit() == DimensionUnit::CALC) {
@@ -108,6 +160,11 @@ public:
         } else {
             ViewAbstract::SetMinHeight(NG::CalcLength(minHeight));
         }
+    }
+
+    void SetMinHeight(const RefPtr<ResourceObject>& resObj) override
+    {
+        ViewAbstract::SetMinHeight(resObj);
     }
 
     void SetMaxWidth(const CalcDimension& maxWidth) override
@@ -119,6 +176,11 @@ public:
         }
     }
 
+    void SetMaxWidth(const RefPtr<ResourceObject>& resObj) override
+    {
+        ViewAbstract::SetMaxWidth(resObj);
+    }
+
     void SetMaxHeight(const CalcDimension& maxHeight) override
     {
         if (maxHeight.Unit() == DimensionUnit::CALC) {
@@ -128,14 +190,30 @@ public:
         }
     }
 
+    void SetMaxHeight(const RefPtr<ResourceObject>& resObj) override
+    {
+        ViewAbstract::SetMaxHeight(resObj);
+    }
+
     void SetBackgroundColor(const Color& color) override
     {
         ViewAbstract::SetBackgroundColor(color);
     }
 
+    void SetBackgroundColorWithResourceObj(const RefPtr<ResourceObject>& resObj) override
+    {
+        ViewAbstract::SetBackgroundColorWithResourceObj(resObj);
+    }
+
     void SetBackgroundImage(const ImageSourceInfo& src, RefPtr<ThemeConstants> themeConstant) override
     {
         ViewAbstract::SetBackgroundImage(src);
+    }
+
+    void SetBackgroundImageWithResourceObj(const RefPtr<ResourceObject> &resObj, std::string &bundleName,
+        std::string &moduleName, RefPtr<ThemeConstants> themeConstant) override
+    {
+        ViewAbstract::SetBackgroundImageWithResourceObj(resObj, bundleName, moduleName);
     }
 
     void SetBackgroundImageRepeat(const ImageRepeat& imageRepeat) override
@@ -148,12 +226,12 @@ public:
         ViewAbstract::SetBackgroundImageSyncMode(syncMode);
     }
 
-    void SetBackgroundImageSize(const BackgroundImageSize& bgImgSize) override
+    void SetBackgroundImageSize(BackgroundImageSize& bgImgSize) override
     {
         ViewAbstract::SetBackgroundImageSize(bgImgSize);
     }
 
-    void SetBackgroundImagePosition(const BackgroundImagePosition& bgImgPosition) override
+    void SetBackgroundImagePosition(BackgroundImagePosition& bgImgPosition) override
     {
         ViewAbstract::SetBackgroundImagePosition(bgImgPosition);
     }
@@ -168,7 +246,7 @@ public:
         ViewAbstract::SetBackgroundEffect(effectOption, sysOptions);
     }
 
-    void SetBackgroundImageResizableSlice(const ImageResizableSlice& slice) override
+    void SetBackgroundImageResizableSlice(ImageResizableSlice& slice) override
     {
         ViewAbstract::SetBackgroundImageResizableSlice(slice);
     }
@@ -238,6 +316,11 @@ public:
     void SetPaddings(const NG::PaddingProperty& paddings) override
     {
         ViewAbstract::SetPadding(paddings);
+    }
+
+    void SetPadding(const RefPtr<ResourceObject>& resObj) override
+    {
+        ViewAbstract::SetPadding(resObj);
     }
 
     void ResetSafeAreaPadding() override
@@ -316,6 +399,11 @@ public:
         ViewAbstract::SetMargin(margins);
     }
 
+    void SetMargin(const RefPtr<ResourceObject>& resObj) override
+    {
+        ViewAbstract::SetMargin(resObj);
+    }
+
     void SetBorderRadius(const Dimension& value) override
     {
         ViewAbstract::SetBorderRadius(value);
@@ -338,6 +426,11 @@ public:
         ViewAbstract::SetBorderRadius(borderRadius);
     }
 
+    void SetBorderRadius(const RefPtr<ResourceObject>& resobj) override
+    {
+        ViewAbstract::SetBorderRadius(resobj);
+    }
+
     void SetBorderColor(const Color& value) override
     {
         ViewAbstract::SetBorderColor(value);
@@ -357,6 +450,11 @@ public:
     void SetBorderColor(const NG::BorderColorProperty& borderColors) override
     {
         ViewAbstract::SetBorderColor(borderColors);
+    }
+
+    void SetBorderColor(const RefPtr<ResourceObject>& resobj) override
+    {
+        ViewAbstract::SetBorderColor(resobj);
     }
 
     void SetBorderWidth(const Dimension& value) override
@@ -386,6 +484,16 @@ public:
             .topDimen = top, .bottomDimen = bottom, .startDimen = start, .endDimen = end, .multiValued = true
         };
         ViewAbstract::SetBorderWidth(borderWidth);
+    }
+
+    void SetBorderWidth(const RefPtr<ResourceObject>& resobj) override
+    {
+        ViewAbstract::SetBorderWidth(resobj);
+    }
+
+    void SetBorderWidth(const NG::BorderWidthProperty& value) override
+    {
+        ViewAbstract::SetBorderWidth(value);
     }
 
     void SetBorderStyle(const BorderStyle& value) override
@@ -422,6 +530,11 @@ public:
         ViewAbstract::SetDashGap(dashGap);
     }
 
+    void SetDashGap(const NG::BorderWidthProperty& value) override
+    {
+        ViewAbstract::SetDashGap(value);
+    }
+
     void SetDashWidth(const Dimension& value) override
     {
         ViewAbstract::SetDashWidth(value);
@@ -437,6 +550,11 @@ public:
         dashWidth.bottomDimen = bottom;
         dashWidth.multiValued = true;
         ViewAbstract::SetDashWidth(dashWidth);
+    }
+
+    void SetDashWidth(const NG::BorderWidthProperty& value) override
+    {
+        ViewAbstract::SetDashWidth(value);
     }
 
     void SetOuterBorderRadius(const Dimension& value) override
@@ -486,6 +604,11 @@ public:
     void SetOuterBorderWidth(const Dimension& value) override
     {
         ViewAbstract::SetOuterBorderWidth(value);
+    }
+
+    void SetOuterBorderWidthNew(const NG::BorderWidthProperty& property) override
+    {
+        ViewAbstract::SetOuterBorderWidth(property);
     }
 
     void SetOuterBorderWidth(const std::optional<Dimension>& left, const std::optional<Dimension>& right,
@@ -616,6 +739,12 @@ public:
         ViewAbstract::SetPosition({ x, y });
     }
 
+    void SetPosition(const Dimension& x, const Dimension& y,
+        const RefPtr<ResourceObject>& xresObj, const RefPtr<ResourceObject>& yresObj) override
+    {
+        ViewAbstract::SetPosition(x, y, xresObj, yresObj);
+    }
+
     void SetPositionEdges(const EdgesParam& value) override
     {
         ViewAbstract::SetPositionEdges(value);
@@ -631,6 +760,12 @@ public:
         ViewAbstract::SetOffset({ x, y });
     }
 
+    void SetOffset(const Dimension& x, const Dimension& y,
+        const RefPtr<ResourceObject>& xresObj, const RefPtr<ResourceObject>& yresObj) override
+    {
+        ViewAbstract::SetOffset(x, y, xresObj, yresObj);
+    }
+
     void SetOffsetEdges(const EdgesParam& value) override
     {
         ViewAbstract::SetOffsetEdges(value);
@@ -639,6 +774,12 @@ public:
     void MarkAnchor(const Dimension& x, const Dimension& y) override
     {
         ViewAbstract::MarkAnchor({ x, y });
+    }
+
+    void MarkAnchor(const Dimension& x, const Dimension& y,
+        const RefPtr<ResourceObject>& xresObj, const RefPtr<ResourceObject>& yresObj) override
+    {
+        ViewAbstract::MarkAnchor(x, y, xresObj, yresObj);
     }
 
     void SetScale(float x, float y, float z) override;
@@ -662,9 +803,22 @@ public:
                 matrix[6], matrix[10], matrix[14], matrix[3], matrix[7], matrix[11], matrix[15]));
     }
 
+    void SetTransform3DMatrix(const std::vector<float>& matrix) override
+    {
+        NG::ViewAbstract::SetTransform3DMatrix(Matrix4(matrix[MAT4_ZERO], matrix[MAT4_FOUR], matrix[MAT4_EIGHT],
+            matrix[MAT4_TWELVE], matrix[MAT4_ONE], matrix[MAT4_FIVE], matrix[MAT4_NINE], matrix[MAT4_THIRTEEN],
+            matrix[MAT4_TWO], matrix[MAT4_SIX], matrix[MAT4_TEN], matrix[MAT4_FOURTEEN], matrix[MAT4_THREE],
+            matrix[MAT4_SEVEN], matrix[MAT4_ELEVEN], matrix[MAT4_FIFTEEN]));
+    }
+
     void SetOpacity(double opacity, bool passThrough = false) override
     {
         ViewAbstract::SetOpacity(opacity);
+    }
+
+    void CreateWithOpacityResourceObj(const RefPtr<ResourceObject>& resobj) override
+    {
+        ViewAbstract::CreateWithOpacityResourceObj(resobj);
     }
 
     void SetTransition(const NG::TransitionOptions& transitionOptions, bool passThrough = false) override
@@ -804,6 +958,11 @@ public:
         ViewAbstract::SetProgressMask(progress);
     }
 
+    void CreateWithMaskResourceObj(const RefPtr<NG::ProgressMaskProperty>& progress) override
+    {
+        ViewAbstract::CreateWithMaskResourceObj(progress);
+    }
+
     void SetBackdropBlur(const Dimension& radius, const BlurOption& blurOption, const SysOptions& sysOptions) override
     {
         ViewAbstract::SetBackdropBlur(radius, blurOption, sysOptions);
@@ -868,6 +1027,11 @@ public:
     void SetColorBlend(const Color& value) override
     {
         ViewAbstract::SetColorBlend(value);
+    }
+
+    void CreateWithColorBlendResourceObj(const RefPtr<ResourceObject>& resobj) override
+    {
+        ViewAbstract::CreateWithColorBlendResourceObj(resobj);
     }
 
     void SetWindowBlur(float progress, WindowBlurStyle blurStyle) override {}
@@ -1110,6 +1274,17 @@ public:
         ViewAbstract::SetOnDragEnter(std::move(onDragEnter));
     }
 
+    void SetOnDragSpringLoading(NG::OnDrapDropSpringLoadingFunc&& onDragSpringLoading) override
+    {
+        ViewAbstract::SetOnDragSpringLoading(std::move(onDragSpringLoading));
+    }
+
+    void SetOnDragSpringLoadingConfiguration(
+        const RefPtr<DragSpringLoadingConfiguration>& dragSpringLoadingConfiguration) override
+    {
+        ViewAbstract::SetOnDragSpringLoadingConfiguration(std::move(dragSpringLoadingConfiguration));
+    }
+
     void SetOnDragEnd(OnNewDragFunc&& onDragEnd) override
     {
         ViewAbstract::SetOnDragEnd(std::move(onDragEnd));
@@ -1346,6 +1521,21 @@ public:
     void SetToolbarBuilder(std::function<void()>&& buildFunc) override;
 
     void BindBackground(std::function<void()>&& buildFunc, const Alignment& align) override;
+    void SetBackground(std::function<void()>&& buildFunc) override;
+    void SetBackgroundAlign(const Alignment& align) override
+    {
+        NG::ViewAbstract::SetBackgroundAlign(align);
+    }
+    void SetCustomBackgroundColor(const Color& color) override;
+    void SetBackgroundIgnoresLayoutSafeAreaEdges(const uint32_t edges) override;
+    void SetIsTransitionBackground(bool val) override
+    {
+        NG::ViewAbstract::SetIsTransitionBackground(val);
+    }
+    void SetIsBuilderBackground(bool val) override
+    {
+        NG::ViewAbstract::SetIsBuilderBackground(val);
+    }
 
     int32_t OpenMenu(NG::MenuParam& menuParam, const RefPtr<NG::UINode>& customNode, const int32_t& targetId) override
     {
@@ -1422,7 +1612,16 @@ public:
     void SetAccessibilityUseSamePage(const std::string& pageMode) override;
     void SetAccessibilityScrollTriggerable(bool triggerable, bool resetValue) override;
     void SetAccessibilityFocusDrawLevel(int32_t drawLevel) override;
-
+    std::string PopupTypeStr(PopupType& type);
+    void UpdateColor(PopupType& type, const Color& color);
+    void CreateWithColorResourceObj(
+        const RefPtr<NG::FrameNode>& frameNode, const RefPtr<ResourceObject>& ColorResObj, PopupType& type) override;
+    void CreateWithBoolResourceObj(
+        const RefPtr<NG::FrameNode>& frameNode, const RefPtr<ResourceObject>& maskResObj) override;
+    virtual void CreateWithResourceObj(
+        const RefPtr<NG::FrameNode>& frameNode, const RefPtr<ResourceObject>& resourceObj, PopupType type) override;
+    virtual void CreateWithResourceObj(
+        const RefPtr<NG::FrameNode>& frameNode, const RefPtr<ResourceObject>& resourceObj) override;
     void SetForegroundColor(const Color& color) override
     {
         ViewAbstract::SetForegroundColor(color);
@@ -1559,6 +1758,11 @@ public:
         ViewAbstract::SetLightPosition(positionX, positionY, positionZ);
     }
 
+    void SetLightPosition(const NG::TranslateOptions& options) override
+    {
+        ViewAbstract::SetLightPosition(options);
+    }
+
     void SetLightIntensity(const float value) override
     {
         ViewAbstract::SetLightIntensity(value);
@@ -1669,6 +1873,26 @@ public:
     static std::string GetAccessibilityDescription(FrameNode* frameNode);
     static std::string GetAccessibilityImportance(FrameNode* frameNode);
     static bool CheckSkipMenuShow(const RefPtr<FrameNode>& targetNode);
+    static void SetFreeze(FrameNode* frameNode, bool freeze)
+    {
+        ViewAbstract::SetFreeze(frameNode, freeze);
+    }
+    static void SetVisualEffect(FrameNode* frameNode, const OHOS::Rosen::VisualEffect* visualEffect)
+    {
+        ViewAbstract::SetVisualEffect(frameNode, visualEffect);
+    }
+    static void SetBackgroundFilter(FrameNode* frameNode, const OHOS::Rosen::Filter* backgroundFilter)
+    {
+        ViewAbstract::SetBackgroundFilter(frameNode, backgroundFilter);
+    }
+    static void SetForegroundFilter(FrameNode* frameNode, const OHOS::Rosen::Filter* foregroundFilter)
+    {
+        ViewAbstract::SetForegroundFilter(frameNode, foregroundFilter);
+    }
+    static void SetCompositingFilter(FrameNode* frameNode, const OHOS::Rosen::Filter* compositingFilter)
+    {
+        ViewAbstract::SetCompositingFilter(frameNode, compositingFilter);
+    }
 
 private:
     bool CheckMenuIsShow(const MenuParam& menuParam, int32_t targetId, const RefPtr<FrameNode>& targetNode);
@@ -1701,6 +1925,11 @@ private:
     void UpdateSafeAreaExpandOpts(const SafeAreaExpandOpts& opts) override
     {
         ViewAbstract::UpdateSafeAreaExpandOpts(opts);
+    }
+
+    void UpdateIgnoreLayoutSafeAreaOpts(const IgnoreLayoutSafeAreaOpts& opts) override
+    {
+        ViewAbstract::UpdateIgnoreLayoutSafeAreaOpts(opts);
     }
 
     void SetPositionLocalizedEdges(bool needLocalized) override

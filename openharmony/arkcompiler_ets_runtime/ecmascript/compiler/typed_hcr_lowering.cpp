@@ -117,7 +117,7 @@ GateRef TypedHCRLowering::VisitGate(GateRef gate)
             LowerLoadArrayLength(gate);
             break;
         case OpCode::LOAD_ELEMENT:
-            LowerLoadElement(gate);
+            LowerLoadElement(gate, glue);
             break;
         case OpCode::STORE_ELEMENT:
             LowerStoreElement(gate, glue);
@@ -187,7 +187,11 @@ GateRef TypedHCRLowering::VisitGate(GateRef gate)
             LowerBooleanConstructor(gate, glue);
             break;
         case OpCode::ORDINARY_HAS_INSTANCE:
-            LowerOrdinaryHasInstance(gate, glue);
+            if (compilationEnv_->IsJitCompiler()) {
+                LowerOrdinaryHasInstanceForJIT(gate, glue);
+            } else {
+                LowerOrdinaryHasInstance(gate, glue);
+            }
             break;
         case OpCode::PROTO_CHANGE_MARKER_CHECK:
             LowerProtoChangeMarkerCheck(glue, gate);
@@ -548,9 +552,9 @@ void TypedHCRLowering::LowerFlattenTreeStringCheck(GateRef gate, GateRef glue)
 
 GateRef TypedHCRLowering::GetLengthFromString(GateRef gate)
 {
-    GateRef shiftCount = builder_.Int32(EcmaString::LengthBits::START_BIT);
+    GateRef shiftCount = builder_.Int32(BaseString::LengthBits::START_BIT);
     return builder_.Int32LSR(
-        builder_.LoadConstOffset(VariableType::INT32(), gate, EcmaString::LENGTH_AND_FLAGS_OFFSET), shiftCount);
+        builder_.LoadConstOffset(VariableType::INT32(), gate, BaseString::LENGTH_AND_FLAGS_OFFSET), shiftCount);
 }
 
 void TypedHCRLowering::LowerStringLength(GateRef gate)
@@ -585,7 +589,31 @@ void TypedHCRLowering::LowerLoadTypedArrayLength(GateRef gate)
 void TypedHCRLowering::LowerObjectTypeCheck(GateRef glue, GateRef gate)
 {
     Environment env(gate, circuit_, &builder_);
+    size_t typeCount = acc_.GetNumValueIn(gate) - 1;
+    if (typeCount == 1) {
+        GateRef frameState = GetFrameState(gate);
+        GateRef compare = BuildCompareHClass(glue, gate, frameState);
+        builder_.DeoptCheck(compare, frameState, DeoptType::INCONSISTENTHCLASS6);
+        acc_.ReplaceGate(gate, builder_.GetState(), builder_.GetDepend(), Circuit::NullGate());
+        return;
+    }
     LowerSimpleHClassCheck(glue, gate);
+}
+
+GateRef TypedHCRLowering::BuildCompareHClass(GateRef glue, GateRef gate, GateRef frameState)
+{
+    GateRef receiver = acc_.GetValueIn(gate, 0);
+    bool isHeapObject = acc_.GetObjectTypeAccessor(gate).IsHeapObject();
+    if (!isHeapObject) {
+        builder_.HeapObjectCheck(receiver, frameState);
+    }
+    GateRef aotHCIndex = acc_.GetValueIn(gate, 1);
+    auto hclassIndex = acc_.GetConstantValue(aotHCIndex);
+    ArgumentAccessor argAcc(circuit_);
+    GateRef unsharedConstPool = argAcc.GetFrameArgsIn(frameState, FrameArgIdx::UNSHARED_CONST_POOL);
+    GateRef aotHCGate = builder_.LoadHClassFromConstpool(unsharedConstPool, hclassIndex);
+    GateRef receiverHClass = builder_.LoadHClassByConstOffset(glue, receiver);
+    return builder_.Equal(aotHCGate, receiverHClass, "checkHClass");
 }
 
 void TypedHCRLowering::LowerSimpleHClassCheck(GateRef glue, GateRef gate)
@@ -1108,7 +1136,7 @@ VariableType TypedHCRLowering::GetVariableType(BuiltinTypeId id)
     return type;
 }
 
-void TypedHCRLowering::LowerLoadElement(GateRef gate)
+void TypedHCRLowering::LowerLoadElement(GateRef gate, GateRef glue)
 {
     Environment env(gate, circuit_, &builder_);
     LoadElementAccessor accessor = acc_.GetLoadElementAccessor(gate);
@@ -1153,7 +1181,7 @@ void TypedHCRLowering::LowerLoadElement(GateRef gate)
             LowerTypedArrayLoadElement(gate, BuiltinTypeId::FLOAT64_ARRAY);
             break;
         case TypedLoadOp::STRING_LOAD_ELEMENT:
-            LowerStringLoadElement(gate);
+            LowerStringLoadElement(gate, glue);
             break;
         default:
             LOG_ECMA(FATAL) << "this branch is unreachable";
@@ -1316,15 +1344,19 @@ GateRef TypedHCRLowering::BuildTypedArrayLoadElement(GateRef glue, GateRef recei
     return *result;
 }
 
-void TypedHCRLowering::LowerStringLoadElement(GateRef gate)
+void TypedHCRLowering::LowerStringLoadElement(GateRef gate, GateRef glue)
 {
     Environment env(gate, circuit_, &builder_);
     GateRef receiver = acc_.GetValueIn(gate, 0);
     GateRef index = acc_.GetValueIn(gate, 1);
-    GateRef glue = acc_.GetGlueFromArgList();
-
-    BuiltinsStringStubBuilder builder(&env);
-    GateRef result = builder.GetSingleCharCodeByIndex(glue, receiver, index);
+    GateRef result = Circuit::NullGate();
+    if (compilationEnv_->IsJitCompiler()) {
+        result = builder_.CallStub(glue, gate, CommonStubCSigns::StringLoadElement,
+                                   { glue, receiver, index }, "StringLoadElement stub");
+    } else {
+        BuiltinsStringStubBuilder builder(&env, builder_.GetGlobalEnv(glue));
+        result = builder.GetSingleCharCodeByIndex(glue, receiver, index);
+    }
 
     acc_.ReplaceGate(gate, builder_.GetState(), builder_.GetDepend(), result);
 }
@@ -2254,6 +2286,20 @@ void TypedHCRLowering::ConvertFloat32ArrayConstructorLength(GateRef len, Variabl
 void TypedHCRLowering::LowerFloat32ArrayConstructor(GateRef gate, GateRef glue)
 {
     Environment env(gate, circuit_, &builder_);
+    if (compilationEnv_->IsJitCompiler()) {
+        GateRef res = Circuit::NullGate();
+        if (acc_.GetNumValueIn(gate) == 1) {
+            res = builder_.CallStub(glue, gate, CommonStubCSigns::NewFloat32ArrayWithNoArgs,
+                                    { glue }, "NewFloat32ArrayWithNoArgs stub");
+        } else {
+            ASSERT(acc_.GetNumValueIn(gate) == 2); // 2: new target and arg0
+            res = builder_.CallStub(glue, gate, CommonStubCSigns::NewFloat32Array,
+                                    { glue, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1) },
+                                    "NewFloat32Array stub");
+        }
+        acc_.ReplaceGate(gate, builder_.GetState(), builder_.GetDepend(), res);
+        return;
+    }
     if (acc_.GetNumValueIn(gate) == 1) {
         NewFloat32ArrayConstructorWithNoArgs(gate, glue);
         return;
@@ -2584,6 +2630,16 @@ void TypedHCRLowering::LowerLoadBuiltinObject(GateRef gate)
     acc_.ReplaceGate(gate, builder_.GetState(), builder_.GetDepend(), builtin);
 }
 
+void TypedHCRLowering::LowerOrdinaryHasInstanceForJIT(GateRef gate, GateRef glue)
+{
+    Environment env(gate, circuit_, &builder_);
+    GateRef obj = acc_.GetValueIn(gate, 0);
+    GateRef target = acc_.GetValueIn(gate, 1);
+    auto result = builder_.CallStub(glue, gate, CommonStubCSigns::OrdinaryHasInstance,
+                                    { glue, obj, target }, "OrdinaryHasInstance stub");
+    ReplaceGateWithPendingException(glue, gate, builder_.GetState(), builder_.GetDepend(), result);
+}
+
 void TypedHCRLowering::LowerOrdinaryHasInstance(GateRef gate, GateRef glue)
 {
     Environment env(gate, circuit_, &builder_);
@@ -2893,7 +2949,9 @@ GateRef TypedHCRLowering::LoadPropertyFromHolder(GateRef holder, PropertyLookupR
 {
     GateRef result = Circuit::NullGate();
     GateRef glue = acc_.GetGlueFromArgList();
-    if (plr.IsNotHole()) {
+    // while loading from iterator result, it may be the case that traversing an array including holes using 'for of',
+    // need to convert hole to undefined
+    if (plr.IsNotHole() || (compilationEnv_->IsJitCompiler() && !plr.IsLoadFromIterResult())) {
         ASSERT(plr.IsLocal());
         if (plr.IsInlinedProps()) {
             result = builder_.LoadConstOffset(VariableType::JS_ANY(), holder, plr.GetOffset());
@@ -2993,7 +3051,7 @@ void TypedHCRLowering::LowerMonoStoreProperty(GateRef gate, GateRef glue)
     }
     if (!isPrototype) {
         builder_.DeoptCheck(builder_.BoolNot(builder_.IsPrototypeHClass(receiverHC)), frameState,
-                            DeoptType::PROTOTYPECHANGED2);
+                            DeoptType::PROTOTYPECHANGED3);
     } else {
         builder_.Branch(builder_.IsPrototypeHClass(receiverHC), &isProto, &notProto,
             BranchWeight::ONE_WEIGHT, BranchWeight::DEOPT_WEIGHT, "isPrototypeHClass");
@@ -3239,7 +3297,7 @@ void TypedHCRLowering::LowerStringFromSingleCharCode(GateRef gate, GateRef glue)
             builder_.Bind(&afterNew1);
             {
                 GateRef dst = builder_.ChangeTaggedPointerToInt64(
-                    builder_.PtrAdd(*res, builder_.IntPtr(LineEcmaString::DATA_OFFSET)));
+                    builder_.PtrAdd(*res, builder_.IntPtr(LineString::DATA_OFFSET)));
                 builder_.Store(VariableType::INT16(), glue, dst, builder_.IntPtr(0), *value);
                 builder_.Jump(&exit);
             }

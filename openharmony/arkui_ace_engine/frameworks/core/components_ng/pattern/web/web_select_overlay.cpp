@@ -323,6 +323,11 @@ void WebSelectOverlay::SetMenuOptions(SelectOverlayInfo& selectInfo,
     } else {
         selectInfo.menuInfo.showCopyAll = true;
     }
+
+    if (isSelectAll_) {
+        selectInfo.menuInfo.showCopyAll = false;
+    }
+
     auto value = GetSelectedText();
     auto queryWord = std::regex_replace(value, std::regex("^\\s+|\\s+$"), "");
     if (!queryWord.empty()) {
@@ -331,6 +336,15 @@ void WebSelectOverlay::SetMenuOptions(SelectOverlayInfo& selectInfo,
     } else {
         selectInfo.menuInfo.showSearch = false;
         selectInfo.menuInfo.showTranslate = false;
+    }
+    // should be the last
+    canShowAIMenu_ = (copyOption != OHOS::NWeb::NWebPreference::CopyOptionMode::NONE) &&
+                     (copyOption != OHOS::NWeb::NWebPreference::CopyOptionMode::IN_APP);
+    canShowAIMenu_ = canShowAIMenu_ && !(flags & OHOS::NWeb::NWebQuickMenuParams::QM_EF_CAN_CUT);
+    if (canShowAIMenu_) {
+        if (auto adapter = pattern->webDataDetectorAdapter_) {
+            adapter->DetectSelectedText(value);
+        }
     }
 }
 
@@ -790,6 +804,9 @@ void WebSelectOverlay::OnMenuItemAction(OptionMenuActionId id, OptionMenuType ty
 {
     auto pattern = GetPattern<WebPattern>();
     CHECK_NULL_VOID(pattern);
+    if (id != OptionMenuActionId::SELECT_ALL && id != OptionMenuActionId::COPY) {
+        isSelectAll_ = false;
+    }
     if (!quickMenuCallback_) {
         pattern->CloseSelectOverlay();
         return;
@@ -798,7 +815,7 @@ void WebSelectOverlay::OnMenuItemAction(OptionMenuActionId id, OptionMenuType ty
         case OptionMenuActionId::COPY:
             quickMenuCallback_->Continue(
                 OHOS::NWeb::NWebQuickMenuParams::QM_EF_CAN_COPY, OHOS::NWeb::MenuEventFlags::EF_LEFT_MOUSE_BUTTON);
-            pattern->CloseSelectOverlay();
+            ChangeVisibilityOfQuickMenu();
             break;
         case OptionMenuActionId::CUT:
             quickMenuCallback_->Continue(
@@ -813,6 +830,7 @@ void WebSelectOverlay::OnMenuItemAction(OptionMenuActionId id, OptionMenuType ty
         case OptionMenuActionId::SELECT_ALL:
             quickMenuCallback_->Continue(OHOS::NWeb::NWebQuickMenuParams::QM_EF_CAN_SELECT_ALL,
                 OHOS::NWeb::MenuEventFlags::EF_LEFT_MOUSE_BUTTON);
+            isSelectAll_ = true;
             break;
         case OptionMenuActionId::TRANSLATE:
             HandleOnTranslate();
@@ -827,10 +845,23 @@ void WebSelectOverlay::OnMenuItemAction(OptionMenuActionId id, OptionMenuType ty
         case OptionMenuActionId::DISAPPEAR:
             pattern->CloseSelectOverlay();
             SelectCancel();
+            break;
+        case OptionMenuActionId::AI_MENU_OPTION:
+            if (auto adapter = pattern->webDataDetectorAdapter_) {
+                adapter->OnClickAISelectMenuOption(aiMenuType_, aiMenucontent_);
+            }
+            pattern->CloseSelectOverlay();
+            SelectCancel();
+            break;
         default:
             TAG_LOGI(AceLogTag::ACE_WEB, "Unsupported menu option id %{public}d", id);
             break;
     }
+}
+
+void WebSelectOverlay::OnMenuItemAction(OptionMenuActionId id, OptionMenuType type, const std::string& labelInfo)
+{
+    OnMenuItemAction(id, type);
 }
 
 void WebSelectOverlay::OnHandleMove(const RectF& handleRect, bool isFirst)
@@ -878,6 +909,8 @@ void WebSelectOverlay::OnHandleMoveStart(const GestureEvent& event, bool isFirst
     if (pattern->IsOverlayCreating()) {
         pattern->UpdateImageOverlayTouchInfo(touchPoint.x, touchPoint.y, TouchType::DOWN);
     }
+    aiMenuType_ = TextDataDetectType::INVALID;
+    webSelectInfo_.menuInfo.aiMenuOptionType = aiMenuType_;
     pattern->WebOverlayRequestFocus();
 }
 
@@ -889,6 +922,11 @@ void WebSelectOverlay::OnHandleMoveDone(const RectF& rect, bool isFirst)
     CHECK_NULL_VOID(pattern);
     auto delegate = pattern->delegate_;
     CHECK_NULL_VOID(delegate);
+    if (canShowAIMenu_) {
+        if (auto adapter = pattern->webDataDetectorAdapter_) {
+            adapter->DetectSelectedText(GetSelectedText());
+        }
+    }
     TouchInfo touchPoint;
     touchPoint.id = 0;
     touchPoint.x = rect.GetX() - pattern->webOffset_.GetX();
@@ -934,6 +972,8 @@ void WebSelectOverlay::OnCloseOverlay(OptionMenuType menuType, CloseReason reaso
     CHECK_NULL_VOID(pattern);
     auto host = pattern->GetHost();
     CHECK_NULL_VOID(host);
+    aiMenuType_ = TextDataDetectType::INVALID;
+    webSelectInfo_.menuInfo.aiMenuOptionType = aiMenuType_;
     StopListenSelectOverlayParentScroll(host);
 }
 
@@ -1042,6 +1082,11 @@ void WebSelectOverlay::OnHandleMarkInfoChange(
             info->menuInfo.showShare = !info->menuInfo.showShare;
             manager->NotifyUpdateToolBar(true);
         }
+        if (info->menuInfo.aiMenuOptionType != aiMenuType_) {
+            TAG_LOGI(AceLogTag::ACE_WEB, "WebSelectOverlay::OnHandleMarkInfoChange aiMenuOptionType change.");
+            info->menuInfo.aiMenuOptionType = aiMenuType_;
+            manager->NotifyUpdateToolBar(true);
+        }
     }
     if ((flag & DIRTY_DOUBLE_HANDLE) == DIRTY_DOUBLE_HANDLE) {
         if (needResetHandleReverse_) {
@@ -1065,6 +1110,10 @@ void WebSelectOverlay::UpdateSelectMenuOptions()
 {
     auto value = GetSelectedText();
     auto queryWord = std::regex_replace(value, std::regex("^\\s+|\\s+$"), "");
+    if (isSelectAll_) {
+        webSelectInfo_.menuInfo.showCopyAll = true;
+        isSelectAll_ = false;
+    }
     if (!queryWord.empty()) {
         webSelectInfo_.menuInfo.showSearch = true;
         webSelectInfo_.menuInfo.showTranslate = true;
@@ -1078,6 +1127,18 @@ void WebSelectOverlay::UpdateSelectMenuOptions()
     OnUpdateMenuInfo(webSelectInfo_.menuInfo, DIRTY_FIRST_HANDLE);
     auto manager = GetManager<SelectContentOverlayManager>();
     CHECK_NULL_VOID(manager);
+    manager->MarkInfoChange(DIRTY_ALL_MENU_ITEM);
+}
+
+void WebSelectOverlay::UpdateAISelectMenu(TextDataDetectType type, std::string content)
+{
+    TAG_LOGI(
+        AceLogTag::ACE_WEB, "WebDataDetectorAdapter::UpdateAISelectMenu type: %{public}d", static_cast<int32_t>(type));
+    aiMenuType_ = type;
+    aiMenucontent_ = content;
+    auto manager = GetManager<SelectContentOverlayManager>();
+    CHECK_NULL_VOID(manager);
+    webSelectInfo_.menuInfo.aiMenuOptionType = aiMenuType_;
     manager->MarkInfoChange(DIRTY_ALL_MENU_ITEM);
 }
 } // namespace OHOS::Ace::NG

@@ -15,18 +15,18 @@
 
 #include "common_interfaces/thread/thread_holder-inl.h"
 
+#include "common_components/base_runtime/hooks.h"
 #include "common_components/common_runtime/src/mutator/mutator.h"
-#include "common_interfaces/thread/base_thread.h"
 #include "common_interfaces/base_runtime.h"
+#include "common_interfaces/thread/base_thread.h"
+#include "common_interfaces/thread/thread_holder_manager.h"
 
 namespace panda {
 thread_local ThreadHolder *currentThreadHolder = nullptr;
 
-extern "C" void VisitJSThread(void *jsThread, CommonRootVisitor visitor);
-
 ThreadHolder *ThreadHolder::CreateAndRegisterNewThreadHolder(void *vm)
 {
-    if (ThreadLocal::IsArkProcessor() || ThreadLocal::GetMutator() != nullptr) {
+    if (ThreadLocal::IsArkProcessor()) {
         LOG_COMMON(FATAL) << "CreateAndRegisterNewThreadHolder fail";
         return nullptr;
     }
@@ -36,6 +36,12 @@ ThreadHolder *ThreadHolder::CreateAndRegisterNewThreadHolder(void *vm)
     ThreadHolder *holder = mutator->GetThreadHolder();
     BaseRuntime::GetInstance()->GetThreadHolderManager().RegisterThreadHolder(holder);
     return holder;
+}
+
+void ThreadHolder::DestroyThreadHolder(ThreadHolder *holder)
+{
+    holder->TransferToNative();
+    BaseRuntime::GetInstance()->GetThreadHolderManager().UnregisterThreadHolder(holder);
 }
 
 ThreadHolder *ThreadHolder::GetCurrent()
@@ -63,9 +69,8 @@ void ThreadHolder::UnregisterJSThread(JSThread *jsThread)
     TransferToRunning();
     DCHECK_CC(jsThread_ == jsThread);
     jsThread_ = nullptr;
-    TransferToNative();
-    if (threads_.empty()) {
-        BaseRuntime::GetInstance()->GetThreadHolderManager().UnregisterThreadHolder(this);
+    if (coroutines_.empty()) {
+        ThreadHolder::DestroyThreadHolder(this);
     }
 }
 
@@ -84,10 +89,32 @@ void ThreadHolder::UnregisterCoroutine(Coroutine *coroutine)
     TransferToRunning();
     DCHECK_CC(coroutines_.find(coroutine) != coroutines_.end());
     coroutines_.erase(coroutine);
-    TransferToNative();
-    if (threads_.empty() && jsThread_ == nullptr) {
-        BaseRuntime::GetInstance()->GetThreadHolderManager().UnregisterThreadHolder(this);
+    if (coroutines_.empty() && jsThread_ == nullptr) {
+        ThreadHolder::DestroyThreadHolder(this);
     }
+}
+
+bool ThreadHolder::TryBindMutator()
+{
+    if (ThreadLocal::IsArkProcessor() || ThreadLocal::GetMutator() != nullptr) {
+        return false;
+    }
+
+    BaseRuntime::GetInstance()->GetThreadHolderManager().BindMutator(this);
+    return true;
+}
+
+void ThreadHolder::BindMutator()
+{
+    if (!TryBindMutator()) {
+        LOG_COMMON(FATAL) << "BindMutator fail";
+        return;
+    }
+}
+
+void ThreadHolder::UnbindMutator()
+{
+    BaseRuntime::GetInstance()->GetThreadHolderManager().UnbindMutator(this);
 }
 
 void ThreadHolder::WaitSuspension()
@@ -102,6 +129,21 @@ void ThreadHolder::VisitAllThreads(CommonRootVisitor visitor)
     }
     for (auto *coroutine : coroutines_) {
         // Depending on the integrated so
+    }
+}
+
+ThreadHolder::TryBindMutatorScope::TryBindMutatorScope(ThreadHolder *holder) : holder_(nullptr)
+{
+    if (holder->TryBindMutator()) {
+        holder_ = holder;
+    }
+}
+
+ThreadHolder::TryBindMutatorScope::~TryBindMutatorScope()
+{
+    if (holder_ != nullptr) {
+        holder_->UnbindMutator();
+        holder_ = nullptr;
     }
 }
 } // namespace panda

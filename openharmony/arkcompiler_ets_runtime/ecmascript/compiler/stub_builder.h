@@ -399,8 +399,9 @@ public:
     GateRef DefineField(GateRef glue, GateRef obj, GateRef proKey, GateRef value);
     void StoreHClass(GateRef glue, GateRef object, GateRef hClass,
                      MemoryAttribute mAttr = MemoryAttribute::NeedBarrier());
+    void StoreBaseAddressForBaseClass(GateRef glue, GateRef object, GateRef hClass);
     void TransitionHClass(GateRef glue, GateRef object, GateRef hClass,
-                      MemoryAttribute mAttr = MemoryAttribute::NeedBarrier());
+                          MemoryAttribute mAttr = MemoryAttribute::NeedBarrier());
     void StoreBuiltinHClass(GateRef glue, GateRef object, GateRef hClass);
     void StorePrototype(GateRef glue, GateRef hclass, GateRef prototype);
     void CopyAllHClass(GateRef glue, GateRef dstHClass, GateRef scrHClass);
@@ -462,6 +463,7 @@ public:
     GateRef IsCOWArray(GateRef glue, GateRef obj);
     GateRef IsMutantTaggedArray(GateRef glue, GateRef elements);
     GateRef IsJSObject(GateRef glue, GateRef obj);
+    GateRef IsGlobalEnv(GateRef glue, GateRef obj);
     GateRef IsEnumerable(GateRef attr);
     GateRef IsWritable(GateRef attr);
     GateRef IsConfigable(GateRef attr);
@@ -563,11 +565,8 @@ public:
     void CalcHashcodeForDouble(GateRef value, Variable *res, Label *exit);
     void CalcHashcodeForObject(GateRef glue, GateRef value, Variable *res, Label *exit);
     GateRef GetHashcodeFromString(GateRef glue, GateRef value, GateRef hir = Circuit::NullGate());
-    inline GateRef IsIntegerString(GateRef string);
-    inline void SetRawHashcode(GateRef glue, GateRef str, GateRef rawHashcode, GateRef isInteger);
-    inline GateRef GetRawHashFromString(GateRef value);
+    inline void SetRawHashcode(GateRef glue, GateRef str, GateRef rawHashcode);
     GateRef TryGetHashcodeFromString(GateRef string);
-    inline GateRef GetMixHashcode(GateRef string);
     GateRef GetFirstFromTreeString(GateRef glue, GateRef string);
     GateRef GetSecondFromTreeString(GateRef glue, GateRef string);
     GateRef GetIsAllTaggedPropFromHClass(GateRef hclass);
@@ -581,6 +580,7 @@ public:
                            MemoryAttribute mAttr = MemoryAttribute::Default());
     void SetHClassTypeIDToHClass(GateRef glue, GateRef hClass, GateRef id);
     void SetEnumCacheToHClass(VariableType type, GateRef glue, GateRef hClass, GateRef key);
+    void SetDependentInfosToHClass(VariableType type, GateRef glue, GateRef hClass, GateRef value);
     void SetTransitionsToHClass(VariableType type, GateRef glue, GateRef hClass, GateRef transition);
     void SetParentToHClass(VariableType type, GateRef glue, GateRef hClass, GateRef parent);
     void SetIsPrototypeToHClass(GateRef glue, GateRef hClass, GateRef value);
@@ -680,8 +680,6 @@ public:
     GateRef IsUtf8String(GateRef string);
     GateRef IsInternalString(GateRef string);
     GateRef IsDigit(GateRef ch);
-    void TryToGetInteger(GateRef string, Variable *num, Label *success, Label *failed);
-    GateRef StringToElementIndex(GateRef glue, GateRef string);
     GateRef ComputeElementCapacity(GateRef oldLength);
     GateRef ComputeNonInlinedFastPropsCapacity(GateRef glue, GateRef oldLength,
                                                GateRef maxNonInlinedFastPropsCapacity);
@@ -761,6 +759,7 @@ public:
     GateRef ZExtInt16ToInt32(GateRef x);
     GateRef ZExtInt16ToInt64(GateRef x);
     GateRef TruncInt64ToInt32(GateRef x);
+    GateRef TruncInt64ToInt16(GateRef x);
     GateRef TruncPtrToInt32(GateRef x);
     GateRef TruncInt64ToInt1(GateRef x);
     GateRef TruncInt32ToInt1(GateRef x);
@@ -861,6 +860,7 @@ public:
     GateRef GetProtoOrHClass(GateRef glue, GateRef function);
     GateRef GetViewedArrayBufferOrByteArray(GateRef glue, GateRef typedArray);
     GateRef IsSendableFunctionModule(GateRef glue, GateRef module);
+    GateRef GetFunctionLexicalEnv(GateRef glue, GateRef function);
     inline GateRef GetBuiltinId(GateRef method);
     void SetLexicalEnvToFunction(GateRef glue, GateRef object, GateRef lexicalEnv,
                                  MemoryAttribute mAttr = MemoryAttribute::Default());
@@ -1020,6 +1020,8 @@ public:
     void ArrayCopyAndHoleToUndefined(GateRef glue, GateRef srcObj, GateRef srcAddr, GateRef dstObj,
                                      GateRef dstAddr, GateRef length, GateRef needBarrier);
     GateRef ThreeInt64Min(GateRef first, GateRef second, GateRef third);
+    void ComputeRawHashcode(GateRef glue, Label *exit, Variable* result, StringInfoGateRef stringGate, bool isUtf8);
+    GateRef ComputeStringHashcode(GateRef glue, GateRef str);
     void MigrateArrayWithKind(GateRef glue, GateRef object, GateRef oldKind, GateRef newKind);
     GateRef MigrateFromRawValueToHeapValues(GateRef glue, GateRef object, GateRef needCOW, GateRef isIntKind);
     GateRef MigrateFromHeapValueToRawValue(GateRef glue, GateRef object, GateRef needCOW, GateRef isIntKind);

@@ -464,8 +464,10 @@ NAPI_EXTERN napi_status napi_create_function(napi_env env,
     }
 #endif
 
+    ArkNativeEngine* engine = reinterpret_cast<ArkNativeEngine*>(env);
+    Local<JSValueRef> context = engine->GetContext();
     Local<panda::FunctionRef> fn = panda::FunctionRef::NewConcurrent(
-        vm, ArkNativeFunctionCallBack,
+        vm, context, ArkNativeFunctionCallBack,
         [](void* env, void* externalPointer, void* data) {
             auto info = reinterpret_cast<NapiFunctionInfo*>(data);
             if (info != nullptr) {
@@ -2197,10 +2199,16 @@ NAPI_EXTERN napi_status napi_create_external(
 
     auto engine = reinterpret_cast<NativeEngine*>(env);
     auto vm = engine->GetEcmaVm();
-    auto callback = reinterpret_cast<panda::NativePointerCallback>(finalize_cb);
-    Local<panda::NativePointerRef> object = panda::NativePointerRef::New(vm, data, callback, finalize_hint, 0);
+    if (engine->IsMainEnvContext()) {
+        auto callback = reinterpret_cast<panda::NativePointerCallback>(finalize_cb);
+        Local<panda::NativePointerRef> object = panda::NativePointerRef::New(vm, data, callback, finalize_hint, 0);
+        *result = JsValueFromLocalValue(object);
+    } else {
+        Local<panda::NativePointerRef> object = panda::NativePointerRef::New(vm, data, nullptr, nullptr, 0);
+        *result = JsValueFromLocalValue(object);
+        engine->CreateReference(*result, 0, true, finalize_cb, data, finalize_hint);
+    }
 
-    *result = JsValueFromLocalValue(object);
     return napi_clear_last_error(env);
 }
 
@@ -2216,11 +2224,16 @@ NAPI_EXTERN napi_status napi_create_external_with_size(napi_env env,
 
     auto engine = reinterpret_cast<NativeEngine*>(env);
     auto vm = engine->GetEcmaVm();
-    auto callback = reinterpret_cast<panda::NativePointerCallback>(finalize_cb);
-    Local<panda::NativePointerRef> object =
-        panda::NativePointerRef::New(vm, data, callback, finalize_hint, native_binding_size);
-
-    *result = JsValueFromLocalValue(object);
+    Local<panda::NativePointerRef> object;
+    if (engine->IsMainEnvContext()) {
+        auto callback = reinterpret_cast<panda::NativePointerCallback>(finalize_cb);
+        object = panda::NativePointerRef::New(vm, data, callback, finalize_hint, native_binding_size);
+        *result = JsValueFromLocalValue(object);
+    } else {
+        object = panda::NativePointerRef::New(vm, data, nullptr, nullptr, native_binding_size);
+        *result = JsValueFromLocalValue(object);
+        engine->CreateReference(*result, 0, true, finalize_cb, data, finalize_hint, native_binding_size);
+    }
     return napi_clear_last_error(env);
 }
 
@@ -2585,10 +2598,16 @@ NAPI_EXTERN napi_status napi_create_external_arraybuffer(napi_env env,
 
     auto engine = reinterpret_cast<NativeEngine*>(env);
     auto vm = engine->GetEcmaVm();
-    auto callback = reinterpret_cast<panda::NativePointerCallback>(finalize_cb);
-    Local<panda::ArrayBufferRef> object =
-        panda::ArrayBufferRef::New(vm, external_data, byte_length, callback, finalize_hint);
-    *result = JsValueFromLocalValue(object);
+    Local<panda::ArrayBufferRef> object;
+    if (engine->IsMainEnvContext()) {
+        auto callback = reinterpret_cast<panda::NativePointerCallback>(finalize_cb);
+        object = panda::ArrayBufferRef::New(vm, external_data, byte_length, callback, finalize_hint);
+        *result = JsValueFromLocalValue(object);
+    } else {
+        object = panda::ArrayBufferRef::New(vm, external_data, byte_length, nullptr, nullptr);
+        *result = JsValueFromLocalValue(object);
+        engine->CreateReference(*result, 0, true, finalize_cb, external_data, finalize_hint, 0);
+    }
     return GET_RETURN_STATUS(env);
 }
 
@@ -2755,11 +2774,19 @@ NAPI_EXTERN napi_status napi_create_external_buffer(napi_env env,
 
     auto engine = reinterpret_cast<NativeEngine*>(env);
     auto vm = engine->GetEcmaVm();
-    Local<panda::BufferRef> object = panda::BufferRef::New(vm, data, length, callback, finalize_hint);
-    void* ptr = object->GetBuffer(vm);
-    CHECK_ARG(env, ptr);
-
-    *result = JsValueFromLocalValue(object);
+    Local<panda::BufferRef> object;
+    if (engine->IsMainEnvContext()) {
+        object = panda::BufferRef::New(vm, data, length, callback, finalize_hint);
+        void* ptr = object->GetBuffer(vm);
+        CHECK_ARG(env, ptr);
+        *result = JsValueFromLocalValue(object);
+    } else {
+        object = panda::BufferRef::New(vm, data, length, nullptr, nullptr);
+        void* ptr = object->GetBuffer(vm);
+        CHECK_ARG(env, ptr);
+        *result = JsValueFromLocalValue(object);
+        engine->CreateReference(*result, 0, true, finalize_cb, data, finalize_hint);
+    }
     return GET_RETURN_STATUS(env);
 }
 
@@ -3463,6 +3490,25 @@ NAPI_EXTERN napi_status napi_serialize_inner(napi_env env, napi_value object, na
     auto cloneList = LocalValueFromJsValue(clone_list);
     *result =
         panda::JSNApi::SerializeValue(vm, nativeValue, transferList, cloneList, defaultTransfer, defaultCloneSendable);
+
+    return napi_clear_last_error(env);
+}
+
+NAPI_EXTERN napi_status napi_serialize_inner_with_error(napi_env env, napi_value object, napi_value transfer_list,
+                                                        napi_value clone_list, bool defaultTransfer,
+                                                        bool defaultCloneSendable, void** result, std::string& error)
+{
+    CHECK_ENV(env);
+    CHECK_ARG(env, object);
+    CHECK_ARG(env, transfer_list);
+    CHECK_ARG(env, result);
+
+    auto vm = reinterpret_cast<NativeEngine*>(env)->GetEcmaVm();
+    auto nativeValue = LocalValueFromJsValue(object);
+    auto transferList = LocalValueFromJsValue(transfer_list);
+    auto cloneList = LocalValueFromJsValue(clone_list);
+    *result = panda::JSNApi::SerializeValueWithError(vm, nativeValue, transferList, cloneList, error, defaultTransfer,
+                                                     defaultCloneSendable);
 
     return napi_clear_last_error(env);
 }
@@ -4365,13 +4411,18 @@ NAPI_EXTERN napi_status napi_create_ark_context(napi_env env, napi_env* newEnv)
         return napi_set_last_error(env, napi_invalid_arg);
     }
 
-    // create env will be implemented later
-    auto newNativeEngine = reinterpret_cast<NativeEngine*>(*newEnv);
     auto context = panda::JSNApi::CreateContext(vm);
-    napi_status status = newNativeEngine->SetContext(context);
-    if (status != napi_ok) {
-        return napi_set_last_error(env, status);
+    if (context.IsEmpty() || !context->IsJsGlobalEnv(vm)) {
+        HILOG_ERROR("Failed to create ark context");
+        return napi_set_last_error(env, napi_generic_failure);
     }
+    ArkNativeEngine* newEngine = ArkNativeEngine::New(nativeEngine, const_cast<EcmaVM *>(vm), context);
+    if (newEngine == nullptr) {
+        HILOG_ERROR("Failed to create ark context engine");
+        return napi_set_last_error(env, napi_generic_failure);
+    }
+    *newEnv = reinterpret_cast<napi_env>(newEngine);
+
     return GET_RETURN_STATUS(env);
 }
 
@@ -4405,6 +4456,14 @@ NAPI_EXTERN napi_status napi_destroy_ark_context(napi_env env)
     if (status != napi_ok) {
         return napi_set_last_error(env, status);
     }
-    delete nativeEngine;
     return GET_RETURN_STATUS(env);
+}
+
+NAPI_EXTERN napi_status napi_set_module_validate_callback(napi_module_validate_callback check_callback)
+{
+    CHECK_ENV(check_callback);
+
+    ArkNativeEngine::SetModuleValidateCallback(check_callback);
+
+    return napi_ok;
 }

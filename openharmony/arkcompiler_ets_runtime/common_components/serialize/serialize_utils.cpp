@@ -16,6 +16,7 @@
 #include "common_components/serialize/serialize_utils.h"
 
 #include "common_components/common_runtime/src/heap/allocator/region_desc.h"
+#include "common_interfaces/base_runtime.h"
 
 namespace panda {
 SerializedObjectSpace SerializeUtils::GetSerializeObjectSpace(uintptr_t obj)
@@ -32,6 +33,8 @@ SerializedObjectSpace SerializeUtils::GetSerializeObjectSpace(uintptr_t obj)
             return SerializedObjectSpace::REGULAR_SPACE;
         case RegionDesc::RegionType::FULL_PINNED_REGION:
         case RegionDesc::RegionType::RECENT_PINNED_REGION:
+        case RegionDesc::RegionType::FIXED_PINNED_REGION:
+        case RegionDesc::RegionType::FULL_FIXED_PINNED_REGION:
             return SerializedObjectSpace::PIN_SPACE;
         case RegionDesc::RegionType::RECENT_LARGE_REGION:
         case RegionDesc::RegionType::OLD_LARGE_REGION:
@@ -41,4 +44,8 @@ SerializedObjectSpace SerializeUtils::GetSerializeObjectSpace(uintptr_t obj)
     }
 }
 
+size_t SerializeUtils::GetRegionSize()
+{
+    return BaseRuntime::GetInstance()->GetHeapParam().regionSize * KB;
+}
 }  // namespace panda

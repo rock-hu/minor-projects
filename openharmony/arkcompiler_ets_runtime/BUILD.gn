@@ -232,7 +232,7 @@ ohos_static_library("ark_runtime_host_unittest") {
     }
 
     # TODO: CMC-GC UT FIX LATER
-    if (defined(enable_cmc_gc) && enable_cmc_gc) {
+    if (ets_runtime_enable_cmc_gc) {
       deps -= [ "$js_root/test/jittest:ark_jit_test" ]
       if (!run_with_asan) {
         deps -= [
@@ -349,7 +349,7 @@ config("ark_jsruntime_common_config") {
 
   defines = [ "PANDA_ENABLE_LTO" ]
 
-  if (defined(enable_cmc_gc) && enable_cmc_gc) {
+  if (ets_runtime_enable_cmc_gc) {
     defines += [ "USE_CMC_GC" ]
     defines += [ "USE_READ_BARRIER" ]
   }
@@ -756,8 +756,10 @@ ecma_source = [
   "ecmascript/compiler/pgo_type/pgo_type_manager.cpp",
   "ecmascript/compiler/pgo_type/pgo_type_parser.cpp",
   "ecmascript/compiler/pgo_type/pgo_type_recorder.cpp",
+  "ecmascript/compiler/lazy_deopt_dependency.cpp",
   "ecmascript/containers/containers_arraylist.cpp",
   "ecmascript/containers/containers_bitvector.cpp",
+  "ecmascript/containers/containers_buffer.cpp",
   "ecmascript/containers/containers_deque.cpp",
   "ecmascript/containers/containers_errors.cpp",
   "ecmascript/containers/containers_hashmap.cpp",
@@ -777,6 +779,7 @@ ecma_source = [
   "ecmascript/debugger/js_debugger_manager.cpp",
   "ecmascript/deoptimizer/calleeReg.cpp",
   "ecmascript/deoptimizer/deoptimizer.cpp",
+  "ecmascript/dependent_infos.cpp",
   "ecmascript/dfx/stackinfo/async_stack_trace.cpp",
   "ecmascript/dfx/dump_code/jit_dump_elf.cpp",
   "ecmascript/dfx/native_module_failure_info.cpp",
@@ -790,6 +793,7 @@ ecma_source = [
   "ecmascript/ecma_handle_scope.cpp",
   "ecmascript/ecma_string.cpp",
   "ecmascript/ecma_string_table.cpp",
+  "ecmascript/ecma_string_table_optimization.cpp",
   "ecmascript/ecma_vm.cpp",
   "ecmascript/element_accessor.cpp",
   "ecmascript/elements.cpp",
@@ -835,6 +839,7 @@ ecma_source = [
   "ecmascript/js_api/js_api_arraylist_iterator.cpp",
   "ecmascript/js_api/js_api_bitvector.cpp",
   "ecmascript/js_api/js_api_bitvector_iterator.cpp",
+  "ecmascript/js_api/js_api_buffer.cpp",
   "ecmascript/js_api/js_api_deque.cpp",
   "ecmascript/js_api/js_api_deque_iterator.cpp",
   "ecmascript/js_api/js_api_hashmap.cpp",
@@ -1030,10 +1035,24 @@ ecma_source = [
 ecma_source += [
   "common_components/log/log.cpp",
   "common_components/objects/base_object.cpp",
+  "common_components/objects/base_string.cpp",
 ]
+
+if (ets_runtime_enable_cmc_gc) {
+  ecma_source += [ "ecmascript/mem/cmc_gc/hooks.cpp" ]
+}
 
 if (ark_js_hybrid) {
   ecma_source += [ "ecmascript/cross_vm/cross_vm_operator.cpp" ]
+}
+
+if (current_cpu == "arm64") {
+  ecma_source += [ "ecmascript/trampoline/aarch64/raw_asm_stub.S" ]
+} else if (current_cpu == "amd64" || current_cpu == "x64" ||
+           current_cpu == "x86_64") {
+  ecma_source += [ "ecmascript/trampoline/x64/raw_asm_stub.S" ]
+} else if (current_cpu == "arm") {
+  ecma_source += [ "ecmascript/trampoline/arm32/raw_asm_stub.S" ]
 }
 
 hitrace_scope_source = []
@@ -1268,14 +1287,15 @@ if (enable_target_compilation) {
 ohos_source_set("libcommon_components_set") {
   sources = [
     "common_components/base_runtime/base_runtime.cpp",
-    "common_components/heap/heap.cpp",
+    "common_components/base_runtime/base_runtime_param.cpp",
     "common_components/heap/heap_allocator.cpp",
     "common_components/heap/heap_visitor.cpp",
     "common_components/serialize/serialize_utils.cpp",
     "common_components/thread/thread_holder.cpp",
     "common_components/thread/thread_holder_manager.cpp",
-    "ecmascript/crt.cpp",
-    "ecmascript/mem/cmc_gc/gc_hooks.cpp",
+    "ecmascript/dynamic_object_accessor.cpp",
+    "ecmascript/dynamic_object_descriptor.cpp",
+    "ecmascript/dynamic_type_converter.cpp",
   ]
 
   public_configs = [ "$js_root:ark_jsruntime_public_config" ]
@@ -1397,7 +1417,7 @@ ohos_source_set("libark_jsruntime_test_set") {
     defines += [ "ENABLE_LOCAL_HANDLE_LEAK_DETECT" ]
   }
 
-  if (defined(enable_cmc_gc) && enable_cmc_gc) {
+  if (ets_runtime_enable_cmc_gc) {
     deps += [ ":libcommon_components_set" ]
     if (ark_hybrid) {
       deps += [ "$ark_root/static_core/runtime:libarkruntime_set_static" ]
@@ -1446,7 +1466,7 @@ ohos_source_set("libark_jsruntime_static") {
     ]
   }
 
-  if (defined(enable_cmc_gc) && enable_cmc_gc) {
+  if (ets_runtime_enable_cmc_gc) {
     deps += [ ":libcommon_components_set" ]
     if (ark_hybrid) {
       deps += [ "$ark_root/static_core/runtime:libarkruntime_set_static" ]
@@ -1565,6 +1585,7 @@ ohos_shared_library("libark_jsruntime") {
     public_external_deps = [
       "icu:shared_icui18n",
       "icu:shared_icuuc",
+      "runtime_core:common_interfaces_header",
     ]
   }
   innerapi_tags = [ "platformsdk_indirect" ]

@@ -424,6 +424,23 @@ class TextLineSpacingModifier extends ModifierWithKey<ArkLineSpacing> {
   }
 }
 
+class TextOptimizeTrailingSpaceModifier extends ModifierWithKey<boolean> {
+  constructor(value: boolean) {
+    super(value);
+  }
+  static identity: Symbol = Symbol('textOptimizeTrailingSpace');
+  applyPeer(node: KNode, reset: boolean): void {
+    if (reset) {
+      getUINativeModule().text.resetOptimizeTrailingSpace(node);
+    } else {
+      getUINativeModule().text.setOptimizeTrailingSpace(node, this.value!);
+    }
+  }
+  checkObjectDiff(): boolean {
+    return !isBaseOrResourceEqual(this.stageValue, this.value);
+  }
+}
+
 class TextTextOverflowModifier extends ModifierWithKey<{ overflow: TextOverflow }> {
   constructor(value: { overflow: TextOverflow }) {
     super(value);
@@ -854,6 +871,57 @@ class TextOnMarqueeStateChangeModifier extends ModifierWithKey<(state: MarqueeSt
   }
 }
 
+class TextEnableAutoSpacingModifier extends ModifierWithKey<boolean> {
+  constructor(value: boolean) {
+    super(value);
+  }
+  static identity: Symbol = Symbol('textEnableAutoSpacing');
+  applyPeer(node: KNode, reset: boolean): void {
+    if (reset) {
+      getUINativeModule().text.resetEnableAutoSpacing(node);
+    }
+    else {
+      getUINativeModule().text.setEnableAutoSpacing(node, this.value);
+    }
+  }
+  checkObjectDiff(): boolean {
+    return !isBaseOrResourceEqual(this.stageValue, this.value);
+  }
+}
+
+class TextShaderStyleModifier extends ModifierWithKey<{
+  center: Array<any>;
+  radius: number | string;
+  angle?: number | string;
+  direction?: GradientDirection;
+  colors: Array<any>;
+  repeating?: boolean;
+}> {
+  constructor(value: {
+    center: Array<any>;
+    radius: number | string;
+    angle?: number | string;
+    direction?: GradientDirection;
+    colors: Array<any>;
+    repeating?: boolean;
+  }) {
+    super(value);
+  }
+  static identity: Symbol = Symbol('textShaderStyle');
+  applyPeer(node: KNode, reset: boolean): void {
+    if (reset) {
+      getUINativeModule().text.resetShaderStyle(node, this.value);
+    }
+    else {
+      getUINativeModule().text.setShaderStyle(node, this.value.center, this.value.radius, this.value.angle,
+        this.value.direction, this.value.repeating, this.value.colors);
+    }
+  }
+  checkObjectDiff() {
+    return !isBaseOrResourceEqual(this.stageValue, this.value);
+  }
+}
+
 class ArkTextComponent extends ArkComponent implements TextAttribute {
   constructor(nativePtr: KNode, classType?: ModifierType) {
     super(nativePtr, classType);
@@ -955,6 +1023,10 @@ class ArkTextComponent extends ArkComponent implements TextAttribute {
     arkLineSpacing.value = value;
     arkLineSpacing.onlyBetweenLines = options.onlyBetweenLines;
     modifierWithKey(this._modifiersWithKeys, TextLineSpacingModifier.identity, TextLineSpacingModifier, arkLineSpacing);
+    return this;
+  }
+  optimizeTrailingSpace(value: boolean): this {
+    modifierWithKey(this._modifiersWithKeys, TextOptimizeTrailingSpaceModifier.identity, TextOptimizeTrailingSpaceModifier, value);
     return this;
   }
   textCase(value: TextCase): TextAttribute {
@@ -1067,6 +1139,21 @@ class ArkTextComponent extends ArkComponent implements TextAttribute {
   onMarqueeStateChange(callback: (state: MarqueeState) => void): this {
     modifierWithKey(
       this._modifiersWithKeys, TextOnMarqueeStateChangeModifier.identity, TextOnMarqueeStateChangeModifier, callback);
+    return this;
+  }
+  enableAutoSpacing(value: boolean): this {
+    modifierWithKey(this._modifiersWithKeys, TextEnableAutoSpacingModifier.identity, TextEnableAutoSpacingModifier, value);
+    return this;
+  }
+  shaderStyle(value: {
+    center: Array<any>;
+    radius: number | string;
+    angle?: number | string;
+    direction?: GradientDirection;
+    colors: Array<any>;
+    repeating?: boolean;
+  }): this {
+    modifierWithKey(this._modifiersWithKeys, TextShaderStyleModifier.identity, TextShaderStyleModifier, value);
     return this;
   }
 }
