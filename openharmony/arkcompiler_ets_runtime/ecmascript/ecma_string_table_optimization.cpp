@@ -15,6 +15,7 @@
 
 #include "ecmascript/ecma_string_table.h"
 
+#include "common_components/taskpool/taskpool.h"
 #include "ecmascript/ecma_string-inl.h"
 #include "ecmascript/ecma_string_table_optimization-inl.h"
 #include "ecmascript/jspandafile/js_pandafile.h"
@@ -526,6 +527,7 @@ HashTrieMap::HashTrieMapLoadResult HashTrieMap::Load(const uint32_t key, const J
 EcmaString *HashTrieMap::StoreOrLoad(EcmaVM *vm, const uint32_t key, HashTrieMapLoadResult loadResult,
                                      JSHandle<EcmaString> str)
 {
+    HashTrieMapInUseScope mapInUse(this);
     uint32_t hash = key;
     uint32_t hashShift = loadResult.hashShift;
     std::atomic<Node *> *slot = loadResult.slot;
@@ -739,7 +741,7 @@ bool HashTrieMap::ClearNodeFromGC(Indirect *parent, int index, const WeakRootVis
             }
         }
         // Check whether the indirect node is empty
-        if (cleanCount == INDIRECT_SIZE) {
+        if (cleanCount == INDIRECT_SIZE && inuseCount_ == 0) {
             // Remove the empty Indirect and update the parent reference
             delete indirect;
             parent->children_[index].store(nullptr, std::memory_order_relaxed);
@@ -753,8 +755,7 @@ bool HashTrieMap::ClearNodeFromGC(Indirect *parent, int index, const WeakRootVis
 
 bool HashTrieMap::CheckWeakRef(WeakVisitor &visitor, HashTrieMap::Entry *entry)
 {
-    EcmaString *object = entry->Value();
-    ObjectSlot slot(reinterpret_cast<uintptr_t>(&(object)));
+    ObjectSlot slot(reinterpret_cast<uintptr_t>(entry->ValueAddress()));
     bool isAlive = visitor.VisitRoot(Root::ROOT_VM, slot);
     if (!isAlive) {
         return true;

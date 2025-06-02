@@ -14,10 +14,8 @@
  */
 
 #include "core/components_ng/pattern/list/list_item_group_pattern.h"
-#include <cstdint>
 
 #include "base/log/dump_log.h"
-#include "base/log/log_wrapper.h"
 #include "core/components_ng/pattern/list/list_item_group_paint_method.h"
 #include "core/components_ng/pattern/list/list_pattern.h"
 #include "core/pipeline_ng/pipeline_context.h"
@@ -106,6 +104,7 @@ RefPtr<LayoutAlgorithm> ListItemGroupPattern::CreateLayoutAlgorithm()
     layoutAlgorithm->SetLayoutedItemInfo(layoutedItemInfo_);
     layoutAlgorithm->SetPrevTotalItemCount(itemTotalCount_);
     layoutAlgorithm->SetPrevTotalMainSize(mainSize_);
+    layoutAlgorithm->SetPrevMeasureBreak(prevMeasureBreak_);
     if (childrenSize_ && ListChildrenSizeExist()) {
         if (!posMap_) {
             posMap_ = MakeRefPtr<ListPositionMap>();
@@ -176,6 +175,7 @@ bool ListItemGroupPattern::OnDirtyLayoutWrapperSwap(const RefPtr<LayoutWrapper>&
     adjustRefPos_ = layoutAlgorithm->GetAdjustReferenceDelta();
     adjustTotalSize_ = layoutAlgorithm->GetAdjustTotalSize();
     listContentSize_ = layoutAlgorithm->GetListContentSize();
+    prevMeasureBreak_ = layoutAlgorithm->MeasureInNextFrame();
     layouted_ = true;
     CheckListDirectionInCardStyle();
     auto host = GetHost();
@@ -1195,7 +1195,7 @@ bool ListItemGroupPattern::FindHeadOrTailChild(
     } else if (isEnd) {
         isFindTailOrHead = childFocus->AnyChildFocusHub(
             [&target](const RefPtr<FocusHub>& node) {
-                auto tailNode = node->GetHeadOrTailChild(true);
+                auto tailNode = node->GetHeadOrTailChild(false);
                 if (tailNode) {
                     target = tailNode;
                     return true;

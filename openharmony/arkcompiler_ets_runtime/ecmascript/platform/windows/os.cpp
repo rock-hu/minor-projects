@@ -27,22 +27,6 @@ size_t MallocUsableSize(void *ptr)
     return _msize(ptr);
 }
 
-uint32_t NumberOfCpuCore()
-{
-    SYSTEM_INFO info;
-    GetSystemInfo(&info);
-    return info.dwNumberOfProcessors;
-}
-
-size_t PhysicalSize()
-{
-    MEMORYSTATUSEX status;
-    status.dwLength = sizeof(MEMORYSTATUSEX);
-    GlobalMemoryStatusEx(&status);
-    DWORDLONG physSize = status.ullTotalPhys;
-    return physSize;
-}
-
 int PrctlSetVMA([[maybe_unused]] const void *ptr, [[maybe_unused]] const size_t size, [[maybe_unused]] const char *tag)
 {
     return -1;
@@ -82,5 +66,11 @@ void SetSecurityLabel([[maybe_unused]] const std::string& path)
 void InitializeMallocConfig()
 {
     LOG_ECMA(INFO) << "Initialize Malloc Config in windows not support";
+}
+
+bool CheckDiskSpace([[maybe_unused]] const std::string& path, [[maybe_unused]] size_t requiredBytes)
+{
+    LOG_ECMA(INFO) << "Check Disk Space not support in Windows";
+    return true;
 }
 }  // namespace panda::ecmascript

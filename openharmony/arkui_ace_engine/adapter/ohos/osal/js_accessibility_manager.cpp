@@ -797,18 +797,17 @@ void FindText(const RefPtr<NG::UINode>& node, const std::string& text, std::list
 }
 
 bool FindFrameNodeByAccessibilityId(int64_t id, const std::list<RefPtr<NG::UINode>>& children,
-    std::queue<NG::UINode*>& nodes, RefPtr<NG::FrameNode>& result)
+    std::queue<RefPtr<NG::UINode>>& nodes, RefPtr<NG::FrameNode>& result)
 {
-    NG::FrameNode* frameNode = nullptr;
     for (const auto& child : children) {
-        frameNode = AceType::DynamicCast<NG::FrameNode>(Referenced::RawPtr(child));
+        auto frameNode = AceType::DynamicCast<NG::FrameNode>(child);
         if (frameNode != nullptr && !frameNode->CheckAccessibilityLevelNo()) {
             if (frameNode->GetAccessibilityId() == id) {
                 result = AceType::DynamicCast<NG::FrameNode>(child);
                 return true;
             }
         }
-        nodes.push(Referenced::RawPtr(child));
+        nodes.push(child);
     }
     return false;
 }
@@ -819,8 +818,8 @@ RefPtr<NG::FrameNode> GetFramenodeByAccessibilityId(const RefPtr<NG::FrameNode>&
     if (root->GetAccessibilityId() == id) {
         return root;
     }
-    std::queue<NG::UINode*> nodes;
-    nodes.push(Referenced::RawPtr(root));
+    std::queue<RefPtr<NG::UINode>> nodes;
+    nodes.push(root);
     RefPtr<NG::FrameNode> frameNodeResult = nullptr;
 
     while (!nodes.empty()) {
@@ -2812,6 +2811,15 @@ void GenerateAccessibilityEventInfo(const AccessibilityEvent& accessibilityEvent
     eventInfo.SetBundleName(AceApplicationInfo::GetInstance().GetPackageName());
     eventInfo.SetBeginIndex(accessibilityEvent.startIndex);
     eventInfo.SetEndIndex(accessibilityEvent.endIndex);
+    if (accessibilityEvent.extraEventInfo.size() > 0) {
+        ExtraEventInfo extraEventInfo;
+        for (const auto& info : accessibilityEvent.extraEventInfo) {
+            auto ret = extraEventInfo.SetExtraEventInfo(info.first, info.second);
+            TAG_LOGD(AceLogTag::ACE_ACCESSIBILITY, "The result of SetExtraEventInfo:%{public}d, keyStrLen:%{public}d",
+                ret, static_cast<int>(info.first.length()));
+        }
+        eventInfo.SetExtraEvent(extraEventInfo);
+    }
 }
 } // namespace
 
@@ -4913,9 +4921,9 @@ void JsAccessibilityManager::DumpTree(int32_t depth, int64_t nodeID, bool isDump
         for (const auto& subContext : GetSubPipelineContexts()) {
             auto subPipeline = subContext.Upgrade();
             ngPipeline = AceType::DynamicCast<NG::PipelineContext>(subPipeline);
-            CHECK_NULL_VOID(ngPipeline);
+            CHECK_NULL_CONTINUE(ngPipeline);
             rootNode = ngPipeline->GetRootElement();
-            CHECK_NULL_VOID(rootNode);
+            CHECK_NULL_CONTINUE(rootNode);
             nodeID = rootNode->GetAccessibilityId();
             commonProperty.windowId = static_cast<int32_t>(ngPipeline->GetWindowId());
             commonProperty.windowLeft = GetWindowLeft(ngPipeline->GetWindowId());
@@ -4998,7 +5006,7 @@ RefPtr<PipelineBase> JsAccessibilityManager::GetPipelineByWindowId(const int32_t
         }
         for (auto& subContext : GetSubPipelineContexts()) {
             context = subContext.Upgrade();
-            CHECK_NULL_RETURN(context, nullptr);
+            CHECK_NULL_CONTINUE(context);
             if (context->GetWindowId() == static_cast<uint32_t>(windowId)) {
                 return context;
             }
@@ -6528,7 +6536,7 @@ int JsAccessibilityManager::RegisterInteractionOperation(int windowId)
     RefPtr<PipelineBase> context;
     for (const auto& subContext : GetSubPipelineContexts()) {
         context = subContext.Upgrade();
-        CHECK_NULL_RETURN(context, -1);
+        CHECK_NULL_CONTINUE(context);
         TAG_LOGI(AceLogTag::ACE_ACCESSIBILITY, "RegisterSubPipeline windowId: %{public}u", context->GetWindowId());
         interactionOperation = std::make_shared<JsInteractionOperation>(context->GetWindowId());
         interactionOperation->SetHandler(WeakClaim(this));
@@ -6585,7 +6593,7 @@ void JsAccessibilityManager::DeregisterInteractionOperation()
     RefPtr<PipelineBase> context;
     for (const auto& subContext : GetSubPipelineContexts()) {
         context = subContext.Upgrade();
-        CHECK_NULL_VOID(context);
+        CHECK_NULL_CONTINUE(context);
         instance->DeregisterElementOperator(context->GetWindowId());
     }
     NotifyChildTreeOnDeregister();
@@ -6778,7 +6786,7 @@ void JsAccessibilityManager::RegisterInteractionOperationAsChildTree(
 
     for (const auto& subContext : GetSubPipelineContexts()) {
         auto context = subContext.Upgrade();
-        CHECK_NULL_VOID(context);
+        CHECK_NULL_CONTINUE(context);
         interactionOperation = std::make_shared<JsInteractionOperation>(context->GetWindowId());
         interactionOperation->SetHandler(WeakClaim(this));
         instance->RegisterElementOperator(context->GetWindowId(), interactionOperation);
@@ -6818,7 +6826,7 @@ void JsAccessibilityManager::DeregisterInteractionOperationAsChildTree()
     RefPtr<PipelineBase> context;
     for (const auto& subContext : GetSubPipelineContexts()) {
         context = subContext.Upgrade();
-        CHECK_NULL_VOID(context);
+        CHECK_NULL_CONTINUE(context);
         instance->DeregisterElementOperator(context->GetWindowId());
     }
 }

@@ -24,7 +24,7 @@
 namespace panda::ecmascript::kungfu {
 GateRef TypedHCRLowering::VisitGate(GateRef gate)
 {
-    GateRef glue = acc_.GetGlueFromArgList();
+    GateRef glue = glue_;
     auto op = acc_.GetOpCode(gate);
     [[maybe_unused]] auto scopedGate = circuit_->VisitGateBegin(gate);
     switch (op) {
@@ -703,7 +703,7 @@ void TypedHCRLowering::BuiltinInstanceHClassCheck(Environment *env, GateRef gate
     BuiltinTypeId type = accessor.GetBuiltinTypeId();
     ElementsKind kind = accessor.GetElementsKind();
     GateRef frameState = GetFrameState(gate);
-    GateRef glue = acc_.GetGlueFromArgList();
+    GateRef glue = glue_;
     GateRef receiver = acc_.GetValueIn(gate, 0);
     GateRef ihcMatches = Circuit::NullGate();
     if (type == BuiltinTypeId::ARRAY) {
@@ -759,7 +759,7 @@ void TypedHCRLowering::BuiltinPrototypeHClassCheck(Environment *env, GateRef gat
     BuiltinTypeId type = accessor.GetBuiltinTypeId();
     bool isPrototypeOfPrototype = accessor.IsPrototypeOfPrototype();
     GateRef frameState = GetFrameState(gate);
-    GateRef glue = acc_.GetGlueFromArgList();
+    GateRef glue = glue_;
     GateRef receiver = acc_.GetValueIn(gate, 0);
     // Only HClasses recorded in the JSThread during builtin initialization are available
     [[maybe_unused]] JSHClass *initialPrototypeHClass = compilationEnv_->GetBuiltinPrototypeHClass(type);
@@ -995,7 +995,7 @@ void TypedHCRLowering::LowerStoreProperty(GateRef gate)
         } else {
             auto properties = builder_.LoadConstOffset(VariableType::JS_ANY(), receiver, JSObject::PROPERTIES_OFFSET);
             builder_.SetValueToTaggedArray(
-                VariableType::JS_ANY(), acc_.GetGlueFromArgList(), properties, builder_.Int32(plr.GetOffset()), value);
+                VariableType::JS_ANY(), glue_, properties, builder_.Int32(plr.GetOffset()), value);
         }
     } else if (op == OpCode::STORE_PROPERTY_NO_BARRIER) {
         if (plr.IsInlinedProps()) {
@@ -1003,7 +1003,7 @@ void TypedHCRLowering::LowerStoreProperty(GateRef gate)
         } else {
             auto properties = builder_.LoadConstOffset(VariableType::JS_ANY(), receiver, JSObject::PROPERTIES_OFFSET);
             builder_.SetValueToTaggedArray(
-                GetVarType(plr), acc_.GetGlueFromArgList(), properties, builder_.Int32(plr.GetOffset()), value);
+                GetVarType(plr), glue_, properties, builder_.Int32(plr.GetOffset()), value);
         }
     } else {
         UNREACHABLE();
@@ -2091,8 +2091,8 @@ void TypedHCRLowering::LowerTypeOf(GateRef gate, GateRef glue)
         UNREACHABLE();
     }
 
-    GateRef result =
-        builder_.Load(VariableType::JS_POINTER(), glue, gConstAddr, builder_.GetGlobalConstantOffset(index));
+    GateRef result = builder_.LoadWithoutBarrier(VariableType::JS_POINTER(), gConstAddr,
+                                                 builder_.GetGlobalConstantOffset(index));
     acc_.ReplaceGate(gate, builder_.GetState(), builder_.GetDepend(), result);
 }
 
@@ -2194,7 +2194,7 @@ void TypedHCRLowering::LowerArrayConstructor(GateRef gate, GateRef glue)
             builder_.Int64GreaterThan(*arrayLength, builder_.Int64(JSObject::MAX_GAP)), &slowPath, &lengthValid);
         builder_.Bind(&lengthValid);
         {
-            NewObjectStubBuilder newBuilder(builder_.GetCurrentEnvironment());
+            NewObjectStubBuilder newBuilder(builder_.GetCurrentEnvironment(), builder_.GetGlobalEnv(glue));
             newBuilder.SetParameters(glue, 0);
             res = newBuilder.NewJSArrayWithSize(intialHClass, *arrayLength);
             GateRef lengthOffset = builder_.IntPtr(JSArray::LENGTH_OFFSET);
@@ -2235,7 +2235,7 @@ void TypedHCRLowering::LowerFloat32ArrayConstructorCheck(GateRef gate, GateRef g
 
 void TypedHCRLowering::NewFloat32ArrayConstructorWithNoArgs(GateRef gate, GateRef glue)
 {
-    NewObjectStubBuilder newBuilder(builder_.GetCurrentEnvironment());
+    NewObjectStubBuilder newBuilder(builder_.GetCurrentEnvironment(), builder_.GetGlobalEnv(glue));
     newBuilder.SetParameters(glue, 0);
     GateRef res = newBuilder.NewFloat32ArrayWithSize(glue, builder_.Int32(0));
     acc_.ReplaceGate(gate, builder_.GetState(), builder_.GetDepend(), res);
@@ -2268,7 +2268,7 @@ void TypedHCRLowering::ConvertFloat32ArrayConstructorLength(GateRef len, Variabl
         {
             Label validDoubleLength(&builder_);
             GateRef doubleLength = builder_.GetDoubleOfTDouble(len);
-            GateRef doubleToInt = builder_.TruncDoubleToInt(acc_.GetGlueFromArgList(), doubleLength, base::INT32_BITS);
+            GateRef doubleToInt = builder_.TruncDoubleToInt(glue_, doubleLength, base::INT32_BITS);
             GateRef intToDouble = builder_.CastInt64ToFloat64(builder_.SExtInt32ToInt64(doubleToInt));
             GateRef doubleEqual = builder_.DoubleEqual(doubleLength, intToDouble);
             GateRef doubleLEMaxLen =
@@ -2314,18 +2314,19 @@ void TypedHCRLowering::LowerFloat32ArrayConstructor(GateRef gate, GateRef glue)
     Label arrayCreateByLength(&builder_);
     Label arrayCreate(&builder_);
     ConvertFloat32ArrayConstructorLength(arg0, &arrayLength, &arrayCreateByLength, &arrayCreate);
-    NewObjectStubBuilder newBuilder(builder_.GetCurrentEnvironment());
-    newBuilder.SetParameters(glue, 0);
     builder_.Bind(&arrayCreateByLength);
     {
+        NewObjectStubBuilder newBuilder(builder_.GetCurrentEnvironment(), builder_.GetGlobalEnv(glue));
+        newBuilder.SetParameters(glue, 0);
         GateRef truncedLength = builder_.TruncInt64ToInt32(*arrayLength);
         res = newBuilder.NewFloat32ArrayWithSize(glue, truncedLength);
         builder_.Jump(&exit);
     }
     builder_.Bind(&arrayCreate);
     {
-        GateRef globalEnv = builder_.GetGlobalEnv(glue);
-        GateRef thisObj = newBuilder.NewFloat32ArrayObj(glue, globalEnv);
+        NewObjectStubBuilder newBuilder(builder_.GetCurrentEnvironment(), builder_.GetGlobalEnv(glue));
+        newBuilder.SetParameters(glue, 0);
+        GateRef thisObj = newBuilder.NewFloat32ArrayObj(glue);
         GateRef argc = builder_.Int64(4); // 4: means func newtarget thisObj arg0
         GateRef argv = builder_.IntPtr(0);
         std::vector<GateRef> args { glue, argc, argv, ctor, ctor, thisObj, arg0 };
@@ -2342,7 +2343,7 @@ void TypedHCRLowering::NewArrayConstructorWithNoArgs(GateRef gate, GateRef glue)
     GateRef intialHClass =
         builder_.Load(VariableType::JS_ANY(), glue, newTarget, builder_.IntPtr(JSFunction::PROTO_OR_DYNCLASS_OFFSET));
     GateRef arrayLength = builder_.Int64(0);
-    NewObjectStubBuilder newBuilder(builder_.GetCurrentEnvironment());
+    NewObjectStubBuilder newBuilder(builder_.GetCurrentEnvironment(), builder_.GetGlobalEnv(glue));
     newBuilder.SetParameters(glue, 0);
     GateRef res = newBuilder.NewJSArrayWithSize(intialHClass, arrayLength);
     GateRef lengthOffset = builder_.IntPtr(JSArray::LENGTH_OFFSET);
@@ -2617,7 +2618,7 @@ void TypedHCRLowering::LowerLoadBuiltinObject(GateRef gate)
     }
     Environment env(gate, circuit_, &builder_);
     auto frameState = GetFrameState(gate);
-    GateRef glue = acc_.GetGlueFromArgList();
+    GateRef glue = glue_;
     auto builtinEntriesOffset = JSThread::GlueData::GetBuiltinEntriesOffset(false);
     size_t index = acc_.GetIndex(gate);
     auto boxOffset = builtinEntriesOffset + BuiltinIndex::GetInstance().GetBuiltinBoxOffset(index);
@@ -3170,7 +3171,7 @@ void TypedHCRLowering::StorePropertyOnHolder(GateRef holder, GateRef value, Prop
         } else {
             auto properties = builder_.LoadConstOffset(VariableType::JS_ANY(), holder, JSObject::PROPERTIES_OFFSET);
             builder_.SetValueToTaggedArray(
-                VariableType::JS_ANY(), acc_.GetGlueFromArgList(), properties, builder_.Int32(plr.GetOffset()), value);
+                VariableType::JS_ANY(), glue_, properties, builder_.Int32(plr.GetOffset()), value);
         }
     } else {
         if (plr.IsInlinedProps()) {
@@ -3178,7 +3179,7 @@ void TypedHCRLowering::StorePropertyOnHolder(GateRef holder, GateRef value, Prop
         } else {
             auto properties = builder_.LoadConstOffset(VariableType::JS_ANY(), holder, JSObject::PROPERTIES_OFFSET);
             builder_.SetValueToTaggedArray(
-                GetVarType(plr), acc_.GetGlueFromArgList(), properties, builder_.Int32(plr.GetOffset()), value);
+                GetVarType(plr), glue_, properties, builder_.Int32(plr.GetOffset()), value);
         }
     }
 }

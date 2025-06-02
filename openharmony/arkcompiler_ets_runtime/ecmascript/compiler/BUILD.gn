@@ -417,6 +417,7 @@ ohos_executable("ark_stub_compiler") {
   }
 
   external_deps = [ "zlib:libz" ]
+  external_deps += hiviewdfx_ext_deps
   if (!is_arkui_x) {
     external_deps += [ "runtime_core:libarkfile_static" ]
   } else {
@@ -476,10 +477,12 @@ ohos_executable("ark_aot_compiler") {
       "$js_root:libark_jsruntime_set",
       "${MAPLEALL_ROOT}/maple_be:libcg",
     ]
+    if (ets_runtime_enable_cmc_gc) {
+      deps += [ "$js_root:libcommon_components_set" ]
+    }
   }
 
   if (ets_runtime_enable_cmc_gc) {
-    deps += [ "$js_root:libcommon_components_set" ]
     if (ark_hybrid) {
       deps += [ "$ark_root/static_core/runtime:libarkruntime_set_static" ]
     }

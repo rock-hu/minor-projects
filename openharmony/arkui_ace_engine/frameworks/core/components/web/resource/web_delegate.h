@@ -830,6 +830,7 @@ public:
     void UpdateDatabaseEnabled(const bool& isDatabaseAccessEnabled);
     void UpdateTextZoomRatio(const int32_t& textZoomRatioNum);
     void UpdateWebDebuggingAccess(bool isWebDebuggingAccessEnabled);
+    void UpdateWebDebuggingAccessAndPort(bool enabled, int32_t port);
     void UpdatePinchSmoothModeEnabled(bool isPinchSmoothModeEnabled);
     void UpdateMediaPlayGestureAccess(bool isNeedGestureAccess);
     void UpdateMultiWindowAccess(bool isMultiWindowAccessEnabled);
@@ -1217,8 +1218,14 @@ public:
     void SetDataDetectorEnable(bool enable);
     void OnDataDetectorSelectText();
     void OnDataDetectorCopy(const std::vector<std::string>& recordMix);
+    int GetLastHitTestResult();
     int GetHitTestResult();
 
+    void RemoveSnapshotFrameNode();
+
+    void OnPip(int status, int delegate_id, int child_id, int frame_routing_id,  int width, int height);
+    void SetPipNativeWindow(int delegate_id, int child_id, int frame_routing_id, void* window);
+    void SendPipEvent(int delegate_id, int child_id, int frame_routing_id, int event);
 private:
     void InitWebEvent();
     void RegisterWebEvent();

@@ -362,6 +362,12 @@ public:
         return true;
     }
 
+    // Support LayoutPolicy.matchParent
+    bool IsEnableMatchParent() override
+    {
+        return true;
+    }
+
     BlurReason GetBlurReason();
 
     uint32_t GetSCBSystemWindowId();
@@ -475,6 +481,14 @@ public:
             spanTextLength += span->content.length();
             span->position = static_cast<int32_t>(spanTextLength);
         }
+    }
+
+    void SetEnableAutoSpacing(bool enabled)
+    {
+        CHECK_NULL_VOID(isEnableAutoSpacing_ != enabled);
+        isEnableAutoSpacing_ = enabled;
+        paragraphCache_.Clear();
+        TAG_LOGI(AceLogTag::ACE_RICH_TEXT, "SetEnableAutoSpacing: [%{public}d]", isEnableAutoSpacing_);
     }
 
     void OnAttachToMainTree() override
@@ -711,6 +725,7 @@ public:
     void SetTypingStyle(std::optional<struct UpdateSpanStyle> typingStyle, std::optional<TextStyle> textStyle);    
     void SetTypingParagraphStyle(std::optional<struct UpdateParagraphStyle> typingParagraphStyle);
     std::optional<struct UpdateSpanStyle> GetTypingStyle();
+    int32_t AddImageSpanFromCollaboration(const ImageSpanOptions& options, bool updateCaret);
     int32_t AddImageSpan(const ImageSpanOptions& options, bool isPaste = false, int32_t index = -1,
         bool updateCaret = true);
     int32_t AddTextSpan(TextSpanOptions options, bool isPaste = false, int32_t index = -1);
@@ -738,7 +753,7 @@ public:
     int32_t GetHandleIndex(const Offset& offset) const override;
     void OnAreaChangedInner() override;
     void UpdateParentOffsetAndOverlay();
-    void OnParentOffsetChange();
+    void CloseAIMenu();
     void CreateHandles() override;
     void ShowHandles(const bool isNeedShowHandles) override;
     void ShowHandles() override;
@@ -770,6 +785,7 @@ public:
     SelectionInfo FromStyledString(const RefPtr<SpanString>& spanString);
     bool BeforeAddSymbol(RichEditorChangeValue& changeValue, const SymbolSpanOptions& options);
     void AfterContentChange(RichEditorChangeValue& changeValue);
+    void ReportAfterContentChangeEvent();
     void DeleteToMaxLength(std::optional<int32_t> length);
     void DeleteContent(int32_t length);
 
@@ -1317,8 +1333,7 @@ private:
     Offset ConvertGlobalToLocalOffset(const Offset& globalOffset);
     void UpdateSelectMenuInfo(SelectMenuInfo& selectInfo);
     void HandleOnPaste() override;
-    void ProcessSpanStringData(std::vector<std::vector<uint8_t>>& arrs, const std::string& text,
-        bool isMulitiTypeRecord);
+    std::function<void(std::vector<std::vector<uint8_t>>&, const std::string&, bool&)> CreatePasteCallback();
     void PasteStr(const std::string& text);
     void HandleOnCut() override;
     void InitClickEvent(const RefPtr<GestureEventHub>& gestureHub) override;
@@ -1606,6 +1621,7 @@ private:
     void OnCopyOperationExt(RefPtr<PasteDataMix>& pasteData);
     void AddSpanByPasteData(const RefPtr<SpanString>& spanString);
     void CompleteStyledString(RefPtr<SpanString>& spanString);
+    void InsertStyledString(const RefPtr<SpanString>& spanString, int32_t insertIndex, bool updateCaret = true);
     void InsertStyledStringByPaste(const RefPtr<SpanString>& spanString);
     void HandleOnDragInsertStyledString(const RefPtr<SpanString>& spanString, bool isCopy = false);
     void AddSpansByPaste(const std::list<RefPtr<NG::SpanItem>>& spans);
@@ -1668,6 +1684,7 @@ private:
 #ifdef CROSS_PLATFORM
     bool UnableStandardInputCrossPlatform(TextInputConfiguration& config, bool isFocusViewChanged);
 #endif
+    void OnAccessibilityEventTextChange(const std::string& changeType, const std::string& changeString);
 
 #if defined(ENABLE_STANDARD_INPUT)
     sptr<OHOS::MiscServices::OnTextChangedListener> richEditTextChangeListener_;
@@ -1791,6 +1808,7 @@ private:
     bool isModifyingContent_ = false;
     bool needToRequestKeyboardOnFocus_ = true;
     bool isEnableHapticFeedback_ = true;
+    bool isEnableAutoSpacing_ = false;
     float maxLinesHeight_ = FLT_MAX;
     int32_t maxLines_ = INT32_MAX;
     std::unordered_map<std::u16string, RefPtr<SpanItem>> placeholderSpansMap_;

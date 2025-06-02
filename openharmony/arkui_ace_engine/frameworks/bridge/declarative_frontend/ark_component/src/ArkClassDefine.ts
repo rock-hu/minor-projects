@@ -243,6 +243,7 @@ class ArkSweepGradient {
   end: number | string | undefined;
   rotation: number | string | undefined;
   colors: Array<any>;
+  metricsColors: Array<any>;
   repeating: boolean | undefined;
 
   constructor(center: Array<any>,
@@ -250,12 +251,14 @@ class ArkSweepGradient {
     end: number | string | undefined,
     rotation: number | string | undefined,
     colors: Array<any>,
+    metricsColors: Array<any>,
     repeating: boolean | undefined) {
     this.center = center;
     this.start = start;
     this.end = end;
     this.rotation = rotation;
     this.colors = colors;
+    this.metricsColors = metricsColors;
     this.repeating = repeating;
   }
 
@@ -266,6 +269,7 @@ class ArkSweepGradient {
       this.end === another.end &&
       this.rotation === another.rotation &&
       deepCompareArrays(this.colors, another.colors) &&
+      deepCompareArrays(this.metricsColors, another.metricsColors) &&
       this.repeating === another.repeating
     );
   }
@@ -520,17 +524,16 @@ class ArkStarStyle {
 }
 
 class ArkRegisterNativeEmbedRule {
-  tag: string | undefined;
-  type: string | undefined;
+  tag: string;
+  type: string;
 
-  constructor () {
+  constructor() {
     this.tag = undefined;
     this.type = undefined;
   }
 
-  isEqual (another: ArkRegisterNativeEmbedRule): boolean {
-    return (this.tag === another.tag &&
-           this.type === another.type);
+  isEqual(another: ArkRegisterNativeEmbedRule): boolean {
+    return (this.tag === another.tag && this.type === another.type);
   }
 }
 
@@ -1136,6 +1139,19 @@ class ArkTextFieldShowCounter {
   }
 }
 
+class ArkTextFieldMaxLines {
+  value: number | undefined;
+  overflowMode?: MaxLinesMode;
+  constructor() {
+    this.value = undefined;
+    this.overflowMode = undefined;
+  }
+  isEqual(another: ArkTextFieldMaxLines): boolean {
+    return (this.value === another.value) &&
+      (this.overflowMode === another.overflowMode);
+  }
+}
+
 class ArkTextInputFilter {
   value: ResourceStr | undefined;
   error?: (value: string) => void;
@@ -1619,6 +1635,22 @@ class ArkDragPreview {
   }
 }
 
+class ArkOnDrop {
+  event: (event?: DragEvent, extraParams?: string) => void;
+  disableDataPrefetch: boolean | undefined;
+  constructor() {
+    this.event = undefined;
+    this.disableDataPrefetch = false;
+  }
+
+  isEqual(another: ArkOnDrop): boolean {
+    return (
+      this.event === another.event &&
+      this.disableDataPrefetch === another.disableDataPrefetch
+    );
+  }
+}
+
 class ArkDragSpringLoading {
   callback: (context: ArkSpringLoadingContext) => void;
   configuration: ArkDragSpringLoadingConfiguration | undefined;
@@ -1894,5 +1926,22 @@ class ArkAutoPlay {
 
   isEqual(another: ArkAutoPlay): boolean {
     return this.autoPlay === another.autoPlay && this.needStopWhenTouched === another.needStopWhenTouched;
+  }
+}
+
+class ArkWebScriptItem {
+  scripts: Array<string> | undefined;
+  scriptRules: Array<Array<string>> | undefined;
+
+  constructor() {
+    this.scripts = undefined;
+    this.scriptRules = undefined;
+  }
+
+  isEqual(another: ArkWebScriptItem): boolean {
+    return (
+      this.scripts === another.scripts &&
+      this.scriptRules === another.scriptRules
+    );
   }
 }

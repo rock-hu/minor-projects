@@ -179,7 +179,7 @@ const char* BOTTOM_RIGHT_PROPERTY = "bottomRight";
 const char* DEBUG_LINE_INFO_LINE = "$line";
 const char* DEBUG_LINE_INFO_PACKAGE_NAME = "$packageName";
 
-enum class OperationType { COPY, PASTE, CUT, SELECT_ALL, UNKNOWN };
+enum class MenuItemType { COPY, PASTE, CUT, SELECT_ALL, UNKNOWN, CAMERA_INPUT, AI_WRITER, TRANSLATE, SHARE, SEARCH };
 enum class BackgroundType { CUSTOM_BUILDER, COLOR };
 
 void ParseJsScale(const JSRef<JSVal>& jsValue, float& scaleX, float& scaleY, float& scaleZ,
@@ -276,6 +276,45 @@ void ParseJsRotate(const JSRef<JSVal>& jsValue, NG::RotateOptions& rotate, std::
     JSViewAbstract::GetJsAngle(static_cast<int32_t>(ArkUIIndex::ANGLE), jsObj, angle);
     rotate.perspective = 0.0f;
     JSViewAbstract::GetJsPerspective(static_cast<int32_t>(ArkUIIndex::PERSPECTIVE), jsObj, rotate.perspective);
+}
+
+void ParseJsRotateAngle(const JSRef<JSVal>& jsValue, NG::RotateAngleOptions& rotateAngle)
+{
+    if (!jsValue->IsObject()) {
+        return;
+    }
+
+    JSRef<JSObject> jsObj = JSRef<JSObject>::Cast(jsValue);
+
+    std::optional<float> angleX = 0.0;
+    std::optional<float> angleY = 0.0;
+    std::optional<float> angleZ = 0.0;
+
+    JSViewAbstract::GetJsAngleWithDefault(static_cast<int32_t>(ArkUIIndex::ANGLE_X), jsObj, angleX, 0.0f);
+    JSViewAbstract::GetJsAngleWithDefault(static_cast<int32_t>(ArkUIIndex::ANGLE_Y), jsObj, angleY, 0.0f);
+    JSViewAbstract::GetJsAngleWithDefault(static_cast<int32_t>(ArkUIIndex::ANGLE_Z), jsObj, angleZ, 0.0f);
+
+    rotateAngle.angleX = angleX.value_or(0.0f);
+    rotateAngle.angleY = angleY.value_or(0.0f);
+    rotateAngle.angleZ = angleZ.value_or(0.0f);
+
+    // if specify centerX
+    if (!JSViewAbstract::ParseJsDimensionVp(jsObj->GetProperty(static_cast<int32_t>(ArkUIIndex::CENTER_X)),
+    rotateAngle.centerX)) {
+        rotateAngle.centerX = Dimension(0.5f, DimensionUnit::PERCENT);
+    }
+    // if specify centerY
+    if (!JSViewAbstract::ParseJsDimensionVp(jsObj->GetProperty(static_cast<int32_t>(ArkUIIndex::CENTER_Y)), 
+    rotateAngle.centerY)) {
+        rotateAngle.centerY = Dimension(0.5f, DimensionUnit::PERCENT);
+    }
+    // if specify centerZ
+    if (!JSViewAbstract::ParseJsDimensionVp(jsObj->GetProperty(static_cast<int32_t>(ArkUIIndex::CENTER_Z)),
+    rotateAngle.centerZ)) {
+        rotateAngle.centerZ = Dimension(0.0f, DimensionUnit::VP);
+    }
+    rotateAngle.perspective = 0.0f;
+    JSViewAbstract::GetJsPerspective(static_cast<int32_t>(ArkUIIndex::PERSPECTIVE), jsObj, rotateAngle.perspective);
 }
 
 bool ParseMotionPath(const JSRef<JSVal>& jsValue, MotionPathOption& option)
@@ -572,7 +611,7 @@ void ParseJsLengthMetricsToDimension(const JSRef<JSObject>& obj, Dimension& resu
     result = dimension;
     auto jsRes = obj->GetProperty("res");
     if (SystemProperties::ConfigChangePerform() && !jsRes->IsUndefined() &&
-        !jsRes->IsNull() && !jsRes->IsObject()) {
+        !jsRes->IsNull() && jsRes->IsObject()) {
         JSRef<JSObject> resObj = JSRef<JSObject>::Cast(jsRes);
         JSViewAbstract::CompleteResourceObject(resObj);
         resourceObj = JSViewAbstract::GetResourceObject(resObj);
@@ -1568,51 +1607,74 @@ uint32_t ColorAlphaAdapt(uint32_t origin)
     return result;
 }
 
-OperationType StringToOperationType(const std::string& id)
+MenuItemType StringToMenuItemType(std::string_view id)
 {
-    if (id == "OH_DEFAULT_COPY") {
-        return OperationType::COPY;
-    } else if (id == "OH_DEFAULT_PASTE") {
-        return OperationType::PASTE;
-    } else if (id == "OH_DEFAULT_CUT") {
-        return OperationType::CUT;
-    } else if (id == "OH_DEFAULT_SELECT_ALL") {
-        return OperationType::SELECT_ALL;
-    } else {
-        return OperationType::UNKNOWN;
+    static const std::unordered_map<std::string_view, MenuItemType> keyMenuItemMap = {
+        { "OH_DEFAULT_COPY", MenuItemType::COPY },
+        { "OH_DEFAULT_PASTE", MenuItemType::PASTE },
+        { "OH_DEFAULT_CUT", MenuItemType::CUT },
+        { "OH_DEFAULT_SELECT_ALL", MenuItemType::SELECT_ALL },
+        { "OH_DEFAULT_CAMERA_INPUT", MenuItemType::CAMERA_INPUT },
+        { "OH_DEFAULT_AI_WRITE", MenuItemType::AI_WRITER },
+        { "OH_DEFAULT_TRANSLATE", MenuItemType::TRANSLATE },
+        { "OH_DEFAULT_SHARE", MenuItemType::SHARE },
+        { "OH_DEFAULT_SEARCH", MenuItemType::SEARCH },
+    };
+
+    auto item = keyMenuItemMap.find(id);
+    return item != keyMenuItemMap.end() ? item->second : MenuItemType::UNKNOWN;
+}
+
+void UpdateInfoById(NG::MenuOptionsParam& menuOptionsParam, std::string_view id)
+{
+    auto opType = StringToMenuItemType(id);
+    auto pipeline = PipelineContext::GetCurrentContextSafelyWithCheck();
+    CHECK_NULL_VOID(pipeline);
+    auto theme = pipeline->GetTheme<TextOverlayTheme>();
+    CHECK_NULL_VOID(theme);
+    switch (opType) {
+        case MenuItemType::COPY:
+            menuOptionsParam.labelInfo = theme->GetCopyLabelInfo();
+           menuOptionsParam.symbolId = theme->GetCopySymbolId();
+            break;
+        case MenuItemType::PASTE:
+            menuOptionsParam.labelInfo = theme->GetPasteLabelInfo();
+            menuOptionsParam.symbolId = theme->GetPasteSymbolId();
+            break;
+        case MenuItemType::CUT:
+            menuOptionsParam.labelInfo = theme->GetCutLabelInfo();
+            menuOptionsParam.symbolId = theme->GetCutSymbolId();
+            break;
+        case MenuItemType::SELECT_ALL:
+            menuOptionsParam.labelInfo = theme->GetSelectAllLabelInfo();
+            menuOptionsParam.symbolId = theme->GetCopyAllSymbolId();
+            break;
+        case MenuItemType::CAMERA_INPUT:
+            menuOptionsParam.symbolId = theme->GetCameraInputSymbolId();
+            break;
+        case MenuItemType::AI_WRITER:
+            menuOptionsParam.symbolId = theme->GetAIWriteSymbolId();
+            break;
+        case MenuItemType::TRANSLATE:
+            menuOptionsParam.symbolId = theme->GetTranslateSymbolId();
+            break;
+        case MenuItemType::SHARE:
+            menuOptionsParam.symbolId = theme->GetShareSymbolId();
+            break;
+        case MenuItemType::SEARCH:
+            menuOptionsParam.symbolId = theme->GetSearchSymbolId();
+            break;
+        default:
+            menuOptionsParam.labelInfo = "";
+            menuOptionsParam.symbolId = 0;
+            break;
     }
 }
 
 void UpdateOptionsInfo(std::vector<NG::MenuItemParam>& params)
 {
     for (auto& param : params) {
-        auto opType = StringToOperationType(param.menuOptionsParam.id);
-        auto pipeline = PipelineContext::GetCurrentContextSafelyWithCheck();
-        CHECK_NULL_VOID(pipeline);
-        auto theme = pipeline->GetTheme<TextOverlayTheme>();
-        CHECK_NULL_VOID(theme);
-        switch (opType) {
-            case OperationType::COPY:
-                param.menuOptionsParam.labelInfo = theme->GetCopyLabelInfo();
-                param.menuOptionsParam.symbolId = theme->GetCopySymbolId();
-                break;
-            case OperationType::PASTE:
-                param.menuOptionsParam.labelInfo = theme->GetPasteLabelInfo();
-                param.menuOptionsParam.symbolId = theme->GetPasteSymbolId();
-                break;
-            case OperationType::CUT:
-                param.menuOptionsParam.labelInfo = theme->GetCutLabelInfo();
-                param.menuOptionsParam.symbolId = theme->GetCutSymbolId();
-                break;
-            case OperationType::SELECT_ALL:
-                param.menuOptionsParam.labelInfo = theme->GetSelectAllLabelInfo();
-                param.menuOptionsParam.symbolId = theme->GetCopyAllSymbolId();
-                break;
-            default:
-                param.menuOptionsParam.labelInfo = "";
-                param.menuOptionsParam.symbolId = 0;
-                break;
-        }
+        UpdateInfoById(param.menuOptionsParam, param.menuOptionsParam.id);
     }
 }
 
@@ -1846,14 +1908,24 @@ void JSViewAbstract::JsRotate(const JSCallbackInfo& info)
 
     if (jsVal->IsObject()) {
         NG::RotateOptions rotate(0.0f, 0.0f, 0.0f, 0.0f, 0.5_pct, 0.5_pct);
+        NG::RotateAngleOptions rotateAngle(0.0f, 0.0f, 0.0f, 0.5_pct, 0.5_pct);
         std::optional<float> angle;
-        ParseJsRotate(jsVal, rotate, angle);
-        if (angle) {
-            ViewAbstractModel::GetInstance()->SetRotate(
-                rotate.xDirection, rotate.yDirection, rotate.zDirection, angle.value(), rotate.perspective);
-            ViewAbstractModel::GetInstance()->SetPivot(rotate.centerX, rotate.centerY, rotate.centerZ);
+        JSRef<JSObject> jsObj = JSRef<JSObject>::Cast(jsVal);
+        bool hasAngleProp = jsObj->HasProperty(static_cast<int32_t>(ArkUIIndex::ANGLE));
+        if (hasAngleProp) {
+            ParseJsRotate(jsVal, rotate, angle);
+            if (angle) {
+                ViewAbstractModel::GetInstance()->SetRotate(
+                    rotate.xDirection, rotate.yDirection, rotate.zDirection, angle.value(), rotate.perspective);
+                ViewAbstractModel::GetInstance()->SetPivot(rotate.centerX, rotate.centerY, rotate.centerZ);
+            } else {
+                SetDefaultRotate();
+            }
         } else {
-            SetDefaultRotate();
+            ParseJsRotateAngle(jsVal, rotateAngle);
+            ViewAbstractModel::GetInstance()->SetRotateAngle(
+                rotateAngle.angleX, rotateAngle.angleY, rotateAngle.angleZ, rotateAngle.perspective);
+            ViewAbstractModel::GetInstance()->SetPivot(rotateAngle.centerX, rotateAngle.centerY, rotateAngle.centerZ);
         }
         return;
     }
@@ -3597,39 +3669,6 @@ void JSViewAbstract::JsLightUpEffect(const JSCallbackInfo& info)
     ViewAbstractModel::GetInstance()->SetLightUpEffect(std::clamp(radio, 0.0, 1.0));
 }
 
-void SetBackgroundImageSizeUpdateFunc(
-    BackgroundImageSize& bgImgSize, const RefPtr<ResourceObject>& resObjWidth, const RefPtr<ResourceObject>& resObjHeight)
-{
-    CHECK_NULL_VOID(resObjWidth);
-    auto&& updateFuncWidth = [](const RefPtr<ResourceObject>& resObj, BackgroundImageSize& bgImgSize) {
-        CalcDimension width;
-        ResourceParseUtils::ParseResDimensionVp(resObj, width);
-        double valueWidth = width.ConvertToPx();
-        BackgroundImageSizeType typeWidth = BackgroundImageSizeType::LENGTH;
-        if (width.Unit() == DimensionUnit::PERCENT) {
-            typeWidth = BackgroundImageSizeType::PERCENT;
-            valueWidth = width.Value() * FULL_DIMENSION;
-        }
-        bgImgSize.SetSizeTypeX(typeWidth);
-        bgImgSize.SetSizeValueX(valueWidth);
-    };
-    bgImgSize.AddResource("backgroundImageSizeWidth", resObjWidth, std::move(updateFuncWidth));
-    CHECK_NULL_VOID(resObjHeight);
-    auto&& updateFuncHeight = [](const RefPtr<ResourceObject>& resObj, BackgroundImageSize& bgImgSize) {
-        CalcDimension height;
-        ResourceParseUtils::ParseResDimensionVp(resObj, height);
-        double valueHeight = height.ConvertToPx();
-        BackgroundImageSizeType typeHeight = BackgroundImageSizeType::LENGTH;
-        if (height.Unit() == DimensionUnit::PERCENT) {
-            typeHeight = BackgroundImageSizeType::PERCENT;
-            valueHeight = height.Value() * FULL_DIMENSION;
-        }
-        bgImgSize.SetSizeTypeY(typeHeight);
-        bgImgSize.SetSizeValueY(valueHeight);
-    };
-    bgImgSize.AddResource("backgroundImageSizeHeight", resObjHeight, std::move(updateFuncHeight));
-}
-
 void JSViewAbstract::JsBackgroundImageSize(const JSCallbackInfo& info)
 {
     static std::vector<JSCallbackInfoType> checkList { JSCallbackInfoType::NUMBER, JSCallbackInfoType::OBJECT };
@@ -3657,7 +3696,8 @@ void JSViewAbstract::JsBackgroundImageSize(const JSCallbackInfo& info)
         RefPtr<ResourceObject> resObjHeight;
         ParseJsDimensionVp(object->GetProperty("width"), width, resObjWidth);
         ParseJsDimensionVp(object->GetProperty("height"), height, resObjHeight);
-        SetBackgroundImageSizeUpdateFunc(bgImgSize, resObjWidth, resObjHeight);
+        ViewAbstractModel::GetInstance()->SetBackgroundImageSizeUpdateFunc(bgImgSize, resObjWidth, "width");
+        ViewAbstractModel::GetInstance()->SetBackgroundImageSizeUpdateFunc(bgImgSize, resObjHeight, "height");
         double valueWidth = width.ConvertToPx();
         double valueHeight = height.ConvertToPx();
         BackgroundImageSizeType typeWidth = BackgroundImageSizeType::LENGTH;
@@ -3692,42 +3732,30 @@ void SetBgImgPositionWithAlign(BackgroundImagePosition& bgImgPosition, int32_t a
 }
 
 void SetBackgroundImagePositionUpdateFunc(
-    BackgroundImagePosition& bgImgPosition, const RefPtr<ResourceObject>& resObjX, const RefPtr<ResourceObject>& resObjY)
+    BackgroundImagePosition& bgImgPosition, const RefPtr<ResourceObject>& resObj, const std::string direction)
 {
-    CHECK_NULL_VOID(resObjX);
-    auto&& updateFuncX = [](const RefPtr<ResourceObject>& resObj, BackgroundImagePosition& position) {
-        CalcDimension x;
-        ResourceParseUtils::ParseResDimensionVp(resObj, x);
-        double valueX = x.Value();
+    CHECK_NULL_VOID(resObj);
+    if (direction.empty()) {
+        return;
+    }
+    auto&& updateFunc = [direction](const RefPtr<ResourceObject>& resObj, BackgroundImagePosition& position) {
+        CalcDimension dimension;
+        ResourceParseUtils::ParseResDimensionVp(resObj, dimension);
+        double value = dimension.Value();
         if (Container::GreatOrEqualAPITargetVersion(PlatformVersion::VERSION_TWELVE)) {
-            valueX = x.ConvertToPx();
+            value = dimension.ConvertToPx();
         }
-        DimensionUnit typeX = DimensionUnit::PX;
-        if (x.Unit() == DimensionUnit::PERCENT) {
-            valueX = x.Value();
-            typeX = DimensionUnit::PERCENT;
+        DimensionUnit type = DimensionUnit::PX;
+        if (dimension.Unit() == DimensionUnit::PERCENT) {
+            value = dimension.Value();
+            type = DimensionUnit::PERCENT;
         }
         AnimationOption option = ViewStackModel::GetInstance()->GetImplicitAnimationOption();
-        position.SetSizeX(AnimatableDimension(valueX, typeX, option));
+        (direction == "x") ? position.SetSizeX(AnimatableDimension(value, type, option))
+                           : position.SetSizeY(AnimatableDimension(value, type, option));
     };
-    bgImgPosition.AddResource("backgroundImagePositionX", resObjX, std::move(updateFuncX));
-    CHECK_NULL_VOID(resObjY);
-    auto&& updateFuncY = [](const RefPtr<ResourceObject>& resObj, BackgroundImagePosition& position) {
-        CalcDimension y;
-        ResourceParseUtils::ParseResDimensionVp(resObj, y);
-        double valueY = y.Value();
-        if (Container::GreatOrEqualAPITargetVersion(PlatformVersion::VERSION_TWELVE)) {
-            valueY = y.ConvertToPx();
-        }
-        DimensionUnit typeY = DimensionUnit::PX;
-        if (y.Unit() == DimensionUnit::PERCENT) {
-            valueY = y.Value();
-            typeY = DimensionUnit::PERCENT;
-        }
-        AnimationOption option = ViewStackModel::GetInstance()->GetImplicitAnimationOption();
-        position.SetSizeY(AnimatableDimension(valueY, typeY, option));
-    };
-    bgImgPosition.AddResource("backgroundImagePositionY", resObjY, std::move(updateFuncY));
+    (direction == "x") ? bgImgPosition.AddResource("backgroundImagePositionX", resObj, std::move(updateFunc))
+                       : bgImgPosition.AddResource("backgroundImagePositionY", resObj, std::move(updateFunc));
 }
 
 void JSViewAbstract::JsBackgroundImagePosition(const JSCallbackInfo& info)
@@ -3752,7 +3780,8 @@ void JSViewAbstract::JsBackgroundImagePosition(const JSCallbackInfo& info)
         RefPtr<ResourceObject> resObjY;
         ParseJsDimensionVp(object->GetProperty("x"), x, resObjX);
         ParseJsDimensionVp(object->GetProperty("y"), y, resObjY);
-        SetBackgroundImagePositionUpdateFunc(bgImgPosition, resObjX, resObjY);
+        SetBackgroundImagePositionUpdateFunc(bgImgPosition, resObjX, "x");
+        SetBackgroundImagePositionUpdateFunc(bgImgPosition, resObjY, "y");
         double valueX = x.Value();
         double valueY = y.Value();
         if (Container::GreatOrEqualAPITargetVersion(PlatformVersion::VERSION_TWELVE)) {
@@ -6183,7 +6212,8 @@ bool JSViewAbstract::ParseColorMetricsToColor(const JSRef<JSVal>& jsValue, Color
     }
     auto colorObj = JSRef<JSObject>::Cast(jsValue);
     auto toNumericProp = colorObj->GetProperty("toNumeric");
-    if (toNumericProp->IsFunction()) {
+    auto colorSpaceProp = colorObj->GetProperty("getColorSpace");
+    if (toNumericProp->IsFunction() && colorSpaceProp->IsFunction()) {
         auto colorVal = JSRef<JSFunc>::Cast(toNumericProp)->Call(colorObj, 0, nullptr);
         result.SetValue(colorVal->ToNumber<uint32_t>());
 
@@ -6191,6 +6221,14 @@ bool JSViewAbstract::ParseColorMetricsToColor(const JSRef<JSVal>& jsValue, Color
         if (resourceIdProp->IsFunction()) {
             auto resourceIdVal = JSRef<JSFunc>::Cast(resourceIdProp)->Call(colorObj, 0, nullptr);
             result.SetResourceId(resourceIdVal->ToNumber<uint32_t>());
+        }
+
+        auto colorSpaceVal = JSRef<JSFunc>::Cast(colorSpaceProp)->Call(colorObj, 0, nullptr);
+        if (colorSpaceVal->IsNumber() &&
+            colorSpaceVal->ToNumber<uint32_t>() == static_cast<uint32_t>(ColorSpace::DISPLAY_P3)) {
+            result.SetColorSpace(ColorSpace::DISPLAY_P3);
+        } else {
+            result.SetColorSpace(ColorSpace::SRGB);
         }
 
         return true;
@@ -6458,6 +6496,9 @@ bool JSViewAbstract::ParseJsColor(const JSRef<JSVal>& jsValue, Color& result,
         return Color::ParseColorString(jsValue->ToString(), result);
     }
     if (jsValue->IsObject()) {
+        if (ParseColorMetricsToColor(jsValue, result)) {
+            return true;
+        }
         return ParseJsColorFromResource(jsValue, result, resObj);
     }
     return false;
@@ -7122,7 +7163,7 @@ bool JSViewAbstract::ParseJsStrArrayInternal(const JSRef<JSVal>& jsValue, std::v
             result.emplace_back(value->ToString());
         } else if (value->IsObject()) {
             std::string singleResStr;
-            if (ParseJsString(value, singleResStr)) {
+            if (ParseJsString(value, singleResStr, resObj)) {
                 result.emplace_back(singleResStr);
             } else {
                 resObjArray.clear();
@@ -7965,7 +8006,12 @@ void JSViewAbstract::NewJsSweepGradient(const JSCallbackInfo& info, NG::Gradient
     auto repeating = jsObj->GetPropertyValue<bool>("repeating", false);
     newGradient.SetRepeat(repeating);
     // color stops
-    NewGetJsGradientColorStops(newGradient, jsObj->GetProperty(static_cast<int32_t>(ArkUIIndex::COLORS)));
+    JSRef<JSVal> metricColors = jsObj->GetProperty(static_cast<int32_t>(ArkUIIndex::METRICS_COLORS));
+    if (metricColors->IsArray()) {
+        NewGetJsGradientColorStopsCheck(newGradient, metricColors);
+    } else {
+        NewGetJsGradientColorStops(newGradient, jsObj->GetProperty(static_cast<int32_t>(ArkUIIndex::COLORS)));
+    }
 }
 
 void JSViewAbstract::ParseSweepGradientPartly(const JSRef<JSObject>& obj, NG::Gradient& newGradient)
@@ -10163,6 +10209,52 @@ void JSViewAbstract::NewGetJsGradientColorStops(NG::Gradient& gradient, const JS
     }
 }
 
+void JSViewAbstract::NewGetJsGradientColorStopsCheck(NG::Gradient& gradient, const JSRef<JSVal>& colorStops)
+{
+    if (!colorStops->IsArray()) {
+        return;
+    }
+
+    JSRef<JSArray> jsArray = JSRef<JSArray>::Cast(colorStops);
+    size_t length = jsArray->Length();
+    bool isValid = true;
+    for (size_t i = 0; i < length; i++) {
+        NG::GradientColor gradientColor;
+        JSRef<JSVal> item = jsArray->GetValueAt(i);
+        if (!item->IsArray()) {
+            continue;
+        }
+        JSRef<JSArray> subArray = JSRef<JSArray>::Cast(item);
+        if (subArray->Length() < 2) {
+            continue;
+        }
+        // color
+        Color color;
+        if (!ParseJsColor(subArray->GetValueAt(0), color)) {
+            continue;
+        }
+        // is valid
+        if (gradient.GetColors().size()) {
+            if (color.GetColorSpace() != gradient.GetColors().back().GetColor().GetColorSpace()) {
+                isValid = false;
+                gradient.ClearColors();
+                break;
+            }
+        }
+        gradientColor.SetColor(color);
+        gradientColor.SetHasValue(false);
+        // stop value
+        double value = 0.0;
+        if (ParseJsDouble(subArray->GetValueAt(1), value)) {
+            value = std::clamp(value, 0.0, 1.0);
+            gradientColor.SetHasValue(true);
+        }
+        //  [0, 1] -> [0, 100.0];
+        gradientColor.SetDimension(CalcDimension(value * 100.0, DimensionUnit::PERCENT));
+        gradient.AddColor(gradientColor);
+    }
+}
+
 void JSViewAbstract::SetDirection(const std::string& dir)
 {
     TextDirection direction = TextDirection::AUTO;
@@ -11936,9 +12028,10 @@ void JSViewAbstract::JsBackground(const JSCallbackInfo& info)
 
     // parse custom background
     Color color = Color::TRANSPARENT;
+    RefPtr<ResourceObject> backgroundColorResObj;
     std::function<void()> builderFunc;
     BackgroundType backgroundType = BackgroundType::COLOR;
-    if (!ParseJsColor(info[0], color)) {
+    if (!ParseJsColor(info[0], color, backgroundColorResObj)) {
         if (ParseBackgroundBuilder(info, info[0], builderFunc)) {
             backgroundType = BackgroundType::CUSTOM_BUILDER;
         } else {
@@ -11963,10 +12056,8 @@ void JSViewAbstract::JsBackground(const JSCallbackInfo& info)
         }
     }
 
-    if (BackgroundType::COLOR == backgroundType) {
-        ignoreLayoutSafeAreaEdges = (NG::LAYOUT_SAFE_AREA_EDGE_NONE == ignoreLayoutSafeAreaEdges)
-                                        ? NG::LAYOUT_SAFE_AREA_EDGE_ALL
-                                        : ignoreLayoutSafeAreaEdges;
+    if (BackgroundType::COLOR == backgroundType && NG::LAYOUT_SAFE_AREA_EDGE_NONE == ignoreLayoutSafeAreaEdges) {
+        ignoreLayoutSafeAreaEdges = NG::LAYOUT_SAFE_AREA_EDGE_ALL;
     }
 
     // parameters parsed, set the properties parsed above
@@ -11981,7 +12072,11 @@ void JSViewAbstract::JsBackground(const JSCallbackInfo& info)
     ViewAbstractModel::GetInstance()->SetBackground(std::move(builderFunc));
     ViewAbstractModel::GetInstance()->SetBackgroundIgnoresLayoutSafeAreaEdges(ignoreLayoutSafeAreaEdges);
     ViewAbstractModel::GetInstance()->SetBackgroundAlign(alignment);
-    ViewAbstractModel::GetInstance()->SetCustomBackgroundColor(color);
+    if (SystemProperties::ConfigChangePerform() && backgroundColorResObj) {
+        ViewAbstractModel::GetInstance()->SetCustomBackgroundColorWithResourceObj(backgroundColorResObj);
+    } else {
+        ViewAbstractModel::GetInstance()->SetCustomBackgroundColor(color);
+    }
 }
 
 bool JSViewAbstract::ParseBackgroundBuilder(
@@ -12016,7 +12111,7 @@ NG::LayoutSafeAreaEdge JSViewAbstract::ParseJsLayoutSafeAreaEdgeArray(const JSRe
         return edges;
     }
 
-    static std::vector<uint32_t> LayoutEdgeEnum {
+    static std::vector<uint32_t> layoutEdgeEnum {
         NG::LAYOUT_SAFE_AREA_EDGE_TOP,
         NG::LAYOUT_SAFE_AREA_EDGE_BOTTOM,
         NG::LAYOUT_SAFE_AREA_EDGE_START,
@@ -12031,7 +12126,7 @@ NG::LayoutSafeAreaEdge JSViewAbstract::ParseJsLayoutSafeAreaEdgeArray(const JSRe
             jsSafeAreaEdges->GetValueAt(i)->ToNumber<uint32_t>() > LAYOUT_SAFE_AREA_EDGE_LIMIT) {
             return false;
         }
-        edges |= LayoutEdgeEnum[jsSafeAreaEdges->GetValueAt(i)->ToNumber<uint32_t>()];
+        edges |= layoutEdgeEnum[jsSafeAreaEdges->GetValueAt(i)->ToNumber<uint32_t>()];
     }
 
     return edges;
@@ -12116,6 +12211,19 @@ void JSViewAbstract::JsCompositingFilter(const JSCallbackInfo& info)
     ViewAbstractModel::GetInstance()->SetCompositingFilter(compositingFilter);
 }
 
+void JSViewAbstract::ParseMenuItemsSymbolId(const JSRef<JSVal>& jsStartIcon, NG::MenuOptionsParam menuOptionsParam)
+{
+     if (StringToMenuItemType(menuOptionsParam.id) == MenuItemType::UNKNOWN) {
+        uint32_t symbolId = 0;
+        RefPtr<ResourceObject> resourceObject;
+        if (ParseJsSymbolId(jsStartIcon, symbolId, resourceObject)) {
+            menuOptionsParam.symbolId = symbolId;
+        }
+    } else {
+        UpdateInfoById(menuOptionsParam, menuOptionsParam.id);
+    }
+}
+
 std::vector<NG::MenuOptionsParam> JSViewAbstract::ParseMenuItems(const JSRef<JSArray>& menuItemsArray, bool showShortcut)
 {
     std::vector<NG::MenuOptionsParam> menuParams;
@@ -12130,19 +12238,6 @@ std::vector<NG::MenuOptionsParam> JSViewAbstract::ParseMenuItems(const JSRef<JSA
         std::string content;
         ParseJsString(jsContent, content);
         menuOptionsParam.content = content;
-        auto jsStartIcon = menuItemObject->GetProperty("icon");
-        std::string icon;
-        ParseJsMedia(jsStartIcon, icon);
-        menuOptionsParam.icon = icon;
-        if (showShortcut) {
-            uint32_t symbolId = 0;
-            RefPtr<ResourceObject> resourceObject;
-
-            if (ParseJsSymbolId(jsStartIcon, symbolId, resourceObject)) {
-                menuOptionsParam.symbolId = symbolId;
-            }
-        }
-
         auto jsTextMenuId = menuItemObject->GetProperty("id");
         std::string id;
         if (jsTextMenuId->IsObject()) {
@@ -12156,6 +12251,13 @@ std::vector<NG::MenuOptionsParam> JSViewAbstract::ParseMenuItems(const JSRef<JSA
         ParseJsString(jsLabelInfo, labelInfo);
         if (jsLabelInfo->IsString() || jsLabelInfo->IsObject()) {
             menuOptionsParam.labelInfo = labelInfo;
+        }
+        auto jsStartIcon = menuItemObject->GetProperty("icon");
+        std::string icon;
+        ParseJsMedia(jsStartIcon, icon);
+        menuOptionsParam.icon = icon;
+        if (!showShortcut) {
+           ParseMenuItemsSymbolId(jsStartIcon, menuOptionsParam);
         }
         menuParams.emplace_back(menuOptionsParam);
     }
@@ -12391,6 +12493,15 @@ uint8_t JSViewAbstract::GetPixelRoundMode()
     auto pipeline = PipelineBase::GetCurrentContext();
     return pipeline ? static_cast<uint8_t>(pipeline->GetPixelRoundMode())
                     : static_cast<uint8_t>(PixelRoundMode::PIXEL_ROUND_ON_LAYOUT_FINISH);
+}
+
+void JSViewAbstract::UnRegisterResource(const std::string& key)
+{
+    auto frameNode = NG::ViewStackProcessor::GetInstance()->GetMainFrameNode();
+    CHECK_NULL_VOID(frameNode);
+    auto pattern = frameNode->GetPattern(); 
+    CHECK_NULL_VOID(pattern);
+    pattern->UnRegisterResource(key);
 }
 
 void JSViewAbstract::ParseDragSpringLoadingConfiguration(

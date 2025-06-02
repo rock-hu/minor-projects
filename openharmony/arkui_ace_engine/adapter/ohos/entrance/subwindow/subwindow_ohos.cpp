@@ -52,8 +52,6 @@
 #include "core/common/text_field_manager.h"
 #include "core/components/bubble/bubble_component.h"
 #include "core/components/popup/popup_component.h"
-#include "core/components_ng/pattern/dialog/dialog_mask_pattern.h"
-#include "core/components_ng/pattern/dialog/dialog_pattern.h"
 #include "core/components_ng/pattern/menu/menu_view.h"
 #include "core/components_ng/pattern/menu/wrapper/menu_wrapper_pattern.h"
 #include "core/components_ng/pattern/overlay/overlay_manager.h"
@@ -746,7 +744,9 @@ void SubwindowOhos::ShowWindow(bool needFocus)
     event.windowChangeTypes = WINDOW_UPDATE_ADDED;
     context->SendEventToAccessibility(event);
     isShowed_ = true;
-    SubwindowManager::GetInstance()->SetCurrentSubwindow(AceType::Claim(this));
+    if (ifNeedSetCurrentWindow_) {
+        SubwindowManager::GetInstance()->SetCurrentSubwindow(AceType::Claim(this));
+    }
 }
 
 void SubwindowOhos::HideWindow()
@@ -1256,6 +1256,12 @@ RefPtr<NG::FrameNode> SubwindowOhos::ShowDialogNG(
     ContainerScope scope(childContainerId_);
     auto dialog = overlay->ShowDialog(dialogProps, std::move(buildFunc));
     CHECK_NULL_RETURN(dialog, nullptr);
+    if (parentAceContainer->IsUIExtensionWindow() && dialogProps.isModal) {
+        window_->SetFollowParentWindowLayoutEnabled(true);
+        SetNodeId(dialog->GetId());
+        SubwindowManager::GetInstance()->AddSubwindow(
+            parentContainerId_, SubwindowType::TYPE_DIALOG, AceType::Claim(this), dialog->GetId());
+    }
     haveDialog_ = true;
     return dialog;
 }
@@ -1296,6 +1302,12 @@ RefPtr<NG::FrameNode> SubwindowOhos::ShowDialogNGWithNode(
     ContainerScope scope(childContainerId_);
     auto dialog = overlay->ShowDialogWithNode(dialogProps, customNode);
     CHECK_NULL_RETURN(dialog, nullptr);
+    if (parentAceContainer->IsUIExtensionWindow() && dialogProps.isModal) {
+        window_->SetFollowParentWindowLayoutEnabled(true);
+        SetNodeId(dialog->GetId());
+        SubwindowManager::GetInstance()->AddSubwindow(
+            parentContainerId_, SubwindowType::TYPE_DIALOG, AceType::Claim(this), dialog->GetId());
+    }
     haveDialog_ = true;
     return dialog;
 }
@@ -1348,7 +1360,14 @@ void SubwindowOhos::OpenCustomDialogNG(const DialogProperties& dialogProps, std:
     window_->SetFullScreen(true);
     window_->SetTouchable(true);
     ContainerScope scope(childContainerId_);
-    overlay->OpenCustomDialog(dialogProps, std::move(callback));
+    auto dialog = overlay->OpenCustomDialog(dialogProps, std::move(callback));
+    CHECK_NULL_VOID(dialog);
+    if (parentAceContainer->IsUIExtensionWindow() && dialogProps.isModal) {
+        window_->SetFollowParentWindowLayoutEnabled(true);
+        SetNodeId(dialog->GetId());
+        SubwindowManager::GetInstance()->AddSubwindow(
+            parentContainerId_, SubwindowType::TYPE_DIALOG, AceType::Claim(this), dialog->GetId());
+    }
     haveDialog_ = true;
 }
 
@@ -1605,8 +1624,10 @@ void SubwindowOhos::ClearToast()
 void SubwindowOhos::ShowToastForAbility(const NG::ToastInfo& toastInfo, std::function<void(int32_t)>&& callback)
 {
     TAG_LOGD(AceLogTag::ACE_SUB_WINDOW, "show toast for ability enter, containerId : %{public}d", childContainerId_);
-    SetIsToastWindow(
-        toastInfo.showMode == NG::ToastShowMode::TOP_MOST || toastInfo.showMode == NG::ToastShowMode::SYSTEM_TOP_MOST);
+    auto parentContainer = Platform::AceContainer::GetContainer(parentContainerId_);
+    CHECK_NULL_VOID(parentContainer);
+    SetIsToastWindow(toastInfo.showMode == NG::ToastShowMode::TOP_MOST ||
+                     toastInfo.showMode == NG::ToastShowMode::SYSTEM_TOP_MOST || parentContainer->IsSceneBoardWindow());
     auto aceContainer = Platform::AceContainer::GetContainer(childContainerId_);
     if (!aceContainer) {
         TAG_LOGE(AceLogTag::ACE_SUB_WINDOW, "get container failed, child containerId : %{public}d", childContainerId_);
@@ -1633,15 +1654,11 @@ void SubwindowOhos::ShowToastForAbility(const NG::ToastInfo& toastInfo, std::fun
         }
     }
     ContainerScope scope(childContainerId_);
-    auto parentContainer = Platform::AceContainer::GetContainer(parentContainerId_);
-    CHECK_NULL_VOID(parentContainer);
     if (parentContainer->IsSceneBoardWindow() || toastInfo.showMode == NG::ToastShowMode::TOP_MOST ||
         toastInfo.showMode == NG::ToastShowMode::SYSTEM_TOP_MOST) {
         ResizeWindow();
-        // Recover current subwindow in subwindow manager to ensure popup/menu can close the right subwindow
-        auto currentWindow = SubwindowManager::GetInstance()->GetCurrentWindow();
+        ifNeedSetCurrentWindow_ = false;
         ShowWindow(false);
-        SubwindowManager::GetInstance()->SetCurrentSubwindow(currentWindow);
         CHECK_NULL_VOID(window_);
         window_->SetTouchable(false);
     }
@@ -2198,7 +2215,8 @@ bool SubwindowOhos::Close()
 {
     // prevent repeated closure when subWindow's container is destroying
     if (isClosing_) {
-        return true;
+        TAG_LOGI(AceLogTag::ACE_SUB_WINDOW, "current window is closing.");
+        return false;
     }
 
     CHECK_NULL_RETURN(window_, false);
@@ -2342,74 +2360,6 @@ bool SubwindowOhos::ShowSelectOverlay(const RefPtr<NG::FrameNode>& overlayNode)
     window_->KeepKeyboardOnFocus(true);
     window_->SetFocusable(false);
     return true;
-}
-
-void SubwindowOhos::ShowDialogMaskNG(const RefPtr<NG::FrameNode>& dialog)
-{
-    TAG_LOGI(AceLogTag::ACE_SUB_WINDOW, "subwindow show dialog mask ng");
-    CHECK_NULL_VOID(dialog);
-    ContainerScope scope(childContainerId_);
-    CHECK_NULL_VOID(window_);
-    ShowWindow(false);
-    window_->SetFollowParentWindowLayoutEnabled(true);
-    window_->SetTouchable(true);
-    window_->SetFocusable(false);
-
-    // clear hostAreas, use the full window size of default hotArea
-    std::vector<Rosen::Rect> hotAreas;
-    window_->SetTouchHotAreas(hotAreas);
-    window_->SetRaiseByClickEnabled(false);
-
-    auto dialogPattern = dialog->GetPattern<NG::DialogPattern>();
-    CHECK_NULL_VOID(dialogPattern);
-    auto dialogProps = dialogPattern->GetDialogProperties();
-
-    DialogProperties maskarg;
-    maskarg.isMask = true;
-    maskarg.autoCancel = dialogProps.autoCancel;
-    maskarg.onWillDismiss = dialogProps.onWillDismiss;
-    maskarg.maskColor = dialogProps.maskColor;
-
-    auto maskNode = NG::FrameNode::CreateFrameNode(DIALOG_MASK_ETS_TAG, ElementRegister::GetInstance()->MakeUniqueId(),
-        AceType::MakeRefPtr<NG::DialogMaskPattern>(maskarg, dialog));
-    CHECK_NULL_VOID(maskNode);
-
-    auto aceContainer = Platform::AceContainer::GetContainer(childContainerId_);
-    CHECK_NULL_VOID(aceContainer);
-    auto pipeline = DynamicCast<NG::PipelineContext>(aceContainer->GetPipelineContext());
-    CHECK_NULL_VOID(pipeline);
-    auto rootNode = pipeline->GetRootElement();
-    CHECK_NULL_VOID(rootNode);
-    maskNode->MountToParent(rootNode);
-    rootNode->MarkDirtyNode(NG::PROPERTY_UPDATE_MEASURE_SELF_AND_CHILD);
-
-    auto maskPattern = maskNode->GetPattern<NG::DialogMaskPattern>();
-    CHECK_NULL_VOID(maskPattern);
-    maskPattern->ShowMask();
-    dialogPattern->SetUECMaskNode(maskNode);
-
-    // raise dialog window to top
-    auto dialogPipeline = dialog->GetContextRefPtr();
-    CHECK_NULL_VOID(dialogPipeline);
-    auto dialogWindow = aceContainer->GetUIWindow(dialogPipeline->GetInstanceId());
-    CHECK_NULL_VOID(dialogWindow);
-    if (dialogWindow->RaiseToAppTop() != OHOS::Rosen::WMError::WM_OK) {
-        TAG_LOGW(AceLogTag::ACE_SUB_WINDOW, "failed to raise window to top, windowId: %{public}d",
-            dialogWindow->GetWindowId());
-    }
-}
-
-void SubwindowOhos::CloseDialogMaskNG(const RefPtr<NG::FrameNode>& dialog)
-{
-    TAG_LOGI(AceLogTag::ACE_SUB_WINDOW, "subwindow close dialog mask ng");
-    CHECK_NULL_VOID(dialog);
-    auto dialogPattern = dialog->GetPattern<NG::DialogPattern>();
-    CHECK_NULL_VOID(dialogPattern);
-    auto maskNode = dialogPattern->GetUECMaskNode();
-    CHECK_NULL_VOID(maskNode);
-    auto maskPattern = maskNode->GetPattern<NG::DialogMaskPattern>();
-    CHECK_NULL_VOID(maskPattern);
-    maskPattern->CloseMask();
 }
 
 void SubwindowOhos::SwitchFollowParentWindowLayout(bool freeMultiWindowEnable)

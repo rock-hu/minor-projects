@@ -332,6 +332,11 @@ public:
         swiperParameters_ = std::make_shared<SwiperParameters>(swiperParameters);
     }
 
+    void SetSwiperArrowParameters(const SwiperArrowParameters& swiperArrowParameters)
+    {
+        swiperArrowParameters_ = std::make_shared<SwiperArrowParameters>(swiperArrowParameters);
+    }
+
     void SetSwiperDigitalParameters(const SwiperDigitalParameters& swiperDigitalParameters)
     {
         swiperDigitalParameters_ = std::make_shared<SwiperDigitalParameters>(swiperDigitalParameters);
@@ -827,6 +832,12 @@ public:
 
     void OnColorModeChange(uint32_t colorMode) override;
     void ResetOnForceMeasure();
+
+    std::optional<int32_t> GetTargetIndex() const
+    {
+        return targetIndex_;
+    }
+
 protected:
     void MarkDirtyNodeSelf();
     void OnPropertyTranslateAnimationFinish(const OffsetF& offset);
@@ -838,8 +849,6 @@ protected:
     void FireAnimationStartEvent(int32_t currentIndex, int32_t nextIndex, const AnimationCallbackInfo& info) const;
     void SetLazyLoadFeature(bool useLazyLoad);
     void UpdateItemRenderGroup(bool itemRenderGroup);
-
-    void SuggestOpIncGroup() const;
 
     float GetCustomPropertyOffset() const;
     float GetCustomPropertyTargetOffset() const;
@@ -1275,6 +1284,7 @@ private:
     void UpdateBottomTypeOnMultiple(int32_t currentFirstIndex);
     void UpdateBottomTypeOnMultipleRTL(int32_t currentFirstIndex);
     void CheckTargetPositon(float& correctOffset);
+    void UpdateDefaultColor();
     friend class SwiperHelper;
 
     RefPtr<PanEvent> panEvent_;
@@ -1358,6 +1368,7 @@ private:
     AnimationEndEventPtr animationEndEvent_;
 
     mutable std::shared_ptr<SwiperParameters> swiperParameters_;
+    mutable std::shared_ptr<SwiperArrowParameters> swiperArrowParameters_;
     mutable std::shared_ptr<SwiperDigitalParameters> swiperDigitalParameters_;
 
     WeakPtr<FrameNode> lastWeakShowNode_;

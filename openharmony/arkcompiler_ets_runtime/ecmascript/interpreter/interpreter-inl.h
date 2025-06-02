@@ -31,7 +31,6 @@
 #include "ecmascript/js_async_generator_object.h"
 #include "ecmascript/js_generator_object.h"
 #include "ecmascript/js_tagged_value.h"
-#include "ecmascript/jit/jit_task.h"
 #include "ecmascript/mem/concurrent_marker.h"
 #include "ecmascript/module/js_module_manager.h"
 #include "ecmascript/module/js_module_source_text.h"
@@ -263,8 +262,8 @@ using CommonStubCSigns = kungfu::CommonStubCSigns;
             {                                                                   \
                 [[maybe_unused]] EcmaHandleScope handleScope(thread);           \
                 JSHandle<JSTaggedValue>func(thread, funcValue);                 \
-                std::string message = EcmaStringAccessor(                       \
-                    JSTaggedValue::ToString(thread, func)).ToStdString();       \
+                std::string message = JSTaggedValue::ExceptionToString(         \
+                    thread, func);                                              \
                 message.append(" is not callable");                             \
                 JSHandle<JSObject> error = factory->GetJSError(                 \
                     ErrorType::TYPE_ERROR, message.c_str(), StackCheck::NO);    \
@@ -289,8 +288,8 @@ using CommonStubCSigns = kungfu::CommonStubCSigns;
             {                                                                   \
                 [[maybe_unused]] EcmaHandleScope handleScope(thread);           \
                 JSHandle<JSTaggedValue>func(thread, funcValue);                 \
-                std::string message = EcmaStringAccessor(                       \
-                    JSTaggedValue::ToString(thread, func)).ToStdString();       \
+                std::string message = JSTaggedValue::ExceptionToString(         \
+                    thread, func);                                              \
                 message.append(" is not callable");                             \
                 JSHandle<JSObject> error = factory->GetJSError(                 \
                     ErrorType::TYPE_ERROR, message.c_str(), StackCheck::NO);    \

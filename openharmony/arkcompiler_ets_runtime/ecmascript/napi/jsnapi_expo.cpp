@@ -30,6 +30,7 @@
 #include "ecmascript/jspandafile/js_pandafile_executor.h"
 #include "ecmascript/js_hclass.h"
 #include "ecmascript/linked_hash_table.h"
+#include "ecmascript/mem/idle_gc_trigger.h"
 #include "ecmascript/module/module_logger.h"
 #include "ecmascript/module/napi_module_loader.h"
 #if defined(ENABLE_EXCEPTION_BACKTRACE)
@@ -4606,8 +4607,6 @@ EcmaVM *JSNApi::CreateJSVM(const RuntimeOption &option)
     runtimeOptions.SetGcThreadNum(option.GetGcThreadNum());
     runtimeOptions.SetIsWorker(option.GetIsWorker());
     runtimeOptions.SetIsRestrictedWorker(option.GetIsRestrictedWorker());
-    // Mem
-    runtimeOptions.SetHeapSizeLimit(option.GetGcPoolSize());
 // Disable the asm-interpreter of ark-engine for ios-platform temporarily.
 #if !defined(PANDA_TARGET_IOS)
     // asmInterpreter
@@ -5652,6 +5651,18 @@ Local<ObjectRef> JSNApi::GetGlobalObject(const EcmaVM *vm)
     return JSNApiHelper::ToLocal<ObjectRef>(global);
 }
 
+Local<ObjectRef> JSNApi::GetGlobalObject(const EcmaVM *vm, const Local<JSValueRef> &context)
+{
+    JSThread* thread = vm->GetJSThread();
+    ecmascript::ThreadManagedScope scope(thread);
+    if (!context->IsJsGlobalEnv(vm)) {
+        return JSValueRef::Undefined(vm);
+    }
+    JSHandle<GlobalEnv> globalEnv = JSHandle<GlobalEnv>(JSNApiHelper::ToJSHandle(context));
+    JSHandle<JSTaggedValue> global(thread, globalEnv->GetGlobalObject());
+    return JSNApiHelper::ToLocal<ObjectRef>(global);
+}
+
 void JSNApi::ExecutePendingJob(const EcmaVM *vm)
 {
     CROSS_THREAD_AND_EXCEPTION_CHECK(vm);
@@ -5742,7 +5753,7 @@ void JSNApi::SwitchContext(const EcmaVM *vm, const Local<JSValueRef> &context)
     ecmascript::ThreadManagedScope managedScope(thread);
     JSHandle<JSTaggedValue> contextValue = JSNApiHelper::ToJSHandle(context);
     JSHandle<GlobalEnv> globalEnv = JSHandle<GlobalEnv>(contextValue);
-    thread->SetCurrentEnv(globalEnv.GetTaggedValue());
+    thread->SetGlueGlobalEnv(globalEnv.GetTaggedValue());
 }
 
 uintptr_t JSNApi::SetWeak(const EcmaVM *vm, uintptr_t localAddress)

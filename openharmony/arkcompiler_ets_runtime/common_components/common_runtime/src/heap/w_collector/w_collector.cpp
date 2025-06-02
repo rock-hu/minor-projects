@@ -37,7 +37,6 @@ bool WCollector::MarkObject(BaseObject* obj, size_t cellCount) const
 {
     bool marked = RegionSpace::MarkObject(obj);
     if (!marked) {
-        reinterpret_cast<RegionSpace&>(theAllocator_).CountLiveObject(obj);
         RegionDesc* region = RegionDesc::GetRegionDescAt(reinterpret_cast<HeapAddress>(obj));
         (void)region;
 
@@ -47,7 +46,7 @@ bool WCollector::MarkObject(BaseObject* obj, size_t cellCount) const
         }
         size_t size = cellCount == 0 ? obj->GetSize() : (cellCount + 1) * sizeof(uint64_t);
         region->AddLiveByteCount(size);
-        DLOG(TRACE, "mark obj %p<%p>(%zu) in region %p(%u)@%#zx, live %u", obj, obj->GetTypeInfo(), size,
+        DLOG(TRACE, "mark obj %p<%p>(%zu) in region %p(%u)@%#zx, live %u", obj, obj->GetTypeInfo(), obj->GetSize(),
              region, region->GetRegionType(), region->GetRegionStart(), region->GetLiveByteCount());
     }
     return marked;
@@ -57,7 +56,6 @@ bool WCollector::ResurrectObject(BaseObject* obj)
 {
     bool resurrected = RegionSpace::ResurrentObject(obj);
     if (!resurrected) {
-        reinterpret_cast<RegionSpace&>(theAllocator_).CountLiveObject(obj);
         RegionDesc* region = RegionDesc::GetRegionDescAt(reinterpret_cast<HeapAddress>(obj));
         (void)region;
         DLOG(TRACE, "resurrect region %p@%#zx obj %p<%p>(%zu), live bytes %u", region, region->GetRegionStart(), obj,
@@ -221,24 +219,21 @@ void WCollector::EnumAndTagRawRoot(ObjectRef& ref, RootSet& rootSet) const
 // note each ref-field will not be traced twice, so each old pointer the tracer meets must come from previous gc.
 void WCollector::TraceRefField(BaseObject* obj, RefField<>& field, WorkStack& workStack, WeakStack& weakStack) const
 {
-    if (!Heap::IsTaggedObject(field.GetFieldValue())) {
-        return;
-    }
     BaseObject* targetObj = field.GetTargetObject();
+    auto region = RegionDesc::GetRegionDescAt(reinterpret_cast<MAddress>((void*)targetObj));
     // field is tagged object, should be in heap
     DCHECK_CC(Heap::IsHeapAddress(targetObj));
 
-    DLOG(TRACE, "trace obj %p ref@%p: %p<%p>(%zu)", obj, &field, targetObj, targetObj->GetTypeInfo(),
-         targetObj->GetSize());
-    if (IsMarkedObject(targetObj)) {
-        return;
-    }
-    if (RegionSpace::IsNewObjectSinceTrace(targetObj)) {
+    DLOG(TRACE, "trace obj %p ref@%p: %p<%p>(%zu)", obj, &field, targetObj, targetObj->GetTypeInfo(), targetObj->GetSize());
+    if (region->IsNewObjectSinceTrace(targetObj)) {
         DLOG(TRACE, "trace: skip new obj %p<%p>(%zu)", targetObj, targetObj->GetTypeInfo(), targetObj->GetSize());
         return;
     }
     if (field.IsWeak()) {
         weakStack.push_back(&field);
+        return;
+    }
+    if (region->MarkObject(targetObj)) {
         return;
     }
     workStack.push_back(targetObj);
@@ -257,10 +252,6 @@ void WCollector::FixRefField(BaseObject* obj, RefField<>& field) const
 {
     RefField<> oldField(field);
     BaseObject* targetObj = oldField.GetTargetObject();
-
-    if (!Heap::IsTaggedObject(field.GetFieldValue())) {
-        return;
-    }
 
     // target object could be null or non-heap for some static variable.
     if (!Heap::IsHeapAddress(targetObj)) {
@@ -344,6 +335,10 @@ void WCollector::PreforwardStaticRoots()
 
     VisitRoots(visitor, false);
     VisitWeakRoots(weakVisitor);
+    MutatorManager::Instance().VisitAllMutators([](Mutator& mutator) {
+        // Request finalize callback in each vm-thread when gc finished.
+        mutator.SetCallbackRequest();
+    });
 
     AllocationBuffer* allocBuffer = AllocationBuffer::GetAllocBuffer();
     if (LIKELY_CC(allocBuffer != nullptr)) {
@@ -405,22 +400,26 @@ void WCollector::Preforward()
     ARK_COMMON_PHASE_TIMER("Preforward");
     TransitionToGCPhase(GCPhase::GC_PHASE_PRECOPY, true);
 
-    GCThreadPool* threadPool = GetThreadPool();
+    [[maybe_unused]] Taskpool *threadPool = GetThreadPool();
     ASSERT_LOGF(threadPool != nullptr, "thread pool is null");
 
     // copy and fix finalizer roots.
-    threadPool->AddWork(new (std::nothrow) LambdaWork([this](size_t) { PreforwardStaticRoots(); }));
+    // Only one root task, no need to post task.
+    PreforwardStaticRoots();
+}
 
-    threadPool->Start();
-    threadPool->WaitFinish();
+void WCollector::PrepareFix()
+{
+    // make sure all objects before fixline is initialized
+    ARK_COMMON_PHASE_TIMER("PrepareFix");
+    reinterpret_cast<RegionSpace&>(theAllocator_).PrepareFix();
+    reinterpret_cast<RegionSpace&>(theAllocator_).PrepareFixForPin();
+    TransitionToGCPhase(GCPhase::GC_PHASE_FIX, true);
 }
 
 void WCollector::FixHeap()
 {
-    WVerify::VerifyAfterForward(*this);
-
     ARK_COMMON_PHASE_TIMER("FixHeap");
-    TransitionToGCPhase(GCPhase::GC_PHASE_FIX, true);
     reinterpret_cast<RegionSpace&>(theAllocator_).FixHeap();
 
     WVerify::VerifyAfterFix(*this);
@@ -441,6 +440,9 @@ void WCollector::DoGarbageCollection()
         CollectLargeGarbage();
 
         CopyFromSpace();
+        WVerify::VerifyAfterForward(*this);
+
+        PrepareFix();
         FixHeap();
         CollectPinnedGarbage();
 
@@ -466,7 +468,9 @@ void WCollector::DoGarbageCollection()
         CollectLargeGarbage();
 
         CopyFromSpace();
-        reinterpret_cast<RegionSpace&>(theAllocator_).PrepareFixForPin();
+        WVerify::VerifyAfterForward(*this);
+
+        PrepareFix();
         FixHeap();
         CollectPinnedGarbage();
 
@@ -494,7 +498,12 @@ void WCollector::DoGarbageCollection()
     CollectLargeGarbage();
 
     CopyFromSpace();
-    reinterpret_cast<RegionSpace&>(theAllocator_).PrepareFixForPin();
+    WVerify::VerifyAfterForward(*this);
+
+    {
+        ScopedStopTheWorld stw("wgc-preparefix");
+        PrepareFix();
+    }
     FixHeap();
     CollectPinnedGarbage();
 
@@ -539,6 +548,10 @@ void WCollector::ProcessWeakReferences()
         return true;
     };
     VisitWeakRoots(weakVisitor);
+    MutatorManager::Instance().VisitAllMutators([](Mutator& mutator) {
+        // Request finalize callback in each vm-thread when gc finished.
+        mutator.SetCallbackRequest();
+    });
 #endif
 }
 

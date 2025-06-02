@@ -383,8 +383,10 @@ public:
     void OnCustomBackgroundColorUpdate(const Color& color) override;
     void CreateBackgroundPixelMap(const RefPtr<FrameNode>& customNode) override;
     void OnIsTransitionBackgroundUpdate(bool isTransitionBackground) override {}
-    void OnIsBuilderBackgroundUpdate(bool isBuilderBackground) override;
+    void OnBuilderBackgroundFlagUpdate(bool isBuilderBackground) override;
+    void UpdateCustomBackground() override;
 
+    void ColorToRSColor(const Color& color, OHOS::Rosen::RSColor& rsColor);
     void OnBackgroundColorUpdate(const Color& value) override;
     void OnOpacityUpdate(double opacity) override;
     void OnDynamicRangeModeUpdate(DynamicRangeMode dynamicRangeMode) override;
@@ -546,6 +548,7 @@ protected:
     void OnTransformScaleUpdate(const VectorF& value) override;
     void OnTransformCenterUpdate(const DimensionOffset& value) override;
     void OnTransformRotateUpdate(const Vector5F& value) override;
+    void OnTransformRotateAngleUpdate(const Vector4F& value) override;
 
     void OnOffsetUpdate(const OffsetT<Dimension>& value) override;
     void OnOffsetEdgesUpdate(const EdgesParam& value) override;
@@ -850,6 +853,9 @@ protected:
     friend class RosenPivotTransitionEffect;
 
     ACE_DISALLOW_COPY_AND_MOVE(RosenRenderContext);
+
+private:
+    void ModifyCustomBackground();
 };
 } // namespace OHOS::Ace::NG
 

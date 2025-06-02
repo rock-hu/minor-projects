@@ -108,9 +108,11 @@ public:
 
     virtual bool IsReverse() const
     {
-        if (GetAxis() != Axis::HORIZONTAL) {
-            return false;
-        }
+        return GetAxis() == Axis::HORIZONTAL && IsRTL();
+    };
+
+    bool IsRTL() const
+    {
         auto host = GetHost();
         CHECK_NULL_RETURN(host, false);
         auto layoutProperty = host->GetLayoutProperty<LayoutProperty>();
@@ -860,6 +862,7 @@ protected:
     void FireObserverOnScrollStart();
     void FireObserverOnScrollStop();
     void FireObserverOnDidScroll(float finalOffset);
+    void FireObserverOnScrollerAreaChange(float finalOffset);
 
     virtual void OnScrollStop(const OnScrollStopEvent& onScrollStop, const OnScrollStopEvent& onJSFrameNodeScrollStop);
     void FireOnScrollStop(const OnScrollStopEvent& onScrollStop, const OnScrollStopEvent& onJSFrameNodeScrollStop);

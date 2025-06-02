@@ -2360,6 +2360,7 @@ HWTEST_F(NativeNodeTest, NativeNodeTest020, TestSize.Level1)
     item.string = "#ff182431;14;normal;Arial;normal";
     nodeAPI->setAttribute(rootNode, NODE_DATE_PICKER_DISAPPEAR_TEXT_STYLE, &item);
     nodeAPI->setAttribute(rootNode, NODE_DATE_PICKER_TEXT_STYLE, &item);
+    nodeAPI->setAttribute(rootNode, NODE_DATE_PICKER_CAN_LOOP, &item);
     EXPECT_EQ(nodeAPI->setAttribute(rootNode, NODE_DATE_PICKER_SELECTED_TEXT_STYLE, &item),
         ARKUI_ERROR_CODE_NO_ERROR);
     item.string = "#ff182431;14;normal;Arial;test";
@@ -2372,6 +2373,7 @@ HWTEST_F(NativeNodeTest, NativeNodeTest020, TestSize.Level1)
     EXPECT_EQ(nodeAPI->resetAttribute(rootNode, NODE_DATE_PICKER_DISAPPEAR_TEXT_STYLE), ARKUI_ERROR_CODE_NO_ERROR);
     EXPECT_EQ(nodeAPI->resetAttribute(rootNode, NODE_DATE_PICKER_TEXT_STYLE), ARKUI_ERROR_CODE_NO_ERROR);
     EXPECT_EQ(nodeAPI->resetAttribute(rootNode, NODE_DATE_PICKER_SELECTED_TEXT_STYLE), ARKUI_ERROR_CODE_NO_ERROR);
+    EXPECT_EQ(nodeAPI->resetAttribute(rootNode, NODE_DATE_PICKER_CAN_LOOP), ARKUI_ERROR_CODE_NO_ERROR);
 
     EXPECT_NE(nodeAPI->getAttribute(rootNode, NODE_DATE_PICKER_LUNAR), nullptr);
     EXPECT_NE(nodeAPI->getAttribute(rootNode, NODE_DATE_PICKER_START), nullptr);
@@ -2380,6 +2382,7 @@ HWTEST_F(NativeNodeTest, NativeNodeTest020, TestSize.Level1)
     EXPECT_NE(nodeAPI->getAttribute(rootNode, NODE_DATE_PICKER_DISAPPEAR_TEXT_STYLE), nullptr);
     EXPECT_NE(nodeAPI->getAttribute(rootNode, NODE_DATE_PICKER_TEXT_STYLE), nullptr);
     EXPECT_NE(nodeAPI->getAttribute(rootNode, NODE_DATE_PICKER_SELECTED_TEXT_STYLE), nullptr);
+    EXPECT_NE(nodeAPI->getAttribute(rootNode, NODE_DATE_PICKER_CAN_LOOP), nullptr);
     nodeAPI->disposeNode(rootNode);
 }
 
@@ -4852,6 +4855,10 @@ HWTEST_F(NativeNodeTest, NativeNodeTest064, TestSize.Level1)
         ARKUI_ERROR_CODE_PARAM_INVALID);
     ArkUI_NumberValue layoutModeV[] = {{.i32 = ArkUI_WaterFlowLayoutMode::ARKUI_WATER_FLOW_LAYOUT_MODE_SLIDING_WINDOW}};
     ArkUI_AttributeItem layoutModeAttr = {layoutModeV, 1, nullptr, nullptr};
+        
+    auto frameNode = reinterpret_cast<NG::FrameNode*>(rootNode->uiNodeHandle);
+    auto context = NG::MockPipelineContext::GetCurrent();
+    frameNode->AttachContext(AceType::RawPtr(context));
     EXPECT_EQ(nodeAPI->setAttribute(rootNode, NODE_WATER_FLOW_LAYOUT_MODE, &layoutModeAttr),
         ARKUI_ERROR_CODE_NO_ERROR);
     EXPECT_EQ(nodeAPI->getAttribute(rootNode, NODE_WATER_FLOW_LAYOUT_MODE)->value->i32,

@@ -15,6 +15,7 @@
 
 #include "ecmascript/ecma_vm.h"
 
+#include "common_components/taskpool/taskpool.h"
 #include "ecmascript/builtins/builtins_ark_tools.h"
 #include "ecmascript/checkpoint/thread_state_transition.h"
 #include "ecmascript/compiler/aot_constantpool_patcher.h"
@@ -58,6 +59,7 @@
 #include "ecmascript/snapshot/mem/snapshot.h"
 #include "ecmascript/stubs/runtime_stubs.h"
 #include "ecmascript/sustaining_js_handle.h"
+#include "ecmascript/symbol_table.h"
 
 #if defined(PANDA_TARGET_OHOS) && !defined(STANDALONE_MODE)
 #include "parameters.h"
@@ -67,6 +69,7 @@ namespace panda::ecmascript {
 using RandomGenerator = base::RandomGenerator;
 using PGOProfilerManager = pgo::PGOProfilerManager;
 using JitTools = ohos::JitTools;
+
 AOTFileManager *JsStackInfo::loader = nullptr;
 bool EcmaVM::multiThreadCheck_ = false;
 bool EcmaVM::errorInfoEnhanced_ = false;
@@ -237,6 +240,9 @@ void EcmaVM::InitializePGOProfiler()
                   << ", profiler: " << pgoProfiler_;
     bool isEnablePGOProfiler = IsEnablePGOProfiler();
     if (pgoProfiler_ == nullptr) {
+#ifdef USE_CMC_GC
+        ThreadNativeScope scope(thread_);
+#endif
         pgoProfiler_ = PGOProfilerManager::GetInstance()->BuildProfiler(this, isEnablePGOProfiler);
     }
     pgo::PGOTrace::GetInstance()->SetEnable(options_.GetPGOTrace() || ohos::AotTools::GetPgoTraceEnable());
@@ -333,7 +339,7 @@ bool EcmaVM::Initialize()
     bool builtinsLazyEnabled = GetJSOptions().IsWorker() && GetJSOptions().GetEnableBuiltinsLazy();
     thread_->SetEnableLazyBuiltins(builtinsLazyEnabled);
     JSHandle<GlobalEnv> globalEnv = factory_->NewGlobalEnv(builtinsLazyEnabled);
-    thread_->SetCurrentEnv(globalEnv.GetTaggedValue());
+    thread_->SetGlueGlobalEnv(globalEnv.GetTaggedValue());
     ptManager_ = new kungfu::PGOTypeManager(this);
     optCodeProfiler_ = new OptCodeProfiler();
     if (options_.GetTypedOpProfiler()) {
@@ -359,6 +365,7 @@ bool EcmaVM::Initialize()
 
     callTimer_ = new FunctionCallTimer();
     strategy_ = new ThroughputJSObjectResizingStrategy();
+    SetRegisterSymbols(SymbolTable::Create(thread_).GetTaggedValue());
     microJobQueue_ = factory_->NewMicroJobQueue().GetTaggedValue();
     if (IsEnableFastJit() || IsEnableBaselineJit()) {
         Jit::GetInstance()->ConfigJit(this);
@@ -646,7 +653,9 @@ void EcmaVM::CheckThread() const
         LOG_FULL(FATAL) << "Fatal: ecma_vm has been destructed! vm address is: " << this;
         UNREACHABLE();
     }
-    if (!Taskpool::GetCurrentTaskpool()->IsDaemonThreadOrInThreadPool(std::this_thread::get_id()) &&
+    DaemonThread *dThread = DaemonThread::GetInstance();
+    if (!Taskpool::GetCurrentTaskpool()->IsInThreadPool(std::this_thread::get_id()) &&
+        !(dThread != nullptr && dThread->GetThreadId() == JSThread::GetCurrentThreadId()) &&
         thread_->CheckMultiThread()) {
             LOG_FULL(FATAL) << "Fatal: ecma_vm cannot run in multi-thread!"
                                 << " thread:" << thread_->GetThreadId()
@@ -866,7 +875,10 @@ void EcmaVM::Iterate(RootVisitor &v, VMRootVisitType type)
         aotFileManager_->Iterate(v);
     }
     if (!microJobQueue_.IsHole()) {
-        v.VisitRoot(Root::ROOT_VM, ObjectSlot(reinterpret_cast<uintptr_t>(&microJobQueue_)));
+        v.VisitRoot(Root::ROOT_VM, ObjectSlot(ToUintPtr(&microJobQueue_)));
+    }
+    if (!registerSymbols_.IsHole()) {
+        v.VisitRoot(Root::ROOT_VM, ObjectSlot(ToUintPtr(&registerSymbols_)));
     }
     if (!options_.EnableGlobalLeakCheck() && currentHandleStorageIndex_ != -1) {
         // IterateHandle when disableGlobalLeakCheck.
@@ -1693,11 +1705,7 @@ void EcmaVM::ResizeUnsharedConstpoolArray(int32_t oldCapacity, int32_t minCapaci
     std::fill(newUnsharedConstpools, newUnsharedConstpools + newCapacity, JSTaggedValue::Hole());
     int32_t copyLen = GetUnsharedConstpoolsArrayLen();
 #ifdef USE_READ_BARRIER
-    if (true) { // IsConcurrentCopying
-        Barriers::CopyObject<true, true>(thread_, nullptr, newUnsharedConstpools, unsharedConstpools_, copyLen);
-    } else {
-        std::copy(unsharedConstpools_, unsharedConstpools_ + copyLen, newUnsharedConstpools);
-    }
+    Barriers::CopyObject<true, true>(thread_, nullptr, newUnsharedConstpools, unsharedConstpools_, copyLen);
 #else
     std::copy(unsharedConstpools_, unsharedConstpools_ + copyLen, newUnsharedConstpools);
 #endif

@@ -259,7 +259,7 @@ JSTaggedValue InterpreterAssembly::Execute(EcmaRuntimeCallInfo *info)
         MethodEntry(thread, method, env);
     }
 #ifdef USE_READ_BARRIER
-    if (true) { // IsConcurrentCopying
+    if (thread->IsCMCGCConcurrentCopying()) {
         base::GCHelper::CopyCallTarget(callTarget); // callTarget should be ToSpace Reference
         method = callTarget->GetCallTarget();
     }
@@ -298,7 +298,7 @@ void InterpreterAssembly::MethodEntry(JSThread *thread, Method *method, JSTagged
 
 int64_t InterpreterAssembly::GetCallSize(EcmaOpcode opcode)
 {
-    int64_t callSize = BytecodeInstruction::Size(opcode);
+    int64_t callSize = static_cast<int64_t>(BytecodeInstruction::Size(opcode));
     switch (opcode) {
         case EcmaOpcode::SUPERCALLSPREAD_IMM8_V8:
         case EcmaOpcode::SUPERCALLTHISRANGE_IMM8_IMM8_V8:
@@ -323,7 +323,7 @@ JSTaggedValue InterpreterAssembly::GeneratorReEnterInterpreter(JSThread *thread,
         MethodEntry(thread, method, env);
     }
 #ifdef USE_READ_BARRIER
-    if (true) { // IsConcurrentCopying
+    if (thread->IsCMCGCConcurrentCopying()) {
         // func should be ToSpace Reference
         base::GCHelper::CopyCallTarget(func.GetTaggedObject());
         // context should be ToSpace Reference

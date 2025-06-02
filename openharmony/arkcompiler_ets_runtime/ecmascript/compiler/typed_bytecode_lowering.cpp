@@ -1866,10 +1866,7 @@ bool TryLowerNewNumber(CircuitBuilder *builder, GateAccessor acc, GateRef gate)
 
 void TypedBytecodeLowering::LowerTypedNewObjRange(GateRef gate)
 {
-    if (TryLowerNewBuiltinConstructor(gate)) {
-        return;
-    }
-    if (TryLowerNewNumber(&builder_, acc_, gate)) {
+    if (TryLowerNewBuiltinConstructor(gate) || TryLowerNewNumber(&builder_, acc_, gate)) {
         return;
     }
     NewObjRangeTypeInfoAccessor tacc(compilationEnv_, circuit_, gate, chunk_);
@@ -1890,8 +1887,16 @@ void TypedBytecodeLowering::LowerTypedNewObjRange(GateRef gate)
     GateRef frameState = acc_.FindNearestFrameState(stateSplit);
     GateRef ihclass = builder_.GetHClassGateFromIndex(frameState, hclassIndex);
     GateRef size = builder_.IntPtr(hclass->GetObjectSize());
-    // call target check
-    builder_.JSCallTargetTypeCheck<TypedCallTargetCheckOp::JS_NEWOBJRANGE>(ctor, builder_.IntPtr(INVALID_INDEX), gate);
+
+    auto heapConstantIndex = tacc.TryGetHeapConstantConstructorIndex(methodId);
+    if (heapConstantIndex != JitCompilationEnv::INVALID_HEAP_CONSTANT_INDEX) {
+        GateRef res = builder_.HeapConstant(heapConstantIndex);
+        builder_.DeoptCheck(builder_.Equal(ctor, res), frameState, DeoptType::NOTCALLTARGETHEAPOBJECT);
+    } else {
+        // call target check
+        builder_.JSCallTargetTypeCheck<TypedCallTargetCheckOp::JS_NEWOBJRANGE>(ctor,
+            builder_.IntPtr(INVALID_INDEX), gate);
+    }
     // check IHC
     GateRef protoOrHclass = builder_.LoadConstOffset(VariableType::JS_ANY(), ctor,
         JSFunction::PROTO_OR_DYNCLASS_OFFSET);
@@ -1911,8 +1916,7 @@ void TypedBytecodeLowering::LowerTypedNewObjRange(GateRef gate)
     }
     bool needPushArgv = (expectedArgc != actualArgc);
     GateRef result = builder_.CallNew(gate, args, needPushArgv);
-    ReplaceGateWithPendingException(acc_.GetGlueFromArgList(), gate, builder_.GetState(),
-        builder_.GetDepend(), result);
+    ReplaceGateWithPendingException(glue_, gate, builder_.GetState(), builder_.GetDepend(), result);
 }
 
 bool TypedBytecodeLowering::TryLowerNewBuiltinConstructor(GateRef gate)
@@ -1949,7 +1953,7 @@ bool TypedBytecodeLowering::TryLowerNewBuiltinConstructor(GateRef gate)
     if (constructGate == Circuit::NullGate()) {
         return false;
     }
-    ReplaceGateWithPendingException(acc_.GetGlueFromArgList(), gate, builder_.GetState(),
+    ReplaceGateWithPendingException(glue_, gate, builder_.GetState(),
         builder_.GetDepend(), constructGate);
     return true;
 }
@@ -1987,7 +1991,7 @@ void TypedBytecodeLowering::LowerTypedSuperCall(GateRef gate)
     }
 
     GateRef constructGate = builder_.Construct(gate, args);
-    ReplaceGateWithPendingException(acc_.GetGlueFromArgList(), gate, builder_.GetState(),
+    ReplaceGateWithPendingException(glue_, gate, builder_.GetState(),
         builder_.GetDepend(), constructGate);
 }
 
@@ -2001,7 +2005,7 @@ void TypedBytecodeLowering::SpeculateCallBuiltin(GateRef gate, GateRef func, con
     GateRef result = builder_.TypedCallBuiltin(gate, args, id, IS_SIDE_EFFECT_BUILTINS_ID(id));
 
     if (isThrow) {
-        ReplaceGateWithPendingException(acc_.GetGlueFromArgList(), gate, builder_.GetState(),
+        ReplaceGateWithPendingException(glue_, gate, builder_.GetState(),
             builder_.GetDepend(), result);
     } else {
         acc_.ReplaceHirAndDeleteIfException(gate, builder_.GetStateDepend(), result);
@@ -2014,7 +2018,7 @@ void TypedBytecodeLowering::SpeculateCallBuiltinFromGlobal(GateRef gate, const s
     GateRef result = builder_.TypedCallBuiltin(gate, args, id, isSideEffect);
 
     if (isThrow) {
-        ReplaceGateWithPendingException(acc_.GetGlueFromArgList(), gate, builder_.GetState(),
+        ReplaceGateWithPendingException(glue_, gate, builder_.GetState(),
             builder_.GetDepend(), result);
     } else {
         acc_.ReplaceHirAndDeleteIfException(gate, builder_.GetStateDepend(), result);
@@ -2027,7 +2031,7 @@ void TypedBytecodeLowering::LowerFastCall(GateRef gate, GateRef func,
     builder_.StartCallTimer(glue_, gate, {glue_, func, builder_.True()}, true);
     GateRef result = builder_.TypedFastCall(gate, argsFastCall, isNoGC);
     builder_.EndCallTimer(glue_, gate, {glue_, func}, true);
-    ReplaceGateWithPendingException(acc_.GetGlueFromArgList(), gate, builder_.GetState(),
+    ReplaceGateWithPendingException(glue_, gate, builder_.GetState(),
         builder_.GetDepend(), result);
 }
 
@@ -2037,7 +2041,7 @@ void TypedBytecodeLowering::LowerCall(GateRef gate, GateRef func,
     builder_.StartCallTimer(glue_, gate, {glue_, func, builder_.True()}, true);
     GateRef result = builder_.TypedCall(gate, args, isNoGC);
     builder_.EndCallTimer(glue_, gate, {glue_, func}, true);
-    ReplaceGateWithPendingException(acc_.GetGlueFromArgList(), gate, builder_.GetState(),
+    ReplaceGateWithPendingException(glue_, gate, builder_.GetState(),
         builder_.GetDepend(), result);
 }
 
@@ -2167,6 +2171,7 @@ void TypedBytecodeLowering::ConvertCallTargetCheckToHeapConstantCheckAndLowerCal
     JSHandle<JSTaggedValue> heapObject = jitCompilationEnv->GetHeapConstantHandle(heapConstantIndex);
     JSHandle<JSFunction> jsFunc = JSHandle<JSFunction>::Cast(heapObject);
     Method *calleeMethod = Method::Cast(jsFunc->GetMethod());
+    ASSERT(calleeMethod->GetMethodLiteral() != nullptr);
     if (calleeMethod->GetMethodLiteral()->IsFastCall()) {
         LowerFastCall(gate, func, argsFastCall, isNoGC);
     } else {

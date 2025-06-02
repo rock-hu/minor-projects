@@ -30,25 +30,6 @@ size_t MallocUsableSize(void *p)
     return malloc_size(p);
 }
 
-uint32_t NumberOfCpuCore()
-{
-    return static_cast<uint32_t>(sysconf(_SC_NPROCESSORS_ONLN));
-}
-
-size_t PhysicalSize()
-{
-    static constexpr int MIB_LENGTH = 2;
-    int mib[2];
-    mib[0] = CTL_HW;
-    mib[1] = HW_MEMSIZE;
-    int64_t size = 0;
-    size_t bufferLength = sizeof(size);
-    if (sysctl(mib, MIB_LENGTH, &size, &bufferLength, nullptr, 0) != 0) {
-        LOG_ECMA(FATAL) << "sysctl error";
-    }
-    return static_cast<size_t>(size);
-}
-
 int PrctlSetVMA([[maybe_unused]] const void *p, [[maybe_unused]] const size_t size, [[maybe_unused]] const char *tag)
 {
     return -1;
@@ -97,5 +78,11 @@ void SetSecurityLabel(const std::string& path)
 void InitializeMallocConfig()
 {
     LOG_ECMA(INFO) << "Initialize Malloc Config in mac not support";
+}
+
+bool CheckDiskSpace(const std::string& path, size_t requiredBytes)
+{
+    LOG_ECMA(INFO) << "Check Disk Space not support in Mac";
+    return true;
 }
 }  // namespace panda::ecmascript

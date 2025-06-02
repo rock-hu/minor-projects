@@ -15,6 +15,7 @@
 
 #include "ecmascript/base/json_stringifier.h"
 
+#include "ecmascript/ecma_string.h"
 #include "ecmascript/global_dictionary-inl.h"
 #include "ecmascript/interpreter/interpreter.h"
 #include "ecmascript/js_api/js_api_hashset.h"
@@ -261,11 +262,7 @@ JSTaggedValue JsonStringifier::SerializeJSONProperty(const JSHandle<JSTaggedValu
                 if (tagValue.IsNumber()) {
                     // a. If value is finite, return ToString(value).
                     if (std::isfinite(tagValue.GetNumber())) {
-#if ENABLE_NEXT_OPTIMIZATION
-                        ConvertToCStringAndAppend(result_, tagValue);
-#else
                         result_ += ConvertToString(*base::NumberHelper::NumberToString(thread_, tagValue));
-#endif
                     } else {
                         // b. Else, return "null".
                         result_ += "null";
@@ -316,12 +313,8 @@ JSTaggedValue JsonStringifier::SerializeJSONProperty(const JSHandle<JSTaggedValu
                 JSHandle<EcmaString> strHandle = JSHandle<EcmaString>(valHandle);
                 auto string = JSHandle<EcmaString>(thread_,
                     EcmaStringAccessor::Flatten(thread_->GetEcmaVM(), strHandle));
-#if ENABLE_NEXT_OPTIMIZATION
-                ConvertQuotedAndAppendToString(result_, *string, StringConvertedUsage::LOGICOPERATION);
-#else
                 CString str = ConvertToString(*string, StringConvertedUsage::LOGICOPERATION);
                 JsonHelper::AppendValueToQuotedString(str, result_);
-#endif
                 return tagValue;
             }
             case JSType::JS_PRIMITIVE_REF: {
@@ -335,13 +328,9 @@ JSTaggedValue JsonStringifier::SerializeJSONProperty(const JSHandle<JSTaggedValu
                 if (transformType_ == TransformType::NORMAL) {
                     THROW_TYPE_ERROR_AND_RETURN(thread_, "cannot serialize a BigInt", JSTaggedValue::Exception());
                 } else {
-#if ENABLE_NEXT_OPTIMIZATION
-                    BigInt::AppendToCString(result_, BigInt::Cast(valHandle->GetTaggedObject()));
-#else
                     JSHandle<BigInt> thisBigint(thread_, valHandle.GetTaggedValue());
                     auto bigIntStr = BigInt::ToString(thread_, thisBigint);
                     result_ += ConvertToString(*bigIntStr);
-#endif
                     return tagValue;
                 }
             }
@@ -430,33 +419,6 @@ JSTaggedValue JsonStringifier::SerializeJSONProperty(const JSHandle<JSTaggedValu
     return JSTaggedValue::Undefined();
 }
 
-#if ENABLE_NEXT_OPTIMIZATION
-void JsonStringifier::SerializeObjectKey(const JSHandle<JSTaggedValue> &key, bool hasContent)
-{
-    if (hasContent) {
-        result_ += ",";
-    }
-    if (!gap_.empty()) {
-        result_.append("\n").append(indent_);
-    }
-    if (key->IsString()) {
-        ConvertQuotedAndAppendToString(result_, EcmaString::Cast(key->GetTaggedObject()),
-                                       StringConvertedUsage::LOGICOPERATION);
-    } else if (key->IsInt()) {
-        result_ += "\"";
-        NumberHelper::AppendIntToString(result_, static_cast<int32_t>(key->GetInt()));
-        result_ += "\"";
-    } else {
-        ConvertQuotedAndAppendToString(result_, *JSTaggedValue::ToString(thread_, key),
-                                       StringConvertedUsage::LOGICOPERATION);
-    }
-    
-    result_ += ":";
-    if (!gap_.empty()) {
-        result_ += " ";
-    }
-}
-#else
 void JsonStringifier::SerializeObjectKey(const JSHandle<JSTaggedValue> &key, bool hasContent)
 {
     CString stepBegin;
@@ -482,7 +444,6 @@ void JsonStringifier::SerializeObjectKey(const JSHandle<JSTaggedValue> &key, boo
     result_ += ":";
     result_ += stepEnd;
 }
-#endif
 
 bool JsonStringifier::PushValue(const JSHandle<JSTaggedValue> &value)
 {
@@ -506,14 +467,10 @@ void JsonStringifier::PopValue()
 
 bool JsonStringifier::SerializeJSONObject(const JSHandle<JSTaggedValue> &value, const JSHandle<JSTaggedValue> &replacer)
 {
-#if ENABLE_NEXT_OPTIMIZATION
-    uint32_t preIndentLength = indent_.size();
-#else
     CString stepback = indent_;
-#endif
     indent_ += gap_;
-
     result_ += "{";
+
     bool hasContent = false;
 
     ASSERT(!value->IsAccessor());
@@ -576,15 +533,6 @@ bool JsonStringifier::SerializeJSONObject(const JSHandle<JSTaggedValue> &value, 
             }
         }
     }
-#if ENABLE_NEXT_OPTIMIZATION
-    if (hasContent && gap_.length() != 0) {
-        result_ += "\n";
-        result_ += std::string_view(indent_.data(), preIndentLength);
-    }
-    result_ += "}";
-    PopValue();
-    indent_.resize(preIndentLength); // reset indent_ after recursion
-#else
     if (hasContent && gap_.length() != 0) {
         result_ += "\n";
         result_ += stepback;
@@ -592,7 +540,6 @@ bool JsonStringifier::SerializeJSONObject(const JSHandle<JSTaggedValue> &value, 
     result_ += "}";
     PopValue();
     indent_ = stepback;
-#endif
     return true;
 }
 
@@ -633,11 +580,7 @@ bool JsonStringifier::SerializeJSONSet(const JSHandle<JSTaggedValue> &value,
 bool JsonStringifier::SerializeJSONHashMap(const JSHandle<JSTaggedValue> &value,
                                            const JSHandle<JSTaggedValue> &replacer)
 {
-#if ENABLE_NEXT_OPTIMIZATION
-    uint32_t preIndentLength = indent_.size();
-#else
     CString stepback = indent_;
-#endif
     result_ += "{";
     JSHandle<JSAPIHashMap> hashMap(value);
     JSHandle<TaggedHashArray> table(thread_, hashMap->GetTable());
@@ -676,22 +619,14 @@ bool JsonStringifier::SerializeJSONHashMap(const JSHandle<JSTaggedValue> &value,
     }
     result_ += "}";
     PopValue();
-#if ENABLE_NEXT_OPTIMIZATION
-    indent_.resize(preIndentLength); // reset indent_ after recursion
-#else
     indent_ = stepback;
-#endif
     return true;
 }
 
 bool JsonStringifier::SerializeJSONHashSet(const JSHandle<JSTaggedValue> &value,
                                            const JSHandle<JSTaggedValue> &replacer)
 {
-#if ENABLE_NEXT_OPTIMIZATION
-    uint32_t preIndentLength = indent_.size();
-#else
     CString stepback = indent_;
-#endif
     result_ += "[";
     JSHandle<JSAPIHashSet> hashSet(value);
     JSHandle<TaggedHashArray> table(thread_, hashSet->GetTable());
@@ -720,22 +655,14 @@ bool JsonStringifier::SerializeJSONHashSet(const JSHandle<JSTaggedValue> &value,
     }
     result_ += "]";
     PopValue();
-#if ENABLE_NEXT_OPTIMIZATION
-    indent_.resize(preIndentLength); // reset indent_ after recursion
-#else
     indent_ = stepback;
-#endif
     return true;
 }
 
 bool JsonStringifier::SerializeLinkedHashMap(const JSHandle<LinkedHashMap> &hashMap,
                                              const JSHandle<JSTaggedValue> &replacer)
 {
-#if ENABLE_NEXT_OPTIMIZATION
-    uint32_t preIndentLength = indent_.size();
-#else
     CString stepback = indent_;
-#endif
     result_ += "{";
     int index = 0;
     int totalElements = hashMap->NumberOfElements() + hashMap->NumberOfDeletedElements();
@@ -767,22 +694,14 @@ bool JsonStringifier::SerializeLinkedHashMap(const JSHandle<LinkedHashMap> &hash
     }
     result_ += "}";
     PopValue();
-#if ENABLE_NEXT_OPTIMIZATION
-    indent_.resize(preIndentLength); // reset indent_ after recursion
-#else
     indent_ = stepback;
-#endif
     return true;
 }
 
 bool JsonStringifier::SerializeLinkedHashSet(const JSHandle<LinkedHashSet> &hashSet,
                                              const JSHandle<JSTaggedValue> &replacer)
 {
-#if ENABLE_NEXT_OPTIMIZATION
-    uint32_t preIndentLength = indent_.size();
-#else
     CString stepback = indent_;
-#endif
     result_ += "[";
     JSMutableHandle<JSTaggedValue> keyHandle(thread_, JSTaggedValue::Undefined());
     bool needRemove = false;
@@ -806,66 +725,10 @@ bool JsonStringifier::SerializeLinkedHashSet(const JSHandle<LinkedHashSet> &hash
     }
     result_ += "]";
     PopValue();
-#if ENABLE_NEXT_OPTIMIZATION
-    indent_.resize(preIndentLength); // reset indent_ after recursion
-#else
     indent_ = stepback;
-#endif
     return true;
 }
 
-#if ENABLE_NEXT_OPTIMIZATION
-bool JsonStringifier::SerializeJSProxy(const JSHandle<JSTaggedValue> &object, const JSHandle<JSTaggedValue> &replacer)
-{
-    bool isContain = PushValue(object);
-    if (isContain) {
-        THROW_TYPE_ERROR_AND_RETURN(thread_, "stack contains value, usually caused by circular structure", true);
-    }
-
-    uint32_t preIndentLength = indent_.size();
-    CString stepBegin;
-    indent_ += gap_;
-
-    if (!gap_.empty()) {
-        stepBegin += "\n";
-        stepBegin += indent_;
-    }
-    result_ += "[";
-    JSHandle<JSProxy> proxy(object);
-    JSHandle<JSTaggedValue> lengthKey = thread_->GlobalConstants()->GetHandledLengthString();
-    JSHandle<JSTaggedValue> lenghHandle = JSProxy::GetProperty(thread_, proxy, lengthKey).GetValue();
-    RETURN_VALUE_IF_ABRUPT_COMPLETION(thread_, false);
-    JSTaggedNumber lenNumber = JSTaggedValue::ToLength(thread_, lenghHandle);
-    RETURN_VALUE_IF_ABRUPT_COMPLETION(thread_, false);
-    uint32_t length = lenNumber.ToUint32();
-    for (uint32_t i = 0; i < length; i++) {
-        handleKey_.Update(JSTaggedValue(i));
-        JSHandle<JSTaggedValue> valHandle = JSProxy::GetProperty(thread_, proxy, handleKey_).GetValue();
-        RETURN_VALUE_IF_ABRUPT_COMPLETION(thread_, false);
-        if (i > 0) {
-            result_ += ",";
-        }
-        result_ += stepBegin;
-        JSTaggedValue serializeValue = GetSerializeValue(object, handleKey_, valHandle, replacer);
-        RETURN_VALUE_IF_ABRUPT_COMPLETION(thread_, false);
-        handleValue_.Update(serializeValue);
-        JSTaggedValue res = SerializeJSONProperty(handleValue_, replacer);
-        RETURN_VALUE_IF_ABRUPT_COMPLETION(thread_, false);
-        if (res.IsUndefined()) {
-            result_ += "null";
-        }
-    }
-
-    if (length > 0 && !gap_.empty()) {
-        result_ += "\n";
-        result_ += std::string_view(indent_.data(), preIndentLength);
-    }
-    result_ += "]";
-    PopValue();
-    indent_.resize(preIndentLength); // reset indent_ after recursion
-    return true;
-}
-#else
 bool JsonStringifier::SerializeJSProxy(const JSHandle<JSTaggedValue> &object, const JSHandle<JSTaggedValue> &replacer)
 {
     bool isContain = PushValue(object);
@@ -916,7 +779,6 @@ bool JsonStringifier::SerializeJSProxy(const JSHandle<JSTaggedValue> &object, co
     indent_ = stepback;
     return true;
 }
-#endif
 
 bool JsonStringifier::SerializeJSArray(const JSHandle<JSTaggedValue> &value, const JSHandle<JSTaggedValue> &replacer)
 {
@@ -926,11 +788,8 @@ bool JsonStringifier::SerializeJSArray(const JSHandle<JSTaggedValue> &value, con
         THROW_TYPE_ERROR_AND_RETURN(thread_, "stack contains value, usually caused by circular structure", true);
     }
 
-#if ENABLE_NEXT_OPTIMIZATION
-    uint32_t preIndentLength = indent_.size();
-#else
     CString stepback = indent_;
-#endif
+    result_ += "[";
     CString stepBegin;
     indent_ += gap_;
 
@@ -938,7 +797,6 @@ bool JsonStringifier::SerializeJSArray(const JSHandle<JSTaggedValue> &value, con
         stepBegin += "\n";
         stepBegin += indent_;
     }
-    result_ += "[";
     uint32_t len = 0;
     if (value->IsJSArray()) {
         JSHandle<JSArray> jsArr(value);
@@ -957,7 +815,6 @@ bool JsonStringifier::SerializeJSArray(const JSHandle<JSTaggedValue> &value, con
             }
             handleKey_.Update(JSTaggedValue(i));
             handleValue_.Update(tagVal);
-
             if (i > 0) {
                 result_ += ",";
             }
@@ -974,51 +831,17 @@ bool JsonStringifier::SerializeJSArray(const JSHandle<JSTaggedValue> &value, con
 
         if (!gap_.empty()) {
             result_ += "\n";
-#if ENABLE_NEXT_OPTIMIZATION
-            result_ += std::string_view(indent_.data(), preIndentLength);
-#else
             result_ += stepback;
-#endif
+            indent_ = stepback;
         }
     }
 
     result_ += "]";
     PopValue();
-#if ENABLE_NEXT_OPTIMIZATION
-    indent_.resize(preIndentLength); // reset indent_ after recursion
-#else
     indent_ = stepback;
-#endif
     return true;
 }
 
-#if ENABLE_NEXT_OPTIMIZATION
-void JsonStringifier::SerializePrimitiveRef(const JSHandle<JSTaggedValue> &primitiveRef)
-{
-    JSTaggedValue primitive = JSPrimitiveRef::Cast(primitiveRef.GetTaggedValue().GetTaggedObject())->GetValue();
-    if (primitive.IsString()) {
-        auto priStr = JSTaggedValue::ToString(thread_, primitiveRef);
-        RETURN_IF_ABRUPT_COMPLETION(thread_);
-        ConvertQuotedAndAppendToString(result_, *priStr, StringConvertedUsage::LOGICOPERATION);
-    } else if (primitive.IsNumber()) {
-        auto priNum = JSTaggedValue::ToNumber(thread_, primitiveRef);
-        RETURN_IF_ABRUPT_COMPLETION(thread_);
-        if (std::isfinite(priNum.GetNumber())) {
-            ConvertToCStringAndAppend(result_, priNum);
-        } else {
-            result_ += "null";
-        }
-    } else if (primitive.IsBoolean()) {
-        result_ += primitive.IsTrue() ? "true" : "false";
-    } else if (primitive.IsBigInt()) {
-        if (transformType_ == TransformType::NORMAL) {
-            THROW_TYPE_ERROR(thread_, "cannot serialize a BigInt");
-        } else {
-            BigInt::AppendToCString(result_, BigInt::Cast(primitive.GetTaggedObject()));
-        }
-    }
-}
-#else
 void JsonStringifier::SerializePrimitiveRef(const JSHandle<JSTaggedValue> &primitiveRef)
 {
     JSTaggedValue primitive = JSPrimitiveRef::Cast(primitiveRef.GetTaggedValue().GetTaggedObject())->GetValue();
@@ -1047,7 +870,6 @@ void JsonStringifier::SerializePrimitiveRef(const JSHandle<JSTaggedValue> &primi
         }
     }
 }
-#endif
 
 bool JsonStringifier::SerializeElements(const JSHandle<JSObject> &obj, const JSHandle<JSTaggedValue> &replacer,
                                         bool hasContent)
@@ -1323,5 +1145,4 @@ bool JsonStringifier::CheckStackPushSameValue(JSHandle<JSTaggedValue> value)
     }
     return false;
 }
-
 }  // namespace panda::ecmascript::base

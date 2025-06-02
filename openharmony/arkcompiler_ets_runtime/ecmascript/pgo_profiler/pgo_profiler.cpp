@@ -511,8 +511,13 @@ void PGOProfiler::DumpBeforeDestroy(JSThread *thread)
     }
     LOG_PGO(INFO) << "dump profiler before destroy: " << this;
     state_->StartDumpBeforeDestroy(thread);
-    HandlePGODump();
-    HandlePGOPreDump();
+    {
+#ifdef USE_CMC_GC
+        ThreadNativeScope scope(thread);
+#endif
+        HandlePGODump();
+        HandlePGOPreDump();
+    }
     state_->SetStopAndNotify();
 }
 
@@ -658,6 +663,8 @@ void PGOProfiler::ProfileBytecode(ApEntityId abcId, const CString& recordName, J
     ECMA_BYTRACE_NAME(HITRACE_TAG_ARK, "PGOProfiler::ProfileBytecode");
     ClockScope start;
     JSFunction *function = JSFunction::Cast(funcValue);
+    JSTaggedValue funcEnv = function->GetLexicalEnv();
+    SetCurrentGlobalEnv(BaseEnv::Cast(funcEnv.GetTaggedObject())->GetGlobalEnv());
     if (function->IsSendableOrConcurrentFunction()) {
         return;
     }
@@ -1465,7 +1472,7 @@ void PGOProfiler::DumpInstanceof(ApEntityId abcId, const CString &recordName, En
         if (object->GetClass()->IsHClass()) {
             JSHClass *hclass = JSHClass::Cast(object);
             // Since pgo does not support symbol, we choose to return if hclass having @@hasInstance
-            JSHandle<GlobalEnv> env = vm_->GetGlobalEnv();
+            JSHandle<GlobalEnv> env = GetCurrentGlobalEnv();
             JSTaggedValue key = env->GetHasInstanceSymbol().GetTaggedValue();
             JSHClass *functionPrototypeHC = JSObject::Cast(env->GetFunctionPrototype().GetTaggedValue())->GetClass();
             JSTaggedValue foundHClass = TryFindKeyInPrototypeChain(object, hclass, key);
@@ -1657,7 +1664,8 @@ bool PGOProfiler::AddBuiltinsInfoByNameInInstance(ApEntityId abcId, const CStrin
     JSHClass *exceptRecvHClass = nullptr;
     if (builtinsId == BuiltinTypeId::ARRAY) {
         bool receiverIsPrototype = receiver->IsPrototype();
-        exceptRecvHClass = thread->GetArrayInstanceHClass(receiver->GetElementsKind(), receiverIsPrototype);
+        exceptRecvHClass = thread->GetArrayInstanceHClass(GetCurrentGlobalEnv(), receiver->GetElementsKind(),
+                                                          receiverIsPrototype);
     } else if (builtinsId == BuiltinTypeId::STRING) {
         exceptRecvHClass = receiver;
     } else {
@@ -1668,7 +1676,7 @@ bool PGOProfiler::AddBuiltinsInfoByNameInInstance(ApEntityId abcId, const CStrin
         // When JSType cannot uniquely identify builtins object, it is necessary to
         // query the receiver on the global constants.
         if (builtinsId == BuiltinTypeId::OBJECT) {
-            JSHandle<GlobalEnv> env = thread->GetEcmaVM()->GetGlobalEnv();
+            JSHandle<GlobalEnv> env = GetCurrentGlobalEnv();
             exceptRecvHClass = JSHClass::Cast(env->GetIteratorResultClass().GetTaggedValue().GetTaggedObject());
             if (exceptRecvHClass == receiver) {
                 GlobalIndex globalsId;
@@ -1695,7 +1703,8 @@ bool PGOProfiler::AddBuiltinsInfoByNameInProt(ApEntityId abcId, const CString &r
     JSHClass *exceptRecvHClass = nullptr;
     if (builtinsId == BuiltinTypeId::ARRAY) {
         bool receiverIsPrototype = receiver->IsPrototype();
-        exceptRecvHClass = thread->GetArrayInstanceHClass(receiver->GetElementsKind(), receiverIsPrototype);
+        exceptRecvHClass = thread->GetArrayInstanceHClass(GetCurrentGlobalEnv(), receiver->GetElementsKind(),
+                                                          receiverIsPrototype);
     } else if (builtinsId == BuiltinTypeId::STRING) {
         exceptRecvHClass = receiver;
     } else {
@@ -2170,5 +2179,17 @@ bool PGOProfiler::InsertDefinedCtor(uint32_t entityId)
         return true;
     }
     return false;
+}
+
+void PGOProfiler::SetCurrentGlobalEnv(JSTaggedValue globalEnv)
+{
+    ASSERT(globalEnv.IsJSGlobalEnv());
+    globalEnv_ = globalEnv;
+}
+
+JSHandle<GlobalEnv> PGOProfiler::GetCurrentGlobalEnv() const
+{
+    ASSERT(globalEnv_.IsJSGlobalEnv());
+    return JSHandle<GlobalEnv>(ToUintPtr(&globalEnv_));
 }
 } // namespace panda::ecmascript::pgo

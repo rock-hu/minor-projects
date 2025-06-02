@@ -16,6 +16,7 @@
 #define ECMASCRIPT_JIT_PROFILER_H
 #include <chrono>
 #include <memory>
+#include "common_components/taskpool/task.h"
 #include "ecmascript/common.h"
 #include "ecmascript/compiler/bytecodes.h"
 #include "ecmascript/compiler/compilation_env.h"
@@ -33,7 +34,6 @@
 #include "ecmascript/pgo_profiler/types/pgo_type_generator.h"
 #include "ecmascript/pgo_profiler/pgo_profiler_manager.h"
 #include "ecmascript/platform/mutex.h"
-#include "ecmascript/taskpool/task.h"
 #include "ecmascript/pgo_profiler/pgo_utils.h"
 namespace panda::ecmascript {
 using namespace pgo;
@@ -52,7 +52,7 @@ public:
                                     ProfileTypeInfo *rawProfileTypeInfo,
                                     EntityId methodId, ApEntityId abcId, const uint8_t *pcStart,
                                     uint32_t codeSize, const panda_file::File::Header *header,
-                                    JSHandle<JSFunction> jsFunction,
+                                    JSHandle<JSFunction> jsFunction, JSHandle<GlobalEnv> env,
                                     bool useRawProfileTypeInfo = false);
 
     std::unordered_map<int32_t, const PGOSampleType *> GetOpTypeMap()
@@ -205,6 +205,7 @@ private:
     CompilationEnv *compilationEnv_ {nullptr};
     Chunk *chunk_ {nullptr};
     JSHandle<JSFunction> jsFunction_;
+    JSHandle<GlobalEnv> env_;
 };
 
 }

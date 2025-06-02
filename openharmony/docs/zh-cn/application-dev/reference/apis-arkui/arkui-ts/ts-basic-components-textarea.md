@@ -895,7 +895,7 @@ strokeColor(color: Optional\<ResourceColor>)
 
 | 参数名 | 类型                                       | 必填 | 说明       |
 | ------ | ------------------------------------------ | ---- | ---------- |
-| color  | [Optional](ts-universal-attributes-custom-property.md#optional12)\<[ResourceColor](ts-types.md#resourcecolor)> | 是   | 描边颜色。 |
+| color  | [Optional](ts-universal-attributes-custom-property.md#optional12)\<[ResourceColor](ts-types.md#resourcecolor)> | 是   | 描边颜色。默认值为字体颜色，设置异常值时取默认值。|
 
 ### stopBackPress<sup>15+</sup>
 
@@ -2223,3 +2223,64 @@ struct TextAreaExample {
 ```
 
 ![textAreaSetTextSelection](figures/textAreaSetTextSelection.gif)
+
+### 示例19（设置文本描边）
+
+该示例通过strokeWidth和strokeColor属性设置文本的描边宽度及颜色。
+
+```ts
+// xxx.ets
+@Entry
+@Component
+struct TextAreaExample {
+  build() {
+    Row() {
+      Column() {
+        Text('stroke feature').fontSize(9).fontColor(0xCCCCCC)
+
+        TextArea({text: 'StrokeSet123'})
+          .width('80%').height(90).borderWidth(1).fontSize(40)
+        TextArea({text: 'StrokeSet123'})
+          .width('80%').height(90).borderWidth(1).fontSize(40)
+          .strokeWidth(LengthMetrics.px(-3.0))
+          .strokeColor(Color.Red)
+        TextArea({text: 'StrokeSet123'})
+          .width('80%').height(90).borderWidth(1).fontSize(40)
+          .strokeWidth(LengthMetrics.px(3.0))
+          .strokeColor(Color.Red)
+      }.height('90%')
+    }
+    .width('90%')
+    .margin(10)
+  }
+}
+```
+
+![textAreaSetStroke](figures/textAreaSetStroke.png)
+
+### 示例20（设置中西文自动间距）
+
+该示例通过enableAutoSpacing属性设置中西文自动间距。
+
+```ts
+// xxx.ets
+@Entry
+@Component
+struct TextAreaExample {
+  build() {
+    Row() {
+      Column() {
+        Text('开启中西文自动间距').margin(5)
+        TextArea({text: '中西文Auto Spacing自动间距'})
+          .enableAutoSpacing(true)
+        Text('关闭中西文自动间距').margin(5)
+        TextArea({text: '中西文Auto Spacing自动间距'})
+          .enableAutoSpacing(false)
+      }.height('100%')
+    }
+    .width('60%')
+  }
+}
+```
+
+![textAreaEnableAutoSpacing](figures/textAreaEnableAutoSpacing.png)

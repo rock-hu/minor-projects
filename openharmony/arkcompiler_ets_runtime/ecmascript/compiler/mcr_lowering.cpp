@@ -344,7 +344,7 @@ StateDepend MCRLowering::LowerConvert(StateDepend stateDepend, GateRef gate)
             if (dstType == ValueType::TAGGED_DOUBLE) {
                 result = ConvertFloat64ToTaggedDouble(value);
             } else if (dstType == ValueType::INT32) {
-                result = ConvertFloat64ToInt32(acc_.GetGlueFromArgList(), value);
+                result = ConvertFloat64ToInt32(glue_, value);
             } else {
                 ASSERT(dstType == ValueType::BOOL);
                 result = ConvertFloat64ToBool(value);
@@ -363,7 +363,7 @@ StateDepend MCRLowering::LowerConvert(StateDepend stateDepend, GateRef gate)
             result = ConvertTaggedDoubleToFloat64(value);
             break;
         case ValueType::CHAR: {
-            GateRef glue = acc_.GetGlueFromArgList();
+            GateRef glue = glue_;
             if (dstType == ValueType::ECMA_STRING) {
                 if (env_->IsJitCompiler()) {
                     result = builder_.CallStub(glue, gate, CommonStubCSigns::ConvertCharToString, {glue, value });
@@ -476,7 +476,7 @@ GateRef MCRLowering::ConvertTaggedNumberToInt32(GateRef gate, Label *exit)
     result = ConvertTaggedIntToInt32(gate);
     builder_.Jump(exit);
     builder_.Bind(&isDouble);
-    result = ConvertFloat64ToInt32(acc_.GetGlueFromArgList(), ConvertTaggedDoubleToFloat64(gate));
+    result = ConvertFloat64ToInt32(glue_, ConvertTaggedDoubleToFloat64(gate));
     builder_.Jump(exit);
     builder_.Bind(exit);
     return *result;
@@ -617,7 +617,7 @@ void MCRLowering::LowerCheckTaggedDoubleAndConvert(GateRef gate, GateRef frameSt
     ValueType dst = acc_.GetDstType(gate);
     ASSERT(dst == ValueType::INT32 || dst == ValueType::FLOAT64);
     if (dst == ValueType::INT32) {
-        result = ConvertTaggedDoubleToInt32(acc_.GetGlueFromArgList(), value);
+        result = ConvertTaggedDoubleToInt32(glue_, value);
     } else {
         result = ConvertTaggedDoubleToFloat64(value);
     }
@@ -811,7 +811,7 @@ void MCRLowering::LowerGetGlobalEnvObj(GateRef gate)
     GateRef globalEnv = acc_.GetValueIn(gate, 0);
     size_t index = acc_.GetIndex(gate);
     GateRef offset = builder_.IntPtr(GlobalEnv::HEADER_SIZE + JSTaggedValue::TaggedTypeSize() * index);
-    GateRef object = builder_.Load(VariableType::JS_ANY(), glue_, globalEnv, offset);
+    GateRef object = builder_.LoadWithoutBarrier(VariableType::JS_ANY(), globalEnv, offset);
     acc_.ReplaceGate(gate, Circuit::NullGate(), builder_.GetDepend(), object);
 }
 
@@ -821,7 +821,7 @@ void MCRLowering::LowerGetGlobalEnvObjHClass(GateRef gate)
     GateRef globalEnv = acc_.GetValueIn(gate, 0);
     size_t index = acc_.GetIndex(gate);
     GateRef offset = builder_.IntPtr(GlobalEnv::HEADER_SIZE + JSTaggedValue::TaggedTypeSize() * index);
-    GateRef object = builder_.Load(VariableType::JS_ANY(), glue_, globalEnv, offset);
+    GateRef object = builder_.LoadWithoutBarrier(VariableType::JS_ANY(), globalEnv, offset);
     auto hclass = builder_.Load(VariableType::JS_POINTER(), glue_, object,
                                 builder_.IntPtr(JSFunction::PROTO_OR_DYNCLASS_OFFSET));
     acc_.ReplaceGate(gate, Circuit::NullGate(), builder_.GetDepend(), hclass);
@@ -834,7 +834,7 @@ void MCRLowering::LowerGetGlobalConstantValue(GateRef gate)
     GateRef gConstAddr = builder_.LoadWithoutBarrier(VariableType::JS_POINTER(), glue_,
         builder_.IntPtr(JSThread::GlueData::GetGlobalConstOffset(false)));
     GateRef constantIndex = builder_.IntPtr(JSTaggedValue::TaggedTypeSize() * index);
-    GateRef result = builder_.Load(VariableType::JS_POINTER(), glue_, gConstAddr, constantIndex);
+    GateRef result = builder_.LoadWithoutBarrier(VariableType::JS_POINTER(), gConstAddr, constantIndex);
     acc_.ReplaceGate(gate, Circuit::NullGate(), builder_.GetDepend(), result);
 }
 

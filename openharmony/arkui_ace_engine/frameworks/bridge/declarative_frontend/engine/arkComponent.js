@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -786,7 +786,7 @@ class SweepGradientModifier extends ModifierWithKey {
     }
     else {
       getUINativeModule().common.setSweepGradient(node, this.value.center, this.value.start,
-        this.value.end, this.value.rotation, this.value.colors, this.value.repeating);
+        this.value.end, this.value.rotation, this.value.colors, this.value.metricsColors, this.value.repeating);
     }
   }
   checkObjectDiff() {
@@ -795,6 +795,7 @@ class SweepGradientModifier extends ModifierWithKey {
       (this.stageValue.end === this.value.end) &&
       (this.stageValue.rotation === this.value.rotation) &&
       (this.stageValue.colors === this.value.colors) &&
+      (this.stageValue.metricsColors === this.value.metricsColors) &&
       (this.stageValue.repeating === this.value.repeating));
   }
 }
@@ -1386,20 +1387,55 @@ class RotateModifier extends ModifierWithKey {
       getUINativeModule().common.resetRotate(node);
     }
     else {
-      getUINativeModule().common.setRotate(node, this.value.x, this.value.y,
-        this.value.z, this.value.angle, this.value.centerX, this.value.centerY,
-        this.value.centerY, this.value.perspective);
+      if ('angle' in this.value) {
+        getUINativeModule().common.setRotate(
+          node,
+          this.value.x,
+          this.value.y,
+          this.value.z,
+          this.value.angle,
+          this.value.centerX,
+          this.value.centerY,
+          this.value.centerZ,
+          this.value.perspective
+        );
+      } else {
+        getUINativeModule().common.setRotateAngle(
+          node,
+          this.value.angleX,
+          this.value.angleY,
+          this.value.angleZ,
+          this.value.centerX,
+          this.value.centerY,
+          this.value.centerZ,
+          this.value.perspective
+        );
+      }
     }
   }
   checkObjectDiff() {
-    return !(this.value.x === this.stageValue.x &&
-      this.value.y === this.stageValue.y &&
-      this.value.z === this.stageValue.z &&
-      this.value.angle === this.stageValue.angle &&
-      this.value.centerX === this.stageValue.centerX &&
-      this.value.centerY === this.stageValue.centerY &&
-      this.value.centerZ === this.stageValue.centerZ &&
-      this.value.perspective === this.stageValue.perspective);
+    if ('angle' in this.value) {
+      return !(
+        this.value.x === this.stageValue.x &&
+        this.value.y === this.stageValue.y &&
+        this.value.z === this.stageValue.z &&
+        this.value.angle === this.stageValue.angle &&
+        this.value.centerX === this.stageValue.centerX &&
+        this.value.centerY === this.stageValue.centerY &&
+        this.value.centerZ === this.stageValue.centerZ &&
+        this.value.perspective === this.stageValue.perspective
+      );
+    } else {
+      return !(
+        this.value.angleX === this.stageValue.angleX &&
+        this.value.angleY === this.stageValue.angleY &&
+        this.value.angleZ === this.stageValue.angleZ &&
+        this.value.centerX === (this.stageValue.centerX) &&
+        this.value.centerY === (this.stageValue.centerY) &&
+        this.value.centerZ === (this.stageValue.centerZ) &&
+        this.value.perspective === this.stageValue.perspective
+      );
+    }
   }
 }
 RotateModifier.identity = Symbol('rotate');
@@ -1441,7 +1477,8 @@ class BindTipsModifier extends ModifierWithKey {
         this.value.options?.enableArrow,
         this.value.options?.arrowPointPosition,
         this.value.options?.arrowWidth,
-        this.value.options?.arrowHeight
+        this.value.options?.arrowHeight,
+        this.value.options?.showAtAnchor
       );
     }
   }
@@ -1479,6 +1516,10 @@ class BindTipsModifier extends ModifierWithKey {
       !isBaseOrResourceEqual(
         this.stageValue.options.arrowHeight,
         this.value.options.arrowHeight
+      ) ||
+      !isBaseOrResourceEqual(
+        this.stageValue.options.showAtAnchor,
+        this.value.options.showAtAnchor
       )
     );
   }
@@ -1808,7 +1849,7 @@ class DropModifier extends ModifierWithKey {
     if (reset) {
       getUINativeModule().common.resetOnDrop(node);
     } else {
-      getUINativeModule().common.setOnDrop(node, this.value);
+      getUINativeModule().common.setOnDrop(node, this.value.event, this.value.disableDataPrefetch);
     }
   }
 }
@@ -2388,6 +2429,52 @@ class AccessibilityTextModifier extends ModifierWithKey {
   }
 }
 AccessibilityTextModifier.identity = Symbol('accessibilityText');
+
+class AccessibilityTextHintModifier extends ModifierWithKey {
+  constructor(value) {
+    super(value);
+  }
+  applyPeer(node, reset) {
+    if (reset) {
+      getUINativeModule().common.resetAccessibilityTextHint(node);
+    }
+    else {
+      getUINativeModule().common.setAccessibilityTextHint(node, this.value);
+    }
+  }
+}
+AccessibilityTextHintModifier.identity = Symbol('accessibilityTextHint');
+
+class AccessibilityCheckedModifier extends ModifierWithKey {
+  constructor(value) {
+    super(value);
+  }
+  applyPeer(node, reset) {
+    if (reset) {
+      getUINativeModule().common.resetAccessibilityChecked(node);
+    }
+    else {
+      getUINativeModule().common.setAccessibilityChecked(node, this.value);
+    }
+  }
+}
+AccessibilityCheckedModifier.identity = Symbol('accessibilityChecked');
+
+class AccessibilitySelectedModifier extends ModifierWithKey {
+  constructor(value) {
+    super(value);
+  }
+  applyPeer(node, reset) {
+    if (reset) {
+      getUINativeModule().common.resetAccessibilitySelected(node);
+    }
+    else {
+      getUINativeModule().common.setAccessibilitySelected(node, this.value);
+    }
+  }
+}
+AccessibilitySelectedModifier.identity = Symbol('accessibilitySelected');
+
 class AccessibilityRoleModifier extends ModifierWithKey {
   constructor(value) {
     super(value);
@@ -4744,8 +4831,15 @@ class ArkComponent {
     modifierWithKey(this._modifiersWithKeys, DragLeaveModifier.identity, DragLeaveModifier, event);
     return this;
   }
-  onDrop(event) {
-    modifierWithKey(this._modifiersWithKeys, DropModifier.identity, DropModifier, event);
+  onDrop(event, dropOptions) {
+    let arkOnDrop = new ArkOnDrop();
+    if (typeof event === 'function') {
+      arkOnDrop.event = event;
+    }
+    if (typeof dropOptions === 'object') {
+      arkOnDrop.disableDataPrefetch = dropOptions.disableDataPrefetch;
+    }
+    modifierWithKey(this._modifiersWithKeys, DropModifier.identity, DropModifier, arkOnDrop);
     return this;
   }
   onDragEnd(event) {
@@ -4974,6 +5068,35 @@ class ArkComponent {
   }
   accessibilityText(value) {
     modifierWithKey(this._modifiersWithKeys, AccessibilityTextModifier.identity, AccessibilityTextModifier, value);
+    return this;
+  }
+  accessibilityTextHint(value) {
+    if (typeof value === 'string') {
+      modifierWithKey(this._modifiersWithKeys, AccessibilityTextHintModifier.identity, AccessibilityTextHintModifier, value);
+    } else {
+      modifierWithKey(this._modifiersWithKeys, AccessibilityTextHintModifier.identity, AccessibilityTextHintModifier, undefined);
+    }
+    return this;
+  }
+  accessibilityVirtualNode(value) {
+    throw new Error('Method not implemented.');
+  }
+  accessibilityChecked(value) {
+    if (typeof value === 'boolean') {
+      modifierWithKey(this._modifiersWithKeys, AccessibilityCheckedModifier.identity, AccessibilityCheckedModifier, value);
+    }
+    else {
+      modifierWithKey(this._modifiersWithKeys, AccessibilityCheckedModifier.identity, AccessibilityCheckedModifier, undefined);
+    }
+    return this;
+  }
+  accessibilitySelected(value) {
+    if (typeof value === 'boolean') {
+      modifierWithKey(this._modifiersWithKeys, AccessibilitySelectedModifier.identity, AccessibilitySelectedModifier, value);
+    }
+    else {
+      modifierWithKey(this._modifiersWithKeys, AccessibilitySelectedModifier.identity, AccessibilitySelectedModifier, undefined);
+    }
     return this;
   }
   accessibilityRole(value) {
@@ -9124,7 +9247,7 @@ class ImageSpanColorFilterModifier extends ModifierWithKey {
     return true;
   }
 }
-
+ImageSpanColorFilterModifier.identity = Symbol('ImageSpanColorFilter');
 class ImageSpanBorderRadiusModifier extends ModifierWithKey {
   constructor(value) {
     super(value);
@@ -9162,11 +9285,27 @@ class ImageSpanBorderRadiusModifier extends ModifierWithKey {
   }
 }
 ImageSpanBorderRadiusModifier.identity = Symbol('imageSpanBorderRadius');
+class ImageSpanSrcModifier extends ModifierWithKey {
+  constructor(value) {
+    super(value);
+  }
+  applyPeer(node, reset) {
+    if (reset) {
+      getUINativeModule().imageSpan.setImageSpanSrc(node, '');
+    } else {
+      getUINativeModule().imageSpan.setImageSpanSrc(node, this.value);
+    }
+  }
+}
+ImageSpanSrcModifier.identity = Symbol('imageSpanShowSrc');
 
-ImageSpanColorFilterModifier.identity = Symbol('ImageSpanColorFilter');
 class ArkImageSpanComponent extends ArkComponent {
   constructor(nativePtr, classType) {
     super(nativePtr, classType);
+  }
+  initialize(value) {
+    modifierWithKey(this._modifiersWithKeys, ImageSpanSrcModifier.identity, ImageSpanSrcModifier, value[0]);
+    return this;
   }
   objectFit(value) {
     modifierWithKey(this._modifiersWithKeys, ImageSpanObjectFitModifier.identity, ImageSpanObjectFitModifier, value);
@@ -14389,11 +14528,12 @@ class TextAreaMaxLinesModifier extends ModifierWithKey {
       getUINativeModule().textArea.resetMaxLines(node);
     }
     else {
-      getUINativeModule().textArea.setMaxLines(node, this.value);
+      getUINativeModule().textArea.setMaxLines(node, this.value.value, this.value.overflowMode);
     }
   }
   checkObjectDiff() {
-    return !isBaseOrResourceEqual(this.stageValue, this.value);
+    return !isBaseOrResourceEqual(this.stageValue.value, this.value.value) || 
+      !isBaseOrResourceEqual(this.stageValue.overflowMode, this.value.overflowMode);
   }
 }
 TextAreaMaxLinesModifier.identity = Symbol('textAreaMaxLines');
@@ -15603,8 +15743,11 @@ class ArkTextAreaComponent extends ArkComponent {
     modifierWithKey(this._modifiersWithKeys, TextAreaSelectionMenuHiddenModifier.identity, TextAreaSelectionMenuHiddenModifier, value);
     return this;
   }
-  maxLines(value) {
-    modifierWithKey(this._modifiersWithKeys, TextAreaMaxLinesModifier.identity, TextAreaMaxLinesModifier, value);
+  maxLines(value, options) {
+    let arkValue = new ArkTextFieldMaxLines();
+    arkValue.value = value;
+    arkValue.overflowMode = options?.overflowMode;
+    modifierWithKey(this._modifiersWithKeys, TextAreaMaxLinesModifier.identity, TextAreaMaxLinesModifier, arkValue);
     return this;
   }
   minLines(value) {
@@ -18449,12 +18592,13 @@ class ArkLinearGradient {
   }
 }
 class ArkSweepGradient {
-  constructor(center, start, end, rotation, colors, repeating) {
+  constructor(center, start, end, rotation, colors, metricsColors, repeating) {
     this.center = center;
     this.start = start;
     this.end = end;
     this.rotation = rotation;
     this.colors = colors;
+    this.metricsColors = metricsColors;
     this.repeating = repeating;
   }
   isEqual(another) {
@@ -18463,6 +18607,7 @@ class ArkSweepGradient {
       this.end === another.end &&
       this.rotation === another.rotation &&
       deepCompareArrays(this.colors, another.colors) &&
+      deepCompareArrays(this.metricsColors, another.metricsColors) &&
       this.repeating === another.repeating);
   }
 }
@@ -19160,6 +19305,17 @@ class ArkTextFieldShowCounter {
       (this.thresholdPercentage === another.thresholdPercentage);
   }
 }
+
+class ArkTextFieldMaxLines {
+    constructor() {
+      this.value = undefined;
+      this.overflowMode = undefined;
+    }
+    isEqual(another) {
+      return (this.value === another.value) &&
+        (this.overflowMode === another.overflowMode);
+    }
+  }
 class ArkTextInputFilter {
   constructor() {
     this.value = undefined;
@@ -19494,6 +19650,20 @@ class ArkDragPreview {
       this.onlyForLifting === another.onlyForLifting &&
       this.pixelMap === another.pixelMap &&
       this.extraInfo === another.extraInfo
+    );
+  }
+}
+
+class ArkOnDrop {
+  constructor() {
+    this.event = undefined;
+    this.disableDataPrefetch = false;
+  }
+
+  isEqual(another) {
+    return (
+      this.event === another.event &&
+      this.disableDataPrefetch === another.disableDataPrefetch
     );
   }
 }
@@ -22579,23 +22749,7 @@ class TimepickerTextStyleModifier extends ModifierWithKey {
     }
   }
   checkObjectDiff() {
-    let _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t;
-    if (!(((_b = (_a = this.stageValue) === null || _a === void 0 ? void 0 : _a.font) === null || _b === void 0 ? void 0 : _b.weight) ===
-    ((_d = (_c = this.value) === null || _c === void 0 ? void 0 : _c.font) === null || _d === void 0 ? void 0 : _d.weight) &&
-      ((_f = (_e = this.stageValue) === null || _e === void 0 ? void 0 : _e.font) === null || _f === void 0 ? void 0 : _f.style) ===
-      ((_h = (_g = this.value) === null || _g === void 0 ? void 0 : _g.font) === null || _h === void 0 ? void 0 : _h.style))) {
-      return true;
-    }
-    else {
-      return !isBaseOrResourceEqual((_j = this.stageValue) === null || _j === void 0 ? void 0 : _j.color, (_k = this.value) === null ||
-      _k === void 0 ? void 0 : _k.color) ||
-        !isBaseOrResourceEqual((_m = (_l = this.stageValue) === null || _l === void 0 ? void 0 : _l.font) === null ||
-        _m === void 0 ? void 0 : _m.size, (_p = (_o = this.value) === null || _o === void 0 ? void 0 : _o.font) === null ||
-        _p === void 0 ? void 0 : _p.size) ||
-        !isBaseOrResourceEqual((_r = (_q = this.stageValue) === null || _q === void 0 ? void 0 : _q.font) === null ||
-        _r === void 0 ? void 0 : _r.family, (_t = (_s = this.value) === null || _s === void 0 ? void 0 : _s.font) === null ||
-        _t === void 0 ? void 0 : _t.family);
-    }
+    return true;
   }
 }
 TimepickerTextStyleModifier.identity = Symbol('textStyle');
@@ -22622,18 +22776,7 @@ class TimepickerSelectedTextStyleModifier extends ModifierWithKey {
     }
   }
   checkObjectDiff() {
-    let _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t;
-    if (!(((_b = (_a = this.stageValue) === null || _a === void 0 ? void 0 : _a.font) === null || _b === void 0 ? void 0 : _b.weight) ===
-    ((_d = (_c = this.value) === null || _c === void 0 ? void 0 : _c.font) === null || _d === void 0 ? void 0 : _d.weight) &&
-      ((_f = (_e = this.stageValue) === null || _e === void 0 ? void 0 : _e.font) === null || _f === void 0 ? void 0 : _f.style) ===
-      ((_h = (_g = this.value) === null || _g === void 0 ? void 0 : _g.font) === null || _h === void 0 ? void 0 : _h.style))) {
-      return true;
-    }
-    else {
-      return !isBaseOrResourceEqual((_j = this.stageValue) === null || _j === void 0 ? void 0 : _j.color, (_k = this.value) === null || _k === void 0 ? void 0 : _k.color) ||
-        !isBaseOrResourceEqual((_m = (_l = this.stageValue) === null || _l === void 0 ? void 0 : _l.font) === null || _m === void 0 ? void 0 : _m.size, (_p = (_o = this.value) === null || _o === void 0 ? void 0 : _o.font) === null || _p === void 0 ? void 0 : _p.size) ||
-        !isBaseOrResourceEqual((_r = (_q = this.stageValue) === null || _q === void 0 ? void 0 : _q.font) === null || _r === void 0 ? void 0 : _r.family, (_t = (_s = this.value) === null || _s === void 0 ? void 0 : _s.font) === null || _t === void 0 ? void 0 : _t.family);
-    }
+    return true;
   }
 }
 TimepickerSelectedTextStyleModifier.identity = Symbol('selectedTextStyle');
@@ -22660,25 +22803,7 @@ class TimepickerDisappearTextStyleModifier extends ModifierWithKey {
     }
   }
   checkObjectDiff() {
-    let _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t;
-    if (!(((_b = (_a = this.stageValue) === null || _a === void 0 ? void 0 : _a.font) === null || _b === void 0 ?
-      void 0 : _b.weight) === ((_d = (_c = this.value) === null || _c === void 0 ? void 0 : _c.font) === null ||
-      _d === void 0 ? void 0 : _d.weight) &&
-      ((_f = (_e = this.stageValue) === null || _e === void 0 ? void 0 : _e.font) === null || _f === void 0 ?
-        void 0 : _f.style) === ((_h = (_g = this.value) === null || _g === void 0 ? void 0 : _g.font) === null ||
-        _h === void 0 ? void 0 : _h.style))) {
-      return true;
-    }
-    else {
-      return !isBaseOrResourceEqual((_j = this.stageValue) === null || _j === void 0 ? void 0 : _j.color,
-      (_k = this.value) === null || _k === void 0 ? void 0 : _k.color) ||
-        !isBaseOrResourceEqual((_m = (_l = this.stageValue) === null || _l === void 0 ? void 0 : _l.font) === null ||
-        _m === void 0 ? void 0 : _m.size, (_p = (_o = this.value) === null || _o === void 0 ? void 0 : _o.font) === null ||
-        _p === void 0 ? void 0 : _p.size) ||
-        !isBaseOrResourceEqual((_r = (_q = this.stageValue) === null || _q === void 0 ? void 0 : _q.font) === null ||
-        _r === void 0 ? void 0 : _r.family, (_t = (_s = this.value) === null || _s === void 0 ? void 0 : _s.font) === null ||
-        _t === void 0 ? void 0 : _t.family);
-    }
+    return true;
   }
 }
 TimepickerDisappearTextStyleModifier.identity = Symbol('disappearTextStyle');
@@ -27954,6 +28079,83 @@ if (globalThis.FormComponent !== undefined) {
 }
 
 /// <reference path='./import.ts' />
+class ArkEmbeddedComponent extends ArkComponent {
+  constructor(nativePtr, classType) {
+    super(nativePtr, classType);
+  }
+  onTerminated(callback) {
+    modifierWithKey(this._modifiersWithKeys,
+      EmbeddedComponentOnTerminatedModifier.identity, EmbeddedComponentOnTerminatedModifier, callback);
+    return this;
+  }
+  onError(callback) {
+    modifierWithKey(this._modifiersWithKeys,
+      EmbeddedComponentOnErrorModifier.identity, EmbeddedComponentOnErrorModifier, callback);
+    return this;
+  }
+}
+
+class EmbeddedComponentOnTerminatedModifier extends ModifierWithKey {
+  constructor(value) {
+    super(value);
+  }
+  applyPeer(node, reset) {
+    if (reset) {
+      getUINativeModule().embeddedComponent.resetOnTerminated(node);
+    }
+    else {
+      getUINativeModule().embeddedComponent.setOnTerminated(node, this.value);
+    }
+  }
+}
+EmbeddedComponentOnTerminatedModifier.identity = Symbol('onTerminated');
+
+class EmbeddedComponentOnErrorModifier extends ModifierWithKey {
+  constructor(value) {
+    super(value);
+  }
+  applyPeer(node, reset) {
+    if (reset) {
+      getUINativeModule().embeddedComponent.resetOnError(node);
+    } else {
+      getUINativeModule().embeddedComponent.setOnError(node, this.value);
+    }
+  }
+}
+EmbeddedComponentOnErrorModifier.identity = Symbol('onError');
+
+// @ts-ignore
+if (globalThis.EmbeddedComponent !== undefined) {
+  globalThis.EmbeddedComponent.attributeModifier = function (modifier) {
+    attributeModifierFunc.call(this, modifier, (nativePtr) => {
+      return new ArkEmbeddedComponent(nativePtr);
+    }, (nativePtr, classType, modifierJS) => {
+      return new modifierJS.EmbeddedComponentModifier(nativePtr, classType);
+    });
+  };
+}
+
+/// <reference path='./import.ts' />
+class ArkIsolatedComponent extends ArkComponent {
+  constructor(nativePtr, classType) {
+    super(nativePtr, classType);
+  }
+  onError(callback) {
+    throw new Error('Method not implemented.');
+  }
+}
+// @ts-ignore
+if (globalThis.IsolatedComponent !== undefined) {
+  globalThis.IsolatedComponent.attributeModifier = function (modifier) {
+    attributeModifierFunc.call(this, modifier, (nativePtr) => {
+      return new ArkIsolatedComponent(nativePtr);
+    }, (nativePtr, classType, modifierJS) => {
+      return new modifierJS.CommonModifier(nativePtr, classType);
+    });
+  };
+}
+
+/// <reference path='./import.ts' />
 class ArkGaugeComponent extends ArkComponent {
   constructor(nativePtr, classType) {
     super(nativePtr, classType);
@@ -30127,7 +30329,8 @@ class ArkWebComponent extends ArkComponent {
     return this;
   }
   overScrollMode(mode) {
-    throw new Error('Method not implemented.');
+    modifierWithKey(this._modifiersWithKeys, WebOverScrollModeModifier.identity, WebOverScrollModeModifier, mode);
+    return this;
   }
   textZoomAtio(textZoomAtio) {
     throw new Error('Method not implemented.');
@@ -30148,38 +30351,46 @@ class ArkWebComponent extends ArkComponent {
     throw new Error('Method not implemented.');
   }
   onPageEnd(callback) {
-    throw new Error('Method not implemented.');
+    modifierWithKey(this._modifiersWithKeys, WebOnPageEndModifier.identity, WebOnPageEndModifier, callback);
+    return this;
   }
   onPageBegin(callback) {
-    throw new Error('Method not implemented.');
+    modifierWithKey(this._modifiersWithKeys, WebOnPageBeginModifier.identity, WebOnPageBeginModifier, callback);
+    return this;
   }
   onProgressChange(callback) {
-    throw new Error('Method not implemented.');
+    modifierWithKey(this._modifiersWithKeys, WebOnProgressChangeModifier.identity, WebOnProgressChangeModifier, callback);
+    return this;
   }
   onTitleReceive(callback) {
-    throw new Error('Method not implemented.');
+    modifierWithKey(this._modifiersWithKeys, WebOnTitleReceiveModifier.identity, WebOnTitleReceiveModifier, callback);
+    return this;
   }
   onGeolocationHide(callback) {
     throw new Error('Method not implemented.');
   }
   onGeolocationShow(callback) {
-    throw new Error('Method not implemented.');
+    modifierWithKey(this._modifiersWithKeys, WebOnGeolocationShowModifier.identity, WebOnGeolocationShowModifier, callback);
+    return this;
   }
   onRequestSelected(callback) {
     modifierWithKey(this._modifiersWithKeys, WebOnRequestSelectedModifier.identity, WebOnRequestSelectedModifier, callback);
     return this;
   }
   onAlert(callback) {
-    throw new Error('Method not implemented.');
+    modifierWithKey(this._modifiersWithKeys, WebOnAlertModifier.identity, WebOnAlertModifier, callback);
+    return this;
   }
   onBeforeUnload(callback) {
     throw new Error('Method not implemented.');
   }
   onConfirm(callback) {
-    throw new Error('Method not implemented.');
+    modifierWithKey(this._modifiersWithKeys, WebOnConfirmModifier.identity, WebOnConfirmModifier, callback);
+    return this;
   }
   onPrompt(callback) {
-    throw new Error('Method not implemented.');
+    modifierWithKey(this._modifiersWithKeys, WebOnPromptModifier.identity, WebOnPromptModifier, callback);
+    return this;
   }
   onConsole(callback) {
     throw new Error('Method not implemented.');
@@ -30191,10 +30402,12 @@ class ArkWebComponent extends ArkComponent {
     throw new Error('Method not implemented.');
   }
   onDownloadStart(callback) {
-    throw new Error('Method not implemented.');
+    modifierWithKey(this._modifiersWithKeys, WebOnDownloadStartModifier.identity, WebOnDownloadStartModifier, callback);
+    return this;
   }
   onRefreshAccessedHistory(callback) {
-    throw new Error('Method not implemented.');
+    modifierWithKey(this._modifiersWithKeys, WebOnRefreshAccessedHistoryModifier.identity, WebOnRefreshAccessedHistoryModifier, callback);
+    return this;
   }
   onUrlLoadIntercept(callback) {
     throw new Error('Method not implemented.');
@@ -30203,7 +30416,8 @@ class ArkWebComponent extends ArkComponent {
     throw new Error('Method not implemented.');
   }
   onRenderExited(callback) {
-    throw new Error('Method not implemented.');
+    modifierWithKey(this._modifiersWithKeys, WebOnRenderExitedModifier.identity, WebOnRenderExitedModifier, callback);
+    return this;
   }
   onShowFileSelector(callback) {
     throw new Error('Method not implemented.');
@@ -30212,14 +30426,16 @@ class ArkWebComponent extends ArkComponent {
     throw new Error('Method not implemented.');
   }
   onResourceLoad(callback) {
-    throw new Error('Method not implemented.');
+    modifierWithKey(this._modifiersWithKeys, WebOnResourceLoadModifier.identity, WebOnResourceLoadModifier, callback);
+    return this;
   }
   onFullScreenExit(callback) {
     modifierWithKey(this._modifiersWithKeys, WebOnFullScreenExitModifier.identity, WebOnFullScreenExitModifier, callback);
     return this;
   }
   onFullScreenEnter(callback) {
-    throw new Error('Method not implemented.');
+    modifierWithKey(this._modifiersWithKeys, WebOnFullScreenEnterModifier.identity, WebOnFullScreenEnterModifier, callback);
+    return this;
   }
   onScaleChange(callback) {
     modifierWithKey(this._modifiersWithKeys, WebOnScaleChangeModifier.identity, WebOnScaleChangeModifier, callback);
@@ -30232,10 +30448,12 @@ class ArkWebComponent extends ArkComponent {
     throw new Error('Method not implemented.');
   }
   onPermissionRequest(callback) {
-    throw new Error('Method not implemented.');
+    modifierWithKey(this._modifiersWithKeys, WebOnPermissionRequestModifier.identity, WebOnPermissionRequestModifier, callback);
+    return this;
   }
   onScreenCaptureRequest(callback) {
-    throw new Error('Method not implemented.');
+    modifierWithKey(this._modifiersWithKeys, WebOnScreenCaptureRequestModifier.identity, WebOnScreenCaptureRequestModifier, callback);
+    return this;
   }
   onContextMenuShow(callback) {
     throw new Error('Method not implemented.');
@@ -30245,7 +30463,8 @@ class ArkWebComponent extends ArkComponent {
     return this;
   }
   onSearchResultReceive(callback) {
-    throw new Error('Method not implemented.');
+    modifierWithKey(this._modifiersWithKeys, WebOnSearchResultReceiveModifier.identity, WebOnSearchResultReceiveModifier, callback);
+    return this;
   }
   onScroll(callback) {
     modifierWithKey(this._modifiersWithKeys, WebOnScrollModifier.identity, WebOnScrollModifier, callback);
@@ -30261,10 +30480,12 @@ class ArkWebComponent extends ArkComponent {
     throw new Error('Method not implemented.');
   }
   onWindowNew(callback) {
-    throw new Error('Method not implemented.');
+    modifierWithKey(this._modifiersWithKeys, WebOnWindowNewModifier.identity, WebOnWindowNewModifier, callback);
+    return this;
   }
   onWindowExit(callback) {
-    throw new Error('Method not implemented.');
+    modifierWithKey(this._modifiersWithKeys, WebOnWindowExitModifier.identity, WebOnWindowExitModifier, callback);
+    return this;
   }
   multiWindowAccess(multiWindow) {
     modifierWithKey(this._modifiersWithKeys, WebMultiWindowAccessModifier.identity, WebMultiWindowAccessModifier, multiWindow);
@@ -30314,7 +30535,8 @@ class ArkWebComponent extends ArkComponent {
     return this;
   }
   blockNetwork(block) {
-    throw new Error('Method not implemented.');
+    modifierWithKey(this._modifiersWithKeys, WebBlockNetworkModifier.identity, WebBlockNetworkModifier, block);
+    return this;
   }
   horizontalScrollBarAccess(horizontalScrollBar) {
     modifierWithKey(this._modifiersWithKeys, WebHorizontalScrollBarAccessModifier.identity, WebHorizontalScrollBarAccessModifier, horizontalScrollBar);
@@ -30325,13 +30547,15 @@ class ArkWebComponent extends ArkComponent {
     return this;
   }
   onTouchIconUrlReceived(callback) {
-    throw new Error('Method not implemented.');
+    modifierWithKey(this._modifiersWithKeys, WebOnTouchIconUrlReceivedModifier.identity, WebOnTouchIconUrlReceivedModifier, callback);
+    return this;
   }
   onFaviconReceived(callback) {
     throw new Error('Method not implemented.');
   }
   onPageVisible(callback) {
-    throw new Error('Method not implemented.');
+    modifierWithKey(this._modifiersWithKeys, WebOnPageVisibleModifier.identity, WebOnPageVisibleModifier, callback);
+    return this;
   }
   onDataResubmitted(callback) {
     throw new Error('Method not implemented.');
@@ -30376,7 +30600,18 @@ class ArkWebComponent extends ArkComponent {
     return this;
   }
   javaScriptOnDocumentStart(scripts) {
-    throw new Error('Method not implemented.');
+    let scriptInfo = new ArkWebScriptItem();
+    scriptInfo.scripts = scripts.map(item => { return item.id; });
+    scriptInfo.scriptRules = scripts.map(item => { return item.referencedId; });
+    modifierWithKey(this._modifiersWithKeys, WebJavaScriptOnDocumentStartModifier.identity, WebJavaScriptOnDocumentStartModifier, scriptInfo);
+    return this;
+  }
+  javaScriptOnDocumentEnd(scripts) {
+    let scriptInfo = new ArkWebScriptItem();
+    scriptInfo.scripts = scripts.map(item => { return item.id; });
+    scriptInfo.scriptRules = scripts.map(item => { return item.referencedId; });
+    modifierWithKey(this._modifiersWithKeys, WebJavaScriptOnDocumentEndModifier.identity, WebJavaScriptOnDocumentEndModifier, scriptInfo);
+    return this;
   }
   layoutMode(mode) {
     modifierWithKey(this._modifiersWithKeys, WebLayoutModeModifier.identity, WebLayoutModeModifier, mode);
@@ -30386,15 +30621,12 @@ class ArkWebComponent extends ArkComponent {
     modifierWithKey(this._modifiersWithKeys, WebOnNativeEmbedLifecycleChangeModifier.identity, WebOnNativeEmbedLifecycleChangeModifier, event);
     return this;
   }
+  OnNativeEmbedGestureEvent(event) {
+    modifierWithKey(this._modifiersWithKeys, WebOnNativeEmbedGestureEventModifier.identity, WebOnNativeEmbedGestureEventModifier, callback);
+    return this;
+  }
   registerNativeEmbedRule(mode) {
-    let rule = new ArkRegisterNativeEmbedRule();
-    if (!isUndefined(mode)) {
-      rule.tag = mode.tag;
-      rule.type = mode.type;
-      modifierWithKey(this._modifiersWithKeys, WebRegisterNativeEmbedRuleModifier.identity, WebRegisterNativeEmbedRuleModifier, rule);
-    } else {
-      modifierWithKey(this._modifiersWithKeys, WebRegisterNativeEmbedRuleModifier.identity, WebRegisterNativeEmbedRuleModifier, undefined);
-    }
+    modifierWithKey(this._modifiersWithKeys, WebRegisterNativeEmbedRuleModifier.identity, WebRegisterNativeEmbedRuleModifier, mode);
     return this;
   }
   nativeEmbedOptions(value){
@@ -30411,10 +30643,12 @@ class ArkWebComponent extends ArkComponent {
     throw new Error('Method not implemented.');
   }
   onRenderProcessNotResponding(callback) {
-    throw new Error('Method not implemented.');
+    modifierWithKey(this._modifiersWithKeys, WebOnRenderProcessNotRespondingModifier.identity, WebOnRenderProcessNotRespondingModifier, callback);
+    return this;
   }
   onRenderProcessResponding(callback) {
-    throw new Error('Method not implemented.');
+    modifierWithKey(this._modifiersWithKeys, WebOnRenderProcessRespondingModifier.identity, WebOnRenderProcessRespondingModifier, callback);
+    return this; 
   }
   onViewportFitChanged(callback) {
     throw new Error('Method not implemented.');
@@ -30428,6 +30662,14 @@ class ArkWebComponent extends ArkComponent {
   }
   keyboardAvoidMode(mode) {
     modifierWithKey(this._modifiersWithKeys, WebKeyboardAvoidModeModifier.identity, WebKeyboardAvoidModeModifier, mode);
+    return this;
+  }
+  copyOptions(value) {
+    modifierWithKey(this._modifiersWithKeys, WebCopyOptionsModifier.identity, WebCopyOptionsModifier, value);
+    return this;
+  }
+  onNavigationEntryCommitted(callback) {
+    modifierWithKey(this._modifiersWithKeys, WebOnNavigationEntryCommittedModifier.identity, WebOnNavigationEntryCommittedModifier, callback);
     return this;
   }
 }
@@ -30462,20 +30704,6 @@ class WebFileAccessModifier extends ModifierWithKey {
 }
 WebFileAccessModifier.identity = Symbol('webFileAccessModifier');
 
-class WebDomStorageAccessModifier extends ModifierWithKey {
-    constructor(value) {
-      super(value);
-    }
-    applyPeer(node, reset) {
-      if (reset) {
-        getUINativeModule().web.resetDomStorageAccess(node);
-      }
-      else {
-        getUINativeModule().web.setDomStorageAccess(node, this.value);
-      }
-  }
-}
-WebDomStorageAccessModifier.identity = Symbol('webDomStorageAccessModifier');
 
 class WebMixedModeModifier extends ModifierWithKey {
     constructor(value) {
@@ -31011,30 +31239,30 @@ class WebOnNativeEmbedLifecycleChangeModifier extends ModifierWithKey {
 }
 WebOnNativeEmbedLifecycleChangeModifier.identity = Symbol('webOnNativeEmbedLifecycleChangeModifier');
 
-class WebRegisterNativeEmbedRuleModifier extends ModifierWithKey {
+class WebOnNativeEmbedGestureEventModifier extends ModifierWithKey {
   constructor (value) {
     super(value);
   }
   applyPeer (node, reset) {
-    let _a, _b
+    if (reset) {
+      getUINativeModule().web.resetOnNativeEmbedGestureEvent(node);
+    } else {
+      getUINativeModule().web.setOnNativeEmbedGestureEvent(node, this.value);
+    }
+  }
+}
+WebOnNativeEmbedGestureEventModifier.identity = Symbol('webOnNativeEmbedGestureEventModifier');
+
+class WebRegisterNativeEmbedRuleModifier extends ModifierWithKey {
+  constructor(value) {
+    super(value);
+  }
+  applyPeer(node, reset) {
     if (reset) {
       getUINativeModule().web.resetRegisterNativeEmbedRule(node);
     } else {
-      getUINativeModule().web.setRegisterNativeEmbedRule(
-        node,
-        (_a = this.value) === null || _a === void 0 ? void 0 : _a.tag,
-        (_b = this.value) === null || _b === void 0 ? void 0 : _b.type
-      );
+      getUINativeModule().web.setRegisterNativeEmbedRule(node, this.value?.tag, this.value?.type);
     }
-  }
-  checkObjectDiff () {
-    let _a, _b, _c, _d, _e, _f
-    return (
-      ((_a = this.stageValue) === null || _a === void 0 ? void 0 : _a.tag) !==
-        ((_b = this.value) === null || _b === void 0 ? void 0 : _b.tag) ||
-      ((_c = this.stageValue) === null || _c === void 0 ? void 0 : _c.type) !==
-        ((_d = this.value) === null || _d === void 0 ? void 0 : _d.type)
-    );
   }
 }
 WebRegisterNativeEmbedRuleModifier.identity = Symbol('webRegisterNativeEmbedRuleModifier');
@@ -31150,6 +31378,440 @@ class WebMediaOptionsModifier extends ModifierWithKey {
   }
 }
 WebMediaOptionsModifier.identity = Symbol('webMediaOptionsModifier');
+
+class WebOnPageEndModifier extends ModifierWithKey {
+    constructor(value) {
+        super(value);
+    }
+    applyPeer(node, reset) {
+        if (reset) {
+            getUINativeModule().web.resetOnPageEnd(node);
+        }
+        else {
+            getUINativeModule().web.setOnPageEnd(node, this.value);
+        }
+    }
+}
+WebOnPageEndModifier.identity = Symbol('webOnPageEndModifier');
+
+class WebOnPageBeginModifier extends ModifierWithKey {
+    constructor(value) {
+        super(value);
+    }
+    applyPeer(node, reset) {
+        if (reset) {
+            getUINativeModule().web.resetOnPageBegin(node);
+        }
+        else {
+            getUINativeModule().web.setOnPageBegin(node, this.value);
+        }
+    }
+}
+WebOnPageBeginModifier.identity = Symbol('webOnPageBeginModifier');
+
+class WebOnProgressChangeModifier extends ModifierWithKey {
+    constructor(value) {
+        super(value);
+    }
+    applyPeer(node, reset) {
+        if (reset) {
+            getUINativeModule().web.resetOnProgressChange(node);
+        }
+        else {
+            getUINativeModule().web.setOnProgressChange(node, this.value);
+        }
+    }
+}
+WebOnProgressChangeModifier.identity = Symbol('webOnProgressChangeModifier');
+
+class WebOnTitleReceiveModifier extends ModifierWithKey {
+    constructor(value) {
+        super(value);
+    }
+    applyPeer(node, reset) {
+        if (reset) {
+            getUINativeModule().web.resetOnTitleReceive(node);
+        }
+        else {
+            getUINativeModule().web.setOnTitleReceive(node, this.value);
+        }
+    }
+}
+WebOnTitleReceiveModifier.identity = Symbol('webOnTitleReceiveModifier');
+
+class WebOnDownloadStartModifier extends ModifierWithKey {
+    constructor(value) {
+        super(value);
+    }
+    applyPeer(node, reset) {
+        if (reset) {
+            getUINativeModule().web.resetOnDownloadStart(node);
+        }
+        else {
+            getUINativeModule().web.setOnDownloadStart(node, this.value);
+        }
+    }
+}
+WebOnDownloadStartModifier.identity = Symbol('webOnDownloadStartModifier');
+
+class WebJavaScriptOnDocumentStartModifier extends ModifierWithKey {
+    constructor(value) {
+        super(value);
+    }
+    applyPeer(node, reset) {
+        if (reset) {
+            getUINativeModule().web.resetJavaScriptOnDocumentStart(node);
+        }
+        else {
+            getUINativeModule().web.setJavaScriptOnDocumentStart(node,
+                this.value.scripts, this.value.scriptRules);
+        }
+    }
+}
+WebJavaScriptOnDocumentStartModifier.identity = Symbol('webJavaScriptOnDocumentStartModifier');
+
+class WebJavaScriptOnDocumentEndModifier extends ModifierWithKey {
+    constructor(value) {
+        super(value);
+    }
+    applyPeer(node, reset) {
+        if (reset) {
+            getUINativeModule().web.resetJavaScriptOnDocumentEnd(node);
+        }
+        else {
+            getUINativeModule().web.setJavaScriptOnDocumentEnd(node,
+                this.value.scripts, this.value.scriptRules);
+        }
+    }
+}
+WebJavaScriptOnDocumentEndModifier.identity = Symbol('webJavaScriptOnDocumentEndModifier');
+
+class WebDomStorageAccessModifier extends ModifierWithKey {
+    constructor(value) {
+        super(value);
+    }
+    applyPeer(node, reset) {
+        if (reset) {
+            getUINativeModule().web.resetDomStorageAccess(node);
+        }
+        else {
+            getUINativeModule().web.setDomStorageAccess(node, this.value);
+        }
+    }
+}
+WebDomStorageAccessModifier.identity = Symbol('webDomStorageAccessModifier');
+
+class WebCopyOptionsModifier extends ModifierWithKey {
+    constructor(value) {
+        super(value);
+    }
+    applyPeer(node, reset) {
+        if (reset) {
+            getUINativeModule().web.resetCopyOption(node);
+        }
+        else {
+            getUINativeModule().web.setCopyOption(node, this.value);
+        }
+    }
+}
+WebCopyOptionsModifier.identity = Symbol('webCopyOptionsModifier');
+
+class WebOnRenderProcessNotRespondingModifier extends ModifierWithKey {
+    constructor(value) {
+        super(value);
+    }
+    applyPeer(node, reset) {
+        if (reset) {
+            getUINativeModule().web.resetOnRenderProcessNotResponding(node);
+        }
+        else {
+            getUINativeModule().web.setOnRenderProcessNotResponding(node, this.value);
+        }
+    }
+}
+WebOnRenderProcessNotRespondingModifier.identity = Symbol('webOnRenderProcessNotRespondingModifier');
+
+class WebOnPageVisibleModifier extends ModifierWithKey {
+    constructor(value) {
+        super(value);
+    }
+    applyPeer(node, reset) {
+        if (reset) {
+            getUINativeModule().web.resetOnPageVisible(node);
+        }
+        else {
+            getUINativeModule().web.setOnPageVisible(node, this.value);
+        }
+    }
+}
+WebOnPageVisibleModifier.identity = Symbol('webOnPageVisibleModifier');
+
+class WebOnRenderExitedModifier extends ModifierWithKey {
+    constructor(value) {
+        super(value);
+    }
+    applyPeer(node, reset) {
+        if (reset) {
+            getUINativeModule().web.resetOnRenderExited(node);
+        }
+        else {
+            getUINativeModule().web.setOnRenderExited(node, this.value);
+        }
+    }
+}
+WebOnRenderExitedModifier.identity = Symbol('webOnRenderExitedModifier');
+
+class WebBlockNetworkModifier extends ModifierWithKey {
+    constructor(value) {
+        super(value);
+    }
+    applyPeer(node, reset) {
+        if (reset) {
+            getUINativeModule().web.resetBlockNetwork(node);
+        }
+        else {
+            getUINativeModule().web.setBlockNetwork(node, this.value);
+        }
+    }
+}
+WebBlockNetworkModifier.identity = Symbol('webBlockNetworkModifier');
+
+class WebOnRefreshAccessedHistoryModifier extends ModifierWithKey {
+    constructor(value) {
+        super(value);
+    }
+    applyPeer(node, reset) {
+        if (reset) {
+            getUINativeModule().web.resetOnRefreshAccessedHistory(node);
+        }
+        else {
+            getUINativeModule().web.setOnRefreshAccessedHistory(node, this.value);
+        }
+    }
+}
+WebOnRefreshAccessedHistoryModifier.identity = Symbol('webOnRefreshAccessedHistoryModifier');
+
+class WebOnResourceLoadModifier extends ModifierWithKey {
+    constructor(value) {
+        super(value);
+    }
+    applyPeer(node, reset) {
+        if (reset) {
+            getUINativeModule().web.resetOnResourceLoad(node);
+        }
+        else {
+            getUINativeModule().web.setOnResourceLoad(node, this.value);
+        }
+    }
+}
+WebOnResourceLoadModifier.identity = Symbol('webOnResourceLoadModifier');
+
+class WebOnNavigationEntryCommittedModifier extends ModifierWithKey {
+    constructor(value) {
+        super(value);
+    }
+    applyPeer(node, reset) {
+        if (reset) {
+            getUINativeModule().web.resetOnNavigationEntryCommitted(node);
+        }
+        else {
+            getUINativeModule().web.setOnNavigationEntryCommitted(node, this.value);
+        }
+    }
+}
+WebOnNavigationEntryCommittedModifier.identity = Symbol('webOnNavigationEntryCommittedModifier');
+
+class WebOnSearchResultReceiveModifier extends ModifierWithKey {
+  constructor(value) {
+    super(value);
+  }
+  applyPeer(node, reset) {
+    if (reset) {
+      getUINativeModule().web.resetOnSearchResultReceive(node);
+    }
+    else {
+      getUINativeModule().web.setOnSearchResultReceive(node, this.value);
+    }
+  }
+}
+WebOnSearchResultReceiveModifier.identity = Symbol('webOnSearchResultReceiveModifier');
+
+class WebOverScrollModeModifier extends ModifierWithKey {
+  constructor(value) {
+    super(value);
+  }
+  applyPeer(node, reset) {
+    if (reset) {
+      getUINativeModule().web.resetOverScrollMode(node);
+    }
+    else {
+      getUINativeModule().web.setOverScrollMode(node, this.value);
+    }
+}
+}
+WebOverScrollModeModifier.identity = Symbol('webOverScrollModeModifier');
+
+class WebOnRenderProcessRespondingModifier extends ModifierWithKey {
+  constructor(value) {
+    super(value);
+  }
+  applyPeer(node, reset) {
+    if (reset) {
+      getUINativeModule().web.resetOnRenderProcessResponding(node);
+    }
+    else {
+      getUINativeModule().web.setOnRenderProcessResponding(node, this.value);
+    }
+}
+}
+WebOnRenderProcessRespondingModifier.identity = Symbol('webOnRenderProcessRespondingModifier');
+
+class WebOnTouchIconUrlReceivedModifier extends ModifierWithKey {
+  constructor(value) {
+    super(value);
+  }
+  applyPeer(node, reset) {
+    if (reset) {
+      getUINativeModule().web.resetOnTouchIconUrlReceived(node);
+    }
+    else {
+      getUINativeModule().web.setOnTouchIconUrlReceived(node, this.value);
+    }
+}
+}
+WebOnTouchIconUrlReceivedModifier.identity = Symbol('webOnTouchIconUrlReceivedModifier');
+
+class WebOnGeolocationShowModifier extends ModifierWithKey {
+  constructor(value) {
+    super(value);
+  }
+  applyPeer(node, reset) {
+    if (reset) {
+      getUINativeModule().web.resetOnGeolocationShow(node);
+    } else {
+      getUINativeModule().web.setOnGeolocationShow(node, this.value);
+    }
+  }
+}
+WebOnGeolocationShowModifier.identity = Symbol('webOnGeolocationShowModifier');
+
+class WebOnWindowNewModifier extends ModifierWithKey {
+  constructor(value) {
+    super(value);
+  }
+  applyPeer(node, reset) {
+    if (reset) {
+      getUINativeModule().web.resetOnWindowNew(node);
+    } else {
+      getUINativeModule().web.setOnWindowNew(node, this.value);
+    }
+  }
+}
+WebOnWindowNewModifier.identity = Symbol('webOnWindowNewModifier');
+
+class WebOnPermissionRequestModifier extends ModifierWithKey {
+  constructor(value) {
+    super(value);
+  }
+  applyPeer(node, reset) {
+    if (reset) {
+      getUINativeModule().web.resetOnPermissionRequest(node);
+    } else {
+      getUINativeModule().web.setOnPermissionRequest(node, this.value);
+    }
+  }
+}
+WebOnPermissionRequestModifier.identity = Symbol('webOnPermissionRequestModifier');
+
+class WebOnScreenCaptureRequestModifier extends ModifierWithKey {
+    constructor(value) {
+      super(value);
+    }
+    applyPeer(node, reset) {
+      if (reset) {
+        getUINativeModule().web.resetOnScreenCaptureRequest(node);
+      }
+      else {
+        getUINativeModule().web.setOnScreenCaptureRequest(node, this.value);
+      }
+  }
+}
+WebOnScreenCaptureRequestModifier.identity = Symbol('webOnScreenCaptureRequestModifier');
+
+class WebOnFullScreenEnterModifier extends ModifierWithKey {
+  constructor(value) {
+    super(value);
+  }
+  applyPeer(node, reset) {
+    if (reset) {
+      getUINativeModule().web.resetOnFullScreenEnter(node);
+    }
+    else {
+      getUINativeModule().web.setOnFullScreenEnter(node, this.value);
+    }
+  }
+}
+WebOnFullScreenEnterModifier.identity = Symbol('webOnFullScreenEnterModifier');
+
+class WebOnWindowExitModifier extends ModifierWithKey {
+  constructor(value) {
+    super(value);
+  }
+  applyPeer(node, reset) {
+    if (reset) {
+      getUINativeModule().web.resetOnWindowExit(node);
+    }
+    else {
+      getUINativeModule().web.setOnWindowExit(node, this.value);
+    }
+}
+}
+WebOnWindowExitModifier.identity = Symbol('webOnWindowExitModifier');
+
+class WebOnAlertModifier extends ModifierWithKey {
+    constructor(value) {
+      super(value);
+    }
+    applyPeer(node, reset) {
+      if (reset) {
+        getUINativeModule().web.resetOnAlert(node);
+      }
+      else {
+        getUINativeModule().web.setOnAlert(node, this.value);
+      }
+  }
+}
+WebOnAlertModifier.identity = Symbol('webOnAlertModifier');
+
+class WebOnConfirmModifier extends ModifierWithKey {
+    constructor(value) {
+      super(value);
+    }
+    applyPeer(node, reset) {
+      if (reset) {
+        getUINativeModule().web.resetOnConfirm(node);
+      }
+      else {
+        getUINativeModule().web.setOnConfirm(node, this.value);
+      }
+  }
+}
+WebOnConfirmModifier.identity = Symbol('webOnConfirmModifier');
+
+class WebOnPromptModifier extends ModifierWithKey {
+    constructor(value) {
+      super(value);
+    }
+    applyPeer(node, reset) {
+      if (reset) {
+        getUINativeModule().web.resetOnPrompt(node);
+      }
+      else {
+        getUINativeModule().web.setOnPrompt(node, this.value);
+      }
+  }
+}
+WebOnPromptModifier.identity = Symbol('webOnPromptModifier');
 
 // @ts-ignore
 if (globalThis.Web !== undefined) {

@@ -44,6 +44,7 @@
 #include "base/utils/utils.h"
 #include "core/common/ace_application_info.h"
 #include "core/common/container.h"
+#include "core/common/multi_thread_build_manager.h"
 #include "core/common/recorder/event_recorder.h"
 #include "core/common/recorder/node_data_cache.h"
 #include "core/components_ng/manager/drag_drop/drag_drop_related_configuration.h"
@@ -1647,6 +1648,8 @@ void FrameNode::SwapDirtyLayoutWrapperOnMainThread(const RefPtr<LayoutWrapper>& 
         renderContext_->CreateBackgroundPixelMap(columnNode);
         builderFunc_ = nullptr;
         backgroundNode_ = columnNode;
+    } else {
+        renderContext_->UpdateCustomBackground();
     }
 
     // update focus state
@@ -1670,11 +1673,11 @@ void FrameNode::SetBackgroundLayoutConstraint(const RefPtr<FrameNode>& customNod
     CHECK_NULL_VOID(customNode);
     LayoutConstraintF layoutConstraint;
     layoutConstraint.scaleProperty = ScaleProperty::CreateScaleProperty();
-    auto paintRect = renderContext_->GetPaintRectWithoutTransform();
-    layoutConstraint.percentReference.SetWidth(paintRect.Width());
-    layoutConstraint.percentReference.SetHeight(paintRect.Height());
-    layoutConstraint.maxSize.SetWidth(paintRect.Width());
-    layoutConstraint.maxSize.SetHeight(paintRect.Height());
+    auto backgroundRect = GetBackGroundAccumulatedSafeAreaExpand();
+    layoutConstraint.percentReference.SetWidth(backgroundRect.Width());
+    layoutConstraint.percentReference.SetHeight(backgroundRect.Height());
+    layoutConstraint.maxSize.SetWidth(backgroundRect.Width());
+    layoutConstraint.maxSize.SetHeight(backgroundRect.Height());
     customNode->GetGeometryNode()->SetParentLayoutConstraint(layoutConstraint);
 }
 
@@ -2464,7 +2467,7 @@ void FrameNode::RebuildRenderContextTree()
     needSyncRenderTree_ = false;
 }
 
-void FrameNode::MarkModifyDone()
+void FrameNode::MarkModifyDoneUnsafely()
 {
     pattern_->OnModifyDone();
     auto pipeline = PipelineContext::GetCurrentContextSafely();
@@ -2509,6 +2512,19 @@ void FrameNode::MarkModifyDone()
 #endif
 }
 
+void FrameNode::MarkModifyDone()
+{
+    if (!IsFreeState()) {
+        MarkModifyDoneUnsafely();
+    } else {
+        PostAfterAttachMainTreeTask([weak = WeakClaim(this)]() {
+            auto host = weak.Upgrade();
+            CHECK_NULL_VOID(host);
+            host->MarkModifyDoneUnsafely();
+        });
+    }
+}
+
 [[deprecated("using AfterMountToParent")]] void FrameNode::OnMountToParentDone()
 {
     pattern_->OnMountToParentDone();
@@ -2526,7 +2542,7 @@ void FrameNode::FlushUpdateAndMarkDirty()
     MarkDirtyNode();
 }
 
-void FrameNode::MarkDirtyNode(PropertyChangeFlag extraFlag)
+void FrameNode::MarkDirtyNodeUnsafely(PropertyChangeFlag extraFlag)
 {
     if (IsFreeze()) {
         // store the flag.
@@ -2545,6 +2561,19 @@ void FrameNode::MarkDirtyNode(PropertyChangeFlag extraFlag)
         return;
     }
     MarkDirtyNode(IsMeasureBoundary(), IsRenderBoundary(), extraFlag);
+}
+
+void FrameNode::MarkDirtyNode(PropertyChangeFlag extraFlag)
+{
+    if (!IsFreeState()) {
+        MarkDirtyNodeUnsafely(extraFlag);
+    } else {
+        PostAfterAttachMainTreeTask([weak = WeakClaim(this), extraFlag]() {
+            auto host = weak.Upgrade();
+            CHECK_NULL_VOID(host);
+            host->MarkDirtyNodeUnsafely(extraFlag);
+        });
+    }
 }
 
 void FrameNode::ProcessFreezeNode()
@@ -4930,6 +4959,8 @@ void FrameNode::SyncGeometryNode(bool needSyncRsNode, const DirtySwapConfig& con
         renderContext_->CreateBackgroundPixelMap(columnNode);
         builderFunc_ = nullptr;
         backgroundNode_ = columnNode;
+    } else {
+        renderContext_->UpdateCustomBackground();
     }
 
     // update focus state
@@ -5037,6 +5068,12 @@ bool FrameNode::CheckNeedForceMeasureAndLayout()
 {
     PropertyChangeFlag flag = layoutProperty_->GetPropertyChangeFlag();
     return CheckNeedMeasure(flag) || CheckNeedLayout(flag);
+}
+
+bool FrameNode::ReachResponseDeadline() const
+{
+    CHECK_NULL_RETURN(context_, false);
+    return context_->ReachResponseDeadline();
 }
 
 OffsetF FrameNode::GetOffsetInScreen()

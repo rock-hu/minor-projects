@@ -231,6 +231,12 @@ public:
         ViewAbstract::SetBackgroundImageSize(bgImgSize);
     }
 
+    void SetBackgroundImageSizeUpdateFunc(
+        BackgroundImageSize& bgImgSize, const RefPtr<ResourceObject>& resObj, const std::string direction) override
+    {
+        ViewAbstract::SetBackgroundImageSizeUpdateFunc(bgImgSize, resObj, direction);
+    }
+
     void SetBackgroundImagePosition(BackgroundImagePosition& bgImgPosition) override
     {
         ViewAbstract::SetBackgroundImagePosition(bgImgPosition);
@@ -794,6 +800,11 @@ public:
     void SetRotate(float x, float y, float z, float angle, float perspective = 0.0f) override
     {
         ViewAbstract::SetRotate(NG::Vector5F(x, y, z, angle, perspective));
+    }
+
+    void SetRotateAngle(float x, float y, float z, float perspective) override
+    {
+        ViewAbstract::SetRotateAngle(NG::Vector4F(x, y, z, perspective));
     }
 
     void SetTransformMatrix(const std::vector<float>& matrix) override
@@ -1527,6 +1538,10 @@ public:
         NG::ViewAbstract::SetBackgroundAlign(align);
     }
     void SetCustomBackgroundColor(const Color& color) override;
+    void SetCustomBackgroundColorWithResourceObj(const RefPtr<ResourceObject>& resObj) override
+    {
+        NG::ViewAbstract::SetCustomBackgroundColorWithResourceObj(resObj);
+    }
     void SetBackgroundIgnoresLayoutSafeAreaEdges(const uint32_t edges) override;
     void SetIsTransitionBackground(bool val) override
     {
@@ -1751,6 +1766,7 @@ public:
     }
 
     static void SetAccessibilityText(FrameNode* frameNode, const std::string& text);
+    static void SetAccessibilityTextHint(FrameNode* frameNode, const std::string& text);
 
     void SetLightPosition(
         const CalcDimension& positionX, const CalcDimension& positionY, const CalcDimension& positionZ) override

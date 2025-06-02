@@ -26,7 +26,6 @@ group("ark_js_packages") {
     ":js_type_metadata",
     ":libark_jsruntime",
     "ecmascript/compiler:stub.an",
-    "ecmascript/dfx/hprof:ark_js_heap_snapshot_tool",
     "ecmascript/dfx/hprof/rawheap_translate:rawheap_translator",
     "ecmascript/js_vm:ark_js_vm",
     "ecmascript/quick_fix:quick_fix",
@@ -83,7 +82,6 @@ ohos_static_library("ark_js_host_linux_tools_packages") {
   deps = []
 
   deps += [
-    "ecmascript/dfx/hprof:ark_js_heap_snapshot_tool(${host_toolchain})",
     "ecmascript/js_vm:ark_js_vm(${host_toolchain})",
     "ecmascript/quick_fix:quick_fix(${host_toolchain})",
   ]
@@ -357,6 +355,10 @@ config("ark_jsruntime_common_config") {
   if (ark_standalone_build) {
     defines += [ "STANDALONE_MODE" ]
   }
+  
+  if (enable_next_optimization) {
+    defines += [ "NEXT_OPTIMIZATION_MACRO" ]
+  }
 
   cflags_cc = [
     "-Wall",
@@ -402,6 +404,8 @@ config("ark_jsruntime_common_config") {
         "-Wno-error=backend-plugin",
         "-Wno-profile-instr-out-of-date",
         "-Wno-profile-instr-unprofiled",
+        "-mllvm",
+        "-enable-partial-inlining",
       ]
     }
   }
@@ -673,13 +677,13 @@ ecma_source = [
   "ecmascript/base/error_helper.cpp",
   "ecmascript/base/json_helper.cpp",
   "ecmascript/base/json_parser.cpp",
-  "ecmascript/base/json_stringifier.cpp",
   "ecmascript/base/number_helper.cpp",
   "ecmascript/base/path_helper.cpp",
   "ecmascript/base/sort_helper.cpp",
   "ecmascript/base/string_helper.cpp",
   "ecmascript/base/typed_array_helper.cpp",
   "ecmascript/base/utf_helper.cpp",
+  "ecmascript/base/bit_helper.cpp",
   "ecmascript/builtins/builtins.cpp",
   "ecmascript/builtins/builtins_ark_tools.cpp",
   "ecmascript/builtins/builtins_array.cpp",
@@ -999,9 +1003,6 @@ ecma_source = [
   "ecmascript/stackmap/llvm/llvm_stackmap_parser.cpp",
   "ecmascript/stackmap/llvm/llvm_stackmap_type.cpp",
   "ecmascript/sustaining_js_handle.cpp",
-  "ecmascript/taskpool/taskpool.cpp",
-  "ecmascript/taskpool/runner.cpp",
-  "ecmascript/taskpool/task_queue.cpp",
   "ecmascript/layout_info.cpp",
   "ecmascript/regexp/regexp_executor.cpp",
   "ecmascript/regexp/regexp_opcode.cpp",
@@ -1036,6 +1037,9 @@ ecma_source += [
   "common_components/log/log.cpp",
   "common_components/objects/base_object.cpp",
   "common_components/objects/base_string.cpp",
+  "common_components/taskpool/taskpool.cpp",
+  "common_components/taskpool/runner.cpp",
+  "common_components/taskpool/task_queue.cpp",
 ]
 
 if (ets_runtime_enable_cmc_gc) {
@@ -1053,6 +1057,12 @@ if (current_cpu == "arm64") {
   ecma_source += [ "ecmascript/trampoline/x64/raw_asm_stub.S" ]
 } else if (current_cpu == "arm") {
   ecma_source += [ "ecmascript/trampoline/arm32/raw_asm_stub.S" ]
+}
+
+if (enable_next_optimization) {
+  ecma_source += [ "ecmascript/base/json_stringifier_optimized.cpp" ]
+} else {
+  ecma_source += [ "ecmascript/base/json_stringifier.cpp" ]
 }
 
 hitrace_scope_source = []
@@ -1083,6 +1093,7 @@ if (!is_mingw && !is_mac && target_os != "ios") {
       "ecmascript/dfx/hprof/heap_snapshot.cpp",
       "ecmascript/dfx/hprof/heap_snapshot_json_serializer.cpp",
       "ecmascript/dfx/hprof/heap_tracker.cpp",
+      "ecmascript/dfx/hprof/rawheap_dump.cpp",
       "ecmascript/dfx/hprof/string_hashmap.cpp",
       "ecmascript/dfx/stackinfo/js_stackgetter.cpp",
       "ecmascript/base/block_hook_scope.cpp",
@@ -1175,6 +1186,7 @@ config("include_llvm") {
 
 if (is_mingw) {
   ecma_platform_source += [
+    "common_components/platform/windows/cpu.cpp",
     "ecmascript/platform/common/dfx_crash_obj.cpp",
     "ecmascript/platform/windows/backtrace.cpp",
     "ecmascript/platform/windows/async_detect.cpp",
@@ -1187,6 +1199,7 @@ if (is_mingw) {
     "ecmascript/platform/windows/dfx_hisys_event.cpp",
     "ecmascript/platform/windows/pandafile.cpp",
     "ecmascript/platform/windows/module.cpp",
+    "ecmascript/platform/windows/asm_stack.cpp",
     "ecmascript/platform/common/ecma_context.cpp",
     "ecmascript/platform/common/parameters.cpp",
   ]
@@ -1199,6 +1212,7 @@ if (is_mingw) {
   ]
   if (is_mac) {
     ecma_platform_source += [
+      "common_components/platform/unix/mac/cpu.cpp",
       "ecmascript/platform/common/dfx_crash_obj.cpp",
       "ecmascript/platform/unix/mac/os.cpp",
       "ecmascript/platform/unix/mac/backtrace.cpp",
@@ -1207,11 +1221,13 @@ if (is_mingw) {
       "ecmascript/platform/unix/mac/dfx_hisys_event.cpp",
       "ecmascript/platform/unix/mac/pandafile.cpp",
       "ecmascript/platform/unix/mac/module.cpp",
+      "ecmascript/platform/unix/mac/asm_stack.cpp",
       "ecmascript/platform/common/ecma_context.cpp",
       "ecmascript/platform/common/parameters.cpp",
     ]
   } else if (target_os == "ios") {
     ecma_platform_source += [
+      "common_components/platform/unix/mac/cpu.cpp",
       "ecmascript/platform/unix/mac/os.cpp",
       "ecmascript/platform/unix/mac/backtrace.cpp",
       "ecmascript/platform/unix/mac/async_detect.cpp",
@@ -1222,9 +1238,11 @@ if (is_mingw) {
       "ecmascript/platform/common/module.cpp",
       "ecmascript/platform/common/ecma_context.cpp",
       "ecmascript/platform/common/parameters.cpp",
+      "ecmascript/platform/unix/mac/asm_stack.cpp",
     ]
   } else if (is_ohos || target_os == "android") {
     ecma_platform_source += [
+      "common_components/platform/unix/linux/cpu.cpp",
       "ecmascript/platform/unix/linux/os.cpp",
       "ecmascript/platform/unix/ohos/backtrace.cpp",
       "ecmascript/platform/unix/ohos/async_detect.cpp",
@@ -1232,6 +1250,7 @@ if (is_mingw) {
       "ecmascript/platform/unix/ohos/memory.cpp",
       "ecmascript/platform/unix/ohos/dfx_hisys_event.cpp",
       "ecmascript/platform/common/module.cpp",
+      "ecmascript/platform/common/asm_stack.cpp",
     ]
 
     if (is_ohos) {
@@ -1257,6 +1276,7 @@ if (is_mingw) {
     }
   } else if (is_linux) {
     ecma_platform_source += [
+      "common_components/platform/unix/linux/cpu.cpp",
       "ecmascript/platform/unix/linux/os.cpp",
       "ecmascript/platform/unix/linux/backtrace.cpp",
       "ecmascript/platform/unix/linux/async_detect.cpp",
@@ -1268,6 +1288,7 @@ if (is_mingw) {
       "ecmascript/platform/common/module.cpp",
       "ecmascript/platform/common/ecma_context.cpp",
       "ecmascript/platform/common/parameters.cpp",
+      "ecmascript/platform/common/asm_stack.cpp",
     ]
   } else {
     print("Invalid os!")
@@ -1504,7 +1525,10 @@ config("arkjs_runtime_lto_link_config") {
       ldflags += [ "-Wl,-Bsymbolic" ]
     }
     if (ets_runtime_feature_enable_pgo && enable_enhanced_opt) {
-      ldflags += [ "-Wl,--aarch64-inline-plt" ]
+      ldflags += [
+          "-Wl,--aarch64-inline-plt",
+          "-Wl,-mllvm,-enable-partial-inlining",
+      ]
       if (ets_runtime_feature_enable_codemerge) {
         ldflags += [
           "-Wl,-plugin-opt=-split-machine-functions",
@@ -1849,6 +1873,7 @@ js_type_metadata_sources = [
   "ecmascript/js_type_metadata/resolvedrecordindexbinding_record.json",
   "ecmascript/js_type_metadata/resolving_functions_record.json",
   "ecmascript/js_type_metadata/sendable_env.json",
+  "ecmascript/js_type_metadata/sfunction_env.json",
   "ecmascript/js_type_metadata/sliced_string.json",
   "ecmascript/js_type_metadata/source_text_module_record.json",
   "ecmascript/js_type_metadata/star_exportentry_record.json",

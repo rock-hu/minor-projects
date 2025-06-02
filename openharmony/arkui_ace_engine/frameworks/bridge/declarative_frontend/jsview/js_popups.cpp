@@ -704,6 +704,13 @@ void ParseTipsParam(const JSRef<JSObject>& tipsObj, const RefPtr<PopupParam>& ti
     if (enableArrowValue->IsBoolean()) {
         tipsParam->SetEnableArrow(enableArrowValue->ToBoolean());
     }
+    auto showAtAnchor = tipsObj->GetProperty("showAtAnchor");
+    if (showAtAnchor->IsNumber()) {
+        auto type = static_cast<TipsAnchorType>(showAtAnchor->ToNumber<int32_t>());
+        if (type == TipsAnchorType::TARGET || type == TipsAnchorType::CURSOR) {
+            tipsParam->SetAnchorType(type);
+        }
+    }
     tipsParam->SetBlockEvent(false);
     tipsParam->SetTipsFlag(true);
     tipsParam->SetShowInSubWindow(true);
@@ -1065,7 +1072,7 @@ void JSViewPopups::ParseMenuMaskType(const JSRef<JSObject>& menuOptions, NG::Men
             auto blurStyle = backgroundBlurStyleValue->ToNumber<int32_t>();
             if (blurStyle >= static_cast<int>(BlurStyle::NO_MATERIAL) &&
                 blurStyle <= static_cast<int>(BlurStyle::COMPONENT_ULTRA_THICK)) {
-                menuParam.maskType->maskBackGroundBlueStyle = static_cast<BlurStyle>(blurStyle);
+                menuParam.maskType->maskBackGroundBlurStyle = static_cast<BlurStyle>(blurStyle);
             }
         }
     }
@@ -1253,6 +1260,10 @@ void ParseContentPreviewAnimationOptionsParam(const JSCallbackInfo& info, const 
             JSRef<JSArray> hoverScaleArray = JSRef<JSArray>::Cast(hoverScaleProperty);
             ParseAnimationScaleArray(hoverScaleArray, menuParam.hoverImageAnimationOptions);
             menuParam.isShowHoverImage = true;
+        }
+        auto hoverInterruptValue = animationOptionsObj->GetProperty("hoverScaleInterruption");
+        if (hoverInterruptValue->IsBoolean()) {
+            menuParam.hoverScaleInterruption = hoverInterruptValue->ToBoolean();
         }
     }
 }

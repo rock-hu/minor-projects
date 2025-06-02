@@ -16,7 +16,6 @@
 #define ARK_COMMON_ALLOCATOR_H
 
 #include "common_components/common_runtime/src/heap/allocator/alloc_buffer_manager.h"
-#include "common_components/common_runtime/src/heap/gc_thread_pool.h"
 #include "common_components/common_runtime/src/heap/heap.h"
 
 namespace panda {
@@ -52,7 +51,7 @@ public:
     virtual ~Allocator() {}
     Allocator();
 
-    virtual void Init(const HeapParam&) = 0;
+    virtual void Init(const RuntimeParam& param) = 0;
     virtual size_t GetMaxCapacity() const = 0;
     virtual size_t GetCurrentCapacity() const = 0;
     virtual size_t GetUsedPageSize() const = 0;

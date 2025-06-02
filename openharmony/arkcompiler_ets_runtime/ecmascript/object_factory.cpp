@@ -2345,7 +2345,7 @@ JSHandle<JSIntlBoundFunction> ObjectFactory::NewJSIntlBoundFunction(MethodIndex 
     intlBoundFunc->SetDateTimeFormat(thread_, JSTaggedValue::Undefined());
     intlBoundFunc->SetCollator(thread_, JSTaggedValue::Undefined());
     JSHandle<JSFunction> function = JSHandle<JSFunction>::Cast(intlBoundFunc);
-    JSFunction::InitializeJSFunction(thread_, function);
+    JSFunction::InitializeJSBuiltinFunction(thread_, env, function);
     JSHandle<Method> method(thread_, vm_->GetMethodByIndex(idx));
     function->SetMethod(thread_, method);
     SetNativePointerToFunctionFromMethod(JSHandle<JSFunctionBase>::Cast(function), method);
@@ -2369,7 +2369,7 @@ JSHandle<JSProxyRevocFunction> ObjectFactory::NewJSProxyRevocFunction(const JSHa
     revocFunction->SetRevocableProxy(thread_, JSTaggedValue::Undefined());
     revocFunction->SetRevocableProxy(thread_, proxy);
     JSHandle<JSFunction> function = JSHandle<JSFunction>::Cast(revocFunction);
-    JSFunction::InitializeJSFunction(thread_, function);
+    JSFunction::InitializeJSBuiltinFunction(thread_, env, function);
     JSHandle<Method> method(thread_, vm_->GetMethodByIndex(MethodIndex::BUILTINS_PROXY_INVALIDATE_PROXY_FUNCTION));
     function->SetMethod(thread_, method);
     SetNativePointerToFunctionFromMethod(JSHandle<JSFunctionBase>::Cast(function), method);
@@ -2390,7 +2390,7 @@ JSHandle<JSAsyncAwaitStatusFunction> ObjectFactory::NewJSAsyncAwaitStatusFunctio
     JSHandle<JSAsyncAwaitStatusFunction> awaitFunction =
         JSHandle<JSAsyncAwaitStatusFunction>::Cast(NewJSObject(hclass));
     awaitFunction->SetAsyncContext(thread_, JSTaggedValue::Undefined());
-    JSFunction::InitializeJSFunction(thread_, JSHandle<JSFunction>::Cast(awaitFunction));
+    JSFunction::InitializeJSBuiltinFunction(thread_, env, JSHandle<JSFunction>::Cast(awaitFunction));
     JSHandle<Method> method(thread_, vm_->GetMethodByIndex(idx));
     awaitFunction->SetMethod(thread_, method);
     SetNativePointerToFunctionFromMethod(JSHandle<JSFunctionBase>::Cast(awaitFunction), method);
@@ -2630,8 +2630,7 @@ JSHandle<JSSymbol> ObjectFactory::NewPublicSymbol(const JSHandle<JSTaggedValue> 
 
 JSHandle<JSSymbol> ObjectFactory::NewSymbolWithTable(const JSHandle<JSTaggedValue> &name)
 {
-    JSHandle<GlobalEnv> env = vm_->GetGlobalEnv();
-    JSHandle<SymbolTable> tableHandle(env->GetRegisterSymbols());
+    JSHandle<SymbolTable> tableHandle(thread_, vm_->GetRegisterSymbols());
     if (tableHandle->ContainsKey(name.GetTaggedValue())) {
         JSTaggedValue objValue = tableHandle->GetSymbol(name.GetTaggedValue());
         return JSHandle<JSSymbol>(thread_, objValue);
@@ -2641,7 +2640,7 @@ JSHandle<JSSymbol> ObjectFactory::NewSymbolWithTable(const JSHandle<JSTaggedValu
     JSHandle<JSTaggedValue> valueHandle(obj);
     JSHandle<JSTaggedValue> keyHandle(name);
     JSHandle<SymbolTable> table = SymbolTable::Insert(thread_, tableHandle, keyHandle, valueHandle);
-    env->SetRegisterSymbols(thread_, table);
+    vm_->SetRegisterSymbols(table.GetTaggedValue());
     return obj;
 }
 

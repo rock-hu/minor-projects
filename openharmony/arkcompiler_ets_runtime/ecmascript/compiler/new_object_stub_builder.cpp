@@ -52,18 +52,19 @@ void NewObjectStubBuilder::NewLexicalEnv(Variable *result, Label *exit, GateRef 
             glue_, result->ReadVariable(), Int32(LexicalEnv::SCOPE_INFO_INDEX), Hole());
         SetValueToTaggedArray(VariableType::JS_POINTER(),
             glue_, result->ReadVariable(), Int32(LexicalEnv::PARENT_ENV_INDEX), parent);
-        // currentEnv is LexicalEnv/GlobalEnv for normal function, and is SFunctionEnv/Undefined for SharedFunction.
-        Label isEnv(env);
-        Label notEnv(env);
-        BRANCH_LIKELY(TaggedIsHeapObject(parent), &isEnv, &notEnv);
-        Bind(&isEnv);
+        // currentEnv is LexicalEnv/GlobalEnv for normal function, and is SFunctionEnv for SharedFunction.
         GateRef globalEnv = GetValueFromTaggedArray(glue_, parent, Int32(BaseEnv::GLOBAL_ENV_INDEX));
+        Label isHole(env);
+        Label notHole(env);
+        BRANCH_UNLIKELY(TaggedIsHole(globalEnv), &isHole, &notHole);
+        Bind(&isHole);
+        // get globalenv from thread
+        SetValueToTaggedArray(VariableType::JS_POINTER(),
+            glue_, result->ReadVariable(), Int32(LexicalEnv::GLOBAL_ENV_INDEX), GetGlobalEnv(glue_));
+        Jump(exit);
+        Bind(&notHole);
         SetValueToTaggedArray(VariableType::JS_POINTER(),
             glue_, result->ReadVariable(), Int32(LexicalEnv::GLOBAL_ENV_INDEX), globalEnv);
-        Jump(exit);
-        Bind(&notEnv);
-        SetValueToTaggedArray(VariableType::INT64(),
-            glue_, result->ReadVariable(), Int32(LexicalEnv::GLOBAL_ENV_INDEX), Hole());
         Jump(exit);
     }
     Bind(&hasPendingException);
@@ -90,7 +91,7 @@ GateRef NewObjectStubBuilder::NewJSArrayWithSize(GateRef hclass, GateRef size)
         BRANCH(Equal(TruncInt64ToInt32(size), Int32(0)), &initObj, &notEmptyArray);
         Bind(&notEmptyArray);
         {
-            GateRef globalEnv = GetGlobalEnv(glue_);
+            GateRef globalEnv = GetCurrentGlobalEnv();
             #if ECMASCRIPT_ENABLE_ELEMENTSKIND_ALWAY_GENERIC
             GateRef holeKindArrayClass =
                 GetGlobalEnvValue(VariableType::JS_ANY(), glue_, globalEnv,
@@ -152,7 +153,7 @@ GateRef NewObjectStubBuilder::NewJSFunctionByHClass(GateRef glue,
     GateRef result = NewJSObject(glue, hclass);
     SetExtensibleToBitfield(glue, hclass, true);
     GateRef kind = GetFuncKind(method);
-    BuiltinsFunctionStubBuilder builtinsFunctionStubBuilder(this, GetGlobalEnv(glue));
+    BuiltinsFunctionStubBuilder builtinsFunctionStubBuilder(this, GetCurrentGlobalEnv());
     builtinsFunctionStubBuilder.InitializeJSFunction(glue, result, kind, targetKind);
     builtinsFunctionStubBuilder.InitializeFunctionWithMethod(glue, result, method, hclass);
     return result;
@@ -163,7 +164,7 @@ GateRef NewObjectStubBuilder::NewSFunctionByHClass(GateRef glue,
 {
     GateRef result = result = NewSObject(glue, hclass);
     GateRef kind = GetFuncKind(method);
-    BuiltinsFunctionStubBuilder builtinsFunctionStubBuilder(this, GetGlobalEnv(glue));
+    BuiltinsFunctionStubBuilder builtinsFunctionStubBuilder(this, GetCurrentGlobalEnv());
     builtinsFunctionStubBuilder.InitializeSFunction(glue, result, kind, targetKind);
     builtinsFunctionStubBuilder.InitializeFunctionWithMethod(glue, result, method, hclass);
     return result;
@@ -534,7 +535,7 @@ GateRef NewObjectStubBuilder::NewJSProxy(GateRef glue, GateRef target, GateRef h
 
     DEFVARIABLE(result, VariableType::JS_ANY(), Exception());
     DEFVARIABLE(hclass, VariableType::JS_ANY(), Undefined());
-    GateRef globalEnv = GetGlobalEnv(glue);
+    GateRef globalEnv = GetCurrentGlobalEnv();
     GateRef objectFunctionPrototype = GetGlobalEnvValue(VariableType::JS_ANY(), glue, globalEnv,
                                                         GlobalEnv::OBJECT_FUNCTION_PROTOTYPE_INDEX);
     GateRef emptyObject = OrdinaryNewJSObjectCreate(glue, objectFunctionPrototype);
@@ -575,7 +576,7 @@ GateRef NewObjectStubBuilder::NewJSProxy(GateRef glue, GateRef target, GateRef h
         GateRef proxyMethod = GetGlobalConstantValue(
             VariableType::JS_POINTER(), glue, ConstantIndex::PROXY_METHOD_INDEX);
         StoreHClass(glue_, *result, *hclass, MemoryAttribute::NoBarrier());
-        BuiltinsProxyStubBuilder builtinsProxyStubBuilder(this, GetGlobalEnv(glue));
+        BuiltinsProxyStubBuilder builtinsProxyStubBuilder(this, globalEnv);
         builtinsProxyStubBuilder.SetMethod(glue, *result, proxyMethod);
         builtinsProxyStubBuilder.SetTarget(glue, *result, target);
         builtinsProxyStubBuilder.SetHandler(glue, *result, handler);
@@ -583,6 +584,54 @@ GateRef NewObjectStubBuilder::NewJSProxy(GateRef glue, GateRef target, GateRef h
         builtinsProxyStubBuilder.SetIsRevoked(glue, *result, False());
         Jump(&exit);
     }
+    Bind(&exit);
+    auto ret = *result;
+    env->SubCfgExit();
+    return ret;
+}
+
+GateRef NewObjectStubBuilder::DefineFuncForJit(GateRef glue, GateRef method, GateRef hclass, FunctionKind targetKind)
+{
+    auto env = GetEnvironment();
+    Label subentry(env);
+    env->SubCfgEntry(&subentry);
+    Label exit(env);
+    DEFVARIABLE(result, VariableType::JS_ANY(), Undefined());
+
+    Label initialize(env);
+    NewJSObject(&result, &initialize, hclass, GetObjectSizeFromHClass(hclass));
+    Bind(&initialize);
+    SetExtensibleToBitfield(glue, hclass, true);
+    GateRef func = *result;
+
+    SetProtoOrHClassToFunction(glue, func, Hole(), MemoryAttribute::NoBarrier());
+    SetWorkNodePointerToFunction(glue, func, NullPtr(), MemoryAttribute::NoBarrier());
+
+    if (targetKind == FunctionKind::BASE_CONSTRUCTOR) {
+        auto funcprotoAccessor =
+            GetGlobalConstantValue(VariableType::JS_POINTER(), glue, ConstantIndex::FUNCTION_PROTOTYPE_ACCESSOR);
+        Store(VariableType::JS_ANY(), glue, func,
+              IntPtr(JSFunction::GetInlinedPropertyOffset(JSFunction::PROTOTYPE_INLINE_PROPERTY_INDEX)),
+              funcprotoAccessor, MemoryAttribute::NoBarrier());
+    } else {
+        ASSERT(targetKind == FunctionKind::ARROW_FUNCTION || targetKind == FunctionKind::NORMAL_FUNCTION);
+    }
+    auto funcAccessor = GetGlobalConstantValue(VariableType::JS_POINTER(), glue, ConstantIndex::FUNCTION_NAME_ACCESSOR);
+    Store(VariableType::JS_ANY(), glue, func,
+          IntPtr(JSFunction::GetInlinedPropertyOffset(JSFunction::NAME_INLINE_PROPERTY_INDEX)), funcAccessor,
+          MemoryAttribute::NoBarrier());
+    funcAccessor = GetGlobalConstantValue(VariableType::JS_POINTER(), glue, ConstantIndex::FUNCTION_LENGTH_ACCESSOR);
+    Store(VariableType::JS_ANY(), glue, func,
+          IntPtr(JSFunction::GetInlinedPropertyOffset(JSFunction::LENGTH_INLINE_PROPERTY_INDEX)), funcAccessor,
+          MemoryAttribute::NoBarrier());
+
+    SetCallableToBitfield(glue, hclass, true);
+    SetMethodToFunction(glue, func, method);
+    SetBitFieldToFunction(glue, func, Int32(0), MemoryAttribute::NoBarrier());
+    SetMachineCodeToFunction(glue, func, Undefined(), MemoryAttribute::NoBarrier());
+    SetBaselineJitCodeToFunction(glue, func, Undefined(), MemoryAttribute::NoBarrier());
+    SetCodeEntryToFunctionFromMethod(glue, func, method);
+    Jump(&exit);
     Bind(&exit);
     auto ret = *result;
     env->SubCfgExit();
@@ -949,7 +998,7 @@ GateRef NewObjectStubBuilder::CopyArray(GateRef glue, GateRef elements, GateRef 
 GateRef NewObjectStubBuilder::NewJSForinIterator(GateRef glue, GateRef receiver, GateRef keys, GateRef cachedHClass,
                                                  GateRef EnumCacheKind)
 {
-    GateRef globalEnv = GetGlobalEnv(glue);
+    GateRef globalEnv = GetCurrentGlobalEnv();
     GateRef hclass = GetGlobalEnvValue(VariableType::JS_ANY(), glue, globalEnv,
                                        GlobalEnv::FOR_IN_ITERATOR_CLASS_INDEX);
     GateRef iter = NewJSObject(glue, hclass);
@@ -985,7 +1034,7 @@ GateRef NewObjectStubBuilder::LoadHClassFromMethod(GateRef glue, GateRef method)
     int64_t valueBuffer1[3] = {
         static_cast<int64_t>(FunctionKind::BASE_CONSTRUCTOR), static_cast<int64_t>(FunctionKind::GENERATOR_FUNCTION),
         static_cast<int64_t>(FunctionKind::ASYNC_GENERATOR_FUNCTION) };
-    GateRef globalEnv = GetGlobalEnv(glue);
+    GateRef globalEnv = GetCurrentGlobalEnv();
     BRANCH(Int32LessThanOrEqual(kind, Int32(static_cast<int32_t>(FunctionKind::ARROW_FUNCTION))),
         &isNormal, &notNormal);
     Bind(&isNormal);
@@ -1062,7 +1111,7 @@ GateRef NewObjectStubBuilder::LoadSHClassFromMethod(GateRef glue, GateRef method
     Label isNormal(env);
     Label notNormal(env);
 
-    GateRef globalEnv = GetGlobalEnv(glue);
+    GateRef globalEnv = GetCurrentGlobalEnv();
     BRANCH(IsSendableFunction(method), &isSendableFunc, &isNotSendableFunc);
     Bind(&isSendableFunc);
     {
@@ -1132,6 +1181,9 @@ void NewObjectStubBuilder::NewJSFunction(GateRef glue, GateRef jsFunc, GateRef i
             GateRef smodule = CallRuntime(glue, RTSTUB_ID(GetSharedModule), { module });
             SetSendableEnvToModule(glue, smodule, GetSendableEnvFromModule(glue, module));
             SetModuleToFunction(glue, result->ReadVariable(), smodule);
+            GateRef emptySFuncEnv = GetGlobalConstantValue(VariableType::JS_ANY(), glue,
+                                                           ConstantIndex::EMPTY_SFUNCTION_ENV_INDEX);
+            SetLexicalEnvToFunction(glue, result->ReadVariable(), emptySFuncEnv);
             Jump(&afterSendableFunc);
         }
         Bind(&isNotSendableFunc);
@@ -1153,7 +1205,7 @@ GateRef NewObjectStubBuilder::NewJSFunction(GateRef glue, GateRef method, GateRe
 {
     ASM_ASSERT(GET_MESSAGE_STRING_ID(IsEcmaObject), TaggedObjectIsEcmaObject(glue, homeObject));
 
-    GateRef globalEnv = GetGlobalEnv(glue);
+    GateRef globalEnv = GetCurrentGlobalEnv();
     GateRef hclass = GetGlobalEnvValue(VariableType::JS_ANY(), glue, globalEnv, GlobalEnv::FUNCTION_CLASS_WITHOUT_PROTO);
 
     GateRef jsFunc = NewJSFunctionByHClass(glue, method, hclass);
@@ -1171,6 +1223,58 @@ GateRef NewObjectStubBuilder::DefineMethod(GateRef glue, GateRef method, GateRef
     SetLexicalEnvToFunction(glue, func, lexEnv);
     SetModuleToFunction(glue, func, module);
     return func;
+}
+
+void NewObjectStubBuilder::NewJSFunctionForJit(GateRef glue, GateRef jsFunc, GateRef hclass, GateRef method,
+                                               GateRef length, GateRef lexEnv, Variable *result, Label *success,
+                                               Label *failed, GateRef slotId, FunctionKind targetKind)
+{
+    auto env = GetEnvironment();
+    Label hasException(env);
+    Label notException(env);
+    Label isSendableFunc(env);
+    Label isNotSendableFunc(env);
+    Label afterSendableFunc(env);
+    Label slotValueUpdate(env);
+    Label slotValueNotUndefined(env);
+    Label profileTypeInfoEnd(env);
+    SetGlue(glue);
+    result->WriteVariable(DefineFuncForJit(glue, method, hclass, targetKind));
+    BRANCH(HasPendingException(glue), &hasException, &notException);
+    Bind(&hasException);
+    {
+        Jump(failed);
+    }
+    Bind(&notException);
+    {
+        GateRef module = GetModuleFromFunction(glue, jsFunc);
+        SetLengthToFunction(glue, result->ReadVariable(), length);
+        SetLexicalEnvToFunction(glue, result->ReadVariable(), lexEnv);
+        SetModuleToFunction(glue, result->ReadVariable(), module);
+        SetHomeObjectToFunction(glue, result->ReadVariable(), GetHomeObjectFromFunction(glue, jsFunc));
+#if ECMASCRIPT_ENABLE_IC
+        GateRef profileTypeInfo = GetProfileTypeInfo(glue, jsFunc);
+        GateRef slotValue = GetValueFromTaggedArray(glue, profileTypeInfo, slotId);
+
+        BRANCH(TaggedIsUndefined(slotValue), &slotValueUpdate, &slotValueNotUndefined);
+        Bind(&slotValueUpdate);
+        {
+            GateRef newProfileTypeInfoCell = NewProfileTypeInfoCell(glue, Undefined());
+            SetValueToTaggedArray(VariableType::JS_ANY(), glue, profileTypeInfo, slotId, newProfileTypeInfoCell);
+            SetRawProfileTypeInfoToFunction(glue, result->ReadVariable(), newProfileTypeInfoCell);
+            Jump(&profileTypeInfoEnd);
+        }
+        Bind(&slotValueNotUndefined);
+        {
+            UpdateProfileTypeInfoCellType(glue, slotValue);
+            SetRawProfileTypeInfoToFunction(glue, result->ReadVariable(), slotValue);
+            TryToJitReuseCompiledFunc(glue, result->ReadVariable(), slotValue);
+            Jump(&profileTypeInfoEnd);
+        }
+        Bind(&profileTypeInfoEnd);
+#endif
+        Jump(success);
+    }
 }
 
 void NewObjectStubBuilder::SetProfileTypeInfoCellToFunction(GateRef jsFunc, GateRef definedFunc, GateRef slotId)
@@ -1212,7 +1316,7 @@ GateRef NewObjectStubBuilder::NewJSBoundFunction(GateRef glue, GateRef target, G
     Label exit(env);
     DEFVARIABLE(result, VariableType::JS_ANY(), Undefined());
 
-    GateRef globalEnv = GetGlobalEnv(glue);
+    GateRef globalEnv = GetCurrentGlobalEnv();
     GateRef hclass = GetGlobalEnvValue(VariableType::JS_ANY(), glue, globalEnv, GlobalEnv::BOUND_FUNCTION_CLASS);
     result = NewJSObject(glue, hclass);
     GateRef nameAccessor = GetGlobalConstantValue(VariableType::JS_POINTER(), glue,
@@ -1328,7 +1432,7 @@ void NewObjectStubBuilder::FillArgumentsList(GateRef argumentsList,
     BRANCH(Int32UnsignedLessThan(*i, numArgs), &setArgumentsBegin, &setArgumentsEnd);
     LoopBegin(&setArgumentsBegin);
     GateRef idx = ZExtInt32ToPtr(Int32Add(startIdx, *i));
-    GateRef argument = Load(VariableType::JS_ANY(), glue_, sp, PtrMul(IntPtr(sizeof(JSTaggedType)), idx));
+    GateRef argument = LoadPrimitive(VariableType::JS_ANY(), sp, PtrMul(IntPtr(sizeof(JSTaggedType)), idx));
     SetValueToTaggedArray(VariableType::JS_ANY(), glue_, argumentsList, *i, argument);
     i = Int32Add(*i, Int32(1));
     BRANCH(Int32UnsignedLessThan(*i, numArgs), &setArgumentsAgain, &setArgumentsEnd);
@@ -1386,7 +1490,7 @@ void NewObjectStubBuilder::NewArgumentsObj(Variable *result, Label *exit,
 {
     auto env = GetEnvironment();
 
-    GateRef globalEnv = GetGlobalEnv(glue_);
+    GateRef globalEnv = GetCurrentGlobalEnv();
     GateRef argumentsClass = GetGlobalEnvValue(VariableType::JS_ANY(), glue_, globalEnv,
                                                GlobalEnv::ARGUMENTS_CLASS);
     Label afterNewObject(env);
@@ -1436,8 +1540,8 @@ void NewObjectStubBuilder::AssignRestArg(Variable *result, Label *exit,
     LoopBegin(&setArgumentsBegin);
     {
         GateRef idx = ZExtInt32ToPtr(Int32Add(startIdx, *i));
-        GateRef receiver =
-            Load(VariableType::JS_ANY(), glue_, sp, PtrMul(IntPtr(JSTaggedValue::TaggedTypeSize()), idx));
+        GateRef receiver = LoadPrimitive(VariableType::JS_ANY(), sp,
+                                         PtrMul(IntPtr(JSTaggedValue::TaggedTypeSize()), idx));
         SetValueToTaggedArray(VariableType::JS_ANY(), glue_, elements, *i, receiver);
         i = Int32Add(*i, Int32(1));
         BRANCH(Int32UnsignedLessThan(*i, numArgs), &setArgumentsAgain, &setArgumentsEnd);
@@ -1776,7 +1880,7 @@ void NewObjectStubBuilder::AllocSlicedStringObject(Variable *result, Label *exit
     // decode compressedStatus to bool
 
     SetRawHashcode(glue_, result->ReadVariable(), Int32(0));
-    BuiltinsStringStubBuilder builtinsStringStubBuilder(this, GetGlobalEnv(glue_));
+    BuiltinsStringStubBuilder builtinsStringStubBuilder(this, GetCurrentGlobalEnv());
     builtinsStringStubBuilder.StoreParent(glue_, result->ReadVariable(), flatString->GetFlatString());
     builtinsStringStubBuilder.StoreStartIndexAndBackingStore(glue_, result->ReadVariable(),
                                                              Int32Add(from, flatString->GetStartIndex()),
@@ -1993,7 +2097,7 @@ GateRef NewObjectStubBuilder::LoadArrayHClassSlowPath(
         }
 
         GateRef hcIndex = LoadHCIndexFromConstPool(glue, hcIndexInfos, indexInfosLength, traceId, &originLoad);
-        GateRef globalEnv = GetGlobalEnv(glue);
+        GateRef globalEnv = GetCurrentGlobalEnv();
         ret = GetGlobalEnvValue(VariableType::JS_POINTER(), glue, globalEnv, static_cast<size_t>(hcIndex));
         Jump(&exit);
     }
@@ -2001,7 +2105,7 @@ GateRef NewObjectStubBuilder::LoadArrayHClassSlowPath(
     {
         // emptyarray
         if (arrayLiteral == Circuit::NullGate()) {
-            GateRef globalEnv = GetGlobalEnv(glue);
+            GateRef globalEnv = GetCurrentGlobalEnv();
             if (callback.IsEmpty()) {
                 auto arrayFunc =
                     GetGlobalEnvValue(VariableType::JS_ANY(), glue, globalEnv, GlobalEnv::ARRAY_FUNCTION_INDEX);
@@ -2043,7 +2147,7 @@ GateRef NewObjectStubBuilder::CreateEmptyArrayCommon(GateRef glue, GateRef hclas
 
 GateRef NewObjectStubBuilder::CreateEmptyObject(GateRef glue)
 {
-    GateRef globalEnv = GetGlobalEnv(glue);
+    GateRef globalEnv = GetCurrentGlobalEnv();
     GateRef objectFunc = GetGlobalEnvValue(VariableType::JS_ANY(), glue, globalEnv, GlobalEnv::OBJECT_FUNCTION_INDEX);
     GateRef hclass = Load(VariableType::JS_POINTER(), glue, objectFunc, IntPtr(JSFunction::PROTO_OR_DYNCLASS_OFFSET));
     return NewJSObject(glue, hclass);
@@ -2052,7 +2156,7 @@ GateRef NewObjectStubBuilder::CreateEmptyObject(GateRef glue)
 GateRef NewObjectStubBuilder::CreateEmptyArray(GateRef glue)
 {
     DEFVARIABLE(trackInfo, VariableType::JS_ANY(), Undefined());
-    GateRef globalEnv = GetGlobalEnv(glue);
+    GateRef globalEnv = GetCurrentGlobalEnv();
     GateRef arrayFunc = GetGlobalEnvValue(VariableType::JS_ANY(), glue, globalEnv, GlobalEnv::ARRAY_FUNCTION_INDEX);
     GateRef hclass = Load(VariableType::JS_POINTER(), glue, arrayFunc, IntPtr(JSFunction::PROTO_OR_DYNCLASS_OFFSET));
     return CreateEmptyArrayCommon(glue, hclass, *trackInfo);
@@ -2333,7 +2437,7 @@ GateRef NewObjectStubBuilder::NewTypedArray(GateRef glue, GateRef srcTypedArray,
     Label exit(env);
     BRANCH(HasConstructor(glue, srcTypedArray), &slowPath, &defaultConstr);
     Bind(&defaultConstr);
-    GateRef globalEnv = GetGlobalEnv(glue);
+    GateRef globalEnv = GetCurrentGlobalEnv();
     GateRef detector = GetTypedArraySpeciesProtectDetector(globalEnv);
     BRANCH(BoolNot(detector), &markerCellValid, &slowPath);
     Bind(&markerCellValid);
@@ -2526,9 +2630,9 @@ GateRef NewObjectStubBuilder::NewJSObjectByConstructor(GateRef glue, GateRef con
     return ret;
 }
 
-GateRef NewObjectStubBuilder::NewFloat32ArrayObj(GateRef glue, GateRef globalEnv)
+GateRef NewObjectStubBuilder::NewFloat32ArrayObj(GateRef glue)
 {
-    GateRef arrayFunc = GetGlobalEnvValue(VariableType::JS_ANY(), glue, globalEnv,
+    GateRef arrayFunc = GetGlobalEnvValue(VariableType::JS_ANY(), glue, GetCurrentGlobalEnv(),
                                           GlobalEnv::FLOAT32_ARRAY_FUNCTION_INDEX);
     GateRef hclass = Load(VariableType::JS_POINTER(), glue, arrayFunc, IntPtr(JSFunction::PROTO_OR_DYNCLASS_OFFSET));
     GateRef obj = NewJSObject(glue, hclass);
@@ -2543,8 +2647,7 @@ GateRef NewObjectStubBuilder::NewFloat32ArrayWithSize(GateRef glue, GateRef size
     DEFVARIABLE(result, VariableType::JS_ANY(), Undefined());
     DEFVARIABLE(buffer, VariableType::JS_ANY(), Undefined());
     Label exit(env);
-    GateRef globalEnv = GetGlobalEnv(glue);
-    GateRef obj = NewFloat32ArrayObj(glue, globalEnv);
+    GateRef obj = NewFloat32ArrayObj(glue);
     result = obj;
     GateRef ctorName = GetGlobalConstantValue(VariableType::JS_POINTER(), glue,
                                               ConstantIndex::FLOAT32_ARRAY_STRING_INDEX);
@@ -2555,7 +2658,7 @@ GateRef NewObjectStubBuilder::NewFloat32ArrayWithSize(GateRef glue, GateRef size
         Label newByteArrayExit(env);
         NewByteArray(&buffer, &newByteArrayExit, elementSize, size);
         Bind(&newByteArrayExit);
-        GateRef onHeapHClass = GetGlobalEnvValue(VariableType::JS_ANY(), glue, globalEnv,
+        GateRef onHeapHClass = GetGlobalEnvValue(VariableType::JS_ANY(), glue,  GetCurrentGlobalEnv(),
                                                  GlobalEnv::FLOAT32_ARRAY_ROOT_HCLASS_ON_HEAP_INDEX);
         StoreHClass(glue, obj, onHeapHClass);
         Store(VariableType::JS_POINTER(), glue, obj, IntPtr(JSTypedArray::VIEWED_ARRAY_BUFFER_OFFSET), *buffer);
@@ -2824,7 +2927,7 @@ GateRef NewObjectStubBuilder::GetOnHeapHClassFromType(GateRef glue, GateRef type
     env->SubCfgEntry(&entry);
 
     DEFVARIABLE(result, VariableType::JS_ANY(), Undefined());
-    GateRef globalEnv = GetGlobalEnv(glue);
+    GateRef globalEnv = GetCurrentGlobalEnv();
     Label defaultLabel(env);
     Label exit(env);
     Label labelBuffer[11] = {
@@ -2941,7 +3044,7 @@ GateRef NewObjectStubBuilder::GetNotOnHeapHClassFromType(GateRef glue, GateRef t
     env->SubCfgEntry(&entry);
 
     DEFVARIABLE(result, VariableType::JS_ANY(), Undefined());
-    GateRef globalEnv = GetGlobalEnv(glue);
+    GateRef globalEnv = GetCurrentGlobalEnv();
     Label defaultLabel(env);
     Label exit(env);
     Label labelBuffer[11] = {
@@ -3099,7 +3202,7 @@ GateRef NewObjectStubBuilder::CreateListFromArrayLike(GateRef glue, GateRef arra
         {
             GateRef int32Len = GetLengthOfJSTypedArray(arrayObj);
             GateRef array = NewTaggedArray(glue, int32Len);
-            BuiltinsTypedArrayStubBuilder arrayStubBuilder(this, GetGlobalEnv(glue));
+            BuiltinsTypedArrayStubBuilder arrayStubBuilder(this, GetCurrentGlobalEnv());
             arrayStubBuilder.FastCopyElementToArray(glue, arrayObj, array);
             // c. ReturnIfAbrupt(next).
             Label noPendingException1(env);
@@ -3176,7 +3279,7 @@ GateRef NewObjectStubBuilder::CreateListFromArrayLike(GateRef glue, GateRef arra
 void NewObjectStubBuilder::CreateJSIteratorResult(GateRef glue, Variable *res, GateRef value, GateRef done, Label *exit)
 {
     auto env = GetEnvironment();
-    GateRef globalEnv = GetGlobalEnv(glue);
+    GateRef globalEnv = GetCurrentGlobalEnv();
     GateRef iterResultClass = GetGlobalEnvValue(VariableType::JS_ANY(), glue, globalEnv,
                                                 GlobalEnv::ITERATOR_RESULT_CLASS_INDEX);
     Label afterNew(env);

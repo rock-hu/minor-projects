@@ -59,6 +59,9 @@ declare_args() {
     timeout = 1200
   }
 
+  # Turn off next optimization features if set to false
+  enable_next_optimization = true
+
   # If true app_aot_jit_enable_list will be placed in /etc/ark
   # Default false.
   ets_runtime_feature_enable_list = false
@@ -85,7 +88,7 @@ if (!ark_standalone_build) {
   import("$build_root/config/components/toolchain/build_type.gni")
   import("$build_root/ohos.gni")
 } else {
-  ark_third_party_root = "//arkcompiler/toolchain/build/third_party_gn"
+  ark_third_party_root = "//build/third_party_gn"
   import("$build_root/ark.gni")
   import("$build_root/config/build_type.gni")
 }

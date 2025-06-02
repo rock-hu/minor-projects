@@ -49,7 +49,7 @@ enum class ContextMenuRegisterType : char {
 
 struct MenuMaskType {
     std::optional<Color> maskColor;
-    std::optional<BlurStyle> maskBackGroundBlueStyle;
+    std::optional<BlurStyle> maskBackGroundBlurStyle;
 };
 
 struct MenuParam {
@@ -77,6 +77,7 @@ struct MenuParam {
     MenuPreviewMode previewMode = MenuPreviewMode::NONE;
     MenuPreviewAnimationOptions previewAnimationOptions;
     bool isShowHoverImage = false;
+    bool hoverScaleInterruption = false;
     MenuPreviewAnimationOptions hoverImageAnimationOptions;
     std::optional<EffectOption> backgroundEffectOption;
     std::optional<Color> backgroundColor;

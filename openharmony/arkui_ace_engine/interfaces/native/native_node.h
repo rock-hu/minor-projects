@@ -1975,7 +1975,27 @@ typedef enum {
      * @since 20
      */
     NODE_TRANSLATE_WITH_PERCENT = 103,
-    
+
+    /**
+     * @brief Defines the rotate attribute about angle, which can be set, reset, and obtained as required through APIs.
+     *
+     * Format of the {@link ArkUI_AttributeItem} parameter for setting the attribute:\n
+     * .value[0].f32: rotation angle of the X-axis direction. The default value is <b>0</b>.\n
+     * .value[1].f32: rotation angle of the Y-axis direction. The default value is <b>0</b>.\n
+     * .value[2].f32: rotation angle of the Z-axis direction. The default value is <b>0</b>.\n
+     * .value[3].f32: line of sight, that is, the distance from the viewpoint to the z=0 plane, in px.
+     * The default value is <b>0</b>. \n
+     * \n
+     * Format of the return value {@link ArkUI_AttributeItem}:\n
+     * .value[0].f32: rotation angle of the X-axis direction.\n
+     * .value[1].f32: rotation angle of the Y-axis direction.\n
+     * .value[2].f32: rotation angle of the Z-axis direction.\n
+     * .value[3].f32: line of sight, that is, the distance from the viewpoint to the z=0 plane, in px. \n
+     *
+     * @since 20
+     */
+    NODE_ROTATE_ANGLE = 104,
+
     /**
      * @brief Defines the text content attribute, which can be set, reset, and obtained as required through APIs.
      *
@@ -3651,6 +3671,35 @@ typedef enum {
     NODE_TEXT_AREA_LINE_SPACING = 8028,
 
     /**
+     * @brief Set the min lines of the node. This attribute can be set, reset, and obtained as required through APIs.
+     *
+     * Format of the {@link ArkUI_AttributeItem} parameter for setting the attribute:\n
+     * .value[0].i32: min lines count.
+     * \n
+     * Format of the return value {@link ArkUI_AttributeItem}: \n
+     * .value[0].i32: min line count.\n
+     *
+     * @since 20
+     * 
+     */
+    NODE_TEXT_AREA_MIN_LINES = 8029,
+ 
+    /**
+     * @brief Set the max lines of the node with scroll.
+     * This attribute can be set, reset, and obtained as required through APIs.
+     *
+     * Format of the {@link ArkUI_AttributeItem} parameter for setting the attribute:\n
+     * .value[0].i32: max lines count with scroll.
+     * \n
+     * Format of the return value {@link ArkUI_AttributeItem}: \n
+     * .value[0].i32: max line count with scroll.\n
+     *
+     * @since 20
+     *
+     */
+    NODE_TEXT_AREA_MAX_LINES_WITH_SCROLL = 8030,
+
+    /**
      * @brief Set the line height of the node. This attribute can be set, reset, and obtained as required through APIs.
      *
      * Format of the {@link ArkUI_AttributeItem} parameter for setting the attribute:\n
@@ -4094,6 +4143,20 @@ typedef enum {
      * @since 18
      */
     NODE_DATE_PICKER_ENABLE_HAPTIC_FEEDBACK = 13008,
+    /**
+     * @brief Defines whether to support scroll looping for the date picker.
+     * This attribute can be set, reset, and obtained as required through APIs.
+     *
+     * Format of the {@link ArkUI_AttributeItem} parameter for setting the attribute:\n
+     * .value[0].i32: whether to support scroll looping. The value <b>true</b> means to support scroll looping, and
+     * <b>false</b> means the opposite.\n
+     * \n
+     * Format of the return value {@link ArkUI_AttributeItem}:\n
+     * value[0].i32: The value <b>1</b> means to support scroll looping, and <b>0</b> means the opposite. \n
+     *
+     * @since 20
+     */
+     NODE_DATE_PICKER_CAN_LOOP = 13009,
     /**
      * @brief Defines the time of the selected item. in the timer picker.
      * This attribute can be set, reset, and obtained as required through APIs.
@@ -8066,6 +8129,10 @@ typedef enum {
     ARKUI_NODE_CUSTOM_EVENT_ON_FOREGROUND_DRAW = 1 << 3,
     /** Overlay type. */
     ARKUI_NODE_CUSTOM_EVENT_ON_OVERLAY_DRAW = 1 << 4,
+    /** Draw front type. */
+    ARKUI_NODE_CUSTOM_EVENT_ON_DRAW_FRONT = 1 << 5,
+    /** Draw behind type. */
+    ARKUI_NODE_CUSTOM_EVENT_ON_DRAW_BEHIND = 1 << 6,
 } ArkUI_NodeCustomEventType;
 
 /**
@@ -9523,6 +9590,47 @@ ArkUI_ErrorCode OH_ArkUI_AddSupportedUIStates(ArkUI_NodeHandle node, int32_t uiS
  * @since 20
  */
 ArkUI_ErrorCode OH_ArkUI_RemoveSupportedUIStates(ArkUI_NodeHandle node, int32_t uiStates);
+
+/**
+ * @brief Post UI task to background threads.
+ *
+ * @param context UIContext pointer of the page where the UI task located.
+ * @param asyncUITaskData Parameter of asyncUITask and onFinish.
+ * @param asyncUITask Function executed by a background thread.
+ * @param onFinish Function executed by UI thread after async UI task is executed.
+ * @return Returns the result code.
+ *         Returns {@link ARKUI_ERROR_CODE_NO_ERROR} if the operation is successful.
+ *         Returns {@link ARKUI_ERROR_CODE_PARAM_INVALID} if a parameter error occurs.
+ * @since 20
+ */
+int32_t OH_ArkUI_PostAsyncUITask(ArkUI_ContextHandle context, void* asyncUITaskData,
+    void (*asyncUITask)(void* asyncUITaskData), void (*onFinish)(void* asyncUITaskData));
+
+/**
+ * @brief Post UI task to UI thread.
+ *
+ * @param context UIContext pointer of the page where the UI task located.
+ * @param taskData Parameter of task.
+ * @param task Function executed by UI thread.
+ * @return Returns the result code.
+ *         Returns {@link ARKUI_ERROR_CODE_NO_ERROR} if the operation is successful.
+ *         Returns {@link ARKUI_ERROR_CODE_PARAM_INVALID} if a parameter error occurs.
+ * @since 20
+ */
+int32_t OH_ArkUI_PostUITask(ArkUI_ContextHandle context, void* taskData, void (*task)(void* taskData));
+
+/**
+ * @brief Post UI task to UI thread and wait until UI task finished.
+ *
+ * @param context UIContext pointer of the page where the UI task located.
+ * @param taskData Parameter of task.
+ * @param task Function executed by UI thread.
+ * @return Returns the result code.
+ *         Returns {@link ARKUI_ERROR_CODE_NO_ERROR} if the operation is successful.
+ *         Returns {@link ARKUI_ERROR_CODE_PARAM_INVALID} if a parameter error occurs.
+ * @since 20
+ */
+int32_t OH_ArkUI_PostUITaskAndWait(ArkUI_ContextHandle context, void* taskData, void (*task)(void* taskData));
 
 #ifdef __cplusplus
 }

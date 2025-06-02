@@ -366,8 +366,8 @@ ArkNativeEngine::ArkNativeEngine(EcmaVM* vm, void* jsEngine, bool isLimitedWorke
     LocalScope scope(vm_);
 
     options_ = new NapiOptions();
-    // Cache of ark runtime cross thread check option.
-    crossThreadCheck_ = JSNApi::IsMultiThreadCheckEnabled(vm);
+    // Update cache of ark runtime cross thread check option.
+    UpdateCrossThreadCheckStatus();
 #ifdef ENABLE_CONTAINER_SCOPE
     containerScopeEnable_ = OHOS::system::GetBoolParameter("persist.ace.napiContainerScope.enabled", true);
 #endif
@@ -438,7 +438,8 @@ ArkNativeEngine::ArkNativeEngine(NativeEngine* parent, EcmaVM* vm, const Local<J
       topScope_(vm),
       context_(vm, context),
       parentEngine_(reinterpret_cast<ArkNativeEngine*>(parent)),
-      containerScopeEnable_(parent->IsContainerScopeEnabled())
+      containerScopeEnable_(parent->IsContainerScopeEnabled()),
+      isMultiContextEnabled_(true)
 {
     HILOG_INFO("ArkContextEngine is created, id %{public}" PRIu64, GetId());
 
@@ -447,13 +448,15 @@ ArkNativeEngine::ArkNativeEngine(NativeEngine* parent, EcmaVM* vm, const Local<J
     // until all napi_ref callbacks are completed.
     parent->AddCleanupHook(EnvironmentCleanup, this);
 
+    parent->SetMultiContextEnabled(true);
+
     LocalScope scope(vm);
 
     // enable napi profiler
     EnableNapiProfiler();
 
-    // Cache of ark runtime cross thread check option.
-    crossThreadCheck_ = JSNApi::IsMultiThreadCheckEnabled(vm);
+    // Update cache of ark runtime cross thread check option.
+    UpdateCrossThreadCheckStatus();
 
     options_ = new NapiOptions();
 #if defined(OHOS_PLATFORM) && !defined(IOS_PLATFORM) && !defined(ANDROID_PLATFORM)

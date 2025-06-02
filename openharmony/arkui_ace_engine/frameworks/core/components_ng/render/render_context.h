@@ -575,6 +575,7 @@ public:
     ACE_DEFINE_PROPERTY_FUNC_WITH_GROUP(Transform, TransformCenter, DimensionOffset);
     ACE_DEFINE_PROPERTY_FUNC_WITH_GROUP(Transform, TransformTranslate, TranslateOptions);
     ACE_DEFINE_PROPERTY_FUNC_WITH_GROUP(Transform, TransformRotate, Vector5F);
+    ACE_DEFINE_PROPERTY_FUNC_WITH_GROUP(Transform, TransformRotateAngle, Vector4F);
 
     // Foreground
     ACE_DEFINE_PROPERTY_GROUP(Foreground, ForegroundProperty);
@@ -616,7 +617,7 @@ public:
     ACE_DEFINE_PROPERTY_FUNC_WITH_GROUP(CustomBackground, BackgroundAlign, Alignment);
     ACE_DEFINE_PROPERTY_FUNC_WITH_GROUP(CustomBackground, CustomBackgroundColor, Color);
     ACE_DEFINE_PROPERTY_FUNC_WITH_GROUP(CustomBackground, IsTransitionBackground, bool);
-    ACE_DEFINE_PROPERTY_FUNC_WITH_GROUP(CustomBackground, IsBuilderBackground, bool);
+    ACE_DEFINE_PROPERTY_FUNC_WITH_GROUP(CustomBackground, BuilderBackgroundFlag, bool);
 
     // Graphics
     ACE_DEFINE_PROPERTY_GROUP(Graphics, GraphicsProperty);
@@ -819,6 +820,8 @@ public:
         return {};
     }
 
+    virtual void UpdateCustomBackground() {}
+
 protected:
     RenderContext() = default;
     std::shared_ptr<SharedTransitionOption> sharedTransitionOption_;
@@ -844,7 +847,7 @@ protected:
     virtual void OnBackgroundAlignUpdate(const Alignment& align) {}
     virtual void OnCustomBackgroundColorUpdate(const Color& color) {}
     virtual void OnIsTransitionBackgroundUpdate(bool isTransitionBackground) {}
-    virtual void OnIsBuilderBackgroundUpdate(bool isBuilderBackground) {}
+    virtual void OnBuilderBackgroundFlagUpdate(bool isBuilderBackground) {}
 
     virtual void OnBorderImageUpdate(const RefPtr<BorderImage>& borderImage) {}
     virtual void OnBorderImageSourceUpdate(const ImageSourceInfo& borderImageSourceInfo) {}
@@ -875,6 +878,7 @@ protected:
     virtual void OnBloomUpdate(const float value) {}
 
     virtual void OnTransformRotateUpdate(const Vector5F& value) {}
+    virtual void OnTransformRotateAngleUpdate(const Vector4F& value) {}
     virtual void OnTransformMatrixUpdate(const Matrix4& matrix) {}
     virtual void OnTransform3DMatrixUpdate(const Matrix4& matrix) {}
 

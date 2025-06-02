@@ -2940,9 +2940,22 @@ void ScrollablePattern::FireObserverOnDidScroll(float finalOffset)
     FireOnScroll(finalOffset, onScroll);
 }
 
+void ScrollablePattern::FireObserverOnScrollerAreaChange(float finalOffset)
+{
+    CHECK_NULL_VOID(positionController_);
+    auto obsMgr = positionController_->GetObserverManager();
+    CHECK_NULL_VOID(obsMgr);
+    auto source = ConvertScrollSource(scrollSource_);
+    bool isAtTop = IsAtTop();
+    bool isAtBottom = IsAtBottom();
+    auto offsetPX = Dimension(finalOffset);
+    auto offsetVP = Dimension(offsetPX.ConvertToVp(), DimensionUnit::VP);
+    obsMgr->HandleOnScrollerAreaChangeEvent(offsetVP, source, isAtTop, isAtBottom);
+}
+
 void ScrollablePattern::SuggestOpIncGroup(bool flag)
 {
-    if (!SystemProperties::IsOpIncEnable()) {
+    if (!SystemProperties::IsOpIncEnable() || !isVertical()) {
         return;
     }
     auto host = GetHost();
@@ -3155,6 +3168,7 @@ float ScrollablePattern::IsInHotZone(const PointF& point)
         rightHotzone.SetWidth(hotZoneWidthPX);
         auto rightZoneEdgeX = wholeRect.GetX() + wholeRect.Width();
         rightHotzone.SetLeft(rightZoneEdgeX - hotZoneWidthPX);
+        float factor = IsReverse() ? -1.0f : 1.0f;
 
         // Determines whether the drag point is within the hot zone,
         // gives the scroll component movement direction according to which hot zone the point is in
@@ -3162,12 +3176,12 @@ float ScrollablePattern::IsInHotZone(const PointF& point)
         if (leftHotzone.IsInRegion(point)) {
             offset = hotZoneWidthPX - point.GetX() + wholeRect.GetX();
             if (!NearZero(hotZoneWidthPX)) {
-                return offset / hotZoneWidthPX;
+                return factor * offset / hotZoneWidthPX;
             }
         } else if (rightHotzone.IsInRegion(point)) {
             offset = rightZoneEdgeX - point.GetX() - hotZoneWidthPX;
             if (!NearZero(hotZoneWidthPX)) {
-                return offset / hotZoneWidthPX;
+                return factor * offset / hotZoneWidthPX;
             }
         }
     }

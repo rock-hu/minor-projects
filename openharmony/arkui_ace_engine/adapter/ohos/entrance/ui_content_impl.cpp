@@ -46,6 +46,7 @@
 #include "base/subwindow/subwindow_manager.h"
 #include "base/thread/background_task_executor.h"
 #include "base/utils/utils.h"
+#include "core/common/multi_thread_build_manager.h"
 #include "core/components/common/layout/constants.h"
 #include "core/components_ng/base/frame_node.h"
 #include "core/components_ng/render/animation_utils.h"
@@ -113,7 +114,6 @@
 #include "core/components_ng/base/view_abstract.h"
 #include "core/components_ng/pattern/container_modal/container_modal_view.h"
 #include "core/components_ng/pattern/container_modal/enhance/container_modal_view_enhance.h"
-#include "core/components_ng/pattern/overlay/overlay_mask_manager.h"
 #include "core/components_ng/pattern/text_field/text_field_manager.h"
 #include "core/components_ng/pattern/ui_extension/ui_extension_component/ui_extension_pattern.h"
 #include "core/components_ng/pattern/ui_extension/ui_extension_config.h"
@@ -1000,6 +1000,7 @@ private:
 
 UIContentImpl::UIContentImpl(OHOS::AbilityRuntime::Context* context, void* runtime) : runtime_(runtime)
 {
+    MultiThreadBuildManager::InitOnUIThread();
     CHECK_NULL_VOID(context);
     context_ = context->weak_from_this();
     bundleName_ = context->GetBundleName();
@@ -1012,6 +1013,7 @@ UIContentImpl::UIContentImpl(OHOS::AbilityRuntime::Context* context, void* runti
 UIContentImpl::UIContentImpl(OHOS::AbilityRuntime::Context* context, void* runtime, bool isCard)
     : runtime_(runtime), isFormRender_(isCard)
 {
+    MultiThreadBuildManager::InitOnUIThread();
     CHECK_NULL_VOID(context);
     bundleName_ = context->GetBundleName();
     if (CJUtils::IsCJFrontendContext(context)) {
@@ -1031,6 +1033,7 @@ UIContentImpl::UIContentImpl(OHOS::AbilityRuntime::Context* context, void* runti
 
 UIContentImpl::UIContentImpl(OHOS::AppExecFwk::Ability* ability)
 {
+    MultiThreadBuildManager::InitOnUIThread();
     CHECK_NULL_VOID(ability);
     context_ = ability->GetAbilityContext();
     auto context = context_.lock();
@@ -2513,7 +2516,6 @@ UIContentErrorCode UIContentImpl::CommonInitialize(
     InitializeSafeArea(container);
 
     InitializeDisplayAvailableRect(container);
-    NG::OverlayMaskManager::GetInstance().RegisterOverlayHostMaskEventCallback();
 
     // set container temp dir
     if (abilityContext) {
@@ -3623,21 +3625,23 @@ void UIContentImpl::UpdateViewportConfigWithAnimation(const ViewportConfig& conf
         }
     }
 
-    if (viewportConfigMgr_->IsConfigsEqual(config) && viewportConfigMgr_->IsInfoEqual(info) &&
-        (rsTransaction == nullptr) && reasonDragFlag &&
-        reason != OHOS::Rosen::WindowSizeChangeReason::OCCUPIED_AREA_CHANGE) {
-        TAG_LOGI(ACE_LAYOUT, "Duplicate Update and return");
-        taskExecutor->PostTask(
-            [context, config, avoidAreas] {
-                if (avoidAreas.empty()) {
+    if (viewportConfigMgr_->IsConfigsEqual(config) && (rsTransaction == nullptr) && reasonDragFlag) {
+        TAG_LOGI(ACE_LAYOUT, "UpdateViewportConfig return in advance");
+        taskExecutor->PostTask([this, context, config, avoidAreas, reason, instanceId = instanceId_,
+            pipelineContext, info, container, rsTransaction] {
+                if (avoidAreas.empty() && !info) {
                     return;
                 }
                 if (ParseAvoidAreasUpdate(context, avoidAreas, config)) {
                     context->AnimateOnSafeAreaUpdate();
                 }
                 AvoidAreasUpdateOnUIExtension(context, avoidAreas);
+                if (pipelineContext) {
+                    TAG_LOGI(ACE_KEYBOARD, "KeyboardAvoid in advance");
+                    KeyboardAvoid(reason, instanceId, pipelineContext, info, container, rsTransaction);
+                }
             },
-            TaskExecutor::TaskType::UI, "ArkUIUpdateOriginAvoidArea");
+            TaskExecutor::TaskType::UI, "ArkUIUpdateOriginAvoidAreaAndExecuteKeyboardAvoid");
         return;
     }
 
@@ -3688,6 +3692,7 @@ void UIContentImpl::UpdateViewportConfigWithAnimation(const ViewportConfig& conf
             static_cast<WindowSizeChangeReason>(reason));
         viewportConfigMgr->UpdateViewConfigTaskDone(taskId);
         if (pipelineContext) {
+            TAG_LOGI(ACE_KEYBOARD, "KeyboardAvoid in the UpdateViewportConfig task");
             KeyboardAvoid(reason, instanceId_, pipelineContext, info, container, rsTransaction);
         }
     };
@@ -5208,19 +5213,25 @@ void UIContentImpl::SetForceSplitEnable(bool isForceSplit, const std::string& ho
     CHECK_NULL_VOID(context);
     auto taskExecutor = container->GetTaskExecutor();
     CHECK_NULL_VOID(taskExecutor);
-    auto forceSplitTask = [weakContext = WeakPtr(context), isForceSplit, homePage]() {
+    auto forceSplitTask = [weakContext = WeakPtr(context), isForceSplit, homePage, isRouter]() {
         auto context = weakContext.Upgrade();
         CHECK_NULL_VOID(context);
-        auto stageManager = context->GetStageManager();
-        CHECK_NULL_VOID(stageManager);
-        stageManager->SetForceSplitEnable(isForceSplit, homePage);
+        if (isRouter) {
+            auto stageManager = context->GetStageManager();
+            CHECK_NULL_VOID(stageManager);
+            stageManager->SetForceSplitEnable(isForceSplit, homePage);
+            return;
+        }
+        auto navManager = context->GetNavigationManager();
+        CHECK_NULL_VOID(navManager);
+        navManager->SetForceSplitEnable(isForceSplit, homePage);
     };
     if (taskExecutor->WillRunOnCurrentThread(TaskExecutor::TaskType::UI)) {
         forceSplitTask();
         return;
     }
     taskExecutor->PostTask(std::move(forceSplitTask), TaskExecutor::TaskType::UI,
-        "ArkUISetForceSplitEnable");
+        isRouter ? "ArkUISetForceSplitEnable" : "ArkUISetNavigationForceSplitEnable");
 }
 
 void UIContentImpl::ProcessDestructCallbacks()
@@ -5464,7 +5475,7 @@ void UIContentImpl::InitUISessionManagerCallbacks(RefPtr<PipelineBase> pipeline)
                     UiSessionManager::GetInstance()->WebTaskNumsChange(-1);
                 }
             },
-            TaskExecutor::TaskType::UI, "UiSessionGetInspectorTree",
+            TaskExecutor::TaskType::BACKGROUND, "UiSessionGetInspectorTree",
             TaskExecutor::GetPriorityTypeWithCheck(PriorityType::VIP));
     };
     UiSessionManager::GetInstance()->SaveInspectorTreeFunction(callback);

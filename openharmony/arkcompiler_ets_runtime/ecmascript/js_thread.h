@@ -195,6 +195,7 @@ public:
     static constexpr int BOOL_BITFIELD_NUM = 1;
     static constexpr int BCSTUBSTATUS_BITFIELD_NUM = 2;
     static constexpr uint32_t RESERVE_STACK_SIZE = 128;
+    static constexpr size_t DEFAULT_MAX_SYSTEM_STACK_SIZE = 8_MB;
     using MarkStatusBits = BitField<MarkStatus, 0, CONCURRENT_MARKING_BITFIELD_NUM>;
     using SharedMarkStatusBits = BitField<SharedMarkStatus, 0, SHARED_CONCURRENT_MARKING_BITFIELD_NUM>;
     using CheckSafePointBit = BitField<bool, 0, BOOL_BITFIELD_NUM>;
@@ -354,6 +355,8 @@ public:
 
     void IterateHandleWithCheck(RootVisitor &visitor);
 
+    void ClearCache();
+
     void PUBLIC_API CheckJSTaggedType(JSTaggedType value) const;
     bool PUBLIC_API CpuProfilerCheckJSTaggedType(JSTaggedType value) const;
 
@@ -421,6 +424,7 @@ public:
     JSHClass *GetBuiltinExtraHClass(BuiltinTypeId type) const;
 
     JSHClass *GetArrayInstanceHClass(ElementsKind kind, bool isPrototype) const;
+    JSHClass *GetArrayInstanceHClass(JSHandle<GlobalEnv> env, ElementsKind kind, bool isPrototype) const;
 
     GlobalEnvField GetArrayInstanceHClassIndex(ElementsKind kind, bool isPrototype) const
     {
@@ -583,6 +587,17 @@ public:
         auto status = SharedMarkStatusBits::Decode(glueData_.sharedGCStateBitField_);
         return status == SharedMarkStatus::READY_TO_CONCURRENT_MARK;
     }
+
+#ifdef USE_READ_BARRIER
+    bool IsCMCGCConcurrentCopying() const
+    {
+#ifdef USE_CMC_GC
+        return GetThreadHolder()->GetMutatorPhase() >= GCPhase::GC_PHASE_PRECOPY;
+#else
+        return false;
+#endif
+    }
+#endif
 
     void SetPGOProfilerEnable(bool enable)
     {
@@ -867,13 +882,13 @@ public:
 
     JSHandle<GlobalEnv> PUBLIC_API GetGlobalEnv() const;
 
-    JSTaggedValue GetCurrentEnv() const
+    JSTaggedValue GetGlueGlobalEnv() const
     {
         // change to current
         return glueData_.currentEnv_;
     }
 
-    void SetCurrentEnv(JSTaggedValue env)
+    void SetGlueGlobalEnv(JSTaggedValue env)
     {
         ASSERT(env != JSTaggedValue::Hole());
         glueData_.currentEnv_ = env;
@@ -1866,10 +1881,6 @@ private:
 
     void DumpStack() DUMP_API_ATTR;
 
-    static size_t GetAsmStackLimit();
-
-    static constexpr size_t DEFAULT_MAX_SYSTEM_STACK_SIZE = 8_MB;
-
     GlueData glueData_;
     std::atomic<ThreadId> id_ {0};
     EcmaVM *vm_ {nullptr};
@@ -1965,12 +1976,12 @@ class SaveEnv {
 public:
     explicit SaveEnv(JSThread* thread): thread_(thread)
     {
-        env_ = JSHandle<JSTaggedValue>(thread_, thread->GetCurrentEnv());
+        env_ = JSHandle<JSTaggedValue>(thread_, thread->GetGlueGlobalEnv());
     }
 
     ~SaveEnv()
     {
-        thread_->SetCurrentEnv(env_.GetTaggedValue());
+        thread_->SetGlueGlobalEnv(env_.GetTaggedValue());
     }
 
 private:
@@ -1982,7 +1993,7 @@ class SaveAndSwitchEnv : public SaveEnv {
 public:
     SaveAndSwitchEnv(JSThread* thread, JSTaggedValue newEnv): SaveEnv(thread)
     {
-        thread->SetCurrentEnv(newEnv);
+        thread->SetGlueGlobalEnv(newEnv);
     }
 };
 }  // namespace panda::ecmascript

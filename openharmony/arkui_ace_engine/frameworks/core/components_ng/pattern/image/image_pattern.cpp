@@ -82,14 +82,14 @@ std::string ConvertOrientationToString(ImageRotateOrientation orientation)
             return "DOWN";
         case ImageRotateOrientation::LEFT:
             return "LEFT";
-        case ImageRotateOrientation::UP_MIRROR:
-            return "UP_MIRROR";
-        case ImageRotateOrientation::RIGHT_MIRROR:
-            return "RIGHT_MIRROR";
-        case ImageRotateOrientation::DOWN_MIRROR:
-            return "DOWN_MIRROR";
-        case ImageRotateOrientation::LEFT_MIRROR:
-            return "LEFT_MIRROR";
+        case ImageRotateOrientation::UP_MIRRORED:
+            return "UP_MIRRORED";
+        case ImageRotateOrientation::RIGHT_MIRRORED:
+            return "RIGHT_MIRRORED";
+        case ImageRotateOrientation::DOWN_MIRRORED:
+            return "DOWN_MIRRORED";
+        case ImageRotateOrientation::LEFT_MIRRORED:
+            return "LEFT_MIRRORED";
         case ImageRotateOrientation::AUTO:
             return "AUTO";
         default:
@@ -1926,9 +1926,7 @@ void ImagePattern::OnLanguageConfigurationUpdate()
 
 void ImagePattern::OnColorConfigurationUpdate()
 {
-    if (!SystemProperties::ConfigChangePerform()) {
-        OnConfigurationUpdate();
-    }
+    OnConfigurationUpdate();
 }
 
 void ImagePattern::OnDirectionConfigurationUpdate()
@@ -2816,30 +2814,27 @@ void ImagePattern::UpdateImageSourceinfo(const ImageSourceInfo& sourceInfo)
     auto pipelineContext = host->GetContext();
     CHECK_NULL_VOID(pipelineContext);
     if (pipelineContext->IsSystmColorChange()) {
-        auto imageCache = pipelineContext->GetImageCache();
-        CHECK_NULL_VOID(imageCache);
         auto imageLayoutProperty = GetLayoutProperty<ImageLayoutProperty>();
         CHECK_NULL_VOID(imageLayoutProperty);
-        ImageSourceInfo imageCacheSource = imageLayoutProperty->GetImageSourceInfo().value_or(ImageSourceInfo(""));
-        imageCache->ClearCacheImgObj(imageCacheSource.GetKey());
         imageLayoutProperty->UpdateImageSourceInfo(sourceInfo);
-        LoadImage(sourceInfo, imageLayoutProperty->GetPropertyChangeFlag());
     }
 }
 
 void ImagePattern::UpdateImageFill(const Color& color)
 {
-    auto renderProperty = GetPaintProperty<ImageRenderProperty>();
-    CHECK_NULL_VOID(renderProperty);
-    renderProperty->UpdateSvgFillColor(color);
-
     auto host = GetHost();
     CHECK_NULL_VOID(host);
-    auto renderContext = host->GetRenderContext();
-    CHECK_NULL_VOID(renderContext);
-    renderContext->UpdateForegroundColor(color);
-
-    host->MarkDirtyNode(PROPERTY_UPDATE_RENDER);
+    auto pipelineContext = host->GetContext();
+    CHECK_NULL_VOID(pipelineContext);
+    if (pipelineContext->IsSystmColorChange()) {
+        auto renderProperty = GetPaintProperty<ImageRenderProperty>();
+        CHECK_NULL_VOID(renderProperty);
+        renderProperty->UpdateSvgFillColor(color);
+        auto renderContext = host->GetRenderContext();
+        CHECK_NULL_VOID(renderContext);
+        renderContext->UpdateForegroundColor(color);
+        host->MarkDirtyNode(PROPERTY_UPDATE_RENDER);
+    }
 }
 
 void ImagePattern::UpdateImageAlt(const ImageSourceInfo& sourceInfo)
@@ -2849,14 +2844,9 @@ void ImagePattern::UpdateImageAlt(const ImageSourceInfo& sourceInfo)
     auto pipelineContext = host->GetContext();
     CHECK_NULL_VOID(pipelineContext);
     if (pipelineContext->IsSystmColorChange()) {
-        auto imageCache = pipelineContext->GetImageCache();
-        CHECK_NULL_VOID(imageCache);
         auto imageLayoutProperty = GetLayoutProperty<ImageLayoutProperty>();
         CHECK_NULL_VOID(imageLayoutProperty);
-        auto altImageSourceInfo = imageLayoutProperty->GetAlt().value_or(ImageSourceInfo(""));
-        imageCache->ClearCacheImgObj(altImageSourceInfo.GetKey());
         imageLayoutProperty->UpdateAlt(sourceInfo);
-        LoadAltImage(sourceInfo);
     }
 }
 

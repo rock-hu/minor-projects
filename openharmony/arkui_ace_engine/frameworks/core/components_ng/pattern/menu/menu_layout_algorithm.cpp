@@ -280,6 +280,22 @@ RefPtr<NG::MenuTheme> GetMenuTheme(const RefPtr<FrameNode>& frameNode)
     CHECK_NULL_RETURN(pipelineContext, nullptr);
     return pipelineContext->GetTheme<NG::MenuTheme>();
 }
+
+void PrepareExtensionMenuConstraint(LayoutWrapper* layoutWrapper, LayoutConstraintF& childConstraint)
+{
+    auto host = layoutWrapper->GetHostNode();
+    CHECK_NULL_VOID(host);
+    auto pattern = host->GetPattern<MenuPattern>();
+    CHECK_NULL_VOID(pattern);
+    auto props = AceType::DynamicCast<MenuLayoutProperty>(layoutWrapper->GetLayoutProperty());
+    if (pattern->IsSelectOverlayExtensionMenu() && props && props->HasMenuWidth() &&
+        props->GetMenuWidth()->ConvertToPx() < childConstraint.maxSize.Width()) {
+        auto minSizeWidth = childConstraint.minSize.Width();
+        minSizeWidth = fmax(static_cast<double>(minSizeWidth), props->GetMenuWidth()->ConvertToPx());
+        minSizeWidth = fmin(minSizeWidth, childConstraint.maxSize.Width());
+        childConstraint.minSize.SetWidth(minSizeWidth);
+    }
+}
 } // namespace
 
 MenuLayoutAlgorithm::MenuLayoutAlgorithm(int32_t id, const std::string& tag,
@@ -924,6 +940,86 @@ void MenuLayoutAlgorithm::UpdateSelectFocus(LayoutWrapper* layoutWrapper, Layout
     }
 }
 
+float MenuLayoutAlgorithm::GetFirstItemBottomPositionY(const RefPtr<FrameNode>& menu)
+{
+    CHECK_NULL_RETURN(menu, 0.0f);
+    auto menuPattern = menu->GetPattern<MenuPattern>();
+    CHECK_NULL_RETURN(menuPattern, 0.0f);
+    auto firstMenuItem = menuPattern->GetFirstMenuItem();
+    CHECK_NULL_RETURN(firstMenuItem, 0.0f);
+    auto geometryNode = firstMenuItem->GetGeometryNode();
+    CHECK_NULL_RETURN(geometryNode, 0.0f);
+    return firstMenuItem->GetPaintRectOffset(false, true).GetY() + geometryNode->GetMarginFrameSize().Height();
+}
+
+float MenuLayoutAlgorithm::GetLastItemTopPositionY(const RefPtr<FrameNode>& menu)
+{
+    CHECK_NULL_RETURN(menu, 0.0f);
+    auto menuPattern = menu->GetPattern<MenuPattern>();
+    CHECK_NULL_RETURN(menuPattern, 0.0f);
+    auto lastMenuItem = menuPattern->GetLastMenuItem();
+    CHECK_NULL_RETURN(lastMenuItem, 0.0f);
+    return lastMenuItem->GetPaintRectOffset(false, true).GetY();
+}
+
+float MenuLayoutAlgorithm::GetMenuBottomPositionY(const RefPtr<FrameNode>& menu)
+{
+    CHECK_NULL_RETURN(menu, 0.0f);
+    auto geometryNode = menu->GetGeometryNode();
+    CHECK_NULL_RETURN(geometryNode, 0.0f);
+    return menu->GetPaintRectOffset(false, true).GetY() + geometryNode->GetMarginFrameSize().Height();
+}
+
+float MenuLayoutAlgorithm::CalcSubMenuMaxHeightConstraint(LayoutWrapper* layoutWrapper,
+    LayoutConstraintF& childConstraint, RefPtr<FrameNode> parentItem)
+{
+    CHECK_NULL_RETURN(layoutWrapper, 0.0f);
+    CHECK_NULL_RETURN(parentItem, 0.0f);
+    auto parentItemPattern = parentItem->GetPattern<MenuItemPattern>();
+    CHECK_NULL_RETURN(parentItemPattern, 0.0f);
+    auto parentMenu = parentItemPattern->GetMenu(true);
+    CHECK_NULL_RETURN(parentMenu, 0.0f);
+    auto parentMenuPattern = parentMenu->GetPattern<MenuPattern>();
+    CHECK_NULL_RETURN(parentMenuPattern, 0.0f);
+    auto parentPlacement = parentMenuPattern->GetLastPlacement().value_or(Placement::NONE);
+    float subMenuMaxHeight = 0.0f;
+    auto parentFirstMenuItemPositionY = GetFirstItemBottomPositionY(parentMenu);
+    if (parentMenuPattern->GetPreviewMode() != MenuPreviewMode::NONE) {
+        auto [previewTopPositionY, previewBottomPositionY] = parentMenuPattern->GetPreviewPositionY();
+        if (parentPlacement == Placement::TOP_LEFT || parentPlacement == Placement::TOP ||
+            parentPlacement == Placement::TOP_RIGHT) {
+            float lastMenuItemPositionY = GetLastItemTopPositionY(parentMenu);
+            subMenuMaxHeight = wrapperRect_.Height() - param_.topSecurity - param_.bottomSecurity
+                - (previewBottomPositionY - lastMenuItemPositionY);
+        } else if (parentPlacement == Placement::BOTTOM_LEFT || parentPlacement == Placement::BOTTOM ||
+               parentPlacement == Placement::BOTTOM_RIGHT) {
+            subMenuMaxHeight = wrapperRect_.Height() - param_.topSecurity - param_.bottomSecurity
+                - (parentFirstMenuItemPositionY - previewTopPositionY);
+        } else {
+            subMenuMaxHeight = wrapperRect_.Height() - param_.topSecurity - param_.bottomSecurity
+                - (parentFirstMenuItemPositionY - parentMenu->GetPaintRectOffset(false, true).GetY());
+        }
+    } else {
+        if (parentPlacement == Placement::TOP_LEFT || parentPlacement == Placement::TOP ||
+               parentPlacement == Placement::TOP_RIGHT) {
+            auto parentMenuBottomY = GetMenuBottomPositionY(parentMenu);
+            subMenuMaxHeight = parentMenuBottomY - parentFirstMenuItemPositionY;
+            if (subMenuMaxHeight < parentItem->GetGeometryNode()->GetMarginFrameSize().Height()) {
+                subMenuMaxHeight = parentMenu->GetGeometryNode()->GetMarginFrameSize().Height();
+            }
+        } else {
+            subMenuMaxHeight = wrapperRect_.Bottom() + param_.windowsOffsetY - parentFirstMenuItemPositionY
+                - param_.bottomSecurity;
+            if (subMenuMaxHeight < parentItem->GetGeometryNode()->GetMarginFrameSize().Height()) {
+                subMenuMaxHeight = wrapperRect_.Bottom() + param_.windowsOffsetY
+                    - param_.bottomSecurity
+                    - parentMenu->GetPaintRectOffset(false, true).GetY();
+            }
+        }
+    }
+    return subMenuMaxHeight;
+}
+
 void MenuLayoutAlgorithm::CalculateIdealSize(LayoutWrapper* layoutWrapper,
     LayoutConstraintF& childConstraint, PaddingPropertyF padding, SizeF& idealSize,
     RefPtr<FrameNode> parentItem)
@@ -940,15 +1036,18 @@ void MenuLayoutAlgorithm::CalculateIdealSize(LayoutWrapper* layoutWrapper,
             childConstraint.minSize.SetWidth(parentWidth);
             childConstraint.maxSize.SetWidth(parentWidth);
             childConstraint.selfIdealSize.SetWidth(parentWidth);
+            auto subMenuMaxHeight = CalcSubMenuMaxHeightConstraint(layoutWrapper, childConstraint, parentItem);
+            childConstraint.maxSize.SetHeight(std::min(subMenuMaxHeight, childConstraint.maxSize.Height()));
         }
     }
+    PrepareExtensionMenuConstraint(layoutWrapper, childConstraint);
 
-    float idealHeight = 0.0f;
-    float idealWidth = 0.0f;
     auto host = layoutWrapper->GetHostNode();
     CHECK_NULL_VOID(host);
     auto pattern = host->GetPattern<MenuPattern>();
     CHECK_NULL_VOID(pattern);
+    float idealHeight = 0.0f;
+    float idealWidth = 0.0f;
     std::list<RefPtr<LayoutWrapper>> builderChildList;
     for (const auto& child : layoutWrapper->GetAllChildrenWithBuild()) {
         if (pattern->UseContentModifier()) {
@@ -2394,6 +2493,10 @@ void MenuLayoutAlgorithm::UpdateConstraintBaseOnOptions(LayoutWrapper* layoutWra
     }
     auto minWidth = static_cast<float>(columnInfo->GetWidth(MIN_GRID_COUNTS));
     optionConstraint.maxSize.MinusWidth(optionPadding_ * 2.0f);
+    auto props = AceType::DynamicCast<MenuLayoutProperty>(layoutWrapper->GetLayoutProperty());
+    if (menuPattern->IsSelectOverlayExtensionMenu() && props && props->HasMenuWidth()) {
+        minWidth = props->GetMenuWidth()->ConvertToPx();
+    }
     optionConstraint.minSize.SetWidth(minWidth - optionPadding_ * 2.0f);
     auto maxChildrenWidth = optionConstraint.minSize.Width();
     auto optionsLayoutWrapper = GetOptionsLayoutWrappper(layoutWrapper);
@@ -2599,7 +2702,8 @@ void MenuLayoutAlgorithm::InitTargetSizeAndPosition(
     dumpInfo_.targetOffset = targetOffset_;
     menuPattern->SetTargetSize(targetSize_);
     menuPattern->SetTargetOffset(targetOffset_);
-    TAG_LOGI(AceLogTag::ACE_MENU, "targetNode: %{public}s, targetSize: %{public}s, targetOffset: %{public}s",
+    TAG_LOGI(AceLogTag::ACE_MENU,
+        "targetId: %{public}d targetNode: %{public}s, targetSize: %{public}s, targetOffset: %{public}s", targetNodeId_,
         targetTag_.c_str(), targetSize_.ToString().c_str(), targetOffset_.ToString().c_str());
     auto pipelineContext = GetCurrentPipelineContext();
     CHECK_NULL_VOID(pipelineContext);
@@ -3180,16 +3284,14 @@ void MenuLayoutAlgorithm::InitCanExpandCurrentWindow(bool isShowInSubWindow)
     CHECK_NULL_VOID(theme);
     // false for phone devices
     isExpandDisplay_ = theme->GetExpandDisplay() || isFreeMultiWindow_;
-    if (isExpandDisplay_ && !isShowInSubWindow && containerId >= MIN_SUBCONTAINER_ID) {
+    auto isUIExtensionSubWindow = container->IsUIExtensionWindow();
+    if ((isExpandDisplay_ || isUIExtensionSubWindow) && !isShowInSubWindow && containerId >= MIN_SUBCONTAINER_ID) {
         canExpandCurrentWindow_ = true;
         isTargetNodeInSubwindow_ = true;
         return;
     }
     canExpandCurrentWindow_ = isExpandDisplay_ && isShowInSubWindow;
     if (containerId >= MIN_SUBCONTAINER_ID) {
-        auto parentContainerId = SubwindowManager::GetInstance()->GetParentContainerId(containerId);
-        container = AceEngine::Get().GetContainer(parentContainerId);
-        CHECK_NULL_VOID(container);
         isUIExtensionSubWindow_ = container->IsUIExtensionWindow();
         if (isUIExtensionSubWindow_) {
             canExpandCurrentWindow_ = true;

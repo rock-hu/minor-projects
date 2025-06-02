@@ -99,6 +99,8 @@ public:
         std::string& moduleName, RefPtr<ThemeConstants> themeConstant) = 0;
     virtual void SetBackgroundImageRepeat(const ImageRepeat& imageRepeat) = 0;
     virtual void SetBackgroundImageSize(BackgroundImageSize& bgImgSize) = 0;
+    virtual void SetBackgroundImageSizeUpdateFunc(
+        BackgroundImageSize& bgImgSize, const RefPtr<ResourceObject>& resObj, const std::string direction) = 0;
     virtual void SetBackgroundImagePosition(BackgroundImagePosition& bgImgPosition) = 0;
     virtual void SetBackgroundBlurStyle(
         const BlurStyleOption& bgBlurStyle, const SysOptions& sysOptions = SysOptions()) = 0;
@@ -224,6 +226,7 @@ public:
     virtual void SetPivot(const Dimension& x, const Dimension& y, const Dimension& z) = 0;
     virtual void SetTranslate(const Dimension& x, const Dimension& y, const Dimension& z) = 0;
     virtual void SetRotate(float x, float y, float z, float angle, float perspective = 0.0f) = 0;
+    virtual void SetRotateAngle(float x, float y, float z, float perspective = 0.0f) = 0;
     virtual void SetTransformMatrix(const std::vector<float>& matrix) = 0;
     virtual void SetTransform3DMatrix(const std::vector<float>& matrix) = 0;
 
@@ -422,6 +425,7 @@ public:
     virtual void SetBackground(std::function<void()>&& buildFunc) = 0;
     virtual void SetBackgroundAlign(const Alignment& align) = 0;
     virtual void SetCustomBackgroundColor(const Color& color) = 0;
+    virtual void SetCustomBackgroundColorWithResourceObj(const RefPtr<ResourceObject>& resObj) = 0;
     virtual void SetBackgroundIgnoresLayoutSafeAreaEdges(const uint32_t edges) = 0;
     virtual void SetIsTransitionBackground(bool val) = 0;
     virtual void SetIsBuilderBackground(bool val) = 0;

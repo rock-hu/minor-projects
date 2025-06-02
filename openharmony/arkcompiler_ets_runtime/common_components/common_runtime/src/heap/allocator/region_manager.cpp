@@ -36,6 +36,7 @@
 #include "common_components/common_runtime/src/sanitizer/sanitizer_interface.h"
 #endif
 #include "common_components/log/log.h"
+#include "common_components/taskpool/taskpool.h"
 #include "common_interfaces/base_runtime.h"
 
 namespace panda {
@@ -74,34 +75,30 @@ const size_t RegionDesc::LARGE_OBJECT_DEFAULT_THRESHOLD = panda::ARK_COMMON_PAGE
 // max size of per region is 128KB.
 const size_t RegionManager::MAX_UNIT_COUNT_PER_REGION = (128 * KB) / panda::ARK_COMMON_PAGE_SIZE;
 // size of huge page is 2048KB.
-const size_t RegionManager::HUGE_PAGE = (2048 * KB) / panda::ARK_COMMON_PAGE_SIZE;;
+const size_t RegionManager::HUGE_PAGE = (2048 * KB) / panda::ARK_COMMON_PAGE_SIZE;
 
-class CopyTask : public HeapWork {
+class CopyTask : public Task {
 public:
-    CopyTask(RegionManager& manager, RegionDesc& region, size_t regionCnt)
-        : regionManager_(manager), startRegion_(region), regionCount_(regionCnt) {}
+    CopyTask(int32_t id, RegionManager& manager, RegionDesc& region, size_t regionCnt, TaskPackMonitor &monitor)
+        : Task(id), regionManager_(manager), startRegion_(region), regionCount_(regionCnt), monitor_(monitor) {}
 
-    ~CopyTask() = default;
+    ~CopyTask() override = default;
 
-    void Execute(size_t) override
+    bool Run([[maybe_unused]] uint32_t threadIndex) override
     {
-        RegionDesc* currentRegion = &startRegion_;
-        for (size_t count = 0; (count < regionCount_) && currentRegion != nullptr; ++count) {
-            RegionDesc* region = currentRegion;
-            currentRegion = currentRegion->GetNextRegion();
-            regionManager_.CopyRegion(region);
-        }
-
-        AllocationBuffer* allocBuffer = AllocationBuffer::GetAllocBuffer();
-        if (LIKELY_CC(allocBuffer != nullptr)) {
-            allocBuffer->ClearRegion(); // clear thread local region for gc threads.
-        }
+        // set current thread as a gc thread.
+        ThreadLocal::SetThreadType(ThreadType::GC_THREAD);
+        regionManager_.ParallelCopyFromRegions(startRegion_, regionCount_);
+        monitor_.NotifyFinishOne();
+        ThreadLocal::SetThreadType(ThreadType::ARK_PROCESSOR);
+        return true;
     }
 
 private:
-    RegionManager& regionManager_;
-    RegionDesc& startRegion_;
+    RegionManager &regionManager_;
+    RegionDesc &startRegion_;
     size_t regionCount_;
+    TaskPackMonitor &monitor_;
 };
 
 #if defined(GCINFO_DEBUG) && GCINFO_DEBUG
@@ -138,6 +135,9 @@ void RegionDesc::VisitAllObjects(const std::function<void(BaseObject*)>&& func)
         size_t size = static_cast<size_t>(GetRegionCellCount()) * sizeof(uint64_t);
         uintptr_t position = GetRegionStart();
         uintptr_t end = GetRegionEnd();
+        if (!IsFixedRegionFlag()) {
+            end = GetRegionAllocPtr();
+        }
         while (position < end) {
             BaseObject* obj = reinterpret_cast<BaseObject*>(position);
             position += size;
@@ -686,37 +686,45 @@ uintptr_t RegionManager::AllocLargeReion(size_t size)
     return AllocLarge(size, false);
 }
 
-void RegionManager::CopyFromRegions(GCThreadPool* threadPool)
+void RegionManager::ParallelCopyFromRegions(RegionDesc &startRegion, size_t regionCnt)
+{
+    RegionDesc *currentRegion = &startRegion;
+    for (size_t count = 0; (count < regionCnt) && currentRegion != nullptr; ++count) {
+        RegionDesc *region = currentRegion;
+        currentRegion = currentRegion->GetNextRegion();
+        CopyRegion(region);
+    }
+
+    AllocationBuffer* allocBuffer = AllocationBuffer::GetAllocBuffer();
+    if (LIKELY_CC(allocBuffer != nullptr)) {
+        allocBuffer->ClearRegion(); // clear thread local region for gc threads.
+    }
+}
+
+void RegionManager::CopyFromRegions(Taskpool *threadPool)
 {
     if (threadPool != nullptr) {
-        int32_t threadNum = threadPool->GetMaxThreadNum() + 1;
+        uint32_t parallel = Heap::GetHeap().GetCollectorResources().GetGCThreadCount(true) - 1;
+        uint32_t threadNum = parallel + 1;
         // We won't change fromRegionList during gc, so we can use it without lock.
         size_t totalRegionCount = fromRegionList_.GetRegionCount();
         if (UNLIKELY_CC(totalRegionCount == 0)) {
             return;
         }
         size_t regionCntEachTask = totalRegionCount / static_cast<size_t>(threadNum);
-        size_t leftRegionCnt = totalRegionCount % static_cast<size_t>(threadNum);
+        size_t leftRegionCnt = totalRegionCount - regionCntEachTask * parallel;
         RegionDesc* region = fromRegionList_.GetHeadRegion();
-        // we start threadPool before adding work so that we can concurrently add tasks;
-        threadPool->Start();
-        for (int32_t i = 0; i < threadNum; ++i) {
+        TaskPackMonitor monitor(parallel, parallel);
+        for (uint32_t i = 0; i < parallel; ++i) {
             ASSERT_LOGF(region != nullptr, "from region list records wrong region info");
             RegionDesc* startRegion = region;
             for (size_t count = 0; count < regionCntEachTask; ++count) {
                 region = region->GetNextRegion();
             }
-            threadPool->AddWork(new (std::nothrow) CopyTask(*this, *startRegion, regionCntEachTask));
+            threadPool->PostTask(std::make_unique<CopyTask>(0, *this, *startRegion, regionCntEachTask, monitor));
         }
-        threadPool->AddWork(new (std::nothrow) CopyTask(*this, *region, leftRegionCnt));
-        threadPool->WaitFinish();
-
-        // clear thread local region for gc control thread.
-        // do not rely on AllocationBuffer::ClearRegion at the end of CopyTask(), which may not be executed.
-        AllocationBuffer* allocBuffer = AllocationBuffer::GetAllocBuffer();
-        if (LIKELY_CC(allocBuffer != nullptr)) {
-            allocBuffer->ClearRegion();
-        }
+        ParallelCopyFromRegions(*region, leftRegionCnt);
+        monitor.WaitAllFinished();
     } else {
         CopyFromRegions();
     }
@@ -826,6 +834,7 @@ void RegionManager::FixFixedRegionList(TraceCollector& collector, RegionList& li
                 region->CollectPinnedGarbage(object, cellCount);
             }
         });
+        region->SetFixedRegionFlag(1);
         region = region->GetNextRegion();
     }
     stats.pinnedGarbageSize += garbageSize;
@@ -1175,6 +1184,11 @@ void RegionManager::CopyRegion(RegionDesc* region)
 uintptr_t RegionManager::AllocPinnedFromFreeList(size_t cellCount)
 {
     GCPhase mutatorPhase = Mutator::GetMutator()->GetMutatorPhase();
+    // workaround: make sure once fixline is set, newly allocated objects are after fixline
+    if (mutatorPhase == GC_PHASE_FIX) {
+        return 0;
+    }
+
     RegionList* list = oldFixedPinnedRegionList_[cellCount];
     std::lock_guard<std::mutex> lock(list->GetListMutex());
     uintptr_t allocPtr = list->AllocFromFreeListInLock();

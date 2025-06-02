@@ -88,12 +88,13 @@ void ResetTextAreaSelectionMenuHidden(ArkUINodeHandle node)
     TextFieldModelNG::SetSelectionMenuHidden(frameNode, DEFAULT_SELECTION_MENU_HIDDEN);
 }
 
-void SetTextAreaMaxLines(ArkUINodeHandle node, ArkUI_Uint32 maxLine)
+void SetTextAreaMaxLines(ArkUINodeHandle node, ArkUI_Uint32 maxLine, ArkUI_Uint32 overflowMode)
 {
     auto *frameNode = reinterpret_cast<FrameNode *>(node);
     CHECK_NULL_VOID(frameNode);
     TextFieldModelNG::SetMaxViewLines(frameNode, maxLine);
     TextFieldModelNG::SetNormalMaxViewLines(frameNode, maxLine);
+    TextFieldModelNG::SetOverflowMode(frameNode, static_cast<OverflowMode>(overflowMode));
 }
 
 void SetTextAreaMinLines(ArkUINodeHandle node, ArkUI_Uint32 minLine)
@@ -564,6 +565,19 @@ void SetTextAreaBackgroundColor(ArkUINodeHandle node, uint32_t color)
     TextFieldModelNG::SetBackgroundColor(frameNode, Color(color));
 }
 
+void SetTextAreaBackgroundColorWithColorSpace(ArkUINodeHandle node, ArkUI_Uint32 color, ArkUI_Int32 colorSpace)
+{
+    auto* frameNode = reinterpret_cast<FrameNode*>(node);
+    CHECK_NULL_VOID(frameNode);
+    Color backgroundColor { color };
+    if (ColorSpace::DISPLAY_P3 == colorSpace) {
+        backgroundColor.SetColorSpace(ColorSpace::DISPLAY_P3);
+    } else {
+        backgroundColor.SetColorSpace(ColorSpace::SRGB);
+    }
+    TextFieldModelNG::SetBackgroundColor(frameNode, backgroundColor);
+}
+
 void ResetTextAreaBackgroundColor(ArkUINodeHandle node)
 {
     auto* frameNode = reinterpret_cast<FrameNode*>(node);
@@ -626,6 +640,14 @@ void GetTextAreaShowCounterOptions(ArkUINodeHandle node, ArkUIShowCountOptions* 
     options->thresholdPercentage = TextFieldModelNG::GetCounterType(frameNode);
     options->highlightBorder = TextFieldModelNG::GetShowCounterBorder(frameNode);
 }
+
+ArkUI_Uint32 GetTextAreaMinLines(ArkUINodeHandle node)
+{
+    auto* frameNode = reinterpret_cast<FrameNode*>(node);
+    CHECK_NULL_RETURN(frameNode, ERROR_UINT_CODE);
+    return TextFieldModelNG::GetMinLines(frameNode);
+}
+
 void SetTextAreaDecoration(ArkUINodeHandle node, ArkUI_Int32 decoration, ArkUI_Uint32 color, ArkUI_Int32 style)
 {
     auto* frameNode = reinterpret_cast<FrameNode*>(node);
@@ -1962,6 +1984,7 @@ const ArkUITextAreaModifier* GetTextAreaModifier()
         .getTextAreaPlaceholderFont = GetTextAreaPlaceholderFont,
         .getTextAreaEditing = GetTextAreaEditing,
         .setTextAreaBackgroundColor = SetTextAreaBackgroundColor,
+        .setTextAreaBackgroundColorWithColorSpace = SetTextAreaBackgroundColorWithColorSpace,
         .resetTextAreaBackgroundColor = ResetTextAreaBackgroundColor,
         .setTextAreaType = SetTextAreaType,
         .resetTextAreaType = ResetTextAreaType,
@@ -2004,6 +2027,7 @@ const ArkUITextAreaModifier* GetTextAreaModifier()
         .getTextAreaAdaptMaxFontSize = GetTextAreaAdaptMaxFontSize,
         .getTextAreaLineHeight = GetTextAreaLineHeight,
         .getTextAreaMaxLines = GetgetTextAreaMaxLines,
+        .getTextAreaMinLines = GetTextAreaMinLines,
         .setTextAreaPadding = SetTextAreaPadding,
         .resetTextAreaPadding = ResetTextAreaPadding,
         .getTextAreaFontFeature = GetTextAreaFontFeature,
@@ -2146,6 +2170,7 @@ const CJUITextAreaModifier* GetCJUITextAreaModifier()
         .getTextAreaPlaceholderFont = GetTextAreaPlaceholderFont,
         .getTextAreaEditing = GetTextAreaEditing,
         .setTextAreaBackgroundColor = SetTextAreaBackgroundColor,
+        .setTextAreaBackgroundColorWithColorSpace = SetTextAreaBackgroundColorWithColorSpace,
         .resetTextAreaBackgroundColor = ResetTextAreaBackgroundColor,
         .setTextAreaType = SetTextAreaType,
         .resetTextAreaType = ResetTextAreaType,

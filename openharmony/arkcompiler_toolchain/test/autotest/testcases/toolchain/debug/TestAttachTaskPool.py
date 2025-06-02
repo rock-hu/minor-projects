@@ -15,6 +15,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 #==================================================================
+#文 件 名：                 TestAttachTaskPool.py
+#文件说明：                 多 task 实例 attach 调试
+#==================================================================
 测试步骤：
     1.  连接 connect server 和主线程 debugger server
     2.  连接子线程 debugger server，用于执行 task 任务

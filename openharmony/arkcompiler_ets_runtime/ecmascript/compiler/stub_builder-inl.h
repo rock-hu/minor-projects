@@ -358,7 +358,7 @@ void StubBuilder::SaveHotnessCounterIfNeeded(GateRef glue, GateRef sp, GateRef h
          && kungfu::AssemblerModule::IsJumpToCallCommonEntry(mode)) {
         ASSERT(hotnessCounter != Circuit::NullGate());
         GateRef frame = PtrSub(sp, IntPtr(AsmInterpretedFrame::GetSize(env_->IsArch32Bit())));
-        GateRef function = Load(VariableType::JS_POINTER(), glue, frame,
+        GateRef function = LoadPrimitive(VariableType::JS_POINTER(), frame,
             IntPtr(AsmInterpretedFrame::GetFunctionOffset(env_->IsArch32Bit())));
         GateRef method = Load(VariableType::JS_ANY(), glue, function, IntPtr(JSFunctionBase::METHOD_OFFSET));
         SetHotnessCounter(glue, method, hotnessCounter);
@@ -3550,10 +3550,10 @@ inline void StubBuilder::SetTaskConcurrentFuncFlagToFunction(GateRef glue, GateR
     Store(VariableType::INT32(), glue, function, bitFieldOffset, newVal);
 }
 
-inline void StubBuilder::SetBitFieldToFunction(GateRef glue, GateRef function, GateRef value)
+inline void StubBuilder::SetBitFieldToFunction(GateRef glue, GateRef function, GateRef value, MemoryAttribute mAttr)
 {
     GateRef bitFieldOffset = IntPtr(JSFunctionBase::BIT_FIELD_OFFSET);
-    Store(VariableType::INT32(), glue, function, bitFieldOffset, value);
+    Store(VariableType::INT32(), glue, function, bitFieldOffset, value, mAttr);
 }
 
 inline void StubBuilder::SetMachineCodeToFunction(GateRef glue, GateRef function, GateRef value, MemoryAttribute mAttr)
@@ -3574,9 +3574,9 @@ inline GateRef StubBuilder::GetGlobalEnv(GateRef glue)
     return env_->GetBuilder()->GetGlobalEnv(glue);
 }
 
-inline GateRef StubBuilder::GetGlobalObject(GateRef glue)
+inline GateRef StubBuilder::GetGlobalObject(GateRef glue, GateRef globalEnv)
 {
-    return env_->GetBuilder()->GetGlobalObject(glue);
+    return env_->GetBuilder()->GetGlobalObject(glue, globalEnv);
 }
 
 inline GateRef StubBuilder::GetMethodFromFunction(GateRef glue, GateRef function)
@@ -3788,7 +3788,7 @@ inline GateRef StubBuilder::GetGlobalConstantValue(VariableType type, GateRef gl
     GateRef gConstAddr = LoadPrimitive(VariableType::JS_ANY(), glue,
         IntPtr(JSThread::GlueData::GetGlobalConstOffset(env_->Is32Bit())));
     auto constantIndex = PtrMul(IntPtr(JSTaggedValue::TaggedTypeSize()), index);
-    return Load(type, glue, gConstAddr, constantIndex);
+    return LoadPrimitive(type, gConstAddr, constantIndex);
 }
 
 inline GateRef StubBuilder::GetSingleCharTable(GateRef glue)
@@ -3814,18 +3814,18 @@ inline GateRef StubBuilder::TaggedIsEnumCache(GateRef glue, GateRef obj)
     return env_->GetBuilder()->TaggedIsEnumCache(glue, obj);
 }
 
-inline GateRef StubBuilder::GetGlobalEnvValue(VariableType type, GateRef glue, GateRef env, size_t index)
+inline GateRef StubBuilder::GetGlobalEnvValue(VariableType type, [[maybe_unused]] GateRef glue, GateRef env,
+                                              size_t index)
 {
     auto valueIndex = IntPtr(GlobalEnv::HEADER_SIZE + JSTaggedValue::TaggedTypeSize() * index);
-    // ReadBarrier is not needed for global env because it is immutable
-    // temporarily add ReadBarrier for global env
-    return Load(type, glue, env, valueIndex);
+    // ReadBarrier is not needed for loading global env fields, because all the fields are GC roots
+    return LoadPrimitive(type, env, valueIndex);
 }
 
 inline GateRef StubBuilder::HasPendingException(GateRef glue)
 {
     GateRef exceptionOffset = IntPtr(JSThread::GlueData::GetExceptionOffset(env_->IsArch32Bit()));
-    GateRef exception = Load(VariableType::JS_ANY(), glue, glue, exceptionOffset);
+    GateRef exception = LoadPrimitive(VariableType::JS_ANY(), glue, exceptionOffset);
     return TaggedIsNotHole(exception);
 }
 

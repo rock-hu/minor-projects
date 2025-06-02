@@ -27,6 +27,15 @@ constexpr char INTENT_PARAM_KEY[] = "ohos.insightIntent.executeParam.param";
 constexpr char INTENT_NAVIGATION_ID_KEY[] = "ohos.insightIntent.pageParam.navigationId";
 constexpr char INTENT_NAVDESTINATION_NAME_KEY[] = "ohos.insightIntent.pageParam.navDestinationName";
 
+bool NavigationManager::IsOuterMostNavigation(int32_t nodeId, int32_t depth)
+{
+    if (dumpMap_.empty()) {
+        return false;
+    }
+    auto outerMostKey = dumpMap_.begin()->first;
+    return outerMostKey == DumpMapKey(nodeId, depth);
+}
+
 void NavigationManager::AddNavigationDumpCallback(int32_t nodeId, int32_t depth, const DumpCallback& callback)
 {
     CHECK_RUN_ON(UI);
@@ -218,6 +227,42 @@ void NavigationManager::UpdateCurNavNodeRenderGroupProperty()
         state ? "yes" : "no");
 }
 
+void NavigationManager::SetForceSplitEnable(bool isForceSplit, const std::string& homePage)
+{
+    TAG_LOGI(AceLogTag::ACE_NAVIGATION, "set navigation force split %{public}s, homePage:%{public}s",
+        (isForceSplit ? "enable" : "disable"), homePage.c_str());
+    /**
+     * As long as the application supports force split, regardless of whether it is enabled or not,
+     * the SetForceSplitleEnable interface will be called.
+     */
+    isForceSplitSupported_ = true;
+    if (isForceSplitEnable_ == isForceSplit && homePageName_ == homePage) {
+        return;
+    }
+    isForceSplitEnable_ = isForceSplit;
+    homePageName_ = homePage;
+
+    auto listeners = forceSplitListeners_;
+    for (auto& listener : listeners) {
+        if (listener.second) {
+            listener.second();
+        }
+    }
+}
+
+void NavigationManager::AddForceSplitListener(int32_t nodeId, std::function<void()>&& listener)
+{
+    forceSplitListeners_[nodeId] = std::move(listener);
+}
+
+void NavigationManager::RemoveForceSplitListener(int32_t nodeId)
+{
+    auto it = forceSplitListeners_.find(nodeId);
+    if (it != forceSplitListeners_.end()) {
+        forceSplitListeners_.erase(it);
+    }
+}
+
 void NavigationManager::ResetCurNavNodeRenderGroupProperty()
 {
     auto curNavNode = curNavNode_.Upgrade();
@@ -356,7 +401,7 @@ void NavigationManager::AddNavigation(int32_t parentNodeId, const RefPtr<FrameNo
 void NavigationManager::RemoveNavigation(int32_t navigationNodeId)
 {
     for (auto navigationIter = navigationMap_.begin(); navigationIter != navigationMap_.end();) {
-        auto navigationInfos = navigationIter->second;
+        auto& navigationInfos = navigationIter->second;
         auto it = std::find_if(navigationInfos.begin(), navigationInfos.end(), [navigationNodeId](auto info) {
             return navigationNodeId == info.nodeId;
         });

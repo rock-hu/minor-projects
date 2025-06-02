@@ -473,7 +473,9 @@ DECLARE_ASM_HANDLER(HandleLdsymbol)
 DECLARE_ASM_HANDLER(HandleLdglobal)
 {
     DEFVARIABLE(varAcc, VariableType::JS_ANY(), acc);
-    varAcc = GetGlobalObject(glue);
+    GateRef currentEnv = GetEnvFromFrame(glue, GetFrame(sp));
+    GateRef globalEnv = GetCurrentGlobalEnv(glue, currentEnv);
+    varAcc = GetGlobalObject(glue, globalEnv);
     DISPATCH_WITH_ACC(LDGLOBAL);
 }
 
@@ -533,12 +535,14 @@ DECLARE_ASM_HANDLER(HandleGetunmappedargs)
     // 32: high 32 bits = startIdx, low 32 bits = numArgs
     GateRef startIdx = TruncInt64ToInt32(Int64LSR(startIdxAndNumArgs, Int64(32)));
     GateRef numArgs = TruncInt64ToInt32(startIdxAndNumArgs);
+    GateRef currentEnv = GetEnvFromFrame(glue, GetFrame(sp));
+    GateRef globalEnv = GetCurrentGlobalEnv(glue, currentEnv);
 
     Label newArgumentsObj(env);
     Label checkException(env);
     Label dispatch(env);
     Label slowPath(env);
-    NewObjectStubBuilder newBuilder(this);
+    NewObjectStubBuilder newBuilder(this, globalEnv);
     newBuilder.SetParameters(glue, 0);
     Label afterArgumentsList(env);
     newBuilder.NewArgumentsList(&argumentsList, &afterArgumentsList, sp, startIdx, numArgs);
@@ -577,10 +581,11 @@ DECLARE_ASM_HANDLER(HandleCopyrestargsImm8)
     Label dispatch(env);
     Label slowPath(env);
     // For the args, we use ElementsKind::GENERIC as the kind
-    GateRef globalEnv = GetGlobalEnv(glue);
+    GateRef currentEnv = GetEnvFromFrame(glue, GetFrame(sp));
+    GateRef globalEnv = GetCurrentGlobalEnv(glue, currentEnv);
     GateRef intialHClass = GetGlobalEnvValue(VariableType::JS_ANY(), glue, globalEnv,
                                              static_cast<size_t>(GlobalEnvField::ELEMENT_HOLE_TAGGED_HCLASS_INDEX));
-    NewObjectStubBuilder newBuilder(this);
+    NewObjectStubBuilder newBuilder(this, globalEnv);
     newBuilder.SetParameters(glue, 0);
     res = newBuilder.NewJSArrayWithSize(intialHClass, numArgs);
     GateRef lengthOffset = IntPtr(JSArray::LENGTH_OFFSET);
@@ -597,7 +602,7 @@ DECLARE_ASM_HANDLER(HandleCopyrestargsImm8)
     LoopBegin(&setArgumentsBegin);
     {
         GateRef idx = ZExtInt32ToPtr(Int32Add(startIdx, *i));
-        GateRef receiver = Load(VariableType::JS_ANY(), glue, sp, PtrMul(IntPtr(sizeof(JSTaggedType)), idx));
+        GateRef receiver = LoadPrimitive(VariableType::JS_ANY(), sp, PtrMul(IntPtr(sizeof(JSTaggedType)), idx));
         SetValueToTaggedArray(VariableType::JS_ANY(), glue, elements, *i, receiver);
         i = Int32Add(*i, Int32(1));
         BRANCH(Int32UnsignedLessThan(*i, numArgs), &setArgumentsAgain, &setArgumentsEnd);
@@ -719,7 +724,9 @@ DECLARE_ASM_HANDLER(HandleDefinegettersetterbyvalueV8V8V8V8)
 DECLARE_ASM_HANDLER(HandleGetpropiterator)
 {
     DEFVARIABLE(varAcc, VariableType::JS_ANY(), acc);
-    NewObjectStubBuilder newBuilder(this);
+    GateRef currentEnv = GetEnvFromFrame(glue, GetFrame(sp));
+    GateRef globalEnv = GetCurrentGlobalEnv(glue, currentEnv);
+    NewObjectStubBuilder newBuilder(this, globalEnv);
     GateRef res = newBuilder.EnumerateObjectProperties(glue, *varAcc);
     CHECK_EXCEPTION_WITH_VARACC(res, INT_PTR(GETPROPITERATOR));
 }
@@ -741,7 +748,9 @@ DECLARE_ASM_HANDLER(HandleLdhole)
 DECLARE_ASM_HANDLER(HandleCreateemptyobject)
 {
     DEFVARIABLE(varAcc, VariableType::JS_ANY(), acc);
-    NewObjectStubBuilder newBuilder(this);
+    GateRef currentEnv = GetEnvFromFrame(glue, GetFrame(sp));
+    GateRef globalEnv = GetCurrentGlobalEnv(glue, currentEnv);
+    NewObjectStubBuilder newBuilder(this, globalEnv);
     varAcc = newBuilder.CreateEmptyObject(glue);
     DISPATCH_WITH_ACC(CREATEEMPTYOBJECT);
 }
@@ -750,7 +759,9 @@ DECLARE_ASM_HANDLER(HandleCreateemptyarrayImm8)
 {
     DEFVARIABLE(varAcc, VariableType::JS_ANY(), acc);
     DEFVARIABLE(varSp, VariableType::NATIVE_POINTER(), sp);
-    NewObjectStubBuilder newBuilder(this);
+    GateRef currentEnv = GetEnvFromFrame(glue, GetFrame(sp));
+    GateRef globalEnv = GetCurrentGlobalEnv(glue, currentEnv);
+    NewObjectStubBuilder newBuilder(this, globalEnv);
     GateRef frame = GetFrame(*varSp);
     GateRef func = GetFunctionFromFrame(glue, frame);
     GateRef slotId = ZExtInt8ToInt32(ReadInst8_0(pc));
@@ -762,7 +773,9 @@ DECLARE_ASM_HANDLER(HandleCreateemptyarrayImm16)
 {
     DEFVARIABLE(varAcc, VariableType::JS_ANY(), acc);
     DEFVARIABLE(varSp, VariableType::NATIVE_POINTER(), sp);
-    NewObjectStubBuilder newBuilder(this);
+    GateRef currentEnv = GetEnvFromFrame(glue, GetFrame(sp));
+    GateRef globalEnv = GetCurrentGlobalEnv(glue, currentEnv);
+    NewObjectStubBuilder newBuilder(this, globalEnv);
     GateRef frame = GetFrame(*varSp);
     GateRef func = GetFunctionFromFrame(glue, frame);
     GateRef slotId = ZExtInt16ToInt32(ReadInst16_0(pc));
@@ -3115,7 +3128,9 @@ DECLARE_ASM_HANDLER(HandleTryldglobalbynameImm8Id16)
     GateRef slotId = ZExtInt8ToInt32(ReadInst8_0(pc));
     AccessObjectStubBuilder builder(this);
     StringIdInfo info(constpool, pc, StringIdInfo::Offset::BYTE_1, StringIdInfo::Length::BITS_16);
-    GateRef result = builder.TryLoadGlobalByName(glue, 0, info, profileTypeInfo, slotId, callback);
+    GateRef currentEnv = GetEnvFromFrame(glue, GetFrame(sp));
+    GateRef globalEnv = GetCurrentGlobalEnv(glue, currentEnv);
+    GateRef result = builder.TryLoadGlobalByName(glue, globalEnv, 0, info, profileTypeInfo, slotId, callback);
     CHECK_EXCEPTION_WITH_VARACC(result, INT_PTR(TRYLDGLOBALBYNAME_IMM8_ID16));
 }
 
@@ -3126,7 +3141,9 @@ DECLARE_ASM_HANDLER(HandleTryldglobalbynameImm16Id16)
     GateRef slotId = ZExtInt16ToInt32(ReadInst16_0(pc));
     AccessObjectStubBuilder builder(this);
     StringIdInfo info(constpool, pc, StringIdInfo::Offset::BYTE_2, StringIdInfo::Length::BITS_16);
-    GateRef result = builder.TryLoadGlobalByName(glue, 0, info, profileTypeInfo, slotId, callback);
+    GateRef currentEnv = GetEnvFromFrame(glue, GetFrame(sp));
+    GateRef globalEnv = GetCurrentGlobalEnv(glue, currentEnv);
+    GateRef result = builder.TryLoadGlobalByName(glue, globalEnv, 0, info, profileTypeInfo, slotId, callback);
     CHECK_EXCEPTION_WITH_VARACC(result, INT_PTR(TRYLDGLOBALBYNAME_IMM16_ID16));
 }
 
@@ -3135,7 +3152,9 @@ DECLARE_ASM_HANDLER(HandleTrystglobalbynameImm8Id16)
     GateRef slotId = ZExtInt16ToInt32(ReadInst8_0(pc));
     AccessObjectStubBuilder builder(this);
     StringIdInfo info(constpool, pc, StringIdInfo::Offset::BYTE_1, StringIdInfo::Length::BITS_16);
-    GateRef result = builder.TryStoreGlobalByName(glue, 0, info, acc, profileTypeInfo, slotId, callback);
+    GateRef currentEnv = GetEnvFromFrame(glue, GetFrame(sp));
+    GateRef globalEnv = GetCurrentGlobalEnv(glue, currentEnv);
+    GateRef result = builder.TryStoreGlobalByName(glue, globalEnv, 0, info, acc, profileTypeInfo, slotId, callback);
     CHECK_EXCEPTION(result, INT_PTR(TRYSTGLOBALBYNAME_IMM8_ID16));
 }
 
@@ -3144,7 +3163,9 @@ DECLARE_ASM_HANDLER(HandleTrystglobalbynameImm16Id16)
     GateRef slotId = ZExtInt16ToInt32(ReadInst16_0(pc));
     AccessObjectStubBuilder builder(this);
     StringIdInfo info(constpool, pc, StringIdInfo::Offset::BYTE_2, StringIdInfo::Length::BITS_16);
-    GateRef result = builder.TryStoreGlobalByName(glue, 0, info, acc, profileTypeInfo, slotId, callback);
+    GateRef currentEnv = GetEnvFromFrame(glue, GetFrame(sp));
+    GateRef globalEnv = GetCurrentGlobalEnv(glue, currentEnv);
+    GateRef result = builder.TryStoreGlobalByName(glue, globalEnv, 0, info, acc, profileTypeInfo, slotId, callback);
     CHECK_EXCEPTION(result, INT_PTR(TRYSTGLOBALBYNAME_IMM16_ID16));
 }
 
@@ -3155,7 +3176,9 @@ DECLARE_ASM_HANDLER(HandleLdglobalvarImm16Id16)
     GateRef slotId = ZExtInt16ToInt32(ReadInst16_0(pc));
     AccessObjectStubBuilder builder(this);
     StringIdInfo info(constpool, pc, StringIdInfo::Offset::BYTE_2, StringIdInfo::Length::BITS_16);
-    GateRef result = builder.LoadGlobalVar(glue, 0, info, profileTypeInfo, slotId, callback);
+    GateRef currentEnv = GetEnvFromFrame(glue, GetFrame(sp));
+    GateRef globalEnv = GetCurrentGlobalEnv(glue, currentEnv);
+    GateRef result = builder.LoadGlobalVar(glue, globalEnv, 0, info, profileTypeInfo, slotId, callback);
     CHECK_EXCEPTION_WITH_VARACC(result, INT_PTR(LDGLOBALVAR_IMM16_ID16));
 }
 
@@ -3164,7 +3187,9 @@ DECLARE_ASM_HANDLER(HandleStglobalvarImm16Id16)
     GateRef slotId = ZExtInt16ToInt32(ReadInst16_0(pc));
     AccessObjectStubBuilder builder(this);
     StringIdInfo info(constpool, pc, StringIdInfo::Offset::BYTE_2, StringIdInfo::Length::BITS_16);
-    GateRef result = builder.StoreGlobalVar(glue, 0, info, acc, profileTypeInfo, slotId);
+    GateRef currentEnv = GetEnvFromFrame(glue, GetFrame(sp));
+    GateRef globalEnv = GetCurrentGlobalEnv(glue, currentEnv);
+    GateRef result = builder.StoreGlobalVar(glue, globalEnv, 0, info, acc, profileTypeInfo, slotId);
     CHECK_EXCEPTION(result, INT_PTR(STGLOBALVAR_IMM16_ID16));
 }
 
@@ -4547,8 +4572,10 @@ DECLARE_ASM_HANDLER(HandleCreatearraywithbufferImm8Id16)
     GateRef imm = ZExtInt16ToInt32(ReadInst16_1(pc));
     GateRef currentFunc = GetFunctionFromFrame(glue, GetFrame(sp));
     GateRef slotId = ZExtInt8ToInt32(ReadInst8_0(pc));
+    GateRef currentEnv = GetEnvFromFrame(glue, GetFrame(sp));
+    GateRef globalEnv = GetCurrentGlobalEnv(glue, currentEnv);
 
-    NewObjectStubBuilder newBuilder(this);
+    NewObjectStubBuilder newBuilder(this, globalEnv);
     GateRef res = newBuilder.CreateArrayWithBuffer(
         glue, imm, currentFunc, { pc, 0, true }, profileTypeInfo, slotId, callback);
     CHECK_EXCEPTION_WITH_ACC(res, INT_PTR(CREATEARRAYWITHBUFFER_IMM8_ID16));
@@ -4559,8 +4586,10 @@ DECLARE_ASM_HANDLER(HandleCreatearraywithbufferImm16Id16)
     GateRef imm = ZExtInt16ToInt32(ReadInst16_2(pc));
     GateRef currentFunc = GetFunctionFromFrame(glue, GetFrame(sp));
     GateRef slotId = ZExtInt16ToInt32(ReadInst16_0(pc));
+    GateRef currentEnv = GetEnvFromFrame(glue, GetFrame(sp));
+    GateRef globalEnv = GetCurrentGlobalEnv(glue, currentEnv);
 
-    NewObjectStubBuilder newBuilder(this);
+    NewObjectStubBuilder newBuilder(this, globalEnv);
     GateRef res = newBuilder.CreateArrayWithBuffer(
         glue, imm, currentFunc, { pc, 0, true }, profileTypeInfo, slotId, callback);
     CHECK_EXCEPTION_WITH_ACC(res, INT_PTR(CREATEARRAYWITHBUFFER_IMM16_ID16));
@@ -4571,8 +4600,10 @@ DECLARE_ASM_HANDLER(HandleDeprecatedCreatearraywithbufferPrefImm16)
     GateRef imm = ZExtInt16ToInt32(ReadInst16_1(pc));
     GateRef currentFunc = GetFunctionFromFrame(glue, GetFrame(sp));
     GateRef slotId = ZExtInt8ToInt32(ReadInst8_0(pc));
+    GateRef currentEnv = GetEnvFromFrame(glue, GetFrame(sp));
+    GateRef globalEnv = GetCurrentGlobalEnv(glue, currentEnv);
 
-    NewObjectStubBuilder newBuilder(this);
+    NewObjectStubBuilder newBuilder(this, globalEnv);
     GateRef res = newBuilder.CreateArrayWithBuffer(
         glue, imm, currentFunc, { pc, 0, true }, profileTypeInfo, slotId, callback);
     CHECK_EXCEPTION_WITH_ACC(res, INT_PTR(DEPRECATED_CREATEARRAYWITHBUFFER_PREF_IMM16));
@@ -4581,11 +4612,13 @@ DECLARE_ASM_HANDLER(HandleDeprecatedCreatearraywithbufferPrefImm16)
 DECLARE_ASM_HANDLER(HandleCreateobjectwithbufferImm8Id16)
 {
     GateRef imm = ZExtInt16ToInt32(ReadInst16_1(pc));
-    GateRef currentFunc = GetFunctionFromFrame(glue, GetFrame(sp));
+    GateRef frame = GetFrame(sp);
+    GateRef currentFunc = GetFunctionFromFrame(glue, frame);
     GateRef module = GetModuleFromFunction(glue, currentFunc);
     GateRef result = GetObjectLiteralFromConstPool(glue, constpool, imm, module);
-    GateRef currentEnv = GetEnvFromFrame(glue, GetFrame(sp));
-    NewObjectStubBuilder newBuilder(this);
+    GateRef currentEnv = GetEnvFromFrame(glue, frame);
+    GateRef globalEnv = GetCurrentGlobalEnv(glue, currentEnv);
+    NewObjectStubBuilder newBuilder(this, globalEnv);
     GateRef res = newBuilder.CreateObjectHavingMethod(glue, result, currentEnv);
 
     auto env = GetEnvironment();
@@ -4603,11 +4636,13 @@ DECLARE_ASM_HANDLER(HandleCreateobjectwithbufferImm8Id16)
 DECLARE_ASM_HANDLER(HandleCreateobjectwithbufferImm16Id16)
 {
     GateRef imm = ZExtInt16ToInt32(ReadInst16_2(pc));
-    GateRef currentFunc = GetFunctionFromFrame(glue, GetFrame(sp));
+    GateRef frame = GetFrame(sp);
+    GateRef currentFunc = GetFunctionFromFrame(glue, frame);
     GateRef module = GetModuleFromFunction(glue, currentFunc);
     GateRef result = GetObjectLiteralFromConstPool(glue, constpool, imm, module);
-    GateRef currentEnv = GetEnvFromFrame(glue, GetFrame(sp));
-    NewObjectStubBuilder newBuilder(this);
+    GateRef currentEnv = GetEnvFromFrame(glue, frame);
+    GateRef globalEnv = GetCurrentGlobalEnv(glue, currentEnv);
+    NewObjectStubBuilder newBuilder(this, globalEnv);
     GateRef res = newBuilder.CreateObjectHavingMethod(glue, result, currentEnv);
 
     auto env = GetEnvironment();
@@ -4964,11 +4999,14 @@ DECLARE_ASM_HANDLER(HandleDefinemethodImm8Id16Imm8)
     DEFVARIABLE(varAcc, VariableType::JS_ANY(), acc);
     GateRef methodId = ReadInst16_1(pc);
     GateRef length = ReadInst8_3(pc);
-    GateRef lexEnv = GetEnvFromFrame(glue, GetFrame(sp));
+    GateRef frame = GetFrame(sp);
+    GateRef lexEnv = GetEnvFromFrame(glue, frame);
+    GateRef currentEnv = GetEnvFromFrame(glue, frame);
+    GateRef globalEnv = GetCurrentGlobalEnv(glue, currentEnv);
     DEFVARIABLE(result, VariableType::JS_POINTER(),
         GetMethodFromConstPool(glue, constpool, ZExtInt16ToInt32(methodId)));
 #if ENABLE_NEXT_OPTIMIZATION
-    NewObjectStubBuilder newBuilder(this);
+    NewObjectStubBuilder newBuilder(this, globalEnv);
     result = newBuilder.DefineMethod(glue, *result, acc, ZExtInt8ToInt32(length), lexEnv, GetModule(glue, sp));
 #else
     result = CallRuntime(glue, RTSTUB_ID(DefineMethod), { *result, acc, Int8ToTaggedInt(length),
@@ -4994,11 +5032,14 @@ DECLARE_ASM_HANDLER(HandleDefinemethodImm16Id16Imm8)
     DEFVARIABLE(varAcc, VariableType::JS_ANY(), acc);
     GateRef methodId = ReadInst16_2(pc);
     GateRef length = ReadInst8_4(pc);
-    GateRef lexEnv = GetEnvFromFrame(glue, GetFrame(sp));
+    GateRef frame = GetFrame(sp);
+    GateRef lexEnv = GetEnvFromFrame(glue, frame);
+    GateRef currentEnv = GetEnvFromFrame(glue, frame);
+    GateRef globalEnv = GetCurrentGlobalEnv(glue, currentEnv);
     DEFVARIABLE(result, VariableType::JS_POINTER(),
         GetMethodFromConstPool(glue, constpool, ZExtInt16ToInt32(methodId)));
 #if ENABLE_NEXT_OPTIMIZATION        
-    NewObjectStubBuilder newBuilder(this);
+    NewObjectStubBuilder newBuilder(this, globalEnv);
     result = newBuilder.DefineMethod(glue, *result, acc, ZExtInt8ToInt32(length), lexEnv, GetModule(glue, sp));
 #else
     result = CallRuntime(glue, RTSTUB_ID(DefineMethod), { *result, acc, Int8ToTaggedInt(length),
@@ -5272,10 +5313,13 @@ DECLARE_ASM_HANDLER(HandleDeprecatedLdhomeobjectPrefNone)
 DECLARE_ASM_HANDLER(HandleDeprecatedCreateobjecthavingmethodPrefImm16)
 {
     GateRef imm = ZExtInt16ToInt32(ReadInst16_1(pc));
-    GateRef currentFunc = GetFunctionFromFrame(glue, GetFrame(sp));
+    GateRef frame = GetFrame(sp);
+    GateRef currentFunc = GetFunctionFromFrame(glue, frame);
     GateRef module = GetModuleFromFunction(glue, currentFunc);
     GateRef result = GetObjectLiteralFromConstPool(glue, constpool, imm, module);
-    NewObjectStubBuilder newBuilder(this);
+    GateRef currentEnv = GetEnvFromFrame(glue, frame);
+    GateRef globalEnv = GetCurrentGlobalEnv(glue, currentEnv);
+    NewObjectStubBuilder newBuilder(this, globalEnv);
     GateRef res = newBuilder.CreateObjectHavingMethod(glue, result, acc);
     CHECK_EXCEPTION_WITH_ACC(res, INT_PTR(DEPRECATED_CREATEOBJECTHAVINGMETHOD_PREF_IMM16));
 }
@@ -5335,7 +5379,7 @@ DECLARE_ASM_HANDLER_NOPRINT(ExceptionHandler)
     Label pcIsInvalid(env);
     Label pcNotInvalid(env);
     GateRef exceptionOffset = IntPtr(JSThread::GlueData::GetExceptionOffset(env->IsArch32Bit()));
-    GateRef exception = Load(VariableType::JS_ANY(), glue, glue, exceptionOffset);
+    GateRef exception = LoadPrimitive(VariableType::JS_ANY(), glue, exceptionOffset);
     varPc = TaggedCastToIntPtr(CallRuntime(glue, RTSTUB_ID(UpFrame), {}));
     varSp = GetCurrentFrame(glue);
     BRANCH(IntPtrEqual(*varPc, IntPtr(0)), &pcIsInvalid, &pcNotInvalid);

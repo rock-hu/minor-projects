@@ -948,6 +948,7 @@ public:
         uint32_t index, bool needBuild, bool isCache = false, bool addToRenderTree = false) override;
     RefPtr<UINode> GetFrameChildByIndexWithoutExpanded(uint32_t index) override;
     bool CheckNeedForceMeasureAndLayout() override;
+    bool ReachResponseDeadline() const override;
 
     bool SetParentLayoutConstraint(const SizeF& size) const override;
     void ForceSyncGeometryNode();
@@ -1393,6 +1394,8 @@ public:
     }
 
     void AddToOcclusionMap(bool enable);
+    void MarkModifyDoneUnsafely();
+    void MarkDirtyNodeUnsafely(PropertyChangeFlag extraFlag);
 
 protected:
     void DumpInfo() override;

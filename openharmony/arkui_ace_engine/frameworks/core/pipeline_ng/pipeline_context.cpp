@@ -706,7 +706,15 @@ void PipelineContext::FlushVsync(uint64_t nanoTimestamp, uint32_t frameCount)
         isFirstFlushMessages_ = false;
         LOGI("ArkUi flush first frame messages.");
     }
-    FlushMessages();
+    if (!onShow_) {
+        FlushMessages([window = window_]() {
+            if (window) {
+                window->NotifySnapshotUpdate();
+            }
+        });
+    } else {
+        FlushMessages();
+    }
     FlushWindowPatternInfo();
     InspectDrew();
     UIObserverHandler::GetInstance().HandleDrawCommandSendCallBack();
@@ -963,7 +971,7 @@ void PipelineContext::UpdateOcclusionCullingStatus()
     keyOcclusionNodes_.clear();
 }
 
-void PipelineContext::FlushMessages()
+void PipelineContext::FlushMessages(std::function<void()> callback)
 {
     int32_t id = -1;
     if (SystemProperties::GetAcePerformanceMonitorEnabled()) {
@@ -985,7 +993,7 @@ void PipelineContext::FlushMessages()
     }
     HandleSpecialContainerNode();
     UpdateOcclusionCullingStatus();
-    window_->FlushTasks();
+    window_->FlushTasks(callback);
 }
 
 void PipelineContext::FlushUITasks(bool triggeredByImplicitAnimation)
@@ -2965,11 +2973,14 @@ void PipelineContext::OnTouchEvent(
     }
 
     if (scalePoint.type == TouchType::MOVE) {
-        if (isEventsPassThrough_) {
+        if (isEventsPassThrough_ || point.passThrough) {
             scalePoint.isPassThroughMode = true;
             eventManager_->FlushTouchEventsEnd({ scalePoint });
             eventManager_->DispatchTouchEvent(scalePoint);
             hasIdleTasks_ = true;
+            if (postEventManager_) {
+                postEventManager_->SetPassThroughResult(eventManager_->GetPassThroughResult());
+            }
             return;
         }
         if (!eventManager_->GetInnerFlag() && formEventMgr) {
@@ -3025,6 +3036,9 @@ void PipelineContext::OnTouchEvent(
 
     hasIdleTasks_ = true;
     RequestFrame();
+    if (postEventManager_) {
+        postEventManager_->SetPassThroughResult(eventManager_->GetPassThroughResult());
+    }
 }
 
 bool PipelineContext::CompensateTouchMoveEventFromUnhandledEvents(const TouchEvent& event)
@@ -3735,12 +3749,22 @@ void PipelineContext::OnMouseEvent(const MouseEvent& event, const RefPtr<FrameNo
     NotifyDragMouseEvent(event);
     DispatchMouseToTouchEvent(event, node);
     if (event.action == MouseAction::MOVE) {
+        if (event.passThrough) {
+            DispatchMouseEvent(event, node);
+            if (postEventManager_) {
+                postEventManager_->SetPassThroughResult(eventManager_->GetPassThroughResult());
+            }
+            return;
+        }
         mouseEvents_[node].emplace_back(event);
         hasIdleTasks_ = true;
         RequestFrame();
         return;
     }
     DispatchMouseEvent(event, node);
+    if (postEventManager_) {
+        postEventManager_->SetPassThroughResult(eventManager_->GetPassThroughResult());
+    }
 }
 
 void PipelineContext::DispatchMouseToTouchEvent(const MouseEvent& event, const RefPtr<FrameNode>& node)
@@ -3840,7 +3864,7 @@ void PipelineContext::DispatchMouseEvent(const MouseEvent& event, const RefPtr<F
     touchRestrict.sourceType = event.sourceType;
     touchRestrict.hitTestType = SourceType::MOUSE;
     touchRestrict.inputEventType = InputEventType::MOUSE_BUTTON;
-    if (event.action != MouseAction::MOVE) {
+    if (event.action != MouseAction::MOVE || event.passThrough) {
         eventManager_->MouseTest(scaleEvent, node, touchRestrict);
         eventManager_->DispatchMouseEventNG(scaleEvent);
         eventManager_->DispatchMouseHoverEventNG(scaleEvent);
@@ -4091,6 +4115,9 @@ void PipelineContext::OnAxisEvent(const AxisEvent& event, const RefPtr<FrameNode
             eventManager_->AxisTest(scaleEvent, node);
             eventManager_->DispatchAxisEventNG(scaleEvent);
         }
+    }
+    if (postEventManager_) {
+        postEventManager_->SetPassThroughResult(eventManager_->GetPassThroughResult());
     }
     if (event.action == AxisAction::BEGIN && formEventMgr) {
         formEventMgr->HandleEtsCardAxisEvent(scaleEvent, etsSerializedGesture);
@@ -4449,6 +4476,30 @@ void PipelineContext::SetAppIcon(const RefPtr<PixelMap>& icon)
 
 void PipelineContext::FlushReload(const ConfigurationChange& configurationChange, bool fullUpdate)
 {
+     auto changeTask = [weak = WeakClaim(this), configurationChange,
+        weakOverlayManager = AceType::WeakClaim(AceType::RawPtr(overlayManager_)), fullUpdate]() {
+        auto pipeline = weak.Upgrade();
+        CHECK_NULL_VOID(pipeline);
+        if (configurationChange.IsNeedUpdate() || configurationChange.iconUpdate) {
+            auto rootNode = pipeline->GetRootElement();
+            rootNode->UpdateConfigurationUpdate(configurationChange);
+            auto overlay = weakOverlayManager.Upgrade();
+            if (overlay) {
+                overlay->ReloadBuilderNodeConfig();
+            }
+        }
+        if (fullUpdate && configurationChange.IsNeedUpdate()) {
+            CHECK_NULL_VOID(pipeline->stageManager_);
+            pipeline->SetIsReloading(true);
+            pipeline->stageManager_->ReloadStage();
+            pipeline->SetIsReloading(false);
+            pipeline->FlushUITasks();
+        }
+    };
+    if (!onShow_) {
+        changeTask();
+        return;
+    }
     AnimationOption option;
     const int32_t duration = 400;
     option.SetDuration(duration);
@@ -4456,26 +4507,7 @@ void PipelineContext::FlushReload(const ConfigurationChange& configurationChange
     RecycleManager::Notify(configurationChange);
     AnimationUtils::Animate(
         option,
-        [weak = WeakClaim(this), configurationChange,
-            weakOverlayManager = AceType::WeakClaim(AceType::RawPtr(overlayManager_)), fullUpdate]() {
-            auto pipeline = weak.Upgrade();
-            CHECK_NULL_VOID(pipeline);
-            if (configurationChange.IsNeedUpdate() || configurationChange.iconUpdate) {
-                auto rootNode = pipeline->GetRootElement();
-                rootNode->UpdateConfigurationUpdate(configurationChange);
-                auto overlay = weakOverlayManager.Upgrade();
-                if (overlay) {
-                    overlay->ReloadBuilderNodeConfig();
-                }
-            }
-            if (fullUpdate && configurationChange.IsNeedUpdate()) {
-                CHECK_NULL_VOID(pipeline->stageManager_);
-                pipeline->SetIsReloading(true);
-                pipeline->stageManager_->ReloadStage();
-                pipeline->SetIsReloading(false);
-                pipeline->FlushUITasks();
-            }
-        },
+        changeTask,
         [weak = WeakClaim(this)]() {
             auto pipeline = weak.Upgrade();
             CHECK_NULL_VOID(pipeline);
@@ -4777,6 +4809,7 @@ void PipelineContext::NotifyDragOnHide()
     auto manager = GetDragDropManager();
     CHECK_NULL_VOID(manager);
     manager->HandlePipelineOnHide();
+    manager->OnDragAsyncEnd();
 }
 
 void PipelineContext::CompensatePointerMoveEvent(const DragPointerEvent& event, const RefPtr<FrameNode>& node)

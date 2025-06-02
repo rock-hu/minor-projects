@@ -676,7 +676,7 @@ strokeColor(color: Optional\<ResourceColor>)
 
 | 参数名 | 类型                                       | 必填 | 说明       |
 | ------ | ------------------------------------------ | ---- | ---------- |
-| color  | [Optional](ts-universal-attributes-custom-property.md#optional12)\<[ResourceColor](ts-types.md#resourcecolor)> | 是   | 描边颜色。 |
+| color  | [Optional](ts-universal-attributes-custom-property.md#optional12)\<[ResourceColor](ts-types.md#resourcecolor)> | 是   | 描边颜色。默认值为字体颜色，设置异常值时取默认值。|
 
 ### stopBackPress<sup>15+</sup>
 
@@ -1921,3 +1921,70 @@ struct SearchExample {
   }
 }
 ```
+
+### 示例20（设置文本描边）
+
+该示例通过strokeWidth和strokeColor属性设置文本的描边宽度及颜色。
+
+```ts
+// xxx.ets
+@Entry
+@Component
+struct SearchExample {
+  build() {
+    Row() {
+      Column() {
+        Text('stroke feature').fontSize(9).fontColor(0xCCCCCC)
+
+        Search({value: 'This is the text without stroke setting'})
+          .width('80%').height(90).borderWidth(1)
+          .minFontSize(60)
+          .maxFontSize(60)
+        Search({value: 'This is the text with the stroke setting'})
+          .width('80%').height(90).borderWidth(1)
+          .minFontSize(60)
+          .maxFontSize(60)
+          .strokeWidth(LengthMetrics.px(-3.0))
+          .strokeColor(Color.Red)
+        Search({value: 'This is the text with the stroke setting'})
+          .width('80%').height(90).borderWidth(1)
+          .minFontSize(60)
+          .maxFontSize(60)
+          .strokeWidth(LengthMetrics.px(3.0))
+          .strokeColor(Color.Red)
+      }.height('90%')
+    }
+    .width('90%')
+    .margin(10)
+  }
+}
+```
+
+![searchSetStroke](figures/searchSetStroke.png)
+
+### 示例21（设置中西文自动间距）
+
+该示例通过enableAutoSpacing属性设置中西文自动间距。
+
+```ts
+// xxx.ets
+@Entry
+@Component
+struct SearchExample {
+  build() {
+    Row() {
+      Column() {
+        Text('开启中西文自动间距').margin(5)
+        Search({value: '中西文Auto Spacing自动间距'})
+          .enableAutoSpacing(true)
+        Text('关闭中西文自动间距').margin(5)
+        Search({value: '中西文Auto Spacing自动间距'})
+          .enableAutoSpacing(false)
+      }.height('100%')
+    }
+    .width('60%')
+  }
+}
+```
+
+![searchEnableAutoSpacing](figures/searchEnableAutoSpacing.png)

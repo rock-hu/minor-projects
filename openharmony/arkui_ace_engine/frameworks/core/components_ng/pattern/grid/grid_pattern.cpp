@@ -74,7 +74,6 @@ RefPtr<LayoutAlgorithm> GridPattern::CreateLayoutAlgorithm()
         auto algo = MakeRefPtr<GridIrregularLayoutAlgorithm>(
             info_, canOverScrollStart, canOverScrollEnd && (info_.repeatDifference_ == 0));
         algo->SetEnableSkip(!disableSkip);
-        algo->SetScrollSource(GetScrollSource());
         return algo;
     }
     RefPtr<GridScrollLayoutAlgorithm> result;
@@ -567,6 +566,7 @@ void GridPattern::CheckScrollable()
     CHECK_NULL_VOID(host);
     auto gridLayoutProperty = host->GetLayoutProperty<GridLayoutProperty>();
     CHECK_NULL_VOID(gridLayoutProperty);
+    auto lastScrollable = scrollable_;
     if (((info_.endIndex_ - info_.startIndex_ + 1) < info_.childrenCount_) ||
         (GreatNotEqual(info_.GetTotalHeightOfItemsInView(GetMainGap()), GetMainContentSize()))) {
         scrollable_ = true;
@@ -578,6 +578,10 @@ void GridPattern::CheckScrollable()
 
     if (!gridLayoutProperty->GetScrollEnabled().value_or(scrollable_)) {
         SetScrollEnabled(false);
+    }
+
+    if (lastScrollable && !scrollable_) {
+        StopAnimate();
     }
 }
 
@@ -593,6 +597,7 @@ void GridPattern::ProcessEvent(bool indexChanged, float finalOffset)
         FireOnScroll(finalOffset, onScroll);
     }
     FireObserverOnDidScroll(finalOffset);
+    FireObserverOnScrollerAreaChange(finalOffset);
     auto onDidScroll = gridEventHub->GetOnDidScroll();
     if (onDidScroll) {
         FireOnScroll(finalOffset, onDidScroll);
@@ -895,6 +900,9 @@ float GridPattern::GetTotalHeight() const
         return info_.GetIrregularHeight(mainGap);
     }
     if (props->HasLayoutOptions()) {
+        if (info_.IsAllItemsMeasured()) {
+            return info_.GetTotalLineHeight(mainGap);
+        }
         return info_.GetContentHeight(*props->GetLayoutOptions(), info_.childrenCount_, mainGap);
     }
     return info_.GetContentHeight(mainGap);

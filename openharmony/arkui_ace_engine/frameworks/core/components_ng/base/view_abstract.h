@@ -110,17 +110,14 @@ struct OptionParam {
         const std::function<void()>& actionParam)
         : value(valueParam), icon(iconParam), labelInfo(labelInfo), enabled(true), action(actionParam)
     {}
-    OptionParam(const std::string& valueParam, const std::string& iconParam, const std::string& labelInfo,
-        const std::function<void()>& actionParam, uint32_t symbolId)
-        : value(valueParam), icon(iconParam), labelInfo(labelInfo), enabled(true), action(actionParam), symbolId(symbolId)
-    {}
     OptionParam(const std::string& valueParam, const std::function<void()>& actionParam, const std::string& labelInfo,
         bool enabledParam)
         : value(valueParam), icon(""), labelInfo(labelInfo), enabled(enabledParam), action(actionParam)
     {}
     OptionParam(const std::string& valueParam, const std::function<void()>& actionParam, const std::string& labelInfo,
         bool enabledParam, uint32_t symbolId)
-        : value(valueParam), icon(""), labelInfo(labelInfo), enabled(enabledParam), action(actionParam), symbolId(symbolId)
+        : value(valueParam), icon(""), labelInfo(labelInfo), enabled(enabledParam), action(actionParam),
+          symbolId(symbolId)
     {}
 
     void SetSymbolUserDefinedIdealFontSize(const Dimension& dimension)
@@ -195,6 +192,8 @@ public:
     static void SetBackgroundImageRepeat(const ImageRepeat &imageRepeat);
     static void SetBackgroundImageSyncMode(bool syncMode);
     static void SetBackgroundImageSize(BackgroundImageSize &bgImgSize);
+    static void SetBackgroundImageSizeUpdateFunc(
+        BackgroundImageSize& bgImgSize, const RefPtr<ResourceObject>& resObj, const std::string direction);
     static void SetBackgroundImagePosition(BackgroundImagePosition &bgImgPosition);
     static void SetBackgroundBlurStyle(const BlurStyleOption& bgBlurStyle, const SysOptions& sysOptions = SysOptions());
     static void SetMotionBlur(const MotionBlurOption& motionBlurOption);
@@ -268,6 +267,7 @@ public:
     // customBackground
     static void SetBackgroundAlign(const Alignment &align);
     static void SetCustomBackgroundColor(const Color& color);
+    static void SetCustomBackgroundColorWithResourceObj(const RefPtr<ResourceObject>& resObj);
     static void SetBackgroundIgnoresLayoutSafeAreaEdges(const uint32_t layoutSafeAreaEdges);
     static void SetIsTransitionBackground(bool val);
     static void SetIsBuilderBackground(bool val);
@@ -354,6 +354,7 @@ public:
     static void SetPivot(const DimensionOffset &value);
     static void SetTranslate(const NG::TranslateOptions &value);
     static void SetRotate(const NG::Vector5F &value);
+    static void SetRotateAngle(const NG::Vector4F &value);
 
     static void SetTransformMatrix(const Matrix4 &matrix);
     static void SetTransform3DMatrix(const Matrix4 &matrix);
@@ -465,6 +466,7 @@ public:
         PopupInfo& tipsInfo, bool showInSubWindow);
     static void UpdateTipsInfo(PopupInfo& tipsInfo, int32_t popupId, const RefPtr<FrameNode>& popupNode,
         const RefPtr<PopupParam>& param, bool isAvoidKeyboard);
+    static void AddMouseEventForTips(const RefPtr<FrameNode>& targetNode, PopupInfo& tipsInfo);
     static RefPtr<OverlayManager> GetCurOverlayManager(const RefPtr<UINode>& node);
     static bool GetTargetNodeIsInSubwindow(const RefPtr<UINode>& targetNode);
     static int32_t OpenPopup(const RefPtr<PopupParam>& param, const RefPtr<UINode>& customNode);
@@ -682,8 +684,9 @@ public:
     static void ReSetMagnifier(FrameNode* frameNode);
     static void SetBackgroundBlurStyle(
         FrameNode* frameNode, const BlurStyleOption& bgBlurStyle, const SysOptions& sysOptions = SysOptions());
-    static void SetBackgroundImagePosition(FrameNode* frameNode, BackgroundImagePosition& bgImgPosition);
-    static void SetBackgroundImageSize(FrameNode* frameNode, BackgroundImageSize& bgImgSize);
+    static void SetBackgroundImagePosition(
+        FrameNode* frameNode, BackgroundImagePosition& bgImgPosition, bool isReset = false);
+    static void SetBackgroundImageSize(FrameNode* frameNode, BackgroundImageSize& bgImgSize, bool isReset = false);
     static void SetBackgroundImage(FrameNode* frameNode, const ImageSourceInfo& src);
     static void SetBackgroundImage(
         FrameNode* frameNode, const ImageSourceInfo& src, const RefPtr<ResourceObject>& resObj);
@@ -697,6 +700,7 @@ public:
     static const std::string GetGeometryTransition(FrameNode* frameNode,
         bool* followWithoutTransition, bool* doRegisterSharedTransition);
     static void SetRotate(FrameNode* frameNode, const NG::Vector5F& value);
+    static void SetRotateAngle(FrameNode* frameNode, const NG::Vector4F& value);
     static void SetClipEdge(FrameNode* frameNode, bool isClip);
     static void SetClipShape(FrameNode* frameNode, const RefPtr<BasicShape>& basicShape);
     static void SetPixelStretchEffect(FrameNode* frameNode, PixStretchEffectOption& option);
@@ -757,7 +761,8 @@ public:
     static void SetForegroundEffect(FrameNode* frameNode, float radius);
     static void SetBackgroundEffect(
         FrameNode* frameNode, const EffectOption& effectOption, const SysOptions& sysOptions = SysOptions());
-    static void SetBackgroundImageResizableSlice(FrameNode* frameNode, ImageResizableSlice& slice);
+    static void SetBackgroundImageResizableSlice(
+        FrameNode* frameNode, ImageResizableSlice& slice, bool isReset = false);
     static void SetDynamicLightUp(FrameNode* frameNode, float rate, float lightUpDegree);
     static void SetBgDynamicBrightness(FrameNode* frameNode, const BrightnessOption& brightnessOption);
     static void SetFgDynamicBrightness(FrameNode* frameNode, const BrightnessOption& brightnessOption);
@@ -916,6 +921,7 @@ public:
     static Alignment GetAlign(FrameNode* frameNode);
     static NG::VectorF GetScale(FrameNode* frameNode);
     static NG::Vector5F GetRotate(FrameNode* frameNode);
+    static NG::Vector4F GetRotateAngle(FrameNode* frameNode);
     static Dimension GetBrightness(FrameNode* frameNode);
     static Dimension GetSaturate(FrameNode* frameNode);
     static BackgroundImagePosition GetBackgroundImagePosition(FrameNode* frameNode);

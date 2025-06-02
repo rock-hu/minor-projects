@@ -18,6 +18,8 @@
 #include "ecmascript/dfx/cpu_profiler/cpu_profiler.h"
 #endif
 
+#include "common_components/taskpool/taskpool.h"
+#include "ecmascript/mem/idle_gc_trigger.h"
 #include "ecmascript/mem/incremental_marker.h"
 #include "ecmascript/mem/partial_gc.h"
 #include "ecmascript/mem/parallel_evacuator.h"
@@ -860,7 +862,9 @@ void Heap::Initialize()
         nonmovableSpaceCapacity = ecmaVm_->GetJSOptions().MaxNonmovableSpaceCapacity();
     }
     nonMovableSpace_ = new NonMovableSpace(this, nonmovableSpaceCapacity, nonmovableSpaceCapacity);
+#ifndef USE_CMC_GC
     nonMovableSpace_->Initialize();
+#endif
     size_t snapshotSpaceCapacity = config_.GetDefaultSnapshotSpaceSize();
     snapshotSpace_ = new SnapshotSpace(this, snapshotSpaceCapacity, snapshotSpaceCapacity);
     size_t machineCodeSpaceCapacity = config_.GetDefaultMachineCodeSpaceSize();
@@ -1466,12 +1470,15 @@ void Heap::ProcessGCCallback()
 {
     // Weak node nativeFinalizeCallback may execute JS and change the weakNodeList status,
     // even lead to another GC, so this have to invoke after this GC process.
+#ifdef USE_CMC_GC
+    thread_->InvokeWeakNodeFreeGlobalCallBack();
+#endif
     thread_->InvokeWeakNodeNativeFinalizeCallback();
     // PostTask for ProcessNativeDelete
     CleanCallback();
     JSFinalizationRegistry::CheckAndCall(thread_);
     // clear env cache
-    thread_->GetGlobalEnv()->ClearCache(thread_);
+    thread_->ClearCache();
 }
 
 void BaseHeap::ThrowOutOfMemoryError(JSThread *thread, size_t size, std::string functionName,

@@ -17,13 +17,13 @@
 #define ECMASCRIPT_STRING_TABLE_H
 
 #include <array>
+#include "common_components/taskpool/task.h"
 #include "ecmascript/js_tagged_value.h"
 #include "ecmascript/mem/c_containers.h"
 #include "ecmascript/mem/space.h"
 #include "ecmascript/mem/visitor.h"
 #include "ecmascript/platform/mutex.h"
 #include "ecmascript/tagged_array.h"
-#include "ecmascript/taskpool/task.h"
 
 namespace panda::ecmascript {
 #if ENABLE_NEXT_OPTIMIZATION
@@ -95,6 +95,10 @@ public:
         EcmaString *Value() const
         {
             return value_;
+        }
+        EcmaString *const *ValueAddress() const
+        {
+            return &value_;
         }
         void SetValue(EcmaString *v)
         {
@@ -200,9 +204,17 @@ public:
     {
         return root_;
     }
-
+    void IncreaseInuseCount()
+    {
+        inuseCount_.fetch_add(1);
+    }
+    void DecreaseInuseCount()
+    {
+        inuseCount_.fetch_sub(1);
+    }
 private:
     std::atomic<Indirect *> root_;
+    std::atomic<uint32_t> inuseCount_ {0};
     template <bool IsLock>
     Node *Expand(Entry *oldEntry, Entry *newEntry, uint32_t newHash, uint32_t hashShift, Indirect *parent);
     void Iter(Indirect *node, bool &isValid);
@@ -212,6 +224,26 @@ private:
 #endif
     bool CheckValidity(EcmaString *value, bool &isValid);
 };
+
+class HashTrieMapInUseScope {
+public:
+    HashTrieMapInUseScope(HashTrieMap* hashTrieMap) : hashTrieMap_(hashTrieMap)
+    {
+        hashTrieMap_->IncreaseInuseCount();
+    }
+
+    ~HashTrieMapInUseScope()
+    {
+        hashTrieMap_->DecreaseInuseCount();
+    }
+
+    NO_COPY_SEMANTIC(HashTrieMapInUseScope);
+    NO_MOVE_SEMANTIC(HashTrieMapInUseScope);
+
+private:
+    HashTrieMap* hashTrieMap_;
+};
+
 
 class EcmaStringTableCleaner {
 public:

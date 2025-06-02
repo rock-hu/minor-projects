@@ -108,6 +108,15 @@ enum class WebInfoType : int32_t {
     TYPE_UNKNOWN
 };
 
+struct PipInfo {
+    uint32_t mainWindowId;
+    int delegateId;
+    int childId;
+    int frameRoutingId;
+    int width;
+    int height;
+};
+
 using CursorStyleInfo = std::tuple<OHOS::NWeb::CursorType, std::shared_ptr<OHOS::NWeb::NWebCursorInfo>>;
 
 class WebPattern : public NestableScrollContainer,
@@ -454,7 +463,8 @@ public:
     ACE_DEFINE_PROPERTY_FUNC_WITH_GROUP(WebProperty, FileFromUrlAccessEnabled, bool);
     ACE_DEFINE_PROPERTY_FUNC_WITH_GROUP(WebProperty, DatabaseAccessEnabled, bool);
     ACE_DEFINE_PROPERTY_FUNC_WITH_GROUP(WebProperty, TextZoomRatio, int32_t);
-    ACE_DEFINE_PROPERTY_FUNC_WITH_GROUP(WebProperty, WebDebuggingAccessEnabled, bool);
+    ACE_DEFINE_PROPERTY_FUNC_WITH_GROUP(WebProperty, WebDebuggingAccessEnabledAndPort,
+        WebPatternProperty::WebDebuggingConfigType);
     ACE_DEFINE_PROPERTY_FUNC_WITH_GROUP(WebProperty, BackgroundColor, int32_t);
     ACE_DEFINE_PROPERTY_FUNC_WITH_GROUP(WebProperty, InitialScale, float);
     ACE_DEFINE_PROPERTY_FUNC_WITH_GROUP(WebProperty, PinchSmoothModeEnabled, bool);
@@ -789,11 +799,26 @@ public:
     void InitDataDetector();
     void CloseDataDetectorMenu();
 
+    void CreateSnapshotImageFrameNode(const std::string& snapshotPath);
+    void RemoveSnapshotFrameNode();
+
+    void OnPip(int status, int delegateId, int childId, int frameRoutingId, int width, int height);
+    void SetPipNativeWindow(int delegateId, int childId, int frameRoutingId, void* window);
+    void SendPipEvent(int delegateId, int childId, int frameRoutingId, int event);
 private:
     friend class WebContextSelectOverlay;
     friend class WebSelectOverlay;
     friend class WebDataDetectorAdapter;
 
+    bool Pip(int status, int delegateId, int childId, int frameRoutingId, int width, int height);
+    napi_env CreateEnv();
+    bool CreatePip(int status, napi_env env, bool& init, uint32_t &pipController, const PipInfo &pipInfo);
+    bool RegisterPip(uint32_t pipController);
+    bool StartPip(uint32_t pipController);
+    void EnablePip(uint32_t pipController);
+    bool StopPip(int delegateId, int childId, int frameRoutingId);
+    bool PlayPip(int delegateId, int childId, int frameRoutingId);
+    bool PausePip(int delegateId, int childId, int frameRoutingId);
     void GetPreviewImageOffsetAndSize(bool isImage, Offset& previewOffset, SizeF& previewSize);
     RefPtr<FrameNode> CreatePreviewImageFrameNode(bool isImage);
     void ShowPreviewMenu(WebElementType type);
@@ -844,7 +869,8 @@ private:
     void OnFileFromUrlAccessEnabledUpdate(bool value);
     void OnDatabaseAccessEnabledUpdate(bool value);
     void OnTextZoomRatioUpdate(int32_t value);
-    void OnWebDebuggingAccessEnabledUpdate(bool value);
+    void OnWebDebuggingAccessEnabledAndPortUpdate(
+        const WebPatternProperty::WebDebuggingConfigType& enabled_and_port);
     void OnPinchSmoothModeEnabledUpdate(bool value);
     void OnBackgroundColorUpdate(int32_t value);
     void OnInitialScaleUpdate(float value);
@@ -1129,6 +1155,7 @@ private:
     std::map<std::pair<WebElementType, ResponseType>,
         std::shared_ptr<WebPreviewSelectionMenuParam>> previewSelectionMenuMap_;
     std::optional<int32_t> previewImageNodeId_ = std::nullopt;
+    std::optional<int32_t> snapshotImageNodeId_ = std::nullopt;
     bool needUpdateImagePreviewParam_ = false;
     WebElementType curElementType_ = WebElementType::NONE;
     ResponseType curResponseType_ = ResponseType::LONG_PRESS;
@@ -1230,6 +1257,7 @@ private:
     bool isRenderModeInit_ = false;
     bool isAutoFillClosing_ = true;
     std::shared_ptr<ViewDataCommon> viewDataCommon_;
+    RectF lastPageNodeRectRelativeToWeb_;
     bool isPasswordFill_ = false;
     bool isEnabledHapticFeedback_ = true;
     bool isTouchpadSliding_ = false;
@@ -1256,12 +1284,13 @@ private:
     double density_ = 0.0;
     int32_t densityCallbackId_ = 0;
     bool keyboardGetready_ = false;
-
+    std::vector<uint32_t> pipController_;
     std::optional<int32_t> dataListNodeId_ = std::nullopt;
     bool isRegisterJsObject_ = false;
 
     // properties for AI data detector
     RefPtr<WebDataDetectorAdapter> webDataDetectorAdapter_ = nullptr;
+    int lastDragOperation_;
 
     bool isRotating_ {false};
     int32_t rotationEndCallbackId_ = 0;

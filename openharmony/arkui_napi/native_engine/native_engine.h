@@ -546,6 +546,7 @@ public:
     napi_status StopEventLoop();
 
     virtual bool IsCrossThreadCheckEnabled() const = 0;
+    virtual void UpdateCrossThreadCheckStatus() = 0;
     virtual bool IsContainerScopeEnabled() const = 0;
 
     bool IsInDestructor() const
@@ -583,6 +584,10 @@ public:
     }
 
     virtual bool IsMainEnvContext() const = 0;
+
+    virtual bool IsMultiContextEnabled() const = 0;
+
+    virtual void SetMultiContextEnabled(bool enabled) = 0;
 
     virtual panda::Local<panda::JSValueRef> GetContext() const = 0;
 
