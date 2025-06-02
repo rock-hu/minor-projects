@@ -64,11 +64,11 @@ export struct CommodityOrderItem {
           Flex({ justifyContent: FlexAlign.SpaceBetween }) {
             Flex({ direction: FlexDirection.Column }) {
               Text(this.orderData.specifications.length === 2 ?
-                getContext(this).resourceManager.getStringSync(this.orderData.specifications[0].value) + '，' + getContext(this).resourceManager.getStringSync(this.orderData.specifications[1].value):
+                this.getUIContext().getHostContext()!.resourceManager.getStringSync(this.orderData.specifications[0].value) + '，' +  this.getUIContext().getHostContext()!.resourceManager.getStringSync(this.orderData.specifications[1].value):
                   this.orderData.specifications.length === 3 ?
-                    getContext(this).resourceManager.getStringSync(this.orderData.specifications[0].value) + '，' + getContext(this).resourceManager.getStringSync(this.orderData.specifications[1].value) + '，' + getContext(this).resourceManager.getStringSync(this.orderData.specifications[2].value) :
+                    this.getUIContext().getHostContext()!.resourceManager.getStringSync(this.orderData.specifications[0].value) + '，' +  this.getUIContext().getHostContext()!.resourceManager.getStringSync(this.orderData.specifications[1].value) + '，' +  this.getUIContext().getHostContext()!.resourceManager.getStringSync(this.orderData.specifications[2].value) :
                     this.orderData.specifications.length === 4 ?
-                      getContext(this).resourceManager.getStringSync(this.orderData.specifications[0].value) + '，' + getContext(this).resourceManager.getStringSync(this.orderData.specifications[1].value) + '，' + getContext(this).resourceManager.getStringSync(this.orderData.specifications[2].value) + '，' + getContext(this).resourceManager.getStringSync(this.orderData.specifications[3].value) : ''
+                      this.getUIContext().getHostContext()!.resourceManager.getStringSync(this.orderData.specifications[0].value) + '，' +  this.getUIContext().getHostContext()!.resourceManager.getStringSync(this.orderData.specifications[1].value) + '，' +  this.getUIContext().getHostContext()!.resourceManager.getStringSync(this.orderData.specifications[2].value) + '，' +  this.getUIContext().getHostContext()!.resourceManager.getStringSync(this.orderData.specifications[3].value) : ''
               )
                 .fontSize($r('app.float.smaller_font_size'))
                 .fontColor($r("app.color.sixty_alpha_black"))

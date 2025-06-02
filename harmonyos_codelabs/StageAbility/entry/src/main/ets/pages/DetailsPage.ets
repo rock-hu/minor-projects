@@ -89,7 +89,7 @@ struct DetailsPage {
     Image($rawfile('detail/detail_back.png'))
       .setTopImageStyle()
       .onClick(() => {
-        let handler = getContext(this) as common.UIAbilityContext;
+        let handler = this.getUIContext().getHostContext() as common.UIAbilityContext;
         handler.terminateSelf();
       })
   }

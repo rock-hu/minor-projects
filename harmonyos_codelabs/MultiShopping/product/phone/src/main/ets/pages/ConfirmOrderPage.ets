@@ -25,7 +25,7 @@ struct ConfirmPageOrder {
   @Provide('orderList') orderList: Order[] = [];
 
   onPageShow() {
-    let params = router.getParams() as Record<string, Order[]>;
+    let params =  this.getUIContext().getRouter().getParams() as Record<string, Order[]>;
     const orderList = params.orderList
     for (let index = 0; index < orderList.length; index++) {
       let orderData: Order = {

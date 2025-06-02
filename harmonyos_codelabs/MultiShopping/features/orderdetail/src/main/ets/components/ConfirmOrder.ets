@@ -49,13 +49,13 @@ export struct ConfirmOrder {
   handleConfirmOrder() {
     try {
       this.confirmOrder(OrderOperationStatus.UN_PAY);
-      promptAction.showToast({ message: $r('app.string.order_commit_success') });
-      router.replaceUrl({
+      this.getUIContext().getPromptAction().showToast({ message: $r('app.string.order_commit_success') });
+      this.getUIContext().getRouter().replaceUrl({
         url: OrderDetailConstants.PAY_ORDER_PAGE_URL,
         params: { orderIds: this.orderIds }
       });
     } catch (err) {
-      promptAction.showToast({ message: $r('app.string.order_commit_fail', err) });
+      this.getUIContext().getPromptAction().showToast({ message: $r('app.string.order_commit_fail', err) });
     }
   }
 
@@ -63,7 +63,7 @@ export struct ConfirmOrder {
     Flex({ direction: FlexDirection.Column }) {
       HeaderBar({
         title: $r('app.string.header_bar_title'),
-        onBack: () => router.back()
+        onBack: () => this.getUIContext().getRouter().back()
       })
       Column() {
         Scroll() {

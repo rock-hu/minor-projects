@@ -42,7 +42,7 @@ export struct ImageView {
   @State preOffsetY: number = 0;
 
   aboutToAppear() {
-    let deviceSize = DeviceScreen.getDeviceSize(getContext(this) as common.UIAbilityContext);
+    let deviceSize = DeviceScreen.getDeviceSize(this.getUIContext().getHostContext()! as common.UIAbilityContext);
     deviceSize.then((data) => {
       this.windowClass = data;
       let properties = this.windowClass.getWindowProperties();
@@ -64,19 +64,19 @@ export struct ImageView {
    */
   detectBoundary(): void {
     let maxOffsetX = this.imgScale * this.deviceWidth / 2 - this.deviceWidth / 2;
-    if (vp2px(this.imgOffsetX) > (maxOffsetX)) {
-      this.imgOffsetX = px2vp(maxOffsetX);
+    if (this.getUIContext().vp2px(this.imgOffsetX) > (maxOffsetX)) {
+      this.imgOffsetX = this.getUIContext().px2vp(maxOffsetX);
     }
-    if (vp2px(this.imgOffsetX) < -(maxOffsetX)) {
-      this.imgOffsetX = -px2vp(maxOffsetX);
+    if (this.getUIContext().vp2px(this.imgOffsetX) < -(maxOffsetX)) {
+      this.imgOffsetX = -this.getUIContext().px2vp(maxOffsetX);
     }
     let maxOffsetY = this.imgScale * this.displayHeight / 2 - this.deviceHeight / 2;
     if (this.imgScale * this.displayHeight >= this.deviceHeight) {
-      if (vp2px(this.imgOffsetY) > (maxOffsetY)) {
-        this.imgOffsetY = px2vp(maxOffsetY);
+      if (this.getUIContext().vp2px(this.imgOffsetY) > (maxOffsetY)) {
+        this.imgOffsetY = this.getUIContext().px2vp(maxOffsetY);
       }
-      if (vp2px(this.imgOffsetY) < -(maxOffsetY)) {
-        this.imgOffsetY = -px2vp(maxOffsetY);
+      if (this.getUIContext().vp2px(this.imgOffsetY) < -(maxOffsetY)) {
+        this.imgOffsetY = -this.getUIContext().px2vp(maxOffsetY);
       }
     } else {
       this.imgOffsetY = 0;

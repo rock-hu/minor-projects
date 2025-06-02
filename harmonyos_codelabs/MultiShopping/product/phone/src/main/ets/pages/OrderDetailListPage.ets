@@ -26,7 +26,7 @@ struct OrderDetailListPage {
   private localDataManager: LocalDataManager = LocalDataManager.instance();
 
   aboutToAppear() {
-    let params = router.getParams() as Record<string, Object>;
+    let params =  this.getUIContext().getRouter().getParams() as Record<string, Object>;
     this.currentTabIndex = params.tabIndex as number || 0;
   }
 

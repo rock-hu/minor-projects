@@ -209,6 +209,7 @@ export default class EntryAbility extends UIAbility {
         Logger.error('Failed to load the content. Cause: %{public}s', JSON.stringify(err) ?? '');
         return;
       }
+      AppStorage.setOrCreate('uiContext', windowStage.getMainWindowSync().getUIContext());
       Logger.info('Succeeded in loading the content. Data: %{public}s', JSON.stringify(data) ?? '');
     });
   }

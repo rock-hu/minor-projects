@@ -63,7 +63,7 @@ export struct Header {
     if (canIUse(HeaderConstants.SYSCAP_ETHERNET)) {
       menuItem.value = HeaderConstants.AUDIO_DEVICE_SERVICE;
       menuItem.action = (): void => {
-        promptAction.showToast({
+        this.getUIContext().getPromptAction().showToast({
           message: HeaderConstants.AUDIO_DEVICE_SERVICE,
           duration: HeaderConstants.TOAST_DURATION
         });

@@ -20,6 +20,7 @@ import { BreakpointConstants, StyleConstants } from '@ohos/constantsCommon';
 import { BreakpointType, Logger, MediaService, SongItem } from '@ohos/mediaCommon';
 import { PlayerConstants } from '../constants/PlayerConstants';
 import { MusicControlComponent } from './MusicControlComponent';
+import { common } from '@kit.AbilityKit';
 
 @Preview
 @Component
@@ -36,6 +37,7 @@ export struct Player {
   @StorageLink('deviceHeight') deviceHeight: number = 0;
   private panOption: PanGestureOptions = new PanGestureOptions({ direction: PanDirection.Vertical });
   private backDisplaySyncSlow: displaySync.DisplaySync | undefined = undefined;
+  private context = this.getUIContext().getHostContext() as common.UIAbilityContext;
   private drawFrame: (value: displaySync.IntervalInfo) => void = (value: displaySync.IntervalInfo) => {
     if (this.imageRotate >= 360 ) {
       this.imageRotate = 0;
@@ -191,11 +193,11 @@ export struct Player {
     .justifyContent(FlexAlign.End)
     .transition(TransitionEffect.translate({ y: 1000 }).animation({ curve: curves.springMotion(0.6, 0.8) }))
     .onAppear(() => {
-      window.getLastWindow(getContext(this)).then((windowStage: window.Window) => {
+      window.getLastWindow(this.context).then((windowStage: window.Window) => {
         let area = windowStage.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);
-        this.topArea = px2vp(area.topRect.height);
+        this.topArea = this.getUIContext().px2vp(area.topRect.height);
         let bottomArea = windowStage.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR);
-        this.bottomArea = px2vp(bottomArea.bottomRect.height);
+        this.bottomArea = this.getUIContext().px2vp(bottomArea.bottomRect.height);
         Logger.info('bottomArea ' + this.bottomArea)
         if (this.topArea > 0) {
           windowStage.setWindowLayoutFullScreen(true);
@@ -211,9 +213,9 @@ export struct Player {
     .onDisAppear(() => {
       this.componentHeight = 0;
       this.isShowPlay = false;
-      window.getLastWindow(getContext(this)).then((windowStage: window.Window) => {
+      window.getLastWindow(this.context).then((windowStage: window.Window) => {
         let area = windowStage.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);
-        let topHeight = px2vp(area.topRect.height);
+        let topHeight = this.getUIContext().px2vp(area.topRect.height);
         if (topHeight > 0) {
           windowStage.setWindowLayoutFullScreen(false);
         }

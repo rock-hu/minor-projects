@@ -87,7 +87,7 @@ export struct ShopCart {
         return returnParams;
       });
     Logger.info('settleAccounts orderList length: ' + orderList.length);
-    router.pushUrl({
+    this.getUIContext().getRouter().pushUrl({
       url: ShopCartConstants.CONFIRM_ORDER_PAGE_URL,
       params: { orderList: orderList }
     }).catch((err: Error) => {
@@ -187,11 +187,11 @@ export struct ShopCart {
           .maxLines(StyleConstants.TWO_TEXT_LINE)
           .width(StyleConstants.FULL_WIDTH)
         Text(item.specifications.length === 2 ?
-            getContext(this).resourceManager.getStringSync(item.specifications[0].value) + '，' + getContext(this).resourceManager.getStringSync(item.specifications[1].value):
+            this.getUIContext().getHostContext()!.resourceManager.getStringSync(item.specifications[0].value) + '，' + this.getUIContext().getHostContext()!.resourceManager.getStringSync(item.specifications[1].value):
             item.specifications.length === 3 ?
-              getContext(this).resourceManager.getStringSync(item.specifications[0].value) + '，' + getContext(this).resourceManager.getStringSync(item.specifications[1].value) + '，' + getContext(this).resourceManager.getStringSync(item.specifications[2].value) :
+              this.getUIContext().getHostContext()!.resourceManager.getStringSync(item.specifications[0].value) + '，' + this.getUIContext().getHostContext()!.resourceManager.getStringSync(item.specifications[1].value) + '，' + this.getUIContext().getHostContext()!.resourceManager.getStringSync(item.specifications[2].value) :
             item.specifications.length === 4 ?
-              getContext(this).resourceManager.getStringSync(item.specifications[0].value) + '，' + getContext(this).resourceManager.getStringSync(item.specifications[1].value) + '，' + getContext(this).resourceManager.getStringSync(item.specifications[2].value) + '，' + getContext(this).resourceManager.getStringSync(item.specifications[3].value) : ''
+              this.getUIContext().getHostContext()!.resourceManager.getStringSync(item.specifications[0].value) + '，' +this.getUIContext().getHostContext()!.resourceManager.getStringSync(item.specifications[1].value) + '，' +this.getUIContext().getHostContext()!.resourceManager.getStringSync(item.specifications[2].value) + '，' + this.getUIContext().getHostContext()!.resourceManager.getStringSync(item.specifications[3].value) : ''
         )
           .fontSize($r('app.float.smaller_font_size'))
           .maxLines(1)
@@ -340,7 +340,7 @@ export struct ShopCart {
             column: this.currentBreakpoint === BreakpointConstants.BREAKPOINT_SM ?
               StyleConstants.DISPLAY_TWO : StyleConstants.DISPLAY_THREE,
             onClickItem: (data: Commodity) => {
-              router.pushUrl({
+              this.getUIContext().getRouter().pushUrl({
                 url: ShopCartConstants.COMMODITY_DETAIL_PAGE_URL,
                 params: { id: data.id }
               }).catch((err: Error) => {

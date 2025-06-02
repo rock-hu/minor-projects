@@ -23,6 +23,8 @@ import NewsViewModel from '../../viewmodel/NewsViewModel';
 import { NewsData } from '../../viewmodel/NewsData';
 import NewsModel from '../../viewmodel/NewsModel';
 
+const uiContext: UIContext | undefined = AppStorage.get('uiContext');
+
 export function listTouchEvent(that: NewsModel, event: TouchEvent) {
   switch (event.type) {
     case TouchType.Down:
@@ -65,7 +67,7 @@ export function listTouchEvent(that: NewsModel, event: TouchEvent) {
 export function touchMovePullRefresh(that: NewsModel, event: TouchEvent) {
   if (that.startIndex === 0) {
     that.isPullRefreshOperation = true;
-    let height = vp2px(that.pullDownRefreshHeight);
+    let height = uiContext!.vp2px(that.pullDownRefreshHeight);
     that.offsetY = event.touches[0].y - that.downY;
     // The sliding offset is greater than the pull-down refresh layout height, and the refresh condition is met.
     if (that.offsetY >= height) {
@@ -83,7 +85,7 @@ export function touchMovePullRefresh(that: NewsModel, event: TouchEvent) {
 
 export function touchUpPullRefresh(that: NewsModel) {
   if (that.isCanRefresh === true) {
-    that.offsetY = vp2px(that.pullDownRefreshHeight);
+    that.offsetY = uiContext!.vp2px(that.pullDownRefreshHeight);
     pullRefreshState(that, RefreshState.Refreshing);
     that.currentPage = 1;
     setTimeout(() => {
@@ -98,7 +100,7 @@ export function touchUpPullRefresh(that: NewsModel) {
         self.newsData = data;
         closeRefresh(self, true);
       }).catch((err: string | Resource) => {
-        promptAction.showToast({ message: err });
+        uiContext!.getPromptAction().showToast({ message: err });
         // closeRefresh.call(self, false);
         closeRefresh(self, false);
       });
@@ -124,7 +126,7 @@ export function pullRefreshState(that: NewsModel, state: number) {
       that.isRefreshing = false;
       break;
     case RefreshState.Refreshing:
-      that.offsetY = vp2px(that.pullDownRefreshHeight);
+      that.offsetY = uiContext!.vp2px(that.pullDownRefreshHeight);
       that.pullDownRefreshText = $r('app.string.refreshing_text');
       that.pullDownRefreshImage = $r("app.media.ic_pull_up_load");
       that.isCanRefresh = true;
@@ -155,7 +157,7 @@ export function closeRefresh(that: NewsModel, isRefreshSuccess: boolean) {
       pullRefreshState(that, isRefreshSuccess ? RefreshState.Success : RefreshState.Fail);
       delay = Const.RefreshConstant_DELAY_SHRINK_ANIMATION_TIME;
     }
-    animateTo({
+    uiContext!.animateTo({
       duration: Const.RefreshConstant_CLOSE_PULL_DOWN_REFRESH_TIME,
       delay: delay,
       onFinish: () => {

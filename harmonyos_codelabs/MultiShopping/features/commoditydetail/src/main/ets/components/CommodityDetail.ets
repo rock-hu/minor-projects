@@ -70,7 +70,7 @@ export struct CommodityDetail {
     this.productOptions = '';
     if (this.selectKeys !== undefined) {
       this.selectKeys.forEach((item) => {
-        this.productOptions += getContext(this).resourceManager.getStringSync(item.value) + ' ';
+        this.productOptions += this.getUIContext().getHostContext()!.resourceManager.getStringSync(item.value) + ' ';
       })
     }
   }
@@ -87,7 +87,7 @@ export struct CommodityDetail {
     switch (type) {
       case FinishType.JOIN_SHOPPING_CART:
         this.localDataManager.insertShopCart(params);
-        promptAction.showToast({
+        this.getUIContext().getPromptAction().showToast({
           message: $r('app.string.insert_cart_success')
         });
         break;
@@ -103,7 +103,7 @@ export struct CommodityDetail {
             commodityId: Number.parseInt(params.commodityId),
             specifications: this.selectKeys
           }
-          router.pushUrl({
+          this.getUIContext().getRouter().pushUrl({
             url: CommodityConstants.CONFIRM_ORDER_PAGE_URL,
             params: { orderList: [orderList] }
           }).catch((err: Error) => {
@@ -435,7 +435,7 @@ export struct CommodityDetail {
         }
         .onClick(() => {
           AppStorage.set('IndexPage', CommodityConstants.INDEX_HOME);
-          router.back();
+          this.getUIContext().getRouter().back();
         })
         .height(StyleConstants.FULL_HEIGHT)
         .width($r('app.float.button_flex_width'))
@@ -454,7 +454,7 @@ export struct CommodityDetail {
             .margin({ top: $r('app.float.vp_four') })
         }.onClick(() => {
           AppStorage.set('IndexPage', CommodityConstants.INDEX_SHOPPING_CART);
-          router.back();
+          this.getUIContext().getRouter().back();
         })
         .height(StyleConstants.FULL_HEIGHT)
         .width($r('app.float.button_flex_width'))
@@ -550,7 +550,7 @@ export struct CommodityDetail {
             .aspectRatio(1)
         }
         .titleButton()
-        .onClick(() => router.back())
+        .onClick(() =>  this.getUIContext().getRouter().back())
 
         Button() {
           Image($r('app.media.ic_share'))

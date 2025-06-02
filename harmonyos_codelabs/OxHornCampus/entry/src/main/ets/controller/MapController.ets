@@ -19,6 +19,7 @@ import { CommonConstants as Const } from '../common/constants/CommonConstants';
 import Logger from '../common/utils/Logger';
 
 const TAG = 'MapController';
+const uiContext: UIContext | undefined = AppStorage.get('uiContext');
 
 /**
  * Used for map control.
@@ -145,7 +146,7 @@ export class MapController {
   getResourceString(resource: Resource): string {
     let resourceString: string = '';
     try {
-      resourceString = getContext(this).resourceManager.getStringSync(resource.id);
+      resourceString = uiContext!.getHostContext()!.resourceManager.getStringSync(resource.id);
     } catch (error) {
       Logger.error(TAG, `getResourceString failed, error code: ${(error as BusinessError).code},
        message: ${(error as BusinessError).message}.`);

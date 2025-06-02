@@ -206,7 +206,7 @@ struct IntroductionPage {
             bottom: this.screenHeight - Const.HOME_ICON_MARGIN_TOP
           })
           .onClick(() => {
-            router.back();
+            this.getUIContext().getRouter().back();
           })
       }
       .backgroundColor($r('app.color.introduction_page_color'))
@@ -250,8 +250,8 @@ struct IntroductionPage {
   initializeZoneId() {
     if (this.cardID !== -1) {
       this.currentZoneId = this.cardID;
-    } else if (this.isContinuation === 'false' || router.getParams() !== undefined) {
-      this.currentZoneId = (router.getParams() as RouterParmaInterface).id;
+    } else if (this.isContinuation === 'false' || this.getUIContext().getRouter().getParams() !== undefined) {
+      this.currentZoneId = (this.getUIContext().getRouter().getParams() as RouterParmaInterface).id;
     }
   }
 

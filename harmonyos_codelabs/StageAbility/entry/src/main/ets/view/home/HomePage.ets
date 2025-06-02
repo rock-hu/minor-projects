@@ -61,7 +61,7 @@ export default struct HomePage {
       // Goods list view.
       GoodsComponent({
         goodsList: this.goodsList, startPage: (index) => {
-          let handler = getContext(this) as common.UIAbilityContext;
+          let handler = this.getUIContext().getHostContext() as common.UIAbilityContext;
           viewModel.startDetailsAbility(handler, index);
         }
       })

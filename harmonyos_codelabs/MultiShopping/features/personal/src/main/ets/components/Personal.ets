@@ -75,7 +75,7 @@ export struct Personal {
       default:
         break;
     }
-    router.pushUrl({
+    this.getUIContext().getRouter().pushUrl({
       url: PersonalConstants.ORDER_LIST_PAGE_URL,
       params: { tabIndex: tabIndex }
     }).catch((err: Error) => {
@@ -199,7 +199,7 @@ export struct Personal {
             .width($r('app.float.vp_twelve'))
         }
         .onClick(() => {
-          router.pushUrl({
+          this.getUIContext().getRouter().pushUrl({
             url: PersonalConstants.ORDER_LIST_PAGE_URL,
             params: { tabIndex: 0 }
           }).catch((err: Error) => {

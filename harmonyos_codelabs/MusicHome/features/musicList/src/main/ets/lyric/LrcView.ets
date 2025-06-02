@@ -81,7 +81,7 @@ export default struct shiLrcView {
    * Initial position of the first line of the lyrics.
    */
   private initFirstLineY: number = 0;
-  private animator: AnimatorResult = Animator.create({
+  private animator: AnimatorResult = this.getUIContext().createAnimator({
     duration: 400,
     easing: 'linear',
     delay: 0,
@@ -207,7 +207,7 @@ export default struct shiLrcView {
       this.animator.finish();
     }
 
-    this.animator = Animator.create({
+    this.animator = this.getUIContext().createAnimator({
       duration: 400,
       easing: 'linear',
       delay: 0,

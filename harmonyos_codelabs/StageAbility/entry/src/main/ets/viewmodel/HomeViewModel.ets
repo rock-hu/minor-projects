@@ -44,7 +44,7 @@ export default class HomeViewModel {
 
   public startDetailsAbility(context: common.UIAbilityContext, index: number): void {
     const want: Want = {
-      bundleName: getContext(context).applicationInfo.name,
+      bundleName: context.applicationInfo.name,
       abilityName: DETAILS_ABILITY_NAME,
       parameters: {
         position: index

@@ -19,20 +19,22 @@ import NewsViewModel from '../../viewmodel/NewsViewModel';
 import { NewsData } from '../../viewmodel/NewsData';
 import NewsModel from '../../viewmodel/NewsModel';
 
+const uiContext: UIContext | undefined = AppStorage.get('uiContext');
+
 export function touchMoveLoadMore(that: NewsModel, event: TouchEvent) {
   if (that.endIndex === that.newsData.length - 1 || that.endIndex === that.newsData.length) {
     that.offsetY = event.touches[0].y - that.downY;
-    if (Math.abs(that.offsetY) > vp2px(that.pullUpLoadHeight) / 2) {
+    if (Math.abs(that.offsetY) > uiContext!.vp2px(that.pullUpLoadHeight) / 2) {
       that.isCanLoadMore = true;
       that.isVisiblePullUpLoad = true;
-      that.offsetY = -vp2px(that.pullUpLoadHeight) + that.offsetY * Const.Y_OFF_SET_COEFFICIENT;
+      that.offsetY = -uiContext!.vp2px(that.pullUpLoadHeight) + that.offsetY * Const.Y_OFF_SET_COEFFICIENT;
     }
   }
 }
 
 export function touchUpLoadMore(that: NewsModel) {
   let self = that;
-  animateTo({
+  uiContext!.animateTo({
     duration: Const.ANIMATION_DURATION,
   }, () => {
     self.offsetY = 0;
@@ -50,7 +52,7 @@ export function touchUpLoadMore(that: NewsModel) {
         }
         self.newsData = self.newsData.concat(data);
       }).catch((err: string | Resource) => {
-        promptAction.showToast({ message: err });
+        uiContext!.getPromptAction().showToast({ message: err });
       })
     }, Const.DELAY_TIME);
   } else {

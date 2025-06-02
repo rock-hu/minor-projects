@@ -407,6 +407,9 @@ export class MediaService {
       this.avPlayer.pause().then(() => {
         this.state = AudioPlayerState.PAUSE;
         this.updateIsPlay(false);
+        if (this.context) {
+          BackgroundUtil.stopContinuousTask(this.context);
+        }
       });
     }
   }
@@ -489,6 +492,9 @@ export class MediaService {
       await this.avPlayer.stop();
       this.updateIsPlay(false);
       this.state = AudioPlayerState.PAUSE;
+      if (this.context) {
+        BackgroundUtil.stopContinuousTask(this.context);
+      }
     }
   }
 

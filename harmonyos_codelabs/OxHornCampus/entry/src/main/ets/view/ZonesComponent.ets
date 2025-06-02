@@ -57,7 +57,7 @@ export struct Zones {
   }
 
   startAnimation(isUp: boolean): void {
-    animateTo({
+    this.getUIContext().animateTo({
       duration: Const.SWIPER_DURATION,
     }, () => {
       let dataLength = this.zonesList.length;
@@ -112,7 +112,7 @@ export struct Zones {
       .margin({ top: Const.SHADOW_RADIUS / Const.DOUBLE_NUM })
       .alignContent(Alignment.Center)
       .onClick(() => {
-        router.pushUrl({ url: Const.INTRODUCTION_URL, params: { id: this.zonesList[this.aheadIndex].id } });
+        this.getUIContext().getRouter().pushUrl({ url: Const.INTRODUCTION_URL, params: { id: this.zonesList[this.aheadIndex].id } });
         AppStorage.set<number>('imageHeight', Const.FULL_PERCENT_NUMBER);
         AppStorage.set<number>('arrowIconOpacity', Const.OPACITY_MAX);
       })
@@ -126,7 +126,7 @@ export struct Zones {
             this.handlePanGesture(event.offsetY);
           })
           .onActionEnd(() => {
-            animateTo({
+            this.getUIContext().animateTo({
               duration: Const.SWIPER_DURATION,
             }, () => {
               this.marginBottom = 0;

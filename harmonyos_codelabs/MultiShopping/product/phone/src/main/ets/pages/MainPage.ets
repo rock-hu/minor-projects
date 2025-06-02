@@ -46,7 +46,7 @@ struct MainPage {
     evaluation: 0,
     sale: 0
   };
-  private breakpointSystem = new BreakpointSystem();
+  private breakpointSystem = new BreakpointSystem(this.getUIContext());
   private localDataManager: LocalDataManager = LocalDataManager.instance();
 
   aboutToAppear() {
@@ -66,7 +66,7 @@ struct MainPage {
   }
 
   routerDetailPage(data: Commodity) {
-    router.pushUrl({
+    this.getUIContext().getRouter().pushUrl({
       url: PageConstants.COMMODITY_DETAIL_PAGE_URL,
       params: { id: data.id }
     }).catch((err: Error) => {

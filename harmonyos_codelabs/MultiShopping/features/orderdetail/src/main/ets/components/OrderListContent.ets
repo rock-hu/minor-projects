@@ -43,7 +43,7 @@ export struct OrderListContent {
   paymentHandler(orderId: string, status: number, msg: Resource) {
     let orderIdStatus: updateOrderProps = { orderId, status }
     this.orderList = this.localDataManager.updateOrder(orderIdStatus);
-    promptAction.showToast({ message: `${getContext(this).resourceManager.getStringSync(msg)}${getContext(this).resourceManager.getStringSync(OrderDetailConstants.SUCCESS)}` });
+    this.getUIContext().getPromptAction().showToast({ message: `${this.getUIContext().getHostContext()!.resourceManager.getStringSync(msg)}${this.getUIContext().getHostContext()!.resourceManager.getStringSync(OrderDetailConstants.SUCCESS)}` });
   }
 
   build() {
@@ -149,7 +149,7 @@ export struct OrderListContent {
                         })
                       }
                       .onClick(() => {
-                        router.pushUrl({
+                        this.getUIContext().getRouter().pushUrl({
                           url: OrderDetailConstants.PAY_ORDER_PAGE_URL,
                           params: {
                             order: info
@@ -194,7 +194,7 @@ export struct OrderListContent {
                 column: this.currentBreakpoint === BreakpointConstants.BREAKPOINT_SM ?
                 StyleConstants.DISPLAY_TWO : StyleConstants.DISPLAY_THREE,
                 onClickItem: (data: Commodity) => {
-                  router.pushUrl({
+                  this.getUIContext().getRouter().pushUrl({
                     url: OrderDetailConstants.COMMODITY_DETAIL_PAGE_URL,
                     params: {
                       id: data.id

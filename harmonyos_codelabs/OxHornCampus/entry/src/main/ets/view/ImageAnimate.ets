@@ -75,7 +75,7 @@ export default struct ImageAnimation {
   }
 
   startAnimation(isLeft: boolean) {
-    animateTo({
+    this.getUIContext().animateTo({
       duration: Const.IMAGE_ANIMATION_DURATION,
     }, () => {
       let dataLength = this.introductionData.imageList.length;

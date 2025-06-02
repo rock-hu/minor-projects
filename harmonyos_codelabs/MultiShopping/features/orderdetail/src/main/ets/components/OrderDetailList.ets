@@ -101,7 +101,7 @@ export struct OrderDetailList {
   build() {
     Flex({ direction: FlexDirection.Column }) {
       HeaderBar({ title: $r('app.string.my_order'), onBack: () => {
-        router.back();
+        this.getUIContext().getRouter().back();
       } })
       this.OrderTabs()
     }

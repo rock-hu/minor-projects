@@ -42,6 +42,11 @@ export class BreakPointType<T> {
 }
 
 export class BreakpointSystem {
+  private context : UIContext
+
+  constructor(context:UIContext) {
+    this.context = context
+  }
   private currentBreakpoint: string = '';
   private smListener?: mediaquery.MediaQueryListener;
   private mdListener?: mediaquery.MediaQueryListener;
@@ -73,11 +78,11 @@ export class BreakpointSystem {
   }
 
   public register() {
-    this.smListener = mediaquery.matchMediaSync(BreakpointConstants.RANGE_SM);
+    this.smListener = this.context.getMediaQuery().matchMediaSync(BreakpointConstants.RANGE_SM);
     this.smListener.on('change', this.isBreakpointSM);
-    this.mdListener = mediaquery.matchMediaSync(BreakpointConstants.RANGE_MD);
+    this.mdListener = this.context.getMediaQuery().matchMediaSync(BreakpointConstants.RANGE_MD);
     this.mdListener.on('change', this.isBreakpointMD);
-    this.lgListener = mediaquery.matchMediaSync(BreakpointConstants.RANGE_LG);
+    this.lgListener = this.context.getMediaQuery().matchMediaSync(BreakpointConstants.RANGE_LG);
     this.lgListener.on('change', this.isBreakpointLG);
   }
 

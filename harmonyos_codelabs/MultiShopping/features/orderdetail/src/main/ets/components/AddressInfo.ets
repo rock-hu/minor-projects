@@ -48,7 +48,7 @@ export struct AddressInfo {
               .fontColor($r("app.color.sixty_alpha_black"))
           }
           .margin({ bottom: $r('app.float.vp_eight') })
-          Text(`${getContext(this).resourceManager.getStringSync(this.info?.province)}${getContext(this).resourceManager.getStringSync(this.info?.city)}${getContext(this).resourceManager.getStringSync(this.info?.region)} ${getContext(this).resourceManager.getStringSync(this.info?.detailAddress)}`)
+          Text(`${this.getUIContext().getHostContext()!.resourceManager.getStringSync(this.info?.province)}${this.getUIContext().getHostContext()!.resourceManager.getStringSync(this.info?.city)}${this.getUIContext().getHostContext()!.resourceManager.getStringSync(this.info?.region)} ${this.getUIContext().getHostContext()!.resourceManager.getStringSync(this.info?.detailAddress)}`)
             .fontSize($r('app.float.smaller_font_size'))
             .fontColor($r("app.color.sixty_alpha_black"))
         }

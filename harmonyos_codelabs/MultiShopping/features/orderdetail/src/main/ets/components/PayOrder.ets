@@ -122,10 +122,10 @@ export struct PayOrder {
                 this.localDataManager.updateOrder(UpdateOrderParameter);
               }
             })
-            promptAction.showToast({
-              message: $r('app.string.info_success', getContext(this).resourceManager.getStringSync(OrderDetailConstants.PAYMENT_ENUM[OrderOperationStatus.UN_PAY]))
+            this.getUIContext().getPromptAction().showToast({
+              message: $r('app.string.info_success', this.getUIContext().getHostContext()!.resourceManager.getStringSync(OrderDetailConstants.PAYMENT_ENUM[OrderOperationStatus.UN_PAY]))
             });
-            router.back();
+            this.getUIContext().getRouter().back();
           })
       } else if (this.data[0].status === OrderOperationStatus.DELIVERED) {
         Button($r('app.string.confirm_harvest'))
@@ -139,10 +139,10 @@ export struct PayOrder {
                 status: OrderOperationStatus.RECEIPT
               }
               this.localDataManager.updateOrder(UpdateOrderParameter);
-              promptAction.showToast({
-                message: $r('app.string.info_success', getContext(this).resourceManager.getStringSync(OrderDetailConstants.PAYMENT_ENUM[OrderOperationStatus.DELIVERED]))
+              this.getUIContext().getPromptAction().showToast({
+                message: $r('app.string.info_success', this.getUIContext().getHostContext()!.resourceManager.getStringSync(OrderDetailConstants.PAYMENT_ENUM[OrderOperationStatus.DELIVERED]))
               });
-              router.back();
+              this.getUIContext().getRouter().back();
             }
           })
       } else {
@@ -156,7 +156,7 @@ export struct PayOrder {
     Flex({ direction: FlexDirection.Column }) {
       HeaderBar({
         title: $r('app.string.my_order'),
-        onBack: () => router.back()
+        onBack: () => this.getUIContext().getRouter().back()
       })
       Stack({ alignContent: Alignment.TopStart }) {
         Image($r("app.media.ic_order_bg"))

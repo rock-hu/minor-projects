@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { router } from '@kit.ArkUI';
+import { router, UIContext } from '@kit.ArkUI';
 import { StyleConstants, Logger, BreakpointSystem, BreakPointType } from '@ohos/common';
 import { PageConstants } from '../constants/PageConstants';
 
@@ -21,7 +21,7 @@ import { PageConstants } from '../constants/PageConstants';
 @Component
 struct SplashPage {
   @StorageProp('currentBreakpoint') currentBreakpoint: string = 'sm';
-  private breakpointSystem = new BreakpointSystem();
+  private breakpointSystem = new BreakpointSystem(this.getUIContext());
   private timeOutId: number = 0;
 
   build() {
@@ -58,7 +58,7 @@ struct SplashPage {
   aboutToAppear() {
     this.breakpointSystem.register();
     this.timeOutId = setTimeout(() => {
-      router.replaceUrl({ url: PageConstants.MAIN_PAGE_URL })
+      this.getUIContext().getRouter().replaceUrl({ url: PageConstants.MAIN_PAGE_URL })
         .catch((err: Error) => {
           Logger.error(JSON.stringify(err));
         })

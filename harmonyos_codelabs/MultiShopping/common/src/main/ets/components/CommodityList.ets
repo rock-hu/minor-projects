@@ -53,7 +53,7 @@ export struct CommodityList {
             top: $r('app.float.vp_four'),
             bottom: $r('app.float.vp_eight')
           })
-        Text(`${getContext(this).resourceManager.getStringSync(info.promotion)}`)
+        Text(`${this.getUIContext().getHostContext()!.resourceManager.getStringSync(info.promotion)}`)
           .fontSize($r('app.float.micro_font_size'))
           .fontColor(Color.White)
           .backgroundColor($r('app.color.focus_color'))

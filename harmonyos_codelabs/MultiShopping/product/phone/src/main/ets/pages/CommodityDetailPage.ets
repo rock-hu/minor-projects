@@ -25,7 +25,7 @@ struct CommodityDetailPage {
   private localDataManager: LocalDataManager = LocalDataManager.instance();
 
   aboutToAppear() {
-    let params = router.getParams() as Record<string, Object>;
+    let params =  this.getUIContext().getRouter().getParams() as Record<string, Object>;
     this.commodityId = params.id as string;
     this.info = this.localDataManager.queryCommodityListById(this.commodityId);
   }

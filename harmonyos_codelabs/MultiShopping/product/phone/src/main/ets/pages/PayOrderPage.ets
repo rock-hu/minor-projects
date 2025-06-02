@@ -25,7 +25,7 @@ struct PayOrderPage {
   private localDataManager: LocalDataManager = LocalDataManager.instance();
 
   aboutToAppear() {
-    let params = router.getParams() as Record<string, Object>;
+    let params =  this.getUIContext().getRouter().getParams() as Record<string, Object>;
     let order: Order = params.order as Order;
     let orderIds: string[] = params.orderIds as string[];
     if (order) {

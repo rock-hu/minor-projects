@@ -68,7 +68,7 @@ export default struct NewsList {
         this.newsModel.newsData = data;
       })
       .catch((err: string | Resource) => {
-        promptAction.showToast({
+        this.getUIContext().getPromptAction().showToast({
           message: err,
           duration: Const.ANIMATION_DURATION
         });

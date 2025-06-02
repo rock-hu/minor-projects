@@ -35,18 +35,18 @@ export struct SpecificationDialog {
   private onFinish?: (type: FinishType, count: number, selectKeys: ProductSpecification[]) => void;
   aboutToAppear(){
     this.selectTags.forEach((item) => {
-      switch (getContext(this).resourceManager.getStringSync(item.name)) {
-        case getContext(this).resourceManager.getStringSync($r('app.string.case_color')):
-          this.colorChange.Color = getContext(this).resourceManager.getStringSync(item.value);
+      switch (this.getUIContext().getHostContext()!.resourceManager.getStringSync(item.name)) {
+        case this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.case_color')):
+          this.colorChange.Color = this.getUIContext().getHostContext()!.resourceManager.getStringSync(item.value);
           break;
-        case getContext(this).resourceManager.getStringSync($r('app.string.case_version')):
-          this.colorChange.Version = getContext(this).resourceManager.getStringSync(item.value);
+        case this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.case_version')):
+          this.colorChange.Version = this.getUIContext().getHostContext()!.resourceManager.getStringSync(item.value);
           break;
-        case getContext(this).resourceManager.getStringSync($r('app.string.case_network_standard')):
-          this.colorChange.Network = getContext(this).resourceManager.getStringSync(item.value);
+        case this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.case_network_standard')):
+          this.colorChange.Network = this.getUIContext().getHostContext()!.resourceManager.getStringSync(item.value);
           break;
-        case getContext(this).resourceManager.getStringSync($r('app.string.case_type')):
-          this.colorChange.Type = getContext(this).resourceManager.getStringSync(item.value);
+        case this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.case_type')):
+          this.colorChange.Type = this.getUIContext().getHostContext()!.resourceManager.getStringSync(item.value);
           break;
         default:
           break;
@@ -90,7 +90,7 @@ export struct SpecificationDialog {
               }
               .margin({ bottom: $r('app.float.vp_twelve') })
 
-              Text(`${getContext(this).resourceManager.getStringSync(CommodityConstants.SPECIAL_CHOOSE)} ：${this.productOptions} ${this.count ? `X${this.count}` : ''}`)
+              Text(`${this.getUIContext().getHostContext()!.resourceManager.getStringSync(CommodityConstants.SPECIAL_CHOOSE)} ：${this.productOptions} ${this.count ? `X${this.count}` : ''}`)
                 .fontSize($r('app.float.smaller_font_size'))
                 .fontColor(Color.Black)
                 .maxLines(CommodityConstants.MAX_LINE)
@@ -110,7 +110,7 @@ export struct SpecificationDialog {
             Column() {
               ForEach(this.data.specifications || [], (item: Specification) => {
                 this.Specification(item)
-              }, (item: Specification) => getContext(this).resourceManager.getStringSync(item.id))
+              }, (item: Specification) => this.getUIContext().getHostContext()!.resourceManager.getStringSync(item.id))
               Flex({ justifyContent: FlexAlign.SpaceBetween, alignItems: ItemAlign.Center }) {
                 Text($r('app.string.quantity'))
                   .fontSize($r('app.float.small_font_size'))
@@ -168,16 +168,16 @@ export struct SpecificationDialog {
   colorChanges(key: string): string {
     let temp: string = '';
     switch (key) {
-      case getContext(this).resourceManager.getStringSync($r('app.string.case_color')):
+      case this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.case_color')):
         temp = this.colorChange.Color;
         break;
-      case getContext(this).resourceManager.getStringSync($r('app.string.case_version')):
+      case this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.case_version')):
         temp = this.colorChange.Version;
         break;
-      case getContext(this).resourceManager.getStringSync($r('app.string.case_network_standard')):
+      case this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.case_network_standard')):
         temp = this.colorChange.Network;
         break;
-      case getContext(this).resourceManager.getStringSync($r('app.string.case_type')):
+      case this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.case_type')):
         temp = this.colorChange.Type;
         break;
       default:
@@ -196,7 +196,7 @@ export struct SpecificationDialog {
         ForEach(payload.data, (item: KV) => {
           Text(item.key)
             .fontSize($r('app.float.smaller_font_size'))
-            .fontColor(this.colorChanges(getContext(this).resourceManager.getStringSync(payload.id)) === getContext(this).resourceManager.getStringSync(item.value) ? $r('app.color.focus_color') : Color.Black)
+            .fontColor(this.colorChanges(this.getUIContext().getHostContext()!.resourceManager.getStringSync(payload.id)) === this.getUIContext().getHostContext()!.resourceManager.getStringSync(item.value) ? $r('app.color.focus_color') : Color.Black)
             .height($r('app.float.vp_twenty_four'))
             .padding({
               top: $r('app.float.vp_six'),
@@ -204,11 +204,11 @@ export struct SpecificationDialog {
               left: $r('app.float.vp_ten'),
               right: $r('app.float.vp_ten')
             })
-            .backgroundColor(this.colorChanges(getContext(this).resourceManager.getStringSync(payload.id)) === getContext(this).resourceManager.getStringSync(item.value)  ?
+            .backgroundColor(this.colorChanges(this.getUIContext().getHostContext()!.resourceManager.getStringSync(payload.id)) === this.getUIContext().getHostContext()!.resourceManager.getStringSync(item.value)  ?
               $r('app.color.dialog_select_tag') : $r('app.color.five_alpha_black'))
             .margin({ bottom: $r('app.float.vp_ten'), right: $r('app.float.vp_twelve') })
             .borderRadius($r('app.float.vp_twelve'))
-            .onClick(():void => this.onTagSelect(item, getContext(this).resourceManager.getStringSync(payload.id)))
+            .onClick(():void => this.onTagSelect(item, this.getUIContext().getHostContext()!.resourceManager.getStringSync(payload.id)))
         }, (item: KV) => JSON.stringify(item.value))
       }
     }
@@ -219,19 +219,19 @@ export struct SpecificationDialog {
 
   onTagSelect(tag: KV, parentId: string) {
     this.selectTags.forEach((item, index) => {
-      if (parentId === getContext(this).resourceManager.getStringSync(item.name)) {
+      if (parentId === this.getUIContext().getHostContext()!.resourceManager.getStringSync(item.name)) {
         switch (parentId) {
-          case getContext(this).resourceManager.getStringSync($r('app.string.case_color')):
-            this.colorChange.Color = getContext(this).resourceManager.getStringSync(tag.value);
+          case this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.case_color')):
+            this.colorChange.Color = this.getUIContext().getHostContext()!.resourceManager.getStringSync(tag.value);
             break;
-          case getContext(this).resourceManager.getStringSync($r('app.string.case_version')):
-            this.colorChange.Version = getContext(this).resourceManager.getStringSync(tag.value);
+          case this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.case_version')):
+            this.colorChange.Version = this.getUIContext().getHostContext()!.resourceManager.getStringSync(tag.value);
             break;
-          case getContext(this).resourceManager.getStringSync($r('app.string.case_network_standard')):
-            this.colorChange.Network = getContext(this).resourceManager.getStringSync(tag.value);
+          case this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.case_network_standard')):
+            this.colorChange.Network = this.getUIContext().getHostContext()!.resourceManager.getStringSync(tag.value);
             break;
-          case getContext(this).resourceManager.getStringSync($r('app.string.case_type')):
-            this.colorChange.Type = getContext(this).resourceManager.getStringSync(tag.value);
+          case this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.case_type')):
+            this.colorChange.Type = this.getUIContext().getHostContext()!.resourceManager.getStringSync(tag.value);
             break;
           default:
             break;
@@ -246,7 +246,7 @@ export struct SpecificationDialog {
   onSelectKeysChange(){
     this.productOptions = '';
     this.selectTags.forEach((item)=>{
-      this.productOptions += getContext(this).resourceManager.getStringSync(item.value)+' ';
+      this.productOptions += this.getUIContext().getHostContext()!.resourceManager.getStringSync(item.value)+' ';
     })
   }
 }
