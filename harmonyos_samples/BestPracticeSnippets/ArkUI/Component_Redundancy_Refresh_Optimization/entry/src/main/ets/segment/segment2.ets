@@ -8,14 +8,12 @@ const translateYChangeRange: number = 250; // The range in which translateY chan
 const scaleXChangeValue: number = 0.6; // The value of scaleX for each change
 const scaleXChangeRange: number = 0.8; // The value of scaleX for each change
 
-
 // Style property class, nested ScaleStyle, TranslateStyle
 @Observed
 class UIStyle {
   translateStyle: TranslateStyle = new TranslateStyle();
   scaleStyle: ScaleStyle = new ScaleStyle();
 }
-
 
 // Zoom Property Class
 @Observed
@@ -24,14 +22,12 @@ class ScaleStyle {
   public scaleY: number = 0.3;
 }
 
-
 // Displacement Attribute Class
 @Observed
 class TranslateStyle {
   public translateX: number = 0;
   public translateY: number = 0;
 }
-
 
 @Component
 struct ComponentA {
@@ -53,7 +49,6 @@ struct ComponentA {
             })
         }
 
-
         Stack() {
           Text('Hello World')
         }
@@ -62,7 +57,6 @@ struct ComponentA {
         x: this.translateStyle.translateX,
         y: this.translateStyle.translateY
       })
-
 
       // Modify the value of a state variable via a button click callback, causing the corresponding component to refresh.
       Column() {
@@ -81,7 +75,6 @@ struct ComponentA {
     }
   }
 }
-
 
 @Component
 struct SpecialImage {
@@ -107,7 +100,6 @@ struct SpecialImage {
     }
   }
 }
-
 
 @Entry
 @Component

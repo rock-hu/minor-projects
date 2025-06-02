@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-// DocsCode 1
 // [Start PageOne_builder]
 @Builder
 export function PageOneBuilder(name: string,param: Object) {
@@ -42,4 +41,3 @@ export struct PageOne {
   }
 }
 // [End PageOne_builder]
-// DocsCode 1

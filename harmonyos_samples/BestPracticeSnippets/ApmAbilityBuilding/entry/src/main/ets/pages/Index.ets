@@ -23,16 +23,16 @@ struct Index {
         })
       // [Start writeTestButton]
       Button("writeTest").onClick(() => {
-        // 在按钮点击函数中进行事件打点，以记录按钮点击事件
+        // Perform event management in the button click function to record the button click event
         let eventParams: Record<string, number> = { 'click_time': 100 };
         let eventInfo: hiAppEvent.AppEventInfo = {
-          // 事件领域定义
+          // Event domain definition
           domain: "button",
-          // 事件名称定义
+          // Event name definition
           name: "click",
-          // 事件类型定义
+          // Event type definition
           eventType: hiAppEvent.EventType.BEHAVIOR,
-          // 事件参数定义
+          // Event parameter definition
           params: eventParams,
         };
         hiAppEvent.write(eventInfo).then(() => {

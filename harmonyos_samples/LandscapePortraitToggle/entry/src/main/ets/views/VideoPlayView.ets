@@ -13,17 +13,20 @@
  * limitations under the License.
  */
 import { display, window } from '@kit.ArkUI';
-import { BusinessError, settings } from '@kit.BasicServicesKit';
 import { AVPlayerUtil } from '../utils/AVPlayerUtil';
+// [Start set_orientation]
+import { BusinessError, settings } from '@kit.BasicServicesKit';
 import Logger from '../utils/Logger';
 import { common } from '@kit.AbilityKit';
-
+// [End set_orientation]
+// [Start set_orientation]
 @Component
 export struct VideoPlayView {
+  // [End set_orientation]
+  // [Start set_orientation]
   UIContext: UIContext = this.getUIContext()
-
   context = this.UIContext?.getHostContext();
-
+  // [End set_orientation]
   @State aspect: number = 9 / 16; // default video height/width ratio value
   // [Start get_default_displaySync]
   @State xComponentWidth: number = this.UIContext.px2vp(display.getDefaultDisplaySync().width);
@@ -34,7 +37,10 @@ export struct VideoPlayView {
   @State orientationLockState: string = '1'; // control center switch rotation ,value 1:enable 0：disable
   private xComponentController: XComponentController = new XComponentController();
   private player?: AVPlayerUtil;
+  // [Start set_orientation]
   private windowClass = (this.context as common.UIAbilityContext).windowStage.getMainWindowSync();
+  // ...
+  // [End set_orientation]
 
   // [Start about_to_appear]
   aboutToAppear(): void {

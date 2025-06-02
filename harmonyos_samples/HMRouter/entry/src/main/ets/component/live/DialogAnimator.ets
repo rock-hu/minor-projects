@@ -21,10 +21,10 @@
 import { HMNavigation, IHMAnimator } from '@hadss/hmrouter';
 
 // [Start global_dialog]
-const globalDialogTransitionEffect: IHMAnimator.Effect = new IHMAnimator.Effect({
+const globalPageTransitionEffect: IHMAnimator.Effect = new IHMAnimator.Effect({
   direction: IHMAnimator.Direction.BOTTOM_TO_TOP,
-  opacity: { opacity: 1 },
-  scale: { x: 1, y: 1 }
+  opacity: { opacity: 0.5 },
+  scale: { x: 0.5, y: 0.2 }
 })
 // [End global_dialog]
 
@@ -36,7 +36,7 @@ export  struct DialogAnimator {
     // [Start dialog_animator]
     HMNavigation({
       navigationId: 'mainNavigationId', homePageUrl: 'HomeContent', options: {
-        dialogAnimator: globalDialogTransitionEffect,
+        dialogAnimator: globalPageTransitionEffect,
       }
     })
     // [End dialog_animator]

@@ -10,7 +10,6 @@ interface User {
   // ...
 }
 
-
 // create data
 const DEFAULT_BACKGROUND_COLOR = Color.Pink;
 const getUsers = () => {
@@ -34,7 +33,6 @@ const getUsers = () => {
   });
 }
 
-
 // User Card List Component
 @Component
 export struct UserCardList {
@@ -51,7 +49,6 @@ export struct UserCardList {
     .alignListItem(ListItemAlign.Center)
   }
 }
-
 
 // User Card Customization Component
 @Component
@@ -70,7 +67,6 @@ struct UserCard {
         Text(this.name)
           .fontSize(30)
       }
-
       Text(`age：${this.age.toString()}`)
         .fontSize(20)
     }
@@ -82,5 +78,4 @@ struct UserCard {
     .width('80%')
   }
 }
-
 // [End Case5]

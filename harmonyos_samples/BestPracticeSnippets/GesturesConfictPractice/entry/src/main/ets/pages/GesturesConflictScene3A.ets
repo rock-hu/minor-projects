@@ -37,16 +37,16 @@ struct GesturesConflictScene3A {
           .margin({ top: 100 })
           .width(360)
           .height(360)
-          // DocsCode 1
+            // [Start gesture_action]
           .priorityGesture(
             LongPressGesture({ repeat: true })
               .onAction((event: GestureEvent) => {
-              })// 长按动作一结束触发
+              })
               .onActionEnd(() => {
                 this.getUIContext().getPromptAction().showToast({ message: 'Long Press' });
               })
-          )
-          // DocsCode 1
+            )
+            // [End gesture_action]
       }
       .width('100%')
     }

@@ -84,7 +84,7 @@ curl_easy_setopt( curl, CURLOPT_CATH, "/res/domainCaCert");
           "pin": [
             {
               "digest-algorithm": "sha256",
-              "digest": "g8CsdcpyAKxmLoWFvMd2hC7ZDUy7L4E2NYOi1i8qEtE=" //服务器证书公钥的hash
+              "digest": "g8CsdcpyAKxmLoWFvMd2hC7ZDUy7L4E2NYOi1i8qEtE=" // Hash of the server certificate public key
             }
           ]
         }

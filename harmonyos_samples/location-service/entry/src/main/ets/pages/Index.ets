@@ -92,8 +92,8 @@ struct LocationService {
   /**
    * Get current location information
    */
-  // [Start get_location_position]
   getLocationPosition(): void {
+    // [Start get_location_position]
     let request: geoLocationManager.SingleLocationRequest = {
       locatingPriority: 0x502,
       locatingTimeoutMs: 10000

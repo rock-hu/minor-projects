@@ -1,18 +1,14 @@
-// [Start counter-example]
+// [Start counter_example]
 @Entry
 @Component
 struct Index {
   @State message: string = '';
-
-
   // Define methods for changing state variables (multiple modifications of state variables)
   appendMsg(newMsg: string) {
     this.message += newMsg;
     this.message += ';';
     this.message += '<br/>';
   }
-
-
   build() {
     Column() {
       Button('Click Print Log')
@@ -29,4 +25,4 @@ struct Index {
     .margin({  top: 15 })
   }
 }
-// [End Counter_example4_start]
+// [End counter_example]

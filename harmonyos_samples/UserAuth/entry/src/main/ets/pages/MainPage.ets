@@ -6,7 +6,6 @@
  * Main page.
  */
 import CommonConstants from '../common/constants/CommonConstants'
-import { router } from '@kit.ArkUI';
 import Home from '../view/Home';
 import Setting from '../view/Setting';
 
@@ -48,7 +47,7 @@ struct MainPage {
 
   onPageShow(): void {
     if (!this.userLogin) {
-      router.replaceUrl({
+      this.getUIContext().getRouter().replaceUrl({
         url: 'pages/LoginPage'
       })
     }

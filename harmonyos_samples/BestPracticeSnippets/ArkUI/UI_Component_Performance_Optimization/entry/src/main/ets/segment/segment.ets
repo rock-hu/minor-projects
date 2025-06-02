@@ -25,10 +25,8 @@ export struct VideoCard {
     // Create a complex object task, if the task takes 1s to execute, the component will be rendered again after 1s
     this.createComplexVideoPlayer();
   }
-
   // ...
 }
-
 
 @Component
 export struct CardList {
@@ -44,5 +42,4 @@ export struct CardList {
     }
   }
 }
-
 // [End Counter_example1]

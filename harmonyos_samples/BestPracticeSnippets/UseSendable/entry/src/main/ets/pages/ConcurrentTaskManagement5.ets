@@ -17,11 +17,11 @@
 * 最佳实践: 应用并发设计 并发任务管理 任务延时调度
 */
 // [Start quick_start]
-import { concurrent_task } from '@kit.ArkTS';
+import { taskpool } from '@kit.ArkTS';
 
 @Concurrent
 function concurrentTask(num: number): number {
-  console.log('这里添加需延时执行的任务');
+  console.log('Add the task that needs to be executed with delay');
   return num;
 }
 
@@ -32,4 +32,4 @@ taskpool.executeDelayed(3000, task, taskpool.Priority.HIGH).then((value: Object)
   // Processing delayed task results
   console.log('taskpool result: ' + value);
 });
-// [End concurrent_task]
+// [End quick_start]

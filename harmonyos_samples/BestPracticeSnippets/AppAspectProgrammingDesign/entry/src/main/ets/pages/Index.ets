@@ -25,12 +25,12 @@ import { A } from '../components/baseAbility';
 @Component
 struct Index {
   build() {
-    // UI代码
+    // UI code
   }
 }
 
 util.Aspect.addBefore(A, 'getElementByIndex', false,
-  // 参数校验
+  // Check the parameters
   (instance: A, arr: Object, idx: number) => {
     if (!(arr instanceof Array)) {
       throw Error('arg arr is expected to be an array');
@@ -42,7 +42,7 @@ util.Aspect.addBefore(A, 'getElementByIndex', false,
       throw Error('arg idx is expected to be smaller than arr.length');
     }
   });
-// 原方法执行
+// The original method is executed
 let buffer: Array<number> = [1, 2, 3, 5];
 let that = new A();
 that.getElementByIndex(buffer, -1);

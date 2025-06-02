@@ -138,3 +138,5 @@ struct ComponentE {
 
   // [EndExclude Case5]
 }
+
+// [End Case5]

@@ -34,9 +34,9 @@ struct GesturesConflictScene2 {
     }
     .height(200)
     .width('100%')
-    //以下组合手势为互斥并别，单击手势识别成功后，双击手势会识别失败
+    // The following gestures are mutually exclusive. After the gesture is successfully recognized, the gesture cannot be recognized by double-clicking
+    // [Start getture_group2]
     .gesture(
-      // [Start getture_group2]
       GestureGroup(GestureMode.Exclusive,
         TapGesture({ count: 1 })
           .onAction(() => {
@@ -47,8 +47,8 @@ struct GesturesConflictScene2 {
             this.count2++;
           })
       )
-      // [End getture_group2]
     )
+    // [End getture_group2]
   }
 }
 

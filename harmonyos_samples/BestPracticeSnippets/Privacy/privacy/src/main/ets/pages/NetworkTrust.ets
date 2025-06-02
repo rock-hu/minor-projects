@@ -45,7 +45,7 @@ const RemoteCommunicationKit = async  () => {
    * 场景九：配置SSL Pinning证书锁定-Remote Communication Kit配置动态SSL Pinning
    */
   // [Start rcp_ssl_pinning]
-  const keyHash: string = 'g8CsdcpyAKxmLoWFvMd2hC7ZDUy7L4E2NYOi1i8qEtE='; //服务器证书的公钥
+  const keyHash: string = 'g8CsdcpyAKxmLoWFvMd2hC7ZDUy7L4E2NYOi1i8qEtE='; // Public key of the server certificate
   const session = rcp.createSession();
   const request = new rcp.Request(HTTP_SERVER);
   const pin: rcp.CertificatePinning = {

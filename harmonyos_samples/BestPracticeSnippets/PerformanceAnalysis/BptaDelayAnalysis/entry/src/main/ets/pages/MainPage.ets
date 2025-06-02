@@ -30,6 +30,8 @@ struct Index {
   build() {
     RelativeContainer() {
       // [Start tabs]
+      // products\phone\src\main\ets\pages\MainPage.ets
+
       Tabs({ index: this.currentIndex }) {
         // ...
       }

@@ -171,7 +171,7 @@ export class LiveInteractiveAnimator implements IHMAnimator {
 
 // [Start HMRouter_singleton]
 @HMRouter({
-  pageUrl: PageConstant.LIVE_HOME,
+  pageUrl: 'liveHome',
   singleton: true,
   animator: 'liveInteractiveAnimator',
   lifecycle: 'liveHomeLifecycle'

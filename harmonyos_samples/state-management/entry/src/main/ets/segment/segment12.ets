@@ -1,13 +1,10 @@
 // [Start Case8]
 import { ButtonComponent } from '../components/ButtonComponent';
 import { ListItemComponent } from '../components/ListItemComponent';
-
 @Entry
 @Component
 struct UseEmitterPublish {
   listData: string[] = ['A', 'B', 'C', 'D', 'E', 'F'];
-
-
   build() {
     Column() {
       Row() {
@@ -15,8 +12,6 @@ struct UseEmitterPublish {
           ButtonComponent()
         }
       }
-
-
       Column() {
         Column() {
           List() {

@@ -101,18 +101,20 @@ export struct FoundView {
 
         // [Start foundView]
         WaterFlow() {
-          // [StartExclude foundView]
           ForEach(this.cardArrayViewModel.cardArray, (item: CardItem, index: number) => {
             FlowItem() {
               Column() {
                 MircoBlogView({
                   cardItem: item,
+                  // [StartExclude foundView]
                   index: index,
                   jumpDetail: () => {
                     AppStorage.setOrCreate('selectCardIndex', index);
                     this.jumpDetail();
                   }
+                  // [EndExclude foundView]
                 })
+                  // [StartExclude foundView]
                   .padding({
                     left: new BreakpointType($r('app.float.window_padding_left_sm'),
                       $r('app.float.window_padding_left_md'), $r('app.float.window_padding_left_sm'))
@@ -123,26 +125,29 @@ export struct FoundView {
                     top: new BreakpointType($r('app.float.zero'), $r('app.float.zero'),
                       $r('app.float.card_margin_top_lg')).getValue(this.currentBreakpoint)
                   })
+                // [EndExclude foundView]
 
                 CommentBarView({
                   isShowInput: false,
+                  // [StartExclude foundView]
                   jumpDetail: () => {
                     AppStorage.setOrCreate('selectCardIndex', index);
                     this.jumpDetail();
                   }
+                  // [EndExclude foundView]
                 })
               }
-              .borderRadius(this.currentBreakpoint === Breakpoint.BREAKPOINT_LG ?
+              // [StartExclude foundView]
+              .borderRadius(this.currentBreakpoint === 'lg' ?
                 $r('app.float.water_flow_br') : $r('app.float.zero'))
               .backgroundColor($r('app.color.white'))
-              .margin(this.currentBreakpoint === Breakpoint.BREAKPOINT_LG ?
+              .margin(this.currentBreakpoint === 'lg' ?
                 $r('app.float.water_flow_margin') : $r('app.float.zero'))
+              // [EndExclude foundView]
             }
           }, (item: CardItem, index: number) => index + JSON.stringify(item))
-          // [EndExclude foundView]
         }
-        .columnsTemplate(this.currentBreakpoint !== Breakpoint.BREAKPOINT_LG ?
-        Common.WATER_FLOW_COLUMNS_TEMPLATE_NORMAL : Common.WATER_FLOW_COLUMNS_TEMPLATE_LG)
+        .columnsTemplate(this.currentBreakpoint !== 'lg' ? '1fr' : '1fr 1fr')
         // [End foundView]
         .backgroundColor(this.currentBreakpoint === Breakpoint.BREAKPOINT_LG ?
         $r('app.color.water_flow_bgc_lg') : $r('app.color.water_flow_bgc'))

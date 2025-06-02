@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-// DocsCode 1
 // [Start http_request]
 import { http } from '@kit.NetworkKit';
 import { BusinessError } from '@kit.BasicServicesKit';
@@ -55,4 +54,3 @@ async function readWriteFileWithStream(imageData: ArrayBuffer): Promise<void> {
   outputStream.closeSync();
 }
 // [End http_request]
-// DocsCode 1

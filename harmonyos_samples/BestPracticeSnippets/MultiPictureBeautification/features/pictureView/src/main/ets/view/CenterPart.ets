@@ -37,8 +37,8 @@ export struct CenterPart {
       // [StartExclude center_part]
       .height(Adaptive.PICTURE_HEIGHT(this.currentBp))
       .width(Adaptive.PICTURE_WIDTH(this.currentBp))
-      .scale({ x: this.scaleValue, y: this.scaleValue, z: 1 })
       // [EndExclude center_part]
+      .scale({ x: this.scaleValue, y: this.scaleValue, z: 1 })
       .gesture(PinchGesture({ fingers: FINGER_NUM })
         .onActionUpdate((event: GestureEvent | undefined) => {
           if (event) {

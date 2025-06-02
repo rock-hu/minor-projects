@@ -22,21 +22,15 @@ import { HMLifecycle, HMLifecycleContext, IHMLifecycle } from '@hadss/hmrouter';
 // [Start page_duration_life_cycle]
 @HMLifecycle({ lifecycleName: 'PageDurationLifecycle', global: true })
 export class PageDurationLifecycle implements IHMLifecycle {
-  private timeMap: Map<string, number> = new Map();
-  onShown(ctx: HMLifecycleContext): void {
-    const pageName = ctx.navContext?.pathInfo.name;
-    if(pageName) {
-      this.timeMap.set(pageName, new Date().getTime());
-    }
+  private time: number = 0;
+
+  onShown(): void {
+    this.time = new Date().getTime();
   }
 
   onHidden(ctx: HMLifecycleContext): void {
-    const pageName = ctx.navContext?.pathInfo.name;
-    if(pageName && this.timeMap.has(pageName)) {
-      const duration = new Date().getTime() - (this.timeMap.get(pageName) as number);
-      this.timeMap.delete(pageName);
-      console.log(`Page ${pageName} stay ${duration} ms`);
-    }
+    const duration = new Date().getTime() - this.time;
+    console.log(`Page ${ctx.navContext?.pathInfo.name} stay ${duration}`);
   }
 }
 // [End page_duration_life_cycle]

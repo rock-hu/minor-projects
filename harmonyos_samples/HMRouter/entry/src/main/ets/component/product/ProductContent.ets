@@ -17,21 +17,31 @@
  * 最佳实践：基于HMRouter路由框架的页面跳转开发实践
  */
 
-import { HMRouter } from '@hadss/hmrouter';
+import { HMRouter, HMRouterMgr } from '@hadss/hmrouter';
 import { PageConstant } from '../../constant/PageConstant';
 import { DetailConstants } from '../common/constants/DetailConstants';
 import { ProductInfo, ProductPicture } from './elements/ProductDetail';
 import { ProductMsg, ProductUtilView } from './elements/ProductUtilView';
+interface ParamsType {}
 
-// [Start HMRouter]
+// [Start hm_router]
 @HMRouter({pageUrl: 'ProductContent'})
 @Component
 export struct ProductContent {
-  // [StartExclude HMRouter]
+  // [StartExclude hm_router]
+  // [StartExclude hm_router_get_current_param]
   @State product: ProductMsg =
     new ProductMsg(DetailConstants.COLOR_SELECT_NAME_LIST[0], DetailConstants.CAPACITY_SELECT_NAME_LIST[0],
       DetailConstants.PRODUCT_PRICE_NAMES[1]);
+  // [EndExclude hm_router_get_current_param]
+  // [EndExclude hm_router]
+  @State param: ParamsType | null = null;
 
+  aboutToAppear(): void {
+    this.param = HMRouterMgr.getCurrentParam() as ParamsType;
+  }
+  // [StartExclude hm_router]
+  // [StartExclude hm_router_get_current_param]
   build() {
     Column() {
       Scroll() {
@@ -51,6 +61,8 @@ export struct ProductContent {
     .width('100%')
     .layoutWeight(1);
   }
-  // [EndExclude HMRouter]
+  // [EndExclude hm_router]
+  // [EndExclude hm_router_get_current_param]
 }
-// [End HMRouter]
+// [End hm_router]
+// [End hm_router_get_current_param]

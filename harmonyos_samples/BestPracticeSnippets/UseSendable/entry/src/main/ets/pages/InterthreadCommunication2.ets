@@ -17,6 +17,7 @@
 * 最佳实践: 应用并发设计 线程间通信 线程间模块共享（单例模式） （方案一）
 */
 // [Start store]
+// Index.ets
 import { taskpool } from '@kit.ArkTS';
 import singleton from 'libentry.so';
 

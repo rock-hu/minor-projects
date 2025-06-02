@@ -31,7 +31,7 @@ struct GesturesConflictScene7 {
 
   build() {
     Stack({ alignContent: Alignment.TopStart }) {
-      Scroll(this.scroller) { // 外部滚动容器
+      Scroll(this.scroller) { // External rolling container
         Column() {
           Text('Scroll Area')
             .width('100%')
@@ -41,7 +41,7 @@ struct GesturesConflictScene7 {
             .fontSize(16)
             .textAlign(TextAlign.Center)
             .margin({ top: 10 })
-          Scroll(this.scroller2) { // 内部滚动容器
+          Scroll(this.scroller2) { // internal rolling container
             Column() {
               Text('Scroll Area2')
                 .width('100%')
@@ -67,30 +67,30 @@ struct GesturesConflictScene7 {
             }
           }
           .id('innerScroll')
-          .scrollBar(BarState.Off) // 滚动条常驻显示
+          .scrollBar(BarState.Off) // The scroll bar is always displayed
           .width('100%')
           .height(800)
         }.width('100%')
       }
       .id('outerScroll')
       .height(600)
-      .scrollBar(BarState.Off) // 滚动条常驻显示
+      .scrollBar(BarState.Off) // The scroll bar is always displayed
       .shouldBuiltInRecognizerParallelWith((current: GestureRecognizer, others: Array<GestureRecognizer>) => {
         for (let i = 0; i < others.length; i++) {
           let target = others[i].getEventTargetInfo();
           if (target) {
             if (target.getId() === 'innerScroll' && others[i].isBuiltIn() &&
-              others[i].getType() === GestureControl.GestureType.PAN_GESTURE) { // 找到将要组成并行手势的识别器
-              this.currentRecognizer = current; // 保存当前组件的识别器
-              this.childRecognizer = others[i]; // 保存将要组成并行手势的识别器
-              return others[i]; // 返回将要组成并行手势的识别器
+              others[i].getType() === GestureControl.GestureType.PAN_GESTURE) { // Find the recognizer that will form the parallel gesture
+              this.currentRecognizer = current; // Save the recognizer of the current component
+              this.childRecognizer = others[i]; // Save the recognizer that will form the parallel gesture
+              return others[i]; // Return the recognizer that will form the parallel gesture
             }
           }
         }
         return undefined;
       })
       .onGestureRecognizerJudgeBegin((event: BaseGestureEvent, current: GestureRecognizer,
-        others: Array<GestureRecognizer>) => { // 在识别器即将要成功时，根据当前组件状态，设置识别器使能状态
+        others: Array<GestureRecognizer>) => { // When the recognizer is about to succeed, set the recognizer enabling status according to the current component status
         if (current) {
           let target = current.getEventTargetInfo();
           if (target) {
@@ -99,18 +99,18 @@ struct GesturesConflictScene7 {
               if (others) {
                 for (let i = 0; i < others.length; i++) {
                   let target = others[i].getEventTargetInfo() as ScrollableTargetInfo;
-                  if (target instanceof ScrollableTargetInfo && target.getId() == 'innerScroll') { // 找到响应链上对应并行的识别器
+                    if (target instanceof ScrollableTargetInfo && target.getId() == 'innerScroll') { // Find the corresponding parallel recognizer on the response chain
                     let panEvent = event as PanGestureEvent;
-                    if (target.isEnd()) { // isEnd返回当前滚动类容器组件是否在底部 根据当前组件状态以及移动方向动态控制识别器使能状态
+                    if (target.isEnd()) { // isEnd returns whether the current rolling container component is at the bottom of the dynamic control status of the recognizer based on the current component status and movement direction
                       if (panEvent && panEvent.offsetY < 0) {
-                        this.childRecognizer.setEnabled(false) // 到底上拉
+                        this.childRecognizer.setEnabled(false) // When it's the end, pull up
                         this.currentRecognizer.setEnabled(true)
                       } else {
                         this.childRecognizer.setEnabled(true)
                         this.currentRecognizer.setEnabled(false)
                       }
                     } else if (target.isBegin()) {
-                      if (panEvent.offsetY > 0) { // 开始的时候下拉
+                      if (panEvent.offsetY > 0) { // Pull down at the beginning
                         this.childRecognizer.setEnabled(false)
                         this.currentRecognizer.setEnabled(true)
                       } else {

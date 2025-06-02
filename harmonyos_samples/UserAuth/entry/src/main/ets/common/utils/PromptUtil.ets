@@ -3,8 +3,8 @@
  */
 
 import CommonConstants from '../constants/CommonConstants';
-import { promptAction } from '@kit.ArkUI';
 
+const uiContext: UIContext | undefined = AppStorage.get('uiContext');
 /**
  * Prompt util
  */
@@ -16,7 +16,7 @@ class PromptUtil {
    * @param bottom
    */
   promptMessage(message: string | Resource, time: number, bottom: string | number = CommonConstants.PROMPT_BOTTOM) {
-    promptAction.showToast({
+    uiContext?.getPromptAction().showToast({
       message:message,
       duration: time,
       bottom: bottom

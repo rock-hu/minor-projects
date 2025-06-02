@@ -22,7 +22,6 @@ function UserCardBuilder(name: string, age?: number, avatarImage?: ResourceStr) 
       Text(name)
         .fontSize(30)
     }
-
     Text(`age：${age?.toString()}`)
       .fontSize(20)
   }
@@ -33,7 +32,6 @@ function UserCardBuilder(name: string, age?: number, avatarImage?: ResourceStr) 
   .height(66)
   .width('80%')
 }
-
 
 @Component
 export struct UserCardList {
@@ -51,5 +49,4 @@ export struct UserCardList {
     .alignListItem(ListItemAlign.Center)
   }
 }
-
 // [End Case6]

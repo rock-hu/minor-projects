@@ -26,6 +26,7 @@ import { PayMgr } from '../../pay/PayCard';
 @Component
 export struct ProductUtilView {
   @Link product: ProductMsg;
+  @State param: string = ''
 
   build() {
     Row() {
@@ -42,7 +43,12 @@ export struct ProductUtilView {
         });
       Image($r('app.media.ic_public_comments'))
         .width(24)
-        .margin({ right: 16 });
+        .margin({ right: 16 })
+        .onClick(() => {
+          // [Start HMRouterMgr_pageUrl_home_page]
+          HMRouterMgr.pop({ navigationId: 'mainNavigationId', pageUrl: 'HomePage', param: this.param })
+          // [End HMRouterMgr_pageUrl_home_page]
+        })
       Image($r('app.media.tab_shopping_bag'))
         .width(24)
         .margin({ right: 12 });

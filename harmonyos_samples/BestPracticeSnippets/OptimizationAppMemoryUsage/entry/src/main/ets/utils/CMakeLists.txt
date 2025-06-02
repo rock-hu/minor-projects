@@ -1,3 +1,4 @@
+# [Start link_version]
 # the minimum version of CMake.
 cmake_minimum_required(VERSION 3.4.1)
 project(MyNativeApplication)
@@ -8,5 +9,6 @@ endif()
 include_directories(${NATIVERENDER_ROOT_PATH}
                     ${NATIVERENDER_ROOT_PATH}/include)
 add_library(entry SHARED napi_init.cpp)
-# 引入libpurgeable_memory_ndk.z.so动态链接库
+# Introduce libpurgeable_memory_ndk.z.so dynamic link library.
 target_link_libraries(entry PUBLIC libace_napi.z.so libpurgeable_memory_ndk.z.so)
+# [End link_version]

@@ -85,19 +85,17 @@ export struct Index {
                 currentConversationUserName: $currentConversationUserName,
                 currentContactUserName: $currentContactUserName
               })
-                .flexGrow(BaseConstants.FLEX_GROW_ONE)
-                .width(BaseConstants.FULL_WIDTH)
+                .flexGrow(1)
+                .width('100%')
               HomeTab({ currentPageIndex: $currentPageIndex })
                 .width(Adaptive.HomeTabWidth(this.currentBreakpoint))
                 .height(Adaptive.HomeTabHeight(this.currentBreakpoint))
-                .visibility(this.currentBreakpoint !== BreakpointConstants.BREAKPOINT_LG ? Visibility.Visible : Visibility.None)
+                .visibility(this.currentBreakpoint !== 'lg' ? Visibility.Visible : Visibility.None)
             }
             .padding({
-              bottom: deviceInfo.deviceType !== BaseConstants.DEVICE_2IN1
-                && this.currentBreakpoint !== BreakpointConstants.BREAKPOINT_LG ?
-              $r('app.float.tab_content_pb') : $r('app.float.zero')
+              bottom: deviceInfo.deviceType !== '2in1' && this.currentBreakpoint !== 'lg' ? '28vp' : 0
             })
-            .height(BaseConstants.FULL_HEIGHT)
+            .height('100%')
 
           } else if (this.currentPageIndex === 1) {
             Flex({ direction: FlexDirection.Column, justifyContent: FlexAlign.Center }) {
@@ -106,32 +104,29 @@ export struct Index {
                 currentConversationUserName: $currentConversationUserName,
                 currentContactUserIcon: $currentContactUserIcon
               })
-                .flexGrow(BaseConstants.FLEX_GROW_ONE)
-                .width(BaseConstants.FULL_WIDTH)
+                .flexGrow(1)
+                .width('100%')
               HomeTab({ currentPageIndex: $currentPageIndex })
                 .width(Adaptive.HomeTabWidth(this.currentBreakpoint))
                 .height(Adaptive.HomeTabHeight(this.currentBreakpoint))
-                .visibility(this.currentBreakpoint !== BreakpointConstants.BREAKPOINT_LG ? Visibility.Visible : Visibility.None)
+                .visibility(this.currentBreakpoint !== 'lg' ? Visibility.Visible : Visibility.None)
             }
-            .height(BaseConstants.FULL_HEIGHT)
+            .height('100%')
             .padding({
-              bottom: deviceInfo.deviceType !== BaseConstants.DEVICE_2IN1
-                && this.currentBreakpoint !== BreakpointConstants.BREAKPOINT_LG ?
-              $r('app.float.tab_content_pb') : $r('app.float.zero')
+              bottom: deviceInfo.deviceType !== '2in1'
+                && this.currentBreakpoint !== 'lg' ? '28vp' : 0
             })
           }
         }
         // [End nav_path_stack]
         .hideTitleBar(true)
         .hideToolBar(true)
-        .navBarWidth(this.currentBreakpoint === BreakpointConstants.BREAKPOINT_LG ? HomeConstants.NAVIGATION_NAV_BAR_WIDTH_LG :
-        HomeConstants.NAVIGATION_NAV_BAR_WIDTH_MD)
+        .navBarWidth(this.currentBreakpoint === 'lg' ? '44.5%' : '50%')
         .navDestination(this.PageMap)
-        .mode(this.currentBreakpoint === BreakpointConstants.BREAKPOINT_SM ? NavigationMode.Stack : NavigationMode.Split)
-        .width(BaseConstants.FULL_WIDTH)
+        .mode(this.currentBreakpoint === 'sm' ? NavigationMode.Stack : NavigationMode.Split)
+        .width('100%')
       }
-      .visibility(this.currentPageIndex === CurrentPage.HOME || this.currentPageIndex === CurrentPage.CONVERSATION ?
-      Visibility.Visible : Visibility.None)
+      .visibility(this.currentPageIndex === 0 || this.currentPageIndex === 1 ? Visibility.Visible : Visibility.None)
       // [End navigation_diff_device]
       /**
        * SocialCircle page

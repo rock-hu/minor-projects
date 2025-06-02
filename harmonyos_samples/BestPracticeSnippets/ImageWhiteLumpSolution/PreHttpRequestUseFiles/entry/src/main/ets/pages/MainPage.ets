@@ -19,8 +19,7 @@
  * 使用预下载解决Image长时间白块 正例
  */
 
-// DocsCode 1
-// [Start Main_page]
+// [Start local_storage]
 import { fileIo as fs } from '@kit.CoreFileKit';
 import { image } from '@kit.ImageKit';
 import { common } from '@kit.AbilityKit';
@@ -86,5 +85,4 @@ struct MainPage {
     .title('ParentNavigation')
   }
 }
-//[End Main_page]
-// DocsCode 1
+//[End local_storage]

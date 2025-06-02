@@ -42,7 +42,7 @@ struct Sample1 {
           .height(40)
           .width('100%')
           .onClick(() => {
-            // [Start sample_fun]
+            // [Start task_pool]
             // Sample1.ets
             taskpool.execute(wrongConcurrentFunc);
             // [End task_pool]

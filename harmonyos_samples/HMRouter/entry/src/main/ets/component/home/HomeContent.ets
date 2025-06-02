@@ -219,7 +219,7 @@ function recommendCard() {
 }
 
 // [Start HMRouter_home_content]
-@HMRouter({pageUrl: PageConstant.HOME_CONTENT, singleton: true, lifecycle: 'ExitAppLifecycle'})
+@HMRouter({pageUrl: 'HomeContent', singleton: true, lifecycle: 'ExitAppLifecycle'})
 @Component
 export struct HomeContent {
   // [StartExclude HMRouter_home_content]

@@ -41,12 +41,10 @@ struct GesturesConflictScene1 {
           }, (item: number) => item.toString())
         }
         .edgeEffect(EdgeEffect.None)
-        // [Start nested_scroll]
         .nestedScroll({
           scrollForward: NestedScrollMode.PARENT_FIRST,
           scrollBackward: NestedScrollMode.SELF_FIRST
         })
-        // [End nested_scroll]
         .height('100%')
         .width('100%')
       }

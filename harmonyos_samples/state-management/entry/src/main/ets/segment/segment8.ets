@@ -45,24 +45,20 @@ class dd {
       AppStorage.setOrCreate('userData', data);
     })
   }
-  // [StartExclude Case5]
+  // [End Case5]
 }
-// [EndExclude Case5]
 
+// [Start Case5]
 // Article card component of the Explore module
 @Component
 export struct ArticleCardView {
   // 2.Getting collection information stored in AppStorage via @StorageLink decorator
   @StorageLink('collectedIds') collectedIds: string[] = [];
   @Prop articleItem: LearningResource = new LearningResource();
-
-
   // 3.Calculate whether the current article is favorite or not according to the favorite information array
   isCollected(): boolean {
     return this.collectedIds.some((id: string) => id === this.articleItem.id);
   }
-
-
   // 6.Handling interface like interaction logic: when the state collectedIds received using the @StorageLink decorator are modified, the new values are synchronized to AppStorage
   handleCollected(): void {
     // [StartExclude Case5]
@@ -76,7 +72,6 @@ export struct ArticleCardView {
     }
     // ...
   }
-
   build(){
     ActionButtonView({
       // 4.Determine whether the favorite icon is highlighted according to whether the current article has been favorited by the user or not

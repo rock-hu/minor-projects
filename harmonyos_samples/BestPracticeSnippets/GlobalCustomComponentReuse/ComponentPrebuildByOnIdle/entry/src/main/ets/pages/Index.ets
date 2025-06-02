@@ -18,16 +18,16 @@ import { IdleCallback } from '@ohos/customreusablepool/src/main/ets/pages/Builde
 import { furnitureData, natureData } from '@ohos/customreusablepool/src/main/ets/data/MockData';
 import { ViewItem } from '@ohos/customreusablepool/src/main/ets/data/ViewItem';
 
-// DocsCode 1
+// [Start appear_router]
 @Entry
 @Component
 struct Index {
-  // DocsDot
+  // [StartExclude appear_router]
   @State timer: number = 2;
 
-  // DocsDot
+  // [EndExclude appear_router]
   aboutToAppear(): void {
-    // DocsDot
+    // [StartExclude appear_router]
     let intervalId = setInterval(() => {
       if (this.timer === 1) {
         router.pushUrl({ url: 'pages/OnIdlePage' });
@@ -37,17 +37,17 @@ struct Index {
         this.timer--;
       }
     }, 1000)
-    // DocsDot
-    // 获取模拟数据
+    // [EndExclude appear_router]
+    // Obtain analog data
     let viewItems: ViewItem[] = [];
     viewItems.push(...furnitureData());
     viewItems.push(...natureData());
     let context = this.getUIContext();
-    // 开启帧回调
+    // Open frame callback
     context.postFrameCallback(new IdleCallback(context, viewItems));
   }
 
-  // DocsDot
+  // [StartExclude appear_router]
   build() {
     RelativeContainer() {
       Image($r('app.media.ad_image'))
@@ -82,7 +82,6 @@ struct Index {
     .height('100%')
   }
 
-  // DocsDot
+  // [EndExclude appear_router]
 }
-
-// DocsCode 1
+// [End  appear_router]

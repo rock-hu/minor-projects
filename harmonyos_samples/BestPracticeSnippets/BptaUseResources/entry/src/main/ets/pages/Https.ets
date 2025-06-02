@@ -1,5 +1,6 @@
 /**
  * 最佳实践：合理使用网络资源
+ * 场景一：HTTP数据请求
  */
 
 // [Start http_resources]

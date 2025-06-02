@@ -46,7 +46,7 @@ export struct ConversationList {
                 this.currentContactUserName = '';
                 this.currentIndex = index;
               })
-              .backgroundColor(this.currentIndex === index ? $r('app.color.conversation_clicked_bg_color') : Color.White)
+              .backgroundColor(this.currentIndex === index ? "#33D8D8D8" : Color.White)
           }
           .height(Adaptive.ContactItemHeight(this.currentBreakpoint))
 
@@ -56,15 +56,15 @@ export struct ConversationList {
       .padding({
         bottom: deviceInfo.deviceType !== BaseConstants.DEVICE_2IN1 &&
           this.currentBreakpoint === BreakpointConstants.BREAKPOINT_LG ?
-        $r('app.float.tab_content_pb') : $r('app.float.zero')
+        '28vp' : 0
       })
       .backgroundColor(Color.White)
-      .width(BaseConstants.FULL_WIDTH)
-      .height(BaseConstants.FULL_HEIGHT)
+      .width('100%')
+      .height('100%')
     }
 
-    .height(BaseConstants.FULL_HEIGHT)
-    .width(BaseConstants.FULL_WIDTH)
+    .height('100%')
+    .width('100%')
   }
 }
 // [End conversation_list_diff_device]

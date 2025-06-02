@@ -14,20 +14,18 @@
  */
 
 import { common, wantAgent } from '@kit.AbilityKit';
-import { avSession } from '@kit.AVSessionKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { VideoData } from '../model/VideoData';
 import Logger from '../utils/Logger';
 import { ImageUtil } from '../utils/ImageUtil';
 import { BackgroundTaskManager } from '../utils/BackgroundTaskManager';
 import { hilog } from '@kit.PerformanceAnalysisKit';
-
+import { avSession } from '@kit.AVSessionKit';
 const TAG = 'AvSessionController';
-
 export class AvSessionController {
+  private avSession: avSession.AVSession | undefined = undefined;
   private static instance: AvSessionController | null;
   private context: common.UIAbilityContext | undefined = undefined;
-  private avSession: avSession.AVSession | undefined = undefined;
   private avSessionMetadata: avSession.AVMetadata | undefined = undefined;
 
   constructor() {
@@ -40,7 +38,6 @@ export class AvSessionController {
     }
     return AvSessionController.instance;
   }
-
   // [Start init_session]
   public initAvSession() {
     this.context = AppStorage.get('context');
@@ -60,7 +57,6 @@ export class AvSessionController {
     });
   }
   // [End init_session]
-
   public getAvSession() {
     return this.avSession;
   }

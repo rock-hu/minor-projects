@@ -30,13 +30,14 @@ export class LoginCheckInterceptor implements IHMInterceptor {
       if(!!AppStorage.get('isLogin')) {
         return HMInterceptorAction.DO_NEXT;
       } else {
-        info.context.getPromptAction().showToast({message: LoginConstants.LOGIN_TOAST});
+        info.context.getPromptAction().showToast({ message: '请先登录' });
         HMRouterMgr.push({
           pageUrl: 'loginPage',
           skipAllInterceptor: true
         });
         return HMInterceptorAction.DO_REJECT;
       }
+      // [StartExclude hm_interceptor]
     } else {
       if(!!AppStorage.get('isLogin')) {
         return HMInterceptorAction.DO_NEXT;
@@ -49,7 +50,6 @@ export class LoginCheckInterceptor implements IHMInterceptor {
         });
         return HMInterceptorAction.DO_REJECT;
       }
-      // [StartExclude hm_interceptor]
     }
     // [EndExclude hm_interceptor]
   }

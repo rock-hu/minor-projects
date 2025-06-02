@@ -33,10 +33,8 @@ export struct VideoCard {
       }
     })
   }
-
   // ...
 }
-
 
 @Component
 export struct CardList {
@@ -52,5 +50,4 @@ export struct CardList {
     }
   }
 }
-
 // [End Case1]

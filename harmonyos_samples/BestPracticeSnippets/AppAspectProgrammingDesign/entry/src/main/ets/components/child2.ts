@@ -17,7 +17,9 @@
 * 最佳实践: 应用切面编程设计
 */
 // [Start child2]
-// child2
+// child.ets
 import {Base} from './base';
-export class Child2 extends Base {}
+export class Child extends Base {
+  // Inherit the getCurrentLocation method of the parent class
+}
 // [End child2]

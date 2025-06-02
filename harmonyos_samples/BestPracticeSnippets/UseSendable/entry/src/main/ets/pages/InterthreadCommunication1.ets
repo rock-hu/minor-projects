@@ -33,3 +33,18 @@ struct InterthreadCommunication1 {
   }
 }
 // [End inter_thread_communication1]
+
+@Component
+struct TestCode {
+  // [Start index_btn]
+  // Index.ets
+  build() {
+    Button('click me')
+      .onClick(() => {
+        nativeModule.nativeCall((a: number) => {
+          console.log('Received data from thread-function: %{public}d', a);
+        })
+      })
+  }
+  // [End index_btn]
+}

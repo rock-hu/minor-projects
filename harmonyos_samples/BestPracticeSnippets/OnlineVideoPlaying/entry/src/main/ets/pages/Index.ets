@@ -8,13 +8,13 @@ struct Index {
 
   async play(){
     // [Start player]
-    // 创建avPlayer实例对象
+    // Create avPlayer instance object
     let player = await media.createAVPlayer();
     let headers: Record<string, string> = {"User-Agent" : "User-Agent-Value"};
     let mediaSource : media.MediaSource = media.createMediaSourceWithUrl("http://xxx",  headers);
-    // 将preferredBufferDuration设置为最大值20MB；preferredWidth为播放策略首选宽度；preferredHeight为播放策略首选高度；preferredHdr为播放策略true是hdr，false非hdr
+    // Set the preferredBufferDuration to the maximum value of 20MB；; PreferredWidth is the preferred width of the playback strategy; PreferredHeight is the preferred height of the playback strategy; PreferredHdr is the playback strategy. true is hdr, false is non-hdr.
     let playStrategy : media.PlaybackStrategy = {preferredWidth: 1, preferredHeight: 2, preferredBufferDuration: 20, preferredHdr: false};
-    // 设置媒体来源和播放策略
+    // Set the media source and playback strategy.
     player.setMediaSource(mediaSource, playStrategy);
     // [End player]
   }

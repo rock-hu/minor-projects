@@ -21,17 +21,17 @@ import { TextInputComponent } from '../view/TextInputComponent';
 @Entry
 @Component
 struct MainPage {
-  @State bottomPadding: number = Constants.MAIN_PAGE_INITIAL_PADDING;
+  @State bottomPadding: number = 210;
 
   aboutToAppear(): void {
     let event: emitter.InnerEvent = {
-      eventId: Constants.AVOID_EVENT_ID
+      eventId: 1
     }
     emitter.on(event, (eventData: emitter.EventData) => {
       if (eventData.data) {
         let avoidHeight: number = eventData.data['avoidHeight'];
         if (avoidHeight === 0) {
-          this.bottomPadding = Constants.MAIN_PAGE_INITIAL_PADDING;
+          this.bottomPadding = 210;
         } else {
           this.bottomPadding = avoidHeight;
         }
@@ -46,7 +46,7 @@ struct MainPage {
         Image($r('app.media.arkui_background'))
           .height($r('app.float.main_page_image_height'))
           .width('100%')
-          .borderRadius(Constants.IMAGE_BORDER)
+          .borderRadius(12)
           .padding({ left: $r('app.float.main_page_margin'), right: $r('app.float.main_page_margin') })
 
         TextInputComponent()

@@ -8,7 +8,6 @@ const translateYChangeRange: number = 250; // The range in which translateY chan
 const scaleXChangeValue: number = 0.6; // The value of scaleX for each change
 const scaleXChangeRange: number = 0.8; // The value of scaleX for each change
 
-
 // Style Attribute Classes
 class UIStyle {
   public translateX: number = 0;
@@ -16,7 +15,6 @@ class UIStyle {
   public scaleX: number = 0.3;
   public scaleY: number = 0.3;
 }
-
 
 @Component
 struct ComponentA {
@@ -37,7 +35,6 @@ struct ComponentA {
             })
         }
 
-
         Stack() {
           Text('Hello World')
         }
@@ -46,7 +43,6 @@ struct ComponentA {
         x: this.uiStyle.translateX,
         y: this.uiStyle.translateY
       })
-
 
       // Modify the value of a state variable via a button click callback, causing the corresponding component to refresh.
       Column() {
@@ -64,7 +60,6 @@ struct ComponentA {
     }
   }
 }
-
 
 @Component
 struct SpecialImage {

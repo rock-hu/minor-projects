@@ -17,18 +17,16 @@ import { promptAction } from '@kit.ArkUI'
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { deviceInfo } from '@kit.BasicServicesKit'
-// DocsCode3
-// DocsCode2
-// DocsCode1
+// [Start test_napi_native_add]
+// [Start get_context_bundle_code_dir]
+// [Start multiply_napi_multiply]
 // src/main/ets/pages/index.ets
 import testNapi from 'libentry.so';
-// DocsCode1
-// DocsCode2
-// DocsCode3
-// DocsCode4
+// [End multiply_napi_multiply]
+// [End get_context_bundle_code_dir]
+// [End test_napi_native_add]
 // entry/src/main/ets/pages/Index.ets
 import multiplyNapi from 'libmultiply.so';
-// DocsCode4
 import { ParamTextInputComponent } from '../view/ParamTextInputComponent';
 
 @Entry
@@ -87,12 +85,10 @@ struct Index {
             .onClick(() => {
               let content = this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.native_so_content'));
               // Integrate the SO library on the Native side directly to complete the addition operation
-              // DocsCode1
               // [Start test_napi_native_add]
               // Verify the calculation result of the addition so library on the ArkTS side
               let result = testNapi.nativeAdd(Number(this.paramX), Number(this.paramY));
               // [End test_napi_native_add]
-              // DocsCode1
               if (this.paramX === '' || this.paramY === '') {
                 this.customToast(this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.input_alert')));
               } else {
@@ -103,20 +99,16 @@ struct Index {
             .customButtonStyle()
             .onClick(() => {
               let content = this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.native_so_dlopen_content'));
-              // DocsCode2
               // [Start get_context_bundle_code_dir]
               let projectPath = this.getUIContext().getHostContext()!.bundleCodeDir; // Get the project path
               let abiPath = deviceInfo.abiList === 'x86_64' ? 'x86_64' : 'arm64';
               let soLibPath = `${projectPath}/libs/${abiPath}/libnativeSub.so`; //Obtain the path of the SO sandbox
               // [End get_context_bundle_code_dir]
-              //  DocsCode2
               // 将沙箱路径传递至Native侧
-              // DocsCode3
               // [Start test_napi_native_sub]
               // On the ArkTS side, verify the calculation result of the subtraction so library
               let result = testNapi.nativeSub(Number(this.paramX), Number(this.paramY), soLibPath);
               // [End test_napi_native_sub]
-              // DocsCode3
               if (this.paramX === '' || this.paramY === '') {
                 this.customToast(this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.input_alert')));
               } else {
@@ -128,7 +120,6 @@ struct Index {
             .onClick(() => {
               let content = this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.arkts_so_content'));
               // Integrate the SO library that has been adapted to Native On the ArkTS side to complete the multiplication operation
-              // DocsCode4
               // [Start multiply_napi_multiply]
               // Multiply directly using the so library that has been adapted to Native
               let result = multiplyNapi.multiply(Number(this.paramX), Number(this.paramY));

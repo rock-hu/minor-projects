@@ -81,7 +81,7 @@ export class KeyboardController {
   // [Start textInputController_start]
   onChange(value: string) {
     this.text = value;
-    if (this.keyBoardType !== Constants.SYSTEM_KEYBOARD) {
+    if (this.keyBoardType !== 'System') {
       this.textInputController?.caretPosition(this.targetCaretPos);
     }
   }

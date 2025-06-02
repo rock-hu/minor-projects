@@ -29,12 +29,10 @@ export function ListeningNetworkStatusBuilder() {
   ListeningNetworkStatus()
 }
 
-// [Start video_player]
 @Component
 export struct ListeningNetworkStatus {
   controller: VideoController = new VideoController();
   @State videoSrc: Resource = $rawfile('video.mp4'); // Replace it with the actual video loading URL.
-  // [End video_player]
   private netCon: connection.NetConnection | null = null;
   private networkPause: boolean = false; // Listen to the loading status
   private isLowQuality: boolean = false;
@@ -203,10 +201,8 @@ export struct ListeningNetworkStatus {
             // [Start weak_signal_congestion]
             if (networkScene.scene === 'weakSignal' || networkScene.scene === 'congestion') {
               // Indicates the weak network scenario.
-              // [End weak_signal_congestion]
               hilog.info(0x0000, 'Sample', 'The current network is weak');
               this.networkWeak();
-              // [Start weak_signal_congestion]
             }
             // [End weak_signal_congestion]
             // [Start weak_signal_prediction]
@@ -264,14 +260,12 @@ export struct ListeningNetworkStatus {
     }
     .width('100%')
   }
-  // [Start video_player]
   build() {
     NavDestination() {
       Video({
         src: this.videoSrc,
         controller: this.controller
       })
-        // [End video_player]
         .objectFit(ImageFit.Cover)
         .onStart(() => {
           let judgeHasNet = this.judgeHasNet();
@@ -361,11 +355,22 @@ export struct ListeningNetworkStatus {
       .height(346)
       .padding({ left: 16, right: 16, bottom: 24 })
       .margin({ bottom: 16 })
-      // [Start video_player]
     }
-    // [End video_player]
     .title(this.NavDestinationTitle())
-    // [Start video_player]
+  }
+}
+// [Start video_player]
+@Component
+export struct VideoPlayer{
+  private controller:VideoController | undefined;
+  @State videoSrc: string= 'https://www.example.com/example.mp4' //Please replace it with the actual video loading URL when using it.
+  build(){
+    Column() {
+      Video({
+        src: this.videoSrc,
+        controller: this.controller
+      })
+    }
   }
 }
 // [End video_player]

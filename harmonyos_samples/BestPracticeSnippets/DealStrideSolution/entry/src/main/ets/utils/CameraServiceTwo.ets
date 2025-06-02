@@ -42,14 +42,16 @@ class CameraService {
     }
   };
   surfaceId: string = '';
-
+  // [Start Case2_start]
   onImageArrival(receiver: image.ImageReceiver): void {
     receiver.on('imageArrival', () => {
       receiver.readNextImage((err: BusinessError, nextImage: image.Image) => {
+        // [StartExclude Case2_start]
         if (err || nextImage === undefined) {
           Logger.error(TAG, `requestPermissionsFromUser call Failed! error: ${err.code}`);
           return;
         }
+        // [EndExclude Case2_start]
         if (nextImage) {
           nextImage.getComponent(image.ComponentType.JPEG, async (_err, component: image.Component) => {
             let width = 1080; // Application create preview stream resolution corresponding to the width
@@ -85,6 +87,7 @@ class CameraService {
       });
     })
   }
+  // [End Case2_start]
 
   getPreviewProfile(cameraOutputCapability: camera.CameraOutputCapability): camera.Profile | undefined {
     let previewProfiles = cameraOutputCapability.previewProfiles;

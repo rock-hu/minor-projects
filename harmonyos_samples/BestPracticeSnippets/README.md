@@ -10,6 +10,7 @@
 * [CustomDialogPractice：应用自定义弹窗开发实践](CustomDialogPractice)
 * [FramedRendering：高负载分帧渲染开发实践](FramedRendering)
 * [FuzzySceneOptimization：图像模糊动效优化](FuzzySceneOptimization)
+* [LiveViewLockScreen：锁屏沉浸实况窗](LiveViewLockScreen)
 * [NdkQoS：基于QoS设置线程优先级](NdkQoS)
 * [NetworkManagement：网络管理与状态监听](NetworkManagement)
 * [PreHttpRequestUseFiles：Image白块解决指导](PreHttpRequestUseFiles)

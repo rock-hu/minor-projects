@@ -23,7 +23,6 @@ struct ColorNormal {
   }
 }
 
-
 @Entry
 @Component
 struct ColorOverlayStackExample {
@@ -40,5 +39,4 @@ struct ColorOverlayStackExample {
     }
   }
 }
-
 // [End Counter_example5]

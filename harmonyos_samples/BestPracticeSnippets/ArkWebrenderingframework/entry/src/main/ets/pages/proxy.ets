@@ -11,7 +11,7 @@ class DynamicNodeManager {
   private renderType: number = 0;
   private embedType?: string;
   private componentId?: string;
-  private nativeComponentBuilderMap;
+  private nativeComponentBuilderMap:ESObject;
 
   // 初始化必要参数
   constructor(params: {
@@ -37,12 +37,13 @@ class DynamicNodeManager {
   // [Start make_node]
   makeNode(uiContext: UIContext): FrameNode | null {
     if (this.rootNode === null) {
+      //Dynamic down tree
       return null;
     }
     if (!this.embedType || !this.componentId) {
       return null;
     }
-
+    //Create if the root node is not defined.
     if (!this.rootNode) {
       this.rootNode = new BuilderNode<[Object]>(uiContext, {
         surfaceId: this.surfaceId,
@@ -56,7 +57,7 @@ class DynamicNodeManager {
         return null;
       }
     }
-
+    //Dynamic tree climbing
     return this.rootNode.getFrameNode();
   }
   // [End make_node]
@@ -64,7 +65,7 @@ class DynamicNodeManager {
 
 
 
-// 需实现ChannelService类并初始化实例
+// You need to implement the ChannelService class and initialize the instance.
 class ChannelService {
   call<T>(channelType: string, json: string): T {
     return JSON.parse(json) as T;
@@ -73,12 +74,12 @@ class ChannelService {
 class NativeBridge {
   private channelListeners: Map<string, Function> = new Map();
 
-  // 注册通道处理器
+  // Register channel processor
   registerHandler(channelType: string, handler: Function): void {
     this.channelListeners.set(channelType, handler);
   }
   // [Start listener]
-  // 执行通道调用
+  // Execute channel call
   call(channelType: string, objectJson: string): any {
     let fun = this.channelListeners.get(channelType);
     if (!fun) {
@@ -92,7 +93,7 @@ class NativeBridge {
 
 const ChannelInstance = new ChannelService()
 @Component
-struct Proxy
+struct Proxy{
   private webController: webview.WebviewController = new webview.WebviewController();
   private webUrl: string = './Index';
   private taroWebController: GeneratedObjectLiteralInterface_1 = {
@@ -105,26 +106,19 @@ struct Proxy
     return resultJson && JSON.parse(resultJson);
   }
   // [End call]
-
-
   // [Start build_web]
   build() {
-    Column() {
-      Web({
-        src: this.webUrl,
-        controller: this.webController
-      }).javaScriptProxy({
+    Web({ src: this.webUrl, controller: this.webController })
+      .javaScriptProxy({
         object: {
           nativeMethod: (channelType: string, objectJson: string) => {
-            return ChannelInstance.call(channelType, objectJson) as object;
-          }
+            return ChannelInstance.call(channelType, objectJson) as object
+          },
         },
         name: 'JSBridge',
         methodList: ['nativeMethod'],
-        controller: this.taroWebController.webController
+        controller: this.taroWebController.webController,
       })
-    }
-    // [Ends build_web]
   }
-
+  // [End build_web]
 }

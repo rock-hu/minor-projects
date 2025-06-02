@@ -2,7 +2,6 @@
 import { ColorMetrics } from '@kit.ArkUI';
 import { BusinessError } from '@kit.BasicServicesKit';
 
-
 @Component
 struct ColorMeasure {
   @Prop isSelected: boolean = false;
@@ -21,8 +20,6 @@ struct ColorMeasure {
     if (!baseColor || !addColor) {
       return ColorMetrics.resourceColor(Color.Black);
     }
-
-
     let sourceColor: ColorMetrics;
     try {
       sourceColor = ColorMetrics.resourceColor(baseColor).blendColor(ColorMetrics.resourceColor(addColor));
@@ -31,12 +28,9 @@ struct ColorMeasure {
       console.error(`Failed to blend color, code = ${error.code}, message =${error.message}`);
       sourceColor = ColorMetrics.resourceColor(addColor);
     }
-
-
     return sourceColor;
   }
 }
-
 
 @Entry
 @Component
@@ -54,5 +48,4 @@ struct ColorMetricsExample {
     }
   }
 }
-
 // [End Case5]

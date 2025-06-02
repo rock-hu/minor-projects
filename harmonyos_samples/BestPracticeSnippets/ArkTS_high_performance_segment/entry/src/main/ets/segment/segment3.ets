@@ -6,7 +6,7 @@ class InfoUtil {
     if (t1 === t2) {
       return "";
     }
-    // 此处改为使用HashMap进行读写操作
+    // The HashMap is used for read and write operations
     let info: HashMap<string, string> = new HashMap();
     this.setInfo(info);
     let t3 = info.get(t2);

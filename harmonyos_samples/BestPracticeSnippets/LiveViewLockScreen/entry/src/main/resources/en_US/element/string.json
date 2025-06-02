@@ -1,0 +1,68 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "module description"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "description"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "LiveViewLockScreen"
+    },
+    {
+      "name": "reason_background",
+      "value": "Background operation to update the live view"
+    },
+    {
+      "name": "traffic_info_meter",
+      "value": "800 meters"
+    },
+    {
+      "name": "traffic_info_first",
+      "value": "1 hour 24 minutes"
+    },
+    {
+      "name": "traffic_info_second",
+      "value": "72.6km·09:32·"
+    },
+    {
+      "name": "traffic_info_third",
+      "value": "3"
+    },
+    {
+      "name": "live_view_title",
+      "value": "In navigation"
+    },
+    {
+      "name": "live_view_background",
+      "value": "#ff0959F8"
+    },
+    {
+      "name": "live_view_content",
+      "value": "content"
+    },
+    {
+      "name": "meter",
+      "value": " meters"
+    },
+    {
+      "name": "live_view_primary_title_first",
+      "value": "Turn right after "
+    },
+    {
+      "name": "live_view_primary_title_second",
+      "value": " meters"
+    },
+    {
+      "name": "road_name",
+      "value": "Cuihu East Road"
+    },
+    {
+      "name": "then",
+      "value": "Then"
+    }
+  ]
+}

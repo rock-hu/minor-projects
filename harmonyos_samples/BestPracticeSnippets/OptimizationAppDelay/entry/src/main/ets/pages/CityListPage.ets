@@ -28,7 +28,7 @@ const alphabets = ['#', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K',
 @Concurrent
 function computeTask(): string[] {
   let array: string[] = []
-  // AppConstant.CITYS 为需要加载的数据
+  // AppConstant.CITYS is the data to be loaded.
   for (let t of AppConstant.CITYS) {
     array.push(t.trim())
   }
@@ -41,15 +41,15 @@ function computeTask(): string[] {
 @Component
 struct CityList {
   isAsync: boolean = (this.getUIContext().getRouter().getParams() as Record<string, boolean>)['isAsync'];
-  // 界面数据
+  // Interface data
   @State citys: string[] = []
   private listScroller: Scroller = new Scroller();
 
   aboutToAppear() {
-    this.computeTaskAsync(); // 调用异步运算函数
+    this.computeTaskAsync(); // Call asynchronous operation function
   }
 
-  // 异步线程
+  // Asynchronous thread
   computeTaskAsync() {
     let task: taskpool.Task = new taskpool.Task(computeTask);
     taskpool.execute(task).then((res) => {

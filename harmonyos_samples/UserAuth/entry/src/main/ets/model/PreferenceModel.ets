@@ -6,7 +6,8 @@ import { preferences } from '@kit.ArkData'
 import CommonConstants from '../common/constants/CommonConstants';
 import { common } from '@kit.AbilityKit';
 
-let context = getContext(this) as common.UIAbilityContext;
+const uiContext: UIContext | undefined = AppStorage.get('uiContext');
+let context = uiContext?.getHostContext() as common.UIAbilityContext;
 
 class PreferenceModel {
   private preference?: preferences.Preferences;

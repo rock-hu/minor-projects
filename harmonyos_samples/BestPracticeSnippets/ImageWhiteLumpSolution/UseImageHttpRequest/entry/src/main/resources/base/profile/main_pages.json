@@ -1,6 +1,6 @@
 {
   "src": [
-    "pages/PageOne",
-    "pages/MainPage"
+    "pages/MainPage",
+    "pages/PageOne"
   ]
 }

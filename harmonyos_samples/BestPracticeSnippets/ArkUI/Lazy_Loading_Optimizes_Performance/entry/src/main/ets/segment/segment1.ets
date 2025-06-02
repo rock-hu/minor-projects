@@ -9,7 +9,7 @@ interface DataChangeListener {
 }
 
 
-class MyDataSource {
+export class MyDataSource {
   private _data: string[] = [];
   private _listeners: DataChangeListener[] = [];
 

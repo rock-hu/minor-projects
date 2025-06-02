@@ -24,7 +24,7 @@ async function foo(a: number, b: number) {
   return a + b;
 }
 
-taskpool.execute(foo, 1, 2).then((ret: Object) => { // 结果处理
+taskpool.execute(foo, 1, 2).then((ret: Object) => { //Result processing
   console.log('Return:' + ret);
 })
 // [End taskpool]

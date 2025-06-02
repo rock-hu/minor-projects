@@ -3,11 +3,12 @@
  * 场景二：下载
  */
 
+// [Start software_download]
 import { BusinessError, request } from '@kit.BasicServicesKit';
 
 try {
   request.downloadFile(getContext(), {
-    url: 'https://xxxx/xxxxx.hap', //需要下载的文件的服务器地址
+    url: 'https://xxxx/xxxxx.hap', // IP address of the server to download the file
     filePath: 'xxx/xxxxx.hap'
   }, (err: BusinessError, data: request.DownloadTask) => {
     if (err) {
@@ -19,3 +20,4 @@ try {
 } catch (err) {
   console.error(`Failedtorequestthedownload.err:${JSON.stringify(err)}`);
 }
+// [End software_download]

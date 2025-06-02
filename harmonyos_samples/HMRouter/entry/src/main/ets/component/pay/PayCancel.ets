@@ -23,7 +23,7 @@ import { ConfirmDialog } from '../common/ConfirmDialog';
 import { PayConstants } from '../common/constants/PayConstants'
 
 // [Start HMRouter_confirmDialog]
-@HMRouter({pageUrl: PageConstant.PAY_CANCEL, dialog: true})
+@HMRouter({pageUrl: 'PayCancel', dialog: true})
 @Component
 export struct PayCancel {
   // [StartExclude HMRouter_confirmDialog]
@@ -49,13 +49,12 @@ export struct PayCancel {
         leftButtonName: '再看看',
         rightButtonName: '取消订单',
         leftButtonFunc: () => {
-          // [StartExclude HMRouter_confirmDialog]
           HMRouterMgr.pop({
             navigationId: this.queryNavigationInfo()?.navigationId
           });
-          // [EndExclude HMRouter_confirmDialog]
         },
         rightButtonFunc: () => {
+          // [StartExclude HMRouter_confirmDialog]
           let pathStack = HMRouterMgr.getPathStack(this.queryNavigationInfo()?.navigationId!);
           if (this.pageUrl === 'shoppingBag') {
             for (let i = 0; i < 2; i++) {
@@ -66,6 +65,7 @@ export struct PayCancel {
               pathStack?.pop(false);
             }
           }
+          // [EndExclude HMRouter_confirmDialog]
         }
       });
     }

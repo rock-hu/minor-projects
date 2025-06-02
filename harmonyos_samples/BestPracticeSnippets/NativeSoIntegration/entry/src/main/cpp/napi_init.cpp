@@ -14,10 +14,9 @@
  */
 
 #include "napi/native_api.h"
-// DocsCode1
+
 
 #include "add/add.h"
-// DocsCode1
 
 static napi_value Add(napi_env env, napi_callback_info info) {
     size_t argc = 2;
@@ -43,7 +42,6 @@ static napi_value Add(napi_env env, napi_callback_info info) {
     return sum;
 }
 
-// DocsCode1
 /**
  * Integrate the third-party SO library on the Native side through dlopen
  * @param
@@ -53,7 +51,6 @@ static napi_value Add(napi_env env, napi_callback_info info) {
 // [Start  NAPI_Global_nativeSub]
 // src/main/cpp/napi_init.cpp
 #include "dlfcn.h"
-    
 typedef double (*Sub)(double, double);
 static napi_value NAPI_Global_nativeSub(napi_env env, napi_callback_info info) {
     size_t argc = 3;
@@ -74,7 +71,7 @@ static napi_value NAPI_Global_nativeSub(napi_env env, napi_callback_info info) {
     return result;
 }
 // [End  NAPI_Global_nativeSub]
-// DocsCode1
+
 
 /**
  * Integrate the third-party SO library directly on the Native side
@@ -82,7 +79,7 @@ static napi_value NAPI_Global_nativeSub(napi_env env, napi_callback_info info) {
  * @param
  * @return
  */
-// DocsCode1
+
 // [Start NAPI_Global_nativeAdd]
 static napi_value NAPI_Global_nativeAdd(napi_env env, napi_callback_info info) {
     size_t argc = 2;
@@ -112,19 +109,15 @@ static napi_value NAPI_Global_nativeAdd(napi_env env, napi_callback_info info) {
 EXTERN_C_START
 static napi_value Init(napi_env env, napi_value exports) {
     napi_property_descriptor desc[] = {
-        // DocsDot
         // [StartExclude NAPI_Global_nativeAdd]
         // [StartExclude NAPI_Global_nativeSub]
         {"add", nullptr, Add, nullptr, nullptr, nullptr, napi_default, nullptr},
         // [EndExclude NAPI_Global_nativeAdd]
-        // DocsDot
         {"nativeAdd", nullptr, NAPI_Global_nativeAdd, nullptr, nullptr, nullptr, napi_default, nullptr},
-        // DocsDot
         // [EndExclude NAPI_Global_nativeSub]
         // [StartExclude NAPI_Global_nativeAdd]
         {"nativeSub", nullptr, NAPI_Global_nativeSub, nullptr, nullptr, nullptr, napi_default, nullptr}};
         // [EndExclude NAPI_Global_nativeAdd]
-        // DocsDot
     napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc);
     return exports;
 }

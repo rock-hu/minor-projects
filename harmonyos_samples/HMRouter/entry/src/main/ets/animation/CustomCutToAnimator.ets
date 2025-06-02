@@ -17,13 +17,13 @@
  * 最佳实践：特定页面设置自定义转场
  */
 
-// [Start custom_cut_to_animator]
 import { HMAnimator, HMAnimatorHandle,
   HMRouterMgr,
   IHMAnimator, OpacityOption,
   ScaleOption,
   TranslateOption } from "@hadss/hmrouter";
 
+// [Start custom_cut_to_animator]
 
 @HMAnimator({ animatorName: 'CustomAnimator' })
 export class CustomAnimator implements IHMAnimator {

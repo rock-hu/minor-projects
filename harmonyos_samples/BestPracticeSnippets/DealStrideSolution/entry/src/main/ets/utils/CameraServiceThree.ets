@@ -42,7 +42,7 @@ class CameraService {
     }
   };
   surfaceId: string = '';
-
+  // [Start onImageArrival_start]
   onImageArrival(receiver: image.ImageReceiver): void {
     receiver.on('imageArrival', () => {
       receiver.readNextImage((err: BusinessError, nextImage: image.Image) => {
@@ -71,7 +71,7 @@ class CameraService {
       });
     })
   }
-
+  // [End onImageArrival_start]
   getPreviewProfile(cameraOutputCapability: camera.CameraOutputCapability): camera.Profile | undefined {
     let previewProfiles = cameraOutputCapability.previewProfiles;
     if (previewProfiles.length < 1) {

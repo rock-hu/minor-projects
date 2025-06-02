@@ -12,7 +12,8 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-//[Start custom_plugin]
+
+// [Start custom_plugin]
 import { fileIo as fs } from '@kit.CoreFileKit';
 import { util } from '@kit.ArkTS';
 /**
@@ -25,7 +26,7 @@ interface OhPackage {
   description: string;
   author: string;
 }
-//[Start readFileSync]
+
 function readFileSync(filePath: string): string {
   try {
     const fd = fs.openSync(filePath, fs.OpenMode.READ_ONLY).fd;
@@ -49,9 +50,9 @@ function readFileSync(filePath: string): string {
     throw err; // 重新抛出错误以便上层处理
   }
 }
-//[End readFileSync]
 
-//[Start renameHarTask]
+
+
 export function renameHarTask(str?: string) {
   return {
     pluginId: 'RenameHarTaskID',
@@ -94,6 +95,6 @@ export function renameHarTask(str?: string) {
       })
     }
   }
-  //[End renameHarTask]
+
 }
-//[End custom_plugin]
+// [End custom_plugin]

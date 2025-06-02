@@ -3,7 +3,7 @@
  */
 
 import CommonConstants from '../common/constants/CommonConstants';
-import { router, window } from '@kit.ArkUI';
+import { window } from '@kit.ArkUI';
 import PreferenceModel from '../model/PreferenceModel';
 import PromptUtil from '../common/utils/PromptUtil';
 import { util } from '@kit.ArkTS';
@@ -54,7 +54,7 @@ struct LoginPage {
   private keyAlias: string = CommonConstants.LOGIN_KEYS;
 
   onPageShow() {
-    window.getLastWindow(getContext(this)).then((windowStage: window.Window) => {
+    window.getLastWindow(this.getUIContext().getHostContext()).then((windowStage: window.Window) => {
       windowStage.setWindowPrivacyMode(true);
     });
     this.isFace = PreferenceModel.getPreference(CommonConstants.IS_SHOW_FACE, false) as boolean;
@@ -62,7 +62,7 @@ struct LoginPage {
   }
 
   onPageHide(): void {
-    window.getLastWindow(getContext(this)).then((windowStage: window.Window) => {
+    window.getLastWindow(this.getUIContext().getHostContext()).then((windowStage: window.Window) => {
       windowStage.setWindowPrivacyMode(false);
     });
   }
@@ -108,7 +108,7 @@ struct LoginPage {
       Logger.info('username' + cryptoData + '   ' + this.password)
       if (cryptoData && cryptoData === this.password) {
         this.userLogin = true;
-        router.replaceUrl({
+        this.getUIContext().getRouter().replaceUrl({
           url: 'pages/MainPage'
         });
       } else {
@@ -128,7 +128,7 @@ struct LoginPage {
   userAuthResult: (isSuccess: boolean) => void = (isSuccess: boolean) => {
     if (isSuccess) {
       this.userLogin = true;
-      router.replaceUrl({
+      this.getUIContext().getRouter().replaceUrl({
         url: 'pages/MainPage'
       });
     }

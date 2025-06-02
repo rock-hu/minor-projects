@@ -17,7 +17,7 @@ import { BreakpointUtil, CommonConstants } from '@ohos/basic';
 // [Start advertisement_dialog]
 @CustomDialog
 export struct AdvertisementDialog {
-  @StorageProp('breakPoint') currentPoint: string = CommonConstants.BREAK_POINT_SM;
+  @StorageProp('breakPoint') currentPoint: string = 'sm';
   controller: CustomDialogController = new CustomDialogController({
     builder: AdvertisementDialog()
   });
@@ -57,14 +57,14 @@ export struct AdvertisementDialog {
       // [EndExclude advertisement_dialog]
     }
     .width(new BreakpointUtil({
-      sm: $r('app.float.dialog_width_sm'),
-      md: $r('app.float.dialog_width_md'),
-      lg: $r('app.float.dialog_width_lg')
+      sm: '280vp',
+      md: '302vp',
+      lg: '394vp'
     }).getValue(this.currentPoint))
     .height(new BreakpointUtil({
-      sm: $r('app.float.dialog_all_height_sm'),
-      md: $r('app.float.dialog_all_height_md'),
-      lg: $r('app.float.dialog_all_height_lg')
+      sm: '364vp',
+      md: '430vp',
+      lg: '430vp'
     }).getValue(this.currentPoint))
   }
 }

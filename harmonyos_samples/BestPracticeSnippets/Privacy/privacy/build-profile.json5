@@ -1,3 +1,6 @@
+/**
+* 最佳实践：应用代码混淆
+  */
 {
   "apiType": "stageMode",
   "buildOption": {
@@ -5,16 +8,18 @@
   "buildOptionSet": [
     {
       "name": "release",
+      // [Start arkOptions]
       "arkOptions": {
         "obfuscation": {
           "ruleOptions": {
-            "enable": false,
+            "enable": true,
             "files": [
               "./obfuscation-rules.txt"
             ]
           }
         }
-      }
+      },
+      // [End arkOptions]
     },
   ],
   "targets": [

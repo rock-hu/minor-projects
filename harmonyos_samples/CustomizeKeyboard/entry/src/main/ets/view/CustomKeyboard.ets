@@ -18,12 +18,12 @@ import { KeyboardController } from '../model/KeyboardController';
 import { EnglishKeyboard } from './EnglishKeyboard';
 import { NumberKeyboard } from './NumberKeyboard';
 
-// [Start CustomKeyboard_start]
+// [Start customKeyboard_start1]
 // [Start avoidHeight_start]
 @Component
 export struct CustomKeyboard {
   // [StartExclude avoidHeight_start]
-  // [StartExclude CustomKeyboard_start]
+  // [StartExclude customKeyboard_start1]
   @Consume isCustomKeyboardAttach: boolean;
   @Consume inputText: string;
   @Consume keyBoardController: KeyboardController;
@@ -31,11 +31,11 @@ export struct CustomKeyboard {
   @Consume customKeyboardHeight: number;
   @Consume bottomRectHeight: number;
   // [EndExclude avoidHeight_start]
-  // [EndExclude CustomKeyboard_start]
+  // [EndExclude customKeyboard_start1]
   build() {
     Column() {
       // [StartExclude avoidHeight_start]
-      // [StartExclude CustomKeyboard_start]
+      // [StartExclude customKeyboard_start1]
       NumberKeyboard()
         .visibility(this.keyBoardController.keyBoardType === Constants.NUMBER_KEYBOARD ? Visibility.Visible :
         Visibility.None)
@@ -45,10 +45,10 @@ export struct CustomKeyboard {
         .visibility(this.keyBoardController.keyBoardType === Constants.ENGLISH_KEYBOARD ? Visibility.Visible :
         Visibility.None)
         .margin({ top: $r('app.float.keyboard_margin_top') })
-      // [EndExclude CustomKeyboard_start]
+      // [EndExclude customKeyboard_start1]
       // [EndExclude avoidHeight_start]
     }
-    // [StartExclude CustomKeyboard_start]
+    // [StartExclude customKeyboard_start1]
     .onAreaChange((oldValue: Area, newValue: Area) => {
       this.customKeyboardHeight = Number(newValue.height);
       let avoidHeight: number = (this.isCustomKeyboardAttach ? this.customKeyboardHeight : this.systemKeyboardHeight)
@@ -57,15 +57,15 @@ export struct CustomKeyboard {
     })
     // [StartExclude avoidHeight_start]
     .padding({ left: $r('app.float.keyboard_padding'), right: $r('app.float.keyboard_padding') })
-    // [EndExclude CustomKeyboard_start]
+    // [EndExclude customKeyboard_start1]
     .height($r('app.float.keyboard_total_height'))
-    // [StartExclude CustomKeyboard_start]
+    // [StartExclude customKeyboard_start1]
     .width('100%')
     .backgroundColor($r('app.color.keyboard_background_color'))
-    // [EndExclude CustomKeyboard_start]
+    // [EndExclude customKeyboard_start1]
     // [EndExclude avoidHeight_start]
   }
 }
-// [End CustomKeyboard_start]
+// [End customKeyboard_start1]
 // [End avoidHeight_start]
 

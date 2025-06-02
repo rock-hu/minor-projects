@@ -25,7 +25,7 @@
 struct GesturesConflictScene4 {
   build() {
     Stack() {
-      Column()//底层的Column
+      Column()// The bottom column
         .width('100%')
         .height('100%')
         .backgroundColor(Color.Black)
@@ -37,7 +37,7 @@ struct GesturesConflictScene4 {
               }
             })
         )
-      Column()//上层的Column
+      Column()// The upper-level column
         .width(300)
         .height(100)
         .backgroundColor(Color.Red)

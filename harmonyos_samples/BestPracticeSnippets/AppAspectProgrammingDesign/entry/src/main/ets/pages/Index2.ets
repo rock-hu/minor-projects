@@ -29,7 +29,7 @@ struct Index {
     // UI code
   }
 }
-// 插入执行前后打印时间, 将插入动作封装成一个接口
+// Print the time before and after the insertion, and encapsulate the insertion action into an interface
 function addTimePrinter(targetClass: Object, methodName: string, isStatic: boolean) {
   let t1 = 0;
   let t2 = 0;
@@ -41,10 +41,10 @@ function addTimePrinter(targetClass: Object, methodName: string, isStatic: boole
     console.log("t2---t1 = " + (t2 - t1).toString());
   });
 }
-// 给Test的doSomething实例方法添加打印执行时间的逻辑
+// Add the logic for printing the execution time to the doSomething instance method of Test
 addTimePrinter(Test1, 'doSomething', false);
 new Test1().doSomething()
-// 给Test的test静态方法添加打印执行时间的逻辑
+// Add the logic for printing the execution time to the test static method of the test
 addTimePrinter(Test1, 'test', true);
 Test1.test()
 // [End index2]

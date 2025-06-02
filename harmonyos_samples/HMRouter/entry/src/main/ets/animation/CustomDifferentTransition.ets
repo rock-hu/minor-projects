@@ -77,9 +77,11 @@ export class MyAnimator2 implements IHMAnimator {
 // [Start comment_input_amimator]
 @Component
 export struct CommentInput {
+  // [StartExclude comment_input_amimator]
   @State isLandscape: boolean = true;
   @State videoWidth: string = ''
   @State videoHeight: string = ''
+  // [EndExclude comment_input_amimator]
 
   build() {
     Row() {

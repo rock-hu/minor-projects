@@ -18,15 +18,17 @@
 */
 
 // [Start audio_player_service]
+// commons\audioplayer\src\main\ets\service\AudioPlayerService.ets
+
 export class AudioPlayerService {
   private static instance: AudioPlayerService | null = null;
 
-  // [StartExclude constructor]
+  // [StartExclude audio_player_service]
   // private constructor
   private constructor() {
     this.initAudioPlayer();
   }
-  // [EndExclude constructor]
+  // [EndExclude audio_player_service]
 
   public static getInstance(): AudioPlayerService {
     if (!AudioPlayerService.instance) {
@@ -42,12 +44,12 @@ export class AudioPlayerService {
     }
   }
 
-  // [StartExclude instance_isnotnull]
+  // [StartExclude audio_player_service]
   public static instanceIsNotNull(): boolean {
     return AudioPlayerService.instance !== null;
   }
 
-  // [StartExclude init_audio_player]
+  // [StartExclude audio_player_service]
   private initAudioPlayer(): void {
   }
 
@@ -63,7 +65,7 @@ export class AudioPlayerService {
       resolve();
     });
   }
-  // [EndExclude init_audio_player]
-  // [EndExclude instance_isnotnull]
+  // [EndExclude audio_player_service]
+  // [EndExclude audio_player_service]
 }
 // [End audio_player_service]

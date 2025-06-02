@@ -25,7 +25,7 @@ import { PageConstant } from '../../constant/PageConstant';
  */
 
 // [Start HMRouter_dialog]
-@HMRouter({pageUrl: PageConstant.PRIVACY_DIALOG, dialog: true})
+@HMRouter({ pageUrl: 'privacyDialog', dialog: true })
 @Component
 export struct PrivacyDialogContent {
   // [StartExclude HMRouter_dialog]

@@ -1,5 +1,5 @@
 // [Start image_animation]
-// [Start change_animation]
+// [Start component_animation]
 @Component
 export struct ImageAnimation {
   @State imageWidth: number = 60;
@@ -28,7 +28,7 @@ export struct ImageAnimation {
             .translate({ x: this.imageTranslateX, y: this.imageTranslateY })
         }.width('33%')
         // [StartExclude image_animation]
-        // [StartExclude change_animation]
+        // [StartExclude component_animation]
         Row() {
           Image($r('app.media.startIcon'))
             .width(this.imageWidth)
@@ -57,11 +57,11 @@ export struct ImageAnimation {
             .translate({ x: this.imageTranslateX, y: this.imageTranslateY })
         }.width('33%')
         // [EndExclude image_animation]
-        // [EndExclude change_animation]
+        // [EndExclude component_animation]
       }
       .height('25%')
+      // [StartExclude component_animation]
       // [StartExclude image_animation]
-      // [StartExclude change_animation]
       Row() {
         Row() {
           Image($r('app.media.startIcon'))
@@ -149,13 +149,13 @@ export struct ImageAnimation {
             })
             .translate({ x: this.imageTranslateX, y: this.imageTranslateY })
         }.width('33%')
-        // [EndExclude change_animation]
         // [EndExclude image_animation]
       }
       .height('25%')
 
+      // [EndExclude component_animation]
       Column() {
-        // [StartExclude change_animation]
+        // [StartExclude component_animation]
         Button('Change Layout Properties')
           .width('100%')
           // Key Attribute Settings
@@ -184,8 +184,7 @@ export struct ImageAnimation {
               }
             }
           })
-        // [EndExclude change_animation]
-        // [StartExclude image_animation]
+        // [EndExclude component_animation]
         Button('Change Image Properties')
           .width('100%')
           .margin({ top: 12 })
@@ -213,7 +212,6 @@ export struct ImageAnimation {
               }
             }
           })
-        // [EndExclude image_animation]
       }
       .justifyContent(FlexAlign.End)
       .height('25%')
@@ -229,4 +227,4 @@ export struct ImageAnimation {
   }
 }
 // [End image_animation]
-// [End change_animation]
+// [End component_animation]

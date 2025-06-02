@@ -89,7 +89,6 @@ struct IndexPage {
     }
   }
   // [End device_width]
-
   onBackPress(): boolean | void {
     if (this.isFullScreen || this.isFullLandscapeScreen) {
       this.handleFullScreenExit();
@@ -117,7 +116,7 @@ struct IndexPage {
         Swiper(this.swiperController) {
           LazyForEach(new VideoSource(this.sources), (item: VideoData, index: number) => {
             Stack() {
-              // [EndExclude device_width]
+   // [EndExclude device_width]
               VideoPlayer({
                 // [StartExclude device_width]
                 videoRightSide: (): void => this.rightSlide(item),

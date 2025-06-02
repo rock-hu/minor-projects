@@ -19,7 +19,8 @@
 */
 
 // [Start index1]
-import {util} from '@kit.ArkTS';
+// index.ets
+import { util } from '@kit.ArkTS';
 import { Test } from '../components/somePackage';
 
 @Entry

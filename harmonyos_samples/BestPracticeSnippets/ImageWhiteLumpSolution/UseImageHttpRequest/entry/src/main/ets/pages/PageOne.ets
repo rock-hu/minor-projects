@@ -19,7 +19,6 @@
  * 直接使用Image原生组件加载网络图片白块时长较长  反例
  */
 
-// DocsCode 1
 // [Start PageOne_builder_other]
 @Builder
 export function PageOneBuilder(name: string) {
@@ -48,4 +47,3 @@ export struct PageOne {
   }
 }
 // [End PageOne_builder_other]
-// DocsCode 1

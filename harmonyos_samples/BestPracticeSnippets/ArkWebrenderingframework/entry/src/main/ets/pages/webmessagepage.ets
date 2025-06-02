@@ -9,14 +9,17 @@ struct webmessagepage {
   // [Start web]
   build() {
     Column() {
+      //The Web component loads the local index.html page.
       Web({
         src: './Index',
-        controller: this.webviewController
-      }).javaScriptProxy({
+        controller: new webview.WebviewController()
+      })
+        //Inject objects into the web side.
+        .javaScriptProxy({
         object: nativeObj,
         name: "nativeObj",
         methodList: ["makePhoneCall"],
-        controller: this.webviewController
+        controller: new webview.WebviewController()
       })
     }
   }

@@ -1,7 +1,5 @@
-// [Start module_json5]
 {
   "module": {
-    // [StartExclude module_json5]
     "name": "entry",
     "type": "entry",
     "description": "$string:module_desc",
@@ -12,10 +10,8 @@
     "deliveryWithInstall": true,
     "installationFree": false,
     "pages": "$profile:main_pages",
-    // [EndExclude module_json5]
     "abilities": [
       {
-        // [StartExclude module_json5]
         "name": "EntryAbility",
         "srcEntry": "./ets/entryability/EntryAbility.ets",
         "description": "$string:EntryAbility_desc",
@@ -34,14 +30,10 @@
             ]
           }
         ],
-        // [EndExclude module_json5]
         "continuable": true,
-        // [StartExclude module_json5]
         "launchType": "singleton",
-        // [EndExclude module_json5]
       }
     ],
-    // [StartExclude module_json5]
     "requestPermissions": [
       {
         "name": "ohos.permission.APPROXIMATELY_LOCATION",
@@ -74,7 +66,5 @@
         }
       }
     ],
-    // [EndExclude module_json5]
   }
 }
-// [End module_json5]

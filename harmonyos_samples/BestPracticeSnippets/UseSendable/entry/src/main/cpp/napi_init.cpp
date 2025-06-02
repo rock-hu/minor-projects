@@ -64,7 +64,7 @@ static void CallJs(napi_env env, napi_value jsCb, void *context, void *data) {
 }
 static void NativeThread(void *data) {
     CallbackData *callbackData = reinterpret_cast<CallbackData *>(data);
-    /* 跨线程调用*/
+    /* Cross-thread call */
     {
         assert(napi_acquire_threadsafe_function(callbackData->tsfn) == napi_ok);
 
@@ -149,9 +149,9 @@ public:
     }
 
 private:
-    Singleton() {}                                    // 私有构造函数，防止外部实例化对象
-    Singleton(const Singleton &) = delete;            // 禁止拷贝构造函数
-    Singleton &operator=(const Singleton &) = delete; // 禁止赋值运算符
+    Singleton() {}                                    // Private constructor to prevent external instantiation of objects
+    Singleton(const Singleton &) = delete;            // Do not copy the constructor
+    Singleton &operator=(const Singleton &) = delete; // The assignment operator is prohibited
 
 public:
     std::unordered_set<uint32_t> numberSet_{};

@@ -20,10 +20,12 @@
 // [Start discover_view]
 @Component
 struct DiscoverView {
+  // [StartExclude discover_view]
   private dataSource: LearningResource[] = [
     new LearningResource(1, "Title 1"),
     new LearningResource(2, "Title 2")
   ];
+  // [EndExclude discover_view]
 
   build() {
     List() {
@@ -37,6 +39,7 @@ struct DiscoverView {
   }
 }
 
+// [StartExclude discover_view]
 class LearningResource {
   id: number
   title: string
@@ -46,8 +49,7 @@ class LearningResource {
     this.title = title
   }
 }
-
-
+// [EndExclude discover_view]
 // Add @Reusable Decorator Use Component Reuse
 @Reusable
 @Component

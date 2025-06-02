@@ -5,7 +5,6 @@
 import CommonConstants from '../common/constants/CommonConstants'
 import ItemData from '../model/ItemDataModel'
 import mainViewModel from '../viewmodel/MainViewModel'
-import { router } from '@kit.ArkUI'
 
 /**
  * Setting tab content
@@ -92,7 +91,7 @@ export default struct Setting {
           .backgroundColor($r('app.color.setting_button_background'))
           .margin({ bottom: $r('app.float.setting_button_bottom')})
           .onClick(() => {
-            router.replaceUrl({
+            this.getUIContext().getRouter().replaceUrl({
               url: CommonConstants.ROUTER_LOGIN_URL
             })
           })

@@ -1,5 +1,5 @@
 // [Start Case10]
-// A为任意可以被引入的ets文件
+// A is any ets file that can be imported
 import { A } from "./A"
 
 
@@ -8,9 +8,9 @@ import { A } from "./A"
 struct Index {
   build() {
     RelativeContainer() {
-      Button('点击执行A')
+      Button('Click to perform A')
         .onClick(() => {
-          console.log('执行A' + A)
+          console.log('Perform A' + A)
         })
     }
     // ...

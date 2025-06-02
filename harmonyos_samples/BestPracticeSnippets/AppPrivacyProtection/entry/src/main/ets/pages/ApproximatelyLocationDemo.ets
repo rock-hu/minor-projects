@@ -26,7 +26,9 @@ struct ApproximatelyLocationDemo {
 
   async requestPermissions(): Promise<number> {
     const permissions: Array<Permissions> = ['ohos.permission.APPROXIMATELY_LOCATION'];
+    // [Start request_permission]
     const accessManager = abilityAccessCtrl.createAtManager();
+    // [End request_permission]
     const bundleFlags = bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION;
     const bundleInfo = bundleManager.getBundleInfoForSelfSync(bundleFlags);
     const grantStatus = accessManager.checkAccessTokenSync(bundleInfo.appInfo.accessTokenId, permissions[0]);
@@ -36,19 +38,23 @@ struct ApproximatelyLocationDemo {
         // [Start request_permission]
         accessManager.requestPermissionsFromUser(this.getUIContext().getHostContext(), ['ohos.permission.APPROXIMATELY_LOCATION'])
           .then((data) => {
-            // [StartExclude request_permission]
             let grantStatus: Array<number> = data.authResults;
             if (grantStatus.length > 0 && grantStatus[0] === 0) {
+              // The user is authorized to continue to access the target operation
               Logger.info('request permissions granted');
+              // [StartExclude request_permission]
               resolve(0);
+              // [EndExclude request_permission]
             } else {
+              // The user rejects the authorization
               Logger.info('request permissions denied');
+              // [StartExclude request_permission]
               this.getUIContext().getPromptAction().showToast({
                 message: 'This function requires the location permission. Go to the settings page to authorize the permission'
               });
               resolve(-1);
+              // [EndExclude request_permission]
             }
-            // [EndExclude quick_start]
             Logger.info(`request permissions result: ${JSON.stringify(data)}`);
           })
             // [End request_permission]
@@ -64,9 +70,10 @@ struct ApproximatelyLocationDemo {
 
 
   getLocation() {
-    // [Start request_permissions ]
+
     this.requestPermissions().then(data => {
       if (data === 0) {
+        // [Start request_permissions]
         let requestInfo: geoLocationManager.LocationRequest = {
           'priority': geoLocationManager.LocationRequestPriority.FIRST_FIX,
           'scenario': geoLocationManager.LocationRequestScenario.UNSET,
@@ -79,12 +86,12 @@ struct ApproximatelyLocationDemo {
           // [StartExclude request_permissions]
           this.message = JSON.stringify(result);
           // [EndExclude request_permissions]
-        })
+        }).catch((error: BusinessError) => {
+          Logger.error(`geoLocation getCurrentLocation: error: ${JSON.stringify(error)}`)
+        });
+        // [End request_permissions]
       }
-    }).catch((error: BusinessError) => {
-      Logger.error(`geoLocation getCurrentLocation: error: ${JSON.stringify(error)}`)
-    });
-    // [End request_permissions]
+    })
   }
 
   build() {

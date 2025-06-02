@@ -19,7 +19,6 @@
  * 直接使用Image原生组件加载网络图片白块时长较长 反例
  */
 
-// DocsCode 1
 @Entry
 @Component
 struct MainPage {
@@ -44,4 +43,3 @@ struct MainPage {
     .title('ParentNavigation')
   }
 }
-// DocsCode 1

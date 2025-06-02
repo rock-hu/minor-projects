@@ -44,15 +44,15 @@ export class WindowUtil {
       }
       // [EndExclude set_stage1]
       this.mainWindowClass = windowClass;
-      const properties = windowClass.getWindowProperties(); // 获取窗口信息
+      const properties = windowClass.getWindowProperties(); // Get window information
       // [StartExclude set_stage1]
       // Get status bar height.
       let area: window.AvoidArea = windowClass.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);
       let naviBarArea: window.AvoidArea =
         windowClass.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR);
       // [EndExclude set_stage1]
-      AppStorage.setOrCreate('deviceWidth', properties.windowRect.width); // 设置窗口宽度
-      AppStorage.setOrCreate('deviceHeight', properties.windowRect.height); // 设置窗口高度
+      AppStorage.setOrCreate('deviceWidth', properties.windowRect.width); // Set the window width
+      AppStorage.setOrCreate('deviceHeight', properties.windowRect.height); // Set the window height
       // [StartExclude set_stage1]
       AppStorage.setOrCreate('statusBarHeight', uiContext.px2vp(area.topRect.height));
       AppStorage.setOrCreate('navBarHeight', uiContext.px2vp(naviBarArea.bottomRect.height));

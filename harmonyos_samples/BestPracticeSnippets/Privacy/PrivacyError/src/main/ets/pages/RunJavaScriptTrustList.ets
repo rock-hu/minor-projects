@@ -17,7 +17,7 @@ struct WebComponent {
       Web({ src: $rawfile('index.html'), controller: this.controller })
         .javaScriptAccess(true)
         .onPageEnd(e => {
-          let jsMethod: string = "alert(`xss`)" // 外部可控字段
+          let jsMethod: string = "alert(`xss`)" // Externally controllable fields
           this.controller.runJavaScript(jsMethod)
             .then((result) => {
               console.log('result: ' + result);

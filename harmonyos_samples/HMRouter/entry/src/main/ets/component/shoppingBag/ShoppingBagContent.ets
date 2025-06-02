@@ -73,16 +73,14 @@ export class RequestModel {
 }
 
 // [Start HMRouter_life_cycle_name]
-// [Start HMRouter_interceptors]
 @HMRouter({
-  pageUrl: PageConstant.SHOPPING_BAG,
+  pageUrl: 'shoppingBag',
   singleton: true,
   interceptors: ['LoginCheckInterceptor'],
   lifecycle: 'requestLifecycle'
 })
 @Component
 export struct ShoppingBagContent {
-  // [StartExclude HMRouter_interceptors]
   // [StartExclude HMRouter_life_cycle_name]
   @StorageLink('currentBreakpoint') currentBreakpoint: string = BreakpointConstants.BREAKPOINT_SM;
   @State showTabsBtn: boolean = true;
@@ -136,8 +134,6 @@ export struct ShoppingBagContent {
       ShoppingBagContentNavBar({showTabsBtn: this.showTabsBtn});
     };
   }
-  // [EndExclude HMRouter_interceptors]
   // [EndExclude HMRouter_life_cycle_name]
 }
-// [End HMRouter_interceptors]
 // [End HMRouter_life_cycle_name]

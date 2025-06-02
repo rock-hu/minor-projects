@@ -12,13 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+import { MessageEvents, worker } from '@kit.ArkTS';
 import { taskpool } from '@kit.ArkTS';
 import { image } from '@kit.ImageKit';
 import { adjustIconList, IconStatus } from '../viewModel/IconListViewModel';
 import { adjustImageValue, adjustSaturation } from '../utils/AdjustUtil';
-import { AdjustId } from '../viewModel/OptionViewModel';
+import { AdjustId, HSVIndex, RGBIndex } from '../viewModel/OptionViewModel';
 import { adjustOpacity } from '../utils/OpacityUtil';
+import { MessageItem } from '../viewModel/MessageItem';
+import { CommonConstants } from '../common/constant/CommonConstants';
 
 @Component
 export default struct AdjustContentView {
@@ -189,6 +191,7 @@ struct SliderCustom {
   }
 
   // [Start postProcess_start]
+  // ImageEditTaskPool/entry/src/main/ets/view/AdjustContentView.ets
   async postProcess(type: AdjustId, value: number) {
     // [StartExclude postProcess_start]
     if (!this.pixelMap) {
@@ -231,6 +234,8 @@ struct SliderCustom {
     this.deviceListDialogController.close();
     this.postState = true;
   }
+  // [EndExclude postProcess_start]
+  // [End postProcess_start]
 }
 
 @CustomDialog
@@ -247,7 +252,7 @@ export struct Dialog {
   }
 }
 
-// [EndExclude postProcess_start]
+// [Start postProcess_start]
 /**
  * Each task processes a portion of the pixel data and adds the task to the task group.
  *
@@ -290,6 +295,8 @@ interface ImageProcessing {
   value: number;
 }
 
+// [Start split_buffer1]
+//Split the picture pixel data ArrayBuffer according to the number of tasks N.
 function splitArrayBuffer(buffer: ArrayBuffer, n: number): ArrayBuffer[] {
   let num = Math.floor(buffer.byteLength / n);
   while (num % 4 !== 0) {
@@ -305,6 +312,27 @@ function splitArrayBuffer(buffer: ArrayBuffer, n: number): ArrayBuffer[] {
   }
   return result;
 }
+// [StartExclude split_buffer1]
+function  buffer(bufferArray:ESObject, taskNum: number, sliderValue: number, value: number){
+ let  Workers:ESObject
+// [EndExclude split_buffer1]
+  // Assign the split pixels to the Worker instance.
+  const buffers: ArrayBuffer[] = splitArrayBuffer(bufferArray, taskNum);
+  let messages: MessageItem[] = [];
+  for (let i = 0; i < taskNum; i++) { // Encapsulating corresponding task data according to the number of tasks.
+    let message = new MessageItem(buffers[i], sliderValue, value); //Construct task message
+    messages.push(message);
+  }
+  let n: number = 0;
+  let allocation: number = taskNum; // Number of tasks to be assigned
+  for (let index = 0; index < taskNum; index++) {
+    Workers[index].postMessage(messages[n]); // Distribute the task to the corresponding Worker child thread instance.
+    allocation = allocation - 1; // Number of remaining tasks to be assigned
+    n += 1;
+  }
+  // [End split_buffer1]
+}
+
 
 function mergeArrayBuffers(buffers: Object[]) {
   let thisBuffers = buffers as ArrayBuffer[];
@@ -325,3 +353,16 @@ function mergeArrayBuffers(buffers: Object[]) {
   }
   return mergedBuffer;
 }
+
+function taskNum(WorkerName:string){
+  // [Start task1]
+  let taskNum: number = 14; // The number of concurrent tasks is controlled, which can be adjusted according to the demand.
+  let curTaskNum: number = taskNum <= 64 ? taskNum : 64; // Control allows up to 64 Worker instances to run at the same time.
+  let Workers: worker.ThreadWorker[] = [];
+  for (let i = 0; i < curTaskNum; i++) { // Control the number of instantiations of the Worker according to the limit.
+    let WorkerInstance = new worker.ThreadWorker(WorkerName);
+    Workers.push(WorkerInstance);
+  }
+  // [End task1]
+}
+

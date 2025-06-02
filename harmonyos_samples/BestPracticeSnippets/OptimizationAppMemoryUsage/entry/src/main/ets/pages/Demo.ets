@@ -33,6 +33,13 @@ struct Index {
         Text(this.message)
           .fontSize(50)
           .fontWeight(FontWeight.Bold)
+        // [Start media_image]
+        Column() {
+          Image($r('app.media.image'))
+            .width("500px")
+            .height("500px")
+        }
+        // [End media_image]
       }
       .width('100%')
     }

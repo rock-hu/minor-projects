@@ -4,9 +4,9 @@
  */
 
 import { fileIo as fs } from '@kit.CoreFileKit';
+import { media } from '@kit.MediaKit';
 // [Start av_player]
 import { UIAbility } from '@kit.AbilityKit';
-import { media } from '@kit.MediaKit';
 
 // [StartExclude av_player]
 let avPlayer: media.AVPlayer

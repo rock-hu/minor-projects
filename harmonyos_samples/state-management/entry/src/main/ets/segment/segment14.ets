@@ -1,14 +1,11 @@
 // [Start Case10]
 import { emitter } from '@kit.BasicServicesKit';
-
 const CHANGE_COLOR_EVENT_ID = 1;
-
 @Component
 export struct ListItemComponent {
   @State color: Color = Color.Black;
   @Prop index: number;
   @Prop myItem: string;
-
   aboutToAppear(): void {
     let event: emitter.InnerEvent = {
       eventId: CHANGE_COLOR_EVENT_ID
@@ -22,7 +19,6 @@ export struct ListItemComponent {
     // Subscribe to events with eventId of CHANGE_COLOR_EVENT_ID
     emitter.on(event, callback);
   }
-
   build() {
     Column() {
       Text(this.myItem)

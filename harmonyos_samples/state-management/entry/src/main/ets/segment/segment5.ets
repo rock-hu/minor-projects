@@ -3,8 +3,6 @@
 @Component
 struct UnnecessaryState2 {
   @State message: string = '';
-
-
   // Define methods for changing state variables (intermediate variables are manipulated during method execution, state variables are modified only once)
   appendMsg(newMsg: string) {
     let message = this.message;
@@ -13,8 +11,6 @@ struct UnnecessaryState2 {
     message += '<br/>';
     this.message = message;
   }
-
-
   build() {
     Column() {
       Button('Click Print Log')

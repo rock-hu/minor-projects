@@ -19,7 +19,7 @@ class Index extends BaseComponent{
   onStart(): void {
     super.onStart();
     log.showInfo('onStart');
-    // [StartExclude JSCrashCaseAnalyse5]
+
     try {
       wifiManager.on('wifiConnectionChange', (data) => {
         this.isConnected = data === 1 ? true : false;
@@ -36,7 +36,7 @@ class Index extends BaseComponent{
     } catch (error) {
       log.showError('wifiStateChange error');
     }
-    // [EndExclude JSCrashCaseAnalyse5]
+
   }
   // [End JSCrashCaseAnalyse5]
 }

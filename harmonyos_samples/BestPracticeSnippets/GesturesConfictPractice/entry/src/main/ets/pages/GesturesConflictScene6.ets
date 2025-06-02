@@ -46,7 +46,7 @@ struct GesturesConflictScene6 {
           console.info('GesturesConflictScene6: ' + longPressEvent.repeat);
         }
         if (gestureInfo.type === GestureControl.GestureType.DRAG) {
-          // 返回 REJECT 会使拖动手势失败
+          // Returning to the REJECT will fail the drag gesture
           return GestureJudgeResult.REJECT;
         } else if (gestureInfo.tag === 'tap1' && event.pressure > 10) {
           return GestureJudgeResult.CONTINUE

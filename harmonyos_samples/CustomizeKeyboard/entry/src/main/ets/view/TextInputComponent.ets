@@ -48,13 +48,13 @@ export struct TextInputComponent {
     })
   }
   // [EndExclude TextInputComponent_start]
-  // [Start customKeyboard_start]
+// [Start customKeyboard_start]
   build() {
     Column() {
       // [Start TextInput_start]
       // [Start switchover_start]
       TextInput({
-        placeholder: $r('app.string.textInput_placeholder_custom'),
+        placeholder: 'Bind Custom Keyboard',
         text: this.inputText,
         controller: this.textInputController
       })
@@ -111,3 +111,4 @@ export struct TextInputComponent {
 // [EndExclude TextInput_start]
 // [End TextInput_start]
 // [End customKeyboard_start]
+// [End TextInputComponent_start]

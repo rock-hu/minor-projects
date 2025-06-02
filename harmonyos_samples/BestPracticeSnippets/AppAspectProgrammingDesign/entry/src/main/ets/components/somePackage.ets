@@ -25,6 +25,7 @@ export class Test {
 // [End test]
 
 // [Start person]
+// somePackage.ets
 export class Person {
   name: string;
   age: number;

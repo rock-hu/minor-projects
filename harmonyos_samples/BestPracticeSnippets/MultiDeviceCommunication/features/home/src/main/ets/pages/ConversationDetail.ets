@@ -32,56 +32,55 @@ export struct ConversationDetail {
       Flex({ direction: FlexDirection.Column }) {
         ConversationDetailTopSearch({ currentConversationUserName: $currentConversationUserName, })
           .height(Adaptive.ContactItemHeight(this.currentBreakpoint))
-        if (this.currentConversationUserName.length === HomeConstants.CONVERSATION_DEFAULT_SIZE) {
+        if (this.currentConversationUserName.length === 3) {
           ConversationDetailItem({
             receivedName: $currentConversationUserName,
-            isReceived: HomeConstants.IS_RECEIVED,
-            content: HomeConstants.CONVERSATION_LIST_APPLET[0],
-            isAppletMsg: HomeConstants.IS_APPLET_CONVERSATION,
+            isReceived: true,
+            content: "Fen-fen invited you for milk tea",
+            isAppletMsg: true,
             currentFeatureIndex: $currentFeatureIndex
           })
           ConversationDetailItem({
             receivedName: $currentConversationUserName,
-            isReceived: HomeConstants.IS_RECEIVED,
-            content: HomeConstants.CONVERSATION_LIST_APPLET[1],
+            isReceived: true,
+            content: "Please drink milk tea, quickly order it!! Speed, speed, all that's missing is you",
             currentFeatureIndex: $currentFeatureIndex
           })
           ConversationDetailItem({
             receivedName: $currentConversationUserName,
-            isReceived: !HomeConstants.IS_RECEIVED,
-            content: HomeConstants.CONVERSATION_LIST_APPLET[2],
+            isReceived: false,
+            content: "Ha-ha, what's the happy news today",
             currentFeatureIndex: $currentFeatureIndex
           })
         } else {
           ConversationDetailItem({
             receivedName: $currentConversationUserName,
-            isReceived: HomeConstants.IS_RECEIVED,
-            content: HomeConstants.CONVERSATION_LIST_DOCUMENT[0],
+            isReceived: true,
+            content: "Marketing Department 2023 new product promotion plan",
             isDocumentMsg: HomeConstants.IS_DOCUMENT_CONVERSATION,
             currentFeatureIndex: $currentFeatureIndex
           })
           ConversationDetailItem({
             receivedName: $currentConversationUserName,
-            isReceived: HomeConstants.IS_RECEIVED,
-            content: HomeConstants.CONVERSATION_LIST_DOCUMENT[1],
+            isReceived: true,
+            content: "This is the material for tomorrow's meeting. Please send it to Jack for his confirmation",
             currentFeatureIndex: $currentFeatureIndex
           })
           ConversationDetailItem({
             receivedName: $currentConversationUserName,
-            isReceived: !HomeConstants.IS_RECEIVED,
-            content: HomeConstants.CONVERSATION_LIST_DOCUMENT[2],
+            isReceived: false,
+            content: "Ok, copy that",
             currentFeatureIndex: $currentFeatureIndex
           })
         }
         Blank()
         ConversationDetailBottom()
       }
-      .height(BaseConstants.FULL_HEIGHT)
-      .width(BaseConstants.FULL_WIDTH)
-      .backgroundColor($r('app.color.background_color_grey'))
+      .height('100%')
+      .width('100%')
+      .backgroundColor('#F6F6F6')
       .padding({
-        bottom: deviceInfo.deviceType !== BaseConstants.DEVICE_2IN1 ?
-        $r('app.float.tab_content_pb') : $r('app.float.zero')
+        bottom: deviceInfo.deviceType !== BaseConstants.DEVICE_2IN1 ? '28vp' : 0
       })
     }
     .hideTitleBar(true)

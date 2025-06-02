@@ -35,7 +35,7 @@ struct ChatListPage {
       .slide(SlideEffect.Left)
   }
 
-  // [Start page_a_transition]
+  // [End page_a_transition]
 
   onPageShow() {
     hiTraceMeter.finishTrace("clickChat", 1);

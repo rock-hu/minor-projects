@@ -6,9 +6,9 @@ import lazy { A } from "./A"
 struct Index {
   build() {
     RelativeContainer() {
-      Button('点击执行A')
+      Button('Click to perform A')
         .onClick(() => {
-          console.log('执行A' + A)
+          console.log('Perform A' + A)
         })
     }
     .height('100%')

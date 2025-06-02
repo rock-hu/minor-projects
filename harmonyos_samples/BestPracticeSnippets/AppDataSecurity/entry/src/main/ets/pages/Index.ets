@@ -97,7 +97,6 @@ function writeFile(filePath: string, data: string) {
   fileIo.closeSync(file);
 }
 
-
 function readFile(filePath: string): object {
   let file = fileIo.openSync(filePath, fileIo.OpenMode.READ_WRITE | fileIo.OpenMode.CREATE);
   let arrayBuffer = new ArrayBuffer(1024);

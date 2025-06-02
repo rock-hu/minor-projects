@@ -64,3 +64,5 @@ struct MultiPicture {
 
   // [EndExclude Case2]
 }
+
+// [End Case2]

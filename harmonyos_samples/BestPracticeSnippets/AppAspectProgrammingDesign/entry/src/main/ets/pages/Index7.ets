@@ -18,8 +18,9 @@
 */
 
 // [Start index7]
-import {util} from '@kit.ArkTS';
-import {geoLocationManager} from "@kit.LocationKit";
+// index.ets
+import { util } from '@kit.ArkTS';
+import { geoLocationManager } from "@kit.LocationKit";
 import { Child } from '../components/child';
 
 @Entry
