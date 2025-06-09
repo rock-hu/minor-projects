@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,18 +18,37 @@
 #include "debug_info_extractor.h"
 #include "include/tooling/pt_location.h"
 #include "libpandabase/utils/bit_utils.h"
-#include "optimizer/ir_builder/inst_builder.h"
+#include "method_data_accessor.h"
+#include "os/mutex.h"
 
 namespace ark::tooling::inspector {
 void DebugInfoCache::AddPandaFile(const panda_file::File &file)
 {
     os::memory::LockHolder lock(debugInfosMutex_);
-    debugInfos_.emplace(std::piecewise_construct, std::forward_as_tuple(&file),
-                        std::forward_as_tuple(file, [this, &file](auto methodId, auto sourceName) {
-                            os::memory::LockHolder l(disassembliesMutex_);
-                            disassemblies_.emplace(std::piecewise_construct, std::forward_as_tuple(sourceName),
-                                                   std::forward_as_tuple(file, methodId));
-                        }));
+    const auto &debugInfo =
+        debugInfos_
+            .emplace(std::piecewise_construct, std::forward_as_tuple(&file),
+                     std::forward_as_tuple(file,
+                                           [this, &file](auto methodId, auto sourceName) {
+                                               os::memory::LockHolder l(disassembliesMutex_);
+                                               disassemblies_.emplace(std::piecewise_construct,
+                                                                      std::forward_as_tuple(sourceName),
+                                                                      std::forward_as_tuple(file, methodId));
+                                           }))
+            .first->second;
+
+    // For all methods add non-empty source code read from debug-info
+    for (auto methodId : debugInfo.GetMethodIdList()) {
+        std::string_view sourceRelativePath = debugInfo.GetSourceFile(methodId);
+        std::string_view sourceCode = debugInfo.GetSourceCode(methodId);
+        if (!sourceCode.empty()) {
+            auto inserted = fileToSourceCode_.try_emplace(sourceRelativePath, sourceCode).second;
+            if (!inserted) {
+                LOG(WARNING, DEBUGGER) << "Duplicate source code in debug info for file \"" << sourceRelativePath
+                                       << '"';
+            }
+        }
+    }
 }
 
 void DebugInfoCache::GetSourceLocation(const PtFrame &frame, std::string_view &sourceFile, std::string_view &methodName,
@@ -329,6 +348,16 @@ std::string DebugInfoCache::GetSourceCode(std::string_view sourceFile)
         }
     }
 
+    // Try to get source code read from debug info
+    {
+        os::memory::LockHolder lock(debugInfosMutex_);
+
+        auto iter = fileToSourceCode_.find(sourceFile);
+        if (iter != fileToSourceCode_.end()) {
+            return std::string(iter->second);
+        }
+    }
+
     if (!os::file::File::IsRegularFile(sourceFile.data())) {
         return {};
     }
@@ -344,6 +373,23 @@ std::string DebugInfoCache::GetSourceCode(std::string_view sourceFile)
     }
 
     return result;
+}
+
+std::vector<std::string> DebugInfoCache::GetPandaFiles(const std::function<bool(std::string_view)> &sourceFileFilter)
+{
+    std::vector<std::string> pandaFiles;
+    // clang-format off
+    EnumerateLineEntries(
+        [](auto, auto &) { return true; },
+        [&sourceFileFilter](auto, auto &debugInfo, auto methodId) {
+            return sourceFileFilter(debugInfo.GetSourceFile(methodId));
+        },
+        [&pandaFiles](const auto *pf, auto &, auto, auto &, auto) {
+            pandaFiles.emplace_back(pf->GetFilename());
+            return false;
+        });
+    // clang-format on
+    return pandaFiles;
 }
 
 const panda_file::DebugInfoExtractor &DebugInfoCache::GetDebugInfo(const panda_file::File *file)

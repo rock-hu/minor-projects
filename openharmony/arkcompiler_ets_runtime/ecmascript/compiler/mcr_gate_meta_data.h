@@ -207,13 +207,14 @@ private:
 class NewConstructMetaData : public OneParameterMetaData {
 public:
     static constexpr int NEED_PUSH_ARGV_BIT_SIZE = 1;
+    static constexpr int IS_FAST_CALL_BIT_SIZE = 1;
     NewConstructMetaData(OpCode opcode, GateFlags flags, uint32_t statesIn,
-        uint16_t dependsIn, uint32_t valuesIn, uint64_t value, bool needPushArgv)
+        uint16_t dependsIn, uint32_t valuesIn, uint64_t value, bool needPushArgv, bool isFastCall)
         : OneParameterMetaData(opcode, flags, statesIn, dependsIn, valuesIn, value)
     {
-        bitField_ = NeedPushArgvBit::Encode(needPushArgv);
+        bitField_ = NeedPushArgvBit::Encode(needPushArgv) | IsFastCallBit::Encode(isFastCall);
     }
-    
+
     static const NewConstructMetaData* Cast(const GateMetaData* meta)
     {
         meta->AssertKind(GateMetaData::Kind::CALL_NEW);
@@ -225,6 +226,11 @@ public:
         return NeedPushArgvBit::Get(bitField_);
     }
 
+    bool IsFastCall() const
+    {
+        return IsFastCallBit::Get(bitField_);
+    }
+
     uint64_t GetValue() const
     {
         return bitField_;
@@ -232,6 +238,7 @@ public:
 
 private:
     using NeedPushArgvBit = panda::BitField<bool, 0, NEED_PUSH_ARGV_BIT_SIZE>;
+    using IsFastCallBit = NeedPushArgvBit::NextField<bool, IS_FAST_CALL_BIT_SIZE>;
 
     uint64_t bitField_;
 };
@@ -250,6 +257,32 @@ public:
     TypedUnOp GetTypedUnOp() const
     {
         return TypedUnOpBits::Get(bitField_);
+    }
+
+    bool IsTrustedBooleanType() const
+    {
+        TypedUnOp unOp = GetTypedUnOp();
+        switch (unOp) {
+            case TypedUnOp::TYPED_ISTRUE:
+            case TypedUnOp::TYPED_ISFALSE:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    bool IsTrustedNumberType() const
+    {
+        TypedUnOp unOp = GetTypedUnOp();
+        switch (unOp) {
+            case TypedUnOp::TYPED_DEC:
+            case TypedUnOp::TYPED_INC:
+            case TypedUnOp::TYPED_NEG:
+            case TypedUnOp::TYPED_NOT:
+                return GetParamType().HasNumberType();
+            default:
+                return false;
+        }
     }
 
     static uint64_t ToValue(ParamType paramType, TypedUnOp unaryOp)
@@ -278,6 +311,54 @@ public:
     TypedBinOp GetTypedBinOp() const
     {
         return TypedBinOpBits::Get(bitField_);
+    }
+
+    bool IsTrustedBooleanType() const
+    {
+        TypedBinOp binOp = GetTypedBinOp();
+        switch (binOp) {
+            case TypedBinOp::TYPED_EQ:
+            case TypedBinOp::TYPED_LESS:
+            case TypedBinOp::TYPED_NOTEQ:
+            case TypedBinOp::TYPED_LESSEQ:
+            case TypedBinOp::TYPED_GREATER:
+            case TypedBinOp::TYPED_STRICTEQ:
+            case TypedBinOp::TYPED_GREATEREQ:
+            case TypedBinOp::TYPED_STRICTNOTEQ:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    bool IsTrustedNumberType() const
+    {
+        TypedBinOp binOp = GetTypedBinOp();
+        switch (binOp) {
+            case TypedBinOp::TYPED_ADD:
+            case TypedBinOp::TYPED_SUB:
+            case TypedBinOp::TYPED_MUL:
+            case TypedBinOp::TYPED_DIV:
+            case TypedBinOp::TYPED_MOD:
+            case TypedBinOp::TYPED_SHL:
+            case TypedBinOp::TYPED_SHR:
+            case TypedBinOp::TYPED_ASHR:
+            case TypedBinOp::TYPED_AND:
+            case TypedBinOp::TYPED_OR:
+            case TypedBinOp::TYPED_XOR:
+                return GetParamType().HasNumberType();
+            default:
+                return false;
+        }
+    }
+
+    bool IsTrustedStringType() const
+    {
+        TypedBinOp binOp = GetTypedBinOp();
+        if (binOp == TypedBinOp::TYPED_ADD) {
+            return GetParamType().IsStringType();
+        }
+        return false;
     }
 
     static uint64_t ToValue(ParamType operandType, TypedBinOp binOp)

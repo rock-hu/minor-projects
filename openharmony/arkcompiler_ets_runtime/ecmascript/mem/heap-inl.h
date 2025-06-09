@@ -525,7 +525,7 @@ TaggedObject *Heap::AllocateHugeObject(JSHClass *hclass, size_t size)
 TaggedObject *Heap::AllocateHugeMachineCodeObject(size_t size, MachineCodeDesc *desc)
 {
 #ifdef USE_CMC_GC
-    ASSERT(false);
+    ASSERT(desc != nullptr && "in CMCGC, this path is always jitfort.");
 #endif
     TaggedObject *object;
     if (desc) {
@@ -540,17 +540,19 @@ TaggedObject *Heap::AllocateHugeMachineCodeObject(size_t size, MachineCodeDesc *
 
 TaggedObject *Heap::AllocateMachineCodeObject(JSHClass *hclass, size_t size, MachineCodeDesc *desc)
 {
-#ifdef USE_CMC_GC
-    ASSERT(false);
-#endif
     TaggedObject *object;
     size = AlignUp(size, static_cast<size_t>(MemAlignment::MEM_ALIGN_OBJECT));
     if (!desc) {
         // Jit Fort disabled
         ASSERT(!GetEcmaVM()->GetJSOptions().GetEnableJitFort());
         object = (size > MAX_REGULAR_HEAP_OBJECT_SIZE) ?
+#ifdef USE_CMC_GC
+            reinterpret_cast<TaggedObject *>(HeapAllocator::AllocateInHuge(size, LanguageType::DYNAMIC)) :
+            reinterpret_cast<TaggedObject *>(HeapAllocator::AllocateInNonmove(size, LanguageType::DYNAMIC));
+#else
             reinterpret_cast<TaggedObject *>(AllocateHugeMachineCodeObject(size)) :
             reinterpret_cast<TaggedObject *>(machineCodeSpace_->Allocate(size));
+#endif
         CHECK_MACHINE_CODE_OBJ_AND_SET_OOM_ERROR(object, size, machineCodeSpace_,
             "Heap::AllocateMachineCodeObject");
         object->SetClass(thread_, hclass);
@@ -574,8 +576,13 @@ TaggedObject *Heap::AllocateMachineCodeObject(JSHClass *hclass, size_t size, Mac
         }
     }
     object = (size > MAX_REGULAR_HEAP_OBJECT_SIZE) ?
+#ifdef USE_CMC_GC
+        reinterpret_cast<TaggedObject *>(AllocateHugeMachineCodeObject(size, desc)) :
+        reinterpret_cast<TaggedObject *>(HeapAllocator::AllocateInNonmove(size, LanguageType::DYNAMIC));
+#else
         reinterpret_cast<TaggedObject *>(AllocateHugeMachineCodeObject(size, desc)) :
         reinterpret_cast<TaggedObject *>(machineCodeSpace_->Allocate(size, desc, true));
+#endif
     CHECK_MACHINE_CODE_OBJ_AND_SET_OOM_ERROR_FORT(object, size, machineCodeSpace_, desc,
         "Heap::AllocateMachineCodeObject");
     object->SetClass(thread_, hclass);
@@ -970,8 +977,7 @@ TaggedObject *SharedHeap::AllocateOldOrHugeObject(JSThread *thread, JSHClass *hc
     }
 
 #ifdef USE_CMC_GC
-    TaggedObject *object = thread->IsJitThread() ? nullptr :
-                           reinterpret_cast<TaggedObject*>(HeapAllocator::AllocateInOld(size, LanguageType::DYNAMIC));
+    TaggedObject *object = reinterpret_cast<TaggedObject*>(HeapAllocator::AllocateInOld(size, LanguageType::DYNAMIC));
     object->SetClass(thread, hclass);
 #else
     TaggedObject *object = thread->IsJitThread() ? nullptr :
@@ -1097,7 +1103,7 @@ TaggedObject *SharedHeap::AllocateReadOnlyOrHugeObject(JSThread *thread, JSHClas
     }
 
 #ifdef USE_CMC_GC
-    auto object = reinterpret_cast<TaggedObject *>(HeapAllocator::AllocateInReadOnly(size, LanguageType::DYNAMIC));
+    auto object = reinterpret_cast<TaggedObject *>(HeapAllocator::AllocateInNonmove(size, LanguageType::DYNAMIC));
 #else
     auto object = reinterpret_cast<TaggedObject *>(sReadOnlySpace_->Allocate(thread, size));
     CHECK_SOBJ_AND_THROW_OOM_ERROR(thread, object, size, sReadOnlySpace_, "SharedHeap::AllocateReadOnlyOrHugeObject");
@@ -1230,6 +1236,13 @@ void SharedHeap::PostGCTaskForTest(JSThread *thread)
     }
 }
 
+template<TriggerGCType gcType, GCReason gcReason>
+bool SharedHeap::TriggerUnifiedGCMark(JSThread *thread) const
+{
+    ASSERT(gcType == TriggerGCType::UNIFIED_GC && gcReason == GCReason::CROSSREF_CAUSE);
+    return DaemonThread::GetInstance()->CheckAndPostTask(TriggerUnifiedGCMarkTask<gcType, gcReason>(thread));
+}
+
 static void SwapBackAndPop(CVector<JSNativePointer*>& vec, CVector<JSNativePointer*>::iterator& iter)
 {
     *iter = vec.back();
@@ -1317,7 +1330,8 @@ void Heap::ProcessNativeDelete(const WeakRootVisitor& visitor)
     if (!IsYoungGC()) {
         auto& asyncNativeCallbacksPack = GetEcmaVM()->GetAsyncNativePointerCallbacksPack();
         auto iter = nativePointerList_.begin();
-        ECMA_BYTRACE_NAME(HITRACE_TAG_ARK, "ProcessNativeDeleteNum:" + std::to_string(nativePointerList_.size()));
+        ECMA_BYTRACE_NAME(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK,
+            ("ProcessNativeDeleteNum:" + std::to_string(nativePointerList_.size())).c_str(), "");
         while (iter != nativePointerList_.end()) {
             JSNativePointer* object = *iter;
             auto fwd = visitor(reinterpret_cast<TaggedObject*>(object));
@@ -1359,7 +1373,8 @@ void Heap::ProcessReferences(const WeakRootVisitor& visitor)
         ResetNativeBindingSize();
         // array buffer
         auto iter = nativePointerList_.begin();
-        ECMA_BYTRACE_NAME(HITRACE_TAG_ARK, "ProcessReferencesNum:" + std::to_string(nativePointerList_.size()));
+        ECMA_BYTRACE_NAME(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK,
+            ("ProcessReferencesNum:" + std::to_string(nativePointerList_.size())).c_str(), "");
         while (iter != nativePointerList_.end()) {
             JSNativePointer* object = *iter;
             auto fwd = visitor(reinterpret_cast<TaggedObject*>(object));
@@ -1418,7 +1433,8 @@ void Heap::IteratorNativePointerList(WeakVisitor &visitor)
 {
     auto& asyncNativeCallbacksPack = GetEcmaVM()->GetAsyncNativePointerCallbacksPack();
     auto iter = nativePointerList_.begin();
-    ECMA_BYTRACE_NAME(HITRACE_TAG_ARK, "ProcessNativeDeleteNum:" + std::to_string(nativePointerList_.size()));
+    ECMA_BYTRACE_NAME(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK,
+        ("ProcessNativeDeleteNum:" + std::to_string(nativePointerList_.size())).c_str(), "");
     while (iter != nativePointerList_.end()) {
         ObjectSlot slot(reinterpret_cast<uintptr_t>(&(*iter)));
         bool isAlive = visitor.VisitRoot(Root::ROOT_VM, slot);

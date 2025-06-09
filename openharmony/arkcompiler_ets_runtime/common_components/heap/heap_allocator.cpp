@@ -51,12 +51,20 @@ Address HeapAllocator::AllocateInHuge(size_t size, LanguageType language)
 
 Address HeapAllocator::AllocateInReadOnly(size_t size, LanguageType language)
 {
-    auto address = HeapManager::Allocate(size, AllocType::PINNED_OBJECT);
+    auto address = HeapManager::Allocate(size, AllocType::READ_ONLY_OBJECT);
     BaseObject::Cast(address)->SetLanguageType(language);
     return address;
 }
 
-// below interface used for serialize
+uintptr_t HeapAllocator::AllocateLargeJitFortRegion(size_t size, LanguageType language)
+{
+    RegionManager& manager = reinterpret_cast<RegionSpace&>(Heap::GetHeap().GetAllocator()).GetRegionManager();
+    auto address =  manager.AllocJitFortRegion(size);
+    BaseObject::Cast(address)->SetLanguageType(language);
+    return address;
+}
+
+// below are interfaces used for serialize
 Address HeapAllocator::AllocateNoGC(size_t size)
 {
     return HeapManager::Allocate(size, AllocType::MOVEABLE_OBJECT, false);
@@ -82,6 +90,7 @@ Address HeapAllocator::AllocatePinnedRegion()
 Address HeapAllocator::AllocateLargeRegion(size_t size)
 {
     RegionManager& manager = reinterpret_cast<RegionSpace&>(Heap::GetHeap().GetAllocator()).GetRegionManager();
-    return manager.AllocLargeReion(size);
+    return manager.AllocLargeRegion(size);
 }
+
 }  // namespace panda

@@ -18,6 +18,7 @@
 #include "common_interfaces/heap/heap_visitor.h"
 #include "common_components/log/log.h"
 #include "common_interfaces/objects/ref_field.h"
+#include "common_components/base_runtime/hooks.h"
 #include "verification.h"
 
 namespace panda {
@@ -219,7 +220,12 @@ void WCollector::EnumAndTagRawRoot(ObjectRef& ref, RootSet& rootSet) const
 // note each ref-field will not be traced twice, so each old pointer the tracer meets must come from previous gc.
 void WCollector::TraceRefField(BaseObject* obj, RefField<>& field, WorkStack& workStack, WeakStack& weakStack) const
 {
-    BaseObject* targetObj = field.GetTargetObject();
+    RefField<> oldField(field);
+    BaseObject* targetObj = oldField.GetTargetObject();
+
+    if (!Heap::IsTaggedObject(oldField.GetFieldValue())) {
+        return;
+    }
     auto region = RegionDesc::GetRegionDescAt(reinterpret_cast<MAddress>((void*)targetObj));
     // field is tagged object, should be in heap
     DCHECK_CC(Heap::IsHeapAddress(targetObj));
@@ -229,7 +235,7 @@ void WCollector::TraceRefField(BaseObject* obj, RefField<>& field, WorkStack& wo
         DLOG(TRACE, "trace: skip new obj %p<%p>(%zu)", targetObj, targetObj->GetTypeInfo(), targetObj->GetSize());
         return;
     }
-    if (field.IsWeak()) {
+    if (oldField.IsWeak()) {
         weakStack.push_back(&field);
         return;
     }
@@ -252,7 +258,9 @@ void WCollector::FixRefField(BaseObject* obj, RefField<>& field) const
 {
     RefField<> oldField(field);
     BaseObject* targetObj = oldField.GetTargetObject();
-
+    if (!Heap::IsTaggedObject(oldField.GetFieldValue())) {
+        return;
+    }
     // target object could be null or non-heap for some static variable.
     if (!Heap::IsHeapAddress(targetObj)) {
         return;
@@ -298,6 +306,7 @@ BaseObject* WCollector::ForwardUpdateRawRef(ObjectRef& root)
 
 void WCollector::PreforwardStaticRoots()
 {
+    OHOS_HITRACE(HITRACE_LEVEL_MAX, "CMCGC::PreforwardStaticRoots", "");
     panda::RefFieldVisitor visitor = [this](RefField<>& refField) {
         RefField<> oldField(refField);
         BaseObject* oldObj = oldField.GetTargetObject();
@@ -369,6 +378,7 @@ void WCollector::EnumRoots(WorkStack& workStack)
     reinterpret_cast<RegionSpace&>(theAllocator_).PrepareTrace();
 
     ARK_COMMON_PHASE_TIMER("enum roots & update old pointers within");
+    OHOS_HITRACE(HITRACE_LEVEL_MAX, "CMCGC::EnumRoots", "");
     TransitionToGCPhase(GCPhase::GC_PHASE_ENUM, true);
     EnumerateAllRoots(workStack);
 }
@@ -385,6 +395,7 @@ void WCollector::TraceHeap(WorkStack& workStack)
 
 void WCollector::PostTrace()
 {
+    OHOS_HITRACE(HITRACE_LEVEL_MAX, "CMCGC::PostTrace", "");
     ARK_COMMON_PHASE_TIMER("PostTrace");
     TransitionToGCPhase(GC_PHASE_POST_MARK, true);
 
@@ -396,8 +407,8 @@ void WCollector::PostTrace()
 }
 void WCollector::Preforward()
 {
-    OHOS_HITRACE("ARK_RT_GC_PREFORWARD");
     ARK_COMMON_PHASE_TIMER("Preforward");
+    OHOS_HITRACE(HITRACE_LEVEL_MAX, "CMCGC::Preforward[STW]", "");
     TransitionToGCPhase(GCPhase::GC_PHASE_PRECOPY, true);
 
     [[maybe_unused]] Taskpool *threadPool = GetThreadPool();
@@ -412,6 +423,7 @@ void WCollector::PrepareFix()
 {
     // make sure all objects before fixline is initialized
     ARK_COMMON_PHASE_TIMER("PrepareFix");
+    OHOS_HITRACE(HITRACE_LEVEL_MAX, "CMCGC::PrepareFix[STW]", "");
     reinterpret_cast<RegionSpace&>(theAllocator_).PrepareFix();
     reinterpret_cast<RegionSpace&>(theAllocator_).PrepareFixForPin();
     TransitionToGCPhase(GCPhase::GC_PHASE_FIX, true);
@@ -420,6 +432,7 @@ void WCollector::PrepareFix()
 void WCollector::FixHeap()
 {
     ARK_COMMON_PHASE_TIMER("FixHeap");
+    OHOS_HITRACE(HITRACE_LEVEL_MAX, "CMCGC::FixHeap", "");
     reinterpret_cast<RegionSpace&>(theAllocator_).FixHeap();
 
     WVerify::VerifyAfterFix(*this);
@@ -427,7 +440,12 @@ void WCollector::FixHeap()
 
 void WCollector::DoGarbageCollection()
 {
-    if (shouldSTW_ == 2) { // 2: stw-gc
+    OHOS_HITRACE(HITRACE_LEVEL_MAX, "CMCGC::DoGarbageCollection", "");
+    if (gcMode_ == GCMode::STW) { // 2: stw-gc
+#ifdef ENABLE_CMC_RB_DFX
+        WVerify::DisableReadBarrierDFX(*this);
+#endif
+
         ScopedStopTheWorld stw("stw-gc");
         WorkStack workStack = NewWorkStack();
         EnumRoots(workStack);
@@ -438,6 +456,7 @@ void WCollector::DoGarbageCollection()
         // reclaim large objects should after preforward(may process weak ref) and
         // before fix heap(may clear live bit)
         CollectLargeGarbage();
+        SweepThreadLocalJitFort();
 
         CopyFromSpace();
         WVerify::VerifyAfterForward(*this);
@@ -447,11 +466,15 @@ void WCollector::DoGarbageCollection()
         CollectPinnedGarbage();
 
         TransitionToGCPhase(GCPhase::GC_PHASE_IDLE, true);
+
         ClearAllGCInfo();
         CollectSmallSpace();
 
+#if defined(ENABLE_CMC_RB_DFX)
+        WVerify::EnableReadBarrierDFX(*this);
+#endif
         return;
-    } else if (shouldSTW_ == 1) {
+    } else if (gcMode_ == GCMode::CONCURRENT_MARK) { // 1: concurrent-mark
         WorkStack workStack = NewWorkStack();
         {
             ScopedStopTheWorld stw("wgc-enumroot");
@@ -466,6 +489,7 @@ void WCollector::DoGarbageCollection()
         // reclaim large objects should after preforward(may process weak ref) and
         // before fix heap(may clear live bit)
         CollectLargeGarbage();
+        SweepThreadLocalJitFort();
 
         CopyFromSpace();
         WVerify::VerifyAfterForward(*this);
@@ -496,6 +520,7 @@ void WCollector::DoGarbageCollection()
     // reclaim large objects should after preforward(may process weak ref)
     // and before fix heap(may clear live bit)
     CollectLargeGarbage();
+    SweepThreadLocalJitFort();
 
     CopyFromSpace();
     WVerify::VerifyAfterForward(*this);
@@ -523,35 +548,43 @@ void WCollector::MarkNewObject(BaseObject* obj)
 
 void WCollector::ProcessWeakReferences()
 {
-    while (!globalWeakStack_.empty()) {
-        RefField<>& field = reinterpret_cast<RefField<>&>(*globalWeakStack_.back());
-        globalWeakStack_.pop_back();
-        RefField<> oldField(field);
-        BaseObject* targetObj = oldField.GetTargetObject();
-        if (!Heap::IsHeapAddress(targetObj) || IsMarkedObject(targetObj) ||
-            RegionSpace::IsNewObjectSinceTrace(targetObj)) {
-            continue;
-        }
-        if (field.ClearRef(oldField.GetFieldValue())) {
-            // fix log
-            // DLOG(FIX, "fix weak obj %p+%zu ref@%p: %#zx => %p<%p>(%zu)", obj, obj->GetSize(), &field,
-            //     oldField.GetFieldValue(), latest, latest->GetTypeInfo(), latest->GetSize())
+    OHOS_HITRACE(HITRACE_LEVEL_MAX, "CMCGC::ProcessWeakReferences", "");
+    {
+        OHOS_HITRACE(HITRACE_LEVEL_MAX, "CMCGC::ProcessGlobalWeakStack", "");
+        while (!globalWeakStack_.empty()) {
+            RefField<>& field = reinterpret_cast<RefField<>&>(*globalWeakStack_.back());
+            globalWeakStack_.pop_back();
+            RefField<> oldField(field);
+            BaseObject* targetObj = oldField.GetTargetObject();
+            if (!Heap::IsHeapAddress(targetObj) || IsMarkedObject(targetObj) ||
+                RegionSpace::IsNewObjectSinceTrace(targetObj)) {
+                continue;
+            }
+            if (field.ClearRef(oldField.GetFieldValue())) {
+                // fix log
+                // DLOG(FIX, "fix weak obj %p+%zu ref@%p: %#zx => %p<%p>(%zu)", obj, obj->GetSize(), &field,
+                //     oldField.GetFieldValue(), latest, latest->GetTypeInfo(), latest->GetSize())
+            }
         }
     }
 #ifndef ARK_USE_SATB_BARRIER
-    panda::WeakRefFieldVisitor weakVisitor = [this](RefField<> &refField) -> bool {
-        RefField<> oldField(refField);
-        BaseObject *oldObj = oldField.GetTargetObject();
-        if (!IsMarkedObject(oldObj) && !RegionSpace::IsNewObjectSinceTrace(oldObj)) {
-            return false;
-        }
-        return true;
-    };
-    VisitWeakRoots(weakVisitor);
-    MutatorManager::Instance().VisitAllMutators([](Mutator& mutator) {
-        // Request finalize callback in each vm-thread when gc finished.
-        mutator.SetCallbackRequest();
-    });
+    {
+        OHOS_HITRACE(HITRACE_LEVEL_MAX, "CMCGC::ProcessWeakRoots", "");
+        panda::WeakRefFieldVisitor weakVisitor = [this](RefField<> &refField) -> bool {
+            RefField<> oldField(refField);
+            BaseObject *oldObj = oldField.GetTargetObject();
+            if (!IsMarkedObject(oldObj) && !RegionSpace::IsNewObjectSinceTrace(oldObj)) {
+                return false;
+            }
+            return true;
+        };
+        VisitWeakRoots(weakVisitor);
+        MutatorManager::Instance().VisitAllMutators([](Mutator& mutator) {
+            // Request finalize callback in each vm-thread when gc finished.
+            mutator.SetCallbackRequest();
+        });
+    }
+
 #endif
 }
 
@@ -651,12 +684,18 @@ void WCollector::ClearAllGCInfo()
 
 void WCollector::CollectSmallSpace()
 {
+    OHOS_HITRACE(HITRACE_LEVEL_MAX, "CMCGC::CollectSmallSpace", "");
     GCStats& stats = GetGCStats();
     RegionSpace& space = reinterpret_cast<RegionSpace&>(theAllocator_);
     {
         ARK_COMMON_PHASE_TIMER("CollectFromSpaceGarbage");
         stats.collectedBytes += stats.smallGarbageSize;
-        space.CollectFromSpaceGarbage();
+        if (gcReason_ == GC_REASON_APPSPAWN) {
+            VLOG(REPORT, "APPSPAWN GC Collect");
+            space.CollectAppSpawnSpaceGarbage();
+        } else {
+            space.CollectFromSpaceGarbage();
+        }
     }
 
     size_t candidateBytes = stats.fromSpaceSize + stats.pinnedSpaceSize + stats.largeSpaceSize;

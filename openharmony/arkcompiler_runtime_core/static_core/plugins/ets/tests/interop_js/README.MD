@@ -1,22 +1,12 @@
 This directory contains an array of interoperability tests and covers a majority of ArkTS <-> JS|TS interaction cases.
 
-## Running interop tests
+## Running interop nodejs tests
 
-### 1. Compile Panda with interop support
-
-Set PANDA_ETS_INTEROP_JS flag to `true` while cmake'ing Panda to enable interop testing.
-
-The whole command, ran from `runtime_core/static_core/build`, will look like this:
-
-```
-cmake .. -GNinja -DCMAKE_BUILD_TYPE=debug -DCMAKE_EXPORTCOMPILECOMMANDS=ON -DPANDA_ETS_INTEROP_JS=1
-```
-
-### 2. Trigger a Ninja target to run the whole suite
+### 1. Trigger a Ninja target to run the whole suite
 
 Run `ninja -v ets_interop_tests` from `runtime_core/static_core/build` to run the suite.
 
-### 3. Run a particular subsuite if needed
+### 2. Run a particular subsuite if needed
 
 If you want to run a specific subsuite, refer to the corresponding `CMakeLists.txt` file. In most cases, it is located in the suite parts' directory (e.g., `./tests/scenarios/js_to_ets/CMakeLists.txt`). If the file is missing, check one level up.
 
@@ -24,6 +14,48 @@ In the file, you'll find either a `panda_ets_interop_js_gtest` or a `panda_ets_i
 
 If it is a `panda_ets_interop_js_test`, simply use `ninja -v <YOUR_SUBSUITE_NAME>`.
 If it is a `panda_ets_interop_js_gtest`, you'll have to add a `_gtests` suffix to a subsuite name to get it running. As follows: `ninja -v <YOUR_SUBSUITE_NAME>_gtests`.
+
+## Running interop arkjs tests
+
+To run interop tests with ArkJSVM you need to have ark_standalone three, so the first step is to obtain ark_standalone manifest (actual docs: https://gitee.com/ark_standalone_build/docs)
+
+```
+repo init -u https://gitee.com/ark-standalone-build/manifest.git -b OpenHarmony_feature_20241108
+repo sync -c -j8
+repo forall -c 'git lfs pull'
+
+./prebuilts_download.sh
+```
+
+Next step is to build `hybrid` and `hybrid_tests` to obtain all necessary binaries to interop tests:
+```
+python ark.py x64.debug hybrid hybrid_tests
+```
+
+Create build directory for static_core:
+```
+mkdir arkcompiler/runtime_core/static_core/build
+```
+
+Prepare environment for copying binaries script running:
+
+```
+export PANDA_BUILD_PATH=/absolute_path_to/arkcompiler/runtime_core/static_core/build
+export ARK_STANDALONE_ROOT=/absolute_path_to/root_standalone_dir
+```
+
+Run script to copy all necessary binaries to static_core build:
+
+```
+arkcompiler/runtime_core/static_core/tools/ark_js_napi_cli/standalone_cp_libs_for_interop_tests.sh debug
+```
+
+Now we can going to static_core and run interop_tests with ArkJSVM:
+```
+arkcompiler/runtime_core/static_core/build
+cmake .. -GNinja -DPANDA_ETS_INTEROP_JS=1 -DCMAKE_BUILD_TYPE=Debug -DPANDA_JS_ETS_HYBRID_MODE=1
+ninja ets_interop_js_gtests
+```
 
 ## Contributing to interop coverage
 

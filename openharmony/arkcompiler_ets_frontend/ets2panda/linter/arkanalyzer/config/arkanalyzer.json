@@ -1,0 +1,21 @@
+{
+  "supportFileExts": [
+    ".ets",
+    ".ts",
+    ".js",
+    ".d.ets",
+    ".d.ts"
+  ],
+  "enableLeadingComments": false,
+  "ignoreFileNames": [
+    "oh_modules",
+    "node_modules",
+    "build-tools",
+    "hvigorfile.ts"
+  ],
+  "sdkGlobalFolders": [
+    "component",
+    "@internal"
+  ],
+  "tsconfig": "tsconfig.json"
+}

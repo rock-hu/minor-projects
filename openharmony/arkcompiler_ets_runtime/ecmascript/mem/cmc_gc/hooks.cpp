@@ -23,6 +23,7 @@
 #include "ecmascript/mem/tagged_state_word.h"
 #include "ecmascript/mem/visitor.h"
 #include "ecmascript/runtime.h"
+#include "objects/base_type.h"
 
 namespace panda {
 using ecmascript::ObjectXRay;
@@ -97,7 +98,7 @@ void VisitDynamicRoots(const RefFieldVisitor &visitorFunc, bool isMark)
     ecmascript::VMRootVisitType type = isMark ? ecmascript::VMRootVisitType::MARK :
                                                 ecmascript::VMRootVisitType::UPDATE_ROOT;
     CMCRootVisitor visitor(visitorFunc);
-
+    OHOS_HITRACE(HITRACE_LEVEL_MAX, "CMCGC::VisitSharedRoot", "");
     // MarkSharedModule
     ecmascript::SharedModuleManager::GetInstance()->Iterate(visitor);
 
@@ -121,13 +122,14 @@ void VisitDynamicRoots(const RefFieldVisitor &visitorFunc, bool isMark)
 
 void VisitDynamicWeakRoots(const WeakRefFieldVisitor &visitorFunc)
 {
+    OHOS_HITRACE(HITRACE_LEVEL_MAX, "CMCGC::VisitDynamicWeakRoots", "");
     CMCWeakVisitor visitor(visitorFunc);
 
     ecmascript::SharedHeap::GetInstance()->IteratorNativePointerList(visitor);
 
     ecmascript::Runtime *runtime = ecmascript::Runtime::GetInstance();
 
-    runtime->GetEcmaStringTable()->IterWeakRoot(visitor);
+    runtime->GetEcmaStringTable()->IterWeakRoot(visitorFunc);
     runtime->IteratorNativeDeleteInSharedGC(visitor);
 
     runtime->GCIterateThreadList([&](JSThread *thread) {
@@ -141,6 +143,37 @@ void VisitDynamicWeakRoots(const WeakRefFieldVisitor &visitorFunc)
 void VisitJSThread(void *jsThread, CommonRootVisitor visitor)
 {
     reinterpret_cast<JSThread *>(jsThread)->Visit(visitor);
+}
+
+void SynchronizeGCPhaseToJSThread(void *jsThread, GCPhase gcPhase)
+{
+    reinterpret_cast<JSThread *>(jsThread)->SetCMCGCPhase(gcPhase);
+#ifdef USE_READ_BARRIER
+
+// forcely enable read barrier for read barrier DFX
+#ifdef ENABLE_CMC_RB_DFX
+    reinterpret_cast<JSThread *>(jsThread)->SetReadBarrierState(true);
+    return;
+#endif
+
+    if (gcPhase >= GCPhase::GC_PHASE_PRECOPY) {
+        reinterpret_cast<JSThread *>(jsThread)->SetReadBarrierState(true);
+    } else {
+        reinterpret_cast<JSThread *>(jsThread)->SetReadBarrierState(false);
+    }
+#endif
+}
+
+void SweepThreadLocalJitFort()
+{
+    ecmascript::Runtime* runtime = ecmascript::Runtime::GetInstance();
+
+    runtime->GCIterateThreadList([&](JSThread* thread) {
+        if (thread->IsJSThread()) {
+            auto vm = thread->GetEcmaVM();
+            const_cast<ecmascript::Heap*>(vm->GetHeap())->GetMachineCodeSpace()->Sweep();
+        }
+    });
 }
 
 void FillFreeObject(void *object, size_t size)
@@ -162,6 +195,20 @@ void JSGCCallback(void *ecmaVM)
 
 void SetBaseAddress(uintptr_t base)
 {
+    // Please be careful about reentrant
+    ASSERT(ecmascript::TaggedStateWord::BASE_ADDRESS == 0);
     ecmascript::TaggedStateWord::BASE_ADDRESS = base;
 }
+
+void JitFortUnProt(size_t size, void* base)
+{
+    ecmascript::PageMap(size, PAGE_PROT_READWRITE, 0, base, PAGE_FLAG_MAP_FIXED);
+}
+
+bool IsMachineCodeObject(uintptr_t objPtr)
+{
+    JSTaggedValue value(objPtr);
+    return value.IsMachineCodeObject();
+}
+
 } // namespace panda

@@ -113,6 +113,26 @@ public:
         return &nullRegion;
     }
 
+    void SetReadOnly()
+    {
+        constexpr int pageProtRead = 1;
+        DLOG(REPORT, "try to set readonly to %p, size is %ld", GetRegionStart(), GetRegionEnd() - GetRegionStart());
+        if (mprotect(reinterpret_cast<void *>(GetRegionStart()),
+            GetRegionEnd() - GetRegionStart(), pageProtRead) != 0) {
+            DLOG(REPORT, "set read only fail");
+        }
+    }
+
+    void ClearReadOnly()
+    {
+        constexpr int pageProtReadWrite = 3;
+        DLOG(REPORT, "try to set read & write to %p, size is %ld", GetRegionStart(), GetRegionEnd() - GetRegionStart());
+        if (mprotect(reinterpret_cast<void *>(GetRegionStart()),
+            GetRegionEnd() - GetRegionStart(), pageProtReadWrite) != 0) {
+            DLOG(REPORT, "clear read only fail");
+        }
+    }
+
     RegionLiveDesc* GetLiveInfo()
     {
         RegionLiveDesc* liveInfo = __atomic_load_n(&metadata.liveInfo, std::memory_order_acquire);
@@ -425,6 +445,8 @@ public:
         OLD_LARGE_REGION,
 
         GARBAGE_REGION,
+        READ_ONLY_REGION,
+        APPSPAWN_REGION,
     };
 
     static void Initialize(size_t nUnit, uintptr_t regionInfoAddr, uintptr_t heapAddress)
@@ -507,6 +529,10 @@ public:
 #ifdef ARKCOMMON_ASAN_SUPPORT
         Sanitizer::OnHeapMadvise(unitAddress, size);
 #endif
+        ASAN_POISON_MEMORY_REGION(unitAddress, size);
+        const uintptr_t p_size = size;
+        LOG_COMMON(DEBUG) << std::hex << "set [" << unitAddress;
+        LOG_COMMON(DEBUG) << std::hex << ", " << (uintptr_t)unitAddress + p_size << ") unaddressable\n";
     }
 
     BaseObject* GetFirstObject() const { return reinterpret_cast<BaseObject*>(GetRegionStart()); }
@@ -797,6 +823,11 @@ public:
                (GetRegionType()  == RegionType::RECENT_PINNED_REGION);
     }
 
+    bool IsReadOnlyRegion() const
+    {
+        return GetRegionType()  == RegionType::READ_ONLY_REGION;
+    }
+
     RegionDesc* GetPrevRegion() const
     {
         if (UNLIKELY_CC(metadata.prevRegionIdx == NULLPTR_IDX)) {
@@ -886,6 +917,8 @@ public:
 
     bool IsFromRegion() const { return GetRegionType()  == RegionType::FROM_REGION; }
 
+    bool IsAppSpawnRegion() const { return GetRegionType()  == RegionType::APPSPAWN_REGION; }
+
     bool IsUnmovableFromRegion() const
     {
         return GetRegionType()  == RegionType::EXEMPTED_FROM_REGION ||
@@ -938,7 +971,7 @@ private:
         BIT_OFFSET_ENQUEUED_REGION = 6,
         BIT_OFFSET_RESURRECTED_REGION = 7,
         BIT_OFFSET_FIXED_REGION = 8,
-        BIT_OFFSET_REGION_CELLCOUNT = 9
+        BIT_OFFSET_REGION_CELLCOUNT = 9,
     };
 
     struct ObjectSlot {
@@ -1124,6 +1157,12 @@ private:
         SetResurrectedRegionFlag(0);
         SetFixedRegionFlag(0);
         __atomic_store_n(&metadata.rawPointerObjectCount, 0, __ATOMIC_SEQ_CST);
+
+        ASAN_UNPOISON_MEMORY_REGION(metadata.allocPtr, nUnit * RegionDesc::UNIT_SIZE);
+        uintptr_t p_addr = metadata.allocPtr;
+        uintptr_t p_size = nUnit * RegionDesc::UNIT_SIZE;
+        LOG_COMMON(DEBUG) << std::hex << "set [" << p_addr;
+        LOG_COMMON(DEBUG) << std::hex << ", " << p_addr + p_size << ") unaddressable\n";
     }
 
     void InitRegion(size_t nUnit, UnitRole uClass)

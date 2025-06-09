@@ -22,6 +22,7 @@
 #include "ecmascript/compiler/gate_accessor.h"
 #include "ecmascript/compiler/new_object_stub_builder.h"
 #include "ecmascript/compiler/pass_manager.h"
+#include "ecmascript/compiler/share_gate_meta_data.h"
 #include <cstddef>
 
 namespace panda::ecmascript::kungfu {
@@ -169,9 +170,13 @@ private:
     void LowerGetIterator(GateRef gate);
     void LowerGetAsyncIterator(GateRef gate);
     void LowerToJSCall(GateRef hirGate, const std::vector<GateRef> &args, const std::vector<GateRef> &argsFastCall);
-    void LowerNewFastCall(GateRef gate, GateRef glue, GateRef func, bool needPushArgv,
+    void LowerNewFastCall(GateRef gate, GateRef glue, GateRef func, bool needPushArgv, bool isFastCall,
         const std::vector<GateRef> &args, const std::vector<GateRef> &fastCallArgs,
         Variable *result, Label *exit);
+    void CallWithTimer(const CallSignature *cs, GateRef target, GateRef gate, GateRef func,
+                       const std::vector<GateRef> &args, Variable *result, Label *exit, const char *comment);
+    void SelectFastNew(GateRef selectCall, GateRef gate, GateRef func, const std::vector<GateRef> &args,
+                       const std::vector<GateRef> &argsFastCall, Variable *result, Label *exit);
     void LowerCallArg0Stub(GateRef gate);
     void LowerCallArg1Stub(GateRef gate);
     void LowerCallArg2Stub(GateRef gate);
@@ -242,18 +247,19 @@ private:
     void LowerSendableExternalModule(GateRef gate);
     void LowerSendableLocalModule(GateRef gate);
     void LowerSuperCall(GateRef gate);
+    void LowerSuperCallForJIT(GateRef gate);
     void LowerSuperCallArrow(GateRef gate);
     void LowerSuperCallSpread(GateRef gate);
+    GateRef GetExpectedNumOfArgsFromFunc(GateRef func);
     void LowerSuperCallForwardAllArgs(GateRef gate);
+    void LowerSuperCallForwardAllArgsForJIT(GateRef gate);
     void CheckSuperAndNewTarget(NewObjectStubBuilder &objBuilder, GateRef super, Variable &newTarget,
                                 Variable &thisObj, Label &fastPath, Label &slowPath);
-    void CallNGCRuntimeWithCallTimer(int index, GateRef gate, GateRef func, Variable &result,
-                                     const std::vector<GateRef> &args);
+    GateRef CheckSuperAndNewTargetForJIT(GateRef gate, GateRef super, Variable &newTarget, Label &fastPath,
+                                      Label &slowPath);
     GateRef IsAotOrFastCall(GateRef func, CircuitBuilder::JudgeMethodType type);
     void LowerFastSuperCallWithArgArray(GateRef array, const std::vector<GateRef> &args, bool isSpread,
                                         Variable &result, Label &exit);
-    void LowerFastSuperCall(const std::vector<GateRef> &args, GateRef elementsPtr,
-                            Variable &result, Label &exit);
     void GenerateSuperCallForwardAllArgsWithoutArgv(const std::vector<GateRef> &args, Variable &result, Label &exit);
     void LowerIsTrueOrFalse(GateRef gate, bool flag);
     void LowerNewObjRange(GateRef gate);
@@ -321,6 +327,7 @@ private:
     void LowerConstruct(GateRef gate);
     void LowerCallInternal(GateRef gate);
     void LowerCallNew(GateRef gate);
+    void LowerCallNewBuiltin(GateRef gate);
     void LowerTypedCall(GateRef gate);
     void LowerTypedFastCall(GateRef gate);
     void LowerCheckSafePointAndStackOver(GateRef gate);

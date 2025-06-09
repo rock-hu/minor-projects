@@ -471,6 +471,14 @@ GateRef CircuitBuilder::TaggedIsHeapObject(GateRef x)
     return Equal(t, Int64(0), "checkHeapObject");
 }
 
+GateRef CircuitBuilder::TaggedIsJSFunction(GateRef glue, GateRef x)
+{
+    GateRef objectType = GetObjectType(LoadHClass(glue, x));
+    GateRef greater = Int32GreaterThanOrEqual(objectType, Int32(static_cast<int32_t>(JSType::JS_FUNCTION_FIRST)));
+    GateRef less = Int32LessThanOrEqual(objectType, Int32(static_cast<int32_t>(JSType::JS_FUNCTION_LAST)));
+    return LogicAndBuilder(env_).And(TaggedIsHeapObject(x)).And(BitAnd(greater, less)).Done();
+}
+
 GateRef CircuitBuilder::TaggedIsAsyncGeneratorObject(GateRef glue, GateRef x)
 {
     return LogicAndBuilder(env_).And(TaggedIsHeapObject(x)).And(IsJsType(glue, x, JSType::JS_ASYNC_GENERATOR_OBJECT)).Done();
@@ -627,6 +635,19 @@ inline GateRef CircuitBuilder::TypedCallBuiltin(GateRef hirGate, const std::vect
     currentLabel->SetControl(builtinOp);
     currentLabel->SetDepend(builtinOp);
     return builtinOp;
+}
+
+inline GateRef CircuitBuilder::CallNewBuiltin(GateRef hirGate, std::vector<GateRef> &args)
+{
+    auto curLable = env_->GetCurrentLabel();
+    std::vector<GateRef> inList {curLable->GetControl(), curLable->GetDepend()};
+    inList.insert(inList.end(), args.begin(), args.end());
+    AppendFrameState(inList, hirGate);
+    auto callGate = GetCircuit()->NewGate(circuit_->CallNewBuiltin(args.size(), acc_.TryGetPcOffset(hirGate)),
+                                          MachineType::I64, inList.size(), inList.data(), GateType::AnyType());
+    curLable->SetControl(callGate);
+    curLable->SetDepend(callGate);
+    return callGate;
 }
 
 template<TypedBinOp Op>

@@ -263,6 +263,7 @@ private:
     bool useCustom_ = false;
     bool isTips_ = false;
     bool followCursor_ = false;
+    bool resetTipsSize_ = false;
     Placement tipsPlacement_ = Placement::BOTTOM_LEFT;
 
     BubbleDumpInfo dumpInfo_;
@@ -328,8 +329,8 @@ private:
     std::vector<std::vector<float>> arrowOffsetsFromClip_
         = { {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f} };
     bool isGreatWrapperWidth_ = false;
-    float foldCreaseTop_ = 0.0f;
-    float foldCreaseBottom_ = 0.0f;
+    double foldCreaseTop_ = 0.0;
+    double foldCreaseBottom_ = 0.0;
     bool isHalfFoldHover_ = false;
     bool doubleBorderEnable_ = false;
     bool expandDisplay_ = false;

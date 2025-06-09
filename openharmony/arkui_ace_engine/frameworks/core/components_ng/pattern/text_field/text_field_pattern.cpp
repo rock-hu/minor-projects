@@ -154,6 +154,7 @@ constexpr int32_t HOVER_ANIMATION_DURATION = 250;
 const RefPtr<Curve> MOVE_MAGNIFIER_CURVE =
     AceType::MakeRefPtr<InterpolatingSpring>(0.0f, 1.0f, 228.0f, 30.0f);
 constexpr int32_t LAND_DURATION = 100;
+constexpr int32_t ENTER_OFFSET = 1;
 
 static std::unordered_map<AceAutoFillType, TextInputType> keyBoardMap_ = {
     { AceAutoFillType::ACE_PASSWORD, TextInputType::VISIBLE_PASSWORD},
@@ -1885,6 +1886,7 @@ void TextFieldPattern::HandleOnCameraInput()
     if (imeShown_) {
         inputMethod->StartInputType(MiscServices::InputType::CAMERA_INPUT);
     } else {
+        FireOnWillAttachIME();
         auto optionalTextConfig = GetMiscTextConfig();
         CHECK_NULL_VOID(optionalTextConfig.has_value());
         MiscServices::TextConfig textConfig = optionalTextConfig.value();
@@ -2102,7 +2104,11 @@ void TextFieldPattern::ResetTouchAndMoveCaretState()
     }
     if (moveCaretState_.isMoveCaret) {
         moveCaretState_.isMoveCaret = false;
+        auto isAutoScrolling = contentScroller_.isScrolling;
         StopContentScroll();
+        if (isAutoScrolling) {
+            UpdateCaretRect(false);
+        }
         if (HasFocus()) {
             StartTwinkling();
         } else {
@@ -2258,11 +2264,11 @@ std::function<void(Offset)> TextFieldPattern::GetThumbnailCallback()
 
 void TextFieldPattern::OnDragNodeDetachFromMainTree()
 {
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
     if (dragStatus_ == DragStatus::NONE) {
-        selectController_->UpdateCaretIndex(
-            std::max(selectController_->GetFirstHandleIndex(), selectController_->GetSecondHandleIndex()));
-        CloseSelectOverlay();
-        StartTwinkling();
+        selectOverlay_->ProcessOverlay( { .menuIsShow = false } );
+        host->MarkDirtyNode(PROPERTY_UPDATE_RENDER);
     }
 }
 
@@ -2550,7 +2556,7 @@ void TextFieldPattern::InitDragDropCallBack()
         Offset localOffset =
             Offset(event->GetX(), event->GetY()) - Offset(textPaintOffset.GetX(), textPaintOffset.GetY());
         if (host->GetDragPreviewOption().enableEdgeAutoScroll) {
-            pattern->UpdateContentScroller(localOffset);
+            pattern->UpdateContentScroller(localOffset, AUTO_SCROLL_HOT_AREA_LONGPRESS_DURATION);
         } else {
             pattern->contentScroller_.OnBeforeScrollingCallback(localOffset);
             pattern->PauseContentScroll();
@@ -4667,6 +4673,7 @@ bool TextFieldPattern::RequestKeyboard(bool isFocusViewChanged, bool needStartTw
         TAG_LOGE(AceLogTag::ACE_TEXT_FIELD, "RequestKeyboard, inputMethod is null");
         return false;
     }
+    FireOnWillAttachIME();
     auto optionalTextConfig = GetMiscTextConfig();
     CHECK_NULL_RETURN(optionalTextConfig.has_value(), false);
     MiscServices::TextConfig textConfig = optionalTextConfig.value();
@@ -4787,13 +4794,17 @@ std::optional<MiscServices::TextConfig> TextFieldPattern::GetMiscTextConfig() co
         .top = selectController_->GetCaretRect().Top() + windowRect.Top() + textPaintOffset.GetY(),
         .width = theme->GetCursorWidth().ConvertToPx(),
         .height = selectController_->GetCaretRect().Height() };
+    TAG_LOGI(ACE_TEXT_FIELD, "gradientMode = %{public}d fluidLightMode = %{public}d", imeGradientMode_, imeFluidLightMode_);
     MiscServices::InputAttribute inputAttribute = { .inputPattern = (int32_t)keyboard_,
         .enterKeyType = (int32_t)GetTextInputActionValue(GetDefaultTextInputAction()),
         .isTextPreviewSupported = hasSupportedPreviewText_,
         .immersiveMode = static_cast<int32_t>(keyboardAppearance_),
         .placeholder = placeholder,
         .abilityName = abilityName,
-        .capitalizeMode = static_cast<MiscServices::CapitalizeMode>(GetAutoCapitalizationModeValue(AutoCapitalizationMode::NONE)) };
+        .capitalizeMode = static_cast<MiscServices::CapitalizeMode>(GetAutoCapitalizationModeValue(AutoCapitalizationMode::NONE)),
+        .gradientMode = static_cast<int32_t>(imeGradientMode_),
+        .fluidLightMode = static_cast<int32_t>(imeFluidLightMode_)
+    };
     MiscServices::TextConfig textConfig = { .inputAttribute = inputAttribute,
         .cursorInfo = cursorInfo,
         .range = { .start = selectController_->GetStartIndex(), .end = selectController_->GetEndIndex() },
@@ -6708,10 +6719,7 @@ void TextFieldPattern::HandleSelectionParagraghEnd()
         return;
     }
     auto originCaretPosition = selectController_->GetCaretIndex();
-    auto newPos = GetLineEndPosition(originCaretPosition, false);
-    if (newPos == originCaretPosition && originCaretPosition > 0) {
-        newPos = GetLineEndPosition(originCaretPosition + 1, false);
-    }
+    auto newPos = GetLineEndPosition(originCaretPosition, false) + ENTER_OFFSET;
     if (!IsSelected()) {
         UpdateSelection(selectController_->GetCaretIndex());
         selectController_->MoveSecondHandleByKeyBoard(newPos);
@@ -7775,6 +7783,7 @@ void TextFieldPattern::ToJsonValue(std::unique_ptr<JsonValue>& json, const Inspe
     ToJsonValueForOption(json, filter);
     ToJsonValueForFontFeature(json, filter);
     ToJsonValueSelectOverlay(json, filter);
+    ToJsonValueForStroke(json, filter);
 }
 
 void TextFieldPattern::ToTreeJson(std::unique_ptr<JsonValue>& json, const InspectorConfig& config) const
@@ -7882,6 +7891,41 @@ void TextFieldPattern::ToJsonValueSelectOverlay(std::unique_ptr<JsonValue>& json
     for (auto menuItme : selectOverlayInfo->menuOptionItems) {
         json->PutExtAttr("MenuItme", menuItme.content.value_or("").c_str(), filter);
     }
+}
+
+std::string TextFieldPattern::GetStrokeWidth() const
+{
+    auto layoutProperty = GetLayoutProperty<TextFieldLayoutProperty>();
+    CHECK_NULL_RETURN(layoutProperty, "");
+    return (layoutProperty->GetStrokeWidth().value_or(Dimension())).ToString();
+}
+
+std::string TextFieldPattern::GetStrokeColor() const
+{
+    auto theme = GetTheme();
+    CHECK_NULL_RETURN(theme, "");
+    auto layoutProperty = GetLayoutProperty<TextFieldLayoutProperty>();
+    CHECK_NULL_RETURN(layoutProperty, "");
+
+    if (layoutProperty->HasStrokeColor() && layoutProperty->GetStrokeColor().has_value()) {
+        auto strokeColor = layoutProperty->GetStrokeColor().value().ColorToString();
+        if (!strokeColor.empty()) {
+            return strokeColor;
+        }
+    }
+
+    auto textColor = layoutProperty->GetTextColor();
+    if (textColor.has_value()) {
+        return textColor.value().ColorToString();
+    }
+
+    return theme->GetTextColor().ColorToString();
+}
+
+void TextFieldPattern::ToJsonValueForStroke(std::unique_ptr<JsonValue>& json, const InspectorFilter& filter) const
+{
+    json->PutExtAttr("strokeWidth", GetStrokeWidth().c_str(), filter);
+    json->PutExtAttr("strokeColor", GetStrokeColor().c_str(), filter);
 }
 
 void TextFieldPattern::FromJson(const std::unique_ptr<JsonValue>& json)
@@ -9662,10 +9706,11 @@ void TextFieldPattern::HiddenMenu()
     selectOverlay_->HideMenu();
 }
 
-void TextFieldPattern::OnSelectionMenuOptionsUpdate(
-    const NG::OnCreateMenuCallback&& onCreateMenuCallback, const NG::OnMenuItemClickCallback&& onMenuItemClick)
+void TextFieldPattern::OnSelectionMenuOptionsUpdate(const NG::OnCreateMenuCallback&& onCreateMenuCallback,
+    const NG::OnMenuItemClickCallback&& onMenuItemClick, const NG::OnPrepareMenuCallback&& onPrepareMenuCallback)
 {
-    selectOverlay_->OnSelectionMenuOptionsUpdate(std::move(onCreateMenuCallback), std::move(onMenuItemClick));
+    selectOverlay_->OnSelectionMenuOptionsUpdate(
+        std::move(onCreateMenuCallback), std::move(onMenuItemClick), std::move(onPrepareMenuCallback));
 }
 
 bool TextFieldPattern::GetTouchInnerPreviewText(const Offset& offset) const
@@ -10077,8 +10122,9 @@ bool TextFieldPattern::IsTextEditableForStylus() const
     return !IsInPasswordMode();
 }
 
-void TextFieldPattern::UpdateContentScroller(const Offset& localOffset)
+void TextFieldPattern::UpdateContentScroller(const Offset& offset, float delay)
 {
+    auto localOffset = AdjustAutoScrollOffset(offset);
     auto scrollStep = CalcAutoScrollStepOffset(localOffset);
     // 在热区外移动
     if (!scrollStep || (!GetScrollEnabled() && !moveCaretState_.isMoveCaret)) {
@@ -10095,15 +10141,27 @@ void TextFieldPattern::UpdateContentScroller(const Offset& localOffset)
     contentScroller_.OnBeforeScrollingCallback(localOffset);
     if (!contentScroller_.hotAreaOffset) {
         contentScroller_.hotAreaOffset = localOffset;
-        ScheduleContentScroll(AUTO_SCROLL_HOT_AREA_LONGPRESS_DURATION);
+        ScheduleContentScroll(delay);
     } else {
         auto hotAreaMoveDistance = (localOffset - contentScroller_.hotAreaOffset.value()).GetDistance();
         if (GreatOrEqual(hotAreaMoveDistance, AUTO_SCROLL_HOT_AREA_LONGPRESS_DISTANCE.ConvertToPx())) {
             contentScroller_.hotAreaOffset = localOffset;
             contentScroller_.autoScrollTask.Cancel();
-            ScheduleContentScroll(AUTO_SCROLL_HOT_AREA_LONGPRESS_DURATION);
+            ScheduleContentScroll(delay);
         }
     }
+}
+
+Offset TextFieldPattern::AdjustAutoScrollOffset(const Offset& offset)
+{
+    auto contentRect = GetContentRect();
+    // ensure the point is in the content area.
+    double margin = 1.0f;
+    auto offsetX = std::clamp(offset.GetX(), static_cast<double>(contentRect.Left()) + margin,
+        static_cast<double>(contentRect.Right()) - margin);
+    auto offsetY = std::clamp(offset.GetY(), static_cast<double>(contentRect.Top()) + margin,
+        static_cast<double>(contentRect.Bottom()) - margin);
+    return Offset(offsetX, offsetY);
 }
 
 std::optional<float> TextFieldPattern::CalcAutoScrollStepOffset(const Offset& localOffset)
@@ -11266,5 +11324,23 @@ void TextFieldPattern::OnAccessibilityEventTextChange(const std::string& changeT
     event.nodeId = host->GetAccessibilityId();
     event.extraEventInfo.insert({ changeType, changeString });
     pipeline->SendEventToAccessibilityWithNode(event, GetHost());
+}
+
+IMEClient TextFieldPattern::GetIMEClientInfo()
+{
+    IMEClient clientInfo;
+    auto host = GetHost();
+    CHECK_NULL_RETURN(host, clientInfo);
+    clientInfo.nodeId = host->GetId();
+    return clientInfo;
+}
+
+void TextFieldPattern::FireOnWillAttachIME()
+{
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto eventHub = host->GetEventHub<TextFieldEventHub>();
+    CHECK_NULL_VOID(eventHub);
+    eventHub->FireOnWillAttachIME(GetIMEClientInfo());
 }
 } // namespace OHOS::Ace::NG

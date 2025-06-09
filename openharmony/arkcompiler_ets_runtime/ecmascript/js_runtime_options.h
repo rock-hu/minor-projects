@@ -71,6 +71,7 @@ enum ArkProperties {
     ENABLE_PAGETAG_THREAD_ID = 1 << 27,
     ENABLE_MODULE_EXCEPTION = 1 << 29,
     ENABLE_PENDING_CHEAK = 1 << 30,
+    ENABLE_RAWHEAP_CROP = 1 << 31,
 };
 
 // asm interpreter control parsed option
@@ -693,6 +694,11 @@ public:
         return (static_cast<uint32_t>(arkProperties_) & ArkProperties::ENABLE_PENDING_CHEAK) != 0;
     }
 
+    bool EnableRawHeapCrop() const
+    {
+        return (static_cast<uint32_t>(arkProperties_) & ArkProperties::ENABLE_RAWHEAP_CROP) != 0;
+    }
+
     bool WasSetMaxNonmovableSpaceCapacity() const
     {
         return WasOptionSet(OPTION_MAX_UNMOVABLE_SPACE);
@@ -760,7 +766,13 @@ public:
 
     bool GetEnableAsyncCopyToFort() const
     {
+#ifdef USE_CMC_GC
+        // async alloc needs adaption work from CMCGC
+        // Need to also modify jit.cpp
+        return false;
+#else
         return enableAsyncCopyToFort_;
+#endif
     }
 
     void SetLargeHeap(bool largeHeap)

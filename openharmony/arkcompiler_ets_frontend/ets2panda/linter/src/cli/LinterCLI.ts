@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,10 +21,12 @@ import type { CommandLineOptions } from '../lib/CommandLineOptions';
 import { lint } from '../lib/LinterRunner';
 import { Logger } from '../lib/Logger';
 import type { ProblemInfo } from '../lib/ProblemInfo';
-import { TypeScriptLinter } from '../lib/TypeScriptLinter';
 import { parseCommandLine } from './CommandLineParser';
-import { compileLintOptions } from './Compiler';
-import type { LinterConfig } from '../lib/LinterConfig';
+import { compileLintOptions, getEtsLoaderPath } from '../lib/ts-compiler/Compiler';
+import { logStatistics } from '../lib/statistics/StatisticsLogger';
+import { arkts2Rules } from '../lib/utils/consts/ArkTS2Rules';
+import { MigrationTool } from 'homecheck';
+import { getHomeCheckConfigInfo, transferIssues2ProblemInfo } from '../lib/HomeCheck';
 
 export function run(): void {
   const commandLineArgs = process.argv.slice(2);
@@ -35,15 +37,87 @@ export function run(): void {
 
   const cmdOptions = parseCommandLine(commandLineArgs);
 
-  TypeScriptLinter.initGlobals();
-
-  if (!cmdOptions.linterOptions.ideMode) {
-    const compileOptions = compileLintOptions(cmdOptions);
-    const result = lint(compileOptions, getEtsLoaderPath(compileOptions));
-    process.exit(result.errorNodes > 0 ? 1 : 0);
+  if (cmdOptions.devecoPluginModeDeprecated) {
+    runIdeModeDeprecated(cmdOptions);
+  } else if (cmdOptions.linterOptions.ideInteractive) {
+    runIdeInteractiveMode(cmdOptions);
   } else {
-    runIDEMode(cmdOptions);
+    const compileOptions = compileLintOptions(cmdOptions);
+    const result = lint(compileOptions);
+    logStatistics(result.projectStats);
+    process.exit(result.hasErrors ? 1 : 0);
   }
+}
+
+async function runIdeInteractiveMode(cmdOptions: CommandLineOptions): Promise<void> {
+  cmdOptions.followSdkSettings = true;
+  cmdOptions.disableStrictDiagnostics = true;
+  const compileOptions = compileLintOptions(cmdOptions);
+  let homeCheckResult = new Map<string, ProblemInfo[]>();
+  const mergedProblems = new Map<string, ProblemInfo[]>();
+
+  if (cmdOptions.homecheck === true) {
+    const { ruleConfigInfo, projectConfigInfo } = getHomeCheckConfigInfo(cmdOptions);
+    const migrationTool = new MigrationTool(ruleConfigInfo, projectConfigInfo);
+    await migrationTool.buildCheckEntry();
+    const result = await migrationTool.start();
+
+    homeCheckResult = transferIssues2ProblemInfo(result);
+    for (const [filePath, problems] of homeCheckResult) {
+      if (!mergedProblems.has(filePath)) {
+        mergedProblems.set(filePath, []);
+      }
+      mergedProblems.get(filePath)!.push(...problems);
+    }
+  }
+  const result = lint(compileOptions, getEtsLoaderPath(compileOptions), homeCheckResult);
+
+  for (const [filePath, problems] of result.problemsInfos) {
+    if (!mergedProblems.has(filePath)) {
+      mergedProblems.set(filePath, []);
+    }
+    let filteredProblems = problems;
+    if (cmdOptions.linterOptions.arkts2) {
+      filteredProblems = problems.filter((problem) => {
+        return arkts2Rules.includes(problem.ruleTag);
+      });
+    }
+    mergedProblems.get(filePath)!.push(...filteredProblems);
+  }
+  const reportData = Object.fromEntries(mergedProblems);
+  await generateReportFile(reportData);
+
+  for (const [filePath, problems] of mergedProblems) {
+    const reportLine = JSON.stringify({ filePath, problems }) + '\n';
+    await processSyncOut(reportLine);
+  }
+  await processSyncErr('{"content":"report finish","messageType":1,"indictor":1}\n');
+  process.exit(0);
+}
+
+async function generateReportFile(reportData): Promise<void> {
+  const reportFilePath = path.join('scan-report.json');
+  try {
+    await fs.promises.writeFile(reportFilePath, JSON.stringify(reportData, null, 2));
+  } catch (error) {
+    console.error('Error generating report file:', error);
+  }
+}
+
+async function processSyncOut(message: string): Promise<void> {
+  await new Promise((resolve) => {
+    process.stdout.write(message, () => {
+      resolve('success');
+    });
+  });
+}
+
+async function processSyncErr(message: string): Promise<void> {
+  await new Promise((resolve) => {
+    process.stderr.write(message, () => {
+      resolve('success');
+    });
+  });
 }
 
 function getTempFileName(): string {
@@ -67,8 +141,7 @@ function showJSONMessage(problems: ProblemInfo[][]): void {
   Logger.info(`{"linter messages":${JSON.stringify(jsonMessage)}}`);
 }
 
-function runIDEMode(cmdOptions: CommandLineOptions): void {
-  cmdOptions.linterOptions.ideMode = true;
+function runIdeModeDeprecated(cmdOptions: CommandLineOptions): void {
   const tmpFileName = getTempFileName();
   // read data from stdin
   const writeStream = fs.createWriteStream(tmpFileName, { flags: 'w' });
@@ -89,7 +162,7 @@ function runIDEMode(cmdOptions: CommandLineOptions): void {
       cmdOptions.parsedConfigFile.fileNames.push(tmpFileName);
     }
     const compileOptions = compileLintOptions(cmdOptions);
-    const result = lint(compileOptions, getEtsLoaderPath(compileOptions));
+    const result = lint(compileOptions);
     const problems = Array.from(result.problemsInfos.values());
     if (problems.length === 1) {
       showJSONMessage(problems);
@@ -98,9 +171,4 @@ function runIDEMode(cmdOptions: CommandLineOptions): void {
     }
     fs.unlinkSync(tmpFileName);
   });
-}
-
-export function getEtsLoaderPath(linterConfig: LinterConfig): string | undefined {
-  const tsProgram = linterConfig.tscCompiledProgram.getProgram();
-  return tsProgram.getCompilerOptions().etsLoaderPath;
 }

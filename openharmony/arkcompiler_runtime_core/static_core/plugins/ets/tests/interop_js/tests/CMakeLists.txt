@@ -1,4 +1,4 @@
-# Copyright (c) 2023-2024 Huawei Device Co., Ltd.
+# Copyright (c) 2023-2025 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -11,13 +11,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set(EXCLUDED_TEST_PACKAGES static_enum standalone_function)
+set(DISABLES_TESTS
+    standalone_function
+)
 
-SUBDIRLIST(SUBDIRS 
-  ${CMAKE_CURRENT_LIST_DIR}
-  EXCLUDED_TEST_PACKAGES)
+SUBDIRLIST(EXECUTED_TESTS
+    ${CMAKE_CURRENT_LIST_DIR}
+    DISABLES_TESTS
+)
 
-FOREACH(subdir ${SUBDIRS})
-  get_filename_component(TEST_PACKAGE_NAME ${subdir} NAME)
-  ADD_SUBDIRECTORY(${subdir})
-ENDFOREACH()
+foreach(TEST_DIR ${EXECUTED_TESTS})
+    add_subdirectory(${TEST_DIR})
+endforeach()

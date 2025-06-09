@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -74,13 +74,13 @@ protected:
     virtual void GenFunctionAnnotations(pandasm::Function *func) = 0;
     virtual void GenVariableSignature(pandasm::debuginfo::LocalVariable &variableDebug,
                                       varbinder::LocalVariable *variable) const = 0;
+    virtual void GenSourceFileDebugInfo(pandasm::Function *func) = 0;
 
     void GenInstructionDebugInfo(const IRNode *ins, ark::pandasm::Ins *pandaIns);
     void GenFunctionInstructions(pandasm::Function *func);
     void GenScopeVariableInfo(pandasm::Function *func, const varbinder::Scope *scope) const;
     void GenScopeVariableInfoEnd(pandasm::Function *func, const varbinder::Scope *scope, uint32_t count,
                                  uint32_t scopeStart, const VariablesStartsMap &starts) const;
-    void GenSourceFileDebugInfo(pandasm::Function *func);
     void GenFunctionCatchTables(ark::pandasm::Function *func);
     void GenVariablesDebugInfo(pandasm::Function *func);
     util::StringView SourceCode() const;

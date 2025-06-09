@@ -11,6 +11,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import("//arkcompiler/ets_runtime/js_runtime_config.gni")
+
 group("ark_aot_js_test") {
   testonly = true
   test_list = [
@@ -36,6 +38,7 @@ group("ark_aot_js_test") {
     "lower_jscode_0001",
     "lower_jscode_0002",
     "fallback_type_conversion",
+    "pgo_stobjbyvalue",
     "typedarray_to_reversed",
   ]
 
@@ -82,6 +85,7 @@ group("ark_aot_ts_test") {
     "bind",
     "binaryop_special_value",
     "builtinmath",
+    "builtin_constructor",
     "builtin_math1",
     "builtin_math2",
     "builtins_decode_uri_component",
@@ -196,6 +200,7 @@ group("ark_aot_ts_test") {
     "intern_string_strict_equal1",
     "intern_string_strict_equal2",
     "isfalse",
+    "isfastcall",
     "isin",
     "isomorphism",
     "isprototype",
@@ -371,6 +376,7 @@ group("ark_aot_ts_test") {
     "sharedmap",
     "sharedJSON",
     "sharedset",
+    "sharedset_extern",
     "definesendableclass",
     "sendableenv",
     "sendablefunc",
@@ -432,7 +438,10 @@ group("ark_aot_ts_test") {
     ]
   }
 
-  deps = [ "builtin_inlining:ark_aot_builtin_inlining_test" ]
+  deps = []
+  if (enable_next_optimization) {
+    deps += [ "builtin_inlining:ark_aot_builtin_inlining_test" ]
+  }
 
   foreach(test, test_list) {
     deps += [ "${test}:${test}AotAction" ]

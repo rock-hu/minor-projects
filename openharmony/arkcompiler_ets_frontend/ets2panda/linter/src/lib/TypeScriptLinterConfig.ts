@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,7 +16,7 @@
 import * as ts from 'typescript';
 import { FaultID } from './Problems';
 
-export class LinterConfig {
+export class TypeScriptLinterConfig {
 
   /*
    * The SyntaxKind enum defines additional elements at the end of the enum
@@ -31,7 +31,7 @@ export class LinterConfig {
   static tsSyntaxKindNames: string[] = [];
 
   static {
-    LinterConfig.initTsSyntaxKindNames();
+    TypeScriptLinterConfig.initTsSyntaxKindNames();
   }
 
   private static initTsSyntaxKindNames(): void {
@@ -41,8 +41,8 @@ export class LinterConfig {
     for (let i = 0; i < values.length; i++) {
       const val = values[i];
       const kindNum = typeof val === 'string' ? parseInt(val) : val;
-      if (kindNum && !LinterConfig.tsSyntaxKindNames[kindNum]) {
-        LinterConfig.tsSyntaxKindNames[kindNum] = keys[i];
+      if (kindNum && !TypeScriptLinterConfig.tsSyntaxKindNames[kindNum]) {
+        TypeScriptLinterConfig.tsSyntaxKindNames[kindNum] = keys[i];
       }
     }
   }

@@ -492,6 +492,7 @@ void SelectContentOverlayManager::MarkInfoChange(SelectOverlayDirtyFlag dirty)
             if ((dirty & DIRTY_AI_MENU_ITEM) == DIRTY_AI_MENU_ITEM) {
                 localReplacedMenuInfo.aiMenuOptionType = menuInfo.aiMenuOptionType;
             }
+            localReplacedMenuInfo.hasOnPrepareMenuCallback = menuInfo.hasOnPrepareMenuCallback;
             TAG_LOGI(AceLogTag::ACE_SELECT_OVERLAY, "Update select all menu: %{public}s - %{public}s",
                 localReplacedMenuInfo.ToString().c_str(), GetOwnerDebugInfo().c_str());
             menuPattern->UpdateSelectMenuInfo(localReplacedMenuInfo);
@@ -853,6 +854,7 @@ void SelectContentOverlayManager::DestroySelectOverlayNode(const RefPtr<FrameNod
     parentNode->RemoveChild(overlay);
     parentNode->MarkNeedSyncRenderTree();
     parentNode->RebuildRenderContextTree();
+    overlay->SetInDestroying();
     if (pattern && pattern->GetIsMenuShowInSubWindow()) {
         SubwindowManager::GetInstance()->DeleteSelectOverlayHotAreas(pattern->GetContainerId(), overlay->GetId());
         SubwindowManager::GetInstance()->HideSelectOverlay(pattern->GetContainerId());

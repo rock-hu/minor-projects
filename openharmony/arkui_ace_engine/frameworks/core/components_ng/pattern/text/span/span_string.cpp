@@ -401,7 +401,7 @@ void SpanString::ProcessMultiDecorationSpanForIntersection(
     int32_t intersectionEnd = std::min(end, lastSpanEnd);
 
     bool spanInRight = lastSpanStart <= start && lastSpanEnd <= end;
-    bool isInclude = lastSpanStart >= start && lastSpanEnd <= end;
+    bool isInclude = lastSpanStart <= start && lastSpanEnd >= end;
 
     int32_t newStart = 0;
     int32_t newEnd = 0;
@@ -1263,6 +1263,7 @@ RefPtr<ParagraphStyleSpan> SpanString::ToParagraphStyleSpan(
     CHECK_NULL_RETURN(spanItem && spanItem->textLineStyle, nullptr);
     SpanParagraphStyle paragraphStyle;
     paragraphStyle.align = spanItem->textLineStyle->GetTextAlign();
+    paragraphStyle.textVerticalAlign = spanItem->textLineStyle->GetTextVerticalAlign();
     paragraphStyle.maxLines = spanItem->textLineStyle->GetMaxLines();
     paragraphStyle.textOverflow = spanItem->textLineStyle->GetTextOverflow();
     paragraphStyle.leadingMargin = spanItem->textLineStyle->GetLeadingMargin();

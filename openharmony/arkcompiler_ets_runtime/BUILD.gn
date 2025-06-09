@@ -15,6 +15,11 @@ import("//arkcompiler/ets_frontend/es2panda/es2abc_config.gni")
 import("//arkcompiler/ets_runtime/js_runtime_config.gni")
 import("$build_root/toolchain/toolchain.gni")
 
+declare_args() {
+  ets_runtime_enable_cmc_rb_dfx = false
+  ets_runtime_enable_cmc_verify = false
+}
+
 if (!ark_standalone_build && is_ohos) {
   import("//build/ohos.gni")
 }
@@ -231,7 +236,6 @@ ohos_static_library("ark_runtime_host_unittest") {
 
     # TODO: CMC-GC UT FIX LATER
     if (ets_runtime_enable_cmc_gc) {
-      deps -= [ "$js_root/test/jittest:ark_jit_test" ]
       if (!run_with_asan) {
         deps -= [
           "$js_root/test/aottest:ark_aot_test",
@@ -261,11 +265,6 @@ config("ark_jsruntime_public_config") {
   defines = []
   ldflags = []
 
-  if (ark_js_hybrid) {
-    defines += [ "PANDA_JS_ETS_HYBRID_MODE" ]
-    configs += [ "$ark_root/arkplatform:arkplatform_public_config" ]
-  }
-
   if (ark_hybrid) {
     defines += [ "ARK_HYBRID" ]
 
@@ -273,6 +272,11 @@ config("ark_jsruntime_public_config") {
         current_cpu == "x86_64") {
       ldflags += [ "-latomic" ]
     }
+  }
+
+  if (ark_js_hybrid) {
+    defines += [ "PANDA_JS_ETS_HYBRID_MODE" ]
+    configs += [ "$ark_root/arkplatform:arkplatform_public_config" ]
   }
 }
 
@@ -350,6 +354,16 @@ config("ark_jsruntime_common_config") {
   if (ets_runtime_enable_cmc_gc) {
     defines += [ "USE_CMC_GC" ]
     defines += [ "USE_READ_BARRIER" ]
+    if (ets_runtime_enable_cmc_rb_dfx) {
+        defines += [ "ENABLE_CMC_RB_DFX" ]
+        print("########## ets_runtime enable cmc RB-DFX ##############")
+    }
+    if (ets_runtime_enable_cmc_verify) {
+        defines += [ "ENABLE_CMC_VERIFY" ]
+        print("########## ets_runtime enable cmc heap-verify ##############")
+    }
+  } else {
+    print("########## ets_runtime disable cmc-gc ##############")
   }
 
   if (ark_standalone_build) {
@@ -529,12 +543,14 @@ config("ark_jsruntime_common_config") {
     cflags_cc += [
       "-O3",
       "-ggdb3",
+      "-gdwarf-4",
       "-fno-omit-frame-pointer",
       "-D_GLIBCXX_ASSERTIONS",
     ]
     cflags_c += [
       "-O3",
       "-ggdb3",
+      "-gdwarf-4",
       "-fno-omit-frame-pointer",
       "-D_GLIBCXX_ASSERTIONS",
     ]
@@ -542,6 +558,7 @@ config("ark_jsruntime_common_config") {
     cflags_cc += [
       "-O0",
       "-ggdb3",
+      "-gdwarf-4",
     ]
   } else {
     defines += [ "NDEBUG" ]
@@ -945,6 +962,8 @@ ecma_source = [
   "ecmascript/mem/shared_heap/shared_full_gc.cpp",
   "ecmascript/mem/shared_heap/shared_gc_marker.cpp",
   "ecmascript/mem/shared_heap/shared_space.cpp",
+  "ecmascript/mem/unified_gc/unified_gc.cpp",
+  "ecmascript/mem/unified_gc/unified_gc_marker.cpp",
   "ecmascript/mem/space.cpp",
   "ecmascript/mem/sparse_space.cpp",
   "ecmascript/mem/tagged_object.cpp",
@@ -1500,6 +1519,16 @@ ohos_source_set("libark_jsruntime_static") {
   } else {
     deps += [ "$ark_root/libpandafile:arkfile_header_deps" ]
     all_dependent_configs = [ ":ark_jsruntime_public_config" ]
+  }
+
+  if (ark_js_hybrid) {
+    if (is_arkui_x) {
+      deps += [ "$arkplatform_root:libarkplatform" ]
+    } else if (ark_standalone_build) {
+      external_deps += [ "runtime_core:libarkplatform" ]
+    } else {
+      public_external_deps = [ "runtime_core:libarkplatform" ]
+    }
   }
 
   public_configs = [ "$js_root:ark_jsruntime_public_config" ]

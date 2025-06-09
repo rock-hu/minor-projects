@@ -93,6 +93,7 @@ namespace panda::ecmascript::kungfu {
     V(CreateArrayWithBuffer)          \
     V(CreateObjectHavingMethod)       \
     V(NewJSObject)                    \
+    V(FastNewThisObject)              \
     V(JsBoundCallInternal)            \
     V(CreateStringBySingleCharCode)   \
     V(Getpropiterator)                \
@@ -131,6 +132,11 @@ namespace panda::ecmascript::kungfu {
     V(NewFloat32ArrayWithNoArgs)      \
     V(NewFloat32Array)                \
     V(StringLoadElement)              \
+    V(GetStringFromConstPool)         \
+    V(GetPrototype)                   \
+    V(FastCallSelector)               \
+    V(CheckSuperAndNew)               \
+    V(SuperCallAndConstructorCheck)   \
     V(ConvertCharToInt32)             \
     V(ConvertCharToDouble)            \
     V(ConvertCharToString)            \
@@ -180,6 +186,30 @@ public:
     {
         ASSERT(index < NUM_OF_STUBS);
         return callSigns_[index].GetName();
+    }
+
+    static bool IsReadOnly(size_t index)
+    {
+        ASSERT(index < NUM_OF_STUBS);
+        switch (index) {
+            case GetValueWithBarrier:
+                return true;
+            default:
+                return false;
+        }
+        return false;
+    }
+
+    static bool IsCold(size_t index)
+    {
+        ASSERT(index < NUM_OF_STUBS);
+        switch (index) {
+            case GetValueWithBarrier:
+                return true;
+            default:
+                return false;
+        }
+        return false;
     }
 
 private:

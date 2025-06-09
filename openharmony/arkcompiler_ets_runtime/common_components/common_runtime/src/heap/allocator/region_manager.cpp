@@ -417,6 +417,12 @@ void RegionManager::Initialize(size_t nRegion, uintptr_t regionInfoAddr)
 
     DLOG(REPORT, "region info @0x%zx+%zu, heap [0x%zx, 0x%zx), unit count %zu", regionInfoAddr, metadataSize,
          regionHeapStart_, regionHeapEnd_, nRegion);
+
+    ASAN_POISON_MEMORY_REGION(regionInfoAddr, metadataSize + nRegion * RegionDesc::UNIT_SIZE);
+    const uintptr_t p_addr = regionInfoAddr;
+    const uintptr_t p_size = metadataSize + nRegion * RegionDesc::UNIT_SIZE;
+    LOG_COMMON(DEBUG) << std::hex << "set [" << p_addr;
+    LOG_COMMON(DEBUG) << std::hex << ", " << p_addr + p_size << ") unaddressable\n";
 }
 
 void RegionManager::ReclaimRegion(RegionDesc* region)
@@ -455,6 +461,13 @@ void RegionManager::ReassembleFromSpace()
     fromRegionList_.MergeRegionList(toRegionList_, RegionDesc::RegionType::FROM_REGION);
     fromRegionList_.MergeRegionList(tlToRegionList_, RegionDesc::RegionType::FROM_REGION);
     fromRegionList_.MergeRegionList(exemptedFromRegionList_, RegionDesc::RegionType::FROM_REGION);
+}
+
+void RegionManager::ReassembleAppspawnSpace()
+{
+    appSpawnRegionList_.MergeRegionList(toRegionList_, RegionDesc::RegionType::APPSPAWN_REGION);
+    appSpawnRegionList_.MergeRegionList(tlToRegionList_, RegionDesc::RegionType::APPSPAWN_REGION);
+    appSpawnRegionList_.MergeRegionList(exemptedFromRegionList_, RegionDesc::RegionType::APPSPAWN_REGION);
 }
 
 void RegionManager::CountLiveObject(const BaseObject* obj)
@@ -681,7 +694,7 @@ uintptr_t RegionManager::AllocPinnedRegion()
     return start;
 }
 
-uintptr_t RegionManager::AllocLargeReion(size_t size)
+uintptr_t RegionManager::AllocLargeRegion(size_t size)
 {
     return AllocLarge(size, false);
 }
@@ -699,6 +712,12 @@ void RegionManager::ParallelCopyFromRegions(RegionDesc &startRegion, size_t regi
     if (LIKELY_CC(allocBuffer != nullptr)) {
         allocBuffer->ClearRegion(); // clear thread local region for gc threads.
     }
+}
+
+uintptr_t RegionManager::AllocJitFortRegion(size_t size)
+{
+    auto res =  AllocLarge(size, false);
+    return res;
 }
 
 void RegionManager::CopyFromRegions(Taskpool *threadPool)
@@ -878,6 +897,7 @@ void RegionManager::FixAllRegionLists()
     // fix only survived objects.
     FixOldRegionList(collector, exemptedFromRegionList_);
     FixOldRegionList(collector, oldLargeRegionList_);
+    FixOldRegionList(collector, appSpawnRegionList_);
 
     // fix survived object but should be with line judgement.
     FixRecentRegionList(collector, tlRegionList_);
@@ -894,6 +914,7 @@ void RegionManager::FixAllRegionLists()
 
 size_t RegionManager::CollectLargeGarbage()
 {
+    OHOS_HITRACE(HITRACE_LEVEL_MAX, "CMCGC::CollectLargeGarbage", "");
     size_t garbageSize = 0;
     TraceCollector& collector = reinterpret_cast<TraceCollector&>(Heap::GetHeap().GetCollector());
     RegionDesc* region = oldLargeRegionList_.GetHeadRegion();
@@ -907,6 +928,9 @@ size_t RegionManager::CollectLargeGarbage()
             RegionDesc* del = region;
             region = region->GetNextRegion();
             oldLargeRegionList_.DeleteRegion(del);
+            if (IsMachineCodeObject(reinterpret_cast<HeapAddress>(obj))) {
+                JitFortUnProt(del->GetRegionSize(), reinterpret_cast<void*>(obj));
+            }
             if (del->GetRegionSize() > RegionDesc::LARGE_OBJECT_RELEASE_THRESHOLD) {
                 garbageSize += ReleaseRegion(del);
             } else {
@@ -1034,54 +1058,54 @@ void RegionManager::DumpRegionStats(const char* msg) const
     VLOG(REPORT, "\treleased units: %zu (%zu B)", releasedUnits, releasedUnits * RegionDesc::UNIT_SIZE);
     VLOG(REPORT, "\tdirty units: %zu (%zu B)", dirtyUnits, dirtyUnits * RegionDesc::UNIT_SIZE);
 
-    OHOS_HITRACE_COUNT("Ark_GC_totalSize", totalSize);
-    OHOS_HITRACE_COUNT("Ark_GC_totalUnits", totalUnits);
-    OHOS_HITRACE_COUNT("Ark_GC_activeSize", activeSize);
-    OHOS_HITRACE_COUNT("Ark_GC_activeUnits", activeUnits);
-    OHOS_HITRACE_COUNT("Ark_GC_tlRegions", tlRegions);
-    OHOS_HITRACE_COUNT("Ark_GC_tlUnits", tlUnits);
-    OHOS_HITRACE_COUNT("Ark_GC_tlSize", tlSize);
-    OHOS_HITRACE_COUNT("Ark_GC_allocTLSize", allocTLSize);
-    OHOS_HITRACE_COUNT("Ark_GC_fromRegions", fromRegions);
-    OHOS_HITRACE_COUNT("Ark_GC_fromUnits", fromUnits);
-    OHOS_HITRACE_COUNT("Ark_GC_fromSize", fromSize);
-    OHOS_HITRACE_COUNT("Ark_GC_allocFromSize", allocFromSize);
-    OHOS_HITRACE_COUNT("Ark_GC_exemptedFromRegions", exemptedFromRegions);
-    OHOS_HITRACE_COUNT("Ark_GC_exemptedFromUnits", exemptedFromUnits);
-    OHOS_HITRACE_COUNT("Ark_GC_exemptedFromSize", exemptedFromSize);
-    OHOS_HITRACE_COUNT("Ark_GC_allocExemptedFromSize", allocExemptedFromSize);
-    OHOS_HITRACE_COUNT("Ark_GC_toRegions", toRegions);
-    OHOS_HITRACE_COUNT("Ark_GC_toUnits", toUnits);
-    OHOS_HITRACE_COUNT("Ark_GC_toSize", toSize);
-    OHOS_HITRACE_COUNT("Ark_GC_allocToSize", allocToSize);
-    OHOS_HITRACE_COUNT("Ark_GC_recentFullRegions", recentFullRegions);
-    OHOS_HITRACE_COUNT("Ark_GC_recentFullUnits", recentFullUnits);
-    OHOS_HITRACE_COUNT("Ark_GC_recentFullSize", recentFullSize);
-    OHOS_HITRACE_COUNT("Ark_GC_allocRecentFullSize", allocRecentFullSize);
-    OHOS_HITRACE_COUNT("Ark_GC_garbageRegions", garbageRegions);
-    OHOS_HITRACE_COUNT("Ark_GC_garbageUnits", garbageUnits);
-    OHOS_HITRACE_COUNT("Ark_GC_garbageSize", garbageSize);
-    OHOS_HITRACE_COUNT("Ark_GC_allocGarbageSize", allocGarbageSize);
-    OHOS_HITRACE_COUNT("Ark_GC_pinnedRegions", pinnedRegions);
-    OHOS_HITRACE_COUNT("Ark_GC_pinnedUnits", pinnedUnits);
-    OHOS_HITRACE_COUNT("Ark_GC_pinnedSize", pinnedSize);
-    OHOS_HITRACE_COUNT("Ark_GC_allocPinnedSize", allocPinnedSize);
-    OHOS_HITRACE_COUNT("Ark_GC_recentPinnedRegions", recentPinnedRegions);
-    OHOS_HITRACE_COUNT("Ark_GC_recentPinnedUnits", recentPinnedUnits);
-    OHOS_HITRACE_COUNT("Ark_GC_recentPinnedSize", recentPinnedSize);
-    OHOS_HITRACE_COUNT("Ark_GC_allocRecentPinnedSize", allocRecentPinnedSize);
-    OHOS_HITRACE_COUNT("Ark_GC_largeRegions", largeRegions);
-    OHOS_HITRACE_COUNT("Ark_GC_largeUnits", largeUnits);
-    OHOS_HITRACE_COUNT("Ark_GC_largeSize", largeSize);
-    OHOS_HITRACE_COUNT("Ark_GC_allocLargeSize", allocLargeSize);
-    OHOS_HITRACE_COUNT("Ark_GC_recentlargeRegions", recentlargeRegions);
-    OHOS_HITRACE_COUNT("Ark_GC_recentlargeUnits", recentlargeUnits);
-    OHOS_HITRACE_COUNT("Ark_GC_recentLargeSize", recentLargeSize);
-    OHOS_HITRACE_COUNT("Ark_GC_allocRecentLargeSize", allocRecentLargeSize);
-    OHOS_HITRACE_COUNT("Ark_GC_usedUnits", usedUnits);
-    OHOS_HITRACE_COUNT("Ark_GC_releasedUnits", releasedUnits);
-    OHOS_HITRACE_COUNT("Ark_GC_dirtyUnits", dirtyUnits);
-    OHOS_HITRACE_COUNT("Ark_GC_listedUnits", listedUnits);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_totalSize", totalSize);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_totalUnits", totalUnits);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_activeSize", activeSize);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_activeUnits", activeUnits);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_tlRegions", tlRegions);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_tlUnits", tlUnits);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_tlSize", tlSize);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_allocTLSize", allocTLSize);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_fromRegions", fromRegions);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_fromUnits", fromUnits);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_fromSize", fromSize);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_allocFromSize", allocFromSize);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_exemptedFromRegions", exemptedFromRegions);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_exemptedFromUnits", exemptedFromUnits);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_exemptedFromSize", exemptedFromSize);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_allocExemptedFromSize", allocExemptedFromSize);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_toRegions", toRegions);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_toUnits", toUnits);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_toSize", toSize);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_allocToSize", allocToSize);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_recentFullRegions", recentFullRegions);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_recentFullUnits", recentFullUnits);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_recentFullSize", recentFullSize);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_allocRecentFullSize", allocRecentFullSize);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_garbageRegions", garbageRegions);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_garbageUnits", garbageUnits);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_garbageSize", garbageSize);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_allocGarbageSize", allocGarbageSize);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_pinnedRegions", pinnedRegions);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_pinnedUnits", pinnedUnits);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_pinnedSize", pinnedSize);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_allocPinnedSize", allocPinnedSize);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_recentPinnedRegions", recentPinnedRegions);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_recentPinnedUnits", recentPinnedUnits);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_recentPinnedSize", recentPinnedSize);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_allocRecentPinnedSize", allocRecentPinnedSize);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_largeRegions", largeRegions);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_largeUnits", largeUnits);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_largeSize", largeSize);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_allocLargeSize", allocLargeSize);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_recentlargeRegions", recentlargeRegions);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_recentlargeUnits", recentlargeUnits);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_recentLargeSize", recentLargeSize);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_allocRecentLargeSize", allocRecentLargeSize);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_usedUnits", usedUnits);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_releasedUnits", releasedUnits);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_dirtyUnits", dirtyUnits);
+    OHOS_HITRACE_COUNT(HITRACE_LEVEL_MAX, "Ark_GC_listedUnits", listedUnits);
 }
 
 RegionDesc* RegionManager::AllocateThreadLocalRegion(bool expectPhysicalMem)
@@ -1201,5 +1225,44 @@ uintptr_t RegionManager::AllocPinnedFromFreeList(size_t cellCount)
     BaseObject* object = reinterpret_cast<BaseObject*>(allocPtr);
     (reinterpret_cast<TraceCollector*>(&Heap::GetHeap().GetCollector()))->MarkObject(object, cellCount);
     return allocPtr;
+}
+
+uintptr_t RegionManager::AllocReadOnly(size_t size, bool allowGC)
+{
+    uintptr_t addr = 0;
+    std::mutex& regionListMutex = readOnlyRegionList_.GetListMutex();
+
+    std::lock_guard<std::mutex> lock(regionListMutex);
+    RegionDesc* headRegion = readOnlyRegionList_.GetHeadRegion();
+    if (headRegion != nullptr) {
+        addr = headRegion->Alloc(size);
+    }
+    if (addr == 0) {
+        RegionDesc* region =
+            TakeRegion(maxUnitCountPerRegion_, RegionDesc::UnitRole::SMALL_SIZED_UNITS, false, allowGC);
+        if (region == nullptr) {
+            return 0;
+        }
+        DLOG(REGION, "alloc read only region @0x%zx+%zu type %u", region->GetRegionStart(),
+             region->GetRegionAllocatedSize(),
+             region->GetRegionType());
+        GCPhase phase = Mutator::GetMutator()->GetMutatorPhase();
+        if (phase == GC_PHASE_ENUM || phase == GC_PHASE_MARK || phase == GC_PHASE_REMARK_SATB ||
+            phase == GC_PHASE_POST_MARK) {
+            region->SetTraceLine();
+        } else if (phase == GC_PHASE_PRECOPY || phase == GC_PHASE_COPY) {
+            region->SetCopyLine();
+        } else if (phase == GC_PHASE_FIX) {
+            region->SetCopyLine();
+            region->SetFixLine();
+        }
+
+        // To make sure the allocedSize are consistent, it must prepend region first then alloc object.
+        readOnlyRegionList_.PrependRegionLocked(region, RegionDesc::RegionType::READ_ONLY_REGION);
+        addr = region->Alloc(size);
+    }
+
+    DLOG(ALLOC, "alloc read only obj 0x%zx(%zu)", addr, size);
+    return addr;
 }
 } // namespace panda

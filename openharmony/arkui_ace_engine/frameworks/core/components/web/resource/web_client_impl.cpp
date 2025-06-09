@@ -818,6 +818,14 @@ void WebClientImpl::OnWindowNewByJS(
     delegate->OnWindowNew(targetUrl, isAlert, isUserTrigger, handler);
 }
 
+void WebClientImpl::OnActivateContentByJS()
+{
+    auto delegate = webDelegate_.Upgrade();
+    CHECK_NULL_VOID(delegate);
+    ContainerScope scope(delegate->GetInstanceId());
+    delegate->OnActivateContent();
+}
+
 void WebClientImpl::OnWindowExitByJS()
 {
     auto delegate = webDelegate_.Upgrade();
@@ -928,6 +936,7 @@ void WebClientImpl::OnFirstMeaningfulPaint(
     CHECK_NULL_VOID(details);
     ContainerScope scope(delegate->GetInstanceId());
     delegate->OnFirstMeaningfulPaint(details);
+    delegate->RemoveSnapshotFrameNode();
 }
 
 void WebClientImpl::OnLargestContentfulPaint(

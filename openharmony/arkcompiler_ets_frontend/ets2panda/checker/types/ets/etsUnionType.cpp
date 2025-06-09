@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,9 +14,10 @@
  */
 
 #include <numeric>
+#include "etsObjectType.h"
 #include "etsUnionType.h"
-
 #include "checker/ets/conversion.h"
+#include "checker/types/ets/etsTupleType.h"
 #include "checker/types/globalTypesHolder.h"
 #include "checker/ETSchecker.h"
 
@@ -44,7 +45,7 @@ void ETSUnionType::ToDebugInfoType(std::stringstream &ss) const
 ETSUnionType::ETSUnionType(ETSChecker *checker, ArenaVector<Type *> &&constituentTypes)
     : Type(TypeFlag::ETS_UNION), constituentTypes_(std::move(constituentTypes))
 {
-    ASSERT(constituentTypes_.size() > 1);
+    ES2PANDA_ASSERT(constituentTypes_.size() > 1);
     assemblerLub_ = ComputeAssemblerLUB(checker, this);
 }
 
@@ -78,17 +79,18 @@ Type *ETSUnionType::ComputeAssemblerLUB(ETSChecker *checker, ETSUnionType *un)
             return checker->GlobalTypeError();
         }
         // NOTE(vpukhov): #19701 void refactoring
-        ASSERT(t->IsETSReferenceType() || t->IsETSVoidType());
-        if (t->IsETSNullType() || lub == t) {
-            continue;
-        }
-        // NOTE(vpukhov): #19701 void refactoring
-        if (t->IsETSUndefinedType() || t->IsETSVoidType()) {
-            return checker->GetGlobalTypesHolder()->GlobalETSObjectType();
-        }
-        if (lub == nullptr) {
+        ES2PANDA_ASSERT(t->IsETSReferenceType() || t->IsETSVoidType());
+        t = t->IsETSVoidType() ? checker->GlobalETSUndefinedType() : t;
+
+        if (lub == nullptr || lub->IsETSUndefinedType()) {
             lub = t;
             continue;
+        }
+        if (lub == t || t->IsETSUndefinedType()) {
+            continue;
+        }
+        if (t->IsETSNullType()) {
+            return checker->GetGlobalTypesHolder()->GlobalETSObjectType();
         }
         if (t->IsETSObjectType() && lub->IsETSObjectType()) {
             lub = checker->GetClosestCommonAncestor(lub->AsETSObjectType(), t->AsETSObjectType());
@@ -119,7 +121,7 @@ static void AmbiguousUnionOperation(TypeRelation *relation)
 {
     auto checker = relation->GetChecker()->AsETSChecker();
     if (!relation->NoThrow()) {
-        checker->LogTypeError({"Ambiguous union type operation"}, relation->GetNode()->Start());
+        checker->LogError(diagnostic::AMBIGUOUS_UNION_TYPE_OP, {}, relation->GetNode()->Start());
     }
     conversion::Forbidden(relation);
 }
@@ -139,7 +141,12 @@ void ETSUnionType::RelationTarget(TypeRelation *relation, Type *source, RelFN co
     if (std::any_of(constituentTypes_.begin(), constituentTypes_.end(),
                     [relation, refsource, relFn](auto *t) { return relFn(relation, refsource, t); })) {
         if (refsource != source) {
-            relation->GetNode()->SetBoxingUnboxingFlags(checker->GetBoxingFlag(refsource));
+            // Some nodes can have both boxing and unboxing flags set. When applying them, first the unboxing happens
+            // (then a possible primitive conversion), and boxing at last.
+            // NOTE (smartin): when boxing/unboxing is moved to a lowering, review this part of the code
+            const auto mergedBoxingFlags =
+                relation->GetNode()->GetBoxingUnboxingFlags() | checker->GetBoxingFlag(refsource);
+            relation->GetNode()->SetBoxingUnboxingFlags(mergedBoxingFlags);
         }
         relation->Result(true);
         return;
@@ -175,25 +182,8 @@ bool ETSUnionType::AssignmentSource(TypeRelation *relation, Type *target)
             relation->GetChecker()->AsETSChecker()->GetUnboxingFlag(checker->MaybeUnboxType(target)));
     }
 
-    bool isAssignable = false;
-
-    if (!(target->IsETSObjectType() && target->AsETSObjectType()->HasObjectFlag(ETSObjectFlags::FUNCTIONAL))) {
-        isAssignable = std::all_of(constituentTypes_.begin(), constituentTypes_.end(),
-                                   [relation, target](auto *t) { return relation->IsAssignableTo(t, target); });
-    } else {
-        for (auto it : constituentTypes_) {
-            if (!it->IsETSObjectType() || !it->AsETSObjectType()->HasObjectFlag(ETSObjectFlags::FUNCTIONAL)) {
-                isAssignable = false;
-                break;
-            }
-
-            if (relation->IsAssignableTo(it, target)) {
-                isAssignable = true;
-            }
-        }
-    }
-
-    return relation->Result(isAssignable);
+    return relation->Result(std::all_of(constituentTypes_.begin(), constituentTypes_.end(),
+                                        [relation, target](auto *t) { return relation->IsAssignableTo(t, target); }));
 }
 
 void ETSUnionType::AssignmentTarget(TypeRelation *relation, Type *source)
@@ -248,8 +238,8 @@ static Type *LargestNumeric(Type *t1, Type *t2)
 
     auto v1 = t1->TypeFlags() & ETS_NORMALIZABLE_NUMERIC;
     auto v2 = t2->TypeFlags() & ETS_NORMALIZABLE_NUMERIC;
-    ASSERT(helpers::math::IsPowerOfTwo(v1));
-    ASSERT(helpers::math::IsPowerOfTwo(v2));
+    ES2PANDA_ASSERT(helpers::math::IsPowerOfTwo(v1));
+    ES2PANDA_ASSERT(helpers::math::IsPowerOfTwo(v2));
     return v1 > v2 ? t1 : t2;
 }
 
@@ -368,6 +358,13 @@ void ETSUnionType::IsSubtypeOf(TypeRelation *relation, Type *target)
     }
 }
 
+void ETSUnionType::CheckVarianceRecursively(TypeRelation *relation, VarianceFlag varianceFlag)
+{
+    for (auto const &ctype : ConstituentTypes()) {
+        relation->CheckVarianceRecursively(ctype, relation->TransferVariant(varianceFlag, VarianceFlag::COVARIANT));
+    }
+}
+
 bool ETSUnionType::IsAssignableType(checker::Type *sourceType) const noexcept
 {
     if (sourceType->IsETSTypeParameter() || sourceType->IsTypeError()) {
@@ -381,6 +378,25 @@ bool ETSUnionType::IsAssignableType(checker::Type *sourceType) const noexcept
     return false;
 }
 
+checker::Type *ETSUnionType::HandleNumericPrecedence(
+    checker::ETSChecker *checker, checker::ETSObjectType *objectType, checker::Type *sourceType,
+    std::map<std::uint32_t, checker::Type *> &numericTypes) const noexcept
+{
+    auto const sourceId =
+        (objectType != nullptr) ? ETSObjectType::GetPrecedence(checker, objectType) : Type::GetPrecedence(sourceType);
+    if (sourceId > 0U) {
+        for (auto const [id, type] : numericTypes) {
+            if (id >= sourceId) {
+                return type;
+            }
+        }
+        if (sourceType->IsConstantType() && !numericTypes.empty()) {
+            return numericTypes.begin()->second;
+        }
+    }
+    return nullptr;
+}
+
 //  NOTE! When calling this method we assume that 'AssignmentTarget(...)' check was passes successfully,
 //  thus the required assignable type always exists.
 checker::Type *ETSUnionType::GetAssignableType(checker::ETSChecker *checker, checker::Type *sourceType) const noexcept
@@ -389,31 +405,37 @@ checker::Type *ETSUnionType::GetAssignableType(checker::ETSChecker *checker, che
         return sourceType;
     }
 
-    auto *objectType = sourceType->IsETSObjectType() ? sourceType->AsETSObjectType() : nullptr;
-    if (objectType != nullptr && (!objectType->HasObjectFlag(ETSObjectFlags::BUILTIN_TYPE) ||
-                                  objectType->HasObjectFlag(ETSObjectFlags::BUILTIN_STRING))) {
-        //  NOTE: here wo don't cast the actual type to possible base type using in the union, but use it as is!
-        return sourceType;
-    }
-
+    auto *objectType = sourceType->IsETSObjectType()  ? sourceType->AsETSObjectType()
+                       : sourceType->IsETSTupleType() ? sourceType->AsETSTupleType()->GetWrapperType()
+                                                      : nullptr;
     std::map<std::uint32_t, checker::Type *> numericTypes {};
     bool const isBool = objectType != nullptr ? objectType->HasObjectFlag(ETSObjectFlags::BUILTIN_BOOLEAN)
                                               : sourceType->HasTypeFlag(TypeFlag::ETS_BOOLEAN);
     bool const isChar = objectType != nullptr ? objectType->HasObjectFlag(ETSObjectFlags::BUILTIN_CHAR)
                                               : sourceType->HasTypeFlag(TypeFlag::CHAR);
+
+    if (objectType != nullptr) {
+        if (objectType->IsETSResizableArrayType() || sourceType->IsETSTupleType()) {
+            checker::Type *assignableType = GetAssignableBuiltinType(checker, objectType, isBool, isChar, numericTypes);
+            //  NOTE: For array and tuple types, they may be readonly, so we cannot simply use the it
+            if (assignableType != nullptr && assignableType->HasTypeFlag(TypeFlag::READONLY)) {
+                return assignableType;
+            }
+        }
+        if ((!objectType->HasObjectFlag(ETSObjectFlags::BUILTIN_TYPE) ||
+             objectType->HasObjectFlag(ETSObjectFlags::BUILTIN_STRING))) {
+            //  NOTE: here wo don't cast the actual type to possible base type using in the union, but use it as is!
+            return sourceType;
+        }
+    }
+
     if (checker::Type *assignableType = GetAssignableBuiltinType(checker, objectType, isBool, isChar, numericTypes);
         assignableType != nullptr) {
         return assignableType;
     }
 
-    if (auto const sourceId =
-            objectType != nullptr ? ETSObjectType::GetPrecedence(checker, objectType) : Type::GetPrecedence(sourceType);
-        sourceId > 0U) {
-        for (auto const [id, type] : numericTypes) {
-            if (id >= sourceId) {
-                return type;
-            }
-        }
+    if (auto *assignableType = HandleNumericPrecedence(checker, objectType, sourceType, numericTypes)) {
+        return assignableType;
     }
 
     for (auto *constituentType : constituentTypes_) {
@@ -432,11 +454,12 @@ checker::Type *ETSUnionType::GetAssignableBuiltinType(
     checker::Type *assignableType = nullptr;
 
     for (auto *constituentType : constituentTypes_) {
-        if (!constituentType->IsETSObjectType()) {
+        if (!constituentType->IsETSObjectType() && !constituentType->IsETSTupleType()) {
             continue;
         }
 
-        auto *const type = constituentType->AsETSObjectType();
+        auto *const type = constituentType->IsETSTupleType() ? constituentType->AsETSTupleType()->GetWrapperType()
+                                                             : constituentType->AsETSObjectType();
         if (type->HasObjectFlag(ETSObjectFlags::BUILTIN_BOOLEAN)) {
             if (isBool) {
                 assignableType = constituentType;
@@ -472,7 +495,9 @@ bool ETSUnionType::ExtractType(checker::ETSChecker *checker, checker::ETSObjectT
         //  Because 'instanceof' expression does not check for type parameters, then for generic types we should
         //  consider that expressions like 'SomeType<U...>' and 'SomeType<T...>' are identical for smart casting.
         //  We also have to pass through all the union to process cases like 'C<T>|A|B|C<U>|undefined`
-        if (constituentType->HasTypeFlag(checker::TypeFlag::GENERIC)) {
+        if (constituentType->IsETSTypeParameter()) {
+            constituentType = constituentType->AsETSTypeParameter()->GetConstraintType();
+        } else if (constituentType->HasTypeFlag(checker::TypeFlag::GENERIC)) {
             constituentType = constituentType->Clone(checker);
             constituentType->RemoveTypeFlag(checker::TypeFlag::GENERIC);
         }
@@ -525,28 +550,27 @@ bool ETSUnionType::ExtractType(checker::ETSChecker *checker, checker::ETSArrayTy
                                ArenaVector<Type *> &unionTypes) noexcept
 {
     auto it = unionTypes.cbegin();
+
+    bool rc = false;
     while (it != unionTypes.cend()) {
-        auto *const constituentType = *it;
-        if (constituentType != nullptr && constituentType->IsETSArrayType()) {
-            if (checker->Relation()->IsIdenticalTo(constituentType, sourceType)) {
-                unionTypes.erase(it);
-                return true;
-            }
-            if (checker->Relation()->IsSupertypeOf(constituentType, sourceType)) {
-                return true;
-            }
+        auto *constituentType = *it;
+
+        if (constituentType->IsETSTypeParameter()) {
+            constituentType = constituentType->AsETSTypeParameter()->GetConstraintType();
+        }
+
+        if (checker->Relation()->IsIdenticalTo(constituentType, sourceType)) {
+            rc = true;
+            unionTypes.erase(it);
+            continue;
+        }
+        if (checker->Relation()->IsSupertypeOf(constituentType, sourceType)) {
+            rc = true;
         }
         ++it;
     }
 
-    for (auto const &constituentType : unionTypes) {
-        if (constituentType != nullptr && constituentType->IsETSObjectType() &&
-            constituentType->AsETSObjectType()->IsGlobalETSObjectType()) {
-            return true;
-        }
-    }
-
-    return false;
+    return rc;
 }
 
 std::pair<checker::Type *, checker::Type *> ETSUnionType::GetComplimentaryType(ETSChecker *const checker,
@@ -583,7 +607,7 @@ std::pair<checker::Type *, checker::Type *> ETSUnionType::GetComplimentaryType(E
     }
 
     if (!ok) {
-        return std::make_pair(checker->GetGlobalTypesHolder()->GlobalNeverType(), this);
+        return std::make_pair(checker->GetGlobalTypesHolder()->GlobalETSNeverType(), this);
     }
 
     checker::Type *complimentaryType;
@@ -598,7 +622,7 @@ std::pair<checker::Type *, checker::Type *> ETSUnionType::GetComplimentaryType(E
 
 Type *ETSUnionType::FindTypeIsCastableToThis(ir::Expression *node, TypeRelation *relation, Type *source) const
 {
-    ASSERT(node);
+    ES2PANDA_ASSERT(node);
     bool nodeWasSet = false;
     if (relation->GetNode() == nullptr) {
         nodeWasSet = true;
@@ -630,7 +654,7 @@ Type *ETSUnionType::FindTypeIsCastableToThis(ir::Expression *node, TypeRelation 
 
 Type *ETSUnionType::FindTypeIsCastableToSomeType(ir::Expression *node, TypeRelation *relation, Type *target) const
 {
-    ASSERT(node);
+    ES2PANDA_ASSERT(node);
     bool nodeWasSet = false;
     if (relation->GetNode() == nullptr) {
         nodeWasSet = true;
@@ -718,16 +742,6 @@ std::tuple<bool, bool> ETSUnionType::ResolveConditionExpr() const
     return {false, false};
 }
 
-bool ETSUnionType::HasUndefinedType() const
-{
-    for (const auto &type : constituentTypes_) {
-        if (type->IsETSUndefinedType()) {
-            return true;
-        }
-    }
-    return false;
-}
-
 bool ETSUnionType::HasType(Type *type) const
 {
     for (const auto &cType : constituentTypes_) {
@@ -736,11 +750,6 @@ bool ETSUnionType::HasType(Type *type) const
         }
     }
     return false;
-}
-
-bool ETSUnionType::HasNullishType(const ETSChecker *checker) const
-{
-    return HasType(checker->GlobalETSNullType()) || HasType(checker->GlobalETSUndefinedType());
 }
 
 bool ETSUnionType::IsOverlapWith(TypeRelation *relation, Type *type)

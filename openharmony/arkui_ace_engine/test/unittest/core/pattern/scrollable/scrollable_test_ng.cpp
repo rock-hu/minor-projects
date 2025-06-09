@@ -1475,6 +1475,47 @@ HWTEST_F(ScrollableTestNg, SetEdgeEffect001, TestSize.Level1)
 }
 
 /**
+ * @tc.name: ScrollTo001
+ * @tc.desc: Test ScrollTo
+ * @tc.type: FUNC
+ */
+HWTEST_F(ScrollableTestNg, ScrollTo001, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. Initialize ScrollablePattern type pointer and set EdgeEffect to Spring.
+     * @tc.expected: isOverScroll_ is true.
+     */
+    auto scrollPn = scroll_->GetPattern<PartiallyMockedScrollable>();
+    ASSERT_NE(scrollPn, nullptr);
+    scrollPn->SetCanStayOverScroll(true);
+    scrollPn->ScrollTo(1.0f);
+    EXPECT_TRUE(scrollPn->GetIsOverScroll());
+}
+
+/**
+ * @tc.name: HandleOverScroll001
+ * @tc.desc: Test HandleOverScroll001
+ * @tc.type: FUNC
+ */
+HWTEST_F(ScrollableTestNg, HandleOverScroll001, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. Initialize ScrollablePattern type pointer and set EdgeEffect to Spring.
+     * @tc.expected: isOverScroll_ is true.
+     */
+    auto scrollPn = scroll_->GetPattern<PartiallyMockedScrollable>();
+    ASSERT_NE(scrollPn, nullptr);
+    scrollPn->SetIsOverScroll(true);
+    auto scrollableEvent = scrollPn->GetScrollableEvent();
+    auto scrollable = scrollableEvent->GetScrollable();
+    GestureEvent info;
+    info.inputEventType_ = InputEventType::AXIS;
+    info.sourceTool_ = SourceTool::TOUCHPAD;
+    scrollable->HandleDragEnd(info);
+    EXPECT_FALSE(scrollPn->GetIsOverScroll());
+}
+
+/**
  * @tc.name: OnTouchTestDone001
  * @tc.desc: Test OnTouchTestDone
  * @tc.type: FUNC
@@ -1517,10 +1558,10 @@ HWTEST_F(ScrollableTestNg, OnTouchTestDone001, TestSize.Level1)
     auto scrollablePattern = scroll_->GetPattern<PartiallyMockedScrollable>();
     scrollablePattern->OnTouchTestDone(baseGestureEvent, activeRecognizers);
     EXPECT_FALSE(scrollablePattern->isHitTestBlock_);
-    EXPECT_FALSE(clickRecognizer->IsPreventDefault());
-    EXPECT_FALSE(longPressRecognizer->IsPreventDefault());
-    EXPECT_FALSE(tapRecognizer->IsPreventDefault());
-    EXPECT_FALSE(panRecognizer->IsPreventDefault());
+    EXPECT_FALSE(clickRecognizer->IsPreventBegin());
+    EXPECT_FALSE(longPressRecognizer->IsPreventBegin());
+    EXPECT_FALSE(tapRecognizer->IsPreventBegin());
+    EXPECT_FALSE(panRecognizer->IsPreventBegin());
 
     /**
      * @tc.steps: step3. currentVelocity_ is greater than 200 and state_ is SPRING.
@@ -1532,10 +1573,10 @@ HWTEST_F(ScrollableTestNg, OnTouchTestDone001, TestSize.Level1)
     scrollable->state_ = Scrollable::AnimationState::SPRING;
     scrollablePattern->OnTouchTestDone(baseGestureEvent, activeRecognizers);
     EXPECT_TRUE(scrollablePattern->isHitTestBlock_);
-    EXPECT_TRUE(clickRecognizer->IsPreventDefault());
-    EXPECT_TRUE(longPressRecognizer->IsPreventDefault());
-    EXPECT_TRUE(tapRecognizer->IsPreventDefault());
-    EXPECT_FALSE(panRecognizer->IsPreventDefault());
+    EXPECT_TRUE(clickRecognizer->IsPreventBegin());
+    EXPECT_TRUE(longPressRecognizer->IsPreventBegin());
+    EXPECT_TRUE(tapRecognizer->IsPreventBegin());
+    EXPECT_FALSE(panRecognizer->IsPreventBegin());
 }
 
 /**

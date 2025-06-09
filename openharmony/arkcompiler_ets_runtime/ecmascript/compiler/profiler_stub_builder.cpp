@@ -229,6 +229,7 @@ void ProfilerStubBuilder::ProfileCall(
     Label fastPath(env);
     Label targetIsFunction(env);
 
+    StartTraceCallDetail(glue, profileTypeInfo, IntToTaggedInt(GetSlotID(slotInfo)));
     BRANCH(IsJSFunction(glue, target), &targetIsFunction, &exit);
     Bind(&targetIsFunction);
     {
@@ -291,6 +292,7 @@ void ProfilerStubBuilder::ProfileCall(
         }
     }
     Bind(&exit);
+    EndTraceCall(glue);
     env->SubCfgExit();
 }
 
@@ -665,7 +667,7 @@ GateRef ProfilerStubBuilder::GetIterationFunctionId(GateRef glue, GateRef iterat
     Label notStringProtoIter(env);
     Label isTypedArrayProtoValues(env);
 
-    GateRef globalEnv = GetGlobalEnv(glue);
+    GateRef globalEnv = GetCurrentGlobalEnv();
     maybeFunc = GetGlobalEnvValue(VariableType::JS_ANY(), glue, globalEnv,
                                   GlobalEnv::ARRAY_PROTO_VALUES_FUNCTION_INDEX);
     BRANCH(Int64Equal(iterator, *maybeFunc), &isArrayProtoValues, &notArrayProtoValues);

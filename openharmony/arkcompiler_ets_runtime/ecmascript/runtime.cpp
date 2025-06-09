@@ -178,6 +178,8 @@ void Runtime::DestroyIfLastVm()
 #ifdef USE_CMC_GC
         // Destroy BaseRuntime after daemon thread because it will unregister mutator
         BaseRuntime::DestroyInstance();
+        // reset Base address offset
+        TaggedStateWord::BASE_ADDRESS = 0;
 #endif
         ASSERT(instance_ != nullptr);
         delete instance_;
@@ -437,7 +439,8 @@ void Runtime::ProcessNativeDeleteInSharedGC(const WeakRootVisitor &visitor)
 {
     // No need lock here, only shared gc will sweep shared constpool, meanwhile other threads are suspended.
     auto iterator = globalSharedConstpools_.begin();
-    ECMA_BYTRACE_NAME(HITRACE_TAG_ARK, "Constpools:" + std::to_string(globalSharedConstpools_.size()));
+    ECMA_BYTRACE_NAME(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK,
+        ("Constpools:" + std::to_string(globalSharedConstpools_.size())).c_str(), "");
     while (iterator != globalSharedConstpools_.end()) {
         auto &constpools = iterator->second;
         auto constpoolIter = constpools.begin();

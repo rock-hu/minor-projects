@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -41,63 +41,81 @@ globalThis.ASSERT_THROWS = function assertThrows(ctor, fn) {
 };
 
 globalThis.LOG_PROTO_CHAIN = function logProtoChain(o) {
-	console.log('===== LOG_PROTO_CHAIN of ' + o + ' =====');
+	print('===== LOG_PROTO_CHAIN of ' + o + ' =====');
 	for (let p = o.__proto__; p !== null; p = p.__proto__) {
-		console.log(p.constructor + '\n[' + Object.getOwnPropertyNames(p) + ']');
+		print(p.constructor + '\n[' + Object.getOwnPropertyNames(p) + ']');
 	}
-	console.log('==========');
+	print('==========');
 };
 
 function main() {
+    const helper = requireNapiPreview('lib/libinterop_test_helper.so', false);
+    if (helper === undefined) {
+		print(`Failed to call requireNapiPreview(lib/libinterop_test_helper.so, false)`);
+		return 1;
+    }
+
 	// Add 'gtest' object to global space.
 	// This object is used by gtests as storage to save and restore variables
 	globalThis.gtest = {};
-	globalThis.gtest.ret = 0;
 
-	// load ets_interop_js_napi to globalThis.gtest.etsVm
-	globalThis.gtest.etsVm = require('lib/module/ets_interop_js_napi');
-	let penv = process.env;
+	globalThis.gtest.etsVm = requireNapiPreview('lib/ets_interop_js_napi.so', false);
+    globalThis.gtest.helper = helper;
+
+	let stdlibPath = helper.getEnvironmentVar('ARK_ETS_STDLIB_PATH');
+	let gtestAbcPath = helper.getEnvironmentVar('ARK_ETS_INTEROP_JS_GTEST_ABC_PATH');
 
 	const etsVmRes = globalThis.gtest.etsVm.createRuntime({
 		'log-level': 'info',
 		'log-components': 'ets_interop_js',
-		'boot-panda-files': penv.ARK_ETS_STDLIB_PATH + ':' + penv.ARK_ETS_INTEROP_JS_GTEST_ABC_PATH,
-		'panda-files': penv.ARK_ETS_INTEROP_JS_GTEST_ABC_PATH,
+		'boot-panda-files': stdlibPath + ':' + gtestAbcPath,
+		'panda-files': gtestAbcPath,
 		'gc-trigger-type': 'heap-trigger',
 		'compiler-enable-jit': 'false',
-		'run-gc-in-place': 'true',
+        'coroutine-enable-external-scheduling': 'true',
 	});
 
 	if (!etsVmRes) {
-		console.error('Failed to create ETS runtime');
+		print('Failed to create ETS runtime');
 		return 1;
 	}
 
-	// 'globalThis.require' is used by gtests to load the node modules
 	globalThis.require = require;
 
-	let gtestName = process.argv[2];
+	let argv = helper.getArgv();
+	const arkJsNapiCliLastArgIdx = 5;
+
+	let gtestName = argv[arkJsNapiCliLastArgIdx];
 	if (gtestName === undefined) {
-		console.error(`Usage: ${process.argv[0]} ${process.argv[1]} <test name>`);
+		print(`Usage: ${argv[0]} ${argv[1]} ${argv[2]} ${argv[3]} ${argv[4]} <test name>`);
 		return 1;
 	}
 
-	let gtestDir = process.env.ARR_ETS_INTEROP_JS_GTEST_DIR;
+	let gtestDir = helper.getEnvironmentVar('ARK_ETS_INTEROP_JS_GTEST_DIR');
 	if (gtestDir === undefined) {
-		throw Error('ARR_ETS_INTEROP_JS_GTEST_DIR is not set');
+		print('ARK_ETS_INTEROP_JS_GTEST_DIR is not set');
+		return 1;
 	}
 
 	// Run gtest
-	console.log(`Run ets_interop_js_gtest module: ${gtestName}`);
-	const etsGtest = require(`${gtestDir}/lib/module/${gtestName}`);
-	let args = process.argv.slice(2);
+	print(`Run ets_interop_js_gtest module: ${gtestName}`);
+	const etsGtest = requireNapiPreview(`lib/${gtestName}.so`, false);
+	if (etsGtest === undefined) {
+		print(`Failed to call requireNapiPreview(lib/${gtestName}.so, false)`);
+		return 1;
+	}
+
+	let args = argv.slice(arkJsNapiCliLastArgIdx);
 	try {
 		return etsGtest.main(args);
 	} catch (e) {
-		console.log(`${gtestName}: uncaught exception: ${e}`);
-		console.log('exception.toString():\n', e.toString());
+		print(`${gtestName}: uncaught exception: ${e}`);
+		print('exception.toString():\n', e.toString());
 	}
 	return 1;
 }
 
-process.exit(main());
+let res = main();
+if (res !== 0) {
+	throw Error('gtest_launcher.js main return 1');
+}

@@ -156,7 +156,6 @@ JSThread *JSThread::Create(EcmaVM *vm)
     return jsThread;
 }
 
-
 #if defined(USE_CMC_GC) && defined(IMPOSSIBLE)
 JSThread::JSThread(EcmaVM *vm) : BaseThread(BaseThreadType::JS_THREAD, new ThreadHolder()),
                                  id_(os::thread::GetCurrentThreadId()), vm_(vm)
@@ -167,24 +166,46 @@ JSThread::JSThread(EcmaVM *vm) : id_(os::thread::GetCurrentThreadId()), vm_(vm)
     auto chunk = vm->GetChunk();
     if (!vm_->GetJSOptions().EnableGlobalLeakCheck()) {
         globalStorage_ = chunk->New<EcmaGlobalStorage<Node>>(this, vm->GetNativeAreaAllocator());
-        newGlobalHandle_ = [this](JSTaggedType value) { return globalStorage_->NewGlobalHandle(value); };
-        disposeGlobalHandle_ = [this](uintptr_t nodeAddr) { globalStorage_->DisposeGlobalHandle(nodeAddr); };
+        newGlobalHandle_ = [this](JSTaggedType value) {
+            return globalStorage_->NewGlobalHandle<NodeKind::NORMAL_NODE>(value);
+        };
+        newXRefGlobalHandle_ = [this](JSTaggedType value) {
+            return globalStorage_->NewGlobalHandle<NodeKind::UNIFIED_NODE>(value);
+        };
+        disposeGlobalHandle_ = [this](uintptr_t nodeAddr) {
+            globalStorage_->DisposeGlobalHandle<NodeKind::NORMAL_NODE>(nodeAddr);
+        };
+        disposeXRefGlobalHandle_ = [this](uintptr_t nodeAddr) {
+            globalStorage_->DisposeGlobalHandle<NodeKind::UNIFIED_NODE>(nodeAddr);
+        };
         setWeak_ = [this](uintptr_t nodeAddr, void *ref, WeakClearCallback freeGlobalCallBack,
                         WeakClearCallback nativeFinalizeCallBack) {
             return globalStorage_->SetWeak(nodeAddr, ref, freeGlobalCallBack, nativeFinalizeCallBack);
         };
         clearWeak_ = [this](uintptr_t nodeAddr) { return globalStorage_->ClearWeak(nodeAddr); };
         isWeak_ = [this](uintptr_t addr) { return globalStorage_->IsWeak(addr); };
+        setNodeKind_ = [this](NodeKind nodeKind) { globalStorage_->SetNodeKind(nodeKind); };
     } else {
         globalDebugStorage_ = chunk->New<EcmaGlobalStorage<DebugNode>>(this, vm->GetNativeAreaAllocator());
-        newGlobalHandle_ = [this](JSTaggedType value) { return globalDebugStorage_->NewGlobalHandle(value); };
-        disposeGlobalHandle_ = [this](uintptr_t nodeAddr) { globalDebugStorage_->DisposeGlobalHandle(nodeAddr); };
+        newGlobalHandle_ = [this](JSTaggedType value) {
+            return globalDebugStorage_->NewGlobalHandle<NodeKind::NORMAL_NODE>(value);
+        };
+        newXRefGlobalHandle_ = [this](JSTaggedType value) {
+            return globalDebugStorage_->NewGlobalHandle<NodeKind::UNIFIED_NODE>(value);
+        };
+        disposeGlobalHandle_ = [this](uintptr_t nodeAddr) {
+            globalDebugStorage_->DisposeGlobalHandle<NodeKind::NORMAL_NODE>(nodeAddr);
+        };
+        disposeXRefGlobalHandle_ = [this](uintptr_t nodeAddr) {
+            globalDebugStorage_->DisposeGlobalHandle<NodeKind::UNIFIED_NODE>(nodeAddr);
+        };
         setWeak_ = [this](uintptr_t nodeAddr, void *ref, WeakClearCallback freeGlobalCallBack,
                         WeakClearCallback nativeFinalizeCallBack) {
             return globalDebugStorage_->SetWeak(nodeAddr, ref, freeGlobalCallBack, nativeFinalizeCallBack);
         };
         clearWeak_ = [this](uintptr_t nodeAddr) { return globalDebugStorage_->ClearWeak(nodeAddr); };
         isWeak_ = [this](uintptr_t addr) { return globalDebugStorage_->IsWeak(addr); };
+        setNodeKind_ = [this](NodeKind nodeKind) { globalDebugStorage_->SetNodeKind(nodeKind); };
     }
     vmThreadControl_ = new VmThreadControl(this);
     SetBCStubStatus(BCStubStatus::NORMAL_BC_STUB);
@@ -395,8 +416,8 @@ void JSThread::InvokeWeakNodeNativeFinalizeCallback()
     }
     runningNativeFinalizeCallbacks_ = true;
     TRACE_GC(GCStats::Scope::ScopeId::InvokeNativeFinalizeCallbacks, vm_->GetEcmaGCStats());
-    ECMA_BYTRACE_NAME(HITRACE_TAG_ARK, "InvokeNativeFinalizeCallbacks num:"
-        + std::to_string(weakNodeNativeFinalizeCallbacks_.size()));
+    OHOS_HITRACE(HITRACE_LEVEL_MAX, ("InvokeNativeFinalizeCallbacks num:"
+        + std::to_string(weakNodeNativeFinalizeCallbacks_.size())).c_str(), "");
     while (!weakNodeNativeFinalizeCallbacks_.empty()) {
         auto callbackPair = weakNodeNativeFinalizeCallbacks_.back();
         weakNodeNativeFinalizeCallbacks_.pop_back();
@@ -510,14 +531,16 @@ void JSThread::Iterate(RootVisitor &visitor)
     if (vm_->GetJSOptions().EnableGlobalLeakCheck()) {
         IterateHandleWithCheck(visitor);
     } else {
+        OHOS_HITRACE(HITRACE_LEVEL_MAX, "CMCGC::VisitRootGlobalRefHandle", "");
         size_t globalCount = 0;
-        globalStorage_->IterateUsageGlobal([&visitor, &globalCount](Node *node) {
+        auto callback = [&visitor, &globalCount](Node *node) {
             JSTaggedValue value(node->GetObject());
             if (value.IsHeapObject()) {
                 visitor.VisitRoot(Root::ROOT_HANDLE, ecmascript::ObjectSlot(node->GetObjectAddress()));
             }
             globalCount++;
-        });
+        };
+        globalStorage_->IterateUsageGlobal(callback);
         static bool hasCheckedGlobalCount = false;
         static const size_t WARN_GLOBAL_COUNT = 100000;
         if (!hasCheckedGlobalCount && globalCount >= WARN_GLOBAL_COUNT) {
@@ -561,7 +584,7 @@ void JSThread::IterateHandleWithCheck(RootVisitor &visitor)
     bool isStopObjectLeakCheck = EnableGlobalObjectLeakCheck() && !IsStartGlobalLeakCheck() && stackTraceFd_ > 0;
     bool isStopPrimitiveLeakCheck = EnableGlobalPrimitiveLeakCheck() && !IsStartGlobalLeakCheck() && stackTraceFd_ > 0;
     std::ostringstream buffer;
-    globalDebugStorage_->IterateUsageGlobal([this, &visitor, &globalCount, &typeCount, &primitiveCount,
+    auto callback = [this, &visitor, &globalCount, &typeCount, &primitiveCount,
         isStopObjectLeakCheck, isStopPrimitiveLeakCheck, &buffer](DebugNode *node) {
         node->MarkCount();
         JSTaggedValue value(node->GetObject());
@@ -593,8 +616,8 @@ void JSThread::IterateHandleWithCheck(RootVisitor &visitor)
             }
         }
         globalCount++;
-    });
-
+    };
+    globalDebugStorage_->IterateUsageGlobal(callback);
     if (isStopObjectLeakCheck || isStopPrimitiveLeakCheck) {
         buffer << "Global leak check success!";
         WriteToStackTraceFd(buffer);
@@ -1177,7 +1200,7 @@ void JSThread::WaitSuspension()
     ThreadState oldState = GetState();
     UpdateState(ThreadState::IS_SUSPENDED);
     {
-        ECMA_BYTRACE_NAME(HITRACE_TAG_ARK, "SuspendTime::WaitSuspension");
+        OHOS_HITRACE(HITRACE_LEVEL_MAX, "SuspendTime::WaitSuspension", "");
         LockHolder lock(suspendLock_);
         while (suspendCount_ > 0) {
             suspendCondVar_.TimedWait(&suspendLock_, TIMEOUT);
@@ -1338,7 +1361,7 @@ void JSThread::StoreRunningState([[maybe_unused]] ThreadState newState)
             PassSuspendBarrier();
         } else if ((oldStateAndFlags.asNonvolatileStruct.flags & ThreadFlag::SUSPEND_REQUEST) != 0) {
             constexpr int TIMEOUT = 100;
-            ECMA_BYTRACE_NAME(HITRACE_TAG_ARK, "SuspendTime::StoreRunningState");
+            OHOS_HITRACE(HITRACE_LEVEL_MAX, "SuspendTime::StoreRunningState", "");
             LockHolder lock(suspendLock_);
             while (suspendCount_ > 0) {
                 suspendCondVar_.TimedWait(&suspendLock_, TIMEOUT);

@@ -395,6 +395,15 @@ public:
         }
     }
 
+    BuiltinsStubCSigns::ID GetPGOBuiltinMethodId()
+    {
+        if (pgoType_.IsPGOSampleType()) {
+            return TryGetPGOBuiltinMethodId();
+        } else {
+            return BuiltinsStubCSigns::ID::NONE;
+        }
+    }
+
 private:
     GlobalTSTypeRef GetCtorGT() const
     {
@@ -1537,7 +1546,7 @@ public:
             ObjectAccessInfo& checkerInfo = checkerInfos_[i];
             bool isMerged = false;
 
-            for (auto j = 0; j < i; j++) {
+            for (size_t j = 0; j < i; j++) {
                 if (infoIsMerged[j]) {
                     continue;
                 }
@@ -1607,8 +1616,8 @@ private:
     ChunkVector<std::pair<ProfileTyper, ProfileTyper>> types_;
     ChunkVector<pgo::PGOObjectInfo> jitTypes_;
     JSHandle<JSTaggedValue> name_;
-    uint32_t nameIdx_;
-    bool isByValue_;
+    uint32_t nameIdx_ = 0;
+    bool isByValue_ = false;
 
     AccessorStrategy* strategy_;
     friend class AotAccessorStrategy;

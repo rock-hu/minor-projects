@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -30,6 +30,8 @@
 #include "ecmascript/mem/shared_heap/shared_gc.h"
 #include "ecmascript/mem/shared_heap/shared_full_gc.h"
 #include "ecmascript/mem/shared_heap/shared_concurrent_marker.h"
+#include "ecmascript/mem/unified_gc/unified_gc.h"
+#include "ecmascript/mem/unified_gc/unified_gc_marker.h"
 #include "ecmascript/mem/verification.h"
 #include "ecmascript/runtime_call_id.h"
 #include "ecmascript/jit/jit.h"
@@ -308,6 +310,10 @@ void SharedHeap::Destroy()
         delete sharedMemController_;
         sharedMemController_ = nullptr;
     }
+    if (unifiedGC_ != nullptr) {
+        delete unifiedGC_;
+        unifiedGC_ = nullptr;
+    }
 
     dThread_ = nullptr;
 }
@@ -327,6 +333,7 @@ void SharedHeap::PostInitialization(const GlobalEnvConstants *globalEnvConstants
     sharedGC_ = new SharedGC(this);
     sEvacuator_ = new SharedGCEvacuator(this);
     sharedFullGC_ = new SharedFullGC(this);
+    unifiedGC_ = new UnifiedGC();
 }
 
 void SharedHeap::PostGCMarkingTask(SharedParallelMarkPhase sharedTaskPhase)
@@ -356,7 +363,7 @@ bool SharedHeap::ParallelMarkTask::Run(uint32_t threadIndex)
 
 bool SharedHeap::AsyncClearTask::Run([[maybe_unused]] uint32_t threadIndex)
 {
-    ECMA_BYTRACE_NAME(HITRACE_TAG_ARK, "SharedHeap::AsyncClearTask::Run");
+    ECMA_BYTRACE_NAME(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, "SharedHeap::AsyncClearTask::Run", "");
     sHeap_->ReclaimRegions(gcType_);
     return true;
 }
@@ -374,7 +381,7 @@ void SharedHeap::WaitGCFinished(JSThread *thread)
     ASSERT(thread->GetThreadId() != dThread_->GetThreadId());
     ASSERT(thread->IsInRunningState());
     ThreadSuspensionScope scope(thread);
-    ECMA_BYTRACE_NAME(HITRACE_TAG_ARK, "SuspendTime::WaitGCFinished");
+    ECMA_BYTRACE_NAME(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, "SuspendTime::WaitGCFinished", "");
     LockHolder lock(waitGCFinishedMutex_);
     while (!gcFinished_) {
         waitGCFinishedCV_.Wait(&waitGCFinishedMutex_);
@@ -823,6 +830,54 @@ void SharedHeap::DumpHeapSnapshotBeforeOOM([[maybe_unused]]bool isFullGC, [[mayb
 #endif // ECMASCRIPT_SUPPORT_SNAPSHOT
 }
 
+void SharedHeap::StartUnifiedGCMark([[maybe_unused]]TriggerGCType gcType, [[maybe_unused]]GCReason gcReason)
+{
+    ASSERT(gcType == TriggerGCType::UNIFIED_GC && gcReason == GCReason::CROSSREF_CAUSE);
+    ASSERT(JSThread::GetCurrent() == dThread_);
+    {
+        ThreadManagedScope runningScope(dThread_);
+        SuspendAllScope scope(dThread_);
+        Runtime *runtime = Runtime::GetInstance();
+        std::vector<RecursionScope> recurScopes;
+        // The approximate size is enough, because even if some thread creates and registers after here, it will keep
+        // waiting in transition to RUNNING state before JSThread::SetReadyForGCIterating.
+        recurScopes.reserve(runtime->ApproximateThreadListSize());
+        runtime->GCIterateThreadList([&recurScopes](JSThread *thread) {
+            Heap *heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+            recurScopes.emplace_back(heap, HeapType::LOCAL_HEAP);
+        });
+#ifdef PANDA_JS_ETS_HYBRID_MODE
+        if (!unifiedGC_->StartXGCBarrier()) {
+            unifiedGC_->SetInterruptUnifiedGC(false);
+            dThread_->FinishRunningTask();
+            return;
+        }
+#endif // PANDA_JS_ETS_HYBRID_MODE
+        runtime->GCIterateThreadList([gcType](JSThread *thread) {
+            Heap *heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+            if (UNLIKELY(heap->ShouldVerifyHeap())) { // LCOV_EXCL_BR_LINE
+                // pre unified gc heap verify
+                LOG_ECMA(DEBUG) << "pre unified gc heap verify";
+                heap->ProcessSharedGCRSetWorkList();
+                Verification(heap, VerifyKind::VERIFY_PRE_GC).VerifyAll();
+            }
+            heap->SetGCType(gcType);
+        });
+        unifiedGC_->RunPhases();
+        runtime->GCIterateThreadList([](JSThread *thread) {
+            Heap *heap = const_cast<Heap *>(thread->GetEcmaVM()->GetHeap());
+            if (UNLIKELY(heap->ShouldVerifyHeap())) { // LCOV_EXCL_BR_LINE
+                // post unified gc heap verify
+                LOG_ECMA(DEBUG) << "post unified gc heap verify";
+                Verification(heap, VerifyKind::VERIFY_POST_GC).VerifyAll();
+            }
+        });
+#ifdef PANDA_JS_ETS_HYBRID_MODE
+        unifiedGC_->FinishXGCBarrier();
+#endif // PANDA_JS_ETS_HYBRID_MODE
+    }
+}
+
 Heap::Heap(EcmaVM *ecmaVm)
     : BaseHeap(ecmaVm->GetEcmaParamConfiguration()),
       ecmaVm_(ecmaVm), thread_(ecmaVm->GetJSThread()), sHeap_(SharedHeap::GetInstance()) {}
@@ -912,6 +967,7 @@ void Heap::Initialize()
         EnableConcurrentMarkType::CONFIG_DISABLE);
     nonMovableMarker_ = new NonMovableMarker(this);
     compressGCMarker_ = new CompressGCMarker(this);
+    unifiedGCMarker_ = new UnifiedGCMarker(this);
     evacuator_ = new ParallelEvacuator(this);
     incrementalMarker_ = new IncrementalMarker(this);
     gcListeners_.reserve(16U);
@@ -1114,6 +1170,10 @@ void Heap::Destroy()
         delete compressGCMarker_;
         compressGCMarker_ = nullptr;
     }
+    if (unifiedGCMarker_ != nullptr) {
+        delete unifiedGCMarker_;
+        unifiedGCMarker_ = nullptr;
+    }
     if (evacuator_ != nullptr) {
         delete evacuator_;
         evacuator_ = nullptr;
@@ -1123,6 +1183,13 @@ void Heap::Destroy()
 void Heap::Prepare()
 {
     MEM_ALLOCATE_AND_GC_TRACE(ecmaVm_, HeapPrepare);
+    WaitRunningTaskFinished();
+    sweeper_->EnsureAllTaskFinished();
+    WaitClearTaskFinished();
+}
+
+void Heap::UnifiedGCPrepare()
+{
     WaitRunningTaskFinished();
     sweeper_->EnsureAllTaskFinished();
     WaitClearTaskFinished();
@@ -1868,22 +1935,29 @@ bool Heap::CheckAndTriggerHintGC(MemoryReduceDegree degree, GCReason reason)
     return false;
 }
 
-bool Heap::CheckOngoingConcurrentMarking()
+bool Heap::CheckOngoingConcurrentMarkingImpl(ThreadType threadType, int threadIndex,
+                                             [[maybe_unused]] const char* traceName)
 {
-    if (concurrentMarker_->IsEnabled() && !thread_->IsReadyToConcurrentMark() &&
-        concurrentMarker_->IsTriggeredConcurrentMark()) {
-        TRACE_GC(GCStats::Scope::ScopeId::WaitConcurrentMarkFinished, GetEcmaVM()->GetEcmaGCStats());
-        if (thread_->IsMarking()) {
-            ECMA_BYTRACE_NAME(HITRACE_TAG_ARK, "Heap::CheckOngoingConcurrentMarking");
+    if (!concurrentMarker_->IsEnabled() || !concurrentMarker_->IsTriggeredConcurrentMark() ||
+        thread_->IsReadyToConcurrentMark()) {
+        return false;
+    }
+    TRACE_GC(GCStats::Scope::ScopeId::WaitConcurrentMarkFinished, GetEcmaVM()->GetEcmaGCStats());
+    if (thread_->IsMarking()) {
+        ECMA_BYTRACE_NAME(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, traceName, "");
+        if (threadType == ThreadType::JS_THREAD) {
             MEM_ALLOCATE_AND_GC_TRACE(ecmaVm_, WaitConcurrentMarkingFinished);
-            GetNonMovableMarker()->ProcessMarkStack(MAIN_THREAD_INDEX);
+            GetNonMovableMarker()->ProcessMarkStack(threadIndex);
+            WaitConcurrentMarkingFinished();
+        } else if (threadType == ThreadType::DAEMON_THREAD) {
+            CHECK_DAEMON_THREAD();
+            GetNonMovableMarker()->ProcessMarkStack(threadIndex);
             WaitConcurrentMarkingFinished();
         }
-        WaitRunningTaskFinished();
-        memController_->RecordAfterConcurrentMark(markType_, concurrentMarker_);
-        return true;
     }
-    return false;
+    WaitRunningTaskFinished();
+    memController_->RecordAfterConcurrentMark(markType_, concurrentMarker_);
+    return true;
 }
 
 void Heap::ClearIdleTask()
@@ -2397,7 +2471,8 @@ void Heap::NotifyFinishColdStartSoon()
 
 void Heap::NotifyHighSensitive(bool isStart)
 {
-    ECMA_BYTRACE_NAME(HITRACE_TAG_ARK, "SmartGC: set high sensitive status: " + std::to_string(isStart));
+    ECMA_BYTRACE_NAME(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK,
+        ("SmartGC: set high sensitive status: " + std::to_string(isStart)).c_str(), "");
     isStart ? SetSensitiveStatus(AppSensitiveStatus::ENTER_HIGH_SENSITIVE)
         : SetSensitiveStatus(AppSensitiveStatus::EXIT_HIGH_SENSITIVE);
     LOG_GC(DEBUG) << "SmartGC: set high sensitive status: " << isStart;
@@ -2564,6 +2639,9 @@ bool Heap::ParallelGCTask::Run(uint32_t threadIndex)
         case ParallelGCTaskPhase::CONCURRENT_HANDLE_GLOBAL_POOL_TASK:
             heap_->GetConcurrentMarker()->ProcessConcurrentMarkTask(threadIndex);
             break;
+        case ParallelGCTaskPhase::UNIFIED_HANDLE_GLOBAL_POOL_TASK:
+            heap_->GetUnifiedGCMarker()->ProcessMarkStack(threadIndex);
+            break;
         default: // LOCV_EXCL_BR_LINE
             LOG_GC(FATAL) << "this branch is unreachable, type: " << static_cast<int>(taskPhase_);
             UNREACHABLE();
@@ -2574,7 +2652,7 @@ bool Heap::ParallelGCTask::Run(uint32_t threadIndex)
 
 bool Heap::AsyncClearTask::Run([[maybe_unused]] uint32_t threadIndex)
 {
-    ECMA_BYTRACE_NAME(HITRACE_TAG_ARK, "AsyncClearTask::Run");
+    ECMA_BYTRACE_NAME(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, "AsyncClearTask::Run", "");
     heap_->ReclaimRegions(gcType_);
     return true;
 }
@@ -2796,6 +2874,7 @@ void Heap::UpdateWorkManager(WorkManager *workManager)
     incrementalMarker_->workManager_ = workManager;
     nonMovableMarker_->workManager_ = workManager;
     compressGCMarker_->workManager_ = workManager;
+    unifiedGCMarker_->workManager_ = workManager;
     partialGC_->workManager_ = workManager;
 }
 
@@ -2808,6 +2887,11 @@ MachineCode *Heap::GetMachineCodeObject(uintptr_t pc) const
     }
     HugeMachineCodeSpace *hugeMachineCodeSpace = GetHugeMachineCodeSpace();
     return reinterpret_cast<MachineCode*>(hugeMachineCodeSpace->GetMachineCodeObject(pc));
+}
+
+void Heap::SetMachineCodeObject(uintptr_t start, uintptr_t end, uintptr_t address) const
+{
+    machineCodeSpace_->StoreMachineCodeObjectLocation(start, end, address);
 }
 
 std::tuple<uint64_t, uint8_t *, int, kungfu::CalleeRegAndOffsetVec> Heap::CalCallSiteInfo(uintptr_t retAddr) const
@@ -2944,6 +3028,12 @@ void BaseHeap::WaitRunningTaskFinished()
     while (runningTaskCount_ > 0) {
         waitTaskFinishedCV_.Wait(&waitTaskFinishedMutex_);
     }
+}
+
+uint32_t BaseHeap::GetRunningTaskCount()
+{
+    LockHolder holder(waitTaskFinishedMutex_);
+    return runningTaskCount_;
 }
 
 bool BaseHeap::CheckCanDistributeTask()

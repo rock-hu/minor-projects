@@ -158,6 +158,8 @@ public:
 
         void ContinueToLocation(const DispatchRequest &request);
         std::string GetJsFrames();
+        std::string EvaluateOnCallFrame(const int32_t callId, std::unique_ptr<EvaluateOnCallFrameParams> params);
+        std::string CallFunctionOn(const int32_t callId, std::unique_ptr<CallFunctionOnParams> params);
         void Dispatch(const DispatchRequest &request) override;
         void Enable(const DispatchRequest &request);
         void Disable(const DispatchRequest &request);
@@ -189,6 +191,12 @@ public:
         void SaveAllPossibleBreakpoints(const DispatchRequest &request);
         void SetSymbolicBreakpoints(const DispatchRequest &request);
         void RemoveSymbolicBreakpoints(const DispatchRequest &request);
+        std::string SaveAllPossibleBreakpoints(const int32_t callId,
+            std::unique_ptr<SaveAllPossibleBreakpointsParams> params);
+        std::string RemoveBreakpointsByUrl(const int32_t callId,
+            std::unique_ptr<RemoveBreakpointsByUrlParams> params);
+        std::string GetPossibleAndSetBreakpointByUrl(const int32_t callId,
+            std::unique_ptr<GetPossibleAndSetBreakpointParams> params);
 
         enum class Method {
             CONTINUE_TO_LOCATION,
@@ -297,6 +305,11 @@ private:
         return !breakOnStartEnable_;
     }
 
+    const std::unordered_set<std::string> &GetAllRecordNames() const
+    {
+        return recordNameSet_;
+    }
+
     class Frontend {
     public:
         explicit Frontend(ProtocolChannel *channel) : channel_(channel) {}
@@ -326,6 +339,7 @@ private:
     JSDebugger *jsDebugger_ {nullptr};
 
     std::unordered_map<std::string, std::unordered_set<std::string>> recordNames_ {};
+    std::unordered_set<std::string> recordNameSet_ {};
     std::unordered_map<std::string, std::unordered_set<std::string>> urlFileNameMap_ {};
     std::unordered_map<ScriptId, std::shared_ptr<PtScript>> scripts_ {};
     PauseOnExceptionsState pauseOnException_ {PauseOnExceptionsState::NONE};

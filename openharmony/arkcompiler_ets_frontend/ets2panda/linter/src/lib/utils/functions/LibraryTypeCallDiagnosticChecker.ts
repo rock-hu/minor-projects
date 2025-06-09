@@ -133,12 +133,11 @@ export class LibraryTypeCallDiagnosticChecker {
     });
   }
 
-  // eslint-disable-next-line max-lines-per-function
   filterDiagnostics(
     tscDiagnostics: readonly ts.Diagnostic[],
     expr: ts.CallExpression | ts.NewExpression,
     isLibCall: boolean,
-    filterHandle: (diagnositc: ts.Diagnostic, errorType: ErrorType) => void
+    filterHandle: (diagnositc: ts.Diagnostic, errorType: ErrorType) => boolean
   ): void {
     const exprRange: CheckRange = { begin: expr.getStart(), end: expr.getEnd() };
     let validArgsRanges: CheckRange[];
@@ -168,8 +167,7 @@ export class LibraryTypeCallDiagnosticChecker {
           return;
         }
 
-        hasFiltered = false;
-        filterHandle(diagnostic, errorType);
+        hasFiltered = filterHandle(diagnostic, errorType);
       }
     );
   }

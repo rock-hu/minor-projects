@@ -298,6 +298,13 @@ bool GateAccessor::NeedPushArgv(GateRef gate) const
     return gatePtr->GetNewConstructMetaData()->NeedPushArgv();
 }
 
+bool GateAccessor::IsFastCall(GateRef gate) const
+{
+    ASSERT(GetOpCode(gate) == OpCode::CALL_NEW);
+    Gate *gatePtr = circuit_->LoadGatePtr(gate);
+    return gatePtr->GetNewConstructMetaData()->IsFastCall();
+}
+
 CreateArgumentsAccessor GateAccessor::GetCreateArgumentsAccessor(GateRef gate) const
 {
     ASSERT(GetOpCode(gate) == OpCode::CREATE_ARGUMENTS);
@@ -573,6 +580,7 @@ uint32_t GateAccessor::TryGetPcOffset(GateRef gate) const
         case OpCode::TYPED_CALL_BUILTIN_SIDE_EFFECT:
         case OpCode::CONSTRUCT:
         case OpCode::CALL_NEW:
+        case OpCode::CALL_NEW_BUILTIN:
         case OpCode::CALL_GETTER:
         case OpCode::CALL_SETTER:
         case OpCode::ARRAY_FOR_EACH:
@@ -2127,4 +2135,10 @@ TypedBinOp GateAccessor::GetSwapCompareOpForTypedBinOp(TypedBinOp op)
             return op;
     }
 }
+
+uint64_t GateAccessor::GetMetaDataHash(GateRef gate) const
+{
+    return GetMetaData(gate)->GetHashCode();
+}
+
 }  // namespace panda::ecmascript::kungfu

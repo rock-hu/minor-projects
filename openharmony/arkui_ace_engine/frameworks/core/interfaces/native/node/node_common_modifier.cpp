@@ -50,6 +50,7 @@
 #include "core/interfaces/arkoala/arkoala_api.h"
 #include "core/interfaces/native/node/node_api.h"
 #include "core/interfaces/native/node/node_drag_modifier.h"
+#include "core/interfaces/native/node/node_gesture_modifier.h"
 #include "core/interfaces/native/node/touch_event_convertor.h"
 #include "core/interfaces/native/node/view_model.h"
 
@@ -2617,6 +2618,15 @@ void ResetGeometryTransition(ArkUINodeHandle node)
     ViewAbstract::SetGeometryTransition(frameNode, "", false, true);
 }
 
+void SetTipsTimeParam(const RefPtr<PopupParam>& tipsParam, const ArkUIBindTipsOptionsTime& timeOptions)
+{
+    CHECK_NULL_VOID(tipsParam);
+    tipsParam->SetAppearingTime(timeOptions.appearingTime);
+    tipsParam->SetDisappearingTime(timeOptions.disappearingTime);
+    tipsParam->SetAppearingTimeWithContinuousOperation(timeOptions.appearingTimeWithContinuousOperation);
+    tipsParam->SetDisappearingTimeWithContinuousOperation(timeOptions.disappearingTimeWithContinuousOperation);
+}
+
 void SetBindTips(ArkUINodeHandle node, ArkUI_CharPtr message, ArkUIBindTipsOptionsTime timeOptions,
     ArkUIBindTipsOptionsArrow arrowOptions)
 {
@@ -2625,10 +2635,7 @@ void SetBindTips(ArkUINodeHandle node, ArkUI_CharPtr message, ArkUIBindTipsOptio
     auto tipsParam = AceType::MakeRefPtr<PopupParam>();
     tipsParam->SetMessage(std::string(message));
     tipsParam->SetShowInSubWindow(true);
-    tipsParam->SetAppearingTime(timeOptions.appearingTime);
-    tipsParam->SetDisappearingTime(timeOptions.disappearingTime);
-    tipsParam->SetAppearingTimeWithContinuousOperation(timeOptions.appearingTimeWithContinuousOperation);
-    tipsParam->SetDisappearingTimeWithContinuousOperation(timeOptions.disappearingTimeWithContinuousOperation);
+    SetTipsTimeParam(tipsParam, timeOptions);
     tipsParam->SetEnableArrow(arrowOptions.enableArrow);
     tipsParam->SetKeyBoardAvoidMode(PopupKeyboardAvoidMode::DEFAULT);
     tipsParam->SetAnchorType(static_cast<TipsAnchorType>(arrowOptions.showAtAnchor));
@@ -7441,6 +7448,41 @@ void ResetFreeze(ArkUINodeHandle node)
     CHECK_NULL_VOID(frameNode);
     ViewAbstractModelNG::SetFreeze(frameNode, false);
 }
+
+ArkUI_Int32 SetOnTouchTestDoneCallback(ArkUINodeHandle node, void* userData,
+    void (*touchTestDone)(
+        ArkUIGestureEvent* event, ArkUIGestureRecognizerHandleArray recognizers, int32_t count, void* userData))
+{
+    auto* frameNode = reinterpret_cast<FrameNode*>(node);
+    if (!frameNode) {
+        return ARKUI_ERROR_CODE_PARAM_INVALID;
+    }
+    auto callback = [node, userData, touchTestDone](const std::shared_ptr<BaseGestureEvent>& event,
+                        const std::list<RefPtr<NGGestureRecognizer>>& recognizers) {
+        ArkUIAPIEventGestureAsyncEvent gestureEvent;
+        ArkUITouchEvent rawInputEvent;
+        ArkUI_UIInputEvent inputEvent { ARKUI_UIINPUTEVENT_TYPE_TOUCH, C_TOUCH_EVENT_ID, nullptr };
+        std::array<ArkUITouchPoint, MAX_POINTS> points;
+        NodeModifier::GetBaseGestureEvent(&gestureEvent, rawInputEvent, inputEvent, event, points);
+        ArkUIGestureEvent arkUIGestureEvent { gestureEvent, node };
+        ArkUIGestureRecognizerHandleArray recognizerArray = nullptr;
+        auto count = static_cast<int32_t>(recognizers.size());
+        if (count <= 0) {
+            touchTestDone(&arkUIGestureEvent, recognizerArray, count, userData);
+            return;
+        }
+        recognizerArray = new ArkUIGestureRecognizerHandle[count];
+        int32_t index = 0;
+        for (const auto& value : recognizers) {
+            recognizerArray[index] = NodeModifier::CreateGestureRecognizer(value);
+            index++;
+        }
+        touchTestDone(&arkUIGestureEvent, recognizerArray, count, userData);
+        delete[] recognizerArray;
+    };
+    ViewAbstract::SetOnTouchTestDone(frameNode, callback);
+    return ERROR_CODE_NO_ERROR;
+}
 } // namespace
 
 namespace NodeModifier {
@@ -7452,6 +7494,7 @@ const ArkUICommonModifier* GetCommonModifier()
 {
     CHECK_INITIALIZED_FIELDS_BEGIN(); // don't move this line
     static const ArkUICommonModifier modifier = {
+        .setOnTouchTestDoneCallback = SetOnTouchTestDoneCallback,
         .setBackgroundColor = SetBackgroundColor,
         .setBackgroundColorWithColorSpace = SetBackgroundColorWithColorSpace,
         .resetBackgroundColor = ResetBackgroundColor,
@@ -9108,6 +9151,8 @@ void SetOnHoverMove(ArkUINodeHandle node, void* extraParam)
         event.touchEvent.actionTouchPoint.windowY = info.GetGlobalLocation().GetY();
         event.touchEvent.actionTouchPoint.screenX = info.GetScreenLocation().GetX();
         event.touchEvent.actionTouchPoint.screenY = info.GetScreenLocation().GetY();
+        event.touchEvent.actionTouchPoint.tiltX = info.GetTiltX().value_or(0.0f);
+        event.touchEvent.actionTouchPoint.tiltY = info.GetTiltY().value_or(0.0f);
         event.touchEvent.actionTouchPoint.rollAngle = info.GetRollAngle().value_or(0.0f);
         event.touchEvent.deviceId = info.GetDeviceId();
         event.apiVersion = AceApplicationInfo::GetInstance().GetApiTargetVersion() % API_TARGET_VERSION_MASK;

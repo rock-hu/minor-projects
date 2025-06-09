@@ -129,6 +129,7 @@ MemMap MemMapAllocator::AlignMemMapTo4G(const MemMap &memMap, size_t targetSize)
         remainderAddr = alignAddr - targetSize;
     }
 
+#ifndef PANDA_TARGET_WINDOWS
     uintptr_t leftUnmapAddr = startAddr;
     size_t leftUnmapSize = remainderAddr - leftUnmapAddr;
     PageUnmap(MemMap(ToVoidPtr(leftUnmapAddr), leftUnmapSize));
@@ -136,6 +137,7 @@ MemMap MemMapAllocator::AlignMemMapTo4G(const MemMap &memMap, size_t targetSize)
     uintptr_t rightUnmapAddr = remainderAddr + targetSize;
     size_t rightUnmapSize = (startAddr + memMap.GetSize()) - rightUnmapAddr;
     PageUnmap(MemMap(ToVoidPtr(rightUnmapAddr), rightUnmapSize));
+#endif
 
     static constexpr uint64_t mask = 0xFFFFFFFF00000000;
     TaggedStateWord::BASE_ADDRESS = remainderAddr & mask;
@@ -314,7 +316,7 @@ void MemMapAllocator::CacheOrFree(void *mem, size_t size, bool isRegular, bool i
     }
 }
 
-void MemMapAllocator::Free(void *mem, size_t size, bool isRegular, [[maybe_unused]]bool isCompress)
+void MemMapAllocator::Free(void *mem, size_t size, bool isRegular, bool isCompress)
 {
     DecreaseMemMapTotalSize(size);
     if (!PageProtect(mem, size, PAGE_PROT_NONE)) { // LCOV_EXCL_BR_LINE
@@ -322,7 +324,11 @@ void MemMapAllocator::Free(void *mem, size_t size, bool isRegular, [[maybe_unuse
     }
     PageRelease(mem, size);
     if (isRegular) {
-        memMapPool_.AddMemToCache(mem, size);
+        if (isCompress) {
+            compressMemMapPool_.AddMemToCache(mem, size);
+        } else {
+            memMapPool_.AddMemToCache(mem, size);
+        }
     } else {
         memMapFreeList_.AddMemToList(MemMap(mem, size));
     }

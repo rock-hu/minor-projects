@@ -19,6 +19,7 @@
 #include <tuple>
 
 #include "ecmascript/compiler/bytecodes.h"
+#include "ecmascript/compiler/circuit.h"
 #include "ecmascript/compiler/circuit_builder.h"
 #include "ecmascript/compiler/slowpath_lowering.h"
 #include "ecmascript/compiler/stub_builder-inl.h"
@@ -30,6 +31,14 @@ void CallStubBuilder::JSCallDispatchForBaseline(Label *exit, Label *noNeedCheckE
     this->isForBaseline_ = true;
     auto env = GetEnvironment();
     baselineBuiltinFp_ = CallNGCRuntime(glue_, RTSTUB_ID(GetBaselineBuiltinFp), {glue_});
+
+#ifdef USE_READ_BARRIER
+    CallNGCRuntime(glue_, RTSTUB_ID(CopyCallTarget), { glue_, func_ });
+    if (callArgs_.mode == JSCallMode::SUPER_CALL_SPREAD_WITH_ARGV) {
+        CallNGCRuntime(glue_, RTSTUB_ID(CopyArgvArray),
+            { glue_, callArgs_.superCallArgs.argv, callArgs_.superCallArgs.argc });
+    }
+#endif
 
     // 1. call initialize
     Label funcIsHeapObject(env);
@@ -121,6 +130,146 @@ void CallCoStubBuilder::PrepareArgs(std::vector<GateRef> &args, std::vector<Gate
     }
 }
 
+void CallCoStubBuilder::FastCallSelector(CircuitBuilder &builder, GateRef glue, GateRef func, GateRef argc,
+                                         Variable *result, Label *exit)
+{
+    Label isHeapJSFunction(&builder);
+    Label fastCall(&builder);
+    Label notFastCall(&builder);
+    Label call(&builder);
+    Label call1(&builder);
+    Label slowCall(&builder);
+    Label callBridge(&builder);
+    Label callBridge1(&builder);
+    // use builder_ to make BRANCH_CIR work.
+    auto &builder_ = builder;
+    BRANCH_CIR(builder.TaggedIsJSFunction(glue, func), &isHeapJSFunction, exit);
+    builder.Bind(&isHeapJSFunction);
+    {
+        GateRef method = builder.GetMethodFromFunction(glue, func);
+        GateRef expectedArgc =
+            builder.Int64Add(builder.GetExpectedNumOfArgs(method), builder.Int64(NUM_MANDATORY_JSFUNC_ARGS));
+        BRANCH_CIR(builder.JudgeAotAndFastCall(func, CircuitBuilder::JudgeMethodType::HAS_AOT_FASTCALL), &fastCall,
+                   &notFastCall);
+        builder.Bind(&fastCall);
+        {
+            BRANCH_CIR(builder.Equal(expectedArgc, argc), &call, &callBridge);
+            builder.Bind(&call);
+            result->WriteVariable(builder.Int32(static_cast<int32_t>(FastCallType::FAST_AOT_CALL)));
+            builder.Jump(exit);
+            builder.Bind(&callBridge);
+            result->WriteVariable(builder.Int32(static_cast<int32_t>(FastCallType::FAST_AOT_CALL_BRIDGE)));
+            builder.Jump(exit);
+        }
+        builder.Bind(&notFastCall);
+        BRANCH_CIR(builder.JudgeAotAndFastCall(func, CircuitBuilder::JudgeMethodType::HAS_AOT), &slowCall, exit);
+        builder.Bind(&slowCall);
+        {
+            BRANCH_CIR(builder.Equal(expectedArgc, argc), &call1, &callBridge1);
+            builder.Bind(&call1);
+            result->WriteVariable(builder.Int32(static_cast<int32_t>(FastCallType::AOT_CALL)));
+            builder.Jump(exit);
+            builder.Bind(&callBridge1);
+            result->WriteVariable(builder.Int32(static_cast<int32_t>(FastCallType::AOT_CALL_BRIDGE)));
+            builder.Jump(exit);
+        }
+    }
+}
+
+GateRef CallCoStubBuilder::LowerCallNGCRuntime(GateRef glue, CircuitBuilder &builder, GateRef gate, int index,
+                                               const std::vector<GateRef> &args, bool useLabel)
+{
+    const std::string name = RuntimeStubCSigns::GetRTName(index);
+    if (useLabel) {
+        GateRef result = builder.CallNGCRuntime(glue, index, Gate::InvalidGateRef, args, gate, name.c_str());
+        return result;
+    } else {
+        const CallSignature *cs = RuntimeStubCSigns::Get(index);
+        GateRef target = builder.IntPtr(index);
+        GateRef result = builder.Call(cs, glue, target, builder.GetDepend(), args, gate, name.c_str());
+        return result;
+    }
+}
+
+void CallCoStubBuilder::CallNGCRuntimeWithCallTimer(GateRef glue, CircuitBuilder &builder, int index, GateRef gate,
+                                                    GateRef func, Variable &result, const std::vector<GateRef> &args)
+{
+    builder.StartCallTimer(glue, gate, {glue, func, builder.True()}, true);
+    result = LowerCallNGCRuntime(glue, builder, gate, index, args, true);
+    builder.EndCallTimer(glue, gate, {glue, func}, true);
+}
+
+static GateRef IsAotFastCall(CircuitBuilder &builder, GateRef func)
+{
+    return builder.JudgeAotAndFastCall(func, CircuitBuilder::JudgeMethodType::HAS_AOT_FASTCALL);
+}
+
+static GateRef IsAotCall(CircuitBuilder &builder, GateRef func)
+{
+    return builder.JudgeAotAndFastCall(func, CircuitBuilder::JudgeMethodType::HAS_AOT);
+}
+
+void CallCoStubBuilder::LowerFastSuperCall(GateRef glue, CircuitBuilder &builder, const std::vector<GateRef> &args,
+                                           GateRef elementsPtr, Variable &result, Label &exit)
+{
+    auto &builder_ = builder;
+    Label fastCall(&builder);
+    Label notFastCall(&builder);
+    Label aotCall(&builder);
+    Label notAotCall(&builder);
+    ASSERT(args.size() == 5);     // 5 : size of args
+    GateRef gate = args[0];       // 0 : index of gate
+    GateRef superFunc = args[1];  // 1 : index of superFunc
+    GateRef newTarget = args[2];  // 2 : index of newTarget
+    GateRef thisObj = args[3];    // 3 : index of thisObj
+    GateRef actualArgc = args[4]; // 4 : index of actualArgc
+
+    GateRef method = builder.GetMethodFromFunction(glue, superFunc);
+    GateRef expectedNum = builder.GetExpectedNumOfArgs(method);
+#ifdef USE_READ_BARRIER
+    builder_.CallNGCRuntime(glue, RTSTUB_ID(CopyCallTarget),
+                            Gate::InvalidGateRef, {glue, superFunc}, glue);
+    builder_.CallNGCRuntime(glue, RTSTUB_ID(CopyArgvArray),
+                            Gate::InvalidGateRef,
+                            {glue, elementsPtr, actualArgc}, glue);
+#endif
+    BRANCH_CIR(IsAotFastCall(builder, superFunc), &fastCall, &notFastCall);
+    builder.Bind(&fastCall);
+    {
+        Label notBridge(&builder);
+        Label bridge(&builder);
+        BRANCH_CIR(builder.Int64Equal(expectedNum, actualArgc), &notBridge, &bridge);
+        builder.Bind(&notBridge);
+        CallNGCRuntimeWithCallTimer(glue, builder, RTSTUB_ID(JSFastCallWithArgV), gate, superFunc, result,
+                                    {glue, superFunc, thisObj, actualArgc, elementsPtr});
+        builder.Jump(&exit);
+        builder.Bind(&bridge);
+        CallNGCRuntimeWithCallTimer(glue, builder, RTSTUB_ID(JSFastCallWithArgVAndPushArgv), gate, superFunc, result,
+                                    {glue, superFunc, thisObj, actualArgc, elementsPtr, expectedNum});
+        builder.Jump(&exit);
+    }
+    builder.Bind(&notFastCall);
+    BRANCH_CIR(IsAotCall(builder, superFunc), &aotCall, &notAotCall);
+    builder_.Bind(&aotCall);
+    {
+        Label notBridge(&builder);
+        Label bridge(&builder);
+        std::vector<GateRef> callArgs {glue, actualArgc, superFunc, newTarget, thisObj, elementsPtr};
+        BRANCH_CIR(builder.Int64Equal(expectedNum, actualArgc), &notBridge, &bridge);
+        builder.Bind(&notBridge);
+        CallNGCRuntimeWithCallTimer(glue, builder, RTSTUB_ID(JSCallWithArgV), gate, superFunc, result, callArgs);
+        builder.Jump(&exit);
+        builder.Bind(&bridge);
+        CallNGCRuntimeWithCallTimer(glue, builder, RTSTUB_ID(JSCallWithArgVAndPushArgv), gate, superFunc, result,
+                                    callArgs);
+        builder.Jump(&exit);
+    }
+    builder.Bind(&notAotCall);
+    CallNGCRuntimeWithCallTimer(glue, builder, RTSTUB_ID(SuperCallWithArgV), gate, superFunc, result,
+                                {glue, actualArgc, superFunc, newTarget, thisObj, elementsPtr});
+    builder.Jump(&exit);
+}
+
 void CallCoStubBuilder::LowerFastCall(GateRef gate, GateRef glue, CircuitBuilder &builder, GateRef func, GateRef argc,
     const std::vector<GateRef> &args, const std::vector<GateRef> &argsFastCall,
     Variable *result, Label *exit, bool isNew)
@@ -169,6 +318,11 @@ void CallCoStubBuilder::LowerFastCall(GateRef gate, GateRef glue, CircuitBuilder
                 }
                 builder.Bind(&callBridge);
                 {
+#ifdef USE_READ_BARRIER
+                  builder_.CallNGCRuntime(glue, RTSTUB_ID(CopyCallTarget),
+                                          Gate::InvalidGateRef, {glue, func},
+                                          glue);
+#endif
                     builder.StartCallTimer(glue, gate, {glue, func, builder.True()}, true);
                     const CallSignature *cs = RuntimeStubCSigns::Get(RTSTUB_ID(OptimizedFastCallAndPushArgv));
                     GateRef target = builder.IntPtr(RTSTUB_ID(OptimizedFastCallAndPushArgv));
@@ -198,6 +352,11 @@ void CallCoStubBuilder::LowerFastCall(GateRef gate, GateRef glue, CircuitBuilder
                 }
                 builder.Bind(&callBridge1);
                 {
+#ifdef USE_READ_BARRIER
+                  builder_.CallNGCRuntime(glue, RTSTUB_ID(CopyCallTarget),
+                                          Gate::InvalidGateRef, {glue, func},
+                                          glue);
+#endif
                     builder.StartCallTimer(glue, gate, {glue, func, builder.True()}, true);
                     const CallSignature *cs = RuntimeStubCSigns::Get(RTSTUB_ID(OptimizedCallAndPushArgv));
                     GateRef target = builder.IntPtr(RTSTUB_ID(OptimizedCallAndPushArgv));
@@ -213,6 +372,10 @@ void CallCoStubBuilder::LowerFastCall(GateRef gate, GateRef glue, CircuitBuilder
     {
         if (isNew) {
             builder.StartCallTimer(glue, gate, {glue, func, builder.True()}, true);
+#ifdef USE_READ_BARRIER
+            builder_.CallNGCRuntime(glue, RTSTUB_ID(CopyCallTarget),
+                                    Gate::InvalidGateRef, {glue, func}, glue);
+#endif
             const CallSignature *cs = RuntimeStubCSigns::Get(RTSTUB_ID(JSCallNew));
             GateRef target = builder.IntPtr(RTSTUB_ID(JSCallNew));
             auto depend = builder.GetDepend();
@@ -221,6 +384,10 @@ void CallCoStubBuilder::LowerFastCall(GateRef gate, GateRef glue, CircuitBuilder
             builder.Jump(exit);
         } else {
             builder.StartCallTimer(glue, gate, {glue, func, builder.True()}, true);
+#ifdef USE_READ_BARRIER
+            builder_.CallNGCRuntime(glue, RTSTUB_ID(CopyCallTarget),
+                                    Gate::InvalidGateRef, {glue, func}, glue);
+#endif
             const CallSignature *cs = RuntimeStubCSigns::Get(RTSTUB_ID(JSCall));
             GateRef target = builder.IntPtr(RTSTUB_ID(JSCall));
             auto depend = builder.GetDepend();
@@ -266,12 +433,10 @@ GateRef CallStubBuilder::JSCallDispatch()
 #ifdef USE_READ_BARRIER
     Label prepareForAsmBridgeEntry(env);
     Label finishPrepare(env);
-    GateRef threadHolder = LoadPrimitive(VariableType::NATIVE_POINTER(), glue_,
-        IntPtr(JSThread::GlueData::GetThreadHolderOffset(false)));
-    GateRef mutatorBase = LoadPrimitive(VariableType::NATIVE_POINTER(), threadHolder,
-                                        IntPtr(0)); // currently offset is zero
-    GateRef gcPhase = LoadPrimitive(VariableType::INT8(), mutatorBase, IntPtr(0)); // currently offset is zero
-    BRANCH(Int8GreaterThanOrEqual(gcPhase, Int8(GCPhase::GC_PHASE_PRECOPY)), &prepareForAsmBridgeEntry, &finishPrepare);
+    GateRef gcStateBitField = LoadPrimitive(VariableType::NATIVE_POINTER(), glue_,
+        IntPtr(JSThread::GlueData::GetSharedGCStateBitFieldOffset(false)));
+    GateRef readBarrierStateBit = Int64And(gcStateBitField, Int64(JSThread::READ_BARRIER_STATE_BITFIELD_MASK));
+    BRANCH_LIKELY(Int64Equal(readBarrierStateBit, Int64(0)), &finishPrepare, &prepareForAsmBridgeEntry);
     Bind(&prepareForAsmBridgeEntry);
     {
         // func_ should be ToSpace Reference
@@ -431,6 +596,14 @@ void CallStubBuilder::JSCallJSFunction(Label *exit, Label *noNeedCheckException)
     Label funcIsClassConstructor(env);
     Label funcNotClassConstructor(env);
     Label methodNotAot(env);
+
+#ifdef USE_READ_BARRIER
+    CallNGCRuntime(glue_, RTSTUB_ID(CopyCallTarget), { glue_, func_ });
+    if (callArgs_.mode == JSCallMode::SUPER_CALL_SPREAD_WITH_ARGV) {
+        CallNGCRuntime(glue_, RTSTUB_ID(CopyArgvArray),
+            { glue_, callArgs_.superCallArgs.argv, callArgs_.superCallArgs.argc });
+    }
+#endif
 
     if (!AssemblerModule::IsCallNew(callArgs_.mode)) {
         BRANCH(IsClassConstructorFromBitField(bitfield_), &funcIsClassConstructor, &funcNotClassConstructor);

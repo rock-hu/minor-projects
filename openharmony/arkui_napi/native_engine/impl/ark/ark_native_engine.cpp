@@ -205,24 +205,15 @@ panda::Local<panda::JSValueRef> NapiDefineClass(napi_env env, const char* name, 
     }
 #endif
     Local<JSValueRef> context = engine->GetContext();
-    Local<panda::FunctionRef> fn = panda::FunctionRef::NewConcurrentClassFunction(vm, context,
-        ArkNativeFunctionCallBack,
-        [](void* env, void* externalPointer, void* data) {
-            auto info = reinterpret_cast<NapiFunctionInfo*>(data);
-                if (info != nullptr) {
-                    delete info;
-                }
-            }, reinterpret_cast<void*>(funcInfo), true);
-
-    Local<panda::StringRef> fnName = panda::StringRef::NewFromUtf8(vm, className.c_str());
-    fn->SetName(vm, fnName);
+    Local<panda::FunctionRef> fn = panda::FunctionRef::NewConcurrentClassFunctionWithName(vm, context,
+        ArkNativeFunctionCallBack, CommonDeleter, className.c_str(), reinterpret_cast<void*>(funcInfo), true);
 
     if (length == 0) {
         return fn;
     }
     Local<panda::ObjectRef> classPrototype = fn->GetFunctionPrototype(vm);
-    Local<panda::ObjectRef> fnObj = fn->ToObject(vm);
-    for (size_t i = 0; i < length; i++) {
+    Local<panda::ObjectRef> fnObj = Local<panda::ObjectRef>(fn);
+    for (size_t i = 0; i < length; ++i) {
         if (properties[i].attributes & NATIVE_STATIC) {
             NapiDefineProperty(env, fnObj, properties[i]);
         } else {
@@ -267,15 +258,8 @@ panda::Local<panda::JSValueRef> NapiDefineSendableClass(napi_env env,
     }
 
     auto infos = NativeSendable::CreateSendablePropertiesInfos(env, properties, propertiesLength);
-    Local<panda::FunctionRef> fn = panda::FunctionRef::NewSendableClassFunction(
-        vm, ArkNativeFunctionCallBack,
-        [](void* env, void* externalPointer, void* data) {
-            auto info = reinterpret_cast<NapiFunctionInfo*>(data);
-            if (info != nullptr) {
-                delete info;
-            }
-        },
-        reinterpret_cast<void*>(funcInfo), fnName, infos, localParent, true);
+    Local<panda::FunctionRef> fn = panda::FunctionRef::NewSendableClassFunction(vm, ArkNativeFunctionCallBack,
+        CommonDeleter, reinterpret_cast<void*>(funcInfo), fnName, infos, localParent, true);
 
     return fn;
 }
@@ -356,7 +340,8 @@ void ArkNativeEngine::CopyPropertyApiFilter(const std::unique_ptr<ApiAllowListCh
 ArkNativeEngine::ArkNativeEngine(EcmaVM* vm, void* jsEngine, bool isLimitedWorker) : NativeEngine(jsEngine),
                                                                                      vm_(vm),
                                                                                      topScope_(vm),
-                                                                                     isLimitedWorker_(isLimitedWorker)
+                                                                                     isLimitedWorker_(isLimitedWorker),
+                                                                                     isMainEnvContext_(true)
 {
     HILOG_INFO("ArkNativeEngine is created, id %{public}" PRIu64, GetId());
 
@@ -423,7 +408,6 @@ ArkNativeEngine::ArkNativeEngine(EcmaVM* vm, void* jsEngine, bool isLimitedWorke
 
     // save the first context
     context_ = Global<JSValueRef>(vm, JSNApi::GetCurrentContext(vm));
-    isMainEnvContext_ = true;
 }
 
 /**
@@ -439,6 +423,7 @@ ArkNativeEngine::ArkNativeEngine(NativeEngine* parent, EcmaVM* vm, const Local<J
       context_(vm, context),
       parentEngine_(reinterpret_cast<ArkNativeEngine*>(parent)),
       containerScopeEnable_(parent->IsContainerScopeEnabled()),
+      isMainEnvContext_(false),
       isMultiContextEnabled_(true)
 {
     HILOG_INFO("ArkContextEngine is created, id %{public}" PRIu64, GetId());
@@ -468,12 +453,13 @@ ArkNativeEngine::ArkNativeEngine(NativeEngine* parent, EcmaVM* vm, const Local<J
 
     // init common requireNapi and requireInternal
     void* requireData = static_cast<void*>(this);
-    Local<ObjectRef> global = JSNApi::GetGlobalObject(vm);
+    Local<ObjectRef> global = JSNApi::GetGlobalObject(vm, context);
     global->Set(vm, StringRef::NewFromUtf8(vm, REQUIRE_NAPI_FUNCTION_NAME),
                 FunctionRef::New(vm, RequireNapiForCtxEnv, nullptr, requireData));
     global->Set(vm, StringRef::NewFromUtf8(vm, REQUIRE_NAPI_INTERNAL_NAME),
                 FunctionRef::New(vm, RequireInternal, nullptr, requireData));
-
+                
+    InitWithoutUV();
     // The VM scope callback is initialized during the construction of the root engine and is ignored in this context.
 }
 
@@ -569,6 +555,7 @@ void ArkNativeEngine::DeconstructCtxEnv()
 {
     // To avoid blocking the thread, do not wait for any incomplete asynchronous tasks here.
     RunCleanupHooks(false);
+    DeinitWithoutUV();
 
     parentEngine_->RemoveCleanupHook(EnvironmentCleanup, this);
 
@@ -580,10 +567,6 @@ void ArkNativeEngine::DeconstructCtxEnv()
     // Context doesn't have its own uv_loop, so abort if still exists.
     if (HasActiveTsfn()) {
         HILOG_FATAL("Failed to release Ark Context Engine: active napi_threadsafe_function still exists.");
-    }
-    if (referenceManager_ != nullptr) {
-        delete referenceManager_;
-        referenceManager_ = nullptr;
     }
     SetDead();
     // twice check after wrap/finalizer callbacks
@@ -1119,18 +1102,9 @@ static Local<panda::JSValueRef> NapiNativeCreateFunction(napi_env env, const cha
 #endif
 
     Local<JSValueRef> context = engine->GetContext();
-    Local<panda::FunctionRef> fn = panda::FunctionRef::NewConcurrent(
-        vm, context, ArkNativeFunctionCallBack,
-        [](void* env, void* externalPointer, void* data) {
-            auto info = reinterpret_cast<NapiFunctionInfo*>(data);
-            if (info != nullptr) {
-                delete info;
-            }
-        },
-        reinterpret_cast<void*>(funcInfo), true
-    );
-    Local<panda::StringRef> fnName = panda::StringRef::NewFromUtf8(vm, name);
-    fn->SetName(vm, fnName);
+    Local<panda::FunctionRef> fn = panda::FunctionRef::NewConcurrentWithName(vm, context, ArkNativeFunctionCallBack,
+                                                                             CommonDeleter, name,
+                                                                             reinterpret_cast<void*>(funcInfo), true);
     return fn;
 }
 
@@ -1316,6 +1290,14 @@ panda::Local<panda::ObjectRef> NapiCreateSObjectWithProperties(napi_env env,
     }
     Local<panda::ObjectRef> object = panda::ObjectRef::NewSWithProperties(vm, info);
     return scope.Escape(object);
+}
+
+void CommonDeleter(void *env, void *externalPointer, void *data)
+{
+    auto info = reinterpret_cast<NapiFunctionInfo *>(data);
+    if (info != nullptr) {
+        delete info;
+    }
 }
 
 panda::Local<panda::ObjectRef> ArkNativeEngine::GetModuleFromName(
@@ -1757,7 +1739,7 @@ napi_value ArkNativeEngine::NapiLoadModule(const char* path)
     return JsValueFromLocalValue(scope.Escape(exportObj));
 }
 
-napi_value ArkNativeEngine::NapiLoadModuleWithInfo(const char* path, const char* module_info)
+napi_value ArkNativeEngine::NapiLoadModuleWithInfo(const char* path, const char* module_info, bool isHybrid)
 {
     if (path == nullptr) {
         HILOG_ERROR("ArkNativeEngine:The module name is empty");
@@ -1770,7 +1752,7 @@ napi_value ArkNativeEngine::NapiLoadModuleWithInfo(const char* path, const char*
     std::string modulePath;
     if (module_info != nullptr) {
         modulePath = module_info;
-        exportObj = JSNApi::GetModuleNameSpaceWithModuleInfo(vm_, inputPath, modulePath);
+        exportObj = panda::JSNApi::GetModuleNameSpaceWithModuleInfo(vm_, inputPath, modulePath, isHybrid);
     } else {
         exportObj = NapiLoadNativeModule(inputPath);
     }
@@ -1841,6 +1823,13 @@ NativeReference* ArkNativeEngine::CreateReference(napi_value value, uint32_t ini
     bool flag, NapiNativeFinalize callback, void* data, void* hint, size_t nativeBindingSize)
 {
     return new ArkNativeReference(this, value, initialRefcount, flag, callback, data, hint, false, nativeBindingSize);
+}
+
+NativeReference* ArkNativeEngine::CreateXRefReference(napi_value value, uint32_t initialRefcount,
+    bool flag, NapiNativeFinalize callback, void* data)
+{
+    ArkNativeReferenceConfig config(initialRefcount, true, flag, callback, data);
+    return new ArkNativeReference(this, value, config);
 }
 
 NativeReference* ArkNativeEngine::CreateAsyncReference(napi_value value, uint32_t initialRefcount,
@@ -2486,6 +2475,7 @@ void ArkNativeEngine::NotifyApplicationState(bool inBackground)
 {
     DFXJSNApi::NotifyApplicationState(vm_, inBackground);
     ArkIdleMonitor::GetInstance()->NotifyChangeBackgroundState(inBackground);
+    interopAppState_.Notify(inBackground ? NAPI_APP_STATE_BACKGROUND : NAPI_APP_STATE_FOREGROUND);
 }
 
 void ArkNativeEngine::NotifyIdleStatusControl(std::function<void(bool)> callback)
@@ -2523,12 +2513,15 @@ void ArkNativeEngine::NotifyForceExpandState(int32_t value)
     switch (ForceExpandState(value)) {
         case ForceExpandState::FINISH_COLD_START:
             DFXJSNApi::NotifyFinishColdStart(vm_, true);
+            interopAppState_.Notify(NAPI_APP_STATE_COLD_START_FINISHED);
             break;
         case ForceExpandState::START_HIGH_SENSITIVE:
             DFXJSNApi::NotifyHighSensitive(vm_, true);
+            interopAppState_.Notify(NAPI_APP_STATE_SENSITIVE_START);
             break;
         case ForceExpandState::FINISH_HIGH_SENSITIVE:
             DFXJSNApi::NotifyHighSensitive(vm_, false);
+            interopAppState_.Notify(NAPI_APP_STATE_SENSITIVE_END);
             break;
         default:
             HILOG_ERROR("Invalid Force Expand State: %{public}d.", value);
@@ -2789,6 +2782,11 @@ bool DumpHybridStack(const EcmaVM* vm, std::string &stack, uint32_t ignore, int3
     return true;
 #endif
     return false;
+}
+
+void ArkNativeEngine::RegisterAppStateCallback(NapiAppStateCallback callback)
+{
+    interopAppState_.SetCallback(callback);
 }
 
 int32_t ArkNativeEngine::GetObjectHash(napi_env env, napi_value src)

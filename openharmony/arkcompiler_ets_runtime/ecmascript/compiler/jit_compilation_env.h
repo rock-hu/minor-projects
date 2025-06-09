@@ -16,6 +16,7 @@
 #ifndef ECMASCRIPT_COMPILER_JIT_COMPILATION_ENV_H
 #define ECMASCRIPT_COMPILER_JIT_COMPILATION_ENV_H
 
+#include "ecmascript/compiler/bytecode_info_collector.h"
 #include "ecmascript/compiler/compilation_env.h"
 #include "ecmascript/dependent_infos.h"
 #include "ecmascript/ic/profile_type_info.h"
@@ -56,6 +57,10 @@ public:
     }
     bool SupportHeapConstant() const override
     {
+#ifdef USE_CMC_GC
+        // Disable heapConstant until we enable barrier for heap constant table
+        return false;
+#endif
         return hostThread_->GetEcmaVM()->GetJSOptions().IsCompilerEnableLiteCG();
     }
 
@@ -110,6 +115,11 @@ public:
     MethodLiteral *GetMethodLiteral() const override
     {
         return methodLiteral_;
+    }
+
+    void ProcessMethod(MethodLiteral *method, const JSPandaFile *jsPandaFile) const override
+    {
+        kungfu::BytecodeInfoCollector::ProcessMethodForJIT(method, jsPandaFile);
     }
 
     const uint8_t *GetMethodPcStart() const override

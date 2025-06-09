@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 import * as path from 'node:path';
 import * as ts from 'typescript';
+import * as fs from 'fs';
 import type { IsEtsFileCallback } from '../IsEtsFileCallback';
 import { FaultID } from '../Problems';
 import { ARKTS_IGNORE_DIRS, ARKTS_IGNORE_DIRS_OH_MODULES, ARKTS_IGNORE_FILES } from './consts/ArktsIgnorePaths';
@@ -42,6 +43,11 @@ import { isAssignmentOperator } from './functions/isAssignmentOperator';
 import { isIntrinsicObjectType } from './functions/isIntrinsicObjectType';
 import type { LinterOptions } from '../LinterOptions';
 import { ETS } from './consts/TsSuffix';
+import { STRINGLITERAL_NUMBER, STRINGLITERAL_NUMBER_ARRAY } from './consts/StringLiteral';
+import { InteropType, USE_STATIC } from './consts/InteropAPI';
+import { ETS_MODULE, PATH_SEPARATOR, VALID_OHM_COMPONENTS_MODULE_PATH } from './consts/OhmUrl';
+import { EXTNAME_D_TS, EXTNAME_ETS, EXTNAME_JS, EXTNAME_TS } from './consts/ExtensionName';
+import { STRING_ERROR_LITERAL } from './consts/Literals';
 
 export const SYMBOL = 'Symbol';
 export const SYMBOL_CONSTRUCTOR = 'SymbolConstructor';
@@ -121,7 +127,10 @@ export class TsUtils {
     return !!(tsSymbol.flags & ts.SymbolFlags.Enum);
   }
 
-  static hasModifier(tsModifiers: readonly ts.Modifier[] | undefined, tsModifierKind: number): boolean {
+  static hasModifier(
+    tsModifiers: readonly ts.Modifier[] | ts.NodeArray<ts.ModifierLike> | undefined,
+    tsModifierKind: number
+  ): boolean {
     if (!tsModifiers) {
       return false;
     }
@@ -222,6 +231,54 @@ export class TsUtils {
      * (f & ts.TypeFlags.String) != 0 || (f & ts.TypeFlags.StringLiteral) != 0
      */
     );
+  }
+
+  checkStatementForErrorClass(stmt: ts.ThrowStatement): boolean {
+    const newExpr = stmt.expression;
+    if (!ts.isNewExpression(newExpr)) {
+      return true;
+    }
+    const ident = newExpr.expression;
+    if (!ts.isIdentifier(ident)) {
+      return true;
+    }
+
+    if (ident.text === STRING_ERROR_LITERAL) {
+      return false;
+    }
+
+    const declaration = this.getDeclarationNode(ident);
+    if (!declaration) {
+      return true;
+    }
+
+    if (!ts.isClassDeclaration(declaration)) {
+      return true;
+    }
+
+    if (!declaration.heritageClauses) {
+      return true;
+    }
+
+    return !this.includesErrorClass(declaration.heritageClauses);
+  }
+
+  includesErrorClass(hClauses: ts.NodeArray<ts.HeritageClause>): boolean {
+    void this;
+    let includesErrorClass = false;
+
+    for (const hClause of hClauses) {
+      for (const type of hClause.types) {
+        if (!ts.isIdentifier(type.expression)) {
+          continue;
+        }
+        if (type.expression.text === 'Error') {
+          includesErrorClass = true;
+        }
+      }
+    }
+
+    return includesErrorClass;
   }
 
   static isPrimitiveLiteralType(type: ts.Type): boolean {
@@ -617,6 +674,9 @@ export class TsUtils {
     if (this.processExtendedParentTypes(typeA, typeB)) {
       return true;
     }
+    if (this.isStdIterableType(typeB) && this.hasSymbolIteratorMethod(typeA)) {
+      return true;
+    }
     if (!typeADecl.heritageClauses) {
       return false;
     }
@@ -629,6 +689,25 @@ export class TsUtils {
     return false;
   }
 
+  hasSymbolIteratorMethod(type: ts.Type): boolean {
+    const rhsTypeProps = this.tsTypeChecker.getPropertiesOfType(type);
+    return rhsTypeProps.some((prop) => {
+      const propDecl = TsUtils.getDeclaration(prop);
+      return (
+        propDecl &&
+        (ts.isMethodSignature(propDecl) || ts.isMethodDeclaration(propDecl)) &&
+        ts.isComputedPropertyName(propDecl.name) &&
+        this.isSymbolIteratorExpression(propDecl.name.expression)
+      );
+    });
+  }
+
+  isStdIterableType(type: ts.Type): boolean {
+    void this;
+    const sym = type.getSymbol();
+    return !!sym && sym.getName() === 'Iterable' && isStdLibrarySymbol(sym);
+  }
+
   static reduceReference(t: ts.Type): ts.Type {
     return TsUtils.isTypeReference(t) && t.target !== t ? t.target : t;
   }
@@ -639,6 +718,9 @@ export class TsUtils {
     rhsExpr: ts.Expression,
     isStrict: boolean
   ): boolean {
+    if (this.needToDeduceStructuralIdentityHandleUnionsIsStrict(lhsType, rhsType, rhsExpr, isStrict)) {
+      return true;
+    }
     if (rhsType.isUnion()) {
       // Each Class/Interface of the RHS union type must be compatible with LHS type.
       for (const compType of rhsType.types) {
@@ -648,16 +730,38 @@ export class TsUtils {
       }
       return false;
     }
-    if (lhsType.isUnion()) {
+    if (lhsType.isUnion() && TsUtils.isTypeReference(rhsType)) {
+      let needDeduce = false;
       // RHS type needs to be compatible with at least one type of the LHS union.
       for (const compType of lhsType.types) {
-        if (!this.needToDeduceStructuralIdentity(compType, rhsType, rhsExpr, isStrict)) {
+        if (!TsUtils.isTypeReference(compType) && !TsUtils.isISendableInterface(compType)) {
+          continue;
+        }
+        if (this.needToDeduceStructuralIdentity(compType, rhsType, rhsExpr, isStrict)) {
+          needDeduce = true;
+        } else {
           return false;
         }
       }
-      return true;
+      return needDeduce;
     }
     // should be unreachable
+    return false;
+  }
+
+  needToDeduceStructuralIdentityHandleUnionsIsStrict(
+    lhsType: ts.Type,
+    rhsType: ts.Type,
+    rhsExpr: ts.Expression,
+    isStrict: boolean
+  ): boolean {
+    if (rhsType.isUnion() && lhsType.isUnion()) {
+      return rhsType.types.some((compRhsType) => {
+        return lhsType.types.every((compLhsType) => {
+          return this.needToDeduceStructuralIdentity(compLhsType, compRhsType, rhsExpr, isStrict);
+        });
+      });
+    }
     return false;
   }
 
@@ -695,6 +799,9 @@ export class TsUtils {
         // The 'arkts-sendable-obj-init' rule already exists. Wait for the new 'strict type' to be modified.
         return false;
       }
+      if (this.needToDeduceStructuralIdentityIsStrict(lhsType, rhsType, rhsExpr, isStrict)) {
+        return true;
+      }
       // eslint-disable-next-line no-param-reassign
       lhsType = TsUtils.reduceReference(lhsType);
       // eslint-disable-next-line no-param-reassign
@@ -705,6 +812,29 @@ export class TsUtils {
       rhsType.isClassOrInterface() &&
       !this.relatedByInheritanceOrIdentical(rhsType, lhsType)
     );
+  }
+
+  needToDeduceStructuralIdentityIsStrict(
+    lhsType: ts.Type,
+    rhsType: ts.Type,
+    rhsExpr: ts.Expression,
+    isStrict: boolean = false
+  ): boolean {
+    if (
+      TsUtils.reduceReference(lhsType) === TsUtils.reduceReference(rhsType) &&
+      TsUtils.isTypeReference(lhsType) &&
+      TsUtils.isTypeReference(rhsType)
+    ) {
+      const lhsArgs = lhsType.typeArguments;
+      const rhsArgs = rhsType.typeArguments;
+      if (lhsArgs && lhsArgs.length > 0) {
+        if (rhsArgs && rhsArgs.length > 0) {
+          return this.needToDeduceStructuralIdentity(lhsArgs[0], rhsArgs[0], rhsExpr, isStrict);
+        }
+        return this.needToDeduceStructuralIdentity(lhsArgs[0], rhsType, rhsExpr, isStrict);
+      }
+    }
+    return false;
   }
 
   private needToDeduceStructuralIdentityAdvancedClassChecks(lhsType: ts.Type, rhsType: ts.Type): boolean {
@@ -864,10 +994,25 @@ export class TsUtils {
     return result;
   }
 
-  private static hasDefaultCtor(type: ts.Type): boolean {
+  private hasDefaultCtor(type: ts.Type): boolean {
+    const checkBaseTypes = (type: ts.Type): boolean => {
+      if (!this.options.arkts2) {
+        return true;
+      }
+      const baseTypes = type.getBaseTypes()?.filter((baseType) => {
+        return baseType.isClass();
+      });
+      if (!baseTypes || baseTypes.length === 0) {
+        return true;
+      }
+      return baseTypes.some((baseType: ts.Type) => {
+        return this.hasDefaultCtor(baseType);
+      });
+    };
+
     // No members -> no explicit constructors -> there is default ctor
     if (type.symbol.members === undefined) {
-      return true;
+      return checkBaseTypes(type);
     }
 
     // has any constructor
@@ -892,7 +1037,11 @@ export class TsUtils {
     });
 
     // Has no any explicit constructor -> has implicit default constructor.
-    return !hasCtor || hasDefaultCtor;
+    if (!hasCtor) {
+      return checkBaseTypes(type);
+    }
+
+    return hasDefaultCtor;
   }
 
   private static isAbstractClass(type: ts.Type): boolean {
@@ -907,7 +1056,24 @@ export class TsUtils {
     return false;
   }
 
-  static validateObjectLiteralType(type: ts.Type | undefined): boolean {
+  isAbstractMethodInAbstractClass(node: ts.Node): boolean {
+    const type = this.tsTypeChecker.getTypeAtLocation(node);
+    const funcDeclParentType = this.tsTypeChecker.getTypeAtLocation(node.parent);
+    if (
+      TsUtils.isAbstractClass(funcDeclParentType) &&
+      type.symbol?.declarations &&
+      type.symbol.declarations.length > 0
+    ) {
+      const declClass = type.symbol.declarations[0] as ts.MethodDeclaration;
+      const classMods = ts.getModifiers(declClass);
+      if (TsUtils.hasModifier(classMods, ts.SyntaxKind.AbstractKeyword)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  validateObjectLiteralType(type: ts.Type | undefined): boolean {
     if (!type) {
       return false;
     }
@@ -915,7 +1081,7 @@ export class TsUtils {
     type = TsUtils.reduceReference(type);
     return (
       type.isClassOrInterface() &&
-      TsUtils.hasDefaultCtor(type) &&
+      this.hasDefaultCtor(type) &&
       !TsUtils.hasReadonlyFields(type) &&
       !TsUtils.isAbstractClass(type)
     );
@@ -1021,7 +1187,7 @@ export class TsUtils {
       return this.validateRecordObjectKeys(rhsExpr);
     }
     return (
-      TsUtils.validateObjectLiteralType(lhsType) && !this.hasMethods(lhsType) && this.validateFields(lhsType, rhsExpr)
+      this.validateObjectLiteralType(lhsType) && !this.hasMethods(lhsType) && this.validateFields(lhsType, rhsExpr)
     );
   }
 
@@ -1281,7 +1447,10 @@ export class TsUtils {
     [FaultID.ParameterProperties, TsUtils.getParameterPropertiesHighlightRange],
     [FaultID.SendableDefiniteAssignment, TsUtils.getSendableDefiniteAssignmentHighlightRange],
     [FaultID.ObjectTypeLiteral, TsUtils.getObjectTypeLiteralHighlightRange],
-    [FaultID.StructuralIdentity, TsUtils.getStructuralIdentityHighlightRange]
+    [FaultID.StructuralIdentity, TsUtils.getStructuralIdentityHighlightRange],
+    [FaultID.VoidOperator, TsUtils.getVoidOperatorHighlightRange],
+    [FaultID.ImportLazyIdentifier, TsUtils.getImportLazyHighlightRange],
+    [FaultID.IncompationbleFunctionType, TsUtils.getIncompationbleFunctionTypeHighlightRange]
   ]);
 
   static getKeywordHighlightRange(nodeOrComment: ts.Node | ts.CommentRange, keyword: string): [number, number] {
@@ -1433,6 +1602,29 @@ export class TsUtils {
     }
 
     return undefined;
+  }
+
+  static getIncompationbleFunctionTypeHighlightRange(
+    nodeOrComment: ts.Node | ts.CommentRange
+  ): [number, number] | undefined {
+    const node = nodeOrComment as ts.Node;
+    if (ts.isArrowFunction(node)) {
+      const parameters = node.parameters;
+      if (parameters.length > 0) {
+        const firstParamStart = parameters[0].getStart();
+        const lastParamEnd = parameters[parameters.length - 1].getEnd();
+        return [firstParamStart, lastParamEnd];
+      }
+    }
+    return [node.getStart(), node.getEnd()];
+  }
+
+  static getVoidOperatorHighlightRange(nodeOrComment: ts.Node | ts.CommentRange): [number, number] | undefined {
+    return this.getKeywordHighlightRange(nodeOrComment, 'void');
+  }
+
+  static getImportLazyHighlightRange(nodeOrComment: ts.Node | ts.CommentRange): [number, number] | undefined {
+    return this.getKeywordHighlightRange(nodeOrComment, 'lazy');
   }
 
   isStdRecordType(type: ts.Type): boolean {
@@ -1701,12 +1893,28 @@ export class TsUtils {
     if (sym === undefined) {
       return undefined;
     }
+    return TsUtils.getVariableSymbolDeclarationTypeNode(sym);
+  }
+
+  static getVariableSymbolDeclarationTypeNode(sym: ts.Symbol): ts.TypeNode | undefined {
+    const decl = TsUtils.getDeclaration(sym);
+    if (!!decl && ts.isVariableDeclaration(decl)) {
+      return decl.type;
+    }
+    return undefined;
+  }
+
+  getDeclarationTypeNode(node: ts.Node): ts.TypeNode | undefined {
+    const sym = this.trueSymbolAtLocation(node);
+    if (sym === undefined) {
+      return undefined;
+    }
     return TsUtils.getSymbolDeclarationTypeNode(sym);
   }
 
   static getSymbolDeclarationTypeNode(sym: ts.Symbol): ts.TypeNode | undefined {
     const decl = TsUtils.getDeclaration(sym);
-    if (!!decl && ts.isVariableDeclaration(decl)) {
+    if (!!decl && (ts.isVariableDeclaration(decl) || ts.isPropertyDeclaration(decl))) {
       return decl.type;
     }
     return undefined;
@@ -1718,7 +1926,7 @@ export class TsUtils {
   }
 
   static symbolHasEsObjectType(sym: ts.Symbol): boolean {
-    const typeNode = TsUtils.getSymbolDeclarationTypeNode(sym);
+    const typeNode = TsUtils.getVariableSymbolDeclarationTypeNode(sym);
     return typeNode !== undefined && TsUtils.isEsObjectType(typeNode);
   }
 
@@ -1826,12 +2034,109 @@ export class TsUtils {
     );
   }
 
-  private static isFunctionalType(type: ts.Type): boolean {
+  isIncompatibleFunctionals(lhsTypeNode: ts.TypeNode, rhsExpr: ts.Expression): boolean {
+    if (ts.isUnionTypeNode(lhsTypeNode)) {
+      for (let i = 0; i < lhsTypeNode.types.length; i++) {
+        if (!this.isIncompatibleFunctional(lhsTypeNode.types[i], rhsExpr)) {
+          return false;
+        }
+      }
+      return true;
+    }
+    return this.isIncompatibleFunctional(lhsTypeNode, rhsExpr);
+  }
+
+  private isIncompatibleFunctional(lhsTypeNode: ts.TypeNode, rhsExpr: ts.Expression): boolean {
+    const lhsType = this.tsTypeChecker.getTypeAtLocation(lhsTypeNode);
+    const rhsType = this.tsTypeChecker.getTypeAtLocation(rhsExpr);
+    const lhsParams = this.getLhsFunctionParameters(lhsTypeNode);
+    const rhsParams = this.getRhsFunctionParameters(rhsExpr);
+
+    if (lhsParams !== rhsParams) {
+      return false;
+    }
+
+    if (TsUtils.isFunctionalType(lhsType)) {
+      const lhsFunctionReturnType = this.getFunctionType(lhsTypeNode);
+      const rhsReturnType = this.getReturnTypeFromExpression(rhsType);
+      if (lhsFunctionReturnType && rhsReturnType) {
+        return TsUtils.isVoidType(lhsFunctionReturnType) && !TsUtils.isVoidType(rhsReturnType);
+      }
+    }
+    return false;
+  }
+
+  static isVoidType(tsType: ts.Type): boolean {
+    return (tsType.getFlags() & ts.TypeFlags.Void) !== 0;
+  }
+
+  private getRhsFunctionParameters(expr: ts.Expression): number {
+    const type = this.tsTypeChecker.getTypeAtLocation(expr);
+    const signatures = this.tsTypeChecker.getSignaturesOfType(type, ts.SignatureKind.Call);
+    if (signatures.length > 0) {
+      const signature = signatures[0];
+      return signature.parameters.length;
+    }
+    return 0;
+  }
+
+  private getLhsFunctionParameters(typeNode: ts.TypeNode): number {
+    let current: ts.TypeNode = typeNode;
+    while (ts.isTypeReferenceNode(current)) {
+      const symbol = this.tsTypeChecker.getSymbolAtLocation(current.typeName);
+      if (!symbol) {
+        break;
+      }
+
+      const declaration = symbol.declarations?.[0];
+      if (!declaration || !ts.isTypeAliasDeclaration(declaration)) {
+        break;
+      }
+
+      current = declaration.type;
+    }
+    if (ts.isFunctionTypeNode(current)) {
+      return current.parameters.length;
+    }
+    return 0;
+  }
+
+  private getFunctionType(typeNode: ts.TypeNode): ts.Type | undefined {
+    let current: ts.TypeNode = typeNode;
+    while (ts.isTypeReferenceNode(current)) {
+      const symbol = this.tsTypeChecker.getSymbolAtLocation(current.typeName);
+      if (!symbol) {
+        break;
+      }
+
+      const declaration = symbol.declarations?.[0];
+      if (!declaration || !ts.isTypeAliasDeclaration(declaration)) {
+        break;
+      }
+
+      current = declaration.type;
+    }
+    if (ts.isFunctionTypeNode(current)) {
+      return this.tsTypeChecker.getTypeAtLocation(current.type);
+    }
+    return undefined;
+  }
+
+  private getReturnTypeFromExpression(type: ts.Type): ts.Type | undefined {
+    const signatures = this.tsTypeChecker.getSignaturesOfType(type, ts.SignatureKind.Call);
+    if (signatures.length > 0) {
+      const returnType = this.tsTypeChecker.getReturnTypeOfSignature(signatures[0]);
+      return returnType;
+    }
+    return undefined;
+  }
+
+  static isFunctionalType(type: ts.Type): boolean {
     const callSigns = type.getCallSignatures();
     return callSigns && callSigns.length > 0;
   }
 
-  private isStdFunctionType(type: ts.Type): boolean {
+  isStdFunctionType(type: ts.Type): boolean {
     const sym = type.getSymbol();
     return !!sym && sym.getName() === 'Function' && this.isGlobalSymbol(sym);
   }
@@ -1867,7 +2172,9 @@ export class TsUtils {
       }
     }
     // We allow computed property names if expression is string literal or string Enum member
-    return ts.isStringLiteralLike(expr) || this.isEnumStringLiteral(computedProperty.expression);
+    return (
+      !this.options.arkts2 && (ts.isStringLiteralLike(expr) || this.isEnumStringLiteral(computedProperty.expression))
+    );
   }
 
   skipPropertyInferredTypeCheck(
@@ -1898,7 +2205,10 @@ export class TsUtils {
       (!this.options.useRtLogic && TsUtils.hasModifier(modifiers, ts.SyntaxKind.ReadonlyKeyword) ||
         TsUtils.hasModifier(modifiers, ts.SyntaxKind.PublicKeyword) ||
         TsUtils.hasModifier(modifiers, ts.SyntaxKind.ProtectedKeyword) ||
-        TsUtils.hasModifier(modifiers, ts.SyntaxKind.PrivateKeyword))
+        TsUtils.hasModifier(modifiers, ts.SyntaxKind.PrivateKeyword) ||
+        !!this.options.arkts2 &&
+          (TsUtils.hasModifier(modifiers, ts.SyntaxKind.ReadonlyKeyword) ||
+            TsUtils.hasModifier(modifiers, ts.SyntaxKind.OverrideKeyword)))
     );
   }
 
@@ -2519,17 +2829,22 @@ export class TsUtils {
     return false;
   }
 
-  findIdentifierNameForSymbol(symbol: ts.Symbol): string | undefined {
+  findIdentifierNameForSymbol(symbol: ts.Symbol, enumMember?: ts.EnumMember): string | undefined {
     let name = TsUtils.getIdentifierNameFromString(symbol.name);
     if (name === undefined || name === symbol.name) {
       return name;
     }
 
+    const enumExpress = enumMember?.parent;
     const parentType = this.getTypeByProperty(symbol);
     if (parentType === undefined) {
       return undefined;
     }
-
+    if (enumExpress) {
+      while (this.findEnumMember(enumExpress, name)) {
+        name = '_' + name;
+      }
+    }
     while (this.findProperty(parentType, name) !== undefined) {
       name = '_' + name;
     }
@@ -2538,6 +2853,9 @@ export class TsUtils {
   }
 
   private static getIdentifierNameFromString(str: string): string | undefined {
+    if (str === '') {
+      return '__empty';
+    }
     let result: string = '';
 
     let offset = 0;
@@ -2584,7 +2902,8 @@ export class TsUtils {
       if (
         !ts.isPropertyDeclaration(propDecl) &&
         !ts.isPropertyAssignment(propDecl) &&
-        !ts.isPropertySignature(propDecl)
+        !ts.isPropertySignature(propDecl) &&
+        !ts.isEnumMember(propDecl)
       ) {
         return undefined;
       }
@@ -2604,11 +2923,15 @@ export class TsUtils {
     }
 
     for (const propDecl of symbol.declarations) {
-      if (!ts.isPropertyDeclaration(propDecl) && !ts.isPropertySignature(propDecl)) {
+      if (!ts.isPropertyDeclaration(propDecl) && !ts.isPropertySignature(propDecl) && !ts.isEnumMember(propDecl)) {
         return false;
       }
 
-      if (!ts.isClassDeclaration(propDecl.parent) && !ts.isInterfaceDeclaration(propDecl.parent)) {
+      if (
+        !ts.isClassDeclaration(propDecl.parent) &&
+        !ts.isInterfaceDeclaration(propDecl.parent) &&
+        !ts.isEnumDeclaration(propDecl.parent)
+      ) {
         return false;
       }
 
@@ -2634,6 +2957,9 @@ export class TsUtils {
     }
 
     const symbol = tsType.symbol;
+    if (symbol === undefined) {
+      return false;
+    }
     const name = this.tsTypeChecker.getFullyQualifiedName(symbol);
     return name === 'String' && this.isGlobalSymbol(symbol);
   }
@@ -2753,9 +3079,9 @@ export class TsUtils {
   }
 
   static checkGeneralDeclaration(stmt: ts.Statement, name: string): boolean {
-    if (ts.isFunctionDeclaration(stmt)) {
+    if (ts.isFunctionDeclaration(stmt) && stmt.body !== undefined) {
       return (
-        stmt.body!.statements.some((innerStmt) => {
+        stmt.body.statements.some((innerStmt) => {
           return TsUtils.checkDeclarationInVariableStatement(innerStmt, name);
         }) ||
         stmt.name !== undefined && ts.isIdentifier(stmt.name) && stmt.name.text === name
@@ -3049,5 +3375,484 @@ export class TsUtils {
     /* CC-OFFNXT(no_explicit_any) std lib */
     // Ambient flag is not exposed, so we apply dirty hack to make it visible
     return !!(node.flags & (ts.NodeFlags as any).Ambient);
+  }
+
+  isValidSendableClassExtends(tsTypeExpr: ts.ExpressionWithTypeArguments): boolean {
+    const expr = tsTypeExpr.expression;
+    const sym = this.tsTypeChecker.getSymbolAtLocation(expr);
+    if (sym && (sym.flags & ts.SymbolFlags.Class) === 0) {
+      // handle non-class situation(local / import)
+      if ((sym.flags & ts.SymbolFlags.Alias) !== 0) {
+
+        /*
+         * Sendable class can not extends imported sendable class variable
+         * Sendable class can extends imported sendable class
+         */
+        const realSym = this.tsTypeChecker.getAliasedSymbol(sym);
+        if (realSym && (realSym.flags & ts.SymbolFlags.Class) === 0) {
+          return false;
+        }
+        return true;
+      }
+      return false;
+    }
+    return true;
+  }
+
+  isBuiltinClassHeritageClause(node: ts.HeritageClause): boolean {
+    const typeNode = node.types[0].expression;
+    if (!typeNode) {
+      return false;
+    }
+
+    const symbol = this.tsTypeChecker.getSymbolAtLocation(typeNode);
+    return !!symbol && !isStdLibrarySymbol(symbol);
+  }
+
+  isIntegerVariable(sym: ts.Symbol | undefined): boolean {
+    if (!sym) {
+      return false;
+    }
+    const decl = TsUtils.getDeclaration(sym);
+    if (!decl || !ts.isVariableDeclaration(decl) && !ts.isPropertyDeclaration(decl) || decl.type) {
+      return false;
+    }
+    const init = decl.initializer;
+    return !!init && ts.isNumericLiteral(init) && this.isIntegerConstantValue(init);
+  }
+
+  isIntegerValue(expr: ts.Expression): boolean {
+    if (ts.isParenthesizedExpression(expr)) {
+      return this.isIntegerValue(expr.expression);
+    } else if (ts.isBinaryExpression(expr) && TsUtils.isArithmeticOperator(expr.operatorToken)) {
+      return this.isIntegerValue(expr.left) && this.isIntegerValue(expr.right);
+    } else if (
+      (ts.isPrefixUnaryExpression(expr) || ts.isPostfixUnaryExpression(expr)) &&
+      TsUtils.isUnaryArithmeticOperator(expr.operator)
+    ) {
+      return this.isIntegerValue(expr.operand);
+    }
+
+    return (
+      ts.isNumericLiteral(expr) && this.isIntegerConstantValue(expr) ||
+      this.isIntegerVariable(this.tsTypeChecker.getSymbolAtLocation(expr))
+    );
+  }
+
+  static isAppStorageAccess(tsCallExpr: ts.CallExpression): boolean {
+    const propertyAccessExpr = tsCallExpr.expression;
+    if (!ts.isPropertyAccessExpression(propertyAccessExpr)) {
+      return false;
+    }
+    const accessedExpr = propertyAccessExpr.expression;
+    if (!ts.isIdentifier(accessedExpr)) {
+      return false;
+    }
+
+    if (accessedExpr.text !== 'AppStorage') {
+      return false;
+    }
+
+    return true;
+  }
+
+  static isArithmeticOperator(op: ts.BinaryOperatorToken): boolean {
+    switch (op.kind) {
+      case ts.SyntaxKind.PlusToken:
+      case ts.SyntaxKind.MinusToken:
+      case ts.SyntaxKind.AsteriskToken:
+      case ts.SyntaxKind.SlashToken:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  static isUnaryArithmeticOperator(op: ts.SyntaxKind): boolean {
+    switch (op) {
+      case ts.SyntaxKind.PlusToken:
+      case ts.SyntaxKind.MinusToken:
+      case ts.SyntaxKind.PlusPlusToken:
+      case ts.SyntaxKind.MinusMinusToken:
+      case ts.SyntaxKind.TildeToken:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  static isNumberLike(type: ts.Type, typeText: string, isEnum: boolean): boolean {
+    const typeFlags = type.flags;
+
+    const isNumberLike =
+      typeText === STRINGLITERAL_NUMBER ||
+      typeText === STRINGLITERAL_NUMBER_ARRAY ||
+      (typeFlags & ts.TypeFlags.NumberLiteral) !== 0 ||
+      isEnum;
+    return isNumberLike;
+  }
+
+  static getModuleName(node: ts.Node): string | undefined {
+    const currentFilePath = node.getSourceFile().fileName;
+    if (!currentFilePath.includes('src')) {
+      return undefined;
+    }
+
+    /*
+     * Assuming we are working with a path like "entry/src/main/ets/pages/test1.ets"
+     * we are splitting at "/src" and get the first item in the list
+     * in order to capture the "entry" group
+     * we could have worked with an absolute path like
+     * "home/user/projects/oh_project/entry/src/main/ets/pages/test1.sts"
+     * in that case, after the fist split we would have
+     * "home/user/projects/entry"
+     * so we split once again with "/" to separate out the directories
+     *
+     * and get the last item which is entry or our module
+     */
+    const getPossibleModule = currentFilePath.split('/src')[0];
+    if (getPossibleModule.length === 0) {
+      return undefined;
+    }
+    const sanitizedDirectories = getPossibleModule.split('/');
+    return sanitizedDirectories[sanitizedDirectories.length - 1];
+  }
+
+  static checkFileExists(
+    importIncludesModule: boolean,
+    currentNode: ts.Node,
+    importFilePath: string,
+    projectPath: string,
+    extension: string = EXTNAME_ETS
+  ): boolean {
+    const currentModule = TsUtils.getModuleName(currentNode);
+
+    /*
+     * some imports are like this
+     * ets/pages/test1
+     * in this case, they are in the same module as the file we are trying to import to
+     * so we add the current module back in
+     */
+    if (!importIncludesModule) {
+      if (!currentModule) {
+        return false;
+      }
+
+      projectPath.concat(PATH_SEPARATOR + currentModule);
+    }
+
+    const importedFile = path.resolve(projectPath, importFilePath + extension);
+
+    return fs.existsSync(importedFile);
+  }
+
+  isImportedFromJS(identifier: ts.Identifier): boolean {
+    const sym = this.trueSymbolAtLocation(identifier);
+    const declaration = sym?.declarations?.[0];
+    return !!declaration?.getSourceFile().fileName.endsWith(EXTNAME_JS);
+  }
+
+  isPossiblyImportedFromJS(node: ts.Node): boolean {
+    const identifier = this.findIdentifierInExpression(node);
+    if (!identifier) {
+      return false;
+    }
+
+    // Direct import check
+    if (this.isImportedFromJS(identifier)) {
+      return true;
+    }
+
+    // Indirect import check
+    const originalIdentifier = this.findOriginalIdentifier(identifier);
+    return !!originalIdentifier && this.isImportedFromJS(originalIdentifier);
+  }
+
+  /**
+   * Extracts the Identifier from the given node. returns undefined if no Identifier is found.
+   *
+   * Direct Identifier (foo) → Returns it.
+   * Binary Expressions (foo + bar) → Recursively checks left and right.
+   * Property Access (obj.foo) → Extracts obj.
+   * Function Calls (foo()) → Extracts foo.
+   * Array Access (arr[foo]) → Extracts foo.
+   * Variable Declaration (let foo = ...) → Extracts foo.
+   * Assignments (foo = ...) → Extracts foo.
+   */
+  findIdentifierInExpression(node: ts.Node): ts.Identifier | undefined {
+    if (ts.isIdentifier(node)) {
+      return node;
+    } else if (ts.isBinaryExpression(node)) {
+      return this.findIdentifierInExpression(node.left) || this.findIdentifierInExpression(node.right);
+    } else if (ts.isPropertyAccessExpression(node)) {
+      return this.findIdentifierInExpression(node.expression);
+    } else if (ts.isCallExpression(node) || ts.isNewExpression(node)) {
+      return this.findIdentifierInExpression(node.expression);
+    } else if (ts.isElementAccessExpression(node)) {
+      return this.findIdentifierInExpression(node.expression);
+    } else if (ts.isAsExpression(node)) {
+      return this.findIdentifierInExpression(node.expression);
+    } else if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name)) {
+      return node.name;
+    }
+    return undefined;
+  }
+
+  // Helper function: Find the variable declaration of an identifier -> let arr = foo.arr -> returns foo
+  findVariableDeclaration(identifier: ts.Identifier): ts.VariableDeclaration | undefined {
+    const sym = this.tsTypeChecker.getSymbolAtLocation(identifier);
+    const decl = TsUtils.getDeclaration(sym);
+    if (decl && ts.isVariableDeclaration(decl)) {
+      return decl;
+    }
+    return undefined;
+  }
+
+  findOriginalIdentifier(identifier: ts.Identifier): ts.Identifier | undefined {
+    const variableDeclaration = this.findVariableDeclaration(identifier);
+    if (!variableDeclaration?.initializer) {
+      return undefined;
+    }
+
+    const originalIdentifier = ts.isPropertyAccessExpression(variableDeclaration.initializer) ?
+      (variableDeclaration.initializer.expression as ts.Identifier) :
+      undefined;
+
+    if (!originalIdentifier) {
+      return undefined;
+    }
+
+    return originalIdentifier;
+  }
+
+  findTypeOfNodeForConversion(node: ts.Node): string {
+    // Get type of the property
+    const type = this.tsTypeChecker.getTypeAtLocation(node);
+    // Default
+    let conversionMethod = '';
+
+    if (this.tsTypeChecker.typeToString(type) === 'boolean') {
+      conversionMethod = '.toBoolean()';
+    } else if (this.tsTypeChecker.typeToString(type) === 'number') {
+      conversionMethod = '.toNumber()';
+    } else if (this.tsTypeChecker.typeToString(type) === 'string') {
+      conversionMethod = '.toString()';
+    }
+
+    return conversionMethod;
+  }
+
+  static isInsideIfCondition(node: ts.Node): boolean {
+    let current: ts.Node | undefined = node;
+    while (current) {
+      if (ts.isIfStatement(current)) {
+        return true;
+      }
+      current = current.parent;
+    }
+    return false;
+  }
+
+  static isOhModule(path: string): boolean {
+    return path.includes(ETS_MODULE);
+  }
+
+  static isValidOhModulePath(path: string): boolean {
+    return path.includes(VALID_OHM_COMPONENTS_MODULE_PATH);
+  }
+
+  findEnumMember(enumDecl: ts.EnumDeclaration | undefined, name: string): ts.Symbol | undefined {
+    if (!enumDecl) {
+      return undefined;
+    }
+
+    const syms: ts.Symbol[] = [];
+    for (const enumMember of enumDecl.members) {
+      const sym = this.trueSymbolAtLocation(enumMember.name);
+      if (sym) {
+        syms.push(sym);
+      }
+    }
+
+    for (const sym of syms) {
+      if (sym.name === name) {
+        return sym;
+      }
+    }
+
+    return undefined;
+  }
+
+  /**
+   * Checks whether an exported identifier is imported from an ArkTS1 file.
+   * @param exportIdentifier The exported identifier to check.
+   * @param node The node where the export occurs (used to get the current source file).
+   * @returns true if imported from ArkTS1, false if not, undefined if undetermined.
+   */
+  isExportImportedFromArkTs1(exportIdentifier: ts.Identifier, node: ts.Node): boolean | undefined {
+    // Get the symbol associated with the identifier.
+    const symbol = this.tsTypeChecker.getSymbolAtLocation(exportIdentifier);
+    if (!symbol) {
+      return undefined;
+    }
+
+    // If the symbol is an alias (imported), resolve the real symbol.
+    const realSymbol =
+      (symbol.flags & ts.SymbolFlags.Alias) !== 0 ? this.tsTypeChecker.getAliasedSymbol(symbol) : undefined;
+
+    const declarations = realSymbol?.getDeclarations();
+    if (!declarations || declarations.length === 0) {
+      return undefined;
+    }
+
+    // Get the source file where the declaration is located.
+    const importSourceFile = declarations[0].getSourceFile();
+
+    // Ensure import is from ArkTS1 file and usage is in ArkTS1.2 file
+    const currentSourceFile = node.getSourceFile();
+    return (
+      importSourceFile.fileName.endsWith(EXTNAME_ETS) &&
+      currentSourceFile.fileName.endsWith(EXTNAME_ETS) &&
+      !TsUtils.isArkts12File(importSourceFile) &&
+      TsUtils.isArkts12File(currentSourceFile)
+    );
+  }
+
+  static isArkts12File(sourceFile: ts.SourceFile): boolean {
+    if (!sourceFile?.statements.length) {
+      return false;
+    }
+    const statements = sourceFile.statements;
+    return (
+      ts.isExpressionStatement(statements[0]) &&
+      ts.isStringLiteral(statements[0].expression) &&
+      statements[0].expression.getText() === USE_STATIC
+    );
+  }
+
+  static removeOrReplaceQuotes(str: string, isReplace: boolean): string {
+    if (isReplace) {
+      const charArray = new Array(str.length);
+      for (let i = 0; i < str.length; i++) {
+        charArray[i] = str[i] === '"' ? '\'' : str[i];
+      }
+      return charArray.join('');
+    }
+    if (str.startsWith('\'') && str.endsWith('\'') || str.startsWith('"') && str.endsWith('"')) {
+      return str.slice(1, -1);
+    }
+    return str;
+  }
+
+  static getCurrentModule(currentFileName: string): string {
+    const parts = currentFileName.split(PATH_SEPARATOR);
+    parts.pop();
+    const currentModule = parts.join(PATH_SEPARATOR);
+    return currentModule;
+  }
+
+  static resolveModuleAndCheckInterop(wholeProjectPath: string, callExpr: ts.CallExpression): InteropType | undefined {
+    const moduleName = callExpr.arguments[0];
+    if (!ts.isStringLiteral(moduleName)) {
+      return undefined;
+    }
+
+    const importedModule = path.resolve(wholeProjectPath, moduleName.text);
+
+    const importedFile = TsUtils.resolveImportModule(importedModule);
+    if (!importedFile) {
+      return undefined;
+    }
+
+    const importSource = ts.sys.readFile(importedFile);
+    if (!importSource) {
+      return undefined;
+    }
+
+    return TsUtils.checkFileForInterop(importedFile, importSource);
+  }
+
+  static resolveImportModule(importedModule: string): string | undefined {
+    const extensions = ['.ts', '.js', '.ets'];
+    for (const ext of extensions) {
+      const tryPath = path.resolve(importedModule + ext);
+      if (fs.existsSync(tryPath)) {
+        return tryPath;
+      }
+    }
+
+    return undefined;
+  }
+
+  static checkFileForInterop(fileName: string, importSource: string): InteropType {
+    if (fileName.endsWith(EXTNAME_JS)) {
+      return InteropType.JS;
+    }
+
+    if (fileName.endsWith(EXTNAME_TS) && !fileName.endsWith(EXTNAME_D_TS)) {
+      return InteropType.TS;
+    }
+
+    if (fileName.endsWith(EXTNAME_ETS) && !importSource.includes('\'use static\'')) {
+      return InteropType.LEGACY;
+    }
+
+    return InteropType.NONE;
+  }
+
+  isJsImport(node: ts.Node): boolean {
+    const symbol = this.trueSymbolAtLocation(node);
+    if (symbol) {
+      const declaration = symbol.declarations?.[0];
+      if (declaration) {
+        const sourceFile = declaration.getSourceFile();
+        return sourceFile.fileName.endsWith(EXTNAME_JS);
+      }
+    }
+    return false;
+  }
+
+  static typeIsCapturedFromEnclosingLocalScope(type: ts.Type, enclosingStmt: ts.Node): boolean {
+    let symNode: ts.Node | undefined = TsUtils.getDeclaration(type.getSymbol());
+
+    while (symNode) {
+      if (symNode === enclosingStmt) {
+        return true;
+      }
+      symNode = symNode.parent;
+    }
+
+    return false;
+  }
+
+  nodeCapturesValueFromEnclosingLocalScope(targetNode: ts.Node, enclosingStmt: ts.Node): boolean {
+    let found = false;
+
+    const callback = (node: ts.Node): void => {
+      if (!ts.isIdentifier(node)) {
+        return;
+      }
+      const sym = this.tsTypeChecker.getSymbolAtLocation(node);
+      let symNode: ts.Node | undefined = TsUtils.getDeclaration(sym);
+      while (symNode) {
+        if (symNode === targetNode) {
+          // Symbol originated from the target node. Skip and continue to search
+          return;
+        }
+        if (symNode === enclosingStmt) {
+          found = true;
+          return;
+        }
+        symNode = symNode.parent;
+      }
+    };
+
+    const stopCondition = (node: ts.Node): boolean => {
+      void node;
+      return found;
+    };
+
+    forEachNodeInSubtree(targetNode, callback, stopCondition);
+    return found;
   }
 }

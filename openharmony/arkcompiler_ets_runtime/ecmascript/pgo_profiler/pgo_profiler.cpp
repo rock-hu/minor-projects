@@ -523,7 +523,7 @@ void PGOProfiler::DumpBeforeDestroy(JSThread *thread)
 
 void PGOProfiler::HandlePGOPreDump()
 {
-    ECMA_BYTRACE_NAME(HITRACE_TAG_ARK, "PGOProfiler::HandlePGOPreDump");
+    ECMA_BYTRACE_NAME(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, "PGOProfiler::HandlePGOPreDump", "");
     if (!isEnable_ || !vm_->GetJSOptions().IsEnableProfileDump()) {
         return;
     }
@@ -567,7 +567,7 @@ void PGOProfiler::HandlePGOPreDump()
 
 void PGOProfiler::HandlePGODump()
 {
-    ECMA_BYTRACE_NAME(HITRACE_TAG_ARK, "PGOProfiler::HandlePGODump");
+    ECMA_BYTRACE_NAME(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, "PGOProfiler::HandlePGODump", "");
     if (!isEnable_ || !vm_->GetJSOptions().IsEnableProfileDump()) {
         return;
     }
@@ -660,7 +660,7 @@ PGOProfiler::WorkNode* PGOProfiler::PopFromProfileQueue()
 
 void PGOProfiler::ProfileBytecode(ApEntityId abcId, const CString& recordName, JSTaggedValue funcValue)
 {
-    ECMA_BYTRACE_NAME(HITRACE_TAG_ARK, "PGOProfiler::ProfileBytecode");
+    ECMA_BYTRACE_NAME(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, "PGOProfiler::ProfileBytecode", "");
     ClockScope start;
     JSFunction *function = JSFunction::Cast(funcValue);
     JSTaggedValue funcEnv = function->GetLexicalEnv();
@@ -682,7 +682,9 @@ void PGOProfiler::ProfileBytecode(ApEntityId abcId, const CString& recordName, J
     while (bcIns.GetAddress() != bcInsLast.GetAddress()) {
         if (!isForceDump) {
 #ifdef USE_CMC_GC
-            holder_->CheckSafepointIfSuspended();
+            if (holder_->CheckSafepointIfSuspended()) {
+                break;
+            }
 #endif
             if (state_->GCIsWaiting()) {
                 break;

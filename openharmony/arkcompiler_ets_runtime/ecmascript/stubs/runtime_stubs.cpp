@@ -4274,7 +4274,7 @@ DEF_RUNTIME_STUBS(TraceLoadSlowPath)
         return JSTaggedValue::Undefined().GetRawData();
     }
 
-    ECMA_BYTRACE_START_TRACE(HITRACE_TAG_ARK, "[dfx]TraceLoadSlowPath");
+    ECMA_BYTRACE_START_TRACE(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, "[dfx]TraceLoadSlowPath");
 #endif
     return JSTaggedValue::Undefined().GetRawData();
 }
@@ -4286,7 +4286,7 @@ DEF_RUNTIME_STUBS(TraceLoadGetter)
         return JSTaggedValue::Undefined().GetRawData();
     }
 
-    ECMA_BYTRACE_START_TRACE(HITRACE_TAG_ARK, "[DFX]TraceLoadGetter");
+    ECMA_BYTRACE_START_TRACE(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, "[DFX]TraceLoadGetter");
 #endif
     return JSTaggedValue::Undefined().GetRawData();
 }
@@ -4349,34 +4349,7 @@ DEF_RUNTIME_STUBS(TraceLoadDetail)
         }
 #if ECMASCRIPT_ENABLE_TRACE_LOAD_MORE
         auto thread = JSThread::GlueToJSThread(argGlue);
-        auto AddType = [&msg] (std::string_view s, JSHandle<JSTaggedValue> value) {
-            msg += s;
-            msg += " type: ";
-            if (value->IsHeapObject()) {
-                JSHandle<JSObject> obj(value);
-                msg += JSHClass::DumpJSType(obj->GetClass()->GetObjectType());
-            }
-            msg += ", ";
-        };
-        auto AddDepth = [&thread, &msg] (JSHandle<JSTaggedValue> value) {
-            int depth = 0;
-            while (value->IsECMAObject()) {
-                depth++;
-                auto currHC = value->GetTaggedObject()->GetClass();
-                auto proto = currHC->GetProto();
-                value = JSHandle<JSTaggedValue>(thread, proto);
-            }
-            msg += "Depth: " + std::to_string(depth);
-            msg += ", ";
-        };
-        bool isNeedDepth = true;
-        bool isNeedTypeInformation = true;
-        if (isNeedTypeInformation) {
-            AddType("Receiver", receiver);
-        }
-        if (isNeedDepth) {
-            AddDepth(receiver);
-        }
+        DumpInfoForMoreLdInfo(thread, receiver, msg);
 #endif
     }
     if (!receiver->IsHeapObject()) {
@@ -4396,7 +4369,7 @@ DEF_RUNTIME_STUBS(TraceLoadDetail)
     } else {
         msg += "heap_obj";
     }
-    ECMA_BYTRACE_START_TRACE(HITRACE_TAG_ARK, msg.c_str());
+    ECMA_BYTRACE_START_TRACE(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, msg.c_str());
 #endif
     return JSTaggedValue::Undefined().GetRawData();
 }
@@ -4408,7 +4381,97 @@ DEF_RUNTIME_STUBS(TraceLoadEnd)
         return JSTaggedValue::Undefined().GetRawData();
     }
 
-    ECMA_BYTRACE_FINISH_TRACE(HITRACE_TAG_ARK);
+    ECMA_BYTRACE_FINISH_TRACE(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK);
+#endif
+    return JSTaggedValue::Undefined().GetRawData();
+}
+
+DEF_RUNTIME_STUBS(TraceLoadValueSlowPath)
+{
+#if ECMASCRIPT_ENABLE_TRACE_LOAD_VALUE
+    if (!IsTargetBundleName(argGlue)) {
+        return JSTaggedValue::Undefined().GetRawData();
+    }
+
+    ECMA_BYTRACE_START_TRACE(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, "[dfx]TraceLoadValueSlowPath");
+#endif
+    return JSTaggedValue::Undefined().GetRawData();
+}
+
+DEF_RUNTIME_STUBS(TraceLoadValueDetail)
+{
+#if ECMASCRIPT_ENABLE_TRACE_LOAD_VALUE
+    if (!IsTargetBundleName(argGlue)) {
+        return JSTaggedValue::Undefined().GetRawData();
+    }
+    JSHandle<JSTaggedValue> receiver = GetHArg<JSTaggedValue>(argv, argc, 0);
+    JSHandle<JSTaggedValue> profile = GetHArg<JSTaggedValue>(argv, argc, 1);
+    JSTaggedValue slotId = GetArg(argv, argc, 2);
+    JSTaggedValue key = GetArg(argv, argc, 3);
+    CString msg = "";
+    DumpInfoForLdObjByValue(receiver, profile, slotId, key, msg);
+#if ECMASCRIPT_ENABLE_TRACE_LOAD_MORE
+    msg += " | ";
+    auto thread = JSThread::GlueToJSThread(argGlue);
+    DumpInfoForMoreLdInfo(thread, receiver, msg);
+#endif
+    ECMA_BYTRACE_START_TRACE(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, msg.c_str());
+#endif
+    return JSTaggedValue::Undefined().GetRawData();
+}
+
+DEF_RUNTIME_STUBS(TraceLoadValueEnd)
+{
+#if ECMASCRIPT_ENABLE_TRACE_LOAD_VALUE
+    if (!IsTargetBundleName(argGlue)) {
+        return JSTaggedValue::Undefined().GetRawData();
+    }
+
+    ECMA_BYTRACE_FINISH_TRACE(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK);
+#endif
+    return JSTaggedValue::Undefined().GetRawData();
+}
+
+DEF_RUNTIME_STUBS(TraceCallDetail)
+{
+#if ECMASCRIPT_ENABLE_TRACE_CALL
+    if (!IsTargetBundleName(argGlue)) {
+        return JSTaggedValue::Undefined().GetRawData();
+    }
+    JSHandle<JSTaggedValue> profile = GetHArg<JSTaggedValue>(argv, argc, 0);
+    JSTaggedValue slotId = GetArg(argv, argc, 1);
+    std::string msg = "[DFX]Trace Call Detail: ";
+    if (profile->IsUndefined()) {
+        msg += "ProfileTypeInfo Undefine";
+    } else {
+        auto prof = JSHandle<ProfileTypeInfo>::Cast(profile);
+        auto slot = slotId.GetInt();
+        auto slotValue = prof->GetIcSlot(slot);
+        if (slotValue.IsJSFunction()) {
+            JSFunction *callee = JSFunction::Cast(slotValue);
+            Method *calleeMethod = Method::Cast(callee->GetMethod());
+            auto methodName = calleeMethod->GetMethodName();
+            auto calleeMethodId = static_cast<int>(calleeMethod->GetMethodId().GetOffset());
+            auto calleeAbcId = PGOProfiler::GetMethodAbcId(callee);
+            msg += std::string("[js function] id: ") + std::to_string(calleeMethodId) +
+                   " abc id: " + std::to_string(calleeAbcId) + " method name: " + methodName;
+        } else {
+            msg += "[unkown]";
+        }
+    }
+    ECMA_BYTRACE_START_TRACE(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, msg.c_str());
+#endif
+    return JSTaggedValue::Undefined().GetRawData();
+}
+
+DEF_RUNTIME_STUBS(TraceCallEnd)
+{
+#if ECMASCRIPT_ENABLE_TRACE_CALL
+    if (!IsTargetBundleName(argGlue)) {
+        return JSTaggedValue::Undefined().GetRawData();
+    }
+
+    ECMA_BYTRACE_FINISH_TRACE(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK);
 #endif
     return JSTaggedValue::Undefined().GetRawData();
 }
@@ -4420,7 +4483,7 @@ DEF_RUNTIME_STUBS(TraceStoreFastPath)
         return JSTaggedValue::Undefined().GetRawData();
     }
 
-    ECMA_BYTRACE_START_TRACE(HITRACE_TAG_ARK, "[DFX]TraceStoreFastPath");
+    ECMA_BYTRACE_START_TRACE(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, "[DFX]TraceStoreFastPath");
 #endif
     return JSTaggedValue::Undefined().GetRawData();
 }
@@ -4432,7 +4495,7 @@ DEF_RUNTIME_STUBS(TraceStoreSlowPath)
         return JSTaggedValue::Undefined().GetRawData();
     }
 
-    ECMA_BYTRACE_START_TRACE(HITRACE_TAG_ARK, "[DFX]TraceStoreSlowPath");
+    ECMA_BYTRACE_START_TRACE(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, "[DFX]TraceStoreSlowPath");
 #endif
     return JSTaggedValue::Undefined().GetRawData();
 }
@@ -4444,7 +4507,7 @@ DEF_RUNTIME_STUBS(TraceStoreEnd)
         return JSTaggedValue::Undefined().GetRawData();
     }
 
-    ECMA_BYTRACE_FINISH_TRACE(HITRACE_TAG_ARK);
+    ECMA_BYTRACE_FINISH_TRACE(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK);
 #endif
     return JSTaggedValue::Undefined().GetRawData();
 }
@@ -4492,7 +4555,7 @@ DEF_RUNTIME_STUBS(TraceStoreDetail)
     } else {
         msg += "heap_obj";
     }
-    ECMA_BYTRACE_START_TRACE(HITRACE_TAG_ARK, msg.c_str());
+    ECMA_BYTRACE_START_TRACE(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, msg.c_str());
 #endif
     return JSTaggedValue::Undefined().GetRawData();
 }
@@ -4508,8 +4571,8 @@ DEF_RUNTIME_STUBS(TraceNum)
     traceNum[type] ++;
     if (traceNum[type] % TRACE_NUMBER == 0) {
         std::string s = "Trace type " + std::to_string(type);
-        ECMA_BYTRACE_START_TRACE(HITRACE_TAG_ARK, s.c_str());
-        ECMA_BYTRACE_FINISH_TRACE(HITRACE_TAG_ARK);
+        ECMA_BYTRACE_START_TRACE(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, s.c_str());
+        ECMA_BYTRACE_FINISH_TRACE(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK);
     }
 #endif
     return JSTaggedValue::Undefined().GetRawData();
@@ -4525,8 +4588,8 @@ DEF_RUNTIME_STUBS(TraceLazyDeoptNum)
     traceLazyDeoptNum ++;
     if (traceLazyDeoptNum % TRACE_NUMBER == 0) {
         std::string s = "Lazy Deoptimize Code.";
-        ECMA_BYTRACE_START_TRACE(HITRACE_TAG_ARK, s.c_str());
-        ECMA_BYTRACE_FINISH_TRACE(HITRACE_TAG_ARK);
+        ECMA_BYTRACE_START_TRACE(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, s.c_str());
+        ECMA_BYTRACE_FINISH_TRACE(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK);
     }
 #endif
     return JSTaggedValue::Undefined().GetRawData();
@@ -4542,8 +4605,8 @@ DEF_RUNTIME_STUBS(TraceLazyDeoptFailNum)
     traceLazyDeoptFailNum ++;
     if (traceLazyDeoptFailNum % TRACE_NUMBER == 0) {
         std::string s = "Lazy Deoptimize Code Fail."
-        ECMA_BYTRACE_START_TRACE(HITRACE_TAG_ARK, s.c_str());
-        ECMA_BYTRACE_FINISH_TRACE(HITRACE_TAG_ARK);
+        ECMA_BYTRACE_START_TRACE(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, s.c_str());
+        ECMA_BYTRACE_FINISH_TRACE(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK);
     }
 #endif
     return JSTaggedValue::Undefined().GetRawData();
@@ -4562,9 +4625,52 @@ void RuntimeStubs::TraceLazyDeoptCommitSuccess(uintptr_t argGlue, JSHandle<JSTag
         JSFunction::NameGetter(thread, JSHandle<JSObject>::Cast(func));
     std::string funcName = EcmaStringAccessor(funcNameValue).ToStdString();
     funcName += " Lazy Deoptimize Commit Success.";
-    ECMA_BYTRACE_START_TRACE(HITRACE_TAG_ARK, funcName.c_str());
-    ECMA_BYTRACE_FINISH_TRACE(HITRACE_TAG_ARK);
+    ECMA_BYTRACE_START_TRACE(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, funcName.c_str());
+    ECMA_BYTRACE_FINISH_TRACE(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK);
 #endif
+}
+
+DEF_RUNTIME_STUBS(TraceDefineFunc)
+{
+#if ECMASCRIPT_ENABLE_TRACE_DEFINEFUNC
+    RUNTIME_STUBS_HEADER(TraceDefineFunc);
+    if (!IsTargetBundleName(argGlue)) {
+        return JSTaggedValue::Undefined().GetRawData();
+    }
+    int methodId = GetArg(argv, argc, 0).GetInt();
+    JSHandle<JSTaggedValue> profileTypeInfo = GetHArg<JSTaggedValue>(argv, argc, 1);
+    int slotId = GetArg(argv, argc, 2).GetInt();
+    CStringStream msg;
+    msg << "[DFX]Trace Define Func: ";
+    msg << "method id " << methodId << " ";
+    if (profileTypeInfo->IsUndefined()) {
+        msg << "profileTypeInfo undefined";
+    } else {
+        ProfileTypeInfo *profile = ProfileTypeInfo::Cast(profileTypeInfo->GetTaggedObject());
+        JSTaggedValue slotValue = profile->Get(slotId);
+        if (slotValue.IsUndefined()) {
+            msg << "slot value undefined";
+        }
+        if (slotValue.IsHole()) {
+            msg << "slot value hole";
+        }
+        if (slotValue.IsProfileTypeInfoCell()) {
+            JSTaggedValue code = ProfileTypeInfoCell::Cast(slotValue)->GetMachineCode();
+            msg << "slot has machine code: " << code.IsHeapObject() && code.IsWeak();
+        }
+    }
+
+    ECMA_BYTRACE_START_TRACE(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, msg.str().c_str());
+#endif
+    return JSTaggedValue::Undefined().GetRawData();
+}
+
+DEF_RUNTIME_STUBS(TraceDefineFuncEnd)
+{
+#if ECMASCRIPT_ENABLE_TRACE_DEFINEFUNC
+    ECMA_BYTRACE_FINISH_TRACE(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK);
+#endif
+    return JSTaggedValue::Undefined().GetRawData();
 }
 
 DEF_RUNTIME_STUBS(ArrayForEachContinue)
@@ -4891,7 +4997,7 @@ void RuntimeStubs::ReverseArray(uintptr_t argGlue, JSTaggedType *dst, uint32_t l
     DISALLOW_GARBAGE_COLLECTION;
 #ifdef USE_READ_BARRIER
     auto thread = JSThread::GlueToJSThread(argGlue);
-    if (thread->IsCMCGCConcurrentCopying()) {
+    if (thread->NeedReadBarrier()) {
         for (uint32_t i = 0; i < length; i++) {
             Barriers::UpdateSlot(dst, i * sizeof(JSTaggedType));
         }

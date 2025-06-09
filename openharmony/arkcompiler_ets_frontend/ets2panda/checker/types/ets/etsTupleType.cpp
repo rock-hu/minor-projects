@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -36,10 +36,28 @@ void ETSTupleType::ToString(std::stringstream &ss, bool precise) const
         }
     }
 
-    if (spreadType_ != nullptr) {
-        ss << ", ...";
-        spreadType_->ToString(ss, precise);
-        ss << "[]";
+    ss << "]";
+}
+
+void ETSTupleType::ToAssemblerType(std::stringstream &ss) const
+{
+    wrapperType_->ToAssemblerType(ss);
+}
+
+void ETSTupleType::ToDebugInfoType(std::stringstream &ss) const
+{
+    if (HasTypeFlag(TypeFlag::READONLY)) {
+        ss << "readonly ";
+    }
+
+    ss << "[";
+
+    for (auto it = typeList_.begin(); it != typeList_.end(); it++) {
+        (*it)->ToDebugInfoType(ss);
+
+        if (std::next(it) != typeList_.end()) {
+            ss << ", ";
+        }
     }
 
     ss << "]";
@@ -47,7 +65,22 @@ void ETSTupleType::ToString(std::stringstream &ss, bool precise) const
 
 Type *ETSTupleType::GetTypeAtIndex(const TupleSizeType index) const
 {
-    return index >= GetTupleSize() ? GetSpreadType() : GetTupleTypesList().at(static_cast<std::size_t>(index));
+    ES2PANDA_ASSERT(index < GetTupleSize());
+    return GetTupleTypesList().at(index);
+}
+
+bool ETSTupleType::CheckElementsIdentical(TypeRelation *relation, const ETSTupleType *other) const
+{
+    if (GetTupleSize() != other->GetTupleSize()) {
+        return false;
+    }
+
+    for (TupleSizeType idx = 0; idx < GetTupleSize(); ++idx) {
+        if (!relation->IsIdenticalTo(GetTypeAtIndex(idx), other->GetTypeAtIndex(idx))) {
+            return false;
+        }
+    }
+    return true;
 }
 
 void ETSTupleType::Identical([[maybe_unused]] TypeRelation *const relation, Type *const other)
@@ -58,18 +91,12 @@ void ETSTupleType::Identical([[maybe_unused]] TypeRelation *const relation, Type
 
     const auto *const otherTuple = other->AsETSTupleType();
 
-    if (GetMinTupleSize() != otherTuple->GetMinTupleSize()) {
+    if (HasTypeFlag(TypeFlag::READONLY) != other->HasTypeFlag(TypeFlag::READONLY)) {
+        relation->Result(false);
         return;
     }
 
-    for (TupleSizeType idx = 0; idx < GetMinTupleSize(); ++idx) {
-        if (!relation->IsIdenticalTo(GetTypeAtIndex(idx), otherTuple->GetTypeAtIndex(idx))) {
-            relation->Result(false);
-            return;
-        }
-    }
-
-    if (HasSpreadType() != otherTuple->HasSpreadType()) {
+    if (!CheckElementsIdentical(relation, otherTuple)) {
         relation->Result(false);
         return;
     }
@@ -79,18 +106,8 @@ void ETSTupleType::Identical([[maybe_unused]] TypeRelation *const relation, Type
 
 bool ETSTupleType::AssignmentSource(TypeRelation *const relation, Type *const target)
 {
-    if (!(target->IsETSTupleType() || target->IsETSArrayType())) {
-        return false;
-    }
-
     if (!target->IsETSTupleType()) {
-        ASSERT(target->IsETSArrayType());
-        auto *const arrayTarget = target->AsETSArrayType();
-
-        const SavedTypeRelationFlagsContext savedFlagsCtx(
-            relation, TypeRelationFlag::NO_BOXING | TypeRelationFlag::NO_UNBOXING | TypeRelationFlag::NO_WIDENING);
-
-        relation->Result(relation->IsAssignableTo(ElementType(), arrayTarget->ElementType()));
+        return false;
     }
 
     return relation->IsTrue();
@@ -98,52 +115,9 @@ bool ETSTupleType::AssignmentSource(TypeRelation *const relation, Type *const ta
 
 void ETSTupleType::AssignmentTarget(TypeRelation *const relation, Type *const source)
 {
-    if (source->HasTypeFlag(TypeFlag::READONLY)) {
-        relation->Result(false);
-        return;
+    if (!source->HasTypeFlag(TypeFlag::READONLY) && source->IsETSTupleType()) {
+        source->AsETSTupleType()->IsSubtypeOf(relation, this);
     }
-
-    if (!(source->IsETSTupleType() || (source->IsETSArrayType() && HasSpreadType()))) {
-        return;
-    }
-
-    if (!source->IsETSTupleType()) {
-        ASSERT(source->IsETSArrayType());
-        auto *const arraySource = source->AsETSArrayType();
-
-        const SavedTypeRelationFlagsContext savedFlagsCtx(
-            relation, TypeRelationFlag::NO_BOXING | TypeRelationFlag::NO_UNBOXING | TypeRelationFlag::NO_WIDENING);
-
-        relation->Result(relation->IsAssignableTo(arraySource->ElementType(), ElementType()));
-        return;
-    }
-
-    const auto *const tupleSource = source->AsETSTupleType();
-
-    if (tupleSource->GetMinTupleSize() != GetMinTupleSize()) {
-        return;
-    }
-
-    for (int32_t idx = 0; idx < GetMinTupleSize(); ++idx) {
-        // because an array assignment to another array simply copies it's memory address, then it's not possible to
-        // make boxing/unboxing/widening for types. Only conversion allowed is reference widening, which won't generate
-        // bytecode for the conversion, same as for arrays.
-
-        const SavedTypeRelationFlagsContext savedFlagsCtx(
-            relation, TypeRelationFlag::NO_BOXING | TypeRelationFlag::NO_UNBOXING | TypeRelationFlag::NO_WIDENING);
-
-        if (!relation->IsIdenticalTo(GetTypeAtIndex(idx), tupleSource->GetTypeAtIndex(idx))) {
-            relation->Result(false);
-            return;
-        }
-    }
-
-    if (!HasSpreadType() && tupleSource->HasSpreadType()) {
-        relation->Result(false);
-        return;
-    }
-
-    relation->Result(true);
 }
 
 Type *ETSTupleType::Substitute(TypeRelation *relation, const Substitution *substitution)
@@ -155,15 +129,24 @@ Type *ETSTupleType::Substitute(TypeRelation *relation, const Substitution *subst
         newTypeList.emplace_back(tupleTypeListElement->Substitute(relation, substitution));
     }
 
-    auto *newSpreadType = spreadType_ == nullptr ? nullptr : spreadType_->Substitute(relation, substitution);
-    auto *newElementType = ir::ETSTuple::CalculateLUBForTuple(checker, newTypeList, &newSpreadType);
-    return checker->Allocator()->New<ETSTupleType>(std::move(newTypeList), newElementType, newSpreadType);
+    return checker->Allocator()->New<ETSTupleType>(checker, std::move(newTypeList));
+}
+
+void ETSTupleType::IsSubtypeOf(TypeRelation *const relation, Type *target)
+{
+    if (target->IsETSObjectType() && target->AsETSObjectType()->IsGlobalETSObjectType()) {
+        relation->Result(true);
+        return;
+    }
+    if (target->IsETSTupleType()) {
+        if (!HasTypeFlag(TypeFlag::READONLY) && CheckElementsIdentical(relation, target->AsETSTupleType())) {
+            relation->Result(true);
+        }
+    }
 }
 
 void ETSTupleType::Cast(TypeRelation *const relation, Type *const target)
 {
-    // NOTE(mmartin): Might be not the correct casting rules, as these aren't defined yet
-
     if (!(target->IsETSTupleType() || target->IsETSArrayType())) {
         conversion::Forbidden(relation);
         return;
@@ -186,12 +169,7 @@ void ETSTupleType::Cast(TypeRelation *const relation, Type *const target)
                             return relation->IsAssignableTo(tupleTypeAtIdx, arrayTarget->ElementType());
                         });
 
-        bool spreadAssignable = true;
-        if (HasSpreadType()) {
-            spreadAssignable = relation->IsAssignableTo(GetSpreadType(), arrayTarget->ElementType());
-        }
-
-        relation->Result(elementsAssignable && spreadAssignable);
+        relation->Result(elementsAssignable);
         return;
     }
 
@@ -201,7 +179,7 @@ void ETSTupleType::Cast(TypeRelation *const relation, Type *const target)
         return;
     }
 
-    for (int32_t idx = 0; idx < GetTupleSize(); ++idx) {
+    for (TupleSizeType idx = 0; idx < GetTupleSize(); ++idx) {
         const SavedTypeRelationFlagsContext savedFlagsCtx(
             relation, TypeRelationFlag::NO_BOXING | TypeRelationFlag::NO_UNBOXING | TypeRelationFlag::NO_WIDENING);
 
@@ -216,10 +194,17 @@ void ETSTupleType::Cast(TypeRelation *const relation, Type *const target)
 Type *ETSTupleType::Instantiate([[maybe_unused]] ArenaAllocator *allocator, [[maybe_unused]] TypeRelation *relation,
                                 [[maybe_unused]] GlobalTypesHolder *globalTypes)
 {
-    auto *tupleType = allocator->New<ETSTupleType>(
-        GetTupleTypesList(), ElementType()->Instantiate(allocator, relation, globalTypes), GetSpreadType());
+    auto *const checker = relation->GetChecker()->AsETSChecker();
+    auto *const tupleType = allocator->New<ETSTupleType>(checker, GetTupleTypesList());
     tupleType->typeFlags_ = typeFlags_;
     return tupleType;
+}
+
+void ETSTupleType::CheckVarianceRecursively(TypeRelation *relation, VarianceFlag varianceFlag)
+{
+    for (auto const &ctype : typeList_) {
+        relation->CheckVarianceRecursively(ctype, relation->TransferVariant(varianceFlag, VarianceFlag::INVARIANT));
+    }
 }
 
 }  // namespace ark::es2panda::checker

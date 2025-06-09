@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2024-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the 'License');
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,16 +15,16 @@
 
 const {
     DeferentIntTypes,
-} = require('conversion_int.test');
+} = require('conversion_types.test.abc');
 
 const deferentTypes = new DeferentIntTypes();
 
 function checkIntToNumber() {
-    ASSERT_TRUE(typeof deferentTypes.int === 'number');
+    ASSERT_TRUE(typeof deferentTypes.num === 'number');
 }
 
 function checkNumberToNumber() {
-    ASSERT_TRUE(typeof deferentTypes.number === 'number');
+    ASSERT_TRUE(typeof deferentTypes.numb === 'number');
 }
 
 function checkBigInt() {
@@ -36,7 +36,7 @@ function checkBigIntToNumber() {
 }
 
 function checkFloatToNumber() {
-    ASSERT_TRUE(typeof deferentTypes.float === 'number');
+    ASSERT_TRUE(typeof deferentTypes.fl === 'number');
 }
 
 function checkIntStringToNumber() {
@@ -44,19 +44,19 @@ function checkIntStringToNumber() {
 }
 
 function checkLongToNumber() {
-    ASSERT_TRUE(typeof deferentTypes.long === 'number');
+    ASSERT_TRUE(typeof deferentTypes.l === 'number');
 }
 
 function checkDoubleToNumber() {
-    ASSERT_TRUE(typeof deferentTypes.double === 'number');
+    ASSERT_TRUE(typeof deferentTypes.doub === 'number');
 }
 
 function checkCharToNumber() {
-    ASSERT_TRUE(typeof deferentTypes.char === 'number');
+    ASSERT_TRUE(typeof deferentTypes.ch === 'string');
 }
 
 function checkByteToNumber() {
-    ASSERT_TRUE(typeof deferentTypes.byte === 'number');
+    ASSERT_TRUE(typeof deferentTypes.by === 'number');
 }
 
 checkIntToNumber();

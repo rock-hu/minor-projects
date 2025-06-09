@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 - 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2021 - 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -40,7 +40,7 @@ pandasm::Function *JSFunctionEmitter::GenFunctionSignature()
 
     return func;
 #else
-    UNREACHABLE();
+    ES2PANDA_UNREACHABLE();
 #endif
 }
 
@@ -49,6 +49,19 @@ void JSFunctionEmitter::GenVariableSignature(pandasm::debuginfo::LocalVariable &
 {
     variableDebug.signature = "any";
     variableDebug.signatureType = "any";
+}
+
+void JSFunctionEmitter::GenSourceFileDebugInfo(pandasm::Function *func)
+{
+    func->sourceFile = std::string {Cg()->VarBinder()->Program()->RelativeFilePath()};
+
+    if (!Cg()->IsDebug()) {
+        return;
+    }
+
+    if (Cg()->RootNode()->IsProgram()) {
+        func->sourceCode = SourceCode().EscapeSymbol<util::StringView::Mutf8Encode>();
+    }
 }
 
 void JSFunctionEmitter::GenFunctionAnnotations(pandasm::Function *func)
@@ -79,7 +92,7 @@ void JSEmitter::GenAnnotation()
     GenESAnnotationRecord();
     GenESModuleModeRecord(Context()->parserProgram->Kind() == parser::ScriptKind::MODULE);
 #else
-    UNREACHABLE();
+    ES2PANDA_UNREACHABLE();
 #endif
 }
 

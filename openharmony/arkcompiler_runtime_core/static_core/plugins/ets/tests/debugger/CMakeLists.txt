@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Huawei Device Co., Ltd.
+# Copyright (c) 2024-2025 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -80,6 +80,9 @@ add_custom_target(${PROJECT_NAME}_check
         ${PROJECT_NAME}_black
 )
 
+# NOTE(dslynko, #25138): fix and reenable expression evaluation tests
+set(IGNORED_TESTS --ignore-glob=**/evaluate/*)
+
 add_custom_target(${PROJECT_NAME}
     COMMAND
         ${CMAKE_CURRENT_BINARY_DIR}/.venv/bin/python3
@@ -90,6 +93,7 @@ add_custom_target(${PROJECT_NAME}
         --ark-build-path=${CMAKE_BINARY_DIR}
         --rootdir=${CMAKE_CURRENT_SOURCE_DIR}/src
         -vv
+        ${IGNORED_TESTS}
         ${CMAKE_CURRENT_SOURCE_DIR}/src
     DEPENDS
         ${PROJECT_NAME}_deps

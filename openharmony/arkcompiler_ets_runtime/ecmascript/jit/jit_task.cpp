@@ -68,7 +68,7 @@ void JitTask::PrepareCompile()
 
 void JitTask::Optimize()
 {
-    ECMA_BYTRACE_NAME(HITRACE_TAG_ARK, "JIT::Compiler frontend");
+    ECMA_BYTRACE_NAME(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, "JIT::Compiler frontend", "");
     bool res = jit_->JitCompile(compilerTask_, this);
     if (!res) {
         SetCompileFailed();
@@ -81,7 +81,7 @@ void JitTask::Finalize()
         return;
     }
 
-    ECMA_BYTRACE_NAME(HITRACE_TAG_ARK, "JIT::Compiler backend");
+    ECMA_BYTRACE_NAME(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, "JIT::Compiler backend", "");
     bool res = jit_->JitFinalize(compilerTask_, this);
     if (!res) {
         SetCompileFailed();
@@ -259,10 +259,13 @@ static void FillHeapConstantTable(JSHandle<MachineCode> &machineCodeObj, const M
         reinterpret_cast<JSHandle<JSTaggedValue>*>(codeDesc.heapConstantTableAddr);
 
     uint64_t constTableSlotNum = codeDesc.heapConstantTableSize / sizeof(uint64_t);
-    LOG_JIT(INFO) << "constant table size: " << constTableSlotNum << "\n";
+    LOG_JIT(DEBUG) << "constant table size: " << constTableSlotNum << "\n";
     for (uint64_t i = 0; i < constTableSlotNum; ++i) {
         JSHandle<JSTaggedValue> heapObj = heapConstantTableInCodeDesc[i];
         heapConstantTableAddr[i] = heapObj->GetRawData();
+#ifdef USE_CMC_GC
+        BaseRuntime::WriteBarrier(nullptr, nullptr, (void*)heapObj->GetRawData());
+#else
         Region *heapObjRegion = Region::ObjectAddressToRange(heapObj->GetRawData());
         Region *curMachineCodeObjRegion =
             Region::ObjectAddressToRange(machineCodeObj.GetTaggedValue().GetRawHeapObject());
@@ -271,9 +274,11 @@ static void FillHeapConstantTable(JSHandle<MachineCode> &machineCodeObj, const M
         } else if (heapObjRegion->InSharedHeap()) {
             curMachineCodeObjRegion->InsertLocalToShareRSet(reinterpret_cast<uintptr_t>(&(heapConstantTableAddr[i])));
         }
+#endif
     }
 }
 
+// This should only be entered from hostVM, i.e., execution jsthread
 void JitTask::InstallCode()
 {
     if (!IsCompileSuccess()) {
@@ -440,7 +445,8 @@ bool JitTask::AsyncTask::Run([[maybe_unused]] uint32_t threadIndex)
     DISALLOW_HEAP_ACCESS;
 
     CString info = "compile method:" + jitTask_->GetMethodName();
-    ECMA_BYTRACE_NAME(HITRACE_TAG_ARK, ConvertToStdString("JIT::Compile:" + info));
+    ECMA_BYTRACE_NAME(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK,
+        ConvertToStdString("JIT::Compile:" + info).c_str(), "");
 
     AsyncTaskRunScope asyncTaskRunScope(jitTask_.get());
 

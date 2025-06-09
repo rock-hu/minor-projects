@@ -500,6 +500,13 @@ JSHandle<JSObject> ObjectFactory::NewJSObject(const JSHandle<JSHClass> &jshclass
     return obj;
 }
 
+JSHandle<JSObject> ObjectFactory::NewJSXRefObject()
+{
+    JSHandle<JSHClass> jsXRefHClass = JSHandle<JSHClass>::Cast(thread_->GlobalConstants()->GetHandledXRefObjectClass());
+    JSHandle<JSObject> object(NewJSObject(jsXRefHClass));
+    return object;
+}
+
 JSHandle<TaggedArray> ObjectFactory::CloneProperties(const JSHandle<TaggedArray> &old)
 {
     uint32_t newLength = old->GetLength();
@@ -1240,6 +1247,7 @@ void ObjectFactory::InitializeJSObject(const JSHandle<JSObject> &obj, const JSHa
     JSType type = jshclass->GetObjectType();
     switch (type) {
         case JSType::JS_OBJECT:
+        case JSType::JS_XREF_OBJECT:
         case JSType::JS_ERROR:
         case JSType::JS_EVAL_ERROR:
         case JSType::JS_RANGE_ERROR:
@@ -4328,10 +4336,20 @@ JSHandle<MachineCode> ObjectFactory::SetMachineCodeObjectData(TaggedObject *obj,
         LOG_FULL(FATAL) << "machine code cast failed";
         UNREACHABLE();
     }
-    if (code->SetData(desc, method, length, relocInfo)) {
+    if (code->SetData(desc, method, length, relocInfo, thread_)) {
         JSHandle<MachineCode> codeObj(thread_, code);
+#ifdef USE_CMC_GC
+        uintptr_t start = code->GetText();
+        uintptr_t end = start + code->GetTextSize();
+        heap_->SetMachineCodeObject(start, end, reinterpret_cast<uintptr_t>(code));
+#endif
         return codeObj;
     } else {
+#ifdef USE_CMC_GC
+        uintptr_t start = code->GetText();
+        uintptr_t end = start + code->GetTextSize();
+        heap_->SetMachineCodeObject(start, end, reinterpret_cast<uintptr_t>(code));
+#endif
         JSHandle<MachineCode> codeObj;
         return codeObj;
     }
@@ -4883,12 +4901,12 @@ JSHandle<JSAPIFastBuffer> ObjectFactory::NewJSAPIBuffer(JSHandle<JSTypedArray> t
 JSHandle<JSAPIFastBuffer> ObjectFactory::NewJSAPIBuffer(uint32_t length, uint32_t byteOffset)
 {
     NewObjectHook();
-    JSHandle<JSTypedArray> handleUint8Array = JSAPIFastBuffer::NewUint8Array(thread_, length, byteOffset);
+    JSHandle<JSTypedArray> handleUint8Array = JSAPIFastBuffer::NewUint8Array(thread_, length);
     JSHandle<JSFunction> builtinObj(thread_->GetEcmaVM()->GetGlobalEnv()->GetBufferFunction());
     JSHandle<JSAPIFastBuffer> buffer = JSHandle<JSAPIFastBuffer>(NewJSObjectByConstructor(builtinObj));
     buffer->SetFastBufferData(thread_, handleUint8Array);
     buffer->SetLength(length);
-    buffer->SetOffset(0);
+    buffer->SetOffset(byteOffset);
     return buffer;
 }
 

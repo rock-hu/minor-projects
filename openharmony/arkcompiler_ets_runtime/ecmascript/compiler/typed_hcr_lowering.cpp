@@ -16,6 +16,7 @@
 #include "ecmascript/compiler/typed_hcr_lowering.h"
 
 #include "ecmascript/compiler/builtins_lowering.h"
+#include "ecmascript/compiler/deopt_type.h"
 #include "ecmascript/compiler/new_object_stub_builder.h"
 #include "ecmascript/js_map.h"
 #include "ecmascript/js_primitive_ref.h"
@@ -158,6 +159,9 @@ GateRef TypedHCRLowering::VisitGate(GateRef gate)
             break;
         case OpCode::TYPE_OF:
             LowerTypeOf(gate, glue);
+            break;
+        case OpCode::TYPED_CONSTRUCTOR_CHECK:
+            LowerTypedConstructorCheck(gate, glue);
             break;
         case OpCode::ARRAY_CONSTRUCTOR_CHECK:
             LowerArrayConstructorCheck(gate, glue);
@@ -637,7 +641,7 @@ void TypedHCRLowering::LowerSimpleHClassCheck(GateRef glue, GateRef gate)
     for (size_t i = 0; i < typeCount - 1; i++) {
         ifFalse.emplace_back(Label(&builder_));
     }
-    for (auto i = 0; i < typeCount; i++) {
+    for (size_t i = 0; i < typeCount; i++) {
         GateRef aotHCIndex = acc_.GetValueIn(gate, i + 1);
         auto hclassIndex = acc_.GetConstantValue(aotHCIndex);
         GateRef aotHCGate = builder_.LoadHClassFromConstpool(unsharedConstPool, hclassIndex);
@@ -1825,9 +1829,14 @@ void TypedHCRLowering::LowerTypedNewAllocateThis(GateRef gate, GateRef glue)
     DEFVALUE(thisObj, (&builder_), VariableType::JS_ANY(), builder_.Undefined());
     BRANCH_CIR(builder_.IsBase(glue, ctor), &isBase, &exit);
     builder_.Bind(&isBase);
-    NewObjectStubBuilder newBuilder(builder_.GetCurrentEnvironment());
-    newBuilder.SetParameters(glue, 0);
-    newBuilder.NewJSObject(&thisObj, &exit, ihclass, size);
+    if (compilationEnv_->IsJitCompiler()) {
+        thisObj = builder_.CallStub(glue, gate, CommonStubCSigns::NewJSObject, {glue, ihclass, size});
+        builder_.Jump(&exit);
+    } else {
+        NewObjectStubBuilder newBuilder(builder_.GetCurrentEnvironment());
+        newBuilder.SetParameters(glue, 0);
+        newBuilder.NewJSObject(&thisObj, &exit, ihclass, size);
+    }
     builder_.Bind(&exit);
     acc_.ReplaceGate(gate, builder_.GetState(), builder_.GetDepend(), *thisObj);
 }
@@ -1846,7 +1855,7 @@ void TypedHCRLowering::LowerTypedSuperAllocateThis(GateRef gate, GateRef glue)
     BRANCH_CIR(isBase, &allocate, &exit);
     builder_.Bind(&allocate);
     {
-        thisObj = builder_.CallStub(glue, gate, CommonStubCSigns::NewJSObject, { glue, newTarget });
+        thisObj = builder_.CallStub(glue, gate, CommonStubCSigns::FastNewThisObject, { glue, newTarget });
         builder_.Jump(&exit);
     }
     builder_.Bind(&exit);
@@ -1887,6 +1896,9 @@ GateRef TypedHCRLowering::GetValueFromSupers(GateRef supers, size_t index)
 GateRef TypedHCRLowering::CallAccessor(GateRef glue, GateRef gate, GateRef function, GateRef receiver,
     AccessorMode mode, GateRef value)
 {
+#ifdef USE_READ_BARRIER
+    builder_.CallNGCRuntime(glue, RTSTUB_ID(CopyCallTarget), Gate::InvalidGateRef, {glue, function}, glue);
+#endif
     const CallSignature *cs = RuntimeStubCSigns::Get(RTSTUB_ID(JSCall));
     GateRef target = builder_.IntPtr(RTSTUB_ID(JSCall));
     GateRef newTarget = builder_.Undefined();
@@ -2094,6 +2106,31 @@ void TypedHCRLowering::LowerTypeOf(GateRef gate, GateRef glue)
     GateRef result = builder_.LoadWithoutBarrier(VariableType::JS_POINTER(), gConstAddr,
                                                  builder_.GetGlobalConstantOffset(index));
     acc_.ReplaceGate(gate, builder_.GetState(), builder_.GetDepend(), result);
+}
+
+void TypedHCRLowering::LowerTypedConstructorCheck(GateRef gate, GateRef glue)
+{
+    static const std::map<size_t, DeoptType> deoptType = {
+        {GlobalEnv::ARRAY_FUNCTION_INDEX, DeoptType::NEWBUILTINCTORARRAY},
+        {GlobalEnv::OBJECT_FUNCTION_INDEX, DeoptType::NEWBUILTINCTOROBJECT},
+        {GlobalEnv::FLOAT32_ARRAY_FUNCTION_INDEX, DeoptType::NEWBUILTINCTORFLOAT32ARRAY},
+        {GlobalEnv::BOOLEAN_FUNCTION_INDEX, DeoptType::NEWBUILTINCTORBOOLEAN},
+        {GlobalEnv::BUILTINS_MAP_FUNCTION_INDEX, DeoptType::NEWBUILTINCTORMAP},
+        {GlobalEnv::BUILTINS_SET_FUNCTION_INDEX, DeoptType::NEWBUILTINCTORSET},
+        {GlobalEnv::DATE_FUNCTION_INDEX, DeoptType::NEWBUILTINCTORDATE},
+        {GlobalEnv::ERROR_FUNCTION_INDEX, DeoptType::NEWBUILTINCTORERROR},
+    };
+    Environment env(gate, circuit_, &builder_);
+    size_t functionIndex = static_cast<size_t>(acc_.TryGetValue(gate));
+    GateRef frameState = GetFrameState(gate);
+    GateRef newTarget = acc_.GetValueIn(gate, 0);
+    GateRef globalEnv = builder_.GetGlobalEnv(glue);
+    GateRef builtinFunc = builder_.GetGlobalEnvValue(VariableType::JS_ANY(), glue, globalEnv, functionIndex);
+    GateRef check = builder_.Equal(builtinFunc, newTarget);
+    auto type =
+        deoptType.find(functionIndex) != deoptType.end() ? deoptType.at(functionIndex) : DeoptType::NEWBUILTINCTORFAIL1;
+    builder_.DeoptCheck(check, frameState, type);
+    acc_.ReplaceGate(gate, builder_.GetState(), builder_.GetDepend(), Circuit::NullGate());
 }
 
 void TypedHCRLowering::LowerArrayConstructorCheck(GateRef gate, GateRef glue)

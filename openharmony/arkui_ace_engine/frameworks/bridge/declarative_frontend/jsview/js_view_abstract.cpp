@@ -51,6 +51,7 @@
 #include "bridge/declarative_frontend/engine/functions/js_on_size_change_function.h"
 #include "bridge/declarative_frontend/engine/functions/js_should_built_in_recognizer_parallel_with_function.h"
 #include "bridge/declarative_frontend/engine/functions/js_touch_intercept_function.h"
+#include "bridge/declarative_frontend/engine/functions/js_touch_test_done_function.h"
 #include "bridge/declarative_frontend/engine/js_ref_ptr.h"
 #include "bridge/declarative_frontend/engine/js_types.h"
 #include "bridge/declarative_frontend/engine/jsi/nativeModule/arkts_native_common_bridge.h"
@@ -1635,7 +1636,7 @@ void UpdateInfoById(NG::MenuOptionsParam& menuOptionsParam, std::string_view id)
     switch (opType) {
         case MenuItemType::COPY:
             menuOptionsParam.labelInfo = theme->GetCopyLabelInfo();
-           menuOptionsParam.symbolId = theme->GetCopySymbolId();
+            menuOptionsParam.symbolId = theme->GetCopySymbolId();
             break;
         case MenuItemType::PASTE:
             menuOptionsParam.labelInfo = theme->GetPasteLabelInfo();
@@ -1665,7 +1666,7 @@ void UpdateInfoById(NG::MenuOptionsParam& menuOptionsParam, std::string_view id)
             menuOptionsParam.symbolId = theme->GetSearchSymbolId();
             break;
         default:
-            menuOptionsParam.labelInfo = "";
+            menuOptionsParam.labelInfo = menuOptionsParam.labelInfo.value_or("");
             menuOptionsParam.symbolId = 0;
             break;
     }
@@ -2210,6 +2211,9 @@ void JSViewAbstract::JsToolbar(const JSCallbackInfo& info)
     } else if (info[0]->IsObject()) {
         JSRef<JSObject> toolbarObj = JSRef<JSObject>::Cast(info[0]);
         auto builder = toolbarObj->GetProperty("builder");
+        if (!builder->IsFunction()) {
+            return;
+        }
         auto builderFunc = AceType::MakeRefPtr<JsFunction>(JSRef<JSFunc>::Cast(builder));
         CHECK_NULL_VOID(builderFunc);
         auto buildFunc = [execCtx = info.GetExecutionContext(), func = std::move(builderFunc)]() {
@@ -6005,7 +6009,7 @@ bool JSViewAbstract::ParseJsLengthNG(const JSRef<JSVal>& jsValue, NG::CalcLength
         result = NG::CalcLength(value->ToNumber<double>(), unit);
         auto jsRes = jsObj->GetProperty("res");
         if (SystemProperties::ConfigChangePerform() && !jsRes->IsUndefined() &&
-            !jsRes->IsNull() && !jsRes->IsObject()) {
+            !jsRes->IsNull() && jsRes->IsObject()) {
             JSRef<JSObject> resObj = JSRef<JSObject>::Cast(jsRes);
             JSViewAbstract::CompleteResourceObject(resObj);
             resourceObj = JSViewAbstract::GetResourceObject(resObj);
@@ -6144,7 +6148,7 @@ bool JSViewAbstract::ParseJsLengthMetricsVpWithResObj(const JSRef<JSObject>& jsO
     result = dimension;
     auto jsRes = jsObj->GetProperty("res");
     if (SystemProperties::ConfigChangePerform() && !jsRes->IsUndefined() &&
-        !jsRes->IsNull() && !jsRes->IsObject()) {
+        !jsRes->IsNull() && jsRes->IsObject()) {
         JSRef<JSObject> resObj = JSRef<JSObject>::Cast(jsRes);
         JSViewAbstract::CompleteResourceObject(resObj);
         resourceObj = JSViewAbstract::GetResourceObject(resObj);
@@ -9174,6 +9178,7 @@ void JSViewAbstract::JSBind(BindingTarget globalObj)
         "shouldBuiltInRecognizerParallelWith", &JSViewAbstract::JsShouldBuiltInRecognizerParallelWith);
     JSClass<JSViewAbstract>::StaticMethod(
         "onGestureRecognizerJudgeBegin", &JSViewAbstract::JsOnGestureRecognizerJudgeBegin);
+    JSClass<JSViewAbstract>::StaticMethod("onTouchTestDone", &JSViewAbstract::JsOnTouchTestDone);
     JSClass<JSViewAbstract>::StaticMethod("clickEffect", &JSViewAbstract::JsClickEffect);
     JSClass<JSViewAbstract>::StaticMethod("debugLine", &JSViewAbstract::JsDebugLine);
     JSClass<JSViewAbstract>::StaticMethod("geometryTransition", &JSViewAbstract::JsGeometryTransition);
@@ -9973,7 +9978,10 @@ bool JSViewAbstract::ParseDataDetectorConfig(const JSCallbackInfo& info, TextDet
             func->Execute(result);
         };
     }
-
+    auto enablePreviewMenuValue = obj->GetProperty("enablePreviewMenu");
+    if (enablePreviewMenuValue->IsBoolean()) {
+        textDetectConfig.enablePreviewMenu = enablePreviewMenuValue->ToBoolean();
+    }
     return ParseAIEntityColor(obj, textDetectConfig);
 }
 
@@ -10587,6 +10595,25 @@ void JSViewAbstract::JsOnGestureRecognizerJudgeBegin(const JSCallbackInfo& info)
     }
     ViewAbstractModel::GetInstance()->SetOnGestureRecognizerJudgeBegin(
         std::move(onGestureRecognizerJudgefunc), exposeInnerGestureFlag);
+}
+
+void JSViewAbstract::JsOnTouchTestDone(const JSCallbackInfo& info)
+{
+    if (info.Length() < 1 || info[0]->IsUndefined() || !info[0]->IsFunction()) {
+        ViewAbstractModel::GetInstance()->SetOnTouchTestDone(nullptr);
+        return;
+    }
+    auto JsOnTouchTestDoneFunc = AceType::MakeRefPtr<JsTouchTestDoneFunction>(JSRef<JSFunc>::Cast(info[0]));
+    WeakPtr<NG::FrameNode> frameNode = AceType::WeakClaim(NG::ViewStackProcessor::GetInstance()->GetMainFrameNode());
+    auto onTouchTestDoneFunc = [execCtx = info.GetExecutionContext(), func = JsOnTouchTestDoneFunc, node = frameNode](
+                                   const std::shared_ptr<BaseGestureEvent>& info,
+                                   const std::list<RefPtr<NG::NGGestureRecognizer>>& others) -> bool {
+        JAVASCRIPT_EXECUTION_SCOPE_WITH_CHECK(execCtx, false);
+        ACE_SCORING_EVENT("onTouchTestDone");
+        PipelineContext::SetCallBackNode(node);
+        return func->Execute(info, others);
+    };
+    ViewAbstractModel::GetInstance()->SetOnTouchTestDone(std::move(onTouchTestDoneFunc));
 }
 
 void JSViewAbstract::JsClickEffect(const JSCallbackInfo& info)
@@ -12298,6 +12325,41 @@ void JSViewAbstract::ParseOnCreateMenu(
     onCreateMenuCallback = jsCallback;
 }
 
+void JSViewAbstract::ParseOnPrepareMenu(
+    const JSCallbackInfo& info, const JSRef<JSVal>& jsFunc, NG::OnPrepareMenuCallback& onPrepareMenuCallback)
+{
+    if (jsFunc.IsEmpty() || !jsFunc->IsFunction()) {
+        return;
+    }
+    WeakPtr<NG::FrameNode> frameNode = AceType::WeakClaim(NG::ViewStackProcessor::GetInstance()->GetMainFrameNode());
+    auto jsOnPrepareMenu = AceType::MakeRefPtr<JsEventFunction<std::vector<NG::MenuItemParam>, 1>>(
+        JSRef<JSFunc>::Cast(jsFunc), CreateJsSystemMenuItems);
+    auto jsCallback = [execCtx = info.GetExecutionContext(), func = std::move(jsOnPrepareMenu),
+                          instanceId = Container::CurrentId(), node = frameNode](
+                          const std::vector<NG::MenuItemParam>& systemMenuItems) -> std::vector<NG::MenuOptionsParam> {
+        ContainerScope scope(instanceId);
+        std::vector<NG::MenuOptionsParam> menuParams;
+        JAVASCRIPT_EXECUTION_SCOPE_WITH_CHECK(execCtx, menuParams);
+        auto pipelineContext = PipelineContext::GetCurrentContext();
+        CHECK_NULL_RETURN(pipelineContext, menuParams);
+        auto textOverlayTheme = pipelineContext->GetTheme<TextOverlayTheme>();
+        CHECK_NULL_RETURN(textOverlayTheme, menuParams);
+        bool showShortcut = textOverlayTheme->GetShowShortcut();
+
+        pipelineContext->UpdateCurrentActiveNode(node);
+        auto modifiedSystemMenuItems = systemMenuItems;
+        UpdateOptionsInfo(modifiedSystemMenuItems);
+        auto menuItem = func->ExecuteWithValue(modifiedSystemMenuItems);
+        if (!menuItem->IsArray()) {
+            return menuParams;
+        }
+        auto menuItemsArray = JSRef<JSArray>::Cast(menuItem);
+        menuParams = ParseMenuItems(menuItemsArray, showShortcut);
+        return menuParams;
+    };
+    onPrepareMenuCallback = jsCallback;
+}
+
 JSRef<JSVal> JSViewAbstract::CreateJsSystemMenuItems(const std::vector<NG::MenuItemParam>& systemMenuItems)
 {
     JSRef<JSArray> systemMenuItemsArray = JSRef<JSArray>::New();
@@ -12309,7 +12371,7 @@ JSRef<JSVal> JSViewAbstract::CreateJsSystemMenuItems(const std::vector<NG::MenuI
 }
 
 bool JSViewAbstract::ParseEditMenuOptions(const JSCallbackInfo& info, NG::OnCreateMenuCallback& onCreateMenuCallback,
-    NG::OnMenuItemClickCallback& onMenuItemClick)
+    NG::OnMenuItemClickCallback& onMenuItemClick, NG::OnPrepareMenuCallback& onPrepareMenuCallback)
 {
     auto tmpInfo = info[0];
     if (info.Length() != 1 || !tmpInfo->IsObject()) {
@@ -12319,6 +12381,8 @@ bool JSViewAbstract::ParseEditMenuOptions(const JSCallbackInfo& info, NG::OnCrea
     auto menuOptionsObject = JSRef<JSObject>::Cast(tmpInfo);
     auto jsValueOnCreateMenu = menuOptionsObject->GetProperty("onCreateMenu");
     ParseOnCreateMenu(info, jsValueOnCreateMenu, onCreateMenuCallback);
+    auto jsValueOnPrepareMenu = menuOptionsObject->GetProperty("onPrepareMenu");
+    ParseOnPrepareMenu(info, jsValueOnPrepareMenu, onPrepareMenuCallback);
 
     auto jsValue = menuOptionsObject->GetProperty("onMenuItemClick");
     if (jsValue.IsEmpty() || !jsValue->IsFunction()) {
@@ -12405,8 +12469,10 @@ JSRef<JSVal> JSViewAbstract::CreateJsTextMenuItem(const NG::MenuItemParam& menuI
     JSRef<JSObject> obj = CreateJsTextMenuId(menuItemParam.menuOptionsParam.id);
     TextMenuItem->SetPropertyObject("id", obj);
     TextMenuItem->SetProperty<std::string>("labelInfo", menuItemParam.menuOptionsParam.labelInfo.value_or(""));
-    if (menuItemParam.menuOptionsParam.symbolId.has_value()) {
+    if (menuItemParam.menuOptionsParam.symbolId.has_value() && menuItemParam.menuOptionsParam.symbolId.value() != 0) {
         TextMenuItem->SetProperty<uint32_t>("icon", menuItemParam.menuOptionsParam.symbolId.value());
+    } else {
+        TextMenuItem->SetProperty<std::string>("icon", menuItemParam.menuOptionsParam.icon.value_or(""));
     }
     return JSRef<JSVal>::Cast(TextMenuItem);
 }

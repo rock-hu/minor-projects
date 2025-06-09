@@ -17,6 +17,7 @@
 #define COMMON_INTERFACES_THREAD_MUTATOR_BASE_H
 
 #include <atomic>
+#include <mutex>
 #include "base/common.h"
 
 namespace panda {
@@ -43,7 +44,7 @@ enum GCPhase : uint8_t {
     GC_PHASE_FIX = 16,
 };
 
-class MutatorBase {
+class PUBLIC_API MutatorBase {
 public:
     // flag which indicates the reason why mutator should suspend. flag is set by some external thread.
     enum SuspensionType : uint32_t {
@@ -268,6 +269,17 @@ public:
 
     void MutatorBaseUnlock() { mutatorBaseLock_.unlock(); }
 
+    void RegisterJSThread(void *jsThread)
+    {
+        CHECK_CC(jsThread_ == nullptr);
+        jsThread_ = jsThread;
+    }
+
+    void UnregisterJSThread()
+    {
+        jsThread_ = nullptr;
+    }
+
 private:
     // Indicate the current mutator phase and use which barrier in concurrent gc
     // ATTENTION: THE LAYOUT FOR GCPHASE MUST NOT BE CHANGED!
@@ -293,6 +305,9 @@ private:
 
     // This is stored for process `satbNode`, merge Mutator & MutatorBase & SatbNode
     void *mutator_ {nullptr};
+
+    // used to synchronize cmc-gc phase to JSThread
+    void *jsThread_ {nullptr};
 
     friend Mutator;
     friend panda::ThreadHolder;

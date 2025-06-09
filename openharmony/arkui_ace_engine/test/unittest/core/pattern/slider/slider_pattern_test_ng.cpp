@@ -1689,6 +1689,52 @@ HWTEST_F(SliderPatternTestNg, SliderPatternAccessibilityTest010, TestSize.Level1
 }
 
 /**
+ * @tc.name: SliderPatternAccessibilityTest011
+ * @tc.desc: Test slider_pattern GetOffsetStepIndex
+ * @tc.type: FUNC
+ */
+HWTEST_F(SliderPatternTestNg, SliderPatternAccessibilityTest011, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. Init Slider node.
+     */
+    auto frameNode = AceType::MakeRefPtr<FrameNode>(V2::SLIDER_ETS_TAG, -1, AceType::MakeRefPtr<SliderPattern>());
+    ASSERT_NE(frameNode, nullptr);
+    auto sliderPattern = frameNode->GetPattern<SliderPattern>();
+    ASSERT_NE(sliderPattern, nullptr);
+    sliderPattern->AttachToFrameNode(frameNode);
+    if (!sliderPattern->parentAccessibilityNode_) {
+        sliderPattern->parentAccessibilityNode_ = FrameNode::CreateFrameNode(V2::ROW_ETS_TAG,
+            ElementRegister::GetInstance()->MakeUniqueId(), AceType::MakeRefPtr<LinearLayoutPattern>(true));
+    }
+    auto parent = sliderPattern->parentAccessibilityNode_;
+    ASSERT_NE(parent, nullptr);
+    if (!sliderPattern->sliderContentModifier_) {
+        sliderPattern->sliderContentModifier_ =
+            AceType::MakeRefPtr<SliderContentModifier>(SliderContentModifier::Parameters(), nullptr, nullptr);
+    }
+    auto contentModifier = sliderPattern->sliderContentModifier_;
+    ASSERT_NE(contentModifier, nullptr);
+    contentModifier->stepPointVec_ = HORIZONTAL_STEP_POINTS;
+    /**
+     * @tc.steps: step2. Add Slider virtual node.
+     */
+    sliderPattern->AddStepPointsAccessibilityVirtualNode();
+    auto sliderPaintProperty = frameNode->GetPaintProperty<SliderPaintProperty>();
+    ASSERT_NE(sliderPaintProperty, nullptr);
+    sliderPaintProperty->UpdateValue(4.1f);
+    sliderPaintProperty->UpdateMin(3.0f);
+    sliderPaintProperty->UpdateMax(8.0f);
+    sliderPaintProperty->UpdateStep(1.5f);
+    ASSERT_EQ(sliderPattern->GetOffsetStepIndex(2), 2);
+    ASSERT_EQ(sliderPattern->GetOffsetStepIndex(3), 3);
+    ASSERT_EQ(sliderPattern->GetOffsetStepIndex(4), 4);
+    ASSERT_EQ(sliderPattern->GetOffsetStepIndex(0), -1);
+    sliderPaintProperty->UpdateStep(0.0f);
+    ASSERT_EQ(sliderPattern->GetOffsetStepIndex(4), 0);
+}
+
+/**
  * @tc.name: SliderPatternTest023
  * @tc.desc: Test slider_pattern HandleHoverEvent
  * @tc.type: FUNC
@@ -2116,32 +2162,77 @@ HWTEST_F(SliderPatternTestNg, EnableHapticFeedbackTest001, TestSize.Level1)
 
 /**
  * @tc.name: PlayHapticFeedbackTest001
- * @tc.desc: Test PlayHapticFeedback &&  InitHapticController
+ * @tc.desc: Test PlayHapticFeedback
  * @tc.type: FUNC
  */
 HWTEST_F(SliderPatternTestNg, PlayHapticFeedbackTest001, TestSize.Level1)
 {
     RefPtr<SliderPattern> sliderPattern = AceType::MakeRefPtr<SliderPattern>();
     ASSERT_NE(sliderPattern, nullptr);
-    float step = 10.0f;
-    float oldvalue = 1.0f;
     sliderPattern->isEnableHaptic_ = false;
-    sliderPattern->PlayHapticFeedback(false, step, oldvalue);
-    sliderPattern->isEnableHaptic_ = true;
-    sliderPattern->InitHapticController();
-    EXPECT_FALSE(sliderPattern->hapticApiEnabled);
+    sliderPattern->PlayHapticFeedback(false);
     sliderPattern->isEnableHaptic_ = true;
     auto host = sliderPattern->GetHost();
     CHECK_NULL_VOID(host);
     host->apiVersion_ = static_cast<int32_t>(PlatformVersion::VERSION_EIGHTEEN);
-    sliderPattern->InitHapticController();
-    EXPECT_TRUE(sliderPattern->hapticApiEnabled);
     sliderPattern->valueRatio_ = 0.5f;
-    sliderPattern->PlayHapticFeedback(false, step, oldvalue);
+    sliderPattern->PlayHapticFeedback(true);
     sliderPattern->valueRatio_ = 0.0f;
-    sliderPattern->PlayHapticFeedback(false, step, oldvalue);
+    sliderPattern->PlayHapticFeedback(false);
     sliderPattern->valueRatio_ = 1.0f;
-    sliderPattern->PlayHapticFeedback(false, step, oldvalue);
+    sliderPattern->PlayHapticFeedback(true);
+    EXPECT_TRUE(sliderPattern->isEnableHaptic_);
+}
+
+/**
+ * @tc.name: SliderPatternTest033
+ * @tc.desc: SliderPattern::UpdateEndsIsShowStepsPosition.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SliderPatternTestNg, SliderPatternTest033, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. create frameNode.
+     */
+    RefPtr<SliderPattern> sliderPattern = AceType::MakeRefPtr<SliderPattern>();
+    ASSERT_NE(sliderPattern, nullptr);
+    auto frameNode = AceType::MakeRefPtr<FrameNode>(V2::SLIDER_ETS_TAG, -1, sliderPattern);
+    ASSERT_NE(frameNode, nullptr);
+    sliderPattern->AttachToFrameNode(frameNode);
+    auto sliderLayoutProperty = frameNode->GetLayoutProperty<SliderLayoutProperty>();
+    ASSERT_NE(sliderLayoutProperty, nullptr);
+    auto geometryNode = frameNode->GetGeometryNode();
+    ASSERT_NE(geometryNode, nullptr);
+    geometryNode->SetContentSize(SizeF(MAX_WIDTH, MAX_HEIGHT));
+
+    /**
+     * @tc.steps: step2. set attribute and call function.
+     */
+    sliderPattern->stepPoints_.clear();
+    sliderPattern->GetPaintProperty<SliderPaintProperty>()->UpdateShowSteps(true);
+
+    PointF testPosition;
+    PointF block(20, 20);
+    SizeF endsSize(20, 20);
+
+    /**
+     * @tc.steps: step3. Check the param value.
+     */
+    EXPECT_NO_FATAL_FAILURE(sliderPattern->UpdateEndsIsShowStepsPosition(testPosition, block, endsSize, 40, true));
+}
+
+/**
+ * @tc.name: PlayHapticFeedbackTest002
+ * @tc.desc: Test PlayHapticFeedback
+ * @tc.type: FUNC
+ */
+HWTEST_F(SliderPatternTestNg, PlayHapticFeedbackTest002, TestSize.Level1)
+{
+    RefPtr<SliderPattern> sliderPattern = AceType::MakeRefPtr<SliderPattern>();
+    ASSERT_NE(sliderPattern, nullptr);
+    sliderPattern->SetEnableHapticFeedback(true);
+    sliderPattern->PlayHapticFeedback(false);
+    sliderPattern->PlayHapticFeedback(true);
     EXPECT_TRUE(sliderPattern->isEnableHaptic_);
 }
 } // namespace OHOS::Ace::NG

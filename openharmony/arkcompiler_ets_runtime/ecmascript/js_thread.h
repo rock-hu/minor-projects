@@ -64,6 +64,7 @@ class DebugNode;
 class VmThreadControl;
 class GlobalEnvConstants;
 enum class ElementsKind : uint8_t;
+enum class NodeKind : uint8_t;
 
 class MachineCode;
 using JitCodeVector = std::vector<std::tuple<MachineCode*, std::string, uintptr_t>>;
@@ -190,6 +191,15 @@ public:
     static constexpr int CONCURRENT_MARKING_BITFIELD_MASK = 0x3;
     static constexpr int SHARED_CONCURRENT_MARKING_BITFIELD_NUM = 1;
     static constexpr int SHARED_CONCURRENT_MARKING_BITFIELD_MASK = 0x1;
+#ifdef USE_READ_BARRIER
+    static constexpr int READ_BARRIER_STATE_BITFIELD_MASK = 0x2;
+#endif
+#ifdef USE_CMC_GC
+    static constexpr int CMC_GC_PHASE_BITFIELD_START = 8;
+    static constexpr int CMC_GC_PHASE_BITFIELD_NUM = 8;
+    static constexpr int CMC_GC_PHASE_BITFIELD_MASK =
+        (((1 << CMC_GC_PHASE_BITFIELD_NUM) - 1) << CMC_GC_PHASE_BITFIELD_START);
+#endif
     static constexpr int CHECK_SAFEPOINT_BITFIELD_NUM = 8;
     static constexpr int PGO_PROFILER_BITFIELD_START = 16;
     static constexpr int BOOL_BITFIELD_NUM = 1;
@@ -198,6 +208,12 @@ public:
     static constexpr size_t DEFAULT_MAX_SYSTEM_STACK_SIZE = 8_MB;
     using MarkStatusBits = BitField<MarkStatus, 0, CONCURRENT_MARKING_BITFIELD_NUM>;
     using SharedMarkStatusBits = BitField<SharedMarkStatus, 0, SHARED_CONCURRENT_MARKING_BITFIELD_NUM>;
+#ifdef USE_READ_BARRIER
+    using ReadBarrierStateBit = SharedMarkStatusBits::NextFlag;
+#endif
+#ifdef USE_CMC_GC
+    using CMCGCPhaseBits = BitField<GCPhase, CMC_GC_PHASE_BITFIELD_START, CMC_GC_PHASE_BITFIELD_NUM>;
+#endif
     using CheckSafePointBit = BitField<bool, 0, BOOL_BITFIELD_NUM>;
     using VMNeedSuspensionBit = BitField<bool, CHECK_SAFEPOINT_BITFIELD_NUM, BOOL_BITFIELD_NUM>;
     using VMHasSuspendedBit = VMNeedSuspensionBit::NextFlag;
@@ -589,13 +605,26 @@ public:
     }
 
 #ifdef USE_READ_BARRIER
-    bool IsCMCGCConcurrentCopying() const
+    bool NeedReadBarrier() const
     {
-#ifdef USE_CMC_GC
-        return GetThreadHolder()->GetMutatorPhase() >= GCPhase::GC_PHASE_PRECOPY;
-#else
-        return false;
+        return ReadBarrierStateBit::Decode(glueData_.sharedGCStateBitField_);
+    }
+
+    void SetReadBarrierState(bool flag)
+    {
+        ReadBarrierStateBit::Set(flag, &glueData_.sharedGCStateBitField_);
+    }
 #endif
+
+#ifdef USE_CMC_GC
+    GCPhase GetCMCGCPhase() const
+    {
+        return CMCGCPhaseBits::Decode(glueData_.sharedGCStateBitField_);
+    }
+
+    void SetCMCGCPhase(GCPhase gcPhase)
+    {
+        CMCGCPhaseBits::Set(gcPhase, &glueData_.sharedGCStateBitField_);
     }
 #endif
 
@@ -899,9 +928,19 @@ public:
         return newGlobalHandle_(value);
     }
 
+    inline uintptr_t NewXRefGlobalHandle(JSTaggedType value)
+    {
+        return newXRefGlobalHandle_(value);
+    }
+
     inline void DisposeGlobalHandle(uintptr_t nodeAddr)
     {
         disposeGlobalHandle_(nodeAddr);
+    }
+
+    inline void DisposeXRefGlobalHandle(uintptr_t nodeAddr)
+    {
+        disposeXRefGlobalHandle_(nodeAddr);
     }
 
     inline uintptr_t SetWeak(uintptr_t nodeAddr, void *ref = nullptr, WeakClearCallback freeGlobalCallBack = nullptr,
@@ -918,6 +957,11 @@ public:
     inline bool IsWeak(uintptr_t addr) const
     {
         return isWeak_(addr);
+    }
+
+    inline void SetNodeKind(NodeKind nodeKind)
+    {
+        setNodeKind_(nodeKind);
     }
 
     void EnableCrossThreadExecution()
@@ -1057,6 +1101,7 @@ public:
 
     struct GlueData : public base::AlignedStruct<JSTaggedValue::TaggedTypeSize(),
                                                  BCStubEntries,
+                                                 base::AlignedPointer,
                                                  JSTaggedValue,
                                                  base::AlignedPointer,
                                                  base::AlignedPointer,
@@ -1093,7 +1138,6 @@ public:
                                                  base::AlignedUint32,
                                                  base::AlignedPointer,
                                                  base::AlignedPointer,
-                                                 base::AlignedPointer,
                                                  base::AlignedUint32,
                                                  base::AlignedBool,
                                                  base::AlignedBool,
@@ -1108,6 +1152,11 @@ public:
                                                  base::AlignedUint32> {
         enum class Index : size_t {
             BcStubEntriesIndex = 0,
+#ifdef USE_CMC_GC
+            ThreadHolderIndex,
+#else
+            StateAndFlagsIndex,
+#endif
             ExceptionIndex,
             CurrentFrameIndex,
             LeaveFrameIndex,
@@ -1144,11 +1193,6 @@ public:
             UnsharedConstpoolsArrayLenIndex,
             UnsharedConstpoolsIndex,
             RandomStatePtrIndex,
-#ifdef USE_CMC_GC
-            ThreadHolderIndex,
-#else
-            StateAndFlagsIndex,
-#endif
             TaskInfoIndex,
             IsEnableMutantArrayIndex,
             IsEnableElementsKindIndex,
@@ -1165,6 +1209,17 @@ public:
         };
         static_assert(static_cast<size_t>(Index::NumOfMembers) == NumOfTypes);
 
+#ifdef USE_CMC_GC
+        static size_t GetThreadHolderOffset(bool isArch32)
+        {
+            return GetOffset<static_cast<size_t>(Index::ThreadHolderIndex)>(isArch32);
+        }
+#else
+        static size_t GetStateAndFlagsOffset(bool isArch32)
+        {
+            return GetOffset<static_cast<size_t>(Index::StateAndFlagsIndex)>(isArch32);
+        }
+#endif
         static size_t GetExceptionOffset(bool isArch32)
         {
             return GetOffset<static_cast<size_t>(Index::ExceptionIndex)>(isArch32);
@@ -1366,18 +1421,6 @@ public:
             return GetOffset<static_cast<size_t>(Index::UnsharedConstpoolsArrayLenIndex)>(isArch32);
         }
 
-#ifdef USE_CMC_GC
-        static size_t GetThreadHolderOffset(bool isArch32)
-        {
-            return GetOffset<static_cast<size_t>(Index::ThreadHolderIndex)>(isArch32);
-        }
-#else
-        static size_t GetStateAndFlagsOffset(bool isArch32)
-        {
-            return GetOffset<static_cast<size_t>(Index::StateAndFlagsIndex)>(isArch32);
-        }
-#endif
-
         static size_t GetRandomStatePtrOffset(bool isArch32)
         {
             return GetOffset<static_cast<size_t>(Index::RandomStatePtrIndex)>(isArch32);
@@ -1437,6 +1480,11 @@ public:
         }
 
         alignas(EAS) BCStubEntries bcStubEntries_ {};
+#ifdef USE_CMC_GC
+        alignas(EAS) uintptr_t threadHolder_ {0};
+#else
+        alignas(EAS) ThreadStateAndFlags stateAndFlags_ {};
+#endif
         alignas(EAS) JSTaggedValue exception_ {JSTaggedValue::Hole()};
         alignas(EAS) JSTaggedType *currentFrame_ {nullptr};
         alignas(EAS) JSTaggedType *leaveFrame_ {nullptr};
@@ -1473,11 +1521,6 @@ public:
         alignas(EAS) uint32_t unsharedConstpoolsArrayLen_ {0};
         alignas(EAS) uintptr_t unsharedConstpools_ {0};
         alignas(EAS) uintptr_t randomStatePtr_ {0};
-#ifdef USE_CMC_GC
-        alignas(EAS) uintptr_t threadHolder_ {0};
-#else
-        alignas(EAS) ThreadStateAndFlags stateAndFlags_ {};
-#endif
         alignas(EAS) uintptr_t taskInfo_ {0};
         alignas(EAS) bool isEnableMutantArray_ {false};
         alignas(EAS) bool IsEnableElementsKind_ {false};
@@ -1492,6 +1535,16 @@ public:
         alignas(EAS) StageOfHotReload stageOfHotReload_ {StageOfHotReload::INITIALIZE_STAGE_OF_HOTRELOAD};
     };
     STATIC_ASSERT_EQ_ARCH(sizeof(GlueData), GlueData::SizeArch32, GlueData::SizeArch64);
+
+    void SetStackStart(uint64_t stackStart)
+    {
+        glueData_.stackStart_ = stackStart;
+    }
+
+    void SetStackLimit(uint64_t stackLimit)
+    {
+        glueData_.stackLimit_ = stackLimit;
+    }
 
     JSTaggedValue GetSingleCharTable() const
     {
@@ -1899,11 +1952,14 @@ private:
     EcmaGlobalStorage<DebugNode> *globalDebugStorage_ {nullptr};
     int32_t stackTraceFd_ {-1};
     std::function<uintptr_t(JSTaggedType value)> newGlobalHandle_;
+    std::function<uintptr_t(JSTaggedType value)> newXRefGlobalHandle_;
     std::function<void(uintptr_t nodeAddr)> disposeGlobalHandle_;
+    std::function<void(uintptr_t nodeAddr)> disposeXRefGlobalHandle_;
     std::function<uintptr_t(uintptr_t nodeAddr, void *ref, WeakClearCallback freeGlobalCallBack_,
          WeakClearCallback nativeFinalizeCallBack)> setWeak_;
     std::function<uintptr_t(uintptr_t nodeAddr)> clearWeak_;
     std::function<bool(uintptr_t addr)> isWeak_;
+    std::function<void(NodeKind nodeKind)> setNodeKind_;
     NativePointerTaskCallback asyncCleanTaskCb_ {nullptr};
     WeakFinalizeTaskCallback finalizeTaskCallback_ {nullptr};
     uint32_t globalNumberCount_ {0};

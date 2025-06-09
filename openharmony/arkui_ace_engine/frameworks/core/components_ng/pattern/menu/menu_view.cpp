@@ -163,7 +163,7 @@ std::pair<RefPtr<FrameNode>, RefPtr<FrameNode>> CreateMenu(int32_t targetId, con
 {
     // use wrapper to detect click events outside menu
     auto wrapperNode = FrameNode::CreateFrameNode(V2::MENU_WRAPPER_ETS_TAG,
-        ElementRegister::GetInstance()->MakeUniqueId(), AceType::MakeRefPtr<MenuWrapperPattern>(targetId));
+        ElementRegister::GetInstance()->MakeUniqueId(), AceType::MakeRefPtr<MenuWrapperPattern>(targetId, targetTag));
 
     auto nodeId = ElementRegister::GetInstance()->MakeUniqueId();
     auto menuNode = FrameNode::CreateFrameNode(
@@ -890,11 +890,8 @@ static void SetFilter(const RefPtr<FrameNode>& targetNode, const RefPtr<FrameNod
         CHECK_NULL_VOID(columnNode);
         // set filter
         menuWrapperPattern->SetFilterColumnNode(columnNode);
-        auto menuNode = menuWrapperPattern->GetMenu();
-        auto menuPattern = menuNode ? menuNode->GetPattern<MenuPattern>() : nullptr;
-        auto layoutProperty = menuPattern ? menuPattern->GetLayoutProperty<MenuLayoutProperty>() : nullptr;
-        CHECK_NULL_VOID(layoutProperty);
-        auto isShowInSubWindow = layoutProperty->GetShowInSubWindowValue(true);
+        auto isShowInSubWindow =
+            menuWrapperPattern->GetMenuParam().isShowInSubWindow || menuWrapperPattern->IsContextMenu();
         if (container->IsSceneBoardWindow()) {
             auto windowScene = manager->FindWindowScene(targetNode);
             manager->MountFilterToWindowScene(columnNode, windowScene);
@@ -1387,7 +1384,7 @@ RefPtr<FrameNode> MenuView::Create(std::vector<OptionParam>&& params, int32_t ta
     if (menuProperty) {
         menuProperty->UpdateTitle(menuParam.title);
         menuProperty->UpdatePositionOffset(menuParam.positionOffset);
-        if (menuParam.placement.has_value()) {
+        if (menuParam.placement.has_value() && !menuParam.isAnchorPosition) {
             menuProperty->UpdateMenuPlacement(menuParam.placement.value_or(OHOS::Ace::Placement::BOTTOM));
         }
         menuProperty->UpdateShowInSubWindow(menuParam.isShowInSubWindow);
@@ -1563,7 +1560,7 @@ void MenuView::UpdateMenuProperties(const RefPtr<FrameNode>& wrapperNode, const 
     if (menuProperty) {
         menuProperty->UpdateTitle(menuParam.title);
         menuProperty->UpdatePositionOffset(menuParam.positionOffset);
-        if (menuParam.placement.has_value()) {
+        if (menuParam.placement.has_value() && !menuParam.isAnchorPosition) {
             menuProperty->UpdateMenuPlacement(menuParam.placement.value());
         }
         menuProperty->UpdateShowInSubWindow(menuParam.isShowInSubWindow);

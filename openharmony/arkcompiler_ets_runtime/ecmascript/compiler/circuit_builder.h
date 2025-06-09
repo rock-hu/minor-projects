@@ -460,7 +460,7 @@ public:
                                   GateRef constPoolIndex, RegionSpaceFlag flag);
     GateRef CreateArguments(ElementsKind kind, CreateArgumentsAccessor::Mode mode, GateRef restIdx);
     GateRef Construct(GateRef hirGate, std::vector<GateRef> args);
-    GateRef CallNew(GateRef hirGate, std::vector<GateRef> args, bool needPushArgv = false);
+    GateRef CallNew(GateRef hirGate, std::vector<GateRef> args, bool needPushArgv = false, bool isFastCall = false);
     GateRef CallInternal(GateRef hirGate, std::vector<GateRef> args, uint64_t pcOffset);
     GateRef TypedCallNative(GateRef hirGate, GateRef thisObj, GateRef funcId);
     GateRef IsBase(GateRef glue, GateRef ctor);
@@ -631,6 +631,7 @@ public:
     GateRef TypeOfCheck(GateRef gate, ParamType paramType);
     GateRef TypedTypeOf(ParamType paramType);
     GateRef TypedCallOperator(GateRef hirGate, MachineType type, const std::vector<GateRef>& inList, bool isSideEffect);
+    inline GateRef CallNewBuiltin(GateRef hirGate, std::vector<GateRef> &args);
     inline GateRef TypedCallBuiltin(GateRef hirGate, const std::vector<GateRef> &args,
                                     BuiltinsStubCSigns::ID id, bool isSideEffect);
     GateRef TypeConvert(MachineType type, ParamType typeFrom, GateType typeTo, const std::vector<GateRef>& inList);
@@ -650,6 +651,7 @@ public:
     GateRef InsertStableArrayCheck(GateRef array, ArrayMetaDataAccessor accessor);
     GateRef InsertLoadArrayLength(GateRef array, GateRef length, bool isTypedArray);
     GateRef InsertTypedArrayCheck(GateRef array, TypedArrayMetaDataAccessor accessor);
+    GateRef TypedConstructorCheck(GateRef gate, size_t type);
     GateRef ArrayConstructorCheck(GateRef gate);
     GateRef Float32ArrayConstructorCheck(GateRef gate);
     GateRef ObjectConstructorCheck(GateRef gate);
@@ -788,6 +790,7 @@ public:
     inline GateRef TaggedIsException(GateRef x);
     inline GateRef TaggedIsSpecial(GateRef x);
     inline GateRef TaggedIsHeapObject(GateRef x);
+    inline GateRef TaggedIsJSFunction(GateRef glue, GateRef x);
     inline GateRef TaggedIsArrayIterator(GateRef glue, GateRef obj);
     inline GateRef TaggedIsAsyncGeneratorObject(GateRef glue, GateRef x);
     inline GateRef TaggedIsJSGlobalObject(GateRef glue, GateRef x);

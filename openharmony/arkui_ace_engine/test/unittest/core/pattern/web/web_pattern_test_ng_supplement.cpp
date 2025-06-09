@@ -70,6 +70,9 @@ public:
     MOCK_METHOD(void, Paste, (), (const, override));
     MOCK_METHOD(void, Cut, (), (const, override));
     MOCK_METHOD(void, SelectAll, (), (const, override));
+    MOCK_METHOD(void, Undo, (), (const, override));
+    MOCK_METHOD(void, Redo, (), (const, override));
+    MOCK_METHOD(void, PasteAndMatchStyle, (), (const, override));
 };
 class WebPatternTestNgSupplement : public testing::Test {
 public:
@@ -1481,6 +1484,62 @@ HWTEST_F(WebPatternTestNgSupplement, OnScrollStartTest001, TestSize.Level1)
     webPattern->OnScrollStart(2.0f, 1.0f);
     EXPECT_TRUE(webPattern->scrollState_);
     EXPECT_EQ(webPattern->expectedScrollAxis_, Axis::HORIZONTAL);
+#endif
+}
+
+/**
+ * @tc.name: CheckAndSetWebNestedScrollExisted001
+ * @tc.desc: CheckAndSetWebNestedScrollExisted.
+ * @tc.type: FUNC
+ */
+HWTEST_F(WebPatternTestNgSupplement, CheckAndSetWebNestedScrollExisted001, TestSize.Level1)
+{
+#ifdef OHOS_STANDARD_SYSTEM
+    auto* stack = ViewStackProcessor::GetInstance();
+    ASSERT_NE(stack, nullptr);
+    auto nodeId = stack->ClaimNodeId();
+    auto frameNode =
+        FrameNode::GetOrCreateFrameNode(V2::WEB_ETS_TAG, nodeId, []() { return AceType::MakeRefPtr<WebPattern>(); });
+
+    stack->Push(frameNode);
+    auto webPattern = frameNode->GetPattern<WebPattern>();
+    ASSERT_NE(webPattern, nullptr);
+    RefPtr<MockNestableScrollContainer> parent = AccessibilityManager::MakeRefPtr<MockNestableScrollContainer>();
+    webPattern->parentsMap_ = { {Axis::HORIZONTAL, parent} };
+    webPattern->OnModifyDone();
+    ASSERT_NE(webPattern->delegate_, nullptr);
+    webPattern->OnBypassVsyncConditionUpdate(WebBypassVsyncCondition::SCROLLBY_FROM_ZERO_OFFSET);
+    EXPECT_EQ(WebBypassVsyncCondition::SCROLLBY_FROM_ZERO_OFFSET, webPattern->GetWebBypassVsyncCondition());
+    webPattern->CheckAndSetWebNestedScrollExisted();
+    EXPECT_TRUE(parent->GetWebNestedScrollExisted());
+#endif
+}
+
+/**
+ * @tc.name: CheckAndSetWebNestedScrollExisted002
+ * @tc.desc: CheckAndSetWebNestedScrollExisted.
+ * @tc.type: FUNC
+ */
+HWTEST_F(WebPatternTestNgSupplement, CheckAndSetWebNestedScrollExisted002, TestSize.Level1)
+{
+#ifdef OHOS_STANDARD_SYSTEM
+    auto* stack = ViewStackProcessor::GetInstance();
+    ASSERT_NE(stack, nullptr);
+    auto nodeId = stack->ClaimNodeId();
+    auto frameNode =
+        FrameNode::GetOrCreateFrameNode(V2::WEB_ETS_TAG, nodeId, []() { return AceType::MakeRefPtr<WebPattern>(); });
+
+    stack->Push(frameNode);
+    auto webPattern = frameNode->GetPattern<WebPattern>();
+    ASSERT_NE(webPattern, nullptr);
+    RefPtr<MockNestableScrollContainer> parent = AccessibilityManager::MakeRefPtr<MockNestableScrollContainer>();
+    webPattern->parentsMap_ = { {Axis::HORIZONTAL, parent} };
+    webPattern->OnModifyDone();
+    ASSERT_NE(webPattern->delegate_, nullptr);
+    webPattern->OnBypassVsyncConditionUpdate(WebBypassVsyncCondition::NONE);
+    EXPECT_EQ(WebBypassVsyncCondition::NONE, webPattern->GetWebBypassVsyncCondition());
+    webPattern->CheckAndSetWebNestedScrollExisted();
+    EXPECT_FALSE(parent->GetWebNestedScrollExisted());
 #endif
 }
 

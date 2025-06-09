@@ -60,6 +60,12 @@
 #include "ecmascript/stubs/runtime_stubs.h"
 #include "ecmascript/sustaining_js_handle.h"
 #include "ecmascript/symbol_table.h"
+#include "ecmascript/ohos/jit_tools.h"
+#include "ecmascript/ohos/aot_tools.h"
+#include "ecmascript/checkpoint/thread_state_transition.h"
+#include "ecmascript/mem/heap-inl.h"
+#include "ecmascript/dfx/stackinfo/async_stack_trace.h"
+#include "ecmascript/base/gc_helper.h"
 
 #if defined(PANDA_TARGET_OHOS) && !defined(STANDALONE_MODE)
 #include "parameters.h"
@@ -310,7 +316,7 @@ Jit *EcmaVM::GetJit() const
 
 bool EcmaVM::Initialize()
 {
-    ECMA_BYTRACE_NAME(HITRACE_TAG_ARK, "EcmaVM::Initialize");
+    ECMA_BYTRACE_NAME(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, "EcmaVM::Initialize", "");
     stringTable_ = Runtime::GetInstance()->GetEcmaStringTable();
     InitializePGOProfiler();
     Taskpool::GetCurrentTaskpool()->Initialize();
@@ -319,6 +325,9 @@ bool EcmaVM::Initialize()
 #endif
     heap_ = new Heap(this);
     heap_->Initialize();
+#ifdef PANDA_JS_ETS_HYBRID_MODE
+    crossVMOperator_ = new CrossVMOperator(this);
+#endif // PANDA_JS_ETS_HYBRID_MODE
     gcStats_ = chunk_.New<GCStats>(heap_, options_.GetLongPauseTime());
     gcKeyStats_ = chunk_.New<GCKeyStats>(heap_, gcStats_);
     factory_ = chunk_.New<ObjectFactory>(thread_, heap_, SharedHeap::GetInstance());
@@ -378,6 +387,11 @@ bool EcmaVM::Initialize()
 
 EcmaVM::~EcmaVM()
 {
+#ifdef USE_CMC_GC
+    thread_->GetThreadHolder()->TransferToNative();
+    BaseRuntime::WaitForGCFinish();
+    thread_->GetThreadHolder()->TransferToRunning();
+#endif
     if (isJitCompileVM_) {
         if (factory_ != nullptr) {
             chunk_.Delete(factory_);
@@ -471,6 +485,13 @@ EcmaVM::~EcmaVM()
         delete sustainingJSHandleList_;
         sustainingJSHandleList_ = nullptr;
     }
+
+#ifdef PANDA_JS_ETS_HYBRID_MODE
+    if (crossVMOperator_ != nullptr) {
+        delete crossVMOperator_;
+        crossVMOperator_ = nullptr;
+    }
+#endif  // PANDA_JS_ETS_HYBRID_MODE
 
 #ifndef USE_CMC_GC
     SharedHeap *sHeap = SharedHeap::GetInstance();
@@ -697,7 +718,9 @@ JSTaggedValue EcmaVM::FastCallAot(size_t actualNumArgs, JSTaggedType *args, cons
     INTERPRETER_TRACE(thread_, ExecuteAot);
     ASSERT(thread_->IsInManagedState());
     auto entry = thread_->GetRTInterface(kungfu::RuntimeStubCSigns::ID_OptimizedFastCallEntry);
-    // entry of aot
+#ifdef USE_READ_BARRIER
+    base::GCHelper::CopyCallTarget((void*)args[0]);
+#endif
     auto res = reinterpret_cast<FastCallAotEntryType>(entry)(thread_->GetGlueAddr(),
                                                              actualNumArgs,
                                                              args,
@@ -861,6 +884,7 @@ void EcmaVM::CollectGarbage(TriggerGCType gcType, panda::ecmascript::GCReason re
 
 void EcmaVM::Iterate(RootVisitor &v, VMRootVisitType type)
 {
+    ECMA_BYTRACE_NAME(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, "CMCGC::VisitRootEcmaVM", "");
     if (!internalNativeMethods_.empty()) {
         v.VisitRangeRoot(Root::ROOT_VM, ObjectSlot(ToUintPtr(&internalNativeMethods_.front())),
             ObjectSlot(ToUintPtr(&internalNativeMethods_.back()) + JSTaggedValue::TaggedTypeSize()));
@@ -883,6 +907,7 @@ void EcmaVM::Iterate(RootVisitor &v, VMRootVisitType type)
     if (!options_.EnableGlobalLeakCheck() && currentHandleStorageIndex_ != -1) {
         // IterateHandle when disableGlobalLeakCheck.
         DISALLOW_HANDLE_ALLOC;
+        ECMA_BYTRACE_NAME(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, "CMCGC::VisitRootHandleStorage", "");
         int32_t nid = currentHandleStorageIndex_;
         for (int32_t i = 0; i <= nid; ++i) {
             auto node = handleStorageNodes_.at(i);

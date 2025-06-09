@@ -29,6 +29,8 @@
 #include "common_components/common_runtime/src/heap/allocator/slot_list.h"
 
 namespace panda {
+using JitFortUnProtHookType = void (*)(size_t size, void* base);
+
 class TraceCollector;
 class CompactCollector;
 class RegionManager;
@@ -74,7 +76,8 @@ public:
           tlToRegionList_("tl-to-regions"), garbageRegionList_("garbage regions"),
           recentPinnedRegionList_("recent pinned regions"), oldPinnedRegionList_("old pinned regions"),
           rawPointerRegionList_("raw pointer pinned regions"), oldLargeRegionList_("old large regions"),
-          recentLargeRegionList_("recent large regions"), largeTraceRegions_("large trace regions")
+          recentLargeRegionList_("recent large regions"), readOnlyRegionList_("read only region"),
+          largeTraceRegions_("large trace regions"), appSpawnRegionList_("appSpawn regions")
     {
         for (size_t i = 0; i < FIXED_PINNED_REGION_COUNT; i++) {
             fixedPinnedRegionList_[i] = new RegionList("fixed recent pinned regions");
@@ -138,9 +141,12 @@ public:
     // adapt for concurrent gc
     uintptr_t AllocRegion();
     uintptr_t AllocPinnedRegion();
-    uintptr_t AllocLargeReion(size_t size);
+    uintptr_t AllocLargeRegion(size_t size);
+    uintptr_t AllocJitFortRegion(size_t size);
 
     uintptr_t AllocPinnedFromFreeList(size_t size);
+
+    uintptr_t AllocReadOnly(size_t size, bool allowGC = true);
 
     uintptr_t AllocPinned(size_t size, bool allowGC = true)
     {
@@ -308,6 +314,11 @@ public:
              region->GetLiveByteCount(), region->GetRegionType());
 
         garbageRegionList_.PrependRegion(region, RegionDesc::RegionType::GARBAGE_REGION);
+        ASAN_POISON_MEMORY_REGION(region->GetRegionStart(), region->GetRegionSize());
+        const uintptr_t p_addr = region->GetRegionStart();
+        const uintptr_t p_size = region->GetRegionSize();
+        LOG_COMMON(DEBUG) << std::hex << "set [" << p_addr;
+        LOG_COMMON(DEBUG) << std::hex << ", " << p_addr + p_size << ") unaddressable\n";
 
         if (region->IsLargeRegion()) {
             return region->GetRegionSize();
@@ -362,6 +373,7 @@ public:
     // of heap memory about which region can be used for compaction.
     void ExemptFromRegions();
     void ReassembleFromSpace();
+    void ReassembleAppspawnSpace();
 
     void ForEachObjectUnsafe(const std::function<void(BaseObject*)>& visitor) const;
     void ForEachObjectSafe(const std::function<void(BaseObject*)>& visitor) const;
@@ -386,8 +398,9 @@ public:
         return fromRegionList_.GetUnitCount() + exemptedFromRegionList_.GetUnitCount() + toRegionList_.GetUnitCount() +
             tlToRegionList_.GetUnitCount() + recentFullRegionList_.GetUnitCount() + oldLargeRegionList_.GetUnitCount() +
             recentLargeRegionList_.GetUnitCount() + oldPinnedRegionList_.GetUnitCount() +
-            recentPinnedRegionList_.GetUnitCount() + rawPointerRegionList_.GetUnitCount() +
-            largeTraceRegions_.GetUnitCount() + fullTraceRegions_.GetUnitCount() + tlRegionList_.GetUnitCount();
+            recentPinnedRegionList_.GetUnitCount() + readOnlyRegionList_.GetUnitCount() +
+            rawPointerRegionList_.GetUnitCount() + largeTraceRegions_.GetUnitCount() +
+            appSpawnRegionList_.GetUnitCount() + fullTraceRegions_.GetUnitCount() + tlRegionList_.GetUnitCount();
     }
 
     size_t GetDirtyUnitCount() const { return freeRegionManager_.GetDirtyUnitCount(); }
@@ -415,8 +428,9 @@ public:
             toRegionList_.GetAllocatedSize() + tlToRegionList_.GetAllocatedSize() +
             recentFullRegionList_.GetAllocatedSize() + oldLargeRegionList_.GetAllocatedSize() +
             recentLargeRegionList_.GetAllocatedSize() + oldPinnedRegionList_.GetAllocatedSize() +
-            recentPinnedRegionList_.GetAllocatedSize() + rawPointerRegionList_.GetAllocatedSize() +
-            largeTraceRegions_.GetAllocatedSize() + fullTraceRegions_.GetAllocatedSize() + threadLocalSize;
+            recentPinnedRegionList_.GetAllocatedSize() + readOnlyRegionList_.GetAllocatedSize() +
+            rawPointerRegionList_.GetAllocatedSize() + largeTraceRegions_.GetAllocatedSize() +
+            appSpawnRegionList_.GetAllocatedSize() + fullTraceRegions_.GetAllocatedSize() + threadLocalSize;
     }
 
     inline size_t GetFromSpaceSize() const { return fromRegionList_.GetAllocatedSize(); }
@@ -524,10 +538,32 @@ public:
         ClearGCInfo(recentPinnedRegionList_);
         ClearGCInfo(rawPointerRegionList_);
         ClearGCInfo(oldPinnedRegionList_);
+        ClearGCInfo(readOnlyRegionList_);
+        ClearGCInfo(appSpawnRegionList_);
         for (size_t i = 0; i < FIXED_PINNED_REGION_COUNT; i++) {
             ClearGCInfo(*fixedPinnedRegionList_[i]);
             ClearGCInfo(*oldFixedPinnedRegionList_[i]);
         }
+    }
+
+    void SetReadOnlyToRORegionList()
+    {
+        auto visitor = [](RegionDesc* region) {
+            if (region != nullptr) {
+                region->SetReadOnly();
+            }
+        };
+        readOnlyRegionList_.VisitAllRegions(visitor);
+    }
+
+    void ClearReadOnlyFromRORegionList()
+    {
+        auto visitor = [](RegionDesc* region) {
+            if (region != nullptr) {
+                region->ClearReadOnly();
+            }
+        };
+        readOnlyRegionList_.VisitAllRegions(visitor);
     }
 private:
     static const size_t MAX_UNIT_COUNT_PER_REGION;
@@ -599,9 +635,15 @@ private:
     // if large region is allocated when gc is not running, it is recorded here.
     RegionList recentLargeRegionList_;
 
+    // regions for read only objects
+    RegionList readOnlyRegionList_;
+
     // if large region is allocated during gc trace phase, it is called a trace-region,
     // it is recorded here when it is full.
     RegionCache largeTraceRegions_;
+
+	// regions for appspawn region list.
+    RegionList appSpawnRegionList_;
 
     uintptr_t regionInfoStart_ = 0; // the address of first RegionDesc
 

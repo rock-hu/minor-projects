@@ -207,8 +207,9 @@ JSTaggedValue InterpreterAssembly::Execute(EcmaRuntimeCallInfo *info)
     JSThread *thread = info->GetThread();
     INTERPRETER_TRACE(thread, AsmExecute);
 #if ECMASCRIPT_ENABLE_INTERPRETER_ARKUINAITVE_TRACE
-    ECMA_BYTRACE_NAME(HITRACE_TAG_ARK, "ArkCompiler::InterpreterAssembly::Execute");
+    ECMA_BYTRACE_NAME(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, "ArkCompiler::InterpreterAssembly::Execute", "");
 #endif
+    SaveEnv envScope(thread);
     // When the  function is jit-compiled, the Method object is reinstalled.
     // In this case, the AotWithCall field may be updated.
     // This causes a Construct that is not a ClassConstructor to call jit code.
@@ -259,7 +260,7 @@ JSTaggedValue InterpreterAssembly::Execute(EcmaRuntimeCallInfo *info)
         MethodEntry(thread, method, env);
     }
 #ifdef USE_READ_BARRIER
-    if (thread->IsCMCGCConcurrentCopying()) {
+    if (thread->NeedReadBarrier()) {
         base::GCHelper::CopyCallTarget(callTarget); // callTarget should be ToSpace Reference
         method = callTarget->GetCallTarget();
     }
@@ -323,7 +324,7 @@ JSTaggedValue InterpreterAssembly::GeneratorReEnterInterpreter(JSThread *thread,
         MethodEntry(thread, method, env);
     }
 #ifdef USE_READ_BARRIER
-    if (thread->IsCMCGCConcurrentCopying()) {
+    if (thread->NeedReadBarrier()) {
         // func should be ToSpace Reference
         base::GCHelper::CopyCallTarget(func.GetTaggedObject());
         // context should be ToSpace Reference

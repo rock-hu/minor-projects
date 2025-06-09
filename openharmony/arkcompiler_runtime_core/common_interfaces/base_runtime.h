@@ -34,6 +34,7 @@ enum class GcType : uint8_t {
     ASYNC,
     SYNC,
     FULL,  // Waiting finish
+    APPSPAWN,
 };
 using HeapVisitor = const std::function<void(BaseObject*)>;
 
@@ -58,6 +59,7 @@ public:
     static void* ReadBarrier(void* field);
     static void* AtomicReadBarrier(void* obj, void* field, std::memory_order order);
     static void RequestGC(GcType type);
+    static void WaitForGCFinish();
     static bool ForEachObj(HeapVisitor& visitor, bool safe);
 
     HeapParam &GetHeapParam()
@@ -80,6 +82,10 @@ public:
         return *threadHolderManager_;
     }
 
+    HeapManager &GetHeapManager()
+    {
+        return *heapManager_;
+    }
 private:
     RuntimeParam param_ {};
 

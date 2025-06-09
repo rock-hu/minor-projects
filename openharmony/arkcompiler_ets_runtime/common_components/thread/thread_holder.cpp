@@ -42,6 +42,7 @@ void ThreadHolder::DestroyThreadHolder(ThreadHolder *holder)
 {
     holder->TransferToNative();
     BaseRuntime::GetInstance()->GetThreadHolderManager().UnregisterThreadHolder(holder);
+    holder->TransferToRunning();
 }
 
 ThreadHolder *ThreadHolder::GetCurrent()
@@ -60,6 +61,8 @@ void ThreadHolder::RegisterJSThread(JSThread *jsThread)
     TransferToRunning();
     DCHECK_CC(jsThread_ == nullptr);
     jsThread_ = jsThread;
+    mutatorBase_->RegisterJSThread(jsThread);
+    SynchronizeGCPhaseToJSThread(jsThread, mutatorBase_->GetMutatorPhase());
     TransferToNative();
 }
 
@@ -69,6 +72,7 @@ void ThreadHolder::UnregisterJSThread(JSThread *jsThread)
     TransferToRunning();
     DCHECK_CC(jsThread_ == jsThread);
     jsThread_ = nullptr;
+    mutatorBase_->UnregisterJSThread();
     if (coroutines_.empty()) {
         ThreadHolder::DestroyThreadHolder(this);
     }
@@ -96,7 +100,7 @@ void ThreadHolder::UnregisterCoroutine(Coroutine *coroutine)
 
 bool ThreadHolder::TryBindMutator()
 {
-    if (ThreadLocal::IsArkProcessor() || ThreadLocal::GetMutator() != nullptr) {
+    if (ThreadLocal::IsArkProcessor()) {
         return false;
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,9 +20,6 @@
 #include "checker/ets/typeRelationContext.h"
 #include "checker/types/ets/etsObjectType.h"
 #include "checker/types/type.h"
-#include "checker/types/typeFlag.h"
-#include "ir/astNode.h"
-#include "ir/typeNode.h"
 #include "ir/base/catchClause.h"
 #include "ir/base/classDefinition.h"
 #include "ir/base/classProperty.h"
@@ -78,6 +75,7 @@ static void InferUntilFail(Signature const *const signature, const ArenaVector<i
     bool anyChange = true;
     size_t lastSubsititutionSize = 0;
 
+    checker->AddStatus(checker::CheckerStatus::IN_TYPE_INFER);
     // some ets lib files require type infer from arg index 0,1,... , not fit to build graph
     while (anyChange && substitution->size() < sigParams.size()) {
         anyChange = false;
@@ -95,12 +93,15 @@ static void InferUntilFail(Signature const *const signature, const ArenaVector<i
                                       ? MaybeBoxedType(checker, arg->AsSpreadElement()->Argument()->Check(checker),
                                                        arg->AsSpreadElement()->Argument())
                                       : MaybeBoxedType(checker, arg->Check(checker), arg);
-            auto *const paramType = (ix < signature->MinArgCount()) ? sigInfo->params[ix]->TsType()
-                                    : sigInfo->restVar != nullptr   ? sigInfo->restVar->TsType()
-                                                                    : nullptr;
+            auto *const paramType = (ix < signature->ArgCount())  ? sigInfo->params[ix]->TsType()
+                                    : sigInfo->restVar != nullptr ? sigInfo->restVar->TsType()
+                                                                  : nullptr;
 
             if (paramType == nullptr) {
                 continue;
+            }
+            if (arg->IsArrowFunctionExpression()) {
+                checker->Relation()->SetNode(arg);
             }
 
             if (checker->EnhanceSubstitutionForType(sigInfo->typeParams, paramType, argType, substitution)) {
@@ -112,6 +113,7 @@ static void InferUntilFail(Signature const *const signature, const ArenaVector<i
             }
         }
     }
+    checker->RemoveStatus(checker::CheckerStatus::IN_TYPE_INFER);
 }
 
 static const Substitution *BuildImplicitSubstitutionForArguments(ETSChecker *checker, Signature *signature,
@@ -130,7 +132,8 @@ static const Substitution *BuildImplicitSubstitutionForArguments(ETSChecker *che
                 continue;
             }
             if (newTypeParam->GetDefaultType() == nullptr) {
-                return nullptr;
+                checker->EmplaceSubstituted(substitution, newTypeParam, checker->GlobalETSNeverType());
+                continue;
             }
             auto dflt = newTypeParam->GetDefaultType()->Substitute(checker->Relation(), substitution);
             if (!checker->EnhanceSubstitutionForType(sigInfo->typeParams, newTypeParam, dflt, substitution)) {
@@ -163,7 +166,7 @@ static const Substitution *BuildExplicitSubstitutionForArguments(ETSChecker *che
     for (size_t ix = 0; ix < params.size(); ++ix) {
         instArgs.push_back(MaybeBoxedType(checker, params[ix]->GetType(checker), params[ix]));
         if (ix < sigParams.size()) {
-            ETSChecker::EmplaceSubstituted(constraintsSubstitution, sigParams[ix]->AsETSTypeParameter(), instArgs[ix]);
+            checker->EmplaceSubstituted(constraintsSubstitution, sigParams[ix]->AsETSTypeParameter(), instArgs[ix]);
         }
     }
     for (size_t ix = instArgs.size(); ix < sigParams.size(); ++ix) {
@@ -174,13 +177,12 @@ static const Substitution *BuildExplicitSubstitutionForArguments(ETSChecker *che
 
         dflt = dflt->Substitute(checker->Relation(), constraintsSubstitution);
         instArgs.push_back(dflt);
-        ETSChecker::EmplaceSubstituted(constraintsSubstitution, sigParams[ix]->AsETSTypeParameter(), instArgs[ix]);
+        checker->EmplaceSubstituted(constraintsSubstitution, sigParams[ix]->AsETSTypeParameter(), instArgs[ix]);
     }
     if (sigParams.size() != instArgs.size()) {
-        if ((flags & TypeRelationFlag::NO_THROW) != 0) {
-            return nullptr;
+        if ((flags & TypeRelationFlag::NO_THROW) == static_cast<std::underlying_type_t<TypeRelationFlag>>(0U)) {
+            checker->LogError(diagnostic::RTYPE_PARAM_COUNT_MISMATCH, {sigParams.size(), instArgs.size()}, pos);
         }
-        checker->LogTypeError({"Expected ", sigParams.size(), " type arguments, got ", instArgs.size(), " ."}, pos);
         return nullptr;
     }
 
@@ -189,7 +191,7 @@ static const Substitution *BuildExplicitSubstitutionForArguments(ETSChecker *che
                                                constraintsSubstitution)) {
             return nullptr;
         }
-        ETSChecker::EmplaceSubstituted(substitution, sigParams[ix]->AsETSTypeParameter(), instArgs[ix]);
+        checker->EmplaceSubstituted(substitution, sigParams[ix]->AsETSTypeParameter(), instArgs[ix]);
     }
     return substitution;
 }

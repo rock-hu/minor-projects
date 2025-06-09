@@ -459,6 +459,7 @@ void ViewAbstract::SetBackgroundIgnoresLayoutSafeAreaEdges(const uint32_t layout
     auto frameNode = ViewStackProcessor::GetInstance()->GetMainFrameNode();
     CHECK_NULL_VOID(frameNode);
     ACE_UPDATE_LAYOUT_PROPERTY(LayoutProperty, BackgroundIgnoresLayoutSafeAreaEdges, layoutSafeAreaEdges);
+    ACE_UPDATE_RENDER_CONTEXT(BackgroundIgnoresLayoutSafeAreaEdges, layoutSafeAreaEdges);
     frameNode->MarkDirtyNode(PROPERTY_UPDATE_LAYOUT | PROPERTY_UPDATE_RENDER);
 }
 
@@ -502,6 +503,14 @@ void ViewAbstract::SetCustomBackgroundColorWithResourceObj(const RefPtr<Resource
     Color backgroundColor;
     ResourceParseUtils::ParseResColor(resObj, backgroundColor);
     SetCustomBackgroundColor(backgroundColor);
+}
+
+void ViewAbstract::RequestFrame()
+{
+    auto pipeline = PipelineContext::GetCurrentContextSafelyWithCheck();
+    if (pipeline != nullptr) {
+        pipeline->RequestFrame();
+    }
 }
 
 void ViewAbstract::SetBackgroundColor(const Color& color)
@@ -586,6 +595,15 @@ void ViewAbstract::SetBackgroundColor(FrameNode* frameNode, const Color& color, 
     };
     pattern->AddResObj("backgroundColor", resObj, std::move(updateFunc));
     ACE_UPDATE_NODE_RENDER_CONTEXT(BackgroundColor, color, frameNode);
+}
+
+void ViewAbstract::SetBackgroundColor(FrameNode *frameNode, const std::optional<Color>& color)
+{
+    if (color) {
+        ACE_UPDATE_NODE_RENDER_CONTEXT(BackgroundColor, *color, frameNode);
+    } else {
+        ACE_RESET_NODE_RENDER_CONTEXT(RenderContext, BackgroundColor, frameNode);
+    }
 }
 
 void ViewAbstract::SetBackgroundImage(const ImageSourceInfo& src)
@@ -2090,6 +2108,14 @@ void ViewAbstract::DisableOnHoverMove(FrameNode* frameNode)
     eventHub->ClearUserOnHoverMove();
 }
 
+void ViewAbstract::DisableOnAccessibilityHover(FrameNode* frameNode)
+{
+    CHECK_NULL_VOID(frameNode);
+    auto eventHub = frameNode->GetOrCreateInputEventHub();
+    CHECK_NULL_VOID(eventHub);
+    eventHub->ClearUserOnAccessibilityHover();
+}
+
 void ViewAbstract::DisableOnMouse(FrameNode* frameNode)
 {
     auto eventHub = frameNode->GetOrCreateInputEventHub();
@@ -2209,6 +2235,23 @@ void ViewAbstract::SetOnGestureRecognizerJudgeBegin(
     auto gestureHub = ViewStackProcessor::GetInstance()->GetMainFrameNodeGestureEventHub();
     CHECK_NULL_VOID(gestureHub);
     gestureHub->SetOnGestureRecognizerJudgeBegin(std::move(gestureRecognizerJudgeFunc));
+}
+
+void ViewAbstract::SetOnTouchTestDone(NG::TouchTestDoneCallback&& touchTestDoneCallback)
+{
+    auto frameNode = ViewStackProcessor::GetInstance()->GetMainFrameNode();
+    CHECK_NULL_VOID(frameNode);
+    auto gestureHub = ViewStackProcessor::GetInstance()->GetMainFrameNodeGestureEventHub();
+    CHECK_NULL_VOID(gestureHub);
+    gestureHub->SetOnTouchTestDoneCallback(std::move(touchTestDoneCallback));
+}
+
+void ViewAbstract::SetOnTouchTestDone(FrameNode* frameNode, NG::TouchTestDoneCallback&& touchTestDoneCallback)
+{
+    CHECK_NULL_VOID(frameNode);
+    auto gestureHub = frameNode->GetOrCreateGestureEventHub();
+    CHECK_NULL_VOID(gestureHub);
+    gestureHub->SetOnTouchTestDoneCallback(std::move(touchTestDoneCallback));
 }
 
 void ViewAbstract::SetOnTouch(TouchEventFunc&& touchEventFunc)
@@ -4669,6 +4712,19 @@ void ViewAbstract::SetClipEdge(FrameNode* frameNode, bool isClip)
     }
 }
 
+void ViewAbstract::SetClipEdge(FrameNode* frameNode, std::optional<bool> isClip)
+{
+    CHECK_NULL_VOID(frameNode);
+    auto target = frameNode->GetRenderContext();
+    if (target) {
+        if (target->GetClipShape().has_value()) {
+            target->ResetClipShape();
+            target->OnClipShapeUpdate(nullptr);
+        }
+        target->UpdateClipEdge(isClip.value_or(false));
+    }
+}
+
 void ViewAbstract::SetMask(const RefPtr<BasicShape>& basicShape)
 {
     if (!ViewStackProcessor::GetInstance()->IsCurrentVisualStateProcess()) {
@@ -6509,6 +6565,15 @@ void ViewAbstract::SetOnHoverMove(FrameNode* frameNode, OnHoverMoveFunc &&onHove
     eventHub->SetHoverMoveEvent(std::move(onHoverMoveEventFunc));
 }
 
+void ViewAbstract::SetOnAccessibilityHover(FrameNode* frameNode,
+    OnAccessibilityHoverFunc &&onAccessibilityHoverEventFunc)
+{
+    CHECK_NULL_VOID(frameNode);
+    auto eventHub = frameNode->GetOrCreateInputEventHub();
+    CHECK_NULL_VOID(eventHub);
+    eventHub->SetAccessibilityHoverEvent(std::move(onAccessibilityHoverEventFunc));
+}
+
 void ViewAbstract::SetOnKeyEvent(FrameNode* frameNode, OnKeyConsumeFunc &&onKeyCallback)
 {
     auto focusHub = frameNode->GetOrCreateFocusHub();
@@ -8278,6 +8343,7 @@ bool ViewAbstract::CreatePropertyAnimation(FrameNode* frameNode, AnimationProper
     AnimationUtils::OpenImplicitAnimation(option, option.GetCurve(), finishCallback);
     renderContext->SetAnimationPropertyValue(property, endValue);
     auto result = AnimationUtils::CloseImplicitAnimation();
+    renderContext->SyncRSPropertyToRenderContext(property);
     if (!result) {
         if (hasAnimation) {
             *hasAnimation = false;
@@ -8299,19 +8365,28 @@ bool ViewAbstract::CancelPropertyAnimations(
         // no need to cancel
         return true;
     }
-    ACE_SCOPED_TRACE("CancelPropertyAnimations");
+    auto propertyStr = PropertyVectorToString(properties);
+    ACE_SCOPED_TRACE("CancelPropertyAnimations %s", propertyStr.c_str());
     // use duration 0 animation param to cancel animation.
     AnimationOption option { Curves::LINEAR, 0 };
     AnimationUtils::OpenImplicitAnimation(option, option.GetCurve(), nullptr);
-    for (auto AnimationPropertyType : properties) {
-        renderContext->CancelPropertyAnimation(AnimationPropertyType);
+    for (auto property : properties) {
+        renderContext->CancelPropertyAnimation(property);
     }
-    bool result = AnimationUtils::CloseImplicitCancelAnimation();
-    if (!result) {
-        TAG_LOGW(AceLogTag::ACE_ANIMATION, "cancel animation error, property:%{public}s, node tag:%{public}s",
-            PropertyVectorToString(properties).c_str(), frameNode->GetTag().c_str());
+    auto status = AnimationUtils::CloseImplicitCancelAnimationReturnStatus();
+    if (status == CancelAnimationStatus::SUCCESS) {
+        // restore the rs property to property saved in renderContext.
+        for (auto property : properties) {
+            renderContext->SyncRSPropertyToRenderContext(property);
+        }
+        return true;
+    } else if (status == CancelAnimationStatus::EMPTY_PENDING_SYNC_LIST) {
+        return true;
     }
-    return result;
+    TAG_LOGW(AceLogTag::ACE_ANIMATION,
+        "cancel animation error, property:%{public}s, node tag:%{public}s, error:%{public}d", propertyStr.c_str(),
+        frameNode->GetTag().c_str(), static_cast<int32_t>(status));
+    return false;
 }
 
 std::vector<float> ViewAbstract::GetRenderNodePropertyValue(FrameNode* frameNode, AnimationPropertyType property)

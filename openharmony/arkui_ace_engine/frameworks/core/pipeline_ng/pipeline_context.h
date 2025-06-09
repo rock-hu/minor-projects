@@ -891,10 +891,7 @@ public:
 
     void AddSyncGeometryNodeTask(std::function<void()>&& task) override;
     void FlushSyncGeometryNodeTasks() override;
-    void SetVsyncListener(VsyncCallbackFun vsync)
-    {
-        vsyncListener_ = std::move(vsync);
-    }
+    void SetVsyncListener(VsyncCallbackFun vsync);
 
     void SetOnceVsyncListener(VsyncCallbackFun vsync)
     {
@@ -1215,6 +1212,8 @@ public:
         keyOcclusionNodes_[frameNodeId] = enable;
     }
     const RefPtr<NodeRenderStatusMonitor>& GetNodeRenderStatusMonitor();
+    void RemoveNodeFromDirtyRenderNode(int32_t nodeId, int32_t pageId);
+    void GetRemovedDirtyRenderAndErase(uint32_t id);
 
 protected:
     void StartWindowSizeChangeAnimate(int32_t width, int32_t height, WindowSizeChangeReason type,

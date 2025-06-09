@@ -63,7 +63,10 @@ void FinalizerProcessor::Start()
 // Should only invoke once.
 void FinalizerProcessor::Stop()
 {
-    LOGF_CHECK(running_) << "invalid finalizerProcessor status";
+	// This will only occur in the prefork scenario.
+    if (running_ == false) {
+        return;
+    }
     running_ = false;
     Notify();
     WaitStop();
@@ -256,7 +259,7 @@ void FinalizerProcessor::RegisterFinalizer(BaseObject* obj)
 
 void FinalizerProcessor::ReclaimHeapGarbage()
 {
-    OHOS_HITRACE("ARK_RT_GC_RECLAIM");
+    OHOS_HITRACE(HITRACE_LEVEL_MAX, "ARK_RT_GC_RECLAIM", "");
     Heap::GetHeap().GetAllocator().ReclaimGarbageMemory(false);
     shouldReclaimHeapGarbage_.store(false, std::memory_order_relaxed);
 }
