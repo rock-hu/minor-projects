@@ -22,7 +22,17 @@ export struct Content {
   @StorageProp('currentBreakpoint') currentBreakpoint: string = BreakpointConstants.BREAKPOINT_SM;
 
   build() {
-    GridRow() {
+    GridRow({
+      breakpoints: {
+        value: BreakpointConstants.BREAKPOINT_VALUE,
+        reference: BreakpointsReference.WindowSize
+      },
+      columns: {
+        sm: BreakpointConstants.COLUMN_LG,
+        md: BreakpointConstants.COLUMN_LG,
+        lg: BreakpointConstants.COLUMN_LG
+      }
+    }) {
       GridCol({ span: { sm: GridConstants.SPAN_TWELVE, md: GridConstants.SPAN_SIX, lg: GridConstants.SPAN_FOUR } }) {
         AlbumCover({ currentBreakpoint: this.currentBreakpoint })
       }
