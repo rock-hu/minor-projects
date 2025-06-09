@@ -29,7 +29,6 @@ export default class MainAbility extends UIAbility {
 
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
     Logger.info(TAG, 'MainAbility onCreate');
-    AppStorage.setOrCreate("context", this.context);
     this.context.eventHub.on('getAbilityData', this.getAbilityDataCallback = (data: Data): void => {
       Logger.info(TAG, 'MainAbility' + JSON.stringify(data));
       data.context = this.context;

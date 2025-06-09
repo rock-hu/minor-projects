@@ -16,9 +16,8 @@
 import { photoAccessHelper } from '@kit.MediaLibraryKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
-/**
+/*
  * Select a picture from the gallery.
- *
  * @returns uri The uri for the selected file.
  */
 export async function fileSelect(): Promise<Array<string>> {

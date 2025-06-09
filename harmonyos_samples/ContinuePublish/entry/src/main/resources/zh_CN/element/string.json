@@ -10,7 +10,7 @@
     },
     {
       "name": "EntryAbility_label",
-      "value": "应用接续（内容发布）"
+      "value": "内容发布"
     },
     {
       "name": "richEditor_placeholder",
@@ -18,7 +18,7 @@
     },
     {
       "name": "text_posts",
-      "value": "应用接续（内容发布）"
+      "value": "内容发布"
     },
     {
       "name": "add_local",
@@ -49,6 +49,10 @@
       "value": "继续添加"
     },
     {
+      "name": "image_add",
+      "value": "添加已达上限"
+    },
+    {
       "name": "default_location",
       "value": "武汉XX路%d楼"
     },
@@ -63,6 +67,26 @@
     {
       "name": "permission_approximately_location",
       "value": "在加载位置信息列表时，允许应用获取设备模糊位置信息"
+    },
+    {
+      "name": "copy",
+      "value": "复制"
+    },
+    {
+      "name": "paste",
+      "value": "粘贴"
+    },
+    {
+      "name": "primary_title",
+      "value": "获取图片"
+    },
+    {
+      "name": "local_device",
+      "value": "从本地设备获取"
+    },
+    {
+      "name": "remote_device",
+      "value": "从其他设备获取"
     }
   ]
 }

@@ -40,7 +40,7 @@ export class MonthDataSource extends BasicDataSource<Month> {
     }
   }
 
-  public getDateData() {
+  public getDateData(uiContext:UIContext) {
     for (let i = 1; i <= 12; i++) {
       let monthDays: number[] = CalculationDateUtil.getMonthDate(i, this.currentYear);
       let lunarDays: string[] = [];
@@ -48,7 +48,7 @@ export class MonthDataSource extends BasicDataSource<Month> {
         if (monthDays[j] === 0) {
           lunarDays.push('');
         } else {
-          lunarDays.push(CalculationDateUtil.dateToLunar(this.currentYear, i, monthDays[j]));
+          lunarDays.push(CalculationDateUtil.dateToLunar(this.currentYear, i, monthDays[j], uiContext));
         }
       }
       const month: Month = {

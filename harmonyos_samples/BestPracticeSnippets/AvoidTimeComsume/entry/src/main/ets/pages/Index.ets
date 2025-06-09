@@ -13,8 +13,6 @@
  * limitations under the License.
  */
 
-import { router } from '@kit.ArkUI';
-
 class DirectoryItem {
   title: ResourceStr = '';
   uri: string = '';
@@ -107,7 +105,7 @@ struct Index {
                 .height(40)
                 .backgroundColor('#0A59F7')
                 .onClick(() => {
-                  router.pushUrl({
+                  this.getUIContext().getRouter().pushUrl({
                     url: item.uri
                   });
                 })
@@ -128,7 +126,7 @@ struct Index {
             .height(40)
             .backgroundColor('#0A59F7')
             .onClick(() => {
-              router.pushUrl({
+              this.getUIContext().getRouter().pushUrl({
                 url: 'views/NegativeOfOnScroll'
               });
             })
@@ -139,7 +137,7 @@ struct Index {
             .height(40)
             .backgroundColor('#0A59F7')
             .onClick(() => {
-              router.pushUrl({
+              this.getUIContext().getRouter().pushUrl({
                 url: 'views/PositiveOfOnScroll'
               });
             })
@@ -150,7 +148,7 @@ struct Index {
             .height(40)
             .backgroundColor('#0A59F7')
             .onClick(() => {
-              router.pushUrl({
+              this.getUIContext().getRouter().pushUrl({
                 url: 'views/ConditionalRendering'
               });
             })

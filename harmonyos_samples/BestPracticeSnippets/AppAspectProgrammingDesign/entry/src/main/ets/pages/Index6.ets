@@ -17,7 +17,7 @@
 * 最佳实践: 应用切面编程设计
 */
 
-// [start index6]
+// [Start index6]
 // index.ets
 import {util} from '@kit.ArkTS';
 import { Base } from '../components/base';

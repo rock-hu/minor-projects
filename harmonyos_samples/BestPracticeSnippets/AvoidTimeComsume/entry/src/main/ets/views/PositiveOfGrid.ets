@@ -14,7 +14,6 @@
  */
 
 import { hiTraceMeter } from '@kit.PerformanceAnalysisKit';
-import { router } from '@kit.ArkUI';
 
 class MyDataSource implements IDataSource {
   private dataArray: number[] = [];
@@ -66,7 +65,7 @@ struct PositiveOfGrid {
         .backgroundColor('#E8E8E8')
         .borderRadius(40)
         .onClick(() => {
-          router.back({
+          this.getUIContext().getRouter().back({
             url: 'pages/Index'
           });
         })
@@ -116,7 +115,7 @@ struct ReusableChildComponent {
   }
 
   // ...
-  // [End no_redundant_operation]
+  // [End positive_of_grid]
 
   build() {
     Column() {

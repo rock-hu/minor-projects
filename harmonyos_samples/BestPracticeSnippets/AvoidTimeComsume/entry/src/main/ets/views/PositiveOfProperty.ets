@@ -15,7 +15,6 @@
 
 // [Start positive_of_property]
 import { taskpool } from '@kit.ArkTS'; // Task pools
-import { router } from '@kit.ArkUI';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
 @Concurrent
@@ -31,7 +30,7 @@ function getHeight(): number {
 
 // Execute getHeight
 taskpool.execute(getHeight).then((value: Object) => {
-  AppStorage.SetOrCreate('height', value);
+  AppStorage.setOrCreate('height', value);
 })
 
 @Entry
@@ -58,7 +57,7 @@ struct PositiveOfProperty {
         .backgroundColor('#E8E8E8')
         .borderRadius(40)
         .onClick(() => {
-          router.back({
+          this.getUIContext().getRouter().back({
             url: 'pages/Index'
           });
         })

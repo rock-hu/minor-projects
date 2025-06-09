@@ -1,3 +1,7 @@
+/**
+ * 最佳实践: 崩溃监测实践
+ */
+
 @Entry
 @Component
 struct Index {
@@ -14,6 +18,10 @@ struct Index {
           middle: { anchor: '__container__', align: HorizontalAlign.Center }
         })
         .onClick(() => {
+          // [Start xiaoming]
+          let test:string = "{name:'xiaoming' age:10}";
+          let result:object = JSON.parse(test);
+          // [End xiaoming]
           this.message = 'Welcome';
         })
     }

@@ -40,7 +40,7 @@ export struct ModeComponent {
     CameraService.setSavePictureCallback(this.handleSavePicture);
   }
 
-  // DocsCode 1
+  // [Start handle_save_picture]
   handleSavePicture = (photoAsset: photoAccessHelper.PhotoAsset | image.PixelMap): void => {
     Logger.info(TAG, 'handleSavePicture');
     this.setImageInfo(photoAsset);
@@ -52,10 +52,10 @@ export struct ModeComponent {
     Logger.info(TAG, 'setImageInfo');
     GlobalContext.get().setObject('photoAsset', photoAsset);
   }
+  // [End handle_save_picture]
 
-  // DocsCode 1
   onJumpClick(): void {
-    router.pushUrl({ url: 'pages/EditPage' }, router.RouterMode.Single, (err) => {
+    this.getUIContext().getRouter().pushUrl({ url: 'pages/EditPage' }, router.RouterMode.Single, (err) => {
       if (err) {
         Logger.error(TAG, `Invoke pushUrl failed, code is ${err.code}, message is ${err.message}`);
         return;

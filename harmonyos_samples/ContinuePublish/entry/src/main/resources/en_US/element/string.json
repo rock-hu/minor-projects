@@ -18,7 +18,7 @@
     },
     {
       "name": "text_posts",
-      "value": "App Continue(Content Publish)"
+      "value": "Content Publish"
     },
     {
       "name": "add_local",
@@ -49,6 +49,10 @@
       "value": "Continue Add"
     },
     {
+      "name": "image_add",
+      "value": "Upper Limit"
+    },
+    {
       "name": "default_location",
       "value": "Building %d, XX Road, Wuhan"
     },
@@ -63,6 +67,26 @@
     {
       "name": "permission_approximately_location",
       "value": "When loading a list of location information, Allows applications to obtain fuzzy device location information"
+    },
+    {
+      "name": "copy",
+      "value": "Copy"
+    },
+    {
+      "name": "paste",
+      "value": "Paste"
+    },
+    {
+      "name": "primary_title",
+      "value": "Get Pictures"
+    },
+    {
+      "name": "local_device",
+      "value": "Local Devices"
+    },
+    {
+      "name": "remote_device",
+      "value": "Other Devices"
     }
   ]
 }

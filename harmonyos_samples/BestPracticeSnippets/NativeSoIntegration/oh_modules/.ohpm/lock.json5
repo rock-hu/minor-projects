@@ -51,6 +51,18 @@
       "devDependencies": {},
       "dynamicDependencies": {},
       "maskedByOverrideDependencyMap": false
+    },
+    "Ndk": {
+      "name": "Ndk",
+      "dependencies": {
+        "libentry.so": {
+          "specifier": "file:Ndk/src/main/cpp/types/libentry",
+          "version": "file:Ndk/src/main/cpp/types/libentry"
+        }
+      },
+      "devDependencies": {},
+      "dynamicDependencies": {},
+      "maskedByOverrideDependencyMap": false
     }
   },
   "packages": {
@@ -72,8 +84,8 @@
       "dynamic": false,
       "maskedByOverrideDependencyMap": false
     },
-    "libmultiply.so@file:Multiply/src/main/cpp/types/libmultiply": {
-      "storePath": "Multiply/src/main/cpp/types/libmultiply",
+    "libentry.so@file:Ndk/src/main/cpp/types/libentry": {
+      "storePath": "Ndk/src/main/cpp/types/libentry",
       "dependencies": {},
       "dynamicDependencies": {},
       "dev": false,
@@ -90,6 +102,14 @@
     },
     "libmultiply.so@file:entry/src/main/cpp/types/libmultiply": {
       "storePath": "entry/src/main/cpp/types/libmultiply",
+      "dependencies": {},
+      "dynamicDependencies": {},
+      "dev": false,
+      "dynamic": false,
+      "maskedByOverrideDependencyMap": false
+    },
+    "libmultiply.so@file:Multiply/src/main/cpp/types/libmultiply": {
+      "storePath": "Multiply/src/main/cpp/types/libmultiply",
       "dependencies": {},
       "dynamicDependencies": {},
       "dev": false,

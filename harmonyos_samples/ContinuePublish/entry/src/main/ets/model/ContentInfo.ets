@@ -11,6 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import { commonType } from '@kit.ArkData';
 
 export class ContentInfo {
@@ -54,12 +55,12 @@ export class ContentInfo {
 
 
 export interface ImageInfo {
-  /**
+  /*
    * image PixelMap.
    */
   imagePixelMap: PixelMap;
 
-  /**
+  /*
    * Image name.
    */
   imageName: string;

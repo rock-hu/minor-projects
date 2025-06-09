@@ -33,9 +33,9 @@ struct Index {
     }
   }
 
-  // 运算任务异步处理
+  // Asynchronous processing of operation tasks
   private computeTaskAsync(): void {
-    setTimeout(() => { // 这里使用setTimeout来实现异步延迟运行
+    setTimeout(() => { // SetTimeout is used here to realize asynchronous delayed operation.
       this.computeTask();
     }, DELAYED_TIME);
   }

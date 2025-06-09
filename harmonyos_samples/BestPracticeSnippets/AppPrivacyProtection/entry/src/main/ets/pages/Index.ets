@@ -16,7 +16,6 @@
 import { abilityAccessCtrl, bundleManager, Permissions } from '@kit.AbilityKit';
 import Logger from '../utils/Logger';
 import { BusinessError } from '@kit.BasicServicesKit';
-import { promptAction, router } from '@kit.ArkUI';
 
 @Entry
 @Component

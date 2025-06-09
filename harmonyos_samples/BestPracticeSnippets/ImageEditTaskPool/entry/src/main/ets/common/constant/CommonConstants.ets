@@ -18,4 +18,5 @@ export class CommonConstants {
    * Adjust slider value.
    */
   static readonly ADJUST_SLIDER_VALUE: number[] = [100, 100, 100];
+  static readonly PIXEL_STEP:number
 }

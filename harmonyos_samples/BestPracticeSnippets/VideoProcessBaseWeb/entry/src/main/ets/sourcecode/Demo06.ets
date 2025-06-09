@@ -21,15 +21,17 @@ import { Constants } from '../common/Constants';
 import { WebDownloadManager } from '../utils/WebDownloadManager';
 import { downloadControlBuilder } from '../view/DownloadControlView';
 import { customPopupMenuBuilder, getOffset } from '../view/CustomPopupMenu';
-// DocsCode 1735041366913
 // src/main/ets/pages/Index.ets
 const uiContext: UIContext | undefined = AppStorage.get('uiContext');
 let context = uiContext!.getHostContext()
+// [Start uicontext_isshow]
+// [Start get_host_context]
 @Entry
 @Component
 struct Index {
   @State isShow: boolean = false;
-  // DocsDot
+  // [StartExclude uicontext_isshow]
+  // [StartExclude get_host_context]
   @State pressPosY: number = 0;
   @State pressPosX: number = 0;
   @StorageProp(Constants.SYSTEM_LANGUAGE_KEY) language: string = '';
@@ -108,15 +110,16 @@ struct Index {
     }
     return false;
   }
-  // DocsDot
-
+  // [EndExclude uicontext_isshow]
+  // [EndExclude get_host_context]
   build() {
     Column() {
       Web({
         src: $rawfile(/zh/.test(this.language) ? 'index_cn.html' : 'index_en.html'),
         controller: this.webController
       })
-        // DocsDot
+        // [StartExclude get_host_context]
+        // [StartExclude uicontext_isshow]
         .zoomAccess(false)
         .width('100%')
         .height('100%')
@@ -124,21 +127,25 @@ struct Index {
           this.webWidth = newArea.width as number;
           this.webHeight = newArea.height as number;
         })
-        // DocsDot
+          // [EndExclude uicontext_isshow]
+          // [EndExclude get_host_context]
         .onContextMenuShow((event) => {
           if (!event) {
             return false;
           }
-          // DocsDot
+          // [StartExclude get_host_context]
+          // [StartExclude uicontext_isshow]
           this.result = event.result;
           this.pressPosX = this.getUIContext().px2vp(event.param.x());
           this.pressPosY = this.getUIContext().px2vp(event.param.y());
-          // DocsDot
+          // [EndExclude get_host_context]
+          // [EndExclude uicontext_isshow]
           this.linkUrl = event.param.getSourceUrl();
           this.isShow = true;
           return true;
         })
-        // DocsDot
+          // [StartExclude get_host_context]
+          // [StartExclude uicontext_isshow]
         .bindPopup(this.isShow, {
           builder: customPopupMenuBuilder(
             this.linkUrl,
@@ -167,8 +174,10 @@ struct Index {
           this.changeOrientation(window.Orientation.PORTRAIT);
           this.isFullScreen = false;
         })
-       // DocsDot
+      // [EndExclude uicontext_isshow]
+      // [EndExclude get_host_context]
     }
   }
 }
-// DocsCode 1735041366913
+// [End get_host_context]
+// [End uicontext_isshow]

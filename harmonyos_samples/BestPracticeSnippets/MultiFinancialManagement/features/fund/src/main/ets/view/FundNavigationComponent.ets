@@ -469,7 +469,7 @@ export struct FundNavigationComponent {
           this.backgroundX = width - FundConstants.CALCULATE_POSITION;
         }
       }
-      this.backgroundX = vp2px(this.backgroundX)
+      this.backgroundX = this.getUIContext().vp2px(this.backgroundX)
     })
   }
 }

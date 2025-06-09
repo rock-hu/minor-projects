@@ -16,20 +16,18 @@
 import { window } from '@kit.ArkUI';
 import { common } from '@kit.AbilityKit';
 
-// DocsCode 1735023683177
 // src/main/ets/pages/Index.ets
 const uiContext: UIContext | undefined = AppStorage.get('uiContext');
 let context = uiContext!.getHostContext()
+// [Start component_index]
 @Entry
 @Component
 struct Index {
-  // ...
   private windowClass: window.Window | null = null;
   private context: common.UIAbilityContext = context as common.UIAbilityContext;
 
   aboutToAppear(): void {
     window.getLastWindow(this.context).then((windowClass) => this.windowClass = windowClass);
-    // ...
   }
 
   /**
@@ -43,7 +41,6 @@ struct Index {
   }
 
   build() {
-    // ...
   }
 }
-// DocsCode 1735023683177
+// [End component_index]

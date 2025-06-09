@@ -21,7 +21,7 @@ import { ComparisonDetailPage, ComparisonInfo } from '@ohos/fundComparison';
 
 @Entry
 @Component
-  // [Start init_pop_custom_style]
+// [Start init_pop_custom_style]
 struct Index {
   // [StartExclude init_pop_custom_style]
   @StorageLink('breakPoint') breakPoint: string = CommonConstants.BREAK_POINT_SM;
@@ -31,6 +31,7 @@ struct Index {
   @State backgroundImageY: number = 0;
   @StorageLink('pageIndexInfos') pageIndexInfos: NavPathStack = new NavPathStack();
   // [EndExclude init_pop_custom_style]
+  //Initialize the pop-up instance, set customStyle to true, and set the pop-up style customization.
   dialogController: CustomDialogController = new CustomDialogController({
     builder: AdvertisementDialog(),
     backgroundColor: $r('app.color.dialog_background'),
@@ -38,17 +39,17 @@ struct Index {
     maskColor: $r('app.color.dialog_mask'),
     customStyle: true
   });
-
+  //Open the application display pop-up window.
   aboutToAppear() {
     this.dialogController.open();
   }
   // [StartExclude init_pop_custom_style]
   onPageShow() {
-    window.getLastWindow(getContext(this)).then((windowStage: window.Window) => {
+    window.getLastWindow(this.getUIContext().getHostContext()).then((windowStage: window.Window) => {
       let area = windowStage.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);
-      let topHeight = px2vp(area.topRect.height);
+      let topHeight = this.getUIContext().px2vp(area.topRect.height);
       let bottomArea = windowStage.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR);
-      let bottom = px2vp(bottomArea.bottomRect.height);
+      let bottom = this.getUIContext().px2vp(bottomArea.bottomRect.height);
       if (topHeight > 0) {
         windowStage.setWindowLayoutFullScreen(true);
         AppStorage.setOrCreate('avoidArea', topHeight);
@@ -56,9 +57,8 @@ struct Index {
       }
     });
   }
-
   onPageHide() {
-    window.getLastWindow(getContext(this)).then((windowStage: window.Window) => {
+    window.getLastWindow(this.getUIContext().getHostContext()).then((windowStage: window.Window) => {
       if (this.topHeight > 0) {
         windowStage.setWindowLayoutFullScreen(false);
       }
@@ -113,12 +113,12 @@ struct Index {
       }
       .hideTitleBar(true)
       .onWillShow(() => {
-        window.getLastWindow(getContext(this)).then((windowStage: window.Window) => {
+        window.getLastWindow(this.getUIContext().getHostContext()).then((windowStage: window.Window) => {
           windowStage.setWindowLayoutFullScreen(false);
         })
       })
       .onWillDisappear(() => {
-        window.getLastWindow(getContext(this)).then((windowStage: window.Window) => {
+        window.getLastWindow(this.getUIContext().getHostContext()).then((windowStage: window.Window) => {
           windowStage.setWindowLayoutFullScreen(true);
         })
       })
@@ -132,12 +132,12 @@ struct Index {
       }
       .hideTitleBar(true)
       .onWillShow(() => {
-        window.getLastWindow(getContext(this)).then((windowStage: window.Window) => {
+        window.getLastWindow(this.getUIContext().getHostContext()).then((windowStage: window.Window) => {
           windowStage.setWindowLayoutFullScreen(false);
         })
       })
       .onWillDisappear(() => {
-        window.getLastWindow(getContext(this)).then((windowStage: window.Window) => {
+        window.getLastWindow(this.getUIContext().getHostContext()).then((windowStage: window.Window) => {
           windowStage.setWindowLayoutFullScreen(true);
         })
       })

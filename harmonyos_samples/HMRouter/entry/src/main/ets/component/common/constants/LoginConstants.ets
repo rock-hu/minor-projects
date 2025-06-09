@@ -13,105 +13,107 @@
  *   limitations under the License.
  */
 
+const uiContext: UIContext | undefined = AppStorage.get('uiContext');
+
 export class LoginConstants {
   /**
    * Login title.
    */
-  static readonly LOGIN_TEXT: string = getContext(this).resourceManager.getStringSync($r('app.string.LOGIN_TITLE'));
+  static readonly LOGIN_TEXT: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.LOGIN_TITLE'));
   /**
    * Login TextInput placeholder1.
    */
   static readonly LOGIN_PLACEHOLDER1: string =
-    getContext(this).resourceManager.getStringSync($r('app.string.LOGIN_PLACEHOLDER1'));
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.LOGIN_PLACEHOLDER1'));
   /**
    * Login TextInput placeholder2.
    */
   static readonly LOGIN_PLACEHOLDER2: string =
-    getContext(this).resourceManager.getStringSync($r('app.string.LOGIN_PLACEHOLDER2'));
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.LOGIN_PLACEHOLDER2'));
   /**
    * Login TextInput1 text.
    */
   static readonly LOGIN_INPUT_TEXT: string =
-    getContext(this).resourceManager.getStringSync($r('app.string.LOGIN_INPUT_TEXT'));
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.LOGIN_INPUT_TEXT'));
   /**
    * Login button.
    */
-  static readonly LOGIN_BUTTON: string = getContext(this).resourceManager.getStringSync($r('app.string.LOGIN_BUTTON'));
+  static readonly LOGIN_BUTTON: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.LOGIN_BUTTON'));
   /**
    * Login show toast.
    */
-  static readonly LOGIN_TOAST: string = getContext(this).resourceManager.getStringSync($r('app.string.LOGIN_TOAST'));
+  static readonly LOGIN_TOAST: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.LOGIN_TOAST'));
   /**
    * Privacy dialog title.
    */
   static readonly PRIVACY_DIALOG_TITLE: string =
-    getContext(this).resourceManager.getStringSync($r('app.string.PRIVACY_DIALOG_TITLE'));
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PRIVACY_DIALOG_TITLE'));
   /**
    * Privacy dialog text1.
    */
   static readonly PRIVACY_DIALOG_TEXT1: string =
-    getContext(this).resourceManager.getStringSync($r('app.string.PRIVACY_DIALOG_TEXT1'));
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PRIVACY_DIALOG_TEXT1'));
   /**
    * Privacy dialog text2.
    */
   static readonly PRIVACY_DIALOG_TEXT2: string =
-    getContext(this).resourceManager.getStringSync($r('app.string.PRIVACY_DIALOG_TEXT2'));
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PRIVACY_DIALOG_TEXT2'));
   /**
    * Privacy dialog text3.
    */
   static readonly PRIVACY_DIALOG_TEXT3: string =
-    getContext(this).resourceManager.getStringSync($r('app.string.PRIVACY_DIALOG_TEXT3'));
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PRIVACY_DIALOG_TEXT3'));
   /**
    * Privacy dialog text4.
    */
   static readonly PRIVACY_DIALOG_TEXT4: string =
-    getContext(this).resourceManager.getStringSync($r('app.string.PRIVACY_DIALOG_TEXT4'));
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PRIVACY_DIALOG_TEXT4'));
   /**
    * Privacy dialog left button.
    */
   static readonly PRIVACY_DIALOG_LEFT_BUTTON: string =
-    getContext(this).resourceManager.getStringSync($r('app.string.PRIVACY_DIALOG_LEFT_BUTTON'));
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PRIVACY_DIALOG_LEFT_BUTTON'));
   /**
    * Privacy dialog right button.
    */
   static readonly PRIVACY_DIALOG_RIGHT_BUTTON: string =
-    getContext(this).resourceManager.getStringSync($r('app.string.PRIVACY_DIALOG_RIGHT_BUTTON'));
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PRIVACY_DIALOG_RIGHT_BUTTON'));
   /**
    * Privacy detail title.
    */
   static readonly PRIVACY_DETAIL_TITLE: string =
-    getContext(this).resourceManager.getStringSync($r('app.string.PRIVACY_DETAIL_TITLE'));
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PRIVACY_DETAIL_TITLE'));
   /**
    * Privacy detail text1.
    */
   static readonly PRIVACY_DETAIL_TEXT1: string =
-    getContext(this).resourceManager.getStringSync($r('app.string.PRIVACY_DETAIL_TEXT1'));
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PRIVACY_DETAIL_TEXT1'));
   /**
    * Privacy detail text2.
    */
   static readonly PRIVACY_DETAIL_TEXT2: string =
-    getContext(this).resourceManager.getStringSync($r('app.string.PRIVACY_DETAIL_TEXT2'));
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PRIVACY_DETAIL_TEXT2'));
   /**
    * Privacy detail text3.
    */
   static readonly PRIVACY_DETAIL_TEXT3: string =
-    getContext(this).resourceManager.getStringSync($r('app.string.PRIVACY_DETAIL_TEXT3'));
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PRIVACY_DETAIL_TEXT3'));
   /**
    * Privacy detail text4.
    */
   static readonly PRIVACY_DETAIL_TEXT4: string =
-    getContext(this).resourceManager.getStringSync($r('app.string.PRIVACY_DETAIL_TEXT4'));
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PRIVACY_DETAIL_TEXT4'));
   /**
    * Privacy detail content.
    */
   static readonly PRIVACY_DETAIL_INFO: string[] =
-    [getContext(this).resourceManager.getStringSync($r('app.string.PRIVACY_DETAIL_ITEM_TEXT1')),
-      getContext(this).resourceManager.getStringSync($r('app.string.PRIVACY_DETAIL_ITEM_TEXT2')),
-      getContext(this).resourceManager.getStringSync($r('app.string.PRIVACY_DETAIL_ITEM_TEXT3')),
-      getContext(this).resourceManager.getStringSync($r('app.string.PRIVACY_DETAIL_ITEM_TEXT4')),
-      getContext(this).resourceManager.getStringSync($r('app.string.PRIVACY_DETAIL_ITEM_TEXT5')),
-      getContext(this).resourceManager.getStringSync($r('app.string.PRIVACY_DETAIL_ITEM_TEXT6')),
-      getContext(this).resourceManager.getStringSync($r('app.string.PRIVACY_DETAIL_ITEM_TEXT7')),
-      getContext(this).resourceManager.getStringSync($r('app.string.PRIVACY_DETAIL_ITEM_TEXT8')),
-      getContext(this).resourceManager.getStringSync($r('app.string.PRIVACY_DETAIL_ITEM_TEXT9'))];
+    [uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PRIVACY_DETAIL_ITEM_TEXT1')),
+      uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PRIVACY_DETAIL_ITEM_TEXT2')),
+      uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PRIVACY_DETAIL_ITEM_TEXT3')),
+      uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PRIVACY_DETAIL_ITEM_TEXT4')),
+      uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PRIVACY_DETAIL_ITEM_TEXT5')),
+      uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PRIVACY_DETAIL_ITEM_TEXT6')),
+      uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PRIVACY_DETAIL_ITEM_TEXT7')),
+      uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PRIVACY_DETAIL_ITEM_TEXT8')),
+      uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PRIVACY_DETAIL_ITEM_TEXT9'))];
 }

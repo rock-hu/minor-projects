@@ -34,7 +34,7 @@ export struct RightSide {
       likeCountNum--;
     }
     this.item.likeCount = '' + likeCountNum;
-    animateTo({ duration: Const.DURATION, curve: Curve.EaseInOut }, () => {
+    this.getUIContext().animateTo({ duration: Const.DURATION, curve: Curve.EaseInOut }, () => {
       this.isLike = !this.isLike;
     })
   }
@@ -56,7 +56,7 @@ export struct RightSide {
           .borderRadius($r('app.float.concern_border_radius'))
           .margin({ top: $r('app.float.concern_margin_bottom') })
           .onClick(() => {
-            animateTo({ duration: Const.DURATION, curve: Curve.EaseInOut }, () => {
+            this.getUIContext().animateTo({ duration: Const.DURATION, curve: Curve.EaseInOut }, () => {
               this.isFollow = !this.isFollow;
             });
           })

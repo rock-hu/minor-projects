@@ -13,16 +13,18 @@
  *   limitations under the License.
  */
 
+const uiContext: UIContext | undefined = AppStorage.get('uiContext');
+
 export class HomeConstants {
   /**
    * Footer tab topics.
    */
   static readonly FOOTER_TOPIC_LIST: string[] = [
-    getContext(this).resourceManager.getStringSync($r('app.string.FOOTER_TOPIC_LIST1')),
-    getContext(this).resourceManager.getStringSync($r('app.string.FOOTER_TOPIC_LIST2')),
-    getContext(this).resourceManager.getStringSync($r('app.string.FOOTER_TOPIC_LIST3')),
-    getContext(this).resourceManager.getStringSync($r('app.string.FOOTER_TOPIC_LIST4')),
-    getContext(this).resourceManager.getStringSync($r('app.string.FOOTER_TOPIC_LIST5'))];
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.FOOTER_TOPIC_LIST1')),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.FOOTER_TOPIC_LIST2')),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.FOOTER_TOPIC_LIST3')),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.FOOTER_TOPIC_LIST4')),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.FOOTER_TOPIC_LIST5'))];
 
   /**
    * Footer topic icons.
@@ -41,16 +43,16 @@ export class HomeConstants {
    * Top bar text list.
    */
   static readonly TOP_BAR_TEXTS: string[] = [
-    getContext(this).resourceManager.getStringSync($r('app.string.TOP_BAR_TEXTS1')),
-    getContext(this).resourceManager.getStringSync($r('app.string.TOP_BAR_TEXTS2')),
-    getContext(this).resourceManager.getStringSync($r('app.string.TOP_BAR_TEXTS3')),
-    getContext(this).resourceManager.getStringSync($r('app.string.TOP_BAR_TEXTS4'))];
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.TOP_BAR_TEXTS1')),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.TOP_BAR_TEXTS2')),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.TOP_BAR_TEXTS3')),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.TOP_BAR_TEXTS4'))];
 
   /**
    * Search placeholder.
    */
   static readonly SEARCH_PLACEHOLDER: string =
-    getContext(this).resourceManager.getStringSync($r('app.string.searching'));
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.searching'));
 
   /**
    * Recommended product list.
@@ -67,16 +69,16 @@ export class HomeConstants {
    * Good categories.
    */
   static readonly GOOD_CATEGORIES: string[] = [
-    getContext(this).resourceManager.getStringSync($r('app.string.GOOD_CATEGORIES1')),
-    getContext(this).resourceManager.getStringSync($r('app.string.GOOD_CATEGORIES2')),
-    getContext(this).resourceManager.getStringSync($r('app.string.GOOD_CATEGORIES3')),
-    getContext(this).resourceManager.getStringSync($r('app.string.GOOD_CATEGORIES4')),
-    getContext(this).resourceManager.getStringSync($r('app.string.GOOD_CATEGORIES5')),
-    getContext(this).resourceManager.getStringSync($r('app.string.GOOD_CATEGORIES6')),
-    getContext(this).resourceManager.getStringSync($r('app.string.GOOD_CATEGORIES7')),
-    getContext(this).resourceManager.getStringSync($r('app.string.GOOD_CATEGORIES8')),
-    getContext(this).resourceManager.getStringSync($r('app.string.GOOD_CATEGORIES9')),
-    getContext(this).resourceManager.getStringSync($r('app.string.GOOD_CATEGORIES10'))];
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.GOOD_CATEGORIES1')),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.GOOD_CATEGORIES2')),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.GOOD_CATEGORIES3')),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.GOOD_CATEGORIES4')),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.GOOD_CATEGORIES5')),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.GOOD_CATEGORIES6')),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.GOOD_CATEGORIES7')),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.GOOD_CATEGORIES8')),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.GOOD_CATEGORIES9')),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.GOOD_CATEGORIES10'))];
 
   /**
    * Good category images.
@@ -128,30 +130,30 @@ export class HomeConstants {
    * Price unit.
    */
   static readonly PRICE_UNIT: string[] = ['￥',
-    getContext(this).resourceManager.getStringSync($r('app.string.PRICE_UNIT'))];
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PRICE_UNIT'))];
 
   /**
    * Home title list.
    */
   static readonly HOME_TITLES: string[] = [
-    getContext(this).resourceManager.getStringSync($r('app.string.HOME_TITLES1')),
-    getContext(this).resourceManager.getStringSync($r('app.string.HOME_TITLES2')),
-    getContext(this).resourceManager.getStringSync($r('app.string.HOME_TITLES3'))];
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.HOME_TITLES1')),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.HOME_TITLES2')),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.HOME_TITLES3'))];
 
   /**
    * Home button text list.
    */
   static readonly BUTTON_TEXTS: string[] = [
-    getContext(this).resourceManager.getStringSync($r('app.string.BUTTON_TEXTS1')),
-    getContext(this).resourceManager.getStringSync($r('app.string.BUTTON_TEXTS2'))];
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.BUTTON_TEXTS1')),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.BUTTON_TEXTS2'))];
 
   /**
    * Welfare tip text.
    */
   static readonly TIP_TEXTS: string[] = [
-    getContext(this).resourceManager.getStringSync($r('app.string.TIP_TEXTS1')),
-    getContext(this).resourceManager.getStringSync($r('app.string.TIP_TEXTS2')),
-    getContext(this).resourceManager.getStringSync($r('app.string.TIP_TEXTS3'))];
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.TIP_TEXTS1')),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.TIP_TEXTS2')),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.TIP_TEXTS3'))];
 
   /**
    * Gradient color list.
@@ -169,18 +171,18 @@ export class HomeConstants {
    * Section products title list.
    */
   static readonly SECTION_PRODUCTS_TITLES: string[][] = [
-    [getContext(this).resourceManager.getStringSync($r('app.string.SECTION_PRODUCTS_TITLES1'))],
+    [uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SECTION_PRODUCTS_TITLES1'))],
     ['HUAWEI Mate 50',
-      getContext(this).resourceManager.getStringSync($r('app.string.SECTION_PRODUCTS_TITLES2'))],
+      uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SECTION_PRODUCTS_TITLES2'))],
     ['Sound X NEW'], ['HUAWEI MatePad Air'], ['HUAWEI MateBook 14s']];
 
   /**
    * Section products info list.
    */
   static readonly SECTION_PRODUCTS_INFO: string[] = ['',
-    getContext(this).resourceManager.getStringSync($r('app.string.SECTION_PRODUCTS_INFO1')), '',
-    getContext(this).resourceManager.getStringSync($r('app.string.SECTION_PRODUCTS_INFO2')),
-    getContext(this).resourceManager.getStringSync($r('app.string.SECTION_PRODUCTS_INFO3'))];
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SECTION_PRODUCTS_INFO1')), '',
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SECTION_PRODUCTS_INFO2')),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SECTION_PRODUCTS_INFO3'))];
 
   /**
    * Section products price list.
@@ -191,11 +193,11 @@ export class HomeConstants {
    * Section products feature list.
    */
   static readonly SECTION_PRODUCTS_FEATURES: string[][] = [
-    [getContext(this).resourceManager.getStringSync($r('app.string.SECTION_PRODUCTS_FEATURES1'))],
-    [getContext(this).resourceManager.getStringSync($r('app.string.SECTION_PRODUCTS_FEATURES2'))],
-    [getContext(this).resourceManager.getStringSync($r('app.string.SECTION_PRODUCTS_FEATURES3'))],
-    [getContext(this).resourceManager.getStringSync($r('app.string.SECTION_PRODUCTS_FEATURES4'))],
-    [getContext(this).resourceManager.getStringSync($r('app.string.SECTION_PRODUCTS_FEATURES5'))]];
+    [uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SECTION_PRODUCTS_FEATURES1'))],
+    [uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SECTION_PRODUCTS_FEATURES2'))],
+    [uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SECTION_PRODUCTS_FEATURES3'))],
+    [uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SECTION_PRODUCTS_FEATURES4'))],
+    [uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SECTION_PRODUCTS_FEATURES5'))]];
 
   /**
    * Section products comment list.

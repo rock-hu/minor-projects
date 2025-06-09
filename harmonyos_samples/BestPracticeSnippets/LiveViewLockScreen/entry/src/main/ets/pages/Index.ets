@@ -15,12 +15,19 @@
 
 import { LiveView } from '../utils/LiveView';
 import { TrafficView } from '../view/TrafficView';
+import { promptAction } from '@kit.ArkUI';
 
 @Entry
 @Component
 struct Index {
   aboutToAppear(): void {
     LiveView.getInstance().createLiveView();
+    this.getUIContext().getPromptAction().showToast({
+      message: $r('app.string.toast'),
+      duration: 2000,
+      showMode: promptAction.ToastShowMode.DEFAULT,
+      bottom: 180
+    });
   }
 
   build() {

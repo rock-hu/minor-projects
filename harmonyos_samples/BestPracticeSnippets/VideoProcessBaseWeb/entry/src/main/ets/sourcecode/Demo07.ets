@@ -35,12 +35,12 @@ abstract class AbstractWebDownloadManager {
 }
 
 @Observed
-// DocsCode 1735041517767
+// [Start web_download_manager]
 // src/main/ets/utils/WebDownloadManager.ets
 
 export class WebDownloadManager extends AbstractWebDownloadManager
 implements ControllerManager {
-  // DocsDot
+  // [StartExclude web_download_manager]
   downloadSpeed: number = 0;
   downloadProgress: number = 0;
   taskStatus: webview.WebDownloadState = webview.WebDownloadState.IN_PROGRESS;
@@ -49,11 +49,11 @@ implements ControllerManager {
   private failedData: Uint8Array = new Uint8Array();
   private controllers: Map<string, webview.WebviewController> = new Map();
   private currentTask: webview.WebDownloadItem = new webview.WebDownloadItem();
-  // DocsDot
+  // [EndExclude web_download_manager]
   // Define the download delegate instance.
   private delegate: webview.WebDownloadDelegate = new webview.WebDownloadDelegate();
 
-  // DocsDot
+  // [StartExclude web_download_manager]
   private constructor() {
     super()
   }
@@ -65,11 +65,11 @@ implements ControllerManager {
     return WebDownloadManager.instance;
   }
 
-  // DocsDot
+  // [EndExclude web_download_manager]
   public start(controllerName: string, path: string, url: string): Promise<string> {
     return new Promise((resolve, reject) => {
       const controller = this.getController(controllerName);
-      // DocsDot
+      // [StartExclude web_download_manager]
       this.delegate.onBeforeDownload((webDownloadItem: webview.WebDownloadItem) => {
         this.currentTask = webDownloadItem;
         this.sourcePath = path + '/' + webDownloadItem.getSuggestedFileName();
@@ -94,16 +94,16 @@ implements ControllerManager {
         this.taskStatus = webDownloadItem.getState();
         resolve(this.sourcePath);
       })
-      // DocsDot
+      // [EndExclude web_download_manager]
       // Associate the download delegate with the webview controller.
       controller?.setDownloadDelegate(this.delegate);
-      // DocsDot
+      // [StartExclude web_download_manager]
       controller?.startDownload(url);
-      // DocsDot
+      // [EndExclude web_download_manager]
     });
   }
 
-  // DocsDot
+  // [StartExclude web_download_manager]
   public pause() {
     const state = this.currentTask.getState();
     if (state === webview.WebDownloadState.IN_PROGRESS) {
@@ -155,8 +155,6 @@ implements ControllerManager {
   public getController(name: string): webview.WebviewController | undefined {
     return this.controllers.get(name);
   }
-
-  // DocsDot
+  // [EndExclude web_download_manager]
 }
-
-// DocsCode 1735041517767
+// [End web_download_manager]

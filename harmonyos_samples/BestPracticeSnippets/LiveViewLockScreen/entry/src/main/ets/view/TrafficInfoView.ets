@@ -53,9 +53,9 @@ export struct TrafficInfoView {
 
       Column() {
         Button('开始导航')
-          .fontColor(this.isStart ? $r('sys.color.comp_background_emphasize') : Color.White)
-          .backgroundColor(this.isStart ? $r('sys.color.comp_background_secondary') :
-          $r('sys.color.comp_background_emphasize'))
+          .fontColor(this.isStart ? $r('sys.color.font_emphasize') : Color.White)
+          .backgroundColor(this.isStart ? $r('sys.color.comp_background_tertiary') :
+          $r('sys.color.background_emphasize'))
           .fontSize(12)
           .width(80)
           .height(30)
@@ -64,9 +64,9 @@ export struct TrafficInfoView {
             LiveView.getInstance().createLiveView();
           })
         Button('结束导航')
-          .fontColor(!this.isStart ? $r('sys.color.comp_background_emphasize') : Color.White)
-          .backgroundColor(!this.isStart ? $r('sys.color.comp_background_secondary') :
-          $r('sys.color.comp_background_emphasize'))
+          .fontColor(!this.isStart ? $r('sys.color.font_emphasize') : Color.White)
+          .backgroundColor(!this.isStart ? $r('sys.color.comp_background_tertiary') :
+          $r('sys.color.background_emphasize'))
           .fontSize(12)
           .width(80)
           .height(30)

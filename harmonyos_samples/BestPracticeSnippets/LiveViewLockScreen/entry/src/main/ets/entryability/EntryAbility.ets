@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-import { ConfigurationConstant, UIAbility } from '@kit.AbilityKit';
+import { bundleManager, ConfigurationConstant, UIAbility } from '@kit.AbilityKit';
 import { display, window } from '@kit.ArkUI';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
@@ -55,12 +55,24 @@ export default class EntryAbility extends UIAbility {
         AppStorage.setOrCreate('verticalBreakpoint', this.verticalBreakpoint);
       }
     } catch (error) {
-      hilog.error(0x0000, TAG, `updateBreakpoint catch err:`, (error as BusinessError).message);
+      hilog.error(0x0000, TAG, '%{public}s', `updateBreakpoint catch err:`, (error as BusinessError).message);
     }
   }
 
   onCreate(): void {
     this.context.getApplicationContext().setColorMode(ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET);
+    try {
+      bundleManager.getBundleInfoForSelf(bundleManager.BundleFlag.GET_BUNDLE_INFO_DEFAULT).then((data) => {
+        hilog.info(0x0000, TAG, '%{public}s', 'getBundleInfoForSelf successfully.');
+        AppStorage.setOrCreate('bundleName', data.name);
+      }).catch((error: BusinessError) => {
+        hilog.error(0x0000, TAG, '%{public}s',
+          `getBundleInfoForSelf failed. code is ${error.code} message is ${error.message}`);
+      });
+    } catch (error) {
+      hilog.error(0x0000, TAG, '%{public}s',
+        `getBundleInfoForSelf failed. code is ${(error as BusinessError).code} message is ${(error as BusinessError).message}`);
+    }
     hilog.info(0x0000, TAG, '%{public}s', 'Ability onCreate');
   }
 
@@ -81,28 +93,32 @@ export default class EntryAbility extends UIAbility {
           statusBarContentColor: '#ffffff',
         }).then(() => {
           hilog.info(0x0000, TAG, '%{public}s', 'Succeeded in setting the system bar properties.');
-        }).catch((err: BusinessError) => {
-          hilog.error(0x0000, TAG, 'Failed to set the window layout to full-screen mode. Cause:', err.message);
+        }).catch((error: BusinessError) => {
+          hilog.error(0x0000, TAG, '%{public}s',
+            `Failed to set the window layout to full-screen mode. Cause code: ${error.code}, message: ${error.message}`);
         });
 
         windowObj.setWindowLayoutFullScreen(true).then(() => {
           hilog.info(0x0000, TAG, '%{public}s', 'Succeeded in setting the window layout to full-screen mode');
-        }).catch((err: BusinessError) => {
-          hilog.error(0x0000, TAG, 'Failed to set the window layout to full-screen mode. Cause:', err.message);
+        }).catch((error: BusinessError) => {
+          hilog.error(0x0000, TAG, '%{public}s',
+            `Failed to set the window layout to full-screen mode. Cause code: ${error.code}, message: ${error.message}`);
         });
       } catch (error) {
         hilog.error(0x0000, TAG, '%{public}s',
           `onWindowStageCreate failed. Cause code: ${error.code}, message: ${error.message}`);
       }
-    }).catch((err: BusinessError) => {
-      hilog.error(0x0000, TAG, `Failed to get main window. Cause:`, err.message);
+    }).catch((error: BusinessError) => {
+      hilog.error(0x0000, TAG, '%{public}s',
+        `Failed to get main window. Cause code: ${error.code}, message: ${error.message}`);
     });
-    windowStage.loadContent('pages/Index', (err) => {
-      if (err.code) {
-        hilog.error(0x0000, TAG, 'Failed to load the content. Cause: %{public}s', JSON.stringify(err) ?? '');
+    windowStage.loadContent('pages/Index', (error) => {
+      if (error.code) {
+        hilog.error(0x0000, TAG, '%{public}s',
+          `Failed to load the content. Cause code: ${error.code}, message: ${error.message}`);
         return;
       }
-      hilog.info(0x0000, TAG, 'Succeeded in loading the content.');
+      hilog.info(0x0000, TAG, '%{public}s', 'Succeeded in loading the content.');
     });
   }
 

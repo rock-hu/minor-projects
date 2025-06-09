@@ -1,5 +1,5 @@
 /**
- * 最佳实践：JSCrash问题排查方法
+ * 最佳实践：JS Crash问题排查方法
  */
 
 // [Start JSCrashQuestionCheck]

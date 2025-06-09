@@ -1,10 +1,10 @@
 /**
- * 最佳实践: 视频场景图层低功耗建议
+ * 最佳实践: 网络资源低功耗建议
  */
 import { webview } from '@kit.ArkWeb';
 
 @Component
-struct VideoSceneLayers {
+struct NetworkResourcePage {
 
   webviewController: webview.WebviewController = new webview.WebviewController();
 
@@ -13,10 +13,10 @@ struct VideoSceneLayers {
     Column() {
       Button('prefetchPopularPage')
         .onClick(() => {
-          // [Start Video_scene_layers]
+          // [Start NetworkResource]
           // Load web resources in advance
           this.webviewController.prefetchPage('url');
-          // [End Video_scene_layers]。
+          // [End NetworkResource]
         })
     }
   }

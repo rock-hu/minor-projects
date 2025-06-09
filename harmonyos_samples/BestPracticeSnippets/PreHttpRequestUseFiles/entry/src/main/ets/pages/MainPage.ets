@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+// [Start segment2]
 import { fileIo as fs } from '@kit.CoreFileKit';
 import { image } from '@kit.ImageKit';
 import { common } from '@kit.AbilityKit';
@@ -81,3 +81,4 @@ struct MainPage {
     .title('ParentNavigation')
   }
 }
+// [End segment2]

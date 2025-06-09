@@ -21,6 +21,8 @@ import { hilog } from '@kit.PerformanceAnalysisKit';
 import { Constants } from '../common/Constants';
 import { WebDownloadManager } from './WebDownloadManager';
 
+const uiContext: UIContext | undefined = AppStorage.get('uiContext');
+let context1 = uiContext!.getPromptAction()
 
 //src/main/ets/utils/CustomFunction.ets
 // [Start link1]
@@ -30,8 +32,6 @@ import { WebDownloadManager } from './WebDownloadManager';
  * @param uri - The URI to be copied to the clipboard. This should be a valid string representing a URI.
  * @returns void - This function does not return any value.
  */
-const uiContext: UIContext | undefined = AppStorage.get('uiContext');
-let context1 = uiContext!.getPromptAction()
 export function copyLink(uri: string) {
   const pasteData = pasteboard.createData('text/plain', uri);
   pasteboard.getSystemPasteboard().setData(pasteData, (err) => {

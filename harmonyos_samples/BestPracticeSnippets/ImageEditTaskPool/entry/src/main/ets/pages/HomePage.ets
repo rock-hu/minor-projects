@@ -16,7 +16,6 @@
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { AlertDialog } from '@kit.ArkUI';
 import { image } from '@kit.ImageKit';
-import { router } from '@kit.ArkUI';
 import { cropIconChangeList, menuIconList } from '../viewModel/IconListViewModel';
 import { RotateType, CropType, MainTabId } from '../viewModel/OptionViewModel';
 import { CommonConstants } from '../common/constant/CommonConstants';
@@ -183,7 +182,7 @@ struct HomePage {
   TitleNavigation() {
     TitleBar({
       onBack: () => {
-        router.back();
+        this.getUIContext().getRouter().back();
       },
       onReset: () => {
         this.pixelInit();

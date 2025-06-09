@@ -2,11 +2,15 @@
  * 最佳实践: 音乐播放场景低功耗规则
  */
 
+// [Start setAudioEffectMode]
+// [Start audioStreamInfo]
 import { audio } from '@kit.AudioKit';
+// [End audioStreamInfo]
 import {BusinessError} from '@kit.BasicServicesKit';
+// [End setAudioEffectMode]
+// [Start setListener]
 import { avSession as AVSessionManager } from '@kit.AVSessionKit';
-
-
+// [End setListener]
 
 let   audioRenderer: audio.AudioRenderer | undefined = undefined;
 // [Start setAudioEffectMode]

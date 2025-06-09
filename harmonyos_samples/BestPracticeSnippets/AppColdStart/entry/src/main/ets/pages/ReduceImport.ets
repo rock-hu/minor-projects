@@ -1,5 +1,5 @@
 // [Start reduce_import]
-// 优化减少import的模块
+// Optimize modules that reduce import
 /*import { ConfigurationConstant, contextConstant, wantConstant } from '@kit.AbilityKit';
 import { GesturePath, GesturePoint } from '@kit.AccessibilityKit';
 import { distributedAccount, osAccount } from '@kit.BasicServicesKit';

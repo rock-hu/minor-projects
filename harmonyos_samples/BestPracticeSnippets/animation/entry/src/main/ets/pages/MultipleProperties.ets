@@ -9,25 +9,25 @@ export struct MultipleProperties {
   // [StartExclude one_func]
   // Animation closure 1, set width change
   func1() {
-    animateTo({curve: Curve.Sharp, duration: 1000}, () => {
+    this.getUIContext().animateTo({curve: Curve.Sharp, duration: 1000}, () => {
       this.w = (this.w === 80 ? 150 : 80);
     });
   }
   // Animation Closure 2, Set Color Change
   func2() {
-    animateTo({curve: Curve.Sharp, duration: 1000}, () => {
+    this.getUIContext().animateTo({curve: Curve.Sharp, duration: 1000}, () => {
       this.color = (this.color === Color.Yellow ? Color.Red : Color.Yellow);
     });
   }
   // Animation closure 3, set height variation
   func3() {
-    animateTo({curve: Curve.Sharp, duration: 1000}, () => {
+    this.getUIContext().animateTo({curve: Curve.Sharp, duration: 1000}, () => {
       this.h = (this.h === 2 ? 5 : 2);
     });
   }
   // Animation Closure 4, Set Highlight Variation
   func4() {
-    animateTo({curve: Curve.Sharp, duration: 1000}, () => {
+    this.getUIContext().animateTo({curve: Curve.Sharp, duration: 1000}, () => {
       this.brightNum= (this.brightNum=== 1.5 ? 1 : 1.5);
     });
   }
@@ -35,7 +35,7 @@ export struct MultipleProperties {
   // [StartExclude multiple_properties]
   // Unify animation closures while simultaneously setting changes for four properties
   func() {
-    animateTo({curve: Curve.Sharp, duration: 1000}, () => {
+    this.getUIContext().animateTo({curve: Curve.Sharp, duration: 1000}, () => {
       this.w = (this.w === 80 ? 150 : 80);
       this.color = (this.color === Color.Yellow ? Color.Red : Color.Yellow);
       this.h = (this.h === 2 ? 5 : 2);

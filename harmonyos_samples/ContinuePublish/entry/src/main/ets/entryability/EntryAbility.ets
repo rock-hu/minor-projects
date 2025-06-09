@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-import { AbilityConstant, UIAbility, Want } from '@kit.AbilityKit';
+import { AbilityConstant, UIAbility, Want, EnvironmentCallback } from '@kit.AbilityKit';
 import { commonType, distributedDataObject } from '@kit.ArkData';
 import { fileIo as fs, fileUri } from '@kit.CoreFileKit';
 import { display, KeyboardAvoidMode, window } from '@kit.ArkUI';
@@ -30,10 +30,31 @@ export default class EntryAbility extends UIAbility {
   private curBp: string = '';
   private imageUriArray: Array<ImageInfo> = [];
   private distributedObject: distributedDataObject.DataObject | undefined = undefined;
+  private callbackId: number = 0;
+
+  // [Start distribute]
   // [Start on_create]
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
     hilog.info(0x0000, '[EntryAbility]', 'Ability onCreate');
     this.restoreDistributedObject(want, launchParam);
+    // [StartExclude distribute]
+    let environmentCallback: EnvironmentCallback = {
+      onConfigurationUpdated(config) {
+        AppStorage.setOrCreate('language', config.language);
+      },
+      onMemoryLevel(level) {
+        hilog.info(0x0000, '[EntryAbility]', `onMemoryLevel level: ${level}`);
+      }
+    };
+    let applicationContext = this.context.getApplicationContext();
+    try {
+      this.callbackId = applicationContext.on('environment', environmentCallback);
+    } catch (paramError) {
+      hilog.error(0x0000, '[EntryAbility]',
+        `error: ${(paramError as BusinessError).code}, ${(paramError as BusinessError).message}`);
+    }
+    hilog.info(0x0000, '[EntryAbility]', `registerEnvironmentCallback callbackId: ${this.callbackId}`);
+    // [EndExclude distribute]
   }
 
   onNewWant(want: Want, launchParam: AbilityConstant.LaunchParam): void {
@@ -41,7 +62,7 @@ export default class EntryAbility extends UIAbility {
     this.restoreDistributedObject(want, launchParam);
   }
 
-  /**
+  /*
    * The peer device receives data.
    * @param want
    * @param launchParam
@@ -82,6 +103,9 @@ export default class EntryAbility extends UIAbility {
     this.distributedObject.setSessionId(sessionId);
     this.context.restoreWindowStage(new LocalStorage());
   }
+  // [End distribute]
+
+  // [Start onContinue]
   // [End on_create]
   // [Start on_continue]
   async onContinue(wantParam: Record<string, Object | undefined>): Promise<AbilityConstant.OnContinueResult> {
@@ -121,52 +145,57 @@ export default class EntryAbility extends UIAbility {
     }
     return AbilityConstant.OnContinueResult.AGREE;
   }
-  // [End on_continue]
+  // [End onContinue]
 
+  // [Start fileCopy]
+  // [End on_continue]
   // [Start file_copy]
-  /**
+  /*
    * Copy distributed files.
    * @param attachmentRecord
    * @param key
    */
   private fileCopy(attachment: commonType.Asset): void {
-    let filePath: string = this.context.distributedFilesDir + '/' + attachment.name;
-    let savePath: string = this.context.filesDir + '/' + attachment.name;
-    try {
-      if (fs.accessSync(filePath)) {
-        let saveFile = fs.openSync(savePath, fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE);
-        let file = fs.openSync(filePath, fs.OpenMode.READ_WRITE);
-        let buf: ArrayBuffer = new ArrayBuffer(Number(attachment.size) * 1024);
-        let readSize = 0;
-        let readLen = fs.readSync(file.fd, buf, {
-          offset: readSize
-        });
-        let sourceOptions: image.SourceOptions = {
-          sourceDensity: 120
-        };
-        let imageSourceApi: image.ImageSource = image.createImageSource(buf, sourceOptions);
-        this.imageUriArray.push({
-          imagePixelMap: imageSourceApi.createPixelMapSync(),
-          imageName: attachment.name
-        })
-        while (readLen > 0) {
-          readSize += readLen;
-          fs.writeSync(saveFile.fd, buf);
-          readLen = fs.readSync(file.fd, buf, {
+    if (canIUse('SystemCapability.DistributedDataManager.CommonType')) {
+      let filePath: string = this.context.distributedFilesDir + '/' + attachment.name;
+      let savePath: string = this.context.filesDir + '/' + attachment.name;
+      try {
+        if (fs.accessSync(filePath)) {
+          let saveFile = fs.openSync(savePath, fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE);
+          let file = fs.openSync(filePath, fs.OpenMode.READ_WRITE);
+          let buf: ArrayBuffer = new ArrayBuffer(Number(attachment.size));
+          let readSize = 0;
+          let readLen = fs.readSync(file.fd, buf, {
             offset: readSize
           });
+          let sourceOptions: image.SourceOptions = {
+            sourceDensity: 120
+          };
+          let imageSourceApi: image.ImageSource = image.createImageSource(buf, sourceOptions);
+          this.imageUriArray.push({
+            imagePixelMap: imageSourceApi.createPixelMapSync(),
+            imageName: attachment.name
+          });
+          while (readLen > 0) {
+            readSize += readLen;
+            fs.writeSync(saveFile.fd, buf);
+            readLen = fs.readSync(file.fd, buf, {
+              offset: readSize
+            });
+          }
+          fs.closeSync(file);
+          fs.closeSync(saveFile);
+          hilog.info(0x0000, '[EntryAbility]', attachment.name + 'synchronized successfully.');
         }
-        fs.closeSync(file);
-        fs.closeSync(saveFile);
-        hilog.info(0x0000, '[EntryAbility]', attachment.name + 'synchronized successfully.');
+      } catch (error) {
+        let err: BusinessError = error as BusinessError;
+        hilog.error(0x0000, '[EntryAbility]', `DocumentViewPicker failed with err: ${JSON.stringify(err)}`);
       }
-    } catch (error) {
-      let err: BusinessError = error as BusinessError;
-      hilog.error(0x0000, '[EntryAbility]', `DocumentViewPicker failed with err: ${JSON.stringify(err)}`);
     }
   }
+  // [End fileCopy]
   // [End file_copy]
-  /**
+  /*
    * Obtain distributed file asset information.
    * @param append
    * @returns
@@ -188,7 +217,7 @@ export default class EntryAbility extends UIAbility {
     return attachment;
   }
 
-  /**
+  /*
    * Update breakpoints based on the current window size.
    */
   private updateBreakpoint(windowWidth: number): void {
@@ -225,6 +254,7 @@ export default class EntryAbility extends UIAbility {
         hilog.error(0x0000, '[EntryAbility]', 'Failed to load the content, ', `Catch err: ${err}`);
         return;
       }
+      windowStage.getMainWindowSync().setWindowLayoutFullScreen(true);
       windowStage.getMainWindowSync().getUIContext().getKeyboardAvoidMode();
       windowStage.getMainWindowSync().getUIContext().setKeyboardAvoidMode(KeyboardAvoidMode.RESIZE);
       hilog.info(0x0000, '[EntryAbility]', 'Succeeded in loading the content, ', `Data: ${data}`);
@@ -240,7 +270,7 @@ export default class EntryAbility extends UIAbility {
       // Gets the size of the window when the application starts.
       this.updateBreakpoint(windowObj.getWindowProperties().windowRect.width);
       // Register callback functions that listen for window size changes.
-      windowObj.on('windowSizeChange', (windowSize)=>{
+      windowObj.on('windowSizeChange', (windowSize) => {
         this.updateBreakpoint(windowSize.width);
       });
     });
@@ -249,6 +279,7 @@ export default class EntryAbility extends UIAbility {
         hilog.error(0x0000, '[EntryAbility]', 'Failed to load the content, ', `Catch err: ${err}`);
         return;
       }
+      windowStage.getMainWindowSync().setWindowLayoutFullScreen(true);
       windowStage.getMainWindowSync().getUIContext().getKeyboardAvoidMode();
       windowStage.getMainWindowSync().getUIContext().setKeyboardAvoidMode(KeyboardAvoidMode.RESIZE);
       hilog.info(0x0000, '[EntryAbility]', 'Succeeded in loading the content, ', `Data: ${data}`);
@@ -266,9 +297,9 @@ export default class EntryAbility extends UIAbility {
       try {
         let avoidArea = this.windowClass.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);
         // Set the height of the status bar.
-        AppStorage.setOrCreate('statusBarHeight', this.windowClass.getUIContext().px2vp(avoidArea.topRect.height));
-        // Hidden status bar.
-        this.windowClass.setSpecificSystemBarEnabled('status', false);
+        AppStorage.setOrCreate('statusBarHeight', px2vp(avoidArea.topRect.height));
+        AppStorage.setOrCreate('bottomHeight',
+          px2vp(this.windowClass.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR).bottomRect.height));
       } catch (exception) {
         hilog.error(0x0000, '[EntryAbility]',
           `Failed to set the system bar to be invisible. Cause code: ${exception.code},

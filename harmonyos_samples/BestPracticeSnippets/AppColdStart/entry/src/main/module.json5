@@ -1,4 +1,6 @@
+// [Start mode_json]
 {
+  // [StartExclude mode_json]
   "module": {
     "name": "entry",
     "type": "entry",
@@ -10,6 +12,7 @@
     "deliveryWithInstall": true,
     "installationFree": false,
     "pages": "$profile:main_pages",
+    // [EndExclude mode_json]
     "abilities": [
       {
         "name": "EntryAbility",
@@ -19,6 +22,7 @@
         "label": "$string:EntryAbility_label",
         "startWindowIcon": "$media:startIcon",
         "startWindowBackground": "$color:start_window_background",
+        // [StartExclude mode_json]
         "exported": true,
         "skills": [
           {
@@ -44,7 +48,9 @@
             "resource": "$profile:backup_config"
           }
         ],
+        // [EndExclude mode_json]
       }
     ]
   }
 }
+// [End mode_json]

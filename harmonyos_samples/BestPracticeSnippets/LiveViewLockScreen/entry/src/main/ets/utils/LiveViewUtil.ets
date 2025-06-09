@@ -18,8 +18,9 @@ import { BusinessError } from '@kit.BasicServicesKit';
 // [Start createLiveView]
 import { liveViewManager } from '@kit.LiveViewKit';
 // [StartExclude createLiveView]
-import { RouteData } from '../model/RouteDataModel';
 import { hilog } from '@kit.PerformanceAnalysisKit';
+import { Constants } from '../constant/Constant';
+import { RouteData } from '../model/RouteDataModel';
 
 const TAG: string = '[LiveViewUtil]';
 
@@ -54,7 +55,7 @@ export class LiveViewUtil {
       }
       return true;
     } catch (error) {
-      hilog.error(0x0000, TAG,
+      hilog.error(0x0000, TAG, '%{public}s',
         `Failed to update live view. Cause code: ${(error as BusinessError).code}, message: ${(error as BusinessError).message}`);
       return false;
     }
@@ -76,6 +77,7 @@ export class LiveViewUtil {
     });
     return;
   }
+
   // [End closeLiveView]
 
   private static async isLiveViewEnabled(): Promise<boolean> {
@@ -152,9 +154,10 @@ export class LiveViewUtil {
   }
 
   private static async buildWantAgent(): Promise<Want> {
+    // let bundleName:string=''
     const wantAgentInfo: wantAgent.WantAgentInfo = {
       wants: [{
-        bundleName: 'com.example.mapliveviewsample',
+        bundleName: AppStorage.get('bundleName'),
         abilityName: 'EntryAbility'
       } as Want],
       actionType: wantAgent.OperationType.START_ABILITIES,

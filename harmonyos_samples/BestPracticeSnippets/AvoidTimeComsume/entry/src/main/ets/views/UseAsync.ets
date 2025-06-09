@@ -16,9 +16,7 @@
 import { Item, ResponseData, dataToItem } from '../common/Item';
 import { WaterFlowDataSource } from './WaterFlowDataSource';
 import { buffer } from '@kit.ArkTS';
-import { router } from '@kit.ArkUI';
 
-const uiContext: UIContext | undefined = AppStorage.get('uiContext');
 
 @Entry
 @Component
@@ -61,7 +59,7 @@ struct WaterFlowExample2 {
         .backgroundColor('#E8E8E8')
         .borderRadius(40)
         .onClick(() => {
-          router.back({
+          this.getUIContext().getRouter().back({
             url: 'pages/Index'
           });
         })

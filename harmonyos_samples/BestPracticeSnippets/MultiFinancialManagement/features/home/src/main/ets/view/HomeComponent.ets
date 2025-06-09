@@ -196,7 +196,7 @@ export struct HomeComponent {
           if (this.offsetValue > 0) {
             this.offsetValue = 0;
           }
-          this.scrollY = vp2px(this.offsetValue);
+          this.scrollY = this.getUIContext().vp2px(this.offsetValue);
         })
       }
       .height(CommonConstants.FULL_HEIGHT_PERCENT)

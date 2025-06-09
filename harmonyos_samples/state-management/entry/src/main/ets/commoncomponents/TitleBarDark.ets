@@ -33,7 +33,7 @@ export struct TitleBarDark {
         .onClick(() => {
           this.isAbility ?
           startSpecifiedAbility(this.getUIContext().getHostContext() as common.UIAbilityContext, 'EntryAbility') :
-          router.back();
+          this.getUIContext().getRouter().back();
         })
         .backgroundColor($r('app.color.nightnode_color'))
 

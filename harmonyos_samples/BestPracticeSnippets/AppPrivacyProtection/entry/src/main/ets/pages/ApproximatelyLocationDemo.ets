@@ -16,7 +16,6 @@
 import { geoLocationManager } from '@kit.LocationKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { abilityAccessCtrl, bundleManager, Permissions } from '@kit.AbilityKit';
-import { promptAction } from '@kit.ArkUI';
 import Logger from '../utils/Logger';
 
 @Entry

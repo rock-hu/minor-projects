@@ -18,7 +18,7 @@ import { FundConstants } from '../constants/FundConstants';
 import FundingViewModel from '../viewmodel/FundingViewModel';
 
 @Component
-  // [Start fund_component]
+// [Start fund_component]
 export struct FundComponent {
   // [StartExclude fund_component]
   @State currentPoint: string = CommonConstants.BREAK_POINT_SM;
@@ -491,7 +491,7 @@ export struct FundComponent {
           this.backgroundX = width - FundConstants.CALCULATE_POSITION;
         }
       }
-      this.backgroundX = vp2px(this.backgroundX)
+      this.backgroundX = this.getUIContext().vp2px(this.backgroundX)
     })
   }
   // [EndExclude fund_component]

@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+// [Start segment3]
 import { http } from '@kit.NetworkKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { fileIo as fs } from '@kit.CoreFileKit';
@@ -54,3 +54,4 @@ async function readWriteFileWithStream(imageData: ArrayBuffer): Promise<void> {
   await outputStream.write(imageData);
   outputStream.closeSync();
 }
+// [End segment3]

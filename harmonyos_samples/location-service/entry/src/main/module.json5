@@ -12,7 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+/*
+ * 最佳实践: 位置定位开发实践
+ */
 {
   "module": {
     "name": "entry",
@@ -25,11 +27,17 @@
     "deliveryWithInstall": true,
     "installationFree": false,
     "pages": "$profile:main_pages",
+    // [Start module_abilities]
     "abilities": [
       {
+        // [StartExclude module_abilities]
         "name": "EntryAbility",
         "srcEntry": "./ets/entryability/EntryAbility.ets",
-        "backgroundModes": ["location"],
+        // [EndExclude module_abilities]
+        "backgroundModes": [
+          "location"
+        ],
+        // [StartExclude module_abilities]
         "description": "$string:EntryAbility_desc",
         "icon": "$media:layered_image",
         "label": "$string:EntryAbility_label",
@@ -45,9 +53,11 @@
               "action.system.home"
             ]
           }
-        ]
+        ],
+        // [EndExclude module_abilities]
       }
     ],
+    // [End module_abilities]
     "requestPermissions": [
       {
         "name": "ohos.permission.LOCATION",
@@ -79,6 +89,7 @@
           "when": "always"
         }
       },
+      // [Start KEEP_BACKGROUND_RUNNING]
       {
         "name": "ohos.permission.KEEP_BACKGROUND_RUNNING",
         "reason": "$string:running_background",
@@ -89,6 +100,7 @@
           "when": "always"
         }
       },
+      // [End KEEP_BACKGROUND_RUNNING]
       {
         "name": "ohos.permission.GET_NETWORK_INFO",
         "reason": "$string:get_network_info",

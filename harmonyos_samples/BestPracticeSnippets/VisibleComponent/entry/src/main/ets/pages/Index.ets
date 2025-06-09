@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-// DocsCode 1
+// [Start segment1]
 // VisibleComponent/entry/src/main/ets/pages/Index.ets
 import { apng, ApngController } from '@ohos/apng';
 import { hilog } from '@kit.PerformanceAnalysisKit';
@@ -88,9 +88,9 @@ struct RefreshExample {
   }
 }
 
-// DocsCode 1
+// [End segment1]
 
-// DocsCode 2
+// [Start segment2]
 // VisibleComponent/entry/src/main/ets/pages/Index.ets
 @Component
 struct ImageAnimatorTest {
@@ -153,4 +153,4 @@ struct ImageAnimatorTest {
   }
 }
 
-// DocsCode 2
+// [End segment2]

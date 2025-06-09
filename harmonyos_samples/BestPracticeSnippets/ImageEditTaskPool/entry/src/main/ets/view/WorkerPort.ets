@@ -10,16 +10,16 @@ WorkerPort.onmessage = (event: MessageEvents) => {
   let last:number = event.data.last;
   let cur :number= event.data.cur;
   let index:number = event.data.index;
-  let buffer = adjustImageValue(bufferArray, last, cur); // 像素计算执行
+  let buffer = adjustImageValue(bufferArray, last, cur); // Pixel calculation execution
   let output :ESObject= new WorkerBuffer(buffer, index);
-  WorkerPort.postMessage(output); // 将计算结果发给主线程
+  WorkerPort.postMessage(output); // Send the calculation result to the main thread.
 }
 
 
 function  adjustImageValue(bufferArray: ArrayBuffer, last: number, cur: number, hsvIndex?: number):ArrayBuffer{
   return execColorInfo(bufferArray, last, cur, HSVIndex.VALUE);
 }
-// 图片像素计算
+// Picture pixel calculation
 function execColorInfo(bufferArray: ArrayBuffer, last: number, cur: number, hsvIndex: number) {
   // ...
   const newBufferArr = bufferArray;

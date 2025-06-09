@@ -14,13 +14,18 @@
  */
 export const add: (a: number, b: number) => number;
 
+// DocsCode1
 // src/main/cpp/types/libentry/index.d.ts
 // [Start native_add]
 // Export the addition calculation APIs provided on the Native side
 export const nativeAdd: (a: number, b: number) => number;
 // [End native_add]
-// [Start native_sub]
+// DocsCode1
+
+// DocsCode2
 // src/main/cpp/types/libentry/index.d.ts
+// [Start native_sub]
 // Export the subtraction calculation interface provided by the Native side
 export const nativeSub: (a: number, b: number, path: string) => number;
 // [End native_sub]
+// DocsCode2

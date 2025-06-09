@@ -17,7 +17,8 @@
 * 最佳实践: 一多窗口适配开发实践
 */
 
-// [Start windowutil]
+// [Start maximize]
+// [Start recover]
 import { BusinessError } from '@kit.BasicServicesKit';
 import { window } from '@kit.ArkUI';
 import { hilog } from '@kit.PerformanceAnalysisKit';
@@ -26,8 +27,7 @@ import { hilog } from '@kit.PerformanceAnalysisKit';
 @Observed
 export class WindowUtil {
   private mainWindowClass?: window.Window;
-
-  // [Start maximize]
+  // [StartExclude recover]
   maximize(): void {
     if (this.mainWindowClass!.getWindowStatus() === window.WindowStatusType.FLOATING) {
       this.mainWindowClass!.maximize()
@@ -40,9 +40,8 @@ export class WindowUtil {
         });
     }
   }
-  // [End maximize]
-
-  // [Start recover]
+  // [EndExclude recover]
+  // [StartExclude maximize]
   recover(): void {
     if (this.mainWindowClass!.getWindowStatus() === window.WindowStatusType.FULL_SCREEN) {
       this.mainWindowClass!.recover()
@@ -55,6 +54,7 @@ export class WindowUtil {
         });
     }
   }
-  // [End recover]
+  // [EndExclude maximize]
 }
-// [Start windowutil]
+// [End maximize]
+// [End recover]

@@ -1,5 +1,7 @@
+// [Start module]
 {
   "module": {
+    // [StartExclude module]
     "name": "entry",
     "type": "entry",
     "description": "$string:module_desc",
@@ -10,15 +12,19 @@
     "deliveryWithInstall": true,
     "installationFree": false,
     "pages": "$profile:main_pages",
+    // [EndExclude module]
     "abilities": [
       {
         "name": "EntryAbility",
+        // [StartExclude module]
         "srcEntry": "./ets/entryability/EntryAbility.ets",
         "description": "$string:EntryAbility_desc",
         "icon": "$media:layered_image",
         "label": "$string:EntryAbility_label",
         "startWindowIcon": "$media:startIcon",
-        "orientation": "auto_rotation_unspecified",
+        // [EndExclude module]
+        "orientation": "portrait",
+        // [StartExclude module]
         "startWindowBackground": "$color:start_window_background",
         "exported": true,
         "skills": [
@@ -30,9 +36,11 @@
               "action.system.home"
             ]
           }
-        ]
+        ],
+        // [EndExclude module]
       }
     ],
+    // [StartExclude module]
     "extensionAbilities": [
       {
         "name": "EntryBackupAbility",
@@ -46,6 +54,8 @@
           }
         ],
       }
-    ]
+    ],
+    // [EndExclude module]
   }
 }
+// [End module]

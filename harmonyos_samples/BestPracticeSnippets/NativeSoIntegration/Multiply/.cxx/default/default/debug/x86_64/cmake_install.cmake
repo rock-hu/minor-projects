@@ -1,4 +1,4 @@
-# Install script for directory: D:/git_developmentPractice/BestPracticeSnippets/NativeSoIntegration/Multiply/src/main/cpp
+# Install script for directory: D:/git_developmentPractice/BestPracticeSnippets_1/NativeSoIntegration/Multiply/src/main/cpp
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -50,5 +50,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "D:/git_developmentPractice/BestPracticeSnippets/NativeSoIntegration/Multiply/.cxx/default/default/debug/x86_64/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "D:/git_developmentPractice/BestPracticeSnippets_1/NativeSoIntegration/Multiply/.cxx/default/default/debug/x86_64/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

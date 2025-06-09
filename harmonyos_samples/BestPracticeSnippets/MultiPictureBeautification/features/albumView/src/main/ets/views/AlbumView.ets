@@ -57,7 +57,7 @@ export struct AlbumView {
   up() {
     if (!this.timeOutUpDemo) {
       this.timeOutUpDemo = setTimeout(() => {
-        animateTo({
+        this.getUIContext().animateTo({
           duration: ANIMATE_TIME
         }, () => {
           if (this.gridColumn > MIN_GRID_COLUMN) {
@@ -77,7 +77,7 @@ export struct AlbumView {
   down() {
     if (!this.timeOutDownDemo) {
       this.timeOutDownDemo = setTimeout(() => {
-        animateTo({
+        this.getUIContext().animateTo({
           duration: ANIMATE_TIME
         }, () => {
           if (this.gridColumn < MAX_GRID_COLUMN) {

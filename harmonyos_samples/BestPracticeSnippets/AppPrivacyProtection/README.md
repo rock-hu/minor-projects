@@ -27,8 +27,8 @@
 
 ### 具体实现
 
-* 使用geoLocationManager模块的[getCurrentLocation](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-geolocationmanager-V5#geolocationmanagergetcurrentlocation-2)方法获取位置信息，参考：[获取设备的位置信息开发指导](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/location-guidelines-V5)。
-* 获取用户图片通过PhotoViewPicker来实现，参考：[选择用户文件](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/select-user-file-V5)。
+* 使用geoLocationManager模块的[getCurrentLocation](https://developer.huawei.com/consumer/cn/doc/harmonyos-references/js-apis-geolocationmanager#geolocationmanagergetcurrentlocation)方法获取位置信息，参考：[获取设备的位置信息开发指导](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/location-guidelines)。
+* 获取用户图片通过PhotoViewPicker来实现，参考：[选择用户文件](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/select-user-file)。
 
 ### 相关权限
 

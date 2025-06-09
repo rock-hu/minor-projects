@@ -23,6 +23,18 @@
       <excludeFolder url="file://$MODULE_DIR$/../../entry/oh_modules" />
       <excludeFolder url="file://$MODULE_DIR$/../../node_modules" />
       <excludeFolder url="file://$MODULE_DIR$/../../oh_modules" />
+      <excludeFolder url="file://$MODULE_DIR$/../../Ndk/.cxx" />
+      <excludeFolder url="file://$MODULE_DIR$/../../Ndk/.preview" />
+      <excludeFolder url="file://$MODULE_DIR$/../../Ndk/.test" />
+      <excludeFolder url="file://$MODULE_DIR$/../../Ndk/build" />
+      <excludeFolder url="file://$MODULE_DIR$/../../Ndk/node_modules" />
+      <excludeFolder url="file://$MODULE_DIR$/../../Ndk/oh_modules" />
+      <excludeFolder url="file://$MODULE_DIR$/../../Ndk1/.cxx" />
+      <excludeFolder url="file://$MODULE_DIR$/../../Ndk1/.preview" />
+      <excludeFolder url="file://$MODULE_DIR$/../../Ndk1/.test" />
+      <excludeFolder url="file://$MODULE_DIR$/../../Ndk1/build" />
+      <excludeFolder url="file://$MODULE_DIR$/../../Ndk1/node_modules" />
+      <excludeFolder url="file://$MODULE_DIR$/../../Ndk1/oh_modules" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library" exported="" scope="PROVIDED">

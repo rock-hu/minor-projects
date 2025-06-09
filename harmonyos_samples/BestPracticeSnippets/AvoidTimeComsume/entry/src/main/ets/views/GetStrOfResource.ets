@@ -15,9 +15,7 @@
 
 // [Start get_str_of_resource]
 import { hiTraceMeter } from '@kit.PerformanceAnalysisKit';
-import { router } from '@kit.ArkUI';
 
-const uiContext: UIContext | undefined = AppStorage.get('uiContext');
 
 @Entry
 @Component
@@ -45,7 +43,7 @@ struct GetStrOfResource {
         .backgroundColor('#E8E8E8')
         .borderRadius(40)
         .onClick(() => {
-          router.back({
+          this.getUIContext().getRouter().back({
             url: 'pages/Index'
           });
         })

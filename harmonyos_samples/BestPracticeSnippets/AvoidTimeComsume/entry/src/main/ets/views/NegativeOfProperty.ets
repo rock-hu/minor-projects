@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-import { router } from '@kit.ArkUI';
 
 // [Start negative_of_property]
 @Entry
@@ -45,7 +44,7 @@ struct NegativeOfProperty {
         .backgroundColor('#E8E8E8')
         .borderRadius(40)
         .onClick(() => {
-          router.back({
+          this.getUIContext().getRouter().back({
             url: 'pages/Index'
           });
         })

@@ -33,7 +33,7 @@ export struct VideoDetails {
       likeCountNum--;
     }
     this.item.likeCount = '' + likeCountNum;
-    animateTo({ duration: Const.DURATION, curve: Curve.EaseInOut }, () => {
+    this.getUIContext().animateTo({ duration: Const.DURATION, curve: Curve.EaseInOut }, () => {
       this.isLike = !this.isLike;
     })
   }
@@ -79,7 +79,7 @@ export struct VideoDetails {
         })
         .backgroundColor($r('app.color.button_fill_color'))
         .onClick(() => {
-          animateTo({ duration: Const.DURATION, curve: Curve.EaseInOut }, () => {
+          this.getUIContext().animateTo({ duration: Const.DURATION, curve: Curve.EaseInOut }, () => {
             this.isFollow = !this.isFollow;
           });
         })

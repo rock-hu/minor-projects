@@ -56,7 +56,7 @@ export class LiveHomeLifecycle implements IHMLifecycle {
   videoSrc: VideoSrc = new VideoSrc($rawfile('camera-ais.mp4'));
 
   onShown(ctx: HMLifecycleContext): void {
-    window.getLastWindow(getContext(this), (err, data) => {
+    window.getLastWindow(uiContext!.getHostContext(), (err, data) => {
       if(err.code > 0) {
         console.error(`${err.code} ${err.message}`);
         return;
@@ -68,7 +68,7 @@ export class LiveHomeLifecycle implements IHMLifecycle {
   }
 
   onHidden(ctx: HMLifecycleContext): void {
-    window.getLastWindow(getContext(this), (err, data) => {
+    window.getLastWindow(uiContext!.getHostContext(), (err, data) => {
       if(err.code > 0) {
         console.error(`${err.code} ${err.message}`);
         return;
@@ -185,7 +185,7 @@ export struct LiveHome {
   @StorageLink('changeVideoHeight') videoHeight: string | number = CommonConstants.FULL_PERCENT;
 
   aboutToAppear(): void {
-    window.getLastWindow(getContext(this), (err, win) => {
+    window.getLastWindow(uiContext!.getHostContext(), (err, win) => {
       win.getUIContext().setKeyboardAvoidMode(KeyboardAvoidMode.RESIZE);
     });
   }

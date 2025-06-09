@@ -17,15 +17,15 @@ import { window } from '@kit.ArkUI';
 import { Constants } from '../common/Constants';
 import { webview } from '@kit.ArkWeb';
 
-// DocsCode 1735042061937
 // src/main/ets/pages/Index.ets
 
+// [Start isfull_screen]
 @Entry
 @Component
 struct Index {
   private isFullScreen: boolean = false;
   private handler: FullScreenExitHandler | null = null;
-  // DocsDot
+  // [StartExclude isfull_screen]
   @StorageProp(Constants.SYSTEM_LANGUAGE_KEY) language: string = '';
   private webController: webview.WebviewController = new webview.WebviewController();
   private windowClass: window.Window | null = null;
@@ -33,7 +33,7 @@ struct Index {
   changeOrientation(orientation: window.Orientation) {
     this.windowClass?.setPreferredOrientation(orientation);
   }
-  // DocsDot
+  // [EndExclude isfull_screen]
 
   build() {
     Column() {
@@ -41,7 +41,6 @@ struct Index {
         src: $rawfile(/zh/.test(this.language) ? 'index_cn.html' : 'index_en.html'),
         controller: this.webController
       })
-        // ...
         .onFullScreenEnter((event) => {
           this.handler = event.handler;
           this.changeOrientation(window.Orientation.LANDSCAPE);
@@ -50,4 +49,4 @@ struct Index {
     }
   }
 }
-// DocsCode 1735042061937
+// [End isfull_screen]

@@ -33,8 +33,6 @@ struct Home {
   @StorageLink('statusBarHeight') statusBarHeight: number = 0;
   // Whether to display the soft keyboard.
   @State isKeyboard: boolean = false;
-  // Whether to display the bottom toolbar.
-  @State isShowToolbar: boolean = true;
 
   changeFocus(isAllClose: boolean): void {
     if (isAllClose) {
@@ -79,7 +77,6 @@ struct Home {
             AddPic()
             // Text editing area.
             EditorComponent({
-              isShowToolbar: this.isShowToolbar,
               isKeyboard: this.isKeyboard,
               isShowLocalInfo: this.isShowLocalInfo
             })
@@ -89,7 +86,6 @@ struct Home {
               selectLocalInfo: this.selectLocalInfo,
               isShowLocalInfo: this.isShowLocalInfo,
               isKeyboard: this.isKeyboard,
-              isShowToolbar: this.isShowToolbar,
               changeFocus: (isAllClose: boolean) => {
                 this.changeFocus(isAllClose);
               }

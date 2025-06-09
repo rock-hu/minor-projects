@@ -15,7 +15,6 @@
 
 // [Start get_str_of_id]
 import { hiTraceMeter } from '@kit.PerformanceAnalysisKit';
-import { router } from '@kit.ArkUI';
 
 @Entry
 @Component
@@ -43,7 +42,7 @@ struct GetStrOfId {
         .backgroundColor('#E8E8E8')
         .borderRadius(40)
         .onClick(() => {
-          router.back({
+          this.getUIContext().getRouter().back({
             url: 'pages/Index'
           });
         })

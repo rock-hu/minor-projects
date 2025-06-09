@@ -27,6 +27,7 @@ import Logger from '../utils/Logger';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
 const TAG = '[AvPlayerController]';
+const uiContext: UIContext | undefined = AppStorage.get('uiContext');
 
 @Observed
 export class AvPlayerController {
@@ -86,7 +87,7 @@ export class AvPlayerController {
 
     avPlayer.on('timeUpdate', (time: number) => {
       if (time > this.currentTime * 1000) {
-        animateTo({ duration: 1000, curve: Curve.Linear }, () => {
+        uiContext?.animateTo({ duration: 1000, curve: Curve.Linear }, () => {
           this.currentTime = Math.floor(time / 1000);
         });
       } else {

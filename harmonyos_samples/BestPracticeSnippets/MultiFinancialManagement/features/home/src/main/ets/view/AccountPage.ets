@@ -22,9 +22,9 @@ export struct AccountPage {
   @StorageProp('avoidArea') topHeight: number = 0;
 
   onPageShow() {
-    window.getLastWindow(getContext(this)).then((windowStage: window.Window) => {
+    window.getLastWindow(this.getUIContext().getHostContext()).then((windowStage: window.Window) => {
       let area = windowStage.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);
-      let topHeight = px2vp(area.topRect.height);
+      let topHeight = this.getUIContext().px2vp(area.topRect.height);
       if (topHeight > 0) {
         windowStage.setWindowLayoutFullScreen(true);
       }
@@ -32,7 +32,7 @@ export struct AccountPage {
   }
 
   onPageHide() {
-    window.getLastWindow(getContext(this)).then((windowStage: window.Window) => {
+    window.getLastWindow(this.getUIContext().getHostContext()).then((windowStage: window.Window) => {
       if (this.topHeight > 0) {
         windowStage.setWindowLayoutFullScreen(false);
       }

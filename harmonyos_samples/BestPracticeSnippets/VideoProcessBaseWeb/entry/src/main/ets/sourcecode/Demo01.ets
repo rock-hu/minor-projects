@@ -115,15 +115,13 @@ struct Index {
         src: $rawfile(/zh/.test(this.language) ? 'index_cn.html' : 'index_en.html'),
         controller: this.webController
       })
-        // [End web]
         // [StartExclude web]
         .zoomAccess(false)
         .width('100%')
         .height('100%')
-          // [EndExclude web]
-          // [Start web]
+        // [EndExclude web]
          .expandSafeArea([SafeAreaType.SYSTEM])
-          // [End web]
+        // [End web]
         .onAreaChange((oldArea, newArea) => {
           this.webWidth = newArea.width as number;
           this.webHeight = newArea.height as number;

@@ -24,7 +24,6 @@ import Constant from '../common/Constants';
 const TAG = '[Sample_StartMode]';
 // Set an ID for emitter transmission.
 const eventId = Constant.DEFAULT_ONE;
-let abilityWant: Want = getContextData();
 
 interface EventHub {
   emit(event: string, ...args: Object[]): void;
@@ -101,7 +100,7 @@ struct PageTitle {
     .padding($r('app.integer.padding_normal_sm'))
     .width(Constant.FULL_PERCENT)
     .onClick(() => {
-      startMode({}, 'MainAbility');
+      startMode({}, 'MainAbility', this.getUIContext());
     })
   }
 }
@@ -309,11 +308,10 @@ struct StartModeCard {
         'foodItemId': foodItemId,
         'modeName': this.modeName,
         'foodListIndex': this.foodListIndex
-      }, 'MultitonAbility')
+      }, 'MultitonAbility', this.getUIContext())
     } else if (this.modeName == 'specified') {
       if (this.foodItemId == foodItemId) {
-        const context = this.getUIContext();
-        totast(context);
+        totast(this.getUIContext());
         return;
       }
       startMode({
@@ -321,13 +319,13 @@ struct StartModeCard {
         'foodItemId': foodItemId,
         'modeName': this.modeName,
         'foodListIndex': this.foodListIndex
-      }, 'SpecifiedAbility')
+      }, 'SpecifiedAbility', this.getUIContext())
     } else {
       startMode({
         'foodItemId': foodItemId,
         'modeName': this.modeName,
         'foodListIndex': this.foodListIndex
-      }, 'SingletonAbility')
+      }, 'SingletonAbility', this.getUIContext())
       this.emitterOn();
     }
   }
@@ -401,11 +399,13 @@ struct FoodDetail {
   private foodData: Array<FoodInfo>[] = getFoodsData();
   private modeName: string | undefined = '';
   private foodListIndex: number = Constant.DEFAULT_ZERO;
+  private abilityWant: Want = getContextData(this.getUIContext());
+
 
   async aboutToAppear() {
-    this.foodItemId = Number(abilityWant.parameters?.foodItemId);
-    this.modeName = abilityWant.parameters?.modeName.toString();
-    this.foodListIndex = Number(abilityWant.parameters?.foodListIndex);
+    this.foodItemId = Number(this.abilityWant.parameters?.foodItemId);
+    this.modeName = this.abilityWant.parameters?.modeName.toString();
+    this.foodListIndex = Number(this.abilityWant.parameters?.foodListIndex);
     this.foodInfo = this.foodData[this.foodListIndex].filter(item => {
       return this.foodItemId == item.id;
     })[Constant.DEFAULT_ZERO];

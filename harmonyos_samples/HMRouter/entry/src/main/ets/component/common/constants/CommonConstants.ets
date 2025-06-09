@@ -13,6 +13,8 @@
  *   limitations under the License.
  */
 
+const uiContext: UIContext | undefined = AppStorage.get('uiContext');
+
 export class CommonConstants {
   /**
    * Full percent.
@@ -129,5 +131,5 @@ export class CommonConstants {
   /**
    * home exit toast.
    */
-  static readonly EXIT_TOAST: string = getContext(this).resourceManager.getStringSync($r('app.string.HOME_EXIT_TOAST'));
+  static readonly EXIT_TOAST: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.HOME_EXIT_TOAST'));
 }

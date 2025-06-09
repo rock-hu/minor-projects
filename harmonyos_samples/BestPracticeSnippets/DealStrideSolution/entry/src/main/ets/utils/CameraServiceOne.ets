@@ -118,12 +118,12 @@ class CameraService {
    * @param cameraDeviceIndex - Camera equipment index
    * @returns No return value
    */
-  async initCamera(cameraDeviceIndex: number): Promise<void> {
+  async initCamera(cameraDeviceIndex: number, uiContext:UIContext): Promise<void> {
     Logger.debug(TAG, `initCamera cameraDeviceIndex: ${cameraDeviceIndex}`);
     try {
       await this.releaseCamera();
       // Get the Camera Manager instance
-      this.cameraManager = this.getCameraManagerFn();
+      this.cameraManager = this.getCameraManagerFn(uiContext);
       if (this.cameraManager === undefined) {
         Logger.error(TAG, 'cameraManager is undefined');
         return;
@@ -220,13 +220,13 @@ class CameraService {
   /**
    * Get the Camera Manager instance
    */
-  getCameraManagerFn(): camera.CameraManager | undefined {
+  getCameraManagerFn(uiContext:UIContext): camera.CameraManager | undefined {
     if (this.cameraManager) {
       return this.cameraManager;
     }
     let cameraManager: camera.CameraManager | undefined = undefined;
     try {
-      cameraManager = camera.getCameraManager(getContext(this));
+      cameraManager = camera.getCameraManager(uiContext.getHostContext());
       Logger.info(TAG, `getCameraManager success: ${cameraManager}`);
     } catch (error) {
       Logger.error(TAG, `getCameraManager failed: ${JSON.stringify(error)}`);

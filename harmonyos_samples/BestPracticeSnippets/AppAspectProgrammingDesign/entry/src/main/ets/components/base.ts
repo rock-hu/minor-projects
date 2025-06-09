@@ -17,7 +17,9 @@
 * 最佳实践: 应用切面编程设计
 */
 
-import {geoLocationManager} from "@kit.LocationKit";
+// [Start fragment1]
+import { geoLocationManager } from "@kit.LocationKit";
+// [End fragment1]
 // [Start base]
 // base.ets
 export class Base {
@@ -28,9 +30,11 @@ export class Base {
 // [End base]
 
 // [Start base1]
+// [Start fragment1]
 export class Base1 {
   getCurrentLocation() {
     return geoLocationManager.getCurrentLocation();
   }
 }
+// [End fragment1]
 // [End base1]

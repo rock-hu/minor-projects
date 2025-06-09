@@ -69,7 +69,7 @@ export class LiveView {
             // Prepare common event data
             let options: commonEventManager.CommonEventPublishData = {
               data: 'data',
-              bundleName: 'com.example.mapliveviewsample',
+              bundleName: AppStorage.get('bundleName'),
               parameters: {
                 'roadData': routeInfo.roadInfo
               }
@@ -102,7 +102,7 @@ export class LiveView {
     if (this.updateInterval !== undefined) {
       clearInterval(this.updateInterval);
       this.updateInterval = undefined;
-      hilog.info(0x0000, TAG, 'Timer has been cleared');
+      hilog.info(0x0000, TAG, '%{public}s', 'Timer has been cleared');
     }
     // [End clearPeriodicUpdates]
 
@@ -130,7 +130,7 @@ export class LiveView {
     let wantAgentInfo: wantAgent.WantAgentInfo = {
       wants: [
         {
-          bundleName: 'com.example.mapliveviewsample',
+          bundleName: AppStorage.get('bundleName'),
           abilityName: 'EntryAbility'
         }
       ],
@@ -163,5 +163,6 @@ export class LiveView {
         `Failed to Operation getWantAgent. code is ${(error as BusinessError).code} message is ${(error as BusinessError).message}`);
     }
   }
+
   // [End startContinuousRunningTask]
 }

@@ -17,7 +17,7 @@
 * 最佳实践: 应用切面编程设计
 */
 
-// [Start index7]
+// [Start fragment1]
 // index.ets
 import { util } from '@kit.ArkTS';
 import { geoLocationManager } from "@kit.LocationKit";
@@ -43,4 +43,4 @@ util.Aspect.replace(Child, 'getCurrentLocation', false, () => {
   return cached_location;
 });
 new Child().getCurrentLocation()
-// [End index7]
+// [End fragment1]

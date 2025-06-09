@@ -20,6 +20,7 @@ import { audio, AVVolumePanel } from '@kit.AudioKit';
 import { Logger, CommonConstants, secondToTime, } from '@ohos/MediaService';
 import { AvPlayerController, VideoData } from '@ohos/MediaService';
 import { FullScreenControl, VideoBottom } from './VideoSide';
+
 const TAG = '[VideoPlayer]';
 
 @Preview
@@ -77,7 +78,7 @@ export struct VideoPlayer {
 
     try {
       window.getLastWindow(this.getUIContext().getHostContext()!, (err, data) => {
-        if(err) {
+        if (err) {
           hilog.error(0x0000, 'AVPlayer',
             `Failed to obtain the top window. Cause code: ${err.code}, message: ${err.message}`);
         }
@@ -178,7 +179,7 @@ export struct VideoPlayer {
   }
 
   // [Start build]
-  build()  {
+  build() {
     Stack({ alignContent: Alignment.BottomEnd }) {
       // [StartExclude build]
       Stack({ alignContent: Alignment.Center }) {
@@ -219,8 +220,7 @@ export struct VideoPlayer {
               id: 'XComponent',
               type: XComponentType.SURFACE,
               controller: this.xComponentController
-            })
-              // [StartExclude build]
+            })// [StartExclude build]
               .onLoad(async () => {
                 this.xComponentController.setXComponentSurfaceRect({
                   surfaceWidth: CommonConstants.SURFACE_WIDTH, surfaceHeight: CommonConstants.SURFACE_HEIGHT
@@ -248,6 +248,7 @@ export struct VideoPlayer {
                   })
                 }
                 .width('50%')
+
                 // [End panel]
 
                 // [Start screen5]
@@ -287,6 +288,7 @@ export struct VideoPlayer {
                 })
                 .height('100%')
                 .width('50%')
+
                 // [Start screen5]
               }
               .height('100%')
@@ -294,6 +296,7 @@ export struct VideoPlayer {
             }
             // [EndExclude build]
           }
+
           // [StartExclude build]
         }
         .justifyContent(FlexAlign.Center)
@@ -316,7 +319,7 @@ export struct VideoPlayer {
             if (event.fingerList[0].globalX > (820 / 2)) {
               // On the right side of the screen relative to the X-axis coordinate in the upper left corner of the application window, adjust the brightness.
               this.visible = true;
-              let curBrightness = this.screenBrightness - vp2px(event.offsetY) / vp2px(this.screenHeight);
+              let curBrightness = this.screenBrightness - this.getUIContext().vp2px(event.offsetY) / this.getUIContext().vp2px(this.screenHeight);
               curBrightness = curBrightness >= 1.0 ? 1.0 : curBrightness;
               curBrightness = curBrightness <= 0.0 ? 0.0 : curBrightness;
               this.screenBrightness = curBrightness;
@@ -336,7 +339,7 @@ export struct VideoPlayer {
             } else {
               // On the left side of the screen relative to the X-axis coordinate in the upper left corner of the application window, adjust the volume.
               this.visible = false;
-              let curVolume = this.volume - vp2px(event.offsetY) / this.screenHeight;
+              let curVolume = this.volume - this.getUIContext().vp2px(event.offsetY) / this.screenHeight;
               curVolume = curVolume >= 15.0 ? 15.0 : curVolume;
               curVolume = curVolume <= 0.0 ? 0.0 : curVolume;
               this.volume = curVolume;
@@ -349,6 +352,7 @@ export struct VideoPlayer {
             }, 3000)
           })
       )
+
       // [End gesture]
       // [End gesture1]
       if (!this.isSliderDragging) {
@@ -393,6 +397,7 @@ export struct VideoPlayer {
         })
     )
   }
+
   // [End build]
 
   // The popup constructor defines the content of the dialog box
@@ -490,33 +495,29 @@ export struct VideoPlayer {
             max: this.avPlayerController.durationTime,
             style: this.sliderStyle
           })
-            // [End value]
-            // [StartExclude slider]
             // [StartExclude value]
+            // [StartExclude slider]
             .id('video_slider')
             .height(this.isSliderDragging ? $r('app.float.side_width') : $r('app.float.size_24'))
             .layoutWeight(1)
-            .zIndex(CommonConstants.SLIDER_INDEX)
-              // [EndExclude slider]
-            .trackColor($r('app.color.white_opacity_1_color')) // Slide rail background color
-            .showSteps(false) // Whether to display step scale or not.
+            .zIndex(CommonConstants.SLIDER_INDEX)// [EndExclude slider]
+            .trackColor($r('app.color.white_opacity_1_color'))// Slide rail background color
+            .showSteps(false)// Whether to display step scale or not.
               // [EndExclude value]
-              // [Start value]
-            .blockSize({ width: this.blockSize, height: this.blockSize }) // Slider size
-              // [End value]
-            .blockColor($r('sys.color.background_primary')) // Slider color
-            .trackThickness(this.trackThicknessSize) // Slide rail thickness
-            .trackBorderRadius(2) // Radius of bottom fillet
-            .selectedBorderRadius(2) // Radius of fillet of sliding part
+            .blockSize({ width: this.blockSize, height: this.blockSize })// Slider size
+              // [StartExclude value]
+            .blockColor($r('sys.color.background_primary'))// Slider color
+            .trackThickness(this.trackThicknessSize)// Slide rail thickness
+            .trackBorderRadius(2)// Radius of bottom fillet
+            .selectedBorderRadius(2)// Radius of fillet of sliding part
+              // [EndExclude value]
               // [StartExclude slider]
-              // [Start value]
             .onAreaChange(() => {
-              let videoSlider: componentUtils.ComponentInfo = componentUtils.getRectangleById('video_slider');
+              let videoSlider: componentUtils.ComponentInfo = this.getUIContext().getComponentUtils().getRectangleById('video_slider');
               this.slideWidth = this.getUIContext().px2vp(videoSlider.size.width);
               this.offsetY = this.getUIContext().px2vp(videoSlider.localOffset.y);
               this.beginX = this.getUIContext().px2vp(videoSlider.localOffset.x);
-            })
-              // [EndExclude slider]
+            })// [EndExclude slider]
             .onChange((value: number, mode: SliderChangeMode) => {
               this.sliderOnchange(value, mode); // Progress bar change interface
             })
@@ -551,6 +552,7 @@ export struct VideoPlayer {
           arrowPointPosition: ArrowPointPosition.CENTER,
           radius: this.blockSize,
         })
+
         // [End transparent]
       }
     }.margin({
@@ -561,7 +563,6 @@ export struct VideoPlayer {
           : $r('app.float.margin_small')
     })
   }
-
 
   // 前台进度条变化接口
   // [Start slider]
@@ -595,6 +596,7 @@ export struct VideoPlayer {
         break;
     }
   }
+
   // [End slider]
 
   async iconOnclick() {

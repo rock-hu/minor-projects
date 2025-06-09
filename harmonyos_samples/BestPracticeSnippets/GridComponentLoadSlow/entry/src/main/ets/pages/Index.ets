@@ -1,10 +1,10 @@
 // [Start grid_component_load_slow]
 // Import performance dot modules
-import hiTraceMeter from '@ohos.hiTraceMeter';
+import { hiTraceMeter } from '@kit.PerformanceAnalysisKit';
 
 @Component
 struct TextItem {
-  @State item: string = "";
+  @State item: string = '';
 
   build() {
     Text(this.item)
@@ -17,7 +17,7 @@ struct TextItem {
 
   aboutToAppear() {
     // Finish the task
-    hiTraceMeter.finishTrace("useColumnStartColumnEnd", 1);
+    hiTraceMeter.finishTrace('useColumnStartColumnEnd', 1);
   }
 }
 
@@ -78,9 +78,9 @@ struct GridExample {
       .width('90%')
       .height('40%')
 
-      Button("scrollToIndex:1900").onClick(() => {
+      Button('scrollToIndex:1900').onClick(() => {
         // Start some tasks.
-        hiTraceMeter.startTrace("useColumnStartColumnEnd", 1);
+        hiTraceMeter.startTrace('useColumnStartColumnEnd', 1);
         this.scroller.scrollToIndex(1900);
       })
     }.width('100%')

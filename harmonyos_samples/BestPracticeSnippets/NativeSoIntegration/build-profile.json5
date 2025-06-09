@@ -48,6 +48,18 @@
           ]
         }
       ]
+    },
+    {
+      "name": "Ndk",
+      "srcPath": "./Ndk",
+      "targets": [
+        {
+          "name": "default",
+          "applyToProducts": [
+            "default"
+          ]
+        }
+      ]
     }
   ]
 }

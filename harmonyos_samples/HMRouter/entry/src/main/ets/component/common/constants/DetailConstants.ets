@@ -13,11 +13,13 @@
  *   limitations under the License.
  */
 
+const uiContext: UIContext | undefined = AppStorage.get('uiContext');
+
 export class DetailConstants {
   /**
    * Living.
    */
-  static readonly LIVING: string = getContext(this).resourceManager.getStringSync($r('app.string.LIVING'));
+  static readonly LIVING: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.LIVING'));
   /**
    * Product detail resources.
    */
@@ -76,9 +78,9 @@ export class DetailConstants {
    * Product select type list.
    */
   static readonly SELECT_NAME_LIST: string[] =
-    [getContext(this).resourceManager.getStringSync($r('app.string.SELECT_NAME_LIST1')),
-      getContext(this).resourceManager.getStringSync($r('app.string.SELECT_NAME_LIST2')),
-      getContext(this).resourceManager.getStringSync($r('app.string.SELECT_NAME_LIST3'))];
+    [uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SELECT_NAME_LIST1')),
+      uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SELECT_NAME_LIST2')),
+      uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SELECT_NAME_LIST3'))];
   /**
    * Product image list.
    */
@@ -88,16 +90,16 @@ export class DetailConstants {
    * Button names.
    */
   static readonly BUTTON_NAMES: string[] =
-    [getContext(this).resourceManager.getStringSync($r('app.string.BUTTON_NAMES1')),
-      getContext(this).resourceManager.getStringSync($r('app.string.BUTTON_NAMES2'))];
+    [uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.BUTTON_NAMES1')),
+      uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.BUTTON_NAMES2'))];
   /**
    * Pay address and contact.
    */
   static readonly PAY_INFO: string[] =
-    ['XXXX大道XXXXX楼XX单元XX号', getContext(this).resourceManager.getStringSync($r('app.string.PAY_INFO1')),
-      getContext(this).resourceManager.getStringSync($r('app.string.PAY_INFO2')),
-      getContext(this).resourceManager.getStringSync($r('app.string.PAY_INFO3')),
-      getContext(this).resourceManager.getStringSync($r('app.string.PAY_INFO4'))];
+    ['XXXX大道XXXXX楼XX单元XX号', uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PAY_INFO1')),
+      uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PAY_INFO2')),
+      uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PAY_INFO3')),
+      uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PAY_INFO4'))];
   /**
    * Product config list.
    */

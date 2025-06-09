@@ -63,6 +63,10 @@
     {
       "name": "then",
       "value": "Then"
+    },
+    {
+      "name": "toast",
+      "value": "Tip: You must apply for relevant permissions to experience the lock screen live view."
     }
   ]
 }

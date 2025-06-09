@@ -96,12 +96,12 @@ export struct UpdateMultipleProperties {
               setTimeout(() => {
                 this.w = 80
                 this.h = 4
-                animateTo({ curve: Curve.Sharp, duration: 1000 }, () => {
+                this.getUIContext().animateTo({ curve: Curve.Sharp, duration: 1000 }, () => {
                   this.w = (this.w === 80 ? 150 : 80);
                 });
                 // Updating state variables between two animateTo calls
                 this.color = Color.Yellow
-                animateTo({ curve: Curve.Linear, duration: 2000 }, () => {
+                this.getUIContext().animateTo({ curve: Curve.Linear, duration: 2000 }, () => {
                   this.color = (this.color === Color.Yellow ? Color.Red : Color.Yellow);
                 });
               }, 2000 * i)
@@ -119,10 +119,10 @@ export struct UpdateMultipleProperties {
                 // Explicitly specify the initial values of all properties to be animated before the animation.
                 this.w = 80
                 this.color = Color.Yellow
-                animateTo({ curve: Curve.Sharp, duration: 1000 }, () => {
+                this.getUIContext().animateTo({ curve: Curve.Sharp, duration: 1000 }, () => {
                   this.w = (this.w === 80 ? 150 : 80);
                 });
-                animateTo({ curve: Curve.Linear, duration: 2000 }, () => {
+                this.getUIContext().animateTo({ curve: Curve.Linear, duration: 2000 }, () => {
                   this.color = (this.color === Color.Yellow ? Color.Red : Color.Yellow);
                 });
                 // Refresh non-animated properties after animation completes
@@ -139,10 +139,10 @@ export struct UpdateMultipleProperties {
             let doTimes = 5;
             for (let i = 0; i < doTimes; i++) {
               setTimeout(() => {
-                animateTo({ curve: Curve.Sharp, duration: 1000 }, () => {
+                this.getUIContext().animateTo({ curve: Curve.Sharp, duration: 1000 }, () => {
                   this.w = (this.w === 80 ? 150 : 80);
                 });
-                animateTo({ curve: Curve.Linear, duration: 2000 }, () => {
+                this.getUIContext().animateTo({ curve: Curve.Linear, duration: 2000 }, () => {
                   this.color = (this.color === Color.Yellow ? Color.Red : Color.Yellow);
                 });
               }, 2000 * i)

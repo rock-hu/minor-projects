@@ -120,7 +120,7 @@ class CameraService {
     return true;
   }
 
-  // DocsCode 1
+  // [Start init_camera]
   /**
    * Initialize Camera Functions
    * @param surfaceId - Surface ID
@@ -203,8 +203,8 @@ class CameraService {
       Logger.error(TAG, `initCamera fail: ${JSON.stringify(err)}`);
     }
   }
+  // [End init_camera]
 
-  // DocsCode 1
   /**
    * Obtains the variable focal length range
    */
@@ -239,7 +239,7 @@ class CameraService {
     }
   }
 
-  // DocsCode 3
+  // [Start take_picture]
   /**
    * Trigger a photo taking based on the specified parameters
    */
@@ -253,8 +253,8 @@ class CameraService {
     await this.photoOutput?.capture(photoSettings);
     Logger.info(TAG, 'takePicture end');
   }
+  // [End take_picture]
 
-  // DocsCode 3
   /**
    * Release the session and related parameters
    */
@@ -347,7 +347,7 @@ class CameraService {
     }
   }
 
-  // DocsCode 2
+  // [Start create_photo_outputFn]
   /**
    * Creates a photoOutPut output object
    */
@@ -364,8 +364,8 @@ class CameraService {
       return undefined;
     }
   }
+  // [End create_photo_outputFn]
 
-  // DocsCode 2
   /**
    * Creating a videoOutPut Output Object
    */
@@ -494,7 +494,7 @@ class CameraService {
         Logger.error(TAG, `photoOutPut data: ${JSON.stringify(data)}`);
       });
       if (this.photoMode === Constants.SUBSECTION_MODE) {
-        // DocsCode 5
+        // [Start listen_photo_asset_available]
         photoOutput.on('photoAssetAvailable', (err: BusinessError, photoAsset: photoAccessHelper.PhotoAsset) => {
           Logger.info(TAG, 'photoAssetAvailable begin');
           if (err) {
@@ -503,9 +503,9 @@ class CameraService {
           }
           this.handlePhotoAssetCb(photoAsset);
         });
-        // DocsCode 5
+        // [End listen_photo_asset_available]
       } else if (this.photoMode === Constants.SINGLE_STAGE_MODE) {
-        // DocsCode 4
+        // [Start listen_photo_available]
         photoOutput.on('photoAvailable', (err: BusinessError, photo: camera.Photo) => {
           Logger.info(TAG, 'photoAvailable begin');
           if (err) {
@@ -531,7 +531,7 @@ class CameraService {
 
           });
         })
-        // DocsCode 4
+        // [End listen_photo_available]
       }
     } catch (err) {
       Logger.error(TAG, 'photoOutputCallBack error');

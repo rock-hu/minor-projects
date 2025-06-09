@@ -1,50 +1,50 @@
 {
   "ohos-module-entry": {
     "SELECT_TARGET": "default",
-    "MODULE_BUILD_DIR": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\entry\\build",
+    "MODULE_BUILD_DIR": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\entry\\build",
     "DEPENDENCY_INFO": {},
     "TARGETS": {
       "default": {
-        "SOURCE_ROOT": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\entry\\src\\main",
+        "SOURCE_ROOT": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\entry\\src\\main",
         "RESOURCES_PATH": [
-          "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\entry\\src\\main\\resources"
+          "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\entry\\src\\main\\resources"
         ],
         "BUILD_PATH": {
-          "OUTPUT_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\entry\\build\\default\\outputs\\default",
-          "INTERMEDIA_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\entry\\build\\default\\intermediates",
-          "JS_ASSETS_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\entry\\build\\default\\intermediates\\loader_out\\default",
-          "JS_LITE_ASSETS_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\entry\\build\\default\\intermediates\\loader_out_lite\\default",
-          "RES_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\entry\\build\\default\\intermediates\\res\\default",
-          "RES_PROFILE_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\entry\\build\\default\\intermediates\\res\\default\\resources\\base\\profile",
-          "ETS_SUPER_VISUAL_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\entry\\build\\default\\cache\\default\\default@CompileArkTS\\esmodule",
-          "JS_SUPER_VISUAL_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\entry\\build\\default\\cache\\default\\default@CompileJS\\jsbundle",
-          "WORKER_LOADER": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\entry\\build\\default\\intermediates\\loader\\default\\loader.json",
-          "MANIFEST_JSON": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\entry\\build\\default\\intermediates\\manifest\\default",
-          "OUTPUT_METADATA_JSON": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\entry\\build\\default\\intermediates\\hap_metadata\\default\\output_metadata.json",
-          "SOURCE_MAP_DIR": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\entry\\build\\default\\intermediates\\source_map\\default"
+          "OUTPUT_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\entry\\build\\default\\outputs\\default",
+          "INTERMEDIA_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\entry\\build\\default\\intermediates",
+          "JS_ASSETS_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\entry\\build\\default\\intermediates\\loader_out\\default",
+          "JS_LITE_ASSETS_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\entry\\build\\default\\intermediates\\loader_out_lite\\default",
+          "RES_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\entry\\build\\default\\intermediates\\res\\default",
+          "RES_PROFILE_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\entry\\build\\default\\intermediates\\res\\default\\resources\\base\\profile",
+          "ETS_SUPER_VISUAL_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\entry\\build\\default\\cache\\default\\default@CompileArkTS\\esmodule",
+          "JS_SUPER_VISUAL_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\entry\\build\\default\\cache\\default\\default@CompileJS\\jsbundle",
+          "WORKER_LOADER": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\entry\\build\\default\\intermediates\\loader\\default\\loader.json",
+          "MANIFEST_JSON": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\entry\\build\\default\\intermediates\\manifest\\default",
+          "OUTPUT_METADATA_JSON": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\entry\\build\\default\\intermediates\\hap_metadata\\default\\output_metadata.json",
+          "SOURCE_MAP_DIR": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\entry\\build\\default\\intermediates\\source_map\\default"
         },
         "BUILD_OPTION": {
           "debuggable": true
         }
       },
       "ohosTest": {
-        "SOURCE_ROOT": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\entry\\src\\ohosTest",
+        "SOURCE_ROOT": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\entry\\src\\ohosTest",
         "RESOURCES_PATH": [
-          "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\entry\\src\\ohosTest\\resources"
+          "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\entry\\src\\ohosTest\\resources"
         ],
         "BUILD_PATH": {
-          "OUTPUT_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\entry\\build\\default\\outputs\\ohosTest",
-          "INTERMEDIA_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\entry\\build\\default\\intermediates",
-          "JS_ASSETS_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\entry\\build\\default\\intermediates\\loader_out\\ohosTest",
-          "JS_LITE_ASSETS_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\entry\\build\\default\\intermediates\\loader_out_lite\\ohosTest",
-          "RES_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\entry\\build\\default\\intermediates\\res\\ohosTest",
-          "RES_PROFILE_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\entry\\build\\default\\intermediates\\res\\ohosTest\\resources\\base\\profile",
-          "ETS_SUPER_VISUAL_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\entry\\build\\default\\cache\\ohosTest\\ohosTest@OhosTestCompileArkTS\\esmodule",
-          "JS_SUPER_VISUAL_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\entry\\build\\default\\cache\\ohosTest\\ohosTest@OhosTestCompileJS\\jsbundle",
-          "WORKER_LOADER": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\entry\\build\\default\\intermediates\\loader\\ohosTest\\loader.json",
-          "MANIFEST_JSON": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\entry\\build\\default\\intermediates\\manifest\\ohosTest",
-          "OUTPUT_METADATA_JSON": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\entry\\build\\default\\intermediates\\hap_metadata\\ohosTest\\output_metadata.json",
-          "SOURCE_MAP_DIR": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\entry\\build\\default\\intermediates\\source_map\\ohosTest"
+          "OUTPUT_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\entry\\build\\default\\outputs\\ohosTest",
+          "INTERMEDIA_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\entry\\build\\default\\intermediates",
+          "JS_ASSETS_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\entry\\build\\default\\intermediates\\loader_out\\ohosTest",
+          "JS_LITE_ASSETS_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\entry\\build\\default\\intermediates\\loader_out_lite\\ohosTest",
+          "RES_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\entry\\build\\default\\intermediates\\res\\ohosTest",
+          "RES_PROFILE_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\entry\\build\\default\\intermediates\\res\\ohosTest\\resources\\base\\profile",
+          "ETS_SUPER_VISUAL_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\entry\\build\\default\\cache\\ohosTest\\ohosTest@OhosTestCompileArkTS\\esmodule",
+          "JS_SUPER_VISUAL_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\entry\\build\\default\\cache\\ohosTest\\ohosTest@OhosTestCompileJS\\jsbundle",
+          "WORKER_LOADER": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\entry\\build\\default\\intermediates\\loader\\ohosTest\\loader.json",
+          "MANIFEST_JSON": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\entry\\build\\default\\intermediates\\manifest\\ohosTest",
+          "OUTPUT_METADATA_JSON": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\entry\\build\\default\\intermediates\\hap_metadata\\ohosTest\\output_metadata.json",
+          "SOURCE_MAP_DIR": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\entry\\build\\default\\intermediates\\source_map\\ohosTest"
         },
         "BUILD_OPTION": {
           "debuggable": true
@@ -124,50 +124,50 @@
   },
   "ohos-module-Multiply": {
     "SELECT_TARGET": "default",
-    "MODULE_BUILD_DIR": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\Multiply\\build",
+    "MODULE_BUILD_DIR": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Multiply\\build",
     "DEPENDENCY_INFO": {},
     "TARGETS": {
       "default": {
-        "SOURCE_ROOT": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\Multiply\\src\\main",
+        "SOURCE_ROOT": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Multiply\\src\\main",
         "RESOURCES_PATH": [
-          "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\Multiply\\src\\main\\resources"
+          "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Multiply\\src\\main\\resources"
         ],
         "BUILD_PATH": {
-          "OUTPUT_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\Multiply\\build\\default\\outputs\\default",
-          "INTERMEDIA_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\Multiply\\build\\default\\intermediates",
-          "JS_ASSETS_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\Multiply\\build\\default\\intermediates\\loader_out\\default",
-          "JS_LITE_ASSETS_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\Multiply\\build\\default\\intermediates\\loader_out_lite\\default",
-          "RES_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\Multiply\\build\\default\\intermediates\\res\\default",
-          "RES_PROFILE_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\Multiply\\build\\default\\intermediates\\res\\default\\resources\\base\\profile",
-          "ETS_SUPER_VISUAL_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\Multiply\\build\\default\\cache\\default\\default@CompileArkTS\\esmodule",
-          "JS_SUPER_VISUAL_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\Multiply\\build\\default\\cache\\default\\default@CompileJS\\jsbundle",
-          "WORKER_LOADER": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\Multiply\\build\\default\\intermediates\\loader\\default\\loader.json",
-          "MANIFEST_JSON": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\Multiply\\build\\default\\intermediates\\manifest\\default",
-          "OUTPUT_METADATA_JSON": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\Multiply\\build\\default\\intermediates\\hap_metadata\\default\\output_metadata.json",
-          "SOURCE_MAP_DIR": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\Multiply\\build\\default\\intermediates\\source_map\\default"
+          "OUTPUT_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Multiply\\build\\default\\outputs\\default",
+          "INTERMEDIA_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Multiply\\build\\default\\intermediates",
+          "JS_ASSETS_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Multiply\\build\\default\\intermediates\\loader_out\\default",
+          "JS_LITE_ASSETS_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Multiply\\build\\default\\intermediates\\loader_out_lite\\default",
+          "RES_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Multiply\\build\\default\\intermediates\\res\\default",
+          "RES_PROFILE_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Multiply\\build\\default\\intermediates\\res\\default\\resources\\base\\profile",
+          "ETS_SUPER_VISUAL_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Multiply\\build\\default\\cache\\default\\default@CompileArkTS\\esmodule",
+          "JS_SUPER_VISUAL_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Multiply\\build\\default\\cache\\default\\default@CompileJS\\jsbundle",
+          "WORKER_LOADER": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Multiply\\build\\default\\intermediates\\loader\\default\\loader.json",
+          "MANIFEST_JSON": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Multiply\\build\\default\\intermediates\\manifest\\default",
+          "OUTPUT_METADATA_JSON": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Multiply\\build\\default\\intermediates\\hap_metadata\\default\\output_metadata.json",
+          "SOURCE_MAP_DIR": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Multiply\\build\\default\\intermediates\\source_map\\default"
         },
         "BUILD_OPTION": {
           "debuggable": true
         }
       },
       "ohosTest": {
-        "SOURCE_ROOT": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\Multiply\\src\\ohosTest",
+        "SOURCE_ROOT": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Multiply\\src\\ohosTest",
         "RESOURCES_PATH": [
-          "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\Multiply\\src\\ohosTest\\resources"
+          "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Multiply\\src\\ohosTest\\resources"
         ],
         "BUILD_PATH": {
-          "OUTPUT_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\Multiply\\build\\default\\outputs\\ohosTest",
-          "INTERMEDIA_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\Multiply\\build\\default\\intermediates",
-          "JS_ASSETS_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\Multiply\\build\\default\\intermediates\\loader_out\\ohosTest",
-          "JS_LITE_ASSETS_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\Multiply\\build\\default\\intermediates\\loader_out_lite\\ohosTest",
-          "RES_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\Multiply\\build\\default\\intermediates\\res\\ohosTest",
-          "RES_PROFILE_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\Multiply\\build\\default\\intermediates\\res\\ohosTest\\resources\\base\\profile",
-          "ETS_SUPER_VISUAL_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\Multiply\\build\\default\\cache\\ohosTest\\ohosTest@OhosTestCompileArkTS\\esmodule",
-          "JS_SUPER_VISUAL_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\Multiply\\build\\default\\cache\\ohosTest\\ohosTest@OhosTestCompileJS\\jsbundle",
-          "WORKER_LOADER": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\Multiply\\build\\default\\intermediates\\loader\\ohosTest\\loader.json",
-          "MANIFEST_JSON": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\Multiply\\build\\default\\intermediates\\manifest\\ohosTest",
-          "OUTPUT_METADATA_JSON": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\Multiply\\build\\default\\intermediates\\hap_metadata\\ohosTest\\output_metadata.json",
-          "SOURCE_MAP_DIR": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\Multiply\\build\\default\\intermediates\\source_map\\ohosTest"
+          "OUTPUT_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Multiply\\build\\default\\outputs\\ohosTest",
+          "INTERMEDIA_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Multiply\\build\\default\\intermediates",
+          "JS_ASSETS_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Multiply\\build\\default\\intermediates\\loader_out\\ohosTest",
+          "JS_LITE_ASSETS_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Multiply\\build\\default\\intermediates\\loader_out_lite\\ohosTest",
+          "RES_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Multiply\\build\\default\\intermediates\\res\\ohosTest",
+          "RES_PROFILE_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Multiply\\build\\default\\intermediates\\res\\ohosTest\\resources\\base\\profile",
+          "ETS_SUPER_VISUAL_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Multiply\\build\\default\\cache\\ohosTest\\ohosTest@OhosTestCompileArkTS\\esmodule",
+          "JS_SUPER_VISUAL_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Multiply\\build\\default\\cache\\ohosTest\\ohosTest@OhosTestCompileJS\\jsbundle",
+          "WORKER_LOADER": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Multiply\\build\\default\\intermediates\\loader\\ohosTest\\loader.json",
+          "MANIFEST_JSON": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Multiply\\build\\default\\intermediates\\manifest\\ohosTest",
+          "OUTPUT_METADATA_JSON": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Multiply\\build\\default\\intermediates\\hap_metadata\\ohosTest\\output_metadata.json",
+          "SOURCE_MAP_DIR": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Multiply\\build\\default\\intermediates\\source_map\\ohosTest"
         },
         "BUILD_OPTION": {
           "debuggable": true
@@ -245,17 +245,132 @@
     },
     "BUILD_CACHE_DIR": ""
   },
+  "ohos-module-Ndk": {
+    "SELECT_TARGET": "default",
+    "MODULE_BUILD_DIR": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Ndk\\build",
+    "DEPENDENCY_INFO": {},
+    "TARGETS": {
+      "default": {
+        "SOURCE_ROOT": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Ndk\\src\\main",
+        "RESOURCES_PATH": [
+          "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Ndk\\src\\main\\resources"
+        ],
+        "BUILD_PATH": {
+          "OUTPUT_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Ndk\\build\\default\\outputs\\default",
+          "INTERMEDIA_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Ndk\\build\\default\\intermediates",
+          "JS_ASSETS_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Ndk\\build\\default\\intermediates\\loader_out\\default",
+          "JS_LITE_ASSETS_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Ndk\\build\\default\\intermediates\\loader_out_lite\\default",
+          "RES_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Ndk\\build\\default\\intermediates\\res\\default",
+          "RES_PROFILE_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Ndk\\build\\default\\intermediates\\res\\default\\resources\\base\\profile",
+          "ETS_SUPER_VISUAL_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Ndk\\build\\default\\cache\\default\\default@CompileArkTS\\esmodule",
+          "JS_SUPER_VISUAL_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Ndk\\build\\default\\cache\\default\\default@CompileJS\\jsbundle",
+          "WORKER_LOADER": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Ndk\\build\\default\\intermediates\\loader\\default\\loader.json",
+          "MANIFEST_JSON": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Ndk\\build\\default\\intermediates\\manifest\\default",
+          "OUTPUT_METADATA_JSON": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Ndk\\build\\default\\intermediates\\hap_metadata\\default\\output_metadata.json",
+          "SOURCE_MAP_DIR": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Ndk\\build\\default\\intermediates\\source_map\\default"
+        },
+        "BUILD_OPTION": {
+          "debuggable": true
+        }
+      },
+      "ohosTest": {
+        "SOURCE_ROOT": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Ndk\\src\\ohosTest",
+        "RESOURCES_PATH": [
+          "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Ndk\\src\\ohosTest\\resources"
+        ],
+        "BUILD_PATH": {
+          "OUTPUT_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Ndk\\build\\default\\outputs\\ohosTest",
+          "INTERMEDIA_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Ndk\\build\\default\\intermediates",
+          "JS_ASSETS_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Ndk\\build\\default\\intermediates\\loader_out\\ohosTest",
+          "JS_LITE_ASSETS_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Ndk\\build\\default\\intermediates\\loader_out_lite\\ohosTest",
+          "RES_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Ndk\\build\\default\\intermediates\\res\\ohosTest",
+          "RES_PROFILE_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Ndk\\build\\default\\intermediates\\res\\ohosTest\\resources\\base\\profile",
+          "ETS_SUPER_VISUAL_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Ndk\\build\\default\\cache\\ohosTest\\ohosTest@OhosTestCompileArkTS\\esmodule",
+          "JS_SUPER_VISUAL_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Ndk\\build\\default\\cache\\ohosTest\\ohosTest@OhosTestCompileJS\\jsbundle",
+          "WORKER_LOADER": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Ndk\\build\\default\\intermediates\\loader\\ohosTest\\loader.json",
+          "MANIFEST_JSON": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Ndk\\build\\default\\intermediates\\manifest\\ohosTest",
+          "OUTPUT_METADATA_JSON": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Ndk\\build\\default\\intermediates\\hap_metadata\\ohosTest\\output_metadata.json",
+          "SOURCE_MAP_DIR": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Ndk\\build\\default\\intermediates\\source_map\\ohosTest"
+        },
+        "BUILD_OPTION": {
+          "debuggable": true
+        }
+      }
+    },
+    "BUILD_OPTION": {
+      "default-default": {
+        "debuggable": true,
+        "copyFrom": "default",
+        "strictMode": {
+          "caseSensitiveCheck": true,
+          "useNormalizedOHMUrl": true
+        },
+        "externalNativeOptions": {
+          "path": "./src/main/cpp/CMakeLists.txt",
+          "arguments": "",
+          "cppFlags": ""
+        },
+        "name": "debug"
+      }
+    },
+    "BUILD_PROFILE_OPT": {
+      "apiType": "stageMode",
+      "buildOption": {
+        "externalNativeOptions": {
+          "path": "./src/main/cpp/CMakeLists.txt",
+          "arguments": "",
+          "cppFlags": ""
+        }
+      },
+      "buildOptionSet": [
+        {
+          "name": "release",
+          "arkOptions": {
+            "obfuscation": {
+              "ruleOptions": {
+                "enable": false,
+                "files": [
+                  "./obfuscation-rules.txt"
+                ]
+              }
+            }
+          },
+          "nativeLib": {
+            "debugSymbol": {
+              "strip": true,
+              "exclude": []
+            }
+          }
+        },
+        {
+          "name": "default"
+        },
+        {
+          "name": "debug"
+        }
+      ],
+      "targets": [
+        {
+          "name": "default"
+        },
+        {
+          "name": "ohosTest"
+        }
+      ]
+    },
+    "BUILD_CACHE_DIR": ""
+  },
   "ohos-project": {
     "SELECT_PRODUCT_NAME": "default",
-    "MODULE_BUILD_DIR": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\build",
+    "MODULE_BUILD_DIR": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\build",
     "BUNDLE_NAME": "com.example.nativesointegration",
     "BUILD_PATH": {
-      "OUTPUT_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\build\\outputs\\default"
+      "OUTPUT_PATH": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\build\\outputs\\default"
     },
     "MODULES": [
       {
         "name": "entry",
-        "srcPath": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\entry",
+        "srcPath": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\entry",
         "targets": [
           {
             "name": "default",
@@ -264,11 +379,11 @@
             ]
           }
         ],
-        "belongProjectPath": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration"
+        "belongProjectPath": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration"
       },
       {
         "name": "Multiply",
-        "srcPath": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration\\Multiply",
+        "srcPath": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Multiply",
         "targets": [
           {
             "name": "default",
@@ -277,7 +392,20 @@
             ]
           }
         ],
-        "belongProjectPath": "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration"
+        "belongProjectPath": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration"
+      },
+      {
+        "name": "Ndk",
+        "srcPath": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration\\Ndk",
+        "targets": [
+          {
+            "name": "default",
+            "applyToProducts": [
+              "default"
+            ]
+          }
+        ],
+        "belongProjectPath": "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration"
       }
     ],
     "PROFILE_OPT": {
@@ -330,6 +458,18 @@
               ]
             }
           ]
+        },
+        {
+          "name": "Ndk",
+          "srcPath": "./Ndk",
+          "targets": [
+            {
+              "name": "default",
+              "applyToProducts": [
+                "default"
+              ]
+            }
+          ]
         }
       ]
     },
@@ -339,7 +479,7 @@
       "hvigor.keepDependency": true
     },
     "OVERALL_PROJECT_PATHS": [
-      "D:\\git_developmentPractice\\BestPracticeSnippets\\NativeSoIntegration"
+      "D:\\git_developmentPractice\\BestPracticeSnippets_1\\NativeSoIntegration"
     ],
     "BUILD_CACHE_DIR": ""
   },

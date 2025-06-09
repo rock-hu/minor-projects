@@ -21,7 +21,7 @@ import { Constants } from '../common/Constants';
 import { WebDownloadManager } from '../utils/WebDownloadManager';
 import { downloadControlBuilder } from '../view/DownloadControlView';
 import { customPopupMenuBuilder, getOffset } from '../view/CustomPopupMenu';
-// DocsCode 1735041193627
+// [Start uicontext_index]
 // src/main/ets/pages/Index.ets
 const uiContext: UIContext | undefined = AppStorage.get('uiContext');
 let context = uiContext!.getHostContext()
@@ -29,7 +29,7 @@ let context = uiContext!.getHostContext()
 @Component
 struct Index {
   @State isShow: boolean = false;
-  // DocsDot
+  // [StartExclude uicontext_index]
   @State pressPosY: number = 0;
   @State pressPosX: number = 0;
   @StorageProp(Constants.SYSTEM_LANGUAGE_KEY) language: string = '';
@@ -109,14 +109,14 @@ struct Index {
     return false;
   }
 
-  // DocsDot
+  // [EndExclude uicontext_index]
   build() {
     Column() {
       Web({
         src: $rawfile(/zh/.test(this.language) ? 'index_cn.html' : 'index_en.html'),
         controller: this.webController
       })
-        // DocsDot
+        // [StartExclude uicontext_index]
         .zoomAccess(false)
         .width('100%')
         .height('100%')
@@ -135,7 +135,7 @@ struct Index {
           this.isShow = true;
           return true;
         })
-        // DocsDot
+          // [EndExclude uicontext_index]
         .bindPopup(this.isShow, {
           builder: customPopupMenuBuilder(
             this.linkUrl,
@@ -155,7 +155,7 @@ struct Index {
             }
           }
         })
-        // DocsDot
+        // [StartExclude uicontext_index]
         .onFullScreenEnter((event) => {
           this.handler = event.handler;
           this.changeOrientation(window.Orientation.LANDSCAPE);
@@ -165,8 +165,8 @@ struct Index {
           this.changeOrientation(window.Orientation.PORTRAIT);
           this.isFullScreen = false;
         })
-        // DocsDot
+        // [EndExclude uicontext_index]
     }
   }
 }
-// DocsCode 1735041193627
+// [End uicontext_index]

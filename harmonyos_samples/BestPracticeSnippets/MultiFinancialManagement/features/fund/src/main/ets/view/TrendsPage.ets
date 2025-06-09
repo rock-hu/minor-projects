@@ -36,12 +36,12 @@ export struct TrendsPage {
   private controller: TabsController = new TabsController();
   private callback: Callback<display.FoldDisplayMode> = (data: display.FoldDisplayMode) => {
     if (this.isLandScape && data === display.FoldDisplayMode.FOLD_DISPLAY_MODE_FULL) {
-      window.getLastWindow(getContext(this)).then((stage: window.Window) => {
+      window.getLastWindow(this.getUIContext().getHostContext()).then((stage: window.Window) => {
         stage.setPreferredOrientation(window.Orientation.PORTRAIT);
       });
     }
     if (data === display.FoldDisplayMode.FOLD_DISPLAY_MODE_MAIN) {
-      window.getLastWindow(getContext(this)).then((stage: window.Window) => {
+      window.getLastWindow(this.getUIContext().getHostContext()).then((stage: window.Window) => {
         stage.setPreferredOrientation(window.Orientation.LANDSCAPE)
       });
       this.isLandScape = true;
@@ -255,11 +255,11 @@ export struct TrendsPage {
     }
     .hideTitleBar(true)
     .onAppear(() => {
-      window.getLastWindow(getContext(this)).then((windowStage: window.Window) => {
+      window.getLastWindow(this.getUIContext().getHostContext()).then((windowStage: window.Window) => {
         windowStage.setWindowLayoutFullScreen(false);
       })
       if (!this.isLandScape && this.breakPoint === CommonConstants.BREAK_POINT_SM) {
-        window.getLastWindow(getContext(this)).then((stage: window.Window) => {
+        window.getLastWindow(this.getUIContext().getHostContext()).then((stage: window.Window) => {
           stage.setPreferredOrientation(window.Orientation.LANDSCAPE);
           this.isLandScape = true;
         });
@@ -271,11 +271,11 @@ export struct TrendsPage {
       }
     })
     .onWillDisappear(() => {
-      window.getLastWindow(getContext(this)).then((windowStage: window.Window) => {
+      window.getLastWindow(this.getUIContext().getHostContext()).then((windowStage: window.Window) => {
         windowStage.setWindowLayoutFullScreen(true);
       })
       if (this.isLandScape) {
-        window.getLastWindow(getContext(this)).then((stage: window.Window) => {
+        window.getLastWindow(this.getUIContext().getHostContext()).then((stage: window.Window) => {
           stage.setPreferredOrientation(window.Orientation.PORTRAIT);
         });
         this.isLandScape = false;

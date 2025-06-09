@@ -2,15 +2,20 @@
   "HVIGOR_OHOS_PLUGIN": {
     "MODULES": [
       {
+        "MODULE_NAME": "510e78ac15dbd1e03cd45e50010c4b52",
+        "API_TYPE": "stageMode"
+      },
+      {
         "MODULE_NAME": "1043bfc77febe75fafec0c4309faccf1",
         "API_TYPE": "stageMode"
       },
       {
         "MODULE_NAME": "e257376d913f3b53cbb4a9b19d770648",
-        "API_TYPE": "stageMode",
-        "INCREMENTAL_TASKS": {
-          "BUILD_NATIVE_WITH_CMAKE": false
-        }
+        "API_TYPE": "stageMode"
+      },
+      {
+        "MODULE_NAME": "4f71778767864514d788f0f19094047b",
+        "API_TYPE": "stageMode"
       }
     ],
     "BUILD_MODE": "debug",
@@ -22,14 +27,20 @@
     "IS_PARALLEL": true,
     "IS_HVIGORFILE_TYPE_CHECK": false,
     "TASK_TIME": {
+      "1043bfc77febe75fafec0c4309faccf1": {
+        "clean": 67788400
+      },
       "e257376d913f3b53cbb4a9b19d770648": {
-        "PreBuild": 9816200,
-        "ConfigureCmake": 5632500,
-        "BuildNativeWithCmake": 1255665100,
-        "compileNative": 1255600
+        "clean": 63782900
+      },
+      "4f71778767864514d788f0f19094047b": {
+        "clean": 56818000
+      },
+      "APP": {
+        "clean": 676200
       }
     },
-    "TOTAL_TIME": 1531188200,
-    "BUILD_ID": "202505171653575320"
+    "TOTAL_TIME": 373493500,
+    "BUILD_ID": "202506061945026540"
   }
 }

@@ -22,7 +22,6 @@ import { common } from '@kit.AbilityKit';
 import { window } from '@kit.ArkUI';
 
 const TAG = 'PhotoPage';
-let context = getContext(this) as common.UIAbilityContext;
 
 @Entry
 @Component
@@ -39,6 +38,7 @@ struct PhotoPage {
     aiController: this.aiController
   }
   private windowClass: window.Window | undefined = undefined;
+  private context = this.getUIContext().getHostContext() as common.UIAbilityContext;
 
   aboutToAppear(): void {
     Logger.info(TAG, 'aboutToAppear');
@@ -51,7 +51,7 @@ struct PhotoPage {
   async onPageShow(): Promise<void> {
     Logger.info(TAG, 'onPageShow');
     try {
-      this.windowClass = context.windowStage.getMainWindowSync();
+      this.windowClass = this.context.windowStage.getMainWindowSync();
       let SystemBarProperties: window.SystemBarProperties = {
         statusBarContentColor: '#ffffff',
       };
@@ -80,7 +80,7 @@ struct PhotoPage {
   build() {
     Column() {
       if (this.isShow) {
-        // DocsCode 1
+        // [Start single_segment_photography]
         XComponent({
           type: XComponentType.SURFACE,
           controller: this.mXComponentController,
@@ -104,7 +104,7 @@ struct PhotoPage {
           .width('100%')
           .height(523)
           .margin({ top: 75, bottom: 72 })
-        // DocsCode 1
+        // [End single_segment_photography]
       }
       // Take picture
       ModeComponent()

@@ -30,9 +30,8 @@ struct Index {
     this.windowClass?.setPreferredOrientation(orientation);
   }
 
-  // DocsCode 1735039941329
+  // [Start on_back_press]
   // src/main/ets/pages/Index.ets
-
   onBackPress(): boolean | void {
     if (this.isFullScreen && this.handler) {
       this.handler.exitFullScreen();
@@ -40,22 +39,21 @@ struct Index {
     }
     return false;
   }
-  // DocsCode 1735039941329
+  // [End on_back_press]
 
   build() {
     Column() {
-      // DocsCode 1735039936007
+      // [Start rawfile]
       // src/main/ets/pages/Index.ets
-
       Web({
         src: $rawfile(/zh/.test(this.language) ? 'index_cn.html' : 'index_en.html'),
         controller: this.webController
-      })// ...
+      })
         .onFullScreenExit(() => {
           this.changeOrientation(window.Orientation.PORTRAIT);
           this.isFullScreen = false;
         })
-      // DocsCode 1735039936007
+      // [End rawfile]
     }
   }
 }

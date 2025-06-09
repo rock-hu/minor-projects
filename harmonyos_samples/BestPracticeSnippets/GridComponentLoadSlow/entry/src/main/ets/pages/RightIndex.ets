@@ -1,10 +1,10 @@
 // [Start right_index]
 // Import performance dot modules
-import hiTraceMeter from '@ohos.hiTraceMeter';
+import { hiTraceMeter } from '@kit.PerformanceAnalysisKit';
 
 @Component
 struct TextItem {
-  @State item: string = "";
+  @State item: string = '';
 
   build() {
     Text(this.item)
@@ -17,7 +17,7 @@ struct TextItem {
 
   aboutToAppear() {
     // Finish the task
-    hiTraceMeter.finishTrace("useGridLayoutOptions", 1);
+    hiTraceMeter.finishTrace('useGridLayoutOptions', 1);
   }
 }
 
@@ -78,9 +78,9 @@ export struct GridExample2 {
       .width('90%')
       .height('40%')
 
-      Button("scrollToIndex:1900").onClick(() => {
+      Button('scrollToIndex:1900').onClick(() => {
         // Start some tasks.
-        hiTraceMeter.startTrace("useGridLayoutOptions", 1);
+        hiTraceMeter.startTrace('useGridLayoutOptions', 1);
         this.scroller.scrollToIndex(1900);
       })
     }.width('100%')

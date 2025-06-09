@@ -1,20 +1,20 @@
-// DocsCode1
 // entry/oh-package.json5
+// [Start package]
 {
-  // DocsDot
+  // [StartExclude package]
   "name": "entry",
   "version": "1.0.0",
   "description": "Please describe the basic information.",
   "main": "",
   "author": "",
   "license": "",
-  // DocsDot
+  // [EndExclude package]
   "dependencies": {
-    // DocsDot
+    // [StartExclude package]
     "libentry.so": "file:./src/main/cpp/types/libentry",
-    // DocsDot
-    // 声明的依赖名称应与引用的so库名称一致
+    // [EndExclude package]
+    // The declared dependency name should match the name of the referenced SO library
     "libmultiply.so": "file:./src/main/cpp/types/libmultiply"
   }
 }
-// DocsCode1
+// [End package]

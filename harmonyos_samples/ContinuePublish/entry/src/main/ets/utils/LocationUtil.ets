@@ -15,6 +15,7 @@
 
 import { geoLocationManager } from '@kit.LocationKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 class LocationUtil {
   geolocationOn(locationChange: (location: geoLocationManager.Location) => void): void {
@@ -24,12 +25,16 @@ class LocationUtil {
       'timeInterval': 100,
       'distanceInterval': 0,
       'maxAccuracy': 0
-    }
+    };
     try {
       geoLocationManager.on('locationChange', requestInfo, locationChange);
     } catch (err) {
       hilog.error(0x0000, '[EntryAbility]', 'locationChange error:' + JSON.stringify(err));
     }
+  }
+
+  getCurrentLocation(locationChange: (err:BusinessError, location: geoLocationManager.Location) => void) {
+    geoLocationManager.getCurrentLocation(locationChange);
   }
 
   geolocationOff(): void {

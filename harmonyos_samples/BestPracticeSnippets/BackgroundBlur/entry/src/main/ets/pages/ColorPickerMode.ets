@@ -30,7 +30,7 @@ export struct ColorPickerMode {
   @State blurColor: string = 'rgba(255,255,255,255)';
 
   async blurPix(resource: Resource) {
-    const context = getContext(this)
+    const context = this.getUIContext().getHostContext()!;
     const resourceMgr = context.resourceManager
     const fileData = await resourceMgr.getMediaContent(resource)
     const buffer = fileData.buffer

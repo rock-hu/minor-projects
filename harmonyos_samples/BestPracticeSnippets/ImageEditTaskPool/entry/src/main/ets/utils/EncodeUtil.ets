@@ -20,8 +20,8 @@ import { fileIo } from '@kit.CoreFileKit';
 import { image } from '@kit.ImageKit';
 
 const TAG: string = '[EncodeUtil]';
-const context = getContext(this);
-let phAccessHelper = photoAccessHelper.getPhotoAccessHelper(context);
+const context = AppStorage.get("uiContext") as UIContext;
+let phAccessHelper = photoAccessHelper.getPhotoAccessHelper(context.getHostContext() as Context);
 
 /**
  * Pack the image.
@@ -37,7 +37,7 @@ export async function encode(component: Object, pixelMap: PixelMap) {
     format: 'image/jpeg',
     quality: 100
   }
-  const imageData = await imagePackerApi.packing(newPixelMap, packOptions);
+  const imageData = await imagePackerApi.packToData(newPixelMap, packOptions);
   hilog.info(0x0000, TAG, '%{public}s', `imageData's length is ${imageData.byteLength}`);
   // Create image asset.
   let photoType: photoAccessHelper.PhotoType = photoAccessHelper.PhotoType.IMAGE;
@@ -50,7 +50,7 @@ export async function encode(component: Object, pixelMap: PixelMap) {
       let file = fileIo.openSync(uri, fileIo.OpenMode.READ_WRITE);
       fileIo.writeSync(file.fd, imageData);
       fileIo.close(file.fd);
-      promptAction.showToast({ message: $r('app.string.image_save') });
+      context.getPromptAction().showToast({ message: $r('app.string.image_save') });
     }
   });
 }

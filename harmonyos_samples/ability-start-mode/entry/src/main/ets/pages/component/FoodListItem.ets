@@ -29,20 +29,20 @@ export struct FoodListItem {
         'foodItemId': this.foodItem.id,
         'modeName': this.modeName,
         'foodListIndex': this.foodListIndex
-      }, 'MultitonAbility')
+      }, 'MultitonAbility', this.getUIContext())
     } else if (this.modeName === 'specified') {
       startMode({
         'target': 'pages/FoodDetail',
         'foodItemId': this.foodItem.id,
         'modeName': this.modeName,
         'foodListIndex': this.foodListIndex
-      }, 'SpecifiedAbility')
+      }, 'SpecifiedAbility', this.getUIContext())
     } else {
       startMode({
         'foodItemId': this.foodItem.id,
         'foodListIndex': this.foodListIndex,
         'modeName': this.modeName
-      }, 'SingletonAbility')
+      }, 'SingletonAbility', this.getUIContext())
     }
   }
 

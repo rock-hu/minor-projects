@@ -14,7 +14,6 @@
  */
 
 import { hilog, hiTraceMeter } from '@kit.PerformanceAnalysisKit';
-import { router } from '@kit.ArkUI';
 
 // [Start positive_of_on_scroll]
 // onWillScroll high-frequency event callback positive example
@@ -37,7 +36,7 @@ struct PositiveOfOnScroll {
         .backgroundColor('#E8E8E8')
         .borderRadius(40)
         .onClick(() => {
-          router.back({
+          this.getUIContext().getRouter().back({
             url: 'pages/Index'
           });
         })

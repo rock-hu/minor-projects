@@ -57,7 +57,6 @@ export struct VideoPlayView {
       let viewHeight = this.UIContext.px2vp(size.height);
       // [End window_size_change_two]
       // [End window_size_change]
-
       if (this.isExpandedOrHalfFolded()) {
         this.xComponentWidth = viewWidth;
         this.xComponentHeight = viewWidth * this.aspect;
@@ -84,10 +83,12 @@ export struct VideoPlayView {
           this.isLandscape = false;
           // [EndExclude window_size_change]
         }
+        // [End window_size_change_two]
         // [End window_size_change]
       }
       // [Start window_size_change]
       // [EndExclude about_to_appear]
+      // [Start window_size_change_two]
     });
     // [End window_size_change]
     // [End window_size_change_two]
@@ -278,11 +279,10 @@ function ImageItem(imageSrc:ResourceStr) {
 }
 // [End Image_item]
 
-//[Start Tabs_view]
+// [Start Tabs_view]
 @Component
 struct TabsView {
   @State isLayoutFullScreen:boolean = false;
-
   build() {
     Tabs() {
       // [StartExclude Tabs_view]

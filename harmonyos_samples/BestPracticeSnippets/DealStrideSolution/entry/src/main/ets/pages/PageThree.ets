@@ -39,7 +39,7 @@ export struct PageThree {
   }
 
   aboutToAppear(): void {
-    CameraService.initCamera(0);
+    CameraService.initCamera(0, this.getUIContext());
   }
 
   aboutToDisappear(): void {

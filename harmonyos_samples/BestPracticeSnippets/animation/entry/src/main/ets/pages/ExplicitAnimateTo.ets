@@ -126,7 +126,7 @@ export struct ExplicitAnimateTo {
           .onClick((event?: ClickEvent | undefined) => {
             // Animate the width and height properties of the Button component
             if (this.flag) {
-              animateTo({
+              this.getUIContext().animateTo({
                 duration: 2000,
                 curve: Curve.Linear,
                 delay: 500,
@@ -137,7 +137,7 @@ export struct ExplicitAnimateTo {
                 this.heightSize = 25;
               })
             } else {
-              animateTo({
+              this.getUIContext().animateTo({
                 duration: 2000,
                 curve: Curve.Linear,
                 delay: 500,

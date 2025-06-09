@@ -39,7 +39,7 @@ struct EditPage {
   @StorageLink('photoMode') photoMode: string = '';
   private backIconLayoutWeight = 1;
   private textLayoutWeight = 8;
-  // DocsCode 2
+  // [Start photo_buffer_callback]
   photoBufferCallback: (arrayBuffer: ArrayBuffer) => void = (arrayBuffer: ArrayBuffer) => {
     Logger.info(TAG, 'photoBufferCallback is called');
     let imageSource = image.createImageSource(arrayBuffer);
@@ -79,7 +79,7 @@ struct EditPage {
       let curPhotoAsset = GlobalContext.get().getT<photoAccessHelper.PhotoAsset>('photoAsset');
       this.photoUri = curPhotoAsset.uri;
       let requestImageParams: RequestImageParams = {
-        context: getContext(),
+        context: this.getUIContext().getHostContext(),
         photoAsset: curPhotoAsset,
         callback: this.photoBufferCallback
       };
@@ -89,8 +89,8 @@ struct EditPage {
       this.curPixelMap = GlobalContext.get().getT<image.PixelMap>('photoAsset');
     }
   }
+  // [End photo_buffer_callback]
 
-  // DocsCode 2
   build() {
     Column() {
       Column() {

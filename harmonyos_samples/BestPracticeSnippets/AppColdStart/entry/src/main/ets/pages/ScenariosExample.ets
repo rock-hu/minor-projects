@@ -85,13 +85,13 @@ struct Index {
 
   async useCachePic(): Promise<void> {
     if (AppStorage.get('net_picture') !== '') {
-      // 获取图片的ArrayBuffer
+      // Get the ArrayBuffer of the picture
       const imageSource: image.ImageSource = image.createImageSource(AppStorage.get('net_picture'));
       const options: image.InitializationOptions = {
-        'alphaType': 0, // 透明度
-        'editable': false, // 是否可编辑
-        'pixelFormat': 3, // 像素格式
-        'scaleMode': 1, // 缩略值
+        'alphaType': 0, // transparency
+        'editable': false, // Is it editable?
+        'pixelFormat': 3, // pixel format
+        'scaleMode': 1, // Abbreviated value
         'size': { height: 100, width: 100 }
       };
       imageSource.createPixelMap(options).then((pixelMap: PixelMap) => {
@@ -105,8 +105,8 @@ struct Index {
     const context = this.getUIContext().getHostContext() as common.UIAbilityContext;
     const atManager = abilityAccessCtrl.createAtManager();
     await atManager.requestPermissionsFromUser(context, PERMISSIONS);
-    this.useCachePic(); // 从本地存储获取数据
-    this.getPicture(); // 从网络端获取数据
+    this.useCachePic(); // Get data from local storage
+    this.getPicture(); // Obtain data from the network side
   }
 
 

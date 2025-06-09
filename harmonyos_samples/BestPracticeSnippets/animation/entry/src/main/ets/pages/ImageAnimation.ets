@@ -165,7 +165,7 @@ export struct ImageAnimation {
               // Interval playback position, width and height changes
               if (i % 2 == 0) {
                 setTimeout(() => {
-                  animateTo({ duration: 1000 }, () => {
+                  this.getUIContext().animateTo({ duration: 1000 }, () => {
                     this.imageWidth = 100;
                     this.imageHeight = 100;
                     this.xPosition = 12;
@@ -174,7 +174,7 @@ export struct ImageAnimation {
                 }, 1000 * i)
               } else {
                 setTimeout(() => {
-                  animateTo({ duration: 1000 }, () => {
+                  this.getUIContext().animateTo({ duration: 1000 }, () => {
                     this.imageWidth = 60;
                     this.imageHeight = 60;
                     this.xPosition = 0;
@@ -193,7 +193,7 @@ export struct ImageAnimation {
             for (let i = 0; i < 10; i++) {
               if (i % 2 == 0) {
                 setTimeout(() => {
-                  animateTo({ duration: 1000 }, () => {
+                  this.getUIContext().animateTo({ duration: 1000 }, () => {
                     this.imageScaleX = 2;
                     this.imageScaleY = 2;
                     this.imageTranslateX = 12;
@@ -202,7 +202,7 @@ export struct ImageAnimation {
                 }, 1000 * i)
               } else {
                 setTimeout(() => {
-                  animateTo({ duration: 1000 }, () => {
+                  this.getUIContext().animateTo({ duration: 1000 }, () => {
                     this.imageScaleX = 1;
                     this.imageScaleY = 1;
                     this.imageTranslateX = 0;

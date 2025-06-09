@@ -64,7 +64,7 @@ implements ControllerManager {
   public start(controllerName: string, path: string, url: string): Promise<string> {
     return new Promise((resolve, reject) => {
       const controller = this.getController(controllerName);
-      // DocsCode 1735041636700
+      // [Start delegate]
       // src/main/ets/utils/WebDownloadManager.ets
 
       this.delegate.onBeforeDownload((webDownloadItem: webview.WebDownloadItem) => {
@@ -74,8 +74,9 @@ implements ControllerManager {
         this.currentTask.start(this.sourcePath);
         this.taskStatus = webDownloadItem.getState();
       })
-      // DocsCode 1735041636700
-      // DocsCode 1735041667172
+      // [End delegate]
+
+      // [Start ondownloadupdated]
       // src/main/ets/utils/WebDownloadManager.ets
 
       this.delegate.onDownloadUpdated((webDownloadItem: webview.WebDownloadItem) => {
@@ -85,8 +86,8 @@ implements ControllerManager {
         this.downloadSpeed = webDownloadItem.getCurrentSpeed();
         this.taskStatus = webDownloadItem.getState();
       })
-      // DocsCode 1735041667172
-      // DocsCode 1735041674564
+      // [End ondownloadupdated]
+      // [Start failed_data]
       // src/main/ets/utils/WebDownloadManager.ets
 
       this.delegate.onDownloadFailed((webDownloadItem: webview.WebDownloadItem) => {
@@ -95,6 +96,7 @@ implements ControllerManager {
         this.taskStatus = webDownloadItem.getState();
         reject(new Error('download failed'));
       })
+      // [End failed_data]
 
       // [Start delegate]
       // src/main/ets/utils/WebDownloadManager.ets
@@ -130,7 +132,7 @@ implements ControllerManager {
     }
   }
 
-  // DocsCode 1735041772212
+  // [Start resume_public]
   // src/main/ets/utils/WebDownloadManager.ets
 
   // Provides an external interface for resuming downloads.
@@ -141,7 +143,7 @@ implements ControllerManager {
       webview.WebDownloadManager.resumeDownload(webview.WebDownloadItem.deserialize(this.failedData));
     }
   }
-  // DocsCode 1735041772212
+  // [End resume_public]
 
   public cancel(): void {
     try {

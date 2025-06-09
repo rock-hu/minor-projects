@@ -29,8 +29,8 @@ This sample implements functions such as requesting approximate application loca
 
 ### How to Implement
 
-* Call [getCurrentLocation](https://developer.huawei.com/consumer/en/doc/harmonyos-references-V5/js-apis-geolocationmanager-V5#geolocationmanagergetcurrentlocation-2) in the **geoLocationManager** module to obtain the location information. For details, see [Obtaining Device Location Information](https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V5/location-guidelines-V5).
-* Use **PhotoViewPicker** to obtain the user photo. For details, see [Selecting User Files](https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V5/select-user-file-V5).
+* Call [getCurrentLocation](https://developer.huawei.com/consumer/en/doc/harmonyos-references/js-apis-geolocationmanager#geolocationmanagergetcurrentlocation) in the **geoLocationManager** module to obtain the location information. For details, see [Obtaining Device Location Information](https://developer.huawei.com/consumer/en/doc/harmonyos-guides/location-guidelines).
+* Use **PhotoViewPicker** to obtain the user photo. For details, see [Selecting User Files](https://developer.huawei.com/consumer/en/doc/harmonyos-guides/select-user-file).
 
 ### Required Permissions
 

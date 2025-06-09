@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/Multiply/Multiply.iml" filepath="$PROJECT_DIR$/.idea/modules/Multiply/Multiply.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/NativeSoIntegration.iml" filepath="$PROJECT_DIR$/.idea/modules/NativeSoIntegration.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Ndk/Ndk.iml" filepath="$PROJECT_DIR$/.idea/modules/Ndk/Ndk.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/entry/entry.iml" filepath="$PROJECT_DIR$/.idea/modules/entry/entry.iml" />
     </modules>
   </component>

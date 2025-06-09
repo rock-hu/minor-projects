@@ -41,7 +41,7 @@ struct SlidingScene {
   private readonly LIST_CACHE: number = 2;
 
   aboutToAppear(): void {
-    this.contentData.getDateData();
+    this.contentData.getDateData(this.getUIContext());
   }
 
   aboutToDisappear(): void {

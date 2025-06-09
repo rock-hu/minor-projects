@@ -282,7 +282,7 @@ export struct TransactionComponent {
     }
     .hideTitleBar(true)
     .onShown(() => {
-      window.getLastWindow(getContext(this)).then((windowStage: window.Window) => {
+      window.getLastWindow(this.getUIContext().getHostContext()).then((windowStage: window.Window) => {
         let sysBarProps: window.SystemBarProperties = {
           statusBarColor: '#F7F7F7'
         };
@@ -290,7 +290,7 @@ export struct TransactionComponent {
       })
     })
     .onHidden(() => {
-      window.getLastWindow(getContext(this)).then((windowStage: window.Window) => {
+      window.getLastWindow(this.getUIContext().getHostContext()).then((windowStage: window.Window) => {
         let sysBarProps: window.SystemBarProperties = {
           statusBarColor: '#00ffffff'
         };

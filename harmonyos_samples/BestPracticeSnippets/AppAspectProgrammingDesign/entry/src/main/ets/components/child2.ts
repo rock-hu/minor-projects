@@ -16,10 +16,14 @@
 /*
 * 最佳实践: 应用切面编程设计
 */
-// [Start child2]
+// [Start fragment1]
 // child.ets
 import {Base} from './base';
 export class Child extends Base {
   // Inherit the getCurrentLocation method of the parent class
 }
-// [End child2]
+// [End fragment1]
+
+export class Child2 extends Base {
+  // Inherit the getCurrentLocation method of the parent class
+}

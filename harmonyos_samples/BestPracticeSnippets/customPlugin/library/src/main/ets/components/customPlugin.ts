@@ -12,14 +12,15 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-
-// [Start custom_plugin]
-import { fileIo as fs } from '@kit.CoreFileKit';
-import { util } from '@kit.ArkTS';
 /**
  *
  *最佳实践: 定制hvigor插件开发实践
  */
+
+// [Start custom_plugin]
+import { fileIo as fs } from '@kit.CoreFileKit';
+import { util } from '@kit.ArkTS';
+
 interface OhPackage {
   name: string;
   version: number;
@@ -47,21 +48,19 @@ function readFileSync(filePath: string): string {
     return textDecoder.decodeWithStream(bufferView);
   } catch (err) {
     console.error('Read file failed:', err);
-    throw err; // 重新抛出错误以便上层处理
+    throw err; // Re-throw the error for upper-level handling
   }
 }
-
-
 
 export function renameHarTask(str?: string) {
   return {
     pluginId: 'RenameHarTaskID',
     apply(pluginContext) {
       pluginContext.registerTask({
-        // 编写自定义任务
+        // Write custom tasks
         name: 'renameHarTask',
         run: (taskContext) => {
-          // 读取oh-package.json5，解析出version
+          // Read oh-package.json5 and parse the version
           const packageFile = taskContext.modulePath+'\\oh-package.json5';
           console.log('file: ', packageFile);
           let fileContent = this.readFileSync(packageFile, 'utf8');
@@ -69,7 +68,6 @@ export function renameHarTask(str?: string) {
           const content: OhPackage = JSON.parse(fileContent);
           const version = content.version;
           const author = content.author;
-
 
           console.log('renameHarTask: ', taskContext.moduleName, taskContext.modulePath);
           const sourceFile = taskContext.modulePath + '\\build\\default\\outputs\\default\\' + taskContext.moduleName + '.har';
@@ -79,22 +77,20 @@ export function renameHarTask(str?: string) {
           console.log('renameHarTask: sourceFile: ', sourceFile);
           console.log('renameHarTask: targetFile: ', targetFile);
 
-
-          // 创建目录
+          // Create Directory
           fs.mkdir(targetPath, true, (err) => {
             if (err) throw err;
-            // 移动并修改产物文件名
+            // Move and modify product file names
             fs.rename(sourceFile, targetFile, (err)=> {
               console.log('err: ' + err);
             });
           });
         },
-        // 确认自定义任务插入位置
+        // Confirm custom task insertion position
         dependencies: ['default@PackageHar'],
         postDependencies: ['assembleHar']
       })
     }
   }
-
 }
 // [End custom_plugin]

@@ -1,5 +1,5 @@
-D:/git_developmentPractice/BestPracticeSnippets/NativeSoIntegration/Multiply/.cxx/default/default/debug/arm64-v8a/CMakeFiles/multiply.dir
-D:/git_developmentPractice/BestPracticeSnippets/NativeSoIntegration/Multiply/.cxx/default/default/debug/arm64-v8a/CMakeFiles/nativeAdd.dir
-D:/git_developmentPractice/BestPracticeSnippets/NativeSoIntegration/Multiply/.cxx/default/default/debug/arm64-v8a/CMakeFiles/nativeSub.dir
-D:/git_developmentPractice/BestPracticeSnippets/NativeSoIntegration/Multiply/.cxx/default/default/debug/arm64-v8a/CMakeFiles/edit_cache.dir
-D:/git_developmentPractice/BestPracticeSnippets/NativeSoIntegration/Multiply/.cxx/default/default/debug/arm64-v8a/CMakeFiles/rebuild_cache.dir
+D:/git_developmentPractice/BestPracticeSnippets_1/NativeSoIntegration/Multiply/.cxx/default/default/debug/arm64-v8a/CMakeFiles/multiply.dir
+D:/git_developmentPractice/BestPracticeSnippets_1/NativeSoIntegration/Multiply/.cxx/default/default/debug/arm64-v8a/CMakeFiles/nativeAdd.dir
+D:/git_developmentPractice/BestPracticeSnippets_1/NativeSoIntegration/Multiply/.cxx/default/default/debug/arm64-v8a/CMakeFiles/nativeSub.dir
+D:/git_developmentPractice/BestPracticeSnippets_1/NativeSoIntegration/Multiply/.cxx/default/default/debug/arm64-v8a/CMakeFiles/edit_cache.dir
+D:/git_developmentPractice/BestPracticeSnippets_1/NativeSoIntegration/Multiply/.cxx/default/default/debug/arm64-v8a/CMakeFiles/rebuild_cache.dir

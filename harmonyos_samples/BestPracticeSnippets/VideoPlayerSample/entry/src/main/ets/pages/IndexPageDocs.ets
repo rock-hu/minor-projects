@@ -201,7 +201,7 @@ struct IndexPage {
   }
 
   private animateFullscreen() {
-    animateTo({
+    this.getUIContext().animateTo({
       duration: Const.ANIMATE_DURATION
     }, () => {
       this.isFullScreen = !this.isFullScreen;

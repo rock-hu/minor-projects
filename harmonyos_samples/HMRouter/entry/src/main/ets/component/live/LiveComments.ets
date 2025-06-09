@@ -23,6 +23,8 @@ import { LiveCommentsHeader } from './LiveCommentsHeader';
 import { CommentNodeController } from './CommentInput';
 import { PageConstant } from '../../constant/PageConstant';
 
+const uiContext: UIContext | undefined = AppStorage.get('uiContext');
+
 interface LiveCommentsParamType {
   commentRenderNode: CommentNodeController;
 }
@@ -30,7 +32,7 @@ interface LiveCommentsParamType {
 @HMLifecycle({lifecycleName: 'liveCommentLifecycle'})
 export class LiveCommentLifecycle implements IHMLifecycle {
   onShown(ctx: HMLifecycleContext): void {
-    window.getLastWindow(getContext(this), (err, data) => {
+    window.getLastWindow(uiContext!.getHostContext(), (err, data) => {
       if(err.code > 0) {
         console.error(`${err.code} ${err.message}`);
         return;
@@ -42,7 +44,7 @@ export class LiveCommentLifecycle implements IHMLifecycle {
   }
 
   onHidden(ctx: HMLifecycleContext): void {
-    window.getLastWindow(getContext(this), (err, data) => {
+    window.getLastWindow(uiContext!.getHostContext(), (err, data) => {
       if(err.code > 0) {
         console.error(`${err.code} ${err.message}`);
         return;

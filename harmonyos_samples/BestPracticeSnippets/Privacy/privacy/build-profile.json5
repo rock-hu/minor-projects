@@ -13,9 +13,11 @@
         "obfuscation": {
           "ruleOptions": {
             "enable": true,
+            // [StartExclude arkOptions]
             "files": [
               "./obfuscation-rules.txt"
-            ]
+            ],
+            // [EndExclude arkOptions]
           }
         }
       },

@@ -1,17 +1,23 @@
+// [Start continuable]
 {
   "module": {
+    // [StartExclude continuable]
     "name": "entry",
     "type": "entry",
     "description": "$string:module_desc",
     "mainElement": "EntryAbility",
     "deviceTypes": [
-      "phone"
+      "phone",
+      "tablet",
+      "2in1"
     ],
     "deliveryWithInstall": true,
     "installationFree": false,
     "pages": "$profile:main_pages",
+    // [EndExclude continuable]
     "abilities": [
       {
+        // [StartExclude continuable]
         "name": "EntryAbility",
         "srcEntry": "./ets/entryability/EntryAbility.ets",
         "description": "$string:EntryAbility_desc",
@@ -30,10 +36,14 @@
             ]
           }
         ],
+        // [EndExclude continuable]
         "continuable": true,
-        "launchType": "singleton",
+        // [StartExclude continuable]
+        "launchType": "singleton"
+        // [EndExclude continuable]
       }
     ],
+    // [StartExclude continuable]
     "requestPermissions": [
       {
         "name": "ohos.permission.APPROXIMATELY_LOCATION",
@@ -65,6 +75,8 @@
           "when": "inuse"
         }
       }
-    ],
+    ]
+    // [EndExclude continuable]
   }
 }
+// [End continuable]

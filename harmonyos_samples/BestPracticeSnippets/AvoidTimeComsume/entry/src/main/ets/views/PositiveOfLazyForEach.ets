@@ -14,7 +14,6 @@
  */
 
 import { hiTraceMeter } from '@kit.PerformanceAnalysisKit';
-import { router } from '@kit.ArkUI';
 
 class MyDataSource implements IDataSource {
   private dataArray: number[] = [];
@@ -81,7 +80,7 @@ struct PositiveOfLazyForEach {
         .backgroundColor('#E8E8E8')
         .borderRadius(40)
         .onClick(() => {
-          router.back({
+          this.getUIContext().getRouter().back({
             url: 'pages/Index'
           });
         })

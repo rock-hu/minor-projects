@@ -36,7 +36,7 @@ struct IndexPage {
           .height(42)
           .onClick(() => {
             AppStorage.setOrCreate('photoMode', Constants.SINGLE_STAGE_MODE);
-            router.pushUrl({ url: 'pages/PhotoPage' });
+            this.getUIContext().getRouter().pushUrl({ url: 'pages/PhotoPage' });
           })
         Button($r('app.string.segmented_photography'))
           .height(42)
@@ -45,7 +45,7 @@ struct IndexPage {
           .width('100%')
           .onClick(() => {
             AppStorage.setOrCreate('photoMode', Constants.SUBSECTION_MODE);
-            router.pushUrl({ url: 'pages/PhotoPage' });
+            this.getUIContext().getRouter().pushUrl({ url: 'pages/PhotoPage' });
           })
 
       }.margin({ bottom: 46 })

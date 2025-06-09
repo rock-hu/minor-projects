@@ -18,6 +18,7 @@ import { geoLocationManager } from '@kit.LocationKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { intl } from '@kit.LocalizationKit';
 import { promptAction } from '@kit.ArkUI';
+import { BusinessError } from '@kit.BasicServicesKit';
 import { CommonConstants } from '../constants/CommonConstants';
 import { BreakpointConstants } from '../constants/BreakpointConstants';
 import LocationUtil from '../utils/LocationUtil';
@@ -28,46 +29,68 @@ export struct BottomToolbar {
   @State currentLocation: string = '';
   @State isDefaultLocation: boolean = true;
   @StorageLink('currentBreakpoint') currentBreakpoint: string = BreakpointConstants.BREAKPOINT_LG;
+  @StorageLink('bottomHeight') bottomHeight: number = 0;
+  @Watch('systemLanguage') @StorageLink('language') systemLanguages: string = '';
   @Link isAddLocalInfo: boolean;
   @Link selectLocalInfo: string | Resource;
   @Link isShowLocalInfo: boolean;
   @Link isKeyboard: boolean;
-  @Link isShowToolbar: boolean;
   private context: common.UIAbilityContext = this.getUIContext().getHostContext() as common.UIAbilityContext;
   private latitude: number = 0;
   private longitude: number = 0;
   private locale: string = new intl.Locale().language;
-  private changeFocus: (isAllClose: boolean) => void = () => {
-  };
-  private getGeolocation: (location: geoLocationManager.Location) => void = (location: geoLocationManager.Location) => {
-    if (this.latitude === location.latitude && this.longitude === location.longitude) {
-      return;
+
+  private location(location: geoLocationManager.Location) {
+    try {
+      this.latitude = location.latitude;
+      this.longitude = location.longitude;
+      let reverseGeocodeRequest: geoLocationManager.ReverseGeoCodeRequest = {
+        'locale': this.locale.toString().includes('zh') ? 'zh' : 'en',
+        'latitude': this.latitude,
+        'longitude': this.longitude
+      };
+      geoLocationManager.getAddressesFromLocation(reverseGeocodeRequest).then(data => {
+        hilog.info(0x0000, '[BottomToolbar]', 'GetAddressesFromLocation data :', JSON.stringify(data));
+        if (data.length !== 0) {
+          this.currentLocalInfo = [];
+          data.forEach((item) => {
+            this.currentLocalInfo.push(item.placeName!);
+            this.currentLocalInfo.push(item.administrativeArea!);
+            this.currentLocalInfo.push(item.subAdministrativeArea!);
+            this.currentLocalInfo.push(item.subLocality!);
+          })
+        }
+        if (data[0].placeName) {
+          this.currentLocation = data[0].placeName;
+        }
+        this.isDefaultLocation = false;
+      }).catch((err: Error) => {
+        hilog.error(0x0000, '[BottomToolbar]', 'GetAddressesFromLocation err:' + JSON.stringify(err));
+      });
     }
-    this.latitude = location.latitude;
-    this.longitude = location.longitude;
-    let reverseGeocodeRequest: geoLocationManager.ReverseGeoCodeRequest = {
-      'locale': this.locale.toString().includes('zh') ? 'zh' : 'en',
-      'latitude': this.latitude,
-      'longitude': this.longitude
+    catch {
+      hilog.error(0x0000, '[BottomToolbar]', 'GetAddressesFromLocation err:');
+    }
+  };
+
+  private getGeolocationOn: (location: geoLocationManager.Location) => void =
+    (location: geoLocationManager.Location) => {
+      this.location(location);
     };
-    geoLocationManager.getAddressesFromLocation(reverseGeocodeRequest).then(data => {
-      hilog.info(0x0000, '[BottomToolbar]', 'GetAddressesFromLocation data :', JSON.stringify(data));
-      if (data.length !== 0) {
-        this.currentLocalInfo = [];
-        data.forEach((item) => {
-          this.currentLocalInfo.push(item.placeName!);
-          this.currentLocalInfo.push(item.administrativeArea!);
-          this.currentLocalInfo.push(item.subAdministrativeArea!);
-          this.currentLocalInfo.push(item.subLocality!);
-        })
-      }
-      if (data[0].placeName) {
-        this.currentLocation = data[0].placeName;
-      }
-      this.isDefaultLocation = false;
-    }).catch((err: Error) => {
-      hilog.error(0x0000, '[BottomToolbar]', 'GetAddressesFromLocation err:' + JSON.stringify(err));
-    });
+
+  private getGeolocation: (err: BusinessError, location: geoLocationManager.Location) => void =
+    (err: BusinessError, location: geoLocationManager.Location) => {
+      this.location(location);
+    };
+
+  changeFocus: (isAllClose: boolean) => void = () => {
+  };
+
+  systemLanguage(): void {
+    if(this.latitude !== undefined && this.longitude !== undefined) {
+      this.locale = new intl.Locale().language;
+      LocationUtil.getCurrentLocation(this.getGeolocation);
+    }
   };
 
   addAppStorage(): void {
@@ -88,7 +111,7 @@ export struct BottomToolbar {
     let atManager = abilityAccessCtrl.createAtManager();
     try {
       atManager.requestPermissionsFromUser(this.context, CommonConstants.REQUEST_PERMISSIONS).then(() => {
-        LocationUtil.geolocationOn(this.getGeolocation);
+        LocationUtil.geolocationOn(this.getGeolocationOn);
       });
     } catch (err) {
       hilog.error(0x0000, '[BottomToolbar]', 'requestPermissionsFromUser err' + JSON.stringify(err));
@@ -121,10 +144,10 @@ export struct BottomToolbar {
   }
 
   build() {
-    this.bottomToolbar()
+    this.bottomToolbar();
   }
 
-  /**
+  /*
    * Bottom Toolbar
    */
   @Builder
@@ -270,8 +293,8 @@ export struct BottomToolbar {
       .width(CommonConstants.FULL_PERCENT)
       .padding({ left: $r('app.integer.bottom_icon_region_padding') })
       .height($r('app.integer.bottom_icon_region_height'))
-      .visibility(this.isShowToolbar ? Visibility.Visible : Visibility.None)
     }
+    .padding({ bottom: this.isKeyboard ? 0 : this.bottomHeight })
     .backgroundColor($r('app.color.background_color1'))
     .justifyContent(FlexAlign.Center)
   }

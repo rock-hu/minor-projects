@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+// [Start segment1]
 @Builder
 export function PageOneBuilder(name: string, param: Object) {
   PageOne()
@@ -41,3 +41,4 @@ export struct PageOne {
     .title(this.name)
   }
 }
+// [End segment1]

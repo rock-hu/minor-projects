@@ -118,7 +118,7 @@ export struct Funding {
     .hideTitleBar(true)
     .onWillShow(() => {
       AppStorage.setOrCreate('allFund', FundingViewModel.getAllFundInfo());
-      window.getLastWindow(getContext(this)).then((windowStage: window.Window) => {
+      window.getLastWindow(this.getUIContext().getHostContext()).then((windowStage: window.Window) => {
         let sysBarProps: window.SystemBarProperties = {
           statusBarColor: '#FFFFFF'
         };
@@ -126,7 +126,7 @@ export struct Funding {
       })
     })
     .onWillDisappear(() => {
-      window.getLastWindow(getContext(this)).then((windowStage: window.Window) => {
+      window.getLastWindow(this.getUIContext().getHostContext()).then((windowStage: window.Window) => {
         let sysBarProps: window.SystemBarProperties = {
           statusBarColor: '#00ffffff'
         };

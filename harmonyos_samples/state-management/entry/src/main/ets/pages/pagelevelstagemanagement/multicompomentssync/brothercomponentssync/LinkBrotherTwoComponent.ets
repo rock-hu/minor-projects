@@ -41,7 +41,7 @@ export struct LinkBrotherTwoComponent {
         Select(this.selectColors)
           .id('linkSelectCompB')
           .selected(this.currentSelectIndex)
-          .value(getResourceString(getContext(this) as common.UIAbilityContext, this.selectColors[this.currentSelectIndex].value))
+          .value(getResourceString(this.getUIContext().getHostContext() as common.UIAbilityContext, this.selectColors[this.currentSelectIndex].value))
           .fontColor($r('app.color.button_text_color'))
           .font({ size: $r('app.float.select_font_size') })
           .selectedOptionFont({ size: $r('app.float.select_font_size') })

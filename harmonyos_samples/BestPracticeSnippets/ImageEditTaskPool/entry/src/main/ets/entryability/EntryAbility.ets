@@ -70,6 +70,7 @@ export default class EntryAbility extends UIAbility {
         return;
       }
       const uiContext = windowClass.getUIContext();
+      AppStorage.setOrCreate("uiContext", uiContext);
       let navigationBarArea: window.AvoidArea =
         windowClass.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR);
       let area: window.AvoidArea = windowClass.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);

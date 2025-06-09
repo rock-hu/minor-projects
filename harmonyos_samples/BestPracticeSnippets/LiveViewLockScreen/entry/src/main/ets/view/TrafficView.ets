@@ -175,6 +175,9 @@ export struct TrafficView {
         Row() {
           TrafficInfoView()
         }
+        .onSizeChange(() => {
+          this.isShow = false;
+        })
         .margin({
           left: new BreakpointType($r('sys.float.padding_level0'), $r('sys.float.padding_level12'),
             $r('sys.float.padding_level16')).getValue(this.horizontalBreakpoint),

@@ -14,7 +14,7 @@
 */
 
 // [Start windowSizeListener]
-import { AbilityConstant, UIExtensionContentSession, Want } from '@kit.AbilityKit';
+import { AbilityConstant, bundleManager, UIExtensionContentSession, Want } from '@kit.AbilityKit';
 // [Start updateBreakPoint]
 import { display, window } from '@kit.ArkUI';
 // [StartExclude updateBreakPoint]
@@ -55,34 +55,37 @@ export default class LiveViewExtAbility extends LiveViewLockScreenExtensionAbili
         this.verticalBreakpoint = verticalBreakpoint;
         AppStorage.setOrCreate('verticalBreakpoint', this.verticalBreakpoint);
       }
-      hilog.info(0x0000, TAG, `updateBreakpoint ${verticalBreakpoint}`);
+      hilog.info(0x0000, TAG, '%{public}s', 'updateBreakpoint');
     } catch (error) {
-      hilog.error(0x0000, TAG, `updateBreakpoint catch err:`, (error as BusinessError).message);
+      hilog.error(0x0000, TAG, '%{public}s',
+        `updateBreakpoint catch. code is ${(error as BusinessError).code} message is ${(error as BusinessError).message}`)
+      ;
     }
   }
+
   // [End updateBreakPoint]
 
   onCreate(_launchParam: AbilityConstant.LaunchParam): void {
-    hilog.info(0x0000, TAG, 'LiveViewLockScreenExtAbility onCreate begin.');
+    hilog.info(0x0000, TAG, '%{public}s', 'LiveViewLockScreenExtAbility onCreate begin.');
   }
 
   onForeground(): void {
-    hilog.info(0x0000, TAG, 'LiveViewLockScreenExtAbility onForeground begin.');
+    hilog.info(0x0000, TAG, '%{public}s', 'LiveViewLockScreenExtAbility onForeground begin.');
   }
 
   onBackground(): void {
-    hilog.info(0x0000, TAG, 'LiveViewLockScreenExtAbility onBackground begin.');
+    hilog.info(0x0000, TAG, '%{public}s', 'LiveViewLockScreenExtAbility onBackground begin.');
   }
 
   onDestroy(): void | Promise<void> {
-    hilog.info(0x0000, TAG, 'LiveViewLockScreenExtAbility onDestroy begin.');
+    hilog.info(0x0000, TAG, '%{public}s', 'LiveViewLockScreenExtAbility onDestroy begin.');
   }
 
   // [Start createLiveView]
   // Core logic when creating UI session.
   onSessionCreate(_want: Want, session: UIExtensionContentSession): void {
     // [StartExclude createLiveView]
-    hilog.info(0x0000, TAG, 'LiveViewLockScreenExtAbility onSessionCreate begin.');
+    hilog.info(0x0000, TAG, '%{public}s', 'LiveViewLockScreenExtAbility onSessionCreate begin.');
     let param: Record<string, UIExtensionContentSession> = {
       'session': session
     };
@@ -97,9 +100,22 @@ export default class LiveViewExtAbility extends LiveViewLockScreenExtensionAbili
     // Create state storage (for cross-page data sharing).
     let storage: LocalStorage = new LocalStorage(param);
     // Initialize event subscription.
+    let bundleName: string = '';
+    try {
+      bundleManager.getBundleInfoForSelf(bundleManager.BundleFlag.GET_BUNDLE_INFO_DEFAULT).then((data) => {
+        hilog.info(0x0000, TAG, '%{public}s', 'getBundleInfoForSelf successfully.');
+        bundleName = data.name;
+      }).catch((error: BusinessError) => {
+        hilog.error(0x0000, TAG, '%{public}s',
+          `getBundleInfoForSelf failed. code is ${error.code} message is ${error.message}`);
+      });
+    } catch (error) {
+      hilog.error(0x0000, TAG, '%{public}s',
+        `getBundleInfoForSelf failed. code is ${(error as BusinessError).code} message is ${(error as BusinessError).message}`);
+    }
     let subscribeInfo: commonEventManager.CommonEventSubscribeInfo = {
       events: ['live_view_lock_screen'],
-      publisherBundleName: 'com.example.mapliveviewsample',
+      publisherBundleName: bundleName,
       priority: 0
     };
     commonEventManager.createSubscriber(subscribeInfo,
@@ -139,10 +155,10 @@ export default class LiveViewExtAbility extends LiveViewLockScreenExtensionAbili
     commonEventManager.unsubscribe(this.subscriber, () => {
       this.subscriber = null;
     });
-    hilog.info(0x0000, TAG, 'LiveViewLockScreenExtAbility onSessionDestroy begin.');
+    hilog.info(0x0000, TAG, '%{public}s', 'LiveViewLockScreenExtAbility onSessionDestroy begin.');
   }
 
   onConfigurationUpdate(): void {
-    hilog.info(0x0000, TAG, 'LiveViewLockScreenExtAbility onConfigurationUpdate begin.');
+    hilog.info(0x0000, TAG, '%{public}s', 'LiveViewLockScreenExtAbility onConfigurationUpdate begin.');
   }
 }

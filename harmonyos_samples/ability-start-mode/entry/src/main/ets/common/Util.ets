@@ -14,7 +14,7 @@
  */
 
 import Logger from './Logger';
-import { common, Want } from '@kit.AbilityKit';
+import { Want } from '@kit.AbilityKit';
 
 const TAG = '[Sample_StartMode]';
 let contextCaller: AbilityContext, want:Want;
@@ -33,9 +33,11 @@ class  EventData {
   launchWant: Want | null = null
 }
 
-export function getContextData(): Want {
+let that = this;
+
+export function getContextData(uiContext: UIContext): Want {
   Logger.info(TAG, 'UtilPage getContextData start');
-  let context = AppStorage.get("context") as common.UIAbilityContext;
+  let context = uiContext.getHostContext()!;
   let data: EventData = new EventData();
   context.eventHub.emit('getAbilityData', data);
   // Obtain the global context, which is similar to globalThis.mainAbilityContext.
@@ -45,9 +47,9 @@ export function getContextData(): Want {
   return want;
 }
 
-export function startMode(wantParameters: Record<string, string|number>, abilityName: string) {
+export function startMode(wantParameters: Record<string, string|number>, abilityName: string, uiContext: UIContext) {
   Logger.info(TAG, `${abilityName} start`);
-  getContextData();
+  getContextData(uiContext);
   let want: Want = {
     bundleName: 'ohos.samples.startmode',
     abilityName: abilityName,
@@ -64,14 +66,16 @@ export function startMode(wantParameters: Record<string, string|number>, ability
   Logger.info(TAG, `${abilityName} end`);
 }
 
-export function totast(context: UIContext) {
-  context.showAlertDialog({
-    message: $r('app.string.totast'),
-    secondaryButton: {
-      value: 'ok',
-      action: () => {
-        Logger.info(TAG, 'Callback when the second button is clicked')
+export function totast(uiContext: UIContext) {
+  uiContext.showAlertDialog(
+    {
+      message: $r('app.string.totast'),
+      secondaryButton: {
+        value: 'ok',
+        action: () => {
+          Logger.info(TAG, 'Callback when the second button is clicked')
+        }
       }
     }
-  });
+  )
 }

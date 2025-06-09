@@ -31,8 +31,10 @@
     "deliveryWithInstall": true,
     "installationFree": false,
     "pages": "$profile:main_pages",
+    // [Start min_window_width]
     "abilities": [
       {
+        // [StartExclude min_window_width]
         "name": "EntryAbility",
         "srcEntry": "./ets/entryability/EntryAbility.ets",
         "description": "$string:EntryAbility_desc",
@@ -51,12 +53,14 @@
             ]
           }
         ],
-        // [Start min_window_width]
+        // [EndExclude min_window_width]
         "minWindowWidth": 331,
         "minWindowHeight": 600,
-        // [End min_window_width]
+        // [StartExclude min_window_width]
       }
+      // [EndExclude min_window_width]
     ],
+    // [End min_window_width]
     "extensionAbilities": [
       {
         "name": "EntryBackupAbility",

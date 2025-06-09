@@ -51,7 +51,7 @@ export class CalculationDateUtil {
     return currentAllDay;
   }
 
-  public static dateToLunar(year: number, month: number, day: number): string {
+  public static dateToLunar(year: number, month: number, day: number, uiContext:UIContext): string {
     let lunarDate: LunarDate = solar2lunar(`${year}-${month}-${day}`);
     const dayStr: Resource[] =
       [
@@ -62,7 +62,7 @@ export class CalculationDateUtil {
     let lunarDay: string = '';
     const numberDay: number = lunarDate.lunarDay;
     if (numberDay <= 10 && numberDay > 0) {
-      lunarDay = CalculationDateUtil.getString($r('app.string.grade').id) + CalculationDateUtil.getString(dayStr[numberDay - 1].id);
+      lunarDay = CalculationDateUtil.getString($r('app.string.grade').id, uiContext) + CalculationDateUtil.getString(dayStr[numberDay - 1].id, uiContext);
     } else {
       const first: Resource =
         numberDay.toString().charAt(0) === '1' ? $r('app.string.ten') : (numberDay.toString().charAt(0) === '2' ?
@@ -70,7 +70,7 @@ export class CalculationDateUtil {
       const second: Resource =
         numberDay.toString().charAt(1) === '0' ? $r('app.string.ten') :
         dayStr[Number.parseInt(numberDay.toString().charAt(1)) - 1];
-      lunarDay = CalculationDateUtil.getString(first.id) + CalculationDateUtil.getString(second.id);
+      lunarDay = CalculationDateUtil.getString(first.id, uiContext) + CalculationDateUtil.getString(second.id, uiContext);
     }
     return lunarDay;
   }
@@ -79,9 +79,9 @@ export class CalculationDateUtil {
     return CalculationDateUtil.dateMap.get(num);
   }
 
-  public static getString(resourceId: number): string {
+  public static getString(resourceId: number, uiContext:UIContext): string {
     try {
-      return getContext().resourceManager.getStringSync(resourceId);
+      return uiContext.getHostContext()!.resourceManager.getStringSync(resourceId);
     } catch (error) {
       hilog.error(0x0000, TAG, `getString failed, errorCode: ${error.code}`);
       return '';

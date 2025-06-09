@@ -17,7 +17,7 @@ import { promptAction } from '@kit.ArkUI';
 import { common } from '@kit.AbilityKit';
 import { CommonConstants } from '../constants/CommonConstants';
 
-/**
+/*
  *  Top area.
  */
 @Component

@@ -14,7 +14,6 @@
  */
 
 import { hilog, hiTraceMeter } from '@kit.PerformanceAnalysisKit';
-import { router } from '@kit.ArkUI';
 
 // [Start negative_of_on_scroll]
 // onWillScroll high-frequency event callback counterexample
@@ -45,7 +44,7 @@ struct NegativeOfOnScroll {
         .backgroundColor('#E8E8E8')
         .borderRadius(40)
         .onClick(() => {
-          router.back({
+          this.getUIContext().getRouter().back({
             url: 'pages/Index'
           });
         })

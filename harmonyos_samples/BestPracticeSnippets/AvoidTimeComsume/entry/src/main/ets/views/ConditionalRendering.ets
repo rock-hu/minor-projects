@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-import { router } from '@kit.ArkUI';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
 // [Start conditional_rendering]
@@ -37,7 +36,7 @@ struct MyComponent {
         .backgroundColor('#E8E8E8')
         .borderRadius(40)
         .onClick(() => {
-          router.back({
+          this.getUIContext().getRouter().back({
             url: 'pages/Index'
           });
         })

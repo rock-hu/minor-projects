@@ -230,13 +230,16 @@ static napi_value CreateMyExternal(napi_env env, napi_callback_info info) {
 // The code for module registration has been omitted here. You may need to register the CreateMyExternal method yourself
 // [End create_my_external]
 
+// [Start Init]
 EXTERN_C_START
 static napi_value Init(napi_env env, napi_value exports) {
+    // [StartExclude Init]
     napi_property_descriptor desc[] = {
         {"add", nullptr, Add, nullptr, nullptr, nullptr, napi_default, nullptr},
         {"createMyExternal", nullptr, CreateMyExternal, nullptr, nullptr, nullptr, napi_default, nullptr},
     };
     napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc);
+    // [EndExclude Init]
     return exports;
 }
 EXTERN_C_END
@@ -252,3 +255,4 @@ static napi_module demoModule = {
 };
 
 extern "C" __attribute__((constructor)) void RegisterEntryModule(void) { napi_module_register(&demoModule); }
+// [End Init]
