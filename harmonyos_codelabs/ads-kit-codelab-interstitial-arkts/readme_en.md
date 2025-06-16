@@ -15,7 +15,7 @@ The sample code of Ads Kit for HarmonyOS ArkTS describes how to use APIs of Ads 
 
 ## How to Use
 
-Before running this demo, you need to [configure app signing information](https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V5/application-dev-overview-V5#section42841246144813).
+Before running this demo, you need to [configure app signing information](https://developer.huawei.com/consumer/en/doc/harmonyos-guides/application-dev-overview#section42841246144813).
 
 ## Preview
 | **Interstitial video ad page**                            | **Interstitial image ad page**                                             |
@@ -45,11 +45,11 @@ Demo UI of Petal Ads Publisher Service, where you can tap the button to request 
 
 ## Required Permissions
 
-* To obtain the OAID, you need to request the activity tracking permission [ohos.permission.APP_TRACKING_CONSENT](https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V5/permissions-for-all-V5#ohospermissionapp_tracking_consent).
+* To obtain the OAID, you need to request the activity tracking permission [ohos.permission.APP_TRACKING_CONSENT](https://developer.huawei.com/consumer/en/doc/harmonyos-guides/permissions-for-all-user#ohospermissionapp_tracking_consent).
 
 ## Constraints
 
 1. The sample app is only supported on Huawei phones and tablets with standard systems.
 2. The HarmonyOS version must be HarmonyOS NEXT Developer Beta1 or later.
 3. The DevEco Studio version must be DevEco Studio NEXT Developer Beta1 or later.
-4. The HarmonyOS SDK version must be HarmonyOS NEXT Developer Beta1 or later.
+4. The HarmonyOS SDK version must be HarmonyOS NEXT Developer Beta1 SDK or later.

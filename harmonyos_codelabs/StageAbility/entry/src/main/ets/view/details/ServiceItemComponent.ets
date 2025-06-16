@@ -62,8 +62,8 @@ export default struct ServiceItemComponent {
             .width(GoodsServiceItem.IMAGE_SIZE_MORE)
         } else {
           Row()
-          .height(GoodsServiceItem.IMAGE_SIZE_MORE)
-          .width(GoodsServiceItem.IMAGE_SIZE_MORE)
+            .height(GoodsServiceItem.IMAGE_SIZE_MORE)
+            .width(GoodsServiceItem.IMAGE_SIZE_MORE)
         }
       }
       .width(GoodsServiceItem.LAYOUT_WEIGHT_RIGHT)

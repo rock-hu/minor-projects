@@ -35,7 +35,7 @@ Scan Kit（统一扫码服务）是HarmonyOS SDK的基础能力，提供了“�
 
 打开扫码Demo时进入一级菜单页，显示为各个功能导航按钮。
 
-- 参考[App Linking集成指导](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/app-linking-startup-V5)完成域名注册，将配置好域名映射关系的测试应用安装到本地，打开HarmonyOS扫码入口（控制中心扫码入口），扫描应用发行的二维码，实现扫码跳转（Demo的一级菜单页未提供“扫码直达”导航按钮）。
+- 参考[App Linking集成指导](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/app-linking-startup)完成域名注册，将配置好域名映射关系的测试应用安装到本地，打开HarmonyOS扫码入口（控制中心扫码入口），扫描应用发行的二维码，实现扫码跳转（Demo的一级菜单页未提供“扫码直达”导航按钮）。
 - 点击“码图生成”按钮进入界面，调用码图生成接口，生成不同类型的码图。
 - 点击“默认界面扫码”按钮，开启默认界面扫码功能。
 - 点击“自定义界面扫码”按钮，开启自定义界面扫码和预览流(YUV)功能。

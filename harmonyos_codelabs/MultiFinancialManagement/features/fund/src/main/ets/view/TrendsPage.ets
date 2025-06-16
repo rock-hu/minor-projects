@@ -92,6 +92,7 @@ export struct TrendsPage {
                 this.pageIndexInfos.pop();
               })
           }
+          .padding({top:40})
           .width(CommonConstants.FULL_WIDTH_PERCENT)
           .justifyContent(FlexAlign.SpaceBetween)
         }
@@ -256,7 +257,7 @@ export struct TrendsPage {
     .hideTitleBar(true)
     .onAppear(() => {
       window.getLastWindow(this.getUIContext().getHostContext()).then((windowStage: window.Window) => {
-        windowStage.setWindowLayoutFullScreen(false);
+        windowStage.setWindowLayoutFullScreen(true);
       })
       if (!this.isLandScape && this.breakPoint === CommonConstants.BREAK_POINT_SM) {
         window.getLastWindow(this.getUIContext().getHostContext()).then((stage: window.Window) => {

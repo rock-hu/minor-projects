@@ -19,7 +19,7 @@ Map Kit is a powerful service within the HarmonyOS ecosystem. It empowers develo
 Preparations
 ---------------
 
-You need to enable Map Kit and configure the app signing certificate fingerprint in [AppGallery Connect](https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V5/map-config-agc-V5).
+You need to enable Map Kit and configure the app signing certificate fingerprint in [AppGallery Connect](https://developer.huawei.com/consumer/en/doc/harmonyos-guides/map-config-agc).
 
 ## Project_Directory
 ```

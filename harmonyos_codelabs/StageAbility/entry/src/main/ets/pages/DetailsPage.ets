@@ -52,7 +52,7 @@ struct DetailsPage {
   }
 
   onBackPress() {
-    let handler = getContext(this) as common.UIAbilityContext;
+    let handler = this.getUIContext().getHostContext() as common.UIAbilityContext;
     handler.terminateSelf();
     return true;
   }

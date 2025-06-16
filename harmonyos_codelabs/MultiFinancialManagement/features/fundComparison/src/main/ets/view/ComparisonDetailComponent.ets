@@ -13,10 +13,11 @@
  * limitations under the License.
  */
 
-import { CommonConstants, RouterConstants } from '@ohos/basic';
+import { CommonConstants, logger, RouterConstants } from '@ohos/basic';
 import { ComparisonConstants } from '../constants/ComparisonConstants';
 import { ComparisonInfo } from '../viewmodel/ComparisonInfo';
 import FundComparisonViewModel from '../viewmodel/FundComparisonViewModel';
+import { display, window } from '@kit.ArkUI';
 
 @Component
 export struct ComparisonDetailComponent {
@@ -327,6 +328,11 @@ export struct ComparisonDetailComponent {
       .barWidth($r('app.float.choose_tab_width'))
       .layoutWeight(1)
     }
+    .onAppear(() => {
+      window.getLastWindow(this.getUIContext().getHostContext()).then((windowStage: window.Window) => {
+        windowStage.setWindowLayoutFullScreen(true);
+      })
+    })
   }
 
   @Styles

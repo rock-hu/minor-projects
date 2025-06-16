@@ -20,7 +20,7 @@ import { GoodsPicker } from '../../common/constants/DetailsConstants';
 export default struct PickerComponent {
   @Builder _init() {};
   @BuilderParam actionMoreBuilder: () => void = this._init;
-  private goodsDescription: string | Resource = '';
+  public goodsDescription: string | Resource = '';
 
   build() {
     Row() {

@@ -34,15 +34,17 @@ export default struct BottomBarComponent {
         .backgroundColor($r('app.color.navigation_line'))
       Blank()
       Row() {
-        Text($r('app.string.put_in_shopping_cart'))
-          .setTextStyle()
-        Text($r('app.string.buy_now'))
-          .setTextStyle()
+        Row() {
+          Text($r('app.string.put_in_shopping_cart'))
+            .setTextStyle()
+          Text($r('app.string.buy_now'))
+            .setTextStyle()
+        }
+        .width(BottomBar.CONTAINER_SIZE_WIDTH)
+        .height(BottomBar.CONTAINER_SIZE_HEIGHT)
+        .backgroundImage($rawfile('detail/detail_bottom_panel_background.png'), ImageRepeat.NoRepeat)
+        .backgroundImageSize(ImageSize.Cover)
       }
-      .width(BottomBar.CONTAINER_SIZE_WIDTH)
-      .height(BottomBar.CONTAINER_SIZE_HEIGHT)
-      .backgroundImage($rawfile('detail/detail_bottom_panel_background.png'), ImageRepeat.NoRepeat)
-      .backgroundImageSize(ImageSize.Cover)
       .padding({
         right: BottomBar.BAR_PADDING_RIGHT
       })
