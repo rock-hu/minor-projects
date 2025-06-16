@@ -471,6 +471,9 @@ DEFINE_MOP(MOP_cmovoq_r_r, {&OpndDesc::Reg64IS,&OpndDesc::Reg64IDS},0,kLtAlu,"cm
 DEFINE_MOP(MOP_callq_l, {&OpndDesc::Lbl64,&OpndDesc::ListSrc,&OpndDesc::ListDest},ISCALL,kLtAlu,"callq","0",1)
 DEFINE_MOP(MOP_callq_m, {&OpndDesc::Mem64S,&OpndDesc::ListSrc,&OpndDesc::ListDest},ISCALL,kLtAlu,"callq","0",1)
 DEFINE_MOP(MOP_callq_r, {&OpndDesc::Reg64IS,&OpndDesc::ListSrc,&OpndDesc::ListDest},ISCALL,kLtAlu,"callq","0",1)
+DEFINE_MOP(MOP_tail_callq_l, {&OpndDesc::Lbl64,&OpndDesc::ListSrc},ISTAILCALL|ISCALL,kLtAlu,"jmp","0",1)
+DEFINE_MOP(MOP_tail_callq_m, {&OpndDesc::Mem64S,&OpndDesc::ListSrc},ISTAILCALL|ISCALL,kLtAlu,"jmp","0",1)
+DEFINE_MOP(MOP_tail_callq_r, {&OpndDesc::Reg64IS,&OpndDesc::ListSrc},ISTAILCALL|ISCALL,kLtAlu,"jmp","0",1)
 DEFINE_MOP(MOP_pure_call, {&OpndDesc::Reg64IS,&OpndDesc::ListSrc,&OpndDesc::ListDest},ISCALL,kLtAlu,"pure_call","0",1)
 
 DEFINE_MOP(MOP_retq, {},CANTHROW,kLtBranch,"ret","",1)
@@ -537,6 +540,11 @@ DEFINE_MOP(MOP_sqrtd_r_r, {&OpndDesc::Reg128FS, &OpndDesc::Reg128FD},0,kLtAlu,"s
 /* intrinsic operation */
 DEFINE_MOP(MOP_heap_const, {&OpndDesc::Reg64ID, &OpndDesc::Reg64IS, &OpndDesc::Imm64},0,kLtAlu,"__heap_constant","0,1,1",1)
 DEFINE_MOP(MOP_get_heap_const_table, {&OpndDesc::Reg64ID, &OpndDesc::Reg64IS, &OpndDesc::Imm64, &OpndDesc::Imm64},0,kLtAlu,"__get_heap_constant_table","0,1,2,3",2)
+DEFINE_MOP(MOP_tagged_is_heapobject, {&OpndDesc::Reg8ID, &OpndDesc::Reg64ID, &OpndDesc::Reg64IS, &OpndDesc::Imm64},0,kLtAlu,"__tagged_is_heapobject","0,1,2,3",3)
+DEFINE_MOP(MOP_has_pending_exception, {&OpndDesc::Reg8ID, &OpndDesc::Reg64IS, &OpndDesc::Imm64, &OpndDesc::Imm64},0,kLtAlu,"__has_pending_exception","0,1,2,3",2)
+DEFINE_MOP(MOP_is_stable_elements, {&OpndDesc::Reg32ID, &OpndDesc::Reg64IS, &OpndDesc::Imm32, &OpndDesc::Imm32},0,kLtAlu,"__is_stable_elements","0,1,2,3",2)
+DEFINE_MOP(MOP_tagged_object_is_string, {&OpndDesc::Reg8ID, &OpndDesc::Reg64IS, &OpndDesc::Reg64IS, &OpndDesc::Imm32, &OpndDesc::Imm32, &OpndDesc::Imm32, &OpndDesc::Reg32ID, &OpndDesc::Reg64ID},ISINTRINSIC,kLtAlu,"__tagged_object_is_string","0,1,2,3,4",3)
+DEFINE_MOP(MOP_is_cow_array, {&OpndDesc::Reg8ID, &OpndDesc::Reg64IS, &OpndDesc::Reg64IS, &OpndDesc::Imm32, &OpndDesc::Imm32, &OpndDesc::Imm32, &OpndDesc::Imm32, &OpndDesc::Reg32ID, &OpndDesc::Reg64ID},ISINTRINSIC,kLtAlu,"__is_cow_array","0,1,2,3,4",3)
 
 /* pseudo operation */
 DEFINE_MOP(MOP_pseudo_ret_int, {&OpndDesc::Reg64IS},0,kLtUndef,"//MOP_pseudo_ret_int","", 0)

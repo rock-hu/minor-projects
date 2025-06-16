@@ -165,7 +165,8 @@ public:
     static void ReverseTypedArray(JSTypedArray *typedArray);
     static void SortTypedArray(JSTypedArray *typedArray);
     static inline uintptr_t RuntimeGetNativePcOfstForBaseline(const JSHandle<JSFunction> &func, uint64_t bytecodePos);
-    static void ObjectCopy(uintptr_t argGlue, JSTaggedType *dst, JSTaggedType *src, uint32_t count);
+    static void ObjectCopy(uintptr_t argGlue, JSTaggedType *dstObj,
+                            JSTaggedType *dst, JSTaggedType *src, uint32_t count);
     static void FillObject(JSTaggedType *dst, JSTaggedType value, uint32_t count);
     static void ReverseArray(uintptr_t argGlue, JSTaggedType *dst, uint32_t length);
 
@@ -178,8 +179,8 @@ public:
 private:
     static void DumpToStreamWithHint(std::ostream &out, std::string_view prompt, JSTaggedValue value);
     static inline void DumpInfoForMoreLdInfo(JSThread *thread, JSHandle<JSTaggedValue> &receiver, CString &msg);
-    static inline void DumpInfoForLdObjByValue(JSHandle<JSTaggedValue> &receiver, JSHandle<JSTaggedValue> &profile,
-                                        JSTaggedValue slotId, JSTaggedValue key, CString &msg);
+    static inline void DumpInfoForLdObjByValue(JSHandle<JSTaggedValue> &profile,
+                                               JSTaggedValue slotId, JSTaggedValue key, CString &msg);
     static inline JSTaggedValue RuntimeInc(JSThread *thread, const JSHandle<JSTaggedValue> &value);
     static inline JSTaggedValue RuntimeDec(JSThread *thread, const JSHandle<JSTaggedValue> &value);
     static inline JSTaggedValue RuntimeExp(JSThread *thread, JSTaggedValue base, JSTaggedValue exponent);

@@ -231,7 +231,6 @@
     V(JSTaggedValue, ModuleNamespaceClass, MODULENAMESPACE_CLASS)                                   \
     V(JSTaggedValue, ObjectLiteralHClassCache, OBJECT_LITERAL_HCLASS_CACHE)                         \
     V(JSTaggedValue, WeakRefKeepObjects, WEAK_REF_KEEP_OBJECTS)                                     \
-    V(JSTaggedValue, FinRegLists, FIN_REG_LISTS)                                                    \
     V(JSTaggedValue, CjsModuleFunction, CJS_MODULE_FUNCTION_INDEX)                                  \
     V(JSTaggedValue, CjsExportsFunction, CJS_EXPORTS_FUNCTION_INDEX)                                \
     V(JSTaggedValue, CjsRequireFunction, CJS_REQUIRE_FUNCTION_INDEX)                                \
@@ -268,7 +267,8 @@
     V(JSTaggedValue, ElementHOLE_OBJECTProtoClass, ELEMENT_HOLE_OBJECT_PROTO_HCLASS_INDEX)          \
     V(JSTaggedValue, ElementHOLE_TAGGEDClass, ELEMENT_HOLE_TAGGED_HCLASS_INDEX)                     \
     V(JSTaggedValue, ElementHOLE_TAGGEDProtoClass, ELEMENT_HOLE_TAGGED_PROTO_HCLASS_INDEX)          \
-    V(JSTaggedValue, ModuleManagerNativePointer, MODULE_MANAGER_NATIVE_POINTER_INDEX)
+    V(JSTaggedValue, ModuleManagerNativePointer, MODULE_MANAGER_NATIVE_POINTER_INDEX)               \
+    V(JSTaggedValue, DetectorDependentInfos, DETECTOR_DEPENDENT_INFOS_INDEX)
 
 #define GLOBAL_ENV_CONTAINER_ITERATORS(V)                                                           \
     /* non ECMA standard jsapi containers iterators */                                              \

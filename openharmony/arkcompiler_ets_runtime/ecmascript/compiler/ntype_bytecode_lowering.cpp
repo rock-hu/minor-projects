@@ -15,6 +15,7 @@
 
 #include "ecmascript/compiler/ntype_bytecode_lowering.h"
 
+#include "ecmascript/compiler/lazy_deopt_dependency.h"
 #include "ecmascript/compiler/type_info_accessors.h"
 #include "ecmascript/dfx/vmstat/opt_code_profiler.h"
 #include "ecmascript/js_hclass-inl.h"
@@ -99,6 +100,10 @@ void NTypeBytecodeLowering::Lower(GateRef gate)
         case EcmaOpcode::LDLOCALMODULEVAR_IMM8:
         case EcmaOpcode::WIDE_LDLOCALMODULEVAR_PREF_IMM16:
             LowerLdLocalMoudleVar(gate);
+            break;
+        case EcmaOpcode::LDEXTERNALMODULEVAR_IMM8:
+        case EcmaOpcode::WIDE_LDEXTERNALMODULEVAR_PREF_IMM16:
+            LowerLdExternalMoudleVar(gate);
             break;
         case EcmaOpcode::STMODULEVAR_IMM8:
         case EcmaOpcode::WIDE_STMODULEVAR_PREF_IMM16:
@@ -311,7 +316,7 @@ void NTypeBytecodeLowering::AddProfiling(GateRef gate)
 
         GateRef func = builder_.Undefined();
         if (acc_.HasFrameState(gate)) {
-            func = argAcc_.GetFrameArgsIn(gate, FrameArgIdx::FUNC);
+            func = argAcc_->GetFrameArgsIn(gate, FrameArgIdx::FUNC);
         }
 
         GateRef bcIndex = builder_.Int32ToTaggedInt(builder_.Int32(acc_.TryGetBcIndex(gate)));
@@ -330,16 +335,47 @@ void NTypeBytecodeLowering::AddProfiling(GateRef gate)
 void NTypeBytecodeLowering::LowerLdLocalMoudleVar(GateRef gate)
 {
     AddProfiling(gate);
-    GateRef jsFunc = argAcc_.GetFrameArgsIn(gate, FrameArgIdx::FUNC);
+    GateRef jsFunc = argAcc_->GetFrameArgsIn(gate, FrameArgIdx::FUNC);
     GateRef index = acc_.GetValueIn(gate, 0);
     GateRef result = builder_.LdLocalModuleVar(jsFunc, index);
     acc_.ReplaceGate(gate, builder_.GetState(), builder_.GetDepend(), result);
 }
 
+void NTypeBytecodeLowering::LowerLdExternalMoudleVar(GateRef gate)
+{
+    if (!compilationEnv_->IsJitCompiler()) {
+        return;
+    }
+    uint32_t pcOffset = acc_.TryGetPcOffset(gate);
+    uint32_t methodOffset = acc_.TryGetMethodOffset(gate);
+    if (methodOffset == 0) {
+        return;
+    }
+    auto isResolved =
+        static_cast<const JitCompilationEnv *>(compilationEnv_)->IsLdExtModuleVarResolved(methodOffset, pcOffset);
+    if (!isResolved) {
+        return;
+    }
+
+    if (enableLazyDeopt_) {
+        if (!compilationEnv_->GetDependencies()->DependOnHotReloadPatchMain(compilationEnv_->GetHostThread())) {
+            return;
+        }
+    } else {
+        GateRef frameState = acc_.FindNearestFrameState(builder_.GetDepend());
+        builder_.DeoptCheck(builder_.IsNotLdEndExecPatchMain(glue_), frameState, DeoptType::HOTRELOAD_PATCHMAIN);
+    }
+
+    GateRef jsFunc = argAcc_->GetFrameArgsIn(gate, FrameArgIdx::FUNC);
+    GateRef index = acc_.GetValueIn(gate, 0);
+    GateRef value = builder_.LdExternalModuleVar(jsFunc, index);
+    acc_.ReplaceGate(gate, builder_.GetState(), builder_.GetDepend(), value);
+}
+
 void NTypeBytecodeLowering::LowerStModuleVar(GateRef gate)
 {
     AddProfiling(gate);
-    GateRef jsFunc = argAcc_.GetFrameArgsIn(gate, FrameArgIdx::FUNC);
+    GateRef jsFunc = argAcc_->GetFrameArgsIn(gate, FrameArgIdx::FUNC);
     GateRef index = acc_.GetValueIn(gate, 0);
     GateRef value = acc_.GetValueIn(gate, 1);
     builder_.StoreModuleVar(jsFunc, index, value);
@@ -387,7 +423,7 @@ void NTypeBytecodeLowering::LowerNTypedStOwnByName(GateRef gate)
 void NTypeBytecodeLowering::ReplaceGateWithPendingException(GateRef gate, GateRef state, GateRef depend, GateRef value)
 {
     auto glue = glue_;
-    auto condition = builder_.HasPendingException(glue);
+    auto condition = builder_.HasPendingException(glue, compilationEnv_);
     GateRef ifBranch = builder_.Branch(state, condition, 1, BranchWeight::DEOPT_WEIGHT, "checkException");
     GateRef ifTrue = builder_.IfTrue(ifBranch);
     GateRef ifFalse = builder_.IfFalse(ifBranch);

@@ -32,11 +32,14 @@
 #include "ecmascript/jspandafile/js_pandafile_manager.h"
 #include "ecmascript/linked_hash_table.h"
 #include "ecmascript/mem/c_containers.h"
+#include "ecmascript/module/js_module_source_text.h"
 #include "ecmascript/object_factory.h"
 #include "ecmascript/tests/test_helper.h"
 
 #include "ecmascript/serializer/value_serializer.h"
 #include "ecmascript/serializer/base_deserializer.h"
+#include "ecmascript/serializer/module_deserializer.h"
+#include "ecmascript/serializer/module_serializer.h"
 
 using namespace panda::ecmascript;
 using namespace testing::ext;
@@ -1054,6 +1057,20 @@ public:
         Destroy();
     }
 
+    void SourceTextModuleTest(SerializeData* data)
+    {
+        Init();
+        ModuleDeserializer deserializer(thread, data);
+        JSHandle<JSTaggedValue> res = deserializer.ReadValue();
+        ecmaVm->CollectGarbage(TriggerGCType::YOUNG_GC);
+        ecmaVm->CollectGarbage(TriggerGCType::OLD_GC);
+
+        EXPECT_FALSE(res.IsEmpty());
+        EXPECT_TRUE(res->IsSourceTextModule());
+
+        Destroy();
+    }
+
 private:
     EcmaVM *ecmaVm = nullptr;
     EcmaHandleScope *scope = nullptr;
@@ -1108,7 +1125,7 @@ HWTEST_F_L0(JSSerializerTest, SerializeJSSpecialValue)
 
     JSDeserializerTest jsDeserializerTest;
     std::thread t1(&JSDeserializerTest::JSSpecialValueTest, jsDeserializerTest, data.release());
-    ThreadSuspensionScope scope(thread);
+    ecmascript::ThreadSuspensionScope scope(thread);
     t1.join();
     delete serializer;
 };
@@ -1126,7 +1143,7 @@ HWTEST_F_L0(JSSerializerTest, SerializeLineString)
     JSDeserializerTest jsDeserializerTest;
     std::thread t1(&JSDeserializerTest::LineStringTest, jsDeserializerTest, data.release());
     {
-        ThreadSuspensionScope suspensionScope(thread);
+        ecmascript::ThreadSuspensionScope suspensionScope(thread);
         t1.join();
     }
     delete serializer;
@@ -1149,7 +1166,7 @@ HWTEST_F_L0(JSSerializerTest, SerializeTreeString)
     JSDeserializerTest jsDeserializerTest;
     std::thread t1(&JSDeserializerTest::TreeStringTest, jsDeserializerTest, data.release());
     {
-        ThreadSuspensionScope suspensionScope(thread);
+        ecmascript::ThreadSuspensionScope suspensionScope(thread);
         t1.join();
     }
     delete serializer;
@@ -1172,7 +1189,7 @@ HWTEST_F_L0(JSSerializerTest, SerializeSlicedString)
     JSDeserializerTest jsDeserializerTest;
     std::thread t1(&JSDeserializerTest::SlicedStringTest, jsDeserializerTest, data.release());
     {
-        ThreadSuspensionScope suspensionScope(thread);
+        ecmascript::ThreadSuspensionScope suspensionScope(thread);
         t1.join();
     }
     delete serializer;
@@ -1204,7 +1221,7 @@ HWTEST_F_L0(JSSerializerTest, SerializeJSPlainObject1)
     std::unique_ptr<SerializeData> data = serializer->Release();
     JSDeserializerTest jsDeserializerTest;
     std::thread t1(&JSDeserializerTest::JSPlainObjectTest1, jsDeserializerTest, data.release());
-    ThreadSuspensionScope scope(thread);
+    ecmascript::ThreadSuspensionScope scope(thread);
     t1.join();
     delete serializer;
 };
@@ -1235,7 +1252,7 @@ HWTEST_F_L0(JSSerializerTest, SerializeJSPlainObject2)
     std::unique_ptr<SerializeData> data = serializer->Release();
     JSDeserializerTest jsDeserializerTest;
     std::thread t1(&JSDeserializerTest::JSPlainObjectTest2, jsDeserializerTest, data.release());
-    ThreadSuspensionScope scope(thread);
+    ecmascript::ThreadSuspensionScope scope(thread);
     t1.join();
     delete serializer;
 };
@@ -1262,7 +1279,7 @@ HWTEST_F_L0(JSSerializerTest, SerializeJSPlainObject3)
     std::unique_ptr<SerializeData> data = serializer->Release();
     JSDeserializerTest jsDeserializerTest;
     std::thread t1(&JSDeserializerTest::JSPlainObjectTest3, jsDeserializerTest, data.release());
-    ThreadSuspensionScope scope(thread);
+    ecmascript::ThreadSuspensionScope scope(thread);
     t1.join();
     delete serializer;
 };
@@ -1287,7 +1304,7 @@ HWTEST_F_L0(JSSerializerTest, SerializeJSPlainObject4)
     std::unique_ptr<SerializeData> data = serializer->Release();
     JSDeserializerTest jsDeserializerTest;
     std::thread t1(&JSDeserializerTest::JSPlainObjectTest4, jsDeserializerTest, data.release());
-    ThreadSuspensionScope scope(thread);
+    ecmascript::ThreadSuspensionScope scope(thread);
     t1.join();
     delete serializer;
 };
@@ -1342,7 +1359,7 @@ HWTEST_F_L0(JSSerializerTest, SerializeJSError1)
     std::unique_ptr<SerializeData> data = serializer->Release();
     JSDeserializerTest jsDeserializerTest;
     std::thread t1(&JSDeserializerTest::JSErrorTest1, jsDeserializerTest, data.release());
-    ThreadSuspensionScope scope(thread);
+    ecmascript::ThreadSuspensionScope scope(thread);
     t1.join();
     delete serializer;
 };
@@ -1368,7 +1385,7 @@ HWTEST_F_L0(JSSerializerTest, SerializeJSError2)
     std::unique_ptr<SerializeData> data = serializer->Release();
     JSDeserializerTest jsDeserializerTest;
     std::thread t1(&JSDeserializerTest::JSErrorTest2, jsDeserializerTest, data.release());
-    ThreadSuspensionScope scope(thread);
+    ecmascript::ThreadSuspensionScope scope(thread);
     t1.join();
     delete serializer;
 };
@@ -1416,7 +1433,7 @@ HWTEST_F_L0(JSSerializerTest, SerializeJSError3)
     std::unique_ptr<SerializeData> data = serializer->Release();
     JSDeserializerTest jsDeserializerTest;
     std::thread t1(&JSDeserializerTest::JSErrorTest3, jsDeserializerTest, data.release());
-    ThreadSuspensionScope scope(thread);
+    ecmascript::ThreadSuspensionScope scope(thread);
     t1.join();
     delete serializer;
 }
@@ -1445,7 +1462,7 @@ HWTEST_F_L0(JSSerializerTest, SerializeBigInt)
     std::unique_ptr<SerializeData> data = serializer->Release();
     JSDeserializerTest jsDeserializerTest;
     std::thread t1(&JSDeserializerTest::BigIntTest, jsDeserializerTest, data.release());
-    ThreadSuspensionScope scope(thread);
+    ecmascript::ThreadSuspensionScope scope(thread);
     t1.join();
     delete serializer;
 };
@@ -1490,7 +1507,7 @@ HWTEST_F_L0(JSSerializerTest, SerializePrimitive)
     std::unique_ptr<SerializeData> data = serializer->Release();
     JSDeserializerTest jsDeserializerTest;
     std::thread t1(&JSDeserializerTest::PrimitiveTest, jsDeserializerTest, data.release());
-    ThreadSuspensionScope scope(thread);
+    ecmascript::ThreadSuspensionScope scope(thread);
     t1.join();
     delete serializer;
 }
@@ -1547,7 +1564,7 @@ HWTEST_F_L0(JSSerializerTest, SerializeNativeBindingObject1)
     std::unique_ptr<SerializeData> data = serializer->Release();
     JSDeserializerTest jsDeserializerTest;
     std::thread t1(&JSDeserializerTest::NativeBindingObjectTest1, jsDeserializerTest, data.release());
-    ThreadSuspensionScope scope(thread);
+    ecmascript::ThreadSuspensionScope scope(thread);
     t1.join();
     delete serializer;
 }
@@ -1581,7 +1598,7 @@ HWTEST_F_L0(JSSerializerTest, SerializeNativeBindingObject2)
     std::unique_ptr<SerializeData> data = serializer->Release();
     JSDeserializerTest jsDeserializerTest;
     std::thread t1(&JSDeserializerTest::NativeBindingObjectTest2, jsDeserializerTest, data.release());
-    ThreadSuspensionScope scope(thread);
+    ecmascript::ThreadSuspensionScope scope(thread);
     t1.join();
     delete serializer;
 }
@@ -1650,7 +1667,7 @@ HWTEST_F_L0(JSSerializerTest, TestSerializeJSSet)
     std::unique_ptr<SerializeData> data = serializer->Release();
     JSDeserializerTest jsDeserializerTest;
     std::thread t1(&JSDeserializerTest::JSSetTest, jsDeserializerTest, data.release());
-    ThreadSuspensionScope scope(thread);
+    ecmascript::ThreadSuspensionScope scope(thread);
     t1.join();
     delete serializer;
 };
@@ -1679,7 +1696,7 @@ HWTEST_F_L0(JSSerializerTest, SerializeDate)
     std::unique_ptr<SerializeData> data = serializer->Release();
     JSDeserializerTest jsDeserializerTest;
     std::thread t1(&JSDeserializerTest::JSDateTest, jsDeserializerTest, data.release());
-    ThreadSuspensionScope scope(thread);
+    ecmascript::ThreadSuspensionScope scope(thread);
     t1.join();
     delete serializer;
 };
@@ -1715,7 +1732,7 @@ HWTEST_F_L0(JSSerializerTest, SerializeJSMap)
     std::unique_ptr<SerializeData> data = serializer->Release();
     JSDeserializerTest jsDeserializerTest;
     std::thread t1(&JSDeserializerTest::JSMapTest, jsDeserializerTest, data.release(), map);
-    ThreadSuspensionScope scope(thread);
+    ecmascript::ThreadSuspensionScope scope(thread);
     t1.join();
     delete serializer;
 };
@@ -1743,7 +1760,7 @@ HWTEST_F_L0(JSSerializerTest, SerializeJSRegExp)
     std::unique_ptr<SerializeData> data = serializer->Release();
     JSDeserializerTest jsDeserializerTest;
     std::thread t1(&JSDeserializerTest::JSRegexpTest, jsDeserializerTest, data.release());
-    ThreadSuspensionScope scope(thread);
+    ecmascript::ThreadSuspensionScope scope(thread);
     t1.join();
     delete serializer;
 };
@@ -1778,7 +1795,7 @@ HWTEST_F_L0(JSSerializerTest, TestSerializeJSArray)
     std::unique_ptr<SerializeData> data = serializer->Release();
     JSDeserializerTest jsDeserializerTest;
     std::thread t1(&JSDeserializerTest::JSArrayTest, jsDeserializerTest, data.release());
-    ThreadSuspensionScope scope(thread);
+    ecmascript::ThreadSuspensionScope scope(thread);
     t1.join();
     delete serializer;
 };
@@ -1799,7 +1816,7 @@ HWTEST_F_L0(JSSerializerTest, SerializeEcmaString1)
     std::unique_ptr<SerializeData> data = serializer->Release();
     JSDeserializerTest jsDeserializerTest;
     std::thread t1(&JSDeserializerTest::EcmaStringTest1, jsDeserializerTest, data.release());
-    ThreadSuspensionScope scope(thread);
+    ecmascript::ThreadSuspensionScope scope(thread);
     t1.join();
     delete serializer;
 };
@@ -1818,7 +1835,7 @@ HWTEST_F_L0(JSSerializerTest, SerializeEcmaString2)
     std::unique_ptr<SerializeData> data = serializer->Release();
     JSDeserializerTest jsDeserializerTest;
     std::thread t1(&JSDeserializerTest::EcmaStringTest2, jsDeserializerTest, data.release());
-    ThreadSuspensionScope scope(thread);
+    ecmascript::ThreadSuspensionScope scope(thread);
     t1.join();
     delete serializer;
 };
@@ -1836,7 +1853,7 @@ HWTEST_F_L0(JSSerializerTest, SerializeInt32_t)
 
     JSDeserializerTest jsDeserializerTest;
     std::thread t1(&JSDeserializerTest::Int32Test, jsDeserializerTest, data.release());
-    ThreadSuspensionScope scope(thread);
+    ecmascript::ThreadSuspensionScope scope(thread);
     t1.join();
     delete serializer;
 };
@@ -1853,7 +1870,7 @@ HWTEST_F_L0(JSSerializerTest, SerializeDouble)
 
     JSDeserializerTest jsDeserializerTest;
     std::thread t1(&JSDeserializerTest::DoubleTest, jsDeserializerTest, data.release());
-    ThreadSuspensionScope scope(thread);
+    ecmascript::ThreadSuspensionScope scope(thread);
     t1.join();
     delete serializer;
 };
@@ -1902,7 +1919,7 @@ HWTEST_F_L0(JSSerializerTest, SerializeObjectWithConcurrentFunction)
     JSDeserializerTest jsDeserializerTest;
 
     std::thread t1(&JSDeserializerTest::ObjectWithConcurrentFunctionTest, jsDeserializerTest, data.release());
-    ThreadSuspensionScope scope(thread);
+    ecmascript::ThreadSuspensionScope scope(thread);
     t1.join();
     delete serializer;
 };
@@ -1960,7 +1977,7 @@ HWTEST_F_L0(JSSerializerTest, TransferJSArrayBuffer1)
                    jsDeserializerTest,
                    data.release(),
                    reinterpret_cast<uintptr_t>(buffer));
-    ThreadSuspensionScope scope(thread);
+    ecmascript::ThreadSuspensionScope scope(thread);
     t1.join();
     delete serializer;
     // test if detached
@@ -1995,7 +2012,7 @@ HWTEST_F_L0(JSSerializerTest, TransferJSArrayBuffer2)
                    jsDeserializerTest,
                    data.release(),
                    reinterpret_cast<uintptr_t>(buffer));
-    ThreadSuspensionScope scope(thread);
+    ecmascript::ThreadSuspensionScope scope(thread);
     t1.join();
     delete serializer;
     // test if detached
@@ -2019,7 +2036,7 @@ HWTEST_F_L0(JSSerializerTest, TransferJSArrayBuffer3)
     std::unique_ptr<SerializeData> data = serializer->Release();
     JSDeserializerTest jsDeserializerTest;
     std::thread t1(&JSDeserializerTest::TransferJSArrayBufferTest3, jsDeserializerTest, data.release());
-    ThreadSuspensionScope scope(thread);
+    ecmascript::ThreadSuspensionScope scope(thread);
     t1.join();
     delete serializer;
     // test if detached
@@ -2080,7 +2097,7 @@ HWTEST_F_L0(JSSerializerTest, TransferJSArrayBuffer5)
     std::unique_ptr<SerializeData> data = serializer->Release();
     JSDeserializerTest jsDeserializerTest;
     std::thread t1(&JSDeserializerTest::TransferJSArrayBufferTest5, jsDeserializerTest, data.release());
-    ThreadSuspensionScope scope(thread);
+    ecmascript::ThreadSuspensionScope scope(thread);
     t1.join();
     delete serializer;
 };
@@ -2146,7 +2163,7 @@ HWTEST_F_L0(JSSerializerTest, SerializeJSArrayBufferShared2)
     std::string changeStr = "world hello";
     std::thread t1(&JSDeserializerTest::JSSharedArrayBufferTest,
                    jsDeserializerTest, data.release(), 12, changeStr.c_str());
-    ThreadSuspensionScope scope(thread);
+    ecmascript::ThreadSuspensionScope scope(thread);
     t1.join();
     EXPECT_TRUE(strcmp((char *)buffer, "world hello") == 0) << "Serialize JSArrayBuffer fail";
     delete serializer;
@@ -2176,7 +2193,7 @@ HWTEST_F_L0(JSSerializerTest, SerializeJSArrayBufferShared3)
     std::thread t1(&JSDeserializerTest::JSSharedArrayBufferTest,
                    jsDeserializerTest, data.get(), 12, changeStr.c_str());
     {
-        ThreadSuspensionScope scope(thread);
+        ecmascript::ThreadSuspensionScope scope(thread);
         t1.join();
         EXPECT_TRUE(strcmp((char *)buffer, "world hello") == 0) << "Serialize JSArrayBuffer fail";
         changeStr = "world hella";
@@ -2254,7 +2271,7 @@ HWTEST_F_L0(JSSerializerTest, SerializeJSTypedArray1)
     std::unique_ptr<SerializeData> data = serializer->Release();
     JSDeserializerTest jsDeserializerTest;
     std::thread t1(&JSDeserializerTest::TypedArrayTest1, jsDeserializerTest, data.release());
-    ThreadSuspensionScope scope(thread);
+    ecmascript::ThreadSuspensionScope scope(thread);
     t1.join();
     delete serializer;
 };
@@ -2291,7 +2308,7 @@ HWTEST_F_L0(JSSerializerTest, SerializeJSTypedArray2)
     std::unique_ptr<SerializeData> data = serializer->Release();
     JSDeserializerTest jsDeserializerTest;
     std::thread t1(&JSDeserializerTest::TypedArrayTest2, jsDeserializerTest, data.release());
-    ThreadSuspensionScope scope(thread);
+    ecmascript::ThreadSuspensionScope scope(thread);
     t1.join();
     delete serializer;
 };
@@ -2397,7 +2414,7 @@ HWTEST_F_L0(JSSerializerTest, SerializeCloneListTest1)
     std::unique_ptr<SerializeData> data = serializer->Release();
     JSDeserializerTest jsDeserializerTest;
     std::thread t1(&JSDeserializerTest::SerializeCloneListTest1, jsDeserializerTest, data.release());
-    ThreadSuspensionScope scope(thread);
+    ecmascript::ThreadSuspensionScope scope(thread);
     t1.join();
     delete serializer;
 };
@@ -2426,7 +2443,7 @@ HWTEST_F_L0(JSSerializerTest, SerializeCloneListTest2)
     std::unique_ptr<SerializeData> data = serializer->Release();
     JSDeserializerTest jsDeserializerTest;
     std::thread t1(&JSDeserializerTest::SerializeCloneListTest2, jsDeserializerTest, data.release());
-    ThreadSuspensionScope scope(thread);
+    ecmascript::ThreadSuspensionScope scope(thread);
     t1.join();
     delete serializer;
 };
@@ -2466,7 +2483,7 @@ HWTEST_F_L0(JSSerializerTest, SerializeCloneListTest4)
     std::unique_ptr<SerializeData> data = serializer->Release();
     JSDeserializerTest jsDeserializerTest;
     std::thread t1(&JSDeserializerTest::SerializeCloneListTest4, jsDeserializerTest, data.release());
-    ThreadSuspensionScope scope(thread);
+    ecmascript::ThreadSuspensionScope scope(thread);
     t1.join();
     delete serializer;
 };
@@ -2509,7 +2526,7 @@ HWTEST_F_L0(JSSerializerTest, SerializeJSSharedSetBasic1)
         // The Deserializer thread will clear the shared set
         std::thread t1(&JSDeserializerTest::JSSharedSetBasicTest1,
                        jsDeserializerTest, data.get());
-        ThreadSuspensionScope scope(thread);
+        ecmascript::ThreadSuspensionScope scope(thread);
         t1.join();
         EXPECT_TRUE(JSSharedSet::GetSize(thread, jsSet) == 0);
     }
@@ -2522,7 +2539,7 @@ HWTEST_F_L0(JSSerializerTest, SerializeJSSharedSetBasic1)
         // The Deserializer thread will add and delete a element
         std::thread t1(&JSDeserializerTest::JSSharedSetBasicTest2,
                        jsDeserializerTest, data.get());
-        ThreadSuspensionScope scope(thread);
+        ecmascript::ThreadSuspensionScope scope(thread);
         t1.join();
         EXPECT_TRUE(!JSSharedSet::Has(thread, jsSet, JSTaggedValue(0)));
         EXPECT_TRUE(JSSharedSet::Has(thread, jsSet, JSTaggedValue(INITIALIZE_SIZE)));
@@ -2550,7 +2567,7 @@ HWTEST_F_L0(JSSerializerTest, SerializeMultiThreadJSSharedSet)
         threads[i] = std::thread(&JSDeserializerTest::JSSharedSetMultiThreadTest1,
             jsDeserializerTests[i], data.get());
     }
-    ThreadSuspensionScope scope(thread);
+    ecmascript::ThreadSuspensionScope scope(thread);
     for (int i = 0; i < maxNumDeserializers; i++) {
         threads[i].join();
     }
@@ -2576,7 +2593,7 @@ HWTEST_F_L0(JSSerializerTest, SerializeJSSharedMapBasic)
         // The Deserializer thread will clear the shared map
         std::thread t1(&JSDeserializerTest::JSSharedMapBasicTest1,
                        jsDeserializerTest, data.get());
-        ThreadSuspensionScope scope(thread);
+        ecmascript::ThreadSuspensionScope scope(thread);
         t1.join();
         EXPECT_TRUE(JSSharedMap::GetSize(thread, jsMap) == 0);
     }
@@ -2590,7 +2607,7 @@ HWTEST_F_L0(JSSerializerTest, SerializeJSSharedMapBasic)
         // The Deserializer thread will add and delete a element
         std::thread t1(&JSDeserializerTest::JSSharedMapBasicTest2,
                        jsDeserializerTest, data.get());
-        ThreadSuspensionScope scope(thread);
+        ecmascript::ThreadSuspensionScope scope(thread);
         t1.join();
         EXPECT_TRUE(!JSSharedMap::Has(thread, jsMap, JSTaggedValue(0)));
         EXPECT_TRUE(JSSharedMap::Has(thread, jsMap, JSTaggedValue(INITIALIZE_SIZE)));
@@ -2616,7 +2633,7 @@ HWTEST_F_L0(JSSerializerTest, SerializeMultiSharedRegion)
     std::unique_ptr<SerializeData> data = serializer->Release();
     JSDeserializerTest jsDeserializerTest;
     std::thread t1(&JSDeserializerTest::SerializeMultiSharedRegionTest, jsDeserializerTest, data.release());
-    ThreadSuspensionScope scope(thread);
+    ecmascript::ThreadSuspensionScope scope(thread);
     t1.join();
     delete serializer;
 };
@@ -2639,7 +2656,7 @@ HWTEST_F_L0(JSSerializerTest, SerializeMultiSharedRegion1)
     std::unique_ptr<SerializeData> data = serializer->Release();
     JSDeserializerTest jsDeserializerTest;
     std::thread t1(&JSDeserializerTest::SerializeMultiSharedRegionTest1, jsDeserializerTest, data.release());
-    ThreadSuspensionScope scope(thread);
+    ecmascript::ThreadSuspensionScope scope(thread);
     t1.join();
     delete serializer;
 };
@@ -2670,8 +2687,60 @@ HWTEST_F_L0(JSSerializerTest, SerializeMultiSharedRegion2)
     std::unique_ptr<SerializeData> data = serializer->Release();
     JSDeserializerTest jsDeserializerTest;
     std::thread t1(&JSDeserializerTest::SerializeMultiSharedRegionTest2, jsDeserializerTest, data.release());
-    ThreadSuspensionScope scope(thread);
+    ecmascript::ThreadSuspensionScope scope(thread);
     t1.join();
+    delete serializer;
+};
+
+HWTEST_F_L0(JSSerializerTest, SerializeSourceTextModule)
+{
+    auto vm = thread->GetEcmaVM();
+    ObjectFactory *objectFactory = vm->GetFactory();
+    JSHandle<SourceTextModule> module = objectFactory->NewSourceTextModule();
+    CString baseFileName = "modules.abc";
+    CString recordName = "a";
+    CString recordName1 = "@ohos:hilog";
+    module->SetEcmaModuleFilenameString(baseFileName);
+    module->SetEcmaModuleRecordNameString(recordName);
+    module->SetTypes(ModuleTypes::ECMA_MODULE);
+    module->SetStatus(ModuleStatus::INSTANTIATED);
+    JSHandle<JSTaggedValue> val = JSHandle<JSTaggedValue>::Cast(objectFactory->NewFromUtf8("val"));
+    JSHandle<SourceTextModule> module1 = objectFactory->NewSourceTextModule();
+    JSHandle<TaggedArray> requestedModules = objectFactory->NewTaggedArray(2);
+    requestedModules->Set(thread, 0, module1);
+    requestedModules->Set(thread, 1, module1);
+    module->SetRequestedModules(thread, requestedModules.GetTaggedValue());
+    JSHandle<JSTaggedValue> importName = val;
+    JSHandle<JSTaggedValue> localName = val;
+    JSHandle<ImportEntry> importEntry1 =
+        objectFactory->NewImportEntry(0, importName, localName, SharedTypes::UNSENDABLE_MODULE);
+    SourceTextModule::AddImportEntry(thread, module, importEntry1, 0, 2);
+    JSHandle<JSTaggedValue> starString = thread->GlobalConstants()->GetHandledStarString();
+    JSHandle<ImportEntry> importEntry2 =
+        objectFactory->NewImportEntry(1, starString, localName, SharedTypes::UNSENDABLE_MODULE);
+    SourceTextModule::AddImportEntry(thread, module, importEntry2, 1, 2);
+
+    module1->SetEcmaModuleFilenameString(baseFileName);
+    module1->SetEcmaModuleRecordNameString(recordName1);
+    JSHandle<LocalExportEntry> localExportEntry =
+        objectFactory->NewLocalExportEntry(val, val, 0, SharedTypes::UNSENDABLE_MODULE);
+    JSHandle<TaggedArray> localExportEntries = objectFactory->NewTaggedArray(1);
+    localExportEntries->Set(thread, 0, localExportEntry);
+    module1->SetLocalExportEntries(thread, localExportEntries);
+    module1->SetTypes(ModuleTypes::NATIVE_MODULE);
+    module1->SetStatus(ModuleStatus::INSTANTIATED);
+
+    ValueSerializer *serializer = new ModuleSerializer(thread);
+    serializer->WriteValue(thread, JSHandle<JSTaggedValue>(module),
+                           JSHandle<JSTaggedValue>(thread, JSTaggedValue::Undefined()),
+                           JSHandle<JSTaggedValue>(thread, JSTaggedValue::Undefined()));
+    std::unique_ptr<SerializeData> data = serializer->Release();
+    JSDeserializerTest jsDeserializerTest;
+    std::thread t1(&JSDeserializerTest::SourceTextModuleTest, jsDeserializerTest, data.release());
+    {
+        ThreadSuspensionScope suspensionScope(thread);
+        t1.join();
+    }
     delete serializer;
 };
 }  // namespace panda::test

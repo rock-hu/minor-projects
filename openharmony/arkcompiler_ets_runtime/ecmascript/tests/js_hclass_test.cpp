@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include "ecmascript/base/config.h"
 #include "ecmascript/js_hclass-inl.h"
 #include "ecmascript/js_object.h"
 #include "ecmascript/global_env.h"
@@ -49,9 +50,11 @@ HWTEST_F_L0(JSHClassTest, InitializeClass)
     EXPECT_EQ(objectClass->GetEnumCache(), JSTaggedValue::Null());
 }
 
-#ifndef USE_CMC_GC
 HWTEST_F_L0(JSHClassTest, SizeFromJSHClass)
 {
+    if (g_isEnableCMCGC) {
+        return;
+    }
     EcmaVM *vm = thread->GetEcmaVM();
     ObjectFactory *factory = vm->GetFactory();
     JSHandle<JSTaggedValue> nullHandle(thread, JSTaggedValue::Null());
@@ -102,7 +105,6 @@ HWTEST_F_L0(JSHClassTest, SizeFromJSHClass)
     objectSize = objectClass->SizeFromJSHClass(header5);
     EXPECT_EQ(objectSize, 64U);
 }
-#endif
 
 HWTEST_F_L0(JSHClassTest, HasReferenceField)
 {
@@ -110,12 +112,12 @@ HWTEST_F_L0(JSHClassTest, HasReferenceField)
     ObjectFactory *factory = vm->GetFactory();
     JSHandle<JSTaggedValue> nullHandle(thread, JSTaggedValue::Null());
 
-    JSHandle<JSHClass> obj1Class = factory->NewEcmaHClass(TaggedArray::SIZE, JSType::LINE_STRING, nullHandle);
-    JSHandle<JSHClass> obj2Class = factory->NewEcmaHClass(TaggedArray::SIZE, JSType::TREE_STRING, nullHandle);
+    JSHandle<JSHClass> obj1Class = JSHandle<JSHClass>::Cast(thread->GlobalConstants()->GetHandledLineStringClass());
+    JSHandle<JSHClass> obj2Class = JSHandle<JSHClass>::Cast(thread->GlobalConstants()->GetHandledTreeStringClass());
     JSHandle<JSHClass> obj3Class =
         factory->NewEcmaHClass(TaggedArray::SIZE, JSType::JS_NATIVE_POINTER, nullHandle);
     JSHandle<JSHClass> obj4Class = factory->NewEcmaHClass(TaggedArray::SIZE, JSType::JS_OBJECT, nullHandle);
-    JSHandle<JSHClass> obj5Class = factory->NewEcmaHClass(TaggedArray::SIZE, JSType::SLICED_STRING, nullHandle);
+    JSHandle<JSHClass> obj5Class = JSHandle<JSHClass>::Cast(thread->GlobalConstants()->GetHandledSlicedStringClass());
     EXPECT_FALSE(obj1Class->HasReferenceField());
     EXPECT_TRUE(obj2Class->HasReferenceField());
     EXPECT_FALSE(obj3Class->HasReferenceField());

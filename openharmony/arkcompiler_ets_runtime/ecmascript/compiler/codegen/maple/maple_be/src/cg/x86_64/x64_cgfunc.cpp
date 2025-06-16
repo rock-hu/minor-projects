@@ -65,6 +65,14 @@ void X64CGFunc::SelectIntrinsicCall(IntrinsiccallNode &intrinsiccallNode)
 {
     CHECK_FATAL(false, "NIY");
 }
+void X64CGFunc::SelectDeoptCall(CallNode &callNode)
+{
+    CHECK_FATAL(false, "NIY");
+}
+void X64CGFunc::SelectTailICall(IcallNode &icallNode)
+{
+    CHECK_FATAL(false, "NIY");
+}
 Operand *X64CGFunc::SelectCclz(IntrinsicopNode &intrinopNode)
 {
     CHECK_FATAL(false, "NIY");
@@ -75,8 +83,35 @@ RegOperand *X64CGFunc::SelectHeapConstant(IntrinsicopNode &node, Operand &opnd0,
     CHECK_FATAL(false, "NIY");
     return nullptr;
 }
+RegOperand *X64CGFunc::SelectTaggedIsHeapObject(IntrinsicopNode &node, Operand &opnd0, Operand &opnd1)
+{
+    CHECK_FATAL(false, "NIY");
+    return nullptr;
+}
+RegOperand *X64CGFunc::SelectIsStableElements(IntrinsicopNode &node, Operand &opnd0, Operand &opnd1, Operand &opnd2)
+{
+    CHECK_FATAL(false, "NIY");
+    return nullptr;
+}
+RegOperand *X64CGFunc::SelectHasPendingException(IntrinsicopNode &node, Operand &opnd0, Operand &opnd1, Operand &opnd2)
+{
+    CHECK_FATAL(false, "NIY");
+    return nullptr;
+}
 RegOperand *X64CGFunc::SelectGetHeapConstantTable(IntrinsicopNode &node, Operand &opnd0,
                                                   Operand &opnd1, Operand &opnd2)
+{
+    CHECK_FATAL(false, "NIY");
+    return nullptr;
+}
+RegOperand *X64CGFunc::SelectTaggedObjectIsString(IntrinsicopNode &node, Operand &opnd0, Operand &opnd1,
+                                                  Operand &opnd2, Operand &opnd3, Operand &opnd4)
+{
+    CHECK_FATAL(false, "NIY");
+    return nullptr;
+}
+RegOperand *X64CGFunc::SelectIsCOWArray(IntrinsicopNode &node, Operand &opnd0, Operand &opnd1,
+                                        Operand &opnd2, Operand &opnd3, Operand &opnd4, Operand &opnd5)
 {
     CHECK_FATAL(false, "NIY");
     return nullptr;

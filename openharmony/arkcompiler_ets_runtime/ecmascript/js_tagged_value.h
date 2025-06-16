@@ -21,7 +21,6 @@
 #include "ecmascript/mem/c_string.h"
 #include "ecmascript/mem/mem_common.h"
 #include "ecmascript/js_tagged_value_internals.h"
-#include "libpandabase/mem/mem.h"
 
 namespace panda::ecmascript {
 class JSArray;
@@ -208,8 +207,12 @@ public:
 
     ARK_INLINE bool HasReadBarrierDFXTag() const
     {
-#if defined(USE_READ_BARRIER) && defined(USE_CMC_GC) && defined(ENABLE_CMC_RB_DFX)
-        return (value_ & TAG_READ_BARRIER_DFX_MASK) == TAG_READ_BARRIER_DFX;
+#if defined(ENABLE_CMC_RB_DFX)
+        if (g_isEnableCMCGC) {
+            return (value_ & TAG_READ_BARRIER_DFX_MASK) == TAG_READ_BARRIER_DFX;
+        } else {
+            return false;
+        }
 #else
         return false;
 #endif
@@ -217,17 +220,21 @@ public:
 
     inline void AddReadBarrierDFXTag()
     {
-#if defined(USE_READ_BARRIER) && defined(USE_CMC_GC) && defined(ENABLE_CMC_RB_DFX)
-        if (IsHeapObject()) {
-            value_ |= TAG_READ_BARRIER_DFX;
+#if defined(ENABLE_CMC_RB_DFX)
+        if (g_isEnableCMCGC) {
+            if (IsHeapObject()) {
+                value_ |= TAG_READ_BARRIER_DFX;
+            }
         }
 #endif
     }
 
     inline void RemoveReadBarrierDFXTag()
     {
-#if defined(USE_READ_BARRIER) && defined(USE_CMC_GC) && defined(ENABLE_CMC_RB_DFX)
-        value_ &= ~TAG_READ_BARRIER_DFX;
+#if defined(ENABLE_CMC_RB_DFX)
+        if (g_isEnableCMCGC) {
+            value_ &= ~TAG_READ_BARRIER_DFX;
+        }
 #endif
     }
 

@@ -2802,7 +2802,8 @@ NAPI_EXTERN napi_status napi_create_buffer(napi_env env, size_t size, void** dat
     }
     SWITCH_CONTEXT(env);
     auto vm = reinterpret_cast<NativeEngine*>(env)->GetEcmaVm();
-    Local<panda::BufferRef> obj = BufferRef::New(vm, size);
+    Local<JSValueRef> context = engine->GetContext();
+    Local<panda::BufferRef> obj = BufferRef::New(vm, context, size);
     *value = reinterpret_cast<uint8_t*>(obj->GetBuffer(vm));
 
     CHECK_ARG(env, *data);
@@ -2840,7 +2841,8 @@ NAPI_EXTERN napi_status napi_create_buffer_copy(napi_env env,
     }
     SWITCH_CONTEXT(env);
     auto vm = reinterpret_cast<NativeEngine*>(env)->GetEcmaVm();
-    Local<panda::BufferRef> obj = BufferRef::New(vm, length);
+    Local<JSValueRef> context = engine->GetContext();
+    Local<panda::BufferRef> obj = BufferRef::New(vm, context, length);
     if (obj->IsUndefined()) {
         HILOG_INFO("engine create buffer_copy failed!");
     }
@@ -2884,13 +2886,14 @@ NAPI_EXTERN napi_status napi_create_external_buffer(napi_env env,
     SWITCH_CONTEXT(env);
     auto vm = engine->GetEcmaVm();
     Local<panda::BufferRef> object;
+    Local<JSValueRef> context = engine->GetContext();
     if (engine->IsMainEnvContext()) {
-        object = panda::BufferRef::New(vm, data, length, callback, finalize_hint);
+        object = panda::BufferRef::New(vm, context, data, length, callback, finalize_hint);
         void* ptr = object->GetBuffer(vm);
         CHECK_ARG(env, ptr);
         *result = JsValueFromLocalValue(object);
     } else {
-        object = panda::BufferRef::New(vm, data, length, nullptr, nullptr);
+        object = panda::BufferRef::New(vm, context, data, length, nullptr, nullptr);
         void* ptr = object->GetBuffer(vm);
         CHECK_ARG(env, ptr);
         *result = JsValueFromLocalValue(object);
@@ -4680,18 +4683,31 @@ NAPI_EXTERN napi_status napi_switch_ark_context(napi_env env)
 
 NAPI_EXTERN napi_status napi_destroy_ark_context(napi_env env)
 {
-    NAPI_PREAMBLE(env);
+    CHECK_ENV(env);
+
     auto nativeEngine = reinterpret_cast<NativeEngine*>(env);
+    const EcmaVM* vm = nativeEngine->GetEcmaVm();
+    // The destructor of `TryCatch` may update `engine->lastException_`.
+    // If the engine is released before the `TryCatch` object is destroyed,
+    // it can lead to a use-after-free (UAF) vulnerability.
+    // Use equivalent logic instead of `TryCatch` to avoid this memory safety issue.
+    if (!nativeEngine->lastException_.IsEmpty() || panda::JSNApi::HasPendingException(vm)) {
+        nativeEngine->lastException_ = panda::JSNApi::GetAndClearUncaughtException(vm);
+        return napi_set_last_error(env, napi_pending_exception);
+    }
+
     // worker and taskpool will support multi-context later
     if (!nativeEngine->IsMainThread()) {
         HILOG_FATAL("multi-context feature only support main thread");
         return napi_set_last_error(env, napi_invalid_arg);
     }
+
+    // Do not use `nativeEngine` or `env` after this if status is napi_ok
     napi_status status = nativeEngine->DestroyContext();
     if (status != napi_ok) {
         return napi_set_last_error(env, status);
     }
-    return GET_RETURN_STATUS(env);
+    return napi_ok;
 }
 
 NAPI_EXTERN napi_status napi_set_module_validate_callback(napi_module_validate_callback check_callback)

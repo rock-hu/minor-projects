@@ -22,9 +22,9 @@ DynamicObjectOperator DynamicObjectOperator::dynOperator_;
 
 void DynamicObjectOperator::Initialize()
 {
-#ifdef USE_CMC_GC
-    BaseObject::RegisterDynamic(&dynOperator_);
-#endif
+    if (g_isEnableCMCGC) {
+        BaseObject::RegisterDynamic(&dynOperator_);
+    }
 }
 
 void RefFieldObjectVisitor::VisitObjectRangeImpl(BaseObject *root, uintptr_t startAddr,
@@ -45,18 +45,21 @@ void RefFieldObjectVisitor::VisitObjectRangeImpl(BaseObject *root, uintptr_t sta
 
 void RefFieldObjectVisitor::VisitObjectHClassImpl(BaseObject *hclass)
 {
-    visitor_(reinterpret_cast<RefField<>&>(hclass));
+    JSTaggedValue clz(reinterpret_cast<TaggedObject *>(hclass));
+    visitor_(reinterpret_cast<common::RefField<>&>(clz));
 }
 
 void RefFieldObjectVisitor::VisitAllRefFields(TaggedObject *obj)
 {
+    // Note this will update the stack param, not the slot of object hclass
+    // But sinc hclass in non-movable, so current all visitor will not update hlass field, so it's ok
     VisitObjectHClassImpl(obj->GetClass());
     ObjectXRay::VisitObjectBody<VisitType::OLD_GC_VISIT>(obj, obj->GetClass(), *this);
 }
 
 void RefFieldObjectVisitor::visit(ObjectSlot slot)
 {
-    visitor_(reinterpret_cast<RefField<>&>(*(slot.GetRefFieldAddr())));
+    visitor_(reinterpret_cast<common::RefField<>&>(*(slot.GetRefFieldAddr())));
 }
 
 }  // namespace panda::ecmascript

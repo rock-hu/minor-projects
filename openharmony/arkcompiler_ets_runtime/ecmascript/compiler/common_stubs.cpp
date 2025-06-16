@@ -240,11 +240,15 @@ void NewFloat32ArrayStubBuilder::GenerateCircuit()
         GateRef thisObj = Undefined();
         GateRef argc = Int64(4); // 4: means func newtarget thisObj arg0
         GateRef argv = IntPtr(0);
+#ifdef USE_READ_BARRIER
+        CallNGCRuntime(glue, RTSTUB_ID(CopyCallTarget), {glue, ctor});
+#endif
         std::vector<GateRef> args { glue, argc, argv, ctor, ctor, thisObj, arg0 };
         const CallSignature *cs = RuntimeStubCSigns::Get(RTSTUB_ID(JSCallNew));
         GateRef target = IntPtr(RTSTUB_ID(JSCallNew));
         auto depend = env->GetCurrentLabel()->GetDepend();
-        res = env->GetBuilder()->Call(cs, glue, target, depend, args, Circuit::NullGate(), "NewFloat32Array stub slowpath");
+        res = env->GetBuilder()->Call(cs, glue, target, depend, args,
+                                      Circuit::NullGate(), "NewFloat32Array stub slowpath");
         Jump(&exit);
     }
     Bind(&exit);
@@ -1226,13 +1230,11 @@ void SetSValueWithBarrierStubBuilder::GenerateCircuit()
 
 void VerifyBarrierStubBuilder::GenerateCircuit()
 {
-#ifndef USE_CMC_GC
     GateRef glue = PtrArgument(0);
     GateRef obj = TaggedArgument(1);
     GateRef offset = PtrArgument(2); // 2 : 3rd para
     GateRef value = TaggedArgument(3); // 3 : 4th para
     VerifyBarrier(glue, obj, offset, value);
-#endif
     Return();
 }
 
@@ -1537,7 +1539,8 @@ void MapIteratorNextStubBuilder::GenerateCircuit()
 
     DEFVARIABLE(result, VariableType::JS_ANY(), Undefined());
 
-    BuiltinsCollectionIteratorStubBuilder<JSMapIterator> builder(this, glue, obj, Gate::InvalidGateRef, GetGlobalEnv(glue));
+    BuiltinsCollectionIteratorStubBuilder<JSMapIterator> builder(this, glue, obj, Gate::InvalidGateRef,
+                                                                 GetGlobalEnv(glue));
     builder.Next(&result, &exit);
     Bind(&exit);
     Return(*result);
@@ -1553,7 +1556,8 @@ void SetIteratorNextStubBuilder::GenerateCircuit()
 
     DEFVARIABLE(result, VariableType::JS_ANY(), Undefined());
 
-    BuiltinsCollectionIteratorStubBuilder<JSSetIterator> builder(this, glue, obj, Gate::InvalidGateRef, GetGlobalEnv(glue));
+    BuiltinsCollectionIteratorStubBuilder<JSSetIterator> builder(this, glue, obj, Gate::InvalidGateRef,
+                                                                 GetGlobalEnv(glue));
     builder.Next(&result, &exit);
     Bind(&exit);
     Return(*result);
@@ -1746,33 +1750,28 @@ void SameValueStubBuilder::GenerateCircuit()
 
 void BatchBarrierStubBuilder::GenerateCircuit()
 {
-#ifndef USE_CMC_GC
     GateRef glue = PtrArgument(0);
     GateRef dstObj = PtrArgument(1);
     GateRef dstAddr = PtrArgument(2);
     GateRef taggedValueCount = TaggedArgument(3);
     BarrierStubBuilder barrierBuilder(this, glue, dstObj, dstAddr, taggedValueCount);
     barrierBuilder.DoBatchBarrier();
-#endif
     Return();
 }
 
 void ReverseBarrierStubBuilder::GenerateCircuit()
 {
-#ifndef USE_CMC_GC
     GateRef glue = PtrArgument(0);
     GateRef dstObj = PtrArgument(1);
     GateRef dstAddr = PtrArgument(2);
     GateRef taggedValueCount = TaggedArgument(3);
     BarrierStubBuilder barrierBuilder(this, glue, dstObj, dstAddr, taggedValueCount);
     barrierBuilder.DoReverseBarrier();
-#endif
     Return();
 }
 
 void MoveBarrierInRegionStubBuilder::GenerateCircuit()
 {
-#ifndef USE_CMC_GC
     GateRef glue = PtrArgument(0);
     GateRef dstObj = PtrArgument(1);
     GateRef dstAddr = PtrArgument(2);
@@ -1780,13 +1779,11 @@ void MoveBarrierInRegionStubBuilder::GenerateCircuit()
     GateRef srcAddr = PtrArgument(4);
     BarrierStubBuilder barrierBuilder(this, glue, dstObj, dstAddr, count);
     barrierBuilder.DoMoveBarrierInRegion(srcAddr);
-#endif
     Return();
 }
 
 void MoveBarrierCrossRegionStubBuilder::GenerateCircuit()
 {
-#ifndef USE_CMC_GC
     GateRef glue = PtrArgument(0);
     GateRef dstObj = PtrArgument(1);
     GateRef dstAddr = PtrArgument(2);
@@ -1795,7 +1792,6 @@ void MoveBarrierCrossRegionStubBuilder::GenerateCircuit()
     GateRef srcObj = PtrArgument(5);
     BarrierStubBuilder barrierBuilder(this, glue, dstObj, dstAddr, count);
     barrierBuilder.DoMoveBarrierCrossRegion(srcAddr, srcObj);
-#endif
     Return();
 }
 

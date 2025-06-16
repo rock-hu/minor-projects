@@ -226,6 +226,35 @@ static Operand *HandleIntrinOp(const BaseNode &parent, BaseNode &expr, CGFunc &c
                                                      *cgFunc.HandleExpr(expr, *expr.Opnd(kInsnFirstOpnd)),
                                                      *cgFunc.HandleExpr(expr, *expr.Opnd(kInsnSecondOpnd)),
                                                      *cgFunc.HandleExpr(expr, *expr.Opnd(kInsnThirdOpnd)));
+        case INTRN_TAGGED_IS_HEAPOBJECT:
+            return cgFunc.SelectTaggedIsHeapObject(intrinsicopNode,
+                                                   *cgFunc.HandleExpr(expr, *expr.Opnd(kInsnFirstOpnd)),
+                                                   *cgFunc.HandleExpr(expr, *expr.Opnd(kInsnSecondOpnd)));
+        case INTRN_IS_STABLE_ELEMENTS:
+            return cgFunc.SelectIsStableElements(intrinsicopNode,
+                                                 *cgFunc.HandleExpr(expr, *expr.Opnd(kInsnFirstOpnd)),
+                                                 *cgFunc.HandleExpr(expr, *expr.Opnd(kInsnSecondOpnd)),
+                                                 *cgFunc.HandleExpr(expr, *expr.Opnd(kInsnThirdOpnd)));
+        case INTRN_HAS_PENDING_EXCEPTION:
+            return cgFunc.SelectHasPendingException(intrinsicopNode,
+                                                    *cgFunc.HandleExpr(expr, *expr.Opnd(kInsnFirstOpnd)),
+                                                    *cgFunc.HandleExpr(expr, *expr.Opnd(kInsnSecondOpnd)),
+                                                    *cgFunc.HandleExpr(expr, *expr.Opnd(kInsnThirdOpnd)));
+        case INTRN_TAGGED_OBJECT_IS_STRING:
+            return cgFunc.SelectTaggedObjectIsString(intrinsicopNode,
+                                                     *cgFunc.HandleExpr(expr, *expr.Opnd(kInsnFirstOpnd)),
+                                                     *cgFunc.HandleExpr(expr, *expr.Opnd(kInsnSecondOpnd)),
+                                                     *cgFunc.HandleExpr(expr, *expr.Opnd(kInsnThirdOpnd)),
+                                                     *cgFunc.HandleExpr(expr, *expr.Opnd(kInsnFourthOpnd)),
+                                                     *cgFunc.HandleExpr(expr, *expr.Opnd(kInsnFifthOpnd)));
+        case INTRN_IS_COW_ARRAY:
+            return cgFunc.SelectIsCOWArray(intrinsicopNode,
+                                           *cgFunc.HandleExpr(expr, *expr.Opnd(kInsnFirstOpnd)),
+                                           *cgFunc.HandleExpr(expr, *expr.Opnd(kInsnSecondOpnd)),
+                                           *cgFunc.HandleExpr(expr, *expr.Opnd(kInsnThirdOpnd)),
+                                           *cgFunc.HandleExpr(expr, *expr.Opnd(kInsnFourthOpnd)),
+                                           *cgFunc.HandleExpr(expr, *expr.Opnd(kInsnFifthOpnd)),
+                                           *cgFunc.HandleExpr(expr, *expr.Opnd(kInsnSixthOpnd)));
         default:
             DEBUG_ASSERT(false, "Should not reach here.");
             return nullptr;
@@ -400,6 +429,24 @@ static void HandleIntrinsicCall(StmtNode &stmt, CGFunc &cgFunc)
     cgFunc.SelectIntrinsicCall(call);
 }
 
+static void HandleDeoptCall(StmtNode &stmt, CGFunc &cgFunc)
+{
+    auto &deoptCallNode = static_cast<CallNode &>(stmt);
+    cgFunc.GetCurBB()->SetKind(BB::kBBNoReturn);
+    cgFunc.PushBackNoReturnCallBBsVec(*cgFunc.GetCurBB());
+    cgFunc.SelectDeoptCall(deoptCallNode);
+    cgFunc.SetCurBB(*cgFunc.StartNewBB(deoptCallNode));
+}
+
+static void HandleTailICall(StmtNode &stmt, CGFunc &cgFunc)
+{
+    auto &tailIcallNode = static_cast<IcallNode&>(stmt);
+    cgFunc.GetCurBB()->SetKind(BB::kBBNoReturn);
+    cgFunc.PushBackNoReturnCallBBsVec(*cgFunc.GetCurBB());
+    cgFunc.SelectTailICall(tailIcallNode);
+    cgFunc.SetCurBB(*cgFunc.StartNewBB(tailIcallNode));
+}
+
 static void HandleDassign(StmtNode &stmt, CGFunc &cgFunc)
 {
     auto &dassignNode = static_cast<DassignNode &>(stmt);
@@ -474,6 +521,8 @@ static void InitHandleStmtFactory()
     RegisterFactoryFunction<HandleStmtFactory>(OP_intrinsiccall, HandleIntrinsicCall);
     RegisterFactoryFunction<HandleStmtFactory>(OP_intrinsiccallassigned, HandleIntrinsicCall);
     RegisterFactoryFunction<HandleStmtFactory>(OP_intrinsiccallwithtype, HandleIntrinsicCall);
+    RegisterFactoryFunction<HandleStmtFactory>(OP_deoptcall, HandleDeoptCall);
+    RegisterFactoryFunction<HandleStmtFactory>(OP_tailicall, HandleTailICall);
     RegisterFactoryFunction<HandleStmtFactory>(OP_dassign, HandleDassign);
     RegisterFactoryFunction<HandleStmtFactory>(OP_regassign, HandleRegassign);
     RegisterFactoryFunction<HandleStmtFactory>(OP_iassign, HandleIassign);

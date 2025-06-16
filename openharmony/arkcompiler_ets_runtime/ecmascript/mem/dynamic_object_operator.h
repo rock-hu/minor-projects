@@ -26,7 +26,7 @@
 namespace panda::ecmascript {
 class RefFieldObjectVisitor final : public BaseObjectVisitor<RefFieldObjectVisitor> {
    public:
-    inline explicit RefFieldObjectVisitor(const RefFieldVisitor &visitor): visitor_(visitor) {};
+    inline explicit RefFieldObjectVisitor(const common::RefFieldVisitor &visitor): visitor_(visitor) {};
     ~RefFieldObjectVisitor() override = default;
 
     void VisitObjectRangeImpl(BaseObject *root, uintptr_t start, uintptr_t end,
@@ -47,7 +47,7 @@ class RefFieldObjectVisitor final : public BaseObjectVisitor<RefFieldObjectVisit
 
         LayoutInfo *layout = LayoutInfo::UncheckCast(hclass->GetLayout().GetTaggedObject());
         ObjectSlot realEnd = start;
-        start += layout->GetPropertiesCapacity(); // only += operator is supported
+        realEnd += layout->GetPropertiesCapacity(); // only += operator is supported
         end = std::min(end, realEnd);
 
         int index = 0;
@@ -59,7 +59,7 @@ class RefFieldObjectVisitor final : public BaseObjectVisitor<RefFieldObjectVisit
         }
     }
 
-    const RefFieldVisitor &visitor_;
+    const common::RefFieldVisitor &visitor_;
 };
 
 static constexpr uint64_t TAG_MARK_BIT = 0x02ULL;
@@ -68,7 +68,7 @@ static uint64_t GetHeader(const BaseObject* obj)
     return (*((uint64_t*)obj));
 }
 
-class DynamicObjectOperator : public BaseObjectOperatorInterfaces {
+class DynamicObjectOperator : public common::BaseObjectOperatorInterfaces {
 public:
     static void Initialize();
 
@@ -80,7 +80,7 @@ public:
         return hclass->GetClass()->IsHClass();
     }
 
-    void ForEachRefField(const BaseObject *object, const RefFieldVisitor &visitor) const override
+    void ForEachRefField(const BaseObject *object, const common::RefFieldVisitor &visitor) const override
     {
         auto freeObject = FreeObject::Cast(reinterpret_cast<uintptr_t>(object));
         if (!freeObject->IsFreeObject()) {
@@ -91,9 +91,7 @@ public:
 
     size_t GetSize(const BaseObject *object) const override
     {
-#ifdef USE_CMC_GC
-        ASSERT(!object->IsForwarded());
-#endif
+        ASSERT(!g_isEnableCMCGC || !object->IsForwarded());
         auto freeObject = FreeObject::Cast(reinterpret_cast<uintptr_t>(object));
         if (freeObject->IsFreeObject()) {
             return freeObject->Available();

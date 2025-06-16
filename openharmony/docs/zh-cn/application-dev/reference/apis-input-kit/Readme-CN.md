@@ -20,6 +20,7 @@
   - [@ohos.multimodalInput.inputEventClient (输入事件注入)(系统接口)](js-apis-inputeventclient-sys.md)
   - [@ohos.multimodalInput.inputMonitor (输入监听)(系统接口)](js-apis-inputmonitor-sys.md)
   - [@ohos.multimodalInput.gestureEvent (手势事件)(系统接口)](js-apis-multimodalinput-gestureevent-sys.md)
+  - [@ohos.multimodalInput.touchEvent (触摸输入事件)(系统接口)](js-apis-touchevent-sys.md)
   - 已停止维护的接口<!--input-arkts-dep-->
     - [@ohos.multimodalInput.inputDeviceCooperate (键鼠穿越)(系统接口)](js-apis-cooperate-sys.md)
   <!--DelEnd-->
@@ -42,8 +43,10 @@
     - [Input_DeviceInfo](capi-input-deviceinfo.md)
     - [Input_InterceptorOptions](capi-input-interceptoroptions.md)
 - 错误码<!--input-arkts-errcode-->
+  <!--Del-->
   - [键鼠穿越管理错误码](errorcode-cooperator.md)
-  - [全局快捷键管理错误码](errorcode-inputconsumer.md)
   - [按键前置监听错误码](errorcode-inputmonitor.md)
+  <!--DelEnd-->
+  - [全局快捷键管理错误码](errorcode-inputconsumer.md)
   - [输入设备错误码](errorcode-inputdevice.md)
   - [鼠标指针错误码](errorcode-pointer.md)

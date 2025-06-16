@@ -33,6 +33,9 @@
 #define PR_SET_VMA_ANON_NAME 0
 #endif
 
+#define JITFORT_QUERY_ENCAPS 'E'
+#define HM_PR_SET_JITFORT 0x6a6974
+
 namespace panda::ecmascript {
 size_t MallocUsableSize(void *p)
 {
@@ -83,7 +86,7 @@ void BindAllCpuCore()
     cpu_set_t cpuset;
 
     CPU_ZERO(&cpuset);
-    for (size_t i = 0; i < NumberOfCpuCore(); i++) {
+    for (size_t i = 0; i < common::NumberOfCpuCore(); i++) {
         CPU_SET(i, &cpuset);
     }
 
@@ -100,6 +103,11 @@ void *PageMapExecFortSpace(void *addr, size_t size, int prot)
             ", prot = " << prot << ", error code is " << errno;
     }
     return res;
+}
+
+bool HasJitFortACL()
+{
+    return (prctl(HM_PR_SET_JITFORT, JITFORT_QUERY_ENCAPS, 0) == 0);
 }
 
 void SetSecurityLabel(const std::string& path)

@@ -139,7 +139,7 @@ protected:
         RuntimeOption option;
         option.SetEnableProfile(true);
         option.SetProfileDir(profDir);
-        option.SetLogLevel(LOG_LEVEL::INFO);
+        option.SetLogLevel(common::LOG_LEVEL::INFO);
         vm_ = JSNApi::CreateJSVM(option);
         JSNApi::EnableUserUncaughtErrorHandler(vm_);
 
@@ -522,7 +522,7 @@ HWTEST_F_L0(PGOProfilerTest, PGOProfilerDoubleVM)
         JSNApi::DestroyJSVM(vm2);
     });
     {
-        ThreadSuspensionScope scope(vm_->GetJSThread());
+        ecmascript::ThreadSuspensionScope scope(vm_->GetJSThread());
         t1.join();
     }
     JSHandle<JSTaggedValue> recordName(vm_->GetFactory()->NewFromStdString("sample_test"));

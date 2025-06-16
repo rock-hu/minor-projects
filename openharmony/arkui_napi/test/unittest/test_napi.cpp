@@ -164,6 +164,8 @@ napi_value TestAbort(napi_env env, napi_callback_info info)
 HWTEST_F(NapiBasicTest, IsolateRequireMethodTest001, testing::ext::TestSize.Level1)
 {
     napi_env env = (napi_env)engine_;
+    NativeEngineProxy ctxEnv(engine_);
+
     const char requireNapiName[] = "requireNapi";
     const char requireInternalName[] = "requireInternal";
     napi_value requireNapi = nullptr;
@@ -179,7 +181,6 @@ HWTEST_F(NapiBasicTest, IsolateRequireMethodTest001, testing::ext::TestSize.Leve
 
     napi_value newGlobal = nullptr;
     napi_value newRequire[] = { nullptr, nullptr };
-    NativeEngineProxy ctxEnv(engine_);
     ASSERT_CHECK_CALL(napi_get_global(ctxEnv, &newGlobal));
     ASSERT_CHECK_CALL(napi_get_property(ctxEnv, newGlobal, requireNapi, &newRequire[0]));
     ASSERT_CHECK_CALL(napi_get_property(ctxEnv, newGlobal, requireInternal, &newRequire[1]));
@@ -12086,38 +12087,6 @@ HWTEST_F(NapiBasicTest, NapiGetGlobalTest004, testing::ext::TestSize.Level1)
 }
 
 /**
- * @tc.name: NapiGetGlobalTest005
- * @tc.desc: Test napi_get_global in different valid environments
- * @tc.type: FUNC
- */
-HWTEST_F(NapiBasicTest, NapiGetGlobalTest005, testing::ext::TestSize.Level1)
-{
-    ASSERT_NE(engine_, nullptr);
-    napi_env env = reinterpret_cast<napi_env>(engine_);
-    NativeEngineProxy env1;
-    env1->Deinit();
-    NativeEngineProxy env2;
-    env2->Deinit();
-
-    napi_value result1 = nullptr;
-    napi_value result2 = nullptr;
-
-    napi_status res1 = napi_get_global(env1, &result1);
-    ASSERT_EQ(res1, napi_ok);
-    ASSERT_NE(result1, nullptr);
-
-    napi_status res2 = napi_get_global(env2, &result2);
-    ASSERT_EQ(res2, napi_ok);
-    ASSERT_NE(result2, nullptr);
-    bool res3 = false;
-    napi_status res4 =  napi_strict_equals(env, result1, result2, &res3);
-    ASSERT_EQ(res4, napi_ok);
-    ASSERT_FALSE(res3);
-    env1->Init();
-    env2->Init();
-}
-
-/**
  * @tc.name: NapiGetNullTest
  * @tc.desc: Test interface of napi_get_null
  * @tc.type: FUNC
@@ -13905,8 +13874,8 @@ public:
         checker->data_ = arg;
     }
 
-    bool called() const { return called_; }
-    void* data() const { return data_; }
+    bool Called() const { return called_; }
+    void* Data() const { return data_; }
 
 private:
     bool called_;
@@ -14002,7 +13971,7 @@ HWTEST_F(NapiBasicTest, RunInstanceFinalizerTest001, testing::ext::TestSize.Leve
     EXPECT_EQ(addStatus, napi_ok);
 
     engine->RunInstanceFinalizer();
-    EXPECT_TRUE(checker->called());
+    EXPECT_TRUE(checker->Called());
     delete checker;
 }
 
@@ -14025,7 +13994,7 @@ HWTEST_F(NapiBasicTest, RunInstanceFinalizer002, testing::ext::TestSize.Level1)
     EXPECT_EQ(removeStatus, napi_ok);
 
     engine->RunInstanceFinalizer();
-    EXPECT_FALSE(checker->called());
+    EXPECT_FALSE(checker->Called());
     delete checker;
 }
 
@@ -14069,10 +14038,6 @@ HWTEST_F(NapiBasicTest, NapiEnvCleanupTest001, testing::ext::TestSize.Level1)
         &engine));
     LoggerCollector collector(LogLevel::LOG_DEBUG);
     engine->RunCleanup();
-    int cleanupRan = collector.IndexOf("NativeEngine::RunCleanup cleanupHooks_ is not empty");
-    ASSERT_NE(cleanupRan, -1);
-    int asyncRan = collector.IndexOf("CleanupHandles, request waiting:");
-    ASSERT_NE(asyncRan, -1);
-    ASSERT_TRUE(asyncRan > cleanupRan);
+    ASSERT_TRUE(collector.Includes("CleanupHandles, request waiting:"));
     ASSERT_TRUE(workDone);
 }

@@ -15,6 +15,7 @@
 
 #include "ecmascript/debugger/debugger_api.h"
 
+#include "ecmascript/base/config.h"
 #include "ecmascript/debugger/js_debugger.h"
 #include "ecmascript/dfx/stackinfo/async_stack_trace.h"
 #include "ecmascript/interpreter/slow_runtime_stub.h"
@@ -755,8 +756,10 @@ void DebuggerApi::GetIndirectExportVariables(const EcmaVM *ecmaVm, Local<ObjectR
         JSTaggedValue key = ee->GetImportName();
         name.Update(key);
         if (key.IsString()) {
-            JSHandle<JSTaggedValue> importModule = JSHandle<JSTaggedValue>::Cast(
-                SourceTextModule::GetRequestedModuleFromCache(thread, requestedModules, ee->GetModuleRequestIndex()));
+            JSHandle<JSTaggedValue> importModule =
+                JSHandle<JSTaggedValue>::Cast(SourceTextModule::GetModuleFromCacheOrResolveNewOne(
+                    thread, module, requestedModules, ee->GetModuleRequestIndex()));
+            RETURN_IF_ABRUPT_COMPLETION(thread);
             ASSERT(importModule->IsSourceTextModule());
             std::string importName = EcmaStringAccessor(ee->GetImportName()).ToStdString();
             Local<JSValueRef> value = GetModuleValue(ecmaVm, importModule, importName);
@@ -792,8 +795,10 @@ void DebuggerApi::GetImportVariables(const EcmaVM *ecmaVm, Local<ObjectRef> &mod
         JSTaggedValue localName = ee->GetLocalName();
         name.Update(localName);
         if (JSTaggedValue::SameValue(key, starString.GetTaggedValue())) {
-            JSHandle<JSTaggedValue> importModule = JSHandle<JSTaggedValue>::Cast(
-                SourceTextModule::GetRequestedModuleFromCache(thread, requestedModules, ee->GetModuleRequestIndex()));
+            JSHandle<JSTaggedValue> importModule =
+                JSHandle<JSTaggedValue>::Cast(SourceTextModule::GetModuleFromCacheOrResolveNewOne(
+                    thread, module, requestedModules, ee->GetModuleRequestIndex()));
+            RETURN_IF_ABRUPT_COMPLETION(thread);
             ASSERT(importModule->IsSourceTextModule());
             Local<ObjectRef> importModuleObj = ObjectRef::New(ecmaVm);
             GetLocalExportVariables(ecmaVm, importModuleObj, importModule, true);
@@ -1323,54 +1328,54 @@ void DebuggerApi::DropLastFrame(const EcmaVM *ecmaVm)
 DebuggerApi::DebuggerNativeScope::DebuggerNativeScope(const EcmaVM *vm)
 {
     thread_ = vm->GetAssociatedJSThread();
-#ifdef USE_CMC_GC
-    hasSwitchState_ = thread_->GetThreadHolder()->TransferToNativeIfInRunning();
-#else
-    ecmascript::ThreadState oldState = thread_->GetState();
-    if (oldState != ecmascript::ThreadState::RUNNING) {
-        return;
+    if (g_isEnableCMCGC) {
+        hasSwitchState_ = thread_->GetThreadHolder()->TransferToNativeIfInRunning();
+    } else {
+        ecmascript::ThreadState oldState = thread_->GetState();
+        if (oldState != ecmascript::ThreadState::RUNNING) {
+            return;
+        }
+        oldThreadState_ = static_cast<uint16_t>(oldState);
+        hasSwitchState_ = true;
+        thread_->UpdateState(ecmascript::ThreadState::NATIVE);
     }
-    oldThreadState_ = static_cast<uint16_t>(oldState);
-    hasSwitchState_ = true;
-    thread_->UpdateState(ecmascript::ThreadState::NATIVE);
-#endif
 }
 
 DebuggerApi::DebuggerNativeScope::~DebuggerNativeScope()
 {
     if (hasSwitchState_) {
-#ifdef USE_CMC_GC
-        thread_->GetThreadHolder()->TransferToRunning();
-#else
-        thread_->UpdateState(static_cast<ecmascript::ThreadState>(oldThreadState_));
-#endif
+        if (g_isEnableCMCGC) {
+            thread_->GetThreadHolder()->TransferToRunning();
+        } else {
+            thread_->UpdateState(static_cast<ecmascript::ThreadState>(oldThreadState_));
+        }
     }
 }
 
 DebuggerApi::DebuggerManagedScope::DebuggerManagedScope(const EcmaVM *vm)
 {
     thread_ = vm->GetAssociatedJSThread();
-#ifdef USE_CMC_GC
-    hasSwitchState_ = thread_->GetThreadHolder()->TransferToRunningIfInNative();
-#else
-    ecmascript::ThreadState oldState = thread_->GetState();
-    if (oldState == ecmascript::ThreadState::RUNNING) {
-        return;
+    if (g_isEnableCMCGC) {
+        hasSwitchState_ = thread_->GetThreadHolder()->TransferToRunningIfInNative();
+    } else {
+        ecmascript::ThreadState oldState = thread_->GetState();
+        if (oldState == ecmascript::ThreadState::RUNNING) {
+            return;
+        }
+        oldThreadState_ = static_cast<uint16_t>(oldState);
+        hasSwitchState_ = true;
+        thread_->UpdateState(ecmascript::ThreadState::RUNNING);
     }
-    oldThreadState_ = static_cast<uint16_t>(oldState);
-    hasSwitchState_ = true;
-    thread_->UpdateState(ecmascript::ThreadState::RUNNING);
-#endif
 }
 
 DebuggerApi::DebuggerManagedScope::~DebuggerManagedScope()
 {
     if (hasSwitchState_) {
-#ifdef USE_CMC_GC
-        thread_->GetThreadHolder()->TransferToNative();
-#else
-        thread_->UpdateState(static_cast<ecmascript::ThreadState>(oldThreadState_));
-#endif
+        if (g_isEnableCMCGC) {
+            thread_->GetThreadHolder()->TransferToNative();
+        } else {
+            thread_->UpdateState(static_cast<ecmascript::ThreadState>(oldThreadState_));
+        }
     }
 }
 }  // namespace panda::ecmascript::tooling

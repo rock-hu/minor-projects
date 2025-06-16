@@ -1421,7 +1421,7 @@ bool ParseCalcDimension(const EcmaVM* vm,
 
 void ParseResizableCalcDimensions(ArkUIRuntimeCallInfo* runtimeCallInfo, uint32_t offset, uint32_t count,
     std::vector<std::optional<CalcDimension>>& results, const CalcDimension& defValue,
-    std::vector<RefPtr<ResourceObject>>& bgImageResizableResObjArray)
+    std::vector<RefPtr<ResourceObject>>& bgImageResizableResObjs)
 {
     auto end = offset + count;
     auto argsNumber = runtimeCallInfo->GetArgsNumber();
@@ -1440,7 +1440,7 @@ void ParseResizableCalcDimensions(ArkUIRuntimeCallInfo* runtimeCallInfo, uint32_
         } else {
             optCalcDimension = defaultDimension;
         }
-        bgImageResizableResObjArray.push_back(resObj);
+        bgImageResizableResObjs.push_back(resObj);
         results.push_back(optCalcDimension);
     }
 }
@@ -2396,6 +2396,9 @@ ArkUINativeModuleValue CommonBridge::SetAlign(ArkUIRuntimeCallInfo *runtimeCallI
     auto nativeNode = nodePtr(firstArg->ToNativePointer(vm)->Value());
     if (secondArg->IsNumber()) {
         GetArkUINodeModifiers()->getCommonModifier()->setAlign(nativeNode, secondArg->ToNumber(vm)->Value());
+    } else if (secondArg->IsString(vm)) {
+        GetArkUINodeModifiers()->getCommonModifier()->setLocalizedAlign(nativeNode, secondArg->ToString(vm)
+            ->ToString(vm).c_str());
     } else {
         GetArkUINodeModifiers()->getCommonModifier()->resetAlign(nativeNode);
     }
@@ -2409,6 +2412,32 @@ ArkUINativeModuleValue CommonBridge::ResetAlign(ArkUIRuntimeCallInfo *runtimeCal
     Local<JSValueRef> firstArg = runtimeCallInfo->GetCallArgRef(NUM_0);
     auto nativeNode = nodePtr(firstArg->ToNativePointer(vm)->Value());
     GetArkUINodeModifiers()->getCommonModifier()->resetAlign(nativeNode);
+    return panda::JSValueRef::Undefined(vm);
+}
+
+ArkUINativeModuleValue CommonBridge::SetLayoutGravity(ArkUIRuntimeCallInfo *runtimeCallInfo)
+{
+    EcmaVM *vm = runtimeCallInfo->GetVM();
+    CHECK_NULL_RETURN(vm, panda::NativePointerRef::New(vm, nullptr));
+    Local<JSValueRef> firstArg = runtimeCallInfo->GetCallArgRef(NUM_0);
+    Local<JSValueRef> secondArg = runtimeCallInfo->GetCallArgRef(NUM_1);
+    auto nativeNode = nodePtr(firstArg->ToNativePointer(vm)->Value());
+    if (secondArg->IsString(vm)) {
+        GetArkUINodeModifiers()->getCommonModifier()->setLayoutGravity(
+            nativeNode, secondArg->ToString(vm)->ToString(vm).c_str());
+    } else {
+        GetArkUINodeModifiers()->getCommonModifier()->resetLayoutGravity(nativeNode);
+    }
+    return panda::JSValueRef::Undefined(vm);
+}
+
+ArkUINativeModuleValue CommonBridge::ResetLayoutGravity(ArkUIRuntimeCallInfo *runtimeCallInfo)
+{
+    EcmaVM *vm = runtimeCallInfo->GetVM();
+    CHECK_NULL_RETURN(vm, panda::NativePointerRef::New(vm, nullptr));
+    Local<JSValueRef> firstArg = runtimeCallInfo->GetCallArgRef(NUM_0);
+    auto nativeNode = nodePtr(firstArg->ToNativePointer(vm)->Value());
+    GetArkUINodeModifiers()->getCommonModifier()->resetLayoutGravity(nativeNode);
     return panda::JSValueRef::Undefined(vm);
 }
 
@@ -3327,16 +3356,12 @@ ArkUINativeModuleValue CommonBridge::SetBackgroundImageResizable(ArkUIRuntimeCal
 
     std::vector<ArkUIStringAndFloat> options;
     std::vector<std::optional<CalcDimension>> sliceDimensions;
-    std::vector<void*> bgImageResizableArray;
-    std::vector<RefPtr<ResourceObject>> bgImageResizableResObjArray;
-    ParseResizableCalcDimensions(runtimeCallInfo, NUM_1, NUM_4, sliceDimensions, CalcDimension(0.0), bgImageResizableResObjArray);
-    for (unsigned int index = 0; index < NUM_4; index++) {
-        auto bgImageResizableRawPtr = AceType::RawPtr(bgImageResizableResObjArray[index]);
-        bgImageResizableArray.push_back(bgImageResizableRawPtr);
-    }
+    std::vector<RefPtr<ResourceObject>> bgImageResizableResObjs;
+    ParseResizableCalcDimensions(
+        runtimeCallInfo, NUM_1, NUM_4, sliceDimensions, CalcDimension(0.0), bgImageResizableResObjs);
     PushDimensionsToVector(options, sliceDimensions);
     GetArkUINodeModifiers()->getCommonModifier()->setBackgroundImageResizable(nativeNode, options.data(),
-        static_cast<ArkUI_Int32>(options.size()), bgImageResizableArray);
+        static_cast<ArkUI_Int32>(options.size()), static_cast<void*>(&bgImageResizableResObjs));
     return panda::JSValueRef::Undefined(vm);
 }
 
@@ -7253,6 +7278,11 @@ Local<panda::ObjectRef> CommonBridge::SetUniqueAttributes(
 {
     double density = PipelineBase::GetCurrentDensity();
     switch (typeName) {
+        case OHOS::Ace::GestureTypeName::TAP_GESTURE: {
+            const char* keys[] = { "tapLocation" };
+            Local<JSValueRef> values[] = { CreateTapGestureLocationInfo(vm,info) };
+            return panda::ObjectRef::NewWithNamedProperties(vm, ArraySize(keys), keys, values);
+        }
         case OHOS::Ace::GestureTypeName::LONG_PRESS_GESTURE: {
             auto* longPressGestureEvent = TypeInfoHelper::DynamicCast<LongPressGestureEvent>(info.get());
             if (longPressGestureEvent) {
@@ -9011,23 +9041,10 @@ ArkUINativeModuleValue CommonBridge::SetOnGestureJudgeBegin(ArkUIRuntimeCallInfo
         if (value->IsNumber()) {
             returnValue = static_cast<GestureJudgeResult>(value->ToNumber(vm)->Value());
         }
-        if (gestureInfo->GetType() == GestureTypeName::TAP_GESTURE) {
-            auto tapGuestureEventObj = CreateTapGestureLocationEvent(vm, gestureInfo->GetType(), info);
-            panda::Local<panda::JSValueRef> params[1] = { tapGuestureEventObj };
-            function->Call(vm, function.ToLocal(), params, 1);
-        }
         return returnValue;
     };
     NG::ViewAbstract::SetOnGestureJudgeBegin(frameNode, std::move(onGestureJudgeBegin));
     return panda::JSValueRef::Undefined(vm);
-}
-
-Local<panda::ObjectRef> CommonBridge::CreateTapGestureLocationEvent(
-    EcmaVM* vm, GestureTypeName typeName, const std::shared_ptr<BaseGestureEvent>& info)
-{
-    auto obj = SetUniqueAttributes(vm, typeName, info);
-    obj->Set(vm, panda::StringRef::NewFromUtf8(vm, "tapLocation"), CreateTapGestureLocationInfo(vm, info));
-    return obj;
 }
 
 Local<panda::ObjectRef> CommonBridge::CreateTapGestureLocationInfo(

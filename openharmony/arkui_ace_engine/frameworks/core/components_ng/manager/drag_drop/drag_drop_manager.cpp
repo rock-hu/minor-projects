@@ -2608,7 +2608,7 @@ void DragDropManager::HandleStartDragAnimationFinish(int32_t containerId)
     if (IsAllStartAnimationFinished()) {
         SetStartAnimation(true);
     }
-    if (IsPullMoveReceivedForCurrentDrag()) {
+    if (!IsPullMoveReceivedForCurrentDrag()) {
         TransDragWindowToDragFwk(containerId);
     }
     auto overlayManager = GetDragAnimationOverlayManager(containerId);
@@ -3080,7 +3080,6 @@ const RefPtr<NG::OverlayManager> DragDropManager::GetDragAnimationOverlayManager
 
 void DragDropManager::RemoveDragFrameNode(int32_t id)
 {
-    dragFrameNodes_.erase(id);
     gridDragFrameNodes_.erase(id);
     listDragFrameNodes_.erase(id);
     textFieldDragFrameNodes_.erase(id);

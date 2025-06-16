@@ -120,6 +120,7 @@ void AArch64PeepHole::InitOpts()
     optimizations[kAddLdrOpt] = optOwnMemPool->New<AddLdrOpt>(cgFunc);
     optimizations[kCsetEorOpt] = optOwnMemPool->New<CsetEorOpt>(cgFunc);
     optimizations[kMoveCmpOpt] = optOwnMemPool->New<MoveCmpOpt>(cgFunc);
+    optimizations[kCmpZeroBranch] = optOwnMemPool->New<CmpZeroBranch>(cgFunc);
 }
 
 void AArch64PeepHole::Run(BB &bb, Insn &insn)
@@ -138,6 +139,11 @@ void AArch64PeepHole::Run(BB &bb, Insn &insn)
         case MOP_xuxth32:
         case MOP_xuxtw64: {
             (static_cast<EliminateSpecifcUXTAArch64 *>(optimizations[kEliminateSpecifcUXTOpt]))->Run(bb, insn);
+            break;
+        }
+        case MOP_wcmpri:
+        case MOP_xcmpri: {
+            (static_cast<CmpZeroBranch *>(optimizations[kCmpZeroBranch]))->Run(bb, insn);
             break;
         }
         case MOP_wcbnz:
@@ -504,11 +510,47 @@ void EnhanceStrLdrAArch64::OptimizeWithAddrrrs(Insn &insn, MemOperand &memOpnd, 
     addInsn.GetBB()->RemoveInsn(addInsn);
 }
 
+void EnhanceStrLdrAArch64::OptimizeAddrBOrXShift(MemOperand &memOpnd, Insn &insn)
+{
+    auto *prev = insn.GetPreviousMachineInsn();
+    if (prev == nullptr || prev->GetMachineOpcode() != MOP_xlslrri6) {
+        return;
+    }
+    auto *indexOpnd = memOpnd.GetIndexRegister();
+    if (indexOpnd == nullptr) {
+        return;
+    }
+    auto &lslInsnDefOpnd = static_cast<RegOperand &>(prev->GetOperand(kInsnFirstOpnd));
+    if (lslInsnDefOpnd.GetRegisterNumber() != indexOpnd->GetRegisterNumber() ||
+        !CheckOperandIsDeadFromInsn(lslInsnDefOpnd, insn)) {
+        return;
+    }
+
+    auto &newIndex = static_cast<RegOperand &>(prev->GetOperand(kInsnSecondOpnd));
+    uint32 shift = static_cast<uint32>(static_cast<ImmOperand &>(prev->GetOperand(kInsnThirdOpnd)).GetValue());
+    const uint32 regSize = insn.GetDesc()->GetOpndDes(kInsnFirstOpnd)->GetSize();
+    // lsl extend insn shift amount can only be 0 or 1(16-bit def opnd) or 2(32-bit def opnd) or
+    // 3(64-bit def opnd) or 4(128-bit def opnd) in ldr/str insn, and in this pattern we only have
+    // 32-bit & 64-bit situation now
+    if ((shift == k0BitSize) || (regSize == k32BitSize && shift == k2BitSize) ||
+        (regSize == k64BitSize && shift == k3BitSize)) {
+        auto *newMemOpnd = static_cast<AArch64CGFunc &>(cgFunc).CreateMemOperand(
+            MemOperand::kAddrModeBOrX, memOpnd.GetSize(), *memOpnd.GetBaseRegister(), newIndex, shift, false);
+        insn.SetOperand(kInsnSecondOpnd, *newMemOpnd);
+        prev->GetBB()->RemoveInsn(*prev);
+    }
+    return;
+}
+
 void EnhanceStrLdrAArch64::Run(BB &bb, Insn &insn)
 {
     Operand &opnd = insn.GetOperand(kInsnSecondOpnd);
     CHECK_FATAL(opnd.IsMemoryAccessOperand(), "Unexpected operand in EnhanceStrLdrAArch64");
     auto &memOpnd = static_cast<MemOperand &>(opnd);
+    if (memOpnd.GetAddrMode() == MemOperand::kAddrModeBOrX) {
+        OptimizeAddrBOrXShift(memOpnd, insn);
+        return;
+    }
     if (memOpnd.GetAddrMode() != MemOperand::kAddrModeBOi || !memOpnd.GetOffsetImmediate()->IsImmOffset()) {
         return;
     }
@@ -899,6 +941,52 @@ void CombineContiLoadAndStorePattern::RemoveInsnAndKeepComment(BB &bb, Insn &ins
     }
     bb.RemoveInsn(insn);
     bb.RemoveInsn(prevInsn);
+}
+
+void CmpZeroBranch::Run(BB &bb, Insn &insn)
+{
+    bool is64Bit = insn.GetMachineOpcode() == MOP_xcmpri;
+    RegOperand &cmpInsnSecondOpnd = static_cast<RegOperand &>(insn.GetOperand(kInsnSecondOpnd));
+    ImmOperand &cmpInsnThirdOpnd = static_cast<ImmOperand &>(insn.GetOperand(kInsnThirdOpnd));
+    if (cmpInsnThirdOpnd.GetValue() != 0) {
+        return;
+    }
+    Insn *nextInsn = insn.GetNextMachineInsn();
+    if (nextInsn == nullptr || (nextInsn->GetMachineOpcode() != MOP_xcsetrc &&
+        nextInsn->GetMachineOpcode() != MOP_wcsetrc)) {
+        return;
+    }
+    auto condCode = static_cast<CondOperand &>(nextInsn->GetOperand(kInsnSecondOpnd)).GetCode();
+    if (condCode != CC_EQ && condCode != CC_NE) {
+        return;
+    }
+    Insn *thirdInsn = nextInsn->GetNextMachineInsn();
+    MOperator cbzMop = is64Bit ? MOP_xcbz : MOP_wcbz;
+    MOperator cbnzMop = is64Bit ? MOP_xcbnz : MOP_wcbnz;
+    if (thirdInsn == nullptr || (thirdInsn->GetMachineOpcode() != MOP_xcbz &&
+        thirdInsn->GetMachineOpcode() != MOP_wcbz && thirdInsn->GetMachineOpcode() != MOP_xcbnz &&
+        thirdInsn->GetMachineOpcode() != MOP_wcbnz)) {
+        return;
+    }
+    auto &tmpRegOp1 = static_cast<RegOperand &>(nextInsn->GetOperand(kInsnFirstOpnd));
+    regno_t baseRegNO1 = tmpRegOp1.GetRegisterNumber();
+    auto &tmpRegOp2 = static_cast<RegOperand &>(thirdInsn->GetOperand(kInsnFirstOpnd));
+    regno_t baseRegNO2 = tmpRegOp2.GetRegisterNumber();
+    if (baseRegNO1 != baseRegNO2) {
+        return;
+    }
+    if (IfOperandIsLiveAfterInsn(tmpRegOp2, *thirdInsn)) {
+        return;
+    }
+    bool isCbz = thirdInsn->GetMachineOpcode() == MOP_xcbz || thirdInsn->GetMachineOpcode() == MOP_wcbz;
+    if ((condCode == CC_EQ && isCbz) || (condCode == CC_NE && !isCbz)) {
+        thirdInsn->SetMOP(AArch64CG::kMd[cbnzMop]);
+    } else {
+        thirdInsn->SetMOP(AArch64CG::kMd[cbzMop]);
+    }
+    thirdInsn->SetOperand(kInsnFirstOpnd, cmpInsnSecondOpnd);
+    bb.RemoveInsn(insn);
+    bb.RemoveInsn(*nextInsn);
 }
 
 void EliminateSpecifcSXTAArch64::Run(BB &bb, Insn &insn)
@@ -1359,6 +1447,63 @@ bool ContiLDRorSTRToSameMEMPattern::HasImplicitSizeUse(const Insn &insn) const
     return false;
 }
 
+void CsetCbzToBeqOptAArch64::IntrinsicOptimize(BB &bb, Insn *preInsn, Insn &insn)
+{
+    MOperator opCode = insn.GetMachineOpcode();
+    MOperator preOpCode = preInsn->GetMachineOpcode();
+    bool reverse = (opCode == MOP_xcbz || opCode == MOP_wcbz);
+    Operand &rflag = static_cast<AArch64CGFunc *>(&cgFunc)->GetOrCreateRflag();
+    auto &label = static_cast<LabelOperand &>(insn.GetOperand(kInsnSecondOpnd));
+    if (preOpCode == MOP_tagged_is_heapobject) {
+        AArch64CGFunc &aarch64cgFunc = static_cast<AArch64CGFunc&>(cgFunc);
+        RegOperand &destReg = static_cast<RegOperand&>(preInsn->GetOperand(kInsnFirstOpnd));
+        RegOperand &srcReg = static_cast<RegOperand&>(preInsn->GetOperand(kInsnSecondOpnd));
+        // 0xffff000000000006
+        ImmOperand &immValue6 = aarch64cgFunc.CreateImmOperand(6, k16BitSize, false);
+        Insn &movInsn1 = cgFunc.GetInsnBuilder()->BuildInsn(MOP_xmovri64, destReg, immValue6);
+        bb.InsertInsnBefore(insn, movInsn1);
+
+        ImmOperand &immValue = aarch64cgFunc.CreateImmOperand(65535, k16BitSize, false);
+        BitShiftOperand *lslOpnd = aarch64cgFunc.GetLogicalShiftLeftOperand(48, true);
+        Insn &movInsn2 = cgFunc.GetInsnBuilder()->BuildInsn(MOP_xmovkri16, destReg, immValue, *lslOpnd);
+        bb.InsertInsnBefore(insn, movInsn2);
+
+        Insn &insn3 = cgFunc.GetInsnBuilder()->BuildInsn(MOP_xandrrr, destReg, srcReg, destReg);
+        bb.InsertInsnBefore(insn, insn3);
+        ImmOperand &immValueZero = aarch64cgFunc.CreateImmOperand(0, k16BitSize, false);
+        Insn &insn4 = cgFunc.GetInsnBuilder()->BuildInsn(MOP_xcmpri, rflag, destReg, immValueZero);
+        bb.InsertInsnBefore(insn, insn4);
+        MOperator jmpOperator = SelectMOperator(CC_EQ, reverse);
+        CHECK_FATAL((jmpOperator != MOP_undef), "unknown condition code");
+        Insn &newInsn = cgFunc.GetInsnBuilder()->BuildInsn(jmpOperator, rflag, label);
+        bb.RemoveInsn(*preInsn);
+        bb.ReplaceInsn(insn, newInsn);
+    } else if (preOpCode == MOP_has_pending_exception) {
+        AArch64CGFunc &aarch64cgFunc = static_cast<AArch64CGFunc&>(cgFunc);
+        RegOperand &destReg = static_cast<RegOperand&>(preInsn->GetOperand(kInsnFirstOpnd));
+        RegOperand &srcReg = static_cast<RegOperand&>(preInsn->GetOperand(kInsnSecondOpnd));
+        DEBUG_ASSERT(preInsn->GetOperand(kInsnThirdOpnd).IsImmediate(), "wrong operand type");
+        ImmOperand &offsetOpnd = static_cast<ImmOperand&>(preInsn->GetOperand(kInsnThirdOpnd));
+        // ExceptionOffset: 0xf70(3952)
+        int64 offset = offsetOpnd.GetValue();
+        Operand &exceptionMem = aarch64cgFunc.CreateMemOpnd(srcReg, offset, k64BitSize);
+        Insn &ldrExceptionInsn = cgFunc.GetInsnBuilder()->BuildInsn(MOP_xldr, destReg, exceptionMem);
+        bb.InsertInsnBefore(insn, ldrExceptionInsn);
+
+        // HOLE : 5
+        ImmOperand &holeValue = aarch64cgFunc.CreateImmOperand(5, k16BitSize, false);
+        Insn &cmpInsn = cgFunc.GetInsnBuilder()->BuildInsn(MOP_xcmpri, rflag, destReg, holeValue);
+        bb.InsertInsnBefore(insn, cmpInsn);
+
+        MOperator jmpOperator = SelectMOperator(CC_NE, reverse);
+        CHECK_FATAL((jmpOperator != MOP_undef), "unknown condition code");
+        Insn &newInsn = cgFunc.GetInsnBuilder()->BuildInsn(jmpOperator, rflag, label);
+        bb.RemoveInsn(*preInsn);
+        bb.ReplaceInsn(insn, newInsn);
+    }
+    return;
+}
+
 void CsetCbzToBeqOptAArch64::Run(BB &bb, Insn &insn)
 {
     Insn *insn1 = insn.GetPreviousMachineInsn();
@@ -1367,7 +1512,8 @@ void CsetCbzToBeqOptAArch64::Run(BB &bb, Insn &insn)
     }
     /* prevInsn must be "cset" insn */
     MOperator opCode1 = insn1->GetMachineOpcode();
-    if (opCode1 != MOP_xcsetrc && opCode1 != MOP_wcsetrc) {
+    if (opCode1 != MOP_xcsetrc && opCode1 != MOP_wcsetrc &&
+        opCode1 != MOP_tagged_is_heapobject && opCode1 != MOP_has_pending_exception) {
         return;
     }
 
@@ -1380,6 +1526,10 @@ void CsetCbzToBeqOptAArch64::Run(BB &bb, Insn &insn)
     }
     /* If the reg will be used later, we shouldn't optimize the cset insn here */
     if (IfOperandIsLiveAfterInsn(tmpRegOp2, insn)) {
+        return;
+    }
+    if (opCode1 == MOP_tagged_is_heapobject || opCode1 == MOP_has_pending_exception) {
+        IntrinsicOptimize(bb, insn1, insn);
         return;
     }
     MOperator opCode = insn.GetMachineOpcode();

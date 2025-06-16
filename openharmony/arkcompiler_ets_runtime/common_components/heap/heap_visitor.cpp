@@ -17,14 +17,15 @@
 
 #include "common_components/base_runtime/hooks.h"
 
-namespace panda {
+namespace common {
 void VisitRoots(const RefFieldVisitor &visitor, bool isMark)
 {
     VisitDynamicRoots(visitor, isMark);
+    VisitBaseRoots(visitor);
 }
 
 void VisitWeakRoots(const WeakRefFieldVisitor &visitor)
 {
     VisitDynamicWeakRoots(visitor);
 }
-}  // namespace panda
+}  // namespace common

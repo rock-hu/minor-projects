@@ -20,12 +20,7 @@
 #include "common_interfaces/objects/readonly_handle.h"
 #include "common_interfaces/objects/base_string.h"
 
-namespace panda {
-namespace ecmascript {
-    class TaggedObject;
-    class EcmaStringTable;
-}
-
+namespace common {
 // Expand to get oldEntry and newEntry, with hash conflicts from 32 bits up to
 // hashShift and Generate a subtree of indirect nodes to hold two new entries.
 template <typename Mutex, typename ThreadHolder>
@@ -594,7 +589,7 @@ BaseString* HashTrieMap<Mutex, ThreadHolder>::StoreOrLoad(ThreadHolder* holder, 
 template <typename Mutex, typename ThreadHolder>
 bool HashTrieMap<Mutex, ThreadHolder>::CheckWeakRef(const WeakRootVisitor& visitor, Entry* entry)
 {
-    ecmascript::TaggedObject* object = reinterpret_cast<ecmascript::TaggedObject*>(entry->Value());
+    panda::ecmascript::TaggedObject* object = reinterpret_cast<panda::ecmascript::TaggedObject*>(entry->Value());
     auto fwd = visitor(object);
     if (fwd == nullptr) {
         LOG_COMMON(VERBOSE) << "StringTable: delete string " << std::hex << object;
@@ -648,14 +643,17 @@ void HashTrieMap<Mutex, ThreadHolder>::Iter(ReadBarrier&& readBarrier, Indirect*
     }
 }
 
-#ifdef USE_CMC_GC
 template <typename Mutex, typename ThreadHolder>
 bool HashTrieMap<Mutex, ThreadHolder>::CheckWeakRef(const WeakRefFieldVisitor& visitor, HashTrieMap::Entry* entry)
 {
-    bool isAlive = visitor(reinterpret_cast<RefField<>&>(*entry->ValueAddress()));
+    // RefField only support 64-bit value, so could not cirectly pass `Entry::Value` to WeakRefFieldVisitor
+    // int 32-bit machine
+    uint64_t str = static_cast<uint64_t>(reinterpret_cast<uintptr_t>(entry->Value()));
+    bool isAlive = visitor(reinterpret_cast<RefField<> &>(str));
     if (!isAlive) {
         return true;
     }
+    entry->SetValue(reinterpret_cast<BaseString *>(static_cast<uintptr_t>(str)));
     return false;
 }
 
@@ -719,7 +717,6 @@ bool HashTrieMap<Mutex, ThreadHolder>::ClearNodeFromGC(Indirect* parent, int ind
         return false;
     }
 }
-#endif
 
 template <typename Mutex, typename ThreadHolder>
 bool HashTrieMap<Mutex, ThreadHolder>::ClearNodeFromGC(Indirect* parent, int index, const WeakRootVisitor& visitor)

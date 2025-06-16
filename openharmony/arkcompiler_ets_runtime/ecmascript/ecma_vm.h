@@ -146,9 +146,7 @@ using HostPromiseRejectionTracker = void (*)(const EcmaVM* vm,
                                              void* data);
 using PromiseRejectCallback = void (*)(void* info);
 
-#ifdef USE_CMC_GC
 using namespace panda;
-#endif
 
 enum class IcuFormatterType: uint8_t {
     SIMPLE_DATE_FORMAT_DEFAULT,
@@ -343,7 +341,7 @@ public:
     JSThread *GetAndFastCheckJSThread() const;
     bool CheckSingleThread() const;
 
-    ARK_INLINE bool GetThreadCheckStatus() const
+    ARK_INLINE uint32_t GetThreadCheckStatus() const
     {
         return options_.EnableThreadCheck() || EcmaVM::GetMultiThreadCheck();
     }
@@ -369,6 +367,11 @@ public:
     bool ICEnabled() const
     {
         return icEnabled_;
+    }
+
+    uint32_t IsEnableCMCGC() const
+    {
+        return isEnableCMCGC_;
     }
 
     void PushToNativePointerList(JSNativePointer *pointer, Concurrent isConcurrent = Concurrent::NO);
@@ -1094,7 +1097,7 @@ public:
     {
         return apiVersion_;
     }
-    
+
     JSTaggedValue GetRegisterSymbols() const
     {
         return registerSymbols_;
@@ -1103,6 +1106,16 @@ public:
     void SetRegisterSymbols(JSTaggedValue value)
     {
         registerSymbols_ = value;
+    }
+
+    JSTaggedValue GetFinRegLists() const
+    {
+        return finRegLists_;
+    }
+
+    void SetFinRegLists(JSTaggedValue value)
+    {
+        finRegLists_ = value;
     }
 
     JSHandle<job::MicroJobQueue> GetMicroJobQueue() const;
@@ -1270,6 +1283,16 @@ public:
         stageOfColdReload_ = stageOfColdReload;
     }
 
+    void SetApplicationVersionCode(const uint32_t versionCode)
+    {
+        applicationVersionCode_ = versionCode;
+    }
+
+    uint32_t GetApplicationVersionCode() const
+    {
+        return applicationVersionCode_;
+    }
+
     JSTaggedValue ExecuteAot(size_t actualNumArgs, JSTaggedType *args, const JSTaggedType *prevFp,
                              bool needPushArgv);
 
@@ -1342,6 +1365,7 @@ private:
     // VM startup states.
     JSRuntimeOptions options_;
     bool icEnabled_ {true};
+    uint32_t isEnableCMCGC_ {0};
     bool initialized_ {false};
     bool preForked_ {false};
     bool postForked_ {false};
@@ -1489,10 +1513,11 @@ private:
     HostPromiseRejectionTracker hostPromiseRejectionTracker_ {nullptr};
     void* data_{nullptr};
 
+    JSTaggedValue finRegLists_ {JSTaggedValue::Hole()};
     JSTaggedValue registerSymbols_ {JSTaggedValue::Hole()};
     JSTaggedValue microJobQueue_ {JSTaggedValue::Hole()};
     std::atomic<bool> isProcessingPendingJob_{false};
-    
+
 #ifdef PANDA_JS_ETS_HYBRID_MODE
     CrossVMOperator* crossVMOperator_ {nullptr};
 #endif // PANDA_JS_ETS_HYBRID_MODE
@@ -1543,6 +1568,9 @@ private:
 
     // store multi-context module manager
     std::vector<ModuleManager *> moduleManagers_ {};
+
+    // store Application versionCode
+    uint32_t applicationVersionCode_ {0};
 };
 }  // namespace ecmascript
 }  // namespace panda

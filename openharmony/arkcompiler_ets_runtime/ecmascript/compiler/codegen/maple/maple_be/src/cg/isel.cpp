@@ -205,6 +205,26 @@ static void HandleIntrinCall(StmtNode &stmt, MPISel &iSel)
     iSel.SelectIntrinsicCall(call);
 }
 
+static void HandleDeoptCall(StmtNode &stmt, MPISel &iSel)
+{
+    CGFunc *cgFunc = iSel.GetCurFunc();
+    auto &deoptCallNode = static_cast<CallNode &>(stmt);
+    cgFunc->GetCurBB()->SetKind(BB::kBBNoReturn);
+    cgFunc->PushBackNoReturnCallBBsVec(*cgFunc->GetCurBB());
+    iSel.SelectDeoptCall(deoptCallNode);
+    cgFunc->SetCurBB(*cgFunc->StartNewBB(deoptCallNode));
+}
+
+static void HandleTailICall(StmtNode &stmt, MPISel &iSel)
+{
+    CGFunc *cgFunc = iSel.GetCurFunc();
+    auto &tailIcallNode = static_cast<IcallNode&>(stmt);
+    cgFunc->GetCurBB()->SetKind(BB::kBBNoReturn);
+    cgFunc->PushBackNoReturnCallBBsVec(*cgFunc->GetCurBB());
+    iSel.SelectTailICall(tailIcallNode);
+    cgFunc->SetCurBB(*cgFunc->StartNewBB(tailIcallNode));
+}
+
 static void HandleRangeGoto(StmtNode &stmt, MPISel &iSel)
 {
     CGFunc *cgFunc = iSel.GetCurFunc();
@@ -442,8 +462,36 @@ static Operand *HandleIntrinOp(const BaseNode &parent, BaseNode &expr, MPISel &i
             return &iSel.SelectGetHeapConstantTable(intrinsicopNode,
                                                     *iSel.HandleExpr(expr, *expr.Opnd(kInsnFirstOpnd)),
                                                     *iSel.HandleExpr(expr, *expr.Opnd(kInsnSecondOpnd)),
+                                                    *iSel.HandleExpr(expr, *expr.Opnd(kInsnThirdOpnd)), parent);
+        case INTRN_TAGGED_IS_HEAPOBJECT:
+            return &iSel.SelectTaggedIsHeapObject(intrinsicopNode,
+                                                  *iSel.HandleExpr(expr, *expr.Opnd(kInsnFirstOpnd)),
+                                                  *iSel.HandleExpr(expr, *expr.Opnd(kInsnSecondOpnd)), parent);
+        case INTRN_IS_STABLE_ELEMENTS:
+            return &iSel.SelectIsStableElements(intrinsicopNode,
+                                                *iSel.HandleExpr(expr, *expr.Opnd(kInsnFirstOpnd)),
+                                                *iSel.HandleExpr(expr, *expr.Opnd(kInsnSecondOpnd)),
+                                                *iSel.HandleExpr(expr, *expr.Opnd(kInsnThirdOpnd)), parent);
+        case INTRN_HAS_PENDING_EXCEPTION:
+            return &iSel.SelectHasPendingException(intrinsicopNode,
+                                                   *iSel.HandleExpr(expr, *expr.Opnd(kInsnFirstOpnd)),
+                                                   *iSel.HandleExpr(expr, *expr.Opnd(kInsnSecondOpnd)),
+                                                   *iSel.HandleExpr(expr, *expr.Opnd(kInsnThirdOpnd)), parent);
+        case INTRN_TAGGED_OBJECT_IS_STRING:
+            return &iSel.SelectTaggedObjectIsString(intrinsicopNode,
+                                                    *iSel.HandleExpr(expr, *expr.Opnd(kInsnFirstOpnd)),
+                                                    *iSel.HandleExpr(expr, *expr.Opnd(kInsnSecondOpnd)),
                                                     *iSel.HandleExpr(expr, *expr.Opnd(kInsnThirdOpnd)),
-                                                    parent);
+                                                    *iSel.HandleExpr(expr, *expr.Opnd(kInsnFourthOpnd)),
+                                                    *iSel.HandleExpr(expr, *expr.Opnd(kInsnFifthOpnd)), parent);
+        case INTRN_IS_COW_ARRAY:
+            return &iSel.SelectIsCOWArray(intrinsicopNode,
+                                          *iSel.HandleExpr(expr, *expr.Opnd(kInsnFirstOpnd)),
+                                          *iSel.HandleExpr(expr, *expr.Opnd(kInsnSecondOpnd)),
+                                          *iSel.HandleExpr(expr, *expr.Opnd(kInsnThirdOpnd)),
+                                          *iSel.HandleExpr(expr, *expr.Opnd(kInsnFourthOpnd)),
+                                          *iSel.HandleExpr(expr, *expr.Opnd(kInsnFifthOpnd)),
+                                          *iSel.HandleExpr(expr, *expr.Opnd(kInsnSixthOpnd)), parent);
         default:
             DEBUG_ASSERT(false, "NIY, unsupported intrinsicop.");
             return nullptr;
@@ -474,6 +522,8 @@ static void InitHandleStmtFactory()
     RegisterFactoryFunction<HandleStmtFactory>(OP_intrinsiccall, HandleIntrinCall);
     RegisterFactoryFunction<HandleStmtFactory>(OP_intrinsiccallassigned, HandleIntrinCall);
     RegisterFactoryFunction<HandleStmtFactory>(OP_intrinsiccallwithtype, HandleIntrinCall);
+    RegisterFactoryFunction<HandleStmtFactory>(OP_deoptcall, HandleDeoptCall);
+    RegisterFactoryFunction<HandleStmtFactory>(OP_tailicall, HandleTailICall);
     RegisterFactoryFunction<HandleStmtFactory>(OP_rangegoto, HandleRangeGoto);
     RegisterFactoryFunction<HandleStmtFactory>(OP_brfalse, HandleCondbr);
     RegisterFactoryFunction<HandleStmtFactory>(OP_brtrue, HandleCondbr);

@@ -540,6 +540,7 @@ public:
     Local<StringRef> ToString(const EcmaVM *vm);
     Local<ObjectRef> ToObject(const EcmaVM *vm);
     Local<ObjectRef> ToEcmaObject(const EcmaVM *vm);
+    Local<ObjectRef> ToEcmaObjectWithoutSwitchState(const EcmaVM *vm);
     Local<NativePointerRef> ToNativePointer(const EcmaVM *vm);
 
     bool IsUndefined();
@@ -553,8 +554,10 @@ public:
     bool WithinInt32();
     bool IsBoolean();
     bool IsString(const EcmaVM *vm);
+    bool IsStringWithoutSwitchState(const EcmaVM *vm);
     bool IsSymbol(const EcmaVM *vm);
     bool IsObject(const EcmaVM *vm);
+    bool IsObjectWithoutSwitchState(const EcmaVM *vm);
     bool IsNativeBindingObject(const EcmaVM *vm);
     bool IsArray(const EcmaVM *vm);
     bool IsJSArray(const EcmaVM *vm);
@@ -877,7 +880,6 @@ public:
 
     Local<JSValueRef> Freeze(const EcmaVM *vm);
     Local<JSValueRef> Seal(const EcmaVM *vm);
-
     void SetNativePointerFieldCount(const EcmaVM *vm, int32_t count);
     int32_t GetNativePointerFieldCount(const EcmaVM *vm);
     void *GetNativePointerField(const EcmaVM *vm, int32_t index);
@@ -1045,6 +1047,7 @@ public:
     uint32_t WriteUtf8(const EcmaVM *vm, char *buffer, uint32_t length, bool isWriteBuffer = false);
     uint32_t WriteUtf16(const EcmaVM *vm, char16_t *buffer, uint32_t length);
     uint32_t WriteLatin1(const EcmaVM *vm, char *buffer, uint32_t length);
+    uint32_t WriteLatin1WithoutSwitchState(const EcmaVM *vm, char *buffer, uint32_t length);
     static Local<StringRef> GetNapiWrapperString(const EcmaVM *vm);
     static Local<StringRef> GetProxyNapiWrapperString(const EcmaVM *vm);
     Local<TypedArrayRef> EncodeIntoUint8Array(const EcmaVM *vm);
@@ -1172,7 +1175,7 @@ public:
 
     int32_t ByteLength(const EcmaVM *vm);
     void *GetBuffer(const EcmaVM *vm);
-
+    void *GetBufferAndLength(const EcmaVM *vm, int32_t *length);
     void Detach(const EcmaVM *vm);
     bool IsDetach(const EcmaVM *vm);
 };
@@ -1400,8 +1403,9 @@ public:
 
 private:
     JSThread *thread_;
-    [[maybe_unused]] uint16_t oldThreadState_;
-    [[maybe_unused]] bool hasSwitchState_ {false};
+    uint16_t oldThreadState_ {0};
+    uint32_t isEnableCMCGC_ {0};
+    uint32_t hasSwitchState_ {0};
 };
 
 class PUBLIC_API JsiFastNativeScope {
@@ -1414,7 +1418,8 @@ public:
 private:
     JSThread *thread_ {nullptr};
     uint16_t oldThreadState_ {0};
-    bool hasSwitchState_ {false};
+    uint32_t isEnableCMCGC_ {0};
+    uint32_t hasSwitchState_ {0};
 };
 
 /**
@@ -1545,8 +1550,11 @@ public:
 class PUBLIC_API BufferRef : public ObjectRef {
 public:
     static Local<BufferRef> New(const EcmaVM *vm, int32_t length);
+    static Local<BufferRef> New(const EcmaVM *vm, const Local<JSValueRef> &context, int32_t length);
     static Local<BufferRef> New(const EcmaVM *vm, void *buffer, int32_t length, const NativePointerCallback &deleter,
                                 void *data);
+    static Local<BufferRef> New(const EcmaVM *vm, const Local<JSValueRef> &context, void *buffer, int32_t length,
+                                const NativePointerCallback &deleter, void *data);
 
     int32_t ByteLength(const EcmaVM *vm);
     void *GetBuffer(const EcmaVM *vm);
@@ -1786,6 +1794,9 @@ public:
     static void NotifyEnvInitialized(EcmaVM *vm);
     static void SetHostResolveBufferTracker(EcmaVM *vm, std::function<bool(std::string dirPath, bool isHybrid,
                                             uint8_t **buff, size_t *buffSize, std::string &errorMsg)> cb);
+    static void PandaFileSerialize(const EcmaVM *vm);
+    static void ModuleSerialize(const EcmaVM *vm);
+    static void ModuleDeserialize(EcmaVM *vm, const uint32_t appVersion);
     static void SetUnloadNativeModuleCallback(EcmaVM *vm, const std::function<bool(const std::string &moduleKey)> &cb);
     static void SetNativePtrGetter(EcmaVM *vm, void* cb);
     static void SetSourceMapCallback(EcmaVM *vm, SourceMapCallback cb);
@@ -1869,7 +1880,6 @@ public:
     static Local<JSValueRef> NapiGetProperty(const EcmaVM *vm, uintptr_t nativeObj, uintptr_t key);
     static Local<JSValueRef> NapiDeleteProperty(const EcmaVM *vm, uintptr_t nativeObj, uintptr_t key);
     static Local<JSValueRef> NapiGetNamedProperty(const EcmaVM *vm, uintptr_t nativeObj, const char* utf8Key);
-
     static Local<JSValueRef> CreateLocal(const EcmaVM *vm, JSValueRef src);
 
     // Napi helper function

@@ -22,13 +22,16 @@
 
 #include "base/runtime_param.h"
 
-namespace panda {
+namespace common {
+class BaseStringTableImpl;
+template <typename Impl>
+class BaseStringTableInterface;
 class BaseObject;
 class HeapManager;
-class LogManager;
 class MutatorManager;
 class ThreadHolderManager;
 class ThreadHolder;
+class BaseClassRoots;
 
 enum class GcType : uint8_t {
     ASYNC,
@@ -86,17 +89,27 @@ public:
     {
         return *heapManager_;
     }
+
+    BaseClassRoots &GetBaseClassRoots()
+    {
+        return *baseClassRoots_;
+    }
+
+    BaseStringTableInterface<BaseStringTableImpl> &GetStringTable()
+    {
+        return *stringTable_;
+    }
 private:
     RuntimeParam param_ {};
 
     HeapManager* heapManager_ = nullptr;
-    LogManager* logManager_ = nullptr;
     MutatorManager* mutatorManager_ = nullptr;
     ThreadHolderManager* threadHolderManager_  = nullptr;
-
+    BaseClassRoots* baseClassRoots_ = nullptr;
+    BaseStringTableInterface<BaseStringTableImpl>* stringTable_ = nullptr;
     static std::mutex vmCreationLock_;
     static BaseRuntime *baseRuntimeInstance_;
     static bool initialized_;
 };
-}  // namespace panda
+}  // namespace common
 #endif // COMMON_INTERFACES_BASE_RUNTIME_H

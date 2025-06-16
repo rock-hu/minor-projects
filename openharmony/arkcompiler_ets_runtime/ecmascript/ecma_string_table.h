@@ -18,14 +18,17 @@
 
 #include <array>
 #include "common_components/objects/string_table/hashtriemap.h"
+#include "common_components/objects/string_table_internal.h"
 #include "common_components/taskpool/task.h"
+#include "ecmascript/ecma_string.h"
 #include "ecmascript/js_tagged_value.h"
 #include "ecmascript/mem/c_containers.h"
 #include "ecmascript/mem/space.h"
 #include "ecmascript/mem/visitor.h"
 #include "ecmascript/platform/mutex.h"
 #include "ecmascript/tagged_array.h"
-#include "objects/string/base_string_declare.h"
+#include "common_interfaces/objects/base_string_table.h"
+#include "common_interfaces/objects/string/base_string_declare.h"
 
 namespace panda::ecmascript {
 #if ENABLE_NEXT_OPTIMIZATION
@@ -66,10 +69,10 @@ private:
         return (cleaner->PendingTaskCount_.fetch_sub(1U, std::memory_order_relaxed) == 1U);
     }
 
-    class SweepWeakRefTask : public Task {
+    class SweepWeakRefTask : public common::Task {
     public:
         SweepWeakRefTask(IteratorPtr iter, EcmaStringTableCleaner *cleaner, const WeakRootVisitor &visitor)
-            : Task(0), iter_(iter), cleaner_(cleaner), visitor_(visitor)
+            : common::Task(0), iter_(iter), cleaner_(cleaner), visitor_(visitor)
         {
         }
         ~SweepWeakRefTask() = default;
@@ -93,9 +96,9 @@ private:
     ConditionVariable sweepWeakRefCV_;
 };
 
-class StringTableMutex {
+class EcmaStringTableMutex {
 public:
-    explicit StringTableMutex(bool is_init = true) : mtx_(is_init)
+    explicit EcmaStringTableMutex(bool is_init = true) : mtx_(is_init)
     {
     }
 
@@ -115,18 +118,46 @@ private:
     Mutex mtx_;
 };
 
-class EcmaStringTable final {
-public:
-    EcmaStringTable() : cleaner_(new EcmaStringTableCleaner(this)) {}
-    ~EcmaStringTable()
+struct EnableCMCGCTrait {
+    using StringTableInterface = common::BaseStringTableInterface<common::BaseStringTableImpl>;
+    using HashTrieMapImpl = common::HashTrieMap<common::BaseStringTableMutex, common::ThreadHolder>;
+    using ThreadType = common::ThreadHolder;
+    static constexpr bool EnableCMCGC = true;
+    static common::ReadOnlyHandle<BaseString> CreateHandle(ThreadType* holder, BaseString* string)
     {
-        if (cleaner_ != nullptr) {
-            delete cleaner_;
-            cleaner_ = nullptr;
-        }
+        return JSHandle<EcmaString>(holder->GetJSThread(), EcmaString::FromBaseString(string));
     }
+};
+
+struct DisableCMCGCTrait {
+    struct DummyStringTableInterface {}; // placeholder for consistent type
+    using StringTableInterface = DummyStringTableInterface;
+    using HashTrieMapImpl = common::HashTrieMap<EcmaStringTableMutex, JSThread>;
+    using ThreadType = JSThread;
+    static constexpr bool EnableCMCGC = false;
+    static common::ReadOnlyHandle<BaseString> CreateHandle(ThreadType* holder, BaseString* string)
+    {
+        return JSHandle<EcmaString>(holder, EcmaString::FromBaseString(string));
+    }
+};
+
+template <typename Traits>
+class EcmaStringTableImpl final {
+public:
+    using StringTableInterface = typename Traits::StringTableInterface;
+    using HashTrieMapImpl = typename Traits::HashTrieMapImpl;
+    using ThreadType = typename Traits::ThreadType;
+    // CMC constructor
+    template <typename T = Traits, std::enable_if_t<T::EnableCMCGC, int> = 0>
+    EcmaStringTableImpl(StringTableInterface* itf, HashTrieMapImpl& map)
+        : stringTable_(map), stringTableItf_(itf) {}
+
+    // Non-CMC constructor
+    template <typename T = Traits, std::enable_if_t<!T::EnableCMCGC, int> = 0>
+    EcmaStringTableImpl() {}
 
     EcmaString *GetOrInternFlattenString(EcmaVM *vm, EcmaString *string);
+    EcmaString *GetOrInternFlattenStringNoGC(EcmaVM *vm, EcmaString *string);
     EcmaString *GetOrInternStringFromCompressedSubString(EcmaVM *vm, const JSHandle<EcmaString> &string,
                                                          uint32_t offset, uint32_t utf8Len);
     EcmaString *GetOrInternString(EcmaVM *vm, EcmaString *string);
@@ -148,12 +179,89 @@ public:
                                                        bool canBeCompress, MemSpaceType type);
     EcmaString *TryGetInternString(const JSHandle<EcmaString> &string);
 
-#ifdef USE_CMC_GC
-    void IterWeakRoot(const WeakRefFieldVisitor &visitor);
-    void IterWeakRoot(const WeakRefFieldVisitor &visitor, uint32_t index);
-#endif
+    void IterWeakRoot(const common::WeakRefFieldVisitor &visitor);
+    void IterWeakRoot(const common::WeakRefFieldVisitor &visitor, uint32_t index);
     void SweepWeakRef(const WeakRootVisitor &visitor);
     void SweepWeakRef(const WeakRootVisitor &visitor, uint32_t index);
+
+    bool CheckStringTableValidity();
+
+    NO_COPY_SEMANTIC(EcmaStringTableImpl);
+    NO_MOVE_SEMANTIC(EcmaStringTableImpl);
+
+    /**
+     *
+     * These are some "incorrect" functions, which need to fix the call chain to be removed.
+     *
+     */
+    // This should only call in Debugger Signal, and need to fix and remove
+    EcmaString *GetOrInternStringThreadUnsafe(EcmaVM *vm, const JSHandle<EcmaString> firstString,
+                                              const JSHandle<EcmaString> secondString);
+    // This should only call in Debugger Signal, and need to fix and remove
+    EcmaString* GetOrInternStringThreadUnsafe(EcmaVM* vm, const uint8_t* utf8Data, uint32_t utf8Len,
+                                              bool canBeCompress);
+
+private:
+    static ThreadType* GetThreadHolder(JSThread* thread);
+
+    std::conditional_t<Traits::EnableCMCGC, HashTrieMapImpl&, HashTrieMapImpl> stringTable_;
+    StringTableInterface* stringTableItf_ = nullptr;
+};
+
+
+class EcmaStringTable final {
+public:
+    using StringTableInterface = common::BaseStringTableInterface<common::BaseStringTableImpl>;
+    using HashTrieMapImpl = common::HashTrieMap<common::BaseStringTableMutex, common::ThreadHolder>;
+
+    EcmaStringTable(bool enableCMC, void* itf = nullptr, void* map = nullptr)
+    {
+        cleaner_ = new EcmaStringTableCleaner(this);
+        if (enableCMC) {
+            impl_.emplace<EcmaStringTableImpl<EnableCMCGCTrait>>(
+                static_cast<EnableCMCGCTrait::StringTableInterface*>(itf),
+                *static_cast<EnableCMCGCTrait::HashTrieMapImpl*>(map));
+        } else {
+            impl_.emplace<EcmaStringTableImpl<DisableCMCGCTrait>>();
+        }
+    }
+
+    ~EcmaStringTable()
+    {
+        if (cleaner_ != nullptr) {
+            delete cleaner_;
+            cleaner_ = nullptr;
+        }
+    }
+
+    EcmaString *GetOrInternFlattenString(EcmaVM *vm, EcmaString *string);
+    EcmaString *GetOrInternFlattenStringNoGC(EcmaVM *vm, EcmaString *string);
+    EcmaString *GetOrInternStringFromCompressedSubString(EcmaVM *vm, const JSHandle<EcmaString> &string,
+                                                         uint32_t offset, uint32_t utf8Len);
+    EcmaString *GetOrInternString(EcmaVM *vm, EcmaString *string);
+
+    template <typename LoaderCallback, typename EqualsCallback>
+    EcmaString *GetOrInternString(EcmaVM *vm, uint32_t hashcode, LoaderCallback loaderCallback,
+                                  EqualsCallback equalsCallback);
+    EcmaString *GetOrInternString(EcmaVM *vm, const JSHandle<EcmaString> &firstString,
+                                  const JSHandle<EcmaString> &secondString);
+    EcmaString *GetOrInternString(EcmaVM *vm, const uint8_t *utf8Data, uint32_t utf8Len, bool canBeCompress,
+                                  MemSpaceType type = MemSpaceType::SHARED_OLD_SPACE);
+    EcmaString *GetOrInternString(EcmaVM *vm, const uint8_t *utf8Data, uint32_t utf16Len, MemSpaceType type);
+    EcmaString *GetOrInternString(EcmaVM *vm, const uint16_t *utf16Data, uint32_t utf16Len, bool canBeCompress);
+    // This is ONLY for JIT Thread, since JIT could not create JSHandle so need to allocate String with holding
+    // lock_ --- need to support JSHandle
+    EcmaString *GetOrInternStringWithoutJSHandleForJit(EcmaVM *vm, const uint8_t *utf8Data, uint32_t utf16Len,
+                                                       MemSpaceType type);
+    EcmaString *GetOrInternStringWithoutJSHandleForJit(EcmaVM *vm, const uint8_t *utf8Data, uint32_t utf8Len,
+                                                       bool canBeCompress, MemSpaceType type);
+    EcmaString *TryGetInternString(const JSHandle<EcmaString> &string);
+
+    void IterWeakRoot(const common::WeakRefFieldVisitor &visitor);
+    void IterWeakRoot(const common::WeakRefFieldVisitor &visitor, uint32_t index);
+    void SweepWeakRef(const WeakRootVisitor &visitor);
+    void SweepWeakRef(const WeakRootVisitor &visitor, uint32_t index);
+
     bool CheckStringTableValidity();
 
     EcmaStringTableCleaner *GetCleaner()
@@ -165,7 +273,6 @@ private:
     NO_COPY_SEMANTIC(EcmaStringTable);
     NO_MOVE_SEMANTIC(EcmaStringTable);
 
-    EcmaString *GetString(const JSHandle<EcmaString> string, uint32_t hashcode);
     /**
      *
      * These are some "incorrect" functions, which need to fix the call chain to be removed.
@@ -175,34 +282,26 @@ private:
     EcmaString *GetOrInternStringThreadUnsafe(EcmaVM *vm, const JSHandle<EcmaString> firstString,
                                               const JSHandle<EcmaString> secondString);
     // This should only call in Debugger Signal, and need to fix and remove
-    EcmaString *GetOrInternStringThreadUnsafe(EcmaVM *vm, const uint8_t *utf8Data, uint32_t utf8Len,
+    EcmaString* GetOrInternStringThreadUnsafe(EcmaVM* vm, const uint8_t* utf8Data, uint32_t utf8Len,
                                               bool canBeCompress);
-    HashTrieMap<StringTableMutex, JSThread> stringTable_;
+
+    template <typename Fn>
+    decltype(auto) visitImpl(Fn&& fn)
+    {
+        return std::visit(std::forward<Fn>(fn), impl_);
+    }
+
+    std::variant<
+        EcmaStringTableImpl<DisableCMCGCTrait>,
+        EcmaStringTableImpl<EnableCMCGCTrait>
+    > impl_;
+
     EcmaStringTableCleaner *cleaner_;
 
     friend class SnapshotProcessor;
     friend class BaseDeserializer;
 };
 
-class SingleCharTable : public TaggedArray {
-public:
-    static SingleCharTable *Cast(TaggedObject *object)
-    {
-        return reinterpret_cast<SingleCharTable *>(object);
-    }
-    static JSTaggedValue CreateSingleCharTable(JSThread *thread);
-    JSTaggedValue GetStringFromSingleCharTable(int32_t ch)
-    {
-        return Get(ch);
-    }
-
-private:
-    SingleCharTable() = default;
-    ~SingleCharTable() = default;
-    NO_COPY_SEMANTIC(SingleCharTable);
-    NO_MOVE_SEMANTIC(SingleCharTable);
-    static constexpr uint32_t MAX_ONEBYTE_CHARCODE = 128;  // 0X00-0X7F
-};
 #else
 class EcmaString;
 class EcmaVM;
@@ -239,12 +338,12 @@ private:
         return (cleaner->PendingTaskCount_.fetch_sub(1U, std::memory_order_relaxed) == 1U);
     }
 
-    class SweepWeakRefTask : public Task {
+    class SweepWeakRefTask : public common::Task {
     public:
         SweepWeakRefTask(IteratorPtr iter, EcmaStringTableCleaner* cleaner, const WeakRootVisitor& visitor)
-            : Task(0), iter_(iter), cleaner_(cleaner), visitor_(visitor) {}
+            : common::Task(0), iter_(iter), cleaner_(cleaner), visitor_(visitor) {}
         ~SweepWeakRefTask() = default;
-        
+
         bool Run(uint32_t threadIndex) override;
 
         NO_COPY_SEMANTIC(SweepWeakRefTask);
@@ -286,6 +385,7 @@ public:
         return hashcode & SEGMENT_MASK;
     }
     EcmaString *GetOrInternFlattenString(EcmaVM *vm, EcmaString *string);
+    EcmaString *GetOrInternFlattenStringNoGC(EcmaVM *vm, EcmaString *string);
     EcmaString *GetOrInternStringFromCompressedSubString(EcmaVM *vm, const JSHandle<EcmaString> &string,
         uint32_t offset, uint32_t utf8Len);
     EcmaString *GetOrInternString(EcmaVM *vm, EcmaString *string);
@@ -309,9 +409,7 @@ public:
 
     bool CheckStringTableValidity(JSThread *thread);
     void RelocateConstantData(EcmaVM *vm, const JSPandaFile *jsPandaFile);
-#ifdef USE_CMC_GC
     void IterWeakRoot(WeakVisitor &visitor);
-#endif
 
     EcmaStringTableCleaner* GetCleaner()
     {
@@ -326,6 +424,7 @@ private:
     EcmaString *GetStringThreadUnsafe(EcmaString *string, uint32_t hashcode) const;
     void InternStringThreadUnsafe(EcmaString *string, uint32_t hashcode);
     EcmaString *AtomicGetOrInternStringImpl(JSThread *thread, const JSHandle<EcmaString> string, uint32_t hashcode);
+    EcmaString *AtomicGetOrInternStringImplNoGC(JSThread *thread, EcmaString *string, uint32_t hashcode);
 
     EcmaString *GetStringFromCompressedSubString(JSThread *thread, const JSHandle<EcmaString> string, uint32_t offset,
                                                  uint32_t utf8Len, uint32_t hashcode);
@@ -372,6 +471,7 @@ private:
     friend class SnapshotProcessor;
     friend class BaseDeserializer;
 };
+#endif
 
 class SingleCharTable : public TaggedArray {
 public:
@@ -391,7 +491,6 @@ private:
     NO_MOVE_SEMANTIC(SingleCharTable);
     static constexpr uint32_t MAX_ONEBYTE_CHARCODE = 128; // 0X00-0X7F
 };
-#endif
 }  // namespace panda::ecmascript
 
 #endif  // ECMASCRIPT_STRING_TABLE_H

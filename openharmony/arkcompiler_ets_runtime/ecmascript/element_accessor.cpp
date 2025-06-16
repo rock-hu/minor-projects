@@ -27,7 +27,7 @@ JSTaggedValue ElementAccessor::Get(const JSThread *thread, JSHandle<JSObject> re
     //       dynamically-typed languages like JavaScript. So we simply skip the read-barrier.
     size_t offset = JSTaggedValue::TaggedTypeSize() * idx;
     // NOLINTNEXTLINE(readability-braces-around-statements, bugprone-suspicious-semicolon)
-    JSTaggedType rawValue = Barriers::GetTaggedValue(elements->GetData(), offset);
+    JSTaggedType rawValue = Barriers::GetTaggedValue(elements, TaggedArray::DATA_OFFSET + offset);
     if (UNLIKELY(thread->IsEnableMutantArray())) {
         ElementsKind kind = receiver->GetClass()->GetElementsKind();
         if (!elements->GetClass()->IsMutantTaggedArray()) {

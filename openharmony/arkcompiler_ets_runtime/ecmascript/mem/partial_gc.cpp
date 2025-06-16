@@ -30,9 +30,7 @@ PartialGC::PartialGC(Heap *heap) : heap_(heap), workManager_(heap->GetWorkManage
 
 void PartialGC::RunPhases()
 {
-#ifdef USE_CMC_GC
-    ASSERT("PartialGC should be disabled" && false);
-#endif
+    ASSERT("PartialGC should be disabled" && !g_isEnableCMCGC);
     GCStats *gcStats = heap_->GetEcmaVM()->GetEcmaGCStats();
     ECMA_BYTRACE_NAME(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK,
         ("PartialGC::RunPhases" + std::to_string(heap_->IsConcurrentFullMark())
@@ -54,7 +52,7 @@ void PartialGC::RunPhases()
     bool needAjustGCThreadPrio = heap_->GetGCType() == TriggerGCType::OLD_GC ||
         heap_->GetNewSpace()->GetCommittedSize() >= heap_->GetNewSpace()->GetMaximumCapacity();
     if (mainThreadInForeground && needAjustGCThreadPrio) {
-        Taskpool::GetCurrentTaskpool()->SetThreadPriority(PriorityMode::STW);
+        common::Taskpool::GetCurrentTaskpool()->SetThreadPriority(common::PriorityMode::STW);
     }
     markingInProgress_ = heap_->CheckOngoingConcurrentMarking();
     LOG_GC(DEBUG) << "markingInProgress_" << markingInProgress_;
@@ -74,7 +72,7 @@ void PartialGC::RunPhases()
     }
     Finish();
     if (mainThreadInForeground && needAjustGCThreadPrio) {
-        Taskpool::GetCurrentTaskpool()->SetThreadPriority(PriorityMode::FOREGROUND);
+        common::Taskpool::GetCurrentTaskpool()->SetThreadPriority(common::PriorityMode::FOREGROUND);
     }
 }
 

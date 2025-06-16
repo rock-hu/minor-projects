@@ -20,7 +20,7 @@
 #include "common_interfaces/objects/base_state_word.h"
 #include <atomic>
 
-using ClassWordType = uint32_t;
+using ClassWordType = uint64_t;
 
 namespace panda::ecmascript {
 class TaggedObject;
@@ -29,19 +29,19 @@ class TaggedStateWord {
 public:
     // Little endian
     struct GCStateWord {
-        StateWordType address_   : 48;
-        StateWordType padding_   : 12;
-        StateWordType remainded_ : 4;
+        common::StateWordType address_   : 48;
+        common::StateWordType padding_   : 12;
+        common::StateWordType remainded_ : 4;
     };
 
     struct ClassStateWord {
-        ClassWordType class_ : 32;
-        ClassWordType padding_ : 28;
+        ClassWordType class_ : 48;
+        ClassWordType padding_ : 12;
         ClassWordType remainded_ : 4;
     };
 
-    inline void SynchronizedSetGCStateWord(StateWordType address, StateWordType padding = 0,
-                                           StateWordType remainded = 0)
+    inline void SynchronizedSetGCStateWord(common::StateWordType address, common::StateWordType padding = 0,
+                                           common::StateWordType remainded = 0)
     {
         GCStateWord newState;
         newState.address_ = address;
@@ -56,19 +56,21 @@ public:
 
     inline void SynchronizedSetClass(ClassWordType cls)
     {
-        reinterpret_cast<volatile std::atomic<ClassWordType> *>(&class_)->store(cls, std::memory_order_release);
+        reinterpret_cast<volatile std::atomic<uint32_t> *>(&class_)->store(
+            static_cast<uint32_t>(cls), std::memory_order_release);
     }
 
     inline uintptr_t GetClass() const
     {
-        return static_cast<uintptr_t>(class_.class_) + BASE_ADDRESS;
+        return static_cast<uintptr_t>(class_.class_);
     }
 
     inline uintptr_t SynchronizedGetClass() const
     {
         return static_cast<uintptr_t>(
-            reinterpret_cast<volatile std::atomic<ClassWordType> *>(reinterpret_cast<uintptr_t>(&class_))->
-            load(std::memory_order_acquire)) + BASE_ADDRESS;
+                   reinterpret_cast<volatile std::atomic<uint32_t> *>(reinterpret_cast<uintptr_t>(&class_))
+                       ->load(std::memory_order_acquire)) +
+               BASE_ADDRESS;
     }
 
     inline void SetForwardingAddress(uintptr_t fwdPtr)
@@ -98,8 +100,8 @@ private:
     friend class TaggedObject;
 };
 static_assert(sizeof(TaggedStateWord) == sizeof(uint64_t), "Excepts 8 bytes");
-static_assert(BaseStateWord::PADDING_WIDTH == 60, "Excepts 60 bits");
-static_assert(BaseStateWord::FORWARD_WIDTH == 2, "Excepts 2 bits");
-static_assert(BaseStateWord::LANGUAGE_WIDTH == 2, "Excepts 2 bits");
+static_assert(common::BaseStateWord::PADDING_WIDTH == 60, "Excepts 60 bits");
+static_assert(common::BaseStateWord::FORWARD_WIDTH == 2, "Excepts 2 bits");
+static_assert(common::BaseStateWord::LANGUAGE_WIDTH == 2, "Excepts 2 bits");
 }  //  namespace panda::ecmascript
 #endif  // ECMASCRIPT_TAGGED_OBJECT_STATE_WORD_H

@@ -170,7 +170,7 @@ isModifiable(): boolean
 
 | 类型    | 说明                                                                                                                                  |
 | ------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| boolean | 判断当前节点是否可修改。当节点为系统组件的代理节点或节点已经[dispose](#dispose12)时返回false。当返回false时，当前FrameNode不支持appendChild、insertChildAfter、removeChild、clearChildren、createAnimation、cancelAnimations的操作。 |
+| boolean | 判断当前节点是否可修改。<br/>true表示当前节点可修改，false表示当前节点不可修改。<br/>当节点为系统组件的代理节点或节点已经[dispose](#dispose12)时返回false。<br/>当返回false时，当前FrameNode不支持appendChild、insertChildAfter、removeChild、clearChildren、createAnimation、cancelAnimations的操作。 |
 
 **示例：**
 
@@ -446,7 +446,7 @@ getParent(): FrameNode | null
 
 **示例：**
 
-请参考[节点操作示例](#节点操作示例)。
+请参考[节点操作示例](#节点操作示例)和[获取根节点示例](#获取根节点示例)。
 
 
 ### getChildrenCount<sup>12+</sup> 
@@ -478,6 +478,8 @@ moveTo(targetParent: FrameNode, index?: number): void
 > **说明：**
 >
 > 当前仅支持以下类型的[TypedFrameNode](#typedframenode12)进行移动操作：[Stack](#stack12)、[XComponent](#xcomponent12)。对于其他类型的节点，移动操作不会生效。
+>
+> 当前仅支持根节点为以下类型组件的[BuilderNode](./js-apis-arkui-builderNode.md#buildernode-1)进行移动操作：[Stack](./arkui-ts/ts-container-stack.md)、[XComponent](./arkui-ts/ts-basic-components-xcomponent.md)、[EmbeddedComponent](./arkui-ts/ts-container-embedded-component.md)。对于其他类型的组件，移动操作不会生效。
 
 **原子化服务API：** 从API version 18开始，该接口支持在原子化服务中使用。
 
@@ -884,6 +886,26 @@ isAttached(): boolean
 
 请参考[节点操作示例](#节点操作示例)。
 
+### isDisposed<sup>20+</sup>
+
+isDisposed(): boolean
+
+查询当前FrameNode对象是否已解除与后端实体节点的引用关系。前端节点均绑定有相应的后端实体节点，当节点调用dispose接口解除绑定后，再次调用接口可能会出现crash、返回默认值的情况。由于业务需求，可能存在节点在dispose后仍被调用接口的情况。为此，提供此接口以供开发者在操作节点前检查其有效性，避免潜在风险。
+
+**原子化服务API：** 从API version 20开始，该接口支持在原子化服务中使用。
+
+**系统能力：** SystemCapability.ArkUI.ArkUI.Full
+
+**返回值：**
+
+| 类型    | 说明               |
+| ------- | ------------------ |
+| boolean | 后端实体节点是否解除引用。true为节点已与后端实体节点解除引用，false为节点未与后端实体节点解除引用。
+
+**示例：**
+
+请参考[检验FrameNode是否有效示例](#检验framenode是否有效示例)。
+
 ### getInspectorInfo<sup>12+</sup>
 
 getInspectorInfo(): Object
@@ -1135,7 +1157,7 @@ get gestureEvent(): UIGestureEvent
 
 onDraw?(context: DrawContext): void
 
-FrameNode的自绘制方法，该方法会在FrameNode进行内容绘制时被调用。
+FrameNode的自绘制方法，该方法会重写默认绘制方法，在FrameNode进行内容绘制时被调用。
 
 **原子化服务API：** 从API version 12开始，该接口支持在原子化服务中使用。
 
@@ -1642,7 +1664,7 @@ getInteractionEventBindingInfo(eventType: EventQueryType): InteractionEventBindi
 
 recycle(): void
 
-子组件的回收方法。
+全局复用场景下，触发子组件回收，彻底释放FrameNode后端资源，以便于资源的重新复用，确保后端资源能够被有效回收并再次使用。
 
 **原子化服务API：** 从API version 18开始，该接口支持在原子化服务中使用。
 
@@ -1656,7 +1678,7 @@ recycle(): void
 
 reuse(): void
 
-子组件的复用方法。
+全局复用场景下，触发子组件复用，实现FrameNode后端资源的复用，提升资源利用效率。为保证资源充足，可以在recycle之后使用。
 
 **原子化服务API：** 从API version 18开始，该接口支持在原子化服务中使用。
 
@@ -3297,9 +3319,9 @@ typeNode.createNode(uiContext, 'XComponent', options);
 ```
 
 ### createNode('XComponent')<sup>19+</sup>
-createNode(context: UIContext, nodeType: 'XComponent', params: NativeXComponentParameters): XComponent
+createNode(context: UIContext, nodeType: 'XComponent', parameters: NativeXComponentParameters): XComponent
 
-按照params中的配置参数创建XComponent类型的FrameNode节点。
+按照parameters中的配置参数创建XComponent类型的FrameNode节点。
 
 **原子化服务API：** 从API version 19开始，该接口支持在原子化服务中使用。
 
@@ -3311,7 +3333,7 @@ createNode(context: UIContext, nodeType: 'XComponent', params: NativeXComponentP
 | ------------------ | ------------------ | ------------------- | ------------------- |
 | context | [UIContext](./js-apis-arkui-UIContext.md) | 是   | 创建对应节点时所需的UI上下文。 |
 | nodeType | 'XComponent' | 是 | 创建XComponent类型的节点。 |
-| params | [NativeXComponentParameters](./arkui-ts/ts-basic-components-xcomponent.md#nativexcomponentparameters19) | 是 | 定义XComponent的具体配置参数。 |
+| parameters | [NativeXComponentParameters](./arkui-ts/ts-basic-components-xcomponent.md#nativexcomponentparameters19) | 是 | 定义XComponent的具体配置参数。 |
 
 **返回值：**
 
@@ -3324,10 +3346,10 @@ createNode(context: UIContext, nodeType: 'XComponent', params: NativeXComponentP
 <!--code_no_check-->
 
 ```ts
-let params: NativeXComponentParameters = {
+let parameters: NativeXComponentParameters = {
   type: XComponentType.SURFACE
 };
-typeNode.createNode(uiContext, 'XComponent', params);
+typeNode.createNode(uiContext, 'XComponent', parameters);
 ```
 
 ### QRCode<sup>14+</sup>
@@ -4446,6 +4468,26 @@ static detachNodeAdapter(node: FrameNode): void
 | 参数名  | 类型                                                   | 必填 | 说明             |
 | ------- | ------------------------------------------------------ | ---- | ---------------- |
 | node | FrameNode | 是   | 要解除绑定的FrameNode节点。 |
+
+## isDisposed<sup>20+</sup>
+
+isDisposed(): boolean
+
+查询当前NodeAdapter对象是否已解除与后端实体节点的引用关系。前端节点均绑定有相应的后端实体节点，当节点调用dispose接口解除绑定后，再次调用接口可能会出现crash、返回默认值的情况。由于业务需求，可能存在节点在dispose后仍被调用接口的情况。为此，提供此接口以供开发者在操作节点前检查其有效性，避免潜在风险。
+
+**原子化服务API：** 从API version 20开始，该接口支持在原子化服务中使用。
+
+**系统能力：** SystemCapability.ArkUI.ArkUI.Full
+
+**返回值：**
+
+| 类型    | 说明               |
+| ------- | ------------------ |
+| boolean | 后端实体节点是否解除引用。true为节点已与后端实体节点解除引用，false为节点未与后端实体节点解除引用。
+
+**示例：**
+
+请参考[检验NodeAdapter是否有效示例](#检验nodeadapter是否有效示例)。
 
 ## 自定义具体类型节点示例
 
@@ -6102,14 +6144,14 @@ class MyNodeController extends NodeController {
     console.log("myButton on detach");
   }
 
-  //  onBind时复用
+  //  onBind时，子节点已经重新上树，此时调用reuse，保证子组件的能重新被复用。
   onBind(containerId: number): void {
     // 该方法触发子组件复用，全局复用场景下，复用FrameNode后端资源。
     this.rootNode?.reuse();
     console.log("myButton reuse");
   }
 
-  //  onUnbind时回收
+  //  onUnbind时，子节点已经完全下树，此时调用recycle，保证子组件的能完全被回收。
   onUnbind(containerId: number): void {
     // 该方法触发子组件的回收，全局复用场景下，回收FrameNode后端资源用于重新利用。
     this.rootNode?.recycle();
@@ -6448,6 +6490,291 @@ struct Index {
       .height(300)
       NodeContainer(this.myNodeController)
     }.width("100%")
+  }
+}
+```
+
+## 检验FrameNode是否有效示例
+
+该示例演示了FrameNode释放节点前后分别使用isDisposed接口验证节点的状态，释放节点前节点调用isDisposed接口返回true，释放节点后节点调用isDisposed接口返回false。
+
+```ts
+import { NodeController, FrameNode, BuilderNode } from '@kit.ArkUI';
+
+@Component
+struct TestComponent {
+  build() {
+    Column() {
+      Text('This is a BuilderNode.')
+        .fontSize(25)
+        .fontWeight(FontWeight.Bold)
+    }
+    .width('100%')
+    .height(30)
+    .backgroundColor(Color.Gray)
+  }
+
+  aboutToAppear() {
+    console.error('aboutToAppear');
+  }
+
+  aboutToDisappear() {
+    console.error('aboutToDisappear');
+  }
+}
+
+@Builder
+function buildComponent() {
+  TestComponent()
+}
+
+class MyNodeController extends NodeController {
+  private rootNode: FrameNode | null = null;
+  private builderNode: BuilderNode<[]> | null = null;
+
+  makeNode(uiContext: UIContext): FrameNode | null {
+    this.rootNode = new FrameNode(uiContext);
+    this.builderNode = new BuilderNode(uiContext, { selfIdealSize: { width: 200, height: 100 } });
+    this.builderNode.build(new WrappedBuilder(buildComponent));
+
+    const rootRenderNode = this.rootNode.getRenderNode();
+    if (rootRenderNode !== null) {
+      rootRenderNode.size = { width: 300, height: 300 };
+      rootRenderNode.backgroundColor = 0xffd5d5d5;
+      rootRenderNode.appendChild(this.builderNode!.getFrameNode()!.getRenderNode());
+    }
+
+    return this.rootNode;
+  }
+
+  disposeFrameNode() {
+    if (this.rootNode !== null && this.builderNode !== null) {
+      this.rootNode.removeChild(this.builderNode.getFrameNode());
+      this.builderNode.dispose();
+
+      this.rootNode.dispose();
+    }
+  }
+
+  isDisposed() : string {
+    if (this.rootNode !== null) {
+      if (this.rootNode.isDisposed()) {
+        return 'frameNode isDisposed is true';
+      }
+      else {
+        return 'frameNode isDisposed is false';
+      }
+    }
+    return 'frameNode is null';
+  }
+
+  removeBuilderNode() {
+    const rootRenderNode = this.rootNode!.getRenderNode();
+    if (rootRenderNode !== null && this.builderNode !== null && this.builderNode.getFrameNode() !== null) {
+      rootRenderNode.removeChild(this.builderNode!.getFrameNode()!.getRenderNode());
+    }
+  }
+}
+
+@Entry
+@Component
+struct Index {
+  @State text: string = ''
+  private myNodeController: MyNodeController = new MyNodeController();
+
+  build() {
+    Column({ space: 4 }) {
+      NodeContainer(this.myNodeController)
+      Button('FrameNode dispose')
+        .onClick(() => {
+          this.myNodeController.disposeFrameNode();
+          this.text = '';
+        })
+        .width(200)
+        .height(50)
+      Button('FrameNode isDisposed')
+        .onClick(() => {
+          this.text = this.myNodeController.isDisposed();
+        })
+        .width(200)
+        .height(50)
+      Text(this.text)
+        .fontSize(25)
+    }
+    .width('100%')
+    .height('100%')
+  }
+}
+```
+
+![](figures/framenode_isDisposed.gif)
+
+## 检验NodeAdapter是否有效示例
+
+该示例演示了NodeAdapter释放节点前后分别使用isDisposed接口验证节点的状态，释放节点前节点调用isDisposed接口返回true，释放节点后节点调用isDisposed接口返回false。
+
+```ts
+import { FrameNode, NodeController, NodeAdapter, typeNode } from '@kit.ArkUI';
+
+class MyNodeAdapter extends NodeAdapter {
+  uiContext: UIContext
+  cachePool: Array<FrameNode> = new Array();
+  changed: boolean = false
+  reloadTimes: number = 0;
+  data: Array<string> = new Array();
+  hostNode?: FrameNode
+
+  constructor(uiContext: UIContext, count: number) {
+    super();
+    this.uiContext = uiContext;
+    this.totalNodeCount = count;
+    this.loadData();
+  }
+
+  loadData(): void {
+    for (let i = 0; i < this.totalNodeCount; i++) {
+      this.data[i] = "Adapter ListItem " + i + " r:" + this.reloadTimes;
+    }
+  }
+
+  onCreateChild(index: number): FrameNode {
+    console.log("UINodeAdapter onCreateChild:" + index);
+    if (this.cachePool.length > 0) {
+      let cacheNode = this.cachePool.pop();
+      if (cacheNode !== undefined) {
+        console.log("UINodeAdapter onCreateChild reused id:" + cacheNode.getUniqueId());
+        let text = cacheNode?.getFirstChild();
+        let textNode = text as typeNode.Text;
+        textNode?.initialize(this.data[index]).fontSize(20);
+        return cacheNode;
+      }
+    }
+    console.log("UINodeAdapter onCreateChild createNew");
+    let itemNode = typeNode.createNode(this.uiContext, "ListItem");
+    let textNode = typeNode.createNode(this.uiContext, "Text");
+    textNode.initialize(this.data[index]).fontSize(20);
+    itemNode.appendChild(textNode);
+    return itemNode;
+  }
+}
+
+class MyNodeAdapterController extends NodeController {
+  rootNode: FrameNode | null = null;
+  nodeAdapter: MyNodeAdapter | null = null;
+
+  makeNode(uiContext: UIContext): FrameNode | null {
+    this.rootNode = new FrameNode(uiContext);
+    let listNode = typeNode.createNode(uiContext, "List");
+    listNode.initialize({ space: 3 }).borderColor(Color.Black);
+    this.rootNode.appendChild(listNode);
+    this.nodeAdapter = new MyNodeAdapter(uiContext, 20);
+    NodeAdapter.attachNodeAdapter(this.nodeAdapter, listNode);
+    return this.rootNode;
+  }
+
+  dispose() {
+    if (this.nodeAdapter !== null) {
+      this.nodeAdapter.dispose();
+    }
+  }
+
+  isDisposed() : string {
+    if (this.nodeAdapter !== null) {
+      if (this.nodeAdapter.isDisposed()) {
+        return 'nodeAdapter isDisposed is true';
+      }
+      else {
+        return 'nodeAdapter isDisposed is false';
+      }
+    }
+    return 'nodeAdapter is null';
+  }
+}
+
+@Entry
+@Component
+struct ListNodeTest {
+  @State text: string = ''
+  adapterController: MyNodeAdapterController = new MyNodeAdapterController();
+
+  build() {
+    Column() {
+      Text("ListNode Adapter");
+      NodeContainer(this.adapterController)
+        .width(300).height(300)
+        .borderWidth(1).borderColor(Color.Black);
+      Button("NodeAdapter dispose")
+        .onClick(() => {
+          this.adapterController.dispose();
+          this.text = '';
+        })
+        .width(200)
+        .height(50)
+        .margin({ top: 10, bottom: 10 })
+      Button("NodeAdapter isDisposed")
+        .onClick(() => {
+          this.text = this.adapterController.isDisposed();
+        })
+        .width(200)
+        .height(50)
+      Text(this.text)
+        .fontSize(25)
+    }
+    .width("100%")
+  }
+}
+```
+
+![](figures/NodeAdapter_isDisposed.gif)
+
+## 获取根节点示例
+
+该示例演示了如何通过FrameNode的[getParent](getparent)接口获取当前页面根节点。
+
+```ts
+@Component
+struct ChildView {
+  @State message: string = 'Hello World';
+
+  build() {
+    RelativeContainer() {
+      Text(this.message)
+        .id('HelloWorld')
+        .fontSize($r('app.float.page_text_font_size'))
+        .fontWeight(FontWeight.Bold)
+        .alignRules({
+          center: { anchor: '__container__', align: VerticalAlign.Center },
+          middle: { anchor: '__container__', align: HorizontalAlign.Center }
+        })
+        .onClick(() => {
+          // 通过id查询获得Text节点的FrameNode对象。不建议设置多个相同的id的节点。
+          let node = this.getUIContext().getFrameNodeById("HelloWorld");
+          console.log(`Find HelloWorld Tag:${node!.getNodeType()} id:${node!.getUniqueId()}`);
+          // 通过while循环遍历查询页面的根节点。如果当前节点为自定义组件，则会继续遍历其父节点。
+          while (node && node.getParent() && node.getParent()!.getUniqueId() > 0) {
+            node = node.getParent();
+            console.log(`Find FrameNode Tag:${node!.getNodeType()} id:${node!.getUniqueId()}`);
+          }
+        })
+    }
+    .height('100%')
+    .width('100%')
+  }
+}
+
+@Entry
+@Component
+struct Index {
+  @State message: string = 'Hello World';
+
+  build() {
+    RelativeContainer() {
+      ChildView({ message: this.message })
+        .height('100%')
+        .width('100%')
+    }
+    .height('100%')
+    .width('100%')
   }
 }
 ```

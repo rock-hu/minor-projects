@@ -21,6 +21,7 @@
 
 #define protected public
 #define private public
+#include "core/common/container.h"
 #include "core/common/resource/resource_object.h"
 #include "core/common/resource/resource_parse_utils.h"
 #undef private
@@ -70,6 +71,19 @@ HWTEST_F(ResourceParseUtilsTest, ResourceParseUtilsTest001, TestSize.Level1)
     EXPECT_FALSE(ResourceParseUtils::ParseResDimensionNG(resObjWithErrId, dimension, DimensionUnit::VP));
     EXPECT_FALSE(ResourceParseUtils::ParseResColor(resObjWithName, color));
     g_isResourceDecoupling = true;
+
+    ResourceManager::GetInstance().AddResourceAdapter("", "", Container::CurrentIdSafely(), resourceAdapter);
+    RefPtr<ResourceObject> stringObj = AceType::MakeRefPtr<ResourceObject>(1, 10003,
+        resObjParamsList, "", "", 100000);
+    EXPECT_FALSE(ResourceParseUtils::ParseResResource(stringObj, dimension));
+
+    RefPtr<ResourceObject> intObj = AceType::MakeRefPtr<ResourceObject>(1, 10007,
+        resObjParamsList, "", "", 100000);
+    EXPECT_TRUE(ResourceParseUtils::ParseResResource(intObj, dimension));
+
+    RefPtr<ResourceObject> floatObj = AceType::MakeRefPtr<ResourceObject>(1, 10002,
+        resObjParamsList, "", "", 100000);
+    EXPECT_TRUE(ResourceParseUtils::ParseResResource(floatObj, dimension));
 }
 
 /**
@@ -132,5 +146,21 @@ HWTEST_F(ResourceParseUtilsTest, ResourceParseUtilsTest002, TestSize.Level1)
 
     Dimension dimension;
     EXPECT_FALSE(ResourceParseUtils::ConvertFromResObjNG(resObj, dimension));
+}
+
+/**
+ * @tc.name: ResourceParseUtilsTest003
+ * @tc.desc: Test resourceParseUtils.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ResourceParseUtilsTest, ResourceParseUtilsTest003, TestSize.Level1)
+{
+    std::vector<ResourceObjectParams> resObjParamsList;
+    ResourceObjectParams params { .value = "test", .type = ResourceObjectParamType::STRING };
+    resObjParamsList.push_back(params);
+    RefPtr<ResourceObject> resObjWithParams = AceType::MakeRefPtr<ResourceObject>(-1, -1,
+        resObjParamsList, "", "", 100000);
+    CalcDimension caclDimension;
+    EXPECT_FALSE(ResourceParseUtils::ParseResResource(resObjWithParams, caclDimension));
 }
 } // namespace OHOS::Ace

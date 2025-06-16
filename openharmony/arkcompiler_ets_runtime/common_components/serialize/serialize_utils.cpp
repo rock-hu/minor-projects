@@ -15,11 +15,11 @@
 
 #include "common_components/serialize/serialize_utils.h"
 
-#include "common_components/common_runtime/src/heap/allocator/region_desc.h"
+#include "common_components/heap/allocator/region_desc.h"
 #include "common_interfaces/base_runtime.h"
 
-namespace panda {
-SerializedObjectSpace SerializeUtils::GetSerializeObjectSpace(uintptr_t obj)
+namespace common {
+SerializedBaseObjectSpace SerializeUtils::GetSerializeObjectSpace(uintptr_t obj)
 {
     RegionDesc *info = RegionDesc::GetRegionDescAt(obj);
     RegionDesc::RegionType type = info->GetRegionType();
@@ -30,19 +30,20 @@ SerializedObjectSpace SerializeUtils::GetSerializeObjectSpace(uintptr_t obj)
         case RegionDesc::RegionType::LONE_FROM_REGION:
         case RegionDesc::RegionType::EXEMPTED_FROM_REGION:
         case RegionDesc::RegionType::TO_REGION:
-            return SerializedObjectSpace::REGULAR_SPACE;
+        case RegionDesc::RegionType::MATURE_REGION:
+            return SerializedBaseObjectSpace::REGULAR_SPACE;
         case RegionDesc::RegionType::FULL_PINNED_REGION:
         case RegionDesc::RegionType::RECENT_PINNED_REGION:
         case RegionDesc::RegionType::FIXED_PINNED_REGION:
         case RegionDesc::RegionType::FULL_FIXED_PINNED_REGION:
         case RegionDesc::RegionType::READ_ONLY_REGION:
         case RegionDesc::RegionType::APPSPAWN_REGION:
-            return SerializedObjectSpace::PIN_SPACE;
+            return SerializedBaseObjectSpace::PIN_SPACE;
         case RegionDesc::RegionType::RECENT_LARGE_REGION:
         case RegionDesc::RegionType::OLD_LARGE_REGION:
-            return SerializedObjectSpace::LARGE_SPACE;
+            return SerializedBaseObjectSpace::LARGE_SPACE;
         default:
-            return SerializedObjectSpace::OTHER;
+            return SerializedBaseObjectSpace::OTHER;
     }
 }
 
@@ -50,4 +51,4 @@ size_t SerializeUtils::GetRegionSize()
 {
     return BaseRuntime::GetInstance()->GetHeapParam().regionSize * KB;
 }
-}  // namespace panda
+}  // namespace common

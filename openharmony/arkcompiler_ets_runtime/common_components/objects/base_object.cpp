@@ -15,8 +15,7 @@
 
 #include "common_interfaces/objects/base_object.h"
 
-namespace panda {
-#ifdef USE_CMC_GC
+namespace common {
 BaseObjectOperator BaseObject::operator_;
 
 void BaseObject::RegisterDynamic(BaseObjectOperatorInterfaces *dynamicObjOp)
@@ -28,5 +27,4 @@ void BaseObject::RegisterStatic(BaseObjectOperatorInterfaces *staticObjOp)
 {
     operator_.staticObjOp_ = staticObjOp;
 }
-#endif
-}  // namespace panda
+}  // namespace common

@@ -32,6 +32,9 @@ GateRef TypedHCRLowering::VisitGate(GateRef gate)
         case OpCode::PRIMITIVE_TYPE_CHECK:
             LowerPrimitiveTypeCheck(gate);
             break;
+        case OpCode::BUILTIN_INSTANCE_HCLASS_CHECK:
+            LowerBuiltinInstanceHClassCheck(gate);
+            break;
         case OpCode::BUILTIN_PROTOTYPE_HCLASS_CHECK:
             LowerBuiltinPrototypeHClassCheck(gate);
             break;
@@ -472,7 +475,7 @@ void TypedHCRLowering::LowerInternStringKeyCheck(GateRef gate, GateRef glue)
     GateRef key = acc_.GetValueIn(gate, 0);
     GateRef value = acc_.GetValueIn(gate, 1);
     builder_.HeapObjectCheck(key, frameState);
-    GateRef isString = builder_.TaggedObjectIsString(glue, key);
+    GateRef isString = builder_.TaggedObjectIsString(glue, key, compilationEnv_);
     builder_.DeoptCheck(isString, frameState, DeoptType::NOTSTRING1);
     GateRef isInternString = builder_.IsInternString(key);
     builder_.DeoptCheck(isInternString, frameState, DeoptType::NOTINTERNSTRING1);
@@ -487,7 +490,7 @@ void TypedHCRLowering::LowerEcmaStringCheck(GateRef gate, GateRef glue)
     GateRef frameState = GetFrameState(gate);
     GateRef receiver = acc_.GetValueIn(gate, 0);
     builder_.HeapObjectCheck(receiver, frameState);
-    GateRef isString = builder_.TaggedObjectIsString(glue, receiver);
+    GateRef isString = builder_.TaggedObjectIsString(glue, receiver, compilationEnv_);
     builder_.DeoptCheck(isString, frameState, DeoptType::NOTSTRING1);
 
     acc_.ReplaceGate(gate, builder_.GetState(), builder_.GetDepend(), Circuit::NullGate());
@@ -499,7 +502,7 @@ void TypedHCRLowering::LowerInternStringCheck(GateRef gate, GateRef glue)
     GateRef frameState = GetFrameState(gate);
     GateRef receiver = acc_.GetValueIn(gate, 0);
     builder_.HeapObjectCheck(receiver, frameState);
-    GateRef isString = builder_.TaggedObjectIsString(glue, receiver);
+    GateRef isString = builder_.TaggedObjectIsString(glue, receiver, compilationEnv_);
     builder_.DeoptCheck(isString, frameState, DeoptType::NOTSTRING1);
     GateRef isInternString = builder_.IsInternString(receiver);
     builder_.DeoptCheck(isInternString, frameState, DeoptType::NOTINTERNSTRING1);
@@ -613,8 +616,8 @@ GateRef TypedHCRLowering::BuildCompareHClass(GateRef glue, GateRef gate, GateRef
     }
     GateRef aotHCIndex = acc_.GetValueIn(gate, 1);
     auto hclassIndex = acc_.GetConstantValue(aotHCIndex);
-    ArgumentAccessor argAcc(circuit_);
-    GateRef unsharedConstPool = argAcc.GetFrameArgsIn(frameState, FrameArgIdx::UNSHARED_CONST_POOL);
+    ArgumentAccessor *argAcc = circuit_->GetArgumentAccessor();
+    GateRef unsharedConstPool = argAcc->GetFrameArgsIn(frameState, FrameArgIdx::UNSHARED_CONST_POOL);
     GateRef aotHCGate = builder_.LoadHClassFromConstpool(unsharedConstPool, hclassIndex);
     GateRef receiverHClass = builder_.LoadHClassByConstOffset(glue, receiver);
     return builder_.Equal(aotHCGate, receiverHClass, "checkHClass");
@@ -629,8 +632,8 @@ void TypedHCRLowering::LowerSimpleHClassCheck(GateRef glue, GateRef gate)
         builder_.HeapObjectCheck(receiver, frameState);
     }
     DEFVALUE(result, (&builder_), VariableType::BOOL(), builder_.Boolean(false));
-    ArgumentAccessor argAcc(circuit_);
-    GateRef unsharedConstPool = argAcc.GetFrameArgsIn(frameState, FrameArgIdx::UNSHARED_CONST_POOL);
+    ArgumentAccessor *argAcc = circuit_->GetArgumentAccessor();
+    GateRef unsharedConstPool = argAcc->GetFrameArgsIn(frameState, FrameArgIdx::UNSHARED_CONST_POOL);
     GateRef receiverHClass = builder_.LoadHClassByConstOffset(glue, receiver);
     std::vector<Label> ifFalse;
     Label resultIsTrue(&builder_);
@@ -796,8 +799,25 @@ void TypedHCRLowering::BuiltinInstanceStringTypeCheck(GateRef gate)
     GateRef frameState = GetFrameState(gate);
     GateRef receiver = acc_.GetValueIn(gate, 0);
     GateRef glue = acc_.GetGlueFromArgList();
-    GateRef typeCheck = builder_.TaggedObjectIsString(glue, receiver);
+    GateRef typeCheck = builder_.TaggedObjectIsString(glue, receiver, compilationEnv_);
     builder_.DeoptCheck(typeCheck, frameState, DeoptType::BUILTININSTANCEHCLASSMISMATCH2);
+}
+
+void TypedHCRLowering::LowerBuiltinInstanceHClassCheck(GateRef gate)
+{
+    Environment env(gate, circuit_, &builder_);
+    GateRef frameState = GetFrameState(gate);
+    GateRef receiver = acc_.GetValueIn(gate, 0);
+    builder_.HeapObjectCheck(receiver, frameState);
+    BuiltinPrototypeHClassAccessor accessor = acc_.GetBuiltinHClassAccessor(gate);
+    BuiltinTypeId type = accessor.GetBuiltinTypeId();
+    // BuiltinTypeId::STRING represents primitive string, only need to check the type of hclass here.
+    if (type == BuiltinTypeId::STRING) {
+        BuiltinInstanceStringTypeCheck(gate);
+    } else {
+        BuiltinInstanceHClassCheck(&env, gate); // check IHC
+    }
+    acc_.ReplaceGate(gate, builder_.GetState(), builder_.GetDepend(), Circuit::NullGate());
 }
 
 void TypedHCRLowering::LowerBuiltinPrototypeHClassCheck(GateRef gate)
@@ -1199,7 +1219,8 @@ void TypedHCRLowering::LowerCowArrayCheck(GateRef gate, GateRef glue)
     GateRef receiver = acc_.GetValueIn(gate, 0);
     Label notCOWArray(&builder_);
     Label isCOWArray(&builder_);
-    BRANCH_CIR(builder_.IsJsCOWArray(glue, receiver), &isCOWArray, &notCOWArray);
+    GateRef needCOW = builder_.IsJsCOWArray(glue, receiver, compilationEnv_);
+    BRANCH_CIR(needCOW, &isCOWArray, &notCOWArray);
     builder_.Bind(&isCOWArray);
     {
         LowerCallRuntime(glue, gate, RTSTUB_ID(CheckAndCopyArray), {receiver}, true);
@@ -1645,9 +1666,9 @@ void TypedHCRLowering::LowerJSCallTargetTypeCheck(GateRef gate, GateRef glue)
     Environment env(gate, circuit_, &builder_);
     Label checkAlreadyDeopt(&builder_);
     Label exit(&builder_);
-    ArgumentAccessor argAcc(circuit_);
+    ArgumentAccessor *argAcc = circuit_->GetArgumentAccessor();
     GateRef frameState = GetFrameState(gate);
-    GateRef sharedConstPool = argAcc.GetFrameArgsIn(frameState, FrameArgIdx::SHARED_CONST_POOL);
+    GateRef sharedConstPool = argAcc->GetFrameArgsIn(frameState, FrameArgIdx::SHARED_CONST_POOL);
     auto func = acc_.GetValueIn(gate, 0);
     auto methodIndex = acc_.GetValueIn(gate, 1);
     builder_.IsCallableCheck(func, frameState);
@@ -1665,9 +1686,9 @@ void TypedHCRLowering::LowerJSFastCallTargetTypeCheck(GateRef gate, GateRef glue
     Environment env(gate, circuit_, &builder_);
     Label checkAlreadyDeopt(&builder_);
     Label exit(&builder_);
-    ArgumentAccessor argAcc(circuit_);
+    ArgumentAccessor *argAcc = circuit_->GetArgumentAccessor();
     GateRef frameState = GetFrameState(gate);
-    GateRef sharedConstPool = argAcc.GetFrameArgsIn(frameState, FrameArgIdx::SHARED_CONST_POOL);
+    GateRef sharedConstPool = argAcc->GetFrameArgsIn(frameState, FrameArgIdx::SHARED_CONST_POOL);
     auto func = acc_.GetValueIn(gate, 0);
     auto methodIndex = acc_.GetValueIn(gate, 1);
     builder_.IsCallableCheck(func, frameState);
@@ -1820,7 +1841,7 @@ void TypedHCRLowering::LowerInlineSuperCtorCheck(GateRef gate, GateRef glue)
 void TypedHCRLowering::LowerTypedNewAllocateThis(GateRef gate, GateRef glue)
 {
     Environment env(gate, circuit_, &builder_);
-    ArgumentAccessor argAcc(circuit_);
+    ArgumentAccessor *argAcc = circuit_->GetArgumentAccessor();
     GateRef ctor = acc_.GetValueIn(gate, 0); // 0: 1st argument
     GateRef ihclass = acc_.GetValueIn(gate, 1); // 1: 2nd argument
     GateRef size = acc_.GetValueIn(gate, 2); // 2: 3rd argument
@@ -1915,7 +1936,7 @@ GateRef TypedHCRLowering::CallAccessor(GateRef glue, GateRef gate, GateRef funct
 void TypedHCRLowering::ReplaceHirWithPendingException(GateRef hirGate, GateRef glue, GateRef state, GateRef depend,
                                                       GateRef value)
 {
-    auto condition = builder_.HasPendingException(glue);
+    auto condition = builder_.HasPendingException(glue, compilationEnv_);
     GateRef ifBranch = builder_.Branch(state, condition, 1, BranchWeight::DEOPT_WEIGHT, "checkException");
     GateRef ifTrue = builder_.IfTrue(ifBranch);
     GateRef ifFalse = builder_.IfFalse(ifBranch);
@@ -2060,7 +2081,8 @@ void TypedHCRLowering::LowerTypeOfCheck(GateRef gate)
         check = builder_.TaggedIsUndefined(value);
     } else {
         // NOTICE-PGO: wx add support for builtin(Function Object ArrayKind)
-        builder_.DeoptCheck(builder_.TaggedIsHeapObject(value), frameState, DeoptType::INCONSISTENTTYPE1);
+        builder_.DeoptCheck(builder_.TaggedIsHeapObject(value, compilationEnv_),
+                            frameState, DeoptType::INCONSISTENTTYPE1);
         if (type.IsStringType()) {
             check = builder_.TaggedIsString(glue, value);
         } else if (type.IsBigIntType()) {
@@ -2141,7 +2163,7 @@ void TypedHCRLowering::LowerArrayConstructorCheck(GateRef gate, GateRef glue)
     Label isHeapObject(&builder_);
     Label exit(&builder_);
     DEFVALUE(check, (&builder_), VariableType::BOOL(), builder_.True());
-    check = builder_.TaggedIsHeapObject(newTarget);
+    check = builder_.TaggedIsHeapObject(newTarget, compilationEnv_);
     BRANCH_CIR(*check, &isHeapObject, &exit);
     builder_.Bind(&isHeapObject);
     {
@@ -2400,7 +2422,7 @@ void TypedHCRLowering::LowerObjectConstructorCheck(GateRef gate, GateRef glue)
     Label isHeapObject(&builder_);
     Label exit(&builder_);
     DEFVALUE(check, (&builder_), VariableType::BOOL(), builder_.True());
-    check = builder_.TaggedIsHeapObject(newTarget);
+    check = builder_.TaggedIsHeapObject(newTarget, compilationEnv_);
     BRANCH_CIR(*check, &isHeapObject, &exit);
     builder_.Bind(&isHeapObject);
     {
@@ -2443,7 +2465,7 @@ void TypedHCRLowering::LowerObjectConstructor(GateRef gate, GateRef glue)
 
     Label isHeapObj(&builder_);
     Label notHeapObj(&builder_);
-    BRANCH_CIR(builder_.TaggedIsHeapObject(value), &isHeapObj, &notHeapObj);
+    BRANCH_CIR(builder_.TaggedIsHeapObject(value, compilationEnv_), &isHeapObj, &notHeapObj);
     builder_.Bind(&isHeapObj);
     {
         Label isEcmaObj(&builder_);
@@ -2533,7 +2555,7 @@ void TypedHCRLowering::LowerBooleanConstructorCheck(GateRef gate, GateRef glue)
     Label isHeapObject(&builder_);
     Label exit(&builder_);
     DEFVALUE(check, (&builder_), VariableType::BOOL(), builder_.True());
-    check = builder_.TaggedIsHeapObject(newTarget);
+    check = builder_.TaggedIsHeapObject(newTarget, compilationEnv_);
     BRANCH_CIR(*check, &isHeapObject, &exit);
     builder_.Bind(&isHeapObject);
     {
@@ -2636,7 +2658,7 @@ GateRef TypedHCRLowering::NewJSPrimitiveRef(PrimitiveType type, GateRef glue, Ga
 void TypedHCRLowering::ReplaceGateWithPendingException(GateRef glue, GateRef gate, GateRef state, GateRef depend,
                                                        GateRef value)
 {
-    auto condition = builder_.HasPendingException(glue);
+    auto condition = builder_.HasPendingException(glue, compilationEnv_);
     GateRef ifBranch = builder_.Branch(state, condition, 1, BranchWeight::DEOPT_WEIGHT, "checkException");
     GateRef ifTrue = builder_.IfTrue(ifBranch);
     GateRef ifFalse = builder_.IfFalse(ifBranch);
@@ -2708,7 +2730,7 @@ void TypedHCRLowering::LowerOrdinaryHasInstance(GateRef gate, GateRef glue)
     Label objIsHeapObject(&builder_);
     Label objIsEcmaObject(&builder_);
     Label objNotEcmaObject(&builder_);
-    BRANCH_CIR(builder_.TaggedIsHeapObject(obj), &objIsHeapObject, &objNotEcmaObject);
+    BRANCH_CIR(builder_.TaggedIsHeapObject(obj, compilationEnv_), &objIsHeapObject, &objNotEcmaObject);
     builder_.Bind(&objIsHeapObject);
     BRANCH_CIR(builder_.TaggedObjectIsEcmaObject(glue, obj), &objIsEcmaObject, &objNotEcmaObject);
     builder_.Bind(&objNotEcmaObject);
@@ -2736,7 +2758,8 @@ void TypedHCRLowering::LowerOrdinaryHasInstance(GateRef gate, GateRef glue)
             {
                 Label isHClass(&builder_);
                 Label isPrototype(&builder_);
-                BRANCH_CIR(builder_.TaggedIsHeapObject(ctorProtoOrHC), &isHeapObject, &getCtorProtoSlowPath);
+                BRANCH_CIR(builder_.TaggedIsHeapObject(ctorProtoOrHC, compilationEnv_),
+                           &isHeapObject, &getCtorProtoSlowPath);
                 builder_.Bind(&isHeapObject);
                 BRANCH_CIR(builder_.IsJSHClass(glue, ctorProtoOrHC), &isHClass, &isPrototype);
                 builder_.Bind(&isHClass);
@@ -2805,7 +2828,8 @@ void TypedHCRLowering::LowerOrdinaryHasInstance(GateRef gate, GateRef glue)
                 Label objectIsEcmaObject(&builder_);
                 Label objectNotEcmaObject(&builder_);
 
-                BRANCH_CIR(builder_.TaggedIsHeapObject(*object), &objectIsHeapObject, &objectNotEcmaObject);
+                BRANCH_CIR(builder_.TaggedIsHeapObject(*object, compilationEnv_),
+                           &objectIsHeapObject, &objectNotEcmaObject);
                 builder_.Bind(&objectIsHeapObject);
                 BRANCH_CIR(builder_.TaggedObjectIsEcmaObject(glue, *object), &objectIsEcmaObject, &objectNotEcmaObject);
                 builder_.Bind(&objectNotEcmaObject);
@@ -3087,10 +3111,7 @@ void TypedHCRLowering::LowerMonoStoreProperty(GateRef gate, GateRef glue)
         auto prototype = builder_.LoadConstOffset(VariableType::JS_ANY(), receiverHC, JSHClass::PROTOTYPE_OFFSET);
         builder_.StoreConstOffset(VariableType::JS_ANY(), newHolderHC, JSHClass::PROTOTYPE_OFFSET, prototype);
     }
-    if (!isPrototype) {
-        builder_.DeoptCheck(builder_.BoolNot(builder_.IsPrototypeHClass(receiverHC)), frameState,
-                            DeoptType::PROTOTYPECHANGED3);
-    } else {
+    if (isPrototype) {
         builder_.Branch(builder_.IsPrototypeHClass(receiverHC), &isProto, &notProto,
             BranchWeight::ONE_WEIGHT, BranchWeight::DEOPT_WEIGHT, "isPrototypeHClass");
         builder_.Bind(&isProto);
@@ -3298,7 +3319,7 @@ void TypedHCRLowering::LowerStringFromSingleCharCode(GateRef gate, GateRef glue)
     Label canNotBeCompress(&builder_);
     GateRef codePointTag = acc_.GetValueIn(gate);
     GateRef codePointValue = builder_.ToNumber(gate, codePointTag, glue);
-    BRANCH_CIR(builder_.HasPendingException(glue), &isPendingException, &noPendingException);
+    BRANCH_CIR(builder_.HasPendingException(glue, compilationEnv_), &isPendingException, &noPendingException);
     builder_.Bind(&isPendingException);
     {
         res = builder_.ExceptionConstant();
@@ -3367,7 +3388,7 @@ void TypedHCRLowering::LowerMigrateArrayWithKind(GateRef gate, GateRef glue)
     BRANCH_CIR(noNeedMigration, &exit, &doMigration);
     builder_.Bind(&doMigration);
 
-    GateRef needCOW = builder_.IsJsCOWArray(glue, object);
+    GateRef needCOW = builder_.IsJsCOWArray(glue, object, compilationEnv_);
     BRANCH_CIR(builder_.ElementsKindIsIntOrHoleInt(oldKind), &migrateFromInt, &migrateOtherKinds);
     builder_.Bind(&migrateFromInt);
     {

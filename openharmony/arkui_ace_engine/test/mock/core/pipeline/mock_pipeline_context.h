@@ -79,6 +79,8 @@ public:
     }
     void SetEnableSwipeBack(bool isEnable) {}
 
+    void SetBackgroundColorModeUpdated(bool backgroundColorModeUpdated) {}
+
     bool ReachResponseDeadline() const override
     {
         if (responseTime_ > 0) {
@@ -97,6 +99,11 @@ public:
         if (responseTime_ > 0 && responseTime_ != INT32_MAX) {
             responseTime_--;
         }
+    }
+
+    auto Get()
+    {
+        return this;
     }
 protected:
     float fontScale_ = 1.0f;

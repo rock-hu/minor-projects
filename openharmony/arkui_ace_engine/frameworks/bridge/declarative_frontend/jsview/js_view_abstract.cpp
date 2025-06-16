@@ -2599,16 +2599,39 @@ void JSViewAbstract::JsLayoutWeight(const JSCallbackInfo& info)
 
 void JSViewAbstract::JsAlign(const JSCallbackInfo& info)
 {
-    static std::vector<JSCallbackInfoType> checkList { JSCallbackInfoType::NUMBER };
+    static std::vector<JSCallbackInfoType> checkList { JSCallbackInfoType::NUMBER, JSCallbackInfoType::STRING };
     auto jsVal = info[0];
     if (!CheckJSCallbackInfo("JsAlign", jsVal, checkList) &&
         Container::GreatOrEqualAPIVersion(PlatformVersion::VERSION_TEN)) {
         ViewAbstractModel::GetInstance()->SetAlign(Alignment::CENTER);
         return;
     }
-    auto value = jsVal->ToNumber<int32_t>();
-    Alignment alignment = ParseAlignment(value);
-    ViewAbstractModel::GetInstance()->SetAlign(alignment);
+    if (jsVal->IsNumber()) {
+        auto value = jsVal->ToNumber<int32_t>();
+        Alignment alignment = ParseAlignment(value);
+        ViewAbstractModel::GetInstance()->SetAlign(alignment);
+        ViewAbstractModel::GetInstance()->SetIsMirrorable(false);
+    } else {
+        std::string localizedAlignment = jsVal->ToString();
+        ViewAbstractModel::GetInstance()->SetAlign(localizedAlignment);
+        ViewAbstractModel::GetInstance()->SetIsMirrorable(true);
+    }
+}
+
+void JSViewAbstract::JsLayoutGravity(const JSCallbackInfo& info)
+{
+    static std::vector<JSCallbackInfoType> checkList { JSCallbackInfoType::STRING };
+    auto jsVal = info[0];
+    if (!CheckJSCallbackInfo("JsLayoutGravity", jsVal, checkList)) {
+        ViewAbstractModel::GetInstance()->SetLayoutGravity(Alignment::CENTER);
+        return;
+    }
+
+    if (jsVal->IsString()) {
+        std::string value = jsVal->ToString();
+        Alignment layoutGravityAlignment = NG::BoxLayoutAlgorithm::MapLocalizedToAlignment(value);
+        ViewAbstractModel::GetInstance()->SetLayoutGravity(layoutGravityAlignment);
+    }
 }
 
 void JSViewAbstract::JsPosition(const JSCallbackInfo& info)
@@ -3098,10 +3121,8 @@ void JSViewAbstract::JsBackgroundColor(const JSCallbackInfo& info)
         if (!ParseJsColor(info[0], backgroundColor, backgroundColorResObj)) {
             backgroundColor = Color::TRANSPARENT;
         }
-        if (backgroundColorResObj) {
-            ViewAbstractModel::GetInstance()->SetBackgroundColorWithResourceObj(backgroundColorResObj);
-            return;
-        }
+        ViewAbstractModel::GetInstance()->SetBackgroundColorWithResourceObj(backgroundColor, backgroundColorResObj);
+        return;
     } else {
         if (!ParseJsColor(info[0], backgroundColor)) {
             backgroundColor = Color::TRANSPARENT;
@@ -3129,11 +3150,13 @@ void JSViewAbstract::JsBackgroundImage(const JSCallbackInfo& info)
         src = jsBackgroundImage->ToString();
         ViewAbstractModel::GetInstance()->SetBackgroundImage(
             ImageSourceInfo { src, bundle, module }, GetThemeConstants());
+        ViewAbstractModel::GetInstance()->ClearResObj("backgroundImageSrc");
     } else if (ParseJsMediaWithBundleName(jsBackgroundImage, src, bundle, module, resId, backgroundImageResObj)) {
-        if (!SystemProperties::ConfigChangePerform() || !backgroundImageResObj) {
+        if (!SystemProperties::ConfigChangePerform()) {
             ViewAbstractModel::GetInstance()->SetBackgroundImage(ImageSourceInfo{src, bundle, module}, nullptr);
         } else {
-            ViewAbstractModel::GetInstance()->SetBackgroundImageWithResourceObj(backgroundImageResObj, bundle, module, nullptr);
+            ViewAbstractModel::GetInstance()->SetBackgroundImageWithResourceObj(
+                backgroundImageResObj, ImageSourceInfo { src, bundle, module }, nullptr);
         }
     } else {
 #if defined(PIXEL_MAP_SUPPORTED)
@@ -3144,6 +3167,7 @@ void JSViewAbstract::JsBackgroundImage(const JSCallbackInfo& info)
         }
 #endif
         ViewAbstractModel::GetInstance()->SetBackgroundImage(ImageSourceInfo { pixmap }, nullptr);
+        ViewAbstractModel::GetInstance()->ClearResObj("backgroundImageSrc");
     }
     if (info.Length() == 2) { // 2 is background image info length
         auto jsImageRepeat = info[1];
@@ -3682,6 +3706,7 @@ void JSViewAbstract::JsBackgroundImageSize(const JSCallbackInfo& info)
         bgImgSize.SetSizeTypeX(BackgroundImageSizeType::AUTO);
         bgImgSize.SetSizeTypeY(BackgroundImageSizeType::AUTO);
         ViewAbstractModel::GetInstance()->SetBackgroundImageSize(bgImgSize);
+        ViewAbstractModel::GetInstance()->ClearResObj("backgroundImageSize");
         return;
     }
     if (jsVal->IsNumber()) {
@@ -3692,6 +3717,7 @@ void JSViewAbstract::JsBackgroundImageSize(const JSCallbackInfo& info)
         }
         bgImgSize.SetSizeTypeX(sizeType);
         bgImgSize.SetSizeTypeY(sizeType);
+        ViewAbstractModel::GetInstance()->ClearResObj("backgroundImageSize");
     } else {
         CalcDimension width;
         CalcDimension height;
@@ -3738,8 +3764,13 @@ void SetBgImgPositionWithAlign(BackgroundImagePosition& bgImgPosition, int32_t a
 void SetBackgroundImagePositionUpdateFunc(
     BackgroundImagePosition& bgImgPosition, const RefPtr<ResourceObject>& resObj, const std::string direction)
 {
-    CHECK_NULL_VOID(resObj);
     if (direction.empty()) {
+        return;
+    }
+    auto& updater = bgImgPosition.GetResObjUpdater();
+    if (!resObj) {
+        (direction == "x") ? updater.RemoveResource("backgroundImagePositionX")
+                        : updater.RemoveResource("backgroundImagePositionY");
         return;
     }
     auto&& updateFunc = [direction](const RefPtr<ResourceObject>& resObj, BackgroundImagePosition& position) {
@@ -3756,10 +3787,11 @@ void SetBackgroundImagePositionUpdateFunc(
         }
         AnimationOption option = ViewStackModel::GetInstance()->GetImplicitAnimationOption();
         (direction == "x") ? position.SetSizeX(AnimatableDimension(value, type, option))
-                           : position.SetSizeY(AnimatableDimension(value, type, option));
+                        : position.SetSizeY(AnimatableDimension(value, type, option));
     };
-    (direction == "x") ? bgImgPosition.AddResource("backgroundImagePositionX", resObj, std::move(updateFunc))
-                       : bgImgPosition.AddResource("backgroundImagePositionY", resObj, std::move(updateFunc));
+    updater.BindResObj(&bgImgPosition);
+    (direction == "x") ? updater.AddResource("backgroundImagePositionX", resObj, std::move(updateFunc))
+                    : updater.AddResource("backgroundImagePositionY", resObj, std::move(updateFunc));
 }
 
 void JSViewAbstract::JsBackgroundImagePosition(const JSCallbackInfo& info)
@@ -3770,12 +3802,14 @@ void JSViewAbstract::JsBackgroundImagePosition(const JSCallbackInfo& info)
     if (!CheckJSCallbackInfo("JsBackgroundImagePosition", jsVal, checkList)) {
         SetBgImgPosition(DimensionUnit::PX, DimensionUnit::PX, 0.0, 0.0, bgImgPosition);
         ViewAbstractModel::GetInstance()->SetBackgroundImagePosition(bgImgPosition);
+        ViewAbstractModel::GetInstance()->ClearResObj("backgroundImagePosition");
         return;
     }
     if (jsVal->IsNumber()) {
         int32_t align = jsVal->ToNumber<int32_t>();
         bgImgPosition.SetIsAlign(true);
         SetBgImgPositionWithAlign(bgImgPosition, align);
+        ViewAbstractModel::GetInstance()->ClearResObj("backgroundImagePosition");
     } else {
         CalcDimension x;
         CalcDimension y;
@@ -5407,9 +5441,66 @@ void JSViewAbstract::GetBorderRadiusByLengthMetrics(const char* key, JSRef<JSObj
 bool JSViewAbstract::ParseAllBorderRadiuses(JSRef<JSObject>& object, CalcDimension& topLeft, CalcDimension& topRight,
     CalcDimension& bottomLeft, CalcDimension& bottomRight)
 {
-    if (object->IsUndefined()) {
-        return false;
+    TextBackgroundStyle textBackgroundStyle;
+    return ParseAllBorderRadiuses(object, topLeft, topRight, bottomLeft, bottomRight, textBackgroundStyle);
+}
+
+void JSViewAbstract::RegisterTextBackgroundStyleResource(TextBackgroundStyle& textBackgroundStyle,
+    RefPtr<ResourceObject>& resObjTopLeft, RefPtr<ResourceObject>& resObjTopRight,
+    RefPtr<ResourceObject>& resObjBottomLeft, RefPtr<ResourceObject>& resObjBottomRight)
+{
+    if (!SystemProperties::ConfigChangePerform()) {
+        return;
     }
+    if (resObjTopLeft) {
+        auto&& updateFunc = [](const RefPtr<ResourceObject>& resObjTopLeft,
+            TextBackgroundStyle& textBackgroundStyle) {
+            CalcDimension radius;
+            ResourceParseUtils::ParseResDimensionVp(resObjTopLeft, radius);
+            textBackgroundStyle.backgroundRadius->radiusTopLeft = radius;
+            textBackgroundStyle.backgroundRadius->multiValued = true;
+        };
+        textBackgroundStyle.AddResource("textBackgroundStyle.radiusTopLeft", resObjTopLeft,
+            std::move(updateFunc));
+    }
+    if (resObjTopRight) {
+        auto&& updateFunc = [](const RefPtr<ResourceObject>& resObjTopRight,
+            TextBackgroundStyle& textBackgroundStyle) {
+            CalcDimension radius;
+            ResourceParseUtils::ParseResDimensionVp(resObjTopRight, radius);
+            textBackgroundStyle.backgroundRadius->radiusTopRight = radius;
+            textBackgroundStyle.backgroundRadius->multiValued = true;
+        };
+        textBackgroundStyle.AddResource("textBackgroundStyle.radiusTopRight", resObjTopRight,
+            std::move(updateFunc));
+    }
+    if (resObjBottomLeft) {
+        auto&& updateFunc = [](const RefPtr<ResourceObject>& resObjBottomLeft,
+            TextBackgroundStyle& textBackgroundStyle) {
+            CalcDimension radius;
+            ResourceParseUtils::ParseResDimensionVp(resObjBottomLeft, radius);
+            textBackgroundStyle.backgroundRadius->radiusBottomLeft = radius;
+            textBackgroundStyle.backgroundRadius->multiValued = true;
+        };
+        textBackgroundStyle.AddResource("textBackgroundStyle.radiusBottomLeft", resObjBottomLeft,
+            std::move(updateFunc));
+    }
+    if (resObjBottomRight) {
+        auto&& updateFunc = [](const RefPtr<ResourceObject>& resObjBottomRight,
+            TextBackgroundStyle& textBackgroundStyle) {
+            CalcDimension radius;
+            ResourceParseUtils::ParseResDimensionVp(resObjBottomRight, radius);
+            textBackgroundStyle.backgroundRadius->radiusBottomRight = radius;
+            textBackgroundStyle.backgroundRadius->multiValued = true;
+        };
+        textBackgroundStyle.AddResource("textBackgroundStyle.radiusBottomRight", resObjBottomRight,
+            std::move(updateFunc));
+    }
+}
+
+bool JSViewAbstract::ParseAllBorderRadiuses(JSRef<JSObject>& object, CalcDimension& topLeft, CalcDimension& topRight,
+    CalcDimension& bottomLeft, CalcDimension& bottomRight, TextBackgroundStyle& textBackgroundStyle)
+{
     if (object->HasProperty(TOP_START_PROPERTY) || object->HasProperty(TOP_END_PROPERTY) ||
         object->HasProperty(BOTTOM_START_PROPERTY) || object->HasProperty(BOTTOM_END_PROPERTY)) {
         CalcDimension topStart;
@@ -5426,12 +5517,17 @@ bool JSViewAbstract::ParseAllBorderRadiuses(JSRef<JSObject>& object, CalcDimensi
         bottomRight = bottomEnd;
         return true;
     }
-    if (!SystemProperties::ConfigChangePerform()) {
-        GetBorderRadius("topLeft", object, topLeft);
-        GetBorderRadius("topRight", object, topRight);
-        GetBorderRadius("bottomLeft", object, bottomLeft);
-        GetBorderRadius("bottomRight", object, bottomRight);
-    }
+    RefPtr<ResourceObject> resObjTopLeft;
+    RefPtr<ResourceObject> resObjTopRight;
+    RefPtr<ResourceObject> resObjBottomLeft;
+    RefPtr<ResourceObject> resObjBottomRight;
+    GetBorderRadiusResObj("topLeft", object, topLeft, resObjTopLeft);
+    GetBorderRadiusResObj("topRight", object, topRight, resObjTopRight);
+    GetBorderRadiusResObj("bottomLeft", object, bottomLeft, resObjBottomLeft);
+    GetBorderRadiusResObj("bottomRight", object, bottomRight, resObjBottomRight);
+    
+    RegisterTextBackgroundStyleResource(textBackgroundStyle, resObjTopLeft, resObjTopRight, resObjBottomLeft,
+        resObjBottomRight);
     return false;
 }
 
@@ -6659,36 +6755,38 @@ bool JSViewAbstract::ParseJsSymbolId(
     return true;
 }
 
-bool JSViewAbstract::ParseJsSymbolColor(const JSRef<JSVal>& jsValue, std::vector<Color>& result)
+bool JSViewAbstract::ParseJsSymbolColor(const JSRef<JSVal>& jsValue, std::vector<Color>& result,
+    bool enableResourceUpdate, std::vector<std::pair<int32_t, RefPtr<ResourceObject>>>& resObjArr)
 {
     if (!jsValue->IsArray()) {
         return false;
     }
-    if (jsValue->IsArray()) {
-        JSRef<JSArray> array = JSRef<JSArray>::Cast(jsValue);
-        for (size_t i = 0; i < array->Length(); i++) {
-            JSRef<JSVal> value = array->GetValueAt(i);
-            if (!value->IsNumber() && !value->IsString() && !value->IsObject()) {
-                return false;
-            }
-            if (value->IsNumber()) {
-                result.emplace_back(Color(ColorAlphaAdapt(value->ToNumber<uint32_t>())));
-                continue;
-            } else if (value->IsString()) {
-                Color color;
-                Color::ParseColorString(value->ToString(), color);
-                result.emplace_back(color);
-                continue;
-            } else {
-                Color color;
-                RefPtr<ResourceObject> resObj;
-                ParseJsColorFromResource(value, color, resObj);
-                result.emplace_back(color);
+    JSRef<JSArray> array = JSRef<JSArray>::Cast(jsValue);
+    for (size_t i = 0; i < array->Length(); i++) {
+        JSRef<JSVal> value = array->GetValueAt(i);
+        if (!value->IsNumber() && !value->IsString() && !value->IsObject()) {
+            return false;
+        }
+        if (value->IsNumber()) {
+            result.emplace_back(Color(ColorAlphaAdapt(value->ToNumber<uint32_t>())));
+            continue;
+        } else if (value->IsString()) {
+            Color color;
+            Color::ParseColorString(value->ToString(), color);
+            result.emplace_back(color);
+            continue;
+        } else {
+            Color color;
+            RefPtr<ResourceObject> resObj;
+            ParseJsColorFromResource(value, color, resObj);
+            result.emplace_back(color);
+            if (enableResourceUpdate && resObj) {
+                std::pair<int32_t, RefPtr<ResourceObject>> pair(i, resObj);
+                resObjArr.push_back(pair);
             }
         }
-        return true;
     }
-    return false;
+    return true;
 }
 
 bool JSViewAbstract::ParseJsFontFamilies(const JSRef<JSVal>& jsValue, std::vector<std::string>& result)
@@ -7074,13 +7172,12 @@ bool JSViewAbstract::ParseJsIntegerArray(const JSRef<JSVal>& jsValue, std::vecto
     return ParseJsIntegerArray(jsValue, result, resObj, resObjArray);
 }
 
-bool JSViewAbstract::ParseJsIntegerArrayInternal(const JSRef<JSVal>& jsValue, std::vector<uint32_t>& result,
+bool JSViewAbstract::ParseJsIntegerArrayInternal(const JSRef<JSArray>& jsArray, std::vector<uint32_t>& result,
     std::vector<RefPtr<ResourceObject>>& resObjArray)
 {
-    JSRef<JSArray> array = JSRef<JSArray>::Cast(jsValue);
-    for (size_t i = 0; i < array->Length(); i++) {
+    for (size_t i = 0; i < jsArray->Length(); i++) {
         RefPtr<ResourceObject> resObj;
-        JSRef<JSVal> value = array->GetValueAt(i);
+        JSRef<JSVal> value = jsArray->GetValueAt(i);
         if (value->IsNumber()) {
             result.emplace_back(value->ToNumber<uint32_t>());
         } else if (value->IsObject()) {
@@ -7107,7 +7204,8 @@ bool JSViewAbstract::ParseJsIntegerArray(const JSRef<JSVal>& jsValue, std::vecto
         return false;
     }
     if (jsValue->IsArray()) {
-        return ParseJsIntegerArrayInternal(jsValue, result, resObjArray);
+        JSRef<JSArray> jsArray = JSRef<JSArray>::Cast(jsValue);
+        return ParseJsIntegerArrayInternal(jsArray, result, resObjArray);
     }
     JSRef<JSObject> jsObj = JSRef<JSObject>::Cast(jsValue);
     CompleteResourceObject(jsObj);
@@ -7156,13 +7254,12 @@ bool JSViewAbstract::ParseJsStrArray(const JSRef<JSVal>& jsValue, std::vector<st
     return ParseJsStrArray(jsValue, result, resObj, resObjArray);
 }
 
-bool JSViewAbstract::ParseJsStrArrayInternal(const JSRef<JSVal>& jsValue, std::vector<std::string>& result,
+bool JSViewAbstract::ParseJsStrArrayInternal(const JSRef<JSArray>& jsArray, std::vector<std::string>& result,
     std::vector<RefPtr<ResourceObject>>& resObjArray)
 {
-    JSRef<JSArray> array = JSRef<JSArray>::Cast(jsValue);
-    for (size_t i = 0; i < array->Length(); i++) {
+    for (size_t i = 0; i < jsArray->Length(); i++) {
         RefPtr<ResourceObject> resObj;
-        JSRef<JSVal> value = array->GetValueAt(i);
+        JSRef<JSVal> value = jsArray->GetValueAt(i);
         if (value->IsString()) {
             result.emplace_back(value->ToString());
         } else if (value->IsObject()) {
@@ -7189,7 +7286,8 @@ bool JSViewAbstract::ParseJsStrArray(const JSRef<JSVal>& jsValue, std::vector<st
         return false;
     }
     if (jsValue->IsArray()) {
-        return ParseJsStrArrayInternal(jsValue, result, resObjArray);
+        JSRef<JSArray> jsArray = JSRef<JSArray>::Cast(jsValue);
+        return ParseJsStrArrayInternal(jsArray, result, resObjArray);
     }
     JSRef<JSObject> jsObj = JSRef<JSObject>::Cast(jsValue);
     CompleteResourceObject(jsObj);
@@ -9070,6 +9168,7 @@ void JSViewAbstract::JSBind(BindingTarget globalObj)
     JSClass<JSViewAbstract>::StaticMethod("transition", &JSViewAbstract::JsTransition);
 
     JSClass<JSViewAbstract>::StaticMethod("align", &JSViewAbstract::JsAlign);
+    JSClass<JSViewAbstract>::StaticMethod("layoutGravity", &JSViewAbstract::JsLayoutGravity);
     JSClass<JSViewAbstract>::StaticMethod("position", &JSViewAbstract::JsPosition);
     JSClass<JSViewAbstract>::StaticMethod("markAnchor", &JSViewAbstract::JsMarkAnchor);
     JSClass<JSViewAbstract>::StaticMethod("offset", &JSViewAbstract::JsOffset);
@@ -9280,6 +9379,7 @@ void AddInvalidateFunc(JSRef<JSObject> jsDrawModifier, NG::FrameNode* frameNode)
             const auto& extensionHandler = frameNode->GetExtensionHandler();
             if (extensionHandler) {
                 extensionHandler->InvalidateRender();
+                extensionHandler->ForegroundRender();
             } else {
                 frameNode->MarkDirtyNode(NG::PROPERTY_UPDATE_RENDER);
             }
@@ -9292,6 +9392,7 @@ void AddInvalidateFunc(JSRef<JSObject> jsDrawModifier, NG::FrameNode* frameNode)
         const auto& extensionHandler = frameNode->GetExtensionHandler();
         if (extensionHandler) {
             extensionHandler->InvalidateRender();
+            extensionHandler->ForegroundRender();
         } else {
             frameNode->MarkDirtyNode(NG::PROPERTY_UPDATE_RENDER);
         }
@@ -9332,6 +9433,7 @@ void JSViewAbstract::JsDrawModifier(const JSCallbackInfo& info)
     drawModifier->drawBehindFunc = getDrawModifierFunc("drawBehind");
     drawModifier->drawContentFunc = getDrawModifierFunc("drawContent");
     drawModifier->drawFrontFunc = getDrawModifierFunc("drawFront");
+    drawModifier->drawForegroundFunc = getDrawModifierFunc("drawForeground");
 
     ViewAbstractModel::GetInstance()->SetDrawModifier(drawModifier);
     AddInvalidateFunc(jsDrawModifier, frameNode);
@@ -9987,8 +10089,10 @@ bool JSViewAbstract::ParseDataDetectorConfig(const JSCallbackInfo& info, TextDet
 
 bool JSViewAbstract::ParseAIEntityColor(const JSRef<JSObject>& obj, TextDetectConfig& textDetectConfig)
 {
+    RefPtr<ResourceObject> resObj;
     JSRef<JSVal> entityColorValue = obj->GetProperty("color");
-    ParseJsColor(entityColorValue, textDetectConfig.entityColor);
+    ParseJsColor(entityColorValue, textDetectConfig.entityColor, resObj);
+    TextDetectConfig::RegisterColorResource(textDetectConfig, resObj);
 
     JSRef<JSVal> decorationValue = obj->GetProperty("decoration");
     if (decorationValue->IsUndefined() || !decorationValue->IsObject()) {
@@ -10005,15 +10109,16 @@ bool JSViewAbstract::ParseAIEntityColor(const JSRef<JSObject>& obj, TextDetectCo
     } else {
         textDetectConfig.entityDecorationType = TextDecoration::UNDERLINE;
     }
-    if (!ParseJsColor(colorValue, textDetectConfig.entityDecorationColor)) {
+    RefPtr<ResourceObject> decoColorResObj;
+    if (!ParseJsColor(colorValue, textDetectConfig.entityDecorationColor, decoColorResObj)) {
         textDetectConfig.entityDecorationColor = textDetectConfig.entityColor;
     }
+    TextDetectConfig::RegisterDecoColorResource(textDetectConfig, decoColorResObj);
     if (styleValue->IsNumber()) {
-         textDetectConfig.entityDecorationStyle = static_cast<TextDecorationStyle>(styleValue->ToNumber<int32_t>());
+        textDetectConfig.entityDecorationStyle = static_cast<TextDecorationStyle>(styleValue->ToNumber<int32_t>());
     } else {
         textDetectConfig.entityDecorationStyle = TextDecorationStyle::SOLID;
     }
-
     return true;
 }
 
@@ -11748,8 +11853,15 @@ void JSViewAbstract::JsGestureModifier(const JSCallbackInfo& info)
 void SetBackgroundImageResizableUpdateFunc(
     ImageResizableSlice& sliceResult, const RefPtr<ResourceObject>& resObj, std::string direction)
 {
-    CHECK_NULL_VOID(resObj);
+    if (direction.empty()) {
+        return;
+    }
+    if (!resObj) {
+        sliceResult.RemoveResource("backgroundImageResizable");
+        return;
+    }
     auto&& updateFunc = [direction](const RefPtr<ResourceObject>& resObj, ImageResizableSlice& sliceResult) {
+        CHECK_NULL_VOID(resObj);
         CalcDimension sliceDimension;
         ResourceParseUtils::ParseResDimensionVp(resObj, sliceDimension);
         if (direction == "Left") {
@@ -11771,11 +11883,13 @@ void JSViewAbstract::JsBackgroundImageResizable(const JSCallbackInfo& info)
     ImageResizableSlice sliceResult;
     if (!infoObj->IsObject()) {
         ViewAbstractModel::GetInstance()->SetBackgroundImageResizableSlice(sliceResult);
+        ViewAbstractModel::GetInstance()->ClearResObj("backgroundImageResizableSlice");
         return;
     }
     JSRef<JSObject> resizableObject = JSRef<JSObject>::Cast(infoObj);
     if (resizableObject->IsEmpty()) {
         ViewAbstractModel::GetInstance()->SetBackgroundImageResizableSlice(sliceResult);
+        ViewAbstractModel::GetInstance()->ClearResObj("backgroundImageResizableSlice");
         return;
     }
     auto sliceValue = resizableObject->GetProperty("slice");
@@ -11785,14 +11899,13 @@ void JSViewAbstract::JsBackgroundImageResizable(const JSCallbackInfo& info)
     JSRef<JSObject> sliceObj = JSRef<JSObject>::Cast(sliceValue);
     if (sliceObj->IsEmpty()) {
         ViewAbstractModel::GetInstance()->SetBackgroundImageResizableSlice(sliceResult);
+        ViewAbstractModel::GetInstance()->ClearResObj("backgroundImageResizableSlice");
         return;
     }
-    std::vector<RefPtr<ResourceObject>> bgImageResizableResObjArray;
     for (uint32_t i = 0; i < SLICE_KEYS.size(); i++) {
         auto sliceSize = sliceObj->GetProperty(SLICE_KEYS.at(i).c_str());
         CalcDimension sliceDimension;
         RefPtr<ResourceObject> resObj;
-        bgImageResizableResObjArray.push_back(resObj);
         if (!ParseJsDimensionVp(sliceSize, sliceDimension, resObj)) {
             continue;
         }
@@ -12068,7 +12181,8 @@ void JSViewAbstract::JsBackground(const JSCallbackInfo& info)
 
     // parse background options
     Alignment alignment = Alignment::CENTER;
-    NG::LayoutSafeAreaEdge ignoreLayoutSafeAreaEdges = NG::LAYOUT_SAFE_AREA_EDGE_NONE;
+    NG::LayoutSafeAreaEdge ignoreLayoutSafeAreaEdges =
+        (BackgroundType::COLOR == backgroundType) ? NG::LAYOUT_SAFE_AREA_EDGE_ALL : NG::LAYOUT_SAFE_AREA_EDGE_NONE;
     if (info.Length() >= PARAMETER_LENGTH_SECOND && info[1]->IsObject()) {
         JSRef<JSObject> object = JSRef<JSObject>::Cast(info[1]);
         if (object->HasProperty(static_cast<int32_t>(ArkUIIndex::ALIGN))) {
@@ -12079,12 +12193,8 @@ void JSViewAbstract::JsBackground(const JSCallbackInfo& info)
         if (object->HasProperty(static_cast<int32_t>(ArkUIIndex::IGNORES_LAYOUT_SAFE_AREA_EDGES))) {
             auto safeAreaEdgesArray =
                 object->GetProperty(static_cast<int32_t>(ArkUIIndex::IGNORES_LAYOUT_SAFE_AREA_EDGES));
-            ignoreLayoutSafeAreaEdges = ParseJsLayoutSafeAreaEdgeArray(safeAreaEdgesArray);
+            ignoreLayoutSafeAreaEdges = ParseJsLayoutSafeAreaEdgeArray(safeAreaEdgesArray, ignoreLayoutSafeAreaEdges);
         }
-    }
-
-    if (BackgroundType::COLOR == backgroundType && NG::LAYOUT_SAFE_AREA_EDGE_NONE == ignoreLayoutSafeAreaEdges) {
-        ignoreLayoutSafeAreaEdges = NG::LAYOUT_SAFE_AREA_EDGE_ALL;
     }
 
     // parameters parsed, set the properties parsed above
@@ -12131,11 +12241,11 @@ bool JSViewAbstract::ParseBackgroundBuilder(
     return true;
 }
 
-NG::LayoutSafeAreaEdge JSViewAbstract::ParseJsLayoutSafeAreaEdgeArray(const JSRef<JSArray>& jsSafeAreaEdges)
+NG::LayoutSafeAreaEdge JSViewAbstract::ParseJsLayoutSafeAreaEdgeArray(
+    const JSRef<JSArray>& jsSafeAreaEdges, NG::LayoutSafeAreaEdge defaultVal)
 {
-    NG::LayoutSafeAreaEdge edges = NG::LAYOUT_SAFE_AREA_EDGE_NONE;
     if (!jsSafeAreaEdges->IsArray()) {
-        return edges;
+        return defaultVal;
     }
 
     static std::vector<uint32_t> layoutEdgeEnum {
@@ -12148,10 +12258,11 @@ NG::LayoutSafeAreaEdge JSViewAbstract::ParseJsLayoutSafeAreaEdgeArray(const JSRe
         NG::LAYOUT_SAFE_AREA_EDGE_ALL
     };
 
+    NG::LayoutSafeAreaEdge edges = NG::LAYOUT_SAFE_AREA_EDGE_NONE;
     for (size_t i = 0; i < jsSafeAreaEdges->Length(); ++i) {
         if (!jsSafeAreaEdges->GetValueAt(i)->IsNumber() ||
             jsSafeAreaEdges->GetValueAt(i)->ToNumber<uint32_t>() > LAYOUT_SAFE_AREA_EDGE_LIMIT) {
-            return false;
+            return defaultVal;
         }
         edges |= layoutEdgeEnum[jsSafeAreaEdges->GetValueAt(i)->ToNumber<uint32_t>()];
     }

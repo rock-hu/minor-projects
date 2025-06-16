@@ -24,7 +24,7 @@
 #include "objects/ref_field.h"
 #include "objects/base_state_word.h"
 
-namespace panda {
+namespace common {
 class BaseObject;
 
 class BaseObjectOperatorInterfaces {
@@ -43,13 +43,11 @@ public:
     virtual ~BaseObjectOperatorInterfaces() = default;
 };
 
-#ifdef USE_CMC_GC
 class BaseObjectOperator {
 private:
     BaseObjectOperatorInterfaces *dynamicObjOp_;
     BaseObjectOperatorInterfaces *staticObjOp_;
     friend BaseObject;
 };
-#endif
-}  // namespace panda
+}  // namespace common
 #endif  // COMMON_INTERFACES_OBJECTS_BASE_OBJECT_OPERATOR_H

@@ -33,6 +33,8 @@ public:
     Operand *SelectFloatingConst(MIRConst &floatingConst, PrimType primType) const override;
     void SelectGoto(GotoNode &stmt) override;
     void SelectIntrinsicCall(IntrinsiccallNode &intrinsiccallNode) override;
+    void SelectDeoptCall(CallNode &callNode) override;
+    void SelectTailICall(IcallNode &icallNode) override;
     void SelectRangeGoto(RangeGotoNode &rangeGotoNode, Operand &srcOpnd) override;
     void SelectCondGoto(CondGotoNode &stmt, BaseNode &condNode, Operand &opnd0) override;
     Operand *SelectDiv(BinaryNode &node, Operand &opnd0, Operand &opnd1, const BaseNode &parent) override;
@@ -47,8 +49,20 @@ public:
     Operand *SelectSqrt(UnaryNode &node, Operand &opnd0, const BaseNode &parent) override;
     RegOperand &SelectHeapConstant(
         IntrinsicopNode &node, Operand &opnd0, Operand &opnd1, const BaseNode &parent) override;
+    RegOperand &SelectTaggedIsHeapObject(IntrinsicopNode &node, Operand &opnd0,
+                                         Operand &opnd1, const BaseNode &parent) override;
+    RegOperand &SelectIsStableElements(IntrinsicopNode &node, Operand &opnd0, Operand &opnd1,
+                                       Operand &opnd2, const BaseNode &parent) override;
+    RegOperand &SelectHasPendingException(
+        IntrinsicopNode &node, Operand &opnd0, Operand &opnd1, Operand &opnd2, const BaseNode &parent) override;
     RegOperand &SelectGetHeapConstantTable(
         IntrinsicopNode &node, Operand &opnd0, Operand &opnd1, Operand &opnd2, const BaseNode &parent) override;
+    RegOperand &SelectTaggedObjectIsString(
+        IntrinsicopNode &node, Operand &opnd0, Operand &opnd1, Operand &opnd2, Operand &opnd3,
+        Operand &opnd4, const BaseNode &parent) override;
+    RegOperand &SelectIsCOWArray(
+        IntrinsicopNode &node, Operand &opnd0, Operand &opnd1, Operand &opnd2, Operand &opnd3,
+        Operand &opnd4, Operand &opnd5, const BaseNode &parent) override;
 
 private:
     MemOperand &GetOrCreateMemOpndFromSymbol(const MIRSymbol &symbol, FieldID fieldId = 0) const override;

@@ -31,20 +31,21 @@ namespace panda::ecmascript {
 EcmaString *ObjectFactory::AllocLineStringObjectNoGC(size_t size)
 {
     TaggedObject *object = nullptr;
-    if (size > MAX_REGULAR_HEAP_OBJECT_SIZE) {
-        object = reinterpret_cast<TaggedObject *>(sHeap_->GetHugeObjectSpace()->Allocate(thread_, size));
+    if (thread_->IsEnableCMCGC()) {
+        object = sHeap_->AllocateOldOrHugeObjectNoGC(thread_, size);
     } else {
-        object = reinterpret_cast<TaggedObject *>(sHeap_->GetOldSpace()->TryAllocateAndExpand(thread_, size, true));
+        if (size > g_maxRegularHeapObjectSize) {
+            object = reinterpret_cast<TaggedObject *>(sHeap_->GetHugeObjectSpace()->Allocate(thread_, size));
+        } else {
+            object = reinterpret_cast<TaggedObject *>(sHeap_->GetOldSpace()->TryAllocateAndExpand(thread_, size, true));
+        }
     }
     if (object == nullptr) {
         LOG_ECMA(FATAL) << "Alloc size " << size << " bytes string fail";
         UNREACHABLE();
     }
-    object->SetClass(thread_, JSHClass::Cast(thread_->GlobalConstants()->GetLineStringClass().GetTaggedObject()));
-#ifdef USE_CMC_GC
     JSTaggedValue hclass = thread_->GlobalConstants()->GetLineStringClass();
-    object->SetFullBaseClassWithoutBarrier(reinterpret_cast<BaseClass*>(hclass.GetTaggedObject()));
-#endif
+    object->SetFullBaseClassWithoutBarrier(reinterpret_cast<common::BaseClass*>(hclass.GetTaggedObject()));
     return EcmaString::Cast(object);
 }
 
@@ -53,10 +54,8 @@ EcmaString *ObjectFactory::AllocNonMovableLineStringObject(size_t size)
     NewSObjectHook();
     EcmaString* str = reinterpret_cast<EcmaString *>(sHeap_->AllocateNonMovableOrHugeObject(
         thread_, JSHClass::Cast(thread_->GlobalConstants()->GetLineStringClass().GetTaggedObject()), size));
-#ifdef USE_CMC_GC
     JSTaggedValue hclass = thread_->GlobalConstants()->GetLineStringClass();
-    str->SetFullBaseClassWithoutBarrier(reinterpret_cast<BaseClass*>(hclass.GetTaggedObject()));
-#endif
+    str->SetFullBaseClassWithoutBarrier(reinterpret_cast<common::BaseClass*>(hclass.GetTaggedObject()));
     return str;
 }
 
@@ -65,10 +64,8 @@ EcmaString *ObjectFactory::AllocLineStringObject(size_t size)
     NewSObjectHook();
     EcmaString* str = reinterpret_cast<EcmaString *>(sHeap_->AllocateOldOrHugeObject(
         thread_, JSHClass::Cast(thread_->GlobalConstants()->GetLineStringClass().GetTaggedObject()), size));
-#ifdef USE_CMC_GC
     JSTaggedValue hclass = thread_->GlobalConstants()->GetLineStringClass();
-    str->SetFullBaseClassWithoutBarrier(reinterpret_cast<BaseClass*>(hclass.GetTaggedObject()));
-#endif
+    str->SetFullBaseClassWithoutBarrier(reinterpret_cast<common::BaseClass*>(hclass.GetTaggedObject()));
     return str;
 }
 
@@ -77,10 +74,8 @@ EcmaString *ObjectFactory::AllocOldSpaceLineStringObject(size_t size)
     NewSObjectHook();
     EcmaString* str = reinterpret_cast<EcmaString *>(sHeap_->AllocateOldOrHugeObject(
         thread_, JSHClass::Cast(thread_->GlobalConstants()->GetLineStringClass().GetTaggedObject()), size));
-#ifdef USE_CMC_GC
     JSTaggedValue hclass = thread_->GlobalConstants()->GetLineStringClass();
-    str->SetFullBaseClassWithoutBarrier(reinterpret_cast<BaseClass*>(hclass.GetTaggedObject()));
-#endif
+    str->SetFullBaseClassWithoutBarrier(reinterpret_cast<common::BaseClass*>(hclass.GetTaggedObject()));
     return str;
 }
 
@@ -89,10 +84,8 @@ EcmaString *ObjectFactory::AllocReadOnlyLineStringObject(size_t size)
     NewSObjectHook();
     EcmaString* str = reinterpret_cast<EcmaString *>(sHeap_->AllocateReadOnlyOrHugeObject(
         thread_, JSHClass::Cast(thread_->GlobalConstants()->GetLineStringClass().GetTaggedObject()), size));
-#ifdef USE_CMC_GC
     JSTaggedValue hclass = thread_->GlobalConstants()->GetLineStringClass();
-    str->SetFullBaseClassWithoutBarrier(reinterpret_cast<BaseClass*>(hclass.GetTaggedObject()));
-#endif
+    str->SetFullBaseClassWithoutBarrier(reinterpret_cast<common::BaseClass*>(hclass.GetTaggedObject()));
     return str;
 }
 
@@ -102,10 +95,8 @@ EcmaString *ObjectFactory::AllocSlicedStringObject(MemSpaceType type)
     NewSObjectHook();
     EcmaString* str = reinterpret_cast<EcmaString *>(AllocObjectWithSpaceType(SlicedString::SIZE,
         JSHClass::Cast(thread_->GlobalConstants()->GetSlicedStringClass().GetTaggedObject()), type));
-#ifdef USE_CMC_GC
     JSTaggedValue hclass = thread_->GlobalConstants()->GetSlicedStringClass();
-    str->SetFullBaseClassWithoutBarrier(reinterpret_cast<BaseClass*>(hclass.GetTaggedObject()));
-#endif
+    str->SetFullBaseClassWithoutBarrier(reinterpret_cast<common::BaseClass*>(hclass.GetTaggedObject()));
     return str;
 }
 
@@ -115,10 +106,8 @@ EcmaString *ObjectFactory::AllocTreeStringObject()
     EcmaString* str = reinterpret_cast<EcmaString *>(sHeap_->AllocateOldOrHugeObject(
         thread_, JSHClass::Cast(thread_->GlobalConstants()->GetTreeStringClass().GetTaggedObject()),
         TreeString::SIZE));
-#ifdef USE_CMC_GC
     JSTaggedValue hclass = thread_->GlobalConstants()->GetTreeStringClass();
-    str->SetFullBaseClassWithoutBarrier(reinterpret_cast<BaseClass*>(hclass.GetTaggedObject()));
-#endif
+    str->SetFullBaseClassWithoutBarrier(reinterpret_cast<common::BaseClass*>(hclass.GetTaggedObject()));
     return str;
 }
 
@@ -150,11 +139,11 @@ JSHandle<JSNativePointer> ObjectFactory::NewJSNativePointer(void *externalPointe
     heap_->IncreaseNativeBindingSize(fixedNativeBindingsize);
     if (callBack != nullptr) {
         vm_->PushToNativePointerList(static_cast<JSNativePointer *>(header), isConcurrent);
-#ifndef USE_CMC_GC
         // In some cases, the size of JS/TS object is too small and the native binding size is too large.
         // Check and try trigger concurrent mark here.
-        heap_->TryTriggerFullMarkOrGCByNativeSize();
-#endif
+        if (!g_isEnableCMCGC) {
+            heap_->TryTriggerFullMarkOrGCByNativeSize();
+        }
     }
     return obj;
 }

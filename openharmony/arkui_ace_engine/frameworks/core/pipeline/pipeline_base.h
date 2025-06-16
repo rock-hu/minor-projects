@@ -719,10 +719,12 @@ public:
         return {};
     }
 
+    bool CheckIfGetTheme();
+
     template<typename T>
     bool GetDraggable()
     {
-        if (isJsCard_ || isFormRender_) {
+        if (!CheckIfGetTheme()) {
             return false;
         }
         auto theme = GetTheme<T>();
@@ -1512,6 +1514,7 @@ public:
     virtual void SetTouchAccelarate(bool isEnable) {}
     virtual void SetTouchPassThrough(bool isEnable) {}
     virtual void SetEnableSwipeBack(bool isEnable) {}
+    virtual void SetBackgroundColorModeUpdated(bool backgroundColorModeUpdated) {}
 
     bool IsSystmColorChange()
     {

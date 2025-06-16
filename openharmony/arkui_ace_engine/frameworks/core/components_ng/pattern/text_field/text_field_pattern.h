@@ -914,10 +914,6 @@ public:
         return dragContents_;
     }
 
-    void AddDragFrameNodeToManager(const RefPtr<FrameNode>& frameNode);
-
-    void RemoveDragFrameNodeFromManager(const RefPtr<FrameNode>& frameNode);
-
     bool IsDragging() const
     {
         return dragStatus_ == DragStatus::DRAGGING;
@@ -964,6 +960,7 @@ public:
     std::u16string GetPlaceHolder() const;
     uint32_t GetMaxLength() const;
     uint32_t GetMaxLines() const;
+    uint32_t GetMinLines() const;
     std::string GetInputFilter() const;
     std::string GetCopyOptionString() const;
     std::string GetInputStyleString() const;
@@ -1078,9 +1075,44 @@ public:
         underlineColor_ = underlineColor;
     }
 
+    void SetTypingUnderlineColor(const Color& normalColor)
+    {
+        userUnderlineColor_.typing = normalColor;
+    }
+
+    void ResetTypingUnderlineColor()
+    {
+        userUnderlineColor_.typing = std::nullopt;
+    }
+
     void SetNormalUnderlineColor(const Color& normalColor)
     {
         userUnderlineColor_.normal = normalColor;
+    }
+
+    void ResetNormalUnderlineColor()
+    {
+        userUnderlineColor_.normal = std::nullopt;
+    }
+
+    void SetErrorUnderlineColor(const Color& normalColor)
+    {
+        userUnderlineColor_.error = normalColor;
+    }
+
+    void ResetErrorUnderlineColor()
+    {
+        userUnderlineColor_.error = std::nullopt;
+    }
+
+    void SetDisableUnderlineColor(const Color& normalColor)
+    {
+        userUnderlineColor_.disable = normalColor;
+    }
+
+    void ResetDisableUnderlineColor()
+    {
+        userUnderlineColor_.disable = std::nullopt;
     }
 
     void SetUserUnderlineColor(UserUnderlineColor userUnderlineColor)
@@ -1620,6 +1652,7 @@ public:
     void AddInsertCommand(const std::u16string& insertValue, InputReason reason);
     void AddInputCommand(const InputCommandInfo& inputCommandInfo);
     void ExecuteInputCommand(const InputCommandInfo& inputCommandInfo);
+    void FilterInitializeText();
     void SetIsFilterChanged(bool isFilterChanged)
     {
         isFilterChanged_ = isFilterChanged;
@@ -1643,6 +1676,12 @@ public:
         imeGradientMode_ = config.gradientMode;
         imeFluidLightMode_ = config.fluidLightMode;
     }
+
+    void UpdatePropertyImpl(const std::string& key, RefPtr<PropertyValueBase> value) override;
+    void UpdateBorderResource() override;
+    void UpdateMarginResource() override;
+    void SetBackBorderRadius();
+    void OnColorModeChange(uint32_t colorMode) override;
 
 protected:
     virtual void InitDragEvent();
@@ -1779,8 +1818,6 @@ private:
     void AddTextFireOnChange();
     void RecordTextInputEvent();
 
-    void FilterInitializeText();
-
     void UpdateCaretPositionByLastTouchOffset();
     bool UpdateCaretPosition();
     void UpdateCaretRect(bool isEditorValueChanged);
@@ -1814,6 +1851,7 @@ private:
     void SetAccessibilityAction() override;
     void SetAccessibilityActionGetAndSetCaretPosition();
     void SetAccessibilityActionOverlayAndSelection();
+    void SetAccessibilityEditAction();
     void SetAccessibilityMoveTextAction();
     void SetAccessibilityErrotText();
     void SetAccessibilityClearAction();
@@ -1956,7 +1994,6 @@ private:
     bool NeedsSendFillContent();
     void UpdateSelectOverlay(const RefPtr<OHOS::Ace::TextFieldTheme>& textFieldTheme);
     void OnAccessibilityEventTextChange(const std::string& changeType, const std::string& changeString);
-    std::pair<std::string, std::string> GetTextDiffObscured(const std::string& latestContent);
     void FireOnWillAttachIME();
 
     RectF frameRect_;

@@ -158,29 +158,39 @@ bool Snapshot::DeserializeInternal(SnapshotType type, const CString &snapshotFil
         LOG_ECMA(ERROR) << "file verify failed.";
         return false;
     }
-    uintptr_t oldSpaceBegin = readFile + sizeof(SnapShotHeader);
-    uintptr_t stringBegin = oldSpaceBegin + hdr.oldSpaceObjSize + hdr.nonMovableObjSize +
-        hdr.machineCodeObjSize + hdr.snapshotObjSize + hdr.hugeObjSize;
-    uintptr_t stringEnd = stringBegin + hdr.stringSize;
     [[maybe_unused]] EcmaHandleScope stringHandleScope(vm_->GetJSThread());
-    processor.DeserializeString(stringBegin, stringEnd);
-
-    processor.DeserializeObjectExcludeString(oldSpaceBegin, hdr.oldSpaceObjSize, hdr.nonMovableObjSize,
-                                             hdr.machineCodeObjSize, hdr.snapshotObjSize, hdr.hugeObjSize);
+    if (g_isEnableCMCGC) {
+        uintptr_t regularObjBegin = readFile + sizeof(SnapShotHeader);
+        uintptr_t stringBegin = regularObjBegin + hdr.regularObjSize + hdr.pinnedObjSize + hdr.largeObjSize;
+        uintptr_t stringEnd = stringBegin + hdr.stringSize;
+        processor.DeserializeString(stringBegin, stringEnd);
+        processor.DeserializeObjectExcludeString(regularObjBegin, hdr.regularObjSize, hdr.pinnedObjSize,
+                                                 hdr.largeObjSize);
+    } else {
+        uintptr_t oldSpaceBegin = readFile + sizeof(SnapShotHeader);
+        uintptr_t stringBegin = oldSpaceBegin + hdr.oldSpaceObjSize + hdr.nonMovableObjSize +
+            hdr.machineCodeObjSize + hdr.snapshotObjSize + hdr.hugeObjSize;
+        uintptr_t stringEnd = stringBegin + hdr.stringSize;
+        processor.DeserializeString(stringBegin, stringEnd);
+        processor.DeserializeObjectExcludeString(oldSpaceBegin, hdr.oldSpaceObjSize, hdr.nonMovableObjSize,
+                                                 hdr.machineCodeObjSize, hdr.snapshotObjSize, hdr.hugeObjSize);
+    }
 
 #if !defined(CROSS_PLATFORM)
     FileUnMap(MemMap(fileMap.GetOriginAddr(), hdr.pandaFileBegin));
 #endif
     std::shared_ptr<JSPandaFile> jsPandaFile;
-    if (static_cast<uint32_t>(fileMap.GetSize()) > hdr.pandaFileBegin) {
+    if (fileMap.GetSize() > hdr.pandaFileBegin) {
         uintptr_t pandaFileMem = readFile + hdr.pandaFileBegin;
         auto pf = panda_file::File::OpenFromMemory(os::mem::ConstBytePtr(ToNativePtr<std::byte>(pandaFileMem),
-            static_cast<uint32_t>(fileMap.GetSize()) - hdr.pandaFileBegin, os::mem::MmapDeleter));
+            fileMap.GetSize() - hdr.pandaFileBegin, os::mem::MmapDeleter));
         jsPandaFile = JSPandaFileManager::GetInstance()->NewJSPandaFile(pf.release(), "");
     }
     // relocate object field
     processor.Relocate(type, jsPandaFile.get(), hdr.rootObjectSize);
     processor.AddRootObjectToAOTFileManager(type, snapshotFile);
+    // ONLY used in UT to get the deserialize value result
+    result_ = processor.GetDeserializeResultForUT();
     LOG_COMPILER(INFO) << "loaded ai file: " << snapshotFile.c_str();
     return true;
 }
@@ -225,7 +235,7 @@ bool Snapshot::Deserialize(SnapshotType type, const CString &snapshotFile, [[may
     if (found != std::string::npos) {
         fileName = fileName.substr(found + 1);
     }
-    
+
     LOG_ECMA(INFO) << "Call JsAotReader to load: " << fileName;
     if (ReadAOTCallBack(fileName, &buff, &buffSize)) {
         fileMap = MemMap(buff, buffSize);
@@ -246,7 +256,7 @@ size_t Snapshot::AlignUpPageSize(size_t spaceSize)
 void Snapshot::WriteToFile(std::fstream &writer, const JSPandaFile *jsPandaFile,
                            size_t size, SnapshotProcessor &processor)
 {
-    uint32_t totalStringSize = 0U;
+    size_t totalStringSize = 0U;
     CVector<uintptr_t> stringVector = processor.GetStringVector();
     for (size_t i = 0; i < stringVector.size(); ++i) {
         auto str = reinterpret_cast<EcmaString *>(stringVector[i]);
@@ -255,21 +265,27 @@ void Snapshot::WriteToFile(std::fstream &writer, const JSPandaFile *jsPandaFile,
         totalStringSize += objectSize;
     }
 
-    std::vector<uint32_t> objSizeVector = processor.StatisticsObjectSize();
+    std::vector<size_t> objSizeVector = processor.StatisticsObjectSize();
     size_t totalObjSize = totalStringSize;
-    for (uint32_t objSize : objSizeVector) {
+    for (size_t objSize : objSizeVector) {
         totalObjSize += objSize;
     }
-    uint32_t pandaFileBegin = RoundUp(totalObjSize + sizeof(SnapShotHeader), Constants::PAGE_SIZE_ALIGN_UP);
+    size_t pandaFileBegin = RoundUp(totalObjSize + sizeof(SnapShotHeader), Constants::PAGE_SIZE_ALIGN_UP);
     SnapShotHeader hdr(GetLastVersion());
-    hdr.oldSpaceObjSize = objSizeVector[0]; // 0: oldSpaceObj
-    hdr.nonMovableObjSize = objSizeVector[1]; // 1: nonMovableObj
-    hdr.machineCodeObjSize = objSizeVector[2]; // 2: machineCodeObj
-    hdr.snapshotObjSize = objSizeVector[3]; // 3: snapshotObj
-    hdr.hugeObjSize = objSizeVector[4]; // 4: hugeObj
+    if (g_isEnableCMCGC) {
+        hdr.regularObjSize = objSizeVector[0];  // 0: regularObj
+        hdr.pinnedObjSize = objSizeVector[1];   // 1: pinnedObj
+        hdr.largeObjSize = objSizeVector[2];     // 2: largeObj
+    } else {
+        hdr.oldSpaceObjSize = objSizeVector[0]; // 0: oldSpaceObj
+        hdr.nonMovableObjSize = objSizeVector[1]; // 1: nonMovableObj
+        hdr.machineCodeObjSize = objSizeVector[2]; // 2: machineCodeObj
+        hdr.snapshotObjSize = objSizeVector[3]; // 3: snapshotObj
+        hdr.hugeObjSize = objSizeVector[4]; // 4: hugeObj
+    }
     hdr.stringSize = totalStringSize;
     hdr.pandaFileBegin = pandaFileBegin;
-    hdr.rootObjectSize = static_cast<uint32_t>(size);
+    hdr.rootObjectSize = size;
     writer.write(reinterpret_cast<char *>(&hdr), sizeof(hdr));
     processor.WriteObjectToFile(writer);
 

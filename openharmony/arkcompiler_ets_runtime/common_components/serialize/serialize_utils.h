@@ -19,9 +19,9 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace panda {
+namespace common {
 
-enum class SerializedObjectSpace : uint8_t {
+enum class SerializedBaseObjectSpace : uint8_t {
     REGULAR_SPACE,
     PIN_SPACE,
     LARGE_SPACE,
@@ -31,8 +31,8 @@ enum class SerializedObjectSpace : uint8_t {
 
 class SerializeUtils {
 public:
-    static SerializedObjectSpace GetSerializeObjectSpace(uintptr_t obj);
+    static SerializedBaseObjectSpace GetSerializeObjectSpace(uintptr_t obj);
     static size_t GetRegionSize();
 };
-}  // namespace panda
+}  // namespace common
 #endif  // COMMON_COMPONENTS_SERIALIZE_UTILS_H

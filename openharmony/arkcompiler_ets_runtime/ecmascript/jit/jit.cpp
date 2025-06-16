@@ -14,9 +14,11 @@
  */
 
 #include "ecmascript/jit/jit.h"
+#include "ecmascript/base/config.h"
 #include "ecmascript/jit/jit_task.h"
 #include "ecmascript/dfx/vmstat/jit_warmup_profiler.h"
 #include "ecmascript/ohos/jit_tools.h"
+#include "ecmascript/platform/os.h"
 #include "ecmascript/checkpoint/thread_state_transition.h"
 
 namespace panda::ecmascript {
@@ -55,6 +57,7 @@ void Jit::SetJitEnablePostFork(EcmaVM *vm, const std::string &bundleName)
     jitEnable &= ohos::EnableAotJitListHelper::GetInstance()->IsEnableJit(bundleName);
     jitEnable &= !vm->GetJSOptions().GetAOTHasException();
     jitEnable &= ohos::JitTools::IsSupportJitCodeSigner();
+    jitEnable &= HasJitFortACL();
     if (jitEnable) {
         bool isEnableFastJit = options.IsEnableJIT() && options.GetEnableAsmInterpreter();
         bool isEnableBaselineJit = options.IsEnableBaselineJIT() && options.GetEnableAsmInterpreter();
@@ -225,13 +228,13 @@ void Jit::SetDisableCodeSign(bool isDisableCodeSign)
 
 bool Jit::IsEnableAsyncCopyToFort() const
 {
-#ifdef USE_CMC_GC
-    // async alloc needs adaption work from CMCGC
-    // Need to also modify js_runtime_options.h
-    return false;
-#else
-    return isEnableAsyncCopyToFort_;
-#endif
+    if (g_isEnableCMCGC) {
+        // async alloc needs adaption work from CMCGC
+        // Need to also modify js_runtime_options.h
+        return false;
+    } else {
+        return isEnableAsyncCopyToFort_;
+    }
 }
 
 void Jit::SetEnableAsyncCopyToFort(bool isEnableAsyncCopyToFort)
@@ -381,9 +384,9 @@ void Jit::DeleteJitCompilerTask(void *compiler)
     jitResources_->DeleteJitCompilerTask(compiler);
 }
 
-void Jit::ClearTask(const std::function<bool(Task *task)> &checkClear)
+void Jit::ClearTask(const std::function<bool(common::Task *task)> &checkClear)
 {
-    JitTaskpool::GetCurrentTaskpool()->ForEachTask([&checkClear](Task *task) {
+    JitTaskpool::GetCurrentTaskpool()->ForEachTask([&checkClear](common::Task *task) {
         JitTask::AsyncTask *asyncTask = static_cast<JitTask::AsyncTask*>(task);
         if (checkClear(asyncTask)) {
             asyncTask->Terminated();
@@ -393,7 +396,7 @@ void Jit::ClearTask(const std::function<bool(Task *task)> &checkClear)
 
 void Jit::ClearTaskWithVm(EcmaVM *vm)
 {
-    ClearTask([vm](Task *task) {
+    ClearTask([vm](common::Task *task) {
         JitTask::AsyncTask *asyncTask = static_cast<JitTask::AsyncTask*>(task);
         return vm == asyncTask->GetHostVM();
     });
@@ -443,9 +446,9 @@ void Jit::ChangeTaskPoolState(bool inBackground)
 {
     if (fastJitEnable_ || baselineJitEnable_) {
         if (inBackground) {
-            JitTaskpool::GetCurrentTaskpool()->SetThreadPriority(PriorityMode::BACKGROUND);
+            JitTaskpool::GetCurrentTaskpool()->SetThreadPriority(common::PriorityMode::BACKGROUND);
         } else {
-            JitTaskpool::GetCurrentTaskpool()->SetThreadPriority(PriorityMode::FOREGROUND);
+            JitTaskpool::GetCurrentTaskpool()->SetThreadPriority(common::PriorityMode::FOREGROUND);
         }
     }
 }

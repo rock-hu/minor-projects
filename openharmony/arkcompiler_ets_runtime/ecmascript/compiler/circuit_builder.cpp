@@ -165,6 +165,27 @@ GateRef CircuitBuilder::IsJsCOWArray(GateRef glue, GateRef obj)
     return IsCOWArray(objectType);
 }
 
+GateRef CircuitBuilder::IsJsCOWArray(GateRef glue, GateRef obj, [[maybe_unused]] const CompilationEnv *compilationEnv)
+{
+#ifdef IMPOSSIBLE
+    if (compilationEnv != nullptr && compilationEnv->SupportIntrinsic()) {
+        std::string comment = "is_js_cow_array";
+        auto currentLabel = env_->GetCurrentLabel();
+        auto currentDepend = currentLabel->GetDepend();
+        GateRef elementsOffset = Int32(JSObject::ELEMENTS_OFFSET);
+        GateRef bitfieldOffset = Int32(JSHClass::BIT_FIELD_OFFSET);
+        GateRef cowTaggedArray = Int32(static_cast<int32_t>(JSType::COW_MUTANT_TAGGED_ARRAY));
+        GateRef cowArrayLast = Int32(static_cast<int32_t>(JSType::COW_TAGGED_ARRAY));
+        GateRef isJsCowArray = GetCircuit()->NewGate(circuit_->IsJsCOWArrayIntrinsic(),
+            MachineType::I1, { currentDepend, glue, obj, elementsOffset, bitfieldOffset, cowTaggedArray, cowArrayLast},
+            GateType::NJSValue(), comment.c_str());
+        currentLabel->SetDepend(isJsCowArray);
+        return isJsCowArray;
+    }
+#endif
+    return IsJsCOWArray(glue, obj);
+}
+
 GateRef CircuitBuilder::IsCOWArray(GateRef objectType)
 {
     return BitOr(Int32Equal(objectType, Int32(static_cast<int32_t>(JSType::COW_TAGGED_ARRAY))),
@@ -537,6 +558,22 @@ GateRef CircuitBuilder::HasPendingException(GateRef glue)
     return TaggedIsNotHole(exception);
 }
 
+GateRef CircuitBuilder::HasPendingException(GateRef glue, [[maybe_unused]] const CompilationEnv *compilationEnv)
+{
+    if (compilationEnv != nullptr && compilationEnv->SupportIntrinsic()) {
+        std::string comment = "HasPendingExceptionIntrinsic";
+        auto currentLabel = env_->GetCurrentLabel();
+        auto currentDepend = currentLabel->GetDepend();
+        GateRef exceptionOffset = IntPtr(JSThread::GlueData::GetExceptionOffset(env_->IsArch32Bit()));
+        GateRef hasPendingException = GetCircuit()->NewGate(circuit_->HasPendingExceptionIntrinsic(),
+            MachineType::I1, { currentDepend, glue, exceptionOffset, Int64(JSTaggedValue::VALUE_HOLE) },
+            GateType::NJSValue(), comment.c_str());
+        currentLabel->SetDepend(hasPendingException);
+        return hasPendingException;
+    }
+    return HasPendingException(glue);
+}
+
 GateRef CircuitBuilder::IsUtf8String(GateRef string)
 {
     // compressedStringsEnabled fixed to true constant
@@ -867,11 +904,11 @@ GateRef CircuitBuilder::CheckJSType(GateRef glue, GateRef object, JSType jsType)
 GateRef CircuitBuilder::GetObjectByIndexFromConstPool(GateRef glue, GateRef hirGate, GateRef frameState, GateRef index,
                                                       ConstPoolType type)
 {
-    ArgumentAccessor argAcc(circuit_);
-    GateRef jsFunc = argAcc.GetFrameArgsIn(frameState, FrameArgIdx::FUNC);
+    ArgumentAccessor *argAcc = circuit_->GetArgumentAccessor();
+    GateRef jsFunc = argAcc->GetFrameArgsIn(frameState, FrameArgIdx::FUNC);
     GateRef module = GetModuleFromFunction(glue, jsFunc);
-    GateRef sharedConstpool = argAcc.GetFrameArgsIn(frameState, FrameArgIdx::SHARED_CONST_POOL);
-    GateRef unsharedConstPool = unsharedConstPool = argAcc.GetFrameArgsIn(frameState, FrameArgIdx::UNSHARED_CONST_POOL);
+    GateRef sharedConstpool = argAcc->GetFrameArgsIn(frameState, FrameArgIdx::SHARED_CONST_POOL);
+    GateRef unsharedConstPool = argAcc->GetFrameArgsIn(frameState, FrameArgIdx::UNSHARED_CONST_POOL);
     GateRef obj = GetObjectFromConstPool(glue, hirGate, sharedConstpool, unsharedConstPool, module, index, type);
     return obj;
 }
@@ -1040,8 +1077,8 @@ GateRef CircuitBuilder::GetBaselineCodeAddr(GateRef baselineCode)
 
 GateRef CircuitBuilder::GetHClassGateFromIndex(GateRef gate, int32_t index)
 {
-    ArgumentAccessor argAcc(circuit_);
-    GateRef unsharedConstpool = argAcc.GetFrameArgsIn(gate, FrameArgIdx::UNSHARED_CONST_POOL);
+    ArgumentAccessor *argAcc = circuit_->GetArgumentAccessor();
+    GateRef unsharedConstpool = argAcc->GetFrameArgsIn(gate, FrameArgIdx::UNSHARED_CONST_POOL);
     return LoadHClassFromConstpool(unsharedConstpool, index);
 }
 
@@ -1655,4 +1692,17 @@ GateRef CircuitBuilder::IsStableArrayLengthWriteable(GateRef glue, GateRef array
     env_->SubCfgExit();
     return ret;
 }
+
+GateRef CircuitBuilder::GetStageOfHotReload(GateRef glue)
+{
+    GateRef stageOfColdReloadOffset = IntPtr(JSThread::GlueData::GetStageOfHotReloadOffset(env_->Is32Bit()));
+    return LoadWithoutBarrier(VariableType::INT32(), glue, stageOfColdReloadOffset);
+}
+
+GateRef CircuitBuilder::IsNotLdEndExecPatchMain(GateRef glue)
+{
+    return Int32NotEqual(GetStageOfHotReload(glue),
+                         Int32(static_cast<int>(StageOfHotReload::LOAD_END_EXECUTE_PATCHMAIN)));
+}
+
 }  // namespace panda::ecmascript::kungfu

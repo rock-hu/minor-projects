@@ -275,10 +275,10 @@ JSTaggedValue BuiltinsArkTools::CurrentEnvIsGlobal(EcmaRuntimeCallInfo *info)
 
 JSTaggedValue BuiltinsArkTools::ForceFullGC(EcmaRuntimeCallInfo *info)
 {
-#ifdef USE_CMC_GC
-    BaseRuntime::RequestGC(GcType::FULL);
-    return JSTaggedValue::True();
-#endif
+    if (g_isEnableCMCGC) {
+        common::BaseRuntime::RequestGC(common::GcType::FULL);
+        return JSTaggedValue::True();
+    }
     ASSERT(info);
     JSThread *thread = info->GetThread();
     std::string data = JsStackInfo::BuildJsStackTrace(thread, true);
@@ -299,9 +299,10 @@ JSTaggedValue BuiltinsArkTools::ForceLazyDeopt(EcmaRuntimeCallInfo *info)
     RETURN_IF_DISALLOW_ARKTOOLS(thread);
     [[maybe_unused]] EcmaHandleScope handleScope(thread);
 
-    ASSERT(info->GetArgsNumber() == 2);  // 2 : object and exception-flag
+    ASSERT(info->GetArgsNumber() == 3);  // 3 : object, lazy-deopt-type, exception-flag
 
     JSHandle<JSTaggedValue> object = GetCallArg(info, 0);
+    int type = GetCallArg(info, 1)->GetInt();
     if (!object->IsHeapObject()) {
         return JSTaggedValue::Undefined();
     }
@@ -312,8 +313,8 @@ JSTaggedValue BuiltinsArkTools::ForceLazyDeopt(EcmaRuntimeCallInfo *info)
     }
     JSHandle<DependentInfos> infosHandle(thread, infos);
     DependentInfos::DeoptimizeGroups(
-        infosHandle, thread, DependentInfos::DependentGroup::PROTOTYPE_CHECK);
-    if (GetCallArg(info, 1)->IsTrue()) {
+        infosHandle, thread, static_cast<DependentInfos::DependentGroup>(type));
+    if (GetCallArg(info, 2)->IsTrue()) {    // 2 : Has exception
         THROW_TYPE_ERROR_AND_RETURN(thread, "user-defined exception", JSTaggedValue::Exception());
     }
     return JSTaggedValue::True();
@@ -1709,5 +1710,12 @@ JSTaggedValue BuiltinsArkTools::CreateNapiObject(EcmaRuntimeCallInfo *msg)
     ObjectFactory *factory = thread->GetEcmaVM()->GetFactory();
     JSHandle<JSObject> jsObject(factory->CreateNapiObject());
     return jsObject.GetTaggedValue();
+}
+
+JSTaggedValue BuiltinsArkTools::SetHotReloadPatchMain(EcmaRuntimeCallInfo *info)
+{
+    JSThread *thread = info->GetThread();
+    thread->SetStageOfHotReload(StageOfHotReload::LOAD_END_EXECUTE_PATCHMAIN);
+    return JSTaggedValue::Undefined();
 }
 } // namespace panda::ecmascript::builtins

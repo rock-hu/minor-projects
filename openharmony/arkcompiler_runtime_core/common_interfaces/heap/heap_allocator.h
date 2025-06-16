@@ -20,7 +20,7 @@
 #include <cstdint>
 #include "objects/base_state_word.h"
 
-namespace panda {
+namespace common {
 using Address32 = uint32_t;
 using Address = uint64_t;
 
@@ -32,7 +32,7 @@ public:
     static Address AllocateInOld(size_t size, LanguageType language);
     static Address AllocateInHuge(size_t size, LanguageType language);
     static Address AllocateInReadOnly(size_t size, LanguageType language);
-    static Address AllocateLargeJitFortRegion(size_t size, LanguageType language);
+    static uintptr_t AllocateLargeJitFortRegion(size_t size, LanguageType language);
     // below are interfaces used for serialize
     static Address AllocateNoGC(size_t size);
     static Address AllocatePinNoGC(size_t size);
@@ -40,5 +40,5 @@ public:
     static Address AllocatePinnedRegion();
     static Address AllocateLargeRegion(size_t size);
 };
-}  // namespace panda
+}  // namespace common
 #endif  // COMMON_INTERFACES_HEAP_ALLOCATOR_H

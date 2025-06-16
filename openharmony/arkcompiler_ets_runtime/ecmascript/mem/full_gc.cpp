@@ -27,9 +27,7 @@ FullGC::FullGC(Heap *heap) : heap_(heap), workManager_(heap->GetWorkManager()) {
 
 void FullGC::RunPhases()
 {
-#ifdef USE_CMC_GC
-    ASSERT("FullGC should be disabled" && false);
-#endif
+    ASSERT("FullGC should be disabled" && !g_isEnableCMCGC);
     GCStats *gcStats = heap_->GetEcmaVM()->GetEcmaGCStats();
     ECMA_BYTRACE_NAME(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, ("FullGC::RunPhases;GCReason"
         + std::to_string(static_cast<int>(gcStats->GetGCReason()))
@@ -128,7 +126,7 @@ void FullGC::Sweep()
     // process weak reference
     uint32_t totalThreadCount = 1; // 1 : mainthread
     if (heap_->IsParallelGCEnabled()) {
-        totalThreadCount += Taskpool::GetCurrentTaskpool()->GetTotalThreadNum();
+        totalThreadCount += common::Taskpool::GetCurrentTaskpool()->GetTotalThreadNum();
     }
     for (uint32_t i = 0; i < totalThreadCount; i++) {
         ProcessQueue *queue = workManager_->GetWorkNodeHolder(i)->GetWeakReferenceQueue();

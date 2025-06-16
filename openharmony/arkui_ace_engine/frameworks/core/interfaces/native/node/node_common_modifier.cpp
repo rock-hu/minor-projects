@@ -1201,11 +1201,35 @@ void SetAlign(ArkUINodeHandle node, ArkUI_Int32 align)
     ViewAbstract::SetAlign(frameNode, alignment);
 }
 
+void SetLocalizedAlign(ArkUINodeHandle node, ArkUI_CharPtr align)
+{
+    auto* frameNode = reinterpret_cast<FrameNode*>(node);
+    CHECK_NULL_VOID(frameNode);
+    std::string localizedAlignment(align);
+    ViewAbstract::SetAlign(localizedAlignment);
+    ViewAbstract::SetIsMirrorable(true);
+}
+
 void ResetAlign(ArkUINodeHandle node)
 {
     auto* frameNode = reinterpret_cast<FrameNode*>(node);
     CHECK_NULL_VOID(frameNode);
     ViewAbstract::SetAlign(frameNode, Alignment::CENTER);
+}
+
+void SetLayoutGravity(ArkUINodeHandle node, ArkUI_CharPtr align)
+{
+    auto* frameNode = reinterpret_cast<FrameNode*>(node);
+    CHECK_NULL_VOID(frameNode);
+    Alignment alignment = BoxLayoutAlgorithm::MapLocalizedToAlignment(align);
+    ViewAbstract::SetLayoutGravity(frameNode, alignment);
+}
+
+void ResetLayoutGravity(ArkUINodeHandle node)
+{
+    auto* frameNode = reinterpret_cast<FrameNode*>(node);
+    CHECK_NULL_VOID(frameNode);
+    ViewAbstract::SetLayoutGravity(frameNode, Alignment::CENTER);
 }
 
 void SetBackdropBlur(ArkUINodeHandle node, ArkUI_Float32 value, const ArkUI_Float32* blurValues,
@@ -2002,6 +2026,7 @@ void SetBackgroundImagePositionUpdateFunc(
     auto* bgImage = reinterpret_cast<ResourceObject*>(bgImageRawPtr);
     auto resObj = AceType::Claim(bgImage);
     auto&& updateFunc = [direction](const RefPtr<ResourceObject>& resObj, BackgroundImagePosition& position) {
+        CHECK_NULL_VOID(resObj);
         CalcDimension dimension;
         double value;
         DimensionUnit type;
@@ -2017,8 +2042,9 @@ void SetBackgroundImagePositionUpdateFunc(
         (direction == "x") ? position.SetSizeX(AnimatableDimension(value, type, option))
                            : position.SetSizeY(AnimatableDimension(value, type, option));
     };
-    (direction == "x") ? bgImgPosition.AddResource("backgroundImagePositionX", resObj, std::move(updateFunc))
-                       : bgImgPosition.AddResource("backgroundImagePositionY", resObj, std::move(updateFunc));
+    auto& updater = bgImgPosition.GetResObjUpdater();
+    (direction == "x") ? updater.AddResource("backgroundImagePositionX", resObj, std::move(updateFunc))
+                       : updater.AddResource("backgroundImagePositionY", resObj, std::move(updateFunc));
 }
 
 void SetBackgroundImagePosition(ArkUINodeHandle node, const ArkUI_Float32* values, const ArkUI_Int32* types,
@@ -2050,19 +2076,16 @@ void ResetBackgroundImagePosition(ArkUINodeHandle node)
     ViewAbstract::SetBackgroundImagePosition(frameNode, bgImgPosition, true);
 }
 
-void SetBackgroundImageResizableUpdateFunc(ImageResizableSlice& resizable, void* bgImageResizableRawPtr, ResizableOption direction)
+void SetBackgroundImageResizableUpdateFunc(
+    ImageResizableSlice& resizable, const RefPtr<ResourceObject> resObj, ResizableOption direction)
 {
-    CHECK_NULL_VOID(bgImageResizableRawPtr);
-    auto* bgImageResizable = reinterpret_cast<ResourceObject*>(bgImageResizableRawPtr);
-    auto resObj = AceType::Claim(bgImageResizable);
+    CHECK_NULL_VOID(resObj);
     auto&& updateFunc = [direction](const RefPtr<ResourceObject>& resObj, ImageResizableSlice& resizable) {
-        std::optional<CalcDimension> optDimension;
+        CHECK_NULL_VOID(resObj);
+        std::optional<CalcDimension> optDimension(CalcDimension(0.0));
         CalcDimension dimension(CalcDimension(0.0));
-        CalcDimension defaultDimension(CalcDimension(0.0));
         if (ResourceParseUtils::ParseResDimensionVp(resObj, dimension)) {
             optDimension = dimension;
-        } else {
-            optDimension = defaultDimension;
         }
 
         auto hasValue = optDimension.has_value();
@@ -2103,8 +2126,8 @@ void SetBackgroundImageResizableUpdateFunc(ImageResizableSlice& resizable, void*
     }
 }
 
-void SetResizableFromVec(
-    ImageResizableSlice& resizable, const ArkUIStringAndFloat* options, std::vector<void*>& bgImageResizableArray)
+void SetResizableFromVec(ImageResizableSlice& resizable, const ArkUIStringAndFloat* options,
+    std::vector<RefPtr<ResourceObject>>& bgImageResizableArray)
 {
     std::vector<ResizableOption> directions = { ResizableOption::LEFT, ResizableOption::TOP, ResizableOption::RIGHT,
         ResizableOption::BOTTOM };
@@ -2122,11 +2145,13 @@ void SetResizableFromVec(
 }
 
 void SetBackgroundImageResizable(
-    ArkUINodeHandle node, ArkUIStringAndFloat* options, ArkUI_Int32 optionsSize,
-    std::vector<void*>& bgImageResizableArray)
+    ArkUINodeHandle node, ArkUIStringAndFloat* options, ArkUI_Int32 optionsSize, void* bgImageResizableResObjs)
 {
     auto* frameNode = reinterpret_cast<FrameNode*>(node);
     CHECK_NULL_VOID(frameNode);
+
+    auto bgImageResizableArray =
+        *(static_cast<const std::vector<RefPtr<ResourceObject>>*>(bgImageResizableResObjs));
     ImageResizableSlice resizable;
     SetResizableFromVec(resizable, options, bgImageResizableArray);
     ViewAbstract::SetBackgroundImageResizableSlice(frameNode, resizable);
@@ -7527,7 +7552,10 @@ const ArkUICommonModifier* GetCommonModifier()
         .setOpacity = SetOpacity,
         .resetOpacity = ResetOpacity,
         .setAlign = SetAlign,
+        .setLocalizedAlign = SetLocalizedAlign,
         .resetAlign = ResetAlign,
+        .setLayoutGravity = SetLayoutGravity,
+        .resetLayoutGravity = ResetLayoutGravity,
         .setBackdropBlur = SetBackdropBlur,
         .resetBackdropBlur = ResetBackdropBlur,
         .setHueRotate = SetHueRotate,
@@ -7991,6 +8019,8 @@ const CJUICommonModifier* GetCJUICommonModifier()
         .resetOpacity = ResetOpacity,
         .setAlign = SetAlign,
         .resetAlign = ResetAlign,
+        .setLayoutGravity = SetLayoutGravity,
+        .resetLayoutGravity = ResetLayoutGravity,
         .setBackdropBlur = SetBackdropBlur,
         .resetBackdropBlur = ResetBackdropBlur,
         .setHueRotate = SetHueRotate,
@@ -8338,8 +8368,8 @@ const CJUICommonModifier* GetCJUICommonModifier()
         .getExpandSafeArea = GetExpandSafeArea,
         .setTransition = SetTransition,
         .setDragPreview = SetDragPreview,
-        .resetDragPreview = ResetDragPreview,
         .freezeUINodeById = FreezeUINodeById,
+        .resetDragPreview = ResetDragPreview,
         .freezeUINodeByUniqueId = FreezeUINodeByUniqueId,
     };
     CHECK_INITIALIZED_FIELDS_END(modifier, 0, 0, 0); // don't move this line

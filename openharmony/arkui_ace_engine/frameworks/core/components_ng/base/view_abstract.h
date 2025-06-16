@@ -185,16 +185,16 @@ public:
     static void SetLayoutDirection(TextDirection value);
     static void RequestFrame();
     static void SetBackgroundColor(const Color &color);
-    static void SetBackgroundColorWithResourceObj(const RefPtr<ResourceObject>& resObj);
+    static void SetBackgroundColorWithResourceObj(const Color& color, const RefPtr<ResourceObject>& resObj);
     static void SetBackgroundImage(const ImageSourceInfo &src);
-    static void SetBackgroundImageWithResourceObj(
-        const RefPtr<ResourceObject> &resObj, std::string &bundleName, std::string &moduleName);
+    static void SetBackgroundImageWithResourceObj(const RefPtr<ResourceObject>& resObj, const ImageSourceInfo& src);
     static void SetBackgroundImageRepeat(const ImageRepeat &imageRepeat);
     static void SetBackgroundImageSyncMode(bool syncMode);
     static void SetBackgroundImageSize(BackgroundImageSize &bgImgSize);
     static void SetBackgroundImageSizeUpdateFunc(
         BackgroundImageSize& bgImgSize, const RefPtr<ResourceObject>& resObj, const std::string direction);
     static void SetBackgroundImagePosition(BackgroundImagePosition &bgImgPosition);
+    static void ClearResObj(const std::string resObjName);
     static void SetBackgroundBlurStyle(const BlurStyleOption& bgBlurStyle, const SysOptions& sysOptions = SysOptions());
     static void SetMotionBlur(const MotionBlurOption& motionBlurOption);
     static void SetBackgroundEffect(const EffectOption& effectOption, const SysOptions& sysOptions = SysOptions());
@@ -315,6 +315,9 @@ public:
 
     // layout
     static void SetAlign(Alignment alignment);
+    static void SetAlign(std::string localizedAlignment);
+    static void SetLayoutGravity(Alignment alignment);
+    static void SetIsMirrorable(bool isMirrorable);
     static void SetAlignRules(const std::map<AlignDirection, AlignRule> &alignRules);
     static void SetChainStyle(const ChainInfo& chainInfo);
     static void SetBias(const BiasPair& biasPair);
@@ -658,6 +661,7 @@ public:
     static void SetOpacity(FrameNode* frameNode, double opacity);
     static void SetZIndex(FrameNode* frameNode, int32_t value);
     static void SetAlign(FrameNode* frameNode, Alignment alignment);
+    static void SetLayoutGravity(FrameNode* frameNode, Alignment alignment);
     static void SetBackdropBlur(FrameNode* frameNode, const Dimension& radius, const BlurOption& blurOption,
         const SysOptions& sysOptions = SysOptions());
     static void SetNodeBackdropBlur(FrameNode* frameNode, const Dimension& radius, const BlurOption& blurOption);
@@ -1030,8 +1034,6 @@ public:
     static std::vector<float> GetRenderNodePropertyValue(FrameNode* frameNode, AnimationPropertyType property);
     static void UpdatePopupParamRescource(const RefPtr<PopupParam>& param, const RefPtr<FrameNode>& frameNode);
 private:
-    static void AddDragFrameNodeToManager();
-    static void AddDragFrameNodeToManager(FrameNode* frameNode);
     static void AddOverlayToFrameNode(const RefPtr<NG::FrameNode>& overlayNode,
         const std::optional<Alignment>& align, const std::optional<Dimension>& offsetX,
         const std::optional<Dimension>& offsetY);

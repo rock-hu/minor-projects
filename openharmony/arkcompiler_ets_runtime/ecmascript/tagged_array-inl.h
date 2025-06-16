@@ -28,14 +28,15 @@ inline void TaggedArray::Set(const JSThread *thread, uint32_t idx, const T &valu
 
     if constexpr (std::is_same_v<T, JSTaggedValue>) {
         if (needBarrier && value.IsHeapObject()) {
-            Barriers::SetObject<true>(thread, GetData(), offset, value.GetRawData());
+            Barriers::SetObject<true>(thread, reinterpret_cast<void*>(this), offset + DATA_OFFSET, value.GetRawData());
         } else {
             Barriers::SetPrimitive<JSTaggedType>(GetData(), offset, value.GetRawData());
         }
     } else if constexpr (IsJSHandle<T>::value) {
         auto taggedValue = value.GetTaggedValue();
         if (taggedValue.IsHeapObject()) {
-            Barriers::SetObject<true>(thread, GetData(), offset, taggedValue.GetRawData());
+            Barriers::SetObject<true>(thread, reinterpret_cast<void*>(this),
+                                      offset + DATA_OFFSET, taggedValue.GetRawData());
         } else {
             Barriers::SetPrimitive<JSTaggedType>(GetData(), offset, taggedValue.GetRawData());
         }

@@ -50,6 +50,10 @@ void AniTextDecoderFuzzTest(const char *data, size_t size)
         return;
     }
 
+    if (size > MAX_INPUT_SIZE) {
+        size = MAX_INPUT_SIZE;
+    }
+
     TextDecoderEngine *engine = TextDecoderEngine::GetInstance();
     engine->AniTextDecoder(data, 0, size, true);
     engine->AniTextDecoder(data, 0, size, false);

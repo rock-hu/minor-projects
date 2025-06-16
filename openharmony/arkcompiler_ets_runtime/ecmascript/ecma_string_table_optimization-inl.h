@@ -24,16 +24,37 @@
 namespace panda::ecmascript {
 #if ENABLE_NEXT_OPTIMIZATION
 
+template <typename Traits>
 template <typename LoaderCallback, typename EqualsCallback>
-EcmaString *EcmaStringTable::GetOrInternString(EcmaVM *vm, uint32_t hashcode, LoaderCallback loaderCallback,
-                                               EqualsCallback equalsCallback)
+EcmaString* EcmaStringTableImpl<Traits>::GetOrInternString(EcmaVM* vm, uint32_t hashcode, LoaderCallback loaderCallback,
+                                                           EqualsCallback equalsCallback)
 {
-    BaseString *result = stringTable_.LoadOrStore<true>(vm->GetJSThread(), hashcode, loaderCallback, equalsCallback);
+    ThreadType* holder = GetThreadHolder(vm->GetJSThread());
+    BaseString *result = stringTable_.template LoadOrStore<true>(holder, hashcode, loaderCallback, equalsCallback);
     ASSERT(result != nullptr);
     return EcmaString::FromBaseString(result);
 }
 
-inline void StringTableMutex::LockWithThreadState(JSThread* thread)
+template <typename LoaderCallback, typename EqualsCallback>
+EcmaString* EcmaStringTable::GetOrInternString(EcmaVM* vm, uint32_t hashcode, LoaderCallback loaderCallback,
+                                               EqualsCallback equalsCallback)
+{
+    return visitImpl([&](auto& impl) {
+        return impl.GetOrInternString(vm, hashcode, loaderCallback, equalsCallback);
+    });
+}
+
+template <typename Traits>
+typename EcmaStringTableImpl<Traits>::ThreadType* EcmaStringTableImpl<Traits>::GetThreadHolder(JSThread* thread)
+{
+    if constexpr (Traits::EnableCMCGC) {
+        return thread->GetThreadHolder();
+    } else {
+        return thread;
+    }
+}
+
+inline void EcmaStringTableMutex::LockWithThreadState(JSThread* thread)
 {
     return RuntimeLock(thread, mtx_);
 }

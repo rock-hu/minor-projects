@@ -32,7 +32,6 @@ public:
     TypeInfoAccessor(const CompilationEnv *env, Circuit* circuit, GateRef gate)
         : compilationEnv_(env),
           acc_(circuit),
-          argAcc_(circuit),
           gate_(gate)
     {
         pgoType_ = acc_.TryGetPGOType(gate);
@@ -129,7 +128,6 @@ protected:
 
     const CompilationEnv *compilationEnv_ {nullptr};
     GateAccessor acc_;
-    ArgumentAccessor argAcc_;
     GateRef gate_;
     PGOTypeRef pgoType_;
     // NOTICE-PGO: wx delete in part3
@@ -2103,24 +2101,70 @@ protected:
     ChunkVector<ProfileType> types_;
 };
 
-class LoadBulitinObjTypeInfoAccessor final : public AccBuiltinObjTypeInfoAccessor {
+class LoadBuiltinObjTypeInfoAccessor final : public AccBuiltinObjTypeInfoAccessor {
 public:
-    LoadBulitinObjTypeInfoAccessor(const CompilationEnv *env,
+    class AccessorStrategy {
+    public:
+        virtual void FetchPGORWTypesDual() = 0;
+        virtual JSHClass* GetReceiverHClass(size_t index) const = 0;
+    };
+
+    class AotAccessorStrategy : public AccessorStrategy {
+    public:
+        explicit AotAccessorStrategy(LoadBuiltinObjTypeInfoAccessor &parent) : parent_(parent) {}
+
+        JSHClass* GetReceiverHClass([[maybe_unused]] size_t index) const override
+        {
+            LOG_FULL(FATAL) << "Aot should not get receiver hclass";
+            UNREACHABLE();
+        }
+
+        void FetchPGORWTypesDual() override;
+    private:
+        [[maybe_unused]] LoadBuiltinObjTypeInfoAccessor &parent_;
+    };
+
+    class JitAccessorStrategy : public AccessorStrategy {
+    public:
+        explicit JitAccessorStrategy(LoadBuiltinObjTypeInfoAccessor &parent) : parent_(parent) {}
+
+        JSHClass* GetReceiverHClass(size_t index) const override
+        {
+            return parent_.jitTypes_[index].GetReceiverHclass();
+        }
+
+        void FetchPGORWTypesDual() override;
+    private:
+        LoadBuiltinObjTypeInfoAccessor &parent_;
+    };
+    LoadBuiltinObjTypeInfoAccessor(const CompilationEnv *env,
                                    Circuit *circuit,
                                    GateRef gate,
                                    Chunk *chunk);
-    NO_COPY_SEMANTIC(LoadBulitinObjTypeInfoAccessor);
-    NO_MOVE_SEMANTIC(LoadBulitinObjTypeInfoAccessor);
+    NO_COPY_SEMANTIC(LoadBuiltinObjTypeInfoAccessor);
+    NO_MOVE_SEMANTIC(LoadBuiltinObjTypeInfoAccessor);
+
+    JSHClass* GetReceiverHClass(size_t index) const
+    {
+        return strategy_->GetReceiverHClass(index);
+    }
+
+private:
+    AccessorStrategy* strategy_;
+    ChunkVector<pgo::PGOObjectInfo> jitTypes_;
+    
+    friend class AotAccessorStrategy;
+    friend class JitAccessorStrategy;
 };
 
-class StoreBulitinObjTypeInfoAccessor final : public AccBuiltinObjTypeInfoAccessor {
+class StoreBuiltinObjTypeInfoAccessor final : public AccBuiltinObjTypeInfoAccessor {
 public:
-    StoreBulitinObjTypeInfoAccessor(const CompilationEnv *env,
+    StoreBuiltinObjTypeInfoAccessor(const CompilationEnv *env,
                                     Circuit *circuit,
                                     GateRef gate,
                                     Chunk *chunk);
-    NO_COPY_SEMANTIC(StoreBulitinObjTypeInfoAccessor);
-    NO_MOVE_SEMANTIC(StoreBulitinObjTypeInfoAccessor);
+    NO_COPY_SEMANTIC(StoreBuiltinObjTypeInfoAccessor);
+    NO_MOVE_SEMANTIC(StoreBuiltinObjTypeInfoAccessor);
 
     bool ValueIsNumberType() const
     {

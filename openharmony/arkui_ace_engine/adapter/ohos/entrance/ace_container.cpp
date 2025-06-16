@@ -3329,7 +3329,9 @@ void AceContainer::UpdateColorMode(uint32_t colorMode)
 
 void AceContainer::CheckForceVsync(const ParsedConfig& parsedConfig)
 {
+    // the application is in the background and the dark and light colors are switched.
     if (pipelineContext_ && !pipelineContext_->GetOnShow() && !parsedConfig.colorMode.empty()) {
+        pipelineContext_->SetBackgroundColorModeUpdated(true);
         auto window = pipelineContext_->GetWindow();
         if (window) {
             window->SetForceVsyncRequests(true);
@@ -3421,10 +3423,49 @@ void AceContainer::NotifyConfigToSubContainers(const ParsedConfig& parsedConfig,
     }
 }
 
+void AceContainer::FlushReloadTask(bool needReloadTransition, const ConfigurationChange& configurationChange)
+{
+    auto pipeline = GetPipelineContext();
+    CHECK_NULL_VOID(pipeline);
+    auto themeManager = pipeline->GetThemeManager();
+    CHECK_NULL_VOID(themeManager);
+    if (configurationChange.directionUpdate &&
+        (themeManager->GetResourceLimitKeys() & DIRECTION_KEY) == 0) {
+        return;
+    }
+    if (configurationChange.colorModeUpdate && !IsUseCustomBg() &&
+        !IsTransparentBg()) {
+        pipeline->SetAppBgColor(themeManager->GetBackgroundColor());
+    }
+    pipeline->NotifyConfigurationChange();
+    pipeline->FlushReload(configurationChange);
+    if (needReloadTransition) {
+        // reload transition animation
+        pipeline->FlushReloadTransition();
+    }
+    pipeline->ChangeDarkModeBrightness();
+}
+
 void AceContainer::NotifyConfigurationChange(bool needReloadTransition, const ConfigurationChange& configurationChange)
 {
     auto taskExecutor = GetTaskExecutor();
     CHECK_NULL_VOID(taskExecutor);
+    if (useStageModel_) {
+        taskExecutor->PostTask(
+            [instanceId = instanceId_, weak = WeakClaim(this), needReloadTransition, configurationChange]() {
+                ContainerScope scope(instanceId);
+                auto container = weak.Upgrade();
+                CHECK_NULL_VOID(container);
+                auto frontend = container->GetFrontend();
+                if (frontend) {
+                    LOGI("AceContainer UpdateConfiguration frontend MarkNeedUpdate");
+                    frontend->FlushReload();
+                }
+                container->FlushReloadTask(needReloadTransition, configurationChange);
+                },
+            TaskExecutor::TaskType::UI, "ArkUINotifyConfigurationChange", PriorityType::VIP);
+        return;
+    }
     taskExecutor->PostTask(
         [instanceId = instanceId_, weak = WeakClaim(this), needReloadTransition, configurationChange]() {
             ContainerScope scope(instanceId);
@@ -3442,25 +3483,7 @@ void AceContainer::NotifyConfigurationChange(bool needReloadTransition, const Co
                     ContainerScope scope(instanceId);
                     auto container = weak.Upgrade();
                     CHECK_NULL_VOID(container);
-                    auto pipeline = container->GetPipelineContext();
-                    CHECK_NULL_VOID(pipeline);
-                    auto themeManager = pipeline->GetThemeManager();
-                    CHECK_NULL_VOID(themeManager);
-                    if (configurationChange.directionUpdate &&
-                        (themeManager->GetResourceLimitKeys() & DIRECTION_KEY) == 0) {
-                        return;
-                    }
-                    if (configurationChange.colorModeUpdate && !container->IsUseCustomBg() &&
-                        !container->IsTransparentBg()) {
-                        pipeline->SetAppBgColor(themeManager->GetBackgroundColor());
-                    }
-                    pipeline->NotifyConfigurationChange();
-                    pipeline->FlushReload(configurationChange);
-                    if (needReloadTransition) {
-                        // reload transition animation
-                        pipeline->FlushReloadTransition();
-                    }
-                    pipeline->ChangeDarkModeBrightness();
+                    container->FlushReloadTask(needReloadTransition, configurationChange);
                 },
                 TaskExecutor::TaskType::UI, "ArkUIFlushReloadTransition");
         },

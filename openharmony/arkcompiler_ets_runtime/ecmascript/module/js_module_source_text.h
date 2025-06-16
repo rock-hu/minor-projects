@@ -80,11 +80,22 @@ public:
             return lhs->GetAsyncEvaluatingOrdinal() < rhs->GetAsyncEvaluatingOrdinal();
         }
     };
+    struct MutableFields {
+        JSTaggedValue TopLevelCapability;
+        JSTaggedValue NameDictionary;
+        JSTaggedValue CycleRoot;
+        JSTaggedValue AsyncParentModules;
+        JSTaggedValue SendableEnv;
+        JSTaggedValue Exception;
+        JSTaggedValue Namespace;
+    };
     using AsyncParentCompletionSet =
       CSet<JSHandle<SourceTextModule>, AsyncEvaluatingOrdinalCompare>;
 
     CAST_CHECK(SourceTextModule, IsSourceTextModule);
 
+    static void StoreAndResetMutableFields(JSThread *thread, JSHandle<SourceTextModule> module, MutableFields &fields);
+    static void RestoreMutableFields(JSThread *thread, JSHandle<SourceTextModule> module, MutableFields &fields);
     // 15.2.1.16.2 GetExportedNames(exportStarSet)
     static CVector<std::string> GetExportedNames(JSThread *thread, const JSHandle<SourceTextModule> &module,
                                                  const JSHandle<TaggedArray> &exportStarSet);
@@ -292,6 +303,23 @@ public:
         SetEcmaModuleRecordName(ToUintPtr(nullptr));
     }
 
+    inline void SetLazyImportArrayForDeserialize(bool *lazyImportArray)
+    {
+        SetLazyImportStatus(ToUintPtr(lazyImportArray));
+    }
+
+    inline void SetEcmaModuleFilenameStringForDeserialize(const CString &fileName)
+    {
+        CString *ptr = new CString(fileName);
+        SetEcmaModuleFilename(ToUintPtr(ptr));
+    }
+
+    inline void SetEcmaModuleRecordNameStringForDeserialize(const CString &recordName)
+    {
+        CString *ptr = new CString(recordName);
+        SetEcmaModuleRecordName(ToUintPtr(ptr));
+    }
+
     static constexpr size_t SOURCE_TEXT_MODULE_OFFSET = ModuleRecord::SIZE;
     ACCESSORS(Environment, SOURCE_TEXT_MODULE_OFFSET, NAMESPACE_OFFSET);
     ACCESSORS(Namespace, NAMESPACE_OFFSET, MODULE_REQUESTS_OFFSET);
@@ -393,9 +421,8 @@ public:
     static void SetExportName(JSThread *thread, const JSHandle<SourceTextModule> requestedModule,
                               CVector<std::string> &exportedNames, JSHandle<TaggedArray> &newExportStarSet);
     static void RecordEvaluatedOrError(JSThread *thread, JSHandle<SourceTextModule> module);
-    static JSHandle<SourceTextModule> GetRequestedModuleFromCache(JSThread *thread,
-                                                                  const JSHandle<TaggedArray> requestedModules,
-                                                                  uint32_t idx);
+    static JSHandle<SourceTextModule> GetModuleFromCacheOrResolveNewOne(JSThread *thread,
+        const JSHandle<SourceTextModule> module, const JSHandle<TaggedArray> requestedModules, uint32_t idx);
     static bool PreModuleInstantiation(JSThread *thread,
                                        JSHandle<SourceTextModule> module,
                                        const ExecuteTypes &executeType);
@@ -442,10 +469,14 @@ private:
     static void HandleErrorStack(JSThread *thread, const CVector<JSHandle<SourceTextModule>> &errorStack);
     static void SetExceptionToModule(JSThread *thread, JSHandle<SourceTextModule> module,
                                      JSTaggedValue exception);
-    static JSHandle<SourceTextModule> GetModuleFromCacheOrResolveNewOne(JSThread *thread,
-        const JSHandle<SourceTextModule> module, const JSHandle<TaggedArray> requestedModules, uint32_t idx);
     static JSHandle<JSTaggedValue> GetRequestedModuleMayThrowError(JSThread *thread,
-        const JSHandle<TaggedArray> requestedModules, uint32_t idx, JSHandle<JSTaggedValue> exception);
+                                                                   const JSHandle<SourceTextModule> module,
+                                                                   uint32_t idx,
+                                                                   const JSHandle<TaggedArray> requestedModules,
+                                                                   JSHandle<JSTaggedValue> exception);
+    static void SetRequestedModules(JSThread *thread, JSHandle<TaggedArray> requestedModules,
+                                    uint32_t idx, JSHandle<JSTaggedValue> requiredModule, bool isShared);
+
     friend class EcmaModuleTest;
     friend class SharedModuleManager;
 };

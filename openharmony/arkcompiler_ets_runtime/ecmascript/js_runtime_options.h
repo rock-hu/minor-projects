@@ -22,6 +22,7 @@
 #include <vector>
 #include <set>
 
+#include "common_components/base_runtime/base_runtime_param.h"
 #include "common_components/log/log_base.h"
 #include "common_interfaces/base/common.h"
 #include "common_interfaces/base/runtime_param.h"
@@ -63,12 +64,14 @@ enum ArkProperties {
     CPU_PROFILER_ANY_TIME_WORKER_THREAD = 1 << 18,
     ENABLE_HEAP_VERIFY = 1 << 19,
     ENABLE_MICROJOB_TRACE = 1 << 20,
+    ENABLE_MULTI_CONTEXT = 1 << 21,
     // Use DISABLE to adapt to the exsiting ArkProperties in testing scripts.
     DISABLE_SHARED_CONCURRENT_MARK = 1 << 22,
     ENABLE_ESM_TRACE = 1 << 24,
     ENABLE_MODULE_LOG = 1 << 25,
     ENABLE_SERIALIZATION_TIMEOUT_CHECK = 1 << 26,
     ENABLE_PAGETAG_THREAD_ID = 1 << 27,
+    ENABLE_JSPANDAFILE_MODULE_SNAPSHOT = 1 << 28,
     ENABLE_MODULE_EXCEPTION = 1 << 29,
     ENABLE_PENDING_CHEAK = 1 << 30,
     ENABLE_RAWHEAP_CROP = 1 << 31,
@@ -92,6 +95,7 @@ enum CommandValues {
     OPTION_ENABLE_ARK_TOOLS,
     OPTION_STUB_FILE,
     OPTION_ENABLE_FORCE_GC,
+    OPTION_ENABLE_CMC_GC,
     OPTION_FORCE_FULL_GC,
     OPTION_ENABLE_FORCE_SHARED_GC_FREQUENCY,
     OPTION_ARK_PROPERTIES,
@@ -240,6 +244,7 @@ enum CommandValues {
     OPTION_COMPILER_JIT_METHOD_DICHOTOMY,
     OPTION_COMPILER_JIT_METHOD_PATH,
     OPTION_MEM_CONFIG,
+    OPTION_MULTI_CONTEXT,
 
     // OPTION_LAST should at the last
     OPTION_LAST,
@@ -252,9 +257,9 @@ public:
     DEFAULT_COPY_SEMANTIC(JSRuntimeOptions);
     DEFAULT_MOVE_SEMANTIC(JSRuntimeOptions);
 
-    LogOptions GetLogOptions() const
+    common::LogOptions GetLogOptions() const
     {
-        LogOptions option;
+        common::LogOptions option;
         // For ArkTS runtime log
         if (WasSetLogFatal()) {
             option.level = Level::FATAL;
@@ -279,7 +284,7 @@ public:
         return option;
     }
 
-    RuntimeParam GetRuntimeParam() const
+    common::RuntimeParam GetRuntimeParam() const
     {
         return param_;
     }
@@ -559,6 +564,11 @@ public:
         return (static_cast<uint32_t>(arkProperties_) & ArkProperties::CONCURRENT_MARK) != 0;
     }
 
+    bool EnableMultiContext() const
+    {
+        return (multiContext_) || ((static_cast<uint32_t>(arkProperties_) & ArkProperties::ENABLE_MULTI_CONTEXT) != 0);
+    }
+
     bool EnableSharedConcurrentMark() const
     {
         // Use DISABLE to adapt to the exsiting ArkProperties in testing scripts.
@@ -575,7 +585,7 @@ public:
         return (static_cast<uint32_t>(arkProperties_) & ArkProperties::CONCURRENT_SWEEP) != 0;
     }
 
-    bool EnableThreadCheck() const
+    uint32_t EnableThreadCheck() const
     {
         return (static_cast<uint32_t>(arkProperties_) & ArkProperties::THREAD_CHECK) != 0;
     }
@@ -698,6 +708,10 @@ public:
     {
         return (static_cast<uint32_t>(arkProperties_) & ArkProperties::ENABLE_RAWHEAP_CROP) != 0;
     }
+    bool EnableJSPandaFileAndModuleSnapshot() const
+    {
+        return (static_cast<uint32_t>(arkProperties_) & ArkProperties::ENABLE_JSPANDAFILE_MODULE_SNAPSHOT) != 0;
+    }
 
     bool WasSetMaxNonmovableSpaceCapacity() const
     {
@@ -766,13 +780,13 @@ public:
 
     bool GetEnableAsyncCopyToFort() const
     {
-#ifdef USE_CMC_GC
-        // async alloc needs adaption work from CMCGC
-        // Need to also modify jit.cpp
-        return false;
-#else
-        return enableAsyncCopyToFort_;
-#endif
+        if (g_isEnableCMCGC) {
+            // async alloc needs adaption work from CMCGC
+            // Need to also modify jit.cpp
+            return false;
+        } else {
+            return enableAsyncCopyToFort_;
+        }
     }
 
     void SetLargeHeap(bool largeHeap)
@@ -1997,7 +2011,7 @@ public:
     {
         return enableJitFastCompile_;
     }
-    
+
     void SetEnableMegaIC(bool value)
     {
         enableMegaIC_ = value;
@@ -2084,6 +2098,16 @@ public:
         return enableLdObjValueOpt_;
     }
 
+    void SetEnableCMCGC(bool value)
+    {
+        enableCMCGC_ = value;
+    }
+
+    bool IsEnableCMCGC() const
+    {
+        return enableCMCGC_;
+    }
+
     void SetAOTHasException(bool value)
     {
         aotHasException_ = value;
@@ -2157,6 +2181,16 @@ public:
     bool IsEnableMergePoly() const
     {
         return enableMergePoly_;
+    }
+
+    void SetMultiContext(bool value)
+    {
+        multiContext_ = value;
+    }
+
+    bool IsMultiContext() const
+    {
+        return multiContext_;
     }
 
     void SetJitMethodDichotomy(std::string jitMethodDichotomy)
@@ -2403,7 +2437,7 @@ private:
     bool enableNewValueNumbering_ {true};
     bool enableOptInlining_ {true};
     bool enableAotLazyDeopt_ {false};
-    bool enableJitLazyDeopt_ {false};
+    bool enableJitLazyDeopt_ {true};
     bool enableLazyDeoptTrace_{false};
     bool enableOptPGOType_ {true};
     bool enableFastJIT_ {false};
@@ -2492,18 +2526,20 @@ private:
     bool aotHasException_ {false};
     bool enableInlinePropertyOptimization_ {NEXT_OPTIMIZATION_BOOL};
     bool enableLdObjValueOpt_ {true};
-#ifndef USE_CMC_GC
-    bool storeBarrierOpt_ {true};
+#ifdef DEFAULT_USE_CMC_GC
+    bool enableCMCGC_ {true};
 #else
-    bool storeBarrierOpt_ {false};
+    bool enableCMCGC_ {false};
 #endif
+    bool storeBarrierOpt_ {true};
     uint64_t CompilerAnFileMaxByteSize_ {0_MB};
     bool enableJitVerifyPass_ {true};
     bool enableMergePoly_ {true};
+    bool multiContext_ {false};
     std::string jitMethodDichotomy_ {"disable"};
     std::string jitMethodPath_ {"method_compiled_by_jit.cfg"};
     size_t heapSize_ = {0};
-    RuntimeParam param_;
+    common::RuntimeParam param_;
 };
 } // namespace panda::ecmascript
 

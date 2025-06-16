@@ -362,8 +362,8 @@ public:
         TimeScope timescope("NTypeBytecodeLoweringPass", data->GetMethodName(),
             data->GetMethodOffset(), data->GetLog());
         bool enableLog = data->GetLog()->EnableMethodCIRLog();
-        NTypeBytecodeLowering lowering(data->GetCircuit(), data->GetPassContext(), enableLog, data->GetMethodName(),
-                                       data->GetRecordName());
+        NTypeBytecodeLowering lowering(data->GetCircuit(), data->GetPassContext(), enableLog,
+                                       passOptions->EnableLazyDeopt(), data->GetMethodName(), data->GetRecordName());
         lowering.RunNTypeBytecodeLowering();
         Chunk chunk(data->GetNativeAreaAllocator());
         CombinedPassVisitor visitor(data->GetCircuit(), enableLog, data->GetMethodName(), &chunk);
@@ -746,21 +746,28 @@ public:
 
 class SchedulingPass {
 public:
-    bool Run(PassData* data)
+    bool Run(PassData* data, bool isStwCopyStub)
     {
         TimeScope timescope("SchedulingPass", data->GetMethodName(), data->GetMethodOffset(), data->GetLog());
         bool enableLog = data->GetLog()->EnableMethodCIRLog();
         Scheduler::Run(data->GetCircuit(), data->GetCfg(), data->GetMethodName(), enableLog);
         Chunk chunk(data->GetNativeAreaAllocator());
-#ifndef USE_CMC_GC
+        CompilationEnv *env = nullptr;
+        if (data->GetPassContext() != nullptr) {
+            env = data->GetPassContext()->GetCompilationEnv();
+        }
+        if (isStwCopyStub) {
 #if ENABLE_NEXT_OPTIMIZATION
-        PostSchedule(data->GetCircuit(), enableLog, data->GetMethodName(), &chunk, true).Run(data->GetCfg());
+            PostSchedule(data->GetCircuit(), enableLog, data->GetMethodName(), &chunk, env, true, isStwCopyStub)
+                .Run(data->GetCfg());
 #else
-        PostSchedule(data->GetCircuit(), enableLog, data->GetMethodName(), &chunk, false).Run(data->GetCfg());
+            PostSchedule(data->GetCircuit(), enableLog, data->GetMethodName(), &chunk, env, false, isStwCopyStub)
+                .Run(data->GetCfg());
 #endif
-#else
-        PostSchedule(data->GetCircuit(), enableLog, data->GetMethodName(), &chunk, false).Run(data->GetCfg());
-#endif
+        } else {
+            PostSchedule(data->GetCircuit(), enableLog, data->GetMethodName(), &chunk, env, false, isStwCopyStub)
+                .Run(data->GetCfg());
+        }
         return true;
     }
 };
@@ -786,7 +793,7 @@ public:
 
 class GraphLinearizerPass {
 public:
-    bool Run(PassData* data)
+    bool Run(PassData* data, bool isStwCopyStub)
     {
         TimeScope timescope("GraphLinearizerPass", data->GetMethodName(), data->GetMethodOffset(), data->GetLog());
         Chunk chunk(data->GetNativeAreaAllocator());
@@ -796,8 +803,9 @@ public:
         bool enableStoreBarrier = data->GetPassContext()->GetCompilationEnv()->GetJSOptions().IsStoreBarrierOpt();
         GraphLinearizer(data->GetCircuit(), enableLog, data->GetMethodName(), &chunk, false, licm, liteCG)
             .Run(data->GetCfg());
-        PostSchedule(data->GetCircuit(), enableLog, data->GetMethodName(), &chunk, enableStoreBarrier)
-            .Run(data->GetCfg());
+        PostSchedule(data->GetCircuit(), enableLog, data->GetMethodName(), &chunk,
+                     data->GetPassContext()->GetCompilationEnv(), enableStoreBarrier, isStwCopyStub)
+                     .Run(data->GetCfg());
         return true;
     }
 };

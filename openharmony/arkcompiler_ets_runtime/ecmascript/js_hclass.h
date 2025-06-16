@@ -24,6 +24,7 @@
 #include "ecmascript/mem/slots.h"
 #include "ecmascript/mem/visitor.h"
 #include "ecmascript/property_attributes.h"
+#include "common_interfaces/objects/composite_base_class.h"
 
 #include "libpandabase/utils/bit_field.h"
 
@@ -86,6 +87,7 @@ struct Reference;
         LINE_STRING,   /* /////////////////////////////////////////////////////////////////////////////////-PADDING */ \
         SLICED_STRING,  /* ////////////////////////////////////////////////////////////////////////////////-PADDING */ \
         TREE_STRING,  /* //////////////////////////////////////////////////////////////////////////////////-PADDING */ \
+        COMPOSITE_BASE_CLASS,  /* /////////////////////////////////////////////////////////////////////////-PADDING */ \
                                                                                                                        \
         JS_OBJECT,        /* JS_OBJECT_FIRST ////////////////////////////////////////////////////////////////////// */ \
         JS_XREF_OBJECT,   /* //////////////////////////////////////////////////////////////////////////////-PADDING */ \
@@ -348,11 +350,11 @@ enum class JSType : uint8_t {
     JSTYPE_DECL,
 };
 
-static_assert(static_cast<uint8_t>(JSType::LINE_STRING) == static_cast<uint8_t>(CommonType::LINE_STRING) &&
+static_assert(static_cast<uint8_t>(JSType::LINE_STRING) == static_cast<uint8_t>(common::CommonType::LINE_STRING) &&
     "line string type should be same with common type");
-static_assert(static_cast<uint8_t>(JSType::SLICED_STRING) == static_cast<uint8_t>(CommonType::SLICED_STRING) &&
+static_assert(static_cast<uint8_t>(JSType::SLICED_STRING) == static_cast<uint8_t>(common::CommonType::SLICED_STRING) &&
     "sliced string type should be same with common type");
-static_assert(static_cast<uint8_t>(JSType::TREE_STRING) == static_cast<uint8_t>(CommonType::TREE_STRING) &&
+static_assert(static_cast<uint8_t>(JSType::TREE_STRING) == static_cast<uint8_t>(common::CommonType::TREE_STRING) &&
     "tree string type should be same with common type");
 
 struct TransitionResult {
@@ -443,7 +445,7 @@ public:
     static void PUBLIC_API AddProperty(const JSThread *thread, const JSHandle<JSObject> &obj,
                                        const JSHandle<JSTaggedValue> &key, const PropertyAttributes &attr,
                                        const Representation &rep = Representation::NONE);
-    
+
     static void ProcessAotHClassTransition(const JSThread *thread, const JSHandle<JSHClass> &jshclass,
                                            const JSHandle<JSHClass> newHClass, const JSTaggedValue &key);
 
@@ -488,7 +490,8 @@ public:
     static void VisitAndUpdateLayout(JSHClass *ownHClass, const PropertyAttributes &attr);
     static void VisitTransitionAndUpdateObjSize(JSHClass *ownHClass, uint32_t finalInObjPropsNum);
     static uint32_t VisitTransitionAndFindMaxNumOfProps(JSHClass *ownHClass);
-    
+
+    static void NotifyHClassNotPrototypeChanged(JSThread *thread, const JSHandle<JSHClass> &jsHClass);
     static void NotifyLeafHClassChanged(JSThread *thread, const JSHandle<JSHClass> &jsHClass);
     static JSHandle<JSTaggedValue> PUBLIC_API EnableProtoChangeMarker(
         const JSThread *thread, const JSHandle<JSHClass> &jshclass);
@@ -497,13 +500,13 @@ public:
 
     static void NotifyHclassChanged(const JSThread *thread, JSHandle<JSHClass> oldHclass, JSHandle<JSHClass> newHclass,
                                     JSTaggedValue addedKey = JSTaggedValue::Undefined());
-    
+
     static void NotifyHClassChangedForAot(const JSThread *thread, const JSHandle<JSHClass> oldHclass,
                                                const JSHandle<JSHClass> newHclass, const JSTaggedValue addedKey);
-    
+
     static void NotifyAccessorChanged(const JSThread *thread, JSHandle<JSHClass> hclass);
     static void NotifyAccessorChangedThroughChain(const JSThread *thread, JSHandle<JSHClass> hclass);
-    
+
     static void RegisterOnProtoChain(const JSThread *thread, const JSHandle<JSHClass> &jshclass);
 
     static bool UnregisterOnProtoChain(const JSThread *thread, const JSHandle<JSHClass> &jshclass);
@@ -512,16 +515,16 @@ public:
                                                               const JSHandle<JSHClass> &jshclass);
 
     static JSHandle<ProtoChangeDetails> GetProtoChangeDetails(const JSThread *thread, const JSHandle<JSObject> &obj);
-    
+
     static JSHandle<TaggedArray> GetEnumCacheOwnWithOutCheck(const JSThread *thread,
                                                              const JSHandle<JSHClass> &jshclass);
-    
+
     inline void UpdatePropertyMetaData(const JSThread *thread, const JSTaggedValue &key,
                                       const PropertyAttributes &metaData);
-    
+
     template<bool isForAot>
     static void MarkProtoChanged(const JSThread *thread, const JSHandle<JSHClass> &jshclass);
-    
+
     template<bool isForAot = false>
     static void NoticeThroughChain(const JSThread *thread, const JSHandle<JSHClass> &jshclass,
                                    JSTaggedValue addedKey = JSTaggedValue::Undefined());
@@ -658,6 +661,13 @@ public:
     inline bool IsHClass() const
     {
         return GetObjectType() == JSType::HCLASS;
+    }
+
+    // These types are not complete hclass, does not has profile field.
+    inline bool IsCompositeHClass() const
+    {
+        common::CommonType jsType = static_cast<common::CommonType>(GetObjectType());
+        return !(common::CommonType::FIRST_OBJECT_TYPE <= jsType && jsType <= common::CommonType::LAST_OBJECT_TYPE);
     }
 
     inline bool IsString() const
@@ -1082,12 +1092,10 @@ public:
         return GetObjectType() == JSType::JS_SHARED_FUNCTION;
     }
 
-#ifdef USE_CMC_GC
     bool IsInSharedHeap() const
     {
         return IsJSShared();
     }
-#endif
 
     bool IsJSShared() const
     {
@@ -1473,7 +1481,7 @@ public:
     {
         return GetObjectType() == JSType::PROPERTY_BOX;
     }
-    
+
     inline bool IsEnumCache() const
     {
         return GetObjectType() == JSType::ENUM_CACHE;
@@ -2077,16 +2085,18 @@ public:
     static constexpr size_t BIT_FIELD_OFFSET = TaggedObjectSize();
     ACCESSORS_PRIMITIVE_FIELD(BitField, uint32_t, BIT_FIELD_OFFSET, BIT_FIELD1_OFFSET);
     ACCESSORS_PRIMITIVE_FIELD(BitField1, uint32_t, BIT_FIELD1_OFFSET, PROTOTYPE_OFFSET);
-    ACCESSORS(Proto, PROTOTYPE_OFFSET, LAYOUT_OFFSET);
-    ACCESSORS_SYNCHRONIZED(Layout, LAYOUT_OFFSET, TRANSTIONS_OFFSET);
-    ACCESSORS(Transitions, TRANSTIONS_OFFSET, PARENT_OFFSET);
-    ACCESSORS(Parent, PARENT_OFFSET, PROTO_CHANGE_MARKER_OFFSET);
-    ACCESSORS(ProtoChangeMarker, PROTO_CHANGE_MARKER_OFFSET, PROTO_CHANGE_DETAILS_OFFSET);
-    ACCESSORS(ProtoChangeDetails, PROTO_CHANGE_DETAILS_OFFSET, ENUM_CACHE_OFFSET);
-    ACCESSORS(EnumCache, ENUM_CACHE_OFFSET, DEPENDENT_INFOS_OFFSET);
-    ACCESSORS(DependentInfos, DEPENDENT_INFOS_OFFSET, PROFILE_TYPE_OFFSET);
-    ACCESSORS_PRIMITIVE_FIELD(ProfileType, uint64_t, PROFILE_TYPE_OFFSET, LAST_OFFSET);
+    ACCESSORS_DCHECK(Proto, PROTOTYPE_OFFSET, LAYOUT_OFFSET, IsString);
+    ACCESSORS_SYNCHRONIZED_DCHECK(Layout, LAYOUT_OFFSET, TRANSTIONS_OFFSET, IsString);
+    ACCESSORS_DCHECK(Transitions, TRANSTIONS_OFFSET, PARENT_OFFSET, IsString);
+    ACCESSORS_DCHECK(Parent, PARENT_OFFSET, PROTO_CHANGE_MARKER_OFFSET, IsString);
+    ACCESSORS_DCHECK(ProtoChangeMarker, PROTO_CHANGE_MARKER_OFFSET, PROTO_CHANGE_DETAILS_OFFSET, IsString);
+    ACCESSORS_DCHECK(ProtoChangeDetails, PROTO_CHANGE_DETAILS_OFFSET, ENUM_CACHE_OFFSET, IsString);
+    ACCESSORS_DCHECK(EnumCache, ENUM_CACHE_OFFSET, DEPENDENT_INFOS_OFFSET, IsString);
+    ACCESSORS_DCHECK(DependentInfos, DEPENDENT_INFOS_OFFSET, PROFILE_TYPE_OFFSET, IsString);
+    ACCESSORS_PRIMITIVE_FIELD_DCHECK(ProfileType, uint64_t, PROFILE_TYPE_OFFSET, LAST_OFFSET, IsString);
     DEFINE_ALIGN_SIZE(LAST_OFFSET);
+    static_assert(common::CompositeBaseClass::SIZE >= SIZE,
+                  "CompositeBaseClass::SIZE should be larger than JSHClass::SIZE");
 
     static JSHandle<JSHClass> SetPrototypeWithNotification(const JSThread *thread,
                                                            const JSHandle<JSHClass> &hclass,

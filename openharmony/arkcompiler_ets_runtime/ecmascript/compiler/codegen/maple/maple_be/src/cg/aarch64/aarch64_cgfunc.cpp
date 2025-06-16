@@ -3330,7 +3330,8 @@ void AArch64CGFunc::SelectParmList(StmtNode &naryNode, ListOperand &srcOpnds, bo
 {
     size_t opndIdx = 0;
     // the first opnd of ICallNode is not parameter of function
-    if (naryNode.GetOpCode() == OP_icall || naryNode.GetOpCode() == OP_icallproto || isCallNative) {
+    if (naryNode.GetOpCode() == OP_icall || naryNode.GetOpCode() == OP_icallproto || isCallNative ||
+        naryNode.GetOpCode() == OP_tailicall) {
         opndIdx++;
     }
     auto [callee, calleeType] = GetCalleeFunction(naryNode);
@@ -3447,6 +3448,53 @@ bool AArch64CGFunc::DoCallerEnsureValidParm(RegOperand &destOpnd, RegOperand &sr
     return false;
 }
 
+void AArch64CGFunc::DoOptForStackStrInsns(std::vector<Insn *> &insnForStackArgs, std::vector<Insn *> &optInsns)
+{
+    for (size_t i = 0; i + 1 < insnForStackArgs.size(); i += 2) { // 2 : iterate two insns each loop
+        auto &insn1 = insnForStackArgs[i];
+        auto &insn2 = insnForStackArgs[i + 1];
+        if (!CheckStrPairOpt(insn1, insn2)) {
+            optInsns.emplace_back(insn1);
+            optInsns.emplace_back(insn2);
+        } else {
+            auto &reg1 = insn1->GetOperand(kInsnFirstOpnd);
+            auto &reg2 = insn2->GetOperand(kInsnFirstOpnd);
+            auto &mem1 = static_cast<MemOperand&>(insn1->GetOperand(kInsnSecondOpnd));
+            Insn &stpInsn = GetInsnBuilder()->BuildInsn(MOP_xstp, reg1, reg2, mem1);
+            optInsns.emplace_back(&stpInsn);
+        }
+    }
+    if (insnForStackArgs.size() % 2 == 1) { // 2: is for even, this is for odd situation.
+        optInsns.emplace_back(insnForStackArgs.back());
+    }
+}
+
+bool AArch64CGFunc::CheckStrPairOpt(Insn *insn1, Insn *insn2)
+{
+    if (insn1 == nullptr || insn2 == nullptr) {
+        return false;
+    }
+    if (insn1->GetMachineOpcode() != MOP_xstr || insn2->GetMachineOpcode() != MOP_xstr) {
+        return false;
+    }
+    auto &mem1 = static_cast<MemOperand&>(insn1->GetOperand(kInsnSecondOpnd));
+    auto &mem2 = static_cast<MemOperand&>(insn2->GetOperand(kInsnSecondOpnd));
+    if (mem1.GetAddrMode() != MemOperand::kAddrModeBOi || mem2.GetAddrMode() != MemOperand::kAddrModeBOi) {
+        return false;
+    }
+    OfstOperand *mem1Offset = mem1.GetOffsetImmediate();
+    OfstOperand *mem2Offset = mem2.GetOffsetImmediate();
+    int64 mem1OffsetValue = mem1Offset ? mem1Offset->GetOffsetValue() : 0;
+    int64 mem2OffsetValue = mem2Offset ? mem2Offset->GetOffsetValue() : 0;
+    if (mem1OffsetValue % k8ByteSize != 0) {
+        return false;
+    }
+    if (mem2OffsetValue != mem1OffsetValue + k8ByteSize) {
+        return false;
+    }
+    return true;
+}
+
 void AArch64CGFunc::SelectParmListNotC(StmtNode &naryNode, ListOperand &srcOpnds)
 {
     size_t i = 0;
@@ -3491,7 +3539,7 @@ void AArch64CGFunc::SelectParmListNotC(StmtNode &naryNode, ListOperand &srcOpnds
             Insn &strInsn = GetInsnBuilder()->BuildInsn(PickStInsn(GetPrimTypeBitSize(primType), primType), *expRegOpnd,
                                                         actMemOpnd);
             actMemOpnd.SetStackArgMem(true);
-            if (Globals::GetInstance()->GetOptimLevel() == CGOptions::kLevel1 && stackArgsCount < kShiftAmount12) {
+            if (stackArgsCount < kShiftAmount12) {
                 (void)insnForStackArgs.emplace_back(&strInsn);
                 stackArgsCount++;
             } else {
@@ -3500,7 +3548,9 @@ void AArch64CGFunc::SelectParmListNotC(StmtNode &naryNode, ListOperand &srcOpnds
         }
         DEBUG_ASSERT(ploc.reg1 == 0, "SelectCall NYI");
     }
-    for (auto &strInsn : insnForStackArgs) {
+    std::vector<Insn *> insnForStackArgsOpt;
+    DoOptForStackStrInsns(insnForStackArgs, insnForStackArgsOpt);
+    for (auto &strInsn : insnForStackArgsOpt) {
         GetCurBB()->AppendInsn(*strInsn);
     }
 }
@@ -4476,6 +4526,52 @@ void AArch64CGFunc::SelectIntrinsicCall(IntrinsiccallNode &intrinsiccallNode)
     }
 }
 
+void AArch64CGFunc::SelectDeoptCall(CallNode &callNode)
+{
+    MIRFunction *fn = GlobalTables::GetFunctionTable().GetFunctionFromPuidx(callNode.GetPUIdx());
+    MIRSymbol *fsym = GetFunction().GetLocalOrGlobalSymbol(fn->GetStIdx(), false);
+    if (GetCG()->GenerateVerboseCG()) {
+        const std::string &comment = fsym->GetName();
+        GetCurBB()->AppendInsn(CreateCommentInsn(comment));
+    }
+    ListOperand *srcOpnds = CreateListOpnd(*GetFuncScopeAllocator());
+    SelectParmListWrapper(callNode, *srcOpnds, false);
+
+    Insn &callInsn = AppendCall(*fsym, *srcOpnds);
+    const auto &deoptBundleInfo = callNode.GetDeoptBundleInfo();
+    for (const auto &elem : deoptBundleInfo) {
+        auto valueKind = elem.second.GetMapleValueKind();
+        if (valueKind == MapleValue::kPregKind) {
+            auto *opnd = GetOrCreateRegOpndFromPregIdx(elem.second.GetPregIdx(), PTY_ref);
+            callInsn.AddDeoptBundleInfo(elem.first, *opnd);
+        } else if (valueKind == MapleValue::kConstKind) {
+            auto *opnd = SelectIntConst(static_cast<const MIRIntConst &>(elem.second.GetConstValue()), callNode);
+            callInsn.AddDeoptBundleInfo(elem.first, *opnd);
+        } else {
+            CHECK_FATAL(false, "not supported currently");
+        }
+    }
+    AppendStackMapInsn(callInsn);
+    GetFunction().SetHasCall();
+}
+
+void AArch64CGFunc::SelectTailICall(IcallNode &icallNode)
+{
+    ListOperand *srcOpnds = CreateListOpnd(*GetFuncScopeAllocator());
+    SelectParmListWrapper(icallNode, *srcOpnds, false);
+
+    Operand *srcOpnd = HandleExpr(icallNode, *icallNode.GetNopndAt(0));
+    Operand *fptrOpnd = srcOpnd;
+    if (fptrOpnd->GetKind() != Operand::kOpdRegister) {
+        PrimType ty = icallNode.Opnd(0)->GetPrimType();
+        fptrOpnd = &SelectCopy(*srcOpnd, ty, ty);
+    }
+    DEBUG_ASSERT(fptrOpnd->IsRegister(), "SelectIcall: function pointer not RegOperand");
+    RegOperand *regOpnd = static_cast<RegOperand *>(fptrOpnd);
+    Insn &callInsn = GetInsnBuilder()->BuildInsn(MOP_tail_call_opt_xblr, *regOpnd, *srcOpnds);
+    GetCurBB()->AppendInsn(callInsn);
+}
+
 Operand *AArch64CGFunc::SelectCclz(IntrinsicopNode &intrnNode)
 {
     BaseNode *argexpr = intrnNode.Opnd(0);
@@ -4512,6 +4608,44 @@ RegOperand *AArch64CGFunc::SelectHeapConstant(IntrinsicopNode &node, Operand &op
     return &destReg;
 }
 
+RegOperand *AArch64CGFunc::SelectTaggedIsHeapObject(IntrinsicopNode &node, Operand &opnd0, Operand &opnd1)
+{
+    RegOperand &destReg = CreateRegisterOperandOfType(PTY_i64);
+    MOperator mOp = MOP_tagged_is_heapobject;
+    if (opnd0.IsImmediate()) {
+        uint64 value = static_cast<uint64>(static_cast<ImmOperand &>(opnd0).GetValue());
+        uint64 heapObjectMask = static_cast<uint64_t>(static_cast<ImmOperand&>(opnd1).GetValue());
+        if (!static_cast<int64>(value & heapObjectMask)) {
+            ImmOperand &value = CreateImmOperand(1, k64BitSize, true);
+            GetCurBB()->AppendInsn(GetInsnBuilder()->BuildInsn(MOP_xmovri64, destReg, value));
+        } else {
+            ImmOperand &value = CreateImmOperand(0, k64BitSize, true);
+            GetCurBB()->AppendInsn(GetInsnBuilder()->BuildInsn(MOP_xmovri64, destReg, value));
+        }
+    } else {
+        GetCurBB()->AppendInsn(GetInsnBuilder()->BuildInsn(mOp, destReg, opnd0, opnd1));
+    }
+    return &destReg;
+}
+
+RegOperand *AArch64CGFunc::SelectIsStableElements(IntrinsicopNode &node, Operand &opnd0,
+                                                  Operand &opnd1, Operand &opnd2)
+{
+    RegOperand &destReg = CreateRegisterOperandOfType(PTY_i32);
+    MOperator mOp = MOP_is_stable_elements;
+    GetCurBB()->AppendInsn(GetInsnBuilder()->BuildInsn(mOp, destReg, opnd0, opnd1, opnd2));
+    return &destReg;
+}
+
+RegOperand *AArch64CGFunc::SelectHasPendingException(IntrinsicopNode &node, Operand &opnd0,
+                                                     Operand &opnd1, Operand &opnd2)
+{
+    RegOperand &destReg = CreateRegisterOperandOfType(PTY_i64);
+    MOperator mOp = MOP_has_pending_exception;
+    GetCurBB()->AppendInsn(GetInsnBuilder()->BuildInsn(mOp, destReg, opnd0, opnd1, opnd2));
+    return &destReg;
+}
+
 RegOperand *AArch64CGFunc::SelectGetHeapConstantTable(IntrinsicopNode &node,
     Operand &opnd0, Operand &opnd1, Operand &opnd2)
 {
@@ -4519,6 +4653,26 @@ RegOperand *AArch64CGFunc::SelectGetHeapConstantTable(IntrinsicopNode &node,
     RegOperand &destReg = CreateRegisterOperandOfType(retType);
     MOperator mOp = MOP_get_heap_const_table;
     GetCurBB()->AppendInsn(GetInsnBuilder()->BuildInsn(mOp, destReg, opnd0, opnd1, opnd2));
+    return &destReg;
+}
+
+RegOperand *AArch64CGFunc::SelectTaggedObjectIsString(IntrinsicopNode &node, Operand &opnd0, Operand &opnd1,
+                                                      Operand &opnd2, Operand &opnd3, Operand &opnd4)
+{
+    PrimType retType = node.GetPrimType();
+    RegOperand &destReg = CreateRegisterOperandOfType(retType);
+    MOperator mOp = MOP_tagged_object_is_string;
+    GetCurBB()->AppendInsn(GetInsnBuilder()->BuildInsn(mOp, destReg, opnd0, opnd1, opnd2, opnd3, opnd4));
+    return &destReg;
+}
+
+RegOperand *AArch64CGFunc::SelectIsCOWArray(IntrinsicopNode &node, Operand &opnd0, Operand &opnd1,
+                                            Operand &opnd2, Operand &opnd3, Operand &opnd4,  Operand &opnd5)
+{
+    PrimType retType = node.GetPrimType();
+    RegOperand &destReg = CreateRegisterOperandOfType(retType);
+    MOperator mOp = MOP_is_cow_array;
+    GetCurBB()->AppendInsn(GetInsnBuilder()->BuildInsn(mOp, destReg, opnd0, opnd1, opnd2, opnd3, opnd4, opnd5));
     return &destReg;
 }
 

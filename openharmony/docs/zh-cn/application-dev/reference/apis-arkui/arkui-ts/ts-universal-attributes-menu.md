@@ -20,11 +20,13 @@
 >
 >    2. 仅支持[MenuPreviewMode](#menupreviewmode11)设置为NONE的菜单。
 >  - 菜单最大宽度受设备所占栅格限制，即使设置宽度100%，也不会占满屏幕。
+>
+>  - 菜单绑定的组件对象销毁时，菜单消失。
 
 
 ## bindMenu
 
-bindMenu(content: Array<MenuElement&gt; | CustomBuilder, options?: MenuOptions)
+bindMenu(content: Array<MenuElement&gt; | CustomBuilder, options?: MenuOptions): T
 
 给组件绑定菜单，点击后弹出菜单。弹出菜单项支持图标+文本排列和自定义两种功能。
 
@@ -39,9 +41,15 @@ bindMenu(content: Array<MenuElement&gt; | CustomBuilder, options?: MenuOptions)
 | content | Array<[MenuElement](#menuelement)&gt;&nbsp;\|&nbsp;[CustomBuilder](ts-types.md#custombuilder8) | 是   | 配置菜单项图标和文本的数组，或者自定义组件。 |
 | options | [MenuOptions](#menuoptions10)                                | 否   | 配置弹出菜单的参数。                         |
 
+**返回值：** 
+
+|类型|说明|
+|---|---|
+|T|返回当前组件。|
+
 ## bindMenu<sup>11+</sup>
 
-bindMenu(isShow: boolean, content: Array<MenuElement&gt; | CustomBuilder, options?: MenuOptions)
+bindMenu(isShow: boolean, content: Array<MenuElement&gt; | CustomBuilder, options?: MenuOptions): T
 
 给组件绑定菜单，点击后弹出菜单。弹出菜单项支持图标+文本排列和自定义两种功能。
 
@@ -57,9 +65,15 @@ bindMenu(isShow: boolean, content: Array<MenuElement&gt; | CustomBuilder, option
 | content              | Array<[MenuElement](#menuelement)&gt;&nbsp;\|&nbsp;[CustomBuilder](ts-types.md#custombuilder8) | 是   | 配置菜单项图标和文本的数组，或者自定义组件。                 |
 | options              | [MenuOptions](#menuoptions10)                                | 否   | 配置弹出菜单的参数。                                         |
 
+**返回值：** 
+
+|类型|说明|
+|---|---|
+|T|返回当前组件。|
+
 ## bindContextMenu<sup>8+</sup>
 
-bindContextMenu(content: CustomBuilder, responseType: ResponseType, options?: ContextMenuOptions)
+bindContextMenu(content: CustomBuilder, responseType: ResponseType, options?: ContextMenuOptions): T
 
 给组件绑定菜单，控制菜单显隐的触发方式为长按或右键点击，弹出的菜单项需自定义。若需通过代码逻辑控制菜单显隐，请使用[bindContextMenu<sup>12+</sup>](#bindcontextmenu12)。
 
@@ -75,9 +89,15 @@ bindContextMenu(content: CustomBuilder, responseType: ResponseType, options?: Co
 | responseType | [ResponseType](ts-appendix-enums.md#responsetype8) | 是   | 菜单弹出条件，长按或者右键点击。不支持鼠标长按。 |
 | options      | [ContextMenuOptions](#contextmenuoptions10)        | 否   | 配置弹出菜单的参数。             |
 
+**返回值：** 
+
+|类型|说明|
+|---|---|
+|T|返回当前组件。|
+
 ## bindContextMenu<sup>12+</sup>
 
-bindContextMenu(isShown: boolean, content: CustomBuilder, options?: ContextMenuOptions)
+bindContextMenu(isShown: boolean, content: CustomBuilder, options?: ContextMenuOptions): T
 
 给组件绑定菜单，菜单的显隐通过控制绑定的isShown触发。
 
@@ -97,6 +117,12 @@ bindContextMenu(isShown: boolean, content: CustomBuilder, options?: ContextMenuO
 | isShown | boolean | 是   | 支持开发者通过状态变量控制显隐，值为true时弹出菜单，值为false时关闭菜单，默认值为false。菜单必须等待页面全部构建完成后才能展示，如果在页面构建前或构建中设置为true，可能导致显示位置及形状错误、无法正常弹出显示等问题。不支持长按触发拖拽。该参数从API version13开始支持[!!语法](../../../ui/state-management/arkts-new-binding.md#系统组件参数双向绑定)双向绑定变量。 |
 | content      | [CustomBuilder](ts-types.md#custombuilder8)        | 是   | 自定义菜单内容构造器。 |
 | options      | [ContextMenuOptions](#contextmenuoptions10)                      | 否   | 配置弹出菜单的参数。                         |
+
+**返回值：** 
+
+|类型|说明|
+|---|---|
+|T|返回当前组件。|
 
 ## MenuElement
 
@@ -143,10 +169,14 @@ bindContextMenu(isShown: boolean, content: CustomBuilder, options?: ContextMenuO
 | backgroundBlurStyleOptions<sup>18+</sup> | [BackgroundBlurStyleOptions](ts-universal-attributes-background.md#backgroundblurstyleoptions10对象说明) | 否 | 背景模糊效果。<br />**原子化服务API：** 从API version 18开始，该接口支持在原子化服务中使用。 |
 | backgroundEffect<sup>18+</sup> | [BackgroundEffectOptions](ts-universal-attributes-background.md#backgroundeffectoptions11) | 否 | 背景效果参数。<br />**原子化服务API：** 从API version 18开始，该接口支持在原子化服务中使用。 |
 | hapticFeedbackMode<sup>18+</sup> | [HapticFeedbackMode](#hapticfeedbackmode18) | 否 | 菜单弹出时振动效果。<br/>默认值：HapticFeedbackMode.DISABLED，菜单弹出时不振动。<br />**说明：**<br />只有一级菜单可配置弹出时振动效果。<br />仅当应用具备ohos.permission.VIBRATE权限，且用户启用了触感反馈时才会生效。<br />**原子化服务API：** 从API version 18开始，该接口支持在原子化服务中使用。 |
-| outlineWidth<sup>20+</sup> | [Dimension](ts-types.md#dimension10)&nbsp;\|&nbsp;[EdgeOutlineWidths](ts-universal-attributes-outline.md#edgeoutlinewidths对象说明) | 否 | 设置菜单边框外描边宽度。<br />**说明：**<br />不支持百分比，若需要外描边效果outlineWidth为必填项。<br />**原子化服务API：** 从API version 20开始，该接口支持在原子化服务中使用。 |
+| outlineWidth<sup>20+</sup> | [Dimension](ts-types.md#dimension10)&nbsp;\|&nbsp;[EdgeOutlineWidths](ts-universal-attributes-outline.md#edgeoutlinewidths对象说明) | 否 | 设置菜单边框外描边宽度。<br />默认值：0vp<br />**说明：**<br />不支持百分比，若需要外描边效果outlineWidth为必填项。<br />**原子化服务API：** 从API version 20开始，该接口支持在原子化服务中使用。 |
 | outlineColor<sup>20+</sup> | [ResourceColor](ts-types.md#resourcecolor)&nbsp;\|&nbsp;[EdgeColors](ts-universal-attributes-outline.md#edgecolors对象说明) | 否 | 设置菜单边框外描边颜色。<br />**说明：**<br />默认值：'#19ffffff'<br />**原子化服务API：** 从API version 20开始，该接口支持在原子化服务中使用。 |
 | mask<sup>20+</sup> | boolean&nbsp;\|&nbsp;[MenuMaskType](#menumasktype20类型说明) | 否 | 设置菜单是否有蒙层及蒙层样式。如果设置为false，则没有蒙层；如果设置为true，则有蒙层；如果设置为MenuMaskType，则自定义蒙层的样式。<br/>默认值：使用bindContextMenu且配置预览图弹出菜单时默认值为true，其它情况默认值为false。<br>**说明：** <br/>2in1设备不生效。<br />**原子化服务API：** 从API version 20开始，该接口支持在原子化服务中使用。 |
 | modalMode<sup>20+</sup> | [ModalMode](#modalmode20类型说明) | 否 | 设置菜单的模态模式。<br />**说明：**<br />默认值：ModalMode.AUTO<br />**原子化服务API：** 从API version 20开始，该接口支持在原子化服务中使用。 |
+| onWillAppear<sup>20+</sup> | [VoidCallback](ts-types.md#voidcallback12) | 否 | 弹窗显示动效前的事件回调。<br />**说明：**<br />1.正常时序依次为：aboutToAppear>>onWillAppear>>onAppear>>onDidAppear>>aboutToDisappear>>onWillDisappear>>onDisappear>>onDidDisappear。<br />2.在onWillAppear内设置改变弹窗显示效果的回调事件，二次弹出生效。<br/>3.aboutToAppear是初始化时触发调用，onWillAppear是在动画执行前触发调用，onWillAppear在aboutToAppear之后执行。<br/>**原子化服务API：** 从API version 20开始，该接口支持在原子化服务中使用。|
+| onDidAppear<sup>20+</sup> | [VoidCallback](ts-types.md#voidcallback12) | 否 | 弹窗弹出时的事件回调。<br />**说明：**<br />1.正常时序依次为：aboutToAppear>>onWillAppear>>onAppear>>onDidAppear>>aboutToDisappear>>onWillDisappear>>onDisappear>>onDidDisappear。<br />2.在onDidAppear内设置改变弹窗显示效果的回调事件，二次弹出生效。<br />3.快速点击弹出，消失弹窗时，存在onWillDisappear在onDidAppear前生效。<br />4. 当弹窗入场动效未完成时关闭弹窗，该回调不会触发。<br/>5.onAppear和onDidAppear触发时机相同，onDidAppear在onAppear后生效。<br/>**原子化服务API：** 从API version 20开始，该接口支持在原子化服务中使用。 |
+| onWillDisappear<sup>20+</sup> | [VoidCallback](ts-types.md#voidcallback12) | 否 | 弹窗退出动效前的事件回调。<br />**说明：**<br />1.正常时序依次为：aboutToAppear>>onWillAppear>>onAppear>>onDidAppear>>aboutToDisappear>>onWillDisappear>>onDisappear>>onDidDisappear。<br />2.快速点击弹出，消失弹窗时，存在onWillDisappear在onDidAppear前生效。<br/>3.aboutToDisappear和onWillDisappear触发时机相同，onWillDisappear在aboutToDisappear后生效。<br/>**原子化服务API：** 从API version 20开始，该接口支持在原子化服务中使用。|
+| onDidDisappear<sup>20+</sup> | [VoidCallback](ts-types.md#voidcallback12) | 否 | 弹窗消失时的事件回调。<br />**说明：**<br />1.正常时序依次为：aboutToAppear>>onWillAppear>>onAppear>>onDidAppear>>aboutToDisappear>>onWillDisappear>>onDisappear>>onDidDisappear。<br/>2.onDisappear和onDidDisappear触发时机相同，onDidDisappear在onDisappear后生效。<br/>**原子化服务API：** 从API version 20开始，该接口支持在原子化服务中使用。 |
 
 ## MenuPreviewMode<sup>11+</sup>
 
@@ -926,3 +956,77 @@ struct Index {
 ```
 
 ![hoverScaleInterruption](figures/menuPreviewBorderRadius.jpg)
+
+### 示例15（bindMenu配置生命周期回调）
+
+该示例为bindMenu配置生命周期回调。
+
+```ts
+// xxx.ets
+@Entry
+@Component
+struct Index {
+  private iconStr: ResourceStr = $r("app.media.startIcon")
+  @State isShown: boolean = false
+  @State textColor: Color = Color.Black
+  @State blueColor: Color = Color.Blue
+
+  @State onWillAppear: boolean = false
+  @State onDidAppear: boolean = false
+  @State onWillDisappear: boolean = false
+  @State onDidDisappear: boolean = false
+  @Builder
+  MyMenu() {
+    Menu() {
+      MenuItem({ startIcon: this.iconStr, content: "菜单选项" })
+      MenuItem({ startIcon: this.iconStr, content: "菜单选项" })
+      MenuItem({ startIcon: this.iconStr, content: "菜单选项" })
+    }
+  }
+
+  build() {
+      Column() {
+        Column({ space: 30 }) {
+          Text('onWillAppear').fontColor(this.onWillAppear ? this.blueColor : this.textColor)
+          Text('onDidAppear').fontColor(this.onDidAppear ? this.blueColor : this.textColor)
+          Text('onWillDisappear').fontColor(this.onWillDisappear ? this.blueColor : this.textColor)
+          Text('onDidDisappear').fontColor(this.onDidDisappear ? this.blueColor : this.textColor)
+          Button('click')
+            .onClick(() => {
+              this.isShown = true;
+            })
+            .width(100)
+            .height(50)
+          Text('callback')
+            .width(200)
+            .height(100)
+            .textAlign(TextAlign.Center)
+            .fontSize(20)
+            .fontColor(this.textColor)
+            .bindMenu(this.isShown, this.MyMenu,
+            {
+              onWillAppear:() => {
+                console.info("menu cycle life onWillAppear");
+                  this.onWillAppear = true;
+                },
+                onDidAppear:() => {
+                  console.info("menu cycle life onDidAppear");
+                  this.onDidAppear = true;
+                },
+                onWillDisappear:() => {
+                  this.isShown = false;
+                  console.info("menu cycle life onWillDisappear");
+                  this.onWillDisappear = true;
+                },
+                onDidDisappear:() => {
+                  console.info("menu cycle life onDidDisappear");
+                  this.onDidDisappear = true;
+                }
+            })
+        }
+      }.width('100%')
+  }
+}
+```
+
+![preview-builder](figures/zh-cn_image_bindMenuLifeCycle.gif)

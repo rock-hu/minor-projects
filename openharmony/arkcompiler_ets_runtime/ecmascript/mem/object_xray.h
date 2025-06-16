@@ -18,6 +18,7 @@
 
 #include <cstdint>
 
+#include "common_interfaces/objects/composite_base_class.h"
 #include "ecmascript/byte_array.h"
 #include "ecmascript/ecma_vm.h"
 #include "ecmascript/js_async_from_sync_iterator.h"
@@ -415,6 +416,16 @@ public:
                     JSHClass::Cast(object)->VisitRangeSlot<visitType>(visitor);
                 }
                 break;
+            case JSType::COMPOSITE_BASE_CLASS:
+                // semi gc is not needed to visit hclass
+                if constexpr (visitType != VisitType::SEMI_GC_VISIT) {
+                    // reference to the comments in composite_base_class.h, only step 1 and step 2, it maybe enter here.
+                    // When the CompostBaseClass is changed to 1.2 Class, it will be visited from 1.2 class linker.
+                    ObjectBodyIterator<visitType, common::CompositeBaseClass::VISIT_BEGIN,
+                                       common::CompositeBaseClass::VISIT_END,
+                                       common::CompositeBaseClass::SIZE>::IterateRefBody(object, visitor);
+                }
+                break;
             case JSType::LINE_STRING:
                 if constexpr (visitType == VisitType::ALL_VISIT) {
                     LineEcmaString::Cast(object)->VisitRangeSlot<visitType>(visitor);
@@ -757,12 +768,6 @@ public:
             case JSType::NATIVE_MODULE_FAILURE_INFO:
                 NativeModuleFailureInfo::Cast(object)->VisitRangeSlot<visitType>(visitor);
                 break;
-#ifdef USE_CMC_GC
-            case JSType::FREE_OBJECT_WITH_NONE_FIELD:
-            case JSType::FREE_OBJECT_WITH_ONE_FIELD:
-            case JSType::FREE_OBJECT_WITH_TWO_FIELD:
-                break;
-#endif
             default:
                 LOG_ECMA(FATAL) << "this branch is unreachable, type: " << static_cast<size_t>(type);
                 UNREACHABLE();

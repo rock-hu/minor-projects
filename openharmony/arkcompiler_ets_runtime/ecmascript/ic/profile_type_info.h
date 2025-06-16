@@ -249,7 +249,8 @@ public:
 
     void SetExtraInfoMap(const JSThread *thread, JSHandle<NumberDictionary> extraInfoMap)
     {
-        Barriers::SetObject<true>(thread, GetData(), GetExtraInfoMapOffset(),
+        Barriers::SetObject<true>(thread, reinterpret_cast<void*>(this),
+                                  TaggedArray::DATA_OFFSET + GetExtraInfoMapOffset(),
                                   extraInfoMap.GetTaggedValue().GetRawData());
     }
 
@@ -468,6 +469,7 @@ public:
         return JSTaggedValue(value.GetWeakReferent());
     }
     void SetAsMega() const;
+    void SetAsMegaIfUndefined() const;
     void SetAsMegaForTraceSlowMode(ObjectOperator& op) const;
     void SetAsMegaForTrace(JSTaggedValue value) const;
 

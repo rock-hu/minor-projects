@@ -488,17 +488,16 @@ bool ScrollablePattern::CoordinateWithNavigation(double& offset, int32_t source,
 
 void ScrollablePattern::SetUiDvsyncSwitch(bool on)
 {
-    TAG_LOGI(AceLogTag::ACE_WEB, "WebPattern::SetUiDvsyncSwitch ");
     auto context = GetContext();
     CHECK_NULL_VOID(context);
     bool WebNestedScrollExisted = GetWebNestedScrollExisted();
     if (on && inScrollingStatus_ && !WebNestedScrollExisted) {
-        TAG_LOGI(AceLogTag::ACE_WEB, "WebPattern::SetUiDvsyncSwitch SetUiDvsyncSwitch true");
+        TAG_LOGI(AceLogTag::ACE_SCROLLABLE, "ScrollablePattern::SetUiDvsyncSwitch SetUiDvsyncSwitch true");
         inScrollingStatus_ = false;
         context->SetUiDvsyncSwitch(true);
         switchOnStatus_ = true;
     } else if (!on && switchOnStatus_) {
-        TAG_LOGI(AceLogTag::ACE_WEB, "WebPattern::SetUiDvsyncSwitch SetUiDvsyncSwitch false");
+        TAG_LOGI(AceLogTag::ACE_SCROLLABLE, "ScrollablePattern::SetUiDvsyncSwitch SetUiDvsyncSwitch false");
         context->SetUiDvsyncSwitch(false);
         switchOnStatus_ = false;
     }
@@ -766,6 +765,20 @@ void ScrollablePattern::SetGetSnapTypeCallback(const RefPtr<Scrollable>& scrolla
     });
 }
 
+void ScrollablePattern::SetOnWillStopDraggingCallback(const RefPtr<Scrollable>& scrollable)
+{
+    CHECK_NULL_VOID(scrollable);
+    scrollable->SetOnWillStopDraggingCallback([weak = WeakClaim(this)](float velocity) {
+        auto pattern = weak.Upgrade();
+        CHECK_NULL_VOID(pattern);
+        auto eventHub = pattern->GetOrCreateEventHub<ScrollableEventHub>();
+        CHECK_NULL_VOID(eventHub);
+        OnWillStopDraggingEvent callback = eventHub->GetOnWillStopDragging();
+        CHECK_NULL_VOID(callback);
+        callback(Dimension(velocity));
+    });
+}
+
 RefPtr<Scrollable> ScrollablePattern::CreateScrollable()
 {
     auto host = GetHost();
@@ -792,6 +805,7 @@ RefPtr<Scrollable> ScrollablePattern::CreateScrollable()
     SetDragFRCSceneCallback(scrollable);
     SetOnContinuousSliding(scrollable);
     SetGetSnapTypeCallback(scrollable);
+    SetOnWillStopDraggingCallback(scrollable);
     if (!NearZero(velocityScale_)) {
         scrollable->SetUnstaticVelocityScale(velocityScale_);
     }
@@ -2326,7 +2340,7 @@ ScrollResult ScrollablePattern::HandleScrollSelfFirst(float& offset, int32_t sou
     offset -= overOffset;
     auto result = parent->HandleScroll(overOffset + remainOffset, source, NestedState::CHILD_SCROLL, GetVelocity());
     if (NearZero(result.remain)) {
-        SetCanOverScroll(!InstanceOf<ScrollablePattern>(parent) || result.reachEdge);
+        SetCanOverScroll(!InstanceOf<ScrollablePattern>(parent) || result.reachEdge || IsEnablePagingValid());
         return { 0, GetCanOverScroll() };
     }
     if (state == NestedState::CHILD_SCROLL) {
@@ -2352,7 +2366,7 @@ ScrollResult ScrollablePattern::HandleScrollSelfOnly(float& offset, int32_t sour
     remainOffset += overOffset;
     if (NearZero(remainOffset)) {
         SetCanOverScroll(false);
-        return { 0, IsEnablePagingValid() };
+        return { 0, false };
     }
     bool canOverScroll = false;
     if (state == NestedState::CHILD_SCROLL) {
@@ -4307,10 +4321,6 @@ void ScrollablePattern::StopScrollableAndAnimate()
 void ScrollablePattern::GetRepeatCountInfo(
     RefPtr<UINode> node, int32_t& repeatDifference, int32_t& firstRepeatCount, int32_t& totalChildCount)
 {
-    if (auto* adapter = GetScrollWindowAdapter(); adapter) {
-        totalChildCount = adapter->GetTotalCount();
-        return;
-    }
     CHECK_NULL_VOID(node);
     auto& children = node->GetChildren();
     for (const auto& child : children) {

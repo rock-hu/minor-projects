@@ -47,6 +47,7 @@ bool PGOProfilerManager::MergeApFiles(const std::string& inFiles,
     bool hasMerged = false;
     std::string firstApFileName;
     for (const auto& fileName: apFileNames) {
+        LOG_ECMA(INFO) << "merge ap file: " << fileName;
         if (!base::StringHelper::EndsWith(fileName, ".ap")) {
             LOG_ECMA(ERROR) << "The file path (" << fileName << ") does not end with .ap";
             continue;
@@ -97,6 +98,7 @@ bool PGOProfilerManager::MergeApFiles(std::unordered_map<CString, uint32_t> &fil
     bool hasMerged = false;
     std::string firstApFileName;
     for (const auto& fileName : pgoFileNamesVector) {
+        LOG_ECMA(INFO) << "merge ap file: " << fileName;
         PGOProfilerDecoder decoder(fileName, hotnessThreshold);
         if (!decoder.LoadAndVerify(fileNameToChecksumMap, merger.GetAbcFilePool())) {
             LOG_ECMA(ERROR) << "Load and verify file (" << fileName << ") failed, skip it.";
@@ -327,7 +329,7 @@ void PGOProfilerManager::SetDisablePGO(bool state)
 
 void PGOProfilerManager::DispatchDumpTask()
 {
-    Taskpool::GetCurrentTaskpool()->PostTask(std::make_unique<PGODumpTask>(GLOBAL_TASK_ID));
+    common::Taskpool::GetCurrentTaskpool()->PostTask(std::make_unique<PGODumpTask>(common::GLOBAL_TASK_ID));
 }
 
 bool PGOProfilerManager::IsProfilerDestroyed(PGOProfiler* profiler)
@@ -528,7 +530,8 @@ void PGOProfilerManager::PostResetOutPathTask(const std::string& moduleName)
     if (!hasPostModuleName_.compare_exchange_strong(expected, desired)) {
         return;
     }
-    Taskpool::GetCurrentTaskpool()->PostTask(std::make_unique<ResetOutPathTask>(moduleName, GLOBAL_TASK_ID));
+    common::Taskpool::GetCurrentTaskpool()->PostTask(
+        std::make_unique<ResetOutPathTask>(moduleName, common::GLOBAL_TASK_ID));
 }
 
 bool PGOProfilerManager::IsInitialized() const

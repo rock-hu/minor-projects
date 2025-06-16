@@ -26,17 +26,16 @@ struct NativeBindingAttachInfo {
     void *bufferPointer_ {nullptr};
     void *hint_ = {nullptr};
     void *attachData_ = {nullptr};
-    uintptr_t objAddr_ {0U};
+    JSHandle<JSTaggedValue> obj_;
     size_t offset_ {0U};
-    bool root_ {false};
 
     NativeBindingAttachInfo(AttachFunc af, void *bufferPointer, void *hint, void *attachData,
-                            uintptr_t objAddr, size_t offset, bool root) : af_(af), bufferPointer_(bufferPointer),
-        hint_(hint), attachData_(attachData), objAddr_(objAddr), offset_(offset), root_(root) {}
+                            JSHandle<JSTaggedValue> obj, size_t offset) : af_(af), bufferPointer_(bufferPointer),
+        hint_(hint), attachData_(attachData), obj_(obj), offset_(offset) {}
 
     uintptr_t GetObjAddr() const
     {
-        return objAddr_;
+        return static_cast<uintptr_t>(obj_.GetTaggedType());
     }
 
     size_t GetFieldOffset() const
@@ -46,23 +45,22 @@ struct NativeBindingAttachInfo {
 
     ObjectSlot GetSlot() const
     {
-        return ObjectSlot(objAddr_ + offset_);
+        return ObjectSlot(GetObjAddr() + offset_);
     }
 };
 
 struct JSErrorInfo {
     uint8_t errorType_ {0};
-    JSTaggedValue errorMsg_;
-    uintptr_t objAddr_ {0U};
+    JSHandle<JSTaggedValue> errorMsg_;
+    JSHandle<JSTaggedValue> obj_;
     size_t offset_ {0U};
-    bool root_ {false};
 
-    JSErrorInfo(uint8_t errorType, JSTaggedValue errorMsg, uintptr_t objAddr, size_t offset, bool root)
-        : errorType_(errorType), errorMsg_(errorMsg), objAddr_(objAddr), offset_(offset), root_(root) {}
+    JSErrorInfo(uint8_t errorType, JSHandle<JSTaggedValue> errorMsg, JSHandle<JSTaggedValue> obj, size_t offset)
+        : errorType_(errorType), errorMsg_(errorMsg), obj_(obj), offset_(offset) {}
 
     uintptr_t GetObjAddr() const
     {
-        return objAddr_;
+        return static_cast<uintptr_t>(obj_.GetTaggedType());
     }
 
     size_t GetFieldOffset() const
@@ -72,7 +70,7 @@ struct JSErrorInfo {
 
     ObjectSlot GetSlot() const
     {
-        return ObjectSlot(objAddr_ + offset_);
+        return ObjectSlot(GetObjAddr() + offset_);
     }
 };
 
@@ -80,7 +78,7 @@ class BaseDeserializer {
 public:
     explicit BaseDeserializer(JSThread *thread, SerializeData *data, void *hint = nullptr);
 
-    ~BaseDeserializer()
+    virtual ~BaseDeserializer()
     {
         objectVector_.clear();
         regionVector_.clear();
@@ -91,23 +89,24 @@ public:
 
     JSHandle<JSTaggedValue> ReadValue();
 
+protected:
+    virtual uintptr_t DeserializeTaggedObject(SerializedObjectSpace space);
+
 private:
     JSHandle<JSTaggedValue> DeserializeJSTaggedValue();
-    uintptr_t DeserializeTaggedObject(SerializedObjectSpace space);
     void DeserializeNativeBindingObject(NativeBindingAttachInfo *info);
     void DeserializeJSError(JSErrorInfo *info);
     uintptr_t RelocateObjectAddr(SerializedObjectSpace space, size_t objSize);
     JSTaggedType RelocateObjectProtoAddr(uint8_t objectType);
     void DeserializeObjectField(uintptr_t start, uintptr_t end);
-    size_t ReadSingleEncodeData(uint8_t encodeFlag, uintptr_t objAddr, size_t fieldOffset, bool isRoot = false);
-    void HandleNewObjectEncodeFlag(SerializedObjectSpace space, uintptr_t objAddr, size_t fieldOffset, bool isRoot);
+    size_t ReadSingleEncodeData(uint8_t encodeFlag, uintptr_t objAddr, size_t fieldOffset);
+    void HandleNewObjectEncodeFlag(SerializedObjectSpace space, uintptr_t objAddr, size_t fieldOffset);
 
     void TransferArrayBufferAttach(uintptr_t objAddr);
     void IncreaseSharedArrayBufferReference(uintptr_t objAddr);
     void ResetNativePointerBuffer(uintptr_t objAddr, void *bufferPointer);
 
     void AllocateToDifferentSpaces();
-#ifdef USE_CMC_GC
     enum class RegionType : uint8_t {
         RegularRegion,
         PinRegion,
@@ -115,7 +114,6 @@ private:
     void AllocateToRegularSpace(size_t regularSpaceSize);
     void AllocateToPinSpace(size_t pinSpaceSize);
     uintptr_t AllocateMultiCMCRegion(size_t spaceObjSize, size_t &regionIndex, RegionType regionType);
-#else
     void AllocateMultiRegion(SparseSpace *space, size_t spaceObjSize, size_t &regionIndex,
                              SerializedObjectSpace spaceType);
     void AllocateMultiSharedRegion(SharedSparseSpace *space, size_t spaceObjSize, size_t &regionIndex,
@@ -125,7 +123,6 @@ private:
     void AllocateToMachineCodeSpace(size_t machineCodeSpaceSize);
     void AllocateToSharedOldSpace(size_t sOldSpaceSize);
     void AllocateToSharedNonMovableSpace(size_t sNonMovableSpaceSize);
-#endif
     bool GetAndResetWeak()
     {
         bool isWeak = isWeak_;
@@ -222,13 +219,26 @@ private:
         isWeak ? slot.UpdateWeak(addr) : slot.Update(addr);
     }
 
+    bool *GetLazyArray()
+    {
+        if (moduleLazyArray_) {
+            bool *buffer = moduleLazyArray_;
+            moduleLazyArray_ = nullptr;
+            return buffer;
+        }
+        return nullptr;
+    }
+
+protected:
+    SerializeData *data_;
+    size_t position_ {0};
+    CVector<JSTaggedType> objectVector_ {};
+
 private:
     JSThread *thread_;
     Heap *heap_;
     SharedHeap *sheap_;
-    SerializeData *data_;
     void *engine_;
-#ifdef USE_CMC_GC
     uintptr_t currentRegularObjectAddr_ {0};
     uintptr_t currentRegularRegionBeginAddr_ {0};
     uintptr_t currentPinObjectAddr_ {0};
@@ -236,7 +246,6 @@ private:
     size_t regularRegionIndex_ {0};
     size_t pinRegionIndex_ {0};
     CVector<uintptr_t> regionVector_;
-#else
     uintptr_t oldSpaceBeginAddr_ {0};
     uintptr_t nonMovableSpaceBeginAddr_ {0};
     uintptr_t machineCodeSpaceBeginAddr_ {0};
@@ -247,21 +256,21 @@ private:
     size_t machineCodeRegionIndex_ {0};
     size_t sOldRegionIndex_ {0};
     size_t sNonMovableRegionIndex_ {0};
-    CVector<Region *> regionVector_;
-#endif
     // SerializationChunk store shared objects which have been serialized
     SerializationChunk *sharedObjChunk_ {nullptr};
-    CVector<JSTaggedType> objectVector_;
     bool isWeak_ {false};
     bool isTransferArrayBuffer_ {false};
     bool isSharedArrayBuffer_ {false};
     bool isErrorMsg_ {false};
     void *bufferPointer_ {nullptr};
     bool functionInShared_ {false};
-    CVector<NativeBindingAttachInfo *> nativeBindingAttachInfos_;
-    CVector<JSErrorInfo *> jsErrorInfos_;
+    CVector<NativeBindingAttachInfo> nativeBindingAttachInfos_;
+    CVector<JSErrorInfo> jsErrorInfos_;
     CVector<JSHandle<JSFunction>> concurrentFunctions_;
-    size_t position_ {0};
+    // module deserialize
+    CString moduleFileName_ {};
+    CString moduleRecordName_ {};
+    bool* moduleLazyArray_ {nullptr};
 };
 }
 

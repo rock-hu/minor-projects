@@ -23,19 +23,20 @@ namespace panda::ecmascript::kungfu {
 class NTypeBytecodeLowering {
 public:
     NTypeBytecodeLowering(Circuit *circuit, PassContext *ctx,
-                          bool enableLog, const std::string& name, const CString& recordName)
+                          bool enableLog, bool enableLazyDeopt, const std::string& name, const CString& recordName)
         : circuit_(circuit),
           acc_(circuit),
           builder_(circuit, ctx->GetCompilerConfig()),
           ptManager_(ctx->GetPTManager()),
           jsPandaFile_(ctx->GetJSPandaFile()),
           enableLog_(enableLog),
+          enableLazyDeopt_(enableLazyDeopt),
           profiling_(ctx->GetCompilerConfig()->IsProfiling()),
           traceBc_(ctx->GetCompilerConfig()->IsTraceBC()),
           methodName_(name),
           recordName_(recordName),
           glue_(acc_.GetGlueFromArgList()),
-          argAcc_(circuit),
+          argAcc_(circuit->GetArgumentAccessor()),
           compilationEnv_(ctx->GetCompilationEnv()) {}
 
     ~NTypeBytecodeLowering() = default;
@@ -52,6 +53,7 @@ private:
     void LowerStLexVar(GateRef gate);
     void LowerThrowUndefinedIfHoleWithName(GateRef gate);
     void LowerLdLocalMoudleVar(GateRef gate);
+    void LowerLdExternalMoudleVar(GateRef gate);
     void LowerStModuleVar(GateRef gate);
     void LowerNTypedStOwnByName(GateRef gate);
     void LowerThrowIfSuperNotCorrectCall(GateRef gate);
@@ -102,12 +104,13 @@ private:
     PGOTypeManager *ptManager_ {nullptr};
     const JSPandaFile *jsPandaFile_ {nullptr};
     bool enableLog_ {false};
+    bool enableLazyDeopt_;
     bool profiling_ {false};
     bool traceBc_ {false};
     std::string methodName_;
     const CString recordName_;
     GateRef glue_ {Circuit::NullGate()};
-    ArgumentAccessor argAcc_;
+    ArgumentAccessor *argAcc_;
     const CompilationEnv *compilationEnv_ {nullptr};
 };
 }  // panda::ecmascript::kungfu

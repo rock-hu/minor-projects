@@ -29,7 +29,7 @@
     V("getInlinedPropertiesCount",      GetInlinedPropertiesCount,      1, INVALID)       \
     V("excutePendingJob",               ExcutePendingJob,               0, INVALID)       \
     V("forceFullGC",                    ForceFullGC,                    0, INVALID)       \
-    V("forceLazyDeopt",                 ForceLazyDeopt,                 2, INVALID)       \
+    V("forceLazyDeopt",                 ForceLazyDeopt,                 3, INVALID)       \
     V("getHClass",                      GetHClass,                      1, INVALID)       \
     V("getLexicalEnv",                  GetLexicalEnv,                  1, INVALID)       \
     V("currentEnvIsGlobal",             CurrentEnvIsGlobal,             1, INVALID)       \
@@ -144,6 +144,7 @@
     V("inOldSpace",                                InOldSpace,                                1, INVALID)     \
     V("createNapiObject",                          CreateNapiObject,                          0, INVALID)     \
     V("hasConstructor",                            HasConstructor,                            1, INVALID)     \
+    V("setHotReloadPatchMain",                     SetHotReloadPatchMain,                     0, INVALID)     \
 
 #define BUILTIN_ARK_TOOLS_FUNCTIONS_JITCOMPILE(V)                                                             \
     V("jitCompileSync",                            JitCompileSync,                            1, INVALID)     \
@@ -463,6 +464,8 @@ public:
     {
         return Span<const base::BuiltinFunctionEntry>(ARK_TOOLS_FUNCTIONS);
     }
+
+    static JSTaggedValue SetHotReloadPatchMain(EcmaRuntimeCallInfo *info);
 
 private:
 #define BUILTINS_ARK_TOOLS_FUNCTION_ENTRY(name, method, length, id) \

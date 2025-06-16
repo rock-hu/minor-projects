@@ -18,14 +18,12 @@
 
 #include <atomic>
 #include <mutex>
+#include <pthread.h>
 #include "base/common.h"
 
-namespace panda {
-class ThreadHolder;
-}
-
-namespace panda {
+namespace common {
 class Mutator;
+class ThreadHolder;
 
 // GCPhase describes phases for stw/concurrent gc.
 enum GCPhase : uint8_t {
@@ -310,7 +308,7 @@ private:
     void *jsThread_ {nullptr};
 
     friend Mutator;
-    friend panda::ThreadHolder;
+    friend ThreadHolder;
 };
-}  // namespace panda
+}  // namespace common
 #endif  // COMMON_INTERFACES_THREAD_MUTATOR_BASE_H

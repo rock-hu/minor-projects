@@ -17,19 +17,22 @@
 
 #include "common_components/base_runtime/base_runtime_param.h"
 #include "common_components/base_runtime/hooks.h"
-#include "common_components/common_runtime/src/common/page_pool.h"
-#include "common_components/common_runtime/src/heap/allocator/region_desc.h"
-#include "common_components/common_runtime/src/heap/heap.h"
-#include "common_components/common_runtime/src/heap_manager.h"
-#include "common_components/common_runtime/src/log_manager.h"
-#include "common_components/common_runtime/src/mutator/mutator_manager.h"
+#include "common_components/common/page_pool.h"
+#include "common_components/heap/allocator/region_desc.h"
+#include "common_components/heap/collector/heuristic_gc_policy.h"
+#include "common_components/heap/heap.h"
+#include "common_components/heap/heap_manager.h"
+#include "common_components/mutator/mutator_manager.h"
+#include "common_interfaces/objects/composite_base_class.h"
+#include "common_components/objects/string_table_internal.h"
+#include "common_interfaces/objects/base_string_table.h"
 #include "common_interfaces/thread/thread_state_transition.h"
 
-namespace panda {
-namespace ecmascript {
+namespace panda::ecmascript {
 class TaggedObject;
 }
 
+namespace common {
 using panda::ecmascript::TaggedObject;
 
 std::mutex BaseRuntime::vmCreationLock_;
@@ -98,11 +101,11 @@ void BaseRuntime::Init(const RuntimeParam &param)
 
     param_ = param;
 
-    PagePool::Instance().Init(param_.heapParam.heapSize * KB / ARK_COMMON_PAGE_SIZE);
-    logManager_ = NewAndInit<LogManager>();
+    PagePool::Instance().Init(param_.heapParam.heapSize * KB / COMMON_PAGE_SIZE);
     mutatorManager_ = NewAndInit<MutatorManager>();
     heapManager_ = NewAndInit<HeapManager>(param_);
-
+    baseClassRoots_ = NewAndInit<BaseClassRoots>();
+    stringTable_ = NewAndInit<BaseStringTableImpl>();
     LOG_COMMON(INFO) << "Arkcommon runtime started.";
     // Record runtime parameter to report. heap growth value needs to plus 1.
     VLOG(REPORT, "Runtime parameter:\n\tHeap size: %zu(KB)\n\tRegion size: %zu(KB)\n\tExemption threshold: %.2f\n\t"
@@ -132,7 +135,8 @@ void BaseRuntime::Fini()
         // here we need to check and call fini.
         CheckAndFini<HeapManager>(heapManager_);
         CheckAndFini<MutatorManager>(mutatorManager_);
-        CheckAndFini<LogManager>(logManager_);
+        CheckAndFini<BaseClassRoots>(baseClassRoots_);
+        CheckAndFini<BaseStringTableImpl>(reinterpret_cast<BaseStringTableImpl*&>(stringTable_));
         PagePool::Instance().Fini();
     }
 
@@ -153,6 +157,9 @@ void BaseRuntime::PreFork(ThreadHolder *holder)
 void BaseRuntime::PostFork()
 {
     HeapManager::StartRuntimeThreads();
+#ifdef ENABLE_COLD_STARTUP_GC_POLICY
+    StartupStatusManager::OnAppStartup();
+#endif
 }
 
 void BaseRuntime::WriteBarrier(void* obj, void* field, void* ref)
@@ -204,6 +211,6 @@ void BaseRuntime::WaitForGCFinish() { Heap::GetHeap().WaitForGCFinish(); }
 
 bool BaseRuntime::ForEachObj(HeapVisitor& visitor, bool safe)
 {
-    return panda::Heap::GetHeap().ForEachObject(visitor, safe);
+    return Heap::GetHeap().ForEachObject(visitor, safe);
 }
-}  // namespace panda
+}  // namespace common

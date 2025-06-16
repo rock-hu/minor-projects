@@ -16,9 +16,7 @@
 #ifndef ECMASCRIPT_RUNTIME_H
 #define ECMASCRIPT_RUNTIME_H
 
-#ifdef USE_CMC_GC
 #include "common_interfaces/base_runtime.h"
-#endif
 #include "ecmascript/ecma_string_table.h"
 #include "ecmascript/global_env_constants.h"
 #include "ecmascript/js_runtime_options.h"
@@ -36,6 +34,7 @@
 #include <memory>
 
 namespace panda::ecmascript {
+class EcmaStringTable;
 using AppfreezeFilterCallback = std::function<bool(const int32_t pid, const bool needDecreaseQuota)>;
 class Runtime {
 public:
@@ -176,9 +175,7 @@ public:
     void EraseUnusedConstpool(const JSPandaFile *jsPandaFile, int32_t index, int32_t constpoolIndex);
 
     void ProcessNativeDeleteInSharedGC(const WeakRootVisitor &visitor);
-#ifdef USE_CMC_GC
     void IteratorNativeDeleteInSharedGC(WeakVisitor &visitor);
-#endif
 
     void ProcessSharedNativeDelete(const WeakRootVisitor &visitor);
     void InvokeSharedNativePointerCallbacks();
@@ -255,6 +252,14 @@ public:
         appfreezeFilterCallback_ = cb;
     }
 
+    NativeAreaAllocator *GetNativeAreaAllocator() const
+    {
+        return nativeAreaAllocator_.get();
+    }
+
+    void PreFork(JSThread *thread);
+    void PostFork();
+
     RawHeapDumpCropLevel GetRawHeapDumpCropLevel() const
     {
         return rawHeapDumpCropLevel_;
@@ -265,13 +270,6 @@ public:
         rawHeapDumpCropLevel_ = level;
     }
 
-    NativeAreaAllocator *GetNativeAreaAllocator() const
-    {
-        return nativeAreaAllocator_.get();
-    }
-
-    void PreFork(JSThread *thread);
-    void PostFork();
 private:
     static constexpr int32_t WORKER_DESTRUCTION_COUNT = 3;
     static constexpr int32_t MIN_GC_TRIGGER_VM_COUNT = 4;
@@ -283,6 +281,8 @@ private:
 
     void PreInitialization(const EcmaVM *vm);
     void PostInitialization(const EcmaVM *vm);
+
+    static void InitGCConfig(const JSRuntimeOptions &options);
 
     uint32_t GetSerializeDataIndex()
     {
@@ -342,9 +342,7 @@ private:
     static bool firstVmCreated_;
     static Mutex *vmCreationLock_;
     static Runtime *instance_;
-#ifdef USE_CMC_GC
-    static BaseRuntime *baseInstance_;
-#endif
+    static common::BaseRuntime *baseInstance_;
 
     // for string cache
     JSTaggedValue *externalRegisteredStringTable_ {nullptr};
@@ -358,7 +356,7 @@ private:
 
     // for rawheap dump crop level
     RawHeapDumpCropLevel rawHeapDumpCropLevel_ {RawHeapDumpCropLevel::DEFAULT};
-    
+
     friend class EcmaVM;
     friend class JSThread;
     friend class SharedHeap;

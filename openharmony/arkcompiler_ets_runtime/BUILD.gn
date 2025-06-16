@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2024 Huawei Device Co., Ltd.
+# Copyright (c) 2021-2025 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -352,8 +352,14 @@ config("ark_jsruntime_common_config") {
   defines = [ "PANDA_ENABLE_LTO" ]
 
   if (ets_runtime_enable_cmc_gc) {
+    defines += [ "DEFAULT_USE_CMC_GC" ]
     defines += [ "USE_CMC_GC" ]
-    defines += [ "USE_READ_BARRIER" ]
+    if (current_cpu != "arm") {
+      defines += [ "USE_READ_BARRIER" ]
+    }
+    if (is_ohos && current_cpu == "arm64") {
+      defines += [ "ENABLE_COLD_STARTUP_GC_POLICY" ]
+    }
     if (ets_runtime_enable_cmc_rb_dfx) {
         defines += [ "ENABLE_CMC_RB_DFX" ]
         print("########## ets_runtime enable cmc RB-DFX ##############")
@@ -369,7 +375,7 @@ config("ark_jsruntime_common_config") {
   if (ark_standalone_build) {
     defines += [ "STANDALONE_MODE" ]
   }
-  
+
   if (enable_next_optimization) {
     defines += [ "NEXT_OPTIMIZATION_MACRO" ]
   }
@@ -699,7 +705,6 @@ ecma_source = [
   "ecmascript/base/sort_helper.cpp",
   "ecmascript/base/string_helper.cpp",
   "ecmascript/base/typed_array_helper.cpp",
-  "ecmascript/base/utf_helper.cpp",
   "ecmascript/base/bit_helper.cpp",
   "ecmascript/builtins/builtins.cpp",
   "ecmascript/builtins/builtins_ark_tools.cpp",
@@ -753,8 +758,11 @@ ecma_source = [
   "ecmascript/builtins/builtins_weak_set.cpp",
   "ecmascript/builtins/shared_builtins.cpp",
   "ecmascript/byte_array.cpp",
+  "ecmascript/base/config.cpp",
   "ecmascript/ohos/code_decrypt.cpp",
   "ecmascript/ohos/enable_aot_list_helper.cpp",
+  "ecmascript/ohos/js_pandafile_snapshot_interfaces.cpp",
+  "ecmascript/ohos/module_snapshot_interfaces.cpp",
   "ecmascript/compiler/aot_constantpool_patcher.cpp",
   "ecmascript/compiler/aot_file/elf_builder.cpp",
   "ecmascript/compiler/aot_file/elf_reader.cpp",
@@ -848,6 +856,7 @@ ecma_source = [
   "ecmascript/jobs/micro_job_queue.cpp",
   "ecmascript/jspandafile/js_pandafile.cpp",
   "ecmascript/jspandafile/js_pandafile_manager.cpp",
+  "ecmascript/jspandafile/js_pandafile_snapshot.cpp",
   "ecmascript/jspandafile/class_info_extractor.cpp",
   "ecmascript/jspandafile/debug_info_extractor.cpp",
   "ecmascript/jspandafile/literal_data_extractor.cpp",
@@ -932,7 +941,6 @@ ecma_source = [
   "ecmascript/mem/c_string.cpp",
   "ecmascript/mem/chunk.cpp",
   "ecmascript/mem/dyn_chunk.cpp",
-  "ecmascript/mem/dynamic_object_operator.cpp",
   "ecmascript/mem/full_gc.cpp",
   "ecmascript/mem/concurrent_marker.cpp",
   "ecmascript/mem/concurrent_sweeper.cpp",
@@ -986,6 +994,7 @@ ecma_source = [
   "ecmascript/module/module_path_helper.cpp",
   "ecmascript/module/napi_module_loader.cpp",
   "ecmascript/module/module_resolver.cpp",
+  "ecmascript/module/module_snapshot.cpp",
   "ecmascript/mutator_lock.cpp",
   "ecmascript/napi/jsnapi.cpp",
   "ecmascript/napi/jsnapi_expo.cpp",
@@ -1009,6 +1018,8 @@ ecma_source = [
   "ecmascript/property_accessor.cpp",
   "ecmascript/serializer/base_deserializer.cpp",
   "ecmascript/serializer/base_serializer.cpp",
+  "ecmascript/serializer/module_deserializer.cpp",
+  "ecmascript/serializer/module_serializer.cpp",
   "ecmascript/serializer/value_serializer.cpp",
   "ecmascript/shared_object_factory.cpp",
   "ecmascript/shared_objects/js_shared_map.cpp",
@@ -1053,29 +1064,35 @@ ecma_source = [
 
 # ecmascript use implement from common_components
 ecma_source += [
+  "common_components/base/utf_helper.cpp",
   "common_components/log/log.cpp",
   "common_components/objects/base_object.cpp",
   "common_components/objects/base_string.cpp",
+  "common_components/objects/base_string_table.cpp",
+  "common_components/objects/composite_base_class.cpp",
   "common_components/taskpool/taskpool.cpp",
   "common_components/taskpool/runner.cpp",
   "common_components/taskpool/task_queue.cpp",
 ]
 
-if (ets_runtime_enable_cmc_gc) {
-  ecma_source += [ "ecmascript/mem/cmc_gc/hooks.cpp" ]
-}
+ecma_source += [
+  "ecmascript/mem/cmc_gc/hooks.cpp",
+  "ecmascript/mem/dynamic_object_operator.cpp",
+]
 
 if (ark_js_hybrid) {
   ecma_source += [ "ecmascript/cross_vm/cross_vm_operator.cpp" ]
 }
 
-if (current_cpu == "arm64") {
-  ecma_source += [ "ecmascript/trampoline/aarch64/raw_asm_stub.S" ]
-} else if (current_cpu == "amd64" || current_cpu == "x64" ||
-           current_cpu == "x86_64") {
-  ecma_source += [ "ecmascript/trampoline/x64/raw_asm_stub.S" ]
-} else if (current_cpu == "arm") {
-  ecma_source += [ "ecmascript/trampoline/arm32/raw_asm_stub.S" ]
+if (!is_arkui_x) {
+  if (current_cpu == "arm64") {
+    ecma_source += [ "ecmascript/trampoline/aarch64/raw_asm_stub.S" ]
+  } else if (current_cpu == "amd64" || current_cpu == "x64" ||
+            current_cpu == "x86_64") {
+    ecma_source += [ "ecmascript/trampoline/x64/raw_asm_stub.S" ]
+  } else if (current_cpu == "arm") {
+    ecma_source += [ "ecmascript/trampoline/arm32/raw_asm_stub.S" ]
+  }
 }
 
 if (enable_next_optimization) {
@@ -1206,6 +1223,8 @@ config("include_llvm") {
 if (is_mingw) {
   ecma_platform_source += [
     "common_components/platform/windows/cpu.cpp",
+    "common_components/platform/windows/map.cpp",
+    "common_components/platform/windows/os.cpp",
     "ecmascript/platform/common/dfx_crash_obj.cpp",
     "ecmascript/platform/windows/backtrace.cpp",
     "ecmascript/platform/windows/async_detect.cpp",
@@ -1224,6 +1243,7 @@ if (is_mingw) {
   ]
 } else {
   ecma_platform_source += [
+    "common_components/platform/unix/map.cpp",
     "ecmascript/platform/unix/file.cpp",
     "ecmascript/platform/unix/map.cpp",
     "ecmascript/platform/unix/time.cpp",
@@ -1232,6 +1252,7 @@ if (is_mingw) {
   if (is_mac) {
     ecma_platform_source += [
       "common_components/platform/unix/mac/cpu.cpp",
+      "common_components/platform/unix/mac/os.cpp",
       "ecmascript/platform/common/dfx_crash_obj.cpp",
       "ecmascript/platform/unix/mac/os.cpp",
       "ecmascript/platform/unix/mac/backtrace.cpp",
@@ -1247,6 +1268,7 @@ if (is_mingw) {
   } else if (target_os == "ios") {
     ecma_platform_source += [
       "common_components/platform/unix/mac/cpu.cpp",
+      "common_components/platform/unix/mac/os.cpp",
       "ecmascript/platform/unix/mac/os.cpp",
       "ecmascript/platform/unix/mac/backtrace.cpp",
       "ecmascript/platform/unix/mac/async_detect.cpp",
@@ -1262,6 +1284,7 @@ if (is_mingw) {
   } else if (is_ohos || target_os == "android") {
     ecma_platform_source += [
       "common_components/platform/unix/linux/cpu.cpp",
+      "common_components/platform/unix/linux/os.cpp",
       "ecmascript/platform/unix/linux/os.cpp",
       "ecmascript/platform/unix/ohos/backtrace.cpp",
       "ecmascript/platform/unix/ohos/async_detect.cpp",
@@ -1296,6 +1319,7 @@ if (is_mingw) {
   } else if (is_linux) {
     ecma_platform_source += [
       "common_components/platform/unix/linux/cpu.cpp",
+      "common_components/platform/unix/linux/os.cpp",
       "ecmascript/platform/unix/linux/os.cpp",
       "ecmascript/platform/unix/linux/backtrace.cpp",
       "ecmascript/platform/unix/linux/async_detect.cpp",
@@ -1353,7 +1377,7 @@ ohos_source_set("libcommon_components_set") {
   } else {
     deps += [ "$ark_root/libpandafile:arkfile_header_deps" ]
   }
-  deps += [ "common_components/common_runtime/src:libarkcommon-runtime" ]
+  deps += [ "common_components:libarkcommon-runtime" ]
 
   # hiviewdfx libraries
   external_deps += hiviewdfx_ext_deps
@@ -1457,8 +1481,8 @@ ohos_source_set("libark_jsruntime_test_set") {
     defines += [ "ENABLE_LOCAL_HANDLE_LEAK_DETECT" ]
   }
 
+  deps += [ ":libcommon_components_set" ]
   if (ets_runtime_enable_cmc_gc) {
-    deps += [ ":libcommon_components_set" ]
     if (ark_hybrid) {
       deps += [ "$ark_root/static_core/runtime:libarkruntime_set_static" ]
     }
@@ -1506,8 +1530,8 @@ ohos_source_set("libark_jsruntime_static") {
     ]
   }
 
+  deps += [ ":libcommon_components_set" ]
   if (ets_runtime_enable_cmc_gc) {
-    deps += [ ":libcommon_components_set" ]
     if (ark_hybrid) {
       deps += [ "$ark_root/static_core/runtime:libarkruntime_set_static" ]
     }
@@ -1523,7 +1547,7 @@ ohos_source_set("libark_jsruntime_static") {
 
   if (ark_js_hybrid) {
     if (is_arkui_x) {
-      deps += [ "$arkplatform_root:libarkplatform" ]
+      deps += [ "$arkplatform_root:arkplatform_static" ]
     } else if (ark_standalone_build) {
       external_deps += [ "runtime_core:libarkplatform" ]
     } else {
@@ -1639,6 +1663,7 @@ ohos_shared_library("libark_jsruntime") {
       "icu:shared_icui18n",
       "icu:shared_icuuc",
       "runtime_core:common_interfaces_header",
+      "runtime_core:arkplatform_header",
     ]
   }
   innerapi_tags = [ "platformsdk_indirect" ]
@@ -1696,6 +1721,15 @@ ohos_prebuilt_etc("app_aot_jit_enable_list") {
   } else {
     source = "$js_root/ecmascript/ohos/app_aot_jit_enable_list_default.conf"
   }
+
+  # Set the subsystem name
+  part_name = "ets_runtime"
+  subsystem_name = "arkcompiler"
+}
+
+ohos_prebuilt_etc("app_startup_snapshot") {
+  relative_install_dir = "ark"
+  source = "$js_root/ecmascript/ohos/app_startup_snapshot.conf"
 
   # Set the subsystem name
   part_name = "ets_runtime"
@@ -1869,6 +1903,7 @@ js_type_metadata_sources = [
   "ecmascript/js_type_metadata/js_weak_map.json",
   "ecmascript/js_type_metadata/js_weak_ref.json",
   "ecmascript/js_type_metadata/js_weak_set.json",
+  "ecmascript/js_type_metadata/js_xref_object.json",
   "ecmascript/js_type_metadata/lexical_env.json",
   "ecmascript/js_type_metadata/line_string.json",
   "ecmascript/js_type_metadata/linked_node.json",

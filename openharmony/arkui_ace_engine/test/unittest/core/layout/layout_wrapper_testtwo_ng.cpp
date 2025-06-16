@@ -118,6 +118,19 @@ std::pair<RefPtr<FrameNode>, RefPtr<LayoutWrapperNode>> CreateNodeAndWrapper(
     return std::make_pair(node, layoutWrapper);
 }
 
+std::pair<RefPtr<FrameNode>, RefPtr<LayoutWrapper>> CreateNodeAndWrapper2(
+    const std::string& tag,
+    int32_t nodeId,
+    RectF rf = RectF())
+{
+    auto node = FrameNode::CreateFrameNode(tag, nodeId, AceType::MakeRefPtr<Pattern>());
+    auto layoutWrapper = AceType::DynamicCast<LayoutWrapper>(node);
+    auto geometryNode = node->GetGeometryNode();
+    geometryNode->frame_.rect_ = rf;
+
+    return std::make_pair(node, layoutWrapper);
+}
+
 std::pair<RefPtr<FrameNode>, RefPtr<LayoutWrapperNode>> CreateNodeAndWrapperTestPattern(
     const std::string& tag,
     int32_t nodeId,
@@ -195,7 +208,7 @@ void PresetAttributesForStrategyTest(PaddingProperty& safeAreaPadding0, PaddingP
     };
 }
 
-void PresetSceneForStrategyTest(RefPtr<LayoutWrapperNode> layoutWrapper0, RefPtr<LayoutWrapperNode> layoutWrapper1)
+void PresetSceneForStrategyTest(RefPtr<LayoutWrapper> layoutWrapper0, RefPtr<LayoutWrapper> layoutWrapper1)
 {
     PaddingProperty safeAreaPadding0;
     PaddingProperty safeAreaPadding1;
@@ -972,9 +985,9 @@ HWTEST_F(LayoutWrapperTestTwoNg, EdgeControlOnGetAccumulatedSafeAreaExpand, Test
 {
     auto pipeline = PipelineContext::GetCurrentContext();
     auto [node0, layoutWrapper0] =
-        CreateNodeAndWrapper(OHOS::Ace::V2::FLEX_ETS_TAG, NODE_ID_0, RectF(0.0f, 0.0f, 100.0f, 100.0f));
+        CreateNodeAndWrapper2(OHOS::Ace::V2::FLEX_ETS_TAG, NODE_ID_0, RectF(0.0f, 0.0f, 100.0f, 100.0f));
     auto [child, layoutWrapper1] =
-        CreateNodeAndWrapper(OHOS::Ace::V2::FLEX_ETS_TAG, NODE_ID_1, RectF(10.0f, 20.0f, 75.0f, 55.0f));
+        CreateNodeAndWrapper2(OHOS::Ace::V2::FLEX_ETS_TAG, NODE_ID_1, RectF(10.0f, 20.0f, 75.0f, 55.0f));
     child->MountToParent(node0);
 
     PaddingProperty safeAreaPadding = {
@@ -1007,12 +1020,12 @@ HWTEST_F(LayoutWrapperTestTwoNg, TypeControlOnGetAccumulatedSafeAreaExpand, Test
 {
     auto pipeline = PipelineContext::GetCurrentContext();
     auto [parent, parentWrapper] =
-        CreateNodeAndWrapper(V2::STAGE_ETS_TAG, NODE_ID_0, RectF(0.0f, 0.0f, 200.0f, 200.0f));
+        CreateNodeAndWrapper2(V2::STAGE_ETS_TAG, NODE_ID_0, RectF(0.0f, 0.0f, 200.0f, 200.0f));
     auto [node0, layoutWrapper0] =
-        CreateNodeAndWrapper(OHOS::Ace::V2::FLEX_ETS_TAG, NODE_ID_1, RectF(0.0f, 30.0f, 100.0f, 140.0f));
+        CreateNodeAndWrapper2(OHOS::Ace::V2::FLEX_ETS_TAG, NODE_ID_1, RectF(0.0f, 30.0f, 100.0f, 140.0f));
     node0->MountToParent(parent);
     auto [child, layoutWrapper1] =
-        CreateNodeAndWrapper(OHOS::Ace::V2::FLEX_ETS_TAG, NODE_ID_2, RectF(10.0f, 20.0f, 75.0f, 95.0f));
+        CreateNodeAndWrapper2(OHOS::Ace::V2::FLEX_ETS_TAG, NODE_ID_2, RectF(10.0f, 20.0f, 75.0f, 95.0f));
     child->MountToParent(node0);
     
     pipeline->stageManager_ = AceType::MakeRefPtr<StageManager>(parent);
@@ -1059,9 +1072,9 @@ HWTEST_F(LayoutWrapperTestTwoNg, StrategyControlOnGetAccumulatedSafeAreaExpand00
 {
     auto pipeline = PipelineContext::GetCurrentContext();
     auto [node0, layoutWrapper0] =
-        CreateNodeAndWrapper(OHOS::Ace::V2::FLEX_ETS_TAG, NODE_ID_0, RectF(0.0f, 0.0f, 200.0f, 200.0f));
+        CreateNodeAndWrapper2(OHOS::Ace::V2::FLEX_ETS_TAG, NODE_ID_0, RectF(0.0f, 0.0f, 200.0f, 200.0f));
     auto [child, layoutWrapper1] =
-        CreateNodeAndWrapper(OHOS::Ace::V2::FLEX_ETS_TAG, NODE_ID_1, RectF(10.0f, 20.0f, 165.0f, 145.0f));
+        CreateNodeAndWrapper2(OHOS::Ace::V2::FLEX_ETS_TAG, NODE_ID_1, RectF(10.0f, 20.0f, 165.0f, 145.0f));
     child->MountToParent(node0);
     PresetSceneForStrategyTest(layoutWrapper0, layoutWrapper1);
 
@@ -1104,9 +1117,9 @@ HWTEST_F(LayoutWrapperTestTwoNg, StrategyControlOnGetAccumulatedSafeAreaExpand00
 {
     auto pipeline = PipelineContext::GetCurrentContext();
     auto [node0, layoutWrapper0] =
-        CreateNodeAndWrapper(OHOS::Ace::V2::FLEX_ETS_TAG, NODE_ID_0, RectF(0.0f, 0.0f, 200.0f, 200.0f));
+        CreateNodeAndWrapper2(OHOS::Ace::V2::FLEX_ETS_TAG, NODE_ID_0, RectF(0.0f, 0.0f, 200.0f, 200.0f));
     auto [child, layoutWrapper1] =
-        CreateNodeAndWrapper(OHOS::Ace::V2::FLEX_ETS_TAG, NODE_ID_1, RectF(10.0f, 20.0f, 165.0f, 145.0f));
+        CreateNodeAndWrapper2(OHOS::Ace::V2::FLEX_ETS_TAG, NODE_ID_1, RectF(10.0f, 20.0f, 165.0f, 145.0f));
     child->MountToParent(node0);
     PresetSceneForStrategyTest(layoutWrapper0, layoutWrapper1);
 
@@ -1142,9 +1155,9 @@ HWTEST_F(LayoutWrapperTestTwoNg, StrategyControlOnGetAccumulatedSafeAreaExpand00
 {
     auto pipeline = PipelineContext::GetCurrentContext();
     auto [node0, layoutWrapper0] =
-        CreateNodeAndWrapper(OHOS::Ace::V2::FLEX_ETS_TAG, NODE_ID_0, RectF(0.0f, 0.0f, 200.0f, 200.0f));
+        CreateNodeAndWrapper2(OHOS::Ace::V2::FLEX_ETS_TAG, NODE_ID_0, RectF(0.0f, 0.0f, 200.0f, 200.0f));
     auto [child, layoutWrapper1] =
-        CreateNodeAndWrapper(OHOS::Ace::V2::FLEX_ETS_TAG, NODE_ID_1, RectF(10.0f, 20.0f, 165.0f, 145.0f));
+        CreateNodeAndWrapper2(OHOS::Ace::V2::FLEX_ETS_TAG, NODE_ID_1, RectF(10.0f, 20.0f, 165.0f, 145.0f));
     child->MountToParent(node0);
     PresetSceneForStrategyTest(layoutWrapper0, layoutWrapper1);
     PaddingProperty margin1 = {
@@ -1194,12 +1207,12 @@ HWTEST_F(LayoutWrapperTestTwoNg, OverBorderPaddingOnGetAccumulatedSafeAreaExpand
 {
     auto pipeline = PipelineContext::GetCurrentContext();
     auto [parent, parentWrapper] =
-        CreateNodeAndWrapper(OHOS::Ace::V2::FLEX_ETS_TAG, NODE_ID_0, RectF(0.0f, 0.0f, 200.0f, 200.0f));
+        CreateNodeAndWrapper2(OHOS::Ace::V2::FLEX_ETS_TAG, NODE_ID_0, RectF(0.0f, 0.0f, 200.0f, 200.0f));
     auto [node0, layoutWrapper0] =
-        CreateNodeAndWrapper(OHOS::Ace::V2::FLEX_ETS_TAG, NODE_ID_1, RectF(25.0f, 25.0f, 150.0f, 150.0f));
+        CreateNodeAndWrapper2(OHOS::Ace::V2::FLEX_ETS_TAG, NODE_ID_1, RectF(25.0f, 25.0f, 150.0f, 150.0f));
     node0->MountToParent(parent);
     auto [child, layoutWrapper1] =
-        CreateNodeAndWrapper(OHOS::Ace::V2::FLEX_ETS_TAG, NODE_ID_2, RectF(25.0f, 25.0f, 100.0f, 100.0f));
+        CreateNodeAndWrapper2(OHOS::Ace::V2::FLEX_ETS_TAG, NODE_ID_2, RectF(25.0f, 25.0f, 100.0f, 100.0f));
     child->MountToParent(node0);
 
     PaddingProperty safeAreaPadding = {

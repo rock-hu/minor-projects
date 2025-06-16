@@ -21,6 +21,7 @@
 #include "ecmascript/compiler/number_gate_info.h"
 #include "ecmascript/global_env.h"
 #include "ecmascript/js_arguments.h"
+#include "ecmascript/js_thread.h"
 #include "ecmascript/lexical_env.h"
 #include "ecmascript/js_array_iterator.h"
 #include "ecmascript/js_map_iterator.h"
@@ -1637,8 +1638,13 @@ void NewObjectStubBuilder::AllocateInSOldPrologue([[maybe_unused]] Variable *res
     auto env = GetEnvironment();
     Label success(env);
     Label next(env);
+    Label checkNext(env);
+    BRANCH_UNLIKELY(
+        LoadPrimitive(VariableType::BOOL(), glue_, IntPtr(JSThread::GlueData::GetIsEnableCMCGCOffset(env->Is32Bit()))),
+        callRuntime, &checkNext);
+    Bind(&checkNext);
 
-#if defined(ARK_ASAN_ON) || defined(USE_CMC_GC)
+#if defined(ARK_ASAN_ON)
     Jump(callRuntime);
 #else
 #ifdef ECMASCRIPT_SUPPORT_HEAPSAMPLING
@@ -1669,13 +1675,16 @@ void NewObjectStubBuilder::AllocateInSOldPrologue([[maybe_unused]] Variable *res
 
 void NewObjectStubBuilder::AllocateInSOld(Variable *result, Label *exit, GateRef hclass)
 {
-#ifndef USE_CMC_GC
     // disable fastpath for now
     auto env = GetEnvironment();
     Label callRuntime(env);
+    Label checkNext(env);
+    BRANCH_UNLIKELY(LoadPrimitive(
+        VariableType::BOOL(), glue_, IntPtr(JSThread::GlueData::GetIsEnableCMCGCOffset(env->Is32Bit()))),
+        &callRuntime, &checkNext);
+    Bind(&checkNext);
     AllocateInSOldPrologue(result, &callRuntime, exit);
     Bind(&callRuntime);
-#endif
     {
         DEFVARIABLE(ret, VariableType::JS_ANY(), Undefined());
         ret = CallRuntime(glue_, RTSTUB_ID(AllocateInSOld), {IntToTaggedInt(size_), hclass});
@@ -1684,22 +1693,34 @@ void NewObjectStubBuilder::AllocateInSOld(Variable *result, Label *exit, GateRef
     }
 }
 
-void NewObjectStubBuilder::AllocateInYoungPrologue([[maybe_unused]] Variable *result,
-    Label *callRuntime, [[maybe_unused]] Label *exit)
+void NewObjectStubBuilder::AllocateInYoungPrologueImplForCMCGC(Variable *result, Label *callRuntime, Label *exit)
 {
     auto env = GetEnvironment();
     Label success(env);
-    Label next(env);
 
-#if defined(ARK_ASAN_ON) || defined(USE_CMC_GC)
-    Jump(callRuntime);
-#else
-#ifdef ECMASCRIPT_SUPPORT_HEAPSAMPLING
-    auto isStartHeapSamplingOffset = JSThread::GlueData::GetIsStartHeapSamplingOffset(env->Is32Bit());
-    auto isStartHeapSampling = LoadPrimitive(VariableType::JS_ANY(), glue_, IntPtr(isStartHeapSamplingOffset));
-    BRANCH(TaggedIsTrue(isStartHeapSampling), callRuntime, &next);
-    Bind(&next);
-#endif
+    auto allocBufferOffset = JSThread::GlueData::GetAllocBufferOffset(env->Is32Bit());
+    auto allocBufferAddress = LoadPrimitive(VariableType::NATIVE_POINTER(), glue_, IntPtr(allocBufferOffset));
+    auto tlRegion = LoadPrimitive(VariableType::NATIVE_POINTER(), allocBufferAddress, IntPtr(0));
+    auto allocPtr = LoadPrimitive(VariableType::JS_POINTER(), tlRegion, IntPtr(0));
+    auto regionEnd = LoadPrimitive(VariableType::JS_POINTER(), tlRegion, env->Is32Bit()? IntPtr(4) : IntPtr(8));
+    auto newAllocPtr = PtrAdd(allocPtr, size_);
+    BRANCH(IntPtrGreaterThan(newAllocPtr, regionEnd), callRuntime, &success);
+    Bind(&success);
+    {
+        Store(VariableType::NATIVE_POINTER(), glue_, tlRegion, IntPtr(0), newAllocPtr, MemoryAttribute::NoBarrier());
+        if (env->Is32Bit()) {
+            allocPtr = ZExtInt32ToInt64(allocPtr);
+        }
+        result->WriteVariable(allocPtr);
+        Jump(exit);
+    }
+}
+
+void NewObjectStubBuilder::AllocateInYoungPrologueImpl(Variable *result, Label *callRuntime, Label *exit)
+{
+    auto env = GetEnvironment();
+    Label success(env);
+
     auto topOffset = JSThread::GlueData::GetNewSpaceAllocationTopAddressOffset(env->Is32Bit());
     auto endOffset = JSThread::GlueData::GetNewSpaceAllocationEndAddressOffset(env->Is32Bit());
     auto topAddress = LoadPrimitive(VariableType::NATIVE_POINTER(), glue_, IntPtr(topOffset));
@@ -1716,6 +1737,35 @@ void NewObjectStubBuilder::AllocateInYoungPrologue([[maybe_unused]] Variable *re
         }
         result->WriteVariable(top);
         Jump(exit);
+    }
+}
+
+void NewObjectStubBuilder::AllocateInYoungPrologue([[maybe_unused]] Variable *result,
+    Label *callRuntime, [[maybe_unused]] Label *exit)
+{
+    auto env = GetEnvironment();
+    Label next(env);
+#if defined(ARK_ASAN_ON)
+    Jump(callRuntime);
+#else
+#ifdef ECMASCRIPT_SUPPORT_HEAPSAMPLING
+    auto isStartHeapSamplingOffset = JSThread::GlueData::GetIsStartHeapSamplingOffset(env->Is32Bit());
+    auto isStartHeapSampling = LoadPrimitive(VariableType::JS_ANY(), glue_, IntPtr(isStartHeapSamplingOffset));
+    BRANCH(TaggedIsTrue(isStartHeapSampling), callRuntime, &next);
+    Bind(&next);
+#endif
+    Label isCMCGC(env);
+    Label notCMCGC(env);
+    BRANCH_UNLIKELY(
+        LoadPrimitive(VariableType::BOOL(), glue_, IntPtr(JSThread::GlueData::GetIsEnableCMCGCOffset(env->Is32Bit()))),
+        &isCMCGC, &notCMCGC);
+    Bind(&isCMCGC);
+    {
+        AllocateInYoungPrologueImplForCMCGC(result, callRuntime, exit);
+    }
+    Bind(&notCMCGC);
+    {
+        AllocateInYoungPrologueImpl(result, callRuntime, exit);
     }
 #endif
 }

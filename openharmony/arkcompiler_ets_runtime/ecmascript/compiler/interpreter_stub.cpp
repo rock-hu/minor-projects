@@ -84,6 +84,9 @@ void name##StubBuilder::GenerateCircuitImpl(GateRef glue, GateRef sp, GateRef pc
 #define DECLARE_ASM_HANDLER_JIT_PROFILE(name, base, format) \
     DECLARE_ASM_HANDLER_BASE(name, true, REGISTER_JIT_PROFILE_CALL_BACK, format)
 
+#define DECLARE_ASM_HANDLER_STW_COPY(name) \
+    DECLARE_ASM_HANDLER_BASE(name##StwCopy, true, REGISTER_NULL_CALL_BACK, SlotIDFormat::IMM8)
+
 // TYPE:{OFFSET, ACC_VARACC, JUMP, SSD}
 #define DISPATCH_BAK(TYPE, ...) DISPATCH_##TYPE(__VA_ARGS__)
 
@@ -119,42 +122,53 @@ void name##StubBuilder::GenerateCircuitImpl(GateRef glue, GateRef sp, GateRef pc
 #define DISPATCH_LAST_WITH_ACC()                                                          \
     DispatchLast(glue, sp, pc, constpool, profileTypeInfo, *varAcc, hotnessCounter)       \
 
-#define UPDATE_HOTNESS(_sp, callback)                                                                          \
-    varHotnessCounter = Int32Add(offset, *varHotnessCounter);                                                  \
-    BRANCH(Int32LessThan(*varHotnessCounter, Int32(0)), &slowPath, &dispatch);                                 \
-    Bind(&slowPath);                                                                                           \
-    {                                                                                                          \
-        GateRef func = GetFunctionFromFrame(glue, GetFrame(_sp));                                                    \
-        GateRef iVecOffset = IntPtr(JSThread::GlueData::GetInterruptVectorOffset(env->IsArch32Bit()));         \
-        GateRef interruptsFlag = LoadPrimitive(VariableType::INT8(), glue, iVecOffset);                        \
-        varHotnessCounter = Int32(EcmaInterpreter::METHOD_HOTNESS_THRESHOLD);                                  \
-        Label initialized(env);                                                                                \
-        Label callRuntime(env);                                                                                \
-        BRANCH(BitOr(TaggedIsUndefined(*varProfileTypeInfo),                                                   \
-                     Int8Equal(interruptsFlag, Int8(VmThreadControl::VM_NEED_SUSPENSION))),                    \
-            &callRuntime, &initialized);                                                                       \
-        Bind(&callRuntime);                                                                                    \
-        if (!(callback).IsEmpty()) {                                                                           \
-            varProfileTypeInfo = CallRuntime(glue, RTSTUB_ID(UpdateHotnessCounterWithProf), { func });         \
-        } else {                                                                                               \
-            varProfileTypeInfo = CallRuntime(glue, RTSTUB_ID(UpdateHotnessCounter), { func });                 \
-        }                                                                                                      \
-        Label handleException(env);                                                                            \
-        Label noException(env);                                                                                \
-        BRANCH(HasPendingException(glue), &handleException, &noException);                                     \
-        Bind(&handleException);                                                                                \
-        {                                                                                                      \
-            DISPATCH_LAST();                                                                                   \
-        }                                                                                                      \
-        Bind(&noException);                                                                                    \
-        {                                                                                                      \
-            Jump(&dispatch);                                                                                   \
-        }                                                                                                      \
-        Bind(&initialized);                                                                                    \
-        (callback).TryDump();                                                                                  \
-        (callback).TryJitCompile();                                                                            \
-        Jump(&dispatch);                                                                                       \
-    }                                                                                                          \
+#define UPDATE_HOTNESS(_sp, callback)                                                                  \
+    varHotnessCounter = Int32Add(offset, *varHotnessCounter);                                          \
+    BRANCH(Int32LessThan(*varHotnessCounter, Int32(0)), &slowPath, &dispatch);                         \
+    Bind(&slowPath);                                                                                   \
+    {                                                                                                  \
+        GateRef func = GetFunctionFromFrame(glue, GetFrame(_sp));                                      \
+        GateRef iVecOffset = IntPtr(JSThread::GlueData::GetInterruptVectorOffset(env->IsArch32Bit())); \
+        GateRef interruptsFlag = LoadPrimitive(VariableType::INT8(), glue, iVecOffset);                \
+        varHotnessCounter = Int32(EcmaInterpreter::METHOD_HOTNESS_THRESHOLD);                          \
+        Label initialized(env);                                                                        \
+        Label callRuntime(env);                                                                        \
+        BRANCH(BitOr(TaggedIsUndefined(*varProfileTypeInfo),                                           \
+                     Int8Equal(interruptsFlag, Int8(VmThreadControl::VM_NEED_SUSPENSION))),            \
+               &callRuntime, &initialized);                                                            \
+        Bind(&callRuntime);                                                                            \
+        if (!(callback).IsEmpty()) {                                                                   \
+            varProfileTypeInfo = CallRuntime(glue, RTSTUB_ID(UpdateHotnessCounterWithProf), {func});   \
+        } else {                                                                                       \
+            varProfileTypeInfo = CallRuntime(glue, RTSTUB_ID(UpdateHotnessCounter), {func});           \
+        }                                                                                              \
+        Label handleException(env);                                                                    \
+        Label noException(env);                                                                        \
+        BRANCH(HasPendingException(glue), &handleException, &noException);                             \
+        Bind(&handleException);                                                                        \
+        {                                                                                              \
+            DISPATCH_LAST();                                                                           \
+        }                                                                                              \
+        Bind(&noException);                                                                            \
+        {                                                                                              \
+            Jump(&dispatch);                                                                           \
+        }                                                                                              \
+        Bind(&initialized);                                                                            \
+        Label callCheckSafePoint(env);                                                                 \
+        Label afterCheckSafePoint(env);                                                                \
+        BRANCH_UNLIKELY(LoadPrimitive(VariableType::BOOL(), glue, IntPtr(                              \
+            JSThread::GlueData::GetIsEnableCMCGCOffset(env->Is32Bit()))),                              \
+            &callCheckSafePoint, &afterCheckSafePoint);                                                \
+        Bind(&callCheckSafePoint);                                                                     \
+        {                                                                                              \
+            CallRuntime(glue, RTSTUB_ID(CheckSafePoint), {});                                          \
+            Jump(&afterCheckSafePoint);                                                                \
+        }                                                                                              \
+        Bind(&afterCheckSafePoint);                                                                    \
+        (callback).TryDump();                                                                          \
+        (callback).TryJitCompile();                                                                    \
+        Jump(&dispatch);                                                                               \
+    }                                                                                                  \
     Bind(&dispatch);
 
 #define CHECK_EXCEPTION(res, offset)                                                      \
@@ -4831,6 +4845,10 @@ DECLARE_ASM_HANDLER(HandleNewobjrangeImm8Imm8V8)
         Jump(&threadCheck);
     }
     Bind(&slowPath);
+    if (!callback.IsEmpty()) {
+        GateRef slotId = ZExtInt8ToInt32(ReadInst8_0(pc));
+        UpdateProfileTypeInfoAsMega(glue, profileTypeInfo, slotId);
+    }
     GateRef firstArgIdx = Int16Add(firstArgRegIdx, firstArgOffset);
     GateRef length = Int16Sub(numArgs, firstArgOffset);
     res = CallRuntime(glue, RTSTUB_ID(NewObjRange),
@@ -4904,6 +4922,10 @@ DECLARE_ASM_HANDLER(HandleNewobjrangeImm16Imm8V8)
         Jump(&threadCheck);
     }
     Bind(&slowPath);
+    if (!callback.IsEmpty()) {
+        GateRef slotId = ZExtInt16ToInt32(ReadInst16_0(pc));
+        UpdateProfileTypeInfoAsMega(glue, profileTypeInfo, slotId);
+    }
     GateRef firstArgIdx = Int16Add(firstArgRegIdx, firstArgOffset);
     GateRef length = Int16Sub(numArgs, firstArgOffset);
     res = CallRuntime(glue, RTSTUB_ID(NewObjRange),
@@ -5125,17 +5147,16 @@ DECLARE_ASM_HANDLER(HandleDefinemethodImm8Id16Imm8)
     GateRef methodId = ReadInst16_1(pc);
     GateRef length = ReadInst8_3(pc);
     GateRef frame = GetFrame(sp);
-    GateRef lexEnv = GetEnvFromFrame(glue, frame);
     GateRef currentEnv = GetEnvFromFrame(glue, frame);
     GateRef globalEnv = GetCurrentGlobalEnv(glue, currentEnv);
     DEFVARIABLE(result, VariableType::JS_POINTER(),
         GetMethodFromConstPool(glue, constpool, ZExtInt16ToInt32(methodId)));
 #if ENABLE_NEXT_OPTIMIZATION
     NewObjectStubBuilder newBuilder(this, globalEnv);
-    result = newBuilder.DefineMethod(glue, *result, acc, ZExtInt8ToInt32(length), lexEnv, GetModule(glue, sp));
+    result = newBuilder.DefineMethod(glue, *result, acc, ZExtInt8ToInt32(length), currentEnv, GetModule(glue, sp));
 #else
     result = CallRuntime(glue, RTSTUB_ID(DefineMethod), { *result, acc, Int8ToTaggedInt(length),
-        lexEnv, GetModule(glue, sp) });
+        currentEnv, GetModule(glue, sp) });
 #endif
 
 #if ECMASCRIPT_ENABLE_IC
@@ -5158,17 +5179,16 @@ DECLARE_ASM_HANDLER(HandleDefinemethodImm16Id16Imm8)
     GateRef methodId = ReadInst16_2(pc);
     GateRef length = ReadInst8_4(pc);
     GateRef frame = GetFrame(sp);
-    GateRef lexEnv = GetEnvFromFrame(glue, frame);
     GateRef currentEnv = GetEnvFromFrame(glue, frame);
     GateRef globalEnv = GetCurrentGlobalEnv(glue, currentEnv);
     DEFVARIABLE(result, VariableType::JS_POINTER(),
         GetMethodFromConstPool(glue, constpool, ZExtInt16ToInt32(methodId)));
 #if ENABLE_NEXT_OPTIMIZATION        
     NewObjectStubBuilder newBuilder(this, globalEnv);
-    result = newBuilder.DefineMethod(glue, *result, acc, ZExtInt8ToInt32(length), lexEnv, GetModule(glue, sp));
+    result = newBuilder.DefineMethod(glue, *result, acc, ZExtInt8ToInt32(length), currentEnv, GetModule(glue, sp));
 #else
     result = CallRuntime(glue, RTSTUB_ID(DefineMethod), { *result, acc, Int8ToTaggedInt(length),
-        lexEnv, GetModule(glue, sp) });
+        currentEnv, GetModule(glue, sp) });
 #endif
 
 #if ECMASCRIPT_ENABLE_IC
@@ -5729,7 +5749,8 @@ DECLARE_ASM_HANDLER(HandleDefinefuncImm8Id16Imm8ColdReload)
     DEFVARIABLE(varAcc, VariableType::JS_ANY(), acc);
     GateRef methodId = ReadInst16_1(pc);
     GateRef length = ReadInst8_3(pc);
-    GateRef currentEnv = GetEnvFromFrame(glue, GetFrame(sp));
+    auto frame = GetFrame(sp);
+    GateRef currentEnv = GetEnvFromFrame(glue, frame);
     GateRef globalEnv = GetCurrentGlobalEnv(glue, currentEnv);
     SetCurrentGlobalEnv(globalEnv);
     GateRef result = DefineFunc(glue, constpool, ZExtInt16ToInt32(methodId));
@@ -5738,9 +5759,7 @@ DECLARE_ASM_HANDLER(HandleDefinefuncImm8Id16Imm8ColdReload)
     Bind(&notException);
     {
         SetLengthToFunction(glue, result, ZExtInt8ToInt32(length));
-        auto frame = GetFrame(sp);
-        GateRef envHandle = GetEnvFromFrame(glue, frame);
-        SetLexicalEnvToFunction(glue, result, envHandle);
+        SetLexicalEnvToFunction(glue, result, currentEnv);
         GateRef currentFunc = GetFunctionFromFrame(glue, frame);
         SetModuleToFunction(glue, result, GetModuleFromFunction(glue, currentFunc));
         CallRuntime(glue, RTSTUB_ID(SetPatchModule), { result });
@@ -5761,7 +5780,8 @@ DECLARE_ASM_HANDLER(HandleDefinefuncImm16Id16Imm8ColdReload)
     DEFVARIABLE(varAcc, VariableType::JS_ANY(), acc);
     GateRef methodId = ReadInst16_2(pc);
     GateRef length = ReadInst8_4(pc);
-    GateRef currentEnv = GetEnvFromFrame(glue, GetFrame(sp));
+    auto frame = GetFrame(sp);
+    GateRef currentEnv = GetEnvFromFrame(glue, frame);
     GateRef globalEnv = GetCurrentGlobalEnv(glue, currentEnv);
     SetCurrentGlobalEnv(globalEnv);
     GateRef result = DefineFunc(glue, constpool, ZExtInt16ToInt32(methodId));
@@ -5770,9 +5790,7 @@ DECLARE_ASM_HANDLER(HandleDefinefuncImm16Id16Imm8ColdReload)
     Bind(&notException);
     {
         SetLengthToFunction(glue, result, ZExtInt8ToInt32(length));
-        auto frame = GetFrame(sp);
-        GateRef envHandle = GetEnvFromFrame(glue, frame);
-        SetLexicalEnvToFunction(glue, result, envHandle);
+        SetLexicalEnvToFunction(glue, result, currentEnv);
         GateRef currentFunc = GetFunctionFromFrame(glue, frame);
         SetHomeObjectToFunction(glue, result, GetHomeObjectFromFunction(glue, currentFunc));
         SetModuleToFunction(glue, result, GetModuleFromFunction(glue, currentFunc));
@@ -6339,6 +6357,7 @@ ASM_INTERPRETER_BC_LAYOUT_PROFILER_STUB_LIST(DECLARE_ASM_HANDLER_PROFILE)
 ASM_INTERPRETER_BC_FUNC_HOT_PROFILER_STUB_LIST(DECLARE_ASM_HANDLER_PROFILE)
 ASM_INTERPRETER_BC_FUNC_COUNT_PROFILER_STUB_LIST(DECLARE_ASM_HANDLER_PROFILE)
 ASM_INTERPRETER_BC_FUNC_HOT_JIT_PROFILER_STUB_LIST(DECLARE_ASM_HANDLER_JIT_PROFILE)
+ASM_INTERPRETER_BC_STW_COPY_STUB_LIST(DECLARE_ASM_HANDLER_STW_COPY)
 
 #undef DECLARE_ASM_HANDLER
 #undef DISPATCH

@@ -39,7 +39,6 @@ constexpr bool DEFAULT_FIT_ORIGINAL_SIZE = false;
 constexpr bool DEFAULT_DRAGGABLE = false;
 constexpr bool DEFAULT_IMAGE_SENSITIVE = false;
 constexpr ArkUI_Float32 DEFAULT_IMAGE_EDGE_ANTIALIASING = 0;
-ImageResizableSlice DEFAULT_IMAGE_SLICE;
 const std::vector<float> DEFAULT_COLOR_FILTER = { 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0 };
 constexpr int32_t LOAD_ERROR_CODE = 401;
 constexpr int32_t IMAGE_LOAD_STATUS_INDEX = 0;
@@ -422,6 +421,18 @@ void SetFillColor(ArkUINodeHandle node, ArkUI_Uint32 value, void* colorRawPtr)
     }
 }
 
+void SetFillColorWithColorSpace(ArkUINodeHandle node, ArkUI_Uint32 value, ArkUI_Uint32 colorSpace, void* colorRawPtr)
+{
+    auto* frameNode = reinterpret_cast<FrameNode*>(node);
+    CHECK_NULL_VOID(frameNode);
+    ImageModelNG::SetImageFill(frameNode, Color(value, static_cast<ColorSpace>(colorSpace)));
+    if (SystemProperties::ConfigChangePerform() && colorRawPtr) {
+        auto* color = reinterpret_cast<ResourceObject*>(colorRawPtr);
+        auto colorResObj = AceType::Claim(color);
+        ImageModelNG::CreateWithResourceObj(frameNode, ImageResourceType::FILL_COLOR, colorResObj);
+    }
+}
+
 void ResetImageFill(ArkUINodeHandle node)
 {
     auto* frameNode = reinterpret_cast<FrameNode*>(node);
@@ -529,16 +540,24 @@ void ResetColorFilter(ArkUINodeHandle node)
     ImageModelNG::SetColorFilterMatrix(frameNode, DEFAULT_COLOR_FILTER);
 }
 
+struct NativeHandle {
+    std::shared_ptr<OHOS::Rosen::Drawing::ColorFilter> value = nullptr;
+};
+
+// colorFilter must be OH_Drawing_ColorFilter NDK object
 void SetDrawingColorFilter(ArkUINodeHandle node, void* colorFilter)
 {
+    CHECK_NULL_VOID(colorFilter);
     auto* frameNode = reinterpret_cast<FrameNode*>(node);
     CHECK_NULL_VOID(frameNode);
-    auto filter = reinterpret_cast<OHOS::Rosen::Drawing::ColorFilter*>(colorFilter);
-    auto filterPtr = std::make_shared<OHOS::Rosen::Drawing::ColorFilter>(*filter);
+    auto handle = reinterpret_cast<NativeHandle*>(colorFilter);
+    auto filterPtr = handle->value;
+    CHECK_NULL_VOID(filterPtr);
     auto drawingColorFilter = DrawingColorFilter::CreateDrawingColorFilterFromNative(static_cast<void*>(&filterPtr));
     ImageModelNG::SetDrawingColorFilter(frameNode, drawingColorFilter);
 }
 
+// return must be OH_Drawing_ColorFilter NDK object
 void* GetDrawingColorFilter(ArkUINodeHandle node)
 {
     auto* frameNode = reinterpret_cast<FrameNode*>(node);
@@ -548,7 +567,7 @@ void* GetDrawingColorFilter(ArkUINodeHandle node)
     auto filterSptr = reinterpret_cast<std::shared_ptr<OHOS::Rosen::Drawing::ColorFilter>*>(
         drawingColorFilter->GetDrawingColorFilterSptrAddr());
     CHECK_NULL_RETURN(filterSptr, nullptr);
-    return (*filterSptr).get();
+    return reinterpret_cast<void*>(filterSptr);
 }
 
 void SetImageSyncLoad(ArkUINodeHandle node, ArkUI_Bool syncLoadValue)
@@ -751,7 +770,8 @@ void ResetResizable(ArkUINodeHandle node)
 {
     auto* frameNode = reinterpret_cast<FrameNode*>(node);
     CHECK_NULL_VOID(frameNode);
-    ImageModelNG::SetResizableSlice(frameNode, DEFAULT_IMAGE_SLICE);
+    ImageResizableSlice defaultImageSlice;
+    ImageModelNG::SetResizableSlice(frameNode, defaultImageSlice);
 }
 
 void SetResizableLattice(ArkUINodeHandle node, void* lattice)
@@ -1071,6 +1091,7 @@ const ArkUIImageModifier* GetImageModifier()
         .setMatchTextDirection = SetMatchTextDirection,
         .resetMatchTextDirection = ResetMatchTextDirection,
         .setFillColor = SetFillColor,
+        .setFillColorWithColorSpace = SetFillColorWithColorSpace,
         .resetImageFill = ResetImageFill,
         .resetFillColor = ResetFillColor,
         .setAlt = SetAlt,

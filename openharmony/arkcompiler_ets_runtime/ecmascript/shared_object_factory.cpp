@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+#include "common_interfaces/objects/base_class.h"
+#include "common_interfaces/objects/composite_base_class.h"
 #include "ecmascript/jspandafile/program_object.h"
 #include "ecmascript/layout_info-inl.h"
 #include "ecmascript/lexical_env.h"
@@ -33,25 +35,32 @@ void ObjectFactory::NewSObjectHook() const
         thread_->InGlobalEnvInitialize() || !Runtime::GetInstance()->SharedConstInited()) {
         return;
     }
-#ifdef USE_CMC_GC
-    BaseRuntime::RequestGC(GcType::ASYNC);
-#else
-    if (count++ % frequency == 0) {
-        if (count % (CONCURRENT_MARK_FREQUENCY_FACTOR * frequency) == 0) {
-            sHeap_->CollectGarbage<TriggerGCType::SHARED_GC, GCReason::OTHER>(thread_);
-        } else if (sHeap_->CheckCanTriggerConcurrentMarking(thread_)) {
-            sHeap_->TriggerConcurrentMarking<TriggerGCType::SHARED_GC, MarkReason::OTHER>(thread_);
-        }
-        if (!ecmascript::AnFileDataManager::GetInstance()->IsEnable()) {
+    if (g_isEnableCMCGC) {
+        common::BaseRuntime::RequestGC(common::GcType::ASYNC);
+    } else {
+        if (count++ % frequency == 0) {
             if (count % (CONCURRENT_MARK_FREQUENCY_FACTOR * frequency) == 0) {
-                sHeap_->WaitGCFinished(thread_);
-                sHeap_->CollectGarbage<TriggerGCType::SHARED_FULL_GC, GCReason::OTHER>(thread_);
+                sHeap_->CollectGarbage<TriggerGCType::SHARED_GC, GCReason::OTHER>(thread_);
             } else if (sHeap_->CheckCanTriggerConcurrentMarking(thread_)) {
-                sHeap_->TriggerConcurrentMarking<TriggerGCType::SHARED_PARTIAL_GC, MarkReason::OTHER>(thread_);
+                sHeap_->TriggerConcurrentMarking<TriggerGCType::SHARED_GC, MarkReason::OTHER>(thread_);
+            }
+            if (!ecmascript::AnFileDataManager::GetInstance()->IsEnable()) {
+                if (count % (CONCURRENT_MARK_FREQUENCY_FACTOR * frequency) == 0) {
+                    sHeap_->CollectGarbage<TriggerGCType::SHARED_GC, GCReason::OTHER>(thread_);
+                } else if (sHeap_->CheckCanTriggerConcurrentMarking(thread_)) {
+                    sHeap_->TriggerConcurrentMarking<TriggerGCType::SHARED_GC, MarkReason::OTHER>(thread_);
+                }
+                if (!ecmascript::AnFileDataManager::GetInstance()->IsEnable()) {
+                    if (count % (CONCURRENT_MARK_FREQUENCY_FACTOR * frequency) == 0) {
+                        sHeap_->WaitGCFinished(thread_);
+                        sHeap_->CollectGarbage<TriggerGCType::SHARED_FULL_GC, GCReason::OTHER>(thread_);
+                    } else if (sHeap_->CheckCanTriggerConcurrentMarking(thread_)) {
+                        sHeap_->TriggerConcurrentMarking<TriggerGCType::SHARED_PARTIAL_GC, MarkReason::OTHER>(thread_);
+                    }
+                }
             }
         }
     }
-#endif
 #endif
 }
 
@@ -168,7 +177,6 @@ JSHandle<JSHClass> ObjectFactory::NewSEcmaReadOnlyHClass(JSHClass *hclass, uint3
     return JSHandle<JSHClass>(thread_, newClass);
 }
 
-#ifdef USE_CMC_GC
 JSHandle<JSHClass> ObjectFactory::NewSEcmaReadOnlySharedHClass(JSHClass *hclass, uint32_t size, JSType type,
                                                                uint32_t inlinedProps)
 {
@@ -177,7 +185,22 @@ JSHandle<JSHClass> ObjectFactory::NewSEcmaReadOnlySharedHClass(JSHClass *hclass,
     ASSERT(newClass->IsInSharedHeap());
     return newClass;
 }
-#endif
+
+JSTaggedValue ObjectFactory::InitHClassInCompositeBaseClass(JSHClass* hclass, common::CommonType type)
+{
+    common::BaseClassRoots& classRoots = common::BaseRuntime::GetInstance()->GetBaseClassRoots();
+    auto* newClass = reinterpret_cast<JSHClass*>(classRoots.GetBaseClass(type));
+    newClass->SetClassWithoutBarrier(hclass);
+    newClass->SetObjectSize(0);
+    newClass->SetExtensible(true);
+    newClass->SetIsPrototype(false);
+    newClass->SetHasDeleteProperty(false);
+    newClass->SetIsAllTaggedProp(true);
+    newClass->SetElementsKind(ElementsKind::GENERIC);
+    newClass->SetConstructionCounter(0);
+    newClass->SetIsJSShared(true);
+    return JSTaggedValue(newClass);
+}
 
 JSHandle<JSHClass> ObjectFactory::InitSClassClass()
 {
@@ -193,8 +216,8 @@ JSHandle<AccessorData> ObjectFactory::NewSAccessorData()
     TaggedObject *header = sHeap_->AllocateOldOrHugeObject(
         thread_, JSHClass::Cast(thread_->GlobalConstants()->GetAccessorDataClass().GetTaggedObject()));
     JSHandle<AccessorData> acc(thread_, AccessorData::Cast(header));
-    acc->SetGetter(thread_, JSTaggedValue::Undefined());
-    acc->SetSetter(thread_, JSTaggedValue::Undefined());
+    acc->SetGetter<SKIP_BARRIER>(thread_, JSTaggedValue::Undefined());
+    acc->SetSetter<SKIP_BARRIER>(thread_, JSTaggedValue::Undefined());
     return acc;
 }
 
@@ -405,11 +428,12 @@ JSHandle<TaggedArray> ObjectFactory::CopySArray(const JSHandle<TaggedArray> &old
     ASSERT(!old->GetClass()->IsMutantTaggedArray());
 
     size_t size = TaggedArray::ComputeSize(JSTaggedValue::TaggedTypeSize(), newLength);
-#ifdef USE_CMC_GC
-    JSHClass *arrayClass = JSHClass::Cast(thread_->GlobalConstants()->GetSharedTaggedArrayClass().GetTaggedObject());
-#else
-    JSHClass *arrayClass = JSHClass::Cast(thread_->GlobalConstants()->GetTaggedArrayClass().GetTaggedObject());
-#endif
+    JSHClass *arrayClass = nullptr;
+    if (LIKELY(!g_isEnableCMCGC)) {
+        arrayClass = JSHClass::Cast(thread_->GlobalConstants()->GetTaggedArrayClass().GetTaggedObject());
+    } else {
+        arrayClass = JSHClass::Cast(thread_->GlobalConstants()->GetSharedTaggedArrayClass().GetTaggedObject());
+    }
     TaggedObject *header = sHeap_->AllocateOldOrHugeObject(thread_, arrayClass, size);
     JSHandle<TaggedArray> newArray(thread_, header);
     newArray->SetLength(newLength);
@@ -419,9 +443,7 @@ JSHandle<TaggedArray> ObjectFactory::CopySArray(const JSHandle<TaggedArray> &old
         newArray->Set(thread_, i, old->Get(i));
     }
 
-#ifdef USE_CMC_GC
-    ASSERT(newArray->IsInSharedHeap());
-#endif
+    ASSERT(!g_isEnableCMCGC || newArray->IsInSharedHeap());
     return newArray;
 }
 
@@ -434,11 +456,11 @@ JSHandle<TaggedArray> ObjectFactory::ExtendSArray(const JSHandle<TaggedArray> &o
     JSHClass *arrayClass = nullptr;
     // Shared-array does not support Mutantarray yet.
     ASSERT(!old->GetClass()->IsMutantTaggedArray());
-#ifdef USE_CMC_GC
-    arrayClass = JSHClass::Cast(thread_->GlobalConstants()->GetSharedTaggedArrayClass().GetTaggedObject());
-#else
-    arrayClass = JSHClass::Cast(thread_->GlobalConstants()->GetTaggedArrayClass().GetTaggedObject());
-#endif
+    if (LIKELY(!g_isEnableCMCGC)) {
+        arrayClass = JSHClass::Cast(thread_->GlobalConstants()->GetTaggedArrayClass().GetTaggedObject());
+    } else {
+        arrayClass = JSHClass::Cast(thread_->GlobalConstants()->GetSharedTaggedArrayClass().GetTaggedObject());
+    }
 
     TaggedObject *header = sHeap_->AllocateOldOrHugeObject(thread_, arrayClass, size);
     JSHandle<TaggedArray> newArray(thread_, header);
@@ -452,9 +474,7 @@ JSHandle<TaggedArray> ObjectFactory::ExtendSArray(const JSHandle<TaggedArray> &o
     for (uint32_t i = oldLength; i < length; i++) {
         newArray->Set(thread_, i, initVal);
     }
-#ifdef USE_CMC_GC
-    ASSERT(newArray->IsInSharedHeap());
-#endif
+    ASSERT(!g_isEnableCMCGC || newArray->IsInSharedHeap());
     return newArray;
 }
 
@@ -463,11 +483,12 @@ JSHandle<TaggedArray> ObjectFactory::NewSTaggedArrayWithoutInit(uint32_t length,
     NewSObjectHook();
     size_t size = TaggedArray::ComputeSize(JSTaggedValue::TaggedTypeSize(), length);
     TaggedObject *header;
-#ifdef USE_CMC_GC
-    auto arrayClass = JSHClass::Cast(thread_->GlobalConstants()->GetSharedTaggedArrayClass().GetTaggedObject());
-#else
-    auto arrayClass = JSHClass::Cast(thread_->GlobalConstants()->GetTaggedArrayClass().GetTaggedObject());
-#endif
+    JSHClass *arrayClass = nullptr;
+    if (LIKELY(!g_isEnableCMCGC)) {
+        arrayClass = JSHClass::Cast(thread_->GlobalConstants()->GetTaggedArrayClass().GetTaggedObject());
+    } else {
+        arrayClass = JSHClass::Cast(thread_->GlobalConstants()->GetSharedTaggedArrayClass().GetTaggedObject());
+    }
     switch (spaceType) {
         case MemSpaceType::SHARED_OLD_SPACE:
             header = sHeap_->AllocateOldOrHugeObject(thread_, arrayClass, size);
@@ -481,9 +502,7 @@ JSHandle<TaggedArray> ObjectFactory::NewSTaggedArrayWithoutInit(uint32_t length,
     }
     JSHandle<TaggedArray> array(thread_, header);
     array->SetLength(length);
-#ifdef USE_CMC_GC
-    ASSERT(array->IsInSharedHeap());
-#endif
+    ASSERT(!g_isEnableCMCGC || array->IsInSharedHeap());
     return array;
 }
 
@@ -550,17 +569,17 @@ JSHandle<TaggedArray> ObjectFactory::NewSDictionaryArray(uint32_t length)
     NewSObjectHook();
     ASSERT(length > 0);
     size_t size = TaggedArray::ComputeSize(JSTaggedValue::TaggedTypeSize(), length);
-    auto header = sHeap_->AllocateOldOrHugeObject(
-#ifdef USE_CMC_GC
-        thread_, JSHClass::Cast(thread_->GlobalConstants()->GetSharedDictionaryClass().GetTaggedObject()), size);
-#else
-        thread_, JSHClass::Cast(thread_->GlobalConstants()->GetDictionaryClass().GetTaggedObject()), size);
-#endif
+    TaggedObject *header = nullptr;
+    if (LIKELY(!g_isEnableCMCGC)) {
+        header = sHeap_->AllocateOldOrHugeObject(
+            thread_, JSHClass::Cast(thread_->GlobalConstants()->GetDictionaryClass().GetTaggedObject()), size);
+    } else {
+        header = sHeap_->AllocateOldOrHugeObject(
+            thread_, JSHClass::Cast(thread_->GlobalConstants()->GetSharedDictionaryClass().GetTaggedObject()), size);
+    }
     JSHandle<TaggedArray> array(thread_, header);
     array->InitializeWithSpecialValue(JSTaggedValue::Undefined(), length);
-#ifdef USE_CMC_GC
-    ASSERT(array->IsInSharedHeap());
-#endif
+    ASSERT(!g_isEnableCMCGC || array->IsInSharedHeap());
     return array;
 }
 
@@ -570,10 +589,10 @@ JSHandle<ProfileTypeInfoCell> ObjectFactory::NewSEmptyProfileTypeInfoCell()
     auto header = sHeap_->AllocateReadOnlyOrHugeObject(thread_,
         JSHClass::Cast(thread_->GlobalConstants()->GetProfileTypeInfoCell0Class().GetTaggedObject()));
     JSHandle<ProfileTypeInfoCell> profileTypeInfoCell(thread_, header);
-    profileTypeInfoCell->SetValue(thread_, JSTaggedValue::Undefined());
-    profileTypeInfoCell->SetMachineCode(thread_, JSTaggedValue::Hole());
-    profileTypeInfoCell->SetBaselineCode(thread_, JSTaggedValue::Hole());
-    profileTypeInfoCell->SetHandle(thread_, JSTaggedValue::Undefined());
+    profileTypeInfoCell->SetValue<SKIP_BARRIER>(thread_, JSTaggedValue::Undefined());
+    profileTypeInfoCell->SetMachineCode<SKIP_BARRIER>(thread_, JSTaggedValue::Hole());
+    profileTypeInfoCell->SetBaselineCode<SKIP_BARRIER>(thread_, JSTaggedValue::Hole());
+    profileTypeInfoCell->SetHandle<SKIP_BARRIER>(thread_, JSTaggedValue::Undefined());
     return profileTypeInfoCell;
 }
 
@@ -597,7 +616,7 @@ JSHandle<FunctionTemplate> ObjectFactory::NewSFunctionTemplate(
     JSHandle<FunctionTemplate> functionTemplate(thread_, header);
     functionTemplate->SetMethod(thread_, method);
     functionTemplate->SetModule(thread_, module);
-    functionTemplate->SetRawProfileTypeInfo(thread_, globalConstants->GetEmptyProfileTypeInfoCell(), SKIP_BARRIER);
+    functionTemplate->SetRawProfileTypeInfo<SKIP_BARRIER>(thread_, globalConstants->GetEmptyProfileTypeInfoCell());
     functionTemplate->SetLength(length);
     return functionTemplate;
 }
@@ -605,37 +624,39 @@ JSHandle<FunctionTemplate> ObjectFactory::NewSFunctionTemplate(
 JSHandle<TaggedArray> ObjectFactory::NewSEmptyArray()
 {
     NewSObjectHook();
-    auto header = sHeap_->AllocateReadOnlyOrHugeObject(thread_,
-#ifdef USE_CMC_GC
-        JSHClass::Cast(thread_->GlobalConstants()->GetSharedTaggedArrayClass().GetTaggedObject()), TaggedArray::SIZE);
-#else
-        JSHClass::Cast(thread_->GlobalConstants()->GetTaggedArrayClass().GetTaggedObject()), TaggedArray::SIZE);
-#endif
+    TaggedObject *header = nullptr;
+    if (LIKELY(!g_isEnableCMCGC)) {
+        header = sHeap_->AllocateReadOnlyOrHugeObject(thread_,
+            JSHClass::Cast(thread_->GlobalConstants()->GetTaggedArrayClass().GetTaggedObject()), TaggedArray::SIZE);
+    } else {
+        header = sHeap_->AllocateReadOnlyOrHugeObject(thread_,
+            JSHClass::Cast(thread_->GlobalConstants()->GetSharedTaggedArrayClass().GetTaggedObject()),
+            TaggedArray::SIZE);
+    }
     JSHandle<TaggedArray> array(thread_, header);
     array->SetLength(0);
     array->SetExtraLength(0);
-#ifdef USE_CMC_GC
-    ASSERT(array->IsInSharedHeap());
-#endif
+    ASSERT(!g_isEnableCMCGC || array->IsInSharedHeap());
     return array;
 }
 
 JSHandle<MutantTaggedArray> ObjectFactory::NewSEmptyMutantArray()
 {
     NewSObjectHook();
-    auto header = sHeap_->AllocateReadOnlyOrHugeObject(thread_,
-#ifdef USE_CMC_GC
-        JSHClass::Cast(thread_->GlobalConstants()->GetSharedMutantTaggedArrayClass().GetTaggedObject()),
-        TaggedArray::SIZE);
-#else
-        JSHClass::Cast(thread_->GlobalConstants()->GetMutantTaggedArrayClass().GetTaggedObject()), TaggedArray::SIZE);
-#endif
+    TaggedObject *header = nullptr;
+    if (LIKELY(!g_isEnableCMCGC)) {
+        header = sHeap_->AllocateReadOnlyOrHugeObject(thread_,
+            JSHClass::Cast(thread_->GlobalConstants()->GetMutantTaggedArrayClass().GetTaggedObject()),
+            TaggedArray::SIZE);
+    } else {
+        header = sHeap_->AllocateReadOnlyOrHugeObject(thread_,
+            JSHClass::Cast(thread_->GlobalConstants()->GetSharedMutantTaggedArrayClass().GetTaggedObject()),
+            TaggedArray::SIZE);
+    }
     JSHandle<MutantTaggedArray> array(thread_, header);
     array->SetLength(0);
     array->SetExtraLength(0);
-#ifdef USE_CMC_GC
-    ASSERT(array->IsInSharedHeap());
-#endif
+    ASSERT(!g_isEnableCMCGC || array->IsInSharedHeap());
     return array;
 }
 
@@ -671,16 +692,11 @@ JSHandle<JSNativePointer> ObjectFactory::NewSJSNativePointer(void *externalPoint
         // In some cases, the size of JS/TS object is too small and the native binding size is too large.
         // Check and try trigger concurrent mark here.
         size_t nativeSizeAfterLastGC = sHeap_->GetNativeSizeAfterLastGC();
-        if (nativeSizeAfterLastGC > sHeap_->GetNativeSizeTriggerSharedGC()) {
+        if (nativeSizeAfterLastGC > sHeap_->GetNativeSizeTriggerSharedCM()) {
             sHeap_->CollectGarbage<TriggerGCType::SHARED_GC, GCReason::NATIVE_LIMIT>(thread_);
-        } else if (sHeap_->CheckCanTriggerConcurrentMarking(thread_) &&
-            nativeSizeAfterLastGC > sHeap_->GetNativeSizeTriggerSharedCM()) {
-            sHeap_->TriggerConcurrentMarking<TriggerGCType::SHARED_GC, MarkReason::NATIVE_LIMIT>(thread_);
         }
     }
-#ifdef USE_CMC_GC
-    ASSERT(obj->IsInSharedHeap());
-#endif
+    ASSERT(!g_isEnableCMCGC || obj->IsInSharedHeap());
     return obj;
 }
 
@@ -697,9 +713,7 @@ JSHandle<JSNativePointer> ObjectFactory::NewSReadOnlyJSNativePointer(void* exter
     obj->SetData(nullptr);
     obj->SetBindingSize(0U);
     obj->SetNativeFlag(NativeFlag::NO_DIV);
-#ifdef USE_CMC_GC
-    ASSERT(obj->IsInSharedHeap());
-#endif
+    ASSERT(!g_isEnableCMCGC || obj->IsInSharedHeap());
     return obj;
 }
 
@@ -719,17 +733,17 @@ JSHandle<ConstantPool> ObjectFactory::NewSConstantPool(uint32_t capacity)
 {
     NewSObjectHook();
     size_t size = ConstantPool::ComputeSize(capacity);
-    auto header = sHeap_->AllocateOldOrHugeObject(
-#ifdef USE_CMC_GC
-        thread_, JSHClass::Cast(sHeap_->GetGlobalConst()->GetSharedConstantPoolClass().GetTaggedObject()), size);
-#else
-        thread_, JSHClass::Cast(sHeap_->GetGlobalConst()->GetConstantPoolClass().GetTaggedObject()), size);
-#endif
+    TaggedObject *header = nullptr;
+    if (LIKELY(!g_isEnableCMCGC)) {
+        header = sHeap_->AllocateOldOrHugeObject(
+            thread_, JSHClass::Cast(sHeap_->GetGlobalConst()->GetConstantPoolClass().GetTaggedObject()), size);
+    } else {
+        header = sHeap_->AllocateOldOrHugeObject(
+            thread_, JSHClass::Cast(sHeap_->GetGlobalConst()->GetSharedConstantPoolClass().GetTaggedObject()), size);
+    }
     JSHandle<ConstantPool> array(thread_, header);
     array->InitializeWithSpecialValue(thread_, JSTaggedValue::Hole(), capacity);
-#ifdef USE_CMC_GC
-    ASSERT(array->IsInSharedHeap());
-#endif
+    ASSERT(!g_isEnableCMCGC || array->IsInSharedHeap());
     return array;
 }
 
@@ -739,17 +753,17 @@ JSHandle<COWTaggedArray> ObjectFactory::NewSCOWTaggedArray(uint32_t length, JSTa
     ASSERT(length > 0);
 
     size_t size = TaggedArray::ComputeSize(JSTaggedValue::TaggedTypeSize(), length);
-    auto header = sHeap_->AllocateNonMovableOrHugeObject(
-#ifdef USE_CMC_GC
-        thread_, JSHClass::Cast(sHeap_->GetGlobalConst()->GetSharedCOWArrayClass().GetTaggedObject()), size);
-#else
-        thread_, JSHClass::Cast(sHeap_->GetGlobalConst()->GetCOWArrayClass().GetTaggedObject()), size);
-#endif
+    TaggedObject *header = nullptr;
+    if (LIKELY(!g_isEnableCMCGC)) {
+        header = sHeap_->AllocateNonMovableOrHugeObject(
+            thread_, JSHClass::Cast(sHeap_->GetGlobalConst()->GetCOWArrayClass().GetTaggedObject()), size);
+    } else {
+        header = sHeap_->AllocateNonMovableOrHugeObject(
+            thread_, JSHClass::Cast(sHeap_->GetGlobalConst()->GetSharedCOWArrayClass().GetTaggedObject()), size);
+    }
     JSHandle<COWTaggedArray> cowArray(thread_, header);
     cowArray->InitializeWithSpecialValue(initVal, length);
-#ifdef USE_CMC_GC
-    ASSERT(cowArray->IsInSharedHeap());
-#endif
+    ASSERT(!g_isEnableCMCGC || cowArray->IsInSharedHeap());
     return cowArray;
 }
 
@@ -777,12 +791,12 @@ JSHandle<ClassInfoExtractor> ObjectFactory::NewSClassInfoExtractor(
     obj->ClearBitField();
     obj->SetConstructorMethod(thread_, method.GetTaggedValue());
     JSHandle<TaggedArray> emptyArray = EmptyArray();
-    obj->SetNonStaticKeys(thread_, emptyArray, SKIP_BARRIER);
-    obj->SetNonStaticProperties(thread_, emptyArray, SKIP_BARRIER);
-    obj->SetNonStaticElements(thread_, emptyArray, SKIP_BARRIER);
-    obj->SetStaticKeys(thread_, emptyArray, SKIP_BARRIER);
-    obj->SetStaticProperties(thread_, emptyArray, SKIP_BARRIER);
-    obj->SetStaticElements(thread_, emptyArray, SKIP_BARRIER);
+    obj->SetNonStaticKeys<SKIP_BARRIER>(thread_, emptyArray);
+    obj->SetNonStaticProperties<SKIP_BARRIER>(thread_, emptyArray);
+    obj->SetNonStaticElements<SKIP_BARRIER>(thread_, emptyArray);
+    obj->SetStaticKeys<SKIP_BARRIER>(thread_, emptyArray);
+    obj->SetStaticProperties<SKIP_BARRIER>(thread_, emptyArray);
+    obj->SetStaticElements<SKIP_BARRIER>(thread_, emptyArray);
     return obj;
 }
 
@@ -800,11 +814,12 @@ JSHandle<TaggedArray> ObjectFactory::NewSTaggedArray(uint32_t length, JSTaggedVa
 
     size_t size = TaggedArray::ComputeSize(JSTaggedValue::TaggedTypeSize(), length);
     TaggedObject *header = nullptr;
-#ifdef USE_CMC_GC
-    JSHClass *arrayClass = JSHClass::Cast(thread_->GlobalConstants()->GetSharedTaggedArrayClass().GetTaggedObject());
-#else
-    JSHClass *arrayClass = JSHClass::Cast(thread_->GlobalConstants()->GetTaggedArrayClass().GetTaggedObject());
-#endif
+    JSHClass *arrayClass = nullptr;
+    if (LIKELY(!g_isEnableCMCGC)) {
+        arrayClass = JSHClass::Cast(thread_->GlobalConstants()->GetTaggedArrayClass().GetTaggedObject());
+    } else {
+        arrayClass = JSHClass::Cast(thread_->GlobalConstants()->GetSharedTaggedArrayClass().GetTaggedObject());
+    }
     switch (spaceType) {
         case MemSpaceType::SHARED_OLD_SPACE:
             header = sHeap_->AllocateOldOrHugeObject(thread_, arrayClass, size);
@@ -819,9 +834,7 @@ JSHandle<TaggedArray> ObjectFactory::NewSTaggedArray(uint32_t length, JSTaggedVa
 
     JSHandle<TaggedArray> array(thread_, header);
     array->InitializeWithSpecialValue(initVal, length);
-#ifdef USE_CMC_GC
-    ASSERT(array->IsInSharedHeap());
-#endif
+    ASSERT(!g_isEnableCMCGC || array->IsInSharedHeap());
     return array;
 }
 
@@ -856,7 +869,7 @@ JSHandle<JSSymbol> ObjectFactory::NewSConstantPrivateSymbol()
     TaggedObject *header = sHeap_->AllocateReadOnlyOrHugeObject(
         thread_, JSHClass::Cast(thread_->GlobalConstants()->GetSymbolClass().GetTaggedObject()));
     JSHandle<JSSymbol> obj(thread_, JSSymbol::Cast(header));
-    obj->SetDescription(thread_, JSTaggedValue::Undefined());
+    obj->SetDescription<SKIP_BARRIER>(thread_, JSTaggedValue::Undefined());
     obj->SetFlags(0);
     obj->SetHashField(SymbolTable::Hash(obj.GetTaggedValue()));
     obj->SetPrivate();
@@ -869,7 +882,7 @@ JSHandle<JSSymbol> ObjectFactory::NewSEmptySymbol()
     TaggedObject *header = sHeap_->AllocateNonMovableOrHugeObject(
         thread_, JSHClass::Cast(thread_->GlobalConstants()->GetSymbolClass().GetTaggedObject()));
     JSHandle<JSSymbol> obj(thread_, JSSymbol::Cast(header));
-    obj->SetDescription(thread_, JSTaggedValue::Undefined());
+    obj->SetDescription<SKIP_BARRIER>(thread_, JSTaggedValue::Undefined());
     obj->SetFlags(0);
     obj->SetHashField(0);
     return obj;
@@ -912,7 +925,7 @@ JSHandle<SourceTextModule> ObjectFactory::NewSSourceTextModule()
     obj->SetPendingAsyncDependencies(SourceTextModule::UNDEFINED_INDEX);
     obj->SetDFSIndex(SourceTextModule::UNDEFINED_INDEX);
     obj->SetDFSAncestorIndex(SourceTextModule::UNDEFINED_INDEX);
-    obj->SetException(thread_, JSTaggedValue::Hole());
+    obj->SetException<SKIP_BARRIER>(thread_, JSTaggedValue::Hole());
     obj->SetStatus(ModuleStatus::UNINSTANTIATED);
     obj->SetTypes(ModuleTypes::UNKNOWN);
     obj->SetIsNewBcVersion(false);
@@ -933,9 +946,9 @@ JSHandle<ModuleNamespace> ObjectFactory::NewSModuleNamespace()
     JSHandle<JSObject> obj = NewSharedOldSpaceJSObject(hclass);
 
     JSHandle<ModuleNamespace> moduleNamespace = JSHandle<ModuleNamespace>::Cast(obj);
-    moduleNamespace->SetModule(thread_, JSTaggedValue::Undefined());
-    moduleNamespace->SetExports(thread_, JSTaggedValue::Undefined());
-    moduleNamespace->SetDeregisterProcession(thread_, JSTaggedValue::Undefined());
+    moduleNamespace->SetModule<SKIP_BARRIER>(thread_, JSTaggedValue::Undefined());
+    moduleNamespace->SetExports<SKIP_BARRIER>(thread_, JSTaggedValue::Undefined());
+    moduleNamespace->SetDeregisterProcession<SKIP_BARRIER>(thread_, JSTaggedValue::Undefined());
     return moduleNamespace;
 }
 
@@ -1076,12 +1089,14 @@ JSHandle<AOTLiteralInfo> ObjectFactory::NewSAOTLiteralInfo(uint32_t length, JSTa
 {
     NewObjectHook();
     size_t size = AOTLiteralInfo::ComputeSize(length);
-    auto header = sHeap_->AllocateOldOrHugeObject(thread_,
-#ifdef USE_CMC_GC
-        JSHClass::Cast(sHeap_->GetGlobalConst()->GetSharedAOTLiteralInfoClass().GetTaggedObject()), size);
-#else
-        JSHClass::Cast(sHeap_->GetGlobalConst()->GetAOTLiteralInfoClass().GetTaggedObject()), size);
-#endif
+    TaggedObject *header = nullptr;
+    if (LIKELY(!g_isEnableCMCGC)) {
+        header = sHeap_->AllocateOldOrHugeObject(thread_,
+            JSHClass::Cast(sHeap_->GetGlobalConst()->GetAOTLiteralInfoClass().GetTaggedObject()), size);
+    } else {
+        header = sHeap_->AllocateOldOrHugeObject(thread_,
+            JSHClass::Cast(sHeap_->GetGlobalConst()->GetSharedAOTLiteralInfoClass().GetTaggedObject()), size);
+    }
 
     JSHandle<AOTLiteralInfo> aotLiteralInfo(thread_, header);
     aotLiteralInfo->InitializeWithSpecialValue(initVal, length);

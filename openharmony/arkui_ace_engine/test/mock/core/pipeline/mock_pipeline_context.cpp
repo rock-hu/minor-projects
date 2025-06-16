@@ -530,7 +530,10 @@ void PipelineContext::CheckNeedUpdateBackgroundColor(Color& color) {}
 
 bool PipelineContext::CheckNeedDisableUpdateBackgroundImage()
 {
-    return false;
+    if (!isFormRender_) {
+        return false;
+    }
+    return true;
 }
 
 void PipelineContext::OnVirtualKeyboardHeightChange(float keyboardHeight,
@@ -1109,6 +1112,11 @@ bool PipelineBase::IsDestroyed()
     return false;
 }
 
+bool PipelineBase::CheckIfGetTheme()
+{
+    return false;
+}
+
 void PipelineBase::SetDestroyed() {}
 
 RefPtr<Frontend> PipelineBase::GetFrontend() const
@@ -1357,6 +1365,8 @@ bool NG::PipelineContext::GetContainerControlButtonVisible()
 }
 
 void NG::PipelineContext::SetEnableSwipeBack(bool isEnable) {}
+
+void NG::PipelineContext::SetBackgroundColorModeUpdated(bool backgroundColorModeUpdated) {}
 
 RefPtr<Kit::UIContext> NG::PipelineContext::GetUIContext()
 {

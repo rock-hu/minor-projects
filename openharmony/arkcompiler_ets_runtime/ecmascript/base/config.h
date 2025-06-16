@@ -16,7 +16,12 @@
 #ifndef ECMASCRIPT_BASE_CONFIG_H
 #define ECMASCRIPT_BASE_CONFIG_H
 
+#include "common_components/base/config.h"
+#include <cstdint>
+
 namespace panda::ecmascript {
+extern uint32_t g_isEnableCMCGC;
+
 #define ARK_INLINE __attribute__((always_inline))
 #define ARK_NOINLINE __attribute__((noinline))
 
@@ -42,18 +47,6 @@ namespace panda::ecmascript {
 #define ECMASCRIPT_ENABLE_TRACE_CALL  0
 #define ECMASCRIPT_ENABLE_TRACE_DEFINEFUNC 0
 #define ECMASCRIPT_ENABLE_LAZY_DEOPT_TRACE 0
-
-#if defined (NEXT_OPTIMIZATION_MACRO)
-#define ENABLE_NEXT_OPTIMIZATION 1
-#else
-#define ENABLE_NEXT_OPTIMIZATION 0
-#endif
-
-#if ENABLE_NEXT_OPTIMIZATION
-    #define NEXT_OPTIMIZATION_BOOL true
-#else
-    #define NEXT_OPTIMIZATION_BOOL false
-#endif
 
 #ifndef NDEBUG
 #define ECMASCRIPT_ENABLE_INTERPRETER_LOG 1

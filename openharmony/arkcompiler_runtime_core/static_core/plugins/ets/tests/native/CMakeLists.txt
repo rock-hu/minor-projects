@@ -14,4 +14,5 @@
 add_subdirectory(promise)
 add_subdirectory(native_methods)
 add_subdirectory(exclusive_worker)
+add_subdirectory(sync_primitives)
 add_subdirectory(array_buffer)

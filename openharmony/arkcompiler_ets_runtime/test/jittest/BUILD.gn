@@ -11,10 +11,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import("../../js_runtime_config.gni")
+
 group("ark_jit_ts_test") {
   testonly = true
   test_list = [
     "bytecode_to_cir_with_insufficient_profile_009",
+    "bytecode_to_cir_with_insufficient_profile_010",
     "lower_jscode_0001",
     "lower_jscode_0002",
     "arguments",
@@ -46,6 +49,15 @@ group("ark_jit_ts_test") {
     "lazy_deopt_17",
     "lazy_deopt_18",
     "lazy_deopt_19",
+    "lazy_deopt_20",
+    "lazy_deopt_21",
+    "lazy_deopt_22",
+    "lazy_deopt_23",
+    "lazy_deopt_24",
+    "lazy_deopt_25",
+    "lazy_deopt_26",
+    "lazy_deopt_27",
+    "lazy_deopt_module_var",
     "for_loop",
     "for_of",
     "typed_array",
@@ -88,10 +100,12 @@ group("ark_jit_ts_test") {
     "definefunc",
     "jnez",
     "constructor",
+    "intrinsic_test",
+    "intrinsic_test2",
   ]
 
   # Until we support barriers for HeapConstant table
-  if (defined(enable_cmc_gc)) {
+  if (defined(ets_runtime_enable_cmc_gc) && ets_runtime_enable_cmc_gc) {
     test_list -= [ "boolean_new_boolean_poly" ]
     test_list -= [ "boolean_change_proto_ic" ]
     test_list -= [ "ldobjbyvalue_deopt_string_check" ]

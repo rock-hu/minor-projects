@@ -15,6 +15,7 @@
 
 #include "ecmascript/snapshot/mem/snapshot_processor.h"
 
+#include "ecmascript/base/config.h"
 #include "ecmascript/builtins/builtins_ark_tools.h"
 #include "ecmascript/builtins/builtins_array.h"
 #include "ecmascript/builtins/builtins_arraybuffer.h"
@@ -1002,17 +1003,24 @@ static uintptr_t g_nativeTable[] = {
 
 void SnapshotProcessor::Initialize()
 {
-    auto heap = const_cast<Heap *>(vm_->GetHeap());
-    size_t oldSpaceCapacity = heap->GetOldSpace()->GetInitialCapacity();
-    oldLocalSpace_ = new LocalSpace(heap, oldSpaceCapacity, oldSpaceCapacity);
-    size_t nonMovableCapacity = heap->GetNonMovableSpace()->GetInitialCapacity();
-    nonMovableLocalSpace_ = new LocalSpace(heap, nonMovableCapacity, nonMovableCapacity);
-    size_t machineCodeCapacity = heap->GetMachineCodeSpace()->GetInitialCapacity();
-    machineCodeLocalSpace_ = new LocalSpace(heap, machineCodeCapacity, machineCodeCapacity);
-    size_t snapshotSpaceCapacity = heap->GetSnapshotSpace()->GetMaximumCapacity();
-    snapshotLocalSpace_ = new SnapshotSpace(heap, snapshotSpaceCapacity, snapshotSpaceCapacity);
-    hugeObjectLocalSpace_ = new HugeObjectSpace(heap, heap->GetHeapRegionAllocator(),
-                                                oldSpaceCapacity, oldSpaceCapacity);
+    if (g_isEnableCMCGC) {
+        commonRegionSize_ = common::SerializeUtils::GetRegionSize();
+        regularObjAllocator_.Initialize(commonRegionSize_);
+        pinnedObjAllocator_.Initialize(commonRegionSize_);
+        largeObjAllocator_.Initialize(commonRegionSize_);
+    } else {
+        auto heap = const_cast<Heap *>(vm_->GetHeap());
+        size_t oldSpaceCapacity = heap->GetOldSpace()->GetInitialCapacity();
+        oldLocalSpace_ = new LocalSpace(heap, oldSpaceCapacity, oldSpaceCapacity);
+        size_t nonMovableCapacity = heap->GetNonMovableSpace()->GetInitialCapacity();
+        nonMovableLocalSpace_ = new LocalSpace(heap, nonMovableCapacity, nonMovableCapacity);
+        size_t machineCodeCapacity = heap->GetMachineCodeSpace()->GetInitialCapacity();
+        machineCodeLocalSpace_ = new LocalSpace(heap, machineCodeCapacity, machineCodeCapacity);
+        size_t snapshotSpaceCapacity = heap->GetSnapshotSpace()->GetMaximumCapacity();
+        snapshotLocalSpace_ = new SnapshotSpace(heap, snapshotSpaceCapacity, snapshotSpaceCapacity);
+        hugeObjectLocalSpace_ = new HugeObjectSpace(heap, heap->GetHeapRegionAllocator(),
+                                                    oldSpaceCapacity, oldSpaceCapacity);
+    }
 }
 
 SnapshotProcessor::~SnapshotProcessor()
@@ -1021,6 +1029,9 @@ SnapshotProcessor::~SnapshotProcessor()
     stringVector_.clear();
     deserializeStringVector_.clear();
     regionIndexMap_.clear();
+    if (g_isEnableCMCGC) {
+        return;
+    }
     if (oldLocalSpace_ != nullptr) {
         oldLocalSpace_->Reset();
         delete oldLocalSpace_;
@@ -1050,19 +1061,31 @@ SnapshotProcessor::~SnapshotProcessor()
 
 void SnapshotProcessor::StopAllocate()
 {
-    oldLocalSpace_->Stop();
-    nonMovableLocalSpace_->Stop();
-    machineCodeLocalSpace_->Stop();
-    snapshotLocalSpace_->Stop();
+    if (g_isEnableCMCGC) {
+        regularObjAllocator_.StopAllocate(sHeap_);
+        pinnedObjAllocator_.StopAllocate(sHeap_);
+        largeObjAllocator_.StopAllocate(sHeap_);
+    } else {
+        oldLocalSpace_->Stop();
+        nonMovableLocalSpace_->Stop();
+        machineCodeLocalSpace_->Stop();
+        snapshotLocalSpace_->Stop();
+    }
 }
 
 void SnapshotProcessor::WriteObjectToFile(std::fstream &writer)
 {
-    WriteSpaceObjectToFile(oldLocalSpace_, writer);
-    WriteSpaceObjectToFile(nonMovableLocalSpace_, writer);
-    WriteSpaceObjectToFile(machineCodeLocalSpace_, writer);
-    WriteSpaceObjectToFile(snapshotLocalSpace_, writer);
-    WriteHugeObjectToFile(hugeObjectLocalSpace_, writer);
+    if (g_isEnableCMCGC) {
+        regularObjAllocator_.WriteToFile(writer);
+        pinnedObjAllocator_.WriteToFile(writer);
+        largeObjAllocator_.WriteToFile(writer);
+    } else {
+        WriteSpaceObjectToFile(oldLocalSpace_, writer);
+        WriteSpaceObjectToFile(nonMovableLocalSpace_, writer);
+        WriteSpaceObjectToFile(machineCodeLocalSpace_, writer);
+        WriteSpaceObjectToFile(snapshotLocalSpace_, writer);
+        WriteHugeObjectToFile(hugeObjectLocalSpace_, writer);
+    }
 }
 
 void SnapshotProcessor::WriteSpaceObjectToFile(Space* space, std::fstream &writer)
@@ -1109,18 +1132,24 @@ void SnapshotProcessor::WriteHugeObjectToFile(HugeObjectSpace* space, std::fstre
     });
 }
 
-std::vector<uint32_t> SnapshotProcessor::StatisticsObjectSize()
+std::vector<size_t> SnapshotProcessor::StatisticsObjectSize()
 {
-    std::vector<uint32_t> objSizeVector;
-    objSizeVector.emplace_back(StatisticsSpaceObjectSize(oldLocalSpace_));
-    objSizeVector.emplace_back(StatisticsSpaceObjectSize(nonMovableLocalSpace_));
-    objSizeVector.emplace_back(StatisticsSpaceObjectSize(machineCodeLocalSpace_));
-    objSizeVector.emplace_back(StatisticsSpaceObjectSize(snapshotLocalSpace_));
-    objSizeVector.emplace_back(StatisticsHugeObjectSize(hugeObjectLocalSpace_));
+    std::vector<size_t> objSizeVector;
+    if (g_isEnableCMCGC) {
+        objSizeVector.emplace_back(regularObjAllocator_.GetAllocatedSize());
+        objSizeVector.emplace_back(pinnedObjAllocator_.GetAllocatedSize());
+        objSizeVector.emplace_back(largeObjAllocator_.GetAllocatedSize());
+    } else {
+        objSizeVector.emplace_back(StatisticsSpaceObjectSize(oldLocalSpace_));
+        objSizeVector.emplace_back(StatisticsSpaceObjectSize(nonMovableLocalSpace_));
+        objSizeVector.emplace_back(StatisticsSpaceObjectSize(machineCodeLocalSpace_));
+        objSizeVector.emplace_back(StatisticsSpaceObjectSize(snapshotLocalSpace_));
+        objSizeVector.emplace_back(StatisticsHugeObjectSize(hugeObjectLocalSpace_));
+    }
     return objSizeVector;
 }
 
-uint32_t SnapshotProcessor::StatisticsSpaceObjectSize(Space* space)
+size_t SnapshotProcessor::StatisticsSpaceObjectSize(Space* space)
 {
     size_t regionCount = space->GetRegionCount();
     size_t objSize = 0U;
@@ -1130,11 +1159,10 @@ uint32_t SnapshotProcessor::StatisticsSpaceObjectSize(Space* space)
         objSize = (regionCount - 1) * (SnapshotRegionHeadInfo::RegionHeadInfoSize() +
             Region::GetRegionAvailableSize()) + SnapshotRegionHeadInfo::RegionHeadInfoSize() + lastRegionSize;
     }
-    ASSERT(objSize <= Constants::MAX_UINT_32);
-    return static_cast<uint32_t>(objSize);
+    return objSize;
 }
 
-uint32_t SnapshotProcessor::StatisticsHugeObjectSize(HugeObjectSpace* space)
+size_t SnapshotProcessor::StatisticsHugeObjectSize(HugeObjectSpace* space)
 {
     size_t objSize = 0U;
     space->EnumerateRegions([&objSize](Region *region) {
@@ -1143,7 +1171,7 @@ uint32_t SnapshotProcessor::StatisticsHugeObjectSize(HugeObjectSpace* space)
         // huge object size is storaged in region param snapshotData_ high 32 bits
         objSize += SnapshotHelper::GetHugeObjectSize(snapshotData);
     });
-    return static_cast<uint32_t>(objSize);
+    return objSize;
 }
 
 void SnapshotProcessor::ProcessObjectQueue(CQueue<TaggedObject *> *queue,
@@ -1190,6 +1218,62 @@ void SnapshotProcessor::SetObjectEncodeField(uintptr_t obj, size_t offset, uint6
     *reinterpret_cast<uint64_t *>(obj + offset) = value;
 }
 
+void SnapshotProcessor::DeserializeObjectExcludeString(uintptr_t regularObjBegin, size_t regularObjSize,
+                                                       size_t pinnedObjSize, size_t largeObjSize)
+{
+    uintptr_t pinnedObjBegin = regularObjBegin + regularObjSize;
+    uintptr_t largeObjBegin = pinnedObjBegin + pinnedObjSize;
+    auto heap = vm_->GetHeap();
+
+    DeserializeSpaceObject(regularObjBegin, regularObjSize, SerializedObjectSpace::REGULAR_SPACE);
+    DeserializeSpaceObject(pinnedObjBegin, pinnedObjSize, SerializedObjectSpace::PIN_SPACE);
+    DeserializeSpaceObject(largeObjBegin, largeObjSize, SerializedObjectSpace::LARGE_SPACE);
+}
+
+void SnapshotProcessor::DeserializeSpaceObject(uintptr_t beginAddr, size_t objSize,
+                                               SerializedObjectSpace spaceType)
+{
+    uintptr_t endAddr = beginAddr + objSize;
+    while (beginAddr < endAddr) {
+        SnapshotRegionHeadInfo *info = ToNativePtr<SnapshotRegionHeadInfo>(beginAddr);
+        beginAddr += SnapshotRegionHeadInfo::RegionHeadInfoSize();
+        uintptr_t objectBeginAddr = ToUintPtr(info) + SnapshotRegionHeadInfo::RegionHeadInfoSize();
+        size_t regionIndex = info->regionIndex_;
+        size_t liveObjectSize = info->aliveObjectSize_;
+        uintptr_t regionAddr;
+        switch (spaceType) {
+            case SerializedObjectSpace::REGULAR_SPACE:
+                regionAddr = common::HeapAllocator::AllocateRegion();
+                regularRegions_.emplace_back(regionAddr, liveObjectSize);
+                break;
+            case SerializedObjectSpace::PIN_SPACE:
+                regionAddr = common::HeapAllocator::AllocatePinnedRegion();
+                pinnedRegions_.emplace_back(regionAddr, liveObjectSize);
+                break;
+            case SerializedObjectSpace::LARGE_SPACE:
+                regionAddr = common::HeapAllocator::AllocateLargeRegion(objSize);
+                largeRegions_.emplace_back(regionAddr, liveObjectSize);
+                break;
+            default:
+                LOG_ECMA(FATAL) << "unsupported space type " << static_cast<int>(spaceType);
+                UNREACHABLE();
+        }
+        regionIndexMap_.emplace(regionIndex, regionAddr);
+
+        if (errno_t ret = memcpy_s(ToVoidPtr(regionAddr), liveObjectSize, ToVoidPtr(beginAddr), liveObjectSize);
+            ret != EOK) {
+            LOG_FULL(FATAL) << "memcpy_s failed: " << ret;
+            UNREACHABLE();
+        }
+        if (spaceType != SerializedObjectSpace::LARGE_SPACE) {
+            uintptr_t top = regionAddr + liveObjectSize;
+            uintptr_t end = regionAddr + common::SerializeUtils::GetRegionSize();
+            FreeObject::FillFreeObject(sHeap_, top, end - top);
+        }
+        beginAddr += liveObjectSize;
+    }
+}
+
 void SnapshotProcessor::DeserializeObjectExcludeString(uintptr_t oldSpaceBegin, size_t oldSpaceObjSize,
                                                        size_t nonMovableObjSize, size_t machineCodeObjSize,
                                                        size_t snapshotObjSize, size_t hugeSpaceObjSize)
@@ -1228,7 +1312,7 @@ void SnapshotProcessor::DeserializeSpaceObject(uintptr_t beginAddr, Space* space
         uintptr_t objectBeginAddr = ToUintPtr(info) + SnapshotRegionHeadInfo::RegionHeadInfoSize();
         size_t regionIndex = info->regionIndex_;
         size_t liveObjectSize = info->aliveObjectSize_;
-        regionIndexMap_.emplace(regionIndex, region);
+        regionIndexMap_.emplace(regionIndex, ToUintPtr(region));
 
         ASAN_UNPOISON_MEMORY_REGION(reinterpret_cast<void *>(region->packedData_.begin_), liveObjectSize);
         if (errno_t ret = memcpy_s(ToVoidPtr(region->packedData_.begin_),
@@ -1271,12 +1355,12 @@ void SnapshotProcessor::DeserializeHugeSpaceObject(uintptr_t beginAddr, HugeObje
         size_t hugeRegionHeadSize = AlignUp(alignedRegionObjSize + GCBitset::BYTE_PER_WORD,
                                             static_cast<size_t>(MemAlignment::MEM_ALIGN_OBJECT));
 
-        ASSERT(objSize > MAX_REGULAR_HEAP_OBJECT_SIZE);
+        ASSERT(objSize > g_maxRegularHeapObjectSize);
         size_t alignedHugeRegionSize = AlignUp(objSize + hugeRegionHeadSize, PANDA_POOL_ALIGNMENT_IN_BYTES);
         Region *region = vm_->GetHeapRegionAllocator()->AllocateAlignedRegion(
             space, alignedHugeRegionSize, vm_->GetAssociatedJSThread(), const_cast<Heap *>(vm_->GetHeap()));
         size_t regionIndex = info->regionIndex_;
-        regionIndexMap_.emplace(regionIndex, region);
+        regionIndexMap_.emplace(regionIndex, ToUintPtr(region));
 
         ASAN_UNPOISON_MEMORY_REGION(reinterpret_cast<void *>(region->packedData_.begin_), objSize);
         if (memcpy_s(ToVoidPtr(region->packedData_.begin_),
@@ -1308,8 +1392,8 @@ void SnapshotProcessor::DeserializeString(uintptr_t stringBegin, uintptr_t strin
     auto lineStringClass = globalConst->GetLineStringClass();
     while (stringBegin < stringEnd) {
         // str is from snapshot file, which is in native heap.
-        EcmaString *str = reinterpret_cast<EcmaString *>(stringBegin);
-        str->SetClassWithoutBarrier(reinterpret_cast<JSHClass *>(lineStringClass.GetTaggedObject()));
+        EcmaString *str = reinterpret_cast<EcmaString *>(stringBegin);  // Note str is not in Heap, so no Handle
+        str->SetFullBaseClassWithoutBarrier(reinterpret_cast<common::BaseClass*>(lineStringClass.GetTaggedObject()));
         size_t strSize = EcmaStringAccessor(str).ObjectSize();
         strSize = AlignUp(strSize, static_cast<size_t>(MemAlignment::MEM_ALIGN_OBJECT));
         {
@@ -1319,10 +1403,14 @@ void SnapshotProcessor::DeserializeString(uintptr_t stringBegin, uintptr_t strin
                 vm_, hashcode,
                 [strSize, hugeSpace, thread, str, this]() {
                     uintptr_t newObj = 0;
-                    if (UNLIKELY(strSize > MAX_REGULAR_HEAP_OBJECT_SIZE)) {
-                        newObj = hugeSpace->Allocate(thread, strSize);
+                    if (thread->IsEnableCMCGC()) {
+                        newObj = ToUintPtr(sHeap_->AllocateOldOrHugeObjectNoGC(thread, strSize));
                     } else {
-                        newObj = this->sHeap_->GetOldSpace()->TryAllocateAndExpand(thread, strSize, true);
+                        if (UNLIKELY(strSize > g_maxRegularHeapObjectSize)) {
+                            newObj = hugeSpace->Allocate(thread, strSize);
+                        } else {
+                            newObj = this->sHeap_->GetOldSpace()->TryAllocateAndExpand(thread, strSize, true);
+                        }
                     }
                     if (newObj == 0) {
                         LOG_ECMA_MEM(FATAL) << "Snapshot Allocate OldSharedSpace OOM";
@@ -1334,11 +1422,7 @@ void SnapshotProcessor::DeserializeString(uintptr_t stringBegin, uintptr_t strin
                     }
 
                     EcmaString *value = reinterpret_cast<EcmaString *>(newObj);
-#ifdef USE_CMC_GC
-                    ASSERT(value->IsInSharedHeap());
-#else
-                    ASSERT(Region::ObjectAddressToRange(reinterpret_cast<TaggedObject *>(value))->InSharedHeap());
-#endif
+                    ASSERT(JSTaggedValue(value).IsInSharedHeap());
                     ASSERT(EcmaStringAccessor(value).NotTreeString());
                     JSHandle<EcmaString> stringHandle(thread, value);
                     return stringHandle;
@@ -1357,10 +1441,14 @@ void SnapshotProcessor::DeserializeString(uintptr_t stringBegin, uintptr_t strin
                 deserializeStringVector_.emplace_back(thread, strFromTable);
             } else {
                 uintptr_t newObj = 0;
-                if (UNLIKELY(strSize > MAX_REGULAR_HEAP_OBJECT_SIZE)) {
-                    newObj = hugeSpace->Allocate(thread, strSize);
+                if (thread->IsEnableCMCGC()) {
+                    newObj = ToUintPtr(sHeap_->AllocateOldOrHugeObjectNoGC(thread, strSize));
                 } else {
-                    newObj = sHeap_->GetOldSpace()->TryAllocateAndExpand(thread, strSize, true);
+                    if (UNLIKELY(strSize > g_maxRegularHeapObjectSize)) {
+                        newObj = hugeSpace->Allocate(thread, strSize);
+                    } else {
+                        newObj = sHeap_->GetOldSpace()->TryAllocateAndExpand(thread, strSize, true);
+                    }
                 }
                 if (newObj == 0) {
                     LOG_ECMA_MEM(FATAL) << "Snapshot Allocate OldSharedSpace OOM";
@@ -1408,6 +1496,7 @@ void SnapshotProcessor::HandleRootObject(SnapshotType type, uintptr_t rootObject
             } else if (JSType(objType) == JSType::MICRO_JOB_QUEUE) {
                 vm_->SetMicroJobQueue(reinterpret_cast<job::MicroJobQueue *>(rootObjectAddr));
             }
+            root_ = JSTaggedValue(static_cast<JSTaggedType>(rootObjectAddr));
             break;
         }
         case SnapshotType::BUILTINS: {
@@ -1527,18 +1616,65 @@ void SnapshotProcessor::Relocate(SnapshotType type, const JSPandaFile *jsPandaFi
         methods = jsPandaFile->GetMethodLiterals();
     }
 
-    auto heap = vm_->GetHeap();
-    auto oldSpace = heap->GetOldSpace();
-    auto nonMovableSpace = heap->GetNonMovableSpace();
-    auto machineCodeSpace = heap->GetMachineCodeSpace();
-    auto snapshotSpace = heap->GetSnapshotSpace();
-    auto hugeObjectSpace = heap->GetHugeObjectSpace();
+    if (g_isEnableCMCGC) {
+        RelocateSpaceObject(regularRegions_, type, methods, methodNums, rootObjSize);
+        RelocateSpaceObject(pinnedRegions_, type, methods, methodNums, rootObjSize);
+        RelocateSpaceObject(largeRegions_, type, methods, methodNums, rootObjSize);
+    } else {
+        auto heap = vm_->GetHeap();
+        auto oldSpace = heap->GetOldSpace();
+        auto nonMovableSpace = heap->GetNonMovableSpace();
+        auto machineCodeSpace = heap->GetMachineCodeSpace();
+        auto snapshotSpace = heap->GetSnapshotSpace();
+        auto hugeObjectSpace = heap->GetHugeObjectSpace();
 
-    RelocateSpaceObject(oldSpace, type, methods, methodNums, rootObjSize);
-    RelocateSpaceObject(nonMovableSpace, type, methods, methodNums, rootObjSize);
-    RelocateSpaceObject(machineCodeSpace, type, methods, methodNums, rootObjSize);
-    RelocateSpaceObject(snapshotSpace, type, methods, methodNums, rootObjSize);
-    RelocateSpaceObject(hugeObjectSpace, type, methods, methodNums, rootObjSize);
+        RelocateSpaceObject(oldSpace, type, methods, methodNums, rootObjSize);
+        RelocateSpaceObject(nonMovableSpace, type, methods, methodNums, rootObjSize);
+        RelocateSpaceObject(machineCodeSpace, type, methods, methodNums, rootObjSize);
+        RelocateSpaceObject(snapshotSpace, type, methods, methodNums, rootObjSize);
+        RelocateSpaceObject(hugeObjectSpace, type, methods, methodNums, rootObjSize);
+    }
+}
+
+void SnapshotProcessor::RelocateSpaceObject(std::vector<std::pair<uintptr_t, size_t>> &regions, SnapshotType type,
+    MethodLiteral* methods, size_t methodNums, size_t rootObjSize)
+{
+    size_t others = 0;
+    size_t objIndex = 0;
+    size_t constSpecialIndex = 0;
+    EcmaStringTable *stringTable = vm_->GetEcmaStringTable();
+    for (auto [begin, allocated] : regions) {
+        uintptr_t end = begin + allocated;
+        while (begin < end) {
+            if (others != 0) {
+                DeserializePandaMethod(begin, end, methods, methodNums, others);
+                break;
+            }
+            EncodeBit encodeBit(*reinterpret_cast<uint64_t *>(begin));
+            auto objType = encodeBit.GetObjectType();
+            if (objType == Constants::MASK_METHOD_SPACE_BEGIN) {
+                begin += sizeof(uint64_t);
+                others = encodeBit.GetNativePointerOrObjectIndex();
+                DeserializePandaMethod(begin, end, methods, methodNums, others);
+                break;
+            }
+            TaggedObject *objectHeader = reinterpret_cast<TaggedObject *>(begin);
+            DeserializeClassWord(objectHeader);
+            DeserializeField(objectHeader);
+            if (builtinsDeserialize_ &&
+                (JSType(objType) >= JSType::STRING_FIRST && JSType(objType) <= JSType::STRING_LAST)) {
+                EcmaString *str = reinterpret_cast<EcmaString *>(begin);
+                EcmaStringAccessor(str).ClearInternString();
+                stringTable->GetOrInternFlattenString(vm_, str);
+            }
+            if (objIndex < rootObjSize) {
+                HandleRootObject(type, begin, objType, constSpecialIndex);
+            }
+            begin = begin + AlignUp(objectHeader->GetSize(),
+                                    static_cast<size_t>(MemAlignment::MEM_ALIGN_OBJECT));
+            objIndex++;
+        }
+    };
 }
 
 void SnapshotProcessor::RelocateSpaceObject(Space* space, SnapshotType type, MethodLiteral* methods,
@@ -1609,7 +1745,7 @@ EncodeBit SnapshotProcessor::SerializeObjectHeader(TaggedObject *objectHeader, s
 uint64_t SnapshotProcessor::SerializeTaggedField(JSTaggedType *tagged, CQueue<TaggedObject *> *queue,
                                                  std::unordered_map<uint64_t, ObjectEncode> *data)
 {
-    JSTaggedValue taggedValue(*tagged);
+    JSTaggedValue taggedValue(Barriers::GetTaggedValue(ToUintPtr(tagged)));
     if (taggedValue.IsWeak()) {
         taggedValue.RemoveWeakTag();
         if (taggedValue.IsJSHClass()) {
@@ -1656,22 +1792,24 @@ void SnapshotProcessor::DeserializeTaggedField(uint64_t *value, TaggedObject *ro
     }
 
     if (encodeBit.IsReference() && !encodeBit.IsSpecial()) {
-        Region *rootRegion = Region::ObjectAddressToRange(ToUintPtr(root));
         uintptr_t taggedObjectAddr = TaggedObjectEncodeBitToAddr(encodeBit);
-        Region *valueRegion = Region::ObjectAddressToRange(taggedObjectAddr);
-        if (rootRegion->InGeneralOldSpace() && valueRegion->InYoungSpace()) {
-            // Should align with '8' in 64 and 32 bit platform
-            ASSERT((ToUintPtr(value) % static_cast<uint8_t>(MemAlignment::MEM_ALIGN_OBJECT)) == 0);
-            rootRegion->InsertOldToNewRSet((uintptr_t)value);
-        }
-        if (valueRegion->InSharedSweepableSpace()) {
-            if (!rootRegion->InSharedHeap()) {
-                rootRegion->InsertLocalToShareRSet((uintptr_t)value);
+        if (!g_isEnableCMCGC) {
+            Region *rootRegion = Region::ObjectAddressToRange(ToUintPtr(root));
+            Region *valueRegion = Region::ObjectAddressToRange(taggedObjectAddr);
+            if (rootRegion->InGeneralOldSpace() && valueRegion->InYoungSpace()) {
+                // Should align with '8' in 64 and 32 bit platform
+                ASSERT((ToUintPtr(value) % static_cast<uint8_t>(MemAlignment::MEM_ALIGN_OBJECT)) == 0);
+                rootRegion->InsertOldToNewRSet((uintptr_t)value);
             }
-            // In deserializing can not use barriers, only mark the shared value to prevent markingbit being lost
-            if (vm_->GetJSThread()->IsSharedConcurrentMarkingOrFinished()) {
-                ASSERT(DaemonThread::GetInstance()->IsConcurrentMarkingOrFinished());
-                valueRegion->AtomicMark(reinterpret_cast<void*>(taggedObjectAddr));
+            if (valueRegion->InSharedSweepableSpace()) {
+                if (!rootRegion->InSharedHeap()) {
+                    rootRegion->InsertLocalToShareRSet((uintptr_t)value);
+                }
+                // In deserializing can not use barriers, only mark the shared value to prevent markingbit being lost
+                if (vm_->GetJSThread()->IsSharedConcurrentMarkingOrFinished()) {
+                    ASSERT(DaemonThread::GetInstance()->IsConcurrentMarkingOrFinished());
+                    valueRegion->AtomicMark(reinterpret_cast<void*>(taggedObjectAddr));
+                }
             }
         }
         *value = taggedObjectAddr;
@@ -1777,10 +1915,10 @@ uintptr_t SnapshotProcessor::TaggedObjectEncodeBitToAddr(EncodeBit taggedBit)
     if (UNLIKELY(regionIndexMap_.find(regionIndex) == regionIndexMap_.end())) {
         LOG_FULL(FATAL) << "Snapshot deserialize can not find region by index";
     }
-    Region *region = regionIndexMap_.find(regionIndex)->second;
+    uintptr_t region = regionIndexMap_.find(regionIndex)->second;
     size_t objectOffset = taggedBit.GetObjectOffsetInRegion();
 
-    uintptr_t addr = ToUintPtr(region) + objectOffset;
+    uintptr_t addr = region + objectOffset;
     if (taggedBit.IsTSWeakObject()) {
         JSTaggedValue object(static_cast<JSTaggedType>(addr));
         object.CreateWeakRef();
@@ -1833,7 +1971,34 @@ void SnapshotProcessor::SerializePandaFileMethod()
     }
 }
 
-uintptr_t SnapshotProcessor::GetNewObj(size_t objectSize, TaggedObject *objectHeader)
+SnapshotProcessor::AllocResult SnapshotProcessor::GetNewObj(size_t objectSize, TaggedObject *objectHeader)
+{
+    if (g_isEnableCMCGC) {
+        SerializedObjectSpace spaceType = SerializedObjectSpace(
+            static_cast<int>(common::SerializeUtils::GetSerializeObjectSpace(ToUintPtr(objectHeader))));
+        switch (spaceType) {
+            case SerializedObjectSpace::REGULAR_SPACE:
+                return regularObjAllocator_.Allocate(objectSize, regionIndex_);
+            case SerializedObjectSpace::PIN_SPACE:
+                return pinnedObjAllocator_.Allocate(objectSize, regionIndex_);
+            case SerializedObjectSpace::LARGE_SPACE:
+                return largeObjAllocator_.Allocate(objectSize, regionIndex_);
+            default:
+                LOG_ECMA(FATAL) << "unsupported space type " << static_cast<int>(spaceType);
+                UNREACHABLE();
+        }
+    } else {
+        uintptr_t newObj = GetNewObjAddress(objectSize, objectHeader);
+        auto currentRegion = Region::ObjectAddressToRange(newObj);
+        // region snapshotData_ low 32 bits is used to record region index for snapshot
+        uint64_t snapshotData = currentRegion->GetSnapshotData();
+        size_t regionIndex = SnapshotHelper::GetHugeObjectRegionIndex(snapshotData);
+        size_t objOffset = newObj - ToUintPtr(currentRegion);
+        return {newObj, objOffset, regionIndex};
+    }
+}
+
+uintptr_t SnapshotProcessor::GetNewObjAddress(size_t objectSize, TaggedObject *objectHeader)
 {
     if (builtinsSerialize_) {
         return AllocateObjectToLocalSpace(snapshotLocalSpace_, objectSize);
@@ -1892,27 +2057,22 @@ EncodeBit SnapshotProcessor::EncodeTaggedObject(TaggedObject *objectHeader, CQue
     if (objectSize == 0) {
         LOG_ECMA_MEM(FATAL) << "It is a zero object. Not Support.";
     }
-    uintptr_t newObj = GetNewObj(objectSize, objectHeader);
-    if (newObj == 0) {
+    SnapshotProcessor::AllocResult allocResult = GetNewObj(objectSize, objectHeader);
+    if (allocResult.address == 0) {
         LOG_ECMA_MEM(FATAL) << "Snapshot Allocate OOM";
     }
-    if (memcpy_s(ToVoidPtr(newObj), objectSize, objectHeader, objectSize) != EOK) {
+    if (memcpy_s(ToVoidPtr(allocResult.address), objectSize, objectHeader, objectSize) != EOK) {
         LOG_FULL(FATAL) << "memcpy_s failed";
         UNREACHABLE();
     }
-    auto currentRegion = Region::ObjectAddressToRange(newObj);
-    // region snapshotData_ low 32 bits is used to record region index for snapshot
-    uint64_t snapshotData = currentRegion->GetSnapshotData();
-    size_t regionIndex = SnapshotHelper::GetHugeObjectRegionIndex(snapshotData);
-    size_t objOffset = newObj - ToUintPtr(currentRegion);
-    EncodeBit encodeBit(static_cast<uint64_t>(regionIndex));
-    encodeBit.SetObjectOffsetInRegion(objOffset);
+    EncodeBit encodeBit(static_cast<uint64_t>(allocResult.regionIndex));
+    encodeBit.SetObjectOffsetInRegion(allocResult.offset);
     if (oldObjHeader->GetClass()->IsString()) {
         if (EcmaStringAccessor(oldObjHeader).IsTreeString()) {
             data->emplace(ToUintPtr(oldObjHeader), std::make_pair(0U, encodeBit));
         }
     }
-    data->emplace(ToUintPtr(objectHeader), std::make_pair(newObj, encodeBit));
+    data->emplace(ToUintPtr(objectHeader), std::make_pair(allocResult.address, encodeBit));
     return encodeBit;
 }
 
@@ -1974,6 +2134,89 @@ void SnapshotProcessor::ResetRegionUnusedRange(Region *region)
             LOG_FULL(FATAL) << "memset_s failed";
             UNREACHABLE();
         }
+    }
+}
+
+void SnapshotProcessor::AllocateProxy::Initialize(size_t commonRegionSize)
+{
+    commonRegionSize_ = commonRegionSize;
+}
+
+void SnapshotProcessor::AllocateProxy::AllocateNewRegion(size_t size, uintptr_t &regionIndex)
+{
+    size_t actualSize;
+    switch (spaceType_) {
+        case SerializedObjectSpace::REGULAR_SPACE:
+        case SerializedObjectSpace::PIN_SPACE:
+            actualSize = commonRegionSize_;
+            break;
+        case SerializedObjectSpace::LARGE_SPACE:
+            actualSize = size;
+            break;
+        default:
+            LOG_ECMA(FATAL) << "unsupported space type " << static_cast<int>(spaceType_);
+            UNREACHABLE();
+    }
+    void *ptr = malloc(actualSize);
+    if (ptr == nullptr) {
+        LOG_ECMA(FATAL) << "malloc failed, size = " << actualSize;
+        UNREACHABLE();
+    }
+    uintptr_t start = ToUintPtr(ptr);
+    uintptr_t end = start + actualSize;
+    currentRegion_.Reset(start, end, regionIndex++);
+}
+
+SnapshotProcessor::AllocResult SnapshotProcessor::AllocateProxy::Allocate(size_t size, uintptr_t &regionIndex)
+{
+    ASSERT(commonRegionSize_ > 0);
+    AllocResult result = currentRegion_.Allocate(size);
+    if (result.address != 0) {
+        ASSERT(result.regionIndex != -1);
+        return result;
+    }
+    if (!currentRegion_.IsEmpty()) {
+        regions_.push_back(currentRegion_);
+    }
+    AllocateNewRegion(size, regionIndex);
+    ASSERT(!currentRegion_.IsEmpty());
+    result = currentRegion_.Allocate(size);
+    ASSERT(result.address != 0);
+    ASSERT(result.regionIndex != -1);
+    return result;
+}
+
+void SnapshotProcessor::AllocateProxy::StopAllocate(SharedHeap *sHeap)
+{
+    if (!currentRegion_.IsEmpty()) {
+        regions_.push_back(currentRegion_);
+        currentRegion_.Reset(0, 0, -1);
+    }
+    ASSERT(currentRegion_.IsEmpty());
+    for (RegionProxy &region : regions_) {
+        ASSERT(!region.IsEmpty());
+        uintptr_t begin = region.GetBegin();
+        uintptr_t top = region.GetTop();
+        uintptr_t end = region.GetEnd();
+        allocatedSize_ += top - begin;
+    }
+    allocatedSize_ += regions_.size() * SnapshotRegionHeadInfo::RegionHeadInfoSize();
+}
+
+void SnapshotProcessor::AllocateProxy::WriteToFile(std::fstream &writer)
+{
+    for (RegionProxy &region : regions_) {
+        ASSERT(!region.IsEmpty());
+        uintptr_t begin = region.GetBegin();
+        uintptr_t top = region.GetTop();
+        size_t objSize = top - begin;
+        size_t regionIndex = region.GetRegionIndex();
+        SnapshotRegionHeadInfo info {regionIndex, objSize};
+        // Firstly, serialize the region head information into the file;
+        writer.write(reinterpret_cast<char *>(&info), SnapshotRegionHeadInfo::RegionHeadInfoSize());
+        // Secondly, write the valid region memory (exclude region head and GC bit set).
+        writer.write(reinterpret_cast<char *>(begin), objSize);
+        writer.flush();
     }
 }
 }  // namespace panda::ecmascript

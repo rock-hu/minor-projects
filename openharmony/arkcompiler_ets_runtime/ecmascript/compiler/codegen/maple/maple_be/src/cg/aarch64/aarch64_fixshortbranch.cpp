@@ -78,7 +78,6 @@ uint32 AArch64FixShortBranch::CalculateIfBBNum() const
 void AArch64FixShortBranch::PatchLongBranch()
 {
     AArch64CGFunc *aarch64CGFunc = static_cast<AArch64CGFunc *>(cgFunc);
-    SetInsnId();
     uint32 ifBBCount = CalculateIfBBNum();
     for (BB *bb = aarch64CGFunc->GetFirstBB(); bb != nullptr; bb = bb->GetNext()) {
         if (bb->GetKind() != BB::kBBIf) {
@@ -247,7 +246,6 @@ bool CgFixShortBranch::PhaseRun(maplebe::CGFunc &f)
     fixShortBranch->FixShortBranches();
 
     // fix ldr would cause insn num increasing, do ldr fix first.
-    fixShortBranch->FixLdr();
     fixShortBranch->PatchLongBranch();
     return false;
 }

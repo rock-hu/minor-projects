@@ -558,6 +558,7 @@ public:
     void TryForceSplitIfNeeded(const SizeF& frameSize);
     void SwapNavDestinationAndPlaceHolder(bool needFireLifecycle);
     bool IsPrimaryNode(const RefPtr<NavDestinationGroupNode>& destNode) const;
+    // Only used for the toolbar in 'container_modal' component
     void SetToolbarManagerNavigationMode(NavigationMode mode);
 
 private:
@@ -679,8 +680,8 @@ private:
     std::optional<int32_t> CalcRotateAngleWithDisplayOrientation(
         DisplayOrientation curOri, DisplayOrientation targetOri);
     void GetAllNodes(
-        std::vector<RefPtr<NavDestinationNodeBase>>& invisibleNodes,
-        std::vector<RefPtr<NavDestinationNodeBase>>& visibleNodes);
+        std::vector<WeakPtr<NavDestinationNodeBase>>& invisibleNodes,
+        std::vector<WeakPtr<NavDestinationNodeBase>>& visibleNodes);
     void OnAllTransitionAnimationFinish();
     void UpdatePageLevelConfigForSizeChanged();
     RefPtr<NavDestinationNodeBase> GetLastStandardNodeOrNavBar();

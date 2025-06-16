@@ -12,10 +12,15 @@
 # limitations under the License.
 
 import("//arkcompiler/ets_runtime/js_runtime_config.gni")
+
+declare_args() {
+  skip_gen_stub = false
+}
+
 if (defined(timeout)) {
   _timeout_ = timeout
 } else {
-  _timeout_ = 1200
+  _timeout_ = 2400
 }
 
 config("include_maple") {
@@ -324,8 +329,8 @@ ohos_source_set("libark_stub_set") {
       ubsan = true
     }
   }
-  deps = [ ":build_stub_to_cpp" ]
 
+  deps = [ ":build_stub_to_cpp" ]
   sources = [ "$root_gen_dir/arkcompiler/ets_runtime/stub_an.cpp" ]
 
   public_configs = [
@@ -407,10 +412,11 @@ ohos_executable("ark_stub_compiler") {
     ":libark_mock_stub_set",
     "$js_root:libark_js_intl_set",
     "$js_root:libark_jsruntime_set",
+    "$js_root:libcommon_components_set",
   ]
 
+  deps += [ "$js_root:libcommon_components_set" ]
   if (ets_runtime_enable_cmc_gc) {
-    deps += [ "$js_root:libcommon_components_set" ]
     if (ark_hybrid) {
       deps += [ "$ark_root/static_core/runtime:libarkruntime_set_static" ]
     }
@@ -476,10 +482,8 @@ ohos_executable("ark_aot_compiler") {
       "$js_root:libark_js_intl_set",
       "$js_root:libark_jsruntime_set",
       "${MAPLEALL_ROOT}/maple_be:libcg",
+      "$js_root:libcommon_components_set",
     ]
-    if (ets_runtime_enable_cmc_gc) {
-      deps += [ "$js_root:libcommon_components_set" ]
-    }
   }
 
   if (ets_runtime_enable_cmc_gc) {
@@ -589,6 +593,15 @@ action("gen_stub_file") {
         rebase_path(root_out_dir_with_host_toolchain) +
         "/thirdparty/bounds_checking_function:" + rebase_path(llvm_lib_dir),
   ]
+
+  # Use with caution. It can only be used when the IR(stub.an) logic is not modified.
+  if (skip_gen_stub) {
+    args += [
+      "--skip",
+      "true",
+    ]
+  }
+
   outputs = [ "$stub_file_gen_dir/stub.an" ]
   if (is_ohos) {
     outputs += [ "$stub_file_gen_dir/stub_code_comment.zip" ]

@@ -15,14 +15,16 @@
 
 #include "common_components/base_runtime/base_runtime_param.h"
 
-#include "common_components/common_runtime/src/base/globals.h"
+#include "common_components/base/globals.h"
 #include "common_components/platform/cpu.h"
 
-namespace panda {
+namespace common {
 size_t BaseRuntimeParam::InitHeapSize()
 {
+    constexpr auto DEFAULT_HEAP_SIZE_PERCENTAGE = 0.6;
     size_t systemSize = PhysicalSize();
-    size_t initHeapSize = systemSize > 1 * GB ? std::min(systemSize * 0.9 / KB, 3.6 * MB) : 64 * KB;
+    size_t initHeapSize =
+        systemSize > 1 * GB ? std::min(systemSize * DEFAULT_HEAP_SIZE_PERCENTAGE / KB, 3.6 * MB) : 64 * KB;
     return initHeapSize;
 }
 
@@ -43,4 +45,4 @@ RuntimeParam BaseRuntimeParam::DefaultRuntimeParam()
 
     return param;
 }
-} // namespace panda
+} // namespace common

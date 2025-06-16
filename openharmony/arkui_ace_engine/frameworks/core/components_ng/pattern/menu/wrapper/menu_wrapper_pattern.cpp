@@ -147,9 +147,12 @@ void MenuWrapperPattern::HandleInteraction(const TouchEventInfo& info)
     auto isInRegion = GetInnerMenu(innerMenuNode, position);
     CHECK_NULL_VOID(innerMenuNode);
 
-    ClearLastMenuItem();
+    if (isClearLastMenuItem_ || isInRegion) {
+        ClearLastMenuItem();
+    }
     // get menuNode's touch region
     if (isInRegion) {
+        isClearLastMenuItem_ = true;
         currentTouchItem_ = FindTouchedMenuItem(innerMenuNode, position);
         ChangeCurMenuItemBgColor();
         lastTouchItem_ = currentTouchItem_;
@@ -528,9 +531,7 @@ void MenuWrapperPattern::OnTouchEvent(const TouchEventInfo& info)
         Container::LessThanAPITargetVersion(PlatformVersion::VERSION_TWELVE)) {
         return;
     }
-    if (IsHide()) {
-        return;
-    }
+    CHECK_EQUAL_VOID(IsHide(), true);
     auto host = GetHost();
     CHECK_NULL_VOID(host);
 
@@ -554,6 +555,7 @@ void MenuWrapperPattern::OnTouchEvent(const TouchEventInfo& info)
             // if DOWN-touched outside the menu region, then hide menu
             auto menuPattern = menuWrapperChildNode->GetPattern<MenuPattern>();
             CHECK_NULL_CONTINUE(menuPattern);
+            isClearLastMenuItem_ = true;
             if (menuPattern->IsSubMenu() && HasSideSubMenu() &&
                 IsTouchWithinParentMenuItemZone(child, children, position)) {
                 continue;
@@ -603,6 +605,11 @@ bool MenuWrapperPattern::IsTouchWithinParentMenuItemZone(std::list<RefPtr<UINode
             auto currentMenuPattern = currentMenuNode->GetPattern<MenuPattern>();
             CHECK_NULL_RETURN(currentMenuPattern, false);
             if (currentTouchItem == currentMenuPattern->GetParentMenuItem()) {
+                ClearLastMenuItem();
+                currentTouchItem_ = currentTouchItem;
+                ChangeCurMenuItemBgColor();
+                lastTouchItem_ = currentTouchItem_;
+                isClearLastMenuItem_ = false;
                 return true;
             }
         }

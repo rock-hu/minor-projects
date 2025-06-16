@@ -27,10 +27,10 @@ Test start.
 Test2 start.
 [trace] aot inline function name: #*#ChangePrototypeValue@lazy_deopt_8 caller function name: #*#Test2@lazy_deopt_8
 ChangeProto start.
+[trace] Check Type: InsufficientProfile
 [trace] Lazy Deoptimization occurred on function: "Test"
 [trace] Lazy Deoptimize reason: PROTOTYPE_CHECK
 ChangeProto end.
-[trace] Check Type: InconsistentHClass6
 Test2 obj2: 1
 Test3
 Test2 end.

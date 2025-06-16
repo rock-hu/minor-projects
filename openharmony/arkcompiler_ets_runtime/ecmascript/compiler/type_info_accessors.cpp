@@ -172,7 +172,7 @@ bool TypeInfoAccessor::IsTrustedStringType(
                 return true;
             case EcmaOpcode::LDOBJBYVALUE_IMM8_V8:
             case EcmaOpcode::LDOBJBYVALUE_IMM16_V8: {
-                LoadBulitinObjTypeInfoAccessor tacc(env, circuit, gate, chunk);
+                LoadBuiltinObjTypeInfoAccessor tacc(env, circuit, gate, chunk);
                 if (tacc.IsMono()) {
                     return tacc.IsBuiltinsString();
                 }
@@ -297,7 +297,7 @@ SuperCallTypeInfoAccessor::SuperCallTypeInfoAccessor(const CompilationEnv *env, 
                                                      const CallMethodFlagMap *callMethodFlagMap)
     : TypeInfoAccessor(env, circuit, gate), jsPandaFile_(jsPandaFile), callMethodFlagMap_(callMethodFlagMap)
 {
-    ctor_ = argAcc_.GetFrameArgsIn(gate, FrameArgIdx::FUNC);
+    ctor_ = circuit->GetArgumentAccessor()->GetFrameArgsIn(gate, FrameArgIdx::FUNC);
 }
 
 GetIteratorTypeInfoAccessor::GetIteratorTypeInfoAccessor(const CompilationEnv *env, Circuit *circuit, GateRef gate,
@@ -954,7 +954,7 @@ StoreObjByNameTypeInfoAccessor::StoreObjByNameTypeInfoAccessor(const Compilation
         case EcmaOpcode::STTHISBYNAME_IMM8_ID16:
         case EcmaOpcode::STTHISBYNAME_IMM16_ID16: {
             key_ = acc_.GetValueIn(gate, 1); // 1: key
-            receiver_ = argAcc_.GetFrameArgsIn(gate, FrameArgIdx::THIS_OBJECT);
+            receiver_ = circuit->GetArgumentAccessor()->GetFrameArgsIn(gate, FrameArgIdx::THIS_OBJECT);
             value_ = acc_.GetValueIn(gate, 2); // 2: value
             break;
         }
@@ -1227,9 +1227,24 @@ bool InstanceOfTypeInfoAccessor::JitAccessorStrategy::GenerateObjectAccessInfo()
     return true;
 }
 
-LoadBulitinObjTypeInfoAccessor::LoadBulitinObjTypeInfoAccessor(const CompilationEnv *env, Circuit *circuit,
+void LoadBuiltinObjTypeInfoAccessor::AotAccessorStrategy::FetchPGORWTypesDual()
+{
+}
+
+void LoadBuiltinObjTypeInfoAccessor::JitAccessorStrategy::FetchPGORWTypesDual()
+{
+    const PGORWOpType *pgoTypes = parent_.acc_.TryGetPGOType(parent_.gate_).GetPGORWOpType();
+    for (uint32_t i = 0; i < pgoTypes->GetCount(); ++i) {
+        auto temp = pgoTypes->GetObjectInfo(i);
+        if (temp.GetReceiverType().IsBuiltinsType()) {
+            parent_.jitTypes_.emplace_back(temp);
+        }
+    }
+}
+
+LoadBuiltinObjTypeInfoAccessor::LoadBuiltinObjTypeInfoAccessor(const CompilationEnv *env, Circuit *circuit,
                                                                GateRef gate, Chunk *chunk)
-    : AccBuiltinObjTypeInfoAccessor(env, circuit, gate, chunk, AccessMode::LOAD)
+    : AccBuiltinObjTypeInfoAccessor(env, circuit, gate, chunk, AccessMode::LOAD), jitTypes_(chunk_)
 {
     EcmaOpcode ecmaOpcode = acc_.GetByteCodeOpcode(gate);
     switch (ecmaOpcode) {
@@ -1241,7 +1256,7 @@ LoadBulitinObjTypeInfoAccessor::LoadBulitinObjTypeInfoAccessor(const Compilation
         }
         case EcmaOpcode::LDTHISBYVALUE_IMM8:
         case EcmaOpcode::LDTHISBYVALUE_IMM16: {
-            receiver_ = argAcc_.GetFrameArgsIn(gate, FrameArgIdx::THIS_OBJECT);
+            receiver_ = circuit->GetArgumentAccessor()->GetFrameArgsIn(gate, FrameArgIdx::THIS_OBJECT);
             key_ = acc_.GetValueIn(gate, 1); // 1: key
             break;
         }
@@ -1254,7 +1269,7 @@ LoadBulitinObjTypeInfoAccessor::LoadBulitinObjTypeInfoAccessor(const Compilation
         case EcmaOpcode::LDTHISBYNAME_IMM8_ID16:
         case EcmaOpcode::LDTHISBYNAME_IMM16_ID16: {
             key_ = acc_.GetValueIn(gate, 1); // 1: key
-            receiver_ = argAcc_.GetFrameArgsIn(gate, FrameArgIdx::THIS_OBJECT);
+            receiver_ = circuit->GetArgumentAccessor()->GetFrameArgsIn(gate, FrameArgIdx::THIS_OBJECT);
             break;
         }
         case EcmaOpcode::LDOBJBYINDEX_IMM8_IMM16:
@@ -1267,6 +1282,13 @@ LoadBulitinObjTypeInfoAccessor::LoadBulitinObjTypeInfoAccessor(const Compilation
         default:
             UNREACHABLE();
     }
+
+    if (IsAot()) {
+        strategy_ = chunk_->New<AotAccessorStrategy>(*this);
+    } else {
+        strategy_ = chunk_->New<JitAccessorStrategy>(*this);
+    }
+    strategy_->FetchPGORWTypesDual();
     FetchBuiltinsTypes();
 }
 
@@ -1335,7 +1357,7 @@ bool AccBuiltinObjTypeInfoAccessor::CheckDuplicatedBuiltinType(ProfileType newTy
     return false;
 }
 
-StoreBulitinObjTypeInfoAccessor::StoreBulitinObjTypeInfoAccessor(const CompilationEnv *env, Circuit *circuit,
+StoreBuiltinObjTypeInfoAccessor::StoreBuiltinObjTypeInfoAccessor(const CompilationEnv *env, Circuit *circuit,
                                                                  GateRef gate, Chunk *chunk)
     : AccBuiltinObjTypeInfoAccessor(env, circuit, gate, chunk, AccessMode::STORE)
 {

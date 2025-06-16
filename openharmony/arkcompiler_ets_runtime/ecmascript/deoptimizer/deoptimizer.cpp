@@ -41,6 +41,14 @@ extern "C" uintptr_t GetFixedReturnAddr(uintptr_t argGlue, uintptr_t prevCallSit
     return fixed;
 }
 
+// Not use lazy deopt on arkui_x.
+#ifdef CROSS_PLATFORM
+JSTaggedType LazyDeoptEntry()
+{
+    return 0;
+}
+#endif
+
 class FrameWriter {
 public:
     explicit FrameWriter(Deoptimizier *deoptimizier) : thread_(deoptimizier->GetThread())
@@ -535,9 +543,9 @@ JSTaggedType Deoptimizier::ConstructAsmInterpretFrame(JSHandle<JSTaggedValue> ma
         const uint8_t *resumePc = method->GetBytecodeArray() + pc_.at(curDepth);
         JSTaggedValue thisObj = GetDeoptValue(curDepth, static_cast<int32_t>(SpecVregIndex::THIS_OBJECT_INDEX));
         JSTaggedValue acc = GetDeoptValue(curDepth, static_cast<int32_t>(SpecVregIndex::ACC_INDEX));
-#ifdef USE_READ_BARRIER
-        base::GCHelper::CopyCallTarget(callTarget.GetTaggedObject());
-#endif
+        if (g_isEnableCMCGC) {
+            base::GCHelper::CopyCallTarget(callTarget.GetTaggedObject());
+        }
         statePtr->function = callTarget;
         statePtr->acc = acc;
 
@@ -552,7 +560,7 @@ JSTaggedType Deoptimizier::ConstructAsmInterpretFrame(JSHandle<JSTaggedValue> ma
         } else {
             statePtr->env = env;
         }
-        statePtr->callSize = static_cast<int32_t>(GetCallSize(curDepth, resumePc));
+        statePtr->callSize = static_cast<uintptr_t>(GetCallSize(curDepth, resumePc));
         statePtr->fp = 0;  // need update
         statePtr->thisObj = thisObj;
         statePtr->pc = resumePc;
@@ -783,7 +791,7 @@ void Deoptimizier::ProcessLazyDeopt(JSHandle<JSTaggedValue> maybeAcc, const uint
     if (NeedOverwriteAcc(resumePc)) {
         statePtr->acc = maybeAcc.GetTaggedValue();
     }
-    
+
     // Todo: add check constructor
 
     if (!thread_->HasPendingException()) {

@@ -222,20 +222,20 @@ JSHandle<NameDictionary> JSObject::TransitionToDictionary(const JSThread *thread
 
     receiver->SetProperties(thread, dict);
     ElementsKind oldKind = receiver->GetJSHClass()->GetElementsKind();
-#ifndef USE_CMC_GC
-    // change HClass
-    JSHClass::TransitionToDictionary(thread, receiver);
-    JSObject::TryMigrateToGenericKindForJSObject(thread, receiver, oldKind);
+    if (!g_isEnableCMCGC) {
+        // change HClass
+        JSHClass::TransitionToDictionary(thread, receiver);
+        JSObject::TryMigrateToGenericKindForJSObject(thread, receiver, oldKind);
 
-    // trim in-obj properties space
-    TrimInlinePropsSpace(thread, receiver, numberInlinedProps);
-#else
-    JSObject::TryMigrateToGenericKindForJSObject(thread, receiver, oldKind);
-    // trim in-obj properties space
-    TrimInlinePropsSpace(thread, receiver, numberInlinedProps);
-    // change HClass
-    JSHClass::TransitionToDictionary(thread, receiver);
-#endif
+        // trim in-obj properties space
+        TrimInlinePropsSpace(thread, receiver, numberInlinedProps);
+    } else {
+        JSObject::TryMigrateToGenericKindForJSObject(thread, receiver, oldKind);
+        // trim in-obj properties space
+        TrimInlinePropsSpace(thread, receiver, numberInlinedProps);
+        // change HClass
+        JSHClass::TransitionToDictionary(thread, receiver);
+    }
     return dict;
 }
 
@@ -592,11 +592,22 @@ JSHandle<JSTaggedValue> JSObject::GetOrCreateDependentInfos(JSThread *thread, JS
 {
     if (!jsHClass->HasDependentInfos()) {
         JSHandle<DependentInfos> dependentInfos = thread->GetEcmaVM()->GetFactory()->NewDependentInfos(0);
-        jsHClass->SetDependentInfos(thread, dependentInfos.GetTaggedValue());
         return JSHandle<JSTaggedValue>::Cast(dependentInfos);
     }
     JSHandle<DependentInfos> dependentInfos(thread, jsHClass->GetDependentInfos());
     return JSHandle<JSTaggedValue>::Cast(dependentInfos);
+}
+
+// static
+JSHandle<JSTaggedValue> JSObject::GetOrCreateDetectorDependentInfos(JSThread *thread,
+                                                                    uint32_t detectorID,
+                                                                    GlobalEnv *globalEnv)
+{
+    if (!globalEnv->HasDependentInfos(detectorID)) {
+        JSHandle<DependentInfos> dependentInfos = thread->GetEcmaVM()->GetFactory()->NewDependentInfos(0);
+        return JSHandle<JSTaggedValue>::Cast(dependentInfos);
+    }
+    return globalEnv->GetDependentInfos(detectorID);
 }
 
 JSHandle<TaggedArray> JSObject::GetAllEnumKeys(JSThread *thread, const JSHandle<JSObject> &obj,
@@ -640,7 +651,7 @@ JSHandle<TaggedArray> JSObject::GetAllEnumKeys(JSThread *thread, const JSHandle<
                 return newkeyArray;
             }
         }
-        
+
         return factory->EmptyArray();
     }
 
@@ -3011,17 +3022,16 @@ void JSObject::TrimInlinePropsSpace(const JSThread *thread, const JSHandle<JSObj
 {
     if (numberInlinedProps > 0) {
         ObjectFactory *factory = thread->GetEcmaVM()->GetFactory();
-#ifndef USE_CMC_GC
-        uint32_t newSize = object->GetClass()->GetObjectSize();
-#else
-        uint32_t newSize = JSHClass::GetCloneSize(object->GetClass());
-#endif
-        size_t trimBytes = numberInlinedProps * JSTaggedValue::TaggedTypeSize();
-#ifndef USE_CMC_GC
-        factory->FillFreeObject(ToUintPtr(*object) + newSize, trimBytes, RemoveSlots::YES, ToUintPtr(*object));
-#else
-        factory->FillFreeObject<true>(ToUintPtr(*object) + newSize, trimBytes, RemoveSlots::YES, ToUintPtr(*object));
-#endif
+        if (!g_isEnableCMCGC) {
+            uint32_t newSize = object->GetClass()->GetObjectSize();
+            size_t trimBytes = numberInlinedProps * JSTaggedValue::TaggedTypeSize();
+            factory->FillFreeObject(ToUintPtr(*object) + newSize, trimBytes, RemoveSlots::YES, ToUintPtr(*object));
+        } else {
+            uint32_t newSize = JSHClass::GetCloneSize(object->GetClass());
+            size_t trimBytes = numberInlinedProps * JSTaggedValue::TaggedTypeSize();
+            factory->FillFreeObject<true>(
+                ToUintPtr(*object) + newSize, trimBytes, RemoveSlots::YES, ToUintPtr(*object));
+        }
     }
 }
 // The hash field may be a hash value, FunctionExtraInfo(JSNativePointer) or TaggedArray
