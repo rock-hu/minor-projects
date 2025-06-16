@@ -34,7 +34,15 @@ export default class EntryAbility extends UIAbility {
     // Main window is created, set main page for this ability
     Logger.info(TAG, 'EntryAbility onWindowStageCreate');
     requestFullScreen(windowStage, this.context);
-    windowStage.loadContent('pages/Index');
+    windowStage.loadContent('pages/Index', (err) => {
+      if (err.code) {
+        Logger.error(TAG, 'Failed to load the content. Cause: %{public}s', JSON.stringify(err) ?? '');
+        return;
+      }
+      let uiContext:  UIContext | undefined = windowStage.getMainWindowSync().getUIContext();
+      AppStorage.setOrCreate('uiContext', uiContext);
+      Logger.info(TAG, 'testTag', 'Succeeded in loading the content.');
+    });
   }
 
   onWindowStageDestroy(): void {
@@ -84,11 +92,12 @@ function requestFullScreen(windowStage: window.WindowStage, context: Context): v
 function getDeviceSize(context: Context, area: window.AvoidArea): void {
   // Get device height.
   window.getLastWindow(context).then((data: window.Window) => {
+    const uiContext: UIContext | undefined = AppStorage.get('uiContext');
     let properties = data.getWindowProperties();
     if (area.topRect.height > 0) {
-      AppStorage.setOrCreate<number>('statusBarHeight', px2vp(area.topRect.height));
+      AppStorage.setOrCreate<number>('statusBarHeight', uiContext?.px2vp(area.topRect.height));
     }
-    AppStorage.setOrCreate<number>('deviceHeight', px2vp(properties.windowRect.height));
-    AppStorage.setOrCreate<number>('deviceWidth', px2vp(properties.windowRect.width));
+    AppStorage.setOrCreate<number>('deviceHeight', uiContext?.px2vp(properties.windowRect.height));
+    AppStorage.setOrCreate<number>('deviceWidth', uiContext?.px2vp(properties.windowRect.width));
   });
 }

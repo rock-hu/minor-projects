@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-import { AbilityConstant, UIAbility, Want, EnvironmentCallback } from '@kit.AbilityKit';
+import { AbilityConstant, UIAbility, Want, EnvironmentCallback, ConfigurationConstant } from '@kit.AbilityKit';
 import { commonType, distributedDataObject } from '@kit.ArkData';
 import { fileIo as fs, fileUri } from '@kit.CoreFileKit';
 import { display, KeyboardAvoidMode, window } from '@kit.ArkUI';
@@ -37,6 +37,8 @@ export default class EntryAbility extends UIAbility {
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
     hilog.info(0x0000, '[EntryAbility]', 'Ability onCreate');
     this.restoreDistributedObject(want, launchParam);
+    AppStorage.setOrCreate('systemColorMode', this.context.config.colorMode);
+    this.context.getApplicationContext().setColorMode(ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET);
     // [StartExclude distribute]
     let environmentCallback: EnvironmentCallback = {
       onConfigurationUpdated(config) {
@@ -103,6 +105,7 @@ export default class EntryAbility extends UIAbility {
     this.distributedObject.setSessionId(sessionId);
     this.context.restoreWindowStage(new LocalStorage());
   }
+
   // [End distribute]
 
   // [Start onContinue]
@@ -145,6 +148,7 @@ export default class EntryAbility extends UIAbility {
     }
     return AbilityConstant.OnContinueResult.AGREE;
   }
+
   // [End onContinue]
 
   // [Start fileCopy]
@@ -193,6 +197,7 @@ export default class EntryAbility extends UIAbility {
       }
     }
   }
+
   // [End fileCopy]
   // [End file_copy]
   /*
@@ -297,9 +302,11 @@ export default class EntryAbility extends UIAbility {
       try {
         let avoidArea = this.windowClass.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);
         // Set the height of the status bar.
-        AppStorage.setOrCreate('statusBarHeight', px2vp(avoidArea.topRect.height));
-        AppStorage.setOrCreate('bottomHeight',
-          px2vp(this.windowClass.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR).bottomRect.height));
+        AppStorage.setOrCreate('statusBarHeight', data.getUIContext().px2vp(avoidArea.topRect.height));
+        AppStorage.setOrCreate('bottomHeight', data.getUIContext()
+          .px2vp(this.windowClass.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR)
+            .bottomRect
+            .height));
       } catch (exception) {
         hilog.error(0x0000, '[EntryAbility]',
           `Failed to set the system bar to be invisible. Cause code: ${exception.code},

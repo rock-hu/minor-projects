@@ -11,7 +11,7 @@
 
 ## 使用说明
 
-使用前请先参考[应用开发准备](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/application-dev-overview-V5)完成基本准备工作及公钥指纹配置后，参考地图服务开发指南 “配置AppGallery Connect” 章节[开通地图服务](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/map-config-agc-V5)，并参考应用/元服务[手动签名](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/ide-signing-V5#section297715173233)章节对应用进行签名。
+使用前请先参考[应用开发准备](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/application-dev-overview)完成基本准备工作及公钥指纹配置后，参考地图服务开发指南 “配置AppGallery Connect” 章节[开通地图服务](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/map-config-agc)，并参考应用/元服务[手动签名](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/ide-signing#section297715173233)章节对应用进行签名。
 
 1. 进入主页，点击"获取缓存位置"按钮获取缓存位置信息，并将其标记在地图上。
 

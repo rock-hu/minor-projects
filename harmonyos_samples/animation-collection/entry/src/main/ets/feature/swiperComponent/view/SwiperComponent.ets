@@ -72,7 +72,7 @@ export struct SwiperComponent {
   }
 
   startAnimation(isLeft: boolean, duration: number): void {
-    animateTo({
+    this.getUIContext().animateTo({
       duration: duration
     }, () => {
       const dataLength: number = this.swiperData.length;

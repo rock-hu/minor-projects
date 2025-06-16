@@ -18,6 +18,7 @@ import { CommonConstants, Logger } from '@ohos/MediaService';
 import { BusinessError } from '@kit.BasicServicesKit';
 
 const TAG: string = '[WindowUtil]';
+const uiContext: UIContext | undefined = AppStorage.get('uiContext');
 
 export class WindowUtil {
   private static instance: WindowUtil;
@@ -32,7 +33,6 @@ export class WindowUtil {
   }
 
   public setWindowStage(windowStage: window.WindowStage): void {
-
     this.windowStage = windowStage;
     this.windowStage.getMainWindow((err, windowClass: window.Window) => {
       if (err.code) {
@@ -47,8 +47,8 @@ export class WindowUtil {
         windowClass.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR);
       AppStorage.setOrCreate('deviceWidth', properties.windowRect.width);
       AppStorage.setOrCreate('deviceHeight', properties.windowRect.height);
-      AppStorage.setOrCreate('statusBarHeight', px2vp(area.topRect.height));
-      AppStorage.setOrCreate('navBarHeight', px2vp(naviBarArea.bottomRect.height));
+      AppStorage.setOrCreate('statusBarHeight', uiContext?.px2vp(area.topRect.height));
+      AppStorage.setOrCreate('navBarHeight', uiContext?.px2vp(naviBarArea.bottomRect.height));
     });
   }
 

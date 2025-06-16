@@ -63,13 +63,13 @@ export class AvSessionController {
     return this.avSessionMetadata;
   }
 
-  public async setAVMetadata(curSource: VideoData, duration: number) {
+  public async setAVMetadata(curSource: VideoData, duration: number, UIContext: UIContext) {
     if (curSource === undefined) {
       Logger.error(TAG, 'SetAVMetadata Error, curSource is null');
       return;
     }
 
-    const imagePixMap = await ImageUtil.getPixmapFromMedia(curSource.head);
+    const imagePixMap = await ImageUtil.getPixmapFromMedia(curSource.head, UIContext);
     let metadata: avSession.AVMetadata = {
       assetId: `${curSource.index}`,
       title: this.context?.resourceManager.getStringSync(curSource.name),

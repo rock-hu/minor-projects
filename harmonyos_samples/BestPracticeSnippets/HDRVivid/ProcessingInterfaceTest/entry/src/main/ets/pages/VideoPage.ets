@@ -15,6 +15,7 @@
 
 import { BusinessError, emitter } from '@kit.BasicServicesKit';
 import { fileIo, picker } from '@kit.CoreFileKit';
+import { photoAccessHelper } from '@kit.MediaLibraryKit';
 import player from 'libplayer.so';
 import Logger from '../utils/Logger';
 import { AVPlayerDemo } from '../utils/AVPlayerDemo';
@@ -61,8 +62,8 @@ struct VideoPage {
       this.surfaceH = height / 6
     }
   }
-  avPlayerDemoSrc: AVPlayerDemo = new AVPlayerDemo()
-  avPlayerDemoDst: AVPlayerDemo = new AVPlayerDemo()
+  avPlayerDemoSrc: AVPlayerDemo = new AVPlayerDemo(this.getUIContext())
+  avPlayerDemoDst: AVPlayerDemo = new AVPlayerDemo(this.getUIContext())
   controlSrc: XComponentController = new XComponentController()
   controlDst: XComponentController = new XComponentController()
 
@@ -88,9 +89,10 @@ struct VideoPage {
   async callFilePickerSelectImage(): Promise<void> {
     let array: string[];
     try {
-      let PhotoSelectOptions = new picker.PhotoSelectOptions();
-      PhotoSelectOptions.MIMEType = picker.PhotoViewMIMETypes.IMAGE_VIDEO_TYPE;
-      PhotoSelectOptions.maxSelectNumber = 1;
+      let PhotoSelectOptions: photoAccessHelper.PhotoSelectOptions = {
+        MIMEType: photoAccessHelper.PhotoViewMIMETypes.IMAGE_VIDEO_TYPE,
+        maxSelectNumber: 1
+      };
       let photoPicker = new picker.DocumentViewPicker();
       photoPicker.select(PhotoSelectOptions).then((PhotoSelectResult) => {
         // 日志中记录成功信息

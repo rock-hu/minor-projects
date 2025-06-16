@@ -24,8 +24,8 @@ const TAG: string = '[DecodeUtil]';
  *
  * @return file fd.
  */
-async function getResourceFd(component: Object): Promise<number> {
-  const context = getContext(component);
+async function getResourceFd(component: UIContext): Promise<number> {
+  const context = component.getHostContext()!;
   const resourceMgr = context.resourceManager;
   let imageBuffer = await resourceMgr.getMediaContent($r('app.media.ic_low'));
   let filePath = context.cacheDir + '/low.jpg';
@@ -39,7 +39,7 @@ async function getResourceFd(component: Object): Promise<number> {
  *
  * @return pixelMa.
  */
-export default async function getPixelMap(component: Object): Promise<image.PixelMap | undefined> {
+export default async function getPixelMap(component: UIContext): Promise<image.PixelMap | undefined> {
   const fd = await getResourceFd(component);
   const imageSourceApi = image.createImageSource(fd);
   if (!imageSourceApi) {

@@ -45,7 +45,7 @@ This sample implements the function of automatically switching between landscape
 * The video playback feature is encapsulated in **AVPlayerUtil.ets**. For details about the source code, see [AVPlayerUtil.ets](entry/src/main/ets/utils/AVPlayerUtil.ets).
 
 * For details about the source code for landscape/portrait mode, see [VideoPlayView.ets](entry/src/main/ets/views/VideoPlayView.ets).
-  The [setPreferredOrientation](https://developer.huawei.com/consumer/en/doc/harmonyos-references-V5/js-apis-window-V5#setpreferredorientation9-1) method of the **Window** object is used for switching between landscape and portrait modes.
+  The [https://developer.huawei.com/consumer/en/doc/harmonyos-references/js-apis-window#setpreferredorientation9-1) method of the **Window** object is used for switching between landscape and portrait modes.
   
 
 ### Required Permissions

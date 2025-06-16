@@ -3,8 +3,8 @@
 ### 介绍
 
 在应用开发中，页面内列表结构复杂，每个列表项包含的组件较多，就会导致嵌套层级较深，从而引起组件负载加重，绘制耗时增长。
-本示例介绍在高负载的转场场景和滑动场景下使用分帧渲染提升性能，本工程配套官网[高负载场景下分帧渲染](https://developer.huawei.com/consumer/cn/doc/best-practices-V5/bpta-dispose-highly-loaded-component-render-V5)。
-涉及的ArkUI接口：[@ohos.graphics.displaySync (可变帧率)](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V13/js-apis-graphics-displaysync-V13#displaysynccreate)。
+本示例介绍在高负载的转场场景和滑动场景下使用分帧渲染提升性能，本工程配套官网[高负载场景下分帧渲染](https://developer.huawei.com/consumer/cn/doc/best-practices/bpta-dispose-highly-loaded-component-render)。
+涉及的ArkUI接口：[@ohos.graphics.displaySync (可变帧率)](https://developer.huawei.com/consumer/cn/doc/harmonyos-references/js-apis-graphics-displaysync#displaysynccreate)。
 
 ### 预览效果
 
@@ -47,8 +47,8 @@
 
 ### 具体实现
 
-1. [转场场景](https://developer.huawei.com/consumer/cn/doc/best-practices-V5/bpta-dispose-highly-loaded-component-render-V5#section5987133112411)
-2. [滑动场景](https://developer.huawei.com/consumer/cn/doc/best-practices-V5/bpta-dispose-highly-loaded-component-render-V5#section15195122915243)
+1. [转场场景](https://developer.huawei.com/consumer/cn/doc/best-practices/bpta-dispose-highly-loaded-component-render#section5987133112411)
+2. [滑动场景](https://developer.huawei.com/consumer/cn/doc/best-practices/bpta-dispose-highly-loaded-component-render#section15195122915243)
 
 ### 相关权限
 

@@ -29,7 +29,7 @@ export struct LoadingView {
   // [Start start_animation]
   // 骨架图，通过渐显渐隐的方式呈现骨架动画
   startAnimation(): void {
-    animateTo(CommonConstants.SKELETON_ANIMATION, () => {
+     this.getUIContext().animateTo(CommonConstants.SKELETON_ANIMATION, () => {
       this.listOpacity = CommonConstants.HALF_OPACITY;
     });
   }

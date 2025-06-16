@@ -12,7 +12,6 @@ export default class DataSourcePrefetching implements IDataSourcePrefetching {
   private listeners: DataChangeListener[] = [];
   private readonly requestsInFlight: HashMap<number, rcp.Request> = new HashMap();
   private readonly session: rcp.Session = rcp.createSession();
-  private readonly cachePath = getContext().getApplicationContext().cacheDir;
   cache(ID:number,body: ESObject){}
   constructor(dataArray: Array<SongInfoItem>) {
     this.dataArray = dataArray;

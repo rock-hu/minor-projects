@@ -23,13 +23,15 @@ import { rcp } from '@kit.RemoteCommunicationKit';
 let PREFETCH_ENABLED: boolean = false;
 const CANCEL_CODE: number = 1007900992;
 const IMADE_UNAVAILABLE = $r('app.media.startIcon');
+const uiContext: UIContext | undefined = AppStorage.get('uiContext');
+const context = uiContext?.getHostContext();
 
 export default class DataSourcePrefetching implements IDataSourcePrefetching {
   private dataArray: Array<SongInfoItem>;
   private listeners: DataChangeListener[] = [];
   private readonly requestsInFlight: HashMap<number, rcp.Request> = new HashMap();
   private readonly session: rcp.Session = rcp.createSession();
-  private readonly cachePath = getContext().getApplicationContext().cacheDir;
+  private readonly cachePath = context?.getApplicationContext().cacheDir;
 
   constructor(dataArray: Array<SongInfoItem>) {
     this.dataArray = dataArray;

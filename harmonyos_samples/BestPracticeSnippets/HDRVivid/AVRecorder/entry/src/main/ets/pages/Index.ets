@@ -15,14 +15,16 @@
 
 import { abilityAccessCtrl, common, Permissions } from '@kit.AbilityKit';
 import { BusinessError } from '@kit.BasicServicesKit';
-import { promptAction, router } from '@kit.ArkUI';
+import { promptAction } from '@kit.ArkUI';
 import { rpc } from '@kit.IPCKit';
 import Logger from '../utils/Logger';
 import { CommonConstants } from '../common/CommonConstants';
 import { RouterParams } from '../utils/RouterParams';
 
 const TAG: string = 'Index';
-const context = getContext() as common.UIAbilityContext;
+const uiContext: UIContext | undefined = AppStorage.get('uiContext');
+const context = uiContext?.getHostContext() as common.UIAbilityContext;
+const router = uiContext?.getRouter();
 
 @Entry
 @Component
@@ -41,7 +43,7 @@ struct Index {
 
   onPageShow() {
     try {
-      this.path = (router.getParams() as RouterParams).data;
+      this.path = (router?.getParams() as RouterParams).data;
     } catch (e) {
       return;
     }
@@ -81,7 +83,7 @@ struct Index {
           this.result = true;
         }
         if (!this.result) {
-          promptAction.showToast({
+          promptAction.openToast({
             message: $r('app.string.show_toast_message'),
             duration: CommonConstants.SHOW_TOAST_DURATION,
             bottom: CommonConstants.SHOW_TOAST_BOTTOM
@@ -115,7 +117,7 @@ struct Index {
           .onClick(async () => {
             this.checkAccessToken(this.permissions);
             if (this.result) {
-              router.pushUrl({ url: 'pages/Record' });
+              router?.pushUrl({ url: 'pages/Record' });
             }
           })
       }

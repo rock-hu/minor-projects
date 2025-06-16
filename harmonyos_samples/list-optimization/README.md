@@ -13,9 +13,9 @@
 
 1.启动应用后，在DevEco Studio启动Profiler中的Frame用来记录应用在ForEach和LazyForEach的丢帧率等数据；
 
-2.分别点击【ForEach】和【LazyForEach】后，分别记录完全显示所用时间。完全显示所用时间可以通过Launch进行录制分析，详情操作可以参考[Launch分析](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/ide-insight-session-launch-V5)。
+2.分别点击【ForEach】和【LazyForEach】后，分别记录完全显示所用时间。完全显示所用时间可以通过Launch进行录制分析，详情操作可以参考[Launch分析](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/ide-launch-overview)。
 
-3.分别点击【ForEach】和【LazyForEach】后，分别记录滑动的丢帧率。滑动丢帧可以通过Frame进行录制分析，详情操作可以参考[Frame分析](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/ide-insight-session-frame-V5)。
+3.分别点击【ForEach】和【LazyForEach】后，分别记录滑动的丢帧率。滑动丢帧可以通过Frame进行录制分析，详情操作可以参考[Frame分析](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/ide-insight-session-frame)。
 
 4.为方便对比实验，本Sample在src/main/resources/rawfile中提供了不同大小的数据文件。开发者可以在getArticleModelObjFromJSON方法中更换数据文件来对比不同数据量下ForEach和LazyForEach的性能。
 

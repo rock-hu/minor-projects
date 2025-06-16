@@ -14,7 +14,6 @@
  */
 
 import { Constants } from '../common/Constants';
-import { router } from '@kit.ArkUI';
 
 @Entry
 @Component

@@ -1,8 +1,8 @@
 // [Start article_card_view_new]
-import { router } from '@kit.ArkUI';
-import common from '@ohos.app.ability.common';
-import { LearningResource, ActionButtonView, CommonConstants, ArticleCardButtonView } from '@ohos/common';
 import { power } from '@kit.BasicServicesKit';
+import { ArticleCardButtonView } from './ArticleCardButtonView';
+import { ActionButtonView } from './ActionButtonView';
+import { LearningResource } from '../model/LearningResource';
 
 @Component
 export struct ArticleCardView {
@@ -14,7 +14,7 @@ export struct ArticleCardView {
 
 
   build() {
-    Row({ space: CommonConstants.SPACE_16 }) {
+    Row({ space: 16 }) {
       Column() {
         // ...
         Row() {
@@ -72,11 +72,11 @@ export struct ArticleCardView {
             })
           }
         }
-        .width(CommonConstants.FULL_PERCENT)
+        .width('100%')
         .justifyContent(FlexAlign.SpaceBetween)
       }
       .layoutWeight(1)
-      .height(CommonConstants.FULL_PERCENT)
+      .height('100%')
       .justifyContent(FlexAlign.SpaceAround)
       // ...
     }

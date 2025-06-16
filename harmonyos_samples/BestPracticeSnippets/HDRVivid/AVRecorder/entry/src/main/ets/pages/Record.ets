@@ -17,16 +17,18 @@ import { common } from '@kit.AbilityKit';
 import { camera } from '@kit.CameraKit';
 import { media } from '@kit.MediaKit';
 import { fileUri } from '@kit.CoreFileKit';
-import { router } from '@kit.ArkUI';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { colorSpaceManager } from '@kit.ArkGraphics2D';
 import Logger from '../utils/Logger';
 import { FileUtil } from '../utils/FileUtil';
 import { CommonConstants } from '../common/CommonConstants';
 import { RouterParams } from '../utils/RouterParams';
+import { router } from '@kit.ArkUI';
 
 const TAG: string = 'Record';
-let context = getContext(this) as common.UIAbilityContext;
+const uiContext: UIContext | undefined = AppStorage.get('uiContext');
+const context = uiContext?.getHostContext() as common.UIAbilityContext;
+let routerObj = uiContext?.getRouter();
 
 @Entry
 @Component
@@ -62,7 +64,7 @@ struct Record {
       })
         .onLoad(async () => {
           this.surfaceId = this.mXComponentController.getXComponentSurfaceId();
-          await this.initCamera(getContext(this), this.surfaceId);
+          await this.initCamera(uiContext?.getHostContext(), this.surfaceId);
         })
         .height(CommonConstants.SEVENTY_PERCENT)
         .margin({
@@ -72,8 +74,8 @@ struct Record {
         Blank()
         Row() {
           Image(this.recording ? $r('app.media.camera_pause_video_4x') : $r('app.media.camera_take_video_4x'))
-            .width(px2vp(CommonConstants.IMAGE_SIZE))
-            .height(px2vp(CommonConstants.IMAGE_SIZE))
+            .width(uiContext?.px2vp(CommonConstants.IMAGE_SIZE))
+            .height(uiContext?.px2vp(CommonConstants.IMAGE_SIZE))
             .onClick(async () => {
               if (this.recording) {
                 await this.stopRecord();
@@ -81,7 +83,7 @@ struct Record {
                   url: '',
                   params: new RouterParams('Sandbox path', this.path)
                 }
-                router.back(options);
+                routerObj?.back(options);
               } else {
                 this.startRecord();
               }
@@ -104,7 +106,7 @@ struct Record {
     .height(CommonConstants.FULL_PERCENT)
   }
 
-  async initCamera(context: common.Context, surfaceId: string) {
+  async initCamera(context: common.Context | undefined, surfaceId: string) {
     this.cameraManager = camera.getCameraManager(context);
     if (!this.cameraManager) {
       Logger.error(TAG, 'camera.getCameraManager error');

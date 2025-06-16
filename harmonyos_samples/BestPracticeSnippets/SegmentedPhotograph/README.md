@@ -40,7 +40,7 @@
 
 单段式拍照使用了on(type:'photoAvailable',callback:AsyncCallback<Photo>):void接口注册了全质量图的监听，默认不使能分段式拍照。具体操作步骤如下所示：
 
-1. 相机媒体数据写入[XComponent组件](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/ts-basic-components-xcomponent-V5)中，用来显示图像效果。具体代码如下所示：
+1. 相机媒体数据写入[XComponent组件](https://developer.huawei.com/consumer/cn/doc/harmonyos-references/ts-basic-components-xcomponent)中，用来显示图像效果。具体代码如下所示：
 
    ```typescript
    XComponent({
@@ -63,15 +63,15 @@
    ```
 
 2. initCamera函数完成一个相机生命周期初始化的过程。
-- 首先通过[getCameraManager](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-camera-V5#cameragetcameramanager)来获取CameraMananger相机管理器类。
-- 调用[getSupportedCameras](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-camera-V5#getsupportedcameras)和[getSupportedOutputCapability](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-camera-V5#getsupportedoutputcapability11)方法来获取支持的camera设备以及设备能力集。
-- 调用[createPreviewOutput](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-camera-V5#createpreviewoutput)和[createPhotoOutput](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-camera-V5#createphotooutput11)方法来创建预览输出和拍照输出对象。
+- 首先通过[getCameraManager](https://developer.huawei.com/consumer/cn/doc/harmonyos-references/js-apis-camera#cameragetcameramanager)来获取CameraMananger相机管理器类。
+- 调用[getSupportedCameras](https://developer.huawei.com/consumer/cn/doc/harmonyos-references/js-apis-camera#getsupportedcameras)和[getSupportedOutputCapability](https://developer.huawei.com/consumer/cn/doc/harmonyos-references/js-apis-camera#getsupportedoutputcapability11)方法来获取支持的camera设备以及设备能力集。
+- 调用[createPreviewOutput](https://developer.huawei.com/consumer/cn/doc/harmonyos-references/js-apis-camera#createpreviewoutput)和[createPhotoOutput](https://developer.huawei.com/consumer/cn/doc/harmonyos-references/js-apis-camera#createphotooutput11)方法来创建预览输出和拍照输出对象。
 - 使用CameraInput的open方法来打开相机输入，通过onCameraStatusChange函数来创建CameraManager注册回调。
 - 最后调用sessionFlowFn函数创建并开启Session。
 
-3. 确定拍照输出流。通过[CameraOutputCapability](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-camera-V5#cameraoutputcapability)类中的photoProfiles属性，可获取当前设备支持的拍照输出流，通过cameraManager.createPhotoOutput方法创建拍照输出流。
+3. 确定拍照输出流。通过[CameraOutputCapability](https://developer.huawei.com/consumer/cn/doc/harmonyos-references/js-apis-camera#cameraoutputcapability)类中的photoProfiles属性，可获取当前设备支持的拍照输出流，通过cameraManager.createPhotoOutput方法创建拍照输出流。
 
-4. 触发拍照。通过photoOutput类的[capture](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-camera-V5#capture-2)方法，执行拍照任务。
+4. 触发拍照。通过photoOutput类的[capture](https://developer.huawei.com/consumer/cn/doc/harmonyos-references/js-apis-camera#capture-2)方法，执行拍照任务。
 
    ```typescript
    async takePicture(): Promise<void> {
@@ -225,7 +225,7 @@
 
 ### 相关权限
 
-[相机拍照权限](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/permissions-for-all-V5#ohospermissioncamera)
+[相机拍照权限](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/permissions-for-all#ohospermissioncamera)
 
 
 ### 依赖

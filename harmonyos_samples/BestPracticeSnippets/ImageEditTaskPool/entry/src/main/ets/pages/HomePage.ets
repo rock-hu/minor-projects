@@ -163,7 +163,7 @@ struct HomePage {
   }
 
   pixelInit(): void {
-    getPixelMap(this)
+    getPixelMap(this.getUIContext())
       .then((pixelMap?: image.PixelMap) => {
         if (pixelMap) {
           this.isPixelMapChange = !this.isPixelMapChange;

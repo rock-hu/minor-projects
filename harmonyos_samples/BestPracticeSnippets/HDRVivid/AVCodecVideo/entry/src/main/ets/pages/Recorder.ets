@@ -15,7 +15,7 @@
 
 import { camera } from '@kit.CameraKit';
 import { fileIo } from '@kit.CoreFileKit';
-import { display, router } from '@kit.ArkUI';
+import { display } from '@kit.ArkUI';
 import { BusinessError } from '@kit.BasicServicesKit';
 import recorder from 'librecorder.so';
 import Logger from '../common/utils/Logger';
@@ -26,8 +26,9 @@ import { previewProfileCameraCheck, videoProfileCheck } from '../common/utils/Ca
 import { colorSpaceManager } from '@kit.ArkGraphics2D';
 
 const TAG: string = Const.RECORDER_TAG;
-
-const params: CameraDataModel = router.getParams() as CameraDataModel;
+const uiContext: UIContext | undefined = AppStorage.get('uiContext');
+const router = uiContext?.getRouter();
+const params: CameraDataModel = router?.getParams() as CameraDataModel;
 
 let cameraInput: camera.CameraInput;
 let XComponentPreviewOutput: camera.PreviewOutput;
@@ -144,6 +145,8 @@ struct Recorder {
   onPageHide() {
     this.release();
     if (!this.isBack) {
+      let uiContext = this.getUIContext();
+      let router = uiContext.getRouter();
       router.back();
     }
   }
@@ -174,7 +177,8 @@ struct Recorder {
   async createRecorder(): Promise<void> {
     releaseCamera();
     // Create the CameraManager object.
-    let cameraManager = camera.getCameraManager(getContext());
+    let context = this.getUIContext()?.getHostContext();
+    let cameraManager = camera.getCameraManager(context);
     if (!cameraManager) {
       Logger.error(TAG, 'camera.getCameraManager error');
       return;
@@ -394,6 +398,8 @@ struct Recorder {
           this.buttonEnabled = false;
           this.release();
           this.isBack = true;
+          let uiContext = this.getUIContext();
+          let router = uiContext.getRouter();
           router.back();
         })
         .enabled(this.buttonEnabled)

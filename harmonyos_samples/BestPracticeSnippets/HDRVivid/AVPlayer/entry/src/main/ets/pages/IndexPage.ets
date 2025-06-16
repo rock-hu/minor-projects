@@ -21,6 +21,7 @@ import { RightSide, VideoDes } from '../view/VideoSide';
 import { VideoList } from '../view/VideoList';
 import { VideoPlayer } from '../view/AVPlayer';
 import { VideoDetails } from '../view/VideoDetails';
+import { common } from '@kit.AbilityKit';
 
 const TAG = '[IndexPage]';
 
@@ -38,9 +39,10 @@ struct IndexPage {
   @State isFloatWindow: boolean = false;
   private swiperController: SwiperController = new SwiperController();
   private windowUtil: WindowUtil = WindowUtil.getInstance();
+  uiContext = this.getUIContext()
 
   async aboutToAppear(): Promise<void> {
-    let context = getContext(this);
+    let context = this.uiContext.getHostContext() as common.UIAbilityContext;
     let windowClass = await window.getLastWindow(context);
     await windowClass.setWindowKeepScreenOn(true);
     this.windowUtil.registerOnWindowSizeChange((size) => {
@@ -151,7 +153,7 @@ struct IndexPage {
         .disableSwipe(!this.isFullScreen || this.isFullLandscapeScreen)
         .width(Const.WIDTH_FULL_PERCENT)
         .height(this.isFullScreen || this.isFullLandscapeScreen ? Const.HEIGHT_FULL_PERCENT :
-        px2vp((AppStorage.get<number>('deviceWidth') || 0) / Const.ASPECT))
+        this.uiContext.px2vp((AppStorage.get<number>('deviceWidth') || 0) / Const.ASPECT))
         .vertical(true)
         .loop(true)
         .curve(Curve.Ease)
@@ -213,7 +215,7 @@ struct IndexPage {
   }
 
   private animateFullscreen() {
-    animateTo({
+    this.uiContext.animateTo({
       duration: Const.ANIMATE_DURATION
     }, () => {
       this.isFullScreen = !this.isFullScreen;

@@ -13,8 +13,6 @@
  * limitations under the License.
  */
 
-
-import { router } from '@kit.ArkUI';
 import { furnitureData, natureData } from '@ohos/customreusablepool/src/main/ets/data/MockData';
 import { ViewItem } from '@ohos/customreusablepool/src/main/ets/data/ViewItem';
 import { NodePool } from '@ohos/customreusablepool/src/main/ets/utils/BuilderNodePool';
@@ -32,6 +30,8 @@ struct Index {
     // [StartExclude create_component]
     let intervalId = setInterval(() => {
       if (this.timer === 1) {
+        let uiContext = this.getUIContext();
+        let router = uiContext.getRouter();
         router.pushUrl({ url: 'pages/OnIdlePage' });
         router.clear();
         clearInterval(intervalId)

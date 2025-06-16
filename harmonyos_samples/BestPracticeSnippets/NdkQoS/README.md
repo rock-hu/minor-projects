@@ -51,7 +51,7 @@
 | OH_QoS_GetThreadQoS(QoS_Level *level) | 获取当前任务的QoS等级 |
 
 
-详细的接口说明请参考[NativeQoS](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/qos-guidelines-V5)。
+详细的接口说明请参考[NativeQoS](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/qos-guidelines)。
 
 ### 相关权限
 

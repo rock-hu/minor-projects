@@ -5,7 +5,7 @@ import { UIContext } from '@kit.ArkUI';
 import { webview } from '@kit.ArkWeb';
 import { NodeController, BuilderNode, Size, FrameNode }  from '@kit.ArkUI';
 
-// Specific component contents of dynamic components in @Builder@Builder中为动态组件的具体组件内容
+// Specific component contents of dynamic components in @Builder,@Builder中为动态组件的具体组件内容
 // Data is a parameter encapsulation class.
 class Data{
   url: string = 'https://www.example.com';

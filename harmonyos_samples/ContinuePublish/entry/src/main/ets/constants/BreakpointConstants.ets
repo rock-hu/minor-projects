@@ -21,27 +21,22 @@ export class BreakpointConstants {
    * The number of grid columns of the grid container assembly on a device with a grid size of xs.
    */
   static readonly BREAKPOINT_XS: string = 'xs';
-
   /*
    * The number of grid columns of the grid container assembly on a device with a grid size of sm.
    */
   static readonly BREAKPOINT_SM: string = 'sm';
-
   /*
    * The number of grid columns of the grid container assembly on a device with a grid size of md.
    */
   static readonly BREAKPOINT_MD: string = 'md';
-
   /*
    * The number of grid columns of the grid container assembly on a device with a grid size of lg.
    */
   static readonly BREAKPOINT_LG: string = 'lg';
-
   /*
    * Grid row column list.
    */
   static readonly GRID_ROW_COLUMNS: number[] = [4, 8, 12];
-
   /*
    * Grid column span list.
    */

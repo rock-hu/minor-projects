@@ -53,5 +53,6 @@ export class CommonConstants {
   /**
    * Information Window Title
    */
-  static MARKER_TITLE: string = uiContext!.getHostContext()!.resourceManager!.getStringSync($r('app.string.geocoded_location'));
+  static MARKER_TITLE: string =
+    uiContext!.getHostContext()!.resourceManager!.getStringSync($r('app.string.geocoded_location'));
 }

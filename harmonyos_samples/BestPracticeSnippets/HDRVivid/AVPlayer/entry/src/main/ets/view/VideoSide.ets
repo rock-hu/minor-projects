@@ -14,13 +14,14 @@
  */
 
 import { CommonConstants as Const, VideoData } from '@ohos/MediaService';
-import { promptAction } from '@kit.ArkUI';
 
 @Component
 export struct RightSide {
   @Prop item: VideoData;
   @State isFollow: boolean = true;
   @State isLike: boolean = false;
+  uiContext = this.getUIContext()
+  getPromptAction = this.uiContext.getPromptAction()
 
   /**
    * The callback function for the click event of the like button.
@@ -34,7 +35,7 @@ export struct RightSide {
       likeCountNum--;
     }
     this.item.likeCount = '' + likeCountNum;
-    animateTo({ duration: Const.DURATION, curve: Curve.EaseInOut }, () => {
+    this.uiContext.animateTo({ duration: Const.DURATION, curve: Curve.EaseInOut }, () => {
       this.isLike = !this.isLike;
     })
   }
@@ -56,7 +57,7 @@ export struct RightSide {
           .borderRadius($r('app.float.concern_border_radius'))
           .margin({ top: $r('app.float.concern_margin_bottom') })
           .onClick(() => {
-            animateTo({ duration: Const.DURATION, curve: Curve.EaseInOut }, () => {
+            this.uiContext.animateTo({ duration: Const.DURATION, curve: Curve.EaseInOut }, () => {
               this.isFollow = !this.isFollow;
             });
           })
@@ -90,7 +91,7 @@ export struct RightSide {
           .fillColor(Color.White)
           .margin({ bottom: $r('app.float.fabulous_margin_bottom') })
           .onClick(() => {
-            promptAction.showToast({ message: $r('app.string.comment'), duration: Const.TOAST_DURATION });
+            this.getPromptAction.showToast({ message: $r('app.string.comment'), duration: Const.TOAST_DURATION });
           })
         Text(this.item.commentCount)
           .fontSize($r('app.float.fabulous_font_size'))
@@ -113,7 +114,7 @@ export struct RightSide {
       .width($r('app.float.avatar_size'))
       .alignItems(HorizontalAlign.Center)
       .onClick(() => {
-        promptAction.showToast({ message: $r('app.string.share'), duration: Const.TOAST_DURATION });
+        this.getPromptAction.showToast({ message: $r('app.string.share'), duration: Const.TOAST_DURATION });
       })
     }
     .margin({ bottom: $r('app.float.video_side_margin_bottom'), right: $r('app.float.right_space') })

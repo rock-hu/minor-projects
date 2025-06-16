@@ -26,6 +26,7 @@ import { AvSessionController } from './AvSessionController';
 import Logger from '../utils/Logger';
 
 const TAG = '[AvPlayerController]';
+const uiContext: UIContext | undefined = AppStorage.get('uiContext');
 
 @Observed
 export class AvPlayerController {
@@ -42,10 +43,11 @@ export class AvPlayerController {
   private curSource: VideoData;
   private context: common.UIAbilityContext | undefined = AppStorage.get('context');
   private avSessionController: AvSessionController;
-
-  constructor(curSource: VideoData) {
+  private UIContext: UIContext;
+  constructor(curSource: VideoData, uiContext: UIContext) {
     this.curSource = curSource;
     this.avSessionController = AvSessionController.getInstance();
+    this.UIContext = uiContext
   }
 
   // [Start create_instance]
@@ -68,7 +70,7 @@ export class AvPlayerController {
         // [StartExclude create_instance]
         this.setAVPlayerCallback(this.avPlayer);
         if (this.curIndex === this.curSource.index) {
-          this.avSessionController.setAVMetadata(this.curSource, 0);
+          this.avSessionController.setAVMetadata(this.curSource, 0, this.UIContext);
         }
         this.setAvSessionListener();
         Logger.info(TAG, 'createAVPlayer success:' + ` this.curIndex:${this.curIndex}`);
@@ -89,7 +91,7 @@ export class AvPlayerController {
 
     avPlayer.on('timeUpdate', (time: number) => {
       if (time > this.currentTime * 1000) {
-        animateTo({ duration: 1000, curve: Curve.Linear }, () => {
+        uiContext?.animateTo({ duration: 1000, curve: Curve.Linear }, () => {
           this.currentTime = Math.floor(time / 1000);
         });
       } else {
@@ -351,7 +353,7 @@ export class AvPlayerController {
         this.avPlayer.state !== AVPlayerState.COMPLETED) {
         return;
       }
-      this.avSessionController.setAVMetadata(this.curSource, this.duration);
+      this.avSessionController.setAVMetadata(this.curSource, this.duration, this.UIContext);
       //Writing in the avPlayer.play callback can cause a delay in the state change of the playback control center.
       this.updateIsPlay(true);
       Logger.info(TAG, `playVideo: state:${this.avPlayer.state} this.curIndex:${this.curIndex}`);

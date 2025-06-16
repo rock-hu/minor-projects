@@ -33,7 +33,7 @@ class LocationUtil {
     }
   }
 
-  getCurrentLocation(locationChange: (err:BusinessError, location: geoLocationManager.Location) => void) {
+  getCurrentLocation(locationChange: (err: BusinessError, location: geoLocationManager.Location) => void) {
     geoLocationManager.getCurrentLocation(locationChange);
   }
 

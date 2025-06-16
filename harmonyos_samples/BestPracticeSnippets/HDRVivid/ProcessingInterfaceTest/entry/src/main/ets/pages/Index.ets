@@ -25,6 +25,7 @@ struct Index {
   @State showProgressBar: boolean = false;
   @State errCount: number = 0;
   @State totalCount: number = 0;
+  uiContext = this.getUIContext()
 
   build() {
     Row() {
@@ -33,7 +34,7 @@ struct Index {
           .borderRadius(10)
           .onClick(() => {
             Logger.info(TAG, 'Picker init VideoPage ')
-            router.pushUrl({
+            this.uiContext.getRouter().pushUrl({
               url: 'pages/VideoPage',
             }, router.RouterMode.Standard);
           })

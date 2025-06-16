@@ -47,7 +47,7 @@ export class CommonConstants {
   /**
    * Column width.
    */
-  static readonly COLUMN_WIDTH: number = 5;
+  static readonly COLUMN_WIDTH: number = 4;
 
   /**
    * Height min.

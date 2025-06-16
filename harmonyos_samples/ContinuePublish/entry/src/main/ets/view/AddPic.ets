@@ -30,6 +30,7 @@ import {
 import { CommonConstants } from '../constants/CommonConstants';
 import { ImageInfo } from '../model/ContentInfo';
 import { fileSelect } from '../utils/FileUtil';
+import { BreakpointType } from '../utils/BreakpointSystem';
 
 /*
  * Image area.
@@ -51,7 +52,7 @@ export struct AddPic {
     fileSelect().then((uri: Array<ResourceStr>) => {
       if ((this.imageUriArray.length + uri.length) > CommonConstants.MAX_ADD_PIC) {
         uri.length = CommonConstants.MAX_ADD_PIC - this.imageUriArray.length;
-        promptAction.showToast({ message: $r('app.string.add_picture_prompt') });
+        this.getUIContext().getPromptAction().showToast({ message: $r('app.string.add_picture_prompt') });
       }
       uri.forEach((item: ResourceStr) => {
         this.getThumbnail(item as string);
@@ -112,6 +113,7 @@ export struct AddPic {
         `Failed to openSync / writeSync / closeSync. Code: ${err.code}, message: ${err.message}`);
     }
   }
+
   // [End write]
   // [End write_distributed_file]
 
@@ -160,6 +162,7 @@ export struct AddPic {
       })
     }
   }
+
   // [End fallInfo]
 
   // Uri to pixelMap.
@@ -185,7 +188,7 @@ export struct AddPic {
           this.PixelMapToBuffer(pixelMap, uuid);
           this.imageUriArray.push({ imagePixelMap: pixelMap, imageName: uuid });
         } else {
-          promptAction.showToast({ message: $r('app.string.add_picture_prompt') });
+          this.getUIContext().getPromptAction().showToast({ message: $r('app.string.add_picture_prompt') });
         }
       });
     })
@@ -200,6 +203,7 @@ export struct AddPic {
       hilog.error(0x0000, '[AddPic]', `Failed to set pastedata. Code: ${err.code}, message: ${err.message}`);
     });
   }
+
   // [End copy]
 
   // [Start paste]
@@ -232,6 +236,7 @@ export struct AddPic {
       }
     });
   }
+
   // [End paste]
 
   // [Start onDrop]
@@ -282,7 +287,7 @@ export struct AddPic {
               this.PixelMapToBuffer(pixelMap, uuid);
               this.imageUriArray.push({ imagePixelMap: pixelMap, imageName: uuid });
             } else {
-              promptAction.showToast({ message: $r('app.string.add_picture_prompt') });
+              this.getUIContext().getPromptAction().showToast({ message: $r('app.string.add_picture_prompt') });
             }
           } else {
             // Convert the image from imageUri to PixelMap.
@@ -295,10 +300,13 @@ export struct AddPic {
         // [EndExclude onDrop]
       })
     })
+
     // [EndExclude buffer]
   }
+
   // [End buffer]
 
+  // [StartExclude onDrop]
   @Builder
   copy(imagePixelMap: image.PixelMap) {
     Row() {
@@ -332,6 +340,7 @@ export struct AddPic {
     .height(48)
     .width(224)
   }
+  // [EndExclude onDrop]
 
   /*
    *  Adding an image.
@@ -342,13 +351,11 @@ export struct AddPic {
       List({ space: CommonConstants.LIST_COMM_SPACE }) {
         ForEach(this.imageUriArray, (item: ImageInfo) => {
           ListItem() {
-            Image(item.imagePixelMap)
-              // [StartExclude onDrop]
+            Image(item.imagePixelMap)// [StartExclude onDrop]
               .width($r('app.integer.add_image_area_size'))
               .height($r('app.integer.add_image_area_size'))
               .borderRadius($r('app.integer.border_radius3'))
-              .visibility(item ? Visibility.Visible : Visibility.None)
-              // [EndExclude onDrop]
+              .visibility(item ? Visibility.Visible : Visibility.None)// [EndExclude onDrop]
               .draggable(true)
               .onDragEnd((event) => {
                 // The logic after dragging and dropping is completed.
@@ -358,8 +365,7 @@ export struct AddPic {
                   this.getUIContext().getPromptAction().showToast({ duration: 100, message: 'Drag failed' });
                 }
                 // [EndExclude onDrop]
-              })
-                // [StartExclude onDrop]
+              })// [StartExclude onDrop]
               .bindMenu(this.copy(item.imagePixelMap))
             // [EndExclude onDrop]
           }
@@ -371,6 +377,7 @@ export struct AddPic {
       // [StartExclude onDrop]
       .listDirection(Axis.Horizontal)
       .scrollBar(BarState.Off)
+
       // [EndExclude onDrop]
     }
     // [StartExclude onDrop]
@@ -378,8 +385,10 @@ export struct AddPic {
     .width(CommonConstants.FULL_PERCENT)
     .alignItems(VerticalAlign.Center)
     .padding({
-      right: $r('app.integer.comm_padding_margin'),
-      left: $r('app.integer.comm_padding_margin')
+      left: new BreakpointType($r('sys.float.padding_level8'), $r('sys.float.padding_level8'),
+        $r('sys.float.padding_level12'), $r('sys.float.padding_level16')).GetValue(this.currentBreakpoint),
+      right: new BreakpointType($r('sys.float.padding_level8'), $r('sys.float.padding_level8'),
+        $r('sys.float.padding_level12'), $r('sys.float.padding_level16')).GetValue(this.currentBreakpoint)
     })
     .onClick(() => {
       this.pasteShow = false;
@@ -388,13 +397,15 @@ export struct AddPic {
     .bindMenu(this.pasteShow, this.paste(), {
       onDisappear: () => {
         if (this.toastShow) {
-          promptAction.showToast({ message: $r('app.string.add_picture_prompt') });
+          this.getUIContext().getPromptAction().showToast({ message: $r('app.string.add_picture_prompt') });
           this.toastShow = false;
         }
       }
     })
+
     // [EndExclude onDrop]
   }
+
   // [End onDrop]
 
   // [Start menu]
@@ -402,17 +413,21 @@ export struct AddPic {
   @Builder
   MyTestMenu() {
     Menu() {
-      MenuItem({ symbolStartIcon: new SymbolGlyphModifier($r('sys.symbol.picture_2')), content: $r('app.string.local_device') })
+      MenuItem({
+        symbolStartIcon: new SymbolGlyphModifier($r('sys.symbol.picture_2')),
+        content: $r('app.string.local_device')
+      })
         .onClick(() => {
           if (this.imageUriArray.length < CommonConstants.MAX_ADD_PIC) {
             this.selectImage();
           } else {
-            promptAction.showToast({ message: $r('app.string.add_picture_prompt') });
+            this.getUIContext().getPromptAction().showToast({ message: $r('app.string.add_picture_prompt') });
           }
         })
       createCollaborationServiceMenuItems([CollaborationServiceFilter.ALL], 9)
     }
   }
+
   // [End menu]
 
   /*
@@ -422,10 +437,9 @@ export struct AddPic {
   addDefaultPic() {
     Row() {
       Column() {
-        Image($r('app.media.ic_add_pic'))
-          .objectFit(ImageFit.Cover)
-          .width($r('app.integer.add_icon_size'))
-          .height($r('app.integer.add_icon_size'))
+        SymbolGlyph($r('sys.symbol.plus'))
+          .fontSize($r('app.integer.add_icon_size'))
+          .fontColor([$r('sys.color.font_primary')])
         Text(this.imageUriArray.length === 0 ? $r('app.string.add_high_img') :
           (this.imageUriArray.length < CommonConstants.MAX_ADD_PIC ? $r('app.string.continue_add') :
           $r('app.string.image_add')))

@@ -78,7 +78,7 @@ export struct PageThree {
         .layoutWeight(1)
 
       this.navDestinationTitleImg($r('app.media.more'), () => {
-        promptAction.showToast({ message: $r('app.string.only_show_for_ux') })
+        this.getUIContext().getPromptAction().showToast({ message: $r('app.string.only_show_for_ux') })
       })
     }
     .width('100%')
@@ -158,7 +158,7 @@ export struct PublishView {
       right: 18
     })
     .onClick(() => {
-      promptAction.showToast({ message: $r('app.string.only_show_for_ux') });
+      this.getUIContext().getPromptAction().showToast({ message: $r('app.string.only_show_for_ux') });
     })
   }
 }

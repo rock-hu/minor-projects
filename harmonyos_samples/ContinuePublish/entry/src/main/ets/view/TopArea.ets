@@ -13,23 +13,24 @@
  * limitations under the License.
  */
 
-import { promptAction } from '@kit.ArkUI';
 import { common } from '@kit.AbilityKit';
 import { CommonConstants } from '../constants/CommonConstants';
+import { BreakpointType } from '../utils/BreakpointSystem';
 
 /*
  *  Top area.
  */
 @Component
 export struct TopArea {
+  @StorageLink('currentBreakpoint') currentBreakpoint: string = 'sm';
 
   build() {
     Flex({ justifyContent: FlexAlign.SpaceBetween, alignItems: ItemAlign.Center }) {
       Row() {
         Row() {
-          Image($r('app.media.ic_backward'))
-            .width($r('app.integer.cancel_icon_size'))
-            .height($r('app.integer.cancel_icon_size'))
+          SymbolGlyph($r('sys.symbol.chevron_backward'))
+            .fontSize($r('sys.float.Title_M'))
+            .fontColor([$r('sys.color.font_primary')])
             .onClick(() => {
               let context = this.getUIContext().getHostContext() as common.UIAbilityContext;
               context.terminateSelf();
@@ -39,7 +40,7 @@ export struct TopArea {
         .margin({ right: $r('app.integer.cancel_icon_right') })
         .width($r('app.integer.top_area_size'))
         .height($r('app.integer.top_area_size'))
-        .backgroundColor($r('app.color.background_color4'))
+        .backgroundColor($r('sys.color.comp_background_tertiary'))
         .borderRadius($r('app.integer.top_area_radius'))
 
         Text($r('app.string.text_posts'))
@@ -48,11 +49,12 @@ export struct TopArea {
           .width(CommonConstants.PUBLISH_TITLE_WIDTH)
           .maxLines(CommonConstants.PUBLISH_TITLE_MAX_LINES)
       }
+      .backgroundColor($r('sys.color.background_primary'))
 
       Row() {
-        Image($r('app.media.ic_publish'))
-          .width($r('app.integer.cancel_icon_size'))
-          .height($r('app.integer.cancel_icon_size'))
+        SymbolGlyph($r('sys.symbol.square_and_pencil'))
+          .fontSize($r('sys.float.Title_M'))
+          .fontColor([$r('sys.color.font_primary')])
           .onClick(() => {
             this.getUIContext().getPromptAction().showToast({ message: $r('app.string.trigger_event') });
           })
@@ -60,14 +62,17 @@ export struct TopArea {
       .justifyContent(FlexAlign.Center)
       .width($r('app.integer.top_area_size'))
       .height($r('app.integer.top_area_size'))
-      .backgroundColor($r('app.color.background_color4'))
+      .backgroundColor($r('sys.color.comp_background_tertiary'))
       .borderRadius($r('app.integer.top_area_radius'))
     }
+    .backgroundColor($r('sys.color.background_primary'))
     .width(CommonConstants.FULL_PERCENT)
     .height($r('app.integer.top_area_height'))
     .padding({
-      right: $r('app.integer.comm_padding_margin'),
-      left: $r('app.integer.comm_padding_margin')
+      left: new BreakpointType($r('sys.float.padding_level8'), $r('sys.float.padding_level8'),
+        $r('sys.float.padding_level12'), $r('sys.float.padding_level16')).GetValue(this.currentBreakpoint),
+      right: new BreakpointType($r('sys.float.padding_level8'), $r('sys.float.padding_level8'),
+        $r('sys.float.padding_level12'), $r('sys.float.padding_level16')).GetValue(this.currentBreakpoint)
     })
     .margin({
       top: $r('app.integer.comm_padding_margin'),

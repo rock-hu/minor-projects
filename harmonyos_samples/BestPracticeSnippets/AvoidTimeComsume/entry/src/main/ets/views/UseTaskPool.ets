@@ -23,6 +23,7 @@ struct WaterFlowExample {
   @State fontSize: number = 24;
   scroller: Scroller = new Scroller();
   dataSource: WaterFlowDataSource = new WaterFlowDataSource();
+  UIContext = this.getUIContext()
 
   @Builder
   itemFoot() {
@@ -83,7 +84,7 @@ struct WaterFlowExample {
             // Add data in advance when you are about to hit the bottom
             if (item + 20 === this.dataSource.totalCount()) {
               // Simulate the time it takes for the network to acquire data
-              taskPoolExecute().then((data: Item[]) => {
+              taskPoolExecute(this.UIContext).then((data: Item[]) => {
                 for (let i = 0; i < data.length; i++) {
                   this.dataSource.addLastItem();
                 }
@@ -120,8 +121,8 @@ struct WaterFlowExample {
 
 // [Start task_pool_execute]
 // The following methods are defined outside of the component
-async function taskPoolExecute(): Promise<Item[]> {
-  let task: taskpool.Task = new taskpool.Task(mockRequestData, getContext());
+async function taskPoolExecute(UIContext: UIContext): Promise<Item[]> {
+  let task: taskpool.Task = new taskpool.Task(mockRequestData, UIContext);
   return await taskpool.execute(task) as Item[];
 }
 

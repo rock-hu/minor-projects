@@ -13,13 +13,14 @@
  * limitations under the License.
  */
 import { CommonConstants as Const, VideoData } from '@ohos/MediaService';
-import { promptAction } from '@kit.ArkUI';
 
 @Component({ freezeWhenInactive: true })
 export struct VideoDetails {
   @Prop item: VideoData;
   @State isFollow: boolean = true;
   @State isLike: boolean = false;
+  uiContext = this.getUIContext()
+  getPromptAction = this.uiContext.getPromptAction()
 
   /**
    * The callback function for the click event of the like button.
@@ -33,7 +34,7 @@ export struct VideoDetails {
       likeCountNum--;
     }
     this.item.likeCount = '' + likeCountNum;
-    animateTo({ duration: Const.DURATION, curve: Curve.EaseInOut }, () => {
+    this.uiContext.animateTo({ duration: Const.DURATION, curve: Curve.EaseInOut }, () => {
       this.isLike = !this.isLike;
     })
   }
@@ -79,7 +80,7 @@ export struct VideoDetails {
         })
         .backgroundColor($r('app.color.button_fill_color'))
         .onClick(() => {
-          animateTo({ duration: Const.DURATION, curve: Curve.EaseInOut }, () => {
+          this.uiContext.animateTo({ duration: Const.DURATION, curve: Curve.EaseInOut }, () => {
             this.isFollow = !this.isFollow;
           });
         })
@@ -128,7 +129,7 @@ export struct VideoDetails {
             .opacity($r('app.float.opacity_4'))
         }
         .onClick(() => {
-          promptAction.showToast({ message: $r('app.string.comment'), duration: Const.TOAST_DURATION });
+          this.getPromptAction.showToast({ message: $r('app.string.comment'), duration: Const.TOAST_DURATION });
         })
 
         Column() {
@@ -142,7 +143,7 @@ export struct VideoDetails {
             .opacity($r('app.float.opacity_4'))
         }
         .onClick(() => {
-          promptAction.showToast({ message: $r('app.string.share'), duration: Const.TOAST_DURATION });
+          this.getPromptAction.showToast({ message: $r('app.string.share'), duration: Const.TOAST_DURATION });
         })
       }
       .width(Const.FULL_SIZE)

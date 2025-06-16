@@ -38,7 +38,7 @@
 
 * 点击“切换视频到高清晰度”按钮时，会切换当前视频到较高的清晰度，当网络质量好的情况下可自行切换。
 
-注：此示例代码使用的是加载本地视频的方式，开发时，可以根据需要使用其他加载视频资源的方式，如加载沙箱路径视频、加载网络视频。具体请参见：[加载视频资源](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/arkts-common-components-video-player-V5#加载视频资源)
+注：此示例代码使用的是加载本地视频的方式，开发时，可以根据需要使用其他加载视频资源的方式，如加载沙箱路径视频、加载网络视频。具体请参见：[加载视频资源](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/arkts-common-components-video-player#加载视频资源)
 ## 相关权限
 
 * ohos.permission.SET_WIFI_INFO    设置WIFI信息

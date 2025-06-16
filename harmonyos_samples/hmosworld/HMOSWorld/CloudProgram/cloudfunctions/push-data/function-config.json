@@ -15,7 +15,7 @@
       "properties": {
         "triggerMode": "Sync",
         "schedule": "@every 360m",
-        "triggerSwitch": true,
+        "triggerSwitch": false,
         "triggerName": "push-data"
       }
     }

@@ -88,13 +88,7 @@ export class WindowUtil {
       return;
     }
     // Set full-screen display.
-    this.mainWindowClass.setWindowLayoutFullScreen(true, (err) => {
-      if (err.code) {
-        Logger.error('Failed to set the window layout to full-screen mode. Cause:' + JSON.stringify(err));
-        return;
-      }
-      Logger.info('Succeeded in setting the window layout to full-screen mode.');
-    });
+    this.mainWindowClass.setWindowLayoutFullScreen(true);
   }
 
   getMainWindow(): window.Window | undefined {

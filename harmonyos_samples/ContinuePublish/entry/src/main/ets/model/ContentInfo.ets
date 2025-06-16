@@ -26,7 +26,7 @@ export class ContentInfo {
   constructor(
     mainTitle: string | undefined,
     textContent: string | undefined,
-    imageUriArray: Array<ImageInfo>| undefined,
+    imageUriArray: Array<ImageInfo> | undefined,
     isShowLocalInfo: boolean | undefined,
     isAddLocalInfo: boolean | undefined,
     selectLocalInfo: string | undefined,

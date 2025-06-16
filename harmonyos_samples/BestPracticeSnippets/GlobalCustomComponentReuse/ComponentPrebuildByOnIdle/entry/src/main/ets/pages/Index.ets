@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-import { router } from '@kit.ArkUI';
 import { IdleCallback } from '@ohos/customreusablepool/src/main/ets/pages/BuilderNodePoolDemo';
 import { furnitureData, natureData } from '@ohos/customreusablepool/src/main/ets/data/MockData';
 import { ViewItem } from '@ohos/customreusablepool/src/main/ets/data/ViewItem';
@@ -30,6 +29,8 @@ struct Index {
     // [StartExclude appear_router]
     let intervalId = setInterval(() => {
       if (this.timer === 1) {
+        let uiContext = this.getUIContext();
+        let router = uiContext.getRouter();
         router.pushUrl({ url: 'pages/OnIdlePage' });
         router.clear();
         clearInterval(intervalId)

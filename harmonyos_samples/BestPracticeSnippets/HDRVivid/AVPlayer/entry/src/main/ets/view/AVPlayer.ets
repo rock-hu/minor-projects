@@ -20,6 +20,7 @@ import { audio, AVVolumePanel } from '@kit.AudioKit';
 import { Logger, CommonConstants, secondToTime, } from '@ohos/MediaService';
 import { AvPlayerController, VideoData } from '@ohos/MediaService';
 import { FullScreenControl, VideoBottom } from './VideoSide';
+import { common } from '@kit.AbilityKit';
 
 const TAG = '[VideoPlayer]';
 
@@ -38,7 +39,7 @@ export struct VideoPlayer {
   @Prop @Watch('onIndexChange') curIndex: number = CommonConstants.CURINDEX_DEFAULT_NUM;
   @State isTimeDisplay: number = 0;
   @State trackThicknessSize: number = CommonConstants.TRACK_SIZE_MIN;
-  @State avPlayerController: AvPlayerController = new AvPlayerController(this.curSource);
+  @State avPlayerController: AvPlayerController = new AvPlayerController(this.curSource, this.getUIContext());
   @State sliderStyle: SliderStyle = SliderStyle.NONE;
   @State isShowTips: boolean = false;
   @State isSliderDragging: boolean = false;
@@ -65,11 +66,11 @@ export struct VideoPlayer {
   private windowStage: window.WindowStage = AppStorage.get('windowStage') as window.WindowStage;
   // Get the main window.
   private mainWin: window.Window = this.windowStage.getMainWindowSync();
+  uiContext = this.getUIContext()
 
   aboutToAppear(): void {
-    let windowClass: window.Window | undefined = undefined;
-
-    const context: Context = getContext(this);
+    const context = this.uiContext.getHostContext() as common.UIAbilityContext;
+    ;
     settings.getValue(context, settings.display.SCREEN_BRIGHTNESS_STATUS, settings.domainName.DEVICE_SHARED)
       .then((value) => {
         hilog.info(0x0000, 'AVPlayer', `Promise:value -> ${JSON.stringify(value)}`);
@@ -77,14 +78,9 @@ export struct VideoPlayer {
       })
 
     try {
-      window.getLastWindow(getContext(this), (err, data) => {
-        if(err) {
-          hilog.error(0x0000, 'AVPlayer',
-            `Failed to obtain the top window. Cause code: ${err.code}, message: ${err.message}`);
-        }
-        windowClass = data;
-        this.screenHeight = windowClass.getWindowProperties().windowRect.height;
-      })
+      window.getLastWindow(context).then((data) => {
+        this.screenHeight = data?.getWindowProperties().windowRect.height;
+      });
     } catch (exception) {
       hilog.error(0x0000, 'AVPlayer',
         `Failed to obtain the top window. Cause code: ${exception.code}, message: ${exception.message}`);
@@ -305,7 +301,7 @@ export struct VideoPlayer {
           .onActionUpdate((event: GestureEvent) => {
             if (event.fingerList[0].globalX > (820 / 2)) {
               this.visible = true;
-              let curBrightness = this.screenBrightness - vp2px(event.offsetY) / vp2px(this.screenHeight);
+              let curBrightness = this.screenBrightness - this.uiContext.vp2px(event.offsetY) / this.uiContext.vp2px(this.screenHeight);
               curBrightness = curBrightness >= 1.0 ? 1.0 : curBrightness;
               curBrightness = curBrightness <= 0.0 ? 0.0 : curBrightness;
               this.screenBrightness = curBrightness;
@@ -324,7 +320,7 @@ export struct VideoPlayer {
               }
             } else {
               this.visible = false;
-              let curVolume = this.volume - vp2px(event.offsetY) / this.screenHeight;
+              let curVolume = this.volume - this.uiContext.vp2px(event.offsetY) / this.screenHeight;
               curVolume = curVolume >= 15.0 ? 15.0 : curVolume;
               curVolume = curVolume <= 0.0 ? 0.0 : curVolume;
               this.volume = curVolume;
@@ -397,7 +393,7 @@ export struct VideoPlayer {
       this.showTipsTime = this.avPlayerController.currentStringTime;
       this.isShowTips = true;
       let percent = Number((value / this.avPlayerController.durationTime).toFixed(2));
-      this.tipsOffset = px2vp(this.beginX) + (this.slideWidth - 16) * percent;
+      this.tipsOffset = this.uiContext.px2vp(this.beginX) + (this.slideWidth - 16) * percent;
       this.hideTip();
     }
   }
@@ -485,10 +481,10 @@ export struct VideoPlayer {
             .selectedBorderRadius(CommonConstants.TRACK_BORDER_RADIUS)
             .zIndex(CommonConstants.SLIDER_INDEX)
             .onAreaChange(() => {
-              let videoSlider: componentUtils.ComponentInfo = componentUtils.getRectangleById('video_slider');
-              this.slideWidth = px2vp(videoSlider.size.width);
-              this.offsetY = px2vp(videoSlider.localOffset.y);
-              this.beginX = px2vp(videoSlider.localOffset.x);
+              let videoSlider: componentUtils.ComponentInfo = this.getUIContext().getComponentUtils().getRectangleById('video_slider');
+              this.slideWidth = this.uiContext.px2vp(videoSlider.size.width);
+              this.offsetY = this.uiContext.px2vp(videoSlider.localOffset.y);
+              this.beginX = this.uiContext.px2vp(videoSlider.localOffset.x);
             })
             .onChange((value: number, mode: SliderChangeMode) => {
               this.sliderOnchange(value, mode);
@@ -562,7 +558,7 @@ export struct VideoPlayer {
       this.avPlayerController.setIsPlaying(false);
       this.isTimeDisplay = 0;
       this.trackThicknessSize = CommonConstants.TRACK_SIZE_MIN;
-      let context = getContext(this);
+      let context = this.uiContext.getHostContext() as common.UIAbilityContext;
       let windowClass = await window.getLastWindow(context);
       await windowClass.setWindowKeepScreenOn(false);
       return;
@@ -583,7 +579,7 @@ export struct VideoPlayer {
         }
       }, CommonConstants.TIMER_INTERVAL);
     }
-    let context = getContext(this);
+    let context = this.uiContext.getHostContext() as common.UIAbilityContext;
     let windowClass = await window.getLastWindow(context);
     await windowClass.setWindowKeepScreenOn(true);
   }

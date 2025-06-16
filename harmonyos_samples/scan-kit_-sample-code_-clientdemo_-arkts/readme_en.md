@@ -91,13 +91,13 @@ How to Use
 
 ![](entry/screenshots/qrcode.png)
 
-* If you want to replace your package name and domain name for integrating the scan-to-access service, please refer to the [integration guide](https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V5/scan-directservice-V5).
+* If you want to replace your package name and domain name for integrating the scan-to-access service, please refer to the [scan-to-access document](https://developer.huawei.com/consumer/en/doc/harmonyos-guides/scan-directservice).
 
 2. Tap **Scan Kit Demo** on the home screen of your device to start the demo app. The following buttons will be displayed on the demo app home screen: **Scan code on default UI**, **Scan code on custom UI**, **Recognize barcode in image**, and **Generate barcode image**.
 3. Tap **Scan code on default UI** to go to the level-2 UI. Tap **Scan code on default UI** again to launch the default barcode scan UI, scan a barcode image, and check the scan result.
 4. Tap **Scan code on custom UI** to go to the level-2 UI. Tap **Scan code on custom UI** again to launch the custom barcode scan UI, scan a barcode image, and check the scan result.
 5. Tap **Recognize barcode in image** to go to the level-2 UI. Tap **Saved image** to start the picker, select a barcode image from the gallery for recognition, and check the scan result.
-6. Tap **Recognize barcode in image** to go to the level-2 UI. Tap **Image data** to start recognition and check the recognition result. For details about the camera implementation, please refer to the [Camera Kit document](https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V5/camera-dual-channel-preview-V5).
+6. Tap **Recognize barcode in image** to go to the level-2 UI. Tap **Image data** to start recognition and check the recognition result. For details about the camera implementation, please refer to the [Camera Kit document](https://developer.huawei.com/consumer/en/doc/harmonyos-guides/camera-dual-channel-preview).
 7. Tap **Generate barcode image** to go to the level-2 UI. Tap **Generate code** to convert a string into a barcode image of a custom format, or tap **Generate ride code** to convert a byte array into a barcode image of a custom format. Currently, Scan Kit does not support recognition based on barcode images generated from byte arrays.
 
 ## Project Directory
@@ -109,30 +109,29 @@ How to Use
 │ │ ├─Logger.ts // Log output method   
 │ │ ├─PermissionsUtil.ets // Camera authorization class   
 │ │ ├─StatusBar.ets // Status bar component   
-│ │ ├─Utils.ets // Common methods   
+│ │ └─Utils.ets // Common methods   
 │ ├─entryability                  
 │ │ └─EntryAbility.ets // Entry point class   
 │ ├─pages        
 │ │ ├─access // Scan-to-access  
 │ │ │ ├─ScanAccess.ets // Connection success page   
-│ │ │ ├─ScanDetail.ets // Details page    
+│ │ │ └─ScanDetail.ets // Details page    
 │ │ ├─customScan // The custom barcode scanning UI   
 │ │ │ ├─constants // Constants   
 │ │ │ │ ├─BreakpointConstants.ets // Breakpoint constants   
-│ │ │ │ ├─CommonConstants.ts // Common constants   
+│ │ │ │ └─CommonConstants.ts // Common constants   
 │ │ │ ├─model          
 │ │ │ │ ├─BreakpointType.ets // Breakpoint type   
 │ │ │ │ ├─CommonEventManager.ts // Common event manager  
 │ │ │ │ ├─DeviceService.ets // Device management class  
-│ │ │ │ ├─FontSizeScale.ets // Font size scaling   
 │ │ │ │ ├─OpenPhoto.ets // Gallery   
 │ │ │ │ ├─PromptTone.ts // Prompt tone   
 │ │ │ │ ├─ScanLayout.ets // Barcode scanning UI layout management class   
 │ │ │ │ ├─ScanService.ets // Barcode scanning customization   
 │ │ │ │ ├─WindowService.ets // Window management class   
-│ │ │ │ ├─XComponentService.ets // XComponent management class   
+│ │ │ │ └─XComponentService.ets // XComponent management class   
 │ │ │ ├─pages // Pages   
-│ │ │ │ ├─ScanPage.ets // Barcode scanning page   
+│ │ │ │ └─ScanPage.ets // Barcode scanning page   
 │ │ │ ├─view // Components   
 │ │ │ │ ├─CommonCodeLayout.ets // Radio button component   
 │ │ │ │ ├─IconPress.ets // Image pressed state component   
@@ -142,18 +141,18 @@ How to Use
 │ │ │ │ ├─ScanLine.ets // Scanning line component   
 │ │ │ │ ├─ScanLoading.ets // Loading component   
 │ │ │ │ ├─ScanTitle.ets // Title component   
-│ │ │ │ ├─ScanXComponent.ets // XComponent   
-│ │ │ ├─CustomPage.ets // Page where the button for accessing the custom barcode scanning UI is located   
+│ │ │ │ └─ScanXComponent.ets // XComponent   
+│ │ │ └─CustomPage.ets // Page where the button for accessing the custom barcode scanning UI is located   
 │ │ ├─defaultScan // Default code scan UI   
-│ │ │ ├─DefaultScan.ets // Default code scan UI   
+│ │ │ └─DefaultScan.ets // Default code scan UI   
 │ │ ├─detectBarcode // Image-based barcode recognition   
 │ │ │ ├─CommonCodeLayout.ets // Radio button component    
 │ │ │ ├─DecodeBarcode.ets //Page where the image recognition button is located   
-│ │ │ ├─DecodeCameraYuv.ets // Page for image data recognition                 
+│ │ │ └─DecodeCameraYuv.ets // Page for image data recognition                 
 │ │ ├─generateBarcode // Barcode image generation   
-│ │ │ ├─CreateBarcode.ets // Barcode image generation UI   
+│ │ │ └─CreateBarcode.ets // Barcode image generation UI   
 │ │ ├─resultPage // Scanning result   
-│ │ │ ├─ResultPage.ets // Scanning result page    
+│ │ │ └─ResultPage.ets // Scanning result page    
 │ │ └─Index.ets // Page for accessing various scanning UIs   
 └─entry/src/main/resources // Directory for storing resource files  
 
@@ -161,7 +160,7 @@ How to Use
 
 1. Integration with the scan-to-access capability: Once you have registered your domain names with the scan-to-access service, users can use system-level, always-available entry points like the control panel to scan a 1D barcode or QR code. This takes them directly to the corresponding service page of an app, providing a seamless, one-step experience.
 
-* This demo only illustrates integration with the scan-to-access service as a reference. For details, please refer to the [scan-to-access document](https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V5/scan-directservice-V5).
+* This demo only illustrates integration with the scan-to-access service as a reference. For details, please refer to the [scan-to-access document](https://developer.huawei.com/consumer/en/doc/harmonyos-guides/scan-directservice).
 
 2. Barcode scanning by default UI: offers a consistent scanning UI at the system level, which includes a camera preview stream, a scanning entry for the photo gallery, a prompt to turn on the flash light in dim light conditions, and pre-authorization for the camera. This function is easy to be integrated and is suitable for general scanning scenarios.
    Define the default barcode scan API in **import { scanCore, scanBarcode } from '@kit.ScanKit';**.

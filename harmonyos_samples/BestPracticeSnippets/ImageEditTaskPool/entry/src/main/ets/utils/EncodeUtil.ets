@@ -20,7 +20,7 @@ import { fileIo } from '@kit.CoreFileKit';
 import { image } from '@kit.ImageKit';
 
 const TAG: string = '[EncodeUtil]';
-const context = AppStorage.get("uiContext") as UIContext;
+const context = AppStorage.get('uiContext') as UIContext;
 let phAccessHelper = photoAccessHelper.getPhotoAccessHelper(context.getHostContext() as Context);
 
 /**

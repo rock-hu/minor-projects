@@ -15,7 +15,7 @@
 
 import { UIAbility } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
-import { window } from '@kit.ArkUI';
+import { UIContext, window } from '@kit.ArkUI';
 import { WindowUtil } from '../utils/WindowUtil';
 
 export default class EntryAbility extends UIAbility {
@@ -32,9 +32,9 @@ export default class EntryAbility extends UIAbility {
     // Main window is created, set main page for this ability
     hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onWindowStageCreate');
     let windowClass: window.Window = windowStage.getMainWindowSync();
-    WindowUtil.getInstance().setWindowStage(windowStage);
     AppStorage.setOrCreate('windowStage', windowStage);
     windowClass.setWindowLayoutFullScreen(true);
+    WindowUtil.getInstance().setWindowStage(windowStage);
     windowClass.setWindowSystemBarProperties({
       statusBarContentColor: '#e6ffffff'
     });
@@ -43,6 +43,8 @@ export default class EntryAbility extends UIAbility {
         hilog.error(0x0000, 'testTag', 'Failed to load the content. Cause: %{public}s', JSON.stringify(err) ?? '');
         return;
       }
+      let uiContext:  UIContext | undefined = windowStage.getMainWindowSync().getUIContext();
+      AppStorage.setOrCreate('uiContext', uiContext);
       hilog.info(0x0000, 'testTag', 'Succeeded in loading the content.');
     });
   }

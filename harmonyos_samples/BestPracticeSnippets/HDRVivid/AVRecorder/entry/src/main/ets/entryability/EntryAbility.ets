@@ -41,6 +41,8 @@ export default class EntryAbility extends UIAbility {
       Logger.info(TAG, 'testTag', 'Succeeded in loading the content.');
       let windowClass: window.Window = windowStage.getMainWindowSync();
       let isLayoutFullScreen = true;
+      let uiContext:  UIContext | undefined = windowStage.getMainWindowSync().getUIContext();
+      AppStorage.setOrCreate('uiContext', uiContext);
       windowClass.setWindowLayoutFullScreen(isLayoutFullScreen)
         .then(() => {
           Logger.info(TAG, 'testTag', 'Succeeded in setting the window layout to full-screen mode. Data: %{public}s',

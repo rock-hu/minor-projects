@@ -15,10 +15,13 @@
 
 import { unifiedDataChannel, uniformTypeDescriptor } from '@kit.ArkData';
 import { BusinessError } from '@kit.BasicServicesKit';
+import { BreakpointConstants } from '../constants/BreakpointConstants';
 import { CommonConstants } from '../constants/CommonConstants';
+import { BreakpointType } from '../utils/BreakpointSystem';
 
 @Component
 export struct EditorComponent {
+  @StorageLink('currentBreakpoint') currentBreakpoint: string = BreakpointConstants.BREAKPOINT_LG;
   @StorageLink('mainTitle') mainTitle: string = '';
   @StorageLink('textContent') textContent: string = '';
   // Whether to display the teletext title
@@ -38,7 +41,8 @@ export struct EditorComponent {
       callback(event);
       return true;
     } catch (e) {
-      console.log("getData failed, code = " + (e as BusinessError).code + ", message = " + (e as BusinessError).message);
+      console.log("getData failed, code = " + (e as BusinessError).code + ", message = " +
+      (e as BusinessError).message);
       return false;
     }
   }
@@ -55,8 +59,7 @@ export struct EditorComponent {
   // [Start onDrop]
   build() {
     Flex({ direction: FlexDirection.Column }) {
-      TextInput({ text: this.mainTitle, placeholder: $r('app.string.text_input_placeholder') })
-        // [StartExclude onDrop]
+      TextInput({ text: this.mainTitle, placeholder: $r('app.string.text_input_placeholder') })// [StartExclude onDrop]
         .onChange((mainTitle: string) => {
           this.mainTitle = mainTitle;
           AppStorage.set('mainTitle', mainTitle);
@@ -70,10 +73,9 @@ export struct EditorComponent {
         .width(CommonConstants.FULL_PERCENT)
         .height($r('app.integer.text_input_height'))
         .fontSize($r('app.integer.text_size_body1'))
-        .backgroundColor(Color.White)
+        .backgroundColor($r('sys.color.background_primary'))
         .constraintSize({ minHeight: $r('app.integer.text_input_height') })
-        .margin({ top: $r('app.integer.text_input_margin') })
-        // [EndExclude onDrop]
+        .margin({ top: $r('app.integer.text_input_margin') })// [EndExclude onDrop]
         .draggable(true)
         .allowDrop([uniformTypeDescriptor.UniformDataType.PLAIN_TEXT])
         .onDrop((dragEvent?: DragEvent) => {
@@ -87,13 +89,12 @@ export struct EditorComponent {
           // [EndExclude onDrop]
         })
 
-      TextArea({ text: this.textContent, placeholder: $r('app.string.richEditor_placeholder') })
-        // [StartExclude onDrop]
+      TextArea({ text: this.textContent, placeholder: $r('app.string.richEditor_placeholder') })// [StartExclude onDrop]
         .width(CommonConstants.FULL_PERCENT)
         .height(CommonConstants.FULL_PERCENT)
         .id(CommonConstants.TITLE_ID)
         .fontSize($r('app.integer.text_size_body1'))
-        .backgroundColor(Color.White)
+        .backgroundColor($r('sys.color.background_primary'))
         .constraintSize({ minHeight: $r('app.integer.text_input_height') })
         .margin({
           top: $r('app.integer.text_input_margin')
@@ -108,8 +109,7 @@ export struct EditorComponent {
         .onChange((textContent: string) => {
           this.textContent = textContent;
           AppStorage.set('textContent', textContent);
-        })
-        // [EndExclude onDrop]
+        })// [EndExclude onDrop]
         .draggable(true)
         .allowDrop([uniformTypeDescriptor.UniformDataType.PLAIN_TEXT])
         .onDrop((dragEvent?: DragEvent) => {
@@ -123,13 +123,22 @@ export struct EditorComponent {
           // [EndExclude onDrop]
         })
     }
+    .backgroundColor($r('sys.color.background_primary'))
     // [StartExclude onDrop]
     .width(CommonConstants.FULL_PERCENT)
     .height($r('app.integer.flex_input_height'))
     .margin({ bottom: $r('app.integer.flex_input_margin') })
     .layoutWeight(CommonConstants.DEFAULT_LAYOUT_WEIGHT)
     .expandSafeArea([SafeAreaType.KEYBOARD])
+    .padding({
+      left: new BreakpointType($r('sys.float.padding_level0'), $r('sys.float.padding_level0'),
+        $r('sys.float.padding_level4'), $r('sys.float.padding_level8')).GetValue(this.currentBreakpoint),
+      right: new BreakpointType($r('sys.float.padding_level0'), $r('sys.float.padding_level0'),
+        $r('sys.float.padding_level4'), $r('sys.float.padding_level8')).GetValue(this.currentBreakpoint)
+    })
+
     // [EndExclude onDrop]
   }
+
   // [End onDrop]
 }

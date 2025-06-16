@@ -29,6 +29,10 @@ export class AVPlayerDemo {
   private fileSize: number = -1;
   private fd: number = 0;
   private avPlayer: media.AVPlayer | undefined = undefined
+  private UIContext: UIContext
+  constructor(uiContext: UIContext) {
+    this.UIContext = uiContext
+  }
 
   // 注册avplayer回调函数
   setAVPlayerCallback(avPlayer: media.AVPlayer, callback: SizeChangeListener) {
@@ -126,7 +130,6 @@ export class AVPlayerDemo {
     // 创建状态机变化回调函数
     this.setAVPlayerCallback(this.avPlayer, callBack);
     let fdPath = 'fd://';
-    let context = getContext(this) as common.UIAbilityContext;
     // 通过UIAbilityContext获取沙箱地址filesDir，以Stage模型为例
     // 打开相应的资源文件地址获取fd，并为url赋值触发initialized状态机上报
     let file = await fileIo.open(filePath, fileIo.OpenMode.READ_ONLY);
@@ -146,7 +149,7 @@ export class AVPlayerDemo {
     this.setAVPlayerCallback(this.avPlayer, this.callback);
     // 通过UIAbilityContext的resourceManager成员的getRawFd接口获取媒体资源播放地址
     // 返回类型为{fd,offset,length},fd为HAP包fd地址，offset为媒体资源偏移量，length为播放长度
-    let context = getContext(this) as common.UIAbilityContext;
+    let context = this.UIContext.getHostContext() as common.UIAbilityContext;
     let fileDescriptor = await context.resourceManager.getRawFd('H264_AAC.mp4');
     let avFileDescriptor: media.AVFileDescriptor =
       { fd: fileDescriptor.fd, offset: fileDescriptor.offset, length: fileDescriptor.length };
@@ -176,7 +179,7 @@ export class AVPlayerDemo {
         return -1;
       }
     }
-    let context = getContext(this) as common.UIAbilityContext;
+    let context = this.UIContext.getHostContext() as common.UIAbilityContext;
     // 通过UIAbilityContext获取沙箱地址filesDir，以Stage模型为例
     let pathDir = context.filesDir;
     let path = pathDir + '/H264_AAC.mp4';

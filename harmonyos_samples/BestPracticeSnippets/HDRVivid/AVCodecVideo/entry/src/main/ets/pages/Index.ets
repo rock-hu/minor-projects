@@ -14,7 +14,7 @@
  */
 
 import { fileIo } from '@kit.CoreFileKit';
-import { display, promptAction, router } from '@kit.ArkUI';
+import { display, promptAction } from '@kit.ArkUI';
 import { camera } from '@kit.CameraKit';
 import { photoAccessHelper } from '@kit.MediaLibraryKit';
 import player from 'libplayer.so';
@@ -47,7 +47,7 @@ struct Player {
       .then((photoSelectResult) => {
         this.selectFilePath = photoSelectResult.photoUris[0];
         if (this.selectFilePath === null) {
-          promptAction.showToast({
+          promptAction.openToast({
             message: $r('app.string.alert'),
             duration: Const.DURATION,
             bottom: Const.BOTTOM
@@ -77,7 +77,8 @@ struct Player {
   }
 
   async checkIsProfileSupport(): Promise<void> {
-    let cameraManager: camera.CameraManager = camera.getCameraManager(getContext(this));
+    let context = this.getUIContext()?.getHostContext();
+    let cameraManager: camera.CameraManager = camera.getCameraManager(context);
     if (!cameraManager) {
       Logger.error(TAG, 'camera.getCameraManager error!');
     }
@@ -85,7 +86,7 @@ struct Player {
     let videoProfile: undefined | camera.VideoProfile = videoProfileCheck(cameraManager, this.cameraData);
     if (!videoProfile) {
       Logger.error(TAG, 'videoProfile is not found');
-      promptAction.showToast({
+      promptAction.openToast({
         message: $r('app.string.alert_setting'),
         duration: Const.DURATION,
         bottom: Const.BOTTOM,
@@ -110,7 +111,7 @@ struct Player {
     .backgroundColor($r('app.color.set_button_background'))
     .margin({ right: $r('app.float.set_button_margin_right') })
     .onClick(() => {
-      TextPickerDialog.show({
+      this.getUIContext().showTextPickerDialog({
         defaultPickerItemHeight: Const.DEFAULT_PICKER_ITEM_HEIGHT,
         selectedTextStyle: ({
           font: ({
@@ -194,7 +195,7 @@ struct Player {
 
         SaveButton({ text: SaveDescription.SAVE })
           .onClick(async () => {
-            const context = getContext(this);
+            let context = this.getUIContext()?.getHostContext();
             let helper = photoAccessHelper.getPhotoAccessHelper(context);
             let uri = await helper.createAsset(photoAccessHelper.PhotoType.VIDEO, 'mp4', {
               title: `AVCodecVideo_${DATETIME.getDate()}_${DATETIME.getTime()}`
@@ -207,6 +208,8 @@ struct Player {
                 this.cameraData.bitRate).then((data) => {
                 if (data.surfaceId !== null) {
                   this.cameraData.surfaceId = data.surfaceId;
+                  let uiContext = this.getUIContext();
+                  let router = uiContext.getRouter();
                   router.pushUrl({
                     url: 'pages/Recorder',
                     params: this.cameraData

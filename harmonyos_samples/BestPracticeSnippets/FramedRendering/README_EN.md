@@ -3,8 +3,8 @@
 ### Overview
 
 During application development, the list structure on the page is complex, and each list item contains a large number of components. As a result, the nesting level is deep, the component load increases, and the drawing time increases.
-This sample describes how to use frame-based rendering to improve performance in heavy-load transition and sliding scenarios. This project is used with [Frame-based Rendering in Heavy-load Scenarios](https://developer.huawei.com/consumer/en/doc/best-practices-V5/bpta-dispose-highly-loaded-component-render-V5).
-The involved ArkUI API is [@ohos.graphics.displaySync (Variable Frame Rate)](https://developer.huawei.com/consumer/en/doc/harmonyos-references-V13/js-apis-graphics-displaysync-V13#displaysynccreate).
+This sample describes how to use frame-based rendering to improve performance in heavy-load transition and sliding scenarios. This project is used with [Frame-based Rendering in Heavy-load Scenarios](https://developer.huawei.com/consumer/en/doc/best-practices/bpta-dispose-highly-loaded-component-render).
+The involved ArkUI API is [@ohos.graphics.displaySync (Variable Frame Rate)](https://developer.huawei.com/consumer/en/doc/harmonyos-references/js-apis-graphics-displaysync#displaysynccreate).
 
 ### Preview
 
@@ -47,8 +47,8 @@ The involved ArkUI API is [@ohos.graphics.displaySync (Variable Frame Rate)](htt
 
 ### How to Implement
 
-1. [Transition Scenario](https://developer.huawei.com/consumer/en/doc/best-practices-V5/bpta-dispose-highly-loaded-component-render-V5#section5987133112411)
-2. [Sliding Scenario](https://developer.huawei.com/consumer/en/doc/best-practices-V5/bpta-dispose-highly-loaded-component-render-V5#section15195122915243)
+1. [Transition Scenario](https://developer.huawei.com/consumer/en/doc/best-practices/bpta-dispose-highly-loaded-component-render#section5987133112411)
+2. [Sliding Scenario](https://developer.huawei.com/consumer/en/doc/best-practices/bpta-dispose-highly-loaded-component-render#section15195122915243)
 
 ### Required Permissions
 

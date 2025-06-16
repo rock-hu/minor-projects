@@ -15,7 +15,6 @@
 
 import { image } from '@kit.ImageKit';
 import { photoAccessHelper } from '@kit.MediaLibraryKit';
-import { router } from '@kit.ArkUI';
 import { BusinessError } from '@kit.BasicServicesKit';
 import Logger from '../common/utils/Logger';
 import { GlobalContext } from '../common/utils/GlobalContext';
@@ -99,7 +98,7 @@ struct EditPage {
           .objectFit(ImageFit.Cover)
           .onClick(() => {
             Logger.info(TAG, 'back onClick');
-            router.back();
+            this.getUIContext().getRouter().back();
           })
           .width(40)
           .height(40)
