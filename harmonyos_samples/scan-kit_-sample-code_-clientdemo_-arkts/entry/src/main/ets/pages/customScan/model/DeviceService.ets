@@ -1,6 +1,7 @@
 import { display } from '@kit.ArkUI';
 import Logger from '../../../common/Logger';
 import { DisplayRotationAngle } from '../constants/CommonConstants';
+import { UIContextSelf } from './UIContextSelf';
 
 const TAG: string = 'DeviceService';
 
@@ -37,8 +38,8 @@ export class DeviceService {
       DeviceService.densityPixels = displayClass.densityPixels;
       DeviceService.widthPX = displayClass.width;
       DeviceService.heightPX = displayClass.height;
-      DeviceService.width = px2vp(displayClass.width);
-      DeviceService.height = px2vp(displayClass.height);
+      DeviceService.width = UIContextSelf.uiContext.px2vp(displayClass.width);
+      DeviceService.height = UIContextSelf.uiContext.px2vp(displayClass.height);
       DeviceService.rotation = displayClass.rotation;
       Logger.info(TAG,
         `setDisplayInfo, width: ${DeviceService.width}, height: ${DeviceService.height}, rotation: ${DeviceService.rotation}, densityPixels: ${DeviceService.densityPixels}`);

@@ -21,12 +21,13 @@ import { HMLifecycle, HMLifecycleContext, IHMLifecycle } from '@hadss/hmrouter';
 import { CommonConstants } from '../component/common/constants/CommonConstants'
 
 // [Start exit_app_lifecycle]
-@HMLifecycle({lifecycleName: 'ExitAppLifecycle'})
+@HMLifecycle({ lifecycleName: 'ExitAppLifecycle' })
 export class ExitAppLifecycle implements IHMLifecycle {
   private lastTime: number = 0;
+
   onBackPressed(ctx: HMLifecycleContext): boolean {
     let time = new Date().getTime();
-    if(time - this.lastTime > 1000) {
+    if (time - this.lastTime > 1000) {
       this.lastTime = time;
       ctx.uiContext.getPromptAction().showToast({
         message: 'Return to exit the application again.',
@@ -38,4 +39,5 @@ export class ExitAppLifecycle implements IHMLifecycle {
     }
   }
 }
+
 // [End exit_app_lifecycle]

@@ -1,7 +1,8 @@
-import { router, display } from '@kit.ArkUI';
+import { display } from '@kit.ArkUI';
 import { scanBarcode } from '@kit.ScanKit';
 import Logger from '../../common/Logger';
 import { DeviceService } from '../customScan/model/DeviceService';
+import { UIContextSelf } from '../customScan/model/UIContextSelf';
 import { WindowService } from '../customScan/model/WindowService';
 
 const TAG: string = 'CodeLayout';
@@ -26,7 +27,8 @@ struct CodeLayout {
     this.codeLocation = [];
     this.setDisplay();
     Logger.info(TAG, 'aboutToAppear CodeLayout');
-    let params = router.getParams() as Record<string, number | string | Array<scanBarcode.ScanResult>>;
+    let params =
+      UIContextSelf.getRouter().getParams() as Record<string, number | string | Array<scanBarcode.ScanResult>>;
     this.result = params.result as Array<scanBarcode.ScanResult>;
     this.uri = params.uri as string;
     this.infoW = params.infoW as number;
@@ -58,9 +60,9 @@ struct CodeLayout {
     }
 
     if (displayClass !== null) {
-      displayClass.height = displayClass.height - vp2px(this.windowService.topAvoidHeight);
-      this.displayHeight = Math.round(px2lpx(displayClass.height));
-      this.displayWidth = Math.round(px2lpx(displayClass.width));
+      displayClass.height = displayClass.height - UIContextSelf.uiContext.vp2px(this.windowService.topAvoidHeight);
+      this.displayHeight = Math.round(UIContextSelf.uiContext.px2lpx(displayClass.height));
+      this.displayWidth = Math.round(UIContextSelf.uiContext.px2lpx(displayClass.width));
       Logger.info(TAG, `setDisplay,displayWidth: ${this.displayWidth}, displayHeight: ${this.displayHeight}.`);
     }
   }
@@ -97,8 +99,8 @@ struct CodeLayout {
         .objectFit(ImageFit.Contain)
         .position({ x: 15, y: 0 })
         .zIndex(10)
-        .onClick(async () => {
-          router.back();
+        .onClick(() => {
+          UIContextSelf.getRouter().back();
         })
         .margin({
           top: this.windowService.topAvoidHeight
@@ -118,12 +120,12 @@ struct CodeLayout {
               y: item[1] + item[3] / 2 + 'lpx',
             })
             .onClick(() => {
-              router.pushUrl({
+              UIContextSelf.getRouter().pushUrl({
                 url: 'pages/resultPage/ResultPage',
                 params: this.result[index]
               })
             })
-        })
+        }, (item: Array<number>) => item[0] + item[1] + item[2] + item[3] + 'codeLocation')
       }
       .padding({
         top: this.windowService.topAvoidHeight

@@ -1,13 +1,14 @@
 import { camera } from '@kit.CameraKit';
 import { BusinessError } from '@kit.BasicServicesKit';
-import { abilityAccessCtrl, common } from '@kit.AbilityKit';
+import { abilityAccessCtrl } from '@kit.AbilityKit';
 import { image } from '@kit.ImageKit';
-import { display, LengthMetrics, router } from '@kit.ArkUI';
+import { display, LengthMetrics } from '@kit.ArkUI';
 import { detectBarcode, scanBarcode, scanCore } from '@kit.ScanKit';
 import Logger from '../../common/Logger';
 import { BreakpointType } from '../customScan/model/BreakpointType';
-import { BreakpointConstants } from '../customScan/constants/BreakpointConstants';
 import { WindowService } from '../customScan/model/WindowService';
+import { UIContextSelf } from '../customScan/model/UIContextSelf';
+import { ScanLayout } from '../customScan/model/ScanLayout';
 
 const TAG: string = 'DecodeCameraYuv';
 const CAMERA_1080: number = 1080;
@@ -17,7 +18,7 @@ const CAMERA_1920: number = 1920;
 @Component
 struct DecodeCameraYuv {
   mXComponentController: XComponentController = new XComponentController();
-  @StorageLink('currentBreakpoint') currentBreakpoint: string = BreakpointConstants.BREAKPOINT_SM;
+  @State scanLayout: ScanLayout = ScanLayout.getInstance();
   @State windowService: WindowService = WindowService.getInstance();
   @State isUserGrant: boolean = false;
   @State xComponentHeight: number = 1;
@@ -36,26 +37,27 @@ struct DecodeCameraYuv {
   private adaptRatio: number = 1.0;
 
   async reqPermissionsFromUser(): Promise<void> {
-    let context = getContext(this) as common.UIAbilityContext;
-    let permission: boolean = await this.requestPermissionsFromUserFn(context);
+    let permission: boolean = await this.requestPermissionsFromUserFn();
     if (permission) {
       this.isUserGrant = true;
     }
   }
 
-  requestPermissionsFromUserFn(context: common.UIAbilityContext): Promise<boolean> {
+  requestPermissionsFromUserFn(): Promise<boolean> {
     let atManager = abilityAccessCtrl.createAtManager();
     return new Promise((resolve, reject) => {
-      atManager.requestPermissionsFromUser(context, ['ohos.permission.CAMERA']).then((data) => {
+      atManager.requestPermissionsFromUser(UIContextSelf.uiContext.getHostContext(), ['ohos.permission.CAMERA']).then((data) => {
         let grantStatus: Array<number> = data.authResults;
         let length: number = grantStatus.length;
         for (let i = 0; i < length; i++) {
           if (grantStatus[i] === 0) {
             // The user has granted the permission.
             resolve(true);
+            break;
           } else {
             // If the user refuses to grant the permission, display a message indicating that user authorization is required, and direct the user to set the permission in system settings.
             reject(false);
+            break;
           }
         }
       }).catch((error: BusinessError) => {
@@ -74,8 +76,8 @@ struct DecodeCameraYuv {
     try {
       let displayClass = display.getDefaultDisplaySync();
       if (displayClass) {
-        let widthVp: number = px2vp(displayClass.width);
-        let heightVp: number = px2vp(displayClass.height);
+        let widthVp: number = UIContextSelf.uiContext.px2vp(displayClass.width);
+        let heightVp: number = UIContextSelf.uiContext.px2vp(displayClass.height);
         let ratio: number = CAMERA_1080 / CAMERA_1920;
         this.xComponentHeight = heightVp;
         this.xComponentWidth = heightVp * ratio;
@@ -107,21 +109,48 @@ struct DecodeCameraYuv {
   stopCamera() {
     if (this.photoSession) {
       // Stop the current camera session.
-      this.photoSession.stop();
-      // Release CameraInput.
-      if (this.cameraInput) {
-        this.cameraInput.close();
+      try {
+        this.photoSession.stop();
+      } catch (error) {
+        let err = error as BusinessError;
+        Logger.error(TAG, `Failed to stop photoSession. Code: ${err.code}.`);
       }
+
+      // close CameraInput.
+      if (this.cameraInput) {
+        try {
+          this.cameraInput.close();
+        } catch (error) {
+          let err = error as BusinessError;
+          Logger.error(TAG, `Failed to close cameraInput. Code: ${err.code}.`);
+        }
+      }
+
       // Release the camera preview stream.
       if (this.previewOutput) {
-        this.previewOutput.release();
+        try {
+          this.previewOutput.release();
+        } catch (error) {
+          let err = error as BusinessError;
+          Logger.error(TAG, `Failed to release previewOutput. Code: ${err.code}.`);
+        }
       }
       // Release the second camera preview stream.
       if (this.previewOutput2) {
-        this.previewOutput2.release();
+        try {
+          this.previewOutput2.release();
+        } catch (error) {
+          let err = error as BusinessError;
+          Logger.error(TAG, `Failed to release previewOutput2. Code: ${err.code}.`);
+        }
       }
       // Release the camera session.
-      this.photoSession.release();
+      try {
+        this.photoSession.release();
+      } catch (error) {
+        let err = error as BusinessError;
+        Logger.error(TAG, `Failed to release photoSession. Code: ${err.code}.`);
+      }
       this.photoSession = undefined;
     }
   }
@@ -146,10 +175,10 @@ struct DecodeCameraYuv {
           top: LengthMetrics.vp(this.windowService.topAvoidHeight + 8),
           start: LengthMetrics.vp(new BreakpointType(16,
             24,
-            32).getValue(this.currentBreakpoint))
+            32).getValue(this.scanLayout.widthBreakpoint))
         })
         .onClick(async () => {
-          router.back();
+          UIContextSelf.getRouter().back();
         })
     }
     .position({
@@ -198,7 +227,7 @@ struct DecodeCameraYuv {
               })
               .width(40).height(40)
               .markAnchor({ x: 20, y: 20 })
-          })
+          }, (rect: scanBarcode.ScanCodeRect) => rect.left + rect.right + 'rect')
         }
       }
       .width(this.xComponentWidth)
@@ -219,8 +248,8 @@ struct DecodeCameraYuv {
               .height(8)
               .backgroundColor(Color.Red)
               .position({ x: (CAMERA_1080 - point.y) * this.adaptRatio, y: point.x * this.adaptRatio })
-            })
-          })
+            }, (point: scanBarcode.Point) => point.x + point.y + 'point')
+          }, (cornerPoint: scanBarcode.Point) => cornerPoint.x + cornerPoint.y + 'cornerPoint')
         }
       }
       .width(this.xComponentWidth)
@@ -236,7 +265,7 @@ struct DecodeCameraYuv {
 
   setCameraManager(): void {
     try {
-      this.cameraManager = camera.getCameraManager(getContext());
+      this.cameraManager = camera.getCameraManager(UIContextSelf.uiContext.getHostContext());
     } catch (error) {
       let err = error as BusinessError;
       Logger.error(TAG, `Failed to get cameraManager. Code: ${err.code}.`);
@@ -245,8 +274,8 @@ struct DecodeCameraYuv {
 
   xComponentInit() {
     this.mXComponentController.setXComponentSurfaceRect({
-      surfaceWidth: vp2px(this.xComponentWidth),
-      surfaceHeight: vp2px(this.xComponentHeight)
+      surfaceWidth: UIContextSelf.uiContext.vp2px(this.xComponentWidth),
+      surfaceHeight: UIContextSelf.uiContext.vp2px(this.xComponentHeight)
     });
     let surfaceId: string = this.mXComponentController.getXComponentSurfaceId();
     try {
@@ -397,7 +426,7 @@ struct DecodeCameraYuv {
         });
 
         // Zoom in or out.
-        if (res.zoomValue > 1.0) {
+        if (res && res.zoomValue > 1.0) {
           this.setCameraZoom(res.zoomValue);
         }
 

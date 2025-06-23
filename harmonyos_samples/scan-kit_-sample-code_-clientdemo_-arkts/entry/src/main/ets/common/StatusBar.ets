@@ -1,4 +1,5 @@
-import { LengthMetrics, router } from '@kit.ArkUI';
+import { LengthMetrics } from '@kit.ArkUI';
+import { UIContextSelf } from '../pages/customScan/model/UIContextSelf';
 import { WindowService } from '../pages/customScan/model/WindowService';
 
 @Component
@@ -23,7 +24,7 @@ export struct StatusBar {
         .fillColor(Color.Black)
       Text(this.title)
         .fontSize(20)
-        .fontColor('#000000')
+        .fontColor($r('sys.color.black'))
         .margin({ start: LengthMetrics.vp(15) })
     }
     .margin({ start: LengthMetrics.vp(16) })
@@ -31,12 +32,12 @@ export struct StatusBar {
     .position({ start: LengthMetrics.vp(15) })
     .onClick(async () => {
       if (this.isBackToHome) {
-        router.clear();
-        router.replaceUrl({
+        UIContextSelf.getRouter().clear();
+        UIContextSelf.getRouter().replaceUrl({
           url: 'pages/Index'
         });
       } else {
-        router.back();
+        UIContextSelf.getRouter().back();
       }
     })
     .height(56 + this.windowService.topAvoidHeight)

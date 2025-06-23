@@ -149,7 +149,7 @@ export class ScanLayout {
 
   /**
    * When the width is less than 600, the height breakpoints are: 300, 480.
-   * REAKPOINT_SM, BREAKPOINT_MD, BREAKPOINT_LG, or BREAKPOINT_XL
+   * BREAKPOINT_SM, BREAKPOINT_MD, BREAKPOINT_LG, or BREAKPOINT_XL
    * When the width is greater than or equal to 600, the height breakpoints are: 480, 600.
    * BREAKPOINT_SM or BREAKPOINT_MD, BREAKPOINT_LG, BREAKPOINT_XL
    */
@@ -195,16 +195,36 @@ export class ScanLayout {
   }
 
   /**
-   * Update the layout when the window width and height change.
+   * Update the breakpoint and scanLayout when the window width and height change.
    * @param width
    * @param height
    */
   public refreshLayout(width: number, height: number): void {
     Logger.info(TAG, `Start to refresh layout. width: ${width}, height ${height}.`);
+    this.refreshBreakpoint(width, height);
+    this.refreshScanLayout(width, height);
+  }
+
+  /**
+   * Update the breakpoint when the window width and height change.
+   * @param width
+   * @param height
+   */
+  public refreshBreakpoint(width: number, height: number): void {
+    Logger.info(TAG, `Start to refresh breakpoint. width: ${width}, height ${height}.`);
     this.height = height;
-    this.setIsFullScreen(width, height);
     this.setWidthBreakpoint(width);
     this.setHeightBreakpoint(height);
+  }
+
+  /**
+   * Update the layout when the window width and height change.
+   * @param width
+   * @param height
+   */
+  public refreshScanLayout(width: number, height: number): void {
+    Logger.info(TAG, `Start to refresh scanLayout. width: ${width}, height ${height}.`);
+    this.setIsFullScreen(width, height);
     this.setMarginD(width, height);
     this.setTopLayout();
     this.setBottomLayout();

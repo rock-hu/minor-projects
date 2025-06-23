@@ -26,10 +26,11 @@ const globalPageTransitionEffect: IHMAnimator.Effect = new IHMAnimator.Effect({
   opacity: { opacity: 0.5 },
   scale: { x: 0.5, y: 0.2 }
 })
+
 // [End global_dialog]
 
 @Component
-export  struct DialogAnimator {
+export struct DialogAnimator {
   @State message: string = 'Hello World';
 
   build() {

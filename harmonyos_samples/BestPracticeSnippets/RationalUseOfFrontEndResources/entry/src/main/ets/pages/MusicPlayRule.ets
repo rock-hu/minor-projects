@@ -6,13 +6,14 @@
 // [Start audioStreamInfo]
 import { audio } from '@kit.AudioKit';
 // [End audioStreamInfo]
-import {BusinessError} from '@kit.BasicServicesKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 // [End setAudioEffectMode]
 // [Start setListener]
 import { avSession as AVSessionManager } from '@kit.AVSessionKit';
+
 // [End setListener]
 
-let   audioRenderer: audio.AudioRenderer | undefined = undefined;
+let audioRenderer: audio.AudioRenderer | undefined = undefined;
 // [Start setAudioEffectMode]
 audioRenderer!.setAudioEffectMode(audio.AudioEffectMode.EFFECT_NONE, (err: BusinessError) => {
   if (err) {
@@ -53,6 +54,7 @@ audio.createAudioRenderer(audioRendererOptions, (err, data) => {
 // [Start setListener]
 const uiContext: UIContext | undefined = AppStorage.get('uiContext');
 let context: Context = uiContext?.getHostContext()!;
+
 async function setListener() {
   // Assuming that a session has been created, see the previous example for how to create a session
   let type: AVSessionManager.AVSessionType = 'audio';
@@ -89,4 +91,5 @@ async function setListener() {
     }
   });
 }
+
 // [End setListener]

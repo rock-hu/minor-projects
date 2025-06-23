@@ -18,6 +18,8 @@
 * [SegmentedPhotograph：实现相机分段式拍照功能](SegmentedPhotograph)
 * [ScreenFlickerSolution：解决应用动效闪屏的方案](ScreenFlickerSolution)
 * [VisibleComponent：不可见组件低功耗建议](VisibleComponent)
+* [CustomTitleBarWindowDrag：自定义标题栏的应用窗口拖动](CustomTitleBarWindowDrag)
+* [SubwindowAdaptWhenRotate：应用子窗旋转场景开发实践](SubwindowAdaptWhenRotate)
 
 ## 使用说明
 

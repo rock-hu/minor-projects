@@ -5,6 +5,8 @@
   "main": "",
   "author": "",
   "license": "",
-  "dependencies": {}
+  "dependencies": {
+    "@ohos/apng": "1.1.2-rc.7"
+  }
 }
 

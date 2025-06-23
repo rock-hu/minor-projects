@@ -20,9 +20,11 @@ import { BusinessError } from '@kit.BasicServicesKit';
 import Logger from './Logger';
 import { CommonConstants } from '../constants/CommonConstants';
 
+const uiContext: UIContext | undefined = AppStorage.get('uiContext');
+
 export class AvPlayerUtil {
   private avPlayer?: media.AVPlayer;
-  private context: common.UIAbilityContext = getContext(this) as common.UIAbilityContext;
+  private context: Context  = uiContext!.getHostContext() as Context;
   private url: resourceManager.RawFileDescriptor | null = null;
   private surfaceId: string = '';
   private sliderBegin: number = 0;

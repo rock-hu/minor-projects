@@ -45,12 +45,14 @@ async function networkRequest(lifecycle: string): Promise<string> {
   });
   // [EndExclude newwork_request]
 }
+
 // [End newwork_request]
 
 // [Start example_life_cycle]
-@HMLifecycle({lifecycleName: 'requestLifecycle'})
+@HMLifecycle({ lifecycleName: 'requestLifecycle' })
 export class ExampleLifecycle implements IHMLifecycle {
   private requestModel: RequestModel = new RequestModel();
+
   onPrepare(): void {
     console.log(this.requestModel.data);
     let task: taskpool.Task = new taskpool.Task(networkRequest, 'onPrepare');
@@ -58,13 +60,16 @@ export class ExampleLifecycle implements IHMLifecycle {
       console.log(res + '');
     });
   }
+
   // [StartExclude example_life_cycle]
   onBackPressed(ctx: HMLifecycleContext): boolean {
-    HMRouterMgr.pop({navigationId: 'mainNavigationId', animator: false});
+    HMRouterMgr.pop({ navigationId: 'mainNavigationId', animator: false });
     return true;
   }
+
   // [EndExclude example_life_cycle]
 }
+
 // [End example_life_cycle]
 
 @Observed
@@ -94,11 +99,11 @@ export struct ShoppingBagContent {
     uiObserver.on('navDestinationSwitch', this.getUIContext(), {
       navigationId: 'shoppingNavigation'
     }, (info) => {
-      if(info.from === 'navBar') {
+      if (info.from === 'navBar') {
         this.showTabsBtn = false;
         this.modifier.attribute?.mode(NavigationMode.Auto);
       }
-      if(info.to === 'navBar') {
+      if (info.to === 'navBar') {
         this.showTabsBtn = true;
         this.modifier.attribute?.mode(NavigationMode.Stack);
       }
@@ -120,7 +125,7 @@ export struct ShoppingBagContent {
     // Asynchronous calls will be executed at the end
     HMRouterMgr.request('testAsyncFun').data.then((res: string) => console.log(res));
 
-    const tempObjParam: TempObj = {paramA: '', paramB: 20};
+    const tempObjParam: TempObj = { paramA: '', paramB: 20 };
     console.log(HMRouterMgr.request('testFunWithParams', 'testStr', 10, false, tempObjParam).data);
   }
 
@@ -131,9 +136,11 @@ export struct ShoppingBagContent {
         modifier: this.modifier
       }
     }) {
-      ShoppingBagContentNavBar({showTabsBtn: this.showTabsBtn});
+      ShoppingBagContentNavBar({ showTabsBtn: this.showTabsBtn });
     };
   }
+
   // [EndExclude HMRouter_life_cycle_name]
 }
+
 // [End HMRouter_life_cycle_name]

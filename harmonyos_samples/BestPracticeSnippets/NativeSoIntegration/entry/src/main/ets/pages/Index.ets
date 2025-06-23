@@ -124,7 +124,6 @@ struct Index {
               // Multiply directly using the so library that has been adapted to Native
               let result = multiplyNapi.multiply(Number(this.paramX), Number(this.paramY));
               // [End multiply_napi_multiply]
-              // DocsCode4
               if (this.paramX === '' || this.paramY === '') {
                 this.customToast(this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.input_alert')));
               } else {

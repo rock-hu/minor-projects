@@ -16,7 +16,6 @@ export default class EntryAbility extends UIAbility {
     hilog.info(DOMAIN, 'testTag', '%{public}s', 'Ability onDestroy');
   }
   // [EndExclude power_entry_ability]
-
   onWindowStageCreate(windowStage: window.WindowStage): void {
     // [StartExclude power_entry_ability]
     // Main window is created, set main page for this ability

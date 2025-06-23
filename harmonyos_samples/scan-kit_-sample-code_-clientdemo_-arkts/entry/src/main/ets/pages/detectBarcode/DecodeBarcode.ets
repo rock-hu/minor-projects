@@ -2,12 +2,13 @@ import { photoAccessHelper } from '@kit.MediaLibraryKit';
 import { fileIo } from '@kit.CoreFileKit';
 import { image } from '@kit.ImageKit';
 import { BusinessError } from '@kit.BasicServicesKit';
-import { LengthMetrics, router } from '@kit.ArkUI';
+import { LengthMetrics } from '@kit.ArkUI';
 import { detectBarcode, scanBarcode, scanCore } from '@kit.ScanKit';
 import { CustomButton } from '../../common/CommonComponents';
 import { checkResults, showError, showMessage } from '../../common/Utils';
 import Logger from '../../common/Logger';
 import { StatusBar } from '../../common/StatusBar';
+import { UIContextSelf } from '../customScan/model/UIContextSelf';
 
 const TAG: string = 'DecodeBarcode';
 
@@ -85,7 +86,7 @@ struct DecodeBarcode {
                     }
                     if (result && result.length > 0) {
                       // Image decoding result processing.
-                      router.pushUrl({
+                      UIContextSelf.getRouter().pushUrl({
                         url: 'pages/detectBarcode/CommonCodeLayout',
                         params: {
                           result: result,
@@ -118,7 +119,7 @@ struct DecodeBarcode {
 
         CustomButton({
           mText: $r('app.string.bitmap_api_decode_pixel'), mOnClick: () => {
-            router.pushUrl({
+            UIContextSelf.getRouter().pushUrl({
               url: 'pages/detectBarcode/DecodeCameraYuv',
             })
           }

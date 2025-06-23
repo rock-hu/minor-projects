@@ -289,14 +289,13 @@ export struct VideoPlayer {
                 .height('100%')
                 .width('50%')
 
-                // [Start screen5]
+                // [End screen5]
               }
               .height('100%')
               .width('100%')
             }
             // [EndExclude build]
           }
-
           // [StartExclude build]
         }
         .justifyContent(FlexAlign.Center)
@@ -490,8 +489,8 @@ export struct VideoPlayer {
           // [Start value]
           Slider({
             value: this.isSliderGesture ? this.panEndTime : this.avPlayerController.currentTime,
-            step: 0.1,
-            min: 0,
+            step: CommonConstants.SLIDER_STEP,
+            min: CommonConstants.SLIDER_MIN,
             max: this.avPlayerController.durationTime,
             style: this.sliderStyle
           })
@@ -508,8 +507,8 @@ export struct VideoPlayer {
               // [StartExclude value]
             .blockColor($r('sys.color.background_primary'))// Slider color
             .trackThickness(this.trackThicknessSize)// Slide rail thickness
-            .trackBorderRadius(2)// Radius of bottom fillet
-            .selectedBorderRadius(2)// Radius of fillet of sliding part
+            .trackBorderRadius(CommonConstants.TRACK_BORDER_RADIUS)// Radius of bottom fillet
+            .selectedBorderRadius(CommonConstants.TRACK_BORDER_RADIUS)// Radius of fillet of sliding part
               // [EndExclude value]
               // [StartExclude slider]
             .onAreaChange(() => {
@@ -568,7 +567,7 @@ export struct VideoPlayer {
   // [Start slider]
   sliderOnchange(seconds: number, mode: SliderChangeMode) {
     let seekTime: number = seconds * this.avPlayerController.duration / this.avPlayerController.durationTime;
-    this.currentStringTime = secondToTime(Math.floor(seekTime / 1000));
+    this.currentStringTime = secondToTime(Math.floor(seekTime / CommonConstants.SECOND_TO_MS));
     this.avPlayerController.setCurrentStringTime(this.currentStringTime);
     switch (mode) {
       case SliderChangeMode.Begin:

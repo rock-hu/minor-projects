@@ -17,8 +17,8 @@ import { router } from '@kit.ArkUI';
 
 @Component
 export default struct TitleBar {
-  private title: string | Resource = $r('app.string.app_name')
-  private hasBackPress: boolean = false
+  title: string | Resource = $r('app.string.app_name')
+  hasBackPress: boolean = false
 
   UIContext = this.getUIContext();
 

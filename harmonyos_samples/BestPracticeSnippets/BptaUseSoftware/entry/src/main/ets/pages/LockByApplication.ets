@@ -6,9 +6,9 @@
 import { runningLock } from '@kit.BasicServicesKit';
 
 // Return to the background to release the lock
-runningLock.createRunningLock('running_lock_test', runningLock.RunningLockType.BACKGROUND)
+runningLock.create('running_lock_test', runningLock.RunningLockType.BACKGROUND)
   .then((lock: runningLock.RunningLock) => {
-    lock.unlock();
+    lock.unhold();
     console.info('create running lock and unlock success');
   })
   .catch((err: Error) => {

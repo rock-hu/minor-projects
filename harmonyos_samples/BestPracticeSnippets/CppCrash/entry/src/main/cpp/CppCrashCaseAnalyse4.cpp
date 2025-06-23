@@ -17,7 +17,7 @@ static napi_value TriggerCrash(napi_env env, napi_callback_info info)
 {
     void *pc = malloc(1024);
     free(pc);
-    free(pc);  // repetitive free
+    free(pc); // repetitive free
     printf("free ok!\n");
     return 0;
 }

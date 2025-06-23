@@ -6,7 +6,7 @@ function textHead() {
   .width('100%')
   .fontSize(20)
   .fontWeight(FontWeight.Bold)
-  .fontColor('#000000')
+  .fontColor($r('sys.color.black'))
   .textAlign(TextAlign.Center)
 }
 

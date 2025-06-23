@@ -45,7 +45,7 @@ function readFileSync(filePath: string): string {
     fs.closeSync(fd);
 
     const textDecoder = new util.TextDecoder('utf-8');
-    return textDecoder.decodeWithStream(bufferView);
+    return textDecoder.decodeToString(bufferView);
   } catch (err) {
     console.error('Read file failed:', err);
     throw err; // Re-throw the error for upper-level handling

@@ -3,6 +3,6 @@
  */
 
 // [Start MonitorCrash]
-let test:string = "{name:'xiaoming' age:10}";
-let result:object = JSON.parse(test);
+let test: string = "{name:'xiaoming' age:10}";
+let result: object = JSON.parse(test);
 // [End MonitorCrash]

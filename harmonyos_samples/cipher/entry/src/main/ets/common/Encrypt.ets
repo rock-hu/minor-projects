@@ -24,6 +24,7 @@ export struct Encrypt {
   @State info: string = '';
   @State message: string = '';
   @State algorithmType: string = 'Encrypt Algorithm';
+  @State selectedNum: number = 0;
   private cipherModel: CipherModel = new CipherModel();
 
   build() {
@@ -33,12 +34,13 @@ export struct Encrypt {
           { value: 'AES' }])
           .id('encryptAlgorithm')
           .margin(4)
-          .selected(0)
+          .selected(this.selectedNum)
           .value(this.algorithmType)
           .font({ size: 20, weight: 300, family: 'serif', style: FontStyle.Normal })
           .optionFont({ size: 16, weight: 280, family: 'serif', style: FontStyle.Normal })
           .selectedOptionFont({ size: 16, weight: 280, family: 'serif', style: FontStyle.Normal })
           .onSelect((index: number, value: string) => {
+            this.selectedNum = index;
             this.algorithmType = value;
             Logger.info(TAG, `Select: ${index} value: ${value}`);
           })

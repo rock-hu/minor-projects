@@ -15,6 +15,8 @@
 
 import { display } from '@kit.ArkUI';
 // [Start display_util]
+const uiContext: UIContext | undefined = AppStorage.get('uiContext');
+
 export class DisplayUtil {
   static getFoldCreaseRegion(): void {
     if(canIUse('SystemCapability.Window.SessionManager')) {
@@ -22,7 +24,7 @@ export class DisplayUtil {
         let foldRegion: display.FoldCreaseRegion = display.getCurrentFoldCreaseRegion();
         let rect: display.Rect = foldRegion.creaseRects[0];
         // Height of the avoidance area in the upper half screen and height of the avoidance area.
-        let creaseRegion: number[] = [px2vp(rect.top), px2vp(rect.height)];
+        let creaseRegion: number[] = [uiContext!.px2vp(rect.top), uiContext!.px2vp(rect.height)];
         AppStorage.setOrCreate('creaseRegion', creaseRegion);
       }
     }

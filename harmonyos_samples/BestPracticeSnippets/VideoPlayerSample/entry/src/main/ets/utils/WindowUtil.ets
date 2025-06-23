@@ -17,8 +17,9 @@ import { window } from '@kit.ArkUI';
 import { CommonConstants, Logger } from '@ohos/MediaService';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
-const uiContext: UIContext | undefined = AppStorage.get('uiContext');
+
 const TAG: string = '[WindowUtil]';
+const uiContext: UIContext | undefined = AppStorage.get('uiContext');
 
 export class WindowUtil {
   private static instance: WindowUtil;
@@ -34,7 +35,6 @@ export class WindowUtil {
 
   // [Start set_stage1]
   public setWindowStage(windowStage: window.WindowStage): void {
-    let uiContext = windowStage.getMainWindowSync().getUIContext();
     this.windowStage = windowStage;
     this.windowStage.getMainWindow((err, windowClass: window.Window) => {
       // [StartExclude set_stage1]
@@ -54,8 +54,8 @@ export class WindowUtil {
       AppStorage.setOrCreate('deviceWidth', properties.windowRect.width); // Set the window width
       AppStorage.setOrCreate('deviceHeight', properties.windowRect.height); // Set the window height
       // [StartExclude set_stage1]
-      AppStorage.setOrCreate('statusBarHeight', uiContext.px2vp(area.topRect.height));
-      AppStorage.setOrCreate('navBarHeight', uiContext.px2vp(naviBarArea.bottomRect.height));
+      AppStorage.setOrCreate('statusBarHeight', uiContext?.px2vp(area.topRect.height));
+      AppStorage.setOrCreate('navBarHeight', uiContext?.px2vp(naviBarArea.bottomRect.height));
       // [EndExclude set_stage1]
     });
   }

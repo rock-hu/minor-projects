@@ -43,13 +43,14 @@ const uiContext: UIContext | undefined = AppStorage.get('uiContext');
 @Observed
 export class VideoSrc {
   src: string | Resource;
+
   constructor(src: string | Resource) {
     this.src = src;
   }
 }
 
 // [Start live_home_life_cycle]
-@HMLifecycle({lifecycleName: 'liveHomeLifecycle'})
+@HMLifecycle({ lifecycleName: 'liveHomeLifecycle' })
 export class LiveHomeLifecycle implements IHMLifecycle {
   commentRenderNode: CommentNodeController = new CommentNodeController();
   // [StartExclude live_home_life_cycle]
@@ -57,7 +58,7 @@ export class LiveHomeLifecycle implements IHMLifecycle {
 
   onShown(ctx: HMLifecycleContext): void {
     window.getLastWindow(uiContext!.getHostContext(), (err, data) => {
-      if(err.code > 0) {
+      if (err.code > 0) {
         console.error(`${err.code} ${err.message}`);
         return;
       }
@@ -69,7 +70,7 @@ export class LiveHomeLifecycle implements IHMLifecycle {
 
   onHidden(ctx: HMLifecycleContext): void {
     window.getLastWindow(uiContext!.getHostContext(), (err, data) => {
-      if(err.code > 0) {
+      if (err.code > 0) {
         console.error(`${err.code} ${err.message}`);
         return;
       }
@@ -78,6 +79,7 @@ export class LiveHomeLifecycle implements IHMLifecycle {
       });
     });
   }
+
   // [EndExclude live_home_life_cycle]
   onAppear(ctx: HMLifecycleContext): void {
     this.commentRenderNode.makeNode(ctx.uiContext);
@@ -87,10 +89,11 @@ export class LiveHomeLifecycle implements IHMLifecycle {
     this.commentRenderNode.dispose();
   }
 }
+
 // [End live_home_life_cycle]
 
 // [Start live_inter_active]
-@HMAnimator({animatorName: 'liveInteractiveAnimator'})
+@HMAnimator({ animatorName: 'liveInteractiveAnimator' })
 export class LiveInteractiveAnimator implements IHMAnimator {
   effect(enterHandle: HMAnimatorHandle, exitHandle: HMAnimatorHandle): void {
     // [StartExclude live_inter_active]
@@ -130,19 +133,19 @@ export class LiveInteractiveAnimator implements IHMAnimator {
 
   interactive(handle: HMAnimatorHandle): void {
     handle.actionStart((event: GestureEvent) => {
-      if(event.offsetX > 0) {
+      if (event.offsetX > 0) {
         HMRouterMgr.pop();
       }
     });
     handle.updateProgress((event, proxy, operation, startOffset) => {
-      if(!proxy?.updateTransition || !startOffset) {
+      if (!proxy?.updateTransition || !startOffset) {
         return;
       }
       let offset = 0;
-      if(event.fingerList[0]) {
+      if (event.fingerList[0]) {
         offset = event.fingerList[0].localX - startOffset;
       }
-      if(offset < 0) {
+      if (offset < 0) {
         proxy?.updateTransition(0);
         return;
       }
@@ -151,15 +154,15 @@ export class LiveInteractiveAnimator implements IHMAnimator {
       proxy?.updateTransition(rate);
     });
     handle.actionEnd((event, proxy, operation, startOffset) => {
-      if(!startOffset) {
+      if (!startOffset) {
         return;
       }
       let rectWidth = event.target.area.width as number;
       let rate = 0;
-      if(event.fingerList[0]) {
+      if (event.fingerList[0]) {
         rate = (event.fingerList[0].localX - startOffset) / rectWidth;
       }
-      if(rate > 0.4) {
+      if (rate > 0.4) {
         proxy?.finishTransition();
       } else {
         proxy?.cancelTransition?.();
@@ -167,6 +170,7 @@ export class LiveInteractiveAnimator implements IHMAnimator {
     });
   }
 }
+
 // [End live_inter_active]
 
 // [Start HMRouter_singleton]
@@ -203,6 +207,8 @@ export struct LiveHome {
     .height('100%')
     .width('100%');
   }
+
   // [EndExclude HMRouter_singleton]
 }
+
 // [End HMRouter_singleton]

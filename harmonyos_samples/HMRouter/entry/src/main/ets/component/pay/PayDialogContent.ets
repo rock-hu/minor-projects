@@ -149,8 +149,10 @@ export struct PayDialogContent {
     VerticalAlign.Center)
     .justifyContent(FlexAlign.Center);
   }
+
   // [EndExclude HMRouter_lifecycle]
 }
+
 // [End HMRouter_lifecycle]
 
 
@@ -174,6 +176,7 @@ export class ExitPayLifecycle implements IHMLifecycle {
     return true;
   }
 }
+
 // [End exit_pay_lifecycle]
 
 export class ObservedModel {

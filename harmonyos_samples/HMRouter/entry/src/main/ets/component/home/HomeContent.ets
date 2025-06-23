@@ -31,7 +31,7 @@ import { PageConstant } from '../../constant/PageConstant';
 @Builder
 function flashSaleCard() {
   Column() {
-    Flex({justifyContent: FlexAlign.SpaceBetween}) {
+    Flex({ justifyContent: FlexAlign.SpaceBetween }) {
       Text('限时秒杀')
         .fontSize(16);
       Text() {
@@ -43,13 +43,13 @@ function flashSaleCard() {
       }
       .align(Alignment.Center);
     }
-    .padding({left: 16});
+    .padding({ left: 16 });
 
     Row() {
       Image($r('app.media.flash_sale_product_1'))
         .width(134)
         .height(134)
-        .margin({right: 7.5});
+        .margin({ right: 7.5 });
       Column() {
         Text('HUAWEI MATE 50')
           .fontSize(14)
@@ -70,7 +70,7 @@ function flashSaleCard() {
               radius: 4
             })
             .lineHeight(14)
-            .padding({left: 4, right: 4});
+            .padding({ left: 4, right: 4 });
           Text('赚积分')
             .fontSize(9)
             .fontColor('rgba(207, 10, 44, 0.4)')
@@ -80,10 +80,10 @@ function flashSaleCard() {
               color: 'rgba(207, 10, 44, 0.4)',
               radius: 4
             })
-            .margin({left: 4})
+            .margin({ left: 4 })
             .lineHeight(14)
-            .padding({left: 4, right: 4});
-        }.margin({top: 8});
+            .padding({ left: 4, right: 4 });
+        }.margin({ top: 8 });
 
         Row() {
           Text('¥ 4999')
@@ -94,28 +94,28 @@ function flashSaleCard() {
           Text('¥5488')
             .fontSize(10)
             .fontColor('rgba(0,0,0,0.4)')
-            .margin({left: 4})
+            .margin({ left: 4 })
             .lineHeight(14)
             .decoration({
               style: TextDecorationStyle.SOLID,
               type: TextDecorationType.LineThrough,
               color: 'rgba(0,0,0,0.4)'
             });
-        }.margin({top: 4})
+        }.margin({ top: 4 })
         .alignItems(VerticalAlign.Bottom);
       }
       .alignItems(HorizontalAlign.Start);
     }
-    .margin({top: 13});
+    .margin({ top: 13 });
   }.backgroundColor($r('app.color.home_content_card_background_color'))
   .borderRadius(16)
-  .padding({top: 16, right: 16, bottom: 16});
+  .padding({ top: 16, right: 16, bottom: 16 });
 }
 
 @Builder
 function recommendCard() {
   Column() {
-    Flex({justifyContent: FlexAlign.SpaceBetween}) {
+    Flex({ justifyContent: FlexAlign.SpaceBetween }) {
       Text('甄选推荐')
         .fontSize(16);
       Text() {
@@ -127,14 +127,14 @@ function recommendCard() {
       }
       .align(Alignment.Center);
     }
-    .padding({left: 16});
+    .padding({ left: 16 });
 
     Row() {
       Column() {
         Image($r('app.media.section_product_1'))
           .width(134)
           .height(134)
-          .margin({right: 7.5});
+          .margin({ right: 7.5 });
         Column() {
           Text('MateBook X Pro 12')
             .fontSize(12)
@@ -154,18 +154,18 @@ function recommendCard() {
               radius: 4
             })
             .lineHeight(14)
-            .padding({left: 4, right: 4})
-            .margin({top: 4});
+            .padding({ left: 4, right: 4 })
+            .margin({ top: 4 });
           Text('¥ 10999')
             .fontColor('rgb(207, 10, 44)')
             .fontWeight(500)
             .fontSize(14)
             .lineHeight(19)
-            .margin({top: 6});
+            .margin({ top: 6 });
           Text('2571评论  95%好评')
             .fontSize(10)
             .fontColor('rgba(0,0,0,0.4)')
-            .margin({left: 4})
+            .margin({ left: 4 })
             .lineHeight(14);
         }
         .alignItems(HorizontalAlign.Center);
@@ -175,7 +175,7 @@ function recommendCard() {
         Image($r('app.media.section_product_2'))
           .width(134)
           .height(134)
-          .margin({right: 7.5});
+          .margin({ right: 7.5 });
         Column() {
           Text('HUAWEI Mate 50')
             .fontSize(12)
@@ -195,31 +195,31 @@ function recommendCard() {
               radius: 4
             })
             .lineHeight(14)
-            .padding({left: 4, right: 4})
-            .margin({top: 4});
+            .padding({ left: 4, right: 4 })
+            .margin({ top: 4 });
           Text('¥ 10999')
             .fontColor('rgb(207, 10, 44)')
             .fontWeight(500)
             .fontSize(14)
             .lineHeight(19)
-            .margin({top: 6});
+            .margin({ top: 6 });
           Text('2571评论  95%好评')
             .fontSize(10)
             .fontColor('rgba(0,0,0,0.4)')
-            .margin({left: 4})
+            .margin({ left: 4 })
             .lineHeight(14);
         }
         .alignItems(HorizontalAlign.Center);
       };
     }
-    .margin({top: 13});
+    .margin({ top: 13 });
   }.backgroundColor($r('app.color.home_content_card_background_color'))
   .borderRadius(16)
-  .padding({top: 16, right: 16, bottom: 16});
+  .padding({ top: 16, right: 16, bottom: 16 });
 }
 
 // [Start HMRouter_home_content]
-@HMRouter({pageUrl: 'HomeContent', singleton: true, lifecycle: 'ExitAppLifecycle'})
+@HMRouter({ pageUrl: 'HomeContent', singleton: true, lifecycle: 'ExitAppLifecycle' })
 @Component
 export struct HomeContent {
   // [StartExclude HMRouter_home_content]
@@ -294,6 +294,8 @@ export struct HomeContent {
     .width(CommonConstants.FULL_PERCENT)
     .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM]);
   }
+
   // [EndExclude HMRouter_home_content]
 }
+
 // [End HMRouter_home_content]

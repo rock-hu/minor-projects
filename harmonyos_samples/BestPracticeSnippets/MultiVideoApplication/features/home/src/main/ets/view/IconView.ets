@@ -78,9 +78,9 @@ export struct IconView {
 
   getSpace(windowWidth: number, currentWidthBreakpoint: string): number {
     // Obtain the window width and subtract the blank parts on both sides.
-    let result: number = px2vp(windowWidth) - (new BreakpointType(HomeConstants.VIDEO_GRID_MARGIN[0],
+    let result: number = this.getUIContext().px2vp(windowWidth) - (new BreakpointType(HomeConstants.VIDEO_GRID_MARGIN[0],
       HomeConstants.VIDEO_GRID_MARGIN[1], HomeConstants.VIDEO_GRID_MARGIN[2]).getValue(this.currentWidthBreakpoint) /
-      HomeConstants.TWO) - getContext(this).resourceManager.getNumber($r('app.float.icon_img_size').id) / 2;
+      HomeConstants.TWO) - this.getUIContext().getHostContext()!.resourceManager.getNumber($r('app.float.icon_img_size').id) / 2;
     if (currentWidthBreakpoint === BreakpointConstants.BREAKPOINT_SM) {
       result = (result - HomeConstants.ICONVIEW_ITEM_WIDTH[0] * CommonConstants.FOUR) / CommonConstants.FOUR;
     } else if (currentWidthBreakpoint === BreakpointConstants.BREAKPOINT_MD) {

@@ -3,6 +3,7 @@ import { webview } from '@kit.ArkWeb';
 @Component
 struct Index {
   @State message: string = 'Hello World';
+
   // [Start test_code_build]
   build() {
     StackA() {
@@ -14,8 +15,8 @@ struct Index {
         ComponentE()
       }
     }
-    // [End test_code_build]
   }
+  // [End test_code_build]
 }
 
 @Component
@@ -36,24 +37,28 @@ struct StackA {
     // [End web_nested_scroll]
   }
 }
+
 @Component
 struct ComponentB {
   build() {
 
   }
 }
+
 @Component
 struct ComponentC {
   build() {
 
   }
 }
+
 @Component
 struct ComponentD {
   build() {
 
   }
 }
+
 @Component
 struct ComponentE {
   build() {

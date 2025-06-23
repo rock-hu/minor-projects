@@ -38,7 +38,7 @@
 
 ## 开发准备
 1. 将app.json5文件中的包名替换为您自己应用的包名。
-2. 开通推送服务，详情请参考[指导](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/push-config-setting)。
+2. 开通推送服务，详情请参考[指导](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/push-config-setting#section13206419341)。
 3. 完成手动签名，详情请参考[指导](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/ide-signing#section297715173233)。
 4. 为实现消息展示后可以点击跳转到应用页面，本示例工程已经在module.json5文件中配置好skills标签，如有需要可以参考[指导](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/push-send-alert#section697519219136)自行修改。
 

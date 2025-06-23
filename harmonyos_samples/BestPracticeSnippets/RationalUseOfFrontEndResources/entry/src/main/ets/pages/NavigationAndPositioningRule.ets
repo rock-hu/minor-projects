@@ -4,6 +4,7 @@
 
 // [Start createAudioRenderer]
 import { audio } from '@kit.AudioKit';
+
 let audioStreamInfo: audio.AudioStreamInfo = {
   samplingRate: audio.AudioSamplingRate.SAMPLE_RATE_44100,
   channels: audio.AudioChannel.CHANNEL_1,

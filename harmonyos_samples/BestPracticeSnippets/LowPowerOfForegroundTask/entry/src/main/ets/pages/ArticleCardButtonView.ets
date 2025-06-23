@@ -14,7 +14,6 @@
  */
 import { LottieUtil } from "../utils/LottieUtil";
 
-
 @Component
 export struct ArticleCardButtonView {
   @Prop isClicked: boolean = false;

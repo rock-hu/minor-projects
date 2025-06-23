@@ -125,7 +125,6 @@ EXTERN_C_END
     
 // [End  NAPI_Global_nativeSub]
 // [End NAPI_Global_nativeAdd]
-// DocsCode1
 
 static napi_module demoModule = {
     .nm_version = 1,

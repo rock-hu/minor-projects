@@ -21,13 +21,13 @@ import { HMInterceptor, HMInterceptorAction, HMInterceptorInfo, HMRouterMgr, IHM
 import { LoginConstants } from '../component/common/constants/LoginConstants';
 
 // [Start hm_interceptor]
-@HMInterceptor({interceptorName: 'LoginCheckInterceptor'})
+@HMInterceptor({ interceptorName: 'LoginCheckInterceptor' })
 export class LoginCheckInterceptor implements IHMInterceptor {
   handle(info: HMInterceptorInfo): HMInterceptorAction {
     // [StartExclude hm_interceptor]
-    if(info.srcName === 'PayCard') {
+    if (info.srcName === 'PayCard') {
       // [EndExclude hm_interceptor]
-      if(!!AppStorage.get('isLogin')) {
+      if (!!AppStorage.get('isLogin')) {
         return HMInterceptorAction.DO_NEXT;
       } else {
         info.context.getPromptAction().showToast({ message: '请先登录' });
@@ -39,10 +39,10 @@ export class LoginCheckInterceptor implements IHMInterceptor {
       }
       // [StartExclude hm_interceptor]
     } else {
-      if(!!AppStorage.get('isLogin')) {
+      if (!!AppStorage.get('isLogin')) {
         return HMInterceptorAction.DO_NEXT;
       } else {
-        info.context.getPromptAction().showToast({message: LoginConstants.LOGIN_TOAST});
+        info.context.getPromptAction().showToast({ message: LoginConstants.LOGIN_TOAST });
         HMRouterMgr.push({
           pageUrl: 'loginPage',
           param: info.targetName,
@@ -54,4 +54,5 @@ export class LoginCheckInterceptor implements IHMInterceptor {
     // [EndExclude hm_interceptor]
   }
 }
+
 // [End hm_interceptor]

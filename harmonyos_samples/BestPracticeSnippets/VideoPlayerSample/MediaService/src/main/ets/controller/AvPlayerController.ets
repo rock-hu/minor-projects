@@ -68,7 +68,7 @@ export class AvPlayerController {
         }
         this.setAVPlayerCallback(this.avPlayer);
         if (this.curIndex === this.curSource.index) {
-          this.avSessionController.setAVMetadata(this.curSource, 0, this.uiContext);
+          this.avSessionController.setAVMetadata(this.curSource, 0);
         }
         this.setAvSessionListener();
         Logger.info(TAG, 'createAVPlayer success:' + ` this.curIndex:${this.curIndex}`);
@@ -122,8 +122,6 @@ export class AvPlayerController {
     this.avSessionController.getAvSession()?.on('fastForward', (time?: number) => this.sessionFastForwardCallback(time)); // Set fast forward command listening events
     this.avSessionController.getAvSession()?.on('rewind', (time?: number) => this.sessionRewindCallback(time)); // Set the fast back command to listen for events.
     this.avSessionController.getAvSession()?.on('seek', (seekTime: number) => this.sessionSeekCallback(seekTime)); // Set the jump node to listen to events.
-
-
   }
   // [End listener1]
 
@@ -247,14 +245,13 @@ export class AvPlayerController {
     // [End player3]
     // [Start pause_video]
     this.avPlayer.on('audioOutputDeviceChangeWithInfo', (data: audio.AudioStreamDeviceChangeInfo) => {
-      if (data.changeReason === audio.AudioStreamDeviceChangeReason.REASON_NEW_DEVICE_AVAILABLE) {
+      if (data.changeReason === audio.AudioStreamDeviceChangeReason.REASON_OLD_DEVICE_UNAVAILABLE) {
         hilog.info(0x0001, TAG, `Device connect: ${data.changeReason}`);
         this.pauseVideo();
       }
     });
     // [End pause_video]
   }
-
 
   // [Start update_is_play]
   private updateIsPlay(isPlay: boolean) {
@@ -334,7 +331,7 @@ export class AvPlayerController {
         this.avPlayer.state !== AVPlayerState.COMPLETED) {
         return;
       }
-      this.avSessionController.setAVMetadata(this.curSource, this.duration, this.uiContext);
+      this.avSessionController.setAVMetadata(this.curSource, this.duration);
       //Writing in the avPlayer.play callback can cause a delay in the state change of the playback control center.
       this.updateIsPlay(true);
       Logger.info(TAG, `playVideo: state:${this.avPlayer.state} this.curIndex:${this.curIndex}`);

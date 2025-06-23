@@ -42,10 +42,12 @@
 * 自定义弹窗显示和退出动画示例（按钮5）
 
 ## 实现说明
-* 全局弹窗可以通过UIContext.getPromptAction弹窗实现，具体参考[与页面解耦的全局弹窗](https://developer.huawei.com/consumer/cn/doc/best-practices-V5/bpta-custome-dialog-development-practice-V5#section7466312192919)
-* 物理拦截通过弹窗的选项对象中的onWillDismiss交互式关闭回调函数，或者基于Navigation自定义弹窗，使用NavDestination的回调函数onBackPressed实现，具体参考[拦截物理返回按钮、手势滑动关闭弹窗](https://developer.huawei.com/consumer/cn/doc/best-practices-V5/bpta-custome-dialog-development-practice-V5#section111721345172917)
-* 切换页面弹窗不消失，通过Navigation.Dialog弹窗实现，NavDestinationMode.DIALOG弹窗存在于路由栈中，可以实现切换页面弹窗不消失，具体参考[切换页面弹窗不消失](https://developer.huawei.com/consumer/cn/doc/best-practices-V5/bpta-custome-dialog-development-practice-V5#section690764913302)
-* 自定义弹窗显示和退出动画，基于UIContext.getPromptAction弹窗实现，通过CustomDialogOptions自定义弹窗的内容，BaseDialogOptions弹窗选项transition参数可以设置弹窗显示和退出的过渡效果，具体参考[自定义弹窗显示和退出动画](https://developer.huawei.com/consumer/cn/doc/best-practices-V5/bpta-custome-dialog-development-practice-V5#section621242223120)
+* 全局弹窗可以通过UIContext.getPromptAction弹窗实现。
+* 物理拦截通过弹窗的选项对象中的onWillDismiss交互式关闭回调函数，或者基于Navigation自定义弹窗，使用NavDestination的回调函数onBackPressed实现。
+* 切换页面弹窗不消失，通过Navigation.Dialog弹窗实现，NavDestinationMode.DIALOG弹窗存在于路由栈中，可以实现切换页面弹窗不消失。
+* 自定义弹窗显示和退出动画，基于UIContext.getPromptAction弹窗实现，通过CustomDialogOptions自定义弹窗的内容，BaseDialogOptions弹窗选项transition参数可以设置弹窗显示和退出的过渡效果。
+
+参考文章：[自定义弹窗选型与开发](https://developer.huawei.com/consumer/cn/doc/best-practices/bpta-customdialog-selection-and-development)。
 
 ## 相关权限
 无

@@ -3,7 +3,7 @@
 ### 介绍
 
 HarmonyOS应用框架提供了组件复用能力：可复用组件树上移除时，会进入一个回收缓存区，后续创建新组件节点时，会复用缓存区中的节点，节约组件重新创建的时间。
-本工程配套官网[组件复用最佳实践](https://developer.huawei.com/consumer/cn/doc/best-practices-V5/bpta-component-reuse-V5)，
+本工程配套官网[组件复用最佳实践](https://developer.huawei.com/consumer/cn/doc/best-practices/bpta-component-reuse)，
 文章介绍如何使用组件复用机制提升应用帧率。
 
 ### 预览效果
@@ -47,14 +47,7 @@ HarmonyOS应用框架提供了组件复用能力：可复用组件树上移除�
 │     ├──WithFuncParam.ets              // 二级页面“网名列表”UI
 │     └──WithReuseId.ets                // 二级页面“图文列表”UI
 └──entry/src/main/resources             // 应用资源目录
-``` 
-
-### 具体实现
-
-1. [组件复用原理介绍](https://developer.huawei.com/consumer/cn/doc/best-practices-V5/bpta-component-reuse-V5#section142448345398)
-2. [组件复用使用规则](https://developer.huawei.com/consumer/cn/doc/best-practices-V5/bpta-component-reuse-V5#section5923195311402)
-3. [组件复用优化方法](https://developer.huawei.com/consumer/cn/doc/best-practices-V5/bpta-component-reuse-V5#section937434455716)
-4. [组件复用失效场景](https://developer.huawei.com/consumer/cn/doc/best-practices-V5/bpta-component-reuse-V5#section1556917819517)
+```
 
 ### 相关权限
 

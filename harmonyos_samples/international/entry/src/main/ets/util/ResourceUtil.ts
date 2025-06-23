@@ -30,7 +30,7 @@ class ResourceUtil {
 
   async getPluralString(id: number, num: number, context: common.Context): Promise<string> {
     let rscManager = context.resourceManager;
-    let plural: string = await rscManager.getPluralStringValue(id, num);
+    let plural: string = rscManager.getIntPluralStringValueSync(id, num)
     return plural;
   }
 

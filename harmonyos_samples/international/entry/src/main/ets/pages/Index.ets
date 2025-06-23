@@ -13,34 +13,29 @@
 * limitations under the License.
 */
 
-import { router } from '@kit.ArkUI';
-import { common } from '@kit.AbilityKit';
 import TitleBar from '../component/TitleBar';
 import OperationView from '../component/OperationView';
-import ResourceUtil from '../util/ResourceUtil';
 
 const operationUrls: Array<string> = ['pages/Calendar', 'pages/TextProcessing'];
 
 @Entry
 @Component
 struct Index {
+  @State operations: Array<ResourceStr> = [];
   UIContext = this.getUIContext();
-
-  @State operations: Array<string> = [];
-  private context: common.UIAbilityContext = this.UIContext.getHostContext() as common.UIAbilityContext;
 
   aboutToAppear() {
     this.getOperation();
   }
 
   async getOperation() {
-    this.operations = await ResourceUtil.getStringArray($r('app.strarray.operation_arr').id, this.context);
+    this.operations = [$r('app.string.calendar'), $r('app.string.text_processing')];
   }
 
   build() {
     Column() {
       TitleBar()
-      ForEach(this.operations, (item: string, index) => {
+      ForEach(this.operations, (item: ResourceStr, index) => {
         Row() {
           OperationView({
             operationKey: item, handleClick: () => {

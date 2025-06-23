@@ -254,7 +254,7 @@ export struct DailyVideo {
 
   getDailyVideoHeight(currentWidthBreakpoint: string, windowWidth: number, isMain: boolean): string {
     // Obtain the window width and subtract the blank parts on both sides.
-    let result: number = px2vp(windowWidth) - new BreakpointType(HomeConstants.VIDEO_GRID_MARGIN[0],
+    let result: number = this.getUIContext().px2vp(windowWidth) - new BreakpointType(HomeConstants.VIDEO_GRID_MARGIN[0],
       HomeConstants.VIDEO_GRID_MARGIN[1], HomeConstants.VIDEO_GRID_MARGIN[2]).getValue(this.currentWidthBreakpoint) -
       HomeConstants.VIDEO_GRID_ITEM_SPACE;
     // Calculate the width of a single image based on the number of grid columns.

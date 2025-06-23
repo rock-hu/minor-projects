@@ -1,0 +1,13 @@
+{
+  "src": [
+    "pages/Index",
+    "pages/DataUpadteAndAnimationPage",
+    "pages/ElementByOrderPage",
+    "pages/FlowItemAutoPlayPage",
+    "pages/SectionOptionsUsePage",
+    "pages/StickOnTopPage",
+    "pages/ForceShowOnTopLeftPage",
+    "pages/MergeDoubleWaterFlowPage",
+    "pages/ZoomChangeColumnPage"
+  ]
+}

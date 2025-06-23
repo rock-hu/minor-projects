@@ -24,7 +24,6 @@ struct Index {
   @StorageLink('topAvoidHeight') topAvoidHeight: number = 0;
   @StorageLink('bottomAvoidHeight') bottomAvoidHeight: number = 0;
 
-
   build() {
     Column() {
       // ...

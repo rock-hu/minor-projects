@@ -38,7 +38,7 @@ export struct PrivacyDialogContent {
   }
 
   build() {
-    Stack({alignContent: Alignment.Center}) {
+    Stack({ alignContent: Alignment.Center }) {
       Column()
         .width('100%')
         .height('100%')
@@ -46,6 +46,8 @@ export struct PrivacyDialogContent {
         .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM]);
     };
   }
+
   // [EndExclude HMRouter_dialog]
 }
+
 // [End HMRouter_dialog]

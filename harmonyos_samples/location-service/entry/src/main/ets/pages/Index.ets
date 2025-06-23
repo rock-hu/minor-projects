@@ -195,7 +195,7 @@ struct LocationService {
         position: mapLocation,
         icon: $r('app.media.point'),
         clickable: true,
-        title: CommonConstants.MARKER_TITLE
+        title: CommonConstants.MARKER_TITLE(this.getUIContext())
       };
       if (this.marker === undefined) {
         this.marker = await this.mapController?.addMarker(makerOptions);

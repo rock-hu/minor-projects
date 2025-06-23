@@ -17,7 +17,6 @@ export struct ArticleCardView {
   build() {
     Row({ space: 16 }) {
       Column() {
-        // ...
         Row() {
           ActionButtonView({
             imgResource: $r('app.media.ic_eye_open'),
@@ -34,7 +33,6 @@ export struct ArticleCardView {
               .onClick(() => {
                 this.onLiked?.();
               })
-            // ...
           } else {
             ArticleCardButtonView({
               clickAnimationPath: 'common/lottie/liked_lottie.json',
@@ -48,7 +46,6 @@ export struct ArticleCardView {
               normalImage: $r('app.media.btn_like_normal'),
               onImage: $r('app.media.btn_like_on')
             })
-            // ...
           }
         }
         .width('100%')

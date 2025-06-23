@@ -1,17 +1,6 @@
 {
   "strarray": [
     {
-      "name": "operation_arr",
-      "value": [
-        {
-          "value": "日历"
-        },
-        {
-          "value": "字符、文本处理"
-        }
-      ]
-    },
-    {
       "name": "text_type_arr",
       "value": [
         {

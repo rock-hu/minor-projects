@@ -23,7 +23,6 @@ import { BusinessError } from '@kit.BasicServicesKit';
 import { window } from '@kit.ArkUI';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
-
 @Observed
 export class WindowUtil {
   private mainWindowClass?: window.Window;

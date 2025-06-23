@@ -75,7 +75,7 @@ export struct NewVideoRelease {
   }
 
   getNewVideoHeight(currentWidthBreakpoint: string, windowWidth: number): string {
-    let result: number = px2vp(windowWidth) - new BreakpointType(HomeConstants.VIDEO_GRID_MARGIN[0],
+    let result: number = this.getUIContext().px2vp(windowWidth) - new BreakpointType(HomeConstants.VIDEO_GRID_MARGIN[0],
       HomeConstants.VIDEO_GRID_MARGIN[1], HomeConstants.VIDEO_GRID_MARGIN[2]).getValue(this.currentWidthBreakpoint);
     if (currentWidthBreakpoint === BreakpointConstants.BREAKPOINT_LG) {
       result = result - HomeConstants.LG_SIDEBAR_WIDTH;

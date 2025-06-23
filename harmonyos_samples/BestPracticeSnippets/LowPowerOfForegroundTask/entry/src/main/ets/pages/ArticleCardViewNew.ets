@@ -12,11 +12,9 @@ export struct ArticleCardView {
   onCollected?: () => void;
   onLiked?: () => void;
 
-
   build() {
     Row({ space: 16 }) {
       Column() {
-        // ...
         Row() {
           ActionButtonView({
             imgResource: $r('app.media.ic_eye_open'),
@@ -78,9 +76,7 @@ export struct ArticleCardView {
       .layoutWeight(1)
       .height('100%')
       .justifyContent(FlexAlign.SpaceAround)
-      // ...
     }
-    // ...
   }
 }
 // [End article_card_view_new]

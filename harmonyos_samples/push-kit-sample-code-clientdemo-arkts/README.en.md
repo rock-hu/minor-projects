@@ -38,9 +38,9 @@ This demo illustrates how to implement the function of obtaining a push token ba
 
 ## Preparations
 1. Replace the package name in the **app.json5** file with the package name of your app.
-2. Enable Push Kit. For details, please refer to the [guide](https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V5/push-config-setting-V5#section13206419341).
-3. Manually configure the signature. For details, please refer to the [guide](https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V5/ide-signing-0000001587684945-V5#section297715173233).
-4. To achieve the functionality of clicking on a message to jump to an application page, this sample project has already configured the skills tag in the module.json5 file. If needed, you can refer to the [guide](https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V5/push-send-alert-V5#section697519219136) and modify it yourself.
+2. Enable Push Kit. For details, please refer to the [guide](https://developer.huawei.com/consumer/en/doc/harmonyos-guides/push-config-setting#section13206419341).
+3. Manually configure the signature. For details, please refer to the [guide](https://developer.huawei.com/consumer/en/doc/harmonyos-guides/ide-signing#section297715173233).
+4. To achieve the functionality of clicking on a message to jump to an application page, this sample project has already configured the skills tag in the module.json5 file. If needed, you can refer to the [guide](https://developer.huawei.com/consumer/en/doc/harmonyos-guides/push-send-alert#section697519219136) and modify it yourself.
 
 ## How to Use
 ### Applying for a Token
@@ -48,27 +48,27 @@ This demo illustrates how to implement the function of obtaining a push token ba
 2. Tap the token application button and check the application result. You need to store the obtained push token properly.
 
 ### Pushing a Notification Message
-1. Apply for the [notification self-classification permission](https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V5/push-apply-right-V5#section16708911111611) first if you need to push service and communication messages. If you only need to send news and marketing news messages, skip this step.
-2. Push a notification message using the [notification - Push Kit - server-side demo](https://gitee.com/harmonyos_samples/push-kit_-sample-code_-server-demo_-java) or using other debugging tools such as Postman by referring to the [guide](https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V5/push-send-alert-V5).
+1. Apply for the [notification self-classification permission](https://developer.huawei.com/consumer/en/doc/harmonyos-guides/push-apply-right#section16708911111611) first if you need to push service and communication messages. If you only need to send news and marketing news messages, skip this step.
+2. Push a notification message using the [notification - Push Kit - server-side demo](https://gitee.com/harmonyos_samples/push-kit_-sample-code_-server-demo_-java) or using other debugging tools such as Postman by referring to the [guide](https://developer.huawei.com/consumer/en/doc/harmonyos-guides/push-send-alert).
 3. Swipe down from the status bar and check the received message on the notification panel.
 4. Tap the message to go to the specified landing page in the app.
 
 ### Recalling a Message
-1. Push a notification message using the [notification - Push Kit - server-side demo](https://gitee.com/harmonyos_samples/push-kit_-sample-code_-server-demo_-java) or using other debugging tools such as Postman by referring to the [guide](https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V5/push-send-alert-V5). You need to specify the [notifyId](https://developer.huawei.com/consumer/en/doc/harmonyos-references-V5/push-scenariozed-api-request-param-V5#section17371529101117) for the notification.
+1. Push a notification message using the [notification - Push Kit - server-side demo](https://gitee.com/harmonyos_samples/push-kit_-sample-code_-server-demo_-java) or using other debugging tools such as Postman by referring to the [guide](https://developer.huawei.com/consumer/en/doc/harmonyos-guides/push-send-alert). You need to specify the [notifyId](https://developer.huawei.com/consumer/en/doc/harmonyos-references/push-scenariozed-api-request-param#section17371529101117) for the notification.
 2. Swipe down from the status bar and check the received message on the notification panel.
-3. Recall the notification message using the [notification - Push Kit - server-side demo](https://gitee.com/harmonyos_samples/push-kit_-sample-code_-server-demo_-java) or using other debugging tools such as Postman by referring to the [guide](https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V5/push-revoke-alert-V5). When recalling a message, you need to use the [notifyId](https://developer.huawei.com/consumer/en/doc/harmonyos-references-V5/push-msg-revoke-V5#section166472121113) specified when the message is sent.
+3. Recall the notification message using the [notification - Push Kit - server-side demo](https://gitee.com/harmonyos_samples/push-kit_-sample-code_-server-demo_-java) or using other debugging tools such as Postman by referring to the [guide](https://developer.huawei.com/consumer/en/doc/harmonyos-guides/push-revoke-alert). When recalling a message, you need to use the [notifyId](https://developer.huawei.com/consumer/en/doc/harmonyos-references/push-msg-revoke#section166472121113) specified when the message is sent.
 4. Swipe down from the status bar and check whether the message has been recalled on the notification panel.
 
 ### Pushing a Widget Update Message
 1. Press and hold the app icon on the home screen and choose to add the service widget to the home screen. You need to store the widget ID properly.
-2. Push a widget update message using the [notification - Push Kit - server-side demo](https://gitee.com/harmonyos_samples/push-kit_-sample-code_-server-demo_-java) or using other debugging tools such as Postman by referring to the [guide](https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V5/push-form-update-V5).
+2. Push a widget update message using the [notification - Push Kit - server-side demo](https://gitee.com/harmonyos_samples/push-kit_-sample-code_-server-demo_-java) or using other debugging tools such as Postman by referring to the [guide](https://developer.huawei.com/consumer/en/doc/harmonyos-guides/push-form-update).
 3. Swipe on the home screen to view the widget and check the widget update status.
 
 ### Pushing an Extended Notification Message
-1. Apply for the [extended notification message permission](https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V5/push-apply-right-V5#section159981112245) first.
-2. Keep the app running in the foreground. Then push an extended notification message using the [notification - Push Kit - server-side demo](https://gitee.com/harmonyos_samples/push-kit_-sample-code_-server-demo_-java) or using other debugging tools such as Postman by referring to the [guide](https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V5/push-send-extend-noti-V5).
+1. Apply for the [extended notification message permission](https://developer.huawei.com/consumer/en/doc/harmonyos-guides/push-apply-right#section159981112245) first.
+2. Keep the app running in the foreground. Then push an extended notification message using the [notification - Push Kit - server-side demo](https://gitee.com/harmonyos_samples/push-kit_-sample-code_-server-demo_-java) or using other debugging tools such as Postman by referring to the [guide](https://developer.huawei.com/consumer/en/doc/harmonyos-guides/push-send-extend-noti).
 3. Check the display effect of the extended notification message when the app is running in the foreground.
-4. Switch the app to the background. Then push an extended notification message again using the [notification - Push Kit - server-side demo](https://gitee.com/harmonyos_samples/push-kit_-sample-code_-server-demo_-java) or using other debugging tools such as Postman by referring to the [guide](https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V5/push-send-extend-noti-V5).
+4. Switch the app to the background. Then push an extended notification message again using the [notification - Push Kit - server-side demo](https://gitee.com/harmonyos_samples/push-kit_-sample-code_-server-demo_-java) or using other debugging tools such as Postman by referring to the [guide](https://developer.huawei.com/consumer/en/doc/harmonyos-guides/push-send-extend-noti).
 5. Swipe down from the status bar and check the received message on the notification panel.
 6. Tap the message to go to the specified landing page in the app.
 

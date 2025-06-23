@@ -253,7 +253,6 @@ export default class EntryAbility extends UIAbility {
 
   onWindowStageRestore(windowStage: window.WindowStage): void {
     hilog.info(0x0000, '[EntryAbility]', 'Ability onWindowStageRestore');
-    this.setImmersion(windowStage);
     windowStage.loadContent('pages/Home', (err, data) => {
       if (err.code) {
         hilog.error(0x0000, '[EntryAbility]', 'Failed to load the content, ', `Catch err: ${err}`);
@@ -262,6 +261,7 @@ export default class EntryAbility extends UIAbility {
       windowStage.getMainWindowSync().setWindowLayoutFullScreen(true);
       windowStage.getMainWindowSync().getUIContext().getKeyboardAvoidMode();
       windowStage.getMainWindowSync().getUIContext().setKeyboardAvoidMode(KeyboardAvoidMode.RESIZE);
+      this.setImmersion(windowStage);
       hilog.info(0x0000, '[EntryAbility]', 'Succeeded in loading the content, ', `Data: ${data}`);
     });
   }
@@ -269,7 +269,6 @@ export default class EntryAbility extends UIAbility {
   onWindowStageCreate(windowStage: window.WindowStage): void {
     // Main window is created, set main page for this ability.
     hilog.info(0x0000, '[EntryAbility]', 'Ability onWindowStageCreate');
-    this.setImmersion(windowStage);
     windowStage.getMainWindow().then((windowObj) => {
       this.windowObj = windowObj;
       // Gets the size of the window when the application starts.
@@ -287,6 +286,7 @@ export default class EntryAbility extends UIAbility {
       windowStage.getMainWindowSync().setWindowLayoutFullScreen(true);
       windowStage.getMainWindowSync().getUIContext().getKeyboardAvoidMode();
       windowStage.getMainWindowSync().getUIContext().setKeyboardAvoidMode(KeyboardAvoidMode.RESIZE);
+      this.setImmersion(windowStage);
       hilog.info(0x0000, '[EntryAbility]', 'Succeeded in loading the content, ', `Data: ${data}`);
     });
   }

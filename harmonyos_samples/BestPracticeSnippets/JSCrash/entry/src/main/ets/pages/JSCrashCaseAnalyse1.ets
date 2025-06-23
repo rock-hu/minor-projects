@@ -29,7 +29,7 @@ struct Index {
     // Calculation of the distance moved by the hand
     this.translationUpY = (this.multiCardsNum >= 1) ? sceneContainerSessionList[this.multiCardsNum - 1].needRenderTranslate.translateY : 0;    // Report an incorrect line number
     this.translationDownY = (this.multiCardsNum >= 2) ? sceneContainerSessionList[this.multiCardsNum - 2].needRenderTranslate.translateY : 0;
-    this.screenWidth = px2vp(screenWidth);
+    this.screenWidth = this.getUIContext().px2vp(screenWidth);
     this.recentScale = recentScale;
   }
   // [End updateGestureValue1]

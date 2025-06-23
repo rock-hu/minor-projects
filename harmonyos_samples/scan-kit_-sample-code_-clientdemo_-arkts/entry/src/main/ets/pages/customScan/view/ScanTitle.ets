@@ -2,7 +2,6 @@ import Logger from '../../../common/Logger';
 import { BreakpointConstants } from '../constants/BreakpointConstants';
 import { CommonConstants } from '../constants/CommonConstants';
 import { BREAK_POINT_TYPE_MARGIN_VP } from '../model/BreakpointType';
-import { FontSizeScale } from '../model/FontSizeScale';
 import { ScanLayout } from '../model/ScanLayout';
 
 @Extend(Text)
@@ -27,8 +26,8 @@ export struct ScanTitle {
     Column() {
       Text(this.scanResultSize > 1 ? $r('app.string.Scan_barcode_tips_callback') : $r('app.string.Scan_barcode'))
         .scanTitle($r('sys.color.ohos_id_color_primary_contrary'), FontWeight.Regular)
-        .fontSize(FontSizeScale.getLimitFontSize(this.fontSizeScale,
-          CommonConstants.SCAN_FONT_SIZE_SCALE_LIMIT_TITLE_TEXT, $r('sys.float.Subtitle_L')))
+        .fontSize($r('sys.float.Subtitle_L'))
+        .maxFontSize(CommonConstants.SCAN_FONT_SIZE_SCALE_LIMIT_TITLE_TEXT)
         .width(this.scanLayout.heightBreakpoint === BreakpointConstants.BREAKPOINT_SM ||
           this.scanLayout.heightBreakpoint === BreakpointConstants.BREAKPOINT_MD ? `calc(100% - 80vp - 16vp)` : '100%')
         .constraintSize({

@@ -53,7 +53,7 @@ export default struct GlassCoverView {
     canvas.globalCompositeOperation = 'destination-out';
     canvas.fillStyle = '#CCCCCC';
     this.pointsToDraw.forEach((xy: number[]) => {
-      this.drawOneCell(canvas, xy[0] * this.viewWidth, xy[1] * this.viewHeight, px2vp(15));
+      this.drawOneCell(canvas, xy[0] * this.viewWidth, xy[1] * this.viewHeight, this.getUIContext().px2vp(15));
     })
     canvas.fill();
     // Restore the saved drawing context

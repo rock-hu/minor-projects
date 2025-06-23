@@ -62,7 +62,7 @@ struct ComponentA {
       Column() {
         Button('Move')
           .onClick(() => {
-            animateTo({ duration: animationDuration }, () => {
+            this.getUIContext().animateTo({ duration: animationDuration }, () => {
               this.translateStyle.translateY =
                 (this.translateStyle.translateY + translateYChangeValue) % translateYChangeRange;
             })

@@ -17,11 +17,15 @@
  * 最佳实践：根据条件呈现不同转场动效
  */
 
-import { HMAnimator, HMAnimatorHandle,
+import {
+  HMAnimator,
+  HMAnimatorHandle,
   HMRouterMgr,
   IHMAnimator,
   OpacityOption,
-  ScaleOption, TranslateOption } from "@hadss/hmrouter";
+  ScaleOption,
+  TranslateOption
+} from "@hadss/hmrouter";
 
 // [Start my_animator1]
 @HMAnimator({ animatorName: 'myAnimator1' })
@@ -45,6 +49,7 @@ export class MyAnimator1 implements IHMAnimator {
     })
   }
 }
+
 // [End my_animator1]
 
 // [Start my_animator2]
@@ -72,6 +77,7 @@ export class MyAnimator2 implements IHMAnimator {
     exitHandle.duration = 500;
   }
 }
+
 // [End my_animator2]
 
 // [Start comment_input_amimator]
@@ -81,6 +87,7 @@ export struct CommentInput {
   @State isLandscape: boolean = true;
   @State videoWidth: string = ''
   @State videoHeight: string = ''
+
   // [EndExclude comment_input_amimator]
 
   build() {
@@ -123,4 +130,5 @@ export struct CommentInput {
     }
   }
 }
+
 // [End comment_input_amimator]

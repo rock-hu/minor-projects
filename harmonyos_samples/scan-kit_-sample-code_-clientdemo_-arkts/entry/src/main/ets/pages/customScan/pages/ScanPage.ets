@@ -1,6 +1,6 @@
-import { display, LengthMetrics, router } from '@kit.ArkUI';
+import { display, LengthMetrics } from '@kit.ArkUI';
 import { customScan, scanBarcode, scanCore } from '@kit.ScanKit';
-import { abilityAccessCtrl, common, Permissions } from '@kit.AbilityKit';
+import { abilityAccessCtrl, Permissions } from '@kit.AbilityKit';
 import { AsyncCallback, BusinessError, emitter } from '@kit.BasicServicesKit';
 import Logger from '../../../common/Logger';
 import { ScanLine } from '../view/ScanLine';
@@ -12,7 +12,6 @@ import { openAlbum } from '../model/OpenPhoto';
 import { CommonConstants } from '../constants/CommonConstants'
 import { MaskLayer } from '../view/MaskLayer';
 import { ScanService, ScanResults, ScanStatus } from '../model/ScanService';
-import { BreakpointConstants } from '../constants/BreakpointConstants';
 import { ScanXComponent } from '../view/ScanXComponent';
 import { ScanLoading } from '../view/ScanLoading';
 import { PermissionsUtil } from '../../../common/PermissionsUtil';
@@ -22,10 +21,10 @@ import { WindowService } from '../model/WindowService';
 import { FoldStatus, XComponentService } from '../model/XComponentService';
 import { ScanLayout } from '../model/ScanLayout';
 import { BREAK_POINT_TYPE_MARGIN_VP } from '../model/BreakpointType';
+import { UIContextSelf } from '../model/UIContextSelf';
 
 const TAG = 'ScanPage';
 
-let storage = LocalStorage.getShared();
 let timerId: number | null;
 
 @Extend(Row)
@@ -38,10 +37,9 @@ function tipContainer() {
   .borderRadius($r('sys.float.corner_radius_level10'))
 }
 
-@Entry(storage)
+@Entry(UIContextSelf.getSharedLocalStorage())
 @Component
 struct ScanPage {
-  @StorageLink('currentBreakpoint') currentBreakpoint: string = BreakpointConstants.BREAKPOINT_SM;
   @State tipShow: boolean = false; // Determine whether to display the message indicating that no barcode is recognized.
   @State xComponentService: XComponentService = XComponentService.getInstance();
   @State foldStatus: FoldStatus = this.xComponentService.foldStatus;
@@ -124,18 +122,21 @@ struct ScanPage {
 
   async onPageShow(): Promise<void> {
     Logger.info(TAG, 'onPageShow.');
-    await this.empowerment();
+    if (this.scanService.scanStatus !== ScanStatus.PHOTO_DECODING) {
+      await this.empowerment();
+    }
   }
 
   onPageHide(): void {
     Logger.info(TAG, 'onPageHide.');
-    this.scanService.stopPreviewStream();
-    this.scanService.resetRetryScanTimes();
-    this.scanService.updateScanStatus(ScanStatus.FORBIDDEN);
-    this.clearTimer();
-    this.userGrant = false;
-    this.isDialogShow = false;
-    this.dialogController.close();
+    if (this.scanService.scanStatus !== ScanStatus.PHOTO_DECODING) {
+      this.scanService.stopPreviewStream();
+      this.scanService.updateScanStatus(ScanStatus.FORBIDDEN);
+      this.clearTimer();
+      this.userGrant = false;
+      this.isDialogShow = false;
+      this.dialogController.close();
+    }
   }
 
   async aboutToDisappear(): Promise<void> {
@@ -273,7 +274,7 @@ struct ScanPage {
         this.restartPreviewStream();
       } else {
         Logger.info(TAG, 'router back');
-        router.back();
+        UIContextSelf.getRouter().back();
       }
     })
   }
@@ -299,6 +300,23 @@ struct ScanPage {
     .width('100%')
     .height('100%')
     .backgroundColor(this.userGrant ? Color.Transparent : Color.Black)
+    .gesture(
+      GestureGroup(GestureMode.Exclusive, TapGesture({ count: 2 }).onAction((_: GestureEvent) => {
+        this.scanService.tapGesture();
+      }),
+        PinchGesture({
+          fingers: 2
+        }).onActionStart((_: GestureEvent) => {
+          this.scanService.pinchGestureStart();
+        }).onActionUpdate((event: GestureEvent) => {
+          if (event && event.scale) {
+            this.scanService.pinchGestureUpdate(event.scale);
+          }
+        }).onActionEnd((_: GestureEvent) => {
+          Logger.info(TAG, 'pinchGestureEnd');
+        })
+      )
+    )
   }
 
   // Code recognition information processing.
@@ -347,25 +365,31 @@ struct ScanPage {
   async requestCameraPermission() {
     let grantStatus = await PermissionsUtil.reqPermissionsFromUser();
     let length: number = grantStatus.length;
+    let hasPermission: boolean = false;
     for (let i = 0; i < length; i++) {
       if (grantStatus[i] === 0) {
-        // The user has granted the permission.
-        Logger.info(TAG, 'Succeeded in requesting permissions from user.');
-        this.userGrant = true;
-        this.scanService.updateScanStatus(ScanStatus.NOT_STARTED);
-        if (this.isDialogShow) {
-          this.isDialogShow = false;
-          this.dialogController.close();
-        }
-        this.startCustomScan();
-      } else {
-        // If the user refuses to grant the permission, display a message indicating that user authorization is required, and direct the user to set the permission in system settings.
-        Logger.info(TAG, `Failed to requesting permissions from user.`);
-        this.userGrant = false;
-        if (!this.isDialogShow) {
-          this.isDialogShow = true;
-          this.dialogController.open();
-        }
+        hasPermission = true;
+        break;
+      }
+    }
+
+    if (hasPermission) {
+      // The user has granted the permission.
+      Logger.info(TAG, 'Succeeded in requesting permissions from user.');
+      this.userGrant = true;
+      this.scanService.updateScanStatus(ScanStatus.NOT_STARTED);
+      if (this.isDialogShow) {
+        this.isDialogShow = false;
+        this.dialogController.close();
+      }
+      this.startCustomScan();
+    } else {
+      // If the user refuses to grant the permission, display a message indicating that user authorization is required, and direct the user to set the permission in system settings.
+      Logger.info(TAG, `Failed to requesting permissions from user.`);
+      this.userGrant = false;
+      if (!this.isDialogShow) {
+        this.isDialogShow = true;
+        this.dialogController.open();
       }
     }
   }
@@ -426,7 +450,7 @@ struct ScanPage {
       Logger.info(TAG, `startCustomScan, surfaceId: ${this.surfaceId}`);
       this.scanService.startPreviewStream(this.options, this.viewControl, this.customScanCallback);
       this.startTimer()
-      this.avPlayer = PromptTone.getInstance(getContext(this) as common.UIAbilityContext);
+      this.avPlayer = PromptTone.getInstance(UIContextSelf.getHostContext());
     }
   }
 

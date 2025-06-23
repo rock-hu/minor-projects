@@ -14,7 +14,7 @@ This sample shows how to use the APIs provided by the **geoLocationManager** cla
 
 How to Use
 
-Before you get started, configure app information by referring to the section "Configuring App Information in AppGallery Connect" in the *Map Kit Development Guide*, and [enable the MAP Kit](https://developer.huawei.com/consumer/en/doc/harmonyos-guides-V5/map-config-agc-V5). Then, perform the following:
+Before you get started, configure app information by referring to the section "Configuring App Information in AppGallery Connect" in the *Map Kit Development Guide*, and [enable the MAP Kit](https://developer.huawei.com/consumer/en/doc/harmonyos-guides/map-config-agc). Then, perform the following:
 1. Launch the app, and tap the **Obtain Cached Location** button on the homepage. The cached location is displayed and marked on the map.
 2. Tap the **Obtain Current Location** button on the homepage. The current location is displayed and marked on the map.
 3. Tap the **Obtain Continuous Location** button on the homepage. The most recently updated location is displayed and marked on the map.

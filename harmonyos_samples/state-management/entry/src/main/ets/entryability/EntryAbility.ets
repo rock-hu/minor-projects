@@ -56,23 +56,28 @@ export default class EntryAbility extends UIAbility {
   onWindowStageCreate(windowStage: window.WindowStage): void {
     // Main window is created, set main page for this ability
     Logger.info(TAG, 'Ability onWindowStageCreate');
-    windowStage.getMainWindow().then((windowObj) => {
-      let windowWidth: number = windowObj.getWindowProperties().windowRect.width;
-      this.updateBreakpoint(windowWidth);
-      windowObj.on('windowSizeChange', (currentWindowSize) => {
-        let currentWindowWidth: number = currentWindowSize.width;
-        this.updateBreakpoint(currentWindowWidth);
-
-        if (windowObj.getWindowProperties().isFullScreen) {
-          Logger.info(TAG, 'isFullScreen');
-        }
-        if (windowObj.getWindowProperties().isLayoutFullScreen) {
-          Logger.info(TAG, 'isLayoutFullScreen');
-        }
+    windowStage.loadContent('pages/home/Home', this.storage, (err)=>{
+      let errCode: number = err.code;
+      if (errCode) {
+        console.error(`Failed to load the content. Cause code: ${err.code}, message: ${err.message}`);
+        return;
+      }
+      windowStage.getMainWindow().then((windowObj) => {
+        let windowWidth: number = windowObj.getWindowProperties().windowRect.width;
+        this.updateBreakpoint(windowWidth);
+        windowObj.on('windowSizeChange', (currentWindowSize) => {
+          let currentWindowWidth: number = currentWindowSize.width;
+          this.updateBreakpoint(currentWindowWidth);
+          if (windowObj.getWindowProperties().isFullScreen) {
+            Logger.info(TAG, 'isFullScreen');
+          }
+          if (windowObj.getWindowProperties().isLayoutFullScreen) {
+            Logger.info(TAG, 'isLayoutFullScreen');
+          }
+        });
+        AppStorage.setOrCreate('uiContext', windowObj.getUIContext());
       });
     });
-    windowStage.loadContent('pages/home/Home', this.storage);
-    AppStorage.setOrCreate('uiContext', this.context);
   }
 
   onWindowStageDestroy(): void {

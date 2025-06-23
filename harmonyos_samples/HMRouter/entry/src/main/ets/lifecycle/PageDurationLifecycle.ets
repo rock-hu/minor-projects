@@ -33,4 +33,5 @@ export class PageDurationLifecycle implements IHMLifecycle {
     console.log(`Page ${ctx.navContext?.pathInfo.name} stay ${duration}`);
   }
 }
+
 // [End page_duration_life_cycle]

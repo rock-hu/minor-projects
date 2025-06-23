@@ -5,9 +5,7 @@ import { webview } from '@kit.ArkWeb';
 
 @Component
 struct NetworkResourcePage {
-
   webviewController: webview.WebviewController = new webview.WebviewController();
-
 
   build() {
     Column() {

@@ -7,7 +7,7 @@
 import { BusinessError, request } from '@kit.BasicServicesKit';
 
 try {
-  request.downloadFile(getContext(), {
+  request.downloadFile(this.getUIContext().getHostContext(), {
     url: 'https://xxxx/xxxxx.hap', // IP address of the server to download the file
     filePath: 'xxx/xxxxx.hap'
   }, (err: BusinessError, data: request.DownloadTask) => {

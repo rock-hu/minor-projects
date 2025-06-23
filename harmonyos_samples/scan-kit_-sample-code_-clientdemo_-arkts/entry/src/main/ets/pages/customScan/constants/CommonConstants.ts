@@ -89,6 +89,8 @@ export class CommonConstants {
   static readonly GALLERY_MARGIN_LEFT_MD: number = 12;
   static readonly TIP_MARGIN_TOP: number = 16;
   static readonly TOP_AVOID_HEIGHT_DEFAULT: number = 39;
+  static readonly MIN_ZOOM_RATIO: number = 1;
+  static readonly MAX_ZOOM_RATIO: number = 4;
 }
 export enum DisplayRotationAngle {
   ROTATION_0 = 0,

@@ -190,12 +190,12 @@ export struct VideoDetail {
                 // [StartExclude VideoDetail]
                 let height: number = DetailConstants.COMMENT_IMAGE_MIN_HEIGHT_NUMBER + (Number(newValue.width) -
                 DetailConstants.SIDE_BAR_MIN_WIDTH_NUMBER) /
-                  (px2vp(this.windowWidth) * DetailConstants.COMMENTS_AREA_PERCENT -
+                  (this.getUIContext().px2vp(this.windowWidth) * DetailConstants.COMMENTS_AREA_PERCENT -
                   DetailConstants.SIDE_BAR_MIN_WIDTH_NUMBER) * (DetailConstants.COMMENT_IMAGE_MAX_HEIGHT_NUMBER -
                 DetailConstants.COMMENT_IMAGE_MIN_HEIGHT_NUMBER);
                 let width: number = DetailConstants.COMMENT_IMAGE_MIN_WIDTH_NUMBER + (Number(newValue.width) -
                 DetailConstants.SIDE_BAR_MIN_WIDTH_NUMBER) /
-                  (px2vp(this.windowWidth) * DetailConstants.COMMENTS_AREA_PERCENT -
+                  (this.getUIContext().px2vp(this.windowWidth) * DetailConstants.COMMENTS_AREA_PERCENT -
                   DetailConstants.SIDE_BAR_MIN_WIDTH_NUMBER) * (DetailConstants.COMMENT_IMAGE_MAX_WIDTH_NUMBER -
                 DetailConstants.COMMENT_IMAGE_MIN_WIDTH_NUMBER);
                 this.commentImgHeight = JSON.stringify(height);
@@ -232,7 +232,7 @@ export struct VideoDetail {
           // [EndExclude VideoDetail]
           .sideBarWidth($r('app.float.side_bar_min_width'))
           .minSideBarWidth($r('app.float.side_bar_min_width'))
-          .maxSideBarWidth(px2vp(this.windowWidth * DetailConstants.COMMENTS_AREA_PERCENT))
+          .maxSideBarWidth(this.getUIContext().px2vp(this.windowWidth * DetailConstants.COMMENTS_AREA_PERCENT))
           // [End video_detail]
         }
         .height(CommonConstants.FULL_PERCENT)

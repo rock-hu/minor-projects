@@ -3,8 +3,6 @@
 //
 // Node APIs are not fully supported. To solve the compilation error of the interface cannot be found,
 // please include "napi/native_api.h".
-// DocsCode1
 // src/main/cpp/add/add.cpp
 #include "add.h"
 double add(double a, double b) { return a + b; }
-// DocsCode1

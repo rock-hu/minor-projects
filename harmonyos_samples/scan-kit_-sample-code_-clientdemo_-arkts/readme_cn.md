@@ -75,6 +75,7 @@
 │ │ │ │ ├─PromptTone.ts // 提示音  
 │ │ │ │ ├─ScanLayout.ets // 扫码界面布局管理类  
 │ │ │ │ ├─ScanService.ets // 自定义扫码  
+│ │ │ │ ├─UIContextSelf.ets // UIContext管理类  
 │ │ │ │ ├─WindowService.ets // 窗口管理类  
 │ │ │ │ └─XComponentService.ets // XComponent管理类  
 │ │ │ ├─pages // 页面  
@@ -167,5 +168,5 @@
 
 1. 本实例仅支持标准系统上运行，支持设备：华为手机、华为平板。
 2. HarmonyOS系统：HarmonyOS 5.0.3 Release及以上。
-3. DevEco Studio版本：DevEco Studio 5.0.2 Beta1及以上。
-4. HarmonyOS SDK版本：HarmonyOS 5.0.2 Beta1 SDK及以上。
+3. DevEco Studio版本：DevEco Studio 5.0.3 Release及以上。
+4. HarmonyOS SDK版本：HarmonyOS 5.0.3 Release SDK及以上。

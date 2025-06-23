@@ -2,7 +2,6 @@
 // Take EXT RawData memory as an example
 const static string EXT_SHAREMEM_NAME = "EXT RawData";
 
-
 static uint32_t ShareMemAlloc(DecodeContext &context, uint64_t count)
 {
     ...

@@ -22,10 +22,11 @@ import { PageConstant } from '../../constant/PageConstant';
 import { DetailConstants } from '../common/constants/DetailConstants';
 import { ProductInfo, ProductPicture } from './elements/ProductDetail';
 import { ProductMsg, ProductUtilView } from './elements/ProductUtilView';
+
 interface ParamsType {}
 
 // [Start hm_router]
-@HMRouter({pageUrl: 'ProductContent'})
+@HMRouter({ pageUrl: 'ProductContent' })
 @Component
 export struct ProductContent {
   // [StartExclude hm_router]
@@ -40,6 +41,7 @@ export struct ProductContent {
   aboutToAppear(): void {
     this.param = HMRouterMgr.getCurrentParam() as ParamsType;
   }
+
   // [StartExclude hm_router]
   // [StartExclude hm_router_get_current_param]
   build() {
@@ -47,22 +49,24 @@ export struct ProductContent {
       Scroll() {
         Column() {
           ProductPicture()
-            .margin({bottom: 70});
-          ProductInfo({product: this.product});
+            .margin({ bottom: 70 });
+          ProductInfo({ product: this.product });
         };
       }
       .scrollBar(BarState.Off)
       .layoutWeight(1);
 
-      ProductUtilView({product: this.product});
+      ProductUtilView({ product: this.product });
     }
-    .padding({top: 0})
+    .padding({ top: 0 })
     .height('100%')
     .width('100%')
     .layoutWeight(1);
   }
+
   // [EndExclude hm_router]
   // [EndExclude hm_router_get_current_param]
 }
+
 // [End hm_router]
 // [End hm_router_get_current_param]

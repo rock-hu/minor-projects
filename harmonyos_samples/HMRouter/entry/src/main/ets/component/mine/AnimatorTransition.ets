@@ -60,13 +60,13 @@ export struct AnimatorTransition {
     this.nvId = this.queryNavigationInfo()?.navigationId!;
     TemplateService.aboutToAppear(this.nvId, 'animatorTransition', false, this.translateOption, this.scaleOption,
       this.opacityOption);
-    if(AppStorage.get('isSelectWithSystem') !== undefined) {
+    if (AppStorage.get('isSelectWithSystem') !== undefined) {
       this.isSelectWithSystem = AppStorage.get('isSelectWithSystem') as boolean;
     }
-    if(AppStorage.get('isSelectCustomAnimation') !== undefined) {
+    if (AppStorage.get('isSelectCustomAnimation') !== undefined) {
       this.isSelectCustomAnimation = AppStorage.get('isSelectCustomAnimation') as boolean;
     }
-    if(AppStorage.get('selectIndex') !== undefined) {
+    if (AppStorage.get('selectIndex') !== undefined) {
       this.selectIndex = AppStorage.get('selectIndex') as number;
     }
   }
@@ -81,25 +81,25 @@ export struct AnimatorTransition {
       Column() {
         Text(MineConstants.MINE_ANIMATION_CONTENT)
           .maxLines(2)
-          .textOverflow({overflow:TextOverflow.Ellipsis})
+          .textOverflow({ overflow: TextOverflow.Ellipsis })
           .fontColor($r('app.color.animator_text_font_color'))
           .margin(10);
-        Flex({direction: FlexDirection.Row, justifyContent: FlexAlign.SpaceBetween, alignItems: ItemAlign.Center}) {
+        Flex({ direction: FlexDirection.Row, justifyContent: FlexAlign.SpaceBetween, alignItems: ItemAlign.Center }) {
           Text(MineConstants.MINE_ANIMATION_TYPE2)
             .fontWeight(FontWeight.Bold);
-          Toggle({type: ToggleType.Switch, isOn: this.isSelectWithSystem})
+          Toggle({ type: ToggleType.Switch, isOn: this.isSelectWithSystem })
             .width(36)
             .height(20)
             .selectedColor($r('app.color.animator_select_color'))
             .switchPointColor($r('app.color.animator_switch_point_color'))
             .onClick(() => {
               this.setIsSelectWithSystem(!this.isSelectWithSystem);
-              if(this.isSelectWithSystem && this.isSelectCustomAnimation) {
+              if (this.isSelectWithSystem && this.isSelectCustomAnimation) {
                 this.setIsSelectCustomAnimation(false);
               }
-              if(this.isSelectWithSystem) {
+              if (this.isSelectWithSystem) {
                 this.system = MineConstants.MINE_ANIMATION_TYPE2;
-              } else if(this.isSelectCustomAnimation) {
+              } else if (this.isSelectCustomAnimation) {
                 this.system = MineConstants.MINE_ANIMATION_TYPE3;
               } else {
                 this.system = MineConstants.MINE_ANIMATION_TYPE1;
@@ -116,22 +116,22 @@ export struct AnimatorTransition {
         .backgroundColor($r('app.color.animator_flex_background_color'))
         .borderRadius(15);
 
-        Flex({direction: FlexDirection.Row, justifyContent: FlexAlign.SpaceBetween, alignItems: ItemAlign.Center}) {
+        Flex({ direction: FlexDirection.Row, justifyContent: FlexAlign.SpaceBetween, alignItems: ItemAlign.Center }) {
           Text(MineConstants.MINE_ANIMATION_TYPE3)
             .fontWeight(FontWeight.Bold);
-          Toggle({type: ToggleType.Switch, isOn: this.isSelectCustomAnimation})
+          Toggle({ type: ToggleType.Switch, isOn: this.isSelectCustomAnimation })
             .width(36)
             .height(20)
             .selectedColor($r('app.color.animator_select_color'))
             .switchPointColor($r('app.color.animator_switch_point_color'))
             .onClick(() => {
               this.setIsSelectCustomAnimation(!this.isSelectCustomAnimation);
-              if(this.isSelectCustomAnimation && this.isSelectWithSystem) {
+              if (this.isSelectCustomAnimation && this.isSelectWithSystem) {
                 this.setIsSelectWithSystem(false);
               }
-              if(this.isSelectWithSystem) {
+              if (this.isSelectWithSystem) {
                 this.system = MineConstants.MINE_ANIMATION_TYPE2;
-              } else if(this.isSelectCustomAnimation) {
+              } else if (this.isSelectCustomAnimation) {
                 this.system = MineConstants.MINE_ANIMATION_TYPE3;
               } else {
                 this.system = MineConstants.MINE_ANIMATION_TYPE1;
@@ -141,7 +141,7 @@ export struct AnimatorTransition {
         }
         .width('95%')
         .height(60)
-        .margin({left: 10, right: 10})
+        .margin({ left: 10, right: 10 })
         .padding(10)
         .backgroundColor($r('app.color.animator_flex_background_color'))
         .borderRadius(15);
@@ -151,7 +151,7 @@ export struct AnimatorTransition {
             .fontColor($r('app.color.animator_text_font_color'))
             .margin(15);
 
-          Flex({direction: FlexDirection.Row, justifyContent: FlexAlign.Start, alignItems: ItemAlign.Start}) {
+          Flex({ direction: FlexDirection.Row, justifyContent: FlexAlign.Start, alignItems: ItemAlign.Start }) {
             Row() {
               ForEach(this.arr, (item: SelectAnimatorItem, index: number) => {
                 Flex({
@@ -166,30 +166,30 @@ export struct AnimatorTransition {
                   .backgroundColor($r('app.color.animator_row_background_color'))
                   .borderRadius(10)
                   .border(this.selectIndex === index ? { width: 1, color: $r('app.color.animator_select_color') } :
-                    {width: 0, color: Color.Transparent})
+                    { width: 0, color: Color.Transparent })
                   .width(60)
                   .height(60);
 
                   Text(item.getDirectionText())
-                    .margin({top: 10})
+                    .margin({ top: 10 })
                     .fontColor(this.selectIndex === index ? $r('app.color.animator_select_color') :
                     $r('app.color.animator_text_not_select_color'))
                 }
                 .onClick(() => {
                   this.selectIndex = index;
                   AppStorage.setOrCreate('selectIndex', this.selectIndex);
-                  if(this.selectIndex === 0) {
+                  if (this.selectIndex === 0) {
                     let effect: IHMAnimator.Effect = new IHMAnimator.Effect({
                       direction: IHMAnimator.Direction.LEFT_TO_RIGHT,
-                      opacity: {opacity: 0.5}
+                      opacity: { opacity: 0.5 }
                     });
                     HMRouterMgr.registerGlobalAnimator('mainNavigationId', 'standard', effect.toAnimator());
                     HMRouterMgr.registerGlobalAnimator('mainNavigationId', 'dialog', effect.toAnimator());
-                  } else if(this.selectIndex === 1) {
+                  } else if (this.selectIndex === 1) {
                     let effect: IHMAnimator.Effect = HMDefaultGlobalAnimator.STANDARD_ANIMATOR;
                     HMRouterMgr.registerGlobalAnimator('mainNavigationId', 'standard', effect.toAnimator());
                     HMRouterMgr.registerGlobalAnimator('mainNavigationId', 'dialog', effect.toAnimator());
-                  } else if(this.selectIndex === 2) {
+                  } else if (this.selectIndex === 2) {
                     // [Start hm_animator]
                     let effect: IHMAnimator.Effect = new IHMAnimator.Effect({
                       scale: {
@@ -198,18 +198,18 @@ export struct AnimatorTransition {
                         x: 0.5,
                         y: 0.5
                       },
-                      opacity: {opacity: 0.3}
+                      opacity: { opacity: 0.3 }
                     });
                     // [End hm_animator]
                     HMRouterMgr.registerGlobalAnimator('mainNavigationId', 'standard', effect.toAnimator());
                     HMRouterMgr.registerGlobalAnimator('mainNavigationId', 'dialog', effect.toAnimator());
                   }
                 })
-                .margin({right: 10});
+                .margin({ right: 10 });
               }, (item: SelectAnimatorItem, index: number) => JSON.stringify(item) + index);
             };
           }
-          .margin({left: 10})
+          .margin({ left: 10 })
           .height('15%');
         }.visibility(this.isSelectCustomAnimation ? Visibility.Visible : Visibility.Hidden);
       }

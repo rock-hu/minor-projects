@@ -18,7 +18,8 @@ import { CodeView } from '../../../commoncomponents/CodeView';
 import { TitleBarDark } from '../../../commoncomponents/TitleBarDark';
 import { TitleBar } from '../../../commoncomponents/TitleBar';
 
-let storage: LocalStorage = LocalStorage.getShared();
+let context: UIContext = AppStorage.get('uiContext') as UIContext;
+let storage: LocalStorage = context.getSharedLocalStorage() as LocalStorage;
 
 @Entry(storage)
 @Component

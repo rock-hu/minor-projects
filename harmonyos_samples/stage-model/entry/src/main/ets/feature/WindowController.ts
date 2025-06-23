@@ -40,7 +40,7 @@ export default class WindowController {
         return
       }
       Logger.info(TAG, `Succeeded in obtaining the top window. Data: ${JSON.stringify(data)}`)
-      promptAction.showToast({
+      this.UIContext.getPromptAction().showToast({
         message: `Succeeded in obtaining the top window`
       })
     })

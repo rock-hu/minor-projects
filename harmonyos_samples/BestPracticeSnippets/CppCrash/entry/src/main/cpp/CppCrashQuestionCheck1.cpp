@@ -9,19 +9,19 @@
  */
 
 // [Start getStackReference]
-# include <iostream>
+#include <iostream>
 
-int& getStackReference() {
+int &getStackReference() {
     int x = 5;
-    return x;  // Return the reference of x
+    return x; // Return the reference of x
 }
 
 
 int main() {
-    int& ref = getStackReference();  // Obtain the reference of x
+    int &ref = getStackReference(); // Obtain the reference of x
     // x is released after the getStackReference function returns
     // ref is now a dangling reference. Continuing to access it will result in undefined behavior
-    std::cout << ref << std::endl;  // Attempting to output the value of x is an undefined behavior
+    std::cout << ref << std::endl; // Attempting to output the value of x is an undefined behavior
     return 0;
 }
 // [End getStackReference]

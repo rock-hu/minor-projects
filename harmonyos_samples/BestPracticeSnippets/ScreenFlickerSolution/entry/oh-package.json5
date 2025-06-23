@@ -20,6 +20,8 @@
   "main": "",
   "author": "",
   "license": "",
-  "dependencies": {}
+  "dependencies": {
+    "@ohos/pulltorefresh": "2.1.3-rc.0"
+  }
 }
 

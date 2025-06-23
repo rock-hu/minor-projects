@@ -15,10 +15,8 @@
 
 #include "napi/native_api.h"
 #include "add/add.h"
-// DocsCode1
 // src/main/cpp/napi_init.cpp
 #include "dlfcn.h"
-// DocsCode1
 
 static napi_value Add(napi_env env, napi_callback_info info) {
     size_t argc = 2;
@@ -80,7 +78,6 @@ static napi_value NAPI_Global_nativeAdd(napi_env env, napi_callback_info info) {
  * @param
  * @return
  */
-// DocsCode1
 typedef double (*Sub)(double, double);
 static napi_value NAPI_Global_nativeSub(napi_env env, napi_callback_info info) {
     size_t argc = 3;
@@ -100,22 +97,17 @@ static napi_value NAPI_Global_nativeSub(napi_env env, napi_callback_info info) {
     dlclose(handle); // 关闭so库
     return result;
 }
-// DocsCode1
 
-// DocsCode1
 EXTERN_C_START
 static napi_value Init(napi_env env, napi_value exports) {
     napi_property_descriptor desc[] = {
-        // DocsDot
         {"add", nullptr, Add, nullptr, nullptr, nullptr, napi_default, nullptr},
         {"nativeAdd", nullptr, NAPI_Global_nativeAdd, nullptr, nullptr, nullptr, napi_default, nullptr},
-        // DocsDot
         {"nativeSub", nullptr, NAPI_Global_nativeSub, nullptr, nullptr, nullptr, napi_default, nullptr}};
     napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc);
     return exports;
 }
 EXTERN_C_END
-// DocsCode1
 
 static napi_module demoModule = {
     .nm_version = 1,

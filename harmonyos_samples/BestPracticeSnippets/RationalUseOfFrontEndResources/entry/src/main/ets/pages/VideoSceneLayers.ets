@@ -7,9 +7,9 @@ import { webview } from '@kit.ArkWeb';
 @Component
 struct VideoSceneLayers {
   build() {
-    Column(){
+    Column() {
       // [Start Video_scene_layers]
-      XComponent({ id: 'XComponentId', type: 'surface', libraryname: 'entry'})
+      XComponent({ id: 'XComponentId', type: 'surface', libraryname: 'entry' })
         .width(360)
         .height(360)
       // [End Video_scene_layers]

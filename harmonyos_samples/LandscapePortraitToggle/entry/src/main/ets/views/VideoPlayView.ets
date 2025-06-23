@@ -108,7 +108,7 @@ export struct VideoPlayView {
   // [Start is_expanded_or_halfFolded]
   isExpandedOrHalfFolded(): boolean {
     return display.getFoldStatus() === display.FoldStatus.FOLD_STATUS_EXPANDED ||
-      display.getFoldStatus() == display.FoldStatus.FOLD_STATUS_HALF_FOLDED
+      display.getFoldStatus() === display.FoldStatus.FOLD_STATUS_HALF_FOLDED
   }
 
   // [End is_expanded_or_halfFolded]

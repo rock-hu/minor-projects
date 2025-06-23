@@ -17,11 +17,15 @@
  * 最佳实践：特定页面设置自定义转场
  */
 
-import { HMAnimator, HMAnimatorHandle,
+import {
+  HMAnimator,
+  HMAnimatorHandle,
   HMRouterMgr,
-  IHMAnimator, OpacityOption,
+  IHMAnimator,
+  OpacityOption,
   ScaleOption,
-  TranslateOption } from "@hadss/hmrouter";
+  TranslateOption
+} from "@hadss/hmrouter";
 
 // [Start custom_cut_to_animator]
 
@@ -61,6 +65,7 @@ export class CustomAnimator implements IHMAnimator {
     enterHandle.curve = Curve.Linear;
   }
 }
+
 // [End custom_cut_to_animator]
 
 export class CustomAnimatorTransfer {

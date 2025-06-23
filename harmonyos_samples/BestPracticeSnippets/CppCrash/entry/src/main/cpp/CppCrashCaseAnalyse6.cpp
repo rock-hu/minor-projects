@@ -14,11 +14,11 @@
 // [Start TriggerCrash6]
 static napi_value TriggerCrash(napi_env env, napi_callback_info info)
 {
-# if 0  //If the value is 0, an error will be reported. If it is 1, it is normal
+#if 0  //If the value is 0, an error will be reported. If it is 1, it is normal
     void *pc = malloc(1024);
-# else
+#else
     void *pc = nullptr;
-# endif
+#endif
     assert(pc != nullptr);
     return 0;
 }

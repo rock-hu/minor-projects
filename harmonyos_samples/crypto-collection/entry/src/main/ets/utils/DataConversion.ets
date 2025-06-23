@@ -30,7 +30,7 @@ export class DataConversion {
   constructor(context: UIContext) {
     this.context = context
   }
-
+  // [Start cover_str_pubkey]
   public static async convertStrToPubKey(keyStr: string): Promise<cryptoFramework.PubKey> {
     const puKeyStr = keyStr.startsWith('04') ? keyStr.slice(2) : keyStr;
     const pkPart1 = puKeyStr.slice(0, puKeyStr.length / 2);
@@ -49,6 +49,7 @@ export class DataConversion {
     let pksData = keypairGenerator.generatePubKeySync();
     return pksData;
   }
+  // [End cover_str_pubkey]
 
   /**
    * Generate SM2 private key based on key parameters.
@@ -56,6 +57,7 @@ export class DataConversion {
    * @param keyStr Hexadecimal private key。
    * @returns Promise<cryptoFramework.PriKey>.
    */
+  // [Start cover_str_to_prikey]
   public static async convertStrToPriKey(keyStr: string): Promise<cryptoFramework.PriKey> {
     const sks = BigInt('0x' + keyStr);
     const priKeySpec: cryptoFramework.ECCPriKeySpec = {
@@ -68,7 +70,7 @@ export class DataConversion {
     let sksData = priKeypairGenerator.generatePriKeySync();
     return sksData;
   }
-
+  // [End cover_str_to_prikey]
   getLenHex(data: string): string {
     let byte: number = Number.parseInt('0x' + data.slice(0, 2));
     let len_size: number = byte > 127 ? byte - 0x80 + 1 : 1;
@@ -151,6 +153,7 @@ export class DataConversion {
    * @param standard_data standard SM2 ciphertext.
    * @returns string.
    */
+  // [Start sm2_cipher_text]
   d2i_SM2_Ciphertext(standard_data: string): string {
     let message: string = standard_data;
     if (!message.startsWith('30')) {
@@ -178,6 +181,7 @@ export class DataConversion {
     let primal_data: string = sm2_sequence.C1x + sm2_sequence.C1y + sm2_sequence.C3 + sm2_sequence.C2;
     return primal_data;
   }
+  // [End sm2_cipher_text]
 
   /**
    * Convert to ASN. 1 format.
@@ -185,6 +189,7 @@ export class DataConversion {
    * @param standard_data C1C3C2 ciphertext.
    * @returns string.
    */
+  // [Start i2d_sm2_cipher_text]
   i2dSM2CipherText(primal_data: string): string {
     let sm2_sequence = new SM2Sequence();
     sm2_sequence.C1x = primal_data.slice(0, 64);
@@ -207,7 +212,8 @@ export class DataConversion {
     let standard_data = '30' + sequence_lenHex + sequence_message;
     return standard_data;
   }
-
+  // [End i2d_sm2_cipher_text]
+  // [Start string_to_unit8array]
   // Convert string to uint8Array.
   public static stringToUint8Array(str: string): Uint8Array {
     let textEncoder = util.TextEncoder.create('utf-8');
@@ -219,7 +225,8 @@ export class DataConversion {
     let textDecoder = util.TextDecoder.create('utf-8');
     return textDecoder.decodeToString(input);
   }
-
+  // [End string_to_unit8array]
+  // [Start base64_unit_array]
   // Convert base64 to uint8Array.
   public static base64ToUint8Array(str: string): Uint8Array {
     let base64Helper = new util.Base64Helper();
@@ -231,7 +238,8 @@ export class DataConversion {
     let base64Helper = new util.Base64Helper();
     return base64Helper.encodeToStringSync(input);
   }
-
+  // [End base64_unit_array]
+  // [Start hex_str_to_unit8array]
   // Convert hex to uint8Array.
   public static hexStrToUint8Array(data: string): Uint8Array {
     return new Uint8Array(buffer.from(data, 'hex').buffer);
@@ -246,4 +254,5 @@ export class DataConversion {
     }
     return hexString;
   }
+  // [End hex_str_to_unit8array]
 }

@@ -24,12 +24,13 @@ import { VideoDetails } from '../view/VideoDetails';
 
 const TAG = '[IndexPage]';
 
-
+// [Start index_page1]
 @Entry
 @Component
 struct IndexPage {
   @State isFloatWindow: boolean = false;
   @StorageProp('deviceHeight') @Watch('onWindowSizeChange') deviceHeight: number = AppStorage.get<number>('deviceHeight') || 0;
+  // [StartExclude index_page1]
   @State @Watch('onWindowSizeChange') isFullScreen: boolean = false;
   @State @Watch('onWindowSizeChange') isFullLandscapeScreen: boolean = false;
   @State sources: VideoData[] = SOURCES;
@@ -42,7 +43,7 @@ struct IndexPage {
   // [Start about_appear]
   // Turn on window size monitoring in aboutToAppear
   async aboutToAppear(): Promise<void> {
-    let context = this.getUIContext().getHostContext()!;
+    let context = this.getUIContext().getHostContext() as Context;
     let windowClass = await window.getLastWindow(context);
     // [StartExclude about_appear]
     await windowClass.setWindowKeepScreenOn(true);
@@ -74,21 +75,6 @@ struct IndexPage {
     this.isPageShow = true;
   }
 
-  // [Start device_width]
-  // Because the width and height of the floating window are the system default, the value of isFloatWindow (whether to display the floating window or not) is only processed according to the height of the window, which is used to control the display and concealment of the interface components.
-  onWindowSizeChange() {
-    let deviceWidth = AppStorage.get<number>('deviceWidth') || 0;
-    // Judge whether it is a horizontal screen or a vertical screen suspension window.
-    if (this.isFullLandscapeScreen && Math.round((this.deviceHeight / deviceWidth) * 1000) / 1000 === 0.563) {
-      this.isFloatWindow = true;
-    } else if (this.isFullScreen &&
-      (Math.round((deviceWidth / this.deviceHeight) * 1000) / 1000 === 0.563 || Math.round((deviceWidth / this.deviceHeight) * 10) / 10 === 0.6)) {
-      this.isFloatWindow = true;
-    } else {
-      this.isFloatWindow = false;
-    }
-  }
-  // [End device_width]
   onBackPress(): boolean | void {
     if (this.isFullScreen || this.isFullLandscapeScreen) {
       this.handleFullScreenExit();
@@ -237,4 +223,27 @@ struct IndexPage {
       this.isFullScreen = !this.isFullScreen;
     });
   }
+
+  // [Start device_width1]
+  // Because the width and height of the floating window are the system default, the value of isFloatWindow (whether to display the floating window or not) is only processed according to the height of the window, which is used to control the display and concealment of the interface components.
+  // [EndExclude index_page1]
+  onWindowSizeChange() {
+    // [StartExclude index_page1]
+    let deviceWidth = AppStorage.get<number>('deviceWidth') || 0;
+    // Judge whether it is a horizontal screen or a vertical screen suspension window.
+    if (this.isFullLandscapeScreen && Math.round((this.deviceHeight / deviceWidth) * 1000) / 1000 === 0.563) {
+      this.isFloatWindow = true;
+    } else if (this.isFullScreen &&
+      (Math.round((deviceWidth / this.deviceHeight) * 1000) / 1000 === 0.563
+        || Math.round((deviceWidth / this.deviceHeight) * 10) / 10 === 0.6)) {
+      this.isFloatWindow = true;
+    } else {
+      this.isFloatWindow = false;
+    }
+    // [EndExclude index_page1]
+  }
+  // [End device_width1]
 }
+// [End index_page1]
+
+

@@ -1,17 +1,6 @@
 {
   "strarray": [
     {
-      "name": "operation_arr",
-      "value": [
-        {
-          "value": "Calendar"
-        },
-        {
-          "value": "Character text processing"
-        }
-      ]
-    },
-    {
       "name": "text_type_arr",
       "value": [
         {

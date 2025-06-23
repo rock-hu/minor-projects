@@ -23,9 +23,7 @@ import { window } from '@kit.ArkUI';
 import { deviceInfo } from '@kit.BasicServicesKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
-
 export default class EntryAbility extends UIAbility {
-  // ...
   onWindowStageCreate(windowStage: window.WindowStage): void {
     windowStage.loadContent('pages/Index', (err) => {
       if (err.code) {
@@ -34,7 +32,6 @@ export default class EntryAbility extends UIAbility {
       }
       hilog.info(0x0000, 'testTag', 'Succeeded in loading the content.');
     });
-    // ...
     windowStage.getMainWindow().then((data: window.Window) => {
       let deviceTypeInfo: string = deviceInfo.deviceType;
       if (deviceTypeInfo === '2in1') {
@@ -44,7 +41,6 @@ export default class EntryAbility extends UIAbility {
         data.setWindowDecorHeight(64);
       }
     })
-    // ...
   }
 }
 // [End onwindowstagecreate1]

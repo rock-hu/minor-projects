@@ -15,9 +15,9 @@
 
 @Component
 export default struct OperationView {
-  private operationKey: string | Resource = '';
-  private showArrow: boolean = true;
-  private handleClick: () => void = (): void => {};
+  showArrow: boolean = true;
+  operationKey: string | Resource = '';
+  handleClick: () => void = (): void => {};
 
   build() {
     Row() {

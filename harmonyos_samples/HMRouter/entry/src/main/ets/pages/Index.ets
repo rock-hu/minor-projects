@@ -50,7 +50,7 @@ struct Index {
     uiObserver.on('navDestinationSwitch', this.getUIContext(), {
       navigationId: 'mainNavigationId'
     }, (info) => {
-      if(this.refreshPages.includes((info.to as NavDestinationInfo).name.toString())) {
+      if (this.refreshPages.includes((info.to as NavDestinationInfo).name.toString())) {
         AppStorage.setOrCreate('currentPage', (info.to as NavDestinationInfo).name.toString());
       }
     });

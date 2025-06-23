@@ -29,12 +29,11 @@ export default class EntryAbility extends UIAbility {
   onWindowSizeChange: (data: window.Size) => void = (data: window.Size) => {
     this.setDefaultOrientation();
   }
-  // ...
+
   setDefaultOrientation(): void {
     let windowRect: window.Rect = this.windowObj!.getWindowProperties().windowRect;
     let windowWidthVp: number = this.uiContext!.px2vp(windowRect.width);
     let windowHeightVp: number = this.uiContext!.px2vp(windowRect.height);
-
 
     // If this condition is met, the window can be rotated.
     if (Math.min(windowWidthVp, windowHeightVp) > 348) {
@@ -45,7 +44,6 @@ export default class EntryAbility extends UIAbility {
       this.windowObj?.setPreferredOrientation(window.Orientation.PORTRAIT);
     }
   }
-
 
   onWindowStageCreate(windowStage: window.WindowStage): void {
     // Main window is created, set main page for this ability
@@ -66,6 +64,5 @@ export default class EntryAbility extends UIAbility {
       hilog.info(0x0000, 'testTag', 'Succeeded in loading the content.');
     });
   }
-  // ...
 }
 // [End setdefaultorientation]

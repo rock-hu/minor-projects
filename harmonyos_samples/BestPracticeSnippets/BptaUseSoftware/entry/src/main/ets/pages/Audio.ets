@@ -43,9 +43,9 @@ async function read() {
   let path = context.filesDir; // Path of the file
 
   const filePath = path + '/voice_call_data.wav'; // Prohibit the file from being played silently
-  let file: fs.File = fs.openSync(filePath, fs.OpenMode.READ_ONLY); //Open the file
+  let file: fs.File = fs.openSync(filePath, fs.OpenMode.READ_ONLY); // Open the file
   let buf = new ArrayBuffer(bufferSize);
-  let readsize: number = await fs.read(file.fd, buf); //Read the file content
-  let writeSize: number = await audioRenderer.write(buf); //Play the file content
+  let readSize: number = await fs.read(file.fd, buf); // Read the file content
+  let writeSize: number = await audioRenderer.write(buf); // Play the file content
 }
 // [End audio_bpta]

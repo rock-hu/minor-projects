@@ -3,7 +3,7 @@
 ### Overview
 
 The HarmonyOS application framework provides the component reuse capability. When a reusable component is removed from the component tree, it enters a recycling buffer. When a new component node is created, the node in the buffer is reused, saving the time for recreating the component.
-This sample is used with the [Best Practices for Component Reuse](https://developer.huawei.com/consumer/en/doc/best-practices-V5/bpta-component-reuse-V5).
+This sample is used with the [Best Practices for Component Reuse](https://developer.huawei.com/consumer/en/doc/best-practices/bpta-component-reuse).
 The practices describe how to use the component reuse mechanism to improve the application frame rate.
 
 ### Preview
@@ -47,14 +47,7 @@ The practices describe how to use the component reuse mechanism to improve the a
 │     ├──WithFuncParam.ets              // Username list UI on the level-2 page
 │     └──WithReuseId.ets                // Image-text list UI on the level-2 page
 └──entry/src/main/resources             // Static resources
-``` 
-
-### How to Implement
-
-1. [Principles for Component Reuse](https://developer.huawei.com/consumer/en/doc/best-practices-V5/bpta-component-reuse-V5#section142448345398)
-2. [Usage for Component Reuse](https://developer.huawei.com/consumer/en/doc/best-practices-V5/bpta-component-reuse-V5#section5923195311402)
-3. [Optimization Methods for Component Reuse](https://developer.huawei.com/consumer/en/doc/best-practices-V5/bpta-component-reuse-V5#section937434455716)
-4. [Failure Scenarios for Component Reuse](https://developer.huawei.com/consumer/en/doc/best-practices-V5/bpta-component-reuse-V5#section1556917819517)
+```
 
 ### Required Permissions
 

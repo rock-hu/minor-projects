@@ -55,7 +55,7 @@ export struct LyricsComponent {
     this.context .resourceManager .getRawFileContent(this.songList[this.selectIndex].lyric)
       .then((value: Uint8Array) => {
         let textDecoder = util.TextDecoder.create(PlayerConstants.ENCODING, { ignoreBOM: true });
-        let stringData = textDecoder.decodeWithStream(value, { stream: false });
+        let stringData = textDecoder.decodeToString(value, { stream: false });
         if (this.songList[this.selectIndex].lyric.endsWith(LyricFile.KRC)) {
           this.mLrcEntryList = parseKrcLyric(stringData);
         } else if (this.songList[this.selectIndex].lyric.endsWith(LyricFile.LRC)) {

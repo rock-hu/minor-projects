@@ -51,13 +51,15 @@ import { HomeConstants } from '../constants/HomeConstants';
   })
 }
 
+const uiContext: UIContext | undefined = AppStorage.get('uiContext');
+
 @CustomDialog
 export struct VideoDialog {
   @StorageLink('currentWidthBreakpoint') currentWidthBreakpoint: string = BreakpointConstants.BREAKPOINT_LG;
   private xComponentController: XComponentController = new XComponentController();
   private surfaceId: string = '';
   private avPlayer?: media.AVPlayer;
-  private context: common.UIAbilityContext = getContext(this) as common.UIAbilityContext;
+  private context: Context | undefined = uiContext?.getHostContext();
   private url?: resourceManager.RawFileDescriptor;
   private playState: boolean = true;
   private controller?: CustomDialogController;
@@ -72,7 +74,7 @@ export struct VideoDialog {
     }
     switch (state) {
       case CommonConstants.AV_PLAYER_IDLE_STATE:
-        this.url = await this.context.resourceManager.getRawFd(CommonConstants.PRODUCT_VIDEO_NAME);
+        this.url = await this.context!.resourceManager.getRawFd(CommonConstants.PRODUCT_VIDEO_NAME);
         this.avPlayer.fdSrc = this.url;
         Logger.info('AVPlayer state idle called.');
         break;
@@ -178,7 +180,7 @@ export struct VideoDialog {
   async createAvPlayer(): Promise<void> {
     this.avPlayer = await media.createAVPlayer();
     // Entering the idle state.
-    this.url = await this.context.resourceManager.getRawFd(CommonConstants.PRODUCT_VIDEO_NAME);
+    this.url = await this.context!.resourceManager.getRawFd(CommonConstants.PRODUCT_VIDEO_NAME);
     this.avPlayer.fdSrc = this.url;
     this.setAVPlayerCallback();
     // Initialize the playback status.

@@ -54,14 +54,11 @@ export default class EntryAbility extends UIAbility {
     });
 
     windowStage.loadContent('pages/Index', (err) => {
-      AppStorage.setOrCreate('uiContext', windowStage.getMainWindowSync().getUIContext());
       if (err.code) {
         hilog.error(0x0000, 'testTag', 'Failed to load the content. Cause: %{public}s', JSON.stringify(err) ?? '');
         return;
       }
       hilog.info(0x0000, 'testTag', 'Succeeded in loading the content.');
-      let uiContext:  UIContext | undefined = windowStage.getMainWindowSync().getUIContext()
-      AppStorage.setOrCreate('uiContext', uiContext);
     });
     let windowClass: window.Window = windowStage.getMainWindowSync();
 

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { componentUtils } from '@kit.ArkUI';
+import { componentUtils, ComponentUtils } from '@kit.ArkUI';
 import { deviceInfo } from '@kit.BasicServicesKit';
 import { BreakpointConstants, CommonConstants } from '@ohos/commons';
 import { BreakpointType, Logger, WindowUtil } from '@ohos/commons';
@@ -33,6 +33,8 @@ export struct RecommendedVideo {
   @State videoImgList: VideoImage[] = new VideoImgViewModel().getVideoImgList();
   private videoDialogController?: CustomDialogController;
   private windowUtil?: WindowUtil;
+  private uiContext: UIContext | undefined = AppStorage.get('uiContext');
+
   // [Start recommended_video]
   build() {
     // Video grid layout.
@@ -78,15 +80,16 @@ export struct RecommendedVideo {
                     return;
                   }
                   // Obtains all attributes of a component.
+                  let componentUtils: ComponentUtils | undefined = this.uiContext?.getComponentUtils();
                   let modePosition: componentUtils.ComponentInfo =
-                    componentUtils.getRectangleById(JSON.stringify(item));
+                    componentUtils!.getRectangleById(JSON.stringify(item));
                   let windowOffset = modePosition.windowOffset;
                   let size = modePosition.size;
                   // Obtains the height of the component from the top.
-                  let rectTop: number = px2vp(windowOffset.y);
-                  let rectTop2: number = px2vp(windowOffset.y + Math.floor(size.height));
+                  let rectTop: number = this.getUIContext().px2vp(windowOffset.y);
+                  let rectTop2: number = this.getUIContext().px2vp(windowOffset.y + Math.floor(size.height));
                   // Obtains the width of the component from the left.
-                  let rectLeft: number = px2vp(windowOffset.x);
+                  let rectLeft: number = this.getUIContext().px2vp(windowOffset.x);
                   let topHeightNeeded: number = new BreakpointType(HomeConstants.VIDEO_DIALOG_HEIGHTS[0],
                     HomeConstants.VIDEO_DIALOG_HEIGHTS[1], HomeConstants.VIDEO_DIALOG_HEIGHTS[2])
                     .getValue(this.currentWidthBreakpoint) + rectTop - rectTop2;
@@ -150,9 +153,9 @@ export struct RecommendedVideo {
     .height(this.getGridHeight(this.videoGridColumn, this.currentWidthBreakpoint, this.windowWidth))
     .padding({
       left: this.currentWidthBreakpoint === BreakpointConstants.BREAKPOINT_LG && this.currentTopIndex === 2 ?
-        new BreakpointType($r('app.float.home_recommended_padding_sm'), $r('app.float.home_recommended_padding_md'),
+      new BreakpointType($r('app.float.home_recommended_padding_sm'), $r('app.float.home_recommended_padding_md'),
         $r('app.float.home_recommended_padding_lg')).getValue(this.currentWidthBreakpoint) :
-        new BreakpointType($r('app.float.home_content_padding_sm'), $r('app.float.home_content_padding_md'),
+      new BreakpointType($r('app.float.home_content_padding_sm'), $r('app.float.home_content_padding_md'),
         $r('app.float.home_content_padding_lg')).getValue(this.currentWidthBreakpoint),
       right: new BreakpointType($r('app.float.home_content_padding_sm'), $r('app.float.home_content_padding_md'),
         $r('app.float.home_content_padding_lg')).getValue(this.currentWidthBreakpoint),
@@ -164,13 +167,13 @@ export struct RecommendedVideo {
     .gesture(PinchGesture({ fingers: 2 }).onActionUpdate((event: GestureEvent) => {
       if (event.scale > 1 && this.currentWidthBreakpoint !== BreakpointConstants.BREAKPOINT_SM) {
         if (this.currentWidthBreakpoint === BreakpointConstants.BREAKPOINT_MD) {
-          animateTo({
+          this.getUIContext().animateTo({
             duration: HomeConstants.ANIMATION_DURATION
           }, () => {
             this.videoGridColumn = CommonConstants.VIDEO_GRID_COLUMNS[1];
           })
         } else {
-          animateTo({
+          this.getUIContext().animateTo({
             duration: HomeConstants.ANIMATION_DURATION
           }, () => {
             this.videoGridColumn = CommonConstants.VIDEO_GRID_COLUMNS[2];
@@ -178,13 +181,13 @@ export struct RecommendedVideo {
         }
       } else if (event.scale < 1 && this.currentWidthBreakpoint !== BreakpointConstants.BREAKPOINT_SM) {
         if (this.currentWidthBreakpoint === BreakpointConstants.BREAKPOINT_MD) {
-          animateTo({
+          this.getUIContext().animateTo({
             duration: HomeConstants.ANIMATION_DURATION
           }, () => {
             this.videoGridColumn = CommonConstants.VIDEO_GRID_COLUMNS[2];
           })
         } else {
-          animateTo({
+          this.getUIContext().animateTo({
             duration: HomeConstants.ANIMATION_DURATION
           }, () => {
             this.videoGridColumn = CommonConstants.VIDEO_GRID_COLUMNS[3];
@@ -198,7 +201,7 @@ export struct RecommendedVideo {
 
   getGridHeight(videoGridColumn: string, currentWidthBreakpoint: string, windowWidth: number): string {
     // Obtain the window width and subtract the blank parts on both sides.
-    let result: number = px2vp(windowWidth) - new BreakpointType(HomeConstants.VIDEO_GRID_MARGIN[0],
+    let result: number = this.getUIContext().px2vp(windowWidth) - new BreakpointType(HomeConstants.VIDEO_GRID_MARGIN[0],
       HomeConstants.VIDEO_GRID_MARGIN[1], HomeConstants.VIDEO_GRID_MARGIN[2]).getValue(this.currentWidthBreakpoint);
     if (currentWidthBreakpoint === BreakpointConstants.BREAKPOINT_LG) {
       result = result - HomeConstants.LG_SIDEBAR_WIDTH;

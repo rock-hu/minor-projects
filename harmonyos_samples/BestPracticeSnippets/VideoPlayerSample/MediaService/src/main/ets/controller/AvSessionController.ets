@@ -66,14 +66,14 @@ export class AvSessionController {
   }
 
   // [Start meta_data]
-  public async setAVMetadata(curSource: VideoData, duration: number, uiContext: UIContext) {
+  public async setAVMetadata(curSource: VideoData, duration: number) {
     // [StartExclude meta_data]
     if (curSource === undefined) {
       Logger.error(TAG, 'SetAVMetadata Error, curSource is null');
       return;
     }
     // [EndExclude meta_data]
-    const imagePixMap = await ImageUtil.getPixmapFromMedia(curSource.head, uiContext);
+    const imagePixMap = await ImageUtil.getPixmapFromMedia(curSource.head);
     let metadata: avSession.AVMetadata = {
       assetId: `${curSource.index}`, // Media ID
       title: this.context?.resourceManager.getStringSync(curSource.name), // title
@@ -83,9 +83,9 @@ export class AvSessionController {
     if (this.avSession) {
       this.avSession.setAVMetadata(metadata).then(() => { // Call the set session metadata interface
         this.avSessionMetadata = metadata;
-        hilog.info(0x0001, TAG, "SetAVMetadata successfully");
+        Logger.info(TAG, "SetAVMetadata successfully");
       }).catch((err: BusinessError) => {
-        hilog.error(0x0001, TAG, `SetAVMetadata BusinessError: code: ${err.code}, message: ${err.message}`);
+        Logger.error(TAG, `SetAVMetadata BusinessError: code: ${err.code}, message: ${err.message}`);
       });
     }
   }
@@ -122,9 +122,9 @@ export class AvSessionController {
     if (this.avSession) {
       this.avSession.setAVPlaybackState(playbackState, (err: BusinessError) => {
         if (err) {
-          hilog.error(0x0001, TAG, `SetAVPlaybackState BusinessError: code: ${err.code}, message: ${err.message}`);
+          Logger.error(TAG, `SetAVPlaybackState BusinessError: code: ${err.code}, message: ${err.message}`);
         } else {
-          hilog.info(0x0001, TAG, "SetAVPlaybackState successfully");
+          Logger.info(TAG, "SetAVPlaybackState successfully");
         }
       });
     }

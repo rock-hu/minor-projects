@@ -25,6 +25,8 @@ interface ConversationDataInterface {
   icon: Resource
 };
 
+const uiContext: UIContext | undefined = AppStorage.get('uiContext');
+
 const ConversationListData: ConversationDataInterface[] = [
   { name: $r('app.string.Alan'), msg: $r('app.string.okay'), time: '13:55', icon: $r('app.media.avatar1') },
   { name: $r('app.string.CaiLan'), msg: $r('app.string.okay'), time: '13:55', icon: $r('app.media.avatar2') },
@@ -43,7 +45,7 @@ const ConversationListData: ConversationDataInterface[] = [
 class ConversationViewModel {
   public startAppletAbility(context: common.UIAbilityContext, index: number): void {
     const want: Want = {
-      bundleName: getContext(context).applicationInfo.name,
+      bundleName: uiContext?.getHostContext()?.applicationInfo.name,
       abilityName: 'AppletAbility',
       parameters: {
         position: index
@@ -62,7 +64,7 @@ class ConversationViewModel {
 
   public startDocumentAbility(context: common.UIAbilityContext, index: number): void {
     const want: Want = {
-      bundleName: getContext(context).applicationInfo.name,
+      bundleName: uiContext?.getHostContext()?.applicationInfo.name,
       abilityName: 'DocumentAbility',
       parameters: {
         position: index

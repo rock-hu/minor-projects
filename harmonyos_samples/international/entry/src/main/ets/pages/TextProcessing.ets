@@ -30,7 +30,7 @@ const types = ['U_UNASSIGNED', 'U_GENERAL_OTHER_TYPES', 'U_UPPERCASE_LETTER',
   'U_MODIFIER_SYMBOL', 'U_OTHER_SYMBOL', 'U_INITIAL_PUNCTUATION',
   'U_FINAL_PUNCTUATION', 'U_CHAR_CATEGORY_COUNT'];
 
-const LOCALE = i18n.System.getSystemLocale();
+const LOCALE = i18n.System.getAppPreferredLanguage().toString().includes('zh') ? 'zh' : 'en';
 const MAX = 60;
 
 @Entry
@@ -41,11 +41,16 @@ struct TextProcessing {
   @State areaTextValue: string = '';
   @State areaTextResult: string[] = [];
   @State textTypes: Array<string> = [];
-
+  @Watch('locale') @StorageLink('language') systemLanguages: string = '';
   UIContext = this.getUIContext();
-
   private breakIterator = i18n.getLineInstance(LOCALE);
   private context: common.UIAbilityContext = this.UIContext.getHostContext() as common.UIAbilityContext;
+
+  async locale() {
+    this.textTypes = await ResourceUtil.getStringArray($r('app.strarray.text_type_arr').id, this.context);
+    let type = i18n.Unicode.getType(this.textTypeValue);
+    this.textTypeResult = this.textTypes[types.indexOf(type)];
+  }
 
   async aboutToAppear() {
     this.textTypes = await ResourceUtil.getStringArray($r('app.strarray.text_type_arr').id, this.context);

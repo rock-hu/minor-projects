@@ -128,6 +128,7 @@ How to Use
 │ │ │ │ ├─PromptTone.ts // Prompt tone   
 │ │ │ │ ├─ScanLayout.ets // Barcode scanning UI layout management class   
 │ │ │ │ ├─ScanService.ets // Barcode scanning customization   
+│ │ │ │ ├─UIContextSelf.ets // UIContext management class   
 │ │ │ │ ├─WindowService.ets // Window management class   
 │ │ │ │ └─XComponentService.ets // XComponent management class   
 │ │ │ ├─pages // Pages   
@@ -220,5 +221,5 @@ The device where the sample app runs must be equipped with a camera.
 
 1. This sample can only be run on standard-system Huawei phones and tablets.
 2. The HarmonyOS version must be HarmonyOS 5.0.3 Release or later.
-3. The DevEco Studio version must be DevEco Studio 5.0.2 Beta1 or later.
-4. The HarmonyOS SDK version must be HarmonyOS 5.0.2 Beta1 SDK or later.
+3. The DevEco Studio version must be DevEco Studio 5.0.3 Release or later.
+4. The HarmonyOS SDK version must be HarmonyOS 5.0.3 Release SDK or later.

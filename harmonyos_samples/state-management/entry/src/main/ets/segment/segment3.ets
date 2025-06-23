@@ -12,7 +12,7 @@ struct UnnecessaryState1 {
     Column() {
       Button(this.buttonMsg)
         .onClick(() => {
-          animateTo({
+          this.getUIContext().animateTo({
             duration: 50
           }, () => {
             this.translateObj.translateX = (this.translateObj.translateX + 50) % 150; // Reassign value to variable translateObj when clicked.

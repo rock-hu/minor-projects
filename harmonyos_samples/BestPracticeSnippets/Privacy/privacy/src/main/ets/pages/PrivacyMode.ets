@@ -11,12 +11,12 @@ struct Index {
   @State message: string = 'Hello World';
 
   onPageShow(): void {
-    window.getLastWindow(getContext(this)).then((windowStage: window.Window) => {
+    window.getLastWindow(this.getUIContext().getHostContext()).then((windowStage: window.Window) => {
       windowStage.setWindowPrivacyMode(true);
     });
   }
   onPageHide(): void {
-    window.getLastWindow(getContext(this)).then((windowStage: window.Window) => {
+    window.getLastWindow(this.getUIContext().getHostContext()).then((windowStage: window.Window) => {
       windowStage.setWindowPrivacyMode(false);
     });
   }
@@ -28,7 +28,7 @@ struct Index {
           .fontWeight(FontWeight.Bold)
         Button('click to start Succ Page')
           .onClick(async () => {
-            router.pushUrl({ url: 'pages/loginSuccPage' })
+            this.getUIContext().getRouter().pushUrl({ url: 'pages/loginSuccPage' })
           })
       }
       .width('100%')

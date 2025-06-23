@@ -13,13 +13,29 @@
 * limitations under the License.
 */
 
-import { AbilityConstant, UIAbility, Want } from '@kit.AbilityKit';
+import { AbilityConstant, EnvironmentCallback, UIAbility, Want } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { window } from '@kit.ArkUI';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 export default class EntryAbility extends UIAbility {
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
     hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onCreate');
+    let environmentCallback: EnvironmentCallback = {
+      onConfigurationUpdated(config) {
+        AppStorage.setOrCreate('language', config.language);
+      },
+      onMemoryLevel(level) {
+        hilog.info(0x0000, 'testTag', '%{public}s', `onMemoryLevel level: ${level}`);
+      }
+    };
+    let applicationContext = this.context.getApplicationContext();
+    try {
+      let callbackId: number = applicationContext.on('environment', environmentCallback);
+    } catch (paramError) {
+      hilog.error(0x0000, 'testTag',
+        `error: ${(paramError as BusinessError).code}, ${(paramError as BusinessError).message}`);
+    }
   }
 
   onDestroy() {

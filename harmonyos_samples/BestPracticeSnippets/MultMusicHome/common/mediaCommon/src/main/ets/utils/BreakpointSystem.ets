@@ -16,6 +16,8 @@
 import { mediaquery } from '@kit.ArkUI';
 import { BreakpointConstants } from '@ohos/constantsCommon';
 
+const uiContext: UIContext | undefined = AppStorage.get('uiContext');
+
 declare interface BreakPointTypeOption<T> {
   sm?: T,
   md?: T,
@@ -43,9 +45,9 @@ export class BreakpointType<T> {
 
 export class BreakpointSystem {
   private currentBreakpoint: string = BreakpointConstants.BREAKPOINT_SM;
-  private smListener: mediaquery.MediaQueryListener = mediaquery.matchMediaSync(BreakpointConstants.RANGE_SM);
-  private mdListener: mediaquery.MediaQueryListener = mediaquery.matchMediaSync(BreakpointConstants.RANGE_MD);
-  private lgListener: mediaquery.MediaQueryListener = mediaquery.matchMediaSync(BreakpointConstants.RANGE_LG);
+  private smListener: mediaquery.MediaQueryListener = uiContext!.getMediaQuery().matchMediaSync(BreakpointConstants.RANGE_SM);
+  private mdListener: mediaquery.MediaQueryListener = uiContext!.getMediaQuery().matchMediaSync(BreakpointConstants.RANGE_MD);
+  private lgListener: mediaquery.MediaQueryListener = uiContext!.getMediaQuery().matchMediaSync(BreakpointConstants.RANGE_LG);
 
   private updateCurrentBreakpoint(breakpoint: string): void {
     if (this.currentBreakpoint !== breakpoint) {
@@ -71,11 +73,11 @@ export class BreakpointSystem {
   }
 
   public register(): void {
-    this.smListener = mediaquery.matchMediaSync(BreakpointConstants.RANGE_SM);
+    this.smListener = uiContext!.getMediaQuery().matchMediaSync(BreakpointConstants.RANGE_SM);
     this.smListener.on('change', this.isBreakpointSM);
-    this.mdListener = mediaquery.matchMediaSync(BreakpointConstants.RANGE_MD);
+    this.mdListener = uiContext!.getMediaQuery().matchMediaSync(BreakpointConstants.RANGE_MD);
     this.mdListener.on('change', this.isBreakpointMD);
-    this.lgListener = mediaquery.matchMediaSync(BreakpointConstants.RANGE_LG);
+    this.lgListener = uiContext!.getMediaQuery().matchMediaSync(BreakpointConstants.RANGE_LG);
     this.lgListener.on('change', this.isBreakpointLG);
   }
 

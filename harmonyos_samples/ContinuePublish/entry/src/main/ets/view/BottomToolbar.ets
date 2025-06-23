@@ -16,8 +16,7 @@
 import { abilityAccessCtrl, common } from '@kit.AbilityKit';
 import { geoLocationManager } from '@kit.LocationKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
-import { intl } from '@kit.LocalizationKit';
-import { promptAction } from '@kit.ArkUI';
+import { i18n } from '@kit.LocalizationKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { CommonConstants } from '../constants/CommonConstants';
 import { BreakpointConstants } from '../constants/BreakpointConstants';
@@ -39,7 +38,7 @@ export struct BottomToolbar {
   private context: common.UIAbilityContext = this.getUIContext().getHostContext() as common.UIAbilityContext;
   private latitude: number = 0;
   private longitude: number = 0;
-  private locale: string = new intl.Locale().language;
+  private locale: string = i18n.System.getAppPreferredLanguage();
 
   private location(location: geoLocationManager.Location) {
     try {
@@ -86,7 +85,7 @@ export struct BottomToolbar {
 
   systemLanguage(): void {
     if (this.latitude !== undefined && this.longitude !== undefined) {
-      this.locale = new intl.Locale().language;
+      this.locale = i18n.System.getAppPreferredLanguage();
       LocationUtil.getCurrentLocation(this.getGeolocation);
     }
   };

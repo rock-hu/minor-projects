@@ -23,7 +23,6 @@ import { deviceInfo } from '@kit.BasicServicesKit';
 import hilog from '@ohos.hilog';
 
 export default class EntryAbility extends UIAbility {
-  // ...
   onWindowStageCreate(windowStage: window.WindowStage) {
     // [StartExclude onWindowStageCreate]
     windowStage.loadContent('pages/Index', (err) => {
@@ -36,14 +35,11 @@ export default class EntryAbility extends UIAbility {
     // [EndExclude onWindowStageCreate]
     let windowClass: window.Window | null = null;
     windowStage.getMainWindow().then((data: window.Window) => {
-      // ...
       windowClass = data;
       if (deviceInfo.deviceType !== '2in1') {
         windowClass.setWindowLayoutFullScreen(true);
       }
     });
-    // ...
   }
 }
-
 // [End onWindowStageCreate]

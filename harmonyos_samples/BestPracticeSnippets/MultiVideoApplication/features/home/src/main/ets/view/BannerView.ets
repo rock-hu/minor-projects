@@ -291,7 +291,7 @@ export struct BannerView {
 
   getBannerNewHeight(windowWidth: number): string {
     // Obtain the window width and subtract the blank parts on both sides.
-    let result: number = px2vp(windowWidth) - new BreakpointType(HomeConstants.VIDEO_GRID_MARGIN[0],
+    let result: number = this.getUIContext().px2vp(windowWidth) - new BreakpointType(HomeConstants.VIDEO_GRID_MARGIN[0],
       HomeConstants.VIDEO_GRID_MARGIN[1], HomeConstants.VIDEO_GRID_MARGIN[2]).getValue(this.currentWidthBreakpoint) -
     HomeConstants.LG_SIDEBAR_WIDTH;
     // Calculate the width of a single image based on the percent.
