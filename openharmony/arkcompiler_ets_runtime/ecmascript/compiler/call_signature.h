@@ -54,6 +54,8 @@ public:
         BUILTINS_STUB,
         BUILTINS_WITH_ARGV_STUB,
         BASELINE_STUB,
+        COMMON_STW_COPY_STUB,
+        BUILTINS_STW_COPY_STUB,
 
         STUB_BEGIN = COMMON_STUB,
         STUB_END = BYTECODE_HANDLER,
@@ -616,7 +618,6 @@ private:
     V(JSHClassFindProtoTransitions)             \
     V(FinishObjSizeTracking)                    \
     V(NumberHelperStringToDouble)               \
-    V(GetStringToListCacheArray)                \
     V(IntLexicographicCompare)                  \
     V(DoubleLexicographicCompare)               \
     V(FastArraySortString)                      \

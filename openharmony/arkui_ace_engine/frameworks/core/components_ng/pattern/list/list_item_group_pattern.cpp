@@ -737,6 +737,12 @@ bool ListItemGroupPattern::CheckDataChangeOutOfStart(int32_t index, int32_t coun
 
 void ListItemGroupPattern::NotifyDataChange(int32_t index, int32_t count)
 {
+    if (auto parentList = GetListFrameNode()) {
+        if (auto listPattern = parentList->GetPattern<ListPattern>()) {
+            listPattern->UpdateGroupFocusIndexForDataChange(GetIndexInList(), index, count);
+        }
+    }
+
     if (itemPosition_.empty()) {
         return;
     }
@@ -1095,15 +1101,18 @@ bool ListItemGroupPattern::DetermineSingleLaneStep(
 {
     // Only for GetNextFocusNode
     // ListItemGroup does not handle HOME/END, bubble it up to List for processing.
+    auto parentList = GetListFrameNode();
+    CHECK_NULL_RETURN(parentList, false);
+    auto listPattern = parentList->GetPattern<ListPattern>();
+    CHECK_NULL_RETURN(listPattern, false);
+    auto isDefault = listPattern->GetFocusWrapMode() == FocusWrapMode::DEFAULT;
     if (step == FocusStep::UP_END || step == FocusStep::LEFT_END || step == FocusStep::DOWN_END ||
         step == FocusStep::RIGHT_END) {
         return false;
-    } else if ((isVertical && (step == FocusStep::DOWN)) || (!isVertical && step == FocusStep::RIGHT) ||
-               (step == FocusStep::TAB)) {
+    } else if (ListPattern::IsForwardStep(step, isVertical, isDefault)) {
         moveStep = 1;
         nextIndex += moveStep;
-    } else if ((isVertical && step == FocusStep::UP) || (!isVertical && step == FocusStep::LEFT) ||
-               (step == FocusStep::SHIFT_TAB)) {
+    } else if (ListPattern::IsBackwardStep(step, isVertical, isDefault)) {
         moveStep = -1;
         nextIndex += moveStep;
     } else if ((!isVertical && step == FocusStep::UP) || (!isVertical && step == FocusStep::DOWN)) {
@@ -1227,6 +1236,17 @@ bool ListItemGroupPattern::FindHeadOrTailChild(
 }
 bool ListItemGroupPattern::IsInViewport(int32_t index) const
 {
+    if (itemDisplayStartIndex_ == itemDisplayEndIndex_ && itemDisplayStartIndex_ == 0) {
+        auto host = GetHost();
+        CHECK_NULL_RETURN(host, false);
+        auto geometryNode = host->GetGeometryNode();
+        CHECK_NULL_RETURN(geometryNode, false);
+        auto rect = geometryNode->GetPaddingRect();
+        auto footerOffset = rect.Height() + rect.GetY() - footerMainSize_;
+        if (LessNotEqual(footerOffset, 0.0f)) {
+            return false;
+        }
+    }
     return index >= itemDisplayStartIndex_ && index <= itemDisplayEndIndex_;
 }
 
@@ -1245,6 +1265,9 @@ void ListItemGroupPattern::MappingPropertiesFromLayoutAlgorithm(
     layoutDirection_ = layoutAlgorithm->GetLayoutDirection();
     mainSize_ = layoutAlgorithm->GetMainSize();
     laneGutter_ = layoutAlgorithm->GetLaneGutter();
+    bool indexChanged = false;
+    indexChanged = itemDisplayEndIndex_ != layoutAlgorithm->GetEndIndex() ||
+                   itemDisplayStartIndex_ != layoutAlgorithm->GetStartIndex();
     itemDisplayEndIndex_ = layoutAlgorithm->GetEndIndex();
     itemDisplayStartIndex_ = layoutAlgorithm->GetStartIndex();
     headerMainSize_ = layoutAlgorithm->GetHeaderMainSize();
@@ -1257,6 +1280,15 @@ void ListItemGroupPattern::MappingPropertiesFromLayoutAlgorithm(
     listContentSize_ = layoutAlgorithm->GetListContentSize();
     prevMeasureBreak_ = layoutAlgorithm->MeasureInNextFrame();
     layouted_ = true;
+    if (indexChanged) {
+        auto parentList = GetListFrameNode();
+        CHECK_NULL_VOID(parentList);
+        auto listPattern = parentList->GetPattern<ListPattern>();
+        CHECK_NULL_VOID(listPattern);
+        if (!(itemDisplayStartIndex_ == itemDisplayEndIndex_ && itemDisplayStartIndex_ == 0)) {
+            listPattern->FireFocusInListItemGroup(GetIndexInList());
+        }
+    }
 }
 
 } // namespace OHOS::Ace::NG

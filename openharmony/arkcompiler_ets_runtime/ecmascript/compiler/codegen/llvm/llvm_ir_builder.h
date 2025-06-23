@@ -282,7 +282,8 @@ public:
     LLVMIRBuilder(const std::vector<std::vector<GateRef>> *schedule, Circuit *circuit,
                   LLVMModule *module, LLVMValueRef function, const CompilationConfig *cfg,
                   CallSignature::CallConv callConv, bool enableLog, bool isFastCallAot, const std::string &funcName,
-                  bool enableOptDirectCall, bool enableOptInlining = false, bool enableOptBranchProfiling = true);
+                  bool enableOptDirectCall, bool enableOptInlining = false, bool enableOptBranchProfiling = true,
+                  bool isStwCopyStub = false);
     ~LLVMIRBuilder();
     void Build();
 
@@ -476,6 +477,7 @@ private:
     GateAccessor acc_;
     BasicBlock *currentBb_ {nullptr};
     int lineNumber_ {0};
+    GateRef glue_ {Circuit::NullGate()};
 
     LLVMModuleRef module_ {nullptr};
     LLVMContextRef context_ {nullptr};
@@ -498,6 +500,7 @@ private:
     bool enableOptDirectCall_ {false};
     bool enableOptInlining_ {false};
     bool enableOptBranchProfiling_ {true};
+    bool isStwCopyStub_ {false};
     LLVMValueRef ASMBarrierCall_ {nullptr};
     LLVMTargetBuilder* targetBuilder_ {nullptr};
     static constexpr std::string_view COLD_ATTR = "cold";

@@ -696,13 +696,20 @@ NodeType HeapSnapshot::GenerateNodeType(TaggedObject *entry)
 void HeapSnapshot::FillNodes(bool isInFinish, bool isSimplify)
 {
     LOG_ECMA(INFO) << "HeapSnapshot::FillNodes";
-    ECMA_BYTRACE_NAME(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, "HeapSnapshot::FillNodes", "");
+    ECMA_BYTRACE_NAME(HITRACE_LEVEL_COMMERCIAL, HITRACE_TAG_ARK, "HeapSnapshot::FillNodes", "");
     // Iterate Heap Object
-    auto heap = vm_->GetHeap();
-    if (heap != nullptr) {
-        heap->IterateOverObjects([this, isInFinish, isSimplify](TaggedObject *obj) {
-            GenerateNode(JSTaggedValue(obj), 0, isInFinish, isSimplify);
+    if (g_isEnableCMCGC) {
+        common::Heap &heap = common::Heap::GetHeap();
+        heap.ForEachObject([this, isInFinish, isSimplify](BaseObject *obj) {
+            GenerateNode(JSTaggedValue(reinterpret_cast<JSTaggedType>(obj)), 0, isInFinish, isSimplify);
         }, isSimplify);
+    } else {
+        auto heap = vm_->GetHeap();
+        if (heap != nullptr) {
+            heap->IterateOverObjects([this, isInFinish, isSimplify](TaggedObject *obj) {
+                GenerateNode(JSTaggedValue(obj), 0, isInFinish, isSimplify);
+            }, isSimplify);
+        }
     }
 }
 
@@ -741,7 +748,12 @@ Node *HeapSnapshot::HandleObjectNode(JSTaggedValue &entry, size_t &size, bool &i
 Node *HeapSnapshot::HandleBaseClassNode(size_t size, bool idExist, NodeId &sequenceId,
                                         TaggedObject* obj, JSTaggedType &addr)
 {
-    size_t selfSize = (size != 0) ? size : obj->GetSize();
+    size_t selfSize;
+    if (g_isEnableCMCGC) {
+        selfSize = (size != 0) ? size : reinterpret_cast<BaseObject *>(obj)->GetSize();
+    } else {
+        selfSize = (size != 0) ? size : obj->GetSize();
+    }
     size_t nativeSize = 0;
     if (obj->GetClass()->IsJSNativePointer()) {
         nativeSize = JSNativePointer::Cast(obj)->GetBindingSize();
@@ -1117,7 +1129,7 @@ Node *HeapSnapshot::GenerateObjectNode(JSTaggedValue entry, size_t size, bool is
 void HeapSnapshot::FillEdges(bool isSimplify)
 {
     LOG_ECMA(INFO) << "HeapSnapshot::FillEdges begin, nodeCount: " << nodeCount_;
-    ECMA_BYTRACE_NAME(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, "HeapSnapshot::FillEdges", "");
+    ECMA_BYTRACE_NAME(HITRACE_LEVEL_COMMERCIAL, HITRACE_TAG_ARK, "HeapSnapshot::FillEdges", "");
     auto iter = nodes_.begin();
     size_t count = 0;
     while (count++ < nodes_.size()) {
@@ -1250,33 +1262,78 @@ Edge *HeapSnapshot::InsertEdgeUnique(Edge *edge)
 void HeapSnapshot::AddSyntheticRoot()
 {
     LOG_ECMA(INFO) << "HeapSnapshot::AddSyntheticRoot";
-    ECMA_BYTRACE_NAME(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, "HeapSnapshot::AddSyntheticRoot", "");
+    ECMA_BYTRACE_NAME(HITRACE_LEVEL_COMMERCIAL, HITRACE_TAG_ARK, "HeapSnapshot::AddSyntheticRoot", "");
     Node *syntheticRoot = Node::NewNode(chunk_, 1, nodeCount_, GetString("SyntheticRoot"),
                                         NodeType::SYNTHETIC, 0, 0, 0);
     InsertNodeAt(0, syntheticRoot);
     CUnorderedSet<JSTaggedType> values {};
     CList<Edge *> rootEdges;
-// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
-#define ROOT_EDGE_BUILDER_CORE(slot)                                                                        \
-    do {                                                                                                    \
-        JSTaggedValue value((slot).GetTaggedType());                                                        \
-        if (value.IsHeapObject()) {                                                                         \
-            TaggedObject *root = value.GetTaggedObject();                                                   \
-            Node *rootNode = snapshot_.entryMap_.FindEntry(Node::NewAddress(root));                         \
-            if (rootNode != nullptr) {                                                                      \
-                JSTaggedType valueTo = value.GetRawData();                                                  \
-                auto it = values_.find(valueTo);                                                            \
-                if (it == values_.end()) {                                                                  \
-                    values_.insert(valueTo);                                                                \
-                    Edge *edge = Edge::NewEdge(snapshot_.chunk_,                                            \
-                        EdgeType::SHORTCUT, syntheticRoot_, rootNode, snapshot_.GetString("-subroot-"));    \
-                    rootEdges_.emplace_back(edge);                                                          \
-                    syntheticRoot_->IncEdgeCount();                                                         \
-                }                                                                                           \
-            }                                                                                               \
-        }                                                                                                   \
-    } while (false)
 
+    if (g_isEnableCMCGC) {
+        HandleCMCGCRoots(syntheticRoot, values, rootEdges);
+    } else {
+        HandleRoots(syntheticRoot, values, rootEdges);
+    }
+
+    // add root edges to edges begin
+    edges_.insert(edges_.begin(), rootEdges.begin(), rootEdges.end());
+    edgeCount_ += rootEdges.size();
+    int reindex = 0;
+    for (Node *node : nodes_) {
+        node->SetIndex(reindex);
+        reindex++;
+    }
+}
+
+void HeapSnapshot::NewRootEdge(Node *syntheticRoot, JSTaggedValue value,
+                               CUnorderedSet<JSTaggedType> &values, CList<Edge *> &rootEdges)
+{
+    if (!value.IsHeapObject()) {
+        return;
+    }
+    Node *rootNode = entryMap_.FindEntry(value.GetRawData());
+    if (rootNode != nullptr) {
+        JSTaggedType valueTo = value.GetRawData();
+        if (values.insert(valueTo).second) {
+            Edge *edge = Edge::NewEdge(chunk_, EdgeType::SHORTCUT, syntheticRoot, rootNode, GetString("-subroot-"));
+            rootEdges.emplace_back(edge);
+            syntheticRoot->IncEdgeCount();
+        }
+    }
+}
+
+void HeapSnapshot::HandleCMCGCRoots(Node *syntheticRoot, CUnorderedSet<JSTaggedType> &values, CList<Edge *> &rootEdges)
+{
+    common::RefFieldVisitor visitor = [this, &syntheticRoot, &values, &rootEdges](common::RefField<> &refField) {
+        NewRootEdge(syntheticRoot, JSTaggedValue(refField.GetFieldValue()), values, rootEdges);
+    };
+#if defined(ENABLE_LOCAL_HANDLE_LEAK_DETECT)
+    auto heapProfiler = reinterpret_cast<HeapProfiler *>(HeapProfilerInterface::GetInstance(const_cast<EcmaVM *>(vm_)));
+    bool needLeakDetect = !heapProfiler->IsStartLocalHandleLeakDetect() && heapProfiler->GetLeakStackTraceFd() > 0;
+    if (needLeakDetect) {
+        std::ostringstream buffer;
+        buffer << "========================== Local Handle Leak Detection Result ==========================\n";
+        heapProfiler->WriteToLeakStackTraceFd(buffer);
+        common::RefFieldVisitor visitorWithDetect = [this, &syntheticRoot, &values, &rootEdges](
+            common::RefField<> &refField) {
+            LogLeakedLocalHandleBackTrace(refField);
+            NewRootEdge(syntheticRoot, JSTaggedValue(refField.GetFieldValue()), values, rootEdges);
+        };
+        common::VisitRoots(visitorWithDetect, false);
+        buffer << "======================== End of Local Handle Leak Detection Result =======================";
+        heapProfiler->WriteToLeakStackTraceFd(buffer);
+        heapProfiler->CloseLeakStackTraceFd();
+    } else {
+        common::VisitRoots(visitor, false);
+    }
+    heapProfiler->ClearHandleBackTrace();
+#else
+    common::VisitRoots(visitor, false);
+#endif  // ENABLE_LOCAL_HANDLE_LEAK_DETECT
+}
+
+void HeapSnapshot::HandleRoots(Node *syntheticRoot, CUnorderedSet<JSTaggedType> &values, CList<Edge *> &rootEdges)
+{
     class EdgeBuilderRootVisitor final : public RootVisitor {
     public:
         explicit EdgeBuilderRootVisitor(HeapSnapshot &snapshot, Node *syntheticRoot,
@@ -1286,18 +1343,19 @@ void HeapSnapshot::AddSyntheticRoot()
 
         void VisitRoot([[maybe_unused]] Root type, ObjectSlot slot) override
         {
-            ROOT_EDGE_BUILDER_CORE(slot);
+            snapshot_.NewRootEdge(syntheticRoot_, JSTaggedValue(slot.GetTaggedType()), values_, rootEdges_);
         }
 
         void VisitRangeRoot([[maybe_unused]] Root type, ObjectSlot start, ObjectSlot end) override
         {
-            for (ObjectSlot slot = start; slot < end; slot++) {
-                ROOT_EDGE_BUILDER_CORE(slot);
+            for (ObjectSlot slot = start; slot < end; ++slot) {
+                snapshot_.NewRootEdge(syntheticRoot_, JSTaggedValue(slot.GetTaggedType()), values_, rootEdges_);
             }
         }
 
         void VisitBaseAndDerivedRoot([[maybe_unused]] Root type, [[maybe_unused]] ObjectSlot base,
             [[maybe_unused]] ObjectSlot derived, [[maybe_unused]] uintptr_t baseOldObject) override {}
+
     private:
         HeapSnapshot &snapshot_;
         Node *syntheticRoot_;
@@ -1316,14 +1374,14 @@ void HeapSnapshot::AddSyntheticRoot()
         void VisitRoot([[maybe_unused]] Root type, ObjectSlot slot) override
         {
             snapshot_.LogLeakedLocalHandleBackTrace(slot);
-            ROOT_EDGE_BUILDER_CORE(slot);
+            snapshot_.NewRootEdge(syntheticRoot_, JSTaggedValue(slot.GetTaggedType()), values_, rootEdges_);
         }
 
         void VisitRangeRoot([[maybe_unused]] Root type, ObjectSlot start, ObjectSlot end) override
         {
             for (ObjectSlot slot = start; slot < end; slot++) {
                 snapshot_.LogLeakedLocalHandleBackTrace(slot);
-                ROOT_EDGE_BUILDER_CORE(slot);
+                snapshot_.NewRootEdge(syntheticRoot_, JSTaggedValue(slot.GetTaggedType()), values_, rootEdges_);
             }
         }
 
@@ -1335,44 +1393,29 @@ void HeapSnapshot::AddSyntheticRoot()
         CList<Edge *> &rootEdges_;
         CUnorderedSet<JSTaggedType> &values_;
     };
-#endif  // ENABLE_LOCAL_HANDLE_LEAK_DETECT
-#undef ROOT_EDGE_BUILDER_CORE
 
-#if defined(ENABLE_LOCAL_HANDLE_LEAK_DETECT)
     auto heapProfiler = reinterpret_cast<HeapProfiler *>(HeapProfilerInterface::GetInstance(const_cast<EcmaVM *>(vm_)));
-    bool isStopLocalLeakDetect = !heapProfiler->IsStartLocalHandleLeakDetect();
-    if (isStopLocalLeakDetect && heapProfiler->GetLeakStackTraceFd() > 0) {
-        LOG_ECMA(INFO) << "[LocalHandleLeakDetect] Iterate heap roots in heap snapshot WITH leak detection.";
+    bool needLeakDetect = !heapProfiler->IsStartLocalHandleLeakDetect() && heapProfiler->GetLeakStackTraceFd() > 0;
+    if (needLeakDetect) {
         std::ostringstream buffer;
         buffer << "========================== Local Handle Leak Detection Result ==========================\n";
         heapProfiler->WriteToLeakStackTraceFd(buffer);
-        EdgeBuilderWithLeakDetectRootVisitor edgeBuilderWithLeakDetectRootVisitor(*this, syntheticRoot,
-                                                                                  rootEdges, values);
-        rootVisitor_.VisitHeapRoots(vm_->GetJSThread(), edgeBuilderWithLeakDetectRootVisitor);
+        EdgeBuilderWithLeakDetectRootVisitor visitor(*this, syntheticRoot, rootEdges, values);
+        rootVisitor_.VisitHeapRoots(vm_->GetJSThread(), visitor);
         buffer << "======================== End of Local Handle Leak Detection Result =======================";
         heapProfiler->WriteToLeakStackTraceFd(buffer);
         heapProfiler->CloseLeakStackTraceFd();
     } else {
-        EdgeBuilderRootVisitor edgeBuilderRootVisitor(*this, syntheticRoot, rootEdges, values);
-        rootVisitor_.VisitHeapRoots(vm_->GetJSThread(), edgeBuilderRootVisitor);
+        EdgeBuilderRootVisitor visitor(*this, syntheticRoot, rootEdges, values);
+        rootVisitor_.VisitHeapRoots(vm_->GetJSThread(), visitor);
     }
     heapProfiler->ClearHandleBackTrace();
 #else
-    EdgeBuilderRootVisitor edgeBuilderRootVisitor(*this, syntheticRoot, rootEdges, values);
-    rootVisitor_.VisitHeapRoots(vm_->GetJSThread(), edgeBuilderRootVisitor);
+    EdgeBuilderRootVisitor visitor(*this, syntheticRoot, rootEdges, values);
+    rootVisitor_.VisitHeapRoots(vm_->GetJSThread(), visitor);
 #endif  // ENABLE_LOCAL_HANDLE_LEAK_DETECT
-
-    // add root edges to edges begin
-    edges_.insert(edges_.begin(), rootEdges.begin(), rootEdges.end());
-    edgeCount_ += rootEdges.size();
-    int reindex = 0;
-    for (Node *node : nodes_) {
-        node->SetIndex(reindex);
-        reindex++;
-    }
 }
 
-#if defined(ENABLE_LOCAL_HANDLE_LEAK_DETECT)
 void HeapSnapshot::LogLeakedLocalHandleBackTrace(ObjectSlot slot)
 {
     auto heapProfiler = reinterpret_cast<HeapProfiler *>(HeapProfilerInterface::GetInstance(const_cast<EcmaVM *>(vm_)));
@@ -1386,7 +1429,20 @@ void HeapSnapshot::LogLeakedLocalHandleBackTrace(ObjectSlot slot)
         }
     }
 }
-#endif  // ENABLE_LOCAL_HANDLE_LEAK_DETECT
+
+void HeapSnapshot::LogLeakedLocalHandleBackTrace(common::RefField<> &refField)
+{
+    auto heapProfiler = reinterpret_cast<HeapProfiler *>(HeapProfilerInterface::GetInstance(const_cast<EcmaVM *>(vm_)));
+    if (!heapProfiler->GetBackTraceOfHandle(reinterpret_cast<uintptr_t>(&refField)).empty()) {
+        Node *rootNode = entryMap_.FindEntry(reinterpret_cast<JSTaggedType>(refField.GetTargetObject()));
+        if (rootNode != nullptr && heapProfiler->GetLeakStackTraceFd() > 0) {
+            std::ostringstream buffer;
+            buffer << "NodeId: " << rootNode->GetId() << "\n"
+                   << heapProfiler->GetBackTraceOfHandle(reinterpret_cast<uintptr_t>(&refField)) << "\n";
+            heapProfiler->WriteToLeakStackTraceFd(buffer);
+        }
+    }
+}
 
 Node *HeapSnapshot::InsertNodeAt(size_t pos, Node *node)
 {

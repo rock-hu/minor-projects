@@ -302,6 +302,11 @@ bool IsGridCacheEnabled()
     return (system::GetParameter("persist.ace.grid.cache.enabled", "1") == "1");
 }
 
+bool IsGridIrregularLayoutEnabled()
+{
+    return (system::GetParameter("persist.ace.grid.irregular.enabled", "false") == "true");
+}
+
 bool IsSideBarContainerBlurEnable()
 {
     return (system::GetParameter("persist.ace.sidebar.blur.enabled", "0") == "1");
@@ -462,7 +467,7 @@ int32_t ReadDragDropFrameworkStatus()
 
 int32_t ReadTouchAccelarateMode()
 {
-    return system::GetIntParameter("debug.ace.touch.accelarate", 0);
+    return system::GetIntParameter("debug.ace.touch.accelarate", 2);
 }
 
 bool IsAscending(const std::vector<double>& nums)
@@ -669,6 +674,7 @@ bool SystemProperties::resourceDecoupling_ = IsResourceDecoupling();
 bool SystemProperties::configChangePerform_ = IsConfigChangePerform();
 bool SystemProperties::navigationBlurEnabled_ = IsNavigationBlurEnabled();
 bool SystemProperties::gridCacheEnabled_ = IsGridCacheEnabled();
+bool SystemProperties::gridIrregularLayoutEnable_ = IsGridIrregularLayoutEnabled();
 std::pair<float, float> SystemProperties::brightUpPercent_ = GetPercent();
 float SystemProperties::pageCount_ = GetPageCountProp();
 bool SystemProperties::sideBarContainerBlurEnable_ = IsSideBarContainerBlurEnable();
@@ -693,6 +699,7 @@ int32_t SystemProperties::formSharedImageCacheThreshold_ = DEFAULT_FORM_SHARED_I
 WidthLayoutBreakPoint SystemProperties::widthLayoutBreakpoints_ = WidthLayoutBreakPoint();
 HeightLayoutBreakPoint SystemProperties::heightLayoutBreakpoints_ = HeightLayoutBreakPoint();
 bool SystemProperties::syncLoadEnabled_ = true;
+bool SystemProperties::whiteBlockEnabled_ = false;
 
 bool SystemProperties::IsOpIncEnable()
 {
@@ -848,6 +855,7 @@ void SystemProperties::InitDeviceInfo(
     configChangePerform_ = IsConfigChangePerform();
     navigationBlurEnabled_ = IsNavigationBlurEnabled();
     gridCacheEnabled_ = IsGridCacheEnabled();
+    gridIrregularLayoutEnable_ = IsGridIrregularLayoutEnabled();
     sideBarContainerBlurEnable_ = IsSideBarContainerBlurEnable();
     acePerformanceMonitorEnable_.store(IsAcePerformanceMonitorEnabled());
     faultInjectEnabled_  = IsFaultInjectEnabled();
@@ -857,6 +865,7 @@ void SystemProperties::InitDeviceInfo(
     formSharedImageCacheThreshold_ =
         system::GetIntParameter("const.form.shared_image.cache_threshold", DEFAULT_FORM_SHARED_IMAGE_CACHE_THRESHOLD);
     syncLoadEnabled_ = system::GetBoolParameter("persist.ace.scrollable.syncload.enable", false);
+    whiteBlockEnabled_ = system::GetParameter("persist.resourceschedule.whiteblock", "0") == "1";
     if (isRound_) {
         screenShape_ = ScreenShape::ROUND;
     } else {
@@ -1051,7 +1060,7 @@ bool SystemProperties::GetGridCacheEnabled()
 
 bool SystemProperties::GetGridIrregularLayoutEnabled()
 {
-    return system::GetBoolParameter("persist.ace.grid.irregular.enabled", false);
+    return gridIrregularLayoutEnable_;
 }
 
 bool SystemProperties::WaterFlowUseSegmentedLayout()
@@ -1318,5 +1327,25 @@ bool SystemProperties::IsFormSkeletonBlurEnabled()
 int32_t SystemProperties::getFormSharedImageCacheThreshold()
 {
     return formSharedImageCacheThreshold_;
+}
+
+bool SystemProperties::IsWhiteBlockEnabled()
+{
+    return whiteBlockEnabled_;
+}
+
+bool SystemProperties::IsWhiteBlockIdleChange()
+{
+    return OHOS::system::GetParameter("persist.resourceschedule.whiteblock.idle", "0") == "1";
+}
+
+int32_t SystemProperties::GetWhiteBlockIndexValue()
+{
+    return std::stoi(OHOS::system::GetParameter("persist.resourceschedule.whiteblock.index", "0"));
+}
+
+int32_t SystemProperties::GetWhiteBlockCacheCountValue()
+{
+    return std::stoi(OHOS::system::GetParameter("persist.resourceschedule.whiteblock.cachedcount", "0"));
 }
 } // namespace OHOS::Ace

@@ -177,7 +177,7 @@ std::shared_ptr<JSPandaFile> JSPandaFileManager::LoadJSPandaFileSecure(JSThread 
     std::string_view entryPoint, uint8_t *buffer, size_t size, bool needUpdate)
 {
     CString traceInfo = "JSPandaFileManager::LoadJSPandaFileSecure:" + filename;
-    ECMA_BYTRACE_NAME(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, traceInfo.c_str(), "");
+    ECMA_BYTRACE_NAME(HITRACE_LEVEL_COMMERCIAL, HITRACE_TAG_ARK, traceInfo.c_str(), "");
     if (buffer == nullptr || size == 0) {
         LOG_FULL(ERROR) << "Input buffer is empty";
         return nullptr;
@@ -527,11 +527,8 @@ std::shared_ptr<JSPandaFile> JSPandaFileManager::GenerateJSPandaFile(JSThread *t
         }
     }
     if (newJsPandaFile->IsNewVersion() && vm->IsAsynTranslateClasses()) {
-        if (newJsPandaFile->IsBundlePack() || !vm->GetJSOptions().EnableJSPandaFileAndModuleSnapshot()) {
+        if (!UseSnapshot(thread, newJsPandaFile.get())) {
             newJsPandaFile->TranslateClasses(thread, methodName);
-        } else {
-            JSPandaFileSnapshot::ReadData(
-                thread, newJsPandaFile.get(), methodName, ohos::OhosConstants::PANDAFILE_AND_MODULE_SNAPSHOT_DIR);
         }
     } else {
         PandaFileTranslator::TranslateClasses(thread, newJsPandaFile.get(), methodName);
@@ -655,5 +652,14 @@ void JSPandaFileManager::JSPandaFileAllocator::FreeBuffer(void *mem)
     }
     // NOLINTNEXTLINE(cppcoreguidelines-no-malloc)
     free(mem);
+}
+
+bool JSPandaFileManager::UseSnapshot(JSThread *thread, JSPandaFile *jsPandaFile)
+{
+    if (!jsPandaFile->IsBundlePack() && thread->GetEcmaVM()->GetJSOptions().EnableJSPandaFileAndModuleSnapshot()) {
+        return JSPandaFileSnapshot::ReadData(
+            thread, jsPandaFile, ohos::OhosConstants::PANDAFILE_AND_MODULE_SNAPSHOT_DIR);
+    }
+    return false;
 }
 }  // namespace panda::ecmascript

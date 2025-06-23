@@ -45,6 +45,7 @@ void MutatorManager::BindMutator(Mutator& mutator) const
     if (UNLIKELY_CC(tlData->buffer == nullptr)) {
         (void)AllocationBuffer::GetOrCreateAllocBuffer();
     }
+    mutator.SetSafepointActive(false);
     tlData->mutator = &mutator;
 }
 
@@ -368,13 +369,14 @@ void MutatorManager::TransitionAllMutatorsToGCPhase(GCPhase phase)
     Heap::GetHeap().InstallBarrier(phase);
     Heap::GetHeap().SetGCPhase(phase);
 
-    VLOG(REPORT, "transition gc phase: %s(%u) -> %s(%u)",
+    VLOG(DEBUG, "transition gc phase: %s(%u) -> %s(%u)",
          Collector::GetGCPhaseName(prevPhase), prevPhase, Collector::GetGCPhaseName(phase), phase);
 
     std::list<Mutator*> undoneMutators;
     // Broadcast mutator phase transition signal to all mutators
     VisitAllMutators([&undoneMutators, phase](Mutator& mutator) {
         mutator.SetSuspensionFlag(Mutator::SuspensionType::SUSPENSION_FOR_GC_PHASE);
+        mutator.SetSafepointActive(true);
         undoneMutators.push_back(&mutator);
     });
     EnsurePhaseTransition(phase, undoneMutators);

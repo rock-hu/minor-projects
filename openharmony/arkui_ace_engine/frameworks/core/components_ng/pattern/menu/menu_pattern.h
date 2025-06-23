@@ -91,6 +91,31 @@ public:
         return { 0, 0 };
     }
 
+    bool IsEnableMatchParent() override
+    {
+        return IsMultiMenu();
+    }
+
+    bool IsEnableChildrenMatchParent() override
+    {
+        return IsMultiMenu();
+    }
+
+    bool IsEnableFix() override
+    {
+        return IsMultiMenu();
+    }
+
+    bool IsChildColumnLayout() override
+    {
+        return IsMultiMenu();
+    }
+
+    bool IsChildComponentContent() override
+    {
+        return IsMultiMenu();
+    }
+
     bool IsFocusViewLegal() override
     {
         return type_ == MenuType::MENU || type_ == MenuType::CONTEXT_MENU || type_ == MenuType::SUB_MENU;
@@ -596,6 +621,16 @@ public:
         return menuWindowRect_;
     }
 
+    void SetMenuLayoutParam(const PreviewMenuParam& layoutParam)
+    {
+        layoutParam_ = layoutParam;
+    }
+
+    PreviewMenuParam GetMenuLayoutParam() const
+    {
+        return layoutParam_;
+    }
+
     OffsetF GetPreviewMenuDisappearPosition()
     {
         return disappearOffset_;
@@ -617,6 +652,9 @@ public:
     {
         return customNode_.Upgrade();
     }
+
+    void UpdateSelectOptionTextByIndex(int32_t index, const std::string& text);
+    void UpdateSelectOptionIconByIndex(int32_t index, const std::string& icon);
 
     void InitPreviewMenuAnimationInfo(const RefPtr<MenuTheme>& menuTheme);
 
@@ -660,6 +698,11 @@ public:
     void SetOriginPreviewYForStack(float tmp)
     {
         originPreviewYForStack_ = tmp;
+    }
+
+    void SetDisableMenuBgColor(bool ret = false)
+    {
+        isDisableMenuBgColor_ = ret;
     }
 
 protected:
@@ -786,12 +829,13 @@ private:
     bool isStackSubmenu_ = false;
     bool isNeedDivider_ = false;
     Rect menuWindowRect_;
+    PreviewMenuParam layoutParam_;
     WeakPtr<UINode> customNode_ = nullptr;
     std::optional<MenuPathParams> pathParams_ = std::nullopt;
     float translateYForStack_ = 0.0f;
     float originMenuYForStack_ = 0.0f;
     float originPreviewYForStack_ = 0.0f;
-
+    bool isDisableMenuBgColor_ = false;
     ACE_DISALLOW_COPY_AND_MOVE(MenuPattern);
 };
 

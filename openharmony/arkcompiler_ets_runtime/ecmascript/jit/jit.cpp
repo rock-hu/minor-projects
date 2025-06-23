@@ -228,13 +228,7 @@ void Jit::SetDisableCodeSign(bool isDisableCodeSign)
 
 bool Jit::IsEnableAsyncCopyToFort() const
 {
-    if (g_isEnableCMCGC) {
-        // async alloc needs adaption work from CMCGC
-        // Need to also modify js_runtime_options.h
-        return false;
-    } else {
-        return isEnableAsyncCopyToFort_;
-    }
+    return isEnableAsyncCopyToFort_;
 }
 
 void Jit::SetEnableAsyncCopyToFort(bool isEnableAsyncCopyToFort)
@@ -292,7 +286,7 @@ void Jit::Compile(EcmaVM *vm, const CompileDecision &decision)
     CString msg = "compile method:" + methodInfo + ", in work thread";
     TimeScope scope(vm, msg, tier, true, true);
 
-    ECMA_BYTRACE_NAME(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK,
+    ECMA_BYTRACE_NAME(HITRACE_LEVEL_COMMERCIAL, HITRACE_TAG_ARK,
         ConvertToStdString("JIT::Compile:" + methodInfo).c_str(), "");
     if (tier.IsFast()) {
         jsFunction->SetJitCompilingFlag(true);
@@ -354,7 +348,7 @@ void Jit::InstallTasks(JSThread *jsThread)
         taskQueue = info.installJitTasks_;
         info.installJitTasks_.clear();
     }
-    ECMA_BYTRACE_NAME(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK,
+    ECMA_BYTRACE_NAME(HITRACE_LEVEL_COMMERCIAL, HITRACE_TAG_ARK,
         ConvertToStdString("Jit::InstallTasks count:" + ToCString(taskQueue.size())).c_str(), "");
 
     for (auto it = taskQueue.begin(); it != taskQueue.end(); it++) {

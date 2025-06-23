@@ -27,7 +27,7 @@ namespace panda::ecmascript {
 void SharedGC::RunPhases()
 {
     ASSERT("SharedGC should be disabled" && !g_isEnableCMCGC);
-    ECMA_BYTRACE_NAME(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, ("SharedGC::RunPhases;GCReason"
+    ECMA_BYTRACE_NAME(HITRACE_LEVEL_COMMERCIAL, HITRACE_TAG_ARK, ("SharedGC::RunPhases;GCReason"
         + std::to_string(static_cast<int>(sHeap_->GetEcmaGCStats()->GetGCReason()))
         + ";MarkReason" + std::to_string(static_cast<int>(sHeap_->GetEcmaGCStats()->GetMarkReason()))
         + ";Sensitive" + std::to_string(static_cast<int>(sHeap_->GetSensitiveStatus()))
@@ -41,6 +41,7 @@ void SharedGC::RunPhases()
         + ";NativeLimitGC" + std::to_string(sHeap_->GetNativeSizeTriggerSharedGC())
         + ";NativeLimitCM" + std::to_string(sHeap_->GetNativeSizeTriggerSharedCM())).c_str(), "");
     TRACE_GC(GCStats::Scope::ScopeId::TotalGC, sHeap_->GetEcmaGCStats());
+    sHeap_->SetGCThreadRssPriority(common::RssPriorityType::KEY);
     markingInProgress_ = sHeap_->CheckOngoingConcurrentMarking();
     Initialize();
     Mark();
@@ -58,12 +59,13 @@ void SharedGC::RunPhases()
         SharedHeapVerification(sHeap_, VerifyKind::VERIFY_SHARED_GC_SWEEP).VerifySweep(markingInProgress_);
     }
     Finish();
+    sHeap_->SetGCThreadRssPriority(common::RssPriorityType::COMMON);
     sHeap_->ResetNativeSizeAfterLastGC();
 }
 
 void SharedGC::Initialize()
 {
-    ECMA_BYTRACE_NAME(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, "SharedGC::Initialize", "");
+    ECMA_BYTRACE_NAME(HITRACE_LEVEL_COMMERCIAL, HITRACE_TAG_ARK, "SharedGC::Initialize", "");
     TRACE_GC(GCStats::Scope::ScopeId::Initialize, sHeap_->GetEcmaGCStats());
     if (!markingInProgress_) {
         sHeap_->Prepare(true);
@@ -87,7 +89,7 @@ void SharedGC::MarkRoots(SharedMarkType markType)
 
 void SharedGC::Mark()
 {
-    ECMA_BYTRACE_NAME(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, "SharedGC::Mark", "");
+    ECMA_BYTRACE_NAME(HITRACE_LEVEL_COMMERCIAL, HITRACE_TAG_ARK, "SharedGC::Mark", "");
     TRACE_GC(GCStats::Scope::ScopeId::Mark, sHeap_->GetEcmaGCStats());
     if (markingInProgress_) {
         sHeap_->GetConcurrentMarker()->ReMark();
@@ -114,7 +116,7 @@ void SharedGC::Evacuate()
 
 void SharedGC::Sweep()
 {
-    ECMA_BYTRACE_NAME(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, "SharedGC::Sweep", "");
+    ECMA_BYTRACE_NAME(HITRACE_LEVEL_COMMERCIAL, HITRACE_TAG_ARK, "SharedGC::Sweep", "");
     TRACE_GC(GCStats::Scope::ScopeId::Sweep, sHeap_->GetEcmaGCStats());
     WeakRootVisitor gcUpdateWeak = [](TaggedObject *header) -> TaggedObject* {
         Region *objectRegion = Region::ObjectAddressToRange(header);
@@ -157,7 +159,7 @@ void SharedGC::Sweep()
 
 void SharedGC::Finish()
 {
-    ECMA_BYTRACE_NAME(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, "SharedGC::Finish", "");
+    ECMA_BYTRACE_NAME(HITRACE_LEVEL_COMMERCIAL, HITRACE_TAG_ARK, "SharedGC::Finish", "");
     TRACE_GC(GCStats::Scope::ScopeId::Finish, sHeap_->GetEcmaGCStats());
     sHeap_->Reclaim(TriggerGCType::SHARED_GC);
     if (markingInProgress_) {

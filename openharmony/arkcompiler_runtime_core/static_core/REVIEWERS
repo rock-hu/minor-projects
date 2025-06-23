@@ -111,7 +111,7 @@ static_core/runtime/include/mem/                         ^dmitriitr @udav
 static_core/runtime/include/tooling/                     @ragnvald
 static_core/runtime/tests/tooling/                       @ragnvald
 static_core/plugins/ets/runtime/finalreg/*                                    ^dmitriitr @udav @ipetrov ^shemetovphilip
-static_core/plugins/ets/runtime/interop_js/                                   @nazarovkonstantin @vpukhov
+static_core/plugins/ets/runtime/interop_js/                                   @nazarovkonstantin @vpukhov @zmzhao1995 @gitee-dakeQI
 static_core/plugins/ets/runtime/interop_js/*promise*                          ^dmitriitr @konstanting
 static_core/plugins/ets/runtime/interop_js/sts_vm_interface_impl*             ^dmitriitr @udav ^ipetrov ^molotkovmikhail
 static_core/plugins/ets/runtime/intrinsics/compiler_intrinsics.cpp            @Prof1983
@@ -182,18 +182,18 @@ static_core/plugins/ets/tests/interop_js/tests/compiler/                      ^i
 static_core/plugins/ets/tests/interop_js/tests/declgen_ets2ts/                @dreamdoomwalker ^igelhaus ^trubachevilya ^ivagin ^hufeng20 ^Prof1983 @zenghang11
 static_core/plugins/ets/tests/interop_js/tests/promise/                       @udav
 
-/abc2program/ @oatuwwutao @hufeng20 @chenqy930
+/abc2program/ @oatuwwutao @hufeng20
 /assembler/ @ctw-ian
 /bytecode_optimizer/ @ctw-ian
 /common_interfaces/ @wuzhefengh @weng-changcheng @igelhaus @dmitriitr ^yingguofeng ^Prof1983
 /compiler/ @ctw-ian
 /disassembler/ @oatuwwutao @hufeng20
-/isa/ @ctw-ian @chenqy930
+/isa/ @ctw-ian @oatuwwutao
 /ldscripts/ @gitee-dakeQI
 /libabckit/ @nazarovkonstantin @oatuwwutao @hufeng20
 /libark_defect_scan_aux/ @gitee-dakeQI @oatuwwutao @hufeng20
 /libpandabase/ @gitee-dakeQI
-/libpandafile/ @gitee-dakeQI @chenqy930
+/libpandafile/ @gitee-dakeQI @oatuwwutao
 /libziparchive/ @gitee-dakeQI
 /panda/ @gitee-dakeQI
 /panda_guard/ @zenghang11 @hufeng20 @oatuwwutao

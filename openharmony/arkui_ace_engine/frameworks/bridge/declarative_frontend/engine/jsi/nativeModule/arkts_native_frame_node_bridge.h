@@ -68,6 +68,7 @@ public:
     static ArkUINativeModuleValue GetPositionToParent(ArkUIRuntimeCallInfo* runtimeCallInfo);
     static ArkUINativeModuleValue GetPositionToScreen(ArkUIRuntimeCallInfo* runtimeCallInfo);
     static ArkUINativeModuleValue GetPositionToWindow(ArkUIRuntimeCallInfo* runtimeCallInfo);
+    static ArkUINativeModuleValue GetGlobalPositionOnDisplay(ArkUIRuntimeCallInfo* runtimeCallInfo);
     static ArkUINativeModuleValue GetPositionToParentWithTransform(ArkUIRuntimeCallInfo* runtimeCallInfo);
     static ArkUINativeModuleValue GetPositionToScreenWithTransform(ArkUIRuntimeCallInfo* runtimeCallInfo);
     static ArkUINativeModuleValue GetPositionToWindowWithTransform(ArkUIRuntimeCallInfo* runtimeCallInfo);
@@ -142,6 +143,7 @@ public:
     static ArkUINativeModuleValue SetOnWaterFlowScrollIndex(ArkUIRuntimeCallInfo* runtimeCallInfo);
     static ArkUINativeModuleValue GetInteractionEventBindingInfo(ArkUIRuntimeCallInfo* runtimeCallInfo);
     static ArkUINativeModuleValue UpdateConfiguration(ArkUIRuntimeCallInfo* runtimeCallInfo);
+    static ArkUINativeModuleValue FireArkUIObjectLifecycleCallback(ArkUIRuntimeCallInfo* runtimeCallInfo);
 };
 
 } // namespace OHOS::Ace::NG

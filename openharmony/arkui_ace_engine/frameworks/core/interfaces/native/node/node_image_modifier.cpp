@@ -17,6 +17,7 @@
 #include "effect/color_filter.h"
 
 #include "core/common/card_scope.h"
+#include "core/common/resource/resource_parse_utils.h"
 #include "core/components/image/image_component.h"
 #include "core/components/image/image_theme.h"
 #include "core/components_ng/base/view_abstract.h"
@@ -111,13 +112,62 @@ bool SetCalcDimension(std::optional<CalcDimension>& optDimension, const ArkUIStr
     return true;
 }
 
-void SetResizableFromVec(ImageResizableSlice& resizable, const ArkUIStringAndFloat* options)
+void SetImageResizableUpdateFunc(
+    ImageResizableSlice& resizable, const RefPtr<ResourceObject> resObj, ResizableOption direction)
+{
+    CHECK_NULL_VOID(resObj);
+    auto&& updateFunc = [direction](const RefPtr<ResourceObject>& currentResObj, ImageResizableSlice& slice) {
+        CalcDimension dim;
+        ResizableOption resizableOption;
+        switch (direction) {
+            case ResizableOption::LEFT:
+                resizableOption = ResizableOption::LEFT;
+                break;
+            case ResizableOption::RIGHT:
+                resizableOption = ResizableOption::RIGHT;
+                break;
+            case ResizableOption::TOP:
+                resizableOption = ResizableOption::TOP;
+                break;
+            case ResizableOption::BOTTOM:
+                resizableOption = ResizableOption::BOTTOM;
+                break;
+            default:
+                return;
+        }
+        if (ResourceParseUtils::ParseResDimensionVpNG(currentResObj, dim) && dim.IsValid()) {
+            slice.SetEdgeSlice(resizableOption, dim);
+        }
+    };
+    switch (direction) {
+        case ResizableOption::LEFT:
+            resizable.AddResource("image.left", resObj, std::move(updateFunc));
+            break;
+        case ResizableOption::RIGHT:
+            resizable.AddResource("image.right", resObj, std::move(updateFunc));
+            break;
+        case ResizableOption::TOP:
+            resizable.AddResource("image.top", resObj, std::move(updateFunc));
+            break;
+        case ResizableOption::BOTTOM:
+            resizable.AddResource("image.bottom", resObj, std::move(updateFunc));
+            break;
+        default:
+            break;
+    }
+}
+
+void SetResizableFromVec(ImageResizableSlice& resizable, const ArkUIStringAndFloat* options,
+    std::vector<RefPtr<ResourceObject>>& imageResizableResArray)
 {
     for (unsigned int index = 0; index < RESIZEABLE_VEC_LENGTH; index += NUM_3) {
         std::optional<CalcDimension> optDimension;
         SetCalcDimension(optDimension, options, RESIZEABLE_VEC_LENGTH, index);
         if (optDimension.has_value()) {
             auto direction = directions[index / NUM_3];
+            if ((index / NUM_3) < imageResizableResArray.size()) {
+                SetImageResizableUpdateFunc(resizable, imageResizableResArray[index / NUM_3], direction);
+            }
             resizable.SetEdgeSlice(direction, optDimension.value());
         }
     }
@@ -199,6 +249,14 @@ void SetCopyOption(ArkUINodeHandle node, ArkUI_Int32 copyOption)
 }
 
 void SetImageShowSrc(ArkUINodeHandle node, ArkUI_CharPtr src, ArkUI_CharPtr bundleName, ArkUI_CharPtr moduleName,
+    ArkUI_Bool isUriPureNumber)
+{
+    auto* frameNode = reinterpret_cast<FrameNode*>(node);
+    CHECK_NULL_VOID(frameNode);
+    ImageModelNG::SetInitialSrc(frameNode, src, bundleName, moduleName, isUriPureNumber);
+}
+
+void SetImageShowSrcRes(ArkUINodeHandle node, ArkUI_CharPtr src, ArkUI_CharPtr bundleName, ArkUI_CharPtr moduleName,
     ArkUI_Bool isUriPureNumber, void* srcRawPtr)
 {
     auto* frameNode = reinterpret_cast<FrameNode*>(node);
@@ -409,16 +467,11 @@ void ResetMatchTextDirection(ArkUINodeHandle node)
     ImageModelNG::SetMatchTextDirection(frameNode, false);
 }
 
-void SetFillColor(ArkUINodeHandle node, ArkUI_Uint32 value, void* colorRawPtr)
+void SetFillColor(ArkUINodeHandle node, ArkUI_Uint32 value)
 {
     auto* frameNode = reinterpret_cast<FrameNode*>(node);
     CHECK_NULL_VOID(frameNode);
     ImageModelNG::SetImageFill(frameNode, Color(value));
-    if (SystemProperties::ConfigChangePerform() && colorRawPtr) {
-        auto* color = reinterpret_cast<ResourceObject*>(colorRawPtr);
-        auto colorResObj = AceType::Claim(color);
-        ImageModelNG::CreateWithResourceObj(frameNode, ImageResourceType::FILL_COLOR, colorResObj);
-    }
 }
 
 void SetFillColorWithColorSpace(ArkUINodeHandle node, ArkUI_Uint32 value, ArkUI_Uint32 colorSpace, void* colorRawPtr)
@@ -451,7 +504,18 @@ void ResetFillColor(ArkUINodeHandle node)
     ImageModelNG::SetImageFill(frameNode, theme->GetFillColor());
 }
 
-void SetAlt(ArkUINodeHandle node, const char* src, const char* bundleName, const char* moduleName, void* srcRawPtr)
+void SetAlt(ArkUINodeHandle node, const char* src, const char* bundleName, const char* moduleName)
+{
+    if (ImageSourceInfo::ResolveURIType(src) == SrcType::NETWORK) {
+        return;
+    }
+
+    auto* frameNode = reinterpret_cast<FrameNode*>(node);
+    CHECK_NULL_VOID(frameNode);
+    ImageModelNG::SetAlt(frameNode, ImageSourceInfo { src, bundleName, moduleName });
+}
+
+void SetAltRes(ArkUINodeHandle node, const char* src, const char* bundleName, const char* moduleName, void* srcRawPtr)
 {
     if (ImageSourceInfo::ResolveURIType(src) == SrcType::NETWORK) {
         return;
@@ -646,7 +710,7 @@ void SetImageBorderRadius(ArkUINodeHandle node, const ArkUI_Float32* values, con
 {
     auto nodeModifiers = GetArkUINodeModifiers();
     CHECK_NULL_VOID(nodeModifiers);
-    nodeModifiers->getCommonModifier()->setBorderRadius(node, values, units, length);
+    nodeModifiers->getCommonModifier()->setBorderRadius(node, values, units, length, nullptr);
     auto* frameNode = reinterpret_cast<FrameNode*>(node);
     CHECK_NULL_VOID(frameNode);
     if (!Container::GreatOrEqualAPITargetVersion(PlatformVersion::VERSION_FOURTEEN)) {
@@ -757,13 +821,25 @@ void ResetEdgeAntialiasing(ArkUINodeHandle node)
     ImageModelNG::SetSmoothEdge(frameNode, DEFAULT_IMAGE_EDGE_ANTIALIASING);
 }
 
+void SetResizablePtr(ArkUINodeHandle node, const ArkUIStringAndFloat* options, void* imageResizablePtr)
+{
+    auto* frameNode = reinterpret_cast<FrameNode*>(node);
+    CHECK_NULL_VOID(frameNode);
+    std::vector<RefPtr<ResourceObject>> imageResizableResArray;
+    if (imageResizablePtr != nullptr) {
+        imageResizableResArray = *(static_cast<std::vector<RefPtr<ResourceObject>>*>(imageResizablePtr));
+    }
+    
+    ImageResizableSlice resizable;
+    SetResizableFromVec(resizable, options, imageResizableResArray);
+    ImageModelNG::SetResizableSlice(frameNode, resizable);
+}
+
 void SetResizable(ArkUINodeHandle node, const ArkUIStringAndFloat* options)
 {
     auto* frameNode = reinterpret_cast<FrameNode*>(node);
     CHECK_NULL_VOID(frameNode);
-    ImageResizableSlice resizable;
-    SetResizableFromVec(resizable, options);
-    ImageModelNG::SetResizableSlice(frameNode, resizable);
+    SetResizablePtr(node, options, nullptr);
 }
 
 void ResetResizable(ArkUINodeHandle node)
@@ -1069,6 +1145,7 @@ const ArkUIImageModifier* GetImageModifier()
     static const ArkUIImageModifier modifier = {
         .setSrc = SetImageSrc,
         .setImageShowSrc = SetImageShowSrc,
+        .setImageShowSrcRes = SetImageShowSrcRes,
         .setImageResource = SetImageResource,
         .setCopyOption = SetCopyOption,
         .resetCopyOption = ResetCopyOption,
@@ -1095,6 +1172,7 @@ const ArkUIImageModifier* GetImageModifier()
         .resetImageFill = ResetImageFill,
         .resetFillColor = ResetFillColor,
         .setAlt = SetAlt,
+        .setAltRes = SetAltRes,
         .resetAlt = ResetAlt,
         .setImageInterpolation = SetImageInterpolation,
         .resetImageInterpolation = ResetImageInterpolation,
@@ -1117,6 +1195,7 @@ const ArkUIImageModifier* GetImageModifier()
         .resetImageOpacity = ResetImageOpacity,
         .setEdgeAntialiasing = SetEdgeAntialiasing,
         .resetEdgeAntialiasing = ResetEdgeAntialiasing,
+        .setResizablePtr = SetResizablePtr,
         .setResizable = SetResizable,
         .resetResizable = ResetResizable,
         .setDynamicRangeMode = SetDynamicRangeMode,
@@ -1172,6 +1251,7 @@ const CJUIImageModifier* GetCJUIImageModifier()
     static const CJUIImageModifier modifier = {
         .setSrc = SetImageSrc,
         .setImageShowSrc = SetImageShowSrc,
+        .setImageShowSrcRes = SetImageShowSrcRes,
         .setCopyOption = SetCopyOption,
         .resetCopyOption = ResetCopyOption,
         .setAutoResize = SetAutoResize,
@@ -1191,8 +1271,10 @@ const CJUIImageModifier* GetCJUIImageModifier()
         .setMatchTextDirection = SetMatchTextDirection,
         .resetMatchTextDirection = ResetMatchTextDirection,
         .setFillColor = SetFillColor,
+        .setFillColorWithColorSpace = SetFillColorWithColorSpace,
         .resetFillColor = ResetFillColor,
         .setAlt = SetAlt,
+        .setAltRes = SetAltRes,
         .resetAlt = ResetAlt,
         .setImageInterpolation = SetImageInterpolation,
         .resetImageInterpolation = ResetImageInterpolation,
@@ -1214,6 +1296,7 @@ const CJUIImageModifier* GetCJUIImageModifier()
         .resetImageOpacity = ResetImageOpacity,
         .setEdgeAntialiasing = SetEdgeAntialiasing,
         .resetEdgeAntialiasing = ResetEdgeAntialiasing,
+        .setResizablePtr = SetResizablePtr,
         .setResizable = SetResizable,
         .resetResizable = ResetResizable,
         .setDynamicRangeMode = SetDynamicRangeMode,

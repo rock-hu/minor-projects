@@ -213,7 +213,9 @@
       panda::ecmascript::FileMap*;
       panda::ecmascript::FileUnMap*;
       panda::ecmascript::ForceCreateDirectory*;
+      panda::ecmascript::GetDeviceValidSize*;
       panda::ecmascript::GetFileDelimiter*;
+      panda::ecmascript::GetFolderSize*;
       panda::ecmascript::GetPathSeparator*;
       panda::ecmascript::InterpreterAssembly::GetCallSize*;
       panda::ecmascript::Heap::AddGCListener*;
@@ -395,7 +397,7 @@
       panda::ecmascript::kungfu::LazyDeoptAllDependencies::DependOnNotPrototype*;
       panda::ecmascript::kungfu::LazyDeoptAllDependencies::DependOnStableHClass*;
       panda::ecmascript::kungfu::LazyDeoptAllDependencies::DependOnStableProtoChain*;
-      panda::ecmascript::kungfu::LazyDeoptAllDependencies::DependOnHotReloadPatchMain*;
+      panda::ecmascript::kungfu::LazyDeoptAllDependencies::DependOnNotHotReloadPatchMain*;
       panda::ecmascript::ohos::DecrypRemoveKey*;
       panda::ecmascript::ohos::DecryptAssociateKey*;
       panda::ecmascript::ohos::DecryptSetKey*;

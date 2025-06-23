@@ -30,6 +30,9 @@
     BUILTINS_CONSTRUCTOR_STUB_LIST(C)               \
     BUILTINS_ARKTOOLS_STUB_BUILDER(D)
 
+#define BUILTINS_STW_COPY_STUB_LIST(V, D, C)        \
+    BUILTINS_STUB_LIST(V, D, C)
+
 #define BUILTINS_NOSTUB_LIST(V)                     \
     V(ObjectConstructor)                            \
     V(ErrorConstructor)                             \
@@ -68,6 +71,7 @@
     V(Concat,             String,   Undefined(),                  STRING_CONCAT)                        \
     V(Slice,              String,   Undefined(),                  STRING_SLICE)                         \
     V(ToLowerCase,        String,   Undefined(),                  STRING_TO_LOWER_CASE)                 \
+    V(ToStringFunc,       String,   Undefined(),                  STRING_TO_STRING_FUNC)                \
     V(StartsWith,         String,   TaggedFalse(),                STRING_STARTS_WITH)                   \
     V(EndsWith,           String,   TaggedFalse(),                STRING_ENDS_WITH)                     \
     V(GetStringIterator,  String,   Undefined(),                  STRING_GET_STRING_ITERATOR)

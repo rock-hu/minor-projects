@@ -312,8 +312,8 @@ JSTaggedValue BuiltinsArkTools::ForceLazyDeopt(EcmaRuntimeCallInfo *info)
         return JSTaggedValue::Undefined();
     }
     JSHandle<DependentInfos> infosHandle(thread, infos);
-    DependentInfos::DeoptimizeGroups(
-        infosHandle, thread, static_cast<DependentInfos::DependentGroup>(type));
+    DependentInfos::TriggerLazyDeoptimization(
+        infosHandle, thread, static_cast<DependentInfos::DependentState>(type));
     if (GetCallArg(info, 2)->IsTrue()) {    // 2 : Has exception
         THROW_TYPE_ERROR_AND_RETURN(thread, "user-defined exception", JSTaggedValue::Exception());
     }
@@ -1716,6 +1716,13 @@ JSTaggedValue BuiltinsArkTools::SetHotReloadPatchMain(EcmaRuntimeCallInfo *info)
 {
     JSThread *thread = info->GetThread();
     thread->SetStageOfHotReload(StageOfHotReload::LOAD_END_EXECUTE_PATCHMAIN);
+    return JSTaggedValue::Undefined();
+}
+
+JSTaggedValue BuiltinsArkTools::SetNoHotReloadPatchMain(EcmaRuntimeCallInfo *info)
+{
+    JSThread *thread = info->GetThread();
+    thread->SetStageOfHotReload(StageOfHotReload::UNLOAD_END_EXECUTE_PATCHMAIN);
     return JSTaggedValue::Undefined();
 }
 } // namespace panda::ecmascript::builtins

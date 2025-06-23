@@ -53,6 +53,7 @@ namespace panda::ecmascript {
 uintptr_t TaggedStateWord::BASE_ADDRESS = 0;
 using CommonStubCSigns = panda::ecmascript::kungfu::CommonStubCSigns;
 using BytecodeStubCSigns = panda::ecmascript::kungfu::BytecodeStubCSigns;
+using BuiltinsStubCSigns = panda::ecmascript::kungfu::BuiltinsStubCSigns;
 
 void SuspendBarrier::Wait()
 {
@@ -404,7 +405,7 @@ void JSThread::InvokeWeakNodeNativeFinalizeCallback()
     }
     runningNativeFinalizeCallbacks_ = true;
     TRACE_GC(GCStats::Scope::ScopeId::InvokeNativeFinalizeCallbacks, vm_->GetEcmaGCStats());
-    OHOS_HITRACE(HITRACE_LEVEL_MAX, ("InvokeNativeFinalizeCallbacks num:"
+    OHOS_HITRACE(HITRACE_LEVEL_COMMERCIAL, ("InvokeNativeFinalizeCallbacks num:"
         + std::to_string(weakNodeNativeFinalizeCallbacks_.size())).c_str(), "");
     while (!weakNodeNativeFinalizeCallbacks_.empty()) {
         auto callbackPair = weakNodeNativeFinalizeCallbacks_.back();
@@ -522,7 +523,7 @@ void JSThread::Iterate(RootVisitor &visitor)
     if (vm_->GetJSOptions().EnableGlobalLeakCheck()) {
         IterateHandleWithCheck(visitor);
     } else {
-        OHOS_HITRACE(HITRACE_LEVEL_MAX, "CMCGC::VisitRootGlobalRefHandle", "");
+        OHOS_HITRACE(HITRACE_LEVEL_COMMERCIAL, "CMCGC::VisitRootGlobalRefHandle", "");
         size_t globalCount = 0;
         auto callback = [&visitor, &globalCount](Node *node) {
             JSTaggedValue value(node->GetObject());
@@ -581,11 +582,7 @@ void JSThread::IterateHandleWithCheck(RootVisitor &visitor)
         JSTaggedValue value(node->GetObject());
         if (value.IsHeapObject()) {
             visitor.VisitRoot(Root::ROOT_HANDLE, ecmascript::ObjectSlot(node->GetObjectAddress()));
-            TaggedObject *object = value.GetTaggedObject();
-            MarkWord word(value.GetTaggedObject());
-            if (word.IsForwardingAddress()) {
-                object = word.ToForwardingAddress();
-            }
+            auto object = reinterpret_cast<TaggedObject *>(node->GetObject());
             typeCount[static_cast<int>(object->GetClass()->GetObjectType())]++;
 
             // Print global information about possible memory leaks.
@@ -839,7 +836,7 @@ void JSThread::CheckOrSwitchPGOStubs()
             SetBCStubStatus(BCStubStatus::PROFILE_BC_STUB);
             isSwitch = true;
         } else if (GetBCStubStatus() == BCStubStatus::STW_COPY_BC_STUB) {
-            SwitchStwCopyStubs(false);
+            SwitchStwCopyBCStubs(false);
             ASSERT(GetBCStubStatus() == BCStubStatus::NORMAL_BC_STUB);
             SetBCStubStatus(BCStubStatus::PROFILE_BC_STUB);
             isSwitch = true;
@@ -861,7 +858,7 @@ void JSThread::CheckOrSwitchPGOStubs()
 #undef SWITCH_PGO_STUB_ENTRY
     }
     if (isSwitchToNormal && !g_isEnableCMCGC) {
-        SwitchStwCopyStubs(true);
+        SwitchStwCopyBCStubs(true);
     }
 }
 
@@ -877,7 +874,7 @@ void JSThread::SwitchJitProfileStubs(bool isEnablePgo)
         SetBCStubStatus(BCStubStatus::JIT_PROFILE_BC_STUB);
         isSwitch = true;
     } else if (GetBCStubStatus() == BCStubStatus::STW_COPY_BC_STUB) {
-        SwitchStwCopyStubs(false);
+        SwitchStwCopyBCStubs(false);
         ASSERT(GetBCStubStatus() == BCStubStatus::NORMAL_BC_STUB);
         SetBCStubStatus(BCStubStatus::JIT_PROFILE_BC_STUB);
         isSwitch = true;
@@ -893,7 +890,7 @@ void JSThread::SwitchJitProfileStubs(bool isEnablePgo)
     }
 }
 
-void JSThread::SwitchStwCopyStubs(bool isStwCopy)
+void JSThread::SwitchStwCopyBCStubs(bool isStwCopy)
 {
     bool isSwitch = false;
     if (isStwCopy && GetBCStubStatus() == BCStubStatus::NORMAL_BC_STUB) {
@@ -906,11 +903,61 @@ void JSThread::SwitchStwCopyStubs(bool isStwCopy)
     if (isSwitch) {
         Address curAddress;
 #define SWITCH_STW_COPY_STUB_ENTRY(base)                                                                    \
-        curAddress = GetBCStubEntry(BytecodeStubCSigns::ID_##base##StwCopy);                                \
+        curAddress = GetBCStubEntry(BytecodeStubCSigns::ID_##base);                                         \
         SetBCStubEntry(BytecodeStubCSigns::ID_##base,                                                       \
                        GetBCStubEntry(BytecodeStubCSigns::ID_##base##StwCopy));                             \
-        SetBCStubEntry(BytecodeStubCSigns::ID_##base, curAddress);
+        SetBCStubEntry(BytecodeStubCSigns::ID_##base##StwCopy, curAddress);
         ASM_INTERPRETER_BC_STW_COPY_STUB_LIST(SWITCH_STW_COPY_STUB_ENTRY)
+#undef SWITCH_STW_COPY_STUB_ENTRY
+    }
+}
+
+void JSThread::SwitchStwCopyCommonStubs(bool isStwCopy)
+{
+    bool isSwitch = false;
+    if (isStwCopy && GetCommonStubStatus() == CommonStubStatus::NORMAL_COMMON_STUB) {
+        SetCommonStubStatus(CommonStubStatus::STW_COPY_COMMON_STUB);
+        isSwitch = true;
+    } else if (!isStwCopy && GetCommonStubStatus() == CommonStubStatus::STW_COPY_COMMON_STUB) {
+        SetCommonStubStatus(CommonStubStatus::NORMAL_COMMON_STUB);
+        isSwitch = true;
+    }
+    if (isSwitch) {
+        Address curAddress;
+#define SWITCH_STW_COPY_STUB_ENTRY(base)                                                                    \
+        curAddress = GetFastStubEntry(CommonStubCSigns::base);                                              \
+        SetFastStubEntry(CommonStubCSigns::base,                                                            \
+                         GetFastStubEntry(CommonStubCSigns::base##StwCopy));                                \
+        SetFastStubEntry(CommonStubCSigns::base##StwCopy, curAddress);
+        COMMON_STW_COPY_STUB_LIST(SWITCH_STW_COPY_STUB_ENTRY)
+#undef SWITCH_STW_COPY_STUB_ENTRY
+    }
+}
+
+void JSThread::SwitchStwCopyBuiltinsStubs(bool isStwCopy)
+{
+    bool isSwitch = false;
+    if (isStwCopy && GetBuiltinsStubStatus() == BuiltinsStubStatus::NORMAL_BUILTINS_STUB) {
+        SetBuiltinsStubStatus(BuiltinsStubStatus::STW_COPY_BUILTINS_STUB);
+        isSwitch = true;
+    } else if (!isStwCopy && GetBuiltinsStubStatus() == BuiltinsStubStatus::STW_COPY_BUILTINS_STUB) {
+        SetBuiltinsStubStatus(BuiltinsStubStatus::NORMAL_BUILTINS_STUB);
+        isSwitch = true;
+    }
+    if (isSwitch) {
+        Address curAddress;
+#define SWITCH_STW_COPY_STUB_ENTRY(base)                                                                    \
+        curAddress = GetBuiltinStubEntry(BuiltinsStubCSigns::SubID::base);                                  \
+        SetBuiltinStubEntry(BuiltinsStubCSigns::SubID::base,                                                \
+                            GetBuiltinStubEntry(BuiltinsStubCSigns::SubID::base##StwCopy));                 \
+        SetBuiltinStubEntry(BuiltinsStubCSigns::SubID::base##StwCopy, curAddress);
+
+#define SWITCH_STW_COPY_STUB_ENTRY_DYN(base, type, ...)                                                     \
+        SWITCH_STW_COPY_STUB_ENTRY(type##base)
+
+        BUILTINS_STW_COPY_STUB_LIST(SWITCH_STW_COPY_STUB_ENTRY, SWITCH_STW_COPY_STUB_ENTRY_DYN, \
+            SWITCH_STW_COPY_STUB_ENTRY)
+#undef SWITCH_STW_COPY_STUB_ENTRY_DYN
 #undef SWITCH_STW_COPY_STUB_ENTRY
     }
 }
@@ -1104,7 +1151,8 @@ void JSThread::NotifyHotReloadDeoptimize()
     if (!hotReloadDependInfo_.IsHeapObject()) {
         return;
     }
-    DependentInfos::DeoptimizeGroups(GetDependentInfo(), this, DependentInfos::DependentGroup::HOTRELOAD_PATCHMAIN);
+    DependentInfos::TriggerLazyDeoptimization(GetDependentInfo(),
+        this, DependentInfos::DependentState::HOTRELOAD_PATCHMAIN);
     hotReloadDependInfo_ = JSTaggedValue::Undefined();
 }
 
@@ -1244,7 +1292,7 @@ void JSThread::WaitSuspension()
         ThreadState oldState = GetState();
         UpdateState(ThreadState::IS_SUSPENDED);
         {
-            OHOS_HITRACE(HITRACE_LEVEL_MAX, "SuspendTime::WaitSuspension", "");
+            OHOS_HITRACE(HITRACE_LEVEL_COMMERCIAL, "SuspendTime::WaitSuspension", "");
             LockHolder lock(suspendLock_);
             while (suspendCount_ > 0) {
                 suspendCondVar_.TimedWait(&suspendLock_, TIMEOUT);
@@ -1390,7 +1438,7 @@ void JSThread::StoreRunningState([[maybe_unused]] ThreadState newState)
             PassSuspendBarrier();
         } else if ((oldStateAndFlags.asNonvolatileStruct.flags & ThreadFlag::SUSPEND_REQUEST) != 0) {
             constexpr int TIMEOUT = 100;
-            OHOS_HITRACE(HITRACE_LEVEL_MAX, "SuspendTime::StoreRunningState", "");
+            OHOS_HITRACE(HITRACE_LEVEL_COMMERCIAL, "SuspendTime::StoreRunningState", "");
             LockHolder lock(suspendLock_);
             while (suspendCount_ > 0) {
                 suspendCondVar_.TimedWait(&suspendLock_, TIMEOUT);

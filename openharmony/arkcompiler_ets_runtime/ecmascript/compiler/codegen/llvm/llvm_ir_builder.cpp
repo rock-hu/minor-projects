@@ -40,15 +40,25 @@
 
 
 namespace panda::ecmascript::kungfu {
-LLVMIRBuilder::LLVMIRBuilder(const std::vector<std::vector<GateRef>> *schedule, Circuit *circuit,
-                             LLVMModule *module, LLVMValueRef function, const CompilationConfig *cfg,
-                             CallSignature::CallConv callConv, bool enableLog, bool isFastCallAot,
-                             const std::string &funcName, bool enableOptDirectCall, bool enableOptInlining,
-                             bool enableBranchProfiling)
-    : compCfg_(cfg), scheduledGates_(schedule), circuit_(circuit), acc_(circuit), module_(module->GetModule()),
-      function_(function), llvmModule_(module), callConv_(callConv), enableLog_(enableLog),
-      isFastCallAot_(isFastCallAot), enableOptDirectCall_(enableOptDirectCall), enableOptInlining_(enableOptInlining),
-      enableOptBranchProfiling_(enableBranchProfiling)
+LLVMIRBuilder::LLVMIRBuilder(const std::vector<std::vector<GateRef>> *schedule, Circuit *circuit, LLVMModule *module,
+                             LLVMValueRef function, const CompilationConfig *cfg, CallSignature::CallConv callConv,
+                             bool enableLog, bool isFastCallAot, const std::string &funcName, bool enableOptDirectCall,
+                             bool enableOptInlining, bool enableBranchProfiling, bool isStwCopyStub)
+    : compCfg_(cfg),
+      scheduledGates_(schedule),
+      circuit_(circuit),
+      acc_(circuit),
+      glue_(acc_.GetGlueFromArgList()),
+      module_(module->GetModule()),
+      function_(function),
+      llvmModule_(module),
+      callConv_(callConv),
+      enableLog_(enableLog),
+      isFastCallAot_(isFastCallAot),
+      enableOptDirectCall_(enableOptDirectCall),
+      enableOptInlining_(enableOptInlining),
+      enableOptBranchProfiling_(enableBranchProfiling),
+      isStwCopyStub_(isStwCopyStub)
 {
     ASSERT(compCfg_->Is64Bit());
     context_ = module->GetContext();
@@ -1037,6 +1047,9 @@ void LLVMIRBuilder::VisitCall(GateRef gate, const std::vector<GateRef> &inList, 
         const size_t index = acc_.GetConstantValue(inList[targetIndex]);
         calleeDescriptor = CommonStubCSigns::Get(index);
         if (enableOptDirectCall_) {
+            if (isStwCopyStub_) {
+                calleeDescriptor = CommonStubCSigns::Get(index + CommonStubCSigns::NUM_OF_ALL_NORMAL_STUBS);
+            }
             callee = GetOrDeclareFunction(calleeDescriptor);
         } else {
             rtoffset = GetCoStubOffset(glue, index);
@@ -2974,7 +2987,7 @@ void LLVMIRBuilder::GetDeoptBundleInfo(GateRef deoptFrameState, std::vector<LLVM
     LLVMValueRef depthValue = LLVMConstInt(GetInt32T(), maxDepth, false);
     values.emplace_back(LLVMConstInt(GetInt32T(), specInlineDepthIndex, false));
     values.emplace_back(depthValue);
-    
+
     size_t shift = Deoptimizier::ComputeShift(maxDepth);
     GateRef frameState = deoptFrameState;
     ArgumentAccessor *argAcc = const_cast<Circuit *>(circuit_)->GetArgumentAccessor();
@@ -3032,7 +3045,7 @@ void LLVMIRBuilder::GetDeoptBundleInfo(GateRef deoptFrameState, std::vector<LLVM
 
 void LLVMIRBuilder::VisitDeoptCheck(GateRef gate)
 {
-    LLVMValueRef glue = gate2LValue_.at(acc_.GetGlueFromArgList());
+    LLVMValueRef glue = gate2LValue_.at(glue_);
     GateRef deoptFrameState = acc_.GetValueIn(gate, 1); // 1: frame state
     ASSERT(acc_.GetOpCode(deoptFrameState) == OpCode::FRAME_STATE);
     std::vector<LLVMValueRef> params;

@@ -104,7 +104,7 @@ bool ValueSerializer::WriteValue(JSThread *thread,
                                  const JSHandle<JSTaggedValue> &transfer,
                                  const JSHandle<JSTaggedValue> &cloneList)
 {
-    ECMA_BYTRACE_NAME(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, "ValueSerializer::WriteValue", "");
+    ECMA_BYTRACE_NAME(HITRACE_LEVEL_COMMERCIAL, HITRACE_TAG_ARK, "ValueSerializer::WriteValue", "");
     ASSERT(!value->IsWeak());
     if (!defaultTransfer_ && !PrepareTransfer(thread, transfer)) {
         std::string errorMessage = "Serialize PrepareTransfer fail";
@@ -271,7 +271,7 @@ void ValueSerializer::SerializeObjectImpl(TaggedObject *object, bool isWeak)
             break;
         }
         case JSType::SOURCE_TEXT_MODULE_RECORD: {
-            if (!SerializeModuleCppObject(object)) {
+            if (!SerializeModuleCNativeObjects(object)) {
                 notSupport_ = true;
                 return;
             }
@@ -546,8 +546,8 @@ bool ValueSerializer::PrepareClone(JSThread *thread, const JSHandle<JSTaggedValu
     return true;
 }
 
-// especially process cpp object in SourceTextModule
-bool ValueSerializer::SerializeModuleCppObject(TaggedObject *object)
+// especially process cpp native object in SourceTextModule
+bool ValueSerializer::SerializeModuleCNativeObjects(TaggedObject *object)
 {
     JSHandle<SourceTextModule> module = JSHandle<SourceTextModule>(thread_, object);
     CString moduleFileName = module->GetEcmaModuleFilenameString();
@@ -556,7 +556,7 @@ bool ValueSerializer::SerializeModuleCppObject(TaggedObject *object)
         data_->WriteUint32(moduleFileName.size());
         data_->WriteRawData(reinterpret_cast<uint8_t *>(moduleFileName.data()), moduleFileName.size());
     } else {
-        LOG_ECMA(ERROR) << "ValueSerialize::SerializeModuleCppObject moduleFileName is empty";
+        LOG_ECMA(ERROR) << "ValueSerialize::SerializeModuleCNativeObjects moduleFileName is empty";
         return false;
     }
 

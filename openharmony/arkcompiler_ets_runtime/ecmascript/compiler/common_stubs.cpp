@@ -240,9 +240,15 @@ void NewFloat32ArrayStubBuilder::GenerateCircuit()
         GateRef thisObj = Undefined();
         GateRef argc = Int64(4); // 4: means func newtarget thisObj arg0
         GateRef argv = IntPtr(0);
-#ifdef USE_READ_BARRIER
+        Label readBarrier(env);
+        Label skipReadBarrier(env);
+        BRANCH_UNLIKELY(LoadPrimitive(VariableType::BOOL(), glue,
+                                      IntPtr(JSThread::GlueData::GetIsEnableCMCGCOffset(env->Is32Bit()))),
+                        &readBarrier, &skipReadBarrier);
+        Bind(&readBarrier);
         CallNGCRuntime(glue, RTSTUB_ID(CopyCallTarget), {glue, ctor});
-#endif
+        Jump(&skipReadBarrier);
+        Bind(&skipReadBarrier);
         std::vector<GateRef> args { glue, argc, argv, ctor, ctor, thisObj, arg0 };
         const CallSignature *cs = RuntimeStubCSigns::Get(RTSTUB_ID(JSCallNew));
         GateRef target = IntPtr(RTSTUB_ID(JSCallNew));
@@ -1323,10 +1329,17 @@ void JsBoundCallInternalStubBuilder::GenerateCircuit()
     GateRef expectedArgc = Int64Add(expectedNum, Int64(NUM_MANDATORY_JSFUNC_ARGS));
     GateRef actualArgc = Int64Sub(argc, IntPtr(NUM_MANDATORY_JSFUNC_ARGS));
 
-#ifdef USE_READ_BARRIER
-        CallNGCRuntime(glue, RTSTUB_ID(CopyCallTarget), {glue, func});
-        CallNGCRuntime(glue, RTSTUB_ID(CopyArgvArray), {glue, argv, argc});
-#endif
+    Label readBarrier(env);
+    Label skipReadBarrier(env);
+    BRANCH_UNLIKELY(
+        LoadPrimitive(VariableType::BOOL(), glue, IntPtr(JSThread::GlueData::GetIsEnableCMCGCOffset(env->Is32Bit()))),
+        &readBarrier, &skipReadBarrier);
+    Bind(&readBarrier);
+    CallNGCRuntime(glue, RTSTUB_ID(CopyCallTarget), {glue, func});
+    CallNGCRuntime(glue, RTSTUB_ID(CopyArgvArray), {glue, argv, argc});
+    Jump(&skipReadBarrier);
+    Bind(&skipReadBarrier);
+
     BRANCH(JudgeAotAndFastCall(func, CircuitBuilder::JudgeMethodType::HAS_AOT_FASTCALL),
         &methodIsFastCall, &notFastCall);
     Bind(&methodIsFastCall);
@@ -1828,6 +1841,25 @@ void CommonStubCSigns::Initialize()
 
     COMMON_STUB_ID_LIST(INIT_SIGNATURES)
 #undef INIT_SIGNATURES
+
+#define INIT_SIGNATURES_DYN(name, base)                                                    \
+    base##CallSignature::Initialize(&callSigns_[name]);                                    \
+    callSigns_[name].SetID(name);                                                          \
+    callSigns_[name].SetName(std::string("COStub_") + #name);                              \
+    callSigns_[name].SetConstructor(                                                       \
+        [](void* env) {                                                                    \
+            return static_cast<void*>(                                                     \
+                new name##StubBuilder(&callSigns_[name], static_cast<Environment*>(env))); \
+        });                                                                                \
+    callSigns_[name].SetStwCopyStub(true);                                                 \
+    callSigns_[name].SetTargetKind(CallSignature::TargetKind::COMMON_STW_COPY_STUB);
+
+#define INIT_SIGNATURES_DYN_SECOND(base)                                                   \
+    INIT_SIGNATURES_DYN(base##StwCopy, base)
+
+    COMMON_STW_COPY_STUB_LIST(INIT_SIGNATURES_DYN_SECOND)
+#undef INIT_SIGNATURES_DYN_SECOND
+#undef INIT_SIGNATURES_DYN
 }
 
 void CommonStubCSigns::GetCSigns(std::vector<const CallSignature*>& outCSigns)

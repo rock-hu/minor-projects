@@ -32,6 +32,7 @@ using panda::ecmascript::ObjectXRay;
 using panda::ecmascript::FreeObject;
 using panda::ecmascript::ObjectSlot;
 using panda::ecmascript::JSThread;
+using panda::ecmascript::TaggedType;
 
 class CMCRootVisitor final : public panda::ecmascript::RootVisitor {
 public:
@@ -109,7 +110,7 @@ void VisitDynamicRoots(const RefFieldVisitor &visitorFunc, bool isMark)
     panda::ecmascript::VMRootVisitType type = isMark ? panda::ecmascript::VMRootVisitType::MARK :
                                                 panda::ecmascript::VMRootVisitType::UPDATE_ROOT;
     CMCRootVisitor visitor(visitorFunc);
-    OHOS_HITRACE(HITRACE_LEVEL_MAX, "CMCGC::VisitSharedRoot", "");
+    OHOS_HITRACE(HITRACE_LEVEL_COMMERCIAL, "CMCGC::VisitSharedRoot", "");
     // MarkSharedModule
     panda::ecmascript::SharedModuleManager::GetInstance()->Iterate(visitor);
 
@@ -133,7 +134,7 @@ void VisitDynamicRoots(const RefFieldVisitor &visitorFunc, bool isMark)
 
 void VisitDynamicWeakRoots(const common::WeakRefFieldVisitor &visitorFunc)
 {
-    OHOS_HITRACE(HITRACE_LEVEL_MAX, "CMCGC::VisitDynamicWeakRoots", "");
+    OHOS_HITRACE(HITRACE_LEVEL_COMMERCIAL, "CMCGC::VisitDynamicWeakRoots", "");
     CMCWeakVisitor visitor(visitorFunc);
 
     panda::ecmascript::SharedHeap::GetInstance()->IteratorNativePointerList(visitor);
@@ -216,7 +217,7 @@ void JitFortUnProt(size_t size, void* base)
 
 bool IsMachineCodeObject(uintptr_t objPtr)
 {
-    JSTaggedValue value(objPtr);
+    JSTaggedValue value(static_cast<TaggedType>(objPtr));
     return value.IsMachineCodeObject();
 }
 

@@ -1299,6 +1299,9 @@ JSTaggedValue BuiltinsRegExp::ReplaceInternal(JSThread *thread,
             // store length of replacement string in resultLengthArray
             resultLengthArray[REPLACE_RESULT_VAL * i + 1] = static_cast<uint64_t>(replacementLength);
             resultStrLength += replacementLength;
+            if (resultStrLength >= BaseString::MAX_STRING_LENGTH) {
+                THROW_RANGE_ERROR_AND_RETURN(thread, "Invalid string length", JSTaggedValue::Exception());
+            }
             isUtf8 &= EcmaStringAccessor(replacementString).IsUtf8();
             // iii. Let nextSourcePosition be position + matchLength.
             nextSourcePosition = position + matchLength;
@@ -1556,9 +1559,10 @@ JSTaggedValue BuiltinsRegExp::RegExpSplit(JSThread *thread, const JSHandle<JSTag
                 JSObject::GetProperty(thread, splitter, lastIndexString).GetValue();
             RETURN_EXCEPTION_IF_ABRUPT_COMPLETION(thread);
             JSTaggedNumber lastIndexNumber = JSTaggedValue::ToLength(thread, lastIndexHandle);
-            // ii. ReturnIfAbrupt(e).
             RETURN_EXCEPTION_IF_ABRUPT_COMPLETION(thread);
-            uint32_t lastIndex = lastIndexNumber.GetNumber();
+            // ii. Set e to min(e, size).
+            uint32_t lastIndex = static_cast<uint32_t>(std::min(
+                static_cast<uint64_t>(lastIndexNumber.GetNumber()), static_cast<uint64_t>(size)));
             // iii. If e = p, let q be AdvanceStringIndex(S, q, unicodeMatching).
             if (lastIndex == startIndex) {
                 endIndex = static_cast<uint32_t>(AdvanceStringIndex(jsString, endIndex, unicodeMatching));

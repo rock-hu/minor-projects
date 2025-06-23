@@ -25,6 +25,7 @@
 #include "core/components_ng/property/safe_area_insets.h"
 #include "core/components_ng/base/view_abstract.h"
 #include "core/components_ng/base/view_abstract_model_ng.h"
+#include "core/components_ng/base/view_abstract_model_static.h"
 #include "core/components_ng/pattern/counter/counter_model_ng.h"
 #include "core/components_ng/pattern/counter/counter_node.h"
 #include "core/components_ng/pattern/text/span_model_ng.h"
@@ -2452,7 +2453,7 @@ void OnClick0Impl(Ark_NativePointer node,
     CHECK_NULL_VOID(value);
     auto onClick = [callback = CallbackHelper(*value)](GestureEvent& info) {
         const auto event = Converter::ArkClickEventSync(info);
-        callback.InvokeSync(event.ArkValue());
+        callback.Invoke(event.ArkValue());
     };
     NG::ViewAbstract::SetOnClick(frameNode, std::move(onClick));
 }
@@ -3538,7 +3539,7 @@ void Clip0Impl(Ark_NativePointer node,
 {
     auto frameNode = reinterpret_cast<FrameNode *>(node);
     CHECK_NULL_VOID(frameNode);
-    ViewAbstract::SetClipEdge(frameNode, Converter::OptConvert<bool>(*value).value_or(false));
+    ViewAbstractModelStatic::SetClipEdge(frameNode, Converter::OptConvert<bool>(*value).value_or(false));
 }
 void Clip1Impl(Ark_NativePointer node,
                const Opt_Boolean* value)

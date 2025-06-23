@@ -119,6 +119,7 @@ public:
     void DemandSuspensionForStw()
     {
         VisitAllMutators([](Mutator& mutator) {
+            mutator.SetSafepointActive(true);
             mutator.SetSuspensionFlag(MutatorBase::SuspensionType::SUSPENSION_FOR_STW);
         });
     }
@@ -126,6 +127,7 @@ public:
     void CancelSuspensionAfterStw()
     {
         VisitAllMutators([](Mutator& mutator) {
+            mutator.SetSafepointActive(false);
             mutator.ClearSuspensionFlag(MutatorBase::SuspensionType::SUSPENSION_FOR_STW);
         });
     }
@@ -263,7 +265,7 @@ public:
 
     __attribute__((always_inline)) ~ScopedStopTheWorld()
     {
-        VLOG(REPORT, "%s stw time %zu us", reason_, GetElapsedTime()/1000); // 1000:nsec per usec
+        VLOG(DEBUG, "%s stw time %zu us", reason_, GetElapsedTime()/1000); // 1000:nsec per usec
         MutatorManager::Instance().StartTheWorld();
     }
 

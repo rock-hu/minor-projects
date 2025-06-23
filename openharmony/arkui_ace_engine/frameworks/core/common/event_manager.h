@@ -405,9 +405,6 @@ private:
     void CheckRefereeStateAndReTouchTest(const TouchEvent& touchPoint, const RefPtr<NG::FrameNode>& frameNode,
         TouchRestrict& touchRestrict, const Offset& offset = Offset(),
         float viewScale = 1.0f, bool needAppend = false);
-    void LogAndForceCleanReferee(const TouchEvent& touchPoint, const RefPtr<NG::FrameNode>& frameNode,
-        TouchRestrict& touchRestrict, const Offset& offset = Offset(),
-        float viewScale = 1.0f, bool needAppend = false);
     bool DispatchMultiContainerEvent(const TouchEvent& point);
     void DispatchTouchEventAndCheck(const TouchEvent& event, bool sendOnTouch = true);
     void DispatchTouchEventInOldPipeline(const TouchEvent& point, bool dispatchSuccess);
@@ -430,6 +427,7 @@ private:
         const MouseEvent& event, const MouseTestResult& handledResults, bool isStopPropagation);
     void CheckMousePendingRecognizersState(const TouchEvent& event);
     void ExecuteTouchTestDoneCallback(const TouchEvent& touchEvent, const ResponseLinkResult& responseLinkRecognizers);
+    void ExecuteTouchTestDoneCallback(const AxisEvent& axisEvent, const ResponseLinkResult& responseLinkRecognizers);
     bool innerEventWin_ = false;
     std::unordered_map<size_t, TouchTestResult> mouseTestResults_;
     std::unordered_map<int32_t, MouseTestResult> currMouseTestResultsMap_;

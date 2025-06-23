@@ -73,6 +73,22 @@ void AssembleUiExtensionParams(
 #endif
 } // namespace
 
+void AppBarView::SetOnBackPressedConsumed()
+{
+    auto atomicService = atomicService_.Upgrade();
+    CHECK_NULL_VOID(atomicService);
+    auto atomicServicePattern = atomicService->GetPattern<NG::AtomicServicePattern>();
+    CHECK_NULL_VOID(atomicServicePattern);
+    atomicServicePattern->SetOnBackPressedConsumed();
+}
+
+RefPtr<Pattern> AppBarView::GetAtomicServicePattern()
+{
+    auto atomicService = atomicService_.Upgrade();
+    CHECK_NULL_RETURN(atomicService, nullptr);
+    return atomicService->GetPattern<NG::AtomicServicePattern>();
+}
+
 void AppBarView::RegistAppBarNodeBuilder(
     std::function<RefPtr<FrameNode>(NG::AppBarView* appBar, const RefPtr<FrameNode>& stage)> appBarNodeBuilder)
 {

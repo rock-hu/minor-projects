@@ -108,7 +108,6 @@ public:
         metadata.freeSlot = nullptr;
         metadata.regionStart = reinterpret_cast<uintptr_t>(nullptr);
         metadata.regionEnd = reinterpret_cast<uintptr_t>(nullptr);
-        metadata.toSpaceRegion = false;
         metadata.regionRSet = nullptr;
     }
     static inline RegionDesc* NullRegion()
@@ -453,7 +452,7 @@ public:
         LONE_FROM_REGION,
         EXEMPTED_FROM_REGION,
         TO_REGION,
-        MATURE_REGION,
+        OLD_REGION,
 
         // pinned object will not be forwarded by concurrent copying gc.
         FULL_PINNED_REGION,
@@ -469,7 +468,7 @@ public:
         TL_RAW_POINTER_REGION,
 
         RECENT_LARGE_REGION,
-        OLD_LARGE_REGION,
+        LARGE_REGION,
 
         GARBAGE_REGION,
         READ_ONLY_REGION,
@@ -556,11 +555,11 @@ public:
 #ifdef COMMON_ASAN_SUPPORT
         Sanitizer::OnHeapMadvise(unitAddress, size);
 #endif
-#ifdef ARK_ASAN_ON
-        ASAN_POISON_MEMORY_REGION(unitAddress, size);
+#ifdef USE_HWASAN
+        ASAN_UNPOISON_MEMORY_REGION(unitAddress, size);
         const uintptr_t pSize = size;
         LOG_COMMON(DEBUG) << std::hex << "set [" << unitAddress << ", " <<
-            (reinterpret_cast<uintptr_t>(unitAddress) + pSize) << ") unaddressable\n";
+            (reinterpret_cast<uintptr_t>(unitAddress) + pSize) << ") poisoned\n";
 #endif
     }
 
@@ -639,15 +638,6 @@ public:
         metadata.liveByteCount = 0;
     }
 
-    void SetToSpaceRegion(bool toSpaceRegion)
-    {
-        metadata.toSpaceRegion = toSpaceRegion;
-    }
-    bool IsToSpaceRegion()
-    {
-        return metadata.toSpaceRegion;
-    }
-
     // These interfaces are used to make sure the writing operations of value in C++ Bit Field will be atomic.
     void SetUnitRole(UnitRole role)
     {
@@ -692,6 +682,16 @@ public:
     {
         // 7: region cell count is 7 bits.
         return metadata.regionBits.AtomicGetValue(RegionBitOffset::BIT_OFFSET_REGION_CELLCOUNT, 7);
+    }
+
+    void SetJitFortAwaitInstallFlag(uint8_t flag)
+    {
+        metadata.regionBits.AtomicSetValue(RegionBitOffset::BIT_OFFSET_IS_JITFORT_AWAIT_INSTALL, 1, flag);
+    }
+
+    bool IsJitFortAwaitInstallFlag()
+    {
+        return metadata.regionBits.AtomicGetValue(RegionBitOffset::BIT_OFFSET_IS_JITFORT_AWAIT_INSTALL, 1);
     }
 
     RegionType GetRegionType() const
@@ -808,10 +808,10 @@ public:
         return type == RegionType::TO_REGION;
     }
 
-    bool IsInMatureSpace() const
+    bool IsInOldSpace() const
     {
         RegionType type = GetRegionType();
-        return type == RegionType::MATURE_REGION;
+        return type == RegionType::OLD_REGION;
     }
 
     int32_t IncRawPointerObjectCount()
@@ -1039,7 +1039,8 @@ private:
         BIT_OFFSET_ENQUEUED_REGION = 6,
         BIT_OFFSET_RESURRECTED_REGION = 7,
         BIT_OFFSET_FIXED_REGION = 8,
-        BIT_OFFSET_REGION_CELLCOUNT = 9
+        BIT_OFFSET_REGION_CELLCOUNT = 9,
+        BIT_OFFSET_IS_JITFORT_AWAIT_INSTALL = 16,
     };
 
     struct ObjectSlot {
@@ -1110,11 +1111,13 @@ private:
                 uint8_t isResurrected : 1;
                 uint8_t isFixed : 1;
                 uint8_t cellCount : 7;
+                // Only valid in huge region. To mark the JitFort code await for install.
+                // An awaiting JitFort does not hold valid data on and no parent reference, but considered as alive.
+                uint8_t isJitFortAwaitInstall : 1;
             };
-            BitFields<uint16_t> regionBits;
+            BitFields<uint32_t> regionBits;
         };
 
-        bool toSpaceRegion;
         std::mutex regionMutex;
     };
 
@@ -1211,7 +1214,6 @@ private:
 
     void InitRegionDesc(size_t nUnit, UnitRole uClass)
     {
-        metadata.toSpaceRegion = false;
         metadata.allocPtr = GetRegionStart();
         metadata.regionStart = GetRegionStart();
         metadata.regionEnd = metadata.allocPtr + nUnit * RegionDesc::UNIT_SIZE;
@@ -1229,12 +1231,13 @@ private:
         SetResurrectedRegionFlag(0);
         SetFixedRegionFlag(0);
         __atomic_store_n(&metadata.rawPointerObjectCount, 0, __ATOMIC_SEQ_CST);
-#ifdef ARK_ASAN_ON
-        ASAN_UNPOISON_MEMORY_REGION(metadata.allocPtr, nUnit * RegionDesc::UNIT_SIZE);
+#ifdef USE_HWASAN
+        ASAN_UNPOISON_MEMORY_REGION(reinterpret_cast<const volatile void *>(metadata.allocPtr),
+            nUnit * RegionDesc::UNIT_SIZE);
         uintptr_t pAddr = metadata.allocPtr;
         uintptr_t pSize = nUnit * RegionDesc::UNIT_SIZE;
-        LOG_COMMON(DEBUG) << std::hex << "set [" << pAddr;
-        LOG_COMMON(DEBUG) << std::hex << ", " << (pAddr + pSize) << ") unaddressable\n";
+        LOG_COMMON(DEBUG) << std::hex << "set [" << pAddr <<
+            std::hex << ", " << (pAddr + pSize) << ") unpoisoned\n";
 #endif
     }
 

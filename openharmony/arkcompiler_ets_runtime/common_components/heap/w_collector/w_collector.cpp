@@ -20,6 +20,7 @@
 #include "common_components/heap/verification.h"
 #include "common_interfaces/heap/heap_visitor.h"
 #include "common_interfaces/objects/ref_field.h"
+#include "common_interfaces/profiler/heap_profiler_listener.h"
 
 namespace common {
 bool WCollector::IsUnmovableFromObject(BaseObject* obj) const
@@ -75,6 +76,11 @@ bool WCollector::TryUpdateRefFieldImpl(BaseObject* obj, RefField<>& field, BaseO
     if (IsFromObject(fromObj)) {
         if (copy) {
             toObj = const_cast<WCollector*>(this)->TryForwardObject(fromObj);
+            if (toObj != nullptr) {
+                HeapProfilerListener::GetInstance().OnMoveEvent(reinterpret_cast<uintptr_t>(fromObj),
+                                                                reinterpret_cast<uintptr_t>(toObj),
+                                                                toObj->GetSize());
+            }
         } else {
             toObj = FindToVersion(fromObj);
         }
@@ -153,8 +159,8 @@ void WCollector::EnumRefFieldRoot(RefField<>& field, RootSet& rootSet) const
     // need fix or clean
     BaseObject* obj = field.GetTargetObject();
     RegionDesc* objRegion = RegionDesc::GetRegionDescAt(reinterpret_cast<MAddress>(obj));
-    if (Heap::GetHeap().GetGCReason() == GC_REASON_YOUNG && objRegion->IsInMatureSpace()) {
-        DLOG(ENUM, "enum: skip mature object %p<%p>(%zu)", obj, obj->GetTypeInfo(), obj->GetSize());
+    if (Heap::GetHeap().GetGCReason() == GC_REASON_YOUNG && objRegion->IsInOldSpace()) {
+        DLOG(ENUM, "enum: skip old object %p<%p>(%zu)", obj, obj->GetTypeInfo(), obj->GetSize());
         return;
     }
     rootSet.push_back(obj);
@@ -244,8 +250,8 @@ void WCollector::TraceRefField(BaseObject* obj, RefField<>& field, WorkStack& wo
         return;
     }
 
-    if (gcReason == GC_REASON_YOUNG && objRegion->IsInMatureSpace()) {
-        DLOG(TRACE, "trace: skip mature object %p@%p, target object: %p<%p>(%zu)",
+    if (gcReason == GC_REASON_YOUNG && objRegion->IsInOldSpace()) {
+        DLOG(TRACE, "trace: skip old object %p@%p, target object: %p<%p>(%zu)",
             obj, &field, targetObj, targetObj->GetTypeInfo(), targetObj->GetSize());
         return;
     }
@@ -324,6 +330,9 @@ BaseObject* WCollector::ForwardUpdateRawRef(ObjectRef& root)
     if (IsFromObject(oldObj)) {
         BaseObject* toVersion = TryForwardObject(oldObj);
         CHECK_CC(toVersion != nullptr);
+        HeapProfilerListener::GetInstance().OnMoveEvent(reinterpret_cast<uintptr_t>(oldObj),
+                                                        reinterpret_cast<uintptr_t>(toVersion),
+                                                        toVersion->GetSize());
         RefField<> newField(toVersion);
         // CAS failure means some mutator or gc thread writes a new ref (must be a to-object), no need to retry.
         if (refField.CompareExchange(oldField.GetFieldValue(), newField.GetFieldValue())) {
@@ -337,7 +346,7 @@ BaseObject* WCollector::ForwardUpdateRawRef(ObjectRef& root)
 
 void WCollector::PreforwardStaticRoots()
 {
-    OHOS_HITRACE(HITRACE_LEVEL_MAX, "CMCGC::PreforwardStaticRoots", "");
+    OHOS_HITRACE(HITRACE_LEVEL_COMMERCIAL, "CMCGC::PreforwardStaticRoots", "");
     RefFieldVisitor visitor = [this](RefField<>& refField) {
         RefField<> oldField(refField);
         BaseObject* oldObj = oldField.GetTargetObject();
@@ -345,6 +354,9 @@ void WCollector::PreforwardStaticRoots()
         if (IsFromObject(oldObj)) {
             BaseObject* toVersion = TryForwardObject(oldObj);
             CHECK_CC(toVersion != nullptr);
+            HeapProfilerListener::GetInstance().OnMoveEvent(reinterpret_cast<uintptr_t>(oldObj),
+                                                            reinterpret_cast<uintptr_t>(toVersion),
+                                                            toVersion->GetSize());
             RefField<> newField(toVersion);
             // CAS failure means some mutator or gc thread writes a new ref (must be a to-object), no need to retry.
             if (refField.CompareExchange(oldField.GetFieldValue(), newField.GetFieldValue())) {
@@ -372,6 +384,9 @@ void WCollector::PreforwardStaticRoots()
         if (IsFromObject(oldObj)) {
             BaseObject *toVersion = TryForwardObject(oldObj);
             CHECK_CC(toVersion != nullptr);
+            HeapProfilerListener::GetInstance().OnMoveEvent(reinterpret_cast<uintptr_t>(oldObj),
+                                                            reinterpret_cast<uintptr_t>(toVersion),
+                                                            toVersion->GetSize());
             RefField<> newField(toVersion);
             // CAS failure means some mutator or gc thread writes a new ref (must be
             // a to-object), no need to retry.
@@ -418,7 +433,7 @@ void WCollector::EnumRoots(WorkStack& workStack)
     reinterpret_cast<RegionSpace&>(theAllocator_).PrepareTrace();
 
     COMMON_PHASE_TIMER("enum roots & update old pointers within");
-    OHOS_HITRACE(HITRACE_LEVEL_MAX, "CMCGC::EnumRoots", "");
+    OHOS_HITRACE(HITRACE_LEVEL_COMMERCIAL, "CMCGC::EnumRoots", "");
     TransitionToGCPhase(GCPhase::GC_PHASE_ENUM, true);
     EnumerateAllRoots(workStack);
 }
@@ -435,7 +450,7 @@ void WCollector::TraceHeap(WorkStack& workStack)
 
 void WCollector::PostTrace()
 {
-    OHOS_HITRACE(HITRACE_LEVEL_MAX, "CMCGC::PostTrace", "");
+    OHOS_HITRACE(HITRACE_LEVEL_COMMERCIAL, "CMCGC::PostTrace", "");
     COMMON_PHASE_TIMER("PostTrace");
     TransitionToGCPhase(GC_PHASE_POST_MARK, true);
 
@@ -448,7 +463,7 @@ void WCollector::PostTrace()
 void WCollector::Preforward()
 {
     COMMON_PHASE_TIMER("Preforward");
-    OHOS_HITRACE(HITRACE_LEVEL_MAX, "CMCGC::Preforward[STW]", "");
+    OHOS_HITRACE(HITRACE_LEVEL_COMMERCIAL, "CMCGC::Preforward[STW]", "");
     TransitionToGCPhase(GCPhase::GC_PHASE_PRECOPY, true);
 
     [[maybe_unused]] Taskpool *threadPool = GetThreadPool();
@@ -463,7 +478,7 @@ void WCollector::PrepareFix()
 {
     // make sure all objects before fixline is initialized
     COMMON_PHASE_TIMER("PrepareFix");
-    OHOS_HITRACE(HITRACE_LEVEL_MAX, "CMCGC::PrepareFix[STW]", "");
+    OHOS_HITRACE(HITRACE_LEVEL_COMMERCIAL, "CMCGC::PrepareFix[STW]", "");
     reinterpret_cast<RegionSpace&>(theAllocator_).PrepareFix();
     reinterpret_cast<RegionSpace&>(theAllocator_).PrepareFixForPin();
     TransitionToGCPhase(GCPhase::GC_PHASE_FIX, true);
@@ -472,7 +487,7 @@ void WCollector::PrepareFix()
 void WCollector::FixHeap()
 {
     COMMON_PHASE_TIMER("FixHeap");
-    OHOS_HITRACE(HITRACE_LEVEL_MAX, "CMCGC::FixHeap", "");
+    OHOS_HITRACE(HITRACE_LEVEL_COMMERCIAL, "CMCGC::FixHeap", "");
     reinterpret_cast<RegionSpace&>(theAllocator_).FixHeap();
 
     WVerify::VerifyAfterFix(*this);
@@ -480,7 +495,7 @@ void WCollector::FixHeap()
 
 void WCollector::DoGarbageCollection()
 {
-    OHOS_HITRACE(HITRACE_LEVEL_MAX, "CMCGC::DoGarbageCollection", "");
+    OHOS_HITRACE(HITRACE_LEVEL_COMMERCIAL, "CMCGC::DoGarbageCollection", "");
     if (gcMode_ == GCMode::STW) { // 2: stw-gc
 #ifdef ENABLE_CMC_RB_DFX
         WVerify::DisableReadBarrierDFX(*this);
@@ -600,9 +615,9 @@ void WCollector::MarkNewObject(BaseObject* obj)
 
 void WCollector::ProcessWeakReferences()
 {
-    OHOS_HITRACE(HITRACE_LEVEL_MAX, "CMCGC::ProcessWeakReferences", "");
+    OHOS_HITRACE(HITRACE_LEVEL_COMMERCIAL, "CMCGC::ProcessWeakReferences", "");
     {
-        OHOS_HITRACE(HITRACE_LEVEL_MAX, "CMCGC::ProcessGlobalWeakStack", "");
+        OHOS_HITRACE(HITRACE_LEVEL_COMMERCIAL, "CMCGC::ProcessGlobalWeakStack", "");
         while (!globalWeakStack_.empty()) {
             RefField<>& field = reinterpret_cast<RefField<>&>(*globalWeakStack_.back());
             globalWeakStack_.pop_back();
@@ -624,7 +639,7 @@ void WCollector::ProcessWeakReferences()
     }
 #ifndef ARK_USE_SATB_BARRIER
     {
-        OHOS_HITRACE(HITRACE_LEVEL_MAX, "CMCGC::ProcessWeakRoots", "");
+        OHOS_HITRACE(HITRACE_LEVEL_COMMERCIAL, "CMCGC::ProcessWeakRoots", "");
         WeakRefFieldVisitor weakVisitor = [this](RefField<> &refField) -> bool {
             RefField<> oldField(refField);
             BaseObject *oldObj = oldField.GetTargetObject();
@@ -661,6 +676,11 @@ void WCollector::ProcessFinalizers()
 BaseObject* WCollector::ForwardObject(BaseObject* obj)
 {
     BaseObject* to = TryForwardObject(obj);
+    if (to != nullptr) {
+        HeapProfilerListener::GetInstance().OnMoveEvent(reinterpret_cast<uintptr_t>(obj),
+                                                        reinterpret_cast<uintptr_t>(to),
+                                                        to->GetSize());
+    }
     return (to != nullptr) ? to : obj;
 }
 
@@ -715,7 +735,7 @@ BaseObject* WCollector::CopyObjectAfterExclusive(BaseObject* obj)
     // 8: size of free object, but free object can not be copied.
     if (size == 8) {
         LOG_COMMON(FATAL) << "forward free obj: " << obj <<
-            "is survived: " << IsSurvivedObject(obj) ? "true" : "false";
+            "is survived: " << (IsSurvivedObject(obj) ? "true" : "false");
     }
     BaseObject* toObj = fwdTable_.RouteObject(obj, size);
     if (toObj == nullptr) {
@@ -750,14 +770,14 @@ void WCollector::ClearAllGCInfo()
 
 void WCollector::CollectSmallSpace()
 {
-    OHOS_HITRACE(HITRACE_LEVEL_MAX, "CMCGC::CollectSmallSpace", "");
+    OHOS_HITRACE(HITRACE_LEVEL_COMMERCIAL, "CMCGC::CollectSmallSpace", "");
     GCStats& stats = GetGCStats();
     RegionSpace& space = reinterpret_cast<RegionSpace&>(theAllocator_);
     {
         COMMON_PHASE_TIMER("CollectFromSpaceGarbage");
         stats.collectedBytes += stats.smallGarbageSize;
         if (gcReason_ == GC_REASON_APPSPAWN) {
-            VLOG(REPORT, "APPSPAWN GC Collect");
+            VLOG(DEBUG, "APPSPAWN GC Collect");
             space.CollectAppSpawnSpaceGarbage();
         } else {
             space.CollectFromSpaceGarbage();
@@ -770,13 +790,22 @@ void WCollector::CollectSmallSpace()
 
     stats.liveBytesAfterGC = space.GetAllocatedBytes();
 
-    VLOG(REPORT,
+    VLOG(INFO,
          "collect %zu B: old small %zu - %zu B, old pinned %zu - %zu B, old large %zu - %zu B. garbage ratio %.2f%%",
          stats.collectedBytes, stats.fromSpaceSize, stats.smallGarbageSize, stats.pinnedSpaceSize,
          stats.pinnedGarbageSize, stats.largeSpaceSize, stats.largeGarbageSize,
          stats.garbageRatio * 100); // The base of the percentage is 100
+    OHOS_HITRACE(HITRACE_LEVEL_COMMERCIAL, "CMCGC::CollectSmallSpace END", (
+                    "collect:" + std::to_string(stats.collectedBytes) +
+                    "B;old small:" + std::to_string(stats.fromSpaceSize) +
+                    "-" + std::to_string(stats.smallGarbageSize) +
+                    "B;old pinned:" + std::to_string(stats.pinnedSpaceSize) +
+                    "-" + std::to_string(stats.pinnedGarbageSize) +
+                    "B;old large:" + std::to_string(stats.largeSpaceSize) +
+                    "-" + std::to_string(stats.largeGarbageSize) +
+                    "B;garbage ratio:" + std::to_string(stats.garbageRatio)
+                ).c_str());
 
-    VLOG(REPORT, "start to release heap garbage memory");
     collectorResources_.GetFinalizerProcessor().NotifyToReclaimGarbage();
 }
 

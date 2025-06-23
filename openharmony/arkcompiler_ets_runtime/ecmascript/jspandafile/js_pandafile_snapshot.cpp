@@ -15,41 +15,36 @@
 
 #include "ecmascript/jspandafile/js_pandafile_snapshot.h"
 
-#include <cstdint>
-#include <unistd.h>
-#include "zlib.h"
 #include "common_components/taskpool/taskpool.h"
 #include "ecmascript/platform/file.h"
 #include "ecmascript/platform/filesystem.h"
 #include "ecmascript/jspandafile/js_pandafile_manager.h"
 #include "ecmascript/module/module_path_helper.h"
+#include "zlib.h"
 
 namespace panda::ecmascript {
-void JSPandaFileSnapshot::ReadData(JSThread *thread, JSPandaFile *jsPandaFile,
-                                   const CString &methodName, const CString &path)
+bool JSPandaFileSnapshot::ReadData(JSThread *thread, JSPandaFile *jsPandaFile, const CString &path)
 {
-    ECMA_BYTRACE_NAME(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, "JSPandaFile::ReadData", "");
+    ECMA_BYTRACE_NAME(HITRACE_LEVEL_COMMERCIAL, HITRACE_TAG_ARK, "JSPandaFile::ReadData", "");
     LOG_ECMA(INFO) << "JSPandaFileSnapshot::ReadData";
     // check application white list & specific file
-    if (filesystem::Exists(path.c_str()) && IsSerializeFileExist(jsPandaFile->GetJSPandaFileDesc(), path)) {
-        if (!ReadDataFromFile(thread, jsPandaFile, path)) {
-            jsPandaFile->TranslateClasses(thread, methodName);
-        }
-    } else {
-        jsPandaFile->TranslateClasses(thread, methodName);
+    if (filesystem::Exists(path.c_str()) && IsJSPandaFileSnapshotFileExist(jsPandaFile->GetJSPandaFileDesc(), path)) {
+        return ReadDataFromFile(thread, jsPandaFile, path);
     }
+    return false;
 }
 
 void JSPandaFileSnapshot::PostWriteDataToFileJob(const EcmaVM *vm, const CString &path)
 {
-    ECMA_BYTRACE_NAME(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, "JSPandaFileSnapshot::PostWriteDataToFileJob", "");
+    ECMA_BYTRACE_NAME(HITRACE_LEVEL_COMMERCIAL, HITRACE_TAG_ARK, "JSPandaFileSnapshot::PostWriteDataToFileJob", "");
     LOG_ECMA(INFO) << "JSPandaFileSnapshot::PostWriteDataToFileJob";
     std::unordered_set<std::shared_ptr<JSPandaFile>> jspandaFiles =
         JSPandaFileManager::GetInstance()->GetHapJSPandaFiles();
+    JSThread *thread = vm->GetJSThread();
+    int32_t tid = thread->GetThreadId();
     for (const auto &item : jspandaFiles) {
         common::Taskpool::GetCurrentTaskpool()->PostTask(
-            std::make_unique<JSPandaFileSnapshotTask>(
-                vm->GetJSThread()->GetThreadId(), vm->GetJSThread(), item.get(), path));
+            std::make_unique<JSPandaFileSnapshotTask>(tid, thread, item.get(), path));
     }
 }
 
@@ -59,7 +54,7 @@ bool JSPandaFileSnapshot::JSPandaFileSnapshotTask::Run(uint32_t threadIndex)
     return true;
 }
 
-bool JSPandaFileSnapshot::IsSerializeFileExist(const CString &fileName, const CString &path)
+bool JSPandaFileSnapshot::IsJSPandaFileSnapshotFileExist(const CString &fileName, const CString &path)
 {
     CString serializeFileName = GetJSPandaFileFileName(fileName, path);
     return FileExist(serializeFileName.c_str());
@@ -78,7 +73,7 @@ void JSPandaFileSnapshot::RemoveSnapshotFiles(const CString &path)
 
 void JSPandaFileSnapshot::WriteDataToFile(JSThread *thread, JSPandaFile *jsPandaFile, const CString &path)
 {
-    ECMA_BYTRACE_NAME(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, "JSPandaFileSnapshot::WriteDataToFile", "");
+    ECMA_BYTRACE_NAME(HITRACE_LEVEL_COMMERCIAL, HITRACE_TAG_ARK, "JSPandaFileSnapshot::WriteDataToFile", "");
     CString filename = GetJSPandaFileFileName(jsPandaFile->GetJSPandaFileDesc(), path);
     LOG_ECMA(INFO) << "JSPandaFileSnapshot::WriteDataToFile: " << filename;
     if (FileExist(filename.c_str())) {
@@ -208,7 +203,7 @@ void JSPandaFileSnapshot::WriteDataToFile(JSThread *thread, JSPandaFile *jsPanda
 
 bool JSPandaFileSnapshot::ReadDataFromFile(JSThread *thread, JSPandaFile *jsPandaFile, const CString &path)
 {
-    ECMA_BYTRACE_NAME(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, "JSPandaFileSnapshot::ReadDataFromFile", "");
+    ECMA_BYTRACE_NAME(HITRACE_LEVEL_COMMERCIAL, HITRACE_TAG_ARK, "JSPandaFileSnapshot::ReadDataFromFile", "");
     CString filename = GetJSPandaFileFileName(jsPandaFile->GetJSPandaFileDesc(), path);
     LOG_ECMA(INFO) << "JSPandaFileSnapshot::ReadDataFromFile: " << filename;
     MemMap fileMapMem = FileMap(filename.c_str(), FILE_RDONLY, PAGE_PROT_READ, 0);

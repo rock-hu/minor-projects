@@ -60,16 +60,16 @@ RegionDesc* RegionSpace::AllocateThreadLocalRegion(bool expectPhysicalMem)
 
 void RegionSpace::DumpAllRegionStats(const char* msg) const
 {
-    VLOG(REPORT, msg);
+    VLOG(DEBUG, msg);
 
     youngSpace_.DumpRegionStats();
-    matureSpace_.DumpRegionStats();
+    oldSpace_.DumpRegionStats();
     fromSpace_.DumpRegionStats();
     toSpace_.DumpRegionStats();
     regionManager_.DumpRegionStats();
 
     size_t usedUnits = GetUsedUnitCount();
-    VLOG(REPORT, "\tused units: %zu (%zu B)", usedUnits, usedUnits * RegionDesc::UNIT_SIZE);
+    VLOG(DEBUG, "\tused units: %zu (%zu B)", usedUnits, usedUnits * RegionDesc::UNIT_SIZE);
 }
 
 HeapAddress RegionSpace::TryAllocateOnce(size_t allocSize, AllocType allocType)
@@ -106,7 +106,7 @@ bool RegionSpace::ShouldRetryAllocation(size_t& tryTimes) const
         return true;
     } else if (tryTimes == static_cast<size_t>(TryAllocationThreshold::TRIGGER_OOM)) {
         if (!Heap::GetHeap().IsGcStarted()) {
-            VLOG(REPORT, "gc is triggered for OOM");
+            VLOG(INFO, "gc is triggered for OOM");
             Heap::GetHeap().GetCollector().RequestGC(GC_REASON_OOM, false);
         } else {
             ScopedEnterSaferegion enterSaferegion(false);
@@ -184,7 +184,10 @@ uintptr_t RegionSpace::AllocLargeRegion(size_t size)
 
 uintptr_t RegionSpace::AllocJitFortRegion(size_t size)
 {
-    return regionManager_.AllocLarge(size, false);
+    uintptr_t addr = regionManager_.AllocLarge(size, false);
+    os::PrctlSetVMA(reinterpret_cast<void *>(addr), size, "ArkTS Code");
+    regionManager_.MarkJitFortMemAwaitingInstall(reinterpret_cast<BaseObject*>(addr));
+    return addr;
 }
 
 HeapAddress RegionSpace::Allocate(size_t size, AllocType allocType)
@@ -285,9 +288,9 @@ void RegionSpace::Init(const RuntimeParam& param)
 
     size_t metadataSize = RegionManager::GetMetadataSize(regionNum);
     uintptr_t baseAddr = reinterpret_cast<uintptr_t>(map_->GetBaseAddr());
-    os::PrctlSetVMA(reinterpret_cast<void*>(baseAddr), metadataSize, "ARKTS_CMC_GC_META_DATA");
+    os::PrctlSetVMA(reinterpret_cast<void*>(baseAddr), metadataSize, "ArkTS Heap CMCGC Metadata");
     os::PrctlSetVMA(reinterpret_cast<void*>(baseAddr + metadataSize), totalSize - metadataSize,
-                    "ARKTS_CMC_GC_REGION_HEAP");
+                    "ArkTS Heap CMCGC RegionHeap");
 
 #if defined(COMMON_SANITIZER_SUPPORT)
     Sanitizer::OnHeapAllocated(map->GetBaseAddr(), map->GetMappedSize());
@@ -299,7 +302,7 @@ void RegionSpace::Init(const RuntimeParam& param)
     reservedStart_ = regionManager_.GetRegionHeapStart();
     reservedEnd_ = reinterpret_cast<HeapAddress>(map_->GetMappedEndAddr());
 #if defined(COMMON_DUMP_ADDRESS)
-    VLOG(REPORT, "region metadata@%zx, heap @[0x%zx+%zu, 0x%zx)", metadata, reservedStart, reservedEnd - reservedStart,
+    VLOG(DEBUG, "region metadata@%zx, heap @[0x%zx+%zu, 0x%zx)", metadata, reservedStart, reservedEnd - reservedStart,
          reservedEnd);
 #endif
     Heap::OnHeapCreated(reservedStart_);
@@ -356,7 +359,6 @@ HeapAddress AllocationBuffer::ToSpaceAllocate(size_t totalSize, AllocType allocT
     }
 
     DLOG(ALLOC, "alloc to 0x%zx(%zu)", addr, totalSize);
-    tlRegion_->SetToSpaceRegion(true);
     return addr;
 }
 
@@ -463,7 +465,7 @@ void RegionSpace::FeedHungryBuffers()
 
 void RegionSpace::VisitOldSpaceRememberSet(const std::function<void(BaseObject*)>& func)
 {
-    matureSpace_.VisitRememberSet(func);
+    oldSpace_.VisitRememberSet(func);
     regionManager_.VisitRememberSet(func);
 }
 } // namespace common

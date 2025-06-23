@@ -15,6 +15,7 @@
 
 #include "ecmascript/jit/jit_task.h"
 #include "ecmascript/base/config.h"
+#include "common_components/heap/heap_manager.h"
 #include "ecmascript/jspandafile/program_object.h"
 #include "ecmascript/ohos/jit_tools.h"
 #include "ecmascript/platform/file.h"
@@ -69,7 +70,7 @@ void JitTask::PrepareCompile()
 
 void JitTask::Optimize()
 {
-    ECMA_BYTRACE_NAME(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, "JIT::Compiler frontend", "");
+    ECMA_BYTRACE_NAME(HITRACE_LEVEL_COMMERCIAL, HITRACE_TAG_ARK, "JIT::Compiler frontend", "");
     bool res = jit_->JitCompile(compilerTask_, this);
     if (!res) {
         SetCompileFailed();
@@ -82,7 +83,7 @@ void JitTask::Finalize()
         return;
     }
 
-    ECMA_BYTRACE_NAME(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK, "JIT::Compiler backend", "");
+    ECMA_BYTRACE_NAME(HITRACE_LEVEL_COMMERCIAL, HITRACE_TAG_ARK, "JIT::Compiler backend", "");
     bool res = jit_->JitFinalize(compilerTask_, this);
     if (!res) {
         SetCompileFailed();
@@ -339,7 +340,12 @@ void JitTask::InstallCode()
     __builtin___clear_cache(reinterpret_cast<char *>(codeAddr), reinterpret_cast<char*>(codeAddrEnd));
 
     if (Jit::GetInstance()->IsEnableJitFort()) {
-        if (!codeDesc_.isHugeObj) {
+        if (codeDesc_.isHugeObj) {
+            if (g_isEnableCMCGC) {
+                common::BaseRuntime::GetInstance()->GetHeapManager().MarkJitFortMemInstalled(
+                    machineCodeObj.GetObject<MachineCode>());
+            }
+        } else {
             const Heap *heap = this->GetHostThread()->GetEcmaVM()->GetHeap();
             heap->GetMachineCodeSpace()->MarkJitFortMemInstalled(machineCodeObj.GetObject<MachineCode>());
         }
@@ -447,7 +453,7 @@ bool JitTask::AsyncTask::Run([[maybe_unused]] uint32_t threadIndex)
     DISALLOW_HEAP_ACCESS;
 
     CString info = "compile method:" + jitTask_->GetMethodName();
-    ECMA_BYTRACE_NAME(HITRACE_LEVEL_MAX, HITRACE_TAG_ARK,
+    ECMA_BYTRACE_NAME(HITRACE_LEVEL_COMMERCIAL, HITRACE_TAG_ARK,
         ConvertToStdString("JIT::Compile:" + info).c_str(), "");
 
     AsyncTaskRunScope asyncTaskRunScope(jitTask_.get());

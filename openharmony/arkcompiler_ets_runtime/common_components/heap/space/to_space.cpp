@@ -14,7 +14,7 @@
  */
 
 #include "common_components/heap/space/to_space.h"
-#include "common_components/heap/space/mature_space.h"
+#include "common_components/heap/space/old_space.h"
 #if defined(COMMON_SANITIZER_SUPPORT)
 #include "common_components/base/asan_interface.h"
 #endif
@@ -32,13 +32,13 @@ void ToSpace::DumpRegionStats() const
     size_t tlToSize = tlToUnits * RegionDesc::UNIT_SIZE;
     size_t allocTLToSize = tlToRegionList_.GetAllocatedSize();
 
-    VLOG(REPORT, "\tfull to-regions %zu: %zu units (%zu B, alloc %zu)",
+    VLOG(DEBUG, "\tfull to-regions %zu: %zu units (%zu B, alloc %zu)",
         fullToRegions,  fullToUnits, fullToSize, allocfullToSize);
-    VLOG(REPORT, "\tthread-local to-regions %zu: %zu units (%zu B, alloc %zu)",
+    VLOG(DEBUG, "\tthread-local to-regions %zu: %zu units (%zu B, alloc %zu)",
         fullToRegions,  fullToUnits, fullToSize, allocTLToSize);
 }
 
-void ToSpace::GetPromotedTo(MatureSpace& mspace)
+void ToSpace::GetPromotedTo(OldSpace& mspace)
 {
     mspace.PromoteRegionList(fullToRegionList_);
     mspace.PromoteRegionList(tlToRegionList_);

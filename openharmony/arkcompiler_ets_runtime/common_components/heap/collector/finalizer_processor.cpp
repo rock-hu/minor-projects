@@ -107,7 +107,7 @@ void FinalizerProcessor::Run()
         }
 
         {
-            COMMON_PHASE_TIMER("finalizerProcessor waitting time", FINALIZE);
+            COMMON_PHASE_TIMER("finalizerProcessor waitting time");
             while (running_) {
                 Wait(iterationWaitTime_);
                 if (hasFinalizableJob_.load(std::memory_order_relaxed) ||
@@ -133,7 +133,7 @@ void FinalizerProcessor::Init()
     MutatorManager::Instance().MutatorManagementRLock();
     fpMutator_ = mutator;
     MutatorManager::Instance().MutatorManagementRUnlock();
-    LOG_COMMON(INFO) << "FinalizerProcessor thread started";
+    VLOG(INFO, "FinalizerProcessor thread started");
 }
 
 void FinalizerProcessor::Fini()
@@ -142,7 +142,7 @@ void FinalizerProcessor::Fini()
     fpMutator_ = nullptr;
     MutatorManager::Instance().MutatorManagementRUnlock();
     MutatorManager::Instance().DestroyRuntimeMutator(ThreadType::FP_THREAD);
-    LOG_COMMON(INFO) << "FinalizerProcessor thread stopped";
+    VLOG(INFO, "FinalizerProcessor thread stopped");
 }
 
 void FinalizerProcessor::WaitStop()
@@ -217,7 +217,7 @@ void FinalizerProcessor::ProcessFinalizableList()
 
 void FinalizerProcessor::ProcessFinalizables()
 {
-    COMMON_PHASE_TIMER("Finalizer", FINALIZE);
+    COMMON_PHASE_TIMER("Finalizer");
     {
         // we leave saferegion to avoid GC visit those changing queues.
         ScopedObjectAccess soa;
@@ -259,7 +259,7 @@ void FinalizerProcessor::RegisterFinalizer(BaseObject* obj)
 
 void FinalizerProcessor::ReclaimHeapGarbage()
 {
-    OHOS_HITRACE(HITRACE_LEVEL_MAX, "ARK_RT_GC_RECLAIM", "");
+    OHOS_HITRACE(HITRACE_LEVEL_COMMERCIAL, "ARK_RT_GC_RECLAIM", "");
     Heap::GetHeap().GetAllocator().ReclaimGarbageMemory(false);
     shouldReclaimHeapGarbage_.store(false, std::memory_order_relaxed);
 }

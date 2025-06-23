@@ -1890,6 +1890,41 @@ HWTEST_F(ListLayoutTestNg, PostListItemPressStyleTask002, TestSize.Level1)
 }
 
 /**
+ * @tc.name: PostListItemPressStyleTask003
+ * @tc.desc: Test list layout with PostListItemPressStyleTask.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ListLayoutTestNg, PostListItemPressStyleTask003, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. Init List.
+     */
+    ListModelNG model = CreateList();
+    model.SetDivider(ITEM_DIVIDER);
+    CreateListItemGroups(TOTAL_ITEM_NUMBER);
+    CreateDone();
+    auto groupFrameNode = GetChildFrameNode(frameNode_, 0);
+    auto groupPattern = groupFrameNode->GetPattern<ListItemGroupPattern>();
+    int cur = 0;
+    for (auto& child : groupPattern->itemPosition_) {
+        child.second.id += cur;
+        cur++;
+    }
+
+    auto listItemNode = GetChildFrameNode(groupFrameNode, 0);
+    auto listItemNodeId = listItemNode->GetId();
+    auto stateStyleMgr = AceType::MakeRefPtr<StateStyleManager>(listItemNode);
+    stateStyleMgr->PostListItemPressStyleTask(UI_STATE_PRESSED | UI_STATE_SELECTED);
+    RefPtr<NodePaintMethod> paint = groupPattern->CreateNodePaintMethod();
+    RefPtr<ListItemGroupPaintMethod> groupPaint = AceType::DynamicCast<ListItemGroupPaintMethod>(paint);
+    for (auto& child : groupPaint->itemPosition_) {
+        if (child.second.id == listItemNodeId) {
+            EXPECT_TRUE(child.second.isPressed);
+        }
+    }
+}
+
+/**
  * @tc.name: ChildrenMainSize005
  * @tc.desc: Test childrenMainSize layout
  * @tc.type: FUNC
@@ -2991,5 +3026,41 @@ HWTEST_F(ListLayoutTestNg, InitialIndex002, TestSize.Level1)
      * @tc.expected: api version reach 14, scrollToIndex first.
      */
     EXPECT_TRUE(IsEqual(pattern_->GetStartIndex(), 2));
+}
+
+/**
+ * @tc.name: LayoutPolicyTest001
+ * @tc.desc: test the measure result when setting matchParent.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ListLayoutTestNg, LayoutPolicyTest001, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. Create default list
+     */
+    RefPtr<FrameNode> list;
+    auto column = CreateColumn([this, &list](ColumnModelNG model) {
+        ViewAbstract::SetWidth(CalcLength(500));
+        ViewAbstract::SetHeight(CalcLength(300));
+        ListModelNG listModel;
+        listModel.Create();
+        ViewAbstractModelNG model1;
+        model1.UpdateLayoutPolicyProperty(LayoutCalPolicy::MATCH_PARENT, true);
+        model1.UpdateLayoutPolicyProperty(LayoutCalPolicy::MATCH_PARENT, false);
+        RefPtr<UINode> element = ViewStackProcessor::GetInstance()->GetMainElementNode();
+        ViewStackProcessor::GetInstance()->PopContainer();
+        list = AceType::DynamicCast<FrameNode>(element);
+    });
+    ASSERT_NE(column, nullptr);
+    ASSERT_EQ(column->GetChildren().size(), 1);
+    CreateLayoutTask(column);
+
+    // Expect list's width is 500, height is 300 land offset is [0.0, 0.0].
+    auto geometryNode = list->GetGeometryNode();
+    ASSERT_NE(geometryNode, nullptr);
+    auto size = geometryNode->GetFrameSize();
+    auto offset = geometryNode->GetFrameOffset();
+    EXPECT_EQ(size, SizeF(500.0f, 300.0f));
+    EXPECT_EQ(offset, OffsetF(0.0f, 0.0f));
 }
 } // namespace OHOS::Ace::NG

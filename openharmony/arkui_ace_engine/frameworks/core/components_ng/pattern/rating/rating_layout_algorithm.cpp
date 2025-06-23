@@ -45,6 +45,11 @@ std::optional<SizeF> RatingLayoutAlgorithm::MeasureContent(
     CHECK_NULL_RETURN(ratingLayoutProperty, std::nullopt);
     auto stars = ratingLayoutProperty->GetStarsValue(ratingTheme->GetStarNum());
     CHECK_EQUAL_RETURN(stars, 0, std::nullopt);
+
+    auto layoutPolicy = ratingLayoutProperty->GetLayoutPolicyProperty();
+    if (layoutPolicy.has_value() && layoutPolicy->IsMatch()) {
+        return LayoutPolicyIsMatchParent(contentConstraint, layoutPolicy, stars);
+    }
     // case 2: rating component is only set with valid width or height
     // return height = width / stars, or width = height * stars.
     if (contentConstraint.selfIdealSize.Width() && !contentConstraint.selfIdealSize.Height()) {
@@ -97,14 +102,37 @@ void RatingLayoutAlgorithm::Layout(LayoutWrapper* layoutWrapper)
     CHECK_EQUAL_VOID(stars, 0);
     float singleWidth = ratingSize.Width() / static_cast<float>(stars);
     SizeF singleStarSize(singleWidth, ratingSize.Height());
-
     // step2: make 3 images canvas and set its dst size as single star size.
+    CHECK_NULL_VOID(foregroundLoadingCtx_);
     foregroundLoadingCtx_->MakeCanvasImage(singleStarSize, true, ImageFit::FILL);
+    CHECK_NULL_VOID(secondaryLoadingCtx_);
     secondaryLoadingCtx_->MakeCanvasImage(singleStarSize, true, ImageFit::FILL);
+    CHECK_NULL_VOID(backgroundLoadingCtx_);
     backgroundLoadingCtx_->MakeCanvasImage(singleStarSize, true, ImageFit::FILL);
     if (pattern->IsNeedFocusStyle()) {
         backgroundFocusLoadingCtx_->MakeCanvasImage(singleStarSize, true, ImageFit::FILL);
     }
+}
+
+std::optional<SizeF> RatingLayoutAlgorithm::LayoutPolicyIsMatchParent(const LayoutConstraintF& contentConstraint,
+    std::optional<NG::LayoutPolicyProperty> layoutPolicy, int32_t stars)
+{
+    float width = 0.0f;
+    float height = 0.0f;
+    if (layoutPolicy->IsWidthMatch()) {
+        width = contentConstraint.parentIdealSize.Width().value();
+        if (!layoutPolicy->IsHeightMatch()) {
+            height = width / static_cast<float>(stars);
+        }
+    }
+
+    if (layoutPolicy->IsHeightMatch()) {
+        height = contentConstraint.parentIdealSize.Height().value();
+        if (!layoutPolicy->IsWidthMatch()) {
+            width = height * static_cast<float>(stars);
+        }
+    }
+    return SizeF(width, height);
 }
 
 } // namespace OHOS::Ace::NG

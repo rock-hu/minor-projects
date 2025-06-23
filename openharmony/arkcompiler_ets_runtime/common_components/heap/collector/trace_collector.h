@@ -207,7 +207,7 @@ public:
         if (!resurrected) {
             reinterpret_cast<RegionSpace&>(theAllocator_).CountLiveObject(obj);
             if (!fixReferences_ && RegionDesc::GetRegionDescAt(reinterpret_cast<HeapAddress>(obj))->IsFromRegion()) {
-                VLOG(REPORT, "resurrection tag w-obj %zu", obj->GetSize());
+                VLOG(DEBUG, "resurrection tag w-obj %zu", obj->GetSize());
             }
         }
         return resurrected;
@@ -301,7 +301,7 @@ protected:
     void EnumerateAllRoots(WorkStack& workStack);
     void TraceRoots(WorkStack& workStack);
     bool MarkSatbBuffer(WorkStack& workStack);
-    bool MarkRememberSet(WorkStack& workStack);
+    void MarkRememberSet(WorkStack& workStack);
 
     // concurrent marking.
     void TracingImpl(WorkStack& workStack, bool parallel);
@@ -316,6 +316,7 @@ protected:
 private:
     void MarkRememberSetImpl(BaseObject* object, WorkStack& workStack);
     void ConcurrentReMark(WorkStack& remarkStack, bool parallel);
+    void MarkAwaitingJitFort();
     void EnumMutatorRoot(ObjectPtr& obj, RootSet& rootSet) const;
     void EnumConcurrencyModelRoots(RootSet& rootSet) const;
     void EnumStaticRoots(RootSet& rootSet) const;

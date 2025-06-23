@@ -193,28 +193,6 @@ void EventManager::LogTouchTestResultInfo(const TouchEvent& touchPoint, const Re
     }
 }
 
-void EventManager::LogAndForceCleanReferee(const TouchEvent& touchPoint, const RefPtr<NG::FrameNode>& frameNode,
-    TouchRestrict& touchRestrict, const Offset& offset, float viewScale, bool needAppend)
-{
-    LogTouchTestResultInfo(touchPoint, frameNode, touchRestrict, offset, viewScale, needAppend);
-    LogTouchTestResultRecognizers(touchTestResults_[touchPoint.id], touchPoint.touchEventId);
-    TAG_LOGW(AceLogTag::ACE_INPUTTRACKING, "GestureReferee is not ready, force clean gestureReferee.");
-    std::list<std::pair<int32_t, std::string>> dumpList;
-#ifndef IS_RELEASE_VERSION
-    eventTree_.Dump(dumpList, 0);
-#else
-    eventTree_.DumpBriefInfo(dumpList, 0);
-#endif
-    for (auto& item : dumpList) {
-        TAG_LOGI(AceLogTag::ACE_INPUTTRACKING, "EventTreeDumpInfo: %{public}s.", item.second.c_str());
-    }
-    eventTree_.eventTreeList.clear();
-    FalsifyCancelEventAndDispatch(touchPoint);
-    refereeNG_->ForceCleanGestureReferee();
-    responseCtrl_->Reset();
-    refereeNG_->CleanAll();
-}
-
 void EventManager::CheckRefereeStateAndReTouchTest(const TouchEvent& touchPoint, const RefPtr<NG::FrameNode>& frameNode,
     TouchRestrict& touchRestrict, const Offset& offset, float viewScale, bool needAppend)
 {
@@ -224,7 +202,21 @@ void EventManager::CheckRefereeStateAndReTouchTest(const TouchEvent& touchPoint,
     int64_t lastEventTime = static_cast<int64_t>(lastEventTime_.time_since_epoch().count());
     int64_t duration = static_cast<int64_t>((currentEventTime - lastEventTime) / TRANSLATE_NS_TO_MS);
     if (duration >= EVENT_CLEAR_DURATION && !refereeNG_->IsReady()) {
-        LogAndForceCleanReferee(touchPoint, frameNode, touchRestrict, offset, viewScale, needAppend);
+        TAG_LOGW(AceLogTag::ACE_INPUTTRACKING, "GestureReferee is not ready, force clean gestureReferee.");
+#ifndef IS_RELEASE_VERSION
+        std::list<std::pair<int32_t, std::string>> dumpList;
+        eventTree_.Dump(dumpList, 0);
+        for (auto& item : dumpList) {
+            TAG_LOGD(AceLogTag::ACE_INPUTTRACKING, "EventTreeDumpInfo: " SEC_PLD(%{public}s) ".",
+                SEC_PARAM(item.second.c_str()));
+        }
+#endif
+        eventTree_.eventTreeList.clear();
+        FalsifyCancelEventAndDispatch(touchPoint);
+        refereeNG_->ForceCleanGestureReferee();
+        responseCtrl_->Reset();
+        refereeNG_->CleanAll();
+
         TouchTestResult reHitTestResult;
         ResponseLinkResult reResponseLinkResult;
         onTouchTestDoneFrameNodeList_.clear();
@@ -403,7 +395,7 @@ void EventManager::TouchTest(
     onTouchTestDoneFrameNodeList_.clear();
     frameNode->TouchTest(point, point, point, touchRestrict, hitTestResult, event.id, responseLinkResult);
     SetResponseLinkRecognizers(hitTestResult, responseLinkResult);
-    ExecuteTouchTestDoneCallback(touchRestrict.touchEvent, responseLinkResult);
+    ExecuteTouchTestDoneCallback(event, responseLinkResult);
     axisTouchTestResults_[event.id] = std::move(hitTestResult);
     LogTouchTestResultRecognizers(axisTouchTestResults_[event.id], event.touchEventId);
 }
@@ -442,8 +434,8 @@ void EventManager::ExecuteTouchTestDoneCallback(
             NG::PointF localPoint(point.x, point.y);
             NG::NGGestureRecognizer::Transform(localPoint, weakNode, false);
             FingerInfo fingerInfo = { point.originalId, point.operatingHand, Offset(point.x, point.y),
-                Offset(localPoint.GetX(), localPoint.GetY()),
-                Offset(point.screenX, point.screenY), touchEvent.sourceType, touchEvent.sourceTool };
+                Offset(localPoint.GetX(), localPoint.GetY()), Offset(point.screenX, point.screenY),
+                Offset(point.globalDisplayX, point.globalDisplayY), touchEvent.sourceType, touchEvent.sourceTool };
             fingerList.emplace_back(fingerInfo);
         }
         info->SetFingerList(fingerList);
@@ -457,6 +449,53 @@ void EventManager::ExecuteTouchTestDoneCallback(
             info->SetRollAngle(touchEvent.rollAngle.value());
         }
         info->SetSourceTool(touchEvent.sourceTool);
+        info->SetTargetDisplayId(touchEvent.targetDisplayId);
+        info->SetPressedKeyCodes(touchEvent.pressedKeyCodes_);
+        if (touchTestDoneCallbackForInner) {
+            touchTestDoneCallbackForInner(info, responseLinkRecognizers);
+        }
+        if (touchTestDoneCallback) {
+            touchTestDoneCallback(info, responseLinkRecognizers);
+        }
+    }
+}
+
+void EventManager::ExecuteTouchTestDoneCallback(
+    const AxisEvent& axisEvent, const ResponseLinkResult& responseLinkRecognizers)
+{
+    for (const auto& weakNode : onTouchTestDoneFrameNodeList_) {
+        auto frameNode = weakNode.Upgrade();
+        if (!frameNode) {
+            continue;
+        }
+        auto gestureEventHub = frameNode->GetOrCreateGestureEventHub();
+        if (!gestureEventHub) {
+            continue;
+        }
+        auto touchTestDoneCallbackForInner = gestureEventHub->GetOnTouchTestDoneCallbackForInner();
+        auto touchTestDoneCallback = gestureEventHub->GetOnTouchTestDoneCallback();
+        if (!touchTestDoneCallbackForInner && !touchTestDoneCallback) {
+            continue;
+        }
+        auto info = std::make_shared<BaseGestureEvent>();
+        info->SetTimeStamp(axisEvent.time);
+        info->SetSourceDevice(axisEvent.sourceType);
+        auto getEventTargetImpl = gestureEventHub->CreateGetEventTargetImpl();
+        info->SetTarget(getEventTargetImpl ? getEventTargetImpl().value_or(EventTarget()) : EventTarget());
+        info->SetSourceTool(axisEvent.sourceTool);
+        info->SetHorizontalAxis(axisEvent.horizontalAxis);
+        info->SetVerticalAxis(axisEvent.verticalAxis);
+        info->SetDeviceId(axisEvent.deviceId);
+        info->SetTargetDisplayId(axisEvent.targetDisplayId);
+        info->SetPressedKeyCodes(axisEvent.pressedCodes);
+        std::list<FingerInfo> fingerList;
+        NG::PointF localPoint(axisEvent.x, axisEvent.y);
+        NG::NGGestureRecognizer::Transform(localPoint, weakNode, false);
+        FingerInfo fingerInfo = { axisEvent.originalId, 0, Offset(axisEvent.x, axisEvent.y),
+            Offset(localPoint.GetX(), localPoint.GetY()), Offset(axisEvent.screenX, axisEvent.screenY),
+            Offset(axisEvent.globalDisplayX, axisEvent.globalDisplayY), axisEvent.sourceType, axisEvent.sourceTool };
+        fingerList.emplace_back(fingerInfo);
+        info->SetFingerList(fingerList);
         if (touchTestDoneCallbackForInner) {
             touchTestDoneCallbackForInner(info, responseLinkRecognizers);
         }
@@ -485,6 +524,8 @@ TouchEvent EventManager::ConvertAxisEventToTouchEvent(const AxisEvent& axisEvent
         .y = axisEvent.y,
         .screenX = axisEvent.screenX,
         .screenY = axisEvent.screenY,
+        .globalDisplayX = axisEvent.globalDisplayX,
+        .globalDisplayY = axisEvent.globalDisplayY,
         .downTime = axisEvent.time,
         .size = 0.0,
         .isPressed = (type == TouchType::DOWN),
@@ -495,6 +536,8 @@ TouchEvent EventManager::ConvertAxisEventToTouchEvent(const AxisEvent& axisEvent
         .SetY(axisEvent.y)
         .SetScreenX(axisEvent.screenX)
         .SetScreenY(axisEvent.screenY)
+        .SetGlobalDisplayX(axisEvent.globalDisplayX)
+        .SetGlobalDisplayY(axisEvent.globalDisplayY)
         .SetType(type)
         .SetTime(axisEvent.time)
         .SetSize(0.0)
@@ -853,7 +896,7 @@ bool EventManager::DispatchTouchEvent(const TouchEvent& event, bool sendOnTouch)
 
 void EventManager::UpdateInfoWhenFinishDispatch(const TouchEvent& point, bool sendOnTouch)
 {
-    if ((point.type == TouchType::UP || point.type == TouchType::CANCEL) && !point.isFalsified) {
+    if (point.type == TouchType::UP || point.type == TouchType::CANCEL) {
         LogTouchTestRecognizerStates(point.id);
         FrameTraceAdapter* ft = FrameTraceAdapter::GetInstance();
         if (ft != nullptr) {

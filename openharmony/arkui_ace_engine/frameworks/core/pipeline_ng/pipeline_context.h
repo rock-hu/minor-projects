@@ -32,6 +32,7 @@
 #include "base/view_data/view_data_wrap.h"
 #include "core/accessibility/accessibility_manager_ng.h"
 #include "core/common/ai/ai_write_adapter.h"
+#include "core/common/color_inverter.h"
 #include "core/common/frontend.h"
 #include "core/common/thp_extra_manager.h"
 #include "core/components/common/layout/constants.h"
@@ -1148,7 +1149,10 @@ public:
         uiTranslateManager_->RemoveTranslateListener(nodeId);
     }
 
-    void SetEnableSwipeBack(bool isEnable) override;
+    void SetEnableSwipeBack(bool isEnable) override
+    {
+        enableSwipeBack_ = isEnable;
+    }
 
     Offset GetHostParentOffsetToWindow() const
     {
@@ -1230,8 +1234,9 @@ public:
         keyOcclusionNodes_[frameNodeId] = enable;
     }
     const RefPtr<NodeRenderStatusMonitor>& GetNodeRenderStatusMonitor();
-    void RemoveNodeFromDirtyRenderNode(int32_t nodeId, int32_t pageId);
-    void GetRemovedDirtyRenderAndErase(uint32_t id);
+    void RegisterArkUIObjectLifecycleCallback(Kit::ArkUIObjectLifecycleCallback&& callback);
+    void UnregisterArkUIObjectLifecycleCallback();
+    void FireArkUIObjectLifecycleCallback(void* data);
 
 protected:
     void StartWindowSizeChangeAnimate(int32_t width, int32_t height, WindowSizeChangeReason type,
@@ -1353,6 +1358,7 @@ private:
     void DumpElement(const std::vector<std::string>& params, bool hasJson) const;
     void DumpData(const RefPtr<FrameNode>& node, const std::vector<std::string>& params, bool hasJson) const;
     void OnDumpInjection(const std::vector<std::string>& params) const;
+    void DumpForceColor(const std::vector<std::string>& params) const;
     void OnRotationAnimationEnd();
     template<typename T>
     struct NodeCompare {
@@ -1468,7 +1474,7 @@ private:
     WeakPtr<FrameNode> windowSceneNode_;
     uint32_t nextScheduleTaskId_ = 0;
     uint64_t resampleTimeStamp_ = 0;
-    bool touchAccelarate_ = false;
+    bool touchAccelarate_ = true;
     bool isEventsPassThrough_ = false;
     bool backgroundColorModeUpdated_ = false;  // Dark/light color switch flag
     uint64_t animationTimeStamp_ = 0;
@@ -1529,6 +1535,7 @@ private:
     ACE_DISALLOW_COPY_AND_MOVE(PipelineContext);
 
     int32_t preNodeId_ = -1;
+    bool enableSwipeBack_ = true;
 
     RefPtr<AvoidInfoManager> avoidInfoMgr_ = MakeRefPtr<AvoidInfoManager>();
     RefPtr<MemoryManager> memoryMgr_ = MakeRefPtr<MemoryManager>();
@@ -1569,6 +1576,7 @@ private:
     std::set<WeakPtr<NG::UINode>> needRenderForDrawChildrenNodes_;
     std::unordered_map<int32_t, bool> keyOcclusionNodes_;
     RefPtr<NodeRenderStatusMonitor> nodeRenderStatusMonitor_;
+    Kit::ArkUIObjectLifecycleCallback objectLifecycleCallback_;
 };
 
 /**

@@ -798,8 +798,7 @@ void TypedHCRLowering::BuiltinInstanceStringTypeCheck(GateRef gate)
     ASSERT(type == BuiltinTypeId::STRING);
     GateRef frameState = GetFrameState(gate);
     GateRef receiver = acc_.GetValueIn(gate, 0);
-    GateRef glue = acc_.GetGlueFromArgList();
-    GateRef typeCheck = builder_.TaggedObjectIsString(glue, receiver, compilationEnv_);
+    GateRef typeCheck = builder_.TaggedObjectIsString(glue_, receiver, compilationEnv_);
     builder_.DeoptCheck(typeCheck, frameState, DeoptType::BUILTININSTANCEHCLASSMISMATCH2);
 }
 
@@ -1235,7 +1234,7 @@ void TypedHCRLowering::LowerCowArrayCheck(GateRef gate, GateRef glue)
 void TypedHCRLowering::LowerArrayLoadElement(GateRef gate, ArrayState arrayState, TypedLoadOp op)
 {
     Environment env(gate, circuit_, &builder_);
-    GateRef glue = acc_.GetGlueFromArgList();
+    GateRef glue = glue_;
     GateRef receiver = acc_.GetValueIn(gate, 0);
     GateRef index = acc_.GetValueIn(gate, 1);
     GateRef element = builder_.LoadConstOffset(VariableType::JS_POINTER(), receiver, JSObject::ELEMENTS_OFFSET);
@@ -1258,7 +1257,7 @@ void TypedHCRLowering::LowerArrayLoadElement(GateRef gate, ArrayState arrayState
 void TypedHCRLowering::LowerTypedArrayLoadElement(GateRef gate, BuiltinTypeId id)
 {
     Environment env(gate, circuit_, &builder_);
-    GateRef glue = acc_.GetGlueFromArgList();
+    GateRef glue = glue_;
     GateRef receiver = acc_.GetValueIn(gate, 0);
     GateRef index = acc_.GetValueIn(gate, 1);
     GateRef elementSize = GetElementSize(id);
@@ -1457,7 +1456,7 @@ void TypedHCRLowering::LowerArrayStoreElement(GateRef gate, GateRef glue, TypedS
 void TypedHCRLowering::LowerTypedArrayStoreElement(GateRef gate, BuiltinTypeId id)
 {
     Environment env(gate, circuit_, &builder_);
-    GateRef glue = acc_.GetGlueFromArgList();
+    GateRef glue = glue_;
     GateRef receiver = acc_.GetValueIn(gate, 0);
     GateRef index = acc_.GetValueIn(gate, 1);
     GateRef value = acc_.GetValueIn(gate, 2);
@@ -1568,7 +1567,7 @@ void TypedHCRLowering::LowerUInt8ClampedArrayStoreElement(GateRef gate)
 {
     Environment env(gate, circuit_, &builder_);
 
-    GateRef glue = acc_.GetGlueFromArgList();
+    GateRef glue = glue_;
     GateRef receiver = acc_.GetValueIn(gate, 0);
     GateRef index = acc_.GetValueIn(gate, 1);
     GateRef elementSize = builder_.Int32(sizeof(uint8_t));
@@ -1640,7 +1639,7 @@ void TypedHCRLowering::CallTargetIsCompiledCheck(GateRef func, GateRef frameStat
     BRANCH_CIR_LIKELY(isCompiled, exit, checkAlreadyDeopt);
     builder_.Bind(checkAlreadyDeopt);
     {
-        GateRef glue = acc_.GetGlueFromArgList();
+        GateRef glue = glue_;
         GateRef method = builder_.GetMethodFromFunction(glue, func);
         GateRef hasDeopt = builder_.AlreadyDeopt(method);
         builder_.DeoptCheck(hasDeopt, frameState, DeoptType::CALLTARGETNOTCOMPILED);
@@ -1888,7 +1887,7 @@ void TypedHCRLowering::LowerGetSuperConstructor(GateRef glue, GateRef gate)
     Environment env(gate, circuit_, &builder_);
     GateRef ctor = acc_.GetValueIn(gate, 0);
     GateRef hclass = builder_.LoadHClassByConstOffset(glue, ctor);
-    GateRef superCtor = builder_.LoadConstOffset(VariableType::JS_ANY(), hclass, JSHClass::PROTOTYPE_OFFSET);
+    GateRef superCtor = builder_.LoadPrototype(glue_, hclass);
     acc_.ReplaceGate(gate, builder_.GetState(), builder_.GetDepend(), superCtor);
 }
 
@@ -1917,9 +1916,9 @@ GateRef TypedHCRLowering::GetValueFromSupers(GateRef supers, size_t index)
 GateRef TypedHCRLowering::CallAccessor(GateRef glue, GateRef gate, GateRef function, GateRef receiver,
     AccessorMode mode, GateRef value)
 {
-#ifdef USE_READ_BARRIER
-    builder_.CallNGCRuntime(glue, RTSTUB_ID(CopyCallTarget), Gate::InvalidGateRef, {glue, function}, glue);
-#endif
+    if (g_isEnableCMCGC) {
+        builder_.CallNGCRuntime(glue, RTSTUB_ID(CopyCallTarget), Gate::InvalidGateRef, {glue, function}, glue);
+    }
     const CallSignature *cs = RuntimeStubCSigns::Get(RTSTUB_ID(JSCall));
     GateRef target = builder_.IntPtr(RTSTUB_ID(JSCall));
     GateRef newTarget = builder_.Undefined();
@@ -1970,7 +1969,7 @@ void TypedHCRLowering::LowerLookupHolder(GateRef glue, GateRef gate)
     BRANCH_CIR(builder_.Equal(curHC, holderHC), &exit, &lookUpProto);
 
     builder_.Bind(&lookUpProto);
-    holder = builder_.LoadConstOffset(VariableType::JS_ANY(), curHC, JSHClass::PROTOTYPE_OFFSET);
+    holder = builder_.LoadPrototype(glue_, curHC);
     builder_.LoopEnd(&loopHead);
 
     builder_.Bind(&exit);
@@ -2028,9 +2027,9 @@ void TypedHCRLowering::LowerPrototypeCheck(GateRef glue, GateRef gate)
     uint32_t hclassIndex = acc_.GetHClassIndex(gate);
     auto expectedReceiverHC = builder_.LoadHClassFromConstpool(unsharedConstPool, hclassIndex);
 
-    auto prototype = builder_.LoadConstOffset(VariableType::JS_ANY(), expectedReceiverHC, JSHClass::PROTOTYPE_OFFSET);
+    auto prototype = builder_.LoadPrototype(glue_, expectedReceiverHC);
     auto protoHClass = builder_.LoadHClassByConstOffset(glue, prototype);
-    auto marker = builder_.LoadConstOffset(VariableType::JS_ANY(), protoHClass, JSHClass::PROTO_CHANGE_MARKER_OFFSET);
+    auto marker = builder_.LoadProtoChangeMarker(glue, protoHClass);
     builder_.DeoptCheck(builder_.TaggedIsNotNull(marker), frameState, DeoptType::PROTOTYPECHANGED1);
     auto check = LogicAndBuilder(&env)
         .And(builder_.BoolNot(builder_.GetHasChanged(marker)))
@@ -2066,7 +2065,7 @@ void TypedHCRLowering::LowerTypeOfCheck(GateRef gate)
 {
     Environment env(gate, circuit_, &builder_);
     GateRef frameState = GetFrameState(gate);
-    GateRef glue = acc_.GetGlueFromArgList();
+    GateRef glue = glue_;
     GateRef value = acc_.GetValueIn(gate, 0);
     GateTypeAccessor accessor(acc_.TryGetValue(gate));
     ParamType type = accessor.GetParamType();
@@ -2764,8 +2763,7 @@ void TypedHCRLowering::LowerOrdinaryHasInstance(GateRef gate, GateRef glue)
                 BRANCH_CIR(builder_.IsJSHClass(glue, ctorProtoOrHC), &isHClass, &isPrototype);
                 builder_.Bind(&isHClass);
                 {
-                    constructorPrototype = builder_.LoadConstOffset(VariableType::JS_POINTER(), ctorProtoOrHC,
-                                                                    JSHClass::PROTOTYPE_OFFSET);
+                    constructorPrototype = builder_.LoadPrototype(glue_, ctorProtoOrHC);
                     builder_.Jump(&gotCtorPrototype);
                 }
                 builder_.Bind(&isPrototype);
@@ -2854,7 +2852,7 @@ void TypedHCRLowering::LowerOrdinaryHasInstance(GateRef gate, GateRef glue)
                     builder_.Bind(&objectNotIsJsProxy);
                     {
                         GateRef objHClass = builder_.LoadHClassByConstOffset(glue, *object);
-                        object = builder_.LoadPrototype(objHClass);
+                        object = builder_.LoadPrototype(glue_, objHClass);
                         builder_.Jump(&shouldContinue);
                     }
                 }
@@ -2880,9 +2878,9 @@ void TypedHCRLowering::LowerProtoChangeMarkerCheck(GateRef glue, GateRef gate)
     GateRef frameState = acc_.GetFrameState(gate);
     GateRef receiver = acc_.GetValueIn(gate, 0);
     auto hclass = builder_.LoadHClassByConstOffset(glue, receiver);
-    auto prototype = builder_.LoadConstOffset(VariableType::JS_ANY(), hclass, JSHClass::PROTOTYPE_OFFSET);
+    auto prototype = builder_.LoadPrototype(glue_, hclass);
     auto protoHClass = builder_.LoadHClassByConstOffset(glue, prototype);
-    auto marker = builder_.LoadConstOffset(VariableType::JS_ANY(), protoHClass, JSHClass::PROTO_CHANGE_MARKER_OFFSET);
+    auto marker = builder_.LoadProtoChangeMarker(glue_, protoHClass);
     auto notNull = builder_.TaggedIsNotNull(marker);
     builder_.DeoptCheck(notNull, frameState, DeoptType::PROTOTYPECHANGED2);
     auto hasChanged = builder_.GetHasChanged(marker);
@@ -2896,7 +2894,7 @@ void TypedHCRLowering::LowerPrimitiveTypeProtoChangeMarkerCheck(GateRef glue, Ga
     GateRef frameState = acc_.GetFrameState(gate);
     GateRef prototype = acc_.GetValueIn(gate, 0);
     auto protoHClass = builder_.LoadHClassByConstOffset(glue, prototype);
-    auto marker = builder_.LoadConstOffset(VariableType::JS_ANY(), protoHClass, JSHClass::PROTO_CHANGE_MARKER_OFFSET);
+    auto marker = builder_.LoadProtoChangeMarker(glue_, protoHClass);
     auto notNull = builder_.TaggedIsNotNull(marker);
     builder_.DeoptCheck(notNull, frameState, DeoptType::PRIMTYPEPROTOTYPECHANGED);
     auto hasChanged = builder_.GetHasChanged(marker);
@@ -2940,7 +2938,7 @@ void TypedHCRLowering::GetPropertyHolderFromProtoChain(
         }
     }
     auto receiverHC = builder_.LoadHClassByConstOffset(glue, holderInfo.receiver);
-    *current = builder_.LoadConstOffset(VariableType::JS_ANY(), receiverHC, JSHClass::PROTOTYPE_OFFSET);
+    *current = builder_.LoadPrototype(glue_, receiverHC);
 
     // lookup from receiver for holder
     auto holderHC = builder_.LoadHClassFromConstpool(
@@ -2955,7 +2953,7 @@ void TypedHCRLowering::GetPropertyHolderFromProtoChain(
     BRANCH_CIR(builder_.Equal(curHC, holderHC), loadHolder, &lookUpProto);
 
     builder_.Bind(&lookUpProto);
-    *current = builder_.LoadConstOffset(VariableType::JS_ANY(), curHC, JSHClass::PROTOTYPE_OFFSET);
+    *current = builder_.LoadPrototype(glue_, curHC);
     builder_.LoopEnd(&loopHead);
 }
 
@@ -3010,7 +3008,7 @@ void TypedHCRLowering::LowerMonoCallGetterOnProto(GateRef gate, GateRef glue)
 GateRef TypedHCRLowering::LoadPropertyFromHolder(GateRef holder, PropertyLookupResult plr)
 {
     GateRef result = Circuit::NullGate();
-    GateRef glue = acc_.GetGlueFromArgList();
+    GateRef glue = glue_;
     // while loading from iterator result, it may be the case that traversing an array including holes using 'for of',
     // need to convert hole to undefined
     if (plr.IsNotHole() || (compilationEnv_->IsJitCompiler() && !plr.IsLoadFromIterResult())) {
@@ -3108,8 +3106,8 @@ void TypedHCRLowering::LowerMonoStoreProperty(GateRef gate, GateRef glue)
     Label isProto(&builder_);
     auto newHolderHC = builder_.LoadHClassFromConstpool(unsharedConstPool, acc_.GetConstantValue(hclassIndex));
     if (compilationEnv_->IsAotCompiler()) {
-        auto prototype = builder_.LoadConstOffset(VariableType::JS_ANY(), receiverHC, JSHClass::PROTOTYPE_OFFSET);
-        builder_.StoreConstOffset(VariableType::JS_ANY(), newHolderHC, JSHClass::PROTOTYPE_OFFSET, prototype);
+        auto prototype = builder_.LoadPrototype(glue_, receiverHC);
+        builder_.StorePrototype(glue_, newHolderHC, prototype);
     }
     if (isPrototype) {
         builder_.Branch(builder_.IsPrototypeHClass(receiverHC), &isProto, &notProto,

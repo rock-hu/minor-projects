@@ -14,6 +14,7 @@
  */
 #include <sys/wait.h>
 #include <sys/prctl.h>
+#include "common_interfaces/profiler/heap_profiler_listener.h"
 #include "ecmascript/dfx/hprof/heap_profiler.h"
 
 #include "ecmascript/checkpoint/thread_state_transition.h"
@@ -115,6 +116,13 @@ HeapProfiler::HeapProfiler(const EcmaVM *vm) : vm_(vm), stringTable_(vm), chunk_
 {
     isProfiling_ = false;
     entryIdMap_ = GetChunk()->New<EntryIdMap>();
+    if (g_isEnableCMCGC) {
+        std::function<void(uintptr_t, uintptr_t, size_t)> moveEventCb_ = [this](uintptr_t fromObj, uintptr_t toObj,
+                                                                                size_t size) {
+            this->MoveEvent(fromObj, reinterpret_cast<TaggedObject *>(toObj), size);
+        };
+        common::HeapProfilerListener::GetInstance().RegisterMoveEventCb(moveEventCb_);
+    }
 }
 
 HeapProfiler::~HeapProfiler()
@@ -122,6 +130,9 @@ HeapProfiler::~HeapProfiler()
     JSPandaFileManager::GetInstance()->ClearNameMap();
     ClearSnapshot();
     GetChunk()->Delete(entryIdMap_);
+    if (g_isEnableCMCGC) {
+        common::HeapProfilerListener::GetInstance().UnRegisterMoveEventCb();
+    }
 }
 
 void HeapProfiler::AllocationEvent(TaggedObject *address, size_t size)
@@ -278,6 +289,8 @@ bool HeapProfiler::BinaryDump(Stream *stream, const DumpSnapShotOption &dumpOpti
 {
     [[maybe_unused]] EcmaHandleScope ecmaHandleScope(vm_->GetJSThread());
     DumpSnapShotOption option;
+    std::vector<std::string> filePaths;
+    std::vector<uint64_t> fileSizes;
     auto stringTable = chunk_.New<StringHashMap>(vm_);
     auto snapshot = chunk_.New<HeapSnapshot>(vm_, stringTable, option, false, entryIdMap_);
 
@@ -301,6 +314,9 @@ bool HeapProfiler::BinaryDump(Stream *stream, const DumpSnapShotOption &dumpOpti
     }
 
     rawHeapDump->BinaryDump();
+    filePaths.emplace_back(RAWHEAP_FILE_NAME);
+    fileSizes.emplace_back(rawHeapDump->GetRawHeapFileOffset());
+    vm_->GetEcmaGCKeyStats()->SendSysEventDataSize(filePaths, fileSizes);
     chunk_.Delete<StringHashMap>(stringTable);
     chunk_.Delete<HeapSnapshot>(snapshot);
     delete rawHeapDump;
@@ -360,12 +376,16 @@ bool HeapProfiler::DumpHeapSnapshot(Stream *stream, const DumpSnapShotOption &du
             }
         }
         SuspendAllScope suspendScope(vm_->GetAssociatedJSThread()); // suspend All.
-        const_cast<Heap*>(vm_->GetHeap())->Prepare();
-        SharedHeap::GetInstance()->Prepare(true);
-        Runtime::GetInstance()->GCIterateThreadList([&](JSThread *thread) {
-            ASSERT(!thread->IsInRunningState());
-            const_cast<Heap*>(thread->GetEcmaVM()->GetHeap())->FillBumpPointerForTlab();
-        });
+        if (g_isEnableCMCGC) {
+            common::Heap::GetHeap().WaitForGCFinish();
+        } else {
+            const_cast<Heap*>(vm_->GetHeap())->Prepare();
+            SharedHeap::GetInstance()->Prepare(true);
+            Runtime::GetInstance()->GCIterateThreadList([&](JSThread *thread) {
+                ASSERT(!thread->IsInRunningState());
+                const_cast<Heap*>(thread->GetEcmaVM()->GetHeap())->FillBumpPointerForTlab();
+            });
+        }
         // OOM and ThresholdReachedDump.
         if (dumpOption.isDumpOOM) {
             res = BinaryDump(stream, dumpOption);
@@ -387,7 +407,7 @@ bool HeapProfiler::DumpHeapSnapshot(Stream *stream, const DumpSnapShotOption &du
         }
         // fork
         if ((pid = fork()) < 0) {
-            LOG_ECMA(ERROR) << "DumpHeapSnapshot fork failed!";
+            LOG_ECMA(ERROR) << "DumpHeapSnapshot fork failed: " << strerror(errno);
             if (callback) {
                 callback(static_cast<uint8_t>(DumpHeapSnapshotStatus::FORK_FAILED));
             }
@@ -651,7 +671,6 @@ const struct SamplingInfo *HeapProfiler::GetAllocationProfile()
     return heapSampling_->GetAllocationProfile();
 }
 
-#if defined(ENABLE_LOCAL_HANDLE_LEAK_DETECT)
 bool HeapProfiler::IsStartLocalHandleLeakDetect() const
 {
     return startLocalHandleLeakDetect_;
@@ -761,5 +780,4 @@ void HeapProfiler::StorePotentiallyLeakHandles(const uintptr_t handle)
         InsertHandleBackTrace(handle, stack.str());
     }
 }
-#endif  // ENABLE_LOCAL_HANDLE_LEAK_DETECT
 }  // namespace panda::ecmascript

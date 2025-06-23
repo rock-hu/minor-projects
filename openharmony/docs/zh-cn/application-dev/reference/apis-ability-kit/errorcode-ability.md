@@ -905,6 +905,87 @@ The caller is not an atomic service.
 
 当前应用不支持调用该接口。
 
+<!--Del-->
+## 16000091 根据key获取文件URI数据失败
+
+**错误信息**
+
+Failed to get the file URI from the key.
+
+**错误描述**
+
+根据key获取文件URI失败。
+
+**可能原因**
+
+1. key为空。
+2. key不属于当前调用方。
+3. key不属于特定业务的数据通路。
+4. key对应UDMF中写入的数据不全为文件URI。
+
+**处理步骤**
+
+1. 确保key是由调用方创建的。
+2. 确保key属于特定业务的数据通路。参考[UDMF数据通路](../apis-arkdata/js-apis-data-unifiedDataChannel.md#intention)。
+3. 确保创建key时在UDMF中写入的数据都为文件URI。
+
+## 16000092 无权限授权URI
+
+**错误信息**
+
+No permission to authorize the URI.
+
+**错误描述**
+
+无权限授权URI。
+
+**可能原因**
+
+创建key时写入的URI存在无权限授权的URI。
+
+**处理步骤**
+
+确保创建key时写入的URI均为有权限授权的URI。
+
+## 16000093 调用方的token ID无效
+
+**错误信息**
+
+The caller token ID is invalid.
+
+**错误描述**
+
+调用方的token ID无效。
+
+**可能原因**
+
+系统未找到callerTokenId对应的应用。
+
+**处理步骤**
+
+检查callerTokenId对应的应用是否安装。
+
+## 16000094 目标应用的token ID无效
+
+**错误信息**
+
+The target token ID is invalid.
+
+**错误描述**
+
+目标应用的token ID无效。
+
+**可能原因**
+
+1. 系统未找到targetTokenId对应的应用。
+2. targetTokenId与callerTokenId是同一应用。
+
+**处理步骤**
+
+1. 确保传入的targetTokenId对应的应用已安装。
+2. 确保callerTokenId与targetTokenId不是同一应用。
+<!--DelEnd-->
+
 ## 16000100 监听Ability生命周期变化的AbilityMonitor方法执行失败
 
 **错误信息**
@@ -1572,4 +1653,58 @@ The input bundleName is not a system HSP.
 **处理步骤**
 
 检查bundleName是否正确。
+
+## 16000202 仅支持为appService类型的ExtensionAbility设置保活
+
+**错误信息**
+
+Invalid main element type.
+
+**错误描述**
+
+如果设置保活的对象不是appService类型的ExtensionAbility，方法将返回该错误码。
+
+**可能原因**
+
+应用中entry类型的HAP的module.json5配置文件中的mainElement字段不是appService类型的ExtensionAbility。
+
+**处理步骤**
+
+修改应用中entry类型的HAP的module.json5配置文件的mainElement字段为appService类型的ExtensionAbility。
+
+## 16000203 无法更改AppServiceExtensionAbility保活状态
+
+**错误信息**
+
+Cannot change the keep-alive status.
+
+**错误描述**
+
+无法更改AppServiceExtensionAbility保活状态时，方法返回该错误码。
+
+**可能原因**
+
+AppServiceExtensionAbility的保活策略由MDM设置为用户不可取消，或者由其他用户设置为保活。
+
+**处理步骤**
+
+MDM取消设置保活，或设置保活策略为用户可取消；在设置保活的用户下取消AppServiceExtensionAbility的保活。
+
+## 16000204 指定的应用未安装在userId为1的用户下
+
+**错误信息**
+
+The target bundle is not in u1.
+
+**错误描述**
+
+当指定的应用未安装在userId为1的用户下时，方法返回该错误码。
+
+**可能原因**
+
+指定的应用未安装在userId为1的用户下。
+
+**处理步骤**
+
+将指定的应用安装在userId为1的用户下。
 <!--DelEnd-->

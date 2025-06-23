@@ -820,6 +820,11 @@ inline GateRef StubBuilder::TaggedIsGeneratorObject(GateRef glue, GateRef x)
     return env_->GetBuilder()->TaggedIsGeneratorObject(glue, x);
 }
 
+inline GateRef StubBuilder::TaggedIsJSProxy(GateRef glue, GateRef x)
+{
+    return env_->GetBuilder()->TaggedIsJSProxy(glue, x);
+}
+
 inline GateRef StubBuilder::TaggedIsJSArray(GateRef glue, GateRef x)
 {
     return env_->GetBuilder()->TaggedIsJSArray(glue, x);
@@ -1274,6 +1279,11 @@ inline void StubBuilder::CanNotConvertNotValidObject([[maybe_unused]] GateRef gl
     ASM_ASSERT(GET_MESSAGE_STRING_ID(CanNotConvertNotValidObject), IsEcmaObject(glue, obj));
 }
 
+inline void StubBuilder::IsNotValidObject([[maybe_unused]] GateRef flag)
+{
+    ASM_ASSERT(GET_MESSAGE_STRING_ID(CanNotConvertNotValidObject), flag);
+}
+
 inline void StubBuilder::IsNotPropertyKey([[maybe_unused]] GateRef flag)
 {
     ASM_ASSERT(GET_MESSAGE_STRING_ID(IsNotPropertyKey), flag);
@@ -1614,6 +1624,14 @@ inline GateRef StubBuilder::IsNativeModuleFailureInfo(GateRef glue, GateRef obj)
     return Int32Equal(objectType, Int32(static_cast<int32_t>(JSType::NATIVE_MODULE_FAILURE_INFO)));
 }
 
+inline GateRef StubBuilder::TaggedIsNativeModuleFailureInfo(GateRef glue, GateRef x)
+{
+    return LogicAndBuilder(env_)
+        .And(TaggedIsHeapObject(x))
+        .And(IsNativeModuleFailureInfo(glue, x))
+        .Done();
+}
+
 inline GateRef StubBuilder::IsNativePointer(GateRef glue, GateRef obj)
 {
     GateRef objectType = GetObjectType(LoadHClass(glue, obj));
@@ -1797,6 +1815,15 @@ inline GateRef StubBuilder::IsWritable(GateRef attr)
         Int32(0));
 }
 
+inline GateRef StubBuilder::SetWritableFieldInPropAttr(GateRef attr, GateRef value)
+{
+    GateRef mask = Int64LSL(Int64((1LU << PropertyAttributes::WritableField::SIZE) - 1),
+                            Int64(PropertyAttributes::WritableField::START_BIT));
+    GateRef newVal = Int64Or(Int64And(attr, Int64Not(mask)),
+                             Int64LSL(ZExtInt32ToInt64(value), Int64(PropertyAttributes::WritableField::START_BIT)));
+    return newVal;
+}
+
 inline GateRef StubBuilder::IsDefaultAttribute(GateRef attr)
 {
     return Int32NotEqual(
@@ -1815,6 +1842,16 @@ inline GateRef StubBuilder::IsConfigable(GateRef attr)
         Int32(0));
 }
 
+inline GateRef StubBuilder::SetConfigurableFieldInPropAttr(GateRef attr, GateRef value)
+{
+    GateRef mask = Int64LSL(Int64((1LU << PropertyAttributes::ConfigurableField::SIZE) - 1),
+                            Int64(PropertyAttributes::ConfigurableField::START_BIT));
+    GateRef newVal =
+        Int64Or(Int64And(attr, Int64Not(mask)),
+                Int64LSL(ZExtInt32ToInt64(value), Int64(PropertyAttributes::ConfigurableField::START_BIT)));
+    return newVal;
+}
+
 inline GateRef StubBuilder::IsAccessor(GateRef attr)
 {
     return Int32NotEqual(
@@ -1831,6 +1868,16 @@ inline GateRef StubBuilder::IsEnumerable(GateRef attr)
             TruncInt64ToInt32(Int64LSR(attr, Int64(PropertyAttributes::EnumerableField::START_BIT))),
             Int32((1LLU << PropertyAttributes::EnumerableField::SIZE) - 1)),
         Int32(0));
+}
+
+inline GateRef StubBuilder::SetEnumerableFiledInPropAttr(GateRef attr, GateRef value)
+{
+    GateRef mask = Int64LSL(Int64((1LU << PropertyAttributes::EnumerableField::SIZE) - 1),
+                            Int64(PropertyAttributes::EnumerableField::START_BIT));
+    GateRef newVal =
+        Int64Or(Int64And(attr, Int64Not(mask)),
+                Int64LSL(ZExtInt32ToInt64(value), Int64(PropertyAttributes::EnumerableField::START_BIT)));
+    return newVal;
 }
 
 inline GateRef StubBuilder::IsInlinedProperty(GateRef attr)
@@ -2249,6 +2296,7 @@ inline GateRef StubBuilder::GetProtoChangeMarkerFromHClass(GateRef glue, GateRef
 
 inline GateRef StubBuilder::GetLayoutFromHClass(GateRef glue, GateRef hClass)
 {
+    env_->GetBuilder()->CheckHClassFieldInvalidAccess(glue, hClass);
     GateRef attrOffset = IntPtr(JSHClass::LAYOUT_OFFSET);
     return Load(VariableType::JS_POINTER(), glue, hClass, attrOffset);
 }
@@ -2301,6 +2349,7 @@ inline void StubBuilder::SetIsAllTaggedProp(GateRef glue, GateRef hclass, GateRe
 
 inline void StubBuilder::SetPrototypeToHClass(VariableType type, GateRef glue, GateRef hClass, GateRef proto)
 {
+    env_->GetBuilder()->CheckHClassFieldInvalidAccess(glue, hClass);
     GateRef offset = IntPtr(JSHClass::PROTOTYPE_OFFSET);
     Store(type, glue, hClass, offset, proto);
 }
@@ -2308,12 +2357,14 @@ inline void StubBuilder::SetPrototypeToHClass(VariableType type, GateRef glue, G
 inline void StubBuilder::SetProtoChangeDetailsToHClass(VariableType type,
     GateRef glue, GateRef hClass, GateRef protoChange)
 {
+    env_->GetBuilder()->CheckHClassFieldInvalidAccess(glue, hClass);
     GateRef offset = IntPtr(JSHClass::PROTO_CHANGE_DETAILS_OFFSET);
     Store(type, glue, hClass, offset, protoChange);
 }
 
 inline GateRef StubBuilder::GetProtoChangeDetails(GateRef glue, GateRef hClass)
 {
+    env_->GetBuilder()->CheckHClassFieldInvalidAccess(glue, hClass);
     GateRef offset = IntPtr(JSHClass::PROTO_CHANGE_DETAILS_OFFSET);
     return Load(VariableType::JS_ANY(), glue, hClass, offset);
 }
@@ -2321,30 +2372,42 @@ inline GateRef StubBuilder::GetProtoChangeDetails(GateRef glue, GateRef hClass)
 inline void StubBuilder::SetLayoutToHClass(VariableType type, GateRef glue, GateRef hClass, GateRef attr,
                                            MemoryAttribute mAttr)
 {
+    env_->GetBuilder()->CheckHClassFieldInvalidAccess(glue, hClass);
     GateRef offset = IntPtr(JSHClass::LAYOUT_OFFSET);
     Store(type, glue, hClass, offset, attr, mAttr);
 }
 
 inline void StubBuilder::SetEnumCacheToHClass(VariableType type, GateRef glue, GateRef hClass, GateRef key)
 {
+    env_->GetBuilder()->CheckHClassFieldInvalidAccess(glue, hClass);
     GateRef offset = IntPtr(JSHClass::ENUM_CACHE_OFFSET);
     Store(type, glue, hClass, offset, key);
 }
 
 inline void StubBuilder::SetDependentInfosToHClass(VariableType type, GateRef glue, GateRef hClass, GateRef value)
 {
+    env_->GetBuilder()->CheckHClassFieldInvalidAccess(glue, hClass);
     GateRef offset = IntPtr(JSHClass::DEPENDENT_INFOS_OFFSET);
     Store(type, glue, hClass, offset, value);
 }
 
 inline void StubBuilder::SetTransitionsToHClass(VariableType type, GateRef glue, GateRef hClass, GateRef transition)
 {
+    env_->GetBuilder()->CheckHClassFieldInvalidAccess(glue, hClass);
     GateRef offset = IntPtr(JSHClass::TRANSTIONS_OFFSET);
     Store(type, glue, hClass, offset, transition);
 }
 
+inline GateRef StubBuilder::GetTransitionsFromHClass(GateRef glue, GateRef hClass)
+{
+    env_->GetBuilder()->CheckHClassFieldInvalidAccess(glue, hClass);
+    GateRef offset = IntPtr(JSHClass::TRANSTIONS_OFFSET);
+    return Load(VariableType::JS_POINTER(), glue, hClass, offset);
+}
+
 inline void StubBuilder::SetParentToHClass(VariableType type, GateRef glue, GateRef hClass, GateRef parent)
 {
+    env_->GetBuilder()->CheckHClassFieldInvalidAccess(glue, hClass);
     GateRef offset = IntPtr(JSHClass::PARENT_OFFSET);
     Store(type, glue, hClass, offset, parent);
 }
@@ -3570,6 +3633,12 @@ inline void StubBuilder::SetBaselineJitCodeToFunction(GateRef glue, GateRef func
 inline GateRef StubBuilder::GetGlobalEnv(GateRef glue)
 {
     return env_->GetBuilder()->GetGlobalEnv(glue);
+}
+
+inline void StubBuilder::SetGlueGlobalEnv(GateRef glue, GateRef globalEnv)
+{
+    GateRef globalEnvOffset = IntPtr(JSThread::GlueData::GetCurrentEnvOffset(env_->IsArch32Bit()));
+    StoreWithoutBarrier(VariableType::JS_POINTER(), glue, globalEnvOffset, globalEnv);
 }
 
 inline GateRef StubBuilder::GetGlobalObject(GateRef glue, GateRef globalEnv)

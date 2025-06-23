@@ -163,6 +163,9 @@ declare type UIStatesChangeHandler = (node: FrameNode, currentUIStates: number) 
   }
   dispose(): void {
     super.dispose();
+    if (this.nodePtr_) {
+      getUINativeModule().frameNode.fireArkUIObjectLifecycleCallback(new WeakRef(this), 'FrameNode', this.getNodeType() || 'FrameNode', this.nodePtr_);
+    }
     this.renderNode_?.dispose();
     FrameNodeFinalizationRegisterProxy.ElementIdToOwningFrameNode_.delete(this._nodeId);
     this._nodeId = -1;
@@ -449,6 +452,11 @@ declare type UIStatesChangeHandler = (node: FrameNode, currentUIStates: number) 
 
   getPositionToWindow(): Position {
     const position = getUINativeModule().frameNode.getPositionToWindow(this.getNodePtr());
+    return { x: position[0], y: position[1] };
+  }
+
+  getGlobalPositionOnDisplay(): Position {
+    const position = getUINativeModule().frameNode.getGlobalPositionOnDisplay(this.getNodePtr());
     return { x: position[0], y: position[1] };
   }
 
