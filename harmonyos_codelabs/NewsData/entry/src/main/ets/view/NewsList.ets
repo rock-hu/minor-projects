@@ -118,6 +118,7 @@ export default struct NewsList {
       }
 
       ForEach(this.newsModel.newsData, (item: NewsData) => {
+        // Pull-down refresh layout
         ListItem() {
           NewsItem({ newsData: item })
         }

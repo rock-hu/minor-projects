@@ -26,20 +26,20 @@ Scan Kit is a basic capability provided by the HarmonyOS SDK. It provides functi
 ## Project Directory
 ├──entry/src/main/ets  
 │  ├──entryability  
-│  │  ├──EntryAbility.ets       // Ability for local startup  
-│  └──pages  
+│  │  └──EntryAbility.ets       // Ability for local startup  
+│  ├──pages  
 │  │  ├──BarcodePage.ets       // Default barcode scanning UI  
 │  │  ├──CreateBarcode.ets     // Barcode image generation UI  
 │  │  ├──CustomPage.ets        // Custom barcode scanning UI  
 │  │  ├──CustomResultPage.ets  // Result page for barcode scanning using the custom UI  
 │  │  ├──DetectBarcode.ets     // Page for recognizing barcodes in an image  
 │  │  ├──Index.ets             // Entry for selecting functions  
-│  │  └──ResultPage.ets        // Result page for image-based barcode recognition  
+│  │  ├──ResultPage.ets        // Result page for image-based barcode recognition  
 │  │  └──ScanAccess.ets        // Scan-to-access page  
 │  └──utils  
 │  │  ├──Common.ets            // Method for obtaining the XComponent layout of the preview stream  
 │  │  ├──PermissionsUtil.ets   // Request camera permission from the user  
-│  │  ├──UIContextSelf.ets     // UIContext management class  
+│  │  └──UIContextSelf.ets     // UIContext management class  
 └──entry/src/main/resources    // Directory of resource files
 
 ## Required Permissions
@@ -59,6 +59,6 @@ Open the demo app. The level-1 menu screen will be displayed, showing buttons fo
 # Constraints
 
 1. This sample can only be run on standard-system Huawei phones and tablets.
-2. The HarmonyOS version must be HarmonyOS Next Developer Beta 3 or later.
-3. The DevEco Studio version must be DevEco Studio Next Developer Beta 3 or later.
-4. The HarmonyOS SDK version must be HarmonyOS NEXT Developer Beta3 SDK or later.
+2. The HarmonyOS version must be HarmonyOS 5.0.3 Release or later.
+3. The DevEco Studio version must be DevEco Studio 5.0.3 Release or later.
+4. The HarmonyOS SDK version must be HarmonyOS 5.0.3 Release SDK SDK or later.

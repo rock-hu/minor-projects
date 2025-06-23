@@ -5,11 +5,7 @@
       "value": "#FFFFFF"
     },
     {
-      "name": "custom_button_background_color",
-      "value": "#d3d4d6"
-    },
-    {
-      "name": "half_screen_splash_text_color",
+      "name": "splash_text_font_color",
       "value": "#1A1A1A"
     }
   ]

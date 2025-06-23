@@ -186,7 +186,7 @@ struct ScanResultPage {
           }
         }.width('100%')
         .height('100%')
-      })
+      }, (item: scanBarcode.ScanResult) => item.originalValue)
 
       Scroll(this.scroller) {
         Column() {
@@ -211,7 +211,7 @@ struct ScanResultPage {
                   item['scanCodeRect']['left'],
                   item['scanCodeRect'].top, item['scanCodeRect'].right, item['scanCodeRect'].bottom)
               }
-            })
+            }, (item: scanBarcode.ScanResult) => item.originalValue)
           }
           .width('80%')
           .height('100%')

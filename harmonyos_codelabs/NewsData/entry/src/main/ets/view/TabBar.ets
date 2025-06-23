@@ -39,7 +39,7 @@ export default struct TabBar {
   }
 
   aboutToAppear() {
-    // Request news category.
+    // Request the news category.
     NewsViewModel.getNewsTypeList().then((typeList: NewsTypeModel[]) => {
       this.tabBarArray = typeList;
     }).catch((typeList: NewsTypeModel[]) => {

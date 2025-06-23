@@ -21,24 +21,27 @@ import { ToRankView } from './ToRankView';
 
 const SWIPER_LIST: number[] = [0, 1, 2];
 
+// [Start hot_column_view]
 @Component
 export struct HotColumnView {
-  @StorageLink('currentBreakpoint') currentBreakpoint: string = Breakpoint.BREAKPOINT_SM;
+  @StorageLink('currentBreakpoint') currentBreakpoint: string = 'sm';
+  // [StartExclude hot_column_view]
   @State tab_index: number = 0;
+  // [EndExclude hot_column_view]
 
   @Builder
   HotListBuilder(index: number) {
     List() {
       ForEach(HOST_LIST_ARRAY[this.tab_index], (item: HotItemInterface) => {
-        if (item.index > index * Common.HOT_COLUMN_MAX_COUNT &&
-          item.index <= (index + 1) * Common.HOT_COLUMN_MAX_COUNT) {
+        if (item.index > index * 5 && item.index <= (index + 1) * 5) {
           ListItem() {
             HotListItemView({
               item: item,
               showDetail: true,
-              indexWidth: item.index <= Common.HOT_COLUMN_MAX_COUNT ? $r('app.float.index_width_normal') :
-                $r('app.float.index_width_more'),
-              indexIconGap: $r('app.float.index_icon_gap')
+              // [StartExclude hot_column_view]
+              indexWidth: item.index <= 5 ? '9vp' : '19vp',
+              indexIconGap: '8vp'
+              // [EndExclude hot_column_view]
             })
           }
         }
@@ -49,24 +52,24 @@ export struct HotColumnView {
   build() {
     Column() {
       Swiper() {
-        ForEach(SWIPER_LIST, (item: number) => {
+        ForEach([0, 1, 2], (item: number) => {
           this.HotListBuilder(item)
         }, (item: number) => JSON.stringify(item))
       }
+      // [StartExclude hot_column_view]
       .autoPlay(false)
       .indicator(false)
       .disableSwipe(true)
-      .displayCount(new BreakpointType(
-        Common.SWIPER_DISPLAY_COUNT_ONE,
-        Common.SWIPER_DISPLAY_COUNT_TWO,
-        Common.SWIPER_DISPLAY_COUNT_THREE
-      ).getValue(this.currentBreakpoint))
-      .itemSpace((new BreakpointType(Common.HOT_COLUMN_IS_SM, Common.HOT_COLUMN_IS_MD, Common.HOT_COLUMN_IS_LG))
-        .getValue(this.currentBreakpoint))
+      .displayCount(new BreakpointType(1, 2, 3).getValue(this.currentBreakpoint))
+      .itemSpace((new BreakpointType('0vp', '49vp', '81vp')).getValue(this.currentBreakpoint))
 
       ToRankView()
+      // [EndExclude hot_column_view]
     }
-    .width(BaseCommon.FULL_PERCENT)
+    // [StartExclude hot_column_view]
+    .width('100%')
     .alignItems(HorizontalAlign.Start)
+    // [EndExclude hot_column_view]
   }
 }
+// [End hot_column_view]

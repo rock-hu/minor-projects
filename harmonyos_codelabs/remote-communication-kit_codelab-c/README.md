@@ -11,10 +11,10 @@ Remote Communication Kit（远场通信服务）是华为提供的HTTP发起数�
 
 ## 效果预览
 
-![效果图](./AppScope/resources/base/media/renderings.png)
-![基础URL测试](./AppScope/resources/base/media/baseURL.png)
-![超时测试](./AppScope/resources/base/media/timeout.png)
-![断点续传测试](./AppScope/resources/base/media/transferrange.png)
+![效果图](./AppScope/resources/base/media/Main.png)
+![基础URL测试](./AppScope/resources/base/media/BaseAddress.png)
+![超时测试](./AppScope/resources/base/media/TimeOut.png)
+![断点续传测试](./AppScope/resources/base/media/TransferRange.png)
 
 ## 工程目录
 
@@ -33,10 +33,10 @@ Remote Communication Kit（远场通信服务）是华为提供的HTTP发起数�
 │ │ │ ├── MainAbility.ets               //UI Ability
 │ │ │ └── TestClickActionAbility.ets	//系统测试
 │ │ └── pages
-│ │     ├── baseAddress.ets		// 基础URL测试页面
+│ │     ├── BaseAddress.ets		// 基础URL测试页面
 │ │     ├── MainPage.ets		// 主界面
-│ │     ├── timeOut.ets			// 超时测试页面
-│ │     └── transferRange.ets   	// 断点续传页面
+│ │     ├── TimeOut.ets			// 超时测试页面
+│ │     └── TransferRange.ets   	// 断点续传页面
 ```
 
 ## 具体实现
@@ -44,8 +44,8 @@ Remote Communication Kit（远场通信服务）是华为提供的HTTP发起数�
 本示例主要展示的基础URL测试、超时测试、断点续传功能对应的接口均在rcp.h中，在napi_init.cpp中调用：
 
 - 断点续传(TransferRange)：通过Rcp_TransferRange的from和to设置。
-- 超时测试(timeOut)：通过Rcp_Timeout的connectMs和transferMs设置连接超时及传输超时。
-- 基础URL(baseAddress)：通过Rcp_Request中的url设置。
+- 超时测试(TimeOut)：通过Rcp_Timeout的connectMs和transferMs设置连接超时及传输超时。
+- 基础URL(BaseAddress)：通过Rcp_Request中的url设置。
 
 以上业务使用时，需先 #include "RemoteCommunicationKit/rcp.h"，再根据自身需求对接口进行扩展使用，详细情况可以参考本用例中entry/src/main/pages下三个接口的实现。
 

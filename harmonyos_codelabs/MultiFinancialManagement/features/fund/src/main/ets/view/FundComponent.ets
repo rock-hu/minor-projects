@@ -16,9 +16,10 @@
 import { BreakpointUtil, BusinessInfo, CommonConstants, FundDetail, RouterConstants } from '@ohos/basic';
 import { FundConstants } from '../constants/FundConstants';
 import FundingViewModel from '../viewmodel/FundingViewModel';
-
+// [Start fund_component]
 @Component
 export struct FundComponent {
+  // [StartExclude fund_component]
   @State currentPoint: string = CommonConstants.BREAK_POINT_SM;
   @State tabBarIndex: number = 0;
   @State backgroundX: number = 0;
@@ -153,6 +154,7 @@ export struct FundComponent {
                 Tabs({ barPosition: BarPosition.Start, controller: this.controller }) {
                   TabContent(){
                     Row() {
+                      // [EndExclude fund_component]
                       List() {
                         ForEach(new BreakpointUtil({
                           sm: FundingViewModel.getAllFundInfo(0, 2),
@@ -162,27 +164,22 @@ export struct FundComponent {
                           ListItem() {
                             Row() {
                               Text(item.amplitude)
-                                .fontSize($r('app.float.amplitude_text_size'))
-                                .fontColor($r('app.color.amplitude_text_font'))
-                                .fontWeight(CommonConstants.FONT_WEIGHT_700)
+                                .fontSize('24fp')
+                                .fontColor('#E84026')
+                                .fontWeight(700)
                               Text(item.name)
-                                .fontSize($r('app.float.common_font_size'))
-                                .fontWeight(CommonConstants.FONT_WEIGHT_500)
-                                .fontFamily(CommonConstants.FONT_FAMILY_HEI_TI)
-                                .margin({
-                                  left: $r('app.float.margin_text_left')
-                                })
+                                .fontSize('16fp')
+                                .fontWeight(500)
+                                .fontFamily('HarmonyHeiTi-Medium')
+                                .margin({ left: '16vp' })
                             }
                             .justifyContent(FlexAlign.SpaceAround)
                           }
                         })
                       }
-                      .lanes(new BreakpointUtil({
-                        sm: 1,
-                        md: 2,
-                        lg: 3
-                      }).getValue(this.currentPoint))
+                      .lanes(new BreakpointUtil({ sm: 1, md: 2, lg: 3 }).getValue(this.currentPoint))
                       .width(CommonConstants.FULL_WIDTH_PERCENT)
+                      // [StartExclude fund_component]
                       .scrollBar(BarState.Off)
                     }
                     .height(CommonConstants.FULL_HEIGHT_PERCENT)
@@ -490,4 +487,6 @@ export struct FundComponent {
       this.backgroundX = this.getUIContext().vp2px(this.backgroundX)
     })
   }
+  // [EndExclude fund_component]
 }
+// [End fund_component]

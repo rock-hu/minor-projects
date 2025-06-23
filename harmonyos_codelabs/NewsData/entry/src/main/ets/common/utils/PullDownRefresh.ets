@@ -37,7 +37,7 @@ export function listTouchEvent(that: NewsModel, event: TouchEvent) {
       }
       let isDownPull = event.touches[0].y - that.lastMoveY > 0;
       if (((isDownPull === true) || (that.isPullRefreshOperation === true)) && (that.isCanLoadMore === false)) {
-        // Finger movement, processing pull-down refresh.
+        // Process the pull-down refresh when the finger moves.
         touchMovePullRefresh(that, event);
       } else {
         // Finger movement, processing load more.
@@ -69,7 +69,7 @@ export function touchMovePullRefresh(that: NewsModel, event: TouchEvent) {
     that.isPullRefreshOperation = true;
     let height = uiContext!.vp2px(that.pullDownRefreshHeight);
     that.offsetY = event.touches[0].y - that.downY;
-    // The sliding offset is greater than the pull-down refresh layout height, and the refresh condition is met.
+    // The sliding offset is greater than the height of the pull-down refresh layout.The refresh condition is met.
     if (that.offsetY >= height) {
       pullRefreshState(that, RefreshState.Release);
       that.offsetY = height + that.offsetY * Const.Y_OFF_SET_COEFFICIENT;

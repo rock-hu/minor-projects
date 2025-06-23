@@ -21,11 +21,7 @@ import Logger from '../common/utils/Logger';
 import ResponseResult from './ResponseResult';
 
 class NewsViewModel {
-  /**
-   * Get news type list from server.
-   *
-   * @return NewsTypeBean[] newsTypeList
-   */
+  // Obtain the news type list from the server.
   getNewsTypeList(): Promise<NewsTypeModel[]> {
     return new Promise((resolve: Function, reject: Function) => {
       let url = `${Const.SERVER}/${Const.GET_NEWS_TYPE}`;
@@ -41,20 +37,12 @@ class NewsViewModel {
     });
   }
 
-  /**
-   * Get default news type list.
-   *
-   * @return NewsTypeBean[] newsTypeList
-   */
+  // Obtain the default news type list.
   getDefaultTypeList(): NewsTypeModel[] {
     return Const.TabBars_DEFAULT_NEWS_TYPES;
   }
 
-  /**
-   * Get news type list from server.
-   *
-   * @return NewsData[] newsDataList
-   */
+  // Obtain the news list from the server.
   getNewsList(currentPage: number, pageSize: number, path: string): Promise<NewsData[]> {
     return new Promise(async (resolve: Function, reject: Function) => {
       let url = `${Const.SERVER}/${path}`;

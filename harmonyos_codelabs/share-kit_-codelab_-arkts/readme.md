@@ -13,9 +13,9 @@
 ![](./screenshots/device/share_demo3.jpg)
 
 ## 相关概念
-- [Stage模型](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V13/stage-model-development-overview-V13)：Stage模型的设计，主要是为了解决[FA模型](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V13/fa-model-development-overview-V13)无法解决的开发场景问题，方便开发者更加方便地开发出分布式环境下的复杂应用。从API Version 9开始支持。
-- [UIAbility](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V13/uiability-overview-V13)概述：UIAbility组件是一种包含UI的应用组件，主要用于和用户交互。UIAbility组件是系统调度的基本单元，为应用提供绘制界面的窗口。一个应用可以包含一个或多个UIAbility组件。
-- [UIAbilityContext](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V13/js-apis-inner-application-uiabilitycontext-V13)：UIAbilityContext是需要保存状态的UIAbility所对应的context，继承自Context。提供UIAbility的相关配置信息以及操作UIAbility和ServiceExtensionAbility的方法。
+- [Stage模型](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/stage-model-development-overview)：Stage模型的设计，主要是为了解决[FA模型](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/fa-model-development-overview)无法解决的开发场景问题，方便开发者更加方便地开发出分布式环境下的复杂应用。从API Version 9开始支持。
+- [UIAbility](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/uiability-overview)概述：UIAbility组件是一种包含UI的应用组件，主要用于和用户交互。UIAbility组件是系统调度的基本单元，为应用提供绘制界面的窗口。一个应用可以包含一个或多个UIAbility组件。
+- [UIAbilityContext](https://developer.huawei.com/consumer/cn/doc/harmonyos-references/js-apis-inner-application-uiabilitycontext)：UIAbilityContext是需要保存状态的UIAbility所对应的context，继承自Context。提供UIAbility的相关配置信息以及操作UIAbility和ServiceExtensionAbility的方法。
 
 ## 工程目录
 
@@ -79,5 +79,5 @@
 4. HarmonyOS SDK版本：HarmonyOS 5.0.3 Release SDK及以上。
 
 需同时满足以下条件，才能使用该功能：
-- 宿主应用和目标应用定义数据类型须遵照[UDMF](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V13/js-apis-data-unifieddatachannel-V13)（统一数据管理框架）定义的[UTD](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V13/js-apis-data-uniformtypedescriptor-V13)（统一类型描述符）规范。目标应用需要在应用配置文件中，配置支持的类型。如支持全部图片类型，可声明为：general.image。
+- 宿主应用和目标应用定义数据类型须遵照[UDMF](https://developer.huawei.com/consumer/cn/doc/harmonyos-references/js-apis-data-unifieddatachannel)（统一数据管理框架）定义的[UTD](https://developer.huawei.com/consumer/cn/doc/harmonyos-references/js-apis-data-uniformtypedescriptor)（统一类型描述符）规范。目标应用需要在应用配置文件中，配置支持的类型。如支持全部图片类型，可声明为：general.image。
 - 宿主应用配置分享数据描述信息总量不能超过200KB，且分享条目总量不能超过500条。

@@ -2,6 +2,7 @@ import { hilog } from '@kit.PerformanceAnalysisKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { notificationManager } from '@kit.NotificationKit';
 import rcpSdk from 'libentry.so';
+import common from '@ohos.app.ability.common';
 
 const kHttpServerAddress = "https://httpbin.org";
 @Entry
@@ -31,11 +32,11 @@ struct  requestContent{
       Flex({ direction: FlexDirection.Column,
         justifyContent: FlexAlign.SpaceBetween }) {
 
-        Button('baseAddress-Test')
+        Button('baseAddress-test')
           .width('80%')
           .height(40)
           .margin({ left: '10%' })
-          .backgroundColor('#fff38a07')
+          .backgroundColor('#0A59F7')
           .fontColor('#ffffffff')
           .fontSize(24)
           .fontWeight(FontWeight.Bold)
@@ -45,23 +46,21 @@ struct  requestContent{
       .height(64)
       .margin({ top: 86 })
 
-      Text("结果")
+      Text("result")
         .fontSize(24)
         .fontWeight(FontWeight.Bold)
         .fontColor('#000')
         .height(30)
         .width(220)
         .margin({ left: 8 })
-      // .textAlign(textAlign:left)
       TextArea({
-        // controller: this.controller
         text: this.content
       })
         .width('80%')
         .height(260)
         .margin({ left: '10%',top: '10%' })
         .backgroundColor('0x317aff')
-        .fontColor('#ffffffff')
+        .fontColor('#ff100f0f')
         .fontSize(24)
         .fontWeight(FontWeight.Bold)
         .borderRadius(10)
@@ -89,7 +88,8 @@ struct  requestContent{
   }
 
   private openSysSwitch = async () => {
-    await notificationManager.requestEnableNotification();
+    let context = this.getUIContext().getHostContext() as common.UIAbilityContext;
+    await notificationManager.requestEnableNotification(context);
     hilog.info(0x0000, 'testTag', 'System notification switch is open');
   }
 }

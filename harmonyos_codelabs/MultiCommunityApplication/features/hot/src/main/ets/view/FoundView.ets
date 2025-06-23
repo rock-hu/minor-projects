@@ -97,22 +97,24 @@ export struct FoundView {
         Blank()
           .width(BaseCommon.FULL_PERCENT)
           .height($r('app.float.blank_height'))
-          .visibility(this.currentBreakpoint === Breakpoint.BREAKPOINT_LG ? Visibility.Hidden : Visibility.Visible)
+          .visibility(this.currentBreakpoint === 'lg' ? Visibility.Hidden : Visibility.Visible)
 
         // [Start foundView]
         WaterFlow() {
-          // [StartExclude foundView]
           ForEach(this.cardArrayViewModel.cardArray, (item: CardItem, index: number) => {
             FlowItem() {
               Column() {
                 MircoBlogView({
                   cardItem: item,
+                  // [StartExclude foundView]
                   index: index,
                   jumpDetail: () => {
                     AppStorage.setOrCreate('selectCardIndex', index);
                     this.jumpDetail();
                   }
+                  // [EndExclude foundView]
                 })
+                // [StartExclude foundView]
                   .padding({
                     left: new BreakpointType($r('app.float.window_padding_left_sm'),
                       $r('app.float.window_padding_left_md'), $r('app.float.window_padding_left_sm'))
@@ -123,28 +125,29 @@ export struct FoundView {
                     top: new BreakpointType($r('app.float.zero'), $r('app.float.zero'),
                       $r('app.float.card_margin_top_lg')).getValue(this.currentBreakpoint)
                   })
+                // [EndExclude foundView]
 
                 CommentBarView({
                   isShowInput: false,
+                  // [StartExclude foundView]
                   jumpDetail: () => {
                     AppStorage.setOrCreate('selectCardIndex', index);
                     this.jumpDetail();
                   }
+                  // [EndExclude foundView]
                 })
               }
-              .borderRadius(this.currentBreakpoint === Breakpoint.BREAKPOINT_LG ?
-                $r('app.float.water_flow_br') : $r('app.float.zero'))
-              .backgroundColor($r('app.color.white'))
-              .margin(this.currentBreakpoint === Breakpoint.BREAKPOINT_LG ?
-                $r('app.float.water_flow_margin') : $r('app.float.zero'))
+              // [StartExclude foundView]
+              .borderRadius(this.currentBreakpoint === 'lg' ? '8vp' : '0vp')
+              .backgroundColor('#FFFFFF')
+              .margin(this.currentBreakpoint === 'lg' ? '6vp' : '0vp')
+              // [EndExclude foundView]
             }
           }, (item: CardItem, index: number) => index + JSON.stringify(item))
-          // [EndExclude foundView]
         }
-        .columnsTemplate(this.currentBreakpoint !== Breakpoint.BREAKPOINT_LG ?
-        Common.WATER_FLOW_COLUMNS_TEMPLATE_NORMAL : Common.WATER_FLOW_COLUMNS_TEMPLATE_LG)
+        .columnsTemplate(this.currentBreakpoint !== 'lg' ? '1fr' : '1fr 1fr')
         // [End foundView]
-        .backgroundColor(this.currentBreakpoint === Breakpoint.BREAKPOINT_LG ?
+        .backgroundColor(this.currentBreakpoint === 'lg' ?
         $r('app.color.water_flow_bgc_lg') : $r('app.color.water_flow_bgc'))
         .linearGradient({
           angle: Common.LINEAR_GRADIENT_ANGEL,
@@ -153,18 +156,18 @@ export struct FoundView {
             [Common.LINEAR_GRADIENT_TO_COLOR, Common.LINEAR_GRADIENT_TO_AREA]
           ]
         })
-        .rowsGap(this.currentBreakpoint === Breakpoint.BREAKPOINT_LG ?
+        .rowsGap(this.currentBreakpoint === 'lg' ?
         $r('app.float.zero') : $r('app.float.water_flow_rows_gap'))
         .nestedScroll({
           scrollForward: NestedScrollMode.PARENT_FIRST,
           scrollBackward: NestedScrollMode.SELF_FIRST
         })
         .padding({
-          left: this.currentBreakpoint === Breakpoint.BREAKPOINT_LG ? $r('app.float.water_flow_padding_lg') :
+          left: this.currentBreakpoint === 'lg' ? $r('app.float.water_flow_padding_lg') :
           $r('app.float.zero'),
-          right: this.currentBreakpoint === Breakpoint.BREAKPOINT_LG ? $r('app.float.water_flow_padding_lg') :
+          right: this.currentBreakpoint === 'lg' ? $r('app.float.water_flow_padding_lg') :
           $r('app.float.zero'),
-          top: this.currentBreakpoint === Breakpoint.BREAKPOINT_LG ? $r('app.float.water_flow_padding_top_lg') :
+          top: this.currentBreakpoint === 'lg' ? $r('app.float.water_flow_padding_top_lg') :
           $r('app.float.zero')
         })
       }

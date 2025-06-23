@@ -29,8 +29,10 @@ interface ImageInfo {
   contentOffsetY: number;
 }
 
+// [Start mirco_blog_view]
 @Component
 export struct MircoBlogView {
+  // [StartExclude mirco_blog_view]
   @StorageProp('currentBreakpoint') currentBreakpoint: string = Breakpoint.BREAKPOINT_LG;
   @StorageLink('isDetailPage') isDetailPage: boolean = false;
   @StorageLink('isPictureDetail') isPictureDetail: boolean = false;
@@ -52,10 +54,11 @@ export struct MircoBlogView {
     AppStorage.setOrCreate('selectCardIndex', this.index);
     this.pageInfos.pushPath({ name: 'pictureDetail', param: index });
   }
-
+  // [EndExclude mirco_blog_view]
   build() {
     Column() {
       if (this.cardItem !== undefined) {
+        // [StartExclude mirco_blog_view]
         Row() {
           Row() {
             Image(this.cardItem.icon)
@@ -107,40 +110,43 @@ export struct MircoBlogView {
           top: $r('app.float.card_title_padding'),
           bottom: $r('app.float.card_title_padding')
         })
+        // [EndExclude mirco_blog_view]
 
         Row() {
           Text(this.cardItem.content)
-            .fontSize(`${this.contentFontSize}${Common.SUFFIX_FP}`)
-            .lineHeight(`${this.contentFontHeight}${Common.SUFFIX_VP}`)
+            .fontSize(`${this.contentFontSize}fp`)
+            .lineHeight(`${this.contentFontHeight}vp`)
+            // [StartExclude mirco_blog_view]
             .width(BaseCommon.FULL_PERCENT)
             .onClick(() => {
               this.jumpDetail();
             })
             .fontColor(this.isDarkMode ? $r('app.color.card_item_content_fc_dark') : Color.Black)
             .copyOption(CopyOptions.LocalDevice)
+          // [EndExclude mirco_blog_view]
         }
         .gesture(
-          PinchGesture({ fingers: Common.PINCH_GESTURE_FINGERS })
+          PinchGesture({ fingers: 2 })
             .onActionUpdate((event?: GestureEvent) => {
               if (event && (this.isDetailPage || this.isPictureDetail)) {
                 let tmp = this.pinchValue * event.scale;
-                if (tmp > Common.MAX_SCALE) {
-                  tmp = Common.MAX_SCALE;
+                if (tmp > 1.45) {
+                  tmp = 1.45;
                 }
-                if (tmp < Common.MIN_SCALE) {
-                  tmp = Common.MIN_SCALE;
+                if (tmp < 0.75) {
+                  tmp = 0.75;
                 }
                 this.scaleValue = tmp;
-                this.contentFontSize = Common.CONTENT_FONT_SIZE * this.scaleValue;
-                this.contentFontHeight = Common.CONTENT_FONT_HEIGHT * this.scaleValue;
-                this.pictureMarginTop = Common.PICTURE_MARGIN_TOP * (this.scaleValue > 1 ? this.scaleValue : 1);
+                this.contentFontSize = 16 * this.scaleValue;
+                this.contentFontHeight = 25.6 * this.scaleValue;
+                this.pictureMarginTop = 8 * (this.scaleValue > 1 ? this.scaleValue : 1);
               }
             })
             .onActionEnd(() => {
               this.pinchValue = this.scaleValue;
             })
         )
-
+        // [StartExclude mirco_blog_view]
         if (this.showPicture) {
           if (this.cardItem.pictureArray.length === 1) {
             Image(this.cardItem.pictureArray[0])
@@ -176,16 +182,21 @@ export struct MircoBlogView {
             .margin({ top: `${this.pictureMarginTop}${Common.SUFFIX_VP}` })
           }
         }
+        // [EndExclude mirco_blog_view]
       }
     }
+    // [StartExclude mirco_blog_view]
     .alignItems(HorizontalAlign.Start)
     .flexShrink(1)
     .width(BaseCommon.FULL_PERCENT)
+    // [EndExclude mirco_blog_view]
   }
-
+  // [StartExclude mirco_blog_view]
   getAspectRatio(length: number): number {
     let rowNumber: number = (length % Common.MAX_GRID_COLUMN === 0) ? length / Common.MAX_GRID_COLUMN :
       (Math.floor(length / Common.MAX_GRID_COLUMN) + 1);
     return Common.MAX_GRID_COLUMN / rowNumber;
   }
+  // [EndExclude mirco_blog_view]
 }
+// [End mirco_blog_view]

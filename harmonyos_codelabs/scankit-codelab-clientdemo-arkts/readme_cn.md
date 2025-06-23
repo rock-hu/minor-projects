@@ -11,20 +11,20 @@ Scan Kit（统一扫码服务）是HarmonyOS SDK的基础能力，提供了“�
 ## 工程目录
 ├──entry/src/main/ets  
 │  ├──entryability  
-│  │  ├──EntryAbility.ets       // 本地启动ability  
-│  └──pages  
+│  │  └──EntryAbility.ets       // 本地启动ability  
+│  ├──pages  
 │  │  ├──BarcodePage.ets       // 默认界面扫码  
 │  │  ├──CreateBarcode.ets     // 码图生成的界面  
 │  │  ├──CustomPage.ets        // 自定义界面扫码  
 │  │  ├──CustomResultPage.ets  // 自定义界面扫码的结果界面  
 │  │  ├──DetectBarcode.ets     // 图片识码的界面  
 │  │  ├──Index.ets             // 选择功能入口  
-│  │  └──ResultPage.ets        // 图片识码的结果界面  
+│  │  ├──ResultPage.ets        // 图片识码的结果界面  
 │  │  └──ScanAccess.ets        // 扫码直达服务界面  
 │  └──utils  
 │  │  ├──Common.ets            // 获取预览流XComponent布局方法  
 │  │  ├──PermissionsUtil.ets   // 请求用户授权相机权限  
-│  │  ├──UIContextSelf.ets     // UIContext管理类  
+│  │  └──UIContextSelf.ets     // UIContext管理类  
 └──entry/src/main/resources    // 资源文件目录
 
 ## 相关权限
@@ -44,6 +44,6 @@ Scan Kit（统一扫码服务）是HarmonyOS SDK的基础能力，提供了“�
 # 约束与限制
 
 1. 本实例仅支持标准系统上运行，支持设备：华为手机、华为平板。
-2. HarmonyOS系统：HarmonyOS NEXT Developer Beta3及以上。
-3. DevEco Studio版本：DevEco Studio NEXT Developer Beta3及以上。
-4. HarmonyOS SDK版本：HarmonyOS NEXT Developer Beta3 SDK及以上。
+2. HarmonyOS系统：HarmonyOS 5.0.3 Release及以上。
+3. DevEco Studio版本：DevEco Studio 5.0.3 Release及以上。
+4. HarmonyOS SDK版本：HarmonyOS 5.0.3 Release SDK及以上。

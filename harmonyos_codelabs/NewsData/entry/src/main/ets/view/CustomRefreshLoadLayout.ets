@@ -25,10 +25,12 @@ export default struct CustomLayout {
 
   build() {
     Row() {
+      // Image of pull-down refresh
       Image(this.customRefreshLoadClass.imageSrc)
         .width(Const.RefreshLayout_IMAGE_WIDTH)
         .height(Const.RefreshLayout_IMAGE_HEIGHT)
 
+      // Text of pull-down refresh
       Text(this.customRefreshLoadClass.textValue)
         .margin({
           left: Const.RefreshLayout_TEXT_MARGIN_LEFT,

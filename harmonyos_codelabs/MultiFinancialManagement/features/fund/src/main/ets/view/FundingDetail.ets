@@ -56,14 +56,16 @@ export struct FundingDetail {
               barPosition: this.breakPoint === CommonConstants.BREAK_POINT_LG ? BarPosition.Start : BarPosition.End
             }) {
               TabContent() {
+                // [Start funding_detail]
                 Navigation(this.pageInfo) {
                   FundNavigationComponent({ listIndex: this.index })
                 }
                 .navDestination(this.buildNavDestination)
                 .hideTitleBar(true)
                 .hideBackButton(true)
-                .mode(this.breakPoint === CommonConstants.BREAK_POINT_LG ? NavigationMode.Split : NavigationMode.Stack)
-                .navBarWidth(FundConstants.NAV_BAR_WIDTH)
+                .mode(this.breakPoint === 'lg' ? NavigationMode.Split : NavigationMode.Stack)
+                .navBarWidth('40%')
+                // [End funding_detail]
               }
               .tabBar(this.BuildTabs($r('app.media.ic_public_home_filled'), $r('app.string.tab_bar_home'), 0))
 
@@ -107,27 +109,27 @@ export struct FundingDetail {
       bottom: this.bottom
     })
   }
-
+  // [Start build_nav_destination]
   @Builder
   buildNavDestination(name: string, param: object) {
-    if (name === CommonConstants.PATH_DETAIL) {
+    if (name === 'detail') {
       if (typeof param === 'number') {
         DetailComponent({ indexList: param })
       }
-    } else if (name === CommonConstants.PATH_COMPARISON) {
+    } else if (name === 'comparison') {
       ComparisonComponent()
-    } else if (name === CommonConstants.PATH_COMPARISON_DETAIL) {
+    } else if (name === 'comparisonDetail') {
       NavDestination() {
         ComparisonDetailComponent({ chooseComparison: (param as ComparisonInfo[]) })
       }
       .hideTitleBar(true)
-    } else if (name === CommonConstants.PATH_BUYING) {
+    } else if (name === 'buying') {
       if (typeof param === 'number') {
         TransactionComponent({ indexList: param })
       }
     }
   }
-
+  // [End build_nav_destination]
   @Builder
   BuildTabs(icon: Resource, title: ResourceStr, index: number) {
     Column({ space: FundConstants.TAB_COLUMN_SPACE }) {

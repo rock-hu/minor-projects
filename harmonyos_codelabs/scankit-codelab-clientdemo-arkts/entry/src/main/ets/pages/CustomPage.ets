@@ -121,7 +121,7 @@ struct CustomScanPage {
       if (error || !this.isShowFrameResult) {
         hilog.error(0x0001, TAG, `frameCallback failed, code: ${error.code}, message: ${error.message}`);
       } else {
-        customScan.off('lightingFlash');
+        this.offLightingFlashSafely();
         hilog.info(0x0001, TAG, `frameCallback width: ${frameResult.width}, height: ${frameResult.height}`);
         // The YUV data is updated frequently. You can modify this.count++ % to change the update frequency.
         if ((this.count++ % 1) === 0) {
@@ -285,6 +285,10 @@ struct CustomScanPage {
                   this.isFlashLightEnable = true;
                 }
               } catch (error) {
+                UIContextSelf.getPromptAction().showToast({
+                  message: error.message,
+                  duration: 2000
+                });
                 hilog.error(0x0001, TAG, `Failed to flashLight. Code: ${error.code}, message: ${error.message}`);
               }
             })
@@ -327,9 +331,9 @@ struct CustomScanPage {
                 if (!this.isShowScanResult) {
                   if (this.zoomValue) {
                     this.setZoomValue = this.zoomValue;
-                    customScan.setZoom(this.zoomValue);
+                    this.setZoomSafely();
                   } else {
-                    this.setZoomValue = customScan.getZoom();
+                    this.getZoomSafely();
                   }
                 }
               })
@@ -565,11 +569,11 @@ struct CustomScanPage {
         }
         if (isLightingFlash) {
           this.isFlashLightEnable = true;
-          customScan.openFlashLight();
+          this.openFlashLightSafely();
         } else {
-          if (!customScan.getFlashLightStatus()) {
+          if (!this.getFlashLightStatusSafely()) {
             this.isFlashLightEnable = false;
-            customScan.closeFlashLight();
+            this.closeFlashLightSafely();
           }
         }
       });
@@ -609,6 +613,59 @@ struct CustomScanPage {
       });
     } catch (error) {
       hilog.error(0x0001, TAG, `Failed to foldStatusChange. Code: ${error.code}, message: ${error.message}`);
+    }
+  }
+
+  private offLightingFlashSafely() {
+    try {
+      customScan.off('lightingFlash');
+    }  catch (error) {
+      hilog.error(0x0001, TAG, `Failed to off lightingFlash. Code: ${error.code}, message: ${error.message}`);
+    }
+  }
+
+  private openFlashLightSafely() {
+    try {
+      customScan.openFlashLight();
+    } catch (error) {
+      hilog.error(0x0001, TAG, `Failed to openFlashLight. Code: ${error.code}, message: ${error.message}`);
+    }
+  }
+
+  private getFlashLightStatusSafely(): boolean {
+    try {
+      return customScan.getFlashLightStatus();
+    } catch (error) {
+      hilog.error(0x0001, TAG, `Failed to getFlashLightStatus. Code: ${error.code}, message: ${error.message}`);
+      return false;
+    }
+  }
+
+  private closeFlashLightSafely() {
+    try {
+      customScan.closeFlashLight();
+    } catch (error) {
+      hilog.error(0x0001, TAG, `Failed to closeFlashLight. Code: ${error.code}, message: ${error.message}`);
+    }
+  }
+
+  private setZoomSafely() {
+    try {
+      customScan.setZoom(this.zoomValue);
+    } catch (error) {
+      hilog.error(0x0001, TAG, `Failed to setZoom. Code: ${error.code}, message: ${error.message}`);
+      UIContextSelf.getPromptAction().showToast({
+        message: error.message,
+        duration: 2000
+      });
+    }
+  }
+
+  private getZoomSafely() {
+    try {
+      this.setZoomValue = customScan.getZoom();
+    } catch (error) {
+      hilog.error(0x0001, TAG, `Failed to getZoom. Code: ${error.code}, message: ${error.message}`);
     }
   }
 }

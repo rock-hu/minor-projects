@@ -44,7 +44,7 @@ export default class EntryAbility extends UIAbility {
   onWindowStageCreate(windowStage: window.WindowStage) {
     this.windowStage = windowStage;
 
-    // Setting Event Subscription for WindowStage (Obtained/Out-of-focus, Visible/Invisible)
+    // Set WindowStage event subscription (onFocus/onBlur or visible/invisible).
     try {
       windowStage.on('windowStageEvent', this.windowStageEventFunc);
     } catch (exception) {
@@ -56,7 +56,7 @@ export default class EntryAbility extends UIAbility {
     }
 
     // Main window is created, set main page for this ability
-    // Setting UI Loading
+    // Set the UI page to be loaded.
     windowStage.loadContent('pages/LifeCyclePage', (err, data) => {
       if (err.code) {
         hilog.error(this.domain, 'testTag', 'Failed to load the content. Cause: %{public}s',

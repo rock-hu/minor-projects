@@ -138,7 +138,7 @@ struct CustomResultPage {
                   item['scanCodeRect']['left'],
                   item['scanCodeRect'].top, item['scanCodeRect'].right, item['scanCodeRect'].bottom)
               }
-            })
+            }, (item: scanBarcode.ScanResult) => item.originalValue)
           }
         }
         .width(330)

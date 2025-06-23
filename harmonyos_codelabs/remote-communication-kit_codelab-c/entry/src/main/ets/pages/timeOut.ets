@@ -1,15 +1,18 @@
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { notificationManager } from '@kit.NotificationKit';
 import rcpSdk from 'libentry.so';
+import { common } from '@kit.AbilityKit';
 
 const kHttpServerAddress = "https://www.baidu.com";
+
 @Entry
 @Component
-struct  requestContent{
+struct requestContent {
   @State showToken: string = '';
   @State content: string = '';
   @State connectMs: number = 1000;
   @State transferMs: number = 1000;
+
   async aboutToAppear() {
     this.openSysSwitch();
   }
@@ -33,9 +36,11 @@ struct  requestContent{
       Text(this.showToken)
         .fontColor(Color.Blue)
         .width('80%')
-        .margin({ left: '10%'})
-      Flex({ direction: FlexDirection.Column,
-        justifyContent: FlexAlign.SpaceBetween }) {
+        .margin({ left: '10%' })
+      Flex({
+        direction: FlexDirection.Column,
+        justifyContent: FlexAlign.SpaceBetween
+      }) {
         Text("connectMs:")
           .fontSize(18)
           .fontWeight(FontWeight.Bold)
@@ -44,8 +49,9 @@ struct  requestContent{
           .width(220)
           .margin({ left: 8 })
         TextInput({
-          text:String(this.connectMs)
-        }).type(InputType.Number)
+          text: String(this.connectMs)
+        })
+          .type(InputType.Number)
           .width('80%')
           .height(40)
           .margin({ left: '10%' })
@@ -54,7 +60,7 @@ struct  requestContent{
           .fontSize(18)
           .fontWeight(FontWeight.Bold)
           .borderRadius(10)
-          .onChange((value:string) => {
+          .onChange((value: string) => {
             this.connectMs = parseInt(value);
           })
 
@@ -66,17 +72,18 @@ struct  requestContent{
           .width(220)
           .margin({ left: 8 })
         TextInput({
-          text:String(this.transferMs)
-        }).type(InputType.Number)
+          text: String(this.transferMs)
+        })
+          .type(InputType.Number)
           .width('80%')
           .height(40)
-          .margin({ left: '10%'})
+          .margin({ left: '10%' })
           .backgroundColor('0x317aff')
           .fontColor('#000')
           .fontSize(18)
           .fontWeight(FontWeight.Bold)
           .borderRadius(10)
-          .onChange((value:string) => {
+          .onChange((value: string) => {
             this.transferMs = parseInt(value);
           })
 
@@ -84,14 +91,14 @@ struct  requestContent{
           .width('80%')
           .height(40)
           .margin({ left: '10%' })
-          .backgroundColor('#fff38a07')
+          .backgroundColor('#0A59F7')
           .fontColor('#ffffffff')
           .fontSize(24)
           .fontWeight(FontWeight.Bold)
           .borderRadius(20)
           .onClick(this.getTimeoutSyn)
 
-        Text("结果")
+        Text("result")
           .fontSize(24)
           .fontWeight(FontWeight.Bold)
           .fontColor('#000')
@@ -103,9 +110,9 @@ struct  requestContent{
         })
           .width('80%')
           .height(260)
-          .margin({ left: '10%',top: '10%' })
+          .margin({ left: '10%', top: '10%' })
           .backgroundColor('0x317aff')
-          .fontColor('#ffffffff')
+          .fontColor('#ff100f0f')
           .fontSize(24)
           .fontWeight(FontWeight.Bold)
           .borderRadius(10)
@@ -124,20 +131,18 @@ struct  requestContent{
 
   private getTimeoutSyn = async () => {
     this.content = 'waiting for response'
-    let onCatch = false;
     try {
-      const response = rcpSdk.GetWithTimeout(kHttpServerAddress, this.connectMs, this.transferMs)
-      console.info('timeout--success', JSON.stringify(response))
-      this.content=`timeout--success`
+      const response = rcpSdk.GetWithTimeout(kHttpServerAddress, this.connectMs, this.transferMs);
+      this.content = `timeout--success:${JSON.stringify(response)}`
+      console.info(this.content)
     } catch (err) {
-      console.error('timeout--err',JSON.stringify(err))
-      this.content=`timeout--err + ${JSON.stringify(err)}`
-      onCatch = true;
+      this.content = `timeout--err + ${JSON.stringify(err)}`
+      console.error(this.content)
     }
   }
-
   private openSysSwitch = async () => {
-    await notificationManager.requestEnableNotification();
+    let context = this.getUIContext().getHostContext() as common.UIAbilityContext;
+    await notificationManager.requestEnableNotification(context);
     hilog.info(0x0000, 'testTag', 'System notification switch is open');
   }
 }

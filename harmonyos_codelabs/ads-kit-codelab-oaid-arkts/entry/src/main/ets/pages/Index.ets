@@ -13,9 +13,10 @@
  * limitations under the License.
  */
 
+// [Start sampleCode]
 import { BusinessError } from '@kit.BasicServicesKit';
 import { identifier } from '@kit.AdsKit';
-import { common, abilityAccessCtrl } from '@kit.AbilityKit';
+import { abilityAccessCtrl, common } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
 @Entry
@@ -23,7 +24,7 @@ import { hilog } from '@kit.PerformanceAnalysisKit';
 struct Index {
   // Obtained OAID.
   @State oaid: string = '';
-  private context: common.UIAbilityContext = getContext(this) as common.UIAbilityContext;
+  private context: common.UIAbilityContext = this.getUIContext().getHostContext() as common.UIAbilityContext;
 
   aboutToAppear() {
     this.requestOAIDTrackingConsentPermissions(this.context);
@@ -49,22 +50,22 @@ struct Index {
 
   build() {
     Column() {
-      this.actionBar($r("app.string.oaid_title"))
+      this.actionBar($r('app.string.oaid_title'))
       Column() {
         // Display area for the obtained OAID.
         FormItemText({
-          label: $r("app.string.oaid_label"),
+          label: $r('app.string.oaid_label'),
           value: $oaid,
           compId: 'hiad_demo_oaid_textArea'
         }).width('90%')
 
         // 1. Obtain the OAID through a promise.
-        this.customButton($r("app.string.oaid_btn_promise"), () => {
+        this.customButton($r('app.string.oaid_btn_promise'), () => {
           this.getOaidByPromise();
         });
 
         // 2. Obtain the OAID through an asynchronous callback.
-        this.customButton($r("app.string.oaid_btn_asynccallback"), () => {
+        this.customButton($r('app.string.oaid_btn_asynccallback'), () => {
           this.getOaidByCallback();
         });
       }
@@ -150,7 +151,7 @@ struct Index {
 export struct FormItemText {
   @Link @Watch('WatchValueChange') value: string | boolean;
   label: Resource | string = '';
-  private compId: string = '';
+  compId: string = '';
 
   WatchValueChange() {
     hilog.debug(0x0000, 'testTag', '%{public}s', `WatchValueChange value: ${this.value}`);
@@ -178,3 +179,4 @@ export struct FormItemText {
     .height(50)
   }
 }
+// [End sampleCode]

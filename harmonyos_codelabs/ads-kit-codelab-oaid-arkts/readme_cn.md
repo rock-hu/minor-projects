@@ -20,7 +20,7 @@
 
 ## 使用说明
 
-1. 运行本示例前需要参考指导进行：[配置应用签名信息](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/application-dev-overview#section42841246144813)
+1. 运行本示例前需要参考指导[配置应用签名信息](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/application-dev-overview#section42841246144813)。
 
 2. 打开应用进入首页，首次进入应用默认可以获取到OAID；如果“跨应用关联访问权限”设置为“禁止”，则获取为全0的空串。
 
@@ -61,4 +61,4 @@
 1. 本示例仅支持标准系统上运行，支持设备：华为手机、平板设备、2in1设备。
 2. HarmonyOS系统：HarmonyOS NEXT Developer Beta1及以上。
 3. DevEco Studio版本：DevEco Studio NEXT Developer Beta1及以上。
-4. HarmonyOS SDK版本：HarmonyOS NEXT Developer Beta1 SDK及以上。
+4. HarmonyOS SDK版本：HarmonyOS NEXT Developer Beta1及以上。

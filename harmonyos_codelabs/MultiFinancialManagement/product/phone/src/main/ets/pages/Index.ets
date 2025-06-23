@@ -19,15 +19,18 @@ import { AccountPage, AdvertisementDialog, HomeComponent } from '@ohos/home';
 import { Funding, FundingDetail, TrendsPage } from '@ohos/fund';
 import { ComparisonDetailPage, ComparisonInfo } from '@ohos/fundComparison';
 
+// [Start init_pop_custom_style]
 @Entry
 @Component
 struct Index {
+  // [StartExclude init_pop_custom_style]
   @StorageLink('breakPoint') breakPoint: string = CommonConstants.BREAK_POINT_SM;
   @State currentTabIndex: number = 0;
   @StorageProp('avoidArea') topHeight: number = 0;
   @StorageProp('bottom') bottom: number = 0;
   @State backgroundImageY: number = 0;
   @StorageLink('pageIndexInfos') pageIndexInfos: NavPathStack = new NavPathStack();
+  // [EndExclude init_pop_custom_style]
   dialogController: CustomDialogController = new CustomDialogController({
     builder: AdvertisementDialog(),
     backgroundColor: $r('app.color.dialog_background'),
@@ -39,7 +42,7 @@ struct Index {
   aboutToAppear() {
     this.dialogController.open();
   }
-
+  // [StartExclude init_pop_custom_style]
   onPageShow() {
     window.getLastWindow(this.getUIContext().getHostContext()).then((windowStage: window.Window) => {
       let area = windowStage.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);
@@ -230,4 +233,6 @@ struct Index {
     .hideTitleBar(true)
     .hideToolBar(true)
   }
+  // [EndExclude init_pop_custom_style]
 }
+// [End init_pop_custom_style]

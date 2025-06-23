@@ -39,7 +39,7 @@ export function httpRequestGet(url: string): Promise<ResponseResult> {
   // Processes the data and returns.
   return responseResult.then((value: http.HttpResponse) => {
     if (value.responseCode === Const.HTTP_CODE_200) {
-      // Obtains the returned data.
+      // Obtain the returned data.
       let result = `${value.result}`;
       let resultJson: ResponseResult = JSON.parse(result);
       if (resultJson.code === Const.SERVER_CODE_SUCCESS) {
