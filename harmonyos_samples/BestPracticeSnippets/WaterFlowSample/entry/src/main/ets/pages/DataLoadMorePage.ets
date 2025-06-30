@@ -63,17 +63,17 @@ struct ReusableFlowItem {
 // [EndExclude flow_item_layout]
 @Entry
 @Component
-export struct DataUpadteAndAnimationPage {
-  @State isRefreshing: boolean = false;
-  @State currentItem: number = -1;
+export struct DataLoadMorePage {
+  @State sections: WaterFlowSections = new WaterFlowSections();
+  dataSource: SectionsWaterFlowDataSource = new SectionsWaterFlowDataSource();
 
   // [StartExclude variable_declare]
+  @State isRefreshing: boolean = false;
+  @State currentItem: number = -1;
   @State minSize: number = 80;
   @State maxSize: number = 180;
   scroller: Scroller = new Scroller();
-  dataSource: SectionsWaterFlowDataSource = new SectionsWaterFlowDataSource();
   private itemHeightArray: number[] = [];
-  @State sections: WaterFlowSections = new WaterFlowSections();
   sectionMargin: Margin = {
     top: 8,
     left: 0,
@@ -106,8 +106,7 @@ export struct DataUpadteAndAnimationPage {
       return this.itemHeightArray[index % 100];
     }
   }
-  // [EndExclude variable_declare]
-  //1、刷新Loading动效组件
+
   @Builder
   headerRefresh() {
     Column() {
@@ -120,7 +119,6 @@ export struct DataUpadteAndAnimationPage {
     .justifyContent(FlexAlign.Center)
   }
 
-  //5、下拉刷新数据更新逻辑
   refresh() {
     this.currentItem = -1;
     setTimeout(() => {
@@ -145,20 +143,6 @@ export struct DataUpadteAndAnimationPage {
     }, 2000);
   }
 
-  loadMore(last: number) {
-    setTimeout(() => {
-      let totalCount = this.dataSource.totalCount();
-      if (last + 20 >= totalCount) {
-        for (let i = 0; i < 20; i++) {
-          this.dataSource.addLastItem();
-        }
-        //Update sections itemsCount.
-        this.dataSection.itemsCount += 20;
-        this.sections.update(2, this.dataSection);
-      }
-    }, 1000);
-  }
-  // [StartExclude section_init]
   getSize() {
     let ret = Math.floor(Math.random() * this.maxSize);
     return (ret > this.minSize ? ret : this.minSize);
@@ -218,13 +202,12 @@ export struct DataUpadteAndAnimationPage {
     this.setItemSizeArray();
     this.initSections();
   }
-  // [EndExclude section_init]
+  // [EndExclude variable_declare]
   build() {
     Column({ space: 0 }) {
-      //2、下拉刷新控件
       Refresh({ refreshing: $$this.isRefreshing, builder: this.headerRefresh()}) {
-        // [StartExclude water_flow_init]
         WaterFlow({ scroller: this.scroller, sections: this.sections }) {
+          // [StartExclude water_flow_data]
           LazyForEach(this.dataSource, (item: number) => {
             FlowItem() {
               Stack() {
@@ -257,6 +240,7 @@ export struct DataUpadteAndAnimationPage {
             .borderRadius(8)
             .backgroundColor(Color.Gray)
           }, (item: string) => item)
+          // [EndExclude water_flow_data]
         }
         .cachedCount(12)
         .columnsGap(8)
@@ -264,18 +248,28 @@ export struct DataUpadteAndAnimationPage {
         .width('100%')
         .height('100%')
         .layoutWeight(1)
-        // [EndExclude water_flow_init]
         //For better experience, pre load data.
         .onScrollIndex((first: number, last: number) => {
-          this.loadMore(last);
+          //1、获取瀑布流中数据总量
+          let totalCount = this.dataSource.totalCount();
+          //2、可视区域最后一个索引+20大于数据总量，则触发加载更多
+          if (last + 20 >= totalCount) {
+            //3、重新向瀑布流中追加20条数据
+            for (let i = 0; i < 20; i++) {
+              this.dataSource.addLastItem();
+            }
+            //4、更新分组中itemsCount,并刷新分组信息
+            this.dataSection.itemsCount += 20;
+            this.sections.update(2, this.dataSection);
+          }
         })
       }
-      //3、下拉刷新偏移量
+      // [StartExclude refresh]
       .refreshOffset(56)
       .onRefreshing(() => {
-        //4、下拉刷新，触发刷新的回调函数
         this.refresh();
       })
+      // [EndExclude refresh]
     }
   }
 }

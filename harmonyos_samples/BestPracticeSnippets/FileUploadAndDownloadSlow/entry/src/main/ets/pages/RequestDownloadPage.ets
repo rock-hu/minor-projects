@@ -35,9 +35,6 @@ struct RequestDownloadPage {
           gauge: true
         }
         let downTask = await request.agent.create(this.context, downloadConfig);
-        if (this.backgroundDownloadTaskList.findIndex(task => task.config.url === downTask.config.url) === -1) {
-          this.backgroundDownloadTaskList.push(downTask);
-        }
         // [Start down_task_start]
         // [StartExclude down_task_start]
         // [EndExclude down_task_start]

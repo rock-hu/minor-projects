@@ -63,11 +63,10 @@ struct ReusableFlowItem {
 // [EndExclude flow_item_layout]
 @Entry
 @Component
-export struct DataUpadteAndAnimationPage {
-  @State isRefreshing: boolean = false;
-  @State currentItem: number = -1;
-
+export struct FlowItemRmoveAnimationPage {
   // [StartExclude variable_declare]
+  @State currentItem: number = -1;
+  @State isRefreshing: boolean = false;
   @State minSize: number = 80;
   @State maxSize: number = 180;
   scroller: Scroller = new Scroller();
@@ -107,7 +106,8 @@ export struct DataUpadteAndAnimationPage {
     }
   }
   // [EndExclude variable_declare]
-  //1、刷新Loading动效组件
+
+  // [StartExclude method_declare]
   @Builder
   headerRefresh() {
     Column() {
@@ -120,7 +120,6 @@ export struct DataUpadteAndAnimationPage {
     .justifyContent(FlexAlign.Center)
   }
 
-  //5、下拉刷新数据更新逻辑
   refresh() {
     this.currentItem = -1;
     setTimeout(() => {
@@ -145,20 +144,6 @@ export struct DataUpadteAndAnimationPage {
     }, 2000);
   }
 
-  loadMore(last: number) {
-    setTimeout(() => {
-      let totalCount = this.dataSource.totalCount();
-      if (last + 20 >= totalCount) {
-        for (let i = 0; i < 20; i++) {
-          this.dataSource.addLastItem();
-        }
-        //Update sections itemsCount.
-        this.dataSection.itemsCount += 20;
-        this.sections.update(2, this.dataSection);
-      }
-    }, 1000);
-  }
-  // [StartExclude section_init]
   getSize() {
     let ret = Math.floor(Math.random() * this.maxSize);
     return (ret > this.minSize ? ret : this.minSize);
@@ -192,9 +177,18 @@ export struct DataUpadteAndAnimationPage {
     this.sections.splice(0, 0, sectionOptions);
   }
 
+  aboutToAppear() {
+    this.setItemSizeArray();
+    this.initSections();
+  }
+  // [EndExclude method_declare]
+
   removeItem(item: number): void {
+    // [StartExclude method_body]
+    //6、删除源数据
     let index = this.dataSource.indexOf(item);
     this.dataSource.deleteItem(index);
+    //7、更新分组中itemsCount数量并刷新
     const sections: Array<SectionOptions> = this.sections.values();
     let newSection: SectionOptions;
     let tmpIndex = 0;
@@ -212,18 +206,12 @@ export struct DataUpadteAndAnimationPage {
       newSection.crossCount = newSection.itemsCount;
     }
     this.sections.update(sectionIndex, newSection);
+    // [EndExclude method_body]
   }
 
-  aboutToAppear() {
-    this.setItemSizeArray();
-    this.initSections();
-  }
-  // [EndExclude section_init]
   build() {
     Column({ space: 0 }) {
-      //2、下拉刷新控件
       Refresh({ refreshing: $$this.isRefreshing, builder: this.headerRefresh()}) {
-        // [StartExclude water_flow_init]
         WaterFlow({ scroller: this.scroller, sections: this.sections }) {
           LazyForEach(this.dataSource, (item: number) => {
             FlowItem() {
@@ -233,11 +221,13 @@ export struct DataUpadteAndAnimationPage {
                     .fontColor(Color.Red)
                     .backgroundColor(Color.White)
                     .onClick(() => {
+                      //2、触发删除操作时执行animateTo动画
                       this.getUIContext().animateTo({ duration: 300 }, () => {
                         this.removeItem(item);
                       });
                     })
                 }
+                // [StartExclude row_setting]
                 .width('100%')
                 .height('100%')
                 .borderRadius(8)
@@ -246,8 +236,10 @@ export struct DataUpadteAndAnimationPage {
                 .visibility(this.currentItem === item ? Visibility.Visible : Visibility.Hidden)
                 .backgroundColor('#33000000')
                 ReusableFlowItem({ item: item })
+                // [EndExclude row_setting]
               }
             }
+            //1、给FlowItem添加transition属性，并配置转场参数
             .transition({ type: TransitionType.Delete, opacity: 0 })
             .priorityGesture(LongPressGesture()
               .onAction(() => {
@@ -258,24 +250,35 @@ export struct DataUpadteAndAnimationPage {
             .backgroundColor(Color.Gray)
           }, (item: string) => item)
         }
+        // [StartExclude water_flow_setting]
         .cachedCount(12)
         .columnsGap(8)
         .rowsGap(8)
         .width('100%')
         .height('100%')
         .layoutWeight(1)
-        // [EndExclude water_flow_init]
         //For better experience, pre load data.
         .onScrollIndex((first: number, last: number) => {
-          this.loadMore(last);
+          setTimeout(() => {
+            let totalCount = this.dataSource.totalCount();
+            if (last + 20 >= totalCount) {
+              for (let i = 0; i < 20; i++) {
+                this.dataSource.addLastItem();
+              }
+              //Update sections itemsCount.
+              this.dataSection.itemsCount += 20;
+              this.sections.update(2, this.dataSection);
+            }
+          }, 1000);
         })
+        // [EndExclude water_flow_setting]
       }
-      //3、下拉刷新偏移量
+      // [StartExclude water_flow_refresh]
       .refreshOffset(56)
       .onRefreshing(() => {
-        //4、下拉刷新，触发刷新的回调函数
         this.refresh();
       })
+      // [EndExclude water_flow_refresh]
     }
   }
 }

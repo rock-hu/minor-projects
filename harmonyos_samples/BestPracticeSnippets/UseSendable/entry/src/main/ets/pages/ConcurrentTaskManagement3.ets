@@ -32,9 +32,9 @@ let TASK_POOL_CAPACITY: number = 10;
 
 function histogramStatistic(pixelBuffer: ArrayBuffer): void {
   // Add tasks to the task group
-  let byteLengthOfTask: number = pixelBuffer.byteLength;
+  let byteLengthOfTask: number = pixelBuffer.byteLength / TASK_POOL_CAPACITY;
   for (let i = 0; i < TASK_POOL_CAPACITY; i++) {
-    let dataSlice: Object = (i === TASK_POOL_CAPACITY - 1) ? pixelBuffer.slice(i * byteLengthOfTask) :
+    let dataSlice: ArrayBuffer = (i === TASK_POOL_CAPACITY - 1) ? pixelBuffer.slice(i * byteLengthOfTask) :
     pixelBuffer.slice(i * byteLengthOfTask, (i + 1) * byteLengthOfTask);
     let task: taskpool.Task = new taskpool.Task(imageProcessing, dataSlice);
     taskGroup.addTask(task);

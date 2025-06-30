@@ -1,26 +1,13 @@
-/*
- * Copyright (c) 2024 Huawei Device Co., Ltd.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// [Start quick_start]
 import { MyDataSource } from '../model/MyDataSource'
 
 @Entry
 @Component
 struct MergeDoubleWaterFlowPage {
+  // [StartExclude data_init]
   @State minSize: number = 80
   @State maxSize: number = 210;
   @State fontSize: number = 24;
-  @State colors: number[] = [0xFFC0CB, 0xDA70D6, 0x6B8E23, 0x6A5ACD, 0x00FFFF, 0x00FF7E];
   scroller: Scroller = new Scroller();
   private data: MyDataSource = new MyDataSource();
   private itemHeightArray: number[] = [];
@@ -80,19 +67,24 @@ struct MergeDoubleWaterFlowPage {
     sectionOptions.push(this.lastSection);
     this.sections.splice(0, 0, sectionOptions);
   }
-
+  // [EndExclude data_init]
   build() {
     Column({ space: 2 }) {
       WaterFlow({ scroller: this.scroller, sections: this.sections }) {
         LazyForEach(this.data, (item: number) => {
           FlowItem() {
             if (item === 21) {
+              //此处为拼接Item的内容
               Column() {
                 Text('------推荐商品------')
+                  .align(Alignment.BottomStart)
                   .width('100%')
+                  .fontSize(24)
+                  .fontWeight(FontWeight.Bold)
                   .height(50)
               }
             } else {
+              //WaterFlow内其他数据
               Column() {
                 Text('N ' + item)
                   .fontSize(12)
@@ -104,28 +96,10 @@ struct MergeDoubleWaterFlowPage {
               }
             }
           }
-          .onAppear(() => {
-
-          })
           .width('100%')
-          .height(this.itemHeightArray[item % 100])
-          .backgroundColor(this.colors[item % 5])
         }, (item: number) => item.toString())
       }
-      .columnsGap(10)
-      .rowsGap(5)
-      .backgroundColor('#efefef')
-      .width('100%')
-      .height('100%')
-      .onReachStart(() => {
-        console.log('Waterflow reach start');
-      })
-      .onScrollStart(() => {
-        console.log('Waterflow scroll start');
-      })
-      .onScrollStop(() => {
-        console.log('Waterflow scroll stop');
-      })
     }
   }
 }
+// [End quick_start]

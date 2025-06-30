@@ -1,24 +1,9 @@
-/*
- * Copyright (c) 2025 Huawei Device Co., Ltd.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
+// [Start quick_start]
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import MediaItem, { ItemType } from '../model/MediaItem';
 import { StickyWaterFlowDataSource } from '../model/StickyWaterFlowDataSource';
 
-const TAG = 'StickyPage';
-
+const TAG = 'FlowItemAutoPlayPage';
 
 @Component
 struct FlowVideoItem {
@@ -38,9 +23,11 @@ struct FlowVideoItem {
           .loop(true)
           .borderRadius(8)
           .onVisibleAreaChange([0.0, 1.0], (isVisible: boolean, currentRatio: number) => {
+            //1、滑动到可见时播放视频
             if (isVisible && currentRatio >= 1.0) {
               this.controller.start();
             }
+            //2、滑动到隐藏时暂停视频
             if (!isVisible || currentRatio < 1.0) {
               this.controller.pause();
             }
@@ -54,6 +41,7 @@ struct FlowVideoItem {
           })
       }
     } else {
+      // [StartExclude image_item]
       RelativeContainer() {
         Image(this.item.imageUri)
           .objectFit(ImageFit.Cover)
@@ -101,10 +89,12 @@ struct FlowVideoItem {
       .width('100%')
       .borderRadius(8)
       .backgroundColor(Color.Gray)
+      // [EndExclude image_item]
     }
   }
 }
 
+// [StartExclude water_flow_init]
 @Entry
 @Component
 export struct StickyPage {
@@ -114,23 +104,22 @@ export struct StickyPage {
   @State minSize: number = 80;
   @State maxSize: number = 210;
   @State sections: WaterFlowSections = new WaterFlowSections();
-  @State isFoldStatus: boolean = true;
-
   scroller: Scroller = new Scroller();
   dataSource: StickyWaterFlowDataSource = new StickyWaterFlowDataSource();
   private itemWidthArray: number[] = [];
   private itemHeightArray: number[] = [];
+  sectionMargin: Margin = {
+    top: 8,
+    left: 8,
+    bottom: 0,
+    right: 8
+  }
   oneColumnSection: SectionOptions = {
     itemsCount: 3,
     crossCount: 1,
     columnsGap: 5,
     rowsGap: 10,
-    margin: {
-      top: 8,
-      left: 0,
-      bottom: 8,
-      right: 0
-    },
+    margin: this.sectionMargin,
     onGetItemMainSizeByIndex: (index: number) => {
       if (index === 1) {
         return 150;
@@ -142,6 +131,7 @@ export struct StickyPage {
   twoColumnSection: SectionOptions = {
     itemsCount: 2,
     crossCount: 2,
+    margin: this.sectionMargin,
     onGetItemMainSizeByIndex: (index: number) => {
       return 270;
     }
@@ -202,10 +192,8 @@ export struct StickyPage {
       .columnsTemplate('1fr 1fr')
       .columnsGap(8)
       .rowsGap(8)
-      .padding({ bottom: '48vp' })
-      .width('100%')
-      .height('100%')
-      .layoutWeight(1)
     }
   }
 }
+// [EndExclude water_flow_init]
+// [End quick_start]

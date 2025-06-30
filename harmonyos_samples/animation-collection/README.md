@@ -7,14 +7,15 @@
 ### 效果预览
 
 
-| 翻转动效                                    | 标题下拉缩放                                   | 状态栏显隐切换                                 | 水波纹动效                                                                                       |
-|-----------------------------------------|------------------------------------------|-----------------------------------------|---------------------------------------------------------------------------------------------|
-| ![image](screenshots/device/Flag.gif)   | ![image](screenshots/device/Drag.gif)    | ![image](screenshots/device/Hide.gif)   | ![image](screenshots/device/Water.gif)                                                      |
-| 滑动到指定列表                                 | 跑马灯                                      | swiper高度变化效果                            | 自定义进度动画                                                                                     |
-| ![image](screenshots/device/Move.gif)   | ![image](screenshots/device/Marquee.gif) | ![image](screenshots/device/Swiper.gif) | ![image](screenshots/device/Progress.gif)                                                   |
-| 数字滚动动效                                  | 卡片预览效果                                   | 投票动效                                    | 语音录制动效                                                                                      |
-| ![image](screenshots/device/Scroll.gif) | ![image](screenshots/device/Preview.gif) | ![image](screenshots/device/Vote.gif)   | <img src="screenshots/device/Voice.gif" width="320"> |
-
+| 翻转动效                                           | 标题下拉缩放                                   | 状态栏显隐切换                                 | 水波纹动效                                                                                       |
+|------------------------------------------------|------------------------------------------|-----------------------------------------|---------------------------------------------------------------------------------------------|
+| ![image](screenshots/device/Flag.gif)          | ![image](screenshots/device/Drag.gif)    | ![image](screenshots/device/Hide.gif)   | ![image](screenshots/device/Water.gif)                                                      |
+| 滑动到指定列表                                        | 跑马灯                                      | swiper高度变化效果                            | 自定义进度动画                                                                                     |
+| ![image](screenshots/device/Move.gif)          | ![image](screenshots/device/Marquee.gif) | ![image](screenshots/device/Swiper.gif) | ![image](screenshots/device/Progress.gif)                                                   |
+| 数字滚动动效                                         | 卡片预览效果                                   | 投票动效                                    | 语音录制动效                                                                                      |
+| ![image](screenshots/device/Scroll.gif)        | ![image](screenshots/device/Preview.gif) | ![image](screenshots/device/Vote.gif)   | <img src="screenshots/device/Voice.gif" width="320"> |
+| 弹簧曲线实现抖动效果                                     | 侧边栏淡入淡出动效                                |
+| ![image](screenshots/device/VibrateEffect.gif) | ![image](screenshots/device/sidebar.gif) |
 
 **使用说明**
 

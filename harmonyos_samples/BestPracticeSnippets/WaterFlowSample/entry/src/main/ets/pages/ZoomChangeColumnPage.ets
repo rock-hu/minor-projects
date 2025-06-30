@@ -1,21 +1,8 @@
-/*
- * Copyright (c) 2024 Huawei Device Co., Ltd.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
+// [Start quick_start]
 import { MyDataSource } from '../model/MyDataSource'
 import { image } from '@kit.ImageKit';
 
+// [StartExclude flow_item]
 @Reusable
 @Component
 struct ReusableItem {
@@ -38,28 +25,33 @@ struct ReusableItem {
     }
   }
 }
+// [EndExclude flow_item]
 
 @Entry
 @Component
 struct ZoomChangeColumnPage {
+  // [StartExclude variable_declare]
   @State minSize: number = 80
   @State maxSize: number = 210;
   @State fontSize: number = 24;
   @State colors: number[] = [0xFFC0CB, 0xDA70D6, 0x6B8E23, 0x6A5ACD, 0x00FFFF, 0x00FF7E];
-  @State columns: number = 4;
+  @State sections: WaterFlowSections = new WaterFlowSections();
+  private data: MyDataSource = new MyDataSource();
+  private itemWidthArray: number[] = [];
+  private itemHeightArray: number[] = [];
+  // [EndExclude variable_declare]
+  //1、缩放操作所需变量
   @State itemScale: number = 1;
   @State imageScale: number = 1;
   @State itemOpacity: number = 1;
   @State gestureEnd: boolean = false;
-  private pinchTime: number = 0;
-  private data: MyDataSource = new MyDataSource();
-  private itemWidthArray: number[] = [];
-  private itemHeightArray: number[] = [];
   @State pixelMap: image.PixelMap | undefined = undefined;
+  @State columns: number = 4;
+  private pinchTime: number = 0;
   private columnChanged: boolean = false;
   private oldColumn: number = this.columns;
-  @State sections: WaterFlowSections = new WaterFlowSections();
 
+  // [StartExclude section_init]
   getSize() {
     let ret = Math.floor(Math.random() * this.maxSize);
     return (ret > this.minSize ? ret : this.minSize);
@@ -82,7 +74,9 @@ struct ZoomChangeColumnPage {
     }
     this.setItemSizeArray();
   }
+  // [EndExclude section_init]
 
+  //7、根据缩放比例调整列数
   changeColumns(scale: number) {
     this.oldColumn = this.columns;
     if (scale > (this.columns / (this.columns - 0.5))) {
@@ -97,12 +91,18 @@ struct ZoomChangeColumnPage {
 
   build() {
     Column({ space: 2 }) {
+      // [StartExclude title]
       Row() {
         Text('双指缩放改变列数')
+          .width('100%')
           .height('5%')
-          .margin({ top: 10, left: 20 })
+          .fontSize(24)
+          .fontWeight(FontWeight.Bold)
+          .margin({ top: 10, left: 16 })
       }
+      // [EndExclude title]
       Stack() {
+        //2、缩放时显示当前界面的Snapshot
         Image(this.pixelMap)
           .width('100%')
           .height('100%')
@@ -113,6 +113,7 @@ struct ZoomChangeColumnPage {
             centerY: 0
           })
         WaterFlow() {
+          // [StartExclude water_flow_item]
           LazyForEach(this.data, (item: number) => {
             FlowItem() {
               ReusableItem({ item: item })
@@ -121,13 +122,16 @@ struct ZoomChangeColumnPage {
             .aspectRatio(this.itemHeightArray[item % 100] / this.itemWidthArray[item % 100])
             .backgroundColor(this.colors[item % 5])
           }, (item: number) => item.toString())
+          // [EndExclude water_flow_item]
         }
         .id('waterflow')
+        //3、动态调整列数
         .columnsTemplate('1fr '.repeat(this.columns))
         .backgroundColor(0xFAEEE0)
         .width('100%')
         .height('100%')
         .layoutWeight(1)
+        //4、WaterFlow的缩放信息
         .opacity(this.itemOpacity)
         .scale({
           x: this.itemScale,
@@ -138,6 +142,7 @@ struct ZoomChangeColumnPage {
         .priorityGesture(
           PinchGesture()
             .onActionStart((event: GestureEvent) => {
+              //5、初始化缩放相关参数
               this.gestureEnd = false;
               this.pinchTime = event.timestamp;
               this.columnChanged = false;
@@ -150,15 +155,19 @@ struct ZoomChangeColumnPage {
               })
             })
             .onActionUpdate((event: GestureEvent) => {
+              //6、根据手指滑动event事件，计算缩放比例，并动态改变列数
+              //6.1、拦截重复手势
               if (event.timestamp - this.pinchTime < 10000000) {
                 return;
               }
               this.pinchTime = event.timestamp;
+              //6.2、计算缩放比
               let maxScale = this.oldColumn / (this.oldColumn - 1);
               this.itemScale = event.scale > maxScale ? maxScale : event.scale;
               this.imageScale = event.scale > maxScale ? maxScale : event.scale;
               this.itemOpacity = (this.itemScale > 1) ? (this.itemScale - 1) : (1 - this.itemScale);
               this.itemOpacity *= 3;
+              //6.3、动态调整列数
               if (!this.columnChanged) {
                 this.changeColumns(event.scale);
               }
@@ -172,6 +181,7 @@ struct ZoomChangeColumnPage {
               }
             })
             .onActionEnd((event: GestureEvent) => {
+              //8、重置缩放相关参数，并执行缩放动画
               this.gestureEnd = true;
               this.getUIContext().animateTo({ duration: 300 }, () => {
                 this.itemScale = 1;
@@ -186,4 +196,4 @@ struct ZoomChangeColumnPage {
     }
   }
 }
-
+// [End quick_start]

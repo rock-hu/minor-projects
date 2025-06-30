@@ -20,8 +20,7 @@
 import { taskpool } from '@kit.ArkTS';
 
 function exec(bufferArray: ArrayBuffer): void {
-  let task = execColorInfo(bufferArray);
-  taskpool.execute(execColorInfo, taskpool.Priority.HIGH);
+  taskpool.execute(execColorInfo, bufferArray, taskpool.Priority.HIGH);
 }
 
 @Concurrent

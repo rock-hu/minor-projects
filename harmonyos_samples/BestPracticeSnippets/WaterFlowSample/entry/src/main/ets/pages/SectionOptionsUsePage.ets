@@ -1,21 +1,6 @@
-/*
- * Copyright (c) 2025 Huawei Device Co., Ltd.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
+// [Start quick_start]
 import { SectionsWaterFlowDataSource } from "../model/SectionsWaterFlowDataSource";
-
-
+// [StartExclude flow_item_layout]
 @Reusable
 struct ReusableFlowItem {
   @State item: number = 0;
@@ -75,22 +60,27 @@ struct ReusableFlowItem {
     .backgroundColor(Color.Gray)
   }
 }
-
+// [EndExclude flow_item_layout]
 @Entry
 @Component
 export struct SectionOptionsUsePage {
+  // [StartExclude variable_declare]
   @State minSize: number = 120;
   @State maxSize: number = 260;
   scroller: Scroller = new Scroller();
+  // [EndExclude variable_declare]
   dataSource: SectionsWaterFlowDataSource = new SectionsWaterFlowDataSource();
   private itemHeightArray: number[] = [];
-  @State sections: WaterFlowSections = new WaterFlowSections();
   sectionMargin: Margin = {
     top: 8,
     left: 0,
     bottom: 0,
     right: 0
   }
+  //1、创建分组信息
+  @State sections: WaterFlowSections = new WaterFlowSections();
+
+  //2、创建第一个分组
   oneColumnSection: SectionOptions = {
     itemsCount: 3,
     crossCount: 1,
@@ -101,6 +91,7 @@ export struct SectionOptionsUsePage {
       return 120;
     }
   }
+  //3、创建第二个分组
   twoColumnSection: SectionOptions = {
     itemsCount: 2,
     crossCount: 2,
@@ -109,6 +100,7 @@ export struct SectionOptionsUsePage {
       return 160;
     }
   }
+  //4、创建第三个分组
   dataSection: SectionOptions = {
     itemsCount: 20,
     crossCount: 2,
@@ -118,6 +110,7 @@ export struct SectionOptionsUsePage {
     }
   }
 
+  // [StartExclude method_declare]
   getSize() {
     let ret = Math.floor(Math.random() * this.maxSize);
     return (ret > this.minSize ? ret : this.minSize);
@@ -128,7 +121,14 @@ export struct SectionOptionsUsePage {
       this.itemHeightArray.push(this.getSize());
     }
   }
+  // [EndExclude method_declare]
 
+  aboutToAppear() {
+    this.setItemSizeArray();
+    this.initSections();
+  }
+
+  //5、初始化分组数据
   initSections() {
     let sectionOptions: SectionOptions[] = [];
     let count = 0;
@@ -151,36 +151,11 @@ export struct SectionOptionsUsePage {
     this.sections.splice(0, 0, sectionOptions);
   }
 
-  removeItem(item: number): void {
-    let index = this.dataSource.indexOf(item);
-    this.dataSource.deleteItem(index);
-    const sections: Array<SectionOptions> = this.sections.values();
-    let newSection: SectionOptions;
-    let tmpIndex = 0;
-    let sectionIndex = 0;
-    for(let i = 0; i < sections.length; i++) {
-      tmpIndex += sections[i].itemsCount;
-      if (index < tmpIndex) {
-        sectionIndex = i;
-        break;
-      }
-    }
-    newSection = sections[sectionIndex];
-    newSection.itemsCount -= 1;
-    if (newSection.crossCount && newSection.crossCount > newSection.itemsCount) {
-      newSection.crossCount = newSection.itemsCount;
-    }
-    this.sections.update(sectionIndex, newSection);
-  }
-
-  aboutToAppear() {
-    this.setItemSizeArray();
-    this.initSections();
-  }
-
   build() {
     Column({ space: 0 }) {
+      //6、将分组信息关联到WaterFlow
       WaterFlow({ scroller: this.scroller, sections: this.sections }) {
+        // [StartExclude water_flow_data]
         LazyForEach(this.dataSource, (item: number) => {
           FlowItem() {
             ReusableFlowItem({ item: item })
@@ -189,6 +164,7 @@ export struct SectionOptionsUsePage {
           .borderRadius(8)
           .backgroundColor(Color.Gray)
         }, (item: string) => item)
+        // [EndExclude water_flow_data]
       }
       .cachedCount(12)
       .columnsGap(8)
@@ -199,3 +175,4 @@ export struct SectionOptionsUsePage {
     }
   }
 }
+// [End quick_start]

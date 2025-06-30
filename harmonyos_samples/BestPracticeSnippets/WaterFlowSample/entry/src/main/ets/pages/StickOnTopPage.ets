@@ -1,25 +1,11 @@
-/*
- * Copyright (c) 2025 Huawei Device Co., Ltd.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
+// [Start quick_start]
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import MediaItem, { ItemType } from '../model/MediaItem';
 import { StickyWaterFlowDataSource } from '../model/StickyWaterFlowDataSource';
 
 const TAG = 'StickyPage';
 
-
+// [StartExclude item_layout]
 @Component
 struct FlowVideoItem {
   @Prop item: MediaItem;
@@ -104,21 +90,23 @@ struct FlowVideoItem {
     }
   }
 }
-
+// [EndExclude item_layout]
 @Component
 export struct StickyPage {
+  // [StartExclude variable_declare]
   @State arr: number[] = [1, 2, 3, 4, 5, 6];
   @State colors: number[] = [0xFFC0CB, 0xDA70D6, 0x6B8E23, 0x6A5ACD, 0x00FFFF, 0x00FF7F];
-  @State scrollOffset: number = 0;
   @State minSize: number = 80;
   @State maxSize: number = 210;
   @State sections: WaterFlowSections = new WaterFlowSections();
-  @State isFoldStatus: boolean = true;
-
   scroller: Scroller = new Scroller();
   dataSource: StickyWaterFlowDataSource = new StickyWaterFlowDataSource();
   private itemWidthArray: number[] = [];
   private itemHeightArray: number[] = [];
+  // [EndExclude variable_declare]
+  //1、定义吸顶布局高度
+  @State scrollOffset: number = 0;
+  private stick_item_height: number = 100;
   oneColumnSection: SectionOptions = {
     itemsCount: 3,
     crossCount: 1,
@@ -132,7 +120,8 @@ export struct StickyPage {
     },
     onGetItemMainSizeByIndex: (index: number) => {
       if (index === 1) {
-        return 100;
+        //2、分组中设置吸顶布局高度
+        return this.stick_item_height;
       } else {
         return 200;
       }
@@ -145,7 +134,7 @@ export struct StickyPage {
       return 250;
     }
   };
-
+  // [StartExclude section_init]
   getResourceStringArray(resource: Resource): Array<string> {
     let result: Array<string> = new Array<string>();
     try {
@@ -184,12 +173,13 @@ export struct StickyPage {
     }
     this.sections.splice(-1, 0, sectionOptions);
   }
-
+  // [EndExclude section_init]
   build() {
     Stack({ alignContent: Alignment.TopStart }) {
       WaterFlow({ scroller: this.scroller, sections: this.sections }) {
         LazyForEach(this.dataSource, (item: MediaItem) => {
           FlowItem() {
+            //3、为吸顶部分预留位置，吸顶位置在第二个元素位置，所以id为1
             if (item.id != 1) {
               FlowVideoItem({ item: item })
             }
@@ -199,19 +189,14 @@ export struct StickyPage {
           .backgroundColor(Color.White)
         }, (item: MediaItem) => item.id.toString())
       }
-      .cachedCount(12)
       .columnsTemplate('1fr 1fr')
-      .columnsGap(8)
-      .rowsGap(8)
-      .padding({ bottom: '48vp' })
-      .width('100%')
-      .height('100%')
-      .layoutWeight(1)
       .onWillScroll((offset: number) => {
+        //4、监听瀑布流滚动事件
         this.scrollOffset = this.scroller.currentOffset().yOffset + offset;
       })
 
       Stack() {
+        // [StartExclude stick_content]
         Column() {
           Scroll() {
             Row({ space: 0 }) {
@@ -319,20 +304,21 @@ export struct StickyPage {
               .margin({ left: 8 })
 
           }
-          .justifyContent(this.isFoldStatus ? FlexAlign.Start : FlexAlign.Center)
           .backgroundColor(Color.White)
           .width('100%')
           .padding({ top: 8, bottom: 8 })
         }.alignItems(HorizontalAlign.Start)
+        // [EndExclude stick_content]
       }
       .width('100%')
-      .height(100)
+      .height(this.stick_item_height)
       .hitTestBehavior(HitTestMode.Transparent)
+      //5、根据瀑布流滑动偏移量动态调整吸顶位置
       .position({ x: 0, y: this.scrollOffset >= 220 ? 0 : 220 - this.scrollOffset })
     }
   }
 }
-
+// [StartExclude homepage]
 @Entry
 @Component
 struct StickOnTopPage {
@@ -439,3 +425,5 @@ struct StickOnTopPage {
     }
   }
 }
+// [EndExclude homepage]
+// [End quick_start]
