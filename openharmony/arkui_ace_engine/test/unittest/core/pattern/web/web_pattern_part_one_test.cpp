@@ -29,6 +29,7 @@ using namespace testing;
 using namespace testing::ext;
 
 namespace OHOS::Ace::NG {
+namespace {
 class MockWebContextMenuParam : public WebContextMenuParam {
 public:
     MOCK_METHOD(int32_t, GetXCoord, (), (const, override));
@@ -78,6 +79,7 @@ public:
     MOCK_METHOD(void, Redo, (), (const, override));
     MOCK_METHOD(void, PasteAndMatchStyle, (), (const, override));
 };
+} // namespace
 
 class WebPatternPartOneTest : public testing::Test {
 public:
@@ -534,6 +536,9 @@ HWTEST_F(WebPatternPartOneTest, OnAttachToMainTree_001, TestSize.Level1)
 
     webPattern->OnAttachToMainTree();
     ASSERT_NE(webPattern->delegate_, nullptr);
+
+    webPattern->delegate_->SetPageFinishedState(true);
+    EXPECT_EQ(webPattern->delegate_->GetPageFinishedState(), true);
 #endif
 }
 

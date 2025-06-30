@@ -182,8 +182,10 @@ public:
                 phase == GC_PHASE_REMARK_SATB || phase == GC_PHASE_POST_MARK) {
                 region->SetTraceLine();
             } else if (phase == GC_PHASE_PRECOPY || phase == GC_PHASE_COPY) {
+                region->SetTraceLine();
                 region->SetCopyLine();
             } else if (phase == GC_PHASE_FIX) {
+                region->SetTraceLine();
                 region->SetCopyLine();
                 region->SetFixLine();
             }
@@ -220,8 +222,10 @@ public:
                 phase == GC_PHASE_POST_MARK) {
                 region->SetTraceLine();
             } else if (phase == GC_PHASE_PRECOPY || phase == GC_PHASE_COPY) {
+                region->SetTraceLine();
                 region->SetCopyLine();
             } else if (phase == GC_PHASE_FIX) {
+                region->SetTraceLine();
                 region->SetCopyLine();
                 region->SetFixLine();
             }
@@ -250,8 +254,10 @@ public:
             phase == GC_PHASE_POST_MARK) {
             region->SetTraceLine();
         } else if (phase == GC_PHASE_PRECOPY || phase == GC_PHASE_COPY) {
+            region->SetTraceLine();
             region->SetCopyLine();
         } else if (phase == GC_PHASE_FIX) {
+            region->SetTraceLine();
             region->SetCopyLine();
             region->SetFixLine();
         }
@@ -290,7 +296,7 @@ public:
 
         garbageRegionList_.PrependRegion(region, RegionDesc::RegionType::GARBAGE_REGION);
 #ifdef USE_HWASAN
-        ASAN_UNPOISON_MEMORY_REGION(reinterpret_cast<const volatile void *>(region->GetRegionStart()),
+        ASAN_POISON_MEMORY_REGION(reinterpret_cast<const volatile void *>(region->GetRegionStart()),
             region->GetRegionSize());
         const uintptr_t p_addr = region->GetRegionStart();
         const uintptr_t p_size = region->GetRegionSize();
@@ -394,7 +400,11 @@ public:
     void PrepareTrace()
     {
         AllocBufferVisitor visitor = [](AllocationBuffer& regionBuffer) {
-            RegionDesc* region = regionBuffer.GetRegion();
+            RegionDesc* region = regionBuffer.GetRegion<AllocBufferType::YOUNG>();
+            if (region != RegionDesc::NullRegion()) {
+                region->SetTraceLine();
+            }
+            region = regionBuffer.GetRegion<AllocBufferType::OLD>();
             if (region != RegionDesc::NullRegion()) {
                 region->SetTraceLine();
             }

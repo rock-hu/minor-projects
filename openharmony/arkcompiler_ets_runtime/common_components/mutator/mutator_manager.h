@@ -109,7 +109,7 @@ public:
     }
 
     // Visit all mutators, hold mutatorListLock firstly
-    void VisitAllMutators(MutatorVisitor func);
+    void VisitAllMutators(MutatorVisitor func, bool ignoreFinalizer = false);
 
     // Some functions about stw
     void StopTheWorld(bool syncGCPhase, GCPhase phase);
@@ -158,8 +158,9 @@ public:
     void TransitionAllMutatorsToGCPhase(GCPhase phase);
 
     void EnsureCpuProfileFinish(std::list<Mutator*> &undoneMutators);
-    void TransitionAllMutatorsToCpuProfile();
 
+    template<class STWFunction>
+    void FlipMutators(const char* reason, STWFunction&& stwFunction, FlipFunction *flipFunction);
 #if defined(GCINFO_DEBUG) && GCINFO_DEBUG
     void DumpForDebug();
     void DumpAllGcInfos();

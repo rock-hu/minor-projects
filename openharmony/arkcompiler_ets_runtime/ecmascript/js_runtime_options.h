@@ -71,7 +71,7 @@ enum ArkProperties {
     ENABLE_MODULE_LOG = 1 << 25,
     ENABLE_SERIALIZATION_TIMEOUT_CHECK = 1 << 26,
     ENABLE_PAGETAG_THREAD_ID = 1 << 27,
-    ENABLE_JSPANDAFILE_MODULE_SNAPSHOT = 1 << 28,
+    DISABLE_JSPANDAFILE_MODULE_SNAPSHOT = 1 << 28,
     ENABLE_MODULE_EXCEPTION = 1 << 29,
     ENABLE_PENDING_CHEAK = 1 << 30,
     ENABLE_RAWHEAP_CROP = 1 << 31,
@@ -708,9 +708,9 @@ public:
     {
         return (static_cast<uint32_t>(arkProperties_) & ArkProperties::ENABLE_RAWHEAP_CROP) != 0;
     }
-    bool EnableJSPandaFileAndModuleSnapshot() const
+    bool DisableJSPandaFileAndModuleSnapshot() const
     {
-        return (static_cast<uint32_t>(arkProperties_) & ArkProperties::ENABLE_JSPANDAFILE_MODULE_SNAPSHOT) != 0;
+        return (static_cast<uint32_t>(arkProperties_) & ArkProperties::DISABLE_JSPANDAFILE_MODULE_SNAPSHOT) != 0;
     }
 
     bool WasSetMaxNonmovableSpaceCapacity() const
@@ -1304,6 +1304,16 @@ public:
     bool IsEnableJitFrame() const
     {
         return enableJitFrame_;
+    }
+
+    void SetEnableWarmStartupSmartGC(bool value)
+    {
+        enableWarmStartupSmartGC_ = value;
+    }
+
+    bool GetEnableWarmStartupSmartGC() const
+    {
+        return enableWarmStartupSmartGC_;
     }
 
     bool IsEnableJitDfxDump() const
@@ -2534,6 +2544,7 @@ private:
     std::string jitMethodPath_ {"method_compiled_by_jit.cfg"};
     size_t heapSize_ = {0};
     common::RuntimeParam param_;
+    bool enableWarmStartupSmartGC_ {false};
 };
 } // namespace panda::ecmascript
 

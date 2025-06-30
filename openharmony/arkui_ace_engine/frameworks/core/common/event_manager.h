@@ -369,7 +369,9 @@ public:
 
     std::unordered_map<int32_t, TouchDelegates> touchDelegatesMap_;
 
-    TouchDelegateHdl RegisterTouchDelegate(const int32_t touchId, const RefPtr<NG::TouchDelegate> delegater);
+    TouchDelegateHdl AddTouchDelegate(const int32_t touchId, const RefPtr<NG::TouchDelegate> delegater);
+
+    TouchDelegateHdl ReplaceTouchDelegate(const int32_t touchId, const RefPtr<NG::TouchDelegate> delegater);
 
     void UnregisterTouchDelegate(TouchDelegateHdl handler);
 
@@ -408,7 +410,7 @@ private:
     bool DispatchMultiContainerEvent(const TouchEvent& point);
     void DispatchTouchEventAndCheck(const TouchEvent& event, bool sendOnTouch = true);
     void DispatchTouchEventInOldPipeline(const TouchEvent& point, bool dispatchSuccess);
-    void DispatchTouchEventToTouchTestResult(TouchEvent touchEvent, TouchTestResult touchTestResult,
+    void DispatchTouchEventToTouchTestResult(const TouchEvent& touchEvent, TouchTestResult touchTestResult,
         bool sendOnTouch);
     void SetResponseLinkRecognizers(const TouchTestResult& result, const ResponseLinkResult& responseLinkRecognizers);
     void FalsifyCancelEventAndDispatch(const TouchEvent& touchPoint, bool sendOnTouch = true);

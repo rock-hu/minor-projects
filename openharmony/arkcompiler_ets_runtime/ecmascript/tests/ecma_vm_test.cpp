@@ -61,7 +61,7 @@ static void ResetAbortFlag()
     g_abortFlag = false;
 }
 
-class EcmaVmIterator : public RootVisitor {
+class EcmaVmIterator : public ecmascript::RootVisitor {
 public:
     EcmaVmIterator() = default;
     ~EcmaVmIterator() = default;
@@ -195,7 +195,7 @@ HWTEST_F_L0(EcmaVMTest, TestHandleAlocate)
         EcmaVmIterator ecmaVmIterator;
         auto ret = sigsetjmp(g_env, 1);
         if (ret != SIGABRT) {
-            ecmaVm->Iterate(ecmaVmIterator, VMRootVisitType::HEAP_SNAPSHOT);
+            ecmaVm->Iterate(ecmaVmIterator);
         } else {
             EXPECT_TRUE(g_abortFlag);
         }

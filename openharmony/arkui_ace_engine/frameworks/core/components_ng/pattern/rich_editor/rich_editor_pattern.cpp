@@ -2237,6 +2237,12 @@ UpdateSpanStyle RichEditorPattern::GetUpdateSpanStyle()
     return updateSpanStyle_;
 }
 
+void RichEditorPattern::MarkAISpanStyleChanged()
+{
+    std::for_each(spans_.begin(), spans_.end(), [](const auto& span) { span->aiSpanResultCount = 0; });
+    TextPattern::MarkAISpanStyleChanged();
+}
+
 void RichEditorPattern::UpdateCaretStyleByTypingStyle()
 {
     bool empty = spans_.empty();
@@ -4901,7 +4907,7 @@ void RichEditorPattern::HandleOnDragInsertStyledString(const RefPtr<SpanString>&
         AfterStyledStringChange(record);
     }
     StartTwinkling();
-    auto host = GetHost();
+    auto host = GetContentHost();
     CHECK_NULL_VOID(host);
     host->MarkDirtyNode(PROPERTY_UPDATE_MEASURE);
 }
@@ -6010,7 +6016,7 @@ void RichEditorPattern::DeleteSelectionOrPreviewText(
     }
     if (isSelector) {
         DeleteByRange(record, textSelector_.GetTextStart(), textSelector_.GetTextEnd());
-        if (!shouldCommitInput) {
+        if (!shouldCommitInput && record) {
             previewInputRecord_.deleteText = record->deleteText;
             previewInputRecord_.beforeCaretPosition = rangeStart.start;
         }
@@ -8797,7 +8803,8 @@ void RichEditorPattern::InitAiSelection(const Offset& globalOffset)
     }
     start = aiSpanIter->second.start;
     end = aiSpanIter->second.end;
-    if (pos >= start && pos < end && InRangeRect(globalOffset, { start, end })) {
+    auto position = static_cast<int32_t>(pos);
+    if (position >= start && position < end && InRangeRect(globalOffset, { start, end })) {
         isAiSpan = true;
     }
     if (isAiSpan && start >= 0 && start < end) {

@@ -108,7 +108,6 @@ constexpr uint32_t DELAY_MILLISECONDS_1000 = 1000;
 constexpr uint32_t NO_NATIVE_FINGER_TYPE = 100;
 constexpr uint32_t ACCESSIBILITY_PAGE_CHANGE_DELAY_MILLISECONDS = 100;
 const std::string DEFAULT_NATIVE_EMBED_ID = "0";
-constexpr uint32_t BLANKLESS_REMOVE_SNAPSHOT_DELAY_TIME = 2000;
 
 const std::vector<std::string> CANONICALENCODINGNAMES = {
     "Big5",         "EUC-JP",       "EUC-KR",       "GB18030",
@@ -4970,6 +4969,16 @@ void WebDelegate::OnPageFinished(const std::string& param)
     AccessibilitySendPageChange();
 }
 
+void WebDelegate::SetPageFinishedState(const bool& state)
+{
+    isPageFinished_ = state;
+}
+
+bool WebDelegate::GetPageFinishedState()
+{
+    return isPageFinished_;
+}
+
 void WebDelegate::OnProgressChanged(int param)
 {
     CHECK_NULL_VOID(taskExecutor_);
@@ -5515,6 +5524,7 @@ void WebDelegate::OnErrorReceive(std::shared_ptr<OHOS::NWeb::NWebUrlResourceRequ
 
 void WebDelegate::AccessibilitySendPageChange()
 {
+    SetPageFinishedState(true);
     CHECK_NULL_VOID(taskExecutor_);
     taskExecutor_->PostDelayedTask(
         [weak = WeakClaim(this)]() {
@@ -5670,6 +5680,44 @@ RefPtr<WebResponse> WebDelegate::OnInterceptRequest(const std::shared_ptr<BaseEv
         CHECK_NULL_VOID(webCom);
         result = webCom->OnInterceptRequest(info.get());
     }, "ArkUIWebInterceptRequest");
+    return result;
+}
+
+std::string WebDelegate::OnOverrideErrorPage(
+    std::shared_ptr<OHOS::NWeb::NWebUrlResourceRequest> webResourceRequest,
+    std::shared_ptr<OHOS::NWeb::NWebUrlResourceError> error)
+{
+    auto context = context_.Upgrade();
+    CHECK_NULL_RETURN(context, "");
+    CHECK_NULL_RETURN(webResourceRequest, "");
+    CHECK_NULL_RETURN(error, "");
+    std::string result = "";
+    auto info = std::make_shared<OnOverrideErrorPageEvent>(
+        AceType::MakeRefPtr<WebRequest>(webResourceRequest->RequestHeaders(),
+        webResourceRequest->Method(), webResourceRequest->Url(),
+        webResourceRequest->FromGesture(), webResourceRequest->IsAboutMainFrame(),
+        webResourceRequest->IsRequestRedirect()),
+        AceType::MakeRefPtr<WebError>(error->ErrorInfo(), error->ErrorCode()));
+    auto jsTaskExecutor = SingleTaskExecutor::Make(context->GetTaskExecutor(), TaskExecutor::TaskType::JS);
+    jsTaskExecutor.PostSyncTask(
+        [weak = WeakClaim(this), info, &result]() {
+            auto delegate = weak.Upgrade();
+            CHECK_NULL_VOID(delegate);
+            if (Container::IsCurrentUseNewPipeline()) {
+                auto webPattern = delegate->webPattern_.Upgrade();
+                CHECK_NULL_VOID(webPattern);
+                auto webEventHub = webPattern->GetWebEventHub();
+                CHECK_NULL_VOID(webEventHub);
+                auto propOnOverrideErrorPageEvent = webEventHub->GetOnOverrideErrorPageEvent();
+                CHECK_NULL_VOID(propOnOverrideErrorPageEvent);
+                result = propOnOverrideErrorPageEvent(info);
+                return;
+            }
+            auto webCom = delegate->webComponent_.Upgrade();
+            CHECK_NULL_VOID(webCom);
+            result = webCom->OnOverrideErrorPage(info.get());
+        },
+        "ArkUIWebOverrideErrorPage");
     return result;
 }
 
@@ -5984,6 +6032,32 @@ void WebDelegate::RemoveSnapshotFrameNode(int removeDelayTime)
         TaskExecutor::TaskType::UI, removeDelayTime, "ArkUIWebSnapshotRemove");
 }
 
+void WebDelegate::CreateSnapshotFrameNode(const std::string& snapshotPath)
+{
+    if (snapshotPath.empty()) {
+        return;
+    }
+    TAG_LOGD(AceLogTag::ACE_WEB, "WebDelegate::CreateSnapshotFrameNode");
+    auto context = context_.Upgrade();
+    CHECK_NULL_VOID(context);
+    CHECK_NULL_VOID(context->GetTaskExecutor());
+    context->GetTaskExecutor()->PostTask(
+        [weak = WeakClaim(this), snapshotPath]() {
+            auto delegate = weak.Upgrade();
+            CHECK_NULL_VOID(delegate);
+            auto webPattern = delegate->webPattern_.Upgrade();
+            CHECK_NULL_VOID(webPattern);
+            webPattern->CreateSnapshotImageFrameNode(snapshotPath);
+        },
+        TaskExecutor::TaskType::UI, "ArkUIWebLoadSnapshot");
+}
+
+void WebDelegate::SetVisibility(bool isVisible)
+{
+    CHECK_NULL_VOID(nweb_);
+    nweb_->SetVisibility(isVisible);
+}
+
 bool WebDelegate::OnHandleInterceptLoading(std::shared_ptr<OHOS::NWeb::NWebUrlResourceRequest> request)
 {
     CHECK_NULL_RETURN(taskExecutor_, false);
@@ -6015,15 +6089,10 @@ bool WebDelegate::OnHandleInterceptLoading(std::shared_ptr<OHOS::NWeb::NWebUrlRe
         [weak = WeakClaim(this), request]() {
             auto delegate = weak.Upgrade();
             CHECK_NULL_VOID(delegate);
-            std::string snapshotPath = OHOS::NWeb::NWebHelper::Instance().CheckBlankOptEnable(
-                request->Url(), delegate->nweb_->GetWebId());
-            if (!snapshotPath.empty() && request->IsAboutMainFrame()) {
-                TAG_LOGD(AceLogTag::ACE_WEB, "blankless OnHandleInterceptLoading, snapshot Path:%{public}s",
-                         snapshotPath.c_str());
-                auto webPattern = delegate->webPattern_.Upgrade();
-                CHECK_NULL_VOID(webPattern);
-                webPattern->CreateSnapshotImageFrameNode(snapshotPath);
-                delegate->RemoveSnapshotFrameNode(BLANKLESS_REMOVE_SNAPSHOT_DELAY_TIME);
+            CHECK_NULL_VOID(delegate->nweb_);
+            if (request->IsAboutMainFrame()) {
+                bool ret = delegate->nweb_->TriggerBlanklessForUrl(request->Url());
+                TAG_LOGD(AceLogTag::ACE_WEB, "TriggerBlanklessForUrl ret %{public}d", ret);
             }
         },
         TaskExecutor::TaskType::PLATFORM, "ArkUIWebloadSnapshot");
@@ -6040,6 +6109,9 @@ void WebDelegate::OnResourceLoad(const std::string& url)
 void WebDelegate::OnScaleChange(float oldScaleFactor, float newScaleFactor)
 {
     CHECK_NULL_VOID(taskExecutor_);
+    if (oldScaleFactor != newScaleFactor) {
+        SetViewportScaleState();
+    }
     taskExecutor_->PostTask(
         [weak = WeakClaim(this), oldScaleFactor, newScaleFactor]() {
             auto delegate = weak.Upgrade();
@@ -8523,4 +8595,19 @@ void WebDelegate::SetTouchHandleExistState(bool touchHandleExist)
     CHECK_NULL_VOID(nweb_);
     nweb_->SetTouchHandleExistState(touchHandleExist);
 }
+
+void WebDelegate::SetBorderRadiusFromWeb(double borderRadiusTopLeft, double borderRadiusTopRight,
+    double borderRadiusBottomLeft, double borderRadiusBottomRight)
+{
+    CHECK_NULL_VOID(nweb_);
+    nweb_->SetBorderRadiusFromWeb(
+        borderRadiusTopLeft, borderRadiusTopRight, borderRadiusBottomLeft, borderRadiusBottomRight);
+}
+
+void WebDelegate::SetViewportScaleState()
+{
+    CHECK_NULL_VOID(nweb_);
+    nweb_->SetViewportScaleState();
+}
+
 } // namespace OHOS::Ace

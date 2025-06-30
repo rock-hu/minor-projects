@@ -14,9 +14,11 @@
  */
 #include "core/interfaces/native/node/frame_node_modifier.h"
 #include <cstdlib>
+#include <unistd.h>
 #include <vector>
 
 #include "base/error/error_code.h"
+#include "core/common/builder_util.h"
 #include "core/common/color_inverter.h"
 #include "core/components_ng/base/inspector.h"
 #include "core/components_ng/base/view_abstract.h"
@@ -79,6 +81,18 @@ RefPtr<FrameNode> GetParentNode(UINode* node)
                ? nullptr : AceType::DynamicCast<FrameNode>(parent);
 }
 
+void AddBuilderNodeInFrameNode(ArkUINodeHandle node, ArkUINodeHandle child)
+{
+    auto* currentNode = reinterpret_cast<UINode*>(node);
+    CHECK_NULL_VOID(currentNode);
+    auto* childNode = reinterpret_cast<UINode*>(child);
+    CHECK_NULL_VOID(childNode);
+    auto childRef = Referenced::Claim<UINode>(childNode);
+    std::list<RefPtr<UINode>> nodes;
+    BuilderUtils::GetBuilderNodes(childRef, nodes);
+    BuilderUtils::AddBuilderToParent(childRef, nodes);
+}
+
 ArkUI_Bool AppendChildInFrameNode(ArkUINodeHandle node, ArkUINodeHandle child)
 {
     auto* currentNode = reinterpret_cast<UINode*>(node);
@@ -111,6 +125,18 @@ ArkUI_Bool InsertChildAfterInFrameNode(ArkUINodeHandle node, ArkUINodeHandle chi
     return true;
 }
 
+void RemoveBuilderNodeInFrameNode(ArkUINodeHandle node, ArkUINodeHandle child)
+{
+    auto* currentNode = reinterpret_cast<UINode*>(node);
+    CHECK_NULL_VOID(currentNode);
+    auto* childNode = reinterpret_cast<UINode*>(child);
+    CHECK_NULL_VOID(childNode);
+    auto childRef = Referenced::Claim<UINode>(childNode);
+    std::list<RefPtr<UINode>> nodes;
+    BuilderUtils::GetBuilderNodes(childRef, nodes);
+    BuilderUtils::RemoveBuilderFromParent(childRef, nodes);
+}
+
 void RemoveChildInFrameNode(ArkUINodeHandle node, ArkUINodeHandle child)
 {
     auto* currentNode = reinterpret_cast<UINode*>(node);
@@ -118,6 +144,14 @@ void RemoveChildInFrameNode(ArkUINodeHandle node, ArkUINodeHandle child)
     auto* childNode = reinterpret_cast<UINode*>(child);
     currentNode->RemoveChild(Referenced::Claim<UINode>(childNode));
     currentNode->MarkNeedFrameFlushDirty(NG::PROPERTY_UPDATE_MEASURE);
+}
+
+void ClearBuilderNodeInFrameNode(ArkUINodeHandle node)
+{
+    auto* currentNode = reinterpret_cast<UINode*>(node);
+    CHECK_NULL_VOID(currentNode);
+    auto currentRef = Referenced::Claim<UINode>(currentNode);
+    BuilderUtils::ClearBuilder(currentRef);
 }
 
 void ClearChildrenInFrameNode(ArkUINodeHandle node)
@@ -992,10 +1026,11 @@ void RemoveSupportedUIStates(ArkUINodeHandle node, int32_t state)
 ArkUI_Int32 SetForceDarkConfig(
     ArkUI_Int32 instanceId, bool forceDark, ArkUI_CharPtr nodeTag, uint32_t (*colorInvertFunc)(uint32_t color))
 {
-    auto pipeline = PipelineContext::GetCurrentContextSafely();
-    if (!pipeline || !pipeline->CheckThreadSafe()) {
-        LOGF_ABORT("SetForceDarkConfig doesn't run on UI");
+#ifdef OHOS_PLATFORM
+    if (getpid() != gettid()) {
+        LOGF_ABORT("SetForceDarkConfig doesn't run on UI thread");
     }
+#endif
     if (!forceDark && colorInvertFunc) {
         return ERROR_CODE_NATIVE_IMPL_FORCE_DARK_CONFIG_INVALID;
     }
@@ -1005,7 +1040,7 @@ ArkUI_Int32 SetForceDarkConfig(
         };
         ColorInverter::GetInstance().EnableColorInvert(instanceId, nodeTag, std::move(invertFunc));
     } else {
-        ColorInverter::GetInstance().DisableColorInvert(instanceId);
+        ColorInverter::GetInstance().DisableColorInvert(instanceId, nodeTag);
     }
     return ERROR_CODE_NO_ERROR;
 }
@@ -1018,9 +1053,12 @@ const ArkUIFrameNodeModifier* GetFrameNodeModifier()
         .isModifiable = IsModifiable,
         .createFrameNode = CreateFrameNode,
         .invalidate = InvalidateInFrameNode,
+        .addBuilderNode = AddBuilderNodeInFrameNode,
         .appendChild = AppendChildInFrameNode,
         .insertChildAfter = InsertChildAfterInFrameNode,
+        .removeBuilderNode = RemoveBuilderNodeInFrameNode,
         .removeChild = RemoveChildInFrameNode,
+        .clearBuilderNode = ClearBuilderNodeInFrameNode,
         .clearChildren = ClearChildrenInFrameNode,
         .getChildrenCount = GetChildrenCount,
         .getChild = GetChild,

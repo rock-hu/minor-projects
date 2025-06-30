@@ -1547,9 +1547,8 @@ void Heap::ProcessGCCallback()
     // even lead to another GC, so this have to invoke after this GC process.
     if (g_isEnableCMCGC) {
         thread_->InvokeWeakNodeFreeGlobalCallBack();
-    } else {
-        thread_->InvokeWeakNodeNativeFinalizeCallback();
     }
+    thread_->InvokeWeakNodeNativeFinalizeCallback();
     // PostTask for ProcessNativeDelete
     CleanCallback();
     JSFinalizationRegistry::CheckAndCall(thread_);
@@ -2270,10 +2269,7 @@ bool Heap::IsReadyToConcurrentMark() const
 void Heap::IncreaseNativeBindingSize(JSNativePointer *object)
 {
     size_t size = object->GetBindingSize();
-    if (size == 0) {
-        return;
-    }
-    nativeBindingSize_ += size;
+    IncreaseNativeBindingSize(size);
 }
 
 void Heap::IncreaseNativeBindingSize(size_t size)
@@ -2440,6 +2436,7 @@ void Heap::NotifyMemoryPressure(bool inHighMemoryPressure)
 void Heap::NotifyFinishColdStart(bool isMainThread)
 {
     if (!FinishStartupEvent()) {
+        LOG_GC(WARN) << "SmartGC: app cold start last status is not ON_STARTUP, just return";
         return;
     }
     ASSERT(!OnStartupEvent());
@@ -2463,6 +2460,8 @@ void Heap::NotifyFinishColdStart(bool isMainThread)
     common::Taskpool::GetCurrentTaskpool()->PostDelayedTask(
         std::make_unique<FinishGCRestrainTask>(GetJSThread()->GetThreadId(), this),
         delayTimeInMs);
+    ECMA_BYTRACE_NAME(HITRACE_LEVEL_COMMERCIAL, HITRACE_TAG_ARK,
+        "SmartGC: app startup just finished, FinishGCRestrainTask create", "");
 }
 
 void Heap::NotifyFinishColdStartSoon()
@@ -2482,6 +2481,15 @@ void Heap::NotifyFinishColdStartSoon()
     common::Taskpool::GetCurrentTaskpool()->PostDelayedTask(
         std::make_unique<FinishColdStartTask>(GetJSThread()->GetThreadId(), this),
         startupDurationInMs_);
+}
+
+void Heap::NotifyWarmStartup()
+{
+    ECMA_BYTRACE_NAME(HITRACE_LEVEL_COMMERCIAL, HITRACE_TAG_ARK, "SmartGC: warm startup GC restrain start", "");
+    // warm startup use the same GC restrain policy as cold startup
+    LOG_GC(INFO) << "SmartGC: warm startup use the same GC restrain policy as cold startup";
+    NotifyPostFork();
+    NotifyFinishColdStartSoon();
 }
 
 void Heap::NotifyHighSensitive(bool isStart)

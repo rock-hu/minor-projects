@@ -267,6 +267,7 @@ private:
 
     void UpdateTextNodeMaxLines(const RefPtr<LayoutWrapper>& childWrapper, const LayoutConstraintF& layoutConstraint);
     void MeasureTipsRegion(const RefPtr<LayoutWrapper>& childWrapper, const LayoutConstraintF& childContraint);
+    void MeasureTipsFollowTarget(const RefPtr<LayoutWrapper>& childWrapper, const LayoutConstraintF& childContraint);
     Placement CalculateTipsDirections(SizeF& newSize);
 
     OffsetF GetChildPosition(
@@ -296,6 +297,7 @@ private:
         const SizeF& childSize, OffsetF& arrowPosition, OffsetF& resultPosition, SizeF& resultSize, bool canCompress);
     void RecordMaxSpace(const float maxAreaSpace, const OffsetF& position, const float maxWidth, const float maxHeight,
         const OffsetF& arrowPosition);
+    void BottomAndTopPosition(OffsetF& bottomPosition, OffsetF& topPosition, const SizeF& childSize);
     Rect GetBottomRect();
     Rect GetTopRect();
     Rect GetRightRect();

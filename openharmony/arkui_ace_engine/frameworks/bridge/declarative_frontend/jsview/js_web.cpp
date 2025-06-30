@@ -32,7 +32,9 @@
 #endif
 #include "bridge/common/utils/engine_helper.h"
 #include "bridge/declarative_frontend/engine/functions/js_click_function.h"
+#include "bridge/declarative_frontend/engine/functions/js_common_utils.h"
 #include "bridge/declarative_frontend/engine/functions/js_drag_function.h"
+#include "bridge/declarative_frontend/engine/functions/js_event_function.h"
 #include "bridge/declarative_frontend/engine/functions/js_key_function.h"
 #include "bridge/declarative_frontend/engine/js_converter.h"
 #include "bridge/declarative_frontend/engine/js_ref_ptr.h"
@@ -98,6 +100,7 @@ WebModel* WebModel::GetInstance()
 } // namespace OHOS::Ace
 
 namespace OHOS::Ace::Framework {
+using namespace OHOS::Ace::Framework::CommonUtils;
 bool JSWeb::webDebuggingAccess_ = false;
 int32_t JSWeb::webDebuggingPort_ = 0;
 class JSWebDialog : public Referenced {
@@ -1039,6 +1042,11 @@ public:
         error_ = eventInfo.GetError();
     }
 
+    void SetOverrideErrorPageEvent(const OnOverrideErrorPageEvent& eventInfo)
+    {
+        error_ = eventInfo.GetError();
+    }
+
     void GetErrorCode(const JSCallbackInfo& args)
     {
         auto code = JSVal(ToJSValue(error_->GetCode()));
@@ -1334,6 +1342,11 @@ public:
     void SetOnInterceptRequestEvent(const OnInterceptRequestEvent& eventInfo)
     {
         request_ = eventInfo.GetRequest();
+    }
+
+    void SetOnOverrideErrorPageEvent(const OnOverrideErrorPageEvent& eventInfo)
+    {
+        request_ = eventInfo.GetWebResourceRequest();
     }
 
     void SetLoadInterceptEvent(const LoadInterceptEvent& eventInfo)
@@ -1942,6 +1955,7 @@ void JSWeb::JSBind(BindingTarget globalObj)
     JSClass<JSWeb>::StaticMethod("onErrorReceive", &JSWeb::OnErrorReceive);
     JSClass<JSWeb>::StaticMethod("onHttpErrorReceive", &JSWeb::OnHttpErrorReceive);
     JSClass<JSWeb>::StaticMethod("onInterceptRequest", &JSWeb::OnInterceptRequest);
+    JSClass<JSWeb>::StaticMethod("onOverrideErrorPage", &JSWeb::OnOverrideErrorPage);
     JSClass<JSWeb>::StaticMethod("onUrlLoadIntercept", &JSWeb::OnUrlLoadIntercept);
     JSClass<JSWeb>::StaticMethod("onLoadIntercept", &JSWeb::OnLoadIntercept);
     JSClass<JSWeb>::StaticMethod("onlineImageAccess", &JSWeb::OnLineImageAccessEnabled);
@@ -3351,6 +3365,54 @@ void JSWeb::OnInterceptRequest(const JSCallbackInfo& args)
         return nullptr;
     };
     WebModel::GetInstance()->SetOnInterceptRequest(jsCallback);
+}
+
+JSRef<JSVal> OnOverrideErrorPageEventToJSValue(const OnOverrideErrorPageEvent& eventInfo)
+{
+    JSRef<JSObject> obj = JSRef<JSObject>::New();
+    JSRef<JSObject> requestObj = JSClass<JSWebResourceRequest>::NewInstance();
+    auto requestEvent = Referenced::Claim(requestObj->Unwrap<JSWebResourceRequest>());
+    requestEvent->SetOnOverrideErrorPageEvent(eventInfo);
+
+    JSRef<JSObject> errorObj = JSClass<JSWebResourceError>::NewInstance();
+    auto errorEvent = Referenced::Claim(errorObj->Unwrap<JSWebResourceError>());
+    errorEvent->SetOverrideErrorPageEvent(eventInfo);
+
+    obj->SetPropertyObject("webResourceRequest", requestObj);
+    obj->SetPropertyObject("error", errorObj);
+
+    return JSRef<JSVal>::Cast(obj);
+}
+
+void JSWeb::OnOverrideErrorPage(const JSCallbackInfo& args)
+{
+    if ((args.Length() <= 0) || !args[0]->IsFunction()) {
+        return;
+    }
+    WeakPtr<NG::FrameNode> frameNode = AceType::WeakClaim(NG::ViewStackProcessor::GetInstance()->GetMainFrameNode());
+    auto jsFunc = AceType::MakeRefPtr<JsEventFunction<OnOverrideErrorPageEvent, 1>>(
+        JSRef<JSFunc>::Cast(args[0]), OnOverrideErrorPageEventToJSValue);
+    auto jsCallback = [execCtx = args.GetExecutionContext(), func = std::move(jsFunc), node = frameNode](
+                          const BaseEventInfo* info) -> std::string {
+        auto webNode = node.Upgrade();
+        CHECK_NULL_RETURN(webNode, nullptr);
+        ContainerScope scope(webNode->GetInstanceId());
+        JAVASCRIPT_EXECUTION_SCOPE_WITH_CHECK(execCtx, nullptr);
+        auto pipelineContext = PipelineContext::GetCurrentContext();
+        if (pipelineContext) {
+            pipelineContext->UpdateCurrentActiveNode(node);
+        }
+        auto* eventInfo = TypeInfoHelper::DynamicCast<OnOverrideErrorPageEvent>(info);
+        if (!eventInfo) {
+            return "";
+        }
+        JSRef<JSVal> html = func->ExecuteWithValue(*eventInfo);
+        if (html->IsString()) {
+            return html->ToString();
+        }
+        return "";
+    };
+    WebModel::GetInstance()->SetOnOverrideErrorPage(jsCallback);
 }
 
 void JSWeb::OnUrlLoadIntercept(const JSCallbackInfo& args)

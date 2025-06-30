@@ -34,6 +34,7 @@ namespace OHOS::Ace::NG {
 namespace {
 constexpr int32_t HUNDRED = 100;
 constexpr int32_t TWENTY = 20;
+constexpr float DEFAULT_STROKE_WIDTH = 0.0f;
 
 uint32_t GetAdaptedMaxLines(const TextStyle& textStyle, const LayoutConstraintF& contentConstraint)
 {
@@ -149,12 +150,7 @@ std::optional<SizeF> TextLayoutAlgorithm::MeasureContent(
     auto longestLine = paragraphManager_->GetLongestLine();
     auto heightFinal = static_cast<float>(height + std::fabs(baselineOffset_));
     if (contentConstraint.selfIdealSize.Height().has_value()) {
-        auto heightPolicy = TextBase::GetLayoutCalPolicy(layoutWrapper, false);
-        if (heightPolicy == LayoutCalPolicy::MATCH_PARENT) {
-            heightFinal = contentConstraint.selfIdealSize.Height().value();
-        } else {
-            heightFinal = std::min(heightFinal, contentConstraint.selfIdealSize.Height().value());
-        }
+        heightFinal = std::min(heightFinal, contentConstraint.selfIdealSize.Height().value());
     } else {
         heightFinal = std::min(heightFinal, contentConstraint.maxSize.Height());
     }
@@ -176,7 +172,8 @@ void TextLayoutAlgorithm::UpdateRelayoutShaderStyle(LayoutWrapper* layoutWrapper
     CHECK_NULL_VOID(pattern);
     auto textLayoutProperty = DynamicCast<TextLayoutProperty>(layoutWrapper->GetLayoutProperty());
     CHECK_NULL_VOID(textLayoutProperty);
-    if (textStyle_.GetGradient().has_value() && !pattern->GetExternalParagraph()) {
+    if (textStyle_.GetGradient().has_value() && !pattern->GetExternalParagraph() &&
+        textStyle_.GetStrokeWidth().Value() >= DEFAULT_STROKE_WIDTH) {
         RelayoutShaderStyle(textLayoutProperty);
     }
 }
@@ -521,7 +518,7 @@ bool TextLayoutAlgorithm::CreateParagraphAndLayout(TextStyle& textStyle, const s
         CHECK_NULL_RETURN(frameNode, false);
         auto pattern = frameNode->GetPattern<TextPattern>();
         CHECK_NULL_RETURN(pattern, false);
-        pattern->CheckWhetherNeedResetTextEffect();
+        pattern->RelayoutResetOrUpdateTextEffect();
         if (!ReLayoutParagraphs(textStyle, layoutWrapper, maxSize)) {
             CHECK_NULL_RETURN(CreateParagraph(textStyle, content, layoutWrapper, maxSize.Width()), false);
             CHECK_NULL_RETURN(LayoutParagraphs(maxSize.Width()), false);
@@ -739,11 +736,11 @@ bool TextLayoutAlgorithm::UpdateSingleParagraph(LayoutWrapper* layoutWrapper, Pa
     textStyleTmp.ResetTextBaselineOffset();
     paragraph->PushStyle(textStyleTmp);
     if (pattern->NeedShowAIDetect()) {
-        UpdateParagraphForAISpan(textStyle, layoutWrapper, paragraph);
+        UpdateParagraphForAISpan(textStyleTmp, layoutWrapper, paragraph);
     } else {
         if (pattern->IsDragging()) {
             auto dragContents = pattern->GetDragContents();
-            CreateParagraphDrag(textStyle, dragContents, paragraph);
+            CreateParagraphDrag(textStyleTmp, dragContents, paragraph);
         } else {
             auto value = content;
             StringUtils::TransformStrCase(value, static_cast<int32_t>(textStyle.GetTextCase()));
@@ -783,14 +780,6 @@ void TextLayoutAlgorithm::CreateOrUpdateTextEffect(const RefPtr<Paragraph>& oldP
         paragraphs.emplace_back(pair);
         textEffect->UpdateTypography(paragraphs);
     } else if (!needUpdateTypography) {
-        auto textLayoutProperty = textPattern->GetLayoutProperty<TextLayoutProperty>();
-        CHECK_NULL_VOID(textLayoutProperty);
-        std::unordered_map<TextEffectAttribute, std::string> configs;
-        auto flipDirection = textLayoutProperty->GetTextFlipDirectionValue(TextFlipDirection::DOWN);
-        auto enableBlur = textLayoutProperty->GetTextFlipEnableBlurValue(false);
-        configs[TextEffectAttribute::FLIP_DIRECTION] = StringUtils::ToString(flipDirection);
-        configs[TextEffectAttribute::BLUR_ENABLE] = enableBlur ? "true" : "false";
-        textEffect->UpdateEffectConfig(configs);
         std::vector<RefPtr<Paragraph>> paragraphs;
         paragraphs.emplace_back(newParagraph);
         textEffect->AppendTypography(paragraphs);

@@ -7,6 +7,7 @@
     "pages/scrollable/EnabledScroll",
     "pages/scrollable/NestedWeb",
     "pages/scrollable/ScrollEventObserver",
+    "pages/scrollable/FreeScroll",
     "pages/Tabs/TabsMainPage",
     "pages/Tabs/BarBackgroundBlurStyle",
     "pages/Tabs/OnContentWillChange",
@@ -22,6 +23,9 @@
     "pages/waterflow/demo01/WaterFlowDemo",
     "pages/waterflow/demo01/WaterFlowPinchToZoom1",
     "pages/waterflow/demo01/WaterFlowPinchToZoom2",
+    "pages/waterflow/demo01/WaterFlowWithFading",
+    "pages/waterflow/demo01/WaterFlowNodeFooter",
+    "pages/waterflow/demo01/WaterFlowNodeFooterContent",
     "pages/Swiper/SwiperMainPage",
     "pages/Swiper/OnContentWillScrollNormal",
     "pages/Swiper/OnContentWillScrollNestList",
@@ -54,6 +58,7 @@
     "pages/refresh/RefreshMainPage",
     "pages/refresh/RefreshingContent",
     "pages/refresh/RefreshAndLoad",
+    "pages/grid/GridBindSheetDrag",
     "pages/grid/GridDragAnimation",
     "pages/grid/GridMainPage",
     "pages/grid/GridObjectSort",
@@ -63,6 +68,8 @@
     "pages/Scroll/CustomSnap",
     "pages/Scroll/NestedScrollBar",
     "pages/Scroll/RecycleView/Index",
-    "pages/Scroll/ScrollNode"
+    "pages/Scroll/ScrollNode",
+    "pages/LazyVGridLayout/LazyVGridLayoutMainPage",
+    "pages/LazyVGridLayout/LazyVGridLayoutAttribute"
   ]
 }

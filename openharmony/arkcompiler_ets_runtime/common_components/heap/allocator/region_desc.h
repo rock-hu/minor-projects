@@ -447,6 +447,7 @@ public:
         FREE_REGION,
 
         THREAD_LOCAL_REGION,
+        THREAD_LOCAL_OLD_REGION,
         RECENT_FULL_REGION,
         FROM_REGION,
         LONE_FROM_REGION,
@@ -473,6 +474,8 @@ public:
         GARBAGE_REGION,
         READ_ONLY_REGION,
         APPSPAWN_REGION,
+
+        END_OF_REGION_TYPE
     };
 
     static void Initialize(size_t nUnit, uintptr_t regionInfoAddr, uintptr_t heapAddress)
@@ -556,7 +559,7 @@ public:
         Sanitizer::OnHeapMadvise(unitAddress, size);
 #endif
 #ifdef USE_HWASAN
-        ASAN_UNPOISON_MEMORY_REGION(unitAddress, size);
+        ASAN_POISON_MEMORY_REGION(unitAddress, size);
         const uintptr_t pSize = size;
         LOG_COMMON(DEBUG) << std::hex << "set [" << unitAddress << ", " <<
             (reinterpret_cast<uintptr_t>(unitAddress) + pSize) << ") poisoned\n";
@@ -592,8 +595,9 @@ public:
     const char* GetTypeName() const;
 #endif
 
-    void VisitAllObjects(const std::function<void(BaseObject*)>&& func);
     void VisitAllObjectsWithFixedSize(size_t cellCount, const std::function<void(BaseObject*)>&& func);
+    void VisitAllObjects(const std::function<void(BaseObject*)>&& func);
+    void VisitAllObjectsBeforeTrace(const std::function<void(BaseObject*)>&& func);
     void VisitAllObjectsBeforeFix(const std::function<void(BaseObject*)>&& func);
     bool VisitLiveObjectsUntilFalse(const std::function<bool(BaseObject*)>&& func);
     void VisitRememberSet(const std::function<void(BaseObject*)>& func);
@@ -660,16 +664,6 @@ public:
     void SetResurrectedRegionFlag(uint8_t flag)
     {
         metadata.regionBits.AtomicSetValue(RegionBitOffset::BIT_OFFSET_RESURRECTED_REGION, 1, flag);
-    }
-
-    void SetFixedRegionFlag(uint8_t flag)
-    {
-        metadata.regionBits.AtomicSetValue(RegionBitOffset::BIT_OFFSET_FIXED_REGION, 1, flag);
-    }
-
-    bool IsFixedRegionFlag()
-    {
-        return metadata.regionBits.AtomicGetValue(RegionBitOffset::BIT_OFFSET_FIXED_REGION, 1);
     }
 
     void SetRegionCellCount(uint8_t cellCount)
@@ -786,12 +780,14 @@ public:
     bool IsInRecentSpace() const
     {
         RegionType type = GetRegionType();
+        // Note: THREAD_LOCAL_OLD_REGION is not included
         return type == RegionType::THREAD_LOCAL_REGION || type == RegionType::RECENT_FULL_REGION;
     }
 
     bool IsInYoungSpace() const
     {
         RegionType type = GetRegionType();
+        // Note: THREAD_LOCAL_OLD_REGION is not included
         return type == RegionType::THREAD_LOCAL_REGION || type == RegionType::RECENT_FULL_REGION ||
             type == RegionType::FROM_REGION || type == RegionType::EXEMPTED_FROM_REGION;
     }
@@ -811,7 +807,7 @@ public:
     bool IsInOldSpace() const
     {
         RegionType type = GetRegionType();
-        return type == RegionType::OLD_REGION;
+        return type == RegionType::OLD_REGION || type == RegionType::THREAD_LOCAL_OLD_REGION;
     }
 
     int32_t IncRawPointerObjectCount()
@@ -882,7 +878,8 @@ public:
     
     bool IsThreadLocalRegion() const
     {
-        return GetRegionType()  == RegionType::THREAD_LOCAL_REGION;
+        return GetRegionType() == RegionType::THREAD_LOCAL_REGION ||
+               GetRegionType() == RegionType::THREAD_LOCAL_OLD_REGION;
     }
 
     bool IsPinnedRegion() const
@@ -1028,6 +1025,8 @@ public:
     }
 
 private:
+    void VisitAllObjectsBefore(const std::function<void(BaseObject*)>&& func, uintptr_t end);
+
     static constexpr int32_t MAX_RAW_POINTER_COUNT = std::numeric_limits<int32_t>::max();
     static constexpr int32_t BITS_4 = 4;
     static constexpr int32_t BITS_5 = 5;
@@ -1222,6 +1221,9 @@ private:
         metadata.liveByteCount = 0;
         metadata.liveInfo = nullptr;
         metadata.freeSlot = nullptr;
+        if (metadata.regionRSet != nullptr) {
+            ClearRSet();
+        }
         metadata.regionRSet = nullptr;
         SetRegionType(RegionType::FREE_REGION);
         SetUnitRole(uClass);
@@ -1229,7 +1231,6 @@ private:
         SetMarkedRegionFlag(0);
         SetEnqueuedRegionFlag(0);
         SetResurrectedRegionFlag(0);
-        SetFixedRegionFlag(0);
         __atomic_store_n(&metadata.rawPointerObjectCount, 0, __ATOMIC_SEQ_CST);
 #ifdef USE_HWASAN
         ASAN_UNPOISON_MEMORY_REGION(reinterpret_cast<const volatile void *>(metadata.allocPtr),
@@ -1244,7 +1245,9 @@ private:
     void InitRegion(size_t nUnit, UnitRole uClass)
     {
         InitRegionDesc(nUnit, uClass);
-        metadata.regionRSet = new RegionRSet(GetRegionSize());
+        if (metadata.regionRSet == nullptr) {
+            metadata.regionRSet = new RegionRSet(GetRegionSize());
+        }
 
         // initialize region's subordinate units.
         UnitInfo* unit = reinterpret_cast<UnitInfo*>(this) - (nUnit - 1);

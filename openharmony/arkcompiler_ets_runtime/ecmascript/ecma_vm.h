@@ -453,7 +453,7 @@ public:
     void DeletePrimitiveStorage();
 
     size_t IterateHandle(RootVisitor &visitor);
-    void Iterate(RootVisitor &v, VMRootVisitType type);
+    void Iterate(RootVisitor &v);
 
     const Heap *GetHeap() const
     {
@@ -477,6 +477,8 @@ public:
     }
     void ProcessNativeDelete(const WeakRootVisitor &visitor);
     void ProcessReferences(const WeakRootVisitor &visitor);
+    void ProcessSnapShotEnv(const WeakRootVisitor& visitor);
+    void IteratorSnapShotEnv(WeakVisitor& visitor);
 
     AsyncStackTrace *GetAsyncStackTrace() const
     {
@@ -839,7 +841,7 @@ public:
     }
 
     void PreFork();
-    void PostFork();
+    void PostFork(const JSRuntimeOptions &option);
 
     // For Internal Native MethodLiteral.
     JSTaggedValue GetMethodByIndex(MethodIndex idx);

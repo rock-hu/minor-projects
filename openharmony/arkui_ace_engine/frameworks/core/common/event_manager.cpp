@@ -979,19 +979,18 @@ void EventManager::LogTouchTestRecognizerStates(int32_t touchEventId)
 
 void EventManager::DispatchTouchEventAndCheck(const TouchEvent& event, bool sendOnTouch)
 {
-    TouchEvent point = event;
-    const auto iter = touchTestResults_.find(point.id);
+    const auto iter = touchTestResults_.find(event.id);
     bool hasFailRecognizer = false;
     bool allDone = false;
-    if (point.type == TouchType::DOWN) {
-        hasFailRecognizer = refereeNG_->HasFailRecognizer(point.id);
+    if (event.type == TouchType::DOWN) {
+        hasFailRecognizer = refereeNG_->HasFailRecognizer(event.id);
         allDone = refereeNG_->QueryAllDone();
     }
-    DispatchTouchEventToTouchTestResult(point, iter->second, sendOnTouch);
-    if (!allDone && point.type == TouchType::DOWN && !hasFailRecognizer &&
-        refereeNG_->HasFailRecognizer(point.id) && downFingerIds_.size() <= 1) {
+    DispatchTouchEventToTouchTestResult(event, iter->second, sendOnTouch);
+    if (!allDone && event.type == TouchType::DOWN && !hasFailRecognizer &&
+        refereeNG_->HasFailRecognizer(event.id) && downFingerIds_.size() <= 1) {
             refereeNG_->ForceCleanGestureRefereeState();
-            DispatchTouchEventToTouchTestResult(point, iter->second, false);
+            DispatchTouchEventToTouchTestResult(event, iter->second, false);
         }
 }
 
@@ -1084,7 +1083,7 @@ void EventManager::NotifyDragTouchEventListener(const TouchEvent& touchEvent)
     }
 }
 
-void EventManager::DispatchTouchEventToTouchTestResult(TouchEvent touchEvent,
+void EventManager::DispatchTouchEventToTouchTestResult(const TouchEvent& touchEvent,
     TouchTestResult touchTestResult, bool sendOnTouch)
 {
     bool isStopTouchEvent = false;
@@ -2507,11 +2506,26 @@ void EventManager::DumpEventWithCount(const std::vector<std::string>& params, NG
     }
 }
 
-TouchDelegateHdl EventManager::RegisterTouchDelegate(const int32_t touchId, const RefPtr<NG::TouchDelegate> delegater)
+TouchDelegateHdl EventManager::AddTouchDelegate(const int32_t touchId, const RefPtr<NG::TouchDelegate> delegater)
 {
     touchDelegatesMap_[touchId].emplace_back(delegater);
     TouchDelegatesIter iter = std::prev(touchDelegatesMap_[touchId].end());
-    LOGD("RegisterTouchDelegate successful");
+    LOGD("AddTouchDelegate successful");
+    TouchDelegateHdl handler(touchId, iter);
+    return handler;
+}
+
+TouchDelegateHdl EventManager::ReplaceTouchDelegate(const int32_t touchId, const RefPtr<NG::TouchDelegate> delegater)
+{
+    if (touchDelegatesMap_.find(touchId) == touchDelegatesMap_.end() || touchDelegatesMap_[touchId].empty()) {
+        touchDelegatesMap_[touchId].emplace_back(delegater);
+    } else {
+        LOGD("swap touchDelegatesMap %{public}d", touchId);
+        touchDelegatesMap_[touchId].clear();
+        touchDelegatesMap_[touchId].emplace_back(delegater);
+    }
+    TouchDelegatesIter iter = std::prev(touchDelegatesMap_[touchId].end());
+    LOGD("ReplaceTouchDelegate successful");
     TouchDelegateHdl handler(touchId, iter);
     return handler;
 }

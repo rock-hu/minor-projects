@@ -162,6 +162,9 @@ group("common_components_js_unittest") {
       "common_components/base/tests:unittest",
       "common_components/heap/allocator/tests:unittest",
       "common_components/mutator/tests:unittest",
+      "common_components/heap/collector/tests:unittest",
+      "common_components/objects/tests:unittest",
+      "common_components/heap/barrier/tests:unittest",
     ]
   }
 }
@@ -177,9 +180,13 @@ group("common_components_unittest") {
       "common_components/base/tests:host_unittest",
       "common_components/heap/allocator/tests:host_unittest",
       "common_components/mutator/tests:host_unittest",
+      "common_components/heap/collector/tests:host_unittest",
+      "common_components/objects/tests:host_unittest",
+      "common_components/heap/barrier/tests:host_unittest",
     ]
   }
 }
+
 
 group("ark_js_perform") {
   testonly = true
@@ -231,6 +238,8 @@ group("ark_unittest") {
       "common_components/base/tests:host_unittest",
       "common_components/heap/allocator/tests:host_unittest",
       "common_components/mutator/tests:host_unittest",
+      "common_components/heap/barrier/tests:unittest",
+      "common_components/heap/collector/tests:host_unittest",
     ]
   }
 }
@@ -1060,6 +1069,7 @@ ecma_source = [
   "ecmascript/mutator_lock.cpp",
   "ecmascript/napi/jsnapi.cpp",
   "ecmascript/napi/jsnapi_expo.cpp",
+  "ecmascript/napi/jsnapi_class_creation_helper.cpp",
   "ecmascript/object_factory.cpp",
   "ecmascript/object_operator.cpp",
   "ecmascript/patch/patch_loader.cpp",
@@ -1806,7 +1816,7 @@ ohos_prebuilt_etc("app_aot_jit_enable_list") {
 
 ohos_prebuilt_etc("app_startup_snapshot") {
   relative_install_dir = "ark"
-  source = "$js_root/ecmascript/ohos/app_startup_snapshot.conf"
+  source = "$js_root/ecmascript/ohos/app_startup_snapshot.json"
 
   # Set the subsystem name
   part_name = "ets_runtime"

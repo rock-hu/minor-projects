@@ -48,6 +48,7 @@ source_Heap = [
   "heap/w_collector/idle_barrier.cpp",
   "heap/w_collector/enum_barrier.cpp",
   "heap/w_collector/trace_barrier.cpp",
+  "heap/w_collector/remark_barrier.cpp",
   "heap/w_collector/preforward_barrier.cpp",
   "heap/w_collector/post_trace_barrier.cpp",
   "heap/collector/trace_collector.cpp",
@@ -360,8 +361,13 @@ ohos_shared_library("libark_common_components_test") {
   sources = [
     "base_runtime/base_runtime.cpp",
     "base_runtime/base_runtime_param.cpp",
+    "base/utf_helper.cpp",
+    "heap/heap_allocator.cpp",
     "log/log.cpp",
     "objects/base_object.cpp",
+    "objects/base_string_table.cpp",
+    "objects/base_string.cpp",
+    "objects/composite_base_class.cpp",
     "taskpool/taskpool.cpp",
     "taskpool/runner.cpp",
     "taskpool/task_queue.cpp",
@@ -405,6 +411,7 @@ ohos_shared_library("libark_common_components_test") {
     public_external_deps = [
       "zlib:libz",
     ]
+    public_external_deps += hiviewdfx_ext_deps
   } else {
     external_deps += [
       "zlib:libz",

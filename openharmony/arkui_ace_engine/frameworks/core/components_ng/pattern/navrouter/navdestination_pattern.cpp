@@ -141,6 +141,15 @@ void NavDestinationPattern::OnModifyDone()
     titleBarRenderContext->UpdateZIndex(DEFAULT_TITLEBAR_ZINDEX);
     auto navDestinationLayoutProperty = hostNode->GetLayoutProperty<NavDestinationLayoutProperty>();
     CHECK_NULL_VOID(navDestinationLayoutProperty);
+    auto contentNode = AceType::DynamicCast<FrameNode>(hostNode->GetContentNode());
+    auto layoutPolicy = navDestinationLayoutProperty->GetLayoutPolicyProperty();
+    if (layoutPolicy.has_value()) {
+        contentNode->GetLayoutProperty()->UpdateLayoutPolicyProperty(
+            layoutPolicy.value().widthLayoutPolicy_.value_or(LayoutCalPolicy::NO_MATCH), true);
+        contentNode->GetLayoutProperty()->UpdateLayoutPolicyProperty(
+            layoutPolicy.value().heightLayoutPolicy_.value_or(LayoutCalPolicy::NO_MATCH), false);
+    }
+
     UpdateHideBarProperty();
     ExpandContentSafeAreaIfNeeded();
     UpdateNameIfNeeded(hostNode);
@@ -336,6 +345,13 @@ bool NavDestinationPattern::GetBackButtonState()
     }
     if (index == 0 && (pattern->GetNavigationMode() == NavigationMode::SPLIT ||
         navigationLayoutProperty->GetHideNavBarValue(false))) {
+        showBackButton = false;
+    }
+    /**
+     * When using navBar as home in forceSplit scenario, the first NavDestination on
+     * the right side need to hide it's backButton.
+     */
+    if (pattern->IsForceSplitSuccess() && pattern->IsForceSplitUseNavBar() && index == 0) {
         showBackButton = false;
     }
     auto isCustomTitle = hostNode->GetPrevTitleIsCustomValue(false);

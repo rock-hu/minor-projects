@@ -851,6 +851,11 @@ void ScrollablePattern::OnTouchDown(const TouchEventInfo& info)
 
 void ScrollablePattern::InitTouchEvent(const RefPtr<GestureEventHub>& gestureHub)
 {
+    if (GetAxis() == Axis::FREE) {
+        gestureHub->RemoveTouchEvent(touchEvent_);
+        touchEvent_.Reset();
+        return;
+    }
     // use TouchEvent to receive next touch down event to stop animation.
     if (touchEvent_) {
         return;
@@ -2865,6 +2870,10 @@ void ScrollablePattern::FireOnScrollStart(bool withPerfMonitor)
         AceType::WeakClaim(this), ScrollEventType::SCROLL_START);
     if (withPerfMonitor) {
         PerfMonitor::GetPerfMonitor()->StartCommercial(PerfConstants::APP_LIST_FLING, PerfActionType::FIRST_MOVE, "");
+    }
+    auto pipeline = host->GetContext();
+    if (pipeline) {
+        pipeline->DisableNotifyResponseRegionChanged();
     }
     if (GetScrollAbort()) {
         ACE_SCOPED_TRACE("ScrollAbort, no OnScrollStart, id:%d, tag:%s",

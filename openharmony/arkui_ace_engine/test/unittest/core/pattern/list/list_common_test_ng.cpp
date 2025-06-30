@@ -66,6 +66,7 @@ class ListCommonTestNg : public ListTestNg {
 public:
     void CreateFocusableListItems(int32_t itemNumber, int32_t count = 0);
     void CreateFocusableListItemGroups(int32_t groupNumber, int32_t groupItemNum = GROUP_ITEM_NUMBER);
+    void CreateFocusableAndUnFocusableListItemGroups(int32_t groupNumber, int32_t groupItemNum = GROUP_ITEM_NUMBER);
     void MouseSelect(Offset start, Offset end);
     AssertionResult IsEqualNextFocusNode(FocusStep step, int32_t currentIndex, int32_t expectNextIndex);
     AssertionResult IsEqualNextFocusNodeHOMEEND(FocusStep step, int32_t currentIndex, std::string id);
@@ -169,6 +170,24 @@ void ListCommonTestNg::CreateFocusableListItemGroups(int32_t groupNumber, int32_
     for (int32_t index = 0; index < groupNumber; index++) {
         CreateListItemGroup();
         CreateFocusableListItems(groupItemNum);
+        ViewStackProcessor::GetInstance()->GetMainElementNode()->onMainTree_ = true;
+        ViewStackProcessor::GetInstance()->Pop();
+        ViewStackProcessor::GetInstance()->StopGetAccessRecording();
+    }
+}
+
+void ListCommonTestNg::CreateFocusableAndUnFocusableListItemGroups(int32_t groupNumber, int32_t groupItemNum)
+{
+    for (int32_t index = 0; index < groupNumber; index++) {
+        CreateListItemGroup();
+        for (int32_t itemIndex = 0; itemIndex < groupItemNum; itemIndex++) {
+            if (itemIndex % EVEN_NUMBER_MOD == 0) {
+                CreateListItems(1);
+            } else {
+                CreateFocusableListItems(1);
+            }
+        }
+
         ViewStackProcessor::GetInstance()->GetMainElementNode()->onMainTree_ = true;
         ViewStackProcessor::GetInstance()->Pop();
         ViewStackProcessor::GetInstance()->StopGetAccessRecording();
@@ -1248,6 +1267,20 @@ HWTEST_F(ListCommonTestNg, FocusWrapMode013, TestSize.Level1)
      * @tc.expected: focus should not move (returns NULL_VALUE) because the focusWrapMode is default.
      */
     EXPECT_TRUE(IsEqualNextFocusNodeInGroup(FocusStep::UP, 1, NULL_VALUE, 0, 4));
+}
+
+HWTEST_F(ListCommonTestNg, FocusWrapMode014, TestSize.Level1)
+{
+    ListModelNG list = CreateList();
+    list.SetLanes(2);
+    CreateFocusableAndUnFocusableListItemGroups(1, 8);
+    list.SetFocusWrapMode(FocusWrapMode::DEFAULT);
+    CreateDone();
+    /**
+     * @tc.steps: step1. Call GetNextFocusNode from fifth item.
+     * @tc.expected: focus should not move (returns NULL_VALUE) because the fifth item is non-focusable.
+     */
+    EXPECT_TRUE(IsEqualNextFocusNodeInGroup(FocusStep::LEFT, 5, NULL_VALUE, 0, 8));
 }
 
 /**
@@ -2368,6 +2401,47 @@ HWTEST_F(ListCommonTestNg, ForEachDrag013, TestSize.Level1)
 }
 
 /**
+* @tc.name: ForEachDrag014
+* @tc.desc: List drag sort without hight, EdgeEffect is alwaysEnable.
+* @tc.type: FUNC
+*/
+HWTEST_F(ListCommonTestNg, ForEachDrag014, TestSize.Level1)
+{
+    auto onMoveEvent = [](int32_t, int32_t) {};
+    ListModelNG model = CreateList();
+    model.SetEdgeEffect(EdgeEffect::SPRING, true);
+    CreateForEach(3, onMoveEvent, false);
+    CreateDone();
+
+    /**
+    * @tc.steps: step1. Clear List Height
+    * @tc.expected: List height is 300
+    */
+    frameNode_->layoutProperty_->ClearUserDefinedIdealSize(false, true);
+    FlushUITasks();
+    EXPECT_EQ(frameNode_->GetGeometryNode()->GetFrameSize().Height(), 300);
+
+    /**
+     * @tc.steps: step2. Drag down delta > ITEM_MAIN_SIZE/2
+     * @tc.expected: List size not change and item position correct.
+     */
+    auto dragManager = GetForEachItemDragManager(1);
+    GestureEvent info;
+    dragManager->HandleOnItemDragStart(info);
+    EXPECT_EQ(dragManager->fromIndex_, 1);
+    info.SetOffsetX(0.0);
+    info.SetOffsetY(-51.f);
+    info.SetGlobalPoint(Point(0, 10.f));
+    dragManager->HandleOnItemDragUpdate(info);
+    FlushUITasks();
+    EXPECT_TRUE(VerifyForEachItemsOrder({ "1", "0", "2" }));
+    EXPECT_EQ(frameNode_->GetGeometryNode()->GetFrameSize().Height(), 300);
+    EXPECT_EQ(GetChildY(frameNode_, 0), 0);
+    EXPECT_EQ(GetChildY(frameNode_, 1), 100);
+    EXPECT_EQ(GetChildY(frameNode_, 2), 200);
+}
+
+/**
  * @tc.name: LazyForEachDrag001
  * @tc.desc: Drag big delta to change order
  * @tc.type: FUNC
@@ -2539,7 +2613,74 @@ HWTEST_F(ListCommonTestNg, LazyForEachDrag002, TestSize.Level1)
     EXPECT_EQ(actualFrom, -1);
     EXPECT_EQ(actualTo, -1);
 }
+/**
+ * @tc.name: LazyForEachDrag003
+ * @tc.desc: Drag big delta to change order
+ * @tc.type: FUNC
+ */
+HWTEST_F(ListCommonTestNg, LazyForEachDrag003, TestSize.Level1)
+{
+    int32_t actualFrom = -1;
+    int32_t actualTo = -1;
+    auto onMoveEvent = [&actualFrom, &actualTo](int32_t from, int32_t to) {
+        actualFrom = from;
+        actualTo = to;
+    };
+    ListModelNG model = CreateList();
+    CreateItemsInLazyForEach(3, 100.0f, std::move(onMoveEvent));
+    CreateDone();
+    RefPtr<ListPattern> listPattern = AceType::MakeRefPtr<ListPattern>();
+    auto host = FrameNode::CreateFrameNode(V2::LIST_ETS_TAG, 2, listPattern);
+    ASSERT_NE(host, nullptr);
+    host->geometryNode_->padding_ = std::make_unique<PaddingPropertyF>();
+    host->geometryNode_->padding_->top = 200.0f;
+    host->geometryNode_->padding_->bottom = 500.0f;
 
+    /**
+     * @tc.steps: step1. Drag item(index:0)
+     */
+    auto lazyForEachNode = AceType::DynamicCast<LazyForEachNode>(frameNode_->GetChildAtIndex(0));
+    auto dragManager = GetLazyForEachItemDragManager(0);
+    GestureEvent info;
+    dragManager->HandleOnItemDragStart(info);
+    EXPECT_EQ(dragManager->fromIndex_, 0);
+
+    /**
+     * @tc.steps: step2. Drag down delta > ITEM_MAIN_SIZE/2
+     * @tc.expected: Change of order
+     */
+    info.SetOffsetX(0.0);
+    info.SetOffsetY(53.0);
+    info.SetGlobalPoint(Point(0, 53.0f));
+    dragManager->HandleOnItemDragUpdate(info);
+    dragManager->HandleScrollCallback();
+    FlushUITasks();
+    EXPECT_TRUE(VerifyLazyForEachItemsOrder({"1", "0", "2"}));
+    auto fromTo = lazyForEachNode->builder_->moveFromTo_.value();
+    EXPECT_EQ(fromTo.first, 0);
+    EXPECT_EQ(fromTo.second, 1);
+    /**
+     * @tc.steps: step3. Drag down delta > ITEM_MAIN_SIZE
+     * @tc.expected: Continue change of order
+     */
+    info.SetOffsetX(0.0);
+    info.SetOffsetY(151.0);
+    info.SetGlobalPoint(Point(0, 153.f));
+    dragManager->HandleOnItemDragUpdate(info);
+    dragManager->HandleScrollCallback();
+    FlushUITasks();
+    EXPECT_TRUE(VerifyLazyForEachItemsOrder({ "1", "2", "0" }));
+    auto fromTo1 = lazyForEachNode->builder_->moveFromTo_.value();
+    EXPECT_EQ(fromTo1.first, 0);
+    EXPECT_EQ(fromTo1.second, 2);
+    /**
+     * @tc.steps: step4. Drag end
+     * @tc.expected: Trigger onMoveEvent
+     */
+    dragManager->HandleOnItemDragEnd(info);
+    EXPECT_EQ(actualFrom, 0);
+    EXPECT_EQ(actualTo, 2);
+}
 /**
  * @tc.name: InitDragDropEvent001
  * @tc.desc: Test InitDragDropEvent, if already init, will not create dragEvent again

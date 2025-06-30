@@ -100,6 +100,7 @@ public:
     using TransformHintChangedCallbackMap = std::unordered_map<int32_t, std::function<void(uint32_t)>>;
     using PredictTask = std::function<void(int64_t, bool)>;
     using RotationEndCallbackMap = std::unordered_map<int32_t, std::function<void()>>;
+    using RawKeyboardChangedCallbackMap = std::unordered_map<int32_t, std::function<void()>>;
     PipelineContext(std::shared_ptr<Window> window, RefPtr<TaskExecutor> taskExecutor,
         RefPtr<AssetManager> assetManager, RefPtr<PlatformResRegister> platformResRegister,
         const RefPtr<Frontend>& frontend, int32_t instanceId);
@@ -250,13 +251,13 @@ public:
         const RefPtr<FrameNode> &node);
     void FlushDragEvents();
     void FlushDragEvents(const RefPtr<DragDropManager>& manager,
-        std::string extraInfo,
+        const std::string& extraInfo,
         const RefPtr<FrameNode>& node,
         const std::list<DragPointerEvent>& pointEvent);
     void FlushDragEvents(const RefPtr<DragDropManager>& manager,
-        std::unordered_map<int32_t, DragPointerEvent> newIdPoints,
-        std::string& extraInfo,
-        std::unordered_map<int, DragPointerEvent> &idToPoints,
+        const std::unordered_map<int32_t, DragPointerEvent>& newIdPoints,
+        const std::string& extraInfo,
+        const std::unordered_map<int, DragPointerEvent>& idToPoints,
         const RefPtr<FrameNode>& node);
 
     // Called by view when axis event received.
@@ -414,6 +415,9 @@ public:
     void FlushDirtyPropertyNodes();
     void FlushDirtyNodeUpdate();
     void FlushSafeAreaPaddingProcess();
+
+    void FlushTSUpdates();
+    void SetFlushTSUpdates(std::function<bool(int32_t)>&& flushTSUpdates) override;
 
     void SetRootRect(double width, double height, double offset) override;
 
@@ -686,6 +690,20 @@ public:
         halfFoldHoverChangedCallbackMap_.erase(callbackId);
     }
 
+    int32_t RegisterRawKeyboardChangedCallback(std::function<void()>&& callback)
+    {
+        if (callback) {
+            rawKeyboardChangedCallbackMap_.emplace(++callbackId_, std::move(callback));
+            return callbackId_;
+        }
+        return 0;
+    }
+
+    void UnRegisterRawKeyboardChangedCallback(int32_t callbackId)
+    {
+        rawKeyboardChangedCallbackMap_.erase(callbackId);
+    }
+
     void UpdateHalfFoldHoverStatus(int32_t windowWidth, int32_t windowHeight);
 
     bool IsHalfFoldHoverStatus()
@@ -694,6 +712,8 @@ public:
     }
 
     void OnHalfFoldHoverChangedCallback();
+
+    void OnRawKeyboardChangedCallback() override;
 
     int32_t RegisterFoldDisplayModeChangedCallback(std::function<void(FoldDisplayMode)>&& callback)
     {
@@ -997,6 +1017,8 @@ public:
     std::string GetResponseRegion(const RefPtr<NG::FrameNode>& rootNode) override;
 
     void NotifyResponseRegionChanged(const RefPtr<NG::FrameNode>& rootNode) override;
+
+    void DisableNotifyResponseRegionChanged() override;
 
     void SetLocalColorMode(ColorMode colorMode)
     {
@@ -1437,6 +1459,7 @@ private:
     HalfFoldHoverChangedCallbackMap halfFoldHoverChangedCallbackMap_;
     FoldDisplayModeChangedCallbackMap foldDisplayModeChangedCallbackMap_;
     TransformHintChangedCallbackMap transformHintChangedCallbackMap_;
+    RawKeyboardChangedCallbackMap rawKeyboardChangedCallbackMap_;
 
     bool isOnAreaChangeNodesCacheVaild_ = false;
     std::vector<FrameNode*> onAreaChangeNodesCache_;
@@ -1501,6 +1524,7 @@ private:
         const std::shared_ptr<Rosen::RSTransaction>& rsTransaction)> sizeChangeByRotateCallback_;
     std::function<void(const std::string&)> linkJumpCallback_ = nullptr;
     std::function<void()> dragWindowVisibleCallback_;
+    std::function<bool(int32_t)> flushTSUpdatesCb_;
 
     std::optional<bool> needSoftKeyboard_;
     std::optional<bool> windowFocus_;

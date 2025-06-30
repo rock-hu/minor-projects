@@ -2664,7 +2664,8 @@ struct ArkUICommonModifier {
     void (*setNextFocusOneByOne)(ArkUINodeHandle node, FocusMove idx, ArkUINodeHandle focusNode);
     void (*resetNextFocus)(ArkUINodeHandle node);
     void (*setFocusBoxStyle)(ArkUINodeHandle node, ArkUI_Float32 valueMargin, ArkUI_Int32 marginUnit,
-        ArkUI_Float32 valueStrokeWidth, ArkUI_Int32 widthUnit, ArkUI_Uint32 valueColor, ArkUI_Uint32 hasValue);
+        ArkUI_Float32 valueStrokeWidth, ArkUI_Int32 widthUnit, ArkUI_Uint32 valueColor, ArkUI_Uint32 hasValue,
+        void* focusBoxResObjs);
     void (*resetFocusBoxStyle)(ArkUINodeHandle node);
     void (*setClickDistance)(ArkUINodeHandle node, ArkUI_Float32 valueMargin);
     void (*resetClickDistance)(ArkUINodeHandle node);
@@ -2953,6 +2954,7 @@ struct ArkUITextModifier {
     ArkUI_Uint32 (*getTextVerticalAlign)(ArkUINodeHandle node);
     void (*setTextContentTransition)(ArkUINodeHandle node, ArkUI_Int32 flipDirection, ArkUI_Bool enableBlur);
     void (*resetTextContentTransition)(ArkUINodeHandle node);
+    void (*setColorShaderColor)(ArkUINodeHandle node, ArkUI_Uint32 color);
 };
 
 struct ArkUIButtonModifier {
@@ -4064,7 +4066,6 @@ struct ArkUIParallelInnerGestureEvent {
 };
 
 struct ArkUIGestureModifier {
-    ArkUI_Int32 (*setPreventBegin)(ArkUIGestureRecognizer* recognizer);
     ArkUIGesture* (*createTapGesture)(ArkUI_Int32 count, ArkUI_Int32 fingers, bool limitFingerCount, void* userData);
     ArkUIGesture* (*createTapGestureWithDistanceThreshold)(
         ArkUI_Int32 count, ArkUI_Int32 fingers, ArkUI_Float64 distanceThreshold, bool limitFingerCount,
@@ -4117,6 +4118,7 @@ struct ArkUIGestureModifier {
     ArkUI_Int32 (*getTapGestureDistanceThreshold)(ArkUIGestureRecognizer* recognizer, double* distanceThreshold);
     ArkUI_Int32 (*setDistanceMap)(ArkUIGesture* gesture, int size, int* toolTypeArray, double* distanceArray);
     ArkUI_Int32 (*getDistanceByToolType)(ArkUIGestureRecognizer* recognizer, int toolType, double* distance);
+    ArkUI_Int32 (*setPreventBegin)(ArkUIGestureRecognizer* recognizer);
     ArkUI_Bool (*isBuiltInGesture)(ArkUIGestureRecognizer* recognizer);
     ArkUI_Int32 (*getGestureTag)(
         ArkUIGestureRecognizer* recognizer, char* buffer, ArkUI_Int32 bufferSize, ArkUI_Int32* result);
@@ -5266,10 +5268,10 @@ struct ArkUIToggleModifier {
     void (*setToggleSwitchPointColorPtr)(ArkUINodeHandle node, ArkUI_Uint32 switchPointColor,
         ArkUI_VoidPtr colorRawPtr);
     void (*setTogglePointRadiusPtr)(ArkUINodeHandle node, ArkUI_Float32 value, ArkUI_Int32 unit,
-        ArkUI_VoidPtr radiuRawPtr);
+        ArkUI_VoidPtr radiusRawPtr);
     void (*setToggleUnselectedColorPtr)(ArkUINodeHandle node, ArkUI_Uint32 unselectedColor, ArkUI_VoidPtr colorRawPtr);
     void (*setToggleTrackBorderRadiusPtr)(ArkUINodeHandle node, ArkUI_Float32 value, ArkUI_Int32 unit,
-        ArkUI_VoidPtr radiuRawPtr);
+        ArkUI_VoidPtr radiusRawPtr);
     void (*setToggleMargin)(ArkUINodeHandle node, const struct ArkUISizeType* top, const struct ArkUISizeType* right,
         const struct ArkUISizeType* bottom, const struct ArkUISizeType* left);
     void (*resetToggleMargin)(ArkUINodeHandle node);
@@ -6272,6 +6274,8 @@ struct ArkUIRadioModifier {
     void (*setRadioMargin)(ArkUINodeHandle node, const struct ArkUISizeType* top, const struct ArkUISizeType* right,
         const struct ArkUISizeType* bottom, const struct ArkUISizeType* left);
     void (*resetRadioMargin)(ArkUINodeHandle node);
+    void (*setRadioColorSetByUser)(ArkUINodeHandle node, ArkUI_Bool isCheckedBackgroundColorSetByUser,
+        ArkUI_Bool isUncheckedBorderColorSetByUser, ArkUI_Bool isIndicatorColorSetByUser);
 };
 
 struct ArkUIPatternLockControllerModifier {
@@ -6594,9 +6598,12 @@ struct ArkUIStateModifier {
 };
 
 struct ArkUIRenderNodeModifier {
+    void (*addBuilderNode)(ArkUINodeHandle node, ArkUINodeHandle child);
     void (*appendChild)(ArkUINodeHandle node, ArkUINodeHandle child);
     void (*insertChildAfter)(ArkUINodeHandle node, ArkUINodeHandle child, ArkUINodeHandle sibling);
+    void (*removeBuilderNode)(ArkUINodeHandle node, ArkUINodeHandle child);
     void (*removeChild)(ArkUINodeHandle node, ArkUINodeHandle child);
+    void (*clearBuilderNode)(ArkUINodeHandle node);
     void (*clearChildren)(ArkUINodeHandle node);
     void (*setClipToFrame)(ArkUINodeHandle node, ArkUI_Bool useClip);
     void (*setRotation)(ArkUINodeHandle node, ArkUI_Float32 rotationX, ArkUI_Float32 rotationY, ArkUI_Float32 rotationZ,
@@ -6653,9 +6660,12 @@ struct ArkUIFrameNodeModifier {
     ArkUI_Bool (*isModifiable)(ArkUINodeHandle node);
     ArkUINodeHandle (*createFrameNode)();
     void (*invalidate)(ArkUINodeHandle node);
+    void (*addBuilderNode)(ArkUINodeHandle node, ArkUINodeHandle child);
     ArkUI_Bool (*appendChild)(ArkUINodeHandle node, ArkUINodeHandle child);
     ArkUI_Bool (*insertChildAfter)(ArkUINodeHandle node, ArkUINodeHandle child, ArkUINodeHandle sibling);
+    void (*removeBuilderNode)(ArkUINodeHandle node, ArkUINodeHandle child);
     void (*removeChild)(ArkUINodeHandle node, ArkUINodeHandle child);
+    void (*clearBuilderNode)(ArkUINodeHandle node);
     void (*clearChildren)(ArkUINodeHandle node);
     ArkUI_Uint32 (*getChildrenCount)(ArkUINodeHandle node, ArkUI_Bool isExpanded);
     ArkUINodeHandle (*getChild)(ArkUINodeHandle node, ArkUI_Int32 index, ArkUI_Uint32 expandMode);

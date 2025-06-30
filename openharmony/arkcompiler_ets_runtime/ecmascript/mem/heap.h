@@ -1418,6 +1418,8 @@ public:
 
     void NotifyFinishColdStartSoon();
 
+    void NotifyWarmStartup();
+
     void NotifyHighSensitive(bool isStart);
 
     bool HandleExitHighSensitiveEvent();
@@ -1501,6 +1503,7 @@ public:
     bool FinishStartupEvent() override
     {
         if (!OnStartupEvent()) {
+            LOG_GC(WARN) << "SmartGC: app cold start last status is not JUST_FINISH_STARTUP, just return false";
             return false;
         }
         TryIncreaseOvershootByConfigSize();
@@ -1607,6 +1610,9 @@ public:
 
     size_t GetNativeBindingSize() const
     {
+        if (g_isEnableCMCGC) {
+            return common::BaseRuntime::GetNotifiedNativeSize();
+        }
         return nativeBindingSize_;
     }
 

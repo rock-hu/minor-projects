@@ -166,6 +166,8 @@ static bool g_isDragging = false;
     if (!*_##name->isValid_) {                          \
         ifInvalid;                                      \
     }
+#define PETALMAPS_SEARCH_URL(address) \
+    (std::string("https://www.petalmaps.com/search/?q=") + (address) + "&utm_source=fb")
 
 struct UIContentImplHelper {
     explicit UIContentImplHelper(UIContentImpl* uiContent) : uiContent_(uiContent)
@@ -1008,7 +1010,7 @@ private:
             curRect.posX_ == lastRect_.posX_ && curRect.posY_ == lastRect_.posY_;
     }
     int32_t instanceId_ = -1;
-    OHOS::Rosen::Rect lastRect_;
+    OHOS::Rosen::Rect lastRect_ = {0, 0, 0, 0};
 };
 
 class DisplayIdChangeListener : public OHOS::Rosen::IDisplayIdChangeListener {
@@ -1024,11 +1026,8 @@ public:
         CHECK_NULL_VOID(container);
         auto taskExecutor = container->GetTaskExecutor();
         CHECK_NULL_VOID(taskExecutor);
-        bool isDisplayIdChanged = displayId != lastDisplayId_;
-        lastDisplayId_ = displayId;
         taskExecutor->PostTask(
-            [instanceId = instanceId_, isDisplayIdChanged] {
-                CHECK_EQUAL_VOID(isDisplayIdChanged, false);
+            [instanceId = instanceId_] {
                 ContainerScope scope(instanceId);
                 ClearAllMenuPopup(instanceId);
             },
@@ -1037,7 +1036,6 @@ public:
 
 private:
     int32_t instanceId_ = -1;
-    OHOS::Rosen::DisplayId lastDisplayId_;
 };
 
 UIContentImpl::UIContentImpl(OHOS::AbilityRuntime::Context* context, void* runtime, VMType vmType)
@@ -2463,6 +2461,18 @@ UIContentErrorCode UIContentImpl::CommonInitialize(
         auto url = urlPrefix + appName;
         want.SetUri(url);
         abilityContext->StartAbility(want, REQUEST_CODE);
+    });
+
+    container->SetOpenLinkOnMapSearch([context = context_](const std::string& address) {
+        auto sharedContext = context.lock();
+        CHECK_NULL_VOID(sharedContext);
+        auto abilityContext =
+            OHOS::AbilityRuntime::Context::ConvertTo<OHOS::AbilityRuntime::AbilityContext>(sharedContext);
+        CHECK_NULL_VOID(abilityContext);
+        AAFwk::Want want;
+        auto url = PETALMAPS_SEARCH_URL(address);
+        want.SetUri(url);
+        abilityContext->OpenLink(want, REQUEST_CODE);
     });
 
     container->SetAbilityOnJumpBrowser([context = context_](const std::string& address) {

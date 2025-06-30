@@ -65,11 +65,7 @@ void DeathTest::Run()
     char* childStack = new char[stackSize];
     ASSERT_NE(childStack, nullptr);
 
-    pid_t childPid = clone(RunInChild,
-        childStack + stackSize,
-        SIGCHLD | CLONE_SETTLS | // reset thread local storage
-            CLONE_FILES,         // share opened fd
-        (void*)this);
+    pid_t childPid = clone(RunInChild, childStack + stackSize, SIGCHLD, (void*)this);
     if (childPid != -1) {
         int status = 0;
         ASSERT_EQ(waitpid(childPid, &status, 0), childPid);
@@ -411,4 +407,20 @@ HWTEST_F(NativeEngineTest, RegisterWorkerEnvTest001, testing::ext::TestSize.Leve
 
     delete workerEngine1;
     delete workerEngine2;
+}
+
+/**
+ * @tc.name: SetRawHeapTrimLevel
+ * @tc.desc: Test interface of SetRawHeapTrimLevel
+ * @tc.type: FUNC
+ */
+HWTEST_F(NativeEngineTest, SetRawHeapTrimLevelTest001, testing::ext::TestSize.Level0)
+{
+    ASSERT_NE(engine_, nullptr);
+    EcmaVM *vm = const_cast<EcmaVM*>(reinterpret_cast<ArkNativeEngine*>(engine_)->GetEcmaVm());
+
+    auto arkIdleMonitor = ArkIdleMonitor::GetInstance();
+    arkIdleMonitor->SetMainThreadEcmaVM(vm);
+
+    engine_->SetRawHeapTrimLevel(1); // test value
 }

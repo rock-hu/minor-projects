@@ -41,10 +41,10 @@ public:
         UNREACHABLE_CC();
     }
     static Heap& GetHeap();
-    static Barrier& GetBarrier() { return *currentBarrierPtr->load(std::memory_order_relaxed); }
+    static Barrier& GetBarrier() { return *currentBarrierPtr_->load(std::memory_order_relaxed); }
 
     // concurrent gc uses barrier to access heap.
-    static bool UseBarrier() { return currentBarrierPtr->load(std::memory_order_relaxed) != stwBarrierPtr; }
+    static bool UseBarrier() { return currentBarrierPtr_->load(std::memory_order_relaxed) != stwBarrierPtr_; }
 
     // should be removed after HeapParam is supported
     virtual void Init(const RuntimeParam& param) = 0;
@@ -67,6 +67,13 @@ public:
     virtual Collector& GetCollector() = 0;
     virtual Allocator& GetAllocator() = 0;
     virtual void TryHeuristicGC() = 0;
+    virtual void NotifyNativeAllocation(size_t bytes) = 0;
+    virtual void NotifyNativeFree(size_t bytes) = 0;
+    virtual void NotifyNativeReset(size_t oldBytes, size_t newBytes) = 0;
+    virtual size_t GetNotifiedNativeSize() = 0;
+    virtual void SetNativeHeapThreshold(size_t newThreshold) = 0;
+    virtual size_t GetNativeHeapThreshold() = 0;
+
     /* to avoid misunderstanding, variant types of heap size are defined as followed:
      * |------------------------------ max capacity ---------------------------------|
      * |------------------------------ current capacity ------------------------|
@@ -88,12 +95,17 @@ public:
     // total memory allocated for each allocation request, including memory fragment for alignment or padding.
     virtual size_t GetAllocatedSize() const = 0;
 
+    virtual size_t GetRemainHeapSize() const = 0;
+
+    virtual size_t GetAccumulatedAllocateSize() const = 0;
+    virtual size_t GetAccumulatedFreeSize() const = 0;
+
     virtual HeapAddress GetStartAddress() const = 0;
     virtual HeapAddress GetSpaceEndAddress() const = 0;
 
     // IsHeapAddress is a range-based check, used to quickly identify heap address,
     // assuming non-heap address never falls into this address range.
-    static bool IsHeapAddress(HeapAddress addr) { return (addr >= heapStartAddr) && (addr < heapCurrentEnd); }
+    static bool IsHeapAddress(HeapAddress addr) { return (addr >= heapStartAddr_) && (addr < heapCurrentEnd_); }
 
     static bool IsTaggedObject(HeapAddress addr)
     {
@@ -123,13 +135,7 @@ public:
 
     virtual bool ForEachObject(const std::function<void(BaseObject*)>&, bool safe) = 0;
 
-    virtual void RegisterStaticRoots(uintptr_t, uint32_t) = 0;
-
-    virtual void UnregisterStaticRoots(uintptr_t, uint32_t) = 0;
-
     virtual void VisitStaticRoots(const RefFieldVisitor& visitor) = 0;
-
-    virtual ssize_t GetHeapPhysicalMemorySize() const = 0;
 
     virtual FinalizerProcessor& GetFinalizerProcessor() = 0;
 
@@ -145,17 +151,17 @@ public:
 
     static void OnHeapCreated(HeapAddress startAddr)
     {
-        heapStartAddr = startAddr;
-        heapCurrentEnd = 0;
+        heapStartAddr_ = startAddr;
+        heapCurrentEnd_ = 0;
     }
 
-    static void OnHeapExtended(HeapAddress newEnd) { heapCurrentEnd = newEnd; }
+    static void OnHeapExtended(HeapAddress newEnd) { heapCurrentEnd_ = newEnd; }
 
     virtual ~Heap() {}
-    static std::atomic<Barrier*>* currentBarrierPtr; // record ptr for fast access
-    static Barrier* stwBarrierPtr;      // record nonGC barrier
-    static HeapAddress heapStartAddr;
-    static HeapAddress heapCurrentEnd;
+    static std::atomic<Barrier*>* currentBarrierPtr_; // record ptr for fast access
+    static Barrier* stwBarrierPtr_;      // record nonGC barrier
+    static HeapAddress heapStartAddr_;
+    static HeapAddress heapCurrentEnd_;
 }; // class Heap
 } // namespace common
 #endif

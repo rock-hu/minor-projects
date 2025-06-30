@@ -66,6 +66,10 @@ textAlign(value: TextAlign)
 | ------ | ------------------------------------------- | ---- | ---------------------------------------------------------- |
 | value  | [TextAlign](ts-appendix-enums.md#textalign) | 是   | 文本段落在水平方向的对齐方式。<br/>默认值：TextAlign.Start<br/>Wearable设备上默认值为：TextAlign.Center |
 
+>  **说明：**  
+>
+>  textAlign只能调整文本整体的布局，不影响字符的显示顺序。若需要调整字符的显示顺序，请参考[镜像状态字符对齐](../../../ui/arkts-mirroring-display.md#镜像状态字符对齐)。
+
 ### textVerticalAlign<sup>20+</sup>
 
 textVerticalAlign(textVerticalAlign: Optional\<TextVerticalAlign>)
@@ -428,6 +432,22 @@ copyOption(value: CopyOptions)
 | ------ | ------------------------------------------------ | ---- | ---------------------------------------------------------- |
 | value  | [CopyOptions](ts-appendix-enums.md#copyoptions9) | 是   | 组件是否支持文本可复制粘贴。<br />默认值：CopyOptions.None |
 
+### contentTransition<sup>20+</sup>
+
+contentTransition(transition: Optional\<ContentTransition>)
+
+可以设置为数字翻牌动效[NumericTextTransition](../arkui-ts/ts-text-common.md#numerictexttransition20)。
+
+**原子化服务API：** 从API version 20开始，该接口支持在原子化服务中使用。
+
+**系统能力：** SystemCapability.ArkUI.ArkUI.Full
+
+**参数：** 
+
+| 参数名 | 类型                                             | 必填 | 说明                                                       |
+| ------ | ------------------------------------------------ | ---- | ---------------------------------------------------------- |
+| transition  | Optional\<[ContentTransition](../arkui-ts/ts-text-common.md#contenttransition20)> | 是   | 文本动效属性。 |
+
 ### draggable<sup>9+</sup>
 
 draggable(value: boolean)
@@ -436,7 +456,7 @@ draggable(value: boolean)
 
 不能和[onDragStart](ts-universal-events-drag-drop.md#ondragstart)事件同时使用。
 
-需配合[CopyOptions](ts-appendix-enums.md#copyoptions9)使用，设置copyOptions为CopyOptions.InApp或者CopyOptions.LocalDevice，并且draggable设置为true时，支持对选中文本的拖拽及复制到输入框。
+当draggable设置为true时，需配合[CopyOptions](ts-appendix-enums.md#copyoptions9)使用，设置copyOptions为CopyOptions.InApp或者CopyOptions.LocalDevice，支持对选中文本的拖拽及复制到输入框。
 
 **原子化服务API：** 从API version 11开始，该接口支持在原子化服务中使用。
 
@@ -2238,54 +2258,65 @@ struct TextExample {
 
 ### 示例15（文本颜色按线性或径向渐变）
 
-该示例通过shaderStyle接口实现了对Text控件显示为渐变色的功能。
+该示例通过shaderStyle接口实现了对Text控件显示为渐变色和纯色的功能。
 
 ```ts
 @Entry
 @Component
-struct shaderStyle {
+struct ShaderColorStyle {
   @State message: string = 'Hello World';
   @State linearGradientOptions1: LinearGradientOptions =
-  {
-    angle: 45,
-    colors: [[Color.Red, 0.0], [Color.Blue, 0.3], [Color.Green, 0.5]]
-  };
+    {
+      angle: 45,
+      colors: [[Color.Red, 0.0], [Color.Blue, 0.3], [Color.Green, 0.5]]
+    };
   @State linearGradientOptions2: LinearGradientOptions =
-  {
-    direction: GradientDirection.LeftTop,
-    colors: [[Color.Red, 0.0], [Color.Blue, 0.3], [Color.Green, 0.5]],
-    repeating: true,
-  };
-  @State radialGradientOptions: RadialGradientOptions = 
-  {
-    center: [50, 50],
-    radius: 20,
-    colors: [[Color.Red, 0.0], [Color.Blue, 0.3], [Color.Green, 0.5]],
-    repeating: true,
-  };
+    {
+      direction: GradientDirection.LeftTop,
+      colors: [[Color.Red, 0.0], [Color.Blue, 0.3], [Color.Green, 0.5]],
+      repeating: true,
+    };
+  @State radialGradientOptions: RadialGradientOptions =
+    {
+      center: [50, 50],
+      radius: 20,
+      colors: [[Color.Red, 0.0], [Color.Blue, 0.3], [Color.Green, 0.5]],
+      repeating: true,
+    };
+  @State colorShaderStyle: ColorShaderStyle =
+    {
+      color: Color.Blue
+    };
   build() {
     Column({ space: 5 }) {
       Text('angle为45°的线性渐变').fontSize(18).width('90%').fontColor(0xCCCCCC)
         .margin({ top: 40, left: 40 })
       Text(this.message)
         .fontSize(50)
-        .shaderStyle(this.linearGradientOptions1)
         .width('80%')
         .height(50)
+        .shaderStyle(this.linearGradientOptions1)
       Text('direction为LeftTop的线性渐变').fontSize(18).width('90%').fontColor(0xCCCCCC)
         .margin({ top: 40, left: 40 })
       Text(this.message)
         .fontSize(50)
-        .shaderStyle(this.linearGradientOptions2)
         .width('80%')
         .height(50)
+        .shaderStyle(this.linearGradientOptions2)
       Text('径向渐变').fontSize(18).width('90%').fontColor(0xCCCCCC)
         .margin({ top: 40, left: 40 })
       Text(this.message)
         .fontSize(50)
-        .shaderStyle(this.radialGradientOptions)
         .width('80%')
         .height(50)
+        .shaderStyle(this.radialGradientOptions)
+      Text('纯色').fontSize(18).width('90%').fontColor(0xCCCCCC)
+        .margin({ top: 40, left: 40 })
+      Text(this.message)
+        .fontSize(50)
+        .width('80%')
+        .height(50)
+        .shaderStyle(this.colorShaderStyle)
     }
   }
 }
@@ -2352,3 +2383,33 @@ struct TextExample14 {
 ```
 
 ![textVerticalAlign](figures/textVerticalAlign.png)
+
+### 示例18（文本翻牌动效）
+
+该示例通过contentTransition属性展示了数字翻牌效果。
+
+```ts
+// xxx.ets
+@Entry
+@Component
+struct TextNumberTransition {
+  @State number: number = 98
+  @State numberTransition: NumericTextTransition = { flipDirection: FlipDirection.DOWN, enableBlur: false }
+
+  build() {
+    Column() {
+      Text(this.number + "")
+        .borderWidth(1)
+        .fontSize(40)
+        .contentTransition(this.numberTransition)
+      Button("chang number")
+        .onClick(() => {
+          this.number++
+        })
+        .margin(10)
+    }
+    .height('100%')
+    .width('100%')
+  }
+}
+```

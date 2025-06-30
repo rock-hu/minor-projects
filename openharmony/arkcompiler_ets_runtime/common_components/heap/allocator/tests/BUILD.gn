@@ -62,6 +62,29 @@ host_unittest_action("Region_Manager_Test") {
   ]
 }
 
+host_unittest_action("Treap_Test") {
+  module_out_path = module_output_path
+
+  sources = [
+    # test file
+    "treap_test.cpp",
+  ]
+
+  configs = [
+    "//arkcompiler/ets_runtime/common_components:common_components_test_config",
+    "//arkcompiler/ets_runtime:icu_path_test_config",
+  ]
+
+  deps = [ "//arkcompiler/ets_runtime/common_components:libark_common_components_test" ]
+
+  # hiviewdfx libraries
+  external_deps = [
+    "icu:shared_icui18n",
+    "icu:shared_icuuc",
+    "zlib:libz",
+  ]
+}
+
 group("unittest") {
   testonly = true
 
@@ -69,6 +92,7 @@ group("unittest") {
   deps = [
     ":Allocator_Test",
     ":Region_Manager_Test",
+    ":Treap_Test",
   ]
 }
 
@@ -79,5 +103,6 @@ group("host_unittest") {
   deps = [
     ":Allocator_TestAction",
     ":Region_Manager_TestAction",
+    ":Treap_TestAction",
   ]
 }

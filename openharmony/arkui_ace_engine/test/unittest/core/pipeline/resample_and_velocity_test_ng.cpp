@@ -26,6 +26,7 @@
 #include "core/components_v2/inspector/inspector_constants.h"
 #include "core/pipeline_ng/pipeline_context.h"
 #include "frameworks/core/components_ng/pattern/root/root_pattern.h"
+#include "core/pipeline/base/constants.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -334,7 +335,7 @@ void ResampleTestNg::TestFastFlick(int32_t vsyncPeriod, TestResult& result)
     constexpr int32_t repeatTimes = 1;
     double accumulateVar = 0;
     double accumulateSmooth = 0;
-    SetGenerator([](double t) { return CalculateParabola(-0.0005, 0.8, 0, t, M_PI / 3); });
+    SetGenerator([](double t) { return CalculateParabola(-0.0005, 0.8, 0, t, ACE_PI / 3); });
     for (int32_t i = 0; i < repeatTimes; ++i) {
         GenerateTouchEvents(500);
         RunVsync(vsyncPeriod);
@@ -375,7 +376,7 @@ void ResampleTestNg::TestDeceleratingSlide(int32_t vsyncPeriod, TestResult& resu
     constexpr int32_t repeatTimes = 1;
     double accumulateVar = 0;
     double accumulateSmooth = 0;
-    SetGenerator([](double t) { return CalculateParabola(-0.0001, 0.3, 0, t, M_PI / 6); });
+    SetGenerator([](double t) { return CalculateParabola(-0.0001, 0.3, 0, t, ACE_PI / 6); });
     for (int32_t i = 0; i < repeatTimes; ++i) {
         GenerateTouchEvents(500);
         RunVsync(60);
@@ -544,21 +545,9 @@ HWTEST_F(ResampleTestNg, ResampleTestRealData01, TestSize.Level1)
     pipeline_->touchEvents_.clear();
 
     // real trace data
-    std::vector<int64_t> vsyncTime {
-        343641803424377,
-        343641820086409,
-        343641836748819,
-        343641853410582,
-        343641870072479,
-        343641886735032,
-        343641903397442,
-        343641920059816,
-        343641936722405,
-        343641953686073,
-        343641970348577,
-        343641987010997,
-        343642003671915
-    };
+    std::vector<int64_t> vsyncTime { 343641803424377, 343641820086409, 343641836748819, 343641853410582,
+        343641870072479, 343641886735032, 343641903397442, 343641920059816, 343641936722405, 343641953686073,
+        343641970348577, 343641987010997, 343642003671915 };
     int32_t vsyncIdx = 0;
     int32_t i = 0;
     while (i < oriEvents_.size()) {

@@ -279,6 +279,45 @@ void MenuWrapperPattern::GetExpandingMode(const RefPtr<UINode>& subMenu, SubMenu
     menuItemPattern->SetIsSubMenuShowed(false);
 }
 
+void MenuWrapperPattern::HideSubMenuByDepth(const RefPtr<FrameNode>& menuItem)
+{
+    CHECK_NULL_VOID(menuItem);
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    if (host->GetChildren().size() <= 1) {
+        // sub menu not show
+        return;
+    }
+    auto menuItemPattern = menuItem->GetPattern<MenuItemPattern>();
+    CHECK_NULL_VOID(menuItemPattern);
+    auto menuNode = menuItemPattern->GetMenu(true);
+    CHECK_NULL_VOID(menuNode);
+    auto menuPattern = menuNode->GetPattern<MenuPattern>();
+    CHECK_NULL_VOID(menuPattern);
+    auto curDepth = menuPattern->GetSubMenuDepth();
+    auto children = host->GetChildren();
+    for (auto child = children.rbegin(); child != children.rend(); ++child) {
+        auto childNode = DynamicCast<FrameNode>(*child);
+        CHECK_NULL_VOID(childNode);
+        if (childNode->GetTag() != V2::MENU_ETS_TAG) {
+            continue;
+        }
+        auto subMenuPattern = childNode->GetPattern<MenuPattern>();
+        CHECK_NULL_VOID(subMenuPattern);
+        if (subMenuPattern->GetSubMenuDepth() <= curDepth) {
+            break;
+        }
+        if (subMenuPattern->GetSubMenuDepth() == (curDepth + 1)) {
+            subMenuPattern->RemoveParentHoverStyle();
+        }
+        UpdateMenuAnimation(host);
+        SendToAccessibility(childNode, false);
+        host->RemoveChild(childNode);
+    }
+    menuPattern->SetShowedSubMenu(nullptr);
+    host->MarkDirtyNode(PROPERTY_UPDATE_MEASURE_SELF_AND_CHILD);
+}
+
 void MenuWrapperPattern::HideSubMenu()
 {
     auto host = GetHost();
@@ -758,7 +797,7 @@ bool MenuWrapperPattern::OnDirtyLayoutWrapperSwap(const RefPtr<LayoutWrapper>& d
     CHECK_NULL_RETURN(layoutProperty, false);
     isShowInSubWindow_ = layoutProperty->GetShowInSubWindowValue(true);
     if (host->IsOnMainTree() &&
-        ((IsContextMenu() && !IsHide()) || ((expandDisplay && isShowInSubWindow_) && !IsHide()) ||
+        ((IsContextMenu() && !IsHide()) || (((expandDisplay || isOpenMenu_) && isShowInSubWindow_) && !IsHide()) ||
             GetIsSelectOverlaySubWindowWrapper())) {
         SetHotAreas(dirty);
     }
@@ -780,7 +819,7 @@ bool MenuWrapperPattern::IsNeedSetHotAreas(const RefPtr<LayoutWrapper>& layoutWr
     auto theme = pipeline->GetTheme<SelectTheme>();
     CHECK_NULL_RETURN(theme, false);
     bool menuNotNeedsHotAreas = (layoutWrapper->GetAllChildrenWithBuild().empty() || !IsContextMenu()) &&
-                                !(theme->GetExpandDisplay() && isShowInSubWindow_);
+                                !((theme->GetExpandDisplay() || isOpenMenu_) && isShowInSubWindow_);
     if (menuNotNeedsHotAreas && !GetIsSelectOverlaySubWindowWrapper()) {
         return false;
     }

@@ -51,6 +51,8 @@ void ScrollPattern::OnModifyDone()
         ResetPosition();
         if (axis == Axis::FREE) {
             InitFreeScroll();
+        } else {
+            freePanGesture_.Reset();
         }
     }
     if (!GetScrollableEvent()) {
@@ -147,6 +149,7 @@ bool ScrollPattern::OnDirtyLayoutWrapperSwap(const RefPtr<LayoutWrapper>& dirty,
     if (scrollEdgeType_ != ScrollEdgeType::SCROLL_NONE && AnimateStoped()) {
         scrollEdgeType_ = ScrollEdgeType::SCROLL_NONE;
     }
+    ChangeCanStayOverScroll();
     return paintProperty->GetFadingEdge().value_or(false);
 }
 
@@ -257,6 +260,7 @@ void ScrollPattern::ResetPosition()
 {
     currentOffset_ = 0.0f;
     lastOffset_ = 0.0f;
+    crossOffset_ = 0.0f;
 }
 
 bool ScrollPattern::IsAtTop() const

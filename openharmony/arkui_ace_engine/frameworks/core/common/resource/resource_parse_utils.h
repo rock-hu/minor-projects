@@ -107,9 +107,24 @@ public:
         return false;
     }
 
+    static void SetIsReloading(bool isReloading)
+    {
+        isReloading_ = isReloading;
+    }
+
+    static bool IsReloading()
+    {
+        return isReloading_;
+    }
+
 private:
+    static void InvertColorWithResource(const RefPtr<ResourceObject>& resObj, Color& result,
+        const ColorMode& colorMode);
+    static bool ParseResColorWithName(const RefPtr<ResourceObject>& resObj, Color& result,
+        RefPtr<ResourceWrapper>& resourceWrapper, const ColorMode& colorMode);
     static bool ParseResStringObj(const std::vector<ResourceObjectParams>& params,
         RefPtr<ResourceWrapper>& resourceWrapper, std::string& result, int32_t type);
+    static bool isReloading_;
 };
 }
 #endif

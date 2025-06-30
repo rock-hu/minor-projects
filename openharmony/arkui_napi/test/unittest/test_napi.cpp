@@ -22,11 +22,15 @@
 #include <chrono>
 #include <thread>
 
+#include "ark_native_reference.h"
 #include "gtest/gtest.h"
 #include "hilog/log.h"
+#include "ecmascript/napi/include/jsnapi_expo.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
 #include "native_create_env.h"
+#include "native_utils.h"
+#include "reference_manager/native_reference_manager.h"
 #include "securec.h"
 #include "test.h"
 
@@ -5349,7 +5353,6 @@ HWTEST_F(NapiBasicTest, AsyncWorkTest002, testing::ext::TestSize.Level1)
         },
         asyncWorkContext, &asyncWorkContext->work);
     napi_queue_async_work(env, asyncWorkContext->work);
-    napi_cancel_async_work(env, asyncWorkContext->work);
     RUN_EVENT_LOOP(env);
 }
 
@@ -7576,6 +7579,126 @@ HWTEST_F(NapiBasicTest, NapiDefineClassTest004, testing::ext::TestSize.Level1)
     ASSERT_EQ(status, napi_invalid_arg);
 }
 
+HWTEST_F(NapiBasicTest, NapiDefineClassTest005, testing::ext::TestSize.Level1)
+{
+    napi_env env = reinterpret_cast<napi_env>(engine_);
+    napi_value result;
+    napi_status status = napi_define_class(
+        env, "TestClass", NAPI_AUTO_LENGTH,
+        [](napi_env env, napi_callback_info info) -> napi_value {
+            napi_value thisVar = nullptr;
+            napi_get_cb_info(env, info, nullptr, nullptr, &thisVar, nullptr);
+            return thisVar;
+        },
+        nullptr, 0, nullptr, &result);
+
+    const EcmaVM* vm = reinterpret_cast<ArkNativeEngine*>(engine_)->GetEcmaVm();
+    Local<panda::FunctionRef> classFunc = LocalValueFromJsValue(result);
+    Local<panda::StringRef> className = classFunc->GetName(vm);
+    ASSERT_EQ(className->ToString(vm), "TestClass");
+    ASSERT_EQ(status, napi_ok);
+}
+
+HWTEST_F(NapiBasicTest, NapiDefineClassTest006, testing::ext::TestSize.Level1)
+{
+    napi_env env = reinterpret_cast<napi_env>(engine_);
+    napi_property_descriptor properties[10];
+    const std::string keyNames[10] = { "key0", "key1", "key2", "key3", "key4", "key5", "key6", "key7", "key8", "key9" };
+    const int expectedVals[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+    int defaultAttributes = napi_default | napi_writable | napi_configurable;
+    for (size_t i = 0; i < 10; ++i) {
+        properties[i].utf8name = keyNames[i].c_str();
+        properties[i].name = nullptr;
+        properties[i].method = nullptr;
+        properties[i].getter = nullptr;
+        properties[i].setter = nullptr;
+        if (i <= 5) {
+            properties[i].attributes = static_cast<napi_property_attributes>(defaultAttributes | napi_static);
+        } else {
+            properties[i].attributes = static_cast<napi_property_attributes>(defaultAttributes);
+        }
+        napi_create_int32(env, expectedVals[i], &(properties[i].value));
+    }
+
+    napi_value result;
+    napi_status status = napi_define_class(
+        env, "TestClass", NAPI_AUTO_LENGTH,
+        [](napi_env env, napi_callback_info info) -> napi_value {
+            napi_value thisVar = nullptr;
+            napi_get_cb_info(env, info, nullptr, nullptr, &thisVar, nullptr);
+            return thisVar;
+        },
+        nullptr, 10, &properties[0], &result);
+
+    const EcmaVM* vm = reinterpret_cast<ArkNativeEngine*>(engine_)->GetEcmaVm();
+    Local<panda::FunctionRef> classFunc = LocalValueFromJsValue(result);
+    Local<panda::ObjectRef> clsFuncProto = classFunc->GetFunctionPrototype(vm);
+    for (size_t i = 0; i < 10; ++i) {
+        Local<panda::JSValueRef> curProp;
+        if (i <= 5) {
+            curProp = classFunc->Get(vm, properties[i].utf8name);
+        } else {
+            curProp = clsFuncProto->Get(vm, properties[i].utf8name);
+        }
+        bool tmpBool = true;
+        ASSERT_EQ(curProp->GetValueInt32(tmpBool), expectedVals[i]);
+    }
+    ASSERT_EQ(status, napi_ok);
+}
+
+static napi_value NativeCallBackForTest(napi_env env, napi_callback_info info)
+{
+    return nullptr;
+}
+
+HWTEST_F(NapiBasicTest, NapiDefineClassTest007, testing::ext::TestSize.Level1)
+{
+    napi_env env = reinterpret_cast<napi_env>(engine_);
+    napi_property_descriptor properties[panda::ObjectRef::MAX_PROPERTIES_ON_STACK + 1];
+    const std::string keyNames[10] = { "key0", "key1", "key2", "key3", "key4", "key5", "key6", "key7", "key8", "key9" };
+    const std::string lastKeys[4] = { "lastKey0", "lastKey1", "lastKey2", "lastKey3" };
+    int expectedVals[panda::ObjectRef::MAX_PROPERTIES_ON_STACK + 1];
+    for (size_t i = 0; i < panda::ObjectRef::MAX_PROPERTIES_ON_STACK + 1; ++i) {
+        expectedVals[i] = i;
+    }
+    int defaultAttributes = napi_default | napi_writable | napi_configurable | napi_static;
+    for (size_t i = 0; i < panda::ObjectRef::MAX_PROPERTIES_ON_STACK + 1; ++i) {
+        if (i >= panda::ObjectRef::MAX_PROPERTIES_ON_STACK - 3) {
+            properties[i].utf8name = lastKeys[i - (panda::ObjectRef::MAX_PROPERTIES_ON_STACK - 3)].c_str();
+        } else {
+            properties[i].utf8name = keyNames[i % 10].c_str();
+        }
+        properties[i].name = nullptr;
+        properties[i].method = nullptr;
+        properties[i].getter = nullptr;
+        properties[i].setter = nullptr;
+        properties[i].attributes = static_cast<napi_property_attributes>(defaultAttributes);
+        napi_create_int32(env, expectedVals[i], &(properties[i].value));
+    }
+    properties[panda::ObjectRef::MAX_PROPERTIES_ON_STACK - 1].getter = NativeCallBackForTest;
+    properties[panda::ObjectRef::MAX_PROPERTIES_ON_STACK - 2].setter = NativeCallBackForTest;
+    properties[panda::ObjectRef::MAX_PROPERTIES_ON_STACK - 3].method = NativeCallBackForTest;
+
+    napi_value result;
+    napi_status status = napi_define_class(
+        env, "TestClass", NAPI_AUTO_LENGTH,
+        [](napi_env env, napi_callback_info info) -> napi_value {
+            napi_value thisVar = nullptr;
+            napi_get_cb_info(env, info, nullptr, nullptr, &thisVar, nullptr);
+            return thisVar;
+        },
+        nullptr, panda::ObjectRef::MAX_PROPERTIES_ON_STACK + 1, &properties[0], &result);
+
+    const EcmaVM* vm = reinterpret_cast<ArkNativeEngine*>(engine_)->GetEcmaVm();
+    Local<panda::FunctionRef> classFunc = LocalValueFromJsValue(result);
+    Local<panda::JSValueRef> curProp =
+        classFunc->Get(vm, properties[panda::ObjectRef::MAX_PROPERTIES_ON_STACK].utf8name);
+    bool tmpBool = true;
+    ASSERT_EQ(curProp->GetValueInt32(tmpBool), expectedVals[panda::ObjectRef::MAX_PROPERTIES_ON_STACK]);
+
+    ASSERT_EQ(status, napi_ok);
+}
+
 HWTEST_F(NapiBasicTest, NapiWrapTest001, testing::ext::TestSize.Level1)
 {
     napi_env env = reinterpret_cast<napi_env>(engine_);
@@ -7646,7 +7769,7 @@ HWTEST_F(NapiBasicTest, NapiWrapTest006, testing::ext::TestSize.Level1)
     ASSERT_EQ(status, napi_object_expected);
 }
 
-#ifdef PANDA_JS_ETS_HYBRID_MODE
+#ifdef PANDA_JS_ETS_HYBRID_MODE_TEST
 HWTEST_F(NapiBasicTest, NapiWrapWithXRefTest001, testing::ext::TestSize.Level1)
 {
     napi_env env = reinterpret_cast<napi_env>(engine_);
@@ -7848,7 +7971,7 @@ HWTEST_F(NapiBasicTest, NapiUnwrapTest006, testing::ext::TestSize.Level1)
     ASSERT_EQ(status, napi_invalid_arg);
 }
 
-#ifdef PANDA_JS_ETS_HYBRID_MODE
+#ifdef PANDA_JS_ETS_HYBRID_MODE_TEST
 HWTEST_F(NapiBasicTest, NapiXrefUnwrapTest001, testing::ext::TestSize.Level1)
 {
     napi_env env = reinterpret_cast<napi_env>(engine_);
@@ -8995,6 +9118,7 @@ HWTEST_F(NapiBasicTest, NapiGetValueBigintUint64Test004, testing::ext::TestSize.
     ASSERT_EQ(status, napi_bigint_expected);
 }
 
+#ifdef PANDA_JS_ETS_HYBRID_MODE_TEST
 HWTEST_F(NapiBasicTest, NapiIsAliveObjectTest001, testing::ext::TestSize.Level1)
 {
     napi_env env = reinterpret_cast<napi_env>(engine_);
@@ -9035,6 +9159,7 @@ HWTEST_F(NapiBasicTest, NapiIsXrefTypeTest001, testing::ext::TestSize.Level1)
     napi_status status = napi_is_xref_type(env, obj, &res);
     ASSERT_EQ(status, napi_ok);
 }
+#endif
 
 HWTEST_F(NapiBasicTest, NapiGetValueBigintWordsTest001, testing::ext::TestSize.Level1)
 {
@@ -14040,4 +14165,146 @@ HWTEST_F(NapiBasicTest, NapiEnvCleanupTest001, testing::ext::TestSize.Level1)
     engine->RunCleanup();
     ASSERT_TRUE(collector.Includes("CleanupHandles, request waiting:"));
     ASSERT_TRUE(workDone);
+}
+
+/**
+ * @tc.name: ArkNativeReferenceTest001
+ * @tc.desc: Test code of ArkNativeReference
+ * @tc.type: FUNC
+ */
+HWTEST_F(NapiBasicTest, ArkNativeReferenceTest001, testing::ext::TestSize.Level1)
+{
+    napi_env env = reinterpret_cast<napi_env>(engine_);
+    napi_value value = nullptr;
+    ASSERT_CHECK_CALL(napi_create_object(env, &value));
+    ArkNativeReference *ref = nullptr;
+    ASSERT_CHECK_CALL(napi_create_reference(env, value, 0, reinterpret_cast<napi_ref*>(&ref)));
+    ASSERT_EQ(ref->properties_ & ArkNativeReference::DELETE_SELF_MASK, 0);
+    ASSERT_EQ(ref->properties_ & ArkNativeReference::IS_ASYNC_CALL_MASK, 0);
+    ASSERT_EQ(ref->properties_ & ArkNativeReference::HAS_DELETE_MASK, 0);
+    ASSERT_EQ(ref->properties_ & ArkNativeReference::FINAL_RAN_MASK, 0);
+    ASSERT_CHECK_CALL(napi_delete_reference(env, reinterpret_cast<napi_ref>(ref)));
+}
+
+/**
+ * @tc.name: ArkNativeReferenceTest002
+ * @tc.desc: Test code of ArkNativeReference
+ * @tc.type: FUNC
+ */
+HWTEST_F(NapiBasicTest, ArkNativeReferenceTest002, testing::ext::TestSize.Level1)
+{
+    napi_env env = reinterpret_cast<napi_env>(engine_);
+    napi_value value = nullptr;
+    ASSERT_CHECK_CALL(napi_create_object(env, &value));
+    ArkNativeReference *ref = nullptr;
+    ASSERT_CHECK_CALL(napi_create_reference(env, value, 0, reinterpret_cast<napi_ref*>(&ref)));
+    ASSERT_CHECK_CALL(napi_delete_reference(env, reinterpret_cast<napi_ref>(ref)));
+    // Weak ref will mark to delete self instead delete directly
+    ASSERT_NE(ref->properties_ & ArkNativeReference::DELETE_SELF_MASK, 0);
+    ASSERT_EQ(ref->properties_ & ArkNativeReference::IS_ASYNC_CALL_MASK, 0);
+    ASSERT_EQ(ref->properties_ & ArkNativeReference::HAS_DELETE_MASK, 0);
+    ASSERT_EQ(ref->properties_ & ArkNativeReference::FINAL_RAN_MASK, 0);
+}
+
+/**
+ * @tc.name: ArkNativeReferenceTest003
+ * @tc.desc: Test code of ArkNativeReference
+ * @tc.type: FUNC
+ */
+HWTEST_F(NapiBasicTest, ArkNativeReferenceTest003, testing::ext::TestSize.Level1)
+{
+    napi_env env = reinterpret_cast<napi_env>(engine_);
+    napi_value value = nullptr;
+    ASSERT_CHECK_CALL(napi_create_object(env, &value));
+    ArkNativeReference** ref = new ArkNativeReference* { nullptr };
+    ASSERT_CHECK_CALL(napi_add_finalizer(
+        env, value, ref,
+        // This callback is execution under deconstructor of ArkNativeReference
+        [](napi_env env, void* data, void*) {
+            ArkNativeReference** secondData = reinterpret_cast<ArkNativeReference**>(data);
+            ArkNativeReference* ref = *secondData;
+            ASSERT_EQ(ref->properties_ & ArkNativeReference::DELETE_SELF_MASK, 0);
+            ASSERT_EQ(ref->properties_ & ArkNativeReference::IS_ASYNC_CALL_MASK, 0);
+            ASSERT_NE(ref->properties_ & ArkNativeReference::HAS_DELETE_MASK, 0);
+            ASSERT_EQ(ref->properties_ & ArkNativeReference::FINAL_RAN_MASK, 0);
+            delete secondData;
+        },
+        nullptr, reinterpret_cast<napi_ref*>(ref)));
+    ASSERT_EQ((*ref)->properties_ & ArkNativeReference::DELETE_SELF_MASK, 0);
+    ASSERT_EQ((*ref)->properties_ & ArkNativeReference::IS_ASYNC_CALL_MASK, 0);
+    ASSERT_EQ((*ref)->properties_ & ArkNativeReference::HAS_DELETE_MASK, 0);
+    ASSERT_EQ((*ref)->properties_ & ArkNativeReference::FINAL_RAN_MASK, 0);
+    ASSERT_CHECK_CALL(napi_delete_reference(env, reinterpret_cast<napi_ref>(*ref)));
+}
+
+/**
+ * @tc.name: ArkNativeReferenceTest004
+ * @tc.desc: Test code of ArkNativeReference
+ * @tc.type: FUNC
+ */
+HWTEST_F(NapiBasicTest, ArkNativeReferenceTest004, testing::ext::TestSize.Level1)
+{
+    UVLoopRunner runner(engine_);
+    napi_env env = reinterpret_cast<napi_env>(engine_);
+    ArkNativeReference** ref = new ArkNativeReference* { nullptr };
+    {
+        panda::LocalScope scope(engine_->GetEcmaVm());
+        napi_value value = nullptr;
+        ASSERT_CHECK_CALL(napi_create_object(env, &value));
+        ASSERT_CHECK_CALL(napi_add_finalizer(
+            env, value, ref,
+            // This callback is execution under deconstructor of ArkNativeReference
+            [](napi_env env, void* data, void*) {
+                ArkNativeReference** secondData = reinterpret_cast<ArkNativeReference**>(data);
+                ArkNativeReference* ref = *secondData;
+                ASSERT_NE(ref->properties_ & ArkNativeReference::DELETE_SELF_MASK, 0);
+                ASSERT_EQ(ref->properties_ & ArkNativeReference::IS_ASYNC_CALL_MASK, 0);
+                ASSERT_EQ(ref->properties_ & ArkNativeReference::HAS_DELETE_MASK, 0);
+                ASSERT_NE(ref->properties_ & ArkNativeReference::FINAL_RAN_MASK, 0);
+                *secondData = nullptr;
+            },
+            nullptr, nullptr));
+        // Head is last reference which created above. 
+        *ref = reinterpret_cast<ArkNativeReference*>(engine_->GetReferenceManager()->references_);
+        ASSERT_NE((*ref)->properties_ & ArkNativeReference::DELETE_SELF_MASK, 0);
+    }
+    ASSERT_NE(ref, nullptr);
+    panda::JSNApi::TriggerGC(engine_->GetEcmaVm(), panda::ecmascript::GCReason::OTHER, panda::JSNApi::TRIGGER_GC_TYPE::FULL_GC);
+    runner.Run();
+    ASSERT_EQ(*ref, nullptr);
+    delete ref;
+}
+
+/**
+ * @tc.name: ArkNativeReferenceTest005
+ * @tc.desc: Test code of ~ArkNativeReference in ~NativeEngine.
+ *           This test case would crash if tests failed.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NapiBasicTest, ArkNativeReferenceTest005, testing::ext::TestSize.Level1)
+{
+    struct RefTestData {
+        napi_env env_ { nullptr };
+        napi_ref ref_ { nullptr };
+    };
+
+    RefTestData* testData = new RefTestData;
+    {
+        NativeEngineProxy env;
+        testData->env_ = env;
+        napi_value val = nullptr;
+        ASSERT_CHECK_CALL(napi_create_object(env, &val));
+        ASSERT_CHECK_CALL(napi_create_reference(env, val, 0, &testData->ref_));
+        ASSERT_CHECK_CALL(napi_add_env_cleanup_hook(
+            env,
+            [](void* arg) {
+                RefTestData* data = reinterpret_cast<RefTestData*>(arg);
+                ASSERT_CHECK_CALL(napi_delete_reference(data->env_, data->ref_));
+                data->ref_ = nullptr;
+            },
+            testData));
+        }
+        testData->env_ = nullptr;
+    ASSERT_EQ(testData->ref_, nullptr);
+    delete testData;
 }

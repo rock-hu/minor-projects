@@ -130,9 +130,9 @@ public:
     ObjectXRay() = default;
     ~ObjectXRay() = default;
 
-    static inline void VisitVMRoots(EcmaVM *vm, RootVisitor &visitor, VMRootVisitType type)
+    static inline void VisitVMRoots(EcmaVM *vm, RootVisitor &visitor)
     {
-        vm->Iterate(visitor, type);
+        vm->Iterate(visitor);
         vm->GetAssociatedJSThread()->Iterate(visitor);
     }
 
@@ -288,6 +288,7 @@ public:
                 break;
             case JSType::JS_WEAK_MAP:
                 JSWeakMap::Cast(object)->VisitRangeSlot<visitType>(visitor);
+                visitor.VisitJSWeakMap(object);
                 break;
             case JSType::JS_WEAK_SET:
                 JSWeakSet::Cast(object)->VisitRangeSlot<visitType>(visitor);

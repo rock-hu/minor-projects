@@ -89,8 +89,6 @@ public:
 
     StaticRootTable() { totalRootsCount_ = 0; }
     ~StaticRootTable() = default;
-    void RegisterRoots(StaticRootArray* addr, uint32_t size);
-    void UnregisterRoots(StaticRootArray* addr, uint32_t size);
     void VisitRoots(const RefFieldVisitor& visitor);
 
 private:
@@ -201,18 +199,6 @@ public:
 
     inline bool IsResurrectedObject(const BaseObject* obj) const { return RegionSpace::IsResurrectedObject(obj); }
 
-    virtual bool ResurrectObject(BaseObject* obj)
-    {
-        bool resurrected = RegionSpace::ResurrentObject(obj);
-        if (!resurrected) {
-            reinterpret_cast<RegionSpace&>(theAllocator_).CountLiveObject(obj);
-            if (!fixReferences_ && RegionDesc::GetRegionDescAt(reinterpret_cast<HeapAddress>(obj))->IsFromRegion()) {
-                VLOG(DEBUG, "resurrection tag w-obj %zu", obj->GetSize());
-            }
-        }
-        return resurrected;
-    }
-
     Allocator& GetAllocator() const { return theAllocator_; }
 
     bool IsHeapMarked() const { return collectorResources_.IsHeapMarked(); }
@@ -246,6 +232,7 @@ protected:
 
     void RequestGCInternal(GCReason reason, bool async) override { collectorResources_.RequestGC(reason, async); }
     void MergeWeakStack(WeakStack& weakStack);
+    void UpdateNativeThreshold(GCParam& gcParam);
 
     Allocator& theAllocator_;
 
@@ -293,37 +280,34 @@ protected:
 
     // let finalizerProcessor process finalizers, and mark resurrected if in stw gc
     virtual void ProcessWeakReferences() {}
+    virtual void ProcessStringTable() {}
+
     virtual void ProcessFinalizers() {}
-    // designed to mark resurrected finalizer, should not be call in stw gc
-    virtual void DoResurrection(WorkStack& workStack);
-
-    void MergeMutatorRoots(WorkStack& workStack);
-    void EnumerateAllRoots(WorkStack& workStack);
-    void TraceRoots(WorkStack& workStack);
-    bool MarkSatbBuffer(WorkStack& workStack);
-    void MarkRememberSet(WorkStack& workStack);
-
-    // concurrent marking.
-    void TracingImpl(WorkStack& workStack, bool parallel);
-
-    bool AddConcurrentTracingWork(WorkStack& workStack, GlobalWorkStackQueue &globalQueue, size_t threadCount);
-    virtual void EnumAndTagRawRoot(ObjectRef& root, RootSet& rootSet) const
+    virtual void RemarkAndPreforwardStaticRoots(WorkStack& workStack)
     {
         LOG_COMMON(FATAL) << "Unresolved fatal";
         UNREACHABLE_CC();
     }
 
+    void MergeAllocBufferRoots(WorkStack& workStack);
+    void EnumerateAllRoots(WorkStack& workStack);
+    void PushRootInWorkStack(RootSet *dst, RootSet *src);
+
+    void TraceRoots(WorkStack& workStack);
+    void Remark(WorkStack& workStack);
+    bool MarkSatbBuffer(WorkStack& workStack);
+
+    // concurrent marking.
+    void TracingImpl(WorkStack& workStack, bool parallel);
+
+    bool AddConcurrentTracingWork(WorkStack& workStack, GlobalWorkStackQueue &globalQueue, size_t threadCount);
 private:
     void MarkRememberSetImpl(BaseObject* object, WorkStack& workStack);
-    void ConcurrentReMark(WorkStack& remarkStack, bool parallel);
+    void ConcurrentRemark(WorkStack& remarkStack, bool parallel);
     void MarkAwaitingJitFort();
     void EnumMutatorRoot(ObjectPtr& obj, RootSet& rootSet) const;
     void EnumConcurrencyModelRoots(RootSet& rootSet) const;
     void EnumStaticRoots(RootSet& rootSet) const;
-    void EnumFinalizerProcessorRoots(RootSet& rootSet) const;
-
-    void VisitStaticRoots(const RefFieldVisitor& visitor) const;
-    void VisitFinalizerRoots(const RootVisitor& visitor) const;
 };
 } // namespace common
 

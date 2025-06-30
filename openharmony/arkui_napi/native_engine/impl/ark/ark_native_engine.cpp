@@ -181,6 +181,149 @@ void FunctionSetContainerId(napi_env env, panda::Local<panda::JSValueRef> &value
 }
 #endif
 
+static Local<panda::JSValueRef> NapiNativeCreateFunction(napi_env env, const char* name,
+                                                         NapiNativeCallback cb, void* value)
+{
+    auto engine = reinterpret_cast<NativeEngine*>(env);
+    auto vm = const_cast<EcmaVM*>(engine->GetEcmaVm());
+    NapiFunctionInfo* funcInfo = NapiFunctionInfo::CreateNewInstance();
+    if (funcInfo == nullptr) {
+        HILOG_ERROR("funcInfo is nullptr");
+        return JSValueRef::Undefined(vm);
+    }
+    funcInfo->callback = cb;
+    funcInfo->data = value;
+    funcInfo->env = env;
+#ifdef ENABLE_CONTAINER_SCOPE
+    if (engine->IsContainerScopeEnabled()) {
+        funcInfo->scopeId = OHOS::Ace::ContainerScope::CurrentId();
+    }
+#endif
+
+    Local<JSValueRef> context = engine->GetContext();
+    Local<panda::FunctionRef> fn = panda::FunctionRef::NewConcurrentWithName(vm, context, ArkNativeFunctionCallBack,
+                                                                             CommonDeleter, name,
+                                                                             reinterpret_cast<void*>(funcInfo), true);
+    return fn;
+}
+
+static Local<panda::JSValueRef> NapiInitAttrValFromProp(napi_env env, const NapiPropertyDescriptor &property,
+                                                        bool &writable, Local<panda::JSValueRef> *curKey)
+{
+    const EcmaVM *vm = reinterpret_cast<NativeEngine *>(env)->GetEcmaVm();
+    Local<panda::JSValueRef> val = panda::JSValueRef::Undefined(vm);
+    std::string fullName("");
+    if (property.getter != nullptr || property.setter != nullptr) {
+        Local<panda::JSValueRef> localGetter = panda::JSValueRef::Undefined(vm);
+        Local<panda::JSValueRef> localSetter = panda::JSValueRef::Undefined(vm);
+        if (property.getter != nullptr) {
+            fullName += "getter";
+            localGetter = NapiNativeCreateFunction(env, fullName.c_str(), property.getter, property.data);
+        }
+        if (property.setter != nullptr) {
+            fullName += "setter";
+            localSetter = NapiNativeCreateFunction(env, fullName.c_str(), property.setter, property.data);
+        }
+        val = panda::ObjectRef::CreateAccessorData(vm, localGetter, localSetter);
+        writable = false; // the default writable of getter and setter is 'false'
+    } else if (property.method != nullptr) {
+        if (property.utf8name != nullptr) {
+            fullName += property.utf8name;
+        } else {
+            fullName += (*curKey)->IsString(vm) ?
+                        Local<panda::StringRef>(*curKey)->ToString(vm) :
+                        Local<panda::SymbolRef>(*curKey)->GetDescription(vm)->ToString(vm);
+        }
+        val = NapiNativeCreateFunction(env, fullName.c_str(), property.method, property.data);
+    } else {
+        val = LocalValueFromJsValue(property.value);
+    }
+    return val;
+}
+
+static size_t NapiGetKeysAndAttrsFromProps(napi_env env, size_t propertyCount, const NapiPropertyDescriptor *properties,
+                                           Local<panda::JSValueRef> *keys, PropertyAttribute *attrs)
+{
+    auto vm = reinterpret_cast<NativeEngine *>(env)->GetEcmaVm();
+    size_t curNonStaticPropIdx = propertyCount - 1; // 1: last index of array is 'lenght - 1'.
+    size_t curStaticPropIdx = 0;
+    for (size_t i = 0; i < propertyCount; ++i) {
+        const NapiPropertyDescriptor &property = properties[i];
+        Local<panda::JSValueRef> *curKey;
+        PropertyAttribute *curAttr;
+        // Properties in keys and attrs are stored in the following way:
+        // +------------------+ ... + -------------------------------------+ ... +---------------------+
+        // | first staticProp | ... | last staticProp | last nonStaticProp | ... | first nonStaticProp |
+        // +------------------+ ... + -------------------------------------+ ... +---------------------+
+        if (properties[i].attributes & NATIVE_STATIC) {
+            curKey = &keys[curStaticPropIdx];
+            curAttr = &attrs[curStaticPropIdx];
+            ++curStaticPropIdx;
+        } else {
+            curKey = &keys[curNonStaticPropIdx];
+            curAttr = &attrs[curNonStaticPropIdx];
+            --curNonStaticPropIdx;
+        }
+        if (property.utf8name != nullptr) {
+            *curKey = panda::StringRef::NewFromUtf8(vm, property.utf8name);
+        } else {
+            *curKey = LocalValueFromJsValue(property.name);
+        }
+        bool writable = (property.attributes & NATIVE_WRITABLE) != 0;
+        bool enumable = (property.attributes & NATIVE_ENUMERABLE) != 0;
+        bool configable = (property.attributes & NATIVE_CONFIGURABLE) != 0;
+        Local<panda::JSValueRef> val = NapiInitAttrValFromProp(env, property, writable, curKey);
+        // ~PropertyAttribute() was called in NewConcurrentClassFunctionWithName
+        new (curAttr) PropertyAttribute(val, writable, enumable, configable);
+    }
+    return curStaticPropIdx;
+}
+
+static Local<panda::FunctionRef> NapiCreateClassFunction(napi_env env, std::string &className,
+                                                         NapiFunctionInfo* funcInfo, size_t propCount,
+                                                         const NapiPropertyDescriptor* properties)
+{
+    const EcmaVM *vm = reinterpret_cast<NativeEngine*>(env)->GetEcmaVm();
+    NativeEngine* engine = reinterpret_cast<NativeEngine*>(env);
+    Local<JSValueRef> context = engine->GetContext();
+    Local<panda::FunctionRef> fn;
+    if (propCount == 0) {
+        fn = panda::FunctionRef::NewConcurrentClassFunctionWithName(vm, context, ArkNativeFunctionCallBack,
+                                                                    CommonDeleter, className.c_str(),
+                                                                    reinterpret_cast<void*>(funcInfo), true);
+    } else if (propCount <= panda::ObjectRef::MAX_PROPERTIES_ON_STACK) {
+        Local<panda::JSValueRef> keys[panda::ObjectRef::MAX_PROPERTIES_ON_STACK];
+        PropertyAttribute attrs[panda::ObjectRef::MAX_PROPERTIES_ON_STACK];
+        size_t staticPropCount = NapiGetKeysAndAttrsFromProps(env, propCount, properties, &keys[0], &attrs[0]);
+        fn = panda::FunctionRef::NewConcurrentClassFunctionWithName(vm, context, ArkNativeFunctionCallBack,
+                                                                    CommonDeleter, className.c_str(),
+                                                                    reinterpret_cast<void*>(funcInfo), true, propCount,
+                                                                    staticPropCount, &keys[0], &attrs[0]);
+    } else {
+        Local<panda::JSValueRef> *keys =
+            reinterpret_cast<Local<panda::JSValueRef> *>(malloc(sizeof(Local<panda::JSValueRef>) * propCount));
+        PropertyAttribute *attrs = reinterpret_cast<PropertyAttribute *>(malloc(sizeof(PropertyAttribute) * propCount));
+        if (attrs != nullptr && keys != nullptr) {
+            size_t staticPropCount = NapiGetKeysAndAttrsFromProps(env, propCount, properties, keys, attrs);
+            fn = panda::FunctionRef::NewConcurrentClassFunctionWithName(vm, context, ArkNativeFunctionCallBack,
+                                                                        CommonDeleter, className.c_str(),
+                                                                        reinterpret_cast<void*>(funcInfo), true,
+                                                                        propCount, staticPropCount, keys, attrs);
+        } else {
+            fn = panda::JSValueRef::Undefined(vm);
+            napi_throw_error(env, nullptr, "malloc failed in napi_define_class");
+        }
+
+        if (keys != nullptr) {
+            free(keys);
+        }
+        if (attrs != nullptr) {
+            free(attrs);
+        }
+    }
+    return fn;
+}
+
 panda::Local<panda::JSValueRef> NapiDefineClass(napi_env env, const char* name, NapiNativeCallback callback,
     void* data, const NapiPropertyDescriptor* properties, size_t length)
 {
@@ -198,34 +341,23 @@ panda::Local<panda::JSValueRef> NapiDefineClass(napi_env env, const char* name, 
     funcInfo->callback = callback;
     funcInfo->data = data;
     funcInfo->env = env;
-    NativeEngine* engine = reinterpret_cast<NativeEngine*>(env);
 #ifdef ENABLE_CONTAINER_SCOPE
+    NativeEngine* engine = reinterpret_cast<NativeEngine*>(env);
     if (engine->IsContainerScopeEnabled()) {
         funcInfo->scopeId = OHOS::Ace::ContainerScope::CurrentId();
     }
 #endif
-    Local<JSValueRef> context = engine->GetContext();
-    Local<panda::FunctionRef> fn = panda::FunctionRef::NewConcurrentClassFunctionWithName(vm, context,
-        ArkNativeFunctionCallBack, CommonDeleter, className.c_str(), reinterpret_cast<void*>(funcInfo), true);
+    Local<panda::FunctionRef> fn = NapiCreateClassFunction(env, className, funcInfo, length, properties);
 
-    if (length == 0) {
-        return fn;
+    Local<panda::ObjectRef> excep = JSNApi::GetUncaughtException(vm);
+    if (!excep.IsNull()) {
+        HILOG_DEBUG("ArkNativeObject::NapiDefineClass occur Exception");
+        JSNApi::GetAndClearUncaughtException(vm);
     }
+#ifdef ENABLE_HITRACE
     Local<panda::ObjectRef> classPrototype = fn->GetFunctionPrototype(vm);
-    Local<panda::ObjectRef> fnObj = Local<panda::ObjectRef>(fn);
-    for (size_t i = 0; i < length; ++i) {
-        if (properties[i].attributes & NATIVE_STATIC) {
-            NapiDefineProperty(env, fnObj, properties[i]);
-        } else {
-            if (classPrototype->IsUndefined()) {
-                HILOG_ERROR("ArkNativeEngineImpl::Class's prototype is null");
-                continue;
-            }
-            reinterpret_cast<ArkNativeEngine*>(env)->SetModuleName(classPrototype, className);
-            NapiDefineProperty(env, classPrototype, properties[i]);
-        }
-    }
-
+    reinterpret_cast<ArkNativeEngine*>(env)->SetModuleName(classPrototype, className);
+#endif
     return fn;
 }
 
@@ -286,13 +418,18 @@ void* ArkNativeEngine::GetNativePtrCallBack(void* data)
     return cb;
 }
 
-void ArkNativeEngine::SetModuleValidateCallback(NapiModuleValidateCallback validateCallback)
+bool ArkNativeEngine::SetModuleValidateCallback(NapiModuleValidateCallback validateCallback)
 {
+    if (validateCallback == nullptr) {
+        HILOG_WARN("Module Validate Callback nullptr. Please check input.");
+        return false;
+    }
     if (moduleValidateCallback_.load()) {
-        HILOG_ERROR("Module Validate Callback is already set, do not set more than once.");
-        return;
+        HILOG_ERROR("Module Validate Callback is already set by another module or thread.");
+        return false;
     }
     moduleValidateCallback_ = validateCallback;
+    return true;
 }
 
 bool ArkNativeEngine::CheckArkApiAllowList(
@@ -606,7 +743,7 @@ const ArkNativeEngine* ArkNativeEngine::GetParent() const
 int ArkNativeEngine::CheckAndGetModule(
     JsiRuntimeCallInfo *info,
     NativeModuleManager* moduleManager,
-    bool &isAppModule,
+    bool isAppModule,
     Local<panda::StringRef> &moduleName,
     NativeModule *&module,
     Local<JSValueRef> &exports,
@@ -624,11 +761,6 @@ int ArkNativeEngine::CheckAndGetModule(
         moduleName->ToString(vm_).c_str(), nullptr, false, errInfo, false, "");
     return 0;
 #else
-    const uint32_t lengthMax = 2;
-    if (info->GetArgsNumber() >= lengthMax) {
-        Local<BooleanRef> ret(info->GetCallArgRef(1));
-        isAppModule = ret->Value();
-    }
     isAppModule_ = isAppModule;
     if (isLimitedWorker_ && !isAppModule) {
         if (!moduleManager->CheckModuleRestricted(moduleName->ToString(vm_).c_str())) {
@@ -749,10 +881,18 @@ Local<JSValueRef> ArkNativeEngine::RequireNapi(JsiRuntimeCallInfo *info)
     panda::EscapeLocalScope scope(ecmaVm);
     NativeModuleManager* moduleManager = NativeModuleManager::GetInstance();
     ArkNativeEngine* arkNativeEngine = static_cast<ArkNativeEngine*>(info->GetData());
-    Local<StringRef> moduleName(info->GetCallArgRef(0));
-    bool isAppModule = false;
     std::string errInfo = "";
     Local<JSValueRef> exports(JSValueRef::Undefined(ecmaVm));
+    if (info->GetArgsNumber() == 0) {
+        return scope.Escape(exports);
+    }
+    Local<StringRef> moduleName(info->GetCallArgRef(0));
+
+    bool isAppModule = false;
+    if (info->GetArgsNumber() > 1) { // 1: index of arguments, isAppModule
+        Local<BooleanRef> ret(info->GetCallArgRef(1));
+        isAppModule = ret->Value();
+    }
 
     NativeModule* module = nullptr;
     // Returns the module exports or undefined
@@ -789,14 +929,21 @@ Local<JSValueRef> ArkNativeEngine::RequireNapiForCtxEnv(JsiRuntimeCallInfo *info
 {
     EcmaVM *ecmaVm = info->GetVM();
     panda::EscapeLocalScope scope(ecmaVm);
-    NativeModuleManager* moduleManager = NativeModuleManager::GetInstance();
-    ArkNativeEngine* arkNativeEngine = static_cast<ArkNativeEngine*>(info->GetData());
-    Local<StringRef> moduleName(info->GetCallArgRef(0));
     Local<JSValueRef> exports(JSValueRef::Undefined(ecmaVm));
-
-    if (info->GetArgsNumber() < 1) {
+    if (info->GetArgsNumber() == 0) {
         return scope.Escape(exports);
     }
+    Local<StringRef> moduleName(info->GetCallArgRef(0));
+
+    bool isAppModule = false;
+    if (info->GetArgsNumber() > 1) { // 1: index of arguments, isAppModule
+        Local<BooleanRef> ret(info->GetCallArgRef(1));
+        isAppModule = ret->Value();
+    }
+    if (isAppModule) {
+        HILOG_FATAL("AppModule is not supported in Context Engine.");
+    }
+
     std::string modNameCstr = moduleName->ToString(ecmaVm);
     NapiModuleValidateCallback modCheckCb = moduleValidateCallback_.load();
     if (modCheckCb == nullptr) {
@@ -808,7 +955,8 @@ Local<JSValueRef> ArkNativeEngine::RequireNapiForCtxEnv(JsiRuntimeCallInfo *info
         return scope.Escape(exports);
     }
 
-    bool isAppModule = false;
+    NativeModuleManager* moduleManager = NativeModuleManager::GetInstance();
+    ArkNativeEngine* arkNativeEngine = static_cast<ArkNativeEngine*>(info->GetData());
     std::string errInfo = "";
     NativeModule* module = nullptr;
     // Returns the module exports or undefined
@@ -1080,32 +1228,6 @@ panda::JSValueRef ArkNativeFunctionCallBack(JsiRuntimeCallInfo *runtimeInfo)
         JSNApi::GetStackAfterCallNapi(vm);
     }
     return **localRet;
-}
-
-static Local<panda::JSValueRef> NapiNativeCreateFunction(napi_env env, const char* name,
-                                                         NapiNativeCallback cb, void* value)
-{
-    auto engine = reinterpret_cast<NativeEngine*>(env);
-    auto vm = const_cast<EcmaVM*>(engine->GetEcmaVm());
-    NapiFunctionInfo* funcInfo = NapiFunctionInfo::CreateNewInstance();
-    if (funcInfo == nullptr) {
-        HILOG_ERROR("funcInfo is nullptr");
-        return JSValueRef::Undefined(vm);
-    }
-    funcInfo->callback = cb;
-    funcInfo->data = value;
-    funcInfo->env = env;
-#ifdef ENABLE_CONTAINER_SCOPE
-    if (engine->IsContainerScopeEnabled()) {
-        funcInfo->scopeId = OHOS::Ace::ContainerScope::CurrentId();
-    }
-#endif
-
-    Local<JSValueRef> context = engine->GetContext();
-    Local<panda::FunctionRef> fn = panda::FunctionRef::NewConcurrentWithName(vm, context, ArkNativeFunctionCallBack,
-                                                                             CommonDeleter, name,
-                                                                             reinterpret_cast<void*>(funcInfo), true);
-    return fn;
 }
 
 static Local<JSValueRef> GetProperty(EcmaVM* vm, Local<panda::ObjectRef> &obj, const char* name)
@@ -2087,6 +2209,12 @@ void ArkNativeEngine::SetAppFreezeFilterCallback(AppFreezeFilterCallback callbac
     DFXJSNApi::SetAppFreezeFilterCallback(vm_, callback);
 }
 
+void ArkNativeEngine::SetRawHeapTrimLevel(uint32_t level)
+{
+    DFXJSNApi::SetJsRawHeapCropLevel(static_cast<panda::CropLevel>(level));
+    return;
+}
+
 void ArkNativeEngine::StartCpuProfiler(const std::string& fileName)
 {
     JSNApi::SetNativePtrGetter(vm_, reinterpret_cast<void*>(ArkNativeEngine::GetNativePtrCallBack));
@@ -2525,6 +2653,9 @@ void ArkNativeEngine::NotifyForceExpandState(int32_t value)
             DFXJSNApi::NotifyHighSensitive(vm_, false);
             interopAppState_.Notify(NAPI_APP_STATE_SENSITIVE_END);
             break;
+        case ForceExpandState::WARM_START:
+            DFXJSNApi::NotifyWarmStart(vm_);
+            interopAppState_.Notify(NAPI_APP_STATE_WARM_START);
         default:
             HILOG_ERROR("Invalid Force Expand State: %{public}d.", value);
             break;
@@ -2959,26 +3090,26 @@ napi_value ArkNativeEngine::RunBufferScript(std::vector<uint8_t>& buffer)
     // LCOV_EXCL_STOP
 }
 
-#define EXECUTE_BUFFER(functionName)                                                                 \
-    if (JSNApi::IsBundle(vm_)) {                                                              \
-        /* FA doesn't enable securemem */                                                            \
-        ret = JSNApi::Execute(vm_, buffer, bufferSize, PANDA_MAIN_FUNCTION, desc);            \
-    } else if (bufferSize != 0) {                                                                    \
-        if (entryPoint == nullptr) {                                                                 \
-            HILOG_DEBUG("Input entryPoint is nullptr, please input entryPoint for merged ESModule"); \
-            /* this path for bundle and abc compiled by single module js */                          \
-            ret = JSNApi::functionName(vm_, buffer, bufferSize, PANDA_MAIN_FUNCTION, desc);   \
-        } else {                                                                                     \
-            /* this path for mergeabc with specific entryPoint */                                    \
-            ret = JSNApi::functionName(vm_, buffer, bufferSize, entryPoint, desc);            \
-        }                                                                                            \
-    } else {                                                                                         \
-        /* this path for worker */                                                                   \
-        ret = JSNApi::Execute(vm_, desc, PANDA_MAIN_FUNCTION);                                \
+#define EXECUTE_BUFFER(functionName)                                                                      \
+    if (JSNApi::IsBundle(vm_)) {                                                                          \
+        /* FA doesn't enable securemem */                                                                 \
+        ret = JSNApi::Execute(vm_, buffer, bufferSize, PANDA_MAIN_FUNCTION, desc);                        \
+    } else if (bufferSize != 0) {                                                                         \
+        if (entryPoint == nullptr) {                                                                      \
+            HILOG_DEBUG("Input entryPoint is nullptr, please input entryPoint for merged ESModule");      \
+            /* this path for bundle and abc compiled by single module js */                               \
+            ret = JSNApi::functionName(vm_, buffer, bufferSize, PANDA_MAIN_FUNCTION, desc, false, fileMapper);    \
+        } else {                                                                                          \
+            /* this path for mergeabc with specific entryPoint */                                         \
+            ret = JSNApi::functionName(vm_, buffer, bufferSize, entryPoint, desc, false, fileMapper);     \
+        }                                                                                                 \
+    } else {                                                                                              \
+        /* this path for worker */                                                                        \
+        ret = JSNApi::Execute(vm_, desc, PANDA_MAIN_FUNCTION);                                            \
     }
 
 napi_value ArkNativeEngine::RunActor(uint8_t* buffer, size_t bufferSize,
-    const char* descriptor, char* entryPoint, bool checkPath)
+    const char* descriptor, char* entryPoint, bool checkPath, void* fileMapper)
 {
     if (buffer == nullptr && descriptor == nullptr) {
         HILOG_ERROR("invalid param, both buffer and descriptor are nullptr");

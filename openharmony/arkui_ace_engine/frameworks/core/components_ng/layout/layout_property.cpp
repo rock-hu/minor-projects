@@ -1008,11 +1008,6 @@ void LayoutProperty::OnVisibilityUpdate(VisibleType visible, bool allowTransitio
     // update visibility value.
     propVisibility_ = visible;
     auto pipeline = host->GetContext();
-    uint64_t vsyncTime = 0;
-    if (pipeline) {
-        vsyncTime = pipeline->GetVsyncTime();
-    }
-    host->AddVisibilityDumpInfo({ vsyncTime, { visible, isUserSet } });
 
     if ((preVisibility != propVisibility_) && pipeline) {
         pipeline->SetIsDisappearChangeNodeMinDepth(host->GetDepth());
@@ -1912,7 +1907,7 @@ void LayoutProperty::CheckLocalizedOuterBorderColor(const TextDirection& directi
         borderColors.topColor = outerBorderColorProperty.topColor;
     }
     if (outerBorderColorProperty.bottomColor.has_value()) {
-        borderColors.topColor = outerBorderColorProperty.bottomColor;
+        borderColors.bottomColor = outerBorderColorProperty.bottomColor;
     }
     target->UpdateOuterBorderColor(borderColors);
 }

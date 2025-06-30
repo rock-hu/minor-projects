@@ -81,11 +81,8 @@ public:
 #endif
     }
 
-    void MarkNewObject(BaseObject* obj) override;
-
     bool ShouldIgnoreRequest(GCRequest& request) override;
     bool MarkObject(BaseObject* obj, size_t cellCount = 0) const override;
-    bool ResurrectObject(BaseObject* obj) override;
 
     void EnumRefFieldRoot(RefField<>& ref, RootSet& rootSet) const override;
     void TraceRefField(BaseObject* obj, RefField<>& ref, WorkStack& workStack, WeakStack& weakStack) const;
@@ -139,10 +136,9 @@ protected:
     BaseObject* CopyObjectImpl(BaseObject* obj);
     BaseObject* CopyObjectAfterExclusive(BaseObject* obj) override;
 
-    bool TryUntagRefField(BaseObject* obj, RefField<>& field, BaseObject*& target) const override;
-
     BaseObject* TryForwardObject(BaseObject* fromVersion);
 
+    bool TryUntagRefField(BaseObject* obj, RefField<>& field, BaseObject*& target) const override;
     bool TryUpdateRefField(BaseObject* obj, RefField<>& field, BaseObject*& newRef) const override;
     bool TryForwardRefField(BaseObject* obj, RefField<>& field, BaseObject*& newRef) const override;
 
@@ -178,8 +174,9 @@ protected:
 
     void DoGarbageCollection() override;
     void ProcessWeakReferences() override;
+    void ProcessStringTable() override;
+
     void ProcessFinalizers() override;
-    void EnumAndTagRawRoot(ObjectRef& ref, RootSet& rootSet) const override;
 
 private:
     template<bool copy>
@@ -189,14 +186,16 @@ private:
 
     void TraceHeap(WorkStack& workStack);
     void PostTrace();
-
+    void RemarkAndPreforwardStaticRoots(WorkStack& workStack) override;
     void Preforward();
-    void PreforwardStaticRoots();
+    void PreforwardStaticWeakRoots();
     void PreforwardConcurrencyModelRoots();
-    void PreforwardFinalizerProcessorRoots();
 
     void PrepareFix();
     void FixHeap(); // roots and ref-fields
+    WeakRefFieldVisitor GetWeakRefFieldVisitor();
+    void PreforwardFlip(WorkStack& workStack);
+    void EnumRootsFlip(WorkStack& workStack);
 
     CopyTable fwdTable_;
 

@@ -16,6 +16,8 @@
 #include "ecmascript/mem/full_gc-inl.h"
 
 #include "common_components/taskpool/taskpool.h"
+#include "ecmascript/js_weak_container.h"
+#include "ecmascript/linked_hash_table.h"
 #include "ecmascript/mem/concurrent_marker.h"
 #include "ecmascript/mem/incremental_marker.h"
 #include "ecmascript/mem/parallel_marker.h"
@@ -105,7 +107,7 @@ void FullGC::MarkRoots()
     CompressGCMarker *marker = static_cast<CompressGCMarker*>(heap_->GetCompressGCMarker());
     FullGCRunner fullGCRunner(heap_, workManager_->GetWorkNodeHolder(MAIN_THREAD_INDEX), forAppSpawn_);
     FullGCMarkRootVisitor &fullGCMarkRootVisitor = fullGCRunner.GetMarkRootVisitor();
-    marker->MarkRoots(fullGCMarkRootVisitor, VMRootVisitType::UPDATE_ROOT);
+    marker->MarkRoots(fullGCMarkRootVisitor);
 }
 
 void FullGC::Mark()
@@ -129,33 +131,10 @@ void FullGC::Sweep()
         totalThreadCount += common::Taskpool::GetCurrentTaskpool()->GetTotalThreadNum();
     }
     for (uint32_t i = 0; i < totalThreadCount; i++) {
-        ProcessQueue *queue = workManager_->GetWorkNodeHolder(i)->GetWeakReferenceQueue();
-
-        while (true) {
-            auto obj = queue->PopBack();
-            if (UNLIKELY(obj == nullptr)) {
-                break;
-            }
-            ObjectSlot slot(ToUintPtr(obj));
-            JSTaggedValue value(slot.GetTaggedType());
-            auto header = value.GetTaggedWeakRef();
-
-            Region *objectRegion = Region::ObjectAddressToRange(header);
-            if (!HasEvacuated(objectRegion)) {
-                if (!objectRegion->InSharedHeap() && !objectRegion->Test(header)) {
-                    slot.Clear();
-                }
-            } else {
-                MarkWord markWord(header);
-                if (markWord.IsForwardingAddress()) {
-                    TaggedObject *dst = markWord.ToForwardingAddress();
-                    auto weakRef = JSTaggedValue(JSTaggedValue(dst).CreateAndGetWeakRef()).GetRawTaggedObject();
-                    slot.Update(weakRef);
-                } else {
-                    slot.Update(static_cast<JSTaggedType>(JSTaggedValue::Undefined().GetRawData()));
-                }
-            }
-        }
+        UpdateRecordWeakReference(i);
+    }
+    for (uint32_t i = 0; i < totalThreadCount; i++) {
+        UpdateRecordJSWeakMap(i);
     }
 
     WeakRootVisitor gcUpdateWeak = [this](TaggedObject *header) -> TaggedObject* {
@@ -180,6 +159,7 @@ void FullGC::Sweep()
     };
     heap_->GetEcmaVM()->GetJSThread()->IterateWeakEcmaGlobalStorage(gcUpdateWeak);
     heap_->GetEcmaVM()->ProcessReferences(gcUpdateWeak);
+    heap_->GetEcmaVM()->ProcessSnapShotEnv(gcUpdateWeak);
 
     heap_->GetSweeper()->Sweep(true);
     heap_->GetSweeper()->PostTask(true);
@@ -220,5 +200,57 @@ ARK_INLINE void FullGC::ProcessSharedGCRSetWorkList()
 {
     TRACE_GC(GCStats::Scope::ScopeId::ProcessSharedGCRSetWorkList, heap_->GetEcmaVM()->GetEcmaGCStats());
     heap_->ProcessSharedGCRSetWorkList();
+}
+
+void FullGC::UpdateRecordWeakReference(uint32_t threadId)
+{
+    ProcessQueue *queue = workManager_->GetWorkNodeHolder(threadId)->GetWeakReferenceQueue();
+    while (true) {
+        auto obj = queue->PopBack();
+        if (UNLIKELY(obj == nullptr)) {
+            break;
+        }
+        ObjectSlot slot(ToUintPtr(obj));
+        JSTaggedValue value(slot.GetTaggedType());
+        auto header = value.GetTaggedWeakRef();
+        Region *objectRegion = Region::ObjectAddressToRange(header);
+        if (!HasEvacuated(objectRegion)) {
+            if (!objectRegion->InSharedHeap() && !objectRegion->Test(header)) {
+                slot.Clear();
+            }
+        } else {
+            MarkWord markWord(header);
+            if (markWord.IsForwardingAddress()) {
+                TaggedObject *dst = markWord.ToForwardingAddress();
+                auto weakRef = JSTaggedValue(JSTaggedValue(dst).CreateAndGetWeakRef()).GetRawTaggedObject();
+                slot.Update(weakRef);
+            } else {
+                slot.Update(static_cast<JSTaggedType>(JSTaggedValue::Undefined().GetRawData()));
+            }
+        }
+    }
+}
+
+void FullGC::UpdateRecordJSWeakMap(uint32_t threadId)
+{
+    std::function<bool(JSTaggedValue)> visitor = [this](JSTaggedValue key) {
+        ASSERT(!key.IsHole());
+        return key.IsUndefined();   // Dead key, and set to undefined by GC
+    };
+
+    JSWeakMapProcessQueue *queue = workManager_->GetWorkNodeHolder(threadId)->GetJSWeakMapQueue();
+    while (true) {
+        TaggedObject *obj = queue->PopBack();
+        if (UNLIKELY(obj == nullptr)) {
+            break;
+        }
+        JSWeakMap *weakMap = JSWeakMap::Cast(obj);
+        JSTaggedValue maybeMap = weakMap->GetLinkedMap();
+        if (maybeMap.IsUndefined()) {
+            continue;
+        }
+        LinkedHashMap *map = LinkedHashMap::Cast(maybeMap.GetTaggedObject());
+        map->ClearAllDeadEntries(visitor);
+    }
 }
 }  // namespace panda::ecmascript

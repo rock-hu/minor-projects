@@ -108,11 +108,15 @@ public:
         }
 
         engine_ = new ArkNativeEngine(vm_, nullptr);
+        engine_->SetCleanEnv([this] {
+            panda::JSNApi::DestroyJSVM(vm_);
+            vm_ = nullptr;
+        });
         loop_ = engine_->GetUVLoop();
         napi_open_handle_scope(reinterpret_cast<napi_env>(engine_), &scope_);
     }
 
-    NativeEngineProxy(NativeEngine* engine) : isContextEngine_(true)
+    explicit NativeEngineProxy(NativeEngine* engine) : isContextEngine_(true)
     {
         napi_create_ark_context(reinterpret_cast<napi_env>(engine), reinterpret_cast<napi_env*>(&engine_));
         vm_ = const_cast<EcmaVM*>(engine->GetEcmaVm());
@@ -126,7 +130,6 @@ public:
         scope_ = nullptr;
         if (!isContextEngine_) {
             delete engine_;
-            panda::JSNApi::DestroyJSVM(vm_);
         } else {
             engine_->DestroyContext();
         }

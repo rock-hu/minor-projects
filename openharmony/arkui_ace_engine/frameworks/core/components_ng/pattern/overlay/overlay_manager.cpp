@@ -872,7 +872,8 @@ void OverlayManager::OnDialogCloseEvent(const RefPtr<FrameNode>& node)
     DeleteDialogHotAreas(node);
 }
 
-void OverlayManager::OpenDialogAnimationInner(const RefPtr<FrameNode>& node, const DialogProperties& dialogProps)
+void OverlayManager::OpenDialogAnimationInner(const RefPtr<FrameNode>& node, const DialogProperties& dialogProps,
+    bool isReadFirstNode)
 {
     auto pipeline = GetPipelineContext();
     CHECK_NULL_VOID(pipeline);
@@ -924,12 +925,13 @@ void OverlayManager::OpenDialogAnimationInner(const RefPtr<FrameNode>& node, con
                            ? dialogPattern->GetOpenAnimation().value().GetDuration()
                            : theme->GetAnimationDurationIn());
     ctx->ScaleAnimation(option, theme->GetScaleStart(), theme->GetScaleEnd());
-    if (isTopOrder) {
+    if (isTopOrder && isReadFirstNode) {
         SendDialogAccessibilityEvent(node, AccessibilityEventType::PAGE_OPEN);
     }
 }
 
-void OverlayManager::OpenDialogAnimation(const RefPtr<FrameNode>& node, const DialogProperties& dialogProps)
+void OverlayManager::OpenDialogAnimation(const RefPtr<FrameNode>& node, const DialogProperties& dialogProps,
+    bool isReadFirstNode)
 {
     TAG_LOGD(AceLogTag::ACE_OVERLAY, "open dialog animation");
     CHECK_NULL_VOID(node);
@@ -946,7 +948,7 @@ void OverlayManager::OpenDialogAnimation(const RefPtr<FrameNode>& node, const Di
     MountToParentWithService(root, node, levelOrder);
     root->MarkDirtyNode(PROPERTY_UPDATE_MEASURE_SELF);
     BlurLowerNode(node);
-    OpenDialogAnimationInner(node, dialogProps);
+    OpenDialogAnimationInner(node, dialogProps, isReadFirstNode);
 }
 
 void OverlayManager::CloseDialogAnimation(const RefPtr<FrameNode>& node)
@@ -2613,6 +2615,7 @@ void OverlayManager::HideAllMenusWithoutAnimation(bool showInSubwindow)
         }
         RemoveMenuFilter(menuNode, false);
         EraseMenuInfo(targetId);
+        SetIsMenuShow(false);
     }
 }
 
@@ -3778,7 +3781,7 @@ void OverlayManager::ShowCalendarDialog(const DialogProperties& dialogProps, con
         buttonInfos, std::move(dialogEvent), std::move(dialogCancelEvent));
     RegisterDialogCallback(dialogNode, std::move(dialogLifeCycleEvent));
     BeforeShowDialog(dialogNode);
-    OpenDialogAnimation(dialogNode, dialogProps);
+    OpenDialogAnimation(dialogNode, dialogProps, false);
 #endif
 }
 
@@ -8565,13 +8568,20 @@ void OverlayManager::RemoveMenuWrapperNode(const RefPtr<UINode>& rootNode, const
     CHECK_NULL_VOID(rootNode);
     CHECK_NULL_VOID(pipeline);
     std::vector<int32_t> idsNeedClean;
-    for (const auto& child : rootNode->GetChildren()) {
+    bool needCallOldLifeCycle = IsSceneBoardWindow();
+    auto children = rootNode->GetChildren();
+    for (const auto& child : children) {
         auto node = DynamicCast<FrameNode>(child);
-        if (node && node->GetTag() == V2::MENU_WRAPPER_ETS_TAG) {
-            idsNeedClean.push_back(child->GetId());
-            CallMenuDisappearWithStatus(node);
-            rootNode->RemoveChild(node);
+        if (!node || node->GetTag() != V2::MENU_WRAPPER_ETS_TAG) {
+            continue;
         }
+        idsNeedClean.push_back(child->GetId());
+        if (needCallOldLifeCycle) {
+            CallMenuDisappearWithStatus(node);
+        } else {
+            CallMenuDisappearOnlyNewLifeCycle(node);
+        }
+        rootNode->RemoveChild(node);
     }
     CHECK_EQUAL_VOID(idsNeedClean.empty(), true);
     pipeline->AddAfterLayoutTask([idsNeedClean, containerId = pipeline->GetInstanceId()] {
@@ -8580,6 +8590,24 @@ void OverlayManager::RemoveMenuWrapperNode(const RefPtr<UINode>& rootNode, const
             subwindowMgr->DeleteHotAreas(containerId, child, SubwindowType::TYPE_MENU);
         }
     });
+}
+
+void OverlayManager::CallMenuDisappearOnlyNewLifeCycle(const RefPtr<FrameNode>& menuWrapperNode)
+{
+    CHECK_NULL_VOID(menuWrapperNode);
+    auto menuWrapperPattern = menuWrapperNode->GetPattern<MenuWrapperPattern>();
+    CHECK_NULL_VOID(menuWrapperPattern);
+    if (menuWrapperPattern->GetMenuStatus() == MenuStatus::ON_HIDE_ANIMATION) {
+        // When the menu is forcibly removed during the disappearing process, the onDidDisappear life cycle needs to be
+        // called back to the user.
+        menuWrapperPattern->CallMenuOnDidDisappearCallback();
+    } else if (menuWrapperPattern->IsShow()) {
+        // When the menu is forcibly removed during display, the life cycle of onWillDisappear and
+        // onDidDisappear needs to be called back to the user.
+        menuWrapperPattern->CallMenuOnWillDisappearCallback();
+        menuWrapperPattern->CallMenuOnDidDisappearCallback();
+    }
+    menuWrapperPattern->SetMenuStatus(MenuStatus::HIDE);
 }
 
 void OverlayManager::CallMenuDisappearWithStatus(const RefPtr<FrameNode>& menuWrapperNode)
@@ -8851,5 +8879,24 @@ RefPtr<PipelineContext> OverlayManager::GetPipelineContext() const
     auto context = context_.Upgrade();
     CHECK_NULL_RETURN(context, PipelineContext::GetCurrentContextSafelyWithCheck());
     return context;
+}
+
+bool OverlayManager::IsSceneBoardWindow()
+{
+    auto containerId = Container::CurrentId();
+    auto container = AceEngine::Get().GetContainer(containerId);
+    if (!container) {
+        TAG_LOGW(AceLogTag::ACE_OVERLAY, "container is null");
+        return false;
+    }
+    if (container->IsSubContainer()) {
+        containerId = SubwindowManager::GetInstance()->GetParentContainerId(containerId);
+        container = AceEngine::Get().GetContainer(containerId);
+        if (!container) {
+            TAG_LOGW(AceLogTag::ACE_OVERLAY, "parent container is null");
+            return false;
+        }
+    }
+    return container->IsSceneBoardWindow();
 }
 } // namespace OHOS::Ace::NG

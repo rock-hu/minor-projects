@@ -23,6 +23,7 @@
 #include "core/components_ng/pattern/scrollable/scrollable_theme.h"
 #include "core/pipeline_ng/pipeline_context.h"
 #include "base/log/event_report.h"
+#include "core/pipeline/base/constants.h"
 
 namespace OHOS::Ace::NG {
 namespace {
@@ -624,7 +625,7 @@ void Scrollable::HandleDragStart(const OHOS::Ace::GestureEvent& info)
                      "IsAxisAnimationRunning:%u, IsSnapAnimationRunning:%u, id:%d, tag:%s",
         info.GetInputEventType(), info.GetSourceTool(), isAxisEvent, IsAxisAnimationRunning(), IsSnapAnimationRunning(),
         nodeId_, nodeTag_.c_str());
-    if (isAxisEvent) {
+    if (isAxisEvent && !CanStayOverScroll()) {
         if (!IsAxisAnimationRunning() && !IsSnapAnimationRunning()) {
             axisSnapDistance_ = currentPos_;
             snapDirection_ = SnapDirection::NONE;
@@ -699,6 +700,7 @@ void Scrollable::HandleDragUpdate(const GestureEvent& info)
     ACE_SCOPED_TRACE(
         "HandleDragUpdate, mainDelta:%f, source:%d, id:%d, tag:%s", mainDelta, source, nodeId_, nodeTag_.c_str());
     if (isAxisEvent) {
+        CHECK_EQUAL_VOID(CanStayOverScroll(), true);
         ProcessAxisUpdateEvent(mainDelta);
         return;
     }
@@ -862,6 +864,10 @@ void Scrollable::ProcessAxisEndEvent()
     isTouching_ = false;
     isDragUpdateStop_ = false;
     JankFrameReport::GetInstance().ClearFrameJankFlag(JANK_RUNNING_SCROLL);
+    if (CanStayOverScroll()) {
+        HandleOverScroll(0);
+        SetCanStayOverScroll(false);
+    }
 }
 
 void Scrollable::ReportToDragFRCScene(double velocity, NG::SceneStatus sceneStatus)
@@ -944,7 +950,7 @@ void Scrollable::TriggerFrictionAnimation(float mainPosition, float friction, fl
     lastPosition_ = currentPos_;
     frictionVelocity_ = initVelocity_;
     frictionOffsetProperty_->Set(mainPosition);
-    float response = fabs(2 * M_PI / (FRICTION_SCALE * friction));
+    float response = fabs(2 * ACE_PI / (FRICTION_SCALE * friction));
     auto curve = AceType::MakeRefPtr<ResponsiveSpringMotion>(response, 1.0f, 0.0f);
     AnimationOption option;
     option.SetCurve(curve);
@@ -1593,6 +1599,7 @@ void Scrollable::UpdateScrollSnapEndWithOffset(double offset)
         }
         updateSnapAnimationCount_++;
         endPos_ -= offset;
+        finalPosition_ = endPos_;
         snapOffsetProperty_->SetPropertyUnit(PropertyUnit::PIXEL_POSITION);
         AnimationUtils::StartAnimation(
             option,

@@ -406,6 +406,13 @@ public:
         }
     }
 
+    void OnOpenLinkOnMapSearch(const std::string& address)
+    {
+        if (linkOnMapSearch_) {
+            linkOnMapSearch_(address);
+        }
+    }
+
     int32_t GeneratePageId()
     {
         return pageId_++;
@@ -510,6 +517,11 @@ public:
         abilityOnJumpBrowser_ = std::move(callback);
     }
 
+    void SetOpenLinkOnMapSearch(AbilityOnQueryCallback&& callback)
+    {
+        linkOnMapSearch_ = callback;
+    }
+
     static void CreateContainer(int32_t instanceId, FrontendType type, const std::string& instanceName,
         std::shared_ptr<OHOS::AppExecFwk::Ability> aceAbility, std::unique_ptr<PlatformEventCallback> callback,
         bool useCurrentEventRunner = false, bool useNewPipeline = false);
@@ -596,11 +608,6 @@ public:
     void SetIsSubContainer(bool isSubContainer)
     {
         isSubContainer_ = isSubContainer;
-    }
-
-    void SetIsFormRender(bool isFormRender) override
-    {
-        isFormRender_ = isFormRender;
     }
 
     void InitializeSubContainer(int32_t parentContainerId);
@@ -901,6 +908,7 @@ public:
         const std::function<void()>&& loadPageCallback);
 
     UIContentErrorCode RunIntentPage();
+    void SetIsFormRender(bool isFormRender) override;
 
 private:
     virtual bool MaybeRelease() override;
@@ -1009,6 +1017,7 @@ private:
     AbilityOnQueryCallback abilityOnQueryCallback_ = nullptr;
     AbilityOnQueryCallback abilityOnInstallAppInStore_ = nullptr;
     AbilityOnQueryCallback abilityOnJumpBrowser_ = nullptr;
+    AbilityOnQueryCallback linkOnMapSearch_ = nullptr;
 
     std::atomic_flag isDumping_ = ATOMIC_FLAG_INIT;
 

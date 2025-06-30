@@ -92,13 +92,13 @@ panda::Local<panda::ObjectRef> NapiCreateObjectWithProperties(napi_env env, size
                                                               const napi_property_descriptor *properties,
                                                               Local<panda::JSValueRef> *keys,
                                                               panda::PropertyAttribute *attrs);
-
 void CommonDeleter(void *env, void *externalPointer, void *data);
 
 enum class ForceExpandState : int32_t {
     FINISH_COLD_START = 0,
     START_HIGH_SENSITIVE,
     FINISH_HIGH_SENSITIVE,
+    WARM_START,
 };
 
 enum class ModuleTypes : uint8_t {
@@ -178,7 +178,7 @@ public:
 
     void Loop(LoopMode mode, bool needSync = false) override;
     void SetPromiseRejectCallback(NativeReference* rejectCallbackRef, NativeReference* checkCallbackRef) override;
-    static void SetModuleValidateCallback(NapiModuleValidateCallback validateCallback);
+    static bool SetModuleValidateCallback(NapiModuleValidateCallback validateCallback);
     // For concurrent
     bool InitTaskPoolThread(NativeEngine* engine, NapiConcurrentCallback callback) override;
     bool InitTaskPoolThread(napi_env env, NapiConcurrentCallback callback) override;
@@ -215,7 +215,7 @@ public:
     // Run buffer script
     napi_value RunBufferScript(std::vector<uint8_t>& buffer) override;
     napi_value RunActor(uint8_t* buffer, size_t size, const char* descriptor,
-        char* entryPoint = nullptr, bool checkPath = false) override;
+        char* entryPoint = nullptr, bool checkPath = false, void* fileMapper = nullptr) override;
     // Set lib path
     NAPI_EXPORT void SetPackagePath(const std::string appLinPathKey, const std::vector<std::string>& packagePath);
     napi_value CreateInstance(napi_value constructor, napi_value const* argv, size_t argc) override;
@@ -250,6 +250,9 @@ public:
 
     // Set Appfreeze Filter
     void SetAppFreezeFilterCallback(AppFreezeFilterCallback callback) override;
+
+    // Set RawHeap Trim Level
+    void SetRawHeapTrimLevel(uint32_t level) override;
 
     // Detect performance to obtain cpuprofiler file
     void StartCpuProfiler(const std::string& fileName = "") override;
@@ -462,7 +465,7 @@ private:
     int CheckAndGetModule(
         JsiRuntimeCallInfo *info,
         NativeModuleManager* moduleManager,
-        bool &isAppModule,
+        bool isAppModule,
         Local<panda::StringRef> &moduleName,
         NativeModule *&module,
         Local<JSValueRef> &exports,
@@ -541,10 +544,5 @@ private:
     bool isMultiContextEnabled_ = false;
     ArkNativeEngineState engineState_ { ArkNativeEngineState::RUNNING };
     AppStateNotifier interopAppState_ {};
-
-#ifdef ENABLE_CONTAINER_SCOPE
-    bool containerScopeEnable_ { true };
-#endif
-    
 };
 #endif /* FOUNDATION_ACE_NAPI_NATIVE_ENGINE_IMPL_ARK_ARK_NATIVE_ENGINE_H */

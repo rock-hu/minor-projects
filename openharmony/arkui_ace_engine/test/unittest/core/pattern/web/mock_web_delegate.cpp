@@ -734,6 +734,15 @@ void WebDelegate::CallIsPagePathInvalid(const bool& isPageInvalid) {}
 void WebDelegate::RecordWebEvent(Recorder::EventType eventType, const std::string& param) const {}
 void WebDelegate::OnPageStarted(const std::string& param) {}
 void WebDelegate::OnPageFinished(const std::string& param) {}
+void WebDelegate::SetPageFinishedState(const bool& state)
+{
+    isPageFinished_ = state;
+}
+
+bool WebDelegate::GetPageFinishedState()
+{
+    return isPageFinished_;
+}
 void WebDelegate::OnProgressChanged(int param) {}
 void WebDelegate::OnReceivedTitle(const std::string& title, bool isRealTitle) {}
 void WebDelegate::ExitFullScreen() {}
@@ -818,6 +827,12 @@ bool WebDelegate::IsEmptyOnInterceptRequest()
 RefPtr<WebResponse> WebDelegate::OnInterceptRequest(const std::shared_ptr<BaseEventInfo>& info)
 {
     return nullptr;
+}
+std::string WebDelegate::OnOverrideErrorPage(
+    std::shared_ptr<OHOS::NWeb::NWebUrlResourceRequest> request,
+    std::shared_ptr<OHOS::NWeb::NWebUrlResourceError> error)
+{
+    return "";
 }
 void WebDelegate::OnTooltip(const std::string& tooltip) {}
 void WebDelegate::OnRequestFocus() {}
@@ -1302,6 +1317,8 @@ bool WebDelegate::GetAccessibilityVisible(int64_t accessibilityId)
 }
 
 void WebDelegate::RemoveSnapshotFrameNode(int removeDelayTime) {}
+void WebDelegate::CreateSnapshotFrameNode(const std::string& snapshotPath) {}
+void WebDelegate::SetVisibility(bool isVisible) {}
 
 void WebDelegate::OnPip(int status, int delegate_id,
     int child_id, int frame_routing_id,  int width, int height) {}
@@ -1314,4 +1331,6 @@ void WebDelegate::UpdateSingleHandleVisible(bool isVisible) {}
 bool WebDelegate::ShowMagnifier() { return false; }
 bool WebDelegate::HideMagnifier() { return false; }
 void WebDelegate::SetTouchHandleExistState(bool touchHandleExist) {}
+void WebDelegate::SetBorderRadiusFromWeb(double borderRadiusTopLeft, double borderRadiusTopRight,
+    double borderRadiusBottomLeft, double borderRadiusBottomRight) {}
 } // namespace OHOS::Ace

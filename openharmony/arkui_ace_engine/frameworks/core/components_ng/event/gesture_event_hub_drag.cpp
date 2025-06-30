@@ -598,7 +598,6 @@ bool GestureEventHub::IsNeedSwitchToSubWindow(const PreparedInfoForDrag& dragInf
 
 void GestureEventHub::HandleOnDragStart(const GestureEvent& info)
 {
-    isRestoreDrag_ = false;
     TAG_LOGD(AceLogTag::ACE_DRAG, "Start handle onDragStart.");
     auto frameNode = GetFrameNode();
     auto pipeline = PipelineContext::GetCurrentContextSafelyWithCheck();
@@ -654,7 +653,6 @@ void GestureEventHub::HandleOnDragStart(const GestureEvent& info)
     CHECK_NULL_VOID(dragDropManager);
     dragDropManager->ResetBundleInfo();
     if (DragDropGlobalController::GetInstance().GetDragStartRequestStatus() == DragStartRequestStatus::READY) {
-        isRestoreDrag_ = true;
         DoOnDragStartHandling(info, frameNode, dragDropInfo, event, dragPreviewInfo, pipeline);
     } else {
         dragDropManager->SetDelayDragCallBack(continueFunc);
@@ -885,9 +883,8 @@ void GestureEventHub::OnDragStart(const GestureEvent& info, const RefPtr<Pipelin
     std::map<std::string, int64_t> summary;
     std::map<std::string, int64_t> detailedSummary;
     int32_t ret = -1;
-    auto unifiedData = dragEvent->GetData();
     DragDropFuncWrapper::ProcessDragDropData(dragEvent, udKey, summary, detailedSummary, ret);
-    int32_t recordsSize = GetBadgeNumber(unifiedData);
+    int32_t recordsSize = GetBadgeNumber(dragEvent);
     RefPtr<PixelMap> pixelMap = dragDropInfo.pixelMap;
     if (pixelMap) {
         SetPixelMap(pixelMap);
@@ -981,9 +978,11 @@ void GestureEventHub::OnDragStart(const GestureEvent& info, const RefPtr<Pipelin
     auto windowId = container->GetWindowId();
     ShadowInfoCore shadowInfo { pixelMapDuplicated, pixelMapOffset.GetX(), pixelMapOffset.GetY() };
     auto dragMoveLastPoint = dragDropManager->GetDragMoveLastPointByCurrentPointer(info.GetPointerId());
-    auto screenX = isRestoreDrag_ ? info.GetScreenLocation().GetX() : dragMoveLastPoint.GetScreenX();
-    auto screenY = isRestoreDrag_ ? info.GetScreenLocation().GetY() : dragMoveLastPoint.GetScreenY();
-
+    auto screenX = DragDropGlobalController::GetInstance().GetAsyncDragCallback() ?
+        dragMoveLastPoint.GetScreenX() : info.GetScreenLocation().GetX();
+    auto screenY = DragDropGlobalController::GetInstance().GetAsyncDragCallback() ?
+        dragMoveLastPoint.GetScreenY() : info.GetScreenLocation().GetY();
+    
     DragDataCore dragData { { shadowInfo }, {}, udKey, extraInfoLimited, arkExtraInfoJson->ToString(),
         static_cast<int32_t>(info.GetSourceDevice()), recordsSize, info.GetPointerId(),
         screenX, screenY, info.GetTargetDisplayId(), windowId, true, false, summary, false, detailedSummary };
@@ -1674,19 +1673,26 @@ void GestureEventHub::UpdateMenuNode(
     data.menuNode = newMenuNode;
 }
 
-int32_t GestureEventHub::GetBadgeNumber(const RefPtr<UnifiedData>& unifiedData)
+int32_t GestureEventHub::GetBadgeNumber(const RefPtr<OHOS::Ace::DragEvent>& dragEvent)
 {
+    CHECK_NULL_RETURN(dragEvent, 1);
     auto frameNode = GetFrameNode();
     CHECK_NULL_RETURN(frameNode, 1);
     auto pattern = frameNode->GetPattern();
     CHECK_NULL_RETURN(pattern, 1);
     int32_t badgeNumber = 1;
     pattern->ResetDragOption();
+    auto unifiedData = dragEvent->GetData();
+    auto dataLoadParams = dragEvent->GetDataLoadParams();
+    auto isUseDataLoadParams = dragEvent->IsUseDataLoadParams();
     if (pattern->GetDragRecordSize() >= 0) {
         badgeNumber = pattern->GetDragRecordSize();
-    } else if (unifiedData) {
+    } else if (unifiedData && !isUseDataLoadParams) {
         auto recordSize = unifiedData->GetSize();
         badgeNumber = recordSize > 1 ? recordSize : 1;
+    } else if (dataLoadParams && isUseDataLoadParams) {
+        auto recodeCount = dataLoadParams->GetRecordCount();
+        badgeNumber = static_cast<int32_t>(recodeCount) > 1 ? recodeCount : 1;
     }
 
     auto dragPreviewOptions = frameNode->GetDragPreviewOption();

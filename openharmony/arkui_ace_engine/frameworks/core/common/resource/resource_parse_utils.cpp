@@ -24,6 +24,7 @@
 #ifdef PLUGIN_COMPONENT_SUPPORTED
 #include "core/common/plugin_manager.h"
 #endif
+#include "core/common/color_inverter.h"
 #include "core/common/resource/resource_manager.h"
 #include "core/common/resource/resource_wrapper.h"
 #include "core/pipeline/pipeline_base.h"
@@ -35,6 +36,7 @@ constexpr int32_t UNKNOWN_INSTANCE_ID = -1;
 constexpr int32_t UNKNOWN_RESOURCE_ID = -1;
 constexpr int32_t UNKNOWN_RESOURCE_TYPE = -1;
 const std::regex FLOAT_PATTERN(R"(-?(0|[1-9]\d*)(\.\d+))", std::regex::icase);
+bool ResourceParseUtils::isReloading_ = false;
 
 uint32_t ColorAlphaAdapt(uint32_t origin)
 {
@@ -351,9 +353,45 @@ bool ResourceParseUtils::ParseResFontFamilies(const RefPtr<ResourceObject>& resO
     return true;
 }
 
+void ResourceParseUtils::InvertColorWithResource(const RefPtr<ResourceObject>& resObj, Color& result,
+    const ColorMode& colorMode)
+{
+    if (isReloading_ && !resObj->HasDarkResource() && (colorMode == ColorMode::DARK) &&
+        (colorMode != resObj->GetColorMode()) &&
+        (resObj->GetColorMode() != ColorMode::COLOR_MODE_UNDEFINED)) {
+        result = ColorInverter::Invert(result, resObj->GetInstanceId(), resObj->GetNodeTag());
+    }
+    resObj->SetColor(result);
+    resObj->SetColorMode(colorMode);
+}
+
+bool ResourceParseUtils::ParseResColorWithName(const RefPtr<ResourceObject>& resObj, Color& result,
+    RefPtr<ResourceWrapper>& resourceWrapper, const ColorMode& colorMode)
+{
+    auto params = resObj->GetParams();
+    if (params.empty()) {
+        return false;
+    }
+    result = resourceWrapper->GetColorByName(params[0].value.value());
+    InvertColorWithResource(resObj, result, colorMode);
+    return true;
+}
+
 bool ResourceParseUtils::ParseResColor(const RefPtr<ResourceObject>& resObj, Color& result)
 {
     CHECK_NULL_RETURN(resObj, false);
+
+    auto colorMode = Container::CurrentColorMode();
+    if (!resObj->IsResource()) {
+        if (isReloading_ && (colorMode != resObj->GetColorMode() &&
+            (resObj->GetColorMode() != ColorMode::COLOR_MODE_UNDEFINED))) {
+            result = ColorInverter::Invert(resObj->GetColor(), resObj->GetInstanceId(), resObj->GetNodeTag());
+            resObj->SetColor(result);
+        }
+        result = resObj->GetColor();
+        resObj->SetColorMode(colorMode);
+        return true;
+    }
 
     if (resObj->GetInstanceId() == UNKNOWN_INSTANCE_ID) {
         resObj->SetInstanceId(Container::CurrentIdSafely());
@@ -362,27 +400,26 @@ bool ResourceParseUtils::ParseResColor(const RefPtr<ResourceObject>& resObj, Col
     CHECK_NULL_RETURN(resourceWrapper, false);
     auto resId = resObj->GetId();
     if (resId == -1) {
-        auto params = resObj->GetParams();
-        if (params.empty()) {
-            return false;
-        }
-        result = resourceWrapper->GetColorByName(params[0].value.value());
-        return true;
+        return ParseResColorWithName(resObj, result, resourceWrapper, colorMode);
     }
 
     auto type = resObj->GetType();
     if (type == static_cast<int32_t>(ResourceType::STRING)) {
         auto value = resourceWrapper->GetString(resId);
-        return Color::ParseColorString(value, result);
+        bool state = Color::ParseColorString(value, result);
+        InvertColorWithResource(resObj, result, colorMode);
+        return state;
     }
     if (type == static_cast<int32_t>(ResourceType::INTEGER)) {
         auto value = resourceWrapper->GetInt(resId);
         result = Color(ColorAlphaAdapt(value));
+        InvertColorWithResource(resObj, result, colorMode);
         return true;
     }
     if (type == static_cast<int32_t>(ResourceType::COLOR)) {
         result = resourceWrapper->GetColor(resId);
         result.SetResourceId(resId);
+        InvertColorWithResource(resObj, result, colorMode);
         return true;
     }
     return false;

@@ -46,14 +46,12 @@ public:
     {
         stringTable_ = nullptr;
     }
-
     void PostSweepWeakRefTask(const WeakRootVisitor &visitor);
     void JoinAndWaitSweepWeakRefTask(const WeakRootVisitor &visitor);
 
 private:
     NO_COPY_SEMANTIC(EcmaStringTableCleaner);
     NO_MOVE_SEMANTIC(EcmaStringTableCleaner);
-
     static void ProcessSweepWeakRef(IteratorPtr &iter, EcmaStringTableCleaner *cleaner, const WeakRootVisitor &visitor);
     void StartSweepWeakRefTask();
     void WaitSweepWeakRefTask();
@@ -87,7 +85,6 @@ private:
         EcmaStringTableCleaner *cleaner_;
         const WeakRootVisitor &visitor_;
     };
-
     IteratorPtr iter_;
     EcmaStringTable *stringTable_;
     std::atomic<uint32_t> PendingTaskCount_ {0U};
@@ -120,7 +117,13 @@ private:
 
 struct EnableCMCGCTrait {
     using StringTableInterface = common::BaseStringTableInterface<common::BaseStringTableImpl>;
-    using HashTrieMapImpl = common::HashTrieMap<common::BaseStringTableMutex, common::ThreadHolder>;
+#ifndef GC_STW_STRINGTABLE
+    using HashTrieMapImpl = common::HashTrieMap<common::BaseStringTableMutex, common::ThreadHolder,
+                                                common::TrieMapConfig::NeedSlotBarrier>;
+#else
+    using HashTrieMapImpl = common::HashTrieMap<common::BaseStringTableMutex, common::ThreadHolder,
+                                            common::TrieMapConfig::NoSlotBarrier>;
+#endif
     using ThreadType = common::ThreadHolder;
     static constexpr bool EnableCMCGC = true;
     static common::ReadOnlyHandle<BaseString> CreateHandle(ThreadType* holder, BaseString* string)
@@ -132,7 +135,7 @@ struct EnableCMCGCTrait {
 struct DisableCMCGCTrait {
     struct DummyStringTableInterface {}; // placeholder for consistent type
     using StringTableInterface = DummyStringTableInterface;
-    using HashTrieMapImpl = common::HashTrieMap<EcmaStringTableMutex, JSThread>;
+    using HashTrieMapImpl = common::HashTrieMap<EcmaStringTableMutex, JSThread, common::TrieMapConfig::NoSlotBarrier>;
     using ThreadType = JSThread;
     static constexpr bool EnableCMCGC = false;
     static common::ReadOnlyHandle<BaseString> CreateHandle(ThreadType* holder, BaseString* string)
@@ -178,11 +181,7 @@ public:
     EcmaString *GetOrInternStringWithoutJSHandleForJit(EcmaVM *vm, const uint8_t *utf8Data, uint32_t utf8Len,
                                                        bool canBeCompress, MemSpaceType type);
     EcmaString *TryGetInternString(const JSHandle<EcmaString> &string);
-
-    void IterWeakRoot(const common::WeakRefFieldVisitor &visitor);
-    void IterWeakRoot(const common::WeakRefFieldVisitor &visitor, uint32_t index);
-    void SweepWeakRef(const WeakRootVisitor &visitor);
-    void SweepWeakRef(const WeakRootVisitor &visitor, uint32_t index);
+    void SweepWeakRef(const WeakRootVisitor &visitor, uint32_t rootID);
 
     bool CheckStringTableValidity();
 
@@ -211,18 +210,15 @@ private:
 
 class EcmaStringTable final {
 public:
-    using StringTableInterface = common::BaseStringTableInterface<common::BaseStringTableImpl>;
-    using HashTrieMapImpl = common::HashTrieMap<common::BaseStringTableMutex, common::ThreadHolder>;
-
-    EcmaStringTable(bool enableCMC, void* itf = nullptr, void* map = nullptr)
+    EcmaStringTable(bool enableCMC, void* itf = nullptr, void* map = nullptr): enableCMCGC_(enableCMC)
     {
-        cleaner_ = new EcmaStringTableCleaner(this);
         if (enableCMC) {
             impl_.emplace<EcmaStringTableImpl<EnableCMCGCTrait>>(
                 static_cast<EnableCMCGCTrait::StringTableInterface*>(itf),
                 *static_cast<EnableCMCGCTrait::HashTrieMapImpl*>(map));
         } else {
             impl_.emplace<EcmaStringTableImpl<DisableCMCGCTrait>>();
+            cleaner_ = new EcmaStringTableCleaner(this);
         }
     }
 
@@ -257,15 +253,13 @@ public:
                                                        bool canBeCompress, MemSpaceType type);
     EcmaString *TryGetInternString(const JSHandle<EcmaString> &string);
 
-    void IterWeakRoot(const common::WeakRefFieldVisitor &visitor);
-    void IterWeakRoot(const common::WeakRefFieldVisitor &visitor, uint32_t index);
-    void SweepWeakRef(const WeakRootVisitor &visitor);
     void SweepWeakRef(const WeakRootVisitor &visitor, uint32_t index);
 
     bool CheckStringTableValidity();
 
     EcmaStringTableCleaner *GetCleaner()
     {
+        ASSERT(!enableCMCGC_ && "EcmaStringTableCleaner should not be used when cmcgc enabled");
         return cleaner_;
     }
 
@@ -296,8 +290,8 @@ private:
         EcmaStringTableImpl<EnableCMCGCTrait>
     > impl_;
 
-    EcmaStringTableCleaner *cleaner_;
-
+    EcmaStringTableCleaner *cleaner_ = nullptr;
+    bool enableCMCGC_ = false;
     friend class SnapshotProcessor;
     friend class BaseDeserializer;
 };

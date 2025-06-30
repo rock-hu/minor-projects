@@ -953,11 +953,16 @@ public:
     void OnHttpErrorReceive(std::shared_ptr<OHOS::NWeb::NWebUrlResourceRequest> request,
         std::shared_ptr<OHOS::NWeb::NWebUrlResourceResponse> response);
     RefPtr<WebResponse> OnInterceptRequest(const std::shared_ptr<BaseEventInfo>& info);
+    std::string OnOverrideErrorPage(
+        std::shared_ptr<OHOS::NWeb::NWebUrlResourceRequest> webResourceRequest,
+        std::shared_ptr<OHOS::NWeb::NWebUrlResourceError> error);
     bool IsEmptyOnInterceptRequest();
     void ReportDynamicFrameLossEvent(const std::string& sceneId, bool isStart);
     void RecordWebEvent(Recorder::EventType eventType, const std::string& param) const;
     void OnPageStarted(const std::string& param);
     void OnPageFinished(const std::string& param);
+    void SetPageFinishedState(const bool& state);
+    bool GetPageFinishedState();
     void OnProgressChanged(int param);
     void OnReceivedTitle(const std::string& title, bool isRealTitle = false);
     void ExitFullScreen();
@@ -1242,6 +1247,8 @@ public:
     int GetHitTestResult();
 
     void RemoveSnapshotFrameNode(int removeDelayTime);
+    void CreateSnapshotFrameNode(const std::string& snapshotPath);
+    void SetVisibility(bool isVisible);
 
     void OnPip(int status, int delegate_id, int child_id, int frame_routing_id,  int width, int height);
     void SetPipNativeWindow(int delegate_id, int child_id, int frame_routing_id, void* window);
@@ -1254,6 +1261,12 @@ public:
     bool HideMagnifier();
     void UpdateSingleHandleVisible(bool isVisible);
     void SetTouchHandleExistState(bool touchHandleExist);
+
+    void SetBorderRadiusFromWeb(double borderRadiusTopLeft, double borderRadiusTopRight, double borderRadiusBottomLeft,
+        double borderRadiusBottomRight);
+
+    void SetViewportScaleState();
+
 private:
     void InitWebEvent();
     void RegisterWebEvent();
@@ -1362,6 +1375,7 @@ private:
     Method changePageUrlMethod_;
     Method isPagePathInvalidMethod_;
     State state_ { State::WAITINGFORSIZE };
+    bool isPageFinished_;
 #ifdef OHOS_STANDARD_SYSTEM
     std::shared_ptr<OHOS::NWeb::NWeb> nweb_;
     std::shared_ptr<OHOS::NWeb::NWebCookieManager> cookieManager_ = nullptr;

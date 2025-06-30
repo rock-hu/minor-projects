@@ -679,6 +679,7 @@ private:
     void SetNavigationWidthToolBarManager(float navBarWidth, float navDestWidth, float dividerWidth);
     void NavigationModifyDoneToolBarManager();
     void UpdateNavigationStatus();
+    void UpdateChildLayoutPolicy();
 
     void GetVisibleNodes(bool isPre, std::vector<WeakPtr<NavDestinationNodeBase>>& visibleNodes);
     void UpdatePageViewportConfigIfNeeded(const RefPtr<NavDestinationGroupNode>& preTopDestination,
@@ -698,6 +699,11 @@ private:
     void ClearPageAndNavigationConfig();
     bool CustomizeExpandSafeArea() override;
 
+    bool IsEnableMatchParent() override
+    {
+        return false;
+    }
+
     void RegisterForceSplitListener(PipelineContext* context, int32_t nodeId);
     void UnregisterForceSplitListener(PipelineContext* context, int32_t nodeId);
     void ProcessSameTopNavPath();
@@ -712,6 +718,8 @@ private:
     void AdjustNodeForDestForceSplit(bool needTriggerLifecycle);
     void AdjustNodeForNonDestForceSplit(bool needTriggerLifecycle);
     void ClearSecondaryNodesIfNeeded(NavPathList&& preList);
+    void UpdateNavContentAndPlaceHolderVisibility(const RefPtr<FrameNode>& navContentNode,
+        const RefPtr<FrameNode>& phNode, const std::vector<RefPtr<NavDestinationGroupNode>>& stackNodes);
 
     bool IsTopPrimaryNode(const RefPtr<NavDestinationGroupNode>& node);
     

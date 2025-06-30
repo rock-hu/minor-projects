@@ -1006,7 +1006,8 @@ public:
 
     MOCK_METHOD(bool, IsOutOfTouchTestRegion, (const PointF&, const TouchEvent&, std::vector<RectF>*));
     MOCK_METHOD(void, CollectSelfAxisResult,
-        (const PointF&, const PointF&, bool&, const PointF&, AxisTestResult&, bool&, HitTestResult&, TouchRestrict&));
+        (const PointF&, const PointF&, bool&, const PointF&, AxisTestResult&, bool&, HitTestResult&, TouchRestrict&,
+            bool));
 };
 
 using NiceMockFrameNode = NiceMock<MockFrameNode>;
@@ -1033,14 +1034,15 @@ HWTEST_F(FrameNodeTestNg, FrameNodeAxisTest0027, TestSize.Level1)
     std::vector<RefPtr<MockFrameNode>> nodes = { stackNode, node1, node2 };
     for (auto& item : nodes) {
         item->isActive_ = true;
-        const auto& inputEventHub = item->GetEventHub<EventHub>()->GetOrCreateInputEventHub();
+        const auto& inputEventHub = item->GetOrCreateEventHub<EventHub>()->GetOrCreateInputEventHub();
         inputEventHub->SetAxisEvent([&item](AxisInfo& info) {});
         ON_CALL((*item), CollectSelfAxisResult(testing::_, testing::_, testing::_, testing::_, testing::_, testing::_,
-                             testing::_, testing::_))
-            .WillByDefault(testing::Invoke([&inputEventHub](const PointF&, const PointF&, bool&, const PointF&,
-                                               AxisTestResult& axisResult, bool&, HitTestResult&, TouchRestrict&) {
-                axisResult.emplace_back(inputEventHub->axisEventActuator_->axisEventTarget_);
-            }));
+                             testing::_, testing::_, testing::_))
+            .WillByDefault(
+                testing::Invoke([&inputEventHub](const PointF&, const PointF&, bool&, const PointF&,
+                                    AxisTestResult& axisResult, bool&, HitTestResult&, TouchRestrict&, bool) {
+                    axisResult.emplace_back(inputEventHub->axisEventActuator_->axisEventTarget_);
+                }));
         ON_CALL((*item), IsOutOfTouchTestRegion(testing::_, testing::_, testing::_))
             .WillByDefault(
                 testing::Invoke([](const PointF&, const TouchEvent&, std::vector<RectF>*) { return false; }));
@@ -1506,55 +1508,6 @@ HWTEST_F(FrameNodeTestNg, SwapDirtyLayoutWrapperOnMainThread040, TestSize.Level1
     frameNode->GetOrCreateEventHub<EventHub>()->GetOrCreateFocusHub()->currentFocus_ = true;
     frameNode->SwapDirtyLayoutWrapperOnMainThread(layoutWrapper);
     EXPECT_TRUE(frameNode->GetOrCreateEventHub<EventHub>()->GetOrCreateFocusHub()->IsCurrentFocus());
-}
-
-/**
- * @tc.name: FrameNodeTouchTest047
- * @tc.desc: Test method GeometryNodeToJsonValue
- * @tc.type: FUNC
- */
-HWTEST_F(FrameNodeTestNg, FrameNodeTouchTest047, TestSize.Level1)
-{
-    /**
-     * @tc.steps: step1. construct parameters.
-     */
-    std::unique_ptr<JsonValue> value = JsonUtil::Create(true);
-
-    /**
-     * @tc.steps: step2. construct parameters.
-     * @tc.expected: expect cover branch layoutProperty_ is nullptr.
-     */
-    FRAME_NODE2->GeometryNodeToJsonValue(value, filter);
-    EXPECT_EQ(FRAME_NODE2->layoutProperty_, nullptr);
-
-    /**
-     * @tc.steps: step3. set layoutProperty_ and call GeometryNodeToJsonValue.
-     * @tc.expected: expect cover branch layoutProperty_ is not nullptr.
-     */
-    auto layoutProperty = AceType::MakeRefPtr<LayoutProperty>();
-    FRAME_NODE2->layoutProperty_ = layoutProperty;
-    FRAME_NODE2->GeometryNodeToJsonValue(value, filter);
-    EXPECT_NE(FRAME_NODE2->layoutProperty_, nullptr);
-
-    /**
-     * @tc.steps: step4. set calcLayoutConstraint_ and call GeometryNodeToJsonValue.
-     * @tc.expected: expect cover branch calcLayoutConstraint_ is not nullptr.
-     */
-    FRAME_NODE2->layoutProperty_->calcLayoutConstraint_ = std::make_unique<MeasureProperty>();
-
-    FRAME_NODE2->GeometryNodeToJsonValue(value, filter);
-    EXPECT_NE(FRAME_NODE2->layoutProperty_->calcLayoutConstraint_, nullptr);
-
-    /**
-     * @tc.steps: step5. set selfIdealSize and call GeometryNodeToJsonValue.
-     * @tc.expected: expect cover branch selfIdealSize has value.
-     */
-    std::optional<CalcLength> len = CalcLength("auto");
-    FRAME_NODE2->layoutProperty_->calcLayoutConstraint_->selfIdealSize = CalcSize(len, len);
-    FRAME_NODE2->GeometryNodeToJsonValue(value, filter);
-    EXPECT_NE(FRAME_NODE2->renderContext_, nullptr);
-
-    FRAME_NODE2->layoutProperty_ = nullptr;
 }
 
 /**

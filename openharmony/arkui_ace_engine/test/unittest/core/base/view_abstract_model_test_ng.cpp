@@ -48,6 +48,7 @@ namespace {
     RefPtr<MockTaskExecutor> MOCK_TASK_EXECUTOR;
     int32_t flag = 0;
     const std::string TEST_TEXT_HINT = "testTextHint";
+    constexpr int32_t TEST_NODE_ID = 1;
 }; // namespace
 
 class ViewAbstractModelTestNg : public testing::Test {
@@ -1900,5 +1901,52 @@ HWTEST_F(ViewAbstractModelTestNg, BindMenuTest, TestSize.Level1)
     params.push_back(OptionParam());
     viewAbstractModelNG.BindMenu(std::move(params), std::move(buildFunc), menuParam);
     EXPECT_NE(NG::ViewStackProcessor::GetInstance()->GetMainFrameNode(), nullptr);
+}
+
+/**
+ * @tc.name: BindDragWithContextMenuParamsTest003
+ * @tc.desc: Verify IsNotNeedShowPreview returns correct result for different menu binding combinations.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ViewAbstractModelTestNg, BindDragWithContextMenuParamsTest003, TestSize.Level1)
+{
+    std::string tag = "uiNode3";
+    FrameNode frameNode(tag, TEST_NODE_ID, AceType::MakeRefPtr<Pattern>());
+    auto gestureHub = frameNode.GetOrCreateGestureEventHub();
+    ASSERT_NE(gestureHub, nullptr);
+
+    /**
+     * @tc.steps: step1. Set isBindCustomMenu = true, isShow = true
+     * @tc.expected: IsNotNeedShowPreview returns true
+     */
+    gestureHub->SetBindMenuStatus(true, true, MenuPreviewMode::IMAGE);
+    auto bindStatus1 = gestureHub->GetBindMenuStatus();
+    EXPECT_TRUE(bindStatus1.IsNotNeedShowPreview());
+
+    /**
+     * @tc.steps: step2. Set isBindCustomMenu = true, isShow = false
+     * @tc.expected: IsNotNeedShowPreview returns false
+     */
+    gestureHub->SetBindMenuStatus(true, false, MenuPreviewMode::CUSTOM);
+    auto bindStatus2 = gestureHub->GetBindMenuStatus();
+    EXPECT_FALSE(bindStatus2.IsNotNeedShowPreview());
+
+    /**
+     * @tc.steps: step3. Set isBindLongPressMenu = true
+     * @tc.expected: IsNotNeedShowPreview returns true
+     */
+    gestureHub->SetBindMenuStatus(false, false, MenuPreviewMode::CUSTOM);
+    auto bindStatus3 = gestureHub->GetBindMenuStatus();
+    EXPECT_TRUE(bindStatus3.IsNotNeedShowPreview());
+
+    /**
+     * @tc.steps: step4. Clear state and verify IsNotNeedShowPreview returns false
+     * @tc.expected: IsNotNeedShowPreview returns false
+     */
+    gestureHub->SetBindMenuStatus(false, false, MenuPreviewMode::NONE);
+    gestureHub->bindMenuStatus_.isBindCustomMenu = false;
+    gestureHub->bindMenuStatus_.isBindLongPressMenu = false;
+    auto bindStatus4 = gestureHub->GetBindMenuStatus();
+    EXPECT_FALSE(bindStatus4.IsNotNeedShowPreview());
 }
 } // namespace OHOS::Ace::NG

@@ -885,6 +885,9 @@ HWTEST_F(PipelineContextTestNg, PipelineContextTestNg154, TestSize.Level1)
     EXPECT_FALSE(context_->lastMouseEvent_->pointerEvent);
 
     context_->lastMouseEvent_->action = MouseAction::WINDOW_LEAVE;
+    context_->FlushMouseEventForHover();
+
+    context_->lastMouseEvent_->action = MouseAction::MOVE;
     context_->lastMouseEvent_->isMockWindowTransFlag = false;
     context_->windowSizeChangeReason_ = WindowSizeChangeReason::RECOVER;
     context_->FlushMouseEventForHover();
@@ -1109,6 +1112,32 @@ HWTEST_F(PipelineContextTestNg, PipelineContextTestNg160, TestSize.Level1)
      */
     context_->thpExtraMgr_.Reset();
     context_->NotifyResponseRegionChanged(rootNode);
+    EXPECT_FALSE(context_->thpExtraMgr_);
+}
+
+/**
+ * @tc.name: PipelineContextTestNgDisableNotifyResponseRegionChanged
+ * @tc.desc: Test DisableNotifyResponseRegionChanged.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PipelineContextTestNg, PipelineContextTestNgDisableNotifyResponseRegionChanged, TestSize.Level1)
+{
+    /**
+     * @tc.steps1: Call the function NotifyResponseRegionChanged.
+     * @tc.expected: Test the member thpExtraMgr_ is not nullptr.
+     */
+    ASSERT_NE(context_, nullptr);
+    RefPtr<FrameNode> rootNode = AceType::MakeRefPtr<FrameNode>("test1", 1, AceType::MakeRefPtr<Pattern>());
+    context_->thpExtraMgr_ = AceType::MakeRefPtr<NG::THPExtraManagerImpl>();
+    context_->NotifyResponseRegionChanged(rootNode);
+    EXPECT_TRUE(context_->thpExtraMgr_);
+
+    /**
+     * @tc.steps2: Call the function DisableNotifyResponseRegionChanged.
+     * @tc.expected: Test the member thpExtraMgr_ is nullptr.
+     */
+    context_->thpExtraMgr_.Reset();
+    context_->DisableNotifyResponseRegionChanged();
     EXPECT_FALSE(context_->thpExtraMgr_);
 }
 
@@ -2465,6 +2494,23 @@ HWTEST_F(PipelineContextTestNg, PipelineContextTestNg403, TestSize.Level1)
     context_->rootNode_->isDarkMode_ = false;
     context_->NotifyColorModeChange(colorMode);
     EXPECT_EQ(context_->instanceId_, Container::CurrentIdSafely());
+}
+
+/**
+ * @tc.name: PipelineContextTestNg404
+ * @tc.desc: Test the function NotifyColorModeChange.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PipelineContextTestNg, PipelineContextTestNg404, TestSize.Level1)
+{
+    ASSERT_NE(context_, nullptr);
+    context_->SetupRootElement();
+    auto node = FrameNode::GetOrCreateFrameNode(TEST_TAG, frameNodeId_, nullptr);
+    ASSERT_NE(node, nullptr);
+    MouseEvent mouseEvent;
+    mouseEvent.action = MouseAction::HOVER;
+    context_->DispatchMouseToTouchEvent(mouseEvent, node);
+    EXPECT_TRUE(context_->eventManager_->touchTestResults_.empty());
 }
 } // namespace NG
 } // namespace OHOS::Ace

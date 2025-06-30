@@ -34,6 +34,7 @@
 #include "ecmascript/mem/idle_gc_trigger.h"
 #include "ecmascript/module/module_logger.h"
 #include "ecmascript/module/napi_module_loader.h"
+#include "ecmascript/napi/jsnapi_class_creation_helper.h"
 #include "ecmascript/ohos/js_pandafile_snapshot_interfaces.h"
 #include "ecmascript/ohos/module_snapshot_interfaces.h"
 #include "ecmascript/ohos/ohos_constants.h"
@@ -103,6 +104,7 @@ using ecmascript::JSTaggedValue;
 using ecmascript::JSThread;
 using ecmascript::JSType;
 using ecmascript::JSTypedArray;
+using ecmascript::JSNApiClassCreationHelper;
 using ecmascript::LinkedHashMap;
 using ecmascript::LinkedHashSet;
 using ecmascript::LockHolder;
@@ -3619,27 +3621,6 @@ Local<FunctionRef> FunctionRef::NewConcurrentWithName(EcmaVM *vm, const Local<JS
     return JSNApiHelper::ToLocal<FunctionRef>(JSHandle<JSTaggedValue>(func));
 }
 
-static void InitClassFunction(EcmaVM *vm, JSHandle<JSFunction> &func, bool callNapi)
-{
-    CROSS_THREAD_CHECK(vm);
-    ecmascript::ThreadManagedScope managedScope(thread);
-    JSHandle<GlobalEnv> env = vm->GetGlobalEnv();
-    auto globalConst = thread->GlobalConstants();
-    JSHandle<JSTaggedValue> accessor = globalConst->GetHandledFunctionPrototypeAccessor();
-    func->SetPropertyInlinedProps(thread, JSFunction::CLASS_PROTOTYPE_INLINE_PROPERTY_INDEX,
-                                  accessor.GetTaggedValue());
-    accessor = globalConst->GetHandledFunctionLengthAccessor();
-    func->SetPropertyInlinedProps(thread, JSFunction::LENGTH_INLINE_PROPERTY_INDEX,
-                                  accessor.GetTaggedValue());
-    JSHandle<JSObject> clsPrototype = JSFunction::NewJSFunctionPrototype(thread, func);
-    clsPrototype->GetClass()->SetClassPrototype(true);
-    func->SetClassConstructor(true);
-    JSHandle<JSTaggedValue> parent = env->GetFunctionPrototype();
-    JSObject::SetPrototype(thread, JSHandle<JSObject>::Cast(func), parent);
-    func->SetHomeObject(thread, clsPrototype);
-    func->SetCallNapi(callNapi);
-}
-
 Local<FunctionRef> FunctionRef::NewClassFunction(EcmaVM *vm, const Local<JSValueRef> &context,
     FunctionCallback nativeFunc, NativePointerCallback deleter, void *data, bool callNapi, size_t nativeBindingsize)
 {
@@ -3652,7 +3633,7 @@ Local<FunctionRef> FunctionRef::NewClassFunction(EcmaVM *vm, const Local<JSValue
     JSHandle<JSFunction> current =
         factory->NewJSFunctionByHClass(reinterpret_cast<void *>(Callback::RegisterCallback),
         hclass, ecmascript::FunctionKind::CLASS_CONSTRUCTOR);
-    InitClassFunction(vm, current, callNapi);
+    JSFunction::InitClassFunction(thread, current, callNapi);
     JSFunction::SetFunctionExtraInfo(thread, current, reinterpret_cast<void *>(nativeFunc),
                                      deleter, data, nativeBindingsize);
     Local<FunctionRef> result = JSNApiHelper::ToLocal<FunctionRef>(JSHandle<JSTaggedValue>(current));
@@ -3682,33 +3663,44 @@ Local<FunctionRef> FunctionRef::NewConcurrentClassFunction(EcmaVM *vm, const Loc
     JSHandle<JSFunction> current =
         factory->NewJSFunctionByHClass(reinterpret_cast<void *>(nativeFunc),
         hclass, ecmascript::FunctionKind::CLASS_CONSTRUCTOR);
-    InitClassFunction(vm, current, callNapi);
+    JSFunction::InitClassFunction(thread, current, callNapi);
     JSFunction::SetFunctionExtraInfo(thread, current, nullptr, deleter, data, nativeBindingsize, Concurrent::YES);
     Local<FunctionRef> result = JSNApiHelper::ToLocal<FunctionRef>(JSHandle<JSTaggedValue>(current));
     current->SetLexicalEnv(thread, JSHandle<GlobalEnv>(JSNApiHelper::ToJSHandle(context)));
     return scope.Escape(result);
 }
 
-Local<FunctionRef> FunctionRef::NewConcurrentClassFunctionWithName(EcmaVM *vm, const Local<JSValueRef> &context,
-                                                                   InternalFunctionCallback nativeFunc,
-                                                                   NativePointerCallback deleter, const char *name,
-                                                                   void *data, bool callNapi, size_t nativeBindingsize)
+Local<FunctionRef> FunctionRef::NewConcurrentClassFunctionWithName(
+    const EcmaVM *vm, const Local<JSValueRef> &context, InternalFunctionCallback nativeFunc,
+    NativePointerCallback deleter, const char *name, void *data, bool callNapi, size_t propertyCount,
+    size_t staticPropCount, Local<panda::JSValueRef> *keys, PropertyAttribute *attrs, size_t nativeBindingsize)
 {
     CROSS_THREAD_AND_EXCEPTION_CHECK_WITH_RETURN(vm, JSValueRef::Undefined(vm));
     ecmascript::ThreadManagedScope managedScope(thread);
     EscapeLocalScope scope(vm);
     ObjectFactory *factory = vm->GetFactory();
     JSHandle<GlobalEnv> env = vm->GetGlobalEnv();
-    JSHandle<JSHClass> hclass = JSHandle<JSHClass>::Cast(env->GetFunctionClassWithoutName());
-    JSHandle<JSFunction> current = factory->NewJSFunctionByHClass(reinterpret_cast<void *>(nativeFunc), hclass,
-                                                                  ecmascript::FunctionKind::CLASS_CONSTRUCTOR);
-    InitClassFunction(vm, current, callNapi);
-    JSFunction::SetFunctionExtraInfo(thread, current, nullptr, deleter, data, nativeBindingsize, Concurrent::YES);
 
-    JSHandle<JSTaggedValue> functionName(factory->NewFromUtf8WithoutStringTable(name));
-    JSFunction::SetFunctionNameNoPrefix(thread, *current, functionName.GetTaggedValue());
-    Local<FunctionRef> result = JSNApiHelper::ToLocal<FunctionRef>(JSHandle<JSTaggedValue>(current));
-    current->SetLexicalEnv(thread, JSHandle<GlobalEnv>(JSNApiHelper::ToJSHandle(context)));
+    JSHandle<JSFunction> classFunc;
+    if (propertyCount <= MAX_PROPERTIES_ON_STACK) {
+        char descs[sizeof(PropertyDescriptor) * MAX_PROPERTIES_ON_STACK];
+        classFunc = JSNApiClassCreationHelper::CreateClassFuncWithProperties(
+            thread, name, nativeFunc, callNapi, propertyCount, staticPropCount, keys, attrs,
+            reinterpret_cast<PropertyDescriptor *>(&descs[0]));
+    } else {
+        PropertyDescriptor *descs =
+            reinterpret_cast<PropertyDescriptor *>(malloc(sizeof(PropertyDescriptor) * propertyCount));
+        if (descs != nullptr) {
+            classFunc = JSNApiClassCreationHelper::CreateClassFuncWithProperties(
+                thread, name, nativeFunc, callNapi, propertyCount, staticPropCount, keys, attrs, descs);
+            free(descs);
+        } else {
+            THROW_RANGE_ERROR_AND_RETURN(thread, "Malloc descriptors failed!", JSValueRef::Undefined(vm));
+        }
+    }
+    classFunc->SetLexicalEnv(thread, JSHandle<GlobalEnv>(JSNApiHelper::ToJSHandle(context)));
+    JSFunction::SetFunctionExtraInfo(thread, classFunc, nullptr, deleter, data, nativeBindingsize, Concurrent::YES);
+    Local<FunctionRef> result = JSNApiHelper::ToLocal<FunctionRef>(JSHandle<JSTaggedValue>(classFunc));
     return scope.Escape(result);
 }
 
@@ -3734,7 +3726,7 @@ Local<FunctionRef> FunctionRef::NewClassFunction(EcmaVM *vm, const Local<JSValue
     JSHandle<JSFunction> current =
         factory->NewJSFunctionByHClass(reinterpret_cast<void *>(nativeFunc),
         hclass, ecmascript::FunctionKind::CLASS_CONSTRUCTOR);
-    InitClassFunction(vm, current, callNapi);
+    JSFunction::InitClassFunction(thread, current, callNapi);
     JSFunction::SetFunctionExtraInfo(thread, current, nullptr, deleter, data, nativeBindingsize);
     Local<FunctionRef> result = JSNApiHelper::ToLocal<FunctionRef>(JSHandle<JSTaggedValue>(current));
     current->SetLexicalEnv(thread, JSHandle<GlobalEnv>(JSNApiHelper::ToJSHandle(context)));
@@ -5556,7 +5548,7 @@ bool JSNApi::Execute(const EcmaVM *vm, const std::string &fileName, const std::s
 
 // The security interface needs to be modified accordingly.
 bool JSNApi::Execute(EcmaVM *vm, const uint8_t *data, int32_t size, const std::string &entry,
-                     const std::string &filename, bool needUpdate)
+                     const std::string &filename, bool needUpdate, [[maybe_unused]] void* fileMapper)
 {
     CROSS_THREAD_AND_EXCEPTION_CHECK_WITH_RETURN(vm, false);
     LOG_ECMA(DEBUG) << "start to execute ark buffer: " << filename;
@@ -5659,14 +5651,15 @@ bool JSNApi::ExecuteSecureWithOhmUrl(EcmaVM *vm, uint8_t *data, int32_t size, co
     return true;
 }
 
+// file mapper only used for secure memory
 bool JSNApi::ExecuteSecure(EcmaVM *vm, uint8_t *data, int32_t size, const std::string &entry,
-                           const std::string &filename, bool needUpdate)
+                           const std::string &filename, bool needUpdate, void *fileMapper)
 {
     CROSS_THREAD_AND_EXCEPTION_CHECK_WITH_RETURN(vm, false);
     LOG_ECMA(INFO) << "start to execute ark buffer with secure memory: " << filename;
     ecmascript::ThreadManagedScope scope(thread);
-    if (!ecmascript::JSPandaFileExecutor::ExecuteFromBufferSecure(thread, data, size, entry, filename.c_str(),
-                                                                  needUpdate)) {
+    if (!ecmascript::JSPandaFileExecutor::ExecuteFromBufferSecure(
+        thread, data, size, entry, filename.c_str(), needUpdate, fileMapper)) {
         if (thread->HasPendingException()) {
             ecmascript::JsStackInfo::BuildCrashInfo(thread);
             thread->HandleUncaughtException();
@@ -5748,8 +5741,8 @@ void JSNApi::PostFork(EcmaVM *vm, const RuntimeOption &option)
                     << ", jit: " << option.GetEnableJIT()
                     << ", baseline jit: " << option.GetEnableBaselineJIT()
                     << ", bundle name: " <<  option.GetBundleName();
-
-    vm->PostFork();
+    jsOption.SetEnableWarmStartupSmartGC(option.GetEnableWarmStartupSmartGC());
+    vm->PostFork(jsOption);
 }
 
 void JSNApi::AddWorker(EcmaVM *hostVm, EcmaVM *workerVm)
@@ -6157,10 +6150,17 @@ void JSNApi::NotifyEnvInitialized(EcmaVM *vm)
     ecmascript::ModuleLogger::SetModuleLoggerTask(vm);
 }
 
+void JSNApi::SetReleaseSecureMemCallback(EcmaVM *vm, ReleaseSecureMemCallback releaseSecureMemFunc)
+{
+    CROSS_THREAD_CHECK(vm);
+    // register release sucere mem func to ark_js_runtime
+    ecmascript::Runtime::GetInstance()->SetReleaseSecureMemCallback(releaseSecureMemFunc);
+}
+
 // Arkui trigger jsPandafile Seralize when cold start is end.
 void JSNApi::PandaFileSerialize(const EcmaVM *vm)
 {
-    if (!const_cast<EcmaVM *>(vm)->GetJSOptions().EnableJSPandaFileAndModuleSnapshot()) {
+    if (const_cast<EcmaVM *>(vm)->GetJSOptions().DisableJSPandaFileAndModuleSnapshot()) {
         return;
     }
     ecmascript::CString path(ecmascript::ohos::OhosConstants::PANDAFILE_AND_MODULE_SNAPSHOT_DIR);
@@ -6170,7 +6170,7 @@ void JSNApi::PandaFileSerialize(const EcmaVM *vm)
 // Arkui trigger module Seralize when cold start is end.
 void JSNApi::ModuleSerialize(const EcmaVM *vm)
 {
-    if (!const_cast<EcmaVM *>(vm)->GetJSOptions().EnableJSPandaFileAndModuleSnapshot()) {
+    if (const_cast<EcmaVM *>(vm)->GetJSOptions().DisableJSPandaFileAndModuleSnapshot()) {
         return;
     }
     ecmascript::CString path(ecmascript::ohos::OhosConstants::PANDAFILE_AND_MODULE_SNAPSHOT_DIR);
@@ -6180,7 +6180,7 @@ void JSNApi::ModuleSerialize(const EcmaVM *vm)
 // Ability Runtime trigger module Deseralize when application start.
 void JSNApi::ModuleDeserialize(EcmaVM *vm, const uint32_t appVersion)
 {
-    if (!vm->GetJSOptions().EnableJSPandaFileAndModuleSnapshot()) {
+    if (vm->GetJSOptions().DisableJSPandaFileAndModuleSnapshot()) {
         return;
     }
     vm->SetApplicationVersionCode(appVersion);
