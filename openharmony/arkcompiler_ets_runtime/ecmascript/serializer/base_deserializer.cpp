@@ -90,7 +90,7 @@ JSHandle<JSTaggedValue> BaseDeserializer::DeserializeJSTaggedValue()
     // recovery gc after serialize
     heap_->SetOnSerializeEvent(false);
 
-    return JSHandle<JSTaggedValue>(thread_, resHolderHandle->Get(0));
+    return JSHandle<JSTaggedValue>(thread_, resHolderHandle->Get(thread_, 0));
 }
 
 uintptr_t BaseDeserializer::DeserializeTaggedObject(SerializedObjectSpace space)
@@ -185,7 +185,7 @@ void BaseDeserializer::HandleNewObjectEncodeFlag(SerializedObjectSpace space,  u
         }
     } else if (object->GetClass()->IsJSFunction()) {
         JSFunction* func = reinterpret_cast<JSFunction *>(object);
-        FunctionKind funcKind = func->GetFunctionKind();
+        FunctionKind funcKind = func->GetFunctionKind(thread_);
         if (funcKind == FunctionKind::CONCURRENT_FUNCTION || object->GetClass()->IsJSSharedFunction()) {
             // defer initialize concurrent function
             JSHandle<JSFunction> funcHandle(thread_, func);
@@ -215,7 +215,8 @@ void BaseDeserializer::TransferArrayBufferAttach(uintptr_t objAddr)
     JSArrayBuffer *arrayBuffer = reinterpret_cast<JSArrayBuffer *>(objAddr);
     size_t arrayLength = arrayBuffer->GetArrayBufferByteLength();
     bool withNativeAreaAllocator = arrayBuffer->GetWithNativeAreaAllocator();
-    JSNativePointer *np = reinterpret_cast<JSNativePointer *>(arrayBuffer->GetArrayBufferData().GetTaggedObject());
+    JSNativePointer *np =
+        reinterpret_cast<JSNativePointer *>(arrayBuffer->GetArrayBufferData(thread_).GetTaggedObject());
     arrayBuffer->Attach(thread_, arrayLength, JSTaggedValue(np), withNativeAreaAllocator);
 }
 
@@ -224,7 +225,8 @@ void BaseDeserializer::IncreaseSharedArrayBufferReference(uintptr_t objAddr)
     ASSERT(JSTaggedValue(static_cast<JSTaggedType>(objAddr)).IsSharedArrayBuffer());
     JSArrayBuffer *arrayBuffer = reinterpret_cast<JSArrayBuffer *>(objAddr);
     size_t arrayLength = arrayBuffer->GetArrayBufferByteLength();
-    JSNativePointer *np = reinterpret_cast<JSNativePointer *>(arrayBuffer->GetArrayBufferData().GetTaggedObject());
+    JSNativePointer *np =
+        reinterpret_cast<JSNativePointer *>(arrayBuffer->GetArrayBufferData(thread_).GetTaggedObject());
     void *buffer = np->GetExternalPointer();
     if (JSSharedMemoryManager::GetInstance()->CreateOrLoad(&buffer, arrayLength)) {
         LOG_ECMA(FATAL) << "BaseDeserializer::IncreaseSharedArrayBufferReference failed";
@@ -240,11 +242,11 @@ void BaseDeserializer::ResetNativePointerBuffer(uintptr_t objAddr, void *bufferP
     if (obj.IsArrayBuffer()) {
         JSArrayBuffer *arrayBuffer = reinterpret_cast<JSArrayBuffer *>(objAddr);
         arrayBuffer->SetWithNativeAreaAllocator(true);
-        np = reinterpret_cast<JSNativePointer *>(arrayBuffer->GetArrayBufferData().GetTaggedObject());
+        np = reinterpret_cast<JSNativePointer *>(arrayBuffer->GetArrayBufferData(thread_).GetTaggedObject());
         nativeAreaAllocator->IncreaseNativeSizeStats(arrayBuffer->GetArrayBufferByteLength(), NativeFlag::ARRAY_BUFFER);
     } else {
         JSRegExp *jsRegExp = reinterpret_cast<JSRegExp *>(objAddr);
-        np = reinterpret_cast<JSNativePointer *>(jsRegExp->GetByteCodeBuffer().GetTaggedObject());
+        np = reinterpret_cast<JSNativePointer *>(jsRegExp->GetByteCodeBuffer(thread_).GetTaggedObject());
         nativeAreaAllocator->IncreaseNativeSizeStats(jsRegExp->GetLength(), NativeFlag::REGEXP_BTYECODE);
     }
 
@@ -436,7 +438,7 @@ uintptr_t BaseDeserializer::RelocateObjectAddr(SerializedObjectSpace space, size
     switch (space) {
         case SerializedObjectSpace::REGULAR_SPACE: {
             if (currentRegularObjectAddr_ + objSize >
-                    currentRegularRegionBeginAddr_ + common::SerializeUtils::GetRegionSize()) {
+                    currentRegularRegionBeginAddr_ + common::Heap::GetNormalRegionAvailableSize()) {
                 ASSERT(regularRegionIndex_ < regionVector_.size());
                 currentRegularObjectAddr_ = regionVector_[regularRegionIndex_++];
                 currentRegularRegionBeginAddr_ = currentRegularObjectAddr_;
@@ -447,7 +449,7 @@ uintptr_t BaseDeserializer::RelocateObjectAddr(SerializedObjectSpace space, size
         }
         case SerializedObjectSpace::PIN_SPACE: {
             if (currentPinObjectAddr_ + objSize >
-                    currentPinRegionBeginAddr_ + common::SerializeUtils::GetRegionSize()) {
+                    currentPinRegionBeginAddr_ + common::Heap::GetNormalRegionAvailableSize()) {
                 ASSERT(pinRegionIndex_ < regionVector_.size());
                 currentPinObjectAddr_ = regionVector_[pinRegionIndex_++];
                 currentPinRegionBeginAddr_ = currentPinObjectAddr_;
@@ -542,25 +544,25 @@ JSTaggedType BaseDeserializer::RelocateObjectProtoAddr(uint8_t objectType)
         case (uint8_t)JSType::JS_OBJECT:
             return env->GetObjectFunctionPrototype().GetTaggedType();
         case (uint8_t)JSType::JS_ERROR:
-            return JSHandle<JSFunction>(env->GetErrorFunction())->GetFunctionPrototype().GetRawData();
+            return JSHandle<JSFunction>(env->GetErrorFunction())->GetFunctionPrototype(thread_).GetRawData();
         case (uint8_t)JSType::JS_EVAL_ERROR:
-            return JSHandle<JSFunction>(env->GetEvalErrorFunction())->GetFunctionPrototype().GetRawData();
+            return JSHandle<JSFunction>(env->GetEvalErrorFunction())->GetFunctionPrototype(thread_).GetRawData();
         case (uint8_t)JSType::JS_RANGE_ERROR:
-            return JSHandle<JSFunction>(env->GetRangeErrorFunction())->GetFunctionPrototype().GetRawData();
+            return JSHandle<JSFunction>(env->GetRangeErrorFunction())->GetFunctionPrototype(thread_).GetRawData();
         case (uint8_t)JSType::JS_REFERENCE_ERROR:
-            return JSHandle<JSFunction>(env->GetReferenceErrorFunction())->GetFunctionPrototype().GetRawData();
+            return JSHandle<JSFunction>(env->GetReferenceErrorFunction())->GetFunctionPrototype(thread_).GetRawData();
         case (uint8_t)JSType::JS_TYPE_ERROR:
-            return JSHandle<JSFunction>(env->GetTypeErrorFunction())->GetFunctionPrototype().GetRawData();
+            return JSHandle<JSFunction>(env->GetTypeErrorFunction())->GetFunctionPrototype(thread_).GetRawData();
         case (uint8_t)JSType::JS_AGGREGATE_ERROR:
-            return JSHandle<JSFunction>(env->GetAggregateErrorFunction())->GetFunctionPrototype().GetRawData();
+            return JSHandle<JSFunction>(env->GetAggregateErrorFunction())->GetFunctionPrototype(thread_).GetRawData();
         case (uint8_t)JSType::JS_URI_ERROR:
-            return JSHandle<JSFunction>(env->GetURIErrorFunction())->GetFunctionPrototype().GetRawData();
+            return JSHandle<JSFunction>(env->GetURIErrorFunction())->GetFunctionPrototype(thread_).GetRawData();
         case (uint8_t)JSType::JS_SYNTAX_ERROR:
-            return JSHandle<JSFunction>(env->GetSyntaxErrorFunction())->GetFunctionPrototype().GetRawData();
+            return JSHandle<JSFunction>(env->GetSyntaxErrorFunction())->GetFunctionPrototype(thread_).GetRawData();
         case (uint8_t)JSType::JS_OOM_ERROR:
-            return JSHandle<JSFunction>(env->GetOOMErrorFunction())->GetFunctionPrototype().GetRawData();
+            return JSHandle<JSFunction>(env->GetOOMErrorFunction())->GetFunctionPrototype(thread_).GetRawData();
         case (uint8_t)JSType::JS_TERMINATION_ERROR:
-            return JSHandle<JSFunction>(env->GetTerminationErrorFunction())->GetFunctionPrototype().GetRawData();
+            return JSHandle<JSFunction>(env->GetTerminationErrorFunction())->GetFunctionPrototype(thread_).GetRawData();
         case (uint8_t)JSType::JS_DATE:
             return env->GetDatePrototype().GetTaggedType();
         case (uint8_t)JSType::JS_ARRAY:
@@ -626,15 +628,17 @@ JSTaggedType BaseDeserializer::RelocateObjectProtoAddr(uint8_t objectType)
         case (uint8_t)JSType::JS_SHARED_BIGUINT64_ARRAY:
             return env->GetSharedBigUint64ArrayFunctionPrototype().GetTaggedType();
         case (uint8_t)JSType::JS_ARRAY_BUFFER:
-            return JSHandle<JSFunction>(env->GetArrayBufferFunction())->GetFunctionPrototype().GetRawData();
+            return JSHandle<JSFunction>(env->GetArrayBufferFunction())->GetFunctionPrototype(thread_).GetRawData();
         case (uint8_t)JSType::JS_SHARED_ARRAY_BUFFER:
-            return JSHandle<JSFunction>(env->GetSharedArrayBufferFunction())->GetFunctionPrototype().GetRawData();
+            return JSHandle<JSFunction>(env->GetSharedArrayBufferFunction())
+                ->GetFunctionPrototype(thread_)
+                .GetRawData();
         case (uint8_t)JSType::JS_ASYNC_FUNCTION:
             return env->GetAsyncFunctionPrototype().GetTaggedType();
         case (uint8_t)JSType::JS_SHARED_ASYNC_FUNCTION:
             return env->GetSAsyncFunctionPrototype().GetTaggedType();
         case (uint8_t)JSType::BIGINT:
-            return JSHandle<JSFunction>(env->GetBigIntFunction())->GetFunctionPrototype().GetRawData();
+            return JSHandle<JSFunction>(env->GetBigIntFunction())->GetFunctionPrototype(thread_).GetRawData();
         default:
             LOG_ECMA(FATAL) << "Relocate unsupported JSType: " << JSHClass::DumpJSType(static_cast<JSType>(objectType));
             UNREACHABLE();
@@ -686,7 +690,7 @@ void BaseDeserializer::AllocateToDifferentSpaces()
 
 void BaseDeserializer::AllocateToRegularSpace(size_t regularSpaceSize)
 {
-    if (regularSpaceSize <= common::SerializeUtils::GetRegionSize()) {
+    if (regularSpaceSize <= common::Heap::GetNormalRegionAvailableSize()) {
         currentRegularObjectAddr_ = common::HeapAllocator::AllocateNoGC(regularSpaceSize);
     } else {
         currentRegularObjectAddr_ = AllocateMultiCMCRegion(regularSpaceSize, regularRegionIndex_,
@@ -699,7 +703,7 @@ void BaseDeserializer::AllocateToRegularSpace(size_t regularSpaceSize)
 }
 void BaseDeserializer::AllocateToPinSpace(size_t pinSpaceSize)
 {
-    if (pinSpaceSize <= common::SerializeUtils::GetRegionSize()) {
+    if (pinSpaceSize <= common::Heap::GetNormalRegionAvailableSize()) {
         currentPinObjectAddr_ = common::HeapAllocator::AllocatePinNoGC(pinSpaceSize);
     } else {
         currentPinObjectAddr_ = AllocateMultiCMCRegion(pinSpaceSize, pinRegionIndex_, RegionType::PinRegion);
@@ -712,12 +716,13 @@ void BaseDeserializer::AllocateToPinSpace(size_t pinSpaceSize)
 
 uintptr_t BaseDeserializer::AllocateMultiCMCRegion(size_t spaceObjSize, size_t &regionIndex, RegionType regionType)
 {
-    size_t regionSize = common::SerializeUtils::GetRegionSize();
-    ASSERT(spaceObjSize > regionSize);
+    constexpr size_t REGION_SIZE = common::Heap::GetNormalRegionAvailableSize();
+    ASSERT(REGION_SIZE != 0);
+    ASSERT(spaceObjSize > REGION_SIZE);
     regionIndex = regionVector_.size();
-    size_t regionAlignedSize = AlignUp(spaceObjSize, regionSize);
-    ASSERT(regionSize != 0);
-    size_t regionNum = regionAlignedSize / regionSize;
+    size_t regionAlignedSize = SerializeData::AlignUpRegionAvailableSize(spaceObjSize);
+    ASSERT(regionAlignedSize % REGION_SIZE == 0);
+    size_t regionNum = regionAlignedSize / REGION_SIZE;
     uintptr_t firstRegionAddr = 0U;
     std::vector<size_t> regionRemainSizeVector;
     size_t regionRemainSizeIndex = 0;
@@ -744,11 +749,11 @@ uintptr_t BaseDeserializer::AllocateMultiCMCRegion(size_t spaceObjSize, size_t &
         // fill region not used size
         if (regionNum == 1) {  // last region
             size_t lastRegionRemainSize = regionAlignedSize - spaceObjSize;
-            FreeObject::FillFreeObject(heap_, regionAddr + regionSize - lastRegionRemainSize,
+            FreeObject::FillFreeObject(heap_, regionAddr + REGION_SIZE - lastRegionRemainSize,
                                        lastRegionRemainSize);
         } else {
-            auto regionAliveObjSize = regionSize - regionRemainSizeVector[regionRemainSizeIndex++];
-            FreeObject::FillFreeObject(heap_, regionAddr + regionAliveObjSize, regionSize - regionAliveObjSize);
+            auto regionAliveObjSize = REGION_SIZE - regionRemainSizeVector[regionRemainSizeIndex++];
+            FreeObject::FillFreeObject(heap_, regionAddr + regionAliveObjSize, REGION_SIZE - regionAliveObjSize);
         }
         regionNum--;
     }

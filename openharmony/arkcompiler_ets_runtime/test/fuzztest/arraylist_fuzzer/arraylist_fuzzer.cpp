@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include <fuzzer/FuzzedDataProvider.h>
 #include "arraylist_fuzzer.h"
 
 #include "ecmascript/containers/containers_arraylist.h"
@@ -91,14 +92,15 @@ namespace OHOS {
 
     static JSTaggedValue TestForEachFunc(EcmaRuntimeCallInfo *argv)
     {
+        JSThread *thread = argv->GetThread();
         JSHandle<JSTaggedValue> value = argv->GetCallArg(0);
         JSHandle<JSTaggedValue> key = argv->GetCallArg(1);
         JSHandle<JSTaggedValue> arrayList = argv->GetCallArg(2); // 2 means the secode arg
         if (!arrayList->IsUndefined()) {
             if (value->IsNumber()) {
                 TaggedArray *elements = TaggedArray::Cast(JSAPIArrayList::Cast(arrayList.GetTaggedValue().
-                                                          GetTaggedObject())->GetElements().GetTaggedObject());
-                [[maybe_unused]] JSTaggedValue result = elements->Get(key->GetInt());
+                                                          GetTaggedObject())->GetElements(thread).GetTaggedObject());
+                [[maybe_unused]] JSTaggedValue result = elements->Get(thread, key->GetInt());
             }
         }
         return JSTaggedValue::Undefined();
@@ -946,10 +948,13 @@ namespace OHOS {
         JSNApi::DestroyJSVM(vm);
     }
 
-    void JSValueRefInstanceOfValueFuzzTest([[maybe_unused]] const uint8_t *data, [[maybe_unused]] size_t size)
+    void JSValueRefInstanceOfValueFuzzTest(const uint8_t *data, size_t size)
     {
+        FuzzedDataProvider fdp(data, size);
+        const int arkProp = fdp.ConsumeIntegral<int>();
         RuntimeOption option;
         option.SetLogLevel(common::LOG_LEVEL::ERROR);
+        option.SetArkProperties(arkProp);
         EcmaVM *vm = JSNApi::CreateJSVM(option);
         {
             JsiFastNativeScope scope(vm);

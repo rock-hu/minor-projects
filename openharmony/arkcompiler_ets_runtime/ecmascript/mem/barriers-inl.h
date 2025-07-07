@@ -90,11 +90,6 @@ static ARK_INLINE void WriteBarrier(const JSThread *thread, void *obj, size_t of
     }
 }
 
-/* template<bool atomic>
-static ARK_INLINE JSTaggedType ReadBarrier(const JSThread *thread, const void *obj, size_t offset)
-{
-} */
-
 template<bool needWriteBarrier>
 inline void Barriers::SetObject(const JSThread *thread, void *obj, size_t offset, JSTaggedType value)
 {
@@ -131,31 +126,27 @@ inline void Barriers::SynchronizedSetObject(const JSThread *thread, void *obj, s
 }
 
 template <bool needReadBarrier>
-static inline void CopyBackward(JSTaggedValue* dst, const JSTaggedValue* src, size_t count)
+static inline void CopyBackward([[maybe_unused]]const JSThread *thread, JSTaggedValue* dst, const JSTaggedValue* src,
+    size_t count)
 {
     if constexpr (needReadBarrier == false) {
         std::copy_backward(src, src + count, dst + count);
         return;
     }
 
-    for (size_t i = count; i > 0; i--) {
-        JSTaggedType valueToRef = Barriers::GetTaggedValue(src, (i - 1) * sizeof(JSTaggedType));
-        Barriers::SetObject<false>(nullptr, dst, (i - 1) * sizeof(JSTaggedType), valueToRef);
-    }
+    Barriers::CMCArrayCopyReadBarrierBackward(thread, dst, src, count);
 }
 
 template <bool needReadBarrier>
-static inline void CopyForward(JSTaggedValue* dst, const JSTaggedValue* src, size_t count)
+static inline void CopyForward([[maybe_unused]]const JSThread *thread, JSTaggedValue* dst, const JSTaggedValue* src,
+    size_t count)
 {
     if constexpr (needReadBarrier == false) {
         std::copy_n(src, count, dst);
         return;
     }
 
-    for (size_t i = 0; i < count; i++) {
-        JSTaggedType valueToRef = Barriers::GetTaggedValue(src, i * sizeof(JSTaggedType));
-        Barriers::SetObject<false>(nullptr, dst, i * sizeof(JSTaggedType), valueToRef);
-    }
+    Barriers::CMCArrayCopyReadBarrierForward(thread, dst, src, count);
 }
 
 template <Region::RegionSpaceKind kind>
@@ -171,10 +162,9 @@ void Barriers::CopyObject(const JSThread *thread, const TaggedObject *dstObj, JS
 
     // step 1. copy from src to dst directly.
     if (thread->NeedReadBarrier()) {
-        CopyObjectPrimitive<true, maybeOverlap>(dstAddr, srcAddr, count);
-        return;
+        CopyObjectPrimitive<true, maybeOverlap>(thread, dstAddr, srcAddr, count);
     } else {
-        CopyObjectPrimitive<false, maybeOverlap>(dstAddr, srcAddr, count);
+        CopyObjectPrimitive<false, maybeOverlap>(thread, dstAddr, srcAddr, count);
     }
 
     if constexpr (!needWriteBarrier) {
@@ -228,18 +218,19 @@ void Barriers::CopyObject(const JSThread *thread, const TaggedObject *dstObj, JS
 }
 
 template <bool needReadBarrier, bool maybeOverlap>
-inline void Barriers::CopyObjectPrimitive(JSTaggedValue* dst, const JSTaggedValue* src, size_t count)
+inline void Barriers::CopyObjectPrimitive(const JSThread *thread, JSTaggedValue* dst, const JSTaggedValue* src,
+    size_t count)
 {
     // Copy Primitive value don't need thread.
     ASSERT((ToUintPtr(dst) % static_cast<uint8_t>(MemAlignment::MEM_ALIGN_OBJECT)) == 0);
     if constexpr (maybeOverlap == false) {
-        CopyForward<needReadBarrier>(dst, src, count);
+        CopyForward<needReadBarrier>(thread, dst, src, count);
         return;
     }
     if (dst > src && dst < src + count) {
-        CopyBackward<needReadBarrier>(dst, src, count);
+        CopyBackward<needReadBarrier>(thread, dst, src, count);
     } else {
-        CopyForward<needReadBarrier>(dst, src, count);
+        CopyForward<needReadBarrier>(thread, dst, src, count);
     }
 }
 } // namespace panda::ecmascript

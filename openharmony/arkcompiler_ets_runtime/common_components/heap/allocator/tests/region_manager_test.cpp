@@ -39,7 +39,17 @@ protected:
     size_t totalUnits_ = SIZE_MAX_TEST;
     size_t heapSize_;
     Mutator* mutator_ = nullptr;
-    bool isInit_ = false;
+
+    static void SetUpTestCase()
+    {
+        BaseRuntime::GetInstance()->Init();
+    }
+
+    static void TearDownTestCase()
+    {
+        BaseRuntime::GetInstance()->Fini();
+    }
+
     void SetUp() override
     {
         heapSize_ = totalUnits_ * RegionDesc::UNIT_SIZE;
@@ -58,15 +68,14 @@ protected:
 
     void TearDown() override
     {
-        if (isInit_) {
-            BaseRuntime::GetInstance()->Fini();
+        if (mutator_) {
+            delete mutator_;
+            mutator_ = nullptr;
         }
-    }
-
-    void InitializeBaseRuntime()
-    {
-        BaseRuntime::GetInstance()->Init();
-        isInit_ = true;
+        if (regionMemory_) {
+            free(regionMemory_);
+            regionMemory_ = nullptr;
+        }
     }
 };
 
@@ -125,8 +134,8 @@ HWTEST_F_L0(RegionManagerTest, VisitLiveObjectsUntilFalse_IsLargeRegion)
 HWTEST_F_L0(RegionManagerTest, VisitLiveObjectsUntilFalse)
 {
     size_t unitIdx = 0;
-    size_t nUnit = 4;
-    RegionDesc* region = RegionDesc::InitRegion(unitIdx, nUnit, RegionDesc::UnitRole::FREE_UNITS);
+    size_t nUnit = 1;
+    RegionDesc* region = RegionDesc::InitRegion(unitIdx, nUnit, RegionDesc::UnitRole::SMALL_SIZED_UNITS);
     ASSERT_NE(region, nullptr);
     region->AddLiveByteCount(SIZE_SIXTEEN);
     bool callbackCalled = false;
@@ -160,8 +169,9 @@ HWTEST_F_L0(RegionManagerTest, VisitAllObjectsBeforeFix1)
 HWTEST_F_L0(RegionManagerTest, VisitAllObjectsBeforeFix2)
 {
     size_t unitIdx = 0;
-    size_t nUnit = 4;
-    RegionDesc* region = RegionDesc::InitRegion(unitIdx, nUnit, RegionDesc::UnitRole::FREE_UNITS);
+    size_t nUnit = 1;
+    RegionDesc* region = RegionDesc::InitRegion(unitIdx, nUnit, RegionDesc::UnitRole::SMALL_SIZED_UNITS);
+    RegionDesc::InitFreeRegion(unitIdx, nUnit);
     ASSERT_NE(region, nullptr);
 
     uintptr_t start = region->GetRegionStart();
@@ -194,9 +204,9 @@ HWTEST_F_L0(RegionManagerTest, VisitAllObjectsBeforeFix3)
 HWTEST_F_L0(RegionManagerTest, VisitAllObjectsBeforeFix4)
 {
     size_t unitIdx = 0;
-    size_t nUnit = 4;
+    size_t nUnit = 1;
 
-    RegionDesc* region = RegionDesc::InitRegion(unitIdx, nUnit, RegionDesc::UnitRole::FREE_UNITS);
+    RegionDesc* region = RegionDesc::InitRegion(unitIdx, nUnit, RegionDesc::UnitRole::SMALL_SIZED_UNITS);
     ASSERT_NE(region, nullptr);
     region->SetFixLine();
     bool callbackCalled = false;
@@ -227,27 +237,17 @@ HWTEST_F_L0(RegionManagerTest, ReleaseGarbageRegions)
     EXPECT_GT(released, 0);
 }
 
-HWTEST_F_L0(RegionManagerTest, SetLargeObjectThreshold)
-{
-    auto& heapParam = BaseRuntime::GetInstance()->GetHeapParam();
-    heapParam.regionSize = SIZE_SIXTEEN;
-    RegionManager rm;
-    rm.SetLargeObjectThreshold();
-    EXPECT_LT(BaseRuntime::GetInstance()->GetHeapParam().regionSize * KB,
-        RegionDesc::LARGE_OBJECT_DEFAULT_THRESHOLD);
-}
-
 HWTEST_F_L0(RegionManagerTest, ReclaimRegion1)
 {
     size_t huge_page = (2048 * KB) / getpagesize();
     size_t nUnit = 1;
     size_t unitIdx = 0;
+    RegionManager manager;
+    manager.Initialize(SIZE_MAX_TEST, reinterpret_cast<uintptr_t>(regionMemory_));
     RegionDesc* region = RegionDesc::InitRegion(unitIdx, nUnit,
         RegionDesc::UnitRole::SMALL_SIZED_UNITS);
     ASSERT_NE(region, nullptr);
     EXPECT_FALSE(region->IsLargeRegion());
-    RegionManager manager;
-    manager.Initialize(SIZE_MAX_TEST, reinterpret_cast<uintptr_t>(regionMemory_));
     manager.ReclaimRegion(region);
     EXPECT_GT(manager.GetDirtyUnitCount(), 0);
 }
@@ -257,11 +257,11 @@ HWTEST_F_L0(RegionManagerTest, ReclaimRegion2)
     size_t huge_page = (2048 * KB) / getpagesize();
     size_t nUnit = huge_page;
     size_t unitIdx = 0;
+    RegionManager manager;
+    manager.Initialize(SIZE_MAX_TEST, reinterpret_cast<uintptr_t>(regionMemory_));
     RegionDesc* region = RegionDesc::InitRegion(unitIdx, nUnit,
         RegionDesc::UnitRole::LARGE_SIZED_UNITS);
     ASSERT_NE(region, nullptr);
-    RegionManager manager;
-    manager.Initialize(SIZE_MAX_TEST, reinterpret_cast<uintptr_t>(regionMemory_));
     manager.ReclaimRegion(region);
     EXPECT_GT(manager.GetDirtyUnitCount(), 0);
 }
@@ -271,11 +271,11 @@ HWTEST_F_L0(RegionManagerTest, ReleaseRegion)
     size_t huge_page = (2048 * KB) / getpagesize();
     size_t nUnit = 1;
     size_t unitIdx = 0;
+    RegionManager manager;
+    manager.Initialize(SIZE_MAX_TEST, reinterpret_cast<uintptr_t>(regionMemory_));
     RegionDesc* region = RegionDesc::InitRegion(unitIdx, nUnit,
         RegionDesc::UnitRole::LARGE_SIZED_UNITS);
     ASSERT_NE(region, nullptr);
-    RegionManager manager;
-    manager.Initialize(SIZE_MAX_TEST, reinterpret_cast<uintptr_t>(regionMemory_));
     auto ret = manager.ReleaseRegion(region);
     EXPECT_EQ(ret, region->GetRegionSize());
 }
@@ -284,14 +284,36 @@ HWTEST_F_L0(RegionManagerTest, TakeRegion1)
 {
     ASSERT_NE(mutator_, nullptr);
     mutator_->SetMutatorPhase(GCPhase::GC_PHASE_ENUM);
-    InitializeBaseRuntime();
+    RegionManager manager;
+    manager.Initialize(SIZE_MAX_TEST, reinterpret_cast<uintptr_t>(regionMemory_));
+    size_t nUnit = 4;
+    RegionDesc* garbageRegion = RegionDesc::InitRegion(SIZE_HALF_MAX_TEST, nUnit,
+        RegionDesc::UnitRole::LARGE_SIZED_UNITS);
+    auto size = manager.CollectRegion(garbageRegion);
+    RegionDesc* region = manager.TakeRegion(1, RegionDesc::UnitRole::SMALL_SIZED_UNITS, false, false);
+    EXPECT_GT(manager.GetDirtyUnitCount(), 0);
+}
+
+HWTEST_F_L0(RegionManagerTest, TakeRegion2)
+{
+    ASSERT_NE(mutator_, nullptr);
+    mutator_->SetMutatorPhase(GCPhase::GC_PHASE_ENUM);
     RegionManager manager;
     size_t nUnit = 1;
     manager.Initialize(SIZE_MAX_TEST, reinterpret_cast<uintptr_t>(regionMemory_));
     RegionDesc* garbageRegion = RegionDesc::InitRegion(SIZE_HALF_MAX_TEST, nUnit,
         RegionDesc::UnitRole::SMALL_SIZED_UNITS);
     auto size = manager.CollectRegion(garbageRegion);
-    RegionDesc* region = manager.TakeRegion(16, RegionDesc::UnitRole::SMALL_SIZED_UNITS, false, false);
-    EXPECT_GT(manager.GetDirtyUnitCount(), 0);
+    RegionDesc* region = manager.TakeRegion(16, RegionDesc::UnitRole::SMALL_SIZED_UNITS, true, false);
+    EXPECT_NE(region, nullptr);
+}
+
+HWTEST_F_L0(RegionManagerTest, AllocPinnedFromFreeList)
+{
+    ASSERT_NE(mutator_, nullptr);
+    mutator_->SetMutatorPhase(GCPhase::GC_PHASE_FIX);
+    RegionManager manager;
+    manager.Initialize(SIZE_MAX_TEST, reinterpret_cast<uintptr_t>(regionMemory_));
+    EXPECT_EQ(manager.AllocPinnedFromFreeList(0), 0);
 }
 }

@@ -114,10 +114,15 @@ public:
     StableHClassDependency(JSHClass *hclass)
         : LazyDeoptDependency(LazyDeoptDependencyKind::STABLE_HCLASS),
           hclass_(hclass) {}
+    
+    static bool IsValid(JSHClass *hclass)
+    {
+        return !hclass->IsDictionaryMode() && hclass->IsStable();
+    }
 
     bool IsValid() const override
     {
-        return !hclass_->IsDictionaryMode() && hclass_->IsStable();
+        return IsValid(hclass_);
     }
 
     void Install(CombinedDependencies *combinedDeps) const override
@@ -158,11 +163,20 @@ public:
         Clear();
     }
 
+    static bool InitializeProtoChainForDependency(JSThread *thread, JSHClass *receiverHClass,
+                                                  JSHClass *&holderHClass, GlobalEnv *globalEnv,
+                                                  JSTaggedValue &current);
+    
+    static bool CheckStableProtoChain(JSThread *thread, JSHClass *receiverHClass,
+                                      JSHClass *holderHClass,
+                                      GlobalEnv *globalEnv);
+    static bool CheckStableHClass(JSHClass *hclass);
+
     bool DependOnArrayDetector(GlobalEnv *globalEnv);
     bool DependOnDetector(uint32_t detectorID, GlobalEnv *globalEnv);
     bool DependOnNotPrototype(JSHClass *hclass);
     bool DependOnStableHClass(JSHClass *hclass);
-    bool DependOnStableProtoChain(JSHClass *receiverHClass,
+    bool DependOnStableProtoChain(JSThread *thread, JSHClass *receiverHClass,
                                   JSHClass *holderHClass,
                                   GlobalEnv *globalEnv = nullptr);
     bool DependOnNotHotReloadPatchMain(JSThread *thread);

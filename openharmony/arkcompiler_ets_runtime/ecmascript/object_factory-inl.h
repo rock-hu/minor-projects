@@ -153,7 +153,7 @@ void ObjectFactory::NewJSIntlIcuData(const JSHandle<T> &obj, const S &icu, const
 {
     S *icuPoint = vm_->GetNativeAreaAllocator()->New<S>(icu);
     ASSERT(icuPoint != nullptr);
-    JSTaggedValue data = obj->GetIcuField();
+    JSTaggedValue data = obj->GetIcuField(vm_->GetJSThread());
     if (data.IsHeapObject() && data.IsJSNativePointer()) {
         JSNativePointer *native = JSNativePointer::Cast(data.GetTaggedObject());
         native->ResetExternalPointer(thread_, icuPoint);
@@ -180,6 +180,27 @@ TaggedObject *ObjectFactory::AllocObjectWithSpaceType(size_t size, JSHClass *cls
             LOG_ECMA(FATAL) << "this branch is unreachable";
             UNREACHABLE();
     }
+}
+
+template <MemSpaceType type>
+JSHandle<BigInt> ObjectFactory::NewBigInt(uint32_t length)
+{
+    NewObjectHook();
+    ASSERT(length > 0);
+    size_t size = BigInt::ComputeSize(length);
+    TaggedObject *header;
+    if (type == MemSpaceType::SHARED_READ_ONLY_SPACE) {
+        header = sHeap_->AllocateReadOnlyOrHugeObject(thread_,
+            JSHClass::Cast(thread_->GlobalConstants()->GetBigIntClass().GetTaggedObject()), size);
+    } else {
+        header = sHeap_->AllocateOldOrHugeObject(thread_,
+            JSHClass::Cast(thread_->GlobalConstants()->GetBigIntClass().GetTaggedObject()), size);
+    }
+    JSHandle<BigInt> bigint(thread_, header);
+    bigint->SetLength(length);
+    bigint->SetSign(false);
+    bigint->InitializationZero();
+    return bigint;
 }
 }  // namespace panda::ecmascript
 #endif  // ECMASCRIPT_OBJECT_FACTORY_INL_H

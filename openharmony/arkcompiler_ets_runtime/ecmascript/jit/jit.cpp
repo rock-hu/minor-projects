@@ -240,13 +240,14 @@ Jit::~Jit()
 {
 }
 
-void Jit::CountInterpExecFuncs(JSHandle<JSFunction> &jsFunction)
+void Jit::CountInterpExecFuncs(JSThread *jsThread, JSHandle<JSFunction> &jsFunction)
 {
-    Method *method = Method::Cast(jsFunction->GetMethod().GetTaggedObject());
-    auto jSPandaFile = method->GetJSPandaFile();
+    Method *method = Method::Cast(jsFunction->GetMethod(jsThread).GetTaggedObject());
+    auto jSPandaFile = method->GetJSPandaFile(jsThread);
     ASSERT(jSPandaFile != nullptr);
     CString fileDesc = jSPandaFile->GetJSPandaFileDesc();
-    CString methodInfo = fileDesc + ":" + method->GetRecordNameStr() + "." + CString(method->GetMethodName());
+    CString methodInfo =
+        fileDesc + ":" + method->GetRecordNameStr(jsThread) +"." + CString(method->GetMethodName(jsThread));
     auto &profMap = JitWarmupProfiler::GetInstance()->profMap_;
     if (profMap.find(methodInfo) == profMap.end()) {
         profMap.insert({methodInfo, false});
@@ -297,7 +298,10 @@ void Jit::Compile(EcmaVM *vm, const CompileDecision &decision)
     GetJitDfx()->SetTriggerCount(tier);
 
     {
-        JitTaskpool::GetCurrentTaskpool()->WaitForJitTaskPoolReady();
+        {
+            ThreadNativeScope scope(vm->GetJSThread());
+            JitTaskpool::GetCurrentTaskpool()->WaitForJitTaskPoolReady();
+        }
         EcmaVM *compilerVm = JitTaskpool::GetCurrentTaskpool()->GetCompilerVm();
         std::shared_ptr<JitTask> jitTask = std::make_shared<JitTask>(vm->GetJSThread(),
             // avoid check fail when enable multi-thread check
@@ -341,6 +345,8 @@ uint32_t Jit::GetRunningTaskCnt(EcmaVM *vm)
 
 void Jit::InstallTasks(JSThread *jsThread)
 {
+    // Install tasks is only possible for JSThread in running state
+    ASSERT(jsThread->IsJSThread() && jsThread->IsInRunningState());
     std::deque<std::shared_ptr<JitTask>> taskQueue;
     {
         LockHolder holder(threadTaskInfoLock_);

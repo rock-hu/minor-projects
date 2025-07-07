@@ -25,15 +25,37 @@
 #include "common_components/heap/barrier/barrier.h"
 #include "common_components/heap/collector/collector.h"
 #include "common_interfaces/base/runtime_param.h"
+#include "common_interfaces/base_runtime.h"
 
 namespace common {
 class Allocator;
 class AllocationBuffer;
 class FinalizerProcessor;
 class CollectorResources;
+using MemoryReduceDegree = common::MemoryReduceDegree;
 
 class Heap {
 public:
+    // These need to keep same with that in `RegionDesc`
+    static constexpr size_t NORMAL_UNIT_SIZE = 256 * 1024;
+    static constexpr size_t NORMAL_UNIT_HEADER_SIZE = AlignUp<size_t>(2 * sizeof(void *) + sizeof(uint8_t), 8);
+    static constexpr size_t NORMAL_UNIT_AVAILABLE_SIZE = NORMAL_UNIT_SIZE - NORMAL_UNIT_HEADER_SIZE;
+
+    static constexpr size_t GetNormalRegionSize()
+    {
+        return NORMAL_UNIT_SIZE;
+    }
+
+    static constexpr size_t GetNormalRegionHeaderSize()
+    {
+        return NORMAL_UNIT_HEADER_SIZE;
+    }
+
+    static constexpr size_t GetNormalRegionAvailableSize()
+    {
+        return NORMAL_UNIT_AVAILABLE_SIZE;
+    }
+
     static void throwOOM()
     {
         // Maybe we need to add heapdump logic here
@@ -70,10 +92,12 @@ public:
     virtual void NotifyNativeAllocation(size_t bytes) = 0;
     virtual void NotifyNativeFree(size_t bytes) = 0;
     virtual void NotifyNativeReset(size_t oldBytes, size_t newBytes) = 0;
-    virtual size_t GetNotifiedNativeSize() = 0;
+    virtual size_t GetNotifiedNativeSize() const = 0;
     virtual void SetNativeHeapThreshold(size_t newThreshold) = 0;
-    virtual size_t GetNativeHeapThreshold() = 0;
-
+    virtual size_t GetNativeHeapThreshold() const = 0;
+    virtual void ChangeGCParams(bool isBackground) = 0;
+    virtual void RecordAliveSizeAfterLastGC(size_t aliveBytes) = 0;
+    virtual bool CheckAndTriggerHintGC(MemoryReduceDegree degree) = 0;
     /* to avoid misunderstanding, variant types of heap size are defined as followed:
      * |------------------------------ max capacity ---------------------------------|
      * |------------------------------ current capacity ------------------------|
@@ -94,6 +118,8 @@ public:
 
     // total memory allocated for each allocation request, including memory fragment for alignment or padding.
     virtual size_t GetAllocatedSize() const = 0;
+
+    virtual size_t GetSurvivedSize() const = 0;
 
     virtual size_t GetRemainHeapSize() const = 0;
 
@@ -142,6 +168,8 @@ public:
     virtual CollectorResources& GetCollectorResources() = 0;
 
     virtual void RegisterAllocBuffer(AllocationBuffer& buffer) = 0;
+
+    virtual void UnregisterAllocBuffer(AllocationBuffer& buffer) = 0;
 
     virtual void StopGCWork() = 0;
 

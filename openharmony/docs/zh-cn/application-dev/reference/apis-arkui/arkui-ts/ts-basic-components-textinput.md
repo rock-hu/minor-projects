@@ -30,6 +30,8 @@ TextInput(value?: TextInputOptions)
 
 ## TextInputOptions对象说明
 
+TextInput初始化参数。
+
 **原子化服务API：** 从API version 11开始，该接口支持在原子化服务中使用。
 
 **系统能力：** SystemCapability.ArkUI.ArkUI.Full
@@ -719,7 +721,7 @@ letterSpacing(value: number | string | Resource)
 
 | 参数名 | 类型                       | 必填 | 说明           |
 | ------ | -------------------------- | ---- | -------------- |
-| value  | number&nbsp;\|&nbsp;string&nbsp;\|&nbsp;[Resource](ts-types.md#resource) | 是   | 文本字符间距。<br/>单位：[fp](ts-pixel-units.md#像素单位) |
+| value  | number&nbsp;\|&nbsp;string&nbsp;\|&nbsp;[Resource](ts-types.md#resource) | 是   | 文本字符间距。<br/>单位：[fp](ts-pixel-units.md) |
 
 ### fontFeature<sup>12+</sup>
 
@@ -831,7 +833,7 @@ minFontSize(value: number | string | Resource)
 
 | 参数名 | 类型                                                         | 必填 | 说明               |
 | ------ | ------------------------------------------------------------ | ---- | ------------------ |
-| value  | number&nbsp;\|&nbsp;string&nbsp;\|&nbsp;[Resource](ts-types.md#resource) | 是   | 文本最小显示字号。<br/>单位：[fp](ts-pixel-units.md#像素单位) |
+| value  | number&nbsp;\|&nbsp;string&nbsp;\|&nbsp;[Resource](ts-types.md#resource) | 是   | 文本最小显示字号。<br/>单位：[fp](ts-pixel-units.md) |
 
 ### maxFontSize<sup>12+</sup>
 
@@ -851,7 +853,7 @@ maxFontSize(value: number | string | Resource)
 
 | 参数名 | 类型                                                         | 必填 | 说明               |
 | ------ | ------------------------------------------------------------ | ---- | ------------------ |
-| value  | number&nbsp;\|&nbsp;string&nbsp;\|&nbsp;[Resource](ts-types.md#resource) | 是   | 文本最大显示字号。<br/>单位：[fp](ts-pixel-units.md#像素单位) |
+| value  | number&nbsp;\|&nbsp;string&nbsp;\|&nbsp;[Resource](ts-types.md#resource) | 是   | 文本最大显示字号。<br/>单位：[fp](ts-pixel-units.md) |
 
 ### heightAdaptivePolicy<sup>12+</sup>
 
@@ -2796,10 +2798,10 @@ struct TextInputExample {
 ```
 
 ![TextInputEditChange](figures/TextInputEditChange.png)
-<!--RP3-->
+
 ### 示例18（设置最小字体范围与最大字体范围）
 
-该示例通过minFontScale、maxFontScale设置字体显示最小与最大范围（<!--Del-->该示例使用系统接口，应用类型需调整为系统应用，可参考HarmonyAppProvision的[系统接口说明](../../../reference/development-intro-api.md#系统接口说明)<!--DelEnd-->）。
+该示例通过minFontScale、maxFontScale设置字体显示最小与最大范围<!--Del-->（该示例使用系统接口，应用类型需调整为系统应用，可参考HarmonyAppProvision的[系统接口说明](../../../reference/development-intro-api.md#系统接口说明)）<!--DelEnd-->。
 
 ```json
 // 开启应用缩放跟随系统
@@ -2828,7 +2830,7 @@ struct TextInputExample {
   }
 }
 ```
-
+<!--RP3-->
 ```ts
 // xxx.ets
 import { abilityManager, Configuration } from '@kit.AbilityKit';

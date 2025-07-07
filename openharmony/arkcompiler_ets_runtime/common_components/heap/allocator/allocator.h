@@ -44,9 +44,16 @@ public:
     // allocated bytes for large objects are included.
     virtual size_t GetAllocatedBytes() const = 0;
 
+    virtual size_t GetSurvivedSize() const = 0;
+
     inline void RegisterAllocBuffer(AllocationBuffer& buffer) const
     {
         allocBufferManager_->RegisterAllocBuffer(buffer);
+    }
+
+    inline void UnregisterAllocBuffer(AllocationBuffer& buffer) const
+    {
+        allocBufferManager_->UnregisterAllocBuffer(buffer);
     }
 
     virtual ~Allocator() {}

@@ -43,7 +43,6 @@ class HeapBitmapManager {
     public:
         struct Zone {
             enum ZoneType : size_t {
-                LIVE_INFO,
                 BIT_MAP,
                 ZONE_TYPE_CNT,
             };
@@ -60,12 +59,6 @@ class HeapBitmapManager {
         void InitZones(size_t unitCount)
         {
             uintptr_t start = startAddress_;
-            allocZone_[Zone::ZoneType::LIVE_INFO].zoneStartAddress = start;
-            allocZone_[Zone::ZoneType::LIVE_INFO].zonePosition = start;
-#if defined(_WIN64)
-            lastCommitEndAddr[Zone::ZoneType::LIVE_INFO].store(start);
-#endif
-            start += unitCount * sizeof(RegionLiveDesc);
             allocZone_[Zone::ZoneType::BIT_MAP].zoneStartAddress = start;
             allocZone_[Zone::ZoneType::BIT_MAP].zonePosition = start;
 #if defined(_WIN64)
@@ -90,7 +83,9 @@ class HeapBitmapManager {
             allocSpinLock.Unlock();
             return startAddr;
 #else
-            return allocZone_[type].zonePosition.fetch_add(sz);
+            auto address = allocZone_[type].zonePosition.fetch_add(sz);
+            MemorySet(address, sz, 0, sz);
+            return address;
 #endif
         }
         void ReleaseMemory()
@@ -99,10 +94,8 @@ class HeapBitmapManager {
             LOGE_IF(UNLIKELY_CC(!VirtualFree(reinterpret_cast<void*>(startAddress_), size_, MEM_DECOMMIT))) <<
                 "VirtualFree failed in ReturnPage, errno: " << GetLastError();
 #elif defined(__APPLE__)
-            MemorySet(startAddress_, size_, 0, size_);
             (void)madvise(reinterpret_cast<void*>(startAddress_), size_, MADV_DONTNEED);
 #else
-            MemorySet(startAddress_, size_, 0, size_);
             DLOG(REGION, "clear copy-data @[%#zx+%zu, %#zx)", startAddress_, size_, startAddress_ + size_);
             if (madvise(reinterpret_cast<void*>(startAddress_), size_, MADV_DONTNEED) == 0) {
                 DLOG(REGION, "release copy-data @[%#zx+%zu, %#zx)", startAddress_, size_, startAddress_ + size_);
@@ -157,12 +150,6 @@ public:
         return bitmap;
     }
 
-    RegionLiveDesc* AllocateRegionLiveDesc()
-    {
-        return reinterpret_cast<RegionLiveDesc*>(
-            heapBitmap_[0].Allocate(Memory::Zone::ZoneType::LIVE_INFO, sizeof(RegionLiveDesc)));
-    }
-
 private:
     size_t GetHeapBitmapSize(size_t heapSize)
     {
@@ -174,8 +161,7 @@ private:
         constexpr uint8_t bitMarksSize = 64;
         // 3 bitmaps for each region: markBitmap,resurrectBitmap, enqueueBitmap.
         constexpr uint8_t nBitmapTypes = 3;
-        return unitCnt * sizeof(RegionLiveDesc) +
-               unitCnt * (sizeof(RegionBitmap) + (REGION_UNIT_SIZE / bitMarksSize)) * nBitmapTypes;
+        return unitCnt * (sizeof(RegionBitmap) + (REGION_UNIT_SIZE / bitMarksSize)) * nBitmapTypes;
     }
 
     Memory heapBitmap_[1];

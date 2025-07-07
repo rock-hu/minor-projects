@@ -329,7 +329,8 @@ void AotCompilerPreprocessor::ResolveModule(const JSPandaFile *jsPandaFile, cons
     for (auto info: recordInfo) {
         if (jsPandaFile->IsModule(info.second)) {
             auto recordName = info.first;
-            ModuleResolver::HostResolveImportedModule(thread, fileName.c_str(), recordName);
+            ModuleResolver::HostResolveImportedModule(
+                thread, fileName.c_str(), CString(recordName.data(), recordName.size()));
             RETURN_IF_ABRUPT_COMPLETION(thread);
             SharedModuleManager::GetInstance()->TransferSModule(thread);
         }
@@ -433,6 +434,10 @@ bool AotCompilerPreprocessor::IsSkipMethod(const JSPandaFile *jsPandaFile, const
 
     std::string fullName = IRModule::GetFuncName(methodLiteral, jsPandaFile);
     if (HasSkipMethod(irreducibleMethods_, fullName)) {
+        return true;
+    }
+
+    if (methodLiteral->IsShared()) {
         return true;
     }
 

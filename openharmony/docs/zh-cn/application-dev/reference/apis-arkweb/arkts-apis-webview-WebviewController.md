@@ -500,7 +500,40 @@ struct WebComponent {
 }
 ```
 
-加载本地资源
+指定baseURL。
+```ts
+// xxx.ets
+import { webview } from '@kit.ArkWeb';
+import { BusinessError } from '@kit.BasicServicesKit';
+
+@Entry
+@Component
+struct WebComponent {
+  controller: webview.WebviewController = new webview.WebviewController();
+
+  build() {
+    Column() {
+      Button('loadData')
+        .onClick(() => {
+          try {
+            this.controller.loadData(
+              "<img src=aa/bb.jpg>", // 会尝试从"https://xxx.com/" + "aa/bb.jpg"加载该图片
+              "text/html",
+              "UTF-8",
+              "https://xxx.com/",
+              "about:blank"
+            );
+          } catch (error) {
+            console.error(`ErrorCode: ${(error as BusinessError).code},  Message: ${(error as BusinessError).message}`);
+          }
+        })
+      Web({ src: 'www.example.com', controller: this.controller })
+    }
+  }
+}
+```
+
+加载本地资源。
 ```ts
 // xxx.ets
 import { webview } from '@kit.ArkWeb';
@@ -6969,13 +7002,9 @@ struct WebComponent {
 
 startCamera(): void
 
-开启当前网页摄像头捕获。
+开启当前网页摄像头捕获。使用摄像头功能前请在module.json5中添加权限: ohos.permission.CAMERA，具体权限的添加方法请参考[在配置文件中声明权限](../../security/AccessToken/declare-permissions.md#在配置文件中声明权限)。
 
 **系统能力：** SystemCapability.Web.Webview.Core
-
-**需要权限：**
-
-使用摄像头功能前请在module.json5中添加权限: ohos.permission.CAMERA，具体权限的添加方法请参考[在配置文件中声明权限](../../security/AccessToken/declare-permissions.md)。
 
 **错误码：**
 

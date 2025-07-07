@@ -159,6 +159,12 @@ private:
     void LowerTypedMonoLdObjByNameOnProto(const LoadObjPropertyTypeInfoAccessor &tacc, Variable &result);
     void LowerTypedMonoLdObjByName(const LoadObjPropertyTypeInfoAccessor &tacc);
     void LowerTypedPolyLdObjByName(const LoadObjPropertyTypeInfoAccessor &tacc);
+    
+    bool IsNonExist(const LoadObjPropertyTypeInfoAccessor &tacc, uint32_t index)
+    {
+        return compilationEnv_->SupportNonExistIC() && tacc.GetHolderHClass(index) == nullptr;
+    }
+
     void LowerTypedLdObjByName(GateRef gate);
     void LowerTypedStObjByName(GateRef gate);
     void TypedStObjByNameTransition(GateRef gate, GateRef receiverHC, GateRef frameState,
@@ -280,9 +286,8 @@ private:
     
         auto holderHC = tacc.GetHolderHClass(index);
         auto receiverHC = tacc.GetReceiverHClass(index);
-        bool success = compilationEnv_->GetDependencies()->
-                                        DependOnStableProtoChain(receiverHC,
-                                                                 holderHC);
+        bool success = compilationEnv_->GetDependencies()->DependOnStableProtoChain(compilationEnv_->GetJSThread(),
+                                                                                    receiverHC, holderHC);
         TraceLazyDeoptNum(__PRETTY_FUNCTION__, success, gate);
         return success;
     }
@@ -312,10 +317,8 @@ private:
         }
 
         auto receiverHC = tacc.GetReceiverHClass(index);
-        bool success = compilationEnv_->GetDependencies()->
-                                        DependOnStableProtoChain(receiverHC,
-                                                                 nullptr,
-                                                                 globalEnv.GetObject<GlobalEnv>());
+        bool success = compilationEnv_->GetDependencies()->DependOnStableProtoChain(
+            compilationEnv_->GetJSThread(), receiverHC, nullptr, globalEnv.GetObject<GlobalEnv>());
         TraceLazyDeoptNum(__PRETTY_FUNCTION__, success, gate);
         return success;
     }

@@ -36,6 +36,7 @@ inline EcmaString *EcmaString::CreateEmptyString(const EcmaVM *vm)
     return string;
 }
 
+#if ENABLE_NEXT_OPTIMIZATION && defined(USE_CMC_GC)
 /* static */
 inline EcmaString *EcmaString::CreateFromUtf8(const EcmaVM *vm, const uint8_t *utf8Data, uint32_t utf8Len,
                                               bool canBeCompress, MemSpaceType type)
@@ -50,6 +51,32 @@ inline EcmaString *EcmaString::CreateFromUtf8(const EcmaVM *vm, const uint8_t *u
     BaseString *str = BaseString::CreateFromUtf8(std::move(allocator), utf8Data, utf8Len, canBeCompress);
     return EcmaString::FromBaseString(str);
 }
+#else
+inline EcmaString *EcmaString::CreateFromUtf8(const EcmaVM *vm, const uint8_t *utf8Data, uint32_t utf8Len,
+                                              bool canBeCompress, MemSpaceType type)
+{
+    if (utf8Len == 0) {
+        return vm->GetFactory()->GetEmptyString().GetObject<EcmaString>();
+    }
+    EcmaString *string = nullptr;
+    if (canBeCompress) {
+        string = CreateLineStringWithSpaceType(vm, utf8Len, true, type);
+        ASSERT(string != nullptr);
+        std::copy(utf8Data, utf8Data + utf8Len, string->GetDataUtf8Writable());
+    } else {
+        auto utf16Len = common::utf_helper::Utf8ToUtf16Size(utf8Data, utf8Len);
+        string = CreateLineStringWithSpaceType(vm, utf16Len, false, type);
+        ASSERT(string != nullptr);
+
+        [[maybe_unused]] auto len =
+            common::utf_helper::ConvertRegionUtf8ToUtf16(utf8Data, string->GetDataUtf16Writable(), utf8Len, utf16Len);
+        ASSERT(len == utf16Len);
+    }
+
+    ASSERT_PRINT(canBeCompress == CanBeCompressed(string), "Bad input canBeCompress!");
+    return string;
+}
+#endif
 
 /* static */
 inline EcmaString *EcmaString::CreateFromUtf8CompressedSubString(const EcmaVM *vm, const JSHandle<EcmaString> &string,
@@ -78,31 +105,16 @@ inline EcmaString *EcmaString::CreateUtf16StringFromUtf8(const EcmaVM *vm, const
     auto len = utf::ConvertRegionMUtf8ToUtf16(
         utf8Data, string->GetDataUtf16Writable(), utf::Mutf8Size(utf8Data), utf16Len, 0);
     if (len < utf16Len) {
-        string->TrimLineString(vm->GetJSThread(), len);
+        string->TrimLineString(len);
     }
     ASSERT_PRINT(false == CanBeCompressed(string), "Bad input canBeCompress!");
     return string;
 }
 
-inline void EcmaString::TrimLineString(const JSThread *thread, uint32_t newLength)
+inline void EcmaString::TrimLineString(uint32_t newLength)
 {
-    ASSERT(IsLineString());
-    ObjectFactory *factory = thread->GetEcmaVM()->GetFactory();
-    uint32_t oldLength = GetLength();
-    ASSERT(oldLength >= newLength);
-    if (newLength == oldLength) return;
-    bool isUtf8 = IsUtf8();
-    size_t size_new = isUtf8 ? LineEcmaString::ComputeSizeUtf8(newLength): LineEcmaString::ComputeSizeUtf16(newLength);
-    size_t size_old = isUtf8 ? LineEcmaString::ComputeSizeUtf8(oldLength): LineEcmaString::ComputeSizeUtf16(oldLength);
-    size_new = AlignUp(size_new, ALIGNMENT_8_BYTES);
-    size_old = AlignUp(size_old, ALIGNMENT_8_BYTES);
-    size_t trimBytes = size_old - size_new;
-    if (trimBytes > 0) {
-        uintptr_t newEndAddr = ToUintPtr(this) + size_new;
-        ASSERT_PRINT((newEndAddr % ALIGNMENT_8_BYTES) == 0, "Alignment failed");
-        factory->FillFreeObject(newEndAddr, trimBytes, RemoveSlots::YES, ToUintPtr(this));
-    }
-    InitLengthAndFlags(newLength, isUtf8);
+    BaseString* baseThis = reinterpret_cast<BaseString*>(this);
+    reinterpret_cast<LineString *>(baseThis)->LineString::Trim(newLength);
 }
 
 inline EcmaString *EcmaString::CreateFromUtf16(const EcmaVM *vm, const uint16_t *utf16Data, uint32_t utf16Len,
@@ -292,19 +304,19 @@ inline uint16_t* EcmaString::GetDataUtf16Writable()
     return ToBaseString()->GetDataUtf16Writable();
 }
 
-inline size_t EcmaString::GetUtf8Length(bool modify, bool isGetBufferSize) const
+inline size_t EcmaString::GetUtf8Length(const JSThread *thread, bool modify, bool isGetBufferSize) const
 {
-    auto readBarrier = [](const void* obj, size_t offset)-> TaggedObject* {
-        return Barriers::GetTaggedObject(obj, offset);
+    auto readBarrier = [thread](const void *obj, size_t offset) -> TaggedObject * {
+        return Barriers::GetTaggedObject(thread, obj, offset);
     };
     return ToBaseString()->GetUtf8Length(std::move(readBarrier), modify, isGetBufferSize);
 }
 
 template <bool verify>
-uint16_t EcmaString::At(int32_t index) const
+uint16_t EcmaString::At(const JSThread *thread, int32_t index) const
 {
-    auto readBarrier = [](const void* obj, size_t offset)-> TaggedObject* {
-        return Barriers::GetTaggedObject(obj, offset);
+    auto readBarrier = [thread](const void *obj, size_t offset) -> TaggedObject * {
+        return Barriers::GetTaggedObject(thread, obj, offset);
     };
     return ToBaseString()->At<verify>(std::move(readBarrier), index);
 }
@@ -322,78 +334,80 @@ inline Span<const uint8_t> EcmaString::FastToUtf8Span() const
     return Span<const uint8_t>(data, len);
 }
 
-inline bool EcmaString::IsFlat() const
+inline bool EcmaString::IsFlat(const JSThread *thread) const
 {
-    auto readBarrier = [](const void* obj, size_t offset)-> TaggedObject* {
-        return Barriers::GetTaggedObject(obj, offset);
+    auto readBarrier = [thread](const void *obj, size_t offset) -> TaggedObject * {
+        return Barriers::GetTaggedObject(thread, obj, offset);
     };
     return ToBaseString()->IsFlat(std::move(readBarrier));
 }
 
 template <typename Char>
-void EcmaString::WriteToFlat(EcmaString* src, Char* buf, uint32_t maxLength)
+void EcmaString::WriteToFlat(const JSThread *thread, EcmaString *src, Char *buf, uint32_t maxLength)
 {
-    auto readBarrier = [](const void* obj, size_t offset)-> TaggedObject* {
-        return Barriers::GetTaggedObject(obj, offset);
+    auto readBarrier = [thread](const void *obj, size_t offset) -> TaggedObject * {
+        return Barriers::GetTaggedObject(thread, obj, offset);
     };
     return BaseString::WriteToFlat(std::move(readBarrier), src->ToBaseString(), buf, maxLength);
 }
 
 template <typename Char>
-void EcmaString::WriteToFlatWithPos(EcmaString* src, Char* buf, uint32_t length, uint32_t pos)
+void EcmaString::WriteToFlatWithPos(const JSThread *thread, EcmaString *src, Char *buf, uint32_t length, uint32_t pos)
 {
-    auto readBarrier = [](const void* obj, size_t offset)-> TaggedObject* {
-        return Barriers::GetTaggedObject(obj, offset);
+    auto readBarrier = [thread](const void *obj, size_t offset) -> TaggedObject * {
+        return Barriers::GetTaggedObject(thread, obj, offset);
     };
     return BaseString::WriteToFlatWithPos(std::move(readBarrier), src->ToBaseString(), buf, length, pos);
 }
 
 // It allows user to copy into buffer even if maxLength < length
-inline size_t EcmaString::WriteUtf8(uint8_t* buf, size_t maxLength, bool isWriteBuffer) const
+inline size_t EcmaString::WriteUtf8(const JSThread *thread, uint8_t *buf, size_t maxLength, bool isWriteBuffer) const
 {
-    auto readBarrier = [](const void* obj, size_t offset)-> TaggedObject* {
-        return Barriers::GetTaggedObject(obj, offset);
+    auto readBarrier = [thread](const void *obj, size_t offset) -> TaggedObject * {
+        return Barriers::GetTaggedObject(thread, obj, offset);
     };
     return ToBaseString()->WriteUtf8(std::move(readBarrier), buf, maxLength, isWriteBuffer);
 }
 
 // It allows user to copy into buffer even if maxLength < length
-inline size_t EcmaString::WriteUtf16(uint16_t* buf, uint32_t targetLength, uint32_t bufLength) const
+inline size_t EcmaString::WriteUtf16(const JSThread *thread, uint16_t *buf, uint32_t targetLength,
+                                     uint32_t bufLength) const
 {
-    auto readBarrier = [](const void* obj, size_t offset)-> TaggedObject* {
-        return Barriers::GetTaggedObject(obj, offset);
+    auto readBarrier = [thread](const void *obj, size_t offset) -> TaggedObject * {
+        return Barriers::GetTaggedObject(thread, obj, offset);
     };
     return ToBaseString()->WriteUtf16(std::move(readBarrier), buf, targetLength, bufLength);
 }
 
-inline size_t EcmaString::WriteOneByte(uint8_t* buf, size_t maxLength) const
+inline size_t EcmaString::WriteOneByte(const JSThread *thread, uint8_t *buf, size_t maxLength) const
 {
-    auto readBarrier = [](const void* obj, size_t offset)-> TaggedObject* {
-        return Barriers::GetTaggedObject(obj, offset);
+    auto readBarrier = [thread](const void *obj, size_t offset) -> TaggedObject * {
+        return Barriers::GetTaggedObject(thread, obj, offset);
     };
     return ToBaseString()->WriteOneByte(std::move(readBarrier), buf, maxLength);
 }
 
-inline uint32_t EcmaString::CopyDataUtf16(uint16_t* buf, uint32_t maxLength) const
+inline uint32_t EcmaString::CopyDataUtf16(const JSThread *thread, uint16_t *buf, uint32_t maxLength) const
 {
-    auto readBarrier = [](const void* obj, size_t offset)-> TaggedObject* {
-        return Barriers::GetTaggedObject(obj, offset);
+    auto readBarrier = [thread](const void *obj, size_t offset) -> TaggedObject * {
+        return Barriers::GetTaggedObject(thread, obj, offset);
     };
     return ToBaseString()->CopyDataUtf16(std::move(readBarrier), buf, maxLength);
 }
 
-inline Span<const uint8_t> EcmaString::ToUtf8Span(CVector<uint8_t>& buf, bool modify, bool cesu8)
+inline Span<const uint8_t> EcmaString::ToUtf8Span(const JSThread *thread, CVector<uint8_t> &buf, bool modify,
+                                                  bool cesu8)
 {
-    auto readBarrier = [](const void* obj, size_t offset)-> TaggedObject* {
-        return Barriers::GetTaggedObject(obj, offset);
+    auto readBarrier = [thread](const void *obj, size_t offset) -> TaggedObject * {
+        return Barriers::GetTaggedObject(thread, obj, offset);
     };
     return ToBaseString()->ToUtf8Span(std::move(readBarrier), buf, modify, cesu8);
 }
 
-inline Span<const uint8_t> EcmaString::DebuggerToUtf8Span(CVector<uint8_t>& buf, bool modify)
+inline Span<const uint8_t> EcmaString::DebuggerToUtf8Span(const JSThread *thread, CVector<uint8_t> &buf, bool modify)
 {
-    auto readBarrier = [](const void* obj, size_t offset)-> TaggedObject* {
-        return Barriers::GetTaggedObject(obj, offset);
+    auto readBarrier = [thread](const void *obj, size_t offset) -> TaggedObject * {
+        return Barriers::GetTaggedObject(thread, obj, offset);
     };
     return ToBaseString()->DebuggerToUtf8Span(std::move(readBarrier), buf, modify);
 }
@@ -428,16 +442,16 @@ inline const uint16_t *EcmaStringAccessor::GetDataUtf16()
     return string_->GetDataUtf16();
 }
 
-inline size_t EcmaStringAccessor::GetUtf8Length(bool isGetBufferSize) const
+inline size_t EcmaStringAccessor::GetUtf8Length(const JSThread *thread, bool isGetBufferSize) const
 {
-    return string_->GetUtf8Length(true, isGetBufferSize);
+    return string_->GetUtf8Length(thread, true, isGetBufferSize);
 }
 
 template <RBMode mode>
-inline void EcmaStringAccessor::ReadData(EcmaString *dst, EcmaString *src,
-    uint32_t start, uint32_t destSize, uint32_t length)
+inline void EcmaStringAccessor::ReadData(const JSThread *thread, EcmaString *dst, EcmaString *src, uint32_t start,
+                                         uint32_t destSize, uint32_t length)
 {
-    dst->WriteData<mode>(src, start, destSize, length);
+    dst->WriteData<mode>(thread, src, start, destSize, length);
 }
 
 inline Span<const uint8_t> EcmaStringAccessor::FastToUtf8Span() const

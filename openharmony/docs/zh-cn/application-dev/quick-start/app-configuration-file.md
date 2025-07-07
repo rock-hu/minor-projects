@@ -38,6 +38,7 @@
     "hwasanEnabled": false,
     "ubsanEnabled": false,
     "cloudFileSyncEnabled": false,
+    "cloudStructuredDataSyncEnabled": false,
     "configuration": "$profile:configuration",
     "assetAccessGroups": [
       "com.ohos.photos",
@@ -68,7 +69,7 @@ app.json5配置文件包含以下标签。
 | versionName | 标识向用户展示的应用版本号。<br/>取值为长度不超过127字节的字符串，仅由数字和点构成，推荐采用“A.B.C.D”四段式的形式。四段式推荐的含义如下所示。<br/>第一段：主版本号/Major，范围0\~99，重大修改的版本，如实现新的大功能或重大变化。<br/>第二段：次版本号/Minor，范围0\~99，表示实现较突出的特点，如新功能添加或大问题修复。<br/>第三段：特性版本号/Feature，范围0\~99，标识规划的新版本特性。<br/>第四段：修订版本号/Patch，范围0\~999，表示维护版本，如修复bug。 | 字符串 | 该标签不可缺省。 |
 | minCompatibleVersionCode | 标识应用能够兼容的最低历史版本号，用于应用多设备之间协同、数据迁移、跨设备兼容性判断，该字段为预留字段，暂未使用。取值范围为0~2147483647。 | 数值 | 该标签可缺省，缺省值等于versionCode标签值。 |
 | minAPIVersion | 标识应用运行需要的SDK的API最小版本。取值范围为0~2147483647。 | 数值 | 该标签在应用编译构建时自动生成，对应[工程级build-profile.json5文件](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/ide-hvigor-build-profile-app#section45865492619)中的compatibleSdkVersion标签。相关标签与应用兼容性关系参见[应用兼容性说明](https://developer.huawei.com/consumer/cn/doc/harmonyos-releases/app-compatibility)。 |
-| targetAPIVersion | 标识应用运行需要的API目标版本。取值范围为0~2147483647。 | 数值 | 该标签在应用编译构建时自动生成，对应[工程级build-profile.json5文件](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/ide-hvigor-build-profile-app#section45865492619)中的compileSdkVersion标签。相关标签与应用兼容性关系参见[应用兼容性说明](https://developer.huawei.com/consumer/cn/doc/harmonyos-releases/app-compatibility)。 |
+| targetAPIVersion | 标识应用运行需要的API目标版本。取值范围为0~2147483647。 | 数值 | 该标签在应用编译构建时自动生成，对应[工程级build-profile.json5文件](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/ide-hvigor-build-profile-app#section45865492619)中的targetSdkVersion标签，如果未配置targetSdkVersion标签，则由工程级build-profile.json5文件中的compileSdkVersion自动生成。相关标签与应用兼容性关系参见[应用兼容性说明](https://developer.huawei.com/consumer/cn/doc/harmonyos-releases/app-compatibility)。 |
 | apiReleaseType | 标识应用运行需要的API目标版本的类型，采用字符串类型表示。取值为“CanaryN”、“BetaN”或者“Release”，其中，N代表大于零的整数。<br/>-&nbsp;Canary：受限发布的版本。<br/>-&nbsp;Beta：公开发布的Beta版本。<br/>-&nbsp;Release：公开发布的正式版本。 | 字符串 | 应用编译构建时根据当前使用的SDK的Stage自动生成。即便手动配置了取值，编译构建时也会被覆盖。 |
 | accessible | 标识应用是否能访问应用的安装目录，仅针对Stage模型的系统应用和预置应用生效。<br/>-&nbsp;true：当前应用可以访问应用的安装目录。<br/>-&nbsp;false：当前应用不可以访问应用的安装目录。 | 布尔值 | 该标签可缺省，缺省值为false。 |
 | multiProjects | 标识当前工程是否支持多个工程的联合开发。<br/>-&nbsp;true：当前工程支持多个工程的联合开发。多工程开发可参考[多工程构建](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/ide-hvigor-multi-projects)。<br/>-&nbsp;false：当前工程不支持多个工程的联合开发。 | 布尔值 | 该标签可缺省，缺省值为false。 |
@@ -88,6 +89,7 @@ app.json5配置文件包含以下标签。
 | hwasanEnabled | 标识应用程序是否开启[HWAsan检测](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/ide-hwasan)。HWAsan(HardWare-assisted AddressSanitizer)是利用Top-Byte-Ignore特性实现的增强版Asan，与Asan相比HWAsan的内存开销更低，检测到的内存错误范围更大。<br/>-&nbsp;true：当前工程开启HWAsan检测。<br/>-&nbsp;false：当前工程不开启HWAsan检测。<br/>**说明：** <br/>从API version 14开始，支持该字段。 | 布尔值 | 该标签可缺省，缺省值为false。 |
 | ubsanEnabled | 标识应用程序是否开启UBsan检测。<br/>UBsan(Undefined Behavior Sanitizer)是一个用于运行时检测程序中未定义行为的工具，旨在帮助开发人员发现代码中潜在的错误和漏洞。<br/>-&nbsp;true：当前工程开启UBsan检测。<br/>-&nbsp;false：当前工程不开启UBsan检测。<br/>**说明：** <br/>从API version 14开始，支持该字段。 | 布尔值 | 该标签可缺省，缺省值为false。 |
 | cloudFileSyncEnabled | 标识当前应用是否启用端云文件同步能力。 <br/>-&nbsp;true：当前应用启用端云文件同步能力。<br/>-&nbsp;false：当前应用不启用端云文件同步能力。 | 布尔值 | 该标签可缺省，缺省值为false。  |
+| cloudStructuredDataSyncEnabled | 标识当前应用是否启用端云结构化数据同步能力。 <br/>-&nbsp;true：当前应用启用端云结构化数据同步能力。<br/>-&nbsp;false：当前应用不启用端云结构化数据同步能力。<br/>**说明：** <br/>从API version 20开始，支持该字段。 | 布尔值 | 该标签可缺省，缺省值为false。  |
 | [configuration](#configuration标签) | 标识当前应用字体大小跟随系统配置的能力。<br/>该标签是一个profile文件资源，用于指定描述应用字体大小跟随系统变更的配置文件。| 字符串 | 该标签可缺省，缺省时configuration使用不跟随系统默认设定。 |
 | assetAccessGroups | 配置应用的Group ID，它和Developer ID一起组成群组信息。<br/>打包HAP时，DevEco使用开发者证书对群组信息签名，其中群组信息由Developer ID（由应用市场分配）+ Group ID（开发者配置）组成。<br/>**说明：** <br/>从API version 18开始，支持该字段。| 字符串数组 | 该标签可缺省，缺省值为空。 |
 | appPreloadPhase | 配置应用预加载到不同阶段。支持的取值如下：<br/>-processCreated：预加载到进程创建完成阶段。<br/>-abilityStageCreated：预加载到[AbilityStage](../reference/apis-ability-kit/js-apis-app-ability-abilityStage.md)创建完成阶段。<br/>-windowStageCreated：预加载到[WindowStage](../reference/apis-arkui/arkts-apis-window-WindowStage.md#windowstage9)创建完成阶段。<br/>**说明：** <br/>从API version 20开始，支持该字段。<br>仅在[应用](../reference/apis-ability-kit/js-apis-bundleManager.md#bundletype)的entry模块配置有效。| 字符串| 该标签可缺省，缺省时不进行预加载。 |

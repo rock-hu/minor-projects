@@ -673,6 +673,12 @@ void SharedHeap::SetGCThreadRssPriority(common::RssPriorityType type)
 #endif
 }
 
+void SharedHeap::SetGCThreadQosPriority(common::PriorityMode mode)
+{
+    dThread_->SetQosPriority(mode);
+    common::Taskpool::GetCurrentTaskpool()->SetThreadPriority(mode);
+}
+
 bool SharedHeap::IsReadyToConcurrentMark() const
 {
     return dThread_->IsReadyToConcurrentMark();
@@ -1893,6 +1899,13 @@ bool Heap::CheckAndTriggerHintGC(MemoryReduceDegree degree, GCReason reason)
     if (InSensitiveStatus()) {
         return false;
     }
+    if (g_isEnableCMCGC) {
+        common::MemoryReduceDegree cmcDegree = common::MemoryReduceDegree::LOW;
+        if (degree == MemoryReduceDegree::HIGH) {
+            cmcDegree = common::MemoryReduceDegree::HIGH;
+        }
+        return common::BaseRuntime::CheckAndTriggerHintGC(cmcDegree);
+    }
     LOG_GC(INFO) << "HintGC degree:"<< static_cast<int>(degree) << " reason:" << GCStats::GCReasonToString(reason);
     switch (degree) {
         case MemoryReduceDegree::LOW: {
@@ -2336,6 +2349,10 @@ void Heap::ChangeGCParams(bool inBackground)
 {
     const double doubleOne = 1.0;
     inBackground_ = inBackground;
+    if (g_isEnableCMCGC) {
+        common::BaseRuntime::ChangeGCParams(inBackground);
+        return;
+    }
     if (inBackground) {
         LOG_GC(INFO) << "app is inBackground";
         if (GetHeapObjectSize() - heapAliveSizeAfterGC_ > BACKGROUND_GROW_LIMIT &&
@@ -2711,8 +2728,12 @@ void Heap::CleanCallback()
     AsyncNativeCallbacksPack *asyncCallbacks = new AsyncNativeCallbacksPack();
     std::swap(*asyncCallbacks, asyncCallbacksPack);
     NativePointerTaskCallback asyncTaskCb = thread_->GetAsyncCleanTaskCallback();
+    size_t currentSize = 0;
+    if (g_isEnableCMCGC) {
+        currentSize = asyncCallbacks->GetTotalBindingSize();
+    }
     if (asyncTaskCb != nullptr && thread_->IsMainThreadFast() &&
-        pendingAsyncNativeCallbackSize_ < asyncClearNativePointerThreshold_) {
+        (pendingAsyncNativeCallbackSize_ + currentSize) < asyncClearNativePointerThreshold_) {
         IncreasePendingAsyncNativeCallbackSize(asyncCallbacks->GetTotalBindingSize());
         asyncCallbacks->RegisterFinishNotify([this] (size_t bindingSize) {
             this->DecreasePendingAsyncNativeCallbackSize(bindingSize);

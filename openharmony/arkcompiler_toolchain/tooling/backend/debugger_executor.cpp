@@ -23,10 +23,19 @@ void DebuggerExecutor::Initialize(const EcmaVM *vm)
 {
     [[maybe_unused]] EcmaHandleScope handleScope(vm->GetJSThread());
     Local<ObjectRef> globalObj = JSNApi::GetGlobalObject(vm);
-    globalObj->Set(vm, StringRef::NewFromUtf8(vm, "debuggerSetValue"), FunctionRef::New(
-        const_cast<panda::EcmaVM*>(vm), DebuggerExecutor::DebuggerSetValue));
-    globalObj->Set(vm, StringRef::NewFromUtf8(vm, "debuggerGetValue"), FunctionRef::New(
-        const_cast<panda::EcmaVM*>(vm), DebuggerExecutor::DebuggerGetValue));
+    SetEvaluateToGlobal(vm, globalObj);
+}
+
+void DebuggerExecutor::SetEvaluateToGlobal(const EcmaVM *vm, Local<ObjectRef> &globalObj)
+{
+    auto setStr = StringRef::NewFromUtf8(vm, "debuggerSetValue");
+    auto getStr = StringRef::NewFromUtf8(vm, "debuggerGetValue");
+    if (!globalObj->Has(vm, setStr) || !globalObj->Has(vm, getStr)) {
+        globalObj->Set(vm, setStr, FunctionRef::New(
+            const_cast<panda::EcmaVM*>(vm), DebuggerExecutor::DebuggerSetValue));
+        globalObj->Set(vm, getStr, FunctionRef::New(
+            const_cast<panda::EcmaVM*>(vm), DebuggerExecutor::DebuggerGetValue));
+    }
 }
 
 Local<JSValueRef> DebuggerExecutor::DebuggerGetValue(JsiRuntimeCallInfo *runtimeCallInfo)
@@ -167,7 +176,8 @@ Local<JSValueRef> DebuggerExecutor::GetLexicalValue(const EcmaVM *vm, const Fram
 {
     Local<JSValueRef> result;
 
-    auto [level, slot] = DebuggerApi::GetLevelSlot(frameHandler, name->ToString(vm));
+    JSThread *thread = vm->GetJSThread();
+    auto [level, slot] = DebuggerApi::GetLevelSlot(thread, frameHandler, name->ToString(vm));
     if (level == -1) {
         return result;
     }
@@ -180,7 +190,8 @@ bool DebuggerExecutor::SetLexicalValue(const EcmaVM *vm, const FrameHandler *fra
                                        Local<StringRef> name, Local<JSValueRef> value)
 {
     std::string varName = name->ToString(vm);
-    auto [level, slot] = DebuggerApi::GetLevelSlot(frameHandler, varName);
+    JSThread *thread = vm->GetJSThread();
+    auto [level, slot] = DebuggerApi::GetLevelSlot(thread, frameHandler, varName);
     if (level == -1) {
         return false;
     }
@@ -208,11 +219,11 @@ Local<JSValueRef> DebuggerExecutor::GetModuleValue(const EcmaVM *vm, const Frame
     Local<JSValueRef> result;
     std::string varName = name->ToString(vm);
     Method *method = DebuggerApi::GetMethod(frameHandler);
-    const JSPandaFile *jsPandaFile = method->GetJSPandaFile();
+    JSThread *thread = vm->GetJSThread();
+    const JSPandaFile *jsPandaFile = method->GetJSPandaFile(thread);
     if (jsPandaFile != nullptr && (jsPandaFile->IsBundlePack() || !jsPandaFile->IsNewVersion())) {
         return result;
     }
-    JSThread *thread = vm->GetJSThread();
     JSHandle<JSTaggedValue> currentModule(thread, DebuggerApi::GetCurrentModule(vm));
     if (currentModule->IsSourceTextModule()) {
         result = DebuggerApi::GetModuleValue(vm, currentModule, varName);
@@ -225,11 +236,11 @@ bool DebuggerExecutor::SetModuleValue(const EcmaVM *vm, const FrameHandler *fram
 {
     std::string varName = name->ToString(vm);
     Method *method = DebuggerApi::GetMethod(frameHandler);
-    const JSPandaFile *jsPandaFile = method->GetJSPandaFile();
+    JSThread *thread = vm->GetJSThread();
+    const JSPandaFile *jsPandaFile = method->GetJSPandaFile(thread);
     if (jsPandaFile != nullptr && (jsPandaFile->IsBundlePack() || !jsPandaFile->IsNewVersion())) {
         return false;
     }
-    JSThread *thread = vm->GetJSThread();
     JSHandle<JSTaggedValue> currentModule(thread, DebuggerApi::GetCurrentModule(vm));
     bool result = false;
     if (currentModule->IsSourceTextModule()) {

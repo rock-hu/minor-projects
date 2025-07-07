@@ -113,7 +113,7 @@ void NTypeHCRLowering::LowerCreateArrayWithBuffer(GateRef gate, GateRef glue)
     GateRef literialElements = builder_.GetElementsArray(glue, cachedArray);
     DISALLOW_GARBAGE_COLLECTION;
     JSArray *arrayHandle = JSArray::Cast(arr.GetTaggedObject());
-    TaggedArray *arrayLiteral = TaggedArray::Cast(arrayHandle->GetElements());
+    TaggedArray *arrayLiteral = TaggedArray::Cast(arrayHandle->GetElements(compilationEnv_->GetHostThread()));
     uint32_t literialLength = arrayLiteral->GetLength();
     uint32_t arrayLength = acc_.GetArraySize(gate);
     GateRef elements = Circuit::NullGate();
@@ -173,14 +173,16 @@ void NTypeHCRLowering::LowerCreateArguments(GateRef gate, GateRef glue)
     builder_.Bind(&exit);
     switch (mode) {
         case CreateArgumentsAccessor::Mode::REST_ARGUMENTS: {
-            GateRef newGate = builder_.CallStub(glue, gate, CommonStubCSigns::CopyRestArgs,
-                { glue, *actualArgv, startIdx, actualArgc, *actualArgvArray });
+            GateRef newGate = builder_.CallStub(
+                glue, gate, CommonStubCSigns::CopyRestArgs,
+                {glue, *actualArgv, startIdx, actualArgc, *actualArgvArray, circuit_->GetGlobalEnvCache()});
             acc_.ReplaceGate(gate, builder_.GetState(), builder_.GetDepend(), newGate);
             break;
         }
         case CreateArgumentsAccessor::Mode::UNMAPPED_ARGUMENTS: {
-            GateRef newGate = builder_.CallStub(glue, gate, CommonStubCSigns::GetUnmappedArgs,
-                { glue, *actualArgv, actualArgc, *actualArgvArray });
+            GateRef newGate =
+                builder_.CallStub(glue, gate, CommonStubCSigns::GetUnmappedArgs,
+                                  {glue, *actualArgv, actualArgc, *actualArgvArray, circuit_->GetGlobalEnvCache()});
             acc_.ReplaceGate(gate, builder_.GetState(), builder_.GetDepend(), newGate);
             break;
         }
@@ -222,11 +224,11 @@ GateRef NTypeHCRLowering::NewJSArrayLiteral(GateRef glue, GateRef gate, GateRef 
     GateRef hclass = Circuit::NullGate();
     // At define point, we use initial array class without IsPrototype set.
     auto hclassIndex = compilationEnv_->GetArrayHClassIndex(kind, false);
-    GateRef globalEnv = builder_.GetGlobalEnv(glue);
+    GateRef globalEnv = circuit_->GetGlobalEnvCache();
     hclass = builder_.GetGlobalEnvValue(VariableType::JS_POINTER(), glue, globalEnv, static_cast<size_t>(hclassIndex));
 
     JSHandle<JSFunction> arrayFunc(compilationEnv_->GetGlobalEnv()->GetArrayFunction());
-    JSTaggedValue protoOrHClass = arrayFunc->GetProtoOrHClass();
+    JSTaggedValue protoOrHClass = arrayFunc->GetProtoOrHClass(compilationEnv_->GetHostThread());
     JSHClass *arrayHC = JSHClass::Cast(protoOrHClass.GetTaggedObject());
     size_t arraySize = arrayHC->GetObjectSize();
     size_t lengthAccessorOffset = arrayHC->GetInlinedPropertiesOffset(JSArray::LENGTH_INLINE_PROPERTY_INDEX);

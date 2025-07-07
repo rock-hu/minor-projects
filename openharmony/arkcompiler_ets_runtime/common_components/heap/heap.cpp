@@ -26,7 +26,7 @@
 #include "common_components/heap/w_collector/preforward_barrier.h"
 #include "common_components/heap/w_collector/copy_barrier.h"
 #include "common_components/mutator/mutator_manager.h"
-#include "common_interfaces/base_runtime.h"
+
 #if defined(_WIN64)
 #include <windows.h>
 #include <psapi.h>
@@ -36,6 +36,10 @@
 #include <mach/mach.h>
 #endif
 namespace common {
+static_assert(Heap::NORMAL_UNIT_SIZE == RegionDesc::UNIT_SIZE);
+static_assert(Heap::NORMAL_UNIT_HEADER_SIZE == RegionDesc::UNIT_HEADER_SIZE);
+static_assert(Heap::NORMAL_UNIT_AVAILABLE_SIZE == RegionDesc::UNIT_AVAILABLE_SIZE);
+
 std::atomic<Barrier*>* Heap::currentBarrierPtr_ = nullptr;
 Barrier* Heap::stwBarrierPtr_ = nullptr;
 HeapAddress Heap::heapStartAddr_ = 0;
@@ -90,6 +94,7 @@ public:
     size_t GetCurrentCapacity() const override;
     size_t GetUsedPageSize() const override;
     size_t GetAllocatedSize() const override;
+    size_t GetSurvivedSize() const override;
     size_t GetRemainHeapSize() const override;
     size_t GetAccumulatedAllocateSize() const override;
     size_t GetAccumulatedFreeSize() const override;
@@ -101,14 +106,18 @@ public:
     FinalizerProcessor& GetFinalizerProcessor() override;
     CollectorResources& GetCollectorResources() override;
     void RegisterAllocBuffer(AllocationBuffer& buffer) override;
+    void UnregisterAllocBuffer(AllocationBuffer& buffer) override;
     void StopGCWork() override;
     void TryHeuristicGC() override;
     void NotifyNativeAllocation(size_t bytes) override;
     void NotifyNativeFree(size_t bytes) override;
     void NotifyNativeReset(size_t oldBytes, size_t newBytes) override;
-    size_t GetNotifiedNativeSize() override;
+    size_t GetNotifiedNativeSize() const override;
     void SetNativeHeapThreshold(size_t newThreshold) override;
-    size_t GetNativeHeapThreshold() override;
+    size_t GetNativeHeapThreshold() const override;
+    void ChangeGCParams(bool isBackground) override;
+    void RecordAliveSizeAfterLastGC(size_t aliveBytes) override;
+    bool CheckAndTriggerHintGC(MemoryReduceDegree degree) override;
 
 private:
     // allocator is actually a subspace in heap
@@ -213,7 +222,7 @@ void HeapImpl::NotifyNativeReset(size_t oldBytes, size_t newBytes)
     heuristicGCPolicy_.NotifyNativeAllocation(newBytes);
 }
 
-size_t HeapImpl::GetNotifiedNativeSize()
+size_t HeapImpl::GetNotifiedNativeSize() const
 {
     return heuristicGCPolicy_.GetNotifiedNativeSize();
 }
@@ -223,9 +232,24 @@ void HeapImpl::SetNativeHeapThreshold(size_t newThreshold)
     heuristicGCPolicy_.SetNativeHeapThreshold(newThreshold);
 }
 
-size_t HeapImpl::GetNativeHeapThreshold()
+size_t HeapImpl::GetNativeHeapThreshold() const
 {
     return heuristicGCPolicy_.GetNativeHeapThreshold();
+}
+
+void HeapImpl::ChangeGCParams(bool isBackground)
+{
+    heuristicGCPolicy_.ChangeGCParams(isBackground);
+}
+
+void HeapImpl::RecordAliveSizeAfterLastGC(size_t aliveBytes)
+{
+    heuristicGCPolicy_.RecordAliveSizeAfterLastGC(aliveBytes);
+}
+
+bool HeapImpl::CheckAndTriggerHintGC(MemoryReduceDegree degree)
+{
+    return heuristicGCPolicy_.CheckAndTriggerHintGC(degree);
 }
 
 Collector& HeapImpl::GetCollector() { return collectorProxy_.GetCurrentCollector(); }
@@ -265,11 +289,13 @@ size_t HeapImpl::GetUsedPageSize() const { return theSpace_->GetUsedPageSize(); 
 
 size_t HeapImpl::GetAllocatedSize() const { return theSpace_->GetAllocatedBytes(); }
 
-size_t HeapImpl::GetRemainHeapSize() const { return theSpace_->GetMaxCapacity() - theSpace_->GetUsedPageSize(); }
+size_t HeapImpl::GetRemainHeapSize() const { return theSpace_->GetMaxCapacity() - theSpace_->GetAllocatedBytes(); }
+
+size_t HeapImpl::GetSurvivedSize() const { return theSpace_->GetSurvivedSize(); }
 
 size_t HeapImpl::GetAccumulatedAllocateSize() const
 {
-    return collectorResources_.GetGCStats().GetAccumulatedFreeSize() + theSpace_->GetUsedPageSize();
+    return collectorResources_.GetGCStats().GetAccumulatedFreeSize() + theSpace_->GetAllocatedBytes();
 }
 
 size_t HeapImpl::GetAccumulatedFreeSize() const { return collectorResources_.GetGCStats().GetAccumulatedFreeSize(); }
@@ -289,4 +315,5 @@ CollectorResources& HeapImpl::GetCollectorResources() { return collectorResource
 void HeapImpl::StopGCWork() { collectorResources_.StopGCWork(); }
 
 void HeapImpl::RegisterAllocBuffer(AllocationBuffer& buffer) { GetAllocator().RegisterAllocBuffer(buffer); }
+void HeapImpl::UnregisterAllocBuffer(AllocationBuffer& buffer) { GetAllocator().UnregisterAllocBuffer(buffer); }
 } // namespace common

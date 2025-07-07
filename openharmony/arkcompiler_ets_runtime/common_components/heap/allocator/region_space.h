@@ -127,7 +127,7 @@ public:
     }
 
     // size of objects survived in previous gc.
-    inline size_t GetSurvivedSize() const
+    size_t GetSurvivedSize() const override
     {
         return fromSpace_.GetSurvivedSize() + toSpace_.GetAllocatedSize() +
             youngSpace_.GetAllocatedSize() + oldSpace_.GetAllocatedSize() + regionManager_.GetSurvivedSize();
@@ -342,13 +342,6 @@ public:
         return region->IsInYoungSpace();
     }
 
-    static bool IsInRememberSet(const BaseObject* object)
-    {
-        RegionDesc* region = RegionDesc::GetRegionDescAt(reinterpret_cast<uintptr_t>(object));
-        ASSERT_LOGF(region != nullptr, "region is nullptr");
-        return region->IsInRSet(const_cast<BaseObject*>(object));
-    }
-
     void AddRawPointerObject(BaseObject* obj)
     {
         RegionDesc* region = RegionDesc::GetRegionDescAt(reinterpret_cast<HeapAddress>(obj));
@@ -376,7 +369,7 @@ public:
 
     void CopyRegion(RegionDesc* region);
 
-    void VisitRememberSet(const std::function<void(BaseObject *)> &func);
+    void MarkRememberSet(const std::function<void(BaseObject *)> &func);
 
     friend class Allocator;
 private:

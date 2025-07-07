@@ -213,8 +213,8 @@ void NTypeBytecodeLowering::LowerNTypedCreateEmptyArray(GateRef gate)
 
 void NTypeBytecodeLowering::LowerNTypedCreateArrayWithBuffer(GateRef gate)
 {
-    // 1: number of value inputs
-    ASSERT(acc_.GetNumValueIn(gate) == 1);
+    // 2: number of CREATEARRAYWITHBUFFER_IMM16_ID16/CREATEARRAYWITHBUFFER_IMM8_ID16 inputs
+    ASSERT(acc_.GetNumValueIn(gate) == 2);
     GateRef index = acc_.GetValueIn(gate, 0);
     auto methodOffset = acc_.TryGetMethodOffset(gate);
     uint32_t cpId = ptManager_->GetConstantPoolIDByMethodOffset(methodOffset);
@@ -399,14 +399,15 @@ void NTypeBytecodeLowering::LowerNTypedStOwnByName(GateRef gate)
     if (key.IsUndefined()) {
         return;
     }
+    JSThread *thread = compilationEnv_->GetJSThread();
     JSHClass *hclass = JSHClass::Cast(taggedHClass.GetTaggedObject());
-    int entry = JSHClass::FindPropertyEntry(compilationEnv_->GetJSThread(), hclass, key);
+    int entry = JSHClass::FindPropertyEntry(thread, hclass, key);
     if (entry == -1) {
         return;
     }
 
-    LayoutInfo *LayoutInfo = LayoutInfo::Cast(hclass->GetLayout().GetTaggedObject());
-    PropertyAttributes attr(LayoutInfo->GetAttr(entry));
+    LayoutInfo *LayoutInfo = LayoutInfo::Cast(hclass->GetLayout(thread).GetTaggedObject());
+    PropertyAttributes attr(LayoutInfo->GetAttr(thread, entry));
     if (attr.IsAccessor()) {
         return;
     }

@@ -593,7 +593,7 @@ GateRef TypedBytecodeLowering::GetPrimitiveTypeProto(PrimitiveType primitiveType
         UNREACHABLE();
     }
     ASSERT(index != static_cast<size_t>(-1));
-    return builder_.GetGlobalEnvValue(VariableType::JS_ANY(), glue_, builder_.GetGlobalEnv(), index);
+    return builder_.GetGlobalEnvValue(VariableType::JS_ANY(), glue_, circuit_->GetGlobalEnvCache(), index);
 }
 
 void TypedBytecodeLowering::PolyPrimitiveTypeCheckAndLoad(LoadObjByNameDataInfo &info,
@@ -738,13 +738,21 @@ void TypedBytecodeLowering::LowerTypedMonoLdObjByName(const LoadObjPropertyTypeI
         LowerTypedMonoLdObjByNameOnProto(tacc, result);
     } else {
         builder_.ObjectTypeCheck(false, receiver, tacc.GetExpectedHClassIndexList(0), frameState);
-        if (tacc.IsReceiverEqHolder(0)) {
-            result = BuildNamedPropertyAccess(gate, receiver, receiver, tacc.GetAccessInfo(0).Plr());
-        } else {
-            if (!TryLazyDeoptStableProtoChain(tacc, 0, gate)) {
-                builder_.ProtoChangeMarkerCheck(receiver, frameState);
+        if (IsNonExist(tacc, 0)) {
+            if (TryLazyDeoptStableProtoChain(tacc, 0, gate)) {
+                result = builder_.Undefined();
+            } else {
+                builder_.DeoptCheck(builder_.Boolean(false), frameState, DeoptType::PROTOTYPECHANGED4);
             }
-            LowerTypedMonoLdObjByNameOnProto(tacc, result);
+        } else {
+            if (tacc.IsReceiverEqHolder(0)) {
+                result = BuildNamedPropertyAccess(gate, receiver, receiver, tacc.GetAccessInfo(0).Plr());
+            } else {
+                if (!TryLazyDeoptStableProtoChain(tacc, 0, gate)) {
+                    builder_.ProtoChangeMarkerCheck(receiver, frameState);
+                }
+                LowerTypedMonoLdObjByNameOnProto(tacc, result);
+            }
         }
     }
     acc_.ReplaceHirAndDeleteIfException(gate, builder_.GetStateDepend(), *result);
@@ -809,13 +817,23 @@ void TypedBytecodeLowering::PolyHeapObjectCheckAndLoad(LoadObjByNameDataInfo &in
             builder_.DeoptCheck(*checkResult, frameState, DeoptType::INCONSISTENTHCLASS1);
         }
 
-        if (info.tacc.IsReceiverEqHolder(i)) {
-            info.result = BuildNamedPropertyAccess(gate, info.tacc.GetReceiver(), info.tacc.GetReceiver(),
-                                                   info.tacc.GetAccessInfo(i).Plr());
-            builder_.Jump(&info.exit);
+        if (IsNonExist(info.tacc, i)) {
+            if (TryLazyDeoptStableProtoChain(info.tacc, i, gate)) {
+                info.result = builder_.Undefined();
+                builder_.Jump(&info.exit);
+            } else {
+                builder_.DeoptCheck(builder_.Boolean(false), frameState, DeoptType::PROTOTYPECHANGED4);
+                builder_.Jump(&info.exit);
+            }
         } else {
-            LoadOnPrototypeForHeapObjectReceiver(info.tacc, info.result,
-                { gate, frameState, receiverHC, &info.exit, i });
+            if (info.tacc.IsReceiverEqHolder(i)) {
+                info.result = BuildNamedPropertyAccess(gate, info.tacc.GetReceiver(), info.tacc.GetReceiver(),
+                                                       info.tacc.GetAccessInfo(i).Plr());
+                builder_.Jump(&info.exit);
+            } else {
+                LoadOnPrototypeForHeapObjectReceiver(info.tacc, info.result,
+                    { gate, frameState, receiverHC, &info.exit, i });
+            }
         }
         if (labelIndex != typeCount - 1) {
             builder_.Bind(&info.fails[labelIndex]);
@@ -1304,7 +1322,7 @@ bool TypedBytecodeLowering::TryLowerTypedLdObjByNameForGlobalsId(const LoadBuilt
         // 1. check hclass
         builder_.HeapObjectCheck(receiver, frameState);
         GateRef receiverHClass = builder_.LoadHClassByConstOffset(glue_, receiver);
-        GateRef globalEnvObj = builder_.GetGlobalEnvObj(builder_.GetGlobalEnv(), static_cast<size_t>(index));
+        GateRef globalEnvObj = builder_.GetGlobalEnvObj(circuit_->GetGlobalEnvCache(), static_cast<size_t>(index));
         builder_.DeoptCheck(builder_.Equal(receiverHClass, globalEnvObj), frameState,
                             DeoptType::INCONSISTENTHCLASS12);
         // 2. load property
@@ -1410,7 +1428,7 @@ bool TypedBytecodeLowering::TryLowerTypedLdObjByNameForBuiltinMethod(const LoadB
 {
     GateRef gate = tacc.GetGate();
     JSTaggedValue key = tacc.GetKeyTaggedValue();
-    std::optional<GlobalEnvField> protoField = ToGlobelEnvPrototypeField(type);
+    std::optional<GlobalEnvField> protoField = ToGlobalEnvPrototypeField(type);
     if (key.IsUndefined() || !protoField.has_value()) {
         return false;
     }
@@ -1423,7 +1441,7 @@ bool TypedBytecodeLowering::TryLowerTypedLdObjByNameForBuiltinMethod(const LoadB
     // Unable to handle accessor at the moment
     if (!plr.IsFound() || plr.IsAccessor()) {
         if (type == BuiltinTypeId::ARRAY_ITERATOR) {
-            protoField = ToGlobelEnvPrototypeField(BuiltinTypeId::ITERATOR);
+            protoField = ToGlobalEnvPrototypeField(BuiltinTypeId::ITERATOR);
             if (!protoField.has_value()) {
                 return false;
             }
@@ -1471,7 +1489,7 @@ bool TypedBytecodeLowering::TryLowerTypedLdObjByNameForBuiltinMethod(const LoadB
     }
     // Successfully goes to typed path
     GateRef plrGate = builder_.Int32(plr.GetData());
-    GateRef prototype = builder_.GetGlobalEnvObj(builder_.GetGlobalEnv(), static_cast<size_t>(*protoField));
+    GateRef prototype = builder_.GetGlobalEnvObj(circuit_->GetGlobalEnvCache(), static_cast<size_t>(*protoField));
     GateRef result = builder_.LoadProperty(prototype, plrGate, plr.IsFunction());
     acc_.ReplaceHirAndDeleteIfException(gate, builder_.GetStateDepend(), result);
     return true;
@@ -2207,9 +2225,9 @@ void TypedBytecodeLowering::ConvertCallTargetCheckToHeapConstantCheckAndLowerCal
     auto *jitCompilationEnv = static_cast<const JitCompilationEnv*>(compilationEnv_);
     JSHandle<JSTaggedValue> heapObject = jitCompilationEnv->GetHeapConstantHandle(heapConstantIndex);
     JSHandle<JSFunction> jsFunc = JSHandle<JSFunction>::Cast(heapObject);
-    Method *calleeMethod = Method::Cast(jsFunc->GetMethod());
-    ASSERT(calleeMethod->GetMethodLiteral() != nullptr);
-    if (calleeMethod->GetMethodLiteral()->IsFastCall()) {
+    Method *calleeMethod = Method::Cast(jsFunc->GetMethod(compilationEnv_->GetJSThread()));
+    ASSERT(calleeMethod->GetMethodLiteral(compilationEnv_->GetJSThread()) != nullptr);
+    if (calleeMethod->GetMethodLiteral(compilationEnv_->GetJSThread())->IsFastCall()) {
         LowerFastCall(gate, func, argsFastCall, isNoGC);
     } else {
         LowerCall(gate, func, args, isNoGC);
@@ -2725,7 +2743,7 @@ void TypedBytecodeLowering::LowerTypedTryLdGlobalByName(GateRef gate)
     }
 
     BuiltinIndex& builtin = BuiltinIndex::GetInstance();
-    auto index = builtin.GetBuiltinIndex(key);
+    auto index = builtin.GetBuiltinIndex(compilationEnv_->GetJSThread(), key);
     if (index != builtin.NOT_FOUND) {
         AddProfiling(gate);
         GateRef result = builder_.LoadBuiltinObject(index);
@@ -2783,11 +2801,11 @@ void TypedBytecodeLowering::LowerInstanceOf(GateRef gate)
 void TypedBytecodeLowering::LowerCreateEmptyObject(GateRef gate)
 {
     AddProfiling(gate);
-    GateRef globalEnv = builder_.GetGlobalEnv();
+    GateRef globalEnv = circuit_->GetGlobalEnvCache();
     GateRef hclass = builder_.GetGlobalEnvObjHClass(globalEnv, GlobalEnv::OBJECT_FUNCTION_INDEX);
 
     JSHandle<JSFunction> objectFunc(compilationEnv_->GetGlobalEnv()->GetObjectFunction());
-    JSTaggedValue protoOrHClass = objectFunc->GetProtoOrHClass();
+    JSTaggedValue protoOrHClass = objectFunc->GetProtoOrHClass(compilationEnv_->GetJSThread());
     JSHClass *objectHC = JSHClass::Cast(protoOrHClass.GetTaggedObject());
     size_t objectSize = objectHC->GetObjectSize();
 
@@ -2823,7 +2841,8 @@ void TypedBytecodeLowering::LowerTypedStOwnByValue(GateRef gate)
 void TypedBytecodeLowering::LowerCreateObjectWithBuffer(GateRef gate)
 {
     CreateObjWithBufferTypeInfoAccessor tacc(compilationEnv_, circuit_, gate, recordName_, chunk_);
-    if (!tacc.CanOptimize()) {
+    JSThread *thread = compilationEnv_->GetJSThread();
+    if (!tacc.CanOptimize(thread)) {
         return;
     }
     JSTaggedValue hclassVal = tacc.GetHClass();
@@ -2838,12 +2857,12 @@ void TypedBytecodeLowering::LowerCreateObjectWithBuffer(GateRef gate)
     }
     JSObject *objhandle = JSObject::Cast(obj);
     std::vector<uint64_t> inlinedProps;
-    auto layout = LayoutInfo::Cast(newClass->GetLayout().GetTaggedObject());
+    auto layout = LayoutInfo::Cast(newClass->GetLayout(thread).GetTaggedObject());
     uint32_t numOfProps = newClass->NumberOfProps();
     uint32_t numInlinedProps = newClass->GetInlinedProperties();
     for (uint32_t i = 0; i < numOfProps; i++) {
-        auto attr = layout->GetAttr(i);
-        JSTaggedValue value = objhandle->GetPropertyInlinedProps(i);
+        auto attr = layout->GetAttr(thread, i);
+        JSTaggedValue value = objhandle->GetPropertyInlinedProps(thread, i);
         if ((!attr.IsTaggedRep()) || value.IsUndefinedOrNull() ||
             value.IsNumber() || value.IsBoolean() || value.IsException()) {
             auto converted = JSObject::ConvertValueWithRep(attr, value);
@@ -2865,7 +2884,7 @@ void TypedBytecodeLowering::LowerCreateObjectWithBuffer(GateRef gate)
     valueIn.emplace_back(builder_.Int64(JSTaggedValue(newClass).GetRawData()));
     valueIn.emplace_back(acc_.GetValueIn(gate, 1));
     for (uint32_t i = 0; i < numOfProps; i++) {
-        auto attr = layout->GetAttr(i);
+        auto attr = layout->GetAttr(thread, i);
         GateRef prop;
         if (attr.IsIntRep()) {
             prop = builder_.Int32(inlinedProps.at(i));

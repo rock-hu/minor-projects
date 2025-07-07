@@ -408,11 +408,13 @@ RSA私钥生成CSR时的配置参数，包含主体、扩展、摘要算法、�
 | ------------ | ------------------------------------------------- | ---- | -------------------------------------- |
 | date         | string                                            | 否   | 表示需要校验证书的有效期。             |
 | trustAnchors | Array\<[X509TrustAnchor](#x509trustanchor11)>     | 是   | 表示信任锚列表。                       |
+| trustSystemCa<sup>20+</sup>| boolean | 否   | 表示需要使用系统预置CA证书校验证书链。 |
 | certCRLs     | Array\<[CertCRLCollection](#certcrlcollection11)> | 否   | 表示需要校验证书是否在证书吊销列表中。 |
 | revocationCheckParam<sup>12+</sup>      | [RevocationCheckParameter](#revocationcheckparameter12) | 否   | 表示需要在线校验证证书吊销状态的参数对象。 |
 | policy<sup>12+</sup>     | [ValidationPolicyType](#validationpolicytype12) | 否   | 表示需要校验证书的策略类型。 |
 | sslHostname<sup>12+</sup> | string | 否   | 表示需要校验证书中主机名，与policy配合使用。 |
 | keyUsage<sup>12+</sup>     | Array\<[KeyUsageType](#keyusagetype12)> | 否   | 表示需要校验证书中的密钥用途。 |
+
 
 ## CertChainValidationResult<sup>11+</sup>
 
@@ -5364,7 +5366,7 @@ let crlData = '-----BEGIN X509 CRL-----\n' +
   'eavsH0Q3\n' +
   '-----END X509 CRL-----\n';
 
-// 证书吊销列表二进制数据，需业务自行赋值。。
+// 证书吊销列表二进制数据，需业务自行赋值。
 let encodingBlob: cert.EncodingBlob = {
   data: stringToUint8Array(crlData),
   // 根据encodingData的格式进行赋值，支持FORMAT_PEM和FORMAT_DER。

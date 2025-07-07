@@ -90,6 +90,11 @@ enum class QueueType : uint8_t {
 }
 }  // namespace ecmascript
 
+enum class ForHybridApp {
+    Normal,
+    Hybrid
+};
+
 struct HmsMap {
     std::string originalPath;
     std::string targetPath;
@@ -856,6 +861,7 @@ public:
     bool Set(const EcmaVM *vm, Local<JSValueRef> key, Local<JSValueRef> value);
     bool Set(const EcmaVM *vm, const char *utf8, Local<JSValueRef> value);
     bool Set(const EcmaVM *vm, uint32_t key, Local<JSValueRef> value);
+    bool SetWithoutSwitchState(const EcmaVM *vm, const char *utf8, Local<JSValueRef> value);
     bool SetAccessorProperty(const EcmaVM *vm, Local<JSValueRef> key, Local<FunctionRef> getter,
                              Local<FunctionRef> setter, PropertyAttribute attribute = PropertyAttribute::Default());
     Local<JSValueRef> Get(const EcmaVM *vm, Local<JSValueRef> key);
@@ -1137,10 +1143,10 @@ protected:
 private:
     void *prevNext_ = nullptr;
     void *prevEnd_ = nullptr;
-    int prevHandleStorageIndex_ {-1};
+    int32_t prevHandleStorageIndex_ {-1};
+    int32_t prevPrimitiveStorageIndex_ {-1};
     void *prevPrimitiveNext_ = nullptr;
     void *prevPrimitiveEnd_ = nullptr;
-    int prevPrimitiveStorageIndex_ {-1};
     void *thread_ = nullptr;
 };
 
@@ -1602,6 +1608,8 @@ class PUBLIC_API DataViewRef : public ObjectRef {
 public:
     static Local<DataViewRef> New(const EcmaVM *vm, Local<ArrayBufferRef> arrayBuffer, uint32_t byteOffset,
                                   uint32_t byteLength);
+    static Local<DataViewRef> NewWithoutSwitchState(const EcmaVM *vm, Local<ArrayBufferRef> arrayBuffer,
+                                                    uint32_t byteOffset, uint32_t byteLength);
     uint32_t ByteLength();
     uint32_t ByteOffset();
     Local<ArrayBufferRef> GetArrayBuffer(const EcmaVM *vm);
@@ -1709,8 +1717,13 @@ public:
     static Local<ObjectRef> GetExportObjectFromOhmUrl(EcmaVM *vm, const std::string &ohmUrl, const std::string &key);
     static Local<ObjectRef> ExecuteNativeModule(EcmaVM *vm, const std::string &key);
     static Local<ObjectRef> GetModuleNameSpaceFromFile(EcmaVM *vm, const std::string &file);
+    template<ForHybridApp isHybrid = ForHybridApp::Normal>
     static Local<ObjectRef> GetModuleNameSpaceWithModuleInfo(EcmaVM *vm, const std::string &file,
-                                                             const std::string &module_path, bool isHybrid = false);
+                                                             const std::string &module_path);
+    static Local<ObjectRef> GetModuleNameSpaceWithModuleInfoForNormalApp(EcmaVM *vm, const std::string &file,
+                                                             const std::string &module_path);
+    static Local<ObjectRef> GetModuleNameSpaceWithModuleInfoForHybridApp(EcmaVM *vm, const std::string &file,
+                                                             const std::string &module_path);
     static Local<ObjectRef> GetModuleNameSpaceWithPath(const EcmaVM *vm, const char *path);
     static std::pair<std::string, std::string> ResolveOhmUrl(std::string ohmUrl);
 
@@ -1799,12 +1812,14 @@ public:
     static void SetTimerTaskCallback(EcmaVM *vm, TimerTaskCallback callback);
     static void SetCancelTimerCallback(EcmaVM *vm, CancelTimerCallback callback);
     static void NotifyEnvInitialized(EcmaVM *vm);
-    static void SetReleaseSecureMemCallback(EcmaVM *vm, ReleaseSecureMemCallback releaseSecureMemFunc);
-    static void SetHostResolveBufferTracker(EcmaVM *vm, std::function<bool(std::string dirPath, bool isHybrid,
+    static void SetReleaseSecureMemCallback(ReleaseSecureMemCallback releaseSecureMemFunc);
+    static void SetHostResolveBufferTracker(EcmaVM *vm, std::function<bool(std::string dirPath,
                                             uint8_t **buff, size_t *buffSize, std::string &errorMsg)> cb);
     static void PandaFileSerialize(const EcmaVM *vm);
     static void ModuleSerialize(const EcmaVM *vm);
     static void ModuleDeserialize(EcmaVM *vm, const uint32_t appVersion);
+    static void SetHostResolveBufferTrackerForHybridApp(EcmaVM *vm, std::function<bool(std::string dirPath,
+                                            uint8_t **buff, size_t *buffSize, std::string &errorMsg)> cb);
     static void SetUnloadNativeModuleCallback(EcmaVM *vm, const std::function<bool(const std::string &moduleKey)> &cb);
     static void SetNativePtrGetter(EcmaVM *vm, void* cb);
     static void SetSourceMapCallback(EcmaVM *vm, SourceMapCallback cb);

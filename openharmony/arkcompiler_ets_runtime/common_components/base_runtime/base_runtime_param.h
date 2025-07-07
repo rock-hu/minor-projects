@@ -16,6 +16,7 @@
 #ifndef COMMON_COMPONENTS_BASE_RUNTIME_BASE_RUNTIME_PARAM_H
 #define COMMON_COMPONENTS_BASE_RUNTIME_BASE_RUNTIME_PARAM_H
 
+#include "common_components/base/globals.h"
 #include "common_interfaces/base/common.h"
 #include "common_interfaces/base/runtime_param.h"
 
@@ -24,6 +25,8 @@ class BaseRuntimeParam {
 public:
     static RuntimeParam DefaultRuntimeParam();
     static size_t InitHeapSize();
+    static void SetConfigHeapSize(RuntimeParam &param, size_t configHeapSize);
+    static constexpr size_t MAX_HEAP_POOL_SIZE = 3.6 * GB;
 
 private:
     BaseRuntimeParam() = delete;
@@ -39,7 +42,7 @@ private:
                                                         BaseRuntimeParam::InitHeapSize()    ) /*    KB */;  \
     V(heapParam,    regionSize,             size_t,     4,      2048,       1024            ) /*    KB */;  \
     V(heapParam,    exemptionThreshold,     double,     0.0,    1.0,        0.8             ) /*     % */;  \
-    V(heapParam,    heapUtilization,        double,     0.0,    1.0,        0.6             ) /*     % */;  \
+    V(heapParam,    heapUtilization,        double,     0.0,    1.0,        0.95            ) /*     % */;  \
     V(heapParam,    heapGrowth,             double,     0.0,    INT64_MAX,  1.15            ) /* times */;  \
     V(heapParam,    allocationRate,         double,     0.0,    INT64_MAX,  10240           ) /*  rate */;  \
     V(heapParam,    allocationWaitTime,     uint64_t,   0,      INT64_MAX,  1000            ) /*    ns */;  \
@@ -49,12 +52,12 @@ private:
     V(gcParam,      garbageThreshold,       double,     0.1,    1.0,        0.5             ) /*     % */;; \
     V(gcParam,      gcThreshold,            size_t,     0,      INT64_MAX,                                  \
                                                  BaseRuntimeParam::InitHeapSize() * KB      ) /*    byte */;\
-    V(gcParam,      gcInterval,             uint64_t,   0,      INT64_MAX,  150000          ) /*    us */;  \
+    V(gcParam,      gcInterval,             uint64_t,   0,      INT64_MAX,  150000000       ) /*    ns */;  \
     V(gcParam,      backupGCInterval,       uint64_t,   0,      INT64_MAX,  240000          ) /*    ms */;  \
     V(gcParam,      maxGrowBytes,           size_t,     0,      INT64_MAX,  32 * MB         ) /*  byte */;  \
     V(gcParam,      minGrowBytes,           size_t,     0,      INT64_MAX,  8 * MB          ) /*  byte */;  \
     V(gcParam,      multiplier,             double,     0.0,    10.0,       1.0             ) /*     % */;  \
-    V(gcParam,      ygcRateAdjustment,      double,     0.0,    1.0,        0.5             ) /*     % */;  \
+    V(gcParam,      ygcRateAdjustment,      double,     0.0,    1.0,        0.8             ) /*     % */;  \
     V(gcParam,      kMinConcurrentRemainingBytes,                                                           \
                                             size_t,     0,      INT64_MAX,  128 * KB        ) /*  byte */;  \
     V(gcParam,      kMaxConcurrentRemainingBytes,                                                           \
@@ -76,12 +79,12 @@ private:
     V(gcParam,      garbageThreshold,       double,     0.1,    1.0,        0.5             ) /*     % */;  \
     V(gcParam,      gcThreshold,            size_t,     0,      INT64_MAX,                                  \
                                                  BaseRuntimeParam::InitHeapSize() * KB      ) /*  byte */;  \
-    V(gcParam,      gcInterval,             uint64_t,   0,      INT64_MAX,  150000          ) /*    us */;  \
+    V(gcParam,      gcInterval,             uint64_t,   0,      INT64_MAX,  150000000       ) /*    ns */;  \
     V(gcParam,      backupGCInterval,       uint64_t,   0,      INT64_MAX,  240000          ) /*    ms */;  \
     V(gcParam,      maxGrowBytes,           size_t,     0,      INT64_MAX,  32 * MB         ) /*  byte */;  \
     V(gcParam,      minGrowBytes,           size_t,     0,      INT64_MAX,  8 * MB          ) /*  byte */;  \
     V(gcParam,      multiplier,             double,     0.0,    10.0,       1.0             ) /*     % */;  \
-    V(gcParam,      ygcRateAdjustment,      double,     0.0,    1.0,        0.5             ) /*     % */;  \
+    V(gcParam,      ygcRateAdjustment,      double,     0.0,    1.0,        0.8             ) /*     % */;  \
     V(gcParam,      kMinConcurrentRemainingBytes,                                                           \
                                             size_t,     0,      INT64_MAX,  128 * KB        ) /*  byte */;  \
     V(gcParam,      kMaxConcurrentRemainingBytes,                                                           \

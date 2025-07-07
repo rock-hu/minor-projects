@@ -15,27 +15,42 @@
 
 #include "common_interfaces/heap/heap_allocator.h"
 
+#include "common_components/heap/heap_allocator-inl.h"
 #include "common_components/common/type_def.h"
 #include "common_components/heap/heap_manager.h"
 #include "common_components/heap/allocator/region_manager.h"
 #include "common_components/heap/allocator/region_space.h"
 
 namespace common {
-Address HeapAllocator::Allocate(size_t size, LanguageType language)
+Address AllocateYoungInAllocBuffer(uintptr_t buffer, size_t size)
+{
+    ASSERT(buffer != 0);
+    AllocationBuffer *allocBuffer = reinterpret_cast<AllocationBuffer *>(buffer);
+    return allocBuffer->FastAllocateInTlab<AllocBufferType::YOUNG>(size);
+}
+
+Address AllocateOldInAllocBuffer(uintptr_t buffer, size_t size)
+{
+    ASSERT(buffer != 0);
+    AllocationBuffer *allocBuffer = reinterpret_cast<AllocationBuffer *>(buffer);
+    return allocBuffer->FastAllocateInTlab<common::AllocBufferType::OLD>(size);
+}
+
+Address HeapAllocator::AllocateInYoungOrHuge(size_t size, LanguageType language)
 {
     auto address = HeapManager::Allocate(size);
     BaseObject::Cast(address)->SetLanguageType(language);
     return address;
 }
 
-Address HeapAllocator::AllocateInNonmove(size_t size, LanguageType language)
+Address HeapAllocator::AllocateInNonmoveOrHuge(size_t size, LanguageType language)
 {
     auto address = HeapManager::Allocate(size, AllocType::PINNED_OBJECT);
     BaseObject::Cast(address)->SetLanguageType(language);
     return address;
 }
 
-Address HeapAllocator::AllocateInOld(size_t size, LanguageType language)
+Address HeapAllocator::AllocateInOldOrHuge(size_t size, LanguageType language)
 {
     auto address = HeapManager::Allocate(size, AllocType::MOVEABLE_OLD_OBJECT);
     BaseObject::Cast(address)->SetLanguageType(language);

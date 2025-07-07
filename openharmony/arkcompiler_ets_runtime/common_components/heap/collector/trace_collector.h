@@ -27,7 +27,12 @@
 #include "common_components/mutator/mutator_manager.h"
 
 namespace common {
-class GlobalWorkStackQueue;
+
+template <typename T>
+using CArrayList = std::vector<T>;
+
+template <typename StackType>
+class GlobalStackQueue;
 
 // number of nanoseconds in a microsecond.
 constexpr uint64_t NS_PER_US = 1000;
@@ -99,6 +104,13 @@ private:
 
 class MarkingWork;
 class ConcurrentMarkingWork;
+using RootSet = MarkStack<BaseObject*>;
+using WorkStack = MarkStack<BaseObject*>;
+using WorkStackBuf = MarkStackBuffer<BaseObject*>;
+using WeakStack = MarkStack<RefField<>*>;
+using WeakStackBuf = MarkStackBuffer<RefField<>*>;
+using GlobalWorkStackQueue = GlobalStackQueue<WorkStack>;
+using GlobalWeakStackQueue = GlobalStackQueue<WeakStack>;
 
 class TraceCollector : public Collector {
     friend MarkingWork;
@@ -116,10 +128,6 @@ public:
     // Types, so that we don't confuse root sets and working stack.
     // The policy is: we simply `push_back` into root set,
     // but we use Enqueue to add into work stack.
-    using RootSet = MarkStack<BaseObject*>;
-    using WorkStack = MarkStack<BaseObject*>;
-    using WorkStackBuf = MarkStackBuffer<BaseObject*>;
-    using WeakStack = MarkStack<RefField<>*>;
 
     void Init(const RuntimeParam& param) override;
     void Fini() override;
@@ -156,6 +164,7 @@ public:
 
     void ProcessMarkStack(uint32_t threadIndex, Taskpool *threadPool, WorkStack &workStack,
                           GlobalWorkStackQueue &globalQueue);
+    void ProcessWeakStack(WeakStack &weakStack);
 
     void TryForkTask(Taskpool *threadPool, WorkStack &workStack, GlobalWorkStackQueue &globalQueue);
 
@@ -178,24 +187,28 @@ public:
         return obj->IsToVersion();
     }
 
-    virtual bool MarkObject(BaseObject* obj, size_t cellCount = 0) const
-    {
-        bool marked = RegionSpace::MarkObject(obj);
-        if (!marked) {
-            reinterpret_cast<RegionSpace&>(theAllocator_).CountLiveObject(obj);
-            if (!fixReferences_ && RegionDesc::GetRegionDescAt(reinterpret_cast<HeapAddress>(obj))->IsFromRegion()) {
-                DLOG(TRACE, "marking tag w-obj %p<cls %p>+%zu", obj, obj->GetTypeInfo(), obj->GetSize());
-            }
-        }
-        return marked;
-    }
+    virtual bool MarkObject(BaseObject* obj, size_t cellCount = 0) const = 0;
 
-    virtual void EnumRefFieldRoot(RefField<>& ref, RootSet& rootSet) const {}
-    virtual void TraceObjectRefFields(BaseObject* obj, WorkStack& workStack, WeakStack& weakStack)
-    {
-        LOG_COMMON(FATAL) << "Unresolved fatal";
-        UNREACHABLE_CC();
-    }
+    // avoid std::function allocation for each object trace
+    class TraceRefFieldVisitor {
+    public:
+        TraceRefFieldVisitor() : closure_(std::make_shared<BaseObject *>(nullptr)) {}
+
+        template <typename Functor>
+        void SetVisitor(Functor &&f)
+        {
+            visitor_ = std::forward<Functor>(f);
+        }
+        const auto &GetRefFieldVisitor() const { return visitor_; }
+        void SetTraceRefFieldArgs(BaseObject *obj) { *closure_ = obj; }
+        const auto &GetClosure() const { return closure_; }
+
+    private:
+        common::RefFieldVisitor visitor_;
+        std::shared_ptr<BaseObject *> closure_;
+    };
+    virtual TraceRefFieldVisitor CreateTraceObjectRefFieldsVisitor(WorkStack *workStack, WeakStack *weakStack) = 0;
+    virtual void TraceObjectRefFields(BaseObject *obj, TraceRefFieldVisitor *data) = 0;
 
     inline bool IsResurrectedObject(const BaseObject* obj) const { return RegionSpace::IsResurrectedObject(obj); }
 
@@ -208,6 +221,8 @@ public:
     void SetGcStarted(bool val) { collectorResources_.SetGcStarted(val); }
 
     void RunGarbageCollection(uint64_t, GCReason) override;
+
+    void ReclaimGarbageMemory(GCReason reason);
 
     void TransitionToGCPhase(const GCPhase phase, const bool)
     {
@@ -258,7 +273,7 @@ protected:
 
     void ResetBitmap(bool heapMarked)
     {
-        // if heap is marked and tracing result will be used during next gc, we should not reset liveInfo.
+        // if heap is marked and tracing result will be used during next gc, we should not reset liveInfo_.
     }
 
     uint32_t GetGCThreadCount(const bool isConcurrent) const
@@ -275,11 +290,9 @@ protected:
     inline void SetGCReason(const GCReason reason) { gcReason_ = reason; }
 
     Taskpool *GetThreadPool() const { return collectorResources_.GetThreadPool(); }
-    // enum all roots.
-    void EnumerateAllRootsImpl(Taskpool *threadPool, RootSet& rootSet);
 
     // let finalizerProcessor process finalizers, and mark resurrected if in stw gc
-    virtual void ProcessWeakReferences() {}
+    void ClearWeakStack(bool parallel);
     virtual void ProcessStringTable() {}
 
     virtual void ProcessFinalizers() {}
@@ -290,25 +303,83 @@ protected:
     }
 
     void MergeAllocBufferRoots(WorkStack& workStack);
-    void EnumerateAllRoots(WorkStack& workStack);
-    void PushRootInWorkStack(RootSet *dst, RootSet *src);
 
-    void TraceRoots(WorkStack& workStack);
-    void Remark(WorkStack& workStack);
+    bool PushRootToWorkStack(RootSet *workStack, BaseObject *obj);
+    void PushRootsToWorkStack(RootSet *workStack, const CArrayList<BaseObject *> &collectedRoots);
+    void TraceRoots(const CArrayList<BaseObject *> &collectedRoots);
+    void Remark();
+
     bool MarkSatbBuffer(WorkStack& workStack);
 
     // concurrent marking.
-    void TracingImpl(WorkStack& workStack, bool parallel);
+    void TracingImpl(WorkStack& workStack, bool parallel, bool Remark);
 
     bool AddConcurrentTracingWork(WorkStack& workStack, GlobalWorkStackQueue &globalQueue, size_t threadCount);
+    bool AddWeakStackClearWork(WeakStack& workStack, GlobalWeakStackQueue &globalQueue, size_t threadCount);
 private:
     void MarkRememberSetImpl(BaseObject* object, WorkStack& workStack);
     void ConcurrentRemark(WorkStack& remarkStack, bool parallel);
     void MarkAwaitingJitFort();
     void EnumMutatorRoot(ObjectPtr& obj, RootSet& rootSet) const;
     void EnumConcurrencyModelRoots(RootSet& rootSet) const;
-    void EnumStaticRoots(RootSet& rootSet) const;
 };
+
+
+template <typename StackType>
+class GlobalStackQueue {
+public:
+    GlobalStackQueue() = default;
+    ~GlobalStackQueue() = default;
+
+    void AddWorkStack(StackType &&stack)
+    {
+        DCHECK_CC(!stack.empty());
+        std::lock_guard<std::mutex> guard(mtx_);
+        stacks_.push_back(std::move(stack));
+        cv_.notify_one();
+    }
+
+    StackType PopWorkStack()
+    {
+        std::unique_lock<std::mutex> lock(mtx_);
+        while (true) {
+            if (!stacks_.empty()) {
+                StackType stack(std::move(stacks_.back()));
+                stacks_.pop_back();
+                return stack;
+            }
+            if (finished_) {
+                return StackType();
+            }
+            cv_.wait(lock);
+        }
+    }
+
+    StackType DrainAllWorkStack()
+    {
+        std::unique_lock<std::mutex> lock(mtx_);
+        while (!stacks_.empty()) {
+            StackType stack(std::move(stacks_.back()));
+            stacks_.pop_back();
+            return stack;
+        }
+        return StackType();
+    }
+
+    void NotifyFinish()
+    {
+        std::lock_guard<std::mutex> guard(mtx_);
+        DCHECK_CC(!finished_);
+        finished_ = true;
+        cv_.notify_all();
+    }
+private:
+    bool finished_ {false};
+    std::condition_variable cv_;
+    std::mutex mtx_;
+    std::vector<StackType> stacks_;
+};
+
 } // namespace common
 
 #endif  // COMMON_COMPONENTS_HEAP_COLLECTOR_TRACE_COLLECTOR_H

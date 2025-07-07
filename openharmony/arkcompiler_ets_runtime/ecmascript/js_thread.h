@@ -27,7 +27,6 @@
 #include "ecmascript/daemon/daemon_task.h"
 #include "ecmascript/global_index.h"
 #include "ecmascript/js_handle.h"
-#include "ecmascript/ic/mega_ic_cache.h"
 #include "ecmascript/js_object_resizing_strategy.h"
 #include "ecmascript/js_tagged_value.h"
 #include "ecmascript/js_thread_hclass_entries.h"
@@ -36,7 +35,9 @@
 #include "ecmascript/log_wrapper.h"
 #include "ecmascript/mem/visitor.h"
 #include "ecmascript/mutator_lock.h"
+#include "ecmascript/napi/include/jsnapi_expo.h"
 #include "ecmascript/patch/patch_loader.h"
+#include "common_components/heap/collector/gc_request.h"
 #include "common_interfaces/base_runtime.h"
 #include "common_interfaces/thread/base_thread.h"
 #include "common_interfaces/thread/thread_holder.h"
@@ -165,6 +166,7 @@ public:
     static constexpr int CMC_GC_PHASE_BITFIELD_NUM = 8;
     static constexpr int CMC_GC_PHASE_BITFIELD_MASK =
         (((1 << CMC_GC_PHASE_BITFIELD_NUM) - 1) << CMC_GC_PHASE_BITFIELD_START);
+    static constexpr int CMC_GC_REASON_BITFIELD_NUM = 32;
     static constexpr int CHECK_SAFEPOINT_BITFIELD_NUM = 8;
     static constexpr int PGO_PROFILER_BITFIELD_START = 16;
     static constexpr int BOOL_BITFIELD_NUM = 1;
@@ -172,9 +174,10 @@ public:
     static constexpr uint32_t RESERVE_STACK_SIZE = 128;
     static constexpr size_t DEFAULT_MAX_SYSTEM_STACK_SIZE = 8_MB;
     using MarkStatusBits = BitField<MarkStatus, 0, CONCURRENT_MARKING_BITFIELD_NUM>;
-    using SharedMarkStatusBits = BitField<SharedMarkStatus, 0, SHARED_CONCURRENT_MARKING_BITFIELD_NUM>;
-    using ReadBarrierStateBit = SharedMarkStatusBits::NextFlag;
-    using CMCGCPhaseBits = BitField<common::GCPhase, CMC_GC_PHASE_BITFIELD_START, CMC_GC_PHASE_BITFIELD_NUM>;
+    using SharedMarkStatusBits = BitField<SharedMarkStatus, 0, SHARED_CONCURRENT_MARKING_BITFIELD_NUM>; // 0
+    using ReadBarrierStateBit = SharedMarkStatusBits::NextFlag; // 1
+    using CMCGCPhaseBits = BitField<common::GCPhase, CMC_GC_PHASE_BITFIELD_START, CMC_GC_PHASE_BITFIELD_NUM>; // 8-15
+    using CMCGCReasonBits = CMCGCPhaseBits::NextField<common::GCReason, CMC_GC_REASON_BITFIELD_NUM>;
     using CheckSafePointBit = BitField<bool, 0, BOOL_BITFIELD_NUM>;
     using VMNeedSuspensionBit = BitField<bool, CHECK_SAFEPOINT_BITFIELD_NUM, BOOL_BITFIELD_NUM>;
     using VMHasSuspendedBit = VMNeedSuspensionBit::NextFlag;
@@ -588,6 +591,16 @@ public:
         CMCGCPhaseBits::Set(gcPhase, &glueData_.sharedGCStateBitField_);
     }
 
+    common::GCReason GetCMCGCReason() const
+    {
+        return CMCGCReasonBits::Decode(glueData_.sharedGCStateBitField_);
+    }
+
+    void SetCMCGCReason(common::GCReason gcReason)
+    {
+        CMCGCReasonBits::Set(gcReason, &glueData_.sharedGCStateBitField_);
+    }
+
     void SetPGOProfilerEnable(bool enable)
     {
         PGOProfilerStatus status =
@@ -891,6 +904,8 @@ public:
 
     JSHandle<GlobalEnv> PUBLIC_API GetGlobalEnv() const;
 
+    JSTaggedValue PUBLIC_API GetCurrentGlobalEnv(JSTaggedValue currentEnv);
+
     JSTaggedValue GetGlueGlobalEnv() const
     {
         // change to current
@@ -1089,6 +1104,11 @@ public:
         glueData_.isEnableCMCGC_ = enableCMCGC;
     }
 
+    uintptr_t GetAllocBuffer() const
+    {
+        return glueData_.allocBuffer_;
+    }
+
     struct GlueData : public base::AlignedStruct<JSTaggedValue::TaggedTypeSize(),
                                                  BCStubEntries,
                                                  base::AlignedBool,
@@ -1142,7 +1162,8 @@ public:
                                                  base::AlignedUint64,
                                                  ElementsHClassEntries,
                                                  base::AlignedPointer,
-                                                 base::AlignedUint32> {
+                                                 base::AlignedUint32,
+                                                 base::AlignedBool> {
         enum class Index : size_t {
             BcStubEntriesIndex = 0,
             IsEnableCMCGCIndex,
@@ -1197,6 +1218,7 @@ public:
             ArrayHClassIndexesIndex,
             moduleLoggerIndex,
             stageOfHotReloadIndex,
+            isMultiContextTriggeredIndex,
             NumOfMembers
         };
         static_assert(static_cast<size_t>(Index::NumOfMembers) == NumOfTypes);
@@ -1480,6 +1502,11 @@ public:
             return GetOffset<static_cast<size_t>(Index::stageOfHotReloadIndex)>(
                 isArch32);
         }
+        static size_t GetIsMultiContextTriggeredOffset(bool isArch32)
+        {
+            return GetOffset<static_cast<size_t>(Index::isMultiContextTriggeredIndex)>(
+                isArch32);
+        }
 
         alignas(EAS) BCStubEntries bcStubEntries_ {};
         alignas(EAS) uint32_t isEnableCMCGC_ {0};
@@ -1534,6 +1561,7 @@ public:
         alignas(EAS) ElementsHClassEntries arrayHClassIndexes_ {};
         alignas(EAS) ModuleLogger *moduleLogger_ {nullptr};
         alignas(EAS) StageOfHotReload stageOfHotReload_ {StageOfHotReload::INITIALIZE_STAGE_OF_HOTRELOAD};
+        alignas(EAS) bool isMultiContextTriggered_ {false};
     };
     STATIC_ASSERT_EQ_ARCH(sizeof(GlueData), GlueData::SizeArch32, GlueData::SizeArch64);
 
@@ -1574,6 +1602,16 @@ public:
             NotifyHotReloadDeoptimize();
         }
         glueData_.stageOfHotReload_ = stageOfHotReload;
+    }
+
+    bool IsMultiContextTriggered() const
+    {
+        return glueData_.isMultiContextTriggered_;
+    }
+
+    void SetMultiContextTriggered(bool isMultiContextTriggered)
+    {
+        glueData_.isMultiContextTriggered_ = isMultiContextTriggered;
     }
 
     JSHandle<DependentInfos> GetDependentInfo() const;

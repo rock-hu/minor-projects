@@ -20,6 +20,7 @@
 #include "ecmascript/js_handle.h"
 #include "ecmascript/js_object.h"
 #include "ecmascript/mem/mem_common.h"
+#include "ecmascript/mem/space.h"
 
 #include "securec.h"
 
@@ -44,6 +45,7 @@ public:
     static constexpr uint32_t HALFUINT32VALUE = 1U << HALFDATEBITS;
     static constexpr uint32_t HALFDATEMASK = HALFUINT32VALUE - 1;
     CAST_CHECK(BigInt, IsBigInt);
+    template <MemSpaceType type = MemSpaceType::SHARED_OLD_SPACE>
     static JSHandle<BigInt> CreateBigint(JSThread *thread, uint32_t size);
 
     static bool Equal(const JSTaggedValue &x, const JSTaggedValue &y);
@@ -151,7 +153,7 @@ public:
     inline uint32_t GetDigit(uint32_t index) const
     {
         ASSERT(index < GetLength());
-        return Barriers::GetValue<uint32_t>(GetData(), sizeof(uint32_t) * index);
+        return Barriers::GetPrimitive<uint32_t>(GetData(), sizeof(uint32_t) * index);
     }
 
     inline void SetDigit(uint32_t index, uint32_t digit)

@@ -70,22 +70,15 @@ static size_t GetPageSize() noexcept
 // System default page size
 const size_t COMMON_PAGE_SIZE = GetPageSize();
 const size_t AllocatorUtils::ALLOC_PAGE_SIZE = COMMON_PAGE_SIZE;
-// region unit size: same as system page size
-const size_t RegionDesc::UNIT_SIZE = COMMON_PAGE_SIZE;
-// regarding a object as a large object when the size is greater than 32KB or one page size,
-// depending on the system page size.
-const size_t RegionDesc::LARGE_OBJECT_DEFAULT_THRESHOLD = COMMON_PAGE_SIZE > (32 * KB) ?
-                                                            COMMON_PAGE_SIZE : 32 * KB;
-// max size of per region is 128KB.
-const size_t RegionManager::MAX_UNIT_COUNT_PER_REGION = (128 * KB) / COMMON_PAGE_SIZE;
 // size of huge page is 2048KB.
-const size_t RegionManager::HUGE_PAGE = (2048 * KB) / COMMON_PAGE_SIZE;
+constexpr size_t HUGE_PAGE_UNIT_NUM = (2048 * KB) / RegionDesc::UNIT_SIZE;
 
 #if defined(GCINFO_DEBUG) && GCINFO_DEBUG
 void RegionDesc::DumpRegionDesc(LogType type) const
 {
-    DLOG(type, "Region index: %zu, type: %s, address: 0x%zx-0x%zx, allocated(B) %zu, live(B) %zu", GetUnitIdx(),
-         GetTypeName(), GetRegionStart(), GetRegionEnd(), GetRegionAllocatedSize(), GetLiveByteCount());
+    DLOG(type, "Region index: %zu, type: %s, address: 0x%zx(start=0x%zx)-0x%zx, allocated(B) %zu, live(B) %zu",
+         GetUnitIdx(), GetTypeName(), GetRegionBase(), GetRegionStart(), GetRegionEnd(), GetRegionAllocatedSize(),
+         GetLiveByteCount());
 }
 
 const char* RegionDesc::GetTypeName() const
@@ -154,7 +147,7 @@ void RegionDesc::VisitAllObjectsWithFixedSize(size_t cellCount, const std::funct
         GetRegionType() == RegionType::FULL_FIXED_PINNED_REGION);
     size_t size = (cellCount + 1) * sizeof(uint64_t);
     uintptr_t position = GetRegionStart();
-    uintptr_t end = GetRegionEnd();
+    uintptr_t end = GetRegionAllocPtr();
     while (position < end) {
         // GetAllocSize should before call func, because object maybe destroy in compact gc.
         BaseObject* obj = reinterpret_cast<BaseObject*>(position);
@@ -170,14 +163,6 @@ void RegionDesc::VisitAllObjectsBeforeFix(const std::function<void(BaseObject*)>
 {
     uintptr_t allocPtr = GetRegionAllocPtr();
     uintptr_t phaseLine = GetFixLine();
-    uintptr_t end = std::min(phaseLine, allocPtr);
-    VisitAllObjectsBefore(std::move(func), end);
-}
-
-void RegionDesc::VisitAllObjectsBeforeTrace(const std::function<void(BaseObject *)> &&func)
-{
-    uintptr_t allocPtr = GetRegionAllocPtr();
-    uintptr_t phaseLine = GetTraceLine();
     uintptr_t end = std::min(phaseLine, allocPtr);
     VisitAllObjectsBefore(std::move(func), end);
 }
@@ -208,16 +193,42 @@ bool RegionDesc::VisitLiveObjectsUntilFalse(const std::function<bool(BaseObject*
     return true;
 }
 
-void RegionDesc::VisitRememberSet(const std::function<void(BaseObject*)>& func)
+void RegionDesc::VisitRememberSetBeforeTrace(const std::function<void(BaseObject*)>& func)
 {
-    RegionRSet* rSet = GetRSet();
-    if (IsLargeRegion()) {
-        if (rSet->IsMarkedCard(0)) {
-            func(reinterpret_cast<BaseObject*>(GetRegionStart()));
-        }
+    if (IsLargeRegion() && IsJitFortAwaitInstallFlag()) {
+        // machine code which is not installed should skip here.
         return;
     }
-    rSet->VisitAllMarkedCard(func, GetRegionStart());
+    uintptr_t end = std::min(GetTraceLine(), GetRegionAllocPtr());
+    GetRSet()->VisitAllMarkedCardBefore(func, GetRegionBaseFast(), end);
+}
+
+void RegionDesc::VisitRememberSetBeforeFix(const std::function<void(BaseObject*)>& func)
+{
+    if (IsLargeRegion() && IsJitFortAwaitInstallFlag()) {
+        // machine code which is not installed should skip here.
+        return;
+    }
+    uintptr_t end = std::min(GetFixLine(), GetRegionAllocPtr());
+    GetRSet()->VisitAllMarkedCardBefore(func, GetRegionBaseFast(), end);
+}
+
+void RegionDesc::VisitRememberSet(const std::function<void(BaseObject*)>& func)
+{
+    if (IsLargeRegion() && IsJitFortAwaitInstallFlag()) {
+        // machine code which is not installed should skip here.
+        return;
+    }
+    GetRSet()->VisitAllMarkedCardBefore(func, GetRegionBaseFast(), GetRegionAllocPtr());
+}
+
+void RegionList::MergeRegionListWithoutHead(RegionList& srcList, RegionDesc::RegionType regionType)
+{
+    RegionDesc *head = srcList.TakeHeadRegion();
+    MergeRegionList(srcList, regionType);
+    if (head) {
+        srcList.PrependRegion(head, head->GetRegionType());
+    }
 }
 
 void RegionList::MergeRegionList(RegionList& srcList, RegionDesc::RegionType regionType)
@@ -246,6 +257,7 @@ static const char *RegionDescRegionTypeToString(RegionDesc::RegionType type)
 {
     static constexpr const char *enumStr[] = {
         [static_cast<uint8_t>(RegionDesc::RegionType::FREE_REGION)] = "FREE_REGION",
+        [static_cast<uint8_t>(RegionDesc::RegionType::GARBAGE_REGION)] = "GARBAGE_REGION",
         [static_cast<uint8_t>(RegionDesc::RegionType::THREAD_LOCAL_REGION)] = "THREAD_LOCAL_REGION",
         [static_cast<uint8_t>(RegionDesc::RegionType::THREAD_LOCAL_OLD_REGION)] = "THREAD_LOCAL_OLD_REGION",
         [static_cast<uint8_t>(RegionDesc::RegionType::RECENT_FULL_REGION)] = "RECENT_FULL_REGION",
@@ -262,7 +274,6 @@ static const char *RegionDescRegionTypeToString(RegionDesc::RegionType type)
         [static_cast<uint8_t>(RegionDesc::RegionType::TL_RAW_POINTER_REGION)] = "TL_RAW_POINTER_REGION",
         [static_cast<uint8_t>(RegionDesc::RegionType::RECENT_LARGE_REGION)] = "RECENT_LARGE_REGION",
         [static_cast<uint8_t>(RegionDesc::RegionType::LARGE_REGION)] = "LARGE_REGION",
-        [static_cast<uint8_t>(RegionDesc::RegionType::GARBAGE_REGION)] = "GARBAGE_REGION",
         [static_cast<uint8_t>(RegionDesc::RegionType::READ_ONLY_REGION)] = "READ_ONLY_REGION",
         [static_cast<uint8_t>(RegionDesc::RegionType::APPSPAWN_REGION)] = "APPSPAWN_REGION",
     };
@@ -282,13 +293,14 @@ void RegionList::PrependRegionLocked(RegionDesc* region, RegionDesc::RegionType 
         return;
     }
 
-    DLOG(REGION, "%s (%zu, %zu)+(%zu, %zu) prepend region %p@%#zx+%zu type %u->%u", listName_,
-        regionCount_, unitCount_, 1llu, region->GetUnitCount(), region, region->GetRegionStart(),
-        region->GetRegionAllocatedSize(), region->GetRegionType(), type);
+    DLOG(REGION, "%s (%zu, %zu)+(%zu, %zu) prepend region %p(base=%#zx)@%#zx+%zu type %u->%u", listName_,
+        regionCount_, unitCount_, 1llu, region->GetUnitCount(), region, region->GetRegionBase(),
+        region->GetRegionStart(), region->GetRegionAllocatedSize(), region->GetRegionType(), type);
 
     region->SetRegionType(type);
 
-    os::PrctlSetVMA(reinterpret_cast<void *>(region->GetRegionStart()), region->GetRegionAllocatedSize(),
+    size_t totalRegionSize = region->GetRegionEnd() - region->GetRegionBase();
+    os::PrctlSetVMA(reinterpret_cast<void *>(region->GetRegionBase()), totalRegionSize,
                     (std::string("ArkTS Heap CMCGC Region ") + RegionDescRegionTypeToString(type)).c_str());
 
     region->SetPrevRegion(nullptr);
@@ -313,9 +325,9 @@ void RegionList::DeleteRegionLocked(RegionDesc* del)
     del->SetNextRegion(nullptr);
     del->SetPrevRegion(nullptr);
 
-    DLOG(REGION, "%s (%zu, %zu)-(%zu, %zu) delete region %p@%#zx+%zu type %u", listName_,
+    DLOG(REGION, "%s (%zu, %zu)-(%zu, %zu) delete region %p(start=%p),@%#zx+%zu type %u", listName_,
         regionCount_, unitCount_, 1llu, del->GetUnitCount(),
-        del, del->GetRegionStart(), del->GetRegionAllocatedSize(), del->GetRegionType());
+        del, del->GetRegionBase(), del->GetRegionStart(), del->GetRegionAllocatedSize(), del->GetRegionType());
 
     DecCounts(1, del->GetUnitCount());
 
@@ -348,8 +360,8 @@ void RegionList::DumpRegionList(const char* msg)
     DLOG(REGION, "dump region list %s", msg);
     std::lock_guard<std::mutex> lock(listMutex_);
     for (RegionDesc *region = listHead_; region != nullptr; region = region->GetNextRegion()) {
-        DLOG(REGION, "region %p @0x%zx+%zu units [%zu+%zu, %zu) type %u prev %p next %p", region,
-            region->GetRegionStart(), region->GetRegionAllocatedSize(),
+        DLOG(REGION, "region %p @0x%zx(start=0x%zx)+%zu units [%zu+%zu, %zu) type %u prev %p next %p", region,
+            region->GetRegionBase(), region->GetRegionStart(), region->GetRegionAllocatedSize(),
             region->GetUnitIdx(), region->GetUnitCount(), region->GetUnitIdx() + region->GetUnitCount(),
             region->GetRegionType(), region->GetPrevRegion(), region->GetNextRegion());
     }
@@ -358,7 +370,7 @@ void RegionList::DumpRegionList(const char* msg)
 inline void RegionManager::TagHugePage(RegionDesc* region, size_t num) const
 {
 #if defined (__linux__) || defined(PANDA_TARGET_OHOS)
-    (void)madvise(reinterpret_cast<void*>(region->GetRegionStart()), num * RegionDesc::UNIT_SIZE, MADV_HUGEPAGE);
+    (void)madvise(reinterpret_cast<void*>(region->GetRegionBase()), num * RegionDesc::UNIT_SIZE, MADV_HUGEPAGE);
 #else
     (void)region;
     (void)num;
@@ -368,7 +380,7 @@ inline void RegionManager::TagHugePage(RegionDesc* region, size_t num) const
 inline void RegionManager::UntagHugePage(RegionDesc* region, size_t num) const
 {
 #if defined (__linux__) || defined(PANDA_TARGET_OHOS)
-    (void)madvise(reinterpret_cast<void*>(region->GetRegionStart()), num * RegionDesc::UNIT_SIZE, MADV_NOHUGEPAGE);
+    (void)madvise(reinterpret_cast<void*>(region->GetRegionBase()), num * RegionDesc::UNIT_SIZE, MADV_NOHUGEPAGE);
 #else
     (void)region;
     (void)num;
@@ -404,35 +416,28 @@ size_t FreeRegionManager::ReleaseGarbageRegions(size_t targetCachedSize)
     return releasedBytes;
 }
 
-void RegionManager::SetMaxUnitCountForRegion()
-{
-    maxUnitCountPerRegion_ = BaseRuntime::GetInstance()->GetHeapParam().regionSize * KB / RegionDesc::UNIT_SIZE;
-}
-
-void RegionManager::SetLargeObjectThreshold()
-{
-    size_t regionSize = BaseRuntime::GetInstance()->GetHeapParam().regionSize * KB;
-    if (regionSize < RegionDesc::LARGE_OBJECT_DEFAULT_THRESHOLD) {
-        largeObjectThreshold_ = regionSize;
-    } else {
-        largeObjectThreshold_ = RegionDesc::LARGE_OBJECT_DEFAULT_THRESHOLD;
-    }
-}
-
 void RegionManager::Initialize(size_t nRegion, uintptr_t regionInfoAddr)
 {
     size_t metadataSize = GetMetadataSize(nRegion);
+    size_t alignedHeapStart = RoundUp<size_t>(regionInfoAddr + metadataSize, RegionDesc::UNIT_SIZE);
+    // align the start of region to 256KB
+    /***
+     * |***********|<-metadataSize->|**********************|
+     * |**padding**|***RegionUnit***|*******Region*********|
+     *  ^           ^                ^
+     *  |           |                |
+     *  |    reginInfoStart    alignedHeapStart
+     * regionInfoAddr
+    */
+    regionInfoStart_ = alignedHeapStart - metadataSize;
+    regionHeapStart_ = alignedHeapStart;
 #ifdef _WIN64
-    MemoryMap::CommitMemory(reinterpret_cast<void*>(regionInfoAddr), metadataSize);
+    MemoryMap::CommitMemory(reinterpret_cast<void*>(regionInfoStart_), metadataSize);
 #endif
-    regionInfoStart_ = regionInfoAddr;
-    regionHeapStart_ = regionInfoAddr + metadataSize;
     regionHeapEnd_ = regionHeapStart_ + nRegion * RegionDesc::UNIT_SIZE;
     inactiveZone_ = regionHeapStart_;
-    SetMaxUnitCountForRegion();
-    SetLargeObjectThreshold();
     // propagate region heap layout
-    RegionDesc::Initialize(nRegion, regionInfoAddr, regionHeapStart_);
+    RegionDesc::Initialize(nRegion, regionInfoStart_, regionHeapStart_);
     freeRegionManager_.Initialize(nRegion);
 
     DLOG(REPORT, "region info @0x%zx+%zu, heap [0x%zx, 0x%zx), unit count %zu", regionInfoAddr, metadataSize,
@@ -451,11 +456,11 @@ void RegionManager::ReclaimRegion(RegionDesc* region)
 {
     size_t num = region->GetUnitCount();
     size_t unitIndex = region->GetUnitIdx();
-    if (num >= HUGE_PAGE) {
+    if (num >= HUGE_PAGE_UNIT_NUM) {
         UntagHugePage(region, num);
     }
-    DLOG(REGION, "reclaim region %p@%#zx+%zu type %u", region,
-         region->GetRegionStart(), region->GetRegionAllocatedSize(),
+    DLOG(REGION, "reclaim region %p(base=%#zx)@%#zx+%zu type %u", region,
+         region->GetRegionBase(), region->GetRegionStart(), region->GetRegionAllocatedSize(),
          region->GetRegionType());
 
     region->InitFreeUnits();
@@ -467,7 +472,7 @@ size_t RegionManager::ReleaseRegion(RegionDesc* region)
     size_t res = region->GetRegionSize();
     size_t num = region->GetUnitCount();
     size_t unitIndex = region->GetUnitIdx();
-    if (num >= HUGE_PAGE) {
+    if (num >= HUGE_PAGE_UNIT_NUM) {
         UntagHugePage(region, num);
     }
     DLOG(REGION, "release region %p @%#zx+%zu type %u", region, region->GetRegionStart(),
@@ -492,10 +497,10 @@ void RegionManager::AssembleLargeGarbageCandidates()
 
 void RegionManager::AssemblePinnedGarbageCandidates()
 {
-    pinnedRegionList_.MergeRegionList(recentPinnedRegionList_, RegionDesc::RegionType::FULL_PINNED_REGION);
+    pinnedRegionList_.MergeRegionListWithoutHead(recentPinnedRegionList_, RegionDesc::RegionType::FULL_PINNED_REGION);
     RegionDesc* region = pinnedRegionList_.GetHeadRegion();
     for (size_t i = 0; i < FIXED_PINNED_REGION_COUNT; i++) {
-        fixedPinnedRegionList_[i]->MergeRegionList(*recentFixedPinnedRegionList_[i],
+        fixedPinnedRegionList_[i]->MergeRegionListWithoutHead(*recentFixedPinnedRegionList_[i],
             RegionDesc::RegionType::FULL_FIXED_PINNED_REGION);
     }
 }
@@ -521,7 +526,8 @@ void RegionManager::ForEachObjectUnsafe(const std::function<void(BaseObject*)>& 
 {
     for (uintptr_t regionAddr = regionHeapStart_; regionAddr < inactiveZone_;) {
         RegionDesc* region = RegionDesc::GetRegionDescAt(regionAddr);
-        regionAddr = region->GetRegionEnd();
+        uintptr_t next = region->GetRegionEnd();
+        regionAddr = next;
         if (!region->IsValidRegion() || region->IsFreeRegion() || region -> IsGarbageRegion()) {
             continue;
         }
@@ -568,7 +574,7 @@ RegionDesc *RegionManager::TakeRegion(size_t num, RegionDesc::UnitRole type, boo
 #endif
             RegionDesc::ClearUnits(idx, num);
             DLOG(REGION, "reuse garbage region %p@%#zx+%zu", head, head->GetRegionStart(), head->GetRegionSize());
-            return RegionDesc::InitRegion(idx, num, type);
+            return RegionDesc::ResetRegion(idx, num, type);
         } else {
             DLOG(REGION, "reclaim garbage region %p@%#zx+%zu", head, head->GetRegionStart(), head->GetRegionSize());
             ReclaimRegion(head);
@@ -577,7 +583,7 @@ RegionDesc *RegionManager::TakeRegion(size_t num, RegionDesc::UnitRole type, boo
 
     RegionDesc* region = freeRegionManager_.TakeRegion(num, type, expectPhysicalMem);
     if (region != nullptr) {
-        if (num >= HUGE_PAGE) {
+        if (num >= HUGE_PAGE_UNIT_NUM) {
             TagHugePage(region, num);
         }
         return region;
@@ -596,7 +602,7 @@ RegionDesc *RegionManager::TakeRegion(size_t num, RegionDesc::UnitRole type, boo
             (void)idx; // eliminate compilation warning
             DLOG(REGION, "take inactive units [%zu+%zu, %zu) at [0x%zx, 0x%zx)", idx, num, idx + num,
                  RegionDesc::GetUnitAddress(idx), RegionDesc::GetUnitAddress(idx + num));
-            if (num >= HUGE_PAGE) {
+            if (num >= HUGE_PAGE_UNIT_NUM) {
                 TagHugePage(region, num);
             }
             if (expectPhysicalMem) {
@@ -615,7 +621,8 @@ static void FixRecentRegion(TraceCollector& collector, RegionDesc* region)
 {
     // use fixline to skip new region after fix
     // visit object before fix line to avoid race condition with mutator
-    region->VisitAllObjectsBeforeFix([&collector, region](BaseObject* object) {
+    bool isLargeOrFixRegion = region->IsLargeRegion() || region->IsFixedRegion();
+    region->VisitAllObjectsBeforeFix([&collector, region, isLargeOrFixRegion](BaseObject* object) {
         if (region->IsNewObjectSinceForward(object)) {
             // handle dead objects in tl-regions for concurrent gc.
             if (collector.IsToVersion(object)) {
@@ -627,6 +634,10 @@ static void FixRecentRegion(TraceCollector& collector, RegionDesc* region)
         } else if (region->IsNewObjectSinceTrace(object) || collector.IsSurvivedObject(object)) {
             collector.FixObjectRefFields(object);
         } else { // handle dead objects in tl-regions for concurrent gc.
+            if (isLargeOrFixRegion) {
+                // large/fix region is no need to fillfreeobject.
+                return;
+            }
             FillFreeObject(object, RegionSpace::GetAllocSize(*object));
             DLOG(FIX, "skip dead obj %p<%p>(%zu)", object, object->GetTypeInfo(), object->GetSize());
         }
@@ -680,7 +691,6 @@ void RegionManager::FixFixedRegionList(TraceCollector& collector, RegionList& li
                 region->CollectPinnedGarbage(object, cellCount);
             }
         });
-        region->SetRegionAllocPtr(region->GetRegionEnd());
         region = region->GetNextRegion();
     }
     stats.pinnedGarbageSize += garbageSize;
@@ -688,10 +698,15 @@ void RegionManager::FixFixedRegionList(TraceCollector& collector, RegionList& li
 
 static void FixRegion(TraceCollector& collector, RegionDesc* region)
 {
-    region->VisitAllObjects([&collector](BaseObject* object) {
+    bool isLargeRegion = region->IsLargeRegion();
+    region->VisitAllObjects([&collector, isLargeRegion](BaseObject* object) {
         if (collector.IsSurvivedObject(object)) {
             collector.FixObjectRefFields(object);
         } else {
+            if (isLargeRegion) {
+                // large region is no need to fillfreeobject.
+                return;
+            }
             FillFreeObject(object, RegionSpace::GetAllocSize(*object));
             DLOG(FIX, "fix: skip dead obj %p<%p>(%zu)", object, object->GetTypeInfo(), object->GetSize());
         }
@@ -708,12 +723,11 @@ void RegionManager::FixRegionList(TraceCollector& collector, RegionList& list)
 
 static void FixOldRegion(TraceCollector& collector, RegionDesc* region)
 {
-    region->VisitAllObjects([&collector, &region](BaseObject* object) {
-        if (region->IsNewObjectSinceTrace(object) || collector.IsSurvivedObject(object) || region->IsInRSet(object)) {
-            DLOG(FIX, "fix: mature obj %p<%p>(%zu)", object, object->GetTypeInfo(), object->GetSize());
-            collector.FixObjectRefFields(object);
-        }
-    });
+    auto visitFunc = [&collector, &region](BaseObject* object) {
+        DLOG(FIX, "fix: old obj %p<%p>(%zu)", object, object->GetTypeInfo(), object->GetSize());
+        collector.FixObjectRefFields(object);
+    };
+    region->VisitRememberSet(visitFunc);
 }
 
 void RegionManager::FixOldRegionList(TraceCollector& collector, RegionList& list)
@@ -726,12 +740,11 @@ void RegionManager::FixOldRegionList(TraceCollector& collector, RegionList& list
 
 static void FixRecentOldRegion(TraceCollector& collector, RegionDesc* region)
 {
-    region->VisitAllObjectsBeforeFix([&collector, &region](BaseObject* object) {
-        if (region->IsNewObjectSinceTrace(object) || collector.IsSurvivedObject(object) || region->IsInRSet(object)) {
-            DLOG(FIX, "fix: mature obj %p<%p>(%zu)", object, object->GetTypeInfo(), object->GetSize());
-            collector.FixObjectRefFields(object);
-        }
-    });
+    auto visitFunc = [&collector, &region](BaseObject* object) {
+        DLOG(FIX, "fix: old obj %p<%p>(%zu)", object, object->GetTypeInfo(), object->GetSize());
+        collector.FixObjectRefFields(object);
+    };
+    region->VisitRememberSetBeforeFix(visitFunc);
 }
 
 void RegionManager::FixRecentOldRegionList(TraceCollector& collector, RegionList& list)
@@ -820,7 +833,7 @@ size_t RegionManager::CollectLargeGarbage()
             region = region->GetNextRegion();
             largeRegionList_.DeleteRegion(del);
             if (IsMachineCodeObject(reinterpret_cast<HeapAddress>(obj))) {
-                JitFortUnProt(del->GetRegionSize(), reinterpret_cast<void*>(obj));
+                JitFortUnProt(del->GetRegionBaseSize(), reinterpret_cast<void*>(del->GetRegionBaseFast()));
             }
             if (del->GetRegionSize() > RegionDesc::LARGE_OBJECT_RELEASE_THRESHOLD) {
                 garbageSize += ReleaseRegion(del);
@@ -977,7 +990,7 @@ uintptr_t RegionManager::AllocReadOnly(size_t size, bool allowGC)
     }
     if (addr == 0) {
         RegionDesc* region =
-            TakeRegion(maxUnitCountPerRegion_, RegionDesc::UnitRole::SMALL_SIZED_UNITS, false, allowGC);
+            TakeRegion(1, RegionDesc::UnitRole::SMALL_SIZED_UNITS, false, allowGC);
         if (region == nullptr) {
             return 0;
         }
@@ -1006,14 +1019,10 @@ uintptr_t RegionManager::AllocReadOnly(size_t size, bool allowGC)
     return addr;
 }
 
-void RegionManager::VisitRememberSet(const std::function<void(BaseObject*)>& func)
+void RegionManager::MarkRememberSet(const std::function<void(BaseObject*)>& func)
 {
     auto visitFunc = [&func](RegionDesc* region) {
-        region->VisitAllObjectsBeforeTrace([&region, &func](BaseObject* obj) {
-            if (region->IsInRSet(obj)) {
-                func(obj);
-            }
-        });
+        region->VisitRememberSetBeforeTrace(func);
     };
     recentPinnedRegionList_.VisitAllRegions(visitFunc);
     pinnedRegionList_.VisitAllRegions(visitFunc);

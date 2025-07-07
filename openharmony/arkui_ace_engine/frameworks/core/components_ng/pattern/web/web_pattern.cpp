@@ -89,6 +89,7 @@
 #include "frameworks/base/utils/system_properties.h"
 #include "frameworks/core/components_ng/base/ui_node.h"
 #include "oh_window_pip.h"
+#include "oh_window_comm.h"
 #include "web_accessibility_session_adapter.h"
 #include "web_pattern.h"
 #include "nweb_handler.h"
@@ -110,6 +111,7 @@ constexpr int32_t UPDATE_WEB_LAYOUT_DELAY_TIME = 20;
 constexpr int32_t AUTOFILL_DELAY_TIME = 200;
 constexpr int32_t IMAGE_POINTER_CUSTOM_CHANNEL = 4;
 constexpr int32_t TOUCH_EVENT_MAX_SIZE = 5;
+constexpr int32_t MOUSE_EVENT_MAX_SIZE = 10;
 constexpr int32_t KEYEVENT_MAX_NUM = 1000;
 constexpr int32_t MAXIMUM_ROTATION_DELAY_TIME = 800;
 constexpr int32_t RESERVED_DEVICEID1 = 0xAAAAAAFF;
@@ -1777,6 +1779,13 @@ void WebPattern::HandleMouseEvent(MouseInfo& info)
         GetWebId(), static_cast<int32_t>(info.GetAction()), static_cast<int32_t>(info.GetButton()));
 
     isMouseEvent_ = true;
+    mouseInfo_ = info;
+    if (info.GetButton() == MouseButton::LEFT_BUTTON
+    && (info.GetAction() == MouseAction::PRESS || info.GetAction() == MouseAction::RELEASE)) {
+        if (mouseInfoQueue_.size() < MOUSE_EVENT_MAX_SIZE) {
+            mouseInfoQueue_.push(info);
+        }
+    }
     WebOnMouseEvent(info);
 
     auto host = GetHost();
@@ -1805,7 +1814,7 @@ void WebPattern::WebOnMouseEvent(const MouseInfo& info)
         (info.GetButton() == MouseButton::FORWARD_BUTTON)) {
         OnTooltip("");
     }
-    if (info.GetAction() == MouseAction::PRESS) {
+    if (info.GetAction() == MouseAction::PRESS && !GetNativeEmbedModeEnabledValue(false)) {
         delegate_->OnContextMenuHide("");
         WebRequestFocus();
     }
@@ -2279,6 +2288,15 @@ bool WebPattern::NotifyStartDragTask(bool isDelayed)
         }
         return false;
     }
+    auto pipeline = PipelineContext::GetCurrentContext();
+    CHECK_NULL_RETURN(pipeline, false);
+    CHECK_NULL_RETURN(delegate_, false);
+    auto manager = pipeline->GetDragDropManager();
+    if (!manager || manager->IsDragging() || manager->IsMSDPDragging()) {
+        TAG_LOGW(AceLogTag::ACE_WEB, "DragDrop, It's already dragging now, can't start drag task.");
+        delegate_->HandleDragEvent(0, 0, DragAction::DRAG_CANCEL);
+        return false;
+    }
     isDragging_ = true;
     auto frameNode = GetHost();
     CHECK_NULL_RETURN(frameNode, false);
@@ -2286,7 +2304,6 @@ bool WebPattern::NotifyStartDragTask(bool isDelayed)
     CHECK_NULL_RETURN(eventHub, false);
     auto gestureHub = eventHub->GetOrCreateGestureEventHub();
     CHECK_NULL_RETURN(gestureHub, false);
-    CHECK_NULL_RETURN(delegate_, false);
     if (curContextMenuResult_ && (!(isNewDragStyle_ || isAILinkMenuShow_) || !previewImageNodeId_.has_value())) {
         TAG_LOGI(AceLogTag::ACE_WEB,
             "preview menu is not displayed, and the app is notified to close the long-press menu");
@@ -2721,9 +2738,6 @@ void WebPattern::HandleBlurEvent(const BlurReason& blurReason)
         delegate_->OnBlur();
     }
     OnQuickMenuDismissed();
-    if (webSelectOverlay_ && !webSelectOverlay_->IsSingleHandle()) {
-        SelectCancel();
-    }
     CloseContextSelectionMenu();
     if (!isVisible_ && isActive_ && IsDialogNested()) {
         TAG_LOGI(AceLogTag::ACE_WEB, "HandleBlurEvent, dialog nested blur but invisible while active, set inactive.");
@@ -2828,8 +2842,7 @@ void WebPattern::KeyboardReDispatch(
         }
     }
     if (keyEvent == webKeyEvent_.rend()) {
-        TAG_LOGW(AceLogTag::ACE_WEB,
-            "KeyEvent is not find keycode:%{public}d, action:%{public}d", event->GetKeyCode(), event->GetAction());
+        TAG_LOGW(AceLogTag::ACE_WEB, "KeyEvent is not find keycode");
         return;
     }
     if (!isUsed) {
@@ -2837,14 +2850,12 @@ void WebPattern::KeyboardReDispatch(
             event = *keyEvent] () {
             auto pipelineContext = context.Upgrade();
             CHECK_NULL_VOID(pipelineContext);
-            TAG_LOGD(AceLogTag::ACE_WEB,
-                "WebPattern::KeyboardReDispatch key:%{public}s", event.ToString().c_str());
+            TAG_LOGD(AceLogTag::ACE_WEB, "WebPattern::KeyboardReDispatch");
             pipelineContext->ReDispatch(const_cast<KeyEvent&>(event));
             },
             TaskExecutor::TaskType::UI, "ArkUIWebKeyboardReDispatch");
     }
-    TAG_LOGD(AceLogTag::ACE_WEB,
-        "WebPattern::KeyboardReDispatch erase key:%{public}s", keyEvent->ToString().c_str());
+    TAG_LOGD(AceLogTag::ACE_WEB, "WebPattern::KeyboardReDispatch erase key");
     webKeyEvent_.erase((++keyEvent).base());
 }
 
@@ -6398,11 +6409,15 @@ bool WebPattern::OnNestedScroll(float& x, float& y, float& xVelocity, float& yVe
     if (expectedScrollAxis_ == Axis::HORIZONTAL) {
         offset = x;
         velocity = xVelocity;
-        y = 0.0f;
-        yVelocity = 0.0f;
+        if (isScrollStarted_) {
+            y = 0.0f;
+            yVelocity = 0.0f;
+        }
     } else {
-        x = 0.0f;
-        xVelocity = 0.0f;
+        if (isScrollStarted_) {
+            x = 0.0f;
+            xVelocity = 0.0f;
+        }
     }
     bool isConsumed = offset != 0 ? FilterScrollEventHandleOffset(offset) : FilterScrollEventHandlevVlocity(velocity);
     return isConsumed;
@@ -6867,6 +6882,7 @@ void WebPattern::UpdateFocusedAccessibilityId(int64_t accessibilityId)
             renderContext->ResetAccessibilityFocusRect();
             renderContext->UpdateAccessibilityFocus(false);
         } else {
+            renderContext->UpdateAccessibilityFocus(false);
             renderContext->UpdateAccessibilityFocusRect(rect);
             renderContext->UpdateAccessibilityFocus(true);
         }
@@ -8099,6 +8115,28 @@ void WebPattern::InitDataDetector()
     webDataDetectorAdapter_->Init();
 }
 
+void WebPattern::InitAIDetectResult()
+{
+    if (!textDetectResult_.menuOptionAndAction.empty()) {
+        return;
+    }
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto context = host->GetContext();
+    CHECK_NULL_VOID(context);
+    auto uiTaskExecutor = SingleTaskExecutor::Make(context->GetTaskExecutor(), TaskExecutor::TaskType::UI);
+    TAG_LOGI(AceLogTag::ACE_WEB, "Web InitAIDetectResult");
+    uiTaskExecutor.PostTask(
+        [weak = AceType::WeakClaim(this), instanceId = context->GetInstanceId()] {
+            ContainerScope scope(instanceId);
+            auto pattern = weak.Upgrade();
+            CHECK_NULL_VOID(pattern);
+            TAG_LOGI(AceLogTag::ACE_WEB, "Get AI entity menu from ai_engine");
+            DataDetectorMgr::GetInstance().GetAIEntityMenu(pattern->textDetectResult_);
+        },
+        "ArkUITextInitDataDetect");
+}
+
 void WebPattern::CloseDataDetectorMenu()
 {
     CHECK_NULL_VOID(webDataDetectorAdapter_);
@@ -8316,6 +8354,13 @@ bool WebPattern::StartPip(uint32_t pipController)
     auto errCode = OH_PictureInPicture_StartPip(pipController);
     if (errCode != 0) {
         TAG_LOGE(AceLogTag::ACE_WEB, "OH_PictureInPicture_StartPip err: %{public}d", errCode);
+        if (errCode == WINDOW_MANAGER_ERRORCODE_PIP_CREATE_FAILED) {
+            std::lock_guard<std::mutex> lock(pipCallbackMapMutex_);
+            for (auto &it : pipCallbackMap_) {
+                auto pip = it.second;
+                SendPipEvent(pip.delegateId, pip.childId, pip.frameRoutingId, PIP_STATE_EXIT);
+            }
+        }
         return false;
     }
     {

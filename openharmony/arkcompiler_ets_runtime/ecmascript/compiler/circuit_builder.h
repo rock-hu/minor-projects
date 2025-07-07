@@ -77,6 +77,7 @@ class BuiltinLowering;
     V(Int64Div, Sdiv, MachineType::I64)                                   \
     V(DoubleDiv, Fdiv, MachineType::F64)                                  \
     V(Int32Mod, Smod, MachineType::I32)                                   \
+    V(IntPtrMod, Smod, MachineType::I64)                                  \
     V(DoubleMod, Smod, MachineType::F64)                                  \
     V(BitAnd, And, MachineType::I1)                                       \
     V(Int8And, And, MachineType::I8)                                      \
@@ -578,13 +579,9 @@ public:
     inline GateRef GetObjectSizeFromHClass(GateRef hClass);
     inline GateRef HasConstructorByHClass(GateRef hClass);
     inline GateRef IsDictionaryModeByHClass(GateRef hClass);
-#ifndef NDEBUG
-    inline GateRef LoadHClassWithLineASM(GateRef glue, GateRef object, int line);
-    // notice: if jump here by stub_builder please see stub_builder-inl.h/stub_builder.h LoadHClassWithLineASM
-#define LoadHClass(glue, object) LoadHClassWithLineASM(glue, object, __LINE__)
-#else
-    inline GateRef LoadHClass(GateRef glue, GateRef object);
-#endif
+    inline GateRef LoadHclassImpl(GateRef glue, GateRef object, int line);
+    // notice: if jump here by stub_builder please see stub_builder-inl.h/stub_builder.h LoadHclassImpl
+#define LoadHClass(glue, object) LoadHclassImpl(glue, object, __LINE__)
     inline GateRef LoadHClassByConstOffset(GateRef glue, GateRef object);
     inline GateRef LoadPrototype(GateRef glue, GateRef hclass);
     inline GateRef LoadProtoChangeMarker(GateRef glue, GateRef hclass);
@@ -733,6 +730,7 @@ public:
 
     inline GateRef PrimitiveToNumber(GateRef x, ParamType paramType);
     inline GateRef GetValueFromTaggedArray(GateRef glue, GateRef array, GateRef index);
+    inline GateRef GetValueFromTaggedArray(GateRef glue, GateRef array, GateRef index, GateRef depend);
     inline GateRef GetValueFromTaggedArray(VariableType valType, GateRef array, GateRef index);
     inline GateRef GetValueFromJSArrayWithElementsKind(VariableType type, GateRef array, GateRef index);
     inline GateRef GetArrayElementsGuardians(GateRef env);
@@ -989,6 +987,7 @@ public:
 
     void Store(VariableType type, GateRef glue, GateRef base, GateRef offset, GateRef value,
                MemoryAttribute mAttr = MemoryAttribute::Default());
+    GateRef FetchOr(GateRef ptr, GateRef value);
     void StoreHClass(VariableType type, GateRef glue, GateRef base, GateRef offset, GateRef value, GateRef compValue,
                      MemoryAttribute mAttr = MemoryAttribute::Default());
     void StoreWithoutBarrier(VariableType type, GateRef addr, GateRef value,

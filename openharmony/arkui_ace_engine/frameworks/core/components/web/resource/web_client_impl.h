@@ -238,6 +238,7 @@ public:
     bool FilterScrollEvent(const float x, const float y, const float xVelocity, const float yVelocity) override;
     void OnNativeEmbedLifecycleChange(std::shared_ptr<NWeb::NWebNativeEmbedDataInfo> dataInfo) override;
     void OnNativeEmbedGestureEvent(std::shared_ptr<NWeb::NWebNativeEmbedTouchEvent> event) override;
+    void OnNativeEmbedMouseEvent(std::shared_ptr<NWeb::NWebNativeEmbedMouseEvent> event) override;
     void OnIntelligentTrackingPreventionResult(
         const std::string& websiteHost, const std::string& trackerHost) override;
     void OnTooltip(const std::string& tooltip) override;
@@ -323,6 +324,8 @@ public:
 
     void OnInsertBlanklessFrame(const std::string& pathToFrame) override;
     void OnRemoveBlanklessFrame(int delayTime) override;
+    bool OnBeforeUnloadByJSV2(const std::string& url, const std::string& message, bool isReload,
+        std::shared_ptr<NWeb::NWebJSDialogResult> result) override;
 private:
     std::weak_ptr<OHOS::NWeb::NWeb> webviewWeak_;
     WeakPtr<WebDelegate> webDelegate_;

@@ -208,6 +208,7 @@ void VisitJSThread(void *jsThread, CommonRootVisitor visitor)
 void SynchronizeGCPhaseToJSThread(void *jsThread, GCPhase gcPhase)
 {
     reinterpret_cast<JSThread *>(jsThread)->SetCMCGCPhase(gcPhase);
+    reinterpret_cast<JSThread *>(jsThread)->SetCMCGCReason(Heap::GetHeap().GetGCReason());
     if (panda::ecmascript::g_isEnableCMCGC) {
 // forcely enable read barrier for read barrier DFX
 #ifdef ENABLE_CMC_RB_DFX
@@ -256,6 +257,11 @@ void JSGCCallback(void *ecmaVM)
         panda::ecmascript::Heap *heap = const_cast<panda::ecmascript::Heap*>(vm->GetHeap());
         heap->ProcessGCCallback();
     }
+}
+
+bool IsPostForked()
+{
+    return panda::ecmascript::Runtime::GetInstance()->IsPostForked();
 }
 
 void SetBaseAddress(uintptr_t base)

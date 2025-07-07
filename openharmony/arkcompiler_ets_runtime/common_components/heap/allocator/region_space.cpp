@@ -82,14 +82,14 @@ void RegionSpace::DumpAllRegionStats(const char* msg) const
 
 HeapAddress RegionSpace::TryAllocateOnce(size_t allocSize, AllocType allocType)
 {
-    if (UNLIKELY_CC(allocType == AllocType::PINNED_OBJECT)) {
-        return regionManager_.AllocPinned(allocSize);
-    }
     if (UNLIKELY_CC(allocType == AllocType::READ_ONLY_OBJECT)) {
         return regionManager_.AllocReadOnly(allocSize);
     }
-    if (UNLIKELY_CC(allocSize >= regionManager_.GetLargeObjectThreshold())) {
+    if (UNLIKELY_CC(allocSize >= RegionDesc::LARGE_OBJECT_DEFAULT_THRESHOLD)) {
         return regionManager_.AllocLarge(allocSize);
+    }
+    if (UNLIKELY_CC(allocType == AllocType::PINNED_OBJECT)) {
+        return regionManager_.AllocPinned(allocSize);
     }
     AllocationBuffer* allocBuffer = AllocationBuffer::GetOrCreateAllocBuffer();
     return allocBuffer->Allocate(allocSize, allocType);
@@ -153,7 +153,7 @@ uintptr_t RegionSpace::AllocRegion()
     youngSpace_.AddFullRegion(region);
 
     uintptr_t start = region->GetRegionStart();
-    uintptr_t addr = region->Alloc(region->GetRegionSize());
+    uintptr_t addr = region->Alloc(region->GetRegionEnd() - region->GetRegionAllocPtr());
     ASSERT(addr != 0);
 
     return start;
@@ -183,7 +183,7 @@ uintptr_t RegionSpace::AllocPinnedRegion()
     regionManager_.AddRecentPinnedRegion(region);
 
     uintptr_t start = region->GetRegionStart();
-    uintptr_t addr = region->Alloc(region->GetRegionSize());
+    uintptr_t addr = region->Alloc(region->GetRegionEnd() - region->GetRegionAllocPtr());
     ASSERT(addr != 0);
 
     return start;
@@ -238,7 +238,7 @@ HeapAddress RegionSpace::AllocateNoGC(size_t size, AllocType allocType)
     size_t allocSize = ToAllocatedSize(size);
     if (UNLIKELY_CC(allocType == AllocType::PINNED_OBJECT)) {
         internalAddr = regionManager_.AllocPinned(allocSize, allowGC);
-    } else if (LIKELY_CC(allocType == AllocType::MOVEABLE_OBJECT)) {
+    } else if (LIKELY_CC(allocType == AllocType::MOVEABLE_OBJECT || allocType == AllocType::MOVEABLE_OLD_OBJECT)) {
         AllocationBuffer* allocBuffer = AllocationBuffer::GetOrCreateAllocBuffer();
         internalAddr = allocBuffer->Allocate(allocSize, allocType);
     } else {
@@ -338,11 +338,19 @@ void AllocationBuffer::ClearThreadLocalRegion()
         RegionSpace& heap = reinterpret_cast<RegionSpace&>(Heap::GetHeap().GetAllocator());
         heap.HandleFullThreadLocalRegion<AllocBufferType::YOUNG>(tlRegion_);
         tlRegion_ = RegionDesc::NullRegion();
-
+    }
+    if (LIKELY_CC(tlOldRegion_ != RegionDesc::NullRegion())) {
+        RegionSpace& heap = reinterpret_cast<RegionSpace&>(Heap::GetHeap().GetAllocator());
         heap.HandleFullThreadLocalRegion<AllocBufferType::OLD>(tlOldRegion_);
         tlOldRegion_ = RegionDesc::NullRegion();
     }
 }
+
+void AllocationBuffer::Unregister()
+{
+    Heap::GetHeap().UnregisterAllocBuffer(*this);
+}
+
 AllocationBuffer* AllocationBuffer::GetAllocBuffer() { return ThreadLocal::GetAllocBuffer(); }
 
 AllocationBuffer::~AllocationBuffer()
@@ -415,11 +423,6 @@ HeapAddress AllocationBuffer::AllocateImpl(size_t totalSize, AllocType allocType
     // allocate from thread local region
     if (allocType == AllocType::MOVEABLE_OBJECT) {
         if (LIKELY_CC(tlRegion_ != RegionDesc::NullRegion())) {
-            HeapAddress addr = tlRegion_->Alloc(totalSize);
-            if (addr != 0) {
-                return addr;
-            }
-
             // allocation failed because region is full.
             if (tlRegion_->IsThreadLocalRegion()) {
                 heapSpace.HandleFullThreadLocalRegion<AllocBufferType::YOUNG>(tlRegion_);
@@ -509,9 +512,9 @@ void RegionSpace::FeedHungryBuffers()
     }
 }
 
-void RegionSpace::VisitRememberSet(const std::function<void(BaseObject*)>& func)
+void RegionSpace::MarkRememberSet(const std::function<void(BaseObject*)>& func)
 {
-    oldSpace_.VisitRememberSet(func);
-    regionManager_.VisitRememberSet(func);
+    oldSpace_.MarkRememberSet(func);
+    regionManager_.MarkRememberSet(func);
 }
 } // namespace common

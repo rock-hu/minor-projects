@@ -20,6 +20,7 @@
 #include "ecmascript/runtime.h"
 #include "ecmascript/debugger/js_debugger_manager.h"
 #include "ecmascript/dependent_infos.h"
+#include "ecmascript/ic/mega_ic_cache.h"
 #include "ecmascript/js_date.h"
 #include "ecmascript/js_object-inl.h"
 #include "ecmascript/js_tagged_value.h"
@@ -38,6 +39,7 @@
 #if defined(ECMASCRIPT_SUPPORT_CPUPROFILER)
 #include "ecmascript/dfx/cpu_profiler/cpu_profiler.h"
 #endif
+#include "common_components/heap/allocator/region_desc.h"
 #include "ecmascript/dfx/vm_thread_control.h"
 #include "ecmascript/ecma_global_storage.h"
 #include "ecmascript/ic/properties_cache.h"
@@ -337,7 +339,7 @@ void JSThread::HandleUncaughtException(JSTaggedValue exception)
         return;
     }
     JSHandle<EcmaString> result = JSTaggedValue::ToString(this, exceptionHandle);
-    LOG_NO_TAG(ERROR) << ConvertToString(*result);
+    LOG_NO_TAG(ERROR) << ConvertToString(this, *result);
 }
 
 void JSThread::HandleUncaughtException()
@@ -351,13 +353,13 @@ void JSThread::HandleUncaughtException()
 
 JSTaggedValue JSThread::GetCurrentLexenv() const
 {
-    FrameHandler frameHandler(this);
+    FrameHandler frameHandler(const_cast<JSThread*>(this));
     return frameHandler.GetEnv();
 }
 
 JSTaggedValue JSThread::GetCurrentFunction() const
 {
-    FrameHandler frameHandler(this);
+    FrameHandler frameHandler(const_cast<JSThread*>(this));
     return frameHandler.GetFunction();
 }
 
@@ -380,7 +382,7 @@ void JSThread::SetCurrentFrame(JSTaggedType *sp)
 const JSTaggedType *JSThread::GetCurrentInterpretedFrame() const
 {
     if (IsAsmInterpreter()) {
-        auto frameHandler = FrameHandler(this);
+        auto frameHandler = FrameHandler(const_cast<JSThread*>(this));
         return frameHandler.GetSp();
     }
     return GetCurrentSPFrame();
@@ -1206,7 +1208,7 @@ void JSThread::InitializeBuiltinObject(const JSHandle<GlobalEnv>& env, const std
     }
     auto& entry = glueData_.builtinEntries_.builtin_[index];
     entry.box_ = JSTaggedValue::Cast(box);
-    auto builtin = JSHandle<JSObject>(this, box->GetValue());
+    auto builtin = JSHandle<JSObject>(this, box->GetValue(this));
     auto hclass = builtin->GetJSHClass();
     entry.hClass_ = JSTaggedValue::Cast(hclass);
 }
@@ -1515,5 +1517,14 @@ ModuleManager *JSThread::GetModuleManager() const
     JSHandle<JSNativePointer> nativePointer(globalEnv->GetModuleManagerNativePointer());
     ModuleManager *moduleManager = reinterpret_cast<ModuleManager *>(nativePointer->GetExternalPointer());
     return moduleManager;
+}
+
+JSTaggedValue JSThread::GetCurrentGlobalEnv(JSTaggedValue currentEnv)
+{
+    auto globalEnv = BaseEnv::Cast(currentEnv.GetTaggedObject())->GetGlobalEnv(this);
+    if (globalEnv.IsHole()) {
+        return GetGlueGlobalEnv();
+    }
+    return globalEnv;
 }
 }  // namespace panda::ecmascript

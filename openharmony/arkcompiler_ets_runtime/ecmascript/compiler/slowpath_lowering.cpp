@@ -46,7 +46,7 @@ void SlowPathLowering::CallRuntimeLowering()
 {
     std::vector<GateRef> gateList;
     circuit_->GetAllGates(gateList);
-
+    GateRef globalEnvCache = Circuit::NullGate();
     for (const auto &gate : gateList) {
         auto op = acc_.GetOpCode(gate);
         [[maybe_unused]] auto scopedGate = circuit_->VisitGateBegin(gate);
@@ -93,6 +93,10 @@ void SlowPathLowering::CallRuntimeLowering()
             case OpCode::GET_UNSHARED_CONSTPOOL:
                 unsharedCP_.emplace_back(gate);
                 break;
+            case OpCode::GET_GLOBAL_ENV_BY_FUNC:
+            case OpCode::GET_GLOBAL_ENV_BY_LEXICAL_ENV:
+                globalEnvCache = gate;
+                break;
             default:
                 break;
         }
@@ -105,6 +109,12 @@ void SlowPathLowering::CallRuntimeLowering()
         ASSERT(acc_.GetOpCode(sharedConstPool) == OpCode::GET_SHARED_CONSTPOOL);
         LowerGetUnsharedConstPool(gate);
         LowerGetSharedConstPool(sharedConstPool);
+    }
+
+    // Make sure GetGlobalEnvByFunc must be lowered after js bytecode slowpath, because now it's only have one cache in
+    // circuit, but it may be used in js bytecode slowpath.
+    if (!TryLowerGetGlobalEnvCache(globalEnvCache)) {
+        acc_.ReplaceGate(globalEnvCache, Circuit::NullGate());
     }
 
     if (IsLogEnabled()) {
@@ -125,6 +135,45 @@ void SlowPathLowering::LowerGetEnv(GateRef gate)
     GateRef env = builder_.Load(VariableType::JS_ANY(), glue_, jsFunc, envOffset, acc_.GetDep(gate));
     acc_.UpdateAllUses(gate, env);
     acc_.DeleteGate(gate);
+}
+
+bool SlowPathLowering::TryLowerGetGlobalEnvCache(GateRef gate)
+{
+    if (gate == Circuit::NullGate()) {
+        LOG_COMPILER(FATAL) << "global env cache gate is null";
+        UNREACHABLE();
+        return false;
+    }
+    bool useGlobalEnv = false;
+    auto uses = acc_.Uses(gate);
+    for (auto useIt = uses.begin(); useIt != uses.end(); useIt++) {
+        if (acc_.IsValueIn(useIt)) {
+            useGlobalEnv = true;
+            break;
+        }
+    }
+    if (!useGlobalEnv) {
+        return false;
+    }
+    GateRef globalEnv = Circuit::NullGate();
+    if (acc_.GetOpCode(gate) == OpCode::GET_GLOBAL_ENV_BY_LEXICAL_ENV) {
+        GateRef lexicalEnv = acc_.GetValueIn(gate, 0);
+        GateRef globalEnvOffset = builder_.IntPtr(GlobalEnv::HEADER_SIZE);
+        globalEnv = builder_.Load(VariableType::JS_ANY(), glue_, lexicalEnv, globalEnvOffset, lexicalEnv);
+    } else if (acc_.GetOpCode(gate) == OpCode::GET_GLOBAL_ENV_BY_FUNC) {
+        GateRef jsFunc = acc_.GetValueIn(gate, 0);
+        GateRef envOffset = builder_.IntPtr(JSFunction::LEXICAL_ENV_OFFSET);
+        GateRef lexicalEnv = builder_.Load(VariableType::JS_ANY(), glue_, jsFunc, envOffset, acc_.GetDep(gate));
+        GateRef globalEnvOffset = builder_.IntPtr(GlobalEnv::HEADER_SIZE);
+        globalEnv = builder_.Load(VariableType::JS_ANY(), glue_, lexicalEnv, globalEnvOffset, lexicalEnv);
+    } else {
+        LOG_COMPILER(FATAL) << "Unexpected gate opcode for GetGlobalEnvCache: " << acc_.GetOpCode(gate);
+        UNREACHABLE();
+        return false;
+    }
+    acc_.UpdateAllUses(gate, globalEnv);
+    acc_.DeleteGate(gate);
+    return true;
 }
 
 void SlowPathLowering::DeleteLoopExit(GateRef gate)
@@ -867,8 +916,9 @@ void SlowPathLowering::LowerAdd2(GateRef gate)
 {
     // 2: number of value inputs
     ASSERT(acc_.GetNumValueIn(gate) == 2);
-    GateRef result = builder_.CallStub(glue_, gate, CommonStubCSigns::Add,
-        { glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1) });
+    GateRef result =
+        builder_.CallStub(glue_, gate, CommonStubCSigns::Add,
+                          {glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1), circuit_->GetGlobalEnvCache()});
     ReplaceHirWithValue(gate, result);
 }
 
@@ -1016,7 +1066,7 @@ void SlowPathLowering::LowerTryLdGlobalByName(GateRef gate)
     // 2: number of value inputs
     ASSERT(acc_.GetNumValueIn(gate) == 2);
     GateRef stringId = acc_.GetValueIn(gate, 1);  // 1: the second parameter
-    LowerCallStubWithIC(gate, CommonStubCSigns::TryLdGlobalByName, { stringId });
+    LowerCallStubWithIC(gate, CommonStubCSigns::TryLdGlobalByName, {stringId, circuit_->GetGlobalEnvCache()});
 }
 
 void SlowPathLowering::LowerStGlobalVar(GateRef gate)
@@ -1025,13 +1075,13 @@ void SlowPathLowering::LowerStGlobalVar(GateRef gate)
     ASSERT(acc_.GetNumValueIn(gate) == 3);
     GateRef id = acc_.GetValueIn(gate, 1);  // 1: the second parameter
     GateRef value = acc_.GetValueIn(gate, 2);  // 2: the 2nd para is value
-    LowerCallStubWithIC(gate, CommonStubCSigns::StGlobalVar, { id, value });
+    LowerCallStubWithIC(gate, CommonStubCSigns::StGlobalVar, {id, value, circuit_->GetGlobalEnvCache()});
 }
 
 void SlowPathLowering::LowerGetIterator(GateRef gate)
 {
     auto result = builder_.CallStub(glue_, gate, CommonStubCSigns::GetIterator,
-        { glue_, acc_.GetValueIn(gate, 0) });
+                                    {glue_, acc_.GetValueIn(gate, 0), circuit_->GetGlobalEnvCache()});
     ReplaceHirWithValue(gate, result);
 }
 
@@ -1320,14 +1370,15 @@ void SlowPathLowering::LowerExceptionHandler(GateRef hirGate)
 
 void SlowPathLowering::LowerLdSymbol(GateRef gate)
 {
-    const int id = RTSTUB_ID(GetSymbolFunction);
-    GateRef newGate = LowerCallRuntime(gate, id, {});
+    GateRef globalEnv = circuit_->GetGlobalEnvCache();
+    GateRef newGate = builder_.GetGlobalEnvValue(VariableType::JS_POINTER(), glue_,
+                                                 globalEnv, GlobalEnv::SYMBOL_FUNCTION_INDEX);
     ReplaceHirWithValue(gate, newGate);
 }
 
 void SlowPathLowering::LowerLdGlobal(GateRef gate)
 {
-    GateRef globalEnv = builder_.GetGlobalEnv(glue_);
+    GateRef globalEnv = circuit_->GetGlobalEnvCache();
     GateRef newGate = builder_.GetGlobalEnvValue(VariableType::JS_ANY(), glue_,
                                                  globalEnv, GlobalEnv::JS_GLOBAL_OBJECT_INDEX);
     ReplaceHirWithValue(gate, newGate);
@@ -1337,8 +1388,9 @@ void SlowPathLowering::LowerSub2(GateRef gate)
 {
     // 2: number of value inputs
     ASSERT(acc_.GetNumValueIn(gate) == 2);
-    GateRef result = builder_.CallStub(glue_, gate, CommonStubCSigns::Sub,
-        { glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1) });
+    GateRef result =
+        builder_.CallStub(glue_, gate, CommonStubCSigns::Sub,
+                          {glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1), circuit_->GetGlobalEnvCache()});
     ReplaceHirWithValue(gate, result);
 }
 
@@ -1346,8 +1398,9 @@ void SlowPathLowering::LowerMul2(GateRef gate)
 {
     // 2: number of value inputs
     ASSERT(acc_.GetNumValueIn(gate) == 2);
-    GateRef result = builder_.CallStub(glue_, gate, CommonStubCSigns::Mul,
-        { glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1) });
+    GateRef result =
+        builder_.CallStub(glue_, gate, CommonStubCSigns::Mul,
+                          {glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1), circuit_->GetGlobalEnvCache()});
     ReplaceHirWithValue(gate, result);
 }
 
@@ -1355,8 +1408,9 @@ void SlowPathLowering::LowerDiv2(GateRef gate)
 {
     // 2: number of value inputs
     ASSERT(acc_.GetNumValueIn(gate) == 2);
-    GateRef result = builder_.CallStub(glue_, gate, CommonStubCSigns::Div,
-        { glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1) });
+    GateRef result =
+        builder_.CallStub(glue_, gate, CommonStubCSigns::Div,
+                          {glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1), circuit_->GetGlobalEnvCache()});
     ReplaceHirWithValue(gate, result);
 }
 
@@ -1364,8 +1418,9 @@ void SlowPathLowering::LowerMod2(GateRef gate)
 {
     // 2: number of value inputs
     ASSERT(acc_.GetNumValueIn(gate) == 2);
-    GateRef result = builder_.CallStub(glue_, gate, CommonStubCSigns::Mod,
-        { glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1) });
+    GateRef result =
+        builder_.CallStub(glue_, gate, CommonStubCSigns::Mod,
+                          {glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1), circuit_->GetGlobalEnvCache()});
     ReplaceHirWithValue(gate, result);
 }
 
@@ -1373,8 +1428,9 @@ void SlowPathLowering::LowerEq(GateRef gate)
 {
     // 2: number of value inputs
     ASSERT(acc_.GetNumValueIn(gate) == 2);
-    GateRef result = builder_.CallStub(glue_, gate, CommonStubCSigns::Equal,
-                                       { glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1) });
+    GateRef result =
+        builder_.CallStub(glue_, gate, CommonStubCSigns::Equal,
+                          {glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1), circuit_->GetGlobalEnvCache()});
     ReplaceHirWithValue(gate, result);
 }
 
@@ -1382,8 +1438,9 @@ void SlowPathLowering::LowerNotEq(GateRef gate)
 {
     // 2: number of value inputs
     ASSERT(acc_.GetNumValueIn(gate) == 2);
-    GateRef result = builder_.CallStub(glue_, gate, CommonStubCSigns::NotEqual,
-                                       { glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1) });
+    GateRef result =
+        builder_.CallStub(glue_, gate, CommonStubCSigns::NotEqual,
+                          {glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1), circuit_->GetGlobalEnvCache()});
     ReplaceHirWithValue(gate, result);
 }
 
@@ -1391,8 +1448,9 @@ void SlowPathLowering::LowerLess(GateRef gate)
 {
     // 2: number of value inputs
     ASSERT(acc_.GetNumValueIn(gate) == 2);
-    GateRef result = builder_.CallStub(glue_, gate, CommonStubCSigns::Less,
-                                       { glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1) });
+    GateRef result =
+        builder_.CallStub(glue_, gate, CommonStubCSigns::Less,
+                          {glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1), circuit_->GetGlobalEnvCache()});
     ReplaceHirWithValue(gate, result);
 }
 
@@ -1400,8 +1458,9 @@ void SlowPathLowering::LowerLessEq(GateRef gate)
 {
     // 2: number of value inputs
     ASSERT(acc_.GetNumValueIn(gate) == 2);
-    GateRef result = builder_.CallStub(glue_, gate, CommonStubCSigns::LessEq,
-                                       { glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1) });
+    GateRef result =
+        builder_.CallStub(glue_, gate, CommonStubCSigns::LessEq,
+                          {glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1), circuit_->GetGlobalEnvCache()});
     ReplaceHirWithValue(gate, result);
 }
 
@@ -1409,8 +1468,9 @@ void SlowPathLowering::LowerGreater(GateRef gate)
 {
     // 2: number of value inputs
     ASSERT(acc_.GetNumValueIn(gate) == 2);
-    GateRef result = builder_.CallStub(glue_, gate, CommonStubCSigns::Greater,
-                                       { glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1) });
+    GateRef result =
+        builder_.CallStub(glue_, gate, CommonStubCSigns::Greater,
+                          {glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1), circuit_->GetGlobalEnvCache()});
     ReplaceHirWithValue(gate, result);
 }
 
@@ -1418,8 +1478,9 @@ void SlowPathLowering::LowerGreaterEq(GateRef gate)
 {
     // 2: number of value inputs
     ASSERT(acc_.GetNumValueIn(gate) == 2);
-    GateRef result = builder_.CallStub(glue_, gate, CommonStubCSigns::GreaterEq,
-                                       { glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1) });
+    GateRef result =
+        builder_.CallStub(glue_, gate, CommonStubCSigns::GreaterEq,
+                          {glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1), circuit_->GetGlobalEnvCache()});
     ReplaceHirWithValue(gate, result);
 }
 
@@ -1428,7 +1489,8 @@ void SlowPathLowering::LowerGetPropIterator(GateRef gate)
     // 1: number of value inputs
     ASSERT(acc_.GetNumValueIn(gate) == 1);
     GateRef object = {acc_.GetValueIn(gate, 0)};
-    GateRef newGate = builder_.CallStub(glue_, gate, CommonStubCSigns::Getpropiterator, {glue_, object});
+    GateRef newGate = builder_.CallStub(glue_, gate, CommonStubCSigns::Getpropiterator,
+                                        {glue_, object, circuit_->GetGlobalEnvCache()});
     ReplaceHirWithValue(gate, newGate);
 }
 
@@ -1499,8 +1561,9 @@ void SlowPathLowering::LowerShl2(GateRef gate)
 {
     // 2: number of value inputs
     ASSERT(acc_.GetNumValueIn(gate) == 2);
-    GateRef result = builder_.CallStub(glue_, gate, CommonStubCSigns::Shl,
-        { glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1) });
+    GateRef result =
+        builder_.CallStub(glue_, gate, CommonStubCSigns::Shl,
+                          {glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1), circuit_->GetGlobalEnvCache()});
     ReplaceHirWithValue(gate, result);
 }
 
@@ -1508,8 +1571,9 @@ void SlowPathLowering::LowerShr2(GateRef gate)
 {
     // 2: number of value inputs
     ASSERT(acc_.GetNumValueIn(gate) == 2);
-    GateRef result = builder_.CallStub(glue_, gate, CommonStubCSigns::Shr,
-        { glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1) });
+    GateRef result =
+        builder_.CallStub(glue_, gate, CommonStubCSigns::Shr,
+                          {glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1), circuit_->GetGlobalEnvCache()});
     ReplaceHirWithValue(gate, result);
 }
 
@@ -1517,8 +1581,9 @@ void SlowPathLowering::LowerAshr2(GateRef gate)
 {
     // 2: number of value inputs
     ASSERT(acc_.GetNumValueIn(gate) == 2);
-    GateRef result = builder_.CallStub(glue_, gate, CommonStubCSigns::Ashr,
-        { glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1) });
+    GateRef result =
+        builder_.CallStub(glue_, gate, CommonStubCSigns::Ashr,
+                          {glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1), circuit_->GetGlobalEnvCache()});
     ReplaceHirWithValue(gate, result);
 }
 
@@ -1526,8 +1591,9 @@ void SlowPathLowering::LowerAnd2(GateRef gate)
 {
     // 2: number of value inputs
     ASSERT(acc_.GetNumValueIn(gate) == 2);
-    GateRef result = builder_.CallStub(glue_, gate, CommonStubCSigns::And,
-        { glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1) });
+    GateRef result =
+        builder_.CallStub(glue_, gate, CommonStubCSigns::And,
+                          {glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1), circuit_->GetGlobalEnvCache()});
     ReplaceHirWithValue(gate, result);
 }
 
@@ -1535,8 +1601,9 @@ void SlowPathLowering::LowerOr2(GateRef gate)
 {
     // 2: number of value inputs
     ASSERT(acc_.GetNumValueIn(gate) == 2);
-    GateRef result = builder_.CallStub(glue_, gate, CommonStubCSigns::Or,
-        { glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1) });
+    GateRef result =
+        builder_.CallStub(glue_, gate, CommonStubCSigns::Or,
+                          {glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1), circuit_->GetGlobalEnvCache()});
     ReplaceHirWithValue(gate, result);
 }
 
@@ -1544,8 +1611,9 @@ void SlowPathLowering::LowerXor2(GateRef gate)
 {
     // 2: number of value inputs
     ASSERT(acc_.GetNumValueIn(gate) == 2);
-    GateRef result = builder_.CallStub(glue_, gate, CommonStubCSigns::Xor,
-        { glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1) });
+    GateRef result =
+        builder_.CallStub(glue_, gate, CommonStubCSigns::Xor,
+                          {glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1), circuit_->GetGlobalEnvCache()});
     ReplaceHirWithValue(gate, result);
 }
 
@@ -1555,8 +1623,9 @@ void SlowPathLowering::LowerDelObjProp(GateRef gate)
     ASSERT(acc_.GetNumValueIn(gate) == 2);
     Label successExit(&builder_);
     Label exceptionExit(&builder_);
-    GateRef newGate = builder_.CallStub(glue_, gate, CommonStubCSigns::DeleteObjectProperty,
-                                        { glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1) });
+    GateRef newGate =
+        builder_.CallStub(glue_, gate, CommonStubCSigns::DeleteObjectProperty,
+                          {glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1), circuit_->GetGlobalEnvCache()});
     BRANCH_CIR(builder_.IsSpecial(newGate, JSTaggedValue::VALUE_EXCEPTION),
         &exceptionExit, &successExit);
     CREATE_DOUBLE_EXIT(successExit, exceptionExit)
@@ -1578,8 +1647,9 @@ void SlowPathLowering::LowerIsIn(GateRef gate)
     ASSERT(acc_.GetNumValueIn(gate) == 2);
 #if ENABLE_NEXT_OPTIMIZATION
 
-    GateRef newGate = builder_.CallStub(glue_, gate, CommonStubCSigns::IsIn,
-                                        {glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1)});
+    GateRef newGate =
+        builder_.CallStub(glue_, gate, CommonStubCSigns::IsIn,
+                          {glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1), circuit_->GetGlobalEnvCache()});
 #else
     const int id = RTSTUB_ID(IsIn);
     GateRef newGate = LowerCallRuntime(gate, id, {acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1)});
@@ -1593,7 +1663,7 @@ void SlowPathLowering::LowerInstanceof(GateRef gate)
     ASSERT(acc_.GetNumValueIn(gate) == 3);
     GateRef obj = acc_.GetValueIn(gate, 1);     // 1: the second parameter
     GateRef target = acc_.GetValueIn(gate, 2);  // 2: the third parameter
-    LowerCallStubWithIC(gate, CommonStubCSigns::Instanceof, { obj, target });
+    LowerCallStubWithIC(gate, CommonStubCSigns::Instanceof, {obj, target, circuit_->GetGlobalEnvCache()});
 }
 
 void SlowPathLowering::LowerFastStrictNotEqual(GateRef gate)
@@ -1602,8 +1672,9 @@ void SlowPathLowering::LowerFastStrictNotEqual(GateRef gate)
     ASSERT(acc_.GetNumValueIn(gate) == 2);
     // 2: number of value inputs
     ASSERT(acc_.GetNumValueIn(gate) == 2);
-    GateRef result = builder_.CallStub(glue_, gate, CommonStubCSigns::StrictNotEqual,
-                                       { glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1) });
+    GateRef result =
+        builder_.CallStub(glue_, gate, CommonStubCSigns::StrictNotEqual,
+                          {glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1), circuit_->GetGlobalEnvCache()});
     ReplaceHirWithValue(gate, result);
 }
 
@@ -1611,14 +1682,16 @@ void SlowPathLowering::LowerFastStrictEqual(GateRef gate)
 {
     // 2: number of value inputs
     ASSERT(acc_.GetNumValueIn(gate) == 2);
-    GateRef result = builder_.CallStub(glue_, gate, CommonStubCSigns::StrictEqual,
-                                       { glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1) });
+    GateRef result =
+        builder_.CallStub(glue_, gate, CommonStubCSigns::StrictEqual,
+                          {glue_, acc_.GetValueIn(gate, 0), acc_.GetValueIn(gate, 1), circuit_->GetGlobalEnvCache()});
     ReplaceHirWithValue(gate, result);
 }
 
 void SlowPathLowering::LowerCreateEmptyArray(GateRef gate)
 {
-    GateRef result = builder_.CallStub(glue_, gate, CommonStubCSigns::CreateEmptyArray, { glue_ });
+    GateRef result =
+        builder_.CallStub(glue_, gate, CommonStubCSigns::CreateEmptyArray, {glue_, circuit_->GetGlobalEnvCache()});
     GateRef newRes = LowerUpdateArrayHClassAtDefine(gate, result);
     ReplaceHirWithValue(gate, newRes);
 }
@@ -1633,7 +1706,9 @@ void SlowPathLowering::LowerCreateArrayWithBuffer(GateRef gate)
 {
     GateRef jsFunc = argAcc_->GetFrameArgsIn(gate, FrameArgIdx::FUNC);
     GateRef index = builder_.TruncInt64ToInt32(acc_.GetValueIn(gate, 0));
-    GateRef result = builder_.CallStub(glue_, gate, CommonStubCSigns::CreateArrayWithBuffer, { glue_, index, jsFunc });
+    GateRef slotId = builder_.ZExtInt16ToInt32(acc_.GetValueIn(gate, 1));
+    GateRef result = builder_.CallStub(glue_, gate, CommonStubCSigns::CreateArrayWithBuffer,
+                                       {glue_, index, jsFunc, slotId, circuit_->GetGlobalEnvCache()});
     // when elementsKind switch on, we should not update arrayHClass here.
     GateRef newRes = LowerUpdateArrayHClassAtDefine(gate, result);
     ReplaceHirWithValue(gate, newRes);
@@ -1643,7 +1718,7 @@ GateRef SlowPathLowering::LowerUpdateArrayHClassAtDefine(GateRef gate, GateRef a
 {
     ElementsKind kind = acc_.TryGetElementsKind(gate);
     if (!Elements::IsGeneric(kind)) {
-        GateRef globalEnv = builder_.GetGlobalEnv(glue_);
+        GateRef globalEnv = circuit_->GetGlobalEnvCache();
         size_t elementIndex = static_cast<size_t>(compilationEnv_->GetArrayHClassIndex(kind, false));
         GateRef hclass = builder_.GetGlobalEnvValue(VariableType::JS_ANY(), glue_, globalEnv, elementIndex);
         builder_.Store(VariableType::JS_POINTER(), glue_, array, builder_.IntPtr(0), hclass);
@@ -1932,7 +2007,8 @@ void SlowPathLowering::LowerSuperCallSpread(GateRef gate)
     }
     builder_.Bind(&slowPath);
     {
-        GateRef argsTaggedArray = builder_.CallStub(glue_, gate, CommonStubCSigns::GetCallSpreadArgs, {glue_, array});
+        GateRef argsTaggedArray = builder_.CallStub(glue_, gate, CommonStubCSigns::GetCallSpreadArgs,
+                                                    {glue_, array, circuit_->GetGlobalEnvCache()});
         result = LowerCallRuntime(gate, RTSTUB_ID(OptSuperCallSpread), {func, *newTarget, argsTaggedArray});
         builder_.Jump(&replaceGate);
     }
@@ -1952,7 +2028,8 @@ void SlowPathLowering::LowerFastSuperCallWithArgArray(GateRef array, const std::
     GateRef srcElements;
     if (isSpread) {
         GateRef gate = args[0];  // 0: index of gate
-        srcElements = builder_.CallStub(glue_, gate, CommonStubCSigns::GetCallSpreadArgs, {glue_, array});
+        srcElements = builder_.CallStub(glue_, gate, CommonStubCSigns::GetCallSpreadArgs,
+                                        {glue_, array, circuit_->GetGlobalEnvCache()});
     } else {
         srcElements = array;
     }
@@ -2434,7 +2511,7 @@ void SlowPathLowering::LowerStOwnByValue(GateRef gate)
     GateRef holeConst = builder_.HoleConstant();
     DEFVALUE(result, (&builder_), VariableType::JS_ANY(), holeConst);
     result = builder_.CallStub(glue_, gate, CommonStubCSigns::StOwnByValue,
-        { glue_, receiver, propKey, accValue });
+                               {glue_, receiver, propKey, accValue, circuit_->GetGlobalEnvCache()});
     ReplaceHirWithValue(gate, *result);
 }
 
@@ -2448,8 +2525,9 @@ void SlowPathLowering::LowerStOwnByIndex(GateRef gate)
     // we do not need to merge outValueGate, so using GateRef directly instead of using Variable
     GateRef holeConst = builder_.HoleConstant();
     DEFVALUE(result, (&builder_), VariableType::JS_ANY(), holeConst);
-    result = builder_.CallStub(glue_, gate, CommonStubCSigns::StOwnByIndex,
-        { glue_, receiver, builder_.TruncInt64ToInt32(index), accValue });
+    result = builder_.CallStub(
+        glue_, gate, CommonStubCSigns::StOwnByIndex,
+        {glue_, receiver, builder_.TruncInt64ToInt32(index), accValue, circuit_->GetGlobalEnvCache()});
     ReplaceHirWithValue(gate, *result);
 }
 
@@ -2465,7 +2543,7 @@ void SlowPathLowering::LowerStOwnByName(GateRef gate)
     GateRef holeConst = builder_.HoleConstant();
     DEFVALUE(result, (&builder_), VariableType::JS_ANY(), holeConst);
     result = builder_.CallStub(glue_, gate, CommonStubCSigns::StOwnByName,
-        { glue_, receiver, propKey, accValue });
+                               {glue_, receiver, propKey, accValue, circuit_->GetGlobalEnvCache()});
     ReplaceHirWithValue(gate, *result);
 }
 
@@ -2543,7 +2621,7 @@ void SlowPathLowering::LowerTryStGlobalByName(GateRef gate)
     ASSERT(acc_.GetNumValueIn(gate) == 3);
     GateRef stringId = acc_.GetValueIn(gate, 1);  // 1: the second parameter
     GateRef value = acc_.GetValueIn(gate, 2);  // 2: the 2nd para is value
-    LowerCallStubWithIC(gate, CommonStubCSigns::TryStGlobalByName, { stringId, value });
+    LowerCallStubWithIC(gate, CommonStubCSigns::TryStGlobalByName, {stringId, value, circuit_->GetGlobalEnvCache()});
 }
 
 void SlowPathLowering::LowerStConstToGlobalRecord(GateRef gate, bool isConst)
@@ -2570,7 +2648,7 @@ void SlowPathLowering::LowerStOwnByValueWithNameSet(GateRef gate)
     Label successExit(&builder_);
     Label exceptionExit(&builder_);
     GateRef result = builder_.CallStub(glue_, gate, CommonStubCSigns::StOwnByValueWithNameSet,
-        { glue_, receiver, propKey, accValue });
+                                       {glue_, receiver, propKey, accValue, circuit_->GetGlobalEnvCache()});
     BRANCH_CIR(builder_.IsSpecial(result, JSTaggedValue::VALUE_EXCEPTION),
         &exceptionExit, &successExit);
     CREATE_DOUBLE_EXIT(successExit, exceptionExit)
@@ -2588,7 +2666,7 @@ void SlowPathLowering::LowerStOwnByNameWithNameSet(GateRef gate)
     Label successExit(&builder_);
     Label exceptionExit(&builder_);
     GateRef result = builder_.CallStub(glue_, gate, CommonStubCSigns::StOwnByNameWithNameSet,
-        { glue_, receiver, propKey, accValue });
+                                       {glue_, receiver, propKey, accValue, circuit_->GetGlobalEnvCache()});
     BRANCH_CIR(builder_.IsSpecial(result, JSTaggedValue::VALUE_EXCEPTION),
         &exceptionExit, &successExit);
     CREATE_DOUBLE_EXIT(successExit, exceptionExit)
@@ -2600,7 +2678,7 @@ void SlowPathLowering::LowerLdGlobalVar(GateRef gate)
     // 2: number of value inputs
     ASSERT(acc_.GetNumValueIn(gate) == 2);
     GateRef stringId = acc_.GetValueIn(gate, 1);  // 1: the second parameter
-    LowerCallStubWithIC(gate, CommonStubCSigns::LdGlobalVar, { stringId });
+    LowerCallStubWithIC(gate, CommonStubCSigns::LdGlobalVar, {stringId, circuit_->GetGlobalEnvCache()});
 }
 
 bool SlowPathLowering::enableMegaIC(GateRef gate)
@@ -2621,9 +2699,11 @@ void SlowPathLowering::LowerLdObjByName(GateRef gate)
         auto cache = builder_.IntPtr((int64_t)(compilationEnv_->GetHostThread()->GetLoadMegaICCache()));
         GateRef sharedConstPool = argAcc_->GetFrameArgsIn(gate, FrameArgIdx::SHARED_CONST_POOL);
         GateRef prop = builder_.GetValueFromTaggedArray(glue_, sharedConstPool, builder_.TruncInt64ToInt32(stringId));
-        LowerCallStubWithIC(gate, CommonStubCSigns::GetPropertyByNameWithMega, {receiver, stringId, cache, prop});
+        LowerCallStubWithIC(gate, CommonStubCSigns::GetPropertyByNameWithMega,
+                            {receiver, stringId, cache, prop, circuit_->GetGlobalEnvCache()});
     } else {
-        LowerCallStubWithIC(gate, CommonStubCSigns::GetPropertyByName, {receiver, stringId});
+        LowerCallStubWithIC(gate, CommonStubCSigns::GetPropertyByName,
+                            {receiver, stringId, circuit_->GetGlobalEnvCache()});
     }
 }
 
@@ -2647,9 +2727,10 @@ void SlowPathLowering::LowerStObjByName(GateRef gate, bool isThis)
         GateRef sharedConstPool = argAcc_->GetFrameArgsIn(gate, FrameArgIdx::SHARED_CONST_POOL);
         GateRef prop = builder_.GetValueFromTaggedArray(glue_, sharedConstPool, builder_.TruncInt64ToInt32(stringId));
         LowerCallStubWithIC(gate, CommonStubCSigns::SetPropertyByNameWithMega,
-                            {receiver, stringId, value, cache, prop});
+                            {receiver, stringId, value, cache, prop, circuit_->GetGlobalEnvCache()});
     } else {
-        LowerCallStubWithIC(gate, CommonStubCSigns::SetPropertyByName, {receiver, stringId, value});
+        LowerCallStubWithIC(gate, CommonStubCSigns::SetPropertyByName,
+                            {receiver, stringId, value, circuit_->GetGlobalEnvCache()});
     }
 }
 
@@ -2678,7 +2759,7 @@ void SlowPathLowering::LowerLdObjByIndex(GateRef gate)
     GateRef index = acc_.GetValueIn(gate, 0);
     GateRef receiver = acc_.GetValueIn(gate, 1);
     varAcc = builder_.CallStub(glue_, gate, CommonStubCSigns::LdObjByIndex,
-        {glue_, receiver, builder_.TruncInt64ToInt32(index)});
+                               {glue_, receiver, builder_.TruncInt64ToInt32(index), circuit_->GetGlobalEnvCache()});
     ReplaceHirWithValue(gate, *varAcc);
 }
 
@@ -2690,8 +2771,9 @@ void SlowPathLowering::LowerStObjByIndex(GateRef gate)
     GateRef index = acc_.GetValueIn(gate, 1);
     GateRef accValue = acc_.GetValueIn(gate, 2);
     DEFVALUE(result, (&builder_), VariableType::JS_ANY(), builder_.HoleConstant());
-    result = builder_.CallStub(glue_, gate, CommonStubCSigns::StObjByIndex,
-        {glue_, receiver, builder_.TruncInt64ToInt32(index), accValue});
+    result = builder_.CallStub(
+        glue_, gate, CommonStubCSigns::StObjByIndex,
+        {glue_, receiver, builder_.TruncInt64ToInt32(index), accValue, circuit_->GetGlobalEnvCache()});
     ReplaceHirWithValue(gate, *result);
 }
 
@@ -2708,7 +2790,7 @@ void SlowPathLowering::LowerLdObjByValue(GateRef gate, bool isThis)
         receiver = acc_.GetValueIn(gate, 1);
         propKey = acc_.GetValueIn(gate, 2);    // 2: the third parameter
     }
-    LowerCallStubWithIC(gate, CommonStubCSigns::GetPropertyByValue, { receiver, propKey });
+    LowerCallStubWithIC(gate, CommonStubCSigns::GetPropertyByValue, {receiver, propKey, circuit_->GetGlobalEnvCache()});
 }
 
 void SlowPathLowering::LowerStObjByValue(GateRef gate, bool isThis)
@@ -2728,7 +2810,8 @@ void SlowPathLowering::LowerStObjByValue(GateRef gate, bool isThis)
         propKey = acc_.GetValueIn(gate, 2);   // 2: the third parameter
         value = acc_.GetValueIn(gate, 3);     // 3: the 4th parameter
     }
-    LowerCallStubWithIC(gate, CommonStubCSigns::SetPropertyByValue, { receiver, propKey, value });
+    LowerCallStubWithIC(gate, CommonStubCSigns::SetPropertyByValue,
+                        {receiver, propKey, value, circuit_->GetGlobalEnvCache()});
 }
 
 void SlowPathLowering::LowerLdSuperByName(GateRef gate)
@@ -2997,7 +3080,7 @@ bool SlowPathLowering::OptimizeDefineFuncForJit(GateRef gate, GateRef jsFunc, Ga
         return false;
     }
 
-    auto method = ConstantPool::GetMethodFromCache(constPool, methodIdValue);
+    auto method = ConstantPool::GetMethodFromCache(constPool, methodIdValue, compilationEnv_->GetJSThread());
     if (!method.IsMethod()) {
         return false;
     }
@@ -3009,7 +3092,7 @@ bool SlowPathLowering::OptimizeDefineFuncForJit(GateRef gate, GateRef jsFunc, Ga
 
     auto jitCompilationEnv = static_cast<JitCompilationEnv*>(compilationEnv_);
     auto func = jitCompilationEnv->GetJsFunctionByMethodOffset(acc_.TryGetMethodOffset(gate));
-    auto profileTypeInfo = func->GetProfileTypeInfo();
+    auto profileTypeInfo = func->GetProfileTypeInfo(compilationEnv_->GetJSThread());
     if (profileTypeInfo.IsUndefined()) {
         return false;
     }
@@ -3059,7 +3142,7 @@ void SlowPathLowering::LowerDefineFunc(GateRef gate)
 
     GateRef jsFunc = argAcc_->GetFrameArgsIn(gate, FrameArgIdx::FUNC);
     GateRef length = acc_.GetValueIn(gate, 2);
-    GateRef lexEnv = acc_.GetValueIn(gate, 3); // 3: Get current env
+    GateRef lexEnv = acc_.GetValueIn(gate, 3);  // 3: Get current env
     GateRef slotId = acc_.GetValueIn(gate, 0);
     Label success(&builder_);
     Label failed(&builder_);
@@ -3067,8 +3150,10 @@ void SlowPathLowering::LowerDefineFunc(GateRef gate)
         return;
     }
 
-    GateRef result = builder_.CallStub(glue_, gate, CommonStubCSigns::Definefunc,
-        {glue_, jsFunc, builder_.TruncInt64ToInt32(methodId), builder_.TruncInt64ToInt32(length), lexEnv, slotId});
+    GateRef result =
+        builder_.CallStub(glue_, gate, CommonStubCSigns::Definefunc,
+                          {glue_, jsFunc, builder_.TruncInt64ToInt32(methodId), builder_.TruncInt64ToInt32(length),
+                           lexEnv, slotId, circuit_->GetGlobalEnvCache()});
     BRANCH_CIR(builder_.TaggedIsException(result), &failed, &success);
     CREATE_DOUBLE_EXIT(success, failed)
     acc_.ReplaceHirWithIfBranch(gate, successControl, failControl, result);
@@ -3088,7 +3173,7 @@ void SlowPathLowering::LowerTypeof(GateRef gate)
     // 1: number of value inputs
     ASSERT(acc_.GetNumValueIn(gate) == 1);
     GateRef obj = acc_.GetValueIn(gate, 0);
-    GateRef result = builder_.CallStub(glue_, gate, CommonStubCSigns::TypeOf, { glue_, obj });
+    GateRef result = builder_.CallStub(glue_, gate, CommonStubCSigns::TypeOf, {glue_, obj});
     ReplaceHirWithValue(gate, result);
 }
 
@@ -3261,7 +3346,8 @@ void SlowPathLowering::LowerGetUnmappedArgs(GateRef gate)
 {
     GateRef actualArgc = argAcc_->GetFrameArgsIn(gate, FrameArgIdx::ACTUAL_ARGC);
     GateRef newGate = builder_.CallStub(glue_, gate, CommonStubCSigns::GetUnmappedArgs,
-        { glue_, builder_.IntPtr(0), builder_.TruncInt64ToInt32(actualArgc), builder_.Undefined() });
+                                        {glue_, builder_.IntPtr(0), builder_.TruncInt64ToInt32(actualArgc),
+                                         builder_.Undefined(), circuit_->GetGlobalEnvCache()});
     ReplaceHirWithValue(gate, newGate);
 }
 
@@ -3475,7 +3561,7 @@ void SlowPathLowering::LowerLdThisByName(GateRef gate)
     ASSERT(acc_.GetNumValueIn(gate) == 2);  // 2: number of parameter
     GateRef thisObj = argAcc_->GetFrameArgsIn(gate, FrameArgIdx::THIS_OBJECT);
     GateRef prop = acc_.GetValueIn(gate, 1);  // 1: the second parameter
-    LowerCallStubWithIC(gate, CommonStubCSigns::GetPropertyByName, { thisObj, prop });
+    LowerCallStubWithIC(gate, CommonStubCSigns::GetPropertyByName, {thisObj, prop, circuit_->GetGlobalEnvCache()});
 }
 
 bool SlowPathLowering::IsFastCallArgs(size_t index)
@@ -3799,7 +3885,7 @@ void SlowPathLowering::LowerDefineFieldByName(GateRef gate)
     GateRef value = acc_.GetValueIn(gate, 3);  // acc
 
     GateRef newGate = builder_.CallStub(glue_, gate, CommonStubCSigns::DefineField,
-        {glue_, obj, propKey, value});
+                                        {glue_, obj, propKey, value, circuit_->GetGlobalEnvCache()});
     ReplaceHirWithValue(gate, newGate);
 }
 
@@ -3812,7 +3898,7 @@ void SlowPathLowering::LowerDefineFieldByValue(GateRef gate)
     GateRef value = acc_.GetValueIn(gate, 2);  // acc
 
     GateRef newGate = builder_.CallStub(glue_, gate, CommonStubCSigns::DefineField,
-        {glue_, obj, propKey, value});
+                                        {glue_, obj, propKey, value, circuit_->GetGlobalEnvCache()});
     ReplaceHirWithValue(gate, newGate);
 }
 
@@ -3825,7 +3911,7 @@ void SlowPathLowering::LowerDefineFieldByIndex(GateRef gate)
     GateRef value = acc_.GetValueIn(gate, 2);  // acc
 
     GateRef newGate = builder_.CallStub(glue_, gate, CommonStubCSigns::DefineField,
-        {glue_, obj, propKey, value});
+                                        {glue_, obj, propKey, value, circuit_->GetGlobalEnvCache()});
     ReplaceHirWithValue(gate, newGate);
 }
 

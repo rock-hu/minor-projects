@@ -185,6 +185,10 @@ public:
     // call operation
     GateRef CallRuntime(GateRef glue, int index, const std::vector<GateRef>& args);
     GateRef CallRuntime(GateRef glue, int index, GateRef argc, GateRef argv);
+    GateRef CallRuntimeWithGlobalEnv(GateRef glue, GateRef globalEnv, int index, const std::vector<GateRef>& args);
+    GateRef CallRuntimeWithGlobalEnv(GateRef glue, GateRef globalEnv, int index, GateRef argc, GateRef argv);
+    GateRef CallRuntimeWithCurrentEnv(GateRef glue, GateRef currentEnv, int index, const std::vector<GateRef>& args);
+    
     GateRef CallNGCRuntime(GateRef glue, int index,
                            const std::vector<GateRef>& args, GateRef hir = Circuit::NullGate());
     GateRef FastCallOptimized(GateRef glue, GateRef code,
@@ -235,6 +239,7 @@ public:
     GateRef DoubleMod(GateRef x, GateRef y);
     GateRef Int64Div(GateRef x, GateRef y);
     GateRef IntPtrDiv(GateRef x, GateRef y);
+    GateRef IntPtrMod(GateRef x, GateRef y);
     GateRef Int32Min(GateRef x, GateRef y);
     GateRef Int32Max(GateRef x, GateRef y);
     // bit operation
@@ -253,6 +258,8 @@ public:
     GateRef Int32Xor(GateRef x, GateRef y);
     GateRef FixLoadType(GateRef x);
     GateRef Int64Or(GateRef x, GateRef y);
+    // FetchOr with acquire and release
+    GateRef Int64FetchOr(GateRef x, GateRef y);
     GateRef IntPtrOr(GateRef x, GateRef y);
     GateRef Int64And(GateRef x, GateRef y);
     GateRef Int64Xor(GateRef x, GateRef y);
@@ -407,11 +414,7 @@ public:
     void SetExtraLengthOfTaggedArray(GateRef glue, GateRef array, GateRef len);
     // object operation
     GateRef IsJSHClass(GateRef glue, GateRef obj);
-#ifndef NDEBUG
-    GateRef LoadHClassWithLineASM(GateRef glue, GateRef object, int line);
-#else
-    GateRef LoadHClass(GateRef glue, GateRef object);
-#endif
+    GateRef LoadHclassImpl(GateRef glue, GateRef object, int line);
 
     void CanNotConvertNotValidObject(GateRef glue, GateRef obj);
     void IsNotValidObject(GateRef flag);
@@ -485,6 +488,8 @@ public:
     GateRef IsMutantTaggedArray(GateRef glue, GateRef elements);
     GateRef IsJSObject(GateRef glue, GateRef obj);
     GateRef IsGlobalEnv(GateRef glue, GateRef obj);
+    GateRef IsLexicalEnv(GateRef glue, GateRef obj);
+    GateRef IsSFunctionEnv(GateRef glue, GateRef obj);
     GateRef IsEnumerable(GateRef attr);
     GateRef IsWritable(GateRef attr);
     GateRef IsConfigable(GateRef attr);
@@ -815,6 +820,10 @@ public:
     void SetValueWithAttr(GateRef glue, GateRef obj, GateRef offset, GateRef key, GateRef value, GateRef attr);
     void SetValueWithRep(GateRef glue, GateRef obj, GateRef offset, GateRef value, GateRef rep, Label *repChange);
     void VerifyBarrier(GateRef glue, GateRef obj, GateRef offset, GateRef value);
+    GateRef GetCMCRegionRSet(GateRef obj);
+    GateRef GetCMCRegionType(GateRef obj);
+    GateRef IsInYoungSpace(GateRef regionType);
+    void CMCSetValueWithBarrier(GateRef glue, GateRef obj, GateRef offset, GateRef value);
     void SetValueWithBarrier(GateRef glue, GateRef obj, GateRef offset, GateRef value,
                              MemoryAttribute::ShareFlag share = MemoryAttribute::UNKNOWN);
     GateRef GetValueWithBarrier(GateRef glue, GateRef addr);
@@ -935,8 +944,8 @@ public:
     GateRef GetGlobalEnv(GateRef glue);
     GateRef GetGlobalObject(GateRef glue, GateRef globalEnv);
     GateRef GetCurrentGlobalEnv(GateRef glue, GateRef currentEnv);
-    void SetGlueGlobalEnvFromCurrentEnv(GateRef glue, GateRef currentEnv);
     void SetGlueGlobalEnv(GateRef glue, GateRef globalEnv);
+    void SetGlueGlobalEnvFromCurrentEnv(GateRef glue, GateRef currentEnv);
     GateRef GetMethodFromFunction(GateRef glue, GateRef function);
     GateRef GetModuleFromFunction(GateRef glue, GateRef function);
     GateRef GetLengthFromFunction(GateRef function);

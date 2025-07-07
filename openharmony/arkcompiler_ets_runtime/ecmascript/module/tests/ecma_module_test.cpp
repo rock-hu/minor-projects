@@ -159,15 +159,15 @@ public:
     static JSHandle<SourceTextModule> GetResolvedModuleFromRecordIndexBinding(JSThread *thread,
         JSHandle<SourceTextModule> module, JSHandle<ResolvedRecordIndexBinding> binding)
     {
-        return ModuleValueAccessor::GetResolvedModule<isLazy, ResolvedRecordIndexBinding>(thread, module, binding,
-            ModulePathHelper::Utf8ConvertToString(binding->GetModuleRecord()));
+        return ModuleValueAccessor::GetResolvedModule<isLazy, ResolvedRecordIndexBinding>(
+            thread, module, binding, ModulePathHelper::Utf8ConvertToString(thread, binding->GetModuleRecord(thread)));
     }
     template <bool isLazy>
     static JSHandle<SourceTextModule> GetResolvedModuleFromRecordBinding(JSThread *thread,
         JSHandle<SourceTextModule> module, JSHandle<ResolvedRecordBinding> binding)
     {
-        return ModuleValueAccessor::GetResolvedModule<isLazy, ResolvedRecordBinding>(thread, module, binding,
-            ModulePathHelper::Utf8ConvertToString(binding->GetModuleRecord()));
+        return ModuleValueAccessor::GetResolvedModule<isLazy, ResolvedRecordBinding>(
+            thread, module, binding, ModulePathHelper::Utf8ConvertToString(thread, binding->GetModuleRecord(thread)));
     }
 };
 class MockDeprecatedModuleValueAccessor : public DeprecatedModuleValueAccessor {
@@ -192,7 +192,7 @@ HWTEST_F_L0(EcmaModuleTest, AddImportEntry)
     SourceTextModule::AddImportEntry(thread, module, importEntry1, 0, 2);
     JSHandle<ImportEntry> importEntry2 = objectFactory->NewImportEntry();
     SourceTextModule::AddImportEntry(thread, module, importEntry2, 1, 2);
-    JSHandle<TaggedArray> importEntries(thread, module->GetImportEntries());
+    JSHandle<TaggedArray> importEntries(thread, module->GetImportEntries(thread));
     EXPECT_TRUE(importEntries->GetLength() == 2U);
 }
 
@@ -211,7 +211,7 @@ HWTEST_F_L0(EcmaModuleTest, AddLocalExportEntry)
     SourceTextModule::AddLocalExportEntry(thread, module, localExportEntry1, 0, 2);
     JSHandle<LocalExportEntry> localExportEntry2 = objectFactory->NewLocalExportEntry();
     SourceTextModule::AddLocalExportEntry(thread, module, localExportEntry2, 1, 2);
-    JSHandle<TaggedArray> localExportEntries(thread, module->GetLocalExportEntries());
+    JSHandle<TaggedArray> localExportEntries(thread, module->GetLocalExportEntries(thread));
     EXPECT_TRUE(localExportEntries->GetLength() == 2U);
 }
 
@@ -230,7 +230,7 @@ HWTEST_F_L0(EcmaModuleTest, AddIndirectExportEntry)
     SourceTextModule::AddIndirectExportEntry(thread, module, indirectExportEntry1, 0, 2);
     JSHandle<IndirectExportEntry> indirectExportEntry2 = objectFactory->NewIndirectExportEntry();
     SourceTextModule::AddIndirectExportEntry(thread, module, indirectExportEntry2, 1, 2);
-    JSHandle<TaggedArray> indirectExportEntries(thread, module->GetIndirectExportEntries());
+    JSHandle<TaggedArray> indirectExportEntries(thread, module->GetIndirectExportEntries(thread));
     EXPECT_TRUE(indirectExportEntries->GetLength() == 2U);
 }
 
@@ -249,7 +249,7 @@ HWTEST_F_L0(EcmaModuleTest, AddStarExportEntry)
     SourceTextModule::AddStarExportEntry(thread, module, starExportEntry1, 0, 2);
     JSHandle<StarExportEntry> starExportEntry2 = objectFactory->NewStarExportEntry();
     SourceTextModule::AddStarExportEntry(thread, module, starExportEntry2, 1, 2);
-    JSHandle<TaggedArray> startExportEntries(thread, module->GetStarExportEntries());
+    JSHandle<TaggedArray> startExportEntries(thread, module->GetStarExportEntries(thread));
     EXPECT_TRUE(startExportEntries->GetLength() == 2U);
 }
 
@@ -497,19 +497,19 @@ HWTEST_F_L0(EcmaModuleTest, ParseOhpmPackage)
     EXPECT_EQ(CString(), entryPoint);
 
     // start with pkg_modules, packageName has pkg_modules
-    moduleRecordName = "pkg_modules@entry.@hw-agconnect.hmcore2";
-    moduleRequestName = "@bundle:com.bundleName.test/moduleName/requestModuleName1";
-    CUnorderedMap<CString, JSPandaFile::JSRecordInfo*> &recordInfo =
-        const_cast<CUnorderedMap<CString, JSPandaFile::JSRecordInfo*>&>(pf->GetJSRecordInfo());
+    CString moduleRecordName2 = "pkg_modules@entry.@hw-agconnect.hmcore2";
+    CString moduleRequestName2 = "@bundle:com.bundleName.test/moduleName/requestModuleName1";
+    CUnorderedMap<std::string_view, JSPandaFile::JSRecordInfo*> &recordInfo =
+        const_cast<CUnorderedMap<std::string_view, JSPandaFile::JSRecordInfo*>&>(pf->GetJSRecordInfo());
     JSPandaFile::JSRecordInfo *info = new JSPandaFile::JSRecordInfo();
-    info->npmPackageName = moduleRecordName;
-    recordInfo.insert({moduleRecordName, info});
-    entryPoint = ModulePathHelper::ParseOhpmPackage(pf.get(), moduleRecordName, moduleRequestName);
+    info->npmPackageName = moduleRecordName2;
+    recordInfo.insert({std::string_view(moduleRecordName2.c_str(), moduleRecordName2.size()), info});
+    entryPoint = ModulePathHelper::ParseOhpmPackage(pf.get(), moduleRecordName2, moduleRequestName2);
     EXPECT_EQ(CString(), entryPoint);
 
     // delete info
     delete info;
-    recordInfo.erase(moduleRecordName);
+    recordInfo.erase(moduleRecordName2);
 }
 
 HWTEST_F_L0(EcmaModuleTest, FindPackageInTopLevel)
@@ -793,7 +793,7 @@ HWTEST_F_L0(EcmaModuleTest, PreventExtensions_IsExtensible)
     SourceTextModule::AddLocalExportEntry(thread, module, localExportEntry1, 0, 2);
     JSHandle<LocalExportEntry> localExportEntry2 = objectFactory->NewLocalExportEntry();
     SourceTextModule::AddLocalExportEntry(thread, module, localExportEntry2, 1, 2);
-    JSHandle<TaggedArray> localExportEntries(thread, module->GetLocalExportEntries());
+    JSHandle<TaggedArray> localExportEntries(thread, module->GetLocalExportEntries(thread));
     CString baseFileName = "a.abc";
     module->SetEcmaModuleFilenameString(baseFileName);
     ModuleManager *moduleManager = thread->GetModuleManager();
@@ -989,24 +989,24 @@ HWTEST_F_L0(EcmaModuleTest, ConcatFileNameWithMerge4)
     auto res = parser.Parse(data);
     std::unique_ptr<const File> pfPtr = pandasm::AsmEmitter::Emit(res.Value());
     std::shared_ptr<JSPandaFile> pf = pfManager->NewJSPandaFile(pfPtr.release(), baseFilename);
-    CUnorderedMap<CString, JSPandaFile::JSRecordInfo*> &recordInfo =
-        const_cast<CUnorderedMap<CString, JSPandaFile::JSRecordInfo*>&>(pf->GetJSRecordInfo());
+    CUnorderedMap<std::string_view, JSPandaFile::JSRecordInfo*> &recordInfo =
+        const_cast<CUnorderedMap<std::string_view, JSPandaFile::JSRecordInfo*>&>(pf->GetJSRecordInfo());
     
     CString moduleRecordName = "node_modules/0/moduleTest4/index";
     CString moduleRequestName = "json/index";
     CString result = "node_modules/0/moduleTest4/node_modules/json/index";
     JSPandaFile::JSRecordInfo *info = new JSPandaFile::JSRecordInfo();
     info->npmPackageName = "node_modules/0/moduleTest4";
-    recordInfo.insert({moduleRecordName, info});
-    recordInfo.insert({result, info});
+    recordInfo.insert({std::string_view(moduleRecordName.c_str(), moduleRecordName.size()), info});
+    recordInfo.insert({std::string_view(result.c_str(), result.size()), info});
     CString entryPoint = ModulePathHelper::ConcatFileNameWithMerge(
         thread, pf.get(), baseFilename, moduleRecordName, moduleRequestName);
     EXPECT_EQ(result, entryPoint);
     
     // delete info
     delete info;
-    recordInfo.erase(moduleRecordName);
-    recordInfo.erase(result);
+    recordInfo.erase(std::string_view(moduleRecordName.c_str(), moduleRecordName.size()));
+    recordInfo.erase(std::string_view(result.c_str(), result.size()));
 }
 
 HWTEST_F_L0(EcmaModuleTest, ConcatFileNameWithMerge5)
@@ -1493,7 +1493,8 @@ HWTEST_F_L0(EcmaModuleTest, TranslateExpressionToNormalized)
 
     requestPath = "ets/Test";
     recordName = "&entry/ets/pages/Index&";
-    pf->InsertJSRecordInfo("&entry/ets/Test&");
+    CString recordInfo = "&entry/ets/Test&";
+    pf->InsertJSRecordInfo(recordInfo);
     result = ModulePathHelper::TranslateExpressionToNormalized(thread, pf.get(), baseFileName, recordName,
         requestPath);
     EXPECT_EQ(result, "&entry/ets/Test&");
@@ -1554,7 +1555,8 @@ HWTEST_F_L0(EcmaModuleTest, TranslateExpressionToNormalized3)
     CString requestPath = "./@normalized:N&&&har/Index&1.0.0";
     CString baseFileName = "";
     CString recordName = "";
-    pf->InsertJSRecordInfo("@normalized:N&&&har/Index&1.0.0&");
+    CString recordInfo = "@normalized:N&&&har/Index&1.0.0&";
+    pf->InsertJSRecordInfo(recordInfo);
     CString result = ModulePathHelper::TranslateExpressionToNormalized(thread, pf.get(), baseFileName, recordName,
         requestPath);
     EXPECT_EQ(result, "./@normalized:N&&&har/Index&1.0.0");
@@ -1727,7 +1729,7 @@ HWTEST_F_L0(EcmaModuleTest, GetCurrentModuleName)
     JSNApi::Execute(instance, baseFileName, "module_test_module_test_module");
     Local<ObjectRef> res = JSNApi::GetExportObject(instance, "module_test_module_test_module", "moduleName");
     JSHandle<JSTaggedValue> result = JSNApiHelper::ToJSHandle(res);
-    CString moduleName = ConvertToString(result.GetTaggedValue());
+    CString moduleName = ConvertToString(thread, result.GetTaggedValue());
     EXPECT_EQ(moduleName, "");
 }
 
@@ -1756,7 +1758,7 @@ HWTEST_F_L0(EcmaModuleTest, IncreaseRegisterCounts2)
     increaseModule.insert("b");
     module->SetSharedType(SharedTypes::SHARED_MODULE);
     ModuleDeregister::IncreaseRegisterCounts(thread, module, increaseModule);
-    EXPECT_EQ(module->GetModuleRequests().IsUndefined(), false);
+    EXPECT_EQ(module->GetModuleRequests(thread).IsUndefined(), false);
 }
 
 HWTEST_F_L0(EcmaModuleTest, DecreaseRegisterCounts2)
@@ -1772,7 +1774,7 @@ HWTEST_F_L0(EcmaModuleTest, DecreaseRegisterCounts2)
     decreaseModule.insert("b");
     module->SetSharedType(SharedTypes::SHARED_MODULE);
     ModuleDeregister::DecreaseRegisterCounts(thread, module, decreaseModule);
-    EXPECT_EQ(module->GetModuleRequests().IsUndefined(), false);
+    EXPECT_EQ(module->GetModuleRequests(thread).IsUndefined(), false);
 }
 
 HWTEST_F_L0(EcmaModuleTest, GenerateSendableFuncModule)
@@ -1826,18 +1828,18 @@ HWTEST_F_L0(EcmaModuleTest, ConcatMergeFileNameToNormalized)
     requestPath = "./lib/toDate";
     result = "pkg_modules/.ohpm/validator@13.12.0/pkg_modules/validator/lib/toDate";
     pf->InsertJSRecordInfo(result);
-    CUnorderedMap<CString, JSPandaFile::JSRecordInfo*> &recordInfo =
-        const_cast<CUnorderedMap<CString, JSPandaFile::JSRecordInfo*>&>(pf->GetJSRecordInfo());
+    CUnorderedMap<std::string_view, JSPandaFile::JSRecordInfo*> &recordInfo =
+        const_cast<CUnorderedMap<std::string_view, JSPandaFile::JSRecordInfo*>&>(pf->GetJSRecordInfo());
     JSPandaFile::JSRecordInfo *info = new JSPandaFile::JSRecordInfo();
     info->npmPackageName = result;
-    recordInfo.insert({recordName, info});
+    recordInfo.insert({std::string_view(recordName.c_str(), recordName.size()), info});
 
     entryPoint = ModulePathHelper::ConcatMergeFileNameToNormalized(thread, pf.get(), baseFilename, recordName,
         requestPath);
     EXPECT_EQ(result, entryPoint);
     
     delete info;
-    recordInfo.erase(recordName);
+    recordInfo.erase(std::string_view(recordName.c_str(), recordName.size()));
 }
 
 HWTEST_F_L0(EcmaModuleTest, ConcatImportFileNormalizedOhmurlWithRecordName)
@@ -2814,15 +2816,15 @@ HWTEST_F_L0(EcmaModuleTest, IncreaseRegisterCounts)
     std::set<CString> increaseModule;
 
     ModuleDeregister::IncreaseRegisterCounts(thread, module, increaseModule);
-    EXPECT_EQ(module->GetModuleRequests().IsUndefined(), false);
+    EXPECT_EQ(module->GetModuleRequests(thread).IsUndefined(), false);
 
     module->SetRegisterCounts(INT8_MAX);
     ModuleDeregister::IncreaseRegisterCounts(thread, module, increaseModule);
-    EXPECT_EQ(module->GetModuleRequests().IsUndefined(), false);
+    EXPECT_EQ(module->GetModuleRequests(thread).IsUndefined(), false);
 
     module2->SetRegisterCounts(INT8_MAX);
     ModuleDeregister::IncreaseRegisterCounts(thread, module2, increaseModule);
-    EXPECT_EQ(module2->GetModuleRequests().IsUndefined(), true);
+    EXPECT_EQ(module2->GetModuleRequests(thread).IsUndefined(), true);
 
     module2->SetLoadingTypes(LoadingTypes::STABLE_MODULE);
     ModuleDeregister::IncreaseRegisterCounts(thread, module2, increaseModule);
@@ -2848,7 +2850,7 @@ HWTEST_F_L0(EcmaModuleTest, DecreaseRegisterCounts)
 
     module->SetRegisterCounts(INT8_MAX);
     ModuleDeregister::DecreaseRegisterCounts(thread, module, decreaseModule);
-    EXPECT_EQ(module->GetModuleRequests().IsUndefined(), false);
+    EXPECT_EQ(module->GetModuleRequests(thread).IsUndefined(), false);
 
     module2->SetLoadingTypes(LoadingTypes::DYNAMITC_MODULE);
     ModuleDeregister::DecreaseRegisterCounts(thread, module2, decreaseModule);
@@ -4079,12 +4081,16 @@ HWTEST_F_L0(EcmaModuleTest, ParseCrossModuleFile)
     EXPECT_EQ(requestPath, "moduleName/src");
 
     requestPath="moduleName/src";
-    pf->InsertNpmEntries("moduleName", "/src");
+    CString recordInfo1 = "moduleName";
+    CString fieldInfo1 = "/src";
+    pf->InsertNpmEntries(recordInfo1, fieldInfo1);
     ModulePathHelper::ParseCrossModuleFile(pf.get(), requestPath);
     EXPECT_EQ(requestPath, "/src");
 
     requestPath="moduleName/src/main/a/b/c";
-    pf->InsertNpmEntries("moduleName", "/src/main/a/b/c");
+    CString recordInfo2 = "moduleName";
+    CString fieldInfo2 = "/src/main/a/b/c";
+    pf->InsertNpmEntries(recordInfo2, fieldInfo2);
     ModulePathHelper::ParseCrossModuleFile(pf.get(), requestPath);
     EXPECT_EQ(requestPath, "/a/b/c");
 }
@@ -4210,22 +4216,22 @@ HWTEST_F_L0(EcmaModuleTest, RestoreMutableFields)
 
     SourceTextModule::RestoreMutableFields(thread, module, fields);
 
-    EXPECT_EQ(module->GetTopLevelCapability(), fields.TopLevelCapability);
-    EXPECT_EQ(module->GetNameDictionary(), fields.NameDictionary);
-    EXPECT_EQ(module->GetCycleRoot(), fields.CycleRoot);
-    EXPECT_EQ(module->GetAsyncParentModules(), fields.AsyncParentModules);
-    EXPECT_EQ(module->GetSendableEnv(), fields.SendableEnv);
-    EXPECT_EQ(module->GetException(), fields.Exception);
-    EXPECT_EQ(module->GetNamespace(), fields.Namespace);
+    EXPECT_EQ(module->GetTopLevelCapability(thread), fields.TopLevelCapability);
+    EXPECT_EQ(module->GetNameDictionary(thread), fields.NameDictionary);
+    EXPECT_EQ(module->GetCycleRoot(thread), fields.CycleRoot);
+    EXPECT_EQ(module->GetAsyncParentModules(thread), fields.AsyncParentModules);
+    EXPECT_EQ(module->GetSendableEnv(thread), fields.SendableEnv);
+    EXPECT_EQ(module->GetException(thread), fields.Exception);
+    EXPECT_EQ(module->GetNamespace(thread), fields.Namespace);
 
     SourceTextModule::StoreAndResetMutableFields(thread, module, fields);
 
-    EXPECT_EQ(module->GetTopLevelCapability(), undefinedValue);
-    EXPECT_EQ(module->GetNameDictionary(), undefinedValue);
-    EXPECT_EQ(module->GetCycleRoot(), undefinedValue);
-    EXPECT_EQ(module->GetAsyncParentModules(), undefinedValue);
-    EXPECT_EQ(module->GetSendableEnv(), undefinedValue);
-    EXPECT_EQ(module->GetException(), undefinedValue);
-    EXPECT_EQ(module->GetNamespace(), undefinedValue);
+    EXPECT_EQ(module->GetTopLevelCapability(thread), undefinedValue);
+    EXPECT_EQ(module->GetNameDictionary(thread), undefinedValue);
+    EXPECT_EQ(module->GetCycleRoot(thread), undefinedValue);
+    EXPECT_EQ(module->GetAsyncParentModules(thread), undefinedValue);
+    EXPECT_EQ(module->GetSendableEnv(thread), undefinedValue);
+    EXPECT_EQ(module->GetException(thread), undefinedValue);
+    EXPECT_EQ(module->GetNamespace(thread), undefinedValue);
 }
 }  // namespace panda::test

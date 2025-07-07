@@ -23,6 +23,7 @@ class RegionRSet {
 public:
     explicit RegionRSet(size_t regionSize) : cardCnt(regionSize / CARD_SIZE)
     {
+        CHECK_CC(regionSize % CARD_SIZE == 0);
 #ifdef _WIN64
         void* startAddress = VirtualAlloc(NULL, cardCnt * sizeof(uint64_t), MEM_RESERVE, PAGE_READWRITE);
         if (startAddress == NULL) {
@@ -63,7 +64,7 @@ public:
         size_t cardIdx = (offset / kMarkedBytesPerBit) / kBitsPerWord;
         size_t headMaskBitStart = (offset / kMarkedBytesPerBit) % kBitsPerWord;
         uint64_t headMaskBits = static_cast<uint64_t>(1) << headMaskBitStart;
-        uint64_t card = cardTable[cardIdx].load();
+        uint64_t card = cardTable[cardIdx].load(std::memory_order_relaxed);
         bool isMarked = ((card & headMaskBits) != 0);
         if (!isMarked) {
             card = cardTable[cardIdx].fetch_or(headMaskBits);
@@ -87,21 +88,26 @@ public:
             << "memset_s fail";
     }
 
-    void VisitAllMarkedCard(const std::function<void(BaseObject*)>& func, HeapAddress regionStart)
+    void VisitAllMarkedCardBefore(const std::function<void(BaseObject*)>& func,
+                                            HeapAddress regionStart, HeapAddress end)
     {
         for (size_t i = 0; i < cardCnt.load(); i++) {
             uint64_t card = cardTable[i].load();
-            for (size_t j = 0; j < kBitsPerWord; j++) {
-                uint64_t mask = static_cast<uint64_t>(1) << j;
-                if ((card & mask) == 0) {
-                    continue;
+            size_t index = kBitsPerWord;
+            while (card != 0) {
+                index = static_cast<size_t>(__builtin_ctzll(card));
+                ASSERT(index < kBitsPerWord);
+                HeapAddress offset = static_cast<HeapAddress>((i * kBitsPerWord) * kBitsPerByte + index * kBitsPerByte);
+                HeapAddress obj = regionStart + offset;
+                if (obj >= end) {
+                    return;
                 }
-                BaseObject* obj = reinterpret_cast<BaseObject*>(regionStart +
-                    static_cast<HeapAddress>((i * kBitsPerWord) * kBitsPerByte + j * kBitsPerByte));
-                func(obj);
+                func(reinterpret_cast<BaseObject*>(obj));
+                card &= ~(static_cast<uint64_t>(1) << index);
             }
         }
     }
+    static constexpr size_t CARD_TABLE_OFFSET_IN_RSET = 8;
 private:
     std::atomic<size_t> cardCnt;
     std::atomic<uint64_t>* cardTable;

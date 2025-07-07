@@ -66,11 +66,12 @@ public:
         if (tlRegion_ == RegionDesc::NullRegion()) {
             return;
         }
-        DLOG(REGION, "AllocBuffer clear tlRegion %p@%#zx+%zu",
-            tlRegion_, tlRegion_->GetRegionStart(), tlRegion_->GetRegionAllocatedSize());
+        DLOG(REGION, "AllocBuffer clear tlRegion %p(base=%#zx)@%#zx+%zu",
+             tlRegion_, tlRegion_->GetRegionBase(), tlRegion_->GetRegionStart(), tlRegion_->GetRegionAllocatedSize());
         tlRegion_ = RegionDesc::NullRegion();
     }
     void ClearThreadLocalRegion();
+    void Unregister();
 
     bool SetPreparedRegion(RegionDesc* newPreparedRegion)
     {
@@ -98,6 +99,33 @@ public:
         stackRoots_.clear();
     }
 
+    template<AllocBufferType allocType>
+    HeapAddress FastAllocateInTlab(size_t size)
+    {
+        if constexpr (allocType == AllocBufferType::YOUNG) {
+            if (LIKELY_CC(tlRegion_ != RegionDesc::NullRegion())) {
+                return tlRegion_->Alloc(size);
+            }
+        } else if constexpr (allocType == AllocBufferType::OLD) {
+            if (LIKELY_CC(tlOldRegion_ != RegionDesc::NullRegion())) {
+                return tlOldRegion_->Alloc(size);
+            }
+        }
+        return 0;
+    }
+
+    // Allocation buffer is thread local, but held in multiple mutators per thread.
+    // RefCount records how many mutators holds this allocbuffer.
+    void IncreaseRefCount()
+    {
+        refCount_++;
+    }
+
+    bool DecreaseRefCount()
+    {
+        return refCount_-- <= 0;
+    }
+
     static constexpr size_t GetTLRegionOffset()
     {
         return offsetof(AllocationBuffer, tlRegion_);
@@ -118,7 +146,7 @@ private:
     // allocate objects which are exposed to runtime thus can not be moved.
     // allocation context is responsible to notify collector when these objects are safe to be collected.
     RegionList tlRawPointerRegions_;
-
+    int64_t refCount_ { 0 };
     // Record stack roots in concurrent enum phase, waiting for GC to merge these roots
     std::list<BaseObject*> stackRoots_;
 

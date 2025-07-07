@@ -1319,7 +1319,7 @@ void ImagePattern::OnNotifyMemoryLevel(int32_t level)
     frameNode->SetTrimMemRecycle(false);
     auto rsRenderContext = frameNode->GetRenderContext();
     CHECK_NULL_VOID(rsRenderContext);
-    TAG_LOGI(AceLogTag::ACE_IMAGE, "%{public}s, %{private}s OnNotifyMemoryLevel %{public}d.",
+    TAG_LOGD(AceLogTag::ACE_IMAGE, "%{public}s, %{private}s OnNotifyMemoryLevel %{public}d.",
         imageDfxConfig_.ToStringWithoutSrc().c_str(), imageDfxConfig_.GetImageSrc().c_str(), level);
     rsRenderContext->RemoveContentModifier(contentMod_);
     contentMod_ = nullptr;
@@ -1332,7 +1332,7 @@ void ImagePattern::OnNotifyMemoryLevel(int32_t level)
 // when recycle image component, release the pixelmap resource
 void ImagePattern::OnRecycle()
 {
-    TAG_LOGI(AceLogTag::ACE_IMAGE, "OnRecycle. %{public}s", imageDfxConfig_.ToStringWithoutSrc().c_str());
+    TAG_LOGD(AceLogTag::ACE_IMAGE, "OnRecycle. %{public}s", imageDfxConfig_.ToStringWithoutSrc().c_str());
     loadingCtx_ = nullptr;
     image_ = nullptr;
     altLoadingCtx_ = nullptr;
@@ -1892,6 +1892,8 @@ void ImagePattern::DumpOtherInfo()
         DumpLog::GetInstance().AddDesc(
             std::string("rawImageSize: ").append(loadingCtx_->GetOriginImageSize().ToString()));
         DumpLog::GetInstance().AddDesc(std::string("LoadErrorMsg: ").append(loadingCtx_->GetErrorMsg()));
+        DumpLog::GetInstance().AddDesc(
+            std::string("ImageDataSizeInfo: ").append(loadingCtx_->GetImageSizeInfo()));
     } else {
         DumpLog::GetInstance().AddDesc(std::string("imageLoadingContext: null"));
     }

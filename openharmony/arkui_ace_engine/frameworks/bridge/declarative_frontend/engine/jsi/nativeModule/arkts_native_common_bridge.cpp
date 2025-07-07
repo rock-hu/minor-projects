@@ -1019,7 +1019,7 @@ void ParseOuterBorder(EcmaVM* vm, const Local<JSValueRef>& args, std::optional<C
 void ParseNullptrResObj(std::vector<RefPtr<ResourceObject>>& resObjs, int32_t index)
 {
     if (SystemProperties::ConfigChangePerform()) {
-        for (uint32_t i = 0; i < index; i++) {
+        for (int32_t i = 0; i < index; i++) {
             resObjs.push_back(nullptr);
         }
     }
@@ -1573,22 +1573,6 @@ std::function<void(bool)> ParseTransitionCallback(
         jsFuncFinish->ExecuteJS(1, &newJSVal);
     };
     return finishCallback;
-}
-
-bool ParseColorMetricsToColor(const EcmaVM *vm, const Local<JSValueRef> &jsValue, Color& result)
-{
-    if (!jsValue->IsObject(vm)) {
-        return false;
-    }
-    auto obj = jsValue->ToObject(vm);
-    auto toNumericProp = obj->Get(vm, "toNumeric");
-    if (toNumericProp->IsFunction(vm)) {
-        panda::Local<panda::FunctionRef> func = toNumericProp;
-            auto colorVal = func->Call(vm, obj, nullptr, 0);
-        result.SetValue(colorVal->Uint32Value(vm));
-        return true;
-    }
-    return false;
 }
 
 const std::vector<AccessibilitySamePageMode> PAGE_MODE_TYPE = { AccessibilitySamePageMode::SEMI_SILENT,
@@ -8925,7 +8909,7 @@ ArkUINativeModuleValue CommonBridge::SetOnKeyEvent(ArkUIRuntimeCallInfo* runtime
             "isScrollLockOn" };
         Local<JSValueRef> values[] = { panda::NumberRef::New(vm, static_cast<int32_t>(info.GetKeyType())),
             panda::NumberRef::New(vm, static_cast<int32_t>(info.GetKeyCode())),
-            panda::StringRef::NewFromUtf8(vm, info.GetKeyText()),
+            panda::StringRef::NewFromUtf8(vm, info.GetKeyText().c_str()),
             panda::NumberRef::New(vm, static_cast<int32_t>(info.GetKeySource())),
             panda::NumberRef::New(vm, info.GetDeviceId()), panda::NumberRef::New(vm, info.GetMetaKey()),
             panda::NumberRef::New(vm, info.GetUnicode()),
@@ -8986,7 +8970,7 @@ ArkUINativeModuleValue CommonBridge::SetOnKeyPreIme(ArkUIRuntimeCallInfo* runtim
             "isScrollLockOn" };
         Local<JSValueRef> values[] = { panda::NumberRef::New(vm, static_cast<int32_t>(info.GetKeyType())),
             panda::NumberRef::New(vm, static_cast<int32_t>(info.GetKeyCode())),
-            panda::StringRef::NewFromUtf8(vm, info.GetKeyText()),
+            panda::StringRef::NewFromUtf8(vm, info.GetKeyText().c_str()),
             panda::NumberRef::New(vm, static_cast<int32_t>(info.GetKeySource())),
             panda::NumberRef::New(vm, info.GetDeviceId()), panda::NumberRef::New(vm, info.GetMetaKey()),
             panda::NumberRef::New(vm, info.GetUnicode()),
@@ -9047,7 +9031,7 @@ ArkUINativeModuleValue CommonBridge::SetOnKeyEventDispatch(ArkUIRuntimeCallInfo*
             "isScrollLockOn" };
         Local<JSValueRef> values[] = { panda::NumberRef::New(vm, static_cast<int32_t>(info.GetKeyType())),
             panda::NumberRef::New(vm, static_cast<int32_t>(info.GetKeyCode())),
-            panda::StringRef::NewFromUtf8(vm, info.GetKeyText()),
+            panda::StringRef::NewFromUtf8(vm, info.GetKeyText().c_str()),
             panda::NumberRef::New(vm, static_cast<int32_t>(info.GetKeySource())),
             panda::NumberRef::New(vm, info.GetDeviceId()), panda::NumberRef::New(vm, info.GetMetaKey()),
             panda::NumberRef::New(vm, info.GetUnicode()),
@@ -10348,8 +10332,11 @@ ArkUINativeModuleValue CommonBridge::SetFocusBox(ArkUIRuntimeCallInfo* runtimeCa
     hasValue = hasValue << 1;
     Color strokeColor;
     RefPtr<ResourceObject> resObjColor;
-    if (!colorArg->IsUndefined() && !colorArg->IsNull() && ParseColorMetricsToColor(vm, colorArg, strokeColor)) {
+    if (!colorArg->IsUndefined() && !colorArg->IsNull() &&
+        ArkTSUtils::ParseColorMetricsToColor(vm, colorArg, strokeColor, resObjColor)) {
         hasValue += 1;
+        auto nodeInfo = ArkTSUtils::MakeNativeNodeInfo(nativeNode);
+        ArkTSUtils::CompleteResourceObjectFromColor(resObjColor, strokeColor, true, nodeInfo);
     }
     focusBoxResObjs.push_back(resObjColor);
     GetArkUINodeModifiers()->getCommonModifier()->setFocusBoxStyle(nativeNode, margin.Value(),

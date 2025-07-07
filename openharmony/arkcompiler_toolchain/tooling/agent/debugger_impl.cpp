@@ -167,8 +167,9 @@ void DebuggerImpl::SaveParsedScriptsAndUrl(const std::string &fileName, const st
 
 bool DebuggerImpl::NotifyScriptParsedBySendable(JSHandle<Method> method)
 {
+    JSThread *thread = vm_->GetJSThread();
     // Find extractor and retrieve infos
-    const JSPandaFile *jsPandaFile = method->GetJSPandaFile();
+    const JSPandaFile *jsPandaFile = method->GetJSPandaFile(thread);
     if (jsPandaFile == nullptr) {
         LOG_DEBUGGER(ERROR) << "JSPandaFile is nullptr";
         return false;
@@ -195,7 +196,7 @@ bool DebuggerImpl::NotifyScriptParsedBySendable(JSHandle<Method> method)
     }
     // Parse and save this file
     const std::string &source = extractor->GetSourceCode(methodId);
-    const std::string &recordName = std::string(method->GetRecordNameStr());
+    const std::string &recordName = std::string(method->GetRecordNameStr(thread));
     SaveParsedScriptsAndUrl(fileName, url, recordName, source);
     return true;
 }
@@ -1264,10 +1265,20 @@ DispatchResponse DebuggerImpl::EvaluateOnCallFrame(const EvaluateOnCallFramePara
         return DispatchResponse::Create(ret);
     }
 
+    Local<JSValueRef> currentContext = DebuggerApi::GetCurrentGlobalEnv(vm_);
+    Local<ObjectRef> globalObj = JSNApi::GetGlobalObject(vm_, currentContext);
+    DebuggerExecutor::SetEvaluateToGlobal(vm_, globalObj);
+
+    Local<JSValueRef> originContext = JSNApi::GetCurrentContext(vm_);
+    JSNApi::SwitchContext(vm_, currentContext);
+
     auto funcRef = DebuggerApi::GenerateFuncFromBuffer(vm_, dest.data(), dest.size(),
         JSPandaFile::ENTRY_FUNCTION_NAME);
     auto res = DebuggerApi::EvaluateViaFuncCall(const_cast<EcmaVM *>(vm_), funcRef,
         callFrameHandlers_[callFrameId]);
+    
+    JSNApi::SwitchContext(vm_, originContext);
+
     if (vm_->GetJSThread()->HasPendingException()) {
         LOG_DEBUGGER(ERROR) << "EvaluateValue: has pending exception";
         std::string msg;
@@ -1464,9 +1475,7 @@ DispatchResponse DebuggerImpl::SetBreakpointByUrl(const SetBreakpointByUrlParams
             }
             return DebuggerApi::SetBreakpoint(jsDebugger_, location, condFuncRef, isSmartBreakpoint);
         };
-        std::string methodName = params.HasMethodName() ? params.GetMethodName() : "";
-        if (!extractor->MatchWithLocation(callbackFunc, lineNumber, columnNumber, url, GetRecordName(url),
-            isSmartBreakpoint, methodName)) {
+        if (!extractor->MatchWithLocation(callbackFunc, lineNumber, columnNumber, url, GetRecordName(url))) {
             LOG_DEBUGGER(ERROR) << "failed to set breakpoint location number: "
                 << lineNumber << ":" << columnNumber;
             return DispatchResponse::Fail("Breakpoint not found.");
@@ -2004,7 +2013,8 @@ bool DebuggerImpl::GenerateAsyncFrame(StackFrame *stackFrame, const FrameHandler
     }
     Method *method = DebuggerApi::GetMethod(frameHandler);
     auto methodId = method->GetMethodId();
-    const JSPandaFile *jsPandaFile = method->GetJSPandaFile();
+    JSThread *thread = vm_->GetJSThread();
+    const JSPandaFile *jsPandaFile = method->GetJSPandaFile(thread);
     DebugInfoExtractor *extractor = GetExtractor(jsPandaFile);
     if (extractor == nullptr) {
         LOG_DEBUGGER(DEBUG) << "GenerateAsyncFrame: extractor is null";
@@ -2012,7 +2022,7 @@ bool DebuggerImpl::GenerateAsyncFrame(StackFrame *stackFrame, const FrameHandler
     }
 
     // functionName
-    std::string functionName = method->ParseFunctionName();
+    std::string functionName = method->ParseFunctionName(thread);
 
     std::string url = extractor->GetSourceFile(methodId);
     int32_t scriptId = -1;
@@ -2067,7 +2077,8 @@ bool DebuggerImpl::GenerateCallFrame(CallFrame *callFrame, const FrameHandler *f
     }
     Method *method = DebuggerApi::GetMethod(frameHandler);
     auto methodId = method->GetMethodId();
-    const JSPandaFile *jsPandaFile = method->GetJSPandaFile();
+    JSThread *thread = vm_->GetJSThread();
+    const JSPandaFile *jsPandaFile = method->GetJSPandaFile(thread);
     DebugInfoExtractor *extractor = GetExtractor(jsPandaFile);
     if (extractor == nullptr) {
         LOG_DEBUGGER(DEBUG) << "GenerateCallFrame: extractor is null";
@@ -2075,7 +2086,7 @@ bool DebuggerImpl::GenerateCallFrame(CallFrame *callFrame, const FrameHandler *f
     }
 
     // functionName
-    std::string functionName = method->ParseFunctionName();
+    std::string functionName = method->ParseFunctionName(thread);
 
     // location
     std::unique_ptr<Location> location = std::make_unique<Location>();
@@ -2147,7 +2158,8 @@ std::unique_ptr<Scope> DebuggerImpl::GetLocalScopeChain(const FrameHandler *fram
 
     Method *method = DebuggerApi::GetMethod(frameHandler);
     auto methodId = method->GetMethodId();
-    const JSPandaFile *jsPandaFile = method->GetJSPandaFile();
+    JSThread *thread = vm_->GetJSThread();
+    const JSPandaFile *jsPandaFile = method->GetJSPandaFile(thread);
     DebugInfoExtractor *extractor = GetExtractor(jsPandaFile);
     if (extractor == nullptr) {
         LOG_DEBUGGER(ERROR) << "GetScopeChain: extractor is null";
@@ -2199,9 +2211,9 @@ std::vector<std::unique_ptr<Scope>> DebuggerImpl::GetClosureScopeChains(const Fr
     std::vector<std::unique_ptr<Scope>> closureScopes;
     Method *method = DebuggerApi::GetMethod(frameHandler);
     EntityId methodId = method->GetMethodId();
-    const JSPandaFile *jsPandaFile = method->GetJSPandaFile();
-    DebugInfoExtractor *extractor = GetExtractor(jsPandaFile);
     JSThread *thread = vm_->GetJSThread();
+    const JSPandaFile *jsPandaFile = method->GetJSPandaFile(thread);
+    DebugInfoExtractor *extractor = GetExtractor(jsPandaFile);
 
     if (extractor == nullptr) {
         LOG_DEBUGGER(ERROR) << "GetClosureScopeChains: extractor is null";
@@ -2220,14 +2232,15 @@ std::vector<std::unique_ptr<Scope>> DebuggerImpl::GetClosureScopeChains(const Fr
     bool thisFound = (*thisObj)->HasValue();
     bool closureVarFound = false;
     // currentEnv = currentEnv->parent until currentEnv is not lexicalEnv
-    for (; currentEnv.IsLexicalEnv(); currentEnv = LexicalEnv::Cast(currentEnv.GetTaggedObject())->GetParentEnv()) {
+    for (; currentEnv.IsLexicalEnv();
+         currentEnv = LexicalEnv::Cast(currentEnv.GetTaggedObject())->GetParentEnv(thread)) {
         LexicalEnv *lexicalEnv = LexicalEnv::Cast(currentEnv.GetTaggedObject());
         envHandle.Update(currentEnv);
-        if (lexicalEnv->GetScopeInfo().IsHole()) {
+        if (lexicalEnv->GetScopeInfo(thread).IsHole()) {
             continue;
         }
         auto closureScope = std::make_unique<Scope>();
-        auto result = JSNativePointer::Cast(lexicalEnv->GetScopeInfo().GetTaggedObject())->GetExternalPointer();
+        auto result = JSNativePointer::Cast(lexicalEnv->GetScopeInfo(thread).GetTaggedObject())->GetExternalPointer();
         ScopeDebugInfo *scopeDebugInfo = reinterpret_cast<ScopeDebugInfo *>(result);
         std::unique_ptr<RemoteObject> closure = std::make_unique<RemoteObject>();
         Local<ObjectRef> closureScopeObj = ObjectRef::New(vm_);
@@ -2239,7 +2252,7 @@ std::vector<std::unique_ptr<Scope>> DebuggerImpl::GetClosureScopeChains(const Fr
             }
             currentEnv = envHandle.GetTaggedValue();
             lexicalEnv = LexicalEnv::Cast(currentEnv.GetTaggedObject());
-            valueHandle.Update(lexicalEnv->GetProperties(slot));
+            valueHandle.Update(lexicalEnv->GetProperties(thread, slot));
             Local<JSValueRef> value = JSNApiHelper::ToLocal<JSValueRef>(valueHandle);
             Local<JSValueRef> varName = StringRef::NewFromUtf8(vm_, name.c_str());
             nameCount[name]++;
@@ -2379,7 +2392,7 @@ std::unique_ptr<Scope> DebuggerImpl::GetGlobalScopeChain(const FrameHandler *fra
         .SetClassName(ObjectClassName::Global)
         .SetDescription(RemoteObject::GlobalDescription);
     globalScope->SetType(Scope::Type::Global()).SetObject(std::move(global));
-    globalObj = JSNApi::GetGlobalObject(vm_);
+    globalObj = JSNApi::GetGlobalObject(vm_, DebuggerApi::GetCurrentGlobalEnv(vm_, frameHandler));
     DebuggerApi::AddInternalProperties(vm_, globalObj, ArkInternalValueType::Scope,  runtime_->internalObjects_);
     auto *sp = DebuggerApi::GetSp(frameHandler);
     scopeObjects_[sp][Scope::Type::Global()].push_back(runtime_->curObjectId_);

@@ -381,8 +381,8 @@ public:
         }
         int dataIndex = Derived::ELEMENTS_START_INDEX;
         for (uint32_t i = 0; i < numberOfNodes; i++) {
-            dataIndex = list->GetElement(dataIndex + Derived::NEXT_PTR_OFFSET).GetInt();
-            dstElements->Set(thread, i, list->GetElement(dataIndex));
+            dataIndex = list->GetElement(thread, dataIndex + Derived::NEXT_PTR_OFFSET).GetInt();
+            dstElements->Set(thread, i, list->GetElement(thread, dataIndex));
         }
         return dstElements;
     }
@@ -424,6 +424,7 @@ public:
     JSHandle<ProtoChangeDetails> NewProtoChangeDetails();
 
     JSHandle<MarkerCell> NewMarkerCell();
+    template <MemSpaceType type = MemSpaceType::SHARED_OLD_SPACE>
     JSHandle<BigInt> NewBigInt(uint32_t length);
     // use for copy properties keys's array to another array
     JSHandle<TaggedArray> ExtendArray(const JSHandle<TaggedArray> &old, uint32_t length,

@@ -85,6 +85,7 @@ using Clock = std::chrono::high_resolution_clock;
 using AppFreezeFilterCallback = std::function<bool(const int32_t pid, const bool needDecreaseQuota)>;
 using BytesAndDuration = std::pair<uint64_t, double>;
 using MemoryReduceDegree = panda::JSNApi::MemoryReduceDegree;
+using NativePointerList = CVector<JSTaggedValue>;
 enum class IdleTaskType : uint8_t {
     NO_TASK,
     YOUNG_GC,
@@ -381,6 +382,11 @@ public:
 
 protected:
     void FatalOutOfMemoryError(size_t size, std::string functionName);
+
+    inline TaggedObject *FastAllocateYoungInTlabForCMC(JSThread *thread, size_t size) const;
+    inline TaggedObject *FastAllocateOldInTlabForCMC(JSThread *thread, size_t size) const;
+    inline TaggedObject *AllocateYoungForCMC(JSThread *thread, size_t size) const;
+    inline TaggedObject *AllocateOldForCMC(JSThread *thread, size_t size) const;
 
     enum class HeapType {
         LOCAL_HEAP,
@@ -919,6 +925,7 @@ public:
     template<TriggerGCType gcType, GCReason gcReason>
     bool TriggerUnifiedGCMark(JSThread *thread) const;
     void SetGCThreadRssPriority(common::RssPriorityType type);
+    void SetGCThreadQosPriority(common::PriorityMode mode);
 
 private:
     void ProcessAllGCListeners();
@@ -990,7 +997,7 @@ private:
     std::atomic<size_t> spaceOvershoot_ {0};
     std::atomic<size_t> nativeSizeAfterLastGC_ {0};
     bool inHeapProfiler_ {false};
-    CVector<JSNativePointer *> sharedNativePointerList_;
+    NativePointerList sharedNativePointerList_;
     std::mutex sNativePointerListMutex_;
 };
 
@@ -1980,8 +1987,8 @@ private:
 
     bool hasOOMDump_ {false};
 
-    CVector<JSNativePointer *> nativePointerList_;
-    CVector<JSNativePointer *> concurrentNativePointerList_;
+    NativePointerList nativePointerList_;
+    NativePointerList concurrentNativePointerList_;
 
     friend panda::test::HProfTestHelper;
     friend panda::test::GCTest_CallbackTask_Test;

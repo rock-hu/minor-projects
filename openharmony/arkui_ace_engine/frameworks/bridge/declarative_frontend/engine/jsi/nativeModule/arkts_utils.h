@@ -304,8 +304,6 @@ public:
         const std::optional<BorderStyle>& value, std::vector<uint32_t> &options);
     static void ParseOuterBorderStyle(ArkUIRuntimeCallInfo* runtimeCallInfo,
         EcmaVM* vm, std::vector<uint32_t>& values, int32_t argsIndex);
-    static bool ParseMargin(ArkUIRuntimeCallInfo* runtimeCallInfo, ArkUISizeType& top, ArkUISizeType& right,
-        ArkUISizeType& bottom, ArkUISizeType& left);
     static void SetBorderWidthArray(const EcmaVM* vm, const Local<JSValueRef>& args,
         ArkUI_Float32 values[], int units[], int index);
     static ArkUISizeType ParseJsToArkUISize(const EcmaVM *vm, const Local<JSValueRef> &arg,
@@ -367,11 +365,11 @@ public:
     }
     static Local<panda::ArrayRef> ChoosePointToJSValue(const EcmaVM* vm, std::vector<int> input);
     static NodeInfo MakeNativeNodeInfo(ArkUINodeHandle node);
+    static void CompleteResourceObjectFromColor(RefPtr<ResourceObject>& resObj,
+        Color& color, bool state, const NodeInfo& nodeInfo);
 
 private:
     static bool CheckDarkResource(const RefPtr<ResourceObject>& resObj);
-    static void CompleteResourceObjectFromColor(RefPtr<ResourceObject>& resObj,
-        Color& color, bool state, const NodeInfo& nodeInfo);
 };
 } // namespace OHOS::Ace::NG
 #endif // FRAMEWORKS_BRIDGE_DECLARATIVE_FRONTEND_ENGINE_JSI_NATIVEMODULE_ARKTS_UTILS_H

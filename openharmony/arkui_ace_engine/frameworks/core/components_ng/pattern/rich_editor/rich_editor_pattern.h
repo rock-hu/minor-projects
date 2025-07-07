@@ -76,6 +76,7 @@ struct TextConfig;
         }                                                                           \
     } while (false)
 #define CONTENT_MODIFY_LOCK(patternPtr) ContentModifyLock contentModifyLock(patternPtr)
+#define RICH_EDITOR_SCOPE(scopeFlag) RichEditorScope richEditorScope(scopeFlag)
 
 #define IF_TRUE(cond, func) \
     do {                    \
@@ -171,6 +172,20 @@ struct SysScale {
         ss << dipScale << ", " << logicScale << ", " << fontScale << ", " << fontWeightScale;
         return ss.str();
     }
+};
+
+class RichEditorScope {
+public:
+    RichEditorScope(bool& scopeFlag) : scopeFlag_(scopeFlag)
+    {
+        scopeFlag_ = true;
+    }
+    ~RichEditorScope()
+    {
+        scopeFlag_ = false;
+    }
+private:
+    bool& scopeFlag_;
 };
 
 class RichEditorPattern
@@ -1358,10 +1373,22 @@ public:
     float GetCaretWidth();
     void UpdateCaretStyleByTypingStyle();
     void MarkAISpanStyleChanged() override;
+    void HandleOnAskCelia() override;
 
 #if defined(IOS_PLATFORM)
     const TextEditingValue& GetInputEditingValue() const override;
 #endif
+
+std::optional<float> GetLastCaretPos() const
+{
+    return lastCaretPos_;
+}
+
+void SetLastCaretPos(float lastCaretPos)
+{
+    lastCaretPos_ = lastCaretPos;
+}
+
 protected:
     bool CanStartAITask() const override;
     std::vector<RectF> GetSelectedRects(int32_t start, int32_t end) override;
@@ -1874,6 +1901,8 @@ private:
     CancelableCallback<void()> firstClickResetTask_;
     RefPtr<RichEditorContentPattern> contentPattern_;
     std::unique_ptr<StyleManager> styleManager_;
+    bool requestFocusBySingleClick_ = false;
+    std::optional<float> lastCaretPos_ = std::nullopt;
 #if defined(IOS_PLATFORM)
     TextCompose compose_;
     bool unmarkText_;

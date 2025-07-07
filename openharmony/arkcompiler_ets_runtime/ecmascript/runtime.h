@@ -95,6 +95,16 @@ public:
         return enableLargeHeap_;
     }
 
+    void SetPostForked(bool postForked)
+    {
+        postForked_ = postForked;
+    }
+
+    bool IsPostForked() const
+    {
+        return postForked_;
+    }
+
     // Result may be inaccurate, just an approximate value.
     size_t ApproximateThreadListSize()
     {
@@ -274,11 +284,16 @@ public:
 
     void SetReleaseSecureMemCallback(ReleaseSecureMemCallback callback)
     {
+        LockHolder lock(releaseSecureMemCallbackLock_);
+        if (releaseSecureMemCallback_ != nullptr) {
+            return;
+        }
         releaseSecureMemCallback_ = callback;
     }
 
-    ReleaseSecureMemCallback GetReleaseSecureMemCallback() const
+    ReleaseSecureMemCallback GetReleaseSecureMemCallback()
     {
+        LockHolder lock(releaseSecureMemCallbackLock_);
         return releaseSecureMemCallback_;
     }
 
@@ -347,6 +362,7 @@ private:
     CMap<const JSPandaFile *, CMap<int32_t, JSTaggedValue>> globalSharedConstpools_ {};
     int32_t sharedConstpoolCount_ = 0; // shared constpool count.
     std::set<int32_t> freeSharedConstpoolIndex_ {}; // reuse shared constpool index.
+    bool postForked_ {false};
 
     // Runtime instance and VMs creation.
     static int32_t vmCount_;
@@ -371,6 +387,7 @@ private:
     
     // release secure mem after jspandafile released.
     ReleaseSecureMemCallback releaseSecureMemCallback_ {nullptr};
+    Mutex releaseSecureMemCallbackLock_;
 
     friend class EcmaVM;
     friend class JSThread;

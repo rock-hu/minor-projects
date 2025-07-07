@@ -699,7 +699,7 @@ HWTEST_F_L0(JSNApiSplTest, JSValueRef_IsArrayList)
     JSHandle<JSTaggedValue> proto = globalEnv->GetFunctionPrototype();
     JSHandle<JSHClass> arrayListClass = factory->NewEcmaHClass(JSAPIArrayList::SIZE, JSType::JS_API_ARRAY_LIST, proto);
     JSHandle<JSAPIArrayList> jsArrayList = JSHandle<JSAPIArrayList>::Cast(factory->NewJSObjectWithInit(arrayListClass));
-    jsArrayList->SetLength(thread, JSTaggedValue(0));
+    jsArrayList->SetLength(0);
     JSHandle<JSTaggedValue> arryListTag = JSHandle<JSTaggedValue>::Cast(jsArrayList);
     gettimeofday(&g_beginTime, nullptr);
     for (int i = 0; i < NUM_COUNT; i++) {
@@ -3536,9 +3536,8 @@ HWTEST_F_L0(JSNApiSplTest, JSNApi_SetHostResolveBufferTracker)
 {
     LocalScope scope(vm_);
     CalculateForTime();
-    std::function<bool(std::string dirPath, bool isHybrid, uint8_t * *buff, size_t * buffSize, std::string &errorMsg)>
-        cb = [](const std::string &inputPath, bool isHybrid,
-                uint8_t **buff, size_t *buffSize, std::string &errorMsg) -> bool {
+    std::function<bool(std::string dirPath, uint8_t * *buff, size_t * buffSize, std::string &errorMsg)> cb =
+        [](const std::string &inputPath, uint8_t **buff, size_t *buffSize, std::string &errorMsg) -> bool {
         if (inputPath.empty() || buff == nullptr || buffSize == nullptr) {
             return false;
         }
