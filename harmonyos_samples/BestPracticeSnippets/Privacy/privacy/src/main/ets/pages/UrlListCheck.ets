@@ -7,27 +7,28 @@
 // Index.ets
 import { url } from '@kit.ArkTS';
 import { webview } from '@kit.ArkWeb';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 // Check Function
 function checkUrl(surl: string): boolean {
   let tmpUrl = url.URL.parseURL(surl);
-  console.info("res.scheme:" + tmpUrl.protocol) // scheme
-  console.info("res.host:" + tmpUrl.host) // host
-  console.info("res.port:" + tmpUrl.port) // port
-  console.info("res.path:" + tmpUrl.pathname) // path
-  console.info("res.ssp:" + tmpUrl.hostname) // ssp
+  hilog.info(0x0000, 'privacy', 'res.scheme:' + tmpUrl.protocol); // scheme
+  hilog.info(0x0000, 'privacy', 'res.host:' + tmpUrl.host); // host
+  hilog.info(0x0000, 'privacy', 'res.port:' + tmpUrl.port); // port
+  hilog.info(0x0000, 'privacy', 'res.path:' + tmpUrl.pathname); // path
+  hilog.info(0x0000, 'privacy', 'res.ssp:' + tmpUrl.hostname); // ssp
   // After obtaining the values of the scheme, host, port, and path parameters, perform security verification based on the service requirements
   // The part is omitted here. The verification is performed based on the service requirements
-  if ("校验成功") {
+  if ('校验成功') {
     return true;
   }
-  return false
+  return false;
 }
 
 @Entry
 @Component
 struct Index {
-  controller: webview.WebviewController = new webview.WebviewController()
+  controller: webview.WebviewController = new webview.WebviewController();
 
   build() {
     Column() {
@@ -36,13 +37,13 @@ struct Index {
           this.controller.registerJavaScriptProxy(
             {
               getServiceToken: () => {
-                return "DLFJSLDFJALGJLDFJSDDFISLDF323LSDJFLS212DLSFJOEV";
+                return 'DLFJSLDFJALGJLDFJSDDFISLDF323LSDJFLS212DLSFJOEV';
               }
             },
-            "objName",
-            ["getServiceToken"]
+            'objName',
+            ['getServiceToken']
           );
-          this.controller.refresh()
+          this.controller.refresh();
         })
       }
 
@@ -51,16 +52,16 @@ struct Index {
         .javaScriptProxy({
           object: {
             getServiceToken: () => {
-              return "DLFJSLDFJALGJLDFJSDDFISLDF323LSDJFLS212DLSFJOEV";
+              return 'DLFJSLDFJALGJLDFJSDDFISLDF323LSDJFLS212DLSFJOEV';
             }
           },
-          name: "objName",
-          methodList: ["getServiceToken"],
+          name: 'objName',
+          methodList: ['getServiceToken'],
           controller: this.controller
         })
         .onLoadIntercept((event) => {
-          console.info('wzz:onLoadIntercept:' + event.data.toString())
-          let tempUrl = event.data.toString()
+          hilog.info(0x0000, 'privacy', 'wzz:onLoadIntercept:' + event.data.toString());
+          let tempUrl = event.data.toString();
           return checkUrl(tempUrl); // Returns true to block the load, otherwise allow the load
         })
     }

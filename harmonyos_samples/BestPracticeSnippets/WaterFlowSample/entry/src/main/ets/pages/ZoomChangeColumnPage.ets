@@ -1,7 +1,6 @@
 // [Start quick_start]
 import { MyDataSource } from '../model/MyDataSource'
 import { image } from '@kit.ImageKit';
-
 // [StartExclude flow_item]
 @Reusable
 @Component
@@ -26,7 +25,6 @@ struct ReusableItem {
   }
 }
 // [EndExclude flow_item]
-
 @Entry
 @Component
 struct ZoomChangeColumnPage {
@@ -40,7 +38,7 @@ struct ZoomChangeColumnPage {
   private itemWidthArray: number[] = [];
   private itemHeightArray: number[] = [];
   // [EndExclude variable_declare]
-  //1、缩放操作所需变量
+  // 1、Variables required for scaling operations.
   @State itemScale: number = 1;
   @State imageScale: number = 1;
   @State itemOpacity: number = 1;
@@ -50,7 +48,6 @@ struct ZoomChangeColumnPage {
   private pinchTime: number = 0;
   private columnChanged: boolean = false;
   private oldColumn: number = this.columns;
-
   // [StartExclude section_init]
   getSize() {
     let ret = Math.floor(Math.random() * this.maxSize);
@@ -75,8 +72,7 @@ struct ZoomChangeColumnPage {
     this.setItemSizeArray();
   }
   // [EndExclude section_init]
-
-  //7、根据缩放比例调整列数
+  // 7、Adjust the number of columns according to the zoom ratio.
   changeColumns(scale: number) {
     this.oldColumn = this.columns;
     if (scale > (this.columns / (this.columns - 0.5))) {
@@ -102,7 +98,7 @@ struct ZoomChangeColumnPage {
       }
       // [EndExclude title]
       Stack() {
-        //2、缩放时显示当前界面的Snapshot
+        // 2、Display the current screen's snapshot when zooming.
         Image(this.pixelMap)
           .width('100%')
           .height('100%')
@@ -125,13 +121,13 @@ struct ZoomChangeColumnPage {
           // [EndExclude water_flow_item]
         }
         .id('waterflow')
-        //3、动态调整列数
+        // 3、Dynamic adjustment of column numbers.
         .columnsTemplate('1fr '.repeat(this.columns))
         .backgroundColor(0xFAEEE0)
         .width('100%')
         .height('100%')
         .layoutWeight(1)
-        //4、WaterFlow的缩放信息
+        // 4、WaterFlow's scaling information.
         .opacity(this.itemOpacity)
         .scale({
           x: this.itemScale,
@@ -142,7 +138,7 @@ struct ZoomChangeColumnPage {
         .priorityGesture(
           PinchGesture()
             .onActionStart((event: GestureEvent) => {
-              //5、初始化缩放相关参数
+              // 5、Initialise scaling parameters.
               this.gestureEnd = false;
               this.pinchTime = event.timestamp;
               this.columnChanged = false;
@@ -155,19 +151,19 @@ struct ZoomChangeColumnPage {
               })
             })
             .onActionUpdate((event: GestureEvent) => {
-              //6、根据手指滑动event事件，计算缩放比例，并动态改变列数
-              //6.1、拦截重复手势
+              // 6、Calculate the zoom ratio based on the finger swipe event and dynamically change the number of columns.
+              // 6.1、Intercept duplicate gestures.
               if (event.timestamp - this.pinchTime < 10000000) {
                 return;
               }
               this.pinchTime = event.timestamp;
-              //6.2、计算缩放比
+              // 6.2、Calculate the scaling ratio.
               let maxScale = this.oldColumn / (this.oldColumn - 1);
               this.itemScale = event.scale > maxScale ? maxScale : event.scale;
               this.imageScale = event.scale > maxScale ? maxScale : event.scale;
               this.itemOpacity = (this.itemScale > 1) ? (this.itemScale - 1) : (1 - this.itemScale);
               this.itemOpacity *= 3;
-              //6.3、动态调整列数
+              // 6.3、Dynamically adjust the number of columns.
               if (!this.columnChanged) {
                 this.changeColumns(event.scale);
               }
@@ -181,7 +177,7 @@ struct ZoomChangeColumnPage {
               }
             })
             .onActionEnd((event: GestureEvent) => {
-              //8、重置缩放相关参数，并执行缩放动画
+              // 8、Reset the relevant scaling parameters and execute the scaling animation.
               this.gestureEnd = true;
               this.getUIContext().animateTo({ duration: 300 }, () => {
                 this.itemScale = 1;

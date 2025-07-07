@@ -33,6 +33,15 @@ function cardStyle() {
 struct WebSample {
   controller: webview.WebviewController = new webview.WebviewController();
 
+  onBackPress(): boolean | void {
+    if (this.controller.accessStep(-1)) {
+      this.controller.backward();
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   build() {
     Column() {
       TitleBar({ title: $r('app.string.web_title') })

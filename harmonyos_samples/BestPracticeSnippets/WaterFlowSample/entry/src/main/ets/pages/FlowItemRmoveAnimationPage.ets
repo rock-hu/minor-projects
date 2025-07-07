@@ -105,9 +105,7 @@ export struct FlowItemRmoveAnimationPage {
       return this.itemHeightArray[index % 100];
     }
   }
-  // [EndExclude variable_declare]
 
-  // [StartExclude method_declare]
   @Builder
   headerRefresh() {
     Column() {
@@ -123,14 +121,14 @@ export struct FlowItemRmoveAnimationPage {
   refresh() {
     this.currentItem = -1;
     setTimeout(() => {
-      //Add new data.
+      // Add new data.
       this.dataSource.dataArray = [];
       let value = Math.floor(Math.random() * 100);
       for (let i = 0; i < 100; i++) {
         this.dataSource.dataArray.push(i + value);
         this.dataSource.notifyDataAdd(i);
       }
-      //Update sections itemsCount.
+      // Update sections itemsCount.
       this.oneColumnSection.itemsCount = 3;
       this.oneColumnSection.crossCount = 1;
       this.twoColumnSection.itemsCount = 2;
@@ -181,14 +179,10 @@ export struct FlowItemRmoveAnimationPage {
     this.setItemSizeArray();
     this.initSections();
   }
-  // [EndExclude method_declare]
 
   removeItem(item: number): void {
-    // [StartExclude method_body]
-    //6、删除源数据
     let index = this.dataSource.indexOf(item);
     this.dataSource.deleteItem(index);
-    //7、更新分组中itemsCount数量并刷新
     const sections: Array<SectionOptions> = this.sections.values();
     let newSection: SectionOptions;
     let tmpIndex = 0;
@@ -206,9 +200,8 @@ export struct FlowItemRmoveAnimationPage {
       newSection.crossCount = newSection.itemsCount;
     }
     this.sections.update(sectionIndex, newSection);
-    // [EndExclude method_body]
   }
-
+  // [EndExclude variable_declare]
   build() {
     Column({ space: 0 }) {
       Refresh({ refreshing: $$this.isRefreshing, builder: this.headerRefresh()}) {
@@ -221,7 +214,7 @@ export struct FlowItemRmoveAnimationPage {
                     .fontColor(Color.Red)
                     .backgroundColor(Color.White)
                     .onClick(() => {
-                      //2、触发删除操作时执行animateTo动画
+                      // 2、Execute the animateTo animation when triggering the delete operation.
                       this.getUIContext().animateTo({ duration: 300 }, () => {
                         this.removeItem(item);
                       });
@@ -239,7 +232,7 @@ export struct FlowItemRmoveAnimationPage {
                 // [EndExclude row_setting]
               }
             }
-            //1、给FlowItem添加transition属性，并配置转场参数
+            // 1、Add a transition property to FlowItem and configure the transition parameters.
             .transition({ type: TransitionType.Delete, opacity: 0 })
             .priorityGesture(LongPressGesture()
               .onAction(() => {
@@ -257,7 +250,7 @@ export struct FlowItemRmoveAnimationPage {
         .width('100%')
         .height('100%')
         .layoutWeight(1)
-        //For better experience, pre load data.
+        // For better experience, pre load data.
         .onScrollIndex((first: number, last: number) => {
           setTimeout(() => {
             let totalCount = this.dataSource.totalCount();
@@ -265,7 +258,7 @@ export struct FlowItemRmoveAnimationPage {
               for (let i = 0; i < 20; i++) {
                 this.dataSource.addLastItem();
               }
-              //Update sections itemsCount.
+              // Update sections itemsCount.
               this.dataSection.itemsCount += 20;
               this.sections.update(2, this.dataSection);
             }

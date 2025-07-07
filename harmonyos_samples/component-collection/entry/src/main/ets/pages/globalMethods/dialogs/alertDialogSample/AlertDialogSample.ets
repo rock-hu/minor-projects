@@ -242,7 +242,7 @@ struct WarningDialogSample {
                     cancel: () => {
                       ShowToast.shortToast($r('app.string.alert_dialog_cancel'))
                     },
-                    offset: { dx: -20, dy: -150 }
+                    offset: { dx: -15, dy: -150 }
                   }
                 )
               }).id('test_upperLeftButton')
@@ -263,7 +263,7 @@ struct WarningDialogSample {
                     cancel: () => {
                       ShowToast.shortToast($r('app.string.alert_dialog_cancel'))
                     },
-                    offset: { dx: 50, dy: -50 }
+                    offset: { dx: 15, dy: 150 }
                   }
                 )
               }).id('test_lowRightButton')

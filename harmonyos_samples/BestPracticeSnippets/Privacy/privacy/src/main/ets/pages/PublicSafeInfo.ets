@@ -5,18 +5,19 @@
 
 // [Start public_safe_info]
 import { commonEventManager } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 function publishEventWithData() {
   let options: commonEventManager.CommonEventPublishData = {
     code: 1,
-    data: "ContactData", // Sending sensitive data
-    subscriberPermissions: ["ohos.permission.READ_CONTACTS"], // Set the permission
+    data: 'ContactData', // Sending sensitive data
+    subscriberPermissions: ['ohos.permission.READ_CONTACTS'], // Set the permission
   }
-  commonEventManager.publish("MyCommonEvent", options, (err) => {
+  commonEventManager.publish('MyCommonEvent', options, (err) => {
     if (err.code) {
-      console.error("publish event error: " + err.code + ", " + err.message + ", " + err.name + ", " + err.stack);
+      hilog.error(0x0000, 'privacy', `publish event error: ${err.code} ${err.message} ${err.name} ${err.stack}`);
     } else {
-      console.info("publish event with data Succeeded");
+      hilog.info(0x0000, 'privacy', 'publish event with data Succeeded');
     }
   })
 }

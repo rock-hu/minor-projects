@@ -66,7 +66,6 @@ struct ReusableFlowItem {
 export struct DataUpadteAndAnimationPage {
   @State isRefreshing: boolean = false;
   @State currentItem: number = -1;
-
   // [StartExclude variable_declare]
   @State minSize: number = 80;
   @State maxSize: number = 180;
@@ -107,7 +106,7 @@ export struct DataUpadteAndAnimationPage {
     }
   }
   // [EndExclude variable_declare]
-  //1、刷新Loading动效组件
+  // 1、Refresh Loading Animation Component.
   @Builder
   headerRefresh() {
     Column() {
@@ -120,18 +119,18 @@ export struct DataUpadteAndAnimationPage {
     .justifyContent(FlexAlign.Center)
   }
 
-  //5、下拉刷新数据更新逻辑
+  // 5、Pull down to refresh the data update logic.
   refresh() {
     this.currentItem = -1;
     setTimeout(() => {
-      //Add new data.
+      // Add new data.
       this.dataSource.dataArray = [];
       let value = Math.floor(Math.random() * 100);
       for (let i = 0; i < 100; i++) {
         this.dataSource.dataArray.push(i + value);
         this.dataSource.notifyDataAdd(i);
       }
-      //Update sections itemsCount.
+      // Update sections itemsCount.
       this.oneColumnSection.itemsCount = 3;
       this.oneColumnSection.crossCount = 1;
       this.twoColumnSection.itemsCount = 2;
@@ -152,7 +151,7 @@ export struct DataUpadteAndAnimationPage {
         for (let i = 0; i < 20; i++) {
           this.dataSource.addLastItem();
         }
-        //Update sections itemsCount.
+        // Update sections itemsCount.
         this.dataSection.itemsCount += 20;
         this.sections.update(2, this.dataSection);
       }
@@ -221,7 +220,7 @@ export struct DataUpadteAndAnimationPage {
   // [EndExclude section_init]
   build() {
     Column({ space: 0 }) {
-      //2、下拉刷新控件
+      // 2、Pull-to-refresh control.
       Refresh({ refreshing: $$this.isRefreshing, builder: this.headerRefresh()}) {
         // [StartExclude water_flow_init]
         WaterFlow({ scroller: this.scroller, sections: this.sections }) {
@@ -265,15 +264,15 @@ export struct DataUpadteAndAnimationPage {
         .height('100%')
         .layoutWeight(1)
         // [EndExclude water_flow_init]
-        //For better experience, pre load data.
+        // For better experience, pre load data.
         .onScrollIndex((first: number, last: number) => {
           this.loadMore(last);
         })
       }
-      //3、下拉刷新偏移量
+      // 3、Pull down to refresh offset.
       .refreshOffset(56)
       .onRefreshing(() => {
-        //4、下拉刷新，触发刷新的回调函数
+        // 4、Pull down to refresh, triggering the refresh callback function.
         this.refresh();
       })
     }

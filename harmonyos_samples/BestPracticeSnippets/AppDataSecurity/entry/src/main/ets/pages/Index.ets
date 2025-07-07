@@ -97,7 +97,7 @@ function writeFile(filePath: string, data: string) {
   fileIo.closeSync(file);
 }
 
-function readFile(filePath: string): object {
+function readFile(filePath: string): string {
   let file = fileIo.openSync(filePath, fileIo.OpenMode.READ_WRITE | fileIo.OpenMode.CREATE);
   let arrayBuffer = new ArrayBuffer(1024);
 
@@ -112,7 +112,7 @@ function readFile(filePath: string): object {
   let buf = buffer.from(arrayBuffer, 0, readLen);
   hilog.info(0x0000, 'AppDataSecurity', `The length of of file: ${readLen}`);
   fileIo.closeSync(file);
-  return [readLen, buf.toString()]
+  return buf.toString();
 }
 // [End write_file]
 

@@ -1,0 +1,52 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "module description"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "description"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "SmartScreenPractice"
+    },
+    {
+      "name": "side_navigation",
+      "value": "side navigation"
+    },
+    {
+      "name": "keyboard_keys",
+      "value": "keyboard keys"
+    },
+    {
+      "name": "menu_listening",
+      "value": "menu listening"
+    },
+    {
+      "name": "key_event",
+      "value": "key event"
+    },
+    {
+      "name": "animal_world",
+      "value": "animal world"
+    },
+    {
+      "name": "image",
+      "value": "image"
+    },
+    {
+      "name": "double_speed",
+      "value": "double speed"
+    },
+    {
+      "name": "image_scale",
+      "value": "image scale"
+    },
+    {
+      "name": "smart_screen_practice",
+      "value": "smart screen practice"
+    }
+  ]
+}

@@ -79,7 +79,7 @@ export function customPopupMenuBuilder(
               menu.caller && menu.caller(uri, context, openDownloadDialog, closeDownloadDialog);
               changeIsShow();
             } catch (e) {
-              hilog.error(0x000, Constants.TAG, `some error happend, ${JSON.stringify(e)}`);
+              hilog.error(0x000, Constants.TAG, `some error happened, ${JSON.stringify(e)}`);
             }
           })
       }, (menu: MenuItem) => menu.id)

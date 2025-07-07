@@ -1,1 +1,1 @@
-export { renameHarTask } from './src/main/ets/components/customPlugin';
+export { MainPage } from './src/main/ets/components/MainPage';

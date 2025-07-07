@@ -8,12 +8,12 @@ let httpRequest = http.createHttp();
  * 场景四：配置信任应用管理的CA证书-Network Kit
  */
 // [Start cybersecurity_network_trusting_ca]
-httpRequest.request( "EXAMPLE_URL",  {
+httpRequest.request( 'EXAMPLE_URL',  {
   method: http.RequestMethod.POST,
   header: {
     'Content-Type': 'application/json'
   },
-  extraData: "data to send",
+  extraData: 'data to send',
   expectDataType: http.HttpDataType.STRING,
   connectTimeout: 60000,
   caPath:'/res/domainCaCert', // Specifies the trusted CA certificate path

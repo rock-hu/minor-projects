@@ -19,14 +19,14 @@ import { BusinessError } from '@kit.BasicServicesKit';
 import { deviceInfo } from '@kit.BasicServicesKit'
 // [Start test_napi_native_add]
 // [Start get_context_bundle_code_dir]
-// [Start multiply_napi_multiply]
 // src/main/ets/pages/index.ets
 import testNapi from 'libentry.so';
-// [End multiply_napi_multiply]
 // [End get_context_bundle_code_dir]
 // [End test_napi_native_add]
+// [Start multiply_napi_multiply]
 // entry/src/main/ets/pages/Index.ets
 import multiplyNapi from 'libmultiply.so';
+// [End multiply_napi_multiply]
 import { ParamTextInputComponent } from '../view/ParamTextInputComponent';
 
 @Entry

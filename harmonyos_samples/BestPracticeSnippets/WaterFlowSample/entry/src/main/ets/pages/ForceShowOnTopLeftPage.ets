@@ -15,7 +15,7 @@ struct ForceShowOnTopLeftPage {
   // [EndExclude data_init]
   build() {
     WaterFlow() {
-      //添加WaterFlow左上角的布局内容
+      // 1、Add the layout content in the top left corner of WaterFlow.
       FlowItem() {
         Column() {
           ForEach(this.data.getTopMastData(5), (item: number) => {
@@ -26,7 +26,7 @@ struct ForceShowOnTopLeftPage {
       .width('100%')
       .backgroundColor(Color.White)
 
-      //添加WaterFlow数据
+      // 2、Add WaterFlow data.
       LazyForEach(this.data, (item: number, index: number) => {
         FlowItem() {
           Row() {

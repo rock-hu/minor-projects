@@ -4,7 +4,7 @@ import router from '@ohos.router';
 
 export default {
     clickAction() {
-        this.getUIContext().getRouter().replaceUrl({
+        router.replaceUrl({
             uri: 'pages/index/index'
         });
     }

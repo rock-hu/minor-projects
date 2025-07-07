@@ -9,7 +9,7 @@ import { webview } from '@kit.ArkWeb';
 @Entry
 @Component
 struct WebComponent {
-  controller: webview.WebviewController = new webview.WebviewController()
+  controller: webview.WebviewController = new webview.WebviewController();
 
   build() {
     Column() {
@@ -17,7 +17,7 @@ struct WebComponent {
         .geolocationAccess(true)
         .onGeolocationShow((event) => {
           if (event === undefined) {
-            return
+            return;
           }
           AlertDialog.show({
             title: 'title',
@@ -31,7 +31,7 @@ struct WebComponent {
             cancel: () => {
               event.geolocation.invoke(event.origin, false, true);
             }
-          })
+          });
         })
     }
   }

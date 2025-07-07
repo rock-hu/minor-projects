@@ -4,30 +4,32 @@
  */
 
 // [Start want_info]
-import { Want } from "@kit.AbilityKit";
+import { Want } from '@kit.AbilityKit';
 // [StartExclude want_info]
 import { common } from '@kit.AbilityKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+
 const uiContext: UIContext | undefined = AppStorage.get('uiContext');
 let context = uiContext!.getHostContext()!;
 class NoInfo {
-  private context = context as common.UIAbilityContext
+  private context = context as common.UIAbilityContext;
 
   wantNoInfo(): void {
     // [EndExclude want_info]
     let wantInfo:Want = {
       deviceId: '',
-      action: "ability.want.test",
+      action: 'ability.want.test',
       bundleName:'com.example.myapplication10',
       abilityName:'MainAbility1',
       parameters: {
-        "password": "xxxxxxxx"
+        'password': 'xxxxxxxx'
       }
     }
     try{
-      let data = this.context.startAbility(wantInfo)
-      console.info("startAbility success " + JSON.stringify(data));
+      let data = this.context.startAbility(wantInfo);
+      hilog.info(0x0000, 'privacy', 'startAbility success ' + JSON.stringify(data));
     } catch (err) {
-      console.error("startAbility  with error message: " + err.message + ", error code: " + err.code);
+      hilog.error(0x0000, 'privacy', 'startAbility  with error message: ' + err.message + ', error code: ' + err.code);
     }
     // [End want_info]
   }

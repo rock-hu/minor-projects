@@ -66,7 +66,6 @@ struct ReusableFlowItem {
 export struct DataLoadMorePage {
   @State sections: WaterFlowSections = new WaterFlowSections();
   dataSource: SectionsWaterFlowDataSource = new SectionsWaterFlowDataSource();
-
   // [StartExclude variable_declare]
   @State isRefreshing: boolean = false;
   @State currentItem: number = -1;
@@ -122,14 +121,14 @@ export struct DataLoadMorePage {
   refresh() {
     this.currentItem = -1;
     setTimeout(() => {
-      //Add new data.
+      // Add new data.
       this.dataSource.dataArray = [];
       let value = Math.floor(Math.random() * 100);
       for (let i = 0; i < 100; i++) {
         this.dataSource.dataArray.push(i + value);
         this.dataSource.notifyDataAdd(i);
       }
-      //Update sections itemsCount.
+      // Update sections itemsCount.
       this.oneColumnSection.itemsCount = 3;
       this.oneColumnSection.crossCount = 1;
       this.twoColumnSection.itemsCount = 2;
@@ -248,17 +247,17 @@ export struct DataLoadMorePage {
         .width('100%')
         .height('100%')
         .layoutWeight(1)
-        //For better experience, pre load data.
+        // For better experience, pre load data.
         .onScrollIndex((first: number, last: number) => {
-          //1、获取瀑布流中数据总量
+          // 1、Obtain the total amount of data in the waterfall flow.
           let totalCount = this.dataSource.totalCount();
-          //2、可视区域最后一个索引+20大于数据总量，则触发加载更多
+          // 2、If the index of the last visible area is greater than the total amount of data, it triggers loading more.
           if (last + 20 >= totalCount) {
-            //3、重新向瀑布流中追加20条数据
+            // 3、Re-add 20 data entries to the waterfall.
             for (let i = 0; i < 20; i++) {
               this.dataSource.addLastItem();
             }
-            //4、更新分组中itemsCount,并刷新分组信息
+            // 4、Update the itemsCount in the group and refresh the group information.
             this.dataSection.itemsCount += 20;
             this.sections.update(2, this.dataSection);
           }

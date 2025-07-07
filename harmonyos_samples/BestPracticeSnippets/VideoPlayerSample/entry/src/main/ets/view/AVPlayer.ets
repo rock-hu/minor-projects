@@ -502,21 +502,22 @@ export struct VideoPlayer {
             .zIndex(CommonConstants.SLIDER_INDEX)// [EndExclude slider]
             .trackColor($r('app.color.white_opacity_1_color'))// Slide rail background color
             .showSteps(false)// Whether to display step scale or not.
-              // [EndExclude value]
+            // [EndExclude value]
             .blockSize({ width: this.blockSize, height: this.blockSize })// Slider size
-              // [StartExclude value]
+            // [StartExclude value]
             .blockColor($r('sys.color.background_primary'))// Slider color
             .trackThickness(this.trackThicknessSize)// Slide rail thickness
             .trackBorderRadius(CommonConstants.TRACK_BORDER_RADIUS)// Radius of bottom fillet
             .selectedBorderRadius(CommonConstants.TRACK_BORDER_RADIUS)// Radius of fillet of sliding part
-              // [EndExclude value]
-              // [StartExclude slider]
+            // [EndExclude value]
+            // [StartExclude slider]
             .onAreaChange(() => {
               let videoSlider: componentUtils.ComponentInfo = this.getUIContext().getComponentUtils().getRectangleById('video_slider');
               this.slideWidth = this.getUIContext().px2vp(videoSlider.size.width);
               this.offsetY = this.getUIContext().px2vp(videoSlider.localOffset.y);
               this.beginX = this.getUIContext().px2vp(videoSlider.localOffset.x);
-            })// [EndExclude slider]
+            })
+            // [EndExclude slider]
             .onChange((value: number, mode: SliderChangeMode) => {
               this.sliderOnchange(value, mode); // Progress bar change interface
             })
@@ -528,7 +529,6 @@ export struct VideoPlayer {
           }
         }
         .width(CommonConstants.WIDTH_FULL_PERCENT)
-
         // [Start transparent]
         // Set a transparent stack block with the same size as the Slider.
         Stack() {
@@ -551,7 +551,6 @@ export struct VideoPlayer {
           arrowPointPosition: ArrowPointPosition.CENTER,
           radius: this.blockSize,
         })
-
         // [End transparent]
       }
     }.margin({
@@ -595,7 +594,6 @@ export struct VideoPlayer {
         break;
     }
   }
-
   // [End slider]
 
   async iconOnclick() {

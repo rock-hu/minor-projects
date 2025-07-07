@@ -1,0 +1,41 @@
+{
+  "string": [
+
+    {
+      "name": "search_placeholder",
+      "value": "Enter search content"
+    },
+    {
+      "name": "search",
+      "value": "Search"
+    },
+    {
+      "name":"out_bar_text_home",
+      "value": "Home"
+    },
+    {
+      "name":"out_bar_text_quotes",
+      "value": "Quotes"
+    },
+    {
+      "name":"out_bar_text_watchlist",
+      "value": "Watchlist"
+    },
+    {
+      "name":"out_bar_text_trade",
+      "value": "Trade"
+    },
+    {
+      "name": "content_item_username",
+      "value": "Peter"
+    },
+    {
+      "name": "content_item_publishTime",
+      "value": "6-18 18:20"
+    },
+    {
+      "name": "content_item_title",
+      "value": "Spring vibes! Perfect weekend for flower adventures - did you go?"
+    }
+  ]
+}

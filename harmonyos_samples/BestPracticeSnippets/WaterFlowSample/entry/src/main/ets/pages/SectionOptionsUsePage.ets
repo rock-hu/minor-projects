@@ -77,10 +77,10 @@ export struct SectionOptionsUsePage {
     bottom: 0,
     right: 0
   }
-  //1、创建分组信息
+  // 1、Create group information.
   @State sections: WaterFlowSections = new WaterFlowSections();
 
-  //2、创建第一个分组
+  // 2、Create the first group.
   oneColumnSection: SectionOptions = {
     itemsCount: 3,
     crossCount: 1,
@@ -91,7 +91,7 @@ export struct SectionOptionsUsePage {
       return 120;
     }
   }
-  //3、创建第二个分组
+  // 3、Create the second group.
   twoColumnSection: SectionOptions = {
     itemsCount: 2,
     crossCount: 2,
@@ -100,7 +100,7 @@ export struct SectionOptionsUsePage {
       return 160;
     }
   }
-  //4、创建第三个分组
+  // 4、Create the third group.
   dataSection: SectionOptions = {
     itemsCount: 20,
     crossCount: 2,
@@ -128,7 +128,7 @@ export struct SectionOptionsUsePage {
     this.initSections();
   }
 
-  //5、初始化分组数据
+  // 5、Initialise group data.
   initSections() {
     let sectionOptions: SectionOptions[] = [];
     let count = 0;
@@ -153,7 +153,7 @@ export struct SectionOptionsUsePage {
 
   build() {
     Column({ space: 0 }) {
-      //6、将分组信息关联到WaterFlow
+      // 6、Link the grouping information to WaterFlow.
       WaterFlow({ scroller: this.scroller, sections: this.sections }) {
         // [StartExclude water_flow_data]
         LazyForEach(this.dataSource, (item: number) => {

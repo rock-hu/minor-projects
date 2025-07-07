@@ -74,7 +74,7 @@ struct MergeDoubleWaterFlowPage {
         LazyForEach(this.data, (item: number) => {
           FlowItem() {
             if (item === 21) {
-              //此处为拼接Item的内容
+              // 1、This is the content for stitching the item.
               Column() {
                 Text('------推荐商品------')
                   .align(Alignment.BottomStart)
@@ -84,7 +84,7 @@ struct MergeDoubleWaterFlowPage {
                   .height(50)
               }
             } else {
-              //WaterFlow内其他数据
+              // 2、Other data within WaterFlow.
               Column() {
                 Text('N ' + item)
                   .fontSize(12)

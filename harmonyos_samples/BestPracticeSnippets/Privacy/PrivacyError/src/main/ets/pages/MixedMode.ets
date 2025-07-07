@@ -13,7 +13,7 @@ struct WebComponent {
 
   build() {
     Column() {
-      Web({ src:"www.huawei.com", controller: this.controller })
+      Web({ src:'www.huawei.com', controller: this.controller })
         .mixedMode(MixedMode.All)
     }
   }

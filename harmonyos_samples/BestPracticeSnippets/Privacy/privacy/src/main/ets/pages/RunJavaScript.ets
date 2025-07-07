@@ -6,6 +6,7 @@
 // [Start run_java_script]
 import { webview } from '@kit.ArkWeb';
 import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 @Entry
 @Component
@@ -19,13 +20,13 @@ struct WebComponent {
         .onPageEnd(e => {
           this.controller.runJavaScript('test()')
             .then((result) => {
-              console.log('result: ' + result);
+              hilog.info(0x0000, 'privacy', 'result: ' + result);
             })
             .catch((error: BusinessError) => {
-              console.error(`ErrorCode: ${error.code},  Message: ${error.message}`);
+              hilog.error(0x0000, 'privacy', `ErrorCode: ${error.code},  Message: ${error.message}`);
             })
           if (e) {
-            console.info('url: ', e.url);
+            hilog.info(0x0000, 'privacy', 'url: ', e.url);
           }
         })
     }

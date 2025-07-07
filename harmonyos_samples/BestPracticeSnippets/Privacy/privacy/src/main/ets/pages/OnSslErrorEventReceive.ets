@@ -5,16 +5,18 @@
 
 // [Start on_ssl_error_event_receive]
 import { webview } from '@kit.ArkWeb';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 @Entry
 @Component
 struct WebComponent {
-  controller: webview.WebviewController = new webview.WebviewController()
+  controller: webview.WebviewController = new webview.WebviewController();
+
   build() {
     Column() {
       Web({ src: 'www.example.com', controller: this.controller })
         .onSslErrorEventReceive((event) => {
-          console.info('ssl check failed,error is : ' + event.error.toString())
+          hilog.info(0x0000, 'privacy', 'ssl check failed,error is : ' + event.error.toString());
           event.handler.handleCancel();
         })
     }

@@ -6,6 +6,7 @@
 // [Start check_the_trust_list_error]
 import { webview } from '@kit.ArkWeb';
 import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 @Entry
 @Component
@@ -17,16 +18,16 @@ struct WebComponent {
       Web({ src: $rawfile('index.html'), controller: this.controller })
         .javaScriptAccess(true)
         .onPageEnd(e => {
-          let jsMethod: string = "alert(`xss`)" // Externally controllable fields
+          let jsMethod: string = 'alert(`xss`)' // Externally controllable fields
           this.controller.runJavaScript(jsMethod)
             .then((result) => {
-              console.log('result: ' + result);
+              hilog.info(0x0000, 'privacy', 'result: ' + result);
             })
             .catch((error: BusinessError) => {
-              console.error(`ErrorCode: ${error.code},  Message: ${error.message}`);
+              hilog.error(0x0000, 'privacy', `ErrorCode: ${error.code},  Message: ${error.message}`);
             })
           if (e) {
-            console.info('url: ', e.url);
+            hilog.info(0x0000, 'privacy', 'url: ', e.url);
           }
         })
     }

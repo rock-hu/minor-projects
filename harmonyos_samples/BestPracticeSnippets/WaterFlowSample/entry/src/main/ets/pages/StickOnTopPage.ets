@@ -4,7 +4,6 @@ import MediaItem, { ItemType } from '../model/MediaItem';
 import { StickyWaterFlowDataSource } from '../model/StickyWaterFlowDataSource';
 
 const TAG = 'StickyPage';
-
 // [StartExclude item_layout]
 @Component
 struct FlowVideoItem {
@@ -104,7 +103,7 @@ export struct StickyPage {
   private itemWidthArray: number[] = [];
   private itemHeightArray: number[] = [];
   // [EndExclude variable_declare]
-  //1、定义吸顶布局高度
+  // 1、Define the height of the ceiling layout.
   @State scrollOffset: number = 0;
   private stick_item_height: number = 100;
   oneColumnSection: SectionOptions = {
@@ -120,7 +119,7 @@ export struct StickyPage {
     },
     onGetItemMainSizeByIndex: (index: number) => {
       if (index === 1) {
-        //2、分组中设置吸顶布局高度
+        // 2、Set the ceiling layout height in the group.
         return this.stick_item_height;
       } else {
         return 200;
@@ -179,7 +178,7 @@ export struct StickyPage {
       WaterFlow({ scroller: this.scroller, sections: this.sections }) {
         LazyForEach(this.dataSource, (item: MediaItem) => {
           FlowItem() {
-            //3、为吸顶部分预留位置，吸顶位置在第二个元素位置，所以id为1
+            // 3、A location is reserved for the ceiling part, and the ceiling position is at the second element location, so the id is 1.
             if (item.id != 1) {
               FlowVideoItem({ item: item })
             }
@@ -191,7 +190,7 @@ export struct StickyPage {
       }
       .columnsTemplate('1fr 1fr')
       .onWillScroll((offset: number) => {
-        //4、监听瀑布流滚动事件
+        // 4、Listen to the waterfall scrolling event.
         this.scrollOffset = this.scroller.currentOffset().yOffset + offset;
       })
 
@@ -313,7 +312,7 @@ export struct StickyPage {
       .width('100%')
       .height(this.stick_item_height)
       .hitTestBehavior(HitTestMode.Transparent)
-      //5、根据瀑布流滑动偏移量动态调整吸顶位置
+      // 5、Dynamically adjust the sticky position according to the waterfall flow sliding offset.
       .position({ x: 0, y: this.scrollOffset >= 220 ? 0 : 220 - this.scrollOffset })
     }
   }

@@ -1,0 +1,52 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "module description"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "description"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "SmartScreenPractice"
+    },
+    {
+      "name": "side_navigation",
+      "value": "侧边导航"
+    },
+    {
+      "name": "keyboard_keys",
+      "value": "键盘按键"
+    },
+    {
+      "name": "menu_listening",
+      "value": "菜单监听"
+    },
+    {
+      "name": "key_event",
+      "value": "按键事件"
+    },
+    {
+      "name": "animal_world",
+      "value": "动物世界"
+    },
+    {
+      "name": "image",
+      "value": "图像"
+    },
+    {
+      "name": "double_speed",
+      "value": "倍速"
+    },
+    {
+      "name": "image_scale",
+      "value": "画面比例"
+    },
+    {
+      "name": "smart_screen_practice",
+      "value": "智慧屏开发实践"
+    }
+  ]
+}

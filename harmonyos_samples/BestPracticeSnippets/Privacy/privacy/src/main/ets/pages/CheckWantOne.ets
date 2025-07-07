@@ -8,7 +8,6 @@
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { UIAbility, Want, AbilityConstant } from '@kit.AbilityKit';
 
-
 // Check function
 function checkWant(want: Want) {
   if (want === null || want.parameters === null
@@ -18,14 +17,13 @@ function checkWant(want: Want) {
   return true;
 }
 
-
 export default class EntryAbility extends UIAbility {
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
     hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onCreate');
     if (checkWant(want)) {
-      console.info("invalid want");
+      hilog.info(0x0000, 'privacy', 'invalid want');
     } else {
-      console.info("correct want");
+      hilog.info(0x0000, 'privacy', 'correct want');
     }
   }
 }

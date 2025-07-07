@@ -11,24 +11,23 @@ import { UIAbility, Want, AbilityConstant } from '@kit.AbilityKit';
 function checkWant(want: Want) {
   try {
     if (want.parameters) {
-      let param = want.parameters["test"] as Want;
-      let str = param.uri
-      console.info("get uri string: " + str);
+      let param = want.parameters['test'] as Want;
+      let str = param.uri;
+      hilog.info(0x0000, 'privacy', 'get uri string: ' + str);
     }
   } catch (e) {
-    return false
+    return false;
   }
   return true;
 }
-
 
 export default class EntryAbility extends UIAbility {
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
     hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onCreate');
     if (checkWant(want)) {
-      console.info("invalid want");
+      hilog.info(0x0000, 'privacy', 'invalid want');
     } else {
-      console.info("correct want");
+      hilog.info(0x0000, 'privacy', 'correct want');
     }
   }
 }

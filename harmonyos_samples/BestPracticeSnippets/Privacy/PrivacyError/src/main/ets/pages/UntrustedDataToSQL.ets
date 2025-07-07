@@ -5,8 +5,8 @@
 
 // [Start untrusted_data_to_sql]
 import { BusinessError } from '@kit.BasicServicesKit';
-
 import { relationalStore } from '@kit.ArkData'
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 // [StartExclude untrusted_data_to_sql]
 const uiContext: UIContext | undefined = AppStorage.get('uiContext');
@@ -16,27 +16,27 @@ let context = uiContext!.getHostContext()!;
 // The sql parameters are from external input
 function exesql(sql: string) {
   const STORE_CONFIG: relationalStore.StoreConfig = {
-    name: "RdbTest.db",
+    name: 'RdbTest.db',
     securityLevel: relationalStore.SecurityLevel.S1
   };
   let store: relationalStore.RdbStore | undefined = undefined;
   relationalStore.getRdbStore(context, STORE_CONFIG, (err: BusinessError, rdbStore: relationalStore.RdbStore) => {
     store = rdbStore;
     if (err) {
-      console.error(`Get RdbStore failed, code is ${err.code},message is ${err.message}`);
+      hilog.error(0x0000, 'privacy', `Get RdbStore failed, code is ${err.code},message is ${err.message}`);
       return;
     }
-    console.info('Get RdbStore successfully.');
+    hilog.info(0x0000, 'privacy', 'Get RdbStore successfully.');
   })
   // The external input is used to directly concatenate the SQL statement, and the verification is not performed
-  let SQL_DELETE_TABLE = "DELETE FROM test WHERE name = " + sql;
+  let SQL_DELETE_TABLE = 'DELETE FROM test WHERE name = ' + sql;
   if (store != undefined) {
     (store as relationalStore.RdbStore).executeSql(SQL_DELETE_TABLE, (err) => {
       if (err) {
-        console.error(`ExecuteSql failed, code is ${err.code},message is ${err.message}`);
+        hilog.error(0x0000, 'privacy', `ExecuteSql failed, code is ${err.code},message is ${err.message}`);
         return;
       }
-      console.info('Delete table done.');
+      hilog.info(0x0000, 'privacy', 'Delete table done.');
     })
   }
 }
@@ -50,13 +50,13 @@ function exesql(sql: string) {
 // [Start untrusted_data_to_file_name]
 // The fileName is from external
 function readFile(fileName: string) {
-  let filePath = "/data/storage/";
-  if (fileName.indexOf("..") === -1) { // Anti-splicing verification
-    let fileAllPath: string = filePath + fileName
+  let filePath = '/data/storage/';
+  if (fileName.indexOf('..') === -1) { // Anti-splicing verification
+    let fileAllPath: string = filePath + fileName;
     // Service processing
   } else {
-    console.info("be attacked")
-    return
+    hilog.info(0x0000, 'privacy', 'be attacked');
+    return;
   }
 }
 // [End untrusted_data_to_file_name]

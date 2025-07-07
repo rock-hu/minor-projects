@@ -9,7 +9,7 @@ import { webview } from '@kit.ArkWeb';
 @Entry
 @Component
 struct Index {
-  controller: webview.WebviewController = new webview.WebviewController()
+  controller: webview.WebviewController = new webview.WebviewController();
 
   build() {
     Column() {
@@ -18,13 +18,13 @@ struct Index {
           this.controller.registerJavaScriptProxy(
             {
               getServiceToken: () => {
-                return "DLFJSLDFJALGJLDFJSDDFISLDF323LSDJFLS212DLSFJOEV";
+                return 'DLFJSLDFJALGJLDFJSDDFISLDF323LSDJFLS212DLSFJOEV';
               }
             },
-            "objName",
-            ["getServiceToken"],
+            'objName',
+            ['getServiceToken'],
           );
-          this.controller.refresh()
+          this.controller.refresh();
         })
       }
 
@@ -33,11 +33,11 @@ struct Index {
         .javaScriptProxy({
           object: {
             getServiceToken: () => {
-              return "DLFJSLDFJALGJLDFJSDDFISLDF323LSDJFLS212DLSFJOEV";
+              return 'DLFJSLDFJALGJLDFJSDDFISLDF323LSDJFLS212DLSFJOEV';
             }
           },
-          name: "objName",
-          methodList: ["getServiceToken"],
+          name: 'objName',
+          methodList: ['getServiceToken'],
           controller: this.controller
         })
     }

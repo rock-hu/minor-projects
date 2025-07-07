@@ -23,11 +23,11 @@ struct FlowVideoItem {
           .loop(true)
           .borderRadius(8)
           .onVisibleAreaChange([0.0, 1.0], (isVisible: boolean, currentRatio: number) => {
-            //1、滑动到可见时播放视频
+            // 1、Slide to play the video when visible.
             if (isVisible && currentRatio >= 1.0) {
               this.controller.start();
             }
-            //2、滑动到隐藏时暂停视频
+            // 2、Slide to pause the video when hidden.
             if (!isVisible || currentRatio < 1.0) {
               this.controller.pause();
             }
@@ -93,7 +93,6 @@ struct FlowVideoItem {
     }
   }
 }
-
 // [StartExclude water_flow_init]
 @Entry
 @Component

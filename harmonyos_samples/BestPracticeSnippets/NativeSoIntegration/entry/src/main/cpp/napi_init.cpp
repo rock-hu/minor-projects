@@ -60,14 +60,23 @@ static napi_value NAPI_Global_nativeSub(napi_env env, napi_callback_info info) {
     napi_get_value_double(env, args[0], &value0);
     double value1;
     napi_get_value_double(env, args[1], &value1);
-    char *path = new char[1024];
-    size_t size = 1024;
-    napi_get_value_string_utf8(env, args[2], path, 255, &size); // Get the SO library path information
-    void *handle = dlopen(path, RTLD_LAZY);                     // Open a SO library and get the path
-    napi_value result;
+    size_t length = 0;
+    napi_status status = napi_get_value_string_utf8(env, args[2], nullptr, 0, &length);
+    if (status != napi_ok) {
+        return nullptr;
+    }
+    char *path = new char[length + 1];
+    std::memset(path, 0, length + 1);
+    napi_get_value_string_utf8(env, args[2], path, length + 1, &length); // Get the SO library path information
+    void *handle = dlopen(path, RTLD_LAZY);                              // Open a SO library and get the path
+    napi_value result = nullptr;
     Sub sub_func = (Sub)dlsym(handle, "sub"); // Get the function named sub
-    napi_create_double(env, sub_func(value0, value1), &result);
+    status = napi_create_double(env, sub_func(value0, value1), &result);
+    delete[] path;
     dlclose(handle); // Remember to close the SO library
+    if (status != napi_ok) {
+        return nullptr;
+    }
     return result;
 }
 // [End  NAPI_Global_nativeSub]

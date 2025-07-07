@@ -28,7 +28,7 @@ struct Index {
           .fontWeight(FontWeight.Bold)
         Button('click to start Succ Page')
           .onClick(async () => {
-            this.getUIContext().getRouter().pushUrl({ url: 'pages/loginSuccPage' })
+            this.getUIContext().getRouter().pushUrl({ url: 'pages/loginSuccPage' });
           })
       }
       .width('100%')

@@ -64,7 +64,7 @@ struct ReusableFlowItem {
 @Entry
 @Component
 export struct FlowItemRmoveAnimationPage {
-  //1、选中FlowItem的索引
+  // 1、Select the index of the FlowItem.
   @State currentItem: number = -1;
 
   // [StartExclude variable_declare]
@@ -107,9 +107,7 @@ export struct FlowItemRmoveAnimationPage {
       return this.itemHeightArray[index % 100];
     }
   }
-  // [EndExclude variable_declare]
 
-  // [StartExclude method_declare]
   @Builder
   headerRefresh() {
     Column() {
@@ -125,14 +123,14 @@ export struct FlowItemRmoveAnimationPage {
   refresh() {
     this.currentItem = -1;
     setTimeout(() => {
-      //Add new data.
+      // Add new data.
       this.dataSource.dataArray = [];
       let value = Math.floor(Math.random() * 100);
       for (let i = 0; i < 100; i++) {
         this.dataSource.dataArray.push(i + value);
         this.dataSource.notifyDataAdd(i);
       }
-      //Update sections itemsCount.
+      // Update sections itemsCount.
       this.oneColumnSection.itemsCount = 3;
       this.oneColumnSection.crossCount = 1;
       this.twoColumnSection.itemsCount = 2;
@@ -183,13 +181,12 @@ export struct FlowItemRmoveAnimationPage {
     this.setItemSizeArray();
     this.initSections();
   }
-  // [EndExclude method_declare]
-
+  // [EndExclude variable_declare]
   removeItem(item: number): void {
-    //6、删除源数据
+    // 5、Delete source data.
     let index = this.dataSource.indexOf(item);
     this.dataSource.deleteItem(index);
-    //7、更新分组中itemsCount数量并刷新
+    // 6、Update the itemsCount quantity in the group and refresh.
     const sections: Array<SectionOptions> = this.sections.values();
     let newSection: SectionOptions;
     let tmpIndex = 0;
@@ -216,14 +213,14 @@ export struct FlowItemRmoveAnimationPage {
           LazyForEach(this.dataSource, (item: number) => {
             FlowItem() {
               Stack() {
-                //3、删除按钮
+                // 3、Delete button.
                 Row(){
                   Button('Delete')
                     .fontColor(Color.Red)
                     .backgroundColor(Color.White)
                     .onClick(() => {
                       this.getUIContext().animateTo({ duration: 300 }, () => {
-                        //4、触发删除操作
+                        // 4、Trigger delete operation.
                         this.removeItem(item);
                       });
                     })
@@ -239,7 +236,7 @@ export struct FlowItemRmoveAnimationPage {
               }
             }
             .transition({ type: TransitionType.Delete, opacity: 0 })
-            //2、FlowItem的长按事件
+            // 2、FlowItem's long press event
             .priorityGesture(LongPressGesture()
               .onAction(() => {
                 this.currentItem = item;
@@ -256,7 +253,7 @@ export struct FlowItemRmoveAnimationPage {
         .width('100%')
         .height('100%')
         .layoutWeight(1)
-        //For better experience, pre load data.
+        // For better experience, pre load data.
         .onScrollIndex((first: number, last: number) => {
           setTimeout(() => {
             let totalCount = this.dataSource.totalCount();
@@ -264,20 +261,18 @@ export struct FlowItemRmoveAnimationPage {
               for (let i = 0; i < 20; i++) {
                 this.dataSource.addLastItem();
               }
-              //Update sections itemsCount.
+              // Update sections itemsCount.
               this.dataSection.itemsCount += 20;
               this.sections.update(2, this.dataSection);
             }
           }, 1000);
         })
-        // [EndExclude water_flow_setting]
       }
-      // [StartExclude water_flow_refresh]
       .refreshOffset(56)
       .onRefreshing(() => {
         this.refresh();
       })
-      // [EndExclude water_flow_refresh]
+      // [EndExclude water_flow_setting]
     }
   }
 }
