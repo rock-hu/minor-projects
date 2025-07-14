@@ -112,12 +112,14 @@ interface I1 {
 /* @@? 58:25 Error SyntaxError: Parameter declaration should have an explicit type annotation. */
 /* @@? 58:25 Error SyntaxError: Unexpected token, expected ',' or ')'. */
 /* @@? 58:25 Error SyntaxError: Unexpected token '}'. */
+/* @@? 61:5 Error SyntaxError: Illegal start of CLASS expression. */
 /* @@? 62:9 Error SyntaxError: Local class or interface declaration members can not have access modifies. */
+/* @@? 65:5 Error SyntaxError: Illegal start of INTERFACE expression. */
 /* @@? 66:9 Error SyntaxError: Local class or interface declaration members can not have access modifies. */
 /* @@? 66:18 Error SyntaxError: Private interface methods must have body. */
 /* @@? 67:9 Error SyntaxError: Unexpected token, expected 'private' or identifier. */
-/* @@? 67:16 Error SyntaxError: Unexpected token, expected ','. */
 /* @@? 67:16 Error SyntaxError: Unexpected token, expected 'private' or identifier. */
+/* @@? 67:16 Error SyntaxError: Unexpected token, expected ','. */
 /* @@? 67:16 Error SyntaxError: Identifier expected. */
 /* @@? 67:24 Error SyntaxError: Private interface methods must have body. */
 /* @@? 72:5 Error SyntaxError: Unexpected token, expected 'private' or identifier. */

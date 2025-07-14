@@ -168,9 +168,9 @@ syntax:
   id: 39
   message: "A try statement should contain either finally clause or at least one catch clause."
 
-- name: ILLEGAL_START_STRUCT
+- name: ILLEGAL_START_STRUCT_CLASS
   id: 40
-  message: "Illegal start of STRUCT expression."
+  message: "Illegal start of {} expression."
 
 - name: ONLY_EXPORT_CLASS_OR_INTERFACE
   id: 41
@@ -1195,3 +1195,7 @@ syntax:
 - name: DEEP_NESTING
   id: 306
   message: "Maximum allowed nesting level exceeded."
+
+- name: DEFAULT_PARAM_IN_DECLARE
+  id: 382
+  message: "A parameter initializer is only allowed in a function or constructor implementation."

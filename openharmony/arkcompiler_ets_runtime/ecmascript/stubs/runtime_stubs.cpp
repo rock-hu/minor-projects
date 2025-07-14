@@ -665,7 +665,7 @@ DEF_RUNTIME_STUBS(ForceGC)
         return JSTaggedValue::Hole().GetRawData();
     }
     if (g_isEnableCMCGC) {
-        common::BaseRuntime::RequestGC(common::GcType::SYNC);
+        common::BaseRuntime::RequestGC(common::GC_REASON_USER, true, common::GC_TYPE_FULL);
     } else {
         thread->GetEcmaVM()->CollectGarbage(TriggerGCType::FULL_GC);
     }
@@ -3525,7 +3525,7 @@ void RuntimeStubs::CMCGCMarkingBarrier([[maybe_unused]] uintptr_t argGlue,
 JSTaggedType RuntimeStubs::ReadBarrier(uintptr_t argGlue, uintptr_t addr)
 {
     auto thread = JSThread::GlueToJSThread(argGlue);
-    return Barriers::GetTaggedValue(thread, addr);
+    return Barriers::ReadBarrierForObject(thread, addr);
 }
 
 void RuntimeStubs::CopyCallTarget(uintptr_t argGlue, uintptr_t callTarget)
@@ -4919,8 +4919,23 @@ DEF_RUNTIME_STUBS(SlowSharedObjectStoreBarrier)
     return publishValue.GetTaggedValue().GetRawData();
 }
 
+void RuntimeStubs::CopyObjectPrimitive(uintptr_t argGlue, JSTaggedType *dstObj,
+                                       JSTaggedType *dst, JSTaggedType *src, uint32_t count)
+{
+    DISALLOW_GARBAGE_COLLECTION;
+    auto thread = JSThread::GlueToJSThread(argGlue);
+    // check CMC-GC phase inside
+    if (thread->NeedReadBarrier()) {
+        Barriers::CopyObjectPrimitive<true, true>(thread,
+            reinterpret_cast<JSTaggedValue *>(dst), reinterpret_cast<JSTaggedValue *>(src), count);
+    } else {
+        Barriers::CopyObjectPrimitive<false, true>(thread,
+            reinterpret_cast<JSTaggedValue *>(dst), reinterpret_cast<JSTaggedValue *>(src), count);
+    }
+}
+
 void RuntimeStubs::ObjectCopy(uintptr_t argGlue, JSTaggedType *dstObj,
-                                JSTaggedType *dst, JSTaggedType *src, uint32_t count)
+                              JSTaggedType *dst, JSTaggedType *src, uint32_t count)
 {
     DISALLOW_GARBAGE_COLLECTION;
     if (g_isEnableCMCGC) {
@@ -4954,6 +4969,19 @@ JSTaggedValue RuntimeStubs::FindPatchModule(uintptr_t argGlue, JSTaggedValue res
     auto thread = JSThread::GlueToJSThread(argGlue);
     JSHandle<SourceTextModule> module(thread, resolvedModule);
     return (thread->GetEcmaVM()->FindPatchModule(module->GetEcmaModuleRecordNameString())).GetTaggedValue();
+}
+
+JSTaggedValue RuntimeStubs::UpdateSharedModule(uintptr_t argGlue, JSTaggedValue resolvedModule)
+{
+    DISALLOW_GARBAGE_COLLECTION;
+    auto thread = JSThread::GlueToJSThread(argGlue);
+    JSHandle<SourceTextModule> module(thread, resolvedModule);
+    JSHandle<SourceTextModule> sharedModule =
+        SharedModuleManager::GetInstance()->GetSModule(thread, module->GetEcmaModuleRecordNameString());
+    if (sharedModule.GetTaggedValue().IsSourceTextModule()) {
+        return sharedModule.GetTaggedValue();
+    }
+    return module.GetTaggedValue();
 }
 
 void RuntimeStubs::FatalPrintMisstakenResolvedBinding(int32_t index, JSTaggedValue curModule)
@@ -4990,6 +5018,20 @@ void RuntimeStubs::MarkInBuffer(BaseObject* ref)
     ref = reinterpret_cast<BaseObject*>(reinterpret_cast<uintptr_t>(ref) & ~(common::Barrier::TAG_WEAK));
     common::Mutator* mutator = common::Mutator::GetMutator();
     mutator->RememberObjectInSatbBuffer(ref);
+}
+
+void RuntimeStubs::BatchMarkInBuffer(void* src, size_t count)
+{
+    uintptr *srcPtr = reinterpret_cast<uintptr_t *>(src);
+    common::Mutator* mutator = common::Mutator::GetMutator();
+    for (size_t i = 0; i < count; i++) {
+        BaseObject* ref = reinterpret_cast<BaseObject*>(srcPtr[i]);
+        if (!common::Heap::IsTaggedObject(reinterpret_cast<common::HeapAddress>(ref))) {
+            continue;
+        }
+        ref = reinterpret_cast<BaseObject*>(reinterpret_cast<uintptr_t>(ref) & ~(common::Barrier::TAG_WEAK));
+        mutator->RememberObjectInSatbBuffer(ref);
+    }
 }
 
 void RuntimeStubs::Initialize(JSThread *thread)

@@ -62,6 +62,7 @@
 #include "lexer/lexer.h"
 #include "lexer/token/letters.h"
 #include "lexer/token/sourceLocation.h"
+#include "util/recursiveGuard.h"
 #include "util/ustring.h"
 #include "generated/diagnostic.h"
 
@@ -90,6 +91,14 @@ ir::Statement *ParserImpl::ParseStatementLiteralIdentHelper(StatementParsingFlag
 // NOLINTNEXTLINE(google-default-arguments)
 ir::Statement *ParserImpl::ParseStatementPunctuatorsHelper(StatementParsingFlags flags)
 {
+    TrackRecursive trackRecursive(RecursiveCtx());
+    if (!trackRecursive) {
+        LogError(diagnostic::DEEP_NESTING);
+        while (Lexer()->GetToken().Type() != lexer::TokenType::EOS) {
+            Lexer()->NextToken();
+        }
+        return AllocBrokenStatement(Lexer()->GetToken().Loc());
+    }
     switch (lexer_->GetToken().Type()) {
         case lexer::TokenType::PUNCTUATOR_LEFT_BRACE:
             return ParseBlockStatement();
@@ -187,7 +196,7 @@ ir::Statement *ParserImpl::ParseStatementBasedOnTokenType(StatementParsingFlags 
         case lexer::TokenType::KEYW_ENUM:
             return ParseEnumDeclaration();
         case lexer::TokenType::KEYW_INTERFACE:
-            return ParseInterfaceDeclaration(false);
+            return ParseInterfaceStatement(flags);
         case lexer::TokenType::PUNCTUATOR_AT:
             if (IsETSParser()) {
                 return ParseAnnotationsInStatement(flags);
@@ -289,7 +298,7 @@ ir::Statement *ParserImpl::ParsePotentialExpressionStatement(StatementParsingFla
 ir::Statement *ParserImpl::ParseStructStatement([[maybe_unused]] StatementParsingFlags flags,
                                                 ir::ClassDefinitionModifiers modifiers, ir::ModifierFlags modFlags)
 {
-    LogError(diagnostic::ILLEGAL_START_EXPRESSION);
+    LogError(diagnostic::ILLEGAL_START_STRUCT_CLASS, {"STRUCT"});
     return ParseStructDeclaration(modifiers, modFlags);
 }
 
@@ -302,6 +311,15 @@ ir::Statement *ParserImpl::ParseClassStatement(StatementParsingFlags flags, ir::
     }
 
     return ParseClassDeclaration(modifiers, modFlags);
+}
+
+ir::Statement *ParserImpl::ParseInterfaceStatement(StatementParsingFlags flags)
+{
+    if ((flags & StatementParsingFlags::ALLOW_LEXICAL) == 0) {
+        LogError(diagnostic::LEXICAL_DEC_NOT_ALLOWED_IN_SINGLE_STATEMENT_CONTEXT);
+    }
+
+    return ParseInterfaceDeclaration(false);
 }
 
 ir::Statement *ParserImpl::ParseStructDeclaration(ir::ClassDefinitionModifiers modifiers, ir::ModifierFlags flags)
@@ -1164,6 +1182,7 @@ ir::SwitchCaseStatement *ParserImpl::ParseSwitchCaseStatement(bool *seenDefault)
         default: {
             LogError(diagnostic::UNEXPECTED_TOKEN_PARAM_EXPECTED_CASE_OR_DEFAULT,
                      {lexer::TokenToString(lexer_->GetToken().Type())});
+            testExpr = AllocBrokenExpression(caseStartLoc);
         }
     }
 

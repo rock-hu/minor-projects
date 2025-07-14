@@ -21,6 +21,7 @@
 #include "core/common/multi_thread_build_manager.h"
 #include "core/components_ng/pattern/text/text_layout_property.h"
 #include "core/components_ng/token_theme/token_theme_storage.h"
+#include "core/components_ng/pattern/navigation/navigation_group_node.h"
 
 namespace OHOS::Ace::NG {
 
@@ -55,8 +56,10 @@ UINode::UINode(const std::string& tag, int32_t nodeId, bool isRoot)
     instanceId_ = Container::CurrentId();
     nodeStatus_ = ViewStackProcessor::GetInstance()->IsBuilderNode() ? NodeStatus::BUILDER_NODE_OFF_MAINTREE
                                                                      : NodeStatus::NORMAL_NODE;
-    auto currentContainer = Container::GetContainer(instanceId_);
-    isDarkMode_ = currentContainer ? (currentContainer->GetColorMode() == ColorMode::DARK) : false;
+    if (SystemProperties::ConfigChangePerform()) {
+        auto currentContainer = Container::GetContainer(instanceId_);
+        isDarkMode_ = currentContainer ? (currentContainer->GetColorMode() == ColorMode::DARK) : false;
+    }
 }
 
 UINode::~UINode()
@@ -855,7 +858,7 @@ void UINode::DetachFromMainTree(bool recursive, bool isRoot)
         std::list<RefPtr<UINode>> nodes;
         RefPtr<UINode> uiNode = AceType::Claim<UINode>(this);
         BuilderUtils::GetBuilderNodes(uiNode, nodes);
-        BuilderUtils::RemoveBuilderFromParent(uiNode, nodes);
+        BuilderUtils::RemoveBuilderFromParent(GetParent(), nodes);
     }
     OnDetachFromMainTree(recursive, context);
     // if recursive = false, recursively call DetachFromMainTree(false), until we reach the first FrameNode.
@@ -1023,7 +1026,7 @@ void UINode::OnAttachToMainTree(bool)
         std::list<RefPtr<UINode>> nodes;
         RefPtr<UINode> uiNode = AceType::Claim<UINode>(this);
         BuilderUtils::GetBuilderNodes(uiNode, nodes);
-        BuilderUtils::AddBuilderToParent(uiNode, nodes);
+        BuilderUtils::AddBuilderToParent(GetParent(), nodes);
     }
 }
 
@@ -1165,7 +1168,7 @@ void UINode::DumpTreeJsonForDiff(std::unique_ptr<JsonValue>& json)
     json->PutRef(key.c_str(), std::move(currentNode));
 }
 
-void UINode::DumpSimplifyTree(int32_t depth, std::unique_ptr<JsonValue>& current)
+void UINode::DumpSimplifyTree(int32_t depth, std::shared_ptr<JsonValue>& current)
 {
     current->Put("$type", tag_.c_str());
     current->Put("$ID", nodeId_);
@@ -1184,14 +1187,14 @@ void UINode::DumpSimplifyTree(int32_t depth, std::unique_ptr<JsonValue>& current
         auto array = JsonUtil::CreateArray();
         if (!nodeChildren.empty()) {
             for (const auto& item : nodeChildren) {
-                auto child = JsonUtil::Create();
+                auto child = JsonUtil::CreateSharedPtrJson();
                 item->DumpSimplifyTree(depth + 1, child);
                 array->PutRef(std::move(child));
             }
         }
         if (!disappearingChildren_.empty()) {
             for (const auto& [item, index, branch] : disappearingChildren_) {
-                auto child = JsonUtil::Create();
+                auto child = JsonUtil::CreateSharedPtrJson();
                 item->DumpSimplifyTree(depth + 1, child);
                 array->PutRef(std::move(child));
             }
@@ -2266,5 +2269,22 @@ RefPtr<UINode> UINode::GetAncestor() const
 void UINode::SetAncestor(const WeakPtr<UINode>& parent)
 {
     ancestor_ = parent;
+}
+
+void UINode::FindTopNavDestination(RefPtr<FrameNode>& result)
+{
+    auto currentNode = AceType::DynamicCast<FrameNode>(this);
+    if (currentNode && currentNode->GetTag() == V2::NAVIGATION_VIEW_ETS_TAG) {
+        auto navigationGroupNode = AceType::DynamicCast<NG::NavigationGroupNode>(currentNode);
+        CHECK_NULL_VOID(navigationGroupNode);
+        result = navigationGroupNode->GetTopDestination();
+        return;
+    }
+    for (const auto& item : GetChildren()) {
+        item->FindTopNavDestination(result);
+        if (result) {
+            return;
+        }
+    }
 }
 } // namespace OHOS::Ace::NG

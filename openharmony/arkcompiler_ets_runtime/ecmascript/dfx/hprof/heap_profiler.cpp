@@ -121,7 +121,7 @@ HeapProfiler::HeapProfiler(const EcmaVM *vm) : vm_(vm), stringTable_(vm), chunk_
                                                                                 size_t size) {
             this->MoveEvent(fromObj, reinterpret_cast<TaggedObject *>(toObj), size);
         };
-        common::HeapProfilerListener::GetInstance().RegisterMoveEventCb(moveEventCb_);
+        moveEventCbId_ = common::HeapProfilerListener::GetInstance().RegisterMoveEventCb(moveEventCb_);
     }
 }
 
@@ -131,12 +131,31 @@ HeapProfiler::~HeapProfiler()
     ClearSnapshot();
     GetChunk()->Delete(entryIdMap_);
     if (g_isEnableCMCGC) {
-        common::HeapProfilerListener::GetInstance().UnRegisterMoveEventCb();
+        common::HeapProfilerListener::GetInstance().UnRegisterMoveEventCb(moveEventCbId_);
     }
+}
+
+void HeapProfiler::DumpHeapSnapshotForCMCOOM()
+{
+#if defined(ECMASCRIPT_SUPPORT_SNAPSHOT) && defined(ENABLE_DUMP_IN_FAULTLOG)
+    auto appfreezeCallback = Runtime::GetInstance()->GetAppFreezeFilterCallback();
+    if (appfreezeCallback != nullptr && !appfreezeCallback(getprocpid(), true)) {
+        LOG_ECMA(INFO) << "DumpHeapSnapshotBeforeOOM, no dump quota.";
+        return;
+    }
+    vm_->GetEcmaGCKeyStats()->SendSysEventBeforeDump("OOMDump", 0, 0);
+
+    DumpSnapShotOption dumpOption;
+    dumpOption.dumpFormat = panda::ecmascript::DumpFormat::BINARY;
+    dumpOption.isFullGC = false;
+    dumpOption.isDumpOOM = true;
+    DumpHeapSnapshotForOOM(dumpOption);
+#endif
 }
 
 void HeapProfiler::AllocationEvent(TaggedObject *address, size_t size)
 {
+    LockHolder lock(mutex_);
     DISALLOW_GARBAGE_COLLECTION;
     if (isProfiling_) {
         // Id will be allocated later while add new node
@@ -219,12 +238,19 @@ bool HeapProfiler::DoDump(Stream *stream, Progress *progress, const DumpSnapShot
 {
     DISALLOW_GARBAGE_COLLECTION;
     int32_t heapCount = 0;
+    size_t heapSize = 0;
     HeapSnapshot *snapshot = nullptr;
     {
         if (dumpOption.isFullGC) {
-            size_t heapSize = vm_->GetHeap()->GetLiveObjectSize();
+            if (g_isEnableCMCGC) {
+                heapSize = common::Heap::GetHeap().GetSurvivedSize();
+                heapCount = static_cast<int32_t>(common::Heap::GetHeap().GetAllocatedSize());
+            } else {
+                heapSize = vm_->GetHeap()->GetLiveObjectSize();
+                heapCount = static_cast<int32_t>(vm_->GetHeap()->GetHeapObjectCount());
+            }
             LOG_ECMA(INFO) << "HeapProfiler DumpSnapshot heap size " << heapSize;
-            heapCount = static_cast<int32_t>(vm_->GetHeap()->GetHeapObjectCount());
+            LOG_ECMA(INFO) << "HeapProfiler DumpSnapshot heap count " << heapCount;
             if (progress != nullptr) {
                 progress->ReportProgress(0, heapCount);
             }
@@ -287,7 +313,7 @@ bool HeapProfiler::DoDump(Stream *stream, Progress *progress, const DumpSnapShot
 
 bool HeapProfiler::BinaryDump(Stream *stream, const DumpSnapShotOption &dumpOption)
 {
-    [[maybe_unused]] EcmaHandleScope ecmaHandleScope(vm_->GetJSThread());
+    [[maybe_unused]] EcmaHandleScope ecmaHandleScope(vm_->GetAssociatedJSThread());
     DumpSnapShotOption option;
     std::vector<std::string> filePaths;
     std::vector<uint64_t> fileSizes;
@@ -363,12 +389,12 @@ bool HeapProfiler::DumpHeapSnapshot(Stream *stream, const DumpSnapShotOption &du
 {
     bool res = false;
     base::BlockHookScope blockScope;
-    ThreadManagedScope managedScope(vm_->GetJSThread());
+    ThreadManagedScope managedScope(vm_->GetAssociatedJSThread());
     pid_t pid = -1;
     {
         if (dumpOption.isFullGC) {
             if (g_isEnableCMCGC) {
-                common::BaseRuntime::RequestGC(common::GcType::FULL);
+                common::BaseRuntime::RequestGC(common::GC_REASON_BACKUP, false, common::GC_TYPE_FULL);
             } else {
                 [[maybe_unused]] bool heapClean = ForceFullGC(vm_);
                 ForceSharedGC();
@@ -437,7 +463,7 @@ bool HeapProfiler::StartHeapTracking(double timeInterval, bool isVmMode, Stream 
                                      bool traceAllocation, bool newThread)
 {
     if (g_isEnableCMCGC) {
-        common::BaseRuntime::RequestGC(common::GcType::FULL);
+        common::BaseRuntime::RequestGC(common::GC_REASON_BACKUP, false, common::GC_TYPE_FULL);
     } else {
         vm_->CollectGarbage(TriggerGCType::OLD_GC);
         ForceSharedGC();
@@ -473,12 +499,6 @@ bool HeapProfiler::UpdateHeapTracking(Stream *stream)
     }
 
     {
-        if (g_isEnableCMCGC) {
-            common::BaseRuntime::RequestGC(common::GcType::FULL);
-        } else {
-            vm_->CollectGarbage(TriggerGCType::OLD_GC);
-            ForceSharedGC();
-        }
         SuspendAllScope suspendScope(vm_->GetAssociatedJSThread());
         UpdateHeapObjects(snapshot);
         snapshot->RecordSampleTime();
@@ -513,7 +533,7 @@ bool HeapProfiler::StopHeapTracking(Stream *stream, Progress *progress, bool new
     }
     {
         if (g_isEnableCMCGC) {
-            common::BaseRuntime::RequestGC(common::GcType::FULL);
+            common::BaseRuntime::RequestGC(common::GC_REASON_BACKUP, false, common::GC_TYPE_FULL);
             SuspendAllScope suspendScope(vm_->GetAssociatedJSThread());
             snapshot->FinishSnapshot();
         } else {

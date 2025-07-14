@@ -881,7 +881,7 @@ void SlowPathLowering::LowerCallStubWithIC(GateRef gate, int sign, const std::ve
     inputs.emplace_back(slotId);
 
     GateRef result = builder_.CallStub(glue_, gate, sign, inputs);
-    ReplaceHirWithValue(gate, result);
+    ReplaceHirWithPendingException(gate, builder_.GetState(), builder_.GetDepend(), result);
 }
 
 GateRef SlowPathLowering::LowerCallRuntime(GateRef gate, int index, const std::vector<GateRef> &args, bool useLabel)
@@ -3076,7 +3076,8 @@ bool SlowPathLowering::OptimizeDefineFuncForJit(GateRef gate, GateRef jsFunc, Ga
     auto unsharedConstPool = compilationEnv_->FindOrCreateUnsharedConstpool(methodLiteral_->GetMethodId().GetOffset());
     // not optimize if it may use ihc to define function
     if (!unsharedConstPool.IsHole() &&
-        !ConstantPool::GetIhcFromAOTLiteralInfo(unsharedConstPool, methodIdValue).IsUndefined()) {
+        !ConstantPool::GetIhcFromAOTLiteralInfo(compilationEnv_->GetHostThread(),
+                                                unsharedConstPool, methodIdValue).IsUndefined()) {
         return false;
     }
 

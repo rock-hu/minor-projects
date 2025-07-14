@@ -36,13 +36,10 @@ public:
     void Init();
     void Fini();
     void StopGCWork();
-    void RequestGC(GCReason reason, bool async);
+    void RequestGC(GCReason reason, bool async, GCType gcType);
     void WaitForGCFinish();
     // gc main loop
     void RunTaskLoop();
-    // Notify that GC has finished.
-    // Must be called by gc thread only
-    void NotifyGCFinished(uint64_t gcIndex);
     uint32_t GetGCThreadCount(const bool isConcurrent) const;
 
     Taskpool *GetThreadPool() const { return gcThreadPool_; }
@@ -71,15 +68,21 @@ public:
     void StartRuntimeThreads();
     void StopRuntimeThreads();
 
+    void MarkGCStart();
+    void MarkGCFinish(uint64_t gcIndex = 0);
+
 private:
+    // Notify that GC has finished.
+    void NotifyGCFinished(uint64_t gcIndex);
+
     void StartGCThreads();
     void TerminateGCTask();
     void StopGCThreads();
     // Notify the GC thread to start GC, and wait.
     // Called by mutator.
     // reason: The reason for this GC.
-    void RequestAsyncGC(GCReason reason);
-    void RequestGCAndWait(GCReason reason);
+    void RequestAsyncGC(GCReason reason, GCType gcType);
+    void RequestGCAndWait(GCReason reason, GCType gcType);
     void PostIgnoredGcRequest(GCReason reason);
 
     // the thread pool for parallel tracing.

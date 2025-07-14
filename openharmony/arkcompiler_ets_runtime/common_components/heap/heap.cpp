@@ -75,6 +75,9 @@ public:
 
     void WaitForGCFinish() override { return collectorResources_.WaitForGCFinish(); }
 
+    void MarkGCStart() override { return collectorResources_.MarkGCStart(); }
+    void MarkGCFinish() override { return collectorResources_.MarkGCFinish(); }
+
     bool IsGCEnabled() const override { return isGCEnabled_.load(); }
 
     void EnableGC(bool val) override { return isGCEnabled_.store(val); }
@@ -82,6 +85,12 @@ public:
     GCReason GetGCReason() override { return gcReason_; }
 
     void SetGCReason(GCReason reason) override { gcReason_ = reason; }
+
+    bool InRecentSpace(const void *addr) override
+    {
+        RegionDesc *region = RegionDesc::GetRegionDescAt(reinterpret_cast<HeapAddress>(addr));
+        return region->IsInRecentSpace();
+    }
 
     HeapAddress Allocate(size_t size, AllocType allocType, bool allowGC = true) override;
 

@@ -114,6 +114,9 @@ static T *CloneNodeIfNotNullptr(T *node, ArenaAllocator *allocator)
 Type *ETSChecker::CreatePartialType(Type *const typeToBePartial)
 {
     ES2PANDA_ASSERT(typeToBePartial->IsETSReferenceType());
+    if (typeToBePartial->IsTypeError()) {
+        return typeToBePartial;
+    }
 
     if (typeToBePartial->IsETSTypeParameter()) {
         return CreatePartialTypeParameter(typeToBePartial->AsETSTypeParameter());
@@ -484,6 +487,34 @@ void ETSChecker::CreatePartialClassDeclaration(ir::ClassDefinition *const newCla
     newClassDefinition->Variable()->SetTsType(nullptr);
 }
 
+static void SetupFunctionParams(ir::ScriptFunction *function, varbinder::FunctionParamScope *paramScope,
+                                checker::ETSChecker *checker)
+{
+    for (auto *params : function->Params()) {
+        auto *paramExpr = params->AsETSParameterExpression();
+        if (paramExpr->Ident()->TypeAnnotation() == nullptr) {
+            paramExpr->Ident()->SetTsTypeAnnotation(nullptr);
+        } else {
+            auto *unionType =
+                // SUPPRESS_CSA_NEXTLINE(alpha.core.AllocatorETSCheckerHint)
+                checker->AllocNode<ir::ETSUnionType>(
+                    ArenaVector<ir::TypeNode *>({paramExpr->Ident()->TypeAnnotation(),
+                                                 // SUPPRESS_CSA_NEXTLINE(alpha.core.AllocatorETSCheckerHint)
+                                                 checker->AllocNode<ir::ETSUndefinedType>(checker->Allocator())},
+                                                checker->Allocator()->Adapter()),
+                    checker->Allocator());
+            paramExpr->Ident()->SetTsTypeAnnotation(unionType);
+            unionType->SetParent(paramExpr->Ident());
+        }
+        auto [paramVar, node] = paramScope->AddParamDecl(checker->Allocator(), checker->VarBinder(), paramExpr);
+        if (node != nullptr) {
+            checker->VarBinder()->ThrowRedeclaration(node->Start(), paramVar->Name());
+        }
+
+        paramExpr->SetVariable(paramVar);
+    }
+}
+
 ir::MethodDefinition *ETSChecker::CreateNullishAccessor(ir::MethodDefinition *const accessor,
                                                         ir::TSInterfaceDeclaration *interface)
 {
@@ -528,27 +559,8 @@ ir::MethodDefinition *ETSChecker::CreateNullishAccessor(ir::MethodDefinition *co
                                         Allocator()->Adapter()),
             Allocator()));
     } else {
-        for (auto *params : function->Params()) {
-            auto *paramExpr = params->AsETSParameterExpression();
-
-            auto *unionType =
-                // SUPPRESS_CSA_NEXTLINE(alpha.core.AllocatorETSCheckerHint)
-                AllocNode<ir::ETSUnionType>(
-                    ArenaVector<ir::TypeNode *>({paramExpr->Ident()->TypeAnnotation(),
-                                                 // SUPPRESS_CSA_NEXTLINE(alpha.core.AllocatorETSCheckerHint)
-                                                 AllocNode<ir::ETSUndefinedType>(Allocator())},
-                                                Allocator()->Adapter()),
-                    Allocator());
-            paramExpr->Ident()->SetTsTypeAnnotation(unionType);
-            unionType->SetParent(paramExpr->Ident());
-
-            auto [paramVar, node] = paramScope->AddParamDecl(Allocator(), VarBinder(), paramExpr);
-            if (node != nullptr) {
-                VarBinder()->ThrowRedeclaration(node->Start(), paramVar->Name());
-            }
-
-            paramExpr->SetVariable(paramVar);
-        }
+        // SUPPRESS_CSA_NEXTLINE(alpha.core.AllocatorETSCheckerHint)
+        SetupFunctionParams(function, paramScope, this);
     }
 
     nullishAccessor->SetOverloads(ArenaVector<ir::MethodDefinition *>(Allocator()->Adapter()));
@@ -839,6 +851,9 @@ Type *ETSChecker::CreatePartialTypeClassDef(ir::ClassDefinition *const partialCl
 
         if (partialSuper == partialType) {
             LogError(diagnostic::CYCLIC_CLASS_SUPER_TYPE, {}, classDef->Start());
+            return partialType;
+        }
+        if (partialSuper->IsTypeError()) {
             return partialType;
         }
         partialType->SetSuperType(partialSuper->AsETSObjectType());

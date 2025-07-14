@@ -25,6 +25,7 @@
 #include "common_components/base/immortal_wrapper.h"
 #include "common_components/heap/collector/gc_request.h"
 #include "common_components/log/log.h"
+#include "common_interfaces/base_runtime.h"
 
 namespace common {
 // statistics for previous gc.
@@ -37,22 +38,14 @@ public:
 
     size_t GetThreshold() const { return heapThreshold; }
 
-    inline uint64_t TotalSTWTime() const
-    {
-        if (isConcurrentMark) {
-            return stw1Time + stw2Time;
-        } else {
-            return stw1Time;
-        }
-    }
+    inline uint64_t TotalSTWTime() const { return totalSTWTime; }
 
-    inline uint64_t MaxSTWTime() const
+    inline uint64_t MaxSTWTime() const { return maxSTWTime; }
+
+    void recordSTWTime(uint64_t time)
     {
-        if (isConcurrentMark) {
-            return std::max(stw1Time, stw2Time);
-        } else {
-            return stw1Time;
-        }
+        totalSTWTime += time;
+        maxSTWTime = std::max(maxSTWTime, time);
     }
 
     void Dump() const;
@@ -73,13 +66,15 @@ public:
     static uint64_t prevGcFinishTime;
 
     GCReason reason;
+    GCType gcType;
     bool isConcurrentMark;
     bool async;
 
     uint64_t gcStartTime;
-    uint64_t stw1Time;
-    uint64_t stw2Time;
     uint64_t gcEndTime;
+
+    uint64_t totalSTWTime; // total stw time(microseconds)
+    uint64_t maxSTWTime; // max stw time(microseconds)
 
     size_t liveBytesBeforeGC;
     size_t liveBytesAfterGC;

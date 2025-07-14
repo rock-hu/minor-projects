@@ -24,6 +24,7 @@
 #include "ecmascript/module/module_message_helper.h"
 #include "ecmascript/module/module_path_helper.h"
 #include "ecmascript/module/module_tools.h"
+#include "ecmascript/module/module_value_accessor.h"
 #include "ecmascript/object_fast_operator-inl.h"
 #include "ecmascript/module/module_resolver.h"
 #include "ecmascript/object_fast_operator-inl.h"
@@ -102,6 +103,38 @@ bool SourceTextModule::CheckCircularImport(JSThread *thread,
         }
     }
     return false;
+}
+
+JSHandle<JSTaggedValue> SourceTextModule::GetBindingNameByIndex(JSThread *thread,
+                                                                const JSHandle<SourceTextModule> module,
+                                                                const int index)
+{
+    auto globalConstants = thread->GlobalConstants();
+    if (index == SourceTextModule::UNDEFINED_INDEX) {
+        return globalConstants->GetHandledDefaultString();
+    }
+
+    JSHandle<JSTaggedValue> exports = ModuleValueAccessor::GetNativeOrCjsExports(thread, module.GetTaggedValue());
+    if (exports->IsJSObject()) {
+        JSObject *exportObject = JSObject::Cast(exports.GetTaggedValue().GetTaggedObject());
+        TaggedArray *properties = TaggedArray::Cast(exportObject->GetProperties(thread).GetTaggedObject());
+        if (!properties->IsDictionaryMode()) {
+            JSHandle<JSHClass> jsHClass(thread, exportObject->GetJSHClass());
+            // Get layoutInfo and compare the input and output names of files
+            LayoutInfo *layoutInfo = LayoutInfo::Cast(jsHClass->GetLayout(thread).GetTaggedObject());
+            if (layoutInfo->NumberOfElements() > index) {
+                JSHandle<JSTaggedValue> key(thread, layoutInfo->GetKey(thread, index));
+                return key;
+            }
+        } else {
+            NameDictionary *dict = NameDictionary::Cast(properties);
+            if (dict->Size() > index) {
+                JSHandle<JSTaggedValue> key(thread, dict->GetKey(thread, index));
+                return key;
+            }
+        }
+    }
+    return globalConstants->GetHandledUndefined();
 }
 
 JSHandle<JSTaggedValue> SourceTextModule::ResolveExportObject(JSThread *thread,
@@ -490,7 +523,6 @@ int SourceTextModule::Instantiate(JSThread *thread, const JSHandle<JSTaggedValue
     // 7. Assert: stack is empty.
     ASSERT(stack.empty());
     // 8. Return undefined.
-    SharedModuleManager::GetInstance()->TransferSModule(thread);
     return SourceTextModule::UNDEFINED_INDEX;
 }
 
@@ -1076,7 +1108,8 @@ int SourceTextModule::InnerModuleEvaluation(JSThread *thread, JSHandle<SourceTex
         return SourceTextModule::InnerModuleEvaluationUnsafe(
             thread, module, stack, errorStack, index, buffer, size, executeType);
     } else {
-        StateVisit &stateVisit = SharedModuleManager::GetInstance()->findModuleMutexWithLock(thread, module);
+        SharedModuleManager* sharedModuleManager = SharedModuleManager::GetInstance();
+        StateVisit &stateVisit = sharedModuleManager->FindModuleMutexWithLock(thread, module);
         ModuleStatus status = module->GetStatus();
         if (status == ModuleStatus::EVALUATING &&
                 stateVisit.threadId == thread->GetThreadId()) {
@@ -1088,7 +1121,9 @@ int SourceTextModule::InnerModuleEvaluation(JSThread *thread, JSHandle<SourceTex
             return index;
         }
         RuntimeLockHolder locker(thread, stateVisit.mutex);
-        if (status == ModuleStatus::INSTANTIATED) {
+        module = sharedModuleManager->
+            TransferFromLocalToSharedModuleMapAndGetInsertedSModule(thread, module);
+        if (module->GetStatus() == ModuleStatus::INSTANTIATED) {
             stateVisit.threadId = thread->GetThreadId();
             int idx = SourceTextModule::InnerModuleEvaluationUnsafe(
                 thread, module, stack, errorStack, index, buffer, size, executeType);
@@ -1445,6 +1480,7 @@ JSHandle<JSTaggedValue> SourceTextModule::GetStarResolution(JSThread *thread,
     bool isNativeModule = IsNativeModule(moduleType);
     JSHandle<JSTaggedValue> resolution;
     if (UNLIKELY(isNativeModule || moduleType == ModuleTypes::CJS_MODULE)) {
+        thread->GetEcmaVM()->GetJSOptions().SetDisableModuleSnapshot(true);
         resolution = isNativeModule
             ? SourceTextModule::ResolveNativeStarExport(thread, importedModule, exportName)
             : SourceTextModule::ResolveCjsStarExport(thread, importedModule, exportName);
@@ -2196,10 +2232,22 @@ JSHandle<JSTaggedValue> SourceTextModule::GetRequestedModuleMayThrowError(JSThre
     return JSHandle<JSTaggedValue>::Cast(GetModuleFromCacheOrResolveNewOne(thread, module, requestedModules, idx));
 }
 
+/*
+ * case A import B
+ * if B is sharedModule, every thread will instantiate one if sharedModule B have not put on sharedModuleMap.
+ * In this case, current thread's B may not be the final shared module in sharedModuleMap,
+ * so we shoule use recordName instead of SourceTextModule,
+ * and use [GetImportedModule] to get the final sharedModule B.
+ *
+ * normal -> normal: SourceTextModule
+ * normal -> shared: recordName
+ * shared -> normal: recordName
+ * shared -> shared: recordName
+ */
 void SourceTextModule::SetRequestedModules(JSThread *thread, JSHandle<TaggedArray> requestedModules, uint32_t idx,
     JSHandle<JSTaggedValue> requiredModule, bool isShared)
 {
-    if (!isShared) {
+    if (!isShared && !IsSharedModule(JSHandle<SourceTextModule>::Cast(requiredModule))) {
         requestedModules->Set(thread, idx, requiredModule.GetTaggedValue());
     } else {
         CString recordName = GetModuleName(requiredModule.GetTaggedValue());
@@ -2238,5 +2286,57 @@ void SourceTextModule::RestoreMutableFields(JSThread* thread, JSHandle<SourceTex
     module->SetSendableEnv(thread, fields.SendableEnv);
     module->SetException(thread, fields.Exception);
     module->SetNamespace(thread, fields.Namespace);
+}
+
+JSHandle<JSTaggedValue> SourceTextModule::CreateBindingByIndexBinding(JSThread* thread,
+                                                                      JSHandle<ResolvedIndexBinding> binding,
+                                                                      bool isShared)
+{
+    JSHandle<SourceTextModule> resolvedModule(thread, binding->GetModule(thread));
+    JSHandle<JSTaggedValue> bindingName =
+        GetBindingNameByIndex(thread, resolvedModule, binding->GetIndex());
+    ObjectFactory *factory = thread->GetEcmaVM()->GetFactory();
+    if (isShared) {
+        return JSHandle<JSTaggedValue>::Cast(factory->NewSResolvedBindingRecord(resolvedModule, bindingName));
+    }
+    return JSHandle<JSTaggedValue>::Cast(factory->NewResolvedBindingRecord(resolvedModule, bindingName));
+}
+
+JSHandle<JSTaggedValue> SourceTextModule::FindFuncInModuleForHook(JSThread* thread, const std::string &recordName,
+                                                                  const std::string &namespaceName,
+                                                                  const std::string &className,
+                                                                  const std::string &funcName)
+{
+    DisallowGarbageCollection no_gc;
+    JSHandle<JSTaggedValue> functionNotFound(thread, thread->GlobalConstants()->GetUndefined());
+
+    auto *moduleManager = thread->GetModuleManager();
+    CString referencing(recordName.c_str(), recordName.length());
+    if (!moduleManager->IsLocalModuleLoaded(referencing)) {
+        return functionNotFound;
+    }
+    auto module = moduleManager->HostGetImportedModule(referencing);
+    ObjectFactory *factory = thread->GetEcmaVM()->GetFactory();
+
+    std::string keyStr = funcName;
+    if (!namespaceName.empty()) {
+        keyStr = namespaceName;
+    } else if (!className.empty()) {
+        keyStr = className;
+    }
+
+    JSTaggedValue result;
+    if (module->GetIsNewBcVersion()) {
+        int index = ecmascript::ModuleManager::GetExportObjectIndex(thread->GetEcmaVM(), module, keyStr.c_str());
+        result = module->GetModuleValue(thread, index, false);
+    } else {
+        JSHandle<EcmaString> keyHandle = factory->NewFromASCII(keyStr.c_str());
+        result = module->GetModuleValue(thread, keyHandle.GetTaggedValue(), false);
+    }
+    JSHandle<JSTaggedValue> exportEntity(thread, result);
+    if (exportEntity->IsUndefined() || exportEntity->IsHole()) {
+        return functionNotFound;
+    }
+    return JSObject::FindFuncInObjectForHook(thread, exportEntity, className, funcName);
 }
 } // namespace panda::ecmascript

@@ -48,7 +48,7 @@
 #include "ecmascript/platform/file.h"
 #include "ecmascript/jit/jit.h"
 #include "common_interfaces/thread/thread_holder_manager.h"
-
+#include "ecmascript/checkpoint/thread_state_transition.h"
 #include "ecmascript/platform/asm_stack.h"
 
 namespace panda::ecmascript {
@@ -131,7 +131,7 @@ void JSThread::UnregisterThread(JSThread *jsThread)
 JSThread *JSThread::Create(EcmaVM *vm)
 {
     auto jsThread = new JSThread(vm);
-
+    vm->SetJSThread(jsThread);
     AsmInterParsedOption asmInterOpt = vm->GetJSOptions().GetAsmInterParsedOption();
     if (asmInterOpt.enableAsm) {
         jsThread->EnableAsmInterpreter();
@@ -329,6 +329,7 @@ void JSThread::HandleUncaughtException(JSTaggedValue exception)
         if (callback) {
             ClearException();
             Local<ObjectRef> exceptionRef = JSNApiHelper::ToLocal<ObjectRef>(exceptionHandle);
+            ThreadNativeScope nativeScope(this);
             callback(exceptionRef, GetOnErrorData());
         }
     }
@@ -503,14 +504,6 @@ void JSThread::Iterate(RootVisitor &visitor)
     }
     if (!glueData_.currentEnv_.IsHole()) {
         visitor.VisitRoot(Root::ROOT_VM, ObjectSlot(ToUintPtr(&glueData_.currentEnv_)));
-        if (g_isEnableCMCGC) {
-            // check the correctness of this scheme when multiple GlobalEnv capability is enabled
-            JSTaggedValue value = glueData_.currentEnv_;
-            if (value.IsJSGlobalEnv()) {
-                GlobalEnv *currentGlobalEnv = reinterpret_cast<GlobalEnv *>(value.GetTaggedObject());
-                currentGlobalEnv->Iterate(visitor);
-            }
-        }
     }
     if (!hotReloadDependInfo_.IsUndefined()) {
         visitor.VisitRoot(Root::ROOT_VM, ObjectSlot(ToUintPtr(&hotReloadDependInfo_)));
@@ -1037,7 +1030,8 @@ bool JSThread::CheckSafepoint()
 #ifndef NDEBUG
     if (vm_->GetJSOptions().EnableForceGC()) {
         if (g_isEnableCMCGC) {
-            common::BaseRuntime::RequestGC(common::GcType::SYNC);  // Trigger Full CMC here
+            common::BaseRuntime::RequestGC(common::GC_REASON_USER, false,
+                                           common::GC_TYPE_FULL);  // Trigger Full CMC here
         } else {
             vm_->CollectGarbage(TriggerGCType::FULL_GC);
         }

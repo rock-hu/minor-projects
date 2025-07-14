@@ -1263,7 +1263,8 @@ HWTEST_F(PipelineContextTestNg, PipelineContextTestNg025, TestSize.Level1)
         { "-velocityscale", "1", "2", "3" }, { "-scrollfriction", "1", "2", "3" }, { "-threadstuck", "1", "2", "3" },
         { "-rotation" }, { "-animationscale" }, { "-velocityscale" }, { "-scrollfriction" }, { "-threadstuck" },
         { "test" }, { "-navigation" }, { "-focuswindowscene" }, { "-focusmanager" }, { "-jsdump" }, { "-event" },
-        { "-imagecache" }, { "-imagefilecache" }, { "-allelements" }, { "-default" }, { "-overlay" }, { "--stylus" } };
+        { "-imagecache" }, { "-imagefilecache" }, { "-allelements" }, { "-default" }, { "-overlay" }, { "--stylus" },
+        { "-bindaicaller" }};
     int turn = 0;
     for (; turn < params.size(); turn++) {
         EXPECT_TRUE(context_->OnDumpInfo(params[turn]));
@@ -1997,7 +1998,10 @@ HWTEST_F(PipelineContextTestNg, PipelineContextTestNg094, TestSize.Level1)
     context_->ChangeDarkModeBrightness();
     MockContainer::Current()->SetIsUIExtensionWindow(true);
     context_->ChangeDarkModeBrightness();
+    auto rsUIDirector = context_->GetRSUIDirector();
+    context_->RSTransactionBegin(rsUIDirector);
     context_->SetAppBgColor(Color::BLUE);
+    context_->RSTransactionCommit(rsUIDirector);
     context_->ChangeDarkModeBrightness();
     MockContainer::SetMockColorMode(ColorMode::COLOR_MODE_UNDEFINED);
     context_->ChangeDarkModeBrightness();
@@ -2382,6 +2386,22 @@ HWTEST_F(PipelineContextTestNg, PipelineContextTestNg121, TestSize.Level1)
     context_->SetIsTransFlag(true);
     context_->FlushMouseEventForHover();
     EXPECT_FALSE(context_->lastMouseEvent_->pointerEvent);
+}
+
+/**
+ * @tc.name: PipelineContextTestNgForBundleName
+ * @tc.desc: Test GetBundleName.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PipelineContextTestNg, PipelineContextTestNgForBundleName, TestSize.Level1)
+{
+    auto bundleName = context_->GetBundleName();
+    EXPECT_EQ(bundleName, "");
+    bundleName = MockContainer::CurrentBundleName();
+    EXPECT_EQ(bundleName, "");
+    MockContainer::Current()->SetBundleName("test");
+    bundleName = MockContainer::CurrentBundleName();
+    EXPECT_EQ(bundleName, "test");
 }
 
 /**

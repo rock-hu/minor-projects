@@ -57,7 +57,7 @@ ScrollModel* ScrollModel::GetInstance()
 
 namespace OHOS::Ace::Framework {
 namespace {
-const std::vector<Axis> AXIS = { Axis::VERTICAL, Axis::HORIZONTAL, Axis::FREE, Axis::NONE };
+const std::vector<Axis> AXIS = { Axis::VERTICAL, Axis::HORIZONTAL, Axis::FREE, Axis::NONE, Axis::FREE };
 
 bool ParseJsDimensionArray(
     const JSRef<JSVal>& jsValue, std::vector<Dimension>& result, std::vector<RefPtr<ResourceObject>>& resObjs)
@@ -65,19 +65,20 @@ bool ParseJsDimensionArray(
     if (!jsValue->IsArray()) {
         return false;
     }
+    bool parseOK = true;
     JSRef<JSArray> array = JSRef<JSArray>::Cast(jsValue);
     for (size_t i = 0; i < array->Length(); i++) {
         JSRef<JSVal> value = array->GetValueAt(i);
         CalcDimension dimension;
         RefPtr<ResourceObject> resObj;
-        if (JSViewAbstract::ParseJsDimensionVp(value, dimension, resObj)) {
-            result.emplace_back(static_cast<Dimension>(dimension));
-            resObjs.emplace_back(resObj);
-        } else {
-            return false;
+        auto parseDimensionOK = JSViewAbstract::ParseJsDimensionVp(value, dimension, resObj);
+        result.emplace_back(static_cast<Dimension>(dimension));
+        resObjs.emplace_back(resObj);
+        if (!parseDimensionOK) {
+            parseOK = false;
         }
     }
-    return true;
+    return parseOK;
 }
 
 bool CheckSnapPaginations(std::vector<Dimension> snapPaginations)
@@ -114,12 +115,6 @@ void JSScroll::Create(const JSCallbackInfo& info)
             ScrollModel::GetInstance()->SetScrollBarProxy(proxy);
         }
     }
-    // init scroll bar
-    std::pair<bool, Color> barColor;
-    barColor.first = false;
-    std::pair<bool, Dimension> barWidth;
-    barWidth.first = false;
-    ScrollModel::GetInstance()->InitScrollBar(GetTheme<ScrollBarTheme>(), barColor, barWidth, EdgeEffect::NONE);
     JSScrollTheme::ApplyTheme();
 }
 
@@ -523,12 +518,13 @@ void JSScroll::SetScrollSnap(const JSCallbackInfo& args)
     if (!ParseJsDimensionVp(paginationValue, intervalSize, resObj) || intervalSize.IsNegative()) {
         intervalSize = CalcDimension(0.0);
     }
-    if (!ParseJsDimensionArray(paginationValue, snapPaginations, resObjs) || !CheckSnapPaginations(snapPaginations)) {
-        std::vector<Dimension>().swap(snapPaginations);
-    }
+    auto parseArrayOK = ParseJsDimensionArray(paginationValue, snapPaginations, resObjs);
     if (SystemProperties::ConfigChangePerform()) {
         ScrollModel::GetInstance()->CreateWithResourceObjIntervalSize(resObj);
-        ScrollModel::GetInstance()->CreateWithResourceObjSnapPaginations(resObjs);
+        ScrollModel::GetInstance()->CreateWithResourceObjSnapPaginations(snapPaginations, resObjs);
+    }
+    if (!parseArrayOK || !CheckSnapPaginations(snapPaginations)) {
+        std::vector<Dimension>().swap(snapPaginations);
     }
 
     bool enableSnapToStart = true;
@@ -588,10 +584,29 @@ void JSScroll::SetZoomScale(const JSCallbackInfo& args)
         return;
     }
     double zoomScale = 1.0;
-    if (JSViewAbstract::ParseJsDouble(args[0], zoomScale)) {
+    JSRef<JSVal> changeEventVal;
+    auto scaleValue = args[0];
+    if (scaleValue->IsObject()) {
+        JSRef<JSObject> obj = JSRef<JSObject>::Cast(scaleValue);
+        scaleValue = obj->GetProperty("value");
+        changeEventVal = obj->GetProperty("$value");
+    }
+    if (JSViewAbstract::ParseJsDouble(scaleValue, zoomScale)) {
         ScrollModel::GetInstance()->SetZoomScale(zoomScale);
     } else {
         ScrollModel::GetInstance()->ResetZoomScale();
+    }
+    if (changeEventVal->IsFunction()) {
+        auto jsFunc = AceType::MakeRefPtr<JsFunction>(JSRef<JSObject>(), JSRef<JSFunc>::Cast(changeEventVal));
+        auto targetNode = AceType::WeakClaim(NG::ViewStackProcessor::GetInstance()->GetMainFrameNode());
+        auto changeEvent = [execCtx = args.GetExecutionContext(),
+            func = std::move(jsFunc), node = targetNode](float param) {
+            JAVASCRIPT_EXECUTION_SCOPE_WITH_CHECK(execCtx);
+            auto newJSVal = JSRef<JSVal>::Make(ToJSValue(param));
+            PipelineContext::SetCallBackNode(node);
+            func->ExecuteJS(1, &newJSVal);
+        };
+        ScrollModel::GetInstance()->SetZoomScaleChangeEvent(std::move(changeEvent));
     }
 }
 

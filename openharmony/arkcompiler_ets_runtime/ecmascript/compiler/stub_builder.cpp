@@ -32,6 +32,7 @@
 #include "ecmascript/require/js_cjs_module_cache.h"
 #include "ecmascript/transitions_dictionary.h"
 #include "common_components/heap/allocator/region_desc.h"
+#include "objects/base_state_word.h"
 
 namespace panda::ecmascript::kungfu {
 void StubBuilder::Jump(Label *label)
@@ -1059,7 +1060,7 @@ GateRef StubBuilder::JSObjectHasProperty(GateRef glue, GateRef obj, GateRef key,
     opStubBuilder.StartLookup<ObjectOperatorStubBuilder::StartLookupType::NO_RECEIVER>(
         glue, key, &checkHolder, opOptions, opResult, hir);
 
-    // if holder is JSProxy, op's lookup will return. This will be handled by CallRuntime. 
+    // if holder is JSProxy, op's lookup will return. This will be handled by CallRuntime.
     Bind(&checkHolder);
     {
         Label isJSProxy(env);
@@ -1908,7 +1909,7 @@ void StubBuilder::VerifyBarrier(GateRef glue, GateRef obj, [[maybe_unused]] Gate
 GateRef StubBuilder::GetCMCRegionRSet(GateRef obj)
 {
     GateRef metaDataAddr = IntPtrAnd(TaggedCastToIntPtr(obj),
-                                     IntPtr(~static_cast<int64_t>(common::RegionDesc::DEFAULT_REGION_UNIT_MASK)));
+                                     IntPtr(~static_cast<uint64_t>(common::RegionDesc::DEFAULT_REGION_UNIT_MASK)));
     GateRef regionRSet = LoadPrimitive(VariableType::NATIVE_POINTER(), metaDataAddr,
                                        IntPtr(common::RegionDesc::REGION_RSET_IN_INLINED_METADATA_OFFSET));
     return regionRSet;
@@ -1934,83 +1935,181 @@ GateRef StubBuilder::IsInYoungSpace(GateRef regionType)
     return ret;
 }
 
+GateRef StubBuilder::IsOldToYoung(GateRef objRegionType, GateRef valueRegionType)
+{
+    auto env = GetEnvironment();
+    GateRef isOldToYoung = LogicAndBuilder(env)
+        .And(BoolNot(IsInYoungSpace(objRegionType)))
+        .And(IsInYoungSpace(valueRegionType)).Done();
+    return isOldToYoung;
+}
+
+GateRef StubBuilder::GetGCPhase(GateRef glue)
+{
+    GateRef gcPhase = LoadPrimitive(VariableType::INT8(), glue,
+        Int64(JSThread::GlueData::GetSharedGCStateBitFieldOffset(false) +
+        JSThread::CMCGCPhaseBits::START_BIT / BITS_PER_BYTE));
+    return gcPhase;
+}
+
+GateRef StubBuilder::GetGCReason(GateRef glue)
+{
+    GateRef gcReason = LoadPrimitive(VariableType::INT32(), glue,
+        Int64(JSThread::GlueData::GetSharedGCStateBitFieldOffset(false) +
+        JSThread::CMCGCReasonBits::START_BIT / BITS_PER_BYTE));
+    return gcReason;
+}
+
+void StubBuilder::MarkRSetCardTable(GateRef obj, Label *exit)
+{
+    auto env = GetEnvironment();
+    Label markBit(env);
+    GateRef regionBase = IntPtrAnd(TaggedCastToIntPtr(obj),
+        IntPtr(~static_cast<uint64_t>(common::RegionDesc::DEFAULT_REGION_UNIT_MASK)));
+    GateRef objOffset = PtrSub(TaggedCastToIntPtr(obj), regionBase);
+    GateRef rset = GetCMCRegionRSet(obj);
+    GateRef cardIdx = IntPtrDiv(IntPtrDiv(objOffset, IntPtr(common::kMarkedBytesPerBit)),
+                                IntPtr(common::kBitsPerWord));
+    GateRef headMaskBitStart = IntPtrMod(IntPtrDiv(objOffset, IntPtr(common::kMarkedBytesPerBit)),
+                                            IntPtr(common::kBitsPerWord));
+    GateRef headMaskBits = Int64LSL(Int64(1), headMaskBitStart);
+    GateRef cardOffset = PtrMul(cardIdx, IntPtr(common::kBytesPerWord));
+    GateRef cardTable = PtrAdd(rset, IntPtr(common::RegionRSet::CARD_TABLE_DATA_OFFSET));
+    GateRef card = LoadPrimitive(VariableType::INT64(), cardTable, cardOffset);
+    GateRef isMarked = Int64NotEqual(Int64And(card, headMaskBits), Int64(0));
+    BRANCH_NO_WEIGHT(isMarked, exit, &markBit);
+    Bind(&markBit);
+    {
+        Int64FetchOr(PtrAdd(cardTable, cardOffset), headMaskBits, MemoryAttribute::Default());
+        Jump(exit);
+    }
+}
+
+GateRef StubBuilder::ShouldGetGCReason(GateRef gcPhase)
+{
+    auto env = GetEnvironment();
+    GateRef shouldGetGCReason = LogicOrBuilder(env)
+        .Or(Int8Equal(gcPhase, Int8(common::GCPhase::GC_PHASE_ENUM)))
+        .Or(Int8Equal(gcPhase, Int8(common::GCPhase::GC_PHASE_MARK)))
+        .Or(Int8Equal(gcPhase, Int8(common::GCPhase::GC_PHASE_POST_MARK)))
+        .Done();
+    return shouldGetGCReason;
+}
+
+GateRef StubBuilder::ShouldProcessSATB(GateRef gcPhase)
+{
+    auto env = GetEnvironment();
+    GateRef shouldProcessSATB = LogicOrBuilder(env)
+        .Or(Int8Equal(gcPhase, Int8(common::GCPhase::GC_PHASE_ENUM)))
+        .Or(Int8Equal(gcPhase, Int8(common::GCPhase::GC_PHASE_MARK)))
+        .Or(Int8Equal(gcPhase, Int8(common::GCPhase::GC_PHASE_FINAL_MARK)))
+        .Or(Int8Equal(gcPhase, Int8(common::GCPhase::GC_PHASE_REMARK_SATB)))
+        .Done();
+    return shouldProcessSATB;
+}
+
+GateRef StubBuilder::ShouldUpdateRememberSet(GateRef glue, GateRef gcPhase)
+{
+    auto env = GetEnvironment();
+    Label entry(env);
+    env->SubCfgEntry(&entry);
+    Label checkOldToYoung(env);
+    Label exit(env);
+    Label notMarkRSet(env);
+    Label notIdlePhase(env);
+    DEFVARIABLE(result, VariableType::BOOL(), True());
+    BRANCH(Int8Equal(gcPhase, Int8(common::GCPhase::GC_PHASE_IDLE)), &exit, &notIdlePhase);
+    Bind(&notIdlePhase);
+    GateRef gcReason = GetGCReason(glue);
+    Label reasonNotYoung(env);
+    BRANCH(Int32Equal(gcReason, Int32(common::GCReason::GC_REASON_YOUNG)), &exit, &reasonNotYoung);
+    Bind(&reasonNotYoung);
+    GateRef shouldGetGCReason = ShouldGetGCReason(gcPhase);
+    BRANCH(BoolNot(shouldGetGCReason), &exit, &notMarkRSet);
+    Bind(&notMarkRSet);
+    result = False();
+    Jump(&exit);
+    Bind(&exit);
+    auto ret = *result;
+    env->SubCfgExit();
+    return ret;
+}
+
 void StubBuilder::CMCSetValueWithBarrier(GateRef glue, GateRef obj, [[maybe_unused]]GateRef offset, GateRef value)
 {
     auto env = GetEnvironment();
     Label entry(env);
     env->SubCfgEntry(&entry);
     Label exit(env);
-
-    GateRef gcPhase = LoadPrimitive(VariableType::INT8(), glue,
-                                    Int64(JSThread::GlueData::GetSharedGCStateBitFieldOffset(false) +
-                                        JSThread::CMCGCPhaseBits::START_BIT / BITS_PER_BYTE));
     Label checkOldToYoung(env);
     Label markRSet(env);
     Label notMarkRSet(env);
-    Label notIdlePhase(env);
-    BRANCH(Int8Equal(gcPhase, Int8(common::GCPhase::GC_PHASE_IDLE)), &checkOldToYoung, &notIdlePhase);
-    Bind(&notIdlePhase);
-    GateRef gcReason = LoadPrimitive(VariableType::INT32(), glue,
-        Int64(JSThread::GlueData::GetSharedGCStateBitFieldOffset(false) +
-        JSThread::CMCGCReasonBits::START_BIT / BITS_PER_BYTE));
-    Label reasonNotYoung(env);
-    BRANCH(Int32Equal(gcReason, Int32(common::GCReason::GC_REASON_YOUNG)), &checkOldToYoung, &reasonNotYoung);
-    Bind(&reasonNotYoung);
-    GateRef needMarkPhase = LogicOrBuilder(env)
-        .Or(Int8Equal(gcPhase, Int8(common::GCPhase::GC_PHASE_COPY)))
-        .Or(Int8Equal(gcPhase, Int8(common::GCPhase::GC_PHASE_FIX)))
-        .Or(Int8Equal(gcPhase, Int8(common::GCPhase::GC_PHASE_PRECOPY)))
-        .Or(Int8Equal(gcPhase, Int8(common::GCPhase::GC_PHASE_FINAL_MARK)))
-        .Or(Int8Equal(gcPhase, Int8(common::GCPhase::GC_PHASE_REMARK_SATB)))
-        .Done();
-    BRANCH(needMarkPhase, &checkOldToYoung, &notMarkRSet);
+    GateRef gcPhase = GetGCPhase(glue);
+    BRANCH(ShouldUpdateRememberSet(glue, gcPhase), &checkOldToYoung, &notMarkRSet);
     Bind(&checkOldToYoung);
     {
         GateRef objRegionType = GetCMCRegionType(obj);
         GateRef valueRegionType = GetCMCRegionType(value);
-        GateRef isOldToYoung = LogicAndBuilder(env)
-                               .And(BoolNot(IsInYoungSpace(objRegionType)))
-                               .And(IsInYoungSpace(valueRegionType)).Done();
+        GateRef isOldToYoung = IsOldToYoung(objRegionType, valueRegionType);
         BRANCH_UNLIKELY(isOldToYoung, &markRSet, &notMarkRSet);
         Bind(&markRSet);
-        {
-            Label markBit(env);
-            GateRef regionBase = IntPtrAnd(TaggedCastToIntPtr(obj),
-                IntPtr(~static_cast<int64_t>(common::RegionDesc::DEFAULT_REGION_UNIT_MASK)));
-            GateRef objOffset = PtrSub(TaggedCastToIntPtr(obj), regionBase);
-            GateRef rset = GetCMCRegionRSet(obj);
-            GateRef cardIdx = IntPtrDiv(IntPtrDiv(objOffset, IntPtr(common::kMarkedBytesPerBit)),
-                                        IntPtr(common::kBitsPerWord));
-            GateRef headMaskBitStart = IntPtrMod(IntPtrDiv(objOffset, IntPtr(common::kMarkedBytesPerBit)),
-                                                 IntPtr(common::kBitsPerWord));
-            GateRef headMaskBits = Int64LSL(Int64(1), headMaskBitStart);
-            GateRef cardOffset = PtrMul(cardIdx, IntPtr(common::kBytesPerWord));
-            GateRef cardTable = LoadPrimitive(VariableType::NATIVE_POINTER(), rset,
-                                              IntPtr(common::RegionRSet::CARD_TABLE_OFFSET_IN_RSET));
-            GateRef card = LoadPrimitive(VariableType::INT64(), cardTable, cardOffset);
-            GateRef isMarked = Int64NotEqual(Int64And(card, headMaskBits), Int64(0));
-            BRANCH_NO_WEIGHT(isMarked, &notMarkRSet, &markBit);
-            Bind(&markBit);
-            {
-                Int64FetchOr(PtrAdd(cardTable, cardOffset), headMaskBits);
-                Jump(&notMarkRSet);
-            }
-        }
+        MarkRSetCardTable(obj, &notMarkRSet);
     }
     Bind(&notMarkRSet);
     Label markInBuffer(env);
-    GateRef needMarkInBuffer = LogicOrBuilder(env)
-        .Or(Int8Equal(gcPhase, Int8(common::GCPhase::GC_PHASE_ENUM)))
-        .Or(Int8Equal(gcPhase, Int8(common::GCPhase::GC_PHASE_MARK)))
-        .Or(Int8Equal(gcPhase, Int8(common::GCPhase::GC_PHASE_FINAL_MARK)))
-        .Or(Int8Equal(gcPhase, Int8(common::GCPhase::GC_PHASE_REMARK_SATB)))
-        .Done();
-    BRANCH_UNLIKELY(needMarkInBuffer, &markInBuffer, &exit);
+    GateRef shouldProcessSATB = ShouldProcessSATB(gcPhase);
+    BRANCH_UNLIKELY(shouldProcessSATB, &markInBuffer, &exit);
     Bind(&markInBuffer);
     {
         CallNGCRuntime(glue, RTSTUB_ID(MarkInBuffer), {value});
         Jump(&exit);
     }
+    Bind(&exit);
+    env->SubCfgExit();
+}
+
+void StubBuilder::CMCArrayCopyWriteBarrier(GateRef glue, GateRef dstObj, GateRef src, GateRef dst, GateRef count)
+{
+    auto env = GetEnvironment();
+    Label entry(env);
+    env->SubCfgEntry(&entry);
+    Label exit(env);
+    Label iLessLength(env);
+    Label isTaggedObject(env);
+    Label loopHead(env);
+    Label loopEnd(env);
+    Label markRSet(env);
+    Label notMarkRSet(env);
+    GateRef objRegionType = GetCMCRegionType(dstObj);
+    DEFVARIABLE(i, VariableType::INT32(), Int32(0));
+    GateRef gcPhase = GetGCPhase(glue);
+    Label checkOldToYoung(env);
+    BRANCH(ShouldUpdateRememberSet(glue, gcPhase), &checkOldToYoung, &notMarkRSet);
+    Bind(&checkOldToYoung);
+    Jump(&loopHead);
+    LoopBegin(&loopHead);
+    {
+        BRANCH(Int32UnsignedLessThan(*i, count), &iLessLength, &notMarkRSet);
+        Bind(&iLessLength);
+        GateRef offset = PtrMul(ZExtInt32ToPtr(*i), IntPtr(sizeof(uintptr_t)));
+        GateRef ref = LoadPrimitive(VariableType::JS_ANY(), src, offset);
+        BRANCH(TaggedIsHeapObject(ref), &isTaggedObject, &loopEnd);
+        Bind(&isTaggedObject);
+        GateRef isOldToYoung = IsOldToYoung(objRegionType, GetCMCRegionType(ref));
+        BRANCH_UNLIKELY(isOldToYoung, &markRSet, &loopEnd);
+        Bind(&markRSet);
+        MarkRSetCardTable(dstObj, &notMarkRSet);
+        Bind(&loopEnd);
+        i = Int32Add(*i, Int32(1));
+        LoopEnd(&loopHead);
+    }
+    Bind(&notMarkRSet);
+    Label markInBuffer(env);
+    GateRef shouldProcessSATB = ShouldProcessSATB(gcPhase);
+    BRANCH_UNLIKELY(shouldProcessSATB, &markInBuffer, &exit);
+    Bind(&markInBuffer);
+    CallNGCRuntime(glue, RTSTUB_ID(BatchMarkInBuffer), {TaggedCastToIntPtr(src), count});
+    Jump(&exit);
     Bind(&exit);
     env->SubCfgExit();
 }
@@ -2255,14 +2354,79 @@ GateRef StubBuilder::GetValueWithBarrier(GateRef glue, GateRef addr)
     }
     Bind(&isHeapObject);
     {
-        result = CallNGCRuntime(glue, RTSTUB_ID(ReadBarrier), { glue, addr });
-        Jump(&exit);
+        Label isHeapAddress(env);
+        Label notHeapAddress(env);
+        BRANCH(IsHeapAddress(glue, value), &isHeapAddress, &notHeapAddress);
+        Bind(&notHeapAddress);
+        {
+            result = value;
+            Jump(&exit);
+        }
+        Bind(&isHeapAddress);
+        {
+            result = FastReadBarrier(glue, addr, value);
+            Jump(&exit);
+        }
     }
 
     Bind(&exit);
     auto ret = *result;
     env->SubCfgExit();
     return ret;
+}
+
+GateRef StubBuilder::FastReadBarrier(GateRef glue, GateRef addr, GateRef value)
+{
+    auto env = GetEnvironment();
+    Label entry(env);
+    env->SubCfgEntry(&entry);
+    Label exit(env);
+    DEFVARIABLE(result, VariableType::JS_ANY(), value);
+
+    GateRef intValue = ChangeTaggedPointerToInt64(value);
+    GateRef regionType = GetCMCRegionType(value);
+    Label isFromeSpace(env);
+    GateRef fromType = Int8(static_cast<int8_t>(common::RegionDesc::RegionType::FROM_REGION));
+    Branch(Int8Equal(regionType, fromType), &isFromeSpace, &exit);
+    Bind(&isFromeSpace);
+    {
+        GateRef weakMask = Int64And(intValue, Int64(JSTaggedValue::TAG_WEAK));
+        GateRef obj = Int64And(intValue, Int64(~JSTaggedValue::TAG_WEAK));
+
+        GateRef forwardedAddr = LoadPrimitive(VariableType::INT64(), obj, IntPtr(0));
+        GateRef forwardState =
+            Int64LSR(forwardedAddr, Int64(common::BaseStateWord::PADDING_WIDTH + common::BaseStateWord::FORWARD_WIDTH));
+        Label forwarded(env);
+        Label notForwarded(env);
+        Branch(Int64Equal(forwardState, Int64(static_cast<int64_t>(common::BaseStateWord::ForwardState::FORWARDED))),
+            &forwarded, &notForwarded);
+        Bind(&forwarded);
+        {
+            result = Int64ToTaggedPtr(Int64Or(Int64And(forwardedAddr, Int64(TaggedStateWord::ADDRESS_MASK)), weakMask));
+            Jump(&exit);
+        }
+        Bind(&notForwarded);
+        {
+            result = CallNGCRuntime(glue, RTSTUB_ID(ReadBarrier), { glue, addr });
+            Jump(&exit);
+        }
+    }
+
+    Bind(&exit);
+    auto ret = *result;
+    env->SubCfgExit();
+    return ret;
+}
+
+GateRef StubBuilder::IsHeapAddress(GateRef glue, GateRef value)
+{
+    bool isArch32 = GetEnvironment()->Is32Bit();
+    GateRef heapStartAddr = LoadPrimitive(
+        VariableType::NATIVE_POINTER(), glue, IntPtr(JSThread::GlueData::GetHeapStartAddrOffset(isArch32)));
+    GateRef heapCurrentEnd = LoadPrimitive(
+        VariableType::NATIVE_POINTER(), glue, IntPtr(JSThread::GlueData::GetHeapCurrentEndOffset(isArch32)));
+    auto IntPtrValue =  ChangeTaggedPointerToInt64(value);
+    return BitAnd(IntPtrGreaterThanOrEqual(IntPtrValue, heapStartAddr), IntPtrLessThan(IntPtrValue, heapCurrentEnd));
 }
 
 GateRef StubBuilder::TaggedIsBigInt(GateRef glue, GateRef obj)
@@ -6933,6 +7097,51 @@ GateRef StubBuilder::StringCompareContents(GateRef glue, GateRef left, GateRef r
     StringInfoGateRef leftStrInfoGate(&leftFlat);
     StringInfoGateRef rightStrInfoGate(&rightFlat);
     DEFVARIABLE(i, VariableType::INT32(), Int32(0));
+    GateRef isBothUtf8 = LogicAndBuilder(env).And(IsUtf8String(leftStrInfoGate.GetString()))
+                                             .And(IsUtf8String(rightStrInfoGate.GetString())).Done();
+    Label bothUtf8(env);
+    Label slowCompare(env);
+    BRANCH_LIKELY(isBothUtf8, &bothUtf8, &slowCompare);
+    Bind(&bothUtf8);
+    {
+        GateRef leftData = GetNormalStringData(glue, leftStrInfoGate);
+        GateRef rightData = GetNormalStringData(glue, rightStrInfoGate);
+        Label utf8LoopHead(env);
+        Label utf8LoopEnd(env);
+        Label utf8LoopBody(env);
+        Jump(&utf8LoopHead);
+        LoopBegin(&utf8LoopHead);
+        {
+            BRANCH(Int32UnsignedLessThan(*i, minLength), &utf8LoopBody, &exit);
+            Bind(&utf8LoopBody);
+            {
+                GateRef leftChar = LoadPrimitive(VariableType::INT8(), leftData, *i);
+                GateRef rightChar = LoadPrimitive(VariableType::INT8(), rightData, *i);
+                Label notEqual(env);
+                BRANCH_NO_WEIGHT(Int8Equal(leftChar, rightChar), &utf8LoopEnd, &notEqual);
+                Bind(&notEqual);
+                {
+                    Label leftIsLess(env);
+                    Label rightIsLess(env);
+                    BRANCH_NO_WEIGHT(Int32LessThan(ZExtInt8ToInt32(leftChar), ZExtInt8ToInt32(rightChar)), &leftIsLess, &rightIsLess);
+                    Bind(&leftIsLess);
+                    {
+                        result = Int32(-1);
+                        Jump(&exit);
+                    }
+                    Bind(&rightIsLess);
+                    {
+                        result = Int32(1);
+                        Jump(&exit);
+                    }
+                }
+            }
+            Bind(&utf8LoopEnd);
+            i = Int32Add(*i, Int32(1));
+            LoopEnd(&utf8LoopHead);
+        }
+    }
+    Bind(&slowCompare);
     Jump(&loopHead);
     LoopBegin(&loopHead);
     {
@@ -11998,8 +12207,9 @@ GateRef StubBuilder::UpdateBindingAndGetModuleValue(GateRef glue, GateRef module
 
         Bind(&notNullOrString);
         {
-            SetValueToTaggedArray(VariableType::JS_ANY(), glue, curModuleEnv, index, resolution);
             CheckIsResolvedIndexBinding(glue, resolution);
+            SetIsUpdatedFromResolvedBindingOfResolvedIndexBinding(glue, resolution, True());
+            SetValueToTaggedArray(VariableType::JS_ANY(), glue, curModuleEnv, index, resolution);
             result = GetValueFromExportObject(glue, exports, GetIdxOfResolvedIndexBinding(resolution));
             Jump(&exit);
         }
@@ -12085,18 +12295,26 @@ GateRef StubBuilder::LoadExternalmodulevar(GateRef glue, GateRef index, GateRef 
             Label isLdEndExecPatchMain(env);
             Label notLdEndExecPatchMain(env);
             Label notHole(env);
-            GateRef resolvedModule = GetResolveModuleFromResolvedIndexBinding(glue, resolvedBinding);
-            ResolvedModuleMustBeSourceTextModule(glue, resolvedModule);
+            DEFVARIABLE(resolvedModule, VariableType::JS_ANY(), Hole());
+            resolvedModule = GetResolveModuleFromResolvedIndexBinding(glue, resolvedBinding);
+            ResolvedModuleMustBeSourceTextModule(glue, *resolvedModule);
             GateRef idxOfResolvedBinding = GetIdxOfResolvedIndexBinding(resolvedBinding);
             BRANCH(IsLdEndExecPatchMain(glue), &isLdEndExecPatchMain, &notLdEndExecPatchMain);
 
             Bind(&isLdEndExecPatchMain);
             GateRef resolvedModuleOfHotReload = CallNGCRuntime(glue, RTSTUB_ID(FindPatchModule),
-                                                               {glue, resolvedModule});
+                                                               {glue, *resolvedModule});
             BRANCH(TaggedIsHole(resolvedModuleOfHotReload), &notLdEndExecPatchMain, &notHole);
 
             Bind(&notLdEndExecPatchMain);
-            result = GetModuleValue(glue, resolvedModule, idxOfResolvedBinding);
+            Label isSharedModule(env);
+            Label notSharedModule(env);
+            BRANCH(IsSharedModule(*resolvedModule), &isSharedModule, &notSharedModule);
+            Bind(&isSharedModule);
+            resolvedModule = CallNGCRuntime(glue, RTSTUB_ID(UpdateSharedModule), {glue, *resolvedModule});
+            Jump(&notSharedModule);
+            Bind(&notSharedModule);
+            result = GetModuleValue(glue, *resolvedModule, idxOfResolvedBinding);
             Jump(&exit);
 
             Bind(&notHole);
@@ -12509,7 +12727,7 @@ void StubBuilder::EndTraceLoadValue([[maybe_unused]]GateRef glue)
 #endif
 }
 
-void StubBuilder::StartTraceCallDetail([[maybe_unused]] GateRef glue, [[maybe_unused]] GateRef profileTypeInfo, 
+void StubBuilder::StartTraceCallDetail([[maybe_unused]] GateRef glue, [[maybe_unused]] GateRef profileTypeInfo,
                                        [[maybe_unused]] GateRef slotId)
 {
 #if ECMASCRIPT_ENABLE_TRACE_CALL
@@ -12972,32 +13190,43 @@ void StubBuilder::ArrayCopy(GateRef glue, GateRef srcObj, GateRef srcAddr, GateR
     Label entry(env);
     env->SubCfgEntry(&entry);
     Label exit(env);
-    CallNGCRuntime(glue, RTSTUB_ID(ObjectCopy),
-                   {glue, TaggedCastToIntPtr(dstObj), TaggedCastToIntPtr(dstAddr), TaggedCastToIntPtr(srcAddr), taggedValueCount});
-    Label checkNext(env);
+    Label isEnableCMCGC(env);
+    Label notCMCGC(env);
     BRANCH_UNLIKELY(LoadPrimitive(
         VariableType::BOOL(), glue, IntPtr(JSThread::GlueData::GetIsEnableCMCGCOffset(env->Is32Bit()))),
-        &exit, &checkNext);
-    Bind(&checkNext);
-    Label handleBarrier(env);
-    BRANCH_NO_WEIGHT(needBarrier, &handleBarrier, &exit);
-    Bind(&handleBarrier);
+        &isEnableCMCGC, &notCMCGC);
+
+    Bind(&isEnableCMCGC);
     {
-        if (copyKind == SameArray) {
-            CallCommonStub(glue, CommonStubCSigns::MoveBarrierInRegion,
-                           {
-                               glue, TaggedCastToIntPtr(dstObj), TaggedCastToIntPtr(dstAddr), taggedValueCount,
-                               TaggedCastToIntPtr(srcAddr)
-                           });
-        } else {
-            ASSERT(copyKind == DifferentArray);
-            CallCommonStub(glue, CommonStubCSigns::MoveBarrierCrossRegion,
-                           {
-                               glue, TaggedCastToIntPtr(dstObj), TaggedCastToIntPtr(dstAddr), taggedValueCount,
-                               TaggedCastToIntPtr(srcAddr), TaggedCastToIntPtr(srcObj)
-                           });
-        }
+        CallNGCRuntime(glue, RTSTUB_ID(CopyObjectPrimitive),
+            {glue, TaggedCastToIntPtr(dstObj), TaggedCastToIntPtr(dstAddr), TaggedCastToIntPtr(srcAddr), taggedValueCount});
+        CMCArrayCopyWriteBarrier(glue, dstObj, dstAddr, srcAddr, taggedValueCount);
         Jump(&exit);
+    }
+    Bind(&notCMCGC);
+    {
+        CallNGCRuntime(glue, RTSTUB_ID(ObjectCopy),
+            {glue, TaggedCastToIntPtr(dstObj), TaggedCastToIntPtr(dstAddr), TaggedCastToIntPtr(srcAddr), taggedValueCount});
+        Label handleBarrier(env);
+        BRANCH_NO_WEIGHT(needBarrier, &handleBarrier, &exit);
+        Bind(&handleBarrier);
+        {
+            if (copyKind == SameArray) {
+                CallCommonStub(glue, CommonStubCSigns::MoveBarrierInRegion,
+                            {
+                                glue, TaggedCastToIntPtr(dstObj), TaggedCastToIntPtr(dstAddr), taggedValueCount,
+                                TaggedCastToIntPtr(srcAddr)
+                            });
+            } else {
+                ASSERT(copyKind == DifferentArray);
+                CallCommonStub(glue, CommonStubCSigns::MoveBarrierCrossRegion,
+                            {
+                                glue, TaggedCastToIntPtr(dstObj), TaggedCastToIntPtr(dstAddr), taggedValueCount,
+                                TaggedCastToIntPtr(srcAddr), TaggedCastToIntPtr(srcObj)
+                            });
+            }
+            Jump(&exit);
+        }
     }
     Bind(&exit);
     env->SubCfgExit();

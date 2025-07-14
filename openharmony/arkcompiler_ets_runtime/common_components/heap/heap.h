@@ -24,6 +24,7 @@
 #include "common_components/common/type_def.h"
 #include "common_components/heap/barrier/barrier.h"
 #include "common_components/heap/collector/collector.h"
+#include "common_components/profiler/common_profiler_interface.h"
 #include "common_interfaces/base/runtime_param.h"
 #include "common_interfaces/base_runtime.h"
 
@@ -59,6 +60,7 @@ public:
     static void throwOOM()
     {
         // Maybe we need to add heapdump logic here
+        CommonHeapProfilerInterface::DumpHeapSnapshotBeforeOOM();
         LOG_COMMON(FATAL) << "Out of Memory, abort.";
         UNREACHABLE_CC();
     }
@@ -80,6 +82,8 @@ public:
 
     virtual bool IsGcStarted() const = 0;
     virtual void WaitForGCFinish() = 0;
+    virtual void MarkGCStart() = 0;
+    virtual void MarkGCFinish() = 0;
 
     virtual bool IsGCEnabled() const = 0;
     virtual void EnableGC(bool val) = 0;
@@ -176,6 +180,8 @@ public:
     virtual GCReason GetGCReason() = 0;
 
     virtual void SetGCReason(GCReason reason) = 0;
+
+    virtual bool InRecentSpace(const void *addr) = 0;
 
     static void OnHeapCreated(HeapAddress startAddr)
     {

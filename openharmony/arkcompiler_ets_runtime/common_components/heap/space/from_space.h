@@ -40,7 +40,7 @@ class FromSpace : public RegionalSpace {
 public:
     FromSpace(RegionManager& regionManager, RegionSpace& heap) : RegionalSpace(regionManager),
         fromRegionList_("from-regions"),
-        exemptedFromRegionList_("exempted from-regions"), heap_(heap) {}
+        exemptedFromRegionList_("exempted from-regions"), heap_(heap), exemptedRegionThreshold_(0) {}
 
     void DumpRegionStats() const;
 
@@ -120,7 +120,7 @@ private:
         RegionList tmp("temp region list");
         list.CopyListTo(tmp);
         tmp.VisitAllRegions([](RegionDesc* region) {
-            region->ClearTraceCopyFixLine();
+            region->ClearTraceCopyLine();
             region->ClearLiveInfo();
             region->ResetMarkBit();
         });

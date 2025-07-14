@@ -1866,8 +1866,9 @@ bool BuiltinsRegExp::RegExpExecInternal(JSThread *thread, const JSHandle<JSTagge
     JSTaggedValue regexpSource = JSRegExp::Cast(regexp->GetTaggedObject())->GetOriginalSource(thread);
     uint32_t regexpLength = EcmaStringAccessor(regexpSource).GetLength();
     if (UNLIKELY(regexpLength > MIN_REGEXP_PATTERN_LENGTH_EXECUTE_WITH_OFFHEAP_STRING && stringLength > 0)) {
-        size_t utf8Len = LineEcmaString::DataSize(flatStrInfo.GetString());
-        ASSERT(utf8Len > 0);
+        size_t utf8Len = LineEcmaString::DataSize(*inputString);
+        ASSERT(utf8Len > 0 &&
+            utf8Len == (isUtf16 ? (stringLength * 2) : stringLength)); // 2:Each char in Utf16 use 2 bytes
         uint8_t *offHeapString = new uint8_t[utf8Len];
         if (memcpy_s(offHeapString, utf8Len, strBuffer, utf8Len) != EOK) {
             LOG_FULL(FATAL) << "memcpy_s failed";
@@ -2692,10 +2693,13 @@ void RegExpExecResultCache::SetEntry(JSThread *thread, int entry, JSTaggedValue 
             static_cast<size_t>(entry) * static_cast<size_t>(ENTRY_SIZE)) <= static_cast<size_t>(INT_MAX));
     int index = CACHE_TABLE_HEADER_SIZE + entry * ENTRY_SIZE;
     Set(thread, index + PATTERN_INDEX, pattern);
-    Set(thread, index + FLAG_INDEX, flags);
+    ASSERT(flags.IsInt());
+    Set<false>(thread, index + FLAG_INDEX, flags);
     Set(thread, index + INPUT_STRING_INDEX, input);
-    Set(thread, index + LAST_INDEX_INPUT_INDEX, lastIndexInputValue);
-    Set(thread, index + LAST_INDEX_INDEX, lastIndexValue);
+    ASSERT(lastIndexInputValue.IsInt());
+    Set<false>(thread, index + LAST_INDEX_INPUT_INDEX, lastIndexInputValue);
+    ASSERT(lastIndexValue.IsInt());
+    Set<false>(thread, index + LAST_INDEX_INDEX, lastIndexValue);
     Set(thread, index + EXTEND_INDEX, extendValue);
     Set(thread, index + CAPTURE_SIZE, resTableArray);
 }

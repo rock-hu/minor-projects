@@ -65,6 +65,7 @@
 #include "ecmascript/mem/heap-inl.h"
 #include "ecmascript/dfx/stackinfo/async_stack_trace.h"
 #include "ecmascript/base/gc_helper.h"
+#include "ecmascript/checkpoint/thread_state_transition.h"
 
 #if defined(PANDA_TARGET_OHOS) && !defined(STANDALONE_MODE)
 #include "parameters.h"
@@ -353,6 +354,7 @@ bool EcmaVM::Initialize()
     abcBufferCache_ = new AbcBufferCache();
     auto globalConst = const_cast<GlobalEnvConstants *>(thread_->GlobalConstants());
     globalConst->Init(thread_);
+    InitDataViewTypeTable(globalConst);
     [[maybe_unused]] EcmaHandleScope scope(thread_);
     thread_->SetReadyForGCIterating(true);
     thread_->SetSharedMarkStatus(DaemonThread::GetInstance()->GetSharedMarkStatus());
@@ -401,7 +403,7 @@ EcmaVM::~EcmaVM()
 {
     if (g_isEnableCMCGC) {
         thread_->GetThreadHolder()->TransferToNative();
-        common::BaseRuntime::WaitForGCFinish();
+        common::BaseRuntime::EnterGCCriticalSection();
         thread_->GetThreadHolder()->TransferToRunning();
     }
     if (isJitCompileVM_) {
@@ -411,6 +413,9 @@ EcmaVM::~EcmaVM()
         }
         stringTable_ = nullptr;
         thread_ = nullptr;
+        if (g_isEnableCMCGC) {
+            common::BaseRuntime::ExitGCCriticalSection();
+        }
         return;
     }
 #if ECMASCRIPT_ENABLE_THREAD_STATE_CHECK
@@ -458,10 +463,7 @@ EcmaVM::~EcmaVM()
         DFXJSNApi::StopTracing(this);
     }
 #endif
-
-    for (auto &moduleManager : moduleManagers_) {
-        moduleManager->NativeObjDestory();
-    }
+    moduleManagers_.DestroyAllNativeObj();
 
     if (!isBundlePack_) {
         std::shared_ptr<JSPandaFile> jsPandaFile = JSPandaFileManager::GetInstance()->FindJSPandaFile(assetPath_);
@@ -615,15 +617,15 @@ EcmaVM::~EcmaVM()
         functionProtoTransitionTable_ = nullptr;
     }
 
-    for (auto &moduleManager : moduleManagers_) {
-        delete moduleManager;
-        moduleManager = nullptr;
-    }
-    moduleManagers_.clear();
+    moduleManagers_.Clear();
 
     if (thread_ != nullptr) {
         delete thread_;
         thread_ = nullptr;
+    }
+
+    if (g_isEnableCMCGC) {
+        common::BaseRuntime::ExitGCCriticalSection();
     }
 }
 
@@ -895,16 +897,24 @@ void EcmaVM::ClearBufferData()
 void EcmaVM::CollectGarbage(TriggerGCType gcType, panda::ecmascript::GCReason reason) const
 {
     if (g_isEnableCMCGC) {
-        common::GcType type = common::GcType::ASYNC;
+        common::GCReason cmcReason = common::GC_REASON_USER;
+        bool async = true;
         if (gcType == TriggerGCType::FULL_GC || gcType == TriggerGCType::SHARED_FULL_GC ||
             gcType == TriggerGCType::APPSPAWN_FULL_GC || gcType == TriggerGCType::APPSPAWN_SHARED_FULL_GC ||
             reason == GCReason::ALLOCATION_FAILED) {
-            type = common::GcType::FULL;
+            cmcReason = common::GC_REASON_BACKUP;
+            async = false;
         }
-        common::BaseRuntime::RequestGC(type);
+        common::BaseRuntime::RequestGC(cmcReason, async, common::GC_TYPE_FULL);
         return;
     }
     heap_->CollectGarbage(gcType, reason);
+}
+
+void EcmaVM::IterateConcurrentRoots(RootVisitor &v)
+{
+    ASSERT(g_isEnableCMCGC);
+    moduleManagers_.Iterate(v);
 }
 
 void EcmaVM::Iterate(RootVisitor &v)
@@ -977,8 +987,8 @@ void EcmaVM::Iterate(RootVisitor &v)
         ++iterator;
     }
 #endif
-    for (ModuleManager *moduleManager : moduleManagers_) {
-        moduleManager->Iterate(v);
+    if (!g_isEnableCMCGC) {
+        moduleManagers_.Iterate(v);
     }
 }
 
@@ -998,6 +1008,25 @@ size_t EcmaVM::IterateHandle(RootVisitor &visitor)
         }
     }
     return handleCount;
+}
+
+void EcmaVM::IterateWeakGlobalEnvList(WeakVisitor &visitor)
+{
+    for (auto it = globalEnvRecordList_.begin(); it != globalEnvRecordList_.end();) {
+        bool isAlive = visitor.VisitRoot(Root::ROOT_VM, ecmascript::ObjectSlot(static_cast<uintptr_t>(*it)));
+        if (isAlive) {
+            it++;
+        } else {
+            it = globalEnvRecordList_.erase(it);
+        }
+    }
+}
+
+void EcmaVM::IterateGlobalEnvField(RootVisitor &visitor)
+{
+    for (auto value : globalEnvRecordList_) {
+        GlobalEnv::Cast(JSTaggedValue(value).GetTaggedObject())->Iterate(visitor);
+    }
 }
 
 uintptr_t *EcmaVM::ExpandHandleStorage()
@@ -1353,6 +1382,16 @@ void EcmaVM::TriggerConcurrentCallback(JSTaggedValue result, JSTaggedValue hint)
     auto localResultRef = JSNApiHelper::ToLocal<JSValueRef>(JSHandle<JSTaggedValue>(thread_, result));
     ThreadNativeScope nativeScope(thread_);
     concurrentCallback_(localResultRef, success, taskInfo, concurrentData_);
+}
+
+void EcmaVM::HandleUncatchableError()
+{
+    if (uncatchableErrorHandler_ != nullptr) {
+        panda::TryCatch trycatch(this);
+        ecmascript::ThreadNativeScope nativeScope(thread_);
+        uncatchableErrorHandler_(trycatch);
+    }
+    LOG_ECMA_MEM(FATAL) << "Out of Memory";
 }
 
 void EcmaVM::DumpCallTimeInfo()
@@ -2115,7 +2154,83 @@ void EcmaVM::AddToKeptObjects(JSThread *thread, JSHandle<JSTaggedValue> value)
 
 void EcmaVM::AddModuleManager(ModuleManager *moduleManager)
 {
-    moduleManagers_.push_back(moduleManager);
+    moduleManagers_.PushBack(moduleManager);
 }
 
+void EcmaVM::ModuleManagers::Iterate(RootVisitor &v)
+{
+    LockHolder lock(CMCGCMutex_);
+    for (ModuleManager *moduleManager : moduleManagersVec_) {
+        moduleManager->Iterate(v);
+    }
+}
+
+template <typename T>
+void EcmaVM::ModuleManagers::PushBack(T v)
+{
+    LockHolder lock(CMCGCMutex_);
+    moduleManagersVec_.push_back(v);
+}
+
+void EcmaVM::ModuleManagers::DestroyAllNativeObj()
+{
+    LockHolder lock(CMCGCMutex_);
+    for (auto &moduleManager : moduleManagersVec_) {
+        moduleManager->NativeObjDestory();
+    }
+}
+
+void EcmaVM::ModuleManagers::Clear()
+{
+    LockHolder lock(CMCGCMutex_);
+    for (auto &moduleManager : moduleManagersVec_) {
+        delete moduleManager;
+        moduleManager = nullptr;
+    }
+    moduleManagersVec_.clear();
+}
+
+void EcmaVM::InitDataViewTypeTable(const GlobalEnvConstants *constant)
+{
+    dataViewTypeTable_.emplace(constant->GetInt8ArrayString().GetRawData(), static_cast<int8_t>(DataViewType::INT8));
+    dataViewTypeTable_.emplace(
+        constant->GetSharedInt8ArrayString().GetRawData(), static_cast<int8_t>(DataViewType::INT8));
+    dataViewTypeTable_.emplace(constant->GetUint8ArrayString().GetRawData(), static_cast<int8_t>(DataViewType::UINT8));
+    dataViewTypeTable_.emplace(
+        constant->GetSharedUint8ArrayString().GetRawData(), static_cast<int8_t>(DataViewType::UINT8));
+    dataViewTypeTable_.emplace(
+        constant->GetUint8ClampedArrayString().GetRawData(), static_cast<int8_t>(DataViewType::UINT8_CLAMPED));
+    dataViewTypeTable_.emplace(
+        constant->GetSharedUint8ClampedArrayString().GetRawData(), static_cast<int8_t>(DataViewType::UINT8_CLAMPED));
+    dataViewTypeTable_.emplace(constant->GetInt16ArrayString().GetRawData(), static_cast<int8_t>(DataViewType::INT16));
+    dataViewTypeTable_.emplace(
+        constant->GetSharedInt16ArrayString().GetRawData(), static_cast<int8_t>(DataViewType::INT16));
+    dataViewTypeTable_.emplace(
+        constant->GetUint16ArrayString().GetRawData(), static_cast<int8_t>(DataViewType::UINT16));
+    dataViewTypeTable_.emplace(
+        constant->GetSharedUint16ArrayString().GetRawData(), static_cast<int8_t>(DataViewType::UINT16));
+    dataViewTypeTable_.emplace(constant->GetInt32ArrayString().GetRawData(), static_cast<int8_t>(DataViewType::INT32));
+    dataViewTypeTable_.emplace(
+        constant->GetSharedInt32ArrayString().GetRawData(), static_cast<int8_t>(DataViewType::INT32));
+    dataViewTypeTable_.emplace(
+        constant->GetUint32ArrayString().GetRawData(), static_cast<int8_t>(DataViewType::UINT32));
+    dataViewTypeTable_.emplace(
+        constant->GetSharedUint32ArrayString().GetRawData(), static_cast<int8_t>(DataViewType::UINT32));
+    dataViewTypeTable_.emplace(
+        constant->GetFloat32ArrayString().GetRawData(), static_cast<int8_t>(DataViewType::FLOAT32));
+    dataViewTypeTable_.emplace(
+        constant->GetSharedFloat32ArrayString().GetRawData(), static_cast<int8_t>(DataViewType::FLOAT32));
+    dataViewTypeTable_.emplace(
+        constant->GetFloat64ArrayString().GetRawData(), static_cast<int8_t>(DataViewType::FLOAT64));
+    dataViewTypeTable_.emplace(
+        constant->GetSharedFloat64ArrayString().GetRawData(), static_cast<int8_t>(DataViewType::FLOAT64));
+    dataViewTypeTable_.emplace(
+        constant->GetBigInt64ArrayString().GetRawData(), static_cast<int8_t>(DataViewType::BIGINT64));
+    dataViewTypeTable_.emplace(
+        constant->GetSharedBigInt64ArrayString().GetRawData(), static_cast<int8_t>(DataViewType::BIGINT64));
+    dataViewTypeTable_.emplace(
+        constant->GetBigUint64ArrayString().GetRawData(), static_cast<int8_t>(DataViewType::BIGUINT64));
+    dataViewTypeTable_.emplace(
+        constant->GetSharedBigUint64ArrayString().GetRawData(), static_cast<int8_t>(DataViewType::BIGUINT64));
+}
 }  // namespace panda::ecmascript

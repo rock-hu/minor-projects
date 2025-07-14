@@ -22,10 +22,14 @@ void FillFreeObject(void *object, size_t size) {}
 void VisitDynamicGlobalRoots(const RefFieldVisitor &visitorFunc) {}
 void VisitDynamicLocalRoots(const RefFieldVisitor &visitor) {}
 void VisitBaseRoots(const RefFieldVisitor &visitorFunc) {}
+void VisitDynamicConcurrentRoots(const RefFieldVisitor &visitorFunc) {}
 void VisitDynamicWeakGlobalRoots(const common::WeakRefFieldVisitor &visitorFunc) {}
+void VisitDynamicWeakGlobalRootsOld(const common::WeakRefFieldVisitor &visitorFunc) {}
 void VisitDynamicWeakLocalRoots(const WeakRefFieldVisitor &visitorFunc) {}
+void VisitDynamicPreforwardRoots(const RefFieldVisitor &visitorFunc) {}
 void VisitDynamicThreadRoot(const RefFieldVisitor &visitorFunc, void *vm) {}
 void VisitDynamicWeakThreadRoot(const WeakRefFieldVisitor &visitorFunc, void *vm) {}
+void VisitDynamicThreadPreforwardRoot(const RefFieldVisitor &visitorFunc, void *vm) {}
 void SweepThreadLocalJitFort() {}
 void SynchronizeGCPhaseToJSThread(void *jsThread, GCPhase gcPhase) {}
 void JSGCCallback(void *ecmaVM) {}

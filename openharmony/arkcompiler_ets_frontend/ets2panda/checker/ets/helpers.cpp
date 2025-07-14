@@ -59,7 +59,8 @@ varbinder::Variable *ETSChecker::FindVariableInGlobal(const ir::Identifier *cons
 bool ETSChecker::IsVariableStatic(const varbinder::Variable *var)
 {
     if (var->HasFlag(varbinder::VariableFlags::METHOD)) {
-        return var->TsType()->AsETSFunctionType()->CallSignatures()[0]->HasSignatureFlag(SignatureFlags::STATIC);
+        return var->TsType()->IsETSFunctionType() &&
+               var->TsType()->AsETSFunctionType()->CallSignatures()[0]->HasSignatureFlag(SignatureFlags::STATIC);
     }
     return var->HasFlag(varbinder::VariableFlags::STATIC);
 }
@@ -1469,8 +1470,8 @@ static void CollectAliasParametersForBoxing(Type *expandedAliasType, std::set<Ty
         parametersNeedToBeBoxed.insert(expandedAliasType);
     } else if (expandedAliasType->IsETSObjectType()) {
         auto objectType = expandedAliasType->AsETSObjectType();
-        needToBeBoxed =
-            objectType->GetDeclNode()->IsClassDefinition() || objectType->GetDeclNode()->IsTSInterfaceDeclaration();
+        needToBeBoxed = objectType->GetDeclNode() != nullptr && (objectType->GetDeclNode()->IsClassDefinition() ||
+                                                                 objectType->GetDeclNode()->IsTSInterfaceDeclaration());
         for (const auto typeArgument : objectType->TypeArguments()) {
             CollectAliasParametersForBoxing(typeArgument, parametersNeedToBeBoxed, needToBeBoxed);
         }
@@ -2455,6 +2456,10 @@ void ETSChecker::InferTypesForLambda(ir::ScriptFunction *lambda, ir::ETSFunction
                                      Signature *maybeSubstitutedFunctionSig)
 {
     for (size_t i = 0; i < lambda->Params().size(); ++i) {
+        if (!lambda->Params().at(i)->IsETSParameterExpression()) {
+            LogError(diagnostic::INVALID_LAMBDA_PARAMETER, lambda->Params().at(i)->Start());
+            continue;
+        }
         auto *const lambdaParam = lambda->Params().at(i)->AsETSParameterExpression()->Ident();
         if (lambdaParam->TypeAnnotation() == nullptr) {
             // SUPPRESS_CSA_NEXTLINE(alpha.core.AllocatorETSCheckerHint)
@@ -2484,6 +2489,10 @@ void ETSChecker::InferTypesForLambda(ir::ScriptFunction *lambda, Signature *sign
 {
     ES2PANDA_ASSERT(signature->Params().size() >= lambda->Params().size());
     for (size_t i = 0; i < lambda->Params().size(); ++i) {
+        if (!lambda->Params().at(i)->IsETSParameterExpression()) {
+            LogError(diagnostic::INVALID_LAMBDA_PARAMETER, lambda->Params().at(i)->Start());
+            continue;
+        }
         auto *const lambdaParam = lambda->Params().at(i)->AsETSParameterExpression()->Ident();
         if (lambdaParam->TypeAnnotation() == nullptr) {
             // SUPPRESS_CSA_NEXTLINE(alpha.core.AllocatorETSCheckerHint)

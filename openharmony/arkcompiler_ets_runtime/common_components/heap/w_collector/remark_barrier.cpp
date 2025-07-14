@@ -34,13 +34,16 @@ BaseObject* RemarkBarrier::ReadStaticRef(RefField<false>& field) const { return 
 // If the object is still alive, return it; if not, return nullptr
 BaseObject* RemarkBarrier::ReadStringTableStaticRef(RefField<false> &field) const
 {
+    // Note: CMC GC assumes all objects in string table are not in young space. Based on the assumption, CMC GC skip
+    // read barrier in young GC
+    if (Heap::GetHeap().GetGCReason() == GC_REASON_YOUNG) {
+        return reinterpret_cast<BaseObject*>(field.GetFieldValue());
+    }
+
     auto isSurvivor = [](BaseObject* obj) {
-        const GCReason gcReason = Heap::GetHeap().GetGCReason();
         RegionDesc* region = RegionDesc::GetRegionDescAt(reinterpret_cast<HeapAddress>(obj));
 
-        return (gcReason == GC_REASON_YOUNG && !region->IsInYoungSpace())
-            || region->IsMarkedObject(obj)
-            || region->IsNewObjectSinceTrace(obj);
+        return region->IsMarkedObject(obj) || region->IsNewObjectSinceTrace(obj);
     };
 
     auto obj = ReadRefField(nullptr, field);
@@ -51,10 +54,18 @@ BaseObject* RemarkBarrier::ReadStringTableStaticRef(RefField<false> &field) cons
     }
 }
 
-void RemarkBarrier::ReadStruct(HeapAddress dst, BaseObject* obj, HeapAddress src, size_t size) const
- {
-     CHECK_CC(memcpy_s(reinterpret_cast<void*>(dst), size, reinterpret_cast<void*>(src), size) == EOK);
- }
+void RemarkBarrier::ReadStruct(HeapAddress dst, BaseObject *obj, HeapAddress src, size_t size) const
+{
+    CHECK_CC(memcpy_s(reinterpret_cast<void *>(dst), size, reinterpret_cast<void *>(src), size) == EOK);
+}
+
+void RemarkBarrier::WriteRoot(BaseObject *obj) const
+{
+    ASSERT(Heap::IsHeapAddress(obj));
+    Mutator *mutator = Mutator::GetMutator();
+    mutator->RememberObjectInSatbBuffer(obj);
+    DLOG(BARRIER, "write root obj %p", obj);
+}
 
 void RemarkBarrier::WriteRefField(BaseObject *obj, RefField<false> &field, BaseObject *ref) const
 {

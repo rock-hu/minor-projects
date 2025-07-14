@@ -41,6 +41,7 @@
 #include "base/perfmonitor/perf_monitor.h"
 #include "base/ressched/ressched_report.h"
 #include "base/thread/background_task_executor.h"
+#include "base/utils/cpu_boost.h"
 #include "core/common/ace_engine.h"
 #include "core/common/font_manager.h"
 #include "core/common/font_change_observer.h"
@@ -69,6 +70,7 @@
 #include "component_test/pipeline_status.h"
 #endif // COMPONENT_TEST_ENABLED
 #include "interfaces/inner_api/ace_kit/src/view/ui_context_impl.h"
+#include "interfaces/inner_api/ace_kit/include/ui/view/ai_caller_helper.h"
 
 namespace {
 constexpr uint64_t ONE_MS_IN_NS = 1 * 1000 * 1000;
@@ -129,6 +131,19 @@ int32_t GetDepthFromParams(const std::vector<std::string>& params)
 
     return depth;
 }
+
+class TestAICaller : public AICallerHelper {
+public:
+    TestAICaller() = default;
+    ~TestAICaller() override = default;
+    bool onAIFunctionCaller(const std::string& funcName, const std::string& params) override
+    {
+        if (funcName.compare("Success") == 0) {
+            return true;
+        }
+        return false;
+    }
+};
 } // namespace
 
 PipelineContext::PipelineContext(std::shared_ptr<Window> window, RefPtr<TaskExecutor> taskExecutor,
@@ -308,7 +323,10 @@ void PipelineContext::AddDirtyPropertyNode(const RefPtr<FrameNode>& dirtyNode)
 void PipelineContext::AddDirtyCustomNode(const RefPtr<UINode>& dirtyNode)
 {
     CHECK_RUN_ON(UI);
-    CHECK_NULL_VOID(dirtyNode);
+    if (!dirtyNode) {
+        LOGW("dirtyNode invalid");
+        return;
+    }
     auto customNode = DynamicCast<CustomNode>(dirtyNode);
     if (customNode && !dirtyNode->GetInspectorIdValue("").empty()) {
         ACE_BUILD_TRACE_BEGIN("AddDirtyCustomNode[%s][self:%d][parent:%d][key:%s]",
@@ -503,6 +521,7 @@ void PipelineContext::FlushDirtyNodeUpdate()
         ACE_SCOPED_TRACE("Error update, node stack non-empty");
         LOGW("stack is not empty when call FlushDirtyNodeUpdate, node may be mounted to incorrect pos!");
     }
+    FlushDirtyNodeCpuBoostOperate(true);
     // SomeTimes, customNode->Update may add some dirty custom nodes to dirtyNodes_,
     // use maxFlushTimes to avoid dead cycle.
     int maxFlushTimes = 3;
@@ -519,6 +538,7 @@ void PipelineContext::FlushDirtyNodeUpdate()
         }
         --maxFlushTimes;
     }
+    FlushDirtyNodeCpuBoostOperate(false);
 
     FlushTSUpdates();
 
@@ -933,6 +953,7 @@ void PipelineContext::DispatchDisplaySync(uint64_t nanoTimestamp)
         return;
     }
 
+    DisplaysyncCpuBoostOperate(true);
     displaySyncManager->SetRefreshRateMode(window_->GetCurrentRefreshRateMode());
     displaySyncManager->SetVsyncPeriod(window_->GetVSyncPeriod());
 
@@ -952,6 +973,7 @@ void PipelineContext::DispatchDisplaySync(uint64_t nanoTimestamp)
     auto monitorVsyncRate = displaySyncManager->GetMonitorVsyncRate();
     auto id = GetInstanceId();
     ArkUIPerfMonitor::GetPerfMonitor(id)->RecordDisplaySyncRate(monitorVsyncRate);
+    DisplaysyncCpuBoostOperate(false);
 }
 
 void PipelineContext::FlushAnimation(uint64_t nanoTimestamp)
@@ -1416,15 +1438,13 @@ void PipelineContext::SetupRootElement()
 #ifdef ENABLE_ROSEN_BACKEND
     std::shared_ptr<Rosen::RSUIDirector> rsUIDirector;
     if (!IsJsCard() && !isFormRender_) {
-        auto window = GetWindow();
-        if (window) {
-            rsUIDirector = window->GetRSUIDirector();
-            if (rsUIDirector) {
-                rsUIDirector->SetAbilityBGAlpha(appBgColor_.GetAlpha());
-            }
+        rsUIDirector = GetRSUIDirector();
+        if (rsUIDirector) {
+            RSTransactionBegin(rsUIDirector);
+            rsUIDirector->SetAbilityBGAlpha(appBgColor_.GetAlpha());
+            RSTransactionCommit(rsUIDirector);
         }
     }
-    FlushImplicitTransaction(rsUIDirector);
 #endif
     accessibilityManagerNG_ = MakeRefPtr<AccessibilityManagerNG>();
     stageManager_ = ViewAdvancedRegister::GetInstance()->GenerateStageManager(stageNode);
@@ -1489,20 +1509,32 @@ void PipelineContext::SetOnWindowFocused(const std::function<void()>& callback)
         }, TaskExecutor::TaskType::UI, "ArkUISetOnWindowFocusedCallback");
 }
 
-void PipelineContext::FlushImplicitTransaction(const std::shared_ptr<Rosen::RSUIDirector>& rsUIDirector)
+void PipelineContext::RSTransactionBegin(const std::shared_ptr<Rosen::RSUIDirector>& rsUIDirector)
 {
 #ifdef ENABLE_ROSEN_BACKEND
     if (SystemProperties::GetMultiInstanceEnabled() && rsUIDirector) {
         auto surfaceNode = rsUIDirector->GetRSSurfaceNode();
-        if (surfaceNode) {
-            auto rsUIContext = surfaceNode->GetRSUIContext();
-            if (rsUIContext) {
-                auto rsTransaction = rsUIContext->GetRSTransaction();
-                if (rsTransaction) {
-                    rsTransaction->FlushImplicitTransaction();
-                }
-            }
-        }
+        CHECK_NULL_VOID(surfaceNode);
+        auto rsUIContext = surfaceNode->GetRSUIContext();
+        CHECK_NULL_VOID(rsUIContext);
+        auto rsTransaction = rsUIContext->GetRSTransaction();
+        CHECK_NULL_VOID(rsTransaction);
+        rsTransaction->Begin();
+    }
+#endif
+}
+
+void PipelineContext::RSTransactionCommit(const std::shared_ptr<Rosen::RSUIDirector>& rsUIDirector)
+{
+#ifdef ENABLE_ROSEN_BACKEND
+    if (SystemProperties::GetMultiInstanceEnabled() && rsUIDirector) {
+        auto surfaceNode = rsUIDirector->GetRSSurfaceNode();
+        CHECK_NULL_VOID(surfaceNode);
+        auto rsUIContext = surfaceNode->GetRSUIContext();
+        CHECK_NULL_VOID(rsUIContext);
+        auto rsTransaction = rsUIContext->GetRSTransaction();
+        CHECK_NULL_VOID(rsTransaction);
+        rsTransaction->Commit();
     }
 #endif
 }
@@ -1534,15 +1566,13 @@ void PipelineContext::SetupSubRootElement()
 #ifdef ENABLE_ROSEN_BACKEND
     std::shared_ptr<Rosen::RSUIDirector> rsUIDirector;
     if (!IsJsCard()) {
-        auto window = GetWindow();
-        if (window) {
-            rsUIDirector = window->GetRSUIDirector();
-            if (rsUIDirector) {
-                rsUIDirector->SetAbilityBGAlpha(appBgColor_.GetAlpha());
-            }
+        rsUIDirector = GetRSUIDirector();
+        if (rsUIDirector) {
+            RSTransactionBegin(rsUIDirector);
+            rsUIDirector->SetAbilityBGAlpha(appBgColor_.GetAlpha());
+            RSTransactionCommit(rsUIDirector);
         }
     }
-    FlushImplicitTransaction(rsUIDirector);
 #endif
 #ifdef WINDOW_SCENE_SUPPORTED
     uiExtensionManager_ = MakeRefPtr<UIExtensionManager>();
@@ -2289,16 +2319,9 @@ void PipelineContext::AvoidanceLogic(float keyboardHeight, const std::shared_ptr
         safeAreaManager_->UpdateKeyboardSafeArea(static_cast<uint32_t>(keyboardHeight));
         keyboardHeight += safeAreaManager_->GetSafeHeight();
         float positionY = 0.0f;
-        float keyboardPosition = rootHeight_ - keyboardHeight;
         auto manager = DynamicCast<TextFieldManagerNG>(PipelineBase::GetTextFieldManager());
-        float keyboardOffset = manager ? manager->GetClickPositionOffset() : safeAreaManager_->GetKeyboardOffset();
         if (manager) {
-            positionY = static_cast<float>(manager->GetClickPosition().GetY()) - keyboardOffset;
-            auto onFocusField = manager->GetOnFocusTextField().Upgrade();
-            if (onFocusField && onFocusField->GetHost() && onFocusField->GetHost()->GetGeometryNode()) {
-                auto adjustRect = onFocusField->GetHost()->GetGeometryNode()->GetParentAdjust();
-                positionY += adjustRect.Top();
-            }
+            positionY = manager->GetFocusedNodeCaretRect().Top() - safeAreaManager_->GetKeyboardOffset();
         }
         auto bottomLen = safeAreaManager_->GetNavSafeArea().bottom_.IsValid() ?
             safeAreaManager_->GetNavSafeArea().bottom_.Length() : 0;
@@ -2312,7 +2335,6 @@ void PipelineContext::AvoidanceLogic(float keyboardHeight, const std::shared_ptr
         } else {
             safeAreaManager_->UpdateKeyboardOffset(0.0f);
         }
-        safeAreaManager_->SetLastKeyboardPoistion(keyboardPosition);
         SyncSafeArea(SafeAreaSyncType::SYNC_TYPE_KEYBOARD);
         CHECK_NULL_VOID(manager);
         manager->AvoidKeyBoardInNavigation();
@@ -3516,8 +3538,10 @@ bool PipelineContext::OnDumpInfo(const std::vector<std::string>& params) const
     } else if (params[0] == "-injectionkeycode" && params.size() > PARAM_NUM) {
         UiSessionManager::GetInstance()->SendCommand(params[1]);
 #endif
-    } else if (params[0] == "-forcedark" && params.size() > 2) { // 2 means the forcedark needs at least 3 args
+    } else if (params[0] == "-forcedark") {
         DumpForceColor(params);
+    } else if (params[0] == "-bindaicaller" && params.size() >= PARAM_NUM) {
+        OnDumpBindAICaller(params);
     }
     return true;
 }
@@ -3733,7 +3757,7 @@ void PipelineContext::AccelerateConsumeTouchEvents(
     if (needInterpolation) {
         auto targetTimeStamp = GetResampleStamp();
         for (const auto& idIter : idToTouchPoints) {
-            TouchEvent newTouchEvent;
+            TouchEvent newTouchEvent = idIter.second;
             eventManager_->TryResampleTouchEvent(
                 historyPointsById_[idIter.first], idIter.second.history, targetTimeStamp, newTouchEvent);
             lastDispatchTime[idIter.first] = curVsyncArrivalTime;
@@ -4449,6 +4473,7 @@ void PipelineContext::OnShow()
 {
     CHECK_RUN_ON(UI);
     onShow_ = true;
+    isNeedCallbackAreaChange_ = true;
     window_->OnShow();
     PerfMonitor::GetPerfMonitor()->SetAppForeground(true);
     RequestFrame();
@@ -4464,6 +4489,7 @@ void PipelineContext::OnHide()
     CHECK_RUN_ON(UI);
     NotifyDragOnHide();
     onShow_ = false;
+    isNeedCallbackAreaChange_ = true;
     window_->OnHide();
     PerfMonitor::GetPerfMonitor()->SetAppForeground(false);
     RequestFrame();
@@ -4583,15 +4609,13 @@ void PipelineContext::SetAppBgColor(const Color& color)
 #ifdef ENABLE_ROSEN_BACKEND
     std::shared_ptr<Rosen::RSUIDirector> rsUIDirector;
     if (!IsJsCard()) {
-        auto window = GetWindow();
-        if (window) {
-            rsUIDirector = window->GetRSUIDirector();
-            if (rsUIDirector) {
-                rsUIDirector->SetAbilityBGAlpha(appBgColor_.GetAlpha());
-            }
+        rsUIDirector = GetRSUIDirector();
+        if (rsUIDirector) {
+            RSTransactionBegin(rsUIDirector);
+            rsUIDirector->SetAbilityBGAlpha(appBgColor_.GetAlpha());
+            RSTransactionCommit(rsUIDirector);
         }
     }
-    FlushImplicitTransaction(rsUIDirector);
 #endif
     CHECK_NULL_VOID(stageManager_);
     auto stage = stageManager_->GetStageNode();
@@ -5900,7 +5924,7 @@ void PipelineContext::RegisterFocusCallback()
 void PipelineContext::GetInspectorTree(bool onlyNeedVisible)
 {
     if (onlyNeedVisible) {
-        auto root = JsonUtil::Create(true);
+        auto root = JsonUtil::CreateSharedPtrJson(true);
         RefPtr<NG::FrameNode> topNavNode;
         uiTranslateManager_->FindTopNavDestination(rootNode_, topNavNode);
         if (topNavNode != nullptr) {
@@ -5908,11 +5932,14 @@ void PipelineContext::GetInspectorTree(bool onlyNeedVisible)
         } else {
             rootNode_->DumpSimplifyTree(0, root);
         }
-        auto json = root->ToString();
-        json.erase(std::remove(json.begin(), json.end(), ' '), json.end());
-        auto res = JsonUtil::Create(true);
-        res->Put("0", json.c_str());
-        UiSessionManager::GetInstance()->ReportInspectorTreeValue(res->ToString());
+        auto cb = [root]() {
+            auto json = root->ToString();
+            json.erase(std::remove(json.begin(), json.end(), ' '), json.end());
+            auto res = JsonUtil::Create(true);
+            res->Put("0", json.c_str());
+            UiSessionManager::GetInstance()->ReportInspectorTreeValue(res->ToString());
+        };
+        taskExecutor_->PostTask(cb, TaskExecutor::TaskType::BACKGROUND, "ArkUIGetInspectorTree");
     } else {
         bool needThrow = false;
         NG::InspectorFilter filter;
@@ -6449,6 +6476,9 @@ void PipelineContext::FireArkUIObjectLifecycleCallback(void* data)
 
 void PipelineContext::DumpForceColor(const std::vector<std::string>& params) const
 {
+    if (params.size() <= PARAM_NUM) {
+        return;
+    }
     int32_t nodeId = StringUtils::StringToInt(params[1], -1);
     if (nodeId < 0) {
         return;
@@ -6468,4 +6498,31 @@ bool PipelineContext::CheckSourceTypeChange(SourceType currentSourceType)
     }
     return ret;
 }
+
+uint32_t PipelineContext::ExeAppAIFunctionCallback(const std::string& funcName, const std::string& params)
+{
+    static constexpr uint32_t AI_CALL_NODE_INVALID = 3;
+    RefPtr<NG::FrameNode> topNavNode;
+    CHECK_NULL_RETURN(rootNode_, AI_CALL_NODE_INVALID);
+    rootNode_->FindTopNavDestination(topNavNode);
+    CHECK_NULL_RETURN(topNavNode, AI_CALL_NODE_INVALID);
+    return topNavNode->CallAIFunction(funcName, params);
+}
+
+void PipelineContext::OnDumpBindAICaller(const std::vector<std::string>& params) const
+{
+    RefPtr<NG::FrameNode> topNavNode;
+    CHECK_NULL_VOID(rootNode_);
+    rootNode_->FindTopNavDestination(topNavNode);
+    CHECK_NULL_VOID(topNavNode);
+    if (params.size() > 1) {
+        if (params[1] == "-bind") {
+            auto myAICaller = std::make_shared<TestAICaller>();
+            topNavNode->SetAICallerHelper(myAICaller);
+        } else if (params[1] == "-unbind") {
+            topNavNode->SetAICallerHelper(nullptr);
+        }
+    }
+}
+
 } // namespace OHOS::Ace::NG

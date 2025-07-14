@@ -188,7 +188,7 @@ public:
     GateRef CallRuntimeWithGlobalEnv(GateRef glue, GateRef globalEnv, int index, const std::vector<GateRef>& args);
     GateRef CallRuntimeWithGlobalEnv(GateRef glue, GateRef globalEnv, int index, GateRef argc, GateRef argv);
     GateRef CallRuntimeWithCurrentEnv(GateRef glue, GateRef currentEnv, int index, const std::vector<GateRef>& args);
-    
+
     GateRef CallNGCRuntime(GateRef glue, int index,
                            const std::vector<GateRef>& args, GateRef hir = Circuit::NullGate());
     GateRef FastCallOptimized(GateRef glue, GateRef code,
@@ -258,8 +258,7 @@ public:
     GateRef Int32Xor(GateRef x, GateRef y);
     GateRef FixLoadType(GateRef x);
     GateRef Int64Or(GateRef x, GateRef y);
-    // FetchOr with acquire and release
-    GateRef Int64FetchOr(GateRef x, GateRef y);
+    GateRef Int64FetchOr(GateRef x, GateRef y, MemoryAttribute mAttr);
     GateRef IntPtrOr(GateRef x, GateRef y);
     GateRef Int64And(GateRef x, GateRef y);
     GateRef Int64Xor(GateRef x, GateRef y);
@@ -822,11 +821,21 @@ public:
     void VerifyBarrier(GateRef glue, GateRef obj, GateRef offset, GateRef value);
     GateRef GetCMCRegionRSet(GateRef obj);
     GateRef GetCMCRegionType(GateRef obj);
+    GateRef GetGCPhase(GateRef glue);
+    GateRef GetGCReason(GateRef glue);
     GateRef IsInYoungSpace(GateRef regionType);
+    GateRef IsOldToYoung(GateRef objRegionType, GateRef valueRegionType);
+    void MarkRSetCardTable(GateRef obj, Label *exit);
+    GateRef ShouldGetGCReason(GateRef gcPhase);
+    GateRef ShouldProcessSATB(GateRef gcPhase);
+    GateRef ShouldUpdateRememberSet(GateRef glue, GateRef gcPhase);
     void CMCSetValueWithBarrier(GateRef glue, GateRef obj, GateRef offset, GateRef value);
+    void CMCArrayCopyWriteBarrier(GateRef glue, GateRef dstObj, GateRef src, GateRef dst, GateRef count);
     void SetValueWithBarrier(GateRef glue, GateRef obj, GateRef offset, GateRef value,
                              MemoryAttribute::ShareFlag share = MemoryAttribute::UNKNOWN);
     GateRef GetValueWithBarrier(GateRef glue, GateRef addr);
+    GateRef FastReadBarrier(GateRef glue, GateRef addr, GateRef value);
+    GateRef IsHeapAddress(GateRef glue, GateRef value);
     GateRef GetPropertyByIndex(GateRef glue, GateRef receiver, GateRef index,
                                ProfileOperation callback, GateRef hir = Circuit::NullGate());
                                GateRef GetPropertyByName(GateRef glue,
@@ -1205,6 +1214,8 @@ public:
     inline GateRef GetResolveModuleFromResolvedIndexBinding(GateRef glue, GateRef resolvedBinding);
     inline GateRef GetResolveModuleFromResolvedBinding(GateRef glue, GateRef resolvedBinding);
     inline GateRef GetIdxOfResolvedIndexBinding(GateRef resolvedBinding);
+    inline void SetIsUpdatedFromResolvedBindingOfResolvedIndexBinding(GateRef glue, GateRef resolvedBinding,
+                                                                      GateRef value);
     inline GateRef GetIdxOfResolvedRecordIndexBinding(GateRef resolvedBinding);
     inline GateRef GetModuleRecord(GateRef glue, GateRef resolvedBinding);
     inline GateRef GetBindingName(GateRef glue, GateRef resolvedBinding);
@@ -1216,6 +1227,8 @@ public:
     inline GateRef GetModuleType(GateRef module);
     inline GateRef IsNativeModule(GateRef module);
     inline GateRef IsCjsModule(GateRef module);
+    inline GateRef GetSharedType(GateRef module);
+    inline GateRef IsSharedModule(GateRef module);
     inline GateRef GetCjsModuleFunction(GateRef glue);
     void ModuleEnvMustBeValid(GateRef glue, GateRef curEnv);
     GateRef SearchFromModuleCache(GateRef glue, GateRef moduleName);

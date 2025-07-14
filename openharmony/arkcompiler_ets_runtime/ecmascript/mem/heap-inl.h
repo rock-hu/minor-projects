@@ -18,6 +18,7 @@
 
 #include "clang.h"
 #include "common_components/heap/heap_allocator-inl.h"
+#include "common_interfaces/base_runtime.h"
 #include "ecmascript/base/config.h"
 #include "ecmascript/mem/heap.h"
 
@@ -953,7 +954,7 @@ TaggedObject *SharedHeap::AllocateNonMovableOrHugeObject(JSThread *thread, JSHCl
 
     TaggedObject *object = nullptr;
     if (UNLIKELY(g_isEnableCMCGC)) {
-        object = thread->IsJitThread() ? nullptr : reinterpret_cast<TaggedObject *>(
+        object = reinterpret_cast<TaggedObject *>(
             common::HeapAllocator::AllocateInNonmoveOrHuge(size, common::LanguageType::DYNAMIC));
         object->SetClass(thread, hclass);
     } else {
@@ -984,7 +985,7 @@ TaggedObject *SharedHeap::AllocateNonMovableOrHugeObject(JSThread *thread, size_
 
     TaggedObject *object = nullptr;
     if (UNLIKELY(g_isEnableCMCGC)) {
-        object = thread->IsJitThread() ? nullptr : reinterpret_cast<TaggedObject *>(
+        object = reinterpret_cast<TaggedObject *>(
             common::HeapAllocator::AllocateInNonmoveOrHuge(size, common::LanguageType::DYNAMIC));
     } else {
         object = thread->IsJitThread() ? nullptr :
@@ -1040,7 +1041,7 @@ TaggedObject *SharedHeap::AllocateOldOrHugeObject(JSThread *thread, size_t size)
 {
     TaggedObject *object = nullptr;
     if (UNLIKELY(g_isEnableCMCGC)) {
-        object = thread->IsJitThread() ? nullptr : AllocateOldForCMC(thread, size);
+        object = AllocateOldForCMC(thread, size);
     } else {
         size = AlignUp(size, static_cast<size_t>(MemAlignment::MEM_ALIGN_OBJECT));
         if (size > g_maxRegularHeapObjectSize) {
@@ -1062,7 +1063,7 @@ TaggedObject *SharedHeap::AllocateOldOrHugeObjectNoGC(JSThread *thread, size_t s
 {
     if (UNLIKELY(g_isEnableCMCGC)) {
         size = AlignUp(size, static_cast<size_t>(MemAlignment::MEM_ALIGN_OBJECT));
-        TaggedObject *object = reinterpret_cast<TaggedObject*>(common::HeapAllocator::AllocateOldNoGC(size));
+        TaggedObject *object = reinterpret_cast<TaggedObject*>(common::HeapAllocator::AllocateOldOrLargeNoGC(size));
         return object;
     } else {
         std::abort();
@@ -1212,13 +1213,15 @@ template<TriggerGCType gcType, GCReason gcReason>
 void SharedHeap::CollectGarbage(JSThread *thread)
 {
     if (UNLIKELY(g_isEnableCMCGC)) {
-        common::GcType type = common::GcType::ASYNC;
+        common::GCReason cmcReason = common::GC_REASON_USER;
+        bool async = true;
         if constexpr (gcType == TriggerGCType::FULL_GC || gcType == TriggerGCType::SHARED_FULL_GC ||
             gcType == TriggerGCType::APPSPAWN_FULL_GC || gcType == TriggerGCType::APPSPAWN_SHARED_FULL_GC ||
             gcReason == GCReason::ALLOCATION_FAILED) {
-            type = common::GcType::FULL;
+            cmcReason = common::GC_REASON_BACKUP;
+            async = false;
         }
-        common::BaseRuntime::RequestGC(type);
+        common::BaseRuntime::RequestGC(cmcReason, async, common::GC_TYPE_FULL);
         return;
     }
     ASSERT(gcType == TriggerGCType::SHARED_GC || gcType == TriggerGCType::SHARED_PARTIAL_GC ||
@@ -1322,6 +1325,9 @@ void SharedHeap::PushToSharedNativePointerList(JSNativePointer* pointer)
 {
     ASSERT(JSTaggedValue(pointer).IsInSharedHeap());
     if (g_isEnableCMCGC) {
+        // Note: CMC GC assumes JSNativePointer is always a non-young object and tries to optimize it out in young GC
+        ASSERT_LOGF(common::Heap::GetHeap().InRecentSpace(pointer) == false,
+                    "Violate CMC-GC assumption: should not be young object");
         common::BaseRuntime::NotifyNativeAllocation(pointer->GetBindingSize());
     }
     std::lock_guard<std::mutex> lock(sNativePointerListMutex_);

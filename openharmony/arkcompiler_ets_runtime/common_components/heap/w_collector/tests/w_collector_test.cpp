@@ -37,12 +37,12 @@ protected:
 
     void SetUp() override
     {
-        MutatorManager::Instance().CreateRuntimeMutator(ThreadType::GC_THREAD);
+        MutatorManager::Instance().CreateRuntimeMutator(ThreadType::ARK_PROCESSOR);
     }
 
     void TearDown() override
     {
-        MutatorManager::Instance().DestroyRuntimeMutator(ThreadType::GC_THREAD);
+        MutatorManager::Instance().DestroyRuntimeMutator(ThreadType::ARK_PROCESSOR);
     }
 };
 
@@ -127,7 +127,8 @@ void FlipTest()
         EXPECT_FALSE(mutatorManager.WorldStopped());
         EXPECT_TRUE(stwCallbackExecuted);
     };
-    mutatorManager.FlipMutators("flip-test", stwTest, &mutatorTest);
+    STWParam stwParam{"flip-test"};
+    mutatorManager.FlipMutators(stwParam, stwTest, &mutatorTest);
 }
 
 HWTEST_F_L0(WCollectorTest, FlipTest)

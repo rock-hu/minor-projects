@@ -106,8 +106,7 @@ std::string GetObjectInfo(const BaseObject* obj)
           << "End: 0x" << region->GetRegionEnd() << ", "
           << "AllocPtr: 0x" << region->GetRegionAllocPtr() << ", "
           << "TraceLine: 0x" << region->GetTraceLine() << ", "
-          << "CopyLine: 0x" << region->GetCopyLine() << ", "
-          << "FixLine: 0x" << region->GetFixLine() << std::endl;
+          << "CopyLine: 0x" << region->GetCopyLine() << std::endl;
     }
 
     return s.str();
@@ -204,6 +203,7 @@ private:
     size_t count_ = 0;
 };
 
+template <bool IsSTWRootVerify = true>
 class AfterMarkVisitor : public VerifyVisitor {
 public:
     void VerifyRefImpl(const BaseObject* obj, const RefField<>& ref) override
@@ -214,14 +214,22 @@ public:
         auto refObj = ref.GetTargetObject();
         RegionDesc *region = RegionDesc::GetRegionDescAt(reinterpret_cast<HeapAddress>(refObj));
 
-        // obj == nullptr means that during EnumStrongRoots, there can no longer
-        // be any objects in fromSpace, because they would all have been copied
-        // by then
+        // if obj is nullptr, this means it is a root object
+        // We expect root objects to be already forwarded: assert(!region->isFromRegion())
         if (obj == nullptr) {
-            CHECKF(!region->IsFromRegion())
-                << CONTEXT << "Object: " << GetObjectInfo(obj) << std::endl
-                << "Ref: " << GetRefInfo(ref) << std::endl;
-            return;
+            if constexpr (IsSTWRootVerify) {
+                CHECKF(!region->IsFromRegion())
+                    << CONTEXT << "Object: " << GetObjectInfo(obj) << std::endl
+                    << "Ref: " << GetRefInfo(ref) << std::endl;
+
+                return;
+            } else {
+                CHECKF(!region->IsInToSpace())
+                    << CONTEXT << "Object: " << GetObjectInfo(obj) << std::endl
+                    << "Ref: " << GetRefInfo(ref) << std::endl;
+
+                return;
+            }
         }
 
         if (Heap::GetHeap().GetGCReason() == GC_REASON_YOUNG) {
@@ -347,10 +355,11 @@ public:
         VisitWeakRoots(refVisitor);
     }
 
-    void IterateRetraced(VerifyVisitor& visitor, bool forRBDFX = false)
+    // By default, IterateRetraced uses the VisitRoots method to traverse GC roots
+    template <void (*VisitRoot)(const RefFieldVisitor &) = VisitRoots>
+    void IterateRetraced(VerifyVisitor &visitor, std::unordered_set<BaseObject *> &markSet, bool forRBDFX = false)
     {
         MarkStack<BaseObject*> markStack;
-        std::unordered_set<BaseObject*> markSet;
         BaseObject* obj = nullptr;
 
         auto markFunc = [this, &visitor, &markStack, &markSet, &obj, &forRBDFX](RefField<>& field) {
@@ -383,7 +392,7 @@ public:
             markStack.push_back(refObj);
         };
 
-        EnumStrongRoots(markFunc);
+        VisitRoot(markFunc);
         while (!markStack.empty()) {
             obj = markStack.back();
             markStack.pop_back();
@@ -416,10 +425,16 @@ void WVerify::VerifyAfterMarkInternal(RegionSpace& space)
         << CONTEXT << "Mark verification should be called after PostTrace()";
 
     auto iter = VerifyIterator(space);
-    auto visitor = AfterMarkVisitor();
-    iter.IterateRetraced(visitor);
+    auto verifySTWRoots = AfterMarkVisitor();
+    std::unordered_set<BaseObject*> markSet;
+    iter.IterateRetraced<VisitSTWRoots>(verifySTWRoots, markSet);
+    auto verifyConcurrentRoots = AfterMarkVisitor<false>();
+    iter.IterateRetraced<VisitConcurrentRoots>(verifyConcurrentRoots, markSet);
 
-    LOG_COMMON(DEBUG) << "[WVerify]: VerifyAfterMark verified ref count: " << visitor.VerifyRefCount();
+    LOG_COMMON(DEBUG) << "[WVerify]: VerifyAfterMark (STWRoots) verified ref count: "
+                      << verifySTWRoots.VerifyRefCount();
+    LOG_COMMON(DEBUG) << "[WVerify]: VerifyAfterMark (ConcurrentRoots) verified ref count: "
+                      << verifyConcurrentRoots.VerifyRefCount();
 }
 
 void WVerify::VerifyAfterMark(WCollector& collector)
@@ -429,7 +444,8 @@ void WVerify::VerifyAfterMark(WCollector& collector)
 #endif
     RegionSpace& space = reinterpret_cast<RegionSpace&>(collector.GetAllocator());
     if (!MutatorManager::Instance().WorldStopped()) {
-        ScopedStopTheWorld stw("WGC-verify-aftermark");
+        STWParam stwParam{"WGC-verify-aftermark"};
+        ScopedStopTheWorld stw(stwParam);
         VerifyAfterMarkInternal(space);
     } else {
         VerifyAfterMarkInternal(space);
@@ -455,7 +471,8 @@ void WVerify::VerifyAfterForward(WCollector& collector)
 #endif
     RegionSpace& space = reinterpret_cast<RegionSpace&>(collector.GetAllocator());
     if (!MutatorManager::Instance().WorldStopped()) {
-        ScopedStopTheWorld stw("WGC-verify-aftermark");
+        STWParam stwParam{"WGC-verify-aftermark"};
+        ScopedStopTheWorld stw(stwParam);
         VerifyAfterForwardInternal(space);
     } else {
         VerifyAfterForwardInternal(space);
@@ -469,7 +486,9 @@ void WVerify::VerifyAfterFixInternal(RegionSpace& space)
 
     auto iter = VerifyIterator(space);
     auto visitor = AfterFixVisitor();
-    iter.IterateRetraced(visitor);
+
+    std::unordered_set<BaseObject*> markSet;
+    iter.IterateRetraced(visitor, markSet);
 
     LOG_COMMON(DEBUG) << "[WVerify]: VerifyAfterFix verified ref count: " << visitor.VerifyRefCount();
 }
@@ -481,7 +500,8 @@ void WVerify::VerifyAfterFix(WCollector& collector)
 #endif
     RegionSpace& space = reinterpret_cast<RegionSpace&>(collector.GetAllocator());
     if (!MutatorManager::Instance().WorldStopped()) {
-        ScopedStopTheWorld stw("WGC-verify-aftermark");
+        STWParam stwParam{"WGC-verify-aftermark"};
+        ScopedStopTheWorld stw(stwParam);
         VerifyAfterFixInternal(space);
     } else {
         VerifyAfterFixInternal(space);
@@ -494,7 +514,8 @@ void WVerify::EnableReadBarrierDFXInternal(RegionSpace& space)
     auto setter = ReadBarrierSetter();
     auto unsetter = ReadBarrierUnsetter();
 
-    iter.IterateRetraced(setter, true);
+    std::unordered_set<BaseObject*> markSet;
+    iter.IterateRetraced(setter, markSet, true);
     // some slots of heap object are also roots, so we need to unset them
     iter.IterateRoot(unsetter);
 }
@@ -506,7 +527,8 @@ void WVerify::EnableReadBarrierDFX(WCollector& collector)
 #endif
     RegionSpace& space = reinterpret_cast<RegionSpace&>(collector.GetAllocator());
     if (!MutatorManager::Instance().WorldStopped()) {
-        ScopedStopTheWorld stw("WGC-verify-enable-rb-dfx");
+        STWParam stwParam{"WGC-verify-enable-rb-dfx"};
+        ScopedStopTheWorld stw(stwParam);
         EnableReadBarrierDFXInternal(space);
     } else {
         EnableReadBarrierDFXInternal(space);
@@ -518,7 +540,8 @@ void WVerify::DisableReadBarrierDFXInternal(RegionSpace& space)
     auto iter = VerifyIterator(space);
     auto unsetter = ReadBarrierUnsetter();
 
-    iter.IterateRetraced(unsetter, true);
+    std::unordered_set<BaseObject*> markSet;
+    iter.IterateRetraced(unsetter, markSet, true);
 }
 
 void WVerify::DisableReadBarrierDFX(WCollector& collector)
@@ -528,7 +551,8 @@ void WVerify::DisableReadBarrierDFX(WCollector& collector)
 #endif
     RegionSpace& space = reinterpret_cast<RegionSpace&>(collector.GetAllocator());
     if (!MutatorManager::Instance().WorldStopped()) {
-        ScopedStopTheWorld stw("WGC-verify-disable-rb-dfx");
+        STWParam stwParam{"WGC-verify-disable-rb-dfx"};
+        ScopedStopTheWorld stw(stwParam);
         DisableReadBarrierDFXInternal(space);
     } else {
         DisableReadBarrierDFXInternal(space);

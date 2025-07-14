@@ -355,6 +355,8 @@ public:
     static constexpr size_t LOADING_TYPE_BITS = 3;
     static constexpr uint16_t REGISTER_COUNTS = 16;
     static constexpr size_t IS_SHARED_TYPE_BITS = 2;
+    static constexpr size_t SHARED_TYPES_SHIFT = STATUS_BITS + MODULE_TYPE_BITS + IS_NEW_BC_VERSION_BITS +
+                                                 HASTLA_BITS + LOADING_TYPE_BITS + REGISTER_COUNTS;
 
     FIRST_BIT_FIELD(BitField, Status, ModuleStatus, STATUS_BITS)
     NEXT_BIT_FIELD(BitField, Types, ModuleTypes, MODULE_TYPE_BITS, Status)
@@ -431,6 +433,15 @@ public:
                                          JSHandle<SourceTextModule> module,
                                          CVector<JSHandle<SourceTextModule>> &stack,
                                          int index, JSHandle<JSTaggedValue> exception);
+    static JSHandle<JSTaggedValue> CreateBindingByIndexBinding(JSThread* thread,
+                                                               JSHandle<ResolvedIndexBinding> binding,
+                                                               bool isShared);
+
+    // Find function in JsModuleSourceText For Hook
+    static JSHandle<JSTaggedValue> FindFuncInModuleForHook(JSThread* thread, const std::string &recordName,
+                                                           const std::string &namespaceName,
+                                                           const std::string &className,
+                                                           const std::string &funcName);
 
 private:
     static JSHandle<JSTaggedValue> GetStarResolution(JSThread *thread,
@@ -480,6 +491,10 @@ private:
     static void SetRequestedModules(JSThread *thread, JSHandle<TaggedArray> requestedModules,
                                     uint32_t idx, JSHandle<JSTaggedValue> requiredModule, bool isShared);
 
+    static JSHandle<JSTaggedValue> GetBindingNameByIndex(JSThread *thread,
+                                                         const JSHandle<SourceTextModule> module,
+                                                         const int index);
+
     friend class EcmaModuleTest;
     friend class SharedModuleManager;
 };
@@ -501,9 +516,12 @@ public:
 
     static constexpr size_t MODULE_OFFSET = Record::SIZE;
     ACCESSORS(Module, MODULE_OFFSET, INDEX_OFFSET);
-    ACCESSORS_PRIMITIVE_FIELD(Index, int32_t, INDEX_OFFSET, END_OFFSET);
+    ACCESSORS_PRIMITIVE_FIELD(Index, int32_t, INDEX_OFFSET, BIT_FIELD_OFFSET);
+    ACCESSORS_BIT_FIELD(BitField, BIT_FIELD_OFFSET, END_OFFSET)
     DEFINE_ALIGN_SIZE(END_OFFSET);
 
+    static constexpr size_t IS_UPDATED_FROM_RESOLVED_BINDING_BITS = 1;
+    FIRST_BIT_FIELD(BitField, IsUpdatedFromResolvedBinding, bool, IS_UPDATED_FROM_RESOLVED_BINDING_BITS)
     DECL_DUMP()
     DECL_VISIT_OBJECT(MODULE_OFFSET, INDEX_OFFSET)
 };

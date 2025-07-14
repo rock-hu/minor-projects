@@ -734,7 +734,7 @@ uintptr_t BaseDeserializer::AllocateMultiCMCRegion(size_t spaceObjSize, size_t &
     while (regionNum > 0) {
         uintptr_t regionAddr = 0U;
         if (regionType == RegionType::RegularRegion) {
-            regionAddr = common::HeapAllocator::AllocateRegion();
+            regionAddr = common::HeapAllocator::AllocateOldRegion();
         } else {
             regionAddr = common::HeapAllocator::AllocatePinnedRegion();
         }
@@ -772,10 +772,20 @@ void BaseDeserializer::AllocateMultiRegion(SparseSpace *space, size_t spaceObjSi
         auto regionAliveObjSize = Region::GetRegionAvailableSize() - regionRemainSizeVector[index++];
         space->GetCurrentRegion()->IncreaseAliveObject(regionAliveObjSize);
         space->ResetTopPointer(space->GetCurrentRegion()->GetBegin() + regionAliveObjSize);
-        if (!space->Expand()) {
-            DeserializeFatalOutOfMemory(spaceObjSize);
+        Region *currentRegion = nullptr;
+        if (spaceType == SerializedObjectSpace::NON_MOVABLE_SPACE) {
+            uintptr_t obj = space->Allocate(Region::GetRegionAvailableSize(), false);
+            if (obj) {
+                currentRegion = Region::ObjectAddressToRange(obj);
+            } else {
+                DeserializeFatalOutOfMemory(spaceObjSize);
+            }
+        } else {
+            if (!space->Expand()) {
+                DeserializeFatalOutOfMemory(spaceObjSize);
+            }
+            currentRegion = space->GetCurrentRegion();
         }
-        Region *currentRegion = space->GetCurrentRegion();
         FreeObject::FillFreeObject(heap_, currentRegion->GetBegin(), currentRegion->GetSize());
         regionVector_.push_back(ToUintPtr(currentRegion));
         regionNum--;

@@ -163,6 +163,12 @@ constexpr uint64_t DISPLAY_ID_INVALID = -1ULL;
 static std::atomic<bool> g_isDynamicVsync = false;
 static bool g_isDragging = false;
 
+enum class WindowChangeType {
+    RECT_CHANGE,
+    FOLD_STATUS_CHANGE,
+    DISPLAY_ID_CHANGE
+};
+
 #define UICONTENT_IMPL_HELPER(name) _##name = std::make_shared<UIContentImplHelper>(this)
 #define UICONTENT_IMPL_PTR(name) _##name->uiContent_
 #define UICONTENT_IMPL_HELPER_GUARD(name, ifInvalid...) \
@@ -432,10 +438,12 @@ extern "C" ACE_FORCE_EXPORT char* OHOS_ACE_GetCurrentUIStackInfo()
     return tmp.data();
 }
 
-void AddAlarmLogFunc()
+void AddAlarmLogFunc(const RefPtr<PipelineBase>& pipeline)
 {
-    std::function<void(uint64_t, int, int)> logFunc = [](uint64_t nodeId, int count, int num) {
-        auto rsNode = Rosen::RSNodeMap::Instance().GetNode<Rosen::RSNode>(nodeId);
+    std::function<void(uint64_t, int, int)> logFunc = [pipeline](uint64_t nodeId, int count, int num) {
+        auto rsUIContext = RsAdapter::GetRSUIContext(pipeline);
+        auto rsNode = rsUIContext ? rsUIContext->GetNodeMap().GetNode(nodeId)
+                        : Rosen::RSNodeMap::Instance().GetNode(nodeId);
         if (rsNode == nullptr) {
             LOGI("rsNodeId:%{public}" PRId64 "not found, sendCommands:%{public}d, totalNumber:%{public}d",
                 nodeId, count, num);
@@ -513,7 +521,7 @@ void UpdateSafeArea(const RefPtr<PipelineBase>& pipelineContext,
     AvoidAreasUpdateOnUIExtension(context, avoidAreas);
 }
 
-void ClearAllMenuPopup(int32_t instanceId)
+void ClearAllMenuPopup(int32_t instanceId, WindowChangeType type)
 {
     auto container = Platform::AceContainer::GetContainer(instanceId);
     CHECK_NULL_VOID(container);
@@ -521,8 +529,11 @@ void ClearAllMenuPopup(int32_t instanceId)
     CHECK_NULL_VOID(pipeline);
     auto overlay = pipeline->GetOverlayManager();
     CHECK_NULL_VOID(overlay);
-    overlay->HideAllMenusWithoutAnimation(false);
-    overlay->HideAllPopupsWithoutAnimation();
+    // The non-subwindow menu and popup disappear when the window area changes, and do not follow the current logic.
+    if (type != WindowChangeType::RECT_CHANGE) {
+        overlay->HideAllMenusWithoutAnimation(false);
+        overlay->HideAllPopupsWithoutAnimation();
+    }
     SubwindowManager::GetInstance()->ClearAllMenuPopup(instanceId);
 }
 
@@ -900,7 +911,7 @@ public:
                 auto aceFoldStatus = static_cast<FoldStatus>(static_cast<uint32_t>(foldStatus));
                 context->OnFoldStatusChanged(aceFoldStatus);
                 if (SystemProperties::IsSuperFoldDisplayDevice()) {
-                    ClearAllMenuPopup(instanceId);
+                    ClearAllMenuPopup(instanceId, WindowChangeType::FOLD_STATUS_CHANGE);
                 }
             },
             TaskExecutor::TaskType::UI, "ArkUIFoldStatusChanged");
@@ -1002,7 +1013,7 @@ public:
             [instanceId = instanceId_, isWindowSizeChanged] {
                 CHECK_EQUAL_VOID(isWindowSizeChanged, false);
                 ContainerScope scope(instanceId);
-                ClearAllMenuPopup(instanceId);
+                ClearAllMenuPopup(instanceId, WindowChangeType::RECT_CHANGE);
             },
             TaskExecutor::TaskType::UI, "ArkUIWindowRectChange");
     }
@@ -1033,7 +1044,7 @@ public:
         taskExecutor->PostTask(
             [instanceId = instanceId_] {
                 ContainerScope scope(instanceId);
-                ClearAllMenuPopup(instanceId);
+                ClearAllMenuPopup(instanceId, WindowChangeType::DISPLAY_ID_CHANGE);
             },
             TaskExecutor::TaskType::UI, "ArkUIDisplayIdChange");
     }
@@ -2704,7 +2715,7 @@ UIContentErrorCode UIContentImpl::CommonInitialize(
     LayoutInspector::SetCallback(instanceId_);
 
     // setLogFunc of current app
-    AddAlarmLogFunc();
+    AddAlarmLogFunc(pipeline);
     InitUISessionManagerCallbacks(pipeline);
     UiSessionManager::GetInstance()->SaveBaseInfo(std::string("bundleName:")
                                                      .append(bundleName)
@@ -3367,6 +3378,7 @@ void UIContentImpl::LinkKeyFrameCanvasNode(std::shared_ptr<OHOS::Rosen::RSCanvas
         auto surfaceNode = window_->GetSurfaceNode();
         CHECK_NULL_VOID(surfaceNode);
         CHECK_NULL_VOID(canvasNode);
+        canvasNode->SetRSUIContext(surfaceNode->GetRSUIContext());
         TAG_LOGD(AceLogTag::ACE_WINDOW, "AddChild surfaceNode %{public}" PRIu64 "canvasNode %{public}" PRIu64 "",
             surfaceNode->GetId(), canvasNode->GetId());
         surfaceNode->AddChild(canvasNode, -1);
@@ -5450,8 +5462,15 @@ void UIContentImpl::SetForceSplitEnable(
 
 void UIContentImpl::ProcessDestructCallbacks()
 {
-    std::shared_lock<std::shared_mutex> reportLock(destructMutex_);
-    for (auto& [_, callback] : destructCallbacks_) {
+    std::vector<std::function<void()>> tempCallbacks;
+    {
+        std::shared_lock<std::shared_mutex> reportLock(destructMutex_);
+        tempCallbacks.reserve(destructCallbacks_.size());
+        for (auto& [_, callback] : destructCallbacks_) {
+            tempCallbacks.emplace_back(callback);
+        }
+    }
+    for (auto& callback : tempCallbacks) {
         callback();
     }
 }
@@ -5689,7 +5708,7 @@ void UIContentImpl::InitUISessionManagerCallbacks(RefPtr<PipelineBase> pipeline)
                     UiSessionManager::GetInstance()->WebTaskNumsChange(-1);
                 }
             },
-            TaskExecutor::TaskType::BACKGROUND, "UiSessionGetInspectorTree",
+            TaskExecutor::TaskType::UI, "UiSessionGetInspectorTree",
             TaskExecutor::GetPriorityTypeWithCheck(PriorityType::VIP));
     };
     UiSessionManager::GetInstance()->SaveInspectorTreeFunction(callback);
@@ -5713,6 +5732,7 @@ void UIContentImpl::InitUISessionManagerCallbacks(RefPtr<PipelineBase> pipeline)
     InitSendCommandFunctionsCallbacks(pipeline);
     sendCommandCallbackInner(pipeline);
     SaveGetCurrentInstanceId();
+    RegisterExeAppAIFunction(pipeline);
 }
 
 void UIContentImpl::SetupGetPixelMapCallback(RefPtr<PipelineBase> pipeline)
@@ -6026,5 +6046,17 @@ UIContentErrorCode UIContentImpl::InitializeByNameWithAniStorage(
     auto errorCode = InitializeInner(window, name, storageWrapper, true);
     AddWatchSystemParameter();
     return errorCode;
+}
+
+void UIContentImpl::RegisterExeAppAIFunction(const RefPtr<PipelineBase>& pipeline)
+{
+    auto exeAppAIFunctionCallback = [weakContext = WeakPtr(pipeline)](
+        const std::string& funcName, const std::string& params) -> uint32_t {
+        static constexpr uint32_t AI_CALL_ENV_INVALID = 4;
+        auto pipeline = AceType::DynamicCast<NG::PipelineContext>(weakContext.Upgrade());
+        CHECK_NULL_RETURN(pipeline, AI_CALL_ENV_INVALID);
+        return pipeline->ExeAppAIFunctionCallback(funcName, params);
+    };
+    UiSessionManager::GetInstance()->RegisterPipeLineExeAppAIFunction(exeAppAIFunctionCallback);
 }
 } // namespace OHOS::Ace

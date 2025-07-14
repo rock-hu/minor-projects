@@ -17,6 +17,7 @@
 #include "common_components/base/sys_call.h"
 #include "common_components/common/scoped_object_lock.h"
 #include "common_components/mutator/mutator.h"
+#include "heap/collector/collector_proxy.h"
 #if defined(COMMON_TSAN_SUPPORT)
 #include "common_components/sanitizer/sanitizer_interface.h"
 #endif
@@ -26,28 +27,16 @@ BaseObject* CopyBarrier::ReadRefField(BaseObject* obj, RefField<false>& field) c
 {
     do {
         RefField<> tmpField(field);
-        bool isWeak = tmpField.IsWeak();
-        BaseObject* oldRef = tmpField.GetTargetObject();
-        if (LIKELY_CC(!theCollector.IsFromObject(oldRef))) {
-            if (isWeak) {
-                return (BaseObject*)((uintptr_t)oldRef | TAG_WEAK);
-            } else {
-                return oldRef;
-            }
+        BaseObject* oldRef = reinterpret_cast<BaseObject *>(tmpField.GetAddress());
+        if (LIKELY_CC(!static_cast<CollectorProxy *>(&theCollector)->IsFromObject(oldRef))) {
+            return oldRef;
         }
+
+        auto weakMask = reinterpret_cast<MAddress>(oldRef) & TAG_WEAK;
+        oldRef = reinterpret_cast<BaseObject *>(reinterpret_cast<MAddress>(oldRef) & (~TAG_WEAK));
         BaseObject* toObj = nullptr;
-        if (theCollector.IsUnmovableFromObject(oldRef)) {
-            if (isWeak) {
-                return (BaseObject*)((uintptr_t)oldRef | TAG_WEAK);
-            } else {
-                return oldRef;
-            }
-        } else if (theCollector.TryForwardRefField(obj, field, toObj)) {
-            if (isWeak) {
-                return (BaseObject*)((uintptr_t)toObj | TAG_WEAK);
-            } else {
-                return toObj;
-            }
+        if (static_cast<CollectorProxy *>(&theCollector)->TryForwardRefField(obj, field, toObj)) {
+            return (BaseObject*)((uintptr_t)toObj | weakMask);
         }
     } while (true);
     // unreachable path.
@@ -59,13 +48,16 @@ BaseObject* CopyBarrier::ReadStaticRef(RefField<false>& field) const { return Re
 // If the object is still alive, return its toSpace object; if not, return nullptr
 BaseObject* CopyBarrier::ReadStringTableStaticRef(RefField<false>& field) const
 {
+    // Note: CMC GC assumes all objects in string table are not in young space. Based on the assumption, CMC GC skip
+    // read barrier in young GC
+    if (Heap::GetHeap().GetGCReason() == GC_REASON_YOUNG) {
+        return reinterpret_cast<BaseObject*>(field.GetFieldValue());
+    }
+
     auto isSurvivor = [](BaseObject* obj) {
-        auto gcReason = Heap::GetHeap().GetGCReason();
         RegionDesc *regionInfo =
             RegionDesc::GetRegionDescAt(reinterpret_cast<HeapAddress>(obj));
-        return ((gcReason == GC_REASON_YOUNG && !regionInfo->IsInYoungSpace()) ||
-                regionInfo->IsNewObjectSinceTrace(obj) ||
-                regionInfo->IsToRegion() || regionInfo->IsMarkedObject(obj));
+        return (regionInfo->IsNewObjectSinceTrace(obj) || regionInfo->IsToRegion() || regionInfo->IsMarkedObject(obj));
     };
 
     RefField<> tmpField(field);
@@ -80,7 +72,7 @@ BaseObject* CopyBarrier::ReadStringTableStaticRef(RefField<false>& field) const
 void CopyBarrier::ReadStruct(HeapAddress dst, BaseObject* obj, HeapAddress src, size_t size) const
 {
     CHECK_CC(!Heap::IsHeapAddress(dst));
-    if (obj != nullptr) {
+    if (obj != nullptr) { //LCOV_EXCL_BR_LINE
         obj->ForEachRefInStruct(
             [this, obj](RefField<false>& field) {
                 BaseObject* target = ReadRefField(obj, field);
@@ -104,10 +96,10 @@ void CopyBarrier::AtomicWriteRefField(BaseObject* obj, RefField<true>& field, Ba
 {
     RefField<> newField(newRef);
     field.SetFieldValue(newField.GetFieldValue(), order);
-    if (obj != nullptr) {
+    if (obj != nullptr) { //LCOV_EXCL_BR_LINE
         DLOG(FBARRIER, "atomic write obj %p<%p>(%zu) ref@%p: %#zx", obj, obj->GetTypeInfo(), obj->GetSize(), &field,
              newField.GetFieldValue());
-    } else {
+    } else { //LCOV_EXCL_BR_LINE
         DLOG(FBARRIER, "atomic write static ref@%p: %#zx", &field, newField.GetFieldValue());
     }
 }
@@ -129,9 +121,9 @@ bool CopyBarrier::CompareAndSwapRefField(BaseObject* obj, RefField<true>& field,
     HeapAddress oldFieldValue = field.GetFieldValue(std::memory_order_seq_cst);
     RefField<false> oldField(oldFieldValue);
     BaseObject* oldVersion = ReadRefField(nullptr, oldField);
-    while (oldVersion == oldRef) {
+    while (oldVersion == oldRef) { //LCOV_EXCL_BR_LINE
         RefField<> newField(newRef);
-        if (field.CompareExchange(oldFieldValue, newField.GetFieldValue(), succOrder, failOrder)) {
+        if (field.CompareExchange(oldFieldValue, newField.GetFieldValue(), succOrder, failOrder)) { //LCOV_EXCL_BR_LINE
             return true;
         }
         oldFieldValue = field.GetFieldValue(std::memory_order_seq_cst);

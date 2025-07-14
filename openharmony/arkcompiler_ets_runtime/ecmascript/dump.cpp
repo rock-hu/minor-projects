@@ -2269,14 +2269,14 @@ void JSSharedArrayIterator::Dump(const JSThread *thread, std::ostream &os) const
 
 void JSAPIArrayList::Dump(const JSThread *thread, std::ostream &os) const
 {
-    os << " - length: " << std::dec << GetSize() << "\n";
+    os << " - length: " << std::dec << GetSize(const_cast<JSThread *>(thread)) << "\n";
     JSObject::Dump(thread, os);
 }
 
 void JSAPIArrayListIterator::Dump(const JSThread *thread, std::ostream &os) const
 {
     JSAPIArrayList *arrayList = JSAPIArrayList::Cast(GetIteratedArrayList(thread).GetTaggedObject());
-    os << " - length: " << std::dec << arrayList->GetSize() << "\n";
+    os << " - length: " << std::dec << arrayList->GetSize(const_cast<JSThread *>(thread)) << "\n";
     os << " - nextIndex: " << std::dec << GetNextIndex() << "\n";
     JSObject::Dump(thread, os);
 }
@@ -3766,8 +3766,9 @@ void ResolvedIndexBinding::Dump(const JSThread *thread, std::ostream &os) const
     os << " - Module: ";
     GetModule(thread).Dump(thread, os);
     os << "\n";
-    os << " - Index: ";
-    GetIndex();
+    os << " - Index: " << GetIndex();
+    os << "\n";
+    os << " - IsUpdatedFromResolvedBinding: " << GetIsUpdatedFromResolvedBinding();
     os << "\n";
 }
 
@@ -3779,8 +3780,7 @@ void ResolvedRecordIndexBinding::Dump(const JSThread *thread, std::ostream &os) 
     os << " - AbcFileName: ";
     GetAbcFileName(thread).Dump(thread, os);
     os << "\n";
-    os << " - Index: ";
-    GetIndex();
+    os << " - Index: " << GetIndex();
     os << "\n";
 }
 
@@ -5122,7 +5122,7 @@ void JSSharedArray::DumpForSnapshot(const JSThread *thread, std::vector<Referenc
 
 void JSAPIArrayList::DumpForSnapshot(const JSThread *thread, std::vector<Reference> &vec) const
 {
-    vec.emplace_back(CString("Length"), JSTaggedValue(GetLength()));
+    vec.emplace_back(CString("Length"), JSTaggedValue(GetLength(thread)));
     JSObject::DumpForSnapshot(thread, vec);
 }
 
@@ -5995,6 +5995,7 @@ void ResolvedIndexBinding::DumpForSnapshot(const JSThread *thread, std::vector<R
 {
     vec.emplace_back(CString("Module"), GetModule(thread));
     vec.emplace_back(CString("Index"), JSTaggedValue(GetIndex()));
+    vec.emplace_back(CString("IsUpdatedFromResolvedBinding"), JSTaggedValue(GetIsUpdatedFromResolvedBinding()));
 }
 
 void ResolvedRecordIndexBinding::DumpForSnapshot(const JSThread *thread, std::vector<Reference> &vec) const

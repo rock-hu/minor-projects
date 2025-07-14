@@ -119,8 +119,8 @@ void ScrollablePattern::CreateAnalyzerOverlay(const RefPtr<FrameNode> node)
     overlayProperty->SetIsOverlayNode(true);
     overlayProperty->UpdateMeasureType(MeasureType::MATCH_PARENT);
     overlayProperty->UpdateAlignment(Alignment::TOP_LEFT);
-    auto overlayOffsetX = std::make_optional<Dimension>(Dimension::FromString("0px"));
-    auto overlayOffsetY = std::make_optional<Dimension>(Dimension::FromString("0px"));
+    auto overlayOffsetX = std::make_optional<Dimension>(Dimension(0));
+    auto overlayOffsetY = std::make_optional<Dimension>(Dimension(0));
     overlayProperty->SetOverlayOffset(overlayOffsetX, overlayOffsetY);
     auto focusHub = overlayNode->GetOrCreateFocusHub();
     CHECK_NULL_VOID(focusHub);
@@ -311,7 +311,7 @@ void ScrollablePattern::ProcessNavBarReactOnEnd()
 bool ScrollablePattern::OnScrollPosition(double& offset, int32_t source)
 {
     auto isSearchRefresh = GetIsSearchRefresh();
-    if (needLinked_) {
+    if (GetNeedLinked()) {
         bool isAtTop = IsAtTop();
         auto isAtTopAndPositive = (isAtTop && Positive(offset));
         auto refreshCoordinateMode = RefreshCoordinationMode::UNKNOWN;
@@ -883,9 +883,7 @@ void ScrollablePattern::InitTouchEvent(const RefPtr<GestureEventHub>& gestureHub
                 break;
         }
     };
-    if (touchEvent_) {
-        gestureHub->RemoveTouchEvent(touchEvent_);
-    }
+
     touchEvent_ = MakeRefPtr<TouchEventImpl>(std::move(touchTask));
     gestureHub->AddTouchEvent(touchEvent_);
 }
@@ -1214,6 +1212,7 @@ void ScrollablePattern::SetScrollBar(const std::unique_ptr<ScrollBarProperty>& p
                 scrollBar_->FlushBarWidth();
             }
         }
+        scrollBar_->MarkNeedRender();
     }
 }
 
@@ -2806,8 +2805,10 @@ void ScrollablePattern::SetBackToTop(bool backToTop)
 
 void ScrollablePattern::ResetBackToTop()
 {
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
     bool backToTop =
-        GetAxis() == Axis::VERTICAL && Container::GreatOrEqualAPITargetVersion(PlatformVersion::VERSION_EIGHTEEN);
+        GetAxis() == Axis::VERTICAL && host->GreatOrEqualAPITargetVersion(PlatformVersion::VERSION_EIGHTEEN);
     SetBackToTop(backToTop);
 }
 
@@ -4329,7 +4330,9 @@ void ScrollablePattern::OnColorConfigurationUpdate()
     scrollBar_->SetForegroundColor(theme->GetForegroundColor(), isRoundScroll_);
     scrollBar_->SetBackgroundColor(theme->GetBackgroundColor(), isRoundScroll_);
     CHECK_NULL_VOID(SystemProperties::ConfigChangePerform());
-    paintProperty->UpdatePropertyChangeFlag(PROPERTY_UPDATE_RENDER);
+    if (paintProperty) {
+        paintProperty->UpdatePropertyChangeFlag(PROPERTY_UPDATE_RENDER);
+    }
 }
 
 SizeF ScrollablePattern::GetViewSizeMinusPadding() const

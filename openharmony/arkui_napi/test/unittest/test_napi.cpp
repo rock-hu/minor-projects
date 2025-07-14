@@ -52,6 +52,10 @@ static constexpr int INT_TWO = 2;
 static constexpr int INT_THREE = 3;
 static constexpr int INT_FORTYTWO = 42;
 static constexpr int INT_HUNDRED = 100;
+static constexpr int ASYNC_WORK_NUM = 10;
+static constexpr uint64_t TASKID = 0;
+static int g_currentExeId = 0;
+static int g_currentCptId = 0;
 
 static constexpr double TEST_DOUBLE = 1.1;
 static constexpr char TEST_STRING[5] = "test";
@@ -14295,18 +14299,15 @@ HWTEST_F(NapiBasicTest, ArkNativeReferenceTest004, testing::ext::TestSize.Level1
             env, value, ref,
             // This callback is execution under deconstructor of ArkNativeReference
             [](napi_env env, void* data, void*) {
-                ArkNativeReference** secondData = reinterpret_cast<ArkNativeReference**>(data);
-                ArkNativeReference* ref = *secondData;
-                ASSERT_NE(ref->properties_ & ArkNativeReference::DELETE_SELF_MASK, 0);
-                ASSERT_EQ(ref->properties_ & ArkNativeReference::IS_ASYNC_CALL_MASK, 0);
-                ASSERT_EQ(ref->properties_ & ArkNativeReference::HAS_DELETE_MASK, 0);
-                ASSERT_NE(ref->properties_ & ArkNativeReference::FINAL_RAN_MASK, 0);
-                *secondData = nullptr;
+                *reinterpret_cast<ArkNativeReference**>(data) = nullptr;
             },
             nullptr, nullptr));
         // Head is last reference which created above. 
         *ref = reinterpret_cast<ArkNativeReference*>(engine_->GetReferenceManager()->references_);
         ASSERT_NE((*ref)->properties_ & ArkNativeReference::DELETE_SELF_MASK, 0);
+        ASSERT_EQ((*ref)->properties_ & ArkNativeReference::IS_ASYNC_CALL_MASK, 0);
+        ASSERT_EQ((*ref)->properties_ & ArkNativeReference::HAS_DELETE_MASK, 0);
+        ASSERT_EQ((*ref)->properties_ & ArkNativeReference::FINAL_RAN_MASK, 0);
     }
     ASSERT_NE(ref, nullptr);
     panda::JSNApi::TriggerGC(engine_->GetEcmaVm(), panda::ecmascript::GCReason::OTHER, panda::JSNApi::TRIGGER_GC_TYPE::FULL_GC);
@@ -14347,4 +14348,83 @@ HWTEST_F(NapiBasicTest, ArkNativeReferenceTest005, testing::ext::TestSize.Level1
         testData->env_ = nullptr;
     ASSERT_EQ(testData->ref_, nullptr);
     delete testData;
+}
+
+void TestQueueAsyncWorkWithQueue(NativeEngine* engine, napi_qos_t qos)
+{
+    UVLoopRunner runner(engine);
+    napi_env env = (napi_env)engine;
+
+    g_currentExeId = 0;
+    g_currentCptId = 0;
+    struct AsyncWorkContext {
+        napi_async_work work = nullptr;
+        int workid = 0;
+    };
+    std::unique_ptr<AsyncWorkContext> asyncWorkContext[ASYNC_WORK_NUM];
+    for (int i = 0; i < ASYNC_WORK_NUM; ++i) {
+        asyncWorkContext[i] = std::make_unique<AsyncWorkContext>();
+        asyncWorkContext[i]->workid = i;
+    }
+    napi_value resourceName = nullptr;
+    napi_create_string_utf8(env, TEST_CHAR_ASYNCWORK, NAPI_AUTO_LENGTH, &resourceName);
+    for (int i = 0; i < ASYNC_WORK_NUM; ++i) {
+        ASSERT_CHECK_CALL(napi_create_async_work(env, nullptr, resourceName,
+            [](napi_env env, void *data) {
+                auto asyncWorkContext = reinterpret_cast<AsyncWorkContext*>(data);
+                ASSERT_EQ(g_currentExeId, asyncWorkContext->workid);
+                g_currentExeId++;
+            },
+            [](napi_env env, napi_status status, void* data) {
+                auto asyncWorkContext = reinterpret_cast<AsyncWorkContext*>(data);
+                ASSERT_EQ(g_currentCptId, asyncWorkContext->workid);
+                g_currentCptId++;
+            },
+            asyncWorkContext[i].get(), &asyncWorkContext[i]->work));
+    }
+    for (int i = 0; i < ASYNC_WORK_NUM; ++i) {
+        ASSERT_CHECK_CALL(napi_queue_async_work_with_queue(env, asyncWorkContext[i]->work, qos, reinterpret_cast<uintptr_t>(&TASKID)));
+    }
+
+    runner.Run();
+}
+
+/**
+ * @tc.name: NapiQueueAsyncWorkWithQueueTest001
+ * @tc.desc: Test interface of napi_queue_async_work_with_queue
+ * @tc.type: FUNC
+ */
+HWTEST_F(NapiBasicTest, NapiQueueAsyncWorkWithQueueTest001, testing::ext::TestSize.Level1)
+{
+    TestQueueAsyncWorkWithQueue(engine_, napi_qos_background);
+}
+
+/**
+ * @tc.name: NapiQueueAsyncWorkWithQueueTest002
+ * @tc.desc: Test interface of napi_queue_async_work_with_queue
+ * @tc.type: FUNC
+ */
+HWTEST_F(NapiBasicTest, NapiQueueAsyncWorkWithQueueTest002, testing::ext::TestSize.Level1)
+{
+    TestQueueAsyncWorkWithQueue(engine_, napi_qos_utility);
+}
+
+/**
+ * @tc.name: NapiQueueAsyncWorkWithQueueTest003
+ * @tc.desc: Test interface of napi_queue_async_work_with_queue
+ * @tc.type: FUNC
+ */
+HWTEST_F(NapiBasicTest, NapiQueueAsyncWorkWithQueueTest003, testing::ext::TestSize.Level1)
+{
+    TestQueueAsyncWorkWithQueue(engine_, napi_qos_default);
+}
+
+/**
+ * @tc.name: NapiQueueAsyncWorkWithQueueTest004
+ * @tc.desc: Test interface of napi_queue_async_work_with_queue
+ * @tc.type: FUNC
+ */
+HWTEST_F(NapiBasicTest, NapiQueueAsyncWorkWithQueueTest004, testing::ext::TestSize.Level1)
+{
+    TestQueueAsyncWorkWithQueue(engine_, napi_qos_user_initiated);
 }

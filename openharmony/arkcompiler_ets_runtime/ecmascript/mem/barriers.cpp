@@ -119,13 +119,13 @@ void Barriers::CMCArrayCopyWriteBarrier(const JSThread *thread, const TaggedObje
 {
     // need opt
     ASSERT(g_isEnableCMCGC);
-    uintptr_t *dstPtr = reinterpret_cast<uintptr_t *>(dst);
-    uintptr_t *srcPtr = reinterpret_cast<uintptr_t *>(src);
+    JSTaggedType *dstPtr = reinterpret_cast<JSTaggedType *>(dst);
+    JSTaggedType *srcPtr = reinterpret_cast<JSTaggedType *>(src);
     for (size_t i = 0; i < count; i++) {
-        uintptr_t offset = i * sizeof(uintptr_t);
-        uintptr_t value = srcPtr[i];
-        void* obj = reinterpret_cast<void*>(const_cast<TaggedObject*>(dstObj));
-        void* field = reinterpret_cast<void*>((uintptr_t)dst + offset);
+        JSTaggedType offset = i * sizeof(JSTaggedType);
+        JSTaggedType value = srcPtr[i];
+        void* obj = reinterpret_cast<void*>(const_cast<JSTaggedType *>(dstObj));
+        void* field = reinterpret_cast<void*>((JSTaggedType)dst + offset);
         common::BaseRuntime::WriteBarrier(obj, field, (void*)value);
     }
     return;
@@ -156,13 +156,12 @@ bool Barriers::ShouldGetGCReason(common::GCPhase gcPhase)
     }
 }
 
-bool Barriers::ShouldUpdateRememberSet(BaseObject* ref, common::GCPhase gcPhase)
+bool Barriers::ShouldUpdateRememberSet(common::GCPhase gcPhase)
 {
-    if (!common::Heap::IsTaggedObject(reinterpret_cast<common::HeapAddress>(ref))) {
-        return false;
+    if (common::Heap::GetHeap().GetGCReason() == common::GC_REASON_YOUNG || !ShouldGetGCReason(gcPhase)) {
+        return true;
     }
-    ASSERT(common::Heap::IsHeapAddress(ref));
-    return !ShouldGetGCReason(gcPhase) || common::Heap::GetHeap().GetGCReason() == common::GC_REASON_YOUNG;
+    return false;
 }
 
 void Barriers::CMCArrayCopyWriteBarrier(const JSThread *thread, const TaggedObject *dstObj, void* src, void* dst,
@@ -172,28 +171,28 @@ void Barriers::CMCArrayCopyWriteBarrier(const JSThread *thread, const TaggedObje
     ASSERT(dstObj != nullptr);
 
     common::BaseObject* object = reinterpret_cast<BaseObject*>(const_cast<TaggedObject*>(dstObj));
-    common::RegionDesc* objRegion =
-        common::RegionDesc::GetRegionDescAt(reinterpret_cast<common::MAddress>(object));
-    uintptr_t *srcPtr = reinterpret_cast<uintptr_t *>(src);
+    common::RegionDesc::InlinedRegionMetaData *objMetaRegion =
+        common::RegionDesc::InlinedRegionMetaData::GetInlinedRegionMetaData(reinterpret_cast<uintptr_t>(object));
+    JSTaggedType *srcPtr = reinterpret_cast<JSTaggedType *>(src);
     common::GCPhase gcPhase = thread->GetCMCGCPhase();
-
     // 1. update Rememberset
-    auto checkReference = [&](BaseObject* ref) {
-        common::RegionDesc* refRegion =
-            common::RegionDesc::GetRegionDescAt(reinterpret_cast<common::MAddress>(ref));
-        return (!objRegion->IsInYoungSpace() && refRegion->IsInYoungSpace()) ||
-            (objRegion->IsInFromSpace() && refRegion->IsInRecentSpace());
-    };
+    if (ShouldUpdateRememberSet(gcPhase)) {
+        auto checkReference = [&](BaseObject* ref) {
+            common::RegionDesc::InlinedRegionMetaData *refMetaRegion =
+                common::RegionDesc::InlinedRegionMetaData::GetInlinedRegionMetaData(reinterpret_cast<uintptr_t>(ref));
+            return (!objMetaRegion->IsInYoungSpaceForWB() && refMetaRegion->IsInYoungSpaceForWB());
+        };
 
-    for (size_t i = 0; i < count; i++) {
-        BaseObject* ref = reinterpret_cast<BaseObject*>(srcPtr[i]);
-        if (!ShouldUpdateRememberSet(ref, gcPhase)) {
-            continue;
-        }
-
-        if (checkReference(ref)) {
-            objRegion->MarkRSetCardTable(object);
-            break;
+        for (size_t i = 0; i < count; i++) {
+            BaseObject* ref = reinterpret_cast<BaseObject*>(srcPtr[i]);
+            if (!common::Heap::IsTaggedObject(reinterpret_cast<common::HeapAddress>(ref))) {
+                continue;
+            }
+            ASSERT(common::Heap::IsHeapAddress(ref));
+            if (checkReference(ref)) {
+                objMetaRegion->MarkRSetCardTable(object);
+                break;
+            }
         }
     }
 

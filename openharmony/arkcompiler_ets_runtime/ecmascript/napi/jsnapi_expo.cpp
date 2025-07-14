@@ -3649,7 +3649,7 @@ Local<FunctionRef> FunctionRef::NewConcurrentWithName(EcmaVM *vm, const Local<JS
     ecmascript::ThreadManagedScope managedScope(thread);
 
     ObjectFactory *factory = vm->GetFactory();
-    JSHandle<JSTaggedValue> functionName(factory->NewFromUtf8WithoutStringTable(name));
+    JSHandle<JSTaggedValue> functionName(factory->NewFromUtf8(name));
     PropertyDescriptor nameDesc(thread, functionName, false, false, true);
     ecmascript::PropertyAttributes attr(nameDesc);
     attr.SetIsInlinedProps(true);
@@ -4872,12 +4872,14 @@ void JSNApi::TriggerGC(const EcmaVM *vm, ecmascript::GCReason reason, TRIGGER_GC
         }
 #endif
         if (ecmascript::g_isEnableCMCGC) {
-            common::GcType type = common::GcType::ASYNC;
+            common::GCReason cmcReason = common::GC_REASON_USER;
+            bool async = true;
             if (gcType == TRIGGER_GC_TYPE::FULL_GC || gcType == TRIGGER_GC_TYPE::SHARED_FULL_GC ||
                 reason == ecmascript::GCReason::ALLOCATION_FAILED) {
-                type = common::GcType::FULL;
+                cmcReason = common::GC_REASON_BACKUP;
+                async = false;
             }
-            common::BaseRuntime::RequestGC(type);
+            common::BaseRuntime::RequestGC(cmcReason, async, common::GC_TYPE_FULL);
         } else {
             auto sHeap = ecmascript::SharedHeap::GetInstance();
             switch (gcType) {
@@ -6223,7 +6225,8 @@ void JSNApi::PandaFileSerialize(const EcmaVM *vm)
 // Arkui trigger module Seralize when cold start is end.
 void JSNApi::ModuleSerialize(const EcmaVM *vm)
 {
-    if (const_cast<EcmaVM *>(vm)->GetJSOptions().DisableJSPandaFileAndModuleSnapshot()) {
+    JSRuntimeOptions &options = const_cast<EcmaVM *>(vm)->GetJSOptions();
+    if (options.DisableJSPandaFileAndModuleSnapshot() || options.DisableModuleSnapshot()) {
         return;
     }
     ecmascript::CString path(ecmascript::ohos::OhosConstants::PANDAFILE_AND_MODULE_SNAPSHOT_DIR);

@@ -25,16 +25,14 @@
 #include "core/components_ng/pattern/text/text_base.h"
 #include "core/components_ng/pattern/text/text_pattern.h"
 #include "core/components_ng/pattern/text/paragraph_util.h"
-
-#ifdef ACE_ENABLE_VK
-#include "render_service_base/include/platform/common/rs_system_properties.h"
+#ifdef ENABLE_ROSEN_BACKEND
+#include "render_service_client/core/ui/rs_ui_director.h"
 #endif
 
 namespace OHOS::Ace::NG {
 namespace {
 constexpr int32_t HUNDRED = 100;
 constexpr int32_t TWENTY = 20;
-constexpr float DEFAULT_STROKE_WIDTH = 0.0f;
 
 uint32_t GetAdaptedMaxLines(const TextStyle& textStyle, const LayoutConstraintF& contentConstraint)
 {
@@ -118,7 +116,8 @@ std::optional<SizeF> TextLayoutAlgorithm::MeasureContent(
         auto result = BuildTextRaceParagraph(textStyle_, textLayoutProperty, contentConstraint, layoutWrapper);
         return result;
     }
-    if (isSpanStringMode_ && host->LessThanAPITargetVersion(PlatformVersion::VERSION_EIGHTEEN)) {
+    if (host->GetTag() == V2::SYMBOL_ETS_TAG ||
+        (isSpanStringMode_ && host->LessThanAPITargetVersion(PlatformVersion::VERSION_EIGHTEEN))) {
         BuildParagraph(textStyle_, textLayoutProperty, contentConstraint, layoutWrapper);
     } else {
         if (!AddPropertiesAndAnimations(textStyle_, textLayoutProperty, contentConstraint, layoutWrapper)) {
@@ -133,12 +132,12 @@ std::optional<SizeF> TextLayoutAlgorithm::MeasureContent(
         return SizeF {};
     }
     CHECK_NULL_RETURN(paragraphManager_, std::nullopt);
-#ifdef ACE_ENABLE_VK
+#ifdef ENABLE_ROSEN_BACKEND
     auto pipeline = host->GetContext();
     auto fontManager = pipeline == nullptr ? nullptr : pipeline->GetFontManager();
-    if (fontManager != nullptr && Rosen::RSSystemProperties::GetHybridRenderEnabled()) {
+    if (fontManager != nullptr && Rosen::RSUIDirector::IsHybridRenderEnabled()) {
         if (static_cast<uint32_t>(paragraphManager_->GetLineCount()) >=
-            Rosen::RSSystemProperties::GetHybridRenderTextBlobLenCount()) {
+            Rosen::RSUIDirector::GetHybridRenderTextBlobLenCount()) {
             fontManager->AddHybridRenderNode(host);
         } else {
             fontManager->RemoveHybridRenderNode(host);
@@ -172,8 +171,7 @@ void TextLayoutAlgorithm::UpdateRelayoutShaderStyle(LayoutWrapper* layoutWrapper
     CHECK_NULL_VOID(pattern);
     auto textLayoutProperty = DynamicCast<TextLayoutProperty>(layoutWrapper->GetLayoutProperty());
     CHECK_NULL_VOID(textLayoutProperty);
-    if (textStyle_.GetGradient().has_value() && !pattern->GetExternalParagraph() &&
-        textStyle_.GetStrokeWidth().Value() >= DEFAULT_STROKE_WIDTH) {
+    if (textStyle_.GetGradient().has_value() && !pattern->GetExternalParagraph()) {
         RelayoutShaderStyle(textLayoutProperty);
     }
 }
@@ -249,8 +247,9 @@ void TextLayoutAlgorithm::CheckNeedReCreateParagraph(LayoutWrapper* layoutWrappe
     CHECK_NULL_VOID(frameNode);
     auto textPattern = frameNode->GetPattern<TextPattern>();
     CHECK_NULL_VOID(textPattern);
+    alwaysReCreateParagraph_ = AlwaysReCreateParagraph(layoutWrapper);
     needReCreateParagraph_ = textLayoutProperty->GetNeedReCreateParagraphValue(false) ||
-                             textStyle.NeedReCreateParagraph() || AlwaysReCreateParagraph(layoutWrapper);
+                             textStyle.NeedReCreateParagraph() || alwaysReCreateParagraph_;
 }
 
 void TextLayoutAlgorithm::ResetNeedReCreateParagraph(LayoutWrapper* layoutWrapper)
@@ -258,7 +257,7 @@ void TextLayoutAlgorithm::ResetNeedReCreateParagraph(LayoutWrapper* layoutWrappe
     auto textLayoutProperty = DynamicCast<TextLayoutProperty>(layoutWrapper->GetLayoutProperty());
     CHECK_NULL_VOID(textLayoutProperty);
     textLayoutProperty->ResetNeedReCreateParagraph();
-    CHECK_NULL_VOID(!AlwaysReCreateParagraph(layoutWrapper));
+    CHECK_NULL_VOID(!alwaysReCreateParagraph_);
     needReCreateParagraph_ = false;
 }
 
@@ -513,7 +512,9 @@ bool TextLayoutAlgorithm::CreateParagraphAndLayout(TextStyle& textStyle, const s
         return false;
     }
 
-    if (!needReCreateParagraph_) {
+    if (needReCreateParagraph_) {
+        CHECK_NULL_RETURN(LayoutParagraphs(maxSize.Width()), false);
+    } else {
         auto frameNode = layoutWrapper->GetHostNode();
         CHECK_NULL_RETURN(frameNode, false);
         auto pattern = frameNode->GetPattern<TextPattern>();
@@ -523,8 +524,6 @@ bool TextLayoutAlgorithm::CreateParagraphAndLayout(TextStyle& textStyle, const s
             CHECK_NULL_RETURN(CreateParagraph(textStyle, content, layoutWrapper, maxSize.Width()), false);
             CHECK_NULL_RETURN(LayoutParagraphs(maxSize.Width()), false);
         }
-    } else {
-        CHECK_NULL_RETURN(LayoutParagraphs(maxSize.Width()), false);
     }
     // Reset the flag after each paragraph layout.
     ResetNeedReCreateParagraph(layoutWrapper);
@@ -789,17 +788,19 @@ void TextLayoutAlgorithm::CreateOrUpdateTextEffect(const RefPtr<Paragraph>& oldP
 bool TextLayoutAlgorithm::BuildParagraph(TextStyle& textStyle, const RefPtr<TextLayoutProperty>& layoutProperty,
     const LayoutConstraintF& contentConstraint, LayoutWrapper* layoutWrapper)
 {
+    auto host = layoutWrapper->GetHostNode();
+    CHECK_NULL_RETURN(host, false);
     if (!textStyle.GetAdaptTextSize() ||
-        (!spans_.empty() && Container::LessThanAPITargetVersion(PlatformVersion::VERSION_EIGHTEEN))) {
-        if (!CreateParagraphAndLayout(textStyle, layoutProperty->GetContent().value_or(u""), contentConstraint,
-            layoutWrapper)) {
+        (!spans_.empty() && host->LessThanAPITargetVersion(PlatformVersion::VERSION_EIGHTEEN))) {
+        if (!CreateParagraphAndLayout(
+            textStyle, layoutProperty->GetContent().value_or(u""), contentConstraint, layoutWrapper)) {
             TAG_LOGW(AceLogTag::ACE_TEXT, "BuildParagraph fail, contentConstraint:%{public}s",
                 contentConstraint.ToString().c_str());
             return false;
         }
     } else {
-        if (!AdaptMinTextSize(textStyle, layoutProperty->GetContent().value_or(u""), contentConstraint,
-            layoutWrapper)) {
+        if (!AdaptMinTextSize(
+            textStyle, layoutProperty->GetContent().value_or(u""), contentConstraint, layoutWrapper)) {
             return false;
         }
     }

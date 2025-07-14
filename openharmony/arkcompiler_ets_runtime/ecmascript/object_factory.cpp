@@ -1566,7 +1566,7 @@ void ObjectFactory::InitializeJSObject(const JSHandle<JSObject> &obj, const JSHa
             break;
         // non ECMA standard jsapi container
         case JSType::JS_API_ARRAY_LIST: {
-            JSAPIArrayList::Cast(*obj)->SetLength(0);
+            JSAPIArrayList::Cast(*obj)->SetLength(thread_, JSTaggedValue(0));
             break;
         }
         case JSType::JS_API_HASH_MAP: {
@@ -2579,6 +2579,7 @@ JSHandle<GlobalEnv> ObjectFactory::NewGlobalEnv(bool lazyInit, bool isRealm)
     TaggedObject *header = heap_->AllocateNonMovableOrHugeObject(*globalEnvClass);
     InitObjectFields(header);
     auto globalEnv = JSHandle<GlobalEnv>(thread_, GlobalEnv::Cast(header));
+    thread_->GetEcmaVM()->RecordGlobalEnv(GlobalEnv::Cast(header));
     thread_->SetInGlobalEnvInitialize(true);
     globalEnv->Init(thread_);
     Builtins builtins;
@@ -3663,7 +3664,7 @@ void ObjectFactory::NewObjectHook() const
         !heap_->InSensitiveStatus() && heap_->TriggerCollectionOnNewObjectEnabled()) {
         if (vm_->GetJSOptions().ForceFullGC()) {
             if (g_isEnableCMCGC) {
-                common::BaseRuntime::RequestGC(common::GcType::ASYNC);
+                common::BaseRuntime::RequestGC(common::GC_REASON_USER, true, common::GC_TYPE_FULL);
             } else {
                 vm_->CollectGarbage(TriggerGCType::YOUNG_GC);
                 vm_->CollectGarbage(TriggerGCType::OLD_GC);
@@ -5166,6 +5167,7 @@ JSHandle<ResolvedIndexBinding> ObjectFactory::NewResolvedIndexBindingRecord(cons
     JSHandle<ResolvedIndexBinding> obj(thread_, header);
     obj->SetModule(thread_, module);
     obj->SetIndex(index);
+    obj->SetIsUpdatedFromResolvedBinding(false);
     return obj;
 }
 

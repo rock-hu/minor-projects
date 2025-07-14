@@ -321,7 +321,7 @@ RefPtr<NodePaintMethod> TextFieldPattern::CreateNodePaintMethod()
         paint->SetScrollBar(scrollBar);
         if (scrollBar->NeedPaint()) {
             textFieldOverlayModifier_->SetRect(scrollBar->GetActiveRect());
-        } else if (!HasFocus()) {
+        } else if (!HasFocus() && NeedSetScrollRect()) {
             auto scrollRect = scrollBar->GetActiveRect();
             CalcScrollRect(scrollRect);
             textFieldOverlayModifier_->SetRect(scrollRect);
@@ -330,6 +330,27 @@ RefPtr<NodePaintMethod> TextFieldPattern::CreateNodePaintMethod()
     }
     CalculateBoundsRect();
     return paint;
+}
+
+bool TextFieldPattern::NeedSetScrollRect()
+{
+    auto textFieldLayoutProperty = GetLayoutProperty<TextFieldLayoutProperty>();
+    CHECK_NULL_RETURN(textFieldLayoutProperty, false);
+    bool needSetScrollRect = true;
+    if (!IsNormalInlineState() && textFieldLayoutProperty->HasOverflowMode() &&
+        lastOverflowMode_ != textFieldLayoutProperty->GetOverflowMode().value()) {
+        lastOverflowMode_ = textFieldLayoutProperty->GetOverflowMode().value();
+        needSetScrollRect = false;
+    }
+    if (!IsNormalInlineState() && textFieldLayoutProperty->HasTextOverflow() &&
+        lastTextOverflow_ != textFieldLayoutProperty->GetTextOverflow().value()) {
+        lastTextOverflow_ = textFieldLayoutProperty->GetTextOverflow().value();
+        needSetScrollRect = false;
+    }
+    if (IsNormalInlineState() && textFieldLayoutProperty->HasOverflowMode()) {
+        needSetScrollRect = false;
+    }
+    return needSetScrollRect;
 }
 
 void TextFieldPattern::CalculateBoundsRect()
@@ -5838,7 +5859,12 @@ bool TextFieldPattern::ProcessFocusIndexAction()
 
 void TextFieldPattern::PerformAction(TextInputAction action, bool forceCloseKeyboard)
 {
+    if (!HasFocus()) {
+        TAG_LOGW(AceLogTag::ACE_TEXT_FIELD, "Not Trigger OnSubmit because field blur");
+        return;
+    }
     if (!ProcessFocusIndexAction()) {
+        TAG_LOGW(AceLogTag::ACE_TEXT_FIELD, "Not Trigger OnSubmit because focus index not on text");
         return;
     }
     TAG_LOGI(AceLogTag::ACE_TEXT_FIELD, "TextField PerformAction %{public}d", static_cast<int32_t>(action));
@@ -5855,9 +5881,7 @@ void TextFieldPattern::PerformAction(TextInputAction action, bool forceCloseKeyb
         RecordSubmitEvent();
         eventHub->FireOnSubmit(static_cast<int32_t>(action), event);
         OnReportSubmitEvent(host);
-        if (event.IsKeepEditable()) {
-            return;
-        }
+        CHECK_NULL_VOID(!event.IsKeepEditable());
         TextFieldLostFocusToViewRoot();
         return;
     }
@@ -5875,9 +5899,7 @@ void TextFieldPattern::PerformAction(TextInputAction action, bool forceCloseKeyb
     eventHub->FireOnSubmit(static_cast<int32_t>(action), event);
     OnReportSubmitEvent(host);
     RecordSubmitEvent();
-    if (event.IsKeepEditable()) {
-        return;
-    }
+    CHECK_NULL_VOID(!event.IsKeepEditable());
     // LostFocusToViewRoot may not cause current lost focus, only stop twinkling when it is truly lost focus,
     // which will call StopTwinkling on HandleBlurEvent method.
     if (textInputBlurOnSubmit_) {
@@ -8616,7 +8638,8 @@ bool TextFieldPattern::IsShowUnit() const
     CHECK_NULL_RETURN(layoutProperty, false);
     auto typeValue = layoutProperty->GetTextInputTypeValue(TextInputType::UNSPECIFIED);
     return layoutProperty->GetShowUnderlineValue(false) &&
-           (typeValue == TextInputType::UNSPECIFIED || typeValue == TextInputType::TEXT);
+           (typeValue == TextInputType::UNSPECIFIED || typeValue == TextInputType::TEXT) &&
+           unitNode_ != nullptr;
 }
 
 bool TextFieldPattern::IsShowPasswordIcon() const
@@ -9431,12 +9454,6 @@ void TextFieldPattern::SetPreviewTextOperation(PreviewTextInfo info)
     changeValueInfo.rangeAfter = TextRange { GetPreviewTextStart(), GetPreviewTextStart() };
     bool hasInsertValue = false;
     auto originLength = static_cast<int32_t>(contentController_->GetTextUtf16Value().length()) - (end - start);
-    auto attemptInsertLength = static_cast<int32_t>(info.text.length()) - (end - start);
-    if (layoutProperty->HasMaxLength() &&
-        attemptInsertLength + static_cast<int32_t>(contentController_->GetTextUtf16Value().length()) >
-        static_cast<int32_t>(layoutProperty->GetMaxLengthValue(Infinity<uint32_t>()))) {
-        isPreviewTextOverCount_ = true;
-    }
     hasInsertValue = contentController_->ReplaceSelectedValue(start, end, info.text);
     int32_t caretMoveLength = abs(static_cast<int32_t>(contentController_->GetTextUtf16Value().length()) -
         originLength);
@@ -9484,9 +9501,7 @@ void TextFieldPattern::FinishTextPreviewOperation(bool triggerOnWillChange)
     CHECK_NULL_VOID(layoutProperty);
     if (layoutProperty->HasMaxLength()) {
         int32_t len = static_cast<int32_t>(contentController_->GetTextUtf16Value().length());
-        showCountBorderStyle_ = isPreviewTextOverCount_ || (len >
-            static_cast<int32_t>(layoutProperty->GetMaxLengthValue(Infinity<uint32_t>())));
-        isPreviewTextOverCount_ = false;
+        showCountBorderStyle_ = len > static_cast<int32_t>(layoutProperty->GetMaxLengthValue(Infinity<uint32_t>()));
         HandleCountStyle();
     }
 
@@ -10909,6 +10924,7 @@ void TextFieldPattern::ClearTextContent()
         return;
     }
     showCountBorderStyle_ = false;
+    HandleCountStyle();
     InputCommandInfo inputCommandInfo;
     inputCommandInfo.deleteRange = { 0, contentController_->GetTextUtf16Value().length() };
     inputCommandInfo.insertOffset = 0;
@@ -11833,7 +11849,9 @@ void TextFieldPattern::SetBackBorderRadius()
     CHECK_NULL_VOID(layoutProperty);
 
     bool isRTL = layoutProperty->GetNonAutoLayoutDirection() == TextDirection::RTL;
-    auto radius = renderContext->GetBorderRadius().value();
+    auto borderRadiusProperty = renderContext->GetBorderRadius();
+    CHECK_NULL_VOID(borderRadiusProperty);
+    auto radius = borderRadiusProperty.value();
 
     radius.radiusTopLeft = radius.radiusTopLeft.has_value() ? radius.radiusTopLeft :
         (isRTL ? radius.radiusTopEnd : radius.radiusTopStart);

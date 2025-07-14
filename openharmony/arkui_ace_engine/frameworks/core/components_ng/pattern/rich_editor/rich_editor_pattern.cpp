@@ -2253,12 +2253,12 @@ void RichEditorPattern::HandleOnAskCelia()
     }
 }
 
-void RichEditorPattern::UpdateCaretStyleByTypingStyle()
+void RichEditorPattern::UpdateCaretStyleByTypingStyle(bool isReset)
 {
     bool empty = spans_.empty();
     bool hasPreviewContent = !previewTextRecord_.previewContent.empty();
     bool lastNewLine = !empty && styleManager_->HasTypingParagraphStyle() && spans_.back()->content.back() == u'\n';
-    CHECK_NULL_VOID(empty || hasPreviewContent || lastNewLine);
+    CHECK_NULL_VOID(empty || hasPreviewContent || lastNewLine || isReset);
     auto host = GetHost();
     CHECK_NULL_VOID(host);
     host->MarkDirtyNode(PROPERTY_UPDATE_MEASURE);
@@ -2268,6 +2268,7 @@ void RichEditorPattern::SetTypingStyle(std::optional<struct UpdateSpanStyle> typ
     std::optional<TextStyle> textStyle)
 {
     TAG_LOGI(AceLogTag::ACE_RICH_TEXT, "SetTypingStyle, %{public}d", typingStyle.has_value());
+    bool isReset = typingStyle_.has_value() && !typingStyle.has_value();
     typingStyle_ = typingStyle;
     typingTextStyle_ = textStyle;
     styleManager_->SetTypingStyle(typingStyle, textStyle);
@@ -2280,14 +2281,15 @@ void RichEditorPattern::SetTypingStyle(std::optional<struct UpdateSpanStyle> typ
             typingTextStyle_->SetTextBackgroundStyle(textBackgroundStyle);
         }
     }
-    UpdateCaretStyleByTypingStyle();
+    UpdateCaretStyleByTypingStyle(isReset);
 }
 
 void RichEditorPattern::SetTypingParagraphStyle(std::optional<struct UpdateParagraphStyle> typingParagraphStyle)
 {
     TAG_LOGI(AceLogTag::ACE_RICH_TEXT, "SetTypingParagraphStyle, %{public}d", typingParagraphStyle.has_value());
+    bool isReset = styleManager_->HasTypingParagraphStyle() && !typingParagraphStyle.has_value();
     styleManager_->SetTypingParagraphStyle(typingParagraphStyle);
-    UpdateCaretStyleByTypingStyle();
+    UpdateCaretStyleByTypingStyle(isReset);
 }
 
 std::optional<struct UpdateSpanStyle> RichEditorPattern::GetTypingStyle()
@@ -10507,7 +10509,14 @@ void RichEditorPattern::ToJsonValue(std::unique_ptr<JsonValue>& json, const Insp
     json->PutExtAttr("enableDataDetector", textDetectEnable_ ? "true" : "false", filter);
     json->PutExtAttr("dataDetectorConfig", dataDetectorAdapter_->textDetectConfigStr_.c_str(), filter);
     json->PutExtAttr("placeholder", GetPlaceHolderInJson().c_str(), filter);
+    json->PutExtAttr("customKeyboard", GetCustomKeyboardInJson().c_str(), filter);
     json->PutExtAttr("bindSelectionMenu", GetBindSelectionMenuInJson().c_str(), filter);
+    json->PutExtAttr("copyOptions", static_cast<int32_t>(copyOption_), filter);
+    json->PutExtAttr("enablePreviewText", isTextPreviewSupported_ ? "true" : "false", filter);
+    json->PutExtAttr("caretColor", GetCaretColor().ColorToString().c_str(), filter);
+    json->PutExtAttr("selectedBackgroundColor", GetSelectedBackgroundColor().ColorToString().c_str(), filter);
+    auto enterKeyType = static_cast<int32_t>(GetTextInputActionValue(GetDefaultTextInputAction()));
+    json->PutExtAttr("enterKeyType", enterKeyType, filter);
     json->PutExtAttr("stopBackPress", isStopBackPress_ ? "true" : "false", filter);
     json->PutExtAttr("keyboardAppearance", static_cast<int32_t>(keyboardAppearance_), filter);
     json->PutExtAttr("maxLength", maxLength_.value_or(INT_MAX), filter);
@@ -10516,6 +10525,14 @@ void RichEditorPattern::ToJsonValue(std::unique_ptr<JsonValue>& json, const Insp
     json->PutExtAttr("enableKeyboardOnFocus", needToRequestKeyboardOnFocus_ ? "true" : "false", filter);
     auto undoStyle = isStyledUndoSupported_ ? OHOS::Ace::UndoStyle::KEEP_STYLE : OHOS::Ace::UndoStyle::CLEAR_STYLE;
     json->PutExtAttr("undoStyle", static_cast<int32_t>(undoStyle), filter);
+    json->PutExtAttr("enableAutoSpacing", isEnableAutoSpacing_ ? "true" : "false", filter);
+}
+
+std::string RichEditorPattern::GetCustomKeyboardInJson() const
+{
+    auto jsonValue = JsonUtil::Create(true);
+    jsonValue->Put("supportAvoidance", keyboardAvoidance_ ? "true" : "false");
+    return StringUtils::RestoreBackslash(jsonValue->ToString());
 }
 
 void RichEditorPattern::FillPreviewMenuInJson(const std::unique_ptr<JsonValue>& jsonValue) const
@@ -10749,7 +10766,7 @@ std::string RichEditorPattern::GetPlaceHolder() const
     return UtfUtils::Str16ToStr8(layoutProperty->GetPlaceholderValue(u""));
 }
 
-Color RichEditorPattern::GetCaretColor()
+Color RichEditorPattern::GetCaretColor() const
 {
     if (caretColor_.has_value()) {
         return caretColor_.value();
@@ -10759,7 +10776,7 @@ Color RichEditorPattern::GetCaretColor()
     return richEditorTheme->GetCaretColor();
 }
 
-Color RichEditorPattern::GetSelectedBackgroundColor()
+Color RichEditorPattern::GetSelectedBackgroundColor() const
 {
     Color selectedBackgroundColor;
     if (selectedBackgroundColor_.has_value()) {

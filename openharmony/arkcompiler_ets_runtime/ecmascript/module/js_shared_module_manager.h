@@ -21,6 +21,7 @@
 #include "ecmascript/module/js_module_manager.h"
 #include "ecmascript/module/js_module_source_text.h"
 #include "ecmascript/module/js_shared_module.h"
+#include "ecmascript/module/module_manager_map.h"
 #include "ecmascript/napi/jsnapi_helper.h"
 #include "ecmascript/tagged_dictionary.h"
 
@@ -38,21 +39,19 @@ public:
 
     void Destroy()
     {
-        resolvedSharedModules_.clear();
+        resolvedSharedModules_.Clear();
     }
 
     void Iterate(RootVisitor &v);
 
-    StateVisit &findModuleMutexWithLock(JSThread *thread, const JSHandle<SourceTextModule> &module);
+    StateVisit &FindModuleMutexWithLock(JSThread *thread, const JSHandle<SourceTextModule> &module);
 
     bool SearchInSModuleManager(JSThread *thread, const CString &recordName);
 
-    void InsertInSModuleManager(JSThread *thread, const CString &recordName,
-        JSHandle<SourceTextModule> &moduleRecord);
-
     JSHandle<SourceTextModule> GetSModule(JSThread *thread, const CString &recordName);
 
-    void PUBLIC_API TransferSModule(JSThread *thread);
+    JSHandle<SourceTextModule> PUBLIC_API TransferFromLocalToSharedModuleMapAndGetInsertedSModule(
+        JSThread *thread, const JSHandle<SourceTextModule> &module);
 
     bool IsInstantiatedSModule(JSThread *thread, const JSHandle<SourceTextModule> &module);
 
@@ -60,16 +59,19 @@ public:
         const CString &entryPoint, ClassKind classKind = ClassKind::NON_SENDABLE);
 
     JSHandle<ModuleNamespace> SModuleNamespaceCreate(JSThread *thread, const JSHandle<JSTaggedValue> &module,
-                                                            const JSHandle<TaggedArray> &exports);
+                                                     const JSHandle<TaggedArray> &exports);
 
-    inline void AddResolveImportedSModule(const CString &recordName, JSTaggedValue module)
+    void AddToResolvedModulesAndCreateSharedModuleMutex(JSThread *thread, const CString &recordName,
+                                                        JSTaggedValue module);
+
+    inline bool AddResolveImportedSModule(const CString &recordName, JSTaggedValue module)
     {
-        resolvedSharedModules_.emplace(recordName, module);
+        return resolvedSharedModules_.Emplace(recordName, module);
     }
 
     inline void UpdateResolveImportedSModule(const CString &recordName, JSTaggedValue module)
     {
-        resolvedSharedModules_[recordName] = module;
+        resolvedSharedModules_.Insert(recordName, module);
     }
     void SharedNativeObjDestory();
 
@@ -80,14 +82,13 @@ public:
 
     inline uint32_t GetResolvedSharedModulesSize()
     {
-        return resolvedSharedModules_.size();
+        return resolvedSharedModules_.Size();
     }
 
     void AddSharedSerializeModule(JSThread *thread, JSHandle<TaggedArray> serializerArray, uint32_t idx)
     {
-        for (const auto& [_, moduleRecord] : resolvedSharedModules_) {
-            serializerArray->Set(thread, idx++, moduleRecord);
-        }
+        resolvedSharedModules_.ForEach(
+            [thread, &idx, &serializerArray](auto it) { serializerArray->Set(thread, idx++, it->second.Read()); });
     }
 
 private:
@@ -101,8 +102,11 @@ private:
 
     JSHandle<SourceTextModule> GetSModuleUnsafe(JSThread *thread, const CString &recordName);
 
+    bool TryInsertInSModuleManager(JSThread *thread, const CString &recordName,
+        const JSHandle<SourceTextModule> &moduleRecord);
+
     static constexpr uint32_t DEAULT_DICTIONART_CAPACITY = 4;
-    CUnorderedMap<CString, JSTaggedValue> resolvedSharedModules_;
+    ModuleManagerMap<CString> resolvedSharedModules_;
     CMap<CString, StateVisit> sharedModuleMutex_;
     Mutex mutex_;
     RecursiveMutex sharedMutex_;

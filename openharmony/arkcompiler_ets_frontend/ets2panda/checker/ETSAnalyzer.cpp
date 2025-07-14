@@ -345,7 +345,10 @@ checker::Type *ETSAnalyzer::Check(ir::ETSFunctionType *node) const
     checker->CheckFunctionSignatureAnnotations(node->Params(), node->TypeParams(), node->ReturnType());
 
     auto *signatureInfo = checker->ComposeSignatureInfo(node->TypeParams(), node->Params());
-    auto *returnType = checker->ComposeReturnType(node->ReturnType(), node->IsAsync());
+    auto *returnType = node->IsExtensionFunction() && node->ReturnType()->IsTSThisType()
+                           ? signatureInfo->params.front()->TsType()
+                           : checker->ComposeReturnType(node->ReturnType(), node->IsAsync());
+
     auto *const signature =
         checker->CreateSignature(signatureInfo, returnType, node->Flags(), node->IsExtensionFunction());
     if (signature == nullptr) {  // #23134
@@ -1441,6 +1444,7 @@ checker::Type *ETSAnalyzer::Check(ir::CallExpression *expr) const
 
     checker::TypeStackElement tse(checker, expr, {{diagnostic::CYCLIC_CALLEE, {}}}, expr->Start());
     if (tse.HasTypeError()) {
+        expr->SetTsType(checker->GlobalTypeError());
         return checker->GlobalTypeError();
     }
 

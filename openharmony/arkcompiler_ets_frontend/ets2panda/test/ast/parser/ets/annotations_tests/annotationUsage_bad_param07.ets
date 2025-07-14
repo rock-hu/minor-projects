@@ -19,7 +19,6 @@
 }
 
 
-function foo(@MyAnno ...a/* @@ label */){}
-
-/* @@@ label Error SyntaxError: Parameter declaration should have an explicit type annotation.  */
+function foo(@MyAnno ...a){}
 /* @@? 22:15 Error TypeError: The required field 'testProperty1' must be specified. Fields without default values cannot be omitted. */
+/* @@? 22:26 Error SyntaxError: Parameter declaration should have an explicit type annotation. */

@@ -36,7 +36,7 @@ void ObjectFactory::NewSObjectHook() const
         return;
     }
     if (g_isEnableCMCGC) {
-        common::BaseRuntime::RequestGC(common::GcType::ASYNC);
+        common::BaseRuntime::RequestGC(common::GC_REASON_USER, true, common::GC_TYPE_FULL);
     } else {
         if (count++ % frequency == 0) {
             if (count % (CONCURRENT_MARK_FREQUENCY_FACTOR * frequency) == 0) {
@@ -1020,6 +1020,7 @@ JSHandle<ResolvedIndexBinding> ObjectFactory::NewSResolvedIndexBindingRecord(con
     JSHandle<ResolvedIndexBinding> obj(thread_, header);
     obj->SetModule(thread_, module);
     obj->SetIndex(index);
+    obj->SetIsUpdatedFromResolvedBinding(false);
     return obj;
 }
 

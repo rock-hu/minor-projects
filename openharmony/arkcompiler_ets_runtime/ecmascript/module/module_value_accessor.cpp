@@ -18,8 +18,9 @@
 #include "ecmascript/interpreter/slow_runtime_stub.h"
 #include "ecmascript/interpreter/frame_handler.h"
 #include "ecmascript/jspandafile/js_pandafile_executor.h"
-#include "ecmascript/require/js_cjs_module.h"
+#include "ecmascript/module/js_shared_module_manager.h"
 #include "ecmascript/module/module_path_helper.h"
+#include "ecmascript/require/js_cjs_module.h"
 
 namespace panda::ecmascript {
 JSTaggedValue ModuleValueAccessor::GetModuleValueInner(JSThread *thread, int32_t index)
@@ -308,6 +309,13 @@ JSTaggedValue ModuleValueAccessor::GetModuleValueFromIndexBinding(const GetModul
         EvaluateModuleIfNeeded<isLazy>(info.thread, resolvedModule);
     }
     RETURN_VALUE_IF_ABRUPT_COMPLETION(info.thread, JSTaggedValue::Exception());
+    if (SourceTextModule::IsSharedModule(resolvedModule)) {
+        JSHandle<SourceTextModule> sharedModule = SharedModuleManager::GetInstance()->GetSModule(
+            info.thread, resolvedModule->GetEcmaModuleRecordNameString());
+        if (sharedModule.GetTaggedValue().IsSourceTextModule()) {
+            resolvedModule.Update(sharedModule);
+        }
+    }
     LogModuleLoadInfo(info.thread, info.module, resolvedModule, info.index, info.isSendable);
     return GetModuleValue(info.thread, resolvedModule, binding->GetIndex());
 }
@@ -400,9 +408,11 @@ JSTaggedValue ModuleValueAccessor::UpdateBindingAndGetModuleValue(JSThread *thre
     }
     // iii. Call envRec.CreateImportBinding(
     // in.[[LocalName]], resolution.[[Module]], resolution.[[BindingName]]).
-    environment->Set(thread, index, resolution);
     ASSERT(resolution->IsResolvedIndexBinding());
     ResolvedIndexBinding *binding = ResolvedIndexBinding::Cast(resolution.GetTaggedValue());
+    // for ResolvedBinding updated to ResolvedIndexBinding, set IsUpdatedFromResolvedBinding to true.
+    binding->SetIsUpdatedFromResolvedBinding(true);
+    environment->Set(thread, index, resolution);
     return SourceTextModule::GetValueFromExportObject(thread, exports, binding->GetIndex());
 }
 

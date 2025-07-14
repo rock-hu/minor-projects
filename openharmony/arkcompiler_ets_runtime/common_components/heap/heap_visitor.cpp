@@ -19,16 +19,31 @@
 #include "common_components/mutator/mutator.h"
 
 namespace common {
+
 void VisitRoots(const RefFieldVisitor &visitor)
+{
+    VisitDynamicGlobalRoots(visitor);
+    VisitDynamicLocalRoots(visitor);
+    VisitDynamicConcurrentRoots(visitor);
+    VisitBaseRoots(visitor);
+}
+
+void VisitSTWRoots(const RefFieldVisitor &visitor)
 {
     VisitDynamicGlobalRoots(visitor);
     VisitDynamicLocalRoots(visitor);
     VisitBaseRoots(visitor);
 }
 
+void VisitConcurrentRoots(const RefFieldVisitor &visitor)
+{
+    VisitDynamicConcurrentRoots(visitor);
+}
+
 void VisitWeakRoots(const WeakRefFieldVisitor &visitor)
 {
     VisitDynamicWeakGlobalRoots(visitor);
+    VisitDynamicWeakGlobalRootsOld(visitor);
     VisitDynamicWeakLocalRoots(visitor);
 }
 
@@ -41,6 +56,12 @@ void VisitGlobalRoots(const RefFieldVisitor &visitor)
 void VisitWeakGlobalRoots(const WeakRefFieldVisitor &visitor)
 {
     VisitDynamicWeakGlobalRoots(visitor);
+    VisitDynamicWeakGlobalRootsOld(visitor);
+}
+
+void VisitPreforwardRoots(const RefFieldVisitor &visitor)
+{
+    VisitDynamicPreforwardRoots(visitor);
 }
 
 // Visit specific mutator's root.
@@ -55,6 +76,13 @@ void VisitWeakMutatorRoot(const WeakRefFieldVisitor &visitor, Mutator &mutator)
 {
     if (mutator.GetEcmaVMPtr()) {
         VisitDynamicWeakThreadRoot(visitor, mutator.GetEcmaVMPtr());
+    }
+}
+
+void VisitMutatorPreforwardRoot(const RefFieldVisitor &visitor, Mutator &mutator)
+{
+    if (mutator.GetEcmaVMPtr()) {
+        VisitDynamicThreadPreforwardRoot(visitor, mutator.GetEcmaVMPtr());
     }
 }
 }  // namespace common

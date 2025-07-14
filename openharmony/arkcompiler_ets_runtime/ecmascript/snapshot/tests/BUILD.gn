@@ -26,15 +26,15 @@ host_unittest_action("SnapshotTest") {
 
   configs = [ "//arkcompiler/ets_runtime:ecma_test_config" ]
 
-  deps = [
-    "$ark_third_party_root/icu/icu4c:shared_icui18n",
-    "$ark_third_party_root/icu/icu4c:shared_icuuc",
-    "$js_root:libark_jsruntime_test",
-  ]
+  deps = [ "$js_root:libark_jsruntime_test" ]
 
   # hiviewdfx libraries
   external_deps = hiviewdfx_ext_deps
-  external_deps += [ "zlib:libz" ]
+  external_deps += [
+    "icu:shared_icui18n",
+    "icu:shared_icuuc",
+    "zlib:libz",
+  ]
   deps += hiviewdfx_deps
 }
 
@@ -54,10 +54,8 @@ group("host_unittest") {
 
   if (is_mac) {
     deps -= [ ":SnapshotTestAction" ]
-  }
-
-  # TODO: CMC-GC UT FIX LATER
-  if (ets_runtime_enable_cmc_gc) {
+  } else if (ets_runtime_enable_cmc_gc) {
+    # TODO: CMC-GC UT FIX LATER
     deps -= [ ":SnapshotTestAction" ]
   }
 }

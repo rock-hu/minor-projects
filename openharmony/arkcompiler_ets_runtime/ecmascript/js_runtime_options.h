@@ -96,6 +96,7 @@ enum CommandValues {
     OPTION_STUB_FILE,
     OPTION_ENABLE_FORCE_GC,
     OPTION_ENABLE_CMC_GC,
+    OPTION_ENABLE_CMC_GC_CONCURRENT_ROOT_MARKING,
     OPTION_FORCE_FULL_GC,
     OPTION_ENABLE_FORCE_SHARED_GC_FREQUENCY,
     OPTION_ARK_PROPERTIES,
@@ -2114,6 +2115,16 @@ public:
         return enableCMCGC_;
     }
 
+    void SetEnableCMCGCConcurrentRootMarking(bool value)
+    {
+        enableCMCGCConcurrentRootMarking_ = value;
+    }
+
+    bool IsEnableCMCGCConcurrentRootMarking() const
+    {
+        return enableCMCGCConcurrentRootMarking_;
+    }
+
     void SetAOTHasException(bool value)
     {
         aotHasException_ = value;
@@ -2227,6 +2238,16 @@ public:
     std::string GetJitMethodPath() const
     {
         return jitMethodPath_;
+    }
+
+    void SetDisableModuleSnapshot(bool isdisable)
+    {
+        disableModuleSnapshot_ = isdisable;
+    }
+
+    bool DisableModuleSnapshot() const
+    {
+        return disableModuleSnapshot_;
     }
 
     static bool ParseBool(const std::string &arg, bool* argBool);
@@ -2532,11 +2553,12 @@ private:
     bool aotHasException_ {false};
     bool enableInlinePropertyOptimization_ {NEXT_OPTIMIZATION_BOOL};
     bool enableLdObjValueOpt_ {true};
-#ifdef DEFAULT_USE_CMC_GC
+#ifdef USE_CMC_GC
     bool enableCMCGC_ {true};
 #else
     bool enableCMCGC_ {false};
 #endif
+    bool enableCMCGCConcurrentRootMarking_ {true};
     bool storeBarrierOpt_ {true};
     uint64_t CompilerAnFileMaxByteSize_ {0_MB};
     bool enableJitVerifyPass_ {true};
@@ -2547,6 +2569,7 @@ private:
     size_t heapSize_ = {0};
     common::RuntimeParam param_;
     bool enableWarmStartupSmartGC_ {false};
+    bool disableModuleSnapshot_ { false };
 };
 } // namespace panda::ecmascript
 

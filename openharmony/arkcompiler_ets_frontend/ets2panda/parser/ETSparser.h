@@ -18,7 +18,6 @@
 
 #include "util/arktsconfig.h"
 #include "util/importPathManager.h"
-#include "util/recursiveGuard.h"
 #include "innerSourceParser.h"
 #include "TypedParser.h"
 #include "ir/base/classDefinition.h"
@@ -422,6 +421,7 @@ private:
         ExpressionParseFlags flags = ExpressionParseFlags::NO_OPTS) override;
     // NOLINTNEXTLINE(google-default-arguments)
     ir::Expression *ParsePropertyDefinition(ExpressionParseFlags flags = ExpressionParseFlags::NO_OPTS) override;
+    ir::Expression *ParsePropertyKey(ExpressionParseFlags flags) override;
     // NOLINTNEXTLINE(google-default-arguments)
     ir::Expression *ParseDefaultPrimaryExpression(ExpressionParseFlags flags = ExpressionParseFlags::NO_OPTS);
     // NOLINTNEXTLINE(google-default-arguments)
@@ -441,6 +441,8 @@ private:
     // NOLINTNEXTLINE(google-default-arguments)
     ir::Statement *ParseStructStatement(StatementParsingFlags flags, ir::ClassDefinitionModifiers modifiers,
                                         ir::ModifierFlags modFlags = ir::ModifierFlags::NONE) override;
+    // NOLINTNEXTLINE(google-default-arguments)
+    ir::Statement *ParseInterfaceStatement(StatementParsingFlags flags) override;
     ir::AstNode *ParseClassElement(const ArenaVector<ir::AstNode *> &properties, ir::ClassDefinitionModifiers modifiers,
                                    ir::ModifierFlags flags) override;
     std::tuple<bool, bool, bool> HandleClassElementModifiers(ir::ModifierFlags &memberModifiers);
@@ -552,7 +554,6 @@ private:
 
     friend class ExternalSourceParser;
     friend class InnerSourceParser;
-    friend ir::Expression *HandleLeftParanthesis(ETSParser *parser, ExpressionParseFlags flags);
 
 private:
     uint32_t namespaceNestedRank_;
@@ -562,7 +563,6 @@ private:
     parser::Program *globalProgram_;
     std::vector<ir::AstNode *> insertingNodes_ {};
     std::unique_ptr<util::ImportPathManager> importPathManager_ {nullptr};
-    RecursiveContext recursiveCtx_;
 };
 
 class ExternalSourceParser {

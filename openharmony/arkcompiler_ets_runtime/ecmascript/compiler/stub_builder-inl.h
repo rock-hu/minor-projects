@@ -620,9 +620,9 @@ inline GateRef StubBuilder::Int64Or(GateRef x, GateRef y)
     return env_->GetBuilder()->Int64Or(x, y);
 }
 
-inline GateRef StubBuilder::Int64FetchOr(GateRef x, GateRef y)
+inline GateRef StubBuilder::Int64FetchOr(GateRef x, GateRef y, MemoryAttribute mAttr)
 {
-    return env_->GetBuilder()->FetchOr(x, y);
+    return env_->GetBuilder()->FetchOr(x, y, mAttr);
 }
 
 inline GateRef StubBuilder::IntPtrOr(GateRef x, GateRef y)
@@ -4497,6 +4497,19 @@ inline GateRef StubBuilder::GetIdxOfResolvedIndexBinding(GateRef resolvedBinding
     return LoadPrimitive(VariableType::INT32(), resolvedBinding, indexOffset);
 }
 
+inline void StubBuilder::SetIsUpdatedFromResolvedBindingOfResolvedIndexBinding(GateRef glue,
+    GateRef resolvedBinding, GateRef value)
+{
+    GateRef bitFieldOffset = IntPtr(ResolvedIndexBinding::BIT_FIELD_OFFSET);
+    GateRef oldVal = LoadPrimitive(VariableType::INT32(), resolvedBinding, bitFieldOffset);
+    GateRef mask = Int32LSL(
+        Int32((1LU << ResolvedIndexBinding::IsUpdatedFromResolvedBindingBits::SIZE) - 1),
+        Int32(ResolvedIndexBinding::IsUpdatedFromResolvedBindingBits::START_BIT));
+    GateRef newVal = Int32Or(Int32And(oldVal, Int32Not(mask)), Int32LSL(ZExtInt1ToInt32(value),
+        Int32(ResolvedIndexBinding::IsUpdatedFromResolvedBindingBits::START_BIT)));
+    Store(VariableType::INT32(), glue, resolvedBinding, bitFieldOffset, newVal);
+}
+
 inline GateRef StubBuilder::GetIdxOfResolvedRecordIndexBinding(GateRef resolvedBinding)
 {
     GateRef indexOffset = IntPtr(ResolvedRecordIndexBinding::INDEX_OFFSET);
@@ -4567,6 +4580,19 @@ inline GateRef StubBuilder::IsCjsModule(GateRef module)
 {
     GateRef moduleType = GetModuleType(module);
     return Int32Equal(moduleType, Int32(static_cast<int>(ModuleTypes::CJS_MODULE)));
+}
+
+inline GateRef StubBuilder::GetSharedType(GateRef module)
+{
+    GateRef bitfield = GetBitFieldFromSourceTextModule(module);
+    return Int32And(Int32LSR(bitfield, Int32(SourceTextModule::SHARED_TYPES_SHIFT)),
+                    Int32((1LU << SourceTextModule::IS_SHARED_TYPE_BITS) - 1));
+}
+
+inline GateRef StubBuilder::IsSharedModule(GateRef module)
+{
+    GateRef sharedType = GetSharedType(module);
+    return Int32Equal(sharedType, Int32(static_cast<int>(SharedTypes::SHARED_MODULE)));
 }
 
 inline GateRef StubBuilder::GetCjsModuleFunction(GateRef glue)

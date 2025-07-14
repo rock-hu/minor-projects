@@ -13,7 +13,9 @@
  * limitations under the License.
  */
 
+#include <chrono>
 #include "ecmascript/dfx/hprof/rawheap_translate/rawheap_translate.h"
+#include "ecmascript/dfx/hprof/rawheap_translate/serializer.h"
 
 namespace rawheap_translate {
 RawHeap::~RawHeap()
@@ -23,12 +25,104 @@ RawHeap::~RawHeap()
     edges_.clear();
 }
 
+bool RawHeap::TranslateRawheap(const std::string &inputPath, const std::string &outputPath)
+{
+    auto start = std::chrono::steady_clock::now();
+    FileReader file;
+    if (!file.Initialize(inputPath)) {
+        return false;
+    }
+
+    uint64_t fileSize = FileReader::GetFileSize(inputPath);
+    if (!file.CheckAndGetHeaderAt(fileSize - sizeof(uint64_t), 0)) {
+        LOG_ERROR_ << "Read rawheap file header failed!";
+        return false;
+    }
+
+    MetaParser metaParser;
+    if (!ParseMetaData(file, &metaParser)) {
+        return false;
+    }
+
+    RawHeap *rawheap = ParseRawheap(file, &metaParser);
+    if (rawheap == nullptr) {
+        return false;
+    }
+
+    if (!rawheap->Parse(file, file.GetHeaderLeft())) {
+        delete rawheap;
+        return false;
+    }
+
+    rawheap->Translate();
+    StreamWriter writer;
+    if (!writer.Initialize(outputPath)) {
+        delete rawheap;
+        return false;
+    }
+
+    HeapSnapshotJSONSerializer::Serialize(rawheap, &writer);
+    delete rawheap;
+    auto end = std::chrono::steady_clock::now();
+    int duration = (int)std::chrono::duration<double>(end - start).count();
+    LOG_INFO_ << "file save to " << outputPath << ", cost " << std::to_string(duration) << 's';
+    return true;
+}
+
+bool RawHeap::ParseMetaData(FileReader &file, MetaParser *parser)
+{
+    if (!file.CheckAndGetHeaderAt(file.GetFileSize() - sizeof(uint64_t), 0)) {
+        LOG_ERROR_ << "rawheap header error!";
+        return false;
+    }
+
+    std::vector<char> metadata(file.GetHeaderRight());
+    if (!file.Seek(file.GetHeaderLeft()) || !file.Read(metadata.data(), file.GetHeaderRight())) {
+        LOG_ERROR_ << "read metadata failed!";
+        return false;
+    }
+
+    cJSON *json = cJSON_Parse(metadata.data());
+    if (json == nullptr) {
+        LOG_ERROR_ << "metadata cjson parse failed!";
+        return false;
+    }
+
+    bool ret = parser->Parse(json);
+    cJSON_Delete(json);
+    return ret;
+}
+
+RawHeap *RawHeap::ParseRawheap(FileReader &file, MetaParser *metaParser)
+{
+    Version version;
+    if (!version.Parse(RawHeap::ReadVersion(file))) {
+        return nullptr;
+    }
+
+    if (VERSION < version) {
+        LOG_ERROR_ << "The rawheap file's version " << version.ToString()
+                   << " is not matched the current rawheap translator,"
+                   << " please use the newest version of the translator!";
+        return nullptr;
+    }
+
+    if (Version(1, 0, 0) < version) {
+        return new RawHeapTranslateV2(metaParser);
+    }
+
+    return new RawHeapTranslateV1(metaParser);
+}
+
 std::string RawHeap::ReadVersion(FileReader &file)
 {
     uint32_t size = 8;  // 8: version size
     std::vector<char> version(size);
     if (!file.Seek(0) || !file.Read(version.data(), size)) {
         return "";
+    }
+    if (*reinterpret_cast<uint64_t *>(version.data()) == 0) {
+        return "1.0.0";
     }
     LOG_INFO_ << "current rawheap version is " << version.data();
     return std::string(version.data());
@@ -131,14 +225,13 @@ bool RawHeapTranslateV1::Parse(FileReader &file, uint32_t rawheapFileSize)
 
 void RawHeapTranslateV1::Translate()
 {
-    uint32_t missNodeCnt = 0;
     auto nodes = GetNodes();
     for (auto it = nodes->begin() + 1; it != nodes->end(); ++it) {
         Node *node = *it;
         Node *hclass = FindNode(ByteToU64(node->data));
         if (hclass == nullptr) {
-            ++missNodeCnt;
-            continue;
+            LOG_ERROR_ << "missed hclass, node_id=" << node->nodeId;
+            return;
         }
 
         JSType type = metaParser_->GetJSTypeFromHClass(hclass);
@@ -148,12 +241,7 @@ void RawHeapTranslateV1::Translate()
             BuildEdges(node, type);
         }
     }
-
-    if (missNodeCnt > 0) {
-        LOG_ERROR_ << missNodeCnt << " nodes missed hclass!";
-    } else {
-        LOG_INFO_ << "success!";
-    }
+    LOG_INFO_ << "success!";
 }
 
 bool RawHeapTranslateV1::ReadRootTable(FileReader &file)
@@ -473,6 +561,7 @@ void RawHeapTranslateV2::Translate()
         Node *hclass = GetNextEdgeTo();
         if (hclass == nullptr) {
             LOG_ERROR_ << "missed hclass, node_id=" << node->nodeId;
+            return;
         } else if (hclass->nodeId != node->nodeId) {
             CreateEdge(node, hclass, InsertAndGetStringId("hclass"), EdgeType::DEFAULT);
         }
@@ -714,28 +803,27 @@ void RawHeapTranslateV2::CreateEdge(Node *node, Node *to, uint32_t nameOrIndex, 
 
 Node *RawHeapTranslateV2::GetNextEdgeTo()
 {
-    if (memPos_  + sizeof(uint16_t) > memSize_) {
+    if (memPos_ + 1 > memSize_) {
         return nullptr;
     }
 
-    uint16_t regionId = ByteToU16(mem_ + memPos_);
-    if (regionId == 0 || regionId <= EXCEPTION_VALUE) {
-        memPos_ += sizeof(uint16_t);
+    uint8_t tag = *reinterpret_cast<uint8_t *>(mem_ + memPos_++);
+    if ((tag & ZERO_VALUE) == ZERO_VALUE) {
         return nullptr;
     }
 
-    if (regionId == INT_VALUE) {
-        memPos_ += sizeof(uint16_t) + sizeof(uint32_t);
+    if ((tag & INTL_VALUE) == INTL_VALUE) {
+        memPos_ += sizeof(uint32_t);
         return nullptr;
     }
 
-    if (regionId == DOUBLE_VALUE) {
-        memPos_ += sizeof(uint16_t) + sizeof(uint64_t);
+    if ((tag & DOUB_VALUE) == DOUB_VALUE) {
+        memPos_ += sizeof(uint64_t);
         return nullptr;
     }
 
-    Node *node = FindNode(ByteToU32(mem_ + memPos_));
-    memPos_ += sizeof(uint32_t);
+    Node *node = FindNode(ByteToU32(mem_ + memPos_ - 1));
+    memPos_ += sizeof(uint32_t) - 1;
     return node;
 }
 

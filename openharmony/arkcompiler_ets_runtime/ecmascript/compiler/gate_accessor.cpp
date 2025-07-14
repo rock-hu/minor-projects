@@ -138,6 +138,7 @@ MemoryAttribute GateAccessor::GetMemoryAttribute(GateRef gate) const
     auto op = GetOpCode(gate);
     Gate *gatePtr = circuit_->LoadGatePtr(gate);
     switch (op) {
+        case OpCode::FETCH_OR:
         case OpCode::LOAD_WITHOUT_BARRIER:
         case OpCode::LOAD:
         case OpCode::LOAD_HCLASS_OPCODE:
@@ -1332,7 +1333,7 @@ void GateAccessor::ReplaceHirDirectly(GateRef hirGate,
     DeleteGate(hirGate);
 }
 
-void GateAccessor::ReplaceHirAndDeleteIfException(GateRef hirGate,
+void GateAccessor::ReplaceHirAndReplaceDeadIfException(GateRef hirGate,
     StateDepend replacement, GateRef value)
 {
     if (value != Circuit::NullGate()) {

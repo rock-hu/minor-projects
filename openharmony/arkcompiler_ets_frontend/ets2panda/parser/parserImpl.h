@@ -26,6 +26,7 @@
 #include "parser/program/program.h"
 #include "util/diagnosticEngine.h"
 #include "util/helpers.h"
+#include "util/recursiveGuard.h"
 
 namespace ark::es2panda::lexer {
 class RegExpParser;
@@ -136,7 +137,7 @@ protected:
     void ValidateGroupedExpression(ir::Expression *lhsExpression);
     ir::Expression *ParseImportExpression();
     ir::Expression *ParseOptionalChain(ir::Expression *leftSideExpr);
-    ir::Expression *ParsePropertyKey(ExpressionParseFlags flags);
+    virtual ir::Expression *ParsePropertyKey(ExpressionParseFlags flags);
     void ValidateAssignmentTarget(ExpressionParseFlags flags, ir::Expression *node);
     void ValidateLvalueAssignmentTarget(ir::Expression *node);
     void ValidateArrowParameterBindings(const ir::Expression *node);
@@ -291,6 +292,8 @@ protected:
     // NOLINTNEXTLINE(google-default-arguments)
     virtual ir::Statement *ParseStructStatement(StatementParsingFlags flags, ir::ClassDefinitionModifiers modifiers,
                                                 ir::ModifierFlags modFlags = ir::ModifierFlags::NONE);
+    // NOLINTNEXTLINE(google-default-arguments)
+    virtual ir::Statement *ParseInterfaceStatement(StatementParsingFlags flags);
     ir::Statement *ParseStatementBasedOnTokenType(StatementParsingFlags flags);
     ir::Statement *ParseVarStatement();
     ir::Statement *ParseLetStatement(StatementParsingFlags flags);
@@ -560,6 +563,11 @@ protected:
                    const std::function<bool()> &parseElement, lexer::SourcePosition *sourceEnd = nullptr,
                    bool allowTrailingSep = false);
 
+    RecursiveContext &RecursiveCtx()
+    {
+        return recursiveCtx_;
+    }
+
 private:
     bool GetCanBeForInOf(ir::Expression *leftNode, ir::AstNode *initNode);
     Program *program_;
@@ -569,6 +577,7 @@ private:
     lexer::Lexer *lexer_ {};
     const util::Options *options_;
     util::DiagnosticEngine &diagnosticEngine_;
+    RecursiveContext recursiveCtx_;
 };
 }  // namespace ark::es2panda::parser
 

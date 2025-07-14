@@ -69,18 +69,18 @@ bool WCollector::TryUpdateRefFieldImpl(BaseObject* obj, RefField<>& field, BaseO
 {
     RefField<> oldRef(field);
     fromObj = oldRef.GetTargetObject();
-    if (IsFromObject(fromObj)) {
-        if (copy) {
+    if (IsFromObject(fromObj)) { //LCOV_EXCL_BR_LINE
+        if (copy) { //LCOV_EXCL_BR_LINE
             toObj = const_cast<WCollector*>(this)->TryForwardObject(fromObj);
-            if (toObj != nullptr) {
+            if (toObj != nullptr) { //LCOV_EXCL_BR_LINE
                 HeapProfilerListener::GetInstance().OnMoveEvent(reinterpret_cast<uintptr_t>(fromObj),
                                                                 reinterpret_cast<uintptr_t>(toObj),
                                                                 toObj->GetSize());
             }
-        } else {
+        } else { //LCOV_EXCL_BR_LINE
             toObj = FindToVersion(fromObj);
         }
-        if (toObj == nullptr) {
+        if (toObj == nullptr) { //LCOV_EXCL_BR_LINE
             return false;
         }
         RefField<> tmpField(toObj, oldRef.IsWeak());
@@ -89,17 +89,17 @@ bool WCollector::TryUpdateRefFieldImpl(BaseObject* obj, RefField<>& field, BaseO
                 DLOG(TRACE, "update obj %p<%p>(%zu)+%zu ref-field@%p: %#zx -> %#zx", obj, obj->GetTypeInfo(),
                     obj->GetSize(), BaseObject::FieldOffset(obj, &field), &field, oldRef.GetFieldValue(),
                     tmpField.GetFieldValue());
-            } else {
+            } else { //LCOV_EXCL_BR_LINE
                 DLOG(TRACE, "update ref@%p: 0x%zx -> %p", &field, oldRef.GetFieldValue(), toObj);
             }
             return true;
-        } else {
-            if (obj != nullptr) {
+        } else { //LCOV_EXCL_BR_LINE
+            if (obj != nullptr) { //LCOV_EXCL_BR_LINE
                 DLOG(TRACE,
                     "update obj %p<%p>(%zu)+%zu but cas failed ref-field@%p: %#zx(%#zx) -> %#zx but cas failed ",
                      obj, obj->GetTypeInfo(), obj->GetSize(), BaseObject::FieldOffset(obj, &field), &field,
                      oldRef.GetFieldValue(), field.GetFieldValue(), tmpField.GetFieldValue());
-            } else {
+            } else { //LCOV_EXCL_BR_LINE
                 DLOG(TRACE, "update but cas failed ref@%p: 0x%zx(%zx) -> %p", &field, oldRef.GetFieldValue(),
                      field.GetFieldValue(), toObj);
             }
@@ -125,22 +125,22 @@ bool WCollector::TryForwardRefField(BaseObject* obj, RefField<>& field, BaseObje
 // this api untags current pointer as well as old pointer, caller should take care of this.
 bool WCollector::TryUntagRefField(BaseObject* obj, RefField<>& field, BaseObject*& target) const
 {
-    for (;;) {
+    for (;;) { //LCOV_EXCL_BR_LINE
         RefField<> oldRef(field);
-        if (oldRef.IsTagged()) {
+        if (oldRef.IsTagged()) { //LCOV_EXCL_BR_LINE
             target = oldRef.GetTargetObject();
             RefField<> newRef(target);
-            if (field.CompareExchange(oldRef.GetFieldValue(), newRef.GetFieldValue())) {
+            if (field.CompareExchange(oldRef.GetFieldValue(), newRef.GetFieldValue())) { //LCOV_EXCL_BR_LINE
                 if (obj != nullptr) {
                     DLOG(FIX, "untag obj %p<%p>(%zu) ref-field@%p: %#zx -> %#zx", obj, obj->GetTypeInfo(),
                          obj->GetSize(), &field, oldRef.GetFieldValue(), newRef.GetFieldValue());
-                } else {
+                } else { //LCOV_EXCL_BR_LINE
                     DLOG(FIX, "untag ref@%p: %#zx -> %#zx", &field, oldRef.GetFieldValue(), newRef.GetFieldValue());
                 }
 
                 return true;
             }
-        } else {
+        } else { //LCOV_EXCL_BR_LINE
             return false;
         }
     }
@@ -379,7 +379,7 @@ void WCollector::ParallelRemarkAndPreforward(WorkStack& workStack)
     });
     std::atomic<int> taskIter = 0;
     std::function<Mutator*()> getNextMutator = [&taskIter, &taskList]() -> Mutator* {
-        uint32_t idx = taskIter.fetch_add(1U, std::memory_order_relaxed);
+        uint32_t idx = static_cast<uint32_t>(taskIter.fetch_add(1U, std::memory_order_relaxed));
         if (idx < taskList.size()) {
             return taskList[idx];
         }
@@ -416,8 +416,30 @@ void WCollector::RemarkAndPreforwardStaticRoots(WorkStack& workStack)
         ParallelRemarkAndPreforward(workStack);
     } else {
         RemarkAndPreforwardVisitor visitor(workStack, this);
-        VisitRoots(visitor);
+        VisitSTWRoots(visitor);
     }
+}
+
+void WCollector::PreforwardConcurrentRoots()
+{
+    RefFieldVisitor visitor = [this](RefField<> &refField) {
+        RefField<> oldField(refField);
+        BaseObject *oldObj = oldField.GetTargetObject();
+        DLOG(FIX, "visit raw-ref @%p: %p", &refField, oldObj);
+        if (IsFromObject(oldObj)) {
+            BaseObject *toVersion = TryForwardObject(oldObj);
+            ASSERT_LOGF(toVersion != nullptr, "TryForwardObject failed");
+            HeapProfilerListener::GetInstance().OnMoveEvent(reinterpret_cast<uintptr_t>(oldObj),
+                                                            reinterpret_cast<uintptr_t>(toVersion),
+                                                            toVersion->GetSize());
+            RefField<> newField(toVersion);
+            // CAS failure means some mutator or gc thread writes a new ref (must be a to-object), no need to retry.
+            if (refField.CompareExchange(oldField.GetFieldValue(), newField.GetFieldValue())) {
+                DLOG(FIX, "fix raw-ref @%p: %p -> %p", &refField, oldObj, toVersion);
+            }
+        }
+    };
+    VisitConcurrentRoots(visitor);
 }
 
 void WCollector::PreforwardStaticWeakRoots()
@@ -433,7 +455,7 @@ void WCollector::PreforwardStaticWeakRoots()
 
     AllocationBuffer* allocBuffer = AllocationBuffer::GetAllocBuffer();
     if (LIKELY_CC(allocBuffer != nullptr)) {
-        allocBuffer->ClearRegion();
+        allocBuffer->ClearRegions();
     }
 }
 
@@ -472,7 +494,7 @@ void EnumRootsBuffer::UpdateBufferSize()
         bufferSize_ = std::max(buffer_.capacity(), bufferSize_);
     }
     if (buffer_.capacity() > UINT16_MAX) {
-        LOG_COMMON(INFO) << "too many roots, allocate too larget buffer: " << buffer_.size() << ", allocate "
+        LOG_COMMON(INFO) << "too many roots, allocated buffer too large: " << buffer_.size() << ", allocate "
                          << (static_cast<double>(buffer_.capacity()) / MB);
     }
 }
@@ -480,6 +502,7 @@ void EnumRootsBuffer::UpdateBufferSize()
 template <WCollector::EnumRootsPolicy policy>
 CArrayList<BaseObject *> WCollector::EnumRoots()
 {
+    STWParam stwParam{"wgc-enumroot"};
     EnumRootsBuffer buffer;
     CArrayList<common::BaseObject *> *results = buffer.GetBuffer();
     common::RefFieldVisitor visitor = [&results](RefField<> &filed) { results->push_back(filed.GetTargetObject()); };
@@ -487,17 +510,19 @@ CArrayList<BaseObject *> WCollector::EnumRoots()
     if constexpr (policy == EnumRootsPolicy::NO_STW_AND_NO_FLIP_MUTATOR) {
         EnumRootsImpl<VisitRoots>(visitor);
     } else if constexpr (policy == EnumRootsPolicy::STW_AND_NO_FLIP_MUTATOR) {
-        ScopedStopTheWorld stw("wgc-enumroot");
+        ScopedStopTheWorld stw(stwParam);
         OHOS_HITRACE(HITRACE_LEVEL_COMMERCIAL,
                      ("CMCGC::EnumRoots-STW-bufferSize(" + std::to_string(results->capacity()) + ")").c_str(), "");
         EnumRootsImpl<VisitRoots>(visitor);
     } else if constexpr (policy == EnumRootsPolicy::STW_AND_FLIP_MUTATOR) {
-        auto rootSet = EnumRootsFlip(visitor);
+        auto rootSet = EnumRootsFlip(stwParam, visitor);
         for (const auto &roots : rootSet) {
             std::copy(roots.begin(), roots.end(), std::back_inserter(*results));
         }
+        VisitConcurrentRoots(visitor);
     }
     buffer.UpdateBufferSize();
+    GetGCStats().recordSTWTime(stwParam.GetElapsedNs());
     return std::move(*results);
 }
 
@@ -558,6 +583,27 @@ WeakRefFieldVisitor WCollector::GetWeakRefFieldVisitor()
     };
 }
 
+RefFieldVisitor WCollector::GetPrefowardRefFieldVisitor()
+{
+    return [this](RefField<> &refField) -> void {
+        RefField<> oldField(refField);
+        BaseObject *oldObj = oldField.GetTargetObject();
+        if (IsFromObject(oldObj)) {
+            BaseObject *toVersion = TryForwardObject(oldObj);
+            CHECK_CC(toVersion != nullptr);
+            HeapProfilerListener::GetInstance().OnMoveEvent(reinterpret_cast<uintptr_t>(oldObj),
+                                                            reinterpret_cast<uintptr_t>(toVersion),
+                                                            toVersion->GetSize());
+            RefField<> newField(toVersion);
+            // CAS failure means some mutator or gc thread writes a new ref (must be
+            // a to-object), no need to retry.
+            if (refField.CompareExchange(oldField.GetFieldValue(), newField.GetFieldValue())) {
+                DLOG(FIX, "fix raw-ref @%p: %p -> %p", &refField, oldObj, toVersion);
+            }
+        }
+    };
+}
+
 void WCollector::PreforwardFlip()
 {
     auto remarkAndForwardGlobalRoot = [this]() {
@@ -571,20 +617,30 @@ void WCollector::PreforwardFlip()
 
         TransitionToGCPhase(GCPhase::GC_PHASE_PRECOPY, true);
         WeakRefFieldVisitor weakVisitor = GetWeakRefFieldVisitor();
-        VisitWeakGlobalRoots(weakVisitor);
         SetGCThreadQosPriority(common::PriorityMode::FOREGROUND);
+
+        if (Heap::GetHeap().GetGCReason() == GC_REASON_YOUNG) {
+            // only visit weak roots that may reference young objects
+            VisitDynamicWeakGlobalRoots(weakVisitor);
+        } else {
+            VisitDynamicWeakGlobalRoots(weakVisitor);
+            VisitDynamicWeakGlobalRootsOld(weakVisitor);
+        }
     };
     FlipFunction forwardMutatorRoot = [this](Mutator &mutator) {
         WeakRefFieldVisitor weakVisitor = GetWeakRefFieldVisitor();
         VisitWeakMutatorRoot(weakVisitor, mutator);
+        RefFieldVisitor visitor = GetPrefowardRefFieldVisitor();
+        VisitMutatorPreforwardRoot(visitor, mutator);
         // Request finalize callback in each vm-thread when gc finished.
         mutator.SetFinalizeRequest();
     };
-    MutatorManager::Instance().FlipMutators("final-mark", remarkAndForwardGlobalRoot, &forwardMutatorRoot);
-
+    STWParam stwParam{"final-mark"};
+    MutatorManager::Instance().FlipMutators(stwParam, remarkAndForwardGlobalRoot, &forwardMutatorRoot);
+    GetGCStats().recordSTWTime(stwParam.GetElapsedNs());
     AllocationBuffer* allocBuffer = AllocationBuffer::GetAllocBuffer();
     if (LIKELY_CC(allocBuffer != nullptr)) {
-        allocBuffer->ClearRegion();
+        allocBuffer->ClearRegions();
     }
 }
 
@@ -600,30 +656,51 @@ void WCollector::Preforward()
     // copy and fix finalizer roots.
     // Only one root task, no need to post task.
     PreforwardStaticWeakRoots();
+    RefFieldVisitor visitor = GetPrefowardRefFieldVisitor();
+    VisitPreforwardRoots(visitor);
 }
 
 void WCollector::ConcurrentPreforward()
 {
     OHOS_HITRACE(HITRACE_LEVEL_COMMERCIAL, "CMCGC::ConcurrentPreforward", "");
+    PreforwardConcurrentRoots();
     ProcessStringTable();
 }
+
 void WCollector::PrepareFix()
 {
-    // make sure all objects before fixline is initialized
+    if (Heap::GetHeap().GetGCReason() == GCReason::GC_REASON_YOUNG) {
+        // string table objects are always not in young space, skip it
+        return;
+    }
+
     COMMON_PHASE_TIMER("PrepareFix");
-    OHOS_HITRACE(HITRACE_LEVEL_COMMERCIAL, "CMCGC::PrepareFix[STW]", "");
-    reinterpret_cast<RegionSpace&>(theAllocator_).PrepareFix();
-    reinterpret_cast<RegionSpace&>(theAllocator_).PrepareFixForPin();
+
+    // we cannot re-enter STW, check it first
+    if (!MutatorManager::Instance().WorldStopped()) {
+        STWParam prepareFixStwParam{"wgc-preparefix"};
+        ScopedStopTheWorld stw(prepareFixStwParam);
+        OHOS_HITRACE(HITRACE_LEVEL_COMMERCIAL, "CMCGC::PrepareFix[STW]", "");
+
 #ifndef GC_STW_STRINGTABLE
-    auto *baseRuntime = BaseRuntime::GetInstance();
-    auto& stringTable = reinterpret_cast<BaseStringTableImpl&>(baseRuntime->GetStringTable());
-    stringTable.GetInternalTable()->GetCleaner()->CleanUp();
+        auto *baseRuntime = BaseRuntime::GetInstance();
+        auto& stringTable = reinterpret_cast<BaseStringTableImpl&>(baseRuntime->GetStringTable());
+        stringTable.GetInternalTable()->GetCleaner()->CleanUp();
 #endif
-    TransitionToGCPhase(GCPhase::GC_PHASE_FIX, true);
+
+        GetGCStats().recordSTWTime(prepareFixStwParam.GetElapsedNs());
+    } else {
+#ifndef GC_STW_STRINGTABLE
+        auto *baseRuntime = BaseRuntime::GetInstance();
+        auto& stringTable = reinterpret_cast<BaseStringTableImpl&>(baseRuntime->GetStringTable());
+        stringTable.GetInternalTable()->GetCleaner()->CleanUp();
+#endif
+    }
 }
 
 void WCollector::FixHeap()
 {
+    TransitionToGCPhase(GCPhase::GC_PHASE_FIX, true);
     COMMON_PHASE_TIMER("FixHeap");
     OHOS_HITRACE(HITRACE_LEVEL_COMMERCIAL, "CMCGC::FixHeap", "");
     reinterpret_cast<RegionSpace&>(theAllocator_).FixHeap();
@@ -639,8 +716,9 @@ void WCollector::DoGarbageCollection()
 #ifdef ENABLE_CMC_RB_DFX
         WVerify::DisableReadBarrierDFX(*this);
 #endif
-
-        ScopedStopTheWorld stw("stw-gc");
+        STWParam stwParam{"stw-gc"};
+    {
+        ScopedStopTheWorld stw(stwParam);
         auto collectedRoots = EnumRoots<EnumRootsPolicy::NO_STW_AND_NO_FLIP_MUTATOR>();
         TraceHeap(collectedRoots);
         TransitionToGCPhase(GCPhase::GC_PHASE_FINAL_MARK, true);
@@ -673,17 +751,21 @@ void WCollector::DoGarbageCollection()
 #if defined(ENABLE_CMC_RB_DFX)
         WVerify::EnableReadBarrierDFX(*this);
 #endif
+    }
+        GetGCStats().recordSTWTime(stwParam.GetElapsedNs());
         return;
     } else if (gcMode_ == GCMode::CONCURRENT_MARK) { // 1: concurrent-mark
         auto collectedRoots = EnumRoots<EnumRootsPolicy::STW_AND_NO_FLIP_MUTATOR>();
         TraceHeap(collectedRoots);
+        STWParam finalMarkStwParam{"final-mark"};
     {
-        ScopedStopTheWorld stw("final-mark", true, GCPhase::GC_PHASE_FINAL_MARK);
+        ScopedStopTheWorld stw(finalMarkStwParam, true, GCPhase::GC_PHASE_FINAL_MARK);
         Remark();
         PostTrace();
         reinterpret_cast<RegionSpace&>(theAllocator_).PrepareForward();
         Preforward();
     }
+        GetGCStats().recordSTWTime(finalMarkStwParam.GetElapsedNs());
         ConcurrentPreforward();
         // reclaim large objects should after preforward(may process weak ref) and
         // before fix heap(may clear live bit)
@@ -721,10 +803,7 @@ void WCollector::DoGarbageCollection()
     CopyFromSpace();
     WVerify::VerifyAfterForward(*this);
 
-    {
-        ScopedStopTheWorld stw("wgc-preparefix");
-        PrepareFix();
-    }
+    PrepareFix();
     FixHeap();
     if (isNotYoungGC) {
         CollectPinnedGarbage();
@@ -735,7 +814,7 @@ void WCollector::DoGarbageCollection()
     CollectSmallSpace();
 }
 
-CArrayList<CArrayList<BaseObject *>> WCollector::EnumRootsFlip(const common::RefFieldVisitor &visitor)
+CArrayList<CArrayList<BaseObject *>> WCollector::EnumRootsFlip(STWParam& param, const common::RefFieldVisitor &visitor)
 {
     const auto enumGlobalRoots = [this, &visitor]() {
         SetGCThreadQosPriority(common::PriorityMode::STW);
@@ -752,7 +831,7 @@ CArrayList<CArrayList<BaseObject *>> WCollector::EnumRootsFlip(const common::Ref
         std::lock_guard<std::mutex> lockGuard(stackMutex);
         rootSet.emplace_back(std::move(roots));
     };
-    MutatorManager::Instance().FlipMutators("wgc-enumroot", enumGlobalRoots, &enumMutatorRoot);
+    MutatorManager::Instance().FlipMutators(param, enumGlobalRoots, &enumMutatorRoot);
     return rootSet;
 }
 
@@ -761,6 +840,11 @@ void WCollector::ProcessStringTable()
 #ifdef GC_STW_STRINGTABLE
     return;
 #endif
+    if (Heap::GetHeap().GetGCReason() == GC_REASON_YOUNG) {
+        // no need to fix weak ref in young gc
+        return;
+    }
+
     WeakRefFieldVisitor weakVisitor = [this](RefField<> &refField) -> bool {
         auto isSurvivor = [this](BaseObject* oldObj) {
             RegionDesc* region = RegionDesc::GetRegionDescAt(reinterpret_cast<uintptr_t>(oldObj));
@@ -886,12 +970,10 @@ BaseObject* WCollector::CopyObjectAfterExclusive(BaseObject* obj)
     }
     DLOG(COPY, "copy obj %p<%p>(%zu) to %p", obj, obj->GetTypeInfo(), size, toObj);
     CopyObject(*obj, *toObj, size);
-    if (IsToObject(toObj)) {
-        toObj->SetForwardState(BaseStateWord::ForwardState::NORMAL);
-    } else {
-        // if this object is not in to-space, we label it as to-object explicitly.
-        toObj->SetForwardState(BaseStateWord::ForwardState::TO_VERSION);
-    }
+
+    ASSERT_LOGF(IsToObject(toObj), "Copy object to invalid region");
+    toObj->SetForwardState(BaseStateWord::ForwardState::NORMAL);
+
     std::atomic_thread_fence(std::memory_order_release);
     obj->SetSizeForwarded(size);
     // Avoid seeing the fwd pointer before observing the size modification
@@ -954,8 +1036,7 @@ void WCollector::SetGCThreadRssPriority(common::RssPriorityType type)
 #ifdef ENABLE_RSS
     if (IsPostForked()) {
         LOG_COMMON(DEBUG) << "SetGCThreadRssPriority gettid " << gettid();
-        uint64_t pid = getpid();
-        std::unordered_map<std::string, std::string> payLoad = { { "pid", std::to_string(pid) },
+        std::unordered_map<std::string, std::string> payLoad = { { "pid", std::to_string(getpid()) },
                                                     { "tid", std::to_string(gettid()) } };
         OHOS::ResourceSchedule::ResSchedClient::GetInstance()
             .ReportData(OHOS::ResourceSchedule::ResType::RES_TYPE_GC_THREAD_QOS_STATUS_CHANGE,

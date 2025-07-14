@@ -14,6 +14,7 @@
  */
 
 #include "ecmascript/runtime.h"
+#include "common_components/base_runtime/hooks.h"
 #include "ecmascript/checkpoint/thread_state_transition.h"
 #include "common_interfaces/base_runtime.h"
 #include "ecmascript/dynamic_object_accessor.h"
@@ -117,6 +118,11 @@ void Runtime::InitializeIfFirstVm(EcmaVM *vm)
             Jit::GetInstance()->SetEnableOrDisable(vm->GetJSOptions(), isEnableFastJit, isEnableBaselineJit);
             vm->Initialize();
             PostInitialization(vm);
+#if defined(ECMASCRIPT_SUPPORT_HEAPPROFILER)
+            if (g_isEnableCMCGC) {
+                common::CommonHeapProfilerInterface::SetSingleInstance(vm->GetOrNewHeapProfile());
+            }
+#endif
         }
     }
     if (!vm->IsInitialized()) {
@@ -167,6 +173,7 @@ void Runtime::InitGCConfig(const JSRuntimeOptions &options)
     if (g_isEnableCMCGC) {
         g_maxRegularHeapObjectSize = 32_KB;
     }
+    g_isEnableCMCGCConcurrentRootMarking = options.IsEnableCMCGCConcurrentRootMarking();
 }
 
 void Runtime::DestroyIfLastVm()
@@ -210,6 +217,8 @@ void Runtime::RegisterThread(JSThread* newThread)
         ThreadHolder* threadHolder = newThread->GetThreadHolder();
         threadHolder->BindMutator();
         newThread->SetAllocBuffer(threadHolder->GetAllocBuffer());
+        newThread->OnHeapCreated(common::Heap::heapStartAddr_);
+        newThread->OnHeapExtended(common::Heap::heapCurrentEnd_);
         threadHolder->RegisterJSThread(newThread);
     } else {
         // send all current suspended requests to the new thread
@@ -386,6 +395,13 @@ JSHandle<ConstantPool> Runtime::AddOrUpdateConstpool(const JSPandaFile *jsPandaF
                                                      JSHandle<ConstantPool> constpool,
                                                      int32_t index)
 {
+    // Note: CMC GC assumes constpool is always a non-young object and tries to optimize it out in young GC
+    ASSERT_LOGF(
+        panda::ecmascript::g_isEnableCMCGC
+            ? common::Heap::GetHeap().InRecentSpace(*constpool) == false
+            : true,
+        "Violate CMC-GC assumption: should not be young object");
+
     LockHolder lock(constpoolLock_);
     if (globalSharedConstpools_.find(jsPandaFile) == globalSharedConstpools_.end()) {
         globalSharedConstpools_[jsPandaFile] = CMap<int32_t, JSTaggedValue>();

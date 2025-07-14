@@ -966,7 +966,7 @@ public:
     }
     void DumpInfo() override;
     void DumpInfo(std::unique_ptr<JsonValue>& json) override;
-    void DumpSimplifyInfo(std::unique_ptr<JsonValue>& json) override {}
+    void DumpSimplifyInfo(std::shared_ptr<JsonValue>& json) override {}
     void RichEditorErrorReport(RichEditorInfo& info);
     void MouseDoubleClickParagraphEnd(int32_t& index);
     void AdjustSelectionExcludeSymbol(int32_t& start, int32_t& end);
@@ -1087,7 +1087,7 @@ public:
         IF_TRUE(SelectOverlayIsOn(), selectOverlay_->UpdateHandleColor());
     }
 
-    Color GetCaretColor();
+    Color GetCaretColor() const;
 
     void SetSelectedBackgroundColor(const Color& selectedBackgroundColor)
     {
@@ -1096,7 +1096,7 @@ public:
         selectedBackgroundColor_ = selectedBackgroundColor;
     }
 
-    Color GetSelectedBackgroundColor();
+    Color GetSelectedBackgroundColor() const;
 
     void SetCustomKeyboardOption(bool supportAvoidance);
     void StopEditing();
@@ -1345,7 +1345,7 @@ public:
     }
 
     template<typename T>
-    RefPtr<T> GetTheme()
+    RefPtr<T> GetTheme() const
     {
         auto pipelineContext = GetContext();
         CHECK_NULL_RETURN(pipelineContext, {});
@@ -1371,7 +1371,7 @@ public:
     RefPtr<FrameNode> GetContentHost() const override;
 
     float GetCaretWidth();
-    void UpdateCaretStyleByTypingStyle();
+    void UpdateCaretStyleByTypingStyle(bool isReset);
     void MarkAISpanStyleChanged() override;
     void HandleOnAskCelia() override;
 
@@ -1510,6 +1510,7 @@ private:
     void ToJsonValue(std::unique_ptr<JsonValue>& json, const InspectorFilter& filter) const override;
     std::string GetPlaceHolderInJson() const;
     std::string GetTextColorInJson(const std::optional<Color>& value) const;
+    std::string GetCustomKeyboardInJson() const;
     void FillPreviewMenuInJson(const std::unique_ptr<JsonValue>& jsonValue) const override;
     void ResetSelectionAfterAddSpan(bool isPaste);
     RefPtr<UINode> GetChildByIndex(int32_t index) const override;
@@ -1893,7 +1894,7 @@ private:
     bool isStopBackPress_ = true;
     bool blockKbInFloatingWindow_ = false;
     KeyboardAppearance keyboardAppearance_ = KeyboardAppearance::NONE_IMMERSIVE;
-    LRUMap<std::uintptr_t, RefPtr<Paragraph>> paragraphCache_;
+    LRUMap<uint64_t, RefPtr<Paragraph>> paragraphCache_;
     SysScale lastSysScale_;
     std::map<int32_t, AISpan> lastAISpanMap_;
     // Used to avoid show single handle by first click after window focus

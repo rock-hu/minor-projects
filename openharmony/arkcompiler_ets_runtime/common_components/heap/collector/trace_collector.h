@@ -141,7 +141,8 @@ public:
             if (MutatorManager::Instance().WorldStopped()) {
                 DumpHeap("before_gc");
             } else {
-                ScopedStopTheWorld stw("dump-heap-before-gc");
+                STWParam stwParam{"dump-heap-before-gc"};
+                ScopedStopTheWorld stw(stwParam);
                 DumpHeap("before_gc");
             }
         }
@@ -153,7 +154,8 @@ public:
             if (MutatorManager::Instance().WorldStopped()) {
                 DumpHeap("after_gc");
             } else {
-                ScopedStopTheWorld stw("dump-heap-after-gc");
+                STWParam stwParam{"dump-heap-after-gc"};
+                ScopedStopTheWorld stw(stwParam);
                 DumpHeap("after_gc");
             }
         }
@@ -180,11 +182,6 @@ public:
     inline bool IsToObject(const BaseObject* obj) const
     {
         return RegionDesc::GetRegionDescAt(reinterpret_cast<HeapAddress>(obj))->IsToRegion();
-    }
-
-    inline bool IsToVersion(const BaseObject* obj) const
-    {
-        return obj->IsToVersion();
     }
 
     virtual bool MarkObject(BaseObject* obj, size_t cellCount = 0) const = 0;
@@ -220,7 +217,13 @@ public:
 
     void SetGcStarted(bool val) { collectorResources_.SetGcStarted(val); }
 
-    void RunGarbageCollection(uint64_t, GCReason) override;
+    void MarkGCStart() { collectorResources_.MarkGCStart(); }
+    void MarkGCFinish(uint64_t gcIndex)
+    {
+        collectorResources_.MarkGCFinish(gcIndex);
+    }
+
+    void RunGarbageCollection(uint64_t, GCReason, GCType) override;
 
     void ReclaimGarbageMemory(GCReason reason);
 
@@ -245,7 +248,10 @@ protected:
 
     virtual void DoGarbageCollection() = 0;
 
-    void RequestGCInternal(GCReason reason, bool async) override { collectorResources_.RequestGC(reason, async); }
+    void RequestGCInternal(GCReason reason, bool async, GCType gcType) override
+    {
+        collectorResources_.RequestGC(reason, async, gcType);
+    }
     void MergeWeakStack(WeakStack& weakStack);
     void UpdateNativeThreshold(GCParam& gcParam);
 
@@ -264,6 +270,8 @@ protected:
 
     // reason for current GC.
     GCReason gcReason_ = GC_REASON_USER;
+
+    GCType gcType_ = GC_TYPE_FULL;
 
     // indicate whether to fix references (including global roots and reference fields).
     // this member field is useful for optimizing concurrent copying gc.

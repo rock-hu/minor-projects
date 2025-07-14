@@ -26,7 +26,7 @@ void CollectorProxy::Init(const RuntimeParam& param)
 
 void CollectorProxy::Fini() { wCollector_.Fini(); }
 
-void CollectorProxy::RunGarbageCollection(uint64_t gcIndex, GCReason reason)
+void CollectorProxy::RunGarbageCollection(uint64_t gcIndex, GCReason reason, GCType gcType)
 {
     switch (reason) {
         case GC_REASON_HEU:
@@ -42,7 +42,7 @@ void CollectorProxy::RunGarbageCollection(uint64_t gcIndex, GCReason reason)
             currentCollector_ = &wCollector_;
             break;
     }
-    currentCollector_->SetGcStarted(true);
-    currentCollector_->RunGarbageCollection(gcIndex, reason);
+    currentCollector_->MarkGCStart();
+    currentCollector_->RunGarbageCollection(gcIndex, reason, gcType);
 }
 } // namespace common

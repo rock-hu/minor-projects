@@ -13,7 +13,7 @@
 
 group("ark_aot_builtin_inlining_DataView_test") {
   testonly = true
-  test_list = [ "Get" ]
+  test_list = [ "Get", "Float32", "Float64" ]
 
   deps = []
   foreach(test, test_list) {

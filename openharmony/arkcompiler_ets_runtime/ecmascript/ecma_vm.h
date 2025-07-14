@@ -312,6 +312,11 @@ public:
         return gcKeyStats_;
     }
 
+    void SetJSThread(JSThread *thread)
+    {
+        thread_ = thread;
+    }
+
     JSThread *GetAssociatedJSThread() const
     {
         return thread_;
@@ -454,6 +459,9 @@ public:
 
     size_t IterateHandle(RootVisitor &visitor);
     void Iterate(RootVisitor &v);
+    void IterateConcurrentRoots(RootVisitor &v);
+    void IterateWeakGlobalEnvList(WeakVisitor &visitor);
+    void IterateGlobalEnvField(RootVisitor &visitor);
 
     const Heap *GetHeap() const
     {
@@ -869,14 +877,7 @@ public:
     }
 
     // handle uncatchable errors, such as oom
-    void HandleUncatchableError()
-    {
-        if (uncatchableErrorHandler_ != nullptr) {
-            panda::TryCatch trycatch(this);
-            uncatchableErrorHandler_(trycatch);
-        }
-        LOG_ECMA_MEM(FATAL) << "Out of Memory";
-    }
+    void HandleUncatchableError();
 
     void DumpCallTimeInfo();
 
@@ -1305,12 +1306,25 @@ public:
         return applicationVersionCode_;
     }
 
+    void RecordGlobalEnv(GlobalEnv *globalEnv)
+    {
+        globalEnvRecordList_.push_back(static_cast<JSTaggedType>(ToUintPtr(globalEnv)));
+    }
+
     JSTaggedValue ExecuteAot(size_t actualNumArgs, JSTaggedType *args, const JSTaggedType *prevFp,
                              bool needPushArgv);
 
     static void ClearKeptObjects(JSThread *thread);
     static void AddToKeptObjects(JSThread *thread, JSHandle<JSTaggedValue> value);
     void AddModuleManager(ModuleManager *moduleManager);
+    int8_t GetDataViewType(JSTaggedType type) const
+    {
+        auto result = dataViewTypeTable_.find(type);
+        if (result == dataViewTypeTable_.end()) {
+            return -1;
+        }
+        return result->second;
+    }
 
 #ifdef PANDA_JS_ETS_HYBRID_MODE
     CrossVMOperator* GetCrossVMOperator() const
@@ -1370,6 +1384,8 @@ private:
         const JSPandaFile *jsPandaFile, std::string_view entryPoint, const ExecuteTypes &executeType);
     Expected<JSTaggedValue, bool> CommonInvokeEcmaEntrypoint(const JSPandaFile *jsPandaFile,
         std::string_view entryPoint, JSHandle<JSFunction> &func, const ExecuteTypes &executeType);
+
+    void InitDataViewTypeTable(const GlobalEnvConstants *constant);
 
     NO_MOVE_SEMANTIC(EcmaVM);
     NO_COPY_SEMANTIC(EcmaVM);
@@ -1531,6 +1547,8 @@ private:
     JSTaggedValue microJobQueue_ {JSTaggedValue::Hole()};
     std::atomic<bool> isProcessingPendingJob_{false};
 
+    std::unordered_map<JSTaggedType, int8_t> dataViewTypeTable_;
+
 #ifdef PANDA_JS_ETS_HYBRID_MODE
     CrossVMOperator* crossVMOperator_ {nullptr};
 #endif // PANDA_JS_ETS_HYBRID_MODE
@@ -1579,8 +1597,24 @@ private:
     CMap<CString, JSHandle<JSTaggedValue>> cachedPatchModules_;
     StageOfColdReload stageOfColdReload_ = StageOfColdReload::NOT_COLD_RELOAD;
 
+    // record globalEnv as weak reference
+    std::vector<JSTaggedType> globalEnvRecordList_;
+
     // store multi-context module manager
-    std::vector<ModuleManager *> moduleManagers_ {};
+    class ModuleManagers {
+        Mutex CMCGCMutex_;
+        std::vector<ModuleManager *> moduleManagersVec_ {};
+
+    public:
+        void Iterate(RootVisitor &v);
+
+        template <typename T>
+        void PushBack(T moduleManager);
+
+        void DestroyAllNativeObj();
+
+        void Clear();
+    } moduleManagers_;
 
     // store Application versionCode
     uint32_t applicationVersionCode_ {0};

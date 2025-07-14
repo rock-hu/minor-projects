@@ -82,7 +82,7 @@ static bool CheckGetterSetterDecl(varbinder::LocalVariable const *child, varbind
 static bool CheckFunctionDecl(varbinder::LocalVariable *child, varbinder::LocalVariable *parent)
 {
     ES2PANDA_ASSERT(child->Declaration()->Type() == parent->Declaration()->Type());
-    if (!child->TsType()->IsETSFunctionType()) {
+    if (!child->TsType()->IsETSFunctionType() || !parent->TsType()->IsETSFunctionType()) {
         return true;
     }
 
@@ -431,8 +431,11 @@ Type *ETSChecker::BuildBasicInterfaceProperties(ir::TSInterfaceDeclaration *inte
         interfaceType = CreateETSObjectTypeOrBuiltin(interfaceDecl, checker::ETSObjectFlags::INTERFACE);
         interfaceType->SetVariable(var);
         var->SetTsType(interfaceType);
-    } else {
+    } else if (var->TsType()->IsETSObjectType()) {
         interfaceType = var->TsType()->AsETSObjectType();
+    } else {
+        ES2PANDA_ASSERT(IsAnyError());
+        return GlobalTypeError();
     }
 
     ConstraintCheckScope ctScope(this);
@@ -1182,6 +1185,12 @@ void ETSChecker::CheckClassDefinition(ir::ClassDefinition *classDef)
         classType->SuperType()->GetDeclNode()->Check(this);
     }
 
+    if (classType->GetDeclNode() != classDef) {
+        ES2PANDA_ASSERT(IsAnyError());
+        classDef->SetTsType(GlobalTypeError());
+        return;
+    }
+
     auto newStatus = checker::CheckerStatus::IN_CLASS;
     if (Context().ContainingClass() != classType) {
         classType->SetEnclosingType(Context().ContainingClass());
@@ -1684,7 +1693,7 @@ void ETSChecker::CheckCyclicConstructorCall(Signature *signature)
 {
     ES2PANDA_ASSERT(signature->Function());
 
-    if (signature->Function()->IsExternal()) {
+    if (signature->Function()->IsExternal() || signature->Function()->Body() == nullptr) {
         return;
     }
 

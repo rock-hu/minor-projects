@@ -103,9 +103,15 @@ HWTEST_F(RichEditorPatternTestNg, RichEditorToJsonValue001, TestSize.Level1)
     EXPECT_FALSE(filter.IsFastFilter());
     richEditorPattern->SetRequestKeyboardOnFocus(true);
     richEditorPattern->SetSupportStyledUndo(true);
+    richEditorPattern->copyOption_ = CopyOptions::Local;
+    richEditorPattern->SetSupportPreviewText(false);
+    richEditorPattern->SetEnableAutoSpacing(true);
     richEditorPattern->ToJsonValue(jsonObject, filter);
     EXPECT_EQ(jsonObject->GetString("enableKeyboardOnFocus"), "true");
     EXPECT_EQ(jsonObject->GetInt("undoStyle"), 1);
+    EXPECT_EQ(jsonObject->GetInt("copyOptions"), 2);
+    EXPECT_EQ(jsonObject->GetString("enablePreviewText"), "false");
+    EXPECT_EQ(jsonObject->GetString("enableAutoSpacing"), "true");
 
     filter.filterFixed = 10;
     EXPECT_TRUE(filter.IsFastFilter());
@@ -438,6 +444,33 @@ HWTEST_F(RichEditorPatternTestNg, DeleteToMaxLength002, TestSize.Level1)
     int len = richEditorPattern->GetTextContentLength() - 1;
     richEditorPattern->DeleteToMaxLength(len);
     ASSERT_EQ(richEditorPattern->previewLongPress_, false);
+}
+
+/**
+ * @tc.name: DeleteToMaxLength003
+ * @tc.desc: test DeleteToMaxLength003
+ * @tc.type: FUNC
+ */
+HWTEST_F(RichEditorPatternTestNg, DeleteToMaxLength003, TestSize.Level1)
+{
+    ASSERT_NE(richEditorNode_, nullptr);
+    auto richEditorPattern = richEditorNode_->GetPattern<RichEditorPattern>();
+    ASSERT_NE(richEditorPattern, nullptr);
+    int32_t maxLen = 5;
+    // make textLength to 6
+    ClearSpan();
+    richEditorPattern->AddTextSpan(TEXT_SPAN_OPTIONS_1);
+    ASSERT_EQ(richEditorPattern->GetTextContentLength(), static_cast<int32_t>(INIT_VALUE_1.length()));
+    richEditorPattern->isSpanStringMode_ = true;
+    richEditorPattern->DeleteToMaxLength(maxLen);
+    richEditorPattern->isSpanStringMode_ = false;
+
+    // make textLength to 6
+    ClearSpan();
+    richEditorPattern->AddTextSpan(TEXT_SPAN_OPTIONS_1);
+    ASSERT_EQ(richEditorPattern->GetTextContentLength(), static_cast<int32_t>(INIT_VALUE_1.length()));
+    richEditorPattern->DeleteToMaxLength(maxLen);
+    ASSERT_EQ(richEditorPattern->GetTextContentLength(), maxLen);
 }
 
 /**

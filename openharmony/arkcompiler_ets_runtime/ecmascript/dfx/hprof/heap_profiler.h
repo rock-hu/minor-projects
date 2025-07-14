@@ -105,6 +105,7 @@ public:
 
     enum class SampleType { ONE_SHOT, REAL_TIME };
 
+    void DumpHeapSnapshotForCMCOOM() override;
     void AllocationEvent(TaggedObject *address, size_t size) override;
     void MoveEvent(uintptr_t address, TaggedObject *forwardAddress, size_t size) override;
     /**
@@ -177,6 +178,7 @@ private:
     uint32_t GetScopeCount() const;
     std::shared_ptr<ScopeWrapper> GetLastActiveScope() const;
     bool InsertHandleBackTrace(uintptr_t handle, const std::string &backTrace);
+    const std::string RAWHEAP_FILE_NAME = "/data/log/faultlog/temp/jsheap.rawheap";
 
     const size_t MAX_NUM_HPROF = 5;  // ~10MB
     const EcmaVM *vm_;
@@ -188,7 +190,6 @@ private:
     Chunk chunk_;
     std::unique_ptr<HeapSampling> heapSampling_ {nullptr};
     Mutex mutex_;
-    const std::string RAWHEAP_FILE_NAME = "/data/log/faultlog/temp/jsheap.rawheap";
 
     static const long LOCAL_HANDLE_LEAK_TIME_MS {5000};
     bool startLocalHandleLeakDetect_ {false};
@@ -196,6 +197,7 @@ private:
     std::stack<std::shared_ptr<ScopeWrapper>> activeScopeStack_;
     std::map<uintptr_t, std::string> handleBackTrace_;
     int32_t leakStackTraceFd_ {-1};
+    uint32_t moveEventCbId_ {0};
 
     friend class HeapProfilerFriendTest;
 };
