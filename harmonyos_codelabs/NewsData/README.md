@@ -34,7 +34,7 @@
 
    ![](screenshots/device/npm_360.PNG)
 
-4. 连接服务器地址：打开命令行工具，输入ipconfig命令查看本地ip，将本地ip地址复制到src/main/ets/common/constant/CommonConstants.ets文件下的22行，注意只替换ip地址部分，不要修改端口号，保存好ip之后即可运行Codelab进行测试。
+4. 连接服务器地址：打开命令行工具，输入ipconfig命令查看本地ip，将本地ip地址复制到src/main/ets/common/constant/CommonConstant.ets文件下的22行，注意只替换ip地址部分，不要修改端口号，保存好ip之后即可运行Codelab进行测试。
 
 #### 前端使用说明
 

@@ -34,7 +34,7 @@ Add the network permission **ohos.permission.INTERNET**.
 
    ![](screenshots/device/npm_360.PNG)
 
-4. Connect to the server address: Open the command line tool, run the **ipconfig** command to view the local IP address, and copy the local IP address to line 22 in the **CommonConstants.ets** file in **src/main/ets/common/constant**. Replace only the IP address and do not change the port number. After saving the IP address, run the codelab to perform the test.
+4. Connect to the server address: Open the command line tool, run the **ipconfig** command to view the local IP address, and copy the local IP address to line 22 in the **CommonConstant.ets** file in **src/main/ets/common/constant**. Replace only the IP address and do not change the port number. After saving the IP address, run the codelab to perform the test.
 
 #### Frontend Instructions
 
