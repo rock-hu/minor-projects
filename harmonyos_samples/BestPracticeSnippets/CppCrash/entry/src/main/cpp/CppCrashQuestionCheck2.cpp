@@ -9,7 +9,7 @@
  */
 
 // [Start RecursiveClass]
-# include <iostream>
+#include <iostream>
 
 class RecursiveClass {
 public:

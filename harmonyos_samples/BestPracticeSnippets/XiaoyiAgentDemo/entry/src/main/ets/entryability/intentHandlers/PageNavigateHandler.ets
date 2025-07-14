@@ -7,7 +7,7 @@ export default class PageNavigateHandler {
     try {
       // Execute page redirection.
       let uiContext: UIContext | null | undefined = null;
-      uiContext = AppStorage.get('uiContext')
+      uiContext = AppStorage.get('uiContext');
       uiContext?.getRouter().pushUrl({ url: 'pages/SecondPage' });
 
       return {

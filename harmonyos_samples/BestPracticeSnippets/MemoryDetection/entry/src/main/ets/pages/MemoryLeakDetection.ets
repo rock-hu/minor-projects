@@ -5,8 +5,8 @@
 
 // [Start check_snapshot]
 class People {
-  old: number
-  name: string
+  old: number;
+  name: string;
   constructor(old: number, name: string) {
     this.old = old;
     this.name = name;

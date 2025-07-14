@@ -21,12 +21,12 @@ import { common } from '@kit.AbilityKit'
 
 @Component
 export struct VideoPlayView {
-  context = this.getUIContext()?.getHostContext() as common.UIAbilityContext
+  private context = this.getUIContext().getHostContext() as common.UIAbilityContext;
   // [StartExclude set_orientation]
   @State aspect: number = 9 / 16 // default video height/width ratio value
   // [Start get_default_displaySync]
-  @State xComponentWidth: number = this.getUIContext().px2vp(display.getDefaultDisplaySync().width)
-  @State xComponentHeight: number = this.getUIContext().px2vp(display.getDefaultDisplaySync().width * this.aspect)
+  @State xComponentWidth: number = this.getUIContext().px2vp(display.getDefaultDisplaySync().width);
+  @State xComponentHeight: number = this.getUIContext().px2vp(display.getDefaultDisplaySync().width * this.aspect);
   // [End get_default_displaySync]
   @State isLandscape: boolean = false // Whether it is in full-screen playback state
   @State isVideoLock: boolean = false // Whether the video playback is locked

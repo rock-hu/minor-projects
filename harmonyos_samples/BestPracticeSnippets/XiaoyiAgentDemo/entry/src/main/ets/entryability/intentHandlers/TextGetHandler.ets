@@ -14,7 +14,7 @@ export default class TextGetHandler {
         code: 0,
         result: {
           status:'success',
-          audioName: audioName.toString(),
+          audioName: audioName,
           message: 'get audio name success'
         }
       };

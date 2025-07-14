@@ -9,7 +9,7 @@ import { image } from '@kit.ImageKit';
 export function httpRequest() {
   hiTraceMeter.startTrace('Http Request', 1);
   http.createHttp()
-    // The actual development needs to "https://www.example1.com/POST? E=f&g=h"replaced with the real website address to visit
+    // The actual development needs to "https://www.example1.com/POST?e=f&g=h"replaced with the real website address to visit
     .request('https://www.example1.com/POST?e=f&g=h',
       (error: BusinessError, data: http.HttpResponse) => {
         if (error) {

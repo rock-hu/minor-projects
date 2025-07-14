@@ -151,7 +151,7 @@ HarmonyOS NEXT Beta1及以上
 
 ## 更多示例
 
-[查看详情](https://gitee.com/hadss/hmrouter/tree/master/TestCases/Demo)
+[查看详情](https://gitee.com/hadss/hmrouter)
 
 ## FAQ
 
