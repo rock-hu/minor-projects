@@ -40,7 +40,7 @@ ArkWeb同层渲染特性主要提供两种能力：同层标签生命周期和�
 
 - 自绘制类组件：[XComponent](../reference/apis-arkui/arkui-ts/ts-basic-components-xcomponent.md), [Canvas](../reference/apis-arkui/arkui-ts/ts-components-canvas-canvas.md), [Video](../reference/apis-arkui/arkui-ts/ts-media-components-video.md), [Web](../reference/apis-arkweb/arkts-basic-components-web.md)
 
-- 命令式自定义绘制节点：[BuilderNode](../reference/apis-arkui/js-apis-arkui-builderNode.md), [ComponentContent](../reference/apis-arkui/js-apis-arkui-ComponentContent.md), [ContentSlot](../reference/apis-arkui/arkui-ts/ts-components-contentSlot.md), [FrameNode](../reference/apis-arkui/js-apis-arkui-frameNode.md), [Graphics](../reference/apis-arkui/js-apis-arkui-graphics.md), [NodeController](../reference/apis-arkui/js-apis-arkui-nodeController.md), [RenderNode](../reference/apis-arkui/js-apis-arkui-renderNode.md), [XComponentNode](../reference/apis-arkui/js-apis-arkui-xcomponentNode.md), [AttributeUpdater](../reference/apis-arkui/js-apis-arkui-AttributeUpdater.md), [CAPI](../reference/apis-arkui/_ark_u_i___native_module.md)（支持同层渲染的组件范围同ArkTS）
+- 命令式自定义绘制节点：[BuilderNode](../reference/apis-arkui/js-apis-arkui-builderNode.md), [ComponentContent](../reference/apis-arkui/js-apis-arkui-ComponentContent.md), [ContentSlot](../reference/apis-arkui/arkui-ts/ts-components-contentSlot.md), [FrameNode](../reference/apis-arkui/js-apis-arkui-frameNode.md), [Graphics](../reference/apis-arkui/js-apis-arkui-graphics.md), [NodeController](../reference/apis-arkui/js-apis-arkui-nodeController.md), [RenderNode](../reference/apis-arkui/js-apis-arkui-renderNode.md), [XComponentNode](../reference/apis-arkui/js-apis-arkui-xcomponentNode.md), [AttributeUpdater](../reference/apis-arkui/js-apis-arkui-AttributeUpdater.md), [CAPI](../reference/apis-arkui/capi-arkui-nativemodule.md)（支持同层渲染的组件范围同ArkTS）
 
 **支持的组件通用属性与事件:**
 
@@ -470,7 +470,7 @@ display，position，z-index，visibility，opacity, background-color，backgrou
                   let nodeController = this.nodeControllerMap.get(componentId);
                   // 将获取到的同层区域的事件发送到该区域embedId对应的nodeController上
                   if(nodeController?.getEmbedId() == mouse.embedId) {
-                    let ret = nodeController?.postInputEvent(mouse.touchEvent)
+                    let ret = nodeController?.postInputEvent(mouse.mouseEvent)
                     if(ret) {
                       console.log("onNativeEmbedMouseEvent success " + componentId);
                     } else {

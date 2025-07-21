@@ -170,13 +170,13 @@ getResourceManager(bundleName: string): Promise&lt;ResourceManager&gt;
   });
   ```
 
-## resourceManager.getSystemResourceManager<sup>10+</sup>
+## resourceManager.getSysResourceManager<sup>20+</sup>
 
-getSystemResourceManager(): ResourceManager
+getSysResourceManager(): ResourceManager
 
-获取系统资源管理ResourceManager对象。
+获取系统资源管理对象。
 
-**原子化服务API：** 从API version 11开始，该接口支持在原子化服务中使用。
+**原子化服务API：** 从API version 20开始，该接口支持在原子化服务中使用。
 
 **系统能力：** SystemCapability.Global.ResourceManager
 
@@ -200,16 +200,16 @@ import { resourceManager } from '@kit.LocalizationKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 
   try {
-    let systemResourceManager = resourceManager.getSystemResourceManager();
+    let systemResourceManager = resourceManager.getSysResourceManager();
     systemResourceManager.getStringValue($r('sys.string.ohos_lab_vibrate').id).then((value: string) => {
       let str = value;
     }).catch((error: BusinessError) => {
-      console.error("systemResourceManager getStringValue promise error is " + error);
+      console.error(`systemResourceManager getStringValue promise error: ${error}`);
     });
   } catch (error) {
     let code = (error as BusinessError).code;
     let message = (error as BusinessError).message;
-    console.error(`getSystemResourceManager failed, error code: ${code}, message: ${message}.`);
+    console.error(`getSysResourceManager failed, error code: ${code}, message: ${message}.`);
   }
   ```
 
@@ -4257,21 +4257,9 @@ getNumber(resource: Resource): number
   }
   ```
 
-  ```json
-  // 资源文件路径: src/main/resources/base/element/float.json
-  {
-    "float": [
-      {
-        "name": "float_test",
-        "value": "30.6vp"
-      }
-    ]
-  }
-  ```
   ```ts
   import { resourceManager } from '@kit.LocalizationKit';
   import { BusinessError } from '@kit.BasicServicesKit';
-  import { display } from '@kit.ArkUI';
 
   let resource: resourceManager.Resource = {
     bundleName: "com.example.myapplication",
@@ -4281,27 +4269,8 @@ getNumber(resource: Resource): number
 
   try {
     let intValue = this.context.resourceManager.getNumber(resource);
-    // integer对应返回的是原数值
     console.log(`getNumber, int value: ${intValue}`);
     // 打印输出结果: getNumber, int value: 100
-  } catch (error) {
-    let code = (error as BusinessError).code;
-    let message = (error as BusinessError).message;
-    console.error(`getNumber failed, error code: ${code}, message: ${message}.`);
-  }
-
-  let resource2: resourceManager.Resource = {
-    bundleName: "com.example.myapplication",
-    moduleName: "entry",
-    id: $r('app.float.float_test').id
-  };
-
-  try {
-    // float对应返回的是真实像素点值，带"vp","fp"单位的像素值 = 原数值 * densityPixels
-    // resource对象获取到的值不一致，resId获取的值是准确的。该问题正在优化改进。
-    let floatValue = this.context.resourceManager.getNumber(resource2);
-    console.log(`getNumber, densityPixels: ${display.getDefaultDisplaySync().densityPixels}, float value: ${floatValue}`);
-    // 打印输出结果: getNumber, densityPixels: 3.25, float value: 30.600000381469727
   } catch (error) {
     let code = (error as BusinessError).code;
     let message = (error as BusinessError).message;
@@ -5812,7 +5781,7 @@ getLocales(includeSystem?: boolean): Array\<string>
   }
 
   try {
-    resourceManager.getSystemResourceManager().getLocales(); // 仅获取系统资源语言列表
+    resourceManager.getSysResourceManager().getLocales(); // 仅获取系统资源语言列表
   } catch (error) {
     let code = (error as BusinessError).code;
     let message = (error as BusinessError).message;
@@ -7458,6 +7427,53 @@ closeRawFileDescriptor(path: string): Promise&lt;void&gt;
   resourceManager.getResourceManager((error, mgr) => {
       mgr.closeRawFileDescriptor("test.txt");
   });
+  ```
+
+## resourceManager.getSystemResourceManager<sup>(deprecated)</sup>
+
+getSystemResourceManager(): ResourceManager
+
+获取系统资源管理ResourceManager对象。
+
+> **说明**
+>
+> 从API version 10开始支持，从API version 20开始废弃，建议使用[resourceManager.getSysResourceManager](#resourcemanagergetsysresourcemanager20)替代。
+
+**原子化服务API：** 从API version 11开始，该接口支持在原子化服务中使用。
+
+**系统能力：** SystemCapability.Global.ResourceManager
+
+**返回值：**
+
+| 类型                                       | 说明                 |
+| ---------------------------------------- | ------------------ |
+| [ResourceManager](#resourcemanager) | 系统资源管理对象。 |
+
+**错误码：**
+
+以下错误码的详细介绍请参见[资源管理错误码](errorcode-resource-manager.md)。
+
+| 错误码ID | 错误信息 |
+| -------- | ---------------------------------------- |
+| 9001009  | Failed to access the system resource. which is not mapped to application sandbox, This error code will be thrown. |
+
+**示例：**
+  ```js
+import { resourceManager } from '@kit.LocalizationKit';
+import { BusinessError } from '@kit.BasicServicesKit';
+
+  try {
+    let systemResourceManager = resourceManager.getSystemResourceManager();
+    systemResourceManager.getStringValue($r('sys.string.ohos_lab_vibrate').id).then((value: string) => {
+      let str = value;
+    }).catch((error: BusinessError) => {
+      console.error("systemResourceManager getStringValue promise error is " + error);
+    });
+  } catch (error) {
+    let code = (error as BusinessError).code;
+    let message = (error as BusinessError).message;
+    console.error(`getSystemResourceManager failed, error code: ${code}, message: ${message}.`);
+  }
   ```
 
 ## AsyncCallback<sup>(deprecated)</sup>

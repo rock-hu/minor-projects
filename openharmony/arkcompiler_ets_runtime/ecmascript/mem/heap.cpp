@@ -663,16 +663,6 @@ void SharedHeap::CollectGarbageFinish(bool inDaemon, TriggerGCType gcType)
     }
 }
 
-void SharedHeap::SetGCThreadRssPriority(common::RssPriorityType type)
-{
-#ifdef ENABLE_RSS
-    if (Runtime::GetInstance()->GetMainThread()->GetEcmaVM()->IsPostForked()) {
-        dThread_->SetRssPriority(type);
-        common::Taskpool::GetCurrentTaskpool()->SetThreadRssPriority(type);
-    }
-#endif
-}
-
 void SharedHeap::SetGCThreadQosPriority(common::PriorityMode mode)
 {
     dThread_->SetQosPriority(mode);
@@ -2518,6 +2508,10 @@ void Heap::NotifyHighSensitive(bool isStart)
     isStart ? SetSensitiveStatus(AppSensitiveStatus::ENTER_HIGH_SENSITIVE)
         : SetSensitiveStatus(AppSensitiveStatus::EXIT_HIGH_SENSITIVE);
     LOG_GC(DEBUG) << "SmartGC: set high sensitive status: " << isStart;
+
+    if (g_isEnableCMCGC) {
+        common::BaseRuntime::NotifyHighSensitive(isStart);
+    }
 }
 
 bool Heap::HandleExitHighSensitiveEvent()

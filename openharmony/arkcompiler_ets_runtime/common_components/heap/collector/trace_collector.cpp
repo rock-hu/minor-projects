@@ -150,13 +150,29 @@ void TraceCollector::TryForkTask(Taskpool *threadPool, WorkStack &workStack, Glo
 void TraceCollector::ProcessWeakStack(WeakStack &weakStack)
 {
     while (!weakStack.empty()) {
-        RefField<>& field = reinterpret_cast<RefField<>&>(*weakStack.back());
+        auto [fieldPointer, offset] = *weakStack.back();
         weakStack.pop_back();
+        ASSERT_LOGF(offset % sizeof(RefField<>) == 0, "offset is not aligned");
+
+        RefField<> &field = reinterpret_cast<RefField<>&>(*fieldPointer);
         RefField<> oldField(field);
+
         BaseObject* targetObj = oldField.GetTargetObject();
         if (!Heap::IsHeapAddress(targetObj) || IsMarkedObject(targetObj) ||
             RegionSpace::IsNewObjectSinceTrace(targetObj)) {
             continue;
+        }
+
+        BaseObject* obj = reinterpret_cast<BaseObject*>(reinterpret_cast<uintptr_t>(&field) - offset);
+        auto regionType = RegionDesc::InlinedRegionMetaData::GetInlinedRegionMetaData(reinterpret_cast<uintptr_t>(obj))
+                              ->GetRegionType();
+        // the object might be trimed then forwarded, we need to make sure toField still points to the current object
+        if (regionType == RegionDesc::RegionType::FROM_REGION && obj->IsForwarded() &&
+            obj->GetSizeForwarded() > offset) {
+            BaseObject *toObj = obj->GetForwardingPointer();
+            RefField<> &toField = *reinterpret_cast<RefField<>*>(reinterpret_cast<uintptr_t>(toObj) + offset);
+
+            toField.ClearRef(oldField.GetFieldValue());
         }
         field.ClearRef(oldField.GetFieldValue());
     }
@@ -192,7 +208,7 @@ void TraceCollector::ProcessMarkStack([[maybe_unused]] uint32_t threadIndex, Tas
             // get next object from work stack.
             BaseObject *obj = workStack.back();
             workStack.pop_back();
-            auto region = RegionDesc::GetRegionDescAt(reinterpret_cast<MAddress>((void *)obj));
+            auto region = RegionDesc::GetAliveRegionDescAt(reinterpret_cast<MAddress>((void *)obj));
             region->AddLiveByteCount(obj->GetSize());
             [[maybe_unused]] auto beforeSize = workStack.count();
             TraceObjectRefFields(obj, &visitor);
@@ -338,24 +354,23 @@ bool TraceCollector::AddWeakStackClearWork(WeakStack &weakStack,
 
 bool TraceCollector::PushRootToWorkStack(RootSet *workStack, BaseObject *obj)
 {
-    RegionDesc *regionInfo = RegionDesc::GetRegionDescAt(reinterpret_cast<HeapAddress>(obj));
-    if (gcReason_ == GCReason::GC_REASON_YOUNG && regionInfo->IsInOldSpace()) {
+    RegionDesc *regionInfo = RegionDesc::GetAliveRegionDescAt(reinterpret_cast<HeapAddress>(obj));
+    if (gcReason_ == GCReason::GC_REASON_YOUNG && !regionInfo->IsInYoungSpace()) {
         DLOG(ENUM, "enum: skip old object %p<%p>(%zu)", obj, obj->GetTypeInfo(), obj->GetSize());
         return false;
     }
+
     // inline MarkObject
     bool marked = regionInfo->MarkObject(obj);
     if (!marked) {
         ASSERT(!regionInfo->IsGarbageRegion());
-        regionInfo->AddLiveByteCount(obj->GetSize());
         DLOG(TRACE, "mark obj %p<%p>(%zu) in region %p(%u)@%#zx, live %u", obj, obj->GetTypeInfo(), obj->GetSize(),
              regionInfo, regionInfo->GetRegionType(), regionInfo->GetRegionStart(), regionInfo->GetLiveByteCount());
-    }
-    if (marked) {
+        workStack->push_back(obj);
+        return true;
+    } else {
         return false;
     }
-    workStack->push_back(obj);
-    return true;
 }
 
 void TraceCollector::PushRootsToWorkStack(RootSet *workStack, const CArrayList<BaseObject *> &collectedRoots)
@@ -403,9 +418,9 @@ void TraceCollector::Remark()
     OHOS_HITRACE(HITRACE_LEVEL_COMMERCIAL, "CMCGC::Remark[STW]", "");
     COMMON_PHASE_TIMER("STW re-marking");
     RemarkAndPreforwardStaticRoots(workStack);
-    ConcurrentRemark(workStack, maxWorkers > 0);
+    ConcurrentRemark(workStack, maxWorkers > 0); // Mark enqueue
     TracingImpl(workStack, maxWorkers > 0, true);
-    MarkAwaitingJitFort();
+    MarkAwaitingJitFort(); // Mark awaiting
     ClearWeakStack(maxWorkers > 0);
 
     OHOS_HITRACE(HITRACE_LEVEL_COMMERCIAL, "CMCGC::TraceRoots END",
@@ -486,7 +501,7 @@ void TraceCollector::MarkRememberSetImpl(BaseObject* object, WorkStack& workStac
     object->ForEachRefField([this, &workStack, &object](RefField<>& field) {
         BaseObject* targetObj = field.GetTargetObject();
         if (Heap::IsHeapAddress(targetObj)) {
-            RegionDesc* region = RegionDesc::GetRegionDescAt(reinterpret_cast<HeapAddress>(targetObj));
+            RegionDesc* region = RegionDesc::GetAliveRegionDescAt(reinterpret_cast<HeapAddress>(targetObj));
             if (region->IsInYoungSpace() &&
                 !region->IsNewObjectSinceTrace(targetObj) &&
                 !this->MarkObject(targetObj)) {
@@ -630,6 +645,9 @@ void TraceCollector::UpdateGCStats()
 
     UpdateNativeThreshold(gcParam);
     Heap::GetHeap().RecordAliveSizeAfterLastGC(bytesAllocated);
+    if (!gcStats.isYoungGC()) {
+        Heap::GetHeap().SetRecordHeapObjectSizeBeforeSensitive(bytesAllocated);
+    }
 
     if (!gcStats.isYoungGC()) {
         g_gcRequests[GC_REASON_HEU].SetMinInterval(gcParam.gcInterval);
@@ -703,7 +721,8 @@ void TraceCollector::RunGarbageCollection(uint64_t gcIndex, GCReason reason, GCT
         Pretty(currentThreshold).c_str(), gcIndex);
     OHOS_HITRACE(HITRACE_LEVEL_COMMERCIAL, "CMCGC::RunGarbageCollection", (
                     "GCReason:" + gcReasonName + ";GCType:" + GCTypeToString(gcType) +
-                    ";Sensitive:0;IsInBackground:0;Startup:0" +
+                    ";Sensitive:" + std::to_string(static_cast<int>(Heap::GetHeap().GetSensitiveStatus())) +
+                    ";Startup:" + std::to_string(static_cast<int>(Heap::GetHeap().GetStartupStatus())) +
                     ";Current Allocated:" + Pretty(currentAllocatedSize) +
                     ";Current Threshold:" + Pretty(currentThreshold) +
                     ";Current Native:" + Pretty(Heap::GetHeap().GetNotifiedNativeSize()) +
@@ -719,7 +738,6 @@ void TraceCollector::RunGarbageCollection(uint64_t gcIndex, GCReason reason, GCT
     DoGarbageCollection();
 
     HeapBitmapManager::GetHeapBitmapManager().ClearHeapBitmap();
-    reinterpret_cast<RegionSpace&>(theAllocator_).DumpAllRegionStats("region statistics when gc ends");
 
     ReclaimGarbageMemory(reason);
 
@@ -764,7 +782,7 @@ void TraceCollector::CopyFromSpace()
     stats.fromSpaceSize = space.FromSpaceSize();
     space.CopyFromSpace(GetThreadPool());
 
-    stats.smallGarbageSize = space.FromSpaceSize() - space.ToSpaceSize();
+    stats.smallGarbageSize = space.FromRegionSize() - space.ToSpaceSize();
 }
 
 void TraceCollector::ExemptFromSpace()

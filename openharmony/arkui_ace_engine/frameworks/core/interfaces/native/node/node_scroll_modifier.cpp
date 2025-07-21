@@ -713,7 +713,7 @@ void ResetEnableBouncesZoom(ArkUINodeHandle node)
 ArkUI_Bool GetEnableBouncesZoom(ArkUINodeHandle node)
 {
     auto* frameNode = reinterpret_cast<FrameNode*>(node);
-    CHECK_NULL_RETURN(frameNode, 1.0f);
+    CHECK_NULL_RETURN(frameNode, true);
     return ScrollModelNG::GetEnableBouncesZoom(frameNode);
 }
 
@@ -1082,8 +1082,7 @@ void SetOnDidZoom(ArkUINodeHandle node, void* extraParam)
 {
     auto* frameNode = reinterpret_cast<FrameNode*>(node);
     CHECK_NULL_VOID(frameNode);
-    int32_t nodeId = frameNode->GetId();
-    auto onDidZoom = [nodeId, node, extraParam](float scale) -> void {
+    auto onDidZoom = [extraParam](float scale) -> void {
         ArkUINodeEvent event;
         event.kind = COMPONENT_ASYNC_EVENT;
         event.extraParam = reinterpret_cast<intptr_t>(extraParam);
@@ -1098,8 +1097,7 @@ void SetOnZoomStart(ArkUINodeHandle node, void* extraParam)
 {
     auto* frameNode = reinterpret_cast<FrameNode*>(node);
     CHECK_NULL_VOID(frameNode);
-    int32_t nodeId = frameNode->GetId();
-    auto onZoomStart = [nodeId, node, extraParam]() -> void {
+    auto onZoomStart = [extraParam]() -> void {
         ArkUINodeEvent event;
         event.kind = COMPONENT_ASYNC_EVENT;
         event.extraParam = reinterpret_cast<intptr_t>(extraParam);
@@ -1113,8 +1111,7 @@ void SetOnZoomStop(ArkUINodeHandle node, void* extraParam)
 {
     auto* frameNode = reinterpret_cast<FrameNode*>(node);
     CHECK_NULL_VOID(frameNode);
-    int32_t nodeId = frameNode->GetId();
-    auto onZoomStop = [nodeId, node, extraParam]() -> void {
+    auto onZoomStop = [extraParam]() -> void {
         ArkUINodeEvent event;
         event.kind = COMPONENT_ASYNC_EVENT;
         event.extraParam = reinterpret_cast<intptr_t>(extraParam);
@@ -1342,6 +1339,30 @@ void ResetOnScrollFrameBeginCallBack(ArkUINodeHandle node)
     auto* frameNode = reinterpret_cast<FrameNode*>(node);
     CHECK_NULL_VOID(frameNode);
     ScrollModelNG::SetOnScrollFrameBegin(frameNode, nullptr);
+}
+
+void SetOnWillStopDragging(ArkUINodeHandle node, void* extraParam)
+{
+    auto* frameNode = reinterpret_cast<FrameNode*>(node);
+    CHECK_NULL_VOID(frameNode);
+    auto onWillStopDragging = [extraParam](const CalcDimension& velocity) -> void {
+        ArkUINodeEvent event;
+        event.kind = COMPONENT_ASYNC_EVENT;
+        event.extraParam = reinterpret_cast<intptr_t>(extraParam);
+        bool usePx = NodeModel::UsePXUnit(reinterpret_cast<ArkUI_Node*>(extraParam));
+        event.componentAsyncEvent.subKind = ON_SCROLL_WILL_STOP_DRAGGING;
+        event.componentAsyncEvent.data[0].f32 =
+            usePx ? static_cast<float>(velocity.ConvertToPx()) : static_cast<float>(velocity.Value());
+        SendArkUISyncEvent(&event);
+    };
+    ScrollableModelNG::SetOnWillStopDragging(frameNode, std::move(onWillStopDragging));
+}
+
+void ResetOnWillStopDragging(ArkUINodeHandle node)
+{
+    auto* frameNode = reinterpret_cast<FrameNode*>(node);
+    CHECK_NULL_VOID(frameNode);
+    ScrollableModelNG::SetOnWillStopDragging(frameNode, nullptr);
 }
 } // namespace NodeModifier
 } // namespace OHOS::Ace::NG

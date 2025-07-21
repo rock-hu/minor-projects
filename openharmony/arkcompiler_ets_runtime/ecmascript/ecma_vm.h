@@ -458,7 +458,11 @@ public:
     void DeletePrimitiveStorage();
 
     size_t IterateHandle(RootVisitor &visitor);
+    // Visit all roots, including STW-only and concurrent roots
     void Iterate(RootVisitor &v);
+    // STW roots are unsafe to visit duirng GC
+    void IterateSTWRoots(RootVisitor &v);
+    // Concurrent roots supports being visited while GC is ongoing
     void IterateConcurrentRoots(RootVisitor &v);
     void IterateWeakGlobalEnvList(WeakVisitor &visitor);
     void IterateGlobalEnvField(RootVisitor &visitor);
@@ -1447,7 +1451,7 @@ private:
     CString assetPath_;
     CString bundleName_;
     CString moduleName_;
-    CList<CString> deregisterModuleList_;
+    std::set<CString> deregisterModuleList_;
     CMap<CString, CString> mockModuleList_;
     std::map<CString, HmsMap> hmsModuleList_;
     CMap<CString, CString> pkgNameList_;

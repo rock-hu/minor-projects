@@ -170,6 +170,9 @@ RichEditorPattern::RichEditorPattern(bool isStyledStringMode) :
     floatingCaretState_.UpdateOriginCaretColor(GetDisplayColorMode());
     undoManager_ = RichEditorUndoManager::Create(isSpanStringMode_, WeakClaim(this));
     styleManager_ = std::make_unique<StyleManager>(WeakClaim(this));
+    if (!dataDetectorAdapter_) {
+        dataDetectorAdapter_ = MakeRefPtr<DataDetectorAdapter>();
+    }
 }
 
 RichEditorPattern::~RichEditorPattern()
@@ -3509,6 +3512,32 @@ bool RichEditorPattern::ClickAISpan(const PointF& textOffset, const AISpan& aiSp
     return false;
 }
 
+RefPtr<FrameNode> RichEditorPattern::CreateAIEntityMenu()
+{
+    CHECK_NULL_RETURN(dataDetectorAdapter_ && IsAiSelected(), nullptr);
+    auto aiSpan = dataDetectorAdapter_->aiSpanMap_.find(textSelector_.aiStart.value());
+    if (aiSpan == dataDetectorAdapter_->aiSpanMap_.end()) {
+        return nullptr;
+    }
+    auto host = GetHost();
+    CHECK_NULL_RETURN(host, nullptr);
+
+    auto showSelectOverlayFunc = [weak = WeakClaim(this)](const RectF& firstHandle, const RectF& secondHandle) {
+        auto pattern = weak.Upgrade();
+        CHECK_NULL_VOID(pattern);
+        pattern->SetCaretPosition(pattern->textSelector_.destinationOffset);
+        auto focusHub = pattern->GetFocusHub();
+        CHECK_NULL_VOID(focusHub);
+        focusHub->RequestFocusImmediately();
+        IF_TRUE(!pattern->isEditing_, pattern->CloseKeyboard(true));
+        pattern->ShowSelectOverlay(firstHandle, secondHandle);
+    };
+
+    SetOnClickMenu(aiSpan->second, nullptr, showSelectOverlayFunc);
+    auto [isShowCopy, isShowSelectText] = GetCopyAndSelectable();
+    return dataDetectorAdapter_->CreateAIEntityMenu(aiSpan->second, host, { isShowCopy, isShowSelectText });
+}
+
 void RichEditorPattern::AdjustAIEntityRect(RectF& aiRect)
 {
     auto offset = GetPaintRectGlobalOffset(); // component offset relative to window
@@ -5607,6 +5636,46 @@ int32_t RichEditorPattern::SetPreviewText(const std::u16string& previewTextValue
     return NO_ERRORS;
 }
 
+bool RichEditorPattern::SetPreviewTextForDelete(int32_t oriLength, bool isBackward, bool isByIME)
+{
+    if (!IsPreviewTextInputting() || !isByIME) {
+        return true;
+    }
+    auto previewContent = previewTextRecord_.previewContent;
+    auto startOffset = previewTextRecord_.startOffset;
+    auto endOffset = previewTextRecord_.endOffset;
+    TAG_LOGI(AceLogTag::ACE_RICH_TEXT, "SetPreviewTextForDelete offset=[%{public}d, %{public}d]",
+        startOffset, endOffset);
+    if (caretPosition_ < startOffset || caretPosition_ > endOffset) {
+        TAG_LOGW(AceLogTag::ACE_RICH_TEXT,
+            "preview abnormal, offset=[%{public}d, %{public}d], caretPosition_=%{public}d",
+            startOffset, endOffset, caretPosition_);
+        return true;
+    }
+
+    std::u16string previewTextValue = u"";
+    int32_t deleteLength = 0;
+    PreviewRange range;
+    if (isBackward) {
+        deleteLength = std::clamp(oriLength, 0, caretPosition_ - startOffset);
+        range.Set(startOffset, caretPosition_);
+        previewTextValue = previewContent.substr(0, std::max(0, caretPosition_ - deleteLength - startOffset));
+    } else {
+        deleteLength = std::clamp(oriLength, 0, endOffset - caretPosition_);
+        range.Set(startOffset, std::min(caretPosition_ + deleteLength, endOffset));
+        previewTextValue = previewContent.substr(0, std::max(0, caretPosition_ - startOffset));
+    }
+    if (deleteLength == 0) {
+        TAG_LOGI(AceLogTag::ACE_RICH_TEXT, "SetPreviewTextForDelete not deleted");
+        return false;
+    }
+    SetPreviewText(previewTextValue, range);
+    if (previewTextRecord_.previewContent.empty()) {
+        FinishTextPreview();
+    }
+    return false;
+}
+
 bool RichEditorPattern::InitPreviewText(const std::u16string& previewTextValue, const PreviewRange& range)
 {
     if (range.start != -1 || range.end != -1) {
@@ -6377,19 +6446,16 @@ int32_t RichEditorPattern::CalculateDeleteLength(int32_t length, bool isBackward
 // only called by IME
 void RichEditorPattern::DeleteBackward(int32_t length)
 {
-    DeleteBackward(length, TextChangeReason::INPUT);
+    DeleteBackward(length, TextChangeReason::INPUT, true);
 }
 
-void RichEditorPattern::DeleteBackward(int32_t oriLength, TextChangeReason reason)
+void RichEditorPattern::DeleteBackward(int32_t oriLength, TextChangeReason reason, bool isByIME)
 {
     int32_t length = isAPI14Plus ? std::clamp(oriLength, 0, caretPosition_) : oriLength;
     TAG_LOGD(AceLogTag::ACE_RICH_TEXT, "oriLength=%{public}d, length=%{public}d, isDragging=%{public}d",
         oriLength, length, IsDragging());
     CHECK_NULL_VOID(!IsDragging());
-    if (IsPreviewTextInputting()) {
-        TAG_LOGD(AceLogTag::ACE_RICH_TEXT, "do not handle DeleteBackward on previewTextInputting");
-        return;
-    }
+    CHECK_NULL_VOID(SetPreviewTextForDelete(oriLength, true, isByIME));
     if (isSpanStringMode_) {
         DeleteBackwardInStyledString(length);
         return;
@@ -6450,15 +6516,16 @@ std::u16string RichEditorPattern::DeleteBackwardOperation(int32_t length)
 // only called by IME
 void RichEditorPattern::DeleteForward(int32_t length)
 {
-    DeleteForward(length, TextChangeReason::INPUT);
+    DeleteForward(length, TextChangeReason::INPUT, true);
 }
 
-void RichEditorPattern::DeleteForward(int32_t oriLength, TextChangeReason reason)
+void RichEditorPattern::DeleteForward(int32_t oriLength, TextChangeReason reason, bool isByIME)
 {
     int32_t length = isAPI14Plus ? std::clamp(oriLength, 0, GetTextContentLength() - caretPosition_) : oriLength;
     TAG_LOGD(AceLogTag::ACE_RICH_TEXT, "oriLength=%{public}d, length=%{public}d, isDragging=%{public}d",
         oriLength, length, IsDragging());
     CHECK_NULL_VOID(!IsDragging());
+    CHECK_NULL_VOID(SetPreviewTextForDelete(oriLength, false, isByIME));
     if (isSpanStringMode_) {
         DeleteForwardInStyledString(length);
         return;
@@ -8119,9 +8186,7 @@ void RichEditorPattern::HandleMouseLeftButtonRelease(const MouseInfo& info)
         ShowSelectOverlay(RectF(), RectF(), false, TextResponseType::SELECTED_BY_MOUSE);
     }
     isMousePressed_ = false;
-    if (HasFocus()) {
-        HandleOnEditChanged(true);
-    }
+    RequestKeyboardToEdit();
 }
 
 void RichEditorPattern::HandleMouseLeftButton(const MouseInfo& info)
@@ -8816,10 +8881,14 @@ bool RichEditorPattern::CheckAIPreviewMenuEnable()
            copyOption_ != CopyOptions::None;
 }
 
-void RichEditorPattern::InitAiSelection(const Offset& globalOffset)
+void RichEditorPattern::InitAiSelection(const Offset& globalOffset, bool isBetweenSelection)
 {
     ResetAISelected(AIResetSelectionReason::INIT_SELECTION);
     CHECK_NULL_VOID(CheckAIPreviewMenuEnable());
+    if (showSelect_ && isBetweenSelection) {
+        TAG_LOGI(AceLogTag::ACE_RICH_TEXT, "no need for InitAiSelection");
+        return;
+    }
     int32_t extend = 0;
     auto host = GetHost();
     CHECK_NULL_VOID(host);
@@ -8852,8 +8921,9 @@ std::function<void(Offset)> RichEditorPattern::GetThumbnailCallback()
     return [wk = WeakClaim(this)](const Offset& point) {
         auto pattern = wk.Upgrade();
         CHECK_NULL_VOID(pattern);
-        pattern->InitAiSelection(point);
-        if (!pattern->BetweenSelectedPosition(point) && !pattern->IsAiSelected()) {
+        auto isBetweenSelection = pattern->BetweenSelectedPosition(point);
+        pattern->InitAiSelection(point, isBetweenSelection);
+        if (!isBetweenSelection && !pattern->IsAiSelected()) {
             return;
         }
         auto isContentDraggable = pattern->JudgeContentDraggable();
@@ -13094,7 +13164,7 @@ void RichEditorPattern::ReportComponentChangeEvent() {
     CHECK_NULL_VOID(value);
     value->Put("text", str.c_str());
     UiSessionManager::GetInstance()->ReportComponentChangeEvent(frameId_, "event", value);
-    SEC_TAG_LOGI(AceLogTag::ACE_RICH_TEXT, "nodeId:[%{public}d] RichEditor reportComponentChangeEvent %{public}d",
+    SEC_TAG_LOGI(AceLogTag::ACE_RICH_TEXT, "nodeId:[%{public}d] RichEditor reportComponentChangeEvent %{public}zu",
         frameId_, str.length());
 #endif
 }

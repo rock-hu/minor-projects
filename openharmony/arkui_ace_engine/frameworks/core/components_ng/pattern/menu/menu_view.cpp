@@ -1386,7 +1386,9 @@ RefPtr<FrameNode> MenuView::Create(std::vector<OptionParam>&& params, int32_t ta
             menuProperty->UpdateMenuPlacement(menuParam.placement.value_or(OHOS::Ace::Placement::BOTTOM));
         }
         menuProperty->UpdateShowInSubWindow(menuParam.isShowInSubWindow);
-        menuProperty->UpdateAnchorPosition(menuParam.anchorPosition);
+        if (menuParam.isAnchorPosition) {
+            menuProperty->UpdateAnchorPosition(menuParam.anchorPosition);
+        }
     }
     UpdateMenuPaintProperty(menuNode, menuParam, type);
     auto scroll = CreateMenuScroll(column);
@@ -1541,6 +1543,7 @@ void MenuView::ReloadMenuParam(const RefPtr<FrameNode>& menuNode, const MenuPara
     if (SystemProperties::ConfigChangePerform() && menuParam.isDarkMode != isCurDarkMode && !menuParam.isWithTheme) {
         //Because the Menu is created outside the light/dark mode switching process,
         //it is necessary to manually set the reloading state to trigger the color inversion process.
+        bool isReloading = ResourceParseUtils::IsReloading();
         ResourceParseUtils::SetIsReloading(true);
         menuParamValue.ReloadResources();
         if (menuParamValue.borderRadius) {
@@ -1556,7 +1559,7 @@ void MenuView::ReloadMenuParam(const RefPtr<FrameNode>& menuNode, const MenuPara
             menuParamValue.outlineWidth->ReloadResources();
         }
         menuParamValue.isDarkMode = !menuParamValue.isDarkMode;
-        ResourceParseUtils::SetIsReloading(false);
+        ResourceParseUtils::SetIsReloading(isReloading);
     }
 }
 
@@ -1594,7 +1597,9 @@ void MenuView::UpdateMenuProperties(const RefPtr<FrameNode>& wrapperNode, const 
             menuProperty->UpdateMenuPlacement(menuParam.placement.value());
         }
         menuProperty->UpdateShowInSubWindow(menuParam.isShowInSubWindow);
-        menuProperty->UpdateAnchorPosition(menuParam.anchorPosition);
+        if (menuParam.isAnchorPosition) {
+            menuProperty->UpdateAnchorPosition(menuParam.anchorPosition);
+        }
     }
     UpdateMenuPaintProperty(menuNode, menuParam, type);
 }

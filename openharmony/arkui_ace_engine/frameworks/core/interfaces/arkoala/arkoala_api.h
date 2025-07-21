@@ -400,7 +400,7 @@ struct ArkUIDragEvent {
     ArkUI_CharPtr key;
     ArkUI_Int32 requestId;
     bool isDragEndPending;
-    char* bundleName;
+    char bundleName[256];
     bool isRemoteDev;
     ArkUI_Int32 displayId;
     void* dataLoadParams;
@@ -1486,7 +1486,7 @@ struct ArkUIKeyEvent {
     ArkUI_Int32 subKind;
     ArkUI_Int32 type;
     ArkUI_Int32 keyCode;
-    ArkUI_CharPtr keyText;
+    char keyText[128];
     ArkUI_Int32 keySource;
     ArkUI_Int64 deviceId;
     ArkUI_Uint32 unicode;
@@ -2186,10 +2186,23 @@ struct ArkUIPaddingRes {
     void* rightObj = nullptr;
 };
 
+struct ArkUIBackgroundContent {
+    ArkUI_Int32 color;
+    void* bgColorRawPtr;
+};
+
+struct ArkUIBackgroundOptions {
+    ArkUI_Int32 align;
+    ArkUI_Int32* ignoresLayoutSafeAreaEdges;
+    ArkUI_Int32 ignoresLayoutSafeAreaEdgesSize;
+};
 struct ArkUICommonModifier {
     ArkUI_Int32 (*setOnTouchTestDoneCallback)(ArkUINodeHandle node, void* userData,
         void (*touchTestDone)(
             ArkUIGestureEvent* event, ArkUIGestureRecognizerHandleArray recognizers, int32_t count, void* userData));
+    void (*setBackground)(
+        ArkUINodeHandle node, const ArkUIBackgroundContent* content, const ArkUIBackgroundOptions* options);
+    void (*resetBackground)(ArkUINodeHandle node);
     void (*setBackgroundColor)(ArkUINodeHandle node, ArkUI_Uint32 color, void* bgColorRawPtr);
     void (*setBackgroundColorWithColorSpace)(
         ArkUINodeHandle node, ArkUI_Uint32 color, ArkUI_Int32 colorSpace, void* bgColorRawPtr);
@@ -4547,8 +4560,8 @@ struct ArkUITextAreaModifier {
     void (*resetTextAreaWidth)(ArkUINodeHandle node);
     void (*setTextAreaEnableHapticFeedback)(ArkUINodeHandle node, ArkUI_Uint32 value);
     void (*resetTextAreaEnableHapticFeedback)(ArkUINodeHandle node);
-    void (*setTextAreAutoCapitalizationMode)(ArkUINodeHandle node, ArkUI_Int32 value);
-    void (*resetTextAreAutoCapitalizationMode)(ArkUINodeHandle node);
+    void (*setTextAreaAutoCapitalizationMode)(ArkUINodeHandle node, ArkUI_Int32 value);
+    void (*resetTextAreaAutoCapitalizationMode)(ArkUINodeHandle node);
     ArkUI_Float32 (*getTextAreaLetterSpacing)(ArkUINodeHandle node);
     ArkUI_Bool (*getTextAreaEnablePreviewText)(ArkUINodeHandle node);
     void (*setEllipsisMode)(ArkUINodeHandle node, ArkUI_Uint32 ellipsisMode);
@@ -5908,7 +5921,8 @@ struct ArkUITextPickerModifier {
     void (*setTextPickerDivider)(ArkUINodeHandle node, ArkUI_Uint32 color, const ArkUI_Float32* values,
         const ArkUI_Int32* units, ArkUI_Int32 length);
     void (*setTextPickerDividerWithResObj)(ArkUINodeHandle node, ArkUI_Uint32 color, const ArkUI_Float32* values,
-        const ArkUI_Int32* units, ArkUI_Int32 length, const struct ArkUIPickerDividerResObjStruct* dividerResObjStr);
+        const ArkUI_Int32* units, ArkUI_Int32 length, const struct ArkUIPickerDividerResObjStruct* dividerResObjStr,
+        ArkUI_Bool isDefaultColor);
     void (*resetTextPickerDivider)(ArkUINodeHandle node);
     void (*setTextPickerGradientHeight)(ArkUINodeHandle node, ArkUI_Float32 dVal, ArkUI_Int32 dUnit);
     void (*setTextPickerGradientHeightWithResObj)(
@@ -6976,7 +6990,7 @@ struct ArkUIThemeModifier {
     ArkUINodeHandle (*createTheme)(ArkUI_Int32 themeId, const ArkUI_Uint32* colors, const ArkUI_Uint32* darkColors,
         ArkUI_Int32 colorMode, const void* lightResObjs, const void* darkResObjs);
     void (*createThemeScope)(ArkUINodeHandle node, ArkUINodeHandle theme);
-    void (*setDefaultTheme)(const ArkUI_Uint32* colors, ArkUI_Bool isDark);
+    void (*setDefaultTheme)(const ArkUI_Uint32* colors, ArkUI_Bool isDark, const void* resObjs);
     void (*removeFromCache)(ArkUI_Int32 themeId);
     void (*setOnThemeScopeDestroy)(ArkUINodeHandle node, void* callback);
     ArkUI_Int32 (*getThemeScopeId)(ArkUINodeHandle node);
@@ -7170,7 +7184,7 @@ struct ArkUIBasicAPI {
 };
 
 struct ArkUIMultiThreadManagerAPI {
-    void (*setIsFreeNodeScope)(ArkUI_Bool isFreeNodeScope);
+    void (*setIsThreadSafeNodeScope)(ArkUI_Bool isThreadSafeNodeScope);
     ArkUI_Bool (*checkNodeOnValidThread)(ArkUINodeHandle node);
     ArkUI_Bool (*checkOnUIThread)();
     ArkUI_Int32 (*postAsyncUITask)(ArkUI_Int32 contextId,
@@ -7312,6 +7326,7 @@ struct ArkUIExtendedNodeAPI {
     void (*createNewScope)();
     void (*registerOEMVisualEffect)(ArkUIOEMVisualEffectFuncHandle func);
     void (*setOnNodeDestroyCallback)(ArkUINodeHandle node, void (*onDestroy)(ArkUINodeHandle node));
+    ArkUINodeHandle (*createCustomNodeByNodeId)(ArkUI_CharPtr tag, ArkUI_Int32 nodeId);
 };
 
 struct ArkUIStyledStringAPI {

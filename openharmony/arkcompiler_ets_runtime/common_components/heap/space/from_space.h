@@ -26,6 +26,7 @@
 #include "common_components/heap/allocator/allocator.h"
 #include "common_components/heap/allocator/region_manager.h"
 #include "common_components/mutator/mutator.h"
+#include "common_components/heap/allocator/fix_heap.h"
 #if defined(COMMON_SANITIZER_SUPPORT)
 #include "common_components/base/asan_interface.h"
 #endif
@@ -51,10 +52,9 @@ public:
 
     void ExemptFromRegions();
 
-    void FixAllRegions()
+    void CollectFixTasks(FixHeapTaskList &taskList)
     {
-        TraceCollector& collector = reinterpret_cast<TraceCollector&>(Heap::GetHeap().GetCollector());
-        RegionManager::FixRegionList(collector, exemptedFromRegionList_);
+        FixHeapWorker::CollectFixHeapTasks(taskList, exemptedFromRegionList_, FIX_REGION);
     }
 
     size_t GetUsedUnitCount() const
@@ -63,6 +63,11 @@ public:
     }
 
     size_t GetAllocatedSize() const
+    {
+        return fromRegionList_.GetAllocatedSize() + exemptedFromRegionList_.GetAllocatedSize();
+    }
+
+    size_t GetFromRegionAllocatedSize() const
     {
         return fromRegionList_.GetAllocatedSize();
     }

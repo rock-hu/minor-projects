@@ -1131,11 +1131,12 @@ ArkUINativeModuleValue WebBridge::SetOnNativeEmbedLifecycleChange(ArkUIRuntimeCa
     panda::Local<panda::FunctionRef> func = obj;
     auto frameNode = reinterpret_cast<FrameNode*>(nativeNode);
     CHECK_NULL_RETURN(frameNode, panda::NativePointerRef::Undefined(vm));
-    std::function<void(NativeEmbedDataInfo&)> callback = [vm, frameNode, func = panda::CopyableGlobal(vm, func)](
+    std::function<void(NativeEmbedDataInfo&)> callback = [vm, weak = AceType::WeakClaim(frameNode),
+                                                             func = panda::CopyableGlobal(vm, func)](
                                                              NativeEmbedDataInfo& event) -> void {
         panda::LocalScope pandaScope(vm);
         panda::TryCatch trycatch(vm);
-        PipelineContext::SetCallBackNode(AceType::WeakClaim(frameNode));
+        PipelineContext::SetCallBackNode(weak.Upgrade());
         const char* keyPosition[] = { "x", "y" };
         Local<JSValueRef> valuesPosition[] = { panda::NumberRef::New(vm, static_cast<int32_t>(event.GetEmebdInfo().x)),
             panda::NumberRef::New(vm, static_cast<int32_t>(event.GetEmebdInfo().y)) };
@@ -1576,10 +1577,7 @@ ArkUINativeModuleValue WebBridge::SetMediaOptions(ArkUIRuntimeCallInfo* runtimeC
     Local<JSValueRef> secondArg = runtimeCallInfo->GetCallArgRef(CALL_ARG_1);
     Local<JSValueRef> thirdArg = runtimeCallInfo->GetCallArgRef(CALL_ARG_2);
     auto nativeNode = nodePtr(firstArg->ToNativePointer(vm)->Value());
-    if (!secondArg->IsNumber()) {
-        return panda::JSValueRef::Undefined(vm);
-    }
-    if (!thirdArg->IsBoolean()) {
+    if (!secondArg->IsNumber() && !thirdArg->IsBoolean()) {
         return panda::JSValueRef::Undefined(vm);
     }
     int mode = secondArg->Int32Value(vm);
@@ -3928,9 +3926,13 @@ ArkUINativeModuleValue WebBridge::SetOnFaviconReceived(ArkUIRuntimeCallInfo* run
         PipelineContext::SetCallBackNode(AceType::WeakClaim(frameNode));
         const char* keys[] = { "favicon" };
         Framework::JSRef<Framework::JSObject> handlerObj = Framework::JSWeb::CreateFaviconReceivedHandler(event);
+        if (handlerObj.IsEmpty()) {
+            return;
+        }
         Local<JSValueRef> values[] = { handlerObj->GetLocalHandle() };
 
-        auto eventObject = panda::ObjectRef::NewWithNamedProperties(vm, ArraySize(keys), keys, values);
+        Local<panda::ObjectRef> eventObject = panda::ObjectRef::NewWithNamedProperties(
+            vm, ArraySize(keys), keys, values);
         eventObject->SetNativePointerFieldCount(vm, CALL_ARG_1);
         eventObject->SetNativePointerField(vm, CALL_ARG_0, static_cast<void*>(&event));
         panda::Local<panda::JSValueRef> params[1] = { eventObject };

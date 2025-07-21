@@ -16,6 +16,7 @@
 #include "core/components_ng/pattern/scroll/free_scroll_controller.h"
 
 #include "core/components_ng/pattern/scroll/scroll_pattern.h"
+#include "core/components_ng/pattern/scrollable/axis/axis_animator.h"
 #include "core/components_ng/pattern/scrollable/scrollable_animation_consts.h"
 #include "core/components_ng/pattern/scrollable/scrollable_properties.h"
 #include "core/components_ng/render/animation_utils.h"
@@ -26,7 +27,7 @@ FreeScrollController::FreeScrollController(ScrollPattern& pattern) : pattern_(pa
     offset_ = MakeRefPtr<NodeAnimatablePropertyOffsetF>(OffsetF {}, [weak = WeakClaim(this)](const OffsetF& newOffset) {
         auto controller = weak.Upgrade();
         if (controller) {
-            controller->HandleAnimationUpdate(newOffset);
+            controller->HandleOffsetUpdate(newOffset);
         }
     });
     auto* renderCtx = pattern_.GetRenderContext();
@@ -87,9 +88,58 @@ void FreeScrollController::InitializePanRecognizer()
     freePanGesture_->SetOnActionCancel(endCallback);
     freePanGesture_->SetRecognizerType(GestureTypeName::PAN_GESTURE);
     freePanGesture_->SetIsSystemGesture(true);
+    freePanGesture_->SetIsAllowMouse(false);
+    freePanGesture_->SetSysGestureJudge([](const RefPtr<GestureInfo>& gestureInfo,
+                                           const std::shared_ptr<BaseGestureEvent>& info) {
+        if (gestureInfo->GetInputEventType() == InputEventType::AXIS &&
+            (info->IsKeyPressed(KeyCode::KEY_CTRL_LEFT) || info->IsKeyPressed(KeyCode::KEY_CTRL_RIGHT))) {
+            return GestureJudgeResult::REJECT;
+        }
+        return GestureJudgeResult::CONTINUE;
+    });
 }
 
 namespace {
+using State = FreeScrollController::State;
+ScrollSource ToScrollSource(State state)
+{
+    switch (state) {
+        case State::IDLE:
+            return ScrollSource::SCROLLER;
+        case State::DRAG:
+            return ScrollSource::DRAG;
+        case State::FLING:
+            return ScrollSource::FLING;
+        case State::EXTERNAL_FLING:
+            return ScrollSource::SCROLLER_ANIMATION;
+        case State::BOUNCE:
+            return ScrollSource::EDGE_EFFECT;
+        default:
+            return ScrollSource::OTHER_USER_INPUT; // Default to IDLE if unknown
+    }
+}
+
+ScrollState ToScrollState(State state)
+{
+    switch (state) {
+        case State::IDLE:
+            return ScrollState::IDLE;
+        case State::DRAG:
+            return ScrollState::SCROLL;
+        case State::FLING:
+        case State::EXTERNAL_FLING:
+        case State::BOUNCE:
+            return ScrollState::FLING;
+        default:
+            return ScrollState::IDLE; // Default to IDLE if unknown
+    }
+}
+
+bool InAnimation(State state)
+{
+    return state == State::FLING || state == State::EXTERNAL_FLING || state == State::BOUNCE;
+}
+
 /**
  * @return ratio (non-negative) between overScroll and viewport length.
  */
@@ -137,8 +187,11 @@ constexpr float EDGE_FRICTION = 10;
 
 void FreeScrollController::HandlePanStart(const GestureEvent& event)
 {
-    state_ = ScrollState::SCROLL;
+    state_ = State::DRAG;
     FireOnScrollStart();
+    if (axisAnimator_ && !Scrollable::IsMouseWheelScroll(event)) {
+        axisAnimator_->StopAxisAnimation();
+    }
 }
 
 void FreeScrollController::HandlePanUpdate(const GestureEvent& event)
@@ -162,17 +215,25 @@ void FreeScrollController::HandlePanUpdate(const GestureEvent& event)
     deltaF = FireOnWillScroll(deltaF, ScrollState::SCROLL, ScrollSource::DRAG);
     const auto newOffset = offset_->Get() + deltaF;
     CheckCrashEdge(newOffset, scrollableArea);
+    if (Scrollable::IsMouseWheelScroll(event)) {
+        AnimateOnMouseScroll(deltaF); // use animation to make mouse wheel scroll smoother
+        return;
+    }
     offset_->Set(newOffset);
     pattern_.MarkDirty();
 }
 
 void FreeScrollController::HandlePanEndOrCancel(const GestureEvent& event)
 {
-    state_ = ScrollState::IDLE;
+    state_ = State::IDLE;
+    if (Scrollable::IsMouseWheelScroll(event)) {
+        FireOnScrollEnd(); // no fling animation in mouse wheel scroll
+        return;
+    }
     const auto& src = event.GetVelocity();
     OffsetF velocity { static_cast<float>(src.GetVelocityX()), static_cast<float>(src.GetVelocityY()) };
     Fling(velocity);
-    if (state_ == ScrollState::IDLE) {
+    if (state_ == State::IDLE) {
         // If the state is IDLE, it means no fling animation is running.
         // We can fire the onScrollEnd event here.
         FireOnScrollEnd();
@@ -188,7 +249,7 @@ void FreeScrollController::Fling(const OffsetF& velocity)
         return;
     }
 
-    OffsetF finalPos = offset_->Get() + velocity / friction;
+    OffsetF finalPos = offset_->Get() + velocity * FLING_SCALE_K / friction;
     if (outOfBounds) {
         finalPos = ClampPosition(finalPos);
     } // when not out of bounds, finalPos doesn't need clamping because we would clamp it later during the
@@ -198,36 +259,48 @@ void FreeScrollController::Fling(const OffsetF& velocity)
         // No movement, no need to animate.
         return;
     }
-    state_ = ScrollState::FLING;
+    state_ = State::FLING;
     offset_->AnimateWithVelocity(CreateSpringOption(friction), finalPos, velocity, [weak = WeakClaim(this)]() {
         auto self = weak.Upgrade();
-        if (self) {
-            self->HandleAnimationEnd();
+        CHECK_NULL_VOID(self);
+        if (self->state_ == State::BOUNCE) {
+            return; // don't trigger if we transitioned to BOUNCE state
         }
+        self->HandleAnimationEnd();
     });
 }
 
-void FreeScrollController::HandleAnimationUpdate(const OffsetF& currentValue)
+void FreeScrollController::HandleOffsetUpdate(const OffsetF& currentValue)
 {
-    // todo: figure out how to modify offset_ without disrupting animation
-    FireOnWillScroll(currentValue - prevOffset_, ScrollState::FLING, ScrollSource::FLING);
-    bool reachedEdge = CheckCrashEdge(currentValue, pattern_.GetViewPortExtent() - pattern_.GetViewSize());
-    if (reachedEdge) {
-        // change friction during animation
+    pattern_.MarkDirty();
+    if (state_ == State::DRAG) {
+        return; // callbacks and checks already handled in HandlePanUpdate
+    }
+
+    FireOnWillScroll(currentValue - prevOffset_, ToScrollState(state_), ToScrollSource(state_));
+    const bool reachedEdge = CheckCrashEdge(currentValue, pattern_.GetViewPortExtent() - pattern_.GetViewSize());
+    if (state_ == State::FLING && reachedEdge) {
+        // change friction during animation and transition to BOUNCE animation
         const auto finalPos = ClampPosition(offset_->GetStagingValue());
-        AnimationUtils::AnimateWithCurrentCallback(
-            CreateSpringOption(EDGE_FRICTION), [weak = WeakPtr(offset_), finalPos]() {
+        AnimationUtils::Animate(
+            CreateSpringOption(EDGE_FRICTION),
+            [weak = WeakPtr(offset_), finalPos]() {
                 auto prop = weak.Upgrade();
                 CHECK_NULL_VOID(prop);
                 prop->Set(finalPos);
+            },
+            [weak = WeakClaim(this)]() {
+                auto self = weak.Upgrade();
+                CHECK_NULL_VOID(self);
+                self->HandleAnimationEnd();
             });
+        state_ = State::BOUNCE;
     }
-    pattern_.MarkDirty();
 }
 
 void FreeScrollController::HandleAnimationEnd()
 {
-    state_ = ScrollState::IDLE;
+    state_ = State::IDLE;
     FireOnScrollEnd();
 }
 
@@ -268,6 +341,9 @@ void FreeScrollController::InitializeTouchEvent()
 
 void FreeScrollController::HandleTouchDown()
 {
+    if (state_ == State::DRAG) {
+        return; // ignore touch down of second finger
+    }
     StopScrollAnimation();
 }
 
@@ -278,15 +354,42 @@ void FreeScrollController::StopScrollAnimation()
     option.SetDuration(0);
     AnimationUtils::StartAnimation(
         option, [this]() { offset_->Set(offset_->Get()); }, nullptr);
-    state_ = ScrollState::IDLE;
+    state_ = State::IDLE;
 }
 
 void FreeScrollController::HandleTouchUpOrCancel()
 {
-    if (state_ == ScrollState::IDLE) {
+    if (state_ == State::IDLE) {
         // animate if currently out of bounds
         Fling({});
     }
+}
+
+void FreeScrollController::HandleAxisAnimationFrame(float newOffset)
+{
+    if (InAnimation(state_)) { // can't update offset if in animation
+        return;
+    }
+    auto offset = offset_->Get();
+    mouseWheelScrollIsVertical_ ? offset.SetY(newOffset) : offset.SetX(newOffset);
+    offset_->Set(ClampPosition(offset));
+}
+
+void FreeScrollController::AnimateOnMouseScroll(const OffsetF& delta)
+{
+    mouseWheelScrollIsVertical_ = NearZero(delta.GetX());
+    if (!axisAnimator_) {
+        axisAnimator_ = MakeRefPtr<AxisAnimator>(
+            [wk = WeakClaim(this)](float newOffset) { // animation frame callback
+                auto self = wk.Upgrade();
+                CHECK_NULL_VOID(self);
+                self->HandleAxisAnimationFrame(newOffset);
+            },
+            nullptr, nullptr);
+        axisAnimator_->Initialize(WeakClaim(pattern_.GetContext()));
+    }
+    Axis axis = mouseWheelScrollIsVertical_ ? Axis::VERTICAL : Axis::HORIZONTAL;
+    axisAnimator_->OnAxis(delta.GetMainOffset(axis), offset_->Get().GetMainOffset(axis));
 }
 
 OffsetF FreeScrollController::GetOffset() const
@@ -299,12 +402,12 @@ OffsetF FreeScrollController::GetOffset() const
 
 void FreeScrollController::OnLayoutFinished(const OffsetF& adjustedOffset, const SizeF& scrollableArea)
 {
-    if (offset_ && offset_->Get() != adjustedOffset && state_ != ScrollState::FLING) {
+    if (offset_ && offset_->Get() != adjustedOffset && !InAnimation(state_)) {
         offset_->Set(adjustedOffset);
     }
     if (adjustedOffset != prevOffset_) {
         // Fire onDidScroll only if the offset has changed.
-        FireOnDidScroll(adjustedOffset - prevOffset_, state_);
+        FireOnDidScroll(adjustedOffset - prevOffset_, ToScrollState(state_));
         prevOffset_ = adjustedOffset;
     }
     auto props = pattern_.GetLayoutProperty<ScrollLayoutProperty>();
@@ -321,7 +424,7 @@ void FreeScrollController::OnLayoutFinished(const OffsetF& adjustedOffset, const
 
 void FreeScrollController::SetOffset(OffsetF newPos, bool allowOverScroll)
 {
-    if (state_ == ScrollState::FLING) {
+    if (state_ == State::FLING) {
         StopScrollAnimation();
     }
     if (!allowOverScroll) {
@@ -329,7 +432,6 @@ void FreeScrollController::SetOffset(OffsetF newPos, bool allowOverScroll)
     }
     if (newPos != offset_->Get()) {
         offset_->Set(newPos);
-        pattern_.MarkDirty();
     }
 }
 
@@ -456,6 +558,7 @@ using std::optional;
 void FreeScrollController::ScrollTo(OffsetF finalPos, const optional<float>& velocity, optional<int32_t> duration,
     RefPtr<Curve> curve, bool allowOverScroll)
 {
+    StopScrollAnimation();
     if (!allowOverScroll) {
         finalPos = ClampPosition(finalPos);
     }
@@ -480,7 +583,7 @@ void FreeScrollController::ScrollTo(OffsetF finalPos, const optional<float>& vel
             CHECK_NULL_VOID(self);
             self->HandleAnimationEnd();
         });
-    state_ = ScrollState::FLING;
+    state_ = State::EXTERNAL_FLING;
     FireOnScrollStart();
 }
 } // namespace OHOS::Ace::NG

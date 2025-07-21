@@ -36,10 +36,7 @@ void BoxLayoutAlgorithm::Measure(LayoutWrapper* layoutWrapper)
         CHECK_NULL_CONTINUE(childLayoutProperty);
         auto layoutPolicy = childLayoutProperty->GetLayoutPolicyProperty();
         if (isEnableChildrenMatchParent && layoutPolicy.has_value()) {
-            auto widthLayoutPolicy = layoutPolicy.value().widthLayoutPolicy_;
-            auto heightLayoutPolicy = layoutPolicy.value().heightLayoutPolicy_;
-            if (widthLayoutPolicy.value_or(LayoutCalPolicy::NO_MATCH) != LayoutCalPolicy::NO_MATCH ||
-                heightLayoutPolicy.value_or(LayoutCalPolicy::NO_MATCH) != LayoutCalPolicy::NO_MATCH) {
+            if (layoutPolicy->IsMatch()) {
                 layoutPolicyChildren_.emplace_back(child);
                 continue;
             }
@@ -55,10 +52,6 @@ void BoxLayoutAlgorithm::Measure(LayoutWrapper* layoutWrapper)
 
 void BoxLayoutAlgorithm::Layout(LayoutWrapper* layoutWrapper)
 {
-    auto host = layoutWrapper->GetHostNode();
-    if (host && !host->GetIgnoreLayoutProcess() && GetNeedPostponeForIgnore()) {
-        return;
-    }
     PerformLayout(layoutWrapper);
     for (auto&& child : layoutWrapper->GetAllChildrenWithBuild()) {
         child->Layout();
@@ -129,6 +122,14 @@ void BoxLayoutAlgorithm::PerformMeasureSelfWithChildList(
                 if (layoutProperty && layoutProperty->GetVisibilityValue(VisibleType::VISIBLE) == VisibleType::GONE) {
                     continue;
                 }
+                auto singleSideFrame = CalcLayoutPolicySingleSide(layoutProperty->GetLayoutPolicyProperty(),
+                    layoutProperty->GetCalcLayoutConstraint(),
+                    layoutWrapper->GetLayoutProperty()->CreateChildConstraint(),
+                    layoutProperty->GetMagicItemProperty());
+                if (singleSideFrame.AtLeastOneValid()) {
+                    auto margin = layoutProperty->CreateMargin();
+                    CalcSingleSideMarginFrame(margin, singleSideFrame, maxWidth, maxHeight);
+                }
                 auto childSize = child->GetGeometryNode()->GetMarginFrameSize();
                 if (maxWidth < childSize.Width()) {
                     maxWidth = childSize.Width();
@@ -171,6 +172,17 @@ void BoxLayoutAlgorithm::PerformMeasureSelfWithChildList(
     layoutWrapper->GetGeometryNode()->SetFrameSize(frameSize.ConvertToSizeT());
 }
 
+void BoxLayoutAlgorithm::CalcSingleSideMarginFrame(
+    MarginPropertyF& margin, const OptionalSizeF& singleSideFrame, float& maxWidth, float& maxHeight)
+{
+    if (singleSideFrame.Width().has_value()) {
+        maxWidth = std::max(singleSideFrame.Width().value() + margin.Width(), maxWidth);
+    }
+    if (singleSideFrame.Height().has_value()) {
+        maxHeight = std::max(singleSideFrame.Height().value() + margin.Height(), maxHeight);
+    }
+}
+
 // Called to perform measure current render node.
 void BoxLayoutAlgorithm::PerformMeasureSelf(LayoutWrapper* layoutWrapper)
 {
@@ -190,13 +202,14 @@ void BoxLayoutAlgorithm::MeasureAdaptiveLayoutChildren(LayoutWrapper* layoutWrap
         auto childNode = child->GetHostNode();
         if (childNode && childNode->GetLayoutProperty() && childNode->GetLayoutProperty()->IsExpandConstraintNeeded()) {
             bundle.first.emplace_back(childNode);
+            child->SetDelaySelfLayoutForIgnore();
             child->GetGeometryNode()->SetParentLayoutConstraint(layoutConstraint);
-            SetNeedPostponeForIgnore();
             continue;
         }
         child->Measure(layoutConstraint);
     }
-    if (host && host->GetContext() && GetNeedPostponeForIgnore()) {
+    if (host && host->GetContext() && !bundle.first.empty()) {
+        host->SetDelaySelfLayoutForIgnore();
         auto context = host->GetContext();
         bundle.second = host;
         context->AddIgnoreLayoutSafeAreaBundle(std::move(bundle));

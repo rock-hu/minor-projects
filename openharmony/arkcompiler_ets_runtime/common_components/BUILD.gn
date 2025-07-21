@@ -32,6 +32,7 @@ source_Heap = [
   "heap/allocator/memory_map.cpp",
   "heap/allocator/region_manager.cpp",
   "heap/allocator/region_space.cpp",
+  "heap/allocator/fix_heap.cpp",
   "heap/barrier/barrier.cpp",
   "heap/verification.cpp",
   "heap/collector/collector.cpp",
@@ -362,8 +363,8 @@ ohos_shared_library("libark_common_components_test") {
   configs = [ ":common_components_test_config" ]
 
   sources = [
-    "base_runtime/base_runtime.cpp",
-    "base_runtime/base_runtime_param.cpp",
+    "common_runtime/base_runtime.cpp",
+    "common_runtime/base_runtime_param.cpp",
     "base/utf_helper.cpp",
     "heap/heap_allocator.cpp",
     "log/log.cpp",

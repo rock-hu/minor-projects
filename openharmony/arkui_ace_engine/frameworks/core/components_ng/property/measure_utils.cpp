@@ -529,6 +529,87 @@ OptionalSizeF ConstrainIdealSizeByLayoutPolicy(const LayoutConstraintF& layoutCo
     return idealSize;
 }
 
+OptionalSizeF CalcLayoutPolicySingleSide(const std::optional<NG::LayoutPolicyProperty>& childLayoutPolicy,
+    const std::unique_ptr<MeasureProperty>& childCalcLayoutConstraint,
+    const std::optional<LayoutConstraintF>& parentConstraint, const MagicItemProperty& magicItemProperty)
+{
+    OptionalSizeF result;
+    if (!parentConstraint.has_value()) {
+        return result;
+    }
+    if (!childLayoutPolicy.has_value() || !childLayoutPolicy->IsMatch()) {
+        return result;
+    }
+    if (!childCalcLayoutConstraint ||
+        (!childCalcLayoutConstraint->selfIdealSize.has_value() && !childCalcLayoutConstraint->minSize.has_value())) {
+        return result;
+    }
+    auto isWidthPolicy = childLayoutPolicy->IsWidthMatch();
+    auto isHeightPolicy = childLayoutPolicy->IsHeightMatch();
+
+    if (childCalcLayoutConstraint->selfIdealSize.has_value()) {
+        auto selfSize = ConvertToOptionalSize(childCalcLayoutConstraint->selfIdealSize.value(),
+            parentConstraint->scaleProperty, parentConstraint->percentReference);
+        if (isHeightPolicy && selfSize.Width().has_value()) {
+            result.SetWidth(selfSize.Width().value());
+        }
+        if (isWidthPolicy && selfSize.Height().has_value()) {
+            result.SetHeight(selfSize.Height().value());
+        }
+        if (magicItemProperty.HasAspectRatio()) {
+            auto aspectRatio = magicItemProperty.GetAspectRatioValue();
+            if (result.Width().has_value() && GreatNotEqual(aspectRatio, 0.0f)) {
+                result.SetHeight(result.Width().value() / aspectRatio);
+            }
+        }
+        UpdateSingleSideByMaxOrMinCalcLayoutConstraint(
+            result, childCalcLayoutConstraint->maxSize, parentConstraint, true);
+        UpdateSingleSideByMaxOrMinCalcLayoutConstraint(
+            result, childCalcLayoutConstraint->minSize, parentConstraint, false);
+    } else if (childCalcLayoutConstraint->minSize.has_value()) {
+        auto minsize = ConvertToOptionalSize(childCalcLayoutConstraint->minSize.value(),
+            parentConstraint->scaleProperty, parentConstraint->percentReference);
+        if (isHeightPolicy && minsize.Width().has_value()) {
+            result.SetWidth(minsize.Width().value());
+        }
+        if (isWidthPolicy && minsize.Height().has_value()) {
+            result.SetHeight(minsize.Height().value());
+        }
+    }
+    return result;
+}
+
+void UpdateSingleSideByMaxOrMinCalcLayoutConstraint(OptionalSizeF& frameSize,
+    const std::optional<CalcSize>& calcLayoutConstraintMaxMinSize,
+    const std::optional<LayoutConstraintF>& parentConstraint, bool isMaxSize)
+{
+    if (!calcLayoutConstraintMaxMinSize.has_value() || frameSize.IsNull()) {
+        return;
+    }
+    if (calcLayoutConstraintMaxMinSize->Width().has_value() && frameSize.Width().has_value()) {
+        auto maxWidthPx = ConvertToPx(calcLayoutConstraintMaxMinSize->Width(), parentConstraint->scaleProperty,
+            parentConstraint->percentReference.Width());
+        if (maxWidthPx.has_value()) {
+            if (isMaxSize) {
+                frameSize.SetWidth(std::min(maxWidthPx.value(), frameSize.Width().value()));
+            } else {
+                frameSize.SetWidth(std::max(maxWidthPx.value(), frameSize.Width().value()));
+            }
+        }
+    }
+    if (calcLayoutConstraintMaxMinSize->Height().has_value() && frameSize.Height().has_value()) {
+        auto maxHeightPx = ConvertToPx(calcLayoutConstraintMaxMinSize->Height(), parentConstraint->scaleProperty,
+            parentConstraint->percentReference.Height());
+        if (maxHeightPx.has_value()) {
+            if (isMaxSize) {
+                frameSize.SetHeight(std::min(maxHeightPx.value(), frameSize.Height().value()));
+            } else {
+                frameSize.SetHeight(std::max(maxHeightPx.value(), frameSize.Height().value()));
+            }
+        }
+    }
+}
+
 void CreateChildrenConstraint(SizeF& size, const PaddingPropertyF& padding)
 {
     float width = 0;

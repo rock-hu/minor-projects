@@ -1891,11 +1891,7 @@ void NavigationPattern::DialogAnimation(const RefPtr<NavDestinationGroupNode>& p
 void NavigationPattern::StartDefaultAnimation(const RefPtr<NavDestinationGroupNode>& preTopNavDestination,
     const RefPtr<NavDestinationGroupNode>& newTopNavDestination, bool isPopPage, bool isNeedVisible)
 {
-    auto currentProxy = GetTopNavigationProxy();
-    if (currentProxy) {
-        currentProxy->SetIsFinished(true);
-    }
-    ClearRecoveryList();
+    ClearNavigationCustomTransition();
     bool isPreDialog = preTopNavDestination &&
         preTopNavDestination->GetNavDestinationMode() == NavDestinationMode::DIALOG;
     bool isNewDialog = newTopNavDestination &&
@@ -4803,7 +4799,10 @@ void NavigationPattern::OnAllTransitionAnimationFinish()
         CHECK_NULL_VOID(geometryNode);
         geometryNode->ResetParentLayoutConstraint();
     };
-
+    if (!windowMgr->IsSetOrientationNeeded(targetOrientation)) {
+        restoreTask();
+        return;
+    }
     navigationMgr->AddBeforeOrientationChangeTask(std::move(restoreTask));
     windowMgr->SetRequestedOrientation(targetOrientation, false);
 }
@@ -5677,4 +5676,36 @@ void NavigationPattern::UpdateChildLayoutPolicy()
             layoutPolicy.value().heightLayoutPolicy_.value_or(LayoutCalPolicy::NO_MATCH), false);
     }
 }
+
+void NavigationPattern::ClearNavigationCustomTransition()
+{
+    auto currentProxy = GetTopNavigationProxy();
+    if (currentProxy) {
+        currentProxy->SetIsFinished(true);
+        RemoveProxyById(currentProxy->GetProxyId());
+    }
+    ClearRecoveryList();
+}
+
+#if defined(ACE_STATIC)
+bool NavigationPattern::CheckNeedCreate(int32_t index)
+{
+    CHECK_NULL_RETURN(navigationStack_, false);
+    auto pathListSize = navigationStack_->Size();
+    RefPtr<UINode> uiNode = nullptr;
+    if (navigationStack_->IsFromRecovery(index)) {
+        return true;
+    }
+    if (navigationStack_->NeedBuildNewInstance(index)) {
+        return true;
+    }
+    if (index == pathListSize - 1 && addByNavRouter_) {
+        addByNavRouter_ = false;
+        uiNode = navigationStack_->Get();
+    } else {
+        uiNode = navigationStack_->Get(index);
+    }
+    return uiNode == nullptr;
+}
+#endif
 } // namespace OHOS::Ace::NG

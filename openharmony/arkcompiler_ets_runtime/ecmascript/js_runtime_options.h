@@ -22,7 +22,7 @@
 #include <vector>
 #include <set>
 
-#include "common_components/base_runtime/base_runtime_param.h"
+#include "common_components/common_runtime/base_runtime_param.h"
 #include "common_components/log/log_base.h"
 #include "common_interfaces/base/common.h"
 #include "common_interfaces/base/runtime_param.h"
@@ -2250,6 +2250,16 @@ public:
         return disableModuleSnapshot_;
     }
 
+    void DisableGCTimeoutCheck()
+    {
+        enableGCTimeoutCheck_ = false;
+    }
+
+    bool IsEnableGCTimeoutCheck() const
+    {
+        return enableGCTimeoutCheck_;
+    }
+
     static bool ParseBool(const std::string &arg, bool* argBool);
     static bool ParseInt(const std::string &arg, int* argInt);
     static bool ParseUint32(const std::string &arg, uint32_t* argUInt32);
@@ -2570,6 +2580,7 @@ private:
     common::RuntimeParam param_;
     bool enableWarmStartupSmartGC_ {false};
     bool disableModuleSnapshot_ { false };
+    bool enableGCTimeoutCheck_ {true};
 };
 } // namespace panda::ecmascript
 

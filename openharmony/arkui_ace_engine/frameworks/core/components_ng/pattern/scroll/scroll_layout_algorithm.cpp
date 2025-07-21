@@ -29,6 +29,9 @@ void UpdateChildConstraint(Axis axis, const OptionalSizeF& selfIdealSize, Layout
     contentConstraint.parentIdealSize = selfIdealSize;
     if (axis == Axis::VERTICAL) {
         contentConstraint.maxSize.SetHeight(Infinity<float>());
+    } else if (axis == Axis::FREE) {
+        contentConstraint.maxSize.SetWidth(Infinity<float>());
+        contentConstraint.maxSize.SetHeight(Infinity<float>());
     } else {
         contentConstraint.maxSize.SetWidth(Infinity<float>());
     }
@@ -77,6 +80,15 @@ void ScrollLayoutAlgorithm::Measure(LayoutWrapper* layoutWrapper)
     auto selfSize = idealSize.ConvertToSizeT();
     if (!isMainFix) {
         selfSize.Constrain(constraint->minSize, constraint->maxSize);
+    } else {
+        auto finalSize = UpdateOptionSizeByCalcLayoutConstraint(
+            OptionalSizeF(selfSize), layoutProperty->GetCalcLayoutConstraint(), constraint->percentReference);
+        if (finalSize.Width().has_value()) {
+            selfSize.SetWidth(finalSize.Width().value());
+        }
+        if (finalSize.Height().has_value()) {
+            selfSize.SetHeight(finalSize.Height().value());
+        }
     }
     auto scrollNode = layoutWrapper->GetHostNode();
     CHECK_NULL_VOID(scrollNode);
@@ -125,6 +137,31 @@ void ScrollLayoutAlgorithm::UseInitialOffset(Axis axis, SizeF selfSize, LayoutWr
     }
 }
 
+namespace {
+/**
+ * @param alwaysEnabled true if effect should still apply when content length is smaller than viewport.
+ * @return adjusted offset
+ */
+float AdjustOffsetInFreeMode(
+    float offset, float scrollableDistance, EdgeEffect effect, EffectEdge appliedEdge, bool alwaysEnabled)
+{
+    if (!alwaysEnabled && NonPositive(scrollableDistance)) {
+        effect = EdgeEffect::NONE;
+    }
+    const float minOffset = std::min(-scrollableDistance, 0.0f); // Max scroll to end
+    if (Positive(offset)) {                                      // over-scroll at start
+        if (effect != EdgeEffect::SPRING || appliedEdge == EffectEdge::END) {
+            offset = 0.0f;
+        }
+    } else if (LessNotEqual(offset, minOffset)) { // over-scroll at end
+        if (effect != EdgeEffect::SPRING || appliedEdge == EffectEdge::START) {
+            offset = minOffset;
+        }
+    }
+    return offset;
+}
+} // namespace
+
 void ScrollLayoutAlgorithm::Layout(LayoutWrapper* layoutWrapper)
 {
     CHECK_NULL_VOID(layoutWrapper);
@@ -154,11 +191,13 @@ void ScrollLayoutAlgorithm::Layout(LayoutWrapper* layoutWrapper)
         scrollableDistance_ = GetMainAxisSize(childSize, axis) - GetMainAxisSize(viewPort_, axis) + contentEndOffset;
     }
     if (axis == Axis::FREE) {
-        auto effect = scroll->GetEdgeEffect();
+        const auto effect = scroll->GetEdgeEffect();
+        const bool alwaysEnabled = scroll->GetAlwaysEnabled();
         const float verticalSpace = childSize.Height() - viewPort_.Height();
-        crossOffset_ = AdjustOffsetInFreeMode(crossOffset_, verticalSpace, effect, EffectEdge::ALL);
+        crossOffset_ = AdjustOffsetInFreeMode(crossOffset_, verticalSpace, effect, EffectEdge::ALL, alwaysEnabled);
         // effectEdge only applies to horizontal axis
-        currentOffset_ = AdjustOffsetInFreeMode(currentOffset_, scrollableDistance_, effect, scroll->GetEffectEdge());
+        currentOffset_ =
+            AdjustOffsetInFreeMode(currentOffset_, scrollableDistance_, effect, scroll->GetEffectEdge(), alwaysEnabled);
     } else if (UnableOverScroll(layoutWrapper)) {
         if (scrollableDistance_ > 0.0f) {
             currentOffset_ = std::clamp(currentOffset_, -scrollableDistance_, 0.0f);
@@ -293,21 +332,4 @@ void ScrollLayoutAlgorithm::OnSurfaceChanged(LayoutWrapper* layoutWrapper, float
         TAG_LOGI(AceLogTag::ACE_SCROLL, "update offset on virtual keyboard height change, %{public}f", offset);
     }
 }
-
-float ScrollLayoutAlgorithm::AdjustOffsetInFreeMode(
-    float offset, float scrollableDistance, EdgeEffect effect, EffectEdge appliedEdge)
-{
-    const float minOffsetY = std::min(-scrollableDistance, 0.0f); // Max scroll to end
-    if (Positive(offset)) {                                       // Overscroll at start
-        if (effect != EdgeEffect::SPRING || appliedEdge == EffectEdge::END) {
-            offset = 0.0f;
-        }
-    } else if (LessNotEqual(offset, minOffsetY)) { // Overscroll at end
-        if (effect != EdgeEffect::SPRING || appliedEdge == EffectEdge::START) {
-            offset = minOffsetY;
-        }
-    }
-    return offset;
-}
-
 } // namespace OHOS::Ace::NG

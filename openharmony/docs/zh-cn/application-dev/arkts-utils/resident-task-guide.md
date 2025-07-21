@@ -71,7 +71,8 @@
        }
      } else if (type === 'stop') {
        isRunning = false;
-       workerPort.close();  // 关闭Worker
+       // 关闭Worker
+       workerPort.close();
      }
    }
    // 模拟常驻任务
@@ -82,7 +83,7 @@
        // 1秒后再次执行任务
        setTimeout(performTask, 1000);
      }
-     workerPort.postMessage('Worker is stop performing a task');
+     workerPort.postMessage('Worker has stopped performing the task');
    }
    ```
    <!-- @[worker_correspond_main_thread](https://gitee.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkTS/ArkTsConcurrent/ApplicationMultithreadingDevelopment/ApplicationMultithreading/entry/src/main/ets/workers/Worker.ets) -->

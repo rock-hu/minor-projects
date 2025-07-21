@@ -17,7 +17,7 @@
 #include "common_components/heap/allocator/region_space.h"
 #include "common_components/heap/collector/trace_collector.h"
 #include "common_components/heap/heap.cpp"
-#include "common_components/base_runtime/base_runtime_param.h"
+#include "common_components/common_runtime/base_runtime_param.h"
 #include "common_components/heap/heap_manager.h"
 #include "common_components/tests/test_helper.h"
 #include <cstdint>
@@ -123,7 +123,7 @@ HWTEST_F_L0(RegionSpaceTest, AllocRegion_PhaseEnum)
     RegionSpace& theAllocator = reinterpret_cast<RegionSpace&>(Heap::GetHeap().GetAllocator());
     uintptr_t addr = theAllocator.AllocOldRegion();
     ASSERT_NE(addr, 0);
-    RegionDesc* region = RegionDesc::GetRegionDescAt(addr);
+    RegionDesc* region = RegionDesc::GetAliveRegionDescAt(addr);
     EXPECT_EQ(region->GetTraceLine(), region->GetRegionStart());
     EXPECT_EQ(region->GetCopyLine(), std::numeric_limits<uintptr_t>::max());
     EXPECT_EQ(region->GetFixLine(), std::numeric_limits<uintptr_t>::max());
@@ -136,7 +136,7 @@ HWTEST_F_L0(RegionSpaceTest, AllocRegion_PhaseMark)
     RegionSpace& theAllocator = reinterpret_cast<RegionSpace&>(Heap::GetHeap().GetAllocator());
     uintptr_t addr = theAllocator.AllocOldRegion();
     ASSERT_NE(addr, 0);
-    RegionDesc* region = RegionDesc::GetRegionDescAt(addr);
+    RegionDesc* region = RegionDesc::GetAliveRegionDescAt(addr);
     EXPECT_EQ(region->GetTraceLine(), region->GetRegionStart());
     EXPECT_EQ(region->GetCopyLine(), std::numeric_limits<uintptr_t>::max());
     EXPECT_EQ(region->GetFixLine(), std::numeric_limits<uintptr_t>::max());
@@ -149,7 +149,7 @@ HWTEST_F_L0(RegionSpaceTest, AllocRegion_PhaseRemarkStab)
     RegionSpace& theAllocator = reinterpret_cast<RegionSpace&>(Heap::GetHeap().GetAllocator());
     uintptr_t addr = theAllocator.AllocOldRegion();
     ASSERT_NE(addr, 0);
-    RegionDesc* region = RegionDesc::GetRegionDescAt(addr);
+    RegionDesc* region = RegionDesc::GetAliveRegionDescAt(addr);
     EXPECT_EQ(region->GetTraceLine(), region->GetRegionStart());
     EXPECT_EQ(region->GetCopyLine(), std::numeric_limits<uintptr_t>::max());
     EXPECT_EQ(region->GetFixLine(), std::numeric_limits<uintptr_t>::max());
@@ -162,7 +162,7 @@ HWTEST_F_L0(RegionSpaceTest, AllocRegion_PhasePostMark)
     RegionSpace& theAllocator = reinterpret_cast<RegionSpace&>(Heap::GetHeap().GetAllocator());
     uintptr_t addr = theAllocator.AllocOldRegion();
     ASSERT_NE(addr, 0);
-    RegionDesc* region = RegionDesc::GetRegionDescAt(addr);
+    RegionDesc* region = RegionDesc::GetAliveRegionDescAt(addr);
     EXPECT_EQ(region->GetTraceLine(), region->GetRegionStart());
     EXPECT_EQ(region->GetCopyLine(), std::numeric_limits<uintptr_t>::max());
     EXPECT_EQ(region->GetFixLine(), std::numeric_limits<uintptr_t>::max());
@@ -175,7 +175,7 @@ HWTEST_F_L0(RegionSpaceTest, AllocRegion_PhasePrecopy)
     RegionSpace& theAllocator = reinterpret_cast<RegionSpace&>(Heap::GetHeap().GetAllocator());
     uintptr_t addr = theAllocator.AllocOldRegion();
     ASSERT_NE(addr, 0);
-    RegionDesc* region = RegionDesc::GetRegionDescAt(addr);
+    RegionDesc* region = RegionDesc::GetAliveRegionDescAt(addr);
     EXPECT_EQ(region->GetCopyLine(), region->GetRegionStart());
 }
 
@@ -186,7 +186,7 @@ HWTEST_F_L0(RegionSpaceTest, AllocRegion_PhaseCopy)
     RegionSpace& theAllocator = reinterpret_cast<RegionSpace&>(Heap::GetHeap().GetAllocator());
     uintptr_t addr = theAllocator.AllocOldRegion();
     ASSERT_NE(addr, 0);
-    RegionDesc* region = RegionDesc::GetRegionDescAt(addr);
+    RegionDesc* region = RegionDesc::GetAliveRegionDescAt(addr);
     EXPECT_EQ(region->GetCopyLine(), region->GetRegionStart());
 }
 
@@ -197,7 +197,7 @@ HWTEST_F_L0(RegionSpaceTest, AllocRegion_PhaseFix)
     RegionSpace& theAllocator = reinterpret_cast<RegionSpace&>(Heap::GetHeap().GetAllocator());
     uintptr_t addr = theAllocator.AllocOldRegion();
     ASSERT_NE(addr, 0);
-    RegionDesc* region = RegionDesc::GetRegionDescAt(addr);
+    RegionDesc* region = RegionDesc::GetAliveRegionDescAt(addr);
     EXPECT_EQ(region->GetCopyLine(), region->GetRegionStart());
     EXPECT_EQ(region->GetFixLine(), region->GetRegionStart());
 }
@@ -209,7 +209,7 @@ HWTEST_F_L0(RegionSpaceTest, AllocRegion_PhaseUndef)
     RegionSpace& theAllocator = reinterpret_cast<RegionSpace&>(Heap::GetHeap().GetAllocator());
     uintptr_t addr = theAllocator.AllocOldRegion();
     ASSERT_NE(addr, 0);
-    RegionDesc* region = RegionDesc::GetRegionDescAt(addr);
+    RegionDesc* region = RegionDesc::GetAliveRegionDescAt(addr);
     EXPECT_EQ(region->GetCopyLine(), std::numeric_limits<uintptr_t>::max());
     EXPECT_EQ(region->GetFixLine(), std::numeric_limits<uintptr_t>::max());
 }
@@ -221,7 +221,7 @@ HWTEST_F_L0(RegionSpaceTest, AllocPinnedRegion_PhaseEnum)
     RegionSpace& theAllocator = reinterpret_cast<RegionSpace&>(Heap::GetHeap().GetAllocator());
     uintptr_t addr = theAllocator.AllocPinnedRegion();
     ASSERT_NE(addr, 0);
-    RegionDesc* region = RegionDesc::GetRegionDescAt(addr);
+    RegionDesc* region = RegionDesc::GetAliveRegionDescAt(addr);
     EXPECT_EQ(region->GetTraceLine(), region->GetRegionStart());
     EXPECT_EQ(region->GetCopyLine(), std::numeric_limits<uintptr_t>::max());
     EXPECT_EQ(region->GetFixLine(), std::numeric_limits<uintptr_t>::max());
@@ -234,7 +234,7 @@ HWTEST_F_L0(RegionSpaceTest, AllocPinnedRegion_PhaseMark)
     RegionSpace& theAllocator = reinterpret_cast<RegionSpace&>(Heap::GetHeap().GetAllocator());
     uintptr_t addr = theAllocator.AllocPinnedRegion();
     ASSERT_NE(addr, 0);
-    RegionDesc* region = RegionDesc::GetRegionDescAt(addr);
+    RegionDesc* region = RegionDesc::GetAliveRegionDescAt(addr);
     EXPECT_EQ(region->GetTraceLine(), region->GetRegionStart());
     EXPECT_EQ(region->GetCopyLine(), std::numeric_limits<uintptr_t>::max());
     EXPECT_EQ(region->GetFixLine(), std::numeric_limits<uintptr_t>::max());
@@ -247,7 +247,7 @@ HWTEST_F_L0(RegionSpaceTest, AllocPinnedRegion_PhaseRemarkStab)
     RegionSpace& theAllocator = reinterpret_cast<RegionSpace&>(Heap::GetHeap().GetAllocator());
     uintptr_t addr = theAllocator.AllocPinnedRegion();
     ASSERT_NE(addr, 0);
-    RegionDesc* region = RegionDesc::GetRegionDescAt(addr);
+    RegionDesc* region = RegionDesc::GetAliveRegionDescAt(addr);
     EXPECT_EQ(region->GetTraceLine(), region->GetRegionStart());
     EXPECT_EQ(region->GetCopyLine(), std::numeric_limits<uintptr_t>::max());
     EXPECT_EQ(region->GetFixLine(), std::numeric_limits<uintptr_t>::max());
@@ -260,7 +260,7 @@ HWTEST_F_L0(RegionSpaceTest, AllocPinnedRegion_PhasePostMark)
     RegionSpace& theAllocator = reinterpret_cast<RegionSpace&>(Heap::GetHeap().GetAllocator());
     uintptr_t addr = theAllocator.AllocPinnedRegion();
     ASSERT_NE(addr, 0);
-    RegionDesc* region = RegionDesc::GetRegionDescAt(addr);
+    RegionDesc* region = RegionDesc::GetAliveRegionDescAt(addr);
     EXPECT_EQ(region->GetTraceLine(), region->GetRegionStart());
     EXPECT_EQ(region->GetCopyLine(), std::numeric_limits<uintptr_t>::max());
     EXPECT_EQ(region->GetFixLine(), std::numeric_limits<uintptr_t>::max());
@@ -273,7 +273,7 @@ HWTEST_F_L0(RegionSpaceTest, AllocPinnedRegion_PhasePrecopy)
     RegionSpace& theAllocator = reinterpret_cast<RegionSpace&>(Heap::GetHeap().GetAllocator());
     uintptr_t addr = theAllocator.AllocPinnedRegion();
     ASSERT_NE(addr, 0);
-    RegionDesc* region = RegionDesc::GetRegionDescAt(addr);
+    RegionDesc* region = RegionDesc::GetAliveRegionDescAt(addr);
     EXPECT_EQ(region->GetCopyLine(), region->GetRegionStart());
 }
 
@@ -284,7 +284,7 @@ HWTEST_F_L0(RegionSpaceTest, AllocPinnedRegion_PhaseCopy)
     RegionSpace& theAllocator = reinterpret_cast<RegionSpace&>(Heap::GetHeap().GetAllocator());
     uintptr_t addr = theAllocator.AllocPinnedRegion();
     ASSERT_NE(addr, 0);
-    RegionDesc* region = RegionDesc::GetRegionDescAt(addr);
+    RegionDesc* region = RegionDesc::GetAliveRegionDescAt(addr);
     EXPECT_EQ(region->GetCopyLine(), region->GetRegionStart());
 }
 
@@ -295,7 +295,7 @@ HWTEST_F_L0(RegionSpaceTest, AllocPinnedRegion_PhaseFix)
     RegionSpace& theAllocator = reinterpret_cast<RegionSpace&>(Heap::GetHeap().GetAllocator());
     uintptr_t addr = theAllocator.AllocPinnedRegion();
     ASSERT_NE(addr, 0);
-    RegionDesc* region = RegionDesc::GetRegionDescAt(addr);
+    RegionDesc* region = RegionDesc::GetAliveRegionDescAt(addr);
     EXPECT_EQ(region->GetCopyLine(), region->GetRegionStart());
     EXPECT_EQ(region->GetFixLine(), region->GetRegionStart());
 }
@@ -307,7 +307,7 @@ HWTEST_F_L0(RegionSpaceTest, AllocPinnedRegion_PhaseUndef)
     RegionSpace& theAllocator = reinterpret_cast<RegionSpace&>(Heap::GetHeap().GetAllocator());
     uintptr_t addr = theAllocator.AllocPinnedRegion();
     ASSERT_NE(addr, 0);
-    RegionDesc* region = RegionDesc::GetRegionDescAt(addr);
+    RegionDesc* region = RegionDesc::GetAliveRegionDescAt(addr);
     EXPECT_EQ(region->GetCopyLine(), std::numeric_limits<uintptr_t>::max());
     EXPECT_EQ(region->GetFixLine(), std::numeric_limits<uintptr_t>::max());
 }

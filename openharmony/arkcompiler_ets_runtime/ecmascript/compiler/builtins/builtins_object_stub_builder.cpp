@@ -400,7 +400,7 @@ void BuiltinsObjectStubBuilder::SlowAssign(Variable *result, Label *funcExit, Ga
     Label entryLabel(env);
     env->SubCfgEntry(&entryLabel);
     Label exit(env);
-    CallRuntime(glue_, RTSTUB_ID(ObjectSlowAssign), { toAssign, source });
+    CallRuntimeWithGlobalEnv(glue_, GetCurrentGlobalEnv(), RTSTUB_ID(ObjectSlowAssign), { toAssign, source });
 
     Label exception(env);
     BRANCH(HasPendingException(glue_), &exception, &exit);
@@ -1002,7 +1002,7 @@ void BuiltinsObjectStubBuilder::Keys(Variable *result, Label *exit, Label *slowP
     NewObjectStubBuilder newBuilder(this, GetCurrentGlobalEnv());
     GateRef msg = GetCallArg0(numArgs_);
     // 1. Let obj be ToObject(O).
-    GateRef obj = ToObject(glue_, msg);
+    GateRef obj = ToObject(glue_, GetCurrentGlobalEnv(), msg);
     Label isPendingException(env);
     Label noPendingException(env);
     BRANCH(HasPendingException(glue_), &isPendingException, &noPendingException);
@@ -1067,7 +1067,7 @@ void BuiltinsObjectStubBuilder::GetPrototypeOf(Variable *result, Label *exit, La
     Label isPendingException(env);
     Label noPendingException(env);
     GateRef msg = GetCallArg0(numArgs_);
-    GateRef obj = ToObject(glue_, msg);
+    GateRef obj = ToObject(glue_, GetCurrentGlobalEnv(), msg);
     BRANCH(HasPendingException(glue_), &isPendingException, &noPendingException);
     Bind(&isPendingException);
     {
@@ -1161,7 +1161,8 @@ void BuiltinsObjectStubBuilder::SetPrototypeOf(Variable *result, Label *exit, La
             Bind(&statusIsFalse);
             {
                 GateRef taggedId = Int32(GET_MESSAGE_STRING_ID(SetPrototypeOfFailed));
-                CallRuntime(glue_, RTSTUB_ID(ThrowTypeError), { IntToTaggedInt(taggedId) });
+                CallRuntimeWithGlobalEnv(glue_, GetCurrentGlobalEnv(),
+                    RTSTUB_ID(ThrowTypeError), { IntToTaggedInt(taggedId) });
                 *result = Exception();
                 Jump(exit);
             }
@@ -1264,7 +1265,7 @@ void BuiltinsObjectStubBuilder::GetOwnPropertyNames(Variable *result, Label *exi
     Label isPendingException(env);
     Label noPendingException(env);
     GateRef msg = GetCallArg0(numArgs_);
-    GateRef obj = ToObject(glue_, msg);
+    GateRef obj = ToObject(glue_, GetCurrentGlobalEnv(), msg);
     BRANCH(HasPendingException(glue_), &isPendingException, &noPendingException);
     Bind(&isPendingException);
     {
@@ -1373,7 +1374,7 @@ void BuiltinsObjectStubBuilder::GetOwnPropertySymbols(Variable *result, Label *e
     Label isPendingException(env);
     Label noPendingException(env);
     GateRef msg = GetCallArg0(numArgs_);
-    GateRef obj = ToObject(glue_, msg);
+    GateRef obj = ToObject(glue_, GetCurrentGlobalEnv(), msg);
     BRANCH(HasPendingException(glue_), &isPendingException, &noPendingException);
     Bind(&isPendingException);
     {
@@ -1637,7 +1638,7 @@ void BuiltinsObjectStubBuilder::Entries(Variable* result, Label* exit, Label* sl
     Label isPendingException(env);
     Label noPendingException(env);
     GateRef msg = GetCallArg0(numArgs_);
-    GateRef obj = ToObject(glue_, msg);
+    GateRef obj = ToObject(glue_, GetCurrentGlobalEnv(), msg);
     NewObjectStubBuilder newBuilder(this, GetCurrentGlobalEnv());
     BRANCH(HasPendingException(glue_), &isPendingException, &noPendingException);
     Bind(&isPendingException);
@@ -2011,7 +2012,7 @@ void BuiltinsObjectStubBuilder::GetOwnPropertyDescriptors(Variable *result, Labe
 {
     auto env = GetEnvironment();
     GateRef msg = GetCallArg0(numArgs_);
-    GateRef obj = ToObject(glue_, msg);
+    GateRef obj = ToObject(glue_, GetCurrentGlobalEnv(), msg);
     Label isPendingException(env);
     Label noPendingException(env);
     BRANCH(HasPendingException(glue_), &isPendingException, &noPendingException);

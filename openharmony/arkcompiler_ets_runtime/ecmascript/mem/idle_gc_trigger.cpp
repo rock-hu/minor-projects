@@ -98,9 +98,7 @@ bool IdleGCTrigger::TryTriggerIdleSharedOldGC()
         !sHeap_->CheckCanTriggerConcurrentMarking(thread_)) {
         return false;
     }
-    if (ReachIdleSharedPartialGCThresholds()) {
-        return PostIdleGCTask(TRIGGER_IDLE_GC_TYPE::SHARED_CONCURRENT_PARTIAL_MARK);
-    } else if (ReachIdleSharedGCThresholds()) {
+    if (ReachIdleSharedGCThresholds()) {
         return PostIdleGCTask(TRIGGER_IDLE_GC_TYPE::SHARED_CONCURRENT_MARK);
     }
     return false;
@@ -212,6 +210,12 @@ bool IdleGCTrigger::CheckLocalBindingNativeTriggerOldGC() const
 
 void IdleGCTrigger::TryTriggerIdleGC(TRIGGER_IDLE_GC_TYPE gcType)
 {
+    if (ecmascript::g_isEnableCMCGC) {
+        if (gcType == TRIGGER_IDLE_GC_TYPE::FULL_GC) {
+            common::Heap::GetHeap().TryIdleGC();
+        }
+        return;
+    }
     LOG_GC(DEBUG) << "IdleGCTrigger: recv once notify of " << GetGCTypeName(gcType);
     switch (gcType) {
         case TRIGGER_IDLE_GC_TYPE::FULL_GC:

@@ -754,10 +754,10 @@ public:
     GateRef ChangeFloat64ToInt32(GateRef x);
     GateRef TruncDoubleToFloat32(GateRef x);
     GateRef DeletePropertyOrThrow(GateRef glue, GateRef obj, GateRef value);
-    inline GateRef ToObject(GateRef glue, GateRef obj);
+    inline GateRef ToObject(GateRef glue, GateRef globalEnv, GateRef obj);
     GateRef DeleteProperty(GateRef glue, GateRef obj, GateRef value);
     inline GateRef OrdinaryNewJSObjectCreate(GateRef glue, GateRef proto);
-    inline GateRef NewJSPrimitiveRef(GateRef glue, size_t index, GateRef obj);
+    inline GateRef NewJSPrimitiveRef(GateRef glue, GateRef globalEnv, size_t index, GateRef obj);
     GateRef ModuleNamespaceDeleteProperty(GateRef glue, GateRef obj, GateRef value);
     GateRef Int64ToTaggedPtr(GateRef x);
     GateRef TruncInt16ToInt8(GateRef x);
@@ -823,7 +823,7 @@ public:
     GateRef GetCMCRegionType(GateRef obj);
     GateRef GetGCPhase(GateRef glue);
     GateRef GetGCReason(GateRef glue);
-    GateRef IsInYoungSpace(GateRef regionType);
+    GateRef CMCIsInYoungSpace(GateRef regionType);
     GateRef IsOldToYoung(GateRef objRegionType, GateRef valueRegionType);
     void MarkRSetCardTable(GateRef obj, Label *exit);
     GateRef ShouldGetGCReason(GateRef gcPhase);
@@ -831,6 +831,7 @@ public:
     GateRef ShouldUpdateRememberSet(GateRef glue, GateRef gcPhase);
     void CMCSetValueWithBarrier(GateRef glue, GateRef obj, GateRef offset, GateRef value);
     void CMCArrayCopyWriteBarrier(GateRef glue, GateRef dstObj, GateRef src, GateRef dst, GateRef count);
+    void CMCArrayCopyWriteBarrierSameArray(GateRef glue, GateRef dstObj, GateRef src, GateRef dst, GateRef count);
     void SetValueWithBarrier(GateRef glue, GateRef obj, GateRef offset, GateRef value,
                              MemoryAttribute::ShareFlag share = MemoryAttribute::UNKNOWN);
     GateRef GetValueWithBarrier(GateRef glue, GateRef addr);
@@ -1287,7 +1288,6 @@ public:
         SameArray,
         DifferentArray,
     };
-
     // dstAddr/srcAddr is the address will be copied to/from.
     // It can be a derived pointer point to the middle of an object.
     // Note: dstObj is the object address for dstAddr, it must point to the head of an object.

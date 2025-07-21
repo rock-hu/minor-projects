@@ -14,7 +14,7 @@
  */
 #include "common_components/heap/w_collector/w_collector.h"
 
-#include "common_components/base_runtime/hooks.h"
+#include "common_components/common_runtime/hooks.h"
 #include "common_components/log/log.h"
 #include "common_components/mutator/mutator_manager-inl.h"
 #include "common_components/heap/verification.h"
@@ -22,10 +22,8 @@
 #include "common_interfaces/objects/ref_field.h"
 #include "common_interfaces/profiler/heap_profiler_listener.h"
 #include "common_components/objects/string_table_internal.h"
+#include "common_components/heap/allocator/fix_heap.h"
 
-#ifdef ENABLE_RSS
-#include "res_sched_client.h"
-#endif
 #ifdef ENABLE_QOS
 #include "qos.h"
 #endif
@@ -39,24 +37,17 @@ bool WCollector::IsUnmovableFromObject(BaseObject* obj) const
     }
 
     RegionDesc* regionInfo = nullptr;
-    regionInfo = RegionDesc::GetRegionDescAt(reinterpret_cast<uintptr_t>(obj));
+    regionInfo = RegionDesc::GetAliveRegionDescAt(reinterpret_cast<uintptr_t>(obj));
     return regionInfo->IsUnmovableFromRegion();
 }
 
-bool WCollector::MarkObject(BaseObject* obj, size_t cellCount) const
+bool WCollector::MarkObject(BaseObject* obj) const
 {
     bool marked = RegionSpace::MarkObject(obj);
     if (!marked) {
-        RegionDesc* region = RegionDesc::GetRegionDescAt(reinterpret_cast<HeapAddress>(obj));
-        (void)region;
-
-        if (region->IsGarbageRegion()) {
-            LOG_COMMON(FATAL) << "Unresolved fatal";
-            UNREACHABLE_CC();
-        }
-        size_t size = cellCount == 0 ? obj->GetSize() : (cellCount + 1) * sizeof(uint64_t);
-        region->AddLiveByteCount(size);
-        DLOG(TRACE, "mark obj %p<%p>(%zu) in region %p(%u)@%#zx, live %u", obj, obj->GetTypeInfo(), size,
+        RegionDesc* region = RegionDesc::GetAliveRegionDescAt(reinterpret_cast<HeapAddress>(obj));
+        DCHECK_CC(!region->IsGarbageRegion());
+        DLOG(TRACE, "mark obj %p<%p> in region %p(%u)@%#zx, live %u", obj, obj->GetTypeInfo(),
              region, region->GetRegionType(), region->GetRegionStart(), region->GetLiveByteCount());
     }
     return marked;
@@ -163,15 +154,19 @@ static void TraceRefField(BaseObject *obj, RefField<> &field, WorkStack &workSta
     // field is tagged object, should be in heap
     DCHECK_CC(Heap::IsHeapAddress(targetObj));
 
-    auto targetRegion = RegionDesc::GetRegionDescAt(reinterpret_cast<MAddress>((void*)targetObj));
+    auto targetRegion = RegionDesc::GetAliveRegionDescAt(reinterpret_cast<MAddress>((void*)targetObj));
     if (gcReason != GC_REASON_YOUNG && oldField.IsWeak()) {
         DLOG(TRACE, "trace: skip weak obj when full gc, object: %p@%p, targetObj: %p", obj, &field, targetObj);
-        weakStack.push_back(&field);
+        // weak ref is cleared after roots pre-forward, so there might be a to-version weak ref which also need to be
+        // cleared, offset recorded here will help us find it
+        weakStack.push_back(std::make_shared<std::tuple<RefField<>*, size_t>>(
+            &field, reinterpret_cast<uintptr_t>(&field) - reinterpret_cast<uintptr_t>(obj)));
         return;
     }
 
-    if (gcReason == GC_REASON_YOUNG && targetRegion->IsInOldSpace()) {
-        DLOG(TRACE, "trace: skip old object %p@%p, target object: %p<%p>(%zu)",
+    // cannot skip objects in EXEMPTED_FROM_REGION, because its rset is incomplete
+    if (gcReason == GC_REASON_YOUNG && !targetRegion->IsInYoungSpace()) {
+        DLOG(TRACE, "trace: skip non-young object %p@%p, target object: %p<%p>(%zu)",
             obj, &field, targetObj, targetObj->GetTypeInfo(), targetObj->GetSize());
         return;
     }
@@ -238,8 +233,8 @@ void WCollector::FixRefField(BaseObject* obj, RefField<>& field) const
 
     // update remember set
     BaseObject* toObj = latest == nullptr ? targetObj : latest;
-    RegionDesc* objRegion = RegionDesc::GetRegionDescAt(reinterpret_cast<MAddress>((void*)obj));
-    RegionDesc* refRegion = RegionDesc::GetRegionDescAt(reinterpret_cast<MAddress>((void*)toObj));
+    RegionDesc* objRegion = RegionDesc::GetAliveRegionDescAt(reinterpret_cast<MAddress>((void*)obj));
+    RegionDesc* refRegion = RegionDesc::GetAliveRegionDescAt(reinterpret_cast<MAddress>((void*)toObj));
     if (!objRegion->IsInRecentSpace() && refRegion->IsInRecentSpace()) {
         if (objRegion->MarkRSetCardTable(obj)) {
             DLOG(TRACE, "fix phase update point-out remember set of region %p, obj %p, ref: %p<%p>",
@@ -296,7 +291,11 @@ public:
         RefField<> oldField(refField);
         BaseObject* oldObj = oldField.GetTargetObject();
         DLOG(FIX, "visit raw-ref @%p: %p", &refField, oldObj);
-        if (collector_->IsFromObject(oldObj)) {
+
+        auto regionType =
+            RegionDesc::InlinedRegionMetaData::GetInlinedRegionMetaData(reinterpret_cast<uintptr_t>(oldObj))
+                ->GetRegionType();
+        if (regionType == RegionDesc::RegionType::FROM_REGION) {
             BaseObject* toVersion = collector_->TryForwardObject(oldObj);
             if (toVersion == nullptr) {
                 Heap::throwOOM();
@@ -312,28 +311,31 @@ public:
             }
             MarkToObject(oldObj, toVersion);
         } else {
-            MarkObject(oldObj);
+            if (Heap::GetHeap().GetGCReason() != GC_REASON_YOUNG) {
+                MarkObject(oldObj);
+            } else if (RegionSpace::IsYoungSpaceObject(oldObj) && !RegionSpace::IsNewObjectSinceTrace(oldObj) &&
+                       !RegionSpace::IsMarkedObject(oldObj)) {
+                // RSet don't protect exempted objects, we need to mark it
+                MarkObject(oldObj);
+            }
         }
     }
 
 private:
     void MarkObject(BaseObject *object)
     {
-        if (!collector_->MarkObject(object)) {
+        if (!RegionSpace::IsNewObjectSinceTrace(object) && !collector_->MarkObject(object)) {
             localStack_.push_back(object);
         }
     }
 
     void MarkToObject(BaseObject *oldVersion, BaseObject *toVersion)
     {
-        if (!collector_->MarkObject(toVersion)) {
-            // Therefore, we must still attempt to mark the old object to prevent
-            // it from being pushed into the mark stack during subsequent
-            // traversals.
-            collector_->MarkObject(oldVersion);
-            // The reference in toSpace needs to be fixed up. Therefore, even if
-            // the oldVersion has been marked, it must still be pushed into the
-            // stack. This will be optimized later.
+        // We've checked oldVersion is in fromSpace, no need to check traceLine
+        if (!collector_->MarkObject(oldVersion)) {
+            // No need to count oldVersion object size, as it has been copied.
+            collector_->MarkObject(toVersion);
+            // oldVersion don't have valid type info, cannot push it
             localStack_.push_back(toVersion);
         }
     }
@@ -505,7 +507,7 @@ CArrayList<BaseObject *> WCollector::EnumRoots()
     STWParam stwParam{"wgc-enumroot"};
     EnumRootsBuffer buffer;
     CArrayList<common::BaseObject *> *results = buffer.GetBuffer();
-    common::RefFieldVisitor visitor = [&results](RefField<> &filed) { results->push_back(filed.GetTargetObject()); };
+    common::RefFieldVisitor visitor = [&results](RefField<>& field) { results->push_back(field.GetTargetObject()); };
 
     if constexpr (policy == EnumRootsPolicy::NO_STW_AND_NO_FLIP_MUTATOR) {
         EnumRootsImpl<VisitRoots>(visitor);
@@ -698,12 +700,60 @@ void WCollector::PrepareFix()
     }
 }
 
+void WCollector::ParallelFixHeap()
+{
+    auto& regionSpace = reinterpret_cast<RegionSpace&>(theAllocator_);
+    auto taskList = regionSpace.CollectFixTasks();
+    std::atomic<int> taskIter = 0;
+    std::function<FixHeapTask *()> getNextTask = [&taskIter, &taskList]() -> FixHeapTask* {
+        uint32_t idx = taskIter.fetch_add(1U, std::memory_order_relaxed);
+        if (idx < taskList.size()) {
+            return &taskList[idx];
+        }
+        return nullptr;
+    };
+
+    const uint32_t runningWorkers = GetGCThreadCount(true) - 1;
+    uint32_t parallelCount = runningWorkers + 1; // 1 ：DaemonThread
+    FixHeapWorker::Result results[parallelCount];
+    {
+        OHOS_HITRACE(HITRACE_LEVEL_COMMERCIAL, "CMCGC::FixHeap [Parallel]", "");
+        // Fix heap
+        TaskPackMonitor monitor(runningWorkers, runningWorkers);
+        for (uint32_t i = 1; i < parallelCount; ++i) {
+            GetThreadPool()->PostTask(std::make_unique<FixHeapWorker>(this, monitor, results[i], getNextTask));
+        }
+
+        FixHeapWorker gcWorker(this, monitor, results[0], getNextTask);
+        auto task = getNextTask();
+        while (task != nullptr) {
+            gcWorker.DispatchRegionFixTask(task);
+            task = getNextTask();
+        }
+        monitor.WaitAllFinished();
+    }
+
+    {
+        OHOS_HITRACE(HITRACE_LEVEL_COMMERCIAL, "CMCGC::Post FixHeap Clear [Parallel]", "");
+        // Post clear task
+        TaskPackMonitor monitor(runningWorkers, runningWorkers);
+        for (uint32_t i = 1; i < parallelCount; ++i) {
+            GetThreadPool()->PostTask(std::make_unique<PostFixHeapWorker>(results[i], monitor));
+        }
+
+        PostFixHeapWorker gcWorker(results[0], monitor);
+        gcWorker.PostClearTask();
+        PostFixHeapWorker::CollectEmptyRegions();
+        monitor.WaitAllFinished();
+    }
+}
+
 void WCollector::FixHeap()
 {
     TransitionToGCPhase(GCPhase::GC_PHASE_FIX, true);
     COMMON_PHASE_TIMER("FixHeap");
     OHOS_HITRACE(HITRACE_LEVEL_COMMERCIAL, "CMCGC::FixHeap", "");
-    reinterpret_cast<RegionSpace&>(theAllocator_).FixHeap();
+    ParallelFixHeap();
 
     WVerify::VerifyAfterFix(*this);
 }
@@ -811,6 +861,7 @@ void WCollector::DoGarbageCollection()
 
     TransitionToGCPhase(GCPhase::GC_PHASE_IDLE, true);
     ClearAllGCInfo();
+    reinterpret_cast<RegionSpace&>(theAllocator_).DumpAllRegionStats("region statistics when gc ends");
     CollectSmallSpace();
 }
 
@@ -847,7 +898,7 @@ void WCollector::ProcessStringTable()
 
     WeakRefFieldVisitor weakVisitor = [this](RefField<> &refField) -> bool {
         auto isSurvivor = [this](BaseObject* oldObj) {
-            RegionDesc* region = RegionDesc::GetRegionDescAt(reinterpret_cast<uintptr_t>(oldObj));
+            RegionDesc* region = RegionDesc::GetAliveRegionDescAt(reinterpret_cast<uintptr_t>(oldObj));
             return (gcReason_ == GC_REASON_YOUNG && !region->IsInYoungSpace())
                 || region->IsMarkedObject(oldObj)
                 || region->IsNewObjectSinceTrace(oldObj)
@@ -1029,21 +1080,6 @@ void WCollector::CollectSmallSpace()
                 ).c_str());
 
     collectorResources_.GetFinalizerProcessor().NotifyToReclaimGarbage();
-}
-
-void WCollector::SetGCThreadRssPriority(common::RssPriorityType type)
-{
-#ifdef ENABLE_RSS
-    if (IsPostForked()) {
-        LOG_COMMON(DEBUG) << "SetGCThreadRssPriority gettid " << gettid();
-        std::unordered_map<std::string, std::string> payLoad = { { "pid", std::to_string(getpid()) },
-                                                    { "tid", std::to_string(gettid()) } };
-        OHOS::ResourceSchedule::ResSchedClient::GetInstance()
-            .ReportData(OHOS::ResourceSchedule::ResType::RES_TYPE_GC_THREAD_QOS_STATUS_CHANGE,
-            static_cast<int64_t>(type), payLoad);
-        common::Taskpool::GetCurrentTaskpool()->SetThreadRssPriority(type);
-    }
-#endif
 }
 
 void WCollector::SetGCThreadQosPriority(common::PriorityMode mode)

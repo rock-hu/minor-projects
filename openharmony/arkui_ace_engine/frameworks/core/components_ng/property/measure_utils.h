@@ -26,11 +26,18 @@
 #include "core/components_ng/property/border_property.h"
 #include "core/components_ng/property/calc_length.h"
 #include "core/components_ng/property/layout_constraint.h"
+#include "core/components_ng/property/layout_policy_property.h"
 #include "core/components_ng/property/measure_property.h"
+#include "core/components_ng/property/magic_layout_property.h"
 
 namespace OHOS::Ace::NG {
+#ifdef ACE_STATIC
+ACE_FORCE_EXPORT std::optional<float> ConvertToPx(const CalcLength& value, const ScaleProperty& scaleProperty,
+    float percentReference = -1.0f, const std::vector<std::string>& rpnexp = std::vector<std::string>());
+#else
 std::optional<float> ConvertToPx(const CalcLength& value, const ScaleProperty& scaleProperty,
     float percentReference = -1.0f, const std::vector<std::string>& rpnexp = std::vector<std::string>());
+#endif
 
 std::optional<float> ConvertToPx(const std::optional<CalcLength>& value, const ScaleProperty& scaleProperty,
     float percentReference = -1.0f, const std::vector<std::string>& rpnexp = std::vector<std::string>());
@@ -102,6 +109,13 @@ void SetMainAxisSize(float value, Axis axis, OptionalSizeF& size);
 
 void UpdateOptionSizeByMaxOrMinCalcLayoutConstraint(OptionalSizeF& frameSize,
     const std::optional<CalcSize>& calcLayoutConstraintMaxMinSize, const SizeT<float> percentReference, bool IsMaxSize);
+
+OptionalSizeF CalcLayoutPolicySingleSide(const std::optional<NG::LayoutPolicyProperty>& childLayoutPolicy,
+    const std::unique_ptr<MeasureProperty>& childCalcLayoutConstraint,
+    const std::optional<LayoutConstraintF>& parentConstraint, const MagicItemProperty& magicItemProperty);
+void UpdateSingleSideByMaxOrMinCalcLayoutConstraint(OptionalSizeF& frameSize,
+    const std::optional<CalcSize>& calcLayoutConstraintMaxMinSize,
+    const std::optional<LayoutConstraintF>& parentConstraint, bool IsMaxSize);
 
 ACE_FORCE_EXPORT PaddingProperty ConvertToCalcPaddingProperty(const std::optional<CalcDimension>& top,
     const std::optional<CalcDimension>& bottom, const std::optional<CalcDimension>& left,

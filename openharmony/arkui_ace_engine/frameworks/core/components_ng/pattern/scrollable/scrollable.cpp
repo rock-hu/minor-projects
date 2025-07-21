@@ -185,6 +185,7 @@ void Scrollable::InitPanRecognizerNG()
     panRecognizerNG_->SetIsAllowMouse(false);
     SetOnActionStart();
     SetOnActionUpdate();
+    SetOnActionExtUpdate();
     SetOnActionEnd();
     SetOnActionCancel();
     SetPanEndCallback();
@@ -199,6 +200,17 @@ void Scrollable::SetOnActionStart()
         scroll->HandleDragStart(info);
     };
     panRecognizerNG_->SetOnActionStart(actionStart);
+}
+
+void Scrollable::SetOnActionExtUpdate()
+{
+    CHECK_NULL_VOID(panRecognizerNG_);
+    auto actionExtUpdate = [weakScroll = AceType::WeakClaim(this)](const GestureEvent& info) {
+        auto scroll = weakScroll.Upgrade();
+        CHECK_NULL_VOID(scroll);
+        scroll->HandleExtDragUpdate();
+    };
+    panRecognizerNG_->SetOnActionExtUpdate(actionExtUpdate);
 }
 
 void Scrollable::SetOnActionUpdate()
@@ -588,6 +600,11 @@ void Scrollable::HandleScrollEnd(const std::optional<float>& velocity)
     }
 }
 
+void Scrollable::HandleExtDragUpdate()
+{
+    HandleExtScroll();
+}
+
 void Scrollable::HandleDragStart(const OHOS::Ace::GestureEvent& info)
 {
     if (info.GetSourceTool() == SourceTool::TOUCHPAD) {
@@ -645,6 +662,15 @@ void Scrollable::HandleDragStart(const OHOS::Ace::GestureEvent& info)
     if (onScrollStartRec_) {
         onScrollStartRec_(static_cast<float>(dragPositionInMainAxis));
     }
+}
+
+ScrollResult Scrollable::HandleExtScroll()
+{
+    if (handleExtScrollCallback_ != nullptr) {
+        // call NestableScrollContainer::HandleExtScroll
+        return handleExtScrollCallback_();
+    }
+    return {0, false };
 }
 
 ScrollResult Scrollable::HandleScroll(double offset, int32_t source, NestedState state)
@@ -1815,11 +1841,6 @@ void Scrollable::StopAxisAnimation()
 {
     CHECK_NULL_VOID(axisAnimator_);
     axisAnimator_->StopAxisAnimation();
-}
-
-inline bool Scrollable::IsMouseWheelScroll(const GestureEvent& info)
-{
-    return info.GetInputEventType() == InputEventType::AXIS && info.GetSourceTool() != SourceTool::TOUCHPAD;
 }
 
 void Scrollable::OnCollectTouchTarget(TouchTestResult& result, const RefPtr<FrameNode>& frameNode,

@@ -198,20 +198,6 @@ export struct CustomAppBar {
     events: ['usual.event.PRIVACY_STATE_CHANGED']
   };
 
-  aboutToAppear(): void {
-    if (this.isHalfScreen) {
-      this.contentBgColor = Color.Transparent;
-      this.titleHeight = EYELASH_HEIGHT + 2 * TITLE_MARGIN_TOP + this.statusBarHeight;
-      this.halfScreenShowAnimation();
-    } else {
-      this.containerHeight = '100%';
-      this.containerWidth = '100%';
-    }
-    this.updateStringByResource();
-    this.getDeviceRadiusConfig();
-    this.subscribePrivacyState();
-  }
-
   aboutToDisappear(): void {
     this.smListener.off('change');
     this.mdListener.off('change');
@@ -482,12 +468,12 @@ export struct CustomAppBar {
    * 半屏放大至全屏动效
    */
   expendContainerAnimation(): void {
+    this.isHalfToFullScreen = true;
     animateTo({
       duration: 150,
       curve: curves.interpolatingSpring(0, 1, 328, 36),
       onFinish: () => {
         this.contentBgColor = '#FFFFFF';
-        this.isHalfToFullScreen = true;
       }
     }, () => {
       this.containerWidth = '100%';
@@ -898,7 +884,7 @@ export struct CustomAppBar {
             .height('100%')
             .backgroundColor('#262626')
             .opacity(this.maskOpacity)
-            .foregroundBlurStyle(BlurStyle.BACKGROUND_REGULAR, { scale: this.maskBlurScale })
+            .foregroundBlurStyle(BlurStyle.BACKGROUND_REGULAR, { colorMode: ThemeColorMode.LIGHT, scale: this.maskBlurScale })
             .onClick(() => {
               this.closeContainerAnimation();
             })
@@ -925,8 +911,10 @@ export struct CustomAppBar {
             })
             .clip(true)
             .alignItems(VerticalAlign.Bottom)
-            .hitTestBehavior(HitTestMode.Transparent)
             .width('100%')
+            .onClick(() => {
+              // 拦截到背板的点击事件
+            });
             .id('AtomicServiceStageId')
           }
           .height(this.containerHeight)
@@ -934,10 +922,12 @@ export struct CustomAppBar {
           .aspectRatio(this.ratio)
           .justifyContent(FlexAlign.End)
           .hitTestBehavior(HitTestMode.Transparent)
+          .id('AtomicServiceStageColumnId')
         }.height('100%')
         .width('100%')
         .justifyContent(FlexAlign.End)
         .hitTestBehavior(HitTestMode.Transparent)
+        .id('AtomicServiceStageLayoutId')
 
         if (this.isHalfScreen) {
           this.halfScreenMenuBar()
@@ -950,6 +940,19 @@ export struct CustomAppBar {
       .backgroundColor(this.contentBgColor)
       .hitTestBehavior(HitTestMode.Transparent)
       .id('AtomicServiceContainerId')
+      .onAppear(() => {
+        if (this.isHalfScreen) {
+          this.contentBgColor = Color.Transparent;
+          this.titleHeight = EYELASH_HEIGHT + 2 * TITLE_MARGIN_TOP + this.statusBarHeight;
+          this.halfScreenShowAnimation();
+        } else {
+          this.containerHeight = '100%';
+          this.containerWidth = '100%';
+        }
+        this.updateStringByResource();
+        this.getDeviceRadiusConfig();
+        this.subscribePrivacyState();
+      })
     }
     .height('100%')
     .width('100%')

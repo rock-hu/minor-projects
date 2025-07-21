@@ -107,8 +107,8 @@ class ConcurrentMarkingWork;
 using RootSet = MarkStack<BaseObject*>;
 using WorkStack = MarkStack<BaseObject*>;
 using WorkStackBuf = MarkStackBuffer<BaseObject*>;
-using WeakStack = MarkStack<RefField<>*>;
-using WeakStackBuf = MarkStackBuffer<RefField<>*>;
+using WeakStack = MarkStack<std::shared_ptr<std::tuple<RefField<>*, size_t>>>;
+using WeakStackBuf = MarkStackBuffer<std::shared_ptr<std::tuple<RefField<>*, size_t>>>;
 using GlobalWorkStackQueue = GlobalStackQueue<WorkStack>;
 using GlobalWeakStackQueue = GlobalStackQueue<WeakStack>;
 
@@ -181,10 +181,10 @@ public:
 
     inline bool IsToObject(const BaseObject* obj) const
     {
-        return RegionDesc::GetRegionDescAt(reinterpret_cast<HeapAddress>(obj))->IsToRegion();
+        return RegionDesc::GetAliveRegionDescAt(reinterpret_cast<HeapAddress>(obj))->IsToRegion();
     }
 
-    virtual bool MarkObject(BaseObject* obj, size_t cellCount = 0) const = 0;
+    virtual bool MarkObject(BaseObject* obj) const = 0;
 
     // avoid std::function allocation for each object trace
     class TraceRefFieldVisitor {

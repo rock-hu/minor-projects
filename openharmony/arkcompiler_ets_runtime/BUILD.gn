@@ -158,7 +158,7 @@ group("common_components_js_unittest") {
   if (ets_runtime_enable_cmc_gc) {
     deps += [
       "common_components/base/tests:unittest",
-      "common_components/base_runtime/tests:unittest",
+      "common_components/common_runtime/tests:unittest",
 
       #"common_components/heap/allocator/tests:unittest",
       "common_components/heap/barrier/tests:unittest",
@@ -180,7 +180,7 @@ group("common_components_unittest") {
   if (ets_runtime_enable_cmc_gc) {
     deps += [
       "common_components/base/tests:host_unittest",
-      "common_components/base_runtime/tests:host_unittest",
+      "common_components/common_runtime/tests:host_unittest",
 
       #"common_components/heap/allocator/tests:host_unittest",
       "common_components/heap/barrier/tests:host_unittest",
@@ -500,10 +500,6 @@ config("ark_jsruntime_common_config") {
 
   if (target_os == "android") {
     defines += [ "ANDROID_PLATFORM" ]
-  }
-
-  if (enable_rss) {
-    defines += [ "ENABLE_RSS" ]
   }
 
   if (is_ohos && is_standard_system && !is_arkui_x &&
@@ -1159,7 +1155,11 @@ ecma_source += [
 ]
 
 if (ark_js_hybrid) {
-  ecma_source += [ "ecmascript/cross_vm/cross_vm_operator.cpp" ]
+  ecma_source += [
+    "ecmascript/cross_vm/cross_vm_operator.cpp",
+    "ecmascript/serializer/inter_op_value_deserializer.cpp",
+    "ecmascript/serializer/inter_op_value_serializer.cpp",
+  ]
 }
 
 if (!is_arkui_x) {
@@ -1428,8 +1428,8 @@ if (enable_target_compilation) {
 # Only use when cmc-gc enable
 ohos_source_set("libcommon_components_set") {
   sources = [
-    "common_components/base_runtime/base_runtime.cpp",
-    "common_components/base_runtime/base_runtime_param.cpp",
+    "common_components/common_runtime/base_runtime.cpp",
+    "common_components/common_runtime/base_runtime_param.cpp",
     "common_components/heap/heap_allocator.cpp",
     "common_components/heap/heap_visitor.cpp",
     "common_components/profiler/heap_profiler_listener.cpp",

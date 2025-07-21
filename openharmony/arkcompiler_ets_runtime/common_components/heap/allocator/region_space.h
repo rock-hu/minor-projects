@@ -142,7 +142,10 @@ public:
             youngSpace_.GetUsedUnitCount() + oldSpace_.GetUsedUnitCount() + regionManager_.GetUsedUnitCount();
     }
 
-    size_t GetUsedPageSize() const override { return regionManager_.GetUsedRegionSize(); }
+    size_t GetUsedPageSize() const override
+    {
+        return GetUsedUnitCount() * RegionDesc::UNIT_SIZE;
+    }
 
     inline size_t GetTargetSize() const
     {
@@ -159,6 +162,8 @@ public:
     size_t LargeObjectSize() const override { return regionManager_.GetLargeObjectSize(); }
 
     size_t FromSpaceSize() const { return fromSpace_.GetAllocatedSize(); }
+    // note: it doesn't contain exemptFromRegion
+    size_t FromRegionSize() const { return fromSpace_.GetFromRegionAllocatedSize(); }
     size_t ToSpaceSize() const { return toSpace_.GetAllocatedSize(); }
 
     size_t PinnedSpaceSize() const { return regionManager_.GetPinnedSpaceSize(); }
@@ -214,13 +219,16 @@ public:
         fromSpace_.CopyFromRegions(threadPool);
     }
 
-    void FixHeap()
+    FixHeapTaskList CollectFixTasks()
     {
-        youngSpace_.FixAllRegions();
-        oldSpace_.FixAllRegions();
-        fromSpace_.FixAllRegions();
-        toSpace_.FixAllRegions();
-        regionManager_.FixAllRegionLists();
+        FixHeapTaskList taskList;
+        youngSpace_.CollectFixTasks(taskList);
+        oldSpace_.CollectFixTasks(taskList);
+        fromSpace_.CollectFixTasks(taskList);
+        toSpace_.CollectFixTasks(taskList);
+        regionManager_.CollectFixTasks(taskList);
+
+        return taskList;
     }
 
     void MarkAwaitingJitFort()
@@ -289,63 +297,63 @@ public:
     // markObj
     static bool MarkObject(const BaseObject* obj)
     {
-        RegionDesc* regionInfo = RegionDesc::GetRegionDescAt(reinterpret_cast<HeapAddress>(obj));
+        RegionDesc* regionInfo = RegionDesc::GetAliveRegionDescAt(reinterpret_cast<HeapAddress>(obj));
         return regionInfo->MarkObject(obj);
     }
     static bool ResurrentObject(const BaseObject* obj)
     {
-        RegionDesc* regionInfo = RegionDesc::GetRegionDescAt(reinterpret_cast<HeapAddress>(obj));
+        RegionDesc* regionInfo = RegionDesc::GetAliveRegionDescAt(reinterpret_cast<HeapAddress>(obj));
         return regionInfo->ResurrentObject(obj);
     }
 
     static bool EnqueueObject(const BaseObject* obj)
     {
-        RegionDesc* regionInfo = RegionDesc::GetRegionDescAt(reinterpret_cast<HeapAddress>(obj));
+        RegionDesc* regionInfo = RegionDesc::GetAliveRegionDescAt(reinterpret_cast<HeapAddress>(obj));
         return regionInfo->EnqueueObject(obj);
     }
 
     static bool IsMarkedObject(const BaseObject* obj)
     {
-        RegionDesc* regionInfo = RegionDesc::GetRegionDescAt(reinterpret_cast<HeapAddress>(obj));
+        RegionDesc* regionInfo = RegionDesc::GetAliveRegionDescAt(reinterpret_cast<HeapAddress>(obj));
         return regionInfo->IsMarkedObject(obj);
     }
 
     static bool IsResurrectedObject(const BaseObject* obj)
     {
-        RegionDesc* regionInfo = RegionDesc::GetRegionDescAt(reinterpret_cast<HeapAddress>(obj));
+        RegionDesc* regionInfo = RegionDesc::GetAliveRegionDescAt(reinterpret_cast<HeapAddress>(obj));
         return regionInfo->IsResurrectedObject(obj);
     }
 
     static bool IsEnqueuedObject(const BaseObject* obj)
     {
-        RegionDesc* regionInfo = RegionDesc::GetRegionDescAt(reinterpret_cast<HeapAddress>(obj));
+        RegionDesc* regionInfo = RegionDesc::GetAliveRegionDescAt(reinterpret_cast<HeapAddress>(obj));
         return regionInfo->IsEnqueuedObject(obj);
     }
 
     static bool IsNewObjectSinceTrace(const BaseObject* object)
     {
-        RegionDesc* region = RegionDesc::GetRegionDescAt(reinterpret_cast<uintptr_t>(object));
+        RegionDesc* region = RegionDesc::GetAliveRegionDescAt(reinterpret_cast<uintptr_t>(object));
         ASSERT_LOGF(region != nullptr, "region is nullptr");
         return region->IsNewObjectSinceTrace(object);
     }
 
     static bool IsReadOnlyObject(const BaseObject* object)
     {
-        RegionDesc* region = RegionDesc::GetRegionDescAt(reinterpret_cast<uintptr_t>(object));
+        RegionDesc* region = RegionDesc::GetAliveRegionDescAt(reinterpret_cast<uintptr_t>(object));
         ASSERT_LOGF(region != nullptr, "region is nullptr");
         return region->IsReadOnlyRegion();
     }
 
     static bool IsYoungSpaceObject(const BaseObject* object)
     {
-        RegionDesc* region = RegionDesc::GetRegionDescAt(reinterpret_cast<uintptr_t>(object));
+        RegionDesc* region = RegionDesc::GetAliveRegionDescAt(reinterpret_cast<uintptr_t>(object));
         ASSERT_LOGF(region != nullptr, "region is nullptr");
         return region->IsInYoungSpace();
     }
 
     void AddRawPointerObject(BaseObject* obj)
     {
-        RegionDesc* region = RegionDesc::GetRegionDescAt(reinterpret_cast<HeapAddress>(obj));
+        RegionDesc* region = RegionDesc::GetAliveRegionDescAt(reinterpret_cast<HeapAddress>(obj));
         region->IncRawPointerObjectCount();
         if (region->IsFromRegion() && fromSpace_.TryDeleteFromRegion(region, RegionDesc::RegionType::FROM_REGION,
                 RegionDesc::RegionType::RAW_POINTER_REGION)) {
@@ -359,7 +367,7 @@ public:
 
     void RemoveRawPointerObject(BaseObject* obj)
     {
-        RegionDesc* region = RegionDesc::GetRegionDescAt(reinterpret_cast<HeapAddress>(obj));
+        RegionDesc* region = RegionDesc::GetAliveRegionDescAt(reinterpret_cast<HeapAddress>(obj));
         region->DecRawPointerObjectCount();
     }
 

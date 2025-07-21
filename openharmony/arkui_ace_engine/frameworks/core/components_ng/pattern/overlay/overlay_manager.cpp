@@ -2047,7 +2047,14 @@ void OverlayManager::ShowTipsInSubwindow(int32_t targetId, const PopupInfo& popu
         EraseTipsEnterAndLeaveInfo(targetId, times);
         return;
     }
-    if (!GetPopupInfo(targetId).isTips && GetPopupInfo(targetId).popupNode) {
+    auto targetNode = popupInfo.target.Upgrade();
+    CHECK_NULL_VOID(targetNode);
+    auto pipelineContext = targetNode->GetContext();
+    CHECK_NULL_VOID(pipelineContext);
+    auto overlayManager = pipelineContext->GetOverlayManager();
+    CHECK_NULL_VOID(overlayManager);
+    auto nodePopupMap = overlayManager->GetPopupInfo(targetId);
+    if (!nodePopupMap.isTips && nodePopupMap.popupNode) {
         return;
     }
     UpdateTipsInfo(targetId, popupInfo);
@@ -2965,6 +2972,7 @@ void OverlayManager::DeleteMenu(int32_t targetId)
         }
     }
     EraseMenuInfo(targetId);
+    SetIsMenuShow(false);
 }
 
 void OverlayManager::CleanMenuInSubWindowWithAnimation()
@@ -3068,6 +3076,7 @@ void OverlayManager::CleanMenuInSubWindow(int32_t targetId)
         }
         rootNode->RemoveChild(node);
         rootNode->MarkDirtyNode(PROPERTY_UPDATE_MEASURE_SELF);
+        SetIsMenuShow(false);
         auto subwindowMgr = SubwindowManager::GetInstance();
         subwindowMgr->DeleteHotAreas(Container::CurrentId(), node->GetId(), SubwindowType::TYPE_MENU);
         menuWrapperPattern->SetMenuStatus(MenuStatus::HIDE);
@@ -3289,7 +3298,7 @@ RefPtr<UINode> OverlayManager::RebuildCustomBuilder(RefPtr<UINode>& contentNode)
         updateNodeFunc(currentId, customNode);
     }
     auto updateNodeConfig = contentNode->GetUpdateNodeConfig();
-    if (updateNodeConfig) {
+    if (customNode && updateNodeConfig) {
         customNode->SetUpdateNodeConfig(std::move(updateNodeConfig));
     }
     return customNode;
@@ -5097,7 +5106,9 @@ void OverlayManager::HandleModalShow(std::function<void(const std::string&)>&& c
 
     auto isNeedFocus = IsTopOrder(levelOrder);
     if (isNeedFocus) {
-        FireModalPageShow();
+        if (modalStyle.isModalRequestFocus) {
+            FireModalPageShow();
+        }
         modalNode->OnAccessibilityEvent(
             AccessibilityEventType::PAGE_OPEN, WindowsContentChangeTypes::CONTENT_CHANGE_TYPE_SUBTREE);
     }
@@ -7405,7 +7416,8 @@ int32_t OverlayManager::CreateModalUIExtension(
 {
     isProhibitBack_ = config.isProhibitBack;
     NG::InnerModalUIExtensionConfig innerModalUIExtensionConfig = { .isAsyncModalBinding = config.isAsyncModalBinding,
-        .isDensityFollowHost = config.isDensityFollowHost, .isWindowModeFollowHost = config.isWindowModeFollowHost };
+        .isDensityFollowHost = config.isDensityFollowHost, .isWindowModeFollowHost = config.isWindowModeFollowHost,
+        .isModalRequestFocus = config.isModalRequestFocus };
     auto uiExtNode = ModalUIExtension::Create(want, callbacks, innerModalUIExtensionConfig);
     if (!HandleUIExtNodeTransform(want, uiExtNode)) {
         return 0;
@@ -7417,7 +7429,7 @@ int32_t OverlayManager::CreateModalUIExtension(
     auto sessionId = ModalUIExtension::GetSessionId(uiExtNode);
     if (!config.isAsyncModalBinding) {
         ModalStyle modalStyle = OverlayManager::SetUIExtensionModalStyleAndGet(config.prohibitedRemoveByRouter,
-            config.isAllowAddChildBelowModalUec, config.prohibitedRemoveByNavigation);
+            config.isAllowAddChildBelowModalUec, config.prohibitedRemoveByNavigation, config.isModalRequestFocus);
         SetIsAllowedBeCovered(config.isAllowedBeCovered);
         // Convert the sessionId into a negative number to distinguish it from the targetId of other modal pages
         BindContentCover(true, nullptr, std::move(buildNodeFunc), modalStyle, nullptr, nullptr, nullptr, nullptr,
@@ -7429,13 +7441,14 @@ int32_t OverlayManager::CreateModalUIExtension(
             prohibitedRemoveByRouter = config.prohibitedRemoveByRouter,
             isAllowAddChildBelowModalUec = config.isAllowAddChildBelowModalUec,
             prohibitedRemoveByNavigation = config.prohibitedRemoveByNavigation,
+            isModalRequestFocus = config.isModalRequestFocus,
             doAfterAsyncModalBinding = std::move(config.doAfterAsyncModalBinding)]() {
             ContainerScope scope(id);
             auto overlayManager = weak.Upgrade();
             CHECK_NULL_VOID(overlayManager);
             overlayManager->SetIsAllowedBeCovered(isAllowedBeCovered);
             ModalStyle modalStyle = OverlayManager::SetUIExtensionModalStyleAndGet(prohibitedRemoveByRouter,
-                isAllowAddChildBelowModalUec, prohibitedRemoveByNavigation);
+                isAllowAddChildBelowModalUec, prohibitedRemoveByNavigation, isModalRequestFocus);
             overlayManager->BindContentCover(true, nullptr, std::move(buildNodeFunc), modalStyle, nullptr, nullptr,
                 nullptr, nullptr, ContentCoverParam(), nullptr, -(sessionId));
             overlayManager->SetIsAllowedBeCovered(true);
@@ -7450,7 +7463,7 @@ int32_t OverlayManager::CreateModalUIExtension(
 }
 
 ModalStyle OverlayManager::SetUIExtensionModalStyleAndGet(bool prohibitedRemoveByRouter,
-    bool isAllowAddChildBelowModalUec, bool prohibitedRemoveByNavigation)
+    bool isAllowAddChildBelowModalUec, bool prohibitedRemoveByNavigation, bool isModalRequestFocus)
 {
     ModalStyle modalStyle;
     modalStyle.modalTransition = NG::ModalTransition::NONE;
@@ -7458,6 +7471,7 @@ ModalStyle OverlayManager::SetUIExtensionModalStyleAndGet(bool prohibitedRemoveB
     modalStyle.prohibitedRemoveByRouter = prohibitedRemoveByRouter;
     modalStyle.isAllowAddChildBelowModalUec = isAllowAddChildBelowModalUec;
     modalStyle.prohibitedRemoveByNavigation = prohibitedRemoveByNavigation;
+    modalStyle.isModalRequestFocus = isModalRequestFocus;
 
     return modalStyle;
 }
@@ -8093,6 +8107,9 @@ void OverlayManager::RemoveGatherNodeWithAnimation()
                 CHECK_NULL_VOID(rootNode);
                 rootNode->RemoveChild(frameNode);
                 rootNode->MarkDirtyNode(PROPERTY_UPDATE_BY_CHILD_REQUEST);
+                auto subwindowManager = SubwindowManager::GetInstance();
+                CHECK_NULL_VOID(subwindowManager);
+                subwindowManager->HideSubWindowNG();
             },
             TaskExecutor::TaskType::UI, "ArkUIOverlayRemoveGatherNodeEvent");
     });

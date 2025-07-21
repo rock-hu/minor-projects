@@ -18,6 +18,7 @@ class MyTest {
     private property1;
 }
 
+/* @@? 17:6 Error SyntaxError: Invalid annotation name.  */
 /* @@? 18:5 Error SyntaxError: Identifier expected.  */
 /* @@? 18:5 Error TypeError: '*ERROR_LITERAL*' is not an annotation.  */
 /* @@? 18:22 Error SyntaxError: Field type annotation expected.  */

@@ -14,7 +14,8 @@
  */
 
 #include "ecmascript/runtime.h"
-#include "common_components/base_runtime/hooks.h"
+#include "common_components/common_runtime/hooks.h"
+#include "common_components/mutator/mutator_manager.h"
 #include "ecmascript/checkpoint/thread_state_transition.h"
 #include "common_interfaces/base_runtime.h"
 #include "ecmascript/dynamic_object_accessor.h"
@@ -87,6 +88,7 @@ void Runtime::CreateIfFirstVm(const JSRuntimeOptions &options)
             // SetConfigHeapSize for cmc gc, pc and persist config may change heap size.
             const_cast<JSRuntimeOptions &>(options).SetConfigHeapSize(MemMapAllocator::GetInstance()->GetCapacity());
             common::BaseRuntime::GetInstance()->Init(options.GetRuntimeParam());
+            common::g_enableGCTimeoutCheck = options.IsEnableGCTimeoutCheck();
         }
         DaemonThread::CreateNewInstance();
         firstVmCreated_ = true;
@@ -143,6 +145,8 @@ void Runtime::PreInitialization(const EcmaVM *vm)
     mainThread_->SetMainThread();
     nativeAreaAllocator_ = std::make_unique<NativeAreaAllocator>();
     heapRegionAllocator_ = std::make_unique<HeapRegionAllocator>();
+    
+#if ENABLE_NEXT_OPTIMIZATION
     if (g_isEnableCMCGC) {
         auto& baseStringTable = common::BaseRuntime::GetInstance()->GetStringTable();
         stringTable_ = std::make_unique<EcmaStringTable>(true, &baseStringTable,
@@ -151,6 +155,10 @@ void Runtime::PreInitialization(const EcmaVM *vm)
     } else {
         stringTable_ = std::make_unique<EcmaStringTable>(false);
     }
+#else
+    stringTable_ = std::make_unique<EcmaStringTable>();
+#endif
+
     SharedHeap::GetInstance()->Initialize(nativeAreaAllocator_.get(), heapRegionAllocator_.get(),
         const_cast<EcmaVM*>(vm)->GetJSOptions(), DaemonThread::GetInstance());
 }

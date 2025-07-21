@@ -206,14 +206,11 @@ public:
     static void SetSphericalEffect(double radio);
     static void SetPixelStretchEffect(PixStretchEffectOption &option);
     static void SetLightUpEffect(double radio);
-    static void CheckLocalizedPadding(PaddingProperty& value, const TextDirection& direction);
-    static void CheckLocalizedMargin(MarginProperty& value, const TextDirection& direction);
-    static void CheckLocalizedSafeAreaPadding(PaddingProperty& value, const TextDirection& direction);
-    static void CheckPositionLocalizedEdges(EdgesParam& value, TextDirection layoutDirection);
-    static void CheckOffsetLocalizedEdges(EdgesParam& value, TextDirection layoutDirection);
+    static void CheckLocalizedMarginOrPadding(PaddingProperty& value, const TextDirection& direction);
+    static void CheckPositionOrOffsetLocalizedEdges(EdgesParam& value, TextDirection layoutDirection);
     static void CheckLocalizedEdgeWidths(BorderWidthProperty& value, const TextDirection& direction);
     static void CheckLocalizedBorderRadiuses(BorderRadiusProperty& value, const TextDirection& direction);
-    static void CheckLocalizedOuterBorderColor(NG::BorderColorProperty& value, const TextDirection& direction);
+    static void CheckLocalizedBorderColor(NG::BorderColorProperty& value, const TextDirection& direction);
 
     static void SetPadding(const CalcLength &value);
     static void SetPadding(const PaddingProperty &value);
@@ -277,11 +274,18 @@ public:
     static void NotifyDragStartRequest(DragStartRequestStatus dragStatus);
     // customBackground
     static void SetBackgroundAlign(const Alignment &align);
+    static void SetBackgroundAlign(FrameNode* frameNode, const Alignment& align);
     static void SetCustomBackgroundColor(const Color& color);
+    static void SetCustomBackgroundColor(FrameNode* frameNode, const Color& color);
     static void SetCustomBackgroundColorWithResourceObj(const Color& color, const RefPtr<ResourceObject>& resObj);
+    static void SetCustomBackgroundColorWithResourceObj(
+        FrameNode* frameNode, const Color& color, const RefPtr<ResourceObject>& resObj);
     static void SetBackgroundIgnoresLayoutSafeAreaEdges(const uint32_t layoutSafeAreaEdges);
+    static void SetBackgroundIgnoresLayoutSafeAreaEdges(FrameNode* frameNode, const uint32_t layoutSafeAreaEdges);
     static void SetIsTransitionBackground(bool val);
+    static void SetIsTransitionBackground(FrameNode* frameNode, bool val);
     static void SetIsBuilderBackground(bool val);
+    static void SetIsBuilderBackground(FrameNode* frameNode, bool val);
 
     // decoration
     static void SetBackdropBlur(
@@ -532,6 +536,11 @@ public:
     static void SetOverlayBuilder(std::function<void()>&& buildFunc,
         const std::optional<Alignment>& align, const std::optional<Dimension>& offsetX,
         const std::optional<Dimension>& offsetY);
+#if defined(ACE_STATIC)
+    static void SetOverlayBuilder(FrameNode* frameNode, const RefPtr<NG::UINode>& customNode,
+        const std::optional<Alignment>& align, const std::optional<Dimension>& offsetX,
+        const std::optional<Dimension>& offsetY);
+#endif
     static void SetOverlayComponentContent(const RefPtr<NG::FrameNode>& contentNode,
         const std::optional<Alignment>& align, const std::optional<Dimension>& offsetX,
         const std::optional<Dimension>& offsetY);
@@ -668,8 +677,8 @@ public:
     static void SetDashWidth(FrameNode* frameNode, const Dimension& value);
     static void SetBackShadow(FrameNode* frameNode, const Shadow& shadow);
     static void SetPosition(FrameNode* frameNode, const OffsetT<Dimension>& value);
-    static void SetPosition(FrameNode* frameNode, const Dimension& x, const Dimension& y,
-        const RefPtr<ResourceObject>& xresObj, const RefPtr<ResourceObject>& yresObj);
+    static void SetPosition(FrameNode* frameNode, OffsetT<Dimension>& value, const RefPtr<ResourceObject>& xresObj,
+        const RefPtr<ResourceObject>& yresObj);
     static void SetPositionX(FrameNode* frameNode, OffsetT<Dimension>& value, const RefPtr<ResourceObject>& xresObj);
     static void SetPositionY(FrameNode* frameNode, OffsetT<Dimension>& value, const RefPtr<ResourceObject>& yresObj);
     static void SetPositionEdges(FrameNode* frameNode, const EdgesParam& value);

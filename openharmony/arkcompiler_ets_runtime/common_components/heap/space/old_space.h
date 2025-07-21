@@ -20,6 +20,7 @@
 #include "common_components/heap/space/from_space.h"
 #include "common_components/heap/space/to_space.h"
 #include "common_components/mutator/mutator.h"
+#include "common_components/heap/allocator/fix_heap.h"
 #if defined(COMMON_SANITIZER_SUPPORT)
 #include "common_components/base/asan_interface.h"
 #endif
@@ -41,18 +42,18 @@ public:
         tlOldRegionList_.PrependRegion(region, RegionDesc::RegionType::THREAD_LOCAL_OLD_REGION);
     }
 
-    void FixAllRegions()
+    void CollectFixTasks(FixHeapTaskList &taskList)
     {
-        TraceCollector& collector = reinterpret_cast<TraceCollector&>(Heap::GetHeap().GetCollector());
-
         if (Heap::GetHeap().GetGCReason() == GC_REASON_YOUNG) {
-            RegionManager::FixRecentOldRegionList(collector, tlOldRegionList_);
-            RegionManager::FixRecentOldRegionList(collector, recentFullOldRegionList_);
-            RegionManager::FixOldRegionList(collector, oldRegionList_);
+            FixHeapWorker::CollectFixHeapTasks(taskList, oldRegionList_, FIX_OLD_REGION);
+            std::lock_guard<std::mutex> lock(lock_);
+            FixHeapWorker::CollectFixHeapTasks(taskList, tlOldRegionList_, FIX_RECENT_OLD_REGION);
+            FixHeapWorker::CollectFixHeapTasks(taskList, recentFullOldRegionList_, FIX_RECENT_OLD_REGION);
         } else {
-            RegionManager::FixRecentRegionList(collector, tlOldRegionList_);
-            RegionManager::FixRecentRegionList(collector, recentFullOldRegionList_);
-            RegionManager::FixRegionList(collector, oldRegionList_);
+            FixHeapWorker::CollectFixHeapTasks(taskList, oldRegionList_, FIX_REGION);
+            std::lock_guard<std::mutex> lock(lock_);
+            FixHeapWorker::CollectFixHeapTasks(taskList, tlOldRegionList_, FIX_RECENT_REGION);
+            FixHeapWorker::CollectFixHeapTasks(taskList, recentFullOldRegionList_, FIX_RECENT_REGION);
         }
     }
 
@@ -63,7 +64,7 @@ public:
 
     size_t GetAllocatedSize() const
     {
-        return tlOldRegionList_.GetAllocatedSize() + recentFullOldRegionList_.GetAllocatedSize() +
+        return tlOldRegionList_.GetAllocatedSize(false) + recentFullOldRegionList_.GetAllocatedSize() +
                oldRegionList_.GetAllocatedSize();
     }
 
@@ -92,9 +93,10 @@ public:
 
     void ClearAllGCInfo()
     {
+        ClearGCInfo(oldRegionList_);
+        std::lock_guard<std::mutex> lock(lock_);
         ClearGCInfo(tlOldRegionList_);
         ClearGCInfo(recentFullOldRegionList_);
-        ClearGCInfo(oldRegionList_);
     }
 
     void MarkRememberSet(const std::function<void(BaseObject*)>& func)
@@ -120,6 +122,7 @@ public:
 
     void HandleFullThreadLocalRegion(RegionDesc* region)
     {
+        std::lock_guard<std::mutex> lock(lock_);
         ASSERT_LOGF(region->GetRegionType() == RegionDesc::RegionType::THREAD_LOCAL_OLD_REGION,
                     "not thread local old region");
         tlOldRegionList_.DeleteRegion(region);
@@ -145,6 +148,9 @@ private:
             region = region->GetNextRegion();
         }
     }
+    // Used to exclude the promotion of TLS regions during the ClearGCInfo phase
+    // This is necessary when the mutator can promote TL to recentFull while the GC is performing ClearGC
+    std::mutex lock_;
 
     // regions for thread-local allocation.
     // regions in this list are already used for allocation but not full yet.

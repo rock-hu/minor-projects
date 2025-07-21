@@ -868,12 +868,12 @@ void EcmaVM::RemoveFromNativePointerList(JSNativePointer* pointer)
 
 void EcmaVM::PushToDeregisterModuleList(const CString &module)
 {
-    deregisterModuleList_.emplace_back(module);
+    deregisterModuleList_.emplace(module);
 }
 
 void EcmaVM::RemoveFromDeregisterModuleList(CString module)
 {
-    auto iter = std::find(deregisterModuleList_.begin(), deregisterModuleList_.end(), module);
+    auto iter = deregisterModuleList_.find(module);
     if (iter != deregisterModuleList_.end()) {
         deregisterModuleList_.erase(iter);
     }
@@ -881,8 +881,7 @@ void EcmaVM::RemoveFromDeregisterModuleList(CString module)
 
 bool EcmaVM::ContainInDeregisterModuleList(CString module)
 {
-    return (std::find(deregisterModuleList_.begin(), deregisterModuleList_.end(), module)
-        != deregisterModuleList_.end());
+    return (deregisterModuleList_.find(module) != deregisterModuleList_.end());
 }
 
 void EcmaVM::ClearBufferData()
@@ -913,11 +912,16 @@ void EcmaVM::CollectGarbage(TriggerGCType gcType, panda::ecmascript::GCReason re
 
 void EcmaVM::IterateConcurrentRoots(RootVisitor &v)
 {
-    ASSERT(g_isEnableCMCGC);
     moduleManagers_.Iterate(v);
 }
 
 void EcmaVM::Iterate(RootVisitor &v)
+{
+    IterateSTWRoots(v);
+    IterateConcurrentRoots(v);
+}
+
+void EcmaVM::IterateSTWRoots(RootVisitor &v)
 {
     ECMA_BYTRACE_NAME(HITRACE_LEVEL_COMMERCIAL, HITRACE_TAG_ARK, "CMCGC::VisitRootEcmaVM", "");
     if (!internalNativeMethods_.empty()) {
@@ -987,9 +991,6 @@ void EcmaVM::Iterate(RootVisitor &v)
         ++iterator;
     }
 #endif
-    if (!g_isEnableCMCGC) {
-        moduleManagers_.Iterate(v);
-    }
 }
 
 size_t EcmaVM::IterateHandle(RootVisitor &visitor)

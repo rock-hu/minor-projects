@@ -114,6 +114,12 @@ public:
 
     RefPtr<NodePaintMethod> CreateNodePaintMethod() override;
 
+    bool OnAttachAdapter(const RefPtr<FrameNode>& node, const RefPtr<UINode>& child) override
+    {
+        node->AddChild(child);
+        return true;
+    }
+
     void AddHeader(const RefPtr<NG::UINode>& header)
     {
         auto host = GetHost();
@@ -382,9 +388,8 @@ public:
 
     PaddingPropertyF CustomizeSafeAreaPadding(PaddingPropertyF safeAreaPadding, bool needRotate) override;
 
-    bool ChildTentativelyLayouted(IgnoreStrategy& strategy) override
+    bool ChildTentativelyLayouted() override
     {
-        strategy = IgnoreStrategy::SCROLLABLE_AXIS;
         return true;
     }
 

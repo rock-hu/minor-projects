@@ -44,11 +44,10 @@ public:
 
     void DumpRegionStats() const;
 
-    void FixAllRegions()
+    void CollectFixTasks(FixHeapTaskList &taskList)
     {
-        TraceCollector& collector = reinterpret_cast<TraceCollector&>(Heap::GetHeap().GetCollector());
-        RegionManager::FixToRegionList(collector, fullToRegionList_);
-        RegionManager::FixToRegionList(collector, tlToRegionList_);
+        FixHeapWorker::CollectFixHeapTasks(taskList, tlToRegionList_, FIX_TO_REGION);
+        FixHeapWorker::CollectFixHeapTasks(taskList, fullToRegionList_, FIX_TO_REGION);
     }
 
     void AddFullRegion(RegionDesc* region)
@@ -72,12 +71,12 @@ public:
 
     size_t GetAllocatedSize() const
     {
-        return tlToRegionList_.GetAllocatedSize() + fullToRegionList_.GetAllocatedSize();
+        return tlToRegionList_.GetAllocatedSize(false) + fullToRegionList_.GetAllocatedSize();
     }
 
     size_t GetSurvivedSize() const
     {
-        return tlToRegionList_.GetAllocatedSize() + fullToRegionList_.GetAllocatedSize();
+        return tlToRegionList_.GetAllocatedSize(false) + fullToRegionList_.GetAllocatedSize();
     }
 
     size_t GetUsedUnitCount() const
