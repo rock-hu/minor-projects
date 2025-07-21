@@ -22,8 +22,8 @@ import SearchBarComponent from '../view/SearchBarComponent'
 struct Index {
   build() {
     Column(){
-      SearchBarComponent().height('10%')
-      OutTabComponent().height('90%')
+      SearchBarComponent().height('8%')
+      OutTabComponent().height('92%')
     }.expandSafeArea([SafeAreaType.SYSTEM])
   }
 }

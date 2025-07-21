@@ -21,6 +21,7 @@ export default struct InTabComponent {
   @State private tabItems: string[] = [];
   isFadingEdge:boolean = true;
   isSetTabBarTranslateAndOpacity:boolean = true;
+  private contents = [1,2,3,4,5,6,7];
   // [EndExclude tabs_bar_translate]
   private subController: TabsController = new TabsController();
 
@@ -90,17 +91,17 @@ export default struct InTabComponent {
       .margin({ left: 20, bottom: 20, right: 20 })
 
       Row() {
-        Image($r('app.media.content'))
-          .width(110)
-          .height(110)
+        Image($r('app.media.content4'))
+          .width(111)
+          .height(111)
           .margin({left:10, right: 10 })
-        Image($r('app.media.content'))
-          .width(110)
-          .height(110)
+        Image($r('app.media.content5'))
+          .width(111)
+          .height(111)
           .margin({ right: 10 })
-        Image($r('app.media.content'))
-          .width(110)
-          .height(110)
+        Image($r('app.media.content6'))
+          .width(111)
+          .height(111)
           .margin({ right: 10 })
       }
     }
@@ -115,7 +116,7 @@ export default struct InTabComponent {
       ForEach(this.tabItems, (item: string, index: number) => {
         TabContent(){
           List({ space: 10 }) {
-            ForEach([1,2,3,4,5,6,7], (item: number, index: number) => {
+            ForEach(this.contents, (item: number, index: number) => {
               this.contentBuilder()
             })
           }
@@ -127,6 +128,7 @@ export default struct InTabComponent {
     // [StartExclude tabs_bar_translate]
     .fadingEdge(this.isFadingEdge) // true set tab bar edge fade
     // [End tabs_fading_edge]
+    .barBackgroundColor($r('app.color.out_tab_bar_background_color'))
     .barHeight(40)
     // [EndExclude tabs_bar_translate]
     .barMode(BarMode.Scrollable)

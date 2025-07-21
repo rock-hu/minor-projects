@@ -33,12 +33,12 @@ export default struct OutTabComponent {
 
   // [StartExclude tabs_clip]
   @Builder
-  tabBuilder(index: number, name: string | Resource, normalIcon: string | Resource, selectedIcon: string | Resource) {
+  tabBuilder(index: number, name: string | Resource, icon: Resource) {
     Column() {
-      Image(this.selectedIndex === index ? selectedIcon : normalIcon)
-        .width(24)
-        .height(24)
-        .objectFit(ImageFit.Contain)
+      SymbolGlyph(icon).fontColor([this.selectedIndex === index
+        ? $r('app.color.out_tab_bar_font_active_color')
+        : $r('app.color.out_tab_bar_font_inactive_color')])
+        .fontSize(25)
 
       Text(name)
         .margin({ top: 4 })
@@ -51,7 +51,7 @@ export default struct OutTabComponent {
     .height(60)
     .width('100%')
     .margin({bottom:60})
-    .offset({ y: this.selectedIndex === index ? -15 : 0 })
+    .offset({ y: this.selectedIndex === index ? -18 : 0 })
 
   }
   // [EndExclude tabs_clip]
@@ -74,8 +74,7 @@ export default struct OutTabComponent {
         TabContent() {
           InTabComponent({isFadingEdge:false,isSetTabBarTranslateAndOpacity:false})
         }
-        .tabBar(this.tabBuilder(0, $r('app.string.out_bar_text_home'), $r('app.media.home'),
-          $r('app.media.activeHome')))
+        .tabBar(this.tabBuilder(0, $r('app.string.out_bar_text_home'), $r('sys.symbol.house')))
         .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
 
 
@@ -83,24 +82,21 @@ export default struct OutTabComponent {
           Column() {
             InTabComponent({isFadingEdge:true,isSetTabBarTranslateAndOpacity:false})
           }.width('100%').height('100%').justifyContent(FlexAlign.Center)
-        }.tabBar(this.tabBuilder(1, $r('app.string.out_bar_text_quotes'), $r('app.media.home'),
-          $r('app.media.activeHome')))
+        }.tabBar(this.tabBuilder(1, $r('app.string.out_bar_text_discover'), $r('sys.symbol.map_badge_local')))
 
 
         TabContent() {
           Column() {
             InTabComponent({isFadingEdge:false,isSetTabBarTranslateAndOpacity:true})
           }.width('100%').height('100%').justifyContent(FlexAlign.Center)
-        }.tabBar(this.tabBuilder(2, $r('app.string.out_bar_text_watchlist'), $r('app.media.home'),
-          $r('app.media.activeHome')))
+        }.tabBar(this.tabBuilder(2, $r('app.string.out_bar_text_messages'), $r('sys.symbol.ellipsis_message')))
 
 
         TabContent() {
           Column() {
             SwitchTabComponent()
           }.width('100%').height('100%').justifyContent(FlexAlign.Center)
-        }.tabBar(this.tabBuilder(3, $r('app.string.out_bar_text_trade'), $r('app.media.home'),
-          $r('app.media.activeHome')))
+        }.tabBar(this.tabBuilder(3, $r('app.string.out_bar_text_profile'), $r('sys.symbol.person')))
         .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
         // [EndExclude tabs_blur_style]
         // [EndExclude tabs_clip]

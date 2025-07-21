@@ -1,19 +1,7 @@
 {
   "app": {
     "signingConfigs": [
-      {
-        "name": "default",
-        "type": "HarmonyOS",
-        "material": {
-          "certpath": "C:\\Users\\tao\\.ohos\\config\\default_PureTabsExt__f_mVvjzuYATUnPaBGg5DYGg5HfWWt619aUlpI_wqD8=.cer",
-          "keyAlias": "debugKey",
-          "keyPassword": "0000001ACF967DAC2CF709A1C994158EF1DFB9CF8229562A4D63A62308C1B93D018A33A923EAADE6D71C",
-          "profile": "C:\\Users\\tao\\.ohos\\config\\default_PureTabsExt__f_mVvjzuYATUnPaBGg5DYGg5HfWWt619aUlpI_wqD8=.p7b",
-          "signAlg": "SHA256withECDSA",
-          "storeFile": "C:\\Users\\tao\\.ohos\\config\\default_PureTabsExt__f_mVvjzuYATUnPaBGg5DYGg5HfWWt619aUlpI_wqD8=.p12",
-          "storePassword": "0000001A759798FAE18FFE5C80E8CAC5248302DBECE177E7A8E361227E4AD43D7F51C687E8C2797991EB"
-        }
-      }
+
     ],
     "products": [
       {

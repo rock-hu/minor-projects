@@ -20,6 +20,7 @@ import { ColorModel } from '../model/BasicDataSource';
 import { ColorData } from '../model/ColorData';
 
 const TAG = 'UpdaterComponent'
+// [Start opt_updater]
 
 // [Start updater_component]
 export class MyTextUpdater extends AttributeUpdater<TextAttribute> {
@@ -35,6 +36,7 @@ export class MyTextUpdater extends AttributeUpdater<TextAttribute> {
   }
 }
 
+// [StartExclude opt_updater]
 @Component
 export struct UpdaterComponent {
   private colorData: ColorData = new ColorData();
@@ -64,11 +66,12 @@ export struct UpdaterComponent {
     }
   }
 }
+// [EndExclude opt_updater]
 
 @Reusable
 @Component
 export struct OneMomentNoModifier {
-  @Prop text: string;
+  @State text: string = '';
   color: string | number | Resource | Color = '';
   textUpdater: MyTextUpdater | null = null;
 
@@ -78,6 +81,7 @@ export struct OneMomentNoModifier {
 
   aboutToReuse(params: Record<string, Object>): void {
     this.color = params.color as string;
+    this.text = params.text as string;
     this.textUpdater?.attribute?.fontColor(this.color);
   }
 
@@ -98,6 +102,7 @@ export struct OneMomentNoModifier {
           .fontWeight(400)
           .lineHeight(21)
       }
+      // [StartExclude opt_updater]
       .borderRadius(16)
       .margin({ top: 14 })
       .padding({
@@ -107,14 +112,18 @@ export struct OneMomentNoModifier {
         bottom: 8
       })
       .backgroundColor('#0D000000')
+      // [EndExclude opt_updater]
     }
+    // [StartExclude opt_updater]
     .alignItems(HorizontalAlign.Start)
     .margin({
       left: 16,
       right: 16
     })
+    // [EndExclude opt_updater]
   }
 }
+// [End opt_updater]
 // [End updater_component]
 
 @Builder

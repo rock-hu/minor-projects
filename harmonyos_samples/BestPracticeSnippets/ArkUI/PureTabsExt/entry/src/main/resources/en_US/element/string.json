@@ -14,16 +14,16 @@
       "value": "Home"
     },
     {
-      "name":"out_bar_text_quotes",
-      "value": "Quotes"
+      "name":"out_bar_text_discover",
+      "value": "Discover"
     },
     {
-      "name":"out_bar_text_watchlist",
-      "value": "Watchlist"
+      "name":"out_bar_text_messages",
+      "value": "Messages"
     },
     {
-      "name":"out_bar_text_trade",
-      "value": "Trade"
+      "name":"out_bar_text_profile",
+      "value": "Profile"
     },
     {
       "name": "content_item_username",

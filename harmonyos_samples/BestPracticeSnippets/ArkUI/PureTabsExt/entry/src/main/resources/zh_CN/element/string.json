@@ -14,16 +14,16 @@
       "value": "首页"
     },
     {
-      "name":"out_bar_text_quotes",
-      "value": "行情"
+      "name":"out_bar_text_discover",
+      "value": "发现"
     },
     {
-      "name":"out_bar_text_watchlist",
-      "value": "自选"
+      "name":"out_bar_text_messages",
+      "value": "消息"
     },
     {
-      "name":"out_bar_text_trade",
-      "value": "交易"
+      "name":"out_bar_text_profile",
+      "value": "我的"
     },
     {
       "name": "content_item_username",

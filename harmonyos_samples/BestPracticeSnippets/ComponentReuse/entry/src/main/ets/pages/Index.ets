@@ -15,15 +15,18 @@
 
 import { Constants } from '../common/Constants';
 import { GlobalBuilderContext } from '../common/GlobalBuilderContext';
-
+// [Start example]
 @Entry
 @Component
 struct Index {
+  // [StartExclude example]
   @StorageProp('topRectHeight')
   topRectHeight: number = 0;
   private readonly LIST_SPACE: number = 12;
   private navDestinationData: NavDestinationItem[] = Constants.NavDestinationData;
   private pageInfos: NavPathStack = new NavPathStack();
+  @State switch: boolean = false;
+  private typeStr: string = "type1";
 
   @Builder
   PagesMap(id: string) {
@@ -31,9 +34,11 @@ struct Index {
       (GlobalBuilderContext.getContext().getObject(id) as WrappedBuilder<[string]>).builder(id);
     }
   }
+  // [EndExclude example]
 
   build() {
     Column() {
+      // [StartExclude example]
       Navigation(this.pageInfos) {
         List({ space: this.LIST_SPACE }) {
           ForEach(this.navDestinationData, (item: NavDestinationItem) => {
@@ -62,13 +67,22 @@ struct Index {
         height: 112
       })
       .navDestination(this.PagesMap)
+      // [EndExclude example]
+      if (this.switch) {
+        // 3.layout the component and set reuse id
+        ReusableComponent({ text: this.typeStr })
+          .reuseId(this.typeStr)
+      }
     }
+    // [StartExclude example]
     .height(Constants.LAYOUT_MAX)
     .width(Constants.LAYOUT_MAX)
     .backgroundColor('#F1F3F5')
     .padding({ top: this.getUIContext().px2vp(this.topRectHeight) })
+    // [EndExclude example]
   }
 
+  // [StartExclude example]
   @Builder
   mainPageTitle() {
     Row() {
@@ -86,7 +100,31 @@ struct Index {
       bottom: 8
     })
   }
+  // [EndExclude example]
 }
+
+// 1.add @Reusable to mark component
+@Reusable
+@Component
+struct ReusableComponent {
+  @State text: string = ''
+
+  // 2.update data in aboutToReuse
+  aboutToReuse(params: Record<string, Object>): void {
+    this.text = params.text as string;
+  }
+
+  build() {
+    // [StartExclude example]
+    Row() {
+      Text(this.text)
+        .fontSize(20)
+        .margin({ left: 10 })
+    }.margin({ left: 10, right: 10 })
+    // [EndExclude example]
+  }
+}
+// [End example]
 
 export interface NavDestinationItem {
   id: string,

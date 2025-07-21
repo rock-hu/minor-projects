@@ -19,6 +19,8 @@
 */
 // [Start demo]
 // Demo.ets
+"use shared"
+
 @Sendable
 export class Demo {
   private static instance: Demo;

@@ -16,11 +16,13 @@
 import { Constants } from '../common/Constants';
 import { FriendMoment } from '../model/BasicDataSource';
 import { FriendMomentsData } from '../model/FriendMomentData'
+// [Start opt_reuseId]
 
 // [Start with_reuse_id]
 @Entry
 @Component
 struct WithReuseId {
+  // [StartExclude opt_reuseId]
   private momentData: FriendMomentsData = new FriendMomentsData();
   private readonly LIST_CACHE_COUNT: number = 5;
   private readonly LIST_SPACE: number = 18;
@@ -28,6 +30,7 @@ struct WithReuseId {
   aboutToAppear(): void {
     this.momentData.getFriendMomentFromRawFile();
   }
+  // [EndExclude opt_reuseId]
 
   build() {
     Column() {
@@ -39,10 +42,12 @@ struct WithReuseId {
           }
         }, (moment: FriendMoment) => moment.id)
       }
+      // [StartExclude opt_reuseId]
       .cachedCount(this.LIST_CACHE_COUNT)
       .margin({ top: 8 })
       .width(Constants.LAYOUT_MAX)
       .height(Constants.LAYOUT_MAX)
+      // [EndExclude opt_reuseId]
     }
   }
 }
@@ -50,16 +55,18 @@ struct WithReuseId {
 @Reusable
 @Component
 export struct OneMoment {
-  @Prop moment: FriendMoment;
+  @ObjectLink moment: FriendMoment;
 
   build() {
     Column() {
+      // [StartExclude opt_reuseId]
       Text(this.moment.text)
         .width(Constants.LAYOUT_MAX)
         .fontSize(18)
         .fontWeight(500)
         .lineHeight(24)
         .opacity(0.6)
+      // [EndExclude opt_reuseId]
 
       if (this.moment.image !== '') {
         Flex({ wrap: FlexWrap.Wrap }) {
@@ -77,13 +84,16 @@ export struct OneMoment {
         .margin({ top: 14 })
       }
     }
+    // [StartExclude opt_reuseId]
     .justifyContent(FlexAlign.Start)
     .margin({
       left: 16,
       right: 16
     })
+    // [EndExclude opt_reuseId]
   }
 }
+// [End opt_reuseId]
 // [End with_reuse_id]
 
 @Builder

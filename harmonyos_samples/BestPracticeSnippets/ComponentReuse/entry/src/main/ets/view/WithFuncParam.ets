@@ -16,25 +16,28 @@
 import { Constants } from '../common/Constants';
 import { FriendMoment } from '../model/BasicDataSource';
 import { FriendMomentsData } from '../model/FriendMomentData';
+// [Start opt_funcParam]
 
 // [Start with_func_param]
 @Entry
 @Component
 struct WithFuncParam {
   @State sum: number = 0;
+  // [StartExclude opt_funcParam]
   private momentData: FriendMomentsData = new FriendMomentsData(Constants.NAV_DESTINATION_ITEM_3);
   private readonly LIST_CACHE_COUNT: number = 5;
   private readonly LIST_SPACE: number = 18;
+  // [EndExclude opt_funcParam]
   private readonly MOCK_ASYNC_DEFAULT_NUM: number = 1000000;
   private readonly MOCK_ASYNC_TIME_OUT_NUM: number = 2000;
 
   aboutToAppear(): void {
     this.momentData.getFriendMomentFromRawFile();
     // Execute the asynchronous function
-    this.countAndRecord();
+    this.countAndReturn();
   }
 
-  async countAndRecord(): Promise<void> {
+  async countAndReturn(): Promise<void> {
     await this.sleep();
     this.sum = this.MOCK_ASYNC_DEFAULT_NUM;
   }
@@ -60,10 +63,12 @@ struct WithFuncParam {
           }
         }, (moment: FriendMoment) => moment.id)
       }
+      // [StartExclude opt_funcParam]
       .cachedCount(this.LIST_CACHE_COUNT)
       .margin({ top: 8 })
       .width(Constants.LAYOUT_MAX)
       .height(Constants.LAYOUT_MAX)
+      // [EndExclude opt_funcParam]
     }
   }
 }
@@ -71,14 +76,17 @@ struct WithFuncParam {
 @Reusable
 @Component
 export struct OneMoment {
-  @Prop moment: FriendMoment;
-  @Prop sum: number;
+  @ObjectLink moment: FriendMoment;
+  @State sum: number = 0;
+  // [StartExclude opt_funcParam]
   private readonly LAST_ITEM_INDEX: number = 2;
+  // [EndExclude opt_funcParam]
 
   aboutToReuse(params: Record<string, Object>): void {
     this.sum = params.sum as number;
   }
 
+  // [StartExclude opt_funcParam]
   build() {
     Column() {
       Text(this.moment.text)
@@ -144,7 +152,9 @@ export struct OneMoment {
         .opacity(0.1)
     }
   }
+  // [EndExclude opt_funcParam]
 }
+// [End opt_funcParam]
 
 // [Start with_func_param]
 @Builder

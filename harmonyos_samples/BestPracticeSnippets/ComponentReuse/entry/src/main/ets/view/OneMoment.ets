@@ -19,7 +19,7 @@ import { FriendMoment } from '../model/BasicDataSource';
 @Reusable
 @Component
 export struct OneMoment {
-  @Prop moment: FriendMoment;
+  @ObjectLink moment: FriendMoment;
   private readonly SHARE_INDEX_0: number = 0;
   private readonly SHARE_INDEX_1: number = 1;
   private readonly SHARE_INDEX_2: number = 2;

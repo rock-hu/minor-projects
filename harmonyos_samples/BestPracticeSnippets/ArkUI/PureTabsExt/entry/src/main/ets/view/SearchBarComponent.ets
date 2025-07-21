@@ -50,7 +50,7 @@ export default struct SearchBarComponent {
       .width(Constants.FULL_WIDTH)
     }
     .justifyContent(FlexAlign.SpaceBetween)
-    .padding(16)
+    .padding({top:10,left:10,right:10})
     .width(Constants.FULL_WIDTH)
     .height('100%')
     .backgroundColor($r('app.color.out_tab_bar_background_color'))

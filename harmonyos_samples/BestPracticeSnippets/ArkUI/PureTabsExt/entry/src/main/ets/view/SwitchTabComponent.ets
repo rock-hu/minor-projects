@@ -67,7 +67,7 @@ export default struct SwitchTabComponent {
            // [StartExclude custom_switch_tab]
           .width(158)
           .height(40)
-          .margin({ right: 10 })
+          .margin({top:10, right: 10 })
           .backgroundColor('rgba(0,0,0,0.05)')
           .fontColor('#0A59F7')
           .fontSize(16)
@@ -81,7 +81,7 @@ export default struct SwitchTabComponent {
            // [StartExclude custom_switch_tab]
           .width(158)
           .height(40)
-          .margin({ left: 10 })
+          .margin({top:10, left: 10 })
           .backgroundColor('rgba(0,0,0,0.05)')
           .fontColor('#0A59F7')
           .fontSize(16)
@@ -100,8 +100,9 @@ export default struct SwitchTabComponent {
               Text(`${item}`)
             }
             .width('100%')
+            .height('70%')
             .justifyContent(FlexAlign.Center)
-          }.tabBar(item)
+          }.tabBar(item).align(Alignment.Top)
         })
         // [EndExclude custom_switch_tab]
       }

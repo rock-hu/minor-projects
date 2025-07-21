@@ -43,6 +43,7 @@ export abstract class BasicDataSource<T> implements IDataSource {
 /**
  * Nearby People Topic Data
  */
+@Observed
 export class FriendMoment {
   id: string;
   userName: string;
@@ -64,6 +65,7 @@ export class FriendMoment {
 /**
  * Share Model
  */
+@Observed
 export class ShareModel {
   heart: number;
   star: number;

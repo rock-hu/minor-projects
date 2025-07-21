@@ -20,3 +20,21 @@ class People {
 };
 let p = new People(20, "Tom");
 // [End check_snapshot]
+
+/**
+ * 最佳实践：资源泄漏类问题优化建议
+ */
+
+// [Start resource_leak_advise1]
+export default {
+  data: {
+    timer: null
+  },
+  onInit() {
+    this.timer = setInterval(() => {
+      this.updateData();
+    }, 1000);
+  },
+  // 忘记在 onDestory 中清除定时器
+}
+// [End resource_leak_advise1]
