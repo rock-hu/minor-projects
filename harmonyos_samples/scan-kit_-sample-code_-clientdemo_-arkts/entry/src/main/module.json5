@@ -1,6 +1,6 @@
 {
   "module": {
-    "name": "entry",
+    "name": "SampleCode_entry",
     "type": "entry",
     "description": "$string:module_desc",
     "mainElement": "EntryAbility",

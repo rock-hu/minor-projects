@@ -33,7 +33,7 @@ export struct StatusBar {
     .onClick(async () => {
       if (this.isBackToHome) {
         UIContextSelf.getRouter().clear();
-        UIContextSelf.getRouter().replaceUrl({
+        UIContextSelf.replaceUrl({
           url: 'pages/Index'
         });
       } else {

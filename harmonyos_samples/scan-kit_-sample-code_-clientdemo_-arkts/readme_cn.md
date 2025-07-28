@@ -20,9 +20,9 @@
 | :-----------------------------: | ---------------------------------------- | :-----------------------------------------: | :---------------------------------------: | :--------------------------------------: |
 | ![](entry/screenshots/home.png) | ![](entry/screenshots/customScanNew.png) | ![](entry/screenshots/customScanSingle.png) | ![](entry/screenshots/customScanMuti.png) | ![](entry/screenshots/defaultResult.png) |
 
-|          **应用首页**           |                **识别本地图片**                |            **识别本地图片结果单码**            |           **识别本地图片结果多码**            |                  **识别本地图片结果**                  |            **识别图像数据**            |
-| :-----------------------------: | :--------------------------------------------: | :--------------------------------------------: | :-------------------------------------------: | :----------------------------------------------------: | :------------------------------------: |
-| ![](entry/screenshots/home.png) | ![](entry/screenshots/detectBarcodepicker.png) | ![](entry/screenshots/detectBarcodeSingle.png) | ![](entry/screenshots/detectBarcodeMulti.png) | ![](entry/screenshots/customOrDetectBarcodeResult.png) | ![](entry/screenshots/decodeImage.png) |
+|          **应用首页**           |                   **识别本地图片**                   |            **识别本地图片结果单码**            |           **识别本地图片结果多码**            |                  **识别本地图片结果**                  |            **识别图像数据**            |
+| :-----------------------------: |:----------------------------------------------:| :--------------------------------------------: | :-------------------------------------------: | :----------------------------------------------------: | :------------------------------------: |
+| ![](entry/screenshots/home.png) | ![](entry/screenshots/detectBarcodePicker.png) | ![](entry/screenshots/detectBarcodeSingle.png) | ![](entry/screenshots/detectBarcodeMulti.png) | ![](entry/screenshots/customOrDetectBarcodeResult.png) | ![](entry/screenshots/decodeImage.png) |
 
 
 

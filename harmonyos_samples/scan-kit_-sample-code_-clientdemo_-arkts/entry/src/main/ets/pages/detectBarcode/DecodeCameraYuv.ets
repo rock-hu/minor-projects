@@ -1,6 +1,6 @@
 import { camera } from '@kit.CameraKit';
 import { BusinessError } from '@kit.BasicServicesKit';
-import { abilityAccessCtrl } from '@kit.AbilityKit';
+import { abilityAccessCtrl, PermissionRequestResult } from '@kit.AbilityKit';
 import { image } from '@kit.ImageKit';
 import { display, LengthMetrics } from '@kit.ArkUI';
 import { detectBarcode, scanBarcode, scanCore } from '@kit.ScanKit';
@@ -44,23 +44,20 @@ struct DecodeCameraYuv {
   }
 
   requestPermissionsFromUserFn(): Promise<boolean> {
-    let atManager = abilityAccessCtrl.createAtManager();
+    const atManager: abilityAccessCtrl.AtManager = abilityAccessCtrl.createAtManager();
     return new Promise((resolve, reject) => {
-      atManager.requestPermissionsFromUser(UIContextSelf.uiContext.getHostContext(), ['ohos.permission.CAMERA']).then((data) => {
-        let grantStatus: Array<number> = data.authResults;
-        let length: number = grantStatus.length;
-        for (let i = 0; i < length; i++) {
-          if (grantStatus[i] === 0) {
+      atManager.requestPermissionsFromUser(UIContextSelf.uiContext.getHostContext(), ['ohos.permission.CAMERA'])
+        .then((data: PermissionRequestResult) => {
+          const grantStatus: Array<number> = data.authResults;
+          const PERMISSION_GRANTED: number = 0;
+          if (grantStatus.length > 0 && grantStatus[0] === PERMISSION_GRANTED) {
             // The user has granted the permission.
             resolve(true);
-            break;
           } else {
             // If the user refuses to grant the permission, display a message indicating that user authorization is required, and direct the user to set the permission in system settings.
             reject(false);
-            break;
           }
-        }
-      }).catch((error: BusinessError) => {
+        }).catch((error: BusinessError) => {
         Logger.error(TAG, `Failed to requestPermissionsFromUser by atManager. Code: ${error.code}.`);
         reject(false);
       })
@@ -296,46 +293,50 @@ struct DecodeCameraYuv {
 
   async startPreviewOutput(
     cameraManager: camera.CameraManager, xComponentSurfaceId: string, receiver: image.ImageReceiver): Promise<void> {
-    // Call Camera Kit to obtain supported camera devices.
-    let camerasDevices: Array<camera.CameraDevice> = cameraManager.getSupportedCameras();
+    try {
+      // Call Camera Kit to obtain supported camera devices.
+      let camerasDevices: Array<camera.CameraDevice> = cameraManager.getSupportedCameras();
 
-    // Obtain supported modes.
-    let sceneModes: Array<camera.SceneMode> = cameraManager.getSupportedSceneModes(camerasDevices[0]);
-    let isSupportPhotoMode: boolean = sceneModes.indexOf(camera.SceneMode.NORMAL_PHOTO) >= 0;
-    if (!isSupportPhotoMode) {
-      return;
+      // Obtain supported modes.
+      let sceneModes: Array<camera.SceneMode> = cameraManager.getSupportedSceneModes(camerasDevices[0]);
+      let isSupportPhotoMode: boolean = sceneModes.indexOf(camera.SceneMode.NORMAL_PHOTO) >= 0;
+      if (!isSupportPhotoMode) {
+        return;
+      }
+
+      let cameraProfile: camera.Profile = {
+        format: camera.CameraFormat.CAMERA_FORMAT_YUV_420_SP,
+        size: {
+          "width": CAMERA_1920,
+          "height": CAMERA_1080
+        },
+      }
+
+      this.previewOutput = cameraManager.createPreviewOutput(cameraProfile, xComponentSurfaceId);
+
+      let imageReceiverSurfaceId: string = await receiver.getReceivingSurfaceId();
+      this.previewOutput2 = cameraManager.createPreviewOutput(cameraProfile, imageReceiverSurfaceId);
+
+      this.cameraInput = cameraManager.createCameraInput(camerasDevices[0]);
+
+      await this.cameraInput.open();
+
+      this.photoSession =
+        cameraManager.createSession(camera.SceneMode.NORMAL_PHOTO) as camera.PhotoSession;
+
+      this.photoSession.beginConfig();
+      this.photoSession.addInput(this.cameraInput);
+      this.photoSession.addOutput(this.previewOutput);
+      this.photoSession.addOutput(this.previewOutput2);
+      await this.photoSession.commitConfig();
+
+      await this.photoSession.start();
+
+      // Obtain the camera preview stream buffer.
+      this.onImageArrival(receiver);
+    } catch (error) {
+      Logger.error(TAG, `Failed to startPreviewOutput. Code: ${error.code}.`);
     }
-
-    let cameraProfile: camera.Profile = {
-      format: camera.CameraFormat.CAMERA_FORMAT_YUV_420_SP,
-      size: {
-        "width": CAMERA_1920,
-        "height": CAMERA_1080
-      },
-    }
-
-    this.previewOutput = cameraManager.createPreviewOutput(cameraProfile, xComponentSurfaceId);
-
-    let imageReceiverSurfaceId: string = await receiver.getReceivingSurfaceId();
-    this.previewOutput2 = cameraManager.createPreviewOutput(cameraProfile, imageReceiverSurfaceId);
-
-    this.cameraInput = cameraManager.createCameraInput(camerasDevices[0]);
-
-    await this.cameraInput.open();
-
-    this.photoSession =
-      cameraManager.createSession(camera.SceneMode.NORMAL_PHOTO) as camera.PhotoSession;
-
-    this.photoSession.beginConfig();
-    this.photoSession.addInput(this.cameraInput);
-    this.photoSession.addOutput(this.previewOutput);
-    this.photoSession.addOutput(this.previewOutput2);
-    await this.photoSession.commitConfig();
-
-    await this.photoSession.start();
-
-    // Obtain the camera preview stream buffer.
-    this.onImageArrival(receiver);
   }
 
   onImageArrival(receiver: image.ImageReceiver): void {

@@ -232,7 +232,7 @@ export struct CodeLayout {
         id: 0,
         usage: 'alarm'
       }).then((): void => {
-      }, (error: BusinessError) => {
+      }).catch((error: BusinessError) => {
         Logger.error(TAG, `Failed to start vibration. Code: ${error.code}, message: ${error.message}`);
       });
     } catch (err) {
@@ -272,7 +272,7 @@ export struct CodeLayout {
   terminateSelfPage(): void {
     if (this.scanResults && this.scanResults.size > 0) {
       try {
-        UIContextSelf.getRouter().pushUrl({
+        UIContextSelf.pushUrl({
           url: 'pages/resultPage/ResultPage',
           params: this.scanResults.data[this.multiSelectedIndex]
         })

@@ -36,16 +36,20 @@ struct CodeLayout {
     Logger.info(TAG, `uri: ${this.uri}, infoW: ${this.infoW}, infoH: ${this.infoH}`);
     this.calculate();
     if (DeviceService.isFolding) {
-      display.on('foldDisplayModeChange', async (foldStatus: display.FoldDisplayMode) => {
-        // 1: unfolded 2: folded
-        if (foldStatus === 1 || foldStatus === 2) {
-          setTimeout(() => {
-            this.codeLocation = [];
-            this.setDisplay();
-            this.calculate();
-          }, 300)
-        }
-      });
+      try {
+        display.on('foldDisplayModeChange', async (foldStatus: display.FoldDisplayMode) => {
+          // 1: unfolded 2: folded
+          if (foldStatus === 1 || foldStatus === 2) {
+            setTimeout(() => {
+              this.codeLocation = [];
+              this.setDisplay();
+              this.calculate();
+            }, 300)
+          }
+        });
+      } catch (error) {
+        Logger.error(TAG, `Failed to on foldDisplayModeChange. Code: ${error.code}.`);
+      }
     }
   }
 
@@ -120,7 +124,7 @@ struct CodeLayout {
               y: item[1] + item[3] / 2 + 'lpx',
             })
             .onClick(() => {
-              UIContextSelf.getRouter().pushUrl({
+              UIContextSelf.pushUrl({
                 url: 'pages/resultPage/ResultPage',
                 params: this.result[index]
               })

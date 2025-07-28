@@ -3,7 +3,7 @@
  */
 
 // [Start fd_leak_detection_case]
-import { fileIo as fs, ListFileOptions, ReadOptions, WriteOptions } from '@kit.CoreFileKit';
+import { fileIo as fs, ListFileOptions } from '@kit.CoreFileKit';
 import { BusinessError } from '@kit.BasicServiceKit';
 
 @Entry
@@ -30,11 +30,11 @@ struct Index {
             if (err) {
               console.error("list file failed, message:", err.message + ", code:" + err.code);
             } else {
-              console.log("count:", fileNames.lenght);
+              console.log("count:", fileNames.length);
               fileNames.forEach(fileName => {
                 let fd: number = Number(fileName);
                 try {
-                  let actName = fd.dup(fd);
+                  let actName = fs.dup(fd);
                   console.info('fd:', fd);
                   console.info('path:', actName.path);
                   fs.close(actName);

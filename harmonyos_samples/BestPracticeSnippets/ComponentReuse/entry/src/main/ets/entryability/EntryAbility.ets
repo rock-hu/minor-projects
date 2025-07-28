@@ -38,6 +38,8 @@ export default class EntryAbility extends UIAbility {
         hilog.error(0x0000, 'testTag', 'Failed to load the content. Cause: %{public}s', JSON.stringify(err) ?? '');
         return;
       }
+      let uiContext: UIContext | undefined = windowStage.getMainWindowSync().getUIContext();
+      AppStorage.setOrCreate('uiContext', uiContext);
       this.windowClass = windowStage.getMainWindowSync();
       this.windowClass.setWindowLayoutFullScreen(true).then(() => {
         hilog.info(0x0000, 'testTag', 'Success in setting the window layout to full-screen mode.');

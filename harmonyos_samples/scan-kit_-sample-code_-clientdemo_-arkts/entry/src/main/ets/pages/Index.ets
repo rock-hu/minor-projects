@@ -45,7 +45,7 @@ struct Index {
           Column() {
             CustomButton({
               mText: $r('app.string.default_view_decode'), mOnClick: () => {
-                UIContextSelf.getRouter().pushUrl({
+                UIContextSelf.pushUrl({
                   url: 'pages/defaultScan/DefaultScan'
                 })
               }
@@ -53,14 +53,14 @@ struct Index {
 
             CustomButton({
               mText: $r('app.string.customized_view_decode'), mOnClick: () => {
-                UIContextSelf.getRouter().pushUrl({
+                UIContextSelf.pushUrl({
                   url: 'pages/customScan/CustomPage'
                 })
               }
             })
             CustomButton({
               mText: $r('app.string.bitmap_api_decode'), mOnClick: () => {
-                UIContextSelf.getRouter().pushUrl({
+                UIContextSelf.pushUrl({
                   url: "pages/detectBarcode/DecodeBarcode"
                 })
               }
@@ -68,7 +68,7 @@ struct Index {
 
             CustomButton({
               mText: $r('app.string.generate_QR_code'), mOnClick: () => {
-                UIContextSelf.getRouter().pushUrl({
+                UIContextSelf.pushUrl({
                   url: 'pages/generateBarcode/CreateBarcode',
                 })
               }

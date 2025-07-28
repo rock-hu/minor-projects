@@ -15,7 +15,7 @@ struct CustomPage {
       Column() {
         CustomButton({
           mText: $r('app.string.customized_view_decode'), mOnClick: () => {
-            UIContextSelf.getRouter().pushUrl({
+            UIContextSelf.pushUrl({
               url: "pages/customScan/pages/ScanPage"
             })
           }

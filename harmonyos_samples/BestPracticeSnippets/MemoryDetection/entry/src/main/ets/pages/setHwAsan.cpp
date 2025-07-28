@@ -4,7 +4,7 @@
 */
 
 // [Start hw_asan_hvigorw]
-hvigorw [taskNames...] -p ohos-enable-hwasan=true  <options> 
+hvigorw [taskNames...] -p ohos-enable-hwasan=true  <options>
 // [End hw_asan_hvigorw]
 
 /**
@@ -13,7 +13,7 @@ hvigorw [taskNames...] -p ohos-enable-hwasan=true  <options>
 */
 
 // [Start hw_asan_hvigorw_two]
-hvigorw [taskNames...]  <options> 
+hvigorw [taskNames...]  <options>
 // [End hw_asan_hvigorw_two]
 
 /**

@@ -85,9 +85,13 @@ export default class EntryAbility extends UIAbility {
     let status: router.RouterState = UIContextSelf.getRouter().getState();
     if (status && status.name !== 'ScanAccess' && uri) {
       // Process the service based on the URI.
-      UIContextSelf.getRouter().pushUrl({
-        url: 'pages/access/ScanAccess'
-      });
+      try {
+        UIContextSelf.pushUrl({
+          url: 'pages/access/ScanAccess'
+        });
+      } catch (error) {
+        Logger.error(TAG, `Failed to pushUrl. Code: ${error.code}.`);
+      }
     }
   }
 

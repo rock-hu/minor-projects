@@ -23,7 +23,7 @@ struct ScanAccess {
 
         CustomButton({
           mText: $r('app.string.access_integration_process'), mOnClick: () => {
-            UIContextSelf.getRouter().pushUrl({
+            UIContextSelf.pushUrl({
               url: 'pages/access/ScanDetail'
             })
           }

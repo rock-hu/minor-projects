@@ -86,7 +86,7 @@ struct DecodeBarcode {
                     }
                     if (result && result.length > 0) {
                       // Image decoding result processing.
-                      UIContextSelf.getRouter().pushUrl({
+                      UIContextSelf.pushUrl({
                         url: 'pages/detectBarcode/CommonCodeLayout',
                         params: {
                           result: result,
@@ -109,7 +109,9 @@ struct DecodeBarcode {
                   Logger.error(TAG, `error by catch. Code: ${error.code}, message: ${error.message}.`);
                 }
 
-              })
+              }).catch((error: BusinessError) => {
+                Logger.error(TAG, `Failed to select by photoPicker. Code: ${error.code}.`);
+              });
             } catch (error) {
               showError(error);
               Logger.error(TAG, `Failed to select by photoPicker. Code: ${error.code}.`);
@@ -119,7 +121,7 @@ struct DecodeBarcode {
 
         CustomButton({
           mText: $r('app.string.bitmap_api_decode_pixel'), mOnClick: () => {
-            UIContextSelf.getRouter().pushUrl({
+            UIContextSelf.pushUrl({
               url: 'pages/detectBarcode/DecodeCameraYuv',
             })
           }

@@ -1,4 +1,4 @@
-import { PromptAction, Router, window } from '@kit.ArkUI';
+import { PromptAction, router, Router, window } from '@kit.ArkUI';
 import Logger from '../../../common/Logger';
 
 const TAG: string = 'UIContextSelf';
@@ -45,5 +45,21 @@ export class UIContextSelf {
       throw new Error('UIContext has not been set.');
     }
     return UIContextSelf.uiContext.getSharedLocalStorage();
+  }
+
+  public static async replaceUrl(options: router.RouterOptions): Promise<void> {
+    try {
+      UIContextSelf.uiContext.getRouter().replaceUrl(options);
+    } catch (error) {
+      Logger.error(TAG, `Failed to replaceUrl by getRouter. Code: ${error.code}.`);
+    }
+  }
+
+  public static async pushUrl(options: router.RouterOptions): Promise<void> {
+    try {
+      UIContextSelf.uiContext.getRouter().pushUrl(options);
+    } catch (error) {
+      Logger.error(TAG, `Failed to pushUrl by getRouter. Code: ${error.code}.`);
+    }
   }
 }

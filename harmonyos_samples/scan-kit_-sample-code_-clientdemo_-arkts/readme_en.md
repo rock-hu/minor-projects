@@ -63,7 +63,7 @@ The APIs of Scan Kit need to be used: import { scanCore, scanBarcode, customScan
   </tr>
   <tr>
     <td><img src='entry/screenshots/homePageEs.png'></td>
-    <td><img src='entry/screenshots/detectBarcodepickerEs.png'></td>
+    <td><img src='entry/screenshots/detectBarcodePickerEs.png'></td>
     <td><img src='entry/screenshots/detectBarcodeSingle.png'></td>
     <td><img src='entry/screenshots/detectBarcodeMulti.png'></td>
     <td><img src='entry/screenshots/customOrDetectBarcodeResultEs.png'></td>

@@ -77,7 +77,7 @@ struct Index {
     window.createWindow({
       name: 'subWindow',
       windowType: window.WindowType.TYPE_DIALOG,
-      ctx: getContext(),
+      ctx: this.getUIContext().getHostContext(),
     }).then((subWindow) => {
       this.subWindow = subWindow;
 
@@ -110,6 +110,8 @@ struct Index {
     .height('100%')
     .width('100%')
   }
+
   // [EndExclude rotate_sample]
 }
+
 // [End rotate_sample]

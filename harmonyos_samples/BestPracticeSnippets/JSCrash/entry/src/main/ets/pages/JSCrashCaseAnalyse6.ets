@@ -2,7 +2,7 @@
  * 最佳实践：JSCrash类问题案例
  */
 
-// [Start jscrash_case_analysis_6]
+// [Start jscrash_case_analysis_6_1]
 function b(a) {
     a.trim(); // 报错 undefined is not callable
 }
@@ -11,10 +11,12 @@ export function c() {
     let a = 123;
     b(a);
 }
+// [End jscrash_case_analysis_6_1]
 
+// [Start jscrash_case_analysis_6_2]
 let a = 123;
 a(); // 123 is not callable
-// [End jscrash_case_analysis_6]
+// [End jscrash_case_analysis_6_2]
 
 
 // [Start jscrash_case_analysis_7]

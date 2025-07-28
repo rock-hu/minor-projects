@@ -81,9 +81,9 @@ export class PromptTone {
                 .then(() => {
                   // Set the volume to 50%.
                   this.avPlayer.setVolume(0.5);
-                }, (error) => {
-                  Logger.error(TAG, `Failed to prepare avPlayer. Code: ${error.code}`);
-                });
+                }).catch((error) => {
+                Logger.error(TAG, `Failed to prepare avPlayer. Code: ${error.code}`);
+              });
             } catch (error) {
               Logger.error(TAG, `Failed to prepare avPlayer. Code: ${error.code}`);
             }

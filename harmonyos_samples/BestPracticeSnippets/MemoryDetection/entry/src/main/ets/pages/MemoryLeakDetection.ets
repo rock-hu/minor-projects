@@ -25,7 +25,7 @@ let p = new People(20, "Tom");
  * 最佳实践：资源泄漏类问题优化建议
  */
 
-// [Start resource_leak_advise1]
+// [Start resource_leak_advise1_negative]
 export default {
   data: {
     timer: null
@@ -35,6 +35,30 @@ export default {
       this.updateData();
     }, 1000);
   },
-  // 忘记在 onDestory 中清除定时器
+  // 忘记在 onDestroy 中清除定时器
 }
-// [End resource_leak_advise1]
+// [End resource_leak_advise1_negative]
+
+// [Start resource_leak_advise1_positive]
+export default {
+  data: {
+    timer: null
+  },
+  onInit() {
+    // 设置定时器
+    this.timer = setInterval(() => {
+      this.updateData();
+    }, 1000);
+  },
+  onDestroy() {
+    // 清除定时器
+    if (this.timer) {
+      clearInterval(this.timer);
+      this.timer = null; // 可选：将timer充值为null
+    }
+  },
+  updateData() {
+    // 数据更新逻辑
+  }
+}
+// [End resource_leak_advise1_positive]

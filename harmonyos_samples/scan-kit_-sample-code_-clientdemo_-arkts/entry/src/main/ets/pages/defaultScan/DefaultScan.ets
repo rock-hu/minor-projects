@@ -28,7 +28,7 @@ struct DefaultScan {
                 enableAlbum: true
               }).then((result: scanBarcode.ScanResult) => {
                 Logger.info(TAG, `Promise scan result: ${JSON.stringify(result)}`);
-                UIContextSelf.getRouter().pushUrl({
+                UIContextSelf.pushUrl({
                   url: 'pages/resultPage/ResultPage',
                   params: {
                     originalValue: result.originalValue,
