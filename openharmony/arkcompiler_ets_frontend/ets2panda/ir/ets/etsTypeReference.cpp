@@ -112,8 +112,14 @@ checker::Type *ETSTypeReference::GetType(checker::ETSChecker *checker)
 
 ETSTypeReference *ETSTypeReference::Clone(ArenaAllocator *const allocator, AstNode *const parent)
 {
-    auto *const partClone = part_ != nullptr ? part_->Clone(allocator, nullptr)->AsETSTypeReferencePart() : nullptr;
+    ETSTypeReferencePart *partClone = nullptr;
+    if (part_ != nullptr) {
+        auto *const clone = part_->Clone(allocator, nullptr);
+        ES2PANDA_ASSERT(clone != nullptr);
+        partClone = clone->AsETSTypeReferencePart();
+    }
     auto *const clone = allocator->New<ETSTypeReference>(partClone, allocator);
+    ES2PANDA_ASSERT(clone != nullptr);
 
     if (partClone != nullptr) {
         partClone->SetParent(clone);
@@ -136,4 +142,19 @@ ETSTypeReference *ETSTypeReference::Clone(ArenaAllocator *const allocator, AstNo
     clone->SetRange(Range());
     return clone;
 }
+
+ETSTypeReference *ETSTypeReference::Construct(ArenaAllocator *allocator)
+{
+    return allocator->New<ETSTypeReference>(nullptr, allocator);
+}
+
+void ETSTypeReference::CopyTo(AstNode *other) const
+{
+    auto otherImpl = other->AsETSTypeReference();
+
+    otherImpl->part_ = part_;
+
+    TypeNode::CopyTo(other);
+}
+
 }  // namespace ark::es2panda::ir

@@ -877,11 +877,10 @@ public:
     GateRef TryGetHashcodeFromString(GateRef string);
     GateRef CanBeConcat(GateRef glue, GateRef leftString, GateRef rightString, GateRef isValidOpt);
     GateRef CanBackStore(GateRef glue, GateRef rightString, GateRef isValidOpt);
-    GateRef GetRawHashFromString(GateRef value);
     void CopyUtf8AsUtf16(GateRef glue, GateRef dst, GateRef src, GateRef sourceLength);
     void CopyChars(GateRef glue, GateRef dst, GateRef source, GateRef sourceLength,
         GateRef charSize, VariableType type);
-    void SetRawHashcode(GateRef glue, GateRef str, GateRef rawHashcode);
+    void SetMixHashcode(GateRef glue, GateRef str, GateRef rawHashcode);
     GateRef StringFromSingleCharCode(GateRef gate);
     GateRef StringCharCodeAt(GateRef thisValue, GateRef posTag);
     GateRef StringSubstring(std::vector<GateRef>& args);
@@ -971,6 +970,8 @@ public:
     GateRef BinaryArithmetic(const GateMetaData* meta, MachineType machineType, GateRef left,
                              GateRef right, GateType gateType = GateType::Empty(), const char* comment = nullptr);
     GateRef BinaryCmp(const GateMetaData* meta, GateRef left, GateRef right, const char* comment = nullptr);
+
+    GateRef NeedSkipReadBarrier(GateRef glue);
 
     // Load
     GateRef Load(VariableType type, GateRef glue, GateRef base, GateRef offset,

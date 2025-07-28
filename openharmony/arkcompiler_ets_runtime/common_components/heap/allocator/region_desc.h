@@ -666,6 +666,7 @@ public:
     static RegionType GetAliveRegionType(uintptr_t allocAddr)
     {
         // only alive region have `InlinedRegionMetaData`.
+        DCHECK_CC(IsAliveRegionType(GetRegionDescAt(allocAddr)->GetRegionType()));
         InlinedRegionMetaData *metaData = InlinedRegionMetaData::GetInlinedRegionMetaData(allocAddr);
         return metaData->GetRegionType();
     }
@@ -1362,9 +1363,9 @@ private:
         SetResurrectedRegionFlag(0);
         __atomic_store_n(&metadata.rawPointerObjectCount, 0, __ATOMIC_SEQ_CST);
 #ifdef USE_HWASAN
-        ASAN_UNPOISON_MEMORY_REGION(reinterpret_cast<const volatile void *>(metadata.allocPtr),
+        ASAN_UNPOISON_MEMORY_REGION(reinterpret_cast<const volatile void *>(metadata.regionBase),
             nUnit * RegionDesc::UNIT_SIZE);
-        uintptr_t pAddr = metadata.allocPtr;
+        uintptr_t pAddr = metadata.regionBase;
         uintptr_t pSize = nUnit * RegionDesc::UNIT_SIZE;
         LOG_COMMON(DEBUG) << std::hex << "set [" << pAddr <<
             std::hex << ", " << (pAddr + pSize) << ") unpoisoned\n";

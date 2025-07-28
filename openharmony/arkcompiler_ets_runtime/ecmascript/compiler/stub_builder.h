@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -590,7 +590,7 @@ public:
     void CalcHashcodeForDouble(GateRef value, Variable *res, Label *exit);
     void CalcHashcodeForObject(GateRef glue, GateRef value, Variable *res, Label *exit);
     GateRef GetHashcodeFromString(GateRef glue, GateRef value, GateRef hir = Circuit::NullGate());
-    inline void SetRawHashcode(GateRef glue, GateRef str, GateRef rawHashcode);
+    inline void SetMixHashcode(GateRef glue, GateRef str, GateRef mixHashcode);
     GateRef TryGetHashcodeFromString(GateRef string);
     GateRef GetFirstFromTreeString(GateRef glue, GateRef string);
     GateRef GetSecondFromTreeString(GateRef glue, GateRef string);
@@ -829,6 +829,7 @@ public:
     GateRef ShouldGetGCReason(GateRef gcPhase);
     GateRef ShouldProcessSATB(GateRef gcPhase);
     GateRef ShouldUpdateRememberSet(GateRef glue, GateRef gcPhase);
+    GateRef NeedSkipReadBarrier(GateRef glue);
     void CMCSetValueWithBarrier(GateRef glue, GateRef obj, GateRef offset, GateRef value);
     void CMCArrayCopyWriteBarrier(GateRef glue, GateRef dstObj, GateRef src, GateRef dst, GateRef count);
     void CMCArrayCopyWriteBarrierSameArray(GateRef glue, GateRef dstObj, GateRef src, GateRef dst, GateRef count);
@@ -1068,8 +1069,6 @@ public:
     void ArrayCopyAndHoleToUndefined(GateRef glue, GateRef srcObj, GateRef srcAddr, GateRef dstObj,
                                      GateRef dstAddr, GateRef length, GateRef needBarrier);
     GateRef ThreeInt64Min(GateRef first, GateRef second, GateRef third);
-    void ComputeRawHashcode(GateRef glue, Label *exit, Variable* result, StringInfoGateRef stringGate, bool isUtf8);
-    GateRef ComputeStringHashcode(GateRef glue, GateRef str);
     void MigrateArrayWithKind(GateRef glue, GateRef object, GateRef oldKind, GateRef newKind);
     GateRef MigrateFromRawValueToHeapValues(GateRef glue, GateRef object, GateRef needCOW, GateRef isIntKind);
     GateRef MigrateFromHeapValueToRawValue(GateRef glue, GateRef object, GateRef needCOW, GateRef isIntKind);

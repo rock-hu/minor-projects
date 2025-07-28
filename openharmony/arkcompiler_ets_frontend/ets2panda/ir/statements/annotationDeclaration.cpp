@@ -111,6 +111,31 @@ Identifier *AnnotationDeclaration::GetBaseName() const
     if (expr_->IsIdentifier()) {
         return expr_->AsIdentifier();
     }
-    return expr_->AsETSTypeReference()->Part()->GetIdent();
+    auto *part = Expr()->AsETSTypeReference()->Part();
+    if (part->Name()->IsIdentifier()) {
+        return part->Name()->AsIdentifier();
+    }
+    if (part->Name()->IsTSQualifiedName()) {
+        return part->Name()->AsTSQualifiedName()->Right();
+    }
+    return nullptr;
+}
+
+AstNode *AnnotationDeclaration::Construct(ArenaAllocator *allocator)
+{
+    return allocator->New<AnnotationDeclaration>(nullptr, allocator);
+}
+
+void AnnotationDeclaration::CopyTo(AstNode *other) const
+{
+    auto otherImpl = other->AsAnnotationDeclaration();
+
+    otherImpl->internalName_ = internalName_;
+    otherImpl->scope_ = scope_;
+    otherImpl->expr_ = expr_;
+    otherImpl->properties_ = properties_;
+    otherImpl->policy_ = policy_;
+
+    AnnotationAllowed<Statement>::CopyTo(other);
 }
 }  // namespace ark::es2panda::ir

@@ -672,6 +672,7 @@ void TraceCollector::UpdateGCStats()
                     ";native size:" + std::to_string(Heap::GetHeap().GetNotifiedNativeSize()) +
                     ";new native threshold:" + std::to_string(Heap::GetHeap().GetNativeHeapThreshold())
                 ).c_str());
+    space.DumpAllRegionStats("End GC log", gcReason_, gcType_);
 }
 
 void TraceCollector::UpdateNativeThreshold(GCParam& gcParam)
@@ -702,7 +703,7 @@ void TraceCollector::CopyObject(const BaseObject& fromObj, BaseObject& toObj, si
 
 void TraceCollector::ReclaimGarbageMemory(GCReason reason)
 {
-    if (reason == GC_REASON_OOM) {
+    if (reason != GC_REASON_YOUNG) {
         Heap::GetHeap().GetAllocator().ReclaimGarbageMemory(true);
     } else {
         Heap::GetHeap().GetAllocator().ReclaimGarbageMemory(false);
@@ -716,9 +717,8 @@ void TraceCollector::RunGarbageCollection(uint64_t gcIndex, GCReason reason, GCT
     auto gcReasonName = std::string(g_gcRequests[gcReason_].name);
     auto currentAllocatedSize = Heap::GetHeap().GetAllocatedSize();
     auto currentThreshold = Heap::GetHeap().GetCollector().GetGCStats().GetThreshold();
-    VLOG(INFO, "Begin GC log. GCReason: %s, GCType: %s, Current allocated %s, Current threshold %s, gcIndex=%llu",
-        gcReasonName.c_str(), GCTypeToString(gcType), Pretty(currentAllocatedSize).c_str(),
-        Pretty(currentThreshold).c_str(), gcIndex);
+    RegionSpace& space = reinterpret_cast<RegionSpace&>(theAllocator_);
+    space.DumpAllRegionStats("Begin GC log", gcReason_, gcType_);
     OHOS_HITRACE(HITRACE_LEVEL_COMMERCIAL, "CMCGC::RunGarbageCollection", (
                     "GCReason:" + gcReasonName + ";GCType:" + GCTypeToString(gcType) +
                     ";Sensitive:" + std::to_string(static_cast<int>(Heap::GetHeap().GetSensitiveStatus())) +

@@ -70,7 +70,7 @@ declare_args() {
   # NOTE(ipetrov): Need to enable for mac previewer
   ark_js_hybrid = !ark_standalone_build && !is_mac
 
-  ets_runtime_enable_cmc_gc = (!is_mac && !is_mingw)
+  ets_runtime_enable_cmc_gc = (!is_mac && !is_mingw && (!defined(is_arkui_x) || !is_arkui_x))
 
   enable_handle_leak_detect = false
 }
@@ -192,7 +192,7 @@ if (enable_hisysevent) {
     "faultloggerd:dfx_signalhandler",
   ]
 }
-if (is_ohos && is_standard_system && !is_arkui_x &&
+if (is_ohos && is_standard_system && !is_arkui_x && !is_qemu_runtime &&
     defined(global_parts_info) &&
     defined(global_parts_info.resourceschedule_qos_manager)) {
   hiviewdfx_ext_deps += [ "qos_manager:qos" ]

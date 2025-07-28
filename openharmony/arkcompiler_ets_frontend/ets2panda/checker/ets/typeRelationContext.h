@@ -34,6 +34,9 @@ public:
 
         auto *const etsChecker = relation->GetChecker()->AsETSChecker();
 
+        ES2PANDA_ASSERT(target != nullptr);
+        ES2PANDA_ASSERT(node != nullptr);
+        ES2PANDA_ASSERT(source != nullptr);
         if (target->IsETSArrayType() && node->IsArrayExpression()) {
             assignable_ =
                 ValidateArrayTypeInitializerByElement(relation, node->AsArrayExpression(), target->AsETSArrayType());

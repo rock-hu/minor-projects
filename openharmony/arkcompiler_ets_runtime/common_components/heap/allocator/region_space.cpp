@@ -58,10 +58,27 @@ RegionDesc* RegionSpace::AllocateThreadLocalRegion(bool expectPhysicalMem)
     return region;
 }
 
-void RegionSpace::DumpAllRegionStats(const char* msg) const
+void RegionSpace::DumpAllRegionStats(const char* msg, GCReason reason, GCType type) const
 {
-    VLOG(DEBUG, msg);
+    // summary info in info level.
+    auto from = fromSpace_.GetAllocatedSize();
+    auto exempt = fromSpace_.GetSurvivedSize();
+    auto to = toSpace_.GetAllocatedSize();
+    auto young = youngSpace_.GetAllocatedSize();
+    auto old = oldSpace_.GetAllocatedSize();
+    auto other = regionManager_.GetAllocatedSize();
+    auto currentThreshold = Heap::GetHeap().GetCollector().GetGCStats().GetThreshold();
 
+    std::ostringstream oss;
+    oss << msg << " GCReason: " << GCReasonToString(reason)
+        << ", GCType: " << GCTypeToString(type) << ", Current allocated: "
+        << Pretty(from + to + young + old + other) <<
+        ", Current threshold: " << Pretty(currentThreshold) << ". (from: " << Pretty(from)
+        << "(exempt: " << Pretty(exempt) << "), to: " << Pretty(to) << ", young: " << Pretty(young)
+        << ", old: " << Pretty(old) << ", other: " << Pretty(other) << ")";
+    VLOG(INFO, oss.str().c_str());
+
+    // detail info in debug level.
     youngSpace_.DumpRegionStats();
     oldSpace_.DumpRegionStats();
     fromSpace_.DumpRegionStats();
@@ -114,7 +131,7 @@ bool RegionSpace::ShouldRetryAllocation(size_t& tryTimes) const
             tryTimes--;
         }
         return true;
-    } else {
+    } else { //LCOV_EXCL_BR_LINE
         Heap::throwOOM();
         return false;
     }
@@ -225,7 +242,7 @@ HeapAddress RegionSpace::AllocateNoGC(size_t size, AllocType allocType)
     } else if (LIKELY_CC(allocType == AllocType::MOVEABLE_OBJECT || allocType == AllocType::MOVEABLE_OLD_OBJECT)) {
         AllocationBuffer* allocBuffer = AllocationBuffer::GetOrCreateAllocBuffer();
         internalAddr = allocBuffer->Allocate(allocSize, allocType);
-    } else {
+    } else { //LCOV_EXCL_BR_LINE
         // Unreachable for serialization
         UNREACHABLE_CC();
     }
@@ -271,6 +288,7 @@ void RegionSpace::Init(const RuntimeParam& param)
     MemoryMap::Option opt = MemoryMap::DEFAULT_OPTIONS;
     opt.tag = "region_heap";
     size_t heapSize = param.heapParam.heapSize * KB;
+    maxGarbageCacheSize_ = param.gcParam.maxGarbageCacheSize;
     size_t totalSize = RegionManager::GetHeapMemorySize(heapSize);
     size_t regionNum = RegionManager::GetHeapUnitCount(heapSize);
 #if defined(COMMON_ASAN_SUPPORT)

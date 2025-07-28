@@ -4949,6 +4949,8 @@ Allows a system application to access /data/log/ directory.
 
 **Supported devices**：General
 
+**Valid since**：19
+
 ## ohos.permission.MANAGE_FILE_ENCRYPTION
 
 Allows a system application to modify the encryption status of system files.
@@ -5073,4 +5075,4 @@ Allows an application to access the sandbox directories of other extended applic
 
 **Supported devices**：General
 
-**Valid since**: 20
+**Valid since**: 19

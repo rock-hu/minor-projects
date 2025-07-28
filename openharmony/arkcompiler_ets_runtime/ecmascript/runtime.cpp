@@ -18,10 +18,11 @@
 #include "common_components/mutator/mutator_manager.h"
 #include "ecmascript/checkpoint/thread_state_transition.h"
 #include "common_interfaces/base_runtime.h"
+#include "common_interfaces/thread/thread_holder_manager.h"
 #include "ecmascript/dynamic_object_accessor.h"
 #include "ecmascript/dynamic_object_descriptor.h"
 #include "ecmascript/dynamic_type_converter.h"
-#include "common_interfaces/thread/thread_holder_manager.h"
+#include "common_interfaces/profiler/heap_profiler_listener.h"
 #include "ecmascript/jit/jit.h"
 #include "ecmascript/jspandafile/program_object.h"
 #include "ecmascript/js_runtime_options.h"
@@ -87,8 +88,13 @@ void Runtime::CreateIfFirstVm(const JSRuntimeOptions &options)
             LOG_ECMA(INFO) << "start run with cmc gc";
             // SetConfigHeapSize for cmc gc, pc and persist config may change heap size.
             const_cast<JSRuntimeOptions &>(options).SetConfigHeapSize(MemMapAllocator::GetInstance()->GetCapacity());
+            const_cast<JSRuntimeOptions &>(options).SetConfigMaxGarbageCacheSize(g_maxGarbageCacheSize);
             common::BaseRuntime::GetInstance()->Init(options.GetRuntimeParam());
             common::g_enableGCTimeoutCheck = options.IsEnableGCTimeoutCheck();
+#if defined(ECMASCRIPT_SUPPORT_HEAPPROFILER)
+            common::HeapProfilerListener::GetInstance().RegisterOutOfMemoryEventCb(
+                HeapProfilerInterface::DumpHeapSnapshotForCMCOOM);
+#endif
         }
         DaemonThread::CreateNewInstance();
         firstVmCreated_ = true;
@@ -120,11 +126,6 @@ void Runtime::InitializeIfFirstVm(EcmaVM *vm)
             Jit::GetInstance()->SetEnableOrDisable(vm->GetJSOptions(), isEnableFastJit, isEnableBaselineJit);
             vm->Initialize();
             PostInitialization(vm);
-#if defined(ECMASCRIPT_SUPPORT_HEAPPROFILER)
-            if (g_isEnableCMCGC) {
-                common::CommonHeapProfilerInterface::SetSingleInstance(vm->GetOrNewHeapProfile());
-            }
-#endif
         }
     }
     if (!vm->IsInitialized()) {
@@ -145,7 +146,7 @@ void Runtime::PreInitialization(const EcmaVM *vm)
     mainThread_->SetMainThread();
     nativeAreaAllocator_ = std::make_unique<NativeAreaAllocator>();
     heapRegionAllocator_ = std::make_unique<HeapRegionAllocator>();
-    
+
 #if ENABLE_NEXT_OPTIMIZATION
     if (g_isEnableCMCGC) {
         auto& baseStringTable = common::BaseRuntime::GetInstance()->GetStringTable();
@@ -180,6 +181,8 @@ void Runtime::InitGCConfig(const JSRuntimeOptions &options)
     g_isEnableCMCGC = IsEnableCMCGC(defaultValue);
     if (g_isEnableCMCGC) {
         g_maxRegularHeapObjectSize = 32_KB;
+        uint64_t defaultSize = options.GetCMCMaxGarbageCacheSize();
+        g_maxGarbageCacheSize = GetCMCMaxGarbageCacheSize(defaultSize);
     }
     g_isEnableCMCGCConcurrentRootMarking = options.IsEnableCMCGCConcurrentRootMarking();
 }

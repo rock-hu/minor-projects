@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -4023,9 +4023,9 @@ inline void StubBuilder::InitStringLengthAndFlags(GateRef glue, GateRef str, Gat
     Store(VariableType::INT32(), glue, str, IntPtr(BaseString::LENGTH_AND_FLAGS_OFFSET), mixLength);
 }
 
-inline void StubBuilder::SetRawHashcode(GateRef glue, GateRef str, GateRef rawHashcode)
+inline void StubBuilder::SetMixHashcode(GateRef glue, GateRef str, GateRef mixHashcode)
 {
-    env_->GetBuilder()->SetRawHashcode(glue, str, rawHashcode);
+    env_->GetBuilder()->SetMixHashcode(glue, str, mixHashcode);
 }
 
 inline GateRef StubBuilder::TryGetHashcodeFromString(GateRef string)
@@ -4358,6 +4358,11 @@ inline void StubBuilder::SetToPropertiesCache(GateRef glue, GateRef cache, GateR
     StoreWithoutBarrier(VariableType::INT32(), prop, IntPtr(PropertiesCache::PropertyKey::GetResultsOffset()), result);
 }
 
+inline GateRef StubBuilder::NeedSkipReadBarrier(GateRef glue)
+{
+    return env_->GetBuilder()->NeedSkipReadBarrier(glue);
+}
+
 inline void StubBuilder::StoreWithoutBarrier(VariableType type, GateRef base, GateRef offset, GateRef value)
 {
     GateRef addr = PtrAdd(base, offset);
@@ -4387,7 +4392,7 @@ inline GateRef StubBuilder::HashFromHclassAndStringKey([[maybe_unused]] GateRef 
         Int64LSR(hclassRef,
                  Int64(MegaICCache::PRIMARY_LENGTH_BIT)))); // skip 8bytes
     GateRef keyHash = Load(VariableType::INT32(), glue, key,
-                           IntPtr(BaseString::RAW_HASHCODE_OFFSET));
+                           IntPtr(BaseString::MIX_HASHCODE_OFFSET));
     GateRef temp = Int32Add(clsHash, keyHash);
     return Int32And(temp, Int32(MegaICCache::PRIMARY_LENGTH_MASK));
 }
