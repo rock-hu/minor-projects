@@ -14,12 +14,12 @@ Scan Kit is a basic capability provided by the HarmonyOS SDK. It provides functi
     <th width=16.5%>Scan-to-Access UI</th>
   </tr>
   <tr>
-    <td><img src='entry/src/screenshots/home_en.jpg'></td>
-    <td><img src='entry/src/screenshots/generate_en.jpg'></td>
-    <td><img src='entry/src/screenshots/default_en.jpg'></td>
-    <td><img src='entry/src/screenshots/custom_en.jpg'></td>
-    <td><img src='entry/src/screenshots/detect_en.jpg'></td>
-    <td><img src='entry/src/screenshots/access_en.jpg'></td>
+    <td><img src='entry/src/screenshots/home_en.png'></td>
+    <td><img src='entry/src/screenshots/generate_en.png'></td>
+    <td><img src='entry/src/screenshots/default_en.png'></td>
+    <td><img src='entry/src/screenshots/custom_en.png'></td>
+    <td><img src='entry/src/screenshots/detect_en.png'></td>
+    <td><img src='entry/src/screenshots/access_en.png'></td>
   </tr>
 </table>
 

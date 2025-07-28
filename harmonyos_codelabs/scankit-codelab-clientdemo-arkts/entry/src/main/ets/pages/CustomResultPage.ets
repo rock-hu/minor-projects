@@ -122,7 +122,7 @@ struct CustomResultPage {
       .zIndex(10)
       .position({ x: 15, y: 0 })
       .onClick(async () => {
-        UIContextSelf.getRouter().pushUrl({
+        UIContextSelf.pushUrl({
           url: 'pages/Index'
         }).then(() => {
           UIContextSelf.getRouter().clear();

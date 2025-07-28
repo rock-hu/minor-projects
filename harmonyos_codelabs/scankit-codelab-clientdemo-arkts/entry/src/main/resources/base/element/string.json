@@ -133,7 +133,7 @@
             "value":"Color:"
         },
         {
-            "name":"barcode_backgroundcolor",
+            "name":"barcode_background_color",
             "value":"Background color:"
         },
         {

@@ -72,7 +72,7 @@ struct DetectBarcodePage {
                 detectBarcode.decode(inputImage, options).then((result: Array<scanBarcode.ScanResult>) => {
                   hilog.info(0x0001, TAG, `Succeeded in getting ScanResult by promise with options.`);
                   if (result && result.length > 0) {
-                    UIContextSelf.getRouter().pushUrl({
+                    UIContextSelf.pushUrl({
                       url: 'pages/ResultPage',
                       params: {
                         result: result,
@@ -82,17 +82,11 @@ struct DetectBarcodePage {
                       }
                     });
                   } else {
-                    UIContextSelf.getPromptAction().showToast({
-                      message: $r('app.string.Scan_diaLog_not_found'),
-                      duration: 2000
-                    });
+                    UIContextSelf.showToast($r('app.string.Scan_diaLog_not_found'), 2000);
                   }
                 }).catch((error: BusinessError) => {
                   if (photoResult.photoUris[0]) {
-                    UIContextSelf.getPromptAction().showToast({
-                      message: $r('app.string.Scan_diaLog_not_found'),
-                      duration: 2000
-                    });
+                    UIContextSelf.showToast($r('app.string.Scan_diaLog_not_found'), 2000);
                     hilog.error(0x0001, TAG,
                       `Failed to get ScanResult by promise with options. Code: ${error.code}, message: ${error.message}`);
                   }
@@ -100,6 +94,8 @@ struct DetectBarcodePage {
               } catch (error) {
                 hilog.error(0x0001, TAG, `Failed to decode. Code: ${error.code}, message: ${error.message}`);
               }
+            }).catch((error: BusinessError) => {
+              hilog.error(0x0001, TAG, `Failed to select a photo. Code: ${error.code}, message: ${error.message}`);
             });
           } catch (error) {
             hilog.error(0x0001, TAG, `Failed to select photo. Code: ${error.code}, message: ${error.message}`);

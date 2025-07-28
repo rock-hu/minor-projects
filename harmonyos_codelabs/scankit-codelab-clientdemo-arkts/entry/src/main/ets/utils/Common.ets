@@ -1,6 +1,7 @@
 // Common.ets
 import { display } from '@kit.ArkUI';
 import { UIContextSelf } from './UIContextSelf';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 const TAG: string = 'ScanKit common';
 // Camera preview stream aspect ratio. The common ratio is 1, 4/3, or 16/9. You can customize the ratio.
@@ -30,9 +31,18 @@ function getRatio(ratio: number): number {
 // Obtain the xComponent size in full screen mode.
 export function getXComDisplay(): xComDisplay {
   // Obtain the screen size.
-  let displayClass = display.getDefaultDisplaySync();
-  let width: number = UIContextSelf.uiContext.px2vp(displayClass.width);
-  let height: number = UIContextSelf.uiContext.px2vp(displayClass.height);
+  let displayClass: null | display.Display = null;
+  let height: number = 640;
+  let width: number = 360;
+  try {
+    displayClass = display.getDefaultDisplaySync();
+  } catch (error) {
+    hilog.error(0x0000, TAG, `Failed to getMainWindow. Code: ${error.code}.`);
+  }
+  if (displayClass) {
+    width = UIContextSelf.uiContext.px2vp(displayClass.width);
+    height = UIContextSelf.uiContext.px2vp(displayClass.height);
+  }
   let result: xComDisplay = {
     width: 360,
     height: 640,

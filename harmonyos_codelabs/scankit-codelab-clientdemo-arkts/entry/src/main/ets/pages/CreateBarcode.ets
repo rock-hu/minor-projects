@@ -157,7 +157,7 @@ struct CreateBarcodePage {
 
           // Set the QR code background color.
           Row() {
-            Text($r('app.string.barcode_backgroundcolor')).textTitle()
+            Text($r('app.string.barcode_background_color')).textTitle()
             Column() {
               Select(ScanConstant.colorItems)
                 .selected(7)
@@ -228,10 +228,7 @@ struct CreateBarcodePage {
             let content = this.codeContext;
             let pattern = /^[0-9a-fA-F]+$/;
             if (content.length && !pattern.test(content)) {
-              UIContextSelf.getPromptAction().showToast({
-                message: $r('app.string.trip_barcode_tip'),
-                duration: 2000
-              });
+              UIContextSelf.showToast($r('app.string.trip_barcode_tip'), 2000);
               return;
             }
             if (content.length % 2 !== 0) {
@@ -299,10 +296,7 @@ struct CreateBarcodePage {
 // Error message.
 function showError(businessError: BusinessError): void {
   try {
-    UIContextSelf.getPromptAction().showToast({
-      message: `Error Code: '${businessError.code}', message: ${businessError.message}`,
-      duration: 2000
-    });
+    UIContextSelf.showToast(`Error Code: '${businessError.code}', message: ${businessError.message}`, 2000);
   } catch (error) {
     if (error) {
       hilog.error(0x0001, TAG, `Failed to ShowToast. Code: ${error.code}, message: ${error.message}`);

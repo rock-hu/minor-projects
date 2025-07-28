@@ -24,27 +24,31 @@ export default class EntryAbility extends UIAbility {
 
   onWindowStageCreate(windowStage: window.WindowStage): void {
     hilog.info(0x0000, TAG, 'Ability onWindowStageCreate');
-    windowStage.getMainWindow().then((windowObj: window.Window) => {
-      windowObj.setWindowLayoutFullScreen(true).catch((error: BusinessError) => {
-        if (error) {
-          hilog.error(0x0000, TAG,
-            `Failed to setWindowLayoutFullScreen. Code: ${error.code}, message: ${error.message}`);
-          return;
-        }
-        hilog.info(0x0000, TAG, 'setWindowLayoutFullScreen Succeed!');
-      })
-
-      try {
-        windowStage.loadContent(this.page).then(() => {
-          hilog.info(0x0000, TAG, 'Succeeded in loading the content.');
-          UIContextSelf.setUIContext(windowObj);
-        }).catch((error: BusinessError) => {
-          hilog.error(0x0000, TAG, `Failed to load the content. Code: ${error.code}.`);
+    try {
+      windowStage.getMainWindow().then((windowObj: window.Window) => {
+        windowObj.setWindowLayoutFullScreen(true).catch((error: BusinessError) => {
+          if (error) {
+            hilog.error(0x0000, TAG,
+              `Failed to setWindowLayoutFullScreen. Code: ${error.code}, message: ${error.message}`);
+            return;
+          }
+          hilog.info(0x0000, TAG, 'setWindowLayoutFullScreen Succeed!');
         })
-      } catch (error) {
-        hilog.error(0x0000, TAG, `Failed to load the content. Code: ${error.code}.`);
-      }
-    });
+
+        try {
+          windowStage.loadContent(this.page).then(() => {
+            hilog.info(0x0000, TAG, 'Succeeded in loading the content.');
+            UIContextSelf.setUIContext(windowObj);
+          }).catch((error: BusinessError) => {
+            hilog.error(0x0000, TAG, `Failed to load the content. Code: ${error.code}.`);
+          })
+        } catch (error) {
+          hilog.error(0x0000, TAG, `Failed to load the content. Code: ${error.code}.`);
+        }
+      });
+    } catch (error) {
+      hilog.error(0x0000, TAG, `Failed to getMainWindow. Code: ${error.code}.`);
+    }
   }
 
   onNewWant(want: Want, _: AbilityConstant.LaunchParam): void {
@@ -54,7 +58,7 @@ export default class EntryAbility extends UIAbility {
     let status: router.RouterState = UIContextSelf.getRouter().getState();
     if (status && status.name !== 'ScanAccess' && uri) {
       // Process the service based on the URI.
-      UIContextSelf.getRouter().pushUrl({
+      UIContextSelf.pushUrl({
         url: 'pages/ScanAccess'
       });
     }

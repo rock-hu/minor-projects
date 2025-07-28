@@ -8,7 +8,7 @@ struct Index {
 
       CustomButton({
         mText: $r('app.string.generate_QR_code'), mOnClick: () => {
-          UIContextSelf.getRouter().pushUrl({
+          UIContextSelf.pushUrl({
             url: 'pages/CreateBarcode'
           });
         }
@@ -16,7 +16,7 @@ struct Index {
 
       CustomButton({
         mText: $r('app.string.default_view_decode'), mOnClick: () => {
-          UIContextSelf.getRouter().pushUrl({
+          UIContextSelf.pushUrl({
             url: 'pages/BarcodePage'
           });
         }
@@ -24,7 +24,7 @@ struct Index {
 
       CustomButton({
         mText: $r('app.string.customized_view_decode'), mOnClick: () => {
-          UIContextSelf.getRouter().pushUrl({
+          UIContextSelf.pushUrl({
             url: 'pages/CustomPage',
             params: {
               hasOptions: true,
@@ -36,7 +36,7 @@ struct Index {
 
       CustomButton({
         mText: $r('app.string.bitmap_view_decode'), mOnClick: () => {
-          UIContextSelf.getRouter().pushUrl({
+          UIContextSelf.pushUrl({
             url: 'pages/DetectBarcode'
           });
         }

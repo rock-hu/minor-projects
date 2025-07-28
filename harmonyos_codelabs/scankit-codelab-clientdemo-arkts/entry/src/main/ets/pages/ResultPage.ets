@@ -71,29 +71,33 @@ struct ScanResultPage {
   }
 
   aboutToAppear() {
-    let isFold: boolean = display.isFoldable();
-    this.setDisplay();
-    hilog.info(0x0001, TAG, 'aboutToAppear ResultPage');
-    let getParams = this.params as ParamsType;
-    // Return the barcode recognition result.
-    this.result = getParams.result as Array<scanBarcode.ScanResult>;
-    this.uri = getParams.uri as string;
-    this.infoW = getParams.infoW as number;
-    this.infoH = getParams.infoH as number;
-    hilog.info(0x0001, TAG, `Succeeded in getting Params.`);
-    hilog.info(0x0001, TAG,
-      `Succeeded in getting uri: ${this.uri}, this.infoW: ${this.infoW}, this.infoH: ${this.infoH}`);
-    this.calculate();
-    if (isFold) {
-      display.on('foldStatusChange', async (foldStatus: display.FoldStatus) => {
-        // 1: expanded; 2: collapsed
-        if (foldStatus === 1 || foldStatus === 2) {
-          setTimeout(() => {
-            this.setDisplay();
-            this.calculate();
-          }, 300)
-        }
-      });
+    try {
+      let isFold: boolean = display.isFoldable();
+      this.setDisplay();
+      hilog.info(0x0001, TAG, 'aboutToAppear ResultPage');
+      let getParams = this.params as ParamsType;
+      // Return the barcode recognition result.
+      this.result = getParams.result as Array<scanBarcode.ScanResult>;
+      this.uri = getParams.uri as string;
+      this.infoW = getParams.infoW as number;
+      this.infoH = getParams.infoH as number;
+      hilog.info(0x0001, TAG, 'Succeeded in getting Params.');
+      hilog.info(0x0001, TAG,
+        `Succeeded in getting uri: ${this.uri}, this.infoW: ${this.infoW}, this.infoH: ${this.infoH}`);
+      this.calculate();
+      if (isFold) {
+        display.on('foldStatusChange', async (foldStatus: display.FoldStatus) => {
+          // 1: expanded; 2: collapsed
+          if (foldStatus === 1 || foldStatus === 2) {
+            setTimeout(() => {
+              this.setDisplay();
+              this.calculate();
+            }, 300)
+          }
+        });
+      }
+    } catch (error) {
+      hilog.error(0x0001, TAG, `Failed to operate display. Code: ${error.code}.`);
     }
   }
 

@@ -149,10 +149,6 @@
             "value":"[TS_1018813]_callback has parameter"
         },
         {
-            "name":"barcode_backgroundcolor",
-            "value":"[TS_1018821]_Background color:"
-        },
-        {
             "name":"trip_barcode_tip",
             "value":"[TS_1018824]_A ride code is generated from a byte array. Enter a byte array in hexadecimal character string format."
         },

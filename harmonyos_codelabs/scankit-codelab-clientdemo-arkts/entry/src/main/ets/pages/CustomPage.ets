@@ -170,9 +170,13 @@ struct CustomScanPage {
       }
     }
     if (this.userGrant) {
-      // Check whether the device is foldable.
-      if (display.isFoldable()) {
-        this.foldStatusSubscribe();
+      try {
+        // Check whether the device is foldable.
+        if (display.isFoldable()) {
+          this.foldStatusSubscribe();
+        }
+      } catch (error) {
+        hilog.error(0x0001, TAG, `Failed to get isFoldable. Code: ${error.code}.`);
       }
     }
   }
@@ -189,9 +193,13 @@ struct CustomScanPage {
   }
 
   aboutToDisappear(): void {
-    if (display.isFoldable()) {
-      // Cancel the foldable screen status change listener.
-      display.off('foldStatusChange');
+    try {
+      if (display.isFoldable()) {
+        // Cancel the foldable screen status change listener.
+        display.off('foldStatusChange');
+      }
+    } catch (error) {
+      hilog.error(0x0001, TAG, `Failed to operate display. Code: ${error.code}.`);
     }
   }
 
@@ -285,10 +293,7 @@ struct CustomScanPage {
                   this.isFlashLightEnable = true;
                 }
               } catch (error) {
-                UIContextSelf.getPromptAction().showToast({
-                  message: error.message,
-                  duration: 2000
-                });
+                UIContextSelf.showToast(error.message, 2000);
                 hilog.error(0x0001, TAG, `Failed to flashLight. Code: ${error.code}, message: ${error.message}`);
               }
             })
@@ -520,10 +525,7 @@ struct CustomScanPage {
       // Display a message when no barcode is recognized.
       setInterFlag = setTimeout(() => {
         if (this.userGrant && this.scanCodeRectLength === 0) {
-          UIContextSelf.getPromptAction().showToast({
-            message: $r('app.string.Scan_diaLog_not_found'),
-            duration: 2000
-          });
+          UIContextSelf.showToast($r('app.string.Scan_diaLog_not_found'), 2000);
         }
       }, 5000);
       this.customOnLightingFlash();
@@ -619,7 +621,7 @@ struct CustomScanPage {
   private offLightingFlashSafely() {
     try {
       customScan.off('lightingFlash');
-    }  catch (error) {
+    } catch (error) {
       hilog.error(0x0001, TAG, `Failed to off lightingFlash. Code: ${error.code}, message: ${error.message}`);
     }
   }
@@ -653,11 +655,8 @@ struct CustomScanPage {
     try {
       customScan.setZoom(this.zoomValue);
     } catch (error) {
+      UIContextSelf.showToast(error.message, 2000);
       hilog.error(0x0001, TAG, `Failed to setZoom. Code: ${error.code}, message: ${error.message}`);
-      UIContextSelf.getPromptAction().showToast({
-        message: error.message,
-        duration: 2000
-      });
     }
   }
 

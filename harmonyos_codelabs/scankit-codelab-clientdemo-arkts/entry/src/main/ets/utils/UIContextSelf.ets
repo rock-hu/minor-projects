@@ -1,4 +1,4 @@
-import { PromptAction, Router, window } from '@kit.ArkUI';
+import { PromptAction, router, Router, window } from '@kit.ArkUI';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
 const TAG: string = 'UIContextSelf';
@@ -26,6 +26,17 @@ export class UIContextSelf {
     return UIContextSelf.uiContext.getPromptAction();
   }
 
+  public static showToast(message: Resource | string, time: number): void {
+    try {
+      UIContextSelf.getPromptAction().showToast({
+        message: message,
+        duration: time
+      });
+    } catch (error) {
+      hilog.error(0x0001, TAG, `Failed to showToast by PromptAction. Code: ${error.code}.`);
+    }
+  }
+
   public static getHostContext(): Context | undefined {
     if (!UIContextSelf.uiContext) {
       throw new Error('UIContext has not been set.');
@@ -38,5 +49,21 @@ export class UIContextSelf {
       throw new Error('UIContext has not been set.');
     }
     return UIContextSelf.uiContext.getRouter();
+  }
+
+  public static async replaceUrl(options: router.RouterOptions): Promise<void> {
+    try {
+      UIContextSelf.uiContext.getRouter().replaceUrl(options);
+    } catch (error) {
+      hilog.error(0x0001, TAG, `Failed to replaceUrl by getRouter. Code: ${error.code}.`);
+    }
+  }
+
+  public static async pushUrl(options: router.RouterOptions): Promise<void> {
+    try {
+      UIContextSelf.uiContext.getRouter().pushUrl(options);
+    } catch (error) {
+      hilog.error(0x0001, TAG, `Failed to pushUrl by getRouter. Code: ${error.code}.`);
+    }
   }
 }

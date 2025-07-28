@@ -1,0 +1,60 @@
+{
+    "string":[
+        {
+            "name":"Scan_settings",
+            "value":"Allez dans Paramètres",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"Scan_barcode",
+            "value":"Veuillez scanner un QR code ou un code-barres",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"Scan_diaLog_got_it",
+            "value":"OK",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"Scan_got_it",
+            "value":"Annuler",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"Scan_light_to_off",
+            "value":"Éteindre la lumière",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"Scan_barcode_tips",
+            "value":"Veuillez cadrer le QR code/code-barres ci-dessous",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"Scan_diaLog_not_found",
+            "value":"Aucun QR code ou code-barres n'a été détecté.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"Scan_light_to_on",
+            "value":"Allumer la lumière",
+            "attr":{
+                "priority":"translate"
+            }
+        }
+    ]
+}

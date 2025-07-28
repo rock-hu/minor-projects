@@ -1,6 +1,6 @@
 {
   "module": {
-    "name": "entry",
+    "name": "codelab_entry",
     "type": "entry",
     "description": "$string:module_desc",
     "mainElement": "EntryAbility",

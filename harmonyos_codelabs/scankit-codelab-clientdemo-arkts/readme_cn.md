@@ -6,7 +6,7 @@ Scan Kit（统一扫码服务）是HarmonyOS SDK的基础能力，提供了“�
 
 |              **应用首页**               |               **码图生成页面**                |              **默认界面扫码页面**              |              **自定义扫码页面**              |             **本地图片识码页面**              |              **扫码直达页面**               |
 |:-----------------------------------:|:---------------------------------------:|:--------------------------------------:|:-------------------------------------:|:-------------------------------------:|:-------------------------------------:|
-| ![](entry/src/screenshots/home.jpg) | ![](entry/src/screenshots/generate.jpg) | ![](entry/src/screenshots/default.jpg) | ![](entry/src/screenshots/custom.jpg) | ![](entry/src/screenshots/detect.jpg) | ![](entry/src/screenshots/access.jpg) |
+| ![](entry/src/screenshots/home.png) | ![](entry/src/screenshots/generate.png) | ![](entry/src/screenshots/default.png) | ![](entry/src/screenshots/custom.png) | ![](entry/src/screenshots/detect.png) | ![](entry/src/screenshots/access.png) |
 
 ## 工程目录
 ├──entry/src/main/ets  
