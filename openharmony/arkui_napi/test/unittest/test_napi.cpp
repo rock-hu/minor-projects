@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -28,6 +28,7 @@
 #include "ecmascript/napi/include/jsnapi_expo.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
+#include "napi/native_node_hybrid_api.h"
 #include "native_create_env.h"
 #include "native_utils.h"
 #include "reference_manager/native_reference_manager.h"
@@ -9095,47 +9096,6 @@ HWTEST_F(NapiBasicTest, NapiGetValueBigintInt64Test004, testing::ext::TestSize.L
 
     napi_status status = napi_get_value_bigint_int64(env, value, &result, &lossless);
     ASSERT_EQ(status, napi_bigint_expected);
-}
-
-HWTEST_F(NapiBasicTest, NapiIsAliveObjectTest001, testing::ext::TestSize.Level1)
-{
-    napi_env env = reinterpret_cast<napi_env>(engine_);
-    napi_value obj;
-    napi_ref result = nullptr;
-    bool res = false;
-
-    napi_create_object(env, &obj);
-    napi_status status =
-        napi_wrap_with_xref(env, obj, (void*)TEST_STRING, [](napi_env, void* data, void* hint) {}, &result);
-    ASSERT_EQ(status, napi_ok);
-    status = napi_is_alive_object(env, result, &res);
-    ASSERT_EQ(status, napi_ok);
-}
-
-HWTEST_F(NapiBasicTest, NapiIsValidHeapObjectTest001, testing::ext::TestSize.Level1)
-{
-    napi_env env = reinterpret_cast<napi_env>(engine_);
-    napi_value obj;
-    napi_ref result = nullptr;
-    bool res = false;
-
-    napi_create_object(env, &obj);
-    napi_status status =
-        napi_wrap_with_xref(env, obj, (void*)TEST_STRING, [](napi_env, void* data, void* hint) {}, &result);
-    ASSERT_EQ(status, napi_ok);
-    status = napi_is_contain_object(env, result, &res);
-    ASSERT_EQ(status, napi_ok);
-}
-
-HWTEST_F(NapiBasicTest, NapiIsXrefTypeTest001, testing::ext::TestSize.Level1)
-{
-    napi_env env = reinterpret_cast<napi_env>(engine_);
-    napi_value obj;
-    bool res = false;
-
-    napi_create_object(env, &obj);
-    napi_status status = napi_is_xref_type(env, obj, &res);
-    ASSERT_EQ(status, napi_ok);
 }
 
 HWTEST_F(NapiBasicTest, NapiGetValueBigintInt64Test005, testing::ext::TestSize.Level1)

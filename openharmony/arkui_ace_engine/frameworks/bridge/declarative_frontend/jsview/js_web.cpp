@@ -28,6 +28,7 @@
 #include "base/memory/referenced.h"
 #include "base/utils/system_properties.h"
 #include "base/utils/utils.h"
+#include "base/web/webview/arkweb_utils/arkweb_utils.h"
 #if defined(ANDROID_PLATFORM) || defined(IOS_PLATFORM)
 #include "base/web/webview/ohos_interface/include/ohos_nweb/nweb.h"
 #endif
@@ -907,6 +908,7 @@ public:
     
     void SetMouseEventResult(const JSCallbackInfo& args)
     {
+        RETURN_IF_CALLING_FROM_M114();
         if (eventResult_) {
             bool result = true;
             bool stopPropagation = true;
@@ -1834,6 +1836,9 @@ public:
         if (param_) {
             type = param_->GetMediaType();
         }
+        if (type > 1) {
+            RETURN_IF_CALLING_FROM_M114();
+        }
         auto jsType = JSVal(ToJSValue(type));
         auto descriptionRef = JSRef<JSVal>::Make(jsType);
         args.SetReturnValue(descriptionRef);
@@ -1929,6 +1934,7 @@ public:
 
     void Undo(const JSCallbackInfo& args)
     {
+        RETURN_IF_CALLING_FROM_M114();
         if (result_) {
             result_->Undo();
         }
@@ -1936,6 +1942,7 @@ public:
 
     void Redo(const JSCallbackInfo& args)
     {
+        RETURN_IF_CALLING_FROM_M114();
         if (result_) {
             result_->Redo();
         }
@@ -1943,6 +1950,7 @@ public:
 
     void PasteAndMatchStyle(const JSCallbackInfo& args)
     {
+        RETURN_IF_CALLING_FROM_M114();
         if (result_) {
             result_->PasteAndMatchStyle();
         }
@@ -3658,6 +3666,7 @@ JSRef<JSVal> OnOverrideErrorPageEventToJSValue(const OnOverrideErrorPageEvent& e
 
 void JSWeb::OnOverrideErrorPage(const JSCallbackInfo& args)
 {
+    RETURN_IF_CALLING_FROM_M114();
     if ((args.Length() <= 0) || !args[0]->IsFunction()) {
         return;
     }
@@ -3992,6 +4001,9 @@ void JSWeb::BindSelectionMenu(const JSCallbackInfo& info)
         return;
     }
     WebElementType elementType = static_cast<WebElementType>(info[0]->ToNumber<int32_t>());
+    if (elementType == WebElementType::LINK) {
+        RETURN_IF_CALLING_FROM_M114();
+    }
     ResponseType responseType =
         static_cast<ResponseType>(info[SELECTION_MENU_CONTENT_PARAM_INDEX]->ToNumber<int32_t>());
 
@@ -4125,6 +4137,7 @@ void JSWeb::NativeEmbedOptions(const JSCallbackInfo& args)
         WebModel::GetInstance()->SetIntrinsicSizeEnabled(*enable);
     }
 
+    RETURN_IF_CALLING_FROM_M114();
     auto cssDisplayChangeObj = paramObject->GetProperty("supportCssDisplayChange");
     if (cssDisplayChangeObj->IsBoolean()) {
         bool cssDisplayChange = cssDisplayChangeObj->ToBoolean();
@@ -5267,6 +5280,8 @@ void JSWeb::MediaOptions(const JSCallbackInfo& args)
         bool audioExclusive = audioExclusiveObj->ToBoolean();
         WebModel::GetInstance()->SetAudioExclusive(audioExclusive);
     }
+
+    RETURN_IF_CALLING_FROM_M114();
     auto audioSessionTypeObj = paramObject->GetProperty("audioSessionType");
     auto audioSessionType = WebAudioSessionType::AUTO;
     if (audioSessionTypeObj->IsNumber()) {
@@ -5766,6 +5781,7 @@ void JSWeb::OnNativeEmbedGestureEvent(const JSCallbackInfo& args)
 
 void JSWeb::OnNativeEmbedMouseEvent(const JSCallbackInfo& args)
 {
+    RETURN_IF_CALLING_FROM_M114();
     if (args.Length() < 1 || !args[0]->IsFunction()) {
         return;
     }
@@ -6396,6 +6412,7 @@ void JSWeb::EnableWebAVSession(const JSCallbackInfo& args)
 
 void JSWeb::EnableDataDetector(const JSCallbackInfo& args)
 {
+    RETURN_IF_CALLING_FROM_M114();
     if (args.Length() < 1 || !args[0]->IsBoolean()) {
         return;
     }
@@ -6405,6 +6422,7 @@ void JSWeb::EnableDataDetector(const JSCallbackInfo& args)
 
 void JSWeb::DataDetectorConfig(const JSCallbackInfo& args)
 {
+    RETURN_IF_CALLING_FROM_M114();
     if (args.Length() < 1) {
         return;
     }
@@ -6422,6 +6440,7 @@ void JSWeb::DataDetectorConfig(const JSCallbackInfo& args)
 
 void JSWeb::BypassVsyncCondition(int32_t webBypassVsyncCondition)
 {
+    RETURN_IF_CALLING_FROM_M114();
     auto condition = WebBypassVsyncCondition::NONE;
     switch (webBypassVsyncCondition) {
         case 0:
@@ -6444,6 +6463,7 @@ void JSWeb::EnableFollowSystemFontWeight(bool enableFollowSystemFontWeight)
 
 void JSWeb::GestureFocusMode(int32_t gestureFocusMode)
 {
+    RETURN_IF_CALLING_FROM_M114();
     if (gestureFocusMode < static_cast<int32_t>(GestureFocusMode::DEFAULT) ||
         gestureFocusMode > static_cast<int32_t>(GestureFocusMode::GESTURE_TAP_AND_LONG_PRESS)) {
         TAG_LOGE(AceLogTag::ACE_WEB, "GestureFocusMode param err");
@@ -6455,6 +6475,7 @@ void JSWeb::GestureFocusMode(int32_t gestureFocusMode)
 
 void JSWeb::OnPdfScrollAtBottom(const JSCallbackInfo& args)
 {
+    RETURN_IF_CALLING_FROM_M114();
     TAG_LOGI(AceLogTag::ACE_WEB, "JSWeb::OnPdfScrollAtBottom, callback set");
     if (args.Length() < 1 || !args[0]->IsFunction()) {
         return;
@@ -6483,6 +6504,7 @@ void JSWeb::OnPdfScrollAtBottom(const JSCallbackInfo& args)
 
 void JSWeb::OnPdfLoadEvent(const JSCallbackInfo& args)
 {
+    RETURN_IF_CALLING_FROM_M114();
     TAG_LOGI(AceLogTag::ACE_WEB, "JSWeb::OnPdfLoadEvent, callback set");
     if (args.Length() < 1 || !args[0]->IsFunction()) {
         return;

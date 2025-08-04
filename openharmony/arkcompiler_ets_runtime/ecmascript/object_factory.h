@@ -19,6 +19,7 @@
 #include "common_interfaces/objects/base_class.h"
 #include "ecmascript/base/error_type.h"
 #include "ecmascript/base/number_helper.h"
+#include "ecmascript/cross_vm/object_factory_hybrid.h"
 #include "ecmascript/compiler/builtins/builtins_call_signature.h"
 #include "ecmascript/ecma_string.h"
 #include "ecmascript/enum_cache.h"
@@ -301,7 +302,7 @@ public:
 
     JSHandle<JSPrimitiveRef> NewJSPrimitiveRef(const JSHandle<JSFunction> &function,
                                                const JSHandle<JSTaggedValue> &object);
-    JSHandle<JSPrimitiveRef> NewJSPrimitiveRef(PrimitiveType type, const JSHandle<JSTaggedValue> &object);
+    JSHandle<JSPrimitiveRef> PUBLIC_API NewJSPrimitiveRef(PrimitiveType type, const JSHandle<JSTaggedValue> &object);
 
     JSHandle<GlobalEnv> NewGlobalEnv(bool lazyInit = false, bool isRealm = false);
 
@@ -425,7 +426,11 @@ public:
 
     JSHandle<MarkerCell> NewMarkerCell();
     template <MemSpaceType type = MemSpaceType::SHARED_OLD_SPACE>
+    JSHandle<BigInt> NewBigIntWithoutInitData(uint32_t length);
+    template <MemSpaceType type = MemSpaceType::SHARED_OLD_SPACE>
     JSHandle<BigInt> NewBigInt(uint32_t length);
+    template <MemSpaceType type = MemSpaceType::SHARED_OLD_SPACE>
+    JSHandle<BigInt> NewSubBigInt(const JSHandle<BigInt>& x, uint32_t length);
     // use for copy properties keys's array to another array
     JSHandle<TaggedArray> ExtendArray(const JSHandle<TaggedArray> &old, uint32_t length,
                                       JSTaggedValue initVal = JSTaggedValue::Hole(),
@@ -667,7 +672,7 @@ public:
     JSHandle<JSObject> PUBLIC_API NewJSObject(const JSHandle<JSHClass> &jshclass);
 
     // used for creating JSXRefObject
-    JSHandle<JSObject> PUBLIC_API NewJSXRefObject();
+    OBJECTFACTORY_PUBLIC_HYBRID_EXTENSION();
 
     // used for creating jshclass in Builtins, Function, Class_Linker
     JSHandle<JSHClass> NewEcmaHClass(uint32_t size, JSType type, const JSHandle<JSTaggedValue> &prototype);

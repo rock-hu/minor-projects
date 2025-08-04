@@ -28,6 +28,7 @@
 #include "lexer/lexer.h"
 #include "lexer/ETSLexer.h"
 #include "ir/astNode.h"
+#include "ir/brokenTypeNode.h"
 #include "ir/base/classDefinition.h"
 #include "ir/base/decorator.h"
 #include "ir/base/catchClause.h"
@@ -539,6 +540,8 @@ void ETSParser::ParseClassFieldDefinition(ir::Identifier *fieldName, ir::Modifie
     if (Lexer()->TryEatTokenType(lexer::TokenType::PUNCTUATOR_SUBSTITUTION)) {
         initializer = ParseExpression();
     } else if (typeAnnotation == nullptr) {
+        typeAnnotation = AllocNode<ir::BrokenTypeNode>(Allocator());
+        typeAnnotation->SetRange({endLoc, endLoc});
         LogError(diagnostic::FIELD_TPYE_ANNOTATION_MISSING);
     }
 
@@ -1070,6 +1073,11 @@ ir::AstNode *ETSParser::ParseInterfaceField()
     auto startLoc = Lexer()->GetToken().Start();
 
     auto *name = AllocNode<ir::Identifier>(Lexer()->GetToken().Ident(), Allocator());
+
+    if (name->IsErrorPlaceHolder()) {
+        Lexer()->NextToken();
+        return AllocBrokenExpression(Lexer()->GetToken().Loc());
+    }
 
     auto parseClassMethod = [&fieldModifiers, &startLoc, this](ir::Identifier *methodName) {
         auto *classMethod = ParseClassMethodDefinition(methodName, fieldModifiers, false);

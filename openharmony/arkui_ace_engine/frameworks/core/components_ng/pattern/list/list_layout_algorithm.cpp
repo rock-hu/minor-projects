@@ -20,6 +20,7 @@
 #include "base/log/ace_trace.h"
 #include "base/log/event_report.h"
 #include "base/memory/ace_type.h"
+#include "base/utils/feature_param.h"
 #include "base/utils/time_util.h"
 #include "base/utils/utils.h"
 #include "core/components/common/layout/layout_param.h"
@@ -950,6 +951,7 @@ void ListLayoutAlgorithm::MeasureList(LayoutWrapper* layoutWrapper)
     auto pattern = host->GetPattern<ListPattern>();
     CHECK_NULL_VOID(pattern);
     if (!isLayouted_) {
+        noLayoutedItems_ = std::move(itemPosition_);
         itemPosition_ = pattern->GetItemPosition();
     }
     auto prevTotalItemCount = pattern->GetMaxListItemIndex() + 1;
@@ -1101,6 +1103,20 @@ void ListLayoutAlgorithm::MeasureList(LayoutWrapper* layoutWrapper)
         }
     }
     RecycleGroupItem(layoutWrapper);
+    UpdateNoLayoutedItems();
+}
+
+void ListLayoutAlgorithm::UpdateNoLayoutedItems()
+{
+    if (isLayouted_) {
+        return;
+    }
+    for (const auto& item : itemPosition_) {
+        noLayoutedItems_.erase(item.first);
+    }
+    for (const auto& item : recycledItemPosition_) {
+        noLayoutedItems_.erase(item.first);
+    }
 }
 
 LayoutDirection ListLayoutAlgorithm::LayoutDirectionForTargetIndex(LayoutWrapper* layoutWrapper, int startIndex)
@@ -1272,7 +1288,7 @@ void ListLayoutAlgorithm::LayoutForward(LayoutWrapper* layoutWrapper, int32_t st
             endMainPos = layoutEndMainPos_.value_or(endMainPos_);
             forwardFeature_ = false;
         }
-    } while (LessNotEqual(currentEndPos + chainOffset, endMainPos + endFixPos) || forwardFeature_);
+    } while (LessOrEqual(currentEndPos + chainOffset, endMainPos + endFixPos) || forwardFeature_);
     currentEndPos += chainOffset;
 
     while (itemPosition_.size() > 1 && !targetIndex_) {
@@ -1730,7 +1746,7 @@ int32_t ListLayoutAlgorithm::GetListItemGroupItemCount(const RefPtr<LayoutWrappe
 
 bool ListLayoutAlgorithm::IsNeedSyncLoad(const RefPtr<ListLayoutProperty>& property) const
 {
-    bool syncLoad = property->GetSyncLoad().value_or(!SystemProperties::IsSyncLoadEnabled());
+    bool syncLoad = property->GetSyncLoad().value_or(!FeatureParam::IsSyncLoadEnabled());
     return !(!syncLoad && NearZero(currentDelta_) && !targetIndex_.has_value() && mainSizeIsDefined_);
 }
 
@@ -1751,7 +1767,13 @@ void ListLayoutAlgorithm::CheckGroupMeasureBreak(const RefPtr<LayoutWrapper>& wr
 
 void ListLayoutAlgorithm::ResetLayoutItem(LayoutWrapper* layoutWrapper)
 {
-    for (auto& pos : recycledItemPosition_) {
+    ResetUnLayoutedItems(layoutWrapper, recycledItemPosition_);
+    ResetUnLayoutedItems(layoutWrapper, noLayoutedItems_);
+}
+
+void ListLayoutAlgorithm::ResetUnLayoutedItems(LayoutWrapper* layoutWrapper, PositionMap& positionMap)
+{
+    for (auto& pos : positionMap) {
         auto wrapper = GetListItem(layoutWrapper, pos.first);
         if (!wrapper) {
             ReportGetChildError("ResetLayoutItem", pos.first);
@@ -2116,7 +2138,7 @@ void ListLayoutAlgorithm::SyncGeometry(RefPtr<LayoutWrapper>& wrapper, bool isDi
     CHECK_NULL_VOID(wrapper);
     auto host = wrapper->GetHostNode();
     CHECK_NULL_VOID(host);
-    if (!(isDirty && host->IsGeometrySizeChange())) {
+    if (!(isDirty && host->IsGeometrySizeChange() && !host->IsActive())) {
         host->ForceSyncGeometryNode();
     }
     host->ResetLayoutAlgorithm();
@@ -2257,6 +2279,7 @@ CachedIndexInfo ListLayoutAlgorithm::GetLayoutGroupCachedCount(LayoutWrapper* la
         wrapper->SetActive(true);
         wrapper->Layout();
         group->SyncItemsToCachedItemPosition();
+        recycledItemPosition_.erase(index);
     }
     bool forward = forwardCache > -1;
     bool backward = backwardCache > -1;
@@ -2304,10 +2327,10 @@ int32_t ListLayoutAlgorithm::LayoutCachedForward(LayoutWrapper* layoutWrapper,
         }
         bool isGroup = wrapper->GetHostTag() == V2::LIST_ITEM_GROUP_ETS_TAG;
         bool isDirty = wrapper->CheckNeedForceMeasureAndLayout() || !IsListLanesEqual(wrapper);
-        if (!isGroup && (isDirty || CheckLayoutConstraintChanged(wrapper))) {
+        if (!isGroup && (isDirty || CheckLayoutConstraintChanged(wrapper)) && !wrapper->CheckHasPreMeasured()) {
             predictList.emplace_back(PredictLayoutItem { curIndex, cachedCount, -1 });
         }
-        if (!isGroup && isDirty && !wrapper->GetHostNode()->IsLayoutComplete()) {
+        if (!isGroup && isDirty && !wrapper->GetHostNode()->IsLayoutComplete() && !wrapper->CheckHasPreMeasured()) {
             return curIndex - 1;
         }
         auto childSize = wrapper->GetGeometryNode()->GetMarginFrameSize();
@@ -2329,6 +2352,7 @@ int32_t ListLayoutAlgorithm::LayoutCachedForward(LayoutWrapper* layoutWrapper,
         } else {
             cachedCount++;
         }
+        ExpandWithSafeAreaPadding(wrapper);
         SyncGeometry(wrapper, isDirty);
         wrapper->SetActive(false);
         curIndex++;
@@ -2350,10 +2374,10 @@ int32_t ListLayoutAlgorithm::LayoutCachedBackward(LayoutWrapper* layoutWrapper,
         }
         bool isGroup = wrapper->GetHostTag() == V2::LIST_ITEM_GROUP_ETS_TAG;
         bool isDirty = wrapper->CheckNeedForceMeasureAndLayout() || !IsListLanesEqual(wrapper);
-        if (!isGroup && (isDirty || CheckLayoutConstraintChanged(wrapper))) {
+        if (!isGroup && (isDirty || CheckLayoutConstraintChanged(wrapper)) && !wrapper->CheckHasPreMeasured()) {
             predictList.emplace_back(PredictLayoutItem { curIndex, -1, cachedCount });
         }
-        if (!isGroup && isDirty && !wrapper->GetHostNode()->IsLayoutComplete()) {
+        if (!isGroup && isDirty && !wrapper->GetHostNode()->IsLayoutComplete() && !wrapper->CheckHasPreMeasured()) {
             return curIndex + 1;
         }
         auto childSize = wrapper->GetGeometryNode()->GetMarginFrameSize();
@@ -2375,11 +2399,33 @@ int32_t ListLayoutAlgorithm::LayoutCachedBackward(LayoutWrapper* layoutWrapper,
         } else {
             cachedCount++;
         }
+        ExpandWithSafeAreaPadding(wrapper);
         SyncGeometry(wrapper, isDirty);
         wrapper->SetActive(false);
         curIndex--;
     }
     return curIndex + 1;
+}
+
+void ListLayoutAlgorithm::ExpandWithSafeAreaPadding(const RefPtr<LayoutWrapper>& layoutWrapper)
+{
+    IgnoreLayoutSafeAreaOpts options = { .type = NG::LAYOUT_SAFE_AREA_TYPE_NONE,
+        .edges = NG::LAYOUT_SAFE_AREA_EDGE_NONE };
+    auto layoutProperty = layoutWrapper->GetLayoutProperty();
+    if (layoutProperty) {
+        auto&& nodeOpts = layoutWrapper->GetLayoutProperty()->GetIgnoreLayoutSafeAreaOpts();
+        if (nodeOpts) {
+            options = *nodeOpts;
+        }
+    }
+
+    auto geometryNode = layoutWrapper->GetGeometryNode();
+    if (geometryNode) {
+        auto offset = geometryNode->GetMarginFrameOffset();
+        auto ignoreAdjust = geometryNode->GetIgnoreAdjust();
+        offset -= ignoreAdjust;
+        geometryNode->SetMarginFrameOffset(offset);
+    }
 }
 
 std::tuple<int32_t, int32_t, int32_t, int32_t> ListLayoutAlgorithm::LayoutCachedItemInEdgeGroup(

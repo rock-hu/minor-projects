@@ -828,8 +828,6 @@ typedef enum {
     ARKUI_BORDER_STYLE_DASHED,
     /** Dotted border. */
     ARKUI_BORDER_STYLE_DOTTED,
-    /** default border. */
-    ARKUI_BORDER_STYLE_NONE,
 } ArkUI_BorderStyle;
 
 /**
@@ -2308,6 +2306,31 @@ typedef enum {
      * @since 20
      */
     ARKUI_ERROR_CODE_FORCE_DARK_CONFIG_INVALID = 106205,
+    /**
+     * @error The node type is not custom node.
+     * @since 20
+     */
+    ARKUI_ERROR_CODE_NOT_CUSTOM_NODE = 106401,
+    /**
+     * @error Node already has children.
+     * @since 20
+     */
+    ARKUI_ERROR_CODE_CHILD_EXISTED = 106402,
+    /**
+     * @error RenderNode parent is existed.
+     * @since 20
+     */
+    ARKUI_ERROR_CODE_RENDER_PARENT_EXISTED = 106403,
+    /**
+     * @error RenderNode child is not exist.
+     * @since 20
+     */
+    ARKUI_ERROR_CODE_RENDER_CHILD_NOT_EXIST = 106404,
+    /**
+     * @error Param is out of range.
+     * @since 20
+     */
+    ARKUI_ERROR_CODE_PARAM_OUT_OF_RANGE = 106405,
     /**
      * @error The node requesting focus is not focusable.
      * @since 15

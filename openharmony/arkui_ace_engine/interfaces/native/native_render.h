@@ -166,14 +166,14 @@ typedef struct ArkUI_CommandPath ArkUI_CommandPathOption;
  *
  * @since 20
  */
-typedef struct ArkUI_RenderNodeOption ArkUI_RenderNodeMaskOption;
+typedef struct ArkUI_RenderNodeMaskOption ArkUI_RenderNodeMaskOption;
 
 /**
  * @brief Render node clip option.
  *
  * @since 20
  */
-typedef struct ArkUI_RenderNodeOption ArkUI_RenderNodeClipOption;
+typedef struct ArkUI_RenderNodeClipOption ArkUI_RenderNodeClipOption;
 
 /**
  * @brief Adds a child render node to a parent node.
@@ -186,9 +186,9 @@ typedef struct ArkUI_RenderNodeOption ArkUI_RenderNodeClipOption;
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
- *         {@link ARKUI_ERROR_CODE_NODE_NOT_MODIFIABLE} The node is not modifiable.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  *         {@link ARKUI_ERROR_CODE_NOT_CUSTOM_NODE} The node is not a customNode.
- *         {@link ARKUI_ERROR_CODE_CHILD_RENDER_EXISTED} The node already has a child RenderNode.
+ *         {@link ARKUI_ERROR_CODE_CHILD_EXISTED} The node already has a child.
  *         {@link ARKUI_ERROR_CODE_RENDER_PARENT_EXISTED} The child already has a parent node.
  * @since 20
  */
@@ -202,9 +202,8 @@ int32_t OH_ArkUI_RenderNodeUtils_AddRenderNode(ArkUI_NodeHandle node, ArkUI_Rend
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
- *         {@link ARKUI_ERROR_CODE_NODE_NOT_MODIFIABLE} The node is not modifiable.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  *         {@link ARKUI_ERROR_CODE_NOT_CUSTOM_NODE} The node is not a customNode.
- *         {@link ARKUI_ERROR_CODE_CHILD_RENDER_NOT_EXIST} The child is not a child of the node.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_RemoveRenderNode(ArkUI_NodeHandle node, ArkUI_RenderNodeHandle child);
@@ -216,7 +215,7 @@ int32_t OH_ArkUI_RenderNodeUtils_RemoveRenderNode(ArkUI_NodeHandle node, ArkUI_R
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
- *         {@link ARKUI_ERROR_CODE_NODE_NOT_MODIFIABLE} The node is not modifiable.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  *         {@link ARKUI_ERROR_CODE_NOT_CUSTOM_NODE} The node is not a customNode.
  * @since 20
  */
@@ -227,11 +226,10 @@ int32_t OH_ArkUI_RenderNodeUtils_ClearRenderNodeChildren(ArkUI_NodeHandle node);
  *     rerender of its child render nodes.
  *
  * @param node Target node.
- * @return Returns the error code.
- *         Returns {@link ARKUI_ERROR_CODE_NO_ERROR} if the operation is successful.
- *         Returns {@link ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
- *         Returns {@link ARKUI_ERROR_CODE_PARAM_INVALID} if a parameter error occurs.
- *         Returns {@link ARKUI_ERROR_CODE_CHILD_RENDER_NOT_EXIST} if the node has no child RenderNode.
+ * @return Error code.
+ *         {@link ARKUI_ERROR_CODE_NO_ERROR} if the operation is successful.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
+ *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} if a parameter error occurs.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_Invalidate(ArkUI_NodeHandle node);
@@ -251,6 +249,7 @@ ArkUI_RenderNodeHandle OH_ArkUI_RenderNodeUtils_CreateNode();
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_DisposeNode(ArkUI_RenderNodeHandle node);
@@ -263,6 +262,7 @@ int32_t OH_ArkUI_RenderNodeUtils_DisposeNode(ArkUI_RenderNodeHandle node);
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_AddChild(ArkUI_RenderNodeHandle node, ArkUI_RenderNodeHandle child);
@@ -277,6 +277,7 @@ int32_t OH_ArkUI_RenderNodeUtils_AddChild(ArkUI_RenderNodeHandle node, ArkUI_Ren
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_InsertChildAfter(
@@ -290,7 +291,7 @@ int32_t OH_ArkUI_RenderNodeUtils_InsertChildAfter(
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
- *         {@link ARKUI_ERROR_CODE_CHILD_RENDER_NOT_EXIST} The child is not a child of the node.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_RemoveChild(ArkUI_RenderNodeHandle node, ArkUI_RenderNodeHandle child);
@@ -302,6 +303,7 @@ int32_t OH_ArkUI_RenderNodeUtils_RemoveChild(ArkUI_RenderNodeHandle node, ArkUI_
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_ClearChildren(ArkUI_RenderNodeHandle node);
@@ -315,7 +317,7 @@ int32_t OH_ArkUI_RenderNodeUtils_ClearChildren(ArkUI_RenderNodeHandle node);
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
- *         {@link ARKUI_ERROR_CODE_RENDER_IS_DISPOSED} Child is disposed.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  *         {@link ARKUI_ERROR_CODE_CHILD_RENDER_NOT_EXIST} The child does not exist.
  * @since 20
  */
@@ -329,7 +331,7 @@ int32_t OH_ArkUI_RenderNodeUtils_GetChild(ArkUI_RenderNodeHandle node, int32_t i
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
- *         {@link ARKUI_ERROR_CODE_RENDER_IS_DISPOSED} Child is disposed.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  *         {@link ARKUI_ERROR_CODE_CHILD_RENDER_NOT_EXIST} The child does not exist.
  * @since 20
  */
@@ -343,7 +345,7 @@ int32_t OH_ArkUI_RenderNodeUtils_GetFirstChild(ArkUI_RenderNodeHandle node, ArkU
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
- *         {@link ARKUI_ERROR_CODE_RENDER_IS_DISPOSED} Child is disposed.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  *         {@link ARKUI_ERROR_CODE_CHILD_RENDER_NOT_EXIST} The child does not exist.
  * @since 20
  */
@@ -357,7 +359,7 @@ int32_t OH_ArkUI_RenderNodeUtils_GetNextSibling(ArkUI_RenderNodeHandle node, Ark
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
- *         {@link ARKUI_ERROR_CODE_RENDER_IS_DISPOSED} Child is disposed.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  *         {@link ARKUI_ERROR_CODE_CHILD_RENDER_NOT_EXIST} The child does not exist.
  * @since 20
  */
@@ -374,6 +376,7 @@ int32_t OH_ArkUI_RenderNodeUtils_GetPreviousSibling(ArkUI_RenderNodeHandle node,
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_GetChildren(
@@ -387,6 +390,7 @@ int32_t OH_ArkUI_RenderNodeUtils_GetChildren(
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_GetChildrenCount(ArkUI_RenderNodeHandle node, int32_t* count);
@@ -404,7 +408,7 @@ int32_t OH_ArkUI_RenderNodeUtils_GetChildrenCount(ArkUI_RenderNodeHandle node, i
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
- *         {@link ARKUI_ERROR_CODE_PARAM_OUT_OF_RANGE} Parameter out of range.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_SetBackgroundColor(ArkUI_RenderNodeHandle node, uint32_t color);
@@ -422,6 +426,7 @@ int32_t OH_ArkUI_RenderNodeUtils_SetBackgroundColor(ArkUI_RenderNodeHandle node,
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_GetBackgroundColor(ArkUI_RenderNodeHandle node, uint32_t* color);
@@ -434,6 +439,7 @@ int32_t OH_ArkUI_RenderNodeUtils_GetBackgroundColor(ArkUI_RenderNodeHandle node,
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  *         {@link ARKUI_ERROR_CODE_PARAM_OUT_OF_RANGE} Parameter out of range.
  * @since 20
  */
@@ -447,6 +453,7 @@ int32_t OH_ArkUI_RenderNodeUtils_SetClipToFrame(ArkUI_RenderNodeHandle node, int
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_GetClipToFrame(ArkUI_RenderNodeHandle node, int32_t* clipToFrame);
@@ -459,6 +466,7 @@ int32_t OH_ArkUI_RenderNodeUtils_GetClipToFrame(ArkUI_RenderNodeHandle node, int
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  *         {@link ARKUI_ERROR_CODE_PARAM_OUT_OF_RANGE} Parameter out of range.
  * @since 20
  */
@@ -472,6 +480,7 @@ int32_t OH_ArkUI_RenderNodeUtils_SetClipToBounds(ArkUI_RenderNodeHandle node, in
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_GetClipToBounds(ArkUI_RenderNodeHandle node, int32_t* clipToBounds);
@@ -484,6 +493,7 @@ int32_t OH_ArkUI_RenderNodeUtils_GetClipToBounds(ArkUI_RenderNodeHandle node, in
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  *         {@link ARKUI_ERROR_CODE_PARAM_OUT_OF_RANGE} Parameter out of range.
  * @since 20
  */
@@ -497,6 +507,7 @@ int32_t OH_ArkUI_RenderNodeUtils_SetOpacity(ArkUI_RenderNodeHandle node, float o
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_GetOpacity(ArkUI_RenderNodeHandle node, float* opacity);
@@ -510,6 +521,7 @@ int32_t OH_ArkUI_RenderNodeUtils_GetOpacity(ArkUI_RenderNodeHandle node, float* 
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  *         {@link ARKUI_ERROR_CODE_PARAM_OUT_OF_RANGE} Parameter out of range.
  * @since 20
  */
@@ -524,6 +536,7 @@ int32_t OH_ArkUI_RenderNodeUtils_SetSize(ArkUI_RenderNodeHandle node, int32_t wi
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_GetSize(ArkUI_RenderNodeHandle node, int32_t* width, int32_t* height);
@@ -537,6 +550,7 @@ int32_t OH_ArkUI_RenderNodeUtils_GetSize(ArkUI_RenderNodeHandle node, int32_t* w
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_SetPosition(ArkUI_RenderNodeHandle node, int32_t x, int32_t y);
@@ -550,6 +564,7 @@ int32_t OH_ArkUI_RenderNodeUtils_SetPosition(ArkUI_RenderNodeHandle node, int32_
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_GetPosition(ArkUI_RenderNodeHandle node, int32_t* x, int32_t* y);
@@ -563,6 +578,7 @@ int32_t OH_ArkUI_RenderNodeUtils_GetPosition(ArkUI_RenderNodeHandle node, int32_
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_SetPivot(ArkUI_RenderNodeHandle node, float x, float y);
@@ -576,6 +592,7 @@ int32_t OH_ArkUI_RenderNodeUtils_SetPivot(ArkUI_RenderNodeHandle node, float x, 
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_GetPivot(ArkUI_RenderNodeHandle node, float* x, float* y);
@@ -589,6 +606,7 @@ int32_t OH_ArkUI_RenderNodeUtils_GetPivot(ArkUI_RenderNodeHandle node, float* x,
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_SetScale(ArkUI_RenderNodeHandle node, float x, float y);
@@ -602,6 +620,7 @@ int32_t OH_ArkUI_RenderNodeUtils_SetScale(ArkUI_RenderNodeHandle node, float x, 
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_GetScale(ArkUI_RenderNodeHandle node, float* x, float* y);
@@ -615,6 +634,7 @@ int32_t OH_ArkUI_RenderNodeUtils_GetScale(ArkUI_RenderNodeHandle node, float* x,
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_SetTranslation(ArkUI_RenderNodeHandle node, float x, float y);
@@ -628,6 +648,7 @@ int32_t OH_ArkUI_RenderNodeUtils_SetTranslation(ArkUI_RenderNodeHandle node, flo
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_GetTranslation(ArkUI_RenderNodeHandle node, float* x, float* y);
@@ -642,6 +663,7 @@ int32_t OH_ArkUI_RenderNodeUtils_GetTranslation(ArkUI_RenderNodeHandle node, flo
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_SetRotation(ArkUI_RenderNodeHandle node, float x, float y, float z);
@@ -656,6 +678,7 @@ int32_t OH_ArkUI_RenderNodeUtils_SetRotation(ArkUI_RenderNodeHandle node, float 
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_GetRotation(ArkUI_RenderNodeHandle node, float* x, float* y, float* z);
@@ -695,6 +718,7 @@ int32_t OH_ArkUI_RenderNodeUtils_GetRotation(ArkUI_RenderNodeHandle node, float*
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  *         {@link ARKUI_ERROR_CODE_PARAM_OUT_OF_RANGE} Parameter out of range.
  * @since 20
  */
@@ -713,7 +737,7 @@ int32_t OH_ArkUI_RenderNodeUtils_SetTransform(ArkUI_RenderNodeHandle node, float
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
- *         {@link ARKUI_ERROR_CODE_PARAM_OUT_OF_RANGE} Parameter out of range.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_SetShadowColor(ArkUI_RenderNodeHandle node, uint32_t color);
@@ -731,6 +755,7 @@ int32_t OH_ArkUI_RenderNodeUtils_SetShadowColor(ArkUI_RenderNodeHandle node, uin
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_GetShadowColor(ArkUI_RenderNodeHandle node, uint32_t* color);
@@ -744,6 +769,7 @@ int32_t OH_ArkUI_RenderNodeUtils_GetShadowColor(ArkUI_RenderNodeHandle node, uin
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_SetShadowOffset(ArkUI_RenderNodeHandle node, int32_t x, int32_t y);
@@ -757,6 +783,7 @@ int32_t OH_ArkUI_RenderNodeUtils_SetShadowOffset(ArkUI_RenderNodeHandle node, in
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_GetShadowOffset(ArkUI_RenderNodeHandle node, int32_t* x, int32_t* y);
@@ -769,6 +796,7 @@ int32_t OH_ArkUI_RenderNodeUtils_GetShadowOffset(ArkUI_RenderNodeHandle node, in
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  *         {@link ARKUI_ERROR_CODE_PARAM_OUT_OF_RANGE} Parameter out of range.
  * @since 20
  */
@@ -782,6 +810,7 @@ int32_t OH_ArkUI_RenderNodeUtils_SetShadowAlpha(ArkUI_RenderNodeHandle node, flo
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_GetShadowAlpha(ArkUI_RenderNodeHandle node, float* alpha);
@@ -794,6 +823,7 @@ int32_t OH_ArkUI_RenderNodeUtils_GetShadowAlpha(ArkUI_RenderNodeHandle node, flo
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  *         {@link ARKUI_ERROR_CODE_PARAM_OUT_OF_RANGE} Parameter out of range.
  * @since 20
  */
@@ -807,6 +837,7 @@ int32_t OH_ArkUI_RenderNodeUtils_SetShadowElevation(ArkUI_RenderNodeHandle node,
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_GetShadowElevation(ArkUI_RenderNodeHandle node, float* elevation);
@@ -819,6 +850,8 @@ int32_t OH_ArkUI_RenderNodeUtils_GetShadowElevation(ArkUI_RenderNodeHandle node,
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
+ *         {@link ARKUI_ERROR_CODE_PARAM_OUT_OF_RANGE} Parameter out of range.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_SetShadowRadius(ArkUI_RenderNodeHandle node, float radius);
@@ -831,6 +864,7 @@ int32_t OH_ArkUI_RenderNodeUtils_SetShadowRadius(ArkUI_RenderNodeHandle node, fl
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_GetShadowRadius(ArkUI_RenderNodeHandle node, float* radius);
@@ -843,6 +877,7 @@ int32_t OH_ArkUI_RenderNodeUtils_GetShadowRadius(ArkUI_RenderNodeHandle node, fl
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_SetBorderStyle(ArkUI_RenderNodeHandle node, ArkUI_NodeBorderStyleOption* borderStyle);
@@ -855,6 +890,7 @@ int32_t OH_ArkUI_RenderNodeUtils_SetBorderStyle(ArkUI_RenderNodeHandle node, Ark
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_GetBorderStyle(ArkUI_RenderNodeHandle node, ArkUI_NodeBorderStyleOption** borderStyle);
@@ -867,6 +903,7 @@ int32_t OH_ArkUI_RenderNodeUtils_GetBorderStyle(ArkUI_RenderNodeHandle node, Ark
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_SetBorderWidth(ArkUI_RenderNodeHandle node, ArkUI_NodeBorderWidthOption* borderWidth);
@@ -879,6 +916,7 @@ int32_t OH_ArkUI_RenderNodeUtils_SetBorderWidth(ArkUI_RenderNodeHandle node, Ark
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_GetBorderWidth(ArkUI_RenderNodeHandle node, ArkUI_NodeBorderWidthOption** borderWidth);
@@ -891,6 +929,7 @@ int32_t OH_ArkUI_RenderNodeUtils_GetBorderWidth(ArkUI_RenderNodeHandle node, Ark
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_SetBorderColor(ArkUI_RenderNodeHandle node, ArkUI_NodeBorderColorOption* borderColor);
@@ -903,6 +942,7 @@ int32_t OH_ArkUI_RenderNodeUtils_SetBorderColor(ArkUI_RenderNodeHandle node, Ark
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_GetBorderColor(ArkUI_RenderNodeHandle node, ArkUI_NodeBorderColorOption** borderColor);
@@ -915,6 +955,7 @@ int32_t OH_ArkUI_RenderNodeUtils_GetBorderColor(ArkUI_RenderNodeHandle node, Ark
  * @r eturn Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_SetBorderRadius(
@@ -928,6 +969,7 @@ int32_t OH_ArkUI_RenderNodeUtils_SetBorderRadius(
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_GetBorderRadius(
@@ -941,9 +983,10 @@ int32_t OH_ArkUI_RenderNodeUtils_GetBorderRadius(
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
-int32_t OH_ArkUI_RenderNodeUtils_SetMask(ArkUI_RenderNodeHandle node, ArkUI_RenderNodeMaskOption* option);
+int32_t OH_ArkUI_RenderNodeUtils_SetMask(ArkUI_RenderNodeHandle node, ArkUI_RenderNodeMaskOption* mask);
 
 /**
  * @brief Apply a clip to a render node using the clip option.
@@ -953,9 +996,10 @@ int32_t OH_ArkUI_RenderNodeUtils_SetMask(ArkUI_RenderNodeHandle node, ArkUI_Rend
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
-int32_t OH_ArkUI_RenderNodeUtils_SetClip(ArkUI_RenderNodeHandle node, ArkUI_RenderNodeClipOption* option);
+int32_t OH_ArkUI_RenderNodeUtils_SetClip(ArkUI_RenderNodeHandle node, ArkUI_RenderNodeClipOption* clip);
 
 /**
  * @brief Mark whether to preferentially draw the node and its children.
@@ -965,6 +1009,7 @@ int32_t OH_ArkUI_RenderNodeUtils_SetClip(ArkUI_RenderNodeHandle node, ArkUI_Rend
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_SetMarkNodeGroup(ArkUI_RenderNodeHandle node, bool markNodeGroup);
@@ -980,6 +1025,7 @@ int32_t OH_ArkUI_RenderNodeUtils_SetMarkNodeGroup(ArkUI_RenderNodeHandle node, b
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  *         {@link ARKUI_ERROR_CODE_PARAM_OUT_OF_RANGE} Parameter out of range.
  * @since 20
  */
@@ -997,6 +1043,7 @@ int32_t OH_ArkUI_RenderNodeUtils_SetBounds(
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_GetBounds(
@@ -1008,11 +1055,12 @@ int32_t OH_ArkUI_RenderNodeUtils_GetBounds(
  * @param node Handle to the target render node.
  * @param x X-coordinate of the bounds's top-left corner (in pixels).
  * @param y Y-coordinate of the bounds's top-left corner (in pixels).
- * @param width Width of the bounds (in pixels).
- * @param height Height of the bounds (in pixels).
+ * @param w Width of the bounds (in pixels).
+ * @param h Height of the bounds (in pixels).
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_SetDrawRegion(ArkUI_RenderNodeHandle node, float x, float y, float w, float h);
@@ -1025,6 +1073,7 @@ int32_t OH_ArkUI_RenderNodeUtils_SetDrawRegion(ArkUI_RenderNodeHandle node, floa
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_AttachContentModifier(
@@ -1036,6 +1085,7 @@ int32_t OH_ArkUI_RenderNodeUtils_AttachContentModifier(
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 ArkUI_RenderContentModifierHandle OH_ArkUI_RenderNodeUtils_CreateContentModifier();
@@ -1056,6 +1106,7 @@ void OH_ArkUI_RenderNodeUtils_DisposeContentModifier(ArkUI_RenderContentModifier
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_AttachFloatProperty(
@@ -1069,6 +1120,7 @@ int32_t OH_ArkUI_RenderNodeUtils_AttachFloatProperty(
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_AttachVector2Property(
@@ -1082,6 +1134,7 @@ int32_t OH_ArkUI_RenderNodeUtils_AttachVector2Property(
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_AttachColorProperty(
@@ -1096,6 +1149,7 @@ int32_t OH_ArkUI_RenderNodeUtils_AttachColorProperty(
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_AttachFloatAnimatableProperty(
@@ -1110,6 +1164,7 @@ int32_t OH_ArkUI_RenderNodeUtils_AttachFloatAnimatableProperty(
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_AttachVector2AnimatableProperty(
@@ -1124,6 +1179,7 @@ int32_t OH_ArkUI_RenderNodeUtils_AttachVector2AnimatableProperty(
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_AttachColorAnimatableProperty(
@@ -1146,6 +1202,7 @@ ArkUI_FloatPropertyHandle OH_ArkUI_RenderNodeUtils_CreateFloatProperty(float val
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_SetFloatPropertyValue(ArkUI_FloatPropertyHandle property, float value);
@@ -1158,6 +1215,7 @@ int32_t OH_ArkUI_RenderNodeUtils_SetFloatPropertyValue(ArkUI_FloatPropertyHandle
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_GetFloatPropertyValue(ArkUI_FloatPropertyHandle property, float* value);
@@ -1189,6 +1247,7 @@ ArkUI_Vector2PropertyHandle OH_ArkUI_RenderNodeUtils_CreateVector2Property(float
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_SetVector2PropertyValue(ArkUI_Vector2PropertyHandle property, float x, float y);
@@ -1202,6 +1261,7 @@ int32_t OH_ArkUI_RenderNodeUtils_SetVector2PropertyValue(ArkUI_Vector2PropertyHa
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_GetVector2PropertyValue(ArkUI_Vector2PropertyHandle property, float* x, float* y);
@@ -1231,6 +1291,7 @@ ArkUI_ColorPropertyHandle OH_ArkUI_RenderNodeUtils_CreateColorProperty(uint32_t 
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_SetColorPropertyValue(ArkUI_ColorPropertyHandle property, uint32_t value);
@@ -1243,6 +1304,7 @@ int32_t OH_ArkUI_RenderNodeUtils_SetColorPropertyValue(ArkUI_ColorPropertyHandle
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_GetColorPropertyValue(ArkUI_ColorPropertyHandle property, uint32_t* value);
@@ -1272,6 +1334,7 @@ ArkUI_FloatAnimatablePropertyHandle OH_ArkUI_RenderNodeUtils_CreateFloatAnimatab
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_SetFloatAnimatablePropertyValue(
@@ -1285,6 +1348,7 @@ int32_t OH_ArkUI_RenderNodeUtils_SetFloatAnimatablePropertyValue(
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_GetFloatAnimatablePropertyValue(
@@ -1317,6 +1381,7 @@ ArkUI_Vector2AnimatablePropertyHandle OH_ArkUI_RenderNodeUtils_CreateVector2Anim
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_SetVector2AnimatablePropertyValue(
@@ -1331,6 +1396,7 @@ int32_t OH_ArkUI_RenderNodeUtils_SetVector2AnimatablePropertyValue(
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_GetVector2AnimatablePropertyValue(
@@ -1361,6 +1427,7 @@ ArkUI_ColorAnimatablePropertyHandle OH_ArkUI_RenderNodeUtils_CreateColorAnimatab
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_SetColorAnimatablePropertyValue(
@@ -1374,6 +1441,7 @@ int32_t OH_ArkUI_RenderNodeUtils_SetColorAnimatablePropertyValue(
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_GetColorAnimatablePropertyValue(
@@ -1396,6 +1464,7 @@ void OH_ArkUI_RenderNodeUtils_DisposeColorAnimatableProperty(ArkUI_ColorAnimatab
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 int32_t OH_ArkUI_RenderNodeUtils_SetContentModifierOnDraw(ArkUI_RenderContentModifierHandle modifier, void* userData,
@@ -1526,15 +1595,15 @@ ArkUI_NodeBorderRadiusOption* OH_ArkUI_RenderNodeUtils_CreateNodeBorderRadiusOpt
 void OH_ArkUI_RenderNodeUtils_DisposeNodeBorderRadiusOption(ArkUI_NodeBorderRadiusOption* option);
 
 /**
- * @brief Set the edge value of NodeBorderRadius option.
+ * @brief Set the corner value of NodeBorderRadius option.
  *
  * @param option Pointer to the NodeBorderRadius option.
- * @param edgeRadius The edge radius value of the NodeBorderRadius option.
- * @param direction {@Link ArkUI_EdgeDirection} The direction of the edge.
+ * @param cornerRadius The corner radius value of the NodeBorderRadius option.
+ * @param direction {@Link ArkUI_CornerDirection} The direction of the corner.
  * @since 20
  */
-void OH_ArkUI_RenderNodeUtils_SetNodeBorderRadiusOptionEdgeRadius(
-    ArkUI_NodeBorderRadiusOption* option, uint32_t edgeRadius, ArkUI_EdgeDirection direction);
+void OH_ArkUI_RenderNodeUtils_SetNodeBorderRadiusOptionCornerRadius(
+    ArkUI_NodeBorderRadiusOption* option, uint32_t cornerRadius, ArkUI_CornerDirection direction);
 
 /**
  * @brief Create a CircleShape option.
@@ -1565,7 +1634,7 @@ void OH_ArkUI_RenderNodeUtils_SetCircleShapeOptionCenterX(ArkUI_CircleShapeOptio
  * @brief Set the centerY value of CircleShape option.
  *
  * @param option Pointer to the CircleShape option.
- * @param centerX The centerY value.
+ * @param centerY The centerY value.
  * @since 20
  */
 void OH_ArkUI_RenderNodeUtils_SetCircleShapeOptionCenterY(ArkUI_CircleShapeOption* option, float centerY);
@@ -1709,6 +1778,7 @@ void OH_ArkUI_RenderNodeUtils_DisposeRenderNodeMaskOption(ArkUI_RenderNodeMaskOp
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 void OH_ArkUI_RenderNodeUtils_SetRenderNodeMaskOptionFillColor(ArkUI_RenderNodeMaskOption* mask, uint32_t fillColor);
@@ -1721,6 +1791,7 @@ void OH_ArkUI_RenderNodeUtils_SetRenderNodeMaskOptionFillColor(ArkUI_RenderNodeM
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 void OH_ArkUI_RenderNodeUtils_SetRenderNodeMaskOptionStrokeColor(
@@ -1734,6 +1805,7 @@ void OH_ArkUI_RenderNodeUtils_SetRenderNodeMaskOptionStrokeColor(
  * @return Error code.
  *         {@link ARKUI_ERROR_CODE_NO_ERROR} Success.
  *         {@link ARKUI_ERROR_CODE_PARAM_INVALID} Function parameter exception.
+ *         {@link ARKUI_ERROR_CODE_CAPI_INIT_ERROR} if CAPI init error.
  * @since 20
  */
 void OH_ArkUI_RenderNodeUtils_SetRenderNodeMaskOptionStrokeWidth(ArkUI_RenderNodeMaskOption* mask, float strokeWidth);

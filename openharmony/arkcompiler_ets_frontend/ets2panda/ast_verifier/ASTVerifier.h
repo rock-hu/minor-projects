@@ -91,24 +91,34 @@ public:
         for (size_t i = 0; i < VerifierInvariants::COUNT; i++) {
             enabled_[i] = TreatAsWarning(VerifierInvariants {i}) || TreatAsError(VerifierInvariants {i});
         }
+    }
+
+    ~ASTVerifier()
+    {
+        ES2PANDA_ASSERT(!HasErrors());
+        ES2PANDA_ASSERT(!HasWarnings());
+    }
+
+    void After()
+    {
+        if (Options().IsAstVerifierAfterPhases()) {
+            Verify("after");
+        }
+        if (!suppressed_ && (HasErrors() || HasWarnings())) {
+            DumpMessages();
+            hasErrors_ = false;
+            hasWarnings_ = false;
+        }
+    }
+
+    void Before()
+    {
         if (Options().IsAstVerifierBeforePhases()) {
             Verify("before");
         }
     }
 
-    ~ASTVerifier() noexcept
-    {
-        if (!suppressed_) {
-            if (Options().IsAstVerifierAfterPhases()) {
-                Verify("after");
-            }
-            if (HasErrors() || HasWarnings()) {
-                DumpMessages();
-            }
-        }
-    }
-
-    void Verify(std::string_view phaseName);
+    void Verify(std::string_view phaseName) noexcept;
 
     void IntroduceNewInvariants(std::string_view occurredPhaseName)
     {

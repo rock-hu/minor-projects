@@ -33,6 +33,7 @@
 #include "core/components_ng/manager/scroll_adjust/scroll_adjust_manager.h"
 
 namespace OHOS::Ace::NG {
+
 namespace {
 const Color ITEM_FILL_COLOR = Color::TRANSPARENT;
 
@@ -41,9 +42,6 @@ const int32_t MAX_NUM_SIZE = 4;
 
 RefPtr<LayoutAlgorithm> GridPattern::CreateLayoutAlgorithm()
 {
-    prevRange_ = std::pair(info_.startIndex_, info_.endIndex_);
-    reachedEnd_ = info_.offsetEnd_;
-
     auto gridLayoutProperty = GetLayoutProperty<GridLayoutProperty>();
     CHECK_NULL_RETURN(gridLayoutProperty, nullptr);
     std::vector<std::string> cols;
@@ -92,10 +90,6 @@ RefPtr<LayoutAlgorithm> GridPattern::CreateLayoutAlgorithm()
     if (ScrollablePattern::AnimateRunning()) {
         result->SetLineSkipping(!disableSkip);
     }
-    if (adapter_) {
-        result->SetItemAdapterFeature(adapter_->requestFeature);
-        result->SetLazyFeature(!!adapter_->requestItemFunc);
-    }
     return result;
 }
 
@@ -143,6 +137,7 @@ void GridPattern::OnModifyDone()
     if (multiSelectable_ && !isMouseEventInit_) {
         InitMouseEvent();
     }
+
     if (!multiSelectable_ && isMouseEventInit_) {
         UninitMouseEvent();
     }
@@ -231,6 +226,7 @@ void GridPattern::MultiSelectWithoutKeyboard(const RectF& selectedZone)
             context->OnMouseSelectUpdate(true, ITEM_FILL_COLOR, ITEM_FILL_COLOR);
         }
     }
+
     DrawSelectedZone(selectedZone);
 }
 
@@ -463,24 +459,28 @@ bool GridPattern::UpdateCurrentOffset(float offset, int32_t source)
     bool irregular = UseIrregularLayout();
     float mainGap = GetMainGap();
     auto itemsHeight = info_.GetTotalHeightOfItemsInView(mainGap, irregular);
+    float mainContentSize = GetMainContentSize();
     if (info_.offsetEnd_) {
         if (source == SCROLL_FROM_UPDATE) {
             float overScroll = 0.0f;
-            if (GetTotalHeight() <= GetMainContentSize()) {
+            if (GetTotalHeight() <= mainContentSize) {
                 overScroll = GetTotalOffset();
             } else if (irregular) {
-                overScroll = info_.GetDistanceToBottom(GetMainContentSize(), itemsHeight, mainGap);
+                overScroll = info_.GetDistanceToBottom(mainContentSize, itemsHeight, mainGap);
             } else {
-                overScroll = info_.currentOffset_ - (GetMainContentSize() - itemsHeight);
+                overScroll = info_.currentOffset_ - (mainContentSize - itemsHeight);
             }
-            auto friction = CalculateFriction(std::abs(overScroll) / GetMainContentSize());
-            offset *= friction;
+            if (!NearZero(mainContentSize)) {
+                auto friction = CalculateFriction(std::abs(overScroll) / mainContentSize);
+                offset *= friction;
+            }
         }
         auto userOffset = FireOnWillScroll(-offset);
+        userOffset = FireObserverOnWillScroll(userOffset);
         info_.currentOffset_ -= userOffset;
         host->MarkDirtyNode(PROPERTY_UPDATE_MEASURE_SELF);
 
-        if (GreatNotEqual(info_.currentOffset_, GetMainContentSize() - itemsHeight)) {
+        if (GreatNotEqual(info_.currentOffset_, mainContentSize - itemsHeight)) {
             info_.offsetEnd_ = false;
             info_.reachEnd_ = false;
         }
@@ -489,10 +489,13 @@ bool GridPattern::UpdateCurrentOffset(float offset, int32_t source)
     }
     if (info_.reachStart_) {
         if (source == SCROLL_FROM_UPDATE) {
-            auto friction = CalculateFriction(std::abs(info_.currentOffset_) / GetMainContentSize());
-            offset *= friction;
+            if (!NearZero(mainContentSize)) {
+                auto friction = CalculateFriction(std::abs(info_.currentOffset_) / mainContentSize);
+                offset *= friction;
+            }
         }
         auto userOffset = FireOnWillScroll(-offset);
+        userOffset = FireObserverOnWillScroll(userOffset);
         info_.currentOffset_ -= userOffset;
         host->MarkDirtyNode(PROPERTY_UPDATE_MEASURE_SELF);
 
@@ -501,19 +504,12 @@ bool GridPattern::UpdateCurrentOffset(float offset, int32_t source)
         }
         return true;
     }
-    UpdateOffsetHelper(offset);
+    auto userOffset = FireOnWillScroll(-offset);
+    userOffset = FireObserverOnWillScroll(userOffset);
+    info_.currentOffset_ -= userOffset;
+    host->MarkDirtyNode(PROPERTY_UPDATE_MEASURE_SELF);
     ScrollablePattern::MarkScrollBarProxyDirty();
     return true;
-}
-
-void GridPattern::UpdateOffsetHelper(float offset)
-{
-    auto userOffset = FireOnWillScroll(-offset);
-    info_.currentOffset_ -= userOffset;
-    auto host = GetHost();
-    if (host) {
-        host->MarkDirtyNode(PROPERTY_UPDATE_MEASURE_SELF);
-    }
 }
 
 bool GridPattern::OnDirtyLayoutWrapperSwap(const RefPtr<LayoutWrapper>& dirty, const DirtySwapConfig& config)
@@ -593,28 +589,6 @@ bool GridPattern::OnDirtyLayoutWrapperSwap(const RefPtr<LayoutWrapper>& dirty, c
     auto paintProperty = GetPaintProperty<ScrollablePaintProperty>();
     CHECK_NULL_RETURN(paintProperty, false);
     return paintProperty->GetFadingEdge().value_or(false) || paintProperty->HasContentClip();
-}
-
-void GridPattern::CheckGridItemRange(const std::pair<int32_t, int32_t>& range)
-{
-    if (!adapter_) {
-        return;
-    }
-    adapter_->requestFeature.first = false;
-    adapter_->requestFeature.second = false;
-    LOGI("CheckGridItemRange, range: %{public}d, %{public}d.", adapter_->range.first, adapter_->range.second);
-    if (adapter_->range.first != range.first || adapter_->range.second != range.second) {
-        if (adapter_->range.first > range.first) {
-            adapter_->requestFeature.first = true;
-        }
-        if (adapter_->range.second < range.second) {
-            adapter_->requestFeature.second = true;
-        }
-        if (adapter_->requestItemFunc) {
-            LOGI("request more items, range: %{public}d, %{public}d.", range.first, range.second);
-            adapter_->requestItemFunc(range.first, range.second);
-        }
-    }
 }
 
 void GridPattern::CheckScrollable()
@@ -1165,6 +1139,7 @@ void GridPattern::SyncLayoutBeforeSpring()
     host->SetActive();
     auto* context = host->GetContext();
     if (context) {
+        host->SetEscapeDelayForIgnore(true);
         context->FlushUITaskWithSingleDirtyNode(host);
     }
     preSpring_ = false;
@@ -1464,7 +1439,7 @@ void GridPattern::ScrollToIndex(int32_t index, bool smooth, ScrollAlign align, s
     StopAnimate();
     auto host = GetHost();
     CHECK_NULL_VOID(host);
-    int32_t totalChildCount = host->GetTotalChildCount();
+    int32_t totalChildCount = host->TotalChildCount();
     if (((index >= 0) && (index < totalChildCount)) || (index == LAST_ITEM)) {
         if (extraOffset.has_value()) {
             info_.extraOffset_ = -extraOffset.value();
@@ -1809,5 +1784,19 @@ int32_t GridPattern::OnInjectionEvent(const std::string& command)
         return RET_FAILED;
     }
     return RET_SUCCESS;
+}
+
+void GridPattern::OnColorModeChange(uint32_t colorMode)
+{
+    Pattern::OnColorModeChange(colorMode);
+    CHECK_NULL_VOID(SystemProperties::ConfigChangePerform());
+    auto paintProperty = GetPaintProperty<ScrollablePaintProperty>();
+    CHECK_NULL_VOID(paintProperty);
+    if (paintProperty->GetScrollBarProperty()) {
+        SetScrollBar(paintProperty->GetScrollBarProperty());
+    }
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    host->MarkDirtyNode(PROPERTY_UPDATE_RENDER);
 }
 } // namespace OHOS::Ace::NG

@@ -365,6 +365,7 @@ void PandaEtsVM::PostZygoteFork()
     // Postpone GC on application start-up
     // Postpone GCEnd method should be called on start-up ending event
     mm_->GetGC()->PostponeGCStart();
+    PreStartup();
 }
 
 void PandaEtsVM::InitializeGC()
@@ -419,6 +420,11 @@ void PandaEtsVM::HandleGCFinished() {}
 bool PandaEtsVM::CheckEntrypointSignature(Method *entrypoint)
 {
     ASSERT(entrypoint != nullptr);
+
+    if (entrypoint->GetReturnType().GetId() != panda_file::Type::TypeId::I32 &&
+        entrypoint->GetReturnType().GetId() != panda_file::Type::TypeId::VOID) {
+        return false;
+    }
 
     if (entrypoint->GetNumArgs() == 0) {
         return true;

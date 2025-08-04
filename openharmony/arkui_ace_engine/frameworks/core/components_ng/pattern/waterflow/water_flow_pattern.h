@@ -104,14 +104,9 @@ public:
         return layoutInfo_->endIndex_;
     }
 
-    float GetPendingDelta() const
-    {
-        return layoutInfo_->GetPendingDelta();
-    }
-
     int32_t GetChildrenCount() const;
 
-    float GetTotalOffset() const override
+    double GetTotalOffset() const override
     {
         return -layoutInfo_->Offset();
     }
@@ -234,13 +229,13 @@ public:
         layoutInfo_->InvalidatedOffset();
     }
 
+    void OnColorModeChange(uint32_t colorMode) override;
+
 private:
     DisplayMode GetDefaultScrollBarDisplayMode() const override
     {
         return DisplayMode::OFF;
     }
-
-private:
     void OnModifyDone() override;
     bool OnDirtyLayoutWrapperSwap(const RefPtr<LayoutWrapper>& dirty, const DirtySwapConfig& config) override;
     void CheckScrollable();

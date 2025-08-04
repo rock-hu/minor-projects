@@ -1,4 +1,9 @@
 # @ohos.arkui.StateManagement (状态管理)
+<!--Kit: ArkUI-->
+<!--Subsystem: ArkUI-->
+<!--Owner: @jiyujia926; @liwenzhen3; @zzq212050299-->
+<!--SE: @s10021109-->
+<!--TSE: @TerryTsao-->
 
 状态管理模块提供了应用程序的数据存储能力、持久化数据管理能力、UIAbility数据存储能力和应用程序需要的环境状态、工具。
 
@@ -861,7 +866,12 @@ struct Index {
 
 ## MonitorCallback<sup>20+</sup>
 type MonitorCallback = (monitorValue: IMonitor) => void
+
 参数为[IMonitor](./arkui-ts/ts-state-management-watch-monitor.md#imonitor12)类型的监听回调函数。
+
+**原子化服务API：** 从API version 20开始，该接口支持在原子化服务中使用。
+
+**系统能力：** SystemCapability.ArkUI.ArkUI.Full
 
 ## StorageDefaultCreator\<T\>
 

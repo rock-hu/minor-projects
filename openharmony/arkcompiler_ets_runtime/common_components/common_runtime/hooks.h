@@ -36,6 +36,8 @@ PUBLIC_API void VisitDynamicPreforwardRoots(const RefFieldVisitor &visitorFunc);
 // Inlcude concurrent local and concurrent global roots
 PUBLIC_API void VisitDynamicConcurrentRoots(const RefFieldVisitor &visitorFunc);
 
+PUBLIC_API void InvokeSharedNativePointerCallbacks();
+
 // Visit roots of specific local thread.
 PUBLIC_API void VisitDynamicThreadRoot(const RefFieldVisitor &visitorFunc, void *vm);
 PUBLIC_API void VisitDynamicWeakThreadRoot(const WeakRefFieldVisitor &visitorFunc, void *vm);
@@ -54,6 +56,7 @@ PUBLIC_API bool IsPostForked();
 PUBLIC_API void SweepThreadLocalJitFort();
 PUBLIC_API bool IsMachineCodeObject(uintptr_t obj);
 PUBLIC_API void JitFortUnProt(size_t size, void* base);
+PUBLIC_API void MarkThreadLocalJitFortInstalled(void *thread, void *machineCode);
 
 } // namespace common
 #endif // COMMON_COMPONENTS_BASE_RUNTIME_HOOKS_H

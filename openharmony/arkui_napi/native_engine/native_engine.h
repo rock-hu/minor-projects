@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -28,6 +28,7 @@
 
 #include "callback_scope_manager/native_callback_scope_manager.h"
 #include "ecmascript/napi/include/jsnapi.h"
+#include "interfaces/inner_api/napi/native_node_hybrid_api.h"
 #include "module_manager/native_module_manager.h"
 #include "native_engine/native_async_work.h"
 #include "native_engine/native_deferred.h"
@@ -596,6 +597,8 @@ public:
     virtual napi_status SwitchContext() = 0;
 
     virtual napi_status DestroyContext() = 0;
+
+    virtual void NotifyVMIgnoreFinalizeCallback() const = 0;
 
 private:
     void InitUvField();

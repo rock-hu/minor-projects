@@ -359,6 +359,8 @@ void WebSelectOverlay::SetMenuOptions(SelectOverlayInfo& selectInfo,
         selectInfo.menuInfo.showSearch = false;
         selectInfo.menuInfo.showTranslate = false;
     }
+    selectInfo.menuInfo.showAIWrite = !(!(flags & OHOS::NWeb::NWebQuickMenuParams::QM_EF_CAN_CUT) ||
+        (copyOption == OHOS::NWeb::NWebPreference::CopyOptionMode::NONE) || !pattern->IsShowAIWrite());
     // should be the last
     canShowAIMenu_ = (copyOption != OHOS::NWeb::NWebPreference::CopyOptionMode::NONE) &&
                      (copyOption != OHOS::NWeb::NWebPreference::CopyOptionMode::IN_APP);
@@ -869,6 +871,11 @@ void WebSelectOverlay::OnMenuItemAction(OptionMenuActionId id, OptionMenuType ty
             pattern->CloseSelectOverlay();
             SelectCancel();
             break;
+        case OptionMenuActionId::AI_WRITE:
+            pattern->GetHandleInfo(webSelectInfo_);
+            pattern->HandleOnAIWrite();
+            SelectCancel();
+            break;
         case OptionMenuActionId::DISAPPEAR:
             pattern->CloseSelectOverlay();
             SelectCancel();
@@ -1372,7 +1379,7 @@ void WebSelectOverlay::InitMenuAvoidStrategyAboutBottom(MenuAvoidStrategyMember&
     bottomArea = GreatNotEqual(bottomArea, frameHeight) ? frameHeight : bottomArea;
 
     auto handleIsShow = hasKeyboard ? (LessOrEqual(handleBottom, keyboardStart) ? true : false) : downHandle.isShow;
-    auto selectionBottom = handleIsShow ? member.downPaint.Bottom() : bottomArea;
+    auto selectionBottom = handleIsShow ? handleBottom : bottomArea;
     selectionBottom = NearEqual(selectionBottom, keyboardStart - defaultY) ? keyboardStart : selectionBottom;
 
     member.downPaint = downPaint;
@@ -1382,12 +1389,14 @@ void WebSelectOverlay::InitMenuAvoidStrategyAboutBottom(MenuAvoidStrategyMember&
 
 void WebSelectOverlay::InitMenuAvoidStrategyAboutPosition(MenuAvoidStrategyMember& member, InitStrategyTools& tools)
 {
+    auto selectArea = member.info->selectArea + member.windowOffset;
     auto defaultAvoidY = member.defaultAvoidY;
     auto midPosition = (member.selectionTop + member.selectionBottom - member.menuHeight) / 2.0f;
-    auto avoidPosition = member.bottomArea - member.menuHeight;
-    avoidPosition = GreatNotEqual(midPosition, avoidPosition) ? avoidPosition : midPosition;
+    auto avoidPositionY = member.bottomArea - member.menuHeight;
+    avoidPositionY = GreatNotEqual(midPosition, avoidPositionY) ? avoidPositionY : midPosition;
 
-    member.avoidPosition = GreatNotEqual(avoidPosition, defaultAvoidY) ? avoidPosition : defaultAvoidY;
+    member.avoidPositionX = (selectArea.Left() + selectArea.Right() - member.menuWidth) / 2.0f;
+    member.avoidPositionY = GreatNotEqual(avoidPositionY, defaultAvoidY) ? avoidPositionY : defaultAvoidY;
 }
 
 void WebSelectOverlay::MenuAvoidStrategy(OffsetF& menuOffset, MenuAvoidStrategyMember& member)
@@ -1399,7 +1408,7 @@ void WebSelectOverlay::MenuAvoidStrategy(OffsetF& menuOffset, MenuAvoidStrategyM
     double menuTop = menuOffset.GetY();
     double menuBottom = menuTop + menuHeight;
     if (GreatNotEqual(menuBottom, member.bottomArea)) {
-        menuOffset.SetY(member.avoidPosition);
+        menuOffset.SetY(member.avoidPositionY);
         menuTop = menuOffset.GetY();
         menuBottom = menuTop + menuHeight;
     }
@@ -1412,7 +1421,8 @@ void WebSelectOverlay::MenuAvoidStrategy(OffsetF& menuOffset, MenuAvoidStrategyM
         finalY = GreatNotEqual(finalY, menuTop) ? finalY : menuTop;
         menuOffset.SetY(finalY);
     } else {
-        menuOffset.SetY(member.avoidPosition);
+        menuOffset.SetY(member.avoidPositionY);
     }
+    menuOffset.SetX(member.avoidPositionX);
 }
 } // namespace OHOS::Ace::NG

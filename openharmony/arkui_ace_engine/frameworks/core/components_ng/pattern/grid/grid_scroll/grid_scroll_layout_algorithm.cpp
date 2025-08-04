@@ -17,6 +17,7 @@
 
 #include "base/log/event_report.h"
 #include "base/log/log_wrapper.h"
+#include "base/utils/feature_param.h"
 #include "core/components_ng/pattern/grid/grid_utils.h"
 #include "core/components_ng/pattern/grid/irregular/grid_layout_utils.h"
 #include "core/components_ng/pattern/scrollable/scrollable_utils.h"
@@ -74,7 +75,7 @@ void GridScrollLayoutAlgorithm::Measure(LayoutWrapper* layoutWrapper)
         return;
     }
     bool matchChildren = GreaterOrEqualToInfinity(GetMainAxisSize(frameSize_, axis)) || isMainWrap;
-    syncLoad_ = gridLayoutProperty->GetSyncLoad().value_or(!SystemProperties::IsSyncLoadEnabled()) || matchChildren ||
+    syncLoad_ = gridLayoutProperty->GetSyncLoad().value_or(!FeatureParam::IsSyncLoadEnabled()) || matchChildren ||
                 info_.targetIndex_.has_value() || !NearEqual(info_.currentOffset_, info_.prevOffset_);
     layoutWrapper->GetGeometryNode()->SetFrameSize(frameSize_);
     MinusPaddingToSize(gridLayoutProperty->CreatePaddingAndBorder(), frameSize_);
@@ -88,10 +89,6 @@ void GridScrollLayoutAlgorithm::Measure(LayoutWrapper* layoutWrapper)
         if (pipeline && pipeline->GetPixelRoundMode() == PixelRoundMode::PIXEL_ROUND_AFTER_MEASURE) {
             frameSize_.SetWidth(round(frameSize_.Width()));
             frameSize_.SetHeight(round(frameSize_.Height()));
-        }
-        if (pipeline && pipeline->GetFrontendType() == FrontendType::ARK_TS) {
-            currentItemRowSpan_ = 1;
-            currentItemColSpan_ = 1;
         }
     }
 
@@ -2097,7 +2094,7 @@ float GridScrollLayoutAlgorithm::FillNewCacheLineBackward(
                 // Step1. Get wrapper of [GridItem]
                 CHECK_NULL_RETURN(currentIndex < childrenCount, -1.0f);
                 auto itemWrapper = layoutWrapper->GetChildByIndex(currentIndex, true);
-                if (!itemWrapper || itemWrapper->CheckNeedForceMeasureAndLayout()) {
+                if (GridUtils::CheckNeedCacheLayout(itemWrapper)) {
                     for (uint32_t y = i; y < crossCount_ && currentIndex < childrenCount; y++) {
                         predictBuildList_.emplace_back(currentIndex++);
                     }
@@ -2146,7 +2143,7 @@ float GridScrollLayoutAlgorithm::FillNewCacheLineBackward(
         }
         // Step1. Get wrapper of [GridItem]
         auto itemWrapper = layoutWrapper->GetChildByIndex(currentIndex, true);
-        if (!itemWrapper || itemWrapper->CheckNeedForceMeasureAndLayout()) {
+        if (GridUtils::CheckNeedCacheLayout(itemWrapper)) {
             for (uint32_t x = i; x < crossCount_ && currentIndex < childrenCount; x++) {
                 predictBuildList_.emplace_back(currentIndex++);
             }

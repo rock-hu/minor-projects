@@ -19,10 +19,10 @@
 #include "ecmascript/checkpoint/thread_state_transition.h"
 #include "common_interfaces/base_runtime.h"
 #include "common_interfaces/thread/thread_holder_manager.h"
-#include "ecmascript/dynamic_object_accessor.h"
-#include "ecmascript/dynamic_object_descriptor.h"
-#include "ecmascript/dynamic_type_converter.h"
 #include "common_interfaces/profiler/heap_profiler_listener.h"
+#include "ecmascript/cross_vm/dynamic_object_accessor.h"
+#include "ecmascript/cross_vm/dynamic_object_descriptor.h"
+#include "ecmascript/cross_vm/dynamic_type_converter.h"
 #include "ecmascript/jit/jit.h"
 #include "ecmascript/jspandafile/program_object.h"
 #include "ecmascript/js_runtime_options.h"
@@ -542,8 +542,7 @@ void Runtime::InvokeSharedNativePointerCallbacks()
     while (!callbacks.empty()) {
         auto callbackPair = callbacks.back();
         callbacks.pop_back();
-        ASSERT(callbackPair.first != nullptr && callbackPair.second.first != nullptr &&
-               callbackPair.second.second != nullptr);
+        ASSERT(callbackPair.first != nullptr);
         auto callback = callbackPair.first;
         (*callback)(nullptr, callbackPair.second.first, callbackPair.second.second);
     }

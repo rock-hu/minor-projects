@@ -153,6 +153,8 @@ public:
     static bool ParseResourceToDouble(const EcmaVM* vm, const Local<JSValueRef>& jsValue, double& result,
         RefPtr<ResourceObject>& resourceObject);
     static bool ParseJsIntegerArray(const EcmaVM* vm, Local<JSValueRef> values, std::vector<uint32_t>& result);
+    static bool ParseJsString(const EcmaVM* vm, const Local<JSValueRef>& jsValue, std::string& result,
+        RefPtr<ResourceObject>& resourceObject, const NodeInfo& nodeInfo);
     static bool ParseJsString(const EcmaVM *vm, const Local<JSValueRef> &value, std::string& result);
     static bool ParseJsString(const EcmaVM* vm, const Local<JSValueRef>& jsValue, std::string& result,
         RefPtr<ResourceObject>& resourceObject);
@@ -332,6 +334,8 @@ public:
         const EcmaVM* vm, const std::vector<NG::MenuItemParam>& systemMenuItems);
     static Local<panda::ObjectRef> CreateJsTextMenuItem(const EcmaVM* vm, const NG::MenuItemParam& menuItemParam);
     static Local<panda::ObjectRef> CreateJsTextMenuId(const EcmaVM* vm, const std::string& id);
+    static void ParseMenuItemsSymbolId(
+        const EcmaVM* vm, const Local<JSValueRef>& jsStartIcon, NG::MenuOptionsParam& menuOptionsParam);
     static void WrapMenuParams(const EcmaVM* vm, std::vector<NG::MenuOptionsParam>& menuParams,
         const Local<JSValueRef>& menuItems, bool enableLabelInfo);
     static void ParseOnMenuItemClick(const EcmaVM* vm, FrameNode* frameNode,

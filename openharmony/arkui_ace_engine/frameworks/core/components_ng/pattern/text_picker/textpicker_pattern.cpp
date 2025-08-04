@@ -53,6 +53,7 @@ constexpr float MAX_PERCENT = 100.0f;
 const int32_t UNOPTION_COUNT = 2;
 constexpr float PICKER_MAXFONTSCALE = 1.0f;
 constexpr uint32_t PRECISION_TWO = 2;
+constexpr float DEFAULT_SIZE_ZERO = 0.0f;
 } // namespace
 
 void TextPickerPattern::OnAttachToFrameNode()
@@ -1162,7 +1163,7 @@ void TextPickerPattern::GetInnerFocusPaintRect(RoundRect& paintRect)
     }
     auto columnNode = GetColumnNode();
     CHECK_NULL_VOID(columnNode);
-    auto pipeline = PipelineBase::GetCurrentContextSafelyWithCheck();
+    auto pipeline = PipelineBase::GetCurrentContext();
     CHECK_NULL_VOID(pipeline);
     auto pickerTheme = pipeline->GetTheme<PickerTheme>();
     CHECK_NULL_VOID(pickerTheme);
@@ -1478,7 +1479,7 @@ bool TextPickerPattern::HandleDirectionKey(KeyCode code)
 }
 
 std::string TextPickerPattern::GetSelectedObjectMulti(const std::vector<std::string>& values,
-    const std::vector<uint32_t>& indexs, int32_t status)
+    const std::vector<uint32_t>& indexs, int32_t status) const
 {
     std::string result = "";
     result = std::string("{\"value\":") + "[";
@@ -1541,7 +1542,8 @@ std::string TextPickerPattern::GetSelectedObject(
     CHECK_NULL_RETURN(context, "");
     if (context->GetIsDeclarative()) {
         if (values.size() == 1) {
-            return GetSelectedObjectStr(values[0], indexs[0], status);
+            return std::string("{\"value\":") + "\"" + values[0] + "\"" + ",\"index\":" + std::to_string(indexs[0]) +
+                   ",\"status\":" + std::to_string(status) + "}";
         } else {
             return GetSelectedObjectMulti(values, indexs, status);
         }
@@ -2182,6 +2184,19 @@ void TextPickerPattern::GetAndUpdateRealSelectedArr(const std::vector<NG::TextCa
     SetSelecteds(selectedArr);
     pickerProperty->UpdateSelecteds(selectedArr);
     pickerProperty->UpdateSelectedIndex(selectedArr);
+}
+
+void TextPickerPattern::BeforeCreateLayoutWrapper()
+{
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto layoutProperty = host->GetLayoutProperty<TextPickerLayoutProperty>();
+    CHECK_NULL_VOID(layoutProperty);
+    auto layoutPolicy = layoutProperty->GetLayoutPolicyProperty();
+    if (layoutPolicy.has_value() && (layoutPolicy->IsWrap() || layoutPolicy->IsFix())) {
+        layoutProperty->UpdateUserDefinedIdealSize(
+            CalcSize(CalcLength(DEFAULT_SIZE_ZERO), CalcLength(DEFAULT_SIZE_ZERO)));
+    }
 }
 
 } // namespace OHOS::Ace::NG

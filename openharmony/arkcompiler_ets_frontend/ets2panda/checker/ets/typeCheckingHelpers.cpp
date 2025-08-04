@@ -1036,7 +1036,8 @@ void ETSChecker::ValidateThisUsage(const ir::TypeNode *returnTypeAnnotation)
         return;
     }
     if (returnTypeAnnotation->IsETSTypeReference() &&
-        IsFixedArray(returnTypeAnnotation->AsETSTypeReference()->Part())) {
+        IsFixedArray(returnTypeAnnotation->AsETSTypeReference()->Part()) &&
+        returnTypeAnnotation->AsETSTypeReference()->Part()->TypeParams() != nullptr) {
         auto elementType = returnTypeAnnotation->AsETSTypeReference()->Part()->TypeParams()->Params()[0];
         if (CheckAndLogInvalidThisUsage(elementType, diagnostic::NOT_ALLOWED_THIS_IN_ARRAY_TYPE)) {
             return;
@@ -1463,7 +1464,8 @@ bool ETSChecker::CheckLambdaAssignable(ir::Expression *param, ir::ScriptFunction
     if (typeAnn == nullptr) {
         return false;
     }
-    if (typeAnn->IsETSTypeReference() && !typeAnn->AsETSTypeReference()->TsType()->IsETSArrayType()) {
+    if (typeAnn->IsETSTypeReference() && !typeAnn->AsETSTypeReference()->TsType()->IsETSArrayType() &&
+        !typeAnn->AsETSTypeReference()->TsType()->IsETSAnyType()) {
         typeAnn = DerefETSTypeReference(typeAnn);
     }
 
@@ -1618,6 +1620,9 @@ bool ETSChecker::ResolveLambdaArgumentType(Signature *signature, ir::Expression 
 
 bool ETSChecker::TrailingLambdaTypeInference(Signature *signature, const ArenaVector<ir::Expression *> &arguments)
 {
+    if (arguments.empty() || signature->GetSignatureInfo()->params.empty()) {
+        return false;
+    }
     ES2PANDA_ASSERT(arguments.back()->IsArrowFunctionExpression());
     const size_t lastParamPos = signature->GetSignatureInfo()->params.size() - 1;
     const size_t lastArgPos = arguments.size() - 1;

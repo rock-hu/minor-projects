@@ -170,6 +170,12 @@ void VisitDynamicWeakGlobalRootsOld(const common::WeakRefFieldVisitor &visitorFu
     runtime->IteratorNativeDeleteInSharedGC(visitor);
 }
 
+void InvokeSharedNativePointerCallbacks()
+{
+    panda::ecmascript::Runtime *runtime = panda::ecmascript::Runtime::GetInstance();
+    runtime->InvokeSharedNativePointerCallbacks();
+}
+
 void VisitDynamicWeakLocalRoots(const common::WeakRefFieldVisitor &visitorFunc)
 {
     OHOS_HITRACE(HITRACE_LEVEL_COMMERCIAL, "CMCGC::VisitDynamicWeakLocalRoots", "");
@@ -282,6 +288,14 @@ void SynchronizeGCPhaseToJSThread(void *jsThread, GCPhase gcPhase)
             reinterpret_cast<JSThread *>(jsThread)->SetReadBarrierState(false);
         }
     }
+}
+
+void MarkThreadLocalJitFortInstalled(void *thread, void *machineCode)
+{
+    auto vm = reinterpret_cast<JSThread *>(thread)->GetEcmaVM();
+    const_cast<panda::ecmascript::Heap *>(vm->GetHeap())
+        ->GetMachineCodeSpace()
+        ->MarkJitFortMemInstalled(reinterpret_cast<panda::ecmascript::MachineCode *>(machineCode));
 }
 
 void SweepThreadLocalJitFort()

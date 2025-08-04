@@ -1,4 +1,9 @@
 # 静态方式加载native模块
+<!--Kit: ArkTS-->
+<!--Subsystem: arkcompiler-->
+<!--Owner: @yao_dashuai-->
+<!--SE: @yao_dashuai-->
+<!--TSE: @kirl75;@zsw_zhushiwei-->
 
 在ES6(ECMAScript 6.0)模块设计中，使用import语法加载其他文件导出的内容是ECMA规范所定义的语法规则。为支持开发者使用该功能导入native模块（so）导出的内容，ArkTS进行了相关适配，并提供了以下几种支持写法。
 
@@ -42,14 +47,20 @@ entry.add(2, 3);
 
 ### 转为具名变量导出再导入
 ```ts
+// libentry.so对应的index.d.ts
+export const add: (a: number, b: number) => number;
+```
+```ts
 // test1.ets
-import { hilog } from '@kit.PerformanceAnalysisKit';
-export { hilog }
+// 将libentry.so的API封装后导出
+import { add } from 'libentry.so';
+export { add };
 ```
 ```ts
 // test2.ets
-import { hilog } from './test1'
-hilog.info(0x000, 'testTag', '%{public}s', 'test');
+// 从中间模块导入API
+import { add } from './test1';
+const result = add(2, 3);
 ```
 
 ### 转为命名空间导出再导入

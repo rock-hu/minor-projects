@@ -13,7 +13,7 @@
 
 import("//arkcompiler/ets_runtime/common_components/tests/test_helper.gni")
 
-module_output_path = "ets_runtime"
+module_output_path = "common_component"
 
 host_unittest_action("Collector_Test") {
   module_out_path = module_output_path
@@ -21,7 +21,30 @@ host_unittest_action("Collector_Test") {
   sources = [
     # test file
     "collector_resources_test.cpp",
-    # "finalizer_processor_test.cpp",
+  ]
+
+  configs = [
+    "//arkcompiler/ets_runtime/common_components:common_components_test_config",
+    "//arkcompiler/ets_runtime:icu_path_test_config",
+  ]
+
+  deps = [ "//arkcompiler/ets_runtime/common_components:libark_common_components_test" ]
+
+  # hiviewdfx libraries
+  external_deps = [
+    "bounds_checking_function:libsec_shared",
+    "icu:shared_icui18n",
+    "icu:shared_icuuc",
+    "zlib:libz",
+  ]
+}
+
+host_unittest_action("Finalizer_Processor_Test") {
+  module_out_path = module_output_path
+
+  sources = [
+    # test file
+    "finalizer_processor_test.cpp",
   ]
 
   configs = [
@@ -86,12 +109,12 @@ host_unittest_action("Collector_Proxy_Test") {
   ]
 }
 
-host_unittest_action("Trace_Collector_Test") {
+host_unittest_action("Marking_Collector_Test") {
   module_out_path = module_output_path
 
   sources = [
     # test file
-    "trace_collector_test.cpp",
+    "marking_collector_test.cpp",
   ]
 
   configs = [
@@ -161,9 +184,10 @@ group("unittest") {
   # deps file
   deps = [
     ":Collector_Test",
+    ":Finalizer_Processor_Test",
     ":Heuristic_Gc_Policy_Test",
     ":Collector_Proxy_Test",
-    ":Trace_Collector_Test",
+    ":Marking_Collector_Test",
     ":Task_Queue_Test",
     ":Gc_Request_Test",
   ]
@@ -175,9 +199,10 @@ group("host_unittest") {
   # deps file
   deps = [
     ":Collector_TestAction",
+    ":Finalizer_Processor_TestAction",
     ":Heuristic_Gc_Policy_TestAction",
     ":Collector_Proxy_TestAction",
-    ":Trace_Collector_TestAction",
+    ":Marking_Collector_TestAction",
     ":Task_Queue_TestAction",
     ":Gc_Request_TestAction",
   ]

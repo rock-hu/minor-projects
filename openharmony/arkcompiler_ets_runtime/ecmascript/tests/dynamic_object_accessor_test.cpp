@@ -14,7 +14,7 @@
  */
 
 #include "common_interfaces/thread/thread_holder-inl.h"
-#include "ecmascript/dynamic_object_accessor.h"
+#include "ecmascript/cross_vm/dynamic_object_accessor.h"
 #include "ecmascript/global_env.h"
 #include "ecmascript/tests/test_helper.h"
 #include "thread/thread_holder.h"
@@ -35,8 +35,11 @@ static JSHandle<JSObject> JSObjectCreate(JSThread *thread)
     return jsObject;
 }
 
-HWTEST_F_L0(DynamicObjectAccessorTest, SetGetHasProperty01)
+HWTEST_F_L0(DynamicObjectAccessorTest, SetGetHasProperty)
 {
+    if (!g_isEnableCMCGC) {
+        return;
+    }
     ThreadHolder *threadHolder = thread->GetThreadHolder();
     JSHandle<JSObject> jsobject = JSObjectCreate(thread);
     EXPECT_TRUE(*jsobject != nullptr);
@@ -55,8 +58,11 @@ HWTEST_F_L0(DynamicObjectAccessorTest, SetGetHasProperty01)
         jsobject.GetTaggedValue().GetTaggedObject(), array), true);
 }
 
-HWTEST_F_L0(DynamicObjectAccessorTest, SetGetHasProperty02)
+HWTEST_F_L0(DynamicObjectAccessorTest, SetGetHasElement)
 {
+    if (!g_isEnableCMCGC) {
+        return;
+    }
     ThreadHolder *threadHolder = thread->GetThreadHolder();
     JSHandle<JSObject> jsobject = JSObjectCreate(thread);
     EXPECT_TRUE(*jsobject != nullptr);

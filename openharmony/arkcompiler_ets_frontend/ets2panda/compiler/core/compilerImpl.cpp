@@ -178,6 +178,7 @@ static bool RunVerifierAndPhases(public_lib::Context &context, parser::Program &
     const auto verifierEachPhase = options.IsAstVerifierEachPhase();
 
     ast_verifier::ASTVerifier verifier(context, program);
+    verifier.Before();
     checker::IsolatedDeclgenChecker isolatedDeclgenChecker(*context.diagnosticEngine, program);
     if (options.IsGenerateDeclEnableIsolated()) {
         options.SetGenerateDeclEnabled(true);
@@ -214,7 +215,7 @@ static bool RunVerifierAndPhases(public_lib::Context &context, parser::Program &
         }
 
         // Stop lowerings processing after Checker phase if any error happened.
-        if (phase->Name() == compiler::CheckerPhase::NAME && context.diagnosticEngine->IsAnyError()) {
+        if (name == "plugins-after-check" && context.diagnosticEngine->IsAnyError()) {
             return false;
         }
 
@@ -229,6 +230,7 @@ static bool RunVerifierAndPhases(public_lib::Context &context, parser::Program &
         }
     }
 
+    verifier.After();
     return true;
 }
 

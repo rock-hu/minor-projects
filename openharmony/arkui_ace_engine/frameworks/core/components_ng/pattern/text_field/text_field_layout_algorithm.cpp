@@ -786,6 +786,7 @@ void TextFieldLayoutAlgorithm::CreateParagraph(const TextStyle& textStyle, const
     TextStyle dragTextStyle = textStyle;
     Color color = textStyle.GetTextColor().ChangeAlpha(DRAGGED_TEXT_TRANSPARENCY);
     dragTextStyle.SetTextColor(color);
+    dragTextStyle.SetStrokeColor(textStyle.GetStrokeColor().ChangeAlpha(DRAGGED_TEXT_TRANSPARENCY));
     std::vector<TextStyle> textStyles { textStyle, dragTextStyle, textStyle };
 
     auto style = textStyles.begin();
@@ -1219,6 +1220,7 @@ void TextFieldLayoutAlgorithm::UpdatePlaceholderTextStyleMore(const RefPtr<Frame
     const RefPtr<TextFieldLayoutProperty>& layoutProperty, const RefPtr<TextFieldTheme>& theme,
     TextStyle& placeholderTextStyle, bool isDisabled)
 {
+    CHECK_NULL_VOID(layoutProperty);
     if (layoutProperty->GetPlaceholderValue(u"").empty()) {
         if (layoutProperty->HasAdaptMinFontSize()) {
             placeholderTextStyle.SetAdaptMinFontSize(layoutProperty->GetAdaptMinFontSize().value());
@@ -1311,16 +1313,18 @@ void TextFieldLayoutAlgorithm::CalculateContentMaxSizeWithPolicy(
     auto widthLayoutPolicy = TextBase::GetLayoutCalPolicy(layoutWrapper, true);
     if (widthLayoutPolicy == LayoutCalPolicy::FIX_AT_IDEAL_SIZE) {
         maxIdealSize.SetWidth(std::numeric_limits<double>::infinity());
-    } else if (widthLayoutPolicy == LayoutCalPolicy::MATCH_PARENT) {
-        maxIdealSize.SetWidth(contentConstraint.parentIdealSize.Width().value_or(contentConstraint.maxSize.Width()));
+    } else if (widthLayoutPolicy == LayoutCalPolicy::MATCH_PARENT &&
+               contentConstraint.parentIdealSize.Width().has_value()) {
+        maxIdealSize.SetWidth(contentConstraint.parentIdealSize.Width().value());
         contentConstraint.selfIdealSize.SetWidth(maxIdealSize.Width());
     }
     auto heightLayoutPolicy = TextBase::GetLayoutCalPolicy(layoutWrapper, false);
     if (!contentConstraint.selfIdealSize.Height().has_value() &&
         heightLayoutPolicy == LayoutCalPolicy::FIX_AT_IDEAL_SIZE) {
         maxIdealSize.SetHeight(std::numeric_limits<double>::infinity());
-    } else if (heightLayoutPolicy == LayoutCalPolicy::MATCH_PARENT) {
-        maxIdealSize.SetHeight(contentConstraint.parentIdealSize.Height().value_or(contentConstraint.maxSize.Height()));
+    } else if (heightLayoutPolicy == LayoutCalPolicy::MATCH_PARENT &&
+               contentConstraint.parentIdealSize.Height().has_value()) {
+        maxIdealSize.SetHeight(contentConstraint.parentIdealSize.Height().value());
         contentConstraint.selfIdealSize.SetHeight(maxIdealSize.Height());
     }
 }

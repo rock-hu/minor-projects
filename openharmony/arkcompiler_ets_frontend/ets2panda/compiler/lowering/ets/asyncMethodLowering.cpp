@@ -129,11 +129,13 @@ ir::MethodDefinition *CreateAsyncProxy(checker::ETSChecker *checker, ir::MethodD
 {
     ES2PANDA_ASSERT(asyncMethod != nullptr);
     ir::ScriptFunction *asyncFunc = asyncMethod->Function();
+    ES2PANDA_ASSERT(asyncFunc != nullptr);
     if (!asyncFunc->IsExternal()) {
         checker->VarBinder()->AsETSBinder()->GetRecordTable()->Signatures().push_back(asyncFunc->Scope());
     }
 
     ir::MethodDefinition *implMethod = CreateAsyncImplMethod(checker, asyncMethod, classDef);
+    ES2PANDA_ASSERT(implMethod != nullptr && implMethod->Function() != nullptr && implMethod->Id() != nullptr);
     varbinder::FunctionScope *implFuncScope = implMethod->Function()->Scope();
     for (auto *decl : asyncFunc->Scope()->Decls()) {
         auto res = asyncFunc->Scope()->Bindings().find(decl->Name());
@@ -170,10 +172,17 @@ void ComposeAsyncImplMethod(checker::ETSChecker *checker, ir::MethodDefinition *
     implMethod->Check(checker);
     node->SetAsyncPairMethod(implMethod);
 
-    if (node->Function()->IsOverload()) {
+    ES2PANDA_ASSERT(node->Function() != nullptr);
+    if (node->Function()->IsOverload() && node->BaseOverloadMethod()->AsyncPairMethod() != nullptr) {
         auto *baseOverloadImplMethod = node->BaseOverloadMethod()->AsyncPairMethod();
+        ES2PANDA_ASSERT(implMethod->Function() != nullptr && baseOverloadImplMethod->Function() != nullptr);
         implMethod->Function()->Id()->SetVariable(baseOverloadImplMethod->Function()->Id()->Variable());
         baseOverloadImplMethod->AddOverload(implMethod);
+    } else if (node->Function()->IsOverload() && node->BaseOverloadMethod()->AsyncPairMethod() == nullptr) {
+        // If it's base overload function doesnot marked as async,
+        // then current AsyncImpl should be treated as AsyncPairMethod in base overload.
+        node->BaseOverloadMethod()->SetAsyncPairMethod(implMethod);
+        classDef->Body().push_back(implMethod);
     } else {
         classDef->Body().push_back(implMethod);
     }
