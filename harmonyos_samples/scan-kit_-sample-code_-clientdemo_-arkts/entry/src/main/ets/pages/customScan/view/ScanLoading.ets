@@ -3,6 +3,8 @@ import { CommonConstants } from '../constants/CommonConstants';
 import { BreakpointType } from '../model/BreakpointType';
 import { ScanLayout } from '../model/ScanLayout';
 
+const LOADING_OFFSET_Y: number = -36;
+
 @Extend(LoadingProgress)
 function loadingIcon() {
   .color($r('sys.color.ohos_id_color_progress'))
@@ -26,21 +28,19 @@ function loadingText() {
 @Component
 export struct ScanLoading {
   @State scanLayout: ScanLayout = ScanLayout.getInstance();
-  @StorageLink('scanFontSizeScale') fontSizeScale: number = 1;
 
   build() {
     Column() {
       Column() {
         LoadingProgress().loadingIcon()
         Text($r('app.string.Scan_album_loading')).loadingText()
-          .fontSize($r('sys.float.Body_M'))
           .maxFontSize(CommonConstants.SCAN_FONT_SIZE_SCALE_LIMIT_SYMBOL_TEXT)
       }
       .height(new BreakpointType(BreakpointConstants.LOADING_HEIGHT_SM,
         BreakpointConstants.LOADING_HEIGHT_MD,
         BreakpointConstants.LOADING_HEIGHT_LG).getValue(this.scanLayout.widthBreakpoint))
       .offset({
-        y: -36
+        y: LOADING_OFFSET_Y
       })
     }
     .justifyContent(FlexAlign.End)

@@ -18,7 +18,6 @@ const TAG = 'ScanTitle';
 
 @Component
 export struct ScanTitle {
-  @StorageLink('scanFontSizeScale') fontSizeScale: number = 1;
   @State scanLayout: ScanLayout = ScanLayout.getInstance();
   @Prop scanResultSize: number = 0;
 

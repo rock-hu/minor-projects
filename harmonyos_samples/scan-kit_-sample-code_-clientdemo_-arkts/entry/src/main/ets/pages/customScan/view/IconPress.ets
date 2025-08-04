@@ -50,7 +50,6 @@ const TEXT_MARGIN_TOP: number = 6; // 4 + 2
 @Component
 export struct IconPress {
   @State scanLayout: ScanLayout = ScanLayout.getInstance();
-  @StorageLink('scanFontSizeScale') fontSizeScale: number = 1;
   @Prop url: Resource;
   @Prop text: Resource;
   @Prop iconId: string;
@@ -111,7 +110,7 @@ export struct IconPress {
     .height(this.scanLayout.widthBreakpoint === BREAKPOINT_SM ? '100%' : '')
     .accessibilityGroup(true)
     .onClick(() => {
-      if(accessibility.isOpenAccessibilitySync()){
+      if (accessibility.isOpenAccessibilitySync()) {
         this.imageClick();
       }
     })

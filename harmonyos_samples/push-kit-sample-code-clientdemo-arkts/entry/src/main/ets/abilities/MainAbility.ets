@@ -15,7 +15,7 @@
 
 import { UIAbility, Want } from '@kit.AbilityKit';
 import { notificationManager } from '@kit.NotificationKit';
-import { promptAction, window } from '@kit.ArkUI';
+import { PromptAction, window } from '@kit.ArkUI';
 import { pushService } from '@kit.PushKit';
 import Logger from '../utils/Logger';
 import { ExtraData } from './Model';
@@ -23,6 +23,7 @@ import { BusinessError } from '@kit.BasicServicesKit';
 
 export default class MainAbility extends UIAbility {
   private localStorage = new LocalStorage();
+  private promptAction: PromptAction = new PromptAction();
 
   onCreate(want: Want): void {
     Logger.info('MainAbility onCreate');
@@ -37,7 +38,9 @@ export default class MainAbility extends UIAbility {
 
   async onWindowStageCreate(windowStage: window.WindowStage): Promise<void> {
     Logger.info('MainAbility onWindowStageCreate');
-    await windowStage.loadContent('pages/MainPage', this.localStorage);
+    await windowStage.loadContent('pages/MainPage', this.localStorage).then(()=>{
+      this.promptAction = windowStage.getMainWindowSync()?.getUIContext()?.getPromptAction();
+    });
     await this.requestEnableNotification();
   }
 
@@ -66,7 +69,7 @@ export default class MainAbility extends UIAbility {
           const extraData: ExtraData = JSON.parse(JSON.parse(payload.data).data);
 
           // TODO: modify it based on your service scenario
-          promptAction.showToast({
+          this.promptAction.showToast({
             message: $r('app.string.express_message', extraData.time, extraData.amount),
             duration: 5000,
           });

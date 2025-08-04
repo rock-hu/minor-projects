@@ -8,7 +8,7 @@
 - Push Kit：Push Kit（推送服务）是华为提供的消息推送平台，建立了从云端到终端的消息推送通道。所有HarmonyOS应用可通过集成Push Kit，实现向应用实时推送消息，使消息易见，构筑良好的用户关系，提升用户的感知度和活跃度。
 - Push Token：Push Token标识了每台设备上每个应用，开发者可以调用场景化消息接口，根据Token来推送消息。
 - 组件：Demo中主要使用了Text、Button、Image等组件。
-- pushService：本模块提供Push Kit的基础能力，包括获取和删除Push Token、绑定和解绑帐号和接收场景化消息的功能。
+- pushService：本模块提供Push Kit的基础能力，包括获取和删除Push Token、绑定和解绑账号和接收场景化消息的功能。
 
 ## 效果预览
 | 申请Token页面                       | 成功申请Token                      | 点击通知进入应用内页                              | 应用在前台时展示通知扩展消息                       |

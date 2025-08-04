@@ -1,4 +1,5 @@
 import { PromptAction, router, Router, window } from '@kit.ArkUI';
+import { BusinessError } from '@kit.BasicServicesKit';
 import Logger from '../../../common/Logger';
 
 const TAG: string = 'UIContextSelf';
@@ -49,7 +50,9 @@ export class UIContextSelf {
 
   public static async replaceUrl(options: router.RouterOptions): Promise<void> {
     try {
-      UIContextSelf.uiContext.getRouter().replaceUrl(options);
+      UIContextSelf.uiContext.getRouter().replaceUrl(options).catch((error: BusinessError) => {
+        Logger.error(TAG, `Failed to replaceUrl by getRouter. Code: ${error.code}.`);
+      });
     } catch (error) {
       Logger.error(TAG, `Failed to replaceUrl by getRouter. Code: ${error.code}.`);
     }
@@ -57,7 +60,9 @@ export class UIContextSelf {
 
   public static async pushUrl(options: router.RouterOptions): Promise<void> {
     try {
-      UIContextSelf.uiContext.getRouter().pushUrl(options);
+      UIContextSelf.uiContext.getRouter().pushUrl(options).catch((error: BusinessError) => {
+        Logger.error(TAG, `Failed to pushUrl by getRouter. Code: ${error.code}.`);
+      });
     } catch (error) {
       Logger.error(TAG, `Failed to pushUrl by getRouter. Code: ${error.code}.`);
     }

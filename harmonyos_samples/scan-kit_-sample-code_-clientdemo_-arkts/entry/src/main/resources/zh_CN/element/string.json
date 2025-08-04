@@ -73,6 +73,10 @@
       "value": "自定义界面扫码能力"
     },
     {
+      "name": "customized_view_decode_v2",
+      "value": "自定义界面扫码能力V2"
+    },
+    {
       "name": "bitmap_api_decode",
       "value": "图像识码能力"
     },

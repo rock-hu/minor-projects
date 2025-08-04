@@ -73,6 +73,10 @@
       "value": "Barcode Scan by Custom UI"
     },
     {
+      "name": "customized_view_decode_v2",
+      "value": "Barcode Scan by Custom UI V2"
+    },
+    {
       "name": "bitmap_api_decode",
       "value": "Image-Based Barcode Recognition"
     },

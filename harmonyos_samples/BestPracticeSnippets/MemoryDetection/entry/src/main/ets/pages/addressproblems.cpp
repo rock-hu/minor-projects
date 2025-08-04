@@ -70,7 +70,7 @@ int heapBufferOverflow()
  */
 
 // [Start address_overflow_code]
-int main(int argc, char** argv) {
+int main(int argc, char** argv)
 {
     int stack_array[99];
     stack_array[1] = 0;
@@ -139,7 +139,7 @@ public:
         std::cout << "Doing work\n";
     }
 
-    ~Tash() {
+    ~Task() {
         std::cout << "Task destructed\n";
     }
 };

@@ -19,10 +19,9 @@ import { GetTokenPage } from './GetTokenPage';
 import { notificationManager } from '@kit.NotificationKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 
-const localStorage = LocalStorage.getShared();
 const TOKEN_PAGE_NAME = 'pushToken';
 
-@Entry(localStorage)
+@Entry({ useSharedStorage: true })
 @Component
 struct MainPage {
   @Provide('NavPathStack') pageStack: NavPathStack = new NavPathStack();
@@ -56,13 +55,13 @@ struct MainPage {
   build() {
     Navigation(this.pageStack) {
       Flex({ direction: FlexDirection.Column }) {
-        Button({ type: ButtonType.Normal }){
+        Button({ type: ButtonType.Normal }) {
           Row() {
             Column() {
               Text($r('app.string.apply_token_title'))
                 .fontSize(24)
                 .fontWeight(FontWeight.Bold)
-                .fontColor('#000000')
+                .fontColor(Color.Black)
                 .decoration({
                   type: TextDecorationType.Underline,
                   color: '#0A59F7'

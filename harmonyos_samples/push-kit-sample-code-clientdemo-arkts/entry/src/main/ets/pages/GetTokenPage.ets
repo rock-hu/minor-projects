@@ -46,7 +46,7 @@ export struct GetTokenPage {
             .height(40)
             .margin({ left: '10%' })
             .backgroundColor('#fff38a07')
-            .fontColor('#ffffffff')
+            .fontColor(Color.White)
             .fontSize(24)
             .fontWeight(FontWeight.Bold)
             .borderRadius(20)

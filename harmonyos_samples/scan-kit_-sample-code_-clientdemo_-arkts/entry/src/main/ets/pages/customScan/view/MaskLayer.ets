@@ -17,7 +17,6 @@ function maskStyle() {
 @Component
 export struct MaskLayer {
   build() {
-    Column() {
-    }.maskStyle()
+    Column().maskStyle()
   }
 }

@@ -238,16 +238,3 @@ void DoubleFreeEx()
     free(p);
 }
 // [End hw_use_after_free]
-
-/**
- * 最佳实践：地址越界类问题分析方法
- */
-
-// [Start address_overflow_code]
-int DemoFunc(int argc)
-{
-    int stack_array[99];
-    stack_array[1] = 0;
-    return stack_array[argc + 100]; // BOOM
-}
-// [End address_overflow_code]

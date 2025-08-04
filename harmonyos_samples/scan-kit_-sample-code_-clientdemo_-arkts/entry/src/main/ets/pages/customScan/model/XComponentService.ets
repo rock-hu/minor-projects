@@ -1,21 +1,8 @@
-import display from '@ohos.display';
 import { WindowService } from './WindowService';
 import { DeviceService } from './DeviceService';
 import Logger from '../../../common/Logger';
 
-export const TAG = 'ScanSize';
-
-
-@Observed
-export class FoldStatus {
-  public oldFoldStatus: display.FoldStatus;
-  public newFoldStatus: display.FoldStatus;
-
-  constructor() {
-    this.oldFoldStatus = display.FoldStatus.FOLD_STATUS_UNKNOWN;
-    this.newFoldStatus = display.FoldStatus.FOLD_STATUS_UNKNOWN;
-  }
-}
+export const TAG = 'XComponentService';
 
 @Observed
 export class XComponentService {
@@ -23,7 +10,7 @@ export class XComponentService {
   public height: number = 720;
   public offsetX: number = 0;
   public offsetY: number = 0;
-  public foldStatus: FoldStatus = new FoldStatus();
+  public surfaceId: string = '';
   private static instance: XComponentService | null = null;
 
   public static getInstance(): XComponentService {
@@ -61,7 +48,7 @@ export class XComponentService {
       Logger.info(TAG,
         `setScanXComponentSize End. Width: ${this.width}, height: ${this.height}, offsetX: ${this.offsetX}, offsetY: ${this.offsetY}`);
     } else {
-      Logger.error(TAG, `height less than or equal to 0`);
+      Logger.error(TAG, 'height less than or equal to 0');
     }
   }
 }

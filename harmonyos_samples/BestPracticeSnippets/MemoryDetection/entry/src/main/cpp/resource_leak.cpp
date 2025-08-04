@@ -213,5 +213,6 @@ void DemoCase(int length)
         }
     }
     // ...
+    delete[] bitmapBuffer;
 }
 // [End resource_leak_case_1]

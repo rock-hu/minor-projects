@@ -50,7 +50,6 @@ export struct CodeLayout {
       if (this.scanResults.size === 0) {
         // No code value is recognized.
         this.isPickerDialogShow = true;
-        this.scanService.isAlbumLoading = false;
       } else {
         this.vibratorPlay();
         this.isShowCode = false;
@@ -87,7 +86,6 @@ export struct CodeLayout {
 
   aboutToDisappear() {
     this.isPickerDialogShow = false;
-    this.scanService.isAlbumLoading = false;
   }
 
   @Builder

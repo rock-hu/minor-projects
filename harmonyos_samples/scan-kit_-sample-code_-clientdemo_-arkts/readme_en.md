@@ -95,9 +95,9 @@ How to Use
 
 2. Tap **Scan Kit Demo** on the home screen of your device to start the demo app. The following buttons will be displayed on the demo app home screen: **Scan code on default UI**, **Scan code on custom UI**, **Recognize barcode in image**, and **Generate barcode image**.
 3. Tap **Scan code on default UI** to go to the level-2 UI. Tap **Scan code on default UI** again to launch the default barcode scan UI, scan a barcode image, and check the scan result.
-4. Tap **Scan code on custom UI** to go to the level-2 UI. Tap **Scan code on custom UI** again to launch the custom barcode scan UI, scan a barcode image, and check the scan result.
+4. Tap **Scan code on custom UI** to go to the level-2 UI. Tap **Scan code on custom UI** again and use state management V1 to launch the custom barcode scan UI, scan a barcode image, and check the scan result, or tap **Scan code on custom UI V2** again and use state management V2 to launch the custom barcode scan UI, scan a barcode image, and check the scan result.
 5. Tap **Recognize barcode in image** to go to the level-2 UI. Tap **Saved image** to start the picker, select a barcode image from the gallery for recognition, and check the scan result.
-6. Tap **Recognize barcode in image** to go to the level-2 UI. Tap **Image data** to start recognition and check the recognition result. For details about the camera implementation, please refer to the [Camera Kit document](https://developer.huawei.com/consumer/en/doc/harmonyos-guides/camera-dual-channel-preview).
+6. Tap **Recognize barcode in image** to go to the level-2 UI. Tap **Image data** to start recognition and check the recognition result. For details about the camera implementation, please refer to the [Dual-Channel Preview](https://developer.huawei.com/consumer/en/doc/harmonyos-guides/camera-dual-channel-preview).
 7. Tap **Generate barcode image** to go to the level-2 UI. Tap **Generate code** to convert a string into a barcode image of a custom format, or tap **Generate ride code** to convert a byte array into a barcode image of a custom format. Currently, Scan Kit does not support recognition based on barcode images generated from byte arrays.
 
 ## Project Directory
@@ -144,6 +144,26 @@ How to Use
 │ │ │ │ ├─ScanTitle.ets // Title component   
 │ │ │ │ └─ScanXComponent.ets // XComponent   
 │ │ │ └─CustomPage.ets // Page where the button for accessing the custom barcode scanning UI is located   
+│ │ ├─customScanV2 // Use state management V2 to launch the custom barcode scanning UI    
+│ │ │ ├─model   
+│ │ │ │ ├─ConfigStorage.ets // Configure shared management class  
+│ │ │ │ ├─OpenPhoto.ets // Gallery   
+│ │ │ │ ├─ScanLayout.ets // Barcode scanning UI layout management class   
+│ │ │ │ ├─ScanService.ets // Barcode scanning customization   
+│ │ │ │ ├─WindowService.ets // Window management class   
+│ │ │ │ └─XComponentService.ets // XComponent management class   
+│ │ │ ├─pages // Pages   
+│ │ │ │ └─ScanPage.ets // Barcode scanning page   
+│ │ │ ├─view // Components   
+│ │ │ │ ├─CommonCodeLayout.ets // Radio button component   
+│ │ │ │ ├─IconPress.ets // Image pressed state component   
+│ │ │ │ ├─MaskLayer.ets // Mask layer   
+│ │ │ │ ├─PickerDialog.ets // Modal box component   
+│ │ │ │ ├─ScanBottom.ets // Bottom component   
+│ │ │ │ ├─ScanLine.ets // Scanning line component   
+│ │ │ │ ├─ScanLoading.ets // Loading component   
+│ │ │ │ ├─ScanTitle.ets // Title component   
+│ │ │ │ └─ScanXComponent.ets // XComponent   
 │ │ ├─defaultScan // Default code scan UI   
 │ │ │ └─DefaultScan.ets // Default code scan UI   
 │ │ ├─detectBarcode // Image-based barcode recognition   

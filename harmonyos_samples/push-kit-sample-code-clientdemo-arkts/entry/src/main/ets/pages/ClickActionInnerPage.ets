@@ -16,10 +16,9 @@
 import { Want } from '@kit.AbilityKit';
 import Logger from '../utils/Logger';
 
-const localStorage = LocalStorage.getShared();
 const DATA_KEY = 'testKey';
 
-@Entry(localStorage)
+@Entry({ useSharedStorage: true })
 @Component
 struct ClickActionInnerPage {
   @LocalStorageLink('want') want: Want = {};

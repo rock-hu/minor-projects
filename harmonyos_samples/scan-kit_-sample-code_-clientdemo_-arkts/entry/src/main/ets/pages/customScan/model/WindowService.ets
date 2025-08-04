@@ -8,6 +8,10 @@ import { DeviceService } from './DeviceService';
 import { UIContextSelf } from './UIContextSelf';
 
 const TAG: string = 'WindowService';
+const WINDOW_SIZE_MOCK: window.Size = {
+  width: 1080,
+  height: 1920
+};
 
 @Observed
 export class WindowService {
@@ -143,10 +147,7 @@ export class WindowService {
         })
       } catch (error) {
         Logger.error(TAG, `Failed to windowRect by windowObj and set the default windowSize. Code: ${error?.code}`);
-        this.emitWindowSize({
-          width: 1080,
-          height: 1920
-        })
+        this.emitWindowSize(WINDOW_SIZE_MOCK)
       }
     }
   }

@@ -1,4 +1,4 @@
-import { LayeredDrawableDescriptor, DrawableDescriptor } from '@kit.ArkUI';
+import { LayeredDrawableDescriptor, DrawableDescriptor, UIContext } from '@kit.ArkUI';
 import { hdsDrawable } from '@kit.UIDesignKit';
 import { image } from '@kit.ImageKit';
 import { BusinessError } from '@kit.BasicServicesKit';
@@ -75,7 +75,7 @@ struct GetHdsIcon {
   }
 
   aboutToAppear(): void {
-    this.resManager = getContext().resourceManager;
+    this.resManager = this.getUIContext().getHostContext()?.resourceManager;
     if (!this.resManager) {
       return;
     }

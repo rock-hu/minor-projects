@@ -50,7 +50,6 @@ function dialogContentContainer() {
 
 @Component
 export struct PickerDialog {
-  @StorageLink('scanFontSizeScale') fontSizeScale: number = 1;
   @StorageLink('scanColorMode') darkMode: ConfigurationConstant.ColorMode =
     ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET;
   @Prop text: Resource;

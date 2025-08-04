@@ -67,7 +67,7 @@ void Thread1FuncEx()
 void Thread2FuncEx()
 {
     std::lock_guard<std::mutex> lock(mutexEx_);
-    g_list.clear(); // 此处清空list，可能会造成线程1使用g_list时发生崩溃
+    g_list.clear();
 }
 // [End cppcrash_advise_2_positive]
 
@@ -105,8 +105,6 @@ void Checker::Detection(std::string& url)
 
 bool Checker::DoCheck(const std::string& url)
 {
-    int len1 = url.find("/generate_204");
-    int len = len1 - strlen("http://");
     // ...
     return true;
 }

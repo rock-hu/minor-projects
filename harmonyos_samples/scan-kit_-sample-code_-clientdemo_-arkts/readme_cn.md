@@ -42,9 +42,9 @@
 
 2. 在手机的主屏幕，点击“统一扫码示例”，启动应用，在主界面可见“默认界面扫码能力”、“自定义界面扫码能力”、“图像识码能力”、“码图生成能力”按钮。
 3. 点击“默认界面扫码能力”按钮，进入二级界面，点击“默认界面扫码能力”按钮，拉起默认扫码页面，扫描码图，返回结果。
-4. 点击“自定义界面扫码能力”按钮，进入二级界面，点击“自定义界面扫码能力”按钮，通过推荐方式构建自定义扫码界面，扫描码图，返回结果。
+4. 点击“自定义界面扫码能力”按钮，进入二级界面，点击“自定义界面扫码能力”按钮，使用状态管理V1，通过推荐方式构建自定义扫码界面，扫描码图，返回结果；点击“自定义界面扫码能力V2”按钮，使用状态管理V2，通过推荐方式构建自定义扫码界面，扫描码图，返回结果。
 5. 点击“图像识码能力”按钮，进入二级界面，点击“识别本地图片”按钮，拉起picker从图库中选择图片，进行图像识码，选择码图，返回结果。
-6. 点击“图像识码能力”按钮，进入二级界面，点击“识别图像数据”按钮，扫描码图，显示结果。相机实现参考[Camera Kit](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/camera-dual-channel-preview)
+6. 点击“图像识码能力”按钮，进入二级界面，点击“识别图像数据”按钮，扫描码图，显示结果。相机实现参考[双路预览](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/camera-dual-channel-preview)
 7. 点击“码图生成能力”按钮，进入二级界面，点击“生成码”按钮，将字符串转换为自定义格式的码图；点击“生成乘车码”按钮，将字节数组转换为自定义格式的码图。通过字节数组生成码图，目前Scan Kit不支持识别出来内容。
 
 ## 工程目录
@@ -91,6 +91,26 @@
 │ │ │ │ ├─ScanTitle.ets // 标题组件  
 │ │ │ │ └─ScanXComponent.ets // XComponent组件  
 │ │ │ └─CustomPage.ets // 自定义扫码按钮入口页面  
+│ │ ├─customScanV2 // 使用状态管理V2的开发自定义界面扫码能力  
+│ │ │ ├─model        
+│ │ │ │ ├─ConfigStorage.ets // 配置共享类  
+│ │ │ │ ├─OpenPhoto.ets // 图库  
+│ │ │ │ ├─ScanLayout.ets // 扫码界面布局管理类  
+│ │ │ │ ├─ScanService.ets // 自定义扫码  
+│ │ │ │ ├─WindowService.ets // 窗口管理类  
+│ │ │ │ └─XComponentService.ets // XComponent管理类  
+│ │ │ ├─pages // 页面  
+│ │ │ │ └─ScanPage.ets // 扫码页面  
+│ │ │ ├─view // 组件  
+│ │ │ │ ├─CommonCodeLayout.ets // 蓝点组件  
+│ │ │ │ ├─IconPress.ets // 图片按压效果组件  
+│ │ │ │ ├─MaskLayer.ets // 遮罩  
+│ │ │ │ ├─PickerDialog.ets // 模态框组件  
+│ │ │ │ ├─ScanBottom.ets // 底部组件  
+│ │ │ │ ├─ScanLine.ets // 扫描线组件  
+│ │ │ │ ├─ScanLoading.ets // 加载组件  
+│ │ │ │ ├─ScanTitle.ets // 标题组件  
+│ │ │ │ └─ScanXComponent.ets // XComponent组件  
 │ │ ├─defaultScan //默认界面扫码  
 │ │ │ └─DefaultScan.ets //默认界面扫码  
 │ │ ├─detectBarcode // 图像识码  

@@ -56,7 +56,6 @@ function lightText() {
 
 @Component
 export struct FlashLight {
-  @StorageLink('scanFontSizeScale') fontSizeScale: number = 1;
   @State scanService: ScanService = ScanService.getInstance();
   @Prop isLargeScreen: boolean
 
@@ -105,9 +104,9 @@ export struct ScanBottom {
         url: $r('sys.symbol.picture'),
         text: $r('app.string.Scan_gallery'),
         iconId: 'scan_page_openPicker',
-        imageClick: (() => {
+        imageClick: () => {
           this.openPicker();
-        })
+        }
       })
     }
   }

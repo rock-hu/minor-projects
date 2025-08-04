@@ -4,8 +4,10 @@ import { BusinessError } from '@kit.BasicServicesKit';
 import { CommonEventManager } from '../pages/customScan/model/CommonEventManager';
 import Logger from '../common/Logger';
 import { WindowService } from '../pages/customScan/model/WindowService';
+import { WindowServiceV2 } from '../pages/customScanV2/model/WindowService';
 import { DeviceService } from '../pages/customScan/model/DeviceService';
 import { UIContextSelf } from '../pages/customScan/model/UIContextSelf';
+import { ConfigStorage } from '../pages/customScanV2/model/ConfigStorage';
 
 const TAG = 'Scan SampleCode EntryAbility';
 
@@ -28,22 +30,22 @@ export default class EntryAbility extends UIAbility {
     }
 
     if (this.context && this.context.config) {
-      AppStorage.setOrCreate<number>('scanFontSizeScale', this.context.config.fontSizeScale);
       AppStorage.setOrCreate<number>('scanColorMode', this.context.config.colorMode);
       AppStorage.setOrCreate<string>('scanLanguage', this.context.config.language);
+      const configStorage: ConfigStorage = ConfigStorage.getInstance();
+      configStorage.updateConfig(this.context.config.colorMode, this.context.config.language);
     }
   }
 
   onConfigurationUpdate(newConfig: Configuration): void {
     if (newConfig) {
-      if (AppStorage.get('scanFontSizeScale') !== newConfig.fontSizeScale) {
-        AppStorage.setOrCreate<number>('scanFontSizeScale', newConfig.fontSizeScale);
-      }
       if (AppStorage.get('scanColorMode') !== newConfig.colorMode) {
         AppStorage.setOrCreate<number>('scanColorMode', newConfig.colorMode);
+        ConfigStorage.getInstance().updateColorMode(newConfig.colorMode);
       }
       if (AppStorage.get('scanLanguage') !== newConfig.language) {
         AppStorage.setOrCreate<string>('scanLanguage', newConfig.language);
+        ConfigStorage.getInstance().updateLanguage(newConfig.language);
       }
     }
   }
@@ -63,6 +65,7 @@ export default class EntryAbility extends UIAbility {
             Logger.info(TAG, 'Succeeded in loading the content.');
             UIContextSelf.setUIContext(windowObj);
             WindowService.getInstance().initWindowObj(windowObj);
+            WindowServiceV2.getInstance().initWindowObj(windowObj);
           }).catch((error: BusinessError) => {
             Logger.error(TAG, `Failed to load the content. Code: ${error.code}.`);
           })
@@ -111,6 +114,8 @@ export default class EntryAbility extends UIAbility {
     // Destroy the main window and release UI resources.
     Logger.info(TAG, 'Ability onWindowStageWillDestroy');
     WindowService.getInstance().offWindowSizeChange();
+    WindowServiceV2.getInstance().offWindowSizeChange();
     WindowService.getInstance().offAvoidAreaChange();
+    WindowServiceV2.getInstance().offAvoidAreaChange();
   }
 }

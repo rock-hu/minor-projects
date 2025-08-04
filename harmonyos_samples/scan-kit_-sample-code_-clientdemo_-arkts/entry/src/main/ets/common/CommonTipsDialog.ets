@@ -1,14 +1,13 @@
 import { TipsDialog } from '@kit.ArkUI';
 import { common, Want } from '@kit.AbilityKit';
 import { BusinessError } from '@kit.BasicServicesKit';
-import Logger from './Logger';
 import { UIContextSelf } from '../pages/customScan/model/UIContextSelf';
+import Logger from './Logger';
 
 const TAG: string = 'Common Tips Dialog';
 
 @CustomDialog
 export struct CommonTipsDialog {
-  @Link isDialogShow: boolean;
   dialogController?: CustomDialogController;
 
   build() {
@@ -32,8 +31,7 @@ export struct CommonTipsDialog {
 
   closeDialog(): void {
     Logger.info(TAG, 'Start to close dialog.');
-    if (this.isDialogShow && this.dialogController !== undefined) {
-      this.isDialogShow = false;
+    if (this.dialogController) {
       this.dialogController.close();
       Logger.info(TAG, 'Succeeded in closing dialog.');
     }

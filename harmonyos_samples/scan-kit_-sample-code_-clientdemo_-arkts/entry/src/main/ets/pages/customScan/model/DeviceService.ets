@@ -14,6 +14,8 @@ export class DeviceService {
   public static rotation: number = DisplayRotationAngle.ROTATION_0; // Screen orientation of the app.
   public static portraitRatio: number = 9 / 16; // Portrait resolution of the camera preview stream.
   public static isFolding: boolean = false; // Whether the device is a foldable device.
+  public static oldFoldStatus: display.FoldStatus = display.FoldStatus.FOLD_STATUS_UNKNOWN;
+  public static newFoldStatus: display.FoldStatus = display.FoldStatus.FOLD_STATUS_UNKNOWN;
 
   // Update the latest display information and match the proper portrait resolution of the camera preview stream.
   public static refreshDisplayInfoAndSelectSuitableRatio() {
@@ -61,10 +63,10 @@ export class DeviceService {
     } else {
       portraitRatio = DeviceService.widthPX / DeviceService.heightPX;
     }
-    let cameraRatios: Array<number> = [9 / 16, 3 / 4, 1];
     let smallestRatioDelta: number = Infinity;
-    for (let ratio of cameraRatios) {
-      let ratioDelta = Math.abs(ratio - portraitRatio);
+    const cameraRatios: number[] = [9 / 16, 3 / 4, 1];
+    for (const ratio of cameraRatios) {
+      const ratioDelta: number = Math.abs(ratio - portraitRatio);
       if (ratioDelta < smallestRatioDelta) {
         smallestRatioDelta = ratioDelta;
         suitableRatio = ratio;

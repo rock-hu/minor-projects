@@ -4,14 +4,16 @@ import { BreakpointConstants } from '../constants/BreakpointConstants';
 import { ScanLayout } from '../model/ScanLayout';
 import { UIContextSelf } from '../model/UIContextSelf';
 
-const TAG = 'ScanLine';
+const TAG: string = 'ScanLine';
+const SCAN_SHADOW_HEIGHT_RATIO: number = 0.007; // 0.5 * scanline_height/scan_shadow_height = 0.007
+
 
 @Extend(Image)
 function imageAnimation(speed: number, linePosition: number, allAngle: number) {
   .position({ x: 0, y: -0.5 })
   .width('100%')
   .height(130)
-  .scale({ y: Math.max(speed, 0.007) }) // 0.5 * scanline_height/scan_shadow_height = 0.007
+  .scale({ y: Math.max(speed, SCAN_SHADOW_HEIGHT_RATIO) })
   .position({
     x: 0,
     y: linePosition + '%'
@@ -33,12 +35,6 @@ export struct ScanLine {
   @State factor: number = 0.025;
   @State reverse: boolean = false;
   @State speed: number = 0.0;
-  @State mNowMaxLight: number = 0.0;
-  @State matrix: number[] =
-    [1.0, this.lightFactor, this.lightFactor, this.lightFactor, 0.0, this.lightFactor, this.lightFactor + 1.0,
-      this.lightFactor, this.lightFactor, 0.0, this.lightFactor, this.lightFactor, this.lightFactor + 1.0,
-      this.lightFactor, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0];
-  @State isScanMotion: boolean = true; // Whether to display the scanning animation.
   private particlePropertyAnimationDown: ParticlePropertyAnimation<number> = {
     from: 0,
     to: 0.5,
@@ -93,14 +89,7 @@ export struct ScanLine {
           this.allAngle = 180;
         }
       }
-      this.backAnimator.onCancel = () => {
-        this.isScanMotion = false;
-      }
       this.backAnimator.onFrame = (value) => {
-
-        if (!this.isScanMotion) {
-          this.isScanMotion = true;
-        }
         value = value / 100;
 
         if (value < 0.389) {

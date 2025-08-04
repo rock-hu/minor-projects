@@ -12,6 +12,7 @@ class Data{
   controller: WebviewController = new webview.WebviewController();
 }
 
+let shouldInactive: boolean = true;
 @Builder
 function WebBuilder(data:Data) {
   Column() {
@@ -24,6 +25,14 @@ function WebBuilder(data:Data) {
       .height('100%')
       .onPageBegin(() => {
         data.controller.onActive();
+      })
+      .onFirstMeaningfulPaint(() =>{
+        if (!shouldInactive) {
+          return;
+        }
+        // 在预渲染完成时触发，停止渲染
+        data.controller.onInactive();
+        shouldInactive = false;
       })
   }
 }

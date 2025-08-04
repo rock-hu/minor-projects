@@ -6,7 +6,6 @@ const TAG = 'ScanXComponent';
 @Component
 export struct ScanXComponent {
   @State xComponentService: XComponentService = XComponentService.getInstance();
-  @Link surfaceId: string;
   private mXComponentController: XComponentController = new XComponentController();
   public startCustomScan: () => void = () => {
   };
@@ -18,12 +17,14 @@ export struct ScanXComponent {
       controller: this.mXComponentController
     })
       .onLoad(async () => {
-        this.surfaceId = this.mXComponentController.getXComponentSurfaceId();
-        Logger.info(TAG, `Succeeded in loading XComponent, getXComponentSurfaceId: ${this.surfaceId}`);
+        this.xComponentService.surfaceId = this.mXComponentController.getXComponentSurfaceId();
+        Logger.info(TAG,
+          `Succeeded in loading XComponent, getXComponentSurfaceId: ${this.xComponentService.surfaceId}`);
         this.startCustomScan();
       })
       .onDestroy(() => {
-        this.surfaceId = '';
+        this.xComponentService.surfaceId = '';
+        Logger.info(TAG, 'Succeeded in destroying XComponent.');
       })
       .height(this.xComponentService.height)
       .width(this.xComponentService.width)

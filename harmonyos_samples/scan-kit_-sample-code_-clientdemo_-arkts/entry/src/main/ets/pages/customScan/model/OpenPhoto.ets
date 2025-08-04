@@ -37,13 +37,16 @@ async function decodeAlbum(uri: string, callback: AsyncCallback<Array<scanBarcod
   // Image recognition parameter. By default, a single barcode is recognized.
   const inputImage: detectBarcode.InputImage = { uri };
   try {
+    scanService.isAlbumLoading = true;
     const scanResults: Array<scanBarcode.ScanResult> = await detectBarcode.decode(inputImage, defaultScanOptions);
+    scanService.isAlbumLoading = false;
     if (scanResults && scanResults.length > 0) {
       callback((new GalleryDecodeError(StatusCode.SUCCEED, DECODE_SUCCESS)), [scanResults[0]]);
     } else {
       callback((new GalleryDecodeError(StatusCode.NOT_FOUND, NOT_FOUND_BARCODE)), []);
     }
   } catch (error) {
+    scanService.isAlbumLoading = false;
     callback((new GalleryDecodeError(error.code || StatusCode.INTERNAL_SERVER_ERROR,
       error.message || DECODE_CALL_FAILED)), []);
   }

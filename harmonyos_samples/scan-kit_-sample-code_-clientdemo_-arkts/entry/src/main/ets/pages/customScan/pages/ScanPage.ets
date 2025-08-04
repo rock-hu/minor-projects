@@ -18,7 +18,7 @@ import { PermissionsUtil } from '../../../common/PermissionsUtil';
 import { CommonTipsDialog } from '../../../common/CommonTipsDialog';
 import { DeviceService } from '../model/DeviceService';
 import { WindowService } from '../model/WindowService';
-import { FoldStatus, XComponentService } from '../model/XComponentService';
+import { XComponentService } from '../model/XComponentService';
 import { ScanLayout } from '../model/ScanLayout';
 import { BREAK_POINT_TYPE_MARGIN_VP } from '../model/BreakpointType';
 import { UIContextSelf } from '../model/UIContextSelf';
@@ -42,19 +42,16 @@ function tipContainer() {
 struct ScanPage {
   @State tipShow: boolean = false; // Determine whether to display the message indicating that no barcode is recognized.
   @State xComponentService: XComponentService = XComponentService.getInstance();
-  @State foldStatus: FoldStatus = this.xComponentService.foldStatus;
   @State windowService: WindowService = WindowService.getInstance();
   @State scanLayout: ScanLayout = ScanLayout.getInstance();
   @State scanService: ScanService = ScanService.getInstance();
   @State scanResult: ScanResults = this.scanService.scanResult;
-  @State surfaceId: string = '';
   @State densityDPI: number = 0; // Pixel density.
   @State viewControl: customScan.ViewControl = {
     width: this.xComponentService.width,
     height: this.xComponentService.height,
-    surfaceId: ''
+    surfaceId: this.xComponentService.surfaceId
   };
-  @State isDialogShow: boolean = false;
   @State userGrant: boolean = false; // Check whether the camera permission is granted.
   options: scanBarcode.ScanOptions = {
     scanTypes: [scanCore.ScanType.ALL],
@@ -62,9 +59,7 @@ struct ScanPage {
     enableAlbum: true
   };
   dialogController: CustomDialogController = new CustomDialogController({
-    builder: CommonTipsDialog({
-      isDialogShow: this.isDialogShow
-    }),
+    builder: CommonTipsDialog(),
     autoCancel: false,
     customStyle: false,
     alignment: DialogAlignment.Center
@@ -78,7 +73,6 @@ struct ScanPage {
         this.startCustomScan();
       } else {
         // ScanStatus: PHOTO_DECODING_COMPLETED
-        this.scanService.isAlbumLoading = true;
         this.handleDecodeResult(error, result);
         this.scanService.updateScanStatus(ScanStatus.PHOTO_DECODING_COMPLETED);
       }
@@ -102,8 +96,8 @@ struct ScanPage {
   aboutToAppear() {
     Logger.info(TAG, 'aboutToAppear.');
     if (DeviceService.isFolding) {
-      this.foldStatus.newFoldStatus = DeviceService.getFoldStatusByDisplay();
-      this.foldStatus.oldFoldStatus = this.foldStatus.newFoldStatus;
+      DeviceService.newFoldStatus = DeviceService.getFoldStatusByDisplay();
+      DeviceService.oldFoldStatus = DeviceService.newFoldStatus;
       // Foldable screen status listener.
       this.foldStatusSubscribe();
     }
@@ -134,7 +128,6 @@ struct ScanPage {
       this.scanService.updateScanStatus(ScanStatus.FORBIDDEN);
       this.clearTimer();
       this.userGrant = false;
-      this.isDialogShow = false;
       this.dialogController.close();
     }
   }
@@ -157,7 +150,6 @@ struct ScanPage {
   @Builder
   BackgroundBuilder() {
     ScanXComponent({
-      surfaceId: this.surfaceId,
       startCustomScan: (() => {
         this.startCustomScan();
       })
@@ -363,34 +355,19 @@ struct ScanPage {
   }
 
   async requestCameraPermission() {
-    let grantStatus = await PermissionsUtil.reqPermissionsFromUser();
-    let length: number = grantStatus.length;
-    let hasPermission: boolean = false;
-    for (let i = 0; i < length; i++) {
-      if (grantStatus[i] === 0) {
-        hasPermission = true;
-        break;
-      }
-    }
-
-    if (hasPermission) {
+    const grantStatus: number[] = await PermissionsUtil.reqPermissionsFromUser();
+    if (grantStatus[0] === 0) {
       // The user has granted the permission.
       Logger.info(TAG, 'Succeeded in requesting permissions from user.');
       this.userGrant = true;
       this.scanService.updateScanStatus(ScanStatus.NOT_STARTED);
-      if (this.isDialogShow) {
-        this.isDialogShow = false;
-        this.dialogController.close();
-      }
+      this.dialogController.close();
       this.startCustomScan();
     } else {
       // If the user refuses to grant the permission, display a message indicating that user authorization is required, and direct the user to set the permission in system settings.
-      Logger.info(TAG, `Failed to requesting permissions from user.`);
+      Logger.info(TAG, 'Failed to requesting permissions from user.');
       this.userGrant = false;
-      if (!this.isDialogShow) {
-        this.isDialogShow = true;
-        this.dialogController.open();
-      }
+      this.dialogController.open();
     }
   }
 
@@ -444,10 +421,10 @@ struct ScanPage {
     this.viewControl = {
       width: this.xComponentService.width,
       height: this.xComponentService.height,
-      surfaceId: this.surfaceId
+      surfaceId: this.xComponentService.surfaceId
     }
-    if (this.surfaceId) {
-      Logger.info(TAG, `startCustomScan, surfaceId: ${this.surfaceId}`);
+    if (this.xComponentService.surfaceId) {
+      Logger.info(TAG, `startCustomScan, surfaceId: ${this.xComponentService.surfaceId}`);
       this.scanService.startPreviewStream(this.options, this.viewControl, this.customScanCallback);
       this.startTimer()
       this.avPlayer = PromptTone.getInstance(UIContextSelf.getHostContext());
@@ -476,8 +453,8 @@ struct ScanPage {
     emitter.on({ eventId: CommonConstants.WINDOW_SIZE_CHANGE }, async (eventData: emitter.EventData) => {
       Logger.info(TAG, 'windowSizeChange enter');
       if (eventData.data) {
-        if (this.foldStatus.oldFoldStatus !== this.foldStatus.newFoldStatus) {
-          this.foldStatus.oldFoldStatus = this.foldStatus.newFoldStatus;
+        if (DeviceService.oldFoldStatus !== DeviceService.newFoldStatus) {
+          DeviceService.oldFoldStatus = DeviceService.newFoldStatus;
           this.clearTimer();
           await this.scanService.stopPreviewStream();
           this.scanService.resetRetryScanTimes();
@@ -494,9 +471,9 @@ struct ScanPage {
       display.on('foldStatusChange', async (foldStatus: display.FoldStatus) => {
         // FOLD_STATUS_FOLDED => FOLD_STATUS_HALF_FOLDED; FOLD_STATUS_EXPANDED or FOLD_STATUS_HALF_FOLDED => FOLD_STATUS_FOLDED
         Logger.info(TAG,
-          `foldStatus has changed, pre_foldStatus: ${this.foldStatus.newFoldStatus}, new_foldStatus: ${foldStatus}`);
-        this.foldStatus.oldFoldStatus = this.foldStatus.newFoldStatus;
-        this.foldStatus.newFoldStatus = foldStatus;
+          `foldStatus has changed, pre_foldStatus: ${DeviceService.newFoldStatus}, new_foldStatus: ${foldStatus}`);
+        DeviceService.oldFoldStatus = DeviceService.newFoldStatus;
+        DeviceService.newFoldStatus = foldStatus;
       });
     } catch (error) {
       Logger.error(TAG, `Failed to foldStatusListen. Code: ${error.code}`);

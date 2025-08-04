@@ -74,7 +74,7 @@ struct GetHdsLayeredIcon {
   }
 
   aboutToAppear(): void {
-    this.resManager = getContext().resourceManager;
+    this.resManager = this.getUIContext().getHostContext()?.resourceManager;
     if (!this.resManager) {
       return;
     }

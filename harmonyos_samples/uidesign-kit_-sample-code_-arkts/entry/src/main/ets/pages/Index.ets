@@ -8,7 +8,7 @@ struct Index {
       Row() {
         Button($r('app.string.process_layered_icon'))
           .onClick(() => {
-            router.pushUrl({ url: 'pages/GetHdsLayeredIcon' })
+            this.getUIContext().getRouter().pushUrl({ url: 'pages/GetHdsLayeredIcon' })
           })
       }
       .justifyContent(FlexAlign.Center)
@@ -18,7 +18,7 @@ struct Index {
       Row() {
         Button($r('app.string.process_single_layer_icon'))
           .onClick(() => {
-            router.pushUrl({ url: 'pages/GetHdsIcon' })
+            this.getUIContext().getRouter().pushUrl({ url: 'pages/GetHdsIcon' })
           })
       }
       .justifyContent(FlexAlign.Center)

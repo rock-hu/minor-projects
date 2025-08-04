@@ -166,7 +166,7 @@ export class ScanService {
           Logger.info(TAG, `Retry preview stream by customScanCallback. Times: ${this.retryScanTimes}.`);
           await this.stopPreviewStream();
           this.startPreviewStream(options, viewControl, callback);
-          Logger.info(TAG, `Retry preview stream end.`);
+          Logger.info(TAG, 'Retry preview stream end.');
           clearTimeout(timeId);
         }, CommonConstants.DELAY_RETRY_SCAN_TIME)
         return true; // Retry.
@@ -198,11 +198,11 @@ export class ScanService {
 
   private async stopCustomScan(): Promise<void> {
     try {
-      Logger.info(TAG, `stop customScan start.`);
+      Logger.info(TAG, 'stop customScan start.');
       await customScan.stop().catch((error: BusinessError) => {
         Logger.error(TAG, `Failed to stop customScan by promising. Code: ${error.code}, message: ${error.message}.`);
       });
-      Logger.info(TAG, `stop customScan end.`);
+      Logger.info(TAG, 'stop customScan end.');
     } catch (error) {
       Logger.error(TAG, `Failed to stop customScan by catching. Code: ${error.code}, message: ${error.message}.`);
     }
@@ -210,11 +210,11 @@ export class ScanService {
 
   private async releaseCustomScan(): Promise<void> {
     try {
-      Logger.info(TAG, `release customScan start.`);
+      Logger.info(TAG, 'release customScan start.');
       await customScan.release().catch((error: BusinessError) => {
         Logger.error(TAG, `Failed to release customScan by promising. Code: ${error.code}, message: ${error.message}.`);
       });
-      Logger.info(TAG, `release customScan end.`);
+      Logger.info(TAG, 'release customScan end.');
     } catch (error) {
       Logger.error(TAG, `Failed to release customScan by catching. Code: ${error.code}, message: ${error.message}.`);
     }

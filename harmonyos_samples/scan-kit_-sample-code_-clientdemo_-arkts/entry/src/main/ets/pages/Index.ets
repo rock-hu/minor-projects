@@ -58,6 +58,7 @@ struct Index {
                 })
               }
             })
+
             CustomButton({
               mText: $r('app.string.bitmap_api_decode'), mOnClick: () => {
                 UIContextSelf.pushUrl({

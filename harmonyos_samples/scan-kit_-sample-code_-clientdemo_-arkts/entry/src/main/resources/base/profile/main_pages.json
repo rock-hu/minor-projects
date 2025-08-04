@@ -8,6 +8,7 @@
     "pages/customScan/CustomPage",
     "pages/resultPage/ResultPage",
     "pages/customScan/pages/ScanPage",
+    "pages/customScanV2/pages/ScanPage",
     "pages/access/ScanAccess",
     "pages/access/ScanDetail",
     "pages/defaultScan/DefaultScan"

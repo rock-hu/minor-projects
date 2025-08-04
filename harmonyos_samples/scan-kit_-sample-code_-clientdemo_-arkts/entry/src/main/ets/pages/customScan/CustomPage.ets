@@ -20,6 +20,14 @@ struct CustomPage {
             })
           }
         })
+
+        CustomButton({
+          mText: $r('app.string.customized_view_decode_v2'), mOnClick: () => {
+            UIContextSelf.pushUrl({
+              url: "pages/customScanV2/pages/ScanPage"
+            })
+          }
+        })
       }
       .alignItems(HorizontalAlign.Center)
       .width('100%')
