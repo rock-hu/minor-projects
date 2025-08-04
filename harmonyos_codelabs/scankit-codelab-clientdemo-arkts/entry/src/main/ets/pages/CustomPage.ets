@@ -409,7 +409,7 @@ struct CustomScanPage {
                 scanCodeRect: this.scanCodeRect[index].scanCodeRect
               }
               result.push(scanResult);
-              UIContextSelf.getRouter().replaceUrl({
+              UIContextSelf.replaceUrl({
                 url: 'pages/CustomResultPage',
                 params: {
                   result: result
@@ -468,7 +468,7 @@ struct CustomScanPage {
       this.isShowScanResult = true;
       if (this.scanCodeRectLength === 1) {
         toResultPage = setTimeout(() => {
-          UIContextSelf.getRouter().replaceUrl({
+          UIContextSelf.replaceUrl({
             url: 'pages/CustomResultPage',
             params: {
               result: result

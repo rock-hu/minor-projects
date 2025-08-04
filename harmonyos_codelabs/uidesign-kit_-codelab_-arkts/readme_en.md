@@ -15,12 +15,12 @@ This sample code illustrates the processing effect of layered and single-layer i
 
 ### Preview
 
-<span style="border: 3px solid #ddd; padding: 10px; margin: 10px 0;">
+<span style="border: 3px solid #ddd; padding: 10px 30px 10px 30px; margin: 10px 0;">
 &emsp;&emsp;&emsp;&emsp;&emsp;&nbsp;&nbsp;Layered Icon&emsp;&emsp;&emsp;&emsp;&emsp;&nbsp;&nbsp;&nbsp;
 </span>
 
-<span style="border: 3px solid #ddd; padding: 10px; margin: 10px 0;">
-&emsp;&emsp;&emsp;&emsp;&emsp;&nbsp;Single-Layer Icon&emsp;&emsp;&emsp;&emsp;&emsp;&nbsp;&nbsp;
+<span style="border: 3px solid #ddd; padding: 10px 30px 10px 30px; margin: 10px 0;">
+&emsp;&emsp;&emsp;&emsp;&emsp;&nbsp;Single-Layer Icon&emsp;&emsp;&emsp;&emsp;&emsp;
 </span>
 
 <img src="screenshots/device/layeredIconProcessedScreen.png" width="296" height="640" /><img src="screenshots/device/iconProcessedScreen.png" width="296" height="640" />
@@ -135,7 +135,7 @@ The APIs that you need to use for icon processing are packaged into **@kit.UIDes
 ```
 
 ### Constraints
-1. The sample app is only supported on Huawei phones, 2in1 devices, and tablets with standard systems.
+1. The sample app is only supported on Huawei phones, 2in1 devices, TV, and tablets with standard systems.
 2. The sample app does not support large font mode, landscape mode, or any other languages other than Chinese and English.
 3. The HarmonyOS version must be HarmonyOS NEXT Developer Beta2 or later.
 4. The DevEco Studio version must be DevEco Studio NEXT Developer Beta2 or later.

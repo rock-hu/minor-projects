@@ -1,4 +1,4 @@
-# 广告标识服务HarmonyOS ArkTs示例代码
+# 开放匿名设备标识服务HarmonyOS ArkTs示例代码
 ## 目录
 
 * [简介](#简介)
@@ -11,7 +11,7 @@
 
 
 ## 简介
-本示例展示了如何通过广告标识服务部件提供的接口获取开放匿名设备标识符以及重置开放匿名设备标识符。
+本示例展示了如何通过开放匿名设备标识服务部件提供的接口获取开放匿名设备标识符以及重置开放匿名设备标识符。
 
 ## 相关概念
 * 开放匿名设备标识符
@@ -44,16 +44,16 @@
 ```
 
 ## 示例代码
-### 广告标识服务示例代码
+### 开放匿名设备标识服务示例代码
 本示例代码包括以下文件，便于您获取OAID：
 
 * Index.ets
-广告标识服务演示界面，可以获取OAID。
+开放匿名设备标识服务演示界面，可以获取OAID。
 <br>代码位置： entry\src\main\ets\pages\Index.ets</br>
 
 ### 相关权限
 
-* 获取OAID功能需要申请广告跨应用关联访问权限：[ohos.permission.APP_TRACKING_CONSENT](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/permissions-for-all-user#ohospermissionapp_tracking_consent)。
+* 获取OAID功能需要申请跨应用关联权限：[ohos.permission.APP_TRACKING_CONSENT](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/permissions-for-all-user#ohospermissionapp_tracking_consent)。
 
 
 ## 约束与限制

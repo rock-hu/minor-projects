@@ -1,4 +1,4 @@
-# Identifier Service Sample Code (HarmonyOS ArkTS)
+# OAID Service Sample Code (HarmonyOS ArkTS)
 ## Contents
 
 * [Overview](#Overview)
@@ -11,12 +11,12 @@
 
 
 ## Overview
-This demo shows how to obtain and reset Open Anonymous Device IDs (OAIDs) through APIs provided by Identifier Service.
+This demo shows how to obtain and reset Open Anonymous Device IDs (OAIDs) through APIs provided by the OAID service.
 
-## Concepts
+## Related Concepts
 * OAID
 
-  An Open Anonymous Device Identifier (OAID) is a non-permanent device identifier. It allows personalized ads to be provided to users while ensuring the protection of their personal data privacy. Additionally, it allows third-party tracking platforms to offer conversion attribution analysis to advertisers.
+  An Open Anonymous Device Identifier (OAID) is a non-permanent device identifier. It allows for personalized ads to be provided to users while ensuring the protection of their personal data privacy. Additionally, it allows third-party tracking platforms to offer conversion attribution analysis to advertisers.
 
 ## How to Use
 
@@ -44,11 +44,11 @@ This demo shows how to obtain and reset Open Anonymous Device IDs (OAIDs) throug
 ```
 
 ## Sample Code
-### Identifier Service
+### OAID Service
 The sample code includes the following file for you to obtain the OAID:
 
 * Index.ets
-Demo UI of Identifier Service, which can be used to obtain the OAID.
+Demo UI of the OAID service, which can be used to obtain the OAID.
 <br>Code location: **entry\src\main\ets\pages\Index.ets**<br>
 
 ### Required Permissions

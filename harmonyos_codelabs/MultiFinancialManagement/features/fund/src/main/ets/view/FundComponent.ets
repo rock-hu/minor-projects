@@ -16,10 +16,9 @@
 import { BreakpointUtil, BusinessInfo, CommonConstants, FundDetail, RouterConstants } from '@ohos/basic';
 import { FundConstants } from '../constants/FundConstants';
 import FundingViewModel from '../viewmodel/FundingViewModel';
-// [Start fund_component]
+
 @Component
 export struct FundComponent {
-  // [StartExclude fund_component]
   @State currentPoint: string = CommonConstants.BREAK_POINT_SM;
   @State tabBarIndex: number = 0;
   @State backgroundX: number = 0;
@@ -154,7 +153,7 @@ export struct FundComponent {
                 Tabs({ barPosition: BarPosition.Start, controller: this.controller }) {
                   TabContent(){
                     Row() {
-                      // [EndExclude fund_component]
+                      // [Start fund_component]
                       List() {
                         ForEach(new BreakpointUtil({
                           sm: FundingViewModel.getAllFundInfo(0, 2),
@@ -179,7 +178,7 @@ export struct FundComponent {
                       }
                       .lanes(new BreakpointUtil({ sm: 1, md: 2, lg: 3 }).getValue(this.currentPoint))
                       .width(CommonConstants.FULL_WIDTH_PERCENT)
-                      // [StartExclude fund_component]
+                      // [End fund_component]
                       .scrollBar(BarState.Off)
                     }
                     .height(CommonConstants.FULL_HEIGHT_PERCENT)
@@ -487,6 +486,4 @@ export struct FundComponent {
       this.backgroundX = this.getUIContext().vp2px(this.backgroundX)
     })
   }
-  // [EndExclude fund_component]
 }
-// [End fund_component]
