@@ -708,7 +708,7 @@ void ArkCollector::ParallelFixHeap()
     auto taskList = regionSpace.CollectFixTasks();
     std::atomic<int> taskIter = 0;
     std::function<FixHeapTask *()> getNextTask = [&taskIter, &taskList]() -> FixHeapTask* {
-        uint32_t idx = taskIter.fetch_add(1U, std::memory_order_relaxed);
+        uint32_t idx = static_cast<uint32_t>(taskIter.fetch_add(1U, std::memory_order_relaxed));
         if (idx < taskList.size()) {
             return &taskList[idx];
         }
@@ -1018,8 +1018,7 @@ BaseObject* ArkCollector::CopyObjectAfterExclusive(BaseObject* obj)
             "is survived: " << (IsSurvivedObject(obj) ? "true" : "false");
     }
     BaseObject* toObj = fwdTable_.RouteObject(obj, size);
-    if (toObj == nullptr) { //LCOV_EXCL_BR_LINE
-        Heap::throwOOM();
+    if (toObj == nullptr) {
         // ConcurrentGC
         obj->UnlockExclusive(BaseStateWord::ForwardState::NORMAL);
         return toObj;

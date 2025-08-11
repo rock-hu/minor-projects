@@ -43,6 +43,8 @@
 #endif
 #include "ecmascript/regexp/regexp_parser.h"
 #include "ecmascript/serializer/base_deserializer.h"
+#include "ecmascript/serializer/inter_op_value_deserializer.h"
+#include "ecmascript/serializer/inter_op_value_serializer.h"
 #include "ecmascript/serializer/value_serializer.h"
 #include "ecmascript/platform/aot_crash_info.h"
 #include "ecmascript/platform/dfx_crash_obj.h"
@@ -54,10 +56,6 @@
 #endif
 #if defined(ENABLE_LOCAL_HANDLE_LEAK_DETECT)
 #include "ecmascript/dfx/hprof/heap_profiler.h"
-#endif
-#ifdef PANDA_JS_ETS_HYBRID_MODE
-#include "ecmascript/serializer/inter_op_value_deserializer.h"
-#include "ecmascript/serializer/inter_op_value_serializer.h"
 #endif
 
 namespace panda {
@@ -4671,7 +4669,7 @@ void JSNApi::ClearCurrentTaskInfo(const EcmaVM *vm)
 
 void JSNApi::SetLargeHeap(bool isLargeHeap)
 {
-    LOG_ECMA(INFO) << "Set large heap: " << isLargeHeap;
+    LOG_ECMA(DEBUG) << "Set large heap: " << isLargeHeap;
     auto instance = ecmascript::Runtime::GetInstance();
     ASSERT(instance != nullptr);
     instance->SetEnableLargeHeap(isLargeHeap);
@@ -4977,7 +4975,7 @@ void JSNApi::PrintExceptionInfo(const EcmaVM *vm)
     }
     JSHandle<EcmaString> result = JSTaggedValue::ToString(thread, exceptionHandle);
     ecmascript::CString string = ConvertToString(thread, *result);
-    LOG_ECMA(ERROR) << string;
+    LOG_ECMA(WARN) << string;
     ThrowException(vm, exception);
 }
 
@@ -5147,15 +5145,15 @@ bool JSNApi::StartDebuggerForSocketPair([[maybe_unused]] int tid, [[maybe_unused
         return false;
     }
 
-    using StartDebugForSocketpair = bool (*)(int, int);
+    using StartDebugForSocketpair = bool (*)(int, int, bool);
 
     auto sym = panda::os::library_loader::ResolveSymbol(handle, "StartDebugForSocketpair");
     if (!sym) {
         LOG_ECMA(ERROR) << "[StartDebuggerForSocketPair] Resolve symbol fail: " << sym.Error().ToString();
         return false;
     }
-
-    bool ret = reinterpret_cast<StartDebugForSocketpair>(sym.Value())(tid, socketfd);
+    // false: not hybrid
+    bool ret = reinterpret_cast<StartDebugForSocketpair>(sym.Value())(tid, socketfd, false);
     if (!ret) {
         // Reset the config
         jsDebuggerManager->SetDebugMode(false);
@@ -5230,7 +5228,7 @@ bool JSNApi::NotifyDebugMode([[maybe_unused]] int tid,
 
 #ifndef PANDA_TARGET_ARM32
     // Initialize debugger
-    using InitializeDebuggerForSocketpair = bool(*)(void*);
+    using InitializeDebuggerForSocketpair = bool(*)(void*, bool);
     auto sym = panda::os::library_loader::ResolveSymbol(
         jsDebuggerManager->GetDebugLibraryHandle(), "InitializeDebuggerForSocketpair");
     if (!sym) {
@@ -5238,7 +5236,8 @@ bool JSNApi::NotifyDebugMode([[maybe_unused]] int tid,
             << sym.Error().ToString();
         return false;
     }
-    if (!reinterpret_cast<InitializeDebuggerForSocketpair>(sym.Value())(vm)) {
+    // false: not hybrid
+    if (!reinterpret_cast<InitializeDebuggerForSocketpair>(sym.Value())(vm, false)) {
         LOG_ECMA(ERROR) << "[NotifyDebugMode] InitializeDebuggerForSocketpair fail";
         return false;
     }
@@ -5311,13 +5310,14 @@ bool JSNApi::StoreDebugInfo([[maybe_unused]] int tid,
     }
     reinterpret_cast<StoreDebuggerInfo>(symOfStoreDebuggerInfo.Value())(tid, vm, debuggerPostTask);
     bool ret = false;
-    using InitializeDebuggerForSocketpair = bool(*)(void*);
+    using InitializeDebuggerForSocketpair = bool(*)(void*, bool);
     auto sym = panda::os::library_loader::ResolveSymbol(handler, "InitializeDebuggerForSocketpair");
     if (!sym) {
         LOG_ECMA(ERROR) << "[InitializeDebuggerForSocketpair] Resolve symbol fail: " << sym.Error().ToString();
         return false;
     }
-    ret = reinterpret_cast<InitializeDebuggerForSocketpair>(sym.Value())(vm);
+    // false: not hybrid
+    ret = reinterpret_cast<InitializeDebuggerForSocketpair>(sym.Value())(vm, false);
     if (!ret) {
     // Reset the config
         vm->GetJsDebuggerManager()->SetDebugMode(false);
@@ -5343,15 +5343,15 @@ bool JSNApi::StopDebugger([[maybe_unused]] EcmaVM *vm)
 
     const auto &handle = vm->GetJsDebuggerManager()->GetDebugLibraryHandle();
 
-    using StopDebug = void (*)(void *);
+    using StopDebug = void (*)(void *, bool);
 
     auto sym = panda::os::library_loader::ResolveSymbol(handle, "StopDebug");
     if (!sym) {
-        LOG_ECMA(ERROR) << sym.Error().ToString();
+        LOG_ECMA(WARN) << sym.Error().ToString();
         return false;
     }
-
-    reinterpret_cast<StopDebug>(sym.Value())(vm);
+    // false: not hybrid
+    reinterpret_cast<StopDebug>(sym.Value())(vm, false);
 
     vm->GetJsDebuggerManager()->SetDebugMode(false);
     uint32_t tid = vm->GetTid();
@@ -5645,8 +5645,6 @@ int JSNApi::ExecuteWithSingletonPatternFlag(EcmaVM *vm, const std::string &bundl
             ecmascript::JsStackInfo::BuildCrashInfo(thread);
             thread->HandleUncaughtException();
         }
-        LOG_ECMA(ERROR) << "Execute with singleton-pattern flag failed with bundle name is'" << bundleName
-                        << "' and module name is '" << moduleName << "', entry is'" << ohmurl << "'" << std::endl;
     }
     return result;
 }
@@ -6036,12 +6034,13 @@ void JSNApi::DisposeGlobalHandleAddr(const EcmaVM *vm, uintptr_t addr)
     thread->DisposeGlobalHandle(addr);
 }
 
-void *JSNApi::InterOpSerializeValue(const EcmaVM *vm, Local<JSValueRef> value,
-    Local<JSValueRef> transfer, Local<JSValueRef> cloneList,
-    bool defaultTransfer, bool defaultCloneShared)
+void *JSNApi::InterOpSerializeValue(const EcmaVM *vm, Local<JSValueRef> value, Local<JSValueRef> transfer,
+                                    Local<JSValueRef> cloneList, bool defaultTransfer, bool defaultCloneShared)
 {
+    if (!ecmascript::Runtime::GetInstance()->IsHybridVm()) {
+        return SerializeValue(vm, value, transfer, cloneList, defaultTransfer, defaultCloneShared);
+    }
     CROSS_THREAD_AND_EXCEPTION_CHECK_WITH_RETURN(vm, nullptr);
-#ifdef PANDA_JS_ETS_HYBRID_MODE
     ecmascript::ThreadManagedScope scope(thread);
     JSHandle<JSTaggedValue> arkValue = JSNApiHelper::ToJSHandle(value);
     JSHandle<JSTaggedValue> arkTransfer = JSNApiHelper::ToJSHandle(transfer);
@@ -6066,18 +6065,16 @@ void *JSNApi::InterOpSerializeValue(const EcmaVM *vm, Local<JSValueRef> value,
     } else {
         return reinterpret_cast<void *>(data.release());
     }
-#else
-    LOG_FULL(FATAL) << "Only support in inter-op";
-    UNREACHABLE();
-#endif
 }
 
-Local<JSValueRef> JSNApi::InterOpDeserializeValue([[maybe_unused]] const EcmaVM *vm, [[maybe_unused]] void *recoder,
-                                                  [[maybe_unused]] void *hint)
+Local<JSValueRef> JSNApi::InterOpDeserializeValue(const EcmaVM *vm, void *recoder, void *hint)
 {
+    if (!ecmascript::Runtime::GetInstance()->IsHybridVm()) {
+        return DeserializeValue(vm, recoder, hint);
+    }
     CROSS_THREAD_AND_EXCEPTION_CHECK_WITH_RETURN(vm, JSValueRef::Undefined(vm));
-#ifdef PANDA_JS_ETS_HYBRID_MODE
     ecmascript::ThreadManagedScope scope(thread);
+    EscapeLocalScope escapeScope(vm);
     std::unique_ptr<ecmascript::SerializeData> data(reinterpret_cast<ecmascript::SerializeData *>(recoder));
     ecmascript::InterOpValueDeserializer deserializer(thread, data.release(), hint);
     bool serializationTimeoutCheckEnabled = IsSerializationTimeoutCheckEnabled(vm);
@@ -6091,11 +6088,7 @@ Local<JSValueRef> JSNApi::InterOpDeserializeValue([[maybe_unused]] const EcmaVM 
         endTime = std::chrono::system_clock::now();
         GenerateTimeoutTraceIfNeeded(vm, startTime, endTime, false);
     }
-    return JSNApiHelper::ToLocal<ObjectRef>(result);
-#else
-    LOG_FULL(FATAL) << "Only support in inter-op";
-    UNREACHABLE();
-#endif
+    return escapeScope.Escape(JSNApiHelper::ToLocal<JSValueRef>(result));
 }
 
 void *JSNApi::SerializeValue(const EcmaVM *vm, Local<JSValueRef> value, Local<JSValueRef> transfer,

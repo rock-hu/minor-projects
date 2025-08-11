@@ -15,5 +15,3 @@
 
 export interface I {}
 export type {/* @@ label */I}
-
-/* @@@ label Error SyntaxError: Cannot export 'I', it was already exported.  */

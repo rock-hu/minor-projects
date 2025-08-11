@@ -474,6 +474,14 @@ FrameNode::FrameNode(
     paintProperty_->SetHost(WeakClaim(this));
 }
 
+
+void FrameNode::OnDelete()
+{
+    frameProxy_.reset();
+    nodeAnimatablePropertyMap_.clear();
+    UINode::OnDelete();
+}
+
 FrameNode::~FrameNode()
 {
     ResetPredictNodes();
@@ -5991,6 +5999,7 @@ HitTestMode FrameNode::TriggerOnTouchIntercept(const TouchEvent& touchEvent)
     eventTarget.id = GetInspectorId().value_or("").c_str();
     event.SetTarget(eventTarget);
     event.SetPressedKeyCodes(touchEvent.pressedKeyCodes_);
+    event.SetTargetDisplayId(touchEvent.targetDisplayId);
     auto result = onTouchIntercept(event);
     SetHitTestMode(result);
     return result;
@@ -6661,13 +6670,12 @@ void FrameNode::NotifyWebPattern(bool isRegister)
     if (tag_ == V2::WEB_ETS_TAG) {
         auto pattern = GetPattern<NG::WebPattern>();
         CHECK_NULL_VOID(pattern);
+        auto report = pattern->GetAccessibilityEventReport();
+        CHECK_NULL_VOID(report);
         if (isRegister) {
-            auto callback = [](int64_t accessibilityId, const std::string data) {
-                UiSessionManager::GetInstance()->ReportWebUnfocusEvent(accessibilityId, data);
-            };
-            pattern->RegisterTextBlurCallback(callback);
+            report->RegisterAllReportEventCallBack();
         } else {
-            pattern->UnRegisterTextBlurCallback();
+            report->UnRegisterCallback();
         }
     }
 #endif

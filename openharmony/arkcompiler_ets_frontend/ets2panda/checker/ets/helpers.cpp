@@ -22,6 +22,7 @@
 #include "evaluate/scopedDebugInfoPlugin.h"
 #include "compiler/lowering/scopesInit/scopesInitPhase.h"
 #include "compiler/lowering/util.h"
+#include "util/helpers.h"
 
 namespace ark::es2panda::checker {
 
@@ -1695,7 +1696,9 @@ void ETSChecker::BindingsModuleObjectAddProperty(checker::ETSObjectType *moduleO
     for (auto [_, var] : bindings) {
         (void)_;
         auto [found, aliasedName] = FindSpecifierForModuleObject(importDecl, var->AsLocalVariable()->Name());
-        if ((var->AsLocalVariable()->Declaration()->Node()->IsExported()) && found) {
+        if ((var->AsLocalVariable()->Declaration()->Node()->IsExported() ||
+             var->AsLocalVariable()->Declaration()->Node()->HasExportAlias()) &&
+            found) {
             if (!aliasedName.Empty()) {
                 moduleObjType->AddReExportAlias(var->Declaration()->Name(), aliasedName);
             }
@@ -2541,13 +2544,21 @@ std::vector<bool> ETSChecker::FindTypeInferenceArguments(const ArenaVector<ir::E
 // #22952: optional arrow leftovers
 bool ETSChecker::CheckLambdaAssignableUnion(ir::AstNode *typeAnn, ir::ScriptFunction *lambda)
 {
+    bool assignable = false;
     for (auto *type : typeAnn->AsETSUnionType()->Types()) {
         if (type->IsETSFunctionType()) {
-            return lambda->Params().size() == type->AsETSFunctionType()->Params().size();
+            assignable |= lambda->Params().size() == type->AsETSFunctionType()->Params().size();
+            continue;
+        }
+
+        if (type->IsETSTypeReference()) {
+            auto aliasType = util::Helpers::DerefETSTypeReference(type);
+            assignable |= aliasType->IsETSFunctionType() &&
+                          lambda->Params().size() == aliasType->AsETSFunctionType()->Params().size();
         }
     }
 
-    return false;
+    return assignable;
 }
 
 void ETSChecker::InferTypesForLambda(ir::ScriptFunction *lambda, ir::ETSFunctionType *calleeType,

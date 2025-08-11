@@ -1081,15 +1081,7 @@ void DragAnimationHelper::MountPixelMap(const RefPtr<OverlayManager>& manager,
     auto hub = columnNode->GetOrCreateGestureEventHub();
     CHECK_NULL_VOID(hub);
     hub->SetPixelMap(gestureHub->GetPixelMap());
-    auto container = Container::Current();
-    if (container && container->IsSceneBoardWindow()) {
-        auto frameNode = gestureHub->GetFrameNode();
-        CHECK_NULL_VOID(frameNode);
-        auto windowScene = manager->FindWindowScene(frameNode);
-        manager->MountPixelMapToWindowScene(columnNode, windowScene, isDragPixelMap);
-    } else {
-        manager->MountPixelMapToRootNode(columnNode, isDragPixelMap);
-    }
+    manager->MountPixelMapToRootNode(columnNode, isDragPixelMap);
     DragEventActuator::SetPreviewDefaultAnimateProperty(data.imageNode);
     columnNode->MarkDirtyNode(NG::PROPERTY_UPDATE_MEASURE);
     columnNode->MarkModifyDone();
@@ -1283,8 +1275,15 @@ void DragAnimationHelper::CreateTextNode(PreparedInfoForDrag& data)
     auto dragDropManager = pipelineContext->GetDragDropManager();
     CHECK_NULL_VOID(dragDropManager);
     auto windowScale = dragDropManager->GetWindowScale();
-    textRowRenderContext->UpdateOffset(OffsetT<Dimension>(Dimension(BADGE_RELATIVE_OFFSET.ConvertToPx() * windowScale),
-        Dimension(-BADGE_RELATIVE_OFFSET.ConvertToPx() * windowScale)));
+    if (AceApplicationInfo::GetInstance().IsRightToLeft()) {
+        textRowRenderContext->UpdateOffset(
+            OffsetT<Dimension>(Dimension(-BADGE_RELATIVE_OFFSET.ConvertToPx() * windowScale),
+                Dimension(-BADGE_RELATIVE_OFFSET.ConvertToPx() * windowScale)));
+    } else {
+        textRowRenderContext->UpdateOffset(
+            OffsetT<Dimension>(Dimension(BADGE_RELATIVE_OFFSET.ConvertToPx() * windowScale),
+                Dimension(-BADGE_RELATIVE_OFFSET.ConvertToPx() * windowScale)));
+    }
     textRowProperty->UpdateAlignRules(
         { { AlignDirection::TOP, { .anchor = "__container__", .vertical = VerticalAlign::TOP } },
             { AlignDirection::RIGHT, { .anchor = "__container__", .horizontal = HorizontalAlign::END } } });

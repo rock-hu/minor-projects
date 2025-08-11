@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,7 +15,7 @@
 
 #include "pttypesremoteobjectgetvalue_fuzzer.h"
 #include "ecmascript/napi/include/jsnapi.h"
-#include "tooling/base/pt_types.h"
+#include "tooling/dynamic/base/pt_types.h"
 
 using namespace panda;
 using namespace panda::ecmascript;
@@ -30,9 +30,17 @@ namespace OHOS {
         if (size <= 0 || data == NULL) {
             return;
         }
+        double input = 0;
+        if (size > sizeof(double)) {
+            size = sizeof(double);
+        }
+        if (memcpy_s(&input, sizeof(double), data, size) != 0) {
+            std::cout << "memcpy_s failed";
+            UNREACHABLE();
+        }
+        Local value(NumberRef::New(vm, input));
         RemoteObject obj;
-        Local<PrimitiveRef> val = JSValueRef::Undefined(vm);
-        obj.SetValue(val);
+        obj.SetValue(value);
         Local<JSValueRef> ref = obj.GetValue();
         ref.IsEmpty();
         obj.HasValue();

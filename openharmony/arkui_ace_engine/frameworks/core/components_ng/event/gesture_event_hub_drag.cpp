@@ -282,7 +282,8 @@ void GestureEventHub::CalcFrameNodeOffsetAndSize(const RefPtr<FrameNode> frameNo
 
     // use menuPreview's size and offset for drag framework.
     if (!frameNode->GetDragPreview().onlyForLifting && isMenuShow && GreatNotEqual(menuPreviewScale_, 0.0f) &&
-        GreatNotEqual(DragAnimationHelper::GetPreviewMenuAnimationRate(), 0.0f)) {
+        (GreatNotEqual(DragAnimationHelper::GetPreviewMenuAnimationRate(), 0.0f) ||
+            frameNode->GetDragPreviewOption().sizeChangeEffect == DraggingSizeChangeEffect::DEFAULT)) {
         auto menuPreviewRect = DragDropManager::GetMenuPreviewRect();
         if (GreatNotEqual(menuPreviewRect.Width(), 0.0f) && GreatNotEqual(menuPreviewRect.Height(), 0.0f)) {
             frameNodeOffset_ = menuPreviewRect.GetOffset();
@@ -809,7 +810,7 @@ void CalcPreviewPaintRect(const RefPtr<FrameNode> menuWrapperNode, PreparedInfoF
     auto previewScale = rate * (previewAfterAnimationScale - previewBeforeAnimationScale) + previewBeforeAnimationScale;
     if (!GreatNotEqual(rate, 0.0f)) {
         data.sizeChangeEffect = DraggingSizeChangeEffect::SIZE_TRANSITION;
-        data.dragPreviewRect = data.originPreviewRect;
+        data.originPreviewRect = data.dragPreviewRect;
         return;
     }
     auto clipStartWidth = previewPattern->GetHoverImageAfterScaleWidth() * previewScale;
@@ -841,7 +842,6 @@ void GestureEventHub::PrepareDragStartInfo(
     data.relativeContainerNode = relativeContainerNode;
     auto relativeContainerLayoutProperty = relativeContainerNode->GetLayoutProperty();
     CHECK_NULL_VOID(relativeContainerLayoutProperty);
-    relativeContainerLayoutProperty->UpdateLayoutDirection(TextDirection::LTR);
     relativeContainerLayoutProperty->UpdateUserDefinedIdealSize(
         { CalcLength(data.originPreviewRect.Width(), DimensionUnit::PX),
             CalcLength(data.originPreviewRect.Height(), DimensionUnit::PX) });
@@ -1935,6 +1935,13 @@ void GestureEventHub::SetThumbnailCallback(std::function<void(Offset)>&& callbac
 {
     if (dragEventActuator_) {
         dragEventActuator_->SetThumbnailCallback(std::move(callback));
+    }
+}
+
+void GestureEventHub::DragNodeDetachFromParent()
+{
+    if (dragEventActuator_) {
+        dragEventActuator_->RemovePixelMap();
     }
 }
 

@@ -25,7 +25,7 @@
 #define RETURN_VALUE_IF_ABRUPT(thread, value)                 \
     do {                                                      \
         if (thread->HasPendingException()) {                  \
-            LOG_FULL(ERROR) << "occur exception need return"; \
+            LOG_FULL(WARN) << "occur exception need return";  \
             return value;                                     \
         }                                                     \
     } while (false)
@@ -86,7 +86,7 @@
     do {                                                                                     \
         auto val = reinterpret_cast<JSTaggedValue *>(jsValueRef);                            \
         if (UNLIKELY(val->IsSpecial())) {                                                    \
-            LOG_FULL(ERROR) << "JSNApi special value:0x" << val->GetRawData() << " checked"; \
+            LOG_FULL(WARN) << "JSNApi special value:0x" << val->GetRawData() << " checked"; \
             return;                                                                          \
         }                                                                                    \
     } while (false)
@@ -95,7 +95,7 @@
     do {                                                                                     \
         auto val = reinterpret_cast<JSTaggedValue *>(jsValueRef);                            \
         if (UNLIKELY(val->IsSpecial())) {                                                    \
-            LOG_FULL(ERROR) << "JSNApi special value:0x" << val->GetRawData() << " checked"; \
+            LOG_FULL(WARN) << "JSNApi special value:0x" << val->GetRawData() << " checked"; \
             return (retValue);                                                               \
         }                                                                                    \
     } while (false)

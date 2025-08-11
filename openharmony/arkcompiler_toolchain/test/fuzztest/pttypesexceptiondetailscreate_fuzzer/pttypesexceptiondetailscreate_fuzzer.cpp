@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,7 +15,7 @@
 
 #include "pttypesexceptiondetailscreate_fuzzer.h"
 #include "ecmascript/napi/include/jsnapi.h"
-#include "tooling/base/pt_types.h"
+#include "tooling/dynamic/base/pt_types.h"
 
 using namespace panda;
 using namespace panda::ecmascript;
@@ -33,11 +33,9 @@ namespace OHOS {
         // if data: "{\"\":1,"
         // cJSON_ParseWithLength will heap-buffer-overflow
         // https://github.com/DaveGamble/cJSON/issues/804
-        cJSON* cjson = NULL;
-        if (cjson != NULL) {
-            PtJson pjson(cjson);
-            auto details = ExceptionDetails::Create(pjson);
-            cJSON_Delete(cjson);
+        std::unique_ptr<PtJson> pjson = PtJson::Parse(std::string((const char*)data, size));
+        if (pjson != NULL) {
+            auto details = ExceptionDetails::Create(*pjson);
         }
 
         JSNApi::DestroyJSVM(vm);

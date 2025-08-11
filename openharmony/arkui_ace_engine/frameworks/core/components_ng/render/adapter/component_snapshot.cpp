@@ -180,7 +180,8 @@ bool SetCaptureReigon(const RefPtr<FrameNode>& node, const SnapshotOptions& opti
     if (layoutDirection == TextDirection::AUTO || layoutDirection == TextDirection::INHERIT) {
         layoutDirection = AceApplicationInfo::GetInstance().IsRightToLeft() ? TextDirection::RTL : TextDirection::LTR;
     }
-    bool isRegionMirror = NG::SnapshotRegionMode::LOCALIZED && layoutDirection == TextDirection::RTL;
+    bool isRegionMirror = options.regionMode == NG::SnapshotRegionMode::LOCALIZED &&
+        layoutDirection == TextDirection::RTL;
 
     specifiedAreaRect = Rosen::Drawing::Rect(
         isRegionMirror ? nodeWidth - snapshotRegion.end : snapshotRegion.start,
@@ -799,6 +800,10 @@ void ComponentSnapshot::GetWithRange(const NodeIdentity& startID, const NodeIden
         callback(nullptr, ERROR_CODE_INTERNAL_ERROR, nullptr);
         return;
     }
+    ACE_SCOPED_TRACE("ComponentSnapshot::GetWithRange_startKey=%s_startId=%d_startRsId=%s_"
+        "endKey=%s_endId=%d_endRsId=%s", GetRangeIDStr(startID).c_str(), startNode->GetId(),
+        std::to_string(rsStartNode->GetId()).c_str(), GetRangeIDStr(endID).c_str(), endNode->GetId(),
+        std::to_string(rsEndNode->GetId()).c_str());
 
     auto& rsInterface = Rosen::RSInterfaces::GetInstance();
     auto isSystem = rsInterface.TakeUICaptureInRange(rsStartNode, rsEndNode, isStartRect,

@@ -1,4 +1,9 @@
 # Navigation
+<!--Kit: ArkUI-->
+<!--Subsystem: ArkUI-->
+<!--Owner: @mayaolll-->
+<!--SE: @jiangdayuan-->
+<!--TSE: @lxl007-->
 
 Navigation组件是路由导航的根视图容器，一般作为Page页面的根容器使用，其内部默认包含了标题栏、内容区和工具栏，其中内容区默认首页显示导航内容（Navigation的子组件）或非首页显示（[NavDestination](ts-basic-components-navdestination.md)的子组件），首页和非首页通过路由进行切换。
 
@@ -1103,8 +1108,7 @@ pop(animated?: boolean): NavPathInfo | undefined
 
 | 类型          | 说明                       |
 | ----------- | ------------------------ |
-| [NavPathInfo](#navpathinfo10) | 返回栈顶NavDestination页面的信息。 |
-| undefined   | 当路由栈为空时返回undefined。      |
+| [NavPathInfo](#navpathinfo10)&nbsp;\|&nbsp;undefined | NavPathInfo：返回栈顶NavDestination页面的信息。<br/>undefined: 当路由栈为空时返回undefined。 |
 
 ### pop<sup>11+</sup>
 
@@ -1127,8 +1131,7 @@ pop(result: Object, animated?: boolean): NavPathInfo | undefined
 
 | 类型          | 说明                       |
 | ----------- | ------------------------ |
-| [NavPathInfo](#navpathinfo10) | 返回栈顶NavDestination页面的信息。 |
-| undefined   | 当路由栈为空时返回undefined。      |
+| [NavPathInfo](#navpathinfo10)&nbsp;\|&nbsp;undefined | NavPathInfo：返回栈顶NavDestination页面的信息。<br/>undefined: 当路由栈为空时返回undefined。  |
 
 ### popToName<sup>10+</sup>
 
@@ -1304,8 +1307,7 @@ getParamByIndex(index: number): unknown | undefined
 
 | 类型        | 说明                         |
 | --------- | -------------------------- |
-| unknown   | 返回对应NavDestination页面的参数信息，unkown可以是用户自定义的类型。 |
-| undefined | 传入index无效时返回undefined。     |
+| unknown&nbsp;\|&nbsp;undefined | unknown：返回对应NavDestination页面的参数信息，unkown可以是用户自定义的类型。<br/>undefined: 传入index无效时返回undefined。  |
 
 ### getParamByName<sup>10+</sup>
 
@@ -1467,6 +1469,8 @@ constructor(name: string, param: unknown, onPop?: Callback\<PopInfo>, isEntry?: 
 **原子化服务API：** 从API version 11开始，该接口支持在原子化服务中使用。
 
 **系统能力：** SystemCapability.ArkUI.ArkUI.Full
+
+**参数：**
 
 | 参数名    | 类型      | 必填   | 说明                   |
 | ----- | ------- | ---- | --------------------- |
@@ -4531,7 +4535,7 @@ struct NavigationExample {
     },
   ]
 
-  @State toolItems:Array<ToolbarItem>= [
+  @State toolItems:Array<ToolbarItem> = [
     {
       value:'toolItem1',
       symbolIcon:new SymbolGlyphModifier($r('sys.symbol.ohos_lungs')),

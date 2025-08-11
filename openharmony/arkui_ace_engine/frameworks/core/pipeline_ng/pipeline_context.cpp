@@ -54,6 +54,7 @@
 #include "core/common/text_field_manager.h"
 #include "core/components_ng/base/node_render_status_monitor.h"
 #include "core/components_ng/base/simplified_inspector.h"
+#include "core/components_ng/base/ui_node_gc.h"
 #include "core/components_ng/base/view_advanced_register.h"
 #include "core/components_ng/pattern/container_modal/container_modal_view_factory.h"
 #include "core/components_ng/pattern/container_modal/enhance/container_modal_pattern_enhance.h"
@@ -3773,7 +3774,7 @@ void PipelineContext::ConsumeTouchEvents(
     bool needInterpolation = true;
     std::unordered_map<int32_t, TouchEvent> newIdTouchPoints;
 
-    int32_t inputIndex = touchEvents.size() - 1;
+    int32_t inputIndex = static_cast<int32_t>(touchEvents.size()) - 1;
     for (auto iter = touchEvents.rbegin(); iter != touchEvents.rend(); ++iter, --inputIndex) {
         auto scalePoint = (*iter).CreateScalePoint(GetViewScale());
         idToTouchPoints.emplace(scalePoint.id, scalePoint);
@@ -3823,7 +3824,7 @@ void PipelineContext::AccelerateConsumeTouchEvents(
     std::map<int32_t, int32_t> timestampToIds;
     std::unordered_set<int32_t> ids;
 
-    int32_t inputIndex = touchEvents.size() - 1;
+    int32_t inputIndex = static_cast<int32_t>(touchEvents.size()) - 1;
     // consume touchEvents and generate idToTouchPoints.
     for (auto iter = touchEvents.rbegin(); iter != touchEvents.rend(); ++iter, --inputIndex) {
         auto scalePoint = iter->CreateScalePoint(GetViewScale());
@@ -5293,6 +5294,7 @@ void PipelineContext::OnIdle(int64_t deadline)
     }
 
     TriggerIdleCallback(deadline);
+    UiNodeGc::ReleaseNodeRawMemory(deadline, taskExecutor_);
 }
 
 void PipelineContext::Finish(bool /* autoFinish */) const
@@ -5599,6 +5601,7 @@ void PipelineContext::RestoreDefault(int32_t windowId, MouseStyleChangeReason re
     auto mouseStyleManager = eventManager_->GetMouseStyleManager();
     CHECK_NULL_VOID(mouseStyleManager);
     mouseStyleManager->SetUserSetCursor(false);
+    eventManager_->FlushCursorStyleRequests();
 }
 
 void PipelineContext::FlushAnimationDirtysWhenExist(const AnimationOption& option)

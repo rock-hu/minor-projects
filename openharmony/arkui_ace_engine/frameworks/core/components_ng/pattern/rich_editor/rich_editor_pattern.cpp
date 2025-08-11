@@ -8312,9 +8312,9 @@ void RichEditorPattern::MouseRightFocus(const MouseInfo& info)
 
     auto selectRange = GetSpanRangeByLocalOffset(info.GetLocalLocation());
     if (InRangeRect(info.GetGlobalLocation(), selectRange)) {
-        focusHub->RequestFocusImmediately();
         selectedType_ = TextSpanType::IMAGE;
         textSelector_.Update(selectRange.first, selectRange.second);
+        focusHub->RequestFocusImmediately();
         SetCaretPositionWithAffinity({ selectRange.second, TextAffinity::UPSTREAM });
         FireOnSelect(selectRange.first, selectRange.second);
         host->MarkDirtyNode(PROPERTY_UPDATE_RENDER);
@@ -8925,6 +8925,11 @@ Offset RichEditorPattern::ConvertGlobalToTextOffset(const Offset& globalOffset)
         localOffset = ConvertGlobalToLocalOffset(globalOffset);
     }
     return ConvertTouchOffsetToTextOffset(localOffset);
+}
+
+bool RichEditorPattern::CheckAIPreviewMenuEnable()
+{
+    return TextPattern::CheckAIPreviewMenuEnable() && copyOption_ != CopyOptions::None;
 }
 
 void RichEditorPattern::InitAiSelection(const Offset& globalOffset, bool isBetweenSelection)
