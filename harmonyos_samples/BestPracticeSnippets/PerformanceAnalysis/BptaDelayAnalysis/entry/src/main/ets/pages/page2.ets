@@ -23,20 +23,12 @@
 struct TabsNegativeExample {
   // ...
   private controller: TabsController = new TabsController();
-
-
   // ...
-
-
   build() {
     Column() {
       // ...
-
-
       Tabs({ barPosition: BarPosition.Start, controller: this.controller }) {
         // ...
-
-
       }
       .barHeight(0)
       .layoutWeight(1)

@@ -12,7 +12,9 @@ struct NotSetHeightTestPage {
         LazyForEach(this.data, (item: string, index: number) => {
           ListItem() {
             Row() {
-              Text('item value: ' + item + (index + 1)).fontSize(20).margin(10)
+              Text('item value: ' + item + (index + 1))
+                .fontSize(20)
+                .margin(10)
             }
           }
         })
@@ -20,5 +22,4 @@ struct NotSetHeightTestPage {
     }
   }
 }
-
 // [End Case2]

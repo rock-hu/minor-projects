@@ -13,47 +13,34 @@
 * limitations under the License.
 */
 
-/*
-* 最佳实践: 分析帧率问题
-*/
-
 // [Start mydatasource]
 class MyDataSource implements IDataSource {
   private dataArray: string[] = [];
-
 
   public pushData(data: string): void {
     this.dataArray.push(data);
   }
 
-
   public totalCount(): number {
     return this.dataArray.length;
   }
-
 
   public getData(index: number): string {
     return this.dataArray[index];
   }
 
-
   registerDataChangeListener(listener: DataChangeListener): void {
   }
-
 
   unregisterDataChangeListener(listener: DataChangeListener): void {
   }
 }
 
-
 @Entry
 @Component
 struct StackDemo1 {
   // The LazyForEach data initialization process is omitted here.
-
-
   private data: MyDataSource = new MyDataSource();
-
 
   build() {
     List() {
@@ -67,17 +54,14 @@ struct StackDemo1 {
   }
 }
 
-
 @Reusable
 @Component
 struct ChildComponent {
   @State item: string = '';
 
-
   aboutToReuse(params: Record<string, Object>): void {
     this.item = params.item as string;
   }
-
 
   build() {
     Stack() {

@@ -13,12 +13,6 @@
 * limitations under the License.
 */
 
-/*
- * 最佳实践：手势事件冲突解决方案
- *
- * 场景七：手势事件透传
- */
-
 // [Start component_scene4]
 @Entry
 @Component

@@ -18,7 +18,7 @@ import { resourceToString } from '../common/TypeCasting';
 
 @Component
 export struct CardComponent {
-  private cardData?: CardData;
+  cardData?: CardData;
   @State private cardTitle: string = '';
   @State private cardAbstract: string = '';
 

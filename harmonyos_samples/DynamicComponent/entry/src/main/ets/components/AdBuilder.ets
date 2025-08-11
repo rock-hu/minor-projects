@@ -24,7 +24,7 @@ export function adBuilder(param: AdParams) {
 
 @Component
 struct AdComponent {
-  private params ?: AdParams;
+  params ?: AdParams;
   closeAdDialogController: CustomDialogController = new CustomDialogController({
     builder: CloseAdDialog({
       adId: this.params!.id

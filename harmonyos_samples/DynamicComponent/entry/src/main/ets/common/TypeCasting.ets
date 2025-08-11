@@ -14,5 +14,5 @@
  */
 
 export async function resourceToString(uiContext: UIContext, source: Resource): Promise<string> {
-  return uiContext.getHostContext()!.resourceManager.getStringValue(source);
+  return uiContext.getHostContext()!.resourceManager.getStringValue(source.id);
 }

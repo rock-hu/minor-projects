@@ -14,7 +14,7 @@
  */
 
 import { AbilityStage } from '@kit.AbilityKit';
-import Logger from '../model/Logger';
+import Logger from '../util/Logger';
 
 export default class MyAbilityStage extends AbilityStage {
   onCreate() {

@@ -52,5 +52,5 @@ export class CommonConstants {
    * Information Window Title
    */
   static MARKER_TITLE: (uiContext: UIContext) => string = (uiContext: UIContext) =>
-    uiContext.getHostContext()!.resourceManager.getStringSync($r('app.string.geocoded_location'));
+    uiContext.getHostContext()!.resourceManager.getStringByNameSync('geocoded_location');
 }

@@ -13,12 +13,6 @@
 * limitations under the License.
 */
 
-/*
- * 最佳实践：手势事件冲突解决方案
- *
- * 场景五：多点触控场景下手势冲突
- */
-
 // [Start gestures_conflict_scene5]
 @Entry
 @Component

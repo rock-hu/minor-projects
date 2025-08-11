@@ -14,8 +14,8 @@
  */
 // [Start segment1]
 @Builder
-export function PageOneBuilder(name: string, param: Object) {
-  PageOne()
+export function PageOneBuilder() {
+  PageOne();
 }
 
 @Component

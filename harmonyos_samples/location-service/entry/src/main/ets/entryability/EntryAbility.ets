@@ -60,29 +60,34 @@ export default class EntryAbility extends UIAbility {
       }
       hilog.info(0x0000, 'testTag', 'Succeeded in loading the content.');
     });
-    let windowClass: window.Window = windowStage.getMainWindowSync();
 
-    let isLayoutFullScreen = true;
-    windowClass.setWindowLayoutFullScreen(isLayoutFullScreen).then(() => {
-      hilog.info(0x0000, TAG, 'Succeeded in setting the window layout to full-screen mode.');
-    }).catch((err: BusinessError) => {
-      hilog.error(0x0000, TAG, `Failed to set the window layout to full-screen mode. Code is ${err.code}, message is ${err.message}`);
-    });
+    try {
+      let windowClass: window.Window = windowStage.getMainWindowSync();
 
-    let type = window.AvoidAreaType.TYPE_SYSTEM;
-    let avoidArea = windowClass.getWindowAvoidArea(type);
-    let bottomRectHeight = avoidArea.bottomRect.height;
-    AppStorage.setOrCreate('bottomRectHeight', bottomRectHeight);
+      let isLayoutFullScreen = true;
+      windowClass.setWindowLayoutFullScreen(isLayoutFullScreen).then(() => {
+        hilog.info(0x0000, TAG, 'Succeeded in setting the window layout to full-screen mode.');
+      }).catch((err: BusinessError) => {
+        hilog.error(0x0000, TAG, `Failed to set the window layout to full-screen mode. Code is ${err.code}, message is ${err.message}`);
+      });
 
-    windowClass.on('avoidAreaChange', (data) => {
-      if (data.type === window.AvoidAreaType.TYPE_SYSTEM) {
-        let topRectHeight = data.area.topRect.height;
-        AppStorage.setOrCreate('topRectHeight', topRectHeight);
-      } else if (data.type === window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR) {
-        let bottomRectHeight = data.area.bottomRect.height;
-        AppStorage.setOrCreate('bottomRectHeight', bottomRectHeight);
-      }
-    });
+      let type = window.AvoidAreaType.TYPE_SYSTEM;
+      let avoidArea = windowClass.getWindowAvoidArea(type);
+      let bottomRectHeight = avoidArea.bottomRect.height;
+      AppStorage.setOrCreate('bottomRectHeight', bottomRectHeight);
+
+      windowClass.on('avoidAreaChange', (data) => {
+        if (data.type === window.AvoidAreaType.TYPE_SYSTEM) {
+          let topRectHeight = data.area.topRect.height;
+          AppStorage.setOrCreate('topRectHeight', topRectHeight);
+        } else if (data.type === window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR) {
+          let bottomRectHeight = data.area.bottomRect.height;
+          AppStorage.setOrCreate('bottomRectHeight', bottomRectHeight);
+        }
+      });
+    } catch (error) {
+      hilog.error(0x0000, TAG, `onWindowStageCreate catch error, code: ${error.code}, message: ${error.message}`);
+    }
   }
 
   onWindowStageDestroy() {

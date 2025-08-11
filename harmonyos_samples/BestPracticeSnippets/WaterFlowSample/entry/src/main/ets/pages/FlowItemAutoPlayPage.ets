@@ -1,5 +1,6 @@
 // [Start quick_start]
 import { hilog } from '@kit.PerformanceAnalysisKit';
+import { CommonConstants } from '../common/constants/CommonConstants';
 import MediaItem, { ItemType } from '../model/MediaItem';
 import { StickyWaterFlowDataSource } from '../model/StickyWaterFlowDataSource';
 
@@ -96,28 +97,27 @@ struct FlowVideoItem {
 // [StartExclude water_flow_init]
 @Entry
 @Component
-export struct StickyPage {
+struct FlowItemAutoPlayPage {
   @State arr: number[] = [1, 2, 3, 4, 5, 6];
   @State colors: number[] = [0xFFC0CB, 0xDA70D6, 0x6B8E23, 0x6A5ACD, 0x00FFFF, 0x00FF7F];
   @State scrollOffset: number = 0;
   @State minSize: number = 80;
   @State maxSize: number = 210;
   @State sections: WaterFlowSections = new WaterFlowSections();
+  @StorageProp(CommonConstants.AS_KEY_STATUS_BAR_HEIGHT) statusBarHeight: number = 0;
   scroller: Scroller = new Scroller();
   dataSource: StickyWaterFlowDataSource = new StickyWaterFlowDataSource();
   private itemWidthArray: number[] = [];
   private itemHeightArray: number[] = [];
   sectionMargin: Margin = {
     top: 8,
-    left: 8,
+    left: 16,
     bottom: 0,
-    right: 8
-  }
+    right: 16
+  };
   oneColumnSection: SectionOptions = {
     itemsCount: 3,
     crossCount: 1,
-    columnsGap: 5,
-    rowsGap: 10,
     margin: this.sectionMargin,
     onGetItemMainSizeByIndex: (index: number) => {
       if (index === 1) {
@@ -176,7 +176,14 @@ export struct StickyPage {
   }
 
   build() {
-    Stack({ alignContent: Alignment.TopStart }) {
+    Column() {
+      Row() {
+        Text($r('app.string.scroll_stop_auto_play'))
+          .width('100%')
+          .fontSize(24)
+          .fontWeight(FontWeight.Bold)
+          .margin({ top: '18vp', left: '16vp', bottom: '16vp'})
+      }
       WaterFlow({ scroller: this.scroller, sections: this.sections }) {
         LazyForEach(this.dataSource, (item: MediaItem) => {
           FlowItem() {
@@ -191,7 +198,13 @@ export struct StickyPage {
       .columnsTemplate('1fr 1fr')
       .columnsGap(8)
       .rowsGap(8)
+      .width('100%')
+      .height('100%')
+      .layoutWeight(1)
     }
+    .padding({
+      top: this.statusBarHeight
+    })
   }
 }
 // [EndExclude water_flow_init]

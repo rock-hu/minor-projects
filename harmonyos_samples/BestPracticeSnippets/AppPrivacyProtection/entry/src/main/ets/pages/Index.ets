@@ -48,6 +48,9 @@ struct Index {
         })
     } else {
       Logger.info('request permissions granted');
+      this.getUIContext().getPromptAction().showToast({
+        message: 'request permissions has granted'
+      });
     }
   }
 

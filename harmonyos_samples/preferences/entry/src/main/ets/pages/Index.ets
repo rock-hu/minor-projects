@@ -15,7 +15,7 @@
 
 import { emitter } from '@kit.BasicServicesKit';
 import { preferences } from '@kit.ArkData';
-import Logger from '../model/Logger';
+import Logger from '../util/Logger';
 import ThemeDesktop from '../common/ThemeDesktop';
 
 export interface ImageAndName {

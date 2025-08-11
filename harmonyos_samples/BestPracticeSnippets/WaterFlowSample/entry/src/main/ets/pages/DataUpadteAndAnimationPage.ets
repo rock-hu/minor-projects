@@ -1,4 +1,5 @@
 // [Start quick_start]
+import { CommonConstants } from "../common/constants/CommonConstants";
 import { SectionsWaterFlowDataSource } from "../model/SectionsWaterFlowDataSource";
 // [StartExclude flow_item_layout]
 @Reusable
@@ -22,7 +23,6 @@ struct ReusableFlowItem {
           left: { anchor: '__container__', align: HorizontalAlign.Start },
           right: { anchor: '__container__', align: HorizontalAlign.End }
         })
-        .id('image1')
 
       Stack() {
       }
@@ -40,7 +40,6 @@ struct ReusableFlowItem {
         left: { anchor: '__container__', align: HorizontalAlign.Start },
         right: { anchor: '__container__', align: HorizontalAlign.End }
       })
-      .id('mask1')
 
       Text('NO. ' + (this.item + 1))
         .fontSize(12)
@@ -53,7 +52,6 @@ struct ReusableFlowItem {
           left: 8,
           bottom: 4
         })
-        .id('text1')
     }
     .width('100%')
     .borderRadius(8)
@@ -63,7 +61,7 @@ struct ReusableFlowItem {
 // [EndExclude flow_item_layout]
 @Entry
 @Component
-export struct DataUpadteAndAnimationPage {
+struct DataUpadteAndAnimationPage {
   @State isRefreshing: boolean = false;
   @State currentItem: number = -1;
   // [StartExclude variable_declare]
@@ -73,12 +71,14 @@ export struct DataUpadteAndAnimationPage {
   dataSource: SectionsWaterFlowDataSource = new SectionsWaterFlowDataSource();
   private itemHeightArray: number[] = [];
   @State sections: WaterFlowSections = new WaterFlowSections();
+  @StorageProp(CommonConstants.AS_KEY_STATUS_BAR_HEIGHT) statusBarHeight: number = 0;
+
   sectionMargin: Margin = {
     top: 8,
-    left: 0,
+    left: 16,
     bottom: 0,
-    right: 0
-  }
+    right: 16
+  };
   oneColumnSection: SectionOptions = {
     itemsCount: 3,
     crossCount: 1,
@@ -88,7 +88,7 @@ export struct DataUpadteAndAnimationPage {
     onGetItemMainSizeByIndex: (index: number) => {
       return 170;
     }
-  }
+  };
   twoColumnSection: SectionOptions = {
     itemsCount: 2,
     crossCount: 2,
@@ -96,7 +96,7 @@ export struct DataUpadteAndAnimationPage {
     onGetItemMainSizeByIndex: (index: number) => {
       return 100;
     }
-  }
+  };
   dataSection: SectionOptions = {
     itemsCount: 20,
     crossCount: 2,
@@ -104,7 +104,7 @@ export struct DataUpadteAndAnimationPage {
     onGetItemMainSizeByIndex: (index: number) => {
       return this.itemHeightArray[index % 100];
     }
-  }
+  };
   // [EndExclude variable_declare]
   // 1、Refresh Loading Animation Component.
   @Builder
@@ -220,6 +220,13 @@ export struct DataUpadteAndAnimationPage {
   // [EndExclude section_init]
   build() {
     Column({ space: 0 }) {
+      Row() {
+        Text($r('app.string.pull_down_refresh'))
+          .width('100%')
+          .fontSize(24)
+          .fontWeight(FontWeight.Bold)
+          .margin({ top: '18vp', left: '16vp', bottom: '8vp'})
+      }
       // 2、Pull-to-refresh control.
       Refresh({ refreshing: $$this.isRefreshing, builder: this.headerRefresh()}) {
         // [StartExclude water_flow_init]
@@ -276,6 +283,9 @@ export struct DataUpadteAndAnimationPage {
         this.refresh();
       })
     }
+    .padding({
+      top: this.statusBarHeight
+    })
   }
 }
 // [End quick_start]

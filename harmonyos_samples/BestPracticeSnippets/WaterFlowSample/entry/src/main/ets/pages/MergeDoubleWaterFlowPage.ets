@@ -1,4 +1,5 @@
 // [Start quick_start]
+import { CommonConstants } from '../common/constants/CommonConstants';
 import { MyDataSource } from '../model/MyDataSource'
 
 @Entry
@@ -12,12 +13,13 @@ struct MergeDoubleWaterFlowPage {
   private data: MyDataSource = new MyDataSource();
   private itemHeightArray: number[] = [];
   @State sections: WaterFlowSections = new WaterFlowSections();
+  @StorageProp(CommonConstants.AS_KEY_STATUS_BAR_HEIGHT) statusBarHeight: number = 0;
   sectionMargin: Margin = {
-    top: 10,
-    left: 5,
-    bottom: 10,
-    right: 5
-  }
+    top: 8,
+    left: 16,
+    bottom: 8,
+    right: 16
+  };
   oneColumnSection: SectionOptions = {
     itemsCount: 21,
     crossCount: 2,
@@ -27,7 +29,7 @@ struct MergeDoubleWaterFlowPage {
     onGetItemMainSizeByIndex: (index: number) => {
       return this.itemHeightArray[index % 100];
     }
-  }
+  };
   twoColumnSection: SectionOptions = {
     itemsCount: 1,
     crossCount: 1,
@@ -36,14 +38,15 @@ struct MergeDoubleWaterFlowPage {
     onGetItemMainSizeByIndex: (index: number) => {
       return this.itemHeightArray[index % 100];
     }
-  }
+  };
   lastSection: SectionOptions = {
     itemsCount: 78,
     crossCount: 2,
+    margin: this.sectionMargin,
     onGetItemMainSizeByIndex: (index: number) => {
       return this.itemHeightArray[index % 100];
     }
-  }
+  };
 
   getSize() {
     let ret = Math.floor(Math.random() * this.maxSize);
@@ -70,18 +73,25 @@ struct MergeDoubleWaterFlowPage {
   // [EndExclude data_init]
   build() {
     Column({ space: 2 }) {
+      Row() {
+        Text($r('app.string.merge_double_waterflow'))
+          .width('100%')
+          .fontSize(24)
+          .fontWeight(FontWeight.Bold)
+          .margin({ top: '18vp', left: '16vp', bottom: '12vp'})
+      }
       WaterFlow({ scroller: this.scroller, sections: this.sections }) {
         LazyForEach(this.data, (item: number) => {
           FlowItem() {
             if (item === 21) {
               // 1、This is the content for stitching the item.
               Column() {
-                Text('------推荐商品------')
-                  .align(Alignment.BottomStart)
+                Text($r('app.string.recommend_goods'))
+                  .align(Alignment.Center)
                   .width('100%')
+                  .margin({ left: 16, top: 24, bottom: 24 })
                   .fontSize(24)
                   .fontWeight(FontWeight.Bold)
-                  .height(50)
               }
             } else {
               // 2、Other data within WaterFlow.
@@ -90,7 +100,7 @@ struct MergeDoubleWaterFlowPage {
                   .fontSize(12)
                   .height('16vp')
                 Image($rawfile(`sections/${item % 4}.jpg`))
-                  .objectFit(ImageFit.Fill)
+                  .objectFit(ImageFit.Cover)
                   .width('100%')
                   .layoutWeight(1)
               }
@@ -99,7 +109,16 @@ struct MergeDoubleWaterFlowPage {
           .width('100%')
         }, (item: number) => item.toString())
       }
+      .cachedCount(10)
+      .rowsGap(5)
+      .backgroundColor('#efefef')
+      .width('100%')
+      .height('100%')
     }
+    .padding({
+      top: this.statusBarHeight
+    })
+    .backgroundColor('#efefef')
   }
 }
 // [End quick_start]

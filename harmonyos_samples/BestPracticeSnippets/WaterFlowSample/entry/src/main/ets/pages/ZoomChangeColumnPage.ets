@@ -1,6 +1,8 @@
 // [Start quick_start]
 import { MyDataSource } from '../model/MyDataSource'
 import { image } from '@kit.ImageKit';
+import { CommonConstants } from '../common/constants/CommonConstants';
+
 // [StartExclude flow_item]
 @Reusable
 @Component
@@ -18,7 +20,7 @@ struct ReusableItem {
         .fontSize(12)
         .height('16vp')
       Image($rawfile(`sections/${this.item % 4}.jpg`))
-        .objectFit(ImageFit.Fill)
+        .objectFit(ImageFit.Cover)
         .width('100%')
         .layoutWeight(1)
     }
@@ -29,7 +31,7 @@ struct ReusableItem {
 @Component
 struct ZoomChangeColumnPage {
   // [StartExclude variable_declare]
-  @State minSize: number = 80
+  @State minSize: number = 120
   @State maxSize: number = 210;
   @State fontSize: number = 24;
   @State colors: number[] = [0xFFC0CB, 0xDA70D6, 0x6B8E23, 0x6A5ACD, 0x00FFFF, 0x00FF7E];
@@ -45,9 +47,11 @@ struct ZoomChangeColumnPage {
   @State gestureEnd: boolean = false;
   @State pixelMap: image.PixelMap | undefined = undefined;
   @State columns: number = 4;
+  @StorageProp(CommonConstants.AS_KEY_STATUS_BAR_HEIGHT) statusBarHeight: number = 0;
   private pinchTime: number = 0;
   private columnChanged: boolean = false;
   private oldColumn: number = this.columns;
+
   // [StartExclude section_init]
   getSize() {
     let ret = Math.floor(Math.random() * this.maxSize);
@@ -89,12 +93,11 @@ struct ZoomChangeColumnPage {
     Column({ space: 2 }) {
       // [StartExclude title]
       Row() {
-        Text('双指缩放改变列数')
+        Text($r('app.string.zoom_change_column'))
           .width('100%')
-          .height('5%')
           .fontSize(24)
           .fontWeight(FontWeight.Bold)
-          .margin({ top: 10, left: 16 })
+          .margin({ top: '18vp', left: '16vp', bottom: '16vp' })
       }
       // [EndExclude title]
       Stack() {
@@ -190,6 +193,9 @@ struct ZoomChangeColumnPage {
       .width('100%')
       .height('100%')
     }
+    .padding({
+      top: this.statusBarHeight
+    })
   }
 }
 // [End quick_start]

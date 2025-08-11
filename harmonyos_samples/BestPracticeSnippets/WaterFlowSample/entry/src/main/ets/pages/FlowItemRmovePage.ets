@@ -22,7 +22,6 @@ struct ReusableFlowItem {
           left: { anchor: '__container__', align: HorizontalAlign.Start },
           right: { anchor: '__container__', align: HorizontalAlign.End }
         })
-        .id('image1')
 
       Stack() {
       }
@@ -40,7 +39,6 @@ struct ReusableFlowItem {
         left: { anchor: '__container__', align: HorizontalAlign.Start },
         right: { anchor: '__container__', align: HorizontalAlign.End }
       })
-      .id('mask1')
 
       Text('NO. ' + (this.item + 1))
         .fontSize(12)
@@ -53,7 +51,6 @@ struct ReusableFlowItem {
           left: 8,
           bottom: 4
         })
-        .id('text1')
     }
     .width('100%')
     .borderRadius(8)
@@ -63,7 +60,7 @@ struct ReusableFlowItem {
 // [EndExclude flow_item_layout]
 @Entry
 @Component
-export struct FlowItemRmoveAnimationPage {
+struct FlowItemRmoveAnimationPage {
   // 1、Select the index of the FlowItem.
   @State currentItem: number = -1;
 

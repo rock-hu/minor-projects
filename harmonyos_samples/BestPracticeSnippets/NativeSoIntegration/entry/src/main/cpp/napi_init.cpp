@@ -51,6 +51,7 @@ static napi_value Add(napi_env env, napi_callback_info info) {
 // [Start  NAPI_Global_nativeSub]
 // src/main/cpp/napi_init.cpp
 #include "dlfcn.h"
+#include <cstring>    
 typedef double (*Sub)(double, double);
 static napi_value NAPI_Global_nativeSub(napi_env env, napi_callback_info info) {
     size_t argc = 3;

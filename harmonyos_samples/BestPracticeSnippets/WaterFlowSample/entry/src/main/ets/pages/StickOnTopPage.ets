@@ -1,5 +1,6 @@
 // [Start quick_start]
 import { hilog } from '@kit.PerformanceAnalysisKit';
+import { CommonConstants } from '../common/constants/CommonConstants';
 import MediaItem, { ItemType } from '../model/MediaItem';
 import { StickyWaterFlowDataSource } from '../model/StickyWaterFlowDataSource';
 
@@ -51,7 +52,6 @@ struct FlowVideoItem {
             left: { anchor: '__container__', align: HorizontalAlign.Start },
             right: { anchor: '__container__', align: HorizontalAlign.End }
           })
-          .id('image')
 
         Stack() {}
         .linearGradient({
@@ -68,7 +68,6 @@ struct FlowVideoItem {
           left: { anchor: '__container__', align: HorizontalAlign.Start },
           right: { anchor: '__container__', align: HorizontalAlign.End }
         })
-        .id('mask')
 
         Text('NO. ' + (this.item.id + 1))
           .fontSize(12)
@@ -81,7 +80,6 @@ struct FlowVideoItem {
             left: 8,
             bottom: 4
           })
-          .id('text')
       }
       .width('100%')
       .borderRadius(8)
@@ -98,6 +96,7 @@ export struct StickyPage {
   @State minSize: number = 80;
   @State maxSize: number = 210;
   @State sections: WaterFlowSections = new WaterFlowSections();
+  @State isFoldStatus: boolean = true;
   scroller: Scroller = new Scroller();
   dataSource: StickyWaterFlowDataSource = new StickyWaterFlowDataSource();
   private itemWidthArray: number[] = [];
@@ -105,18 +104,17 @@ export struct StickyPage {
   // [EndExclude variable_declare]
   // 1、Define the height of the ceiling layout.
   @State scrollOffset: number = 0;
-  private stick_item_height: number = 100;
+  private stick_item_height: number = 90;
+  sectionMargin: Margin = {
+    top: 8,
+    left: 16,
+    bottom: 0,
+    right: 16
+  };
   oneColumnSection: SectionOptions = {
     itemsCount: 3,
     crossCount: 1,
-    columnsGap: 5,
-    rowsGap: 10,
-    margin: {
-      top: 8,
-      left: 0,
-      bottom: 8,
-      right: 0
-    },
+    margin: this.sectionMargin,
     onGetItemMainSizeByIndex: (index: number) => {
       if (index === 1) {
         // 2、Set the ceiling layout height in the group.
@@ -129,6 +127,7 @@ export struct StickyPage {
   twoColumnSection: SectionOptions = {
     itemsCount: 2,
     crossCount: 2,
+    margin: this.sectionMargin,
     onGetItemMainSizeByIndex: (index: number) => {
       return 250;
     }
@@ -179,16 +178,19 @@ export struct StickyPage {
         LazyForEach(this.dataSource, (item: MediaItem) => {
           FlowItem() {
             // 3、A location is reserved for the ceiling part, and the ceiling position is at the second element location, so the id is 1.
-            if (item.id != 1) {
-              FlowVideoItem({ item: item })
-            }
+            FlowVideoItem({ item: item })
           }
           .width('100%')
-          .height(this.itemHeightArray[item.id % 100])
           .backgroundColor(Color.White)
         }, (item: MediaItem) => item.id.toString())
       }
+      .cachedCount(12)
       .columnsTemplate('1fr 1fr')
+      .columnsGap(8)
+      .rowsGap(8)
+      .width('100%')
+      .height('100%')
+      .layoutWeight(1)
       .onWillScroll((offset: number) => {
         // 4、Listen to the waterfall scrolling event.
         this.scrollOffset = this.scroller.currentOffset().yOffset + offset;
@@ -222,6 +224,10 @@ export struct StickyPage {
                 .align(Alignment.Center)
               }, (item: string) => item.toString())
             }
+            .padding({
+              left: 16,
+              right: 16
+            })
           }
           .width('100%')
           .scrollBar(BarState.Off)
@@ -230,12 +236,12 @@ export struct StickyPage {
           .padding({ top: 8 })
 
           Row() {
-            Select([{ value: '距离' },
+            Select([{ value: $r('app.string.distance') },
               { value: '<1km' },
               { value: '<5km' },
               { value: '>5km' }])
               .selected(1)
-              .value('距离')
+              .value($r('app.string.distance'))
               .font({
                 size: 16,
                 family: 'serif',
@@ -253,12 +259,12 @@ export struct StickyPage {
                 style: FontStyle.Normal
               })
               .backgroundColor('#12000000')
-            Select([{ value: '分类' },
-              { value: '餐饮' },
-              { value: '休闲' },
-              { value: '娱乐' }])
+            Select([{ value: $r('app.string.category') },
+              { value: $r('app.string.food') },
+              { value: $r('app.string.leisure') },
+              { value: $r('app.string.amusement') }])
               .selected(1)
-              .value('分类')
+              .value($r('app.string.category'))
               .font({
                 size: 16,
                 family: 'serif',
@@ -277,12 +283,12 @@ export struct StickyPage {
               })
               .backgroundColor('#12000000')
               .margin({ left: 8 })
-            Select([{ value: '排序' },
+            Select([{ value: $r('app.string.sort') },
               { value: '1' },
               { value: '2' },
               { value: '3' }])
               .selected(1)
-              .value('排序')
+              .value($r('app.string.sort'))
               .font({
                 size: 16,
                 family: 'serif',
@@ -303,17 +309,24 @@ export struct StickyPage {
               .margin({ left: 8 })
 
           }
+          .justifyContent(this.isFoldStatus ? FlexAlign.Start : FlexAlign.Center)
           .backgroundColor(Color.White)
           .width('100%')
-          .padding({ top: 8, bottom: 8 })
+          .padding({
+            top: 8,
+            bottom: 8,
+            left: 16,
+            right: 16
+          })
         }.alignItems(HorizontalAlign.Start)
         // [EndExclude stick_content]
       }
       .width('100%')
-      .height(this.stick_item_height)
+      .height(100)
+      .backgroundColor(Color.White)
       .hitTestBehavior(HitTestMode.Transparent)
       // 5、Dynamically adjust the sticky position according to the waterfall flow sliding offset.
-      .position({ x: 0, y: this.scrollOffset >= 220 ? 0 : 220 - this.scrollOffset })
+      .position({ x: 0, y: this.scrollOffset >= 210 ? 0 : 210 - this.scrollOffset })
     }
   }
 }
@@ -326,6 +339,7 @@ struct StickOnTopPage {
   @State tabsIndex: number = 0;
   tabsController: TabsController = new TabsController();
   controller: SearchController = new SearchController();
+  @StorageProp(CommonConstants.AS_KEY_STATUS_BAR_HEIGHT) statusBarHeight: number = 0;
 
   @Builder
   tabBuilder(index: number, name: string | Resource) {
@@ -339,13 +353,12 @@ struct StickOnTopPage {
         .padding({ left: 16, right: 16 })
         .backgroundColor(this.tabsIndex === index ? '#0A59F7' : '#12000000')
         .borderRadius(21)
-
     }
     .padding({
       top: 10,
       bottom: 10,
-      left: 0,
-      right: 8
+      left: 16,
+      right: 16
     })
     .justifyContent(FlexAlign.Center)
     .height(56)
@@ -385,43 +398,42 @@ struct StickOnTopPage {
         TabContent() {
           StickyPage()
         }
-        .tabBar(this.tabBuilder(0, '综合'))
+        .tabBar(this.tabBuilder(0, $r('app.string.synthesis')))
 
         TabContent() {
           StickyPage()
         }
-        .tabBar(this.tabBuilder(1, '商户'))
+        .tabBar(this.tabBuilder(1, $r('app.string.businesses')))
 
         TabContent() {
           StickyPage()
         }
-        .tabBar(this.tabBuilder(2, '笔记'))
+        .tabBar(this.tabBuilder(2, $r('app.string.note')))
 
         TabContent() {
           StickyPage()
         }
-        .tabBar(this.tabBuilder(3, '团购'))
+        .tabBar(this.tabBuilder(3, $r('app.string.buy')))
 
         TabContent() {
           StickyPage()
         }
-        .tabBar(this.tabBuilder(4, '用户'))
+        .tabBar(this.tabBuilder(4, $r('app.string.user')))
 
         TabContent() {
           StickyPage()
         }
-        .tabBar(this.tabBuilder(5, '其他'))
+        .tabBar(this.tabBuilder(5, $r('app.string.other')))
       }
-      .padding({
-        left: 16,
-        right: 16
-      })
       .scrollable(true)
       .barMode(BarMode.Scrollable)
       .onChange((index: number) => {
         this.tabsIndex = index;
       })
     }
+    .padding({
+      top: this.statusBarHeight
+    })
   }
 }
 // [EndExclude homepage]

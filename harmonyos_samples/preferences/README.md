@@ -2,7 +2,7 @@
 
 ### 简介
 
-本示例使用@ohos.data.preferences接口，展示了使用首选项持久化存储数据的功能。帮助开发者实现主题切换且主题数据缓存读取的场景。
+本示例使用@kit.ArkData中的@ohos.data.preferences接口，展示了使用首选项持久化存储数据的功能。帮助开发者实现主题切换且主题数据缓存读取的场景。
 
 ### 效果预览 
 
@@ -25,12 +25,11 @@
 │  │  └──ThemeDesktop.ets             // 首页主体内容
 │  ├──mainability
 │  │  └──MainAbility.ets
-│  ├──model
-│  │  └──Logger.ets                   // 日志文件
 │  ├──pages
 │  │  └──Index.ets                    // 首页，所有的接口和数据都封装在这里
 │  └──util
-│     └──DataSource.ets               // 数据懒加载
+│     ├──DataSource.ets               // 数据懒加载
+│     └──Logger.ets                   // 日志文件
 └──entry/src/main/resources           // 应用静态资源目录
 ```
 

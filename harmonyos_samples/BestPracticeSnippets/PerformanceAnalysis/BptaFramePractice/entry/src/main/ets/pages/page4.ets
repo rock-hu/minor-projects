@@ -13,21 +13,15 @@
 * limitations under the License.
 */
 
-/*
-* 最佳实践: 分析帧率问题
-*/
-
 // [Start child_component]
 @Reusable
 @Component
 struct ChildComponent {
   @State item: string = '';
 
-
   aboutToReuse(params: Record<string, Object>): void {
     this.item = params.item as string;
   }
-
 
   build() {
     Stack() {

@@ -77,6 +77,6 @@ export struct MainPage {
   }
 
   ResourceToString(resource:Resource):string{
-    return this.getUIContext().getHostContext()!.resourceManager.getStringSync(resource);
+    return this.getUIContext().getHostContext()!.resourceManager.getStringSync(resource.id);
   }
 }

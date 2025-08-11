@@ -13,13 +13,6 @@
 * limitations under the License.
 */
 
-/*
- * 最佳实践：手势事件冲突解决方案
- *
- * 场景二：使用组合手势同时绑定多个同类型手势冲突
- * 冲突解决后代码
- */
-
 @Entry
 @Component
 struct GesturesConflictScene21 {

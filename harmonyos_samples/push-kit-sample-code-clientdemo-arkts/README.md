@@ -11,9 +11,9 @@
 - pushService：本模块提供Push Kit的基础能力，包括获取和删除Push Token、绑定和解绑账号和接收场景化消息的功能。
 
 ## 效果预览
-| 申请Token页面                       | 成功申请Token                      | 点击通知进入应用内页                              | 应用在前台时展示通知扩展消息                       |
+| 申请Token页面                       | 成功申请Token                      | 点击通知进入应用内页                              | 展示通知扩展消息                       |
 |---------------------------------|--------------------------------|-----------------------------------------|--------------------------------------|
-| ![](./screenshots/getToken.PNG) | ![](./screenshots/success.PNG) | ![](./screenshots/clickLandingPage.png) | ![](./screenshots/extendedToast.png) |
+| ![](./screenshots/getToken.png) | ![](./screenshots/success.png) | ![](./screenshots/clickLandingPage.png) | ![](./screenshots/extendedToast.png) |
 
 ## 工程目录
 

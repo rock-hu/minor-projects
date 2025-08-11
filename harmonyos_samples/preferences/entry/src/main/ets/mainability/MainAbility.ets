@@ -15,7 +15,7 @@
 
 import { UIAbility,AbilityConstant,Want } from '@kit.AbilityKit';
 import { window } from '@kit.ArkUI';
-import Logger from '../model/Logger';
+import Logger from '../util/Logger';
 
 const TAG: string = '[MainAbility]';
 

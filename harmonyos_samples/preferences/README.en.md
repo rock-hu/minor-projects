@@ -25,12 +25,11 @@ This sample shows how to use the APIs provided by the @ohos.data.preferences mod
 │  │  └──ThemeDesktop.ets             // Content of the home page
 │  ├──mainability
 │  │  └──MainAbility.ets
-│  ├──model
-│  │  └──Logger.ets                   // Log file
 │  ├──pages
 │  │  └──Index.ets                    // Home page, which contains all the APIs and data.
 │  └──util
-│     └──DataSource.ets               // Data to be loaded in lazy loading mode
+│     ├──DataSource.ets               // Data to be loaded in lazy loading mode
+│     └──Logger.ets                   // Log file
 └──entry/src/main/resources           // Static resources of the app
 ```
 

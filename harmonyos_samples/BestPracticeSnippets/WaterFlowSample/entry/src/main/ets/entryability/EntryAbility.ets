@@ -1,6 +1,7 @@
 import { AbilityConstant, ConfigurationConstant, UIAbility, Want } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { window } from '@kit.ArkUI';
+import { WindowUtil } from '../utils/WindowUtil';
 
 const DOMAIN = 0x0000;
 
@@ -25,13 +26,18 @@ export default class EntryAbility extends UIAbility {
     path = 'pages/FlowItemAutoPlayPage';
     path = 'pages/StickOnTopPage';
     path = 'pages/SectionOptionsUsePage';
-    path = 'pages/ElementByOrderPage';
+    path = 'pages/DataUpadteAndAnimationPage';
+    path = 'pages/FadingEdgePage';
+    path = 'pages/ElementByOrderPage'
+    path = 'pages/DataLoadMorePage';
+    path = 'pages/FlowItemRmoveAnimationPage';
 
     windowStage.loadContent(path, (err) => {
       if (err.code) {
         hilog.error(DOMAIN, 'testTag', 'Failed to load the content. Cause: %{public}s', JSON.stringify(err));
         return;
       }
+      WindowUtil.initialize(windowStage);
       hilog.info(DOMAIN, 'testTag', 'Succeeded in loading the content.');
     });
   }

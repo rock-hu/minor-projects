@@ -83,14 +83,14 @@ struct Index {
           Button($r('app.string.native_so_add'))
             .customButtonStyle()
             .onClick(() => {
-              let content = this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.native_so_content'));
+              let content = this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.native_so_content').id);
               // Integrate the SO library on the Native side directly to complete the addition operation
               // [Start test_napi_native_add]
               // Verify the calculation result of the addition so library on the ArkTS side
               let result = testNapi.nativeAdd(Number(this.paramX), Number(this.paramY));
               // [End test_napi_native_add]
               if (this.paramX === '' || this.paramY === '') {
-                this.customToast(this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.input_alert')));
+                this.customToast(this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.input_alert').id));
               } else {
                 this.customToast(`${content}${result.toString()}`);
               }
@@ -98,7 +98,7 @@ struct Index {
           Button($r('app.string.native_so_dlopen_sub'))
             .customButtonStyle()
             .onClick(() => {
-              let content = this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.native_so_dlopen_content'));
+              let content = this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.native_so_dlopen_content').id);
               // [Start get_context_bundle_code_dir]
               let projectPath = this.getUIContext().getHostContext()!.bundleCodeDir; // Get the project path
               let abiPath = deviceInfo.abiList === 'x86_64' ? 'x86_64' : 'arm64';
@@ -110,7 +110,7 @@ struct Index {
               let result = testNapi.nativeSub(Number(this.paramX), Number(this.paramY), soLibPath);
               // [End test_napi_native_sub]
               if (this.paramX === '' || this.paramY === '') {
-                this.customToast(this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.input_alert')));
+                this.customToast(this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.input_alert').id));
               } else {
                 this.customToast(`${content}${result.toString()}`);
               }
@@ -118,14 +118,14 @@ struct Index {
           Button($r('app.string.arkts_so_multiply'))
             .customButtonStyle()
             .onClick(() => {
-              let content = this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.arkts_so_content'));
+              let content = this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.arkts_so_content').id);
               // Integrate the SO library that has been adapted to Native On the ArkTS side to complete the multiplication operation
               // [Start multiply_napi_multiply]
               // Multiply directly using the so library that has been adapted to Native
               let result = multiplyNapi.multiply(Number(this.paramX), Number(this.paramY));
               // [End multiply_napi_multiply]
               if (this.paramX === '' || this.paramY === '') {
-                this.customToast(this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.input_alert')));
+                this.customToast(this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.input_alert').id));
               } else {
                 this.customToast(`${content}${result.toString()}`);
               }

@@ -11,6 +11,7 @@
     "pages/StickOnTopPage",
     "pages/ForceShowOnTopLeftPage",
     "pages/MergeDoubleWaterFlowPage",
-    "pages/ZoomChangeColumnPage"
+    "pages/ZoomChangeColumnPage",
+    "pages/FadingEdgePage"
   ]
 }

@@ -25,7 +25,6 @@ struct TabsPositiveExample {
   private controller: TabsController = new TabsController();
   private list: string[] = ['green', 'blue', 'yellow', 'pink'];
 
-
   @Builder
   customContent(color: Color) {
     Column()
@@ -33,7 +32,6 @@ struct TabsPositiveExample {
       .height('100%')
       .backgroundColor(color)
   }
-
 
   build() {
     Column() {
@@ -54,24 +52,16 @@ struct TabsPositiveExample {
         }, (item: string, index: number) => JSON.stringify(item) + index)
       }
       .margin(10)
-
-
       Tabs({ barPosition: BarPosition.Start, controller: this.controller }) {
         TabContent() {
           this.customContent(Color.Green)
         }
-
-
         TabContent() {
           this.customContent(Color.Blue)
         }
-
-
         TabContent() {
           this.customContent(Color.Yellow)
         }
-
-
         TabContent() {
           this.customContent(Color.Pink)
         }

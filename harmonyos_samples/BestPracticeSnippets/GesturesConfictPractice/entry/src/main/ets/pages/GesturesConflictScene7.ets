@@ -13,12 +13,6 @@
 * limitations under the License.
 */
 
-/*
- * 最佳实践：手势事件冲突解决方案
- *
- * 场景七：父组件如何管理子组件手势
- */
-
 // [Start gestures_conflict_scene7]
 @Entry
 @Component

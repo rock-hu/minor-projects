@@ -27,7 +27,7 @@ struct PickerDemo {
   build() {
     RelativeContainer() {
       Image(this.imageUri)
-        .width('100%')
+        .width('60%')
         .margin({ bottom: 12 })
         .alignRules({
           center: { anchor: '__container__', align: VerticalAlign.Center },
@@ -39,7 +39,7 @@ struct PickerDemo {
         .width('100%')
         .margin({ bottom: 44 })
         .alignRules({
-          center: { anchor: '__container__', align: VerticalAlign.Center },
+          center: { anchor: '__container__', align: VerticalAlign.Bottom },
           middle: { anchor: '__container__', align: HorizontalAlign.Center }
         })
         .onClick(() => {

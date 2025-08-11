@@ -1,4 +1,5 @@
 // [Start quick_start]
+import { CommonConstants } from "../common/constants/CommonConstants";
 import { SectionsWaterFlowDataSource } from "../model/SectionsWaterFlowDataSource";
 // [StartExclude flow_item_layout]
 @Reusable
@@ -63,7 +64,7 @@ struct ReusableFlowItem {
 // [EndExclude flow_item_layout]
 @Entry
 @Component
-export struct DataLoadMorePage {
+struct DataLoadMorePage {
   @State sections: WaterFlowSections = new WaterFlowSections();
   dataSource: SectionsWaterFlowDataSource = new SectionsWaterFlowDataSource();
   // [StartExclude variable_declare]
@@ -71,13 +72,14 @@ export struct DataLoadMorePage {
   @State currentItem: number = -1;
   @State minSize: number = 80;
   @State maxSize: number = 180;
+  @StorageProp(CommonConstants.AS_KEY_STATUS_BAR_HEIGHT) statusBarHeight: number = 0;
   scroller: Scroller = new Scroller();
   private itemHeightArray: number[] = [];
   sectionMargin: Margin = {
     top: 8,
-    left: 0,
+    left: 16,
     bottom: 0,
-    right: 0
+    right: 16
   }
   oneColumnSection: SectionOptions = {
     itemsCount: 3,
@@ -270,6 +272,9 @@ export struct DataLoadMorePage {
       })
       // [EndExclude refresh]
     }
+    .padding({
+      top: this.statusBarHeight
+    })
   }
 }
 // [End quick_start]

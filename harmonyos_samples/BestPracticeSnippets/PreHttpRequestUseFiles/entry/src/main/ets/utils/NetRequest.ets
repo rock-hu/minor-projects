@@ -40,7 +40,7 @@ export async function httpRequest() {
             if (http.ResponseCode.OK === data.responseCode) {
               const imageData: ArrayBuffer = data.result as ArrayBuffer;
               // Save the image to the app sandbox
-              readWriteFileWithStream(imageData)
+              readWriteFileWithStream(imageData);
             }
           }
         )

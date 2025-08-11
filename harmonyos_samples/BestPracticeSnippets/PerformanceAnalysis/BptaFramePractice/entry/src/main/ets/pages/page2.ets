@@ -13,10 +13,6 @@
 * limitations under the License.
 */
 
-/*
-* 最佳实践: 分析帧率问题
-*/
-
 // [Start animationdemo2]
 @Entry
 @Component
@@ -24,7 +20,6 @@ struct AnimationDemo2 {
   @State widthSize: number = 200;
   @State heightSize: number = 100;
   @State flag: boolean = true;
-
 
   build() {
     Column() {

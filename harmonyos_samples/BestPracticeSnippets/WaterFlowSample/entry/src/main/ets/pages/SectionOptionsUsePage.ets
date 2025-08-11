@@ -1,4 +1,5 @@
 // [Start quick_start]
+import { CommonConstants } from "../common/constants/CommonConstants";
 import { SectionsWaterFlowDataSource } from "../model/SectionsWaterFlowDataSource";
 // [StartExclude flow_item_layout]
 @Reusable
@@ -22,7 +23,6 @@ struct ReusableFlowItem {
           left: { anchor: '__container__', align: HorizontalAlign.Start },
           right: { anchor: '__container__', align: HorizontalAlign.End }
         })
-        .id('image1')
 
       Stack() {
       }
@@ -40,7 +40,6 @@ struct ReusableFlowItem {
         left: { anchor: '__container__', align: HorizontalAlign.Start },
         right: { anchor: '__container__', align: HorizontalAlign.End }
       })
-      .id('mask1')
 
       Text('NO. ' + (this.item + 1))
         .fontSize(12)
@@ -53,7 +52,6 @@ struct ReusableFlowItem {
           left: 8,
           bottom: 4
         })
-        .id('text1')
     }
     .width('100%')
     .borderRadius(8)
@@ -63,7 +61,7 @@ struct ReusableFlowItem {
 // [EndExclude flow_item_layout]
 @Entry
 @Component
-export struct SectionOptionsUsePage {
+struct SectionOptionsUsePage {
   // [StartExclude variable_declare]
   @State minSize: number = 120;
   @State maxSize: number = 260;
@@ -73,19 +71,18 @@ export struct SectionOptionsUsePage {
   private itemHeightArray: number[] = [];
   sectionMargin: Margin = {
     top: 8,
-    left: 0,
+    left: 16,
     bottom: 0,
-    right: 0
+    right: 16
   }
   // 1、Create group information.
   @State sections: WaterFlowSections = new WaterFlowSections();
+  @StorageProp(CommonConstants.AS_KEY_STATUS_BAR_HEIGHT) statusBarHeight: number = 0;
 
   // 2、Create the first group.
   oneColumnSection: SectionOptions = {
     itemsCount: 3,
     crossCount: 1,
-    columnsGap: 5,
-    rowsGap: 10,
     margin: this.sectionMargin,
     onGetItemMainSizeByIndex: (index: number) => {
       return 120;
@@ -153,6 +150,13 @@ export struct SectionOptionsUsePage {
 
   build() {
     Column({ space: 0 }) {
+      Row() {
+        Text($r('app.string.section_sort'))
+          .width('100%')
+          .fontSize(24)
+          .fontWeight(FontWeight.Bold)
+          .margin({ top: '18vp', left: '16vp', bottom: '8vp'})
+      }
       // 6、Link the grouping information to WaterFlow.
       WaterFlow({ scroller: this.scroller, sections: this.sections }) {
         // [StartExclude water_flow_data]
@@ -173,6 +177,9 @@ export struct SectionOptionsUsePage {
       .height('100%')
       .layoutWeight(1)
     }
+    .padding({
+      top: this.statusBarHeight
+    })
   }
 }
 // [End quick_start]

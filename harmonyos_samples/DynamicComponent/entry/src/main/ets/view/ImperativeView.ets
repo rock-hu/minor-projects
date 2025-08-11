@@ -176,6 +176,6 @@ export struct ImperativeViewComponent {
   }
 
   ResourceToString(resource:Resource):string{
-    return this.context.resourceManager.getStringSync(resource);
+    return this.context.resourceManager.getStringSync(resource.id);
   }
 }

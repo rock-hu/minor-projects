@@ -13,15 +13,6 @@
 * limitations under the License.
 */
 
-/*
- * 最佳实践：手势事件冲突解决方案
- *
- * 场景三：系统手势和自定义手势之间冲突
- * 冲突解决之后
- */
-
-import { promptAction } from '@kit.ArkUI';
-
 @Entry
 @Component
 struct GesturesConflictScene3A {

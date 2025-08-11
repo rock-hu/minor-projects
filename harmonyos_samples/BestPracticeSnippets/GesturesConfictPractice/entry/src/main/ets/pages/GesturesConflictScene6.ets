@@ -13,12 +13,6 @@
 * limitations under the License.
 */
 
-/*
- * 最佳实践：手势事件冲突解决方案
- *
- * 场景六：动态控制自定义手势是否响应
- */
-
 // [Start gestures_conflict_scene6]
 @Entry
 @Component

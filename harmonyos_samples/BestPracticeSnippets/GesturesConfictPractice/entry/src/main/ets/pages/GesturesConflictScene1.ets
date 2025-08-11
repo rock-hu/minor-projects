@@ -13,12 +13,6 @@
 * limitations under the License.
 */
 
-/*
- * 最佳实践：手势事件冲突解决方案
- *
- * 场景一：滚动容器嵌套滚动容器事件冲突
- */
-
 // [Start gestures_conflictScene1]
 @Entry
 @Component

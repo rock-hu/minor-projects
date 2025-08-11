@@ -41,10 +41,14 @@ struct LocationService {
 
   aboutToAppear(): void {
     if (!this.judgeHasNet()) {
-      this.getUIContext().getPromptAction().showToast({
-        message: $r('app.string.internet_switch'),
-        duration: 2000
-      });
+      try {
+        this.getUIContext().getPromptAction().showToast({
+          message: $r('app.string.internet_switch'),
+          duration: 2000
+        });
+      } catch (error) {
+        hilog.error(0x0000, TAG, `showToast catch error, code: ${error.code}, message: ${error.message}`);
+      }
     }
     let cameraPosition: mapCommon.CameraPosition = {
       target: { longitude: 113.886642, latitude: 22.878538 },
@@ -203,7 +207,7 @@ struct LocationService {
         this.marker.setPosition(mapLocation);
       }
       let reverseGeocodeRequest: geoLocationManager.ReverseGeoCodeRequest = {
-        locale: this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.language')),
+        locale: this.getUIContext().getHostContext()!.resourceManager.getStringByNameSync('language'),
         latitude: location.latitude,
         longitude: location.longitude,
         maxItems: 1
@@ -264,6 +268,8 @@ struct LocationService {
       }).catch((err: BusinessError) => {
         hilog.error(0x0000, TAG, `startBackgroundRunning failed, cause:  ${JSON.stringify(err)}`);
       });
+    }).catch((err: BusinessError) => {
+      hilog.error(0x0000, TAG, `getWantAgent failed, cause:  ${JSON.stringify(err)}`);
     });
   }
   // [End start_continuous_task]
@@ -289,26 +295,30 @@ struct LocationService {
   // [End stop_continuous_task]
 
   locationFailedAlert(errCode: number) {
-    if (errCode === CommonConstants.LOCATION_SWITCH_OFF) {
-      this.getUIContext().getPromptAction().showToast({
-        message: $r('app.string.location_switch'),
-        duration: 2000
-      });
-    } else if (errCode === CommonConstants.LOCATION_FAILED) {
-      this.getUIContext().getPromptAction().showToast({
-        message: $r('app.string.internet_switch'),
-        duration: 2000
-      });
-    } else if (errCode === CommonConstants.REVERSE_GEOCODING_FAILED) {
-      this.getUIContext().getPromptAction().showToast({
-        message: $r('app.string.internet_switch'),
-        duration: 2000
-      });
-    } else if (errCode === CommonConstants.WIFI_BLUETOOTH_OFF) {
-      this.getUIContext().getPromptAction().showToast({
-        message: $r('app.string.wifi_bluetooth_switch'),
-        duration: 2000
-      });
+    try {
+      if (errCode === CommonConstants.LOCATION_SWITCH_OFF) {
+        this.getUIContext().getPromptAction().showToast({
+          message: $r('app.string.location_switch'),
+          duration: 2000
+        });
+      } else if (errCode === CommonConstants.LOCATION_FAILED) {
+        this.getUIContext().getPromptAction().showToast({
+          message: $r('app.string.internet_switch'),
+          duration: 2000
+        });
+      } else if (errCode === CommonConstants.REVERSE_GEOCODING_FAILED) {
+        this.getUIContext().getPromptAction().showToast({
+          message: $r('app.string.internet_switch'),
+          duration: 2000
+        });
+      } else if (errCode === CommonConstants.WIFI_BLUETOOTH_OFF) {
+        this.getUIContext().getPromptAction().showToast({
+          message: $r('app.string.wifi_bluetooth_switch'),
+          duration: 2000
+        });
+      }
+    } catch (error) {
+      hilog.error(0x0000, TAG, `locationFailedAlert catch error, code: ${error.code}, message: ${error.message}`);
     }
     this.marker?.setInfoWindowVisible(false);
     this.address = '';
