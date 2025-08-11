@@ -6,6 +6,9 @@ import { uniformTypeDescriptor as utd } from '@kit.ArkData';
 import { systemShare } from '@kit.ShareKit';
 import { fileUri } from '@kit.CoreFileKit';
 import { image } from '@kit.ImageKit';
+import Logger from './Logger';
+
+let logger = Logger.getLogger('[CreateRecord]');
 
 interface UtdActionOptions {
   is: boolean;
@@ -18,7 +21,6 @@ interface UtdItem {
 };
 
 export default class CreateRecord {
-
   static readonly utdMap: UtdItem[] = [
     {
       utd: utd.UniformDataType.TEXT,
@@ -62,7 +64,7 @@ export default class CreateRecord {
       utd: utd.UniformDataType.HYPERLINK,
       content: 'https://www.vmall.com/index.html?cid=128688',
       title: 'Huawei Vmall',
-      description: 'Pura 70 Ultra',
+      description: 'Phone',
       label: 'Huawei Vmall'
     }
   }
@@ -83,16 +85,21 @@ export default class CreateRecord {
     let thumbnailPath = context.filesDir + '/exampleImage.jpg';
     const imageSource: image.ImageSource = image.createImageSource(thumbnailPath);
     const imagePacker: image.ImagePacker = image.createImagePacker();
-    const buffer: ArrayBuffer = await imagePacker.packToData(imageSource, {
-      format: 'image/jpeg',
-      quality: 30,
-    });
+    let buffer: ArrayBuffer | undefined = undefined;
+    try {
+      buffer = await imagePacker.packToData(imageSource, {
+        format: 'image/jpeg',
+        quality: 30,
+      });
+    } catch (error) {
+      logger.error(`packToData error. Code: ${error?.code}, message: ${error?.message}`);
+    }
     return {
       utd: utd.UniformDataType.VIDEO,
       uri: fileUri.getUriFromPath(filePath),
       title: 'Video title',
       description: 'Video Description',
-      thumbnail: new Uint8Array(buffer),
+      thumbnail: buffer ? new Uint8Array(buffer) : undefined,
     }
   }
 }

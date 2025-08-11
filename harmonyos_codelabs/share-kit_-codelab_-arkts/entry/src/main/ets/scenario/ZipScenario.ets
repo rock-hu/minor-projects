@@ -8,13 +8,14 @@ import { fileUri } from '@kit.CoreFileKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import Logger from '../utils/Logger';
 
-let logger = Logger.getLogger('[ImageScenario]');
+let logger = Logger.getLogger('[ZipScenario]');
 
 @Component
 export default struct ZipScenario {
 
   private async share() {
-    const contextFaker: Context = getContext(this);
+    const uiContext: UIContext = this.getUIContext();
+    const contextFaker: Context = uiContext.getHostContext() as Context;
     let filePath = contextFaker.filesDir + '/exampleZip.zip';
 
     let utdTypeId = utd.getUniformDataTypeByFilenameExtension('.zip', utd.UniformDataType.ARCHIVE);
@@ -27,14 +28,14 @@ export default struct ZipScenario {
     });
 
     let controller: systemShare.ShareController = new systemShare.ShareController(shareData);
-    let context = getContext(this) as common.UIAbilityContext;
+    const context: common.UIAbilityContext = uiContext.getHostContext() as common.UIAbilityContext;
     controller.show(context, {
       selectionMode: systemShare.SelectionMode.SINGLE,
       previewMode: systemShare.SharePreviewMode.DETAIL,
     }).then(() => {
       logger.info('ShareController show success.');
     }).catch((error: BusinessError) => {
-      logger.error(`ShareController show error. code: ${error.code}, message: ${error.message}`);
+      logger.error(`ShareController show error. code: ${error?.code}, message: ${error?.message}`);
     });
   }
 
@@ -43,7 +44,7 @@ export default struct ZipScenario {
       Text($r('app.string.compressed_package_type'))
 
       Button($r('app.string.share_btn'))
-        .onClick(this.share)
+        .onClick(() => this.share())
     }
     .width('100%')
     .margin({ top: 12 })

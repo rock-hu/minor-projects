@@ -61,6 +61,10 @@
       "value": "一碰分享"
     },
     {
+      "name": "navigation_toolbar_gesture",
+      "value": "隔空传送"
+    },
+    {
       "name": "share_btn",
       "value": "分享"
     },
@@ -97,24 +101,44 @@
       "value": "实现了模式默认(预览图卡片)和预览图模式切换"
     },
     {
-      "name": "share_ui_ability",
-      "value": "实现了拉起UIAbility,分享到目标应用的示例"
-    },
-    {
-      "name": "share_extension_ability",
-      "value": "实现了拉起ShareExtensionAbility,通过二级面板处理分享内容的示例"
-    },
-    {
-      "name": "share_excluded_abilities_copy",
-      "value": "实现了从操作区排除“复制”操作"
-    },
-    {
       "name": "share_excluded_abilities_print",
       "value": "实现了从操作区排除“打印”操作"
     },
     {
       "name": "share_close_listening",
       "value": "实现了关闭分享面板事件监听能力"
+    },
+    {
+      "name": "function_title",
+      "value": "功能描述"
+    },
+    {
+      "name": "dismiss_description_1",
+      "value": "开发者可通过on方法注册dismiss事件监听分享面板关闭."
+    },
+    {
+      "name": "dismiss_description_2",
+      "value": "当分享面板关闭时,触发此事件."
+    },
+    {
+      "name": "dismiss_description_3",
+      "value": "开发者可通过调用off方法取消已注册的事件监听."
+    },
+    {
+      "name": "shareCompleted_description_1",
+      "value": "开发者可通过on方法注册shareCompleted事件监听用户分享操作."
+    },
+    {
+      "name": "shareCompleted_description_2",
+      "value": "当用户触发分享时,监听事件将返回用户分享的目标应用或操作."
+    },
+    {
+      "name": "shareCompleted_description_3",
+      "value": "开发者可基于此回调获得用户分享成功的事件及目标应用,用于数据统计等."
+    },
+    {
+      "name": "shareCompleted_description_4",
+      "value": "开发者可通过调用off方法取消已注册的事件监听."
     },
     {
       "name": "single_mode",
@@ -285,8 +309,80 @@
       "value": "白卡上下布局"
     },
     {
+      "name": "knock_share_title",
+      "value": "发起分享"
+    },
+    {
       "name": "reject_title",
       "value": "拒绝本次分享"
+    },
+    {
+      "name": "send_only_title",
+      "value": "单向组队"
+    },
+    {
+      "name": "send_only_description",
+      "value": "单向组队（sendOnly）属性通常用于游戏类、社交类应用，例如：当双方都处于游戏组队房间时，通过一碰邀请对方加入存在冲突，此时可通过设置单向组队的属性，提醒用户需要有一方退出后再试。"
+    },
+    {
+      "name": "delay_title",
+      "value": "延迟更新预览图"
+    },
+    {
+      "name": "delay_description",
+      "value": "当接收到碰一碰回调时，如果预览图需要从云端下载，可先调用share接口发起分线，待预览图下载完成后，再使用updateShareData更新预览图。"
+    },
+    {
+      "name": "sandbox_title",
+      "value": "直达应用沙箱"
+    },
+    {
+      "name": "sandbox_description",
+      "value": "通过手机设备轻碰PC/2in1设备的窗口，可实现文件直达应用沙箱。"
+    },
+    {
+      "name": "sandbox_account",
+      "value": "手机与PC/2in1设备之间碰一碰，仅支持双端登录相同的华为账号。"
+    },
+    {
+      "name": "sandbox_note",
+      "value": "本示例仅支持接收1张图片，通过capabilities字段配置。"
+    },
+    {
+      "name": "sandbox_result",
+      "value": "接收结果"
+    },
+    {
+      "name": "knock_register_title",
+      "value": "碰一碰注册"
+    },
+    {
+      "name": "knock_register_description",
+      "value": "碰一碰注册"
+    },
+    {
+      "name": "knock_reject_title",
+      "value": "碰一碰拒绝本次分享"
+    },
+    {
+      "name": "knock_reject_description",
+      "value": "碰一碰拒绝本次分享"
+    },
+    {
+      "name": "pcKnock_register_title",
+      "value": "pc多窗口注册"
+    },
+    {
+      "name": "pcKnock_register_description",
+      "value": "pc多窗口注册"
+    },
+    {
+      "name": "pcKnock_reject_title",
+      "value": "pc多窗口拒绝本次分享"
+    },
+    {
+      "name": "pcKnock_reject_description",
+      "value": "pc多窗口拒绝本次分享"
     },
     {
       "name": "knock_listening",
@@ -309,8 +405,12 @@
       "value": "当预览图宽高比大于1:1时，使用白卡上下布局。"
     },
     {
+      "name": "share_timer",
+      "value": "当接收到碰一碰回调时，在3秒内准备好分享数据，并使用share方法触发发送。"
+    },
+    {
       "name": "reject_timer",
-      "value": "当接收到碰一碰回调时，如果在3秒内无法准备好分享数据，请使用本方法拒绝本次分享，并提供原因给用户。"
+      "value": "当接收到碰一碰回调时，如果在3秒内无法准备好分享数据，请使用reject拒绝本次分享，并提供原因给用户。"
     },
     {
       "name": "precautions",
@@ -351,6 +451,14 @@
     {
       "name": "gesture_close_other",
       "value": "请先关闭其他隔空传送监听事件"
+    },
+    {
+      "name": "only_pc_supported",
+      "value": "请使用PC/2in1设备体验"
+    },
+    {
+      "name": "success_supported",
+      "value": "沙箱接收成功"
     }
   ]
 }

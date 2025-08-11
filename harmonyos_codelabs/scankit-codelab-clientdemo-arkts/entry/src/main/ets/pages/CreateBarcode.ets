@@ -75,6 +75,10 @@ struct CreateBarcodePage {
   @State codePixelMapColor: number = 0x000000; // Default color of the barcode image.
   @State pixelMapWidth: number = 300;
 
+  aboutToAppear(): void {
+    UIContextSelf.setUIContextByUIContent(this.getUIContext());
+  }
+
   build() {
     Column() {
       Column() {
@@ -210,6 +214,7 @@ struct CreateBarcodePage {
             try {
               generateBarcode.createBarcode(content, options).then((result: image.PixelMap) => {
                 this.pixelMap = result;
+                hilog.info(0x0001, TAG, 'Succeeded in creating barCode.');
               }).catch((error: BusinessError) => {
                 showError(error);
                 hilog.error(0x0001, TAG,

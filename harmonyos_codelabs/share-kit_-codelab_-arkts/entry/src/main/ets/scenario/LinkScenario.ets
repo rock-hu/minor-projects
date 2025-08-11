@@ -7,7 +7,7 @@ import { common } from '@kit.AbilityKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import Logger from '../utils/Logger';
 
-let logger = Logger.getLogger('[Posters]');
+let logger = Logger.getLogger('[LinkScenario]');
 
 @Component
 export default struct LinkScenario {
@@ -17,18 +17,19 @@ export default struct LinkScenario {
       utd: utd.UniformDataType.HYPERLINK,
       content: 'https://www.vmall.com/index.html?cid=128688',
       title: 'Huawei Vmall',
-      description: 'Pura 70 Ultra',
+      description: 'Phone',
     });
 
     let controller: systemShare.ShareController = new systemShare.ShareController(shareData);
-    let context = getContext(this) as common.UIAbilityContext;
+    const uiContext: UIContext = this.getUIContext();
+    const context: common.UIAbilityContext = uiContext.getHostContext() as common.UIAbilityContext;
     controller.show(context, {
       selectionMode: systemShare.SelectionMode.SINGLE,
       previewMode: systemShare.SharePreviewMode.DEFAULT,
     }).then(() => {
       logger.info('ShareController show success.');
     }).catch((error: BusinessError) => {
-      logger.error(`ShareController show error. code: ${error.code}, message: ${error.message}`);
+      logger.error(`ShareController show error. code: ${error?.code}, message: ${error?.message}`);
     });
   }
 
@@ -37,7 +38,7 @@ export default struct LinkScenario {
       Text($r('app.string.link_type'))
 
       Button($r('app.string.share_btn'))
-        .onClick(this.share)
+        .onClick(() => this.share())
     }
     .width('100%')
     .margin({ top: 12 })

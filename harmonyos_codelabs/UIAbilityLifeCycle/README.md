@@ -1,26 +1,51 @@
-# 实现UIAbility和自定义组件生命周期管理
+# UIAbility生命周期
 
-### 简介
+## 介绍
 
-本篇Codelab主要介绍UIAbility和自定义组件生命周期，通过日志打印可以在控制台观察生命周期的调用过程，为开发者讲解UIAbility声明周期的过程。
+本示例通过用户触发应用的生命周期，再使用EventHub监听，在首页打印已触发过的生命周期。
 
-### 相关概念
+## 效果预览
 
-- UIAbility：UIAbility组件是一种包含UI界面的应用组件，主要用于和用户交互。UIAbility组件是系统调度的基本单元，为应用提供绘制界面的窗口；一个UIAbility组件中可以通过多个页面来实现一个功能模块。每一个UIAbility组件实例，都对应于一个最近任务列表中的任务。
-- 自定义组件的生命周期：自定义组件的生命周期回调函数用于通知用户该自定义组件的生命周期，这些回调函数是私有的，在运行时由开发框架在特定的时间进行调用，不能从应用程序中手动调用这些回调函数。
-- 窗口开发指导：窗口模块用于在同一块物理屏幕上，提供多个应用界面显示、交互的机制。
+![lifecycle_zh.gif](screenshots/device/lifecycle_zh.gif)
 
-### 相关权限
+## 使用说明
+
+1. 用户点击应用，在首页打印出已触发的生命周期。
+2. 用户返回桌面，再点击应用，在首页追加打印后续触发的生命周期。
+
+## 工程目录
+
+```
+├──entry/src/main/ets/
+│  ├──entryability
+│  │  └──EntryAbility.ets               // 程序入口类
+│  ├──entrybackupability
+│  │  └──EntryBackupAbility.ets         // 备份恢复类
+│  ├──model                                  
+│  │  └──DataModel.ets                  // 数据操作类
+│  └──pages                 
+│     └──Index.ets                      // 首页
+└──entry/src/main/resources             // 应用资源目录
+```
+
+## 具体实现
+
+首页打印生命周期是通过在EntryAbility.ets文件中添加eventHub监听实现：
+
+- 首次打开首页，触发onCreate、onWindowStageCreate、onForeground生命周期，通过eventHub监听，在页面打印。
+- 切换到桌面，在返回应用，触发onBackground、onForeground生命周期，通过eventHub监听，在页面追加打印。
+
+## 相关权限
 
 不涉及
 
-### 使用说明
+## 依赖
 
-1. 通过日志打印可以在控制台检索关键字“[LifeCyclePage]”用来观察生命周期的调用过程。
+不涉及
 
-### 约束与限制
+## 约束与限制
 
 1. 本示例仅支持标准系统上运行，支持设备：华为手机。
-2. HarmonyOS系统：HarmonyOS 5.0.0 Release及以上。
-3. DevEco Studio版本：DevEco Studio 5.0.0 Release及以上。
-4. HarmonyOS SDK版本：HarmonyOS 5.0.0 Release SDK及以上。
+2. HarmonyOS系统：HarmonyOS 5.1.1 Release及以上。
+3. DevEco Studio版本：DevEco Studio 5.1.1 Release及以上。
+4. HarmonyOS SDK版本：HarmonyOS 5.1.1 Release SDK及以上。

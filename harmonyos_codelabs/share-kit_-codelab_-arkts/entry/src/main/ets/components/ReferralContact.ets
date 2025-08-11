@@ -51,7 +51,9 @@ export default struct ReferralContact {
   }
 
   async shareIntent() {
-    insightIntent.shareIntent(getContext(this), [this.intent]).then(() => {
+    const uiContext: UIContext = this.getUIContext();
+    const context: Context = uiContext.getHostContext() as Context;
+    insightIntent.shareIntent(context, [this.intent]).then(() => {
       logger.info('shareIntent ok');
     }).catch((err: BusinessError) => {
       logger.error(`shareIntent failed. Code: ${err.code}. message: ${err.message}`);
@@ -59,7 +61,9 @@ export default struct ReferralContact {
   }
 
   async deleteIntent() {
-    insightIntent.deleteIntent(getContext(this), this.intentName).then(() => {
+    const uiContext: UIContext = this.getUIContext();
+    const context: Context = uiContext.getHostContext() as Context;
+    insightIntent.deleteIntent(context, this.intentName).then(() => {
       logger.info('deleteIntent ok');
     }).catch((err: BusinessError) => {
       logger.error(`deleteIntent failed. Code: ${err.code}. message: ${err.message}`);

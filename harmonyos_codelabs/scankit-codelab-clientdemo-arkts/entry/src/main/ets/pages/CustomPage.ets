@@ -5,7 +5,7 @@ import { scanCore, scanBarcode, customScan } from '@kit.ScanKit';
 import { AsyncCallback, BusinessError } from '@kit.BasicServicesKit';
 import { xComDisplay, getXComDisplay } from '../utils/Common';
 import { PermissionsUtil } from '../utils/PermissionsUtil';
-import { abilityAccessCtrl, Permissions } from '@kit.AbilityKit';
+import { abilityAccessCtrl, common, Permissions } from '@kit.AbilityKit';
 import { UIContextSelf } from '../utils/UIContextSelf';
 
 const TAG: string = 'ScanKit CustomPage';
@@ -145,6 +145,7 @@ struct CustomScanPage {
     };
 
   aboutToAppear(): void {
+    UIContextSelf.setUIContextByUIContent(this.getUIContext());
     this.setDisplay();
   }
 
@@ -158,7 +159,8 @@ struct CustomScanPage {
       // The user has granted the permission, and your app can continue barcode scanning.
       this.userGrant = true;
     } else {
-      let grantStatus = await PermissionsUtil.reqPermissionsFromUser()
+      const context: Context = UIContextSelf.getHostContext() as common.UIAbilityContext;
+      let grantStatus = await PermissionsUtil.reqPermissionsFromUser(context);
       let length: number = grantStatus.length;
       for (let i = 0; i < length; i++) {
         if (grantStatus[i] === 0) {

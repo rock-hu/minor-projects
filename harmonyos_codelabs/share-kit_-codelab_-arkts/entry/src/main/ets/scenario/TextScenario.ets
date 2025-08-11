@@ -22,14 +22,15 @@ export default struct TextScenario {
     });
 
     let controller: systemShare.ShareController = new systemShare.ShareController(shareData);
-    let context = getContext(this) as common.UIAbilityContext;
+    const uiContext: UIContext = this.getUIContext();
+    const context: common.UIAbilityContext = uiContext.getHostContext() as common.UIAbilityContext;
     controller.show(context, {
       selectionMode: systemShare.SelectionMode.SINGLE,
       previewMode: systemShare.SharePreviewMode.DEFAULT,
     }).then(() => {
       logger.info('ShareController show success.');
     }).catch((error: BusinessError) => {
-      logger.error(`ShareController show error. code: ${error.code}, message: ${error.message}`);
+      logger.error(`ShareController show error. code: ${error?.code}, message: ${error?.message}`);
     });
   }
 
@@ -38,7 +39,7 @@ export default struct TextScenario {
       Text($r('app.string.text_type'))
 
       Button($r('app.string.share_btn'))
-        .onClick(this.share)
+        .onClick(() => this.share())
     }
     .width('100%')
     .margin({ top: 12 })

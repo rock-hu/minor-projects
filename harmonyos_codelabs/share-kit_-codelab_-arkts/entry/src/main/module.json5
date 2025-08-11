@@ -31,7 +31,6 @@
             "actions": [
               "action.system.home",
               "ohos.want.action.viewData",
-              "ohos.want.action.sendData"
             ],
             "uris": [
               {
@@ -40,7 +39,7 @@
               },
               {
                 "scheme": "file",
-                "utd": "general.video",
+                "type": "com.example.sharekit_sample_demo.share",
                 "maxFileSupported": 1
               }
             ],

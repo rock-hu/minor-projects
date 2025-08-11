@@ -1,10 +1,8 @@
 // PermissionsUtil.ets
-import { bundleManager, common, abilityAccessCtrl, PermissionRequestResult, Permissions } from '@kit.AbilityKit';
+import { bundleManager, abilityAccessCtrl, PermissionRequestResult, Permissions } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
-import { UIContextSelf } from './UIContextSelf';
 
 const TAG: string = 'ScanKit Permission';
-let context = UIContextSelf.getHostContext() as common.UIAbilityContext;
 
 export class PermissionsUtil {
   public static async checkAccessToken(permission: Permissions): Promise<abilityAccessCtrl.GrantStatus> {
@@ -31,7 +29,7 @@ export class PermissionsUtil {
     return grantStatus;
   }
 
-  public static async reqPermissionsFromUser(): Promise<number[]> {
+  public static async reqPermissionsFromUser(context: Context): Promise<number[]> {
     hilog.info(0x0001, TAG, 'reqPermissionsFromUser start')
     let atManager = abilityAccessCtrl.createAtManager();
     let grantStatus: PermissionRequestResult = { permissions: [], authResults: [] }

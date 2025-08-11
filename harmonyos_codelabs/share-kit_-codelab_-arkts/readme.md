@@ -3,19 +3,21 @@
 系统分享服务为应用提供文本、图片、视频等内容跨应用分享能力，用于将内容发送到其他应用甚至其他应用的用户。应用把需要分享的内容和预览样式配置给系统分享服务，系统分享服务将根据分享的数据类型、数量等信息构建分享面板，为用户提供内容预览、推荐分享联系人、关联应用及操作界面，便于用户快速选择分享应用或操作，将内容分发到目标应用。
 
 ## 效果图
-![](./screenshots/device/share_tab1.jpg)
-![](./screenshots/device/share_tab2.jpg)
-![](./screenshots/device/share_tab3.jpg)
-![](./screenshots/device/share_tab4.jpg)
-![](./screenshots/device/share_tab5.jpg)
+![](./screenshots/device/share_tab1.png)
+![](./screenshots/device/share_tab2.png)
+![](./screenshots/device/share_tab3.png)
+![](./screenshots/device/share_tab4.png)
+![](./screenshots/device/share_tab5.png)
 ![](./screenshots/device/share_demo1.jpg)
 ![](./screenshots/device/share_demo2.jpg)
 ![](./screenshots/device/share_demo3.jpg)
 
 ## 相关概念
 - [Stage模型](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/stage-model-development-overview)：Stage模型的设计，主要是为了解决[FA模型](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/fa-model-development-overview)无法解决的开发场景问题，方便开发者更加方便地开发出分布式环境下的复杂应用。从API Version 9开始支持。
-- [UIAbility](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/uiability-overview)概述：UIAbility组件是一种包含UI的应用组件，主要用于和用户交互。UIAbility组件是系统调度的基本单元，为应用提供绘制界面的窗口。一个应用可以包含一个或多个UIAbility组件。
+- [UIAbility](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/uiability-overview)：UIAbility组件是一种包含UI的应用组件，主要用于和用户交互。UIAbility组件是系统调度的基本单元，为应用提供绘制界面的窗口。一个应用可以包含一个或多个UIAbility组件。
 - [UIAbilityContext](https://developer.huawei.com/consumer/cn/doc/harmonyos-references/js-apis-inner-application-uiabilitycontext)：UIAbilityContext是需要保存状态的UIAbility所对应的context，继承自Context。提供UIAbility的相关配置信息以及操作UIAbility和ServiceExtensionAbility的方法。
+- [UIServiceExtension](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/uiserviceextension)：UIServiceExtension是UIService类型的ExtensionAbility浮窗类组件，提供UI界面（例如预览界面）和后台服务能力。组件内部持有了一个UIServiceExtensionContext，通过UIServiceExtensionContext提供了丰富的接口供外部使用。
+- [UIExtensionContext](https://developer.huawei.com/consumer/cn/doc/harmonyos-references/js-apis-inner-application-uiextensioncontext)：UIExtensionContext是UIExtensionAbility的上下文环境，继承自ExtensionContext，提供UIExtensionAbility的相关配置信息以及操作UIAbility的方法，如启动UIAbility等。
 
 ## 工程目录
 
@@ -23,6 +25,11 @@
 ├─entry/src/main/ets                         // 代码区
 │  ├─components
 │  │  ├─modules                              // 公共模块
+│  │  ├─subpages                             // 子页面
+│  │  │  ├─FunctionExample.ets               // 系统分享示例
+│  │  │  ├─KnockShareApi.ets                 // 碰一碰分享api
+│  │  │  ├─KnockShareCard.ets                // 碰一碰分享卡片模板
+│  │  │  └─KnockShareSandbox.ets             // 沙箱接收
 │  │  ├─AccessModel.ets                      // 接入模式
 │  │  ├─BasicUse.ets                         // 基础使用
 │  │  ├─FunctionExample.ets                  // 功能示例
@@ -73,10 +80,10 @@
    + 路径：entry/src/main/ets/components/ReferralContact.ets
 
 ## 约束与限制
-1. 本示例仅支持标准系统上运行，支持设备：华为手机、华为平板、2in1。
-2. HarmonyOS系统：HarmonyOS 5.0.3 Release及以上。
-3. DevEco Studio版本：DevEco Studio 5.0.3 Release及以上。
-4. HarmonyOS SDK版本：HarmonyOS 5.0.3 Release SDK及以上。
+1. 本示例仅支持标准系统上运行，支持设备：华为手机、华为平板、PC/2in1。
+2. HarmonyOS系统：HarmonyOS 6.0.0 Beta2及以上。
+3. DevEco Studio版本：DevEco Studio 6.0.0 Beta2及以上。
+4. HarmonyOS SDK版本：HarmonyOS 6.0.0 Beta2 SDK及以上。
 
 需同时满足以下条件，才能使用该功能：
 - 宿主应用和目标应用定义数据类型须遵照[UDMF](https://developer.huawei.com/consumer/cn/doc/harmonyos-references/js-apis-data-unifieddatachannel)（统一数据管理框架）定义的[UTD](https://developer.huawei.com/consumer/cn/doc/harmonyos-references/js-apis-data-uniformtypedescriptor)（统一类型描述符）规范。目标应用需要在应用配置文件中，配置支持的类型。如支持全部图片类型，可声明为：general.image。

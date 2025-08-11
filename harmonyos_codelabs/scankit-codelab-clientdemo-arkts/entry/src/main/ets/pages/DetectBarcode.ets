@@ -12,6 +12,10 @@ const TAG: string = 'ScanKit DetectBarcode';
 @Entry
 @Component
 struct DetectBarcodePage {
+  aboutToAppear() {
+    UIContextSelf.setUIContextByUIContent(this.getUIContext());
+  }
+
   build() {
     Column() {
       Button($r('app.string.bitmap_api_decode'))
@@ -34,9 +38,13 @@ struct DetectBarcodePage {
             photoOption.MIMEType = photoAccessHelper.PhotoViewMIMETypes.IMAGE_TYPE;
             photoOption.maxSelectNumber = 1;
             let photoPicker = new photoAccessHelper.PhotoViewPicker();
-            photoPicker.select(photoOption).then((photoResult) => {
+            photoPicker.select(photoOption).then((photoResult: photoAccessHelper.PhotoSelectResult) => {
               let infoW: number = 0;
               let infoH: number = 0;
+              if (!photoResult || !photoResult.photoUris[0]) {
+                hilog.info(0x0001, TAG, `No image selection detected.`);
+                return;
+              }
               try {
                 let file = fileIo.openSync(photoResult.photoUris[0], fileIo.OpenMode.READ_ONLY);
                 const imageSourceApi = image.createImageSource(file.fd);

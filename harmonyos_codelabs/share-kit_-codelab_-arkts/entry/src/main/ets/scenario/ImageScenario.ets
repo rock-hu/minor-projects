@@ -14,7 +14,8 @@ let logger = Logger.getLogger('[ImageScenario]');
 export default struct ImageScenario {
 
   private async share() {
-    const contextFaker: Context = getContext(this);
+    const uiContext: UIContext = this.getUIContext();
+    const contextFaker: Context = uiContext.getHostContext() as Context;
     let filePath = contextFaker.filesDir + '/exampleImage.jpg';
 
     let utdTypeId = utd.getUniformDataTypeByFilenameExtension('.jpg', utd.UniformDataType.IMAGE);
@@ -24,18 +25,17 @@ export default struct ImageScenario {
       uri: fileUri.getUriFromPath(filePath),
       title: 'Picture Title',
       description: 'Picture Description',
-      // thumbnail: new Uint8Array(),
     });
 
     let controller: systemShare.ShareController = new systemShare.ShareController(shareData);
-    let context = getContext(this) as common.UIAbilityContext;
+    const context: common.UIAbilityContext = uiContext.getHostContext() as common.UIAbilityContext;
     controller.show(context, {
       selectionMode: systemShare.SelectionMode.SINGLE,
       previewMode: systemShare.SharePreviewMode.DETAIL,
     }).then(() => {
       logger.info('ShareController show success.');
     }).catch((error: BusinessError) => {
-      logger.error(`ShareController show error. code: ${error.code}, message: ${error.message}`);
+      logger.error(`ShareController show error. code: ${error?.code}, message: ${error?.message}`);
     });
   }
 
@@ -44,7 +44,7 @@ export default struct ImageScenario {
       Text($r('app.string.image_type'))
 
       Button($r('app.string.share_btn'))
-        .onClick(this.share)
+        .onClick(() => this.share())
     }
     .width('100%')
     .margin({ top: 12 })

@@ -6,19 +6,19 @@
     },
     {
       "name": "EntryAbility_desc",
-      "value": "description"
+      "value": "描述"
     },
     {
       "name": "EntryAbility_label",
+      "value": "UIAbility生命周期"
+    },
+    {
+      "name": "home_title",
       "value": "生命周期"
     },
     {
-      "name": "hello_message",
-      "value": "你好世界"
-    },
-    {
-      "name": "button_name",
-      "value": "跳转"
+      "name": "home_log",
+      "value": "日志"
     }
   ]
 }

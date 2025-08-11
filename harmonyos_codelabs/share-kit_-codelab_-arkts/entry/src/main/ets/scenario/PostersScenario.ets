@@ -13,44 +13,67 @@ let logger = Logger.getLogger('[Posters]');
 
 @Component
 export default struct Posters {
-
   private async share() {
-    const contextFaker: Context = getContext(this);
+    const uiContext: UIContext = this.getUIContext();
+    const contextFaker: Context = uiContext.getHostContext() as Context;
     let filePath = contextFaker.filesDir + '/exampleImage.jpg';
 
     let thumbnailPath = contextFaker.filesDir + '/exampleImage.jpg';
     const imageSource: image.ImageSource = image.createImageSource(thumbnailPath);
     const imagePacker: image.ImagePacker = image.createImagePacker();
-    const buffer: ArrayBuffer = await imagePacker.packToData(imageSource, {
-      format: 'image/jpeg',
-      quality: 30,
-    });
+    let buffer: ArrayBuffer | undefined = undefined;
+
+    try {
+      buffer = await imagePacker.packToData(imageSource, {
+        format: 'image/jpeg',
+        quality: 30,
+      });
+    } catch (error) {
+      logger.error(`packToData error. Code: ${error?.code}, message: ${error?.message}`);
+    }
+
+    let uri: string | undefined = undefined;
+    try {
+      uri = fileUri.getUriFromPath(filePath);
+    } catch (error) {
+      logger.error(`getUriFromPath error. Code: ${error?.code}, message: ${error?.message}`);
+    }
+
+    if (!uri) {
+      logger.error('getUriFromPath error.');
+      return;
+    }
 
     let shareData: systemShare.SharedData = new systemShare.SharedData({
       utd: utd.UniformDataType.IMAGE,
-      uri: fileUri.getUriFromPath(filePath),
+      uri: uri,
       title: 'Picture Title',
       description: 'Picture Description',
       label: 'Poster'
     });
-    shareData.addRecord({
-      utd: utd.UniformDataType.HYPERLINK,
-      content: 'https://www.vmall.com/index.html?cid=128688',
-      title: 'Huawei Vmall',
-      description: 'Pura 70 Ultra',
-      label: 'Huawei Vmall',
-      thumbnail: new Uint8Array(buffer),
-    });
+
+    try {
+      shareData.addRecord({
+        utd: utd.UniformDataType.HYPERLINK,
+        content: 'https://www.vmall.com/index.html?cid=128688',
+        title: 'Huawei Vmall',
+        description: 'Phone',
+        label: 'Huawei Vmall',
+        thumbnail: buffer ? new Uint8Array(buffer) : undefined,
+      });
+    } catch (error) {
+      logger.error(`addRecord error. Code: ${error?.code}, message: ${error?.message}`);
+    }
 
     let controller: systemShare.ShareController = new systemShare.ShareController(shareData);
-    let context = getContext(this) as common.UIAbilityContext;
+    const context: common.UIAbilityContext = uiContext.getHostContext() as common.UIAbilityContext;
     controller.show(context, {
       selectionMode: systemShare.SelectionMode.SINGLE,
       previewMode: systemShare.SharePreviewMode.DETAIL,
     }).then(() => {
       logger.info('ShareController show success.');
     }).catch((error: BusinessError) => {
-      logger.error(`ShareController show error. code: ${error.code}, message: ${error.message}`);
+      logger.error(`ShareController show error. code: ${error?.code}, message: ${error?.message}`);
     });
   }
 
@@ -59,7 +82,7 @@ export default struct Posters {
       Text($r('app.string.poster_type'))
 
       Button($r('app.string.share_btn'))
-        .onClick(this.share)
+        .onClick(() => this.share())
     }
     .width('100%')
     .margin({ top: 12 })

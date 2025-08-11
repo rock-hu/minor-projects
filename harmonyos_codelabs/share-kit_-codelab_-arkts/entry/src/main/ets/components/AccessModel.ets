@@ -16,7 +16,8 @@ export default struct AccessModel {
   @State isSheetShow: boolean = false;
 
   private async handelShare(): Promise<void> {
-    const contextFaker: Context = getContext(this);
+    const uiContext: UIContext = this.getUIContext();
+    const contextFaker: Context = uiContext.getHostContext() as Context;
     let filePath = contextFaker.filesDir + '/exampleImage.jpg';
     let utdTypeId = utd.getUniformDataTypeByFilenameExtension('.jpg', utd.UniformDataType.IMAGE);
     let shareData: systemShare.SharedData = new systemShare.SharedData({
@@ -26,14 +27,14 @@ export default struct AccessModel {
       description: 'Picture Description',
     });
     let controller: systemShare.ShareController = new systemShare.ShareController(shareData);
-    let context = getContext(this) as common.UIAbilityContext;
+    const context: common.UIAbilityContext = uiContext.getHostContext() as common.UIAbilityContext;
     controller.show(context, {
       previewMode: systemShare.SharePreviewMode.DETAIL,
       selectionMode: systemShare.SelectionMode.BATCH,
     }).then(() => {
       logger.info('HuaweiShare_ show');
     }).catch((error: BusinessError) => {
-      logger.error(`HuaweiShare_ show error. Code: ${error.code}, message: ${error.message}`);
+      logger.error(`HuaweiShare_ show error. Code: ${error?.code}, message: ${error?.message}`);
     });
   }
 

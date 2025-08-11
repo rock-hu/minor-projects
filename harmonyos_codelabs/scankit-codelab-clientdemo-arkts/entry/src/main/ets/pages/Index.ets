@@ -3,6 +3,10 @@ import { UIContextSelf } from '../utils/UIContextSelf';
 @Entry
 @Component
 struct Index {
+  aboutToAppear(): void {
+    UIContextSelf.setUIContextByUIContent(this.getUIContext());
+  }
+
   build() {
     Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Center }) {
 

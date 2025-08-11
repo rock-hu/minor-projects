@@ -31,6 +31,10 @@ struct ScanBarcodePage {
   @State inputValue: string = '';
   @State scanType: number = -1;
 
+  aboutToAppear(): void {
+    UIContextSelf.setUIContextByUIContent(this.getUIContext());
+  }
+
   build() {
     Column() {
       Button($r('app.string.default_view_decode'))

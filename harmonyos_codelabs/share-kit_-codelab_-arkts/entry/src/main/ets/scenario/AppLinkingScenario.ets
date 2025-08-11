@@ -14,9 +14,16 @@ let logger = Logger.getLogger('[AppLinking]');
 export default struct AppLinking {
 
   private async share() {
-    const contextFaker: Context = getContext(this);
+    const uiContext: UIContext = this.getUIContext();
+    const contextFaker: Context = uiContext.getHostContext() as Context;
     const resourceMgr: resourceManager.ResourceManager = contextFaker.resourceManager;
-    const fileData: Uint8Array = await resourceMgr.getMediaContent($r('app.media.icon'));
+    let fileData: Uint8Array | undefined = undefined;
+
+    try {
+      fileData = await resourceMgr.getMediaContent($r('app.media.icon').id);
+    } catch (error) {
+      logger.error(`getMediaContent error. Code: ${error?.code}, message: ${error?.message}`);
+    }
 
     let shareData: systemShare.SharedData = new systemShare.SharedData({
       utd: utd.UniformDataType.HYPERLINK,
@@ -26,14 +33,14 @@ export default struct AppLinking {
       thumbnail: fileData,
     });
     let controller: systemShare.ShareController = new systemShare.ShareController(shareData);
-    let context: common.UIAbilityContext = getContext(this) as common.UIAbilityContext;
+    const context: common.UIAbilityContext = uiContext.getHostContext() as common.UIAbilityContext;
     controller.show(context, {
       previewMode: systemShare.SharePreviewMode.DEFAULT,
       selectionMode: systemShare.SelectionMode.SINGLE
     }).then(() => {
       logger.info('ShareController show success.');
     }).catch((error: BusinessError) => {
-      logger.error(`ShareController show error. code: ${error.code}, message: ${error.message}`);
+      logger.error(`ShareController show error. code: ${error?.code}, message: ${error?.message}`);
     });
   }
 
@@ -42,7 +49,7 @@ export default struct AppLinking {
       Text('AppLinking')
 
       Button($r('app.string.share_btn'))
-        .onClick(this.share)
+        .onClick(() => this.share())
     }
     .width('100%')
     .margin({ top: 12 })

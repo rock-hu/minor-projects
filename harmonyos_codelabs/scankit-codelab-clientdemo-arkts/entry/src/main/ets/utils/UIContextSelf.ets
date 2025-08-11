@@ -20,6 +20,13 @@ export class UIContextSelf {
     }
   }
 
+  public static setUIContextByUIContent(uiContext: UIContext): void {
+    if (!UIContextSelf.uiContext) {
+      UIContextSelf.uiContext = uiContext;
+      hilog.info(0x0001, TAG, 'Succeed in getting getUIContext by UIContext.');
+    }
+  }
+
   public static getPromptAction(): PromptAction {
     if (!UIContextSelf.uiContext) {
       throw new Error('UIContext has not been set.');

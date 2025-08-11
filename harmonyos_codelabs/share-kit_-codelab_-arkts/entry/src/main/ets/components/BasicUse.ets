@@ -1,83 +1,286 @@
 /*
- * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2024-2025. All rights reserved.
  */
 import { systemShare } from '@kit.ShareKit';
 import { common } from '@kit.AbilityKit';
 import { uniformTypeDescriptor as utd } from '@kit.ArkData';
 import { fileUri } from '@kit.CoreFileKit';
-import { promptAction } from '@kit.ArkUI';
 import { BusinessError } from '@kit.BasicServicesKit';
-import { image } from '@kit.ImageKit';
 import Logger from '../utils/Logger';
 
 let logger = Logger.getLogger('[BaseDemo]');
 
-interface IDemoItem {
-  type: string;
-  title: ResourceStr;
-  description: ResourceStr;
-  featureList: ResourceStr[];
-  handelClick: () => Promise<void>;
-}
-
 @Component
 export default struct BaseDemo {
-  @State textSelectionMode: number = 0;
-  @State imagePreviewMode: number = 0;
-  @State videoPreviewMode: number = 0;
+  @State selectionMode: number = systemShare.SelectionMode.SINGLE;
+  @State sharePreviewMode: number = systemShare.SharePreviewMode.DEFAULT;
 
-  private thumbnailBuffer: Uint8Array | undefined = undefined;
+  @Builder
+  RadioItem(text: ResourceStr, value: string, group: string, checked: boolean, handelChecked: () => void) {
+    Row() {
+      Radio({ value, group })
+        .checked(checked)
+        .onChange((isChecked: boolean) => {
+          if (isChecked) {
+            handelChecked();
+          }
+        })
+      Text(text)
+    }
+    .margin({ right: 12 })
+  }
 
-  private demoList: Array<IDemoItem> = [{
-    type: 'text',
-    title: $r('app.string.text_sharing'),
-    description: $r('app.string.text_sharing_description'),
-    featureList: [$r('app.string.share_selection_mode'), $r('app.string.share_ui_ability'), $r('app.string.share_excluded_abilities_copy')],
-    handelClick: () => this.handelTextShare(),
-  }, {
-    type: 'image',
-    title: $r('app.string.image_sharing'),
-    description: $r('app.string.image_sharing_description'),
-    featureList: [$r('app.string.share_preview_mode'), $r('app.string.share_extension_ability'), $r('app.string.share_excluded_abilities_print')],
-    handelClick: () => this.handelImageShare(),
-  }, {
-    type: 'video',
-    title: $r('app.string.video_sharing'),
-    description:  $r('app.string.video_sharing_description'),
-    featureList: [$r('app.string.share_preview_mode'), $r('app.string.share_extension_ability'), $r('app.string.share_close_listening')],
-    handelClick: () => this.handelVideoShare(),
-  }];
+  @Builder
+  DescriptionTitle(resourceStr: ResourceStr) {
+    Text(resourceStr)
+      .width('100%')
+      .margin({ top: 12 })
+      .fontSize(14)
+  }
 
-  private async handelTextShare(): Promise<void> {
+  @Builder
+  DescriptionText(resourceStr: ResourceStr, code: number) {
+    Row() {
+      Text(code + '.').fontSize(14)
+      Text(resourceStr).fontSize(14)
+    }
+    .width('100%')
+    .margin({ top: 4 })
+    .alignItems(VerticalAlign.Top)
+  }
+
+  @Builder
+  HostShare() {
+    Flex({ direction: FlexDirection.Row }) {
+      Column() {
+        Flex({ direction: FlexDirection.Row }) {
+          Text('宿主应用发起分享')
+            .flexGrow(1)
+            .fontSize(18)
+            .fontWeight(500)
+
+          Button($r('app.string.share_btn'))
+            .width(80)
+            .height(30)
+            .margin({ left: 12 })
+            .onClick(() => {
+              this.handelHostShare();
+            })
+        }
+        .width('100%')
+
+        Flex({ direction: FlexDirection.Row }) {
+          Row() {
+            Image(this.getImageSrc()).width(100);
+          }
+          .width(150)
+          .margin({ right: 12 })
+
+          Column() {
+            Column() {
+              Row() {
+                this.RadioItem($r('app.string.single_mode'), 'single', 'SelectionModeGroup', this.selectionMode === 0,
+                  () => {
+                    this.selectionMode = systemShare.SelectionMode.SINGLE;
+                  })
+                this.RadioItem($r('app.string.batch_mode'), 'batch', 'SelectionModeGroup', this.selectionMode === 1,
+                  () => {
+                    this.selectionMode = systemShare.SelectionMode.BATCH;
+                  })
+              }
+
+              Row() {
+                this.RadioItem($r('app.string.default_mode'), 'default', 'SharePreviewModeGroup',
+                  this.sharePreviewMode === 0,
+                  () => {
+                    this.sharePreviewMode = systemShare.SharePreviewMode.DEFAULT;
+                  })
+                this.RadioItem($r('app.string.detail_mode'), 'detail', 'SharePreviewModeGroup',
+                  this.sharePreviewMode === 1,
+                  () => {
+                    this.sharePreviewMode = systemShare.SharePreviewMode.DETAIL;
+                  })
+              }
+            }
+            .alignItems(HorizontalAlign.Start)
+
+            Column() {
+              this.DescriptionTitle($r('app.string.function_title'));
+              this.DescriptionText($r('app.string.share_selection_mode'), 1);
+              this.DescriptionText($r('app.string.share_preview_mode'), 2);
+              this.DescriptionText($r('app.string.share_excluded_abilities_print'), 3);
+            }
+          }
+          .flexGrow(1)
+        }
+        .width('100%')
+      }
+      .width('100%')
+    }
+  }
+
+  @Builder
+  Dismiss() {
+    Flex({ direction: FlexDirection.Row }) {
+      Column() {
+        Flex({ direction: FlexDirection.Row }) {
+          Text('监听分享面板关闭')
+            .flexGrow(1)
+            .fontSize(18)
+            .fontWeight(500)
+
+          Button($r('app.string.share_btn'))
+            .width(80)
+            .height(30)
+            .margin({ left: 12 })
+            .onClick(() => {
+              this.handelShareDismiss();
+            })
+        }
+        .width('100%')
+
+        Column() {
+          this.DescriptionTitle($r('app.string.function_title'));
+          this.DescriptionText($r('app.string.dismiss_description_1'), 1);
+          this.DescriptionText($r('app.string.dismiss_description_2'), 2);
+          this.DescriptionText($r('app.string.dismiss_description_3'), 3);
+        }
+        .width('100%')
+      }
+    }
+    .margin({ top: 20 })
+  }
+
+  @Builder
+  ShareCompleted() {
+    Flex({ direction: FlexDirection.Row }) {
+      Column() {
+        Flex({ direction: FlexDirection.Row }) {
+          Text('获取分享结果')
+            .flexGrow(1)
+            .fontSize(18)
+            .fontWeight(500)
+
+          Button($r('app.string.share_btn'))
+            .width(80)
+            .height(30)
+            .margin({ left: 12 })
+            .onClick(() => {
+              this.handelShareCompleted();
+            })
+        }
+        .width('100%')
+
+        Column() {
+          this.DescriptionTitle($r('app.string.function_title'));
+          this.DescriptionText($r('app.string.shareCompleted_description_1'), 1);
+          this.DescriptionText($r('app.string.shareCompleted_description_2'), 2);
+          this.DescriptionText($r('app.string.shareCompleted_description_3'), 3);
+          this.DescriptionText($r('app.string.shareCompleted_description_4'), 4);
+        }
+        .width('100%')
+      }
+    }
+    .margin({ top: 20 })
+  }
+
+  build() {
+    Scroll() {
+      Flex({ direction: FlexDirection.Column }) {
+        // 宿主应用发起分享
+        this.HostShare();
+
+        // 监听分享面板关闭
+        this.Dismiss();
+
+        // 获取分享结果
+        this.ShareCompleted();
+      }
+      .width('100%')
+      .height('100%')
+      .padding({ top: 12, left: 20, right: 20 })
+    }
+    .width('100%')
+    .height('100%')
+  }
+
+  private getImageSrc(): ResourceStr {
+    switch (this.selectionMode) {
+      case systemShare.SelectionMode.SINGLE:
+        if (this.sharePreviewMode === systemShare.SharePreviewMode.DEFAULT) {
+          return $r('app.media.share_preview_00');
+        } else {
+          return $r('app.media.share_preview_01');
+        }
+      case systemShare.SelectionMode.BATCH:
+        if (this.sharePreviewMode === systemShare.SharePreviewMode.DEFAULT) {
+          return $r('app.media.share_preview_10');
+        } else {
+          return $r('app.media.share_preview_11');
+        }
+      default:
+        return $r('app.media.share_preview_00');
+    }
+  }
+
+  private async handelHostShare(): Promise<void> {
+    const uiContext: UIContext = this.getUIContext();
+    const contextFaker: Context = uiContext.getHostContext() as Context;
     let shareData: systemShare.SharedData = new systemShare.SharedData({
-      utd: utd.UniformDataType.TEXT,
-      content: 'This is a text.',
-      title: 'Text Title',
-      description: 'Text Description',
-      label: 'Text Title',
+      utd: utd.getUniformDataTypeByFilenameExtension('.jpg', utd.UniformDataType.IMAGE),
+      uri: fileUri.getUriFromPath(contextFaker.filesDir + '/exampleImage.jpg'),
+      title: 'Image Title',
+      description: 'Image Description',
     });
-    shareData.addRecord({
-      utd: utd.UniformDataType.HYPERLINK,
-      content: 'https://www.vmall.com/index.html?cid=128688',
-      title: 'Huawei Vmall',
-      description: 'Pura 70 Ultra',
-      label: 'Huawei Vmall',
-    });
+    try {
+      shareData.addRecord({
+        utd: utd.getUniformDataTypeByFilenameExtension('.mp4', utd.UniformDataType.VIDEO),
+        uri: fileUri.getUriFromPath(contextFaker.filesDir + '/exampleVideo.mp4'),
+        title: 'Video Title',
+        description: 'Video Description',
+      });
+    } catch (error) {
+      logger.error(`addRecord error. Code: ${error?.code}, message: ${error?.message}`);
+    }
     let controller: systemShare.ShareController = new systemShare.ShareController(shareData);
-    let context = getContext(this) as common.UIAbilityContext;
+    const context: common.UIAbilityContext = uiContext.getHostContext() as common.UIAbilityContext;
     controller.show(context, {
-      selectionMode: this.textSelectionMode,
-      previewMode: systemShare.SharePreviewMode.DETAIL,
-      excludedAbilities: [systemShare.ShareAbilityType.COPY_TO_PASTEBOARD],
+      previewMode: this.sharePreviewMode,
+      selectionMode: this.selectionMode,
+      excludedAbilities: [systemShare.ShareAbilityType.PRINT]
     }).then(() => {
       logger.info('HuaweiShare_ show');
     }).catch((error: BusinessError) => {
-      logger.error(`HuaweiShare_ show error. Code: ${error.code}, message: ${error.message}`);
+      logger.error(`HuaweiShare_ show error. Code: ${error?.code}, message: ${error?.message}`);
     });
   }
 
-  private async handelImageShare(): Promise<void> {
-    const contextFaker: Context = getContext(this);
+  private async handelShareDismiss(): Promise<void> {
+    const uiContext: UIContext = this.getUIContext();
+    let shareData: systemShare.SharedData = new systemShare.SharedData({
+      utd: utd.UniformDataType.PLAIN_TEXT,
+      content: 'Hello HarmonyOS',
+    });
+    let controller: systemShare.ShareController = new systemShare.ShareController(shareData);
+    const context: common.UIAbilityContext = uiContext.getHostContext() as common.UIAbilityContext;
+    const callback = () => {
+      logger.info('HuaweiShare_ dismiss invoked.');
+      uiContext.getPromptAction().showToast({ message: 'dismiss' });
+    };
+    controller.on('dismiss', callback);
+    controller.show(context, {
+      previewMode: systemShare.SharePreviewMode.DEFAULT,
+      selectionMode: systemShare.SelectionMode.SINGLE,
+    }).then(() => {
+      logger.info('HuaweiShare_ show');
+    }).catch((error: BusinessError) => {
+      logger.error(`HuaweiShare_ show error. Code: ${error?.code}, message: ${error?.message}`);
+    });
+  }
+
+  private async handelShareCompleted(): Promise<void> {
+    const uiContext: UIContext = this.getUIContext();
+    const contextFaker: Context = uiContext.getHostContext() as Context;
     let filePath = contextFaker.filesDir + '/exampleImage.jpg';
     let utdTypeId = utd.getUniformDataTypeByFilenameExtension('.jpg', utd.UniformDataType.IMAGE);
     let shareData: systemShare.SharedData = new systemShare.SharedData({
@@ -87,194 +290,18 @@ export default struct BaseDemo {
       description: 'Picture Description',
     });
     let controller: systemShare.ShareController = new systemShare.ShareController(shareData);
-    let context = getContext(this) as common.UIAbilityContext;
-    controller.show(context, {
-      previewMode: this.imagePreviewMode == 0 ? systemShare.SharePreviewMode.DEFAULT : systemShare.SharePreviewMode.DETAIL,
-      selectionMode: systemShare.SelectionMode.SINGLE,
-      excludedAbilities: [systemShare.ShareAbilityType.PRINT],
-    }).then(() => {
-      logger.info('HuaweiShare_ show');
-    }).catch((error: BusinessError) => {
-      logger.error(`HuaweiShare_ show error. Code: ${error.code}, message: ${error.message}`);
-    });
-  }
-
-  private async handelVideoShare(): Promise<void> {
-    const contextFaker: Context = getContext(this);
-    let filePath = contextFaker.filesDir + '/exampleVideo.mp4';
-    /** Solution 1 */
-    // const resourceMgr: resourceManager.ResourceManager = contextFaker.resourceManager;
-    // const fileData: Uint8Array = await resourceMgr.getMediaContent($r('app.media.icon'));
-    // this.thumbnailBuffer = fileData;
-    /** Solution 2 */
-    let thumbnailPath = contextFaker.filesDir + '/exampleImage.jpg';
-    const imageSource: image.ImageSource = image.createImageSource(thumbnailPath);
-    const imagePacker: image.ImagePacker = image.createImagePacker();
-    const buffer: ArrayBuffer = await imagePacker.packToData(imageSource, {
-      format: 'image/jpeg',
-      quality: 30,
-    });
-    this.thumbnailBuffer = new Uint8Array(buffer);
-    let utdTypeId = utd.getUniformDataTypeByFilenameExtension('.mp4', utd.UniformDataType.VIDEO);
-    let shareData: systemShare.SharedData = new systemShare.SharedData({
-      utd: utdTypeId,
-      uri: fileUri.getUriFromPath(filePath),
-      title: 'Video title',
-      description: 'Video Description',
-      thumbnail: this.thumbnailBuffer,
-    });
-    let controller: systemShare.ShareController = new systemShare.ShareController(shareData);
-    const callback = () => {
-      logger.info('HuaweiShare_ dismiss run');
-      promptAction.showToast({ message: 'Share panel disappeared' });
+    const context: common.UIAbilityContext = uiContext.getHostContext() as common.UIAbilityContext;
+    const callback = (result: systemShare.ShareOperationResult) => {
+      logger.info('HuaweiShare_ shareCompleted invoked. result:', result.targetAbilityInfo.name);
     };
-    controller.on('dismiss', callback);
-    // controller.off('dismiss', callback);
-    let context = getContext(this) as common.UIAbilityContext;
+    controller.on('shareCompleted', callback);
     controller.show(context, {
-      previewMode: this.videoPreviewMode === 0 ? systemShare.SharePreviewMode.DEFAULT : systemShare.SharePreviewMode.DETAIL
+      previewMode: systemShare.SharePreviewMode.DETAIL,
+      selectionMode: systemShare.SelectionMode.SINGLE,
     }).then(() => {
       logger.info('HuaweiShare_ show');
     }).catch((error: BusinessError) => {
-      logger.error(`HuaweiShare_ show error. Code: ${error.code}, message: ${error.message}`);
+      logger.error(`HuaweiShare_ show error. Code: ${error?.code}, message: ${error?.message}`);
     });
-  }
-
-  @Builder
-  PreviewModule(type: string) {
-    Row() {
-      if (type === 'text') {
-        Image(this.textSelectionMode === 0 ? $r('app.media.share_preview_text1') : $r('app.media.share_preview_text2')).width(100);
-      } else if (type === 'image') {
-        Image(this.imagePreviewMode === 0 ? $r('app.media.share_preview_image1') : $r('app.media.share_preview_image2')).width(100);
-      } else if (type === 'video') {
-        Image(this.videoPreviewMode === 0 ? $r('app.media.share_preview_video1') : $r('app.media.share_preview_video2')).width(100);
-      }
-    }
-    .width(150)
-    .margin({ right: 12 })
-  }
-
-  @Builder
-  RadioItem(text: ResourceStr, value: string, group: string, checked: boolean, handelChange: (isChecked: boolean) => void) {
-    Row() {
-      Radio({ value, group })
-        .checked(checked)
-        .onChange(handelChange)
-      Text(text)
-    }
-    .margin({ right: 12 })
-  }
-
-  @Builder
-  DescriptionText(item: IDemoItem) {
-    Text(item.description)
-      .width('100%')
-      .margin({ top: 12 })
-      .fontSize(14)
-    ForEach(item.featureList, (text: ResourceStr, index: number) => {
-      ListItem() {
-        Row() {
-          Text(index + 1 + '.').fontSize(14)
-          Text(text).fontSize(14)
-        }
-        .width('100%')
-        .margin({ top: 4 })
-        .alignItems(VerticalAlign.Top)
-      }
-    })
-  }
-
-  @Builder
-  DescriptionModule(item: IDemoItem) {
-    Row() {
-      if (item.type === 'text') {
-        this.RadioItem($r('app.string.single_mode'), 'single', 'textGroup', this.textSelectionMode === 0, (isChecked: boolean) => {
-          if (isChecked) {
-            this.textSelectionMode = 0;
-          }
-        })
-        this.RadioItem($r('app.string.batch_mode'), 'batch', 'textGroup', this.textSelectionMode === 1, (isChecked: boolean) => {
-          if (isChecked) {
-            this.textSelectionMode = 1;
-          }
-        })
-      } else if (item.type === 'image') {
-        this.RadioItem($r('app.string.default_mode'), 'default', 'imageGroup', this.imagePreviewMode === 0, (isChecked: boolean) => {
-          if (isChecked) {
-            this.imagePreviewMode = 0;
-          }
-        })
-        this.RadioItem($r('app.string.detail_mode'), 'detail', 'imageGroup', this.imagePreviewMode === 1, (isChecked: boolean) => {
-          if (isChecked) {
-            this.imagePreviewMode = 1;
-          }
-        })
-      } else if (item.type === 'video') {
-        this.RadioItem($r('app.string.default_mode'), 'default', 'videoGroup', this.videoPreviewMode === 0, (isChecked: boolean) => {
-          if (isChecked) {
-            this.videoPreviewMode = 0;
-          }
-        })
-        this.RadioItem($r('app.string.detail_mode'), 'detail', 'videoGroup', this.videoPreviewMode === 1, (isChecked: boolean) => {
-          if (isChecked) {
-            this.videoPreviewMode = 1;
-          }
-        })
-      }
-    }
-    .width('100%')
-    .margin({ top: 12 })
-
-    this.DescriptionText(item)
-  }
-
-  @Builder
-  ScrollList() {
-    List() {
-      ForEach(this.demoList, (item: IDemoItem, index: number) => {
-        ListItem() {
-          Flex({ direction: FlexDirection.Row }) {
-            this.PreviewModule(item.type);
-
-            Column() {
-              Flex({ direction: FlexDirection.Row }) {
-                Text(item.title)
-                  .flexGrow(1)
-                  .fontSize(18)
-                  .fontWeight(500)
-
-                Button($r('app.string.share_btn'))
-                  .width(80)
-                  .height(30)
-                  .margin({ left: 12 })
-                  .onClick(() => item.handelClick())
-              }
-              .width('100%')
-
-              this.DescriptionModule(item);
-            }
-            .flexGrow(1)
-          }
-          .margin({ bottom: 12 })
-        }
-      })
-    }
-    .width('100%')
-    .height('auto')
-    .flexGrow(1)
-    .padding({ top: 12, left: 20, right: 20 })
-  }
-
-  build() {
-    Scroll() {
-      Flex({ direction: FlexDirection.Column }) {
-        this.ScrollList();
-      }
-      .width('100%')
-      .height('100%')
-    }
-    .width('100%')
-    .height('100%')
   }
 }

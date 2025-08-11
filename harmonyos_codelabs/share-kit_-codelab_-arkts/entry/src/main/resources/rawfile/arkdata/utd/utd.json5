@@ -1,6 +1,5 @@
 {
   "UniformDataTypeDeclarations": [
-    // 自定义utd类型
     {
       "TypeId": "com.example.sharekit_sample_demo.share",
       "BelongingToTypes": ["general.object"],

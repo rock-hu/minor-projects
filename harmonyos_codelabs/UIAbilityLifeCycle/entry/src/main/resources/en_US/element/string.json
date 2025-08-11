@@ -10,15 +10,15 @@
     },
     {
       "name": "EntryAbility_label",
-      "value": "UIAbilityLifeCycle"
+      "value": "UIAbilityLifecycle"
     },
     {
-      "name": "hello_message",
-      "value": "Hello World"
+      "name": "home_title",
+      "value": "LifeCircle"
     },
     {
-      "name": "button_name",
-      "value": "jump"
+      "name": "home_log",
+      "value": "Log"
     }
   ]
 }

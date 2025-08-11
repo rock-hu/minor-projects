@@ -50,11 +50,12 @@ class ParamsType {
 @Entry
 @Component
 struct CustomResultPage {
-  @State params: ParamsType = UIContextSelf.getRouter().getParams() as ParamsType;
+  @State params: ParamsType = this.getUIContext().getRouter().getParams() as ParamsType;
   private result: Array<scanBarcode.ScanResult> = [];
   public scroller: Scroller = new Scroller();
 
   aboutToAppear() {
+    UIContextSelf.setUIContextByUIContent(this.getUIContext());
     this.result = this.params.result as Array<scanBarcode.ScanResult>;
   }
 

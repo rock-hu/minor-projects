@@ -1,3 +1,17 @@
+/*
+ * Copyright (c) 2024-2025 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 @Entry
 @Component
@@ -7,11 +21,11 @@ struct MainPage {
       Text('NewHTTP')
         .fontSize(36)
         .fontWeight(FontWeight.Bold)
-        .fontColor('#000000')
+        .fontColor(Color.Black)
         .height(48)
         .width('80%')
-        .margin({top: '7.2%', left: '5%'})
-      Button({type: ButtonType.Normal}){
+        .margin({ top: '7.2%', left: '5%' })
+      Button({ type: ButtonType.Normal }) {
         Row() {
           Column() {
             Text('TimeOut')
@@ -39,7 +53,7 @@ struct MainPage {
       .borderRadius(24)
       .onClick(this.getTimeout)
 
-      Button({type: ButtonType.Normal}){
+      Button({ type: ButtonType.Normal }) {
         Row() {
           Column() {
             Text('TransferRange')
@@ -67,7 +81,7 @@ struct MainPage {
       .borderRadius(24)
       .onClick(this.getTransferRange)
 
-      Button({type: ButtonType.Normal}){
+      Button({ type: ButtonType.Normal }) {
         Row() {
           Column() {
             Text('BaseAddress')
@@ -94,10 +108,7 @@ struct MainPage {
       .backgroundColor('#0A59F7')
       .borderRadius(24)
       .onClick(this.getBaseAddress)
-
     }
-
-
     .linearGradient({
       direction: GradientDirection.Top,
       repeating: true,

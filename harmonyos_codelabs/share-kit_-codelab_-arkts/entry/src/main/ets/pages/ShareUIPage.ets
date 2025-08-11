@@ -7,20 +7,18 @@ import Logger from '../utils/Logger';
 
 let logger = Logger.getLogger('[SystemShare]');
 
-// 获取共享的storage实例
-// Obtaining a Shared Storage Instance
-let storage = LocalStorage.getShared();
-
-@Entry(storage)
+@Entry
 @Component
 struct SystemShare {
+  localStorage = this.getUIContext().getSharedLocalStorage();
+
   @State message: ResourceStr = $r('app.string.target_app');
   @State textContent: string = '';
   @State htmlLink: string = '';
   @State imageUri: string = '';
   @State videoUri: string = '';
   @State pixelMap: image.PixelMap | null = null;
-  private want: Want | undefined = storage.get<Want>('ShareUIAbilityWant');
+  private want: Want | undefined = this.localStorage?.get<Want>('ShareUIAbilityWant');
 
   aboutToAppear(): void {
     systemShare.getSharedData(this.want).then((data: systemShare.SharedData) => {
@@ -37,7 +35,9 @@ struct SystemShare {
             break;
         }
       });
-    })
+    }).catch((error: BusinessError) => {
+      logger.error(`getSharedData error. Code: ${error?.code}, message: ${error?.message}`);
+    });
   }
 
   @Builder
@@ -57,7 +57,8 @@ struct SystemShare {
         .fontSize(20)
         .margin({ top: 20 })
         .onClick(() => {
-          let context: common.UIAbilityContext = getContext(this) as common.UIAbilityContext;
+          const uiContext: UIContext = this.getUIContext();
+          const context: common.UIAbilityContext = uiContext.getHostContext() as common.UIAbilityContext;
           let openLinkOptions: OpenLinkOptions = {
             appLinkingOnly: false
           };
@@ -107,7 +108,8 @@ struct SystemShare {
         .width('40%')
         .height('5%')
         .onClick(() => {
-          const context = getContext(this) as common.UIAbilityContext;
+          const uiContext: UIContext = this.getUIContext();
+          const context: common.UIAbilityContext = uiContext.getHostContext() as common.UIAbilityContext;
           context.terminateSelf();
         })
       }

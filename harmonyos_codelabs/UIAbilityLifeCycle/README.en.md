@@ -1,26 +1,55 @@
-# UIAbility and Custom Component Lifecycle
+# UIAbility Lifecycle
 
-### Introduction
+## Overview
 
-This codelab introduces UIAbility and the custom component lifecycle.
+This example triggers the lifecycle of the application by the user, and then uses EventHub to listen and print the
+triggered lifecycle on the homepage.
 
-### Concepts
+## Preview
 
-- UIAbility: This component provides the UI for user interaction. It functions as the basic unit scheduled by the system and provides a window for applications to draw UIs. A UIAbility component can implement a functional module through multiple pages. Each UIAbility component instance corresponds to a task in Recents.
-- Custom component lifecycle: The lifecycle callbacks of a custom component are used to notify users of the lifecycle of the component. These callbacks are private and are invoked by the development framework at a specified time at runtime. They cannot be manually invoked from applications.
-- Window: This module provides a mechanism for displaying multiple application UIs and allowing the end user to interact with them on the same physical screen.
+![lifecycle_en.gif](screenshots/device/lifecycle_en.gif)
 
-### Permissions
+## How to Use
+
+1. The user clicks on the application and prints out the triggered lifecycle on the homepage.
+2. The user returns to the desktop, clicks on the application, and adds the lifecycle triggered by printing on the
+   homepage.
+
+## Project Directory
+
+```
+├──entry/src/main/ets/
+│  ├──entryability
+│  │  └──EntryAbility.ets               // Entry ability
+│  ├──entrybackupability
+│  │  └──EntryBackupAbility.ets         // Backup and restoration
+│  ├──model                                  
+│  │  └──DataModel.ets                  // DataModel operation
+│  └──pages                 
+│     └──Index.ets                      // Home page
+└──entry/src/main/resources             // Application resource directory
+```
+
+## Implementation Details
+
+The homepage printing lifecycle is achieved by adding eventHub listener in the ElementAbility.ts file:
+
+- Open the homepage for the first time, trigger the onCreate, onWindowStageCreate, and onForeground lifecycles, listen
+  through eventHub, and print on the page.
+- Switch to the desktop, return to the application, trigger the onBackground and onForeground lifecycles, listen through
+  eventHub, and add printing to the page.
+
+## Permissions
 
 N/A
 
-### How to Use
+## Dependency
 
-1. Search for the keyword **LifeCyclePage** on the console to view the lifecycle invoking process.
+N/A
 
-### Constraints
+## Constraints
 
 1. The sample is only supported on Huawei phones with standard systems.
-2. HarmonyOS: HarmonyOS 5.0.0 Release or later.
-3. DevEco Studio: DevEco Studio 5.0.0 Release or later.
-4. HarmonyOS SDK: HarmonyOS 5.0.0 Release SDK or later.
+2. The HarmonyOS version must be HarmonyOS 5.1.1 Release or later.
+3. The DevEco Studio version must be DevEco Studio 5.1.1 Release or later.
+4. The HarmonyOS SDK version must be HarmonyOS 5.1.1 Release SDK or later.

@@ -36,7 +36,7 @@ class ParamsType {
 @Entry
 @Component
 struct ScanResultPage {
-  @State params: ParamsType = UIContextSelf.getRouter().getParams() as ParamsType;
+  @State params: ParamsType = this.getUIContext().getRouter().getParams() as ParamsType;
   @State cameraHeight: number = 1412;
   @State cameraWidth: number = 720;
   @State layTop: number = 226;
@@ -71,6 +71,7 @@ struct ScanResultPage {
   }
 
   aboutToAppear() {
+    UIContextSelf.setUIContextByUIContent(this.getUIContext());
     try {
       let isFold: boolean = display.isFoldable();
       this.setDisplay();

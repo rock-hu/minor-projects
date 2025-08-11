@@ -8,20 +8,18 @@ import Logger from '../utils/Logger';
 
 let logger = Logger.getLogger('[ShareExtDialog]');
 
-// 获取共享的storage实例
-// Obtaining a Shared Storage Instance
-let storage = LocalStorage.getShared();
-
-@Entry(storage)
+@Entry
 @Component
 struct ShareExtDialog {
+  localStorage = this.getUIContext().getSharedLocalStorage();
   @State message: ResourceStr = $r('app.string.level_2');
   @State imageUri: string = '';
   @State videoUri: string = '';
   @State pixelMap: image.PixelMap | null = null;
   @State text: string = '';
-  private want: Want | undefined = storage.get<Want>('ShareExtAbilityWant');
-  private session: UIExtensionContentSession | undefined = storage.get<UIExtensionContentSession>('ShareExtAbilitySession');
+  private want: Want | undefined = this.localStorage?.get<Want>('ShareExtAbilityWant');
+  private session: UIExtensionContentSession | undefined =
+    this.localStorage?.get<UIExtensionContentSession>('ShareExtAbilitySession');
 
   aboutToAppear(): void {
     systemShare.getSharedData(this.want).then((data: systemShare.SharedData) => {
@@ -44,7 +42,9 @@ struct ShareExtDialog {
             break;
         }
       });
-    })
+    }).catch((error: BusinessError) => {
+      logger.error(`getSharedData error. Code: ${error?.code}, message: ${error?.message}`);
+    });
   }
 
   belongsToImage(recordUtd: string): boolean {
@@ -59,29 +59,15 @@ struct ShareExtDialog {
      * Example scenario: The target application can process all image types, and "utd": "general.image" is configured in module.json5.
      * */
 
-    /**
-     * 【错误示例】 直接判断 utd 强等于 IMAGE 类型
-     * 产生的问题：当宿主应用传递 'general.jpeg' 'general.png' 等数据类型时 会被错误的判断为不属于图片
-     */
-    /**
-     * [Example] The utd type is strongly equal to the Image type.
-     * Problem: When the host application transfers data types such as general.jpeg and general.png, the host application incorrectly considers that the data types are not images.
-     */
-
-    // if (recordUtd === utd.UniformDataType.IMAGE) {
-    //   return true;
-    // }
-    // return false;
-
     // 【正确示例】 先获取标准化数据类型描述对象 再判断是否属于图片类型
     // [Example] Obtain the standard data type description object and then determine whether the object belongs to the image type.
-    let typeObj : utd.TypeDescriptor = utd.getTypeDescriptor(recordUtd);
+    let typeObj: utd.TypeDescriptor = utd.getTypeDescriptor(recordUtd);
     let result = typeObj.belongsTo(utd.UniformDataType.IMAGE);
     return result;
   }
 
   belongsToVideo(recordUtd: string): boolean {
-    let typeObj : utd.TypeDescriptor = utd.getTypeDescriptor(recordUtd);
+    let typeObj: utd.TypeDescriptor = utd.getTypeDescriptor(recordUtd);
     let result = typeObj.belongsTo(utd.UniformDataType.VIDEO);
     return result;
   }
@@ -91,14 +77,16 @@ struct ShareExtDialog {
   createWant() {
     let data: systemShare.SharedData = new systemShare.SharedData({
       utd: utd.UniformDataType.TEXT,
-      content: 'Hello HarmonyOS'
+      content: 'Hello HarmonyOS',
     });
-    let options : systemShare.ShareControllerOptions = {
+    let options: systemShare.ShareControllerOptions = {
       previewMode: systemShare.SharePreviewMode.DETAIL,
       selectionMode: systemShare.SelectionMode.SINGLE
     };
     systemShare.getWant(data, options).then((want) => {
       logger.info('getWant', JSON.stringify(want))
+    }).catch((error: BusinessError) => {
+      logger.error(`getWant error. Code: ${error?.code}, message: ${error?.message}`);
     });
   }
 
@@ -155,11 +143,13 @@ struct ShareExtDialog {
               bundleName: "com.example.sharekit_sample_demo",
               abilityName: "ShareUIAbility",
             };
-            (getContext(this) as common.UIExtensionContext).startAbility(paramsWant).then(() => {
+            const uiContext: UIContext = this.getUIContext();
+            const context: common.UIExtensionContext = uiContext.getHostContext() as common.UIExtensionContext;
+            context.startAbility(paramsWant).then(() => {
               logger.info('startAbility show');
               this.session?.terminateSelfWithResult({ resultCode: systemShare.ShareAbilityResultCode.CLOSE });
             }).catch((error: BusinessError) => {
-              logger.error(`startAbility error. Code: ${error.code}, message: ${error.message}`);
+              logger.error(`startAbility error. Code: ${error?.code}, message: ${error?.message}`);
             });
           })
 

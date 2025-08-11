@@ -30,7 +30,8 @@ export default struct SharedRecord {
       .onSelect(async (index: number, text?: string | undefined) => {
         if (text) {
           this.utd = text;
-          const context: Context = getContext(this);
+          const uiContext: UIContext = this.getUIContext();
+          const context: Context = uiContext.getHostContext() as Context;
           const recordData = await CreateRecord.utdMap[index].action(context);
           this.title = recordData.title ?? '';
           this.label = recordData.label ?? '';
