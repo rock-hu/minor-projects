@@ -66,6 +66,6 @@ N/A
 1. The sample app is only supported on devices with standard systems.Supported devices: Huawei phones, tablets, and 2in1.
 2. The DevEco Studio version used in this sample must be DevEco Studio NEXT Developer Beta1.
 3. The HarmonyOS version must be HarmonyOS NEXT Beta1 or later.
-4. The HarmonyOS SDK version must be HarmonyOS NEXT Beta1 SDK or later.
+4. The HarmonyOS SDK version must be HarmonyOS 5.1.0 Release SDK or later.
 5. To use the facial authentication function, the devices must support 3D faces.
 6. The FIDO client APIs provide only on-device capabilities and cannot enable or perform authentication independently. The **ConnectService.ets** file provides a cloud connection template. You can modify the server URL in this file to connect to the cloud server.

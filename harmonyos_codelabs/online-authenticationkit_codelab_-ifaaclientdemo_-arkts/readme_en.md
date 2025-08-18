@@ -63,5 +63,5 @@ UserAuthenticationKit
 1. The sample app is only supported on devices with standard systems.Supported devices: Huawei phones, tablets, and 2in1.
 2. The DevEco Studio version used in this sample must be DevEco Studio NEXT Developer Beta1.
 3. The HarmonyOS version must be  HarmonyOS NEXT Beta1 or later.
-4. The HarmonyOS SDK version must be HarmonyOS NEXT Beta1 SDK or later.
+4. The HarmonyOS SDK version must be HarmonyOS 5.1.0 Release SDK or later.
 5. The sample code requires packets signed by the IIFAA central server for correct results.

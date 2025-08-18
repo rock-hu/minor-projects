@@ -11,7 +11,7 @@ import { FidoReg } from '../bean/FidoReg';
 @Component
 struct Index {
   con = new ConnectService();
-  uiContext: common.UIAbilityContext = getContext(this) as common.UIAbilityContext;
+  uiContext: common.UIAbilityContext = this.getUIContext().getHostContext() as common.UIAbilityContext;
 
   build() {
     Row() {
@@ -24,27 +24,27 @@ struct Index {
               let discoverData: fido.DiscoveryData = await fido.discover(this.uiContext);
               hilog.info(0x0000, 'TAG', `FidoTest-Index------discover: ${JSON.stringify(discoverData)}`);
               try {
-                promptAction.showToast({
+                promptAction.openToast({
                   message: JSON.stringify(discoverData),
                   duration: 2000
                 });
               } catch (error) {
                 let message = (error as BusinessError).message;
                 let code = (error as BusinessError).code;
-                hilog.error(0x0000, 'TAG', `showToast args error code is ${code}, message is ${message}`);
+                hilog.error(0x0000, 'TAG', `openToast args error code is ${code}, message is ${message}`);
               }
             } catch (error) {
               hilog.error(0x0000, 'TAG', `FidoTest-Index------discover: ${error}`);
               try {
                 const err = error as BusinessError;
-                promptAction.showToast({
+                promptAction.openToast({
                   message: '' + err.code + err.message,
                   duration: 2000
                 });
               } catch (error) {
                 let message = (error as BusinessError).message;
                 let code = (error as BusinessError).code;
-                hilog.error(0x0000, 'TAG', `showToast args error code is ${code}, message is ${message}`);
+                hilog.error(0x0000, 'TAG', `openToast args error code is ${code}, message is ${message}`);
               }
             }
           })
@@ -89,14 +89,14 @@ struct Index {
                   }
 
                   try {
-                    promptAction.showToast({
+                    promptAction.openToast({
                       message: 'UAF_REG:成功',
                       duration: 2000
                     });
                   } catch (error) {
                     let message = (error as BusinessError).message;
                     let code = (error as BusinessError).code;
-                    hilog.error(0x0000, 'TAG', `showToast args error code is ${code}, message is ${message}`);
+                    hilog.error(0x0000, 'TAG', `openToast args error code is ${code}, message is ${message}`);
                   }
                   hilog.info(0x0000, 'TAG', 'UAF_REG:成功');
                 }
@@ -104,14 +104,14 @@ struct Index {
             } catch (error) {
               try {
                 const err = error as BusinessError;
-                promptAction.showToast({
+                promptAction.openToast({
                   message: '' + err.code + err.message,
                   duration: 2000
                 });
               } catch (error) {
                 let message = (error as BusinessError).message;
                 let code = (error as BusinessError).code;
-                hilog.error(0x0000, 'TAG', `showToast args error code is ${code}, message is ${message}`);
+                hilog.error(0x0000, 'TAG', `openToast args error code is ${code}, message is ${message}`);
               }
               hilog.error(0x0000, 'TAG', `processUAFOperation args error code is ${error.code}, message is ${error.message}`);
             }
@@ -136,28 +136,28 @@ struct Index {
               let isAuth = authResp.includes('userinfo');
               if (isAuth) {
                 try {
-                  promptAction.showToast({
+                  promptAction.openToast({
                     message: 'UAF_AUTH:成功',
                     duration: 2000
                   });
                 } catch (error) {
                   let message = (error as BusinessError).message;
                   let code = (error as BusinessError).code;
-                  hilog.error(0x0000, 'TAG', `showToast args error code is ${code}, message is ${message}`);
+                  hilog.error(0x0000, 'TAG', `openToast args error code is ${code}, message is ${message}`);
                 }
                 hilog.info(0x0000, 'TAG', 'UAF_AUTH:成功');
               }
             } catch (error) {
               try {
                 const err = error as BusinessError;
-                promptAction.showToast({
+                promptAction.openToast({
                   message: '' + err.code + err.message,
                   duration: 2000
                 });
               } catch (error) {
                 let message = (error as BusinessError).message;
                 let code = (error as BusinessError).code;
-                hilog.error(0x0000, 'TAG', `showToast args error code is ${code}, message is ${message}`);
+                hilog.error(0x0000, 'TAG', `openToast args error code is ${code}, message is ${message}`);
               }
               hilog.error(0x0000, 'TAG', `processUAFOperation args error code is ${error.code}, message is ${error.message}`);
             }
@@ -178,26 +178,26 @@ struct Index {
               let uafProtocolMessage: string = messageResp.uafProtocolMessage;
               hilog.info(0x0000, 'TAG', `FidoTest-Index------uafProtocolMessage: ${uafProtocolMessage}`);
               try {
-                promptAction.showToast({
+                promptAction.openToast({
                   message: 'UAF_DEREG:成功',
                   duration: 2000
                 });
               } catch (error) {
                 let message = (error as BusinessError).message;
                 let code = (error as BusinessError).code;
-                hilog.error(0x0000, 'TAG', `showToast args error code is ${code}, message is ${message}`);
+                hilog.error(0x0000, 'TAG', `openToast args error code is ${code}, message is ${message}`);
               }
             } catch (error) {
               try {
                 const err = error as BusinessError;
-                promptAction.showToast({
+                promptAction.openToast({
                   message: '' + err.code + err.message,
                   duration: 2000
                 });
               } catch (error) {
                 let message = (error as BusinessError).message;
                 let code = (error as BusinessError).code;
-                hilog.error(0x0000, 'TAG', `showToast args error code is ${code}, message is ${message}`);
+                hilog.error(0x0000, 'TAG', `openToast args error code is ${code}, message is ${message}`);
               }
               hilog.error(0x0000, 'TAG', `processUAFOperation args error code is ${error.code}, message is ${error.message}`);
             }
@@ -216,28 +216,28 @@ struct Index {
               await fido.checkPolicy(this.uiContext, uafMessage).then(() => {
                 hilog.info(0x0000, 'TAG', 'FidoTest-Index------check policy-成功');
                 try {
-                  promptAction.showToast({
+                  promptAction.openToast({
                     message: '已开启',
                     duration: 2000
                   });
                 } catch (error) {
                   let message = (error as BusinessError).message;
                   let code = (error as BusinessError).code;
-                  hilog.error(0x0000, 'TAG', `showToast args error code is ${code}, message is ${message}`);
+                  hilog.error(0x0000, 'TAG', `openToast args error code is ${code}, message is ${message}`);
                 }
                 ;
               })
             } catch (error) {
               try {
                 const err = error as BusinessError;
-                promptAction.showToast({
+                promptAction.openToast({
                   message: '' + err.code + err.message,
                   duration: 2000
                 });
               } catch (error) {
                 let message = (error as BusinessError).message;
                 let code = (error as BusinessError).code;
-                hilog.error(0x0000, 'TAG', `showToast args error code is ${code}, message is ${message}`);
+                hilog.error(0x0000, 'TAG', `openToast args error code is ${code}, message is ${message}`);
               }
               hilog.error(0x0000, 'TAG', `checkPolicy args error code is ${error.code}, message is ${error.message}`);
             }

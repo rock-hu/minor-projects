@@ -7,7 +7,7 @@ const ifaaAuthType = "fp";
 
 function show(message: string)
 {
-  promptAction.showToast({
+  promptAction.openToast({
     message: message,
     duration: 2000
   });

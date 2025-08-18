@@ -65,6 +65,6 @@
 1. 本示例仅支持标准系统上运行，支持设备：华为手机、平板、2in1；
 2. 本示例需要使用DevEco Studio NEXT Developer Beta1才可编译运行；
 3. HarmonyOS系统：HarmonyOS NEXT Beta1及以上。
-4. HarmonyOS SDK版本：HarmonyOS NEXT Beta1 SDK及以上。
+4. HarmonyOS SDK版本：HarmonyOS 5.1.0 Release SDK及以上。
 5. 若使用人脸认证功能，设备须支持3D人脸；
 6. FIDO客户端接口仅提供端侧能力，无法独立进行开启/认证服务；ConnectService.ets提供连云服务模板，如需连云请通过修改服务器url地址接入云端服务器。

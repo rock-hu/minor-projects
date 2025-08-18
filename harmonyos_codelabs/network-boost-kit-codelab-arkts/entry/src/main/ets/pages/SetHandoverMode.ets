@@ -24,72 +24,74 @@ struct requestContent {
   @State mode: netHandover.HandoverMode = netHandover.HandoverMode.DISCRETION;
 
   build() {
-    Column() {
-      Row() {
-        Text('SetHandoverMode')
-          .fontSize(30)
+    Scroll() {
+      Column() {
+        Row() {
+          Text('SetHandoverMode')
+            .fontSize(30)
+            .fontWeight(500)
+            .fontColor($r('sys.color.black'))
+            .height(48)
+            .width(400)
+            .margin({ top: '5%', right: '16%' })
+        }
+        .height(40)
+        .width(124)
+        .margin({ top: 32, right: '16%' })
+
+        Divider().color('gray').strokeWidth(1)
+        Text('mode:')
+          .fontSize(24)
           .fontWeight(500)
-          .fontColor('#FF100F0F')
-          .height(48)
-          .width(400)
-          .margin({ top: '5%', right: '16%' })
+          .fontColor($r('sys.color.navigation_drag_bar_item_default'))
+          .height(40)
+          .width('100%')
+          .margin({ top: '10%', right: '16%' })
+
+        Text(String(this.mode))
+          .width('100%')
+          .height(40)
+          .margin({ top: '1%', right: '5%' })
+          .backgroundColor($r('sys.color.navigation_drag_bar_item_default'))
+          .fontColor($r('sys.color.black'))
+          .fontSize(18)
+          .fontWeight(500)
+          .borderRadius(10)
+
+        Button($r('app.string.Click_to_set_handover_mode'))
+          .width('100%')
+          .height(40)
+          .margin({ top: '11%' })
+          .fontColor($r('sys.color.navigation_drag_bar_item_default'))
+          .fontSize(24)
+          .fontWeight(500)
+          .borderRadius(20)
+          .onClick(this.getSetHandoverMode)
+
+        Text($r('app.string.Result'))
+          .fontSize(24)
+          .fontWeight(500)
+          .fontColor($r('sys.color.black'))
+          .width('100%')
+          .height(40)
+          .margin({ top: '11%', right: '16%' })
+        TextArea({
+          text: this.content
+        })
+          .width('100%')
+          .height(200)
+          .margin({ top: '11%', left: 0 })
+          .backgroundColor($r('sys.color.gray_01'))
+          .fontColor($r('sys.color.black'))
+          .fontSize(24)
+          .fontWeight(500)
+          .borderRadius(10)
       }
-      .height(40)
-      .width(124)
-      .margin({ top: 32, right: '16%' })
-
-      Divider().color('gray').strokeWidth(1)
-      Text('mode:')
-        .fontSize(24)
-        .fontWeight(500)
-        .fontColor('#FF100F0F')
-        .height(40)
-        .width('100%')
-        .margin({ top: '10%', right: '16%' })
-
-      Text(String(this.mode))
-        .width('100%')
-        .height(40)
-        .margin({ top: '1%', right: '5%' })
-        .backgroundColor('0x317AFF')
-        .fontColor('#000000')
-        .fontSize(18)
-        .fontWeight(500)
-        .borderRadius(10)
-
-      Button($r('app.string.Click_to_set_handover_mode'))
-        .width('100%')
-        .height(40)
-        .margin({ top: '11%' })
-        .fontColor('#FFFFFFFF')
-        .fontSize(24)
-        .fontWeight(500)
-        .borderRadius(20)
-        .onClick(this.getSetHandoverMode)
-
-      Text($r('app.string.Result'))
-        .fontSize(24)
-        .fontWeight(500)
-        .fontColor($r('sys.color.black'))
-        .width('100%')
-        .height(40)
-        .margin({ top: '11%', right: '16%' })
-      TextArea({
-        text: this.content
-      })
-        .width('100%')
-        .height(200)
-        .margin({ top: '11%', left: 0 })
-        .backgroundColor('0x317AFF')
-        .fontColor($r('sys.color.black'))
-        .fontSize(24)
-        .fontWeight(500)
-        .borderRadius(10)
+      .padding({ left: '16vp', right: '16vp' })
+      .alignItems(HorizontalAlign.Start)
     }
     .height('100%')
     .width('100%')
-    .padding({ left: '16vp', right: '16vp' })
-    .alignItems(HorizontalAlign.Start)
   }
 
   private getSetHandoverMode = async () => {

@@ -60,7 +60,7 @@ If the sample code cannot be run, choose Build > Clean Project in DevEco Studio 
 
 ## Restrictions
 
-1. The sample app is supported only on Huawei phones running the standard system.
+1. The sample app is supported only on Huawei phones and Huawei tablet running the standard system.
 2. HarmonyOS: HarmonyOS NEXT Beta1 or later.
 3. DevEco Studio: DevEco Studio NEXT Beta1 or later.
 4. HarmonyOS SDK: HarmonyOS NEXT Beta1 SDK or later.

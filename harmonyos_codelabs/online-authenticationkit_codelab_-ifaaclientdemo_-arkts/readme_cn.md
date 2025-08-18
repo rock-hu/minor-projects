@@ -63,5 +63,5 @@ UserAuthenticationKit
 1. 本示例仅支持标准系统上运行，支持设备：华为手机、平板、2in1；
 2. 本示例需要使用DevEco Studio NEXT Developer Beta1才可编译运行；
 3. HarmonyOS系统：HarmonyOS NEXT Beta1及以上。
-4. HarmonyOS SDK版本：HarmonyOS NEXT Beta1 SDK及以上。
+4. HarmonyOS SDK版本：HarmonyOS 5.1.0 Release SDK及以上。
 5. 样例代码需要使用IIFAA中心服务器签名的报文才能取得正确的结果。
