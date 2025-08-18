@@ -2,8 +2,9 @@
 <!--Kit: ArkUI-->
 <!--Subsystem: Window-->
 <!--Owner: @waterwin-->
-<!--SE: @nyankomiya-->
-<!--TSE: @qinliwen0417-->
+<!--Designer: @nyankomiya-->
+<!--Tester: @qinliwen0417-->
+<!--Adviser: @ge-yafang-->
 
 窗口提供管理窗口的一些基础能力，包括对当前窗口的创建、销毁、各属性设置，以及对各窗口间的管理调度。
 
@@ -223,6 +224,8 @@ import { window } from '@kit.ArkUI';
 ## WindowCreateParams<sup>20+</sup>
 
 应用启动时的窗口参数配置。
+
+**系统接口：** 此接口为系统接口。
 
 **系统能力：** SystemCapability.Window.SessionManager
 | 名称             | 类型                                                                     | 只读 | 可选 | 说明                                                         |
@@ -3969,9 +3972,9 @@ export default class EntryAbility extends UIAbility {
 
 **系统能力**：SystemCapability.WindowManager.WindowManager.Core
 
-| 名称                  | 类型          | 可读 | 可写 | 说明             |
+| 名称                  | 类型          | 只读 | 可选 | 说明             |
 | --------------------- | ----------------- | ---- | ---- | ---------------- |
-| toWindow<sup>9+</sup> | [Window](arkts-apis-window-Window.md) | 是   | 是   | 动画的目标窗口。 |
+| toWindow<sup>9+</sup> | [Window](arkts-apis-window-Window.md) | 否   | 否   | 动画的目标窗口。 |
 
 ### completeTransition<sup>9+</sup>
 

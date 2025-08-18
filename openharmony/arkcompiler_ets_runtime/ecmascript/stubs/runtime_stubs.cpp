@@ -2771,6 +2771,8 @@ DEF_RUNTIME_STUBS(ThrowStackOverflowException)
     // Multi-thread could cause stack-overflow-check failed too,
     // so check thread here to distinguish it with the actual stack overflow.
     ecmaVm->CheckThread();
+    LOG_ECMA(ERROR) << "Stack overflow! current:" << thread->GetCurrentStackPosition()
+        << " limit:" << thread->GetStackLimit();
     ObjectFactory *factory = ecmaVm->GetFactory();
     JSHandle<JSObject> error = factory->GetJSError(ErrorType::RANGE_ERROR, "Stack overflow!", StackCheck::NO);
     if (LIKELY(!thread->HasPendingException())) {
@@ -4113,6 +4115,9 @@ void RuntimeStubs::SortTypedArray(uintptr_t argGlue, JSTypedArray *typedArray)
     JSThread *thread = JSThread::GlueToJSThread(argGlue);
     JSTaggedValue buffer = typedArray->GetViewedArrayBufferOrByteArray(thread);
     const uint32_t len = typedArray->GetArrayLength();
+    if (len == 0) {
+        return;
+    }
     void *pointer = builtins::BuiltinsArrayBuffer::GetDataPointFromBuffer(thread, buffer);
     switch (jsType) {
         case JSType::JS_INT8_ARRAY:

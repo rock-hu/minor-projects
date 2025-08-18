@@ -631,6 +631,7 @@ struct ArkUIProgressStyle {
     ArkUI_Bool enableScanEffect;
     ArkUI_Bool shadow;
     ArkUI_Bool showDefaultPercentage;
+    ArkUI_Bool fontColorSetByUser;
     ArkUIFontStruct fontInfo;
     ArkUI_Float32 borderRadiusValue;
     ArkUI_Int32 borderRadiusUnit;
@@ -3154,6 +3155,7 @@ struct ArkUIImageModifier {
     void (*setFitOriginalSize)(ArkUINodeHandle node, ArkUI_Bool fitOriginalSizeValue);
     void (*resetFitOriginalSize)(ArkUINodeHandle node);
     void (*setSourceSize)(ArkUINodeHandle node, ArkUI_Float32 width, ArkUI_Float32 height);
+    void (*setSourceSizeWithPX)(ArkUINodeHandle node, ArkUI_Int32 width, ArkUI_Int32 height);
     void (*resetSourceSize)(ArkUINodeHandle node);
     void (*setMatchTextDirection)(ArkUINodeHandle node, ArkUI_Uint32 value);
     void (*resetMatchTextDirection)(ArkUINodeHandle node);
@@ -3206,6 +3208,14 @@ struct ArkUIImageModifier {
     ArkUI_Int32 (*getObjectRepeat)(ArkUINodeHandle node);
     ArkUI_Int32 (*getObjectFit)(ArkUINodeHandle node);
     ArkUI_Int32 (*getImageInterpolation)(ArkUINodeHandle node);
+    ArkUI_Int32 (*getImageRotateOrientation)(ArkUINodeHandle node);
+    ArkUI_Float32 (*getHdrBrightness)(ArkUINodeHandle node);
+    ArkUI_Int32 (*getDynamicRangeMode)(ArkUINodeHandle node);
+    ArkUI_Int32 (*getEnableAnalyzer)(ArkUINodeHandle node);
+    ArkUI_Int32 (*getCopyOption)(ArkUINodeHandle node);
+    ArkUI_Int32 (*getMatchTextDirection)(ArkUINodeHandle node);
+    void (*getImageMatrix)(ArkUINodeHandle node, ArkUI_Float32* arrayValue, ArkUI_Int32 size);
+    void (*getSourceSize)(ArkUINodeHandle node, ArkUI_Int32* arrayValue, ArkUI_Int32 size);
     void (*getColorFilter)(ArkUINodeHandle node, ArkUIFilterColorType* colorFilter);
     ArkUI_CharPtr (*getAlt)(ArkUINodeHandle node);
     ArkUI_Int32 (*getImageDraggable)(ArkUINodeHandle node);
@@ -3219,6 +3229,7 @@ struct ArkUIImageModifier {
     void (*setPixelMapArray)(ArkUINodeHandle node, void* animatedDrawableDescriptor);
     void (*setResourceSrc)(ArkUINodeHandle node, void* resource);
     void (*enableAnalyzer)(ArkUINodeHandle node, ArkUI_Bool enable);
+    void (*resetEnableAnalyzer)(ArkUINodeHandle node);
     void (*setImagePrivacySensitive)(ArkUINodeHandle node, ArkUI_Int32 sensitive);
     void (*resetImagePrivacySensitive)(ArkUINodeHandle node);
     void (*analyzerConfig)(ArkUINodeHandle node, void* config);
@@ -4463,8 +4474,11 @@ struct ArkUINavDestinationModifier {
     void (*resetNavDestinationOnBackPressed)(ArkUINodeHandle node);
     void (*setNavDestinationOnReady)(ArkUINodeHandle node, void* callback);
     void (*resetNavDestinationOnReady)(ArkUINodeHandle node);
+    void (*setNavDestinationIsCustomTitleBarSize)(ArkUINodeHandle node, ArkUI_Bool isCustom);
+    void (*resetNavDestinationIsCustomTitleBarSize)(ArkUINodeHandle node);
     void (*setNavDestinationBeforeCreateLayoutWrapperCallBack)(ArkUINodeHandle node,
         void (*beforeCreateLayoutWrapper)(ArkUINodeHandle node));
+    void (*setTitleAnimationElapsedTime)(ArkUINodeHandle node, ArkUI_Int32 elapsedTime);
 };
 
 struct ArkUITextAreaModifier {
@@ -5492,6 +5506,8 @@ struct ArkUINavigationModifier {
     void (*resetToolBar)(ArkUINodeHandle node);
     void (*setOnNavBarStateChange)(ArkUINodeHandle node, void* callback);
     void (*resetOnNavBarStateChange)(ArkUINodeHandle node);
+    void (*setIsCustomTitleBarSize)(ArkUINodeHandle node, ArkUI_Bool isCustom);
+    void (*resetIsCustomTitleBarSize)(ArkUINodeHandle node);
     void (*setBeforeCreateLayoutWrapperCallBack)(ArkUINodeHandle node,
         void (*beforeCreateLayoutWrapper)(ArkUINodeHandle node));
 };
@@ -6908,6 +6924,7 @@ struct ArkUIFrameNodeModifier {
         ArkUI_Int32 instanceId, bool forceDark, ArkUI_CharPtr nodeTag, uint32_t (*colorInvertFunc)(uint32_t color));
     void (*setFocusDependence)(ArkUINodeHandle node, ArkUI_Uint32 focusDependence);
     void (*resetFocusDependence)(ArkUINodeHandle node);
+    void (*applyAttributesFinish)(ArkUINodeHandle node);
 };
 
 struct ArkUINodeContentEvent {

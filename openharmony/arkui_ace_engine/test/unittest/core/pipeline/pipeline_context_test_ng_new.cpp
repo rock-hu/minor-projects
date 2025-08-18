@@ -1864,6 +1864,39 @@ HWTEST_F(PipelineContextTestNg, UITaskSchedulerTestNg014, TestSize.Level1)
 }
 
 /**
+ * @tc.name: UITaskSchedulerTestNg015
+ * @tc.desc: Test FlushAfterModifierTask.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PipelineContextTestNg, UITaskSchedulerTestNg015, TestSize.Level1)
+{
+    /**
+     * @tc.steps1: Create taskScheduler.
+     */
+    UITaskScheduler taskScheduler;
+
+    /**
+     * @tc.steps2: Call FlushAfterModifierTask.
+     */
+    taskScheduler.FlushAfterModifierTask();
+
+    /**
+     * @tc.steps3: Call FlushAfterModifierTask.
+     * @tc.expected: afterModifierTasks_ in the taskScheduler size is 2.
+     */
+    taskScheduler.AddAfterModifierTask([]() {});
+    taskScheduler.AddAfterModifierTask(nullptr);
+    EXPECT_EQ(taskScheduler.afterModifierTasks_.size(), 2);
+
+    /**
+     * @tc.steps4: Call FlushTaskWithCheck.
+     * @tc.expected: afterModifierTasks_ in the taskScheduler size is 0.
+     */
+    taskScheduler.FlushTaskWithCheck();
+    EXPECT_EQ(taskScheduler.afterModifierTasks_.size(), 0);
+}
+
+/**
  * @tc.name: TestAddIgnoreLayoutSafeAreaBundle
  * @tc.desc: Test AddIgnoreLayoutSafeAreaBundle
  * @tc.type: FUNC
@@ -2150,7 +2183,7 @@ HWTEST_F(PipelineContextTestNg, PipelineFlushTouchEvents002, TestSize.Level1)
     context_->vsyncTime_ = AFTER_VSYNC_TIME;
     context_->eventManager_->idToTouchPoints_.clear();
     bool isAcc = context_->touchAccelarate_;
-    context_->touchAccelarate_ = true;
+    context_->touchAccelarate_ = false;
 
     for (auto& testCase : FLUSH_TOUCH_EVENTS_TESTCASES) {
         context_->resampleTimeStamp_ = testCase.vsyncTime;
@@ -3943,7 +3976,7 @@ HWTEST_F(PipelineContextTestNg, PipelineContextTestNg259, TestSize.Level1)
 
     /**
      * @tc.steps5: Call the function OnDumpBindAICaller.
-     * @tc.expected: topNavNode->CallAIFunction result is not AI_CALLER_INVALID.
+     * @tc.expected: topNavNode->CallAIFunction result is AI_CALL_SUCCESS.
      */
     std::vector<std::string> params;
     params.push_back("-bindaihelper");

@@ -55,6 +55,24 @@ inline int StubBuilder::NextVariableId()
     return env_->NextVariableId();
 }
 
+inline GateRef StubBuilder::ReadSp()
+{
+    return env_->GetBuilder()->ReadSp();
+}
+
+inline GateRef StubBuilder::CheckStackOverflow(GateRef glue)
+{
+    GateRef allowCrossThreadExecution = LoadPrimitive(VariableType::BOOL(), glue,
+        IntPtr(JSThread::GlueData::GetAllowCrossThreadExecutionOffset(env_->IsArch32Bit())));
+    GateRef sp = ReadSp();
+    GateRef stackLimit = LoadPrimitive(VariableType::INT64(), glue,
+        IntPtr(JSThread::GlueData::GetStackLimitOffset(env_->IsArch32Bit())));
+    return LogicAndBuilder(env_)
+        .And(BoolNot(allowCrossThreadExecution))
+        .And(Int64UnsignedLessThanOrEqual(sp, stackLimit))
+        .Done();
+}
+
 inline GateRef StubBuilder::Int8(int8_t value)
 {
     return env_->GetBuilder()->Int8(value);
@@ -3667,13 +3685,6 @@ inline void StubBuilder::SetBitFieldToFunction(GateRef glue, GateRef function, G
 inline void StubBuilder::SetMachineCodeToFunction(GateRef glue, GateRef function, GateRef value, MemoryAttribute mAttr)
 {
     GateRef offset = IntPtr(JSFunction::MACHINECODE_OFFSET);
-    Store(VariableType::JS_ANY(), glue, function, offset, value, mAttr);
-}
-
-inline void StubBuilder::SetBaselineJitCodeToFunction(GateRef glue, GateRef function, GateRef value,
-    MemoryAttribute mAttr)
-{
-    GateRef offset = IntPtr(JSFunction::BASELINECODE_OFFSET);
     Store(VariableType::JS_ANY(), glue, function, offset, value, mAttr);
 }
 

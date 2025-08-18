@@ -750,6 +750,15 @@ void PipelineContext::AddAfterLayoutTask(std::function<void()>&& task, bool isFl
     }
 }
 
+void PipelineContext::AddAfterModifierTask(std::function<void()>&& task)
+{
+    if (MockPipelineContext::GetCurrent()->UseFlushUITasks()) {
+        taskScheduler_->AddAfterModifierTask(std::move(task));
+    } else if (task) {
+        task();
+    }
+}
+
 void PipelineContext::AddSyncGeometryNodeTask(std::function<void()>&& task)
 {
     if (task) {
@@ -1359,6 +1368,10 @@ Dimension NG::PipelineContext::GetCustomTitleHeight()
 }
 
 void PipelineBase::SetUiDVSyncCommandTime(uint64_t vsyncTime)
+{
+}
+
+void PipelineBase::ForceUpdateDesignWidthScale(int32_t width)
 {
 }
 

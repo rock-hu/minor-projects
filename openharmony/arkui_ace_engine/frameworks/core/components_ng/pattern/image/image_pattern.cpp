@@ -223,19 +223,7 @@ void ImagePattern::TriggerFirstVisibleAreaChange()
         OnVisibleAreaChange(true);
         return;
     }
-    auto host = GetHost();
-    CHECK_NULL_VOID(host);
-    RectF frameRect;
-    RectF visibleInnerRect;
-    RectF visibleRect;
-    host->GetVisibleRectWithClip(visibleRect, visibleInnerRect, frameRect);
-    bool visible = GreatNotEqual(visibleInnerRect.Width(), 0.0) && GreatNotEqual(visibleInnerRect.Height(), 0.0);
-    ACE_SCOPED_TRACE("TriggerFirstVisibleAreaChange [%d]-%s", visible, imageDfxConfig_.ToStringWithSrc().c_str());
-    if (SystemProperties::GetDebugEnabled()) {
-        TAG_LOGD(AceLogTag::ACE_IMAGE, "TriggerFirstVisibleAreaChange [%{public}d]-%{public}s", visible,
-            imageDfxConfig_.ToStringWithSrc().c_str());
-    }
-    OnVisibleAreaChange(visible);
+    OnVisibleAreaChange(previousVisibility_);
 }
 
 void ImagePattern::PrepareAnimation(const RefPtr<CanvasImage>& image)
@@ -897,7 +885,8 @@ void ImagePattern::LoadImage(const ImageSourceInfo& src, bool needLayout)
 
     imageDfxConfig_ = CreateImageDfxConfig(src);
 
-    loadingCtx_ = AceType::MakeRefPtr<ImageLoadingContext>(src, std::move(loadNotifier), syncLoad_, imageDfxConfig_);
+    loadingCtx_ = AceType::MakeRefPtr<ImageLoadingContext>(
+        src, std::move(loadNotifier), syncLoad_, isSceneBoardWindow_, imageDfxConfig_);
 
     if (SystemProperties::GetDebugEnabled()) {
         TAG_LOGI(AceLogTag::ACE_IMAGE, "load image, %{private}s", imageDfxConfig_.ToStringWithSrc().c_str());
@@ -924,7 +913,7 @@ void ImagePattern::LoadAltImage(const ImageSourceInfo& altImageSourceInfo)
 
         altImageDfxConfig_ = CreateImageDfxConfig(altImageSourceInfo);
         altLoadingCtx_ = AceType::MakeRefPtr<ImageLoadingContext>(
-            altImageSourceInfo, std::move(altLoadNotifier), false, altImageDfxConfig_);
+            altImageSourceInfo, std::move(altLoadNotifier), false, isSceneBoardWindow_, altImageDfxConfig_);
         altLoadingCtx_->LoadImageData();
     }
 }
@@ -1501,6 +1490,7 @@ void ImagePattern::OnVisibleAreaChange(bool visible, double ratio)
         TAG_LOGI(AceLogTag::ACE_IMAGE, "OnVisibleAreaChange visible:%{public}d, %{public}s", visible,
             imageDfxConfig_.ToStringWithoutSrc().c_str());
     }
+    previousVisibility_ = visible;
     if (!visible) {
         CloseSelectOverlay();
     }
@@ -2215,6 +2205,11 @@ void ImagePattern::EnableAnalyzer(bool value)
     RegisterVisibleAreaChange(true);
 }
 
+bool ImagePattern::IsEnableAnalyzer() const
+{
+    return isEnableAnalyzer_;
+}
+
 // As an example
 void ImagePattern::SetImageAnalyzerConfig(const ImageAnalyzerConfig& config)
 {
@@ -2323,6 +2318,7 @@ void ImagePattern::InitDefaultValue()
     // If the default value is set to false, the SceneBoard memory increases.
     // Therefore the default value is different in the SceneBoard.
     if (container && container->IsSceneBoardWindow()) {
+        isSceneBoardWindow_ = true;
         autoResizeDefault_ = true;
         interpolationDefault_ = ImageInterpolation::NONE;
     }

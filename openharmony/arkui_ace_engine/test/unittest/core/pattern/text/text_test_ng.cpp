@@ -860,6 +860,22 @@ HWTEST_F(TextTestNg, OnModifyDone003, TestSize.Level1)
 }
 
 /**
+ * @tc.name: OnModifyDone004
+ * @tc.desc: Test textEffect is not cleared by OnModifyDone .
+ * @tc.type: FUNC
+ */
+HWTEST_F(TextTestNg, OnModifyDone004, TestSize.Level1)
+{
+    auto [frameNode, pattern] = Init();
+    auto paragraph = MockParagraph::GetOrCreateMockParagraph();
+    ASSERT_NE(paragraph, nullptr);
+    ASSERT_NE(pattern->pManager_, nullptr);
+    pattern->textEffect_ = TextEffect::CreateTextEffect();
+    pattern->OnModifyDone();
+    EXPECT_EQ(pattern->textEffect_, nullptr);
+}
+
+/**
  * @tc.name: OnDirtyLayoutWrapperSwap001
  * @tc.desc: Test TextPattern OnDirtyLayoutWrapperSwap when skipMeasure is true.
  * @tc.type: FUNC
@@ -2261,7 +2277,7 @@ HWTEST_F(TextTestNg, DidExceedMaxLines001, TestSize.Level1)
 {
     auto paragraph = MockParagraph::GetOrCreateMockParagraph();
     EXPECT_CALL(*paragraph, Layout);
-    EXPECT_CALL(*paragraph, DidExceedMaxLines).WillOnce(Return(true));
+    EXPECT_CALL(*paragraph, DidExceedMaxLinesInner).WillOnce(Return(true));
     /**
      * @tc.steps: step1. create textFrameNode.
      */
@@ -2315,7 +2331,7 @@ HWTEST_F(TextTestNg, DidExceedMaxLines001, TestSize.Level1)
 HWTEST_F(TextTestNg, DidExceedMaxLines002, TestSize.Level1)
 {
     auto paragraph = MockParagraph::GetOrCreateMockParagraph();
-    EXPECT_CALL(*paragraph, DidExceedMaxLines).WillOnce(Return(true));
+    EXPECT_CALL(*paragraph, DidExceedMaxLinesInner).WillOnce(Return(true));
     /**
      * @tc.steps: step1. create textFrameNode.
      */
@@ -2801,6 +2817,11 @@ HWTEST_F(TextTestNg, TextContentModifier002, TestSize.Level1)
     EXPECT_EQ(textContentModifier.fontSizeFloat_->Get(), ADAPT_FONT_SIZE_VALUE.Value());
     EXPECT_EQ(textContentModifier.baselineOffsetFloat_->Get(), BASELINE_OFFSET_VALUE.Value());
     EXPECT_EQ(textStyle.GetFontSize().Value(), textContentModifier.fontSizeFloat_->Get());
+
+    textContentModifier.SetTextDecorationColor(Color::ColorFromString("#55FFFFFF"), false);
+    textContentModifier.textDecoration_ = TextDecoration::LINE_THROUGH;
+    textContentModifier.SetTextDecoration(TextDecoration::LINE_THROUGH);
+    EXPECT_EQ(textContentModifier.textDecorationColorAlpha_->Get(), 85.0f);
 }
 
 /**
@@ -3433,16 +3454,6 @@ HWTEST_F(TextTestNg, TextSelectOverlayTestOnHandleMove001, TestSize.Level1)
 
     RectF handleRect(RECT_X_VALUE, RECT_Y_VALUE, RECT_WIDTH_VALUE, RECT_HEIGHT_VALUE);
 
-    SelectOverlayInfo overlayInfo;
-    auto shareOverlayInfo = std::make_shared<SelectOverlayInfo>(overlayInfo);
-    auto overlayNode = SelectOverlayNode::CreateSelectOverlayNode(shareOverlayInfo);
-    ASSERT_NE(overlayNode, nullptr);
-    overlayNode->MountToParent(frameNode);
-    auto manager = SelectContentOverlayManager::GetOverlayManager();
-    ASSERT_NE(manager, nullptr);
-    manager->selectOverlayNode_ = overlayNode;
-    pattern->selectOverlay_->OnBind(manager);
-
     ASSERT_EQ(pattern->textSelector_.GetStart(), TEXT_ERROR);
     ASSERT_EQ(pattern->textSelector_.GetEnd(), TEXT_ERROR);
     textSelectOverlay->OnHandleMove(handleRect, true);
@@ -3451,8 +3462,6 @@ HWTEST_F(TextTestNg, TextSelectOverlayTestOnHandleMove001, TestSize.Level1)
     textSelectOverlay->OnHandleMove(handleRect, false);
     ASSERT_EQ(pattern->textSelector_.GetStart(), 0);
     ASSERT_EQ(pattern->textSelector_.GetEnd(), 0);
-
-    manager->selectOverlayNode_ = nullptr;
 }
 
 /**

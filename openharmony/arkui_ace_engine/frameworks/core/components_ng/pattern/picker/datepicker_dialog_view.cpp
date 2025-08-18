@@ -100,6 +100,9 @@ RefPtr<FrameNode> DatePickerDialogView::Show(const DialogProperties& dialogPrope
         auto dateOrder = orderResult.dateOrder;
         pickerPattern->SetDateOrder(dateOrder);
     }
+    if (language == "ar" && dateNode->GetLayoutProperty()) {
+        dateNode->GetLayoutProperty()->UpdateLayoutDirection(TextDirection::LTR);
+    }
     pickerPattern->SetIsShowInDialog(true);
     pickerPattern->SetShowLunarSwitch(settingData.lunarswitch);
     pickerPattern->SetTextProperties(settingData.properties);
@@ -1024,7 +1027,7 @@ RefPtr<FrameNode> DatePickerDialogView::CreateDateNode(int32_t dateNodeId,
     SetShowLunar(dateNode, settingData.isLunar);
     SetCanLoop(dateNode, settingData.canLoop);
     SetDateTextProperties(dateNode, settingData.properties);
-    
+
     auto datePickerProperty = settingData.datePickerProperty;
     auto iterStart = datePickerProperty.find("start");
     if (iterStart != datePickerProperty.end()) {
@@ -1564,6 +1567,7 @@ void DatePickerDialogView::PlayHoverAnimation(const RefPtr<FrameNode>& titleButt
     option.SetDuration(HOVER_ANIMATION_DURATION);
     option.SetCurve(Curves::FRICTION);
     option.SetFillMode(FillMode::FORWARDS);
+    auto context = titleButton->GetContextRefPtr();
     AnimationUtils::Animate(option, [weak = WeakPtr<FrameNode>(titleButton), color]() {
         auto titleButton = weak.Upgrade();
         auto buttonTitleNode = AceType::DynamicCast<FrameNode>(titleButton);
@@ -1571,7 +1575,7 @@ void DatePickerDialogView::PlayHoverAnimation(const RefPtr<FrameNode>& titleButt
         auto buttonTitleRenderContext = buttonTitleNode->GetRenderContext();
         buttonTitleRenderContext->UpdateBackgroundColor(color);
         buttonTitleNode->MarkDirtyNode();
-    });
+    }, nullptr, nullptr, context);
 }
 
 RefPtr<FrameNode> DatePickerDialogView::CreateAndMountDateNode(

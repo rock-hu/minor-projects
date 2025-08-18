@@ -20,7 +20,6 @@
 #include "ecmascript/object_fast_operator-inl.h"
 
 namespace panda::ecmascript {
-
 void ObjectMarker::VisitRoot([[maybe_unused]]Root type, ObjectSlot slot)
 {
     JSTaggedValue value(slot.GetTaggedType());
@@ -89,6 +88,7 @@ RawHeapDump::RawHeapDump(const EcmaVM *vm, Stream *stream, HeapSnapshot *snapsho
     : vm_(vm), writer_(stream), snapshot_(snapshot), entryIdMap_(entryIdMap)
 {
     isOOM_ = dumpOption.isDumpOOM;
+    isJSLeakWatcher_ = dumpOption.isJSLeakWatcher;
     startTime_ = std::chrono::steady_clock::now();
 }
 
@@ -146,9 +146,24 @@ void RawHeapDump::DumpSectionIndex()
     LOG_ECMA(INFO) << "rawheap dump, section count " << secIndexVec_.size();
 }
 
+/*
+* mixed hash in NodeId, for example:
+* |----------------- uint64_t -----------------|
+* |-----high-32-bits-----|----lower-32-bits----|
+* |--------------------------------------------|
+* |         hash         | nodeId & 0xFFFFFFFF |
+* |--------------------------------------------|
+*/
 NodeId RawHeapDump::GenerateNodeId(JSTaggedType addr)
 {
-    return isOOM_ ? entryIdMap_->GetNextId() : entryIdMap_->FindOrInsertNodeId(addr);
+    NodeId nodeId = isOOM_ ? entryIdMap_->GetNextId() : entryIdMap_->FindOrInsertNodeId(addr);
+    if (!isJSLeakWatcher_) {
+        return nodeId;
+    }
+
+    JSTaggedValue value {addr};
+    uint64_t hash = value.IsJSObject() ? JSObject::Cast(value)->GetHash(vm_->GetJSThread()) : 0;
+    return (hash << 32) | (nodeId & 0xFFFFFFFF);  // 32: 32-bits means a half of uint64_t
 }
 
 void RawHeapDump::WriteChunk(char *data, size_t size)
@@ -391,7 +406,7 @@ void RawHeapDumpV1::UpdateStringTable(ObjectMarker &marker)
             strIdMapObjVec_.emplace(strId, objVec);
         }
     });
-    LOG_ECMA(INFO) << "rawheap dump, UpdateStringTable count " << strCnt;
+    LOG_ECMA(INFO) << "rawheap dump, update string table count " << strCnt;
 }
 
 RawHeapDumpV2::RawHeapDumpV2(const EcmaVM *vm, Stream *stream, HeapSnapshot *snapshot,
@@ -514,7 +529,7 @@ void RawHeapDumpV2::UpdateStringTable(ObjectMarker &marker)
             strIdMapObjVec_.emplace(strId, objVec);
         }
     });
-    LOG_ECMA(INFO) << "rawheap dump, UpdateStringTable count " << strCnt;
+    LOG_ECMA(INFO) << "rawheap dump, update string table count " << strCnt;
 }
 
 uint32_t RawHeapDumpV2::GenerateRegionId(JSTaggedType addr)

@@ -1106,6 +1106,23 @@ GateRef CircuitBuilder::StoreConstOffset(VariableType type,
     return ret;
 }
 
+GateRef CircuitBuilder::StoreHClassConstOffset(VariableType type, GateRef receiver, GateRef value,
+                                               GateRef compValue, MemoryAttribute mAttr)
+{
+    auto currentLabel = env_->GetCurrentLabel();
+    auto currentDepend = currentLabel->GetDepend();
+    if (mAttr.GetBarrier() == MemoryAttribute::Barrier::UNKNOWN_BARRIER && acc_.IsConstant(value)) {
+        mAttr.SetBarrier(MemoryAttribute::Barrier::NO_BARRIER);
+    }
+    size_t offset = TaggedObject::HCLASS_OFFSET;
+    auto bits = LoadStoreConstOffsetAccessor::ToValue(offset, mAttr);
+    auto ret = GetCircuit()->NewGate(circuit_->StoreHClassConstOffset(bits), type.GetMachineType(),
+        { currentDepend, receiver, value, compValue }, type.GetGateType());
+    currentLabel->SetDepend(ret);
+    return ret;
+}
+
+
 GateRef CircuitBuilder::TaggedIsHeapObjectOp(GateRef value)
 {
     auto currentLabel = env_->GetCurrentLabel();
@@ -1833,15 +1850,14 @@ GateRef CircuitBuilder::StringCharCodeAt(GateRef thisValue, GateRef posTag)
     return ret;
 }
 
-GateRef CircuitBuilder::StringSubstring(std::vector<GateRef>& args)
+GateRef CircuitBuilder::StringSubstring(GateRef thisValue, GateRef startTag, GateRef endTag)
 {
     auto currentLabel = env_->GetCurrentLabel();
     auto currentControl = currentLabel->GetControl();
     auto currentDepend = currentLabel->GetDepend();
-    std::vector<GateRef> inList {currentControl, currentDepend};
-    inList.insert(inList.end(), args.begin(), args.end());
-    GateRef ret = GetCircuit()->NewGate(
-        circuit_->StringSubstring(args.size()), MachineType::I64, inList, GateType::AnyType());
+    GateRef ret =
+        GetCircuit()->NewGate(circuit_->StringSubstring(), MachineType::I64,
+            { currentControl, currentDepend, thisValue, startTag, endTag }, GateType::AnyType());
     currentLabel->SetControl(ret);
     currentLabel->SetDepend(ret);
     return ret;
@@ -1860,15 +1876,14 @@ GateRef CircuitBuilder::StringSubStr(GateRef thisValue, GateRef intStart, GateRe
     return ret;
 }
 
-GateRef CircuitBuilder::StringSlice(std::vector<GateRef>& args)
+GateRef CircuitBuilder::StringSlice(GateRef thisValue, GateRef startTag, GateRef endTag)
 {
     auto currentLabel = env_->GetCurrentLabel();
     auto currentControl = currentLabel->GetControl();
     auto currentDepend = currentLabel->GetDepend();
-    std::vector<GateRef> inList {currentControl, currentDepend};
-    inList.insert(inList.end(), args.begin(), args.end());
     GateRef ret =
-        GetCircuit()->NewGate(circuit_->StringSlice(args.size()), MachineType::I64, inList, GateType::AnyType());
+        GetCircuit()->NewGate(circuit_->StringSlice(), MachineType::I64,
+            { currentControl, currentDepend, thisValue, startTag, endTag }, GateType::AnyType());
     currentLabel->SetControl(ret);
     currentLabel->SetDepend(ret);
     return ret;

@@ -120,7 +120,8 @@ using NapiConcurrentCallback = void (*)(napi_env env, napi_value result, bool su
 using SourceMapCallback = std::function<std::string(const std::string& rawStack)>;
 using SourceMapTranslateCallback = std::function<bool(std::string& url, int& line, int& column,
     std::string& packageName)>;
-using AppFreezeFilterCallback = std::function<bool(const int32_t pid, const bool needDecreaseQuota)>;
+using AppFreezeFilterCallback = std::function<bool(const int32_t pid, const bool needDecreaseQuota,
+    std::string &eventConfig)>;
 using EcmaVM = panda::ecmascript::EcmaVM;
 using JsFrameInfo = panda::ecmascript::JsFrameInfo;
 using NapiOnWorkerErrorCallback = std::function<bool(napi_env env,
@@ -273,7 +274,8 @@ public:
     virtual void ResumeVMById(uint32_t tid) = 0;
 
     virtual void DumpHeapSnapshot(const std::string &path, bool isVmMode = true,
-        DumpFormat dumpFormat = DumpFormat::JSON, bool isPrivate = false, bool captureNumericValue = false) = 0;
+        DumpFormat dumpFormat = DumpFormat::JSON, bool isPrivate = false,
+        bool captureNumericValue = false, bool isJSLeakWatcher = false) = 0;
     virtual void DumpHeapSnapshot(bool isFullGC, const std::string &path,
         const std::function<void(uint8_t)> &callback) = 0;
     virtual void DumpCpuProfile() = 0;

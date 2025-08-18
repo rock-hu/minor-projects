@@ -18,8 +18,8 @@
 #include "common_components/heap/heap_manager.h"
 #include "ecmascript/jspandafile/program_object.h"
 #include "ecmascript/ohos/jit_tools.h"
-#include "ecmascript/platform/file.h"
 #include "ecmascript/compiler/jit_compilation_env.h"
+#include "ecmascript/platform/file.h"
 
 namespace panda::ecmascript {
 
@@ -306,10 +306,10 @@ void JitTask::InstallCode()
             return;
         }
         machineCodeObj = hostThread_->GetEcmaVM()->GetFactory()->SetMachineCodeObjectData(
-            machineCode, size, codeDesc_, methodHandle, relocInfo_);
+            machineCode, size, codeDesc_, methodHandle);
     } else {
         machineCodeObj = hostThread_->GetEcmaVM()->GetFactory()->NewMachineCodeObject(
-            size, codeDesc_, methodHandle, relocInfo_);
+            size, codeDesc_, methodHandle);
     }
     if (machineCodeObj.GetAddress() == ToUintPtr(nullptr)) {
         // skip install
@@ -378,7 +378,6 @@ void JitTask::InstallCodeByCompilerTier(JSHandle<MachineCode> &machineCodeObj,
         ASSERT(compilerTier_.IsBaseLine());
         methodHandle->SetDeoptThreshold(hostThread_->GetEcmaVM()->GetJSOptions().GetDeoptThreshold());
         jsFunction_->SetBaselineCode(hostThread_, machineCodeObj);
-        jsFunction_->SetBaselineJitCodeCache(hostThread_, machineCodeObj);
         LOG_BASELINEJIT(DEBUG) <<"Install baseline jit machine code:" << GetMethodName();
     }
 }

@@ -82,7 +82,7 @@ void RadioPattern::SetBuilderState()
     layoutProperty->UpdateVisibility(VisibleType::GONE);
 }
 
-void RadioPattern::UpdateIndicatorType(bool checkValue)
+void RadioPattern::UpdateIndicatorType()
 {
     auto host = GetHost();
     CHECK_NULL_VOID(host);
@@ -99,7 +99,7 @@ void RadioPattern::UpdateIndicatorType(bool checkValue)
     CHECK_NULL_VOID(renderContext);
     renderContext->UpdateTransformScale({ INDICATOR_MAX_SCALE, INDICATOR_MAX_SCALE });
     renderContext->UpdateOpacity(1);
-    if (!checkValue) {
+    if (!radioPaintProperty->GetRadioCheckValue(false)) {
         SetBuilderState();
     }
 }
@@ -125,10 +125,10 @@ void RadioPattern::OnModifyDone()
         if (radioPaintProperty && !radioPaintProperty->GetRadioCheckValue()) {
             radioModifier_->InitOpacityScale(false);
         }
-        auto callback = [weak = WeakClaim(this), checkValue = radioPaintProperty->GetRadioCheckValue()]() {
+        auto callback = [weak = WeakClaim(this)]() {
             auto radio = weak.Upgrade();
             if (radio) {
-                radio->UpdateIndicatorType(checkValue);
+                radio->UpdateIndicatorType();
             }
         };
         pipeline->AddBuildFinishCallBack(callback);
@@ -634,11 +634,13 @@ void RadioPattern::UpdateUncheckStatus(const RefPtr<FrameNode>& frameNode)
 
 void RadioPattern::startEnterAnimation()
 {
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
     auto springCurve = AceType::MakeRefPtr<InterpolatingSpring>(DEFAULT_INTERPOLATINGSPRING_VELOCITY,
         DEFAULT_INTERPOLATINGSPRING_MASS, DEFAULT_INTERPOLATINGSPRING_STIFFNESS, DEFAULT_INTERPOLATINGSPRING_DAMPING);
     AnimationOption delayOption;
 
-    auto pipeline = GetContext();
+    auto pipeline = host->GetContextRefPtr();
     CHECK_NULL_VOID(pipeline);
     auto radioTheme = pipeline->GetTheme<RadioTheme>();
     CHECK_NULL_VOID(radioTheme);
@@ -668,7 +670,7 @@ void RadioPattern::startEnterAnimation()
             renderContext->UpdateTransformScale({ INDICATOR_MAX_SCALE, INDICATOR_MAX_SCALE });
             renderContext->UpdateOpacity(INDICATOR_MAX_OPACITY);
         },
-        nullptr);
+        nullptr, nullptr, pipeline);
 }
 
 void RadioPattern::startExitAnimation()
@@ -677,7 +679,9 @@ void RadioPattern::startExitAnimation()
         DEFAULT_INTERPOLATINGSPRING_MASS, DEFAULT_INTERPOLATINGSPRING_STIFFNESS, DEFAULT_INTERPOLATINGSPRING_DAMPING);
     AnimationOption delayOption;
 
-    auto pipeline = GetContext();
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto pipeline = host->GetContextRefPtr();
     CHECK_NULL_VOID(pipeline);
     auto radioTheme = pipeline->GetTheme<RadioTheme>();
     CHECK_NULL_VOID(radioTheme);
@@ -697,7 +701,7 @@ void RadioPattern::startExitAnimation()
             renderContext->UpdateTransformScale({ INDICATOR_MIN_SCALE, INDICATOR_MIN_SCALE });
             renderContext->UpdateOpacity(INDICATOR_MIN_OPACITY);
         },
-        nullptr);
+        nullptr, nullptr, pipeline);
     auto eventHub = builderChildNode_->GetOrCreateEventHub<EventHub>();
     if (eventHub) {
         eventHub->SetEnabled(false);

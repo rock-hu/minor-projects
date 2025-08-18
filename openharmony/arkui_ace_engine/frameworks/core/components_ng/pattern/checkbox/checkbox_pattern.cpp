@@ -129,7 +129,6 @@ void CheckBoxPattern::OnAttachToFrameNode()
     CHECK_NULL_VOID(host);
     THREAD_SAFE_NODE_CHECK(host, OnAttachToFrameNode, host);
     host->GetLayoutProperty()->UpdateAlignment(Alignment::CENTER);
-    RegisterVisibleAreaChange();
 }
 
 void CheckBoxPattern::SetBuilderNodeHidden()
@@ -178,6 +177,7 @@ void CheckBoxPattern::OnModifyDone()
     hotZoneHorizontalPadding_ = checkBoxTheme->GetHotZoneHorizontalPadding();
     hotZoneVerticalPadding_ = checkBoxTheme->GetHotZoneVerticalPadding();
     InitDefaultMargin();
+    RegisterVisibleAreaChange();
     InitClickEvent();
     InitTouchEvent();
     InitMouseEvent();
@@ -655,6 +655,8 @@ void CheckBoxPattern::ChangeSelfStatusAndNotify(const RefPtr<CheckBoxPaintProper
 
 void CheckBoxPattern::StartEnterAnimation()
 {
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
     AnimationOption option;
     option.SetCurve(Curves::FAST_OUT_SLOW_IN);
     option.SetDuration(DEFAULT_CHECKBOX_ANIMATION_DURATION);
@@ -675,11 +677,13 @@ void CheckBoxPattern::StartEnterAnimation()
             TAG_LOGI(AceLogTag::ACE_SELECT_COMPONENT, "check enter animation");
             renderContext->UpdateOpacity(1);
         },
-        nullptr);
+        nullptr, nullptr, host->GetContextRefPtr());
 }
 
 void CheckBoxPattern::StartExitAnimation()
 {
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
     AnimationOption option;
     option.SetCurve(Curves::FAST_OUT_SLOW_IN);
     option.SetDuration(DEFAULT_CHECKBOX_ANIMATION_DURATION);
@@ -692,7 +696,7 @@ void CheckBoxPattern::StartExitAnimation()
             TAG_LOGI(AceLogTag::ACE_SELECT_COMPONENT, "check exit animation");
             renderContext->UpdateOpacity(0);
         },
-        nullptr);
+        nullptr, nullptr, host->GetContextRefPtr());
     const auto& eventHub = builderNode_->GetOrCreateEventHub<EventHub>();
     if (eventHub) {
         eventHub->SetEnabled(false);
@@ -1259,6 +1263,9 @@ void CheckBoxPattern::ReportChangeEvent(bool selectStatus)
 
 void CheckBoxPattern::RegisterVisibleAreaChange()
 {
+    if (hasVisibleChangeRegistered_) {
+        return;
+    }
     auto host = GetHost();
     CHECK_NULL_VOID(host);
     auto pipeline = host->GetContext();
@@ -1270,6 +1277,7 @@ void CheckBoxPattern::RegisterVisibleAreaChange()
     };
     std::vector<double> ratioList = {0.0};
     pipeline->AddVisibleAreaChangeNode(host, ratioList, callback, false, true);
+    hasVisibleChangeRegistered_ = true;
 }
 
 void CheckBoxPattern::SetNeedAnimation(bool visible)

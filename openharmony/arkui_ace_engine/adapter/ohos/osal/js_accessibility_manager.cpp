@@ -421,7 +421,7 @@ void UpdateAccessibilityNodeInfo(const RefPtr<AccessibilityNode>& node, Accessib
     int32_t column = node->GetCollectionItemInfo().column;
     GridItemInfo gridItemInfo(row, row, column, column, false, nodeInfo.IsSelected());
     nodeInfo.SetGridItem(gridItemInfo);
-    nodeInfo.SetBundleName(Container::CurrentBundleName());
+    nodeInfo.SetBundleName(AceApplicationInfo::GetInstance().GetPackageName());
 
     if (node->GetTag() == LIST_TAG) {
         nodeInfo.SetItemCounts(node->GetListItemCounts());
@@ -1925,7 +1925,7 @@ void JsAccessibilityManager::UpdateVirtualNodeChildAccessibilityElementInfo(
     nodeInfo.SetPageId(node->GetPageId());
     nodeInfo.SetPagePath(
         GetPagePathInPageNodes(nodeInfo.GetPageId(), commonProperty.pageNodes, commonProperty.pagePaths));
-    nodeInfo.SetBundleName(Container::CurrentBundleName());
+    nodeInfo.SetBundleName(AceApplicationInfo::GetInstance().GetPackageName());
 
     if (nodeInfo.IsEnabled()) {
         nodeInfo.SetFocusable(node->GetFocusHub() ? node->GetFocusHub()->IsFocusable() : false);
@@ -1975,7 +1975,7 @@ void JsAccessibilityManager::UpdateVirtualNodeAccessibilityElementInfo(
     nodeInfo.SetPageId(node->GetPageId());
     nodeInfo.SetPagePath(
         GetPagePathInPageNodes(nodeInfo.GetPageId(), commonProperty.pageNodes, commonProperty.pagePaths));
-    nodeInfo.SetBundleName(Container::CurrentBundleName());
+    nodeInfo.SetBundleName(AceApplicationInfo::GetInstance().GetPackageName());
 
     if (nodeInfo.IsEnabled()) {
         nodeInfo.SetFocusable(node->GetFocusHub() ? node->GetFocusHub()->IsFocusable() : false);
@@ -2162,7 +2162,7 @@ void JsAccessibilityManager::UpdateAccessibilityElementInfo(
     }
     nodeInfo.SetPagePath(
         GetPagePathInPageNodes(nodeInfo.GetPageId(), commonProperty.pageNodes, commonProperty.pagePaths));
-    nodeInfo.SetBundleName(Container::CurrentBundleName());
+    nodeInfo.SetBundleName(AceApplicationInfo::GetInstance().GetPackageName());
 
     if (nodeInfo.IsEnabled()) {
         nodeInfo.SetFocusable(node->GetFocusHub() ? node->GetFocusHub()->IsFocusable() : false);
@@ -2246,7 +2246,7 @@ void JsAccessibilityManager::UpdateWebAccessibilityElementInfo(
     nodeInfo.SetPageId(node->GetPageId());
     nodeInfo.SetPagePath(
         GetPagePathInPageNodes(nodeInfo.GetPageId(), commonProperty.pageNodes, commonProperty.pagePaths));
-    nodeInfo.SetBundleName(Container::CurrentBundleName());
+    nodeInfo.SetBundleName(AceApplicationInfo::GetInstance().GetPackageName());
 
     if (nodeInfo.IsEnabled()) {
         nodeInfo.SetFocusable(node->GetIsFocusable());
@@ -2942,7 +2942,7 @@ void GenerateAccessibilityEventInfo(const AccessibilityEvent& accessibilityEvent
     eventInfo.SetEventType(type);
     eventInfo.SetCurrentIndex(static_cast<int>(accessibilityEvent.currentItemIndex));
     eventInfo.SetItemCounts(static_cast<int>(accessibilityEvent.itemCount));
-    eventInfo.SetBundleName(Container::CurrentBundleName());
+    eventInfo.SetBundleName(AceApplicationInfo::GetInstance().GetPackageName());
     eventInfo.SetBeginIndex(accessibilityEvent.startIndex);
     eventInfo.SetEndIndex(accessibilityEvent.endIndex);
     if (accessibilityEvent.extraEventInfo.size() > 0) {
@@ -5490,6 +5490,7 @@ RefPtr<AccessibilityNodeManager> AccessibilityNodeManager::Create()
 RefPtr<PipelineBase> JsAccessibilityManager::GetPipelineByWindowId(const int32_t windowId)
 {
     auto context = context_.Upgrade();
+    CHECK_NULL_RETURN(context, nullptr);
     if (AceType::InstanceOf<NG::PipelineContext>(context)) {
         CHECK_NULL_RETURN(context, nullptr);
         if (context->GetWindowId() == static_cast<uint32_t>(windowId)) {
@@ -7222,6 +7223,7 @@ bool JsAccessibilityManager::RegisterWebInteractionOperationAsChildTree(int64_t 
     auto frameNode = pattern->GetHost();
     CHECK_NULL_RETURN(frameNode, false);
     auto pipeline = frameNode->GetContextRefPtr();
+    CHECK_NULL_RETURN(pipeline, false);
     uint32_t windowId = static_cast<uint32_t>(pipeline->GetRealHostWindowId());
     auto interactionOperation = std::make_shared<WebInteractionOperation>(windowId);
     interactionOperation->SetHandler(WeakClaim(this));
@@ -7254,6 +7256,7 @@ bool JsAccessibilityManager::DeregisterWebInteractionOperationAsChildTree(int32_
     auto frameNode = pattern->GetHost();
     CHECK_NULL_RETURN(frameNode, false);
     auto pipeline = frameNode->GetContextRefPtr();
+    CHECK_NULL_RETURN(pipeline, false);
     uint32_t windowId = static_cast<uint32_t>(pipeline->GetRealHostWindowId());
     Accessibility::RetError retReg = instance->DeregisterElementOperator(windowId, treeId);
     TAG_LOGI(AceLogTag::ACE_WEB,
@@ -7355,6 +7358,10 @@ int64_t JsAccessibilityManager::GetWebAccessibilityIdBySurfaceId(const std::stri
     auto webPattern = weakWebPattern.Upgrade();
     CHECK_NULL_RETURN(webPattern, INVALID_NODE_ID);
     int64_t webAccessibilityId = webPattern->GetWebAccessibilityIdBySurfaceId(surfaceId);
+    if (webAccessibilityId == INVALID_NODE_ID) {
+        TAG_LOGD(AceLogTag::ACE_WEB, "JsAccessibilityManager GetWebAccessibilityIdBySurfaceId node is Invalid");
+        return INVALID_NODE_ID;
+    }
     AccessibilitySystemAbilityClient::SetSplicElementIdTreeId(webPattern->GetTreeId(), webAccessibilityId);
     TAG_LOGD(AceLogTag::ACE_WEB,
         "JsAccessibilityManager GetWebAccessibilityIdBySurfaceId return webAccessibilityId: %{public}" PRId64,

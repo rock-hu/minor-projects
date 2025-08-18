@@ -576,6 +576,70 @@ HWTEST_F(ImagePatternTestNg, TriggerFirstVisibleAreaChange002, TestSize.Level0)
 }
 
 /**
+ * @tc.name: TriggerFirstVisibleAreaChange003
+ * @tc.desc: call TriggerFirstVisibleAreaChange.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ImagePatternTestNg, TriggerFirstVisibleAreaChange003, TestSize.Level0)
+{
+    /**
+     * @tc.steps: step1. create Image frameNode.
+     */
+    ImageModelNG image;
+    RefPtr<PixelMap> pixMap = nullptr;
+    ImageInfoConfig imageInfoConfig;
+    imageInfoConfig.src = std::make_shared<std::string>(IMAGE_SRC_URL);
+    imageInfoConfig.bundleName = BUNDLE_NAME;
+    imageInfoConfig.moduleName = MODULE_NAME;
+    image.Create(imageInfoConfig, pixMap);
+    auto frameNode = ViewStackProcessor::GetInstance()->GetMainFrameNode();
+    ASSERT_NE(frameNode, nullptr);
+    auto imagePattern = frameNode->GetPattern<ImagePattern>();
+    ASSERT_NE(imagePattern, nullptr);
+    /**
+     * @tc.steps: step2. call TriggerFirstVisibleAreaChange.
+     * @tc.expected: previousVisibility_ is changed.
+     */
+    EXPECT_FALSE(imagePattern->previousVisibility_);
+    imagePattern->TriggerFirstVisibleAreaChange();
+    EXPECT_FALSE(imagePattern->previousVisibility_);
+}
+
+/**
+ * @tc.name: TriggerFirstVisibleAreaChange004
+ * @tc.desc: call TriggerFirstVisibleAreaChange.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ImagePatternTestNg, TriggerFirstVisibleAreaChange004, TestSize.Level0)
+{
+    /**
+     * @tc.steps: step1. create Image frameNode.
+     */
+    ImageModelNG image;
+    RefPtr<PixelMap> pixMap = nullptr;
+    ImageInfoConfig imageInfoConfig;
+    imageInfoConfig.src = std::make_shared<std::string>(IMAGE_SRC_URL);
+    imageInfoConfig.bundleName = BUNDLE_NAME;
+    imageInfoConfig.moduleName = MODULE_NAME;
+    image.Create(imageInfoConfig, pixMap);
+    auto frameNode = ViewStackProcessor::GetInstance()->GetMainFrameNode();
+    ASSERT_NE(frameNode, nullptr);
+    auto imagePattern = frameNode->GetPattern<ImagePattern>();
+    ASSERT_NE(imagePattern, nullptr);
+    /**
+     * @tc.steps: step2. call TriggerFirstVisibleAreaChange.
+     * @tc.expected: previousVisibility_ is changed.
+     */
+    EXPECT_FALSE(imagePattern->previousVisibility_);
+    imagePattern->TriggerFirstVisibleAreaChange();
+    EXPECT_FALSE(imagePattern->previousVisibility_);
+    imagePattern->OnVisibleAreaChange(true);
+    EXPECT_TRUE(imagePattern->previousVisibility_);
+    imagePattern->TriggerFirstVisibleAreaChange();
+    EXPECT_TRUE(imagePattern->previousVisibility_);
+}
+
+/**
  * @tc.name: OnAreaChangedInner001
  * @tc.desc: call OnAreaChangedInner.
  * @tc.type: FUNC
@@ -2828,5 +2892,35 @@ HWTEST_F(ImagePatternTestNg, ImageCreateTest001, TestSize.Level0)
      */
     imagePattern->OnConfigurationUpdate();
     EXPECT_FALSE(imagePattern->isFullyInitializedFromTheme_);
+}
+
+/**
+ * @tc.name: TestImageLoadingCtxCreate
+ * @tc.desc: Test Create imageLoadingCtx for ImagePattern.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ImagePatternTestNg, TestImageLoadingCtxCreate, TestSize.Level0)
+{
+    /**
+     * @tc.steps: step1. create Image frameNode.
+     */
+    auto loadingCtx1 = AceType::MakeRefPtr<ImageLoadingContext>(
+        ImageSourceInfo(IMAGE_SRC_URL, IMAGE_SOURCEINFO_WIDTH, IMAGE_SOURCEINFO_HEIGHT),
+        LoadNotifier(nullptr, nullptr, nullptr), false, true);
+    ASSERT_NE(loadingCtx1, nullptr);
+    /**
+    * @tc.steps: step2. check isSceneBoardWindow_ value.
+    * @tc.expected: isSceneBoardWindow_ is true.
+    */
+    EXPECT_TRUE(loadingCtx1->isSceneBoardWindow_);
+    auto loadingCtx2 = AceType::MakeRefPtr<ImageLoadingContext>(
+        ImageSourceInfo(IMAGE_SRC_URL, IMAGE_SOURCEINFO_WIDTH, IMAGE_SOURCEINFO_HEIGHT),
+        LoadNotifier(nullptr, nullptr, nullptr), false, false);
+    ASSERT_NE(loadingCtx2, nullptr);
+    /**
+    * @tc.steps: step2. check isSceneBoardWindow_ value.
+    * @tc.expected: isSceneBoardWindow_ is false.
+    */
+    EXPECT_FALSE(loadingCtx2->isSceneBoardWindow_);
 }
 } // namespace OHOS::Ace::NG

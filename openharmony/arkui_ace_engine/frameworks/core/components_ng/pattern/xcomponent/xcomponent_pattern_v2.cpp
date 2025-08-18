@@ -37,6 +37,7 @@ namespace OHOS::Ace::NG {
 
 namespace {
 const std::string BUFFER_USAGE_XCOMPONENT = "xcomponent";
+const int32_t NUM_18 = 18;
 
 inline std::string BoolToString(bool value)
 {
@@ -85,6 +86,7 @@ void XComponentPatternV2::OnAttachToFrameNode()
     if (FrameReport::GetInstance().GetEnable()) {
         FrameReport::GetInstance().EnableSelfRender();
     }
+    nodeId_ = std::to_string(host->GetId());
     UpdateTransformHint();
 }
 
@@ -107,6 +109,7 @@ void XComponentPatternV2::OnAttachToMainTree()
         displaySync_->AddToPipelineOnContainer();
         needRecoverDisplaySync_ = false;
     }
+    displaySync_->NotifyXComponentExpectedFrameRate(GetId());
 }
 
 void XComponentPatternV2::BeforeSyncGeometryProperties(const DirtySwapConfig& config)
@@ -226,6 +229,7 @@ void XComponentPatternV2::OnDetachFromMainTree()
         displaySync_->DelFromPipelineOnContainer();
         needRecoverDisplaySync_ = true;
     }
+    displaySync_->NotifyXComponentExpectedFrameRate(GetId(), 0);
 }
 
 void XComponentPatternV2::OnDetachFromFrameNode(FrameNode* frameNode)
@@ -268,7 +272,11 @@ void XComponentPatternV2::InitSurface()
     renderSurface_ = RenderSurface::Create();
     renderSurface_->SetInstanceId(GetHostInstanceId());
     std::string xComponentType = GetType() == XComponentType::SURFACE ? "s" : "t";
-    renderSurface_->SetBufferUsage(BUFFER_USAGE_XCOMPONENT + "-" + xComponentType + "-" + GetId());
+    std::string res = BUFFER_USAGE_XCOMPONENT + "-" + xComponentType + "-";
+    std::string xcId = GetId();
+    const int32_t length = std::min(static_cast<int32_t>(xcId.size()), NUM_18);
+    const int32_t startPos = xcId.size() - length;
+    renderSurface_->SetBufferUsage(res + xcId.substr(startPos, length));
     if (type_ == XComponentType::SURFACE) {
         InitializeRenderContext();
         renderSurface_->SetRenderContext(renderContextForSurface_);
@@ -558,8 +566,8 @@ void XComponentPatternV2::SetExpectedRateRange(int32_t min, int32_t max, int32_t
     CHECK_NULL_VOID(displaySync_);
     FrameRateRange frameRateRange;
     frameRateRange.Set(min, max, expected);
-    displaySync_->SetExpectedFrameRateRange(frameRateRange);
-    TAG_LOGD(AceLogTag::ACE_XCOMPONENT, "Id: %{public}" PRIu64 " SetExpectedFrameRateRange"
+    displaySync_->NotifyXComponentExpectedFrameRate(GetId(), isOnTree_, frameRateRange);
+    TAG_LOGD(AceLogTag::ACE_XCOMPONENT, "Id: %{public}" PRIu64 " NotifyXComponentExpectedFrameRate"
         "{%{public}d, %{public}d, %{public}d}", displaySync_->GetId(), min, max, expected);
 }
 

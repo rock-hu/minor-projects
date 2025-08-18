@@ -1934,6 +1934,17 @@ void NavDestinationModelNG::SetEnableNavigationIndicator(
     node->SetNavigationIndicatorConfig(navigationIndicator);
 }
 
+void NavDestinationModelNG::SetIsCustomTitleBarSize(FrameNode* frameNode, bool isCustom)
+{
+    auto navDestinationGroupNode = AceType::DynamicCast<NavDestinationGroupNode>(frameNode);
+    CHECK_NULL_VOID(navDestinationGroupNode);
+    auto titleBarNode = AceType::DynamicCast<TitleBarNode>(navDestinationGroupNode->GetTitleBarNode());
+    CHECK_NULL_VOID(titleBarNode);
+    auto titleBarLayoutProperty = titleBarNode->GetLayoutProperty<TitleBarLayoutProperty>();
+    CHECK_NULL_VOID(titleBarLayoutProperty);
+    titleBarLayoutProperty->UpdateIsCustomTitleBarSize(isCustom);
+}
+
 void NavDestinationModelNG::SetBeforeCreateLayoutWrapperCallBack(
     FrameNode* frameNode, std::function<void()>&& beforeCreateLayoutWrapper)
 {
@@ -1943,5 +1954,12 @@ void NavDestinationModelNG::SetBeforeCreateLayoutWrapperCallBack(
     auto navDestinationEventHub = navDestinationGroupNode->GetOrCreateEventHub<NavDestinationEventHub>();
     CHECK_NULL_VOID(navDestinationEventHub);
     navDestinationEventHub->SetBeforeCreateLayoutWrapperCallBack(std::move(beforeCreateLayoutWrapper));
+}
+
+void NavDestinationModelNG::SetTitleAnimationElapsedTime(FrameNode* frameNode, int32_t elapsedTime)
+{
+    auto navDestination = AceType::DynamicCast<NavDestinationGroupNode>(frameNode);
+    CHECK_NULL_VOID(navDestination);
+    navDestination->SetTitleAnimationElapsedTime(elapsedTime);
 }
 } // namespace OHOS::Ace::NG

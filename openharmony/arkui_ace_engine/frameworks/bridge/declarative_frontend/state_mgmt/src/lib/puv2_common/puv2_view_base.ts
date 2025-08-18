@@ -28,15 +28,15 @@
 
 type ExtraInfo = { page: string, line: number, col: number };
 type ProfileRecursionCounter = { total: number };
-//API Version 18
-const API_VERSION_ISOLATION_FOR_5_1: number = 18;
-
 enum PrebuildPhase {
   None = 0,
   BuildPrebuildCmd = 1,
   ExecutePrebuildCmd = 2,
   PrebuildDone = 3,
 }
+
+//API Version 18
+const API_VERSION_ISOLATION_FOR_5_1: number = 18;
 
 // NativeView
 // implemented in C++  for release
@@ -202,6 +202,9 @@ abstract class PUV2ViewBase extends ViewBuildNodeBase {
   }
  
   public getUIContext(): object {
+    if (typeof globalThis.__getUIContext__ === 'function') {
+      return globalThis.__getUIContext__(this.nativeViewPartialUpdate.getMainInstanceId());
+    }
     return this.nativeViewPartialUpdate.getUIContext();
   }
  

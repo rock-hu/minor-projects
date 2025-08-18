@@ -171,6 +171,11 @@ public:
         copyOption_ = value;
     }
 
+    CopyOptions GetCopyOption()
+    {
+        return copyOption_;
+    }
+
     std::string GetImageFitStr(ImageFit value);
 
     std::string GetImageRepeatStr(ImageRepeat value);
@@ -236,6 +241,7 @@ public:
         return WeakClaim(AceType::RawPtr(altLoadingCtx_));
     }
     void EnableAnalyzer(bool value);
+    bool IsEnableAnalyzer() const;
     bool hasSceneChanged();
     void OnSensitiveStyleChange(bool isSensitive) override;
 
@@ -577,6 +583,7 @@ private:
     bool isImageReloadNeeded_ = false;
     bool isEnableAnalyzer_ = false;
     bool autoResizeDefault_ = true;
+    bool isSceneBoardWindow_ = false;
     bool isSensitive_ = false;
     ImageInterpolation interpolationDefault_ = ImageInterpolation::NONE;
     ImageRotateOrientation userOrientation_ = ImageRotateOrientation::UP;
@@ -620,6 +627,7 @@ private:
     bool isComponentSnapshotNode_ = false;
     bool isNeedReset_ = false;
     bool hasSetPixelMapMemoryName_ = false;
+    bool previousVisibility_ = false;
 };
 
 } // namespace OHOS::Ace::NG

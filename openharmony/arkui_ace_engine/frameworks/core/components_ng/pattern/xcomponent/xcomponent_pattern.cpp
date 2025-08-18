@@ -47,7 +47,6 @@
 #ifdef ENABLE_ROSEN_BACKEND
 #include "core/components_ng/render/adapter/rosen_render_context.h"
 #include "feature/anco_manager/rs_ext_node_operation.h"
-#include "transaction/rs_interfaces.h"
 #include "transaction/rs_transaction.h"
 #include "transaction/rs_transaction_handler.h"
 #include "ui/rs_ui_context.h"
@@ -74,6 +73,7 @@ namespace OHOS::Ace::NG {
 namespace {
 
 const std::string BUFFER_USAGE_XCOMPONENT = "xcomponent";
+const int32_t NUM_18 = 18;
 } // namespace
 
 XComponentPattern::XComponentPattern(const std::optional<std::string>& id, XComponentType type,
@@ -179,7 +179,11 @@ void XComponentPattern::InitSurface()
 #endif
     renderSurface_->SetInstanceId(GetHostInstanceId());
     std::string xComponentType = GetType() == XComponentType::SURFACE ? "s" : "t";
-    renderSurface_->SetBufferUsage(BUFFER_USAGE_XCOMPONENT + "-" + xComponentType + "-" + GetId());
+    std::string res = BUFFER_USAGE_XCOMPONENT + "-" + xComponentType + "-";
+    std::string xcId = GetId();
+    const int32_t length = std::min(static_cast<int32_t>(xcId.size()), NUM_18);
+    const int32_t startPos = xcId.size() - length;
+    renderSurface_->SetBufferUsage(res + xcId.substr(startPos, length));
     if (type_ == XComponentType::SURFACE) {
         InitializeRenderContext();
         if (!SystemProperties::GetExtSurfaceEnabled()) {
@@ -288,10 +292,12 @@ void XComponentPattern::OnAttachToMainTree()
         if (needRecoverDisplaySync_ && displaySync_ && !displaySync_->IsOnPipeline()) {
             TAG_LOGD(AceLogTag::ACE_XCOMPONENT, "OnAttachToMainTree:recover displaySync: "
                 "%{public}s(%{public}" PRIu64 ")", GetId().c_str(), displaySync_->GetId());
-            displaySync_->AddToPipelineOnContainer();
+            WeakPtr<PipelineBase> pipelineContext = host->GetContextRefPtr();
+            displaySync_->AddToPipeline(pipelineContext);
             needRecoverDisplaySync_ = false;
         }
     }
+    displaySync_->NotifyXComponentExpectedFrameRate(GetId());
 }
 
 void XComponentPattern::OnDetachFromMainTree()
@@ -313,6 +319,7 @@ void XComponentPattern::OnDetachFromMainTree()
             needRecoverDisplaySync_ = true;
         }
     }
+    displaySync_->NotifyXComponentExpectedFrameRate(GetId(), 0);
 }
 
 void XComponentPattern::InitializeRenderContext()
@@ -1457,14 +1464,8 @@ void XComponentPattern::HandleSetExpectedRateRangeEvent()
     CHECK_NULL_VOID(range);
     FrameRateRange frameRateRange;
     frameRateRange.Set(range->min, range->max, range->expected);
-    displaySync_->SetExpectedFrameRateRange(frameRateRange);
-#ifdef ENABLE_ROSEN_BACKEND
-    if (frameRateRange.preferred_ != lastFrameRateRange_.preferred_) {
-        Rosen::RSInterfaces::GetInstance().NotifyXComponentExpectedFrameRate(GetId(), frameRateRange.preferred_);
-    }
-    lastFrameRateRange_.Set(range->min, range->max, range->expected);
-#endif
-    TAG_LOGD(AceLogTag::ACE_XCOMPONENT, "Id: %{public}" PRIu64 " SetExpectedFrameRateRange"
+    displaySync_->NotifyXComponentExpectedFrameRate(GetId(), isOnTree_, frameRateRange);
+    TAG_LOGD(AceLogTag::ACE_XCOMPONENT, "Id: %{public}" PRIu64 " NotifyXComponentExpectedFrameRate"
         "{%{public}d, %{public}d, %{public}d}", displaySync_->GetId(), range->min, range->max, range->expected);
 }
 
@@ -1482,7 +1483,13 @@ void XComponentPattern::HandleOnFrameEvent()
     });
     TAG_LOGD(AceLogTag::ACE_XCOMPONENT, "Id: %{public}" PRIu64 " RegisterOnFrame",
         displaySync_->GetId());
-    displaySync_->AddToPipelineOnContainer();
+    auto host = GetHost();
+    if (host) {
+        WeakPtr<PipelineBase> pipelineContext = host->GetContextRefPtr();
+        displaySync_->AddToPipeline(pipelineContext);
+    } else {
+        displaySync_->AddToPipelineOnContainer();
+    }
 }
 
 void XComponentPattern::HandleUnregisterOnFrameEvent()

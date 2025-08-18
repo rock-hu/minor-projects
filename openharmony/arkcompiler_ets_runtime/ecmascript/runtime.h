@@ -35,7 +35,8 @@
 
 namespace panda::ecmascript {
 class EcmaStringTable;
-using AppfreezeFilterCallback = std::function<bool(const int32_t pid, const bool needDecreaseQuota)>;
+using AppFreezeFilterCallback =
+    std::function<bool(const int32_t pid, const bool needDecreaseQuota, std::string &eventConfig)>;
 using ReleaseSecureMemCallback = std::function<void(void* fileMapper)>;
 
 class Runtime {
@@ -254,12 +255,12 @@ public:
         v.VisitRangeRoot(Root::ROOT_VM, begin, end);
     }
 
-    AppfreezeFilterCallback GetAppFreezeFilterCallback() const
+    AppFreezeFilterCallback GetAppFreezeFilterCallback() const
     {
         return appfreezeFilterCallback_;
     }
 
-    void SetAppFreezeFilterCallback(AppfreezeFilterCallback cb)
+    void SetAppFreezeFilterCallback(AppFreezeFilterCallback cb)
     {
         appfreezeFilterCallback_ = cb;
     }
@@ -396,7 +397,7 @@ private:
     RawHeapDumpCropLevel rawHeapDumpCropLevel_ {RawHeapDumpCropLevel::DEFAULT};
     // for 1.2runtime interface type
     bool isHybridVm_ {false};
-    
+
     // release secure mem after jspandafile released.
     ReleaseSecureMemCallback releaseSecureMemCallback_ {nullptr};
     Mutex releaseSecureMemCallbackLock_;

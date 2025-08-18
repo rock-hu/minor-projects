@@ -83,7 +83,8 @@ using IdleNotifyStatusCallback = std::function<void(bool)>;
 using FinishGCListener = void (*)(void *);
 using GCListenerId = std::vector<std::pair<FinishGCListener, void *>>::const_iterator;
 using Clock = std::chrono::high_resolution_clock;
-using AppFreezeFilterCallback = std::function<bool(const int32_t pid, const bool needDecreaseQuota)>;
+using AppFreezeFilterCallback =
+    std::function<bool(const int32_t pid, const bool needDecreaseQuota, std::string &eventConfig)>;
 using BytesAndDuration = std::pair<uint64_t, double>;
 using MemoryReduceDegree = panda::JSNApi::MemoryReduceDegree;
 using NativePointerList = CVector<JSTaggedValue>;
@@ -892,7 +893,7 @@ public:
 
     inline void MergeToOldSpaceSync(SharedLocalSpace *localSpace);
 
-    void DumpHeapSnapshotBeforeOOM(bool isFullGC, JSThread *thread, SharedHeapOOMSource source);
+    void DumpHeapSnapshotBeforeOOM(JSThread *thread, SharedHeapOOMSource source);
 
     inline void ProcessSharedNativeDelete(const WeakRootVisitor& visitor);
     inline void PushToSharedNativePointerList(JSNativePointer* pointer);
@@ -1669,7 +1670,7 @@ public:
     }
 
     void CheckNonMovableSpaceOOM();
-    void DumpHeapSnapshotBeforeOOM(bool isFullGC = true);
+    void DumpHeapSnapshotBeforeOOM();
     std::tuple<uint64_t, uint8_t *, int, kungfu::CalleeRegAndOffsetVec> CalCallSiteInfo(uintptr_t retAddr) const;
     MachineCode *GetMachineCodeObject(uintptr_t pc) const;
     void SetMachineCodeObject(uintptr_t start, uintptr_t end, uintptr_t address) const;

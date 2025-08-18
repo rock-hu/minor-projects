@@ -2,8 +2,9 @@
 <!--Kit: Ability Kit-->
 <!--Subsystem: Ability-->
 <!--Owner: @wanghang-->
-<!--SE: @hanfeng6; @lihaitao-->
-<!--TSE: @kongjing2-->
+<!--Designer: @hanfeng6; @lihaitao-->
+<!--Tester: @kongjing2-->
+<!--Adviser: @huipeizi-->
 
 - ArkTS API<!--ability-arkts-->
   - Stage模型能力的接口<!--stage-model-->
@@ -22,7 +23,7 @@
     - [@ohos.app.ability.ChildProcessArgs (子进程参数)](js-apis-app-ability-childProcessArgs.md)
     - [@ohos.app.ability.ChildProcessOptions (子进程启动选项)](js-apis-app-ability-childProcessOptions.md)
     - [@ohos.app.ability.common (Ability公共模块)](js-apis-app-ability-common.md)
-    - [@ohos.app.ability.CompletionHandler (拉端结果操作类)](js-apis-app-ability-completionHandler.md)
+    - [@ohos.app.ability.CompletionHandler (拉起应用结果的操作类)](js-apis-app-ability-completionHandler.md)
     - [@ohos.app.ability.contextConstant (Context相关常量)](js-apis-app-ability-contextConstant.md)
     - [@ohos.app.ability.EmbeddableUIAbility (可嵌入式UIAbility)](js-apis-app-ability-embeddableUIAbility.md)
     - [@ohos.app.ability.EmbeddedUIExtensionAbility (跨进程界面嵌入扩展能力)](js-apis-app-ability-embeddedUIExtensionAbility.md)
@@ -31,7 +32,7 @@
     - [@ohos.app.ability.insightIntent (意图调用基础能力)](js-apis-app-ability-insightIntent.md)
     - [@ohos.app.ability.InsightIntentContext (意图调用执行上下文)](js-apis-app-ability-insightIntentContext.md)
     - [@ohos.app.ability.InsightIntentDecorator (意图装饰器定义)](js-apis-app-ability-InsightIntentDecorator.md)
-    - [@ohos.app.ability.InsightIntentEntryExecutor (@InsightIntentEntry的意图调用执行基类)](js-apis-app-ability-InsightIntentEntryExecutor.md)
+    - [@ohos.app.ability.InsightIntentEntryExecutor (@InsightIntentEntry的意图执行基类)](js-apis-app-ability-InsightIntentEntryExecutor.md)
     - [@ohos.app.ability.InsightIntentExecutor (意图调用执行基类)](js-apis-app-ability-insightIntentExecutor.md)
     - [@ohos.app.ability.PhotoEditorExtensionAbility (图片编辑能力)](js-apis-app-ability-photoEditorExtensionAbility.md)
     - [@ohos.app.ability.OpenLinkOptions (openLink的可选参数)](js-apis-app-ability-openLinkOptions.md)
