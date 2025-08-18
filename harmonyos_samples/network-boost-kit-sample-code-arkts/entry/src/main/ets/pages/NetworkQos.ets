@@ -24,68 +24,68 @@ struct requestContent {
   @State content: string = '';
 
   build() {
-    Column({ space: 5 }) {
-      Row() {
-        Text('NetworkQos')
-          .fontSize(30)
-          .fontWeight(500)
-          .fontColor('#FF100F0F')
-          .height(30)
-          .width(220)
-          .margin({ top: '11%' })
+    Scroll() {
+      Column({ space: 5 }) {
+        Row() {
+          Text('NetworkQos')
+            .fontSize(30)
+            .fontWeight(500)
+            .fontColor($r('sys.color.black'))
+            .height(30)
+            .width(220)
+            .margin({ top: '11%' })
+        }
+        .height(40)
+        .width(124)
+        .margin({ top: 32 })
+
+        Divider().color('gray').strokeWidth(1)
+        Column({ space: 20 }) {
+          Button($r('app.string.Subscribe'))
+            .width('100%')
+            .height(40)
+            .margin({ top: '11%' })
+            .fontColor($r('sys.color.navigation_drag_bar_item_default'))
+            .fontSize(24)
+            .fontWeight(500)
+            .borderRadius(20)
+            .onClick(this.getNetworkQosOn)
+
+          Button($r('app.string.UnSubscribe'))
+            .width('100%')
+            .height(40)
+            .margin({ top: '11%' })
+            .fontColor($r('sys.color.navigation_drag_bar_item_default'))
+            .fontSize(24)
+            .fontWeight(500)
+            .borderRadius(20)
+            .onClick(this.getNetworkQosOff)
+
+          Text($r('app.string.Result'))
+            .width('100%')
+            .height(40)
+            .margin({ top: '11%' })
+            .fontColor($r('sys.color.black'))
+            .fontSize(24)
+            .fontWeight(500)
+          TextArea({
+            text: this.content
+          })
+            .width('100%')
+            .height(260)
+            .margin({ top: '11%' })
+            .backgroundColor($r('sys.color.gray_01'))
+            .fontColor($r('sys.color.black'))
+            .fontSize(24)
+            .fontWeight(500)
+            .borderRadius(10)
+        }
       }
-      .height(40)
-      .width(124)
-      .margin({ top: 32 })
-
-      Divider().color('gray').strokeWidth(1)
-      Column({ space: 20 }) {
-        Button($r('app.string.Subscribe'))
-          .width('100%')
-          .height(40)
-          .margin({ top: '11%' })
-          .fontColor('#FFFFFFFF')
-          .fontSize(24)
-          .fontWeight(500)
-          .borderRadius(20)
-          .onClick(this.getNetworkQosOn)
-
-        Button($r('app.string.UnSubscribe'))
-          .width('100%')
-          .height(40)
-          .margin({ top: '11%' })
-          .fontColor('#FFFFFFFF')
-          .fontSize(24)
-          .fontWeight(500)
-          .borderRadius(20)
-          .onClick(this.getNetworkQosOff)
-
-        Text($r('app.string.Result'))
-          .width('100%')
-          .height(40)
-          .margin({ top: '11%' })
-          .fontColor('#000000')
-          .fontSize(24)
-          .fontWeight(500)
-        TextArea({
-          text: this.content
-        })
-          .width('100%')
-          .height(260)
-          .margin({ top: '11%' })
-          .backgroundColor('0x317AFF')
-          .fontColor($r('sys.color.black'))
-          .fontSize(24)
-          .fontWeight(500)
-          .borderRadius(10)
-      }
-      .height('100%')
-      .width('100%')
+      .padding({ left: '16vp', right: '16vp' })
+      .alignItems(HorizontalAlign.Start)
     }
     .height('100%')
     .width('100%')
-    .padding({ left: '16vp', right: '16vp' })
-    .alignItems(HorizontalAlign.Start)
   }
 
   private getNetworkQosOn = async () => {

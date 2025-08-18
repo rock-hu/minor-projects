@@ -92,6 +92,7 @@ struct MyDisplaySyncComponent {
   }
 
   // [Start vsync_power_case_1]
+  // 组件卸载时，停止DisplaySync并置空，防止空跑与内存泄露
   aboutToDisappear() {
     if (this.backDisplaySyncSlow) {
       this.backDisplaySyncSlow.stop();
@@ -176,23 +177,15 @@ struct MyDisplaySyncComponent {
     .height('100%')
     .padding(16)
     // [Start vsync_power_case_2]
+    // 当组件不可见时，暂停DisplaySync对象
     .onVisibleAreaChange([0.0, 1.0], (isExpanding: boolean, currentRatio: number) => {
-      if (isExpanding && currentRatio >= 1.0) {
-        console.info('Component is fully visible. currentRatio:' + currentRatio);
-        if (this.backDisplaySyncSlow == undefined) {
-          this.backDisplaySyncSlow = displaySync.create();
-        }
-      }
-
       if (!isExpanding && currentRatio <= 0.0) {
         console.info('Component is completely invisible.');
         if (this.backDisplaySyncSlow) {
           this.backDisplaySyncSlow.stop();
-          this.backDisplaySyncSlow = undefined;
         }
         if (this.backDisplaySyncFast) {
           this.backDisplaySyncFast.stop();
-          this.backDisplaySyncFast = undefined;
         }
       }
     })

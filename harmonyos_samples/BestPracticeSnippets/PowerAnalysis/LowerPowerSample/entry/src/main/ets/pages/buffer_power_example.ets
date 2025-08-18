@@ -47,8 +47,8 @@ struct MyWebComponent {
 
 // [Start buffer_power_case_2]
 @Component
-struct MyVideoComponent {
-  @State videoSrc: Resource | string = $r('app.media.background');
+export struct MyVideoComponent {
+  @State videoSrc: Resource | string = $r('app.media.test_video');
   private controller: VideoController = new VideoController();
 
 
@@ -56,19 +56,13 @@ struct MyVideoComponent {
     Column() {
       Video({
         src: this.videoSrc,
-        controller: this.controller
+        controller: this.controller,
+
       })
-        .width('100%')
-        .height(600)
+        .width(300)
+        .height(200)
         .onPrepared(() => {
           this.controller.start();
-        })
-        .onDrop((e: DragEvent) => {
-          let record = e.getData().getRecords()[0];
-          if (record.getType() == uniformTypeDescriptor.UniformDataType.VIDEO) {
-            let videoInfo = record as unifiedDataChannel.Video;
-            this.videoSrc = videoInfo.videoUri;
-          }
         })
         // 确保视频组件完全可见时播放，完全不可见时停止
         .onVisibleAreaChange([0.0], (isExpanding: boolean, currentRatio: number) => {
@@ -89,3 +83,29 @@ struct MyVideoComponent {
   }
 }
 // [End buffer_power_case_2]
+
+
+// [Start buffer_power_case_3]
+@Component
+export struct MyVideoComponent_opacity {
+  @State videoSrc: Resource | string = $r('app.media.test_video');
+  private controller: VideoController = new VideoController();
+
+
+  build() {
+    Column() {
+      Video({
+        src: this.videoSrc,
+        controller: this.controller,
+
+      })
+        .width(300)
+        .height(200)
+        // .opacity(0.4) 注释掉此段代码，可规避GPU重绘
+        .onPrepared(() => {
+          this.controller.start();
+        })
+    }
+  }
+}
+// [End buffer_power_case_3]

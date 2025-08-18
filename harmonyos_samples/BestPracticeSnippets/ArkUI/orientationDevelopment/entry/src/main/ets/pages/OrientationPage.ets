@@ -14,7 +14,7 @@ struct OrientationPage {
   aboutToAppear() {
     this.setOrientation(1);
     let callback = async () => {
-      let getDefaultDisplay = await display.getDefaultDisplaySync();
+      let getDefaultDisplay = display.getDefaultDisplaySync();
       this.rotation = getDefaultDisplay.rotation;
       this.message = ORIENTATION[this.rotation];
     };

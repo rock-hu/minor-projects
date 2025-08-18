@@ -28,7 +28,7 @@ struct GesturesConflictScene3A {
           .margin({ top: 100 })
           .width(360)
           .height(360)
-            // [Start gesture_action]
+          // [Start gesture_action]
           .priorityGesture(
             LongPressGesture({ repeat: true })
               .onAction((event: GestureEvent) => {
@@ -37,7 +37,7 @@ struct GesturesConflictScene3A {
                 this.getUIContext().getPromptAction().showToast({ message: 'Long Press' });
               })
             )
-            // [End gesture_action]
+          // [End gesture_action]
       }
       .width('100%')
     }

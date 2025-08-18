@@ -11,7 +11,7 @@ class Params {
 }
 
 @Builder
-function buildText(params: Params) {
+function testBuilder(params: Params) {
   Column() {
     Text(params.text)
       .fontSize(50)
@@ -35,7 +35,7 @@ class TextNodeController extends NodeController {
     // With the addition of null handling, the following code is executed only when the BuilderNode is created for the first time; when replacing a node, textNode is not null
     if (this.textNode == null) {
       this.textNode = new BuilderNode(context);
-      this.textNode.build(wrapBuilder<[Params]>(buildText), new Params(this.message));
+      this.textNode.build(wrapBuilder<[Params]>(testBuilder), new Params(this.message));
     }
 
     return this.textNode.getFrameNode();

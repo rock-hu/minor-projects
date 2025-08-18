@@ -41,7 +41,7 @@ struct MyImageAnimator {
       .state(this.running ? AnimationStatus.Running : AnimationStatus.Paused)
       .onVisibleAreaChange([0.0, 1.0], (isExpanding: boolean, currentRatio: number) => {
         if (isExpanding && currentRatio >= 1.0) {
-            console.info(`Component is fully visiable. currentRatio: ${currentRatio}`);
+            console.info(`Component is fully visible. currentRatio: ${currentRatio}`);
             this.running = true;
         }
         if (!isExpanding && currentRatio <= 0.0) {

@@ -190,27 +190,58 @@ export class DataConversion {
    * @returns string.
    */
   // [Start i2d_sm2_cipher_text]
-  i2dSM2CipherText(primal_data: string): string {
-    let sm2_sequence = new SM2Sequence();
-    sm2_sequence.C1x = primal_data.slice(0, 64);
-    primal_data = primal_data.slice(64, primal_data.length);
-    sm2_sequence.C1y = primal_data.slice(0, 64);
-    primal_data = primal_data.slice(64, primal_data.length);
-    sm2_sequence.C3 = primal_data.slice(0, 64);
-    primal_data = primal_data.slice(64, primal_data.length);
-    sm2_sequence.C2 = primal_data;
+  bytesToBigInt(bytes: Uint8Array): bigint {
+    let result = 0n;
+    for (const byte of bytes) {
+      result = (result << 8n) | BigInt(byte);
+    }
+    return result;
+  }
 
-    let C1x_title: string = (Number.parseInt('0x' + sm2_sequence.C1x.slice(0, 2)) > 127) ? '022100' : '0220';
-    let C1y_title: string = (Number.parseInt('0x' + sm2_sequence.C1y.slice(0, 2)) > 127) ? '022100' : '0220';
-    let C3_title: string = '0420';
-    let C2_title: string = '04' + this.genLenHex(sm2_sequence.C2);
-    let sequence_message: string =
-      C1x_title + sm2_sequence.C1x + C1y_title + sm2_sequence.C1y + C2_title + sm2_sequence.C2 + C3_title +
-      sm2_sequence.C3;
-    let sequence_lenHex: string = this.genLenHex(sequence_message);
+  i2dSM2CipherText(primal_data: string): Uint8Array {
+    // Converting a Hex String to byte array.
+    const cipherBytes = DataConversion.hexStrToUint8Array(primal_data);
 
-    let standard_data = '30' + sequence_lenHex + sequence_message;
-    return standard_data;
+    // Defines that the length of C1 is 65 bytes (uncompressed format: 04 + x(32) + y(32)).
+    const c1Length = 65;
+    const totalLength = cipherBytes.length;
+
+    if (totalLength < c1Length + 32) {
+      hilog.error(0, 'id2_SM2_Ciphertext', 'Non-SM2 criterion compliant.');
+    }
+
+    // Extract C1 Part.
+    const c1Bytes = cipherBytes.slice(0, c1Length);
+
+    // Verify that C1 is in uncompressed format starting with 04.
+    if (c1Bytes[0] !== 0x04) {
+      hilog.error(0, 'id2_SM2_Ciphertext', 'C1 is not in uncompressed format.');
+    }
+
+    // Extract x and y coordinates.
+    const xBytes = c1Bytes.slice(1, 33);
+    const yBytes = c1Bytes.slice(33, 65);
+
+    // Convert to BigInt.
+    const xBigInt = this.bytesToBigInt(xBytes);
+    const yBigInt = this.bytesToBigInt(yBytes);
+
+    // Extract the C3 part (last 32 bytes).
+    const c3Start = totalLength - 32;
+    const c3Bytes = cipherBytes.slice(c3Start);
+
+    // Extract C2 part (middle part).
+    const c2Bytes = cipherBytes.slice(c1Length, c3Start);
+
+    let spec : cryptoFramework.SM2CipherTextSpec = {
+      xCoordinate: xBigInt,
+      yCoordinate: yBigInt,
+      cipherTextData: c2Bytes,
+      hashData: c3Bytes
+    }
+
+    let data = cryptoFramework.SM2CryptoUtil.genCipherTextBySpec(spec, 'C1C3C2');
+    return data.data;
   }
   // [End i2d_sm2_cipher_text]
   // [Start string_to_unit8array]

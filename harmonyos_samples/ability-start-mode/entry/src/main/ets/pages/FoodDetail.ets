@@ -437,10 +437,10 @@ struct FoodDetail {
     Scroll() {
       Column() {
         PageTitle()
-        FoodImageDisplay({ foodInfo: $foodInfo })
+        FoodImageDisplay({ foodInfo: this.foodInfo })
         Swiper() {
-          ContentTable({ foodInfo: $foodInfo })
-          CaloriesProgress({ foodInfo: $foodInfo })
+          ContentTable({ foodInfo: this.foodInfo })
+          CaloriesProgress({ foodInfo: this.foodInfo })
         }
         .clipShape(new Rect()
           .width(Constant.FULL_PERCENT)
@@ -461,7 +461,7 @@ struct FoodDetail {
             foodData: $MultitonFoodData,
             modeName: this.modeName,
             foodItemId: $foodItemId,
-            foodInfo: $foodInfo,
+            foodInfo: this.foodInfo,
             foodListIndex: this.foodListIndex
           })
         } else if (this.modeName === 'specified') {
@@ -469,7 +469,7 @@ struct FoodDetail {
             foodData: $specifiedFoodData,
             modeName: this.modeName,
             foodItemId: $foodItemId,
-            foodInfo: $foodInfo,
+            foodInfo: this.foodInfo,
             foodListIndex: this.foodListIndex
           })
         } else {
@@ -477,7 +477,7 @@ struct FoodDetail {
             foodData: $singletonFoodData,
             modeName: this.modeName,
             foodItemId: $foodItemId,
-            foodInfo: $foodInfo,
+            foodInfo: this.foodInfo,
             foodListIndex: this.foodListIndex
           })
         }

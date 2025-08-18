@@ -149,10 +149,9 @@ export struct ImageAnimation {
             })
             .translate({ x: this.imageTranslateX, y: this.imageTranslateY })
         }.width('33%')
-        // [EndExclude image_animation]
       }
       .height('25%')
-
+      // [EndExclude image_animation]
       // [EndExclude component_animation]
       Column() {
         // [StartExclude component_animation]

@@ -10,7 +10,7 @@ struct WebComponent {
       Web({ src: 'https://www.example.com/', controller: this.webviewController})
         .onPageEnd(() => {
           // Pre-connected https://www.example1.com/
-          webview.WebviewController.prepareForPageLoad('https://www.example.com/', true, 120);
+          webview.WebviewController.prepareForPageLoad('https://www.example.com/', true, 2);
         })
     }
   }

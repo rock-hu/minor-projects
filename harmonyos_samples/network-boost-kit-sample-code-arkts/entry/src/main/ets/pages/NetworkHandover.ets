@@ -24,68 +24,68 @@ struct requestContent {
   @State content: string = '';
 
   build() {
-    Column({ space: 5 }) {
-      Row() {
-        Text('NetworkHandover')
-          .fontSize(30)
-          .fontWeight(500)
-          .fontColor('#FF100F0F')
-          .height(30)
-          .width(400)
-          .margin({ top: '11%' })
+    Scroll() {
+      Column({ space: 5 }) {
+        Row() {
+          Text('NetworkHandover')
+            .fontSize(30)
+            .fontWeight(500)
+            .fontColor($r('sys.color.black'))
+            .height(30)
+            .width(400)
+            .margin({ top: '11%' })
+        }
+        .height(40)
+        .width(124)
+        .margin({ top: 32 })
+
+        Divider().color('gray').strokeWidth(1)
+        Column({ space: 20 }) {
+          Button($r('app.string.Subscribe'))
+            .width('100%')
+            .height(40)
+            .margin({ top: '11%' })
+            .fontColor($r('sys.color.navigation_drag_bar_item_default'))
+            .fontSize(24)
+            .fontWeight(500)
+            .borderRadius(20)
+            .onClick(this.getNetworkHandoverOn)
+
+          Button($r('app.string.UnSubscribe'))
+            .width('100%')
+            .height(40)
+            .margin({ top: '11%' })
+            .fontColor($r('sys.color.navigation_drag_bar_item_default'))
+            .fontSize(24)
+            .fontWeight(500)
+            .borderRadius(20)
+            .onClick(this.getNetworkHandoverOff)
+
+          Text($r('app.string.Result'))
+            .width('100%')
+            .height(40)
+            .margin({ top: '11%' })
+            .fontColor($r('sys.color.black'))
+            .fontSize(24)
+            .fontWeight(500)
+          TextArea({
+            text: this.content
+          })
+            .width('100%')
+            .height(260)
+            .margin({ top: '11%' })
+            .backgroundColor($r('sys.color.gray_01'))
+            .fontColor($r('sys.color.black'))
+            .fontSize(24)
+            .fontWeight(500)
+            .borderRadius(10)
+        }
       }
-      .height(40)
-      .width(124)
-      .margin({ top: 32 })
-
-      Divider().color('gray').strokeWidth(1)
-      Column({ space: 20 }) {
-        Button($r('app.string.Subscribe'))
-          .width('100%')
-          .height(40)
-          .margin({ top: '11%' })
-          .fontColor('#FFFFFFFF')
-          .fontSize(24)
-          .fontWeight(500)
-          .borderRadius(20)
-          .onClick(this.getNetworkHandoverOn)
-
-        Button($r('app.string.UnSubscribe'))
-          .width('100%')
-          .height(40)
-          .margin({ top: '11%' })
-          .fontColor('#FFFFFFFF')
-          .fontSize(24)
-          .fontWeight(500)
-          .borderRadius(20)
-          .onClick(this.getNetworkHandoverOff)
-
-        Text($r('app.string.Result'))
-          .width('100%')
-          .height(40)
-          .margin({ top: '11%' })
-          .fontColor('#000000')
-          .fontSize(24)
-          .fontWeight(500)
-        TextArea({
-          text: this.content
-        })
-          .width('100%')
-          .height(260)
-          .margin({ top: '11%' })
-          .backgroundColor('0x317AFF')
-          .fontColor($r('sys.color.black'))
-          .fontSize(24)
-          .fontWeight(500)
-          .borderRadius(10)
-      }
-      .height('100%')
-      .width('100%')
+      .padding({ left: '16vp', right: '16vp' })
+      .alignItems(HorizontalAlign.Start)
     }
     .height('100%')
     .width('100%')
-    .padding({ left: '16vp', right: '16vp' })
-    .alignItems(HorizontalAlign.Start)
   }
 
   private getNetworkHandoverOn = async () => {
@@ -138,7 +138,7 @@ struct requestContent {
                     // following code is just an example.
                     netHandle.getAddressesByName(host, (error: BusinessError, data: connection.NetAddress[]) => {
                       if (error) {
-                        hilog.info(0x0000, 'testTag',
+                        hilog.error(0x0000, 'testTag',
                           `Failed to get addresses. Code:${error.code}, message:${error.message}`);
                         return;
                       }
@@ -174,7 +174,7 @@ struct requestContent {
             }
           } else {
             // handover fail, app may obtains the default active data network through getDefaultNet API in Network Kit.
-            hilog.info(0x0000, 'testTag', 'handover fail');
+            hilog.error(0x0000, 'testTag', 'handover fail');
           }
         }
       });
@@ -186,7 +186,6 @@ struct requestContent {
       hilog.error(0x0000, 'testTag', 'on netQosChange error: %{public}d %{public}s', e.code, e.message);
     }
   }
-
   private getNetworkHandoverOff = async () => {
     try {
       netHandover.off('handoverChange');

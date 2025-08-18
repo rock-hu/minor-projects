@@ -9,7 +9,7 @@ class Params {
 }
 
 @Builder
-function buildText(params: Params) {
+function testBuilder(params: Params) {
   Column() {
     Text(params.text)
       .fontSize(50)

@@ -11,7 +11,7 @@ class Params {
 }
 
 @Builder
-function buildText(params: Params) {
+function testBuilder(params: Params) {
   Column() {
     Text(params.text)
       .fontSize(50)
@@ -39,7 +39,7 @@ class TextNodeController extends NodeController {
     // Set the selfIdealSize property
     // this.textNode = new BuilderNode(context, {selfIdealSize: {width: 100, height :100}});
     // Build the component tree using the build method
-    this.textNode.build(wrapBuilder<[Params]>(buildText), new Params(this.message));
+    this.textNode.build(wrapBuilder<[Params]>(testBuilder), new Params(this.message));
     // Returns the node to be displayed
     return this.textNode.getFrameNode();
   }
@@ -77,7 +77,7 @@ struct Index {
     let uiContext: UIContext = this.getUIContext();
     let message = 'newNode';
     let textNode = new BuilderNode<[Params]>(uiContext);
-    textNode.build(wrapBuilder<[Params]>(buildText), new Params(message))
+    textNode.build(wrapBuilder<[Params]>(testBuilder), new Params(message))
     return textNode;
   }
 }

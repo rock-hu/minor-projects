@@ -29,7 +29,7 @@ struct GesturesConflictScene21 {
     .width('100%')
     // DocsCode 1
     .gesture(
-      GestureGroup(GestureMode.Exclusive,
+      GestureGroup(GestureMode.Parallel,
         TapGesture({ count: 2 })
           .onAction(() => {
             this.count2++;

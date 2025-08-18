@@ -3,6 +3,11 @@
 ### Overview
 This sample implements file paths and HUKS encryption/decryption algorithm.
 
+### Effect
+| Home Page                                             |
+|-------------------------------------------------------|
+| <img src="screenshots/device/phone_en.png" width=320> |
+
 ### Project Directory
 ```
 ├──entry/src/main/ets/
