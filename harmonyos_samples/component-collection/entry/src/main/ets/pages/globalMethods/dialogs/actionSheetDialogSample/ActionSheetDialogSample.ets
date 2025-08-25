@@ -406,7 +406,7 @@ struct ListDialogSample {
                 controller: this.mTextInputController,
                 placeholder: $r('app.string.avoiding_input_method_testing')
               })
-                .layoutWeight(1).height(50).id('test_input')
+                .layoutWeight(1).height(50)
             }.rowStyle()
 
             Row() {
@@ -452,7 +452,6 @@ struct ListDialogSample {
                     }
                   );
                 })
-                .id('sheet_bottomButton')
             }.rowStyle()
           }.columnStyle().margin({ bottom: 80 })
         }

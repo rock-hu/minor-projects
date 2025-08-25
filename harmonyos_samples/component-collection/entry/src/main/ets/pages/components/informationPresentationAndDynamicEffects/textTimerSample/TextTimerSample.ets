@@ -99,7 +99,7 @@ struct TextTimerSample {
           Toggle({ type: ToggleType.Switch, isOn: this.isCountDown })
             .onChange((isOn) => {
               this.isCountDown = isOn;
-            }).id('test_toggle')
+            })
         }.width('100%')
         .height(50)
       }.cardStyle()

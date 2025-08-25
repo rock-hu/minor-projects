@@ -2,7 +2,6 @@
   "modelVersion": "5.0.5",
   "license": "ISC",
   "devDependencies": {
-    "@ohos/hypium": "1.0.15"
   },
   "name": "myapplication",
   "description": "example description",

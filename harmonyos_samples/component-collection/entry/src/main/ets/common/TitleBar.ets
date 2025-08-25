@@ -13,12 +13,11 @@
  * limitations under the License.
  */
 
-import { router } from '@kit.ArkUI';
 
 // Page title bar
 @Component
 export struct TitleBar {
-  private title: Resource = $r('app.media.ic_back');
+  title: Resource = $r('app.media.ic_back');
 
   build() {
     Column() {
@@ -31,7 +30,6 @@ export struct TitleBar {
           .onClick(() => {
             this.getUIContext().getRouter().back()
           })
-          .id('backBtn')
         Text(this.title)
           .fontSize(20)
           .layoutWeight(1)

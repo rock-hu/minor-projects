@@ -122,13 +122,13 @@ struct FocusControlSample {
                 .width(150)
                 .height(40)
                 .fontColor(Color.White)
-                .key(this.idList[0])
+                .id(this.idList[0])
                 .focusable(false)
               Button(this.idList[1])
                 .width(150)
                 .height(40)
                 .fontColor(Color.White)
-                .key(this.idList[1])
+                .id(this.idList[1])
             }
 
             Row({ space: 16 }) {
@@ -136,12 +136,12 @@ struct FocusControlSample {
                 .width(150)
                 .height(40)
                 .fontColor(Color.White)
-                .key(this.idList[2])
+                .id(this.idList[2])
               Button(this.idList[3])
                 .width(150)
                 .height(40)
                 .fontColor(Color.White)
-                .key(this.idList[3])
+                .id(this.idList[3])
             }
 
             Row({ space: 16 }) {

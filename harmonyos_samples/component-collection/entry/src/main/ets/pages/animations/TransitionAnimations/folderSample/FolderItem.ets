@@ -12,13 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { promptAction } from '@kit.ArkUI';
 
 @Component
 export default struct FolderItem {
   @Link isOpen: boolean;
-  private img: Resource | null = null;
-  private name: string = '';
+  img: Resource | null = null;
+  name: string = '';
 
   build() {
     Stack() {

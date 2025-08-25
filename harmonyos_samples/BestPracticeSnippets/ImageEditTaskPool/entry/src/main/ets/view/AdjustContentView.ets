@@ -225,6 +225,7 @@ struct SliderCustom {
         // [EndExclude postProcess_start]
       })
   }
+
   // [StartExclude postProcess_start]
   updatePixelMap(ret: ArrayBuffer) {
     const newPixel = this.pixelMap as image.PixelMap;
@@ -234,6 +235,7 @@ struct SliderCustom {
     this.deviceListDialogController.close();
     this.postState = true;
   }
+
   // [EndExclude postProcess_start]
   // [End postProcess_start]
 }
@@ -271,6 +273,7 @@ function splitTask(buffers: ArrayBuffer[], type: AdjustId, sliderValue: number, 
   }
   return group;
 }
+
 // [End postProcess_start]
 
 @Concurrent
@@ -312,10 +315,11 @@ function splitArrayBuffer(buffer: ArrayBuffer, n: number): ArrayBuffer[] {
   }
   return result;
 }
+
 // [StartExclude split_buffer1]
-function  buffer(bufferArray:ESObject, taskNum: number, sliderValue: number, value: number){
- let  Workers:ESObject
-// [EndExclude split_buffer1]
+function buffer(bufferArray: ESObject, taskNum: number, sliderValue: number, value: number) {
+  let Workers: ESObject
+  // [EndExclude split_buffer1]
   // Assign the split pixels to the Worker instance.
   const buffers: ArrayBuffer[] = splitArrayBuffer(bufferArray, taskNum);
   let messages: MessageItem[] = [];
@@ -354,7 +358,7 @@ function mergeArrayBuffers(buffers: Object[]) {
   return mergedBuffer;
 }
 
-function taskNum(WorkerName:string){
+function taskNum(WorkerName: string) {
   // [Start task1]
   let taskNum: number = 14; // The number of concurrent tasks is controlled, which can be adjusted according to the demand.
   let curTaskNum: number = taskNum <= 64 ? taskNum : 64; // Control allows up to 64 Worker instances to run at the same time.

@@ -47,8 +47,8 @@ ohos.permission.INTERNET: allows an app to access Internet.
 ## Constraints
 * The sample app is supported only on Huawei phones running the standard system.
 
-* The HarmonyOS version must be HarmonyOS 5.0.0 Release or later.
+* The HarmonyOS version must be HarmonyOS 5.0.5 Release or later.
 
-* The DevEco Studio version must be DevEco Studio 5.0.0 Release or later.
+* The DevEco Studio version must be DevEco Studio 5.0.5 Release or later.
 
-* The HarmonyOS SDK version must be HarmonyOS 5.0.0 Release SDK or later.
+* The HarmonyOS SDK version must be HarmonyOS 5.0.5 Release SDK or later.

@@ -41,7 +41,7 @@ export struct ChangePanel {
               }
 
               Logger.info(`checkbox group content ${JSON.stringify(this.mSafeAreaType)}`);
-            }).id('test_selectAll')
+            })
           Text($r('app.string.checkbox_select_all')).fontSize(20)
         }.width('100%')
 
@@ -106,7 +106,7 @@ export struct ChangePanel {
                 }
               }
               Logger.info(`checkbox group content ${JSON.stringify(itemName)}`);
-            }).id('test_selectAll')
+            })
           Text($r('app.string.checkbox_select_all')).fontSize(20)
         }.width('100%')
 

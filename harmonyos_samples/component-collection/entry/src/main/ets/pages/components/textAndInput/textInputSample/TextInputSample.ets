@@ -56,7 +56,7 @@ struct TextInputSample {
           IntroductionTitle({ introduction: $r('app.string.text_input_input_type') })
           Column() {
             TextInput({ placeholder: this.typePlaceholder })
-              .type(this.inputType).id('test_input')
+              .type(this.inputType)
               .showPasswordIcon(this.showPasswordIcon)
               .enableKeyboardOnFocus(false)
 

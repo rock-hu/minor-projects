@@ -15,7 +15,7 @@
 
 @Component
 export struct IntroductionTitle {
-  private introduction: Resource = $r('app.string.layout_animation_expansion_align');
+  introduction: Resource = $r('app.string.layout_animation_expansion_align');
 
   build() {
     Text(this.introduction)

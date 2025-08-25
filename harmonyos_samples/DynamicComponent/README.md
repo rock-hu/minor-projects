@@ -5,8 +5,8 @@
 本示例通过NodeController绑定自定义节点BuilderNode和布局组件NodeContainer实现组件的动态创建，可以节省组件的创建时间，提升用户体验，同时还可以将独立的逻辑进行封装，有助于应用的模块化开发。
 
 ### 效果图预览
-| 主页面                                                       | 列表流广告页面                                                 | 动态生成页面                                                             |
-|-----------------------------------------------------------|---------------------------------------------------------|--------------------------------------------------------------------|
+| 主页面                                                       | 列表流广告页面                                                 | 动态生成页面                                                                    |
+|-----------------------------------------------------------|---------------------------------------------------------|---------------------------------------------------------------------------|
 | <img src="screenshots/device/MainPage.png" width="300px"> | <img src="screenshots/device/Dialog.png" width="300px"> | <img src="screenshots/device/DynamicallyGeneratePages.png" width="300px"> |
 
 **使用说明**
@@ -55,8 +55,8 @@
 
 1.本示例仅支持标准系统上运行，支持设备：华为手机。
 
-2.HarmonyOS系统：HarmonyOS 5.0.2 Release及以上。
+2.HarmonyOS系统：HarmonyOS 5.0.5 Release及以上。
 
-3.DevEco Studio版本：DevEco Studio 5.0.2 Release及以上。
+3.DevEco Studio版本：DevEco Studio 5.0.5 Release及以上。
 
-4.HarmonyOS SDK版本：HarmonyOS 5.0.2 Release SDK 及以上。
+4.HarmonyOS SDK版本：HarmonyOS 5.0.5 Release SDK 及以上。

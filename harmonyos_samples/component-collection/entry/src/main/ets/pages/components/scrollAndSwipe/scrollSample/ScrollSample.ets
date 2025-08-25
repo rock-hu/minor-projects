@@ -92,7 +92,7 @@ struct ScrollSample {
             .leftTitleStyle()
           Column() {
             TextInput({ placeholder: $r('app.string.avoiding_input_method_testing') })
-              .width('95%').height(50).enableKeyboardOnFocus(false).id('test_input')
+              .width('95%').height(50).enableKeyboardOnFocus(false)
             Scroll() {
               Image($r('app.media.banner'))
                 .width('100%')

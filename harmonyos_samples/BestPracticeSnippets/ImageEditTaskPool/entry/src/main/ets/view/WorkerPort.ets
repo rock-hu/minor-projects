@@ -1,24 +1,26 @@
-import { buffer, MessageEvents } from '@kit.ArkTS';
+import { MessageEvents } from '@kit.ArkTS';
 import { CommonConstants } from '../common/constant/CommonConstants';
 import { AngelRange, HSVIndex, RGBIndex } from '../viewModel/OptionViewModel';
-let WorkerPort:ESObject;
-let WorkerBuffer:ESObject;
+
+let WorkerPort: ESObject;
+let WorkerBuffer: ESObject;
 // [Start WorkerPort]
 // The child thread receives the task and calculates it.
 WorkerPort.onmessage = (event: MessageEvents) => {
-  let bufferArray:ArrayBuffer = event.data.buf;
-  let last:number = event.data.last;
-  let cur :number= event.data.cur;
-  let index:number = event.data.index;
+  let bufferArray: ArrayBuffer = event.data.buf;
+  let last: number = event.data.last;
+  let cur: number = event.data.cur;
+  let index: number = event.data.index;
   let buffer = adjustImageValue(bufferArray, last, cur); // Pixel calculation execution
-  let output :ESObject= new WorkerBuffer(buffer, index);
+  let output: ESObject = new WorkerBuffer(buffer, index);
   WorkerPort.postMessage(output); // Send the calculation result to the main thread.
 }
 
 
-function  adjustImageValue(bufferArray: ArrayBuffer, last: number, cur: number, hsvIndex?: number):ArrayBuffer{
+function adjustImageValue(bufferArray: ArrayBuffer, last: number, cur: number, hsvIndex?: number): ArrayBuffer {
   return execColorInfo(bufferArray, last, cur, HSVIndex.VALUE);
 }
+
 // Picture pixel calculation
 function execColorInfo(bufferArray: ArrayBuffer, last: number, cur: number, hsvIndex: number) {
   // ...
@@ -35,10 +37,12 @@ function execColorInfo(bufferArray: ArrayBuffer, last: number, cur: number, hsvI
   }
   return newBufferArr;
 }
+
 // [End WorkerPort]
 function colorTransform(rgbValue: number): number {
   return Number((rgbValue / 255).toFixed(2));
 }
+
 function rgb2hsv(red: number, green: number, blue: number): number[] {
   let hsvH: number = 0, hsvS: number = 0, hsvV: number = 0;
   const rgbR: number = colorTransform(red);
@@ -69,7 +73,8 @@ function rgb2hsv(red: number, green: number, blue: number): number[] {
   }
   return [hsvH, hsvS, hsvV];
 }
-function hsv2rgb(hue: number, saturation: number, value: number):ESObject {
+
+function hsv2rgb(hue: number, saturation: number, value: number): ESObject {
   let rgbR: number = 0, rgbG: number = 0, rgbB: number = 0;
   if (saturation === 0) {
     rgbR = rgbG = rgbB = Math.round((value * 255) / 100);

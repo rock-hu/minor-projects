@@ -143,8 +143,8 @@ struct LocationService {
         });
         this.marker?.setInfoWindowVisible(false);
         this.address = '';
-        // [EndExclude on_location_change]
       }
+      // [EndExclude on_location_change]
     } catch (err) {
       hilog.error(0x0000, TAG, `onLocationChange failed, code: ${err.code}, message: ${err.message}`);
       // [StartExclude on_location_change]

@@ -67,13 +67,13 @@ struct SearchComponent {
 
   build() {
     Column({ space: 8 }) {
-      Text('商城')
+      Text($r('app.string.nativeembed_mall'))
         .fontSize(16)
       Row() {
         Image($r('app.media.nativeembed_search_icon'))
           .width(14)
           .margin({ left: 14 })
-        Text('搜索相关宝贝')
+        Text($r('app.string.nativeembed_search_text_placeholder'))
           .fontSize(14)
           .opacity(0.6)
           .fontColor('#000000')
@@ -86,7 +86,7 @@ struct SearchComponent {
       .borderRadius(18)
       .onClick(() => {
         this.getUIContext().getPromptAction().showToast({
-          message: '仅演示，可自行实现业务功能'
+          message: $r('app.string.nativeembed_prompt_text')
         });
       })
       Grid() {

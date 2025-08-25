@@ -29,11 +29,11 @@ class ValueInfo {
 @Component
 export struct CommonItemSlider {
   @Link changeValue: number;
-  private min: number = 0;
-  private max: number = 0;
-  private name: ResourceStr = '';
+  min: number = 0;
+  max: number = 0;
+  name: ResourceStr = '';
   private step: number = 1;
-  private testId: string = 'test_colorSelect';
+  testId: string = 'test_colorSelect';
   private vpTest: string = 'vp';
 
   build() {
@@ -71,12 +71,12 @@ export struct CommonItemSlider {
 @Component
 export struct CommonItemTwoRowSlider {
   @Link changeValue: number;
-  private min: number = 0;
-  private max: number = 0;
-  private name: ResourceStr = '';
-  private step: number = 1
-  private testId: string = 'test_colorSelect';
-  private vpTest: string = 'vp';
+  min: number = 0;
+  max: number = 0;
+  name: ResourceStr = '';
+  step: number = 1
+  testId: string = 'test_colorSelect';
+  vpTest: string = 'vp';
 
   build() {
     Column() {
@@ -114,12 +114,12 @@ export struct CommonItemTwoRowSlider {
  */
 @Component
 export struct CommonItemSelect {
-  private selects: ResourceStr[] = [];
-  private callback: (index: number, value?: string) => void = () => {
+  selects: ResourceStr[] = [];
+  callback: (index: number, value?: string) => void = () => {
   };
   private selectOption: SelectOption[] = [];
-  private name: ResourceStr = '';
-  private testId: string = 'test_itemSelect';
+  name: ResourceStr = '';
+  testId: string = 'test_itemSelect';
   private selectIndex: number = 0;
   private fontSize: Font = { size: 15, weight: FontWeight.Medium };
   private isItemStyle: boolean = true;
@@ -168,9 +168,9 @@ export struct CommonItemSelect {
 export struct CommonItemColorSelect {
   @Link selectColor: Resource;
   @State selectIndex: number = 0;
-  private testId: string = 'test_colorSelect';
-  private name: Resource = $r('app.string.divider_color_blue');
-  private isItemStyle: boolean = true;
+  testId: string = 'test_colorSelect';
+  name: Resource = $r('app.string.divider_color_blue');
+  isItemStyle: boolean = true;
   private colorNames: ValueInfo[] = [
     { value: $r('app.string.divider_color_blue') },
     { value: $r('app.string.divider_color_green') },
@@ -247,7 +247,7 @@ export struct CommonItemInput {
         .size(TOOL_WIDTH)
         .onChange(value => {
           this.inputValue = value;
-        }).id('test_input')
+        })
         .enableKeyboardOnFocus(false)
     }
     .size({ width: '100%', height: 70 })
@@ -262,9 +262,9 @@ export struct CommonItemInput {
 @Component
 export struct CommonSwitcher {
   @Link bool: boolean;
-  private name: ResourceStr = '';
-  private testId: string = '';
-  private testID: string = '';
+  name: ResourceStr = '';
+  testId: string = '';
+  testID: string = '';
 
   build() {
     Row() {
@@ -283,9 +283,9 @@ export struct CommonSwitcher {
 @Component
 export struct ImageItemSlider {
   @Link changeValue: number;
-  private min: number = 0;
-  private max: number = 0;
-  private name: ResourceStr = '';
+  min: number = 0;
+  max: number = 0;
+  name: ResourceStr = '';
 
   build() {
     Row() {

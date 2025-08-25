@@ -5,8 +5,8 @@
 This sample shows how to dynamically create a component in the declarative UI.
 
 ### Preview
-| Home Page                                 | Ad Closing Popup                            |
-|--------------------------------------|---------------------------------------|
+| Home Page                                                    | Ad Closing Popup                                         |
+|--------------------------------------------------------------|----------------------------------------------------------|
 | <img src="./screenshots/device/MainPage.en.png" width="320"> | <img src="screenshots/device/Dialog.en.png" width="320"> |
 
 **How to Use**
@@ -65,6 +65,6 @@ N/A
 ### Constraints
 
 1. The sample app is supported only on Huawei phones running the standard system.
-2. The HarmonyOS version must be HarmonyOS 5.0.2 Release or later.
-3. The DevEco Studio version must be DevEco Studio 5.0.2 Release or later.
-4. The HarmonyOS SDK version must be HarmonyOS 5.0.2 Release SDK or later.
+2. The HarmonyOS version must be HarmonyOS 5.0.5 Release or later.
+3. The DevEco Studio version must be DevEco Studio 5.0.5 Release or later.
+4. The HarmonyOS SDK version must be HarmonyOS 5.0.5 Release SDK or later.

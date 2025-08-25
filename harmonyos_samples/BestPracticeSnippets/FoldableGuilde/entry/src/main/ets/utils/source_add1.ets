@@ -1,4 +1,3 @@
-@Entry
 @Component
 // [Start ScrollTest]
 export struct ScrollTest {
@@ -16,7 +15,7 @@ export struct ScrollTest {
         ListItem() {
           Text('北京').fontSize(24)
         }
-      })
+      }, (item: string) => item)
       // [EndExclude ScrollTest]
     }
     .onScrollFrameBegin((offset: number, state: ScrollState) => {

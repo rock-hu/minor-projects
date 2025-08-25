@@ -1,4 +1,3 @@
-
 # 实现多Hap构建功能
 
 ### 介绍
@@ -99,8 +98,8 @@ feature：应用的特性模块，一个应用中可以包含一个或者多个f
 
 1.本示例仅支持标准系统上运行，支持设备：华为手机。
 
-2.HarmonyOS系统：HarmonyOS 5.0.0 Release及以上。
+2.HarmonyOS系统：HarmonyOS 5.0.5 Release及以上。
 
-3.DevEco Studio版本：DevEco Studio 5.0.0 Release及以上。
+3.DevEco Studio版本：DevEco Studio 5.0.5 Release及以上。
 
-4.HarmonyOS SDK版本：HarmonyOS 5.0.0 Release SDK及以上。
+4.HarmonyOS SDK版本：HarmonyOS 5.0.5 Release SDK及以上。

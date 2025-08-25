@@ -13,8 +13,6 @@
  * limitations under the License.
  */
 
-import { promptAction } from '@kit.ArkUI';
-
 const uiContext: UIContext | undefined = AppStorage.get('uiContext');
 
 class ShowToast {

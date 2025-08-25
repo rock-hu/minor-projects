@@ -17,7 +17,7 @@ export struct ScrollComponent {
           ListItem() {
             Text('北京').fontSize(24)
           }
-        })
+        }, (item: string) => item)
       }
       .onScrollStart(() => {
         if (this.scroll_stop_timeout) {

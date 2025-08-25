@@ -20,7 +20,6 @@ import { ImageDrag } from './component/ImageDrag';
 import { ListItemDrag } from './component/ListItemDrag';
 import { TextDrag } from './component/TextDrag';
 import { VideoDrag } from './component/VideoDrag';
-import { router } from '@kit.ArkUI';
 
 @Extend(Row)
 function rowStyle() {

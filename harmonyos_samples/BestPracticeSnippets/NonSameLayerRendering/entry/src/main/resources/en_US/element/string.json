@@ -78,11 +78,11 @@
     },
     {
       "name": "nativeembed_search",
-      "value": "搜索"
+      "value": "Search"
     },
     {
       "name": "nativeembed_prompt_text",
-      "value": "仅演示，可自行实现业务功能"
+      "value": "For demonstration purposes only, business functionality can be implemented independently."
     },
     {
       "name": "nativeembed_search_text_placeholder",

@@ -32,7 +32,7 @@ curl_easy_setopt( curl, CURLOPT_CATH, "/etc/security/certificates");
     "base-config": {
       "trust-anchors": [
         {
-          "certificates": "/res/appCaCert"
+          "certificates": "/data/storage/el1/bundle/entry/resources/resfile/appCaCert"
         }
       ]
     },
@@ -46,7 +46,7 @@ curl_easy_setopt( curl, CURLOPT_CATH, "/etc/security/certificates");
         ],
         "trust-anchors": [
           {
-            "certificates": "/res/domainCaCert"
+            "certificates": "/data/storage/el1/bundle/entry/resources/resfile/domainCaCert"
           }
         ]
       }
@@ -60,7 +60,7 @@ curl_easy_setopt( curl, CURLOPT_CATH, "/etc/security/certificates");
  * 场景六：配置信任应用管理的CA证书-应用使用三方库进行网络连接
  */
 // [Start cybersecurity_trusting_ca_others]
-curl_easy_setopt( curl, CURLOPT_CATH, "/res/domainCaCert");
+curl_easy_setopt( curl, CURLOPT_CATH, "/data/storage/el1/bundle/entry/resources/resfile/domainCaCert");
 // [End cybersecurity_trusting_ca_others]
 
 /**

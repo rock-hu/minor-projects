@@ -13,8 +13,6 @@
  * limitations under the License.
  */
 
-import { router } from '@kit.ArkUI';
-
 const ANIMATION_TIME: number = 1000;
 const ANIMATION_PROGRESS: number = -600;
 

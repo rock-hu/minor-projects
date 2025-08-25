@@ -17,8 +17,8 @@ import { MultiplexModel } from './MultiplexModel';
 @Component
 export struct ScrollItem {
   private panOption: PanGestureOptions = new PanGestureOptions({ direction: PanDirection.Vertical, fingers: 1 });
-  private resource: MultiplexModel = new MultiplexModel('', $r('app.media.img_test_1'));
-  private onDelete: (id: string) => void = () => {
+  resource: MultiplexModel = new MultiplexModel('', $r('app.media.img_test_1'));
+  onDelete: (id: string) => void = () => {
   };
   @StorageProp('windowHeight') windowHeight: number = 720;
   @State offsetX: number = 0; // X-axis sliding distance

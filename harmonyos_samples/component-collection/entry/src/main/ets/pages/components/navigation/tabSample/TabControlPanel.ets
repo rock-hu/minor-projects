@@ -20,7 +20,7 @@ import { TABS_BAR_POSITION_SELECT, TABS_BAR_MODE_SELECT } from '../../ComponentD
 @Component
 export struct ArgumentsControlPanel {
   @Link barPosition: BarPosition;
-  private changeIndex: (index: number) => void = () => {
+  changeIndex: (index: number) => void = () => {
   };
 
   build() {

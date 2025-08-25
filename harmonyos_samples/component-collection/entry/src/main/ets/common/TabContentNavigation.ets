@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-import { router } from '@kit.ArkUI';
 import { SecondLevelCategory, ThirdLevelCategory, FourthLevelCategory } from '../model/CategoricalDataType';
 
 @Extend(Column)
@@ -26,7 +25,7 @@ function ColumnStyle() {
 
 @Component
 export struct TabContentNavigation {
-  private categories: ThirdLevelCategory[] | SecondLevelCategory[] = new Array;
+  categories: ThirdLevelCategory[] | SecondLevelCategory[] = new Array;
 
   hasSecondLevelCategory(category: ThirdLevelCategory) {
     return category && category.image ? false : true;
@@ -90,9 +89,9 @@ export struct TabContentNavigation {
 @Component
 struct ThirdLevelNavigation {
   @State isUnfold: boolean = false;
-  private thirdLevelCategory: ThirdLevelCategory | null = null;
-  private ThirdLevelNavigationIndex: number = 0;
-  private secondLevelCategoryIndex: number = 0;
+  thirdLevelCategory: ThirdLevelCategory | null = null;
+  ThirdLevelNavigationIndex: number = 0;
+  secondLevelCategoryIndex: number = 0;
 
   build() {
     if (this.thirdLevelCategory) {
@@ -156,7 +155,7 @@ struct ThirdLevelNavigation {
 
 @Component
 struct FourthLevelNavigation {
-  private fourthLevelCategory: FourthLevelCategory | null = null;
+  fourthLevelCategory: FourthLevelCategory | null = null;
 
   build() {
     Row() {

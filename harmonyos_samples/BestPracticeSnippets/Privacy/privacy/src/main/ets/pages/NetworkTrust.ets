@@ -16,7 +16,7 @@ httpRequest.request( 'EXAMPLE_URL',  {
   extraData: 'data to send',
   expectDataType: http.HttpDataType.STRING,
   connectTimeout: 60000,
-  caPath:'/res/domainCaCert', // Specifies the trusted CA certificate path
+  caPath:'/data/storage/el1/bundle/entry/resources/resfile/domainCaCert', // Specifies the trusted CA certificate path
 }, (err: BusinessError, data: http.HttpResponse) => {
   // ...
 })
@@ -29,7 +29,7 @@ httpRequest.request( 'EXAMPLE_URL',  {
 
 // [Start cybersecurity_rcp_trusting_ca]
 const caPath: rcp.CertificateAuthority = {
-  folderPath: '/res/appCaCert', // 指定信任的CA证书路径
+  folderPath: '/data/storage/el1/bundle/entry/resources/resfile/appCaCert', // 指定信任的CA证书路径
 }
 const securityConfig: rcp.SecurityConfiguration = {
   remoteValidation: caPath

@@ -14,7 +14,6 @@
  */
 
 import { pointer } from '@kit.InputKit';
-import { promptAction } from '@kit.ArkUI';
 import { window } from '@kit.ArkUI';
 import { TitleBar } from '../../../../common/TitleBar';
 import { getStringData } from '../../../../data//ResourceDataHandle';
@@ -25,7 +24,6 @@ import {
   pointerStyleNameData
 } from '../../UniversialData';
 import Logger from '../../../../util/Logger';
-import { MeasureText } from '@kit.ArkUI';
 
 @Extend(Text)
 function leftTitleStyle() {
@@ -294,7 +292,7 @@ struct Interaction {
                         }
                       }
                     )
-                  }).id('test_oneButton')
+                  })
                 Button($r('app.string.interaction_show_two_alert'))
                   .onClick(() => {
                     this.getUIContext().showAlertDialog(
@@ -321,7 +319,7 @@ struct Interaction {
                         }
                       }
                     )
-                  }).id('test_twoButton')
+                  })
               }.cardStyle()
 
               Text($r('app.string.popup'))
@@ -684,7 +682,7 @@ struct Interaction {
               }
               .enabled(!this.mComponentDisabled)
               .focusable(this.mComponentFocused)
-              .key('item')
+              .id('item')
               .width(200)
               .height(200)
               .stateStyles({

@@ -6,8 +6,8 @@
 
 ### 效果预览
 
-| 竖屏                                                      | 横屏                                                                                                            | 
-|---------------------------------------------------------|---------------------------------------------------------------------------------------------------------------|
+| 竖屏                                                       | 横屏                                             | 
+|----------------------------------------------------------|------------------------------------------------|
 | <img src="screenshots/devices/portrait.png" width='320'> | <img src="screenshots/devices/landscape.png" > |
 
 使用说明
@@ -59,9 +59,9 @@
 ### 约束与限制
 
 1. 本示例仅支持标准系统上运行，支持设备：华为手机。
-2. HarmonyOS系统：HarmonyOS 5.0.0 Release及以上。
-3. DevEco Studio版本：DevEco Studio 5.0.0 Release及以上。
-4. HarmonyOS SDK版本：HarmonyOS 5.0.0 Release SDK及以上。
+2. HarmonyOS系统：HarmonyOS 5.0.5 Release及以上。
+3. DevEco Studio版本：DevEco Studio 5.0.5 Release及以上。
+4. HarmonyOS SDK版本：HarmonyOS 5.0.5 Release SDK及以上。
 
 
 

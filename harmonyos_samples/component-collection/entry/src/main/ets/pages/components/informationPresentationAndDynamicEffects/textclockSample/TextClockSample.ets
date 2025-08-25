@@ -70,7 +70,7 @@ struct TextClockSample {
         Row() {
           Button($r('app.string.text_clock_start')).onClick(() => {
             this.controller.start()
-          }).id('test_start')
+          })
           Blank()
           Button($r('app.string.text_clock_stop')).onClick(() => {
             this.controller.stop()
@@ -91,8 +91,7 @@ struct TextClockSample {
           Radio({
             value: getStringData($r('app.string.text_clock_timeformatone')),
             group: getStringData($r('app.string.text_clock_groupformat'))
-          }).id('test_radio1')
-            .checked(this.format === getStringData($r('app.string.text_clock_timeformatone')))
+          }).checked(this.format === getStringData($r('app.string.text_clock_timeformatone')))
             .onChange((isChecked: boolean) => {
               if (isChecked)
                 this.format = getStringData($r('app.string.text_clock_timeformatone'));
@@ -108,8 +107,7 @@ struct TextClockSample {
           Radio({
             value: getStringData($r('app.string.text_clock_timeformattwo')),
             group: getStringData($r('app.string.text_clock_groupformat'))
-          }).id('test_radio2')
-            .checked(this.format === getStringData($r('app.string.text_clock_timeformattwo')))
+          }).checked(this.format === getStringData($r('app.string.text_clock_timeformattwo')))
             .onChange((isChecked: boolean) => {
               if (isChecked)
                 this.format = getStringData($r('app.string.text_clock_timeformattwo'));
@@ -125,8 +123,7 @@ struct TextClockSample {
           Radio({
             value: getStringData($r('app.string.text_clock_timeformatthree')),
             group: getStringData($r('app.string.text_clock_groupformat'))
-          }).id('test_radio3')
-            .checked(this.format === getStringData($r('app.string.text_clock_timeformatthree')))
+          }).checked(this.format === getStringData($r('app.string.text_clock_timeformatthree')))
             .onChange((isChecked: boolean) => {
               if (isChecked)
                 this.format = getStringData($r('app.string.text_clock_timeformatthree'));

@@ -1,8 +1,7 @@
 // [Start NavigationComponent]
-@Entry
 @Component
 export struct NavigationComponent {
-  @State TooTmp: ToolbarItem = {'value': "func", 'action': ()=> {}}
+  @State TooTmp: ToolbarItem = {'value': 'func', 'action': ()=> {}};
   private arr: number[] = [1, 2, 3];
 
   build() {
@@ -10,12 +9,12 @@ export struct NavigationComponent {
       // Root view container for routing navigation
       Navigation() {
         List({ space: 12 }) {
-          ForEach(this.arr, (item:string) => {
+          ForEach(this.arr, (item: string) => {
             ListItem() {
               // Navigation component, which provides click response processing by default, does not require developers to customize click event logic。
               Navigation() {
-                Text("NavRouter" + item)
-                  .width("100%")
+                Text('NavRouter' + item)
+                  .width('100%')
                   .height(72)
                   .backgroundColor('#FFFFFF')
                   .borderRadius(24)
@@ -24,17 +23,17 @@ export struct NavigationComponent {
                   .textAlign(TextAlign.Center)
                 // Non-home page display content
                 NavDestination() {
-                  Text("NavDestinationContent" + item)
+                  Text('NavDestinationContent' + item)
                 }
-                .title("NavDestinationTitle" + item)
+                .title('NavDestinationTitle' + item)
               }
             }
-          }, (item:string):string => item)
+          }, (item: string): string => item)
         }
-        .width("90%")
+        .width('90%')
         .margin({ top: 12 })
       }
-      .title("主标题")
+      .title('主标题')
       .mode(NavigationMode.Auto)
     }
     .height('100%')
@@ -42,4 +41,5 @@ export struct NavigationComponent {
     .backgroundColor('#F1F3F5')
   }
 }
+
 // [End NavigationComponent]

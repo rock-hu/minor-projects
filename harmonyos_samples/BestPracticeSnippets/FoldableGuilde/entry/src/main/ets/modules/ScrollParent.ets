@@ -22,7 +22,7 @@ export struct NestedScroll {
               ListItem() {
                 Text(this.context).fontSize(16)
               }
-            })
+            }, (item: string) => item)
           }
 
           Web({ src: $rawfile("scroll.html"), controller: this.controller })
@@ -40,7 +40,7 @@ export struct NestedScroll {
               ListItem() {
                 Text(this.context).fontSize(16)
               }
-            })
+            }, (item: string) => item)
           }
         }.width("95%")
       }

@@ -54,7 +54,6 @@ struct FloatingWindowSample {
     Row() {
       Column() {
         TitleBar({ title: $r('app.string.Floating_window') })
-          .id('target')
         Row() {
           Row() {
             FloatingWindowComponent()

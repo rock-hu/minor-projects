@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-import { MeasureText } from '@kit.ArkUI';
 import { ChangeTextCase, ChangeTextAttribute } from './ChangePanel';
 import { TitleBar } from '../../../../common/TitleBar';
 

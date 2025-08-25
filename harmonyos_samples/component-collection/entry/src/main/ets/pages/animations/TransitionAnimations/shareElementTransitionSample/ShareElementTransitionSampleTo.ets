@@ -13,8 +13,6 @@
  * limitations under the License.
  */
 
-import { router } from '@kit.ArkUI';
-
 @Entry
 @Component
 struct ShareElementTransitionSampleTo {
