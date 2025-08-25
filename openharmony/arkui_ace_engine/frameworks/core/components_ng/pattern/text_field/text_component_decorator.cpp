@@ -26,6 +26,7 @@ namespace {
 
 constexpr int32_t DEFAULT_MODE = -1;
 constexpr int32_t SHOW_COUNTER_PERCENT = 100;
+constexpr int32_t CONSTANT_TWO_FOR_CENTER = 2;
 const std::string INSPECTOR_PREFIX = "__SearchField__";
 const std::string ERRORNODE_PREFIX = "ErrorNodeField__";
 
@@ -190,7 +191,6 @@ void CounterDecorator::UpdateCounterContentAndStyle(uint32_t textLength, uint32_
                                 theme->GetOverCountTextStyle() :
                                 theme->GetCountTextStyle();
     counterNodeLayoutProperty->UpdateContent(counterText);
-    
     if (textFieldLayoutProperty->HasMaxFontScale()) {
         auto maxFontScale = textFieldLayoutProperty->GetMaxFontScale().value();
         counterNodeLayoutProperty->UpdateMaxFontScale(maxFontScale);
@@ -240,7 +240,7 @@ std::string CounterDecorator::GetAccessibilityText(uint32_t textLength, uint32_t
     if (posSecond != std::string::npos) {
         secondStr.replace(posSecond, toFindStr.length(), maxLengthStr);
     }
-    result = firstStr + secondStr;
+    result = firstStr + " " + secondStr;
     return result;
 }
 
@@ -357,10 +357,12 @@ void CounterDecorator::HandleNonTextArea()
     CHECK_NULL_VOID(pipeline);
     auto theme = textFieldPattern->GetTheme();
     CHECK_NULL_VOID(theme);
+    auto decoratedGeometryNode = decoratedNode->GetGeometryNode();
+    CHECK_NULL_VOID(decoratedGeometryNode);
 
     bool isRTL = decoratedNodeProperty->GetNonAutoLayoutDirection() == TextDirection::RTL;
-    RectF frameRect = decoratedNode->GetGeometryNode()->GetFrameRect();
-    RectF contentRect = decoratedNode->GetGeometryNode()->GetContentRect();
+    RectF frameRect = decoratedGeometryNode->GetFrameRect();
+    RectF contentRect = decoratedGeometryNode->GetContentRect();
     float countX = contentRect.GetX();
     auto responseArea = textFieldPattern->GetResponseArea();
     auto cleanNodeResponseArea = textFieldPattern->GetCleanNodeResponseArea();
@@ -557,6 +559,8 @@ float ErrorDecorator::MeasureDecorator(float contentWidth, const std::u16string&
     CHECK_NULL_RETURN(textLayoutProperty, 0.0);
     RectF textFieldFrameRect = decoratedNode->GetGeometryNode()->GetFrameRect();
     auto errorValue = textFieldPattern->GetErrorTextString();
+    auto theme = textFieldPattern->GetTheme();
+    CHECK_NULL_RETURN(theme, 0.0);
     if (textFieldPattern->IsShowError() && !textFieldPattern->IsDisabled() && !errorValue.empty()) {
         float padding = 0.0f;
         if (textFieldLayoutProperty && textFieldLayoutProperty->GetPaddingProperty()) {
@@ -573,6 +577,9 @@ float ErrorDecorator::MeasureDecorator(float contentWidth, const std::u16string&
             auto counterDecorator = textFieldPattern->GetCounterDecorator();
             if (counterDecorator) {
                 layoutWidth -= counterDecorator->GetContentWidth(); // subtract counter length
+            }
+            if (theme->GetErrorTextAlign() == TextAlign::CENTER) {
+                layoutWidth -= counterDecorator->GetContentWidth();
             }
         }
         LayoutConstraintF invisibleConstraint;
@@ -638,8 +645,8 @@ void ErrorDecorator::LayoutDecorator()
         auto textFieldContentRect = textFieldGeometryNode->GetContentRect();
         offSetX += textFieldContentRect.Width() - textFrameWidth;
     }
-    if (theme->GetErrorTextCenter()) {
-        offSetX = (textFieldGeometryNode->GetFrameRect().Width() - textFrameWidth) / 2;
+    if (theme->GetErrorTextAlign() == TextAlign::CENTER) {
+        offSetX = (textFieldGeometryNode->GetFrameRect().Width() - textFrameWidth) / CONSTANT_TWO_FOR_CENTER;
     }
     textGeometryNode->SetFrameOffset(OffsetF(offSetX, textFrameRect.Bottom() - textFrameRect.Top() + errorMargin));
     textNode->Layout();

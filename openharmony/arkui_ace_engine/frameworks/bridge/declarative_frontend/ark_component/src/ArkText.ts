@@ -418,7 +418,7 @@ class TextLineSpacingModifier extends ModifierWithKey<ArkLineSpacing> {
         this.value.onlyBetweenLines);
     }
   }
-
+ 
   checkObjectDiff(): boolean {
     return !isBaseOrResourceEqual(this.stageValue, this.value);
   }
@@ -894,7 +894,7 @@ class TextShaderStyleModifier extends ModifierWithKey<{
   radius: number | string;
   angle?: number | string;
   direction?: GradientDirection;
-  colors: Array<any>;
+  colors: Array<[ ResourceColor, number ]>;
   repeating?: boolean;
   color: ResourceColor;
 }> {
@@ -903,7 +903,7 @@ class TextShaderStyleModifier extends ModifierWithKey<{
     radius: number | string;
     angle?: number | string;
     direction?: GradientDirection;
-    colors: Array<any>;
+    colors: Array<[ ResourceColor, number ]>;
     repeating?: boolean;
     color: ResourceColor;
   }) {
@@ -1137,7 +1137,7 @@ class ArkTextComponent extends ArkComponent implements TextAttribute {
       this._modifiersWithKeys, TextForegroundColorModifier.identity, TextForegroundColorModifier, value);
     return this;
   }
-  onTextSelectionChange(callback: (selectionStart: number, selectionEnd: number) => void) {
+  onTextSelectionChange(callback: (selectionStart: number, selectionEnd: number) => void): this {
     modifierWithKey(this._modifiersWithKeys, TextOnTextSelectionChangeModifier.identity,
       TextOnTextSelectionChangeModifier, callback);
     return this;
@@ -1175,7 +1175,7 @@ class ArkTextComponent extends ArkComponent implements TextAttribute {
     radius: number | string;
     angle?: number | string;
     direction?: GradientDirection;
-    colors: Array<any>;
+    colors: Array<[ ResourceColor, number ]>;
     repeating?: boolean;
   }): this {
     modifierWithKey(this._modifiersWithKeys, TextShaderStyleModifier.identity, TextShaderStyleModifier, value);

@@ -27,6 +27,7 @@
 #include "ui_extension_context.h"
 #include "system_ability_definition.h"
 #include "wm_common.h"
+#include "form_ashmem.h"
 
 #include "adapter/ohos/entrance/ace_view_ohos.h"
 #include "adapter/ohos/entrance/cj_utils/cj_utils.h"
@@ -61,6 +62,7 @@
 #include "core/common/resource/resource_wrapper.h"
 #include "core/common/task_executor_impl.h"
 #include "core/common/text_field_manager.h"
+#include "core/common/transform/input_compatible_manager.h"
 #include "core/components_ng/base/inspector.h"
 #include "core/components_ng/image_provider/image_decoder.h"
 #include "core/components_ng/pattern/text_field/text_field_manager.h"
@@ -436,12 +438,10 @@ AceContainer::AceContainer(int32_t instanceId, FrontendType type,
 
 AceContainer::AceContainer(int32_t instanceId, FrontendType type) : instanceId_(instanceId), type_(type)
 {
-    auto taskExecutorImpl = Referenced::MakeRefPtr<TaskExecutorImpl>();
-    taskExecutorImpl->InitPlatformThread(true);
-    taskExecutor_ = taskExecutorImpl;
-    GetSettings().useUIAsJSThread = true;
+    SetUseNewPipeline();
+    InitializeTask();
     GetSettings().usePlatformAsUIThread = true;
-    GetSettings().usingSharedRuntime = true;
+    GetSettings().usingSharedRuntime = false;
 }
 
 AceContainer::~AceContainer()
@@ -610,16 +610,17 @@ void AceContainer::InitializeFrontend()
             frontend_ = AceType::MakeRefPtr<DeclarativeFrontend>();
             auto declarativeFrontend = AceType::DynamicCast<DeclarativeFrontend>(frontend_);
 #endif
-            auto& loader = Framework::JsEngineLoader::GetDeclarative(GetDeclarativeSharedLibrary());
-            RefPtr<Framework::JsEngine> jsEngine;
-            if (GetSettings().usingSharedRuntime) {
-                jsEngine = loader.CreateJsEngineUsingSharedRuntime(instanceId_, sharedRuntime_);
-            } else {
-                jsEngine = loader.CreateJsEngine(instanceId_);
-            }
-            jsEngine->AddExtraNativeObject("ability", aceAbility.get());
-            auto pageUrlCheckFunc =
-                [id = instanceId_](const std::string& url, const std::function<void()>& callback,
+            if (!IsDialogContainer()) {
+                auto& loader = Framework::JsEngineLoader::GetDeclarative(GetDeclarativeSharedLibrary());
+                RefPtr<Framework::JsEngine> jsEngine;
+                if (GetSettings().usingSharedRuntime) {
+                    jsEngine = loader.CreateJsEngineUsingSharedRuntime(instanceId_, sharedRuntime_);
+                } else {
+                    jsEngine = loader.CreateJsEngine(instanceId_);
+                }
+                jsEngine->AddExtraNativeObject("ability", aceAbility.get());
+                auto pageUrlCheckFunc = [id = instanceId_](
+                    const std::string& url, const std::function<void()>& callback,
                     const std::function<void(int32_t, const std::string&)>& silentInstallErrorCallBack) {
                     ContainerScope scope(id);
                     auto container = Container::Current();
@@ -628,12 +629,13 @@ void AceContainer::InitializeFrontend()
                     CHECK_NULL_VOID(pageUrlChecker);
                     pageUrlChecker->LoadPageUrl(url, callback, silentInstallErrorCallBack);
                 };
-            jsEngine->SetPageUrlCheckFunc(std::move(pageUrlCheckFunc));
-            EngineHelper::AddEngine(instanceId_, jsEngine);
-            declarativeFrontend->SetJsEngine(jsEngine);
-            declarativeFrontend->SetPageProfile(pageProfile_);
-            declarativeFrontend->SetNeedDebugBreakPoint(AceApplicationInfo::GetInstance().IsNeedDebugBreakPoint());
-            declarativeFrontend->SetDebugVersion(AceApplicationInfo::GetInstance().IsDebugVersion());
+                jsEngine->SetPageUrlCheckFunc(std::move(pageUrlCheckFunc));
+                EngineHelper::AddEngine(instanceId_, jsEngine);
+                declarativeFrontend->SetJsEngine(jsEngine);
+                declarativeFrontend->SetPageProfile(pageProfile_);
+                declarativeFrontend->SetNeedDebugBreakPoint(AceApplicationInfo::GetInstance().IsNeedDebugBreakPoint());
+                declarativeFrontend->SetDebugVersion(AceApplicationInfo::GetInstance().IsDebugVersion());
+            }
         } else {
             frontend_ = OHOS::Ace::Platform::AceContainer::GetContainer(parentId_)->GetFrontend();
             return;
@@ -2815,6 +2817,13 @@ void AceContainer::AttachView(std::shared_ptr<Window> window, const RefPtr<AceVi
     } else {
         taskExecutor_->PostTask([] { FrameReport::GetInstance().Init(); },
             TaskExecutor::TaskType::UI, "ArkUIFrameReportInit");
+    }
+
+    if (GetSettings().usePlatformAsUIThread) {
+        InputCompatibleManager::GetInstance().LoadProductCompatiblePolicy();
+    } else {
+        taskExecutor_->PostTask([] { InputCompatibleManager::GetInstance().LoadProductCompatiblePolicy(); },
+            TaskExecutor::TaskType::UI, "ArkUITransformInit");
     }
 
     // Load custom style at UI thread before frontend attach, for loading style before building tree.

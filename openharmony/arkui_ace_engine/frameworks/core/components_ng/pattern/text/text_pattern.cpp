@@ -414,6 +414,18 @@ AISpan TextPattern::GetSelectedAIData()
     return aiSpan->second;
 }
 
+std::function<void()> TextPattern::GetPreviewMenuAISpanClickrCallback(const AISpan& aiSpan)
+{
+    return [weak = WeakClaim(this), aiSpan, mainId = Container::CurrentIdSafelyWithCheck()]() {
+        ContainerScope scope(mainId);
+        auto pattern = weak.Upgrade();
+        CHECK_NULL_VOID(pattern);
+        auto dataDetectorAdapter_ = pattern->GetDataDetectorAdapter();
+        CHECK_NULL_VOID(dataDetectorAdapter_);
+        dataDetectorAdapter_->ResponseBestMatchItem(aiSpan);
+    };
+}
+
 void TextPattern::CalcCaretMetricsByPosition(int32_t extent, CaretMetricsF& caretCaretMetric, TextAffinity textAffinity)
 {
     auto host = GetHost();
@@ -563,7 +575,7 @@ void TextPattern::HandleLongPress(GestureEvent& info)
     if (!IsSelectableAndCopy() || isMousePressed_ || selectOverlay_->GetIsHandleDragging()) {
         return;
     }
-    auto hub = host->GetOrCreateEventHub<EventHub>();
+    auto hub = host->GetEventHub<EventHub>();
     CHECK_NULL_VOID(hub);
     auto gestureHub = hub->GetOrCreateGestureEventHub();
     CHECK_NULL_VOID(gestureHub);
@@ -897,7 +909,7 @@ void TextPattern::HandleOnCopy()
     CHECK_NULL_VOID(!value.empty());
     auto host = GetHost();
     CHECK_NULL_VOID(host);
-    auto eventHub = host->GetOrCreateEventHub<TextEventHub>();
+    auto eventHub = host->GetEventHub<TextEventHub>();
     CHECK_NULL_VOID(eventHub);
     eventHub->FireOnCopy(value);
 }
@@ -1279,7 +1291,7 @@ void TextPattern::SetTextSelection(int32_t selectionStart, int32_t selectionEnd)
         ACE_TEXT_SCOPED_TRACE("TextPattern::SetTextSelection[id:%d][selectionStart:%d][selectionStart:%d]",
             host->GetId(), selectionStart, selectionEnd);
     }
-    auto eventHub = host->GetOrCreateEventHub<EventHub>();
+    auto eventHub = host->GetEventHub<EventHub>();
     CHECK_NULL_VOID(eventHub);
     auto context = host->GetContext();
     if (context) {
@@ -1550,6 +1562,9 @@ void TextPattern::HandleSingleClickEvent(GestureEvent& info)
     }
     if (selectOverlay_->SelectOverlayIsOn() && !selectOverlay_->IsUsingMouse() &&
         GlobalOffsetInSelectedArea(info.GetGlobalLocation())) {
+        if (!IsLocationInFrameRegion(info.GetLocalLocation())) {
+            return;
+        }
         selectOverlay_->SwitchToOverlayMode();
         selectOverlay_->ToggleMenu();
         return;
@@ -1802,7 +1817,7 @@ void TextPattern::InitUrlMouseEvent()
     CHECK_NULL_VOID(!urlMouseEventInitialized_);
     auto host = GetHost();
     CHECK_NULL_VOID(host);
-    auto eventHub = host->GetOrCreateEventHub<EventHub>();
+    auto eventHub = host->GetEventHub<EventHub>();
     CHECK_NULL_VOID(eventHub);
     auto inputHub = eventHub->GetOrCreateInputEventHub();
     CHECK_NULL_VOID(inputHub);
@@ -2018,7 +2033,7 @@ void TextPattern::HandleDoubleClickEvent(GestureEvent& info)
     }
     auto host = GetHost();
     CHECK_NULL_VOID(host);
-    auto hub = host->GetOrCreateEventHub<EventHub>();
+    auto hub = host->GetEventHub<EventHub>();
     CHECK_NULL_VOID(hub);
     auto gestureHub = hub->GetOrCreateGestureEventHub();
     CHECK_NULL_VOID(gestureHub);
@@ -2089,7 +2104,7 @@ void TextPattern::InitAISpanHoverEvent()
     CHECK_NULL_VOID(!aiSpanHoverEventInitialized_);
     auto host = GetHost();
     CHECK_NULL_VOID(host);
-    auto eventHub = host->GetOrCreateEventHub<EventHub>();
+    auto eventHub = host->GetEventHub<EventHub>();
     CHECK_NULL_VOID(eventHub);
     auto inputHub = eventHub->GetOrCreateInputEventHub();
     CHECK_NULL_VOID(inputHub);
@@ -2317,7 +2332,7 @@ void TextPattern::InitMouseEvent()
     CHECK_NULL_VOID(!mouseEventInitialized_);
     auto host = GetHost();
     CHECK_NULL_VOID(host);
-    auto eventHub = host->GetOrCreateEventHub<EventHub>();
+    auto eventHub = host->GetEventHub<EventHub>();
     CHECK_NULL_VOID(eventHub);
     auto inputHub = eventHub->GetOrCreateInputEventHub();
     CHECK_NULL_VOID(inputHub);
@@ -2410,7 +2425,7 @@ void TextPattern::InitHoverEvent()
     CHECK_NULL_VOID(!hoverInitialized_);
     auto host = GetHost();
     CHECK_NULL_VOID(host);
-    auto eventHub = host->GetOrCreateEventHub<EventHub>();
+    auto eventHub = host->GetEventHub<EventHub>();
     CHECK_NULL_VOID(eventHub);
     auto inputHub = eventHub->GetOrCreateInputEventHub();
     CHECK_NULL_VOID(inputHub);
@@ -2448,7 +2463,7 @@ void TextPattern::RecoverCopyOption()
     }
     auto gestureEventHub = host->GetOrCreateGestureEventHub();
     CHECK_NULL_VOID(gestureEventHub);
-    auto eventHub = host->GetOrCreateEventHub<EventHub>();
+    auto eventHub = host->GetEventHub<EventHub>();
     CHECK_NULL_VOID(eventHub);
     if (copyOption_ == CopyOptions::None && !textDetectEnable_ && !textLayoutProperty->GetTextOverflow() &&
         !onClick_ && !longPressEvent_) { // performance prune
@@ -2578,6 +2593,10 @@ void TextPattern::HandleMouseLeftPressAction(const MouseInfo& info, const Offset
     CheckPressedSpanPosition(textOffset);
     leftMousePressed_ = true;
     ShowShadow({ textOffset.GetX(), textOffset.GetY() }, GetUrlPressColor());
+    if (BetweenSelectedPosition(info.GetGlobalLocation())) {
+        blockPress_ = true;
+        return;
+    }
     mouseStatus_ = MouseStatus::PRESSED;
     lastLeftMouseClickStyle_ = currentMouseStyle_;
     CHECK_NULL_VOID(pManager_);
@@ -2601,9 +2620,16 @@ void TextPattern::CheckPressedSpanPosition(const Offset& textOffset)
     leftMousePressedOffset_ = textOffset;
 }
 
+void TextPattern::ResetMouseLeftPressedState()
+{
+    isMousePressed_ = false;
+    leftMousePressed_ = false;
+}
+
 void TextPattern::HandleMouseLeftReleaseAction(const MouseInfo& info, const Offset& textOffset)
 {
-    blockPress_ = blockPress_ ? false : blockPress_;
+    bool pressBetweenSelectedPosition = blockPress_;
+    blockPress_ = false;
     auto oldMouseStatus = mouseStatus_;
     mouseStatus_ = MouseStatus::RELEASED;
     auto oldEntityDragging = isTryEntityDragging_;
@@ -2612,8 +2638,7 @@ void TextPattern::HandleMouseLeftReleaseAction(const MouseInfo& info, const Offs
     ShowShadow({ textOffset.GetX(), textOffset.GetY() }, GetUrlHoverColor());
     if (isDoubleClick_) {
         isDoubleClick_ = false;
-        isMousePressed_ = false;
-        leftMousePressed_ = false;
+        ResetMouseLeftPressedState();
         return;
     }
     if (oldMouseStatus != MouseStatus::MOVE && oldMouseStatus == MouseStatus::PRESSED &&
@@ -2621,8 +2646,7 @@ void TextPattern::HandleMouseLeftReleaseAction(const MouseInfo& info, const Offs
         HandleClickAISpanEvent(PointF(textOffset.GetX(), textOffset.GetY()));
         if (GetDataDetectorAdapter()->hasClickedAISpan_) {
             selectOverlay_->DisableMenu();
-            isMousePressed_ = false;
-            leftMousePressed_ = false;
+            ResetMouseLeftPressedState();
             return;
         }
     }
@@ -2630,7 +2654,7 @@ void TextPattern::HandleMouseLeftReleaseAction(const MouseInfo& info, const Offs
     CHECK_NULL_VOID(pManager_);
     auto start = textSelector_.baseOffset;
     auto end = pManager_->GetGlyphIndexByCoordinate(textOffset);
-    if (!IsSelected()) {
+    if (!IsSelected() || (pressBetweenSelectedPosition && !mouseUpAndDownPointChange_)) {
         start = -1;
         end = -1;
     }
@@ -2644,9 +2668,9 @@ void TextPattern::HandleMouseLeftReleaseAction(const MouseInfo& info, const Offs
         textResponseType_ = TextResponseType::SELECTED_BY_MOUSE;
         ShowSelectOverlay({ .animation = true });
     }
-    isMousePressed_ = false;
-    leftMousePressed_ = false;
+    ResetMouseLeftPressedState();
     moveOverClickThreshold_ = false;
+    mouseUpAndDownPointChange_ = false;
     // stop auto scroll.
     auto host = GetHost();
     if (host && scrollableParent_.Upgrade() && !selectOverlay_->SelectOverlayIsOn()) {
@@ -2673,7 +2697,7 @@ void TextPattern::HandleMouseLeftMoveAction(const MouseInfo& info, const Offset&
         auto distance = (textOffset - leftMousePressedOffset_).GetDistance();
         if (distance >= CLICK_THRESHOLD.ConvertToPx()) {
             moveOverClickThreshold_ = true;
-            return;
+            mouseUpAndDownPointChange_ = true;
         }
     }
 }
@@ -3057,7 +3081,7 @@ bool TextPattern::IsDraggable(const Offset& offset)
 {
     auto host = GetHost();
     CHECK_NULL_RETURN(host, false);
-    auto eventHub = host->GetOrCreateEventHub<EventHub>();
+    auto eventHub = host->GetEventHub<EventHub>();
     bool draggable = eventHub->HasOnDragStart();
     return draggable && LocalOffsetInSelectedArea(offset);
 }
@@ -3070,7 +3094,7 @@ NG::DragDropInfo TextPattern::OnDragStart(const RefPtr<Ace::DragEvent>& event, c
     if (overlayMod_) {
         overlayMod_->ClearSelectedForegroundColorAndRects();
     }
-    auto hub = host->GetOrCreateEventHub<EventHub>();
+    auto hub = host->GetEventHub<EventHub>();
     auto gestureHub = hub->GetOrCreateGestureEventHub();
     auto [start, end] = GetSelectedStartAndEnd();
     recoverStart_ = start;
@@ -3189,7 +3213,7 @@ DragDropInfo TextPattern::OnDragStartNoChild(const RefPtr<Ace::DragEvent>& event
     DragDropInfo itemInfo;
     auto pattern = weakPtr.Upgrade();
     auto host = pattern->GetHost();
-    auto hub = host->GetOrCreateEventHub<EventHub>();
+    auto hub = host->GetEventHub<EventHub>();
     auto gestureHub = hub->GetOrCreateGestureEventHub();
     CHECK_NULL_RETURN(gestureHub, itemInfo);
     if (!gestureHub->GetIsTextDraggable()) {
@@ -3340,7 +3364,7 @@ void TextPattern::InitDragEvent()
 {
     auto host = GetHost();
     CHECK_NULL_VOID(host);
-    auto eventHub = host->GetOrCreateEventHub<EventHub>();
+    auto eventHub = host->GetEventHub<EventHub>();
     CHECK_NULL_VOID(eventHub);
     auto gestureHub = host->GetOrCreateGestureEventHub();
     CHECK_NULL_VOID(gestureHub);
@@ -3352,7 +3376,7 @@ void TextPattern::InitDragEvent()
         NG::DragDropInfo itemInfo;
         auto pattern = weakPtr.Upgrade();
         CHECK_NULL_RETURN(pattern, itemInfo);
-        auto eventHub = pattern->GetOrCreateEventHub<EventHub>();
+        auto eventHub = pattern->GetEventHub<EventHub>();
         CHECK_NULL_RETURN(eventHub, itemInfo);
         pattern->SetCurrentDragTool(event->GetSourceTool());
         if (pattern->spans_.empty() && !pattern->isSpanStringMode_) {
@@ -3390,7 +3414,7 @@ void TextPattern::ClearDragEvent()
 {
     auto host = GetHost();
     CHECK_NULL_VOID(host);
-    auto eventHub = host->GetOrCreateEventHub<EventHub>();
+    auto eventHub = host->GetEventHub<EventHub>();
     CHECK_NULL_VOID(eventHub);
     auto gestureHub = host->GetOrCreateGestureEventHub();
     CHECK_NULL_VOID(gestureHub);
@@ -4146,13 +4170,11 @@ void TextPattern::ActSetSelection(int32_t start, int32_t end)
     }
     HandleSelectionChange(start, end);
     CalculateHandleOffsetAndShowOverlay();
-    showSelected_ = true;
     if (textSelector_.firstHandle == textSelector_.secondHandle && pManager_) {
         ResetSelection();
         CloseSelectOverlay();
         return;
     }
-    showSelected_ = false;
     if (IsShowHandle()) {
         ShowSelectOverlay();
     } else {
@@ -4206,7 +4228,7 @@ Color TextPattern::GetUrlSpanColor()
     auto theme = pipeline->GetTheme<TextTheme>();
     CHECK_NULL_RETURN(theme, Color());
 
-    auto eventHub = host->GetOrCreateEventHub<EventHub>();
+    auto eventHub = host->GetEventHub<EventHub>();
     CHECK_NULL_RETURN(eventHub, Color());
 
     if (eventHub && !eventHub->IsEnabled()) {
@@ -4282,8 +4304,7 @@ bool TextPattern::OnDirtyLayoutWrapperSwap(const RefPtr<LayoutWrapper>& dirty, c
 
 void TextPattern::ProcessOverlayAfterLayout()
 {
-    if (selectOverlay_->SelectOverlayIsOn() || showSelected_) {
-        showSelected_ = false;
+    if (selectOverlay_->SelectOverlayIsOn()) {
         CalculateHandleOffsetAndShowOverlay();
         selectOverlay_->UpdateAllHandlesOffset();
         selectOverlay_->UpdateViewPort();
@@ -5569,7 +5590,7 @@ void TextPattern::RemoveAreaChangeInner()
     CHECK_NULL_VOID(host);
     auto pipeline = host->GetContext();
     CHECK_NULL_VOID(pipeline);
-    auto eventHub = host->GetOrCreateEventHub<TextEventHub>();
+    auto eventHub = host->GetEventHub<TextEventHub>();
     CHECK_NULL_VOID(eventHub);
     if (eventHub->HasOnAreaChanged()) {
         return;
@@ -5739,7 +5760,7 @@ void TextPattern::FireOnSelectionChange(int32_t start, int32_t end)
 {
     auto host = GetHost();
     CHECK_NULL_VOID(host);
-    auto eventHub = host->GetOrCreateEventHub<TextEventHub>();
+    auto eventHub = host->GetEventHub<TextEventHub>();
     CHECK_NULL_VOID(eventHub);
     eventHub->FireOnSelectionChange(start, end);
 }
@@ -5748,7 +5769,7 @@ void TextPattern::FireOnMarqueeStateChange(const TextMarqueeState& state)
 {
     auto host = GetHost();
     CHECK_NULL_VOID(host);
-    auto eventHub = host->GetOrCreateEventHub<TextEventHub>();
+    auto eventHub = host->GetEventHub<TextEventHub>();
     CHECK_NULL_VOID(eventHub);
     eventHub->FireOnMarqueeStateChange(static_cast<int32_t>(state));
 
@@ -6221,7 +6242,7 @@ void TextPattern::OnTextOverflowChanged()
     }
     auto pipeline = GetContext();
     CHECK_NULL_VOID(pipeline);
-    auto eventHub = host->GetOrCreateEventHub<TextEventHub>();
+    auto eventHub = host->GetEventHub<TextEventHub>();
     CHECK_NULL_VOID(eventHub);
     auto hasInnerCallabck = eventHub->HasVisibleAreaCallback(false);
     if (!hasInnerCallabck) {

@@ -4795,13 +4795,18 @@ HWTEST_F(NativeNodeTest, NativeNodeTest044, TestSize.Level1)
         OH_ArkUI_QueryModuleInterfaceByName(ARKUI_NATIVE_NODE, "ArkUI_NativeNodeAPI_1"));
     auto rootNode = new ArkUI_Node({ARKUI_NODE_IMAGE, nullptr, true});
     int32_t negativeInt = -1;
+    int32_t illegalFitValue = 20; // 20 means ObjectFitEnum illegal value
     ArkUI_NumberValue value0[] = {};
     ArkUI_AttributeItem item0 = {value0, 0, nullptr, nullptr};
     ArkUI_NumberValue valueEnum[] = {{.i32 = negativeInt}};
     ArkUI_AttributeItem itemEnum = {valueEnum, sizeof(valueEnum) / sizeof(ArkUI_NumberValue), nullptr, nullptr};
+    ArkUI_NumberValue illegalValue[] = {{.i32 = illegalFitValue}};
+    ArkUI_AttributeItem illegalItemEnum = {illegalValue,
+        sizeof(illegalValue) / sizeof(ArkUI_NumberValue), nullptr, nullptr};
     EXPECT_EQ(nodeAPI->setAttribute(rootNode, NODE_IMAGE_SRC, &item0), ARKUI_ERROR_CODE_PARAM_INVALID);
     EXPECT_EQ(nodeAPI->setAttribute(rootNode, NODE_IMAGE_OBJECT_FIT, &item0), ARKUI_ERROR_CODE_PARAM_INVALID);
     EXPECT_EQ(nodeAPI->setAttribute(rootNode, NODE_IMAGE_OBJECT_FIT, &itemEnum), ARKUI_ERROR_CODE_PARAM_INVALID);
+    EXPECT_EQ(nodeAPI->setAttribute(rootNode, NODE_IMAGE_OBJECT_FIT, &illegalItemEnum), ARKUI_ERROR_CODE_PARAM_INVALID);
     EXPECT_EQ(nodeAPI->setAttribute(rootNode, NODE_IMAGE_INTERPOLATION, &itemEnum),
         ARKUI_ERROR_CODE_PARAM_INVALID);
     EXPECT_EQ(nodeAPI->setAttribute(rootNode, NODE_IMAGE_INTERPOLATION, &item0), ARKUI_ERROR_CODE_PARAM_INVALID);
@@ -8057,6 +8062,31 @@ HWTEST_F(NativeNodeTest, NativeNodeTest145, TestSize.Level1)
 }
 
 /**
+ * @tc.name: NativeNodeTest146
+ * @tc.desc: Test imageNode function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NativeNodeTest, NativeNodeTest146, TestSize.Level1)
+{
+    auto nodeAPI = reinterpret_cast<ArkUI_NativeNodeAPI_1*>(
+        OH_ArkUI_QueryModuleInterfaceByName(ARKUI_NATIVE_NODE, "ArkUI_NativeNodeAPI_1"));
+    auto rootNode = new ArkUI_Node({ARKUI_NODE_IMAGE, nullptr, true});
+    ArkUI_NumberValue value1[] = {{.i32 = -200}, {.i32 = 300}}; // 200 300 means source size width height
+    ArkUI_AttributeItem item1 = {value1, sizeof(value1) / sizeof(ArkUI_NumberValue)};
+    EXPECT_EQ(nodeAPI->setAttribute(rootNode, NODE_IMAGE_SOURCE_SIZE, &item1), ERROR_CODE_PARAM_INVALID);
+    ArkUI_NumberValue value2[] = {};
+    ArkUI_AttributeItem item2 = {value2, sizeof(value2) / sizeof(ArkUI_NumberValue)};
+    EXPECT_EQ(nodeAPI->setAttribute(rootNode, NODE_IMAGE_MATCH_TEXT_DIRECTION, &item2), ERROR_CODE_PARAM_INVALID);
+    EXPECT_EQ(nodeAPI->setAttribute(rootNode, NODE_IMAGE_IMAGE_MATRIX, &item2), ERROR_CODE_PARAM_INVALID);
+    EXPECT_EQ(nodeAPI->setAttribute(rootNode, NODE_IMAGE_HDR_BRIGHTNESS, &item2), ERROR_CODE_PARAM_INVALID);
+    EXPECT_EQ(nodeAPI->setAttribute(rootNode, NODE_IMAGE_COPY_OPTION, &item2), ERROR_CODE_PARAM_INVALID);
+    EXPECT_EQ(nodeAPI->setAttribute(rootNode, NODE_IMAGE_ENABLE_ANALYZER, &item2), ERROR_CODE_PARAM_INVALID);
+    EXPECT_EQ(nodeAPI->setAttribute(rootNode, NODE_IMAGE_DYNAMIC_RANGE_MODE, &item2), ERROR_CODE_PARAM_INVALID);
+    EXPECT_EQ(nodeAPI->setAttribute(rootNode, NODE_IMAGE_ORIENTATION, &item2), ERROR_CODE_PARAM_INVALID);
+    nodeAPI->disposeNode(rootNode);
+}
+
+/**
  * @tc.name: NativeNodeTest_SetForceDarkConfig_001
  * @tc.desc: Test OH_ArkUI_SetForceDarkConfig
  * @tc.type: FUNC
@@ -8167,12 +8197,14 @@ HWTEST_F(NativeNodeTest, NativeThreadSafeNodeTest001, TestSize.Level1)
     auto notThreadSafeNode = nodeAPI->createNode(ARKUI_NODE_STACK);
     EXPECT_EQ(NodeModel::IsValidArkUINode(notThreadSafeNode), true);
     nodeAPI->disposeNode(notThreadSafeNode);
+    EXPECT_EQ(NodeModel::IsValidArkUINode(notThreadSafeNode), false);
 
     auto nodeAPI2 = reinterpret_cast<ArkUI_NativeNodeAPI_1*>(
         OH_ArkUI_QueryModuleInterfaceByName(ARKUI_MULTI_THREAD_NATIVE_NODE, "ArkUI_NativeNodeAPI_1"));
     auto threadSafeNode = nodeAPI2->createNode(ARKUI_NODE_STACK);
     EXPECT_EQ(NodeModel::IsValidArkUINode(threadSafeNode), true);
     nodeAPI2->disposeNode(threadSafeNode);
+    EXPECT_EQ(NodeModel::IsValidArkUINode(threadSafeNode), false);
 }
 
 /**
@@ -8516,5 +8548,38 @@ HWTEST_F(NativeNodeTest, NativeNodeScrollOnWillStopDraggingTest004, TestSize.Lev
     EXPECT_EQ(ret, ARKUI_ERROR_CODE_NO_ERROR);
     nodeAPI->unregisterNodeEvent(scroll, NODE_SCROLL_EVENT_ON_WILL_STOP_DRAGGING);
     nodeAPI->disposeNode(scroll);
+}
+
+/**
+ * @tc.name: NativeNodeScrollableEdgeEffectTest001
+ * @tc.desc: Test Scrollable EdgeEffect.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NativeNodeTest, NativeNodeScrollableEdgeEffectTest001, TestSize.Level1)
+{
+    auto nodeAPI = reinterpret_cast<ArkUI_NativeNodeAPI_1*>(
+        OH_ArkUI_QueryModuleInterfaceByName(ARKUI_NATIVE_NODE, "ArkUI_NativeNodeAPI_1"));
+    auto scroll = nodeAPI->createNode(ARKUI_NODE_SCROLL);
+    auto list = nodeAPI->createNode(ARKUI_NODE_LIST);
+    auto waterFlow = nodeAPI->createNode(ARKUI_NODE_WATER_FLOW);
+    ArkUI_NodeHandle nodes[3] = { scroll, list, waterFlow };
+
+    ArkUI_NumberValue value[] = {
+        {.i32 = ARKUI_EDGE_EFFECT_SPRING},
+        {.i32 = 1},
+        {.i32 = ARKUI_EFFECT_EDGE_START}
+    };
+    ArkUI_AttributeItem item = {value, 3};
+    for (int32_t i = 0; i < 3; i++) {
+        auto ret = nodeAPI->setAttribute(nodes[i], NODE_SCROLL_EDGE_EFFECT, &item);
+        EXPECT_EQ(ret, ARKUI_ERROR_CODE_NO_ERROR);
+        auto effectParam = nodeAPI->getAttribute(nodes[i], NODE_SCROLL_EDGE_EFFECT);
+        EXPECT_EQ(effectParam->value[0].i32, ARKUI_EDGE_EFFECT_SPRING);
+        EXPECT_EQ(effectParam->value[1].i32, 1);
+        EXPECT_EQ(effectParam->value[2].i32, ARKUI_EFFECT_EDGE_START);
+    }
+    nodeAPI->disposeNode(scroll);
+    nodeAPI->disposeNode(list);
+    nodeAPI->disposeNode(waterFlow);
 }
 } // namespace OHOS::Ace

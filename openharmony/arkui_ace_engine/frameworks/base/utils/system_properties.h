@@ -562,6 +562,8 @@ public:
 
     static bool GetTransformEnabled();
 
+    static bool GetCompatibleInputTransEnabled();
+
     static void InitMccMnc(int32_t mcc, int32_t mnc);
 
     static ScreenShape GetScreenShape()
@@ -649,6 +651,8 @@ public:
     static bool IsFormAnimationLimited();
 
     static bool GetResourceDecoupling();
+
+    static bool IsPCMode();
 
     static bool ConfigChangePerform();
 
@@ -785,6 +789,7 @@ public:
     static bool IsSuperFoldDisplayDevice();
 
     static bool IsPageTransitionFreeze();
+    static bool IsForcibleLandscapeEnabled();
 
     static bool IsSoftPageTransition();
 
@@ -812,7 +817,7 @@ public:
         return syncLoadEnabled_;
     }
 
-    static std::string GetMapSearchPrefix();
+    static int32_t GetPreviewStatus();
 
     static bool GetDebugThreadSafeNodeEnabled()
     {
@@ -870,6 +875,7 @@ private:
     static bool debugEnabled_;
     static std::string configDeviceType_;
     static bool transformEnabled_;
+    static bool compatibleInputTransEnabled_;
     static float scrollCoefficients_;
     static DebugFlags debugFlags_;
     static bool containerDeleteFlag_;
@@ -920,6 +926,7 @@ private:
     static int32_t dragDropFrameworkStatus_;
     static int32_t touchAccelarate_;
     static bool pageTransitionFrzEnabled_;
+    static bool forcibleLandscapeEnabled_;
     static bool softPagetransition_;
     static bool formSkeletonBlurEnabled_;
     static int32_t formSharedImageCacheThreshold_;
@@ -927,9 +934,10 @@ private:
     static HeightLayoutBreakPoint heightLayoutBreakpoints_;
     static bool syncLoadEnabled_;
     static bool whiteBlockEnabled_;
-    static std::string mapSearchPrefix_;
+    static int32_t previewStatus_;
     static bool debugThreadSafeNodeEnable_;
     static bool prebuildInMultiFrameEnabled_;
+    static bool isPCMode_;
 };
 
 } // namespace OHOS::Ace

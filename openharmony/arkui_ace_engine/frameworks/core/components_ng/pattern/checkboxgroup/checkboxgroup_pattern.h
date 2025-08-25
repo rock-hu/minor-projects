@@ -61,7 +61,7 @@ public:
         CHECK_NULL_RETURN(host, nullptr);
         auto paintProperty = host->GetPaintProperty<CheckBoxGroupPaintProperty>();
         paintProperty->SetHost(host);
-        auto eventHub = host->GetOrCreateEventHub<EventHub>();
+        auto eventHub = host->GetEventHub<EventHub>();
         CHECK_NULL_RETURN(eventHub, nullptr);
         auto enabled = eventHub->IsEnabled();
         if (!checkBoxGroupModifier_) {
@@ -155,7 +155,7 @@ public:
         }
         auto host = GetHost();
         CHECK_NULL_VOID(host);
-        auto checkBoxEventHub = host->GetOrCreateEventHub<NG::CheckBoxGroupEventHub>();
+        auto checkBoxEventHub = host->GetEventHub<NG::CheckBoxGroupEventHub>();
         auto group = checkBoxEventHub ? checkBoxEventHub->GetGroupName() : "";
         json->PutExtAttr("group", group.c_str(), filter);
     }
@@ -241,6 +241,7 @@ private:
     SizeF hotZoneSize_;
     bool initSelected_ = false;
     std::optional<std::string> currentNavId_ = std::nullopt;
+
     ACE_DISALLOW_COPY_AND_MOVE(CheckBoxGroupPattern);
 };
 } // namespace OHOS::Ace::NG

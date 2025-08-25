@@ -711,6 +711,18 @@ typedef enum {
 } ArkUI_EdgeEffect;
 
 /**
+ * @brief Enumerates the edges for which the effect takes effect when the boundary of the scrollable content is reached.
+ *
+ * @since 18
+ */
+typedef enum {
+    /** Start edge. */
+    ARKUI_EFFECT_EDGE_START = 1,
+    /** End edge. */
+    ARKUI_EFFECT_EDGE_END = 2,
+} ArkUI_EffectEdge;
+
+/**
  * @brief Enumerates the scroll directions for the <b><Scroll></b> component.
  *
  * @since 12
@@ -1368,6 +1380,12 @@ typedef enum {
     ARKUI_OBJECT_FIT_NONE_AND_ALIGN_BOTTOM,
     /** Not resized, the image is aligned with the end edge at the bottom of the container. */
     ARKUI_OBJECT_FIT_NONE_AND_ALIGN_BOTTOM_END,
+    /**
+     * Not resized, and is used in conjunction with NODE_IMAGE_IMAGE_MATRIX.
+     *
+     * @since 21
+     */
+    ARKUI_OBJECT_FIT_NONE_MATRIX,
 } ArkUI_ObjectFit;
 
 /**

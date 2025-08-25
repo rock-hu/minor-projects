@@ -257,7 +257,7 @@ void SheetPresentationPattern::CheckBuilderChange()
     CHECK_NULL_VOID(host);
     auto builderNode = GetFirstFrameNodeOfBuilder();
     CHECK_NULL_VOID(builderNode);
-    auto eventHub = builderNode->GetOrCreateEventHub<EventHub>();
+    auto eventHub = builderNode->GetEventHub<EventHub>();
     CHECK_NULL_VOID(eventHub);
     OnAreaChangedFunc onBuilderAreaChangedFunc = [sheetNodeWk = WeakPtr<FrameNode>(host)](const RectF& /* oldRect */,
                                                      const OffsetF& /* oldOrigin */, const RectF& /* rect */,
@@ -349,7 +349,7 @@ void SheetPresentationPattern::OnAttachToFrameNode()
             sheetWrapper->MarkDirtyNode(PROPERTY_UPDATE_MEASURE);
         }
     };
-    auto eventHub = targetNode->GetOrCreateEventHub<EventHub>();
+    auto eventHub = targetNode->GetEventHub<EventHub>();
     CHECK_NULL_VOID(eventHub);
     eventHub->AddInnerOnAreaChangedCallback(host->GetId(), std::move(onAreaChangedFunc));
 
@@ -378,7 +378,7 @@ void SheetPresentationPattern::OnDetachFromFrameNode(FrameNode* sheetNode)
 
     auto targetNode = FrameNode::GetFrameNode(targetTag_, targetId_);
     CHECK_NULL_VOID(targetNode);
-    auto eventHub = targetNode->GetOrCreateEventHub<EventHub>();
+    auto eventHub = targetNode->GetEventHub<EventHub>();
     CHECK_NULL_VOID(eventHub);
     eventHub->RemoveInnerOnAreaChangedCallback(sheetNode->GetId());
 }
@@ -461,7 +461,7 @@ void SheetPresentationPattern::InitPanEvent()
         return;
     }
 
-    auto hub = host->GetOrCreateEventHub<EventHub>();
+    auto hub = host->GetEventHub<EventHub>();
     CHECK_NULL_VOID(hub);
     auto gestureHub = hub->GetOrCreateGestureEventHub();
     CHECK_NULL_VOID(gestureHub);
@@ -1951,9 +1951,8 @@ SheetType SheetPresentationPattern::GetSheetTypeFromSheetManager() const
     if (sheetStyle.showInSubWindow.value_or(false)) {
         return ComputeSheetTypeInSubWindow();
     }
-    DeviceType deviceType = SystemProperties::GetDeviceType();
     if (sheetStyle.sheetType.has_value() && sheetStyle.sheetType.value() == SheetType::SHEET_BOTTOM) {
-        return sheetStyle.bottomOffset.has_value() && deviceType == DeviceType::TWO_IN_ONE ?
+        return sheetStyle.bottomOffset.has_value() && IsPcOrPadFreeMultiWindowMode() ?
             SheetType::SHEET_BOTTOM_OFFSET : SheetType::SHEET_BOTTOM;
     }
     auto pipeline = host->GetContext();
@@ -1997,11 +1996,10 @@ SheetType SheetPresentationPattern::GetSheetType() const
     if (sheetStyle.sheetType.has_value() && sheetStyle.sheetType.value() == SheetType::SHEET_CONTENT_COVER) {
         return SheetType::SHEET_CONTENT_COVER;
     }
-    DeviceType deviceType = SystemProperties::GetDeviceType();
     // only bottom when width is less than 600vp
     if ((windowGlobalRect.Width() < SHEET_DEVICE_WIDTH_BREAKPOINT.ConvertToPx()) ||
         (sheetStyle.sheetType.has_value() && sheetStyle.sheetType.value() == SheetType::SHEET_BOTTOM)) {
-        return sheetStyle.bottomOffset.has_value() && deviceType == DeviceType::TWO_IN_ONE ?
+        return sheetStyle.bottomOffset.has_value() && IsPcOrPadFreeMultiWindowMode() ?
             SheetType::SHEET_BOTTOM_OFFSET : SheetType::SHEET_BOTTOM;
     }
     if (sheetStyle.sheetType.has_value() && sheetStyle.sheetType.value() == SheetType::SHEET_SIDE) {
@@ -2386,7 +2384,9 @@ void SheetPresentationPattern::OnWindowSizeChanged(int32_t width, int32_t height
         ((sheetType == SheetType::SHEET_BOTTOM) || (sheetType == SheetType::SHEET_BOTTOMLANDSPACE) ||
          (sheetType == SheetType::SHEET_BOTTOM_OFFSET))) {
         windowRotate_ = true;
-        SetColumnMinSize(true);
+        if (IsAvoidingKeyboard()) {
+            SetColumnMinSize(true);
+        }
         // Before rotation, reset to the initial mode sheet ratio of the current vertical or horizontal screen
         // It's actually a state where the soft keyboard is not pulled up
         if (isScrolling_) {
@@ -2889,6 +2889,11 @@ ScrollResult SheetPresentationPattern::HandleScroll(float scrollOffset, int32_t 
 void SheetPresentationPattern::OnScrollEndRecursive(const std::optional<float>& velocity)
 {
     sheetObject_->OnScrollEndRecursive(velocity);
+}
+
+void SheetPresentationPattern::OnScrollDragEndRecursive()
+{
+    sheetObject_->OnScrollDragEndRecursive();
 }
 
 bool SheetPresentationPattern::HandleScrollVelocity(float velocity, const RefPtr<NestableScrollContainer>& child)
@@ -4628,5 +4633,12 @@ void SheetPresentationPattern::ResetScrollUserDefinedIdealSize(
 void SheetPresentationPattern::OnLanguageConfigurationUpdate()
 {
     sheetObject_->OnLanguageConfigurationUpdate();
+}
+
+bool SheetPresentationPattern::IsPcOrPadFreeMultiWindowMode() const
+{
+    DeviceType deviceType = SystemProperties::GetDeviceType();
+    TAG_LOGD(AceLogTag::ACE_SHEET, "IsPCMode: %{public}d", SystemProperties::IsPCMode());
+    return deviceType == DeviceType::TWO_IN_ONE || SystemProperties::IsPCMode();
 }
 } // namespace OHOS::Ace::NG

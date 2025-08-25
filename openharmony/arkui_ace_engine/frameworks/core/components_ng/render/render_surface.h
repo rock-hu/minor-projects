@@ -28,7 +28,7 @@
 namespace OHOS::Ace::NG {
 // RenderSurface is used for SurfaceNode
 class ACE_FORCE_EXPORT RenderSurface : public virtual AceType {
-    DECLARE_ACE_TYPE(NG::RenderSurface, AceType)
+    DECLARE_ACE_TYPE(NG::RenderSurface, AceType);
 
 public:
     RenderSurface() = default;
@@ -74,6 +74,11 @@ public:
     virtual std::string GetUniqueId() const
     {
         return "";
+    }
+
+    virtual uint64_t GetUniqueIdNum() const
+    {
+        return 0;
     }
 
     virtual void UpdateSurfaceSizeInUserData(uint32_t width, uint32_t height) {}
@@ -141,6 +146,11 @@ public:
     virtual void SetIsNeedSyncGeometryProperties(bool isNeedSyncGeometryProperties) {}
 
     virtual void SetKeyBoardAvoidRect(RectF keyBoardAvoidRect) {}
+
+    virtual std::string GetPSurfaceName()
+    {
+        return "";
+    }
 
 protected:
     ACE_DISALLOW_COPY_AND_MOVE(RenderSurface);

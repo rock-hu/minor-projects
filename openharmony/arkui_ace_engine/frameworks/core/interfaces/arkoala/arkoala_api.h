@@ -34,10 +34,10 @@
 extern "C" {
 #endif
 
-#define ARKUI_FULL_API_VERSION 141
+#define ARKUI_FULL_API_VERSION 142
 // When changing ARKUI_BASIC_API_VERSION, ARKUI_FULL_API_VERSION must be
 // increased as well.
-#define ARKUI_NODE_API_VERSION 141
+#define ARKUI_NODE_API_VERSION 142
 
 #define ARKUI_BASIC_API_VERSION 8
 #define ARKUI_EXTENDED_API_VERSION 8
@@ -2091,6 +2091,11 @@ struct ArkUINavigationTitlebarOptions {
     }
 };
 
+struct ArkUIIgnoreLayoutSafeAreaOpts {
+    ArkUI_Int32 type = 0;
+    ArkUI_Int32 edges = 0;
+};
+
 struct ArkUIBarItem {
     ArkUIOptionalCommonCharPtr text;
     ArkUIOptionalCommonCharPtr icon;
@@ -2816,6 +2821,7 @@ struct ArkUICommonModifier {
     void (*resetCompositingFilter)(ArkUINodeHandle node);
     void (*setFreeze)(ArkUINodeHandle node, ArkUI_Bool freeze);
     void (*resetFreeze)(ArkUINodeHandle node);
+    ArkUIIgnoreLayoutSafeAreaOpts (*getIgnoreLayoutSafeArea)(ArkUINodeHandle node);
 };
 
 struct ArkUICommonShapeModifier {
@@ -3324,7 +3330,7 @@ struct ArkUIListModifier {
     ArkUI_Int32 (*getSticky)(ArkUINodeHandle node);
     void (*setSticky)(ArkUINodeHandle node, ArkUI_Int32 stickyStyle);
     void (*resetSticky)(ArkUINodeHandle node);
-    ArkUI_Int32 (*getListEdgeEffect)(ArkUINodeHandle node, ArkUI_Int32 (*values)[2]);
+    ArkUI_Int32 (*getListEdgeEffect)(ArkUINodeHandle node, ArkUI_Int32 (*values)[3]);
     void (*setListEdgeEffect)(
         ArkUINodeHandle node, ArkUI_Int32 edgeEffect, ArkUI_Bool alwaysEnabled, ArkUI_Int32 effectEdge);
     void (*resetListEdgeEffect)(ArkUINodeHandle node);
@@ -3867,7 +3873,7 @@ struct ArkUIScrollableModifier {
     void (*setContentClip)(ArkUINodeHandle node, ArkUI_Int32 mode);
     /* setContentClip by custom rect not available */
     void (*resetContentClip)(ArkUINodeHandle node);
-    ArkUI_Int32 (*getEdgeEffect)(ArkUINodeHandle node, ArkUI_Int32 (*values)[2]);
+    ArkUI_Int32 (*getEdgeEffect)(ArkUINodeHandle node, ArkUI_Int32 (*values)[3]);
     void (*setEdgeEffect)(
         ArkUINodeHandle node, ArkUI_Int32 edgeEffect, ArkUI_Bool alwaysEnabled, ArkUI_Int32 effectEdge);
     void (*resetEdgeEffect)(ArkUINodeHandle node);
@@ -3928,7 +3934,7 @@ struct ArkUIScrollModifier {
     ArkUI_Float32 (*getScrollScrollBarWidth)(ArkUINodeHandle node);
     void (*setScrollScrollBarWidth)(ArkUINodeHandle node, ArkUI_Float32 value, ArkUI_Int32 unit);
     void (*resetScrollScrollBarWidth)(ArkUINodeHandle node);
-    ArkUI_Int32 (*getScrollEdgeEffect)(ArkUINodeHandle node, ArkUI_Int32 (*values)[2]);
+    ArkUI_Int32 (*getScrollEdgeEffect)(ArkUINodeHandle node, ArkUI_Int32 (*values)[3]);
     void (*setScrollEdgeEffect)(
         ArkUINodeHandle node, ArkUI_Int32 edgeEffect, ArkUI_Bool alwaysEnabled, ArkUI_Int32 effectEdge);
     void (*resetScrollEdgeEffect)(ArkUINodeHandle node);
@@ -4424,6 +4430,8 @@ struct ArkUINavDestinationModifier {
     void (*resetNavDestinationHideBackButton)(ArkUINodeHandle node);
     void (*setNavDestinationBackgroundColor)(ArkUINodeHandle node, ArkUI_Uint32 color, void* resRawPtr);
     void (*resetNavDestinationBackgroundColor)(ArkUINodeHandle node);
+    void (*setNavDestinationBackgroundColorWithColorSpace)(
+        ArkUINodeHandle node, ArkUI_Uint32 color, ArkUI_Int32 colorSpace, void* bgColorRawPtr);
     void (*setNavDestinationMode)(ArkUINodeHandle node, ArkUI_Int32 value);
     void (*resetNavDestinationMode)(ArkUINodeHandle node);
     void (*setIgnoreLayoutSafeArea)(ArkUINodeHandle node, ArkUI_CharPtr typeStr, ArkUI_CharPtr edgesStr);
@@ -4445,10 +4453,13 @@ struct ArkUINavDestinationModifier {
     void (*setNavDestinationTitlebarOptions)(ArkUINodeHandle node, ArkUINavigationTitlebarOptions opts);
     void (*setNavDestinationOnCoordScrollStartAction)(ArkUINodeHandle node,
         void (*onCoordScrollStartAction)(ArkUINodeHandle node));
+    void (*resetNavDestinationOnCoordScrollStartAction)(ArkUINodeHandle node);
     void (*setNavDestinationOnCoordScrollUpdateAction)(ArkUINodeHandle node,
-        void (*onCoordScrollUpdateAction)(ArkUINodeHandle node, ArkUI_Float32 currentOffset));
+        void (*onCoordScrollUpdateAction)(ArkUINodeHandle node, ArkUI_Float32 offset, ArkUI_Float32 currentOffset));
+    void (*resetNavDestinationOnCoordScrollUpdateAction)(ArkUINodeHandle node);
     void (*setNavDestinationOnCoordScrollEndAction)(ArkUINodeHandle node,
         void (*onCoordScrollEndAction)(ArkUINodeHandle node));
+    void (*resetNavDestinationOnCoordScrollEndAction)(ArkUINodeHandle node);
     void (*setNavDestinationSystemBarStyle)(ArkUINodeHandle node, ArkUI_Uint32 value);
     void (*resetNavDestinationSystemBarStyle)(ArkUINodeHandle node);
     void (*setCustomBackButtonNode)(ArkUINodeHandle node, ArkUINodeHandle backButtonNode);
@@ -5340,7 +5351,7 @@ struct ArkUIWaterFlowModifier {
     void (*setWaterFlowScrollBarColor)(ArkUINodeHandle node, ArkUI_CharPtr value);
     void (*resetWaterFlowScrollBarColor)(ArkUINodeHandle node);
     ArkUI_Uint32 (*getWaterFlowScrollBarColor)(ArkUINodeHandle node);
-    ArkUI_Int32 (*getEdgeEffect)(ArkUINodeHandle node, ArkUI_Int32 (*values)[2]);
+    ArkUI_Int32 (*getEdgeEffect)(ArkUINodeHandle node, ArkUI_Int32 (*values)[3]);
     void (*setSectionOption)(ArkUINodeHandle node, ArkUI_Int32 start, ArkUIWaterFlowSectionOption option);
     void (*resetSectionOption)(ArkUINodeHandle node);
     ArkUI_WaterFlowSectionOption (*getSectionOption)(ArkUINodeHandle node);
@@ -5489,9 +5500,12 @@ struct ArkUINavigationModifier {
     void (*setTitleHeight)(ArkUINodeHandle node, const struct ArkUIDimensionType height);
     void (*setTitlebarOptions)(ArkUINodeHandle node, ArkUINavigationTitlebarOptions opts);
     void (*setOnCoordScrollStartAction)(ArkUINodeHandle node, void (*onCoordScrollStartAction)(ArkUINodeHandle node));
+    void (*resetOnCoordScrollStartAction)(ArkUINodeHandle node);
     void (*setOnCoordScrollUpdateAction)(ArkUINodeHandle node,
-        void (*onCoordScrollUpdateAction)(ArkUINodeHandle node, ArkUI_Float32 currentOffset));
+        void (*onCoordScrollUpdateAction)(ArkUINodeHandle node, ArkUI_Float32 offset, ArkUI_Float32 currentOffset));
+    void (*resetOnCoordScrollUpdateAction)(ArkUINodeHandle node);
     void (*setOnCoordScrollEndAction)(ArkUINodeHandle node, void (*onCoordScrollEndAction)(ArkUINodeHandle node));
+    void (*resetOnCoordScrollEndAction)(ArkUINodeHandle node);
     void (*setSystemBarStyle)(ArkUINodeHandle node, ArkUI_Uint32 value);
     void (*resetSystemBarStyle)(ArkUINodeHandle node);
     void (*setEnableToolBarAdaptation)(ArkUINodeHandle node, ArkUI_Bool enbale);
@@ -6576,6 +6590,8 @@ struct ArkUIRichEditorModifier {
     void (*resetRichEditorEnableAutoSpacing)(ArkUINodeHandle node);
     void (*setRichEditorUndoStyle)(ArkUINodeHandle node, ArkUI_Int32 undoStyleValue);
     void (*resetRichEditorUndoStyle)(ArkUINodeHandle node);
+    void (*setRichEditorScrollBarColor)(ArkUINodeHandle node, ArkUI_Int32 color);
+    void (*resetRichEditorScrollBarColor)(ArkUINodeHandle node);
 };
 
 struct ArkUIRichEditorControllerModifier {

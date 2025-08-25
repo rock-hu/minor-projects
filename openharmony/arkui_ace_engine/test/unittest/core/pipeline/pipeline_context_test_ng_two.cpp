@@ -1811,7 +1811,7 @@ HWTEST_F(PipelineContextTestNg, PipelineContextTestNg184, TestSize.Level1)
      * @tc.steps2: set focus type to SCOPE and call FlushFocus function.
      * @tc.expected: The dirtyFocusNode_ is changed to nullptr.
      */
-    auto eventHub = frameNode_->GetOrCreateEventHub<EventHub>();
+    auto eventHub = frameNode_->GetEventHub<EventHub>();
     ASSERT_NE(eventHub, nullptr);
     auto focusHub = eventHub->GetOrCreateFocusHub();
     ASSERT_NE(focusHub, nullptr);
@@ -2554,7 +2554,7 @@ HWTEST_F(PipelineContextTestNg, PipelineContextTestNg405, TestSize.Level1)
     EXPECT_TRUE(context_->isNeedCallbackAreaChange_);
     /**
      * @tc.steps2: Call function OnHide;
-     * @tc.expected: isNeedCallbackAreaChange_ is false
+     * @tc.expected: isNeedCallbackAreaChange_ is true
      */
     context_->OnHide();
     EXPECT_TRUE(context_->isNeedCallbackAreaChange_);

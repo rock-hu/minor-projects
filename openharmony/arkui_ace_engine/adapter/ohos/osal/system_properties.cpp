@@ -266,6 +266,11 @@ bool IsMouseTransformEnable()
     return (system::GetParameter("persist.ace.event.transform.enable", "1") == "1");
 }
 
+bool IsCompatibleInputTransEnabled()
+{
+    return (system::GetParameter("persist.ace.event.compatible.enable", "0") == "1");
+}
+
 float ReadScrollCoefficients()
 {
     auto ret = system::GetParameter("persist.ace.scroll.coefficeient", "2.0");
@@ -703,6 +708,7 @@ ACE_WEAK_SYM bool SystemProperties::windowAnimationEnabled_ = IsWindowAnimationE
 ACE_WEAK_SYM bool SystemProperties::debugEnabled_ = IsDebugEnabled();
 std::string SystemProperties::configDeviceType_ = "";
 ACE_WEAK_SYM bool SystemProperties::transformEnabled_ = IsMouseTransformEnable();
+ACE_WEAK_SYM bool SystemProperties::compatibleInputTransEnabled_ = IsCompatibleInputTransEnabled();
 float SystemProperties::scrollCoefficients_ = ReadScrollCoefficients();
 ACE_WEAK_SYM DebugFlags SystemProperties::debugFlags_ = GetDebugFlags();
 ACE_WEAK_SYM bool SystemProperties::containerDeleteFlag_ = IsContainerDeleteFlag();
@@ -743,6 +749,7 @@ bool SystemProperties::taskPriorityAdjustmentEnable_ = IsTaskPriorityAdjustmentE
 int32_t SystemProperties::dragDropFrameworkStatus_ = ReadDragDropFrameworkStatus();
 int32_t SystemProperties::touchAccelarate_ = ReadTouchAccelarateMode();
 bool SystemProperties::pageTransitionFrzEnabled_ = false;
+bool SystemProperties::forcibleLandscapeEnabled_ = false;
 bool SystemProperties::softPagetransition_ = false;
 bool SystemProperties::formSkeletonBlurEnabled_ = true;
 int32_t SystemProperties::formSharedImageCacheThreshold_ = DEFAULT_FORM_SHARED_IMAGE_CACHE_THRESHOLD;
@@ -750,11 +757,12 @@ WidthLayoutBreakPoint SystemProperties::widthLayoutBreakpoints_ = WidthLayoutBre
 HeightLayoutBreakPoint SystemProperties::heightLayoutBreakpoints_ = HeightLayoutBreakPoint();
 bool SystemProperties::syncLoadEnabled_ = true;
 bool SystemProperties::whiteBlockEnabled_ = false;
-std::string SystemProperties::mapSearchPrefix_ = "";
+int32_t SystemProperties::previewStatus_ = 0;
 int32_t SystemProperties::velocityTrackerPointNumber_ = ReadVelocityTrackerPointNumber();
 bool SystemProperties::isVelocityWithinTimeWindow_ = ReadIsVelocityWithinTimeWindow();
 bool SystemProperties::isVelocityWithoutUpPoint_ = ReadIsVelocityWithoutUpPoint();
 bool SystemProperties::prebuildInMultiFrameEnabled_ = IsPrebuildInMultiFrameEnabled();
+bool SystemProperties::isPCMode_ = false;
 
 bool SystemProperties::IsOpIncEnable()
 {
@@ -882,6 +890,7 @@ void SystemProperties::InitDeviceInfo(
     needAvoidWindow_ = system::GetBoolParameter(PROPERTY_NEED_AVOID_WINDOW, false);
     debugEnabled_ = IsDebugEnabled();
     transformEnabled_ = IsMouseTransformEnable();
+    compatibleInputTransEnabled_ = IsCompatibleInputTransEnabled();
     debugFlags_ = GetDebugFlags();
     layoutDetectEnabled_ = IsLayoutDetectEnabled();
     multiInstanceEnabled_ = IsMultiInstanceEnabled();
@@ -905,6 +914,7 @@ void SystemProperties::InitDeviceInfo(
     recycleImageEnabled_ = system::GetParameter(ENABLE_RECYCLE_IMAGE_KEY, "true") == "true";
     animationScale_ = std::atof(system::GetParameter(ANIMATION_SCALE_KEY, "1").c_str());
     pageTransitionFrzEnabled_ = system::GetBoolParameter("const.arkui.pagetransitionfreeze", false);
+    forcibleLandscapeEnabled_ = system::GetBoolParameter("const.settings.forcible_landscape_enable", false);
     softPagetransition_ = system::GetBoolParameter("const.arkui.softPagetransition", false);
     WatchParameter(ANIMATION_SCALE_KEY, OnAnimationScaleChanged, nullptr);
     resourceDecoupling_ = IsResourceDecoupling();
@@ -924,7 +934,7 @@ void SystemProperties::InitDeviceInfo(
         system::GetIntParameter("const.form.shared_image.cache_threshold", DEFAULT_FORM_SHARED_IMAGE_CACHE_THRESHOLD);
     syncLoadEnabled_ = system::GetBoolParameter("persist.ace.scrollable.syncload.enable", false);
     whiteBlockEnabled_ = system::GetParameter("persist.resourceschedule.whiteblock", "0") == "1";
-    mapSearchPrefix_ = system::GetParameter("const.arkui.mapSearch", "");
+    previewStatus_ = system::GetIntParameter<int32_t>("const.arkui.previewStatus", 0);
     if (isRound_) {
         screenShape_ = ScreenShape::ROUND;
     } else {
@@ -932,6 +942,7 @@ void SystemProperties::InitDeviceInfo(
     }
     InitDeviceTypeBySystemProperty();
     GetLayoutBreakpoints(widthLayoutBreakpoints_, heightLayoutBreakpoints_);
+    isPCMode_ = system::GetParameter("persist.sceneboard.ispcmode", "false") == "true";
 }
 
 ACE_WEAK_SYM void SystemProperties::SetDeviceOrientation(int32_t orientation)
@@ -1054,6 +1065,11 @@ bool SystemProperties::IsFormAnimationLimited()
 bool SystemProperties::GetResourceDecoupling()
 {
     return resourceDecoupling_;
+}
+
+bool SystemProperties::IsPCMode()
+{
+    return isPCMode_;
 }
 
 bool SystemProperties::ConfigChangePerform()
@@ -1362,6 +1378,11 @@ ACE_WEAK_SYM bool SystemProperties::GetTransformEnabled()
     return transformEnabled_;
 }
 
+ACE_WEAK_SYM bool SystemProperties::GetCompatibleInputTransEnabled()
+{
+    return compatibleInputTransEnabled_;
+}
+
 bool SystemProperties::GetWebDebugMaximizeResizeOptimize()
 {
     return system::GetBoolParameter("web.debug.maximize_resize_optimize", true);
@@ -1435,8 +1456,8 @@ int32_t SystemProperties::GetWhiteBlockCacheCountValue()
     return StringUtils::StringToInt(ret);
 }
 
-std::string SystemProperties::GetMapSearchPrefix()
+int32_t SystemProperties::GetPreviewStatus()
 {
-    return mapSearchPrefix_;
+    return previewStatus_;
 }
 } // namespace OHOS::Ace

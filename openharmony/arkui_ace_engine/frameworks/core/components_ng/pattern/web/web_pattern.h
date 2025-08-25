@@ -850,7 +850,9 @@ public:
 
     // WebAccessibilityEventReport funcs
     RefPtr<WebAccessibilityEventReport> GetAccessibilityEventReport();
+    void InitInputEventReportCallback();
     void SetTextEventAccessibilityEnable(bool enable);
+    bool IsAccessibilityUsedByEventReport();
 
     // Data Detector funcs
     RefPtr<WebDataDetectorAdapter> GetDataDetectorAdapter();
@@ -865,7 +867,7 @@ public:
         isAILinkMenuShow_ = isAILinkMenuShow;
     }
 
-    void CreateSnapshotImageFrameNode(const std::string& snapshotPath);
+    void CreateSnapshotImageFrameNode(const std::string& snapshotPath, uint32_t width, uint32_t height);
     void RemoveSnapshotFrameNode();
 
     void OnPip(int status, int delegateId, int childId, int frameRoutingId, int width, int height);
@@ -899,6 +901,7 @@ private:
     friend class WebContextSelectOverlay;
     friend class WebSelectOverlay;
     friend class WebDataDetectorAdapter;
+    friend class WebAccessibilityEventReport;
 
     bool Pip(int status, int delegateId, int childId, int frameRoutingId, int width, int height);
     napi_env CreateEnv();
@@ -909,6 +912,7 @@ private:
     bool StopPip(int delegateId, int childId, int frameRoutingId);
     bool PlayPip(int delegateId, int childId, int frameRoutingId);
     bool PausePip(int delegateId, int childId, int frameRoutingId);
+    bool PageClosePip(int delegateId, int childId, int frameRoutingId);
     void GetPreviewImageOffsetAndSize(bool isImage, Offset& previewOffset, SizeF& previewSize);
     RefPtr<FrameNode> CreatePreviewImageFrameNode(bool isImage);
     void ShowPreviewMenu(WebElementType type);
@@ -1116,6 +1120,13 @@ private:
         float x = -1.0f;
         float y = -1.0f;
         int32_t id = -1;
+        float force = 0.0f;
+        float tiltX = 0.0f;
+        float tiltY = 0.0f;
+        float rollAngle = 0.0f;
+        int32_t width = 0;
+        int32_t height = 0;
+        SourceTool sourceTool = SourceTool::UNKNOWN;
     };
     static bool ParseTouchInfo(const TouchEventInfo& info, std::list<TouchInfo>& touchInfos);
     void InitEnhanceSurfaceFlag();
@@ -1360,6 +1371,7 @@ private:
     std::unordered_map<int32_t, std::shared_ptr<WebAccessibilityChildTreeCallback>> accessibilityChildTreeCallback_;
     int32_t treeId_ = 0;
     int32_t instanceId_ = -1;
+    uint32_t windowId_ = 0;
     int64_t focusedAccessibilityId_ = -1;
     std::vector<RefPtr<PageNodeInfoWrap>> pageNodeInfo_;
     bool isRenderModeInit_ = false;

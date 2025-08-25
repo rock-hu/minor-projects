@@ -69,7 +69,7 @@ typedef struct WindowsSurfaceInfoTag {
 typedef NWeb::NativeArkWebOnJavaScriptProxyCallback NativeMethodCallback;
 
 class WebMessagePortOhos : public WebMessagePort {
-    DECLARE_ACE_TYPE(WebMessagePortOhos, WebMessagePort)
+    DECLARE_ACE_TYPE(WebMessagePortOhos, WebMessagePort);
 
 public:
     WebMessagePortOhos(WeakPtr<WebDelegate> webDelegate) : webDelegate_(webDelegate) {}
@@ -88,7 +88,7 @@ private:
 };
 
 class ConsoleLogOhos : public WebConsoleLog {
-    DECLARE_ACE_TYPE(ConsoleLogOhos, WebConsoleLog)
+    DECLARE_ACE_TYPE(ConsoleLogOhos, WebConsoleLog);
 
 public:
     explicit ConsoleLogOhos(std::shared_ptr<OHOS::NWeb::NWebConsoleLog> message) : message_(message) {}
@@ -106,7 +106,7 @@ private:
 };
 
 class ResultOhos : public Result {
-    DECLARE_ACE_TYPE(ResultOhos, Result)
+    DECLARE_ACE_TYPE(ResultOhos, Result);
 
 public:
     explicit ResultOhos(std::shared_ptr<OHOS::NWeb::NWebJSDialogResult> result) : result_(result) {}
@@ -120,7 +120,7 @@ private:
 };
 
 class FullScreenExitHandlerOhos : public FullScreenExitHandler {
-    DECLARE_ACE_TYPE(FullScreenExitHandlerOhos, FullScreenExitHandler)
+    DECLARE_ACE_TYPE(FullScreenExitHandlerOhos, FullScreenExitHandler);
 
 public:
     FullScreenExitHandlerOhos(std::shared_ptr<OHOS::NWeb::NWebFullScreenExitHandler> handler,
@@ -132,7 +132,7 @@ private:
 };
 
 class WebCustomKeyboardHandlerOhos : public WebCustomKeyboardHandler {
-    DECLARE_ACE_TYPE(WebCustomKeyboardHandlerOhos, WebCustomKeyboardHandler)
+    DECLARE_ACE_TYPE(WebCustomKeyboardHandlerOhos, WebCustomKeyboardHandler);
 
 public:
     explicit WebCustomKeyboardHandlerOhos(std::shared_ptr<OHOS::NWeb::NWebCustomKeyboardHandler> keyboardHandler) :
@@ -178,7 +178,7 @@ private:
 };
 
 class AuthResultOhos : public AuthResult {
-    DECLARE_ACE_TYPE(AuthResultOhos, AuthResult)
+    DECLARE_ACE_TYPE(AuthResultOhos, AuthResult);
 
 public:
     explicit AuthResultOhos(std::shared_ptr<OHOS::NWeb::NWebJSHttpAuthResult> result) : result_(result) {}
@@ -192,7 +192,7 @@ private:
 };
 
 class SslErrorResultOhos : public SslErrorResult {
-    DECLARE_ACE_TYPE(SslErrorResultOhos, SslErrorResult)
+    DECLARE_ACE_TYPE(SslErrorResultOhos, SslErrorResult);
 
 public:
     explicit SslErrorResultOhos(std::shared_ptr<OHOS::NWeb::NWebJSSslErrorResult> result) : result_(result) {}
@@ -205,7 +205,7 @@ private:
 };
 
 class AllSslErrorResultOhos : public AllSslErrorResult {
-    DECLARE_ACE_TYPE(AllSslErrorResultOhos, AllSslErrorResult)
+    DECLARE_ACE_TYPE(AllSslErrorResultOhos, AllSslErrorResult);
 
 public:
     explicit AllSslErrorResultOhos(std::shared_ptr<OHOS::NWeb::NWebJSAllSslErrorResult> result) : result_(result) {}
@@ -218,7 +218,7 @@ private:
 };
 
 class SslSelectCertResultOhos : public SslSelectCertResult {
-    DECLARE_ACE_TYPE(SslSelectCertResultOhos, SslSelectCertResult)
+    DECLARE_ACE_TYPE(SslSelectCertResultOhos, SslSelectCertResult);
 
 public:
     explicit SslSelectCertResultOhos(std::shared_ptr<OHOS::NWeb::NWebJSSslSelectCertResult> result)
@@ -234,7 +234,7 @@ private:
 };
 
 class FileSelectorParamOhos : public WebFileSelectorParam {
-    DECLARE_ACE_TYPE(FileSelectorParamOhos, WebFileSelectorParam)
+    DECLARE_ACE_TYPE(FileSelectorParamOhos, WebFileSelectorParam);
 
 public:
     explicit FileSelectorParamOhos(std::shared_ptr<OHOS::NWeb::NWebFileSelectorParams> param) : param_(param) {}
@@ -251,7 +251,7 @@ private:
 };
 
 class FileSelectorResultOhos : public FileSelectorResult {
-    DECLARE_ACE_TYPE(FileSelectorResultOhos, FileSelectorResult)
+    DECLARE_ACE_TYPE(FileSelectorResultOhos, FileSelectorResult);
 
 public:
     FileSelectorResultOhos(
@@ -267,7 +267,7 @@ private:
 };
 
 class ContextMenuParamOhos : public WebContextMenuParam {
-    DECLARE_ACE_TYPE(ContextMenuParamOhos, WebContextMenuParam)
+    DECLARE_ACE_TYPE(ContextMenuParamOhos, WebContextMenuParam);
 
 public:
     explicit ContextMenuParamOhos(std::shared_ptr<OHOS::NWeb::NWebContextMenuParams> param) : param_(param) {}
@@ -292,7 +292,7 @@ private:
 };
 
 class ContextMenuResultOhos : public ContextMenuResult {
-    DECLARE_ACE_TYPE(ContextMenuResultOhos, ContextMenuResult)
+    DECLARE_ACE_TYPE(ContextMenuResultOhos, ContextMenuResult);
 
 public:
     explicit ContextMenuResultOhos(std::shared_ptr<OHOS::NWeb::NWebContextMenuCallback> callback)
@@ -313,7 +313,7 @@ private:
 };
 
 class WebGeolocationOhos : public WebGeolocation {
-    DECLARE_ACE_TYPE(WebGeolocationOhos, WebGeolocation)
+    DECLARE_ACE_TYPE(WebGeolocationOhos, WebGeolocation);
 
 public:
     WebGeolocationOhos(
@@ -329,7 +329,7 @@ private:
 };
 
 class WebPermissionRequestOhos : public WebPermissionRequest {
-    DECLARE_ACE_TYPE(WebPermissionRequestOhos, WebPermissionRequest)
+    DECLARE_ACE_TYPE(WebPermissionRequestOhos, WebPermissionRequest);
 
 public:
     explicit WebPermissionRequestOhos(const std::shared_ptr<OHOS::NWeb::NWebAccessRequest>& request)
@@ -378,7 +378,7 @@ private:
 };
 
 class WebScreenCaptureRequestOhos : public WebScreenCaptureRequest {
-    DECLARE_ACE_TYPE(WebScreenCaptureRequestOhos, WebScreenCaptureRequest)
+    DECLARE_ACE_TYPE(WebScreenCaptureRequestOhos, WebScreenCaptureRequest);
 
 public:
     explicit WebScreenCaptureRequestOhos(const std::shared_ptr<OHOS::NWeb::NWebScreenCaptureAccessRequest>& request)
@@ -403,7 +403,7 @@ private:
 };
 
 class WebWindowNewHandlerOhos : public WebWindowNewHandler {
-    DECLARE_ACE_TYPE(WebWindowNewHandlerOhos, WebWindowNewHandler)
+    DECLARE_ACE_TYPE(WebWindowNewHandlerOhos, WebWindowNewHandler);
 
 public:
     WebWindowNewHandlerOhos(const std::shared_ptr<OHOS::NWeb::NWebControllerHandler>& handler, int32_t parentNWebId)
@@ -423,7 +423,7 @@ private:
 };
 
 class WebAppLinkCallbackOhos : public WebAppLinkCallback {
-    DECLARE_ACE_TYPE(WebAppLinkCallbackOhos, WebAppLinkCallback)
+    DECLARE_ACE_TYPE(WebAppLinkCallbackOhos, WebAppLinkCallback);
 public:
     explicit WebAppLinkCallbackOhos(const std::shared_ptr<OHOS::NWeb::NWebAppLinkCallback>& callback)
         : callback_(callback) {}
@@ -447,7 +447,7 @@ private:
 };
 
 class DataResubmittedOhos : public DataResubmitted {
-    DECLARE_ACE_TYPE(DataResubmittedOhos, DataResubmitted)
+    DECLARE_ACE_TYPE(DataResubmittedOhos, DataResubmitted);
 
 public:
     explicit DataResubmittedOhos(std::shared_ptr<OHOS::NWeb::NWebDataResubmissionCallback> handler)
@@ -460,7 +460,7 @@ private:
 };
 
 class FaviconReceivedOhos : public WebFaviconReceived {
-    DECLARE_ACE_TYPE(FaviconReceivedOhos, WebFaviconReceived)
+    DECLARE_ACE_TYPE(FaviconReceivedOhos, WebFaviconReceived);
 
 public:
     FaviconReceivedOhos(
@@ -572,6 +572,70 @@ private:
     int id_ = 0;
     double x_ = 0;
     double y_ = 0;
+};
+
+class NWebStylusTouchPointInfoImpl : public OHOS::NWeb::NWebStylusTouchPointInfo {
+public:
+    NWebStylusTouchPointInfoImpl(int id, double x, double y, float force, float tiltX, float tiltY, float rollAngle,
+        int32_t width, int32_t height, OHOS::NWeb::SourceTool sourceTool)
+        : id_(id), x_(x), y_(y), force_(force), tiltX_(tiltX), tiltY_(tiltY), rollAngle_(rollAngle), width_(width),
+          height_(height), sourceTool_(sourceTool)
+    {}
+
+    ~NWebStylusTouchPointInfoImpl() = default;
+
+    int GetId() override
+    {
+        return id_;
+    }
+    double GetX() override
+    {
+        return x_;
+    }
+    double GetY() override
+    {
+        return y_;
+    }
+    float GetForce() override
+    {
+        return force_;
+    }
+    float GetTiltX() override
+    {
+        return tiltX_;
+    }
+    float GetTiltY() override
+    {
+        return tiltY_;
+    }
+    float GetRollAngle() override
+    {
+        return rollAngle_;
+    }
+    int32_t GetWidth() override
+    {
+        return width_;
+    }
+    int32_t GetHeight() override
+    {
+        return height_;
+    }
+    OHOS::NWeb::SourceTool GetSourceTool() override
+    {
+        return sourceTool_;
+    }
+
+private:
+    int id_ = 0;
+    double x_ = 0;
+    double y_ = 0;
+    float force_ = 0.0f;
+    float tiltX_ = 0.0f;
+    float tiltY_ = 0.0f;
+    float rollAngle_ = 0.0f;
+    int32_t width_ = 0;
+    int32_t height_ = 0;
+    OHOS::NWeb::SourceTool sourceTool_ = OHOS::NWeb::SourceTool::UNKNOWN;
 };
 
 class NWebScreenLockCallbackImpl : public OHOS::NWeb::NWebScreenLockCallback {
@@ -922,6 +986,13 @@ public:
     void HandleTouchDown(const int32_t& id, const double& x, const double& y, bool from_overlay = false);
     void HandleTouchUp(const int32_t& id, const double& x, const double& y, bool from_overlay = false);
     void HandleTouchMove(const int32_t& id, const double& x, const double& y, bool from_overlay = false);
+    void HandleStylusTouchDown(const std::shared_ptr<OHOS::NWeb::NWebStylusTouchPointInfo>& stylus_touch_point_info,
+        bool from_overlay = false);
+    void HandleStylusTouchUp(const std::shared_ptr<OHOS::NWeb::NWebStylusTouchPointInfo>& stylus_touch_point_info,
+        bool from_overlay = false);
+    void HandleStylusTouchMove(
+        const std::vector<std::shared_ptr<OHOS::NWeb::NWebStylusTouchPointInfo>>& stylus_touch_point_infos,
+        bool from_overlay = false);
     void HandleTouchMove(const std::vector<std::shared_ptr<OHOS::NWeb::NWebTouchPointInfo>> &touch_point_infos,
                          bool fromOverlay = false);
     void HandleTouchCancel();
@@ -1297,8 +1368,11 @@ public:
     int GetHitTestResult();
 
     void RemoveSnapshotFrameNode(int removeDelayTime);
-    void CreateSnapshotFrameNode(const std::string& snapshotPath);
+    void CreateSnapshotFrameNode(const std::string& snapshotPath, uint32_t width = 0, uint32_t height = 0);
     void SetVisibility(bool isVisible);
+    void RecordBlanklessFrameSize(uint32_t width, uint32_t height);
+    double ResizeWidth() const;
+    double ResizeHeight() const;
 
     void OnPip(int status, int delegate_id, int child_id, int frame_routing_id,  int width, int height);
     void SetPipNativeWindow(int delegate_id, int child_id, int frame_routing_id, void* window);

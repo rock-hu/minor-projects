@@ -129,11 +129,13 @@ constexpr int32_t OBJECT_FIT_NONE_ALIGN_END = 12;
 constexpr int32_t OBJECT_FIT_NONE_ALIGN_BOTTOM_START = 13;
 constexpr int32_t OBJECT_FIT_NONE_ALIGN_BOTTOM = 14;
 constexpr int32_t OBJECT_FIT_NONE_ALIGN_BOTTOM_END = 15;
+constexpr int32_t OBJECT_FIT_NONE_MATRIX = 16;
 const std::vector<int32_t> OBJECT_FIT_ARRAY = { OBJECT_FIT_CONTAIN, OBJECT_FIT_COVER, OBJECT_FIT_AUTO,
     OBJECT_FIT_FILL, OBJECT_FIT_SCALE_DOWN, OBJECT_FIT_NONE,
     OBJECT_FIT_NONE_ALIGN_TOP_START, OBJECT_FIT_NONE_ALIGN_TOP, OBJECT_FIT_NONE_ALIGN_TOP_END,
     OBJECT_FIT_NONE_ALIGN_START, OBJECT_FIT_NONE_ALIGN_CENTER, OBJECT_FIT_NONE_ALIGN_END,
-    OBJECT_FIT_NONE_ALIGN_BOTTOM_START, OBJECT_FIT_NONE_ALIGN_BOTTOM, OBJECT_FIT_NONE_ALIGN_BOTTOM_END };
+    OBJECT_FIT_NONE_ALIGN_BOTTOM_START, OBJECT_FIT_NONE_ALIGN_BOTTOM, OBJECT_FIT_NONE_ALIGN_BOTTOM_END,
+    OBJECT_FIT_NONE_MATRIX };
 constexpr int32_t COPY_OPTIONS_NONE = 0;
 constexpr int32_t COPY_OPTIONS_INAPP = 1;
 constexpr int32_t COPY_OPTIONS_LOCAL_DEVICE = 2;
@@ -5954,7 +5956,7 @@ void ResetScrollScrollable(ArkUI_NodeHandle node)
 
 const ArkUI_AttributeItem* GetScrollEdgeEffect(ArkUI_NodeHandle node)
 {
-    ArkUI_Int32 values[2];
+    ArkUI_Int32 values[3];
     if (node->type == ARKUI_NODE_LIST) {
         auto valueSize =
             GetFullImpl()->getNodeModifiers()->getListModifier()->getListEdgeEffect(node->uiNodeHandle, &values);
@@ -9743,7 +9745,10 @@ int32_t SetTimePickerSelected(ArkUI_NodeHandle node, const ArkUI_AttributeItem* 
     }
     auto fullImpl = GetFullImpl();
     std::vector<std::string> time;
-    StringUtils::StringSplitter(item->string, '-', time);
+
+    std::string timeStr(item->string);
+    std::replace(timeStr.begin(), timeStr.end(), '-', ':');
+    StringUtils::StringSplitter(timeStr, ':', time);
     if (time.size() != NUM_2) {
         return ERROR_CODE_PARAM_INVALID;
     }
@@ -9962,7 +9967,10 @@ int32_t SetTimePickerStart(ArkUI_NodeHandle node, const ArkUI_AttributeItem* ite
     }
     auto fullImpl = GetFullImpl();
     std::vector<std::string> time;
-    StringUtils::StringSplitter(item->string, ':', time);
+
+    std::string timeStr(item->string);
+    std::replace(timeStr.begin(), timeStr.end(), '-', ':');
+    StringUtils::StringSplitter(timeStr, ':', time);
     if (time.size() != NUM_2) {
         return ERROR_CODE_PARAM_INVALID;
     }
@@ -10005,7 +10013,10 @@ int32_t SetTimePickerEnd(ArkUI_NodeHandle node, const ArkUI_AttributeItem* item)
     }
     auto fullImpl = GetFullImpl();
     std::vector<std::string> time;
-    StringUtils::StringSplitter(item->string, ':', time);
+
+    std::string timeStr(item->string);
+    std::replace(timeStr.begin(), timeStr.end(), '-', ':');
+    StringUtils::StringSplitter(timeStr, ':', time);
     if (time.size() != NUM_2) {
         return ERROR_CODE_PARAM_INVALID;
     }
@@ -12055,7 +12066,7 @@ int32_t SetObjectFit(ArkUI_NodeHandle node, const ArkUI_AttributeItem* item)
         return ERROR_CODE_PARAM_INVALID;
     }
     if (item->value[0].i32 < 0 || item->value[0].i32 >
-        static_cast<int32_t>(ARKUI_OBJECT_FIT_NONE_AND_ALIGN_BOTTOM_END)) {
+        static_cast<int32_t>(ARKUI_OBJECT_FIT_NONE_MATRIX)) {
         return ERROR_CODE_PARAM_INVALID;
     }
     fullImpl->getNodeModifiers()->getImageModifier()->setObjectFit(

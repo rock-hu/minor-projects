@@ -176,7 +176,7 @@ void TextInputAreaBase::CreateTextField(
     stack->StopGetAccessRecording();
     frameNode_ = AceType::DynamicCast<FrameNode>(stack->Finish());
     pattern_ = frameNode_->GetPattern<TextFieldPattern>();
-    eventHub_ = frameNode_->GetOrCreateEventHub<TextFieldEventHub>();
+    eventHub_ = frameNode_->GetEventHub<TextFieldEventHub>();
     layoutProperty_ = frameNode_->GetLayoutProperty<TextFieldLayoutProperty>();
     accessibilityProperty_ = frameNode_->GetAccessibilityProperty<TextFieldAccessibilityProperty>();
     FlushLayoutTask(frameNode_);
@@ -1966,6 +1966,7 @@ HWTEST_F(TextInputAreaTest, TextModelStaticTest001, TestSize.Level0)
     std::optional<Ace::FontWeight> validWeight  = Ace::FontWeight::W100;
     TextModelStatic::SetFontWeight(frameNode.GetRawPtr(), validWeight);
     EXPECT_FALSE(layoutProperty->GetAdaptMaxFontSize().has_value());
+    
     std::optional<Ace::FontWeight> emptyWeight = std::nullopt;
     TextModelStatic::SetFontWeight(frameNode.GetRawPtr(), emptyWeight);
     EXPECT_FALSE(layoutProperty->GetAdaptMaxFontSize().has_value());

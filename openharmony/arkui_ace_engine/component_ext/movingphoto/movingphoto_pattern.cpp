@@ -571,7 +571,7 @@ void MovingPhotoPattern::RegisterImageEvent(const RefPtr<FrameNode>& imageNode)
 {
     TAG_LOGI(AceLogTag::ACE_MOVING_PHOTO, "MovingPhoto RegisterImageEvent start.");
     CHECK_NULL_VOID(imageNode);
-    auto imageHub = imageNode->GetOrCreateEventHub<ImageEventHub>();
+    auto imageHub = imageNode->GetEventHub<ImageEventHub>();
     CHECK_NULL_VOID(imageHub);
     auto imageCompleteEventCallback = [weak = WeakClaim(this)](const LoadImageSuccessEvent& info) {
         auto pattern = weak.Upgrade();
@@ -810,14 +810,14 @@ void MovingPhotoPattern::MediaResetToPlay()
 
 void MovingPhotoPattern::FireMediaPlayerImageComplete()
 {
-    auto eventHub = GetOrCreateEventHub<MovingPhotoEventHub>();
+    auto eventHub = GetEventHub<MovingPhotoEventHub>();
     CHECK_NULL_VOID(eventHub);
     eventHub->FireCompleteEvent();
 }
 
 void MovingPhotoPattern::FireMediaPlayerStart()
 {
-    auto eventHub = GetOrCreateEventHub<MovingPhotoEventHub>();
+    auto eventHub = GetEventHub<MovingPhotoEventHub>();
     CHECK_NULL_VOID(eventHub);
     eventHub->FireStartEvent();
     if (isFastKeyUp_) {
@@ -828,35 +828,35 @@ void MovingPhotoPattern::FireMediaPlayerStart()
 
 void MovingPhotoPattern::FireMediaPlayerStop()
 {
-    auto eventHub = GetOrCreateEventHub<MovingPhotoEventHub>();
+    auto eventHub = GetEventHub<MovingPhotoEventHub>();
     CHECK_NULL_VOID(eventHub);
     eventHub->FireStopEvent();
 }
 
 void MovingPhotoPattern::FireMediaPlayerPause()
 {
-    auto eventHub = GetOrCreateEventHub<MovingPhotoEventHub>();
+    auto eventHub = GetEventHub<MovingPhotoEventHub>();
     CHECK_NULL_VOID(eventHub);
     eventHub->FirePauseEvent();
 }
 
 void MovingPhotoPattern::FireMediaPlayerFinish()
 {
-    auto eventHub = GetOrCreateEventHub<MovingPhotoEventHub>();
+    auto eventHub = GetEventHub<MovingPhotoEventHub>();
     CHECK_NULL_VOID(eventHub);
     eventHub->FireFinishEvent();
 }
 
 void MovingPhotoPattern::FireMediaPlayerError()
 {
-    auto eventHub = GetOrCreateEventHub<MovingPhotoEventHub>();
+    auto eventHub = GetEventHub<MovingPhotoEventHub>();
     CHECK_NULL_VOID(eventHub);
     eventHub->FireErrorEvent();
 }
 
 void MovingPhotoPattern::FireMediaPlayerPrepared()
 {
-    auto eventHub = GetOrCreateEventHub<MovingPhotoEventHub>();
+    auto eventHub = GetEventHub<MovingPhotoEventHub>();
     CHECK_NULL_VOID(eventHub);
     eventHub->FirePreparedEvent();
 }
@@ -1500,12 +1500,6 @@ void MovingPhotoPattern::PreparedToPlay()
     if (!isVisible_) {
         return;
     }
-    if (isRepeatChangePlayMode_ && historyAutoAndRepeatLevel_ == PlaybackMode::NONE &&
-        autoAndRepeatLevel_ == PlaybackMode::NONE) {
-        autoAndRepeatLevel_ = PlaybackMode::REPEAT;
-        historyAutoAndRepeatLevel_ = PlaybackMode::REPEAT;
-        isRepeatChangePlayMode_ = false;
-    }
     if (historyAutoAndRepeatLevel_ != PlaybackMode::NONE &&
         autoAndRepeatLevel_ == PlaybackMode::NONE) {
         SelectPlaybackMode(historyAutoAndRepeatLevel_);
@@ -1814,7 +1808,6 @@ void MovingPhotoPattern::RefreshMovingPhotoSceneManager()
     if (historyAutoAndRepeatLevel_ == PlaybackMode::REPEAT) {
         autoAndRepeatLevel_ = PlaybackMode::NONE;
         historyAutoAndRepeatLevel_ = PlaybackMode::NONE;
-        isRepeatChangePlayMode_ = true;
         Pause();
         auto movingPhoto = AceType::DynamicCast<MovingPhotoNode>(host);
         CHECK_NULL_VOID(movingPhoto);
@@ -2535,7 +2528,8 @@ void MovingPhotoPattern::UpdateAnalyzerUIConfig(const RefPtr<NG::GeometryNode>& 
         auto padding  = layoutProperty->CreatePaddingAndBorder();
         OffsetF contentOffset = { contentRect_.Left() - padding.left.value_or(0),
                                   contentRect_.Top() - padding.top.value_or(0) };
-        PixelMapInfo info = { contentRect_.GetSize().Width(), contentRect_.GetSize().Height(), contentOffset };
+        PixelMapInfo info = { contentRect_.GetSize().Width(), contentRect_.GetSize().Height(),
+            { contentOffset.GetX(), contentOffset.GetY() } };
         CHECK_NULL_VOID(imageAnalyzerManager_);
         imageAnalyzerManager_->UpdateAnalyzerUIConfig(geometryNode, info);
     }

@@ -52,13 +52,15 @@ bool IsColumnReverse(WrapDirection direction)
     }
 }
 
-void WrapLayoutAlgorithm::UpdatePercentSensitive(LayoutWrapper *layoutWrapper)
+void WrapLayoutAlgorithm::UpdatePercentSensitive(
+    LayoutWrapper *layoutWrapper, bool usingWidthPercent, bool usingHeightPercent)
 {
-    CHECK_NULL_VOID(layoutWrapper && layoutWrapper->GetHostTag() == V2::FLEX_ETS_TAG);
-    auto layoutAlgorithmWrapper = layoutWrapper->GetLayoutAlgorithm();
-    CHECK_NULL_VOID(layoutAlgorithmWrapper);
-    layoutAlgorithmWrapper->SetPercentWidth(true);
-    layoutAlgorithmWrapper->SetPercentHeight(true);
+    if (usingWidthPercent) {
+        SetWidthPercentSensitive(layoutWrapper);
+    }
+    if (usingHeightPercent) {
+        SetHeightPercentSensitive(layoutWrapper);
+    }
 }
 
 void WrapLayoutAlgorithm::Measure(LayoutWrapper* layoutWrapper)
@@ -72,7 +74,6 @@ void WrapLayoutAlgorithm::Measure(LayoutWrapper* layoutWrapper)
     outOfLayoutChildren_.clear();
     auto flexProp = AceType::DynamicCast<FlexLayoutProperty>(layoutWrapper->GetLayoutProperty());
     CHECK_NULL_VOID(flexProp);
-    UpdatePercentSensitive(layoutWrapper);
     direction_ = flexProp->GetWrapDirection().value_or(WrapDirection::HORIZONTAL);
     // alignment for alignContent, alignment when cross axis has extra space
     alignment_ = flexProp->GetAlignment().value_or(WrapAlignment::START);
@@ -89,6 +90,7 @@ void WrapLayoutAlgorithm::Measure(LayoutWrapper* layoutWrapper)
     isRightDirection_ = textDir_ == TextDirection::RTL;
     isColumnReverse_ = IsColumnReverse(direction_);
     PerformLayoutInitialize(flexProp);
+    UpdatePercentSensitive(layoutWrapper, isWidthPercentSensitive_, isHeightPercentSensitive_);
     totalMainLength_ = 0.0f;
     totalCrossLength_ = 0.0f;
     auto realMaxSize = GetLeftSize(0.0f, mainLengthLimit_, crossLengthLimit_);
@@ -235,6 +237,7 @@ void WrapLayoutAlgorithm::Layout(LayoutWrapper* layoutWrapper)
 {
     auto children = layoutWrapper->GetAllChildrenWithBuild();
     if (children.empty()) {
+        LOGE("WrapLayoutAlgorithm::Layout, children is empty");
         return;
     }
     OffsetF startPosition;
@@ -246,7 +249,6 @@ void WrapLayoutAlgorithm::Layout(LayoutWrapper* layoutWrapper)
         LayoutWholeColumnWrap(startPosition, spaceBetweenContentsOnCrossAxis, layoutWrapper);
         TraverseColumnContent(startPosition, spaceBetweenContentsOnCrossAxis);
     }
-
     for (const auto& child : children) {
         child->Layout();
     }
@@ -284,6 +286,8 @@ void WrapLayoutAlgorithm::PerformLayoutInitialize(const RefPtr<LayoutProperty>& 
             mainLengthLimit_ = std::min(constraint->maxSize.Height(), constraint->percentReference.Height());
             crossLengthLimit_ = std::min(constraint->maxSize.Width(), constraint->percentReference.Width());
         }
+        isWidthPercentSensitive_ = GreaterOrEqualToInfinity(constraint->maxSize.Width());
+        isHeightPercentSensitive_ = GreaterOrEqualToInfinity(constraint->maxSize.Height());
     } else {
         if (isHorizontal_) {
             mainLengthLimit_ = constraint->maxSize.Width();
@@ -371,6 +375,7 @@ void WrapLayoutAlgorithm::LayoutWholeWrap(
 {
     auto contentNum = static_cast<int32_t>(contentList_.size());
     if (contentNum == 0) {
+        LOGW("no content in wrap");
         return;
     }
 
@@ -434,6 +439,7 @@ void WrapLayoutAlgorithm::LayoutWholeWrap(
             break;
         }
         default: {
+            LOGE("Wrap::alignment setting error.");
             break;
         }
     }
@@ -527,6 +533,7 @@ float WrapLayoutAlgorithm::CalcItemCrossAxisOffset(
             break;
         }
         default: {
+            LOGW("Unknown alignment, use start alignment");
             if (isHorizontal_) {
                 return contentOffset.GetY();
             }
@@ -575,6 +582,7 @@ void WrapLayoutAlgorithm::CalcItemMainAxisStartAndSpaceBetween(
             break;
         }
         default: {
+            LOGE("Wrap::alignment setting error.");
             break;
         }
     }
@@ -584,6 +592,7 @@ void WrapLayoutAlgorithm::LayoutContent(const ContentInfo& content, const Offset
 {
     int32_t itemNum = content.count;
     if (itemNum == 0) {
+        LOGW("No item in current content struct");
         return;
     }
     OffsetF contentStartPosition(position.GetX(), position.GetY());
@@ -782,7 +791,6 @@ void WrapLayoutAlgorithm::LayoutColumnContent(const ContentInfo& content, const 
     OffsetF contentStartPosition(position.GetX(), position.GetY());
     OffsetF spaceBetweenItemsOnMainAxis;
     CalcItemMainAxisStartAndSpaceBetween(contentStartPosition, spaceBetweenItemsOnMainAxis, content);
-
     FlexItemProperties flexItemProperties;
     GetFlexItemProperties(content, flexItemProperties);
     float remainSpace = mainLengthLimit_ - currentMainLength_;
@@ -827,4 +835,5 @@ void WrapLayoutAlgorithm::TraverseColumnContent(
         }
     }
 }
+
 } // namespace OHOS::Ace::NG

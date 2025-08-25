@@ -30,7 +30,7 @@
 
 namespace OHOS::Ace::NG {
 class ACE_EXPORT SliderPaintMethod : public NodePaintMethod {
-    DECLARE_ACE_TYPE(SliderPaintMethod, NodePaintMethod)
+    DECLARE_ACE_TYPE(SliderPaintMethod, NodePaintMethod);
 
 public:
     struct TipParameters {
@@ -54,6 +54,14 @@ public:
     }
 
     void UpdateContentModifier(PaintWrapper* paintWrapper) override;
+
+    RefPtr<Modifier> GetOverlayModifier(PaintWrapper* paintWrapper) override
+    {
+        CHECK_NULL_RETURN(sliderTipModifier_, nullptr);
+        return sliderTipModifier_;
+    }
+
+    void UpdateOverlayModifier(PaintWrapper* paintWrapper) override;
 
 private:
     void UpdateBorderRadius(RefPtr<SliderPaintProperty>& paintProperty);

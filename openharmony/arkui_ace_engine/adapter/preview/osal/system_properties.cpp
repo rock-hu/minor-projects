@@ -124,6 +124,7 @@ bool SystemProperties::taskPriorityAdjustmentEnable_ = false;
 int32_t SystemProperties::dragDropFrameworkStatus_ = 0;
 int32_t SystemProperties::touchAccelarate_ = 0;
 bool SystemProperties::pageTransitionFrzEnabled_ = false;
+bool SystemProperties::forcibleLandscapeEnabled_ = false;
 bool SystemProperties::softPagetransition_ = false;
 bool SystemProperties::formSkeletonBlurEnabled_ = true;
 int32_t SystemProperties::formSharedImageCacheThreshold_ = DEFAULT_FORM_SHARED_IMAGE_CACHE_THRESHOLD;
@@ -291,6 +292,11 @@ bool SystemProperties::GetResourceDecoupling()
     return true;
 }
 
+bool SystemProperties::IsPCMode()
+{
+    return false;
+}
+
 bool SystemProperties::ConfigChangePerform()
 {
     return false;
@@ -456,6 +462,11 @@ bool SystemProperties::IsPageTransitionFreeze()
     return pageTransitionFrzEnabled_;
 }
 
+bool SystemProperties::IsForcibleLandscapeEnabled()
+{
+    return forcibleLandscapeEnabled_;
+}
+
 bool SystemProperties::IsSoftPageTransition()
 {
     return softPagetransition_;
@@ -500,8 +511,8 @@ int32_t SystemProperties::GetWhiteBlockCacheCountValue()
     return 0;
 }
 
-std::string SystemProperties::GetMapSearchPrefix()
+int32_t SystemProperties::GetPreviewStatus()
 {
-    return "";
+    return -1;
 }
 } // namespace OHOS::Ace

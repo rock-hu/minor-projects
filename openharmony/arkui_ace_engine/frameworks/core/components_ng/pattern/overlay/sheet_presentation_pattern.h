@@ -372,10 +372,11 @@ public:
     bool GetWindowButtonRect(NG::RectF& floatButtons);
     bool GetWindowButtonRectForAllAPI(NG::RectF& floatButtons);
 
+    bool IsPcOrPadFreeMultiWindowMode() const;
+
     void SetBottomOffset(const SheetStyle &sheetStyle)
     {
-        DeviceType deviceType = SystemProperties::GetDeviceType();
-        if (deviceType != DeviceType::TWO_IN_ONE) {
+        if (!IsPcOrPadFreeMultiWindowMode()) {
             TAG_LOGI(AceLogTag::ACE_SHEET, "Bottom offset invalid");
             return;
         }
@@ -945,6 +946,7 @@ public:
     void OnScrollStartRecursive(
         WeakPtr<NestableScrollContainer> child, float position, float dragVelocity = 0.0f) override;
     void OnScrollEndRecursive (const std::optional<float>& velocity) override;
+    void OnScrollDragEndRecursive() override;
     bool HandleScrollVelocity(float velocity, const RefPtr<NestableScrollContainer>& child = nullptr) override;
     ScrollResult HandleScrollWithSheet(float scrollOffset);
     Shadow GetShadowFromTheme(ShadowStyle shadowStyle);

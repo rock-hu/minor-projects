@@ -15,7 +15,6 @@
 
 #include "node_model.h"
 
-
 #include "event_converter.h"
 #include "interfaces/native/event/ui_input_event_impl.h"
 #include "node_extened.h"
@@ -131,11 +130,10 @@ bool IsValidArkUINode(ArkUI_NodeHandle nodePtr)
     if (!nodePtr) {
         return false;
     }
-    if (nodePtr->threadSafeNode) {
-        return IsValidArkUINodeMultiThread(nodePtr);
-    } else {
-        return g_nodeSet.count(nodePtr) > 0;
+    if (g_nodeSet.count(nodePtr) > 0) {
+        return true;
     }
+    return IsValidArkUINodeMultiThread(nodePtr);
 }
 
 ArkUI_NodeHandle CreateNode(ArkUI_NodeType type)
@@ -221,7 +219,7 @@ int32_t AddChild(ArkUI_NodeHandle parentNode, ArkUI_NodeHandle childNode)
     if (!CheckIsCNode(parentNode) || !CheckIsCNode(childNode)) {
         return ERROR_CODE_NATIVE_IMPL_BUILDER_NODE_ERROR;
     }
-    // a
+    // already check in entry point.
     if (parentNode->type == -1) {
         return ERROR_CODE_NATIVE_IMPL_BUILDER_NODE_ERROR;
     }

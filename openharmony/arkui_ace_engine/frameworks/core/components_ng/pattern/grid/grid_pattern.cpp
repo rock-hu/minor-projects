@@ -29,7 +29,6 @@
 #include "core/components_ng/pattern/grid/irregular/grid_layout_utils.h"
 #include "core/components_ng/pattern/scrollable/scrollable_pattern.h"
 #include "core/components_ng/syntax/repeat_virtual_scroll_2_node.h"
-#include "interfaces/inner_api/ui_session/ui_session_manager.h"
 #include "core/components_ng/manager/scroll_adjust/scroll_adjust_manager.h"
 
 namespace OHOS::Ace::NG {
@@ -184,7 +183,7 @@ void GridPattern::MultiSelectWithoutKeyboard(const RectF& selectedZone)
     std::list<RefPtr<FrameNode>> children;
     host->GenerateOneDepthVisibleFrame(children);
     for (const auto& itemFrameNode : children) {
-        auto itemEvent = itemFrameNode->GetOrCreateEventHub<EventHub>();
+        auto itemEvent = itemFrameNode->GetEventHub<EventHub>();
         CHECK_NULL_VOID(itemEvent);
         if (!itemEvent->IsEnabled()) {
             continue;
@@ -205,9 +204,9 @@ void GridPattern::MultiSelectWithoutKeyboard(const RectF& selectedZone)
         if (iter == itemToBeSelected_.end()) {
             auto result = itemToBeSelected_.emplace(itemFrameNode->GetId(), ItemSelectedStatus());
             iter = result.first;
-            iter->second.onSelected = itemPattern->GetOrCreateEventHub<GridItemEventHub>()->GetOnSelect();
+            iter->second.onSelected = itemPattern->GetEventHub<GridItemEventHub>()->GetOnSelect();
             iter->second.selectChangeEvent =
-                itemPattern->GetOrCreateEventHub<GridItemEventHub>()->GetSelectChangeEvent();
+                itemPattern->GetEventHub<GridItemEventHub>()->GetSelectChangeEvent();
         }
         auto startMainOffset = mouseStartOffset_.GetMainOffset(info_.axis_);
         if (info_.axis_ == Axis::VERTICAL) {
@@ -300,7 +299,7 @@ void GridPattern::FireOnScrollStart(bool withPerfMonitor)
     }
     auto host = GetHost();
     CHECK_NULL_VOID(host);
-    auto hub = host->GetOrCreateEventHub<GridEventHub>();
+    auto hub = host->GetEventHub<GridEventHub>();
     CHECK_NULL_VOID(hub);
     auto onScrollStart = hub->GetOnScrollStart();
     if (onScrollStart) {
@@ -321,7 +320,6 @@ void GridPattern::FireOnReachStart(const OnReachEvent& onReachStart, const OnRea
     }
     if (!isInitialized_) {
         FireObserverOnReachStart();
-        ReportOnItemGridEvent("onReachStart");
         CHECK_NULL_VOID(onReachStart || onJSFrameNodeReachStart);
         if (onReachStart) {
             onReachStart();
@@ -337,7 +335,6 @@ void GridPattern::FireOnReachStart(const OnReachEvent& onReachStart, const OnRea
         bool scrollDownToStart = LessNotEqual(info_.prevHeight_, 0.0) && GreatOrEqual(info_.currentHeight_, 0.0);
         if (scrollUpToStart || scrollDownToStart) {
             FireObserverOnReachStart();
-            ReportOnItemGridEvent("onReachStart");
             CHECK_NULL_VOID(onReachStart || onJSFrameNodeReachStart);
             ACE_SCOPED_TRACE("OnReachStart, scrollUpToStart:%u, scrollDownToStart:%u, id:%d, tag:Grid",
                 scrollUpToStart, scrollDownToStart, static_cast<int32_t>(host->GetAccessibilityId()));
@@ -374,7 +371,6 @@ void GridPattern::FireOnReachEnd(const OnReachEvent& onReachEnd, const OnReachEv
             GreatNotEqual(info_.prevHeight_, endHeight_) && LessOrEqual(info_.currentHeight_, endHeight_);
         if (scrollDownToEnd || scrollUpToEnd) {
             FireObserverOnReachEnd();
-            ReportOnItemGridEvent("onReachEnd");
             CHECK_NULL_VOID(onReachEnd || onJSFrameNodeReachEnd);
             ACE_SCOPED_TRACE("OnReachEnd, scrollUpToEnd:%u, scrollDownToEnd:%u, id:%d, tag:Grid", scrollUpToEnd,
                 scrollDownToEnd, static_cast<int32_t>(host->GetAccessibilityId()));
@@ -523,7 +519,7 @@ bool GridPattern::OnDirtyLayoutWrapperSwap(const RefPtr<LayoutWrapper>& dirty, c
     CHECK_NULL_RETURN(gridLayoutAlgorithm, false);
     const auto& gridLayoutInfo = gridLayoutAlgorithm->GetGridLayoutInfo();
     if (!gridLayoutAlgorithm->MeasureInNextFrame()) {
-        auto eventhub = GetOrCreateEventHub<GridEventHub>();
+        auto eventhub = GetEventHub<GridEventHub>();
         CHECK_NULL_RETURN(eventhub, false);
         Dimension offset(0, DimensionUnit::VP);
         Dimension offsetPx(gridLayoutInfo.currentOffset_, DimensionUnit::PX);
@@ -621,7 +617,7 @@ void GridPattern::ProcessEvent(bool indexChanged, float finalOffset)
 {
     auto host = GetHost();
     CHECK_NULL_VOID(host);
-    auto gridEventHub = host->GetOrCreateEventHub<GridEventHub>();
+    auto gridEventHub = host->GetEventHub<GridEventHub>();
     CHECK_NULL_VOID(gridEventHub);
     auto onScroll = gridEventHub->GetOnScroll();
     PrintOffsetLog(AceLogTag::ACE_GRID, host->GetId(), finalOffset);
@@ -1347,7 +1343,7 @@ void GridPattern::GetEventDumpInfo()
     ScrollablePattern::GetEventDumpInfo();
     auto host = GetHost();
     CHECK_NULL_VOID(host);
-    auto hub = host->GetOrCreateEventHub<GridEventHub>();
+    auto hub = host->GetEventHub<GridEventHub>();
     CHECK_NULL_VOID(hub);
     auto onScrollIndex = hub->GetOnScrollIndex();
     onScrollIndex ? DumpLog::GetInstance().AddDesc("hasOnScrollIndex: true")
@@ -1362,7 +1358,7 @@ void GridPattern::GetEventDumpInfo(std::unique_ptr<JsonValue>& json)
     ScrollablePattern::GetEventDumpInfo(json);
     auto host = GetHost();
     CHECK_NULL_VOID(host);
-    auto hub = host->GetOrCreateEventHub<GridEventHub>();
+    auto hub = host->GetEventHub<GridEventHub>();
     CHECK_NULL_VOID(hub);
     auto onScrollIndex = hub->GetOnScrollIndex();
     json->Put("hasOnScrollIndex", onScrollIndex ? "true" : "false");
@@ -1760,31 +1756,6 @@ void GridPattern::HandleOnItemFocus(int32_t index)
     if (focusHub->GetFocusDependence() != FocusDependence::AUTO) {
         focusHub->SetFocusDependence(FocusDependence::AUTO);
     }
-}
-
-void GridPattern::ReportOnItemGridEvent(const std::string& event)
-{
-    auto host = GetHost();
-    CHECK_NULL_VOID(host);
-    std::string value = std::string("Grid.") + event;
-    UiSessionManager::GetInstance()->ReportComponentChangeEvent("event", value);
-    TAG_LOGI(AceLogTag::ACE_GRID, "nodeId:[%{public}d] Grid reportComponentChangeEvent %{public}s", host->GetId(),
-        event.c_str());
-}
-
-int32_t GridPattern::OnInjectionEvent(const std::string& command)
-{
-    TAG_LOGI(AceLogTag::ACE_GRID, "OnInjectionEvent command: %{public}s", command.c_str());
-
-    std::string ret = ScrollablePattern::ParseCommand(command);
-    if (ret == "scrollForward") {
-        ScrollPage(true);
-    } else if (ret == "scrollBackward") {
-        ScrollPage(false);
-    } else {
-        return RET_FAILED;
-    }
-    return RET_SUCCESS;
 }
 
 void GridPattern::OnColorModeChange(uint32_t colorMode)

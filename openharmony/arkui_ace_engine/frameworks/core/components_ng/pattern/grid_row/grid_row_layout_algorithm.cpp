@@ -260,7 +260,7 @@ void GridRowLayoutAlgorithm::OnBreakPointChange(LayoutWrapper* layoutWrapper, co
         auto sizeTypeString = GridRowLayoutAlgorithm::ConvertSizeTypeToString(sizeType);
         auto hostLayoutProperty = host->GetLayoutProperty<GridRowLayoutProperty>();
         CHECK_NULL_VOID(hostLayoutProperty);
-        auto hostEventHub = host->GetOrCreateEventHub<GridRowEventHub>();
+        auto hostEventHub = host->GetEventHub<GridRowEventHub>();
         CHECK_NULL_VOID(hostEventHub);
         hostLayoutProperty->UpdateSizeType(sizeType);
         TAG_LOGD(AceLogTag::ACE_GRIDROW,
@@ -473,14 +473,14 @@ void GridRowLayoutAlgorithm::Layout(LayoutWrapper* layoutWrapper)
             childLayoutWrapper->GetGeometryNode()->SetMarginFrameOffset(offset + paddingOffset);
             auto ignoreMatchOffset = UpdateChildPositionWidthIgnoreLayoutSafeArea(
                 IsRightToLeft(layoutWrapper), childLayoutWrapper, offset + paddingOffset);
-                if (firstLine) {
-                    auto isGreatThanParent =
+            if (firstLine) {
+                auto isGreatThanParent =
                     GreatNotEqual(childLayoutWrapper->GetGeometryNode()->GetFrameOffset().GetY() +
                                       childLayoutWrapper->GetGeometryNode()->GetFrameSize().Height(),
                         layoutWrapper->GetGeometryNode()->GetFrameSize().Height());
-                    UpdateFirstLineOffset(
-                        childTallerThanMatchParent, isGreatThanParent, ignoreMatchOffset, firstLineOffset);
-                }
+                UpdateFirstLineOffset(
+                    childTallerThanMatchParent, isGreatThanParent, ignoreMatchOffset, firstLineOffset);
+            }
             childLayoutWrapper->Layout();
         }
         firstLine = false;

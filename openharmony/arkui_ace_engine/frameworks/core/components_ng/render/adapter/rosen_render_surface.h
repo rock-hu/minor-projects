@@ -40,7 +40,7 @@ struct SurfaceBufferNode;
 #endif
 
 class RosenRenderSurface : public RenderSurface {
-    DECLARE_ACE_TYPE(RosenRenderSurface, NG::RenderSurface)
+    DECLARE_ACE_TYPE(RosenRenderSurface, NG::RenderSurface);
 public:
     RosenRenderSurface() = default;
     ~RosenRenderSurface() override;
@@ -63,7 +63,7 @@ public:
 
     std::string GetUniqueId() const override;
 
-    uint64_t GetUniqueIdNum() const;
+    uint64_t GetUniqueIdNum() const override;
 
     void SetIsTexture(bool isTexture) override
     {
@@ -185,6 +185,10 @@ private:
 
 #ifdef OHOS_PLATFORM
     void InsertSurfaceNode(const std::shared_ptr<SurfaceBufferNode>& surfaceNode);
+    std::string GetPSurfaceName() override
+    {
+        return producerSurface_->GetName();
+    }
 #endif
 
     std::mutex surfaceNodeMutex_;

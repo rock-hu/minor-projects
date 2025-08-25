@@ -1266,9 +1266,6 @@ DispatchResponse DebuggerImpl::EvaluateOnCallFrame(const EvaluateOnCallFramePara
     }
 
     Local<JSValueRef> currentContext = DebuggerApi::GetCurrentGlobalEnv(vm_);
-    Local<ObjectRef> globalObj = JSNApi::GetGlobalObject(vm_, currentContext);
-    DebuggerExecutor::SetEvaluateToGlobal(vm_, globalObj);
-
     Local<JSValueRef> originContext = JSNApi::GetCurrentContext(vm_);
     JSNApi::SwitchContext(vm_, currentContext);
 
@@ -1392,6 +1389,10 @@ DispatchResponse DebuggerImpl::RemoveBreakpointsByUrl(const RemoveBreakpointsByU
         return true;
     };
     if (!MatchScripts(scriptMatchCallback, url, ScriptMatchType::URL)) {
+        if (IsLaunchAccelerateMode() && breakpointPendingMap_.erase(url)) {
+            LOG_DEBUGGER(INFO) << "All breakpoints on " << url << " are removed";
+            return DispatchResponse::Ok();
+        }
         LOG_DEBUGGER(ERROR) << "RemoveBreakpointByUrl: Unknown url: " << url;
         return DispatchResponse::Fail("Unknown url");
     }
@@ -2530,5 +2531,13 @@ Local<FunctionRef> DebuggerImpl::CheckAndGenerateCondFunc(const std::optional<st
         }
     }
     return FunctionRef::Undefined(vm_);
+}
+
+void DebuggerImpl::SetDebuggerAccessor(JSHandle<GlobalEnv> &globalEnv)
+{
+    auto thread = vm_->GetJSThread();
+    JSHandle<JSTaggedValue> global(thread, globalEnv->GetGlobalObject());
+    Local<ObjectRef> globalObj = JSNApiHelper::ToLocal<ObjectRef>(global);
+    DebuggerExecutor::SetDebuggerAccessor(vm_, globalObj);
 }
 }  // namespace panda::ecmascript::tooling

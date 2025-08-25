@@ -167,7 +167,7 @@ public:
         const RefPtr<FrameNode>& node = nullptr);
     void OnTextDragEnd(float globalX, float globalY, const std::string& extraInfo);
     void onDragCancel();
-    void OnDragAsyncEnd();
+    void OnDragEnd();
     void SetCallAnsyncDragEnd(const std::function<void(DragStartRequestStatus)>& cb);
     void OnItemDragStart(float globalX, float globalY, const RefPtr<FrameNode>& frameNode);
     void OnItemDragMove(float globalX, float globalY, int32_t draggedIndex, DragType dragType);
@@ -214,7 +214,7 @@ public:
     bool CheckDragDropProxy(int64_t id) const;
     void NotifyEnterTextEditorArea();
     void FireOnEditableTextComponent(const RefPtr<FrameNode>& frameNode, DragEventType type);
-    void FireOnDragLeave(const RefPtr<FrameNode>& preTargetFrameNode_, const DragPointerEvent& pointerEven,
+    void FireOnDragLeave(const RefPtr<FrameNode>& preTargetFrameNode_, const DragPointerEvent& pointerEvent,
         const std::string& extraInfo);
 
     bool IsWindowConsumed() const
@@ -568,6 +568,13 @@ public:
 
     float GetCurrentDistance(float x, float y);
 
+    static double GetMaxWidthBaseOnGridSystem(const RefPtr<PipelineBase>& pipeline);
+
+    static std::shared_ptr<ScaleDataInfo> GetScaleInfo(float width, float height, bool textDraggable);
+
+    static std::shared_ptr<ScaleDataInfo> CalculateScale(
+        float width, float height, float widthLimit, float heightLimit);
+
     uint32_t GetDampingOverflowCount() const
     {
         return dampingOverflowCount_;
@@ -582,12 +589,6 @@ public:
     {
         dampingOverflowCount_++;
     }
-    static double GetMaxWidthBaseOnGridSystem(const RefPtr<PipelineBase>& pipeline);
-
-    static std::shared_ptr<ScaleDataInfo> GetScaleInfo(float width, float height, bool textDraggable);
-
-    static std::shared_ptr<ScaleDataInfo> CalculateScale(
-        float width, float height, float widthLimit, float heightLimit);
 
     RefPtr<FrameNode> GetMenuWrapperNode()
     {
@@ -658,11 +659,6 @@ public:
         dragStartAnimationRate_ = rate;
     }
 
-    void SetDragStartPoint(double globalX, double globalY)
-    {
-        dragStartPoint_ = { globalX, globalY };
-    }
-    
     bool CheckIsFolderSubwindowBoundary(float x, float y, int32_t instanceId);
 
     bool CheckIsUIExtensionBoundary(float x, float y, int32_t instanceId);
@@ -739,8 +735,6 @@ private:
         const RefPtr<OverlayManager>& overlayManager, const RefPtr<NodeAnimatablePropertyFloat>& property, Point point);
     void StartDragTransitionAnimation(const Offset& newOffset, AnimationOption option,
         const RefPtr<OverlayManager>& overlayManager, const RefPtr<NodeAnimatablePropertyFloat>& property, Point point);
-    void ReportOnItemDropEvent(
-        DragType dragType, const RefPtr<FrameNode>& dragFrameNode, double dropPositionX, double dropPositionY);
     void NotifyDragSpringLoadingMove(const RefPtr<FrameNode>& dragFrameNode, const std::string& extraInfo);
     void NotifyDragSpringLoadingIntercept(std::string_view extraParams);
     void SetRSSyncTransaction(OHOS::Rosen::RSSyncTransactionController** transactionController,
@@ -790,8 +784,8 @@ private:
     bool isAnyDraggableHit_ = false;
     bool isReDragStart_ = false;
     VelocityTracker velocityTracker_;
-    DragDropMgrState dragDropState_ = DragDropMgrState::IDLE;
     Rect previewRect_ { -1, -1, -1, -1 };
+    DragDropMgrState dragDropState_ = DragDropMgrState::IDLE;
     DragPreviewInfo info_;
     DragPointerEvent dragDropPointerEvent_;
     DragPointerEvent dragAnimationPointerEvent_;
@@ -813,14 +807,13 @@ private:
     OffsetF dragMovePosition_ = OffsetF(0.0f, 0.0f);
     OffsetF lastDragMovePosition_ = OffsetF(0.0f, 0.0f);
     OffsetF dragTotalMovePosition_ = OffsetF(0.0f, 0.0f);
-    uint32_t dampingOverflowCount_ = 0;
-    std::shared_ptr<OHOS::Ace::NG::ArkUIInteralDragAction> dragAction_;
     RefPtr<GridColumnInfo> columnInfo_;
+    uint32_t dampingOverflowCount_ = 0;
     WeakPtr<FrameNode> menuWrapperNode_;
     WeakPtr<OverlayManager> subwindowOverlayManager_;
+    std::shared_ptr<OHOS::Ace::NG::ArkUIInteralDragAction> dragAction_;
     ACE_DISALLOW_COPY_AND_MOVE(DragDropManager);
     bool grayedState_ = false;
-    Point dragStartPoint_ { 0, 0 };
     RefPtr<DragDropSpringLoadingDetector> dragDropSpringLoadingDetector_;
 
     std::map<int32_t, Point> fingerPointInfo_;

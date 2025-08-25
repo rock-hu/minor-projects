@@ -673,8 +673,11 @@ HWTEST_F(JsAccessibilityManagerTest, JsAccessibilityManager012, TestSize.Level1)
      * @tc.steps: step1. construct JsAccessibilityManager
      */
     auto jsAccessibilityManager = AceType::MakeRefPtr<Framework::JsAccessibilityManager>();
+    ASSERT_NE(jsAccessibilityManager, nullptr);
     auto frameNode = FrameNode::CreateFrameNode("framenode", 1, AceType::MakeRefPtr<Pattern>(), true);
+    ASSERT_NE(frameNode, nullptr);
     auto context = NG::PipelineContext::GetCurrentContext();
+    ASSERT_NE(context, nullptr);
     int64_t elementId = 0;
     std::map<std::string, std::string> actionArguments;
     /**
@@ -1630,7 +1633,7 @@ HWTEST_F(JsAccessibilityManagerTest, JsAccessibilityManager030, TestSize.Level1)
     auto frameNode = FrameNode::CreateFrameNode("framenode", 1, AceType::MakeRefPtr<Pattern>(), true);
     auto context = NG::PipelineContext::GetCurrentContext();
     int64_t elementId = 0;
-    auto eventHub = frameNode->GetOrCreateEventHub<NG::EventHub>();
+    auto eventHub = frameNode->GetEventHub<NG::EventHub>();
     ASSERT_NE(eventHub, nullptr);
     eventHub->GetOrCreateGestureEventHub();
     auto gesture = eventHub->GetGestureEventHub();
@@ -1687,7 +1690,7 @@ HWTEST_F(JsAccessibilityManagerTest, JsAccessibilityManager030, TestSize.Level1)
     auto frameNode = FrameNode::CreateFrameNode("framenode", 1, AceType::MakeRefPtr<Pattern>(), true);
     auto context = NG::PipelineContext::GetCurrentContext();
     int64_t elementId = 0;
-    auto eventHub = frameNode->GetOrCreateEventHub<NG::EventHub>();
+    auto eventHub = frameNode->GetEventHub<NG::EventHub>();
     ASSERT_NE(eventHub, nullptr);
     eventHub->GetOrCreateGestureEventHub();
     auto gesture = eventHub->GetGestureEventHub();
@@ -1733,7 +1736,7 @@ HWTEST_F(JsAccessibilityManagerTest, JsAccessibilityManager030, TestSize.Level1)
     auto frameNode = FrameNode::CreateFrameNode("framenode", 1, AceType::MakeRefPtr<Pattern>(), true);
     auto context = NG::PipelineContext::GetCurrentContext();
     int64_t elementId = 0;
-    auto eventHub = frameNode->GetOrCreateEventHub<NG::EventHub>();
+    auto eventHub = frameNode->GetEventHub<NG::EventHub>();
     ASSERT_NE(eventHub, nullptr);
     eventHub->GetOrCreateGestureEventHub();
     auto gesture = eventHub->GetGestureEventHub();
@@ -1831,7 +1834,7 @@ HWTEST_F(JsAccessibilityManagerTest, ConvertActionTypeToBoolen006, TestSize.Leve
     auto jsAccessibilityManager = AceType::MakeRefPtr<MockJsAccessibilityManager>();
     auto frameNode = FrameNode::CreateFrameNode("framenode", 1, AceType::MakeRefPtr<Pattern>(), true);
     auto context = NG::PipelineContext::GetCurrentContext();
-    auto eventHub = frameNode->GetOrCreateEventHub<NG::EventHub>();
+    auto eventHub = frameNode->GetEventHub<NG::EventHub>();
     ASSERT_NE(eventHub, nullptr);
     eventHub->GetOrCreateGestureEventHub();
     auto gesture = eventHub->GetGestureEventHub();
@@ -2604,7 +2607,7 @@ HWTEST_F(JsAccessibilityManagerTest, JsAccessibilityManager039, TestSize.Level1)
    /**
     * @tc.steps: step2. test 
     */
-    auto eventHub = frameNode->GetOrCreateEventHub<NG::EventHub>();
+    auto eventHub = frameNode->GetEventHub<NG::EventHub>();
     ASSERT_NE(eventHub, nullptr);
     eventHub->SetGestureEventHub(nullptr);
     EXPECT_CALL(mockJsManger, ActClick(_)).Times(0).WillOnce(Return(false));
@@ -2833,7 +2836,8 @@ HWTEST_F(JsAccessibilityManagerTest, SendEventToAccessibilityWithNode004, TestSi
  */
 HWTEST_F(JsAccessibilityManagerTest, GetTransformDegreeRelativeToWindow001, TestSize.Level1)
 {
-    auto frameNode = FrameNode::CreateFrameNode("framenode", 1, AceType::MakeRefPtr<Pattern>(), false);
+    auto frameNode = FrameNode::CreateFrameNode(
+        "framenode", 1, AceType::MakeRefPtr<Pattern>(), false);
     ASSERT_NE(frameNode, nullptr);
 
     auto jsAccessibilityManager = AceType::MakeRefPtr<Framework::JsAccessibilityManager>();

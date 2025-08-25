@@ -37,21 +37,58 @@ WebAccessibilityEventReport::WebAccessibilityEventReport(const WeakPtr<Pattern>&
     pattern_ = pattern;
 }
 
-void WebAccessibilityEventReport::RegisterAllReportEventCallBack()
+void WebAccessibilityEventReport::SetEventReportEnable(bool enable)
 {
-    TAG_LOGI(AceLogTag::ACE_WEB, "WebAccessibilityEventReport::RegisterAllReportEventCallBack");
-    auto focusCallback = [](int64_t accessibilityId, const std::string data) {
-        UiSessionManager::GetInstance()->ReportWebUnfocusEvent(accessibilityId, data, FOCUS_SYMBOL);
+    if (enable == eventReportEnable_) {
+        return;
+    }
+    auto pattern = DynamicCast<WebPattern>(pattern_.Upgrade());
+    CHECK_NULL_VOID(pattern);
+    auto delegate = pattern->delegate_;
+    CHECK_NULL_VOID(delegate);
+    eventReportEnable_ = enable;
+    if (enable) {
+        delegate->SetAccessibilityState(true, isFirstRegister_);
+    } else {
+        bool usedByOthers = pattern->accessibilityState_ || pattern->inspectorAccessibilityEnable_ ||
+                            pattern->textBlurAccessibilityEnable_;
+        if (usedByOthers) {
+            TAG_LOGE(AceLogTag::ACE_WEB, "WebAccessibilityEventReport::SetEventReportEnable, used by others");
+            return;
+        }
+        delegate->SetAccessibilityState(false, false);
+    }
+}
+
+std::shared_ptr<NWeb::NWebAccessibilityNodeInfo> WebAccessibilityEventReport::GetAccessibilityNodeById(
+    int64_t accessibilityId)
+{
+    if (!eventReportEnable_) {
+        return nullptr;
+    }
+    auto pattern = DynamicCast<WebPattern>(pattern_.Upgrade());
+    CHECK_NULL_RETURN(pattern, nullptr);
+    auto delegate = pattern->delegate_;
+    CHECK_NULL_RETURN(delegate, nullptr);
+    return delegate->GetAccessibilityNodeInfoById(accessibilityId);
+}
+
+void WebAccessibilityEventReport::RegisterAllReportEventCallback()
+{
+    TAG_LOGI(AceLogTag::ACE_WEB, "WebAccessibilityEventReport::RegisterAllReportEventCallback");
+    auto focusCallback = [](int64_t accessibilityId, const std::string& data) {
+        UiSessionManager::GetInstance()->ReportWebInputEvent(accessibilityId, data, FOCUS_SYMBOL);
     };
-    auto blurCallback = [](int64_t accessibilityId, const std::string data) {
-        UiSessionManager::GetInstance()->ReportWebUnfocusEvent(accessibilityId, data, BLUR_SYMBOL);
+    auto blurCallback = [](int64_t accessibilityId, const std::string& data) {
+        UiSessionManager::GetInstance()->ReportWebInputEvent(accessibilityId, data, BLUR_SYMBOL);
     };
-    auto textChangeCallback = [](int64_t accessibilityId, const std::string data) {
-        UiSessionManager::GetInstance()->ReportWebUnfocusEvent(accessibilityId, data, TEXT_CHANGE_SYMBOL);
+    auto textChangeCallback = [](int64_t accessibilityId, const std::string& data) {
+        UiSessionManager::GetInstance()->ReportWebInputEvent(accessibilityId, data, TEXT_CHANGE_SYMBOL);
     };
     RegisterCallback(std::move(focusCallback), AccessibilityEventType::FOCUS);
     RegisterCallback(std::move(blurCallback), AccessibilityEventType::BLUR);
     RegisterCallback(std::move(textChangeCallback), AccessibilityEventType::TEXT_CHANGE);
+    SetIsFirstRegister(false);
 }
 
 void WebAccessibilityEventReport::RegisterCallback(EventReportCallback&& callback, AccessibilityEventType type)
@@ -70,22 +107,16 @@ void WebAccessibilityEventReport::RegisterCallback(EventReportCallback&& callbac
         default:
             return;
     }
-    auto webPattern = DynamicCast<WebPattern>(pattern_.Upgrade());
-    CHECK_NULL_VOID(webPattern);
-    webPattern->SetAccessibilityState(true);
-    webPattern->SetTextEventAccessibilityEnable(true);
+    SetEventReportEnable(true);
 }
 
-void WebAccessibilityEventReport::UnRegisterCallback()
+void WebAccessibilityEventReport::UnregisterCallback()
 {
-    TAG_LOGI(AceLogTag::ACE_WEB, "WebAccessibilityEventReport::UnRegisterCallback");
+    TAG_LOGI(AceLogTag::ACE_WEB, "WebAccessibilityEventReport::UnregisterCallback");
     textFocusCallback_ = nullptr;
     textBlurCallback_ = nullptr;
     textChangeCallback_ = nullptr;
-    auto webPattern = DynamicCast<WebPattern>(pattern_.Upgrade());
-    CHECK_NULL_VOID(webPattern);
-    webPattern->SetTextEventAccessibilityEnable(false);
-    webPattern->SetAccessibilityState(false);
+    SetEventReportEnable(false);
 }
 
 void WebAccessibilityEventReport::ReportEvent(AccessibilityEventType type, int64_t accessibilityId)
@@ -118,9 +149,7 @@ void WebAccessibilityEventReport::ReportTextBlurEventByFocus(int64_t accessibili
         lastFocusReportId_ = lastFocusInputId_;
     }
     if (accessibilityId != 0) {
-        auto webPattern = DynamicCast<WebPattern>(pattern_.Upgrade());
-        CHECK_NULL_VOID(webPattern);
-        auto focusNode = webPattern->GetAccessibilityNodeById(accessibilityId);
+        auto focusNode = GetAccessibilityNodeById(accessibilityId);
         if (focusNode) {
             // record last editable focus id
             lastFocusInputId_ = accessibilityId;
@@ -132,13 +161,11 @@ void WebAccessibilityEventReport::CheckAccessibilityNodeAndReport(AccessibilityE
 {
     TAG_LOGI(AceLogTag::ACE_WEB, "WebAccessibilityEventReport::CheckAccessibilityNodeAndReport type = %{public}zu",
         static_cast<size_t>(type));
-    auto webPattern = DynamicCast<WebPattern>(pattern_.Upgrade());
-    CHECK_NULL_VOID(webPattern);
-    auto accessibiliyNode = webPattern->GetAccessibilityNodeById(accessibilityId);
-    CHECK_NULL_VOID(accessibiliyNode);
-    std::string nodeText = accessibiliyNode->GetContent();
-    if (accessibiliyNode->GetIsEditable()) {
-        if (accessibiliyNode->GetIsPassword()) {
+    auto accessibilityNode = GetAccessibilityNodeById(accessibilityId);
+    CHECK_NULL_VOID(accessibilityNode);
+    std::string nodeText = accessibilityNode->GetContent();
+    if (accessibilityNode->GetIsEditable()) {
+        if (accessibilityNode->GetIsPassword()) {
             nodeText = PASSWORD_PLACEHOLDER;
         }
         switch (type) {
