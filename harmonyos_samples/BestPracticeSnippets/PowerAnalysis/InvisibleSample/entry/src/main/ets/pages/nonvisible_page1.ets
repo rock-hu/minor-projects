@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+ import { hilog } from "@kit.PerformanceAnalysisKit";
+
 /**
  * 最佳实践：不可见组件低功耗建议
  */
@@ -41,11 +43,11 @@ struct MyImageAnimator {
       .state(this.running ? AnimationStatus.Running : AnimationStatus.Paused)
       .onVisibleAreaChange([0.0, 1.0], (isExpanding: boolean, currentRatio: number) => {
         if (isExpanding && currentRatio >= 1.0) {
-            console.info(`Component is fully visible. currentRatio: ${currentRatio}`);
+            hilog.info(0x0000, 'Sample', `Component is fully visible. currentRatio: ${currentRatio}`);
             this.running = true;
         }
         if (!isExpanding && currentRatio <= 0.0) {
-            console.info(`Component is completely invisible.`);
+            hilog.info(0x0000, 'Sample', `Component is fully invisible. currentRatio: ${currentRatio}`);
             this.running = false;
         }
       });

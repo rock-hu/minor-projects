@@ -17,7 +17,7 @@
  * 最佳实践：基于HMRouter路由框架的页面跳转开发实践
  */
 
-import { KeyboardAvoidMode, window } from '@kit.ArkUI';
+import { AttributeUpdater, KeyboardAvoidMode, window } from '@kit.ArkUI';
 import {
   HMAnimator,
   HMAnimatorHandle,
@@ -97,37 +97,21 @@ export class LiveHomeLifecycle implements IHMLifecycle {
 export class LiveInteractiveAnimator implements IHMAnimator {
   effect(enterHandle: HMAnimatorHandle, exitHandle: HMAnimatorHandle): void {
     // [StartExclude live_inter_active]
-    enterHandle.start((translateOption: TranslateOption, scaleOption: ScaleOption,
-      opacityOption: OpacityOption) => {
-      translateOption.x = '100%';
-      opacityOption.opacity = 0.4;
-    });
-    enterHandle.finish((translateOption: TranslateOption, scaleOption: ScaleOption,
-      opacityOption: OpacityOption) => {
-      translateOption.x = '0';
-      opacityOption.opacity = 1;
-    });
-    enterHandle.onFinish((translateOption: TranslateOption, scaleOption: ScaleOption,
-      opacityOption: OpacityOption) => {
-      translateOption.x = '0';
-      opacityOption.opacity = 1;
-    });
+    enterHandle.start((modifier: AttributeUpdater<NavDestinationAttribute>) => {
+      modifier.attribute?.translate({ x: '100%' }).opacity(0.4)
+    }).finish((modifier: AttributeUpdater<NavDestinationAttribute>) => {
+      modifier.attribute?.translate({ x: '0' }).opacity(1)
+    }).onFinish((modifier: AttributeUpdater<NavDestinationAttribute>) => {
+      modifier.attribute?.translate({ x: '0' }).opacity(1)
+    })
 
-    exitHandle.start((translateOption: TranslateOption, scaleOption: ScaleOption,
-      opacityOption: OpacityOption) => {
-      translateOption.x = '0';
-      opacityOption.opacity = 1;
-    });
-    exitHandle.finish((translateOption: TranslateOption, scaleOption: ScaleOption,
-      opacityOption: OpacityOption) => {
-      translateOption.x = '100%';
-      opacityOption.opacity = 0.4;
-    });
-    exitHandle.onFinish((translateOption: TranslateOption, scaleOption: ScaleOption,
-      opacityOption: OpacityOption) => {
-      translateOption.x = '0';
-      opacityOption.opacity = 0.4;
-    });
+    exitHandle.start((modifier: AttributeUpdater<NavDestinationAttribute>) => {
+      modifier.attribute?.translate({ x: '0' }).opacity(1)
+    }).finish((modifier: AttributeUpdater<NavDestinationAttribute>) => {
+      modifier.attribute?.translate({ x: '100%' }).opacity(0.4)
+    }).onFinish((modifier: AttributeUpdater<NavDestinationAttribute>) => {
+      modifier.attribute?.translate({ x: '100%' }).opacity(0.4)
+    })
     // [EndExclude live_inter_active]
   }
 

@@ -33,8 +33,8 @@ private:
 
 void Object2::Run()
 {
-    std::weak_ptr<Object2> weakPtr = shared_from_this(); // 调用 shared_from_this捕获this(c++17开始可使用waek_form_this)
-    startThread_ = std::shared_ptr<std::thread>(new std::thread([weakPtr] { // weakPtr 传递给其他线程
+    std::weak_ptr<Object2> weakPtr = shared_from_this(); // 调用shared_from_this捕获this(c++17开始可使用waek_form_this)
+    startThread_ = std::shared_ptr<std::thread>(new std::thread([weakPtr] { // weakPtr传递给其他线程
         auto ptr = weakPtr.lock();
         if (ptr == nullptr) {
             return;

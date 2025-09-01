@@ -1,5 +1,5 @@
 <!-- [Start exit] -- >
-<!-- index.hml：绑定div的swipe事件 -->
+<!-- index.hml: Binding swipe event to div element -->
 <div class="container" onswipe="touchMove">
     <text id="title">
         Hello {{ title }}

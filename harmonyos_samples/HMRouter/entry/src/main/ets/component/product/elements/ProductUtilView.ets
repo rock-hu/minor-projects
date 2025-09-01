@@ -38,15 +38,22 @@ export struct ProductUtilView {
         })
         .onClick(() => {
           // [Start HMRouterMgr_pageUrl]
-          HMRouterMgr.pop({ navigationId: 'mainNavigationId', pageUrl: 'HomeContent', param: '' });
+          HMRouterMgr.to('MainPage')
+            .withNavigation('mainNavigationId')
+            .withParam(0)
+            .popAsync()
           // [End HMRouterMgr_pageUrl]
         });
+
       Image($r('app.media.ic_public_comments'))
         .width(24)
         .margin({ right: 16 })
         .onClick(() => {
           // [Start HMRouterMgr_pageUrl_home_page]
-          HMRouterMgr.pop({ navigationId: 'mainNavigationId', pageUrl: 'HomePage', param: this.param })
+          HMRouterMgr.to('HomePage')
+            .withNavigation('mainNavigationId')
+            .withParam(this.param)
+            .popAsync()
           // [End HMRouterMgr_pageUrl_home_page]
         })
       Image($r('app.media.tab_shopping_bag'))
@@ -75,12 +82,10 @@ export struct ProductUtilView {
           .size({ width: 64 })
           .margin({ right: 12 })
           .onClick(() => {
-            HMRouterMgr.push({
-              navigationId: 'mainNavigationId',
-              pageUrl: 'PayCard',
-              param: { product: this.product, pageUrl: 'PayCard' }
-            }, {
-              onResult: (popInfo: PopInfo) => {
+            HMRouterMgr.to('PayCard')
+              .withNavigation('mainNavigationId')
+              .withParam({ product: this.product, pageUrl: 'PayCard' })
+              .onResult((popInfo: PopInfo)=>{
                 if (popInfo.result) {
                   this.product.color = (popInfo.result as ProductMsg).color;
                   this.product.memory = (popInfo.result as ProductMsg).memory;
@@ -96,8 +101,8 @@ export struct ProductUtilView {
                     this.product.price = DetailConstants.CUSTOMER_SERVICE_CONTENTS[2];
                   }
                 }
-              }
-            });
+              })
+              .pushAsync()
           });
       }.justifyContent(FlexAlign.End)
       .layoutWeight(1);

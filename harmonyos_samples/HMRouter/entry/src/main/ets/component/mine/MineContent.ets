@@ -18,12 +18,9 @@
  */
 
 import { HMRouter, HMRouterMgr } from '@hadss/hmrouter';
-import { PageConstant } from '../../constant/PageConstant';
-import { ButtonTabs } from '../common/ButtonTabs';
 import { animatorTransitionBuilder } from './AnimatorTransition';
 import { MineConstants } from '../common/constants/MineConstants';
 
-@HMRouter({pageUrl: PageConstant.MY_ACCOUNT, singleton: true, lifecycle: 'RemoveBackAnimation'})
 @Component
 export struct MineContent {
   static readonly jumpPageUrl: string = 'animatorTransition';
@@ -83,11 +80,10 @@ export struct MineContent {
                 .fontColor($r('app.color.mine_content_button_font_color'))
                 .margin({right: 10})
                 .onClick(() => {
-                  HMRouterMgr.push({
-                    navigationId: this.queryNavigationInfo()?.navigationId,
-                    pageUrl: 'loginPage',
-                    param: 'myAccount'
-                  });
+                  HMRouterMgr.to('loginPage')
+                    .withNavigation(this.queryNavigationInfo()?.navigationId)
+                    .withParam(4)
+                    .pushAsync()
                 });
             }
           };
@@ -100,7 +96,9 @@ export struct MineContent {
         .justifyContent(FlexAlign.SpaceBetween)
         .onClick(() => {
           if(this.isLogin) {
-            HMRouterMgr.push({navigationId: this.queryNavigationInfo()?.navigationId, pageUrl: 'MineSetting'});
+            HMRouterMgr.to('MineSetting')
+              .withNavigation(this.queryNavigationInfo()?.navigationId)
+              .pushAsync()
           }
         });
 
@@ -122,16 +120,14 @@ export struct MineContent {
         .backgroundColor($r('app.color.mine_content_flex_background_color'))
         .borderRadius(15)
         .onClick(() => {
-          HMRouterMgr.push({
-            navigationId: this.queryNavigationInfo()?.navigationId,
-            pageUrl: MineContent.jumpPageUrl
-          });
+          // HMRouterMgr.to(MineContent.jumpPageUrl)
+          //   .withNavigation(this.queryNavigationInfo()?.navigationId)
+          //   .pushAsync()
         });
       }
       .justifyContent(FlexAlign.Start)
       .alignItems(HorizontalAlign.Start);
 
-      ButtonTabs();
     }
     .width('100%')
     .height('100%')

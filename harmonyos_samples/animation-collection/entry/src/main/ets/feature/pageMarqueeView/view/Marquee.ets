@@ -64,7 +64,7 @@ struct TripMessage {
   @State ticketCheckTextOffset: number = 0;
   @State ticketCheckTextWidth: number = 0;
   @State ticketCheckScrollWidth: number = 0;
-  private tripDataItem: TripDataType = {} as TripDataType;
+  tripDataItem: TripDataType = {} as TripDataType;
 
   @Styles
   commonStyles(){

@@ -17,13 +17,48 @@
  * 最佳实践：基于HMRouter路由框架的页面跳转开发实践
  */
 
-import { HMRouter, HMRouterMgr } from '@hadss/hmrouter';
-import { PageConstant } from '../../constant/PageConstant';
+import { HMAnimator, HMAnimatorHandle, HMRouter, HMRouterMgr, IHMAnimator,
+  OpacityOption,
+  ScaleOption,
+  TranslateOption } from '@hadss/hmrouter';
 import { ConfirmDialog } from '../common/ConfirmDialog';
-import { PayConstants } from '../common/constants/PayConstants'
+import { ColorOption } from './PayCard';
+
+@HMAnimator({ animatorName: 'PayCancelDialog' })
+export class DialogAnimator implements IHMAnimator {
+  effect(enterHandle: HMAnimatorHandle, exitHandle: HMAnimatorHandle): void {
+    enterHandle.start((translateOption: TranslateOption, scaleOption: ScaleOption,
+      opacityOption: OpacityOption, colorOption: ColorOption) => {
+      scaleOption.x = 0.5;
+      scaleOption.y = 0.5;
+      colorOption.color = 'rgba(0, 0, 0, 0)';
+    }).finish((translateOption: TranslateOption, scaleOption: ScaleOption,
+      opacityOption: OpacityOption, colorOption: ColorOption) => {
+      scaleOption.x = 1;
+      scaleOption.y = 1;
+      colorOption.color = 'rgba(0, 0, 0, 0.7)';
+    }).passiveStart(() => {
+    }).passiveFinish(() => {
+    });
+
+    exitHandle.start((translateOption: TranslateOption, scaleOption: ScaleOption,
+      opacityOption: OpacityOption, colorOption: ColorOption) => {
+      scaleOption.x = 1;
+      scaleOption.y = 1;
+      colorOption.color = 'rgba(0, 0, 0, 0.7)';
+    }).finish((translateOption: TranslateOption, scaleOption: ScaleOption,
+      opacityOption: OpacityOption, colorOption: ColorOption) => {
+      scaleOption.x = 0.5;
+      scaleOption.y = 0.5;
+      colorOption.color = 'rgba(0, 0, 0, 0)';
+    }).passiveStart(() => {
+    }).passiveFinish(() => {
+    });
+  }
+}
 
 // [Start HMRouter_confirmDialog]
-@HMRouter({ pageUrl: 'PayCancel', dialog: true })
+@HMRouter({ pageUrl: 'PayCancel', dialog: true,animator:'PayCancelDialog' })
 @Component
 export struct PayCancel {
   // [StartExclude HMRouter_confirmDialog]
@@ -37,41 +72,33 @@ export struct PayCancel {
   // [EndExclude HMRouter_confirmDialog]
   build() {
     Stack({ alignContent: Alignment.Center }) {
-      // [StartExclude HMRouter_confirmDialog]
-      Column()
-        .width('100%')
-        .height('100%')
-        .backgroundColor('rgba(0,0,0,0.5)')
-        .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM]);
-      // [EndExclude HMRouter_confirmDialog]
       ConfirmDialog({
         title: '取消订单',
         content: '您确认要取消此订单吗?',
         leftButtonName: '再看看',
         rightButtonName: '取消订单',
         leftButtonFunc: () => {
-          HMRouterMgr.pop({
+          HMRouterMgr.popAsync({
             navigationId: this.queryNavigationInfo()?.navigationId
           });
         },
         rightButtonFunc: () => {
           // [StartExclude HMRouter_confirmDialog]
-          let pathStack = HMRouterMgr.getPathStack(this.queryNavigationInfo()?.navigationId!);
-          if (this.pageUrl === 'shoppingBag') {
-            for (let i = 0; i < 2; i++) {
-              pathStack?.pop(false);
-            }
-          } else {
-            for (let i = 0; i < 3; i++) {
-              pathStack?.pop(false);
-            }
-          }
+          HMRouterMgr.popSkipDialog()
           // [EndExclude HMRouter_confirmDialog]
         }
       });
     }
     .width('100%')
-    .height('100%');
+    .height('100%')
+    .position({
+      x: '50%',
+      y: '50%'
+    })
+    .markAnchor({
+      x: '50%',
+      y: '50%'
+    });
   }
 }
 

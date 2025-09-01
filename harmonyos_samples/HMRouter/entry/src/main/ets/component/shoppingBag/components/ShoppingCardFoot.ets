@@ -99,7 +99,8 @@ export struct ShoppingCardFoot {
             .fontColor($r('app.color.product_font_color_2'));
         };
 
-        Button(ShoppingBagConstants.SHOPPING_SETTLEMENT_BUTTON + '(' + this.getSelectNum() + ')', { type: ButtonType.Capsule, stateEffect: true })
+        Button(ShoppingBagConstants.SHOPPING_SETTLEMENT_BUTTON + '(' + this.getSelectNum() + ')',
+          { type: ButtonType.Capsule, stateEffect: true })
           .labelStyle({
             font: {
               size: $r('app.float.shop_card_font_2')
@@ -113,12 +114,10 @@ export struct ShoppingCardFoot {
           })
           .onClick(() => {
             if (this.totalPrice) {
-              HMRouterMgr.push({
-                navigationId: 'mainNavigationId',
-                pageUrl: 'PayDialogContent',
-                param: { totalPrice: this.totalPrice, pageUrl: 'shoppingBag' }
-              }, {
-                onResult: (info) => {
+              HMRouterMgr.to('PayDialogContent')
+                .withNavigation('mainNavigationId')
+                .withParam({ totalPrice: this.totalPrice, pageUrl: 'shoppingBag' })
+                .onResult((info) => {
                   if (info.result === DetailConstants.PAY_INFO[4]) {
                     this.totalPrice = 0;
                     for (let i = 0; i < this.selectArray.length; i++) {
@@ -128,8 +127,8 @@ export struct ShoppingCardFoot {
                       }
                     }
                   }
-                }
-              });
+                })
+                .pushAsync()
             }
           })
           .id('payWithVoucher');

@@ -29,8 +29,10 @@ const TAG = '[IndexPage]';
 @Component
 struct IndexPage {
   @State isFloatWindow: boolean = false;
-  @StorageProp('deviceHeight') @Watch('onWindowSizeChange') deviceHeight: number = AppStorage.get<number>('deviceHeight') || 0;
+  @StorageProp('deviceHeight') @Watch('onWindowSizeChange') deviceHeight: number =
+    AppStorage.get<number>('deviceHeight') || 0;
   // [StartExclude index_page1]
+  @StorageProp('statusBarHeight') statusBarHeight: number = 0;
   @State @Watch('onWindowSizeChange') isFullScreen: boolean = false;
   @State @Watch('onWindowSizeChange') isFullLandscapeScreen: boolean = false;
   @State sources: VideoData[] = SOURCES;
@@ -44,10 +46,12 @@ struct IndexPage {
   // Turn on window size monitoring in aboutToAppear
   async aboutToAppear(): Promise<void> {
     let context = this.getUIContext().getHostContext() as Context;
-    let windowClass = await window.getLastWindow(context);
-    // [StartExclude about_appear]
-    await windowClass.setWindowKeepScreenOn(true);
-    // [StartExclude about_appear]
+    try {
+      let windowClass = await window.getLastWindow(context);
+      await windowClass.setWindowKeepScreenOn(true);
+    } catch (err) {
+      Logger.error(TAG, `aboutToAppear failed, err.code:${err.code}, err.message:${err.message}`);
+    }
     // Register window size monitoring
     this.windowUtil.registerOnWindowSizeChange((size) => {
       if (size.width > size.height) {

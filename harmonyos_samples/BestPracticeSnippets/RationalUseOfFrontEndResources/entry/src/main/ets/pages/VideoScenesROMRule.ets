@@ -4,6 +4,7 @@
 
 import { fileIo as fileIo } from '@kit.CoreFileKit';
 import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 const pathDir = ""
 // [Start filePath]
@@ -12,9 +13,9 @@ let file = fileIo.openSync(filePath, fileIo.OpenMode.READ_WRITE | fileIo.OpenMod
 let str: string = "hello, world";
 // Use asynchronous methods to write files to the ROM
 fileIo.write(file.fd, str).then((writeLen: number) => {
-  console.info("write data to file succeed and size is:" + writeLen);
+  hilog.info(0x0000, 'Sample', 'write data to file succeed and size is:' + writeLen);
 }).catch((err: BusinessError) => {
-  console.error("write data to file failed with error message: " + err.message + ", error code: " + err.code);
+  hilog.error(0x0000, 'Sample', 'write data to file failed with error message: ' + err.message + ', error code: ' + err.code);
 }).finally(() => {
   fileIo.closeSync(file);
 });

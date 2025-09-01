@@ -16,15 +16,12 @@
 /**
  * 最佳实践：页面重开数据恢复
  */
-import { BuilderNode, FrameNode, NodeController } from '@kit.ArkUI';
+import { AttributeUpdater, BuilderNode, FrameNode, NodeController } from '@kit.ArkUI';
 import {
   HMAnimator,
   HMAnimatorHandle,
   HMRouterMgr,
   IHMAnimator,
-  OpacityOption,
-  ScaleOption,
-  TranslateOption
 } from '@hadss/hmrouter';
 import { CommonConstants } from '../common/constants/CommonConstants';
 import { LiveCommentsModel, LiveCommentsProduct } from '../viewmodel/LiveCommentsModel';
@@ -34,25 +31,19 @@ import { LiveCommentFooter } from './LiveCommentFooter';
 export class LiveCommentsAnimator implements IHMAnimator {
   effect(enterHandle: HMAnimatorHandle, exitHandle: HMAnimatorHandle): void {
     // entry animation
-    enterHandle.start((translateOption: TranslateOption, scaleOption: ScaleOption,
-      opacityOption: OpacityOption) => {
-      translateOption.y = '100%';
-    });
-    enterHandle.finish((translateOption: TranslateOption, scaleOption: ScaleOption,
-      opacityOption: OpacityOption) => {
-      translateOption.y = '0';
-    });
+    enterHandle.start((modifier: AttributeUpdater<NavDestinationAttribute>) => {
+      modifier.attribute?.translate({ y: '100%' })
+    }).finish((modifier: AttributeUpdater<NavDestinationAttribute>) => {
+      modifier.attribute?.translate({ y: '0' })
+    })
     enterHandle.duration = 500;
 
     // exit animation
-    exitHandle.start((translateOption: TranslateOption, scaleOption: ScaleOption,
-      opacityOption: OpacityOption) => {
-      translateOption.y = '0';
-    });
-    exitHandle.finish((translateOption: TranslateOption, scaleOption: ScaleOption,
-      opacityOption: OpacityOption) => {
-      translateOption.y = '100%';
-    });
+    exitHandle.start((modifier: AttributeUpdater<NavDestinationAttribute>) => {
+      modifier.attribute?.translate({ y: '0' })
+    }).finish((modifier: AttributeUpdater<NavDestinationAttribute>) => {
+      modifier.attribute?.translate({ y: '100%' })
+    })
     exitHandle.duration = 500;
   }
 }
@@ -94,21 +85,19 @@ export struct CommentInput {
         .height(24)
         .margin({ right: 16 })
         .onClick(() => {
-          HMRouterMgr.push({
-            navigationId: this.queryNavigationInfo()?.navigationId,
-            pageUrl: 'liveComments',
-            param: {
+          HMRouterMgr.to('liveComments')
+            .withNavigation(this.queryNavigationInfo()?.navigationId)
+            .withParam({
               commentRenderNode: this.commentRenderNode
-            },
-            animator: new LiveCommentsAnimator()
-          }, {
-            onArrival: () => {
+            })
+            .withAnimator(new LiveCommentsAnimator())
+            .onArrival(()=>{
               console.log('Jump successful');
-            },
-            onResult: (paramInfo: PopInfo) => {
+            })
+            .onResult((paramInfo: PopInfo)=>{
               this.videoHeight = paramInfo.result as string;
-            }
-          });
+            })
+            .pushAsync()
           this.videoHeight = '30%';
         })
         .id('comments');

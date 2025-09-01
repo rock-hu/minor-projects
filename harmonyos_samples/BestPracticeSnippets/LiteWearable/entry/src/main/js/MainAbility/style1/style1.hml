@@ -1,8 +1,9 @@
 <!-- [Start style_1] -- >
-<!-- style中是组件的样式信息，关于样式的相关介绍会在下一小节详细讲述 -->
+<!-- The "style" contains the style information of the component. -->
+<!-- The detailed introduction about the style will be presented in the next subsection. -->
 <div style="width: 466px; height: 466px;">
     <text style="width: 200px; height: 100px;">
-    <!-- <text>组件中要显示的内容 -->
+    <!-- The content to be displayed in the <text> component. -->
         Hello World
     </text>
 </div>

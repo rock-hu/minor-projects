@@ -29,7 +29,7 @@ export struct PrivacyPageContent {
     Column() {
       ReturnHeader({
         title: LoginConstants.PRIVACY_DETAIL_TITLE, returnFunc: () => {
-          HMRouterMgr.pop({
+          HMRouterMgr.popAsync({
             navigationId: this.queryNavigationInfo()?.navigationId
           });
         }

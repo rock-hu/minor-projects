@@ -31,7 +31,7 @@ private:
 // [Start cppcrash_advise_9_negative]
 void Object1::Run()
 {
-    startThread_ = std::shared_ptr<std::thread>(new std::thread([this] { // 将 this 指针传递给其他线程
+    startThread_ = std::shared_ptr<std::thread>(new std::thread([this] { // 将this指针传递给其他线程
         if (this == nullptr) {
             return;
         }

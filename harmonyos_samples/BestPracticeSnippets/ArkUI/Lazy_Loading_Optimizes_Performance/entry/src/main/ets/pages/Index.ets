@@ -22,11 +22,11 @@ struct Index {
           }.margin({ left: 10, right: 10 })
         }.onAppear(() => {
           // Record the number of times the component is created through onAppear
-          console.info("appear:" + lazyForEachItem)
+          console.info('appear:' + lazyForEachItem);
         })
       }, (item: string) => {
         // Print the key value in the keyGenerator function
-        console.info("key:" + item)
+        console.info('key:' + item);
         return item;
       })
       // [End Lazy_for_each]

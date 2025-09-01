@@ -51,7 +51,7 @@ export struct ProductPicture {
             .width(ResourceUtil.getCommonImgSize()[1])
             .margin({ right: $r('app.float.picture_icon_margin') })
             .onClick(() => {
-              HMRouterMgr.pop({ navigationId: this.queryNavigationInfo()?.navigationId });
+              HMRouterMgr.popAsync({ navigationId: this.queryNavigationInfo()?.navigationId });
             });
           Image($r('app.media.ic_more'))
             .height(ResourceUtil.getCommonImgSize()[1])
@@ -87,7 +87,9 @@ export struct ProductPicture {
         .height($r('app.float.picture_live_col_height'))
         .width($r('app.float.picture_live_col_width'))
         .onClick(() => {
-          HMRouterMgr.push({ navigationId: this.queryNavigationInfo()?.navigationId, pageUrl: 'liveHome' });
+          HMRouterMgr.to('liveHome')
+            .withNavigation(this.queryNavigationInfo()?.navigationId)
+            .pushAsync()
         })
         .id('liveHome');
       }

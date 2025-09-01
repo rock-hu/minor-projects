@@ -20,7 +20,7 @@
     "description": "$string:entry_desc",
     "mainElement": "MainAbility",
     "deviceTypes": [
-      "default",
+      "phone",
       "tablet"
     ],
     "deliveryWithInstall": true,

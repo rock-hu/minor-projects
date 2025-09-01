@@ -4,7 +4,7 @@ import { hiTraceMeter } from '@kit.PerformanceAnalysisKit';
 
 interface Config {
   url: string,
-  localPath: string, // 本地资源路径
+  localPath: string, // local resource path
   options: webview.CacheOptions
 }
 
@@ -34,7 +34,7 @@ struct Index {
         .onControllerAttached(async () => {
           // Read the configuration and precompile.
           for (const config of this.configs) {
-            let content = await this.getUIContext().getHostContext().resourceManager.getRawFileContentSync(config.localPath);
+            let content = await this.getUIContext().getHostContext()?.resourceManager.getRawFileContentSync(config.localPath);
 
             try {
               this.controller.precompileJavaScript(config.url, content, config.options)

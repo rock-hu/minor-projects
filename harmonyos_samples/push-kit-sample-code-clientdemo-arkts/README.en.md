@@ -11,9 +11,9 @@ This demo illustrates how to implement the function of obtaining a push token ba
 - pushService: This module provides basic capabilities of Push Kit, including obtaining and deleting push tokens, binding and unbinding accounts, and receiving scenario-specific messages.
 
 ## Effect Preview
-| Token Application Page                      | Token Application Success                     | In-app Page Displayed upon Notification Tapping                             | Extended Notification Message Display                     |
-|---------------------------------|--------------------------------|-----------------------------------------|--------------------------------------|
-| ![](./screenshots/getToken_en.png) | ![](./screenshots/success_en.png) | ![](./screenshots/clickLandingPage_en.png) | ![](./screenshots/extendedToast_en.png) |
+| Home Page Displayed                                             | Token Application Page                                  | Token Application Success                              | Page Displayed upon Notification Tapping                     |
+|-----------------------------------------------------------------|---------------------------------------------------------|--------------------------------------------------------|--------------------------------------------------------------|
+| <img src="./screenshots/clickLandingPage_en.png" width="300px"> | <img src="./screenshots/getToken_en.png" width="300px"> | <img src="./screenshots/success_en.png" width="300px"> | <img src="./screenshots/extendedToast_en.png" width="300px"> |
 
 ## Project Directory
 

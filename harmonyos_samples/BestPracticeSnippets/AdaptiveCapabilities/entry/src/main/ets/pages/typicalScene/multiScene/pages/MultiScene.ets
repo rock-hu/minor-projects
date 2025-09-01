@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import mediaquery from '@ohos.mediaquery';
+import { mediaquery } from '@kit.ArkUI';
 import { HomePage } from './home/Home';
 import { Applications } from './applications/Applications';
 import { Play } from './player/Player';

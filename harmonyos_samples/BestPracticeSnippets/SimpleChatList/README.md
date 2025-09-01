@@ -6,7 +6,7 @@
 
 
 ### 效果图预览
-![](./screenshots/device/effect.jpg)
+<img src='./screenshots/device/effect.jpg' width='320'>
 
 ### 工程目录
 ```

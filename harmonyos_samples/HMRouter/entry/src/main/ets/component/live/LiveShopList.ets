@@ -115,17 +115,17 @@ export struct LiveShopList {
           this.currentProductIndex = index
           let lifecycle = HMRouterMgr.getCurrentLifecycleOwner()?.getLifecycle() as LiveHomeLifecycle
           if (index == 0) {
-            HMRouterMgr.push({ pageUrl: 'liveHome' }, {
-              onArrival: () => {
+            HMRouterMgr.to('liveHome')
+              .onArrival(()=>{
                 lifecycle.videoSrc.src = $rawfile('camera-ais.mp4')
-              }
-            })
+              })
+              .pushAsync()
           } else {
-            HMRouterMgr.push({ pageUrl: 'liveHome' }, {
-              onArrival: () => {
+            HMRouterMgr.to('liveHome')
+              .onArrival(()=>{
                 lifecycle.videoSrc.src = $rawfile('sellpoint-1.mp4')
-              }
-            })
+              })
+              .pushAsync()
           }
         });
       }, (item: LiveProduct, index: number) => index + JSON.stringify(item));

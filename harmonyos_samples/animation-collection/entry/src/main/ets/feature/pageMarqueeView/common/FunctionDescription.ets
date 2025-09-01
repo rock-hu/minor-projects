@@ -15,8 +15,8 @@
 
 @Component
 export struct FunctionDescription {
-  private title: ResourceStr = '';
-  private content: ResourceStr = '';
+  title: ResourceStr = '';
+  content: ResourceStr = '';
 
   build() {
     Column() {

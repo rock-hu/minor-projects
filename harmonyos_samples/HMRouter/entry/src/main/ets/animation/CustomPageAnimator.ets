@@ -17,35 +17,25 @@ import {
   HMAnimator,
   HMAnimatorHandle,
   IHMAnimator,
-  OpacityOption,
-  ScaleOption,
-  TranslateOption
 } from '@hadss/hmrouter';
+import { AttributeUpdater } from '@kit.ArkUI';
 
 /**
  * 自定义缩放动画
  */
-@HMAnimator({animatorName: 'zoomAnimator'})
+@HMAnimator({ animatorName: 'zoomAnimator' })
 export class ZoomAnimator implements IHMAnimator {
   effect(enterHandle: HMAnimatorHandle, exitHandle: HMAnimatorHandle): void {
-    enterHandle.start((translateOption: TranslateOption, scaleOption: ScaleOption,
-      opacityOption: OpacityOption) => {
-      scaleOption.x = 0.5;
-      scaleOption.y = 0.5;
-    }).finish((translateOption: TranslateOption, scaleOption: ScaleOption,
-      opacityOption: OpacityOption) => {
-      scaleOption.x = 1;
-      scaleOption.y = 1;
-    });
+    enterHandle.start((modifier: AttributeUpdater<NavDestinationAttribute>) => {
+      modifier.attribute?.scale({ x: 0.5, y: 0.5 })
+    }).finish((modifier: AttributeUpdater<NavDestinationAttribute>) => {
+      modifier.attribute?.scale({ x: 1, y: 1 })
+    })
 
-    exitHandle.start((translateOption: TranslateOption, scaleOption: ScaleOption,
-      opacityOption: OpacityOption) => {
-      scaleOption.x = 1;
-      scaleOption.y = 1;
-    }).finish((translateOption: TranslateOption, scaleOption: ScaleOption,
-      opacityOption: OpacityOption) => {
-      scaleOption.x = 0.5;
-      scaleOption.y = 0.5;
-    });
+    exitHandle.start((modifier: AttributeUpdater<NavDestinationAttribute>) => {
+      modifier.attribute?.scale({ x: 1, y: 1 })
+    }).finish((modifier: AttributeUpdater<NavDestinationAttribute>) => {
+      modifier.attribute?.scale({ x: 0.5, y: 0.5 })
+    })
   }
 }

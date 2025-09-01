@@ -100,7 +100,7 @@ void Checker::Detection(std::string& url)
             }
         }
     );
-    // ... 这里 url 变量即将析构
+    // 这里url变量即将析构
 }
 
 bool Checker::DoCheck(const std::string& url)
@@ -120,7 +120,7 @@ void Checker::Detection2(std::string& url)
             }
         }
     );
-    // ... 这里 url 变量即将析构，但 lambda 已经有自己的拷贝
+    // 这里url变量即将析构，但lambda已经有自己的拷贝
 }
 // [End cppcrash_advise_3_positive]
 
@@ -146,8 +146,8 @@ void Advise5Negative()
 {
 // [Start cppcrash_advise_5_negative]
     Object* xxx = new Object();
-    std::shared_ptr<Object> xxx1(xxx); // xxx1 引用计数减为0时析构一次xxx
-    std::shared_ptr<Object> xxx2(xxx); // xxx2 引用计数减为0时析构一次xxx
+    std::shared_ptr<Object> xxx1(xxx); // xxx1引用计数减为0时析构一次xxx
+    std::shared_ptr<Object> xxx2(xxx); // xxx2引用计数减为0时析构一次xxx
 // [End cppcrash_advise_5_negative]
 }
 
@@ -161,7 +161,7 @@ void Advise5Positive()
 void Advise6Negative()
 {
 // [Start cppcrash_advise_6_negative]
-    auto smartPointer = std::make_shared<Object>(); // smartPointer 引用计数减为0时析构
+    auto smartPointer = std::make_shared<Object>(); // smartPointer引用计数减为0时析构
     auto pointer = smartPointer.get();
     pointer->method(); // 当smartPinter析构后继续使用pointer可能发生crash
 // [End cppcrash_advise_6_negative]
@@ -179,7 +179,7 @@ void Advise7Negative()
 {
 // [Start cppcrash_advise_7_negative]
     Object* pointer = new Object();
-    std::shared_ptr<Object> smartPointer(pointer); // smartPointer 引用计数减为0时析构
+    std::shared_ptr<Object> smartPointer(pointer); // smartPointer引用计数减为0时析构
     pointer->method(); // 当smartPointer析构后继续使用pointer可能发生crash
     delete pointer; // 主动释放裸指针发生crash
 // [End cppcrash_advise_7_negative]

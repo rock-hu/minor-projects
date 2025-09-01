@@ -2,31 +2,31 @@
 // [Start hmac_process]
 import huks from '@ohos.security.huks';
 
-// HMACKeyAlias 别名，用于区分生成的KEY
+// HMACKeyAlias - Alias used to distinguish the generated KEY.
 const HMAC_KEY_ALIAS = 'HMACKeyAlias';
 // [StartExclude hmac_generate]
-// 明文，加密前数据
+// Plain text, data before encryption.
 let plainText = 'HMACSAdffssghABC5612345612345192';
-// 密文，存放加密后数据
+// Ciphertext, storing the encrypted data.
 let cipherText = '';
-// 操作句柄
+// Operation handle.
 let handle;
 // [EndExclude hmac_generate]
 // [StartExclude hmac_process]
 function getHMACGenProperties() {
     let properties = new Array();
     let index = 0;
-    // 算法
+    // algorithm
     properties[index++] = {
         tag: huks.HuksTag.HUKS_TAG_ALGORITHM,
         value: huks.HuksKeyAlg.HUKS_ALG_AES
     };
-    // 密钥长度
+    // key length.
     properties[index++] = {
         tag: huks.HuksTag.HUKS_TAG_KEY_SIZE,
         value: huks.HuksKeySize.HUKS_AES_KEY_SIZE_256
     };
-    // 密钥用途
+    // Key usage.
     properties[index++] = {
         tag: huks.HuksTag.HUKS_TAG_PURPOSE,
         value: huks.HuksKeyPurpose.HUKS_KEY_PURPOSE_MAC
@@ -69,22 +69,22 @@ function stringToUnit8Array(str) {
 function getHMACProperties() {
     let properties = new Array();
     let index = 0;
-    // 算法
+    // algorithm.
     properties[index++] = {
         tag: huks.HuksTag.HUKS_TAG_ALGORITHM,
         value: huks.HuksKeyAlg.HUKS_ALG_HMAC
     };
-    // 密钥长度
+    // key length.
     properties[index++] = {
         tag: huks.HuksTag.HUKS_TAG_KEY_SIZE,
         value: huks.HuksKeySize.HUKS_AES_KEY_SIZE_256
     };
-    // 密钥用途
+    // Key usage.
     properties[index++] = {
         tag: huks.HuksTag.HUKS_TAG_PURPOSE,
         value: huks.HuksKeyPurpose.HUKS_KEY_PURPOSE_MAC
     };
-    // 摘要算法
+    // digest algorithm.
     properties[index++] = {
         tag: huks.HuksTag.HUKS_TAG_DIGEST,
         value: huks.HuksKeyPurpose.HUKS_DIGEST_SHA256
@@ -152,7 +152,7 @@ function HMACProcess() {
                 }
             });
         } else {
-            // HMAC密文接收
+            // HMAC ciphertext reception.
             cipherText = uint8ArrayToString(finishData.outData);
         }
     });

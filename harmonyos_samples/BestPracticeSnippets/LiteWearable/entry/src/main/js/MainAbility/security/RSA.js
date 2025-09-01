@@ -3,18 +3,18 @@
 import huks from '@ohos.security.huks';
 
 // [Start rsa_encrypt]
-// 别名，用于区分生成的KEY
+// Alias, used to distinguish the generated KEY.
 const RSA_KEY_ALIAS = 'RSAKeyAlias';
-// 自定义密钥长度必须在1024 -2048之间，且是8的倍数
+// The custom key length must be between 1024 and 2048, and it must be a multiple of 8.
 const HUKS_RSA_KEY_SIZE_1024 = 1024;
 // [StartExclude rsa_generate]
-// 明文，加密前数据
+// Plain text, data before encryption.
 let plainText = 'RSASSAdffssghCBC5612345612345192';
-// 明文，加密前数据的长度
+// Plain text, the length of the data before encryption.
 let plainTextLen = 32;
-// 密文，存放加密后数据
+// Ciphertext, storing the encrypted data.
 let cipherText = '';
-// 操作句柄
+// Operation handle.
 let handle;
 
 // [EndExclude rsa_generate]
@@ -23,17 +23,17 @@ let handle;
 function getRSAGenProperties() {
     let properties = new Array();
     let index = 0;
-    // 算法
+    // algorithm.
     properties[index++] = {
         tag: huks.HuksTag.HUKS_TAG_ALGORITHM,
         value: huks.HuksKeyAlg.HUKS_ALG_RSA
     };
-    // 密钥长度
+    // key length.
     properties[index++] = {
         tag: huks.HuksTag.HUKS_TAG_KEY_SIZE,
         value: HUKS_RSA_KEY_SIZE_1024
     };
-    // 密钥用途
+    // Key usage.
     properties[index++] = {
         tag: huks.HuksTag.HUKS_TAG_PURPOSE,
         value: huks.HuksKeyPurpose.HUKS_KEY_PURPOSE_DECRYPT | huks.HuksKeyPurpose.HUKS_KEY_PURPOSE_ENCRYPT
@@ -59,23 +59,23 @@ function generateRSAKey() {
 function getRSAEncryptProperties() {
     let properties = new Array();
     let index = 0;
-    // 算法
+    // algorithm.
     properties[index++] = {
         tag: huks.HuksTag.HUKS_TAG_ALGORITHM,
         value: huks.HuksKeyAlg.HUKS_ALG_RSA
     };
-    // 密钥长度
+    // key length.
     properties[index++] = {
         tag: huks.HuksTag.HUKS_TAG_KEY_SIZE,
         value: HUKS_RSA_KEY_SIZE_1024
     };
 
-    // 密钥用途
+    // Key usage.
     properties[index++] = {
         tag: huks.HuksTag.HUKS_TAG_PURPOSE,
         value: huks.HuksKeyPurpose.HUKS_KEY_PURPOSE_ENCRYPT
     };
-    //  密钥 PADDING方式
+    // Key PADDING method.
     properties[index++] = {
         tag: huks.HuksTag.HUKS_TAG_PADDING,
         value: huks.HuksKeyPadding.HUKS_PADDING_PKCS1_V1_5
@@ -148,7 +148,7 @@ function encryptProcess() {
                 }
             });
         } else {
-            // 密文接收
+            // Encrypted message reception.
             cipherText = uint8ArrayToString(finishData.outData);
             huksInfo = cipherText;
         }
@@ -177,30 +177,30 @@ function stringToUint8Array(str) {
 function getRSADecryptProperties() {
     let properties = new Array();
     let index = 0;
-    // 算法
+    // algorithm.
     properties[index++] = {
         tag: huks.HuksTag.HUKS_TAG_ALGORITHM,
         value: huks.HuksKeyAlg.HUKS_ALG_RSA
     };
-    // 密钥长度
+    // key length.
     properties[index++] = {
         tag: huks.HuksTag.HUKS_TAG_KEY_SIZE,
         value: HUKS_RSA_KEY_SIZE_1024
     };
 
-    // 密钥用途
+    // Key usage.
     properties[index++] = {
         tag: huks.HuksTag.HUKS_TAG_PURPOSE,
         value: huks.HuksKeyPurpose.HUKS_KEY_PURPOSE_DECRYPT
     };
 
-    // 密钥 PADDING方式
+    // Key PADDING method.
     properties[index++] = {
         tag: huks.HuksTag.HUKS_TAG_PADDING,
         value: huks.HuksKeyPadding.HUKS_PADDING_PKCS1_V1_5
     };
 
-    // 摘要算法
+    // digest algorithm.
     properties[index++] = {
         tag: huks.HuksTag.HUKS_TAG_DIGEST,
         value: huks.HuksKeyDigest.HUKS_DIGEST_SHA256
@@ -210,7 +210,7 @@ function getRSADecryptProperties() {
 }
 
 function decryptProcess() {
-    // 加密密文长度
+    // Length of encrypted ciphertext.
     let len = HUKS_RSA_KEY_SIZE_1024 / 8;
     let ret = true;
     let outPlainText;
@@ -271,7 +271,7 @@ function decryptProcess() {
                 }
             });
         } else {
-            // 明文接收
+            // Clear text reception.
             outPlainText = uint8ArrayToString(finishData.outData);
         }
     });

@@ -1,3 +1,18 @@
+/*
+* Copyright (C) 2025 Huawei Device Co., Ltd.
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 // src/model/ContinueModel.ts
 import { AudioPlayerStatus } from "./AudioPlayerStatus";
 
@@ -5,7 +20,6 @@ export class ContinueModel {
   private static instance: ContinueModel;
   public data: AppData;
 
-  // 私有构造方法
   private constructor() {
     this.data = {
       mainTabIndex: 0,
@@ -20,11 +34,9 @@ export class ContinueModel {
       }
     };
 
-    // 从持久化存储初始化
     this.initFromStorage();
   }
 
-  // 获取单例实例
   public static getInstance(): ContinueModel {
     if (!ContinueModel.instance) {
       ContinueModel.instance = new ContinueModel();
@@ -32,7 +44,6 @@ export class ContinueModel {
     return ContinueModel.instance;
   }
 
-  // 从AppStorage初始化数据
   private initFromStorage(): void {
     try {
       const savedTabIndex = AppStorage.get('mainTabIndex');
@@ -49,13 +60,11 @@ export class ContinueModel {
     }
   }
 
-  // 更新当前Tab索引
   public updateTabIndex(index: number): void {
     this.data.mainTabIndex = index;
     AppStorage.setOrCreate('mainTabIndex', index);
   }
 
-  // 更新音频播放状态
   public updateAudioStatus(status: AudioPlayerStatus, trackId?: string): void {
     this.data.audioPlaybackInfo.status = status;
     if (trackId) {
@@ -64,14 +73,12 @@ export class ContinueModel {
     AppStorage.setOrCreate('audioPlayerStatus', status);
   }
 
-  // 切换主题模式
   public toggleDarkMode(): void {
     this.data.userPreferences.darkMode = !this.data.userPreferences.darkMode;
     AppStorage.setOrCreate('darkMode', this.data.userPreferences.darkMode);
   }
 }
 
-// 应用数据类型定义
 interface AppData {
   mainTabIndex: number;
   audioPlaybackInfo: {

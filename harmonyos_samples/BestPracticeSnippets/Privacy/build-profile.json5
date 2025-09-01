@@ -1,6 +1,20 @@
 {
   "app": {
-    "signingConfigs": [],
+    "signingConfigs": [
+      {
+        "name": "default",
+        "type": "HarmonyOS",
+        "material": {
+          "certpath": "C:\\Users\\Administrator\\.ohos\\config\\default_Privacy_DGQm1oqD0cdFXvYgAvDzJ5LioP1ikDr6k7Ofvwpl4u8=.cer",
+          "keyAlias": "debugKey",
+          "keyPassword": "0000001A6770B069586AC8008FE21343F9A8706CAD8AC17D191DC259338F32A88A8BEB537053B05FB80B",
+          "profile": "C:\\Users\\Administrator\\.ohos\\config\\default_Privacy_DGQm1oqD0cdFXvYgAvDzJ5LioP1ikDr6k7Ofvwpl4u8=.p7b",
+          "signAlg": "SHA256withECDSA",
+          "storeFile": "C:\\Users\\Administrator\\.ohos\\config\\default_Privacy_DGQm1oqD0cdFXvYgAvDzJ5LioP1ikDr6k7Ofvwpl4u8=.p12",
+          "storePassword": "0000001A1123FBAF52335761538730A9CEF6FFB727C88EF76C0AD0F7F15A9B0A6A5062D64495C342C620"
+        }
+      }
+    ],
     "products": [
       {
         "name": "default",
@@ -41,30 +55,6 @@
     {
       "name": "PrivacyError",
       "srcPath": "./PrivacyError",
-      "targets": [
-        {
-          "name": "default",
-          "applyToProducts": [
-            "default"
-          ]
-        }
-      ]
-    },
-    {
-      "name": "ContactData",
-      "srcPath": "./ContactData",
-      "targets": [
-        {
-          "name": "default",
-          "applyToProducts": [
-            "default"
-          ]
-        }
-      ]
-    },
-    {
-      "name": "ContactDataError",
-      "srcPath": "./ContactDataError",
       "targets": [
         {
           "name": "default",

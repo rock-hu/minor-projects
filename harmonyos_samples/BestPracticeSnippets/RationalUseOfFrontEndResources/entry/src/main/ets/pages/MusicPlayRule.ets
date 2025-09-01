@@ -9,18 +9,19 @@ import { audio } from '@kit.AudioKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 // [End setAudioEffectMode]
 // [Start setListener]
-import { avSession as AVSessionManager } from '@kit.AVSessionKit';
+import { avSession } from '@kit.AVSessionKit';
 
 // [End setListener]
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 let audioRenderer: audio.AudioRenderer | undefined = undefined;
 // [Start setAudioEffectMode]
 audioRenderer!.setAudioEffectMode(audio.AudioEffectMode.EFFECT_NONE, (err: BusinessError) => {
   if (err) {
-    console.error(`Failed to set params, code is ${err.code}, message is ${err.message}`);
+    hilog.error(0x0000, 'Sample', `Failed to set params, code is ${err.code}, message is ${err.message}`);
     return;
   } else {
-    console.info('Callback invoked to indicate a successful audio effect mode setting.');
+    hilog.info(0x0000, 'Sample', 'Callback invoked to indicate a successful audio effect mode setting.');
   }
 });
 // [End setAudioEffectMode]
@@ -42,10 +43,10 @@ let audioRendererOptions: audio.AudioRendererOptions = {
 };
 audio.createAudioRenderer(audioRendererOptions, (err, data) => {
   if (err) {
-    console.error(`Invoke createAudioRenderer failed, code is ${err.code}, message is ${err.message}`);
+    hilog.error(0x0000, 'Sample', `Invoke createAudioRenderer failed, code is ${err.code}, message is ${err.message}`);
     return;
   } else {
-    console.info('Invoke createAudioRenderer succeeded.');
+    hilog.info(0x0000, 'Sample', 'Invoke createAudioRenderer succeeded.');
     let audioRenderer = data;
   }
 });
@@ -57,25 +58,25 @@ let context: Context = uiContext?.getHostContext()!;
 
 async function setListener() {
   // Assuming that a session has been created, see the previous example for how to create a session
-  let type: AVSessionManager.AVSessionType = 'audio';
-  let session = await AVSessionManager.createAVSession(context, 'SESSION_NAME', type);
+  let type: avSession.AVSessionType = 'audio';
+  let session = await avSession.createAVSession(context, 'SESSION_NAME', type);
 
   // Set the duration of the property
-  let metadata: AVSessionManager.AVMetadata = {
+  let metadata: avSession.AVMetadata = {
     assetId: '0',
     title: 'TITLE',
     mediaImage: 'IMAGE',
     duration: 23000, // The duration of the resource, measured in milliseconds
   };
   session.setAVMetadata(metadata).then(() => {
-    console.info(`SetAVMetadata successfully`);
+    hilog.info(0x0000, 'Sample', `SetAVMetadata successfully`);
   }).catch((err: BusinessError) => {
-    console.error(`Failed to set AVMetadata. Code: ${err.code}, message: ${err.message}`);
+    hilog.error(0x0000, 'Sample', `Failed to set AVMetadata. Code: ${err.code}, message: ${err.message}`);
   });
 
   // Set Status: Playback Status, Progress Position, Playback Speed, Cache Time
-  let playbackState: AVSessionManager.AVPlaybackState = {
-    state: AVSessionManager.PlaybackState.PLAYBACK_STATE_PLAY, // Playback status
+  let playbackState: avSession.AVPlaybackState = {
+    state: avSession.PlaybackState.PLAYBACK_STATE_PLAY, // Playback status
     position: {
       elapsedTime: 1000, // The position that has been played, in ms
       updateTime: new Date().getTime(), // The timestamp of when the app updated the current location, in ms
@@ -85,9 +86,9 @@ async function setListener() {
   };
   session.setAVPlaybackState(playbackState, (err) => {
     if (err) {
-      console.error(`Failed to set AVPlaybackState. Code: ${err.code}, message: ${err.message}`);
+      hilog.error(0x0000, 'Sample', `Failed to set AVPlaybackState. Code: ${err.code}, message: ${err.message}`);
     } else {
-      console.info(`SetAVPlaybackState successfully`);
+      hilog.info(0x0000, 'Sample', `SetAVPlaybackState successfully`);
     }
   });
 }

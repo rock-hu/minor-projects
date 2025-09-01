@@ -24,7 +24,7 @@ int* g_ptr1 = nullptr;
 void WorkerThread1()
 {
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    *g_ptr1 = 24; // 子线程访问已释放的对象，UAF 问题
+    *g_ptr1 = 24; // 子线程访问已释放的对象，UAF问题
 }
 
 int Demo3()

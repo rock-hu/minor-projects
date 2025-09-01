@@ -15,9 +15,9 @@
 
 import { BusinessError } from '@kit.BasicServicesKit';
 import { vibrator } from '@kit.SensorServiceKit';
-import { promptAction } from '@kit.ArkUI';
 import Constants, { CONFIGURATION } from '../common/Constants';
 import Logger from '../../../common/Logger';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 @Component
 export struct PageVibrateEffect {
@@ -48,6 +48,7 @@ export struct PageVibrateEffect {
           .width($r('app.integer.home_image_size'))
           .height($r('app.integer.home_image_size'))
           .borderRadius($r('app.integer.comm_border_radius'))
+
           Text($r('app.string.phone_number'))
             .fontSize($r('app.integer.phone_number_font_size'))
             .fontWeight(FontWeight.Bold)
@@ -74,9 +75,14 @@ export struct PageVibrateEffect {
                   .fontColor($r('app.color.ohos_id_color_palette8'))
                   .fontSize($r('app.integer.comm_font_size'))
                   .onClick(() => {
-                    this.getUIContext().getPromptAction().showToast({
-                      message: $r('app.string.prompt_text')
-                    });
+                    try {
+                      this.getUIContext().getPromptAction().showToast({
+                        message: $r('app.string.prompt_text')
+                      });
+                    } catch (err) {
+                      let error = err as BusinessError;
+                      hilog.error(0x0000, 'PageVibrateEffect', `error code=${error.code}, message=${error.message}`);
+                    }
                   })
                 Span($r('app.string.and'))
                   .fontColor($r('app.color.ohos_id_color_text_secondary'))
@@ -85,17 +91,27 @@ export struct PageVibrateEffect {
                   .fontColor($r('app.color.ohos_id_color_palette8'))
                   .fontSize($r('app.integer.comm_font_size'))
                   .onClick(() => {
-                    this.getUIContext().getPromptAction().showToast({
-                      message: $r('app.string.prompt_text')
-                    });
+                    try {
+                      this.getUIContext().getPromptAction().showToast({
+                        message: $r('app.string.prompt_text')
+                      });
+                    } catch (err) {
+                      let error = err as BusinessError;
+                      hilog.error(0x0000, 'PageVibrateEffect', `error code=${error.code}, message=${error.message}`);
+                    }
                   })
                 Span($r('app.string.privacy_policy'))
                   .fontColor($r('app.color.ohos_id_color_palette8'))
                   .fontSize($r('app.integer.comm_font_size'))
                   .onClick(() => {
-                    this.getUIContext().getPromptAction().showToast({
-                      message: $r('app.string.prompt_text')
-                    });
+                    try {
+                      this.getUIContext().getPromptAction().showToast({
+                        message: $r('app.string.prompt_text')
+                      });
+                    } catch (err) {
+                      let error = err as BusinessError;
+                      hilog.error(0x0000, 'PageVibrateEffect', `error code=${error.code}, message=${error.message}`);
+                    }
                   })
               }
               .flexShrink(CONFIGURATION.FLEX_SHRINK)
@@ -154,9 +170,14 @@ export struct PageVibrateEffect {
                 this.startVibrate();
                 this.startAnimation();
               } else {
-                this.getUIContext().getPromptAction().showToast({
-                  message: $r('app.string.login_text')
-                });
+                try {
+                  this.getUIContext().getPromptAction().showToast({
+                    message: $r('app.string.login_text')
+                  });
+                } catch (err) {
+                  let error = err as BusinessError;
+                  hilog.error(0x0000, 'PageVibrateEffect', `error code=${error.code}, message=${error.message}`);
+                }
               }
             })
           // [End invoke_animation]
@@ -166,9 +187,14 @@ export struct PageVibrateEffect {
             .fontSize($r('app.integer.other_login_font_size'))
             .backgroundColor($r('app.color.ohos_id_color_background'))
             .onClick(() => {
-              this.getUIContext().getPromptAction().showToast({
-                message: $r('app.string.prompt_text')
-              });
+              try {
+                this.getUIContext().getPromptAction().showToast({
+                  message: $r('app.string.prompt_text')
+                });
+              } catch (err) {
+                let error = err as BusinessError;
+                hilog.error(0x0000, 'PageVibrateEffect', `error code=${error.code}, message=${error.message}`);
+              }
             })
         }
         .width(Constants.LAYOUT_MAX_PERCENT)
@@ -220,6 +246,7 @@ export struct PageVibrateEffect {
       }
     ]);
   }
+
   // [End keyframe_animate_to]
 }
 

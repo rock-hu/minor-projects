@@ -21,12 +21,10 @@ import { HMPopInfo, HMRouter, HMRouterMgr } from '@hadss/hmrouter';
 import { BreakpointConstants } from '../common/constants/BreakpointConstants';
 import { CommonConstants } from '../common/constants/CommonConstants';
 import { ResourceUtil } from '../common/utils/ResourceUtil';
-import { ButtonTabs } from '../common/ButtonTabs';
 import { Categories } from './Categories';
 import { HomeHeader } from './HomeHeader';
 import { RecommendedProductView } from './RecommendedProductView';
 import { WelfareView } from './WelfareView';
-import { PageConstant } from '../../constant/PageConstant';
 
 @Builder
 function flashSaleCard() {
@@ -219,7 +217,6 @@ function recommendCard() {
 }
 
 // [Start HMRouter_home_content]
-@HMRouter({ pageUrl: 'HomeContent', singleton: true, lifecycle: 'ExitAppLifecycle' })
 @Component
 export struct HomeContent {
   // [StartExclude HMRouter_home_content]
@@ -257,17 +254,15 @@ export struct HomeContent {
           }
           .onClick(() => {
             // [Start HMRouterMgr]
-            HMRouterMgr.push({
-              pageUrl: 'ProductContent',
-              navigationId: "mainNavigationId",
-              param: { a: 1, b: 2 },
-            }, {
-              onResult(popInfo: HMPopInfo) {
+            HMRouterMgr.to('ProductContent')
+              .withNavigation('mainNavigationId')
+              .withParam({ a: 1, b: 2 })
+              .onResult((popInfo: HMPopInfo) => {
                 const pageName = popInfo.srcPageInfo.name;
                 const params = popInfo.result;
                 console.log(`page name is ${pageName}, params is ${JSON.stringify(params)}`);
-              }
-            });
+              })
+              .pushAsync()
             // [End HMRouterMgr]
           })
           .columnsGap(12)
@@ -286,8 +281,6 @@ export struct HomeContent {
         left: ResourceUtil.getPageColPadding().getValue(this.currentBreakpoint),
         right: ResourceUtil.getPageColPadding().getValue(this.currentBreakpoint)
       });
-
-      ButtonTabs();
     }
     .backgroundColor($r('app.color.home_content_background_color'))
     .height(CommonConstants.FULL_PERCENT)

@@ -29,7 +29,7 @@ export struct SideBarView {
   @Builder
   buildList() {
     List() {
-      LazyForEach(this.memberArray, (item: string, index: number) => {
+      LazyForEach(this.memberArray, (_dateItem: string) => {
         ListItem() {
           Row() {
             Image(null)

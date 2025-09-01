@@ -18,7 +18,6 @@
  */
 
 import { taskpool } from '@kit.ArkTS';
-import { uiObserver } from '@kit.ArkUI';
 import {
   HMDefaultGlobalAnimator,
   HMLifecycle,
@@ -30,7 +29,6 @@ import {
 } from '@hadss/hmrouter';
 import { ShoppingNavModifier } from './ShoppingNavModifier';
 import { ShoppingBagContentNavBar } from './components/ShoppingBagContentNavBar';
-import { PageConstant } from '../../constant/PageConstant';
 import { TempObj } from '../../service/ServiceSample';
 import { BreakpointConstants } from '../common/constants/BreakpointConstants';
 
@@ -63,7 +61,7 @@ export class ExampleLifecycle implements IHMLifecycle {
 
   // [StartExclude example_life_cycle]
   onBackPressed(ctx: HMLifecycleContext): boolean {
-    HMRouterMgr.pop({ navigationId: 'mainNavigationId', animator: false });
+    HMRouterMgr.popAsync({ navigationId: 'mainNavigationId', animator: false });
     return true;
   }
 
@@ -78,17 +76,10 @@ export class RequestModel {
 }
 
 // [Start HMRouter_life_cycle_name]
-@HMRouter({
-  pageUrl: 'shoppingBag',
-  singleton: true,
-  interceptors: ['LoginCheckInterceptor'],
-  lifecycle: 'requestLifecycle'
-})
 @Component
 export struct ShoppingBagContent {
   // [StartExclude HMRouter_life_cycle_name]
   @StorageLink('currentBreakpoint') currentBreakpoint: string = BreakpointConstants.BREAKPOINT_SM;
-  @State showTabsBtn: boolean = true;
   @Provide('ShoppingNavModifier') modifier: ShoppingNavModifier = new ShoppingNavModifier();
 
   aboutToAppear(): void {
@@ -96,25 +87,10 @@ export struct ShoppingBagContent {
     taskpool.execute(task).then((res: Object) => {
       console.log(JSON.stringify(res));
     });
-    uiObserver.on('navDestinationSwitch', this.getUIContext(), {
-      navigationId: 'shoppingNavigation'
-    }, (info) => {
-      if (info.from === 'navBar') {
-        this.showTabsBtn = false;
-        this.modifier.attribute?.mode(NavigationMode.Auto);
-      }
-      if (info.to === 'navBar') {
-        this.showTabsBtn = true;
-        this.modifier.attribute?.mode(NavigationMode.Stack);
-      }
-    });
     this.service();
   }
 
   aboutToDisappear(): void {
-    uiObserver.off('navDestinationSwitch', this.getUIContext(), {
-      navigationId: 'shoppingNavigation'
-    });
   }
 
   service(): void {
@@ -130,14 +106,7 @@ export struct ShoppingBagContent {
   }
 
   build() {
-    HMNavigation({
-      navigationId: 'shoppingNavigation', options: {
-        standardAnimator: HMDefaultGlobalAnimator.STANDARD_ANIMATOR,
-        modifier: this.modifier
-      }
-    }) {
-      ShoppingBagContentNavBar({ showTabsBtn: this.showTabsBtn });
-    };
+    ShoppingBagContentNavBar();
   }
 
   // [EndExclude HMRouter_life_cycle_name]

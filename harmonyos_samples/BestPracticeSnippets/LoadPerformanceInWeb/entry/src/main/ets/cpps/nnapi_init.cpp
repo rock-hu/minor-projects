@@ -1,5 +1,5 @@
 // [Start register_custom_schemes]
-// 注册三方协议的配置，需要在Web内核初始化之前调用，否则会注册失败。
+// register Custom Schemes before web initialized
 static napi_value RegisterCustomSchemes(napi_env env, napi_callback_info info) {
     OH_LOG_INFO(LOG_APP, "register custom schemes");
     OH_ArkWeb_RegisterCustomSchemes("custom", ARKWEB_SCHEME_OPTION_STANDARD | ARKWEB_SCHEME_OPTION_CORS_ENABLED | ARKWEB_SCHEME_OPTION_CODE_CACHE_ENABLED);
@@ -8,7 +8,7 @@ static napi_value RegisterCustomSchemes(napi_env env, napi_callback_info info) {
 // [End register_custom_schemes]
 
 // [Start rawfile_request]
-// 在worker线程中读取rawfile，并通过ResourceHandler返回给Web内核。
+// Read Rawfile Data On Worker Thread
 void RawfileRequest::ReadRawfileDataOnWorkerThread() {
     OH_LOG_INFO(LOG_APP, "read rawfile in worker thread.");
     const struct UrlInfo {

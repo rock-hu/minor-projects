@@ -13,10 +13,12 @@ export default class EntryAbility extends UIAbility {
   tcp: socket.TCPSocket = socket.constructTCPSocketInstance();
 
   onForeground(): void {
-    //In the foreground, create a socket connection and send service data as required
-    this.tcp.bind(ipAddress, (err: BusinessError) => {})
-    this.tcp.connect(tcpConnect, (err: BusinessError) => {})
-    this.tcp.send(tcpSendOptions, (err: BusinessError) => {})
+    /**
+     * In the foreground, create a socket connection and send service data as required, for example:
+     * this.tcp.bind(ipAddress, (err: BusinessError) => {})
+     * this.tcp.connect(tcpConnect, (err: BusinessError) => {})
+     * this.tcp.send(tcpSendOptions, (err: BusinessError) => {})
+     */
   }
 
   onBackground(): void {

@@ -33,25 +33,25 @@ export default class EntryAbility extends UIAbility {
     // [StartExclude stage_creat]
     // Main window is created, set main page for this ability
     hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onWindowStageCreate');
-    let windowClass: window.Window = windowStage.getMainWindowSync();
-    AppStorage.setOrCreate('windowStage', windowStage);
-    // [EndExclude stage_creat]
-    // [StartExclude stage_creat]
-    windowClass.setWindowLayoutFullScreen(true);
-    windowClass.setWindowSystemBarProperties({
-      statusBarContentColor: '#e6ffffff'
-    });
-    windowStage.loadContent('pages/IndexPage', (err) => {
-      AppStorage.setOrCreate('uiContext', windowStage.getMainWindowSync().getUIContext());
-      if (err.code) {
-        hilog.error(0x0000, 'testTag', 'Failed to load the content. Cause: %{public}s', JSON.stringify(err) ?? '');
-        return;
-      }
-      hilog.info(0x0000, 'testTag', 'Succeeded in loading the content.');
-      // [EndExclude stage_creat]
-      WindowUtil.getInstance().setWindowStage(windowStage);
-      // [StartExclude stage_creat]
-    });
+    try {
+      let windowClass: window.Window = windowStage.getMainWindowSync();
+      AppStorage.setOrCreate('windowStage', windowStage);
+      windowClass.setWindowLayoutFullScreen(true);
+      windowClass.setWindowSystemBarProperties({
+        statusBarContentColor: '#e6ffffff'
+      });
+      windowStage.loadContent('pages/IndexPage', (err) => {
+        AppStorage.setOrCreate('uiContext', windowStage.getMainWindowSync().getUIContext());
+        WindowUtil.getInstance().setWindowStage(windowStage);
+        if (err.code) {
+          hilog.error(0x0000, 'testTag', 'Failed to load the content. Cause: %{public}s', JSON.stringify(err) ?? '');
+          return;
+        }
+        hilog.info(0x0000, 'testTag', 'Succeeded in loading the content.');
+      });
+    } catch (err) {
+      hilog.error(0x0000, 'testTag', `onWindowStageCreate failed, err.code:${err.code}, err.message:${err.message}`);
+    }
     // [EndExclude stage_creat]
   }
   // [End stage_creat]

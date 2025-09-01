@@ -14,12 +14,12 @@
  */
 
 import { window } from '@kit.ArkUI';
-import { CommonConstants, Logger } from '@ohos/MediaService';
+import { Logger } from '@ohos/MediaService';
 import { BusinessError } from '@kit.BasicServicesKit';
-import { hilog } from '@kit.PerformanceAnalysisKit';
+import { BreakpointSystem } from './BreakpointSystem';
 
 const TAG: string = '[WindowUtil]';
-const uiContext: UIContext | undefined = AppStorage.get('uiContext');
+
 
 export class WindowUtil {
   private static instance: WindowUtil;
@@ -35,6 +35,7 @@ export class WindowUtil {
 
   // [Start set_stage1]
   public setWindowStage(windowStage: window.WindowStage): void {
+    const uiContext: UIContext | undefined = AppStorage.get('uiContext');
     this.windowStage = windowStage;
     this.windowStage.getMainWindow((err, windowClass: window.Window) => {
       // [StartExclude set_stage1]
@@ -56,10 +57,24 @@ export class WindowUtil {
       // [StartExclude set_stage1]
       AppStorage.setOrCreate('statusBarHeight', uiContext?.px2vp(area.topRect.height));
       AppStorage.setOrCreate('navBarHeight', uiContext?.px2vp(naviBarArea.bottomRect.height));
+      windowClass.on('windowSizeChange', () => BreakpointSystem.getInstance().onWindowSizeChange(windowClass));
+      windowClass.on('avoidAreaChange', (avoidAreaOption) => {
+        WindowUtil.setAvoidArea(avoidAreaOption.type, avoidAreaOption.area);
+      });
       // [EndExclude set_stage1]
     });
   }
   // [End set_stage1]
+
+  // Get status bar height and indicator height.
+  public static setAvoidArea(type: window.AvoidAreaType, area: window.AvoidArea) {
+    const uiContext: UIContext = AppStorage.get<UIContext>('uiContext')!;
+    if (type === window.AvoidAreaType.TYPE_SYSTEM) {
+      AppStorage.setOrCreate('statusBarHeight', uiContext?.px2vp(area.topRect.height));
+    } else {
+      AppStorage.setOrCreate('navBarHeight',  uiContext?.px2vp(area.bottomRect.height));
+    }
+  }
 
   // [Start set_main]
   // Select the corresponding parameters according to the rotation strategy of the application itself.
@@ -74,7 +89,7 @@ export class WindowUtil {
     this.mainWindowClass.setPreferredOrientation(orientation).then(() => {
       callback?.();
     }).catch((err: BusinessError) => {
-      hilog.error(0x0001, TAG, `Failed to set the ${orientation} of main window. Code:${err.code}, message:${err.message}`);
+      Logger.error(`Failed to set the ${orientation} of main window. Code:${err.code}, message:${err.message}`);
     });
   }
   // [End set_main]
@@ -85,7 +100,11 @@ export class WindowUtil {
       return;
     }
     // Set the status bar and navigation bar to be invisible in full-screen mode.
-    this.mainWindowClass.setWindowSystemBarEnable([]);
+    try {
+      this.mainWindowClass.setWindowSystemBarEnable([]);
+    } catch (err) {
+      Logger.error(TAG, `disableWindowSystemBar failed, err.code:${err.code}, err.message:${err.message}`);
+    }
   }
 
   enableWindowSystemBar(): void {
@@ -93,7 +112,11 @@ export class WindowUtil {
       Logger.error(`MainWindowClass is undefined`);
       return;
     }
-    this.mainWindowClass.setWindowSystemBarEnable(['status', 'navigation']);
+    try {
+      this.mainWindowClass.setWindowSystemBarEnable(['status', 'navigation']);
+    } catch (err) {
+      Logger.error(TAG, `enableWindowSystemBar failed, err.code:${err.code}, err.message:${err.message}`);
+    }
   }
 
   setLandscapeMultiWindow(enable: boolean) {
@@ -101,10 +124,14 @@ export class WindowUtil {
       Logger.error(`MainWindowClass is undefined`);
       return;
     }
-    if (enable) {
-      this.mainWindowClass?.enableLandscapeMultiWindow();
-    } else {
-      this.mainWindowClass?.disableLandscapeMultiWindow();
+    try {
+      if (enable) {
+        this.mainWindowClass?.enableLandscapeMultiWindow();
+      } else {
+        this.mainWindowClass?.disableLandscapeMultiWindow();
+      }
+    } catch (err) {
+      Logger.error(TAG, `setLandscapeMultiWindow failed, err.code:${err.code}, err.message:${err.message}`);
     }
   }
   // [Start size_change]

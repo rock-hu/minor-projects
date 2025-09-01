@@ -1,4 +1,4 @@
-/* .为类选择器，所有组件中class="container" 的组件都会使用该样式 */
+/* . For the class selector, all components with the class attribute set to "container" will apply this style. */
 .container {
     display: flex;
     justify-content: center;
@@ -6,7 +6,7 @@
     width: 466px;
     height: 466px;
 }
-/* #为ID选择器，id为title的组件会使用该样式 */
+/* # For the ID selector, the component with the ID "title" will apply this style. */
 #title {
     font-size: 30px;
     text-align: center;

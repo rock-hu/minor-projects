@@ -1,5 +1,5 @@
 <!-- [Start init_page] -- >
-<!-- 输出text组件内容 -->
+<!-- Output the content of the text component. -->
 <div class="container">
     <text class="title">
         Hello {{ title }}

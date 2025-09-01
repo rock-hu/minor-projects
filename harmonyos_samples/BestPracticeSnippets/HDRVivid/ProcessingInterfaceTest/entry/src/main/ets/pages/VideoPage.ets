@@ -199,7 +199,7 @@ struct VideoPage {
           }).margin('30px')
           Button('选项')
             .bindMenu(this.ColorSpaceMenu())
-          Button('点击播放').onClick(() => {
+          Button('生成').onClick(() => {
             if (this.myUris != '') {
               this.play()
             }
@@ -208,22 +208,6 @@ struct VideoPage {
 
         Text('视频类型:' + this.hdrMode)
         Text('目标格式:' + this.targetType)
-        Text('src video')
-        XComponent({
-          id: 'srcPlayer',
-          type: XComponentType.SURFACE,
-          libraryname: 'player'
-        }).width(this.isCalcWHFinished ? this.surfaceW : '90%').height(this.isCalcWHFinished ? this.surfaceH : '30%')
-          .onClick(() => {
-          })
-        Text('dst video')
-        XComponent({
-          id: 'dstPlayer',
-          type: XComponentType.SURFACE,
-          libraryname: 'player'
-        }).width(this.isCalcWHFinished ? this.surfaceW : '90%').height(this.isCalcWHFinished ? this.surfaceH : '30%')
-          .onClick(() => {
-          })
       }
       .height('100%')
       .width('100%')

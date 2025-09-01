@@ -13,9 +13,10 @@
  * limitations under the License.
  */
 
-import { promptAction } from '@kit.ArkUI';
 import { resourceManager } from '@kit.LocalizationKit';
 import { SideBarAnimationViewConstants } from '../constants/SideBarAnimationViewConstants';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 @Preview
 @Component
@@ -27,16 +28,17 @@ export struct SideBarContentView {
   switchTabBar() {
     // When the button is clicked, the explicit animation is used to control the display and hiding of the sidebar.
     // Because only this.isShowSideBar is changed, all related animations need to be associated with it.
-    this.getUIContext().animateTo({ duration: SideBarAnimationViewConstants.SIDEBAR_ANIMATION_DURATION, curve: Curve.Friction }, () => {
-      this.isShowSideBar = !this.isShowSideBar;
-      if (this.deviceType === resourceManager.DeviceType.DEVICE_TYPE_PHONE) {
-        if (this.isShowSideBar) {
-          this.sideBarBtnOffset = -1 * SideBarAnimationViewConstants.SIDEBAR_WIDTH;
-        } else {
-          this.sideBarBtnOffset = 0;
+    this.getUIContext()
+      .animateTo({ duration: SideBarAnimationViewConstants.SIDEBAR_ANIMATION_DURATION, curve: Curve.Friction }, () => {
+        this.isShowSideBar = !this.isShowSideBar;
+        if (this.deviceType === resourceManager.DeviceType.DEVICE_TYPE_PHONE) {
+          if (this.isShowSideBar) {
+            this.sideBarBtnOffset = -1 * SideBarAnimationViewConstants.SIDEBAR_WIDTH;
+          } else {
+            this.sideBarBtnOffset = 0;
+          }
         }
-      }
-    })
+      })
   }
 
   @Builder
@@ -93,7 +95,14 @@ export struct SideBarContentView {
               .height(SideBarAnimationViewConstants.INPUT_BOX_HEIGHT)
             Button(SideBarAnimationViewConstants.BTN_SEND_MSG)
               .onClick(() => {
-                this.getUIContext().getPromptAction().showToast({ message: SideBarAnimationViewConstants.NOT_IMPLEMENT_PROMPT });
+                try {
+                  this.getUIContext()
+                    .getPromptAction()
+                    .showToast({ message: SideBarAnimationViewConstants.NOT_IMPLEMENT_PROMPT });
+                } catch (err) {
+                  let error = err as BusinessError;
+                  hilog.error(0x0000, 'SideBarContentView', `error code=${error.code}, message=${error.message}`);
+                }
               })
               .margin($r('sys.float.ohos_id_card_margin_end'))
           }

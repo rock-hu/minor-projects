@@ -17,9 +17,11 @@ import { util } from '@kit.ArkTS';
 import { BasicDataSource, FriendMoment } from '../model/BasicDataSource';
 import { OneMoment } from './OneMoment';
 import { Constants } from '../common/Constants';
-import { common } from '@kit.AbilityKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 const context = AppStorage.get("context") as UIContext;
+
 @Component
 export struct PageListSlideToHistory {
   @State cachedCountNumber: number = 3;
@@ -31,7 +33,6 @@ export struct PageListSlideToHistory {
   readonly DEFAULT_OFFSET: number = 1000;
   readonly ANIMATION_DURATION: number = 500;
   readonly SWITCH_BUTTON: number = 3;
-
 
   aboutToAppear(): void {
     getFriendMomentFromRawfile();
@@ -59,6 +60,7 @@ export struct PageListSlideToHistory {
           top: $r('app.integer.list_history_title_padding_top'),
           bottom: $r('app.integer.list_history_title_padding_bottom')
         })
+
         List({ space: Constants.LIST_SPACE, scroller: this.listScroller }) {
           LazyForEach(momentData, (moment: FriendMoment, index: number) => {
             ListItem() {
@@ -73,7 +75,7 @@ export struct PageListSlideToHistory {
                         this.listScroller.scrollTo({
                           xOffset: 0,
                           yOffset: this.historyOffset === Constants.COMM_INIT ? this.DEFAULT_OFFSET :
-                            this.historyOffset,
+                          this.historyOffset,
                           animation: { duration: this.ANIMATION_DURATION, curve: Curve.LinearOutSlowIn }
                         });
                         this.isHistoricalRecord = false;
@@ -159,21 +161,27 @@ class FriendMomentsData extends BasicDataSource<FriendMoment> {
 const momentData: FriendMomentsData = new FriendMomentsData();
 
 async function getFriendMomentFromRawfile(): Promise<void> {
-  const resourceManager = context.getHostContext()!.resourceManager;
-  const res = await resourceManager.getRawFileContent('mockFriendMomentOneModelData.json');
+  try {
+    const resourceManager = context.getHostContext()!.resourceManager;
+    const res = await resourceManager.getRawFileContent('mockFriendMomentOneModelData.json');
 
-  interface MyJsonModel {
-    friendMoments: FriendMoment[];
+    interface MyJsonModel {
+      friendMoments: FriendMoment[];
+    }
+
+    const textDecoder = util.TextDecoder.create();
+    const friendMomentArray = (JSON.parse(textDecoder.decodeToString(res)) as MyJsonModel).friendMoments;
+
+    friendMomentArray.forEach(item => {
+      item.id = Math.floor(momentData.totalCount() / 10) + item.id;
+      item.text = resourceManager.getStringSync($r('app.string.jump_text_one').id, parseInt(item.id) + 1) + item.text;
+      momentData.pushData(item);
+    });
+  } catch (err) {
+    let error = err as BusinessError;
+    hilog.error(0x0000, 'PageListSlideToHistory',
+      `getFriendMomentFromRawfile failed. error code=${error.code}, message=${error.message}`);
   }
-
-  const textDecoder = util.TextDecoder.create();
-  const friendMomentArray = (JSON.parse(textDecoder.decodeToString(res)) as MyJsonModel).friendMoments;
-
-  friendMomentArray.forEach(item => {
-    item.id = Math.floor(momentData.totalCount() / 10) + item.id;
-    item.text = resourceManager.getStringSync($r('app.string.jump_text_one'), parseInt(item.id) + 1) + item.text;
-    momentData.pushData(item);
-  })
 }
 
 @Builder

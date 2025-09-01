@@ -99,7 +99,7 @@ struct Index {
           + 'developer.huawei.com' + connectionProperties.domains
           + '/cn' + JSON.stringify(connectionProperties.linkAddresses)
           + '/doc' + JSON.stringify(connectionProperties.routes)
-          + '/best-pratices' + JSON.stringify(connectionProperties.dnses)
+          + '/best-practices' + JSON.stringify(connectionProperties.dnses)
           + 'btpa-memory-optimization' + connectionProperties.mtu + '\n';
       })
     });

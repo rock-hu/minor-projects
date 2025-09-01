@@ -21,8 +21,6 @@ import { ShoppingBagView } from './ShoppingBarView';
 
 @Component
 export struct ShoppingBagContentNavBar {
-  @Link showTabsBtn: boolean;
-
   aboutToAppear(): void {
     const lifecycle = HMRouterMgr.getCurrentLifecycleOwner();
     lifecycle?.addObserver?.(HMLifecycleState.onShown, (ctx): void => {
@@ -42,7 +40,7 @@ export struct ShoppingBagContentNavBar {
 
   build() {
     Row() {
-      ShoppingBagView({showTabsBtn: this.showTabsBtn});
+      ShoppingBagView();
       ShoppingBagDiscounts();
     }
     .width(CommonConstants.FULL_PERCENT)

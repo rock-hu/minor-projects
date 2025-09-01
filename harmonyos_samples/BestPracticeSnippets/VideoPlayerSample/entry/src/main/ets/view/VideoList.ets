@@ -17,6 +17,7 @@ import { CommonConstants, VideoData } from '@ohos/MediaService';
 
 @Component({ freezeWhenInactive: true })
 export struct VideoList {
+  @StorageProp('navBarHeight') navBarHeight: number = 0;
   @Link currentIndex: number;
   @Prop sources: VideoData[];
   onItemClick?: (index: number) => void = () => {
@@ -45,8 +46,6 @@ export struct VideoList {
                   Text() {
                     if (index === this.currentIndex) {
                       SymbolSpan($r('sys.symbol.play_round_rectangle_fill'))
-                        .width($r('app.float.size_20'))
-                        .height($r('app.float.size_20'))
                         .fontColor([$r('app.color.button_fill_color')])
                         .effectStrategy(SymbolEffectStrategy.HIERARCHICAL)
                     }
@@ -94,7 +93,7 @@ export struct VideoList {
         .listDirection(Axis.Vertical)
         .margin({
           top: $r('app.float.padding_12'),
-          bottom: (AppStorage.get<number>('navBarHeight') || 0) + CommonConstants.SPACE_16
+          bottom: this.navBarHeight + CommonConstants.SPACE_16
         })
         .scrollBar(BarState.Off)
       }

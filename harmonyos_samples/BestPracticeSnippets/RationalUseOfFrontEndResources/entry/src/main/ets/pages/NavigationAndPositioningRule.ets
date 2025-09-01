@@ -4,6 +4,7 @@
 
 // [Start createAudioRenderer]
 import { audio } from '@kit.AudioKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 let audioStreamInfo: audio.AudioStreamInfo = {
   samplingRate: audio.AudioSamplingRate.SAMPLE_RATE_44100,
@@ -21,10 +22,10 @@ let audioRendererOptions: audio.AudioRendererOptions = {
 };
 audio.createAudioRenderer(audioRendererOptions, (err, data) => {
   if (err) {
-    console.error(`Invoke createAudioRenderer failed, code is ${err.code}, message is ${err.message}`);
+    hilog.error(0x0000, 'Sample', `Invoke createAudioRenderer failed, code is ${err.code}, message is ${err.message}`);
     return;
   } else {
-    console.info('Invoke createAudioRenderer succeeded.');
+    hilog.info(0x0000, 'Sample', 'Invoke createAudioRenderer succeeded.');
     let audioRenderer = data;
   }
 });

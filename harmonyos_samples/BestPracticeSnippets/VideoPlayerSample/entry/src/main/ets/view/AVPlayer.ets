@@ -27,6 +27,7 @@ const TAG = '[VideoPlayer]';
 @Component
 export struct VideoPlayer {
   @Consume('pageInfo') pageInfo: NavPathStack;
+  @StorageProp('navBarHeight') navBarHeight: number = 0;
   @BuilderParam videoRightSide?: () => void;
   @BuilderParam videoDes?: () => void;
   @Prop isFullLandscapeScreen: boolean = false;
@@ -38,7 +39,7 @@ export struct VideoPlayer {
   @Prop @Watch('onIndexChange') curIndex: number = CommonConstants.CURINDEX_DEFAULT_NUM;
   @State isTimeDisplay: number = 0;
   @State trackThicknessSize: number = CommonConstants.TRACK_SIZE_MIN;
-  @State avPlayerController: AvPlayerController = new AvPlayerController(this.curSource, this.getUIContext());
+  @State avPlayerController: AvPlayerController = new AvPlayerController(this.curSource);
   @State sliderStyle: SliderStyle = SliderStyle.NONE;
   @State isShowTips: boolean = false;
   @State isSliderDragging: boolean = false;
@@ -69,7 +70,7 @@ export struct VideoPlayer {
   aboutToAppear(): void {
     let windowClass: window.Window | undefined = undefined;
 
-    const context: Context = this.getUIContext().getHostContext()!;
+    const context: Context | undefined = AppStorage.get('context');
     settings.getValue(context, settings.display.SCREEN_BRIGHTNESS_STATUS, settings.domainName.DEVICE_SHARED)
       .then((value) => {
         hilog.info(0x0000, 'AVPlayer', `Promise:value -> ${JSON.stringify(value)}`);
@@ -77,14 +78,14 @@ export struct VideoPlayer {
       })
 
     try {
-      window.getLastWindow(this.getUIContext().getHostContext()!, (err, data) => {
-        if (err) {
-          hilog.error(0x0000, 'AVPlayer',
-            `Failed to obtain the top window. Cause code: ${err.code}, message: ${err.message}`);
-        }
-        windowClass = data;
+      window.getLastWindow(this.getUIContext().getHostContext()).then((window: window.Window) => {
+        windowClass = window;
         this.screenHeight = windowClass.getWindowProperties().windowRect.height;
-      })
+      }).catch((err: BusinessError) => {
+        hilog.error(0x0000, 'AVPlayer',
+          `Failed to obtain the top window. Cause code: ${err.code}, message: ${err.message}`);
+      });
+
     } catch (exception) {
       hilog.error(0x0000, 'AVPlayer',
         `Failed to obtain the top window. Cause code: ${exception.code}, message: ${exception.message}`);
@@ -248,7 +249,6 @@ export struct VideoPlayer {
                   })
                 }
                 .width('50%')
-
                 // [End panel]
 
                 // [Start screen5]
@@ -288,7 +288,6 @@ export struct VideoPlayer {
                 })
                 .height('100%')
                 .width('50%')
-
                 // [End screen5]
               }
               .height('100%')
@@ -365,7 +364,7 @@ export struct VideoPlayer {
         })
           .visibility(!this.isFullScreen || this.isFullLandscapeScreen || this.isFloatWindow ||
           this.isSliderDragging ? Visibility.None : Visibility.Visible)
-          .margin({ bottom: this.isFullScreen ? (AppStorage.get<number>('navBarHeight') || 0) : 0 })
+          .margin({ bottom: this.isFullScreen ? this.navBarHeight : 0 })
           .width(CommonConstants.WIDTH_FULL_PERCENT)
       }
       .zIndex(CommonConstants.Z_INDEX_MAX)
@@ -396,7 +395,6 @@ export struct VideoPlayer {
         })
     )
   }
-
   // [End build]
 
   // The popup constructor defines the content of the dialog box
@@ -557,8 +555,7 @@ export struct VideoPlayer {
       left: $r('app.float.padding_16'),
       right: $r('app.float.padding_16'),
       bottom: this.isSliderDragging ? $r('app.float.space_48') :
-        this.isFullLandscapeScreen && !this.isFloatWindow ? (AppStorage.get<number>('navBarHeight') || 0)
-          : $r('app.float.margin_small')
+        this.isFullLandscapeScreen && !this.isFloatWindow ? this.navBarHeight : $r('app.float.margin_small')
     })
   }
 
@@ -602,9 +599,13 @@ export struct VideoPlayer {
       this.avPlayerController.setIsPlaying(false);
       this.isTimeDisplay = 0;
       this.trackThicknessSize = CommonConstants.TRACK_SIZE_MIN;
-      let context = this.getUIContext().getHostContext()!;
-      let windowClass = await window.getLastWindow(context);
-      await windowClass.setWindowKeepScreenOn(false);
+      let context: Context =  AppStorage.get('context')!;
+      try {
+        let windowClass = await window.getLastWindow(context);
+        await windowClass.setWindowKeepScreenOn(false);
+      } catch (err) {
+        Logger.error(TAG, `iconOnclick isPlaying failed, err.code:${err.code}, err.message:${err.message}`);
+      }
       return;
     }
     if (this.avPlayerController.isReady === true) {
@@ -623,9 +624,13 @@ export struct VideoPlayer {
         }
       }, CommonConstants.TIMER_INTERVAL);
     }
-    let context = this.getUIContext().getHostContext()!;
-    let windowClass = await window.getLastWindow(context);
-    await windowClass.setWindowKeepScreenOn(true);
+    let context = this.getUIContext().getHostContext() as Context;
+    try {
+      let windowClass = await window.getLastWindow(context);
+      await windowClass.setWindowKeepScreenOn(true);
+    } catch (err) {
+      Logger.error(TAG, `iconOnclick failed, err.code:${err.code}, err.message:${err.message}`);
+    }
   }
 
   aboutToDisappear(): void {

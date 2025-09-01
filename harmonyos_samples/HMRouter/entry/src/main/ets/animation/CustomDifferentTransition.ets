@@ -22,30 +22,23 @@ import {
   HMAnimatorHandle,
   HMRouterMgr,
   IHMAnimator,
-  OpacityOption,
-  ScaleOption,
-  TranslateOption
 } from "@hadss/hmrouter";
+import { AttributeUpdater } from "@kit.ArkUI";
 
 // [Start my_animator1]
 @HMAnimator({ animatorName: 'myAnimator1' })
 export class MyAnimator1 implements IHMAnimator {
   effect(enterHandle: HMAnimatorHandle, exitHandle: HMAnimatorHandle): void {
-    enterHandle.start((translateOption: TranslateOption, scaleOption: ScaleOption,
-      opacityOption: OpacityOption) => {
-      translateOption.y = '100%';
-    }).finish((translateOption: TranslateOption, scaleOption: ScaleOption,
-      opacityOption: OpacityOption) => {
-      translateOption.y = 0;
+    enterHandle.start((modifier: AttributeUpdater<NavDestinationAttribute>) => {
+      modifier.attribute?.translate({ y: '100%' })
+    }).finish((modifier: AttributeUpdater<NavDestinationAttribute>) => {
+      modifier.attribute?.translate({ y: '0' })
     })
 
-
-    exitHandle.start((translateOption: TranslateOption, scaleOption: ScaleOption,
-      opacityOption: OpacityOption) => {
-      translateOption.y = 0;
-    }).finish((translateOption: TranslateOption, scaleOption: ScaleOption,
-      opacityOption: OpacityOption) => {
-      translateOption.y = '100%';
+    exitHandle.start((modifier: AttributeUpdater<NavDestinationAttribute>) => {
+      modifier.attribute?.translate({ y: '0' })
+    }).finish((modifier: AttributeUpdater<NavDestinationAttribute>) => {
+      modifier.attribute?.translate({ y: '100%' })
     })
   }
 }
@@ -56,23 +49,17 @@ export class MyAnimator1 implements IHMAnimator {
 @HMAnimator({ animatorName: 'myAnimator2' })
 export class MyAnimator2 implements IHMAnimator {
   effect(enterHandle: HMAnimatorHandle, exitHandle: HMAnimatorHandle): void {
-    enterHandle.start((translateOption: TranslateOption, scaleOption: ScaleOption,
-      opacityOption: OpacityOption) => {
-      translateOption.x = '100%';
-      translateOption.y = 0;
-    }).finish((translateOption: TranslateOption, scaleOption: ScaleOption,
-      opacityOption: OpacityOption) => {
-      translateOption.x = 0;
+    enterHandle.start((modifier: AttributeUpdater<NavDestinationAttribute>) => {
+      modifier.attribute?.translate({ x: '100%', y: '0' })
+    }).finish((modifier: AttributeUpdater<NavDestinationAttribute>) => {
+      modifier.attribute?.translate({ x: 0 })
     })
-
-
     enterHandle.duration = 500;
-    exitHandle.start((translateOption: TranslateOption, scaleOption: ScaleOption,
-      opacityOption: OpacityOption) => {
-      translateOption.x = 0;
-    }).finish((translateOption: TranslateOption, scaleOption: ScaleOption,
-      opacityOption: OpacityOption) => {
-      translateOption.x = '100%';
+
+    exitHandle.start((modifier: AttributeUpdater<NavDestinationAttribute>) => {
+      modifier.attribute?.translate({ x: '0' })
+    }).finish((modifier: AttributeUpdater<NavDestinationAttribute>) => {
+      modifier.attribute?.translate({ x: '100%' })
     })
     exitHandle.duration = 500;
   }
@@ -98,32 +85,24 @@ export struct CommentInput {
         .margin({ right: 16 })
         .onClick(() => {
           if (this.isLandscape) {
-            HMRouterMgr.push({
-              navigationId: this.queryNavigationInfo()?.navigationId,
-              pageUrl: 'liveComments',
-              param: {
-                commentRenderNode: '',
-              },
-              animator: new MyAnimator2()
-            }, {
-              onResult: (paramInfo: PopInfo) => {
+            HMRouterMgr.to('liveComments')
+              .withNavigation(this.queryNavigationInfo()?.navigationId)
+              .withParam({commentRenderNode: ''})
+              .withAnimator(new MyAnimator2())
+              .onResult((paramInfo: PopInfo)=>{
                 this.videoWidth = '100%';
-              }
-            })
+              })
+              .pushAsync()
             this.videoWidth = '50%';
           } else {
-            HMRouterMgr.push({
-              navigationId: this.queryNavigationInfo()?.navigationId,
-              pageUrl: 'liveComments',
-              param: {
-                commentRenderNode: '',
-              },
-              animator: new MyAnimator1()
-            }, {
-              onResult: (paramInfo: PopInfo) => {
-                this.videoHeight = '100%'
-              }
-            })
+            HMRouterMgr.to('liveComments')
+              .withNavigation(this.queryNavigationInfo()?.navigationId)
+              .withParam({commentRenderNode: ''})
+              .withAnimator(new MyAnimator1())
+              .onResult((paramInfo: PopInfo)=>{
+                this.videoHeight = '100%';
+              })
+              .pushAsync()
             this.videoHeight = '30%'
           }
         });

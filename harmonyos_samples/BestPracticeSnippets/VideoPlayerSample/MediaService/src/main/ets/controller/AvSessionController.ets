@@ -14,18 +14,19 @@
  */
 
 import { common, wantAgent } from '@kit.AbilityKit';
+import { avSession } from '@kit.AVSessionKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { VideoData } from '../model/VideoData';
 import Logger from '../utils/Logger';
 import { ImageUtil } from '../utils/ImageUtil';
 import { BackgroundTaskManager } from '../utils/BackgroundTaskManager';
-import { hilog } from '@kit.PerformanceAnalysisKit';
-import { avSession } from '@kit.AVSessionKit';
+
 const TAG = 'AvSessionController';
+
 export class AvSessionController {
-  private avSession: avSession.AVSession | undefined = undefined;
   private static instance: AvSessionController | null;
   private context: common.UIAbilityContext | undefined = undefined;
+  private avSession: avSession.AVSession | undefined = undefined;
   private avSessionMetadata: avSession.AVMetadata | undefined = undefined;
 
   constructor() {
@@ -47,14 +48,18 @@ export class AvSessionController {
       return;
     }
     // [EndExclude init_session]
-    avSession.createAVSession(this.context, "SHORT_AUDIO_SESSION", 'video').then(async (avSession) => {
-      this.avSession = avSession;
-      hilog.info(0x0001, TAG, `session create successed : sessionId : ${this.avSession.sessionId}`);
-      // Apply for background long-term tasks
-      BackgroundTaskManager.startContinuousTask(this.context);
-      this.setLaunchAbility();
-      this.avSession.activate();
-    });
+    try {
+      avSession.createAVSession(this.context, "SHORT_AUDIO_SESSION", 'video').then(async (avSession) => {
+        this.avSession = avSession;
+        Logger.info(TAG, `session create successed : sessionId : ${this.avSession.sessionId}`);
+        // Apply for background long-term tasks
+        BackgroundTaskManager.startContinuousTask(this.context);
+        this.setLaunchAbility();
+        this.avSession.activate();
+      });
+    } catch (err) {
+      Logger.error(TAG, `createAVSession failed, err.code:${err.code}, err.message:${err.message}`);
+    }
   }
   // [End init_session]
   public getAvSession() {
@@ -68,25 +73,29 @@ export class AvSessionController {
   // [Start meta_data]
   public async setAVMetadata(curSource: VideoData, duration: number) {
     // [StartExclude meta_data]
-    if (curSource === undefined) {
-      Logger.error(TAG, 'SetAVMetadata Error, curSource is null');
+    if (curSource === undefined || this.context ===undefined) {
+      Logger.error(TAG, 'SetAVMetadata Error, curSource or context is null');
       return;
     }
     // [EndExclude meta_data]
     const imagePixMap = await ImageUtil.getPixmapFromMedia(curSource.head);
-    let metadata: avSession.AVMetadata = {
-      assetId: `${curSource.index}`, // Media ID
-      title: this.context?.resourceManager.getStringSync(curSource.name), // title
-      mediaImage: imagePixMap, // Pixel data or picture path address of a picture.
-      duration: duration // Media duration, in ms
-    };
-    if (this.avSession) {
-      this.avSession.setAVMetadata(metadata).then(() => { // Call the set session metadata interface
-        this.avSessionMetadata = metadata;
-        Logger.info(TAG, "SetAVMetadata successfully");
-      }).catch((err: BusinessError) => {
-        Logger.error(TAG, `SetAVMetadata BusinessError: code: ${err.code}, message: ${err.message}`);
-      });
+    try {
+      let metadata: avSession.AVMetadata = {
+        assetId: `${curSource.index}`, // Media ID
+        title: this.context.resourceManager.getStringSync(curSource.name.id), // title
+        mediaImage: imagePixMap, // Pixel data or picture path address of a picture.
+        duration: duration // Media duration, in ms
+      };
+      if (this.avSession) {
+        this.avSession.setAVMetadata(metadata).then(() => { // Call the set session metadata interface
+          this.avSessionMetadata = metadata;
+          Logger.info(TAG, "SetAVMetadata successfully");
+        }).catch((err: BusinessError) => {
+          Logger.error(TAG, `SetAVMetadata BusinessError: code: ${err.code}, message: ${err.message}`);
+        });
+      }
+    } catch (err) {
+      Logger.error(TAG, `setAVMetadata failed, code: ${err.code}, message: ${err.message}`);
     }
   }
   // [End meta_data]
@@ -113,6 +122,8 @@ export class AvSessionController {
       if (this.avSession) {
         this.avSession.setLaunchAbility(agent);
       }
+    }).catch((err: BusinessError) => {
+      Logger.error(TAG, `getWantAgent failed: code: ${err.code}, message: ${err.message}`);
     });
   }
   // [End launch]
@@ -137,13 +148,17 @@ export class AvSessionController {
     if (!this.avSession) {
       return;
     }
-    this.avSession.off('play');
-    this.avSession.off('pause');
-    this.avSession.off('playNext');
-    this.avSession.off('playPrevious');
-    this.avSession.off('setLoopMode');
-    this.avSession.off('seek');
-    this.avSession.off('toggleFavorite');
+    try {
+      this.avSession.off('play');
+      this.avSession.off('pause');
+      this.avSession.off('playNext');
+      this.avSession.off('playPrevious');
+      this.avSession.off('setLoopMode');
+      this.avSession.off('seek');
+      this.avSession.off('toggleFavorite');
+    } catch (err) {
+      Logger.error(TAG, `unregisterSessionListener failed: code: ${err.code}, message: ${err.message}`);
+    }
     // [EndExclude init_session]
     // Destroy background long-term tasks
     BackgroundTaskManager.stopContinuousTask(this.context);

@@ -18,7 +18,6 @@
  */
 
 import { HMRouter, HMRouterMgr } from '@hadss/hmrouter';
-import { PageConstant } from '../../constant/PageConstant';
 import { DetailConstants } from '../common/constants/DetailConstants';
 import { ProductInfo, ProductPicture } from './elements/ProductDetail';
 import { ProductMsg, ProductUtilView } from './elements/ProductUtilView';

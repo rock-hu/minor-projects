@@ -14,80 +14,84 @@
  */
 
 import { NavDestinationItem } from '../viewmodel/NavDestinationItem';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 const context = AppStorage.get("context") as UIContext;
 
 export default class Constants {
-
   /**
    * FontWeight.borderRadius
    */
   static readonly FONT_WEIGHT: number = 500;
-
   /**
    * BorderRadius.
    */
   static readonly BORDER_RADIUS: number = 24;
-
   /**
    * Detail height.
    */
   static readonly DETAIL_HEIGHT: number = 72;
-
   /**
    * List space.
    */
   static readonly LIST_SPACE: number = 12;
-
   /**
    * NavDestinationItem.
    */
   static readonly NavDestinationData: NavDestinationItem[] = [
     {
-      name: 'PageTurningAnimation', detail: this.ResourceToString($r('app.string.page_turning_animation'))
+      name: 'PageTurningAnimation', detail: this.resourceToString($r('app.string.page_turning_animation'))
     },
     {
-      name: 'PageExpandTitle', detail: this.ResourceToString($r('app.string.page_expand_title'))
+      name: 'PageExpandTitle', detail: this.resourceToString($r('app.string.page_expand_title'))
     },
     {
-      name: 'PageStatusBarChange', detail: this.ResourceToString($r('app.string.page_status_bar_change'))
+      name: 'PageStatusBarChange', detail: this.resourceToString($r('app.string.page_status_bar_change'))
     },
     {
-      name: 'PageListSlideToHistory', detail: this.ResourceToString($r('app.string.page_list_slide_to_history'))
+      name: 'PageListSlideToHistory', detail: this.resourceToString($r('app.string.page_list_slide_to_history'))
     },
     {
-      name: 'PageWaterRipples', detail: this.ResourceToString($r('app.string.page_water_ripples'))
+      name: 'PageWaterRipples', detail: this.resourceToString($r('app.string.page_water_ripples'))
     },
     {
-      name: 'PageWaterMarqueeView', detail: this.ResourceToString($r('app.string.page_marquee_view'))
+      name: 'PageWaterMarqueeView', detail: this.resourceToString($r('app.string.page_marquee_view'))
     },
     {
-      name: 'SwiperSmoothVariation', detail: this.ResourceToString($r('app.string.swiper_smooth_variation'))
+      name: 'SwiperSmoothVariation', detail: this.resourceToString($r('app.string.swiper_smooth_variation'))
     },
     {
-      name: 'SideBarAnimation', detail: this.ResourceToString($r('app.string.side_bar_animation'))
+      name: 'SideBarAnimation', detail: this.resourceToString($r('app.string.side_bar_animation'))
     },
     {
-      name: 'PageVibrateEffect', detail: this.ResourceToString($r('app.string.page_vibrate_effect'))
+      name: 'PageVibrateEffect', detail: this.resourceToString($r('app.string.page_vibrate_effect'))
     },
     {
-      name: 'PagePaintComponent', detail: this.ResourceToString($r('app.string.page_paint_component'))
+      name: 'PagePaintComponent', detail: this.resourceToString($r('app.string.page_paint_component'))
     },
     {
-      name: 'DigitalScrollExample', detail: this.ResourceToString($r('app.string.digital_scroll_example'))
+      name: 'DigitalScrollExample', detail: this.resourceToString($r('app.string.digital_scroll_example'))
     },
     {
-      name: 'PageCardsSwiper', detail: this.ResourceToString($r('app.string.page_cards_swiper'))
+      name: 'PageCardsSwiper', detail: this.resourceToString($r('app.string.page_cards_swiper'))
     },
     {
-      name: 'VotingComponent', detail: this.ResourceToString($r('app.string.voting_component'))
+      name: 'VotingComponent', detail: this.resourceToString($r('app.string.voting_component'))
     },
     {
-      name: 'VoiceRecordDynamic', detail: this.ResourceToString($r('app.string.voice_record_dynamic'))
+      name: 'VoiceRecordDynamic', detail: this.resourceToString($r('app.string.voice_record_dynamic'))
     }
   ];
 
-  static ResourceToString(resource:Resource):string{
-    return context.getHostContext()!.resourceManager.getStringSync(resource)
+  static resourceToString(resource: Resource): string {
+    let result = '';
+    try {
+      result = context.getHostContext()!.resourceManager.getStringSync(resource.id);
+    } catch (err) {
+      let error = err as BusinessError;
+      hilog.error(0x0000, 'Constants', `getStringSync failed. error code=${error.code}, message=${error.message}`);
+    }
+    return result;
   }
 }

@@ -15,7 +15,6 @@
 
 import { CommonConstants } from '../common/CommonConstants';
 
-@Entry
 @Component
 export struct WaterRipples {
   @State isListening: boolean = false;

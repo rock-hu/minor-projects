@@ -13,12 +13,15 @@
  *   limitations under the License.
  */
 
-import { HMInterceptor, HMInterceptorAction, HMInterceptorInfo, IHMInterceptor } from '@hadss/hmrouter';
+import { HMInterceptor, HMInterceptorAction, HMInterceptorInfo, IHMInterceptor,
+  IHMInterceptorChain } from '@hadss/hmrouter';
 
 @HMInterceptor({interceptorName: 'LoginStatusInterceptor', global: true})
 export class LoginStatusInterceptor implements IHMInterceptor {
-  handle(info: HMInterceptorInfo): HMInterceptorAction {
+  async intercept(chain: IHMInterceptorChain): Promise<void> {
+    const info = chain.getRouterInfo();
+    const context = chain.getContext();
     console.log(`Login status is ${!!AppStorage.get('isLogin') ? 'Y' : 'N'}`);
-    return HMInterceptorAction.DO_NEXT;
+    await chain.onContinue()
   }
 }

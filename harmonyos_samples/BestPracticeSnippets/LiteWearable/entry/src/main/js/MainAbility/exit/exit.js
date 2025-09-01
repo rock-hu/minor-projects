@@ -1,7 +1,7 @@
 // [Start exit_js]
 // index.js
 import router from '@ohos.router';
-// 导入app模块  
+// Import the app module.
 import app from '@system.app';
 
 export default {
@@ -13,8 +13,8 @@ export default {
             uri: 'pages/details/details'
         });
     },
-    touchMove(e) { // swipe处理事件
-        if (e.direction == 'right') { // 右滑退出
+    touchMove(e) { // Handle swipe events.
+        if (e.direction == 'right') { // Swipe right to exit.
             app.terminate();
         }
     }

@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
+// [Start conditional_rendering]
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
-// [Start conditional_rendering]
 @Entry
 @Component
 struct MyComponent {
@@ -26,6 +26,7 @@ struct MyComponent {
     Column({ space: 10 }) {
       Row({ space: 5 }) {
         Column() {
+          // $r('app.media.chevron_left') It needs to be replaced with the resources required by the developers
           Image($r('app.media.chevron_left'))
             .width(16)
             .height(16)

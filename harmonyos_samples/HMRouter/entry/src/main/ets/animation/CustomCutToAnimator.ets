@@ -22,10 +22,8 @@ import {
   HMAnimatorHandle,
   HMRouterMgr,
   IHMAnimator,
-  OpacityOption,
-  ScaleOption,
-  TranslateOption
 } from "@hadss/hmrouter";
+import { AttributeUpdater } from "@kit.ArkUI";
 
 // [Start custom_cut_to_animator]
 
@@ -33,33 +31,19 @@ import {
 export class CustomAnimator implements IHMAnimator {
   effect(enterHandle: HMAnimatorHandle, exitHandle: HMAnimatorHandle): void {
     // to animator
-    enterHandle.start((translateOption: TranslateOption, scaleOption: ScaleOption,
-      opacityOption: OpacityOption) => {
-      translateOption.y = '100%'
-      scaleOption.x = 0.7;
-      opacityOption.opacity = 0.3;
-    })
-    enterHandle.finish((translateOption: TranslateOption, scaleOption: ScaleOption,
-      opacityOption: OpacityOption) => {
-      translateOption.y = '0'
-      scaleOption.x = 1;
-      opacityOption.opacity = 1;
+    enterHandle.start((modifier: AttributeUpdater<NavDestinationAttribute>) => {
+      modifier.attribute?.translate({ y: '100%' }).scale({ x: 0.7 }).opacity(0.3)
+    }).finish((modifier: AttributeUpdater<NavDestinationAttribute>) => {
+      modifier.attribute?.translate({ y: '0' }).scale({ x: 1 }).opacity(1)
     })
     enterHandle.duration = 400;
     enterHandle.curve = Curve.Linear;
 
     // cut animator
-    exitHandle.start((translateOption: TranslateOption, scaleOption: ScaleOption,
-      opacityOption: OpacityOption) => {
-      translateOption.y = '0'
-      scaleOption.x = 1;
-      opacityOption.opacity = 1;
-    })
-    exitHandle.finish((translateOption: TranslateOption, scaleOption: ScaleOption,
-      opacityOption: OpacityOption) => {
-      translateOption.y = '100%'
-      scaleOption.x = 0.7;
-      opacityOption.opacity = 0.3;
+    exitHandle.start((modifier: AttributeUpdater<NavDestinationAttribute>) => {
+      modifier.attribute?.translate({ y: '0' }).scale({ x: 1 }).opacity(1)
+    }).finish((modifier: AttributeUpdater<NavDestinationAttribute>) => {
+      modifier.attribute?.translate({ y: '100%' }).scale({ x: 0.7 }).opacity(0.3)
     })
     exitHandle.duration = 400;
     enterHandle.curve = Curve.Linear;
@@ -71,7 +55,9 @@ export class CustomAnimator implements IHMAnimator {
 export class CustomAnimatorTransfer {
   animatorTo() {
     // [Start animator_transfer]
-    HMRouterMgr.push({ pageUrl: 'ProductContent', animator: new CustomAnimator() })
+    HMRouterMgr.to('ProductContent')
+      .withAnimator(new CustomAnimator())
+      .pushAsync()
     // [End animator_transfer]
   }
 }

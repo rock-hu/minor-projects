@@ -167,7 +167,7 @@ export struct SwiperComponent {
       })
 
       Row({ space: SwiperConstants.SPACE }) {
-        ForEach(this.swiperData, (item: SwiperData, index: number) => {
+        ForEach(this.swiperData, (_dataItem: SwiperData, index: number) => {
           Ellipse(index !== this.currentIndex ? {
             width: SwiperConstants.COMMON_SIZE,
             height: SwiperConstants.COMMON_SIZE

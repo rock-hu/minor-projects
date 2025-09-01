@@ -82,7 +82,7 @@ void processWithLeak1(int fd, size_t size) {
     }
     // 使用共享内存
     processData(ptr);
-    // 忘记调用 munmap(ptr, size);
+    // 忘记调用munmap(ptr, size);
     // 每一次调用都会泄漏一块映射内存
 }
 // [End resource_leak_advise3_negative]

@@ -2,9 +2,12 @@
  * 最佳实践：合理使用音频资源
  * 场景二：播音场景（AVPlayer）
  */
-
+// [Start sound_pool]
 import { fileIo as fs } from '@kit.CoreFileKit';
 import { media } from '@kit.MediaKit';
+
+// [End sound_pool]
+
 // [Start av_player]
 import { UIAbility } from '@kit.AbilityKit';
 
@@ -35,8 +38,9 @@ let soundId: number;
 let streamId: number;
 let uri: string;
 let soundPool: media.SoundPool;
+// [Start sound_pool]
 const SoundPool = async () => {
-  // [Start sound_pool]
+
   //Construct the audio stream to play
   await fs.open('/test_01.mp3', fs.OpenMode.READ_ONLY).then((file: fs.File) => {
     console.info("filefd:" + file.fd);
@@ -46,5 +50,5 @@ const SoundPool = async () => {
   //The foreground scene starts to play
   streamId = await soundPool.play(soundId);
   //Stop playing in the background scenario: soundPool.stop (streamId);
-  // [End sound_pool]
 }
+// [End sound_pool]

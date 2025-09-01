@@ -1,48 +1,49 @@
+/*
+* Copyright (C) 2025 Huawei Device Co., Ltd.
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 // src/components/AudioPlayerStatus.ts
-/**
- * 音频播放器状态枚举
- */
+
 export enum AudioPlayerStatus {
-  /** 初始空闲状态 */
   IDLE = 'idle',
 
-  /** 正在准备中 */
   PREPARING = 'preparing',
 
-  /** 准备就绪（可播放） */
+  /** prepare ready */
   READY = 'ready',
 
-  /** 正在播放 */
   PLAYING = 'playing',
 
-  /** 已暂停 */
   PAUSED = 'paused',
 
-  /** 播放完成 */
+  /** play completed */
   COMPLETED = 'completed',
 
-  /** 发生错误 */
   ERROR = 'error',
 
-  /** 正在缓冲 */
   BUFFERING = 'buffering',
 
-  /** 正在跳转进度 */
+  /** jump to progress */
   SEEKING = 'seeking'
 }
 
-// 可选：状态检查工具函数
+// check utils
 export class AudioStatusUtils {
-  /**
-   * 检查是否正在播放状态
-   */
   static isPlaying(status: AudioPlayerStatus): boolean {
     return status === AudioPlayerStatus.PLAYING;
   }
 
-  /**
-   * 检查是否可恢复播放
-   */
   static canResume(status: AudioPlayerStatus): boolean {
     return [
       AudioPlayerStatus.PAUSED,
@@ -51,9 +52,6 @@ export class AudioStatusUtils {
     ].includes(status);
   }
 
-  /**
-   * 检查是否处于活动状态（非空闲/错误）
-   */
   static isActive(status: AudioPlayerStatus): boolean {
     return ![
       AudioPlayerStatus.IDLE,

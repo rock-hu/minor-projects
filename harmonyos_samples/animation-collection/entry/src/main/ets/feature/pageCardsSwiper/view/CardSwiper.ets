@@ -17,6 +17,8 @@ import { display } from '@kit.ArkUI';
 import Constants from '../common/Constants';
 import CardComponent from '../model/CardViewModel';
 import { CardsSource, CardInfo } from '../model/CardModel';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 @Component
 struct CardSwiperAnimation {
@@ -28,20 +30,25 @@ struct CardSwiperAnimation {
   private swiperMargin: number = Constants.SWIPER_MARGIN;
 
   aboutToAppear(): void {
-    const displayData: display.Display = display.getDefaultDisplaySync();
-    this.displayWidth = this.getUIContext().px2vp(displayData.width);
-    if (canIUse('SystemCapability.Window.SessionManager')) {
-      if ((display.isFoldable() && display.getFoldStatus() === display.FoldStatus.FOLD_STATUS_EXPANDED) ||
-        this.displayWidth >= Constants.DEVICE_SIZE) {
-        this.displayWidth = this.getUIContext().px2vp(displayData.width) / 2;
+    try {
+      const displayData: display.Display = display.getDefaultDisplaySync();
+      this.displayWidth = this.getUIContext().px2vp(displayData.width);
+      if (canIUse('SystemCapability.Window.SessionManager')) {
+        if ((display.isFoldable() && display.getFoldStatus() === display.FoldStatus.FOLD_STATUS_EXPANDED) ||
+          this.displayWidth >= Constants.DEVICE_SIZE) {
+          this.displayWidth = this.getUIContext().px2vp(displayData.width) / 2;
+        }
       }
+      Constants.CARD_TEST_CASE.forEach((item) => {
+        this.cardsList.push(item);
+        this.cardsOffset.push(0);
+      })
+      this.data = new CardsSource(this.cardsList);
+      this.calculateOffset(0);
+    } catch (err) {
+      let error = err as BusinessError;
+      hilog.error(0x0000, 'CardSwiperAnimation', `aboutToAppear failed. error code=${error.code}, message=${error.message}`);
     }
-    Constants.CARD_TEST_CASE.forEach((item) => {
-      this.cardsList.push(item);
-      this.cardsOffset.push(0);
-    })
-    this.data = new CardsSource(this.cardsList);
-    this.calculateOffset(0);
   }
 
   build() {

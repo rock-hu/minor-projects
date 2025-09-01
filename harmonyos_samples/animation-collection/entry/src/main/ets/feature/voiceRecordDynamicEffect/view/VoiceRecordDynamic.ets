@@ -13,11 +13,12 @@
  * limitations under the License.
  */
 
-import { promptAction } from '@kit.ArkUI';
 import { abilityAccessCtrl, common, Permissions } from '@kit.AbilityKit';
 import { CommonConstants as Const } from '../common/CommonConstants';
 import Logger from '../../../common/Logger';
 import { AudioRecorderDemo, AVPlayerDemo } from '../utils/AudioRecorder';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 const permissions: Array<Permissions> = ['ohos.permission.MICROPHONE'];
 
@@ -33,6 +34,9 @@ function reqPermissionsFromUser(permissions: Array<Permissions>, context: common
         return;
       }
     }
+  }).catch((error: BusinessError) => {
+    hilog.error(0x0000, 'reqPermissionsFromUser',
+      `requestPermissionsFromUser failed. error code=${error.code}, message=${error.message}`);
   })
 }
 
@@ -255,12 +259,13 @@ struct GestureGroupExample {
                           this.minNumber = Const.OPACITY_FALSE;
                         }
                         if (this.isListening) {
-                          
-                          this.getUIContext().animateTo({ duration: Const.ANIMATION_DURATION, curve: Curve.EaseInOut }, () => {
-                            Logger.info(this.timeStart.toString() + 'ANIMATION_DURATION' + Const.ANIMATION_DURATION);
-                            this.yMax = this.maxNumber;
-                            this.yMin = this.minNumber;
-                          })
+
+                          this.getUIContext()
+                            .animateTo({ duration: Const.ANIMATION_DURATION, curve: Curve.EaseInOut }, () => {
+                              Logger.info(this.timeStart.toString() + 'ANIMATION_DURATION' + Const.ANIMATION_DURATION);
+                              this.yMax = this.maxNumber;
+                              this.yMin = this.minNumber;
+                            })
                         }
                       }, Const.SET_INTERVAL_TIME);
                     })
@@ -299,10 +304,15 @@ struct GestureGroupExample {
                     });
                     this.flagUpOpacity = Const.OPACITY_FALSE;
                     if (this.timeStart === 0 || this.isListening === false) {
-                      this.getUIContext().getPromptAction().showToast({
-                        message: Const.SHOW_TOAST_MESSAGE,
-                        duration: Const.SHOW_TOAST_DURATION
-                      });
+                      try {
+                        this.getUIContext().getPromptAction().showToast({
+                          message: Const.SHOW_TOAST_MESSAGE,
+                          duration: Const.SHOW_TOAST_DURATION
+                        });
+                      } catch (err) {
+                        let error = err as BusinessError;
+                        hilog.error(0x0000, 'GestureGroupExample', `error code=${error.code}, message=${error.message}`);
+                      }
                       this.flagInfoOpacity = Const.OPACITY_FALSE;
                     } else {
                       this.flagInfoOpacity = Const.OPACITY_TRUE;

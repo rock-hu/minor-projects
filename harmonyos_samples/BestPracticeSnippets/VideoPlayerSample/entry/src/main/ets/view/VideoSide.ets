@@ -14,7 +14,6 @@
  */
 
 import { CommonConstants as Const, VideoData } from '@ohos/MediaService';
-import { promptAction } from '@kit.ArkUI';
 
 @Component
 export struct RightSide {

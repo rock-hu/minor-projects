@@ -1,8 +1,8 @@
 <!-- [Start style_3] -- >
 <!-- index.hml -->
-<!-- 关联index.css中的.container样式代码块 -->
+<!-- Link the style code block of .container in index.css -->
 <div class="container">
-<!-- 关联index.css中的#title样式代码块 -->
+<!-- Link to the #title style code block in index.css -->
     <text id="title">
         Hello World
     </text>

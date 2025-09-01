@@ -40,9 +40,7 @@
 
 ### 工程目录
 ```
-entry/src/main/ets/
-|---Application
-|   |---AbilityStage.ts
+entry/src/main/ets/s
 |---common
 |   |---BreakpointSystem.ets                    
 |   |---DirectoryList.ets
@@ -149,13 +147,10 @@ entry/src/main/ets/
 
 ### 约束与限制
 
-1.本示例仅支持标准系统上运行，支持设备：RK3568。
-
-2.本示例为Stage模型，支持API12版本SDK，SDK版本号(API Version 12 Release),镜像版本号(5.0.0 Release)
-
-3.本示例需要使用DevEco Studio NEXT Release(Build Version: 5.0.3.900, built on October 8, 2024)及以上版本才可编译运行。
-
-4.本示例在开发板上运行时，可以修改开发板系统配置文件以使能应用窗口能力。
+1. 本示例仅支持标准系统上运行，支持设备：华为手机、平板。
+2. HarmonyOS系统：HarmonyOS 5.0.3 Release及以上。
+3. DevEco Studio版本：DevEco Studio 5.0.3 Release及以上。
+4. HarmonyOS SDK版本：HarmonyOS 5.0.3 Release SDK及以上。
 
 ````
 # 将开发板文件系统的权限配置为可读写

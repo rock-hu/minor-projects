@@ -34,18 +34,10 @@ export class PaySuccessLifecycle implements IHMLifecycle {
   model: ObservedModel = new ObservedModel();
 
   onBackPressed(): boolean {
-    if (this.model.pageUrl === 'shoppingBag') {
-      HMRouterMgr.pop({
-        navigationId: 'mainNavigationId',
-        pageUrl: this.model.pageUrl,
-        param: DetailConstants.PAY_INFO[4]
-      });
-    } else {
-      HMRouterMgr.pop({
-        pageUrl: this.model.pageUrl,
-        param: DetailConstants.PAY_INFO[4]
-      });
-    }
+    HMRouterMgr.to('MainPage')
+      .withNavigation('mainNavigationId')
+      .withParam(0)
+      .popAsync()
     return true;
   }
 }
@@ -70,19 +62,10 @@ export struct PaySuccessPageComponent {
     Stack() {
       ReturnHeader({
         title: PayConstants.PAY_SUCCESS_TITLE, returnFunc: () => {
-          if (this.pageUrl === 'shoppingBag') {
-            HMRouterMgr.pop({
-              navigationId: 'mainNavigationId',
-              pageUrl: this.pageUrl,
-              param: DetailConstants.PAY_INFO[4]
-            });
-          } else {
-            HMRouterMgr.pop({
-              navigationId: this.queryNavigationInfo()?.navigationId,
-              pageUrl: this.pageUrl,
-              param: DetailConstants.PAY_INFO[4]
-            });
-          }
+          HMRouterMgr.to('MainPage')
+            .withNavigation('mainNavigationId')
+            .withParam(0)
+            .popAsync()
         }
       });
 
@@ -108,7 +91,10 @@ export struct PaySuccessPageComponent {
             .onClick(() => {
               this.currentIndex = 0;
               // [Start HMRouterMgr_pop]
-              HMRouterMgr.pop({ navigationId: 'mainNavigationId', pageUrl: 'HomeContent', param: '' });
+              HMRouterMgr.to('MainPage')
+                .withNavigation('mainNavigationId')
+                .withParam(0)
+                .pushAsync()
               // [End HMRouterMgr_pop]
             });
         };

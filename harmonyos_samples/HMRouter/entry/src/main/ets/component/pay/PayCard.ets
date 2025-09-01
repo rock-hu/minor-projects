@@ -13,7 +13,10 @@
  *   limitations under the License.
  */
 
-import { HMRouter, HMRouterMgr } from '@hadss/hmrouter';
+import { HMAnimator, HMAnimatorHandle, HMRouter, HMRouterMgr, IHMAnimator,
+  OpacityOption,
+  ScaleOption,
+  TranslateOption } from '@hadss/hmrouter';
 import { CommonConstants } from '../common/constants/CommonConstants';
 import { DetailConstants } from '../common/constants/DetailConstants';
 import { ResourceUtil } from '../common/utils/ResourceUtil';
@@ -27,8 +30,41 @@ interface PriceParamType {
   pageUrl: string;
 }
 
+@Observed
+export class ColorOption {
+  color: ResourceStr = 'rgba(0,0,0,0)';
+}
 
-@HMRouter({ pageUrl: PageConstant.PAY_CARD, dialog: true })
+@HMAnimator({ animatorName: 'PayCardDialog' })
+export class DialogAnimator implements IHMAnimator {
+  effect(enterHandle: HMAnimatorHandle, exitHandle: HMAnimatorHandle): void {
+    enterHandle.start((translateOption: TranslateOption, scaleOption: ScaleOption,
+      opacityOption: OpacityOption, colorOption: ColorOption) => {
+      translateOption.y = '100%';
+      colorOption.color = 'rgba(0, 0, 0, 0)';
+    }).finish((translateOption: TranslateOption, scaleOption: ScaleOption,
+      opacityOption: OpacityOption, colorOption: ColorOption) => {
+      translateOption.y = '0';
+      colorOption.color = 'rgba(0, 0, 0, 0.7)';
+    }).passiveStart(() => {
+    }).passiveFinish(() => {
+    });
+
+    exitHandle.start((translateOption: TranslateOption, scaleOption: ScaleOption,
+      opacityOption: OpacityOption, colorOption: ColorOption) => {
+      translateOption.y = '0';
+      colorOption.color = 'rgba(0, 0, 0, 0.7)';
+    }).finish((translateOption: TranslateOption, scaleOption: ScaleOption,
+      opacityOption: OpacityOption, colorOption: ColorOption) => {
+      translateOption.y = '100%';
+      colorOption.color = 'rgba(0, 0, 0, 0)';
+    }).passiveStart(() => {
+    }).passiveFinish(() => {
+    });
+  }
+}
+
+@HMRouter({ pageUrl: PageConstant.PAY_CARD, dialog: true,animator:'PayCardDialog' })
 @Preview
 @Component
 export struct PayCard {
@@ -48,219 +84,208 @@ export struct PayCard {
   }
 
   build() {
-    Row() {
-      Column() {
-        Scroll() {
-          Column() {
-            Row() {
-              Image($r('app.media.pay_main_shop'))
-                .height(ResourceUtil.getCommonImgSize()[4])
-                .width(ResourceUtil.getCommonImgSize()[4])
-                .margin({ right: 8 });
-              Text('￥')
-                .fontColor($r('app.color.pay_card_price_color'))
-                .fontSize(24);
-              Text(this.totalPrice.toString())
-                .fontColor($r('app.color.pay_card_price_color'))
-                .fontSize(24);
-              Blank();
-              Image($r('app.media.icon_close_1'))
-                .width(ResourceUtil.getCommonImgSize()[0])
-                .height(ResourceUtil.getCommonImgSize()[0])
-                .alignSelf(ItemAlign.Start)
-                .margin({ top: $r('app.float.pay_card_icon_margin'), right: $r('app.float.pay_card_right_margin') })
-                .onClick(() => {
-                  HMRouterMgr.pop({
-                    navigationId: this.queryNavigationInfo()?.navigationId,
-                    param: new ProductMsg(DetailConstants.COLOR_SELECT_NAME_LIST[this.color!],
-                      DetailConstants.CAPACITY_SELECT_NAME_LIST[this.memory!],
-                      this.totalPrice!.toString())
-                  });
+    Column() {
+      Scroll() {
+        Column() {
+          Row() {
+            Image($r('app.media.pay_main_shop'))
+              .height(ResourceUtil.getCommonImgSize()[4])
+              .width(ResourceUtil.getCommonImgSize()[4])
+              .margin({ right: 8 });
+            Text('￥')
+              .fontColor($r('app.color.pay_card_price_color'))
+              .fontSize(24);
+            Text(this.totalPrice.toString())
+              .fontColor($r('app.color.pay_card_price_color'))
+              .fontSize(24);
+            Blank();
+            Image($r('app.media.icon_close_1'))
+              .width(ResourceUtil.getCommonImgSize()[0])
+              .height(ResourceUtil.getCommonImgSize()[0])
+              .alignSelf(ItemAlign.Start)
+              .margin({ top: $r('app.float.pay_card_icon_margin'), right: $r('app.float.pay_card_right_margin') })
+              .onClick(() => {
+                HMRouterMgr.popAsync({
+                  navigationId: this.queryNavigationInfo()?.navigationId,
+                  param: new ProductMsg(DetailConstants.COLOR_SELECT_NAME_LIST[this.color!],
+                    DetailConstants.CAPACITY_SELECT_NAME_LIST[this.memory!],
+                    this.totalPrice!.toString())
                 });
-            }
-            .width(CommonConstants.FULL_PERCENT)
-            .margin({ bottom: $r('app.float.pay_card_top_margin'), top: 6 });
-
-            Row() {
-              Image($r('app.media.icon_position'))
-                .height(ResourceUtil.getCommonImgSize()[5])
-                .width(ResourceUtil.getCommonImgSize()[5])
-                .margin({ right: $r('app.float.pay_position_margin') });
-              Column() {
-                Text(DetailConstants.PAY_INFO[0])
-                  .fontSize($r('app.float.pay_address_font'))
-                  .fontWeight(CommonConstants.FONT_WEIGHT_500)
-                  .width(CommonConstants.FULL_PERCENT)
-                  .maxLines(1)
-                  .textOverflow({ overflow: TextOverflow.Ellipsis })
-                  .margin({ bottom: $r('app.float.pay_address_margin') });
-                Text(DetailConstants.PAY_INFO[1])
-                  .fontSize($r('app.float.pay_contact_font'))
-                  .fontColor($r('app.color.pay_contact_color'))
-                  .width(CommonConstants.FULL_PERCENT)
-                  .maxLines(1);
-              }
-              .layoutWeight(1)
-              .alignItems(HorizontalAlign.Start);
-            }
-            .margin({ bottom: $r('app.float.pay_info_margin') })
-            .width(CommonConstants.FULL_PERCENT)
-            .backgroundColor($r('app.color.pay_card_background_color_1'))
-            .borderRadius(ResourceUtil.getCommonBorderRadius()[6])
-            .padding({
-              top: $r('app.float.pay_info_padding_top_bottom'),
-              bottom: $r('app.float.pay_info_padding_top_bottom'),
-              left: $r('app.float.pay_info_padding_left_right'),
-              right: $r('app.float.pay_info_padding_left_right')
-            });
-
-            Column() {
-              ForEach(this.payCardSelectList, (item: SelectProjectItem, index: number) => {
-                Column() {
-                  Text(item.getName())
-                    .fontSize($r('app.float.pay_config_title_font'))
-                    .alignSelf(ItemAlign.Start)
-                    .margin({ bottom: $r('app.float.pay_config_title_margin') })
-                    .lineHeight($r('app.float.pay_config_title_line'))
-                    .fontWeight(CommonConstants.FONT_WEIGHT_500);
-                  Flex({
-                    wrap: FlexWrap.Wrap,
-                    justifyContent: FlexAlign.Start
-                  }) {
-                    ForEach(item.getSelectItemList(), (selectItem: SelectItem, selectIndex: number) => {
-                      Row() {
-                        Image(selectItem.getImage())
-                          .height(ResourceUtil.getCommonImgSize()[1])
-                          .width(ResourceUtil.getCommonImgSize()[1])
-                          .visibility(selectItem.getImage() === null ? Visibility.None : Visibility.Visible);
-                        Text(selectItem.getName())
-                          .fontColor(this.getShowColor(item.getName(), selectIndex,
-                            $r('app.color.pay_card_item_color_selected'), $r('app.color.pay_card_item_color_1')))
-                          .fontSize($r('app.float.pay_config_name_font'))
-                          .textAlign(TextAlign.Center)
-                          .margin({
-                            left: $r('app.float.pay_config_name_margin'),
-                            right: $r('app.float.pay_config_name_margin')
-                          });
-                      }
-                      .onClick(() => {
-                        PayMgr.getInstance().setProductChoose(item.getName(), selectIndex);
-                        if (item.getName() === DetailConstants.SELECT_NAME_LIST[0]) {
-                          this.color = PayMgr.getInstance().getProductChoose(DetailConstants.SELECT_NAME_LIST[0]);
-                        } else if (item.getName() === DetailConstants.SELECT_NAME_LIST[1]) {
-                          this.totalPrice = Number(DetailConstants.CUSTOMER_SERVICE_CONTENTS[selectIndex + 1]);
-                          this.memory = PayMgr.getInstance().getProductChoose(DetailConstants.SELECT_NAME_LIST[1]);
-                        }
-                      })
-                      .backgroundColor(this.getShowColor(item.getName(), selectIndex,
-                        $r('app.color.pay_card_item_background_color_selected'),
-                        $r('app.color.pay_card_item_background_color')))
-                      .border({
-                        color: this.getShowColor(item.getName(), selectIndex,
-                          $r('app.color.pay_card_item_color_selected'), $r('app.color.pay_card_item_color_2')),
-                        width: index === 0 ? $r('app.float.pay_config_border_width') : 0,
-                        radius: ResourceUtil.getCommonBorderRadius()[3]
-                      })
-                      .height($r('app.float.pay_config_height'))
-                      .margin({
-                        right: $r('app.float.pay_config_margin'),
-                        bottom: $r('app.float.pay_config_margin')
-                      });
-                    }, (selectItem: SelectItem, selectIndex: number) => JSON.stringify(selectItem) + selectIndex);
-                  }
-                  .width(CommonConstants.FULL_PERCENT);
-                }
-                .margin({ top: $r('app.float.pay_config_col_margin_top') })
-                .width(CommonConstants.FULL_PERCENT);
-              }, (item: SelectProjectItem, index: number) => JSON.stringify(item) + index);
-            }
-            .width(CommonConstants.FULL_PERCENT)
-            .margin({ bottom: $r('app.float.pay_config_col_margin_bottom') })
-            .backgroundColor($r('app.color.pay_card_background_color_1'))
-            .borderRadius(ResourceUtil.getCommonBorderRadius()[6])
-            .padding({
-              left: $r('app.float.pay_config_col_padding'),
-              right: $r('app.float.pay_config_col_padding')
-            });
-
-            Row() {
-              Image($r('app.media.icon_pay'))
-                .height(ResourceUtil.getCommonImgSize()[5])
-                .width(ResourceUtil.getCommonImgSize()[5])
-                .margin({ right: $r('app.float.pay_wallet_icon_margin') });
-              Text(DetailConstants.PAY_INFO[2])
-                .fontSize($r('app.float.pay_wallet_font'))
-                .fontWeight(CommonConstants.FONT_WEIGHT_500);
-              Blank();
-              Checkbox()
-                .select(true)
-                .selectedColor($r('app.color.util_button_2'))
-                .shape(CheckBoxShape.CIRCLE)
-                .width($r('app.float.checkbox_width'));
-            }
-            .padding({
-              top: $r('app.float.wallet_row_padding_1'),
-              left: $r('app.float.wallet_row_padding_2'),
-              bottom: $r('app.float.wallet_row_padding_1'),
-              right: $r('app.float.wallet_row_padding_2')
-            })
-            .margin({ bottom: $r('app.float.wallet_row_margin') })
-            .borderRadius(ResourceUtil.getCommonBorderRadius()[6])
-            .backgroundColor($r('app.color.pay_card_background_color_1'))
-            .width(CommonConstants.FULL_PERCENT);
+              });
           }
           .width(CommonConstants.FULL_PERCENT)
-          .padding({ left: 24, right: 24 });
-        }
-        .scrollBar(BarState.Off)
-        .layoutWeight(1)
-        .align(Alignment.Top)
-        .width(CommonConstants.FULL_PERCENT);
+          .margin({ bottom: $r('app.float.pay_card_top_margin'), top: 6 });
 
-        Button(this.payState)
-          .onClick(() => {
-            if (this.payState === DetailConstants.PAY_INFO[3]) {
-              HMRouterMgr.push({
-                pageUrl: 'PayDialogContent',
-                param: { totalPrice: this.totalPrice, pageUrl: this.pageUrl }
-              }, {
-                onResult: (popInfo: PopInfo) => {
-                  if (popInfo.result === DetailConstants.PAY_INFO[4]) {
-                    this.payState = popInfo.result.toString();
-                  }
-                }
-              });
-            } else if (this.payState === DetailConstants.PAY_INFO[4]) {
-              HMRouterMgr.pop({
-                navigationId: this.queryNavigationInfo()?.navigationId,
-                param: new ProductMsg(DetailConstants.COLOR_SELECT_NAME_LIST[this.color!],
-                  DetailConstants.CAPACITY_SELECT_NAME_LIST[this.memory!],
-                  this.totalPrice!.toString())
-              });
+          Row() {
+            Image($r('app.media.icon_position'))
+              .height(ResourceUtil.getCommonImgSize()[5])
+              .width(ResourceUtil.getCommonImgSize()[5])
+              .margin({ right: $r('app.float.pay_position_margin') });
+            Column() {
+              Text(DetailConstants.PAY_INFO[0])
+                .fontSize($r('app.float.pay_address_font'))
+                .fontWeight(CommonConstants.FONT_WEIGHT_500)
+                .width(CommonConstants.FULL_PERCENT)
+                .maxLines(1)
+                .textOverflow({ overflow: TextOverflow.Ellipsis })
+                .margin({ bottom: $r('app.float.pay_address_margin') });
+              Text(DetailConstants.PAY_INFO[1])
+                .fontSize($r('app.float.pay_contact_font'))
+                .fontColor($r('app.color.pay_contact_color'))
+                .width(CommonConstants.FULL_PERCENT)
+                .maxLines(1);
             }
+            .layoutWeight(1)
+            .alignItems(HorizontalAlign.Start);
+          }
+          .margin({ bottom: $r('app.float.pay_info_margin') })
+          .width(CommonConstants.FULL_PERCENT)
+          .backgroundColor($r('app.color.pay_card_background_color_1'))
+          .borderRadius(ResourceUtil.getCommonBorderRadius()[6])
+          .padding({
+            top: $r('app.float.pay_info_padding_top_bottom'),
+            bottom: $r('app.float.pay_info_padding_top_bottom'),
+            left: $r('app.float.pay_info_padding_left_right'),
+            right: $r('app.float.pay_info_padding_left_right')
+          });
+
+          Column() {
+            ForEach(this.payCardSelectList, (item: SelectProjectItem, index: number) => {
+              Column() {
+                Text(item.getName())
+                  .fontSize($r('app.float.pay_config_title_font'))
+                  .alignSelf(ItemAlign.Start)
+                  .margin({ bottom: $r('app.float.pay_config_title_margin') })
+                  .lineHeight($r('app.float.pay_config_title_line'))
+                  .fontWeight(CommonConstants.FONT_WEIGHT_500);
+                Flex({
+                  wrap: FlexWrap.Wrap,
+                  justifyContent: FlexAlign.Start
+                }) {
+                  ForEach(item.getSelectItemList(), (selectItem: SelectItem, selectIndex: number) => {
+                    Row() {
+                      Image(selectItem.getImage())
+                        .height(ResourceUtil.getCommonImgSize()[1])
+                        .width(ResourceUtil.getCommonImgSize()[1])
+                        .visibility(selectItem.getImage() === null ? Visibility.None : Visibility.Visible);
+                      Text(selectItem.getName())
+                        .fontColor(this.getShowColor(item.getName(), selectIndex,
+                          $r('app.color.pay_card_item_color_selected'), $r('app.color.pay_card_item_color_1')))
+                        .fontSize($r('app.float.pay_config_name_font'))
+                        .textAlign(TextAlign.Center)
+                        .margin({
+                          left: $r('app.float.pay_config_name_margin'),
+                          right: $r('app.float.pay_config_name_margin')
+                        });
+                    }
+                    .onClick(() => {
+                      PayMgr.getInstance().setProductChoose(item.getName(), selectIndex);
+                      if (item.getName() === DetailConstants.SELECT_NAME_LIST[0]) {
+                        this.color = PayMgr.getInstance().getProductChoose(DetailConstants.SELECT_NAME_LIST[0]);
+                      } else if (item.getName() === DetailConstants.SELECT_NAME_LIST[1]) {
+                        this.totalPrice = Number(DetailConstants.CUSTOMER_SERVICE_CONTENTS[selectIndex + 1]);
+                        this.memory = PayMgr.getInstance().getProductChoose(DetailConstants.SELECT_NAME_LIST[1]);
+                      }
+                    })
+                    .backgroundColor(this.getShowColor(item.getName(), selectIndex,
+                      $r('app.color.pay_card_item_background_color_selected'),
+                      $r('app.color.pay_card_item_background_color')))
+                    .border({
+                      color: this.getShowColor(item.getName(), selectIndex,
+                        $r('app.color.pay_card_item_color_selected'), $r('app.color.pay_card_item_color_2')),
+                      width: index === 0 ? $r('app.float.pay_config_border_width') : 0,
+                      radius: ResourceUtil.getCommonBorderRadius()[3]
+                    })
+                    .height($r('app.float.pay_config_height'))
+                    .margin({
+                      right: $r('app.float.pay_config_margin'),
+                      bottom: $r('app.float.pay_config_margin')
+                    });
+                  }, (selectItem: SelectItem, selectIndex: number) => JSON.stringify(selectItem) + selectIndex);
+                }
+                .width(CommonConstants.FULL_PERCENT);
+              }
+              .margin({ top: $r('app.float.pay_config_col_margin_top') })
+              .width(CommonConstants.FULL_PERCENT);
+            }, (item: SelectProjectItem, index: number) => JSON.stringify(item) + index);
+          }
+          .width(CommonConstants.FULL_PERCENT)
+          .margin({ bottom: $r('app.float.pay_config_col_margin_bottom') })
+          .backgroundColor($r('app.color.pay_card_background_color_1'))
+          .borderRadius(ResourceUtil.getCommonBorderRadius()[6])
+          .padding({
+            left: $r('app.float.pay_config_col_padding'),
+            right: $r('app.float.pay_config_col_padding')
+          });
+
+          Row() {
+            Image($r('app.media.icon_pay'))
+              .height(ResourceUtil.getCommonImgSize()[5])
+              .width(ResourceUtil.getCommonImgSize()[5])
+              .margin({ right: $r('app.float.pay_wallet_icon_margin') });
+            Text(DetailConstants.PAY_INFO[2])
+              .fontSize($r('app.float.pay_wallet_font'))
+              .fontWeight(CommonConstants.FONT_WEIGHT_500);
+            Blank();
+            Checkbox()
+              .select(true)
+              .selectedColor($r('app.color.util_button_2'))
+              .shape(CheckBoxShape.CIRCLE)
+              .width($r('app.float.checkbox_width'));
+          }
+          .padding({
+            top: $r('app.float.wallet_row_padding_1'),
+            left: $r('app.float.wallet_row_padding_2'),
+            bottom: $r('app.float.wallet_row_padding_1'),
+            right: $r('app.float.wallet_row_padding_2')
           })
-          .width('90%')
-          .backgroundColor($r('app.color.util_button_2'))
-          .height($r('app.float.pay_button_height'))
-          .margin(12);
+          .margin({ bottom: $r('app.float.wallet_row_margin') })
+          .borderRadius(ResourceUtil.getCommonBorderRadius()[6])
+          .backgroundColor($r('app.color.pay_card_background_color_1'))
+          .width(CommonConstants.FULL_PERCENT);
+        }
+        .width(CommonConstants.FULL_PERCENT)
+        .padding({ left: 24, right: 24 });
       }
-      .width(CommonConstants.FULL_PERCENT)
-      .borderRadius(this.currentBreakpoint === BreakpointConstants.BREAKPOINT_SM ? { topLeft: 40, topRight: 40 } : 40)
-      .width(this.currentBreakpoint === BreakpointConstants.BREAKPOINT_SM ? '100%' : '72%')
-      .height(this.currentBreakpoint === BreakpointConstants.BREAKPOINT_SM ? '70%' : '72%')
-      .border({
-        radius: this.currentBreakpoint === BreakpointConstants.BREAKPOINT_SM ? { topLeft: 20, topRight: 20 } : 20
-      })
-      .backgroundColor($r('app.color.pay_background_color'))
-      .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM]);
+      .scrollBar(BarState.Off)
+      .layoutWeight(1)
+      .align(Alignment.Top)
+      .width(CommonConstants.FULL_PERCENT);
+
+      Button(this.payState)
+        .onClick(() => {
+          if (this.payState === DetailConstants.PAY_INFO[3]) {
+            HMRouterMgr.to('PayDialogContent')
+              .withParam({totalPrice: this.totalPrice, pageUrl: this.pageUrl})
+              .onResult((info)=>{
+                if (info.result === DetailConstants.PAY_INFO[4]) {
+                  this.payState = info.result.toString();
+                }
+              })
+              .pushAsync()
+          } else if (this.payState === DetailConstants.PAY_INFO[4]) {
+            HMRouterMgr.popAsync({
+              navigationId: this.queryNavigationInfo()?.navigationId,
+              param: new ProductMsg(DetailConstants.COLOR_SELECT_NAME_LIST[this.color!],
+                DetailConstants.CAPACITY_SELECT_NAME_LIST[this.memory!],
+                this.totalPrice!.toString())
+            });
+          }
+        })
+        .width('90%')
+        .backgroundColor($r('app.color.util_button_2'))
+        .height($r('app.float.pay_button_height'))
+        .margin(12);
     }
-    .backgroundColor('rgba(0,0,0,0.2)')
-    .width('100%')
-    .height('100%')
-    .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
-    .alignItems(this.currentBreakpoint === BreakpointConstants.BREAKPOINT_SM ? VerticalAlign.Bottom :
-    VerticalAlign.Center)
-    .justifyContent(FlexAlign.Center);
+    .width(CommonConstants.FULL_PERCENT)
+    .borderRadius(this.currentBreakpoint === BreakpointConstants.BREAKPOINT_SM ? { topLeft: 40, topRight: 40 } : 40)
+    .width(this.currentBreakpoint === BreakpointConstants.BREAKPOINT_SM ? '100%' : '72%')
+    .height(this.currentBreakpoint === BreakpointConstants.BREAKPOINT_SM ? '70%' : '72%')
+    .border({
+      radius: this.currentBreakpoint === BreakpointConstants.BREAKPOINT_SM ? { topLeft: 20, topRight: 20 } : 20
+    })
+    .backgroundColor($r('app.color.pay_background_color'))
+    .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM]);
   }
 
   getShowColor(itemName: string, selectIndex: number, onFocusColor: Resource, outFocusColor: Resource): Resource {

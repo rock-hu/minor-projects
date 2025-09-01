@@ -13,12 +13,13 @@
  * limitations under the License.
  */
 
-import { curves, display, promptAction, ShowDialogSuccessResponse } from '@kit.ArkUI';
+import { curves, display, ShowDialogSuccessResponse } from '@kit.ArkUI';
 import { common } from '@kit.AbilityKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { NavDestinationItem } from '../../../viewmodel/NavDestinationItem';
 import { Constants } from '../common/Constants';
 import Logger from '../../../common/Logger';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 // Persistent data storage.
 PersistentStorage.persistProp('searchHistoryData', []);
@@ -189,24 +190,31 @@ export struct SearchComponent {
           Image($r('app.media.ic_public_delete'))
             .width($r('app.string.search_history_delete_size'))
             .onClick(() => {
-              this.getUIContext().getPromptAction().showDialog({
-                message: $r('app.string.search_delete_title'),
-                alignment: DialogAlignment.Center,
-                buttons: [
-                  {
-                    text: $r('app.string.delete_back'),
-                    color: $r('app.string.button_text_color')
-                  },
-                  {
-                    text: $r('app.string.delete_ok'),
-                    color: $r('app.string.button_text_color')
+              this.getUIContext()
+                .getPromptAction()
+                .showDialog({
+                  message: $r('app.string.search_delete_title'),
+                  alignment: DialogAlignment.Center,
+                  buttons: [
+                    {
+                      text: $r('app.string.delete_back'),
+                      color: $r('app.string.button_text_color')
+                    },
+                    {
+                      text: $r('app.string.delete_ok'),
+                      color: $r('app.string.button_text_color')
+                    }
+                  ]
+                })
+                .then((data: ShowDialogSuccessResponse) => {
+                  if (data.index === 1) {
+                    this.searchHistoryData = [];
                   }
-                ]
-              }).then((data: ShowDialogSuccessResponse) => {
-                if (data.index === 1) {
-                  this.searchHistoryData = [];
-                }
-              })
+                })
+                .catch((error: BusinessError) => {
+                  hilog.error(0x0000, 'SearchComponent',
+                    `showDialog failed. code=${error.code}, message=${error.message}`);
+                })
             })
         }
         .height($r('app.string.search_history_delete_size'))

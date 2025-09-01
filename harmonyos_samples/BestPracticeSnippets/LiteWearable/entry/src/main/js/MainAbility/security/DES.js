@@ -3,35 +3,35 @@ import huks from '@ohos.security.huks';
 
 // [Start des_encrypt]
 // [Start des_decrypt]
-// 别名，用于区分生成的KEY
+// Alias, used to distinguish the generated KEY.
 const DES_CBC_64_KEY_ALIAS = 'DesCBC64KeyAlias';
 // [StartExclude des_generate]
-// 三段式句柄，用于连接三段式上下文
+// Three-part handle, used for connecting three-part context.
 let handle;
 let IV = '12345678';
-// 明文，加密前数据
+// Plain text, data before encryption.
 let plainText = 'DESAAAdffssghCBC5612345612345L64';
-// 密文，存放加密后数据
+// Ciphertext, storing the encrypted data.
 let cipherText = '';
 // [EndExclude des_generate]
 
 // [StartExclude des_encrypt]
 // [StartExclude des_decrypt]
-// 配置生成密钥所需的Tag
+// Configure the Tag required for generating the key.
 function getDesGenProperties() {
     let properties = new Array();
     let index = 0;
-    // DES算法
+    // DES algorithm.
     properties[index++] = {
         tag: huks.HuksTag.HUKS_TAG_ALGORITHM,
         value: huks.HuksKeyAlg.HUKS_ALG_DES
     };
-    // 密钥长度64
+    // Key length: 64.
     properties[index++] = {
         tag: huks.HuksTag.HUKS_TAG_KEY_SIZE,
         value: huks.HuksKeySize.HUKS_DES_KEY_SIZE_64
     };
-    // 密钥用途，加密和解密
+    // Key usage, encryption and decryption.
     properties[index++] = {
         tag: huks.HuksTag.HUKS_TAG_PURPOSE,
         value: huks.HuksKeyPurpose.HUKS_KEY_PURPOSE_DECRYPT | huks.HuksKeyPurpose.HUKS_KEY_PURPOSE_ENCRYPT
@@ -40,7 +40,7 @@ function getDesGenProperties() {
     return properties;
 }
 
-// 生成密钥
+// Generate a key.
 function generateDESKey() {
     let huksInfo;
     let options = { properties: getDesGenProperties() }
@@ -58,37 +58,37 @@ function generateDESKey() {
 function getDesCBCEncryptProperties() {
     let properties = new Array();
     let index = 0;
-    // 算法
+    // algorithm.
     properties[index++] = {
         tag: huks.HuksTag.HUKS_TAG_ALGORITHM,
         value: huks.HuksKeyAlg.HUKS_ALG_DES
     };
 
-    // 密钥长度
+    // key length.
     properties[index++] = {
         tag: huks.HuksTag.HUKS_TAG_KEY_SIZE,
         value: huks.HuksKeySize.HUKS_DES_KEY_SIZE_64
     };
 
-    // 密钥用途
+    // Key usage.
     properties[index++] = {
         tag: huks.HuksTag.HUKS_TAG_PURPOSE,
         value: huks.HuksKeyPurpose.HUKS_KEY_PURPOSE_ENCRYPT
     };
 
-    // 填充方式
+    // Filling method.
     properties[index++] = {
         tag: huks.HuksTag.HUKS_TAG_PADDING,
         value: huks.HuksKeyPadding.HUKS_PADDING_NONE
     };
 
-    // 分组方式
+    // packet mode.
     properties[index++] = {
         tag: huks.HuksTag.HUKS_TAG_BLOCK_MODE,
         value: huks.HuksCipherMode.HUKS_MODE_CBC
     };
 
-    // 分组加密偏移向量，更安全
+    // Group encryption offset vector, more secure.
     properties[index++] = {
         tag: huks.HuksTag.HUKS_TAG_IV,
         value: stringToUint8Array(IV)
@@ -143,7 +143,7 @@ function encryptDES() {
                 }
             });
         } else {
-            // 密文接收
+            // Encrypted message reception
             cipherText = uint8ArrayToString(updateData.outData);
             huksInfo = cipherText
         }
@@ -163,7 +163,7 @@ function encryptDES() {
                 }
             });
         } else {
-            // 密文接收
+            // Encrypted message reception
             cipherText = cipherText + uint8ArrayToString(finishData.outData);
             huksInfo = cipherText
         }
@@ -194,32 +194,32 @@ function uint8ArrayToString(fileData) {
 function GetDesCBCDecryptProperties() {
     let properties = new Array();
     let index = 0;
-    // 算法
+    // algorithm
     properties[index++] = {
         tag: huks.HuksTag.HUKS_TAG_ALGORITHM,
         value: huks.HuksKeyAlg.HUKS_ALG_DES
     };
-    // 密钥长度
+    // key length
     properties[index++] = {
         tag: huks.HuksTag.HUKS_TAG_KEY_SIZE,
         value: huks.HuksKeySize.HUKS_DES_KEY_SIZE_64
     };
-    // 密钥用途
+    // Key usage
     properties[index++] = {
         tag: huks.HuksTag.HUKS_TAG_PURPOSE,
         value: huks.HuksKeyPurpose.HUKS_KEY_PURPOSE_DECRYPT
     };
-    // 填充方式
+    // Filling method
     properties[index++] = {
         tag: huks.HuksTag.HUKS_TAG_PADDING,
         value: huks.HuksKeyPadding.HUKS_PADDING_NONE
     };
-    // 分组方式
+    // packet mode
     properties[index++] = {
         tag: huks.HuksTag.HUKS_TAG_BLOCK_MODE,
         value: huks.HuksCipherMode.HUKS_MODE_CBC
     };
-    // 分组加密偏移向量，更安全
+    // Group encryption offset vector, more secure
     properties[index++] = {
         tag: huks.HuksTag.HUKS_TAG_IV,
         value: stringToUint8Array(IV)
@@ -274,7 +274,7 @@ function decryptDES() {
                 }
             });
         } else {
-            // 明文接收
+            // Clear text reception
             outPlainText = uint8ArrayToString(updateData.outData);
             huksInfo = outPlainText;
         }
@@ -294,7 +294,7 @@ function decryptDES() {
                 }
             });
         } else {
-            // 明文接收
+            // Clear text reception
             outPlainText = outPlainText + uint8ArrayToString(finishData.outData);
             huksInfo = outPlainText;
         }

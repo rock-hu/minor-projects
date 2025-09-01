@@ -14,6 +14,8 @@
  */
 
 import Constants from '../constants/Constants';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 @Component
 export struct VotingComponent {
@@ -98,7 +100,7 @@ export struct VotingComponent {
               return;
             }
             this.leftOptionChoose++;
-            this.changeState(this.ResourceToString($r('app.string.left_option')));
+            this.changeState(this.resourceToString($r('app.string.left_option')));
           })
 
           Stack() {
@@ -123,7 +125,7 @@ export struct VotingComponent {
                   Text(this.rightOptionWidth)
                     .fontColor(Constants.RIGHT_COLOR)
                     .fontSize($r('app.integer.voting_component_upper_text_font_size'))
-                  Text(this.ResourceToString($r('app.string.right_option')))
+                  Text(this.resourceToString($r('app.string.right_option')))
                     .fontColor(Constants.RIGHT_COLOR)
                     .fontSize($r('app.integer.voting_component_under_text_font_size'))
                 }
@@ -134,7 +136,7 @@ export struct VotingComponent {
               return;
             }
             this.rightOptionChoose++;
-            this.changeState(this.ResourceToString($r('app.string.right_option')));
+            this.changeState(this.resourceToString($r('app.string.right_option')));
           })
         }
 
@@ -171,7 +173,8 @@ export struct VotingComponent {
           .fontSize($r('app.integer.voting_component_bottom_text_font_size'))
         Stack() {
           if (this.isClick) {
-            Text(this.leftOptionChoose + this.rightOptionChoose + this.ResourceToString($r('app.string.bottom_text_suffix')))
+            Text(this.leftOptionChoose + this.rightOptionChoose +
+            this.resourceToString($r('app.string.bottom_text_suffix')))
               .fontSize($r('app.integer.voting_component_bottom_text_font_size'))
           }
         }
@@ -183,9 +186,17 @@ export struct VotingComponent {
     .justifyContent(FlexAlign.Start)
   }
 
-  ResourceToString(resource:Resource):string {
-    return this.getUIContext().getHostContext()!.resourceManager.getStringSync(resource)
- }
+  resourceToString(resource: Resource): string {
+    let result = '';
+    try {
+      result = this.getUIContext().getHostContext()!.resourceManager.getStringSync(resource.id);
+    } catch (err) {
+      let error = err as BusinessError;
+      hilog.error(0x0000, 'VotingComponent',
+        `getStringSync failed. error code=${error.code}, message=${error.message}`);
+    }
+    return result;
+  }
 }
 
 @Builder

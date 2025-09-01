@@ -9,7 +9,7 @@ struct Index {
 
   build() {
     Column() {
-      // Load the business Web component at an appropriate time. This example takes the Button click trigger as an example.在适当的时机加载业务用Web组件，本例以Button点击触发为例
+      // Load the business Web component at an appropriate time. This example takes the Button click trigger as an example.
       Button('加载页面')
         .onClick(() => {
           // Performance dot

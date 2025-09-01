@@ -28,7 +28,7 @@ export struct MineSetting {
       Column() {
         ReturnHeader({
           title: MineConstants.MINE_LOG_OUT_TITLE, returnFunc: () => {
-            HMRouterMgr.pop({
+            HMRouterMgr.popAsync({
               navigationId: this.queryNavigationInfo()?.navigationId
             });
           }
@@ -81,14 +81,12 @@ export struct MineSetting {
         .fontColor($r('app.color.mine_setting_button_font_color'))
         .backgroundColor($r('app.color.mine_setting_button_background_color'))
         .onClick(() => {
-          HMRouterMgr.push({
-            navigationId: this.queryNavigationInfo()?.navigationId,
-            pageUrl: 'ExitLogin'
-          }, {
-            onArrival: () => {
+          HMRouterMgr.to('ExitLogin')
+            .withNavigation(this.queryNavigationInfo()?.navigationId)
+            .onArrival(() => {
               console.log('===跳转成功');
-            }
-          });
+            })
+            .pushAsync()
         });
     }
     .width('100%')

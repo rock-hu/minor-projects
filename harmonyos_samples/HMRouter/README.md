@@ -18,7 +18,6 @@
 |  └── CustomPageAnimator.ets
 ├── component                                // HMRouter页面代码
 |  ├── common
-|  |  ├── ButtonTabs.ets
 |  |  ├── ConfirmDialog.ets
 |  |  ├── ReturnHeader.ets
 |  |  ├── constants
@@ -67,7 +66,6 @@
 |  |  ├── PayDialogContent.ets
 |  |  └── PaySuccessPageComponent.ets
 |  ├── privacy
-|  |  ├── PrivacyDialogContent.ets
 |  |  ├── PrivacyDialogDetail.ets
 |  |  └── PrivacyPageContent.ets
 |  ├── product
@@ -112,6 +110,7 @@
 |  └── WelcomeLifecycle.ets
 ├── pages                                       // HMNavigation入口
 |  └── Index.ets
+|  └── MainPage.ets
 └── service                                     // 服务路由
    └── ServiceSample.ets
 ```

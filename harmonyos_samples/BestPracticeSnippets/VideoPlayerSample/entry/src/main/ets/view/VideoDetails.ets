@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 import { CommonConstants as Const, VideoData } from '@ohos/MediaService';
-import { promptAction } from '@kit.ArkUI';
 
 @Component({ freezeWhenInactive: true })
 export struct VideoDetails {

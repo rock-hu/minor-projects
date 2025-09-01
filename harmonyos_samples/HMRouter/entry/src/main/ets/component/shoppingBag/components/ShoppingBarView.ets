@@ -13,7 +13,6 @@
  *   limitations under the License.
  */
 
-import { curves } from '@kit.ArkUI';
 import { deviceInfo } from '@kit.BasicServicesKit';
 import { CommonConstants } from '../../common/constants/CommonConstants';
 import { ShoppingBagConstants } from '../../common/constants/ShoppingBagConstants';
@@ -21,13 +20,11 @@ import { ShoppingBagCard } from './ShoppingBagCard';
 import { ShoppingCardFoot } from './ShoppingCardFoot';
 import { BreakpointConstants } from '../../common/constants/BreakpointConstants';
 import { ResourceUtil } from '../../common/utils/ResourceUtil';
-import { ButtonTabs } from '../../common/ButtonTabs';
 
 @Component
 export struct ShoppingBagView {
   @StorageLink('currentBreakpoint') currentBreakpoint: string = BreakpointConstants.BREAKPOINT_SM;
   @StorageLink('topRectHeight') topRectHeight: number = 0;
-  @Link showTabsBtn: boolean;
 
   build() {
     Column() {
@@ -49,7 +46,7 @@ export struct ShoppingBagView {
           .height($r('app.float.bag_title_row_height'))
           .width(CommonConstants.FULL_PERCENT);
 
-          ShoppingBagCard();
+          ShoppingBagCard()
         }
         .width(CommonConstants.FULL_PERCENT)
         .layoutWeight(1)
@@ -59,6 +56,7 @@ export struct ShoppingBagView {
         });
 
         ShoppingCardFoot()
+          .margin({bottom:56})
           .visibility(this.currentBreakpoint === BreakpointConstants.BREAKPOINT_LG ? Visibility.None :
           Visibility.Visible);
       }
@@ -72,12 +70,6 @@ export struct ShoppingBagView {
         width: {right: this.currentBreakpoint === BreakpointConstants.BREAKPOINT_LG ? 1 : 0},
         color: ResourceUtil.getCommonBorderColor()[1]
       });
-
-      Column() {
-        ButtonTabs();
-      }.height(this.showTabsBtn ? 'auto' : 0)
-      .animation({curve: curves.springMotion()})
-      .clip(true);
     };
   }
 }

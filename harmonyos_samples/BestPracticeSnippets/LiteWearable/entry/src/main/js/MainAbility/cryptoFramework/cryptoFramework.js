@@ -6,7 +6,7 @@ export default {
         title: ""
     },
     onInit() {
-        this.title = "Hello World";
+        this.title = 'Hello World';
     }
 };
 // [EndExclude do_md]
@@ -20,31 +20,32 @@ function stringToUint8Array(str) {
 }
 
 function doMd() {
-    let mdAlgName = 'SHA256'; // 摘要算法名
-    let message = 'mdTestMessage'; // 待摘要的数据
+    let mdAlgName = 'SHA256'; // Abstract algorithm name.
+    let message = 'mdTestMessage'; // The data to be summarized.
     let handle;
     let mdResult;
     let mdLen;
-    //指定摘要算法SHA256，生成摘要操作实例
+    // Specify the digest algorithm SHA256 and generate an instance of the digest operation.
     try {
         handle = cryptoFramework.createMd(mdAlgName);
     } catch (error) {
         console.error(`createMd error, code: ${error.code}, msg: ${error.message}`);
     }
     try {
-        // 数据量较少时，可以只做一次update，将数据全部传入，接口未对入参长度做限制
+        // When the data volume is small, only one update operation can be performed, and all the data can be sent in.
+        // The interface does not impose any restrictions on the length of the input parameters.
         handle?.updateSync({ data: stringToUint8Array(message) });
     } catch (error) {
         console.error(`updateSync error, code:+${error.code}, msg: ${error.message}`);
     }
-    // 获取摘要计算结果。
+    // Obtain the summary calculation results.
     try {
         mdResult = handle?.digest();
     } catch (error) {
         console.error(`digest error, code: ${error.code}, msg: ${error.message}`);
     }
     console.info('Md result:' + mdResult?.data);
-    // 获取摘要计算长度，单位为字节
+    // Obtain the length of the summary calculation, with the unit being bytes.
     try {
         mdLen = handle?.getMdLength();
     } catch (error) {
@@ -58,7 +59,7 @@ function doRand() {
     let rand;
     let ret = true;
     let randData
-    // 生成随机数操作实例
+    // Example of generating random numbers operation.
     try {
         rand = cryptoFramework.createRandom();
     } catch (error) {
@@ -66,7 +67,7 @@ function doRand() {
         console.error(`createRandom error, code:+${error.code}, msg: ${error.message}`);
     }
     let len = 24; // Generate a 24-byte random number.
-    // (可选)调用Random.setSeed，为随机数生成池设置种子
+    // (Optional) Call Random.setSeed to set the seed for the random number generation pool.
     let seed = new Uint8Array([1, 2, 3]);
     try {
         rand?.setSeed({ data: seed });
@@ -76,7 +77,7 @@ function doRand() {
     }
 
     try {
-        //生成安全随机数
+        // Generate secure random numbers.
         randData = rand?.generateRandomSync(len);
     } catch (error) {
         ret = false;

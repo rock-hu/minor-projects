@@ -51,7 +51,7 @@ function prepareBooksInfo() {
     // ...
     dbInfo.books_?.push(book);
   }
-  let res = taskpool.execute(doDBOperations, dbInfo); // 通过taskpool进行跨并发实例传递
+  let res = taskpool.execute(doDBOperations, dbInfo); // Passing across concurrent instances through taskpool
 }
 @Concurrent
 function doDBOperations(info : BookDBInfo) {

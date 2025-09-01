@@ -6,7 +6,7 @@
 
 ### 效果图预览
 
-![](../../../../../..//screenshots/device/swiper.gif)
+![](../../../../../../screenshots/device/Swiper.gif)
 
 ##### 使用说明
 
@@ -28,8 +28,8 @@
 
 1. 本示例仅支持标准系统上运行，支持设备：华为手机。
 
-2. HarmonyOS系统：HarmonyOS NEXT Developer Beta1及以上。
+2. HarmonyOS系统：HarmonyOS 5.0.5 Release及以上。
 
-3. DevEco Studio版本：DevEco Studio NEXT Developer Beta1及以上。
+3. DevEco Studio版本：DevEco Studio 5.0.5 Release及以上。
 
-4. HarmonyOS SDK版本：HarmonyOS NEXT Developer Beta1 SDK及以上。
+4. HarmonyOS SDK版本：HarmonyOS 5.0.5 Release SDK及以上。

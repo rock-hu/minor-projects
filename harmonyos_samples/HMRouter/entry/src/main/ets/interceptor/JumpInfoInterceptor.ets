@@ -13,18 +13,20 @@
  *   limitations under the License.
  */
 
-import { HMActionType, HMInterceptorAction, HMInterceptorInfo, IHMInterceptor } from '@hadss/hmrouter';
+import { HMActionType, HMInterceptorAction, HMInterceptorInfo, IHMInterceptor,
+  IHMInterceptorChain } from '@hadss/hmrouter';
 
 export class JumpInfoInterceptor implements IHMInterceptor {
-  handle(info: HMInterceptorInfo): HMInterceptorAction {
+  async intercept(chain: IHMInterceptorChain): Promise<void> {
+    const info = chain.getRouterInfo();
+    const context = chain.getContext();
     let connectionInfo: string = '';
     if(info.type === HMActionType.PUSH) {
       connectionInfo = 'jump to';
     } else {
       connectionInfo = 'back to';
     }
-
     console.log(`${info.srcName} ${connectionInfo} ${info.targetName}`);
-    return HMInterceptorAction.DO_NEXT;
+    await chain.onContinue()
   }
 }

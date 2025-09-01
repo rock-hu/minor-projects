@@ -28,20 +28,18 @@ import {
 } from '@hadss/hmrouter';
 import { CommonConstants } from '../common/constants/CommonConstants';
 import { LiveConstants } from '../common/constants/LiveConstants'
+import { AttributeUpdater } from '@kit.ArkUI';
 
 @HMAnimator({animatorName: 'closeLiveCommentsAnimator'})
 export class CloseLiveCommentsAnimator implements IHMAnimator {
   effect(enterHandle: HMAnimatorHandle, exitHandle: HMAnimatorHandle): void {
 
     // exit animation
-    exitHandle.start((translateOption: TranslateOption, scaleOption: ScaleOption,
-      opacityOption: OpacityOption) => {
-      translateOption.y = '0';
-    });
-    exitHandle.finish((translateOption: TranslateOption, scaleOption: ScaleOption,
-      opacityOption: OpacityOption) => {
-      translateOption.y = '100%';
-    });
+    exitHandle.start((modifier: AttributeUpdater<NavDestinationAttribute>) => {
+      modifier.attribute?.translate({ y: '0' })
+    }).finish((modifier: AttributeUpdater<NavDestinationAttribute>) => {
+      modifier.attribute?.translate({ y: '100%' })
+    })
     exitHandle.duration = 500;
   }
 }
@@ -59,11 +57,10 @@ export struct LiveCommentsHeader {
       Image($r('app.media.icon_close_1'))
         .width(20)
         .onClick(() => {
-          HMRouterMgr.pop({
-            navigationId: this.queryNavigationInfo()?.navigationId,
-            pageUrl: 'liveHome',
-            animator: new CloseLiveCommentsAnimator()
-          });
+          HMRouterMgr.to('liveHome')
+            .withNavigation(this.queryNavigationInfo()?.navigationId)
+            .withAnimator(new CloseLiveCommentsAnimator())
+            .popAsync()
           this.videoHeight = CommonConstants.FULL_PERCENT;
         });
     }

@@ -16,7 +16,7 @@
 @Component
 export struct ImageText {
   @Prop imageStr: Resource;
-  private text: string | Resource = '';
+  text: string | Resource = '';
 
   build() {
     Row() {

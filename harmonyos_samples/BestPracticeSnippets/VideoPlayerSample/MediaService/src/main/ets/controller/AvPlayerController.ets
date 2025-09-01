@@ -18,16 +18,13 @@ import { media } from '@kit.MediaKit';
 import { audio } from '@kit.AudioKit';
 import { avSession } from '@kit.AVSessionKit';
 import { BusinessError } from '@kit.BasicServicesKit';
-import { BackgroundTaskManager } from '../utils/BackgroundTaskManager';
 import { AVPlayerState, CommonConstants } from '../common/CommonConstants';
 import { secondToTime } from '../utils/CommUtils'
 import { VideoData } from '../model/VideoData';
 import { AvSessionController } from './AvSessionController';
 import Logger from '../utils/Logger';
-import { hilog } from '@kit.PerformanceAnalysisKit';
 
 const TAG = '[AvPlayerController]';
-const uiContext: UIContext | undefined = AppStorage.get('uiContext');
 
 @Observed
 export class AvPlayerController {
@@ -44,12 +41,10 @@ export class AvPlayerController {
   private curSource: VideoData;
   private context: common.UIAbilityContext | undefined = AppStorage.get('context');
   private avSessionController: AvSessionController;
-  private uiContext: UIContext
 
-  constructor(curSource: VideoData, context: UIContext) {
+  constructor(curSource: VideoData) {
     this.curSource = curSource;
     this.avSessionController = AvSessionController.getInstance();
-    this.uiContext = context;
   }
 
   public initAVPlayer() {
@@ -85,6 +80,7 @@ export class AvPlayerController {
       return;
     }
 
+    const uiContext: UIContext | undefined = AppStorage.get('uiContext');
     avPlayer.on('timeUpdate', (time: number) => {
       if (time > this.currentTime * 1000) {
         uiContext?.animateTo({ duration: 1000, curve: Curve.Linear }, () => {
@@ -116,12 +112,17 @@ export class AvPlayerController {
     if (!this.avSessionController) {
       return;
     }
-    this.avSessionController.getAvSession()?.on('play', () => this.sessionPlayCallback()); // Set the play command listening event.
-    this.avSessionController.getAvSession()?.on('pause', () => this.sessionPauseCallback()); // Set the pause command to listen for events.
-    this.avSessionController.getAvSession()?.on('stop', () => this.sessionStopCallback()); // Set the stop command to listen for events.
-    this.avSessionController.getAvSession()?.on('fastForward', (time?: number) => this.sessionFastForwardCallback(time)); // Set fast forward command listening events
-    this.avSessionController.getAvSession()?.on('rewind', (time?: number) => this.sessionRewindCallback(time)); // Set the fast back command to listen for events.
-    this.avSessionController.getAvSession()?.on('seek', (seekTime: number) => this.sessionSeekCallback(seekTime)); // Set the jump node to listen to events.
+    try {
+      this.avSessionController.getAvSession()?.on('play', () => this.sessionPlayCallback());
+      this.avSessionController.getAvSession()?.on('pause', () => this.sessionPauseCallback());
+      this.avSessionController.getAvSession()?.on('stop', () => this.sessionStopCallback());
+      this.avSessionController.getAvSession()?.on('fastForward',
+        (time?: number) => this.sessionFastForwardCallback(time));
+      this.avSessionController.getAvSession()?.on('rewind', (time?: number) => this.sessionRewindCallback(time));
+      this.avSessionController.getAvSession()?.on('seek', (seekTime: number) => this.sessionSeekCallback(seekTime));
+    } catch (err) {
+      Logger.error(TAG, `setAvSessionListener failed, code is ${err.code}, message is ${err.message}`);
+    }
   }
   // [End listener1]
 
@@ -239,14 +240,14 @@ export class AvPlayerController {
     // [Start player3]
     this.avPlayer.on('audioOutputDeviceChangeWithInfo', (data: audio.AudioStreamDeviceChangeInfo) => {
       if (data.changeReason === audio.AudioStreamDeviceChangeReason.REASON_NEW_DEVICE_AVAILABLE) {
-        hilog.info(0x0001, TAG, `Device connect: ${data.changeReason}`);
+        Logger.info(TAG, `Device connect: ${data.changeReason}`);
       }
     });
     // [End player3]
     // [Start pause_video]
     this.avPlayer.on('audioOutputDeviceChangeWithInfo', (data: audio.AudioStreamDeviceChangeInfo) => {
       if (data.changeReason === audio.AudioStreamDeviceChangeReason.REASON_OLD_DEVICE_UNAVAILABLE) {
-        hilog.info(0x0001, TAG, `Device connect: ${data.changeReason}`);
+        Logger.info(TAG, `Device connect: ${data.changeReason}`);
         this.pauseVideo();
       }
     });
@@ -429,17 +430,18 @@ export class AvPlayerController {
 
   public releaseVideo(index: number) {
     if (this.avPlayer) {
-      Logger.info(TAG,
-        `releaseVideo: state:${this.avPlayer.state} this.curIndex:${this.curIndex} this.index:${index}`);
-      this.avPlayer.off('timeUpdate');
-      this.avPlayer.off('seekDone');
-      this.avPlayer.off('speedDone');
-      this.avPlayer.off('error');
-      this.avPlayer.off('stateChange');
-      this.avPlayer.off('audioInterrupt');
-      this.avPlayer.off('audioOutputDeviceChangeWithInfo');
-      this.avPlayer.release();
-      this.avSessionController?.unregisterSessionListener();
+      Logger.info(TAG, `releaseVideo: state:${this.avPlayer.state} this.curIndex:${this.curIndex} this.index:${index}`);
+      try {
+        this.avPlayer.off('timeUpdate');
+        this.avPlayer.off('seekDone');
+        this.avPlayer.off('speedDone');
+        this.avPlayer.off('error');
+        this.avPlayer.off('stateChange');
+        this.avPlayer.release();
+        this.avSessionController?.unregisterSessionListener();
+      } catch (err) {
+        Logger.error(TAG, `releaseVideo failed, err.code:${err.code}, err.message:${err.message}`);
+      }
     }
   }
 }

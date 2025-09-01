@@ -14,21 +14,22 @@
  */
 
 import { image } from '@kit.ImageKit';
-
-const uiContext: UIContext | undefined = AppStorage.get('uiContext');
+import Logger from './Logger';
 
 export class ImageUtil {
   public static async getPixmapFromMedia(resource: Resource) {
-    let unit8Array = await uiContext?.getHostContext()?.resourceManager?.getMediaContent({
-      bundleName: resource.bundleName,
-      moduleName: resource.moduleName,
-      id: resource.id
-    });
-    let imageSource = image.createImageSource(unit8Array?.buffer.slice(0, unit8Array?.buffer.byteLength));
-    let createPixelMap: image.PixelMap = await imageSource.createPixelMap({
-      desiredPixelFormat: image.PixelMapFormat.RGBA_8888
-    });
-    await imageSource.release();
-    return createPixelMap;
+    const uiContext: UIContext | undefined = AppStorage.get('uiContext');
+    try {
+      let unit8Array = uiContext?.getHostContext()?.resourceManager?.getMediaContentSync(resource.id);
+      let imageSource = image.createImageSource(unit8Array?.buffer.slice(0, unit8Array?.buffer.byteLength));
+      let createPixelMap: image.PixelMap = await imageSource.createPixelMap({
+        desiredPixelFormat: image.PixelMapFormat.RGBA_8888
+      });
+      await imageSource.release();
+      return createPixelMap;
+    } catch (err) {
+      Logger.error('ImageUtil', `getPixmapFromMedia failed, err.code:${err.code}, err.message:${err.message}`);
+      return undefined;
+    }
   }
 }

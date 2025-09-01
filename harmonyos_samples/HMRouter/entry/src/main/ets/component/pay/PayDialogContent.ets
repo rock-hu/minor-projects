@@ -97,57 +97,54 @@ export struct PayDialogContent {
   }
 
   build() {
-    Row() {
-      Column() {
-        // header
-        Flex({ direction: FlexDirection.Row, justifyContent: FlexAlign.End }) {
-          Image($r('app.media.ic_bottomsheet_close3x'))
-            .width(30)
-            .height(30)
-            .objectFit(ImageFit.Contain)
-            .margin({ top: 20, right: 20 })
-            .onClick(() => {
-              HMRouterMgr.push({
-                navigationId: this.queryNavigationInfo()?.navigationId,
-                pageUrl: 'PayCancel',
-                param: this.pageUrl
-              });
-            });
-        };
-
-        // center/content
-        Column() {
-          payDialogContentBuilder(this.totalPrice);
-        }
-        .height('75%');
-
-        // footer
-        Button(PayConstants.PAY_CARD_BUTTON, { type: ButtonType.Capsule })
+    Column() {
+      // header
+      Flex({ direction: FlexDirection.Row, justifyContent: FlexAlign.End }) {
+        Image($r('app.media.ic_bottomsheet_close3x'))
+          .width(30)
+          .height(30)
+          .objectFit(ImageFit.Contain)
+          .margin({ top: 20, right: 20 })
           .onClick(() => {
-            HMRouterMgr.push({
-              navigationId: this.queryNavigationInfo()?.navigationId,
-              pageUrl: 'PaySuccessPageComponent',
-              param: { totalPrice: this.totalPrice, pageUrl: this.pageUrl }
-            });
-          })
-          .width('90%')
-          .backgroundColor($r('app.color.pay_dialog_button_background_color'))
-          .height(40)
-          .margin(12);
+            // HMRouterMgr.push({
+            //   navigationId: this.queryNavigationInfo()?.navigationId,
+            //   pageUrl: 'PayCancel',
+            //   param: this.pageUrl
+            // });
+            HMRouterMgr.to('PayCancel')
+              .withNavigation(this.queryNavigationInfo()?.navigationId)
+              .withParam(this.pageUrl)
+              .pushAsync()
+          });
+      };
+
+      // center/content
+      Column() {
+        payDialogContentBuilder(this.totalPrice);
       }
-      .backgroundColor($r('app.color.pay_background_color'))
-      .borderRadius(this.currentBreakpoint === BreakpointConstants.BREAKPOINT_SM ? { topLeft: 20, topRight: 20 } : 20)
-      .width(this.currentBreakpoint === BreakpointConstants.BREAKPOINT_SM ? '100%' : '72%')
-      .height(this.currentBreakpoint === BreakpointConstants.BREAKPOINT_SM ? '80%' : '72%')
-      .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM]);
+      .height('75%');
+
+      // footer
+      Button(PayConstants.PAY_CARD_BUTTON, { type: ButtonType.Capsule })
+        .onClick(() => {
+          HMRouterMgr.to('PaySuccessPageComponent')
+            .withNavigation(this.queryNavigationInfo()?.navigationId)
+            .withParam({totalPrice: this.totalPrice, pageUrl: this.pageUrl})
+            .pushAsync()
+        })
+        .width('90%')
+        .backgroundColor($r('app.color.pay_dialog_button_background_color'))
+        .height(40)
+        .margin(12);
     }
-    .backgroundColor('rgba(0,0,0,0.2)')
-    .width('100%')
-    .height('100%')
+    .backgroundColor($r('app.color.pay_background_color'))
+    .borderRadius(this.currentBreakpoint === BreakpointConstants.BREAKPOINT_SM ? { topLeft: 20, topRight: 20 } : 20)
+    .width(this.currentBreakpoint === BreakpointConstants.BREAKPOINT_SM ? '100%' : '72%')
+    .height(this.currentBreakpoint === BreakpointConstants.BREAKPOINT_SM ? '80%' : '72%')
     .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
-    .alignItems(this.currentBreakpoint === BreakpointConstants.BREAKPOINT_SM ? VerticalAlign.Bottom :
-    VerticalAlign.Center)
-    .justifyContent(FlexAlign.Center);
+    .position({
+      bottom:0
+    })
   }
 
   // [EndExclude HMRouter_lifecycle]
@@ -161,7 +158,9 @@ export class ExitPayDialog implements IHMLifecycle {
   model: ObservedModel = new ObservedModel();
 
   onBackPressed(): boolean {
-    HMRouterMgr.push({ pageUrl: 'PayCancel', param: this.model.pageUrl });
+    HMRouterMgr.to('PayCancel')
+      .withParam(this.model.pageUrl)
+      .pushAsync()
     return true;
   }
 }
@@ -172,7 +171,9 @@ export class ExitPayLifecycle implements IHMLifecycle {
   model: ObservedModel = new ObservedModel();
 
   onBackPressed(): boolean {
-    HMRouterMgr.push({ pageUrl: 'PayCancel', param: this.model.pageUrl });
+    HMRouterMgr.to('PayCancel')
+      .withParam(this.model.pageUrl)
+      .pushAsync()
     return true;
   }
 }

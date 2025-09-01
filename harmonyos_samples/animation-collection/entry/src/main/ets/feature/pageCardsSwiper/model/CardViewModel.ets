@@ -16,6 +16,8 @@
 import { display } from '@kit.ArkUI';
 import { CardInfo } from '../model/CardModel';
 import Constants from '../common/Constants';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 @Component
 export default struct CardComponent {
@@ -27,23 +29,29 @@ export default struct CardComponent {
   @State cardWith: number = this.cardInfo.width;
   @State cardHeight: number = this.cardInfo.height;
   @State isTablet: boolean = false;
-  @State screenW: number = this.getUIContext().px2vp(display.getDefaultDisplaySync().width);
+  @State screenW: number = 0;
   @State isPhotoShow: boolean = false;
   @Prop cardOffset: number = 0;
   @Prop showingCard: number = 0;
   cardIndex: number = 0;
 
   aboutToAppear(): void {
-    if (canIUse('SystemCapability.Window.SessionManager')) {
-      if ((display.isFoldable() && display.getFoldStatus() === display.FoldStatus.FOLD_STATUS_EXPANDED) ||
-        this.screenW >= Constants.DEVICE_SIZE) {
-        this.isTablet = true;
-      } else {
-        this.isTablet = false;
+    try {
+      this.screenW = this.getUIContext().px2vp(display.getDefaultDisplaySync().width);
+      if (canIUse('SystemCapability.Window.SessionManager')) {
+        if ((display.isFoldable() && display.getFoldStatus() === display.FoldStatus.FOLD_STATUS_EXPANDED) ||
+          this.screenW >= Constants.DEVICE_SIZE) {
+          this.isTablet = true;
+        } else {
+          this.isTablet = false;
+        }
       }
+      this.cardWith = this.cardInfo.width;
+      this.cardHeight = this.cardInfo.height;
+    } catch (err) {
+      let error = err as BusinessError;
+      hilog.error(0x0000, 'CardComponent', `aboutToAppear failed. error code=${error.code}, message=${error.message}`);
     }
-    this.cardWith = this.cardInfo.width;
-    this.cardHeight = this.cardInfo.height;
   }
 
   build() {

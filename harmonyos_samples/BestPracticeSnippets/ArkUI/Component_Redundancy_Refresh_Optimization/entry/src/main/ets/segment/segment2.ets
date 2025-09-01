@@ -40,27 +40,36 @@ struct ComponentA {
         specialImageScaleStyle: this.scaleStyle
       })
       // Other UI components
-      Stack() {
         Column() {
+        // 需要替换为开发者所需的图像资源文件
           Image($r('app.media.startIcon'))
+            .height('150vp')
+            .width('150vp')
             .scale({
               x: this.scaleStyle.scaleX,
               y: this.scaleStyle.scaleY
             })
+          Text('Hello World')
+            .fontWeight(FontWeight.Bold)
         }
 
-        Stack() {
-          Text('Hello World')
-        }
-      }
       .translate({
         x: this.translateStyle.translateX,
         y: this.translateStyle.translateY
       })
-
+      .width('95%')
+      .height('200vp')
+      .margin({
+        top: '10vp',
+        left: '15vp',
+        right: '15vp'
+      })
+      .borderRadius('16vp')
+      .backgroundColor(Color.White)
       // Modify the value of a state variable via a button click callback, causing the corresponding component to refresh.
       Column() {
         Button('Move')
+          .width('80%')
           .onClick(() => {
             this.getUIContext().animateTo({ duration: animationDuration }, () => {
               this.translateStyle.translateY =
@@ -68,10 +77,19 @@ struct ComponentA {
             })
           })
         Button('Scale')
+          .width('80%')
           .onClick(() => {
             this.scaleStyle.scaleX = (this.scaleStyle.scaleX + scaleXChangeValue) % scaleXChangeRange;
           })
+          .margin({
+            top: '10vp',
+            left: '15vp',
+            right: '15vp'
+          })
       }
+      .height('35%')
+      .justifyContent(FlexAlign.End)
+      .width('100%')
     }
   }
 }
@@ -90,14 +108,26 @@ struct SpecialImage {
 
   build() {
     Column() {
+      // 需要替换为开发者所需的图像资源文件
       Image($r('app.media.startIcon'))
+        .size({ width: 78, height: 78 })
         .scale({
           x: this.specialImageScaleStyle.scaleX,
           y: this.specialImageScaleStyle.scaleY
         })
         .opacity(this.isRenderSpecialImage())
       Text("SpecialImage")
+        .fontWeight(FontWeight.Bold)
     }
+    .width('95%')
+    .margin({
+      top: '10vp',
+      left: '15vp',
+      right: '15vp'
+    })
+    .borderRadius('16vp')
+    .height('200vp')
+    .backgroundColor(Color.White)
   }
 }
 
@@ -113,6 +143,9 @@ struct DFXStateAfterOptimization {
         translateStyle: this.uiStyle.translateStyle,
       })
     }
+    .width('100%')
+    .height('100%')
+    .backgroundColor(0xDCDCDC)
   }
 }
 

@@ -46,6 +46,5 @@ async function read() {
   let file: fs.File = fs.openSync(filePath, fs.OpenMode.READ_ONLY); // Open the file
   let buf = new ArrayBuffer(bufferSize);
   let readSize: number = await fs.read(file.fd, buf); // Read the file content
-  let writeSize: number = await audioRenderer.write(buf); // Play the file content
 }
 // [End audio_bpta]

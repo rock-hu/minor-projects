@@ -22,14 +22,9 @@ export class PrivacyLifecycle implements IHMLifecycle {
   onBackPressed(ctx: HMLifecycleContext): boolean {
     const targetName = HMRouterMgr.getCurrentParam() as string;
 
-    HMRouterMgr.pop({
+    HMRouterMgr.popAsync({
       param: targetName
     });
-    setTimeout(() => {
-      HMRouterMgr.pop({
-        param: targetName
-      });
-    }, 400);
     return true;
   }
 }
@@ -37,8 +32,8 @@ export class PrivacyLifecycle implements IHMLifecycle {
 @HMRouter({
   pageUrl: PageConstant.PRIVACY_DIALOG_DETAIL,
   dialog: true,
-  animator: 'zoomAnimator',
-  lifecycle: 'privacyLifecycle'
+  lifecycle: 'privacyLifecycle',
+  animator:'PayCancelDialog'
 })
 @Component
 export struct PrivacyDialogDetail {
@@ -69,7 +64,9 @@ export struct PrivacyDialogDetail {
             Span(LoginConstants.PRIVACY_DIALOG_TEXT3)
               .fontColor($r('app.color.privacy_dialog_font_color_2'))
               .onClick(() => {
-                HMRouterMgr.push({ navigationId: this.queryNavigationInfo()?.navigationId, pageUrl: 'privacyPage' });
+                HMRouterMgr.to('privacyPage')
+                  .withNavigation(this.queryNavigationInfo()?.navigationId)
+                  .pushAsync()
               });
             Span('。')
               .fontColor($r('app.color.privacy_dialog_font_color_1'));
@@ -89,16 +86,10 @@ export struct PrivacyDialogDetail {
           Button(LoginConstants.PRIVACY_DIALOG_LEFT_BUTTON, { buttonStyle: ButtonStyleMode.TEXTUAL })
             .onClick(() => {
               let targetName = HMRouterMgr.getCurrentParam() as string;
-              HMRouterMgr.pop({
+              HMRouterMgr.popAsync({
                 navigationId: this.queryNavigationInfo()?.navigationId,
                 param: targetName
               });
-              setTimeout(() => {
-                HMRouterMgr.pop({
-                  navigationId: this.queryNavigationInfo()?.navigationId,
-                  param: targetName
-                });
-              }, 400);
             })
             .margin({ top: 20, bottom: 20 })
             .width('45%')
@@ -115,12 +106,7 @@ export struct PrivacyDialogDetail {
             .onClick(() => {
               // 保存隐私同意标识
               AppStorage.setOrCreate('isPrivacy', true);
-              HMRouterMgr.pop({ param: true });
-              setTimeout(() => {
-                HMRouterMgr.pop({
-                  param: true
-                });
-              }, 400);
+              HMRouterMgr.popAsync({ param: true });
             })
             .margin({ top: 20, bottom: 20 })
             .width('45%')

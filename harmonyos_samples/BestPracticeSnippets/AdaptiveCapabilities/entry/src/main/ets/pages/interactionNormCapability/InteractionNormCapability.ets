@@ -12,7 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { IntentionCode } from '@ohos.multimodalInput.intentionCode';
+
+import { IntentionCode } from '@kit.InputKit';
 import Logger from '../../model/Logger';
 
 @Entry

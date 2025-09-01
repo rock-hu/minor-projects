@@ -32,41 +32,14 @@ class MyNavModifier extends AttributeUpdater<NavigationAttribute> {
 @Component
 struct Index {
   modifier: MyNavModifier = new MyNavModifier();
-  private readonly refreshPages: Array<string> = ['HomeContent', 'shoppingBag', 'myAccount'];
-
-  aboutToAppear(): void {
-    HMRouterMgr.registerGlobalInterceptor({
-      interceptor: new JumpInfoInterceptor(),
-      interceptorName: 'JumpInfo',
-      priority: 5
-    });
-
-    HMRouterMgr.registerGlobalLifecycle({
-      lifecycle: new PageDurationLifecycle(),
-      lifecycleName: 'PageDuration',
-      priority: 5
-    });
-
-    uiObserver.on('navDestinationSwitch', this.getUIContext(), {
-      navigationId: 'mainNavigationId'
-    }, (info) => {
-      if (this.refreshPages.includes((info.to as NavDestinationInfo).name.toString())) {
-        AppStorage.setOrCreate('currentPage', (info.to as NavDestinationInfo).name.toString());
-      }
-    });
-  }
-
-  aboutToDisappear(): void {
-    uiObserver.off('navDestinationSwitch', this.getUIContext(), {
-      navigationId: 'mainNavigationId'
-    });
-  }
 
   build() {
     Column() {
       // [Start hum_navigation]
       HMNavigation({
-        navigationId: 'mainNavigationId', homePageUrl: 'HomeContent', options: {
+        navigationId: 'mainNavigationId',
+        homePageUrl: 'MainPage',
+        options: {
           standardAnimator: HMDefaultGlobalAnimator.STANDARD_ANIMATOR,
           modifier: this.modifier
         }
@@ -74,6 +47,7 @@ struct Index {
       // [End hum_navigation]
     }
     .height('100%')
-    .width('100%');
+    .width('100%')
+    .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM]);
   }
 }

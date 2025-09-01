@@ -16,7 +16,7 @@
 import { common, wantAgent } from '@kit.AbilityKit';
 import { backgroundTaskManager } from '@kit.BackgroundTasksKit';
 import { BusinessError } from '@kit.BasicServicesKit';
-import { hilog } from '@kit.PerformanceAnalysisKit';
+import Logger from './Logger';
 
 const TAG = '[BackgroundTaskManager]';
 
@@ -43,10 +43,12 @@ export class BackgroundTaskManager {
     wantAgent.getWantAgent(wantAgentInfo).then((wantAgentObj) => {
       backgroundTaskManager.startBackgroundRunning(context,
         backgroundTaskManager.BackgroundMode.AUDIO_PLAYBACK, wantAgentObj).then(() => {
-        hilog.info(0x0001, TAG, "startBackgroundRunning succeeded");
+        Logger.info(TAG, 'startBackgroundRunning succeeded');
       }).catch((err: BusinessError) => {
-        hilog.error(0x0001, TAG, `startBackgroundRunning failed Cause:  ${JSON.stringify(err)}`);
+        Logger.error(TAG, `startBackgroundRunning failed Cause:  ${JSON.stringify(err)}`);
       });
+    }).catch((err: BusinessError) => {
+      Logger.error(TAG, `getWantAgent failed, err.code:${err.code}, err.message:${err.message}`);
     });
   }
 
@@ -56,9 +58,9 @@ export class BackgroundTaskManager {
       return;
     }
     backgroundTaskManager.stopBackgroundRunning(context).then(() => {
-      hilog.info(0x0001, TAG, "stopBackgroundRunning succeeded");
+      Logger.info(TAG, 'stopBackgroundRunning succeeded');
     }).catch((err: BusinessError) => {
-      hilog.error(0x0001, TAG, `stopBackgroundRunning failed Cause:  ${JSON.stringify(err)}`);
+      Logger.error(TAG, `stopBackgroundRunning failed Cause:  ${JSON.stringify(err)}`);
     });
   }
 }

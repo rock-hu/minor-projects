@@ -51,7 +51,7 @@ export struct DigitalScrollDetail {
 
   build() {
     Row() {
-      ForEach(this.currentData, (item: number, index: number) => {
+      ForEach(this.currentData, (_dataItem: number, index: number) => {
         if ((CommonConstants.NUMBER_LENGTH - index) % CommonConstants.MILLENNIAL_LENGTH === 0 && index !== 0) {
           Text($r('app.string.digital_scroll_animation_comma'))
             .fontColor($r('sys.color.ohos_id_color_palette9'))

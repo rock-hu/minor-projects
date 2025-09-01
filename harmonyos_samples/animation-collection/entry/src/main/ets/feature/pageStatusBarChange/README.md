@@ -16,13 +16,9 @@
 ```
 ├──entry/src/main/ets/feature/pageStatusBarChange
 │  ├──common/constant
-│  │  └──CommonConstants.ets            // 公共常量类
-│  ├──entryability
-│  │  └──EntryAbility.ets               // 程序入口类
-│  ├──pages                  
-│  │  └──Index.ets                      // 首页
+│  │  └──CommonConstants.ets             // 公共常量类
 │  └──view                  
-│     └──Header.ets                     // 组件
+│     └──PageStatusBarChange.ets         // 组件
 └──entry/src/main/resources              // 应用静态资源目录
 ```
 
@@ -39,10 +35,10 @@
 
 ### 约束与限制
 
-1.本示例仅支持标准系统上运行，支持设备：华为手机。 
+1. 本示例仅支持标准系统上运行，支持设备：华为手机。
 
-2.HarmonyOS系统：HarmonyOS NEXT Developer Beta1及以上。
+2. HarmonyOS系统：HarmonyOS 5.0.5 Release及以上。
 
-3.DevEco Studio版本：DevEco Studio NEXT Developer Beta1及以上。
+3. DevEco Studio版本：DevEco Studio 5.0.5 Release及以上。
 
-4.HarmonyOS SDK版本：HarmonyOS NEXT Developer Beta1 SDK及以上。
+4. HarmonyOS SDK版本：HarmonyOS 5.0.5 Release SDK及以上。

@@ -52,7 +52,7 @@ function xxxFunction1(fileUris : string[]): void {
 // [Start appfreeze_case_3_positive]
 async function xxxFunction2(fileUris : string[]) : Promise<void> {
     // ...
-    AppStorage.setOrCreate<boolean>('isLoadingPic', true); // 用于页面 load 效果展示
+    AppStorage.setOrCreate<boolean>('isLoadingPic', true); // 用于页面load效果展示
     for (const fileuri of fileUris) {
         let file = await fs.openSync(fileuri, fs.OpenMode.READ_ONLY); // 改为异步加载
         // ...
