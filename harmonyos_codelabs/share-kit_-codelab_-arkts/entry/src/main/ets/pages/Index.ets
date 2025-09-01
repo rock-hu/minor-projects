@@ -1,18 +1,20 @@
 import { common } from '@kit.AbilityKit';
 import { SymbolGlyphModifier } from '@kit.ArkUI';
 import { fileIo as fs } from '@kit.CoreFileKit';
+import { deviceInfo } from '@kit.BasicServicesKit';
 import AccessModel from '../components/AccessModel';
 import BasicUse from '../components/BasicUse';
 import GesturesShare from '../components/GesturesShare';
 import KnockShare from '../components/KnockShare';
 import FunctionExample from '../components/subpages/FunctionExample';
 import KnockShareApi from '../components/subpages/KnockShareApi';
+import KnockShareAttr from '../components/subpages/KnockShareAttr';
 import KnockShareCard from '../components/subpages/KnockShareCard';
 import KnockShareSandbox from '../components/subpages/KnockShareSandbox';
+import KnockShareTips from '../components/subpages/KnockShareTips';
 import TypicalScenarios from '../components/TypicalScenarios';
 import Constants from '../utils/Constants';
 import Logger from '../utils/Logger';
-import deviceInfo from '@ohos.deviceInfo';
 
 let logger = Logger.getLogger('[EntryIndex]');
 
@@ -38,6 +40,8 @@ struct Index {
         [context.resourceManager.getMediaContentSync($r('app.media.exampleKnock1').id), '/exampleKnock1.jpg'],
         [context.resourceManager.getMediaContentSync($r('app.media.exampleKnock2').id), '/exampleKnock2.png'],
         [context.resourceManager.getMediaContentSync($r('app.media.exampleKnock3').id), '/exampleKnock3.jpg'],
+        [context.resourceManager.getMediaContentSync($r('app.media.exampleDocx').id), '/exampleDocx.docx'],
+        // [context.resourceManager.getMediaContentSync($r('app.media.exampleZip').id), '/exampleZip.zip'],
       ].forEach(item => {
         let file = fs.openSync(filesDir + item[1], fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE);
         let writeLen = fs.writeSync(file.fd, (item[0] as Uint8Array).buffer);
@@ -73,15 +77,19 @@ struct Index {
   }
 
   @Builder
-  PageMapBuilder(name: string, param?: Object) {
+  PageMapBuilder(name: string) {
     if (name === 'FunctionExample') {
       FunctionExample();
     } else if (name === 'KnockShareApi') {
       KnockShareApi();
+    } else if (name === 'KnockShareAttr') {
+      KnockShareAttr({ windowId: this.windowId });
     } else if (name === 'KnockShareCard') {
       KnockShareCard();
     } else if (name === 'KnockShareSandbox') {
       KnockShareSandbox({ windowId: this.windowId });
+    } else if (name === 'KnockShareTips') {
+      KnockShareTips();
     }
   }
 
@@ -100,7 +108,7 @@ struct Index {
         KnockShare();
       }
       if (this.navigationIndex === Constants.NAVIGATION_GESTURE) {
-        GesturesShare();
+        GesturesShare({ windowId: this.windowId });
       }
     }
     .title({

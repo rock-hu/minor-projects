@@ -26,20 +26,26 @@
           {
             "entities": [
               "entity.system.home",
-              "entity.system.browsable",
+              "entity.system.browsable"
             ],
             "actions": [
               "action.system.home",
-              "ohos.want.action.viewData",
+              "ohos.want.action.viewData"
             ],
             "uris": [
               {
                 "scheme": "https",
-                "host": "sharekitdemo.drcn.agconnect.link",
+                "host": "sharekitdemo.drcn.agconnect.link"
               },
               {
                 "scheme": "file",
                 "type": "com.example.sharekit_sample_demo.share",
+                "maxFileSupported": 1
+              },
+              {
+                "scheme": "file",
+                "linkFeature": "FileOpen",
+                "type": "org.openxmlformats.wordprocessingml.document",
                 "maxFileSupported": 1
               }
             ],
@@ -66,7 +72,7 @@
                 "scheme": "file",
                 "utd": "general.text",
                 "maxFileSupported": 1
-              },
+              }
             ]
           }
         ]
@@ -91,7 +97,7 @@
                 "scheme": "file",
                 "utd": "general.image",
                 "maxFileSupported": 3
-              },
+              }
             ]
           }
         ],
@@ -101,6 +107,16 @@
             "value": "400"
           }
         ]
+      }
+    ],
+    "metadata": [
+      {
+        "name": "shareType",
+        "value": "sharekitModel",
+      },
+      {
+        "name": "shareBundleName",
+        "value": "com.example.sharekit_sample_demo",
       }
     ]
   }

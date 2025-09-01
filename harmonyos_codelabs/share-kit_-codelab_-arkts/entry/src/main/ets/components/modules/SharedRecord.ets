@@ -93,11 +93,15 @@ export default struct SharedRecord {
           MIMEType: photoAccessHelper.PhotoViewMIMETypes.IMAGE_TYPE,
           maxSelectNumber: 1,
         }).then(async (photoSelectResult: photoAccessHelper.PhotoSelectResult) => {
-          let photoUri = photoSelectResult.photoUris;
-          let file = fs.openSync(photoUri[0]);
-          this.imageSource = image.createImageSource(file.fd);
-        }).catch((err: BusinessError) => {
-          console.error(`PhotoViewPicker.select failed with err: Code: ${err.code}. message: ${err.message}`);
+          try {
+            let photoUri = photoSelectResult.photoUris;
+            let file = fs.openSync(photoUri[0]);
+            this.imageSource = image.createImageSource(file.fd);
+          } catch (error) {
+            console.error(`fs.openSync failed with err: Code: ${error?.code}. message: ${error?.message}`);
+          }
+        }).catch((error: BusinessError) => {
+          console.error(`PhotoViewPicker.select failed with err: Code: ${error?.code}. message: ${error?.message}`);
         });
       })
   }

@@ -459,6 +459,10 @@
     {
       "name": "success_supported",
       "value": "The sandbox received successfully."
+    },
+    {
+      "name": "tap_to_share_tips",
+      "value": "Prompt: When users enter an interface or scenario that supports tap-to-share functionality, providing appropriate guidance and prompts can effectively enhance their willingness to share. "
     }
   ]
 }

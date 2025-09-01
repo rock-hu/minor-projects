@@ -12,7 +12,7 @@ let logger = Logger.getLogger('[ReferralContact]');
 
 /**
  * Share contact information to the sharing recommendation area.
- * The intent framework requires a trustlist for testing and cannot run directly.
+ * The intent framework requires a trust list for testing and cannot run directly.
  */
 @Component
 export default struct ReferralContact {

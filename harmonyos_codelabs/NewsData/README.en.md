@@ -14,6 +14,50 @@ This codelab gives an example of ArkTS declarative development, introducing how 
 - Data request: provides the HTTP data request capability.
 - onTouch: a method triggered by a touch action.
 
+### Project Directory
+
+```
+├──entry/src/main/ets                   // ArkTS代码区
+│  ├──common
+│  │  ├──constant
+│  │  │  └──CommonConstant.ets          // Common constants
+│  │  └──utils
+│  │     ├──HttpUtil.ets                // Http util
+│  │     ├──Logger.ets                  // Logger
+│  │     ├──PullDownRefresh.ets         // Pull down refresh method
+│  │     └──PullUpLoadMore.ets          // Pull upload to refresh for more methods
+│  ├──entryability
+│  │  └──EntryAbility.ets               // Entry ability
+│  ├──pages
+│  │  └──Index.ets                      // Home page
+│  ├──view
+│  │  ├──CustomRefreshLoadLayout.ets    // Pull down and pull upload 
+│  │  ├──LoadMoreLayout.ets             // Pull upload to refresh
+│  │  ├──NewsItem.ets                   // News data
+│  │  ├──NewsList.ets                   // News data list
+│  │  ├──NoMoreLayout.ets               // No more data avilable
+│  │  ├──RefreshLayout.ets              // Pull down refresh
+│  │  └──TabBar.ets                     // News type tab
+│  └──viewmodel
+│     ├──NewsData.ets                   // News data
+│     ├──NewsModel.ets                  // News data model
+│     ├──NewsTypeModel.ets              // News type
+│     ├──NewsViewModel.ets              // News data response
+│     └──ResponseResult.ets             // Response result
+└──entry/src/main/resources             // Static resources of the app
+├──entry/src/main/ets/
+│  ├──constants
+│  │  └──Constants.ets                  // Common constants
+│  ├──entryability
+│  │  └──EntryAbility.ets               // Entry ability
+│  ├──pages                 
+│  │  └──Index.ets                      // Home page
+│  └──view     
+│     ├──FileDownloadItem.ets           // List item            
+│     └──ProgressButton.ets             // Progress button
+└──entry/src/main/resources             // Static resources of the app
+```
+
 ### Permissions
 
 Add the network permission **ohos.permission.INTERNET**.
@@ -45,6 +89,6 @@ Add the network permission **ohos.permission.INTERNET**.
 ### Constraints
 
 1. The sample app is supported only on Huawei phones running the standard system.
-2. HarmonyOS: HarmonyOS 5.0.0 Release or later
-3. DevEco Studio: DevEco Studio 5.0.0 Release or later
-4. HarmonyOS SDK: HarmonyOS 5.0.0 Release SDK or later
+2. HarmonyOS: HarmonyOS 5.0.5 Release or later
+3. DevEco Studio: DevEco Studio 5.0.5 Release or later
+4. HarmonyOS SDK: HarmonyOS 5.0.5 Release SDK or later

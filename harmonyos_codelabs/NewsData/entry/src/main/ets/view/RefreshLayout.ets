@@ -23,15 +23,21 @@ import { CustomRefreshLoadLayoutClass } from '../viewmodel/NewsData';
 export default struct RefreshLayout {
   @ObjectLink @Watch('newCustom') refreshLayoutClass: CustomRefreshLoadLayoutClass;
   @State customRefreshLoadClass: CustomRefreshLoadLayoutClass =
-    new CustomRefreshLoadLayoutClass(this.refreshLayoutClass.isVisible, this.refreshLayoutClass.imageSrc,
+    new CustomRefreshLoadLayoutClass(
+      this.refreshLayoutClass.isVisible,
+      this.refreshLayoutClass.imageSrc,
       this.refreshLayoutClass.textValue,
-      this.refreshLayoutClass.heightValue);
+      this.refreshLayoutClass.heightValue
+    );
 
   newCustom() {
     this.customRefreshLoadClass =
-      new CustomRefreshLoadLayoutClass(this.refreshLayoutClass.isVisible, this.refreshLayoutClass.imageSrc,
+      new CustomRefreshLoadLayoutClass(
+        this.refreshLayoutClass.isVisible,
+        this.refreshLayoutClass.imageSrc,
         this.refreshLayoutClass.textValue,
-        this.refreshLayoutClass.heightValue);
+        this.refreshLayoutClass.heightValue
+      );
   }
 
   build() {

@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-import { promptAction } from '@kit.ArkUI';
 import { touchMoveLoadMore, touchUpLoadMore } from './PullUpLoadMore';
 import {
   CommonConstant as Const,
@@ -101,7 +100,6 @@ export function touchUpPullRefresh(that: NewsModel) {
         closeRefresh(self, true);
       }).catch((err: string | Resource) => {
         uiContext!.getPromptAction().showToast({ message: err });
-        // closeRefresh.call(self, false);
         closeRefresh(self, false);
       });
     }, Const.DELAY_TIME);

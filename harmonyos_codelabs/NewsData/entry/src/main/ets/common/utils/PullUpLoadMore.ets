@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-import { promptAction } from '@kit.ArkUI';
 import { CommonConstant as Const } from '../constant/CommonConstant';
 import NewsViewModel from '../../viewmodel/NewsViewModel';
 import { NewsData } from '../../viewmodel/NewsData';

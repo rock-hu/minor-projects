@@ -18,7 +18,7 @@ export default struct SharedRecord {
   UTDBuilder() {
     Select(this.SelectOption)
       .value(this.utd)
-      .onSelect(async (index: number, text?: string | undefined) => {
+      .onSelect(async (_: number, text?: string | undefined) => {
         if (text) {
           this.utd = text;
         }

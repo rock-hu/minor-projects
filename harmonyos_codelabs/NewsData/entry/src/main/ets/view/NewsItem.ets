@@ -68,8 +68,11 @@ export default struct NewsItem {
       .rowsTemplate(Const.NewsGrid_ROWS_TEMPLATE)
       .width(Const.NewsGrid_WIDTH)
       .height(Const.NewsGrid_HEIGHT)
-      .margin({ left: Const.NewsGrid_MARGIN_LEFT, top: Const.NewsGrid_MARGIN_TOP,
-        right: Const.NewsGrid_MARGIN_RIGHT })
+      .margin({
+        left: Const.NewsGrid_MARGIN_LEFT,
+        top: Const.NewsGrid_MARGIN_TOP,
+        right: Const.NewsGrid_MARGIN_RIGHT
+      })
 
       Text(this.newsData.source)
         .fontSize(Const.NewsSource_FONT_SIZE)

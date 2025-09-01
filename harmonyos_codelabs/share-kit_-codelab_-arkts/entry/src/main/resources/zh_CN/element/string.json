@@ -459,6 +459,10 @@
     {
       "name": "success_supported",
       "value": "沙箱接收成功"
+    },
+    {
+      "name": "tap_to_share_tips",
+      "value": "提示：当用户进入支持碰一碰分享的界面或场景时，给出适当的引导和提示，可有效提升用户分享意愿。"
     }
   ]
 }

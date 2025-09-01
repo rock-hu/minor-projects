@@ -16,7 +16,6 @@ Share Kit enables content such as text, images, and videos to be shared across a
 - [Stage model](https://developer.huawei.com/consumer/en/doc/harmonyos-guides/stage-model-development-overview): It is designed to solve development issues that cannot be solved in the [FA model](https://developer.huawei.com/consumer/en/doc/harmonyos-guides/fa-model-development-overview), making it easier to develop complex apps in the distributed environment. The stage model is supported since API version 9.
 - [UIAbility](https://developer.huawei.com/consumer/en/doc/harmonyos-guides/uiability-overview): It is a type of app component that provides the UI for user interactions. UIAbility is the basic unit of scheduling in OpenHarmony and provides a window for apps to draw the UI. An app can contain one or more UIAbility components.
 - [UIAbilityContext](https://developer.huawei.com/consumer/en/doc/harmonyos-references/js-apis-inner-application-uiabilitycontext): Inherited from **Context**, **UIAbilityContext** provides the context environment for **UIAbility** that needs to store its status, including the **UIAbility** configuration and methods for operating **UIAbility** and **ServiceExtensionAbility**.
-- [UIServiceExtensionAbility](https://developer.huawei.com/consumer/en/doc/harmonyos-guides/uiserviceextension)：UIServiceExtensionAbility is an ExtensionAbility component of the UIService type. It provides UI pages (such as preview pages) and background service capabilities. This component internally holds a UIServiceExtensionContext, which provides a variety of APIs for external systems.
 - [UIExtensionContext](https://developer.huawei.com/consumer/en/doc/harmonyos-references/js-apis-inner-application-uiextensioncontext)：**UIExtensionContext**, inherited from ExtensionContext, provides the context environment for the UIExtensionAbility. It provides UIExtensionAbility-related configurations and APIs for operating the UIExtensionAbility. For example, you can use the APIs to start a UIExtensionAbility.
 
 ## Project Directory
@@ -28,11 +27,13 @@ Share Kit enables content such as text, images, and videos to be shared across a
 │  │  ├─subpages                             // subpages
 │  │  │  ├─FunctionExample.ets               // System sharing example
 │  │  │  ├─KnockShareApi.ets                 // Tap to share API
+│  │  │  ├─KnockShareAttr.ets                // Tap to share attributes
 │  │  │  ├─KnockShareCard.ets                // Tap to Share Card Template
-│  │  │  └─KnockShareSandbox.ets             // Sandbox reception
+│  │  │  ├─KnockShareSandbox.ets             // Sandbox reception
+│  │  │  └─KnockShareTips.ets                // Tap to view guide prompt
 │  │  ├─AccessModel.ets                      // Access Mode.
 │  │  ├─BasicUse.ets                         // Basic use.
-│  │  ├─FunctionExample.ets                  // Function example.
+│  │  ├─GesturesShare.ets                    // gestures-share
 │  │  ├─KnockShare.ets                       // tap-to-share.
 │  │  ├─ReferralContact.ets                  // Recommended contacts.
 │  │  └─TypicalScenarios.ets                 // Typical scenarios.
@@ -80,10 +81,10 @@ None
     + Code path: **entry/src/main/ets/components/ReferralContact.ets**
 
 ## Constraints
-1. The sample app is only supported on Huawei phones, tablets, and 2-in-1 devices with standard systems.
-2. The HarmonyOS version must be HarmonyOS 6.0.0 Beta2 or later.
-3. The DevEco Studio version must be DevEco Studio 6.0.0 Beta2 or later.
-4. The HarmonyOS SDK version must be HarmonyOS 6.0.0 Beta2 SDK or later.
+1. The sample app is only supported on Huawei phones, tablets, and 2-in-1 devices.
+2. The HarmonyOS version must be HarmonyOS 6.0.0 Beta3 or later.
+3. The DevEco Studio version must be DevEco Studio 6.0.0 Beta3 or later.
+4. The HarmonyOS SDK version must be HarmonyOS 6.0.0 Beta3 SDK or later.
 
 This function is available only when both of the following conditions are met:
 - The data types defined by the host app and target app must comply with the [UTD](https://developer.huawei.com/consumer/en/doc/harmonyos-references/js-apis-data-unifieddatachannel) specifications provided by the [UDMF](https://developer.huawei.com/consumer/en/doc/harmonyos-references/js-apis-data-uniformtypedescriptor). The supported content types must be configured in the target app configuration file. If all image types are supported, declare **general.image**.

@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-import { promptAction } from '@kit.ArkUI';
 import { CommonConstant as Const, PageState } from '../common/constant/CommonConstant';
 import NewsItem from './NewsItem';
 import LoadMoreLayout from './LoadMoreLayout';
@@ -34,24 +33,35 @@ export default struct NewsList {
   @State customRefreshLoadClass: CustomRefreshLoadLayoutClass = new CustomRefreshLoadLayoutClass(true,
     $r('app.media.ic_pull_up_load'), $r('app.string.pull_up_load_text'), this.newsModel.pullDownRefreshHeight);
   @State refreshLayoutClass: CustomRefreshLoadLayoutClass =
-    new CustomRefreshLoadLayoutClass(this.newsModel.isVisiblePullDown,
-      this.newsModel.pullDownRefreshImage, this.newsModel.pullDownRefreshText,
-      this.newsModel.pullDownRefreshHeight);
+    new CustomRefreshLoadLayoutClass(
+      this.newsModel.isVisiblePullDown,
+      this.newsModel.pullDownRefreshImage,
+      this.newsModel.pullDownRefreshText,
+      this.newsModel.pullDownRefreshHeight
+    );
   @State loadMoreLayoutClass: CustomRefreshLoadLayoutClass =
-    new CustomRefreshLoadLayoutClass(this.newsModel.isVisiblePullUpLoad,
+    new CustomRefreshLoadLayoutClass(
+      this.newsModel.isVisiblePullUpLoad,
       this.newsModel.pullUpLoadImage,
-      this.newsModel.pullUpLoadText, this.newsModel.pullUpLoadHeight);
+      this.newsModel.pullUpLoadText,
+      this.newsModel.pullUpLoadHeight
+    );
   @Link currentIndex: number;
 
   newCustom() {
     this.refreshLayoutClass =
-      new CustomRefreshLoadLayoutClass(this.newsModel.isVisiblePullDown,
-        this.newsModel.pullDownRefreshImage, this.newsModel.pullDownRefreshText,
-        this.newsModel.pullDownRefreshHeight);
+      new CustomRefreshLoadLayoutClass(
+        this.newsModel.isVisiblePullDown,
+        this.newsModel.pullDownRefreshImage,
+        this.newsModel.pullDownRefreshText,
+        this.newsModel.pullDownRefreshHeight
+      );
     this.loadMoreLayoutClass =
-      new CustomRefreshLoadLayoutClass(this.newsModel.isVisiblePullUpLoad,
+      new CustomRefreshLoadLayoutClass(
+        this.newsModel.isVisiblePullUpLoad,
         this.newsModel.pullUpLoadImage,
-        this.newsModel.pullUpLoadText, this.newsModel.pullUpLoadHeight);
+        this.newsModel.pullUpLoadText, this.newsModel.pullUpLoadHeight
+      );
   }
 
   changeCategory() {
@@ -111,6 +121,7 @@ export default struct NewsList {
   @Builder
   ListLayout() {
     List() {
+      // Pull-down refresh layout
       ListItem() {
         RefreshLayout({
           refreshLayoutClass: this.refreshLayoutClass
@@ -118,7 +129,6 @@ export default struct NewsList {
       }
 
       ForEach(this.newsModel.newsData, (item: NewsData) => {
-        // Pull-down refresh layout
         ListItem() {
           NewsItem({ newsData: item })
         }

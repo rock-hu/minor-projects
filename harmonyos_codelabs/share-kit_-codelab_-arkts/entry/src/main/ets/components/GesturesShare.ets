@@ -3,7 +3,6 @@
  */
 import { uniformTypeDescriptor as utd } from '@kit.ArkData';
 import { harmonyShare, systemShare } from '@kit.ShareKit';
-import { promptAction } from '@kit.ArkUI';
 import { fileUri } from '@kit.CoreFileKit';
 import Logger from '../utils/Logger';
 
@@ -11,6 +10,7 @@ let logger = Logger.getLogger('[GesturesShare]');
 
 @Component
 export default struct KnockShare {
+  @Prop windowId: number | undefined = undefined;
   @State message: ResourceStr = $r('app.string.gesture_title');
   @State purityStatus: boolean = false;
   @State immersiveStatus: boolean = false;
@@ -279,8 +279,13 @@ export default struct KnockShare {
 
   private purityListening() {
     if (this.isNoListening()) {
-      harmonyShare.on('gesturesShare', this.purityCallback);
-      this.purityStatus = true;
+      if (this.windowId) {
+        let capabilityRegistry: harmonyShare.SendCapabilityRegistry = {
+          windowId: this.windowId,
+        }
+        harmonyShare.on('gesturesShare', capabilityRegistry, this.purityCallback);
+        this.purityStatus = true;
+      }
     } else {
       try {
         const uiContext: UIContext = this.getUIContext();
@@ -292,8 +297,13 @@ export default struct KnockShare {
   }
 
   private purityDisablingListening() {
-    harmonyShare.off('gesturesShare', this.purityCallback);
-    this.purityStatus = false;
+    if (this.windowId) {
+      let capabilityRegistry: harmonyShare.SendCapabilityRegistry = {
+        windowId: this.windowId,
+      }
+      harmonyShare.off('gesturesShare', capabilityRegistry, this.purityCallback);
+      this.purityStatus = false;
+    }
   }
 
   private immersiveCallback = (sharableTarget: harmonyShare.SharableTarget) => {

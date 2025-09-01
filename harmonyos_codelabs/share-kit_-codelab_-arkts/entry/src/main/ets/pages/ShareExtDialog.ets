@@ -74,20 +74,23 @@ struct ShareExtDialog {
 
   // 构造Want数据 开发者请勿私自修改Want数据
   // Construct Want data. Developers cannot modify Want data without permission.
-  createWant() {
-    let data: systemShare.SharedData = new systemShare.SharedData({
-      utd: utd.UniformDataType.TEXT,
-      content: 'Hello HarmonyOS',
-    });
-    let options: systemShare.ShareControllerOptions = {
-      previewMode: systemShare.SharePreviewMode.DETAIL,
-      selectionMode: systemShare.SelectionMode.SINGLE
-    };
-    systemShare.getWant(data, options).then((want) => {
-      logger.info('getWant', JSON.stringify(want))
-    }).catch((error: BusinessError) => {
-      logger.error(`getWant error. Code: ${error?.code}, message: ${error?.message}`);
-    });
+  async createWant(): Promise<Want> {
+    return new Promise((resolve) => {
+      let data: systemShare.SharedData = new systemShare.SharedData({
+        utd: utd.UniformDataType.TEXT,
+        content: 'Hello HarmonyOS',
+      });
+      let options: systemShare.ShareControllerOptions = {
+        previewMode: systemShare.SharePreviewMode.DETAIL,
+        selectionMode: systemShare.SelectionMode.SINGLE
+      };
+      systemShare.getWant(data, options).then((want) => {
+        logger.info('getWant', JSON.stringify(want));
+        resolve(want);
+      }).catch((error: BusinessError) => {
+        logger.error(`getWant error. Code: ${error?.code}, message: ${error?.message}`);
+      });
+    })
   }
 
   @Builder
@@ -138,19 +141,22 @@ struct ShareExtDialog {
 
           this.ShareContent();
 
-          this.ShareAction($r('app.string.action_start_ability'), () => {
-            let paramsWant: Want = {
-              bundleName: "com.example.sharekit_sample_demo",
-              abilityName: "ShareUIAbility",
-            };
-            const uiContext: UIContext = this.getUIContext();
-            const context: common.UIExtensionContext = uiContext.getHostContext() as common.UIExtensionContext;
-            context.startAbility(paramsWant).then(() => {
-              logger.info('startAbility show');
-              this.session?.terminateSelfWithResult({ resultCode: systemShare.ShareAbilityResultCode.CLOSE });
-            }).catch((error: BusinessError) => {
-              logger.error(`startAbility error. Code: ${error?.code}, message: ${error?.message}`);
-            });
+          this.ShareAction($r('app.string.action_start_ability'), async () => {
+            try {
+              let paramsWant: Want = await this.createWant();
+              paramsWant.bundleName = 'com.example.sharekit_sample_demo';
+              paramsWant.abilityName = 'ShareUIAbility';
+              const uiContext: UIContext = this.getUIContext();
+              const context: common.UIExtensionContext = uiContext.getHostContext() as common.UIExtensionContext;
+              context.startAbility(paramsWant).then(() => {
+                logger.info('startAbility show');
+                this.session?.terminateSelfWithResult({ resultCode: systemShare.ShareAbilityResultCode.CLOSE });
+              }).catch((error: BusinessError) => {
+                logger.error(`startAbility error. Code: ${error?.code}, message: ${error?.message}`);
+              });
+            } catch (error) {
+              logger.error(`getWant error. Code: ${error?.code}, message: ${error?.message}`);
+            }
           })
 
           this.ShareAction($r('app.string.action_back'), () => {

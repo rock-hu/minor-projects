@@ -13,6 +13,7 @@ export default struct KnockShareApi {
   @Consume('pageStack') pageStack: NavPathStack;
   @State ShareStatus: boolean = false;
   @State rejectStatus: boolean = false;
+  @State updateStatus: boolean = false;
 
   aboutToAppear(): void {
     logger.info('invoked');
@@ -150,6 +151,61 @@ export default struct KnockShareApi {
     .margin({ bottom: 20 })
   }
 
+  @Builder
+  UpdateMode() {
+    Flex({ direction: FlexDirection.Row }) {
+      Row() {
+        Image($r('app.media.knock_white'))
+          .width(100)
+      }
+      .width(150)
+      .margin({ right: 12 })
+
+      Column() {
+        Text($r('app.string.delay_title'))
+          .flexGrow(1)
+          .fontSize(20)
+          .fontWeight(500)
+
+        Stack() {
+          if (this.updateStatus) {
+            Button() {
+              Row() {
+                LoadingProgress().width(20).height(20).margin({ left: 12 }).color(0xFFFFFF)
+                Text($r('app.string.knock_listening')).fontSize(12).fontColor(0xffffff).margin({ left: 5, right: 12 })
+              }.alignItems(VerticalAlign.Center)
+            }
+            .width(200)
+            .height(30)
+            .margin({ left: 8 })
+            .onClick(() => {
+              this.updateDisablingListening();
+            })
+          } else {
+            Button($r('app.string.knock_click'))
+              .width(200)
+              .height(30)
+              .fontSize(14)
+              .margin({ left: 8 })
+              .onClick(() => {
+                this.updateListening();
+              })
+          }
+        }.margin({ top: 12 })
+
+        Column() {
+          Text($r('app.string.delay_description'))
+            .width('100%')
+            .margin({ top: 12 })
+            .fontWeight(FontWeight.Bold)
+        }.width('100%')
+      }
+      .flexGrow(1)
+      .alignItems(HorizontalAlign.Start)
+    }
+    .margin({ bottom: 20 })
+  }
+
   build() {
     NavDestination() {
       Scroll() {
@@ -157,6 +213,8 @@ export default struct KnockShareApi {
           this.ShareMode()
 
           this.RejectMode()
+
+          this.UpdateMode()
         }
         .width('100%')
         .constraintSize({ minHeight: '100%' })
@@ -179,6 +237,9 @@ export default struct KnockShareApi {
     }
     if (this.rejectStatus) {
       this.rejectDisablingListening();
+    }
+    if (this.updateStatus) {
+      this.updateDisablingListening();
     }
   }
 
@@ -238,7 +299,44 @@ export default struct KnockShareApi {
     this.rejectStatus = false;
   }
 
+  private updateCallback = (sharableTarget: harmonyShare.SharableTarget) => {
+    const uiContext: UIContext = this.getUIContext();
+    const contextFaker: Context = uiContext.getHostContext() as Context;
+    let shareData: systemShare.SharedData = new systemShare.SharedData({
+      utd: utd.UniformDataType.HYPERLINK,
+      content: 'https://sharekitdemo.drcn.agconnect.link/ZB3p',
+      title: contextFaker.resourceManager.getStringSync($r('app.string.white_title').id),
+      description: contextFaker.resourceManager.getStringSync($r('app.string.white_description').id),
+    });
+    sharableTarget.share(shareData);
+    setTimeout(() => {
+      let filePath = contextFaker.filesDir + '/exampleKnock2.png';
+      sharableTarget.updateShareData({
+        thumbnailUri: fileUri.getUriFromPath(filePath),
+      });
+    }, 3000)
+  }
+
+  private updateListening() {
+    if (this.isNoListening()) {
+      harmonyShare.on('knockShare', this.updateCallback);
+      this.updateStatus = true;
+    } else {
+      try {
+        const uiContext: UIContext = this.getUIContext();
+        uiContext.getPromptAction().showToast({ message: $r('app.string.knock_close_other') });
+      } catch (error) {
+        logger.error(`showToast error. Code: ${error?.code}, message: ${error?.message}`);
+      }
+    }
+  }
+
+  private updateDisablingListening() {
+    harmonyShare.off('knockShare', this.updateCallback);
+    this.updateStatus = false;
+  }
+
   private isNoListening() {
-    return !this.ShareStatus && !this.rejectStatus;
+    return !this.ShareStatus && !this.rejectStatus && !this.updateStatus;
   }
 }

@@ -16,6 +16,7 @@
 import { AbilityConstant, UIAbility, Want } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { window } from '@kit.ArkUI';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 export default class EntryAbility extends UIAbility {
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
@@ -34,7 +35,6 @@ export default class EntryAbility extends UIAbility {
     // Main window is created, set main page for this ability
     hilog.isLoggable(0x0000, 'testTag', hilog.LogLevel.INFO);
     hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onWindowStageCreate');
-
     windowStage.loadContent('pages/Index', (err, data) => {
       if (err.code) {
         hilog.isLoggable(0x0000, 'testTag', hilog.LogLevel.ERROR);
@@ -42,6 +42,29 @@ export default class EntryAbility extends UIAbility {
         return;
       }
       AppStorage.setOrCreate('uiContext', windowStage.getMainWindowSync().getUIContext());
+      let windowClass: window.Window | undefined = undefined;
+      windowStage.getMainWindow((err: BusinessError, data) => {
+        let errCode: number = err.code;
+        if (errCode) {
+          hilog.error(0x0000, 'testTag', 'Failed to obtain the main window. Cause: ', JSON.stringify(err));
+          return;
+        }
+        windowClass = data;
+        let isLayoutFullScreen = true;
+        windowClass.setWindowLayoutFullScreen(isLayoutFullScreen).then(() => {
+          hilog.info(0x0000, 'testTag', 'Succeeded in setting the window layout to full-screen mode.');
+        });
+        try {
+          let avoidArea = windowClass.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);
+          // Set the height of the status bar.
+          AppStorage.setOrCreate('statusBarHeight', data.getUIContext().px2vp(avoidArea.topRect.height));
+          AppStorage.setOrCreate('bottomHeight', data.getUIContext()
+            .px2vp(windowClass.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR).bottomRect.height));
+        } catch (exception) {
+          hilog.error(0x0000, '[EntryAbility]',
+            `Failed to set the system bar to be invisible. Cause code: ${exception.code}, message: ${exception.message}`);
+        }
+      })
       hilog.isLoggable(0x0000, 'testTag', hilog.LogLevel.INFO);
       hilog.info(0x0000, 'testTag', 'Succeeded in loading the content. Data: %{public}s', JSON.stringify(data) ?? '');
     });

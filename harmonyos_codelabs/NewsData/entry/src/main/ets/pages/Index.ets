@@ -22,11 +22,17 @@ import { CommonConstant as Const } from '../common/constant/CommonConstant';
 @Entry
 @Component
 struct Index {
+  @StorageLink('statusBarHeight') statusBarHeight: number = 0;
+  @StorageLink('bottomHeight') bottomHeight: number = 0;
 
   build() {
     Column() {
       TabBar()
     }
+    .padding({
+      top: this.statusBarHeight,
+      bottom: this.bottomHeight
+    })
     .width(Const.FULL_WIDTH)
     .backgroundColor($r('app.color.listColor'))
     .justifyContent(FlexAlign.Center)

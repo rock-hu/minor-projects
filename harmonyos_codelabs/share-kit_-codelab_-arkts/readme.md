@@ -16,7 +16,6 @@
 - [Stage模型](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/stage-model-development-overview)：Stage模型的设计，主要是为了解决[FA模型](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/fa-model-development-overview)无法解决的开发场景问题，方便开发者更加方便地开发出分布式环境下的复杂应用。从API Version 9开始支持。
 - [UIAbility](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/uiability-overview)：UIAbility组件是一种包含UI的应用组件，主要用于和用户交互。UIAbility组件是系统调度的基本单元，为应用提供绘制界面的窗口。一个应用可以包含一个或多个UIAbility组件。
 - [UIAbilityContext](https://developer.huawei.com/consumer/cn/doc/harmonyos-references/js-apis-inner-application-uiabilitycontext)：UIAbilityContext是需要保存状态的UIAbility所对应的context，继承自Context。提供UIAbility的相关配置信息以及操作UIAbility和ServiceExtensionAbility的方法。
-- [UIServiceExtension](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/uiserviceextension)：UIServiceExtension是UIService类型的ExtensionAbility浮窗类组件，提供UI界面（例如预览界面）和后台服务能力。组件内部持有了一个UIServiceExtensionContext，通过UIServiceExtensionContext提供了丰富的接口供外部使用。
 - [UIExtensionContext](https://developer.huawei.com/consumer/cn/doc/harmonyos-references/js-apis-inner-application-uiextensioncontext)：UIExtensionContext是UIExtensionAbility的上下文环境，继承自ExtensionContext，提供UIExtensionAbility的相关配置信息以及操作UIAbility的方法，如启动UIAbility等。
 
 ## 工程目录
@@ -27,12 +26,14 @@
 │  │  ├─modules                              // 公共模块
 │  │  ├─subpages                             // 子页面
 │  │  │  ├─FunctionExample.ets               // 系统分享示例
-│  │  │  ├─KnockShareApi.ets                 // 碰一碰分享api
+│  │  │  ├─KnockShareApi.ets                 // 碰一碰分享接口
+│  │  │  ├─KnockShareAttr.ets                // 碰一碰分享属性
 │  │  │  ├─KnockShareCard.ets                // 碰一碰分享卡片模板
-│  │  │  └─KnockShareSandbox.ets             // 沙箱接收
+│  │  │  ├─KnockShareSandbox.ets             // 沙箱接收
+│  │  │  └─KnockShareTips.ets                // 碰一碰引导提示
 │  │  ├─AccessModel.ets                      // 接入模式
 │  │  ├─BasicUse.ets                         // 基础使用
-│  │  ├─FunctionExample.ets                  // 功能示例
+│  │  ├─GesturesShare.ets                    // 隔空传送
 │  │  ├─KnockShare.ets                       // 一碰分享
 │  │  ├─ReferralContact.ets                  // 推荐联系人
 │  │  └─TypicalScenarios.ets                 // 典型场景
@@ -70,7 +71,7 @@
 
 ## 使用说明：
 1. demo应用安装：准备一台手机，连接DevEco后，点击IDE的Run 'entry' 绿色箭头按钮。
-2. 在手机上此时就打开了demo应用，点击链接分享按钮就可以拉起系统分享框进行分享。
+2. 在手机上此时就打开了demo应用，点击分享按钮就可以拉起系统分享框进行分享。
 3. 可以尝试使用应用分享、使用操作区操作和使用华为分享（体验跨端的分享直达）。
 
 ## 代码片段：
@@ -80,10 +81,13 @@
    + 路径：entry/src/main/ets/components/ReferralContact.ets
 
 ## 约束与限制
-1. 本示例仅支持标准系统上运行，支持设备：华为手机、华为平板、PC/2in1。
-2. HarmonyOS系统：HarmonyOS 6.0.0 Beta2及以上。
-3. DevEco Studio版本：DevEco Studio 6.0.0 Beta2及以上。
-4. HarmonyOS SDK版本：HarmonyOS 6.0.0 Beta2 SDK及以上。
+1. 支持设备：华为手机、华为平板、PC/2in1。
+2. HarmonyOS系统：HarmonyOS 6.0.0 Beta3及以上。
+3. DevEco Studio版本：DevEco Studio 6.0.0 Beta3及以上。
+4. HarmonyOS SDK版本：HarmonyOS 6.0.0 Beta3 SDK及以上。
+
+## 模拟器支持范围
+Share Kit支持模拟器开发，但与真机存在部分能力差异，详情请参见：[模拟器与真机的差异](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/ide-emulator-specification#section38231424133213)。
 
 需同时满足以下条件，才能使用该功能：
 - 宿主应用和目标应用定义数据类型须遵照[UDMF](https://developer.huawei.com/consumer/cn/doc/harmonyos-references/js-apis-data-unifieddatachannel)（统一数据管理框架）定义的[UTD](https://developer.huawei.com/consumer/cn/doc/harmonyos-references/js-apis-data-uniformtypedescriptor)（统一类型描述符）规范。目标应用需要在应用配置文件中，配置支持的类型。如支持全部图片类型，可声明为：general.image。

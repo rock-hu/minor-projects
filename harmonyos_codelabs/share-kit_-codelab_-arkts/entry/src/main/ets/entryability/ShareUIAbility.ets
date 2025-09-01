@@ -19,7 +19,7 @@ export default class ShareUIAbility extends UIAbility {
     this.storageWant = want;
   }
 
-  onNewWant(want: Want, launchParam: AbilityConstant.LaunchParam): void {
+  onNewWant(_: Want, launchParam: AbilityConstant.LaunchParam): void {
     logger.info('launchReason: ', String(launchParam.launchReason));
   }
 

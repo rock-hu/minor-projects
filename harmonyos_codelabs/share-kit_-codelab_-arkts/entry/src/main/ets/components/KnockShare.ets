@@ -75,9 +75,13 @@ export default struct KnockShare {
         .width('100%')
         .margin({ bottom: 12 })
 
-        this.KnockExplain()
+        this.KnockExplain();
+
+        this.KnockNavigationItem('可碰分享提示', 'KnockShareTips');
 
         this.KnockNavigationItem('接口示例', 'KnockShareApi');
+
+        this.KnockNavigationItem('属性示例', 'KnockShareAttr');
 
         this.KnockNavigationItem('卡片模板示例', 'KnockShareCard');
 

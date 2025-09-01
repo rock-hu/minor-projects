@@ -17,7 +17,6 @@ import { http } from '@kit.NetworkKit';
 import ResponseResult from '../../viewmodel/ResponseResult';
 import { CommonConstant as Const, ContentType } from '../constant/CommonConstant';
 
-
 /**
  * Initiates an HTTP request to a given URL.
  *

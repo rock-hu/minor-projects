@@ -5,7 +5,7 @@ import { BusinessError } from '@kit.BasicServicesKit';
 import { image } from '@kit.ImageKit';
 import Logger from '../utils/Logger';
 
-let logger = Logger.getLogger('[SystemShare]');
+let logger = Logger.getLogger('[ShareUIPage]');
 
 @Entry
 @Component
@@ -110,7 +110,9 @@ struct SystemShare {
         .onClick(() => {
           const uiContext: UIContext = this.getUIContext();
           const context: common.UIAbilityContext = uiContext.getHostContext() as common.UIAbilityContext;
-          context.terminateSelf();
+          context.terminateSelf().catch((error: BusinessError) => {
+            logger.error(`context.terminateSelf error. Code: ${error?.code}, message: ${error?.message}`);
+          })
         })
       }
       .width('100%')

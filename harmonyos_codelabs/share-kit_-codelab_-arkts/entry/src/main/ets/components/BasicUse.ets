@@ -264,8 +264,12 @@ export default struct BaseDemo {
     let controller: systemShare.ShareController = new systemShare.ShareController(shareData);
     const context: common.UIAbilityContext = uiContext.getHostContext() as common.UIAbilityContext;
     const callback = () => {
-      logger.info('HuaweiShare_ dismiss invoked.');
-      uiContext.getPromptAction().showToast({ message: 'dismiss' });
+      try {
+        logger.info('HuaweiShare_ dismiss invoked.');
+        uiContext.getPromptAction().showToast({ message: 'dismiss' });
+      } catch (error) {
+        logger.error(`showToast error. Code: ${error?.code}, message: ${error?.message}`);
+      }
     };
     controller.on('dismiss', callback);
     controller.show(context, {

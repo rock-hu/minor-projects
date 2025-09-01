@@ -14,6 +14,39 @@
 - 数据请求：提供HTTP数据请求能力。
 - 触摸事件onTouch：触摸动作触发调用该方法。
 
+### 工程目录
+
+```
+├──entry/src/main/ets                   // ArkTS代码区
+│  ├──common
+│  │  ├──constant
+│  │  │  └──CommonConstant.ets          // 公共常量类
+│  │  └──utils
+│  │     ├──HttpUtil.ets                // 网络请求方法
+│  │     ├──Logger.ets                  // 日志打印工具
+│  │     ├──PullDownRefresh.ets         // 下拉刷新方法
+│  │     └──PullUpLoadMore.ets          // 上拉加载更多方法
+│  ├──entryability
+│  │  └──EntryAbility.ets               // 程序入口类
+│  ├──pages
+│  │  └──Index.ets                      // 入口文件
+│  ├──view
+│  │  ├──CustomRefreshLoadLayout.ets    // 下拉刷新、上拉加载布局文件
+│  │  ├──LoadMoreLayout.ets             // 上拉加载布局封装
+│  │  ├──NewsItem.ets                   // 新闻数据
+│  │  ├──NewsList.ets                   // 新闻列表
+│  │  ├──NoMoreLayout.ets               // 没有更多数据封装
+│  │  ├──RefreshLayout.ets              // 下拉刷新布局封装
+│  │  └──TabBar.ets                     // 新闻类型页签
+│  └──viewmodel
+│     ├──NewsData.ets                   // 新闻数据实体类
+│     ├──NewsModel.ets                  // 新闻数据模块信息
+│     ├──NewsTypeModel.ets              // 新闻类型实体类
+│     ├──NewsViewModel.ets              // 新闻数据获取模块
+│     └──ResponseResult.ets             // 请求结果实体类
+└──entry/src/main/resources             // 资源文件目录
+```
+
 ### 相关权限
 
 添加网络权限：ohos.permission.INTERNET。
@@ -45,6 +78,6 @@
 ### 约束与限制
 
 1. 本示例仅支持标准系统上运行，支持设备：华为手机。
-2. HarmonyOS系统：HarmonyOS 5.0.0 Release及以上。
-3. DevEco Studio版本：DevEco Studio 5.0.0 Release及以上。
-4. HarmonyOS SDK版本：HarmonyOS 5.0.0 Release SDK及以上。
+2. HarmonyOS系统：HarmonyOS 5.0.5 Release及以上。
+3. DevEco Studio版本：DevEco Studio 5.0.5 Release及以上。
+4. HarmonyOS SDK版本：HarmonyOS 5.0.5 Release SDK及以上。
