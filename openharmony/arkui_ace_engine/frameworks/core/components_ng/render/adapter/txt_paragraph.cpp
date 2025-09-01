@@ -47,6 +47,7 @@ RefPtr<Paragraph> Paragraph::Create(void* rsParagraph)
 void TxtParagraph::SetParagraphSymbolAnimation(const RefPtr<FrameNode>& frameNode)
 {
     auto context = AceType::DynamicCast<NG::RosenRenderContext>(frameNode->GetRenderContext());
+    CHECK_NULL_VOID(context);
     auto rsNode = context->GetRSNode();
     rsSymbolAnimation_ = RSSymbolAnimation();
     rsSymbolAnimation_.SetNode(rsNode);
@@ -231,7 +232,11 @@ void TxtParagraph::ReLayout(float width, const ParagraphStyle& paraStyle, const 
     }
     Rosen::TypographyStyle style;
     ConvertTypographyStyle(style, paraStyle_);
-    style.relayoutChangeBitmap = textStyles.front().GetReLayoutParagraphStyleBitmap();
+    auto bitmap = textStyles.front().GetReLayoutParagraphStyleBitmap();
+    auto size = std::min(bitmap.size(), style.relayoutChangeBitmap.size());
+    for (size_t i = 0; i < size; ++i) {
+        style.relayoutChangeBitmap.set(i, bitmap.test(i));
+    }
     paragraph_->Relayout(width, style, txtStyles);
 }
 

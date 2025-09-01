@@ -209,7 +209,16 @@ void CustomMenuItemPattern::OnAttachToFrameNode()
     RegisterOnTouch();
     auto host = GetHost();
     CHECK_NULL_VOID(host);
+    RegisterAccessibilityClickAction();
     MenuView::RegisterAccessibilityChildActionNotify(host);
+}
+
+void MenuItemPattern::OnAttachToMainTree()
+{
+    auto menuPattern = GetMenuPattern();
+    CHECK_NULL_VOID(menuPattern);
+    // flush divider render when new item mount to tree
+    menuPattern->AddBuildDividerTask();
 }
 
 void MenuItemPattern::CreateBottomDivider()
@@ -1157,6 +1166,31 @@ void MenuItemPattern::RegisterOnTouch()
         gestureHub->AddTouchEvent(onTouchEvent_);
         onTouchEventSet_ = true;
     }
+}
+
+void MenuItemPattern::RegisterAccessibilityClickAction()
+{
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto accessibilityProperty = host->GetAccessibilityProperty<AccessibilityProperty>();
+    CHECK_NULL_VOID(accessibilityProperty);
+    accessibilityProperty->SetActionClick([weak = WeakPtr<FrameNode>(host)]() {
+        auto host = weak.Upgrade();
+        CHECK_NULL_VOID(host);
+        auto eventHub = host->GetEventHub<NG::EventHub>();
+        CHECK_NULL_VOID(eventHub);
+        auto gesture = eventHub->GetGestureEventHub();
+        CHECK_NULL_VOID(gesture);
+        TouchEvent event;
+        event.type = TouchType::DOWN;
+        MenuView::TouchEventGenerator(host, event);
+        TouchPoint eventPoint;
+        MenuView::TouchPointGenerator(host, eventPoint);
+        event.pointers.push_back(eventPoint);
+        gesture->TriggerTouchEvent(event);
+        event.type = TouchType::UP;
+        gesture->TriggerTouchEvent(event);
+    });
 }
 
 void MenuItemPattern::RegisterOnPress()

@@ -129,6 +129,7 @@
             "https://gitee.com/lanshouren",
             "https://gitee.com/little-bear-sleeps",
             "https://gitee.com/zju_ljz",
+            "https://gitee.com/WendongPang",
             "https://gitee.com/camlostshi",
             "https://gitee.com/fenglinbailu",
             "https://gitee.com/skrobagleb",
@@ -165,7 +166,9 @@
             "https://gitee.com/cx983299475",
             "https://gitee.com/ilyaerokhin",
             "https://gitee.com/npisanov",
-            "https://gitee.com/huaweimaxuchu"
+            "https://gitee.com/huaweimaxuchu",
+            "https://gitee.com/finnick-zsp",
+            "https://gitee.com/allenlee6"
         ],
         "https://gitee.com/arkui_rich_editor": [
             "https://gitee.com/zhuweifeng94",
@@ -403,6 +406,9 @@
         "https://gitee.com/tzcurtain": {
             "info": "[键盘相关 zhoukechen]"
         },
+        "https://gitee.com/WendongPang": {
+            "info": "[安全区&键盘避让相关 pangwendong]"
+        },
         "https://gitee.com/lanshouren": {
             "info": "[布局类组件 lanshouren]"
         },
@@ -486,6 +492,12 @@
         },
         "https://gitee.com/cx983299475": {
             "info": "[卡片框架 chenxuan]"
+        },
+        "https://gitee.com/finnick-zsp": {
+            "info": "[卡片框架 zhushupei]"
+        },
+        "https://gitee.com/allenlee6": {
+            "info": "[卡片框架 lishengyang]"
         },
         "https://gitee.com/zhuweifeng94": {
             "info": "[富文本 zhuweifeng]"

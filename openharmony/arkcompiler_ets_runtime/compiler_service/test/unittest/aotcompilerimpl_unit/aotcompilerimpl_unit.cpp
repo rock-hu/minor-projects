@@ -264,40 +264,6 @@ HWTEST_F(AotCompilerImplTest, AotCompilerImplTest_006, TestSize.Level0)
 }
 
 /**
-* @tc.name: AotCompilerImplTest_007
-* @tc.desc: AotCompilerImpl::HandlePowerDisconnected()
-* @tc.type: Func
-*/
-HWTEST_F(AotCompilerImplTest, AotCompilerImplTest_007, TestSize.Level0)
-{
-    AotCompilerImpl &aotImpl = AotCompilerImplMock::GetInstance();
-    bool viewData1 = true;
-    int32_t viewData2 = 101010;
-    std::string viewData3 = "101010";
-    aotImpl.HandlePowerDisconnected();
-    EXPECT_TRUE(viewData1);
-    EXPECT_EQ(viewData2, 101010);
-    EXPECT_STREQ(viewData3.c_str(), "101010");
-}
-
-/**
-* @tc.name: AotCompilerImplTest_008
-* @tc.desc: AotCompilerImpl::HandleScreenOn()
-* @tc.type: Func
-*/
-HWTEST_F(AotCompilerImplTest, AotCompilerImplTest_008, TestSize.Level0)
-{
-    AotCompilerImpl &aotImpl = AotCompilerImplMock::GetInstance();
-    bool viewData1 = true;
-    int32_t viewData2 = 010101;
-    std::string viewData3 = "010101";
-    aotImpl.HandleScreenOn();
-    EXPECT_TRUE(viewData1);
-    EXPECT_EQ(viewData2, 010101);
-    EXPECT_STREQ(viewData3.c_str(), "010101");
-}
-
-/**
 * @tc.name: AotCompilerImplTest_009
 * @tc.desc: AotCompilerImpl::HandleThermalLevelChanged()
 * @tc.type: Func
@@ -305,13 +271,8 @@ HWTEST_F(AotCompilerImplTest, AotCompilerImplTest_008, TestSize.Level0)
 HWTEST_F(AotCompilerImplTest, AotCompilerImplTest_009, TestSize.Level0)
 {
     AotCompilerImpl &aotImpl = AotCompilerImplMock::GetInstance();
-    bool viewData1 = true;
-    int32_t viewData2 = 010101;
-    std::string viewData3 = "010101";
     aotImpl.HandleThermalLevelChanged(1);
-    EXPECT_TRUE(viewData1);
-    EXPECT_EQ(viewData2, 010101);
-    EXPECT_STREQ(viewData3.c_str(), "010101");
+    EXPECT_TRUE(aotImpl.IsAllowAotCompiler());
 }
 
 /**

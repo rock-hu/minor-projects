@@ -23,6 +23,7 @@
 #include "core/components_ng/pattern/scrollable/scrollable_properties.h"
 
 namespace OHOS::Ace::NG {
+
 class ACE_EXPORT GridScrollLayoutAlgorithm : public GridLayoutBaseAlgorithm {
     DECLARE_ACE_TYPE(GridScrollLayoutAlgorithm, GridLayoutBaseAlgorithm);
 
@@ -229,6 +230,8 @@ private:
 
     void ClearUnlayoutedItems(LayoutWrapper* layoutWrapper);
 
+    void UpdateUnlayoutedItems();
+
 protected:
     uint32_t crossCount_ = 0;
     uint32_t mainCount_ = 0;
@@ -244,7 +247,7 @@ protected:
     std::map<int32_t, float> itemsCrossSize_; // grid item's size in cross axis.
     std::list<GridPreloadItem> predictBuildList_;
     LayoutConstraintF cachedChildConstraint_;
-    std::set<int32_t> measuredItems_;
+    std::map<int32_t, float> unLayoutedItems_;
 
 private:
     /**
@@ -253,9 +256,13 @@ private:
      * @param line index of line to measure
      * updates @param mainLength by adding this line's measured height
      * updates @param endIdx with max item index in this line
+     * updates @param isScrollableSpringMotionRunning spring effect is runnning
      * @return false if line isn't recorded.
      */
-    bool MeasureExistingLine(int32_t line, float& mainLength, int32_t& endIdx);
+    bool MeasureExistingLine(
+        int32_t line, float& mainLength, int32_t& endIdx, bool isScrollableSpringMotionRunning = false);
+
+    float GetContentHeight(LayoutWrapper* layoutWrapper);
 
     LayoutWrapper* wrapper_;
     SizeF frameSize_;
@@ -272,6 +279,7 @@ private:
     bool canOverScrollStart_ = false;
     bool canOverScrollEnd_ = false;
     bool enableSkipping_ = true;               // enables skipping lines on a large offset change.
+    bool isLayouted_ = true;
     std::unique_ptr<GridLayoutInfo> infoCopy_; // legacy impl to save independent data for animation.
 
     // Map structure: [index, crossPosition], store cross position of each item.

@@ -17,7 +17,7 @@
 // Add the following two macro definitions to test the private and protected method.
 #define private public
 #define protected public
-#include "base/log/dump_log.h"
+
 #include "adapter/ohos/osal/thp_extra_manager_impl.h"
 #include "core/accessibility/accessibility_manager_ng.h"
 #include "core/components_ng/pattern/container_modal/container_modal_pattern.h"
@@ -2320,37 +2320,6 @@ HWTEST_F(PipelineContextTestNg, PipelineContextTestNg199, TestSize.Level1)
 }
 
 /**
- * @tc.name: PipelineContextTestNg200
- * @tc.desc: Test the function OnDumpInfo.
- * @tc.type: FUNC
- */
-HWTEST_F(PipelineContextTestNg, PipelineContextTestNg200, TestSize.Level1)
-{
-    /**
-     * @tc.steps1: initialize parameters.
-     * @tc.expected: All pointer is non-null.
-     */
-    ASSERT_NE(context_, nullptr);
-    context_->SetupRootElement();
-
-    std::unique_ptr<std::ostream> ostream = std::make_unique<std::ostringstream>();
-    ASSERT_NE(ostream, nullptr);
-    DumpLog::GetInstance().SetDumpFile(std::move(ostream));
-    /**
-     * @tc.steps2: init a vector with some string params and
-                call OnDumpInfo with every param array.
-     * @tc.expected: The return value is same as the expectation.
-     */
-    auto testJson = R"({"cmd":"changeIndex","params":{"index":0}} 6)";
-    auto testErrorJson = R"({"cmd":"changeIndex","params":{"index":2}} -1)";
-    std::vector<std::vector<std::string>> params = { { "-injection", testJson }, { "-injection", testErrorJson } };
-    int turn = 0;
-    for (; turn < params.size(); turn++) {
-        EXPECT_TRUE(context_->OnDumpInfo(params[turn]));
-    }
-}
-
-/**
  * @tc.name: PipelineContextTestNg300
  * @tc.desc: Test the function NotifyColorModeChange.
  * @tc.type: FUNC
@@ -2662,6 +2631,30 @@ HWTEST_F(PipelineContextTestNg, PipelineContextTestNg500, TestSize.Level1)
     params.push_back("test");
     auto ret = context_->OnDumpInfo(params);
     EXPECT_TRUE(ret);
+}
+
+/**
+ * @tc.name: PipelineContextTestNg408
+ * @tc.desc: Test onTouchEvent with SourceTool.PEN.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PipelineContextTestNg, PipelineContextTestNg408, TestSize.Level1)
+{
+    /**
+     * @tc.steps1: initialize parameters.
+     * @tc.expected: All pointer is non-null.
+     */
+    ASSERT_NE(context_, nullptr);
+    TouchEvent point;
+    /**
+     * @tc.steps2: create callback and call OnTouchEvent.
+     * @tc.expected: hasIdleTasks_ is true.
+     */
+    point.type = TouchType::DOWN;
+    point.sourceTool = SourceTool::PEN;
+    EXPECT_NE(context_->eventManager_, nullptr);
+    context_->OnTouchEvent(point, true);
+    EXPECT_TRUE(context_->hasIdleTasks_);
 }
 } // namespace NG
 } // namespace OHOS::Ace

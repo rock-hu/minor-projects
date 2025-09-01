@@ -921,8 +921,8 @@ export struct CustomAppBar {
             .backgroundColor(Color.Transparent)
             .backgroundBlurStyle(this.isHalfScreen ? BlurStyle.COMPONENT_ULTRA_THICK : undefined)
             .borderRadius({
-              topLeft: this.isHalfScreen ? HALF_CONTAINER_BORDER_SIZE : this.deviceBorderRadius,
-              topRight: this.isHalfScreen ? HALF_CONTAINER_BORDER_SIZE : this.deviceBorderRadius,
+              topLeft: this.isHalfScreen ? HALF_CONTAINER_BORDER_SIZE : 0,
+              topRight: this.isHalfScreen ? HALF_CONTAINER_BORDER_SIZE : 0,
             })
             .clip(true)
             .alignItems(VerticalAlign.Bottom)
@@ -930,6 +930,7 @@ export struct CustomAppBar {
             .onClick(() => {
               // 拦截到背板的点击事件
             })
+            .accessibilityLevel('no')
             .id('AtomicServiceStageId')
           }
           .height(this.containerHeight)

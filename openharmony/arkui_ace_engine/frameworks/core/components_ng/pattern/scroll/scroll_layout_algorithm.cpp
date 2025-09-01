@@ -28,12 +28,12 @@ void UpdateChildConstraint(Axis axis, const OptionalSizeF& selfIdealSize, Layout
 {
     contentConstraint.parentIdealSize = selfIdealSize;
     if (axis == Axis::VERTICAL) {
-        contentConstraint.maxSize.SetHeight(Infinity<float>());
+        contentConstraint.maxSize.SetHeight(LayoutInfinity<float>());
     } else if (axis == Axis::FREE) {
-        contentConstraint.maxSize.SetWidth(Infinity<float>());
-        contentConstraint.maxSize.SetHeight(Infinity<float>());
+        contentConstraint.maxSize.SetWidth(LayoutInfinity<float>());
+        contentConstraint.maxSize.SetHeight(LayoutInfinity<float>());
     } else {
-        contentConstraint.maxSize.SetWidth(Infinity<float>());
+        contentConstraint.maxSize.SetWidth(LayoutInfinity<float>());
     }
 }
 
@@ -282,7 +282,7 @@ void ScrollLayoutAlgorithm::UpdateOverlay(LayoutWrapper* layoutWrapper)
     CHECK_NULL_VOID(overlayNode);
     auto geometryNode = frameNode->GetGeometryNode();
     CHECK_NULL_VOID(geometryNode);
-    auto scrollFrameSize = geometryNode->GetMarginFrameSize();
+    auto scrollFrameSize = geometryNode->GetFrameSize(true);
     auto overlayGeometryNode = overlayNode->GetGeometryNode();
     CHECK_NULL_VOID(overlayGeometryNode);
     overlayGeometryNode->SetFrameSize(scrollFrameSize);

@@ -136,9 +136,9 @@ Observer选项。
 
 **系统能力：** SystemCapability.ArkUI.ArkUI.Full
 
-| 名称         | 类型                                               | 必填 | 说明                                         |
-| ------------ | -------------------------------------------------- | ---- | -------------------------------------------- |
-| id           | string                                             | 是   | 组件的id。                               |
+| 名称         | 类型                                               | 只读 | 可选 | 说明                                         |
+| ------------ | -------------------------------------------------- | ---- | ---- | -------------------------------------------- |
+| id           | string                                             | 否   | 否 | 组件的id。                               |
 
 ## RouterPageInfo
 
@@ -165,10 +165,10 @@ RouterPageInfo包含的信息。
 
 **系统能力：** SystemCapability.ArkUI.ArkUI.Full
 
-| 名称    | 类型                                      | 必填 | 说明                                   |
-| ------- | ----------------------------------------- | ---- | -------------------------------------- |
-| context | [UIContext](./arkts-apis-uicontext-uicontext.md) | 是   | 屏幕像素密度变化时页面对应的上下文信息。 |
-| density | number                                    | 是   | 变化后的屏幕像素密度。<br/>取值范围：[0, +∞)                 |
+| 名称    | 类型                                      | 只读 | 可选 | 说明                                   |
+| ------- | ----------------------------------------- | ---- | ---- | -------------------------------------- |
+| context | [UIContext](./arkts-apis-uicontext-uicontext.md) | 否   | 否  | 屏幕像素密度变化时页面对应的上下文信息。 |
+| density | number                                    | 否   | 否   | 变化后的屏幕像素密度。<br/>取值范围：[0, +∞)                 |
 
 ## NavDestinationSwitchInfo<sup>12+</sup>
 
@@ -943,19 +943,19 @@ import { AbilityConstant, UIAbility, Want } from '@kit.AbilityKit';
 import { uiObserver, window } from '@kit.ArkUI';
 import { hilog } from "@kit.PerformanceAnalysisKit";
 
-function callBackFunc(info: uiObserver.NavDestinationSwitchInfo) {
+function callbackFunc(info: uiObserver.NavDestinationSwitchInfo) {
   console.info(`testTag navDestinationSwitch from: ${JSON.stringify(info.from)} to: ${JSON.stringify(info.to)}`)
 }
 
 export default class EntryAbility extends UIAbility {
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
     hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onCreate');
-    uiObserver.on('navDestinationSwitch', this.context, callBackFunc);
+    uiObserver.on('navDestinationSwitch', this.context, callbackFunc);
   }
 
   onDestroy(): void {
     hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onDestroy');
-    uiObserver.off('navDestinationSwitch', this.context, callBackFunc);
+    uiObserver.off('navDestinationSwitch', this.context, callbackFunc);
   }
 
   onWindowStageCreate(windowStage: window.WindowStage): void {
@@ -1003,7 +1003,7 @@ struct PageOne {
   }
 }
 
-function callBackFunc(info: uiObserver.NavDestinationSwitchInfo) {
+function callbackFunc(info: uiObserver.NavDestinationSwitchInfo) {
   console.info(`testTag navDestinationSwitch from: ${JSON.stringify(info.from)} to: ${JSON.stringify(info.to)}`)
 }
 
@@ -1018,11 +1018,11 @@ struct Index {
   }
 
   aboutToAppear() {
-    uiObserver.on('navDestinationSwitch', this.getUIContext(), callBackFunc)
+    uiObserver.on('navDestinationSwitch', this.getUIContext(), callbackFunc)
   }
 
   aboutToDisappear() {
-    uiObserver.off('navDestinationSwitch', this.getUIContext(), callBackFunc)
+    uiObserver.off('navDestinationSwitch', this.getUIContext(), callbackFunc)
   }
 
   build() {
@@ -1092,7 +1092,7 @@ import { AbilityConstant, UIAbility, Want } from '@kit.AbilityKit';
 import { uiObserver, window } from '@kit.ArkUI';
 import { hilog } from "@kit.PerformanceAnalysisKit"
 
-function callBackFunc(info: uiObserver.NavDestinationSwitchInfo) {
+function callbackFunc(info: uiObserver.NavDestinationSwitchInfo) {
   console.info(`testTag navDestinationSwitch from: ${JSON.stringify(info.from)} to: ${JSON.stringify(info.to)}`)
 }
 
@@ -1101,14 +1101,14 @@ export default class EntryAbility extends UIAbility {
     hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onCreate');
     uiObserver.on('navDestinationSwitch', this.context, {
       navigationId: "myNavId"
-    }, callBackFunc);
+    }, callbackFunc);
   }
 
   onDestroy(): void {
     hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onDestroy');
     uiObserver.off('navDestinationSwitch', this.context, {
       navigationId: "myNavId"
-    }, callBackFunc);
+    }, callbackFunc);
   }
 
   onWindowStageCreate(windowStage: window.WindowStage): void {
@@ -1156,7 +1156,7 @@ struct PageOne {
   }
 }
 
-function callBackFunc(info: uiObserver.NavDestinationSwitchInfo) {
+function callbackFunc(info: uiObserver.NavDestinationSwitchInfo) {
   console.info(`testTag navDestinationSwitch from: ${JSON.stringify(info.from)} to: ${JSON.stringify(info.to)}`)
 }
 
@@ -1171,11 +1171,11 @@ struct Index {
   }
 
   aboutToAppear() {
-    uiObserver.on('navDestinationSwitch', this.getUIContext(), { navigationId: "myNavId" }, callBackFunc)
+    uiObserver.on('navDestinationSwitch', this.getUIContext(), { navigationId: "myNavId" }, callbackFunc)
   }
 
   aboutToDisappear() {
-    uiObserver.off('navDestinationSwitch', this.getUIContext(), { navigationId: "myNavId" }, callBackFunc)
+    uiObserver.off('navDestinationSwitch', this.getUIContext(), { navigationId: "myNavId" }, callbackFunc)
   }
 
   build() {

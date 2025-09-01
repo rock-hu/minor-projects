@@ -822,6 +822,27 @@ void ScrollablePattern::SetOnWillStopDraggingCallback(const RefPtr<Scrollable>& 
     });
 }
 
+
+void ScrollablePattern::SetPanActionEndEvent(const RefPtr<Scrollable>& scrollable)
+{
+    CHECK_NULL_VOID(scrollable);
+    scrollable->AddPanActionEndEvent([weak = WeakClaim(this)](GestureEvent& info) {
+        auto pattern = weak.Upgrade();
+        CHECK_NULL_VOID(pattern);
+        pattern->FireObserverOnPanActionEnd(info);
+    });
+}
+
+void ScrollablePattern::FireObserverOnPanActionEnd(GestureEvent& info)
+{
+    if (positionController_) {
+        auto observer = positionController_->GetObserver();
+        if (observer.onPanActionEndEvent) {
+            observer.onPanActionEndEvent(info);
+        }
+    }
+}
+
 RefPtr<Scrollable> ScrollablePattern::CreateScrollable()
 {
     auto host = GetHost();
@@ -4634,7 +4655,8 @@ bool ScrollablePattern::AccumulatingTerminateHelper(
         return false;
     }
     auto expandFromList = host->GetAccumulatedSafeAreaExpand(false,
-        { .edges = GetAxis() == Axis::VERTICAL ? LAYOUT_SAFE_AREA_EDGE_HORIZONTAL : LAYOUT_SAFE_AREA_EDGE_VERTICAL });
+        { .type = ignoreType,
+          .edges = GetAxis() == Axis::VERTICAL ? LAYOUT_SAFE_AREA_EDGE_HORIZONTAL : LAYOUT_SAFE_AREA_EDGE_VERTICAL });
     auto geometryNode = host->GetGeometryNode();
     CHECK_NULL_RETURN(geometryNode, false);
     auto frameRect = geometryNode->GetFrameRect();
@@ -4654,5 +4676,33 @@ float ScrollablePattern::FireObserverOnWillScroll(float offset)
     auto context = GetContext();
     CHECK_NULL_RETURN(context, result.offset.ConvertToPx());
     return context->NormalizeToPx(result.offset);
+}
+
+void ScrollablePattern::OnSyncGeometryNode(const DirtySwapConfig& config)
+{
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto paintProperty = host->GetPaintProperty<ScrollablePaintProperty>();
+    CHECK_NULL_VOID(paintProperty);
+    if (!paintProperty->GetFadingEdge().value_or(false)) {
+        return;
+    }
+
+    auto layoutProperty = host->GetLayoutProperty();
+    CHECK_NULL_VOID(layoutProperty);
+    const auto& safeAreaOpts = layoutProperty->GetSafeAreaExpandOpts();
+    if (!safeAreaOpts || !safeAreaOpts->Expansive()) {
+        return;
+    }
+
+    auto overlay = host->GetOverlayNode();
+    CHECK_NULL_VOID(overlay);
+    auto overlayGeometryNode = overlay->GetGeometryNode();
+    CHECK_NULL_VOID(overlayGeometryNode);
+    auto geometryNode = host->GetGeometryNode();
+    CHECK_NULL_VOID(geometryNode);
+    if (geometryNode->GetFrameSize(true) != overlayGeometryNode->GetFrameSize(true)) {
+        host->MarkDirtyNode(PROPERTY_UPDATE_MEASURE_SELF);
+    }
 }
 } // namespace OHOS::Ace::NG

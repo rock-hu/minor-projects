@@ -101,9 +101,19 @@ public:
         bufferUsage_ = usage;
     }
 
+    void SetBufferTypeLeak(const std::string& bufferTypeLeak) override
+    {
+        bufferTypeLeak_ = bufferTypeLeak;
+    }
+
     std::string GetBufferUsage() const
     {
         return bufferUsage_;
+    }
+
+    std::string GetBufferTypeLeak() const
+    {
+        return bufferTypeLeak_;
     }
 
     void SetWebSlideAxis(Axis axis) override
@@ -187,6 +197,7 @@ private:
     void InsertSurfaceNode(const std::shared_ptr<SurfaceBufferNode>& surfaceNode);
     std::string GetPSurfaceName() override
     {
+        CHECK_NULL_RETURN(producerSurface_, "");
         return producerSurface_->GetName();
     }
 #endif
@@ -197,6 +208,7 @@ private:
     OffsetF orgin_ { 0, 0 };
     std::string patternType_;
     std::string bufferUsage_;
+    std::string bufferTypeLeak_;
     int32_t queueSize_ = SURFACE_QUEUE_SIZE;
     Axis axis_ = Axis::NONE;
     float webOffset_ = 0.0;

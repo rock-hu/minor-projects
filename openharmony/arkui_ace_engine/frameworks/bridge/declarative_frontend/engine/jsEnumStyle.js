@@ -66,6 +66,13 @@ let TextVerticalAlign;
   TextVerticalAlign[TextVerticalAlign.TOP = 3] = 'TOP';
 })(TextVerticalAlign || (TextVerticalAlign = {}));
 
+let TextContentAlign;
+(function (TextContentAlign) {
+  TextContentAlign[TextContentAlign.TOP = 0] = 'TOP';
+  TextContentAlign[TextContentAlign.CENTER = 1] = 'CENTER';
+  TextContentAlign[TextContentAlign.BOTTOM = 2] = 'BOTTOM';
+})(TextContentAlign || (TextContentAlign = {}));
+
 let TextDataDetectorType;
 (function (TextDataDetectorType) {
   TextDataDetectorType[TextDataDetectorType.PHONE_NUMBER = 0] = 'PHONE_NUMBER';
@@ -1189,6 +1196,13 @@ let NavigationSystemTransitionType;
   NavigationSystemTransitionType[NavigationSystemTransitionType.SLIDE_RIGHT = 6] = 'SLIDE_RIGHT';
   NavigationSystemTransitionType[NavigationSystemTransitionType.SLIDE_BOTTOM = 7] = 'SLIDE_BOTTOM';
 }(NavigationSystemTransitionType || (NavigationSystemTransitionType = {})));
+
+let VisibilityChangeReason;
+(function (VisibilityChangeReason) {
+  VisibilityChangeReason[VisibilityChangeReason.TRANSITION = 0] = 'TRANSITION';
+  VisibilityChangeReason[VisibilityChangeReason.CONTENT_COVER = 1] = 'CONTENT_COVER';
+  VisibilityChangeReason[VisibilityChangeReason.APP_STATE = 2] = 'APP_STATE';
+}(VisibilityChangeReason || (VisibilityChangeReason = {})));
 
 let NavigationOperation;
 (function (NavigationOperation) {
@@ -4093,11 +4107,13 @@ let WebElementType;
 (function (WebElementType) {
   WebElementType[WebElementType.IMAGE = 1] = 'IMAGE';
   WebElementType[WebElementType.LINK = 2] = 'LINK';
+  WebElementType[WebElementType.TEXT = 3] = 'TEXT';
 })(WebElementType || (WebElementType = {}));
 
 let WebResponseType;
 (function (WebResponseType) {
   WebResponseType[WebResponseType.LONG_PRESS = 1] = 'LONG_PRESS';
+  WebResponseType[WebResponseType.RIGHT_CLICK = 2] = 'RIGHT_CLICK';
 })(WebResponseType || (WebResponseType = {}));
 
 class ImageAnalyzerController {

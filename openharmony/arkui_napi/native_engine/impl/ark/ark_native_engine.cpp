@@ -131,6 +131,9 @@ bool ArkNativeEngine::napiProfilerEnabled {false};
 bool ArkNativeEngine::napiProfilerParamReaded {false};
 PermissionCheckCallback ArkNativeEngine::permissionCheckCallback_ {nullptr};
 std::atomic<NapiModuleValidateCallback> ArkNativeEngine::moduleValidateCallback_ {nullptr};
+#if defined(PREVIEW)
+bool ArkNativeEngine::enableFileOperation_ {false};
+#endif
 
 // This interface is using by ace_engine
 napi_value LocalValueToLocalNapiValue(panda::Local<panda::JSValueRef> local)
@@ -352,7 +355,9 @@ panda::Local<panda::JSValueRef> NapiDefineClass(napi_env env, const char* name, 
 
     if (JSNApi::HasPendingException(vm)) {
         HILOG_WARN("occur exception, className:%{public}s", className.c_str());
-        JSNApi::PrintExceptionInfo(vm);
+        if (reinterpret_cast<NativeEngine*>(env)->IsCrossThreadCheckEnabled()) {
+            JSNApi::PrintExceptionInfo(vm);
+        }
         JSNApi::GetAndClearUncaughtException(vm);
     }
 #ifdef ENABLE_HITRACE
@@ -869,6 +874,13 @@ Local<JSValueRef> ArkNativeEngine::LoadNativeModule(
     return scope.Escape(exports);
 }
 
+#if defined(PREVIEW)
+void ArkNativeEngine::SetCurrentPreviewenv(bool enableFileOperation)
+{
+    enableFileOperation_ = enableFileOperation;
+}
+#endif
+
 /** require napi module for Ark Native Engine (standard napi_env).
  *
  * TypeScript declaration
@@ -893,7 +905,11 @@ Local<JSValueRef> ArkNativeEngine::RequireNapi(JsiRuntimeCallInfo *info)
         return scope.Escape(exports);
     }
     Local<StringRef> moduleName(info->GetCallArgRef(0));
-
+#if defined(PREVIEW)
+    if (!enableFileOperation_ && (moduleName->ToString(ecmaVm) == "file.fs")) {
+        return scope.Escape(JSValueRef::Undefined(ecmaVm));
+    }
+#endif
     bool isAppModule = false;
     if (info->GetArgsNumber() > 1) { // 1: index of arguments, isAppModule
         Local<BooleanRef> ret(info->GetCallArgRef(1));
@@ -1347,7 +1363,9 @@ bool NapiDefineProperty(napi_env env, Local<panda::ObjectRef> &obj, NapiProperty
     }
     if (JSNApi::HasPendingException(vm)) {
         HILOG_WARN("occur exception, propertyName:%{public}s", Local<StringRef>(propertyName)->ToString(vm).c_str());
-        JSNApi::PrintExceptionInfo(vm);
+        if (reinterpret_cast<NativeEngine*>(env)->IsCrossThreadCheckEnabled()) {
+            JSNApi::PrintExceptionInfo(vm);
+        }
         JSNApi::GetAndClearUncaughtException(vm);
     }
     return result;

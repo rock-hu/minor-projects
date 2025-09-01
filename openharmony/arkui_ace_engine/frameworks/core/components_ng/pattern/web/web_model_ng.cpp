@@ -16,6 +16,7 @@
 #include "core/components_ng/pattern/web/web_model_ng.h"
 
 #include "base/utils/utils.h"
+#include "base/web/webview/arkweb_utils/arkweb_utils.h"
 #include "core/components_ng/base/node_flag.h"
 #include "core/components_ng/base/view_abstract.h"
 #include "core/components_ng/base/view_abstract_model_ng.h"
@@ -1441,6 +1442,13 @@ void WebModelNG::SetDataDetectorConfig(const TextDetectConfig& config)
     webPattern->UpdateDataDetectorConfig(config);
 }
 
+void WebModelNG::SetForceEnableZoom(bool isEnabled)
+{
+    auto webPattern = ViewStackProcessor::GetInstance()->GetMainFrameNodePattern<WebPattern>();
+    CHECK_NULL_VOID(webPattern);
+    webPattern->UpdateForceEnableZoom(isEnabled);
+}
+
 void WebModelNG::SetJsEnabled(FrameNode* frameNode, bool isJsEnabled)
 {
     CHECK_NULL_VOID(frameNode);
@@ -2378,6 +2386,24 @@ void WebModelNG::SetOnDataResubmitted(
     webEventHub->SetOnDataResubmittedEvent(std::move(dataResubmittedId));
 }
 
+void WebModelNG::SetEnableDataDetector(FrameNode* frameNode, bool isEnabled)
+{
+    RETURN_IF_CALLING_FROM_M114();
+    CHECK_NULL_VOID(frameNode);
+    auto webPattern = ViewStackProcessor::GetInstance()->GetMainFrameNodePattern<WebPattern>();
+    CHECK_NULL_VOID(webPattern);
+    webPattern->UpdateEnableDataDetector(isEnabled);
+}
+
+void WebModelNG::SetDataDetectorConfig(FrameNode* frameNode, const TextDetectConfig& config)
+{
+    RETURN_IF_CALLING_FROM_M114();
+    CHECK_NULL_VOID(frameNode);
+    auto webPattern = ViewStackProcessor::GetInstance()->GetMainFrameNodePattern<WebPattern>();
+    CHECK_NULL_VOID(webPattern);
+    webPattern->UpdateDataDetectorConfig(config);
+}
+
 void WebModelNG::SetGestureFocusMode(GestureFocusMode mode)
 {
     auto webPattern = ViewStackProcessor::GetInstance()->GetMainFrameNodePattern<WebPattern>();
@@ -2485,5 +2511,13 @@ void WebModelNG::SetJavaScriptProxy(FrameNode* frameNode, std::function<void()>&
     auto webPattern = ViewStackProcessor::GetInstance()->GetMainFrameNodePattern<WebPattern>();
     CHECK_NULL_VOID(webPattern);
     webPattern->SetJsProxyCallback(std::move(jsProxyCallback));
+}
+
+void WebModelNG::SetForceEnableZoom(FrameNode* frameNode, bool isEnabled)
+{
+    CHECK_NULL_VOID(frameNode);
+    auto webPattern = ViewStackProcessor::GetInstance()->GetMainFrameNodePattern<WebPattern>();
+    CHECK_NULL_VOID(webPattern);
+    webPattern->UpdateForceEnableZoom(isEnabled);
 }
 } // namespace OHOS::Ace::NG

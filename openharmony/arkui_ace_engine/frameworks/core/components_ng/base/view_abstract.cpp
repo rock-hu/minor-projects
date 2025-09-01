@@ -5531,7 +5531,7 @@ void ViewAbstract::SetOverlayComponentContent(const RefPtr<NG::FrameNode>& conte
 
 void ViewAbstract::AddOverlayToFrameNode(const RefPtr<NG::FrameNode>& overlayNode,
     const std::optional<Alignment>& align, const std::optional<Dimension>& offsetX,
-    const std::optional<Dimension>& offsetY)
+    const std::optional<Dimension>& offsetY, TextDirection direction)
 {
     auto frameNode = ViewStackProcessor::GetInstance()->GetMainFrameNode();
     CHECK_NULL_VOID(frameNode);
@@ -5549,6 +5549,7 @@ void ViewAbstract::AddOverlayToFrameNode(const RefPtr<NG::FrameNode>& overlayNod
     layoutProperty->UpdateMeasureType(MeasureType::MATCH_PARENT);
     layoutProperty->UpdateAlignment(align.value_or(Alignment::TOP_LEFT));
     layoutProperty->SetOverlayOffset(offsetX, offsetY);
+    layoutProperty->UpdateLayoutDirection(direction);
     auto renderContext = overlayNode->GetRenderContext();
     CHECK_NULL_VOID(renderContext);
     renderContext->UpdateZIndex(INT32_MAX);
@@ -5964,6 +5965,25 @@ void ViewAbstract::SetWidth(FrameNode* frameNode, const CalcLength& width)
         height = layoutConstraint->selfIdealSize->Height();
     }
     layoutProperty->UpdateUserDefinedIdealSize(CalcSize(width, height));
+}
+
+void ViewAbstract::UpdateLayoutPolicyProperty(FrameNode* frameNode, const LayoutCalPolicy layoutPolicy, bool isWidth)
+{
+    CHECK_NULL_VOID(frameNode);
+    auto layoutProperty = frameNode->GetLayoutProperty();
+    if (layoutProperty) {
+        layoutProperty->UpdateLayoutPolicyProperty(layoutPolicy, isWidth);
+        layoutProperty->ClearUserDefinedIdealSize(isWidth, !isWidth);
+    }
+}
+
+void ViewAbstract::ResetLayoutPolicyProperty(FrameNode* frameNode, bool isWidth)
+{
+    CHECK_NULL_VOID(frameNode);
+    auto layoutProperty = frameNode->GetLayoutProperty();
+    if (layoutProperty) {
+        layoutProperty->UpdateLayoutPolicyProperty(LayoutCalPolicy::NO_MATCH, isWidth);
+    }
 }
 
 void ViewAbstract::SetWidth(FrameNode* frameNode, const RefPtr<ResourceObject>& resObj)
@@ -6397,6 +6417,34 @@ void ViewAbstract::SetRadialGradient(FrameNode* frameNode, const NG::Gradient& g
 void ViewAbstract::SetOverlay(FrameNode* frameNode, const NG::OverlayOptions& overlay)
 {
     ACE_UPDATE_NODE_RENDER_CONTEXT(OverlayText, overlay, frameNode);
+}
+
+void ViewAbstract::SetOverlayNode(FrameNode* frameNode, FrameNode* node, const NG::OverlayOptions& overlay)
+{
+    CHECK_NULL_VOID(frameNode);
+    SetOverlay(frameNode, overlay);
+    auto overlayNode = AceType::WeakClaim(node).Upgrade();
+    if (overlayNode == nullptr) {
+        frameNode->SetOverlayNode(nullptr);
+        return;
+    }
+    frameNode->SetOverlayNode(overlayNode);
+    overlayNode->SetParent(AceType::WeakClaim(frameNode));
+    overlayNode->SetActive(true);
+    overlayNode->MarkDirtyNode(PROPERTY_UPDATE_MEASURE);
+    auto layoutProperty = AceType::DynamicCast<LayoutProperty>(overlayNode->GetLayoutProperty());
+    CHECK_NULL_VOID(layoutProperty);
+    layoutProperty->SetIsOverlayNode(true);
+    layoutProperty->UpdateMeasureType(MeasureType::MATCH_PARENT);
+    layoutProperty->UpdateAlignment(overlay.align);
+    layoutProperty->SetOverlayOffset(overlay.x, overlay.y);
+    layoutProperty->UpdateLayoutDirection(overlay.direction);
+    auto renderContext = overlayNode->GetRenderContext();
+    CHECK_NULL_VOID(renderContext);
+    renderContext->UpdateZIndex(INT32_MAX);
+    auto focusHub = overlayNode->GetOrCreateFocusHub();
+    CHECK_NULL_VOID(focusHub);
+    focusHub->SetFocusable(false);
 }
 
 void ViewAbstract::SetBorderImage(FrameNode* frameNode, const RefPtr<BorderImage>& borderImage)
@@ -8218,6 +8266,13 @@ OffsetT<Dimension> ViewAbstract::GetPosition(FrameNode* frameNode)
     return target->GetPositionValue(position);
 }
 
+std::optional<EdgesParam> ViewAbstract::GetPositionEdges(FrameNode* frameNode)
+{
+    const auto& target = frameNode->GetRenderContext();
+    CHECK_NULL_RETURN(target, std::nullopt);
+    return target->GetPositionEdges();
+}
+
 std::optional<Shadow> ViewAbstract::GetShadow(FrameNode* frameNode)
 {
     Shadow value;
@@ -8569,6 +8624,17 @@ Dimension ViewAbstract::GetHeight(FrameNode* frameNode)
     return value;
 }
 
+LayoutCalPolicy ViewAbstract::GetLayoutPolicy(FrameNode* frameNode, bool isWidth)
+{
+    CHECK_NULL_RETURN(frameNode, LayoutCalPolicy::NO_MATCH);
+    auto layoutProperty = frameNode->GetLayoutProperty();
+    CHECK_NULL_RETURN(layoutProperty, LayoutCalPolicy::NO_MATCH);
+    auto layoutPolicyProperty = layoutProperty->GetLayoutPolicyProperty();
+    CHECK_NULL_RETURN(layoutPolicyProperty, LayoutCalPolicy::NO_MATCH);
+    auto layoutPolicy = layoutPolicyProperty->GetLayoutPolicy(isWidth);
+    return layoutPolicy.value_or(LayoutCalPolicy::NO_MATCH);
+}
+
 Color ViewAbstract::GetBackgroundColor(FrameNode* frameNode)
 {
     Color value;
@@ -8681,12 +8747,12 @@ float ViewAbstract::GetAspectRatio(FrameNode* frameNode)
     return aspectRatio;
 }
 
-void ViewAbstract::SetJSFrameNodeOnClick(FrameNode* frameNode, GestureEventFunc&& clickEventFunc)
+void ViewAbstract::SetFrameNodeCommonOnClick(FrameNode* frameNode, GestureEventFunc&& clickEventFunc)
 {
     CHECK_NULL_VOID(frameNode);
     auto gestureHub = frameNode->GetOrCreateGestureEventHub();
     CHECK_NULL_VOID(gestureHub);
-    gestureHub->SetJSFrameNodeOnClick(std::move(clickEventFunc));
+    gestureHub->SetFrameNodeCommonOnClick(std::move(clickEventFunc));
     auto focusHub = frameNode->GetOrCreateFocusHub();
     CHECK_NULL_VOID(focusHub);
     focusHub->SetFocusable(true, false);
@@ -8706,12 +8772,12 @@ void ViewAbstract::ClearJSFrameNodeOnClick(FrameNode* frameNode)
     uiNode->SetNodeEventRegistrationState(false);
 }
 
-void ViewAbstract::SetJSFrameNodeOnTouch(FrameNode* frameNode, TouchEventFunc&& touchEventFunc)
+void ViewAbstract::SetFrameNodeCommonOnTouch(FrameNode* frameNode, TouchEventFunc&& touchEventFunc)
 {
     CHECK_NULL_VOID(frameNode);
     auto gestureHub = frameNode->GetOrCreateGestureEventHub();
     CHECK_NULL_VOID(gestureHub);
-    gestureHub->SetJSFrameNodeOnTouchEvent(std::move(touchEventFunc));
+    gestureHub->SetFrameNodeCommonOnTouchEvent(std::move(touchEventFunc));
 }
 
 void ViewAbstract::ClearJSFrameNodeOnTouch(FrameNode* frameNode)
@@ -8722,12 +8788,12 @@ void ViewAbstract::ClearJSFrameNodeOnTouch(FrameNode* frameNode)
     gestureHub->ClearJSFrameNodeOnTouch();
 }
 
-void ViewAbstract::SetJSFrameNodeOnAppear(FrameNode* frameNode, std::function<void()>&& onAppear)
+void ViewAbstract::SetFrameNodeCommonOnAppear(FrameNode* frameNode, std::function<void()>&& onAppear)
 {
     CHECK_NULL_VOID(frameNode);
     auto eventHub = frameNode->GetEventHub<NG::EventHub>();
     CHECK_NULL_VOID(eventHub);
-    eventHub->SetJSFrameNodeOnAppear(std::move(onAppear));
+    eventHub->SetFrameNodeCommonOnAppear(std::move(onAppear));
 }
 
 void ViewAbstract::ClearJSFrameNodeOnAppear(FrameNode* frameNode)
@@ -8738,12 +8804,12 @@ void ViewAbstract::ClearJSFrameNodeOnAppear(FrameNode* frameNode)
     eventHub->ClearJSFrameNodeOnAppear();
 }
 
-void ViewAbstract::SetJSFrameNodeOnDisappear(FrameNode* frameNode, std::function<void()>&& onDisappear)
+void ViewAbstract::SetFrameNodeCommonOnDisappear(FrameNode* frameNode, std::function<void()>&& onDisappear)
 {
     CHECK_NULL_VOID(frameNode);
     auto eventHub = frameNode->GetEventHub<NG::EventHub>();
     CHECK_NULL_VOID(eventHub);
-    eventHub->SetJSFrameNodeOnDisappear(std::move(onDisappear));
+    eventHub->SetFrameNodeCommonOnDisappear(std::move(onDisappear));
 }
 
 void ViewAbstract::ClearJSFrameNodeOnDisappear(FrameNode* frameNode)
@@ -8802,12 +8868,12 @@ void ViewAbstract::ClearJSFrameNodeOnBlurCallback(FrameNode* frameNode)
     focusHub->ClearJSFrameNodeOnBlurCallback();
 }
 
-void ViewAbstract::SetJSFrameNodeOnHover(FrameNode* frameNode, OnHoverFunc&& onHoverEventFunc)
+void ViewAbstract::SetFrameNodeCommonOnHover(FrameNode* frameNode, OnHoverFunc&& onHoverEventFunc)
 {
     CHECK_NULL_VOID(frameNode);
     auto eventHub = frameNode->GetOrCreateInputEventHub();
     CHECK_NULL_VOID(eventHub);
-    eventHub->SetJSFrameNodeOnHoverEvent(std::move(onHoverEventFunc));
+    eventHub->SetFrameNodeCommonOnHoverEvent(std::move(onHoverEventFunc));
 }
 
 void ViewAbstract::ClearJSFrameNodeOnHover(FrameNode* frameNode)
@@ -8818,12 +8884,12 @@ void ViewAbstract::ClearJSFrameNodeOnHover(FrameNode* frameNode)
     eventHub->ClearJSFrameNodeOnHover();
 }
 
-void ViewAbstract::SetJSFrameNodeOnHoverMove(FrameNode* frameNode, OnHoverMoveFunc&& onHoverMoveEventFunc)
+void ViewAbstract::SetFrameNodeCommonOnHoverMove(FrameNode* frameNode, OnHoverMoveFunc&& onHoverMoveEventFunc)
 {
     CHECK_NULL_VOID(frameNode);
     auto eventHub = frameNode->GetOrCreateInputEventHub();
     CHECK_NULL_VOID(eventHub);
-    eventHub->SetJSFrameNodeOnHoverMoveEvent(std::move(onHoverMoveEventFunc));
+    eventHub->SetFrameNodeCommonOnHoverMoveEvent(std::move(onHoverMoveEventFunc));
 }
 
 void ViewAbstract::ClearJSFrameNodeOnHoverMove(FrameNode* frameNode)
@@ -8834,12 +8900,12 @@ void ViewAbstract::ClearJSFrameNodeOnHoverMove(FrameNode* frameNode)
     eventHub->ClearJSFrameNodeOnHoverMove();
 }
 
-void ViewAbstract::SetJSFrameNodeOnMouse(FrameNode* frameNode, OnMouseEventFunc&& onMouseEventFunc)
+void ViewAbstract::SetFrameNodeCommonOnMouse(FrameNode* frameNode, OnMouseEventFunc&& onMouseEventFunc)
 {
     CHECK_NULL_VOID(frameNode);
     auto eventHub = frameNode->GetOrCreateInputEventHub();
     CHECK_NULL_VOID(eventHub);
-    eventHub->SetJSFrameNodeOnMouseEvent(std::move(onMouseEventFunc));
+    eventHub->SetFrameNodeCommonOnMouseEvent(std::move(onMouseEventFunc));
 }
 
 void ViewAbstract::ClearJSFrameNodeOnMouse(FrameNode* frameNode)
@@ -8858,11 +8924,11 @@ BlendApplyType ViewAbstract::GetBlendApplyType(FrameNode* frameNode)
     return target->GetBackBlendApplyTypeValue(value);
 }
 
-void ViewAbstract::SetJSFrameNodeOnSizeChange(
+void ViewAbstract::SetFrameNodeCommonOnSizeChange(
     FrameNode* frameNode, std::function<void(const RectF& oldRect, const RectF& rect)>&& onSizeChanged)
 {
     CHECK_NULL_VOID(frameNode);
-    frameNode->SetJSFrameNodeOnSizeChangeCallback(std::move(onSizeChanged));
+    frameNode->SetFrameNodeCommonOnSizeChangeCallback(std::move(onSizeChanged));
 }
 
 void ViewAbstract::ClearJSFrameNodeOnSizeChange(FrameNode* frameNode)
@@ -8873,7 +8939,7 @@ void ViewAbstract::ClearJSFrameNodeOnSizeChange(FrameNode* frameNode)
     eventHub->ClearJSFrameNodeOnSizeChange();
 }
 
-void ViewAbstract::SetJSFrameNodeOnVisibleAreaApproximateChange(FrameNode* frameNode,
+void ViewAbstract::SetFrameNodeCommonOnVisibleAreaApproximateChange(FrameNode* frameNode,
     const std::function<void(bool, double)>&& jsCallback, const std::vector<double>& ratioList,
     int32_t interval)
 {
@@ -9831,4 +9897,13 @@ void ViewAbstract::ResetResObj(const std::string& key)
     CHECK_NULL_VOID(pattern);
     pattern->RemoveResObj(key);
 }
+
+void ViewAbstract::CheckMainThread()
+{
+    auto pipeline = NG::PipelineContext::GetCurrentContextSafely();
+    if (pipeline && !pipeline->CheckThreadSafe()) {
+        LOGF_ABORT("UI function doesn't run on UI thread.");
+    }
+}
+
 } // namespace OHOS::Ace::NG

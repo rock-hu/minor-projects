@@ -440,6 +440,7 @@ public:
 protected:
     void RegisterOnKeyEvent();
     void RegisterOnTouch();
+    void RegisterAccessibilityClickAction();
     void RegisterOnPress();
     void OnAfterModifyDone() override;
     RefPtr<FrameNode> GetMenuWrapper();
@@ -544,6 +545,7 @@ friend class ServiceCollaborationMenuAceHelper;
     void HandleOptionBackgroundColor();
     void HandleOptionFontColor();
     RefPtr<SelectTheme> GetCurrentSelectTheme();
+    void OnAttachToMainTree() override;
 
     std::list<TouchRegion> hoverRegions_;
 

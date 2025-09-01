@@ -2197,6 +2197,30 @@ DEF_RUNTIME_STUBS(ThrowTypeError)
     THROW_NEW_ERROR_AND_RETURN_VALUE(thread, error.GetTaggedValue(), JSTaggedValue::Hole().GetRawData());
 }
 
+DEF_RUNTIME_STUBS(ThrowTypeErrorWithParam)
+{
+    RUNTIME_STUBS_HEADER(ThrowTypeError);
+    JSTaggedValue argMessageStringId = GetArg(argv, argc, 0);  // 0: means the zeroth parameter
+    JSTaggedValue argParam = GetArg(argv, argc, 1); // 1: means the first parameter
+    std::string message = "";
+    if (argParam.IsInt()) { // number
+        message = common::CString::FormatString(
+            MessageString::GetMessageString(argMessageStringId.GetInt()).c_str(),
+            argParam.GetInt()
+        ).Str();
+    } else { // string
+        ASSERT(argParam.IsString());
+        CString keyStr = ConvertToString(thread, EcmaString::Cast(argParam));
+        message = common::CString::FormatString(
+            MessageString::GetMessageString(argMessageStringId.GetInt()).c_str(),
+            keyStr.c_str()
+        ).Str();
+    }
+    ObjectFactory *factory = thread->GetEcmaVM()->GetFactory();
+    JSHandle<JSObject> error = factory->GetJSError(ErrorType::TYPE_ERROR, message.c_str(), StackCheck::NO);
+    THROW_NEW_ERROR_AND_RETURN_VALUE(thread, error.GetTaggedValue(), JSTaggedValue::Hole().GetRawData());
+}
+
 DEF_RUNTIME_STUBS(MismatchError)
 {
     RUNTIME_STUBS_HEADER(MismatchError);
@@ -2474,7 +2498,7 @@ DEF_RUNTIME_STUBS(MethodEntry)
     JSHandle<JSTaggedValue> func = GetHArg<JSTaggedValue>(argv, argc, 0);  // 0: means the zeroth parameter
     if (func.GetTaggedValue().IsECMAObject()) {
         Method *method = ECMAObject::Cast(func.GetTaggedValue().GetTaggedObject())->GetCallTarget(thread);
-        if (method->IsNativeWithCallField()) {
+        if (JSTaggedValue::Cast(method).IsUndefined() || method->IsNativeWithCallField()) {
             return JSTaggedValue::Hole().GetRawData();
         }
         JSHandle<JSFunction> funcObj = JSHandle<JSFunction>::Cast(func);
