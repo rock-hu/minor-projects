@@ -28,6 +28,7 @@ The practices describe how to use the component reuse mechanism to improve the a
 ``` 
 ├──entry/src/main/ets                          
 │  ├──common
+│  │  ├──CommonConstants.ets            // Component reuse DataSource class
 │  │  ├──Constants.ets                  // Common constants
 │  │  └──GlobalBuilderContext.ets       // Caching the global @Builder
 │  ├──entryability
@@ -39,7 +40,10 @@ The practices describe how to use the component reuse mechanism to improve the a
 │  │  ├──ColorData.ets                  // Data adapter of Text list on the level-2 page
 │  │  └──FriendMomentData.ets           // Data adapter of Nearby people, Image-text list, and Username list on the level-2 page
 │  ├──pages.ets
-│  │   └──Index.ets                     // Home page
+│  │  ├──ImproveReuseHitRate.ets        // Improve reuse HitRate
+│  │  ├──Index.ets                      // Home page
+│  │  ├──ReuseNested.ets                // Reuse nested
+│  │  └──UseComponentReuse.ets          // Use component reuse
 │  └──view        
 │     ├──OneMoment.ets                  // Each item UI in Nearby people on the level-2 page
 │     ├──PageListSlideToHistory.ets     // Nearby people UI on the level-2 page                   

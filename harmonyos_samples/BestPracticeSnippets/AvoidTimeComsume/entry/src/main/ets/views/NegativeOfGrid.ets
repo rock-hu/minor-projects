@@ -14,7 +14,6 @@
  */
 
 import { hiTraceMeter } from '@kit.PerformanceAnalysisKit';
-import { router } from '@kit.ArkUI';
 
 class MyDataSource implements IDataSource {
   private dataArray: number[] = [];

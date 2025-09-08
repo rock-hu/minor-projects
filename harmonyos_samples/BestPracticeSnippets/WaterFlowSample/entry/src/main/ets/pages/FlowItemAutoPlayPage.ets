@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 // [Start quick_start]
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { CommonConstants } from '../common/constants/CommonConstants';
@@ -57,7 +72,8 @@ struct FlowVideoItem {
           })
           .id('image')
 
-        Stack() {}
+        Stack() {
+        }
         .linearGradient({
           angle: 0,
           colors: [['#80000000', 0.0],
@@ -90,10 +106,12 @@ struct FlowVideoItem {
       .width('100%')
       .borderRadius(8)
       .backgroundColor(Color.Gray)
+
       // [EndExclude image_item]
     }
   }
 }
+
 // [StartExclude water_flow_init]
 @Entry
 @Component
@@ -146,12 +164,12 @@ struct FlowItemAutoPlayPage {
     return result;
   }
 
-  getSize() {
+  getSize(): number {
     let ret = Math.floor(Math.random() * this.maxSize);
     return (ret > this.minSize ? ret : this.minSize);
   }
 
-  setItemSizeArray() {
+  setItemSizeArray(): void {
     for (let i = 0; i < 100; i++) {
       this.itemWidthArray.push(this.getSize());
       this.itemHeightArray.push(this.getSize());
@@ -182,8 +200,9 @@ struct FlowItemAutoPlayPage {
           .width('100%')
           .fontSize(24)
           .fontWeight(FontWeight.Bold)
-          .margin({ top: '18vp', left: '16vp', bottom: '16vp'})
+          .margin({ top: '18vp', left: '16vp', bottom: '16vp' })
       }
+
       WaterFlow({ scroller: this.scroller, sections: this.sections }) {
         LazyForEach(this.dataSource, (item: MediaItem) => {
           FlowItem() {
@@ -207,5 +226,6 @@ struct FlowItemAutoPlayPage {
     })
   }
 }
+
 // [EndExclude water_flow_init]
 // [End quick_start]

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -55,19 +55,27 @@ export class WindowUtil {
   }
 
   private static updateAvoidArea(windowObj: window.Window) {
-    WindowUtil.setAvoidArea(window.AvoidAreaType.TYPE_SYSTEM,
-      windowObj.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM));
-    WindowUtil.setAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR,
-      windowObj.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR));
+    try {
+      WindowUtil.setAvoidArea(window.AvoidAreaType.TYPE_SYSTEM,
+        windowObj.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM));
+      WindowUtil.setAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR,
+        windowObj.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR));
+    } catch (err) {
+      hilog.error(0x0000, 'testTag', 'getWindowAvoidArea get exception. Cause: %{public}s', JSON.stringify(err) ?? '');
+    }
   }
 
   // Get status bar height and indicator height.
   private static setAvoidArea(type: window.AvoidAreaType, area: window.AvoidArea) {
-    let uiContext = WindowUtil.windowClass.getUIContext();
-    if (type === window.AvoidAreaType.TYPE_SYSTEM) {
-      AppStorage.setOrCreate(CommonConstants.AS_KEY_STATUS_BAR_HEIGHT, uiContext.px2vp(area.topRect.height));
-    } else if (type === window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR) {
-      AppStorage.setOrCreate(CommonConstants.AS_KEY_NAVIGATOR_BAR_HEIGHT, uiContext.px2vp(area.bottomRect.height));
+    try {
+      let uiContext = WindowUtil.windowClass.getUIContext();
+      if (type === window.AvoidAreaType.TYPE_SYSTEM) {
+        AppStorage.setOrCreate(CommonConstants.AS_KEY_STATUS_BAR_HEIGHT, uiContext.px2vp(area.topRect.height));
+      } else if (type === window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR) {
+        AppStorage.setOrCreate(CommonConstants.AS_KEY_NAVIGATOR_BAR_HEIGHT, uiContext.px2vp(area.bottomRect.height));
+      }
+    } catch (err) {
+      hilog.error(0x0000, 'testTag', 'getUIContext get exception. Cause: %{public}s', JSON.stringify(err) ?? '');
     }
   }
 }

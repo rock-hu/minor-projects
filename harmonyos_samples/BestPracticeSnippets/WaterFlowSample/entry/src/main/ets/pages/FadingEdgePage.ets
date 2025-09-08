@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 // [Start quick_start]
 import { CommonConstants } from "../common/constants/CommonConstants";
 import { SectionsWaterFlowDataSource } from "../model/SectionsWaterFlowDataSource";
@@ -8,7 +23,7 @@ import { LengthMetrics } from '@kit.ArkUI';
 struct ReusableFlowItem {
   @State item: number = 0;
 
-  aboutToReuse(params: Record<string, number>) {
+  aboutToReuse(params: Record<string, number>): void {
     this.item = params.item;
   }
 
@@ -60,6 +75,7 @@ struct ReusableFlowItem {
     .backgroundColor(Color.Gray)
   }
 }
+
 // [EndExclude flow_item_layout]
 @Entry
 @Component
@@ -80,7 +96,6 @@ struct FadingEdgePage {
   // 1、Create group information.
   @State sections: WaterFlowSections = new WaterFlowSections();
   @StorageProp(CommonConstants.AS_KEY_STATUS_BAR_HEIGHT) statusBarHeight: number = 0;
-
   // 2、Create the first group.
   oneColumnSection: SectionOptions = {
     itemsCount: 3,
@@ -110,16 +125,17 @@ struct FadingEdgePage {
   }
 
   // [StartExclude method_declare]
-  getSize() {
+  getSize(): number {
     let ret = Math.floor(Math.random() * this.maxSize);
     return (ret > this.minSize ? ret : this.minSize);
   }
 
-  setItemSizeArray() {
+  setItemSizeArray(): void {
     for (let i = 0; i < 100; i++) {
       this.itemHeightArray.push(this.getSize());
     }
   }
+
   // [EndExclude method_declare]
 
   aboutToAppear() {
@@ -128,7 +144,7 @@ struct FadingEdgePage {
   }
 
   // 5、Initialise group data.
-  initSections() {
+  initSections(): void {
     let sectionOptions: SectionOptions[] = [];
     let count = 0;
     let oneOrTwo = 0;
@@ -157,8 +173,9 @@ struct FadingEdgePage {
           .width('100%')
           .fontSize(24)
           .fontWeight(FontWeight.Bold)
-          .margin({ top: '18vp', left: '16vp', bottom: '8vp'})
+          .margin({ top: '18vp', left: '16vp', bottom: '8vp' })
       }
+
       // 6、Link the grouping information to WaterFlow.
       WaterFlow({ scroller: this.scroller, sections: this.sections }) {
         // [StartExclude water_flow_data]
@@ -179,11 +196,12 @@ struct FadingEdgePage {
       .height('100%')
       .layoutWeight(1)
       .scrollBar(BarState.On)
-      .fadingEdge(true, { fadingEdgeLength: LengthMetrics.vp(80)})
+      .fadingEdge(true, { fadingEdgeLength: LengthMetrics.vp(80) })
     }
     .padding({
       top: this.statusBarHeight
     })
   }
 }
+
 // [End quick_start]

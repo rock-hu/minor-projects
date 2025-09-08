@@ -13,8 +13,13 @@
  *  limitations under the License.
  */
 
+@Builder
+export function Segment10Builder() {
+  NavDestination(){
+    Index()
+  }
+}
 // [Start Counter_example5]
-@Entry
 @Component
 struct Index {
   @State currentIndex: number = 0; // The subscript of the currently selected list item

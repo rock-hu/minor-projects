@@ -42,7 +42,7 @@ struct DecodeBarcode {
                     try {
                       fileIo.closeSync(file);
                     } catch (error) {
-                      Logger.error(TAG, `Failed to closeSync. Code: ${error.code}.`);
+                      Logger.error(TAG, `Failed to closeSync. Code: ${error?.code}.`);
                     }
                     if (imageSourceApi) {
                       imageSourceApi.getImageInfo(0, (error: BusinessError, imageInfo) => {
@@ -63,7 +63,7 @@ struct DecodeBarcode {
                     }
                   } catch (error) {
                     showError(error);
-                    Logger.error(TAG, `Promise options Error. Code: ${error.code}.`);
+                    Logger.error(TAG, `Promise options Error. Code: ${error?.code}.`);
                     return;
                   }
                 } else {
@@ -106,7 +106,7 @@ struct DecodeBarcode {
                   });
                 } catch (error) {
                   showError(error);
-                  Logger.error(TAG, `error by catch. Code: ${error.code}, message: ${error.message}.`);
+                  Logger.error(TAG, `error by catch. Code: ${error?.code}, message: ${error?.message}.`);
                 }
 
               }).catch((error: BusinessError) => {
@@ -114,7 +114,7 @@ struct DecodeBarcode {
               });
             } catch (error) {
               showError(error);
-              Logger.error(TAG, `Failed to select by photoPicker. Code: ${error.code}.`);
+              Logger.error(TAG, `Failed to select by photoPicker. Code: ${error?.code}.`);
             }
           }
         })

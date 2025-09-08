@@ -82,12 +82,6 @@ struct Index {
     }
   }
 
-
-  /**
-   * 保存ArrayBuffer到沙箱路径
-   * @param buffer：图片ArrayBuffer
-   * @returns
-   */
   async saveImage(buffer: ArrayBuffer | string): Promise<void> {
     const context = this.getUIContext().getHostContext() as common.UIAbilityContext;
     const filePath: string = context.cacheDir + '/test.jpg';

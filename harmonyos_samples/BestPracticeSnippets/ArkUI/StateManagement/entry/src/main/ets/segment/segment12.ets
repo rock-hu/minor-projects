@@ -14,8 +14,8 @@
  */
 
 // [Start Case8]
-import { ButtonComponent } from '../components/ButtonComponent';
-import { ListItemComponent } from '../components/ListItemComponent';
+import { ButtonComponent } from '../segment/segment13';
+import { ListItemComponent } from '../segment/segment14';
 @Entry
 @Component
 struct UseEmitterPublish {
@@ -43,3 +43,9 @@ struct UseEmitterPublish {
   }
 }
 // [End Case8]
+@Builder
+export function Segment12Builder() {
+  NavDestination(){
+    UseEmitterPublish()
+  }
+}

@@ -16,9 +16,12 @@
 // [Start rotate_sample]
 import { window } from '@kit.ArkUI';
 import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 const SUB_WINDOW_LEFT_OFFSET = 50;
 const SUB_WINDOW_TOP_OFFSET = 500;
+const TAG = 'subWindowAdaptWhenRotate';
+const DOMAIN = 0x0000;
 
 @Entry
 @Component
@@ -41,7 +44,7 @@ struct Index {
 
   private adjustSubwindowSizeAndPosition() {
     if (!this.subWindow) {
-      console.error('subWindow is null');
+      hilog.error(DOMAIN, TAG, 'subWindow is null');
       return;
     }
     let subwindowRect: window.Rect = this.subWindow.getWindowProperties().windowRect;
@@ -52,23 +55,25 @@ struct Index {
     try {
       let promise = this.subWindow.resize(newWidth, newHeight);
       promise.then(() => {
-        console.info('Succeeded in changing the window size');
+        hilog.info(DOMAIN, TAG, 'Succeeded in changing the window size')
       }).catch((err: BusinessError) => {
-        console.error(`Failed to change the window size. Cause code: ${err.code}, message: ${err.message}`);
+        hilog.error(DOMAIN, TAG, `Failed to change the window size. Cause code: ${err.code}, message: ${err.message}`);
       });
     } catch (exception) {
-      console.error(`Failed to change the window size. Cause code: ${exception.code}, message: ${exception.message}`);
+      hilog.error(DOMAIN, TAG,
+        `Failed to change the window size. Cause code: ${exception.code}, message: ${exception.message}`);
     }
 
     try {
       let promise = this.subWindow.moveWindowTo(newX, newY);
       promise.then(() => {
-        console.info('Succeeded in moving the window');
+        hilog.info(DOMAIN, TAG, 'Succeeded in moving the window');
       }).catch((err: BusinessError) => {
-        console.error(`Failed to move the window. Cause code: ${err.code}, message: ${err.message}`);
+        hilog.error(DOMAIN, TAG, `Failed to move the window. Cause code: ${err.code}, message: ${err.message}`);
       });
     } catch (exception) {
-      console.error(`Failed to move the window. Cause code: ${exception.code}, message: ${exception.message}`);
+      hilog.error(DOMAIN, TAG,
+        `Failed to move the window. Cause code: ${exception.code}, message: ${exception.message}`);
     }
   }
 
@@ -92,15 +97,15 @@ struct Index {
       this.subWindow.setUIContent('pages/Subwindow').then(() => {
         this.subWindow?.setWindowBackgroundColor('#ff0000');
         this.subWindow?.showWindow().then(() => {
-          console.info('Show subwindow success');
+          hilog.info(DOMAIN, TAG, 'Show subwindow success');
         }).catch((error: BusinessError) => {
-          console.error(`Failed to show subwindow, error: ${error}`);
+          hilog.error(DOMAIN, TAG, `Failed to show subwindow, error: ${error}`);
         });
       }).catch((error: BusinessError) => {
-        console.error(`Failed to setUIContent, error: ${error}`);
+        hilog.error(DOMAIN, TAG, `Failed to setUIContent, error: ${error}`);
       });
     }).catch((error: BusinessError) => {
-      console.error(`Failed to create subwindow, error: ${error}`);
+      hilog.error(DOMAIN, TAG, `Failed to create subwindow, error: ${error}`);
     });
   }
 

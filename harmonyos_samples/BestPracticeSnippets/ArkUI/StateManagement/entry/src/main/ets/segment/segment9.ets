@@ -12,6 +12,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+@Builder
+export function Segment09Builder() {
+  NavDestination() {
+    DiscoverView()
+  }
+}
 
 export class LearningResource {
   id: string = "";
@@ -29,9 +35,9 @@ interface GeneratedTypeLiteralInterface_1 {
 @Component
 struct HotFeedsView {
   @Prop hotFeedList: never[] = [];
-  @Prop showMore: () => void = () => {
+  showMore: () => void = () => {
   };
-  @Prop handleClick: (item: LearningResource) => void = () => {
+  handleClick: (item: LearningResource) => void = () => {
   };
 
   build() {
@@ -42,7 +48,7 @@ struct HotFeedsView {
 @Component
 struct TechArticlesView {
   @Prop articlesDataSource: never[] = [];
-  @Prop handleClick: (item: LearningResource) => void = () => {
+  handleClick: (item: LearningResource) => void = () => {
   };
 
   build() {
@@ -54,7 +60,7 @@ struct TechArticlesView {
 @Component
 export struct DiscoverView {
   // [StartExclude Case6]
-  private jumpList(): void {
+  private jumpList = () => {
   }
   @State hotFeedList: never[] = [];
   @State articlesDataSource: never[] = [];
@@ -64,6 +70,7 @@ export struct DiscoverView {
   @Consume('appPathStack') appPathStack: NavPathStack;
   @Consume('discoverPathStack') discoverPathStack: NavPathStack;
   @StorageProp('currentBreakpoint') currentBreakpoint: string = 'BreakpointTypeEnum.MD';
+
   // 5.Centralize the jump processing logic of the 3 components in the parent component
   jumpDetail(item: LearningResource): void {
     if (this.currentBreakpoint === 'BreakpointTypeEnum.LG') {
@@ -72,6 +79,7 @@ export struct DiscoverView {
       this.appPathStack.pushPathByName('articleDetail', item);
     }
   }
+
   build() {
     // [StartExclude Case6]
     Column() {
@@ -88,7 +96,7 @@ export struct DiscoverView {
           Column({ space: CommonConstants.SPACE_12 }) {
             HotFeedsView({
               hotFeedList: this.hotFeedList,
-              showMore: () => this.jumpList(),
+              showMore: this.jumpList,
               // 3.Information list component passes in the logic handler function of the parent component
               handleClick: (item: LearningResource) => this.jumpDetail(item)
             })
@@ -113,6 +121,7 @@ struct BannerView {
   // 6.The rotatoire component receives the logic handler passed to it by the parent component.
   handleClick: (item: LearningResource) => void = () => {
   };
+
   build() {
     Swiper(this.swiperController) {
       ForEach(this.swiperData, (item: LearningResource) => {
@@ -123,7 +132,7 @@ struct BannerView {
             .height(55)
             // Set the border radius to 5vp
             .borderRadius($r('app.float.component_radius'))
-              //  7.When clicking on an image, call the received function to process the logic
+            //  7.When clicking on an image, call the received function to process the logic
             .onClick(() => this.handleClick(item))
         }
         // ...

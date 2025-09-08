@@ -100,7 +100,7 @@ export class ScanService {
       zoom = customScan.getZoom();
       Logger.info(TAG, `getZoom end, zoom: ${zoom}`);
     } catch (error) {
-      Logger.error(TAG, `Failed to getZoom. Code: ${error.code}, message: ${error?.message}`);
+      Logger.error(TAG, `Failed to getZoom. Code: ${error?.code}, message: ${error?.message}`);
     }
     return zoom;
   }
@@ -110,7 +110,7 @@ export class ScanService {
       customScan.setZoom(zoomRatio);
       Logger.info(TAG, `setZoom end, zoomRatio: ${zoomRatio}`);
     } catch (error) {
-      Logger.error(TAG, `Failed to setZoom. Code: ${error.code}, message: ${error?.message}`);
+      Logger.error(TAG, `Failed to setZoom. Code: ${error?.code}, message: ${error?.message}`);
     }
   }
 
@@ -181,7 +181,7 @@ export class ScanService {
       customScan.init(options);
       Logger.info(TAG, 'Init customScan end.');
     } catch (error) {
-      Logger.error(TAG, `Failed to init customScan. Code: ${error.code}, message: ${error.message}.`);
+      Logger.error(TAG, `Failed to init customScan. Code: ${error?.code}, message: ${error?.message}.`);
     }
   }
 
@@ -192,7 +192,7 @@ export class ScanService {
       customScan.start(viewControl, callback);
       Logger.info(TAG, 'Start customScan end.');
     } catch (error) {
-      Logger.error(TAG, `Failed to start customScan. Code: ${error.code}, message: ${error.message}.`);
+      Logger.error(TAG, `Failed to start customScan. Code: ${error?.code}, message: ${error?.message}.`);
     }
   }
 
@@ -204,7 +204,7 @@ export class ScanService {
       });
       Logger.info(TAG, 'stop customScan end.');
     } catch (error) {
-      Logger.error(TAG, `Failed to stop customScan by catching. Code: ${error.code}, message: ${error.message}.`);
+      Logger.error(TAG, `Failed to stop customScan by catching. Code: ${error?.code}, message: ${error?.message}.`);
     }
   }
 
@@ -216,7 +216,7 @@ export class ScanService {
       });
       Logger.info(TAG, 'release customScan end.');
     } catch (error) {
-      Logger.error(TAG, `Failed to release customScan by catching. Code: ${error.code}, message: ${error.message}.`);
+      Logger.error(TAG, `Failed to release customScan by catching. Code: ${error?.code}, message: ${error?.message}.`);
     }
   }
 
@@ -236,7 +236,7 @@ export class ScanService {
     try {
       customScan.off('lightingFlash');
     } catch (error) {
-      Logger.error(TAG, `Catch: off lightingFlash. Code: ${error.code}, message: ${error?.message}`);
+      Logger.error(TAG, `Catch: off lightingFlash. Code: ${error?.code}, message: ${error?.message}`);
     }
   }
 
@@ -253,7 +253,7 @@ export class ScanService {
       });
     } catch (error) {
       Logger.error(TAG,
-        `lightingFlash callback error by catching. Code: ${error.code}, message: ${error?.message}`);
+        `lightingFlash callback error by catching. Code: ${error?.code}, message: ${error?.message}`);
     }
   }
 
@@ -263,7 +263,7 @@ export class ScanService {
     try {
       isFlashlight = customScan.getFlashLightStatus();
     } catch (error) {
-      Logger.error(TAG, `Failed to getFlashLightStatus. Code: ${error.code}, message: ${error.message}.`);
+      Logger.error(TAG, `Failed to getFlashLightStatus. Code: ${error?.code}, message: ${error?.message}.`);
     }
     this.isFlashlight = isFlashlight;
     return isFlashlight;
@@ -277,7 +277,7 @@ export class ScanService {
         this.isFlashlight = false;
       }
     } catch (error) {
-      Logger.error(TAG, `Failed to closeFlashLight. Code: ${error.code}, message: ${error.message}.`);
+      Logger.error(TAG, `Failed to closeFlashLight. Code: ${error?.code}, message: ${error?.message}.`);
     }
   }
 
@@ -287,7 +287,7 @@ export class ScanService {
       customScan.openFlashLight();
       this.isFlashlight = true;
     } catch (error) {
-      Logger.error(TAG, `Failed to openFlashLight. Code: ${error.code}, message: ${error.message}.`);
+      Logger.error(TAG, `Failed to openFlashLight. Code: ${error?.code}, message: ${error?.message}.`);
     }
   }
 

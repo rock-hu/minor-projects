@@ -1,1 +1,0 @@
-D:\git_developmentPractice\BestPracticeSnippets_1\NativeSoIntegration\Multiply\src\main\cpp\CMakeLists.txt

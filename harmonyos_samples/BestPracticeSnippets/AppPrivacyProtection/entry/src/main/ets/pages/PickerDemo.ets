@@ -16,7 +16,6 @@
 // [Start picker_demo]
 import { photoAccessHelper } from '@kit.MediaLibraryKit';
 import { BusinessError } from '@kit.BasicServicesKit';
-// [End picker_demo]
 import Logger from '../utils/Logger';
 
 @Entry
@@ -27,14 +26,16 @@ struct PickerDemo {
   build() {
     RelativeContainer() {
       Image(this.imageUri)
+      // [StartExclude picker_demo]
         .width('60%')
         .margin({ bottom: 12 })
         .alignRules({
           center: { anchor: '__container__', align: VerticalAlign.Center },
           middle: { anchor: '__container__', align: HorizontalAlign.Center }
         })
-
+      // [EndExclude picker_demo]
       Button($r('app.string.select_picture'))
+      // [StartExclude picker_demo]
         .height(40)
         .width('100%')
         .margin({ bottom: 44 })
@@ -42,8 +43,8 @@ struct PickerDemo {
           center: { anchor: '__container__', align: VerticalAlign.Bottom },
           middle: { anchor: '__container__', align: HorizontalAlign.Center }
         })
+        // [EndExclude picker_demo]
         .onClick(() => {
-          // [Start picker_demo]
           const photoSelectOptions = new photoAccessHelper.PhotoSelectOptions();
           photoSelectOptions.MIMEType = photoAccessHelper.PhotoViewMIMETypes.IMAGE_TYPE;
           photoSelectOptions.maxSelectNumber = 5;
@@ -54,11 +55,13 @@ struct PickerDemo {
           }).catch((err: BusinessError) => {
             Logger.error(`PhotoViewPicker.select failed with err: ${JSON.stringify(err)}`)
           })
-          // [End picker_demo]
         })
     }
+    // [StartExclude picker_demo]
     .height('100%')
     .width('100%')
     .padding(16)
+    // [EndExclude picker_demo]
   }
 }
+// [End picker_demo]

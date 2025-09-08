@@ -28,9 +28,9 @@ export class DeviceService {
     let displayClass: display.Display | null = null;
     try {
       displayClass = display.getDefaultDisplaySync();
-      Logger.info(TAG, 'Succeed in getting default display.');
+      Logger.info(TAG, 'Succeeded in getting default display.');
     } catch (error) {
-      Logger.error(TAG, `Failed to getDefaultDisplaySync. Code: ${error.code}`);
+      Logger.error(TAG, `Failed to getDefaultDisplaySync. Code: ${error?.code}`);
     }
     return displayClass;
   }
@@ -87,7 +87,7 @@ export class DeviceService {
     try {
       foldStatus = display.getFoldStatus();
     } catch (error) {
-      Logger.error(TAG, `Failed to getFoldStatusByDisplay. Code: ${error.code}`);
+      Logger.error(TAG, `Failed to getFoldStatusByDisplay. Code: ${error?.code}`);
     }
     return foldStatus;
   }

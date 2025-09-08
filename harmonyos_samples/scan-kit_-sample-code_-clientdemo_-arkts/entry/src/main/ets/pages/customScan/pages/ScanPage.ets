@@ -140,7 +140,7 @@ struct ScanPage {
         display.off('foldStatusChange');
       }
     } catch (error) {
-      Logger.error(TAG, `listener off catch error. Code: ${error.code}`);
+      Logger.error(TAG, `listener off catch error. Code: ${error?.code}`);
     }
     this.offDisplayChange();
     this.offScreenEvent();
@@ -356,7 +356,7 @@ struct ScanPage {
 
   async requestCameraPermission() {
     const grantStatus: number[] = await PermissionsUtil.reqPermissionsFromUser();
-    if (grantStatus[0] === 0) {
+    if (grantStatus[0] === abilityAccessCtrl.GrantStatus.PERMISSION_GRANTED) {
       // The user has granted the permission.
       Logger.info(TAG, 'Succeeded in requesting permissions from user.');
       this.userGrant = true;
@@ -413,7 +413,7 @@ struct ScanPage {
     try {
       display.off('change');
     } catch (error) {
-      Logger.error(TAG, `offDensityDPI off catch error. Code: ${error.code}`);
+      Logger.error(TAG, `offDensityDPI off catch error. Code: ${error?.code}`);
     }
   }
 
@@ -476,7 +476,7 @@ struct ScanPage {
         DeviceService.newFoldStatus = foldStatus;
       });
     } catch (error) {
-      Logger.error(TAG, `Failed to foldStatusListen. Code: ${error.code}`);
+      Logger.error(TAG, `Failed to foldStatusListen. Code: ${error?.code}`);
     }
   }
 

@@ -318,8 +318,7 @@ export struct VideoPlayer {
               // On the right side of the screen relative to the X-axis coordinate in the upper left corner of the application window, adjust the brightness.
               this.visible = true;
               let curBrightness = this.screenBrightness - this.getUIContext().vp2px(event.offsetY) / this.getUIContext().vp2px(this.screenHeight);
-              curBrightness = curBrightness >= 1.0 ? 1.0 : curBrightness;
-              curBrightness = curBrightness <= 0.0 ? 0.0 : curBrightness;
+              curBrightness = Math.max(0, Math.min(1.0, curBrightness));
               this.screenBrightness = curBrightness;
               hilog.info(0x0000, 'AVPlayer', `this brightness is: ` + this.screenBrightness);
 
@@ -560,7 +559,7 @@ export struct VideoPlayer {
   }
 
   // 前台进度条变化接口
-  // [Start slider]
+  // [Start slider1]
   sliderOnchange(seconds: number, mode: SliderChangeMode) {
     let seekTime: number = seconds * this.avPlayerController.duration / this.avPlayerController.durationTime;
     this.currentStringTime = secondToTime(Math.floor(seekTime / CommonConstants.SECOND_TO_MS));
@@ -571,27 +570,31 @@ export struct VideoPlayer {
       case SliderChangeMode.Click:
         break;
       case SliderChangeMode.Moving:
-        // [StartExclude slider]
+        // [StartExclude slider1]
         this.isSliderDragging = true;
         this.isTimeDisplay = 1;
         this.trackThicknessSize = CommonConstants.TRACK_SIZE_MAX;
         this.sliderStyle = SliderStyle.OutSet;
-        // [EndExclude slider]
+        // [EndExclude slider1]
         break;
       case SliderChangeMode.End:
-        this.avPlayerController.seek(seekTime); // Call the seek method of AVPlayer to control the playback progress.
-        // [StartExclude slider]
+        try {
+          this.avPlayerController.seek(seekTime); // Call the seek method of AVPlayer to control the playback progress.
+        } catch (err) {
+          Logger.error(TAG, `AVPlsyer seek failed, err.code:${err.code}, err.message:${err.message}`);
+        }
+        // [StartExclude slider1]
         this.isTimeDisplay = 0;
         this.trackThicknessSize = CommonConstants.TRACK_SIZE_MIN;
         this.sliderStyle = SliderStyle.NONE;
         this.isSliderDragging = false;
-        // [EndExclude slider]
+        // [EndExclude slider1]
         break;
       default:
         break;
     }
   }
-  // [End slider]
+  // [End slider1]
 
   async iconOnclick() {
     if (this.avPlayerController.isPlaying) {

@@ -26,7 +26,7 @@ const TAG = 'AvSessionController';
 export class AvSessionController {
   private static instance: AvSessionController | null;
   private context: common.UIAbilityContext | undefined = undefined;
-  private avSession: avSession.AVSession | undefined = undefined;
+  private avSession?: avSession.AVSession;
   private avSessionMetadata: avSession.AVMetadata | undefined = undefined;
 
   constructor() {

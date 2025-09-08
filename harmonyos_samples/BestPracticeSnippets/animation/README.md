@@ -1,4 +1,4 @@
-# **布局优化指导**
+# 布局优化指导
 ## 介绍
 本例介绍了5种优化手段，分别为使用系统提供的动画接口、使用图形变换属性变化组件布局、参数相同时使用同一个animateTo、多次animateTo时统一更新状态变量、使用renderGroup。通过这些优化手段的单个使用或组合使用，可以对动画帧率、应用卡顿等方面带来优化，提升性能和用户体验。
 
@@ -34,8 +34,8 @@
 ## 约束与限制
 * 本示例仅支持标准系统上运行，支持设备：华为手机。
 
-* HarmonyOS系统：HarmonyOS NEXT Release及以上。
+* HarmonyOS系统：HarmonyOS 5.0.5 Release及以上。
 
-* DevEco Studio版本：DevEco Studio NEXT Release及以上。
+* DevEco Studio版本：DevEco Studio 5.0.5 Release及以上。
 
-* HarmonyOS SDK版本：HarmonyOS NEXT Release SDK及以上。
+* HarmonyOS SDK版本：HarmonyOS 5.0.5 Release SDK及以上。

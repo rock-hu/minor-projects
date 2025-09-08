@@ -61,6 +61,7 @@ struct WebComponent {
     console.info("init data length: " + this.data.length);
   }
 
+  // size - 1:10k, 2:1M, 3:10M
   initArrayBufferData(size:Number): void {
     this.initStringData(size);
     console.error("target string: " + this.data);

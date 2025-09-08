@@ -12,13 +12,18 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
+@Builder
+export function Segment02Builder() {
+  NavDestination(){
+    MyComponent()
+  }
+}
 // [Start Counter_example2_start]
 @Observed
 class Translate {
   translateX: number = 20;
 }
-@Entry
+
 @Component
 struct MyComponent {
   @State translateObj: Translate = new Translate();

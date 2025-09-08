@@ -1,5 +1,0 @@
-{
-  "libndk.so": {
-    "source": "src/mock/Libndk.mock.ets"
-  }
-}

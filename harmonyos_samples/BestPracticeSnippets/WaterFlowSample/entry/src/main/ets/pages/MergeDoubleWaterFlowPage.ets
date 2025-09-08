@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 // [Start quick_start]
 import { CommonConstants } from '../common/constants/CommonConstants';
 import { MyDataSource } from '../model/MyDataSource'
@@ -48,19 +63,19 @@ struct MergeDoubleWaterFlowPage {
     }
   };
 
-  getSize() {
+  getSize(): number {
     let ret = Math.floor(Math.random() * this.maxSize);
     return (ret > this.minSize ? ret : this.minSize);
   }
 
-  setItemSizeArray() {
+  setItemSizeArray(): void {
     for (let i = 0; i < 100; i++) {
       this.itemHeightArray.push(this.getSize());
     }
   }
 
   aboutToAppear(): void {
-    for(let i = 0; i < 100; i++) {
+    for (let i = 0; i < 100; i++) {
       this.data.pushData(i);
     }
     this.setItemSizeArray();
@@ -70,6 +85,7 @@ struct MergeDoubleWaterFlowPage {
     sectionOptions.push(this.lastSection);
     this.sections.splice(0, 0, sectionOptions);
   }
+
   // [EndExclude data_init]
   build() {
     Column({ space: 2 }) {
@@ -78,8 +94,9 @@ struct MergeDoubleWaterFlowPage {
           .width('100%')
           .fontSize(24)
           .fontWeight(FontWeight.Bold)
-          .margin({ top: '18vp', left: '16vp', bottom: '12vp'})
+          .margin({ top: '18vp', left: '16vp', bottom: '12vp' })
       }
+
       WaterFlow({ scroller: this.scroller, sections: this.sections }) {
         LazyForEach(this.data, (item: number) => {
           FlowItem() {
@@ -121,4 +138,5 @@ struct MergeDoubleWaterFlowPage {
     .backgroundColor('#efefef')
   }
 }
+
 // [End quick_start]

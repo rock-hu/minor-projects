@@ -138,12 +138,22 @@ export class AvPlayerController {
           case audio.InterruptHint.INTERRUPT_HINT_PAUSE:
             // This branch indicates that the system has paused the audio stream (temporarily lost focus). In order to keep the state consistent, the application needs to switch to the audio paused state.
             // Temporary loss of focus: after other audio streams release the audio focus, this audio stream will receive the audio interruption event corresponding to resume, and then it can continue playing by itself.
+            /**
+             * Update play status
+             * @param isPlay is it playing
+             * @returns void
+             */
             this.updateIsPlay(false);
             this.pauseVideo();
             break;
           case audio.InterruptHint.INTERRUPT_HINT_STOP:
             // This branch indicates that the system has stopped the audio stream (permanently lost focus). In order to keep the state consistent, the application needs to switch to the audio pause state.
             // Permanent loss of focus: no audio interruption events will be received in the future. If you want to resume playing, you need the user to trigger it actively.
+            /**
+             * Update play status
+             * @param isPlay is it playing
+             * @returns void
+             */
             this.updateIsPlay(false);
             this.pauseVideo();
             break;

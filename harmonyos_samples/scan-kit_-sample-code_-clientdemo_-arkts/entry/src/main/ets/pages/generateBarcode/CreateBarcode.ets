@@ -324,7 +324,7 @@ struct GenerateBarcode {
                 })
               } catch (error) {
                 showError(error);
-                Logger.error(TAG, `Failed to create barCode. Code: ${error.code}, message: ${error.message}`);
+                Logger.error(TAG, `Failed to create barCode. Code: ${error?.code}, message: ${error?.message}`);
               }
             }
           })
@@ -362,7 +362,7 @@ struct GenerateBarcode {
                 });
               } catch (error) {
                 showError(error);
-                Logger.error(TAG, `Failed to create barCode. Code: ${error.code}, message: ${error.message}`);
+                Logger.error(TAG, `Failed to create barCode. Code: ${error?.code}, message: ${error?.message}`);
               }
             }
           })
@@ -380,8 +380,8 @@ struct GenerateBarcode {
       .width('100%')
       .margin(10)
       .layoutWeight(1)
-      .onAreaChange((_: Area, newvalue: Area) => {
-        let min = Math.min(newvalue.width as number, newvalue.height as number);
+      .onAreaChange((_: Area, newValue: Area) => {
+        let min = Math.min(newValue.width as number, newValue.height as number);
         if (min < 320) {
           this.pixelMapWidth = min - 20;
         }

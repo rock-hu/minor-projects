@@ -51,8 +51,8 @@
 ## 约束与限制
 * 本示例仅支持标准系统上运行，支持设备：华为手机。
 
-* HarmonyOS系统：HarmonyOS NEXT Release及以上。
+* HarmonyOS系统：HarmonyOS 5.0.5 Release及以上。
 
-* DevEco Studio版本：DevEco Studio NEXT Release及以上。
+* DevEco Studio版本：DevEco Studio 5.0.5 Release及以上。
 
-* HarmonyOS SDK版本：HarmonyOS NEXT Release SDK及以上。
+* HarmonyOS SDK版本：HarmonyOS 5.0.5 Release SDK及以上。

@@ -12,6 +12,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+@Builder
+export function Segment06Builder() {
+  NavDestination(){
+    UserInfoView()
+  }
+}
 
 interface IUserAccountRepository {
   getUserData(): Promise<UserData>;

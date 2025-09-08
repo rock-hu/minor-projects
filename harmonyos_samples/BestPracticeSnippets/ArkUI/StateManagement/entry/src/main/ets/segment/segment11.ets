@@ -13,6 +13,12 @@
  *  limitations under the License.
  */
 
+@Builder
+export function Segment11Builder() {
+  NavDestination(){
+    UseWatchListener()
+  }
+}
 // [Start Case7]
 @Entry
 @Component

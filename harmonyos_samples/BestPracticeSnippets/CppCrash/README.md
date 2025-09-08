@@ -11,27 +11,25 @@
 
 ### 工程目录
 ```
-.
-└── entry
-    └── src
-         └── main
-                └── cpp
-                     ├── CMakeLists.txt
-                     ├── CppCrashAdvise1.cpp         C++ 样例代码
-                     ├── CppCrashAdvise2.cpp         C++ 样例代码
-                     ├── CppCrashAdvise3.cpp         C++ 样例代码
-                     ├── CppCrashAdvise4.cpp         C++ 样例代码
-                     ├── CppCrashCaseAnalyse1.cpp         C++ 样例代码
-                     ├── CppCrashCaseAnalyse2.cpp         C++ 样例代码
-                     ├── CppCrashCaseAnalyse3.cpp         C++ 样例代码
-                     ├── CppCrashCaseAnalyse4.cpp         C++ 样例代码
-                     ├── CppCrashCaseAnalyse5.cpp         C++ 样例代码
-                     ├── CppCrashCaseAnalyse6.cpp         C++ 样例代码
-                     ├── CppCrashCaseAnalyse7.cpp         C++ 样例代码
-                     ├── CppCrashCaseAnalysis8.cpp         C++ 样例代码
-                     ├── CppCrashQuestionCheck1.cpp         C++ 样例代码
-                     ├── CppCrashQuestionCheck2.cpp         C++ 样例代码
-                     └── napi_init.cpp         C++ 样例代码
+├──entry/src/main/
+│  └──cpp
+│     ├── CMakeLists.txt
+│     ├── CppCrashAdvise1.cpp                 // C++ 样例代码
+│     ├── CppCrashAdvise2.cpp                 // C++ 样例代码
+│     ├── CppCrashAdvise3.cpp                 // C++ 样例代码
+│     ├── CppCrashAdvise4.cpp                 // C++ 样例代码
+│     ├── CppCrashCaseAnalyse1.cpp            // C++ 样例代码
+│     ├── CppCrashCaseAnalyse2.cpp            // C++ 样例代码
+│     ├── CppCrashCaseAnalyse3.cpp            // C++ 样例代码
+│     ├── CppCrashCaseAnalyse4.cpp            // C++ 样例代码
+│     ├── CppCrashCaseAnalyse5.cpp            // C++ 样例代码
+│     ├── CppCrashCaseAnalyse6.cpp            // C++ 样例代码
+│     ├── CppCrashCaseAnalyse7.cpp            // C++ 样例代码
+│     ├── CppCrashCaseAnalysis8.cpp           // C++ 样例代码
+│     ├── CppCrashQuestionCheck1.cpp          // C++ 样例代码
+│     ├── CppCrashQuestionCheck2.cpp          // C++ 样例代码
+│     └── napi_init.cpp                       // C++ 样例代码
+└──entry/src/main/resources                   // 应用资源目录      
 ```
 
 ### 具体实现
@@ -50,8 +48,8 @@
 
 1. 本示例仅支持标准系统上运行，支持设备：华为手机、华为PC/2in1设备、华为平板。
 
-2. HarmonyOS系统：HarmonyOS NEXT 5.1.1 Release及以上。
+2. HarmonyOS系统：HarmonyOS NEXT 5.0.5 Release及以上。
 
-3. DevEco Studio版本：DevEco Studio NEXT 5.1.1 Release及以上。
+3. DevEco Studio版本：DevEco Studio 5.0.5 Release及以上。
 
-4. HarmonyOS SDK版本：HarmonyOS NEXT 5.1.1 Release SDK及以上。
+4. HarmonyOS SDK版本：HarmonyOS NEXT 5.0.5 Release SDK及以上。

@@ -14,7 +14,6 @@
  */
 
 import { hilog } from '@kit.PerformanceAnalysisKit';
-import { router } from '@kit.ArkUI';
 
 // [Start no_redundant_operation]
 // Redundancy operation example

@@ -12,9 +12,14 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
+@Builder
+export function Segment04Builder() {
+  NavDestination(){
+    Index()
+  }
+}
 // [Start counter_example]
-@Entry
+
 @Component
 struct Index {
   @State message: string = '';

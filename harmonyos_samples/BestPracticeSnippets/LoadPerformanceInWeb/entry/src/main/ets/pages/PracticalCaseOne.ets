@@ -15,7 +15,7 @@ struct Index {
           // Performance dot
           hiTraceMeter.startTrace('unPrecompileJavaScript', 1);
           // Please replace url with real address.
-          this.controller.loadUrl('https://www.example.com/b.html');
+          this.controller?.loadUrl('https://www.example.com/b.html');
         })
       Web({ src: 'https://www.example.com/a.html', controller: this.controller })
         .fileAccess(true)

@@ -83,7 +83,7 @@ struct DecodeCameraYuv {
         this.adaptRatio = this.xComponentWidth / CAMERA_1080;
       }
     } catch (error) {
-      Logger.error(TAG, `Failed to getDefaultDisplaySync. Code: ${error.code}.`);
+      Logger.error(TAG, `Failed to getDefaultDisplaySync. Code: ${error?.code}.`);
     }
   }
 
@@ -145,8 +145,7 @@ struct DecodeCameraYuv {
       try {
         this.photoSession.release();
       } catch (error) {
-        let err = error as BusinessError;
-        Logger.error(TAG, `Failed to release photoSession. Code: ${err.code}.`);
+        Logger.error(TAG, `Failed to release photoSession. Code: ${error?.code}.`);
       }
       this.photoSession = undefined;
     }
@@ -287,7 +286,7 @@ struct DecodeCameraYuv {
         this.startPreviewOutput(this.cameraManager, surfaceId, receiver);
       }
     } catch (error) {
-      Logger.error(TAG, `Failed to create the previewOutput instance. Code: ${error.code}`);
+      Logger.error(TAG, `Failed to create the previewOutput instance. Code: ${error?.code}`);
     }
   }
 
@@ -335,7 +334,7 @@ struct DecodeCameraYuv {
       // Obtain the camera preview stream buffer.
       this.onImageArrival(receiver);
     } catch (error) {
-      Logger.error(TAG, `Failed to startPreviewOutput. Code: ${error.code}.`);
+      Logger.error(TAG, `Failed to startPreviewOutput. Code: ${error?.code}.`);
     }
   }
 
@@ -454,7 +453,7 @@ struct DecodeCameraYuv {
           this.photoSession.setZoomRatio(zoomRatio);
         }
       } catch (error) {
-        Logger.error(TAG, `Failed to setCameraZoom. Code: ${error.code}.`);
+        Logger.error(TAG, `Failed to setCameraZoom. Code: ${error?.code}.`);
       }
     }
   }

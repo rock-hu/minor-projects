@@ -11,9 +11,9 @@ export class UIContextSelf {
     if (windowObj) {
       try {
         UIContextSelf.uiContext = windowObj.getUIContext();
-        Logger.info(TAG, 'Succeed in getting getUIContext.');
+        Logger.info(TAG, 'Succeeded in getting getUIContext.');
       } catch (error) {
-        Logger.error(TAG, `Failed to get getUIContext by windowObj. Code: ${error.code}.`);
+        Logger.error(TAG, `Failed to get getUIContext by windowObj. Code: ${error?.code}.`);
       }
     } else {
       Logger.error(TAG, 'windowObj is invalid.');
@@ -54,7 +54,7 @@ export class UIContextSelf {
         Logger.error(TAG, `Failed to replaceUrl by getRouter. Code: ${error.code}.`);
       });
     } catch (error) {
-      Logger.error(TAG, `Failed to replaceUrl by getRouter. Code: ${error.code}.`);
+      Logger.error(TAG, `Failed to replaceUrl by getRouter. Code: ${error?.code}.`);
     }
   }
 
@@ -64,7 +64,7 @@ export class UIContextSelf {
         Logger.error(TAG, `Failed to pushUrl by getRouter. Code: ${error.code}.`);
       });
     } catch (error) {
-      Logger.error(TAG, `Failed to pushUrl by getRouter. Code: ${error.code}.`);
+      Logger.error(TAG, `Failed to pushUrl by getRouter. Code: ${error?.code}.`);
     }
   }
 }

@@ -46,7 +46,7 @@ struct DefaultScan {
               });
             } catch (error) {
               Logger.error(TAG,
-                `Failed to start the scanning service. Code: ${error.code}, message: ${error.message}.`);
+                `Failed to start the scanning service. Code: ${error?.code}, message: ${error?.message}.`);
               showError(error);
             }
           }

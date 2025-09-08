@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 // [Start quick_start]
 import { CommonConstants } from '../common/constants/CommonConstants';
 import { MyDataSource } from '../model/MyDataSource'
@@ -10,20 +25,22 @@ struct ForceShowOnTopLeftPage {
   @StorageProp(CommonConstants.AS_KEY_STATUS_BAR_HEIGHT) statusBarHeight: number = 0;
 
   aboutToAppear(): void {
-    for(let i = 0; i < 80; i++) {
+    for (let i = 0; i < 80; i++) {
       this.data.pushData(i);
     }
   }
+
   // [EndExclude data_init]
   build() {
-    Column({ space: 0}) {
+    Column({ space: 0 }) {
       Row() {
         Text($r('app.string.force_left_show'))
           .width('100%')
           .fontSize(24)
           .fontWeight(FontWeight.Bold)
-          .margin({ top: '18vp', left: '16vp', bottom: '16vp'})
+          .margin({ top: '18vp', left: '16vp', bottom: '16vp' })
       }
+
       WaterFlow() {
         // 1、Add the layout content in the top left corner of WaterFlow.
         FlowItem() {
@@ -71,4 +88,5 @@ struct ForceShowOnTopLeftPage {
     })
   }
 }
+
 // [End quick_start]

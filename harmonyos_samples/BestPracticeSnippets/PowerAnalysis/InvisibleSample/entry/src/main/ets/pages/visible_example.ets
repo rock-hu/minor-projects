@@ -68,6 +68,10 @@ struct RefreshExample {
       // Use onStateChange and apngcontroller to control play and stop
 // [Start nonvisible_advise_1]
       .onStateChange((refreshStatus: RefreshStatus) => {
+          // status = 0 ： 默认未下拉
+          // status = 1、2：下拉中
+          // status = 3：下拉完成，回弹中
+          // status = 4：刷新结束，返回初始状态
         if (refreshStatus >= 1 && refreshStatus < 4) {
           this.controller.play();
         } else {

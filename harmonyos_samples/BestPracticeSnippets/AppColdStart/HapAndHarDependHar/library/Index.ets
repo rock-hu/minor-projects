@@ -14,6 +14,6 @@
 */
 
 // [Start not_recommend_demo]
-export { MainPage } from './src/main/ets/components/mainpage/MainPage'; // 冷启动强相关文件
-export { SubPage } from './src/main/ets/components/mainpage/SubPage'; // 非冷启动强相关文件
+export { MainPage } from './src/main/ets/components/mainpage/MainPage'; // Cold start strong related files
+export { SubPage } from './src/main/ets/components/mainpage/SubPage'; // Non-cold start strong related files
 // [End not_recommend_demo]

@@ -77,7 +77,7 @@ export function showError(businessError: BusinessError): void {
       duration: 2000
     });
   } catch (error) {
-    Logger.error(TAG, `Catch: showError showToast. Code: ${error.code}.`);
+    Logger.error(TAG, `Catch: showError showToast. Code: ${error?.code}.`);
   }
 }
 
@@ -88,7 +88,7 @@ export function showMessage(message: Resource): void {
       duration: 2000
     });
   } catch (error) {
-    Logger.error(TAG, `Catch: showMessage showToast. Code: ${error.code}.`);
+    Logger.error(TAG, `Catch: showMessage showToast. Code: ${error?.code}.`);
   }
 }
 
@@ -117,7 +117,7 @@ export function funcDelayer(func: Function, time: number): void {
     try {
       func();
     } catch (error) {
-      Logger.error(TAG, `Failed to execute func in timer. Code: ${error.code}`);
+      Logger.error(TAG, `Failed to execute func in timer. Code: ${error?.code}`);
     }
     clearTimeout(timerId);
   }, time);

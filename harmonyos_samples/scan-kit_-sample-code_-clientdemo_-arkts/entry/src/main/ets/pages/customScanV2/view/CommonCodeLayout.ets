@@ -279,7 +279,7 @@ export struct CodeLayout {
           params: this.scanResults.data[this.multiSelectedIndex]
         })
       } catch (error) {
-        Logger.error(TAG, `Failed to terminateSelfPage. Code: ${error.code}, message: ${error.message}`);
+        Logger.error(TAG, `Failed to terminateSelfPage. Code: ${error?.code}, message: ${error?.message}`);
         this.terminateScan();
       }
     } else {

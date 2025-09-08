@@ -39,7 +39,7 @@ export class PromptTone {
         let fileDescriptor: resourceManager.RawFileDescriptor = await contextUsed.resourceManager.getRawFd('di.ogg');
         this.avPlayer.fdSrc = fileDescriptor;
       } catch (error) {
-        Logger.error(TAG, `Failed to invoke an API of getRawFd. Code: ${error.code}`);
+        Logger.error(TAG, `Failed to invoke an API of getRawFd. Code: ${error?.code}`);
       }
     }
   }
@@ -48,21 +48,21 @@ export class PromptTone {
     try {
       if (this.avPlayer) {
         this.avPlayer.play().catch((error) => {
-          Logger.error(TAG, `Failed to play avPlayer. Code: ${error.code}`);
+          Logger.error(TAG, `Failed to play avPlayer. Code: ${error?.code}`);
         });
       }
     } catch (error) {
-      Logger.error(TAG, `Failed to play drip. Code: ${error.code}`);
+      Logger.error(TAG, `Failed to play drip. Code: ${error?.code}`);
     }
   }
 
   public prepareAVPlayer(): void {
     try {
       this.avPlayer.prepare().catch((error) => {
-        Logger.error(TAG, `Failed to prepare avPlayer. Code: ${error.code}`);
+        Logger.error(TAG, `Failed to prepare avPlayer. Code: ${error?.code}`);
       });
     } catch (error) {
-      Logger.error(TAG, `Failed to prepare avPlayer. Code: ${error.code}`);
+      Logger.error(TAG, `Failed to prepare avPlayer. Code: ${error?.code}`);
     }
   }
 
@@ -82,10 +82,10 @@ export class PromptTone {
                   // Set the volume to 50%.
                   this.avPlayer.setVolume(0.5);
                 }).catch((error) => {
-                Logger.error(TAG, `Failed to prepare avPlayer. Code: ${error.code}`);
+                Logger.error(TAG, `Failed to prepare avPlayer. Code: ${error?.code}`);
               });
             } catch (error) {
-              Logger.error(TAG, `Failed to prepare avPlayer. Code: ${error.code}`);
+              Logger.error(TAG, `Failed to prepare avPlayer. Code: ${error?.code}`);
             }
             break;
           case 'completed': // Reported upon the completion of the playback.
@@ -98,7 +98,7 @@ export class PromptTone {
         }
       });
     } catch (error) {
-      Logger.error(TAG, `Failed to on avPlayer. Code: ${error.code}`);
+      Logger.error(TAG, `Failed to on avPlayer. Code: ${error?.code}`);
     }
 
   }

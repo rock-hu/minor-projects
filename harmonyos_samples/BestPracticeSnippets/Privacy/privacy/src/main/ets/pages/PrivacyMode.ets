@@ -18,7 +18,9 @@
  * 场景七：避免涉及口令输入的应用界面可以被截屏或录屏
  */
 // [Start privacy_mode]
-import { router, window } from '@kit.ArkUI';
+import { window } from '@kit.ArkUI';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 @Entry
 @Component
@@ -28,11 +30,15 @@ struct Index {
   onPageShow(): void {
     window.getLastWindow(this.getUIContext().getHostContext()).then((windowStage: window.Window) => {
       windowStage.setWindowPrivacyMode(true);
+    }).catch((error: BusinessError) => {
+      hilog.error(0x0000, 'PrivacyMode', `getLastWindow error code ${error.code}`)
     });
   }
   onPageHide(): void {
     window.getLastWindow(this.getUIContext().getHostContext()).then((windowStage: window.Window) => {
       windowStage.setWindowPrivacyMode(false);
+    }).catch((error: BusinessError) => {
+      hilog.error(0x0000, 'PrivacyMode', `getLastWindow error code ${error.code}`)
     });
   }
   build() {

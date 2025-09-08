@@ -12,13 +12,19 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+@Builder
+export function Segment01Builder() {
+  NavDestination(){
+    MyComponent()
+  }
+}
 
 // [Start Counter_example1_start]
 @Observed
 class Translate {
   translateX: number = 20;
 }
-@Entry
+
 @Component
 struct MyComponent {
   @State translateObj: Translate = new Translate(); // The variable translateObj is not associated with any UI component and should not be defined as a state variable

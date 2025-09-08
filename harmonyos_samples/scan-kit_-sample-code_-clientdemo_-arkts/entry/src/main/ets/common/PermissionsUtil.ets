@@ -16,13 +16,13 @@ export class PermissionsUtil {
       let appInfo: bundleManager.ApplicationInfo = bundleInfo.appInfo;
       tokenId = appInfo.accessTokenId;
     } catch (error) {
-      Logger.error(TAG, `Failed to get bundle info for self. Code: ${error.code}.`);
+      Logger.error(TAG, `Failed to get bundle info for self. Code: ${error?.code}.`);
     }
     //  Check whether the app has the required permission.
     try {
       grantStatus = await atManager.checkAccessToken(tokenId, permission);
     } catch (error) {
-      Logger.error(TAG, `Failed to check access token. Code: ${error.code}.`);
+      Logger.error(TAG, `Failed to check access token. Code: ${error?.code}.`);
     }
     return grantStatus;
   }
@@ -34,7 +34,7 @@ export class PermissionsUtil {
     try {
       grantStatus = await atManager.requestPermissionsFromUser(context, ['ohos.permission.CAMERA']);
     } catch (error) {
-      Logger.error(TAG, `Failed to request permissions from user. Code: ${error.code}.`);
+      Logger.error(TAG, `Failed to request permissions from user. Code: ${error?.code}.`);
     }
     return grantStatus.authResults;
   }

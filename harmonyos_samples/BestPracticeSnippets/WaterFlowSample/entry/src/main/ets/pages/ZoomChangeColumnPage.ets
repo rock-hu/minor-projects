@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 // [Start quick_start]
 import { MyDataSource } from '../model/MyDataSource'
 import { image } from '@kit.ImageKit';
@@ -26,6 +41,7 @@ struct ReusableItem {
     }
   }
 }
+
 // [EndExclude flow_item]
 @Entry
 @Component
@@ -53,12 +69,12 @@ struct ZoomChangeColumnPage {
   private oldColumn: number = this.columns;
 
   // [StartExclude section_init]
-  getSize() {
+  getSize(): number {
     let ret = Math.floor(Math.random() * this.maxSize);
     return (ret > this.minSize ? ret : this.minSize);
   }
 
-  setItemSizeArray() {
+  setItemSizeArray(): void {
     for (let i = 0; i < 100; i++) {
       this.itemWidthArray.push(this.getSize());
       this.itemHeightArray.push(this.getSize());
@@ -66,7 +82,7 @@ struct ZoomChangeColumnPage {
   }
 
   aboutToAppear(): void {
-    for(let i = 0; i < 100; i++) {
+    for (let i = 0; i < 100; i++) {
       this.data.pushData(i);
     }
     let lastCount = AppStorage.get<number>('columnsCount');
@@ -75,9 +91,10 @@ struct ZoomChangeColumnPage {
     }
     this.setItemSizeArray();
   }
+
   // [EndExclude section_init]
   // 7、Adjust the number of columns according to the zoom ratio.
-  changeColumns(scale: number) {
+  changeColumns(scale: number): void {
     this.oldColumn = this.columns;
     if (scale > (this.columns / (this.columns - 0.5))) {
       this.columns--;
@@ -99,6 +116,7 @@ struct ZoomChangeColumnPage {
           .fontWeight(FontWeight.Bold)
           .margin({ top: '18vp', left: '16vp', bottom: '16vp' })
       }
+
       // [EndExclude title]
       Stack() {
         // 2、Display the current screen's snapshot when zooming.
@@ -198,4 +216,5 @@ struct ZoomChangeColumnPage {
     })
   }
 }
+
 // [End quick_start]

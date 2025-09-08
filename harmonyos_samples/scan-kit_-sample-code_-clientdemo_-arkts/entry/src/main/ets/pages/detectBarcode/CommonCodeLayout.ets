@@ -48,7 +48,7 @@ struct CodeLayout {
           }
         });
       } catch (error) {
-        Logger.error(TAG, `Failed to on foldDisplayModeChange. Code: ${error.code}.`);
+        Logger.error(TAG, `Failed to on foldDisplayModeChange. Code: ${error?.code}.`);
       }
     }
   }
@@ -60,7 +60,7 @@ struct CodeLayout {
       displayClass = display.getDefaultDisplaySync();
       Logger.info(TAG, `width: ${displayClass.width}, height: ${displayClass.height}.`);
     } catch (error) {
-      Logger.error(TAG, `Failed to getDefaultDisplaySync. Code: ${error.code}.`);
+      Logger.error(TAG, `Failed to getDefaultDisplaySync. Code: ${error?.code}.`);
     }
 
     if (displayClass !== null) {

@@ -20,7 +20,7 @@ import { avSession } from '@kit.AVSessionKit';
 const TAG = 'AvSessionController';
 
 export class AvSessionController {
-  private avSession: avSession.AVSession | undefined = undefined;
+  private avSession?: avSession.AVSession;
   private context: common.UIAbilityContext | undefined = undefined;
   public initAvSession() {
     this.context = AppStorage.get('context');

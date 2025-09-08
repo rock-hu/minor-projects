@@ -1,1 +1,0 @@
-{"name":"multiply","version":"1.0.0","description":"Please describe the basic information.","main":"","author":"","license":"","dependencies":{"libmultiply.so":"file:./src/main/cpp/types/libmultiply"}}

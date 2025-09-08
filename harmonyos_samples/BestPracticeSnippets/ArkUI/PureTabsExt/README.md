@@ -41,8 +41,10 @@
 无
 
 ### 约束与限制
-- API: API 17
-- SDK版本：5.0.4(17)
-- 兼容最低版本：5.0.3(15)
-- 单双框架：单框架
-- FA/Stage模型：Stage模型
+1. 本示例仅支持标准系统上运行，支持设备：华为手机。
+
+2. HarmonyOS系统：HarmonyOS 5.0.5 Release及以上。
+
+3. DevEco Studio版本：DevEco Studio 5.0.5 Release及以上。
+
+4. HarmonyOS SDK版本：HarmonyOS 5.0.5 Release SDK及以上。

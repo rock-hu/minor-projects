@@ -44,7 +44,7 @@ httpRequest.request( 'EXAMPLE_URL',  {
 
 // [Start cybersecurity_rcp_trusting_ca]
 const caPath: rcp.CertificateAuthority = {
-  folderPath: '/data/storage/el1/bundle/entry/resources/resfile/appCaCert', // 指定信任的CA证书路径
+  folderPath: '/data/storage/el1/bundle/entry/resources/resfile/appCaCert', // Specify trusted CA certificate path
 }
 const securityConfig: rcp.SecurityConfiguration = {
   remoteValidation: caPath

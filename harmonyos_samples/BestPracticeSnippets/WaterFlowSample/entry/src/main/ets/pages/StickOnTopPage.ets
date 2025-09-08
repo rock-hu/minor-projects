@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 // [Start quick_start]
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { CommonConstants } from '../common/constants/CommonConstants';
@@ -5,6 +20,7 @@ import MediaItem, { ItemType } from '../model/MediaItem';
 import { StickyWaterFlowDataSource } from '../model/StickyWaterFlowDataSource';
 
 const TAG = 'StickyPage';
+
 // [StartExclude item_layout]
 @Component
 struct FlowVideoItem {
@@ -53,7 +69,8 @@ struct FlowVideoItem {
             right: { anchor: '__container__', align: HorizontalAlign.End }
           })
 
-        Stack() {}
+        Stack() {
+        }
         .linearGradient({
           angle: 0,
           colors: [['#80000000', 0.0],
@@ -87,6 +104,7 @@ struct FlowVideoItem {
     }
   }
 }
+
 // [EndExclude item_layout]
 @Component
 export struct StickyPage {
@@ -132,6 +150,7 @@ export struct StickyPage {
       return 250;
     }
   };
+
   // [StartExclude section_init]
   getResourceStringArray(resource: Resource): Array<string> {
     let result: Array<string> = new Array<string>();
@@ -143,12 +162,12 @@ export struct StickyPage {
     return result;
   }
 
-  getSize() {
+  getSize(): number {
     let ret = Math.floor(Math.random() * this.maxSize);
     return (ret > this.minSize ? ret : this.minSize);
   }
 
-  setItemSizeArray() {
+  setItemSizeArray(): void {
     for (let i = 0; i < 100; i++) {
       this.itemWidthArray.push(this.getSize());
       this.itemHeightArray.push(this.getSize());
@@ -171,6 +190,7 @@ export struct StickyPage {
     }
     this.sections.splice(-1, 0, sectionOptions);
   }
+
   // [EndExclude section_init]
   build() {
     Stack({ alignContent: Alignment.TopStart }) {
@@ -319,6 +339,7 @@ export struct StickyPage {
             right: 16
           })
         }.alignItems(HorizontalAlign.Start)
+
         // [EndExclude stick_content]
       }
       .width('100%')
@@ -330,6 +351,7 @@ export struct StickyPage {
     }
   }
 }
+
 // [StartExclude homepage]
 @Entry
 @Component
@@ -436,5 +458,6 @@ struct StickOnTopPage {
     })
   }
 }
+
 // [EndExclude homepage]
 // [End quick_start]

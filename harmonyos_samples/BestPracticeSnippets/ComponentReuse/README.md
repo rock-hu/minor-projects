@@ -28,6 +28,7 @@ HarmonyOS应用框架提供了组件复用能力：可复用组件树上移除�
 ``` 
 ├──entry/src/main/ets                          
 │  ├──common
+│  │  ├──CommonConstants.ets            // 组件复用DataSource类
 │  │  ├──Constants.ets                  // 公共常量
 │  │  └──GlobalBuilderContext.ets       // 缓存全局@Builder
 │  ├──entryability
@@ -39,7 +40,10 @@ HarmonyOS应用框架提供了组件复用能力：可复用组件树上移除�
 │  │  ├──ColorData.ets                  // 二级页面“文字列表”的数据适配器
 │  │  └──FriendMomentData.ets           // 二级页面“附近的人”/“图文列表”/“网名列表”的数据适配器
 │  ├──pages.ets
-│  │   └──Index.ets                     // 首页
+│  │  ├──ImproveReuseHitRate.ets        // 提升复用命中率
+│  │  ├──Index.ets                      // 首页
+│  │  ├──ReuseNested.ets                // 复用嵌套
+│  │  └──UseComponentReuse.ets          // 使用组件复用
 │  └──view        
 │     ├──OneMoment.ets                  // 二级页面“附近的人”中列表的每条item UI
 │     ├──PageListSlideToHistory.ets     // 二级页面“附近的人”UI                    
@@ -56,6 +60,6 @@ HarmonyOS应用框架提供了组件复用能力：可复用组件树上移除�
 ## 约束与限制
 
 * 本示例仅支持标准系统上运行，支持设备：华为手机。
-* HarmonyOS系统：HarmonyOS 5.0.0 Release及以上。
-* DevEco Studio版本：DevEco Studio 5.0.0 Release及以上。
-* HarmonyOS SDK版本：HarmonyOS 5.0.0 Release SDK及以上。
+* HarmonyOS系统：HarmonyOS 5.0.5 Release及以上。
+* DevEco Studio版本：DevEco Studio 5.0.5 Release及以上。
+* HarmonyOS SDK版本：HarmonyOS 5.0.5 Release SDK及以上。

@@ -40,9 +40,10 @@
 
 ### 工程目录
 ```
-entry/src/main/ets/s
+entry/src/main/ets
 |---common
-|   |---BreakpointSystem.ets                    
+|   |---BreakpointSystem.ets
+|   |---ColorEntity.ets                 
 |   |---DirectoryList.ets
 |   |---GetValueOnBreakpoint.ets
 |---MainAbility
@@ -89,6 +90,7 @@ entry/src/main/ets/s
 |   |---responsiveLayout
 |   |   |---ResponsiveLayoutIndex.ets                    
 |   |   |---breakpoint
+|   |   |   |---Breakpoint.ets                           // 断点类
 |   |   |   |---BreakpointSample.ets                     // 断点
 |   |   |---mediaQuery
 |   |   |   |---MediaQuerySample.ets                     // 媒体查询
@@ -148,9 +150,9 @@ entry/src/main/ets/s
 ### 约束与限制
 
 1. 本示例仅支持标准系统上运行，支持设备：华为手机、平板。
-2. HarmonyOS系统：HarmonyOS 5.0.3 Release及以上。
-3. DevEco Studio版本：DevEco Studio 5.0.3 Release及以上。
-4. HarmonyOS SDK版本：HarmonyOS 5.0.3 Release SDK及以上。
+2. HarmonyOS系统：HarmonyOS 5.0.5 Release及以上。
+3. DevEco Studio版本：DevEco Studio 5.0.5 Release及以上。
+4. HarmonyOS SDK版本：HarmonyOS 5.0.5 Release SDK及以上。
 
 ````
 # 将开发板文件系统的权限配置为可读写

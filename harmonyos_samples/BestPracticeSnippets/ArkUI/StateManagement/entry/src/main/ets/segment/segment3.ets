@@ -13,12 +13,18 @@
  *  limitations under the License.
  */
 
+@Builder
+export function Segment03Builder() {
+  NavDestination(){
+    UnnecessaryState1()
+  }
+}
 // [Start Case1_start]
 @Observed
 class Translate {
   translateX: number = 20;
 }
-@Entry
+
 @Component
 struct UnnecessaryState1 {
   @State translateObj: Translate = new Translate(); // If there are both read and write operations and a Button component is associated with it, it is recommended to use state variables.

@@ -56,7 +56,7 @@ export struct CommonTipsDialog {
         Logger.error(TAG, `Failed to start ability by promise. Code: ${error.code}.`);
       })
     } catch (error) {
-      Logger.error(TAG, `Failed to start ability by catch. Code: ${error.code}.`);
+      Logger.error(TAG, `Failed to start ability by catch. Code: ${error?.code}.`);
     }
 
   }

@@ -69,7 +69,7 @@ export class WindowServiceV2 {
         })
         Logger.info(TAG, 'Succeeded in on windowSizeChange by windowObj');
       } catch (error) {
-        Logger.error(TAG, `Failed to on windowSizeChange by windowObj. Code: ${error.code}`);
+        Logger.error(TAG, `Failed to on windowSizeChange by windowObj. Code: ${error?.code}`);
       }
     }
   }
@@ -89,7 +89,7 @@ export class WindowServiceV2 {
         });
         Logger.info(TAG, 'Succeeded in on avoidAreaChange by windowObj');
       } catch (error) {
-        Logger.error(TAG, `Failed to on avoidAreaChange by windowObj. Code: ${error.code}`);
+        Logger.error(TAG, `Failed to on avoidAreaChange by windowObj. Code: ${error?.code}`);
       }
     }
   }
@@ -100,7 +100,7 @@ export class WindowServiceV2 {
         this.windowObj.off('avoidAreaChange');
         Logger.info(TAG, 'Succeeded in off avoidAreaChange by windowObj');
       } catch (error) {
-        Logger.error(TAG, `Failed to off avoidAreaChange by windowObj. Code: ${error.code}`);
+        Logger.error(TAG, `Failed to off avoidAreaChange by windowObj. Code: ${error?.code}`);
       }
     }
   }
@@ -111,7 +111,7 @@ export class WindowServiceV2 {
         this.windowObj.off('windowSizeChange');
         Logger.info(TAG, 'Succeeded in off windowSizeChange by windowObj');
       } catch (error) {
-        Logger.error(TAG, `Failed to off windowSizeChange by windowObj. Code: ${error.code}`);
+        Logger.error(TAG, `Failed to off windowSizeChange by windowObj. Code: ${error?.code}`);
       }
     }
   }
@@ -122,11 +122,11 @@ export class WindowServiceV2 {
         let avoidArea: window.AvoidArea = this.windowObj.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);
         this.topAvoidHeight = UIContextSelf.uiContext.px2vp(avoidArea.topRect.height + avoidArea.topRect.top);
         Logger.info(TAG,
-          `Succeed in getting topAvoidHeight by windowObj. topAvoidHeight: ${this.topAvoidHeight}`);
+          `Succeeded in getting topAvoidHeight by windowObj. topAvoidHeight: ${this.topAvoidHeight}`);
       } catch (error) {
         // If the value fails to be obtained, use the default value of the top avoid area height.
         this.topAvoidHeight = CommonConstants.TOP_AVOID_HEIGHT_DEFAULT;
-        Logger.error(TAG, `Failed to getWindowAvoidArea by windowObj. Code: ${error.code}`);
+        Logger.error(TAG, `Failed to getWindowAvoidArea by windowObj. Code: ${error?.code}`);
       }
     }
   }
@@ -136,7 +136,7 @@ export class WindowServiceV2 {
       try {
         let windowRect: window.Rect = this.windowObj.getWindowProperties().windowRect;
         Logger.info(TAG,
-          `Succeed in getting windowRect by windowObj. width: ${windowRect.width}, height: ${windowRect.height}`);
+          `Succeeded in getting windowRect by windowObj. width: ${windowRect.width}, height: ${windowRect.height}`);
         this.emitWindowSize({
           width: windowRect.width,
           height: windowRect.height
@@ -183,7 +183,7 @@ export class WindowServiceV2 {
           Logger.error(TAG, `Failed to setWindowLayoutFullScreen. Code: ${error.code}`);
         })
       } catch (error) {
-        Logger.error(TAG, `Failed to setWindowLayoutFullScreen. Code: ${error.code}`);
+        Logger.error(TAG, `Failed to setWindowLayoutFullScreen. Code: ${error?.code}`);
       }
     }
   }

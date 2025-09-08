@@ -76,7 +76,7 @@ export struct ScanLine {
         end: 100
       }); // Scanning line animation.
     } catch (error) {
-      Logger.error(TAG, `Failed to create animator. Code: ${error.code}`);
+      Logger.error(TAG, `Failed to create animator. Code: ${error?.code}`);
     }
 
     if (this.backAnimator) {
@@ -109,7 +109,7 @@ export struct ScanLine {
         this.backAnimator.play();
       }
     } catch (error) {
-      Logger.error(TAG, `Failed to play backAnimator. Code: ${error.code}`);
+      Logger.error(TAG, `Failed to play backAnimator. Code: ${error?.code}`);
     }
   }
 

@@ -10,6 +10,7 @@ export default class EntryAbility extends UIAbility {
     webview.WebviewController.initializeWebEngine();
     // When pre-connecting, you need to replace' https://www.example.com' with the actual website address to visit
     // Specify that the second parameter is true, which means to pre-connect. If it is false, the interface will only pre-resolve the URL.
+    // 第三个参数numSockets，取值范围1-6，超过6按照6处理
     webview.WebviewController.prepareForPageLoad('https://www.example.com/', true, 2);
     AppStorage.setOrCreate('abilityWant', want);
     console.log('EntryAbility onCreate done');

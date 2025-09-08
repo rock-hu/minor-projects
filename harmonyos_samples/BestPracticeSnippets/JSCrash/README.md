@@ -11,21 +11,22 @@
 
 ### 工程目录
 ```
-.
-└── entry
-    └── src
-        └── main
-            └── ets
-                └── pages
-                    ├── Index.ets
-                    ├── JSCrashCaseAnalyse1.ets    ArkTS 样例代码
-                    ├── JSCrashCaseAnalyse2.ets    ArkTS 样例代码
-                    ├── JSCrashCaseAnalyse3.ets    ArkTS 样例代码
-                    ├── JSCrashCaseAnalyse4.ets    ArkTS 样例代码
-                    ├── JSCrashCaseAnalyse5.ets    ArkTS 样例代码
-                    ├── JSCrashCaseAnalyse6.ets    ArkTS 样例代码
-                    ├── JSCrashQuestionCheck.ets    ArkTS 样例代码
-                    └── utils.ets    ArkTS 样例代码
+├──entry/src/main/ets                                   // 代码区
+│  ├──entryability
+│  │  └──EntryAbility.ets                               // 程序入口类
+│  ├──entrybackupability
+│  │  └──EntryBackupAbility.ets
+│  └──pages             
+│     ├──Index.ets                                      // 首页     
+│     ├── JSCrashCaseAnalyse1.ets                       // ArkTS样例代码
+│     ├── JSCrashCaseAnalyse2.ets                       // ArkTS样例代码 
+│     ├── JSCrashCaseAnalyse3.ets                       // ArkTS样例代码 
+│     ├── JSCrashCaseAnalyse4.ets                       // ArkTS样例代码 
+│     ├── JSCrashCaseAnalyse5.ets                       // ArkTS样例代码 
+│     ├── JSCrashCaseAnalyse6.ets                       // ArkTS样例代码 
+│     ├── JSCrashQuestionCheck.ets                      // ArkTS样例代码 
+│     └── utils.ets                                     // 工具类                              
+└──entry/src/main/resources                             // 应用资源目录
 ```
 
 ### 具体实现

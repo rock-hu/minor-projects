@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-
 @Entry
 @Component
 struct Index {

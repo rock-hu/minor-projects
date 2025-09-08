@@ -43,7 +43,7 @@ function WebBuilder(data:Data) {
 let wrap = wrapBuilder<Data[]>(WebBuilder);
 
 // Used to control and feedback the behavior of nodes on the corresponding NodeContainer, which needs to be used together with NodeContainer
-export class myNodeController extends NodeController {
+export class MyNodeController extends NodeController {
   private rootNode: BuilderNode<Data[]> | null = null;
   private root: FrameNode | null = null;
 
@@ -96,14 +96,14 @@ export class myNodeController extends NodeController {
 }
 
 // Create the NodeController needed for Map saving.
-let NodeMap:Map<string, myNodeController | undefined> = new Map();
+let NodeMap:Map<string, MyNodeController | undefined> = new Map();
 // Create WebViewController needed for Map saving.
 let controllerMap:Map<string, WebviewController | undefined> = new Map();
 
 // Initialization requires UIContext to be obtained in Ability.
 export const createNWeb = (url: string, uiContext: UIContext) => {
   // Create NodeController
-  let baseNode = new myNodeController();
+  let baseNode = new MyNodeController();
   let controller = new webview.WebviewController() ;
   // Initialize a custom web component
   baseNode.initWeb(url, uiContext, controller);
@@ -112,7 +112,7 @@ export const createNWeb = (url: string, uiContext: UIContext) => {
 }
 
 // Customize to get the NodeController interface.
-export const getNWeb = (url : string) : myNodeController | undefined => {
+export const getNWeb = (url : string) : MyNodeController | undefined => {
   return NodeMap.get(url);
 }
 // [End create_node_controller]

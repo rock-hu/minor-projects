@@ -35,41 +35,25 @@
 
 ### 工程目录
 ```
-/code/SuperFeature/MultiDeviceAppDev/Weather/product/default
-└─src
-    ├─main
-    │  │
-    │  ├─ets
-    │  │  ├─Application
-    │  │  │      MyAbilityStage.ts          //自定义ability
-    │  │  │
-    │  │  ├─common                          //公共资源库
-    │  │  ├─feature
-    │  │  │      AirQualityFeature.ts       //空气绘画
-    │  │  │      SunCanvasFeature.ts        //晴天绘画
-    │  │  │
-    │  │  ├─MainAbility
-    │  │  │      MainAbility.ts             //主窗口
-    │  │  │
-    │  │  └─pages
-    │  │      │  AddCity.ets                //添加城市
-    │  │      │  CityList.ets               //城市列表
-    │  │      │  Home.ets                   //入口
-    │  │      │
-    │  │      └─home
-    │  │              AirQuality.ets         //空气质量
-    │  │              HomeContent.ets        //主页面
-    │  │              HoursWeather.ets       //每小时天气组件
-    │  │              IndexEnd.ets           //首页尾 
-    │  │              IndexHeader.ets        //首页头
-    │  │              IndexTitleBar.ets      //首页标题
-    │  │              LifeIndex.ets          //生活建议
-    │  │              MultidayWeather.ets    //天气组件
-    │  │              SideContent.ets        //侧边栏
-    │  │              SunCanvas.ets          //晴天样式
-    │  │              UpdateTimeDialog.ets   //时间更新弹窗
-    │  │
-    │  └─resources                           //资源包                                             
+├──Weather/product/default/src/main/ets  
+│  ├──feature
+│  │  └──AirQualityFeature.ts         // 空气绘画
+│  │    └──SunCanvasFeature.ts        // 晴天绘画
+│  └──pages
+│     ├──AddCity.ets                  // 添加城市
+│     ├──CityList.ets                 // 城市列表
+│     ├──Home.ets                     // 入口
+│     ├──AirQuality.ets               // 空气质量
+│     ├──HomeContent.ets              // 主页面
+│     ├──HoursWeather.ets             // 每小时天气组件
+│     ├──IndexEnd.ets                 // 首页尾 
+│     ├──IndexHeader.ets              // 首页头
+│     ├──IndexTitleBar.ets            // 首页标题
+│     ├──LifeIndex.ets                // 生活建议
+│     ├──MultidayWeather.ets          // 天气组件
+│     ├──SideContent.ets              // 侧边栏
+│     ├──SunCanvas.ets                // 晴天样式
+│     └──UpdateTimeDialog.ets         // 时间更新弹窗                                        
 ```
 
 ### 具体实现
@@ -86,13 +70,14 @@
 
 不涉及。
 
-###  约束与限制
+## 约束与限制
+* 本示例仅支持标准系统上运行，支持设备：华为手机。
 
-1.本示例仅支持标准系统上运行。
+* HarmonyOS系统：HarmonyOS 5.0.5 Release及以上。
 
-2.本示例已适配API version 9版本SDK，版本号：3.2.11.9。
+* DevEco Studio版本：DevEco Studio 5.0.5 Release及以上。
 
-3.本示例需要使用DevEco Studio 3.1 Beta2 (Build Version: 3.1.0.400, built on April 7, 2023)及以上版本才可编译运行。
+* HarmonyOS SDK版本：HarmonyOS 5.0.5 Release SDK及以上。
 
 ### 下载
 

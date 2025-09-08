@@ -1,6 +1,22 @@
+/*
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 // [Start quick_start]
 import { CommonConstants } from "../common/constants/CommonConstants";
 import { SectionsWaterFlowDataSource } from "../model/SectionsWaterFlowDataSource";
+
 // [StartExclude flow_item_layout]
 @Reusable
 struct ReusableFlowItem {
@@ -58,6 +74,7 @@ struct ReusableFlowItem {
     .backgroundColor(Color.Gray)
   }
 }
+
 // [EndExclude flow_item_layout]
 @Entry
 @Component
@@ -72,7 +89,6 @@ struct DataUpadteAndAnimationPage {
   private itemHeightArray: number[] = [];
   @State sections: WaterFlowSections = new WaterFlowSections();
   @StorageProp(CommonConstants.AS_KEY_STATUS_BAR_HEIGHT) statusBarHeight: number = 0;
-
   sectionMargin: Margin = {
     top: 8,
     left: 16,
@@ -105,6 +121,7 @@ struct DataUpadteAndAnimationPage {
       return this.itemHeightArray[index % 100];
     }
   };
+
   // [EndExclude variable_declare]
   // 1、Refresh Loading Animation Component.
   @Builder
@@ -120,7 +137,7 @@ struct DataUpadteAndAnimationPage {
   }
 
   // 5、Pull down to refresh the data update logic.
-  refresh() {
+  refresh(): void {
     this.currentItem = -1;
     setTimeout(() => {
       // Add new data.
@@ -144,7 +161,7 @@ struct DataUpadteAndAnimationPage {
     }, 2000);
   }
 
-  loadMore(last: number) {
+  loadMore(last: number): void {
     setTimeout(() => {
       let totalCount = this.dataSource.totalCount();
       if (last + 20 >= totalCount) {
@@ -157,19 +174,20 @@ struct DataUpadteAndAnimationPage {
       }
     }, 1000);
   }
+
   // [StartExclude section_init]
-  getSize() {
+  getSize(): number {
     let ret = Math.floor(Math.random() * this.maxSize);
     return (ret > this.minSize ? ret : this.minSize);
   }
 
-  setItemSizeArray() {
+  setItemSizeArray(): void {
     for (let i = 0; i < 100; i++) {
       this.itemHeightArray.push(this.getSize());
     }
   }
 
-  initSections() {
+  initSections(): void {
     let sectionOptions: SectionOptions[] = [];
     let count = 0;
     let oneOrTwo = 0;
@@ -198,7 +216,7 @@ struct DataUpadteAndAnimationPage {
     let newSection: SectionOptions;
     let tmpIndex = 0;
     let sectionIndex = 0;
-    for(let i = 0; i < sections.length; i++) {
+    for (let i = 0; i < sections.length; i++) {
       tmpIndex += sections[i].itemsCount;
       if (index < tmpIndex) {
         sectionIndex = i;
@@ -217,6 +235,7 @@ struct DataUpadteAndAnimationPage {
     this.setItemSizeArray();
     this.initSections();
   }
+
   // [EndExclude section_init]
   build() {
     Column({ space: 0 }) {
@@ -225,16 +244,17 @@ struct DataUpadteAndAnimationPage {
           .width('100%')
           .fontSize(24)
           .fontWeight(FontWeight.Bold)
-          .margin({ top: '18vp', left: '16vp', bottom: '8vp'})
+          .margin({ top: '18vp', left: '16vp', bottom: '8vp' })
       }
+
       // 2、Pull-to-refresh control.
-      Refresh({ refreshing: $$this.isRefreshing, builder: this.headerRefresh()}) {
+      Refresh({ refreshing: $$this.isRefreshing, builder: this.headerRefresh() }) {
         // [StartExclude water_flow_init]
         WaterFlow({ scroller: this.scroller, sections: this.sections }) {
           LazyForEach(this.dataSource, (item: number) => {
             FlowItem() {
               Stack() {
-                Row(){
+                Row() {
                   Button('Delete')
                     .fontColor(Color.Red)
                     .backgroundColor(Color.White)
@@ -251,6 +271,7 @@ struct DataUpadteAndAnimationPage {
                 .zIndex(1)
                 .visibility(this.currentItem === item ? Visibility.Visible : Visibility.Hidden)
                 .backgroundColor('#33000000')
+
                 ReusableFlowItem({ item: item })
               }
             }
@@ -288,4 +309,5 @@ struct DataUpadteAndAnimationPage {
     })
   }
 }
+
 // [End quick_start]

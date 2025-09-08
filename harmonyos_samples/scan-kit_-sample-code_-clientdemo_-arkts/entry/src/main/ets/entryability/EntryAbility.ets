@@ -20,7 +20,7 @@ export default class EntryAbility extends UIAbility {
     try {
       DeviceService.isFolding = display.isFoldable();
     } catch (error) {
-      Logger.error(`Failed to invoke an API of isFoldable. Code: ${error.code}`);
+      Logger.error(`Failed to invoke an API of isFoldable. Code: ${error?.code}`);
     }
     // Obtain the uri field from the want information.
     let uri = want?.uri;
@@ -70,13 +70,13 @@ export default class EntryAbility extends UIAbility {
             Logger.error(TAG, `Failed to load the content. Code: ${error.code}.`);
           })
         } catch (error) {
-          Logger.error(TAG, `Failed to load the content. Code: ${error.code}.`);
+          Logger.error(TAG, `Failed to load the content. Code: ${error?.code}.`);
         }
       }).catch((error: BusinessError) => {
         Logger.error(TAG, `Failed to get getMainWindow by windowStage. Code: ${error.code}.`);
       });
     } catch (error) {
-      Logger.error(TAG, `Failed to get getMainWindow by windowStage. Code: ${error.code}.`);
+      Logger.error(TAG, `Failed to get getMainWindow by windowStage. Code: ${error?.code}.`);
     }
   }
 
@@ -93,7 +93,7 @@ export default class EntryAbility extends UIAbility {
           url: 'pages/access/ScanAccess'
         });
       } catch (error) {
-        Logger.error(TAG, `Failed to pushUrl. Code: ${error.code}.`);
+        Logger.error(TAG, `Failed to pushUrl. Code: ${error?.code}.`);
       }
     }
   }

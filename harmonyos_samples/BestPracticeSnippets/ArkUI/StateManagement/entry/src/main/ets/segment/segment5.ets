@@ -12,7 +12,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
+@Builder
+export function Segment05Builder() {
+  NavDestination(){
+    UnnecessaryState2()
+  }
+}
 // [Start Case2_start]
 @Entry
 @Component
